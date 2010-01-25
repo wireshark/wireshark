@@ -1895,15 +1895,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	}
 
 	/* Initialise stat info for passing to tap */
-	stat_info = ep_alloc(sizeof(sip_info_value_t));
-	stat_info->response_code = 0;
-	stat_info->request_method = NULL;
-	stat_info->reason_phrase = NULL;
-	stat_info->resend = 0;
-	stat_info->setup_time = 0;
-	stat_info->tap_call_id = NULL;
-	stat_info->tap_from_addr = NULL;
-	stat_info->tap_to_addr = NULL;
+	stat_info = ep_alloc0(sizeof(sip_info_value_t));
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIP");
 
@@ -3411,12 +3403,6 @@ guint sip_is_packet_resend(packet_info *pinfo,
 		/* Allocate a new key and value */
 		p_key = se_alloc(sizeof(sip_hash_key));
 		p_val = se_alloc(sizeof(sip_hash_value));
-
-		/* Just give up if allocations failed */
-		if (!p_key || !p_val)
-		{
-			return 0;
-		}
 
 		/* Fill in key and value details */
 		g_snprintf(p_key->call_id, MAX_CALL_ID_SIZE, "%s", call_id);

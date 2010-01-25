@@ -8248,23 +8248,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
       sample_info_max = 1024;	/* Max size of sampleInfo shown */
     }
     sample_info_flags = (guint16 *)ep_alloc(sizeof(guint16) * sample_info_max);
-    if (sample_info_flags == NULL) {
-      proto_tree_add_text(tree,
-                        tvb,
-                        offset,
-                        2,
-                        "out of memory allocating sample_info_flags");
-      return;
-    }
     sample_info_length = (guint32 *)ep_alloc(sizeof(guint32) * sample_info_max);
-    if (sample_info_length == NULL) {
-      proto_tree_add_text(tree,
-                        tvb,
-                        offset,
-                        2,
-                        "out of memory allocating sample_info_length");
-      return;
-    }
 
     /* Sample Info List: start decoding the sample info list until the offset
      * is greater or equal than 'sampleListOffset' */

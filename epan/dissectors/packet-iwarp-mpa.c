@@ -208,27 +208,10 @@ typedef struct mpa_state mpa_state_t;
 static mpa_state_t *
 init_mpa_state(void)
 {
-	mpa_state_t *state= NULL;
-	guint i;
+	mpa_state_t *state;
 
-	state = (mpa_state_t *) se_alloc(sizeof(mpa_state_t));
-
-	if (state != NULL) {
-		state->full_operation = FALSE;
-		state->req_frame_num = 0;
-		state->rep_frame_num = 0;
-		state->ini_exp_m_res = FALSE;
-		state->res_exp_m_ini = FALSE;
-		for (i=0; i<2; i++) {
-			state->minfo[i].port = 0;
-			state->minfo[i].seq = 0;
-			state->minfo[i].valid = FALSE;
-		}
-		state->crc = FALSE;
-		state->revision = -1;
-	} else {
-		THROW(OutOfMemoryError);
-	}
+	state = (mpa_state_t *) se_alloc0(sizeof(mpa_state_t));
+	state->revision = -1;
 	return state;
 }
 

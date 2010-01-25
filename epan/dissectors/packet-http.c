@@ -549,9 +549,6 @@ get_http_conversation_data(packet_info *pinfo)
 		/* Setup the conversation structure itself */
 		conv_data = se_alloc0(sizeof(http_conv_t));
 
-		conv_data->request_method = NULL;
-	 	conv_data->request_uri = NULL;
-
 		conversation_add_proto_data(conversation, proto_http,
 					    conv_data);
 	}

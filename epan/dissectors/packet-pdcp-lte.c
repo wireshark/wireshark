@@ -1396,9 +1396,6 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     if (p_pdcp_lte_info == NULL) {
         /* Allocate new info struct for this frame */
         p_pdcp_lte_info = se_alloc0(sizeof(struct pdcp_lte_info));
-        if (p_pdcp_lte_info == NULL) {
-            return FALSE;
-        }
         infoAlreadySet = FALSE;
     }
     else {

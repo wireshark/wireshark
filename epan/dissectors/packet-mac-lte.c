@@ -701,9 +701,6 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     if (p_mac_lte_info == NULL) {
         /* Allocate new info struct for this frame */
         p_mac_lte_info = se_alloc0(sizeof(struct mac_lte_info));
-        if (p_mac_lte_info == NULL) {
-            return FALSE;
-        }
         infoAlreadySet = FALSE;
     }
     else {
@@ -1179,9 +1176,6 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     /* Resuse or create RLC info */
     p_rlc_lte_info = p_get_proto_data(pinfo->fd, proto_rlc_lte);
-    if (p_rlc_lte_info == NULL) {
-        p_rlc_lte_info = se_alloc0(sizeof(struct rlc_lte_info));
-    }
 
     /* Fill in struct details for srb channels */
     p_rlc_lte_info->rlcMode = mode;

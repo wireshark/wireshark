@@ -3693,13 +3693,9 @@ dcm_state_new(void)
 {
     /* Not much fun. Just create very simple root structure */
 
-    dcm_state_t *ds=NULL;
+    dcm_state_t *ds;
 
     ds = (dcm_state_t *) se_alloc0(sizeof(dcm_state_t));
-    if (ds) {
-	ds->first_assoc=NULL;
-	ds->last_assoc=NULL;
-    }
     return ds;
 }
 
@@ -3732,9 +3728,7 @@ dcm_state_get(packet_info *pinfo, gboolean create)
     if (dcm_data == NULL && create) {
 
 	dcm_data = dcm_state_new();
-	if (dcm_data != NULL) {
-	    conversation_add_proto_data(conv, proto_dcm, dcm_data);
-	}
+        conversation_add_proto_data(conv, proto_dcm, dcm_data);
 
 	/*  Mark it as DICOM conversation. Needed for the heuristic mode,
 	    to prevent stealing subsequent packets by other dissectors
@@ -3754,25 +3748,17 @@ dcm_state_assoc_new(dcm_state_t *dcm_data, guint32 packet_no)
     dcm_state_assoc_t *assoc;
 
     assoc = (dcm_state_assoc_t *) se_alloc0(sizeof(dcm_state_assoc_t));
-    if (assoc) {
+    assoc->packet_no = packet_no;	    /* Identifier */
 
-	assoc->next = NULL;
-	assoc->prev = NULL;
-	assoc->packet_no = packet_no;	    /* Identifier */
-
-	assoc->first_pctx = NULL;	    /* List of Presentation context objects */
-	assoc->last_pctx  = NULL;
-
-	/* add to the end of the list */
-	if (dcm_data->last_assoc) {
-	    dcm_data->last_assoc->next = assoc;
-	    assoc->prev = dcm_data->last_assoc;
-	}
-	else {
-	    dcm_data->first_assoc = assoc;
-	}
-	dcm_data->last_assoc = assoc;
+    /* add to the end of the list */
+    if (dcm_data->last_assoc) {
+        dcm_data->last_assoc->next = assoc;
+        assoc->prev = dcm_data->last_assoc;
     }
+    else {
+        dcm_data->first_assoc = assoc;
+    }
+    dcm_data->last_assoc = assoc;
     return assoc;
 }
 
@@ -3816,32 +3802,18 @@ dcm_state_pctx_new(dcm_state_assoc_t *assoc, guint8 pctx_id)
     dcm_state_pctx_t *pctx=NULL;
 
     pctx = se_alloc0(sizeof(dcm_state_pctx_t));
-    if (pctx) {
+    pctx->id = pctx_id;
+    pctx->syntax = DCM_UNK;
 
-	pctx->next = NULL;
-	pctx->prev = NULL;
-
-	pctx->id = pctx_id;
-
-	pctx->abss_uid = NULL;
-	pctx->abss_desc = NULL;
-	pctx->xfer_uid = NULL;
-	pctx->xfer_desc = NULL;
-	pctx->syntax = DCM_UNK;
-
-	pctx->first_pdv = NULL;	    /* List of PDV objects */
-	pctx->last_pdv  = NULL;
-
-	/* add to the end of the list list */
-	if (assoc->last_pctx) {
-	    assoc->last_pctx->next = pctx;
-	    pctx->prev = assoc->last_pctx;
-	}
-	else {
-	    assoc->first_pctx = pctx;
-	}
-	assoc->last_pctx = pctx;
+    /* add to the end of the list list */
+    if (assoc->last_pctx) {
+        assoc->last_pctx->next = pctx;
+        pctx->prev = assoc->last_pctx;
     }
+    else {
+        assoc->first_pctx = pctx;
+    }
+    assoc->last_pctx = pctx;
 
     return pctx;
 }
@@ -3880,58 +3852,20 @@ dcm_state_pdv_new(dcm_state_pctx_t *pctx, guint32 packet_no, guint32 offset)
     dcm_state_pdv_t *pdv = NULL;
 
     pdv = (dcm_state_pdv_t *) se_alloc0(sizeof(dcm_state_pdv_t));
-    if (pdv != NULL) {
+    pdv->syntax = DCM_UNK;
+    pdv->is_last_fragment = TRUE;	/* Continuation PDVs are more tricky */
+    pdv->packet_no = packet_no;
+    pdv->offset = offset;
 
-	pdv->prev = NULL;
-	pdv->next = NULL;
-
-	pdv->data = NULL;
-	pdv->data_len = 0;
-	pdv->pctx_id = 0;
-	pdv->syntax = DCM_UNK;
-
-	pdv->desc = NULL;
-
-	pdv->sop_class_uid = NULL;
-	pdv->sop_instance_uid = NULL;
-
-	pdv->is_storage = FALSE;
-	pdv->is_flagvalid = FALSE;
-	pdv->is_command = FALSE;
-	pdv->is_last_fragment = TRUE;	/* Continuation PDVs are more tricky */
-	pdv->is_corrupt = FALSE;
-
-	pdv->packet_no = packet_no;
-	pdv->offset = offset;
-
-	pdv->status = NULL;
-	pdv->command = NULL;
-	pdv->comment = NULL;
-	pdv->is_warning = FALSE;
-
-	pdv->message_id = 0;
-	pdv->message_id_resp = 0;
-	pdv->no_remaining = 0;
-	pdv->no_completed = 0;
-	pdv->no_failed = 0;
-	pdv->no_warning = 0;
-
-	pdv->open_tag.is_header_fragmented = FALSE;
-	pdv->open_tag.is_value_fragmented = FALSE;
-	pdv->open_tag.desc = NULL;
-	pdv->open_tag.len_total = 0;
-	pdv->open_tag.len_remaining = 0;
-
-	/* add to the end of the list list */
-	if (pctx->last_pdv) {
-	    pctx->last_pdv->next = pdv;
-	    pdv->prev = pctx->last_pdv;
-	}
-	else {
-	    pctx->first_pdv = pdv;
-	}
-	pctx->last_pdv = pdv;
+    /* add to the end of the list list */
+    if (pctx->last_pdv) {
+        pctx->last_pdv->next = pdv;
+        pdv->prev = pctx->last_pdv;
     }
+    else {
+        pctx->first_pdv = pdv;
+    }
+    pctx->last_pdv = pdv;
     return pdv;
 }
 

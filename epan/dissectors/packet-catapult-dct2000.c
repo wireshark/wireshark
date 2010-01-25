@@ -1197,9 +1197,6 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
 
     /* Allocate struct */
     p_fp_info = se_alloc0(sizeof(struct fp_info));
-    if (!p_fp_info) {
-        return;
-    }
 
     /* Check that the number of outhdr values looks sensible */
     if (((strcmp(protocol_name, "fpiur_r5") == 0) && (outhdr_values_found != 2)) ||
@@ -1367,9 +1364,6 @@ static void attach_mac_lte_info(packet_info *pinfo)
 
     /* Allocate & zero struct */
     p_mac_lte_info = se_alloc0(sizeof(struct mac_lte_info));
-    if (p_mac_lte_info == NULL) {
-        return;
-    }
 
     /* Populate the struct from outhdr values */
     p_mac_lte_info->crcStatusValid = FALSE;
@@ -1416,9 +1410,6 @@ static void attach_rlc_lte_info(packet_info *pinfo)
 
     /* Allocate & zero struct */
     p_rlc_lte_info = se_alloc0(sizeof(struct rlc_lte_info));
-    if (p_rlc_lte_info == NULL) {
-        return;
-    }
 
     p_rlc_lte_info->rlcMode = outhdr_values[i++];
     p_rlc_lte_info->direction = outhdr_values[i++];
@@ -1448,9 +1439,6 @@ static void attach_pdcp_lte_info(packet_info *pinfo)
 
     /* Allocate & zero struct */
     p_pdcp_lte_info = se_alloc0(sizeof(struct pdcp_lte_info));
-    if (p_pdcp_lte_info == NULL) {
-        return;
-    }
 
     p_pdcp_lte_info->no_header_pdu = outhdr_values[i++];
     p_pdcp_lte_info->plane = outhdr_values[i++];
@@ -1552,9 +1540,6 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
 
         /* Allocate & zero struct */
         p_mac_lte_info = se_alloc0(sizeof(struct mac_lte_info));
-        if (p_mac_lte_info == NULL) {
-            return;
-        }
 
         /* This indicates to MAC dissector that it has an oob event */
         p_mac_lte_info->length = 0;

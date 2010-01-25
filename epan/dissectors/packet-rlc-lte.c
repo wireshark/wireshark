@@ -364,9 +364,6 @@ static void show_AM_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *
             if (p_pdcp_lte_info == NULL) {
                 p_pdcp_lte_info = se_alloc0(sizeof(struct pdcp_lte_info));
             }
-            if (p_pdcp_lte_info == NULL) {
-                return;
-            }
 
             p_pdcp_lte_info->channelType = Channel_DCCH;
             p_pdcp_lte_info->direction = rlc_info->direction;
@@ -603,11 +600,6 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
         /* Allocate a new key and value */
         p_channel_key = se_alloc(sizeof(rlc_channel_hash_key));
         p_channel_status = se_alloc0(sizeof(rlc_channel_status));
-
-        /* Just give up if allocations failed */
-        if (!p_channel_key || !p_channel_status) {
-            return;
-        }
 
         /* Copy key contents */
         memcpy(p_channel_key, &channel_key, sizeof(rlc_channel_hash_key));
@@ -1201,9 +1193,6 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     if (p_rlc_lte_info == NULL) {
         /* Allocate new info struct for this frame */
         p_rlc_lte_info = se_alloc0(sizeof(struct rlc_lte_info));
-        if (p_rlc_lte_info == NULL) {
-            return FALSE;
-        }
         infoAlreadySet = FALSE;
     }
     else {

@@ -204,12 +204,7 @@ void msrp_add_address( packet_info *pinfo,
 	 */
 	if (!p_conv_data) {
 		/* Create conversation data */
-		p_conv_data = se_alloc(sizeof(struct _msrp_conversation_info));
-		if (!p_conv_data)
-		{
-			return;
-		}
-		memset(p_conv_data, 0, sizeof(struct _msrp_conversation_info));
+		p_conv_data = se_alloc0(sizeof(struct _msrp_conversation_info));
 		conversation_add_proto_data(p_conv, proto_msrp, p_conv_data);
 	}
 
@@ -250,10 +245,6 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			{
 				/* Save this conversation info into packet info */
 				p_conv_packet_data = se_alloc(sizeof(struct _msrp_conversation_info));
-				if (!p_conv_packet_data)
-				{
-					return;
-				}
 				memcpy(p_conv_packet_data, p_conv_data,
 				       sizeof(struct _msrp_conversation_info));
 

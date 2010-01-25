@@ -569,12 +569,7 @@ void srtcp_add_address( packet_info *pinfo,
 	 */
 	if ( ! p_conv_data ) {
 		/* Create conversation data */
-		p_conv_data = se_alloc(sizeof(struct _rtcp_conversation_info));
-		if (!p_conv_data)
-		{
-			return;
-		}
-		memset(p_conv_data, 0, sizeof(struct _rtcp_conversation_info));
+		p_conv_data = se_alloc0(sizeof(struct _rtcp_conversation_info));
 		conversation_add_proto_data(p_conv, proto_rtcp, p_conv_data);
 	}
 
@@ -2199,10 +2194,6 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			{
 				/* Save this conversation info into packet info */
 				p_conv_packet_data = se_alloc(sizeof(struct _rtcp_conversation_info));
-				if (!p_conv_packet_data)
-				{
-					return;
-				}
 				memcpy(p_conv_packet_data, p_conv_data,
 				       sizeof(struct _rtcp_conversation_info));
 
@@ -2292,13 +2283,7 @@ static void remember_outgoing_sr(packet_info *pinfo, long lsr)
 	if (!p_conv_data)
 	{
 		/* Allocate memory for data */
-		p_conv_data = se_alloc(sizeof(struct _rtcp_conversation_info));
-		if (!p_conv_data)
-		{
-			/* Give up if couldn't allocate space for memory */
-			return;
-		}
-		memset(p_conv_data, 0, sizeof(struct _rtcp_conversation_info));
+		p_conv_data = se_alloc0(sizeof(struct _rtcp_conversation_info));
 
 		/* Add it to conversation. */
 		conversation_add_proto_data(p_conv, proto_rtcp, p_conv_data);
@@ -2318,13 +2303,7 @@ static void remember_outgoing_sr(packet_info *pinfo, long lsr)
 	/* Will use/create packet info */
 	if (!p_packet_data)
 	{
-		p_packet_data = se_alloc(sizeof(struct _rtcp_conversation_info));
-		if (!p_packet_data)
-		{
-			/* Give up if allocation fails */
-			return;
-		}
-		memset(p_packet_data, 0, sizeof(struct _rtcp_conversation_info));
+		p_packet_data = se_alloc0(sizeof(struct _rtcp_conversation_info));
 
 		p_add_proto_data(pinfo->fd, proto_rtcp, p_packet_data);
 	}
@@ -2393,14 +2372,7 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 		if (!p_packet_data)
 		{
 			/* Create packet info if it doesn't exist */
-			p_packet_data = se_alloc(sizeof(struct _rtcp_conversation_info));
-			if (!p_packet_data)
-			{
-				/* Give up if allocation fails */
-				return;
-			}
-
-			memset(p_packet_data, 0, sizeof(struct _rtcp_conversation_info));
+			p_packet_data = se_alloc0(sizeof(struct _rtcp_conversation_info));
 
 			/* Set as packet info */
 			p_add_proto_data(pinfo->fd, proto_rtcp, p_packet_data);

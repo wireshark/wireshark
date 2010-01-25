@@ -175,10 +175,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /*
        * No - create one and attach it.
        */
-      data_val = se_alloc(sizeof(struct pop_data_val));
-      data_val->msg_request = FALSE;
-      data_val->msg_read_len = 0;
-      data_val->msg_tot_len = 0;
+      data_val = se_alloc0(sizeof(struct pop_data_val));
       
       conversation_add_proto_data(conversation, proto_pop, data_val);
     }

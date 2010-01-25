@@ -502,10 +502,7 @@ spx_hash_insert(conversation_t *conversation, guint32 spx_src, guint16 spx_seq)
 	key->spx_src = spx_src;
 	key->spx_seq = spx_seq;
 
-	value = se_alloc(sizeof(spx_hash_value));
-	value->spx_ack = 0;
-	value->spx_all = 0;
-	value->num = 0;
+	value = se_alloc0(sizeof(spx_hash_value));
 
 	g_hash_table_insert(spx_hash, key, value);
 

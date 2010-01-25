@@ -2718,11 +2718,8 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
          {
             /* copy IOI for access by response packet */
             preq_info->pIOI = se_alloc( ioilen*2);
-            if ( preq_info->pIOI )
-            {
-               preq_info->IOILen = ioilen;
-               tvb_memcpy(tvb, preq_info->pIOI, offset+2, ioilen*2);
-            }
+            preq_info->IOILen = ioilen;
+            tvb_memcpy(tvb, preq_info->pIOI, offset+2, ioilen*2);
          }
       }
 
@@ -2765,15 +2762,12 @@ dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if ( preq_info == NULL )
       {
          preq_info = se_alloc( sizeof( cip_req_info_t ) );
-         if ( preq_info )
-         {
-            preq_info->bService = 0;
-            preq_info->dissector = NULL;
-            preq_info->IOILen = 0;
-            preq_info->pIOI = NULL;
-            preq_info->pData = NULL;
-            enip_info->cip_info = preq_info;
-         }
+         preq_info->bService = 0;
+         preq_info->dissector = NULL;
+         preq_info->IOILen = 0;
+         preq_info->pIOI = NULL;
+         preq_info->pData = NULL;
+         enip_info->cip_info = preq_info;
       }
       dissect_cip_data( tree, tvb, 0, pinfo, enip_info->cip_info );
    }
