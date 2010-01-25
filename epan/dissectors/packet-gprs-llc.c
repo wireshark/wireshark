@@ -1014,7 +1014,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						}
 					}
 				}
-				else
+				else if (llc_data_length>offset)
 				{
 					/* otherwise - call a subdissector */
 					if (!dissector_try_port(llcgprs_subdissector_table, sapi, next_tvb, pinfo, tree))
