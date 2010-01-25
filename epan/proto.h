@@ -45,7 +45,6 @@
 
 #include <glib.h>
 
-#include "gnuc_format_check.h"
 #include "ipv4.h"
 #include "nstime.h"
 #include "tvbuff.h"
@@ -442,14 +441,14 @@ extern proto_item* proto_item_get_parent_nth(proto_item *ti, int gen);
  @param format printf like format string
  @param ... printf like parameters */
 extern void proto_item_set_text(proto_item *ti, const char *format, ...)
-	GNUC_FORMAT_CHECK(printf, 2,3);
+	G_GNUC_PRINTF(2,3);
 
 /** Append to text of item after it has already been created.
  @param ti the item to append the text to
  @param format printf like format string
  @param ... printf like parameters */
 extern void proto_item_append_text(proto_item *ti, const char *format, ...)
-	GNUC_FORMAT_CHECK(printf, 2,3);
+	G_GNUC_PRINTF(2,3);
 
 /** Set proto_item's length inside tvb, after it has already been created.
  @param ti the item to set the length
@@ -565,7 +564,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char *format,
-	...) GNUC_FORMAT_CHECK(printf,5,6);
+	...) G_GNUC_PRINTF(5,6);
 
 /** Add a text-only node to a proto_tree using a variable argument list.
  @param tree the tree to append this item to
@@ -591,7 +590,7 @@ proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const char *format, ...) GNUC_FORMAT_CHECK(printf,6,7);
+	gint length, const char *format, ...) G_GNUC_PRINTF(6,7);
 
 /** Add a FT_PROTOCOL to a proto_tree.
  @param tree the tree to append this item to
@@ -604,7 +603,7 @@ proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
  @return the newly created item */
 extern proto_item *
 proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const char *format, ...) GNUC_FORMAT_CHECK(printf,6,7);
+	gint length, const char *format, ...) G_GNUC_PRINTF(6,7);
 
 
 
@@ -636,7 +635,7 @@ proto_tree_add_bytes(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 extern proto_item *
 proto_tree_add_bytes_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	gint start, gint length, const guint8* start_ptr, const char *format,
-	...) GNUC_FORMAT_CHECK(printf,7,8);
+	...) G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_BYTES to a proto_tree, with the format generating
     the entire string for the entry, including any field name.
@@ -651,7 +650,7 @@ proto_tree_add_bytes_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const guint8* start_ptr, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint length, const guint8* start_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_ABSOLUTE_TIME or FT_RELATIVE_TIME to a proto_tree.
  @param tree the tree to append this item to
@@ -680,7 +679,7 @@ proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 extern proto_item *
 proto_tree_add_time_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	gint start, gint length, nstime_t* value_ptr, const char *format, ...)
-	GNUC_FORMAT_CHECK(printf,7,8);
+	G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_ABSOLUTE_TIME or FT_RELATIVE_TIME to a proto_tree, with
     the format generating the entire string for the entry, including any field
@@ -696,7 +695,7 @@ proto_tree_add_time_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, nstime_t* value_ptr, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint length, nstime_t* value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_IPXNET to a proto_tree.
  @param tree the tree to append this item to
@@ -725,7 +724,7 @@ proto_tree_add_ipxnet(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 extern proto_item *
 proto_tree_add_ipxnet_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	gint start, gint length, guint32 value, const char *format, ...)
-	GNUC_FORMAT_CHECK(printf,7,8);
+	G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_IPXNET to a proto_tree, with the format generating
     the entire string for the entry, including any field name.
@@ -740,7 +739,7 @@ proto_tree_add_ipxnet_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, guint32 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint length, guint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_IPv4 to a proto_tree.
  @param tree the tree to append this item to
@@ -769,7 +768,7 @@ proto_tree_add_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 extern proto_item *
 proto_tree_add_ipv4_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	gint start, gint length, guint32 value, const char *format, ...)
-	GNUC_FORMAT_CHECK(printf,7,8);
+	G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_IPv4 to a proto_tree, with the format generating
     the entire string for the entry, including any field name.
@@ -784,7 +783,7 @@ proto_tree_add_ipv4_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, guint32 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint length, guint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_IPv6 to a proto_tree.
  @param tree the tree to append this item to
@@ -813,7 +812,7 @@ proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 extern proto_item *
 proto_tree_add_ipv6_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	gint start, gint length, const guint8* value_ptr, const char *format,
-	...) GNUC_FORMAT_CHECK(printf,7,8);
+	...) G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_IPv6 to a proto_tree, with the format generating
     the entire string for the entry, including any field name.
@@ -828,7 +827,7 @@ proto_tree_add_ipv6_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const guint8* value_ptr, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint length, const guint8* value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_ETHER to a proto_tree.
  @param tree the tree to append this item to
@@ -857,7 +856,7 @@ proto_tree_add_ether(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 extern proto_item *
 proto_tree_add_ether_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	gint start, gint length, const guint8* value, const char *format, ...)
-	GNUC_FORMAT_CHECK(printf,7,8);
+	G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_ETHER to a proto_tree, with the format generating
     the entire string for the entry, including any field name.
@@ -872,7 +871,7 @@ proto_tree_add_ether_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const guint8* value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint length, const guint8* value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_GUID to a proto_tree.
  @param tree the tree to append this item to
@@ -901,7 +900,7 @@ proto_tree_add_guid(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 extern proto_item *
 proto_tree_add_guid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	gint start, gint length, const e_guid_t *value_ptr, const char *format,
-	...) GNUC_FORMAT_CHECK(printf,7,8);
+	...) G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_GUID to a proto_tree, with the format generating
     the entire string for the entry, including any field name.
@@ -916,7 +915,7 @@ proto_tree_add_guid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_guid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const e_guid_t *value_ptr, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint length, const e_guid_t *value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_OID to a proto_tree.
  @param tree the tree to append this item to
@@ -945,7 +944,7 @@ proto_tree_add_oid(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 extern proto_item *
 proto_tree_add_oid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	gint start, gint length, const guint8* value_ptr, const char *format,
-	...) GNUC_FORMAT_CHECK(printf,7,8);
+	...) G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_OID to a proto_tree, with the format generating
     the entire string for the entry, including any field name.
@@ -960,7 +959,7 @@ proto_tree_add_oid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_oid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const guint8* value_ptr, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint length, const guint8* value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_STRING to a proto_tree.
  @param tree the tree to append this item to
@@ -989,7 +988,7 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 extern proto_item *
 proto_tree_add_string_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	gint start, gint length, const char* value, const char *format, ...)
-	GNUC_FORMAT_CHECK(printf,7,8);
+	G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_STRING to a proto_tree, with the format generating
     the entire string for the entry, including any field name.
@@ -1004,7 +1003,7 @@ proto_tree_add_string_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const char* value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint length, const char* value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_BOOLEAN to a proto_tree.
  @param tree the tree to append this item to
@@ -1033,7 +1032,7 @@ proto_tree_add_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 extern proto_item *
 proto_tree_add_boolean_format_value(proto_tree *tree, int hfindex,
 	tvbuff_t *tvb, gint start, gint length, guint32 value,
-	const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_BOOLEAN to a proto_tree, with the format generating
     the entire string for the entry, including any field name.
@@ -1048,7 +1047,7 @@ proto_tree_add_boolean_format_value(proto_tree *tree, int hfindex,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, guint32 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint length, guint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_FLOAT to a proto_tree.
  @param tree the tree to append this item to
@@ -1077,7 +1076,7 @@ proto_tree_add_float(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 extern proto_item *
 proto_tree_add_float_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	gint start, gint length, float value, const char *format, ...)
-	GNUC_FORMAT_CHECK(printf,7,8);
+	G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_FLOAT to a proto_tree, with the format generating
     the entire string for the entry, including any field name.
@@ -1092,7 +1091,7 @@ proto_tree_add_float_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_float_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, float value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint length, float value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_DOUBLE to a proto_tree.
  @param tree the tree to append this item to
@@ -1121,7 +1120,7 @@ proto_tree_add_double(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 extern proto_item *
 proto_tree_add_double_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	gint start, gint length, double value, const char *format, ...)
-	GNUC_FORMAT_CHECK(printf,7,8);
+	G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_DOUBLE to a proto_tree, with the format generating
     the entire string for the entry, including any field name.
@@ -1136,7 +1135,7 @@ proto_tree_add_double_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_double_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, double value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint length, double value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add one of FT_UINT8, FT_UINT16, FT_UINT24 or FT_UINT32 to a proto_tree.
  @param tree the tree to append this item to
@@ -1165,7 +1164,7 @@ proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 extern proto_item *
 proto_tree_add_uint_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	gint start, gint length, guint32 value, const char *format, ...)
-	GNUC_FORMAT_CHECK(printf,7,8);
+	G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_UINT8, FT_UINT16, FT_UINT24 or FT_UINT32 to a proto_tree,
     with the format generating the entire string for the entry, including any
@@ -1181,7 +1180,7 @@ proto_tree_add_uint_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, guint32 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint length, guint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add an FT_UINT64 to a proto_tree.
  @param tree the tree to append this item to
@@ -1210,7 +1209,7 @@ proto_tree_add_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 extern proto_item *
 proto_tree_add_uint64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	gint start, gint length, guint64 value, const char *format, ...)
-	GNUC_FORMAT_CHECK(printf,7,8);
+	G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_UINT64 to a proto_tree, with the format generating
     the entire string for the entry, including any field name.
@@ -1225,7 +1224,7 @@ proto_tree_add_uint64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_uint64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, guint64 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint length, guint64 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add one of FT_INT8, FT_INT16, FT_INT24 or FT_INT32 to a proto_tree.
  @param tree the tree to append this item to
@@ -1254,7 +1253,7 @@ proto_tree_add_int(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 extern proto_item *
 proto_tree_add_int_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	gint start, gint length, gint32 value, const char *format, ...)
-	GNUC_FORMAT_CHECK(printf,7,8);
+	G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_INT8, FT_INT16, FT_INT24 or FT_INT32 to a proto_tree,
     with the format generating the entire string for the entry, including
@@ -1270,7 +1269,7 @@ proto_tree_add_int_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, gint32 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint length, gint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add an FT_INT64 to a proto_tree.
  @param tree the tree to append this item to
@@ -1299,7 +1298,7 @@ proto_tree_add_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 extern proto_item *
 proto_tree_add_int64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	gint start, gint length, gint64 value, const char *format, ...)
-	GNUC_FORMAT_CHECK(printf,7,8);
+	G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_INT64 to a proto_tree, with the format generating
     the entire string for the entry, including any field name.
@@ -1314,7 +1313,7 @@ proto_tree_add_int64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_int64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, gint64 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint length, gint64 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Useful for quick debugging. Also sends string to STDOUT, so don't
     leave call to this function in production code.
@@ -1324,7 +1323,7 @@ proto_tree_add_int64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
  @return the newly created item */
 extern proto_item *
 proto_tree_add_debug_text(proto_tree *tree, const char *format,
-	...) GNUC_FORMAT_CHECK(printf,2,3);
+	...) G_GNUC_PRINTF(2,3);
 
 
 
@@ -1684,7 +1683,7 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
  @return the newly created item */
 extern proto_item *
 proto_tree_add_uint_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits,
-	guint32 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	guint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add bits for a FT_BOOLEAN header field to a proto_tree, with
     the format generating the string for the value and with the field
@@ -1700,7 +1699,7 @@ proto_tree_add_uint_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *
  @return the newly created item */
 extern proto_item *
 proto_tree_add_boolean_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits,
-	guint32 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	guint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add bits for a FT_INT8, FT_INT16, FT_INT24 or FT_INT32
     header field to a proto_tree, with the format generating the
@@ -1716,7 +1715,7 @@ proto_tree_add_boolean_bits_format_value(proto_tree *tree, int hf_index, tvbuff_
  @return the newly created item */
 extern proto_item *
 proto_tree_add_int_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits,
-	gint32 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	gint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add bits for a FT_FLOAT header field to a proto_tree, with
     the format generating the string for the value and with the field
@@ -1732,7 +1731,7 @@ proto_tree_add_int_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *t
  @return the newly created item */
 extern proto_item *
 proto_tree_add_float_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits,
-	float value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+	float value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Check if given string is a valid field name
  @param field_name the field name to check

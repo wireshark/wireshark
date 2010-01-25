@@ -29,7 +29,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
-#include <epan/gnuc_format_check.h>
 #include <epan/value_string.h>
 
 #ifdef HAVE_LIBGNUTLS
@@ -486,7 +485,7 @@ ssl_is_valid_content_type(guint8 type);
 
 #ifdef SSL_DECRYPT_DEBUG
 extern void
-ssl_debug_printf(const gchar* fmt,...) GNUC_FORMAT_CHECK(printf,1,2);
+ssl_debug_printf(const gchar* fmt,...) G_GNUC_PRINTF(1,2);
 extern void
 ssl_print_data(const gchar* name, const guchar* data, size_t len);
 extern void
@@ -500,7 +499,7 @@ ssl_debug_flush(void);
 #else
 
 /* No debug: nullify debug operation*/
-static inline void GNUC_FORMAT_CHECK(printf,1,2)
+static inline void G_GNUC_PRINTF(1,2)
 ssl_debug_printf(const gchar* fmt _U_,...)
 {
 }

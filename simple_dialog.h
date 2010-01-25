@@ -26,8 +26,6 @@
 #ifndef __DIALOG_H__
 #define __DIALOG_H__
 
-#include <epan/gnuc_format_check.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -89,7 +87,7 @@ typedef enum {
  */
 extern gpointer simple_dialog(ESD_TYPE_E type, gint btn_mask,
     const gchar *msg_format, ...)
-    GNUC_FORMAT_CHECK(printf, 3, 4);
+    G_GNUC_PRINTF(3, 4);
 
 /** Create and show a simple dialog using a va_list.
  *
@@ -166,7 +164,7 @@ extern void display_queued_messages(void);
  * @param msg Status message
  */
 extern void simple_status(const gchar *msg_format, ...)
-    GNUC_FORMAT_CHECK(printf, 1, 2);
+    G_GNUC_PRINTF(1, 2);
 
 
 

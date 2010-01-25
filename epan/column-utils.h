@@ -27,7 +27,6 @@
 
 #include <glib.h>
 
-#include "gnuc_format_check.h"
 #include "column_info.h"
 #include "packet_info.h"
 #include <epan/epan.h>
@@ -147,7 +146,7 @@ extern void	col_add_str(column_info *cinfo, gint col, const gchar *str);
  * @param ... the variable number of parameters
  */
 extern void	col_add_fstr(column_info *cinfo, gint col, const gchar *format, ...)
-    GNUC_FORMAT_CHECK(printf, 3, 4);
+    G_GNUC_PRINTF(3, 4);
 
 /* For internal Wireshark use only.  Not to be called from dissectors. */
 void col_custom_set_edt(epan_dissect_t *edt, column_info *cinfo);
@@ -178,7 +177,7 @@ extern void	col_append_str(column_info *cinfo, gint col, const gchar *str);
  * @param ... the variable number of parameters
  */
 extern void	col_append_fstr(column_info *cinfo, gint col, const gchar *format, ...)
-    GNUC_FORMAT_CHECK(printf, 3, 4);
+    G_GNUC_PRINTF(3, 4);
 
 /** Prepend the given text to a column element, the text will be formatted and copied.
  *
@@ -188,7 +187,7 @@ extern void	col_append_fstr(column_info *cinfo, gint col, const gchar *format, .
  * @param ... the variable number of parameters
  */
 extern void	col_prepend_fstr(column_info *cinfo, gint col, const gchar *format, ...)
-    GNUC_FORMAT_CHECK(printf, 3, 4);
+    G_GNUC_PRINTF(3, 4);
 
 /**Prepend the given text to a column element, the text will be formatted and copied.
  * This function is similar to col_prepend_fstr() but this function will
@@ -199,7 +198,7 @@ extern void	col_prepend_fstr(column_info *cinfo, gint col, const gchar *format, 
  * it does not yet exist.
  */
 extern void	col_prepend_fence_fstr(column_info *cinfo, gint col, const gchar *format, ...)
-    GNUC_FORMAT_CHECK(printf, 3, 4);
+    G_GNUC_PRINTF(3, 4);
 
 /** Append the given text (prepended by a separator) to a column element.
  *
@@ -225,7 +224,7 @@ extern void	col_append_sep_str(column_info *cinfo, gint col, const gchar *sep,
  */
 extern void	col_append_sep_fstr(column_info *cinfo, gint col, const gchar *sep,
 		const gchar *format, ...)
-    GNUC_FORMAT_CHECK(printf, 4, 5);
+    G_GNUC_PRINTF(4, 5);
 
 /** Set the given (relative) time to a column element.
  *

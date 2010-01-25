@@ -27,7 +27,6 @@
 #define __EMEM_H__
 
 #include "g_gnuc_malloc.h"
-#include "gnuc_format_check.h"
 
 /*  Initialize all the memory allocation pools described below.
  *  This function must be called once when *shark initialize to set up the
@@ -67,7 +66,7 @@ void* ep_memdup(const void* src, size_t len) G_GNUC_MALLOC;
 /* Create a formatted string with a packet lifetime scope */
 gchar* ep_strdup_vprintf(const gchar* fmt, va_list ap) G_GNUC_MALLOC;
 gchar* ep_strdup_printf(const gchar* fmt, ...)
-     G_GNUC_MALLOC GNUC_FORMAT_CHECK(printf, 1, 2);
+     G_GNUC_MALLOC G_GNUC_PRINTF(1, 2);
 
 /* allocates with a packet lifetime scope an array of type made of num elements */
 #define ep_alloc_array(type,num) (type*)ep_alloc(sizeof(type)*(num))
@@ -150,7 +149,7 @@ void* se_memdup(const void* src, size_t len) G_GNUC_MALLOC;
 /* Create a formatted string with a capture lifetime scope */
 gchar* se_strdup_vprintf(const gchar* fmt, va_list ap) G_GNUC_MALLOC;
 gchar* se_strdup_printf(const gchar* fmt, ...)
-     G_GNUC_MALLOC GNUC_FORMAT_CHECK(printf, 1, 2);
+     G_GNUC_MALLOC G_GNUC_PRINTF(1, 2);
 
 /* allocates with a capture lifetime scope an array of type made of num elements */
 #define se_alloc_array(type,num) (type*)se_alloc(sizeof(type)*(num))
@@ -423,7 +422,7 @@ void ep_strbuf_append_vprintf(emem_strbuf_t *strbuf, const gchar *format, va_lis
  * @param format A printf-style string format.
  */
 void ep_strbuf_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
-     GNUC_FORMAT_CHECK(printf, 2, 3);
+     G_GNUC_PRINTF(2, 3);
 
 /**
  * Append printf-style formatted text to a string buffer.
@@ -432,7 +431,7 @@ void ep_strbuf_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
  * @param format A printf-style string format.
  */
 void ep_strbuf_append_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
-    GNUC_FORMAT_CHECK(printf, 2, 3);
+    G_GNUC_PRINTF(2, 3);
 
 /**
  * Append a string to a string buffer.
@@ -478,7 +477,7 @@ void emem_print_tree(emem_tree_t* emem_tree);
 
 #ifdef DEBUG_INTENSE_CANARY_CHECKS
 void ep_check_canary_integrity(const char* fmt, ...)
-    GNUC_FORMAT_CHECK(printf, 1, 2);
+    G_GNUC_PRINTF(1, 2);
 #define EP_CHECK_CANARY(args) ep_check_canary_integrity args
 #else
 #define EP_CHECK_CANARY(args)

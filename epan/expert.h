@@ -27,7 +27,6 @@
 #ifndef __EXPERT_H__
 #define __EXPERT_H__
 
-#include "gnuc_format_check.h"
 #include <epan/proto.h>
 #include "value_string.h"
 
@@ -65,6 +64,6 @@ expert_get_highest_severity(void);
 extern void
 expert_add_info_format(packet_info *pinfo, proto_item *pi, int group,
 	int severity, const char *format, ...)
-	GNUC_FORMAT_CHECK(printf, 5, 6);
+	G_GNUC_PRINTF(5, 6);
 
 #endif /* __EXPERT_H__ */
