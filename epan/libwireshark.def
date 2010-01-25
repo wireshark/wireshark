@@ -434,6 +434,7 @@ get_cur_groupname
 get_cur_username
 get_datafile_dir
 get_datafile_path
+get_dns_name
 get_dirname
 get_dissector_table_selector_type
 get_dissector_table_ui_name

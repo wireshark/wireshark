@@ -497,7 +497,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	if(first_time){
 		first_time=0;
 		ret = krb5_init_context(&context);
-		if(ret){
+		if(ret && ret != KRB5_CONFIG_CANTOPEN){
 			return NULL;
 		}
 		read_keytab_file(keytab_filename, &context);

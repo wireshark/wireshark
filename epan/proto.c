@@ -659,7 +659,8 @@ proto_registrar_get_byname(const char *field_name)
 }
 
 
-void ptvcursor_new_subtree_levels(ptvcursor_t * ptvc)
+void
+ptvcursor_new_subtree_levels(ptvcursor_t * ptvc)
 {
   subtree_lvl * pushed_tree;
 
@@ -673,7 +674,8 @@ void ptvcursor_new_subtree_levels(ptvcursor_t * ptvc)
   ptvc->pushed_tree = pushed_tree;
 }
 
-void ptvcursor_free_subtree_levels(ptvcursor_t * ptvc)
+void
+ptvcursor_free_subtree_levels(ptvcursor_t * ptvc)
 {
   ptvc->pushed_tree = NULL;
   ptvc->pushed_tree_max = 0;
@@ -763,6 +765,7 @@ ptvcursor_pop_subtree(ptvcursor_t *ptvc)
   subtree = ptvc->pushed_tree+ptvc->pushed_tree_index;
   if (subtree->it != NULL)
     proto_item_set_len(subtree->it, ptvcursor_current_offset(ptvc) - subtree->cursor_offset);
+
   ptvc->tree = subtree->tree;
 }
 
@@ -787,7 +790,8 @@ ptvcursor_set_subtree(ptvcursor_t *ptvc, proto_item *it, gint ett_subtree)
   return ptvc->tree;
 }
 
-proto_tree* ptvcursor_add_subtree_item(ptvcursor_t * ptvc, proto_item * it, gint ett_subtree, gint length)
+proto_tree*
+ptvcursor_add_subtree_item(ptvcursor_t * ptvc, proto_item * it, gint ett_subtree, gint length)
 {
   ptvcursor_push_subtree(ptvc, it, ett_subtree);
   if (length == SUBTREE_UNDEFINED_LENGTH)
@@ -800,10 +804,12 @@ proto_tree* ptvcursor_add_subtree_item(ptvcursor_t * ptvc, proto_item * it, gint
  * In this case, when the subtree will be closed, the parent item length will
  * be equal to the advancement of the cursor since the creation of the subtree.
  */
-proto_tree* ptvcursor_add_with_subtree(ptvcursor_t * ptvc, int hfindex, gint length,
+proto_tree*
+ptvcursor_add_with_subtree(ptvcursor_t * ptvc, int hfindex, gint length,
 gboolean little_endian, gint ett_subtree)
 {
   proto_item * it;
+
   it = ptvcursor_add_no_advance(ptvc, hfindex, length, little_endian);
   return ptvcursor_add_subtree_item(ptvc, it, ett_subtree, length);
 }
@@ -816,7 +822,8 @@ proto_tree_add_text_node(proto_tree *tree, tvbuff_t *tvb, gint start, gint lengt
  * In this case, when the subtree will be closed, the item length will be equal
  * to the advancement of the cursor since the creation of the subtree.
  */
-proto_tree * ptvcursor_add_text_with_subtree(ptvcursor_t * ptvc, gint length,
+proto_tree *
+ptvcursor_add_text_with_subtree(ptvcursor_t * ptvc, gint length,
     gint ett_subtree, const char *format, ...)
 {
   proto_item *	it;
@@ -824,6 +831,9 @@ proto_tree * ptvcursor_add_text_with_subtree(ptvcursor_t * ptvc, gint length,
 
   it = proto_tree_add_text_node(ptvcursor_tree(ptvc), ptvcursor_tvbuff(ptvc),
       ptvcursor_current_offset(ptvc), length);
+
+	if (it == NULL)
+		return(NULL);
 
   va_start(ap, format);
   proto_tree_set_representation(it, format, ap);

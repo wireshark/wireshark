@@ -37,27 +37,40 @@ Wireshark Info
 
         <listitem>
           <para>
-            The RADIUS dissector could crash.
-            <!-- Fixed in trunk: r28891 -->
-            <!-- Fixed in trunk-1.0: r30219 -->
-            <!-- Fixed in trunk-1.2: r29101 -->
-            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3578">Bug
-            3578</ulink>) -->
+            The SMB and SMB2 dissectors could crash.
+            <!-- Fixed in trunk: r31187 -->
+            <!-- Fixed in trunk-1.2: r31211 -->
+            <!-- Fixed in trunk-1.0: r -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4301">Bug
+            4301</ulink>)
           </para>
-          <para>Versions affected: 0.10.10 to 1.0.9, 1.2.0</para>
+          <para>Versions affected: 0.9.0 to 1.0.10, 1.2.0 to 1.2.4</para>
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-CVE-2009-2560">CVE-CVE-2009-2560</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-4377">CVE-2009-4377</ulink>
           </para>
         </listitem>
 
         <listitem>
           <para>
-            The DCERPC/NT dissector could crash.
-            <!-- Fixed in trunk: r30208 -->
-            <!-- Fixed in trunk-1.0: r30715 -->
-            <!-- Fixed in trunk-1.2: r30658 -->
+            The Infiniband dissector could crash on some platforms.
+            <!-- Fixed in trunk: r28839 -->
+            <!-- Fixed in trunk-1.2: r29099 -->
+            <!-- Fixed in trunk-1.0: r31671 -->
           </para>
-          <para>Versions affected: 0.10.10 to 1.2.2</para>
+          <para>Versions affected: 1.0.6 to 1.0.10, 1.2.0</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-2563">CVE-2009-2563</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Babi discovered several buffer overflows in the LWRES dissector.
+            <!-- Fixed in trunk: r31524 -->
+            <!-- Fixed in trunk-1.2: r31596 -->
+            <!-- Fixed in trunk-1.0: r31671 -->
+          </para>
+          <para>Versions affected: 0.9.15 to 1.0.10, 1.2.0 to 1.2.4</para>
           <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
@@ -74,97 +87,12 @@ Wireshark Info
 
     The following bugs have been fixed:
 
-
       <itemizedlist>
 
         <listitem><para>
-          Window "capture->Interfaces" cannot be closed.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1740">Bug
-          1740</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Slow response when using Expert Info Composite.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2504">Bug
-          2504</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          tshark-1.0.2 (dumpcap) signal abort core saved.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2767">Bug
-          2767</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Crash when applying a display filter.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3361">Bug
-          3361</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Propagate interface Comment field to the Capture... Interfaces dialogue box.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3414">Bug
-          3414</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Crash when searching for Time Reference.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3429">Bug
-          3429</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark doesn't interpret "adsl" interface in snoop output of Juniper ScreenOS.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3469">Bug
-          3469</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark start-up very slow when X forwarding over ssh.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3483">Bug
-          3483</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes while reading capture file.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3489">Bug
-          3489</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Windows build with ADNS fails because some ADNS files are missing.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3499">Bug
-          3499</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Field wlan_mgt.fixed.delba.param.initiator is indicated by wrong bit of wlan_mgt.fixed.delba.param.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3505">Bug
-          3505</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Edonkey bug in dissecting UDP Get Gerver Info packets.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3509">Bug
-          3509</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The Lucent/Ascend file parser could go into an infinite loop.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3535">Bug
-          3535</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes when range_string is the data type.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3536">Bug
-          3536</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          FF Protocol "FMS Initiate - Version OD Calling" field packet data not unpacked properly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3694">Bug
-          3694</ulink>)
+          Wireshark crashes if I use my custom RADIUS dictionary.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4316">Bug
+          4316</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -193,7 +121,7 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
 
-DCERPC NT, RADIUS
+Infiniband, Kerberos, LWRES, SMB, SMB2
 
     </para>
     </section>

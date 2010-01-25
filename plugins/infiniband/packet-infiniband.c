@@ -956,8 +956,6 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
 						    local_offset, 2, tvb_get_ntohs(tvb, local_offset));
 
 
-			} else {
-				tvb_free(next_tvb);
 			}
 				
 		}
