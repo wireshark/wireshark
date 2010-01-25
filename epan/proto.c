@@ -46,6 +46,7 @@
 #include "charsets.h"
 #include "asm_utils.h"
 #include "column-utils.h"
+#include "to_str.h"
 
 #include "wspython/wspy_register.h"
 
@@ -6373,58 +6374,6 @@ proto_tree_add_bits_item(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 }
 
 /*
- * This function will prepare a string showing how a certain value is broken down
- * in bits and also which parts of an octet are used. E.g. '..11 100.'
- */
-gchar *
-prepare_bits_string(guint64 value, gint bit_offset, gint no_of_bits)
-{
-	guint64 mask, tmp;
-	gchar *str;
-	gint bit, i;
-
-	mask = 1;
-	mask = mask << (no_of_bits-1);
-
-	/* prepare the string */
-	str=ep_alloc(256);
-	str[0]='\0';
-	for(bit=0;bit<((int)(bit_offset&0x07));bit++){
-		if(bit&&(!(bit%4))){
-			strcat(str, " ");
-		}
-		strcat(str,".");
-	}
-
-	/* read the bits for the int */
-	for(i=0;i<no_of_bits;i++){
-		if(bit&&(!(bit%4))){
-			strcat(str, " ");
-		}
-		if(bit&&(!(bit%8))){
-			strcat(str, " ");
-		}
-		bit++;
-		tmp = value & mask;
-		if(tmp != 0){
-			strcat(str, "1");
-		} else {
-			strcat(str, "0");
-		}
-		mask = mask>>1;
-	}
-
-	for(;bit%8;bit++){
-		if(bit&&(!(bit%4))){
-			strcat(str, " ");
-		}
-		strcat(str,".");
-	}
-
-	return str;
-}
-
-/*
  * This function will dissect a sequence of bits that does not need to be byte aligned; the bits
  * set will be shown in the tree as ..10 10.. and the integer value returned if return_value is set.
  * Offset should be given in bits from the start of the tvb.
@@ -6485,7 +6434,7 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 	/* Coast clear. Try and fake it */
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
 
-	str = prepare_bits_string(value, bit_offset, no_of_bits);
+	str = decode_bits_in_field(bit_offset, no_of_bits, value);
 
 	strcat(str," = ");
 	strcat(str,hf_field->name);
@@ -6592,7 +6541,7 @@ proto_tree_add_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, 
 		return NULL;
 	}
 
-	str = prepare_bits_string(value, bit_offset, no_of_bits);
+	str = decode_bits_in_field(bit_offset, no_of_bits, value);
 
 	strcat(str," = ");
 	strcat(str,hf_field->name);

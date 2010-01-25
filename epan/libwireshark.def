@@ -135,6 +135,7 @@ dcom_interface_find
 dcom_interface_new
 dcom_variant_type_vals			DATA
 decode_bitfield_value
+decode_bits_in_field
 decode_boolean_bitfield
 decode_enumerated_bitfield_shifted
 decode_enumerated_bitfield
