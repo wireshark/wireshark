@@ -3142,7 +3142,7 @@ tvb_uncompress(tvbuff_t *tvb _U_, int offset _U_, int comprlen _U_)
 }
 #endif
 
-tvbuff_t* tvb_child_uncompress(tvbuff_t *parent _U_, tvbuff_t *tvb, int offset, int comprlen)
+tvbuff_t* tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, int offset, int comprlen)
 {
 	tvbuff_t *new_tvb = tvb_uncompress(tvb, offset, comprlen);
 	if (new_tvb)
