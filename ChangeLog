@@ -1,136 +1,224 @@
 ------------------------------------------------------------------------
-r29911 | gerald | 2009-09-14 16:25:38 -0700 (Mon, 14 Sep 2009) | 2 lines
+r30716 | gerald | 2009-10-26 11:41:22 -0700 (Mon, 26 Oct 2009) | 2 lines
 Changed paths:
    M /trunk-1.0/ChangeLog
-   M /trunk-1.0/NEWS
+   M /trunk-1.0/version.conf
 
-Update release files.
+Make the 1.0.10 release.
 
 ------------------------------------------------------------------------
-r29935 | gerald | 2009-09-15 11:54:32 -0700 (Tue, 15 Sep 2009) | 2 lines
+r30718 | gerald | 2009-10-26 11:46:27 -0700 (Mon, 26 Oct 2009) | 2 lines
+Changed paths:
+   M /trunk-1.0/NEWS
+   M /trunk-1.0/docbook/release-notes.xml
+
+Fix the release notes. Update NEWS.
+
+------------------------------------------------------------------------
+r30737 | gerald | 2009-10-27 13:24:36 -0700 (Tue, 27 Oct 2009) | 2 lines
 Changed paths:
    M /trunk-1.0/config.nmake
    M /trunk-1.0/configure.in
    M /trunk-1.0/debian/changelog
    M /trunk-1.0/docbook/release-notes.xml
 
-Bump the versions.
+Bump the version to 1.0.10.
 
 ------------------------------------------------------------------------
-r29936 | gerald | 2009-09-15 12:02:10 -0700 (Tue, 15 Sep 2009) | 2 lines
+r30740 | gerald | 2009-10-27 14:58:29 -0700 (Tue, 27 Oct 2009) | 2 lines
 Changed paths:
    M /trunk-1.0/version.conf
 
-Switch back to development versions.
+Switch back to interim versions.
 
 ------------------------------------------------------------------------
-r29939 | gerald | 2009-09-15 14:11:36 -0700 (Tue, 15 Sep 2009) | 2 lines
+r30743 | gerald | 2009-10-27 15:05:39 -0700 (Tue, 27 Oct 2009) | 1 line
 Changed paths:
    M /trunk-1.0/docbook/release-notes.xml
 
-Update some bug IDs.
-
+Simplify the download text as recommended by Ulf.
 ------------------------------------------------------------------------
-r30015 | gerald | 2009-09-20 08:04:03 -0700 (Sun, 20 Sep 2009) | 1 line
+r30793 | gerald | 2009-11-01 08:04:03 -0800 (Sun, 01 Nov 2009) | 1 line
 Changed paths:
    M /trunk-1.0/epan/enterprise-numbers
    M /trunk-1.0/manuf
 
-[Automatic manuf and enterprise-numbers update for 2009-09-20]
+[Automatic manuf and enterprise-numbers update for 2009-11-01]
 ------------------------------------------------------------------------
-r30172 | gerald | 2009-09-27 08:04:11 -0700 (Sun, 27 Sep 2009) | 1 line
+r30862 | gerald | 2009-11-08 08:03:53 -0800 (Sun, 08 Nov 2009) | 1 line
 Changed paths:
    M /trunk-1.0/epan/enterprise-numbers
    M /trunk-1.0/manuf
 
-[Automatic manuf and enterprise-numbers update for 2009-09-27]
+[Automatic manuf and enterprise-numbers update for 2009-11-08]
 ------------------------------------------------------------------------
-r30219 | gerald | 2009-09-30 11:41:55 -0700 (Wed, 30 Sep 2009) | 17 lines
+r30965 | gerald | 2009-11-15 08:03:57 -0800 (Sun, 15 Nov 2009) | 1 line
 Changed paths:
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/dissectors/packet-radius.c
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
 
-Copy over r28891 by hand:
+[Automatic manuf and enterprise-numbers update for 2009-11-15]
+------------------------------------------------------------------------
+r31045 | gerald | 2009-11-22 08:03:58 -0800 (Sun, 22 Nov 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-11-22]
+------------------------------------------------------------------------
+r31117 | gerald | 2009-11-29 08:03:49 -0800 (Sun, 29 Nov 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-11-29]
+------------------------------------------------------------------------
+r31136 | gerald | 2009-11-30 13:57:53 -0800 (Mon, 30 Nov 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-11-30]
+------------------------------------------------------------------------
+r31183 | gerald | 2009-12-06 08:03:57 -0800 (Sun, 06 Dec 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-12-06]
+------------------------------------------------------------------------
+r31367 | gerald | 2009-12-27 13:54:59 -0800 (Sun, 27 Dec 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-12-27]
+------------------------------------------------------------------------
+r31436 | gerald | 2010-01-03 08:03:57 -0800 (Sun, 03 Jan 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-01-03]
+------------------------------------------------------------------------
+r31478 | gerald | 2010-01-10 08:04:00 -0800 (Sun, 10 Jan 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-01-10]
+------------------------------------------------------------------------
+r31550 | gerald | 2010-01-17 08:04:05 -0800 (Sun, 17 Jan 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-01-17]
+------------------------------------------------------------------------
+r31630 | gerald | 2010-01-22 16:38:17 -0800 (Fri, 22 Jan 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/Makefile.nmake
+   M /trunk-1.0/config.nmake
+   M /trunk-1.0/tools/win32-setup.sh
+
+Use GNUTLS 2.8.5-2.
 
 ------------------------------------------------------------------------
-r28891 | wmeier | 2009-06-30 06:57:26 -0700 (Tue, 30 Jun 2009) | 6 lines
+r31642 | gerald | 2010-01-24 08:04:20 -0800 (Sun, 24 Jan 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-01-24]
+------------------------------------------------------------------------
+r31671 | gerald | 2010-01-25 14:50:55 -0800 (Mon, 25 Jan 2010) | 78 lines
+Changed paths:
+   M /trunk-1.0/doc/README.developer
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/docbook/wsug_src/WSUG_app_tools.xml
+   M /trunk-1.0/epan/dissectors/packet-kerberos.c
+   M /trunk-1.0/epan/dissectors/packet-smb.c
+   M /trunk-1.0/epan/dissectors/packet-smb2.c
+   M /trunk-1.0/epan/libwireshark.def
+   M /trunk-1.0/epan/proto.c
+   M /trunk-1.0/plugins/infiniband/packet-infiniband.c
+   M /trunk-1.0/plugins/lwres/packet-lwres.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r31187 | stig | 2009-12-07 07:07:38 -0800 (Mon, 07 Dec 2009) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-smb.c
+   M /trunk/epan/dissectors/packet-smb2.c
+
+A fix for bug 4301:
+Check sip->extra_info for SMB_EI_NTI before usage.
+------------------------------------------------------------------------
+r31615 | guy | 2010-01-21 20:43:07 -0800 (Thu, 21 Jan 2010) | 5 lines
+Changed paths:
+   M /trunk/docbook/wsug_src/WSUG_app_tools.xml
+
+Clarify tcpdump's default snapshot length a bit - and recommend 65535 as
+the argument to "-s" (1500 is too small even for Ethernet, as the
+maximum size of packets on Ethernet is 1514 bytes if you don't count the
+FCS and 1518 bytes if you do).
+------------------------------------------------------------------------
+
+
+
+Copy over with manual intervention:
+
+------------------------------------------------------------------------
+r28712 | morriss | 2009-06-12 07:32:32 -0700 (Fri, 12 Jun 2009) | 3 lines
+Changed paths:
+   M /trunk/epan/proto.c
+
+ptvcursor_add_text_with_subtree(): Don't crash if called with a NULL tree.
+Also fix up some indenting.
+------------------------------------------------------------------------
+r28839 | stig | 2009-06-24 18:50:56 -0700 (Wed, 24 Jun 2009) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-infiniband.c
+
+Remove a tvb_free() call.
+------------------------------------------------------------------------
+r31221 | wmeier | 2009-12-10 10:13:38 -0800 (Thu, 10 Dec 2009) | 4 lines
 Changed paths:
    M /trunk/epan/dissectors/packet-radius.c
 
-packet-radius: Fix exception CLEANUP handling when malformed attribute list/pair seen;
-Fixes crash reported in Bug #3578. [https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3578]
-Essentially: CLEANUP_CALL_AND_POP wasn't being executed for certain error exits from
- dissect_attribute_pairs() thus leaving a CLEANUP entry on the exception stack.
-Also: vsa_buffer_table wasn't being destroyed if an exception occurred in dissect_attribute_pairs.
-
+Fix Bug 4316: Crash when using custom RADIUS dictionary.
+  (The bug was caused by a variable not being initialized).
+See: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4316
 ------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r30303 | gerald | 2009-10-04 08:03:58 -0700 (Sun, 04 Oct 2009) | 1 line
+r31524 | gerald | 2010-01-13 17:22:00 -0800 (Wed, 13 Jan 2010) | 6 lines
 Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
+   M /trunk/epan/dissectors/packet-lwres.c
 
-[Automatic manuf and enterprise-numbers update for 2009-10-04]
+Fix several buffer overflows found by babi babi. Replace a lot of manual
+fetching and displaying with proto_tree_add_item().
+
+Use get_dns_name() instead of lwres_get_dns_name(), which fixes a separate
+issue.
 ------------------------------------------------------------------------
-r30514 | gerald | 2009-10-11 08:04:03 -0700 (Sun, 11 Oct 2009) | 1 line
+r31560 | guy | 2010-01-18 15:21:13 -0800 (Mon, 18 Jan 2010) | 8 lines
 Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
+   M /trunk/doc/README.developer
 
-[Automatic manuf and enterprise-numbers update for 2009-10-11]
+Rewrite the bit about null vs. non-null "tree" dissector arguments a
+bit, so as not to imply that there's some form of global "mode"
+Wireshark is in when it passes a null or non-null pointer (there isn't),
+and to explicitly note that there is *no* guarantee about the value of
+"tree" on the first call to the dissector.  (I.e., please do not build a
+mental model of how Wireshark works in that regard, and write your
+dissector based on that mental model - you *will* be wrong.)
 ------------------------------------------------------------------------
-r30597 | gerald | 2009-10-18 08:04:00 -0700 (Sun, 18 Oct 2009) | 1 line
+r31626 | gerald | 2010-01-22 14:36:03 -0800 (Fri, 22 Jan 2010) | 3 lines
 Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
+   M /trunk/epan/dissectors/packet-kerberos.c
 
-[Automatic manuf and enterprise-numbers update for 2009-10-18]
-------------------------------------------------------------------------
-r30693 | gerald | 2009-10-25 08:04:24 -0700 (Sun, 25 Oct 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-10-25]
-------------------------------------------------------------------------
-r30715 | gerald | 2009-10-26 11:39:51 -0700 (Mon, 26 Oct 2009) | 31 lines
-Changed paths:
-   M /trunk-1.0/ChangeLog
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/dissectors/packet-dcerpc-nt.c
-
-Copy over r30208 from the trunk:
-
-------------------------------------------------------------------------
-r30208 | sahlberg | 2009-09-30 00:53:12 -0700 (Wed, 30 Sep 2009) | 28 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-dcerpc-nt.c
-
-The dcerpc dissectors used to walk the list of items upward parent by 
-parent in order to push teh display of extra interesting fields in the 
-packet to higher up in the decode tree. This was useful for making sure 
-that things like DomainNames etc are clearly visible without having to 
-drill down 500 layers of NDR.
-
-This code used to just blindly walk the indicated number of parents, and 
-then attach the string to that item.
-This relied on the "unsafe" assumption that the topmost item would have 
-pointer point to itself, so this was "safe".
-
-This is no longer safe since the root object in the tree now has NULL as 
-parent, and thus some of these dcerpc interfaces can now cause a SEGV 
-trying to dereference NULL->parent.
-
-I added a macro to safely walk to the parent object, or remain at the 
-current object if parent is NULL.
-
-This was a serious bug, where dcerpc traffic could cause a SEGV.
-Please merge into all stable versions.
+In our case, not being able to read the Kerberos configuration file
+isn't a big deal.
 ------------------------------------------------------------------------
 
-Update the release notes and changelog.
 
 ------------------------------------------------------------------------

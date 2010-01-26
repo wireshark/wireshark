@@ -1,4 +1,4 @@
-Wireshark 1.0.10 Release Notes
+Wireshark 1.0.11 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,15 +15,26 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o The RADIUS dissector could crash.
+     o The SMB and SMB2 dissectors could crash. (Bug 4301)
 
-       Versions affected: 0.10.10 to 1.0.9, 1.2.0
+       Versions affected: 0.9.0 to 1.0.10, 1.2.0 to 1.2.4
 
-       CVE-CVE-2009-2560
+       CVE-2009-4377
 
-     o The DCERPC/NT dissector could crash.
+     o The Infiniband dissector could crash on some platforms.
 
-       Versions affected: 0.10.10 to 1.2.2
+       Versions affected: 1.0.6 to 1.0.10, 1.2.0
+
+       CVE-2009-2563
+
+     o Babi discovered several buffer overflows in the LWRES
+       dissector.
+
+       Versions affected: 0.9.15 to 1.0.10, 1.2.0 to 1.2.4
+
+   The following bugs have been fixed:
+
+     o Wireshark locks up some Windows 2000 systems. (Bug 3270)
 
   New and Updated Features
 
@@ -35,12 +46,12 @@ What's New
 
   Updated Protocol Support
 
-   DCERPC NT, RADIUS
+   Infiniband, Kerberos, LWRES, SMB, SMB2
 
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   the download page on the main web site.
+   http://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
