@@ -140,12 +140,12 @@ static const gchar *  gPREF_zbee_sec_tclink_key = NULL;
  *      Called to initialize the security dissectors. Roughly the
  *      equivalent of proto_register_*
  *  PARAMETERS
- *      module_t    prefs   - Prefs module to load preferences under.
+ *      module_t    zbee_prefs   - Prefs module to load preferences under.
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
-void zbee_security_register(module_t *prefs, int proto)
+void zbee_security_register(module_t *zbee_prefs, int proto)
 {
     static hf_register_info hf[] = {
             { &hf_zbee_sec_level,
@@ -183,21 +183,21 @@ void zbee_security_register(module_t *prefs, int proto)
     };
 
     /* If no prefs module was supplied, register our own. */
-    if (prefs == NULL) {
-        prefs = prefs_register_protocol(proto, zbee_security_parse_prefs);
+    if (zbee_prefs == NULL) {
+        zbee_prefs = prefs_register_protocol(proto, zbee_security_parse_prefs);
     }
 
     /*  Register preferences */
-    prefs_register_enum_preference(prefs, "seclevel", "Security Level",
+    prefs_register_enum_preference(zbee_prefs, "seclevel", "Security Level",
                  "Specifies the security level to use in the decryption process. This value is ignored for ZigBee 2004 and unsecured networks.",
                  &gPREF_zbee_sec_level, zbee_sec_level_enums, FALSE);
-    prefs_register_string_preference(prefs, "nwkkey", "Network Key",
+    prefs_register_string_preference(zbee_prefs, "nwkkey", "Network Key",
                  "Specifies the network key to use for decryption.",
                  &gPREF_zbee_sec_nwk_key);
-    prefs_register_string_preference(prefs, "tcaddr", "Trust Center Address",
+    prefs_register_string_preference(zbee_prefs, "tcaddr", "Trust Center Address",
                 "The Extended address of the trust center.",
                 &gPREF_zbee_sec_tcaddr);
-    prefs_register_string_preference(prefs, "tclinkkey", "Trust Center Link Key",
+    prefs_register_string_preference(zbee_prefs, "tclinkkey", "Trust Center Link Key",
                  "Specifies the trust center link key to use for decryption.",
                  &gPREF_zbee_sec_tclink_key);
 

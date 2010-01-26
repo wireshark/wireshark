@@ -1388,7 +1388,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 #define MAX_STR_LEN 256
 	emem_strbuf_t *str;
 	char *sid_string;
-	char *sid_name;
+	char *sid_name_str_p;
 
 
 	if(sid_str){
@@ -1456,14 +1456,14 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
             g_snprintf(sid_string, MAX_STR_LEN, "S-1-%u-%s", auth, str->str);
           }
 
-          sid_name=NULL;
+          sid_name_str_p=NULL;
           if(sid_name_snooping){
-            sid_name=find_sid_name(sid_string);
+            sid_name_str_p=find_sid_name(sid_string);
           }
 
           if(parent_tree){
-            if(sid_name){
-              item = proto_tree_add_string_format(parent_tree, hf_sid, tvb, old_offset, offset-old_offset, sid_string, "%s: %s (%s)", name, sid_string, sid_name);
+            if(sid_name_str_p){
+              item = proto_tree_add_string_format(parent_tree, hf_sid, tvb, old_offset, offset-old_offset, sid_string, "%s: %s (%s)", name, sid_string, sid_name_str_p);
             } else {
               item = proto_tree_add_string_format(parent_tree, hf_sid, tvb, old_offset, offset-old_offset, sid_string, "%s: %s", name, sid_string);
             }
@@ -1487,8 +1487,8 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
           }
 
           if(sid_str){
-            if(sid_name){
-              *sid_str = ep_strdup_printf("%s (%s)", sid_string, sid_name);
+            if(sid_name_str_p){
+              *sid_str = ep_strdup_printf("%s (%s)", sid_string, sid_name_str_p);
             } else {
               *sid_str = ep_strdup(sid_string);
             }

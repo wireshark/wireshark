@@ -327,7 +327,7 @@ wv_datetime_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 {
 	char *str;
 	guint16 year;
-	guint8 month, day, hour, minute, second, timezone;
+	guint8 month, day, hour, minute, second, time_zone;
 	guint8 peek;
 
 	if (data_len == 6) { /* Valid */
@@ -353,11 +353,11 @@ wv_datetime_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 		minute += (peek >> 6); /* 11.. .... */
 		second = peek & 0x3F; /* ..11 1111 */
 		/* octet 6: ZZZZZZZZ */
-		timezone = tvb_get_guint8(tvb, offset + 5);
+		time_zone = tvb_get_guint8(tvb, offset + 5);
 		/* Now construct the string */
 		str = g_strdup_printf("WV-CSP DateTime: "
 				      "%04d-%02d-%02dT%02d:%02d:%02d%c",
-				      year, month, day, hour, minute, second, timezone);
+				      year, month, day, hour, minute, second, time_zone);
 	} else { /* Invalid length for a WV-CSP DateTime tag value */
 		str = g_strdup_printf("<Error: invalid binary WV-CSP DateTime value "
 				      "(%d bytes of opaque data)>", data_len);
@@ -7027,7 +7027,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	guint32 len;
 	guint str_len;
 	guint32 ent;
-	guint32 index;
+	guint32 idx;
 	guint8 peek;
 	guint32 tag_len; /* Length of the index (uintvar) from a LITERAL tag */
 	guint8 tag_save_known = 0; /* Will contain peek & 0x3F (tag identity) */
@@ -7139,10 +7139,10 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		case 0x81: /* EXT_T_1 */
 		case 0x82: /* EXT_T_2 */
 			/* Extension tokens */
-			index = tvb_get_guintvar (tvb, off+1, &len);
+			idx = tvb_get_guintvar (tvb, off+1, &len);
 			{   char *s;
 				if (map->ext_t[peek & 0x03])
-					s = (map->ext_t[peek & 0x03])(tvb, index, str_tbl);
+					s = (map->ext_t[peek & 0x03])(tvb, idx, str_tbl);
 				else
 					s = g_strdup_printf("EXT_T_%1x (%s)", peek & 0x03,
 							    map_token (map->global, 0, peek));
@@ -7157,14 +7157,14 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			off += 1+len;
 			break;
 		case 0x83: /* STR_T */
-			index = tvb_get_guintvar (tvb, off+1, &len);
-			str_len = tvb_strsize (tvb, str_tbl+index);
+			idx = tvb_get_guintvar (tvb, off+1, &len);
+			str_len = tvb_strsize (tvb, str_tbl+idx);
 			proto_tree_add_text (tree, tvb, off, 1+len,
 					     "  %3d | Tag   | T %3d    "
 					     "| STR_T (Tableref string)         "
 					     "| %s\'%s\'",
 					     *level, *codepage_stag, Indent (*level),
-					     tvb_format_text (tvb, str_tbl+index, str_len-1));
+					     tvb_format_text (tvb, str_tbl+idx, str_len-1));
 			off += 1+len;
 			break;
 		case 0xC0: /* EXT_0 */
@@ -7238,9 +7238,9 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			tag_len = 0;
 			if ((peek & 0x3F) == 4) { /* LITERAL */
 				DebugLog(("STAG: LITERAL tag (peek = 0x%02X, off = %u) - TableRef follows!\n", peek, off));
-				index = tvb_get_guintvar (tvb, off+1, &tag_len);
-				str_len = tvb_strsize (tvb, str_tbl+index);
-				tag_new_literal = (gchar*)tvb_get_ptr (tvb, str_tbl+index, str_len);
+				idx = tvb_get_guintvar (tvb, off+1, &tag_len);
+				str_len = tvb_strsize (tvb, str_tbl+idx);
+				tag_new_literal = (gchar*)tvb_get_ptr (tvb, str_tbl+idx, str_len);
 				tag_new_known = 0; /* invalidate known tag_new */
 			} else { /* Known tag */
 				tag_new_known = peek & 0x3F;
@@ -7436,9 +7436,9 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	guint32 len;
 	guint str_len;
 	guint32 ent;
-	guint32 index;
+	guint32 idx;
 	guint8 peek;
-	guint32 tag_len; /* Length of the index (uintvar) from a LITERAL tag */
+	guint32 tag_len; /* Length of the idx (uintvar) from a LITERAL tag */
 	guint8 tag_save_known = 0; /* Will contain peek & 0x3F (tag identity) */
 	guint8 tag_new_known = 0; /* Will contain peek & 0x3F (tag identity) */
 	const char *tag_save_literal; /* Will contain the LITERAL tag identity */
@@ -7550,24 +7550,24 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		case 0x81: /* EXT_T_1 */
 		case 0x82: /* EXT_T_2 */
 			/* Extension tokens */
-			index = tvb_get_guintvar (tvb, off+1, &len);
+			idx = tvb_get_guintvar (tvb, off+1, &len);
 			proto_tree_add_text (tree, tvb, off, 1+len,
 					     "  %3d | Tag   | T %3d    "
 					     "| EXT_T_%1x    (Extension Token)    "
 					     "| %s(Extension Token, integer value: %u)",
 					     *level, *codepage_stag, peek & 0x0f, Indent (*level),
-					     index);
+					     idx);
 			off += 1+len;
 			break;
 		case 0x83: /* STR_T */
-			index = tvb_get_guintvar (tvb, off+1, &len);
-			str_len = tvb_strsize (tvb, str_tbl+index);
+			idx = tvb_get_guintvar (tvb, off+1, &len);
+			str_len = tvb_strsize (tvb, str_tbl+idx);
 			proto_tree_add_text (tree, tvb, off, 1+len,
 					     "  %3d | Tag   | T %3d    "
 					     "| STR_T (Tableref string)         "
 					     "| %s\'%s\'",
 					     *level, *codepage_stag, Indent (*level),
-					     tvb_format_text (tvb, str_tbl+index, str_len-1));
+					     tvb_format_text (tvb, str_tbl+idx, str_len-1));
 			off += 1+len;
 			break;
 		case 0xC0: /* EXT_0 */
@@ -7583,13 +7583,13 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			break;
 		case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
 			if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
-				index = tvb_get_guintvar (tvb, off+1, &len);
-				proto_tree_add_text (tree, tvb, off, 1 + len + index,
+				idx = tvb_get_guintvar (tvb, off+1, &len);
+				proto_tree_add_text (tree, tvb, off, 1 + len + idx,
 						     "  %3d | Tag   | T %3d    "
 						     "| OPAQUE (Opaque data)            "
 						     "| %s(%d bytes of opaque data)",
-						     *level, *codepage_stag, Indent (*level), index);
-				off += 1+len+index;
+						     *level, *codepage_stag, Indent (*level), idx);
+				off += 1+len+idx;
 			} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 				proto_tree_add_text (tree, tvb, off, 1,
 						     "  %3d | Tag   | T %3d    "
@@ -7624,9 +7624,9 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			if ((peek & 0x3F) == 4) { /* LITERAL */
 				DebugLog(("STAG: LITERAL tag (peek = 0x%02X, off = %u)"
 					  " - TableRef follows!\n", peek, off));
-				index = tvb_get_guintvar (tvb, off+1, &tag_len);
-				str_len = tvb_strsize (tvb, str_tbl+index);
-				tag_new_literal = (gchar*)tvb_get_ptr (tvb, str_tbl+index, str_len);
+				idx = tvb_get_guintvar (tvb, off+1, &tag_len);
+				str_len = tvb_strsize (tvb, str_tbl+idx);
+				tag_new_literal = (gchar*)tvb_get_ptr (tvb, str_tbl+idx, str_len);
 				tag_new_known = 0; /* invalidate known tag_new */
 			} else { /* Known tag */
 				tag_new_known = peek & 0x3F;
@@ -7851,7 +7851,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 	guint32 len;
 	guint str_len;
 	guint32 ent;
-	guint32 index;
+	guint32 idx;
 	guint8 peek;
 	guint8 attr_save_known = 0; /* Will contain peek & 0x3F (attr identity) */
 	const char *attr_save_literal = NULL; /* Will contain the LITERAL attr identity */
@@ -7906,11 +7906,11 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 			/* ALWAYS means the start of a new attribute,
 			 * and may only contain the NAME of the attribute.
 			 */
-			index = tvb_get_guintvar (tvb, off+1, &len);
-			str_len = tvb_strsize (tvb, str_tbl+index);
+			idx = tvb_get_guintvar (tvb, off+1, &len);
+			str_len = tvb_strsize (tvb, str_tbl+idx);
 			attr_save_known = 0;
 			attr_save_literal = tvb_format_text (tvb,
-							     str_tbl+index, str_len-1);
+							     str_tbl+idx, str_len-1);
 			proto_tree_add_text (tree, tvb, off, 1+len,
 					     "  %3d |  Attr | A %3d    "
 					     "| LITERAL (Literal Attribute)     "
@@ -7939,11 +7939,11 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 		case 0x81: /* EXT_T_1 */
 		case 0x82: /* EXT_T_2 */
 			/* Extension tokens */
-			index = tvb_get_guintvar (tvb, off+1, &len);
+			idx = tvb_get_guintvar (tvb, off+1, &len);
 			{   char *s;
 
 				if (map->ext_t[peek & 0x03])
-					s = (map->ext_t[peek & 0x03])(tvb, index, str_tbl);
+					s = (map->ext_t[peek & 0x03])(tvb, idx, str_tbl);
 				else
 					s = g_strdup_printf("EXT_T_%1x (%s)", peek & 0x03,
 							    map_token (map->global, 0, peek));
@@ -7959,14 +7959,14 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 			off += 1+len;
 			break;
 		case 0x83: /* STR_T */
-			index = tvb_get_guintvar (tvb, off+1, &len);
-			str_len = tvb_strsize (tvb, str_tbl+index);
+			idx = tvb_get_guintvar (tvb, off+1, &len);
+			str_len = tvb_strsize (tvb, str_tbl+idx);
 			proto_tree_add_text (tree, tvb, off, 1+len,
 					     "  %3d |  Attr | A %3d    "
 					     "| STR_T (Tableref string)         "
 					     "|     %s\'%s\'",
 					     level, *codepage_attr, Indent (level),
-					     tvb_format_text (tvb, str_tbl+index, str_len-1));
+					     tvb_format_text (tvb, str_tbl+idx, str_len-1));
 			off += 1+len;
 			break;
 			/* 0x84 impossible in ATTR state */
@@ -8077,7 +8077,7 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 	guint32 len;
 	guint str_len;
 	guint32 ent;
-	guint32 index;
+	guint32 idx;
 	guint8 peek;
 
 	DebugLog(("parse_wbxml_attr (level = %u, offset = %u)\n", level, offset));
@@ -8126,14 +8126,14 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 			off += 1+len;
 			break;
 		case 0x04: /* LITERAL */
-			index = tvb_get_guintvar (tvb, off+1, &len);
-			str_len = tvb_strsize (tvb, str_tbl+index);
+			idx = tvb_get_guintvar (tvb, off+1, &len);
+			str_len = tvb_strsize (tvb, str_tbl+idx);
 			proto_tree_add_text (tree, tvb, off, 1+len,
 					     "  %3d |  Attr | A %3d    "
 					     "| LITERAL (Literal Attribute)     "
 					     "|   %s<%s />",
 					     level, *codepage_attr, Indent (level),
-					     tvb_format_text (tvb, str_tbl+index, str_len-1));
+					     tvb_format_text (tvb, str_tbl+idx, str_len-1));
 			off += 1+len;
 			break;
 		case 0x40: /* EXT_I_0 */
@@ -8155,24 +8155,24 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 		case 0x81: /* EXT_T_1 */
 		case 0x82: /* EXT_T_2 */
 			/* Extension tokens */
-			index = tvb_get_guintvar (tvb, off+1, &len);
+			idx = tvb_get_guintvar (tvb, off+1, &len);
 			proto_tree_add_text (tree, tvb, off, 1+len,
 					     "  %3d |  Attr | A %3d    "
 					     "| EXT_T_%1x    (Extension Token)    "
 					     "|     %s(Extension Token, integer value: %u)",
 					     level, *codepage_attr, peek & 0x0f, Indent (level),
-					     index);
+					     idx);
 			off += 1+len;
 			break;
 		case 0x83: /* STR_T */
-			index = tvb_get_guintvar (tvb, off+1, &len);
-			str_len = tvb_strsize (tvb, str_tbl+index);
+			idx = tvb_get_guintvar (tvb, off+1, &len);
+			str_len = tvb_strsize (tvb, str_tbl+idx);
 			proto_tree_add_text (tree, tvb, off, 1+len,
 					     "  %3d |  Attr | A %3d    "
 					     "| STR_T (Tableref string)         "
 					     "|     %s\'%s\'",
 					     level, *codepage_attr, Indent (level),
-					     tvb_format_text (tvb, str_tbl+index, str_len-1));
+					     tvb_format_text (tvb, str_tbl+idx, str_len-1));
 			off += 1+len;
 			break;
 			/* 0x84 impossible in ATTR state */
@@ -8189,13 +8189,13 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 			break;
 		case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
 			if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
-				index = tvb_get_guintvar (tvb, off+1, &len);
-				proto_tree_add_text (tree, tvb, off, 1 + len + index,
+				idx = tvb_get_guintvar (tvb, off+1, &len);
+				proto_tree_add_text (tree, tvb, off, 1 + len + idx,
 						     "  %3d |  Attr | A %3d    "
 						     "| OPAQUE (Opaque data)            "
 						     "|       %s(%d bytes of opaque data)",
-						     level, *codepage_attr, Indent (level), index);
-				off += 1+len+index;
+						     level, *codepage_attr, Indent (level), idx);
+				off += 1+len+idx;
 			} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 				proto_tree_add_text (tree, tvb, off, 1,
 						     "  %3d |  Attr | A %3d    "

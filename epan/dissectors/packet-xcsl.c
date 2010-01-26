@@ -86,30 +86,30 @@ static const value_string xcsl_action_vals[] = {
 /* This routine gets the next item from the ';' separated list */
 static gboolean get_next_item(tvbuff_t *tvb, gint offset, gint maxlen, guint8 *str, gint *next_offset, guint *len)
 {
-    guint  index = 0;
+    guint  idx = 0;
     guint8 ch;
 
     /* Obtain items */
     while (maxlen > 1) {
-      ch = tvb_get_guint8(tvb, offset+index);
+      ch = tvb_get_guint8(tvb, offset+idx);
       if (ch == ';' || ch == '\r' || ch == '\n')
          break;
       /* Array protect */
-      if (index==MAXLEN) {
-         *next_offset = offset + index;
-         *len = index;
+      if (idx==MAXLEN) {
+         *next_offset = offset + idx;
+         *len = idx;
          return FALSE;
       }
       /* Copy data into string array */
-      str[index++] = ch;
+      str[idx++] = ch;
       maxlen--;
     }
     /* Null terminate the item */
-    str[index] = '\0';
+    str[idx] = '\0';
 
     /* Update admin for next item */
-    *next_offset = offset + index;
-    *len = index;
+    *next_offset = offset + idx;
+    *len = idx;
 
     return TRUE;
 }
@@ -119,7 +119,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
    guint        offset = 0;
    gint         length_remaining;
-   guint8       index;
+   guint8       idx;
    gboolean     request;
    guint8       par;
    guint8       str[MAXLEN];
@@ -140,8 +140,8 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
        xcsl_tree = proto_item_add_subtree(xcsl_item, ett_xcsl);
    }
 
-   /* reset index */
-   index = 0;
+   /* reset idx */
+   idx = 0;
 
    /* reset the parameter count */
    par = 0;
@@ -196,7 +196,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
        */
 
       /* One by one go through each item ';' separated */
-      switch (index) {
+      switch (idx) {
 
                     /* This is the protocol item */
           case 0:   proto_tree_add_item(tree, hf_xcsl_protocol_version, tvb, offset, len, FALSE);
@@ -262,7 +262,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       }
 
       offset = next_offset + 1;
-      index++;
+      idx++;
 
    }
 

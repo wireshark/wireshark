@@ -446,8 +446,8 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Parse and show each line of the contents */
 			for (;;)
 			{
-				proto_item  *ti = NULL;
-				proto_tree  *content_line_tree = NULL;
+				proto_item  *ti_2;
+				proto_tree  *content_line_tree;
 				
 				/* Don't continue unless there is room for another whole item.
 				   (including 2 2-byte delimiters */
@@ -467,10 +467,10 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				valbuf = tvb_format_text(tvb, offset+keylen+2, vallen);
 
 				/* Add a text item with the key... */
-				ti =  proto_tree_add_string_format(content_tree, hf_ymsg_content_line, tvb,
+				ti_2 =  proto_tree_add_string_format(content_tree, hf_ymsg_content_line, tvb,
 				                                   offset, keylen+2+vallen+2,
 				                                   "", "%s:%s", keybuf, valbuf);
-				content_line_tree = proto_item_add_subtree(ti, ett_ymsg_content_line);
+				content_line_tree = proto_item_add_subtree(ti_2, ett_ymsg_content_line);
 
 				/* And add the key and value separately inside */
 				proto_tree_add_item(content_line_tree, hf_ymsg_content_line_key, tvb,

@@ -1099,7 +1099,7 @@ static const value_string zero_is_none_vals[] = {
 #define ATOM(name)     { atom(tvb, offsetp, t, hf_x11_##name, little_endian); }
 #define BITGRAVITY(name) { gravity(tvb, offsetp, t, hf_x11_##name, "Forget"); }
 #define BITMASK(name, size) {\
-      proto_item *ti; \
+      proto_item *bitmask_ti; \
       guint32 bitmask_value; \
       int bitmask_offset; \
       int bitmask_size; \
@@ -1109,8 +1109,8 @@ static const value_string zero_is_none_vals[] = {
 			              (guint32)VALUE32(tvb, *offsetp))); \
       bitmask_offset = *offsetp; \
       bitmask_size = size; \
-      ti = proto_tree_add_uint(t, hf_x11_##name##_mask, tvb, *offsetp, size, bitmask_value); \
-      bitmask_tree = proto_item_add_subtree(ti, ett_x11_##name##_mask); \
+      bitmask_ti = proto_tree_add_uint(t, hf_x11_##name##_mask, tvb, *offsetp, size, bitmask_value); \
+      bitmask_tree = proto_item_add_subtree(bitmask_ti, ett_x11_##name##_mask); \
       *offsetp += size;
 #define ENDBITMASK	}
 #define BITMASK8(name)	BITMASK(name, 1);
@@ -1136,7 +1136,7 @@ static const value_string zero_is_none_vals[] = {
 #define KEYCODE(name)  FIELD8(name)
 #define KEYCODE_DECODED(name, keycode, mask)  do {			\
 	proto_tree_add_uint_format(t, hf_x11_##name, tvb, offset, 1, 	\
-	keycode, "keycode: %d (%s)",				\
+	keycode, "keycode: %d (%s)",					\
 	keycode,  keycode2keysymString(state->keycodemap, 		\
 	state->first_keycode, state->keysyms_per_keycode,		\
 	state->modifiermap, state->keycodes_per_modifier,		\
@@ -1147,19 +1147,21 @@ static const value_string zero_is_none_vals[] = {
 	tvbuff_t *next_tvb;						\
 	unsigned char eventcode;					\
 	const char *sent;						\
-	proto_item *ti;							\
-	proto_tree *proto_tree;						\
+	proto_item *event_ti;						\
+	proto_tree *event_proto_tree;					\
 	next_tvb = tvb_new_subset(tvb, offset, next_offset - offset,	\
 				  next_offset - offset);		\
 	eventcode = tvb_get_guint8(next_tvb, 0);			\
 	sent = (eventcode & 0x80) ? "Sent-" : "";			\
-	ti = proto_tree_add_text(t, next_tvb, 0, -1, "event: %d (%s)",	\
+	event_ti = proto_tree_add_text(t, next_tvb, 0, -1,		\
+				"event: %d (%s)",			\
 				 eventcode,				\
 				 val_to_str(eventcode & 0x7F,           \
-					    state->eventcode_vals,             \
+					    state->eventcode_vals,      \
 					    "<Unknown eventcode %u>")); \
-	proto_tree = proto_item_add_subtree(ti, ett_x11_event);		\
-	decode_x11_event(next_tvb, eventcode, sent, proto_tree,		\
+	event_proto_tree = proto_item_add_subtree(event_ti, 		\
+						  ett_x11_event);	\
+	decode_x11_event(next_tvb, eventcode, sent, event_proto_tree,	\
 			 state, little_endian);				\
 	offset = next_offset;						\
 } while (0)
@@ -2097,8 +2099,8 @@ static void listOfString8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       /* Compute total length */
 
       int scanning_offset = *offsetp; /* Scanning pointer */
-      int l;
       for(i = length; i; i--) {
+	    int l;
 	    l = tvb_get_guint8(tvb, scanning_offset);
 	    scanning_offset += 1 + l;
       }
@@ -2187,10 +2189,10 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       /* Compute total length */
 
       int scanning_offset = *offsetp; /* Scanning pointer */
-      int l;                            /* Length of an individual item */
       int n = 0;                        /* Number of items */
 
       while(scanning_offset < next_offset) {
+	    int l;                            /* Length of an individual item */
 	    l = tvb_get_guint8(tvb, scanning_offset);
 	    scanning_offset++;
 	    if (!l) break;

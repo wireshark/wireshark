@@ -513,11 +513,11 @@ dissect_zbee_zdp_req_backup_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto_
 
     guint   offset = 0;
     guint16 table_size;
-    guint16 index;
+    guint16 idx;
     guint16 table_count;
 
     table_size  = zbee_parse_uint(tree, hf_zbee_zdp_table_size, tvb, &offset, sizeof(guint16), NULL);
-    index       = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint16), NULL);
+    idx         = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint16), NULL);
     table_count = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, sizeof(guint16), NULL);
 
     if (tree) {
@@ -550,9 +550,9 @@ void
 dissect_zbee_zdp_req_recover_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint   offset = 0;
-    guint16 index;
+    guint16 idx;
 
-    index  = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint16), NULL);
+    idx  = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint16), NULL);
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -581,11 +581,11 @@ dissect_zbee_zdp_req_backup_source_bind(tvbuff_t *tvb, packet_info *pinfo, proto
 
     guint   offset = 0;
     guint16 entries;
-    guint16 index;
+    guint16 idx;
     guint16 count;
 
     entries = zbee_parse_uint(tree, hf_zbee_zdp_table_size, tvb, &offset, sizeof(guint16), NULL);
-    index   = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint16), NULL);
+    idx     = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint16), NULL);
     count   = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, sizeof(guint16), NULL);
 
     if (tree) {
@@ -616,9 +616,9 @@ void
 dissect_zbee_zdp_req_recover_source_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint   offset = 0;
-    guint16 index;
+    guint16 idx;
 
-    index  = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint16), NULL);
+    idx  = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint16), NULL);
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -894,12 +894,12 @@ dissect_zbee_zdp_rsp_recover_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto
 
     guint8  status;
     guint16 table_size;
-    guint16 index;
+    guint16 idx;
     guint16 table_count;
 
     status      = zdp_parse_status(tree, tvb, &offset);
     table_size  = zbee_parse_uint(tree, hf_zbee_zdp_table_size, tvb, &offset, sizeof(guint16), NULL);
-    index       = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint16), NULL);
+    idx         = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint16), NULL);
     table_count = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, sizeof(guint16), NULL);
 
     if (tree && table_count) {
@@ -968,12 +968,12 @@ dissect_zbee_zdp_rsp_recover_source_bind(tvbuff_t *tvb, packet_info *pinfo, prot
 
     guint8  status;
     guint16 table_size;
-    guint16 index;
+    guint16 idx;
     guint16 table_count;
 
     status      = zdp_parse_status(tree, tvb, &offset);
     table_size  = zbee_parse_uint(tree, hf_zbee_zdp_table_size, tvb, &offset, sizeof(guint16), NULL);
-    index       = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint16), NULL);
+    idx         = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint16), NULL);
     table_count = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, sizeof(guint16), NULL);
 
     if (tree && table_count) {

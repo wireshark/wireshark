@@ -4469,7 +4469,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	struct e_in6_addr address_ipv6;
 	address redir_address;
 	conversation_t *conv;
-	guint32 index = 0; /* Address index */
+	guint32 idx = 0; /* Address index */
 	guint32 address_record_len; /* Length of the entire address record */
 
 	/*
@@ -4497,7 +4497,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	while (tvb_reported_length_remaining (tvb, offset) > 0) {
-		index++;
+		idx++;
 		/*
 		 * Read a single address at a time.
 		 */
@@ -4510,7 +4510,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		if (tree) {
 			ti = proto_tree_add_uint(addresses_tree, hf_address_entry,
-					tvb, offset, 1 + address_record_len, index);
+					tvb, offset, 1 + address_record_len, idx);
 			addr_tree = proto_item_add_subtree(ti, ett_address);
 
 			ti = proto_tree_add_uint (addr_tree, hf_address_flags_length,
@@ -4682,7 +4682,7 @@ add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
 	struct e_in6_addr address_ipv6;
 	guint32 tvb_len = tvb_length(tvb);
 	guint32 offset = 0;
-	guint32 index = 0; /* Address index */
+	guint32 idx = 0; /* Address index */
 	guint32 address_record_len; /* Length of the entire address record */
 
 	/* Skip needless processing */
@@ -4698,7 +4698,7 @@ add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
 	addresses_tree = proto_item_add_subtree(ti, ett_addresses);
 
 	while (offset < tvb_len) {
-		index++;
+		idx++;
 		/*
 		 * Read a single address at a time.
 		 */
@@ -4710,7 +4710,7 @@ add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
 		;
 
 		ti = proto_tree_add_uint(addresses_tree, hf_address_entry,
-				tvb, offset, 1 + address_record_len, index);
+				tvb, offset, 1 + address_record_len, idx);
 		addr_tree = proto_item_add_subtree(ti, ett_address);
 
 		ti = proto_tree_add_uint (addr_tree, hf_address_flags_length,

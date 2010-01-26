@@ -160,7 +160,7 @@ typedef struct capability_flag {
 static void dissect_hash_data(tvbuff_t *tvb, int offset,
     proto_tree *wccp_tree);
 static void dissect_web_cache_list_entry(tvbuff_t *tvb, int offset,
-    int index, proto_tree *wccp_tree);
+    int idx, proto_tree *wccp_tree);
 static int wccp_bucket_info(guint8 bucket_info, proto_tree *bucket_tree,
     guint32 start, tvbuff_t *tvb, int offset);
 static gchar *bucket_name(guint8 bucket);
@@ -354,14 +354,14 @@ dissect_hash_data(tvbuff_t *tvb, int offset, proto_tree *wccp_tree)
 }
 
 static void
-dissect_web_cache_list_entry(tvbuff_t *tvb, int offset, int index,
+dissect_web_cache_list_entry(tvbuff_t *tvb, int offset, int idx,
     proto_tree *wccp_tree)
 {
 	proto_item *tl;
 	proto_tree *list_entry_tree;
 
 	tl = proto_tree_add_text(wccp_tree, tvb, offset, 4 + HASH_INFO_SIZE,
-	    "Web-Cache List Entry(%d)", index);
+	    "Web-Cache List Entry(%d)", idx);
 	list_entry_tree = proto_item_add_subtree(tl, ett_cache_info);
 	proto_tree_add_item(list_entry_tree, hf_cache_ip, tvb, offset, 4,
 	    FALSE);
@@ -1268,12 +1268,12 @@ static const value_string assignment_type_vals[] = {
 };
 
 static void
-dissect_wccp2_value_element(tvbuff_t *tvb, int offset, int index, proto_tree *info_tree)
+dissect_wccp2_value_element(tvbuff_t *tvb, int offset, int idx, proto_tree *info_tree)
 {
 	proto_item *tl;
 	proto_tree *element_tree;
 
-	tl = proto_tree_add_text(info_tree, tvb, offset, 16, "Value Element(%u)", index);
+	tl = proto_tree_add_text(info_tree, tvb, offset, 16, "Value Element(%u)", idx);
 	element_tree = proto_item_add_subtree(tl, ett_value_element);
 
 	proto_tree_add_text(element_tree, tvb, offset, 4, "Source Address value: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
@@ -1288,7 +1288,7 @@ dissect_wccp2_value_element(tvbuff_t *tvb, int offset, int index, proto_tree *in
 }
 
 static guint
-dissect_wccp2_mask_value_set_element(tvbuff_t *tvb, int offset, int index, proto_tree *info_tree)
+dissect_wccp2_mask_value_set_element(tvbuff_t *tvb, int offset, int idx, proto_tree *info_tree)
 {
 	proto_item *tl;
 	proto_tree *element_tree;
@@ -1296,7 +1296,7 @@ dissect_wccp2_mask_value_set_element(tvbuff_t *tvb, int offset, int index, proto
 	guint i;
 
 	tl = proto_tree_add_text(info_tree, tvb, offset, 0,
-	    "Mask/Value Set Element(%d)", index);
+	    "Mask/Value Set Element(%d)", idx);
 	element_tree = proto_item_add_subtree(tl, ett_mv_set_element);
 
 	proto_tree_add_text(element_tree, tvb, offset, 4, "Source Address Mask: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
@@ -1320,7 +1320,7 @@ dissect_wccp2_mask_value_set_element(tvbuff_t *tvb, int offset, int index, proto
 
 	proto_item_set_len(tl, 16+i*16);
 
-	return 16+index*16;
+	return 16+idx*16;
 }
 
 static gboolean
