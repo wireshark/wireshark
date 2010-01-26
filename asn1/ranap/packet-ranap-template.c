@@ -1,6 +1,6 @@
 /* packet-ranap.c
  * Routines for UMTS Node B Application Part(RANAP) packet dissection
- * Copyright 2005, Anders Broman <anders.broman[AT]ericsson.com>
+ * Copyright 2005 - 2010, Anders Broman <anders.broman[AT]ericsson.com>
  *
  * $Id$
  *

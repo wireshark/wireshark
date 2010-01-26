@@ -79,10 +79,9 @@ RAB-DataVolumeReportItem/dl-UnsuccessfullyTransmittedDataVolume rab-dl-Unsuccess
 
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
-       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str(ProcedureCode, ranap_ProcedureCode_vals,
-                              "unknown message"));
+     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+                 val_to_str(ProcedureCode, ranap_ProcedureCode_vals,
+                            "unknown message"));
 #.END
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
