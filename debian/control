@@ -14,6 +14,7 @@ Package: wireshark-common
 Architecture: any
 Depends: ${shlibs:Depends}
 Recommends: wireshark (>= ${binary:Version}) | tshark (>= ${binary:Version})
+Suggests: snmp-mibs-downloader
 Replaces: ethereal-common (<< 0.99.2-0)
 Conflicts: ethereal-common (<< 0.99.2-0)
 Description: network traffic analyser (common files)
