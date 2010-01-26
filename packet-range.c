@@ -56,12 +56,20 @@ static void packet_range_calc(packet_range_t *range) {
   mark_low                      = 0L;
   mark_high                     = 0L;
   range->mark_range_cnt         = 0L;
+  range->ignored_cnt            = 0L;
+  range->ignored_marked_cnt     = 0L;
+  range->ignored_mark_range_cnt = 0L;
+  range->ignored_user_range_cnt = 0L;
 
   displayed_mark_low            = 0L;
   displayed_mark_high           = 0L;
   range->displayed_cnt          = 0L;
   range->displayed_marked_cnt   = 0L;
   range->displayed_mark_range_cnt=0L;
+  range->displayed_ignored_cnt            = 0L;
+  range->displayed_ignored_marked_cnt     = 0L;
+  range->displayed_ignored_mark_range_cnt = 0L;
+  range->displayed_ignored_user_range_cnt = 0L;
 
   /* The next for-loop is used to obtain the amount of packets to be processed
    * and is used to present the information in the Save/Print As widget.
@@ -81,8 +89,14 @@ static void packet_range_calc(packet_range_t *range) {
           range->displayed_cnt++;
       }
       if (packet->flags.marked) {
+            if (packet->flags.ignored) {
+                range->ignored_marked_cnt++;
+            }
             if (packet->flags.passed_dfilter) {
                 range->displayed_marked_cnt++;
+                if (packet->flags.ignored) {
+                    range->displayed_ignored_marked_cnt++;
+                }
                 if (displayed_mark_low == 0) {
                    displayed_mark_low = current_count;
                 }
@@ -98,6 +112,12 @@ static void packet_range_calc(packet_range_t *range) {
                mark_high = current_count;
             }
       }
+      if (packet->flags.ignored) {
+          range->ignored_cnt++;
+          if (packet->flags.passed_dfilter) {
+              range->displayed_ignored_cnt++;
+          }
+      }
   }
 
   current_count = 0;
@@ -108,6 +128,9 @@ static void packet_range_calc(packet_range_t *range) {
           current_count <= mark_high)
       {
           range->mark_range_cnt++;
+          if (packet->flags.ignored) {
+              range->ignored_mark_range_cnt++;
+          }
       }
 
       if (current_count >= displayed_mark_low &&
@@ -115,6 +138,9 @@ static void packet_range_calc(packet_range_t *range) {
       {
           if (packet->flags.passed_dfilter) {
             range->displayed_mark_range_cnt++;
+            if (packet->flags.ignored) {
+                range->displayed_ignored_mark_range_cnt++;
+            }
           }
       }
   }
@@ -137,7 +163,9 @@ static void packet_range_calc_user(packet_range_t *range) {
   frame_data    *packet;
 
   range->user_range_cnt             = 0L;
+  range->ignored_user_range_cnt     = 0L;
   range->displayed_user_range_cnt   = 0L;
+  range->displayed_ignored_user_range_cnt = 0L;
 
   current_count = 0;
   for(packet = cfile.plist_start; packet != NULL; packet = packet->next) {
@@ -145,8 +173,14 @@ static void packet_range_calc_user(packet_range_t *range) {
 
       if (value_is_in_range(range->user_range, current_count)) {
           range->user_range_cnt++;
+          if (packet->flags.ignored) {
+              range->ignored_user_range_cnt++;
+          }
           if (packet->flags.passed_dfilter) {
             range->displayed_user_range_cnt++;
+            if (packet->flags.ignored) {
+                range->displayed_ignored_user_range_cnt++;
+            }
           }
       }
   }
@@ -158,6 +192,7 @@ void packet_range_init(packet_range_t *range) {
 
   range->process            = range_process_all;
   range->process_filtered   = FALSE;
+  range->remove_ignored     = FALSE;
   range->user_range         = range_empty();
 
   /* calculate all packet range counters */
@@ -190,11 +225,15 @@ void packet_range_process_init(packet_range_t *range) {
 
 /* do we have to process all packets? */
 gboolean packet_range_process_all(packet_range_t *range) {
-    return range->process == range_process_all && !range->process_filtered;
+    return range->process == range_process_all && !range->process_filtered && !range->remove_ignored;
 }
 
 /* do we have to process this packet? */
 range_process_e packet_range_process_packet(packet_range_t *range, frame_data *fdata) {
+
+    if (range->remove_ignored && fdata->flags.ignored) {
+        return range_process_next;
+    }
 
     switch(range->process) {
     case(range_process_all):
@@ -268,7 +307,9 @@ void packet_range_convert_str(packet_range_t *range, const gchar *es)
         range->user_range                 = NULL;
         range->user_range_status          = ret;
         range->user_range_cnt             = 0L;
+        range->ignored_user_range_cnt     = 0L;
         range->displayed_user_range_cnt   = 0L;
+        range->displayed_ignored_user_range_cnt = 0L;
         return;
     }
     range->user_range = new_range;

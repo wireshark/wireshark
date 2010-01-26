@@ -60,6 +60,10 @@
 #define RANGE_SELECT_USER_D_KEY         "range_select_user_range_d_lb"
 #define RANGE_SELECT_USER_ENTRY_KEY     "range_select_user_range_entry"
 
+#define RANGE_REMOVE_IGNORED_KEY        "range_remove_ignored"
+#define RANGE_IGNORED_C_KEY             "range_ignored_c_lb"
+#define RANGE_IGNORED_D_KEY             "range_ignored_d_lb"
+
 gboolean
 range_check_validity(packet_range_t *range)
 {
@@ -93,11 +97,11 @@ range_update_dynamics(gpointer data)
   gboolean      filtered_active;
   gint          selected_num;
   gboolean      can_select;
+  gboolean      selected_packets;
   gchar         label_text[100];
-
+  guint32       ignored_cnt = 0, displayed_ignored_cnt = 0;
 
   range = g_object_get_data(G_OBJECT(data), RANGE_VALUES_KEY);
-
   
   range_displayed_bt = g_object_get_data(G_OBJECT(data), RANGE_DISPLAYED_BT_KEY);
   filtered_active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(range_displayed_bt));
@@ -115,10 +119,18 @@ range_update_dynamics(gpointer data)
   }
 
   gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_ALL_C_KEY), !filtered_active);
-  g_snprintf(label_text, sizeof(label_text), "%u", cfile.count);
+  if (range->remove_ignored) {
+    g_snprintf(label_text, sizeof(label_text), "%u", cfile.count - range->ignored_cnt);
+  } else {
+    g_snprintf(label_text, sizeof(label_text), "%u", cfile.count);
+  }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_ALL_C_KEY)), label_text);
   gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_ALL_D_KEY), filtered_active);
-  g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_cnt);
+  if (range->remove_ignored) {
+    g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_cnt - range->displayed_ignored_cnt);
+  } else {
+    g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_cnt);
+  }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_ALL_D_KEY)), label_text);
 
   /* Enable saving the currently-selected packet only if there *is* a
@@ -142,18 +154,26 @@ range_update_dynamics(gpointer data)
   /* XXX: how to update the radio button label but keep the mnemonic? */
 /*g_snprintf(label_text, sizeof(label_text), "_Selected packet #%u only", selected_num);
   gtk_label_set_text(GTK_LABEL(GTK_BIN(select_curr_rb)->child), label_text);*/
-  g_snprintf(label_text, sizeof(label_text), "%u", selected_num ? 1 : 0);
+  if (range->remove_ignored && can_select && cfile.current_frame->flags.ignored) {
+    g_snprintf(label_text, sizeof(label_text), "0");
+  } else {
+    g_snprintf(label_text, sizeof(label_text), "%u", selected_num ? 1 : 0);
+  }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_CURR_C_KEY)), label_text);
-  g_snprintf(label_text, sizeof(label_text), "%u", selected_num ? 1 : 0);
+  if (range->remove_ignored && can_select && cfile.current_frame->flags.ignored) {
+    g_snprintf(label_text, sizeof(label_text), "0");
+  } else {
+    g_snprintf(label_text, sizeof(label_text), "%u", selected_num ? 1 : 0);
+  }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_CURR_D_KEY)), label_text);
 
   /* Enable the buttons for saving marked packets only if there *are*
      marked packets. */
   if (filtered_active)
-    can_select = (range->displayed_marked_cnt != 0);
+    selected_packets = (range->displayed_marked_cnt != 0);
   else
-    can_select = (cfile.marked_count > 0);
-  if (can_select) {
+    selected_packets = (cfile.marked_count > 0);
+  if (selected_packets) {
     gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_KEY), TRUE);
     gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_C_KEY), !filtered_active);
     gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_D_KEY), filtered_active);
@@ -168,18 +188,26 @@ range_update_dynamics(gpointer data)
     gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_C_KEY), FALSE);
     gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_D_KEY), FALSE);
   }
-  g_snprintf(label_text, sizeof(label_text), "%u", cfile.marked_count);
+  if (range->remove_ignored) {
+    g_snprintf(label_text, sizeof(label_text), "%u", cfile.marked_count - range->ignored_marked_cnt);
+  } else {
+    g_snprintf(label_text, sizeof(label_text), "%u", cfile.marked_count);
+  }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_C_KEY)), label_text);
-  g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_marked_cnt);
+  if (range->remove_ignored) {
+    g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_marked_cnt - range->displayed_ignored_marked_cnt);
+  } else {
+    g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_marked_cnt);
+  }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_D_KEY)), label_text);
 
   /* Enable the buttons for saving the range of marked packets only if
      there *is* a range of marked packets. */
   if (filtered_active)
-    can_select = (range->displayed_mark_range_cnt != 0);
+    selected_packets = (range->displayed_mark_range_cnt != 0);
   else
-    can_select = (range->mark_range_cnt != 0);
-  if (can_select) {
+    selected_packets = (range->mark_range_cnt != 0);
+  if (selected_packets) {
     gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_RANGE_KEY), TRUE);
     gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_RANGE_C_KEY), !filtered_active);
     gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_RANGE_D_KEY), filtered_active);
@@ -195,18 +223,78 @@ range_update_dynamics(gpointer data)
     gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_RANGE_C_KEY), FALSE);
     gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_RANGE_D_KEY), FALSE);
   }
-  g_snprintf(label_text, sizeof(label_text), "%u", range->mark_range_cnt);
+  if (range->remove_ignored) {
+    g_snprintf(label_text, sizeof(label_text), "%u", range->mark_range_cnt - range->ignored_mark_range_cnt);
+  } else {
+    g_snprintf(label_text, sizeof(label_text), "%u", range->mark_range_cnt);
+  }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_RANGE_C_KEY)), label_text);
-  g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_mark_range_cnt);
+  if (range->remove_ignored) {
+    g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_mark_range_cnt - range->displayed_ignored_mark_range_cnt);
+  } else {
+    g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_mark_range_cnt);
+  }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_RANGE_D_KEY)), label_text);
 
   gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_KEY), TRUE);
   gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_C_KEY), !filtered_active);
   gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_D_KEY), filtered_active);
-  g_snprintf(label_text, sizeof(label_text), "%u", range->user_range_cnt);
+  if (range->remove_ignored) {
+    g_snprintf(label_text, sizeof(label_text), "%u", range->user_range_cnt - range->ignored_user_range_cnt);
+  } else {
+    g_snprintf(label_text, sizeof(label_text), "%u", range->user_range_cnt);
+  }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_C_KEY)), label_text);
-  g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_user_range_cnt);
+  if (range->remove_ignored) {
+    g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_user_range_cnt - range->displayed_ignored_user_range_cnt);
+  } else {
+    g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_user_range_cnt);
+  }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_D_KEY)), label_text);
+
+  switch(range->process) {
+  case(range_process_all):
+    ignored_cnt = range->ignored_cnt;
+    displayed_ignored_cnt = range->displayed_ignored_cnt;
+    break;
+  case(range_process_selected):
+    ignored_cnt = (can_select && cfile.current_frame->flags.ignored) ? 1 : 0;
+    displayed_ignored_cnt = ignored_cnt;
+    break;
+  case(range_process_marked):
+    ignored_cnt = range->ignored_marked_cnt;
+    displayed_ignored_cnt = range->displayed_ignored_marked_cnt;
+    break;
+  case(range_process_marked_range):
+    ignored_cnt = range->ignored_mark_range_cnt;
+    displayed_ignored_cnt = range->displayed_ignored_mark_range_cnt;
+    break;
+  case(range_process_user_range):
+    ignored_cnt = range->ignored_user_range_cnt;
+    displayed_ignored_cnt = range->displayed_ignored_user_range_cnt;
+    break;
+  default:
+    g_assert_not_reached();
+  }
+
+  if (filtered_active)
+    selected_packets = (displayed_ignored_cnt != 0);
+  else
+    selected_packets = (ignored_cnt != 0);
+
+  if (selected_packets) {
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_REMOVE_IGNORED_KEY), TRUE);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_IGNORED_C_KEY), !filtered_active);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_IGNORED_D_KEY), filtered_active);
+  } else {
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_REMOVE_IGNORED_KEY), FALSE);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_IGNORED_C_KEY), FALSE);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_IGNORED_D_KEY), FALSE);
+  }
+
+  g_snprintf(label_text, sizeof(label_text), "%u", ignored_cnt);
+  gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_IGNORED_C_KEY)), label_text);  g_snprintf(label_text, sizeof(label_text), "%u", displayed_ignored_cnt);
+  gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_IGNORED_D_KEY)), label_text);
 }
 
 
@@ -337,6 +425,22 @@ toggle_select_user_range(GtkWidget *widget, gpointer data)
 
 }
 
+static void
+toggle_remove_ignored(GtkWidget *widget, gpointer data)
+{
+  packet_range_t *range;
+
+  range = g_object_get_data(G_OBJECT(data), RANGE_VALUES_KEY);
+  
+  /* is the button now active? */
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
+    range->remove_ignored = TRUE;
+  } else {
+    range->remove_ignored = FALSE;
+  }
+
+  range_update_dynamics(data);
+}
 
 static void
 range_entry(GtkWidget *widget _U_, gpointer data)
@@ -398,6 +502,9 @@ GtkWidget *range_new(packet_range_t *range)
   GtkWidget     *select_user_range_c_lb;
   GtkWidget     *select_user_range_d_lb;
   GtkWidget     *select_user_range_entry;
+  GtkWidget     *remove_ignored_cb;
+  GtkWidget     *ignored_c_lb;
+  GtkWidget     *ignored_d_lb;
  
   GtkTooltips   *tooltips;
 
@@ -492,6 +599,16 @@ GtkWidget *range_new(packet_range_t *range)
   g_signal_connect(select_user_range_entry,"changed", G_CALLBACK(range_entry), range_tb);
   g_signal_connect(select_user_range_entry,"activate", G_CALLBACK(range_entry_in_event), range_tb);
 
+  /* Remove ignored packets */
+  remove_ignored_cb = gtk_check_button_new_with_mnemonic("Remove _Ignored packets");
+  gtk_table_attach_defaults(GTK_TABLE(range_tb), remove_ignored_cb, 0, 1, 7, 8);
+  gtk_tooltips_set_tip (tooltips,remove_ignored_cb,("Remove all packets marked as Ignored"), NULL);
+  g_signal_connect(remove_ignored_cb, "toggled", G_CALLBACK(toggle_remove_ignored), range_tb);
+
+  ignored_c_lb = gtk_label_new("?");
+  gtk_table_attach_defaults(GTK_TABLE(range_tb), ignored_c_lb, 1, 2, 7, 8);
+  ignored_d_lb = gtk_label_new("?");
+  gtk_table_attach_defaults(GTK_TABLE(range_tb), ignored_d_lb, 2, 3, 7, 8);
 
   gtk_widget_show_all(range_tb);
 
@@ -518,6 +635,10 @@ GtkWidget *range_new(packet_range_t *range)
   g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_USER_C_KEY,        select_user_range_c_lb);
   g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_USER_D_KEY,        select_user_range_d_lb);
   g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_USER_ENTRY_KEY,    select_user_range_entry);
+
+  g_object_set_data(G_OBJECT(range_tb), RANGE_REMOVE_IGNORED_KEY,       remove_ignored_cb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_IGNORED_C_KEY,            ignored_c_lb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_IGNORED_D_KEY,            ignored_d_lb);
 
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(captured_bt), !range->process_filtered);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(displayed_bt), range->process_filtered);

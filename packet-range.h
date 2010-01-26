@@ -48,6 +48,7 @@ typedef struct packet_range_tag {
     /* values coming from the UI */
     packet_range_e  process;            /* which range to process */
     gboolean        process_filtered;   /* captured or filtered packets */
+    gboolean        remove_ignored;     /* remove ignored packets */
 
     /* user specified range(s) and, if null, error status */
     range_t         *user_range;
@@ -61,12 +62,20 @@ typedef struct packet_range_tag {
     /* cfile.marked_count */        /* packets marked */
     guint32  mark_range_cnt;        /* packets in marked range */
     guint32  user_range_cnt;        /* packets in user specified range */
+    guint32  ignored_cnt;           /* packets ignored */
+    guint32  ignored_marked_cnt;    /* packets ignored and marked */
+    guint32  ignored_mark_range_cnt;/* packets ignored in marked range */
+    guint32  ignored_user_range_cnt;/* packets ignored in user specified range */
 
     /* current packet counts (displayed) */
     guint32  displayed_cnt;
     guint32  displayed_marked_cnt;
     guint32  displayed_mark_range_cnt;
     guint32  displayed_user_range_cnt;
+    guint32  displayed_ignored_cnt;
+    guint32  displayed_ignored_marked_cnt;
+    guint32  displayed_ignored_mark_range_cnt;
+    guint32  displayed_ignored_user_range_cnt;
 
     /* "enumeration" values */
     gboolean marked_range_active;   /* marked range is currently processed */
