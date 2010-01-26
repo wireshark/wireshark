@@ -3032,7 +3032,7 @@ dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   guint8 digit_pair;
   guint8 i = 0, curr_offset; 
-  char time[CAMEL_DATE_AND_TIME_LEN];
+  char camel_time[CAMEL_DATE_AND_TIME_LEN];
   char c[CAMEL_DATE_AND_TIME_LEN]; /*temporary container*/
 
   /* 2 digits per octet, 7 octets total + 5 delimiters */
@@ -3067,38 +3067,38 @@ dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   /* XXX - Should we use sprintf here instead of assembling the string by
    * hand? */
   
-  time[0] = c[8];
-  time[1] = c[9];
-  time[2] = ':';
-  time[3] = c[10];
-  time[4] = c[11];
-  time[5] = ':';
-  time[6] = c[12];
-  time[7] = c[13];
-  time[8] = ';';
+  camel_time[0] = c[8];
+  camel_time[1] = c[9];
+  camel_time[2] = ':';
+  camel_time[3] = c[10];
+  camel_time[4] = c[11];
+  camel_time[5] = ':';
+  camel_time[6] = c[12];
+  camel_time[7] = c[13];
+  camel_time[8] = ';';
   if ( EUROPEAN_DATE == date_format) /*european*/
   {
-    time[9] = c[6]; /*day*/
-    time[10] = c[7];
-    time[11] = '/'; 
-    time[12] = c[4]; /*month*/
-    time[13] = c[5];
+    camel_time[9] = c[6]; /*day*/
+    camel_time[10] = c[7];
+    camel_time[11] = '/'; 
+    camel_time[12] = c[4]; /*month*/
+    camel_time[13] = c[5];
   }
   else /*american*/
   {
-    time[9] = c[4]; /*month*/
-    time[10] = c[5];
-    time[11] = '/'; 
-    time[12] = c[6]; /*day*/
-    time[13] = c[7];
+    camel_time[9] = c[4]; /*month*/
+    camel_time[10] = c[5];
+    camel_time[11] = '/'; 
+    camel_time[12] = c[6]; /*day*/
+    camel_time[13] = c[7];
   }
-  time[14] = '/';
-  time[15] = c[0];
-  time[16] = c[1];
-  time[17] = c[2];
-  time[18] = c[3];
+  camel_time[14] = '/';
+  camel_time[15] = c[0];
+  camel_time[16] = c[1];
+  camel_time[17] = c[2];
+  camel_time[18] = c[3];
 
-  time[CAMEL_DATE_AND_TIME_LEN - 1] = '\0';
+  camel_time[CAMEL_DATE_AND_TIME_LEN - 1] = '\0';
  
 /*start = 0, length = 7*/
  
@@ -3107,7 +3107,7 @@ dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 		      tvb,
 		      0, 
 		      7, 
-		      time);
+		      camel_time);
 
   return 7; /* 7  octets eaten*/
 
