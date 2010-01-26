@@ -388,6 +388,7 @@ int hf_gsm_a_length = -1;
 int hf_gsm_a_bssmap_elem_id = -1;
 int hf_gsm_a_bssmap_cell_ci = -1;
 static int hf_gsm_a_bssmap_cell_lac = -1;
+static int hf_gsm_a_bssmap_sac = -1;
 static int hf_gsm_a_bssmap_dlci_cc = -1;
 static int hf_gsm_a_bssmap_dlci_spare = -1;
 static int hf_gsm_a_bssmap_dlci_sapi = -1;
@@ -1502,6 +1503,22 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 		/* FALLTHRU */
 
 	case 0x08:  /* For intersystem handover from GSM to UMTS or cdma2000: */
+		/* FALLTHRU */
+	case 0xb:
+		/* Serving Area Identity, SAI, is used to identify the Serving Area of UE
+		 * within UTRAN or cdma2000. 
+		 * Coding of Cell Identification for Cell identification discriminator = 1011
+		 * The coding of SAI is defined in 3GPP TS 25.413, without the protocol extension
+		 * container.
+		 * TS 25.413:
+		 * SAI ::= SEQUENCE {
+		 * pLMNidentity PLMNidentity,
+		 * lAC LAC,
+		 * sAC SAC,
+		 * iE-Extensions ProtocolExtensionContainer { {SAI-ExtIEs} } OPTIONAL
+		 * }
+		 */
+		/* FALLTHRU */
 	case 0x0c:  /* For identification of a UTRAN cell for cell load information: */
 		curr_offset = dissect_e212_mcc_mnc(tvb, g_pinfo, tree, curr_offset);
 		/* FALLTHRU */
@@ -1517,6 +1534,12 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 		if (add_string)
 			g_snprintf(add_string, string_len, " - LAC (0x%04x)", value);
 		/* FALLTHRU */
+		if (disc == 0x0b){
+			/* If SAI, SAC follows */
+			proto_tree_add_item(tree, hf_gsm_a_bssmap_sac, tvb, curr_offset, 2, FALSE);
+			curr_offset += 2;
+			break;
+		}
 
 	case 0x09: /* For intersystem handover from GSM to UMTS or cdma2000: */
 
@@ -1568,12 +1591,6 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 				g_snprintf(add_string, string_len, "%s/CI (%u)", add_string, value);
 			}
 		}
-		break;
-	case 0xb:
-		/* Serving Area Identity, SAI, is used to identify the Serving Area of UE
-		 * within UTRAN or cdma2000. 
-		 */
-		proto_tree_add_text(tree, tvb, curr_offset, len,"SAI");
 		break;
 	default:
 		proto_tree_add_text(tree, tvb, curr_offset, len,
@@ -5933,6 +5950,11 @@ proto_register_gsm_a_bssmap(void)
 	{ &hf_gsm_a_bssmap_cell_lac,
 		{ "Cell LAC",	"gsm_a.cell_lac",
 		FT_UINT16, BASE_HEX_DEC, 0, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_bssmap_sac,
+		{ "SAC",	"gsm_a.sac",
+		FT_UINT16, BASE_HEX, 0, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_dlci_cc,
