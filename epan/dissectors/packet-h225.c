@@ -1142,8 +1142,6 @@ static gboolean h225_tp_in_tree = TRUE;
 /* Global variables */
 static guint32  ipv4_address;
 static guint32  ipv4_port;
-guint32 T38_manufacturer_code;
-guint32 value;
 static gboolean contains_faststart = FALSE;
 static e_guid_t *call_id_guid;
 
@@ -7465,7 +7463,7 @@ static int dissect_RasMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-h225-fn.c ---*/
-#line 140 "packet-h225-template.c"
+#line 138 "packet-h225-template.c"
 
 
 /* Forward declaration we need below */
@@ -10627,7 +10625,7 @@ void proto_register_h225(void) {
         "h225.NULL", HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 237 "packet-h225-template.c"
+#line 235 "packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -10876,7 +10874,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 243 "packet-h225-template.c"
+#line 241 "packet-h225-template.c"
   };
   module_t *h225_module;
 
