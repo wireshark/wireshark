@@ -12,7 +12,7 @@
  * Copyright 2005, Olivier Jacques <olivier.jacques@hp.com>
  * Copyright 2005, Javier Acuna <javier.acuna@sixbell.com>
  * Updated to ETSI TS 129 078 V6.4.0 (2004-3GPP TS 29.078 version 6.4.0 Release 6 1 12)
- * Copyright 2005-2007, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005-2010, Anders Broman <anders.broman@ericsson.com>
  * Updated to 3GPP TS 29.078 version 7.3.0 Release 7 (2006-06)
  * Built from the gsm-map dissector Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
@@ -6957,108 +6957,6 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 #line 318 "packet-camel-template.c"
 
 
-/*--- Included file: packet-camel-table11.c ---*/
-#line 1 "packet-camel-table11.c"
-
-typedef struct _camel_op_t {
-  gint32 opcode;
-  new_dissector_t arg_pdu;
-  new_dissector_t res_pdu;
-} camel_op_t;
-
-static const camel_op_t camel_op_tab[] = {
-  /* playAnnouncement                */ { opcode_playAnnouncement                 , dissect_PlayAnnouncementArg_PDU              , NULL },
-  /* promptAndCollectUserInformation */ { opcode_promptAndCollectUserInformation  , dissect_PromptAndCollectUserInformationArg_PDU, dissect_ReceivedInformationArg_PDU },
-  /* specializedResourceReport       */ { opcode_specializedResourceReport        , dissect_SpecializedResourceReportArg_PDU     , NULL },
-  /* activityTest                    */ { opcode_activityTest                     , NULL                                         , NULL },
-  /* applyCharging                   */ { opcode_applyCharging                    , dissect_ApplyChargingArg_PDU                 , NULL },
-  /* applyChargingReport             */ { opcode_applyChargingReport              , dissect_ApplyChargingReportArg_PDU           , NULL },
-  /* assistRequestInstructions       */ { opcode_assistRequestInstructions        , dissect_AssistRequestInstructionsArg_PDU     , NULL },
-  /* callGap                         */ { opcode_callGap                          , dissect_CallGapArg_PDU                       , NULL },
-  /* callInformationReport           */ { opcode_callInformationReport            , dissect_CallInformationReportArg_PDU         , NULL },
-  /* callInformationRequest          */ { opcode_callInformationRequest           , dissect_CallInformationRequestArg_PDU        , NULL },
-  /* cancel                          */ { opcode_cancel                           , dissect_CancelArg_PDU                        , NULL },
-  /* collectInformation              */ { opcode_collectInformation               , NULL                                         , NULL },
-  /* connect                         */ { opcode_connect                          , dissect_ConnectArg_PDU                       , NULL },
-  /* connectToResource               */ { opcode_connectToResource                , dissect_ConnectToResourceArg_PDU             , NULL },
-  /* continue                        */ { opcode_continue                         , NULL                                         , NULL },
-  /* continueWithArgument            */ { opcode_continueWithArgument             , dissect_ContinueWithArgumentArg_PDU          , NULL },
-  /* disconnectForwardConnection     */ { opcode_disconnectForwardConnection      , NULL                                         , NULL },
-  /* disconnectForwardConnectionWithArgument */ { opcode_dFCWithArgument                  , dissect_DisconnectForwardConnectionWithArgumentArg_PDU, NULL },
-  /* disconnectLeg                   */ { opcode_disconnectLeg                    , dissect_DisconnectLegArg_PDU                 , NULL },
-  /* entityReleased                  */ { opcode_entityReleased                   , dissect_EntityReleasedArg_PDU                , NULL },
-  /* establishTemporaryConnection    */ { opcode_establishTemporaryConnection     , dissect_EstablishTemporaryConnectionArg_PDU  , NULL },
-  /* eventReportBCSM                 */ { opcode_eventReportBCSM                  , dissect_EventReportBCSMArg_PDU               , NULL },
-  /* furnishChargingInformation      */ { opcode_furnishChargingInformation       , dissect_FurnishChargingInformationArg_PDU    , NULL },
-  /* initialDP                       */ { opcode_initialDP                        , dissect_InitialDPArg_PDU                     , NULL },
-  /* initiateCallAttempt             */ { opcode_initiateCallAttempt              , dissect_InitiateCallAttemptArg_PDU           , dissect_InitiateCallAttemptRes_PDU },
-  /* moveLeg                         */ { opcode_moveLeg                          , dissect_MoveLegArg_PDU                       , NULL },
-  /* playTone                        */ { opcode_playTone                         , dissect_PlayToneArg_PDU                      , NULL },
-  /* releaseCall                     */ { opcode_releaseCall                      , dissect_ReleaseCallArg_PDU                   , NULL },
-  /* requestReportBCSMEvent          */ { opcode_requestReportBCSMEvent           , dissect_RequestReportBCSMEventArg_PDU        , NULL },
-  /* resetTimer                      */ { opcode_resetTimer                       , dissect_ResetTimerArg_PDU                    , NULL },
-  /* sendChargingInformation         */ { opcode_sendChargingInformation          , dissect_SendChargingInformationArg_PDU       , NULL },
-  /* splitLeg                        */ { opcode_splitLeg                         , dissect_SplitLegArg_PDU                      , NULL },
-  /* activityTestGPRS                */ { opcode_activityTestGPRS                 , NULL                                         , NULL },
-  /* applyChargingGPRS               */ { opcode_applyChargingGPRS                , dissect_ApplyChargingGPRSArg_PDU             , NULL },
-  /* applyChargingReportGPRS         */ { opcode_applyChargingReportGPRS          , dissect_ApplyChargingReportGPRSArg_PDU       , NULL },
-  /* cancelGPRS                      */ { opcode_cancelGPRS                       , dissect_CancelGPRSArg_PDU                    , NULL },
-  /* connectGPRS                     */ { opcode_connectGPRS                      , dissect_ConnectGPRSArg_PDU                   , NULL },
-  /* continueGPRS                    */ { opcode_continueGPRS                     , dissect_ContinueGPRSArg_PDU                  , NULL },
-  /* entityReleasedGPRS              */ { opcode_entityReleasedGPRS               , dissect_EntityReleasedGPRSArg_PDU            , NULL },
-  /* eventReportGPRS                 */ { opcode_eventReportGPRS                  , dissect_EventReportGPRSArg_PDU               , NULL },
-  /* furnishChargingInformationGPRS  */ { opcode_furnishChargingInformationGPRS   , dissect_FurnishChargingInformationGPRSArg_PDU, NULL },
-  /* initialDPGPRS                   */ { opcode_initialDPGPRS                    , dissect_InitialDPGPRSArg_PDU                 , NULL },
-  /* releaseGPRS                     */ { opcode_releaseGPRS                      , dissect_ReleaseGPRSArg_PDU                   , NULL },
-  /* requestReportGPRSEvent          */ { opcode_requestReportGPRSEvent           , dissect_RequestReportGPRSEventArg_PDU        , NULL },
-  /* resetTimerGPRS                  */ { opcode_resetTimerGPRS                   , dissect_ResetTimerGPRSArg_PDU                , NULL },
-  /* sendChargingInformationGPRS     */ { opcode_sendChargingInformationGPRS      , dissect_SendChargingInformationGPRSArg_PDU   , NULL },
-  /* connectSMS                      */ { opcode_connectSMS                       , dissect_ConnectSMSArg_PDU                    , NULL },
-  /* continueSMS                     */ { opcode_continueSMS                      , NULL                                         , NULL },
-  /* eventReportSMS                  */ { opcode_eventReportSMS                   , dissect_EventReportSMSArg_PDU                , NULL },
-  /* furnishChargingInformationSMS   */ { opcode_furnishChargingInformationSMS    , dissect_FurnishChargingInformationSMSArg_PDU , NULL },
-  /* initialDPSMS                    */ { opcode_initialDPSMS                     , dissect_InitialDPSMSArg_PDU                  , NULL },
-  /* releaseSMS                      */ { opcode_releaseSMS                       , dissect_ReleaseSMSArg_PDU                    , NULL },
-  /* requestReportSMSEvent           */ { opcode_requestReportSMSEvent            , dissect_RequestReportSMSEventArg_PDU         , NULL },
-  /* resetTimerSMS                   */ { opcode_resetTimerSMS                    , dissect_ResetTimerSMSArg_PDU                 , NULL },
-};
-
-
-/*--- End of included file: packet-camel-table11.c ---*/
-#line 320 "packet-camel-template.c"
-
-/*--- Included file: packet-camel-table21.c ---*/
-#line 1 "packet-camel-table21.c"
-
-typedef struct _camel_err_t {
-  gint32 errcode;
-  new_dissector_t err_pdu;
-} camel_err_t;
-
-static const camel_err_t camel_err_tab[] = {
-  /* canceled                 */ { errcode_canceled, NULL },
-  /* cancelFailed             */ { errcode_cancelFailed, dissect_PAR_cancelFailed_PDU },
-  /* eTCFailed                */ { errcode_eTCFailed, NULL },
-  /* improperCallerResponse   */ { errcode_improperCallerResponse, NULL },
-  /* missingCustomerRecord    */ { errcode_missingCustomerRecord, NULL },
-  /* missingParameter         */ { errcode_missingParameter, NULL },
-  /* parameterOutOfRange      */ { errcode_parameterOutOfRange, NULL },
-  /* requestedInfoError       */ { errcode_requestedInfoError, dissect_PAR_requestedInfoError_PDU },
-  /* systemFailure            */ { errcode_systemFailure, dissect_UnavailableNetworkResource_PDU },
-  /* taskRefused              */ { errcode_taskRefused, dissect_PAR_taskRefused_PDU },
-  /* unavailableResource      */ { errcode_unavailableResource, NULL },
-  /* unexpectedComponentSequence */ { errcode_unexpectedComponentSequence, NULL },
-  /* unexpectedDataValue      */ { errcode_unexpectedDataValue, NULL },
-  /* unexpectedParameter      */ { errcode_unexpectedParameter, NULL },
-  /* unknownLegID             */ { errcode_unknownLegID, NULL },
-  /* unknownCSID              */ { errcode_unknownCSID, NULL },
-  /* unknownPDPID             */ { errcode_unknownPDPID, NULL },
-};
-
-
-/*--- End of included file: packet-camel-table21.c ---*/
-#line 321 "packet-camel-template.c"
-
 static guint8 camel_pdu_type = 0;
 static guint8 camel_pdu_size = 0;
 
@@ -7100,77 +6998,6 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn
   return offset;
 }
 
-/*--- dissect_camel_arg ------------------------------------------------------*/
-static int   
-dissect_camel_arg(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_) {
-  int offset;
-  rose_ctx_t *rctx;
-  gint32 opcode;
-  /*
-  const camel_op_t *op_ptr;
-  const gchar *p;
-  proto_item *ti, *ti_tmp;
-  proto_tree *camel_tree;
-*/
-  offset = 0;
-  rctx = get_rose_ctx(pinfo->private_data);
-  DISSECTOR_ASSERT(rctx);
-  if (rctx->d.pdu != 1)  /* invoke */
-    return offset; 
-  if (rctx->d.code != 0)  /* local */
-    return offset; 
-  opcode = rctx->d.code_local;
-
-  return offset;
-}
-
-/*--- dissect_camel_res -------------------------------------------------------*/
-static int
-dissect_camel_res(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_) {
-  gint offset;
-  rose_ctx_t *rctx;
-  gint32 opcode;
-  /*
-  const camel_op_t *op_ptr;
-  const gchar *p;
-  proto_item *ti, *ti_tmp;
-  proto_tree *camel_tree;
-*/
-  offset = 0;
-  rctx = get_rose_ctx(pinfo->private_data);
-  DISSECTOR_ASSERT(rctx);
-  if (rctx->d.pdu != 2)  /* returnResult */
-    return offset; 
-  if (rctx->d.code != 0)  /* local */
-    return offset; 
-  opcode = rctx->d.code_local;
-
-  return offset;
-}
-/*--- dissect_camel_err ------------------------------------------------------*/
-static int   
-dissect_camel_err(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_) {
-  int offset;
-  rose_ctx_t *rctx;
-  gint32 errcode;
-  /*
-  const camel_err_t *err_ptr;
-  const gchar *p;
-  proto_item *ti;
-  proto_tree *camel_tree;
-*/
-  offset = 0;
-  rctx = get_rose_ctx(pinfo->private_data);
-  DISSECTOR_ASSERT(rctx);
-  if (rctx->d.pdu != 3)  /* returnError */
-    return offset; 
-  if (rctx->d.code != 0)  /* local */
-    return offset; 
-  errcode = rctx->d.code_local;
-
-  return offset;
-
-}
 
 static void
 dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -7226,17 +7053,10 @@ void proto_reg_handoff_camel(void) {
   static range_t *ssn_range;
 
   if (!camel_prefs_initialized) {
-    int i;
-    dissector_handle_t camel_arg_handle;
-    dissector_handle_t camel_res_handle;
-    dissector_handle_t camel_err_handle;
 
     camel_prefs_initialized = TRUE;
     camel_handle = find_dissector("camel");
 
-    camel_arg_handle = new_create_dissector_handle(dissect_camel_arg, proto_camel);
-    camel_res_handle = new_create_dissector_handle(dissect_camel_res, proto_camel);
-    camel_err_handle = new_create_dissector_handle(dissect_camel_err, proto_camel);
 
     register_ber_oid_dissector_handle("0.4.0.0.1.0.50.0",camel_handle, proto_camel, "CAP-v1-gsmSSF-to-gsmSCF-AC" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.50.1",camel_handle, proto_camel, "CAP-v2-gsmSSF-to-gsmSCF-AC" );
@@ -7248,13 +7068,6 @@ void proto_reg_handoff_camel(void) {
     register_ber_oid_dissector_handle("0.4.0.0.1.23.3.4",camel_handle, proto_camel, "capssf-scfGenericAC" );
     register_ber_oid_dissector_handle("0.4.0.0.1.23.3.61",camel_handle, proto_camel, "cap4-sms-AC" );
 	
-    for (i=0; i<(int)array_length(camel_op_tab); i++) {
-      dissector_add("camel.ros.local.arg", camel_op_tab[i].opcode, camel_arg_handle);
-      dissector_add("camel.ros.local.res", camel_op_tab[i].opcode, camel_res_handle);
-    }
-    for (i=0; i<(int)array_length(camel_err_tab); i++) {
-      dissector_add("camel.ros.local.err", camel_err_tab[i].errcode, camel_err_handle);
-    }
 
 
 /*--- Included file: packet-camel-dis-tab.c ---*/
@@ -7264,7 +7077,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 520 "packet-camel-template.c"
+#line 433 "packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
     g_free(ssn_range);
@@ -9318,7 +9131,7 @@ void proto_register_camel(void) {
         "camel.InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 693 "packet-camel-template.c"
+#line 606 "packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -9521,7 +9334,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 706 "packet-camel-template.c"
+#line 619 "packet-camel-template.c"
   };
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);

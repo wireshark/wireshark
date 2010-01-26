@@ -4,7 +4,7 @@
  * Copyright 2005, Olivier Jacques <olivier.jacques@hp.com>
  * Copyright 2005, Javier Acuna <javier.acuna@sixbell.com>
  * Updated to ETSI TS 129 078 V6.4.0 (2004-3GPP TS 29.078 version 6.4.0 Release 6 1 12)
- * Copyright 2005-2007, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005-2010, Anders Broman <anders.broman@ericsson.com>
  * Updated to 3GPP TS 29.078 version 7.3.0 Release 7 (2006-06)
  * Built from the gsm-map dissector Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
@@ -316,8 +316,6 @@ dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, _U_ guint len,
 
 #include "packet-camel-table2.c"
 
-#include "packet-camel-table11.c"
-#include "packet-camel-table21.c"
 
 static guint8 camel_pdu_type = 0;
 static guint8 camel_pdu_size = 0;
@@ -360,77 +358,6 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn
   return offset;
 }
 
-/*--- dissect_camel_arg ------------------------------------------------------*/
-static int   
-dissect_camel_arg(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_) {
-  int offset;
-  rose_ctx_t *rctx;
-  gint32 opcode;
-  /*
-  const camel_op_t *op_ptr;
-  const gchar *p;
-  proto_item *ti, *ti_tmp;
-  proto_tree *camel_tree;
-*/
-  offset = 0;
-  rctx = get_rose_ctx(pinfo->private_data);
-  DISSECTOR_ASSERT(rctx);
-  if (rctx->d.pdu != 1)  /* invoke */
-    return offset; 
-  if (rctx->d.code != 0)  /* local */
-    return offset; 
-  opcode = rctx->d.code_local;
-
-  return offset;
-}
-
-/*--- dissect_camel_res -------------------------------------------------------*/
-static int
-dissect_camel_res(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_) {
-  gint offset;
-  rose_ctx_t *rctx;
-  gint32 opcode;
-  /*
-  const camel_op_t *op_ptr;
-  const gchar *p;
-  proto_item *ti, *ti_tmp;
-  proto_tree *camel_tree;
-*/
-  offset = 0;
-  rctx = get_rose_ctx(pinfo->private_data);
-  DISSECTOR_ASSERT(rctx);
-  if (rctx->d.pdu != 2)  /* returnResult */
-    return offset; 
-  if (rctx->d.code != 0)  /* local */
-    return offset; 
-  opcode = rctx->d.code_local;
-
-  return offset;
-}
-/*--- dissect_camel_err ------------------------------------------------------*/
-static int   
-dissect_camel_err(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_) {
-  int offset;
-  rose_ctx_t *rctx;
-  gint32 errcode;
-  /*
-  const camel_err_t *err_ptr;
-  const gchar *p;
-  proto_item *ti;
-  proto_tree *camel_tree;
-*/
-  offset = 0;
-  rctx = get_rose_ctx(pinfo->private_data);
-  DISSECTOR_ASSERT(rctx);
-  if (rctx->d.pdu != 3)  /* returnError */
-    return offset; 
-  if (rctx->d.code != 0)  /* local */
-    return offset; 
-  errcode = rctx->d.code_local;
-
-  return offset;
-
-}
 
 static void
 dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -486,17 +413,10 @@ void proto_reg_handoff_camel(void) {
   static range_t *ssn_range;
 
   if (!camel_prefs_initialized) {
-    int i;
-    dissector_handle_t camel_arg_handle;
-    dissector_handle_t camel_res_handle;
-    dissector_handle_t camel_err_handle;
 
     camel_prefs_initialized = TRUE;
     camel_handle = find_dissector("camel");
 
-    camel_arg_handle = new_create_dissector_handle(dissect_camel_arg, proto_camel);
-    camel_res_handle = new_create_dissector_handle(dissect_camel_res, proto_camel);
-    camel_err_handle = new_create_dissector_handle(dissect_camel_err, proto_camel);
 
     register_ber_oid_dissector_handle("0.4.0.0.1.0.50.0",camel_handle, proto_camel, "CAP-v1-gsmSSF-to-gsmSCF-AC" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.50.1",camel_handle, proto_camel, "CAP-v2-gsmSSF-to-gsmSCF-AC" );
@@ -508,13 +428,6 @@ void proto_reg_handoff_camel(void) {
     register_ber_oid_dissector_handle("0.4.0.0.1.23.3.4",camel_handle, proto_camel, "capssf-scfGenericAC" );
     register_ber_oid_dissector_handle("0.4.0.0.1.23.3.61",camel_handle, proto_camel, "cap4-sms-AC" );
 	
-    for (i=0; i<(int)array_length(camel_op_tab); i++) {
-      dissector_add("camel.ros.local.arg", camel_op_tab[i].opcode, camel_arg_handle);
-      dissector_add("camel.ros.local.res", camel_op_tab[i].opcode, camel_res_handle);
-    }
-    for (i=0; i<(int)array_length(camel_err_tab); i++) {
-      dissector_add("camel.ros.local.err", camel_err_tab[i].errcode, camel_err_handle);
-    }
 
 #include "packet-camel-dis-tab.c"
   } else {
