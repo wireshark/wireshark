@@ -1051,8 +1051,8 @@ init_prefs(void) {
   int         i;
   fmt_data    *cfmt;
   const gchar *col_fmt[] = {"No.",      "%m", "Time",        "%t",
-                           "Source",   "%s", "Destination", "%d",
-                           "Protocol", "%p", "Info",        "%i"};
+                            "Source",   "%s", "Destination", "%d",
+                            "Protocol", "%p", "Info",        "%i"};
 
   if (prefs_initialized)
     return;
@@ -1889,7 +1889,7 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     col_l_elt = g_list_first(col_l);
     while(col_l_elt) {
       cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
-      cfmt->title    = ws_strdup_escape_underscore(col_l_elt->data);
+      cfmt->title    = g_strdup(col_l_elt->data);
       col_l_elt      = col_l_elt->next;
       if (strncmp(col_l_elt->data, cust_format, cust_format_len) == 0) {
         gchar *fmt     = g_strdup(col_l_elt->data);
@@ -2886,7 +2886,7 @@ write_prefs(char **pf_path_return)
   col_l = NULL;
   while (clp) {
     cfmt = (fmt_data *) clp->data;
-    col_l = g_list_append(col_l, ws_strdup_unescape_underscore(cfmt->title));
+    col_l = g_list_append(col_l, g_strdup(cfmt->title));
     if ((strcmp(cfmt->fmt, cust_format) == 0) && (cfmt->custom_field)) {
       gchar *fmt = g_strdup_printf("%s:%s", cfmt->fmt, cfmt->custom_field);
       col_l = g_list_append(col_l, fmt);

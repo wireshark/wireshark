@@ -220,11 +220,9 @@ col_title_change_ok (GtkWidget *w, gpointer parent_w)
       gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(packet_list), E_MPACKET_LIST_COL_KEY));
       GtkWidget *entry = g_object_get_data (G_OBJECT(w), "entry");
       const gchar *title =  gtk_entry_get_text(GTK_ENTRY(entry));
-      gchar *escaped_title =  ws_strdup_escape_underscore(title);
 
       gtk_label_set_text (GTK_LABEL(column_lb), title);
-      column_prefs_rename(col_id, escaped_title);
-      g_free(escaped_title);
+      column_prefs_rename(col_id, title);
 
       if (!prefs.gui_use_pref_save) {
               prefs_main_write();
@@ -823,7 +821,6 @@ packet_list_set_column_titles(void)
     header_field_info *hfi;
     GtkTooltips   *tooltips = gtk_tooltips_new ();
     int            i;
-    gchar         *unescaped_title;
 
     win_style = gtk_widget_get_style(top_level);
     ascend_pm = gdk_pixmap_create_from_xpm_d(top_level->window, &ascend_bm,
@@ -839,9 +836,7 @@ packet_list_set_column_titles(void)
         col_arrows[i].table = gtk_table_new(2, 2, FALSE);
         gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
 
-        unescaped_title = ws_strdup_unescape_underscore(cfile.cinfo.col_title[i]);
-        col_arrows[i].label = gtk_label_new(unescaped_title);
-        g_free(unescaped_title);
+        col_arrows[i].label = gtk_label_new(cfile.cinfo.col_title[i]);
         gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].label, 0, 1, 0, 2,
                          GTK_SHRINK, GTK_SHRINK, 0, 0);
         if (cfile.cinfo.col_fmt[i] == COL_CUSTOM) {

@@ -75,7 +75,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     GList             *clp;
     fmt_data          *cfmt;
     gint               i;
-    gchar             *fmt, *unescaped_title;
+    gchar             *fmt;
     gint               cur_fmt;
     const gchar       *column_titles[] = {"Title", "Field type"};
     GtkListStore      *store;
@@ -153,9 +153,7 @@ column_prefs_show(GtkWidget *prefs_window) {
             fmt = g_strdup_printf("%s", col_format_desc(cur_fmt));
         }
         gtk_list_store_append(store, &iter);
-        unescaped_title = ws_strdup_unescape_underscore(cfmt->title);
-        gtk_list_store_set(store, &iter, 0, unescaped_title, 1, fmt, 2, clp, -1);
-        g_free(unescaped_title);
+        gtk_list_store_set(store, &iter, 0, cfmt->title, 1, fmt, 2, clp, -1);
         if (first_row) {
             first_iter = iter;
             first_row = FALSE;
@@ -277,7 +275,7 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field)
    * is going to be marked as accelerator for this header (i.e. is going to be
    * shown underlined), escape it be inserting a second consecutive underscore.
    */
-  cfmt->title = ws_strdup_escape_underscore(title);
+  cfmt->title = g_strdup(title);
   cfmt->fmt = g_strdup(col_format_to_string(fmt));
   cfmt->custom_field = g_strdup(custom_field);
 
@@ -440,7 +438,7 @@ column_title_changed_cb(GtkCellRendererText *cell _U_, const gchar *str_path, co
     if (clp) {    
         cfmt  = (fmt_data *) clp->data;
         g_free(cfmt->title);
-        cfmt->title = ws_strdup_escape_underscore(new_title);
+        cfmt->title = g_strdup(new_title);
     }
 
     gtk_tree_path_free (path);

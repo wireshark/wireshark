@@ -178,15 +178,15 @@ col_title_change_ok (GtkWidget *w, gpointer parent_w)
 	GtkTreeViewColumn *col = g_object_get_data (G_OBJECT(w), "column");
 	gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY));
 	GtkWidget *entry = g_object_get_data (G_OBJECT(w), "entry");
-	const gchar *title =  gtk_entry_get_text(GTK_ENTRY(entry));
-	gchar *escaped_title =  ws_strdup_escape_underscore(title);
+	const gchar *title = gtk_entry_get_text(GTK_ENTRY(entry));
+	gchar *escaped_title = ws_strdup_escape_underscore(title);
 	gint col_width;
 
 	gtk_tree_view_column_set_title(col, escaped_title);
-	column_prefs_rename(col_id, escaped_title);
-
-	col_width = get_default_col_size (packetlist->view, escaped_title);
 	g_free(escaped_title);
+	column_prefs_rename(col_id, title);
+
+	col_width = get_default_col_size (packetlist->view, title);
 	gtk_tree_view_column_set_min_width(col, col_width);
 	new_packet_list_resize_column (col_id);
 
@@ -206,8 +206,8 @@ col_title_change_cancel (GtkWidget *w _U_, gpointer parent_w)
 static void 
 col_title_edit_dlg (GtkTreeViewColumn *col)
 {
-	const gchar *value = gtk_tree_view_column_get_title(col);
-	gchar *unescaped_value = ws_strdup_unescape_underscore(value);
+	const gchar *title = gtk_tree_view_column_get_title(col);
+	gchar *unescaped_title = ws_strdup_unescape_underscore(title);
 
 	GtkWidget *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
 	GtkWidget *entry, *label;
@@ -231,8 +231,8 @@ col_title_edit_dlg (GtkTreeViewColumn *col)
 
 	entry = gtk_entry_new();
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, 1, 2);
-	gtk_entry_set_text(GTK_ENTRY(entry), unescaped_value);
-	g_free(unescaped_value);
+	gtk_entry_set_text(GTK_ENTRY(entry), unescaped_title);
+	g_free(unescaped_title);
 
 	bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
 	gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
@@ -426,6 +426,7 @@ create_view_and_model(void)
 	gchar *tooltip_text;
 	header_field_info *hfi;
 	gint col_min_width;
+	gchar *escaped_title;
 	GtkTooltips *tooltips = gtk_tooltips_new ();
 
 	packetlist = new_packet_list_new();
@@ -483,7 +484,9 @@ create_view_and_model(void)
 		} else {
 			tooltip_text = g_strdup(col_format_desc(cfile.cinfo.col_fmt[i]));
 		}
-		gtk_tree_view_column_set_title(col, cfile.cinfo.col_title[i]);
+		escaped_title = ws_strdup_escape_underscore(cfile.cinfo.col_title[i]);
+		gtk_tree_view_column_set_title(col, escaped_title);
+		g_free (escaped_title);
 		gtk_tree_view_column_set_clickable(col, TRUE);
 		gtk_tree_view_column_set_resizable(col, TRUE);
 		gtk_tree_view_column_set_sizing(col,GTK_TREE_VIEW_COLUMN_FIXED);
