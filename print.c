@@ -726,6 +726,7 @@ static void
 print_escaped_xml(FILE *fh, const char *unescaped_string)
 {
 	const char *p;
+	char temp_str[8];
 
 	for (p = unescaped_string; *p != '\0'; p++) {
 		switch (*p) {
@@ -745,7 +746,12 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
 				fputs("&apos;", fh);
 				break;
 			default:
-				fputc(*p, fh);
+				if (g_ascii_isprint(*p))
+					fputc(*p, fh);
+				else {
+					g_snprintf(temp_str, sizeof(temp_str), "\\x%x", (guint8)*p);
+					fputs(temp_str, fh);
+				}
 		}
 	}
 }
