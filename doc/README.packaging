@@ -37,8 +37,8 @@ Wireshark with elevated privileges in order to be able to capture
 traffic. With version 0.99.7, all function calls that require elevated
 privileges have been moved out of the GUI to dumpcap.
 
-WIRESHARK CONTAINS OVER ONE POINT FIVE MILLION LINES OF SOURCE CODE. DO
-NOT RUN THEM AS ROOT.
+WIRESHARK CONTAINS NEARLY TWO MILLION LINES OF SOURCE CODE. DO NOT RUN
+THEM AS ROOT.
 
 There are two configure-time options on non-Windows systems that affect
 the privileges a normal user needs to capture traffic and list
@@ -56,8 +56,17 @@ setuid privileges it may have while retaining the CAP_NET_ADMIN and
 CAP_NET_RAW capabilities. It is enabled by default, if the Linux
 capabilities library (on which it depends) is found.
 
-Additionally, warnings are now displayed when Wireshark and TShark are
-run as root.
+Warnings are displayed when Wireshark and TShark are run
+as root.
+
+For systems that have libcap and the "setcap" utility you can avoid
+root altogether:
+
+# groupadd -g packetcapture
+# chmod 750 /usr/bin/dumpcap
+# chgrp packetcapture /usr/bin/dumpcap
+# setcap cap_net_raw,cap_net_admin+eip /usr/bin/dumpcap
+# setcap cap_net_raw,cap_net_admin+eip /usr/bin/tshark
 
 4. Customization.
 
