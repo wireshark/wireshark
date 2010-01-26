@@ -639,16 +639,21 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
 
   /* Deal with special cases and normal deltas */
   switch(changes & SPECIALS_MASK){
+    guint32 tmp;
     case SPECIAL_I:                   /* Echoed terminal traffic */
       if(cs != NULL) {
         word = g_ntohs(ip->tot_len) - hdrlen;
-        thp->ack_seq = g_htonl(g_ntohl(thp->ack_seq) + word);
-        thp->seq = g_htonl(g_ntohl(thp->seq) + word);
+        tmp = g_ntohl(thp->ack_seq) + word;
+        thp->ack_seq = g_htonl(tmp);
+        tmp = g_ntohl(thp->seq) + word;
+        thp->seq = g_htonl(tmp);
       }
       break;
     case SPECIAL_D:                   /* Unidirectional data */
-      if(cs != NULL)
-        thp->seq = g_htonl(g_ntohl(thp->seq) + g_ntohs(ip->tot_len) - hdrlen);
+      if(cs != NULL) {
+        tmp = g_ntohl(thp->seq) + g_ntohs(ip->tot_len) - hdrlen;
+        thp->seq = g_htonl(tmp);
+      }
       break;
     default:
       if(changes & NEW_U){
@@ -663,18 +668,24 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
       }
       if(changes & NEW_W) {
         delta = get_signed_delta(src_tvb, &offset, hf_vj_win_delta, tree);
-        if(cs != NULL)
-          thp->window = g_htons(g_ntohs(thp->window) + delta);
+        if(cs != NULL) {
+          tmp = g_ntohs(thp->window) + delta;
+          thp->window = g_htons(tmp);
+        }
       }
       if(changes & NEW_A) {
         delta = get_unsigned_delta(src_tvb, &offset, hf_vj_ack_delta, tree);
-        if(cs != NULL)
-          thp->ack_seq = g_htonl(g_ntohl(thp->ack_seq) + delta);
+        if(cs != NULL) {
+          tmp = g_ntohl(thp->ack_seq) + delta;
+          thp->ack_seq = g_htonl(tmp);
+        }
       }
       if(changes & NEW_S) {
       	delta = get_unsigned_delta(src_tvb, &offset, hf_vj_seq_delta, tree);
-        if(cs != NULL)
-          thp->seq = g_htonl(g_ntohl(thp->seq) + delta);
+        if(cs != NULL) {
+          tmp = g_ntohl(thp->seq) + delta;
+          thp->seq = g_htonl(tmp);
+        }
       }
       break;
   }
@@ -682,8 +693,11 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
     delta = get_unsigned_delta(src_tvb, &offset, hf_vj_ip_id_delta, tree);
   else
     delta = 1;
-  if(cs != NULL)
-    ip->id = g_htons(g_ntohs(ip->id) + delta);
+  if(cs != NULL) {
+    guint32 tmp;
+    tmp = g_ntohs(ip->id) + delta;
+    ip->id = g_htons(tmp);
+  }
 
   /* Compute IP packet length and the buffer length needed */
   len = tvb_reported_length_remaining(src_tvb, offset);
