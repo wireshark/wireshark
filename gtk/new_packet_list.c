@@ -53,6 +53,7 @@
 #include "gtk/font_utils.h"
 #include "gtk/packet_history.h"
 #include "epan/column.h"
+#include "epan/strutil.h"
 #include "gtk/recent.h"
 #include "gtk/keys.h"
 #include "gtk/menus.h"

@@ -49,9 +49,6 @@ gint                 get_column_char_width(gint format);
 void
 build_column_format_array(column_info *cinfo, gint num_cols, gboolean reset_fences);
 
-gchar* ws_strdup_escape_underscore (const gchar *str);
-gchar* ws_strdup_unescape_underscore (const gchar *str);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

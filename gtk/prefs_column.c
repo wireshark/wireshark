@@ -33,6 +33,7 @@
 #include <epan/prefs.h>
 #include <epan/column_info.h>
 #include <epan/column.h>
+#include <epan/strutil.h>
 
 #include "../globals.h"
 

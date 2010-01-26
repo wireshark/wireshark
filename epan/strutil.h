@@ -228,4 +228,20 @@ char * escape_string(char *dst, const char *string);
 
 void IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len);
 
+/** Copy a string, escaping the underscores in it
+ *
+ * @param str The string to be copied
+ * @return A copy of the string with every original underscore being
+ * transformed into double underscores.
+ */
+gchar* ws_strdup_escape_underscore (const gchar *str);
+
+/** Copy a string, unescaping the underscores in it
+ *
+ * @param str The string to be copied
+ * @return A copy of the string with every occurence of double underscores in
+ * the original string being copied as a single underscore.
+ */
+gchar* ws_strdup_unescape_underscore (const gchar *str);
+
 #endif /* __STRUTIL_H__ */

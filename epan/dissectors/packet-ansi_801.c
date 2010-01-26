@@ -97,6 +97,10 @@ static int hf_ansi_801_spare_bits = -1;
 static int hf_ansi_801_bad_sv_present = -1;
 static int hf_ansi_801_num_bad_sv = -1;
 static int hf_ansi_801_bad_sv_prn_num = -1;
+static int hf_ansi_801_dopp_req = -1;
+static int hf_ansi_801_add_dopp_req = -1;
+static int hf_ansi_801_code_ph_par_req = -1;
+static int hf_ansi_801_az_el_req = -1;
 
 static char bigbuf[1024];
 static dissector_handle_t data_handle;
@@ -970,44 +974,18 @@ for_pr_gps_sat_health(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
 static void
 rev_req_gps_acq_ass(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
-	guint8	oct;
 	guint32	saved_offset;
+	guint32	bit_offset;
 
 	SHORT_DATA_CHECK(len, 1);
-
 	saved_offset = offset;
+	bit_offset = offset << 3;
 
-	oct = tvb_get_guint8(tvb, offset);
-
-	other_decode_bitfield_value(bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  Doppler (0th order) term %srequested",
-	bigbuf,
-	(oct & 0x80) ? "" : "not ");
-
-	other_decode_bitfield_value(bigbuf, oct, 0x40, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  Additional Doppler terms %srequested",
-	bigbuf,
-	(oct & 0x40) ? "" : "not ");
-
-	other_decode_bitfield_value(bigbuf, oct, 0x20, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  Code phase parameters %srequested",
-	bigbuf,
-	(oct & 0x20) ? "" : "not ");
-
-	other_decode_bitfield_value(bigbuf, oct, 0x10, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  Azimuth and elevation angle %srequested",
-	bigbuf,
-	(oct & 0x10) ? "" : "not ");
-
-	other_decode_bitfield_value(bigbuf, oct, 0x0f, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  Reserved",
-	bigbuf);
-
+	proto_tree_add_bits_item(tree, hf_ansi_801_dopp_req, tvb, bit_offset++, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_ansi_801_add_dopp_req, tvb, bit_offset++, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_ansi_801_code_ph_par_req, tvb, bit_offset++, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_ansi_801_az_el_req, tvb, bit_offset++, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_ansi_801_spare_bits, tvb, bit_offset, 4, FALSE);
 	offset++;
 
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
@@ -2349,6 +2327,26 @@ proto_register_ansi_801(void)
 	{ &hf_ansi_801_bad_sv_prn_num,
 		{ "Satellite PRN number", "ansi_801.bad_sv_prn_num",
 		FT_UINT8, BASE_DEC, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_dopp_req,
+		{ "Doppler (0th order) term requested (DOPP_REQ)", "ansi_801.dopp_req",
+		FT_BOOLEAN, 8, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_add_dopp_req,
+		{ "Additional Doppler terms requested (ADD_DOPP_REQ)", "ansi_801.add_dopp_req",
+		FT_BOOLEAN, 8, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_code_ph_par_req,
+		{ "Code phase parameters requested (CODE_PH_PAR_REQ)", "ansi_801.code_ph_par_req",
+		FT_BOOLEAN, 8, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_az_el_req,
+		{ "Azimuth and elevation angle requested (AZ_EL_REQ)", "ansi_801.az_el_req",
+		FT_BOOLEAN, 8, NULL, 0x00,
 		NULL, HFILL }
 	},
 	};

@@ -44,6 +44,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/proto.h>
+#include <epan/strutil.h>
 #include "cfile.h"
 #include <epan/column.h>
 #include "print.h"

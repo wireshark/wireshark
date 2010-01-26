@@ -37,6 +37,7 @@
 #include <epan/column.h>
 #include <epan/column_info.h>
 #include <epan/prefs.h>
+#include <epan/strutil.h>
 #include <epan/timestamp.h>
 
 #include "../globals.h"
