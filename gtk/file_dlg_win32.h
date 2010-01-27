@@ -127,18 +127,21 @@ void file_set_save_marked_sensitive();
 #define EWFD_FIRST_LAST_BTN  1005
 #define EWFD_RANGE_BTN       1006
 #define EWFD_RANGE_EDIT      1007
+#define EWFD_REMOVE_IGN_CB   1008
 
 #define EWFD_ALL_PKTS_CAP    1009
 #define EWFD_SEL_PKT_CAP     1010
 #define EWFD_MARKED_CAP      1011
 #define EWFD_FIRST_LAST_CAP  1012
 #define EWFD_RANGE_CAP       1013
+#define EWFD_IGNORED_CAP     1014
 
-#define EWFD_ALL_PKTS_DISP   1014
-#define EWFD_SEL_PKT_DISP    1015
-#define EWFD_MARKED_DISP     1016
-#define EWFD_FIRST_LAST_DISP 1017
-#define EWFD_RANGE_DISP      1018
+#define EWFD_ALL_PKTS_DISP   1015
+#define EWFD_SEL_PKT_DISP    1016
+#define EWFD_MARKED_DISP     1017
+#define EWFD_FIRST_LAST_DISP 1018
+#define EWFD_RANGE_DISP      1019
+#define EWFD_IGNORED_DISP    1020
 
 /* Export raw dialog defines. */
 #define EWFD_EXPORTRAW_ST 1000

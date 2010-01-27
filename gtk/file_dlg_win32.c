@@ -1489,6 +1489,7 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     gboolean filtered_active = FALSE;
     TCHAR    static_val[100];
     gint     selected_num;
+    guint32  ignored_cnt = 0, displayed_ignored_cnt = 0;
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DISPLAYED_BTN);
     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
@@ -1497,24 +1498,40 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     /* RANGE_SELECT_ALL */
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_ALL_PKTS_CAP);
     EnableWindow(cur_ctrl, !filtered_active);
-    _snwprintf(static_val, sizeof(static_val), _T("%u"), cfile.count);
+    if (range->remove_ignored) {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), cfile.count - range->ignored_cnt);
+    } else {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), cfile.count);
+    }
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_ALL_PKTS_DISP);
     EnableWindow(cur_ctrl, filtered_active);
-    _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_cnt);
+    if (range->remove_ignored) {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_cnt - range->displayed_ignored_cnt);
+    } else {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_cnt);
+    }
     SetWindowText(cur_ctrl, static_val);
 
     /* RANGE_SELECT_CURR */
     selected_num = (cfile.current_frame) ? cfile.current_frame->num : 0;
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_SEL_PKT_CAP);
     EnableWindow(cur_ctrl, selected_num && !filtered_active);
-    _snwprintf(static_val, sizeof(static_val), _T("%u"), selected_num ? 1 : 0);
+    if (range->remove_ignored && cfile.current_frame && cfile.current_frame->flags.ignored) {
+        _snwprintf(static_val, sizeof(static_val), _T("0"));
+    } else {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), selected_num ? 1 : 0);
+    }
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_SEL_PKT_DISP);
     EnableWindow(cur_ctrl, selected_num && filtered_active);
-    _snwprintf(static_val, sizeof(static_val), _T("%u"), selected_num ? 1 : 0);
+    if (range->remove_ignored && cfile.current_frame && cfile.current_frame->flags.ignored) {
+        _snwprintf(static_val, sizeof(static_val), _T("0"));
+    } else {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), selected_num ? 1 : 0);
+    }
     SetWindowText(cur_ctrl, static_val);
 
     /* RANGE_SELECT_MARKED */
@@ -1523,12 +1540,20 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_MARKED_CAP);
     EnableWindow(cur_ctrl, cfile.marked_count && !filtered_active);
-    _snwprintf(static_val, sizeof(static_val), _T("%u"), cfile.marked_count);
+    if (range->remove_ignored) {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), cfile.marked_count - range->ignored_marked_cnt);
+    } else {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), cfile.marked_count);
+    }
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_MARKED_DISP);
     EnableWindow(cur_ctrl, cfile.marked_count && filtered_active);
-    _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_marked_cnt);
+    if (range->remove_ignored) {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_marked_cnt - range->displayed_ignored_marked_cnt);
+    } else {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_marked_cnt);
+    }
     SetWindowText(cur_ctrl, static_val);
 
     /* RANGE_SELECT_MARKED_RANGE */
@@ -1537,23 +1562,78 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_FIRST_LAST_CAP);
     EnableWindow(cur_ctrl, range->mark_range_cnt && !filtered_active);
-    _snwprintf(static_val, sizeof(static_val), _T("%u"), range->mark_range_cnt);
+    if (range->remove_ignored) {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->mark_range_cnt - range->ignored_mark_range_cnt);
+    } else {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->mark_range_cnt);
+    }
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_FIRST_LAST_DISP);
     EnableWindow(cur_ctrl, range->displayed_mark_range_cnt && filtered_active);
-    _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_mark_range_cnt);
+    if (range->remove_ignored) {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_mark_range_cnt - range->displayed_ignored_mark_range_cnt);
+    } else {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_mark_range_cnt);
+    }
     SetWindowText(cur_ctrl, static_val);
 
     /* RANGE_SELECT_USER */
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_CAP);
     EnableWindow(cur_ctrl, !filtered_active);
-    _snwprintf(static_val, sizeof(static_val), _T("%u"), range->user_range_cnt);
+    if (range->remove_ignored) {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->user_range_cnt - range->ignored_user_range_cnt);
+    } else {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->user_range_cnt);
+    }
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_DISP);
     EnableWindow(cur_ctrl, filtered_active);
-    _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_user_range_cnt);
+    if (range->remove_ignored) {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_user_range_cnt - range->displayed_ignored_user_range_cnt);
+    } else {
+        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_user_range_cnt);
+    }
+    SetWindowText(cur_ctrl, static_val);
+
+    /* RANGE_REMOVE_IGNORED_PACKETS */
+    switch(range->process) {
+        case(range_process_all):
+            ignored_cnt = range->ignored_cnt;
+            displayed_ignored_cnt = range->displayed_ignored_cnt;
+            break;
+        case(range_process_selected):
+            ignored_cnt = (cfile.current_frame && cfile.current_frame->flags.ignored) ? 1 : 0;
+            displayed_ignored_cnt = ignored_cnt;
+            break;
+        case(range_process_marked):
+            ignored_cnt = range->ignored_marked_cnt;
+            displayed_ignored_cnt = range->displayed_ignored_marked_cnt;
+            break;
+        case(range_process_marked_range):
+            ignored_cnt = range->ignored_mark_range_cnt;
+            displayed_ignored_cnt = range->displayed_ignored_mark_range_cnt;
+            break;
+        case(range_process_user_range):
+            ignored_cnt = range->ignored_user_range_cnt;
+            displayed_ignored_cnt = range->displayed_ignored_user_range_cnt;
+            break;
+        default:
+            g_assert_not_reached();
+    }
+
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_REMOVE_IGN_CB);
+    EnableWindow(cur_ctrl, ignored_cnt);
+
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_IGNORED_CAP);
+    EnableWindow(cur_ctrl, !filtered_active);
+    _snwprintf(static_val, sizeof(static_val), _T("%u"), ignored_cnt);
+    SetWindowText(cur_ctrl, static_val);
+
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_IGNORED_DISP);
+    EnableWindow(cur_ctrl, filtered_active);
+    _snwprintf(static_val, sizeof(static_val), _T("%u"), displayed_ignored_cnt);
     SetWindowText(cur_ctrl, static_val);
 }
 
@@ -1648,6 +1728,14 @@ range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t
         case (EN_CHANGE << 16) | EWFD_RANGE_EDIT:
             SendMessage(ctrl, WM_GETTEXT, (WPARAM) RANGE_TEXT_MAX, (LPARAM) range_text);
             packet_range_convert_str(range, utf_16to8(range_text));
+            range_update_dynamics(dlg_hwnd, range);
+            break;
+        case (BN_CLICKED << 16) | EWFD_REMOVE_IGN_CB:
+            if (SendMessage(ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+                range->remove_ignored = TRUE;
+            } else {
+                range->remove_ignored = FALSE;
+            }
             range_update_dynamics(dlg_hwnd, range);
             break;
     }
