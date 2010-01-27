@@ -709,8 +709,7 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		item = proto_tree_add_item(parent_tree, proto_goose, tvb, 0, -1, FALSE);
 		tree = proto_item_add_subtree(item, ett_goose);
 	}
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* APPID */
@@ -993,7 +992,7 @@ void proto_register_goose(void) {
         "goose.BIT_STRING", HFILL }},
 
 /*--- End of included file: packet-goose-hfarr.c ---*/
-#line 137 "packet-goose-template.c"
+#line 136 "packet-goose-template.c"
   };
 
   /* List of subtrees */
@@ -1021,7 +1020,7 @@ void proto_register_goose(void) {
     &ett_goose_Data,
 
 /*--- End of included file: packet-goose-ettarr.c ---*/
-#line 143 "packet-goose-template.c"
+#line 142 "packet-goose-template.c"
   };
 
 	/* Register protocol */
