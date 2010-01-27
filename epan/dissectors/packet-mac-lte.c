@@ -374,6 +374,75 @@ static const value_string buffer_size_vals[] =
     { 0, NULL }
 };
 
+static const value_string power_headroom_size_vals[] =
+{
+    { 0,      "-23 <= PH < -22"},
+    { 1,      "-22 <= PH < -21"},
+    { 2,      "-21 <= PH < -20"},
+    { 3,      "-20 <= PH < -19"},
+    { 4,      "-19 <= PH < -18"},
+    { 5,      "-18 <= PH < -17"},
+    { 6,      "-17 <= PH < -16"},
+    { 7,      "-16 <= PH < -15"},
+    { 8,      "-15 <= PH < -14"},
+    { 9,      "-14 <= PH < -13"},
+    { 10,     "-13 <= PH < -12"},
+    { 11,     "-12 <= PH < -11"},
+    { 12,     "-11 <= PH < -10"},
+    { 13,     "-10 <= PH < -9"},
+    { 14,     "-9 <= PH < -8"},
+    { 15,     "-8 <= PH < -7"},
+    { 16,     "-7 <= PH < -6"},
+    { 17,     "-6 <= PH < -5"},
+    { 18,     "-5 <= PH < -4"},
+    { 19,     "-4 <= PH < -3"},
+    { 20,     "-3 <= PH < -2"},
+    { 21,     "-2 <= PH < -1"},
+    { 22,     "-1 <= PH < 0"},
+    { 23,     "0 <= PH < 1"},
+    { 24,     "1 <= PH < 2"},
+    { 25,     "2 <= PH < 3"},
+    { 26,     "3 <= PH < 4"},
+    { 27,     "4 <= PH < 5"},
+    { 28,     "5 <= PH < 6"},
+    { 29,     "6 <= PH < 7"},
+    { 30,     "7 <= PH < 8"},
+    { 31,     "8 <= PH < 9"},
+    { 32,     "9 <= PH < 10"},
+    { 33,     "10 <= PH < 11"},
+    { 34,     "11 <= PH < 12"},
+    { 35,     "12 <= PH < 13"},
+    { 36,     "13 <= PH < 14"},
+    { 37,     "14 <= PH < 15"},
+    { 38,     "15 <= PH < 16"},
+    { 39,     "16 <= PH < 17"},
+    { 40,     "17 <= PH < 18"},
+    { 41,     "18 <= PH < 19"},
+    { 42,     "19 <= PH < 20"},
+    { 43,     "20 <= PH < 21"},
+    { 44,     "21 <= PH < 22"},
+    { 45,     "22 <= PH < 23"},
+    { 46,     "23 <= PH < 24"},
+    { 47,     "24 <= PH < 25"},
+    { 48,     "25 <= PH < 26"},
+    { 49,     "26 <= PH < 27"},
+    { 50,     "27 <= PH < 28"},
+    { 51,     "28 <= PH < 29"},
+    { 52,     "29 <= PH < 30"},
+    { 53,     "30 <= PH < 31"},
+    { 54,     "31 <= PH < 32"},
+    { 55,     "32 <= PH < 33"},
+    { 56,     "33 <= PH < 34"},
+    { 57,     "34 <= PH < 35"},
+    { 58,     "34 <= PH < 36"},
+    { 59,     "36 <= PH < 37"},
+    { 60,     "37 <= PH < 38"},
+    { 61,     "38 <= PH < 39"},
+    { 62,     "39 <= PH < 40"},
+    { 63,     "PH >= 40"},
+    { 0, NULL }
+};
+
 static const value_string header_only_vals[] =
 {
     { 0,      "MAC PDU Headers and body present"},
@@ -2021,7 +2090,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                             tvb, offset, 1, FALSE);
 
                         /* Show value in root label */
-                        proto_item_append_text(phr_ti, " (POWER_HEADROOM_%u)", level);
+                        proto_item_append_text(phr_ti, " (%s)", val_to_str(level, power_headroom_size_vals, "Unknown"));
                         offset++;
                     }
 
@@ -3161,8 +3230,8 @@ void proto_register_mac_lte(void)
         },
         { &hf_mac_lte_control_power_headroom_level,
             { "Power Headroom Level",
-              "mac-lte.control.power-headroom.level", FT_UINT8, BASE_DEC, 0, 0x3f,
-              NULL, HFILL
+              "mac-lte.control.power-headroom.level", FT_UINT8, BASE_DEC,
+               VALS(power_headroom_size_vals), 0x3f, "Power Headroom Level in dB", HFILL
             }
         },
 
