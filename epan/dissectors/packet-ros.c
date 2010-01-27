@@ -209,7 +209,7 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 			ros_tree = proto_item_add_subtree(item, *(rinfo->ett_proto));
 		}
 
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, rinfo->name);
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, rinfo->name);
 
 		/* if this is a bind operation */
 		if((session->ros_op & ROS_OP_TYPE_MASK) == ROS_OP_BIND) {
@@ -998,7 +998,7 @@ dissect_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 /*--- End of included file: packet-ros-fn.c ---*/
-#line 375 "packet-ros-template.c"
+#line 374 "packet-ros-template.c"
 
 /*
 * Dissect ROS PDUs inside a PPDU.
@@ -1245,7 +1245,7 @@ void proto_register_ros(void) {
         "ros.OBJECT_IDENTIFIER", HFILL }},
 
 /*--- End of included file: packet-ros-hfarr.c ---*/
-#line 509 "packet-ros-template.c"
+#line 508 "packet-ros-template.c"
   };
 
   /* List of subtrees */
@@ -1266,7 +1266,7 @@ void proto_register_ros(void) {
     &ett_ros_Code,
 
 /*--- End of included file: packet-ros-ettarr.c ---*/
-#line 516 "packet-ros-template.c"
+#line 515 "packet-ros-template.c"
   };
 
   /* Register protocol */
