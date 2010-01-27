@@ -1627,12 +1627,12 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     EnableWindow(cur_ctrl, ignored_cnt);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_IGNORED_CAP);
-    EnableWindow(cur_ctrl, !filtered_active);
+    EnableWindow(cur_ctrl, ignored_cnt && !filtered_active);
     _snwprintf(static_val, sizeof(static_val), _T("%u"), ignored_cnt);
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_IGNORED_DISP);
-    EnableWindow(cur_ctrl, filtered_active);
+    EnableWindow(cur_ctrl, displayed_ignored_cnt && filtered_active);
     _snwprintf(static_val, sizeof(static_val), _T("%u"), displayed_ignored_cnt);
     SetWindowText(cur_ctrl, static_val);
 }
