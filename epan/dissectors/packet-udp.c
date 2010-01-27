@@ -424,10 +424,12 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         "Checksum: 0x%04x (none)", 0);
 
       checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
-      proto_tree_add_boolean(checksum_tree, hf_udp_checksum_good, tvb,
+      item = proto_tree_add_boolean(checksum_tree, hf_udp_checksum_good, tvb,
                              offset + 6, 2, FALSE);
-      proto_tree_add_boolean(checksum_tree, hf_udp_checksum_bad, tvb,
+      PROTO_ITEM_SET_GENERATED(item);
+      item = proto_tree_add_boolean(checksum_tree, hf_udp_checksum_bad, tvb,
                              offset + 6, 2, FALSE);
+      PROTO_ITEM_SET_GENERATED(item);
     } else {
       item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb, offset + 6, 2, 0,
         "Checksum: 0x%04x (Illegal)", 0);
