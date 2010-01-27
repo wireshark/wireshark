@@ -122,8 +122,9 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		break;
 
 	case PCAP_NSEC_MAGIC:
-		/* Host that wrote it has our byte order, and was running
-		   a program using either standard or ss990417 libpcap. */
+		/* Host that wrote it has our byte order, and was writing
+		   the file in a format similar to standard libpcap
+		   except that the time stamps have nanosecond resolution. */
 		byte_swapped = FALSE;
 		modified = FALSE;
 		wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
@@ -131,8 +132,9 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 
 	case PCAP_SWAPPED_NSEC_MAGIC:
 		/* Host that wrote it out has a byte order opposite to
-		   ours, and was running a program using either ss990915
-		   or ss991029 libpcap. */
+		   ours, and was writing the file in a format similar to
+		   standard libpcap except that the time stamps have
+		   nanosecond resolution. */
 		byte_swapped = TRUE;
 		modified = FALSE;
 		wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
