@@ -503,16 +503,14 @@ const value_string cmp_PKIStatus_vals[] = {
 
 int
 dissect_cmp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 108 "cmp.cnf"
+#line 106 "cmp.cnf"
   guint32 value;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &value);
 
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-  	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Status=%s", val_to_str(value, cmp_PKIStatus_vals, "unknown"));
-  }
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Status=%s", val_to_str(value, cmp_PKIStatus_vals, "unknown"));
 
 
 
@@ -1110,9 +1108,7 @@ dissect_cmp_PKIBody(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
                                  &branch_taken);
 
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-  	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Body=%s", val_to_str(branch_taken, cmp_PKIBody_vals, "unknown"));
-  }
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Body=%s", val_to_str(branch_taken, cmp_PKIBody_vals, "unknown"));
 
 
 
@@ -1539,9 +1535,7 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_type, tvb, offset++, 1, FALSE);
 	}
 
-	if (check_col (pinfo->cinfo, COL_INFO)) {
-		col_add_str (pinfo->cinfo, COL_INFO, val_to_str (pdu_type, cmp_pdu_types, "0x%x"));
-	}
+	col_add_str (pinfo->cinfo, COL_INFO, val_to_str (pdu_type, cmp_pdu_types, "0x%x"));
 
 	switch(pdu_type){
 		case CMP_TYPE_PKIMSG:
@@ -2358,7 +2352,7 @@ void proto_register_cmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-#line 343 "packet-cmp-template.c"
+#line 341 "packet-cmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -2416,7 +2410,7 @@ void proto_register_cmp(void) {
     &ett_cmp_PollRepContent_item,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-#line 349 "packet-cmp-template.c"
+#line 347 "packet-cmp-template.c"
 	};
 	module_t *cmp_module;
 
@@ -2510,7 +2504,7 @@ void proto_reg_handoff_cmp(void) {
 
 
 /*--- End of included file: packet-cmp-dis-tab.c ---*/
-#line 421 "packet-cmp-template.c"
+#line 419 "packet-cmp-template.c"
 		inited = TRUE;
 	}
 
