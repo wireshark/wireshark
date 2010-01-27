@@ -1,4 +1,4 @@
-Wireshark 1.2.5 Release Notes
+Wireshark 1.2.6 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,43 +15,55 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o The Daintree SNA file parser could overflow a buffer. (Bug
-       4294)
+     o Babi discovered several buffer overflows in the LWRES
+       dissector.
 
-       Versions affected: 1.2.0 to 1.2.4
-
-     o The SMB and SMB2 dissectors could crash. (Bug 4301)
-
-       Versions affected: 0.9.0 to 1.2.4
-
-     o The IPMI dissector could crash on Windows. (Bug 4319)
-
-       Versions affected: 1.2.0 to 1.2.4
+       Versions affected: 0.9.15 to 1.0.10, 1.2.0 to 1.2.4
 
    The following bugs have been fixed:
 
-     o Wireshark does not graph rtp streams. (Bug 3801)
+     o Wireshark could crash while decrypting Kerberos data.
 
-     o Wireshark showing extraneous data in a TCP stream. (Bug 3955)
+     o Address display filters hang Wireshark. (Bug 658)
 
-     o Wrong decoding of gtp.target identification. (Bug 3974)
+     o PSML - structure context node missing. (Bug 1564)
 
-     o TTE dissector bug. (Bug 4247)
+     o Wireshark doesn't dynamically update the packet list. (Bug
+       1605)
 
-     o Upper case in Lua pref symbol causes Wireshark to crash. (Bug
-       4255)
+     o LUA: There's no tvb_get_stringz() equivalent. (Bug 2244)
 
-     o OpenBSD 4.5 build fails at epan/dissectors/packet-rpcap.c.
-       (Bug 4258)
+     o tvb_new_real_data is prone to memory leak. (Bug 3917)
 
-     o Incorrect display of stream data using "Follow tcp stream"
-       option. (Bug 4288)
+     o Malformed OPC UA traffic makes Wireshark "freeze". (Bug 3986)
 
-     o Custom RADIUS dictionary can cause a crash. (Bug 4316)
+     o Analyze->Expert... doesn't show IP "Bad Checksum" errors. (Bug
+       4177)
+
+     o Wireshark can't decrypt WPA(2)-PSK when passphrase is 63
+       bytes. (Bug 4183)
+
+     o RTP stream analysis: Wrong jitter values after clicking the
+       refresh button. (Bug 4340)
+
+     o Wireshark decodes bootp option 2 incorrectly. (Bug 4342)
+
+     o Deleting SMI modules causes Wireshark to crash. (Bug 4354)
+
+     o Wireshark decodes kerberos AS-REQ PADATA incorrect. (Bug 4363)
+
+     o PDML output from TShark includes invalid characters. (Bug
+       4402)
+
+     o Empty GPRS LLC S frames cause truncated data exception. (Bug
+       4417)
 
   New and Updated Features
 
-   There are no new features in this release.
+   Feature parity between the 64- and 32-bit Windows installer has
+   been improved. The 64-bit installer now supports the "matches"
+   operator, GeoIP location, and most types of decryption. Kerberos
+   decryption and OID resolution are still not supported.
 
   New Protocol Support
 
@@ -59,12 +71,12 @@ What's New
 
   Updated Protocol Support
 
-   DAP, eDonkey, GTP, IPMI, MIP, RADIUS, RANAP, SMB, SMB2, TCP, TTE,
-   VNC, X.509sat
+   BJNP, BOOTP/DHCP, DHCPv6, FIP, GPRS LLC, IEEE 802.11, IP,
+   Kerberos, OPCUA, SCTP, SSL, ZRTP
 
   Updated Capture File Support
 
-   Daintree SNA.
+   There are no updated capture file formats in this release.
 
 Getting Wireshark
 
@@ -97,10 +109,6 @@ Known Problems
    Dumpcap might not quit if Wireshark or TShark crashes. (Bug 1419)
 
    The BER dissector might infinitely loop. (Bug 1516)
-
-   Wireshark can't dynamically update the packet list. This means
-   that host name resolutions above a certain response time threshold
-   won't show up in the packet list. (Bug 1605)
 
    Capture filters aren't applied when capturing from named pipes.
    (Bug 1814)

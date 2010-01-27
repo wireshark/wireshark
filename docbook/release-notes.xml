@@ -61,6 +61,14 @@ Wireshark Info
 
       <itemizedlist>
 
+<!--
+        <listitem><para>
+          Wireshark will go all Weezer on you and destroy your sweater.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=0000">Bug
+          0000</ulink>)
+        </para></listitem>
+-->
+
         <listitem><para>
           Wireshark could crash while decrypting Kerberos data.
         </para></listitem>
@@ -135,6 +143,12 @@ Wireshark Info
           Wireshark decodes kerberos AS-REQ PADATA incorrect.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4363">Bug
           4363</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          PDML output from TShark includes invalid characters.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4402">Bug
+          4402</ulink>)
         </para></listitem>
 
         <listitem><para>
