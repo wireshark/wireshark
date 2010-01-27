@@ -1738,7 +1738,7 @@ dissect_sabp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*sabp_tree = NULL;
 
 	/* make entry in the Protocol column on summary display */
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
 	/* create the sbap protocol tree */
 	sabp_item = proto_tree_add_item(tree, proto_sabp, tvb, 0, -1, FALSE);
@@ -2087,7 +2087,7 @@ void proto_register_sabp(void) {
         "sabp.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sabp-hfarr.c ---*/
-#line 177 "packet-sabp-template.c"
+#line 176 "packet-sabp-template.c"
   };
 
   /* List of subtrees */
@@ -2140,7 +2140,7 @@ void proto_register_sabp(void) {
     &ett_sabp_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sabp-ettarr.c ---*/
-#line 186 "packet-sabp-template.c"
+#line 185 "packet-sabp-template.c"
   };
 
 
@@ -2222,7 +2222,7 @@ proto_reg_handoff_sabp(void)
 
 
 /*--- End of included file: packet-sabp-dis-tab.c ---*/
-#line 222 "packet-sabp-template.c"
+#line 221 "packet-sabp-template.c"
 
 }
 

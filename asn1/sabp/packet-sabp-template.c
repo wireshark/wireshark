@@ -144,8 +144,7 @@ dissect_sabp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*sabp_tree = NULL;
 
 	/* make entry in the Protocol column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
 	/* create the sbap protocol tree */
 	sabp_item = proto_tree_add_item(tree, proto_sabp, tvb, 0, -1, FALSE);
