@@ -92,7 +92,7 @@ static int hf_ansi_801_clock_drift = -1;
 static int hf_ansi_801_height_incl = -1;
 static int hf_ansi_801_height = -1;
 static int hf_ansi_801_loc_uncrtnty_v = -1;
-static int hf_ansi_801_spare_bits = -1;
+static int hf_ansi_801_reserved_bits = -1;
 
 static int hf_ansi_801_bad_sv_present = -1;
 static int hf_ansi_801_num_bad_sv = -1;
@@ -101,6 +101,11 @@ static int hf_ansi_801_dopp_req = -1;
 static int hf_ansi_801_add_dopp_req = -1;
 static int hf_ansi_801_code_ph_par_req = -1;
 static int hf_ansi_801_az_el_req = -1;
+
+static int hf_ansi_801_pref_resp_qual = -1;
+static int hf_ansi_801_num_fixes = -1;
+static int hf_ansi_801_t_betw_fixes = -1;
+static int hf_ansi_801_offset_req = -1;
 
 static char bigbuf[1024];
 static dissector_handle_t data_handle;
@@ -207,61 +212,44 @@ static const value_string rev_req_type_strings[] = {
 #define	NUM_REV_REQ_TYPE (sizeof(rev_req_type_strings)/sizeof(value_string))
 static gint ett_rev_req_type[NUM_REV_REQ_TYPE];
 
-
 static void
 for_req_pseudo_meas(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
-	guint32	value;
-	guint32	saved_offset;
+	guint32	bit_offset, spare_bits;
+	guint32	saved_offset, value;
 
 	SHORT_DATA_CHECK(len, 3);
-
 	saved_offset = offset;
+	bit_offset = offset << 3;
 
-	value = tvb_get_ntoh24(tvb, offset);
+	/* PREF_RESP_QUAL */
+	proto_tree_add_bits_item(tree, hf_ansi_801_pref_resp_qual, tvb, bit_offset, 3, FALSE);
+	bit_offset += 3;
 
-	other_decode_bitfield_value(bigbuf, value >> 16, 0xe0, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  Preferred response quality, %u",
-	bigbuf,
-	(value & 0xe00000) >> 21);
+	/* NUM_FIXES */
+	value = tvb_get_bits8(tvb, bit_offset, 8) + 1;
+	proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_num_fixes, tvb, bit_offset, 8, value, "%u", value);
+	bit_offset += 8;
 
-	other_decode_bitfield_value(bigbuf, value >> 16, 0x1f, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  Number of fixes (MSB), %u",
-	bigbuf,
-	(value & 0x1fe000) >> 13);
+	/* T_BETW_FIXES */
+	value = tvb_get_bits8(tvb, bit_offset, 8);
+	proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_t_betw_fixes, tvb, bit_offset, 8, value, "%u seconds", value);
+	bit_offset += 8;
 
-	other_decode_bitfield_value(bigbuf, value >> 8, 0xe0, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  Number of fixes (LSB)",
-	bigbuf);
+	/* OFFSET_REQ */
+	proto_tree_add_bits_item(tree, hf_ansi_801_offset_req, tvb, bit_offset++, 1, FALSE);
 
-	other_decode_bitfield_value(bigbuf, value >> 8, 0x1f, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  Time between fixes (MSB), %u",
-	bigbuf,
-	(value & 0x001fe0) >> 5);
+	if(bit_offset & 0x07)
+	{
+		spare_bits = 8 - (bit_offset & 0x07);
+		proto_tree_add_bits_item(tree, hf_ansi_801_reserved_bits, tvb, bit_offset, spare_bits, FALSE);
+		bit_offset += spare_bits;
+	}
 
-	other_decode_bitfield_value(bigbuf, value, 0xe0, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  Time between fixes (LSB)",
-	bigbuf);
-
-	other_decode_bitfield_value(bigbuf, value, 0x10, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  Offset %srequested",
-	bigbuf,
-	(value & 0x10) ? "" : "not ");
-
-	other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  Reserved",
-	bigbuf);
-
-	offset += 3;
+	offset = bit_offset >> 3;
 
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
+	
 }
 
 static void
@@ -911,7 +899,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	if(bit_offset & 0x07)
 	{
 		spare_bits = 8 - (bit_offset & 0x07);
-		proto_tree_add_bits_item(tree, hf_ansi_801_spare_bits, tvb, bit_offset, spare_bits, FALSE);
+		proto_tree_add_bits_item(tree, hf_ansi_801_reserved_bits, tvb, bit_offset, spare_bits, FALSE);
 		bit_offset += spare_bits;
 	}
 
@@ -962,7 +950,7 @@ for_pr_gps_sat_health(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
 	if(bit_offset & 0x07)
 	{
 		spare_bits = 8 - (bit_offset & 0x07);
-		proto_tree_add_bits_item(tree, hf_ansi_801_spare_bits, tvb, bit_offset, spare_bits, FALSE);
+		proto_tree_add_bits_item(tree, hf_ansi_801_reserved_bits, tvb, bit_offset, spare_bits, FALSE);
 		bit_offset += spare_bits;
 	}
 
@@ -985,7 +973,7 @@ rev_req_gps_acq_ass(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	proto_tree_add_bits_item(tree, hf_ansi_801_add_dopp_req, tvb, bit_offset++, 1, FALSE);
 	proto_tree_add_bits_item(tree, hf_ansi_801_code_ph_par_req, tvb, bit_offset++, 1, FALSE);
 	proto_tree_add_bits_item(tree, hf_ansi_801_az_el_req, tvb, bit_offset++, 1, FALSE);
-	proto_tree_add_bits_item(tree, hf_ansi_801_spare_bits, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_ansi_801_reserved_bits, tvb, bit_offset, 4, FALSE);
 	offset++;
 
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
@@ -2309,8 +2297,8 @@ proto_register_ansi_801(void)
 		FT_UINT8, BASE_DEC, NULL, 0x00,
 		NULL, HFILL }
 	},
-	{ &hf_ansi_801_spare_bits,
-		{ "Spare bit(s)","ansi_801.spare_bits",
+	{ &hf_ansi_801_reserved_bits,
+		{ "Reserved bit(s)","ansi_801.reerved_bits",
 		FT_UINT8,BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
@@ -2325,7 +2313,7 @@ proto_register_ansi_801(void)
 		NULL, HFILL }
 	},
 	{ &hf_ansi_801_bad_sv_prn_num,
-		{ "Satellite PRN number", "ansi_801.bad_sv_prn_num",
+		{ "Satellite PRN number (SV_PRN_NUM)", "ansi_801.bad_sv_prn_num",
 		FT_UINT8, BASE_DEC, NULL, 0x00,
 		NULL, HFILL }
 	},
@@ -2346,6 +2334,26 @@ proto_register_ansi_801(void)
 	},
 	{ &hf_ansi_801_az_el_req,
 		{ "Azimuth and elevation angle requested (AZ_EL_REQ)", "ansi_801.az_el_req",
+		FT_BOOLEAN, 8, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_pref_resp_qual,
+		{ "Preferred response quality (PREF_RESP_QUAL)", "ansi_801.pref_resp_qual",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_num_fixes,
+		{ "Number of fixes (NUM_FIXES)", "ansi_801.num_fixes",
+		FT_UINT16, BASE_DEC, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_t_betw_fixes,
+		{ "Time between fixes (T_BETW_FIXES)", "ansi_801.t_betw_fixes",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_offset_req,
+		{ "Offset requested (OFFSET_REQ)", "ansi_801.offset_req",
 		FT_BOOLEAN, 8, NULL, 0x00,
 		NULL, HFILL }
 	},
