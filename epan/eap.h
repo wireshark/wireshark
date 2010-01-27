@@ -26,10 +26,14 @@
 #ifndef __EAP_H__
 #define __EAP_H__
 
+/* http://www.iana.org/assignments/eap-numbers */
 #define EAP_REQUEST     1
 #define EAP_RESPONSE    2
 #define EAP_SUCCESS     3
 #define EAP_FAILURE     4
+#define EAP_INITIATE    5 /* [RFC5296] */
+#define EAP_FINISH      6 /* [RFC5296] */
+
 
 WS_VAR_IMPORT const value_string eap_code_vals[];
 
@@ -45,6 +49,7 @@ WS_VAR_IMPORT const value_string eap_code_vals[];
 #define EAP_TYPE_PEAP  25
 #define EAP_TYPE_MSCHAPV2 26
 #define EAP_TYPE_FAST  43
+#define EAP_TYPE_AKA_PRIME	50
 #define EAP_TYPE_EXT  254
 
 WS_VAR_IMPORT const value_string eap_type_vals[];

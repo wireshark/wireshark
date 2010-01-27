@@ -55,6 +55,8 @@ const value_string eap_code_vals[] = {
     { EAP_RESPONSE, "Response" },
     { EAP_SUCCESS,  "Success" },
     { EAP_FAILURE,  "Failure" },
+    { EAP_INITIATE, "Initiate" }, /* [RFC5296] */
+    { EAP_FINISH,   "Finish" },   /* [RFC5296] */
     { 0,            NULL }
 };
 
@@ -118,8 +120,9 @@ const value_string eap_type_vals[] = {
   { 47,          "EAP-PSK [RFC4764]" },
   { 48,          "EAP-SAKE [RFC4763]" },
   { 49,          "EAP-IKEv2 [RFC5106]" },
-  { 50,          "EAP-AKA' [RFC-arkko-eap-aka-kdf-10.txt]" },
+  { 50,          "EAP-AKA' [RFC5448]" },
   { 51,          "EAP-GPSK [RFC5433]" },
+  { 53,          "EAP-pwd [RFC-harkins-emu-eap-pwd-12.txt]" },
   { 254,         "Expanded Type [RFC3748]" },
   { 255,         "Experimental [RFC3748]" },
   { 0,          NULL }
@@ -544,6 +547,8 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 		{ 20, "AT_COUNTER_TOO_SMALL" },
 		{ 21, "AT_NONCE_S" },
 		{ 22, "AT_CLIENT_ERROR_CODE" },
+		{ 23,  "AT_KDF_INPUT"},
+		{ 24,  "AT_KDF"},
 		{ 129, "AT_IV" },
 		{ 130, "AT_ENCR_DATA" },
 		{ 132, "AT_NEXT_PSEUDONYM" },
@@ -1160,6 +1165,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               EAP-AKA - draft-arkko-pppext-eap-aka-12.txt
       **********************************************************************/
       case EAP_TYPE_AKA:
+	  case EAP_TYPE_AKA_PRIME:
 	if (tree)
 	  dissect_eap_aka(eap_tree, tvb, offset, size);
 	break; /* EAP_TYPE_AKA */

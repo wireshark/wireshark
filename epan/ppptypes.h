@@ -61,18 +61,19 @@
 #define PPP_ILE		0x55	/* Individual Link Encryption */
 #define PPP_IPV6	0x57	/* Internet Protocol Version 6 */
 #define PPP_MUX		0x59    /* PPP Multiplexing */
-#define PPP_RTP_FH	0x61	/* RTP IPHC Full Header */
+#define PPP_VSNP		0x5b    /* Vendor-Specific Network Protocol  */
+#define PPP_RTP_FH		0x61	/* RTP IPHC Full Header */
 #define PPP_RTP_CTCP	0x63	/* RTP IPHC Compressed TCP */
 #define PPP_RTP_CNTCP	0x65	/* RTP IPHC Compressed Non TCP */
 #define PPP_RTP_CUDP8	0x67	/* RTP IPHC Compressed UDP 8 */
 #define PPP_RTP_CRTP8	0x69	/* RTP IPHC Compressed RTP 8 */
 #define PPP_STAMPEDE	0x6f	/* Stampede Bridging */
-#define PPP_MPPLUS	0x73	/* MP+ Protocol */
+#define PPP_MPPLUS		0x73	/* MP+ Protocol */
 #define PPP_NTCITS_IPI	0xc1	/* NTCITS IPI */
 #define PPP_ML_SLCOMP	0xfb	/* single link compression in multilink */
-#define PPP_COMP	0xfd	/* compressed packet */
+#define PPP_COMP		0xfd	/* compressed packet */
 #define PPP_STP_HELLO	0x0201	/* 802.1d Hello Packet */
-#define PPP_IBM_SR	0x0203	/* IBM Source Routing BPDU */
+#define PPP_IBM_SR		0x0203	/* IBM Source Routing BPDU */
 #define PPP_DEC_LB	0x0205	/* DEC LANBridge100 Spanning Tree */
 #define PPP_CDP         0x0207  /* Cisco Discovery Protocol */
 #define PPP_NETCS	0x0209	/* Netcs Twin Routing */
@@ -101,6 +102,7 @@
 #define PPP_REFTEK	0x4023	/* RefTek Protocol */
 #define PPP_FC		0x4025	/* Fibre Channel */
 #define PPP_EMIT	0x4027	/* EMIT Protocols */
+#define PPP_VSP		0x405b	/* Vendor-Specific Protocol */
 #define PPP_IPCP	0x8021	/* IP Control Protocol */
 #define PPP_OSICP	0x8023  /* OSI Control Protocol */
 #define PPP_XNSIDPCP	0x8025	/* Xerox NS IDP Control Protocol */
@@ -124,6 +126,7 @@
 #define PPP_ILECP	0x8055	/* Individual Encryption Control Protocol */
 #define PPP_IPV6CP	0x8057	/* IPv6 Control Protocol */
 #define PPP_MUXCP       0x8059  /* PPPMux Control Protocol */
+#define PPP_VSNCP		0x805b	/* Vendor-Specific Network Control Protocol (VSNCP)   [RFC3772] */
 #define PPP_STAMPEDECP	0x806f	/* Stampede Bridging Control Protocol */
 #define PPP_MPPCP	0x8073	/* MP+ Contorol Protocol */
 #define PPP_IPICP	0x80c1	/* NTCITS IPI Control Protocol */
@@ -137,7 +140,7 @@
 #define PPP_MPLSCP	0x8281	/* MPLS Control Protocol */
 #define PPP_P12844CP	0x8285	/* IEEE p1284.4 standard - Protocol Control */
 #define PPP_ETSICP	0x8287	/* ETSI TETRA TNP1 Control Protocol */
-#define PPP_MFTPCP	0x8287	/* Multichannel Flow Treatment Protocol */
+#define PPP_MFTPCP	0x8289	/* Multichannel Flow Treatment Protocol */
 #define PPP_LCP		0xc021	/* Link Control Protocol */
 #define PPP_PAP		0xc023	/* Password Authentication Protocol */
 #define PPP_LQR		0xc025	/* Link Quality Report protocol */
@@ -145,6 +148,7 @@
 #define PPP_CBCP	0xc029	/* CallBack Control Protocol */
 #define PPP_BACP	0xc02b	/* Bandwidth Allocation Control Protocol */
 #define PPP_BAP		0xc02d	/* Bandwidth Allocation Protocol */
+#define PPP_VSAP	0xc05b	/* Vendor-Specific Authentication Protocol (VSAP) */
 #define PPP_CONTCP	0xc081	/* Container Control Protocol */
 #define PPP_CHAP	0xc223	/* Cryptographic Handshake Auth. Protocol */
 #define PPP_RSAAP	0xc225	/* RSA Authentication Protocol */
