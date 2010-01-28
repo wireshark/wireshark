@@ -1739,11 +1739,11 @@ emem_tree_insert_string(emem_tree_t* se_tree, const gchar* k, void* v, guint32 f
 	emem_tree_key_t key[2];
 	guint32 *aligned=NULL;
 	guint32 len = (guint32) strlen(k);
-	guint32 div = (len+3)/4+1;
+	guint32 divx = (len+3)/4+1;
 	guint32 i;
 	guint32 tmp;
 
-	aligned = g_malloc(div * sizeof (guint32));
+	aligned = g_malloc(divx * sizeof (guint32));
 
 	/* pack the bytes one one by one into guint32s */
 	tmp = 0;
@@ -1773,9 +1773,9 @@ emem_tree_insert_string(emem_tree_t* se_tree, const gchar* k, void* v, guint32 f
 	}
 
 	/* add the terminator */
-	aligned[div-1] = 0x00000001;
+	aligned[divx-1] = 0x00000001;
 
-	key[0].length = div;
+	key[0].length = divx;
 	key[0].key = aligned;
 	key[1].length = 0;
 	key[1].key = NULL;
@@ -1791,12 +1791,12 @@ emem_tree_lookup_string(emem_tree_t* se_tree, const gchar* k, guint32 flags)
 	emem_tree_key_t key[2];
 	guint32 *aligned=NULL;
 	guint32 len = (guint) strlen(k);
-	guint32 div = (len+3)/4+1;
+	guint32 divx = (len+3)/4+1;
 	guint32 i;
 	guint32 tmp;
 	void *ret;
 
-	aligned = g_malloc(div * sizeof (guint32));
+	aligned = g_malloc(divx * sizeof (guint32));
 
 	/* pack the bytes one one by one into guint32s */
 	tmp = 0;
@@ -1826,9 +1826,9 @@ emem_tree_lookup_string(emem_tree_t* se_tree, const gchar* k, guint32 flags)
 	}
 
 	/* add the terminator */
-	aligned[div-1] = 0x00000001;
+	aligned[divx-1] = 0x00000001;
 
-	key[0].length = div;
+	key[0].length = divx;
 	key[0].key = aligned;
 	key[1].length = 0;
 	key[1].key = NULL;

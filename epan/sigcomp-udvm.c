@@ -187,7 +187,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 	guint16 length;
 	guint16 at_address;
 	guint16 destination;
-	guint16 address;
+	guint16 addr;
 	guint16 value;
 	guint16 p_id_start;
 	guint16 p_id_length;
@@ -918,10 +918,10 @@ execute_next_instruction:
 		}
 		operand_address = current_address + 1;
 		/* %address */
-		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &address);
+		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &addr);
 		if (show_instr_detail_level == 2 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Address %u",
-				operand_address, address);
+				operand_address, addr);
 		}
 		operand_address = next_operand_address;
 		/* %value */
@@ -930,19 +930,19 @@ execute_next_instruction:
 		{
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 				"Addr: %u ## LOAD (%%address=%u, %%value=%u)",
-				current_address, address, value);
+				current_address, addr, value);
 		}
 		lsb = value & 0xff;
 		msb = value >> 8;
 
-		buff[address] = msb;
-		buff[address + 1] = lsb;
+		buff[addr] = msb;
+		buff[addr + 1] = lsb;
 
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Value %u",
 				operand_address, value);
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading bytes at %u Value %u 0x%x",
-					address, value, value);
+					addr, value, value);
 		}
 		used_udvm_cycles++;
 		current_address = next_operand_address;
@@ -962,10 +962,10 @@ execute_next_instruction:
 		}
 		operand_address = current_address + 1;
 		/* %address */
-		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &address);
+		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &addr);
 		if (show_instr_detail_level == 2 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Address %u",
-				operand_address, address);
+				operand_address, addr);
 		}
 		operand_address = next_operand_address;
 
@@ -979,7 +979,7 @@ execute_next_instruction:
 		{
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 				"Addr: %u ## MULTILOAD (%%address=%u, #n=%u, value_0, ..., value_%d)",
-				current_address, address, n, n-1);
+				current_address, addr, n, n-1);
 		}
 		operand_address = next_operand_address;
 		used_udvm_cycles = used_udvm_cycles + 1 + n;
@@ -990,20 +990,20 @@ execute_next_instruction:
 			lsb = value & 0xff;
 			msb = value >> 8;
 
-			if (address >= UDVM_MEMORY_SIZE - 1)
+			if (addr >= UDVM_MEMORY_SIZE - 1)
 				goto decompression_failure;
 
-			buff[address] = msb;
-			buff[address + 1] = lsb;
+			buff[addr] = msb;
+			buff[addr + 1] = lsb;
 			/* debug
 			*/
 			length = next_operand_address - operand_address;
 
 			if (print_level_1 ){
 				proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1, "Addr: %u      Value %5u      - Loading bytes at %5u Value %5u 0x%x",
-				operand_address, value, address, value, value);
+				operand_address, value, addr, value, value);
 			}
-			address = address + 2;
+			addr = addr + 2;
 			operand_address = next_operand_address;
 		}
 		current_address = next_operand_address;
@@ -1036,13 +1036,13 @@ execute_next_instruction:
 		stack_location = (buff[70] << 8) | buff[71];
 		stack_fill = (buff[stack_location] << 8)
 			   | buff[(stack_location+1) & 0xFFFF];
-		address = (stack_location + stack_fill * 2 + 2) & 0xFFFF;
+		addr = (stack_location + stack_fill * 2 + 2) & 0xFFFF;
 
-		if (address >= UDVM_MEMORY_SIZE - 1)
+		if (addr >= UDVM_MEMORY_SIZE - 1)
 			goto decompression_failure;
 
-		buff[address] = (value >> 8) & 0x00FF;
-		buff[(address+1) & 0xFFFF] = value & 0x00FF;
+		buff[addr] = (value >> 8) & 0x00FF;
+		buff[(addr+1) & 0xFFFF] = value & 0x00FF;
 
 		if (stack_location >= UDVM_MEMORY_SIZE - 1)
 			goto decompression_failure;
@@ -1094,13 +1094,13 @@ execute_next_instruction:
 		buff[stack_location] = (stack_fill >> 8) & 0x00FF;
 		buff[(stack_location+1) & 0xFFFF] = stack_fill & 0x00FF;
 
-		address = (stack_location + stack_fill * 2 + 2) & 0xFFFF;
+		addr = (stack_location + stack_fill * 2 + 2) & 0xFFFF;
 
-		if (address >= UDVM_MEMORY_SIZE - 1)
+		if (addr >= UDVM_MEMORY_SIZE - 1)
 			goto decompression_failure;
 
-		value = (buff[address] << 8)
-			   | buff[(address+1) & 0xFFFF];
+		value = (buff[addr] << 8)
+			   | buff[(addr+1) & 0xFFFF];
 
 		/* ... and store the popped value. */
 		if (destination >= UDVM_MEMORY_SIZE - 1)
@@ -1433,10 +1433,10 @@ execute_next_instruction:
 		operand_address = current_address + 1;
 
 		/* %address */
-		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &address);
+		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &addr);
 		if (show_instr_detail_level == 2 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Address %u",
-				operand_address, address);
+				operand_address, addr);
 		}
 		operand_address = next_operand_address;
 
@@ -1465,7 +1465,7 @@ execute_next_instruction:
 		{
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 				"Addr: %u ## MEMSET (address=%u, length=%u, start_value=%u, offset=%u)",
-				current_address, address, length, start_value, multy_offset);
+				current_address, addr, length, start_value, multy_offset);
 		}
 		current_address = next_operand_address;
 		/* exetute the instruction
@@ -1475,7 +1475,7 @@ execute_next_instruction:
 		 * Seq[n] := (start_value + n * offset) modulo 256
 		 */
 		n = 0;
-		k = address;
+		k = addr;
 		byte_copy_right = buff[66] << 8;
 		byte_copy_right = byte_copy_right | buff[67];
 		byte_copy_left = buff[64] << 8;
@@ -1629,11 +1629,11 @@ execute_next_instruction:
 		stack_location = (buff[70] << 8) | buff[71];
 		stack_fill = (buff[stack_location] << 8)
 			   | buff[(stack_location+1) & 0xFFFF];
-		address = (stack_location + stack_fill * 2 + 2) & 0xFFFF;
-		if (address >= UDVM_MEMORY_SIZE - 1)
+		addr = (stack_location + stack_fill * 2 + 2) & 0xFFFF;
+		if (addr >= UDVM_MEMORY_SIZE - 1)
 			goto decompression_failure;
-		buff[address] = (current_address >> 8) & 0x00FF;
-		buff[(address+1) & 0xFFFF] = current_address & 0x00FF;
+		buff[addr] = (current_address >> 8) & 0x00FF;
+		buff[(addr+1) & 0xFFFF] = current_address & 0x00FF;
 
 		stack_fill = (stack_fill + 1) & 0xFFFF;
 		if (stack_location >= UDVM_MEMORY_SIZE - 1)
@@ -1672,9 +1672,9 @@ execute_next_instruction:
 		buff[stack_location] = (stack_fill >> 8) & 0x00FF;
 		buff[(stack_location+1) & 0xFFFF] = stack_fill & 0x00FF;
 
-		address = (stack_location + stack_fill * 2 + 2) & 0xFFFF;
-		at_address = (buff[address] << 8)
-			   | buff[(address+1) & 0xFFFF];
+		addr = (stack_location + stack_fill * 2 + 2) & 0xFFFF;
+		at_address = (buff[addr] << 8)
+			   | buff[(addr+1) & 0xFFFF];
 
 		/* ... and set the PC to the popped value */
 		current_address = at_address;

@@ -346,7 +346,7 @@ tvb_new_child_real_data(tvbuff_t *parent, const guint8* data, guint length, gint
  * that gets an exception, so the error is reported as an error in that
  * protocol rather than the containing protocol.  */
 static gboolean
-compute_offset_length(guint tvb_length, guint tvb_reported_length, gint offset, gint length,
+compute_offset_length(guint tvb_length_val, guint tvb_reported_length_val, gint offset, gint length_val,
 		guint *offset_ptr, guint *length_ptr, int *exception)
 {
 	DISSECTOR_ASSERT(offset_ptr);
@@ -355,13 +355,13 @@ compute_offset_length(guint tvb_length, guint tvb_reported_length, gint offset, 
 	/* Compute the offset */
 	if (offset >= 0) {
 		/* Positive offset - relative to the beginning of the packet. */
-		if ((guint) offset > tvb_reported_length) {
+		if ((guint) offset > tvb_reported_length_val) {
 			if (exception) {
 				*exception = ReportedBoundsError;
 			}
 			return FALSE;
 		}
-		else if ((guint) offset > tvb_length) {
+		else if ((guint) offset > tvb_length_val) {
 			if (exception) {
 				*exception = BoundsError;
 			}
@@ -373,36 +373,36 @@ compute_offset_length(guint tvb_length, guint tvb_reported_length, gint offset, 
 	}
 	else {
 		/* Negative offset - relative to the end of the packet. */
-		if ((guint) -offset > tvb_reported_length) {
+		if ((guint) -offset > tvb_reported_length_val) {
 			if (exception) {
 				*exception = ReportedBoundsError;
 			}
 			return FALSE;
 		}
-		else if ((guint) -offset > tvb_length) {
+		else if ((guint) -offset > tvb_length_val) {
 			if (exception) {
 				*exception = BoundsError;
 			}
 			return FALSE;
 		}
 		else {
-			*offset_ptr = tvb_length + offset;
+			*offset_ptr = tvb_length_val + offset;
 		}
 	}
 
 	/* Compute the length */
-	if (length < -1) {
+	if (length_val < -1) {
 		if (exception) {
 			/* XXX - ReportedBoundsError? */
 			*exception = BoundsError;
 		}
 		return FALSE;
 	}
-	else if (length == -1) {
-		*length_ptr = tvb_length - *offset_ptr;
+	else if (length_val == -1) {
+		*length_ptr = tvb_length_val - *offset_ptr;
 	}
 	else {
-		*length_ptr = length;
+		*length_ptr = length_val;
 	}
 
 	return TRUE;
@@ -410,12 +410,12 @@ compute_offset_length(guint tvb_length, guint tvb_reported_length, gint offset, 
 
 
 static gboolean
-check_offset_length_no_exception(guint tvb_length, guint tvb_reported_length, gint offset, gint length,
+check_offset_length_no_exception(guint tvb_length_val, guint tvb_reported_length_val, gint offset, gint length_val,
 		guint *offset_ptr, guint *length_ptr, int *exception)
 {
 	guint	end_offset;
 
-	if (!compute_offset_length(tvb_length, tvb_reported_length, offset, length, offset_ptr, length_ptr, exception)) {
+	if (!compute_offset_length(tvb_length_val, tvb_reported_length_val, offset, length_val, offset_ptr, length_ptr, exception)) {
 		return FALSE;
 	}
 
@@ -439,10 +439,10 @@ check_offset_length_no_exception(guint tvb_length, guint tvb_reported_length, gi
 	 * If not, return TRUE; otherwise, return FALSE and, if "exception"
 	 * is non-null, return the appropriate exception through it.
 	 */
-	if (end_offset <= tvb_length) {
+	if (end_offset <= tvb_length_val) {
 		return TRUE;
 	}
-	else if (end_offset <= tvb_reported_length) {
+	else if (end_offset <= tvb_reported_length_val) {
 		if (exception) {
 			*exception = BoundsError;
 		}
@@ -460,12 +460,12 @@ check_offset_length_no_exception(guint tvb_length, guint tvb_reported_length, gi
  * either is out of bounds. Sets integer ptrs to the new offset
  * and length. */
 static void
-check_offset_length(guint tvb_length, guint tvb_reported_length, gint offset, gint length,
+check_offset_length(guint tvb_length_val, guint tvb_reported_length_val, gint offset, gint length_val,
 		guint *offset_ptr, guint *length_ptr)
 {
 	int exception = 0;
 
-	if (!check_offset_length_no_exception(tvb_length, tvb_reported_length, offset, length, offset_ptr, length_ptr, &exception)) {
+	if (!check_offset_length_no_exception(tvb_length_val, tvb_reported_length_val, offset, length_val, offset_ptr, length_ptr, &exception)) {
 		DISSECTOR_ASSERT(exception > 0);
 		THROW(exception);
 	}

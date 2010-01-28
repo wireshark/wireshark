@@ -301,13 +301,13 @@ reassemble_tcp( guint32 tcp_stream, gulong sequence, gulong acknowledgement,
 /* here we search through all the frag we have collected to see if
    one fits */
 static int
-check_fragments( int index, tcp_stream_chunk *sc, gulong acknowledged ) {
+check_fragments( int idx, tcp_stream_chunk *sc, gulong acknowledged ) {
   tcp_frag *prev = NULL;
   tcp_frag *current;
   gulong lowest_seq;
   gchar *dummy_str;
 
-  current = frags[index];
+  current = frags[idx];
   if( current ) {
     lowest_seq = current->seq;
     while( current ) {
@@ -315,27 +315,27 @@ check_fragments( int index, tcp_stream_chunk *sc, gulong acknowledged ) {
         lowest_seq = current->seq;
       }
 
-      if( current->seq < seq[index] ) {
+      if( current->seq < seq[idx] ) {
         gulong newseq;
         /* this sequence number seems dated, but
            check the end to make sure it has no more
            info than we have already seen */
         newseq = current->seq + current->len;
-        if( newseq > seq[index] ) {
+        if( newseq > seq[idx] ) {
           gulong new_pos;
 
           /* this one has more than we have seen. let's get the
              payload that we have not seen. This happens when 
              part of this frame has been retransmitted */
 
-          new_pos = seq[index] - current->seq;
+          new_pos = seq[idx] - current->seq;
 
           if ( current->data_len > new_pos ) {
             sc->dlen = current->data_len - new_pos;
-            write_packet_data( index, sc, current->data + new_pos );
+            write_packet_data( idx, sc, current->data + new_pos );
           }
 
-          seq[index] += (current->len - new_pos);
+          seq[idx] += (current->len - new_pos);
         } 
 
         /* Remove the fragment from the list as the "new" part of it
@@ -344,24 +344,24 @@ check_fragments( int index, tcp_stream_chunk *sc, gulong acknowledged ) {
         if( prev ) {
           prev->next = current->next;
         } else {
-          frags[index] = current->next;
+          frags[idx] = current->next;
         }
         g_free( current->data );
         g_free( current );
         return 1;
       }
 
-      if( current->seq == seq[index] ) {
+      if( current->seq == seq[idx] ) {
         /* this fragment fits the stream */
         if( current->data ) {
           sc->dlen = current->data_len;
-          write_packet_data( index, sc, current->data );
+          write_packet_data( idx, sc, current->data );
         }
-        seq[index] += current->len;
+        seq[idx] += current->len;
         if( prev ) {
           prev->next = current->next;
         } else {
-          frags[index] = current->next;
+          frags[idx] = current->next;
         }
         g_free( current->data );
         g_free( current );
@@ -376,11 +376,11 @@ check_fragments( int index, tcp_stream_chunk *sc, gulong acknowledged ) {
        * "[xxx bytes missing in capture file]".
        */
       dummy_str = g_strdup_printf("[%d bytes missing in capture file]",
-                        (int)(lowest_seq - seq[index]) );
+                        (int)(lowest_seq - seq[idx]) );
       sc->dlen = (guint32) strlen(dummy_str);
-      write_packet_data( index, sc, dummy_str );
+      write_packet_data( idx, sc, dummy_str );
       g_free(dummy_str);
-      seq[index] = lowest_seq;
+      seq[idx] = lowest_seq;
       return 1;
     }
   } 
@@ -415,7 +415,7 @@ reset_tcp_reassembly(void)
 }
 
 static void
-write_packet_data( int index, tcp_stream_chunk *sc, const char *data )
+write_packet_data( int idx, tcp_stream_chunk *sc, const char *data )
 {
   size_t ret;
 
@@ -425,6 +425,6 @@ write_packet_data( int index, tcp_stream_chunk *sc, const char *data )
   ret = fwrite( data, 1, sc->dlen, data_out_file );
   DISSECTOR_ASSERT(sc->dlen == ret);
 
-  bytes_written[index] += sc->dlen;
+  bytes_written[idx] += sc->dlen;
   empty_tcp_stream = FALSE;
 }

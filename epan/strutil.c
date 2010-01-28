@@ -993,7 +993,7 @@ escape_string(char *buf, const char *string)
   const gchar *p;
   gchar c;
   char *bufp;
-  char hex[3];
+  char hexbuf[3];
 
   bufp = buf;
   *bufp++ = '"';
@@ -1008,11 +1008,11 @@ escape_string(char *buf, const char *string)
 	 * in ASCII need to be escaped. */
 	else if (!isprint((unsigned char)c)) {
 		/* c --> \xNN */
-		g_snprintf(hex,sizeof(hex), "%02x", (unsigned char) c);
+		g_snprintf(hexbuf,sizeof(hexbuf), "%02x", (unsigned char) c);
 		*bufp++ = '\\';
 		*bufp++ = 'x';
-		*bufp++ = hex[0];
-		*bufp++ = hex[1];
+		*bufp++ = hexbuf[0];
+		*bufp++ = hexbuf[1];
 	}
 	/* Other characters are just passed through. */
 	else {

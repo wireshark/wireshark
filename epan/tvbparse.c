@@ -104,7 +104,7 @@ static tvbparse_elem_t* new_tok(tvbparse_t* tt,
 	return tok;
 }
 
-static int ignore(tvbparse_t* tt,int offset) {
+static int ignore_fcn(tvbparse_t* tt,int offset) {
     int len = 0;
     int consumed;
     tvbparse_elem_t* ignored = NULL;
@@ -626,7 +626,7 @@ static int cond_seq(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted
         }
         
         offset += len;
-        offset += ignore(tt,offset);
+        offset += ignore_fcn(tt,offset);
     }
 
     *tok = ret_tok;
@@ -1282,7 +1282,7 @@ gboolean tvbparse_peek(tvbparse_t* tt,
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_PEEK) g_warning("tvbparse_peek: ENTER offset=%i",offset);
 #endif                            
     
-    offset += ignore(tt,offset);
+    offset += ignore_fcn(tt,offset);
     
 #ifdef TVBPARSE_DEBUG
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_PEEK) g_warning("tvbparse_peek: after ignore offset=%i",offset);
@@ -1314,7 +1314,7 @@ tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_GET) g_warning("tvbparse_get: ENTER offset=%i",offset);
 #endif                            
     
-    offset += ignore(tt,offset);
+    offset += ignore_fcn(tt,offset);
 
 #ifdef TVBPARSE_DEBUG
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_GET) g_warning("tvbparse_get: after ignore offset=%i",offset);

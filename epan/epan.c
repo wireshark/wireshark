@@ -69,13 +69,13 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	  void (*register_all_handoffs_func)(register_cb cb, gpointer client_data),
 	  register_cb cb,
 	  gpointer client_data,
-	  void (*report_failure)(const char *, va_list),
-	  void (*report_open_failure)(const char *, int, gboolean),
-	  void (*report_read_failure)(const char *, int),
-	  void (*report_write_failure)(const char *, int))
+	  void (*report_failure_fcn_p)(const char *, va_list),
+	  void (*report_open_failure_fcn_p)(const char *, int, gboolean),
+	  void (*report_read_failure_fcn_p)(const char *, int),
+	  void (*report_write_failure_fcn_p)(const char *, int))
 {
-	init_report_err(report_failure, report_open_failure,
-	    report_read_failure, report_write_failure);
+	init_report_err(report_failure_fcn_p, report_open_failure_fcn_p,
+	    report_read_failure_fcn_p, report_write_failure_fcn_p);
 
 	/* initialize memory allocation subsystem */
 	emem_init();

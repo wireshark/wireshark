@@ -143,32 +143,32 @@ bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
  * If time is negative, add a '-' to all non-null components.
  */
 static void
-time_secs_to_str_buf(gint32 time, guint32 frac, gboolean is_nsecs,
+time_secs_to_str_buf(gint32 time_val, guint32 frac, gboolean is_nsecs,
 			   emem_strbuf_t *buf)
 {
   int hours, mins, secs;
   const gchar *msign = "";
   gboolean do_comma = FALSE;
 
-  if(time == G_MININT32) {	/* That Which Shall Not Be Negated */
-    ep_strbuf_append_printf(buf, "Unable to cope with time value %d", time);
+  if(time_val == G_MININT32) {	/* That Which Shall Not Be Negated */
+    ep_strbuf_append_printf(buf, "Unable to cope with time value %d", time_val);
     return;
   }
 
-  if(time < 0){
-    time = -time;
+  if(time_val < 0){
+    time_val = -time_val;
     msign = "-";
   }
 
-  secs = time % 60;
-  time /= 60;
-  mins = time % 60;
-  time /= 60;
-  hours = time % 24;
-  time /= 24;
+  secs = time_val % 60;
+  time_val /= 60;
+  mins = time_val % 60;
+  time_val /= 60;
+  hours = time_val % 24;
+  time_val /= 24;
 
-  if (time != 0) {
-    ep_strbuf_append_printf(buf, "%s%u day%s", msign, time, PLURALIZE(time));
+  if (time_val != 0) {
+    ep_strbuf_append_printf(buf, "%s%u day%s", msign, time_val, PLURALIZE(time_val));
     do_comma = TRUE;
     msign="";
   }
@@ -194,37 +194,37 @@ time_secs_to_str_buf(gint32 time, guint32 frac, gboolean is_nsecs,
 }
 
 gchar *
-time_secs_to_str(gint32 time)
+time_secs_to_str(gint32 time_val)
 {
   emem_strbuf_t *buf;
 
   buf=ep_strbuf_sized_new(TIME_SECS_LEN+1, TIME_SECS_LEN+1);
 
-  if (time == 0) {
+  if (time_val == 0) {
     ep_strbuf_append(buf, "0 time");
     return buf->str;
   }
 
-  time_secs_to_str_buf(time, 0, FALSE, buf);
+  time_secs_to_str_buf(time_val, 0, FALSE, buf);
   return buf->str;
 }
 
 static void
-time_secs_to_str_buf_unsigned(guint32 time, guint32 frac, gboolean is_nsecs,
+time_secs_to_str_buf_unsigned(guint32 time_val, guint32 frac, gboolean is_nsecs,
 			 emem_strbuf_t *buf)
 {
   int hours, mins, secs;
   gboolean do_comma = FALSE;
 
-  secs = time % 60;
-  time /= 60;
-  mins = time % 60;
-  time /= 60;
-  hours = time % 24;
-  time /= 24;
+  secs = time_val % 60;
+  time_val /= 60;
+  mins = time_val % 60;
+  time_val /= 60;
+  hours = time_val % 24;
+  time_val /= 24;
 
-  if (time != 0) {
-    ep_strbuf_append_printf(buf, "%u day%s", time, PLURALIZE(time));
+  if (time_val != 0) {
+    ep_strbuf_append_printf(buf, "%u day%s", time_val, PLURALIZE(time_val));
     do_comma = TRUE;
   }
   if (hours != 0) {
@@ -247,47 +247,47 @@ time_secs_to_str_buf_unsigned(guint32 time, guint32 frac, gboolean is_nsecs,
 }
 
 gchar *
-time_secs_to_str_unsigned(guint32 time)
+time_secs_to_str_unsigned(guint32 time_val)
 {
   emem_strbuf_t *buf;
 
   buf=ep_strbuf_sized_new(TIME_SECS_LEN+1, TIME_SECS_LEN+1);
 
-  if (time == 0) {
+  if (time_val == 0) {
     ep_strbuf_append(buf, "0 time");
     return buf->str;
   }
 
-  time_secs_to_str_buf_unsigned(time, 0, FALSE, buf);
+  time_secs_to_str_buf_unsigned(time_val, 0, FALSE, buf);
   return buf->str;
 }
 
 
 gchar *
-time_msecs_to_str(gint32 time)
+time_msecs_to_str(gint32 time_val)
 {
   emem_strbuf_t *buf;
   int msecs;
 
   buf=ep_strbuf_sized_new(TIME_SECS_LEN+1+3+1, TIME_SECS_LEN+1+3+1);
 
-  if (time == 0) {
+  if (time_val == 0) {
     ep_strbuf_append(buf, "0 time");
     return buf->str;
   }
 
-  if(time<0){
+  if(time_val<0){
     /* oops we got passed a negative time */
-    time= -time;
-    msecs = time % 1000;
-    time /= 1000;
-    time= -time;
+    time_val= -time_val;
+    msecs = time_val % 1000;
+    time_val /= 1000;
+    time_val= -time_val;
   } else {
-    msecs = time % 1000;
-    time /= 1000;
+    msecs = time_val % 1000;
+    time_val /= 1000;
   }
 
-  time_secs_to_str_buf(time, msecs, FALSE, buf);
+  time_secs_to_str_buf(time_val, msecs, FALSE, buf);
   return buf->str;
 }
 
@@ -510,7 +510,7 @@ rel_time_to_str(nstime_t *rel_time)
 {
 	emem_strbuf_t *buf;
 	const char *sign;
-	gint32 time;
+	gint32 time_val;
 	gint32 nsec;
 
 	buf=ep_strbuf_sized_new(1+TIME_SECS_LEN+1+6+1, 1+TIME_SECS_LEN+1+6+1);
@@ -520,9 +520,9 @@ rel_time_to_str(nstime_t *rel_time)
 	   (the seconds part should be zero in that case), stick
 	   a "-" in front of the entire time stamp. */
 	sign = "";
-	time = (gint) rel_time->secs;
+	time_val = (gint) rel_time->secs;
 	nsec = rel_time->nsecs;
-	if (time == 0 && nsec == 0) {
+	if (time_val == 0 && nsec == 0) {
 		ep_strbuf_append(buf, "0.000000000 seconds");
 		return buf->str;
 	}
@@ -535,10 +535,10 @@ rel_time_to_str(nstime_t *rel_time)
 		 * or zero; if it's not, the time stamp is bogus,
 		 * with a positive seconds and negative microseconds.
 		 */
-		time = (gint) -rel_time->secs;
+		time_val = (gint) -rel_time->secs;
 	}
 
-	time_secs_to_str_buf(time, nsec, TRUE, buf);
+	time_secs_to_str_buf(time_val, nsec, TRUE, buf);
 	return buf->str;
 }
 
