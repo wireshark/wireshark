@@ -633,15 +633,15 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldN
 
     if (EncodingMask & VARIANT_ARRAYDIMENSIONS)
     {
-        proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "Array Dimensions");
-        proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_array);
+        proto_item *ti_2 = proto_tree_add_text(tree, tvb, 0, -1, "Array Dimensions");
+        proto_tree *subtree_2 = proto_item_add_subtree(ti_2, ett_opcua_array);
         int i;
 
         if (ArrayLength < MAX_ARRAY_LEN)
         {
             for (i=0; i<ArrayLength; i++)
             {
-                parseInt32(subtree, tvb, pOffset, hf_opcua_Int32);
+                parseInt32(subtree_2, tvb, pOffset, hf_opcua_Int32);
             }
         }
         else

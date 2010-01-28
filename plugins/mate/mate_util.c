@@ -448,20 +448,20 @@ extern AVP* avp_copy(AVP* from) {
  *
  **/
 extern AVPL* new_avpl(const gchar* name) {
-	AVPL* new_avpl = g_mem_chunk_alloc(avp_chunk);
+	AVPL* new_avpl_p = g_mem_chunk_alloc(avp_chunk);
 
 #ifdef _AVP_DEBUGGING
-	dbg_print(dbg_avpl_op,7,dbg_fp,"new_avpl: %X name=%s",new_avpl,name);
+	dbg_print(dbg_avpl_op,7,dbg_fp,"new_avpl_p: %X name=%s",new_avpl_p,name);
 #endif
 
-	new_avpl->name = name ? scs_subscribe(avp_strings, name) : scs_subscribe(avp_strings, "");
-	new_avpl->len = 0;
-	new_avpl->null.avp = NULL;
-	new_avpl->null.next = &new_avpl->null;
-	new_avpl->null.prev = &new_avpl->null;
+	new_avpl_p->name = name ? scs_subscribe(avp_strings, name) : scs_subscribe(avp_strings, "");
+	new_avpl_p->len = 0;
+	new_avpl_p->null.avp = NULL;
+	new_avpl_p->null.next = &new_avpl_p->null;
+	new_avpl_p->null.prev = &new_avpl_p->null;
 
 
-	return new_avpl;
+	return new_avpl_p;
 }
 
 extern void rename_avpl(AVPL* avpl, gchar* name) {
@@ -1383,22 +1383,22 @@ extern void avpl_transform(AVPL* src, AVPL_Transf* op) {
  * Return value: a pointer to the newly created loal.
  **/
 extern LoAL* new_loal(const gchar* name) {
-	LoAL* new_loal = g_mem_chunk_alloc(avp_chunk);
+	LoAL* new_loal_p = g_mem_chunk_alloc(avp_chunk);
 
 	if (! name) {
 		name = "anonymous";
 	}
 
 #ifdef _AVP_DEBUGGING
-	dbg_print(dbg_avpl_op,3,dbg_fp,"new_loal: %X name=%s",new_loal,name);
+	dbg_print(dbg_avpl_op,3,dbg_fp,"new_loal_p: %X name=%s",new_loal_p,name);
 #endif
 
-	new_loal->name = scs_subscribe(avp_strings,name);
-	new_loal->null.avpl = NULL;
-	new_loal->null.next = &new_loal->null;
-	new_loal->null.prev = &new_loal->null;
-	new_loal->len = 0;
-	return new_loal;
+	new_loal_p->name = scs_subscribe(avp_strings,name);
+	new_loal_p->null.avpl = NULL;
+	new_loal_p->null.next = &new_loal_p->null;
+	new_loal_p->null.prev = &new_loal_p->null;
+	new_loal_p->len = 0;
+	return new_loal_p;
 }
 
 /**

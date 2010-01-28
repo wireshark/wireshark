@@ -484,7 +484,7 @@ static void analize_pdu(mate_pdu* pdu) {
 	AVPL* curr_gogkey = NULL;
 	void* cookie = NULL;
 	AVPL* gogkey_match = NULL;
-	gchar* gogkey = NULL;
+	gchar* gogkey_str = NULL;
 	
 	dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: %s",pdu->cfg->name);
 
@@ -559,17 +559,17 @@ static void analize_pdu(mate_pdu* pdu) {
 					
 					while (( curr_gogkey = get_next_avpl(gog_keys,&cookie) )) {
 						if (( gogkey_match = new_avpl_exact_match(cfg->name,gopkey_match,curr_gogkey,FALSE) )) {
-							gogkey = avpl_to_str(gogkey_match);
+							gogkey_str = avpl_to_str(gogkey_match);
 							
-							if (g_hash_table_lookup(cfg->gog_index,gogkey)) {
+							if (g_hash_table_lookup(cfg->gog_index,gogkey_str)) {
 								gop = new_gop(cfg,pdu,gop_key);
 								g_hash_table_insert(cfg->gop_index,gop_key,gop);
 								delete_avpl(gogkey_match,FALSE);
-								g_free(gogkey);
+								g_free(gogkey_str);
 								break;
 							} else {
 								delete_avpl(gogkey_match,FALSE);
-								g_free(gogkey);								
+								g_free(gogkey_str);								
 							}
 						}
 					}

@@ -418,7 +418,7 @@ static const val_str_dsp cmds[] = {
 	{-1,	    	    	"- unknown -", NULL, NULL},
 	};
 
-static const value_string responses[] = {
+static const value_string responses_vs[] = {
 	{RESP_OK,		"OK - no error"},
 	{RESP_UNKNOWN_ERR,	"Unknown error"},
 	{RESP_UNKNOWN_CMD,	"Unrecognised command"},
@@ -708,7 +708,7 @@ decode_response(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 
     resp = tvb_get_ntohl (tvb, offset);
     proto_tree_add_text (pt, tvb, offset, 4, "Status: %s",
-	val_to_str(resp, responses, "Unknown (0x%08x)"));
+	val_to_str(resp, responses_vs, "Unknown (0x%08x)"));
     offset += 4;
     msglen -= 4;
 
