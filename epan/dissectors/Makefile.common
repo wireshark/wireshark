@@ -139,7 +139,6 @@ ASN1_DISSECTOR_SRC = \
 	packet-qsig.c \
 	packet-ranap.c		\
 	packet-ros.c \
-	packet-rtnet.c \
 	packet-rtse.c \
 	packet-s4406.c \
 	packet-sabp.c \
@@ -779,6 +778,7 @@ DISSECTOR_SRC = \
 	packet-rsync.c		\
 	packet-rtcp.c		\
 	packet-rtmpt.c		\
+	packet-rtnet.c		\
 	packet-rtp-events.c	\
 	packet-rtp.c		\
 	packet-rtps.c		\
