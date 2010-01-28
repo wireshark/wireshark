@@ -938,15 +938,15 @@ static const gchar *solve_address_to_name(const address *addr)
     return get_ether_name(addr->data);
 
   case AT_IPv4: {
-    guint32 ipv4_addr;
-    memcpy(&ipv4_addr, addr->data, sizeof ipv4_addr);
-    return get_hostname(ipv4_addr);
+    guint32 ip4_addr;
+    memcpy(&ip4_addr, addr->data, sizeof ip4_addr);
+    return get_hostname(ip4_addr);
   }
 
   case AT_IPv6: {
-    struct e_in6_addr ipv6_addr;
-    memcpy(&ipv6_addr.bytes, addr->data, sizeof ipv6_addr.bytes);
-    return get_hostname6(&ipv6_addr);
+    struct e_in6_addr ip6_addr;
+    memcpy(&ip6_addr.bytes, addr->data, sizeof ip6_addr.bytes);
+    return get_hostname6(&ip6_addr);
   }
 
   case AT_STRINGZ:
@@ -965,15 +965,15 @@ static const gchar *se_solve_address_to_name(const address *addr)
     return get_ether_name(addr->data);
 
   case AT_IPv4: {
-    guint32 ipv4_addr;
-    memcpy(&ipv4_addr, addr->data, sizeof ipv4_addr);
-    return get_hostname(ipv4_addr);
+    guint32 ip4_addr;
+    memcpy(&ip4_addr, addr->data, sizeof ip4_addr);
+    return get_hostname(ip4_addr);
   }
 
   case AT_IPv6: {
-    struct e_in6_addr ipv6_addr;
-    memcpy(&ipv6_addr.bytes, addr->data, sizeof ipv6_addr.bytes);
-    return get_hostname6(&ipv6_addr);
+    struct e_in6_addr ip6_addr;
+    memcpy(&ip6_addr.bytes, addr->data, sizeof ip6_addr.bytes);
+    return get_hostname6(&ip6_addr);
   }
 
   case AT_STRINGZ:
@@ -1956,7 +1956,7 @@ read_hosts_file (const char *hostspath)
   int size = 0;
   gchar *cp;
   guint32 host_addr[4]; /* IPv4 or IPv6 */
-  struct e_in6_addr ipv6_addr;
+  struct e_in6_addr ip6_addr;
   gboolean is_ipv6;
   int ret;
 
@@ -1991,8 +1991,8 @@ read_hosts_file (const char *hostspath)
       continue; /* no host name */
 
     if (is_ipv6) {
-      memcpy(&ipv6_addr, host_addr, sizeof ipv6_addr);
-      add_ipv6_name(&ipv6_addr, cp);
+      memcpy(&ip6_addr, host_addr, sizeof ip6_addr);
+      add_ipv6_name(&ip6_addr, cp);
     } else
       add_ipv4_name(host_addr[0], cp);
 
@@ -2001,8 +2001,8 @@ read_hosts_file (const char *hostspath)
      */
     while ((cp = strtok(NULL, " \t")) != NULL) {
       if (is_ipv6) {
-        memcpy(&ipv6_addr, host_addr, sizeof ipv6_addr);
-        add_ipv6_name(&ipv6_addr, cp);
+        memcpy(&ip6_addr, host_addr, sizeof ip6_addr);
+        add_ipv6_name(&ip6_addr, cp);
       } else
         add_ipv4_name(host_addr[0], cp);
     }
