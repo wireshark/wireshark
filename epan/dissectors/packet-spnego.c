@@ -530,7 +530,7 @@ static int
 dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 48 "spnego.cnf"
 
-  gssapi_oid_value *next_level_value;
+  gssapi_oid_value *next_level_value_lcl;
   proto_item *item;
   proto_tree *subtree;
   tvbuff_t *token_tvb;
@@ -544,7 +544,7 @@ dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
    * for some other security mechanism in GSS_Wrap tokens.)
    * Does it matter?
    */
-  next_level_value = gssapi_lookup_oid_str(MechType_oid);
+  next_level_value_lcl = gssapi_lookup_oid_str(MechType_oid);
 
   /*
    * Now dissect the GSS_Wrap token; it's assumed to be in the
@@ -561,8 +561,8 @@ dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
    * we (and it) dissected.
    */
   token_tvb = tvb_new_subset_remaining(tvb, offset);
-  if (next_level_value && next_level_value->wrap_handle) {
-    len = call_dissector(next_level_value->wrap_handle, token_tvb, actx->pinfo,
+  if (next_level_value_lcl && next_level_value_lcl->wrap_handle) {
+    len = call_dissector(next_level_value_lcl->wrap_handle, token_tvb, actx->pinfo,
                          subtree);
     if (len == 0)
       offset = tvb_length(tvb);
