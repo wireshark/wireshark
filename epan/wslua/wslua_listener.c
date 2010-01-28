@@ -265,19 +265,19 @@ static int Listener_newindex(lua_State* L) {
         function tap.reset(userdata) ... end
     */
     Listener tap = shiftListener(L,1);
-    const gchar* index = lua_shiftstring(L,1);
+    const gchar* idx = lua_shiftstring(L,1);
     int* refp = NULL;
     
-    if (!index) return 0;
+    if (!idx) return 0;
     
-    if (g_str_equal(index,"packet")) {
+    if (g_str_equal(idx,"packet")) {
         refp = &(tap->packet_ref);
-    } else if (g_str_equal(index,"draw")) {
+    } else if (g_str_equal(idx,"draw")) {
         refp = &(tap->draw_ref);
-    } else if (g_str_equal(index,"reset")) {
+    } else if (g_str_equal(idx,"reset")) {
         refp = &(tap->init_ref);
     } else {
-        luaL_error(L,"No such attribute `%s' for a tap",index);
+        luaL_error(L,"No such attribute `%s' for a tap",idx);
         return 0;
     }
     

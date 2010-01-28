@@ -58,12 +58,12 @@ WSLUA_API const gchar* lua_shiftstring(lua_State* L, int i) {
 
 WSLUA_FUNCTION wslua_format_date(lua_State* LS) { /* Formats an absolute timestamp into a human readable date */ 
 #define WSLUA_ARG_format_date_TIMESTAMP 1 /* A timestamp value to convert. */
-	lua_Number time = luaL_checknumber(LS,WSLUA_ARG_format_date_TIMESTAMP);
+	lua_Number timestamp = luaL_checknumber(LS,WSLUA_ARG_format_date_TIMESTAMP);
 	nstime_t then;
 	gchar* str;
 
-	then.secs = (guint32)floor(time);
-	then.nsecs = (guint32) ( (time-(double)(then.secs))*1000000000);
+	then.secs = (guint32)floor(timestamp);
+	then.nsecs = (guint32) ( (timestamp-(double)(then.secs))*1000000000);
 	str = abs_time_to_str(&then, FALSE);
 	lua_pushstring(LS,str);
 
@@ -72,12 +72,12 @@ WSLUA_FUNCTION wslua_format_date(lua_State* LS) { /* Formats an absolute timesta
 
 WSLUA_FUNCTION wslua_format_time(lua_State* LS) { /* Formats a relative timestamp in a human readable form */
 #define WSLUA_ARG_format_time_TIMESTAMP 1 /* A timestamp value to convert */
-	lua_Number time = luaL_checknumber(LS,WSLUA_ARG_format_time_TIMESTAMP);
+	lua_Number timestamp = luaL_checknumber(LS,WSLUA_ARG_format_time_TIMESTAMP);
 	nstime_t then;
 	gchar* str;
 
-	then.secs = (guint32)floor(time);
-	then.nsecs = (guint32) ( (time-(double)(then.secs))*1000000000);
+	then.secs = (guint32)floor(timestamp);
+	then.nsecs = (guint32) ( (timestamp-(double)(then.secs))*1000000000);
 	str = rel_time_to_str(&then);    
 	lua_pushstring(LS,str);
 

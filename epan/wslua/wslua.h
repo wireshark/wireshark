@@ -246,15 +246,15 @@ typedef struct _wslua_dir* Dir;
  * (a dummy typedef is used to be syntactically correct)
  */
 #define WSLUA_CLASS_DEFINE(C,check_code,push_code) \
-C to##C(lua_State* L, int index) { \
-    C* v = (C*)lua_touserdata (L, index); \
-    if (!v) luaL_typerror(L,index,#C); \
+C to##C(lua_State* L, int idx) { \
+    C* v = (C*)lua_touserdata (L, idx); \
+    if (!v) luaL_typerror(L,idx,#C); \
     return *v; \
 } \
-C check##C(lua_State* L, int index) { \
+C check##C(lua_State* L, int idx) { \
     C* p; \
-    luaL_checktype(L,index,LUA_TUSERDATA); \
-    p = (C*)luaL_checkudata(L, index, #C); \
+    luaL_checktype(L,idx,LUA_TUSERDATA); \
+    p = (C*)luaL_checkudata(L, idx, #C); \
     check_code; \
     return p ? *p : NULL; \
 } \
@@ -343,7 +343,7 @@ typedef int dummy##C
 #define WSLUA_API extern
 
 #define NOP
-#define FAIL_ON_NULL(s) if (! *p) luaL_argerror(L,index,s)
+#define FAIL_ON_NULL(s) if (! *p) luaL_argerror(L,idx,s)
 
 /* Clears or marks references that connects Lua to Wireshark structures */
 #define CLEAR_OUTSTANDING(C, marker, marker_val) void clear_outstanding_##C(void) { \
@@ -360,8 +360,8 @@ typedef int dummy##C
 
 
 #define WSLUA_CLASS_DECLARE(C) \
-extern C to##C(lua_State* L, int index); \
-extern C check##C(lua_State* L, int index); \
+extern C to##C(lua_State* L, int idx); \
+extern C check##C(lua_State* L, int idx); \
 extern C* push##C(lua_State* L, C v); \
 extern int C##_register(lua_State* L); \
 extern gboolean is##C(lua_State* L,int i); \

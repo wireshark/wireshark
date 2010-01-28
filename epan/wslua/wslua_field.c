@@ -219,13 +219,13 @@ static int FieldInfo__index(lua_State* L) {
 	/*
 	 Other attributes:
 	 */
-	const gchar* index = luaL_checkstring(L,2);
+	const gchar* idx = luaL_checkstring(L,2);
 	const luaL_reg* r;
 
 	checkFieldInfo(L,1);
 
 	for (r = FieldInfo_get; r->name; r++) {
-		if (g_str_equal(r->name, index)) {
+		if (g_str_equal(r->name, idx)) {
 			return r->func(L);
 		}
 	}

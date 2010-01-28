@@ -251,13 +251,13 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
 #define WSLUA_ARG_Prefs__newindex_NAME 2 /* The abbreviation of this preference */
 #define WSLUA_ARG_Prefs__newindex_PREF 3 /* A valid but still unassigned Pref object */
 
-    Pref prefs = checkPrefs(L,1);
+    Pref prefs_p = checkPrefs(L,1);
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Prefs__newindex_NAME);
     Pref pref = checkPref(L,WSLUA_ARG_Prefs__newindex_PREF);
     Pref p;
     const gchar *c;
 
-    if (! prefs ) return 0;
+    if (! prefs_p ) return 0;
 
     if (! name ) 
         WSLUA_ARG_ERROR(Prefs__newindex,NAME,"must be a string");
@@ -271,7 +271,7 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
     if (pref->proto)
         WSLUA_ARG_ERROR(Prefs__newindex,PREF,"cannot be added to more than one protocol");
 
-    p = prefs;
+    p = prefs_p;
     
     do {
         if ( p->name && g_str_equal(p->name,name) ) {
@@ -299,21 +299,21 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
             if (!pref->label)
                 pref->label = g_strdup(name);
 
-            if (!prefs->proto->prefs_module) {
-                prefs->proto->prefs_module = prefs_register_protocol(prefs->proto->hfid, NULL);
+            if (!prefs_p->proto->prefs_module) {
+                prefs_p->proto->prefs_module = prefs_register_protocol(prefs_p->proto->hfid, NULL);
    
             }
             
             switch(pref->type) {
                 case PREF_BOOL: 
-                    prefs_register_bool_preference(prefs->proto->prefs_module,
+                    prefs_register_bool_preference(prefs_p->proto->prefs_module,
                                                    pref->name,
                                                    pref->label,
                                                    pref->desc,
                                                    &(pref->value.b));
                     break;
                 case PREF_UINT:
-                    prefs_register_uint_preference(prefs->proto->prefs_module,
+                    prefs_register_uint_preference(prefs_p->proto->prefs_module,
                                                    pref->name,
                                                    pref->label,
                                                    pref->desc,
@@ -321,14 +321,14 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
                                                    &(pref->value.u));
                     break;
                 case PREF_STRING:
-                    prefs_register_string_preference(prefs->proto->prefs_module, 
+                    prefs_register_string_preference(prefs_p->proto->prefs_module, 
                                                      pref->name,
                                                      pref->label,
                                                      pref->desc,
                                                      &(pref->value.s));
                     break;
                 case PREF_ENUM:
-                    prefs_register_enum_preference(prefs->proto->prefs_module, 
+                    prefs_register_enum_preference(prefs_p->proto->prefs_module, 
                                                      pref->name,
                                                      pref->label,
                                                      pref->desc,
@@ -337,7 +337,7 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
                                                      pref->info.enum_info.radio_buttons);
                     break;
                 case PREF_RANGE:
-                    prefs_register_range_preference(prefs->proto->prefs_module, 
+                    prefs_register_range_preference(prefs_p->proto->prefs_module, 
                                                      pref->name,
                                                      pref->label,
                                                      pref->desc,
@@ -345,7 +345,7 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
                                                      pref->info.max_value);
                     break;
                 case PREF_STATIC_TEXT:
-                    prefs_register_static_text_preference(prefs->proto->prefs_module, 
+                    prefs_register_static_text_preference(prefs_p->proto->prefs_module, 
                                                      pref->name,
                                                      pref->label,
                                                      pref->desc);
@@ -369,26 +369,26 @@ WSLUA_METAMETHOD Prefs__index(lua_State* L) {
 	/* Get the value of a preference setting */
 #define WSLUA_ARG_Prefs__index_NAME 2 /* The abbreviation of this preference  */
 
-    Pref prefs = checkPrefs(L,1);
+    Pref prefs_p = checkPrefs(L,1);
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Prefs__index_NAME);
     
-    if (! ( name && prefs ) ) return 0;
+    if (! ( name && prefs_p ) ) return 0;
     
-    prefs = prefs->next;
+    prefs_p = prefs_p->next;
     
     do {
-        if ( g_str_equal(prefs->name,name) ) {
-            switch (prefs->type) {
-                case PREF_BOOL: lua_pushboolean(L, prefs->value.b); break;
-                case PREF_UINT: lua_pushnumber(L,(lua_Number)prefs->value.u); break;
-                case PREF_STRING: lua_pushstring(L,prefs->value.s); break;
-                case PREF_ENUM: lua_pushnumber(L,(lua_Number)prefs->value.e); break;
-                case PREF_RANGE: lua_pushstring(L,range_convert_range(prefs->value.r)); break;
+        if ( g_str_equal(prefs_p->name,name) ) {
+            switch (prefs_p->type) {
+                case PREF_BOOL: lua_pushboolean(L, prefs_p->value.b); break;
+                case PREF_UINT: lua_pushnumber(L,(lua_Number)prefs_p->value.u); break;
+                case PREF_STRING: lua_pushstring(L,prefs_p->value.s); break;
+                case PREF_ENUM: lua_pushnumber(L,(lua_Number)prefs_p->value.e); break;
+                case PREF_RANGE: lua_pushstring(L,range_convert_range(prefs_p->value.r)); break;
                 default: WSLUA_ERROR(Prefs__index,"Unknow Pref type");
             }
             WSLUA_RETURN(1); /* The current value of the preference */
         }
-    } while (( prefs = prefs->next ));
+    } while (( prefs_p = prefs_p->next ));
 
     WSLUA_ARG_ERROR(Prefs__index,NAME,"no preference named like this");
     WSLUA_RETURN(0);
@@ -947,9 +947,9 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
     const gchar* desc = luaL_checkstring(L,WSLUA_ARG_Proto_new_DESC);
     
     if ( name ) {
-        gchar* loname = ep_strdup(name);
-        g_strdown(loname);
-        if ( proto_get_id_by_filter_name(loname) > 0 ) { 
+        gchar* loname_a = ep_strdup(name);
+        g_strdown(loname_a);
+        if ( proto_get_id_by_filter_name(loname_a) > 0 ) { 
             WSLUA_ARG_ERROR(Proto_new,NAME,"there cannot be two protocols with the same name");
         } else {
             Proto proto = g_malloc(sizeof(wslua_proto_t));
