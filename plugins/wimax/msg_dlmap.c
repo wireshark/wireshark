@@ -271,7 +271,7 @@ static gint hf_mac_header_compress_dlmap_crc = -1;
  * DL-MAP Miscellaneous IEs and TLVs
  *******************************************************************/
 
-gint RCID_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb, gint RCID_Type)
+gint RCID_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb, gint RCID_Type_lcl)
 {
     /* RCID_IE 8.4.5.3 and 8.4.5.3.20.1 */
     /* offset of IE in bits, length is variable  */
@@ -281,20 +281,20 @@ gint RCID_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, gint leng
     gint Prefix = 0;
     gint cid = 0;
 
-    if (RCID_Type == 0)
+    if (RCID_Type_lcl == 0)
         length = 16;
     else {
         Prefix = BIT_BIT(bit, bufptr);
         if (Prefix == 1) length = 12;
-        else if (RCID_Type == 1) length = 12;
-        else if (RCID_Type == 2) length = 8;
-        else if (RCID_Type == 3) length = 4;
+        else if (RCID_Type_lcl == 1) length = 12;
+        else if (RCID_Type_lcl == 2) length = 8;
+        else if (RCID_Type_lcl == 3) length = 4;
     }
 
     ti = proto_tree_add_text(diuc_tree, tvb, BITHI(bit, length), "RCID_IE");
     tree = proto_item_add_subtree(ti, ett_286j);
 
-    if (RCID_Type == 0) {
+    if (RCID_Type_lcl == 0) {
         XBIT(cid, 16, "CID");
     } else {
         proto_tree_add_text(tree, tvb, BITHI(bit,1), "Prefix: %d", Prefix);
@@ -304,13 +304,13 @@ gint RCID_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, gint leng
             /* RCID 11 */
             XBIT(cid, 11, "CID11");
         } else {
-            if (RCID_Type == 1) {
+            if (RCID_Type_lcl == 1) {
                 /* RCID 11 */
                 XBIT(cid, 11, "CID11");
-            } else if (RCID_Type == 2) {
+            } else if (RCID_Type_lcl == 2) {
                 /* RCID 7 */
                 XBIT(cid, 7, "CID7");
-            } else if (RCID_Type == 3) {
+            } else if (RCID_Type_lcl == 3) {
                 /* RCID 3 */
                 XBIT(cid, 3, "CID3");
             }

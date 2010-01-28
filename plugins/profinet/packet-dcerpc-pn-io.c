@@ -6992,7 +6992,7 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
         guint8 attribute;
         guint8 no_of_elems;
         guint16 parameter;
-        guint16 index;
+        guint16 idx;
         proto_item *sub_item;
         proto_tree *sub_tree;
 
@@ -7007,17 +7007,17 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                             hf_pn_io_profidrive_param_number, &parameter);
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
-                            hf_pn_io_profidrive_param_subindex, &index);     
+                            hf_pn_io_profidrive_param_subindex, &idx);     
 
         proto_item_append_text(sub_item, "Attr:%s, Elems:%u, Parameter:%u, Index:%u",
             val_to_str(attribute, pn_io_profidrive_attribute_vals, "Unknown"), no_of_elems,
-            parameter, index);
+            parameter, idx);
             
             if(no_of_elems>1) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", P%d[%d..%d]", parameter, index, index+no_of_elems-1); 
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", P%d[%d..%d]", parameter, idx, idx+no_of_elems-1); 
             }
             else {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", P%d[%d]", parameter, index); 
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", P%d[%d]", parameter, idx); 
             }
         }
     

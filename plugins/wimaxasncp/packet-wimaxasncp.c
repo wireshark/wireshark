@@ -582,7 +582,6 @@ static void wimaxasncp_dissect_tlv_value(
     guint length;
     const guint max_show_bytes = 24; /* arbitrary */
     const gchar *hex_note = "[hex]";
-    const gchar *s;
 
     length = tvb_reported_length(tvb);
 
@@ -608,6 +607,7 @@ static void wimaxasncp_dissect_tlv_value(
         if (tree)
         {
             guint8 value;
+            const gchar *s;
 
             value = tvb_get_guint8(tvb, offset);
 
@@ -643,6 +643,7 @@ static void wimaxasncp_dissect_tlv_value(
         if (tree)
         {
             guint16 value;
+            const gchar *s;
 
             value = tvb_get_ntohs(tvb, offset);
 
@@ -678,6 +679,7 @@ static void wimaxasncp_dissect_tlv_value(
         if (tree)
         {
             guint32 value;
+            const gchar *s;
 
             value = tvb_get_ntohl(tvb, offset);
 
@@ -781,6 +783,8 @@ static void wimaxasncp_dissect_tlv_value(
 
                     if (value & mask)
                     {
+                        const gchar *s;
+
                         s = wimaxasncp_get_enum_name(tlv_info, value & mask);
 
                         proto_tree_add_uint_format(
@@ -836,6 +840,7 @@ static void wimaxasncp_dissect_tlv_value(
 
                     if (value & mask)
                     {
+                        const gchar *s;
                         s = wimaxasncp_get_enum_name(tlv_info, value & mask);
 
                         proto_tree_add_uint_format(
@@ -2056,7 +2061,6 @@ dissect_wimaxasncp(
     if (tree)
     {
         proto_tree *flags_tree;
-        guint i;
 
         if (ui8 == 0)
         {
@@ -2067,6 +2071,7 @@ dissect_wimaxasncp(
         }
         else
         {
+            guint j;
             item = proto_tree_add_uint_format(
                 wimaxasncp_tree, hf_wimaxasncp_flags,
                 tvb, offset, 1, ui8,
@@ -2093,10 +2098,10 @@ dissect_wimaxasncp(
             flags_tree = proto_item_add_subtree(
                 item, ett_wimaxasncp_flags);
 
-            for (i = 0; i < 8; ++i)
+            for (j = 0; j < 8; ++j)
             {
                 guint8 mask;
-                mask = 1 << (7 - i);
+                mask = 1 << (7 - j);
 
                 /* Only add flags that are set */
                 if (ui8 & mask)
@@ -2105,7 +2110,7 @@ dissect_wimaxasncp(
                         flags_tree, hf_wimaxasncp_flags,
                         tvb, offset, 1, ui8,
                         "Bit #%u is set: %s",
-                        i,
+                        j,
                         val_to_str(
                             ui8 & mask, wimaxasncp_flag_vals, "Unknown"));
                 }

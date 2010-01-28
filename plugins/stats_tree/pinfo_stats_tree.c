@@ -114,16 +114,16 @@ static void dsts_stats_tree_init(stats_tree* st) {
 static int dsts_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
 	static gchar str[128];
 	int ip_dst_node;
-	int proto_node;
+	int protocol_node;
 
 	tick_stat_node(st, st_str_dsts, 0, FALSE);
 
 	ip_dst_node = tick_stat_node(st, ep_address_to_str(&pinfo->net_src), st_node_dsts, TRUE);
 
-	proto_node = tick_stat_node(st,port_type_to_str(pinfo->ptype),ip_dst_node,TRUE);
+	protocol_node = tick_stat_node(st,port_type_to_str(pinfo->ptype),ip_dst_node,TRUE);
 
 	g_snprintf(str, sizeof(str),"%u",pinfo->destport);
-	tick_stat_node(st,str,proto_node,TRUE);
+	tick_stat_node(st,str,protocol_node,TRUE);
 
 	return 1;
 }
