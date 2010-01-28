@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.2.6">
+  <!ENTITY WiresharkCurrentVersion "1.2.7">
 
 ]>
 
@@ -44,7 +44,7 @@ Wireshark Info
             <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=XXXX">Bug
             XXXX</ulink>) -->
           </para>
-          <para>Versions affected: 0.9.15 to 1.0.10, 1.2.0 to 1.2.4</para>
+          <para>Versions affected: 0.9.15 to 1.0.10, 1.2.0 to 1.2.5</para>
           <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
