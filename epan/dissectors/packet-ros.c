@@ -165,12 +165,12 @@ register_ros_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _
 	  register_ber_oid_dissector_handle(oid, ros_handle, proto, name);
 }
 
-static new_dissector_t ros_lookup_opr_dissector(gint32 opcode, const ros_opr_t *operations, gboolean argument)
+static new_dissector_t ros_lookup_opr_dissector(gint32 opcode_lcl, const ros_opr_t *operations, gboolean argument)
 {
 	/* we don't know what order asn2wrs/module definition is, so ... */
 	if(operations) {
 		for(;operations->arg_pdu != (new_dissector_t)(-1); operations++)
-			if(operations->opcode == opcode)
+			if(operations->opcode == opcode_lcl)
 				return argument ? operations->arg_pdu : operations->res_pdu;
 
 	}
@@ -193,7 +193,7 @@ static new_dissector_t ros_lookup_err_dissector(gint32 errcode, const ros_err_t 
 static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	ros_info_t *rinfo;
-	gint32     opcode = 0;
+	gint32     opcode_lcl = 0;
 	const gchar *opname = NULL;
 	const gchar *suffix = NULL;
 	int offset = 0;
@@ -215,27 +215,27 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 		if((session->ros_op & ROS_OP_TYPE_MASK) == ROS_OP_BIND) {
 			/* use the in-built operation codes */
 			if((session->ros_op & ROS_OP_PDU_MASK) ==  ROS_OP_ERROR)
-				opcode = err_ros_bind;
+				opcode_lcl = err_ros_bind;
 			else
-				opcode = op_ros_bind;
+				opcode_lcl = op_ros_bind;
 		} else
 			/* otherwise just take the opcode */
-			opcode = session->ros_op & ROS_OP_OPCODE_MASK;
+			opcode_lcl = session->ros_op & ROS_OP_OPCODE_MASK;
 
 		/* default lookup in the operations */
 		lookup = rinfo->opr_code_strings;
 
 		switch(session->ros_op & ROS_OP_PDU_MASK) {
 		case ROS_OP_ARGUMENT:
-			opdissector = ros_lookup_opr_dissector(opcode, rinfo->opr_code_dissectors, TRUE);
+			opdissector = ros_lookup_opr_dissector(opcode_lcl, rinfo->opr_code_dissectors, TRUE);
 			suffix = "_argument";
 			break;
 		case ROS_OP_RESULT:
-			opdissector = ros_lookup_opr_dissector(opcode, rinfo->opr_code_dissectors, FALSE);
+			opdissector = ros_lookup_opr_dissector(opcode_lcl, rinfo->opr_code_dissectors, FALSE);
 			suffix = "_result";
 			break;
 		case ROS_OP_ERROR:
-			opdissector = ros_lookup_err_dissector(opcode, rinfo->err_code_dissectors);
+			opdissector = ros_lookup_err_dissector(opcode_lcl, rinfo->err_code_dissectors);
 			lookup = rinfo->err_code_strings;
 			break;
 		default:
@@ -244,7 +244,7 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 
 		if(opdissector) {
 
-			opname = val_to_str(opcode, lookup, "Unknown opcode (%d)");
+			opname = val_to_str(opcode_lcl, lookup, "Unknown opcode (%d)");
 
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_set_str(pinfo->cinfo, COL_INFO, opname);
