@@ -464,15 +464,15 @@ dissect_rtnet_tdma_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
 
 static void
 dissect_tdma_sync(tvbuff_t *tvb, guint offset, proto_tree *tree) {
-  gint64 time;
+  gint64 timestamp;
   proto_item *ti;
 
   proto_tree_add_item(tree, hf_tdma_sync_cycle, tvb, offset, 4, FALSE);
   offset += 4;
 
   ti = proto_tree_add_item(tree, hf_tdma_sync_xmit_stamp, tvb, offset, 8, FALSE);
-  time = tvb_get_ntoh64(tvb, offset) - tvb_get_ntoh64(tvb, offset+8);
-  proto_item_append_text(ti, " (%s%" G_GINT64_MODIFIER "d)", (time > 0) ? "+" : "", time);
+  timestamp = tvb_get_ntoh64(tvb, offset) - tvb_get_ntoh64(tvb, offset+8);
+  proto_item_append_text(ti, " (%s%" G_GINT64_MODIFIER "d)", (timestamp > 0) ? "+" : "", timestamp);
   offset += 8;
 
   proto_tree_add_item(tree, hf_tdma_sync_sched_xmit, tvb, offset, 8, FALSE);
@@ -492,7 +492,7 @@ dissect_tdma_request_cal(tvbuff_t *tvb, guint offset, proto_tree *tree) {
 
 static void
 dissect_tdma_reply_cal(tvbuff_t *tvb, guint offset, proto_tree *tree) {
-  gint64 time;
+  gint64 timestamp;
   proto_item *ti;
 
   proto_tree_add_item(tree, hf_tdma_rpl_cal_req_stamp, tvb, offset, 8, FALSE);
@@ -500,11 +500,11 @@ dissect_tdma_reply_cal(tvbuff_t *tvb, guint offset, proto_tree *tree) {
 
   proto_tree_add_item(tree, hf_tdma_rpl_cal_rcv_stamp, tvb, offset, 8, FALSE);
 
-  time = tvb_get_ntoh64(tvb, offset+8) - tvb_get_ntoh64(tvb, offset);
+  timestamp = tvb_get_ntoh64(tvb, offset+8) - tvb_get_ntoh64(tvb, offset);
   offset += 8;
 
   ti = proto_tree_add_item(tree, hf_tdma_rpl_cal_xmit_stamp, tvb, offset, 8, FALSE);
-  proto_item_append_text(ti, " (%s%" G_GINT64_MODIFIER "d)", (time > 0) ? "+" : "", time);
+  proto_item_append_text(ti, " (%s%" G_GINT64_MODIFIER "d)", (timestamp > 0) ? "+" : "", timestamp);
 }
 
 static void
@@ -670,7 +670,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   gint offset = 0;
   proto_tree *vers_id_tree, *vers_id_item, *flags_tree, *flags_item;
   guint8 vers_id;
-  guint8 address_type;
+  guint8 addr_type;
   guint32 config_length,len;
   proto_tree *ti=NULL,*rtcfg_tree=NULL;
   const guint8 *haddr;
@@ -710,11 +710,11 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     switch( vers_id & 0x1f )
     {
        case RTCFG_MSG_S1_CONFIG:
-         address_type = tvb_get_guint8(tvb, offset);
+         addr_type = tvb_get_guint8(tvb, offset);
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_address_type, tvb, offset, 1, FALSE );
          offset += 1;
 
-         switch( address_type )
+         switch( addr_type )
          {
            case RTCFG_ADDRESS_TYPE_MAC:
              /* nothing */
@@ -745,11 +745,11 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          break;
 
        case RTCFG_MSG_ANN_NEW:
-         address_type = tvb_get_guint8(tvb, offset);
+         addr_type = tvb_get_guint8(tvb, offset);
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_address_type, tvb, offset, 1, FALSE );
          offset += 1;
 
-         switch( address_type )
+         switch( addr_type )
          {
            case RTCFG_ADDRESS_TYPE_MAC:
              /* nothing */
@@ -776,11 +776,11 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          break;
 
        case RTCFG_MSG_ANN_REPLY:
-         address_type = tvb_get_guint8(tvb, offset);
+         addr_type = tvb_get_guint8(tvb, offset);
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_address_type, tvb, offset, 1, FALSE );
          offset += 1;
 
-         switch( address_type )
+         switch( addr_type )
          {
            case RTCFG_ADDRESS_TYPE_MAC:
              /* nothing */
@@ -856,11 +856,11 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          break;
 
        case RTCFG_MSG_DEAD_STN:
-         address_type = tvb_get_guint8(tvb, offset);
+         addr_type = tvb_get_guint8(tvb, offset);
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_address_type, tvb, offset, 1, FALSE );
          offset += 1;
 
-         switch( address_type )
+         switch( addr_type )
          {
            case RTCFG_ADDRESS_TYPE_MAC:
              /* nothing */
