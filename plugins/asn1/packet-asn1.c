@@ -2843,7 +2843,7 @@ read_asn1_type_table(const char *filename)
 	FILE *f;
 	guint size;
 	guchar *data;
-	struct stat stat;
+	struct stat file_stat;
 	static guint mylogh = 0;
 
 	if ((filename == 0) || (strlen(filename) == 0))
@@ -2865,8 +2865,8 @@ read_asn1_type_table(const char *filename)
 				report_open_failure(filename, errno, FALSE);
 		return;
 	}
-	fstat(fileno(f), &stat);
-	size = (int)stat.st_size;
+	fstat(fileno(f), &file_stat);
+	size = (int)file_stat.st_size;
 	if (size == 0) {
 		if (asn1_verbose) g_message("file %s is empty, ignored", filename);
 		fclose(f);
