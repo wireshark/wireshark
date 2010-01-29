@@ -74,6 +74,7 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-udp.h>
 #include <epan/expert.h>
+#include <epan/dissectors/packet-ntp.h>
 
 /* 4739 is IPFIX.
    2055 and 9996 are common defaults for Netflow
@@ -1355,6 +1356,7 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 	nstime_t        ts_start[2], ts_end[2];
 	int             offset_s[2], offset_e[2];
 	nstime_t        ts_delta;
+	nstime_t	ts;
 	guint32         msec_start[2], msec_end[2];
 	guint32         msec_delta;
 	proto_tree *    timetree = 0;
@@ -1368,6 +1370,7 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
         gchar *         cmd_str = NULL;
         guint16         got_flags = 0;
 	proto_item *    ti;
+	const guint8 *reftime;
 
 	offset_s[0] = offset_s[1] = offset_e[0] = offset_e[1] = 0;
 	msec_start[0] = msec_start[1] = msec_end[0] = msec_end[1] = 0;
@@ -2758,8 +2761,11 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 			break;
 
 		case 258: /* collectionTimeMilliseconds */
-			proto_tree_add_item(pdutree, hf_cflow_collection_time_milliseconds,
-				tvb, offset, length, FALSE);
+			ts.secs = tvb_get_ntohl(tvb, offset);
+			ts.nsecs = tvb_get_ntohl(tvb, offset + 4);
+			timeitem = proto_tree_add_time(pdutree,
+					       hf_cflow_collection_time_milliseconds,
+					       tvb, offset, length, &ts);
 			break;
 
 		case 259: /* exportSctpStreamId */
@@ -2768,13 +2774,17 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 			break;
 
 		case 260: /* maxExportSeconds */
-			proto_tree_add_item(pdutree, hf_cflow_max_export_seconds,
-				tvb, offset, length, FALSE);
+			ts.secs = tvb_get_ntohl(tvb, offset);
+			ts.nsecs = 0;
+			proto_tree_add_time(pdutree, hf_cflow_max_export_seconds,
+				tvb, offset, length, &ts);
 			break;
 
 		case 261: /* maxFlowEndSeconds */
-			proto_tree_add_item(pdutree, hf_cflow_max_flow_end_seconds,
-				tvb, offset, length, FALSE);
+			ts.secs = tvb_get_ntohl(tvb, offset);
+			ts.nsecs = 0;
+			proto_tree_add_time(pdutree, hf_cflow_max_flow_end_seconds,
+				tvb, offset, length, &ts);
 			break;
 
 		case 262: /* messageMD5Checksum */
@@ -2788,13 +2798,17 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 			break;
 
 		case 264: /* minExportSeconds */
-			proto_tree_add_item(pdutree, hf_cflow_min_export_seconds,
-				tvb, offset, length, FALSE);
+			ts.secs = tvb_get_ntohl(tvb, offset);
+			ts.nsecs = 0;
+			proto_tree_add_time(pdutree, hf_cflow_min_export_seconds,
+				tvb, offset, length, &ts);
 			break;
 
 		case 265: /* minFlowStartSeconds */
-			proto_tree_add_item(pdutree, hf_cflow_min_flow_start_seconds,
-				tvb, offset, length, FALSE);
+			ts.secs = tvb_get_ntohl(tvb, offset);
+			ts.nsecs = 0;
+			proto_tree_add_time(pdutree, hf_cflow_min_flow_start_seconds,
+				tvb, offset, length, &ts);
 			break;
 
 		case 266: /* opaqueOctets */
@@ -2808,33 +2822,41 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 			break;
 
 		case 268: /* maxFlowEndMicroseconds */
-			proto_tree_add_item(pdutree, hf_cflow_max_flow_end_microseconds,
-				tvb, offset, length, FALSE);
+			reftime = tvb_get_ptr(tvb, offset, 8);
+			proto_tree_add_bytes_format_value(pdutree, hf_cflow_max_flow_end_microseconds,
+				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
 			break;
 
 		case 269: /* maxFlowEndMilliseconds */
-			proto_tree_add_item(pdutree, hf_cflow_max_flow_end_milliseconds,
-				tvb, offset, length, FALSE);
+			ts.secs = tvb_get_ntohl(tvb, offset);
+			ts.nsecs = tvb_get_ntohl(tvb, offset + 4);
+			proto_tree_add_time(pdutree, hf_cflow_max_flow_end_milliseconds,
+				tvb, offset, length, &ts);
 			break;
 
 		case 270: /* maxFlowEndNanoseconds */
-			proto_tree_add_item(pdutree, hf_cflow_max_flow_end_nanoseconds,
-				tvb, offset, length, FALSE);
+			reftime = tvb_get_ptr(tvb, offset, 8);
+			proto_tree_add_bytes_format_value(pdutree, hf_cflow_max_flow_end_nanoseconds,
+				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
 			break;
 
 		case 271: /* minFlowStartMicroseconds */
-			proto_tree_add_item(pdutree, hf_cflow_min_flow_start_microseconds,
-				tvb, offset, length, FALSE);
+			reftime = tvb_get_ptr(tvb, offset, 8);
+			proto_tree_add_bytes_format_value(pdutree, hf_cflow_min_flow_start_microseconds,
+				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
 			break;
 
 		case 272: /* minFlowStartMilliseconds */
-			proto_tree_add_item(pdutree, hf_cflow_min_flow_start_milliseconds,
-				tvb, offset, length, FALSE);
+			ts.secs = tvb_get_ntohl(tvb, offset);
+			ts.nsecs = tvb_get_ntohl(tvb, offset + 4);
+			proto_tree_add_time(pdutree, hf_cflow_min_flow_start_milliseconds,
+				tvb, offset, length, &ts);
 			break;
 
 		case 273: /* minFlowStartNanoseconds */
-			proto_tree_add_item(pdutree, hf_cflow_min_flow_start_nanoseconds,
-				tvb, offset, length, FALSE);
+			reftime = tvb_get_ptr(tvb, offset, 8);
+			proto_tree_add_bytes_format_value(pdutree, hf_cflow_min_flow_start_nanoseconds,
+				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
 			break;
 
 		case 274: /* collectorCertificate */
@@ -2943,23 +2965,29 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 			break;
 
 		case 322: /* observationTimeSeconds */
-			proto_tree_add_item(pdutree, hf_cflow_observation_time_seconds,
-				tvb, offset, length, FALSE);
+			ts.secs = tvb_get_ntohl(tvb, offset);
+			ts.nsecs = 0;
+			proto_tree_add_time(pdutree, hf_cflow_observation_time_seconds,
+				tvb, offset, length, &ts);
 			break;
 
 		case 323: /* observationTimeMilliseconds */
-			proto_tree_add_item(pdutree, hf_cflow_observation_time_milliseconds,
-				tvb, offset, length, FALSE);
+			ts.secs = tvb_get_ntohl(tvb, offset);
+			ts.nsecs = tvb_get_ntohl(tvb, offset + 4);
+			proto_tree_add_time(pdutree, hf_cflow_observation_time_milliseconds,
+				tvb, offset, length, &ts);
 			break;
 
 		case 324: /* observationTimeMicroseconds */
-			proto_tree_add_item(pdutree, hf_cflow_observation_time_microseconds,
-				tvb, offset, length, FALSE);
+			reftime = tvb_get_ptr(tvb, offset, 8);
+			proto_tree_add_bytes_format_value(pdutree, hf_cflow_observation_time_microseconds,
+				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
 			break;
 
 		case 325: /* observationTimeNanoseconds */
-			proto_tree_add_item(pdutree, hf_cflow_observation_time_nanoseconds,
-				tvb, offset, length, FALSE);
+			reftime = tvb_get_ptr(tvb, offset, 8);
+			proto_tree_add_bytes_format_value(pdutree, hf_cflow_observation_time_nanoseconds,
+				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
 			break;
 
 		case 326: /* digestHashValue */
@@ -5155,7 +5183,7 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_collection_time_milliseconds,
 		 {"Collection Time Milliseconds", "cflow.collection_time_milliseconds",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 		  "Collection Time Milliseconds", HFILL}
 		},
 		{&hf_cflow_export_sctp_stream_id,
@@ -5165,12 +5193,12 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_max_export_seconds,
 		 {"Max Export Seconds", "cflow.max_export_seconds",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 		  "Max Export Seconds", HFILL}
 		},
 		{&hf_cflow_max_flow_end_seconds,
 		 {"Max Flow End Seconds", "cflow.max_flow_end_seconds",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 		  "Max Flow End Seconds", HFILL}
 		},
 		{&hf_cflow_message_md5_checksum,
@@ -5185,12 +5213,12 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_min_export_seconds,
 		 {"Min Export Seconds", "cflow.min_export_seconds",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 		  "Min Export Seconds", HFILL}
 		},
 		{&hf_cflow_min_flow_start_seconds,
 		 {"Min Flow Start Seconds", "cflow.min_flow_start_seconds",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 		  "Min Flow Start Seconds", HFILL}
 		},
 		{&hf_cflow_opaque_octets,
@@ -5205,32 +5233,32 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_max_flow_end_microseconds,
 		 {"Max Flow End Microseconds", "cflow.max_flow_end_microseconds",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "Max Flow End Microseconds", HFILL}
 		},
 		{&hf_cflow_max_flow_end_milliseconds,
 		 {"Max Flow End Milliseconds", "cflow.max_flow_end_milliseconds",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 		  "Max Flow End Milliseconds", HFILL}
 		},
 		{&hf_cflow_max_flow_end_nanoseconds,
 		 {"Max Flow End Nanoseconds", "cflow.max_flow_end_nanoseconds",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "Max Flow End Nanoseconds", HFILL}
 		},
 		{&hf_cflow_min_flow_start_microseconds,
 		 {"Min Flow Start Microseconds", "cflow.min_flow_start_microseconds",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "Min Flow Start Microseconds", HFILL}
 		},
 		{&hf_cflow_min_flow_start_milliseconds,
 		 {"Min Flow Start Milliseconds", "cflow.min_flow_start_milliseconds",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 		  "Min Flow Start Milliseconds", HFILL}
 		},
 		{&hf_cflow_min_flow_start_nanoseconds,
 		 {"Min Flow Start Nanoseconds", "cflow.min_flow_start_nanoseconds",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "Min Flow Start Nanoseconds", HFILL}
 		},
 		{&hf_cflow_collector_certificate,
@@ -5330,22 +5358,22 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_observation_time_seconds,
 		 {"Observation Time Seconds", "cflow.observation_time_seconds",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 		  "Observation Time Seconds", HFILL}
 		},
 		{&hf_cflow_observation_time_milliseconds,
 		 {"Observation Time Milliseconds", "cflow.observation_time_milliseconds",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 		  "Observation Time Milliseconds", HFILL}
 		},
 		{&hf_cflow_observation_time_microseconds,
 		 {"Observation Time Microseconds", "cflow.observation_time_microseconds",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "Observation Time Microseconds", HFILL}
 		},
 		{&hf_cflow_observation_time_nanoseconds,
 		 {"Observation Time Nanoseconds", "cflow.observation_time_nanoseconds",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "Observation Time Nanoseconds", HFILL}
 		},
 		{&hf_cflow_digest_hash_value,
