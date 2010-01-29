@@ -563,7 +563,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 	struct tsn_sort *tsn_s;
 	guint8* addr = NULL;
 	int i;
-	guint8 index = 0;
+	guint8 idx = 0;
 
 	sctp_allassocs_info_t *assoc_info=NULL;
 	assoc_info = &sctp_tapinfo_struct;
@@ -790,13 +790,13 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					info->initack     = TRUE;
 				}
 
-				index = tvb_get_guint8(sctp_info->tvb[0],0); 
-				if (index > UPPER_BOUND_CHUNK_TYPE)
-					index = OTHER_CHUNKS_INDEX;
+				idx = tvb_get_guint8(sctp_info->tvb[0],0); 
+				if (idx > UPPER_BOUND_CHUNK_TYPE)
+					idx = OTHER_CHUNKS_INDEX;
 
-				info->chunk_count[index]++;
-				info->ep1_chunk_count[index]++;
-				info = add_chunk_count(&tmp_info.src, info, 1, index);
+				info->chunk_count[idx]++;
+				info->ep1_chunk_count[idx]++;
+				info = add_chunk_count(&tmp_info.src, info, 1, idx);
 			}
 			else
 			{
@@ -815,13 +815,13 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				}
 				for (chunk_number = 0; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
 				{
-					index = tvb_get_guint8(sctp_info->tvb[0],0); 
-					if ( index > UPPER_BOUND_CHUNK_TYPE )
-						index = OTHER_CHUNKS_INDEX;
+					idx = tvb_get_guint8(sctp_info->tvb[0],0); 
+					if ( idx > UPPER_BOUND_CHUNK_TYPE )
+						idx = OTHER_CHUNKS_INDEX;
 
-					info->chunk_count[index]++;
-					info->ep1_chunk_count[index]++;
-					info = add_chunk_count(&tmp_info.src, info, 1, index);
+					info->chunk_count[idx]++;
+					info->ep1_chunk_count[idx]++;
+					info = add_chunk_count(&tmp_info.src, info, 1, idx);
 
 					if (tvb_get_guint8(sctp_info->tvb[chunk_number],0) == SCTP_DATA_CHUNK_ID)
 					{
@@ -1063,15 +1063,15 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				info->tsn1 = g_list_prepend(info->tsn1, tsn);
 			}
 			
-			index = tvb_get_guint8(sctp_info->tvb[0],0);
-			if (index > UPPER_BOUND_CHUNK_TYPE)
-				index = OTHER_CHUNKS_INDEX;
-			info->chunk_count[index]++;
+			idx = tvb_get_guint8(sctp_info->tvb[0],0);
+			if (idx > UPPER_BOUND_CHUNK_TYPE)
+				idx = OTHER_CHUNKS_INDEX;
+			info->chunk_count[idx]++;
 			if (info->direction == 1)
-				info->ep1_chunk_count[index]++;
+				info->ep1_chunk_count[idx]++;
 			else
-				info->ep2_chunk_count[index]++;
-			info = add_chunk_count(&tmp_info.src, info, info->direction, index);
+				info->ep2_chunk_count[idx]++;
+			info = add_chunk_count(&tmp_info.src, info, info->direction, idx);
 			for (chunk_number = 1; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
 			{
 				type = tvb_get_ntohs(sctp_info->tvb[chunk_number],0);
@@ -1121,16 +1121,16 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			}
 			for (chunk_number = 0; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
 			{
-				index = tvb_get_guint8(sctp_info->tvb[chunk_number],0);
-				if (index > UPPER_BOUND_CHUNK_TYPE)
-					index = OTHER_CHUNKS_INDEX;
+				idx = tvb_get_guint8(sctp_info->tvb[chunk_number],0);
+				if (idx > UPPER_BOUND_CHUNK_TYPE)
+					idx = OTHER_CHUNKS_INDEX;
 
-				info->chunk_count[index]++;
+				info->chunk_count[idx]++;
 				if (info->direction == 1)
-					info->ep1_chunk_count[index]++;
+					info->ep1_chunk_count[idx]++;
 				else
-					info->ep2_chunk_count[index]++;
-				info = add_chunk_count(&tmp_info.src, info,info->direction, index);
+					info->ep2_chunk_count[idx]++;
+				info = add_chunk_count(&tmp_info.src, info,info->direction, idx);
 
 				if ((tvb_get_guint8(sctp_info->tvb[chunk_number],0)) == SCTP_DATA_CHUNK_ID)
 				{

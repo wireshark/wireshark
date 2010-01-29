@@ -175,7 +175,7 @@ void
 redraw_packet_bytes_all(void)
 {
     if (cfile.current_frame != NULL)
-        redraw_packet_bytes( byte_nb_ptr, cfile.current_frame, cfile.finfo_selected);
+        redraw_packet_bytes( byte_nb_ptr_gbl, cfile.current_frame, cfile.finfo_selected);
 
     redraw_packet_bytes_packet_wins();
 
@@ -713,7 +713,7 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
 void
 add_main_byte_views(epan_dissect_t *edt)
 {
-    add_byte_views(edt, tree_view, byte_nb_ptr);
+    add_byte_views(edt, tree_view_gbl, byte_nb_ptr_gbl);
 }
 
 void
@@ -854,7 +854,7 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
 
 	GString* copy_buffer = g_string_new(""); /* String to copy to clipboard */
 
-	bv = get_notebook_bv_ptr(byte_nb_ptr);
+	bv = get_notebook_bv_ptr(byte_nb_ptr_gbl);
 	if (bv == NULL) {
 		/* shouldn't happen */
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
@@ -953,7 +953,7 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 
 	/* XXX: Must check if file name exists first */
 
-	bv = get_notebook_bv_ptr(byte_nb_ptr);
+	bv = get_notebook_bv_ptr(byte_nb_ptr_gbl);
 	if (bv == NULL) {
 		/* shouldn't happen */
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
@@ -1017,7 +1017,7 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 #endif
 
     /* don't show up the dialog, if no data has to be saved */
-	bv = get_notebook_bv_ptr(byte_nb_ptr);
+	bv = get_notebook_bv_ptr(byte_nb_ptr_gbl);
 	if (bv == NULL) {
 		/* shouldn't happen */
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
@@ -1667,7 +1667,7 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
 }
 
 GtkWidget *
-main_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p)
+main_tree_view_new(e_prefs *prefs_p, GtkWidget **tree_view_p)
 {
   GtkWidget *tv_scrollw, *tree_view;
   GtkTreeStore *store;
@@ -1702,7 +1702,7 @@ main_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p)
   g_signal_connect(tree_view, "row-expanded", G_CALLBACK(expand_tree), NULL);
   g_signal_connect(tree_view, "row-collapsed", G_CALLBACK(collapse_tree), NULL);
   gtk_container_add( GTK_CONTAINER(tv_scrollw), tree_view );
-  set_ptree_sel_browse(tree_view, prefs->gui_ptree_sel_browse);
+  set_ptree_sel_browse(tree_view, prefs_p->gui_ptree_sel_browse);
   gtk_widget_modify_font(tree_view, user_font_get_regular());
   remember_ptree_widget(tree_view);
 
@@ -1738,7 +1738,7 @@ struct proto_tree_draw_info {
 void
 main_proto_tree_draw(proto_tree *protocol_tree)
 {
-    proto_tree_draw(protocol_tree, tree_view);
+    proto_tree_draw(protocol_tree, tree_view_gbl);
 }
 
 
@@ -1900,16 +1900,16 @@ void
 clear_tree_and_hex_views(void)
 {
   /* Clear the hex dump by getting rid of all the byte views. */
-  while (gtk_notebook_get_nth_page(GTK_NOTEBOOK(byte_nb_ptr), 0) != NULL)
-    gtk_notebook_remove_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
+  while (gtk_notebook_get_nth_page(GTK_NOTEBOOK(byte_nb_ptr_gbl), 0) != NULL)
+    gtk_notebook_remove_page(GTK_NOTEBOOK(byte_nb_ptr_gbl), 0);
 
   /* Add a placeholder byte view so that there's at least something
      displayed in the byte view notebook. */
-  add_byte_tab(byte_nb_ptr, "", NULL, NULL, tree_view);
+  add_byte_tab(byte_nb_ptr_gbl, "", NULL, NULL, tree_view_gbl);
 
   /* Clear the protocol tree by removing all nodes in the ctree.
      This is how it's done in testgtk.c in GTK+ */
-  gtk_tree_store_clear(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(tree_view))));
+  gtk_tree_store_clear(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(tree_view_gbl))));
 }
 
 void

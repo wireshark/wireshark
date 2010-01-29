@@ -816,7 +816,7 @@ new_packet_list_check_end(void)
 }
 
 gint
-new_packet_list_find_row_from_data(gpointer data, gboolean select)
+new_packet_list_find_row_from_data(gpointer data, gboolean select_flag)
 {
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	GtkTreeIter iter;
@@ -836,7 +836,7 @@ new_packet_list_find_row_from_data(gpointer data, gboolean select)
 		fdata = record->fdata;
 
 		if(fdata == fdata_needle) {
-			if(select)
+			if(select_flag)
 				scroll_to_and_select_iter(model, NULL, &iter);
 
 			return fdata->num;
@@ -912,8 +912,8 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 		return;
 
 	/* Remove the hex display tab pages */
-	while(gtk_notebook_get_nth_page(GTK_NOTEBOOK(byte_nb_ptr), 0))
-		gtk_notebook_remove_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
+	while(gtk_notebook_get_nth_page(GTK_NOTEBOOK(byte_nb_ptr_gbl), 0))
+		gtk_notebook_remove_page(GTK_NOTEBOOK(byte_nb_ptr_gbl), 0);
 
 	cf_select_packet(&cfile, row);
 	gtk_widget_grab_focus(packetlist->view);

@@ -726,7 +726,7 @@ on_zoomin_bt (GtkWidget *widget _U_, struct sctp_udata *u_data)
 }
 
 static void
-zoomin_bt (struct sctp_udata *u_data)
+zoomin_bt_fcn (struct sctp_udata *u_data)
 {
 	sctp_min_max_t *tmp_minmax;
 
@@ -946,7 +946,7 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 			u_data->io->rectangle_present=FALSE;
 			if (event->x >= u_data->io->rect_x_min && event->x <= u_data->io->rect_x_max && 
 			     event->y >= u_data->io->rect_y_min && event->y <= u_data->io->rect_y_max)
-				zoomin_bt(u_data);
+				zoomin_bt_fcn(u_data);
 			else
 			{
 				u_data->io->x1_tmp_sec = u_data->io->x1_akt_sec;

@@ -338,7 +338,7 @@ static guint change_call_num_graph(voip_calls_tapinfo_t *tapinfo _U_, guint16 ca
 
 /****************************************************************************/
 /* Insert the item in the graph list */
-void insert_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, const gchar *frame_label, const gchar *comment, guint16 call_num, address *src_addr, address *dst_addr, guint16 line_style, double time, guint32 frame_num)
+void insert_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, const gchar *frame_label, const gchar *comment, guint16 call_num, address *src_addr, address *dst_addr, guint16 line_style, double time_val, guint32 frame_num)
 {
 	graph_analysis_item_t *gai, *new_gai;
 	GList *list;
@@ -347,7 +347,7 @@ void insert_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, cons
 
 	new_gai = g_malloc(sizeof(graph_analysis_item_t));
 	new_gai->frame_num = frame_num;
-	new_gai->time= time;
+	new_gai->time= time_val;
 	COPY_ADDRESS(&(new_gai->src_addr),src_addr);
 	COPY_ADDRESS(&(new_gai->dst_addr),dst_addr);
 
@@ -2227,7 +2227,7 @@ remove_tap_listener_sdp_calls(void)
    This function will look for a signal/event in the SignalReq/ObsEvent string
    and return true if it is found
 */
-static gboolean isSignal(const gchar *signal, const gchar *signalStr)
+static gboolean isSignal(const gchar *signal_str_p, const gchar *signalStr)
 {
 	gint i;
 	gchar **resultArray;
@@ -2236,14 +2236,14 @@ static gboolean isSignal(const gchar *signal, const gchar *signalStr)
 	if (signalStr == NULL) return FALSE;
 
 	/* if are both "blank" return true */
-	if ( (*signal == '\0') &&  (*signalStr == '\0') ) return TRUE;
+	if ( (*signal_str_p == '\0') &&  (*signalStr == '\0') ) return TRUE;
 
-	/* look for signal in signalSre */
+	/* look for signal in signalStr */
 	resultArray = g_strsplit(signalStr, ",", 10);
 
 	for (i = 0; resultArray[i]; i++) {
 		g_strstrip(resultArray[i]);
-		if (strcmp(resultArray[i], signal) == 0) return TRUE;
+		if (strcmp(resultArray[i], signal_str_p) == 0) return TRUE;
 	}
 
 	g_strfreev(resultArray);

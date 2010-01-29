@@ -917,29 +917,29 @@ static void
 draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 {
 #if PORTAUDIO_API_1
-	PaTimestamp index;
+	PaTimestamp idx;
 #else /* PORTAUDIO_API_1 */
-	PaTime index;
+	PaTime idx;
 #endif /* PORTAUDIO_API_1 */
 	int i;
 
 	if (!rci) return;
 
 #if PORTAUDIO_API_1
-	index = Pa_StreamTime( pa_stream ) - rtp_channels->pause_duration - rtp_channels->out_diff_time - start_index;
+	idx = Pa_StreamTime( pa_stream ) - rtp_channels->pause_duration - rtp_channels->out_diff_time - start_index;
 #else  /* PORTAUDIO_API_1 */
-	index = ((guint32)(SAMPLE_RATE) * (Pa_GetStreamTime(pa_stream)-rtp_channels->pa_start_time))- rtp_channels->pause_duration - rtp_channels->out_diff_time - start_index;
+	idx = ((guint32)(SAMPLE_RATE) * (Pa_GetStreamTime(pa_stream)-rtp_channels->pa_start_time))- rtp_channels->pause_duration - rtp_channels->out_diff_time - start_index;
 #endif  /* PORTAUDIO_API_1 */
 
 
 	/* If we finished playing both channels, then stop them */
-	if ( (rtp_channels && (!rtp_channels->stop) && (!rtp_channels->pause)) && (index > rtp_channels->max_frame_index) ) {
+	if ( (rtp_channels && (!rtp_channels->stop) && (!rtp_channels->pause)) && (idx > rtp_channels->max_frame_index) ) {
 		stop_channels();
 		return;
 	}
 
 	/* If only this channel finished, then return */
-	if (index > rci->max_frame_index) {
+	if (idx > rci->max_frame_index) {
 		return;
 	}
 
@@ -959,20 +959,20 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 		rci->cursor_pixbuf = NULL;
 	}
 
-	if (index>0 && (rci->cursor_prev>=0)) {
-		rci->cursor_pixbuf = gdk_pixbuf_get_from_drawable(NULL, rci->pixmap, NULL, (int) (index/MULT), 0, 0, 0, 1, rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
+	if (idx>0 && (rci->cursor_prev>=0)) {
+		rci->cursor_pixbuf = gdk_pixbuf_get_from_drawable(NULL, rci->pixmap, NULL, (int) (idx/MULT), 0, 0, 0, 1, rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
 
 		gdk_draw_line(rci->pixmap, rci->draw_area->style->black_gc,
-			(int) (index/MULT),
+			(int) (idx/MULT),
 			0,
-			(int) (index/MULT),
+			(int) (idx/MULT),
 			rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
 
 		gdk_draw_drawable(rci->draw_area->window,
 			rci->draw_area->style->fg_gc[GTK_WIDGET_STATE(rci->draw_area)],	
 			rci->pixmap,
-			(int) (index/MULT), 0,
-			(int) (index/MULT), 0,
+			(int) (idx/MULT), 0,
+			(int) (idx/MULT), 0,
 			1, rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
 	}
 
@@ -982,7 +982,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 	/* Move the horizontal scroll bar */
 #if 0
 	if ( (rci->cursor_prev/MULT < (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) &&
-		(index/MULT >= (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) ){		
+		(idx/MULT >= (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) ){		
 		for (i=1; i<10; i++) {
 			rci->h_scrollbar_adjustment->value += rci->h_scrollbar_adjustment->page_size/10;
 			gtk_adjustment_value_changed(rci->h_scrollbar_adjustment);
@@ -990,17 +990,17 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 	}
 #endif
 	if (!rci->cursor_catch) {
-		if (index/MULT < rci->h_scrollbar_adjustment->page_size/2) {
+		if (idx/MULT < rci->h_scrollbar_adjustment->page_size/2) {
 			rci->h_scrollbar_adjustment->value = rci->h_scrollbar_adjustment->lower;
-		} else if (index/MULT > (rci->h_scrollbar_adjustment->upper - rci->h_scrollbar_adjustment->page_size/2)) {
+		} else if (idx/MULT > (rci->h_scrollbar_adjustment->upper - rci->h_scrollbar_adjustment->page_size/2)) {
 			rci->h_scrollbar_adjustment->value = rci->h_scrollbar_adjustment->upper - rci->h_scrollbar_adjustment->page_size;
 		} else {
-			rci->h_scrollbar_adjustment->value = index/MULT - rci->h_scrollbar_adjustment->page_size/2;
+			rci->h_scrollbar_adjustment->value = idx/MULT - rci->h_scrollbar_adjustment->page_size/2;
 		}
 
 		gtk_adjustment_value_changed(rci->h_scrollbar_adjustment);
 	} else if ( (rci->cursor_prev/MULT < (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) && 
-		(index/MULT >= (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) ){	
+		(idx/MULT >= (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) ){	
 		rci->cursor_catch = FALSE;
 		for (i=1; i<10; i++) {
 			rci->h_scrollbar_adjustment->value = min(rci->h_scrollbar_adjustment->upper-rci->h_scrollbar_adjustment->page_size, rci->h_scrollbar_adjustment->value + (rci->h_scrollbar_adjustment->page_size/20));
@@ -1014,31 +1014,31 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 	g_signal_connect(rci->h_scrollbar_adjustment, "value_changed", G_CALLBACK(h_scrollbar_changed), rci);
 
 #if 0
-	if (index/MULT < rci->h_scrollbar_adjustment->page_increment) {
+	if (idx/MULT < rci->h_scrollbar_adjustment->page_increment) {
 		rci->h_scrollbar_adjustment->value = rci->h_scrollbar_adjustment->lower;
-	} else if (index/MULT > (rci->h_scrollbar_adjustment->upper - rci->h_scrollbar_adjustment->page_size + rci->h_scrollbar_adjustment->page_increment)) {
+	} else if (idx/MULT > (rci->h_scrollbar_adjustment->upper - rci->h_scrollbar_adjustment->page_size + rci->h_scrollbar_adjustment->page_increment)) {
 		rci->h_scrollbar_adjustment->value = rci->h_scrollbar_adjustment->upper - rci->h_scrollbar_adjustment->page_size;
 	} else {
-		if ( (index/MULT < rci->h_scrollbar_adjustment->value) || (index/MULT > (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) ){
-			rci->h_scrollbar_adjustment->value = index/MULT;
+		if ( (idx/MULT < rci->h_scrollbar_adjustment->value) || (idx/MULT > (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) ){
+			rci->h_scrollbar_adjustment->value = idx/MULT;
 		}
 	}
 #endif
 
 #if 0
-	if (index/MULT < rci->h_scrollbar_adjustment->page_size/2) {
+	if (idx/MULT < rci->h_scrollbar_adjustment->page_size/2) {
 		rci->h_scrollbar_adjustment->value = rci->h_scrollbar_adjustment->lower;
-	} else if (index/MULT > (rci->h_scrollbar_adjustment->upper - rci->h_scrollbar_adjustment->page_size/2)) {
+	} else if (idx/MULT > (rci->h_scrollbar_adjustment->upper - rci->h_scrollbar_adjustment->page_size/2)) {
 		rci->h_scrollbar_adjustment->value = rci->h_scrollbar_adjustment->upper - rci->h_scrollbar_adjustment->page_size;
 	} else {
-		rci->h_scrollbar_adjustment->value = index/MULT - rci->h_scrollbar_adjustment->page_size/2;
+		rci->h_scrollbar_adjustment->value = idx/MULT - rci->h_scrollbar_adjustment->page_size/2;
 	}
 #endif
 
 #if 0
 	gtk_adjustment_value_changed(rci->h_scrollbar_adjustment);
 #endif
-	rci->cursor_prev = index;
+	rci->cursor_prev = idx;
 }
 
 /****************************************************************************/

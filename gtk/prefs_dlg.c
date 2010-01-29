@@ -221,14 +221,14 @@ pref_show(pref_t *pref, gpointer user_data)
 
   case PREF_RANGE:
   {
-    char *range_string;
+    char *range_str_p;
 
     g_free(pref->saved_val.range);
     pref->saved_val.range = range_copy(*pref->varp.range);
-    range_string = range_convert_range(*pref->varp.range);
+    range_str_p = range_convert_range(*pref->varp.range);
     pref->control = create_preference_entry(main_tb, pref->ordinal,
                                             label_string, pref->description,
-                                            range_string);
+                                            range_str_p);
     break;
   }
 
@@ -697,7 +697,7 @@ create_preference_radio_buttons(GtkWidget *main_tb, int table_position,
   GtkTooltips *tooltips;
   GtkWidget *radio_button_hbox, *button = NULL;
   GSList *rb_group;
-  int index;
+  int idx;
   const enum_val_t *enum_valp;
   GtkWidget *event_box;
 
@@ -708,8 +708,8 @@ create_preference_radio_buttons(GtkWidget *main_tb, int table_position,
 
   radio_button_hbox = gtk_hbox_new(FALSE, 0);
   rb_group = NULL;
-  for (enum_valp = enumvals, index = 0; enum_valp->name != NULL;
-       enum_valp++, index++) {
+  for (enum_valp = enumvals, idx = 0; enum_valp->name != NULL;
+       enum_valp++, idx++) {
     button = gtk_radio_button_new_with_label(rb_group,
                                              enum_valp->description);
     gtk_widget_show(button);
@@ -792,7 +792,7 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
 {
   GtkTooltips *tooltips;
   GtkWidget *menu_box, *combo_box;
-  int menu_index, index;
+  int menu_idx, idx;
   const enum_val_t *enum_valp;
   GtkWidget *event_box;
 
@@ -805,15 +805,15 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
   combo_box = gtk_combo_box_new_text ();
   if (tooltip_text != NULL && tooltips != NULL)
     gtk_tooltips_set_tip(tooltips, combo_box, tooltip_text, NULL);
-  menu_index = 0;
-  for (enum_valp = enumvals, index = 0; enum_valp->name != NULL;
-       enum_valp++, index++) {
+  menu_idx = 0;
+  for (enum_valp = enumvals, idx = 0; enum_valp->name != NULL;
+       enum_valp++, idx++) {
 	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), enum_valp->description);
     if (enum_valp->value == current_val)
-      menu_index = index;
+      menu_idx = idx;
   }
   /* Set the current value active */
-  gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), menu_index);
+  gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), menu_idx);
 
   /*
    * Put the combo box in an hbox, so that it's only as wide
@@ -1640,10 +1640,10 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
 
 /* Treat this as a cancel, by calling "prefs_main_cancel_cb()" */
 static gboolean
-prefs_main_delete_event_cb(GtkWidget *prefs_w, GdkEvent *event _U_,
+prefs_main_delete_event_cb(GtkWidget *prefs_w_lcl, GdkEvent *event _U_,
                            gpointer parent_w _U_)
 {
-  prefs_main_cancel_cb(NULL, prefs_w);
+  prefs_main_cancel_cb(NULL, prefs_w_lcl);
   return FALSE;
 }
 

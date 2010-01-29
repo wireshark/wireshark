@@ -472,15 +472,15 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 			}
 			case PT_TXTMOD_ENUM: {
 				GtkWidget *menu, *option_menu;
-				int menu_index, index;
+				int menu_idx, idx;
 				const value_string* enum_vals = f[colnum].fld_data;
 				void* valptr = g_malloc0(sizeof(void*));
 
 				menu = gtk_menu_new();
-				menu_index = -1;
-				for (index = 0; enum_vals[index].strptr != NULL; index++) {
+				menu_idx = -1;
+				for (idx = 0; enum_vals[idx].strptr != NULL; idx++) {
 					struct _fld_menu_item_data_t* md = g_malloc(sizeof(struct _fld_menu_item_data_t));
-					const char* str = enum_vals[index].strptr;
+					const char* str = enum_vals[idx].strptr;
 					GtkWidget* menu_item = gtk_menu_item_new_with_label(str);
 					
 					md->text = str;
@@ -489,7 +489,7 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 					gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
 					
 					if ( g_str_equal(str, text) ) {
-						menu_index = index;
+						menu_idx = idx;
 						*((char const**)valptr) = str;
 					}
 
@@ -505,8 +505,8 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 				gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
 
 				/* Set its current value to the variable's current value */
-				if (menu_index != -1)
-					gtk_option_menu_set_history(GTK_OPTION_MENU(option_menu), menu_index);
+				if (menu_idx != -1)
+					gtk_option_menu_set_history(GTK_OPTION_MENU(option_menu), menu_idx);
 
 				gtk_table_attach_defaults(GTK_TABLE(main_tb), option_menu, 1, 2, colnum+1, colnum + 2);
 

@@ -60,7 +60,7 @@ static void packet_list_tree_model_init(GtkTreeModelIface *iface);
 static void packet_list_finalize(GObject *object);
 static GtkTreeModelFlags packet_list_get_flags(GtkTreeModel *tree_model);
 static gint packet_list_get_n_columns(GtkTreeModel *tree_model);
-static GType packet_list_get_column_type(GtkTreeModel *tree_model, gint index);
+static GType packet_list_get_column_type(GtkTreeModel *tree_model, gint idx);
 static gboolean packet_list_get_iter(GtkTreeModel *tree_model,
 					 GtkTreeIter *iter, GtkTreePath *path);
 static GtkTreePath *packet_list_get_path(GtkTreeModel *tree_model,
@@ -279,16 +279,16 @@ packet_list_get_n_columns(GtkTreeModel *tree_model)
 }
 
 static GType
-packet_list_get_column_type(GtkTreeModel *tree_model, gint index)
+packet_list_get_column_type(GtkTreeModel *tree_model, gint idx)
 {
 	PacketList *packet_list;
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), G_TYPE_INVALID);
 	packet_list = PACKET_LIST(tree_model);
 	/* Note: We use one extra column to store the entire PacketListRecord */
-	g_return_val_if_fail(index < packet_list->n_columns &&
-				 index >= 0, G_TYPE_INVALID);
+	g_return_val_if_fail(idx < packet_list->n_columns &&
+				 idx >= 0, G_TYPE_INVALID);
 
-	return packet_list->column_types[index];
+	return packet_list->column_types[idx];
 }
 
 static gboolean

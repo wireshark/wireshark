@@ -359,8 +359,8 @@ register_tap_listener_mcast_stream(void)
 /* sliding window and buffer calculations */
 
 /* compare two times */
-guint16 comparetimes(struct timeval *t1, struct timeval *t2, guint16 burstint){
-    if(((t2->tv_sec - t1->tv_sec)*1000 + (t2->tv_usec - t1->tv_usec)/1000) > burstint){
+guint16 comparetimes(struct timeval *t1, struct timeval *t2, guint16 burstint_lcl){
+    if(((t2->tv_sec - t1->tv_sec)*1000 + (t2->tv_usec - t1->tv_usec)/1000) > burstint_lcl){
         return 1;
     } else{
         return 0;
@@ -368,7 +368,7 @@ guint16 comparetimes(struct timeval *t1, struct timeval *t2, guint16 burstint){
 }
 
 /* calculate buffer usage */
-void buffusagecalc(mcast_stream_info_t *strinfo, packet_info *pinfo, double emptyspeed)
+void buffusagecalc(mcast_stream_info_t *strinfo, packet_info *pinfo, double emptyspeed_lcl)
 {
     gint32 sec=0, usec=0, cur, prev;
     struct timeval *buffer;
@@ -395,7 +395,7 @@ void buffusagecalc(mcast_stream_info_t *strinfo, packet_info *pinfo, double empt
     strinfo->element.buffusage+=pinfo->fd->pkt_len;
 
     /* bytes cleared from buffer */
-    strinfo->element.buffusage-= (guint32) (timeelapsed * emptyspeed / 8);
+    strinfo->element.buffusage-= (guint32) (timeelapsed * emptyspeed_lcl / 8);
 
     if(strinfo->element.buffusage < 0) strinfo->element.buffusage=0;
     if(strinfo->element.buffusage > strinfo->element.topbuffusage)

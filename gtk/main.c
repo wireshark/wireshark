@@ -191,7 +191,7 @@
 capture_file cfile;
 
 /* "exported" main widgets */
-GtkWidget   *top_level = NULL, *pkt_scrollw, *tree_view, *byte_nb_ptr;
+GtkWidget   *top_level = NULL, *pkt_scrollw, *tree_view_gbl, *byte_nb_ptr_gbl;
 
 /* placement widgets (can be a bit confusing, because of the many layout possibilities */
 static GtkWidget   *main_vbox, *main_pane_v1, *main_pane_v2, *main_pane_h1, *main_pane_h2;
@@ -726,7 +726,7 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
          * Which byte view is displaying the current protocol tree
          * row's data?
          */
-        byte_view = get_notebook_bv_ptr(byte_nb_ptr);
+        byte_view = get_notebook_bv_ptr(byte_nb_ptr_gbl);
         if (byte_view == NULL)
             return;	/* none */
 
@@ -742,9 +742,9 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
     gtk_tree_model_get(model, &iter, 1, &finfo, -1);
     if (!finfo) return;
 
-    set_notebook_page(byte_nb_ptr, finfo->ds_tvb);
+    set_notebook_page(byte_nb_ptr_gbl, finfo->ds_tvb);
 
-    byte_view = get_notebook_bv_ptr(byte_nb_ptr);
+    byte_view = get_notebook_bv_ptr(byte_nb_ptr_gbl);
     byte_data = get_byte_view_data_and_length(byte_view, &byte_len);
     g_assert(byte_data != NULL);
 
@@ -804,12 +804,12 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
 
 void collapse_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
   if (cfile.edt->tree)
-    collapse_all_tree(cfile.edt->tree, tree_view);
+    collapse_all_tree(cfile.edt->tree, tree_view_gbl);
 }
 
 void expand_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
   if (cfile.edt->tree)
-    expand_all_tree(cfile.edt->tree, tree_view);
+    expand_all_tree(cfile.edt->tree, tree_view_gbl);
 }
 
 void apply_as_custom_column_cb (GtkWidget *widget _U_, gpointer data _U_)
@@ -833,10 +833,10 @@ void apply_as_custom_column_cb (GtkWidget *widget _U_, gpointer data _U_)
 void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_) {
   GtkTreePath  *path;
 
-  path = tree_find_by_field_info(GTK_TREE_VIEW(tree_view), cfile.finfo_selected);
+  path = tree_find_by_field_info(GTK_TREE_VIEW(tree_view_gbl), cfile.finfo_selected);
   if(path) {
     /* the mouse position is at an entry, expand that one */
-    gtk_tree_view_expand_row(GTK_TREE_VIEW(tree_view), path, TRUE);
+    gtk_tree_view_expand_row(GTK_TREE_VIEW(tree_view_gbl), path, TRUE);
     gtk_tree_path_free(path);
   }
 }
@@ -845,7 +845,7 @@ void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {
   if (cfile.edt->tree) {
     guint32 tmp = g_resolv_flags;
     g_resolv_flags = RESOLV_ALL;
-    proto_tree_draw(cfile.edt->tree, tree_view);
+    proto_tree_draw(cfile.edt->tree, tree_view_gbl);
     g_resolv_flags = tmp;
   }
 }
@@ -1599,7 +1599,7 @@ main_cf_cb_packet_selected(gpointer data)
      * highlight the field that is found in the tree and hex displays. */
     if((cfile.string || cfile.hex) && cfile.search_pos != 0) {
         highlight_field(cf->edt->tvb, cfile.search_pos,
-                        (GtkTreeView *)tree_view, cf->edt->tree);
+                        (GtkTreeView *)tree_view_gbl, cf->edt->tree);
         cfile.search_pos = 0; /* Reset the position */
     }
 
@@ -3055,7 +3055,7 @@ static GtkWidget *main_widget_layout(gint layout_content)
     case(layout_pane_content_pdetails):
         return tv_scrollw;
     case(layout_pane_content_pbytes):
-        return byte_nb_ptr;
+        return byte_nb_ptr_gbl;
     default:
         g_assert_not_reached();
         return NULL;
@@ -3083,7 +3083,7 @@ void main_widgets_rearrange(void) {
 #endif
     g_object_ref(G_OBJECT(pkt_scrollw));
     g_object_ref(G_OBJECT(tv_scrollw));
-    g_object_ref(G_OBJECT(byte_nb_ptr));
+    g_object_ref(G_OBJECT(byte_nb_ptr_gbl));
     g_object_ref(G_OBJECT(statusbar));
     g_object_ref(G_OBJECT(main_pane_v1));
     g_object_ref(G_OBJECT(main_pane_v2));
@@ -3253,9 +3253,9 @@ main_widgets_show_or_hide(void)
     }
 
     if (recent.byte_view_show && have_capture_file) {
-        gtk_widget_show(byte_nb_ptr);
+        gtk_widget_show(byte_nb_ptr_gbl);
     } else {
-        gtk_widget_hide(byte_nb_ptr);
+        gtk_widget_hide(byte_nb_ptr_gbl);
     }
 
     if (have_capture_file) {
@@ -3409,22 +3409,22 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
 #endif
 
     /* Tree view */
-    tv_scrollw = main_tree_view_new(prefs_p, &tree_view);
+    tv_scrollw = main_tree_view_new(prefs_p, &tree_view_gbl);
     gtk_widget_set_size_request(tv_scrollw, -1, tv_size);
     gtk_widget_show(tv_scrollw);
 
-    g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view)),
+    g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view_gbl)),
                    "changed", G_CALLBACK(tree_view_selection_changed_cb), NULL);
-    g_signal_connect(tree_view, "button_press_event", G_CALLBACK(popup_menu_handler),
+    g_signal_connect(tree_view_gbl, "button_press_event", G_CALLBACK(popup_menu_handler),
                    g_object_get_data(G_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY));
-    gtk_widget_show(tree_view);
+    gtk_widget_show(tree_view_gbl);
 
     /* Byte view. */
-    byte_nb_ptr = byte_view_new();
-    gtk_widget_set_size_request(byte_nb_ptr, -1, bv_size);
-    gtk_widget_show(byte_nb_ptr);
+    byte_nb_ptr_gbl = byte_view_new();
+    gtk_widget_set_size_request(byte_nb_ptr_gbl, -1, bv_size);
+    gtk_widget_show(byte_nb_ptr_gbl);
 
-    g_signal_connect(byte_nb_ptr, "button_press_event", G_CALLBACK(popup_menu_handler),
+    g_signal_connect(byte_nb_ptr_gbl, "button_press_event", G_CALLBACK(popup_menu_handler),
                    g_object_get_data(G_OBJECT(popup_menu_object), PM_BYTES_VIEW_KEY));
 
     /* Panes for the packet list, tree, and byte view */

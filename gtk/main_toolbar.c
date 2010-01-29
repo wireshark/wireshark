@@ -264,14 +264,14 @@ toolbar_colorize_changed(gboolean packet_list_colorize) {
 
 #ifdef HAVE_LIBPCAP
 static void
-auto_scroll_live_toggle_cb(GtkWidget *autoscroll_button, gpointer user_data _U_) {
-    menu_auto_scroll_live_changed(TOGGLE_BUTTON_GET_ACTIVE(TOGGLE_BUTTON(autoscroll_button)));
+auto_scroll_live_toggle_cb(GtkWidget *autoscroll_button_lcl, gpointer user_data _U_) {
+    menu_auto_scroll_live_changed(TOGGLE_BUTTON_GET_ACTIVE(TOGGLE_BUTTON(autoscroll_button_lcl)));
 }
 
 void
-toolbar_auto_scroll_live_changed(gboolean auto_scroll_live) {
-    if(TOGGLE_BUTTON_GET_ACTIVE(TOGGLE_BUTTON(autoscroll_button)) != auto_scroll_live) {
-        TOGGLE_BUTTON_SET_ACTIVE(TOGGLE_BUTTON(autoscroll_button), auto_scroll_live);
+toolbar_auto_scroll_live_changed(gboolean auto_scroll_live_lcl) {
+    if(TOGGLE_BUTTON_GET_ACTIVE(TOGGLE_BUTTON(autoscroll_button)) != auto_scroll_live_lcl) {
+        TOGGLE_BUTTON_SET_ACTIVE(TOGGLE_BUTTON(autoscroll_button), auto_scroll_live_lcl);
     }
 }
 #endif

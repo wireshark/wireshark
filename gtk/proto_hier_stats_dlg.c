@@ -208,11 +208,11 @@ fill_in_tree_node(GNode *node, gpointer data)
 }
 
 static void
-fill_in_tree(GtkWidget *tree, ph_stats_t *ps)
+fill_in_tree(GtkWidget *tree_lcl, ph_stats_t *ps)
 {
     draw_info_t	di;
 
-    di.tree_view = GTK_TREE_VIEW(tree);
+    di.tree_view = GTK_TREE_VIEW(tree_lcl);
     di.iter = NULL;
     di.ps = ps;
 

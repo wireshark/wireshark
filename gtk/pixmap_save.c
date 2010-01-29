@@ -52,15 +52,15 @@ pixbuf_save_destroy_cb(GtkWidget *window _U_, gpointer data _U_)
 }
 
 static gboolean
-pixbuf_save_button_cb(GtkWidget *save_as_w, GdkPixbuf *pixbuf)
+pixbuf_save_button_cb(GtkWidget *save_as_w_lcl, GdkPixbuf *pixbuf)
 {
 	gchar *filename, *file_type;
 	GtkWidget *type_cm, *simple_w;
         GError *error = NULL;
 	gboolean ret;
 
-	filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_as_w));
-	type_cm = g_object_get_data(G_OBJECT(save_as_w), "type_cm");
+	filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_as_w_lcl));
+	type_cm = g_object_get_data(G_OBJECT(save_as_w_lcl), "type_cm");
 	file_type = gtk_combo_box_get_active_text(GTK_COMBO_BOX(type_cm));
 	
 	/* Perhaps the user specified a directory instead of a file.
@@ -71,9 +71,9 @@ pixbuf_save_button_cb(GtkWidget *save_as_w, GdkPixbuf *pixbuf)
 		set_last_open_dir(filename);
 		g_free(filename);
 		g_free(file_type);
-		file_selection_set_current_folder(save_as_w,
+		file_selection_set_current_folder(save_as_w_lcl,
 						  get_last_open_dir());
-		gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(save_as_w), "");
+		gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(save_as_w_lcl), "");
 		return FALSE;
 	}
 
@@ -88,7 +88,7 @@ pixbuf_save_button_cb(GtkWidget *save_as_w, GdkPixbuf *pixbuf)
 					 error->message,
 					 simple_dialog_primary_end());
 		gtk_window_set_transient_for(GTK_WINDOW(simple_w),
-					     GTK_WINDOW(save_as_w));
+					     GTK_WINDOW(save_as_w_lcl));
 	}
 	return TRUE;
 }

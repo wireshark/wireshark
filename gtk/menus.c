@@ -2426,7 +2426,7 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
     }
 
     /* Check if we are on tree_view object */
-    if (widget == tree_view) {
+    if (widget == tree_view_gbl) {
         tree_view_select(widget, (GdkEventButton *) event);
     }
 
@@ -2446,13 +2446,13 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
     }
 
     /* Check if we are on byte_view object */
-    if(widget == get_notebook_bv_ptr(byte_nb_ptr)) {
+    if(widget == get_notebook_bv_ptr(byte_nb_ptr_gbl)) {
         byte_view_select(widget, (GdkEventButton *) event);
     }
 
     /* GDK_2BUTTON_PRESS is a doubleclick -> expand/collapse tree row */
     /* GTK version 1 seems to be doing this automatically */
-    if (widget == tree_view && event->type == GDK_2BUTTON_PRESS) {
+    if (widget == tree_view_gbl && event->type == GDK_2BUTTON_PRESS) {
         GtkTreePath      *path;
 
         if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget),

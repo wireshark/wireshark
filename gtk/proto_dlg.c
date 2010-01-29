@@ -339,10 +339,10 @@ proto_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
    a higher-level handler that says "OK, we've been asked to delete
    this, so destroy it"? */
 static gboolean
-proto_delete_event_cb(GtkWidget *proto_w, GdkEvent *event _U_,
+proto_delete_event_cb(GtkWidget *proto_w_lcl, GdkEvent *event _U_,
                       gpointer dummy _U_)
 {
-  proto_cancel_cb(NULL, proto_w);
+  proto_cancel_cb(NULL, proto_w_lcl);
   return FALSE;
 }
 

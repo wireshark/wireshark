@@ -48,10 +48,10 @@ extern GtkWidget *packet_list;
 #endif
 
 /** Tree view (packet details) pane. */
-extern GtkWidget *tree_view;
+extern GtkWidget *tree_view_gbl;
 
 /** Byte notebook (packet bytes) pane. */
-extern GtkWidget *byte_nb_ptr;
+extern GtkWidget *byte_nb_ptr_gbl;
 
 /** The filter text entry in the filter toolbar. */
 extern GtkWidget   *main_display_filter_widget;
