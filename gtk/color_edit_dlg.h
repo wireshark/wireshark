@@ -40,6 +40,6 @@ edit_color_filter_dialog(GtkWidget *color_filters,
 
 /* edit dialog wants to destroy itself */
 extern void
-color_delete(gint row, GtkWidget  *color_filters);
+color_delete_single(gint row, GtkWidget  *color_filters);
 
 #endif /* color_edit_dlg.h */

@@ -1105,7 +1105,7 @@ set_file_type_list(GtkWidget *option_menu)
 {
   GtkWidget *ft_menu, *ft_menu_item;
   int ft;
-  guint index;
+  guint idx;
   gint item_to_select;
 
   /* Default to the first supported file type, if the file's current
@@ -1115,20 +1115,20 @@ set_file_type_list(GtkWidget *option_menu)
   ft_menu = gtk_menu_new();
 
   /* Check all file types. */
-  index = 0;
+  idx = 0;
   for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
     if (can_save_with_wiretap(ft)) {
       /* OK, we can write it out in this type. */
       ft_menu_item = gtk_menu_item_new_with_label(wtap_file_type_string(ft));
       if (ft == filetype) {
         /* Default to the same format as the file, if it's supported. */
-        item_to_select = index;
+        item_to_select = idx;
       }
       g_signal_connect(ft_menu_item, "activate", G_CALLBACK(select_file_type_cb),
                      GINT_TO_POINTER(ft));
       gtk_menu_shell_append(GTK_MENU_SHELL(ft_menu), ft_menu_item);
       gtk_widget_show(ft_menu_item);
-      index++;
+      idx++;
     }
   }
 

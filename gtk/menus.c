@@ -3187,7 +3187,7 @@ add_protocol_prefs_menu (pref_t *pref, gpointer data)
 }
 
 static void
-rebuild_protocol_prefs_menu (module_t *prefs, gboolean preferences)
+rebuild_protocol_prefs_menu (module_t *prefs_module_p, gboolean preferences)
 {
     GtkWidget *menu_preferences, *menu_item;
     GtkWidget *sub_menu;
@@ -3199,7 +3199,7 @@ rebuild_protocol_prefs_menu (module_t *prefs, gboolean preferences)
         sub_menu = gtk_menu_new();
         gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_preferences), sub_menu);
 
-        label = g_strdup_printf ("%s Preferences...", prefs->description);
+        label = g_strdup_printf ("%s Preferences...", prefs_module_p->description);
         menu_item = gtk_image_menu_item_new_with_label (label);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item), 
                                        gtk_image_new_from_stock(GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU));
@@ -3213,7 +3213,7 @@ rebuild_protocol_prefs_menu (module_t *prefs, gboolean preferences)
         gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
         gtk_widget_show (menu_item);
 
-        prefs_pref_foreach(prefs, add_protocol_prefs_menu, prefs);
+        prefs_pref_foreach(prefs_module_p, add_protocol_prefs_menu, prefs_module_p);
     } else {
         /* No preferences, remove sub menu */
         gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_preferences), NULL);
@@ -3325,8 +3325,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
         prev_abbrev = g_object_get_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev");
         if (!prev_abbrev || (strcmp (prev_abbrev, abbrev) != 0)) {
             /* No previous protocol or protocol changed - update Protocol Preferences menu */
-            module_t *prefs = prefs_find_module(abbrev);
-            rebuild_protocol_prefs_menu (prefs, properties);
+            module_t *prefs_module_p = prefs_find_module(abbrev);
+            rebuild_protocol_prefs_menu (prefs_module_p, properties);
 
             g_object_set_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev", g_strdup(abbrev));
             g_free (prev_abbrev);

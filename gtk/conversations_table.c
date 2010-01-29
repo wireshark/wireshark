@@ -28,10 +28,6 @@
 #endif
 
 #include <string.h>
-#include <ctype.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
 #include <locale.h>
 
 #include <gtk/gtk.h>
@@ -70,7 +66,7 @@
 
 /* convert a port number into a string */
 static char *
-ct_port_to_str(int port_type, guint32 port)
+ct_port_to_str(int port_type_val, guint32 port)
 {
     static int i=0;
     static gchar *strp, str[4][12];
@@ -78,7 +74,7 @@ ct_port_to_str(int port_type, guint32 port)
 
     strp=str[i];
 
-    switch(port_type){
+    switch(port_type_val){
     case PT_TCP:
     case PT_UDP:
     case PT_SCTP:
@@ -101,22 +97,22 @@ ct_port_to_str(int port_type, guint32 port)
 #define FN_SRC_PORT		3
 #define FN_DST_PORT		4
 #define FN_ANY_PORT		5
-/* given an address (to distinguis between ipv4 and ipv6 for tcp/udp
+/* given an address (to distinguish between ipv4 and ipv6 for tcp/udp),
    a port_type and a name_type (FN_...)
-   return a string for the filter name
+   return a string for the filter name.
 
-   some addresses, like AT_ETHER may actually be any of multiple types
+   Some addresses, like AT_ETHER may actually be any of multiple types
    of protocols,   either ethernet, tokenring, fddi, wlan etc so we must be
-   more specific there  thats why we need specific_addr_type
+   more specific there;  that's why we need specific_addr_type.
 */
 static const char *
-ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int name_type)
+ct_get_filter_name(address *addr, int specific_addr_type_val, int port_type_val, int name_type_val)
 {
-    switch(name_type){
+    switch(name_type_val){
     case FN_SRC_ADDRESS:
         switch(addr->type){
         case AT_ETHER:
-            switch(specific_addr_type){
+            switch(specific_addr_type_val){
             case SAT_ETHER:
                 return "eth.src";
             case SAT_WLAN:
@@ -138,7 +134,7 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
         case AT_FC:
             return "fc.s_id";
         case AT_URI:
-            switch(specific_addr_type){
+            switch(specific_addr_type_val){
             case SAT_JXTA:
                 return "jxta.message.src";
             default:
@@ -154,7 +150,7 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
     case FN_DST_ADDRESS:
         switch(addr->type){
         case AT_ETHER:
-            switch(specific_addr_type){
+            switch(specific_addr_type_val){
             case SAT_ETHER:
                 return "eth.dst";
             case SAT_WLAN:
@@ -176,7 +172,7 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
         case AT_FC:
             return "fc.d_id";
         case AT_URI:
-            switch(specific_addr_type){
+            switch(specific_addr_type_val){
             case SAT_JXTA:
                 return "jxta.message.dst";
             default:
@@ -192,7 +188,7 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
     case FN_ANY_ADDRESS:
         switch(addr->type){
         case AT_ETHER:
-            switch(specific_addr_type){
+            switch(specific_addr_type_val){
             case SAT_ETHER:
                 return "eth.addr";
             case SAT_WLAN:
@@ -214,7 +210,7 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
         case AT_FC:
             return "fc.id";
         case AT_URI:
-            switch(specific_addr_type){
+            switch(specific_addr_type_val){
             case SAT_JXTA:
                 return "jxta.message.address";
             default:
@@ -228,7 +224,7 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
         }
         break;
     case FN_SRC_PORT:
-        switch(port_type){
+        switch(port_type_val){
         case PT_TCP:
             return "tcp.srcport";
         case PT_UDP:
@@ -242,7 +238,7 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
         }
         break;
     case FN_DST_PORT:
-        switch(port_type){
+        switch(port_type_val){
         case PT_TCP:
             return "tcp.dstport";
         case PT_UDP:
@@ -256,7 +252,7 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
         }
         break;
     case FN_ANY_PORT:
-        switch(port_type){
+        switch(port_type_val){
         case PT_TCP:
             return "tcp.port";
         case PT_UDP:
@@ -457,7 +453,7 @@ static void
 ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
 {
     int direction;
-    guint32 index = 0;
+    guint32 idx = 0;
     conversations_table *ct = (conversations_table *)callback_data;
     GtkTreeIter iter;
     GtkTreeModel *model;
@@ -473,14 +469,14 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
         return;
 
     gtk_tree_model_get (model, &iter, 
-                            INDEX_COLUMN, &index, 
+                            INDEX_COLUMN, &idx, 
                             -1);
 
-    if(index>= ct->num_conversations){
+    if(idx>= ct->num_conversations){
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
         return;
     }
-    conv = &g_array_index(ct->conversations, conv_t, index);
+    conv = &g_array_index(ct->conversations, conv_t, idx);
     sport=ct_port_to_str(conv->port_type, conv->src_port);
     dport=ct_port_to_str(conv->port_type, conv->dst_port);
 
@@ -1192,13 +1188,13 @@ csv_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
 	csv_t   *csv = (csv_t *)data;
 	gchar   *table_text;
 	int      i;
-	unsigned index;
+	unsigned idx;
         conv_t   *conv;
         double duration_s;
         guint64  value;
 
-        gtk_tree_model_get(model, iter, INDEX_COLUMN, &index, -1);
-        conv=&g_array_index(csv->talkers->conversations, conv_t, index);
+        gtk_tree_model_get(model, iter, INDEX_COLUMN, &idx, -1);
+        conv=&g_array_index(csv->talkers->conversations, conv_t, idx);
         duration_s = nstime_to_sec(&conv->stop_time) - nstime_to_sec(&conv->start_time);
 
 	for (i=0; i< csv->nb_cols; i++) {
@@ -1834,7 +1830,7 @@ conversation_match(gconstpointer v, gconstpointer w)
 
 
 void
-add_conversation_table_data(conversations_table *ct, const address *src, const address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, nstime_t *ts, SAT_E sat, int port_type)
+add_conversation_table_data(conversations_table *ct, const address *src, const address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, nstime_t *ts, SAT_E sat, int port_type_val)
 {
     const address *addr1, *addr2;
     guint32 port1, port2;
@@ -1897,7 +1893,7 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
         COPY_ADDRESS(&conv.src_address, addr1);
         COPY_ADDRESS(&conv.dst_address, addr2);
         conv.sat=sat;
-        conv.port_type=port_type;
+        conv.port_type=port_type_val;
         conv.src_port=port1;
         conv.dst_port=port2;
         conv.rx_frames=0;

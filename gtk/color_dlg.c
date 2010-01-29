@@ -866,7 +866,7 @@ color_disable_cb(GtkWidget *widget, gboolean action_disable)
 
 /* Delete a single color filter from the list and elsewhere. */
 void
-color_delete(gint row, GtkWidget *color_filters)
+color_delete_single(gint row, GtkWidget *color_filters)
 {
   color_filter_t *colorf;
 
@@ -918,7 +918,7 @@ color_delete_cb(GtkWidget *widget, gpointer user_data _U_)
   {
     gtk_tree_model_iter_nth_child(model, &iter, NULL, row);
     if (gtk_tree_selection_iter_is_selected(sel, &iter))
-      color_delete (row, color_filters);
+      color_delete_single (row, color_filters);
   }
 }
 
@@ -959,7 +959,7 @@ color_clear_cmd(GtkWidget *widget)
 
   while (num_of_filters > 0)
   {
-    color_delete (num_of_filters-1, color_filters);
+    color_delete_single (num_of_filters-1, color_filters);
   }
 
   /* try to read the global filters */

@@ -1774,10 +1774,10 @@ read_configuration_files(char **gdp_path, char **dp_path)
   char                *gpf_path, *pf_path;
   char                *cf_path, *df_path;
   int                  pf_open_errno, pf_read_errno;
-  e_prefs             *prefs;
+  e_prefs             *prefs_p;
 
   /* Read the preference files. */
-  prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
+  prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
                      &pf_open_errno, &pf_read_errno, &pf_path);
 
   if (gpf_path != NULL) {
@@ -1809,7 +1809,7 @@ read_configuration_files(char **gdp_path, char **dp_path)
 
 #ifdef _WIN32
   /* if the user wants a console to be always there, well, we should open one for him */
-  if (prefs->gui_console_open == console_open_always) {
+  if (prefs_p->gui_console_open == console_open_always) {
     create_console();
   }
 #endif
@@ -1864,7 +1864,7 @@ read_configuration_files(char **gdp_path, char **dp_path)
     *dp_path = NULL;
   }
 
-  return prefs;
+  return prefs_p;
 }
 
 /* And now our feature presentation... [ fade to music ] */
@@ -1897,7 +1897,7 @@ main(int argc, char *argv[])
   gchar               *rc_file, *cf_name = NULL, *rfilter = NULL, *jfilter = NULL;
   dfilter_t           *rfcode = NULL;
   gboolean             rfilter_parse_failed = FALSE;
-  e_prefs             *prefs;
+  e_prefs             *prefs_p;
   char                 badopt;
   GtkWidget           *splash_win = NULL;
   gpointer             priv_warning_dialog;
@@ -2237,7 +2237,7 @@ main(int argc, char *argv[])
      We must do that before we read the preferences as well. */
   prefs_register_modules();
 
-  prefs = read_configuration_files (&gdp_path, &dp_path);
+  prefs_p = read_configuration_files (&gdp_path, &dp_path);
 
   /* multithread support currently doesn't seem to work in win32 gtk2.0.6 */
 #if !defined(_WIN32) && defined(G_THREADS_ENABLED) && defined USE_THREADS
@@ -2250,7 +2250,7 @@ main(int argc, char *argv[])
   }
 #else  /* !_WIN32 && G_THREADS_ENABLED && USE_THREADS */
   /* this is to keep tap extensions updating once every 3 seconds */
-  tap_update_timer_id = g_timeout_add(prefs->tap_update_interval, tap_update_cb, NULL);
+  tap_update_timer_id = g_timeout_add(prefs_p->tap_update_interval, tap_update_cb, NULL);
 #endif /* !_WIN32 && G_THREADS_ENABLED && USE_THREADS */
 
   g_timeout_add(info_update_freq, resolv_update_cb, NULL);
@@ -2351,8 +2351,8 @@ main(int argc, char *argv[])
 #endif
         break;
       case 'm':        /* Fixed-width font for the display */
-        g_free(prefs->gui_font_name);
-        prefs->gui_font_name = g_strdup(optarg);
+        g_free(prefs_p->gui_font_name);
+        prefs_p->gui_font_name = g_strdup(optarg);
         break;
       case 'n':        /* No name resolution */
         g_resolv_flags = RESOLV_NONE;
@@ -2572,7 +2572,7 @@ main(int argc, char *argv[])
   if (start_capture || list_link_layer_types) {
     /* Did the user specify an interface to use? */
     if (!capture_opts_trim_iface(&global_capture_opts,
-        (prefs->capture_device) ? get_if_name(prefs->capture_device) : NULL)) {
+        (prefs_p->capture_device) ? get_if_name(prefs_p->capture_device) : NULL)) {
         exit(2);
     }
   }
@@ -2596,7 +2596,7 @@ main(int argc, char *argv[])
     set_disabled_protos_list();
   }
 
-  build_column_format_array(&cfile.cinfo, prefs->num_cols, TRUE);
+  build_column_format_array(&cfile.cinfo, prefs_p->num_cols, TRUE);
 
   /* read in rc file from global and personal configuration paths. */
   rc_file = get_datafile_path(RC_FILE);
@@ -2617,7 +2617,7 @@ main(int argc, char *argv[])
   /* Everything is prepared now, preferences and command line was read in */
 
   /* Pop up the main window. */
-  create_main_window(pl_size, tv_size, bv_size, prefs);
+  create_main_window(pl_size, tv_size, bv_size, prefs_p);
 
   /* Read the dynamic part of the recent file, as we have the gui now ready for it. */
   recent_read_dynamic(&rf_path, &rf_open_errno);
@@ -3351,7 +3351,7 @@ top_level_key_pressed_cb(GtkWidget *w _U_, GdkEventKey *event, gpointer user_dat
 }
 
 static void
-create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
+create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
 {
     GtkAccelGroup *accel;
     gchar         *title;
@@ -3382,7 +3382,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
 #ifdef HAVE_IGE_MAC_INTEGRATION
     /* MacOS X native menus are created and displayed by main_menu_new() */
-    if(!prefs->gui_macosx_style) {
+    if(!prefs_p->gui_macosx_style) {
 #endif
     gtk_window_add_accel_group(GTK_WINDOW(top_level), accel);
     gtk_widget_show(menubar);
@@ -3403,13 +3403,13 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_set_size_request(pkt_scrollw, -1, pl_size);
     gtk_widget_show_all(pkt_scrollw);
 #else
-    pkt_scrollw = packet_list_new(prefs);
+    pkt_scrollw = packet_list_new(prefs_p);
     gtk_widget_set_size_request(packet_list, -1, pl_size);
     gtk_widget_show(pkt_scrollw);
 #endif
 
     /* Tree view */
-    tv_scrollw = main_tree_view_new(prefs, &tree_view);
+    tv_scrollw = main_tree_view_new(prefs_p, &tree_view);
     gtk_widget_set_size_request(tv_scrollw, -1, tv_size);
     gtk_widget_show(tv_scrollw);
 

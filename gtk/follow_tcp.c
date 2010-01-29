@@ -314,7 +314,7 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 #define FLT_BUF_SIZE 1024
 
 /*
- * XXX - the routine pointed to by "print_line" doesn't get handed lines,
+ * XXX - the routine pointed to by "print_line_fcn_p" doesn't get handed lines,
  * it gets handed bufferfuls.  That's fine for "follow_write_raw()"
  * and "follow_add_to_gtk_text()", but, as "follow_print_text()" calls
  * the "print_line()" routine from "print.c", and as that routine might
@@ -332,7 +332,7 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
  */
 frs_return_t
 follow_read_tcp_stream(follow_info_t *follow_info,
-		       gboolean (*print_line)(char *, size_t, gboolean, void *),
+		       gboolean (*print_line_fcn_p)(char *, size_t, gboolean, void *),
 		       void *arg)
 {
     tcp_stream_chunk	sc;
@@ -400,7 +400,7 @@ follow_read_tcp_stream(follow_info_t *follow_info,
 	    sc.dlen -= (guint32) nchars;
 
 	    if (!skip) {
-		    frs_return = follow_show(follow_info, print_line, buffer,
+		    frs_return = follow_show(follow_info, print_line_fcn_p, buffer,
 					     nchars, is_server, arg, global_pos,
 					     &server_packet_count,
 					     &client_packet_count);

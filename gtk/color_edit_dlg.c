@@ -437,7 +437,7 @@ static void
 edit_new_color_filter_cancel_cb(GtkButton *button, gpointer user_data _U_)
 {
     /* Delete the entry. As a side effect this destroys the edit_dialog window. */
-    color_delete(num_of_filters-1, (GtkWidget*)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL));
+    color_delete_single(num_of_filters-1, (GtkWidget*)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL));
 }
 
 static GtkWidget*

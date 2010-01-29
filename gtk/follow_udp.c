@@ -235,7 +235,7 @@ follow_udp_stream_cb(GtkWidget *w, gpointer data _U_)
 #define FLT_BUF_SIZE 1024
 
 /*
- * XXX - the routine pointed to by "print_line" doesn't get handed lines,
+ * XXX - the routine pointed to by "print_line_fcn_p" doesn't get handed lines,
  * it gets handed bufferfuls.  That's fine for "follow_write_raw()"
  * and "follow_add_to_gtk_text()", but, as "follow_print_text()" calls
  * the "print_line()" routine from "print.c", and as that routine might
@@ -253,7 +253,7 @@ follow_udp_stream_cb(GtkWidget *w, gpointer data _U_)
  */
 frs_return_t
 follow_read_udp_stream(follow_info_t *follow_info,
-		       gboolean (*print_line)(char *, size_t, gboolean, void *),
+		       gboolean (*print_line_fcn_p)(char *, size_t, gboolean, void *),
 		       void *arg)
 {
 	guint32 global_client_pos = 0, global_server_pos = 0;
@@ -286,7 +286,7 @@ follow_read_udp_stream(follow_info_t *follow_info,
 			buffer = g_memdup(follow_record->data->data,
 					  follow_record->data->len);
             
-			frs_return = follow_show(follow_info, print_line,
+			frs_return = follow_show(follow_info, print_line_fcn_p,
 						 buffer,
 						 follow_record->data->len,
 						 follow_record->is_server, arg,

@@ -477,7 +477,7 @@ decode_show_clear_cb (GtkWidget *clear_bt _U_, gpointer parent_w)
  * @param gpointer Unknown
  */
 static gboolean
-decode_show_delete_cb (GtkWidget *decode_w _U_, gpointer dummy _U_)
+decode_show_delete_cb (GtkWidget *win _U_, gpointer dummy _U_)
 {
     decode_show_ok_cb(NULL, decode_show_w);
     return FALSE;
@@ -918,9 +918,9 @@ decode_close_cb (GtkWidget *close_bt _U_, gpointer parent_w)
  * @param dummy Unknown
  */
 static gboolean
-decode_delete_cb (GtkWidget *decode_w, gpointer dummy _U_)
+decode_delete_cb (GtkWidget *decode_w_lcl, gpointer dummy _U_)
 {
-    decode_close_cb(NULL, decode_w);
+    decode_close_cb(NULL, decode_w_lcl);
     return FALSE;
 }
 

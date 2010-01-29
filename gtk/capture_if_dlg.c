@@ -102,13 +102,13 @@
  */
 static GtkWidget *cap_if_w;
 
-GList           *if_data = NULL;
+static GList     *if_data_list = NULL;
 
-guint           timer_id;
+static guint      timer_id;
 
-GtkWidget       *stop_bt;
+static GtkWidget *stop_bt;
 
-GList           *if_list;
+static GList     *if_list;
 
 /*
  * Timeout, in milliseconds, for reads from the stream of captured packets.
@@ -245,7 +245,7 @@ update_all(gpointer data)
         return FALSE;
     }
 
-    for(ifs = 0; (curr = g_list_nth(if_data, ifs)); ifs++) {
+    for(ifs = 0; (curr = g_list_nth(if_data_list, ifs)); ifs++) {
         update_if(curr->data, sc);
     }
 
@@ -266,7 +266,7 @@ set_capture_if_dialog_for_capture_in_progress(gboolean capture_in_progress)
     if(cap_if_w) {
         gtk_widget_set_sensitive(stop_bt, capture_in_progress);
 
-        for(ifs = 0; (curr = g_list_nth(if_data, ifs)); ifs++) {
+        for(ifs = 0; (curr = g_list_nth(if_data_list, ifs)); ifs++) {
             if_dlg_data_t *if_dlg_data = curr->data;
 
             gtk_widget_set_sensitive(if_dlg_data->capture_bt, !capture_in_progress);
@@ -286,11 +286,11 @@ capture_if_destroy_cb(GtkWidget *win _U_, gpointer user_data)
 
     g_source_remove(timer_id);
 
-    for(ifs = 0; (curr = g_list_nth(if_data, ifs)); ifs++) {
+    for(ifs = 0; (curr = g_list_nth(if_data_list, ifs)); ifs++) {
         g_free(curr->data);
     }
 
-    if_data = NULL;
+    if_data_list = NULL;
 
     free_interface_list(if_list);
 
@@ -791,7 +791,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       }
 #endif
 
-      if_data = g_list_append(if_data, if_dlg_data);
+      if_data_list = g_list_append(if_data_list, if_dlg_data);
 
       row++;
       if (row <= 10) {
