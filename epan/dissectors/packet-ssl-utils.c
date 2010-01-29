@@ -975,6 +975,11 @@ ssl_cipher_init(gcry_cipher_hd_t *cipher, gint algo, guchar* sk,
 {
     gint gcry_modes[]={GCRY_CIPHER_MODE_STREAM,GCRY_CIPHER_MODE_CBC};
     gint err;
+    if (algo == -1) {
+        /* NULL mode */
+        *(cipher) = (gcry_cipher_hd_t)-1;
+        return 0;
+    }
     err = gcry_cipher_open(cipher, algo, gcry_modes[mode], 0);
     if (err !=0)
         return  -1;
@@ -990,6 +995,12 @@ static inline gint
 ssl_cipher_decrypt(gcry_cipher_hd_t *cipher, guchar * out, gint outl,
                    const guchar * in, gint inl)
 {
+    if ((*cipher) == (gcry_cipher_hd_t)-1)
+    {
+        if (in && inl)
+            memcpy(out, in, outl < inl ? outl : inl);
+        return 0;
+    }
     return gcry_cipher_decrypt ( *(cipher), out, outl, in, inl);
 }
 static inline gint
@@ -1006,7 +1017,8 @@ ssl_get_cipher_by_name(const gchar* name)
 static inline void
 ssl_cipher_cleanup(gcry_cipher_hd_t *cipher)
 {
-    gcry_cipher_close(*cipher);
+    if ((*cipher) != (gcry_cipher_hd_t)-1)
+        gcry_cipher_close(*cipher);
     *cipher = NULL;
 }
 
@@ -1215,8 +1227,8 @@ static const gchar *ciphers[]={
 };
 
 static SslCipherSuite cipher_suites[]={
-    {1,KEX_RSA,SIG_RSA,ENC_NULL,0,0,0,DIG_MD5,16,0, SSL_CIPHER_MODE_STREAM},
-    {2,KEX_RSA,SIG_RSA,ENC_NULL,0,0,0,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
+    {1,KEX_RSA,SIG_RSA,ENC_NULL,1,0,0,DIG_MD5,16,0, SSL_CIPHER_MODE_STREAM},
+    {2,KEX_RSA,SIG_RSA,ENC_NULL,1,0,0,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
     {3,KEX_RSA,SIG_RSA,ENC_RC4,1,128,40,DIG_MD5,16,1, SSL_CIPHER_MODE_STREAM},
     {4,KEX_RSA,SIG_RSA,ENC_RC4,1,128,128,DIG_MD5,16,0, SSL_CIPHER_MODE_STREAM},
     {5,KEX_RSA,SIG_RSA,ENC_RC4,1,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
@@ -1534,6 +1546,9 @@ ssl_create_decoder(SslCipherSuite *cipher_suite, gint compression,
     if(cipher_suite->enc!=ENC_NULL) {
         ssl_debug_printf("ssl_create_decoder CIPHER: %s\n", ciphers[cipher_suite->enc-0x30]);
         ciph=ssl_get_cipher_by_name(ciphers[cipher_suite->enc-0x30]);
+    } else {
+        ssl_debug_printf("ssl_create_decoder CIPHER: %s\n", "NULL");
+        ciph = -1;
     }
     if (ciph == 0) {
         ssl_debug_printf("ssl_create_decoder can't find cipher %s\n",
