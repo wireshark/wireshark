@@ -134,7 +134,7 @@ wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 {
 	wspstat_t *sp=psp;
 	const wsp_info_value_t *value=pri;
-	gint index = pdut2index(value->pdut);
+	gint idx = pdut2index(value->pdut);
 	int retour=0;
 
 	if (value->status_code != 0) {
@@ -160,8 +160,8 @@ wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 
 		
 
-	if (index!=0) {
-		sp->pdu_stats[ index ].packets++;
+	if (idx!=0) {
+		sp->pdu_stats[ idx ].packets++;
 		retour = 1;
 	}
 	return retour;

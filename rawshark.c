@@ -445,7 +445,7 @@ main(int argc, char *argv[])
   int                  err;
   gchar               *pipe_name = NULL;
   gchar               *rfilters[64];
-  e_prefs             *prefs;
+  e_prefs             *prefs_p;
   char                 badopt;
   GLogLevelFlags       log_flags;
   GPtrArray           *disp_fields = g_ptr_array_new();
@@ -520,7 +520,7 @@ main(int argc, char *argv[])
   /* Set the C-language locale to the native environment. */
   setlocale(LC_ALL, "");
 
-  prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
+  prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
                      &pf_open_errno, &pf_read_errno, &pf_path);
   if (gpf_path != NULL) {
     if (gpf_open_errno != 0) {
@@ -546,7 +546,7 @@ main(int argc, char *argv[])
   }
 
   /* Set the name resolution code's flags from the preferences. */
-  g_resolv_flags = prefs->name_resolve;
+  g_resolv_flags = prefs_p->name_resolve;
 
   /* Read the disabled protocols file. */
   read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
@@ -777,7 +777,7 @@ main(int argc, char *argv[])
   }
 
   /* Build the column format array */
-  build_column_format_array(&cfile.cinfo, prefs->num_cols, TRUE);
+  build_column_format_array(&cfile.cinfo, prefs_p->num_cols, TRUE);
 
   if (n_rfilters != 0) {
     for (i = 0; i < n_rfilters; i++) {

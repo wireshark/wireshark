@@ -614,13 +614,13 @@ iostat_init(const char *optarg, void* userdata _U_)
 {
 	float interval_float;
 	gint32 interval; 
-	int pos=0;
+	int idx=0;
 	io_stat_t *io;
 	const char *filter=NULL;
 
-	if(sscanf(optarg,"io,stat,%f,%n",&interval_float,&pos)==1){
-		if(pos){
-			filter=optarg+pos;
+	if(sscanf(optarg,"io,stat,%f,%n",&interval_float,&idx)==1){
+		if(idx){
+			filter=optarg+idx;
 		} else {
 			filter=NULL;
 		}

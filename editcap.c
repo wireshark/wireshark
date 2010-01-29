@@ -166,14 +166,14 @@ abs_time_to_str_with_sec_resolution(const struct wtap_nstime *abs_time)
 }
 
 static gchar*
-fileset_get_filename_by_pattern(guint idx,    const struct wtap_nstime *time, 
+fileset_get_filename_by_pattern(guint idx,    const struct wtap_nstime *time_val, 
                                     gchar *fprefix, gchar *fsuffix)
 {
     gchar filenum[5+1];
     gchar *timestr;
     gchar *abs_str;
 
-    timestr = abs_time_to_str_with_sec_resolution(time);
+    timestr = abs_time_to_str_with_sec_resolution(time_val);
     g_snprintf(filenum, sizeof(filenum), "%05u", idx);
     abs_str = g_strconcat(fprefix, "_", filenum, "_", timestr, fsuffix, NULL);
     g_free(timestr);
@@ -294,40 +294,40 @@ check_timestamp(wtap *wth)
 }
 
 static void
-set_time_adjustment(char *optarg)
+set_time_adjustment(char *optarg_str_p)
 {
   char *frac, *end;
   long val;
   size_t frac_digits;
 
-  if (!optarg)
+  if (!optarg_str_p)
     return;
 
   /* skip leading whitespace */
-  while (*optarg == ' ' || *optarg == '\t') {
-      optarg++;
+  while (*optarg_str_p == ' ' || *optarg_str_p == '\t') {
+      optarg_str_p++;
   }
 
   /* check for a negative adjustment */
-  if (*optarg == '-') {
+  if (*optarg_str_p == '-') {
       time_adj.is_negative = 1;
-      optarg++;
+      optarg_str_p++;
   }
 
   /* collect whole number of seconds, if any */
-  if (*optarg == '.') {         /* only fractional (i.e., .5 is ok) */
+  if (*optarg_str_p == '.') {         /* only fractional (i.e., .5 is ok) */
       val  = 0;
-      frac = optarg;
+      frac = optarg_str_p;
   } else {
-      val = strtol(optarg, &frac, 10);
-      if (frac == NULL || frac == optarg || val == LONG_MIN || val == LONG_MAX) {
+      val = strtol(optarg_str_p, &frac, 10);
+      if (frac == NULL || frac == optarg_str_p || val == LONG_MIN || val == LONG_MAX) {
           fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
-                  optarg);
+                  optarg_str_p);
           exit(1);
       }
       if (val < 0) {            /* implies '--' since we caught '-' above  */
           fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
-                  optarg);
+                  optarg_str_p);
           exit(1);
       }
   }
@@ -344,7 +344,7 @@ set_time_adjustment(char *optarg)
     if (*frac != '.' || end == NULL || end == frac
         || val < 0 || val > ONE_MILLION || val == LONG_MIN || val == LONG_MAX) {
       fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
-              optarg);
+              optarg_str_p);
       exit(1);
     }
   }
@@ -365,39 +365,39 @@ set_time_adjustment(char *optarg)
 }
 
 static void
-set_rel_time(char *optarg)
+set_rel_time(char *optarg_str_p)
 {
   char *frac, *end;
   long val;
   size_t frac_digits;
 
-  if (!optarg)
+  if (!optarg_str_p)
     return;
 
   /* skip leading whitespace */
-  while (*optarg == ' ' || *optarg == '\t') {
-      optarg++;
+  while (*optarg_str_p == ' ' || *optarg_str_p == '\t') {
+      optarg_str_p++;
   }
 
   /* ignore negative adjustment  */
-  if (*optarg == '-') {
-      optarg++;
+  if (*optarg_str_p == '-') {
+      optarg_str_p++;
   }
 
   /* collect whole number of seconds, if any */
-  if (*optarg == '.') {         /* only fractional (i.e., .5 is ok) */
+  if (*optarg_str_p == '.') {         /* only fractional (i.e., .5 is ok) */
       val  = 0;
-      frac = optarg;
+      frac = optarg_str_p;
   } else {
-      val = strtol(optarg, &frac, 10);
-      if (frac == NULL || frac == optarg || val == LONG_MIN || val == LONG_MAX) {
+      val = strtol(optarg_str_p, &frac, 10);
+      if (frac == NULL || frac == optarg_str_p || val == LONG_MIN || val == LONG_MAX) {
           fprintf(stderr, "1: editcap: \"%s\" isn't a valid rel time value\n",
-                  optarg);
+                  optarg_str_p);
           exit(1);
       }
       if (val < 0) {            /* implies '--' since we caught '-' above  */
           fprintf(stderr, "2: editcap: \"%s\" isn't a valid rel time value\n",
-                  optarg);
+                  optarg_str_p);
           exit(1);
       }
   }
@@ -414,7 +414,7 @@ set_rel_time(char *optarg)
     if (*frac != '.' || end == NULL || end == frac
         || val < 0 || val > ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
       fprintf(stderr, "3: editcap: \"%s\" isn't a valid rel time value\n",
-              optarg);
+              optarg_str_p);
       exit(1);
     }
   }

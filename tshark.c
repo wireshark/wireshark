@@ -762,7 +762,7 @@ main(int argc, char *argv[])
   struct bpf_program   fcode;
 #endif
   dfilter_t           *rfcode = NULL;
-  e_prefs             *prefs;
+  e_prefs             *prefs_p;
   char                 badopt;
   GLogLevelFlags       log_flags;
   int                  optind_initial;
@@ -926,7 +926,7 @@ main(int argc, char *argv[])
   /* Set the C-language locale to the native environment. */
   setlocale(LC_ALL, "");
 
-  prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
+  prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
                      &pf_open_errno, &pf_read_errno, &pf_path);
   if (gpf_path != NULL) {
     if (gpf_open_errno != 0) {
@@ -952,7 +952,7 @@ main(int argc, char *argv[])
   }
 
   /* Set the name resolution code's flags from the preferences. */
-  g_resolv_flags = prefs->name_resolve;
+  g_resolv_flags = prefs_p->name_resolve;
 
   /* Read the disabled protocols file. */
   read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
@@ -1445,7 +1445,7 @@ main(int argc, char *argv[])
   }
 
   /* Build the column format array */
-  build_column_format_array(&cfile.cinfo, prefs->num_cols, TRUE);
+  build_column_format_array(&cfile.cinfo, prefs_p->num_cols, TRUE);
 
 #ifdef HAVE_LIBPCAP
   capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
@@ -1581,7 +1581,7 @@ main(int argc, char *argv[])
 
     /* trim the interface name and exit if that failed */
     if (!capture_opts_trim_iface(&global_capture_opts,
-        (prefs->capture_device) ? get_if_name(prefs->capture_device) : NULL)) {
+        (prefs_p->capture_device) ? get_if_name(prefs_p->capture_device) : NULL)) {
         exit(2);
     }
 

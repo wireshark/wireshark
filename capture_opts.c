@@ -370,7 +370,7 @@ get_auth_arguments(capture_options *capture_opts, const char *arg)
 #endif
 
 static int
-capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg)
+capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str_p)
 {
     long        adapter_index;
     char        *p;
@@ -388,7 +388,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg)
      * names that begin with digits.  It can be useful on Windows, where
      * more than one interface can have the same name.
      */
-    adapter_index = strtol(optarg, &p, 10);
+    adapter_index = strtol(optarg_str_p, &p, 10);
     if (p != NULL && *p == '\0') {
       if (adapter_index < 0) {
         cmdarg_err("The specified adapter index is a negative number");
@@ -430,47 +430,47 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg)
        */
       free_interface_list(if_list);
     } else {
-      capture_opts->iface = g_strdup(optarg);
+      capture_opts->iface = g_strdup(optarg_str_p);
     }
 
     return 0;
 }
 
 int
-capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg, gboolean *start_capture)
+capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_str_p, gboolean *start_capture)
 {
     int status;
 
     switch(opt) {
     case 'a':        /* autostop criteria */
-        if (set_autostop_criterion(capture_opts, optarg) == FALSE) {
-          cmdarg_err("Invalid or unknown -a flag \"%s\"", optarg);
+        if (set_autostop_criterion(capture_opts, optarg_str_p) == FALSE) {
+          cmdarg_err("Invalid or unknown -a flag \"%s\"", optarg_str_p);
           return 1;
         }
         break;
 #ifdef HAVE_PCAP_REMOTE
     case 'A':
-        if (get_auth_arguments(capture_opts, optarg) == FALSE) {
-            cmdarg_err("Invalid or unknown -A arg \"%s\"", optarg);
+        if (get_auth_arguments(capture_opts, optarg_str_p) == FALSE) {
+            cmdarg_err("Invalid or unknown -A arg \"%s\"", optarg_str_p);
             return 1;
         }
         break;
 #endif
     case 'b':        /* Ringbuffer option */
         capture_opts->multi_files_on = TRUE;
-        if (get_ring_arguments(capture_opts, optarg) == FALSE) {
-          cmdarg_err("Invalid or unknown -b arg \"%s\"", optarg);
+        if (get_ring_arguments(capture_opts, optarg_str_p) == FALSE) {
+          cmdarg_err("Invalid or unknown -b arg \"%s\"", optarg_str_p);
           return 1;
         }
         break;
 #ifdef _WIN32
     case 'B':        /* Buffer size */
-        capture_opts->buffer_size = get_positive_int(optarg, "buffer size");
+        capture_opts->buffer_size = get_positive_int(optarg_str_p, "buffer size");
         break;
 #endif
     case 'c':        /* Capture n packets */
         capture_opts->has_autostop_packets = TRUE;
-        capture_opts->autostop_packets = get_positive_int(optarg, "packet count");
+        capture_opts->autostop_packets = get_positive_int(optarg_str_p, "packet count");
         break;
     case 'f':        /* capture filter */
         if (capture_opts->has_cfilter) {
@@ -479,13 +479,13 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
         }
         capture_opts->has_cfilter = TRUE;
         g_free(capture_opts->cfilter);
-        capture_opts->cfilter = g_strdup(optarg);
+        capture_opts->cfilter = g_strdup(optarg_str_p);
         break;
     case 'H':        /* Hide capture info dialog box */
         capture_opts->show_info = FALSE;
         break;
     case 'i':        /* Use interface x */
-        status = capture_opts_add_iface_opt(capture_opts, optarg);
+        status = capture_opts_add_iface_opt(capture_opts, optarg_str_p);
         if(status != 0) {
             return status;
         }
@@ -496,8 +496,8 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
     /*case 'l':*/    /* Automatic scrolling in live capture mode */
 #ifdef HAVE_PCAP_SETSAMPLING
     case 'm':
-        if (get_sampling_arguments(capture_opts, optarg) == FALSE) {
-            cmdarg_err("Invalid or unknown -m arg \"%s\"", optarg);
+        if (get_sampling_arguments(capture_opts, optarg_str_p) == FALSE) {
+            cmdarg_err("Invalid or unknown -m arg \"%s\"", optarg_str_p);
             return 1;
         }
         break;
@@ -519,7 +519,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
 #endif
     case 's':        /* Set the snapshot (capture) length */
         capture_opts->has_snaplen = TRUE;
-        capture_opts->snaplen = get_natural_int(optarg, "snapshot length");
+        capture_opts->snaplen = get_natural_int(optarg_str_p, "snapshot length");
 	/*
 	 * Make a snapshot length of 0 equivalent to the maximum packet
 	 * length, mirroring what tcpdump does.
@@ -540,17 +540,17 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
         g_free(capture_opts->save_file);
 #if defined _WIN32 && GLIB_CHECK_VERSION(2,6,0)
         /* since GLib 2.6, we need to convert filenames to utf8 for Win32 */
-        capture_opts->save_file = g_locale_to_utf8(optarg, -1, NULL, NULL, NULL);
+        capture_opts->save_file = g_locale_to_utf8(optarg_str_p, -1, NULL, NULL, NULL);
 #else
-        capture_opts->save_file = g_strdup(optarg);
+        capture_opts->save_file = g_strdup(optarg_str_p);
 #endif
         status = capture_opts_output_to_pipe(capture_opts->save_file, &capture_opts->output_to_pipe);
         return status;
     case 'y':        /* Set the pcap data link type */
-        capture_opts->linktype = linktype_name_to_val(optarg);
+        capture_opts->linktype = linktype_name_to_val(optarg_str_p);
         if (capture_opts->linktype == -1) {
           cmdarg_err("The specified data link type \"%s\" isn't valid",
-                  optarg);
+                  optarg_str_p);
           return 1;
         }
         break;

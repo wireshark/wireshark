@@ -992,22 +992,22 @@ _U_
 /* read a number of bytes from a pipe */
 /* (blocks until enough bytes read or an error occurs) */
 static int
-pipe_read_bytes(int pipe, char *bytes, int required) {
+pipe_read_bytes(int pipe_fd, char *bytes, int required) {
     int newly;
     int offset = 0;
 
     while(required) {
-        newly = read(pipe, &bytes[offset], required);
+        newly = read(pipe_fd, &bytes[offset], required);
         if (newly == 0) {
             /* EOF */
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "read from pipe %d: EOF (capture closed?)", pipe);
+                  "read from pipe %d: EOF (capture closed?)", pipe_fd);
             return offset;
         }
         if (newly < 0) {
             /* error */
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "read from pipe %d: error(%u): %s", pipe, errno, strerror(errno));
+                  "read from pipe %d: error(%u): %s", pipe_fd, errno, strerror(errno));
             return newly;
         }
 
@@ -1018,9 +1018,9 @@ pipe_read_bytes(int pipe, char *bytes, int required) {
     return offset;
 }
 
-static gboolean pipe_data_available(int pipe) {
+static gboolean pipe_data_available(int pipe_fd) {
 #ifdef _WIN32 /* PeekNamedPipe */
-    HANDLE hPipe = (HANDLE) _get_osfhandle(pipe);
+    HANDLE hPipe = (HANDLE) _get_osfhandle(pipe_fd);
     DWORD bytes_avail;
 
     if (hPipe == INVALID_HANDLE_VALUE)
@@ -1037,11 +1037,11 @@ static gboolean pipe_data_available(int pipe) {
     struct timeval timeout;
 
     FD_ZERO(&rfds);
-    FD_SET(pipe, &rfds);
+    FD_SET(pipe_fd, &rfds);
     timeout.tv_sec = 0;
     timeout.tv_usec = 0;
 
-    if (select(pipe+1, &rfds, NULL, NULL, &timeout) > 0)
+    if (select(pipe_fd+1, &rfds, NULL, NULL, &timeout) > 0)
         return TRUE;
 
     return FALSE;
@@ -1094,17 +1094,17 @@ pipe_convert_header(const guchar *header, int header_len, char *indicator, int *
    (1-byte message indicator, 3-byte message length (excluding length
    and indicator field), and the rest is the message) */
 static int
-pipe_read_block(int pipe, char *indicator, int len, char *msg) {
+pipe_read_block(int pipe_fd, char *indicator, int len, char *msg) {
     int required;
     int newly;
     guchar header[4];
 
 
     /* read header (indicator and 3-byte length) */
-    newly = pipe_read_bytes(pipe, header, 4);
+    newly = pipe_read_bytes(pipe_fd, header, 4);
     if(newly != 4) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-              "read %d failed to read header: %u", pipe, newly);
+              "read %d failed to read header: %u", pipe_fd, newly);
         return -1;
     }
 
@@ -1114,7 +1114,7 @@ pipe_read_block(int pipe, char *indicator, int len, char *msg) {
     /* only indicator with no value? */
     if(required == 0) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-              "read %d indicator: %c empty value", pipe, *indicator);
+              "read %d indicator: %c empty value", pipe_fd, *indicator);
         return 4;
     }
 
@@ -1122,18 +1122,18 @@ pipe_read_block(int pipe, char *indicator, int len, char *msg) {
     if(required > len) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
               "read %d length error, required %d > len %d, indicator: %u",
-              pipe, required, len, *indicator);
+              pipe_fd, required, len, *indicator);
 
         /* we have a problem here, try to read some more bytes from the pipe to debug where the problem really is */
         memcpy(msg, header, sizeof(header));
-        newly = read(pipe, &msg[sizeof(header)], len-sizeof(header));
+        newly = read(pipe_fd, &msg[sizeof(header)], len-sizeof(header));
         g_warning("Unknown message from dumpcap, try to show it as a string: %s", msg);
         return -1;
     }
     len = required;
 
     /* read the actual block data */
-    newly = pipe_read_bytes(pipe, msg, required);
+    newly = pipe_read_bytes(pipe_fd, msg, required);
     if(newly != required) {
         g_warning("Unknown message from dumpcap, try to show it as a string: %s", msg);
         return -1;
@@ -1141,7 +1141,7 @@ pipe_read_block(int pipe, char *indicator, int len, char *msg) {
 
     /* XXX If message is "2part", the msg probably won't be sent to debug log correctly */
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-          "read %d ok indicator: %c len: %u msg: %s", pipe, *indicator,
+          "read %d ok indicator: %c len: %u msg: %s", pipe_fd, *indicator,
           len, msg);
     return newly + 4;
 }
