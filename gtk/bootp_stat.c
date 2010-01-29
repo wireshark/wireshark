@@ -151,11 +151,11 @@ static void
 dhcpstat_draw(void *psp)
 {
 	dhcpstat_t *sp=psp;
-	guint index;
+	guint idx;
 
-	index=sp->index;
+	idx=sp->index;
 	g_hash_table_foreach( sp->hash, (GHFunc) dhcp_draw_message_type, NULL );
-	if (index != sp->index){
+	if (idx != sp->index){
 		/* We have inserted a new entry corresponding to a status code ,
 		 * let's resize the table */
 		gtk_table_resize ( GTK_TABLE(sp->table_message_type), sp->index  % 2 , 4);

@@ -385,7 +385,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 
 				switch(git->calc_type){
 					guint64 t, pt; /* time in us */
-					int i;
+					int j;
 				case CALC_TYPE_LOAD:
 					/* it is a LOAD calculation of a relative time field.
 					 * add the time this call spanned to each
@@ -394,7 +394,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 					 */
 					t=new_time->secs;
 					t=t*1000000+new_time->nsecs/1000;
-					i=idx;
+					j=idx;
 					/* handle current interval */
 					pt=pinfo->fd->rel_ts.secs*1000000+pinfo->fd->rel_ts.nsecs/1000;
 					pt=pt%(git->io->interval*1000);
@@ -402,16 +402,16 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 						pt=t;
 					}
 					while(t){
-						git->items[i].time_tot.nsecs+=(int) (pt*1000);
-						if(git->items[i].time_tot.nsecs>1000000000){
-							git->items[i].time_tot.secs++;
-							git->items[i].time_tot.nsecs-=1000000000;
+						git->items[j].time_tot.nsecs+=(int) (pt*1000);
+						if(git->items[j].time_tot.nsecs>1000000000){
+							git->items[j].time_tot.secs++;
+							git->items[j].time_tot.nsecs-=1000000000;
 						}
 
-						if(i==0){
+						if(j==0){
 							break;
 						}
-						i--;
+						j--;
 						t-=pt;
 						if(t > (guint32) (git->io->interval*1000)){
 							pt=git->io->interval*1000;
@@ -635,13 +635,13 @@ get_it_value(io_stat_t *io, int graph_id, int idx)
 
 
 static void
-print_time_scale_string(char *buf, int buf_len, guint32 t, guint32 t_max, gboolean log)
+print_time_scale_string(char *buf, int buf_len, guint32 t, guint32 t_max, gboolean log_flag)
 {
-	if(t_max>=10000000 || (log && t_max>=1000000)){
+	if(t_max>=10000000 || (log_flag && t_max>=1000000)){
 		g_snprintf(buf, buf_len, "%ds",t/1000000);
 	} else if(t_max>=1000000){
 		g_snprintf(buf, buf_len, "%d.%1ds",t/1000000,(t%1000000)/100000);
-	} else if(t_max>=10000 || (log && t_max>=1000)){
+	} else if(t_max>=10000 || (log_flag && t_max>=1000)){
 		g_snprintf(buf, buf_len, "%dms",t/1000);
 	} else if(t_max>=1000){
 		g_snprintf(buf, buf_len, "%d.%1dms",t/1000,(t%1000)/100);

@@ -989,7 +989,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 		user_data->dlg.dialog_graph.pixmap_width-right_x_border+1,
 		user_data->dlg.dialog_graph.pixmap_height-bottom_y_border);
 	for(i=0;i<=10;i++){
-		int xwidth, lwidth;
+		int xwidth;
 
 		xwidth=5;
 		if(!(i%5)){
@@ -1095,7 +1095,6 @@ static void dialog_graph_draw(user_data_t* user_data)
 			      user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+xlen+1);
 
 		if(xlen==17){
-			int lwidth;
 			if(user_data->dlg.dialog_graph.interval>=1000){
 				g_snprintf(label_string, sizeof(label_string), "%ds", current_interval/1000);
 			} else if(user_data->dlg.dialog_graph.interval>=100){
@@ -1161,7 +1160,6 @@ static void dialog_graph_draw(user_data_t* user_data)
 			x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border;
 
 			if(user_data->dlg.dialog_graph.graph[i].items[interval/user_data->dlg.dialog_graph.interval].flags & (STAT_FLAG_WRONG_SEQ|STAT_FLAG_MARKER)){
-				int lwidth;
 				if (user_data->dlg.dialog_graph.graph[i].items[interval/user_data->dlg.dialog_graph.interval].flags & STAT_FLAG_WRONG_SEQ){
 					g_strlcpy(label_string, "x", sizeof(label_string));
 				} else {
@@ -2109,7 +2107,7 @@ static void save_voice_as_destroy_cb(GtkWidget *win _U_, user_data_t *user_data)
 /* XXX what about endians here? could go something wrong? */
 static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *user_data)
 {
-	int to_fd, forw_fd, rev_fd, fread = 0, rread = 0, fwritten, rwritten;
+	int to_fd, forw_fd, rev_fd, fread_cnt = 0, rread = 0, fwritten, rwritten;
 	gchar f_pd[1] = {0};
 	gchar r_pd[1] = {0};
 	gint16 sample;
@@ -2168,7 +2166,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 			case SAVE_FORWARD_DIRECTION_MASK: {
 				progbar_count = user_data->forward.saveinfo.count;
 				progbar_quantum = user_data->forward.saveinfo.count/100;
-				while ((fread = read(forw_fd, f_pd, 1)) > 0) {
+				while ((fread_cnt = read(forw_fd, f_pd, 1)) > 0) {
 					if(stop_flag)
 						break;
 					if((count > progbar_nextstep) && (count <= progbar_count)) {
@@ -2195,7 +2193,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					}
 
 					fwritten = ws_write(to_fd, pd, 2);
-					if ((fwritten < 2) || (fwritten < 0) || (fread < 0)) {
+					if ((fwritten < 2) || (fwritten < 0) || (fread_cnt < 0)) {
 						ws_close(forw_fd);
 						ws_close(rev_fd);
 						ws_close(to_fd);
@@ -2281,11 +2279,11 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 							*f_pd = SILENCE_PCMA;
 							break;
 						}
-						fread = 1;
+						fread_cnt = 1;
 						f_write_silence--;
 					}
 					else if(r_write_silence > 0) {
-						fread = read(forw_fd, f_pd, 1);
+						fread_cnt = read(forw_fd, f_pd, 1);
 						switch (user_data->reversed.statinfo.reg_pt) {
 						case AST_FORMAT_ULAW:
 							*r_pd = SILENCE_PCMU;
@@ -2298,10 +2296,10 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 						r_write_silence--;
 					}
 					else {
-						fread = read(forw_fd, f_pd, 1);
+						fread_cnt = read(forw_fd, f_pd, 1);
 						rread = read(rev_fd, r_pd, 1);
 					}
-					if ((rread == 0) && (fread == 0))
+					if ((rread == 0) && (fread_cnt == 0))
 						break;
 					if ((user_data->forward.statinfo.pt == AST_FORMAT_ULAW) && (user_data->reversed.statinfo.pt == AST_FORMAT_ULAW)){
 						sample = (ulaw2linear(*r_pd) + ulaw2linear(*f_pd)) / 2;
@@ -2322,7 +2320,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 
 
 					rwritten = ws_write(to_fd, pd, 2);
-					if ((rwritten < 2) || (rread < 0) || (fread < 0)) {
+					if ((rwritten < 2) || (rread < 0) || (fread_cnt < 0)) {
 						ws_close(forw_fd);
 						ws_close(rev_fd);
 						ws_close(to_fd);

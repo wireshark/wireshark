@@ -563,17 +563,17 @@ rtpstream_on_analyse                   (GtkButton       *button _U_,
 /****************************************************************************/
 /* when the user selects a row in the stream list */
 static void
-rtpstream_on_select_row(GtkCList *clist,
-                                            gint row _U_,
-                                            gint column _U_,
-                                            GdkEventButton *event _U_,
-                                            gpointer user_data _U_)
+rtpstream_on_select_row(GtkCList *clist_lcl,
+			gint row _U_,
+			gint column _U_,
+			GdkEventButton *event _U_,
+			gpointer user_data _U_)
 {
 	gchar label_text[80];
 
 	/* update the labels */
 	if (event==NULL || event->state & GDK_SHIFT_MASK) {
-		selected_stream_rev = gtk_clist_get_row_data(GTK_CLIST(clist), row);
+		selected_stream_rev = gtk_clist_get_row_data(GTK_CLIST(clist_lcl), row);
 		g_snprintf(label_text, sizeof(label_text), "Reverse: %s:%u -> %s:%u, SSRC=0x%X",
 			get_addr_name(&(selected_stream_rev->src_addr)),
 			selected_stream_rev->src_port,
@@ -584,7 +584,7 @@ rtpstream_on_select_row(GtkCList *clist,
 		gtk_label_set_text(GTK_LABEL(label_rev), label_text);
 	}
 	else {
-		selected_stream_fwd = gtk_clist_get_row_data(GTK_CLIST(clist), row);
+		selected_stream_fwd = gtk_clist_get_row_data(GTK_CLIST(clist_lcl), row);
 		g_snprintf(label_text, sizeof(label_text), "Forward: %s:%u -> %s:%u, SSRC=0x%X",
 			get_addr_name(&(selected_stream_fwd->src_addr)),
 			selected_stream_fwd->src_port,
@@ -614,40 +614,40 @@ typedef struct column_arrows {
 
 /****************************************************************************/
 static void
-rtpstream_click_column_cb(GtkCList *clist, gint column, gpointer data)
+rtpstream_click_column_cb(GtkCList *clist_lcl, gint column, gpointer data)
 {
 	column_arrows *col_arrows = (column_arrows *) data;
 	int i;
 
-	gtk_clist_freeze(clist);
+	gtk_clist_freeze(clist_lcl);
 
 	for (i=0; i<NUM_COLS; i++) {
 		gtk_widget_hide(col_arrows[i].ascend_pm);
 		gtk_widget_hide(col_arrows[i].descend_pm);
 	}
 
-	if (column == clist->sort_column) {
-		if (clist->sort_type == GTK_SORT_ASCENDING) {
-			clist->sort_type = GTK_SORT_DESCENDING;
+	if (column == clist_lcl->sort_column) {
+		if (clist_lcl->sort_type == GTK_SORT_ASCENDING) {
+			clist_lcl->sort_type = GTK_SORT_DESCENDING;
 			gtk_widget_show(col_arrows[column].descend_pm);
 		} else {
-			clist->sort_type = GTK_SORT_ASCENDING;
+			clist_lcl->sort_type = GTK_SORT_ASCENDING;
 			gtk_widget_show(col_arrows[column].ascend_pm);
 		}
 	} else {
-		clist->sort_type = GTK_SORT_ASCENDING;
+		clist_lcl->sort_type = GTK_SORT_ASCENDING;
 		gtk_widget_show(col_arrows[column].ascend_pm);
-		gtk_clist_set_sort_column(clist, column);
+		gtk_clist_set_sort_column(clist_lcl, column);
 	}
-	gtk_clist_thaw(clist);
+	gtk_clist_thaw(clist_lcl);
 
-	gtk_clist_sort(clist);
+	gtk_clist_sort(clist_lcl);
 }
 
 
 /****************************************************************************/
 static gint
-rtpstream_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
+rtpstream_sort_column(GtkCList *clist_lcl, gconstpointer ptr1, gconstpointer ptr2)
 {
 	char *text1 = NULL;
 	char *text2 = NULL;
@@ -656,10 +656,10 @@ rtpstream_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 	const GtkCListRow *row1 = (const GtkCListRow *) ptr1;
 	const GtkCListRow *row2 = (const GtkCListRow *) ptr2;
 
-	text1 = GTK_CELL_TEXT (row1->cell[clist->sort_column])->text;
-	text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;
+	text1 = GTK_CELL_TEXT (row1->cell[clist_lcl->sort_column])->text;
+	text2 = GTK_CELL_TEXT (row2->cell[clist_lcl->sort_column])->text;
 
-	switch(clist->sort_column){
+	switch(clist_lcl->sort_column){
 	case 0:
 	case 2:
 	case 5:

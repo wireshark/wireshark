@@ -91,18 +91,18 @@ diameterstat_packet(void *pdiameter, packet_info *pinfo, epan_dissect_t *edt _U_
 {
 	const diameter_req_ans_pair_t *diameter=pdi;
 	diameterstat_t *fs=(diameterstat_t *)pdiameter;
-	int* index = NULL;
+	int* idx = NULL;
 
 
-	index = (int*) g_hash_table_lookup(cmd_str_hash, diameter->cmd_str);
-	if (index == NULL) {
-		index = g_malloc(sizeof(int));
-		*index = (int) g_hash_table_size(cmd_str_hash);
-		g_hash_table_insert(cmd_str_hash, (gchar*) diameter->cmd_str, index);
-		init_srt_table_row(&fs->diameter_srt_table, *index,  (const char*) diameter->cmd_str);
+	idx = (int*) g_hash_table_lookup(cmd_str_hash, diameter->cmd_str);
+	if (idx == NULL) {
+		idx = g_malloc(sizeof(int));
+		*idx = (int) g_hash_table_size(cmd_str_hash);
+		g_hash_table_insert(cmd_str_hash, (gchar*) diameter->cmd_str, idx);
+		init_srt_table_row(&fs->diameter_srt_table, *idx,  (const char*) diameter->cmd_str);
 	}
 
-	add_srt_table_data(&fs->diameter_srt_table, *index, &diameter->req_time, pinfo);
+	add_srt_table_data(&fs->diameter_srt_table, *idx, &diameter->req_time, pinfo);
 
 	return 1;
 }
@@ -144,7 +144,7 @@ gtk_diameterstat_init(const char *optarg, void *userdata _U_)
 	GtkWidget *vbox;
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
-	int* index;
+	int* idx;
 
 	if(!strncmp(optarg,"diameter,",9)){
 		filter=optarg+9;
@@ -153,10 +153,10 @@ gtk_diameterstat_init(const char *optarg, void *userdata _U_)
 	}
 
 	diameter=g_malloc(sizeof(diameterstat_t));
-	index = g_malloc(sizeof(int));
-	*index = 0;
+	idx = g_malloc(sizeof(int));
+	*idx = 0;
 	cmd_str_hash = g_hash_table_new(g_str_hash,g_str_equal);
-	g_hash_table_insert(cmd_str_hash, (gchar *)"Unknown", index);
+	g_hash_table_insert(cmd_str_hash, (gchar *)"Unknown", idx);
 
 	diameter->win = dlg_window_new("diameter-stat");  /* transient_for top_level */
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(diameter->win), TRUE);

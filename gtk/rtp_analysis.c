@@ -1016,7 +1016,7 @@ static void dialog_graph_draw(user_data_t* user_data)
                 user_data->dlg.dialog_graph.pixmap_width-right_x_border+1,
                 user_data->dlg.dialog_graph.pixmap_height-bottom_y_border);
         for(i=0;i<=10;i++){
-                int xwidth, lwidth;
+                int xwidth;
 
                 xwidth=5;
                 if(!(i%5)){
@@ -1122,7 +1122,6 @@ static void dialog_graph_draw(user_data_t* user_data)
                         user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+xlen+1);
 
                 if(xlen==17){
-                        int lwidth;
                         if(user_data->dlg.dialog_graph.interval>=1000){
                                 g_snprintf(label_string, sizeof(label_string), "%ds", current_interval/1000);
                         } else if(user_data->dlg.dialog_graph.interval>=100){
@@ -1185,7 +1184,6 @@ static void dialog_graph_draw(user_data_t* user_data)
 			x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border;
 
 			if(user_data->dlg.dialog_graph.graph[i].items[interval/user_data->dlg.dialog_graph.interval].flags & (STAT_FLAG_WRONG_SEQ|STAT_FLAG_MARKER)){
-				int lwidth;
 				if (user_data->dlg.dialog_graph.graph[i].items[interval/user_data->dlg.dialog_graph.interval].flags & STAT_FLAG_WRONG_SEQ){
 					g_strlcpy(label_string,"x",sizeof(label_string));
 				} else {

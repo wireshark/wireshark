@@ -87,7 +87,7 @@ gtpstat_packet(void *pgtp, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 {
 	const gtp_msg_hash_t *gtp=psi;
 	gtpstat_t *fs=(gtpstat_t *)pgtp;
-	int index=0;
+	int idx=0;
 
 	/* we are only interested in reply packets */
 	if(gtp->is_request){
@@ -99,25 +99,25 @@ gtpstat_packet(void *pgtp, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	}
 
 	/* Only use the commands we know how to handle, this is not a comprehensive list */
-    /* Redoing the message indexing is bit reduntant,*/
-   /*  but using message type as such would yield a long gtp_srt_table.*/
-   /*  Only a fragtion of the messages are matchable req/resp pairs,*/
-   /*  it's just doesn't feel feasible*/
+	/* Redoing the message indexing is bit reduntant,                    */
+	/*  but using message type as such would yield a long gtp_srt_table. */
+	/*  Only a fraction of the messages are matchable req/resp pairs,    */
+	/*  it just doesn't feel feasible.                                   */
 
 	switch(gtp->msgtype){
- 	case GTP_MSG_ECHO_REQ: index=0;
-	break;	
- 	case GTP_MSG_CREATE_PDP_REQ: index=1;
-	break;
-    case GTP_MSG_UPDATE_PDP_REQ: index=2;
-	break;
-    case GTP_MSG_DELETE_PDP_REQ: index=3;
-	break;
+ 	case GTP_MSG_ECHO_REQ: idx=0;
+		break;	
+ 	case GTP_MSG_CREATE_PDP_REQ: idx=1;
+		break;
+	case GTP_MSG_UPDATE_PDP_REQ: idx=2;
+		break;
+	case GTP_MSG_DELETE_PDP_REQ: idx=3;
+		break;
 	default:
 		return 0;
 	}
 
-	add_srt_table_data(&fs->gtp_srt_table, index, &gtp->req_time, pinfo);
+	add_srt_table_data(&fs->gtp_srt_table, idx, &gtp->req_time, pinfo);
 
 	return 1;
 }
