@@ -455,46 +455,46 @@ static void update_unicast_addr(unicast_addr_t *req_addr, unicast_addr_t *ack_ad
   }
 }
 
-static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_channel)
+static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_channel_lcl)
 {
 	gint *key;
 	GHashTable *rtp_dyn_payload = NULL;
 	struct srtp_info *dummy_srtp_info = NULL;
 
-	if (!upcoming_channel) return;
+	if (!upcoming_channel_lcl) return;
 
 	/* T.38 */
-	if (!strcmp(upcoming_channel->data_type_str, "t38fax")) {
-		if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && t38_handle) {
-			t38_add_address(pinfo, &upcoming_channel->media_addr.addr,
-							upcoming_channel->media_addr.port, 0,
+	if (!strcmp(upcoming_channel_lcl->data_type_str, "t38fax")) {
+		if (upcoming_channel_lcl->media_addr.addr.type!=AT_NONE && upcoming_channel_lcl->media_addr.port!=0 && t38_handle) {
+			t38_add_address(pinfo, &upcoming_channel_lcl->media_addr.addr,
+							upcoming_channel_lcl->media_addr.port, 0,
 							"H245", pinfo->fd->num);
 		}
 		return;
 	}
 
 	/* (S)RTP, (S)RTCP */
-	if (upcoming_channel->rfc2198 > 0) {
+	if (upcoming_channel_lcl->rfc2198 > 0) {
 		rtp_dyn_payload = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
 		key = g_malloc(sizeof(gint));
-		*key = upcoming_channel->rfc2198;
+		*key = upcoming_channel_lcl->rfc2198;
 		g_hash_table_insert(rtp_dyn_payload, key, g_strdup("red"));
 	}
 
-	if (upcoming_channel->srtp_flag) {
+	if (upcoming_channel_lcl->srtp_flag) {
 		dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
 	}
 
-	/* DEBUG 	g_warning("h245_setup_channels media_addr.addr.type %u port %u",upcoming_channel->media_addr.addr.type, upcoming_channel->media_addr.port );
+	/* DEBUG 	g_warning("h245_setup_channels media_addr.addr.type %u port %u",upcoming_channel_lcl->media_addr.addr.type, upcoming_channel_lcl->media_addr.port );
 	*/
-	if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && rtp_handle) {
-		srtp_add_address(pinfo, &upcoming_channel->media_addr.addr,
-						upcoming_channel->media_addr.port, 0,
-						"H245", pinfo->fd->num, upcoming_channel->is_video , rtp_dyn_payload, dummy_srtp_info);
+	if (upcoming_channel_lcl->media_addr.addr.type!=AT_NONE && upcoming_channel_lcl->media_addr.port!=0 && rtp_handle) {
+		srtp_add_address(pinfo, &upcoming_channel_lcl->media_addr.addr,
+						upcoming_channel_lcl->media_addr.port, 0,
+						"H245", pinfo->fd->num, upcoming_channel_lcl->is_video , rtp_dyn_payload, dummy_srtp_info);
 	}
-	if (upcoming_channel->media_control_addr.addr.type!=AT_NONE && upcoming_channel->media_control_addr.port!=0 && rtcp_handle) {
-		srtcp_add_address(pinfo, &upcoming_channel->media_control_addr.addr,
-						upcoming_channel->media_control_addr.port, 0,
+	if (upcoming_channel_lcl->media_control_addr.addr.type!=AT_NONE && upcoming_channel_lcl->media_control_addr.port!=0 && rtcp_handle) {
+		srtcp_add_address(pinfo, &upcoming_channel_lcl->media_control_addr.addr,
+						upcoming_channel_lcl->media_control_addr.port, 0,
 						"H245", pinfo->fd->num, dummy_srtp_info);
 	}
 }

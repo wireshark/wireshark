@@ -88,19 +88,19 @@ typedef struct {
 } h223_lc_params;
 
 typedef enum {
-	nonStandardDataType,
-	nullData,
-	videoData,
-	audioData,
-	data,
-	encryptionData,
+	H245_nonStandardDataType,
+	H245_nullData,
+	H245_videoData,
+	H245_audioData,
+	H245_data,
+	H245_encryptionData,
 	/*...,*/
-	h235Control,
-	h235Media,
-	multiplexedStream,
-	redundancyEncoding,
-	multiplePayloadStream,
-	fec
+	H245_h235Control,
+	H245_h235Media,
+	H245_multiplexedStream,
+	H245_redundancyEncoding,
+	H245_multiplePayloadStream,
+	H245_fec
 } h245_lc_data_type_enum;
 
 typedef struct {
