@@ -36,14 +36,14 @@
  */
 
 #define	OUI_ENCAP_ETHER		0x000000	/* encapsulated Ethernet */
-#define	OUI_XEROX		0x000006	/* Xerox */
-#define	OUI_CISCO		0x00000C	/* Cisco (future use) */
-#define OUI_IANA		0x00005E	/* the IANA */
-#define OUI_NORTEL		0x000081	/* Nortel SONMP */
+#define	OUI_XEROX			0x000006	/* Xerox */
+#define	OUI_CISCO			0x00000C	/* Cisco (future use) */
+#define OUI_IANA			0x00005E	/* the IANA */
+#define OUI_NORTEL			0x000081	/* Nortel SONMP */
 #define	OUI_CISCO_90		0x0000F8	/* Cisco (IOS 9.0 and above?) */
-#define	OUI_FORCE10		0x0001E8	/* Force10 */
+#define	OUI_FORCE10			0x0001E8	/* Force10 */
 #define OUI_ERICSSON		0x0001EC	/* Ericsson Group */	
-#define OUI_CATENA		0x00025A	/* Catena Networks */
+#define OUI_CATENA			0x00025A	/* Catena Networks */
 #define OUI_SONY_ERICSSON	0x000AD9	/* Sony Ericsson Mobile Communications AB */
 #define OUI_SONY_ERICSSON_2	0x000E07	/* Sony Ericsson Mobile Communications AB */
 #define OUI_PROFINET		0x000ECF	/* PROFIBUS Nutzerorganisation e.V. */
@@ -58,19 +58,20 @@
 #define OUI_SONY_ERICSSON_7	0x001813	/* Sony Ericsson Mobile Communications AB */
 #define OUI_SONY_ERICSSON_8	0x001963	/* Sony Ericsson Mobile Communications AB */
 #define	OUI_TURBOCELL		0x0020F6	/* KarlNet, who brought you Turbocell */
-#define OUI_CISCOWL		0x004096	/* Cisco Wireless (Aironet) */
-#define	OUI_MARVELL		0x005043	/* Marvell Semiconductor */
+#define OUI_CISCOWL			0x004096	/* Cisco Wireless (Aironet) */
+#define	OUI_MARVELL			0x005043	/* Marvell Semiconductor */
 #define OUI_ERICSSON_2		0x008037	/* Ericsson Group */	
-#define OUI_BRIDGED		0x0080C2	/* Bridged Frame-Relay, RFC 2427 */
+#define OUI_BRIDGED			0x0080C2	/* Bridged Frame-Relay, RFC 2427 */
 										/* and Bridged ATM, RFC 2684 */
 #define OUI_IEEE_802_1		0x0080C2	/* IEEE 802.1 Committee */
 #define	OUI_ATM_FORUM		0x00A03E	/* ATM Forum */
-#define OUI_EXTREME		0x00E02B	/* Extreme EDP/ESRP */
+#define OUI_EXTREME			0x00E02B	/* Extreme EDP/ESRP */
 #define OUI_CABLE_BPDU		0x00E02F	/* DOCSIS spanning tree BPDU */
-#define	OUI_SIEMENS		0x080006	/* Siemens AG */
+#define	OUI_SIEMENS			0x080006	/* Siemens AG */
 #define	OUI_APPLE_ATALK		0x080007	/* Appletalk */
-#define	OUI_HP			0x080009	/* Hewlett-Packard */
-#define	OUI_HP_2		0x00805F	/* Hewlett-Packard */
+#define	OUI_HP				0x080009	/* Hewlett-Packard */
+#define	OUI_HP_2			0x00805F	/* Hewlett-Packard */
+#define	OUI_3GPP2			0xCF0002	/* 3GPP2 */
 
 /* 
  * Defined in packet-llc.c
