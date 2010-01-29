@@ -716,6 +716,7 @@ DISSECTOR_SRC = \
 	packet-pingpongprotocol.c	\
 	packet-pktgen.c		\
 	packet-pktc.c		\
+	packet-pnrp.c		\
 	packet-pop.c		\
 	packet-portmap.c	\
 	packet-pgsql.c		\

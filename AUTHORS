@@ -2961,6 +2961,9 @@ Ravi Kondamuru		<Ravi.Kondamuru [AT] citrix.com> {
 	Support to read citrix netscaler capture file format.
 }
 
+Jan Gerbecks		<jan.gerbecks [AT] stud.uni-due.de> {
+	PNRP dissector
+}
 
 and by:
 
