@@ -34,14 +34,9 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 #define PROTONAME "Peer Network Resolution Protocol"
 #define PROTOSHORTNAME "PNRP"
@@ -341,7 +336,7 @@ static gint ett_pnrp_message_signatureStructure = -1;
 /* Do actual dissection work */
 static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	/* Variabel declaration */
+	/* Variable declaration */
 	gint offset;
 	gint padding_bytes;
 	guint8 message_type;
@@ -353,6 +348,10 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Validate if it is really a PNRP Packet
 	 *----------------------------------------*/
 	/* Check that there's enough data */
+	/* XXX: ISTR that tvb_length should be used when     */
+	/*      initially checking for a valid packet for a  */
+	/*      new style dissector.                         */
+	/*      ToDo: confirm                                */
 	data_length = tvb_reported_length(tvb);
 	
 	/* Shortest Message is ACK -> 12 Bytes for Header plus 8 Bytes for Data */
@@ -388,7 +387,6 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Simply Display the Protcol Name in the INFO column */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "pnrp"); 
 	/* Clear out stuff in the info column */ 
-	col_clear(pinfo->cinfo,COL_INFO);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "PNRP %s Message ",
 				 val_to_str(message_type, messageType, "Unknown (0x%02x)"));
 	
@@ -447,7 +445,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 *------------------------------*/
 		
 		/* The following part has dynamic length depending on message type */
-		while (tvb_reported_length_remaining(tvb, offset) != 0) {
+		while (tvb_reported_length_remaining(tvb, offset) > 0) {
 			/* Determine the Field Type */
 			field_type = tvb_get_ntohs(tvb,offset );
 			/* Determine length of this message */
@@ -659,7 +657,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					
 					/* There might be padding, so fill up to the next byte */
 					padding_bytes = 0;
-					while (data_length%4 != 0 &&tvb_reported_length_remaining(tvb, offset+data_length)!=0) {
+					while (data_length%4 != 0 &&tvb_reported_length_remaining(tvb, offset+data_length)>0) {
 						data_length++;
 						padding_bytes++;
 					}
@@ -691,7 +689,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					
 					/* There might be padding, so fill up to the next byte */
 					padding_bytes = 0;
-					while (data_length%4 != 0 &&tvb_reported_length_remaining(tvb, offset+data_length)!=0) {
+					while (data_length%4 != 0 &&tvb_reported_length_remaining(tvb, offset+data_length)>0) {
 						data_length++;
 						padding_bytes++;
 					}
@@ -762,7 +760,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					
 					/* There might be padding, so fill up to the next byte */
 					padding_bytes = 0;
-					while (data_length%4 != 0 &&tvb_reported_length_remaining(tvb, offset+data_length)!=0) {
+					while (data_length%4 != 0 &&tvb_reported_length_remaining(tvb, offset+data_length)>0) {
 						data_length++;
 						padding_bytes++;
 					}
@@ -1133,7 +1131,7 @@ void proto_register_pnrp(void)
 			{ "Reserved 1", "pnrp.segment.inquire.flags.reserved1", FT_UINT16, BASE_HEX, NULL, FLAGS_INQUIRE_RESERVED1,
 				NULL, HFILL }},
 		{ &hf_pnrp_message_inquire_flags_Abit,
-			{ "CPA shoul (a)ppear in response", "pnrp.segment.inquire.flags.Abit", FT_UINT16, BASE_HEX, NULL, FLAGS_INQUIRE_A,
+			{ "CPA should (a)ppear in response", "pnrp.segment.inquire.flags.Abit", FT_UINT16, BASE_HEX, NULL, FLAGS_INQUIRE_A,
 				NULL, HFILL }},
 		{ &hf_pnrp_message_inquire_flags_Xbit,
 			{ "E(X)tended Payload sent in Authority response", "pnrp.segment.inquire.flags.Xbit", FT_UINT16, BASE_HEX, NULL, FLAGS_INQUIRE_X,
@@ -1282,7 +1280,7 @@ void proto_register_pnrp(void)
 				NULL, HFILL }},
 		/* Public Key Structure */
 		{ &hf_pnrp_publicKey_objID,
-			{ "Public Key Object Identifiert", "pnrp.publicKey.objID", FT_STRING,BASE_NONE, NULL, 0x0,
+			{ "Public Key Object Identifier", "pnrp.publicKey.objID", FT_STRING,BASE_NONE, NULL, 0x0,
 				"An ASN.1-encoded object identifier (OID) indicating the public key format", HFILL }},
 		{ &hf_pnrp_publicKey_publicKeyData,
 			{ "Public Key Data", "pnrp.publicKey.publicKeyData", FT_STRING,BASE_NONE, NULL, 0x0,
@@ -1332,7 +1330,7 @@ void proto_register_pnrp(void)
 	
 	/* Protocol subtree array */
 	static gint *ett[] = {
-        &ett_pnrp,
+		&ett_pnrp,
 		&ett_pnrp_message,
 		&ett_pnrp_message_inquire_flags,
 		&ett_pnrp_message_authority_flags,
@@ -1353,12 +1351,8 @@ void proto_register_pnrp(void)
 /* Initialise the dissector */
 void proto_reg_handoff_pnrp(void)
 {
-	static gboolean initialized = FALSE;
-	if(!initialized)
-	{
-		static dissector_handle_t pnrp_handle;
-		pnrp_handle = new_create_dissector_handle(dissect_pnrp, proto_pnrp);
-		dissector_add("udp.port",PNRP_PORT,pnrp_handle);
-	}
+	dissector_handle_t pnrp_handle;
+	pnrp_handle = new_create_dissector_handle(dissect_pnrp, proto_pnrp);
+	dissector_add("udp.port",PNRP_PORT,pnrp_handle);
 }
 
