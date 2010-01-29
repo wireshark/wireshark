@@ -158,6 +158,7 @@ GtkWidget         *ul_filter_bt;
 GtkWidget         *dl_filter_bt;
 GtkWidget         *uldl_filter_bt;
 
+GtkWidget         *show_only_control_pdus_cb;
 GtkWidget         *sn_filter_lb;
 GtkWidget         *sn_filter_te;
 
@@ -175,7 +176,8 @@ typedef struct rlc_lte_stat_t {
 } rlc_lte_stat_t;
 
 
-static void enable_filter_buttons(guint8 enabled)
+/* Show filter controls appropriate to current selection */
+static void enable_filter_controls(guint8 enabled)
 {
     gtk_widget_set_sensitive(ul_filter_bt, enabled);
     gtk_widget_set_sensitive(dl_filter_bt, enabled);
@@ -608,7 +610,7 @@ static void rlc_lte_select_ue_cb(GtkTreeSelection *sel, gpointer data)
     }
 
     /* Channel will be deselected */
-    enable_filter_buttons(FALSE);
+    enable_filter_controls(FALSE);
 }
 
 
@@ -621,14 +623,14 @@ static void rlc_lte_select_channel_cb(GtkTreeSelection *sel, gpointer data _U_)
 
     if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
         /* Enable buttons */
-        enable_filter_buttons(TRUE);
+        enable_filter_controls(TRUE);
 
         /* Show details of selected UE */
         gtk_tree_model_get(model, &iter, UE_TABLE_COLUMN, &ep, -1);
     }
     else {
         /* Disable buttons */
-        enable_filter_buttons(FALSE);
+        enable_filter_controls(FALSE);
     }
 }
 
@@ -661,6 +663,7 @@ toggle_show_mac(GtkWidget *widget, gpointer data _U_)
     /* Retap */
     cf_retap_packets(&cfile);
 }
+
 
 
 /* Check that a UE / channel is currently selected.  If so, fill in out
@@ -710,7 +713,8 @@ static void set_channel_filter_expression(guint16  ueid,
                                           guint16  channelType,
                                           guint16  channelId,
                                           ChannelDirection_t channelDirection,
-                                          gint     filterOnSN)
+                                          gint     filterOnSN,
+                                          gint     statusOnlyPDUs)
 {
     #define MAX_FILTER_LEN 1024
     static char buffer[MAX_FILTER_LEN];
@@ -734,9 +738,14 @@ static void set_channel_filter_expression(guint16  ueid,
     switch (channelDirection) {
         case UL_Only:
             if (rlcMode == RLC_AM_MODE) {
+                /* Always filter status PDUs */
                 offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
-                                     " and (rlc-lte.direction == 0 and rlc-lte.am.frame_type == 1) or "
-                                          "(rlc-lte.direction == 1 and rlc-lte.am.frame_type == 0)");
+                                     " and (rlc-lte.direction == 1 and rlc-lte.am.frame_type == 0)");
+                if (!statusOnlyPDUs) {
+                    /* Also filter data */
+                    offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                                         " or (rlc-lte.direction == 0 and rlc-lte.am.frame_type == 1)");
+                }
             }
             else {
                 offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, " and (rlc-lte.direction == 0)");
@@ -744,14 +753,25 @@ static void set_channel_filter_expression(guint16  ueid,
             break;
         case DL_Only:
             if (rlcMode == RLC_AM_MODE) {
+                /* Always filter status PDs */
                 offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
-                                     " and (rlc-lte.direction == 1 and rlc-lte.am.frame_type == 1) or "
-                                          "(rlc-lte.direction == 0 and rlc-lte.am.frame_type == 0)");
+                                     " and (rlc-lte.direction == 0 and rlc-lte.am.frame_type == 0)");
+                if (!statusOnlyPDUs) {
+                    /* Also filter data */
+                    offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                                         " or (rlc-lte.direction == 1 and rlc-lte.am.frame_type == 1)");
+                }
             }
             else {
                 offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, " and (rlc-lte.direction == 1)");
             }
             break;
+        case UL_and_DL:
+            if (rlcMode == RLC_AM_MODE) {
+                if (statusOnlyPDUs) {
+                    g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, " and (rlc-lte.am.frame_type == 0)");
+                }
+            }
 
         default:
             break;
@@ -804,7 +824,8 @@ static void ul_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
         return;
     }
 
-    set_channel_filter_expression(ueid, rlcMode, channelType, channelId, UL_Only, sn);
+    set_channel_filter_expression(ueid, rlcMode, channelType, channelId, UL_Only, sn,
+                                  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(show_only_control_pdus_cb)));
 }
 
 /* Respond to DL filter button being clicked by building and using filter */
@@ -827,7 +848,8 @@ static void dl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
         return;
     }
 
-    set_channel_filter_expression(ueid, rlcMode, channelType, channelId, DL_Only, sn);
+    set_channel_filter_expression(ueid, rlcMode, channelType, channelId, DL_Only, sn,
+                                  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(show_only_control_pdus_cb)));
 }
 
 /* Respond to UL/DL filter button being clicked by building and using filter */
@@ -850,7 +872,8 @@ static void uldl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
         return;
     }
 
-    set_channel_filter_expression(ueid, rlcMode, channelType, channelId, UL_and_DL, sn);
+    set_channel_filter_expression(ueid, rlcMode, channelType, channelId, UL_and_DL, sn,
+                                  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(show_only_control_pdus_cb)));
 }
 
 
@@ -1052,6 +1075,11 @@ static void rlc_lte_stat_dlg_create(void)
     g_signal_connect(uldl_filter_bt, "clicked", G_CALLBACK(uldl_filter_clicked), hs);
     gtk_widget_show(uldl_filter_bt);
 
+    /* Allow filtering only to select status PDUs for AM */
+    show_only_control_pdus_cb = gtk_check_button_new_with_mnemonic("Show only status PDUs (for AM)");
+    gtk_container_add(GTK_CONTAINER(filter_vb), show_only_control_pdus_cb);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(show_only_control_pdus_cb), FALSE);
+
 
     /* Allow filtering on specific SN number. */
     /* Row with label and text entry control  */
@@ -1071,7 +1099,7 @@ static void rlc_lte_stat_dlg_create(void)
     /* Add filters box to top-level window */
     gtk_box_pack_start(GTK_BOX(top_level_vbox), rlc_lte_stat_filter_buttons_lb, TRUE, TRUE, 0);
 
-    enable_filter_buttons(FALSE);
+    enable_filter_controls(FALSE);
 
     /**********************************************/
     /* Register the tap listener                  */
