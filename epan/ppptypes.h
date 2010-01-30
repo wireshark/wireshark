@@ -28,22 +28,23 @@
 
 /* Protocol types, from Linux "ppp_defs.h" and
 
-	http://www.iana.org/assignments/ppp-numbers
+   http://www.iana.org/assignments/ppp-numbers
 
  */
 #define PPP_PADDING	0x1	/* Padding Protocol */
 #define PPP_ROHC_SCID	0x3	/* ROHC small-CID */
 #define PPP_ROHC_LCID	0x5	/* ROHC large-CID */
 #define PPP_IP		0x21	/* Internet Protocol */
-#define PPP_OSI		0x23    /* OSI Protocol */
-#define PPP_DEC4	0x25	/* DECnet Phase IV */
+#define PPP_OSI		0x23	/* OSI Protocol */
+#define PPP_XNSIDP	0x25	/* Xerox NS IDP */
+#define PPP_DEC4	0x27	/* DECnet Phase IV */
 #define PPP_AT		0x29	/* AppleTalk Protocol */
 #define PPP_IPX		0x2b	/* IPX protocol */
-#define	PPP_VJC_COMP	0x2d	/* VJ compressed TCP */
-#define	PPP_VJC_UNCOMP	0x2f	/* VJ uncompressed TCP */
+#define PPP_VJC_COMP	0x2d	/* VJ compressed TCP */
+#define PPP_VJC_UNCOMP	0x2f	/* VJ uncompressed TCP */
 #define PPP_BCP		0x31	/* Bridging Control Protocol */
 #define PPP_ST		0x33	/* Stream Protocol (ST-II) */
-#define	PPP_VINES	0x35	/* Banyan Vines */
+#define PPP_VINES	0x35	/* Banyan Vines */
 #define PPP_AT_EDDP	0x39	/* AppleTalk EDDP */
 #define PPP_AT_SB	0x3b	/* AppleTalk SmartBuffered */
 #define PPP_MP		0x3d	/* Multilink PPP */
@@ -60,25 +61,25 @@
 #define PPP_ENCRYPT	0x53	/* Encryption */
 #define PPP_ILE		0x55	/* Individual Link Encryption */
 #define PPP_IPV6	0x57	/* Internet Protocol Version 6 */
-#define PPP_MUX		0x59    /* PPP Multiplexing */
-#define PPP_VSNP		0x5b    /* Vendor-Specific Network Protocol  */
-#define PPP_RTP_FH		0x61	/* RTP IPHC Full Header */
+#define PPP_MUX		0x59	/* PPP Multiplexing */
+#define PPP_VSNP	0x5b	/* Vendor-Specific Network Protocol  */
+#define PPP_RTP_FH	0x61	/* RTP IPHC Full Header */
 #define PPP_RTP_CTCP	0x63	/* RTP IPHC Compressed TCP */
 #define PPP_RTP_CNTCP	0x65	/* RTP IPHC Compressed Non TCP */
 #define PPP_RTP_CUDP8	0x67	/* RTP IPHC Compressed UDP 8 */
 #define PPP_RTP_CRTP8	0x69	/* RTP IPHC Compressed RTP 8 */
 #define PPP_STAMPEDE	0x6f	/* Stampede Bridging */
-#define PPP_MPPLUS		0x73	/* MP+ Protocol */
+#define PPP_MPPLUS	0x73	/* MP+ Protocol */
 #define PPP_NTCITS_IPI	0xc1	/* NTCITS IPI */
 #define PPP_ML_SLCOMP	0xfb	/* single link compression in multilink */
-#define PPP_COMP		0xfd	/* compressed packet */
+#define PPP_COMP	0xfd	/* compressed packet */
 #define PPP_STP_HELLO	0x0201	/* 802.1d Hello Packet */
-#define PPP_IBM_SR		0x0203	/* IBM Source Routing BPDU */
+#define PPP_IBM_SR	0x0203	/* IBM Source Routing BPDU */
 #define PPP_DEC_LB	0x0205	/* DEC LANBridge100 Spanning Tree */
-#define PPP_CDP         0x0207  /* Cisco Discovery Protocol */
+#define PPP_CDP		0x0207	/* Cisco Discovery Protocol */
 #define PPP_NETCS	0x0209	/* Netcs Twin Routing */
-#define PPP_STP         0x020b  /* Scheduled Transfer Protocol */
-#define PPP_EDP         0x020d  /* Extreme Discovery Protocol */
+#define PPP_STP		0x020b	/* Scheduled Transfer Protocol */
+#define PPP_EDP		0x020d	/* Extreme Discovery Protocol */
 #define PPP_OSCP	0x0211	/* Optical Supervisory Channel Protocol */
 #define PPP_OSCP2	0x0213	/* Optical Supervisory Channel Protocol */
 #define PPP_LUXCOM	0x0231	/* Luxcom */
@@ -87,7 +88,7 @@
 #define PPP_MPLS_UNI	0x0281	/* MPLS Unicast */
 #define PPP_MPLS_MULTI	0x0283	/* MPLS Multicast */
 #define PPP_P12844	0x0285	/* IEEE p1284.4 standard - data packets */
-#define PPP_ETSI	0x0287	/* ETSI TETRA Networks Procotol Type 1 */
+#define PPP_TETRA	0x0287	/* ETSI TETRA Networks Procotol Type 1 */
 #define PPP_MFTP	0x0289	/* Multichannel Flow Treatment Protocol */
 #define PPP_RTP_CTCPND	0x2063	/* RTP IPHC Compressed TCP No Delta */
 #define PPP_RTP_CS	0x2065	/* RTP IPHC Context State */
@@ -98,13 +99,14 @@
 #define PPP_EXPANDAP	0x4005	/* Expand accelarator protocol */
 #define PPP_ODSICP	0x4007	/* ODSICP NCP */
 #define PPP_DOCSIS	0x4009	/* DOCSIS DLL */
+#define PPP_CETACEANNDP	0x400b	/* Cetacean Network Detection Protocol */
 #define PPP_LZS		0x4021	/* Stacker LZS */
 #define PPP_REFTEK	0x4023	/* RefTek Protocol */
 #define PPP_FC		0x4025	/* Fibre Channel */
 #define PPP_EMIT	0x4027	/* EMIT Protocols */
 #define PPP_VSP		0x405b	/* Vendor-Specific Protocol */
 #define PPP_IPCP	0x8021	/* IP Control Protocol */
-#define PPP_OSICP	0x8023  /* OSI Control Protocol */
+#define PPP_OSICP	0x8023	/* OSI Control Protocol */
 #define PPP_XNSIDPCP	0x8025	/* Xerox NS IDP Control Protocol */
 #define PPP_DECNETCP	0x8027	/* DECnet Phase IV Control Protocol */
 #define PPP_ATCP	0x8029	/* AppleTalk Control Protocol */
@@ -125,8 +127,8 @@
 #define PPP_ECP		0x8053	/* Encryption Control Protocol */
 #define PPP_ILECP	0x8055	/* Individual Encryption Control Protocol */
 #define PPP_IPV6CP	0x8057	/* IPv6 Control Protocol */
-#define PPP_MUXCP       0x8059  /* PPPMux Control Protocol */
-#define PPP_VSNCP		0x805b	/* Vendor-Specific Network Control Protocol (VSNCP)   [RFC3772] */
+#define PPP_MUXCP	0x8059	/* PPPMux Control Protocol */
+#define PPP_VSNCP	0x805b	/* Vendor-Specific Network Control Protocol (VSNCP)   [RFC3772] */
 #define PPP_STAMPEDECP	0x806f	/* Stampede Bridging Control Protocol */
 #define PPP_MPPCP	0x8073	/* MP+ Contorol Protocol */
 #define PPP_IPICP	0x80c1	/* NTCITS IPI Control Protocol */
@@ -139,7 +141,7 @@
 #define PPP_ACSPC	0x8235	/* Apple Client Server Protocol Control */
 #define PPP_MPLSCP	0x8281	/* MPLS Control Protocol */
 #define PPP_P12844CP	0x8285	/* IEEE p1284.4 standard - Protocol Control */
-#define PPP_ETSICP	0x8287	/* ETSI TETRA TNP1 Control Protocol */
+#define PPP_TETRACP	0x8287	/* ETSI TETRA TNP1 Control Protocol */
 #define PPP_MFTPCP	0x8289	/* Multichannel Flow Treatment Protocol */
 #define PPP_LCP		0xc021	/* Link Control Protocol */
 #define PPP_PAP		0xc023	/* Password Authentication Protocol */
@@ -155,8 +157,8 @@
 #define PPP_EAP		0xc227	/* Extensible Authentication Protocol */
 #define PPP_SIEP	0xc229	/* Mitsubishi Security Information Exchange Protocol*/
 #define PPP_SBAP	0xc26f	/* Stampede Bridging Authorization Protocol */
-#define PPP_PRPAP	0x281	/* Proprietary Authentication Protocol */
-#define PPP_PRPAP2	0x283	/* Proprietary Authentication Protocol */
-#define PPP_PRPNIAP	0x481	/* Proprietary Node ID Authentication Protocol */
+#define PPP_PRPAP	0xc281	/* Proprietary Authentication Protocol */
+#define PPP_PRPAP2	0xc283	/* Proprietary Authentication Protocol */
+#define PPP_PRPNIAP	0xc481	/* Proprietary Node ID Authentication Protocol */
 
 #endif /* ppptypes.h */
