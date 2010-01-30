@@ -82,6 +82,20 @@ static gint ett_ipcp_ipaddrs_opt = -1;
 static gint ett_ipcp_compress_opt = -1;
 static gint ett_ipcp_iphc_disableprot_opt = -1;
 
+static int proto_vsncp = -1;
+
+static gint ett_vsncp = -1;
+static gint ett_vsncp_options = -1;
+
+static int proto_vsnp = -1;
+static gint hf_vsnp = -1;
+static gint hf_vsnp_header = -1;
+static gint hf_vsnp_type = -1;
+static gint hf_vsnp_data = -1;
+
+static gint ett_vsnp =-1;
+static gint ett_vsnp_pdnid = -1;
+
 static int proto_osicp = -1;
 
 static gint ett_osicp = -1;
@@ -940,6 +954,134 @@ static const ip_tcp_opt lcp_opts[] = {
 };
 
 #define N_LCP_OPTS	(sizeof lcp_opts / sizeof lcp_opts[0])
+
+/*
+ * Options.  (VSNCP)
+ */
+
+#define CI_PDN_IDENTIFIER	1
+#define CI_ACCESS_POINT_NM	2
+#define CI_PDN_TYPE		3
+#define CI_PDN_ADDRESS		4
+#define CI_PROTOCOL_CONFIG	5
+#define CI_ERROR_CODE		6
+#define CI_ATTACH_TYPE		7
+#define CI_IPv4DEFAULT_ROUTER	8
+#define CI_ADDRESS_ALLOC	9
+#define CI_APN_AMBR		10
+
+static void dissect_vsncp_pdnid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo,
+			proto_tree *tree);
+static void dissect_vsncp_apname_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo,
+			proto_tree *tree);
+static void dissect_vsncp_pdntype_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo,
+			proto_tree *tree);
+static void dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo,
+			proto_tree *tree);
+static void dissect_vsncp_pco_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo,
+			proto_tree *tree);
+static void dissect_vsncp_errorcode_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo,
+			proto_tree *tree);
+static void dissect_vsncp_attachtype_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo,
+			proto_tree *tree);
+static void dissect_vsncp_ipv4adress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo,
+			proto_tree *tree);
+static void dissect_vsncp_addressalloc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo,
+			proto_tree *tree);
+
+static const ip_tcp_opt vsncp_opts[] = {
+	{
+		CI_PDN_IDENTIFIER,
+		"PDN Identifier",
+		NULL,
+		FIXED_LENGTH,
+		3,
+		dissect_vsncp_pdnid_opt
+	},
+	{
+		CI_ACCESS_POINT_NM,
+		"Access Point Name",
+		NULL,
+		VARIABLE_LENGTH,
+		2,
+		dissect_vsncp_apname_opt
+	},
+	{
+		CI_PDN_TYPE,
+		"PDN Type",
+		NULL,
+		FIXED_LENGTH,
+		3,
+		dissect_vsncp_pdntype_opt
+	},
+	{
+		CI_PDN_ADDRESS,
+		"PDN Address",
+		NULL,
+		VARIABLE_LENGTH,
+		3,
+		dissect_vsncp_pdnaddress_opt
+	},
+	{
+		CI_PROTOCOL_CONFIG,
+		"Protocol Configuration Options",
+		NULL,
+		VARIABLE_LENGTH,
+		3,
+		dissect_vsncp_pco_opt
+	},
+	{
+		CI_ERROR_CODE,
+		"Error Code",
+		NULL,
+		FIXED_LENGTH,
+		3,
+		dissect_vsncp_errorcode_opt
+	},
+	{
+		CI_ATTACH_TYPE,
+		"Attach Type",
+		NULL,
+		FIXED_LENGTH,
+		3,
+		dissect_vsncp_attachtype_opt
+	},
+	{
+		CI_IPv4DEFAULT_ROUTER,
+		"IPv4 Default Router Address",
+		NULL,
+		FIXED_LENGTH,
+		6,
+		dissect_vsncp_ipv4adress_opt
+	},
+	{
+		CI_ADDRESS_ALLOC,
+		"Address Allocation Cause",
+		NULL,
+		FIXED_LENGTH,
+		3,
+		dissect_vsncp_addressalloc_opt
+	},
+	{
+		CI_APN_AMBR,
+		"APN-AMBR",
+		NULL,
+		VARIABLE_LENGTH,
+		4,
+		NULL
+	}
+};
+
+#define N_VSNCP_OPTS	(sizeof vsncp_opts / sizeof vsncp_opts[0])
 
 /*
  * CHAP Algorithms
@@ -2632,6 +2774,268 @@ dissect_bap_call_status_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
       val_to_str(action, bap_call_status_opt_action_vals, "Unknown"), action);
 }
 
+static void dissect_vsncp_pdnid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo _U_,
+			proto_tree *tree)
+{
+	proto_item *tf;
+	guint8 PDNID;
+
+	PDNID = tvb_get_guint8(tvb, offset + 2);
+	tf = proto_tree_add_text(tree, tvb, offset, length, "%s: 0x%02x",
+	  optp->name, PDNID);
+	offset += 2;
+}
+
+static void dissect_vsncp_attachtype_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo _U_,
+			proto_tree *tree)
+{
+	static const value_string attach_vals[] = 
+	{
+		{1,    "Initial Attach" },
+		{3,    "Handover Attach"},
+		{0,          NULL       } 
+	};
+
+	guint8 attach;
+	attach = tvb_get_guint8(tvb, offset + 2);
+	
+	if(tree) 
+	{
+		proto_tree_add_text(tree, tvb, offset, length, "%s: %s (0x%02x)",
+		  optp->name, val_to_str(attach , attach_vals, "Unknown"), attach);
+	}
+	offset += 2;
+
+}
+
+static void dissect_vsncp_pdntype_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo _U_,
+			proto_tree *tree)
+{
+	static const value_string pdntype_vals[] = 
+	{
+		{1,    "IPv4"			},
+		{2,    "IPv6"			},
+		{3,    "IPv6/IPv4"		},
+		{0,     NULL			}
+	};
+
+	guint8 pdntype;
+	pdntype = tvb_get_guint8(tvb, offset + 2);
+	
+	if(tree) 
+	{
+		proto_tree_add_text(tree, tvb, offset, length, "%s: %s (0x%02x)",
+		  optp->name, val_to_str(pdntype, pdntype_vals, "Unknown"), pdntype);
+	}
+	offset += 2;
+}
+
+static void dissect_vsncp_errorcode_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo _U_,
+			proto_tree *tree)
+{
+	static const value_string errorcode_vals[] = 
+	{
+		{0,    "General Eror"			},
+		{1,    "Unauthorized APN"		},
+		{2,    "PDN Limit Exceeded"		},
+		{3,    "NO PG-W Available"		},
+		{4,    "P-GW Unreachable"		},
+		{5,    "P-GW Reject"			},
+		{6,    "Insufficient Parameters"	},
+		{7,    "Resource Unavailable"		},
+		{8,    "Admin Prohibited"		},
+		{9,    "PDN-ID Already in Use"		},
+		{10,   "Subscription Limitation"	},
+		{11,   "PDN connection already exists for APN"},
+		{0,     NULL				}
+	};
+
+	guint8 pdntype;
+	pdntype = tvb_get_guint8(tvb, offset + 2);
+	
+	if(tree) 
+	{
+		proto_tree_add_text(tree, tvb, offset, length, "%s: %s (0x%02x)",
+		  optp->name, val_to_str(pdntype, errorcode_vals, "Unknown"), pdntype);
+	}
+	offset += 2;
+
+}
+static void dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo _U_,
+			proto_tree *tree)
+{
+	guint8 pdnaddtype;
+	
+	static const value_string pdntype_vals[] = 
+	{
+		{0,    "Initial Request by UE"	},
+		{1,    "IPv4 Address"		},
+		{2,    "IPv6 Address"		},
+		{3,    "IPv6/IPv4 Address"	},
+		{0,     NULL			}
+	};
+	proto_item *tf;
+	proto_tree *field_tree;
+	
+	tf = proto_tree_add_text(tree, tvb, offset, length,
+	  "%s: (%d byte%s)", optp->name, length, plurality(length, "", "s"));
+	
+	field_tree = proto_item_add_subtree(tf, ett_lcp_options);
+	  
+	
+	pdnaddtype = tvb_get_guint8(tvb, offset + 2);
+	
+	proto_tree_add_text(field_tree, tvb, offset+2, 1, "PDN Type (%s): 0x%02x",
+	  val_to_str(pdnaddtype, pdntype_vals, "Unknown"), pdnaddtype);
+	
+	
+	switch (pdnaddtype)
+	{
+	case 1:
+		proto_tree_add_text(field_tree, tvb, offset+3, length-3, "%s: %s",
+		  val_to_str(pdnaddtype, pdntype_vals, "Unknown"),
+		  ip_to_str(tvb_get_ptr(tvb, offset + 3, 4)));
+		break;
+	
+	case 2:
+	{
+		struct e_in6_addr *ad = ep_alloc0(sizeof (struct e_in6_addr));
+		tvb_memcpy(tvb, &ad->bytes[8], offset+3, 8);
+
+		proto_tree_add_text(field_tree, tvb, offset+3, length-3, "%s: %s",
+		  val_to_str(pdnaddtype, pdntype_vals, "Unknown"), ip6_to_str(ad));
+		break;
+	}
+	case 3:
+	{
+		struct e_in6_addr *ad = ep_alloc0(sizeof (struct e_in6_addr));
+		tvb_memcpy(tvb, &ad->bytes[8], offset+3, 8);
+
+		proto_tree_add_text(field_tree, tvb, offset+3, length-3, "%s: %s",
+		  val_to_str(pdnaddtype, pdntype_vals, "Unknown"), ip6_to_str(ad));
+
+		proto_tree_add_text(field_tree, tvb, offset+11, length-11, "%s: %s",
+		  val_to_str(pdnaddtype, pdntype_vals, "Unknown"),
+		  ip_to_str(tvb_get_ptr(tvb, offset + 11, 4)));
+		break;
+	}
+	default:
+		break;
+	}
+	offset += 2;
+	
+}
+
+static void dissect_vsncp_ipv4adress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo _U_,
+			proto_tree *tree)
+{
+	proto_tree_add_text(tree, tvb, offset, length, "%s: %s", optp->name,
+			ip_to_str(tvb_get_ptr(tvb, offset + 2, 4)));
+	offset += 2;
+}
+
+static void dissect_vsncp_apname_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo _U_,
+			proto_tree *tree)
+{
+	proto_item *tf;
+	proto_tree *field_tree;
+	
+	tf = proto_tree_add_text(tree, tvb, offset, length,
+	    "%s: (%d byte%s)", optp->name, length, plurality(length, "", "s"));
+	
+	field_tree = proto_item_add_subtree(tf, ett_lcp_options);
+	
+	if(length>2)
+	{
+		guint8 i = 0;
+		guint8 j = 1;
+		guint8 lengthofapn;
+		int off = offset+2;
+		
+		while(i<(length-2))
+		{
+			lengthofapn = tvb_get_guint8(tvb, off);
+			off = off+1;
+			proto_tree_add_text(field_tree, tvb, off, lengthofapn,
+			      "Label%d (%d byte%s): %s", j, lengthofapn, plurality(lengthofapn, "", "s"),
+			      tvb_format_text(tvb, off, lengthofapn));
+			off = off+lengthofapn;
+			i = i+lengthofapn+1;
+			j++;
+		}
+	}
+}
+
+static void dissect_vsncp_addressalloc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo _U_,
+			proto_tree *tree)
+{
+	static const value_string alloc_vals[] = 
+	{
+		{0,    "Null Value (Attach or Handover)"	},
+		{18,   "New PDN type due to network preference"	},
+		{255,  "Success"				},
+		{0,     NULL					}
+	};
+
+	guint8 alloc;
+	alloc = tvb_get_guint8(tvb, offset + 2);
+
+	if(tree) 
+	{
+		proto_tree_add_text(tree, tvb, offset, length, "%s: %s (0x%02x)",
+		  optp->name, val_to_str(alloc, alloc_vals, "Unknown"), alloc);
+	}
+	offset += 2;
+}
+
+static void dissect_vsncp_pco_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo _U_,
+			proto_tree *tree)
+{
+	static const value_string pco_vals[] = 
+	{
+		{0x8021,    "IPCP (DNS Address Request)"		},
+		{0x0001,    "P-CSCF Address Request (IPv6)"		},
+		{0x0003,    "DNS Server Address (IPv6)"			},
+		{0x000A,    "IP address allocation via NAS signalling"	},
+		{0,         NULL					}
+	};
+	int off = offset+3;
+	guint8 i = 0;
+	guint16 pcotype;
+	guint8 len;
+	
+	proto_item *tf;
+	proto_tree *field_tree;
+	
+	tf = proto_tree_add_text(tree, tvb, offset, length,
+	  "%s: (%d byte%s)", optp->name, length, plurality(length, "", "s"));
+	
+	field_tree = proto_item_add_subtree(tf, ett_lcp_options);
+	
+	while(i<length-3)
+	{
+		pcotype = tvb_get_ntohs(tvb, off);
+		len = tvb_get_guint8(tvb, (off+2));
+		proto_tree_add_text(field_tree, tvb, off,2, "Protocol: %s (0x%02x)",
+		    val_to_str(pcotype, pco_vals, "Unknown"), pcotype);
+		proto_tree_add_text(field_tree, tvb, off+2,1, "Length:(0x%02x)", len);
+		if(len >0)
+			proto_tree_add_text(field_tree, tvb, off+3,len, "Data (%d byte%s)", len, plurality(len, "", "s"));
+			
+		off = off+3+len;
+		i = i+3+len;
+	}
+}
+
 static void
 dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 	const value_string *proto_vals, int options_subtree_index,
@@ -2859,6 +3263,103 @@ dissect_lcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect_cp(tvb, proto_lcp, ett_lcp, lcp_vals, ett_lcp_options,
 	     lcp_opts, N_LCP_OPTS, pinfo, tree);
+}
+
+static void
+dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *ti;
+	proto_tree *fh_tree = NULL;
+	proto_item *tf;
+	proto_tree *field_tree;
+
+	guint8 code;
+	guint8 id;
+	int length, offset;
+	int OUI;
+
+	static const value_string OUI_vals[] = 
+	{
+		{0xcf0002, "3GPP2 Unique Organization Number"	},
+		{0,        NULL					}
+	};
+	
+	code = tvb_get_guint8(tvb, 0);
+	id = tvb_get_guint8(tvb, 1);
+	length = tvb_get_ntohs(tvb, 2);
+	OUI = tvb_get_ntoh24(tvb, 4);
+	
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSNCP");
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(code, cp_vals, "Unknown"));
+
+	if(tree)
+	{
+		ti = proto_tree_add_item(tree, proto_vsncp, tvb, 0, length, FALSE);
+		fh_tree = proto_item_add_subtree(ti, ett_vsncp);
+		proto_tree_add_text(fh_tree, tvb, 0, 1, "Code: %s (0x%02x)", val_to_str(code, cp_vals, "Unknown"), code);
+		proto_tree_add_text(fh_tree, tvb, 1, 1, "Identifier: 0x%02x", id);
+		proto_tree_add_text(fh_tree, tvb, 2, 2, "Length: %u", length);
+		proto_tree_add_text(fh_tree, tvb, 4, 3, "OUI: %s (0x%02x)", val_to_str(OUI, OUI_vals, "Unknown"), OUI);
+	}
+	offset = 7;
+	length -= 7;
+
+	switch (code) 
+	{
+		case CONFREQ:
+		case CONFACK:
+		case CONFNAK:
+		case CONFREJ:
+		case TERMREQ:  
+		case TERMACK:
+		if(tree) 
+		{
+			if (length > 0)
+			{
+				tf = proto_tree_add_text(fh_tree, tvb, offset, length,
+				  "Options: (%d byte%s)", length, plurality(length, "", "s"));
+				field_tree = proto_item_add_subtree(tf, ett_vsncp_options);
+				dissect_ip_tcp_options(tvb, offset, length, vsncp_opts, N_VSNCP_OPTS, -1,
+				  pinfo, field_tree);
+			}
+		}
+		break;
+	}
+}
+
+static void
+dissect_vsnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint8 PDNID;
+	proto_item *vsnp_item = NULL;
+	proto_tree *vsnp_tree = NULL;
+	guint32 offset = 0;
+
+	/* To pass it on to IP */
+	tvbuff_t *next_tvb;
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSNP");
+	
+	PDNID = tvb_get_guint8(tvb, 0); /* Get the PDNID byte */
+	offset = 0;
+
+	if (tree) /* we are being asked for details */
+	{
+		vsnp_item = proto_tree_add_item(tree, proto_vsnp, tvb, 0, -1, FALSE);
+		vsnp_tree = proto_item_add_subtree(vsnp_item, ett_vsnp);
+		proto_tree_add_text(vsnp_tree, tvb, offset, 1, "PDN ID: 0x%02x", PDNID);
+	}
+	next_tvb = tvb_new_subset(tvb, 1, -1, -1);
+	
+	/* do lookup with the subdissector table */
+	if (!dissector_try_port(ppp_subdissector_table, PPP_IP, next_tvb, pinfo, tree)) 
+	{
+		col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", PPP_IP);
+    
+		col_add_fstr(pinfo->cinfo, COL_INFO, "PPP %s (0x%04x)",
+		  val_to_str(PPP_IP, ppp_vals, "Unknown"), PPP_IP);
+		call_dissector(data_handle, next_tvb, pinfo, tree);
+	}
 }
 
 /*
@@ -4302,6 +4803,66 @@ proto_reg_handoff_lcp(void)
    */
   dissector_add("sm_pco.protocol", PPP_LCP, lcp_handle);
 
+}
+
+void
+proto_register_vsncp(void)
+{
+  static gint *ett[] = {
+    &ett_vsncp,
+    &ett_vsncp_options,
+  };
+
+  proto_vsncp = proto_register_protocol("Vendor Specific Control Protocol", "VSNCP",
+				      "vsncp");
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_vsncp(void)
+{
+  dissector_handle_t vsncp_handle;
+
+  vsncp_handle = create_dissector_handle(dissect_vsncp, proto_vsncp);
+  dissector_add("ppp.protocol", PPP_VSNCP, vsncp_handle);
+}
+
+void
+proto_register_vsnp(void)
+{
+  static gint *ett[] = {
+    &ett_vsnp,
+    &ett_vsnp_pdnid,
+  };
+
+  static hf_register_info hf[] = {
+  { &hf_vsnp,
+  { "Data", "vsnp.data", FT_NONE, BASE_NONE, NULL, 0x0,
+    "VSNP PDU", HFILL }},
+  { &hf_vsnp_header,
+  { "Header", "vsnp.header", FT_NONE, BASE_NONE, NULL, 0x0,
+    "VSNP Header", HFILL }},
+  { &hf_vsnp_type,
+  { "PDN ID", "vsnp.pdnid", FT_UINT8, BASE_DEC, NULL, 0x0,
+    NULL, HFILL }},
+  { &hf_vsnp_data,
+  { "Data", "vsnp.data", FT_STRING, BASE_NONE, NULL, 0x0,
+    NULL, HFILL }}
+  };
+
+  proto_vsnp = proto_register_protocol("Vendor Specific Network Protocol", "PPP VSNP",
+				      "vsnp");
+  proto_register_subtree_array(ett, array_length(ett));
+  proto_register_field_array(proto_vsnp, hf, array_length(hf));
+}
+
+void
+proto_reg_handoff_vsnp(void)
+{
+  dissector_handle_t vsnp_handle;
+
+  vsnp_handle = create_dissector_handle(dissect_vsnp, proto_vsnp);
+  dissector_add("ppp.protocol", PPP_VSNP, vsnp_handle);
 }
 
 void
