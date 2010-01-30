@@ -92,6 +92,7 @@ static gint hf_ber_unknown_OID = -1;
 static gint hf_ber_unknown_BOOLEAN = -1;
 static gint hf_ber_unknown_OCTETSTRING = -1;
 static gint hf_ber_unknown_BER_OCTETSTRING = -1;
+static gint hf_ber_unknown_BER_primitive = -1;
 static gint hf_ber_unknown_GraphicString = -1;
 static gint hf_ber_unknown_NumericString = -1;
 static gint hf_ber_unknown_PrintableString = -1;
@@ -119,6 +120,7 @@ static gint hf_ber_octet_aligned = -1;            /* OCTET_STRING */
 static gint hf_ber_arbitrary = -1;                /* BIT_STRING */
 
 static gint ett_ber_octet_string = -1;
+static gint ett_ber_primitive = -1;
 static gint ett_ber_unknown = -1;
 static gint ett_ber_SEQUENCE = -1;
 static gint ett_ber_EXTERNAL = -1;
@@ -126,6 +128,7 @@ static gint ett_ber_T_encoding = -1;
 
 static gboolean show_internal_ber_fields = FALSE;
 static gboolean decode_octetstring_as_ber = FALSE;
+static gboolean decode_primitive_as_ber = FALSE;
 static gboolean decode_unexpected = FALSE;
 
 static gchar *decode_as_syntax = NULL;
@@ -425,7 +428,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 	proto_tree *next_tree=NULL;
 	guint8 c;
 	guint32 i;
-	gboolean is_printable;
+	gboolean is_printable, is_decoded_as;
 	proto_item *pi, *cause;
 	asn1_ctx_t asn1_ctx;
 
@@ -474,6 +477,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 			offset = dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_GraphicString, NULL);
 			break;
 		case BER_UNI_TAG_OCTETSTRING:
+			is_decoded_as = FALSE;
 			if (decode_octetstring_as_ber) {
 				int ber_offset;
 				guint32 ber_len;
@@ -483,6 +487,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 					/* Decoded a constructed ASN.1 tag with a length indicating this
 					 * could be BER encoded data.  Try dissecting as unknown BER.
 					 */
+					is_decoded_as = TRUE;
 					if (show_internal_ber_fields) {
 						offset = dissect_ber_identifier(pinfo, tree, tvb, start_offset, NULL, NULL, NULL);
 						offset = dissect_ber_length(pinfo, tree, tvb, offset, NULL, NULL);
@@ -490,10 +495,9 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 					item = proto_tree_add_item(tree, hf_ber_unknown_BER_OCTETSTRING, tvb, offset, len, FALSE);
 					next_tree = proto_item_add_subtree(item, ett_ber_octet_string);
 					offset = dissect_unknown_ber(pinfo, tvb, offset, next_tree);
-				} else {
-					offset = dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_OCTETSTRING, NULL);
 				}
-			} else {
+			} 
+			if (!is_decoded_as) {
 				offset = dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_OCTETSTRING, NULL);
 			}
 			break;
@@ -552,35 +556,55 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 	  case BER_CLASS_CON:
 	  case BER_CLASS_PRI:
 	  default:
-	    /* we can't dissect this directly as it is specific */
-
 	    /* we dissect again if show_internal_ber_fields is set */
 	    if(show_internal_ber_fields) {
 	      offset=dissect_ber_identifier(pinfo, tree, tvb, start_offset, &class, &pc, &tag);
 	      offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
 	    }
 
-	    pi = proto_tree_add_text(tree, tvb, offset, len, "[%s %d] ", val_to_str(class,ber_class_codes,"Unknown"), tag);
-	    /* we may want to do better and show the bytes */
-	    is_printable = TRUE;
-	    for(i=0;i<len;i++){
-	      c = tvb_get_guint8(tvb, offset+i);
+	    /* we can't dissect this directly as it is specific */
+	    pi = proto_tree_add_none_format(tree, hf_ber_unknown_BER_primitive, tvb, offset, len, 
+					    "[%s %d] ", val_to_str(class,ber_class_codes,"Unknown"), tag);
 
-	      if(is_printable && !g_ascii_isprint(c))
-			      is_printable=FALSE;
-
-	      proto_item_append_text(pi,"%02x",c);
-	    }
-
-	    if(is_printable) { /* give a nicer representation if it looks like a string */
-	      proto_item_append_text(pi," (");
-	      for(i=0;i<len;i++){
-		proto_item_append_text(pi,"%c",tvb_get_guint8(tvb, offset+i));
+	    is_decoded_as = FALSE;
+	    if (decode_primitive_as_ber) {
+	      int ber_offset;
+	      guint32 ber_len;
+	      ber_offset = get_ber_identifier(tvb, offset, NULL, &pc, NULL);
+	      ber_offset = get_ber_length(tvb, ber_offset, &ber_len, NULL);
+	      if (pc && (ber_len > 0) && (ber_len + (ber_offset - offset) == len)) {
+		/* Decoded a constructed ASN.1 tag with a length indicating this
+		 * could be BER encoded data.  Try dissecting as unknown BER.
+		 */
+		is_decoded_as = TRUE;
+		proto_item_append_text (pi, "[BER encoded]");
+		next_tree = proto_item_add_subtree(pi, ett_ber_primitive);
+		offset = dissect_unknown_ber(pinfo, tvb, offset, next_tree);
 	      }
-	      proto_item_append_text(pi,")");
 	    }
 
-	    offset += len;
+	    if (!is_decoded_as && len) {
+	      /* we may want to do better and show the bytes */
+	      is_printable = TRUE;
+	      for(i=0;i<len;i++){
+		c = tvb_get_guint8(tvb, offset+i);
+		
+		if(is_printable && !g_ascii_isprint(c))
+		  is_printable=FALSE;
+
+		proto_item_append_text(pi,"%02x",c);
+	      }
+
+	      if(is_printable) { /* give a nicer representation if it looks like a string */
+		proto_item_append_text(pi," (");
+		for(i=0;i<len;i++){
+		  proto_item_append_text(pi,"%c",tvb_get_guint8(tvb, offset+i));
+		}
+		proto_item_append_text(pi,")");
+	      }
+	      offset += len;
+	    }
+
 	    break;
 	  }
 	  break;
@@ -4372,6 +4396,9 @@ proto_register_ber(void)
 	{ &hf_ber_unknown_BER_OCTETSTRING, {
 	    "OCTETSTRING [BER encoded]", "ber.unknown.OCTETSTRING", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is an BER encoded OCTETSTRING", HFILL }},
+	{ &hf_ber_unknown_BER_primitive, {
+	    "Primitive [BER encoded]", "ber.unknown.primitive", FT_NONE, BASE_NONE,
+	    NULL, 0, "This is a BER encoded Primitive", HFILL }},
 	{ &hf_ber_unknown_OID, {
 	    "OID", "ber.unknown.OID", FT_OID, BASE_NONE,
 	    NULL, 0, "This is an unknown Object Identifier", HFILL }},
@@ -4465,6 +4492,7 @@ proto_register_ber(void)
 
     static gint *ett[] = {
 	&ett_ber_octet_string,
+	&ett_ber_primitive,
 	&ett_ber_unknown,
 	&ett_ber_SEQUENCE,
 	&ett_ber_EXTERNAL,
@@ -4473,10 +4501,11 @@ proto_register_ber(void)
     module_t *ber_module;
 
     proto_ber = proto_register_protocol("Basic Encoding Rules (ASN.1 X.690)", "BER", "ber");
+    register_dissector ("ber", dissect_ber, proto_ber);
     proto_register_field_array(proto_ber, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-	proto_set_cant_toggle(proto_ber);
+    proto_set_cant_toggle(proto_ber);
 
     /* Register preferences */
     ber_module = prefs_register_protocol(proto_ber, NULL);
@@ -4492,6 +4521,10 @@ proto_register_ber(void)
 	"Decode OCTET STRING as BER encoded data",
 	"Whether the dissector should try decoding OCTET STRINGs as"
 	" constructed ASN.1 BER encoded data", &decode_octetstring_as_ber);
+    prefs_register_bool_preference(ber_module, "decode_primitive",
+	"Decode Primitive as BER encoded data",
+	"Whether the dissector should try decoding unknown primitive as"
+	" constructed ASN.1 BER encoded data", &decode_primitive_as_ber);
 
     ber_oid_dissector_table = register_dissector_table("ber.oid", "BER OID Dissectors", FT_STRING, BASE_NONE);
     ber_syntax_dissector_table = register_dissector_table("ber.syntax", "BER Syntax Dissectors", FT_STRING, BASE_NONE);
