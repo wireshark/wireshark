@@ -318,6 +318,44 @@ const value_string ssl_20_cipher_suites[] = {
     { 0x00, NULL }
 };
 
+const value_string ssl_extension_curves[] = {
+    { 1, "sect163k1" },
+    { 2, "sect163r1" },
+    { 3, "sect163r2" },
+    { 4, "sect193r1" },
+    { 5, "sect193r2" },
+    { 6, "sect233k1" },
+    { 7, "sect233r1" },
+    { 8, "sect239k1" },
+    { 9, "sect283k1" },
+    { 10, "sect283r1" },
+    { 11, "sect409k1" },
+    { 12, "sect409r1" },
+    { 13, "sect571k1" },
+    { 14, "sect571r1" },
+    { 15, "secp160k1" },
+    { 16, "secp160r1" },
+    { 17, "secp160r2" },
+    { 18, "secp192k1" },
+    { 19, "secp192r1" },
+    { 20, "secp224k1" },
+    { 21, "secp224r1" },
+    { 22, "secp256k1" },
+    { 23, "secp256r1" },
+    { 24, "secp384r1" },
+    { 25, "secp521r1" },
+    { 0xFF01, "arbitrary_explicit_prime_curves" },
+    { 0xFF02, "arbitrary_explicit_char2_curves" },
+    { 0x00, NULL }
+};
+
+const value_string ssl_extension_ec_point_formats[] = {
+    { 0, "uncompressed" },
+    { 1, "ansiX962_compressed_prime" },
+    { 2, "ansiX962_compressed_char2" },
+    { 0x00, NULL }
+};
+
 const value_string ssl_20_certificate_type[] = {
     { 0x00, "N/A" },
     { 0x01, "X.509 Certificate" },
@@ -768,14 +806,16 @@ const value_string tls_hello_extension_types[] = {
     { 4, "truncated_hmac" },
     { 5, "status_request" },
     { 6, "user_mapping" },  /* RFC 4681 */
-    { 7, "Reserved" },
-    { 8, "Reserved" },
+    { 7, "client_authz" },
+    { 8, "server_authz" },
     { 9, "cert_type" },  /* RFC 5081 */
-    { 10, "elliptic_curves" },  /* RFC 4492 */
-    { 11, "ec_point_formats" },  /* RFC 4492 */
+    { SSL_HND_HELLO_EXT_ELLIPTIC_CURVES, "elliptic_curves" },  /* RFC 4492 */
+    { SSL_HND_HELLO_EXT_EC_POINT_FORMATS, "ec_point_formats" },  /* RFC 4492 */
     { 12, "srp" },  /* RFC 5054 */
     { 13, "signature_algorithms" },  /* RFC 5246 */
+    { 14, "use_srtp" },
     { 35, "SessionTicket TLS" },  /* RFC 4507 */
+    { 65281, "renegotiation_info" },
     { 0, NULL }
 };
 

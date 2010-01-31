@@ -173,6 +173,11 @@ static gint hf_ssl_handshake_extensions_len   = -1;
 static gint hf_ssl_handshake_extension_type   = -1;
 static gint hf_ssl_handshake_extension_len    = -1;
 static gint hf_ssl_handshake_extension_data   = -1;
+static gint hf_ssl_handshake_extension_elliptic_curves_len = -1;
+static gint hf_ssl_handshake_extension_elliptic_curves = -1;
+static gint hf_ssl_handshake_extension_elliptic_curve = -1;
+static gint hf_ssl_handshake_extension_ec_point_formats_len = -1;
+static gint hf_ssl_handshake_extension_ec_point_format = -1;
 static gint hf_ssl_handshake_certificates_len = -1;
 static gint hf_ssl_handshake_certificates     = -1;
 static gint hf_ssl_handshake_certificate      = -1;
@@ -231,6 +236,8 @@ static gint ett_ssl_handshake         = -1;
 static gint ett_ssl_cipher_suites     = -1;
 static gint ett_ssl_comp_methods      = -1;
 static gint ett_ssl_extension         = -1;
+static gint ett_ssl_extension_curves  = -1;
+static gint ett_ssl_extension_curves_point_formats = -1;
 static gint ett_ssl_certs             = -1;
 static gint ett_ssl_cert_types        = -1;
 static gint ett_ssl_dnames            = -1;
@@ -390,6 +397,12 @@ static void dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                    guint *conv_version,
                                    SslDecryptSession *conv_data, guint8 content_type);
 
+/* hello extension dissector */
+static gint dissect_ssl3_hnd_hello_ext_elliptic_curves(tvbuff_t *tvb,
+                                                       proto_tree *tree, guint32 offset);
+
+static gint dissect_ssl3_hnd_hello_ext_ec_point_formats(tvbuff_t *tvb,
+                                                        proto_tree *tree, guint32 offset);
 
 static void dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
                                        proto_tree *tree,
@@ -1994,13 +2007,93 @@ dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb,
             tvb, offset, 2, ext_len);
         offset += 2;
 
-        proto_tree_add_bytes_format(ext_tree, hf_ssl_handshake_extension_data,
-            tvb, offset, ext_len,
-            tvb_get_ptr(tvb, offset, ext_len),
-            "Data (%u byte%s)",
-            ext_len, plurality(ext_len, "", "s"));
-        offset += ext_len;
+        switch (ext_type) {
+            case SSL_HND_HELLO_EXT_ELLIPTIC_CURVES:
+                offset = dissect_ssl3_hnd_hello_ext_elliptic_curves(tvb, ext_tree, offset);
+                break;
+            case SSL_HND_HELLO_EXT_EC_POINT_FORMATS:
+                offset = dissect_ssl3_hnd_hello_ext_ec_point_formats(tvb, ext_tree, offset);
+                break;
+            default:
+                proto_tree_add_bytes_format(ext_tree, hf_ssl_handshake_extension_data,
+                    tvb, offset, ext_len,
+                    tvb_get_ptr(tvb, offset, ext_len),
+                    "Data (%u byte%s)",
+                    ext_len, plurality(ext_len, "", "s"));
+                offset += ext_len;
+                break;
+        }
+
         left -= 2 + 2 + ext_len;
+    }
+
+    return offset;
+}
+
+static gint
+dissect_ssl3_hnd_hello_ext_elliptic_curves(tvbuff_t *tvb,
+                                           proto_tree *tree, guint32 offset)
+{
+    guint16 curves_length;
+    proto_tree *curves_tree;
+    proto_tree *ti;
+
+    curves_length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_ssl_handshake_extension_elliptic_curves_len,
+        tvb, offset, 2, FALSE);
+
+    offset += 2;
+    tvb_ensure_bytes_exist(tvb, offset, curves_length);
+    ti = proto_tree_add_none_format(tree,
+                                            hf_ssl_handshake_extension_elliptic_curves,
+                                            tvb, offset, curves_length,
+                                            "Elliptic curves (%d curve%s)",
+                                            curves_length / 2,
+                                            plurality(curves_length/2, "", "s"));
+
+    /* make this a subtree */
+    curves_tree = proto_item_add_subtree(ti, ett_ssl_extension_curves);
+
+    /* loop over all curves */
+    while (curves_length > 0)
+    {
+        proto_tree_add_item(curves_tree, hf_ssl_handshake_extension_elliptic_curve, tvb, offset, 2, FALSE);
+        offset += 2;
+        curves_length -= 2;
+    }
+
+    return offset;
+}
+
+static gint
+dissect_ssl3_hnd_hello_ext_ec_point_formats(tvbuff_t *tvb,
+                                            proto_tree *tree, guint32 offset)
+{
+    guint8 ecpf_length;
+    proto_tree *ecpf_tree;
+    proto_tree *ti;
+
+    ecpf_length = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ssl_handshake_extension_ec_point_formats_len,
+        tvb, offset, 1, FALSE);
+
+    offset += 1;
+    tvb_ensure_bytes_exist(tvb, offset, ecpf_length);
+    ti = proto_tree_add_none_format(tree,
+                                            hf_ssl_handshake_extension_elliptic_curves,
+                                            tvb, offset, ecpf_length,
+                                            "Elliptic curves point formats (%d)",
+                                            ecpf_length);
+
+    /* make this a subtree */
+    ecpf_tree = proto_item_add_subtree(ti, ett_ssl_extension_curves_point_formats);
+
+    /* loop over all point formats */
+    while (ecpf_length > 0)
+    {
+        proto_tree_add_item(ecpf_tree, hf_ssl_handshake_extension_ec_point_format, tvb, offset, 1, FALSE);
+        offset++;
+        ecpf_length--;
     }
 
     return offset;
@@ -4042,6 +4135,31 @@ proto_register_ssl(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Hello Extension data", HFILL }
         },
+        { &hf_ssl_handshake_extension_elliptic_curves_len,
+          { "Elliptic Curves Length", "ssl.handshake.extensions_elliptic_curves_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of elliptic curves field", HFILL }
+        },
+        { &hf_ssl_handshake_extension_elliptic_curves,
+          { "Elliptic Curves List", "ssl.handshake.extensions_elliptic_curves",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "List of elliptic curves supported", HFILL }
+        },
+        { &hf_ssl_handshake_extension_elliptic_curve,
+          { "Elliptic curve", "ssl.handshake.extensions_elliptic_curve",
+            FT_UINT16, BASE_HEX, VALS(ssl_extension_curves), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ssl_handshake_extension_ec_point_formats_len,
+          { "EC point formats Length", "ssl.handshake.extensions_ec_point_formats_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Length of elliptic curves point formats field", HFILL }
+        },
+        { &hf_ssl_handshake_extension_ec_point_format,
+          { "EC point format", "ssl.handshake.extensions_ec_point_format",
+            FT_UINT8, BASE_DEC, VALS(ssl_extension_ec_point_formats), 0x0,
+            "Elliptic curves point format", HFILL }
+        },
         { &hf_ssl_handshake_certificates_len,
           { "Certificates Length", "ssl.handshake.certificates_length",
             FT_UINT24, BASE_DEC, NULL, 0x0,
@@ -4284,6 +4402,8 @@ proto_register_ssl(void)
         &ett_ssl_cipher_suites,
         &ett_ssl_comp_methods,
         &ett_ssl_extension,
+        &ett_ssl_extension_curves,
+        &ett_ssl_extension_curves_point_formats,
         &ett_ssl_certs,
         &ett_ssl_cert_types,
         &ett_ssl_dnames,

@@ -141,6 +141,9 @@
 #define PCT_ERR_SERVER_AUTH_FAILED     0x05
 #define PCT_ERR_SPECS_MISMATCH         0x06
 
+#define SSL_HND_HELLO_EXT_ELLIPTIC_CURVES    0x000a
+#define SSL_HND_HELLO_EXT_EC_POINT_FORMATS   0x000b
+
 /*
  * Lookup tables
  *
@@ -169,6 +172,8 @@ extern const value_string pct_sig_type[];
 extern const value_string pct_exch_type[];
 extern const value_string pct_error_code[];
 extern const value_string tls_hello_extension_types[];
+extern const value_string ssl_extension_curves[];
+extern const value_string ssl_extension_ec_point_formats[];
 
 /* XXX Should we use GByteArray instead? */
 typedef struct _StringInfo {
