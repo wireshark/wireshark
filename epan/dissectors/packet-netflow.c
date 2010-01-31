@@ -1230,7 +1230,7 @@ dissect_v9_flowset(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, in
 
 	flowset_id = tvb_get_ntohs(tvb, offset);
 	length = tvb_get_ntohs(tvb, offset + 2);
-	
+
 	if (length < 4) {
 		expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_WARN,
 				       "Length (%u) too short", length);
@@ -3264,7 +3264,7 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 				 flowset_id == 3? hf_cflow_scope_field_count : hf_cflow_option_length,
 				 tvb, offset, 2, FALSE);
 	offset += 2;
-	
+
 	if (flowset_id == 3) { /* IPFIX */
 		if (option_len > option_scope_len) {
 			expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
@@ -3272,7 +3272,7 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 					       option_len, option_scope_len);
 			return 0;
 		}
-		
+
 		if (option_len == 0) {
 			expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
 					       "No scope fields");
@@ -3281,7 +3281,7 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 
 		option_scope_len -= option_len;
 	}
-	
+
 	if (option_len > V9TEMPLATE_MAX_FIELDS) {
 		expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE,
 				       "More options (%u) than we can handle",
@@ -3310,11 +3310,11 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 		tplt.entries = se_alloc0(option_len * sizeof(struct v9_template_entry));
 	}
 
-	for(i=0, len = 0;	
+	for(i=0, len = 0;
 	    flowset_id == 1 ? len < option_scope_len : i < tplt.count_scopes;
 	    i++) {
 		guint16 scope_length = 0;
-		
+
 		type = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(pdutree,
 				    flowset_id == 1 ? hf_cflow_template_scope_field_type : hf_cflow_template_scope_field_type_ipfix,
@@ -3351,7 +3351,7 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 	    flowset_id == 1 ? len < option_len : i < tplt.count;
 	    i++) {
 		guint16 entry_length;
-		
+
 		type = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(pdutree,
 				    flowset_id == 1 ? hf_cflow_template_field_type : hf_cflow_template_field_type_ipfix,
@@ -3360,7 +3360,7 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 
 		entry_length = tvb_get_ntohs(tvb, offset);
 
-		if (tplt.entries && i < tplt.count) {
+		if (tplt.entries && (flowset_id == 3 ? i < tplt.count : 1)) {
 			tplt.entries[i].type = type;
 			tplt.entries[i].length = entry_length == VARIABLE_LENGTH ? 0 : entry_length;
 			tplt.length += tplt.entries[i].length;
@@ -3586,7 +3586,7 @@ static const value_string v9_template_types[] = {
 	{ 95, "APPLICATION_ID" },
 	{ 96, "APPLICATION_NAME" },
 	{ 98, "postIpDiffServCodePoint" },
-	{ 99, "multicastReplicationFactor" },	
+	{ 99, "multicastReplicationFactor" },
 	{ 128, "SRC_AS_PEER" },
 	{ 129, "DST_AS_PEER" },
 	{ 130, "exporterIPv4Address" },
@@ -3848,7 +3848,7 @@ v9_template_hash(guint16 id, const address * net_src, guint32 src_id)
 						/* (Note that we'll get the right result on a LE     */
 						/*  machine since the IP  address is stored in       */
 						/*  network order and GUINT32_TO_LE is a no-op. On   */
-						/*  a BE machine GUINT32_TO_LE will swap the bytes.  */ 
+						/*  a BE machine GUINT32_TO_LE will swap the bytes.  */
 		p += 4;
 	}
 
