@@ -90,7 +90,7 @@ static const value_string meta_proto_vals[] = {
 	{ META_PROTO_DXT_ETHERNET_CRC,	"Ethernet with FCS" },
 	{ META_PROTO_DXT_FP_HINT,		"FP Hint" },
 	{ META_PROTO_DXT_ERF_AAL5,		"ERF AAL5" },
-	{ META_PROTO_DXT_ERF_AAL2,		"ERF AAL2" },
+	{ META_PROTO_DXT_ATM_AAL2,		"ATM AAL2" },
 	{ META_PROTO_DXT_ATM,			"ATM" },
 	{ 0, NULL }
 };
@@ -373,57 +373,17 @@ static gint32 evaluate_meta_items(guint16 schema, tvbuff_t *tvb, packet_info *pi
 	return total_len;
 }
 
-static dissector_handle_t *dxt_get_dissector(guint16 proto, packet_info *pinfo)
-{
-	dissector_handle_t *next_dissector = &data_handle;
-	switch (proto) {
-		case META_PROTO_DXT_ETHERNET:
-			next_dissector = &ethwithoutfcs_handle;
-			break;
-		case META_PROTO_DXT_ETHERNET_CRC:
-			next_dissector = &ethwithfcs_handle;
-			break;
-		case META_PROTO_DXT_FP_HINT:
-			next_dissector = &fphint_handle;
-			break;
-		case META_PROTO_DXT_ATM:
-			next_dissector = &atm_untrunc_handle;
-			pinfo->pseudo_header->atm.aal = AAL_OAMCELL;
-			pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
-			break;
-		case META_PROTO_DXT_ERF_AAL2:
-			/* fake erf pseudo header */
-			memset(&pinfo->pseudo_header->erf, 0, sizeof(pinfo->pseudo_header->erf));
-			pinfo->pseudo_header->erf.phdr.type = ERF_TYPE_AAL2;
-			/* store p2p direction in ERF flags */
-			pinfo->pseudo_header->erf.phdr.flags |= pinfo->p2p_dir;
-			next_dissector = &erf_handle;
-			break;
-		case META_PROTO_DXT_ERF_AAL5:
-			/* fake erf pseudo header */
-			memset(&pinfo->pseudo_header->erf, 0, sizeof(pinfo->pseudo_header->erf));
-			pinfo->pseudo_header->erf.phdr.type = ERF_TYPE_AAL5;
-			/* store p2p direction in ERF flags */
-			pinfo->pseudo_header->erf.phdr.flags |= pinfo->p2p_dir;
-			next_dissector = &erf_handle;
-			break;
-		default:
-			next_dissector = &data_handle;
-	}
-	if (!*next_dissector) next_dissector = &data_handle;
-	return next_dissector;
-}
-
 static void
 dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 #define META_HEADER_SIZE 8
 	guint16 schema, proto, hdrlen, reserved;
 	gint32 item_len;
+	guint32 aal2_ext, atm_hdr;
 	proto_tree *meta_tree = NULL;
 	proto_item *ti = NULL;
 	tvbuff_t *next_tvb;
-	dissector_handle_t *next_dissector = &data_handle;
+	dissector_handle_t next_dissector = data_handle;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "META");
@@ -460,13 +420,45 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* TODO */
 			break;
 		case META_SCHEMA_DXT:
-			next_dissector = dxt_get_dissector(proto, pinfo);
-			break;
-		default:
-			next_dissector = &data_handle;
+			switch (proto) {
+				case META_PROTO_DXT_ETHERNET:
+					next_dissector = ethwithoutfcs_handle;
+					break;
+				case META_PROTO_DXT_ETHERNET_CRC:
+					next_dissector = ethwithfcs_handle;
+					break;
+				case META_PROTO_DXT_FP_HINT:
+					next_dissector = fphint_handle;
+					break;
+				case META_PROTO_DXT_ATM:
+					next_dissector = atm_untrunc_handle;
+					pinfo->pseudo_header->atm.aal = AAL_OAMCELL;
+					pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
+					break;
+				case META_PROTO_DXT_ATM_AAL2:
+					aal2_ext = tvb_get_ntohl(tvb, item_len + META_HEADER_SIZE); item_len += 4;
+					atm_hdr = tvb_get_ntohl(tvb, item_len + META_HEADER_SIZE); item_len += 4;
+					memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
+					pinfo->pseudo_header->atm.aal = AAL_2;
+					//pinfo->pseudo_header->atm.flags = pinfo->p2p_dir;
+					pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
+					pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
+					pinfo->pseudo_header->atm.aal2_cid = aal2_ext & 0x000000ff;
+					pinfo->pseudo_header->atm.type = TRAF_UMTS_FP;
+					next_dissector = atm_untrunc_handle;
+					break;
+				case META_PROTO_DXT_ERF_AAL5:
+					/* fake erf pseudo header */
+					memset(&pinfo->pseudo_header->erf, 0, sizeof(pinfo->pseudo_header->erf));
+					pinfo->pseudo_header->erf.phdr.type = ERF_TYPE_AAL5;
+					/* store p2p direction in ERF flags */
+					pinfo->pseudo_header->erf.phdr.flags |= pinfo->p2p_dir;
+					next_dissector = erf_handle;
+					break;
+			}
 	}
 	next_tvb = tvb_new_subset(tvb, item_len + META_HEADER_SIZE, -1, -1);
-	call_dissector(*next_dissector, next_tvb, pinfo, tree);
+	call_dissector(next_dissector, next_tvb, pinfo, tree);
 }
 
 void

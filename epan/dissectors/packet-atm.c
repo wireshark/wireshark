@@ -1181,19 +1181,20 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case AAL_2:
     switch (pinfo->pseudo_header->atm.type) {
       case TRAF_UMTS_FP:
-        /* Skip first 4 bytes of message
-        - side
-        - length
-        - UUI
-        Ignoring for now... */
-        proto_tree_add_uint(atm_tree, hf_atm_cid, tvb, 0, 0,
-                            pinfo->pseudo_header->atm.aal2_cid);
-        proto_item_append_text(atm_ti, " (vpi=%u vci=%u cid=%u)",
-                               pinfo->pseudo_header->atm.vpi,
-                               pinfo->pseudo_header->atm.vci,
-                               pinfo->pseudo_header->atm.aal2_cid);
-
-        next_tvb = tvb_new_subset_remaining(tvb, 4);
+          proto_tree_add_uint(atm_tree, hf_atm_cid, tvb, 0, 0,
+                              pinfo->pseudo_header->atm.aal2_cid);
+          proto_item_append_text(atm_ti, " (vpi=%u vci=%u cid=%u)",
+                                 pinfo->pseudo_header->atm.vpi,
+                                 pinfo->pseudo_header->atm.vci,
+                                 pinfo->pseudo_header->atm.aal2_cid);
+	    if ((pinfo->pseudo_header->atm.flags | ATM_AAL2_NOPHDR) == 0) {
+          /* Skip first 4 bytes of message
+          - side
+          - length
+          - UUI
+          Ignoring for now... */
+          next_tvb = tvb_new_subset_remaining(tvb, 4);
+        }
         call_dissector(fp_handle, next_tvb, pinfo, tree);
         break;
 

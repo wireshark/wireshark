@@ -32,7 +32,6 @@
 #include "packet-umts_fp.h"
 #include "packet-umts_mac.h"
 #include "packet-rlc.h"
-#include "wiretap/erf.h"
 
 static int proto_fp_hint = -1;
 extern int proto_fp;
@@ -68,7 +67,6 @@ static int hf_fph_tf_size = -1;
 static dissector_handle_t data_handle;
 static dissector_handle_t ethwithfcs_handle;
 static dissector_handle_t atm_untrunc_handle;
-static dissector_handle_t erf_handle;
 
 enum fph_ctype {
 	FPH_CHANNEL_PCH,
@@ -80,7 +78,7 @@ enum fph_ctype {
 };
 
 enum fph_frame {
-	FPH_FRAME_ERF_AAL2,
+	FPH_FRAME_ATM_AAL2,
 	FPH_FRAME_ETHERNET
 };
 
@@ -99,7 +97,7 @@ enum fph_content {
 };
 
 static const value_string fph_frametype_vals[] = {
-	{ FPH_FRAME_ERF_AAL2,	"ERF AAL2" },
+	{ FPH_FRAME_ATM_AAL2,	"ATM AAL2" },
 	{ FPH_FRAME_ETHERNET,	"Ethernet" },
 	{ 0, NULL }
 };
@@ -440,7 +438,7 @@ static void attach_info(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, guint
 	fpi->dch_crc_present = 1;
 
 	switch (frame_type) {
-		case FPH_FRAME_ERF_AAL2:
+		case FPH_FRAME_ATM_AAL2:
 			fpi->link_type = FP_Link_ATM;
 			break;
 		case FPH_FRAME_ETHERNET:
@@ -483,9 +481,7 @@ static void dissect_fp_hint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 frame_type, channel_type;
 	guint16 hdrlen;
-#if 0
-	guint32 atm_aal2_ext, atm_hdr;
-#endif
+	guint32 atm_hdr, aal2_ext;
 	tvbuff_t *next_tvb;
 	dissector_handle_t *next_dissector;
 	proto_item *ti;
@@ -508,15 +504,18 @@ static void dissect_fp_hint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* attach FP, MAC, RLC information */
 	attach_info(tvb, pinfo, 4, channel_type, frame_type, fph_tree);
 	switch (frame_type) {
-		case FPH_FRAME_ERF_AAL2:
-			memset(&pinfo->pseudo_header->erf, 0, sizeof(pinfo->pseudo_header->erf));
-			pinfo->pseudo_header->erf.phdr.type = ERF_TYPE_AAL2;
-			/* store p2p direction in ERF flags */
-			pinfo->pseudo_header->erf.phdr.flags |= pinfo->p2p_dir;
-			/* set ATM properties */
+		case FPH_FRAME_ATM_AAL2:
+			aal2_ext = tvb_get_ntohl(tvb, hdrlen); hdrlen += 4;
+			atm_hdr = tvb_get_ntohl(tvb, hdrlen); hdrlen += 4;
+			memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
+			pinfo->pseudo_header->atm.aal = AAL_2;
+			//pinfo->pseudo_header->atm.flags = pinfo->p2p_dir;
+			pinfo->pseudo_header->atm.flags = ATM_AAL2_NOPHDR;
+			pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
+			pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
+			pinfo->pseudo_header->atm.aal2_cid = aal2_ext & 0x000000ff;
 			pinfo->pseudo_header->atm.type = TRAF_UMTS_FP;
-			pinfo->pseudo_header->atm.subtype = TRAF_UNKNOWN;
-			next_dissector = &erf_handle;
+			next_dissector = &atm_untrunc_handle;
 			break;
 		case FPH_FRAME_ETHERNET:
 			next_dissector = &ethwithfcs_handle;
@@ -578,5 +577,4 @@ proto_reg_handoff_fp_hint(void)
 	atm_untrunc_handle = find_dissector("atm_untruncated");
 	data_handle = find_dissector("data");
 	ethwithfcs_handle = find_dissector("eth_withfcs");
-	erf_handle = find_dissector("erf");
 }
