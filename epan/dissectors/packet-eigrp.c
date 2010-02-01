@@ -39,6 +39,7 @@
 #include <epan/addr_and_mask.h>
 #include <epan/ipproto.h>
 #include "packet-ipx.h"
+#include <epan/expert.h>
 
 /*
  * See
@@ -329,25 +330,25 @@ static const value_string eigrp_auth_type_vals[] = {
 	{ 0,	NULL}
 };
 
-static void dissect_eigrp_par(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
-static void dissect_eigrp_auth(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
-static void dissect_eigrp_seq(tvbuff_t *tvb, proto_tree *tree);
+static void dissect_eigrp_par(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_eigrp_seq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_eigrp_sv(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
 static void dissect_eigrp_nms(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
 static void dissect_eigrp_stub(tvbuff_t *tvb, proto_tree *tree);
 
-static void dissect_eigrp_ip_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
-static void dissect_eigrp_ip_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_ip_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_ip_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti);
 
-static void dissect_eigrp_ipx_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
-static void dissect_eigrp_ipx_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_ipx_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_ipx_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti);
 
 static void dissect_eigrp_at_cbl(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
 static void dissect_eigrp_at_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
 static void dissect_eigrp_at_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
 
-static void dissect_eigrp_ip6_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
-static void dissect_eigrp_ip6_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_ip6_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_ip6_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti);
 
 
 static void dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
@@ -405,7 +406,8 @@ static void dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			size =  tvb_get_ntohs(tvb, offset + 2);
 
 			if (size == 0) {
-				proto_tree_add_text(eigrp_tree, tvb, offset, -1, "Unknown data (maybe authentication)");
+				ti = proto_tree_add_text(eigrp_tree, tvb, offset, -1, "Unknown data (maybe authentication)");
+				expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Unknown data (maybe authentication)");
 				return;
 			}
 
@@ -419,13 +421,13 @@ static void dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 			switch (tlv) {
 				case TLV_PAR:
-					dissect_eigrp_par(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					dissect_eigrp_par(tvb_new_subset(tvb, offset + 4, size - 4, -1), pinfo, tlv_tree, ti);
 					break;
 				case TLV_AUTH:
-					dissect_eigrp_auth(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					dissect_eigrp_auth(tvb_new_subset(tvb, offset + 4, size - 4, -1), pinfo, tlv_tree);
 					break;
 				case TLV_SEQ:
-					dissect_eigrp_seq(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree);
+					dissect_eigrp_seq(tvb_new_subset(tvb, offset + 4, size - 4, -1), pinfo, tlv_tree);
 					break;
 				case TLV_SV:
 					dissect_eigrp_sv(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
@@ -438,17 +440,17 @@ static void dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 					break;
 
 				case TLV_IP_INT:
-					dissect_eigrp_ip_int(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					dissect_eigrp_ip_int(tvb_new_subset(tvb, offset + 4, size - 4, -1), pinfo, tlv_tree, ti);
 					break;
 				case TLV_IP_EXT:
-					dissect_eigrp_ip_ext(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					dissect_eigrp_ip_ext(tvb_new_subset(tvb, offset + 4, size - 4, -1), pinfo, tlv_tree, ti);
 					break;
 
 				case TLV_IPX_INT:
-					dissect_eigrp_ipx_int(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					dissect_eigrp_ipx_int(tvb_new_subset(tvb, offset + 4, size - 4, -1), pinfo, tlv_tree, ti);
 					break;
 				case TLV_IPX_EXT:
-					dissect_eigrp_ipx_ext(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					dissect_eigrp_ipx_ext(tvb_new_subset(tvb, offset + 4, size - 4, -1), pinfo, tlv_tree, ti);
 					break;
 
 				case TLV_AT_CBL:
@@ -462,11 +464,13 @@ static void dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 					break;			
 
 				case TLV_IP6_INT:
-					dissect_eigrp_ip6_int(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					dissect_eigrp_ip6_int(tvb_new_subset(tvb, offset + 4, size - 4, -1), pinfo, tlv_tree, ti);
 					break;
 				case TLV_IP6_EXT:
-					dissect_eigrp_ip6_ext(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					dissect_eigrp_ip6_ext(tvb_new_subset(tvb, offset + 4, size - 4, -1), pinfo, tlv_tree, ti);
 					break;
+				default:
+					expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Unknown TLV (0x%04x)", tlv);
 			}
 
 			offset += size;
@@ -476,7 +480,7 @@ static void dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 
 
-static void dissect_eigrp_par(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+static void dissect_eigrp_par(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti) {
 
 	int offset = 0;
 	guint8 k1, k2, k3, k4, k5;
@@ -502,11 +506,13 @@ static void dissect_eigrp_par(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
 
 	if (k1 == 255 && k2 == 255 && k3 == 255 && k4 == 255 && k5 == 255) {
 		proto_item_append_text(ti, ": Goodbye Message");
+		expert_add_info_format(pinfo, ti, PI_RESPONSE_CODE, PI_NOTE, "Goodbye Message (Graceful Shutdown)");
 	}
 }
 
-static void dissect_eigrp_auth(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+static void dissect_eigrp_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
+	proto_item *ti_keysize;
 	int offset = 0;
 	guint16 keysize;
 
@@ -514,7 +520,7 @@ static void dissect_eigrp_auth(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) 
 
 	proto_tree_add_item(tree, hf_eigrp_auth_type, tvb, offset, 2, FALSE);
 	offset += 2;
-	proto_tree_add_item(tree, hf_eigrp_auth_keysize, tvb, offset, 2, FALSE);
+	ti_keysize = proto_tree_add_item(tree, hf_eigrp_auth_keysize, tvb, offset, 2, FALSE);
 	offset += 2;
 	proto_tree_add_item(tree, hf_eigrp_auth_keyid, tvb, offset, 4, FALSE);
 	offset += 4;
@@ -522,25 +528,25 @@ static void dissect_eigrp_auth(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) 
 	offset += 12;
 
 	switch (keysize) {
-		/* Only MD5 is supported at the moment */
+		/* MD5 */
 		case 16:
 			proto_tree_add_item(tree, hf_eigrp_auth_data, tvb, offset, keysize, FALSE);
 			break;
 		default:
-			/* nothing */
-			proto_item_append_text(ti, "  [Invalid key size %u] Only 16/MD5 supported at the moment", keysize);
-			;
+			expert_add_info_format(pinfo, ti_keysize, PI_UNDECODED, PI_WARN,
+					"Invalid key size %u: Only a value of 16 for MD5 is supported", keysize);
 	}
 }
 
-static void dissect_eigrp_seq(tvbuff_t *tvb, proto_tree *tree) {
+static void dissect_eigrp_seq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
+	proto_item *ti_addrlen;
 	int offset = 0;
 	guint8 addr_len;
 
 	addr_len = tvb_get_guint8(tvb, 0);
 
-	proto_tree_add_item(tree, hf_eigrp_seq_addrlen, tvb, offset, 1, FALSE);
+	ti_addrlen = proto_tree_add_item(tree, hf_eigrp_seq_addrlen, tvb, offset, 1, FALSE);
 	offset += 1;
 
 	switch (addr_len) {
@@ -559,8 +565,7 @@ static void dissect_eigrp_seq(tvbuff_t *tvb, proto_tree *tree) {
 			proto_tree_add_item(tree, hf_eigrp_seq_ip6addr, tvb, offset, addr_len, FALSE);
 			break;
 		default:
-			/* nothing */
-			;
+			expert_add_info_format(pinfo, ti_addrlen, PI_MALFORMED, PI_ERROR, "Invalid address length");
 	}
 }
 
@@ -607,11 +612,11 @@ static void dissect_eigrp_stub(tvbuff_t *tvb, proto_tree *tree) {
 	proto_tree_add_item(eigrp_stub_flags_tree, hf_eigrp_stub_flags_leakmap, tvb, 0, 2, FALSE);
 }
 
-static void dissect_eigrp_ip_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+static void dissect_eigrp_ip_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti) {
 
 	guint8 ip_addr[4], length;
 	int addr_len, offset = 0;
-	proto_item *prefixlenti;
+	proto_item *ti_prefixlen, *ti_dst;
 
 	tvb_memcpy(tvb, ip_addr, 0, 4);
 
@@ -637,26 +642,29 @@ static void dissect_eigrp_ip_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti
 		addr_len = ipv4_addr_and_mask(tvb, offset + 1, ip_addr, length);
 
 		if (addr_len < 0) {
-			prefixlenti = proto_tree_add_item(tree, hf_eigrp_ip_int_prefixlen, tvb, offset, 1, FALSE);
-			proto_item_append_text(prefixlenti, " (invalid, must be <= 32)");
-			proto_item_append_text(ti, "  [Invalid prefix length %u > 32]", length);
+			ti_prefixlen = proto_tree_add_item(tree, hf_eigrp_ip_int_prefixlen, tvb, offset, 1, FALSE);
+			expert_add_info_format(pinfo, ti_prefixlen, PI_UNDECODED, PI_WARN,
+					"Invalid prefix length %u, must be <= 32", length);
 			addr_len = 4; /* assure we can exit the loop */
 		} else {
 			proto_tree_add_item(tree, hf_eigrp_ip_int_prefixlen, tvb, offset, 1, FALSE);
 			offset += 1;
-			proto_tree_add_text(tree, tvb, offset, addr_len, "Destination: %s", ip_to_str(ip_addr));
+			ti_dst = proto_tree_add_text(tree, tvb, offset, addr_len, "Destination: %s", ip_to_str(ip_addr));
 			proto_item_append_text (ti,"  %c   %s/%u%s", offset == 21 ? '=':',',
 				ip_to_str(ip_addr), length, ((tvb_get_ntohl(tvb, 4 )== 0xffffffff) ? " - Destination unreachable":""));
+			if (tvb_get_ntohl(tvb, 4) == 0xffffffff) {
+				expert_add_info_format(pinfo, ti_dst, PI_RESPONSE_CODE, PI_NOTE, "Destination unreachable");
+			}
 		}
 	}
 }
 
-static void dissect_eigrp_ip_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+static void dissect_eigrp_ip_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti) {
 
 	guint8 ip_addr[4], length;
 	int addr_len, offset = 0;
 	proto_tree *eigrp_ip_ext_flags_tree;
-	proto_item *eigrp_ip_ext_ti, *prefixlenti;
+	proto_item *eigrp_ip_ext_ti, *ti_prefixlen, *ti_dst;
 
 	eigrp_ip_ext_ti = ti;
 
@@ -706,25 +714,29 @@ static void dissect_eigrp_ip_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti
 		addr_len = ipv4_addr_and_mask(tvb, offset + 1, ip_addr, length);
 
 		if (addr_len < 0) {
-			prefixlenti = proto_tree_add_item(tree, hf_eigrp_ip_ext_prefixlen, tvb, offset, 1, FALSE);
-			proto_item_append_text(prefixlenti, " (invalid, must be <= 32)");
-			proto_item_append_text(ti,"  [Invalid prefix length %u > 32]", length);
+			ti_prefixlen = proto_tree_add_item(tree, hf_eigrp_ip_ext_prefixlen, tvb, offset, 1, FALSE);
+			expert_add_info_format(pinfo, ti_prefixlen, PI_UNDECODED, PI_WARN,
+					"Invalid prefix length %u, must be <= 32", length);
 			addr_len = 4; /* assure we can exit the loop */
 		} else {
 			proto_tree_add_item(tree, hf_eigrp_ip_ext_prefixlen, tvb, offset, 1, FALSE);
 			offset += 1;
-			proto_tree_add_text(tree, tvb, offset, addr_len, "Destination = %s", ip_to_str(ip_addr));
+			ti_dst = proto_tree_add_text(tree, tvb, offset, addr_len, "Destination = %s", ip_to_str(ip_addr));
 			proto_item_append_text(eigrp_ip_ext_ti, "  %c   %s/%u%s", offset == 41 ? '=':',',
 				ip_to_str(ip_addr), length, ((tvb_get_ntohl(tvb, 24) == 0xffffffff) ? " - Destination unreachable":""));
+			if (tvb_get_ntohl(tvb, 24) == 0xffffffff) {
+				expert_add_info_format(pinfo, ti_dst, PI_RESPONSE_CODE, PI_NOTE, "Destination unreachable");
+			}
 		}
 	}
 }
 
 
 
-static void dissect_eigrp_ipx_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+static void dissect_eigrp_ipx_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti) {
 
 	int offset = 0;
+	proto_item *ti_dst;
 
 	proto_tree_add_text(tree, tvb, offset, 4, "Next Hop Address = %08x", tvb_get_ntohl(tvb, 4));
 	offset += 4;
@@ -744,13 +756,17 @@ static void dissect_eigrp_ipx_int(tvbuff_t *tvb, proto_tree *tree, proto_item *t
 	offset += 1;
 	proto_tree_add_item(tree, hf_eigrp_ipx_int_reserved, tvb, offset, 2, FALSE);
 	offset += 2;
-        proto_tree_add_text(tree, tvb, offset, 4, "Destination Address =  %08x", tvb_get_ntohl(tvb, 26));
+        ti_dst = proto_tree_add_text(tree, tvb, offset, 4, "Destination Address =  %08x", tvb_get_ntohl(tvb, 26));
         proto_item_append_text(ti, "  =   %08x%s", tvb_get_ntohl(tvb, 26), ((tvb_get_ntohl(tvb, 10) == 0xffffffff) ? " - Destination unreachable":""));
+	if (tvb_get_ntohl(tvb, 10) == 0xffffffff) {
+		expert_add_info_format(pinfo, ti_dst, PI_RESPONSE_CODE, PI_NOTE, "Destination unreachable");
+	}
 }
 
-static void dissect_eigrp_ipx_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+static void dissect_eigrp_ipx_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti) {
 
 	int offset = 0;
+	proto_item *ti_dst;
 
 	proto_tree_add_text(tree, tvb, offset, 4, "Next Hop Address = %08x", tvb_get_ntohl(tvb, 4));
 	offset += 4;
@@ -786,8 +802,11 @@ static void dissect_eigrp_ipx_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *t
 	offset += 1;
 	proto_tree_add_item(tree, hf_eigrp_ipx_ext_reserved2, tvb, offset, 2, FALSE);
 	offset += 2;
-        proto_tree_add_text(tree, tvb, offset, 4, "Destination Address =  %08x", tvb_get_ntohl(tvb, 46));
+        ti_dst = proto_tree_add_text(tree, tvb, offset, 4, "Destination Address =  %08x", tvb_get_ntohl(tvb, 46));
         proto_item_append_text(ti, "  =   %08x%s", tvb_get_ntohl(tvb, 46), ((tvb_get_ntohl(tvb, 30) == 0xffffffff) ? " - Destination unreachable":""));
+	if (tvb_get_ntohl(tvb, 30) == 0xffffffff) {
+		expert_add_info_format(pinfo, ti_dst, PI_RESPONSE_CODE, PI_NOTE, "Destination unreachable");
+	}
 }
 
 
@@ -873,12 +892,12 @@ static void dissect_eigrp_at_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti
         proto_item_append_text(ti, ": %u-%u", tvb_get_ntohs(tvb, 36), tvb_get_ntohs(tvb, 38));
 }
 
-static void dissect_eigrp_ip6_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+static void dissect_eigrp_ip6_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti) {
 
 	guint8 length;
 	int addr_len, offset = 0;
 	struct e_in6_addr addr;
-	proto_item *prefixlenti;
+	proto_item *ti_prefixlen, *ti_dst;
 
 	proto_tree_add_item(tree, hf_eigrp_ip6_int_nexthop, tvb, offset, 16, FALSE);
 	offset += 16;
@@ -902,9 +921,9 @@ static void dissect_eigrp_ip6_int(tvbuff_t *tvb, proto_tree *tree, proto_item *t
 		addr_len = ipv6_addr_and_mask(tvb, offset + 1, &addr, length);
 
 		if (addr_len < 0) {
-			prefixlenti = proto_tree_add_item(tree, hf_eigrp_ip6_int_prefixlen, tvb, offset, 1, FALSE);
-			proto_item_append_text(prefixlenti, " (invalid, must be <= 128)");
-			proto_item_append_text(ti, "  [Invalid prefix length %u > 128]", length);
+			ti_prefixlen = proto_tree_add_item(tree, hf_eigrp_ip6_int_prefixlen, tvb, offset, 1, FALSE);
+			expert_add_info_format(pinfo, ti_prefixlen, PI_UNDECODED, PI_WARN,
+					"Invalid prefix length %u, must be <= 128", length);
 			addr_len = 16; /* assure we can exit the loop */
 		} else {
 			proto_tree_add_item(tree, hf_eigrp_ip6_int_prefixlen, tvb, offset, 1, FALSE);
@@ -914,20 +933,23 @@ static void dissect_eigrp_ip6_int(tvbuff_t *tvb, proto_tree *tree, proto_item *t
 				addr_len++;
 			}
 
-			proto_tree_add_text(tree, tvb, offset, addr_len, "Destination: %s", ip6_to_str(&addr));
+			ti_dst = proto_tree_add_text(tree, tvb, offset, addr_len, "Destination: %s", ip6_to_str(&addr));
 			proto_item_append_text(ti, "  %c   %s/%u%s", offset == 33 ? '=':',',
 				ip6_to_str(&addr), length, ((tvb_get_ntohl(tvb, 16) == 0xffffffff) ? " - Destination unreachable":""));
+			if (tvb_get_ntohl(tvb, 16) == 0xffffffff) {
+				expert_add_info_format(pinfo, ti_dst, PI_RESPONSE_CODE, PI_NOTE, "Destination unreachable");
+			}
 		}
 	}
 }
 
-static void dissect_eigrp_ip6_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+static void dissect_eigrp_ip6_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti) {
 
 	guint8 length;
 	int addr_len, offset = 0;
 	struct e_in6_addr addr;
 	proto_tree *eigrp_ip6_ext_flags_tree;
-	proto_item *eigrp_ip6_ext_ti, *prefixlenti;
+	proto_item *eigrp_ip6_ext_ti, *ti_prefixlen, *ti_dst;
 
 	eigrp_ip6_ext_ti = ti;
 
@@ -976,9 +998,9 @@ static void dissect_eigrp_ip6_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *t
 		addr_len = ipv6_addr_and_mask(tvb, offset + 1, &addr, length);
 
 		if (addr_len < 0) {
-			prefixlenti = proto_tree_add_item(tree, hf_eigrp_ip6_ext_prefixlen, tvb, offset, 1, FALSE);
-			proto_item_append_text(prefixlenti, " (invalid, must be <= 128)");
-			proto_item_append_text(ti, "  [Invalid prefix length %u > 128]", length);
+			ti_prefixlen = proto_tree_add_item(tree, hf_eigrp_ip6_ext_prefixlen, tvb, offset, 1, FALSE);
+			expert_add_info_format(pinfo, ti_prefixlen, PI_UNDECODED, PI_WARN,
+					"Invalid prefix length %u, must be <= 128", length);
 			addr_len = 16; /* assure we can exit the loop */
 		} else {
 			proto_tree_add_item(tree, hf_eigrp_ip6_ext_prefixlen, tvb, offset, 1, FALSE);
@@ -988,9 +1010,12 @@ static void dissect_eigrp_ip6_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *t
 				addr_len++;
 			}
 
-			proto_tree_add_text(tree, tvb, offset, addr_len, "Destination: %s", ip6_to_str(&addr));
+			ti_dst = proto_tree_add_text(tree, tvb, offset, addr_len, "Destination: %s", ip6_to_str(&addr));
 			proto_item_append_text(eigrp_ip6_ext_ti, "  %c   %s/%u%s", offset == 53 ? '=':',',
 				ip6_to_str(&addr), length, ((tvb_get_ntohl(tvb, 36) == 0xffffffff) ? " - Destination unreachable":""));
+			if (tvb_get_ntohl(tvb, 36) == 0xffffffff) {
+				expert_add_info_format(pinfo, ti_dst, PI_RESPONSE_CODE, PI_NOTE, "Destination unreachable");
+			}
 		}
 	}
 }
