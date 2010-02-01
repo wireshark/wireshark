@@ -133,9 +133,11 @@ new_packet_list_append(column_info *cinfo _U_, frame_data *fdata, packet_info *p
 	/* fdata should be filled with the stuff we need
 	 * strings are built at display time.
 	 */
-
+	guint visible_pos = packet_list_append_record(packetlist, fdata); 
+	packets_bar_update();
 	/* Return the _visible_ position */
-	return packet_list_append_record(packetlist, fdata);
+
+	return visible_pos;
 }
 
 static gboolean
@@ -586,9 +588,6 @@ new_packet_list_freeze(void)
 void
 new_packet_list_thaw(void)
 {
-	GtkTreePath *path;
-	GtkTreeSelection *selection;
-	GtkTreeIter iter;
 
 	/* Apply model */
 	gtk_tree_view_set_model( GTK_TREE_VIEW(packetlist->view), GTK_TREE_MODEL(packetlist));
@@ -596,18 +595,6 @@ new_packet_list_thaw(void)
 	/* Remove extra reference added by new_packet_list_freeze() */
 	g_object_unref(packetlist);
 
-	/* Selection may have been lost, reselect the current row */
-	if (cfile.current_row!=0){
-		path = gtk_tree_path_new_from_indices(cfile.current_row-1, -1);
-
-		if (gtk_tree_model_get_iter(gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view)), &iter, path)){
-			/* Select the row */
-			selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
-			gtk_tree_selection_select_iter (selection, &iter);
-		}
-	}
-
-	packets_bar_update();
 }
 
 void
