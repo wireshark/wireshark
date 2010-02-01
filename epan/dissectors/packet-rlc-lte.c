@@ -56,6 +56,9 @@ static gboolean global_rlc_lte_sequence_analysis = TRUE;
 static gboolean global_rlc_lte_call_pdcp = FALSE;
 static gboolean global_rlc_lte_call_rrc = FALSE;
 
+/* Preference to expect RLC headers without payloads */
+static gboolean global_rlc_lte_headers_expected = FALSE;
+
 
 /* Initialize the protocol and registered fields. */
 int proto_rlc_lte = -1;
@@ -114,6 +117,7 @@ static int hf_rlc_lte_am_so_start = -1;
 static int hf_rlc_lte_am_so_end = -1;
 
 static int hf_rlc_lte_predefined_pdu = -1;
+static int hf_rlc_lte_header_only = -1;
 
 /* Sequence Analysis */
 static int hf_rlc_lte_sequence_analysis = -1;
@@ -239,6 +243,12 @@ static const value_string am_e2_vals[] =
     { 0, NULL }
 };
 
+static const value_string header_only_vals[] =
+{
+    { 0,      "RLC PDU Headers and body present"},
+    { 1,      "RLC PDU Headers only"},
+    { 0, NULL }
+};
 
 extern int proto_pdcp_lte;
 
@@ -734,6 +744,8 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     gint    start_offset = offset;
     proto_tree *um_header_tree;
     proto_item *um_header_ti;
+    gboolean is_truncated;
+    proto_item *truncated_ti;
 
     /* Add UM header subtree */
     um_header_ti = proto_tree_add_string_format(tree,
@@ -819,6 +831,21 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
         offset = dissect_rlc_lte_extension_header(tvb, pinfo, tree, offset);
     }
 
+    if (global_rlc_lte_headers_expected) {
+        /* There might not be any data, if only headers (plus control data) were logged */
+        is_truncated = (tvb_length_remaining(tvb, offset) == 0);
+        truncated_ti = proto_tree_add_uint(tree, hf_rlc_lte_header_only, tvb, 0, 0,
+                                           is_truncated);
+        if (is_truncated) {
+            PROTO_ITEM_SET_GENERATED(truncated_ti);
+            expert_add_info_format(pinfo, truncated_ti, PI_SEQUENCE, PI_NOTE,
+                                   "RLC PDU SDUs have been omitted");
+            return;
+        }
+        else {
+            PROTO_ITEM_SET_HIDDEN(truncated_ti);
+        }
+    }
 
     /* Extract these 2 flags from framing_info */
     first_includes_start = ((guint8)framing_info & 0x02) == 0;
@@ -1013,6 +1040,8 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     proto_item *am_header_ti;
     gint   start_offset = offset;
     guint16    sn;
+    gboolean is_truncated;
+    proto_item *truncated_ti;
 
     /* Add AM header subtree */
     am_header_ti = proto_tree_add_string_format(tree,
@@ -1105,6 +1134,22 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         offset = dissect_rlc_lte_extension_header(tvb, pinfo, tree, offset);
     }
 
+    /* There might not be any data, if only headers (plus control data) were logged */
+    if (global_rlc_lte_headers_expected) {
+        is_truncated = (tvb_length_remaining(tvb, offset) == 0);
+        truncated_ti = proto_tree_add_uint(tree, hf_rlc_lte_header_only, tvb, 0, 0,
+                                           is_truncated);
+        if (is_truncated) {
+            PROTO_ITEM_SET_GENERATED(truncated_ti);
+            expert_add_info_format(pinfo, truncated_ti, PI_SEQUENCE, PI_NOTE,
+                                   "RLC PDU SDUs have been omitted");
+            return;
+        }
+        else {
+            PROTO_ITEM_SET_HIDDEN(truncated_ti);
+        }
+    }
+
     /* Head is now complete */
     proto_item_set_len(am_header_ti, offset-start_offset);
 
@@ -1148,14 +1193,16 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
                          last_includes_end);
     }
     else {
-        if (s_number_of_extensions > 0) {
-            expert_add_info_format(pinfo, am_header_ti, PI_MALFORMED, PI_ERROR,
-                                  "AM data PDU doesn't contain any data beyond extensions");
-        }
-        else {
-            expert_add_info_format(pinfo, am_header_ti, PI_MALFORMED, PI_ERROR,
-                                  "AM data PDU doesn't contain any data");
-
+        /* Report that expected data was missing (unless we know it might happen) */
+        if (!global_rlc_lte_headers_expected) {
+            if (s_number_of_extensions > 0) {
+                expert_add_info_format(pinfo, am_header_ti, PI_MALFORMED, PI_ERROR,
+                                      "AM data PDU doesn't contain any data beyond extensions");
+            }
+            else {
+                expert_add_info_format(pinfo, am_header_ti, PI_MALFORMED, PI_ERROR,
+                                      "AM data PDU doesn't contain any data");
+            }
         }
     }
 }
@@ -1735,6 +1782,12 @@ void proto_register_rlc_lte(void)
               NULL, HFILL
             }
         },
+        { &hf_rlc_lte_header_only,
+            { "RLC PDU Header only",
+              "rlc-lte.header-only", FT_UINT8, BASE_DEC, VALS(header_only_vals), 0x0,
+              NULL, HFILL
+            }
+        },
     };
 
     static gint *ett[] =
@@ -1783,6 +1836,12 @@ void proto_register_rlc_lte(void)
         "When enabled, use heuristic dissector to find RLC-LTE frames sent with "
         "UDP framing",
         &global_rlc_lte_heur);
+
+    prefs_register_bool_preference(rlc_lte_module, "header_only_mode",
+        "May see RLC headers only",
+        "When enabled, if data is not present, don't report as an error, but instead "
+        "add expert info to indicate that headers were ommitted",
+        &global_rlc_lte_headers_expected);
 
     register_init_routine(&rlc_lte_init_protocol);
 }
