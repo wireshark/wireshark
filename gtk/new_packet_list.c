@@ -133,8 +133,11 @@ new_packet_list_append(column_info *cinfo _U_, frame_data *fdata, packet_info *p
 	/* fdata should be filled with the stuff we need
 	 * strings are built at display time.
 	 */
+	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	guint visible_pos = packet_list_append_record(packetlist, fdata); 
-	packets_bar_update();
+	if(model)
+		/* If the model is connected there is no packetsbar_update from "thaw */
+		packets_bar_update();
 	/* Return the _visible_ position */
 
 	return visible_pos;
@@ -595,6 +598,7 @@ new_packet_list_thaw(void)
 	/* Remove extra reference added by new_packet_list_freeze() */
 	g_object_unref(packetlist);
 
+	packets_bar_update();
 }
 
 void
