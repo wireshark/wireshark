@@ -122,7 +122,7 @@ static void ref_time_packets(capture_file *cf);
 #endif
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES   100
-/* We read around 200k/100ms domt update the progress bar more often than that */
+/* We read around 200k/100ms don't update the progress bar more often than that */
 #define MIN_QUANTUM         200000
 #define MIN_NUMBER_OF_PACKET 1500
 
@@ -792,7 +792,8 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 
 #ifdef NEW_PACKET_LIST
   new_packet_list_check_end();
-  new_packet_list_freeze();
+  /* Don't freeze/thaw the list when doing live capture */ 
+  /*new_packet_list_freeze();*/
 #else
   packet_list_check_end();
   packet_list_freeze();
@@ -838,7 +839,8 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
             /* Sleep(100); */
         };
 #ifdef NEW_PACKET_LIST
-        new_packet_list_thaw();
+		/* Don't freeze/thaw the list when doing live capture */ 
+        /*new_packet_list_thaw();*/
 #else
         packet_list_thaw();
 #endif
@@ -857,7 +859,8 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
       cf->count, cf->state, *err);*/
 
 #ifdef NEW_PACKET_LIST
-  new_packet_list_thaw();
+  /* Don't freeze/thaw the list when doing live capture */
+  /*new_packet_list_thaw();*/
   /* With the new packet list the first packet
    * isn't automatically selected.
    */
