@@ -31,6 +31,7 @@
 extern const value_string E212_codes[];
 
 int dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+int dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 
 #endif /* __PACKET_E212_H__ */
 

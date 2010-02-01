@@ -133,6 +133,7 @@ const value_string E212_codes[] = {
 	{  401,	"Kazakhstan (Republic of)" },
 	{  402,	"Bhutan (Kingdom of)" },
 	{  404,	"India (Republic of)" },
+	{  405,	"India (Republic of)" },
 	{  410,	"Pakistan (Islamic Republic of)" },
 	{  412,	"Afghanistan" },
 	{  413,	"Sri Lanka (Democratic Socialist Republic of)" },
@@ -1604,8 +1605,6 @@ static int hf_E212_msin						= -1;
  * |  MNC digit 2  |  MNC digit 1  |  octet x+2
  * +---------------+---------------+
  */
-
-
 int
 dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset){
 
@@ -1648,6 +1647,99 @@ dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
 	offset++;
 	return offset;
+}
+
+
+/*
+ * When we want to decode the MCC/MNC pair in an address that is encoded according to E.212
+ * the main problem is that we do not know whether we are dealing with a length 2 or length 3 
+ * MNC. Initially, it was possible to find the length of the MNC by checking the MCC code. 
+ * Originally each country employed a pure 2 digit or 3 digit MNC scheme. However, it is possible
+ * to find countries now that employ both lengths for the MNC (e.g. Canada, India).
+ * Since in these cases we can be sure that an MNC cannot possible be a prefix for another MNC, we
+ * initially assume that the MNC is 2 digits long. If the MCC/MNC combination gives a match in our 
+ * mcc_mnc_codes list then we can be sure that we deal with an MNC that is 2 digits long. Otherwise,
+ * assume that the MNC is 3 digits long.
+ * 
+ * MNC of length 2:
+ * 
+ *     8   7   6   5   4   3   2   1
+ *   +---+---+---+---+---+---+---+---+
+ *   |  MCC digit 2  |  MCC digit 1  |  octet x
+ *   +---------------+---------------+
+ *   |  MNC digit 1  |  MCC digit 3  |  octet x+1
+ *   +---------------+---------------+
+ *   | addr digit 1  |  MNC digit 2  |  octet x+2
+ *   +---------------+---------------+
+ *
+ * MNC of length 3:
+ * 
+ *     8   7   6   5   4   3   2   1
+ *   +---+---+---+---+---+---+---+---+
+ *   |  MCC digit 2  |  MCC digit 1  |  octet x
+ *   +---------------+---------------+
+ *   |  MNC digit 1  |  MCC digit 3  |  octet x+1
+ *   +---------------+---------------+
+ *   |  MNC digit 3  |  MNC digit 2  |  octet x+2
+ *   +---------------+---------------+
+ *
+ * This function will consume either 2.5 or 3 octets. For this reason it returns
+ * the number of nibbles consumed, i.e. 5 or 6 (2 or 3 digits long MNC respectively)
+ */
+int
+dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	guint32		start_offset;
+	guint8		octet;
+	guint16		mcc, mnc;
+	guint8		mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
+	proto_item	*item;
+	gboolean	long_mnc;
+
+	long_mnc = FALSE;
+	start_offset = offset;
+
+	/* MCC digits 1 and 2 */
+	octet = tvb_get_guint8(tvb,offset);
+	mcc1 = octet & 0x0f;
+	mcc2 = octet >> 4;
+	offset++;
+
+	/* MCC digit 3 and MNC digit 1 */
+	octet = tvb_get_guint8(tvb,offset);
+	mcc3 = octet & 0x0f;
+	mnc1 = octet >> 4;
+	offset++;
+
+	/* MNC digits 2 and 3 */
+	octet = tvb_get_guint8(tvb,offset);
+	mnc2 = octet & 0x0f;
+	mnc3 = octet >> 4;
+
+	mcc = 100 * mcc1 + 10 * mcc2 + mcc3;
+	mnc = 10 * mnc1 + mnc2;
+
+	/* Try to match the MCC and 2 digits MNC with an entry in our list of operators */
+	if (!match_strval(mcc * 1000 + mnc, mcc_mnc_codes)) {
+		mnc = 10 * mnc + mnc3;
+		long_mnc = TRUE;
+	}
+
+	item = proto_tree_add_uint(tree, hf_E212_mcc , tvb, start_offset, 2, mcc );
+	if ((mcc1 > 9) || (mcc2 > 9) || (mcc3 > 9))
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "MCC contains non-decimal digits");
+
+	item = proto_tree_add_uint_format(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
+				   "Mobile Network Code (MNC): %s (%u)",
+				   val_to_str(mcc * 1000 + mnc, mcc_mnc_codes, "Unknown"),
+				   mnc);
+	if ((mnc1 > 9) || (mnc2 > 9) || (long_mnc && (mnc3 > 9)))
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "MNC contains non-decimal digits");
+
+	if(long_mnc)
+		return 6;
+	else
+		return 5;
 }
 
 /*

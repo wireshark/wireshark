@@ -226,6 +226,7 @@ dissect_dcom_VARIANT
 dissect_dcom_VARTYPE
 dissect_e164_cc
 dissect_e212_mcc_mnc
+dissect_e212_mcc_mnc_in_address
 dissect_gsm_map_GlobalCellId
 dissect_gsm_map_IMSI
 dissect_gsm_map_ISDN_AddressString
