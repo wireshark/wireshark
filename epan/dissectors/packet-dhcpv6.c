@@ -59,6 +59,9 @@ static int hf_fqdn_1 = -1;
 static int hf_fqdn_2 = -1;
 static int hf_fqdn_3 = -1;
 static int hf_fqdn_4 = -1;
+static int hf_option_type = -1;
+static int hf_option_length = -1;
+static int hf_option_value = -1;
 
 static gint ett_dhcpv6 = -1;
 static gint ett_dhcpv6_option = -1;
@@ -469,11 +472,13 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 		"%s", val_to_str(opttype, opttype_vals, "DHCP option %u"));
 
 	subtree = proto_item_add_subtree(ti, ett_dhcpv6_option);
-	proto_tree_add_text(subtree, tvb, off, 2, "option type: %d", opttype);
-	proto_tree_add_text(subtree, tvb, off + 2, 2, "option length: %d",
-		optlen);
-
+	proto_tree_add_item(subtree, hf_option_type, tvb, off, 2, FALSE);
+	proto_tree_add_item(subtree, hf_option_length, tvb, off + 2, 2, FALSE);
 	off += 4;
+	/* Right now, none of the options can be filtered at, so provide a hex
+           array for minimalistic filtering */
+	proto_tree_add_item(subtree, hf_option_value, tvb, off, optlen, FALSE);
+
 	switch (opttype) {
 	case OPTION_CLIENTID:
 	case OPTION_SERVERID:
@@ -1194,7 +1199,7 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	msgtype = tvb_get_guint8(tvb, off);
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_dhcpv6, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_dhcpv6, tvb, off, eoff - off, FALSE);
 		bp_tree = proto_item_add_subtree(ti, ett_dhcpv6);
         }
 
@@ -1288,7 +1293,13 @@ proto_register_dhcpv6(void)
     { &hf_fqdn_3,
       { "O", "dhcpv6.msgtype.o", FT_BOOLEAN, 8, TFS(&fqdn_o), 0x2, NULL, HFILL}},
     { &hf_fqdn_4,
-      { "S", "dhcpv6.msgtype.s", FT_BOOLEAN, 8, TFS(&fqdn_s), 0x1, NULL, HFILL}}
+      { "S", "dhcpv6.msgtype.s", FT_BOOLEAN, 8, TFS(&fqdn_s), 0x1, NULL, HFILL}},
+    { &hf_option_type,
+      { "Option", "dhcpv6.option.type", FT_UINT16, BASE_DEC, VALS(opttype_vals), 0x0, NULL, HFILL}},
+    { &hf_option_length,
+      { "Length", "dhcpv6.option.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    { &hf_option_value,
+      { "Value", "dhcpv6.option.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}}
     
   };
   static gint *ett[] = {
