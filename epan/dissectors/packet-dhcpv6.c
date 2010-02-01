@@ -62,6 +62,14 @@ static int hf_fqdn_4 = -1;
 static int hf_option_type = -1;
 static int hf_option_length = -1;
 static int hf_option_value = -1;
+static int hf_remoteid_enterprise = -1;
+static int hf_vendoropts_enterprise = -1;
+static int hf_duiden_enterprise = -1;
+static int hf_vendorclass_enterprise = -1;
+static int hf_dhcpv6_hopcount = -1;
+static int hf_dhcpv6_xid = -1;
+static int hf_dhcpv6_peeraddr = -1;
+static int hf_dhcpv6_linkaddr = -1;
 
 static gint ett_dhcpv6 = -1;
 static gint ett_dhcpv6_option = -1;
@@ -268,17 +276,6 @@ static const true_false_string fqdn_s = {
       "Forward mapping (FQDN-to-IPv6, AAAA) performed by server" */
     "S bit set", "S bit cleared"
 }; 
-
-static void
-dhcpv6_enterprise_number(proto_tree * subtree, tvbuff_t *tvb, int offset)
-{
-	  guint32 enterprise_number;
-	  enterprise_number = tvb_get_ntohl(tvb, offset);
-	  proto_tree_add_text(subtree, tvb, offset, 4,
-			      "Enterprise-number: %s (%u)",
-			      val_to_str(enterprise_number, sminmpec_values, "%u"),
-			      enterprise_number);
-}
 
 /* CableLabs Common Vendor Specific Options */
 #define CL_OPTION_ORO 0x0001  /* 1 */
@@ -519,7 +516,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 					optlen, "DUID: malformed option");
 				break;
 			}
-			dhcpv6_enterprise_number(subtree, tvb, off + 2);
+	  		proto_tree_add_item(subtree, hf_duiden_enterprise, tvb, off + 2, 4, FALSE);
 			if (optlen > 6) {
 	      			buf = tvb_bytes_to_str(tvb, off + 6, optlen - 6);
 				proto_tree_add_text(subtree, tvb, off + 6,
@@ -747,7 +744,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 				optlen, "VENDOR_CLASS: malformed option");
 	    break;
 	  }
-	  dhcpv6_enterprise_number(subtree, tvb, off);
+	  proto_tree_add_item(subtree, hf_vendorclass_enterprise, tvb, off, 4, FALSE);
 	  if (optlen > 4) {
 	    buf = tvb_bytes_to_str(tvb, off + 4, optlen - 4);
 	    proto_tree_add_text(subtree, tvb, off+4, optlen-4,
@@ -762,9 +759,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 	  }
 
 	  enterprise_no = tvb_get_ntohl(tvb, off);
-      proto_tree_add_text(subtree, tvb, off, 4,
-			      "enterprise-number: %s (%u)",
-			      val_to_str(enterprise_no, sminmpec_values, "Unknown"), enterprise_no);
+	  proto_tree_add_item(subtree, hf_vendoropts_enterprise, tvb, off, 4, FALSE);
 	  
 	  if (optlen >= 4) {
 				if (enterprise_no == 4491) {
@@ -936,7 +931,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 				optlen, "REMOTE_ID: malformed option");
 	    break;
 	  }
-	  dhcpv6_enterprise_number(subtree, tvb, off);
+	  proto_tree_add_item(subtree, hf_remoteid_enterprise, tvb, off, 4, FALSE);
 	  off += 4;
 	  optlen -= 4;
 	  buf = tvb_bytes_to_str(tvb, off, optlen);
@@ -1189,9 +1184,7 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	proto_tree *bp_tree = NULL;
 	proto_item *ti;
-	guint8 msgtype, hop_count ;
-	guint32 xid;
-	struct e_in6_addr in6;
+	guint8 msgtype;
 	gboolean at_end;
 
 	downstream = 0; /* feature reserved */
@@ -1203,55 +1196,28 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		bp_tree = proto_item_add_subtree(ti, ett_dhcpv6);
         }
 
+        if (!off) {
+           if (check_col(pinfo->cinfo, COL_INFO)) {
+              col_add_str(pinfo->cinfo, COL_INFO,
+                          val_to_str(msgtype,
+                                     msgtype_vals,
+                                     "Message Type %u"));
+           }
+	}
+
         if (msgtype == RELAY_FORW || msgtype == RELAY_REPLY) {
-           
-           if (!off) {
-              if (check_col(pinfo->cinfo, COL_INFO)) {
-                 col_add_str(pinfo->cinfo, COL_INFO,
-                             val_to_str(msgtype,
-                                        msgtype_vals,
-                                        "Message Type %u"));
-              }
+	   if (tree) {
+		proto_tree_add_item(bp_tree, hf_dhcpv6_msgtype, tvb, off, 1, FALSE);
+		proto_tree_add_item(bp_tree, hf_dhcpv6_hopcount, tvb, off + 1, 1, FALSE);
+		proto_tree_add_item(bp_tree, hf_dhcpv6_linkaddr, tvb, off + 2, 16, FALSE);
+		proto_tree_add_item(bp_tree, hf_dhcpv6_peeraddr, tvb, off + 18, 16, FALSE);
 	   }
-
-           proto_tree_add_uint(bp_tree, hf_dhcpv6_msgtype, tvb, off, 1, msgtype);
-
-           hop_count = tvb_get_guint8(tvb, off+1);
-           proto_tree_add_text(bp_tree, tvb, off+1, 1, "Hop count: %d", hop_count);
-
-           tvb_get_ipv6(tvb, off+2, &in6);
-           proto_tree_add_text(bp_tree, tvb, off+2, sizeof(in6), 
-                               "Link-address: %s",ip6_to_str(&in6));
-
-           tvb_get_ipv6(tvb, off+18, &in6);
-           proto_tree_add_text(bp_tree, tvb, off+18, sizeof(in6), 
-                               "Peer-address: %s",ip6_to_str(&in6));
-
            off += 34;
         } else {
-        
-	   xid = tvb_get_ntohl(tvb, off) & 0x00ffffff;
-
-           if (!off) {
-              if (check_col(pinfo->cinfo, COL_INFO)) {
-                 col_add_str(pinfo->cinfo, COL_INFO,
-                             val_to_str(msgtype,
-                                        msgtype_vals,
-                                        "Message Type %u"));
-              }
-           }
-
 	   if (tree) {
-		   proto_tree_add_uint(bp_tree, hf_dhcpv6_msgtype, tvb, off, 1,
-			   msgtype);
-		   proto_tree_add_text(bp_tree, tvb, off+1, 3, "Transaction-ID: 0x%08x", xid);
-#if 0
-		   tvb_get_ipv6(tvb, 4, &in6);
-		   proto_tree_add_text(bp_tree, tvb, 4, sizeof(in6),
-			   "Server address: %s", ip6_to_str(&in6));
-#endif
+		proto_tree_add_item(bp_tree, hf_dhcpv6_msgtype, tvb, off, 1, FALSE);
+		proto_tree_add_item(bp_tree, hf_dhcpv6_xid, tvb, off + 1, 3, FALSE);
 	   }
-
 	   off += 4;
 	}
 
@@ -1299,7 +1265,23 @@ proto_register_dhcpv6(void)
     { &hf_option_length,
       { "Length", "dhcpv6.option.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_option_value,
-      { "Value", "dhcpv6.option.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}}
+      { "Value", "dhcpv6.option.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    { &hf_remoteid_enterprise,
+      { "Enterprise ID", "dhvpv6.remoteid.enterprise", FT_UINT32, BASE_DEC,  VALS(sminmpec_values), 0, "RemoteID Enterprise Number", HFILL }},
+    { &hf_vendoropts_enterprise,
+      { "Enterprise ID", "dhvpv6.vendoropts.enterprise", FT_UINT32, BASE_DEC,  VALS(sminmpec_values), 0, "Vendor opts Enterprise Number", HFILL }},
+    { &hf_vendorclass_enterprise,
+      { "Enterprise ID", "dhvpv6.vendorclass.enterprise", FT_UINT32, BASE_DEC,  VALS(sminmpec_values), 0, "Vendor Class Enterprise Number", HFILL }},
+    { &hf_duiden_enterprise,
+      { "Enterprise ID", "dhvpv6.duiden.enterprise", FT_UINT32, BASE_DEC,  VALS(sminmpec_values), 0, "DUID EN Enterprise Number", HFILL }},
+    { &hf_dhcpv6_hopcount,
+      { "Hopcount", "dhcpv6.hopcount", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}},
+    { &hf_dhcpv6_xid,
+      { "Transaction ID", "dhcpv6.xid", FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL}},
+    { &hf_dhcpv6_linkaddr,
+      { "Link address", "dhcpv6.linkaddr", FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL}},
+    { &hf_dhcpv6_peeraddr,
+      { "Peer address", "dhcpv6.peeraddr", FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL}},
     
   };
   static gint *ett[] = {
