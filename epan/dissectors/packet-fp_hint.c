@@ -509,7 +509,7 @@ static void dissect_fp_hint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			atm_hdr = tvb_get_ntohl(tvb, hdrlen); hdrlen += 4;
 			memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
 			pinfo->pseudo_header->atm.aal = AAL_2;
-			//pinfo->pseudo_header->atm.flags = pinfo->p2p_dir;
+			/* pinfo->pseudo_header->atm.flags = pinfo->p2p_dir; */
 			pinfo->pseudo_header->atm.flags = ATM_AAL2_NOPHDR;
 			pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
 			pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
