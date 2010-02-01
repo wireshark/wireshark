@@ -98,7 +98,7 @@ static const gchar *detail_titles[] = { "Address", "% Packets", "Data Sent", "Da
 
 typedef struct wlan_details_ep {
 	struct wlan_details_ep *next;
-	address address;
+	address addr;
 	guint32 probe_req;
 	guint32 probe_rsp;
 	guint32 auth;
@@ -258,17 +258,17 @@ alloc_wlan_ep (struct _wlan_hdr *si, packet_info *pinfo _U_)
 }
 
 static wlan_details_ep_t*
-alloc_wlan_details_ep (address *address)
+alloc_wlan_details_ep (address *addr)
 {
 	wlan_details_ep_t* d_ep;
 
-	if (!address)
+	if (!addr)
 		return NULL;
 
 	if (!(d_ep = g_malloc (sizeof(wlan_details_ep_t))))
 		return NULL;
 
-	SE_COPY_ADDRESS (&d_ep->address, address);
+	SE_COPY_ADDRESS (&d_ep->addr, addr);
 	d_ep->probe_req = 0;
 	d_ep->probe_rsp = 0;
 	d_ep->auth = 0;
@@ -284,23 +284,23 @@ alloc_wlan_details_ep (address *address)
 }
 
 wlan_details_ep_t *
-get_details_ep (wlan_ep_t *te, address *address)
+get_details_ep (wlan_ep_t *te, address *addr)
 {
 	wlan_details_ep_t *tmp, *d_te = NULL;
 
 	if (!te->details) {
-		te->details = alloc_wlan_details_ep (address);
+		te->details = alloc_wlan_details_ep (addr);
 		d_te = te->details;
 	} else {
 		for (tmp = te->details; tmp; tmp = tmp->next) {
-			if (!CMP_ADDRESS (&tmp->address, address)) {
+			if (!CMP_ADDRESS (&tmp->addr, addr)) {
 				d_te = tmp;
 				break;
 			}
 		}
 
 		if (!d_te) {
-			if ((d_te = alloc_wlan_details_ep (address)) != NULL) {
+			if ((d_te = alloc_wlan_details_ep (addr)) != NULL) {
 				d_te->next = te->details;
 				te->details = d_te;
 			}
@@ -313,9 +313,9 @@ get_details_ep (wlan_ep_t *te, address *address)
 }
 
 static void
-wlanstat_packet_details (wlan_ep_t *te, guint32 type, address *address, gboolean src)
+wlanstat_packet_details (wlan_ep_t *te, guint32 type, address *addr, gboolean src)
 {
-	wlan_details_ep_t *d_te = get_details_ep (te, address);
+	wlan_details_ep_t *d_te = get_details_ep (te, addr);
 
 	switch (type) {
 	case 0x04:
@@ -435,10 +435,10 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 					if (tmp->details && tmp->details->next) {
 						/* Adjust received probe requests */
 						wlan_details_ep_t *d_te;
-						d_te = get_details_ep (te, &tmp->details->address);
+						d_te = get_details_ep (te, &tmp->details->addr);
 						d_te->probe_req += tmp->type[0x04];
 						d_te->number_of_packets += tmp->type[0x04];
-						d_te = get_details_ep (te, &tmp->details->next->address);
+						d_te = get_details_ep (te, &tmp->details->next->addr);
 						d_te->probe_req += tmp->type[0x04];
 						d_te->number_of_packets += tmp->type[0x04];
 					}
@@ -485,8 +485,8 @@ static void
 wlanstat_draw_details(wlanstat_t *hs, wlan_ep_t *wlan_ep, gboolean clear)
 {
 	wlan_details_ep_t *tmp = NULL;
-	char address[256], comment[256], percent[256];
-	gboolean broadcast, basestation;
+	char addr[256], comment[256], percent[256];
+	gboolean broadcast_flag, basestation_flag;
 	float f;
 	GtkListStore *store;
 
@@ -498,8 +498,8 @@ wlanstat_draw_details(wlanstat_t *hs, wlan_ep_t *wlan_ep, gboolean clear)
  	hs->num_details = 0;
 
 	for(tmp = wlan_ep->details; tmp; tmp=tmp->next) {
-		broadcast = is_broadcast(&tmp->address);
-		basestation = !broadcast && !CMP_ADDRESS(&tmp->address, &wlan_ep->bssid);
+		broadcast_flag = is_broadcast(&tmp->addr);
+		basestation_flag = !broadcast_flag && !CMP_ADDRESS(&tmp->addr, &wlan_ep->bssid);
 
 		if ((wlan_ep->number_of_packets - wlan_ep->type[0x08]) > 0) {
 			f = (float)(((float)tmp->number_of_packets * 100.0) / (wlan_ep->number_of_packets - wlan_ep->type[0x08]));
@@ -508,11 +508,11 @@ wlanstat_draw_details(wlanstat_t *hs, wlan_ep_t *wlan_ep, gboolean clear)
 		}
 
 		if (hs->resolve_names) {
-			g_strlcpy (address, get_addr_name(&tmp->address), sizeof(address));
+			g_strlcpy (addr, get_addr_name(&tmp->addr), sizeof(addr));
 		} else {
-			g_strlcpy (address, ep_address_to_str(&tmp->address), sizeof(address));
+			g_strlcpy (addr, ep_address_to_str(&tmp->addr), sizeof(addr));
 		}
-		if (basestation) {
+		if (basestation_flag) {
 			g_strlcpy (comment, "Base station", sizeof(comment));
 		} else {
 			g_strlcpy (comment, " ", sizeof(comment));
@@ -524,7 +524,7 @@ wlanstat_draw_details(wlanstat_t *hs, wlan_ep_t *wlan_ep, gboolean clear)
 			tmp->iter_valid = TRUE;
 		}
 		gtk_list_store_set(store, &tmp->iter,
-				   ADDRESS_COLUMN, address,
+				   ADDRESS_COLUMN, addr,
 				   PERCENT_2_COLUMN, percent,
 				   DATA_SENT_COLUMN, tmp->data_sent,
 				   DATA_REC_COLUMN, tmp->data_received,
@@ -806,7 +806,7 @@ wlan_details_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, gui
 	gtk_tree_selection_get_selected (sel, &model, &iter);
 	gtk_tree_model_get (model, &iter, DETAILS_COLUMN, &ep, -1);
 
-	str = g_strdup_printf("wlan.addr==%s", ep_address_to_str(&ep->address));
+	str = g_strdup_printf("wlan.addr==%s", ep_address_to_str(&ep->addr));
 
 	apply_selected_filter (callback_action, str);
 

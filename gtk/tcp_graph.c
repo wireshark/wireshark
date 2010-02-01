@@ -2046,56 +2046,56 @@ static void graph_pixmap_draw (struct graph *g)
 
 static void draw_element_line (struct graph *g, struct element *e)
 {
-	int x1, x2, y1, y2;
+	int xx1, xx2, yy1, yy2;
 
 	debug(DBS_GRAPH_DRAWING) printf ("line element: (%.2f,%.2f)->(%.2f,%.2f), "
 				"seg %d ... ", e->p.line.dim.x1, e->p.line.dim.y1,
 				e->p.line.dim.x2, e->p.line.dim.y2, e->parent->num);
-	x1 = (int )rint (e->p.line.dim.x1 + g->geom.x - g->wp.x);
-	x2 = (int )rint (e->p.line.dim.x2 + g->geom.x - g->wp.x);
-	y1 = (int )rint ((g->geom.height-1-e->p.line.dim.y1) + g->geom.y-g->wp.y);
-	y2 = (int )rint ((g->geom.height-1-e->p.line.dim.y2) + g->geom.y-g->wp.y);
-	if (x1 > x2) {
-		int tmp=x2;
-		x2=x1;
-		x1=tmp;
+	xx1 = (int )rint (e->p.line.dim.x1 + g->geom.x - g->wp.x);
+	xx2 = (int )rint (e->p.line.dim.x2 + g->geom.x - g->wp.x);
+	yy1 = (int )rint ((g->geom.height-1-e->p.line.dim.y1) + g->geom.y-g->wp.y);
+	yy2 = (int )rint ((g->geom.height-1-e->p.line.dim.y2) + g->geom.y-g->wp.y);
+	if (xx1 > xx2) {
+		int tmp=xx2;
+		xx2=xx1;
+		xx1=tmp;
 	}
-	if (y1 > y2) {
-		int tmp=y2;
-		y2=y1;
-		y1=tmp;
+	if (yy1 > yy2) {
+		int tmp=yy2;
+		yy2=yy1;
+		yy1=tmp;
 	}
-	if ((x1<0 && x2<0) || (x1>=g->wp.width && x2>=g->wp.width) ||
-				(y1<0 && y2<0) || (y1>=g->wp.height && y2>=g->wp.height)) {
+	if ((xx1<0 && xx2<0) || (xx1>=g->wp.width && xx2>=g->wp.width) ||
+				(yy1<0 && yy2<0) || (yy1>=g->wp.height && yy2>=g->wp.height)) {
 		debug(DBS_GRAPH_DRAWING) printf (" refusing: (%d,%d)->(%d,%d)\n",
-									x1, y1, x2, y2);
+									xx1, yy1, xx2, yy2);
 		return;
 	}
-	if (x2 > g->wp.width-1)
-		x2 = g->wp.width-1;
-	if (x1 < 0)
-		x1 = 0;
-	if (y2 > g->wp.height-1)
-		y2 = g->wp.height-1;
-	if (y1 < 0)
-		y1 = 0;
-	debug(DBS_GRAPH_DRAWING) printf ("line: (%d,%d)->(%d,%d)\n", x1, y1, x2,y2);
-	gdk_draw_line (g->pixmap[1^g->displayed], e->gc, x1, y1, x2, y2);
+	if (xx2 > g->wp.width-1)
+		xx2 = g->wp.width-1;
+	if (xx1 < 0)
+		xx1 = 0;
+	if (yy2 > g->wp.height-1)
+		yy2 = g->wp.height-1;
+	if (yy1 < 0)
+		yy1 = 0;
+	debug(DBS_GRAPH_DRAWING) printf ("line: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2,yy2);
+	gdk_draw_line (g->pixmap[1^g->displayed], e->gc, xx1, yy1, xx2, yy2);
 }
 
 static void draw_element_arc (struct graph *g, struct element *e)
 {
-	int x1, x2, y1, y2;
+	int xx1, xx2, yy1, yy2;
 
-	x1 = (int )rint (e->p.arc.dim.x + g->geom.x - g->wp.x);
-	x2 = (int )e->p.arc.dim.width;
-	y1 = (int )rint (g->geom.height-1 - e->p.arc.dim.y + g->geom.y - g->wp.y);
-	y2 = (int )e->p.arc.dim.height;
-	if (x1<-x2 || x1>=g->wp.width || y1<-y2 || y1>=g->wp.height)
+	xx1 = (int )rint (e->p.arc.dim.x + g->geom.x - g->wp.x);
+	xx2 = (int )e->p.arc.dim.width;
+	yy1 = (int )rint (g->geom.height-1 - e->p.arc.dim.y + g->geom.y - g->wp.y);
+	yy2 = (int )e->p.arc.dim.height;
+	if (xx1<-xx2 || xx1>=g->wp.width || yy1<-yy2 || yy1>=g->wp.height)
 		return;
-	debug(DBS_GRAPH_DRAWING) printf ("arc: (%d,%d)->(%d,%d)\n", x1, y1, x2, y2);
-	gdk_draw_arc (g->pixmap[1^g->displayed], e->gc, e->p.arc.filled, x1,
-					y1, x2, y2, e->p.arc.angle1, e->p.arc.angle2);
+	debug(DBS_GRAPH_DRAWING) printf ("arc: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2, yy2);
+	gdk_draw_arc (g->pixmap[1^g->displayed], e->gc, e->p.arc.filled, xx1,
+					yy1, xx2, yy2, e->p.arc.angle1, e->p.arc.angle2);
 }
 
 static void axis_pixmaps_create (struct axis *axis)
@@ -2512,26 +2512,26 @@ static void graph_select_segment (struct graph *g, int x, int y)
 
 static int line_detect_collision (struct element *e, int x, int y)
 {
-	int x1, y1, x2, y2;
+	int xx1, yy1, xx2, yy2;
 
 	if (e->p.line.dim.x1 < e->p.line.dim.x2) {
-		x1 = (int )rint (e->p.line.dim.x1);
-		x2 = (int )rint (e->p.line.dim.x2);
+		xx1 = (int )rint (e->p.line.dim.x1);
+		xx2 = (int )rint (e->p.line.dim.x2);
 	} else {
-		x1 = (int )rint (e->p.line.dim.x2);
-		x2 = (int )rint (e->p.line.dim.x1);
+		xx1 = (int )rint (e->p.line.dim.x2);
+		xx2 = (int )rint (e->p.line.dim.x1);
 	}
 	if (e->p.line.dim.y1 < e->p.line.dim.y2) {
-		y1 = (int )rint (e->p.line.dim.y1);
-		y2 = (int )rint (e->p.line.dim.y2);
+		yy1 = (int )rint (e->p.line.dim.y1);
+		yy2 = (int )rint (e->p.line.dim.y2);
 	} else {
-		y1 = (int )rint (e->p.line.dim.y2);
-		y2 = (int )rint (e->p.line.dim.y1);
+		yy1 = (int )rint (e->p.line.dim.y2);
+		yy2 = (int )rint (e->p.line.dim.y1);
 	}
 	/*
-	printf ("line: (%d,%d)->(%d,%d), clicked: (%d,%d)\n", x1, y1, x2, y2, x, y);
+	printf ("line: (%d,%d)->(%d,%d), clicked: (%d,%d)\n", xx1, yy1, xx2, yy2, x, y);
 	 */
-	if ((x1==x && x2==x && y1<=y && y<=y2)||(y1==y && y2==y && x1<=x && x<=x2))
+	if ((xx1==x && xx2==x && yy1<=y && y<=yy2)||(yy1==y && yy2==y && xx1<=x && x<=xx2))
 		return TRUE;
 	else
 		return FALSE;
@@ -2539,16 +2539,16 @@ static int line_detect_collision (struct element *e, int x, int y)
 
 static int arc_detect_collision (struct element *e, int x, int y)
 {
-	int x1, y1, x2, y2;
+	int xx1, yy1, xx2, yy2;
 
-	x1 = (int )rint (e->p.arc.dim.x);
-	x2 = (int )rint (e->p.arc.dim.x + e->p.arc.dim.width);
-	y1 = (int )rint (e->p.arc.dim.y - e->p.arc.dim.height);
-	y2 = (int )rint (e->p.arc.dim.y);
+	xx1 = (int )rint (e->p.arc.dim.x);
+	xx2 = (int )rint (e->p.arc.dim.x + e->p.arc.dim.width);
+	yy1 = (int )rint (e->p.arc.dim.y - e->p.arc.dim.height);
+	yy2 = (int )rint (e->p.arc.dim.y);
 	/*
-	printf ("arc: (%d,%d)->(%d,%d), clicked: (%d,%d)\n", x1, y1, x2, y2, x, y);
+	printf ("arc: (%d,%d)->(%d,%d), clicked: (%d,%d)\n", xx1, yy1, xx2, yy2, x, y);
 	 */
-	if (x1<=x && x<=x2 && y1<=y && y<=y2)
+	if (xx1<=x && x<=xx2 && yy1<=y && y<=yy2)
 		return TRUE;
 	else
 		return FALSE;
@@ -3505,8 +3505,8 @@ static void tseq_stevens_make_elmtlist (struct graph *g)
 {
 	struct segment *tmp;
 	struct element *elements, *e;
-	double x0 = g->bounds.x0, y0 = g->bounds.y0;
-	guint32 seq_base = (guint32) y0;
+	double xx0 = g->bounds.x0, yy0 = g->bounds.y0;
+	guint32 seq_base = (guint32) yy0;
 	guint32 seq_cur;
 
 	debug(DBS_FENTRY) puts ("tseq_stevens_make_elmtlist()");
@@ -3528,7 +3528,7 @@ static void tseq_stevens_make_elmtlist (struct graph *g)
 		}
 		/* data seg */
 		seq_cur = tmp->th_seq - seq_base;
-		secs = g->zoom.x * (tmp->rel_secs + tmp->rel_usecs / 1000000.0 - x0);
+		secs = g->zoom.x * (tmp->rel_secs + tmp->rel_usecs / 1000000.0 - xx0);
 		seqno = g->zoom.y * seq_cur;
 
 		e->type = ELMT_ARC;
@@ -3649,7 +3649,7 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 	struct segment *tmp;
 	struct element *elements0, *e0;		/* list of elmts with prio 0 */
 	struct element *elements1, *e1;		/* list of elmts with prio 1 */
-	double x0, y0;
+	double xx0, yy0;
 	double p_t = 0; /* ackno, window and time of previous segment */
 	double p_ackno = 0, p_win = 0;
 	gboolean ack_seen=FALSE;
@@ -3671,16 +3671,16 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 	} else
 		e1 = elements1 = g->elists->next->elements;
 
-	x0 = g->bounds.x0;
-	y0 = g->bounds.y0;
-	seq_base = (guint32) y0;
+	xx0 = g->bounds.x0;
+	yy0 = g->bounds.y0;
+	seq_base = (guint32) yy0;
 
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
 		double secs, data;
 		double x;
 
 		secs = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
-		x = secs - x0;
+		x = secs - xx0;
 		x *= g->zoom.x;
 		if(compare_headers(&g->current->ip_src, &g->current->ip_dst,
 				   g->current->th_sport, g->current->th_dport,
@@ -3688,7 +3688,7 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 				   tmp->th_sport, tmp->th_dport,
 				   COMPARE_CURR_DIR)) {
 			/* forward direction -> we need seqno and amount of data */
-			double y1, y2;
+			double yy1, yy2;
 
 			seq_cur = tmp->th_seq - seq_base;
 			if (TCP_SYN (tmp->th_flags) || TCP_FIN (tmp->th_flags))
@@ -3696,28 +3696,28 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 			else
 				data = tmp->th_seglen;
 
-			y1 = g->zoom.y * (seq_cur);
-			y2 = g->zoom.y * (seq_cur + data);
+			yy1 = g->zoom.y * (seq_cur);
+			yy2 = g->zoom.y * (seq_cur + data);
 			e1->type = ELMT_LINE;
 			e1->parent = tmp;
 			e1->gc = g->s.tseq_tcptrace.gc_seq;
 			e1->p.line.dim.x1 = e1->p.line.dim.x2 = x;
-			e1->p.line.dim.y1 = y1;
-			e1->p.line.dim.y2 = y2;
+			e1->p.line.dim.y1 = yy1;
+			e1->p.line.dim.y2 = yy2;
 			e1++;
 			e1->type = ELMT_LINE;
 			e1->parent = tmp;
 			e1->gc = g->s.tseq_tcptrace.gc_seq;
 			e1->p.line.dim.x1 = x - 1;
 			e1->p.line.dim.x2 = x + 1;
-			e1->p.line.dim.y1 = e1->p.line.dim.y2 = y1;
+			e1->p.line.dim.y1 = e1->p.line.dim.y2 = yy1;
 			e1++;
 			e1->type = ELMT_LINE;
 			e1->parent = tmp;
 			e1->gc = g->s.tseq_tcptrace.gc_seq;
 			e1->p.line.dim.x1 = x + 1;
 			e1->p.line.dim.x2 = x - 1;
-			e1->p.line.dim.y1 = e1->p.line.dim.y2 = y2;
+			e1->p.line.dim.y1 = e1->p.line.dim.y2 = yy2;
 			e1++;
 		} else {
 			double ackno, win;
@@ -3816,8 +3816,8 @@ static void tput_make_elmtlist (struct graph *g)
 		e = elements = g->elists->elements;
 
 	for (oldest=g->segments,tmp=g->segments->next,i=0; tmp; tmp=tmp->next,i++) {
-		double time = tmp->rel_secs + tmp->rel_usecs/1000000.0;
-		dtime = time - (oldest->rel_secs + oldest->rel_usecs/1000000.0);
+		double time_val = tmp->rel_secs + tmp->rel_usecs/1000000.0;
+		dtime = time_val - (oldest->rel_secs + oldest->rel_usecs/1000000.0);
 		if (i>g->s.tput.nsegs) {
 			sum -= oldest->th_seglen;
 			oldest=oldest->next;
@@ -3831,7 +3831,7 @@ static void tput_make_elmtlist (struct graph *g)
 		e->gc = g->fg_gc;
 		e->p.arc.dim.width = g->s.tput.width;
 		e->p.arc.dim.height = g->s.tput.height;
-		e->p.arc.dim.x = g->zoom.x*(time - g->bounds.x0) - g->s.tput.width/2.0;
+		e->p.arc.dim.x = g->zoom.x*(time_val - g->bounds.x0) - g->s.tput.width/2.0;
 		e->p.arc.dim.y = g->zoom.y*tput + g->s.tput.height/2.0;
 		e->p.arc.filled = TRUE;
 		e->p.arc.angle1 = 0;
@@ -3850,7 +3850,7 @@ static void tput_initialize (struct graph *g)
 	struct segment *tmp, *oldest, *last;
 	int i, sum=0;
 	double dtime, tput, tputmax=0;
-	double t, t0, tmax = 0, y0, ymax;
+	double t, t0, tmax = 0, yy0, ymax;
 
 	debug(DBS_FENTRY) puts ("tput_initialize()");
 
@@ -3875,13 +3875,13 @@ static void tput_initialize (struct graph *g)
 	}
 
 	t0 = g->segments->rel_secs + g->segments->rel_usecs / 1000000.0;
-	y0 = 0;
+	yy0 = 0;
 	ymax = tputmax;
 
 	g->bounds.x0 = t0;
-	g->bounds.y0 = y0;
+	g->bounds.y0 = yy0;
 	g->bounds.width = tmax - t0;
-	g->bounds.height = ymax - y0;
+	g->bounds.height = ymax - yy0;
 	g->zoom.x = (g->geom.width - 1) / g->bounds.width;
 	g->zoom.y = (g->geom.height -1) / g->bounds.height;
 }
@@ -3943,7 +3943,7 @@ static void rtt_initialize (struct graph *g)
 	struct segment *tmp, *first=NULL;
 	struct unack *unack = NULL, *u;
 	double rttmax=0;
-	double x0, y0, ymax;
+	double xx0, yy0, ymax;
 	guint32 xmax = 0;
 	guint32 seq_base = 0;
 
@@ -3965,8 +3965,8 @@ static void rtt_initialize (struct graph *g)
 			}
 			seqno -= seq_base;
 			if (tmp->th_seglen && !rtt_is_retrans (unack, seqno)) {
-				double time = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
-				u = rtt_get_new_unack (time, seqno);
+				double time_val = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
+				u = rtt_get_new_unack (time_val, seqno);
 				if (!u) return;
 				rtt_put_unack_on_list (&unack, u);
 			}
@@ -3975,12 +3975,12 @@ static void rtt_initialize (struct graph *g)
 				xmax = seqno + tmp->th_seglen;
 		} else if (first) {
 			guint32 ackno = tmp->th_ack -seq_base;
-			double time = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
+			double time_val = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
 			struct unack *v;
 
 			for (u=unack; u; u=v)
 				if (ackno > u->seqno) {
-					double rtt = time - u->time;
+					double rtt = time_val - u->time;
 					if (rtt > rttmax)
 						rttmax = rtt;
 					v=u->next;
@@ -3990,14 +3990,14 @@ static void rtt_initialize (struct graph *g)
 		}
 	}
 
-	x0 = seq_base;
-	y0 = 0;
+	xx0 = seq_base;
+	yy0 = 0;
 	ymax = rttmax;
 
-	g->bounds.x0 = x0;
-	g->bounds.y0 = y0;
+	g->bounds.x0 = xx0;
+	g->bounds.y0 = yy0;
 	g->bounds.width = xmax;
-	g->bounds.height = ymax - y0;
+	g->bounds.height = ymax - yy0;
 	g->zoom.x = g->geom.width / g->bounds.width;
 	g->zoom.y = g->geom.height / g->bounds.height;
 }
@@ -4013,7 +4013,7 @@ static int rtt_is_retrans (struct unack *list, unsigned int seqno)
 	return FALSE;
 }
 
-static struct unack *rtt_get_new_unack (double time, unsigned int seqno)
+static struct unack *rtt_get_new_unack (double time_val, unsigned int seqno)
 {
 	struct unack *u;
 
@@ -4021,7 +4021,7 @@ static struct unack *rtt_get_new_unack (double time, unsigned int seqno)
 	if (!u)
 		return NULL;
 	u->next = NULL;
-	u->time = time;
+	u->time = time_val;
 	u->seqno = seqno;
 	return u;
 }
@@ -4084,19 +4084,19 @@ static void rtt_make_elmtlist (struct graph *g)
 			guint32 seqno = tmp->th_seq -seq_base;
 
 			if (tmp->th_seglen && !rtt_is_retrans (unack, seqno)) {
-				double time = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
-				u = rtt_get_new_unack (time, seqno);
+				double time_val = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
+				u = rtt_get_new_unack (time_val, seqno);
 				if (!u) return;
 				rtt_put_unack_on_list (&unack, u);
 			}
 		} else {
 			guint32 ackno = tmp->th_ack -seq_base;
-			double time = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
+			double time_val = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
 			struct unack *v;
 
 			for (u=unack; u; u=v)
 				if (ackno > u->seqno) {
-					double rtt = time - u->time;
+					double rtt = time_val - u->time;
 
 					e->type = ELMT_ARC;
 					e->parent = tmp;

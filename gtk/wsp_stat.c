@@ -162,7 +162,7 @@ wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 {
 	wspstat_t *sp=psp;
 	const wsp_info_value_t *value=pri;
-	gint index = pdut2index(value->pdut);
+	gint idx = pdut2index(value->pdut);
 	int retour=0;
 
 	if (value->status_code != 0) {
@@ -191,8 +191,8 @@ wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 
 
 
-	if (index!=0) {
-		sp->pdu_stats[ index ].packets++;
+	if (idx!=0) {
+		sp->pdu_stats[ idx ].packets++;
 		retour = 1;
 	}
 	return retour;
@@ -207,7 +207,7 @@ wspstat_draw(void *psp)
 	wspstat_t *sp=psp;
 	guint32 i;
 	char str[256];
-	guint index;
+	guint idx;
 
 	for(i=1;i<=sp->num_pdus ; i++)
 	{
@@ -215,9 +215,9 @@ wspstat_draw(void *psp)
 		 gtk_label_set_text( GTK_LABEL(sp->pdu_stats[i].widget), str);
 	}
 
-	index=sp->index;
+	idx=sp->index;
 	g_hash_table_foreach( sp->hash, (GHFunc) wsp_draw_statuscode, NULL );
-	if (index != sp->index){
+	if (idx != sp->index){
 		/* We have inserted a new entry corresponding to a status code ,
 		 * let's resize the table */
 		gtk_table_resize ( GTK_TABLE(sp->table_status_code), sp->index  % 2 , 4);
@@ -250,7 +250,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 static void
-add_table_entry(wspstat_t *sp, const char *str, int x, int y, int index)
+add_table_entry(wspstat_t *sp, const char *str, int x, int y, int idx)
 {
 	GtkWidget *tmp;
 
@@ -258,8 +258,8 @@ add_table_entry(wspstat_t *sp, const char *str, int x, int y, int index)
 	gtk_table_attach_defaults(GTK_TABLE(sp->table_pdu_types), tmp, x, x+1, y, y+1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
 	gtk_widget_show(tmp);
-	if (index != 0) {
-		sp->pdu_stats [index] .widget = GTK_LABEL( tmp ) ;
+	if (idx != 0) {
+		sp->pdu_stats [idx] .widget = GTK_LABEL( tmp ) ;
 	}
 }
 
