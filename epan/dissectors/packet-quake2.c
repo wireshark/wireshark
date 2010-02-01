@@ -156,15 +156,15 @@ dissect_quake2_client_commands_move(tvbuff_t *tvb, packet_info *pinfo _U_,
 	guint8 	chksum;
 	guint32 lastframe;
 	int i, offset = 0;
-	enum { OFFSET, VALUE, SIZE };
+	enum { Q_OFFSET, Q_VALUE, Q_SIZE };
 	struct movement {
-		guint8 bits[SIZE];
-		guint16 angles[3][SIZE];
-		gint16 movement[3][SIZE];
-		guint8 buttons[SIZE];
-		guint8 lightlevel[SIZE];
-		guint8 msec[SIZE];
-		guint8 impulse[SIZE];
+		guint8 bits[Q_SIZE];
+		guint16 angles[3][Q_SIZE];
+		gint16 movement[3][Q_SIZE];
+		guint8 buttons[Q_SIZE];
+		guint8 lightlevel[Q_SIZE];
+		guint8 msec[Q_SIZE];
+		guint8 impulse[Q_SIZE];
 	} move[MOVES+1];
 
 	chksum = tvb_get_guint8(tvb, offset);
@@ -173,55 +173,55 @@ dissect_quake2_client_commands_move(tvbuff_t *tvb, packet_info *pinfo _U_,
 	offset += 4;
 
 	for (i=0; i < MOVES; i++) {
-		move[i].bits[VALUE] = tvb_get_guint8(tvb, offset);
-		move[i].bits[OFFSET] = offset;
+		move[i].bits[Q_VALUE] = tvb_get_guint8(tvb, offset);
+		move[i].bits[Q_OFFSET] = offset;
 		offset++;
-		if (move[i].bits[VALUE] & CM_ANGLE1) {
-			move[i].angles[0][VALUE] = tvb_get_letohs(tvb, offset);
-			move[i].angles[0][OFFSET] = offset;
+		if (move[i].bits[Q_VALUE] & CM_ANGLE1) {
+			move[i].angles[0][Q_VALUE] = tvb_get_letohs(tvb, offset);
+			move[i].angles[0][Q_OFFSET] = offset;
 			offset += 2;
 		}
-		if (move[i].bits[VALUE] & CM_ANGLE2) {
-			move[i].angles[1][VALUE] = tvb_get_letohs(tvb, offset);
-			move[i].angles[1][OFFSET] = offset;
+		if (move[i].bits[Q_VALUE] & CM_ANGLE2) {
+			move[i].angles[1][Q_VALUE] = tvb_get_letohs(tvb, offset);
+			move[i].angles[1][Q_OFFSET] = offset;
 			offset += 2;
 		}
-		if (move[i].bits[VALUE] & CM_ANGLE3) {
-			move[i].angles[2][VALUE] = tvb_get_letohs(tvb, offset);
-			move[i].angles[2][OFFSET] = offset;
+		if (move[i].bits[Q_VALUE] & CM_ANGLE3) {
+			move[i].angles[2][Q_VALUE] = tvb_get_letohs(tvb, offset);
+			move[i].angles[2][Q_OFFSET] = offset;
 			offset += 2;
 		}
-		if (move[i].bits[VALUE] & CM_FORWARD) {
-			move[i].movement[0][VALUE] = tvb_get_letohs(tvb, offset);
-			move[i].movement[0][OFFSET] = offset;
+		if (move[i].bits[Q_VALUE] & CM_FORWARD) {
+			move[i].movement[0][Q_VALUE] = tvb_get_letohs(tvb, offset);
+			move[i].movement[0][Q_OFFSET] = offset;
 			offset += 2;
 		}
-		if (move[i].bits[VALUE] & CM_SIDE) {
-			move[i].movement[1][VALUE] = tvb_get_letohs(tvb, offset);
-			move[i].movement[1][OFFSET] = offset;
+		if (move[i].bits[Q_VALUE] & CM_SIDE) {
+			move[i].movement[1][Q_VALUE] = tvb_get_letohs(tvb, offset);
+			move[i].movement[1][Q_OFFSET] = offset;
 			offset += 2;
 		}
-		if (move[i].bits[VALUE] & CM_UP) {
-			move[i].movement[2][VALUE] = tvb_get_letohs(tvb, offset);
-			move[i].movement[2][OFFSET] = offset;
+		if (move[i].bits[Q_VALUE] & CM_UP) {
+			move[i].movement[2][Q_VALUE] = tvb_get_letohs(tvb, offset);
+			move[i].movement[2][Q_OFFSET] = offset;
 			offset += 2;
 		}
-		if (move[i].bits[VALUE] & CM_BUTTONS) {
-			move[i].buttons[VALUE] = tvb_get_guint8(tvb, offset);
-			move[i].buttons[OFFSET] = offset;
+		if (move[i].bits[Q_VALUE] & CM_BUTTONS) {
+			move[i].buttons[Q_VALUE] = tvb_get_guint8(tvb, offset);
+			move[i].buttons[Q_OFFSET] = offset;
 			offset++;
 		}
-		if (move[i].bits[VALUE] & CM_IMPULSE) {
-			move[i].impulse[VALUE] = tvb_get_guint8(tvb, offset);
-			move[i].impulse[OFFSET] = offset;
+		if (move[i].bits[Q_VALUE] & CM_IMPULSE) {
+			move[i].impulse[Q_VALUE] = tvb_get_guint8(tvb, offset);
+			move[i].impulse[Q_OFFSET] = offset;
 			offset++;
 		}
 
-		move[i].msec[VALUE] = tvb_get_guint8(tvb, offset);
-		move[i].msec[OFFSET] = offset;
+		move[i].msec[Q_VALUE] = tvb_get_guint8(tvb, offset);
+		move[i].msec[Q_OFFSET] = offset;
 		offset++;
-		move[i].lightlevel[VALUE] = tvb_get_guint8(tvb, offset);
-		move[i].lightlevel[OFFSET] = offset;
+		move[i].lightlevel[Q_VALUE] = tvb_get_guint8(tvb, offset);
+		move[i].lightlevel[Q_OFFSET] = offset;
 		offset++;
 	}
 
@@ -233,7 +233,7 @@ dissect_quake2_client_commands_move(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree_add_uint(tree, hf_quake2_game_client_command_move_lframe, tvb,
 		1, 4, lastframe);
 
-	move[MOVES].bits[OFFSET] = offset;
+	move[MOVES].bits[Q_OFFSET] = offset;
 	for (i=0; i < MOVES; i++) {
 		proto_item *move_item, *movebits_item, *bit_item;
 		proto_item *sub_tree, *field_tree;
@@ -241,8 +241,8 @@ dissect_quake2_client_commands_move(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 		move_item = proto_tree_add_text(tree,
 				tvb,
-				move[i].bits[OFFSET],
-				move[i+1].bits[OFFSET]-move[i].bits[OFFSET],
+				move[i].bits[Q_OFFSET],
+				move[i+1].bits[Q_OFFSET]-move[i].bits[Q_OFFSET],
 				"Move %u", i+1);
 		sub_tree = proto_item_add_subtree(move_item,
 				ett_quake2_game_clc_cmd_move_moves);
@@ -250,18 +250,18 @@ dissect_quake2_client_commands_move(tvbuff_t *tvb, packet_info *pinfo _U_,
 		movebits_item =
 			proto_tree_add_uint(sub_tree, hf_quake2_game_client_command_move,
 					tvb,
-					move[i].bits[OFFSET],
+					move[i].bits[Q_OFFSET],
 					1,
-					move[i].bits[VALUE]);
+					move[i].bits[Q_VALUE]);
 
 		proto_tree_add_uint(sub_tree,
 				hf_quake2_game_client_command_move_msec,
-				tvb, move[i].msec[OFFSET], 1, move[i].msec[VALUE]);
+				tvb, move[i].msec[Q_OFFSET], 1, move[i].msec[Q_VALUE]);
 		proto_tree_add_uint(sub_tree,
 				hf_quake2_game_client_command_move_lightlevel,
-				tvb, move[i].lightlevel[OFFSET], 1, move[i].lightlevel[VALUE]);
+				tvb, move[i].lightlevel[Q_OFFSET], 1, move[i].lightlevel[Q_VALUE]);
 
-		if (move[i].bits[VALUE] == 0) {
+		if (move[i].bits[Q_VALUE] == 0) {
 			proto_item_append_text(movebits_item, " (no moves)");
 			continue;
 		}
@@ -269,71 +269,71 @@ dissect_quake2_client_commands_move(tvbuff_t *tvb, packet_info *pinfo _U_,
 		field_tree = proto_item_add_subtree(movebits_item,
 				ett_quake2_game_clc_cmd_move_bitfield);
 
-		if (move[i].bits[VALUE] & CM_ANGLE1) {
+		if (move[i].bits[Q_VALUE] & CM_ANGLE1) {
 			bit_item = proto_tree_add_uint(field_tree,
 				hf_quake2_game_client_command_move_bitfield_angles1, tvb,
-				move[i].angles[0][OFFSET], 2, move[i].bits[VALUE]);
-			proto_item_append_text(bit_item, " (%d", move[i].angles[0][VALUE]);
+				move[i].angles[0][Q_OFFSET], 2, move[i].bits[Q_VALUE]);
+			proto_item_append_text(bit_item, " (%d", move[i].angles[0][Q_VALUE]);
 			proto_item_append_text(bit_item, " = %.2f deg)",
-					SHORT2ANGLE(move[i].angles[0][VALUE]));
+					SHORT2ANGLE(move[i].angles[0][Q_VALUE]));
 		}
 
-		if (move[i].bits[VALUE] & CM_ANGLE2) {
+		if (move[i].bits[Q_VALUE] & CM_ANGLE2) {
 			bit_item = proto_tree_add_uint(field_tree,
 				hf_quake2_game_client_command_move_bitfield_angles2, tvb,
-				move[i].angles[1][OFFSET], 2, move[i].bits[VALUE]);
-			proto_item_append_text(bit_item, " (%d", move[i].angles[1][VALUE]);
+				move[i].angles[1][Q_OFFSET], 2, move[i].bits[Q_VALUE]);
+			proto_item_append_text(bit_item, " (%d", move[i].angles[1][Q_VALUE]);
 			proto_item_append_text(bit_item, " = %.2f deg)",
-					SHORT2ANGLE(move[i].angles[1][VALUE]));
+					SHORT2ANGLE(move[i].angles[1][Q_VALUE]));
 		}
-		if (move[i].bits[VALUE] & CM_ANGLE3) {
+		if (move[i].bits[Q_VALUE] & CM_ANGLE3) {
 			bit_item = proto_tree_add_uint(field_tree,
 				hf_quake2_game_client_command_move_bitfield_angles3, tvb,
-				move[i].angles[2][OFFSET], 2, move[i].bits[VALUE]);
-			proto_item_append_text(bit_item, " (%d", move[i].angles[2][VALUE]);
+				move[i].angles[2][Q_OFFSET], 2, move[i].bits[Q_VALUE]);
+			proto_item_append_text(bit_item, " (%d", move[i].angles[2][Q_VALUE]);
 			proto_item_append_text(bit_item, " = %.2f deg)",
-					SHORT2ANGLE(move[i].angles[2][VALUE]));
+					SHORT2ANGLE(move[i].angles[2][Q_VALUE]));
 		}
-		if (move[i].bits[VALUE] & CM_FORWARD) {
+		if (move[i].bits[Q_VALUE] & CM_FORWARD) {
 			bit_item = proto_tree_add_uint(field_tree,
 				hf_quake2_game_client_command_move_bitfield_movement_fwd, tvb,
-				move[i].movement[0][OFFSET], 2, move[i].bits[VALUE]);
+				move[i].movement[0][Q_OFFSET], 2, move[i].bits[Q_VALUE]);
 			proto_item_append_text(bit_item, " (%hd)",
-					move[i].movement[0][VALUE]);
+					move[i].movement[0][Q_VALUE]);
 		}
-		if (move[i].bits[VALUE] & CM_SIDE) {
+		if (move[i].bits[Q_VALUE] & CM_SIDE) {
 			bit_item = proto_tree_add_uint(field_tree,
 				hf_quake2_game_client_command_move_bitfield_movement_side, tvb,
-				move[i].movement[1][OFFSET], 2, move[i].bits[VALUE]);
+				move[i].movement[1][Q_OFFSET], 2, move[i].bits[Q_VALUE]);
 			proto_item_append_text(bit_item, " (%hd)",
-					move[i].movement[1][VALUE]);
+					move[i].movement[1][Q_VALUE]);
 		}
-		if (move[i].bits[VALUE] & CM_UP) {
+		if (move[i].bits[Q_VALUE] & CM_UP) {
 			bit_item = proto_tree_add_uint(field_tree,
 				hf_quake2_game_client_command_move_bitfield_movement_up, tvb,
-				move[i].movement[2][OFFSET], 2, move[i].bits[VALUE]);
+				move[i].movement[2][Q_OFFSET], 2, move[i].bits[Q_VALUE]);
 			proto_item_append_text(bit_item, " (%hd)",
-					move[i].movement[2][VALUE]);
+					move[i].movement[2][Q_VALUE]);
 		}
-		if (move[i].bits[VALUE] & CM_BUTTONS) {
+		if (move[i].bits[Q_VALUE] & CM_BUTTONS) {
 			bit_item = proto_tree_add_uint(field_tree,
 				hf_quake2_game_client_command_move_bitfield_buttons, tvb,
-				move[i].buttons[OFFSET], 1, move[i].bits[VALUE]);
+				move[i].buttons[Q_OFFSET], 1, move[i].bits[Q_VALUE]);
 			proto_item_append_text(bit_item, " (%d)",
-					move[i].buttons[VALUE]);
-			if (move[i].buttons[VALUE] & BUTTON_ATTACK)
+					move[i].buttons[Q_VALUE]);
+			if (move[i].buttons[Q_VALUE] & BUTTON_ATTACK)
 				proto_item_append_text(bit_item, " (Attack)");
-			if (move[i].buttons[VALUE] & BUTTON_USE)
+			if (move[i].buttons[Q_VALUE] & BUTTON_USE)
 				proto_item_append_text(bit_item, " (Use)");
-			if (move[i].buttons[VALUE] & BUTTON_ANY)
+			if (move[i].buttons[Q_VALUE] & BUTTON_ANY)
 				proto_item_append_text(bit_item, " (Any)");
 		}
-		if (move[i].bits[VALUE] & CM_IMPULSE) {
+		if (move[i].bits[Q_VALUE] & CM_IMPULSE) {
 			bit_item = proto_tree_add_uint(field_tree,
 				hf_quake2_game_client_command_move_bitfield_impulse, tvb,
-				move[i].impulse[OFFSET], 1, move[i].bits[VALUE]);
+				move[i].impulse[Q_OFFSET], 1, move[i].bits[Q_VALUE]);
 			proto_item_append_text(bit_item, " (%d)",
-				move[i].impulse[VALUE]);
+				move[i].impulse[Q_VALUE]);
 		}
 
 	}
