@@ -301,6 +301,13 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         return 0;
     }
 
+    /* Ignore common-channel PDUs for now */
+    if ((si->channelType == CHANNEL_TYPE_BCCH) ||
+        (si->channelType == CHANNEL_TYPE_PCCH)) {
+
+        return 0;
+    }
+
     /* Inc top-level frame count */
     hs->total_frames++;
 
@@ -368,7 +375,7 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         case CHANNEL_TYPE_BCCH:
         case CHANNEL_TYPE_PCCH:
             /* TODO: count these common channels separately? */
-            break;
+            return 0;
     }
 
     if (channel_stats != NULL) {
