@@ -398,6 +398,11 @@ static void dissect_data_for_typecode(tvbuff_t *tvb, proto_tree *tree, gint *off
 
 
 static int proto_giop = -1;
+static int hf_giop_message_flags = -1;
+static int hf_giop_message_flags_ziop_enabled = -1;
+static int hf_giop_message_flags_ziop_supported = -1;
+static int hf_giop_message_flags_fragment = -1;
+static int hf_giop_message_flags_little_endian = -1;
 static int hf_giop_message_type = -1;
 static int hf_giop_message_size = -1;
 static int hf_giop_repoid = -1;
@@ -452,6 +457,7 @@ static int hf_giop_objekt_key = -1;
  */
 
 static gint ett_giop = -1;
+static gint ett_giop_message_flags = -1;
 static gint ett_giop_reply = -1;
 static gint ett_giop_request = -1;
 static gint ett_giop_cancel_request = -1;
@@ -463,8 +469,22 @@ static gint ett_giop_scl = -1;  /* ServiceContextList */
 static gint ett_giop_scl_st1 = -1;
 static gint ett_giop_ior = -1;  /* IOR  */
 
+static const int *giop_message_flags[] = {
+  &hf_giop_message_flags_ziop_enabled,
+  &hf_giop_message_flags_ziop_supported,
+  &hf_giop_message_flags_fragment,
+  &hf_giop_message_flags_little_endian,
+  NULL
+};
+
 static dissector_handle_t data_handle;
 static dissector_handle_t giop_tcp_handle;
+
+#define GIOP_MESSAGE_FLAGS_ZIOP_ENABLED   0x08
+#define GIOP_MESSAGE_FLAGS_ZIOP_SUPPORTED 0x04
+#define GIOP_MESSAGE_FLAGS_FRAGMENT       0x02
+#define GIOP_MESSAGE_FLAGS_ENDIANNESS     0x01
+
 /* GIOP endianness */
 
 static const value_string giop_endianness_vals[] = {
@@ -472,6 +492,7 @@ static const value_string giop_endianness_vals[] = {
   { 0x1, "Little Endian" },
   { 0, NULL}
 };
+
 /*
   static const value_string sync_scope[] = {
   { 0x0, "SYNC_NONE" },
@@ -641,7 +662,7 @@ LocateReplyHeader_t;
  * DATA - complete_request_list
  */
 
-static GList *giop_complete_request_list;
+static GList *giop_complete_request_list = NULL;
 
 struct comp_req_list_entry {
   guint32 fn;                   /* frame number */
@@ -753,8 +774,8 @@ enum giop_op_val {
  */
 
 enum ior_src {
-  req_res = 0,                  /* REQUEST (resolve) */
-  file                          /* stringified IOR' in a file */
+  ior_src_req_res = 0,                  /* REQUEST (resolve) */
+  ior_src_file                          /* stringified IOR' in a file */
 
 };
 
@@ -807,22 +828,17 @@ static const char *giop_ior_file = "IOR.txt";
  */
 
 static GList *insert_in_comp_req_list(GList *list, guint32 fn, guint32 reqid, gchar * op, giop_sub_handle_t *sh ) {
-  GList * newlist_start;
-  comp_req_list_entry_t * entry = NULL;
-  gchar * opn;
+  comp_req_list_entry_t * entry;
 
-  entry =  g_malloc(sizeof(comp_req_list_entry_t));
-  opn =  g_strdup(op); /* duplicate operation for storage */
+  entry =  se_alloc(sizeof(comp_req_list_entry_t));
 
-  entry->fn = fn;
+  entry->fn    = fn;
   entry->reqid = reqid;
-  entry->subh = sh;
-  entry->operation = opn;
-  entry->repoid = NULL;         /* dont have yet */
+  entry->subh  = sh;
+  entry->operation = se_strdup(op); /* duplicate operation for storage */
+  entry->repoid = NULL;             /* dont have yet */
 
-  newlist_start = g_list_append (list, entry); /* append */
-
-  return newlist_start;
+  return g_list_append (list, entry); /* append */
 }
 
 
@@ -1097,7 +1113,7 @@ static gint giop_hash_objkey_equal(gconstpointer v, gconstpointer w) {
   if (v1->objkey_len != v2->objkey_len)
     return 0;                   /* no match because different length */
 
-  /* Now do a byte comaprison */
+  /* Now do a byte comparison */
 
   if (memcmp(v1->objkey,v2->objkey, v1->objkey_len) == 0) {
     return 1;           /* compares ok */
@@ -1167,11 +1183,11 @@ static void insert_in_objkey_hash(GHashTable *hash, gchar *obj, guint32 len, gch
 
   new_objkey_key = se_alloc(sizeof(struct giop_object_key));
   new_objkey_key->objkey_len = len; /* save it */
-  new_objkey_key->objkey = (guint8 *) g_memdup(obj,len);        /* copy from object and allocate ptr */
+  new_objkey_key->objkey = (guint8 *) se_memdup(obj,len);        /* copy from object and allocate ptr */
 
   objkey_val = se_alloc(sizeof(struct giop_object_val));
-  objkey_val->repo_id = g_strdup(repoid); /* duplicate and store Respository ID string */
-  objkey_val->src = src; /* where IOR came from */
+  objkey_val->repo_id = se_strdup(repoid); /* duplicate and store Respository ID string */
+  objkey_val->src = src;                   /* where IOR came from */
 
 
 #if DEBUG
@@ -1364,6 +1380,7 @@ static void giop_init(void) {
 
   /*
    * Create objkey/repoid  hash, use my "equal" and "hash" functions.
+   *  Note: keys and values are se_alloc'd so they don't need to be freed.
    *
    */
 
@@ -1377,14 +1394,15 @@ static void giop_init(void) {
 
   giop_objkey_hash = g_hash_table_new(giop_hash_objkey_hash, giop_hash_objkey_equal);
 
+
   /*
    * Create complete_reply_hash, use my "equal" and "hash" functions.
+   *  Note: keys and values are se_alloc'd so they don't need to be freed.
    *
    */
 
   if (giop_complete_reply_hash)
     g_hash_table_destroy(giop_complete_reply_hash);
-
 
   /*
    * Create hash, use my "equal" and "hash" functions.
@@ -1393,6 +1411,17 @@ static void giop_init(void) {
 
   giop_complete_reply_hash = g_hash_table_new(complete_reply_hash_fn, complete_reply_equal_fn);
 
+
+  /*
+   * Free giop_complete_request_list (if necessary)
+   * Note: The data elements are se_alloc'd so only the 
+   *       actual list elements need to be freed.
+   */
+
+  if (giop_complete_request_list) {
+    g_list_free(giop_complete_request_list);
+    giop_complete_request_list = NULL;
+  }
 
   read_IOR_strings_from_file(giop_ior_file, 600);
 
@@ -1511,7 +1540,6 @@ static gchar * get_modname_from_repoid(gchar *repoid) {
 
 
 #if DEBUG
-
 /*
  * Display a "module" hash entry
  */
@@ -1874,7 +1902,7 @@ gboolean is_big_endian (MessageHeader * header) {
   switch (header->GIOP_version.minor) {
   case 2:
   case 1:
-    if (header->flags & 0x01)
+    if (header->flags & GIOP_MESSAGE_FLAGS_ENDIANNESS)
       big_endian = FALSE;
     else
       big_endian = TRUE;
@@ -2085,13 +2113,7 @@ void get_CDR_fixed(tvbuff_t *tvb, gchar **seq, gint *offset, guint32 digits, gin
     printf("giop:get_CDR_fixed(): slen =  %.2x \n", slen);
 #endif
 
-  tmpbuf = g_new0(gchar, slen); /* allocate temp buffer */
-
-  /*
-   * Register a cleanup function in case on of our tvbuff accesses
-   * throws an exception. We need to clean up tmpbuf.
-   */
-  CLEANUP_PUSH(g_free, tmpbuf);
+  tmpbuf = ep_alloc0(slen);     /* allocate temp buffer */
 
   /* If even , grab 1st dig */
 
@@ -2203,12 +2225,6 @@ void get_CDR_fixed(tvbuff_t *tvb, gchar **seq, gint *offset, guint32 digits, gin
       (*seq)[sindex] = '\0'; /* string terminator */
 
     }
-
-    /*
-     * We're done with tmpbuf, so we can call the cleanup handler to free
-     * it, and then pop the cleanup handler.
-     */
-    CLEANUP_CALL_AND_POP;
 
 #if DEBUG
     printf("giop:get_CDR_fixed(): value = %s \n", *seq);
@@ -3292,15 +3308,15 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
 
   if (tree)
+  {
+    tf = proto_tree_add_text (tree, tvb, offset, -1,
+                              "General Inter-ORB Protocol Request");
+    if (request_tree == NULL)
     {
-      tf = proto_tree_add_text (tree, tvb, offset, -1,
-                                "General Inter-ORB Protocol Request");
-      if (request_tree == NULL)
-        {
-          request_tree = proto_item_add_subtree (tf, ett_giop_request);
+      request_tree = proto_item_add_subtree (tf, ett_giop_request);
 
-        }
     }
+  }
 
 
 
@@ -3313,36 +3329,36 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
   if (check_col(pinfo->cinfo, COL_INFO))
-    {
-      col_append_fstr(pinfo->cinfo, COL_INFO, " id=%u", request_id);
-    }
+  {
+    col_append_fstr(pinfo->cinfo, COL_INFO, " id=%u", request_id);
+  }
   if (tree)
-    {
-      proto_tree_add_uint (request_tree,hf_giop_req_id, tvb, offset-4, 4,  request_id);
-    }
+  {
+    proto_tree_add_uint (request_tree,hf_giop_req_id, tvb, offset-4, 4,  request_id);
+  }
 
   response_expected = tvb_get_guint8( tvb, offset );
   offset += 1;
   if (check_col(pinfo->cinfo, COL_INFO))
-    {
-      col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                response_expected ? "two-way" : "one-way");
-    }
+  {
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+                    response_expected ? "two-way" : "one-way");
+  }
   if (tree)
-    {
-      proto_tree_add_text (request_tree, tvb, offset-1, 1,
-                           "Response expected: %u", response_expected);
-    }
+  {
+    proto_tree_add_text (request_tree, tvb, offset-1, 1,
+                         "Response expected: %u", response_expected);
+  }
 
   if( header->GIOP_version.minor > 0)
   {
-     get_CDR_octet_seq( tvb, &reserved, &offset, 3);
-     if (tree)
-       {
-         proto_tree_add_text (request_tree, tvb, offset-3, 3,
+    get_CDR_octet_seq( tvb, &reserved, &offset, 3);
+    if (tree)
+    {
+      proto_tree_add_text (request_tree, tvb, offset-3, 3,
                            "Reserved: %x %x %x", reserved[0], reserved[1], reserved[2]);
-       }
-     g_free(reserved);
+    }
+    g_free(reserved);
   }
 
   /* Prior to GIOP 1.2, MIOP profile address prefixed with 'MIOP' */
@@ -3354,42 +3370,42 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
   if (miop[0] == 'M' && miop[1] == 'I' && miop[2] == 'O' && miop[3] == 'P')
   {
-     if (tree)
-     {
-        proto_tree_add_text (request_tree, tvb, offset - 4, 4,
-                             "Magic number: %s", MIOP_MAGIC);
-     }
+    if (tree)
+    {
+      proto_tree_add_text (request_tree, tvb, offset - 4, 4,
+                           "Magic number: %s", MIOP_MAGIC);
+    }
 
-     decode_TaggedProfile (tvb, pinfo, request_tree, &offset, GIOP_HEADER_SIZE,
-                           stream_is_big_endian, NULL);
+    decode_TaggedProfile (tvb, pinfo, request_tree, &offset, GIOP_HEADER_SIZE,
+                          stream_is_big_endian, NULL);
   }
   else
   {
-     /* Wind back if not MIOP profile */
+    /* Wind back if not MIOP profile */
 
-     offset -= 4;
+    offset -= 4;
 
-     /* Length of object_key sequence */
+    /* Length of object_key sequence */
 
-     objkey_len = get_CDR_ulong (tvb, &offset, stream_is_big_endian,
-                                 GIOP_HEADER_SIZE);
+    objkey_len = get_CDR_ulong (tvb, &offset, stream_is_big_endian,
+                                GIOP_HEADER_SIZE);
 
-     if (tree)
-     {
-        proto_tree_add_text (request_tree, tvb, offset-4, 4,
-                             "Object Key length: %u", objkey_len);
-     }
+    if (tree)
+    {
+      proto_tree_add_text (request_tree, tvb, offset-4, 4,
+                           "Object Key length: %u", objkey_len);
+    }
 
-     if (objkey_len > 0)
-     {
-        get_CDR_octet_seq(tvb, &objkey, &offset, objkey_len);
+    if (objkey_len > 0)
+    {
+      get_CDR_octet_seq(tvb, &objkey, &offset, objkey_len);
 
-        if(tree)
-        {
-           proto_tree_add_item (request_tree, hf_giop_objekt_key, tvb, 
-                                offset - objkey_len, objkey_len, FALSE);
-        }
-     }
+      if(tree)
+      {
+        proto_tree_add_item (request_tree, hf_giop_objekt_key, tvb, 
+                             offset - objkey_len, objkey_len, FALSE);
+      }
+    }
   }
 
   /*
@@ -3398,56 +3414,67 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
    */
   CLEANUP_PUSH (g_free, objkey);
 
-  /* length of operation string and string */
-  len = get_CDR_string(tvb, &operation, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
+  {
+    /* XXX: Get operation string, create a copy in ep memory and then g_free
+       the string returned from get_CDR_string(). This is a hack so that
+       a lexically nested CLEANUP_PUSH & etc is not req'd below. 
+       [The nested CLEANUP_PUSH causes a gcc -Wshadow warning :( ] */
+    gchar *tmp;
+    /* length of operation string and string */
+    len = get_CDR_string(tvb, &tmp, &offset, stream_is_big_endian, GIOP_HEADER_SIZE);
+    operation = ep_strdup(tmp);
+    g_free(tmp);
+  }
   if(tree)
   {
-         proto_tree_add_text (request_tree, tvb, offset - 4 - len, 4,
-         /**/                 "Operation length: %u", len);
+    proto_tree_add_text (request_tree, tvb, offset - 4 - len, 4,
+                         /**/                 "Operation length: %u", len);
   }
 
   if( len > 0)
   {
-       if (check_col(pinfo->cinfo, COL_INFO))
-       {
-         col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", operation);
-       }
-       if(tree)
-       {
-         proto_tree_add_string (request_tree, hf_giop_req_operation,tvb, offset - len, len, operation);
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+      col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", operation);
+    }
+    if(tree)
+    {
+      proto_tree_add_string (request_tree, hf_giop_req_operation,tvb, offset - len, len, operation);
 
-       }
+    }
   }
 
+#if 0 /* See comment above re hack ... */
   /*
    * Register a cleanup function in case on of our tvbuff accesses
    * throws an exception. We need to clean up operation.
    */
   CLEANUP_PUSH(g_free, operation);
+#endif
 
   /* length of requesting_principal string */
   len = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
   if(tree)
   {
-         proto_tree_add_text (request_tree, tvb, offset-4, 4,
-         /**/                 "Requesting Principal Length: %u", len);
+    proto_tree_add_text (request_tree, tvb, offset-4, 4,
+                         /**/                 "Requesting Principal Length: %u", len);
   }
 
   if( len > 0)
   {
-       get_CDR_octet_seq(tvb, &requesting_principal, &offset, len);
+    get_CDR_octet_seq(tvb, &requesting_principal, &offset, len);
 
-       print_requesting_principal = make_printable_string(requesting_principal, len);
+    print_requesting_principal = make_printable_string(requesting_principal, len);
 
-       if(tree)
-       {
-         proto_tree_add_text (request_tree, tvb, offset - len, len,
-         /**/                 "Requesting Principal: %s", print_requesting_principal);
+    if(tree)
+    {
+      proto_tree_add_text (request_tree, tvb, offset - len, len,
+                           /**/                 "Requesting Principal: %s", print_requesting_principal);
 
-       }
+    }
 
-       g_free( print_requesting_principal );
-       g_free( requesting_principal );
+    g_free( print_requesting_principal );
+    g_free( requesting_principal );
   }
 
 
@@ -3491,21 +3518,24 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
                         "Type Id length: %d", len);
     proto_tree_add_text(request_tree, tvb, offset - len, len,
                         "Type Id: %s", type_id);
+    g_free(type_id);
   }
 
   if(! exres) {
     gint stub_length = tvb_reported_length_remaining(tvb, offset);
-        if (stub_length >0)
-                proto_tree_add_text(request_tree, tvb, offset, -1,
-                        "Stub data (%d byte%s)", stub_length,
-                        plurality(stub_length, "", "s"));
+    if (stub_length >0)
+      proto_tree_add_text(request_tree, tvb, offset, -1,
+                          "Stub data (%d byte%s)", stub_length,
+                          plurality(stub_length, "", "s"));
   }
 
+#if 0 /* See comment above re hack ... */
   /*
    * We're done with operation, so we can call the cleanup handler to free
    * it, and then pop the cleanup handler.
    */
   CLEANUP_CALL_AND_POP;
+#endif
 
   /*
    * We're done with objkey, so we can call the cleanup handler to free
@@ -3541,7 +3571,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   gchar *operation = NULL;
   proto_tree *request_tree = NULL;
   proto_item *tf;
-  gboolean exres = FALSE;               /* result of trying explicit dissectors */
+  gboolean exres = FALSE;       /* result of trying explicit dissectors */
 
   guint32 objkey_len = 0;       /* object key length */
   gchar *objkey = NULL;         /* object key sequence */
@@ -3593,8 +3623,8 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   len = get_CDR_string(tvb, &operation, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
   if(tree)
   {
-         proto_tree_add_text (request_tree, tvb, offset - len - 4, 4,
-         /**/                 "Operation length: %u", len);
+    proto_tree_add_text (request_tree, tvb, offset - len - 4, 4,
+                         /**/                 "Operation length: %u", len);
   }
 
   if( len > 0)
@@ -3667,6 +3697,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
                         "Type Id length: %d", len);
     proto_tree_add_text(request_tree, tvb, offset - len, len,
                         "Type Id: %s", type_id);
+    g_free(type_id);
   }
 
   if(! exres) {
@@ -3961,14 +3992,11 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
     {
     case 2:
     case 1:
-      proto_tree_add_text (clnp_tree, giop_header_tvb, 6, 1,
-                           "Flags: 0x%02x (%s%s%s%s)",
-                           header.flags
-                           ,(stream_is_big_endian) ? "big-endian" : "little-endian"
-                           ,(header.flags & 0x02) ? ", fragment" : ""
-                           ,(header.flags & 0x04) ? ", ZIOP supported" : ""
-                           ,(header.flags & 0x08) ? ", ZIOP enabled" : ""
-        );
+      ti = proto_tree_add_bitmask(clnp_tree, giop_header_tvb, 6, 
+                                  hf_giop_message_flags, ett_giop_message_flags,
+                                  giop_message_flags, FALSE);
+      if ((header.flags & GIOP_MESSAGE_FLAGS_ENDIANNESS) == 0)
+        proto_item_append_text(ti, ", (Big Endian)");  /* hack to show "Big Endian" when endianness flag == 0 */
       break;
     case 0:
       proto_tree_add_text (clnp_tree, giop_header_tvb, 6, 1,
@@ -4002,7 +4030,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
   }
 #endif
 
-  if (header.flags & 0x08)
+  if (header.flags & GIOP_MESSAGE_FLAGS_ZIOP_ENABLED)
   {
     payload_tvb = tvb_child_uncompress(tvb, tvb, GIOP_HEADER_SIZE, tvb_length_remaining(tvb, GIOP_HEADER_SIZE ) );
     if (payload_tvb) {
@@ -4183,6 +4211,31 @@ void
 proto_register_giop (void)
 {
   static hf_register_info hf[] = {
+    { &hf_giop_message_flags,
+      { "Message Flags", "giop.flags",
+        FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+    },
+
+    { &hf_giop_message_flags_ziop_enabled,
+      { "ZIOP Enabled", "giop.flags.ziop_enabled",
+        FT_BOOLEAN, 8, NULL, GIOP_MESSAGE_FLAGS_ZIOP_ENABLED, NULL, HFILL }
+    },
+
+    { &hf_giop_message_flags_ziop_supported,
+      { "ZIOP Supported", "giop.flags.ziop_supported",
+        FT_BOOLEAN, 8, NULL, GIOP_MESSAGE_FLAGS_ZIOP_SUPPORTED, NULL, HFILL }
+    },
+
+    { &hf_giop_message_flags_fragment,
+      { "Fragment", "giop.flags.fragment",
+        FT_BOOLEAN, 8, NULL, GIOP_MESSAGE_FLAGS_FRAGMENT, NULL, HFILL }
+    },
+
+    { &hf_giop_message_flags_little_endian,
+      { "Little Endian", "giop.flags.little_endian",
+        FT_BOOLEAN, 8, NULL, GIOP_MESSAGE_FLAGS_ENDIANNESS, NULL, HFILL }
+    },
+
     { &hf_giop_message_type,
       { "Message type", "giop.type",
         FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
@@ -4425,6 +4478,7 @@ proto_register_giop (void)
 
   static gint *ett[] = {
     &ett_giop,
+    &ett_giop_message_flags,
     &ett_giop_reply,
     &ett_giop_request,
     &ett_giop_cancel_request,
@@ -4750,7 +4804,7 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     if (repo_id_buf) {
       if (pinfo) {
         if(!pinfo->fd->flags.visited)
-          insert_in_objkey_hash(giop_objkey_hash,objkey,seqlen,repo_id_buf,req_res);
+          insert_in_objkey_hash(giop_objkey_hash,objkey,seqlen,repo_id_buf,ior_src_req_res);
       }
       else {
 
@@ -4759,7 +4813,7 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
          */
 
         if (store_flag)
-          insert_in_objkey_hash(giop_objkey_hash,objkey,seqlen,repo_id_buf,file);
+          insert_in_objkey_hash(giop_objkey_hash,objkey,seqlen,repo_id_buf,ior_src_file);
       }
     }
 
