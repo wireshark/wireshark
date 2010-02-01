@@ -933,7 +933,8 @@ cf_finish_tail(capture_file *cf, int *err)
 
 #ifdef NEW_PACKET_LIST
   new_packet_list_check_end();
-  new_packet_list_freeze();
+  /* Don't freeze/thaw the list when doing live capture */ 
+  /*new_packet_list_freeze();*/
 #else
   packet_list_check_end();
   packet_list_freeze();
@@ -955,7 +956,8 @@ cf_finish_tail(capture_file *cf, int *err)
   }
 
 #ifdef NEW_PACKET_LIST
-  new_packet_list_thaw();
+  /* Don't freeze/thaw the list when doing live capture */ 
+  /*new_packet_list_thaw();*/
 #else
   packet_list_thaw();
 #endif
