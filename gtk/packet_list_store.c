@@ -585,7 +585,6 @@ new_packet_list_store_clear(PacketList *packet_list)
 #endif
 }
 
-#if 0
 static void
 packet_list_row_inserted(PacketList *packet_list, guint pos)
 {
@@ -604,7 +603,6 @@ packet_list_row_inserted(PacketList *packet_list, guint pos)
 
 	gtk_tree_path_free(path);
 }
-#endif
 
 gboolean
 packet_list_visible_record(PacketList *packet_list, GtkTreeIter *iter)
@@ -628,6 +626,7 @@ gint
 packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 {
 	PacketListRecord *newrecord;
+	GtkTreeModel *model = GTK_TREE_MODEL(packet_list);
 
 	g_return_val_if_fail(PACKETLIST_IS_LIST(packet_list), -1);
 
@@ -646,12 +645,16 @@ packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 
 	PACKET_LIST_RECORD_APPEND(packet_list->physical_rows, newrecord);
 
-	/* Don't issue a row_inserted signal. We rely on our caller to have disconnected
-	 * the model from the view.
-	 * packet_list_row_inserted(packet_list, newrecord->pos);
+	/* 
+	 * Issue a row_inserted signal if the model is connected
+	 * and the row is vissible.
 	 */
+	if((model)&&(newrecord->visible_pos!=-1))
+		packet_list_row_inserted(packet_list, newrecord->visible_pos);
 
-	/* Don't resort the list for every row, the list will be in packet order any way.
+	/* XXXX If the model is connected and sort column != frame_num we should
+	 * probably resort.
+	 * Don't resort the list for every row, the list will be in packet order any way.
 	 * packet_list_resort(packet_list);
 	 */
 
