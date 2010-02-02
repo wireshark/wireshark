@@ -1147,6 +1147,7 @@ static int hf_rnsap_HSDSCH_MACdFlows_Information_PDU = -1;  /* HSDSCH_MACdFlows_
 static int hf_rnsap_HSDSCH_MACdFlows_to_Delete_PDU = -1;  /* HSDSCH_MACdFlows_to_Delete */
 static int hf_rnsap_HSDSCH_PreconfigurationInfo_PDU = -1;  /* HSDSCH_PreconfigurationInfo */
 static int hf_rnsap_Additional_EDCH_Preconfiguration_Information_PDU = -1;  /* Additional_EDCH_Preconfiguration_Information */
+static int hf_rnsap_HSDSCH_PreconfigurationSetup_PDU = -1;  /* HSDSCH_PreconfigurationSetup */
 static int hf_rnsap_HSDSCH_RNTI_PDU = -1;         /* HSDSCH_RNTI */
 static int hf_rnsap_HS_DSCH_serving_cell_change_information_PDU = -1;  /* HS_DSCH_serving_cell_change_information */
 static int hf_rnsap_HS_DSCH_serving_cell_change_informationResponse_PDU = -1;  /* HS_DSCH_serving_cell_change_informationResponse */
@@ -5082,7 +5083,7 @@ dissect_rnsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 65 "rnsap.cnf"
+#line 66 "rnsap.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, rnsap_ProcedureCode_vals,
@@ -5117,7 +5118,7 @@ static const per_sequence_t ProcedureID_sequence[] = {
 
 static int
 dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 73 "rnsap.cnf"
+#line 74 "rnsap.cnf"
   ProcedureCode = 0xFFFF;
   ddMode = 0xFFFF;
   ProcedureID = NULL;
@@ -5125,7 +5126,7 @@ dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rnsap_ProcedureID, ProcedureID_sequence);
 
-#line 79 "rnsap.cnf"
+#line 80 "rnsap.cnf"
   ProcedureID = ep_strdup_printf("%s/%s", 
                                  val_to_str(ProcedureCode, VALS(rnsap_ProcedureCode_vals), "unknown(%u)"),
                                  val_to_str(ddMode, VALS(rnsap_DdMode_vals), "unknown(%u)"));      
@@ -22216,7 +22217,7 @@ dissect_rnsap_List_Of_PLMNs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_rnsap_L3_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 92 "rnsap.cnf"
+#line 93 "rnsap.cnf"
 	tvbuff_t *parameter_tvb;
 	dissector_handle_t parameter_handle = NULL;
 
@@ -37967,6 +37968,14 @@ static int dissect_Additional_EDCH_Preconfiguration_Information_PDU(tvbuff_t *tv
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_HSDSCH_PreconfigurationSetup_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_HSDSCH_PreconfigurationSetup(tvb, offset, &asn1_ctx, tree, hf_rnsap_HSDSCH_PreconfigurationSetup_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_HSDSCH_RNTI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -43058,6 +43067,10 @@ void proto_register_rnsap(void) {
       { "Additional-EDCH-Preconfiguration-Information", "rnsap.Additional_EDCH_Preconfiguration_Information",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rnsap.Additional_EDCH_Preconfiguration_Information", HFILL }},
+    { &hf_rnsap_HSDSCH_PreconfigurationSetup_PDU,
+      { "HSDSCH-PreconfigurationSetup", "rnsap.HSDSCH_PreconfigurationSetup",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.HSDSCH_PreconfigurationSetup", HFILL }},
     { &hf_rnsap_HSDSCH_RNTI_PDU,
       { "HSDSCH-RNTI", "rnsap.HSDSCH_RNTI",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -55031,6 +55044,7 @@ proto_reg_handoff_rnsap(void)
   dissector_add("rnsap.extension", id_MinimumReducedE_DPDCH_GainFactor, new_create_dissector_handle(dissect_MinimumReducedE_DPDCH_GainFactor_PDU, proto_rnsap));
   dissector_add("rnsap.extension", id_Enhanced_FACH_Information_ResponseLCR, new_create_dissector_handle(dissect_Enhanced_FACH_Information_ResponseLCR_PDU, proto_rnsap));
   dissector_add("rnsap.extension", id_Common_EDCH_MAC_d_Flow_Specific_InformationLCR, new_create_dissector_handle(dissect_Common_EDCH_MAC_d_Flow_Specific_InformationLCR_PDU, proto_rnsap));
+  dissector_add("rnsap.extension", id_HSDSCH_PreconfigurationSetup, new_create_dissector_handle(dissect_HSDSCH_PreconfigurationSetup_PDU, proto_rnsap));
   dissector_add("rnsap.extension", id_HSDSCH_PreconfigurationInfo, new_create_dissector_handle(dissect_HSDSCH_PreconfigurationInfo_PDU, proto_rnsap));
   dissector_add("rnsap.extension", id_NoOfTargetCellHS_SCCH_Order, new_create_dissector_handle(dissect_NoOfTargetCellHS_SCCH_Order_PDU, proto_rnsap));
   dissector_add("rnsap.extension", id_EnhancedHSServingCC_Abort, new_create_dissector_handle(dissect_EnhancedHSServingCC_Abort_PDU, proto_rnsap));

@@ -48,6 +48,7 @@ UEMeasurementTimeslotInfoLCR-IEs/timeSlot timeSlotLCR
 
 #.OMIT_ASSIGNMENT
 Presence
+Multi_Cell_EDCH_Transport_Bearer_Modeâ
 ProtocolIE-FieldPair
 ProtocolIE-ContainerList
 ProtocolIE-ContainerPair
@@ -486,7 +487,10 @@ DL-PowerBalancing-Information      N rnsap.extension id-DL-PowerBalancing-Inform
 HSDSCH-FDD-Information             N rnsap.extension id-HSDSCH-FDD-Information
 RL-ID                              N rnsap.extension id-HSPDSCH-RL-ID
 MBMS-Bearer-Service-List           N rnsap.extension id-MBMS-Bearer-Service-List
-EDPCH-Information-FDD				N rnsap.extension id-EDPCH-Information
+EDPCH-Information-FDD			   N rnsap.extension id-EDPCH-Information
+# Double assignments
+#EDPCH-Information-RLAdditionReq-FDD N rnsap.extension id-EDPCH-Information
+#EDPCH-Information-RLReconfPrepare-FDD N rnsap.extension id-EDPCH-Information
 EDCH-FDD-Information               N rnsap.extension id-EDCH-FDD-Information
 EDCH-Serving-RL                    N rnsap.extension id-Serving-EDCHRL-Id
 F-DPCH-Information-RL-SetupRqstFDD N rnsap.extension id-F-DPCH-Information-RL-SetupRqstFDD
@@ -739,7 +743,7 @@ GANSS-Auxiliary-Information								N rnsap.extension id-GANSS-Auxiliary-Informat
 MinimumReducedE-DPDCH-GainFactor						N rnsap.extension id-MinimumReducedE-DPDCH-GainFactor
 Enhanced-FACH-Information-ResponseLCR					N rnsap.extension id-Enhanced-FACH-Information-ResponseLCR
 Common-EDCH-MAC-d-Flow-Specific-InformationLCR			N rnsap.extension id-Common-EDCH-MAC-d-Flow-Specific-InformationLCR
-HSDSCH-PreconfigurationSetu								N rnsap.extension id-HSDSCH-PreconfigurationSetup
+HSDSCH-PreconfigurationSetup							N rnsap.extension id-HSDSCH-PreconfigurationSetup
 HSDSCH-PreconfigurationInfo								N rnsap.extension id-HSDSCH-PreconfigurationInfo
 NoOfTargetCellHS-SCCH-Order								N rnsap.extension id-NoOfTargetCellHS-SCCH-Order
 EnhancedHSServingCC-Abort								N rnsap.extension id-EnhancedHSServingCC-Abort
