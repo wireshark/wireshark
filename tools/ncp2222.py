@@ -8104,7 +8104,7 @@ proto_register_ncp2222(void)
 	{ "Desegmentation error", "nds.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "Desegmentation error due to illegal segments", HFILL }},
 
 	{ &hf_nds_reassembled_length,
-	{ "Reassembled length", "nds.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0, "The total length of the reassembled payload", HFILL }},
+	{ "Reassembled NDS length", "nds.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0, "The total length of the reassembled payload", HFILL }},
 
 	{ &hf_nds_segment,
 	{ "NDS Fragment", "nds.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "NDPS Fragment", HFILL }},
