@@ -1489,7 +1489,7 @@ void proto_register_p_mul (void)
       { "Reassembled in", "p_mul.reassembled.in", FT_FRAMENUM, BASE_NONE,
         NULL, 0x00, NULL, HFILL } },
     { &hf_msg_reassembled_length,
-      { "Reassembled length", "p_mul.reassembled.length", FT_UINT32, BASE_DEC,
+      { "Reassembled Data length", "p_mul.reassembled.length", FT_UINT32, BASE_DEC,
         NULL, 0x00, NULL, HFILL } },
 
     /*

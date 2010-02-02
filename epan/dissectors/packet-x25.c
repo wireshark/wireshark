@@ -2639,7 +2639,7 @@ proto_register_x25(void)
 	    "Defragmentation error due to illegal fragments", HFILL }},
 	
 	{ &hf_x25_reassembled_length,
-	  { "Reassembled length", "x25.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+	  { "Reassembled X.25 length", "x25.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "The total length of the reassembled payload", HFILL }},
 	
 	{ &hf_x25_segment,

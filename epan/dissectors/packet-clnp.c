@@ -624,7 +624,7 @@ void proto_register_clnp(void)
 	"This CLNP packet is reassembled in this frame", HFILL }},
 
     { &hf_clnp_reassembled_length,
-      { "Reassembled length", "clnp.reassembled_length", FT_UINT32, BASE_DEC, NULL, 0x0,
+      { "Reassembled CLNP length", "clnp.reassembled_length", FT_UINT32, BASE_DEC, NULL, 0x0,
 	"The total length of the reassembled payload", HFILL }}
   };
   static gint *ett[] = {
