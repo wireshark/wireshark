@@ -48,7 +48,7 @@ UEMeasurementTimeslotInfoLCR-IEs/timeSlot timeSlotLCR
 
 #.OMIT_ASSIGNMENT
 Presence
-Multi_Cell_EDCH_Transport_Bearer_Modeâ
+Multi-Cell-EDCH-Transport-Bearer-Mode
 ProtocolIE-FieldPair
 ProtocolIE-ContainerList
 ProtocolIE-ContainerPair

@@ -22913,22 +22913,6 @@ dissect_rnsap_MinimumReducedE_DPDCH_GainFactor(tvbuff_t *tvb _U_, int offset _U_
 }
 
 
-static const value_string rnsap_Multi_Cell_EDCH_Transport_Bearer_Mode_vals[] = {
-  {   0, "separate-Iur-Transport-Bearer-Mode" },
-  {   1, "uL-Flow-Multiplexing-Mode" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_rnsap_Multi_Cell_EDCH_Transport_Bearer_Mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
 static const value_string rnsap_Secondary_UL_Frequency_Activation_State_vals[] = {
   {   0, "activated" },
   {   1, "deactivated" },
