@@ -156,6 +156,13 @@ static int hf_erf_mc_aal2_maale = -1;
 static int hf_erf_mc_aal2_lene = -1;
 static int hf_erf_mc_aal2_cid = -1;
 
+/* AAL2 Header */
+static int hf_erf_aal2_cid = -1;
+static int hf_erf_aal2_maale = -1;
+static int hf_erf_aal2_maalei = -1;
+static int hf_erf_aal2_first = -1;
+static int hf_erf_aal2_res1 = -1;
+
 /* ERF Ethernet header/pad */
 static int hf_erf_eth_off = -1;
 static int hf_erf_eth_res1 = -1;
@@ -171,6 +178,7 @@ static gint ett_erf_mc_atm = -1;
 static gint ett_erf_mc_rawlink = -1;
 static gint ett_erf_mc_aal5 = -1;
 static gint ett_erf_mc_aal2 = -1;
+static gint ett_erf_aal2 = -1;
 static gint ett_erf_eth = -1;
 
 /* Default subdissector, display raw hex data */
@@ -285,6 +293,13 @@ static dissector_handle_t ethwithfcs_handle, ethwithoutfcs_handle;
 #define MC_AAL2_MAALE_MASK 0x40
 #define MC_AAL2_LENE_MASK 0x80
 #define MC_AAL2_CID_MASK 0xff
+
+/* AAL2 */
+#define AAL2_CID_MASK 0xff
+#define AAL2_MAALE_MASK 0xff
+#define AAL2_MAALEI_MASK 0x0001
+#define AAL2_FIRST_MASK 0x0002
+#define AAL2_RES1_MASK 0xfffc
 
 /* ETH */
 #define ETH_OFF_MASK 0xff
@@ -464,7 +479,7 @@ dissect_classification_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree 
     
     proto_tree_add_uint(int_tree, hf_erf_ehdr_t , tvb, 0, 0, (guint8)((hdr >> 56) & 0x7F));
     flags_item=proto_tree_add_uint(int_tree, hf_erf_ehdr_class_flags, tvb, 0, 0, value & 0xFFFFFF);
-    flags_tree = proto_item_add_subtree(flags_item, hf_erf_ehdr_class_flags);
+    flags_tree = proto_item_add_subtree(flags_item, ett_erf_flags);
 
     
     proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_sh, tvb, 0, 0, value);
@@ -692,6 +707,30 @@ dissect_mc_aal2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
+dissect_aal2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{ 
+  proto_item *aal2_item = NULL;
+  proto_tree *aal2_tree = NULL;
+  struct erf_aal2_hdrx * aal2;
+
+  if (tree) { 
+    aal2_item = proto_tree_add_text(tree, tvb, 0, 0, "AAL2 Header");
+    aal2_tree = proto_item_add_subtree(aal2_item, ett_erf_aal2);
+    PROTO_ITEM_SET_GENERATED(aal2_item);
+    aal2 = (struct erf_aal2_hdrx*) (&pinfo->pseudo_header->erf.subhdr.mc_hdr);
+    
+    proto_tree_add_uint(aal2_tree, hf_erf_aal2_cid,   tvb, 0, 0, aal2->byte0);
+
+    proto_tree_add_uint(aal2_tree, hf_erf_aal2_maale, tvb, 0, 0, aal2->byte1);
+
+    proto_tree_add_uint(aal2_tree, hf_erf_aal2_maalei, tvb, 0, 0, aal2->byte23);
+    proto_tree_add_uint(aal2_tree, hf_erf_aal2_first, tvb, 0, 0, aal2->byte23);
+    proto_tree_add_uint(aal2_tree, hf_erf_aal2_res1, tvb, 0, 0, aal2->byte23);
+
+  }
+}
+
+static void
 dissect_eth_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 { 
   proto_item *eth_item = NULL;
@@ -802,6 +841,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   erf_hdlc_type_vals hdlc_type;
   guint8 first_byte;
   tvbuff_t *new_tvb;
+  guint8 aal2_cid;
 
   erf_type=pinfo->pseudo_header->erf.phdr.type & 0x7F;
 
@@ -895,9 +935,9 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
     pinfo->pseudo_header->atm.channel = (flags & 0x03);
 
-    new_tvb = tvb_new_subset_remaining(tvb, ATM_HDR_LENGTH);
     /* Work around to have decoding working */
     if (erf_rawcell_first) {
+      new_tvb = tvb_new_subset_remaining(tvb, ATM_HDR_LENGTH);
       /* Treat this as a (short) ATM AAL5 PDU */
       pinfo->pseudo_header->atm.aal = AAL_5;
       switch (erf_aal5_type) {
@@ -921,9 +961,10 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else {
       /* Treat this as a raw cell */
       pinfo->pseudo_header->atm.flags |= ATM_RAW_CELL;
+      pinfo->pseudo_header->atm.flags |= ATM_NO_HEC;
       pinfo->pseudo_header->atm.aal = AAL_UNKNOWN;
-
-      call_dissector(data_handle, new_tvb, pinfo, tree);
+      /* can call atm_untruncated because we set ATM_RAW_CELL flag */
+      call_dissector(atm_untruncated_handle, tvb, pinfo, tree);
     }
     break;
 
@@ -963,19 +1004,57 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   case ERF_TYPE_MC_AAL2:
     dissect_mc_aal2_header(tvb, pinfo, erf_tree);
-    /* continue with type AAL2 */
 
-  case ERF_TYPE_AAL2:
+    /*
+     * ERF_TYPE_MC_AAL2 MC pseudoheader is not included in tvb,
+     * and we do not supply 'dct2000' pseudoheader.
+     */
+
     atm_hdr = tvb_get_ntohl(tvb, 0);
+    aal2_cid = ((struct erf_mc_aal2_hdrx *)(&pinfo->pseudo_header->erf.subhdr.mc_hdr))->byte3;
+
+    /* Change wtap pseudo_header from erf to atm for atm dissector */
     memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
+
+    /* fill in atm pseudo header */
+    pinfo->pseudo_header->atm.aal = AAL_2;
+    pinfo->pseudo_header->atm.flags |= ATM_AAL2_NOPHDR;
     pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
     pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
     pinfo->pseudo_header->atm.channel = (flags & 0x03);
-    /* Work around to have decoding working */
-    pinfo->pseudo_header->atm.aal = AAL_2;
+    pinfo->pseudo_header->atm.aal2_cid = aal2_cid;
     pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
     pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
 
+    /* remove ATM cell header from tvb */
+    new_tvb = tvb_new_subset_remaining(tvb, ATM_HDR_LENGTH);
+    call_dissector(atm_untruncated_handle, new_tvb, pinfo, tree);
+    break;
+
+  case ERF_TYPE_AAL2:
+    dissect_aal2_header(tvb, pinfo, erf_tree);
+
+    /*
+     * We removed the ERF_TYPE_AAL2 'ext' pseudoheader in wtap,
+     * and do not supply the 'dct2000' pseudoheader.
+     */
+
+    atm_hdr = tvb_get_ntohl(tvb, 0);
+    aal2_cid = ((struct erf_aal2_hdrx *)(&pinfo->pseudo_header->erf.subhdr.mc_hdr))->byte0;
+
+    /* Change wtap pseudo_header from erf to atm for atm dissector */
+    memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
+
+    /* fill in atm pseudo header */
+    pinfo->pseudo_header->atm.aal = AAL_2;
+    pinfo->pseudo_header->atm.flags |= ATM_AAL2_NOPHDR;
+    pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
+    pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
+    pinfo->pseudo_header->atm.channel = (flags & 0x03);
+    pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
+    pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+
+    /* remove ATM cell header from tvb */
     new_tvb = tvb_new_subset_remaining(tvb, ATM_HDR_LENGTH);
     call_dissector(atm_untruncated_handle, new_tvb, pinfo, tree);
     break;
@@ -1156,6 +1235,13 @@ proto_register_erf(void)
     { &hf_erf_mc_aal2_lene, { "Length error", "erf.mcaal2.crc10", FT_UINT8, BASE_DEC, NULL, MC_AAL2_LENE_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal2_cid, { "Channel Identification Number", "erf.mcaal2.cid", FT_UINT8, BASE_DEC, NULL, MC_AAL2_CID_MASK, NULL, HFILL } },
 
+    /* AAL2 Header */
+    { &hf_erf_aal2_cid, { "Channel Identification Number", "erf.aal2.cid", FT_UINT8, BASE_DEC, NULL, AAL2_CID_MASK, NULL, HFILL } },
+    { &hf_erf_aal2_maale,  { "MAAL error number", "erf.aal2.maale", FT_UINT8, BASE_DEC, NULL, AAL2_MAALE_MASK, NULL, HFILL } },
+    { &hf_erf_aal2_maalei,  { "MAAL error", "erf.aal2.hec", FT_UINT16, BASE_DEC, NULL, AAL2_MAALEI_MASK, NULL, HFILL } },
+    { &hf_erf_aal2_first,  { "first cell received", "erf.aal2.lbe", FT_UINT16, BASE_DEC, NULL, AAL2_FIRST_MASK, NULL, HFILL } },
+    { &hf_erf_aal2_res1, { "reserved", "erf.aal2.res1", FT_UINT16, BASE_DEC, NULL, AAL2_RES1_MASK, NULL, HFILL } },
+
     /* ETH Header */
     { &hf_erf_eth_off,   { "offset", "erf.eth.off", FT_UINT8, BASE_DEC, NULL, ETH_OFF_MASK, NULL, HFILL } },
     { &hf_erf_eth_res1,   { "reserved", "erf.eth.res1", FT_UINT8, BASE_DEC, NULL, ETH_RES1_MASK, NULL, HFILL } },
@@ -1173,6 +1259,7 @@ proto_register_erf(void)
     &ett_erf_mc_rawlink,
     &ett_erf_mc_aal5,
     &ett_erf_mc_aal2,
+    &ett_erf_aal2,
     &ett_erf_eth
   };
 

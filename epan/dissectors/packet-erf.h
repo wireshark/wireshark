@@ -61,6 +61,12 @@ struct erf_mc_aal2_hdrx {
   guint8 byte3;
 };
 
+struct erf_aal2_hdrx {
+  guint8 byte0;
+  guint8 byte1;
+  guint16 byte23;
+};
+
 struct erf_mc_rawl_hdrx {
   guint16 byte01;
   guint8 byte2;

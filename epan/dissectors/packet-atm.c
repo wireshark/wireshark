@@ -1181,21 +1181,24 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case AAL_2:
     switch (pinfo->pseudo_header->atm.type) {
       case TRAF_UMTS_FP:
-          proto_tree_add_uint(atm_tree, hf_atm_cid, tvb, 0, 0,
-                              pinfo->pseudo_header->atm.aal2_cid);
-          proto_item_append_text(atm_ti, " (vpi=%u vci=%u cid=%u)",
-                                 pinfo->pseudo_header->atm.vpi,
-                                 pinfo->pseudo_header->atm.vci,
-                                 pinfo->pseudo_header->atm.aal2_cid);
-	    if ((pinfo->pseudo_header->atm.flags | ATM_AAL2_NOPHDR) == 0) {
+        proto_tree_add_uint(atm_tree, hf_atm_cid, tvb, 0, 0,
+                            pinfo->pseudo_header->atm.aal2_cid);
+        proto_item_append_text(atm_ti, " (vpi=%u vci=%u cid=%u)",
+                               pinfo->pseudo_header->atm.vpi,
+                               pinfo->pseudo_header->atm.vci,
+                               pinfo->pseudo_header->atm.aal2_cid);
+
+        if (pinfo->pseudo_header->atm.flags | ATM_AAL2_NOPHDR) {
+          call_dissector(fp_handle, tvb, pinfo, tree);
+        } else {
           /* Skip first 4 bytes of message
-          - side
-          - length
-          - UUI
-          Ignoring for now... */
+             - side
+             - length
+             - UUI
+             Ignoring for now... */
           next_tvb = tvb_new_subset_remaining(tvb, 4);
+          call_dissector(fp_handle, next_tvb, pinfo, tree);
         }
-        call_dissector(fp_handle, next_tvb, pinfo, tree);
         break;
 
       default:
@@ -1870,9 +1873,14 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
   if (pinfo->pseudo_header->atm.flags & ATM_RAW_CELL) {
     /* This is a single cell, with the cell header at the beginning. */
-    proto_item_set_len(atm_ti, 5);
+    if (pinfo->pseudo_header->atm.flags & ATM_NO_HEC) {
+      proto_item_set_len(atm_ti, 4);
+    } else {
+      proto_item_set_len(atm_ti, 5);
+    }
     dissect_atm_cell(tvb, pinfo, tree, atm_tree, 
-		     pinfo->pseudo_header->atm.aal, FALSE, FALSE);
+		     pinfo->pseudo_header->atm.aal, FALSE,
+		     pinfo->pseudo_header->atm.flags & ATM_NO_HEC);       
   } else {
     /* This is a reassembled PDU. */
     dissect_reassembled_pdu(tvb, pinfo, tree, atm_tree, atm_ti, truncated);

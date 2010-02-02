@@ -197,6 +197,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
     case ERF_TYPE_MC_AAL5:
     case ERF_TYPE_MC_AAL2:
     case ERF_TYPE_COLOR_MC_HDLC_POS:
+    case ERF_TYPE_AAL2: /* not an MC type but has a similar 'AAL2 ext' header */
       if (file_read(&mc_hdr,1,sizeof(mc_hdr),wth->fh) != sizeof(mc_hdr)) {
 	*err = file_error(wth->fh);
 	return -1;
@@ -358,6 +359,7 @@ static int erf_read_header(FILE_T fh,
   }
 
   /* Copy the ERF pseudo header */
+  memset(&pseudo_header->erf, 0, sizeof(pseudo_header->erf));
   pseudo_header->erf.phdr.ts = pletohll(&erf_header->ts);
   pseudo_header->erf.phdr.type = erf_header->type;
   pseudo_header->erf.phdr.flags = erf_header->flags;
@@ -399,7 +401,6 @@ static int erf_read_header(FILE_T fh,
   case ERF_TYPE_DSM_COLOR_HDLC_POS:
   case ERF_TYPE_ATM:
   case ERF_TYPE_AAL5:
-  case ERF_TYPE_AAL2:
     break;
 
   case ERF_TYPE_ETH:
@@ -420,6 +421,7 @@ static int erf_read_header(FILE_T fh,
   case ERF_TYPE_MC_AAL5:
   case ERF_TYPE_MC_AAL2:
   case ERF_TYPE_COLOR_MC_HDLC_POS:
+  case ERF_TYPE_AAL2: /* not an MC type but has a similar 'AAL2 ext' header */
     wtap_file_read_expected_bytes(&mc_hdr, sizeof(mc_hdr), fh, err);
     if (bytes_read != NULL)
       *bytes_read += (guint32)sizeof(mc_hdr);
