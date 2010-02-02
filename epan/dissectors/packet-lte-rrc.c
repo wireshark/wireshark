@@ -113,6 +113,7 @@ static int hf_lte_rrc_UECapabilityInformation_PDU = -1;  /* UECapabilityInformat
 static int hf_lte_rrc_UE_EUTRA_Capability_PDU = -1;  /* UE_EUTRA_Capability */
 static int hf_lte_rrc_lte_rrc_HandoverCommand_PDU = -1;  /* HandoverCommand */
 static int hf_lte_rrc_lte_rrc_HandoverPreparationInformation_PDU = -1;  /* HandoverPreparationInformation */
+static int hf_lte_rrc_UERadioAccessCapabilityInformation_PDU = -1;  /* UERadioAccessCapabilityInformation */
 static int hf_lte_rrc_message = -1;               /* BCCH_BCH_MessageType */
 static int hf_lte_rrc_message_01 = -1;            /* BCCH_DL_SCH_MessageType */
 static int hf_lte_rrc_c1 = -1;                    /* T_c1 */
@@ -1201,12 +1202,6 @@ static int hf_lte_rrc_t310 = -1;                  /* T_t310 */
 static int hf_lte_rrc_n310 = -1;                  /* T_n310 */
 static int hf_lte_rrc_t311 = -1;                  /* T_t311 */
 static int hf_lte_rrc_n311 = -1;                  /* T_n311 */
-static int hf_lte_rrc_measIdList = -1;            /* MeasIdToAddModList */
-static int hf_lte_rrc_measObjectList = -1;        /* MeasObjectToAddModList */
-static int hf_lte_rrc_reportConfigList = -1;      /* ReportConfigToAddModList */
-static int hf_lte_rrc_speedStatePars_01 = -1;     /* T_speedStatePars_01 */
-static int hf_lte_rrc_setup_13 = -1;              /* T_setup_13 */
-static int hf_lte_rrc_VarMeasReportList_item = -1;  /* VarMeasReport */
 static int hf_lte_rrc_cellsTriggeredList = -1;    /* CellsTriggeredList */
 static int hf_lte_rrc_numberOfReportsSent = -1;   /* INTEGER */
 static int hf_lte_rrc_CellsTriggeredList_item = -1;  /* CellsTriggeredList_item */
@@ -1838,16 +1833,11 @@ static gint ett_lte_rrc_IRAT_ParametersCDMA2000_1XRTT = -1;
 static gint ett_lte_rrc_IRAT_ParametersCDMA2000_e1xCsfb_r9 = -1;
 static gint ett_lte_rrc_SupportedBandList1XRTT = -1;
 static gint ett_lte_rrc_UE_TimersAndConstants = -1;
-static gint ett_lte_rrc_VarMeasConfig = -1;
-static gint ett_lte_rrc_T_speedStatePars_01 = -1;
-static gint ett_lte_rrc_T_setup_13 = -1;
-static gint ett_lte_rrc_VarMeasReportList = -1;
 static gint ett_lte_rrc_VarMeasReport = -1;
 static gint ett_lte_rrc_CellsTriggeredList = -1;
 static gint ett_lte_rrc_CellsTriggeredList_item = -1;
 static gint ett_lte_rrc_T_physCellIdUTRA = -1;
 static gint ett_lte_rrc_T_physCellIdGERAN = -1;
-static gint ett_lte_rrc_VarShortMAC_Input = -1;
 static gint ett_lte_rrc_HandoverCommand = -1;
 static gint ett_lte_rrc_T_criticalExtensions_28 = -1;
 static gint ett_lte_rrc_T_c1_24 = -1;
@@ -16816,62 +16806,6 @@ dissect_lte_rrc_UE_EUTRA_Capability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const per_sequence_t T_setup_13_sequence[] = {
-  { &hf_lte_rrc_mobilityStateParameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MobilityStateParameters },
-  { &hf_lte_rrc_timeToTrigger_SF, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_SpeedStateScaleFactors },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_lte_rrc_T_setup_13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_13, T_setup_13_sequence);
-
-  return offset;
-}
-
-
-static const value_string lte_rrc_T_speedStatePars_01_vals[] = {
-  {   0, "release" },
-  {   1, "setup" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_speedStatePars_01_choice[] = {
-  {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_13    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_13 },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_lte_rrc_T_speedStatePars_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_lte_rrc_T_speedStatePars_01, T_speedStatePars_01_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t VarMeasConfig_sequence[] = {
-  { &hf_lte_rrc_measIdList  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MeasIdToAddModList },
-  { &hf_lte_rrc_measObjectList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MeasObjectToAddModList },
-  { &hf_lte_rrc_reportConfigList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_ReportConfigToAddModList },
-  { &hf_lte_rrc_quantityConfig, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_QuantityConfig },
-  { &hf_lte_rrc_s_Measure   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RSRP_Range },
-  { &hf_lte_rrc_speedStatePars_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_speedStatePars_01 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_lte_rrc_VarMeasConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_VarMeasConfig, VarMeasConfig_sequence);
-
-  return offset;
-}
-
-
 static const value_string lte_rrc_T_physCellIdUTRA_vals[] = {
   {   0, "fdd" },
   {   1, "tdd" },
@@ -16969,36 +16903,6 @@ static int
 dissect_lte_rrc_VarMeasReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_VarMeasReport, VarMeasReport_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t VarMeasReportList_sequence_of[1] = {
-  { &hf_lte_rrc_VarMeasReportList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_VarMeasReport },
-};
-
-static int
-dissect_lte_rrc_VarMeasReportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_lte_rrc_VarMeasReportList, VarMeasReportList_sequence_of,
-                                                  1, maxMeasId, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t VarShortMAC_Input_sequence[] = {
-  { &hf_lte_rrc_cellIdentity, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_CellIdentity },
-  { &hf_lte_rrc_physCellId_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_PhysCellId },
-  { &hf_lte_rrc_c_RNTI      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_C_RNTI },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_lte_rrc_VarShortMAC_Input(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_VarShortMAC_Input, VarShortMAC_Input_sequence);
 
   return offset;
 }
@@ -17641,6 +17545,14 @@ int dissect_lte_rrc_HandoverPreparationInformation_PDU(tvbuff_t *tvb _U_, packet
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_UERadioAccessCapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_lte_rrc_UERadioAccessCapabilityInformation(tvb, offset, &asn1_ctx, tree, hf_lte_rrc_UERadioAccessCapabilityInformation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
@@ -17720,6 +17632,10 @@ void proto_register_lte_rrc(void) {
       { "HandoverPreparationInformation", "lte-rrc.HandoverPreparationInformation",
         FT_NONE, BASE_NONE, NULL, 0,
         "lte_rrc.HandoverPreparationInformation", HFILL }},
+    { &hf_lte_rrc_UERadioAccessCapabilityInformation_PDU,
+      { "UERadioAccessCapabilityInformation", "lte-rrc.UERadioAccessCapabilityInformation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "lte_rrc.UERadioAccessCapabilityInformation", HFILL }},
     { &hf_lte_rrc_message,
       { "message", "lte-rrc.message",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -22072,30 +21988,6 @@ void proto_register_lte_rrc(void) {
       { "n311", "lte-rrc.n311",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_n311_vals), 0,
         "lte_rrc.T_n311", HFILL }},
-    { &hf_lte_rrc_measIdList,
-      { "measIdList", "lte-rrc.measIdList",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "lte_rrc.MeasIdToAddModList", HFILL }},
-    { &hf_lte_rrc_measObjectList,
-      { "measObjectList", "lte-rrc.measObjectList",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "lte_rrc.MeasObjectToAddModList", HFILL }},
-    { &hf_lte_rrc_reportConfigList,
-      { "reportConfigList", "lte-rrc.reportConfigList",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "lte_rrc.ReportConfigToAddModList", HFILL }},
-    { &hf_lte_rrc_speedStatePars_01,
-      { "speedStatePars", "lte-rrc.speedStatePars",
-        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_speedStatePars_01_vals), 0,
-        "lte_rrc.T_speedStatePars_01", HFILL }},
-    { &hf_lte_rrc_setup_13,
-      { "setup", "lte-rrc.setup",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "lte_rrc.T_setup_13", HFILL }},
-    { &hf_lte_rrc_VarMeasReportList_item,
-      { "VarMeasReport", "lte-rrc.VarMeasReport",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "lte_rrc.VarMeasReport", HFILL }},
     { &hf_lte_rrc_cellsTriggeredList,
       { "cellsTriggeredList", "lte-rrc.cellsTriggeredList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -22857,16 +22749,11 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_IRAT_ParametersCDMA2000_e1xCsfb_r9,
     &ett_lte_rrc_SupportedBandList1XRTT,
     &ett_lte_rrc_UE_TimersAndConstants,
-    &ett_lte_rrc_VarMeasConfig,
-    &ett_lte_rrc_T_speedStatePars_01,
-    &ett_lte_rrc_T_setup_13,
-    &ett_lte_rrc_VarMeasReportList,
     &ett_lte_rrc_VarMeasReport,
     &ett_lte_rrc_CellsTriggeredList,
     &ett_lte_rrc_CellsTriggeredList_item,
     &ett_lte_rrc_T_physCellIdUTRA,
     &ett_lte_rrc_T_physCellIdGERAN,
-    &ett_lte_rrc_VarShortMAC_Input,
     &ett_lte_rrc_HandoverCommand,
     &ett_lte_rrc_T_criticalExtensions_28,
     &ett_lte_rrc_T_c1_24,

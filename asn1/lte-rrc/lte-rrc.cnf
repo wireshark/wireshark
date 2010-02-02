@@ -20,6 +20,7 @@ HandoverPreparationInformation_PDU
 #.PDU_NEW
 HandoverCommand
 HandoverPreparationInformation
+UERadioAccessCapabilityInformation
 BCCH-BCH-Message             @bcch.bch
 BCCH-DL-SCH-Message          @bcch.dl.sch
 MCCH-Message                 @mcch				
@@ -31,6 +32,12 @@ UL-DCCH-Message              @ul.dcch
 UECapabilityInformation      @ue_cap_info
 UE-EUTRA-Capability          @ue_eutra_cap
 #.END
+
+#.OMIT_ASSIGNMENT
+# Get rid of unused code warnings
+VarShortMAC-Input
+VarMeasConfig
+VarMeasReportList
 
 #.FN_BODY DedicatedInfoNAS VAL_PTR = &nas_eps_tvb
   tvbuff_t *nas_eps_tvb=NULL;
