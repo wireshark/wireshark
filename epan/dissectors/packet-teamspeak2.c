@@ -117,6 +117,7 @@ static int hf_msg_fragment_multiple_tails = -1;
 static int hf_msg_fragment_too_long_fragment = -1;
 static int hf_msg_fragment_error = -1;
 static int hf_msg_reassembled_in = -1;
+static int hf_msg_reassembled_length = -1;
 
 static gint ett_msg_fragment = -1;
 static gint ett_msg_fragments = -1;
@@ -135,6 +136,8 @@ static const fragment_items msg_frag_items = {
 	&hf_msg_fragment_error,
 	/* Reassembled in field */
 	&hf_msg_reassembled_in,
+	/* Reassembled length field */
+	&hf_msg_reassembled_length,
 	/* Tag */
 	"Message fragments"
 };
@@ -1117,6 +1120,12 @@ void proto_register_ts2(void)
 		{ &hf_msg_reassembled_in,
 		  {"Reassembled in", "ts2.reassembled.in",
 		   FT_FRAMENUM, BASE_NONE,
+		   NULL, 0x00,
+		   NULL, HFILL }
+		},
+		{ &hf_msg_reassembled_length,
+		  {"Reassembled length", "ts2.reassembled.length",
+		   FT_UINT32, BASE_DEC,
 		   NULL, 0x00,
 		   NULL, HFILL }
 		}

@@ -205,6 +205,7 @@ static int hf_scsi_fragment_multiple_tails = -1;
 static int hf_scsi_fragment_too_long_fragment = -1;
 static int hf_scsi_fragment_error = -1;
 static int hf_scsi_reassembled_in = -1;
+static int hf_scsi_reassembled_length = -1;
 static int hf_scsi_log_ppc_flags	= -1;
 static int hf_scsi_log_pc_flags		= -1;
 static int hf_scsi_log_ppc		= -1;
@@ -317,6 +318,7 @@ static const fragment_items scsi_frag_items = {
     &hf_scsi_fragment_too_long_fragment,
     &hf_scsi_fragment_error,
     &hf_scsi_reassembled_in,
+    &hf_scsi_reassembled_length,
     "fragments"
 };
 
@@ -5311,6 +5313,9 @@ proto_register_scsi (void)
         { &hf_scsi_reassembled_in,
           { "Reassembled SCSI DATA in frame", "scsi.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
            "This SCSI DATA packet is reassembled in this frame", HFILL }},
+        { &hf_scsi_reassembled_length,
+          { "Reassembled SCSI DATA length", "scsi.reassembled_length", FT_UINT32, BASE_DEC, NULL, 0x0,
+           "The total length of the reassembled payload", HFILL }},
         { &hf_scsi_log_ppc_flags,
           {"PPC Flags", "scsi.log.ppc.flags", FT_UINT8, BASE_HEX, NULL, 0,
            NULL, HFILL}},

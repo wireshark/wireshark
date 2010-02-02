@@ -672,6 +672,7 @@ static int hf_sccp_xudt_msg_fragment_multiple_tails = -1;
 static int hf_sccp_xudt_msg_fragment_too_long_fragment = -1;
 static int hf_sccp_xudt_msg_fragment_error = -1;
 static int hf_sccp_xudt_msg_reassembled_in = -1;
+static int hf_sccp_xudt_msg_reassembled_length = -1;
 static int hf_sccp_assoc_msg = -1;
 static int hf_sccp_assoc_id = -1;
 
@@ -715,6 +716,8 @@ static const fragment_items sccp_xudt_msg_frag_items = {
 	&hf_sccp_xudt_msg_fragment_error,
 	/* Reassembled in field */
 	&hf_sccp_xudt_msg_reassembled_in,
+	/* Reassembled length field */
+	&hf_sccp_xudt_msg_reassembled_length,
 	/* Tag */
 	"SCCP XUDT Message fragments"
 };
@@ -3281,6 +3284,10 @@ proto_register_sccp(void)
     {&hf_sccp_xudt_msg_reassembled_in,
 	{"Reassembled in", "sccp.msg.reassembled.in",
 	FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    {&hf_sccp_xudt_msg_reassembled_length,
+	{"Reassembled length", "sccp.msg.reassembled.length",
+	FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
     },
     { &hf_sccp_assoc_id,
       { "Association ID", "sccp.assoc.id",

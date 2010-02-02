@@ -462,6 +462,7 @@ static int hf_dcerpc_fragment_multiple_tails = -1;
 static int hf_dcerpc_fragment_too_long_fragment = -1;
 static int hf_dcerpc_fragment_error = -1;
 static int hf_dcerpc_reassembled_in = -1;
+static int hf_dcerpc_reassembled_length = -1;
 static int hf_dcerpc_unknown_if_id = -1;
 
 static gint ett_dcerpc = -1;
@@ -490,7 +491,7 @@ static const fragment_items dcerpc_frag_items = {
 	&hf_dcerpc_fragment_too_long_fragment,
 	&hf_dcerpc_fragment_error,
 	NULL,
-
+	&hf_dcerpc_reassembled_length,
 	"fragments"
 };
 
@@ -5457,6 +5458,10 @@ proto_register_dcerpc (void)
 	{ &hf_dcerpc_reassembled_in,
       { "Reassembled PDU in frame", "dcerpc.reassembled_in", FT_FRAMENUM, BASE_NONE,
       NULL, 0x0, "The DCE/RPC PDU is completely reassembled in the packet with this number", HFILL }},
+
+	{ &hf_dcerpc_reassembled_length,
+	  { "Reassembled length", "dcerpc.reassembled_length", FT_UINT32, BASE_DEC,
+	    NULL, 0x0, "The total length of the reassembled payload", HFILL }},
 
 	{ &hf_dcerpc_unknown_if_id,
 	  { "Unknown DCERPC interface id", "dcerpc.unknown_if_id", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},

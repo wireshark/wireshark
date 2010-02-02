@@ -77,6 +77,7 @@ static int hf_cotp_segment_multiple_tails = -1;
 static int hf_cotp_segment_too_long_segment = -1;
 static int hf_cotp_segment_error = -1;
 static int hf_cotp_reassembled_in = -1;
+static int hf_cotp_reassembled_length = -1;
 
 static const true_false_string fragment_descriptions = {
 	"Yes",
@@ -100,6 +101,7 @@ static const fragment_items cotp_frag_items = {
 	&hf_cotp_segment_too_long_segment,
 	&hf_cotp_segment_error,
 	&hf_cotp_reassembled_in,
+	&hf_cotp_reassembled_length,
 	"segments"
 };
 
@@ -1799,6 +1801,9 @@ void proto_register_cotp(void)
     { &hf_cotp_reassembled_in,
       { "Reassembled COTP in frame", "cotp.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	"This COTP packet is reassembled in this frame", HFILL }},
+    { &hf_cotp_reassembled_length,
+      { "Reassembled COTP length", "cotp.reassembled_length", FT_UINT32, BASE_DEC, NULL, 0x0,
+	"The total length of the reassembled payload", HFILL }},
 /* ISO DP 8073 i13.3.4(a) Source and destination TSAPs are defined as
    identifiers of unspecified type and length.
    Some implementations of COTP use printable strings, others use raw bytes.

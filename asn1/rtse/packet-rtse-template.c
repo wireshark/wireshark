@@ -83,6 +83,7 @@ static int hf_rtse_fragment_multiple_tails = -1;
 static int hf_rtse_fragment_too_long_fragment = -1;
 static int hf_rtse_fragment_error = -1;
 static int hf_rtse_reassembled_in = -1;
+static int hf_rtse_reassembled_length = -1;
 
 static gint ett_rtse_fragment = -1;
 static gint ett_rtse_fragments = -1;
@@ -101,6 +102,8 @@ static const fragment_items rtse_frag_items = {
 	&hf_rtse_fragment_error,
 	/* Reassembled in field */
 	&hf_rtse_reassembled_in,
+	/* Reassembled length field */
+	&hf_rtse_reassembled_length,
 	/* Tag */
 	"RTSE fragments"
 };
@@ -341,6 +344,9 @@ void proto_register_rtse(void) {
     { &hf_rtse_reassembled_in,
       { "Reassembled RTSE in frame", "rtse.reassembled.in", FT_FRAMENUM, BASE_NONE,
 	NULL, 0x00, "This RTSE packet is reassembled in this frame", HFILL } },
+    { &hf_rtse_reassembled_length,
+      { "Reassembled RTSE length", "rtse.reassembled.length", FT_UINT32, BASE_DEC,
+	NULL, 0x00, "The total length of the reassembled payload", HFILL } },
 
 #include "packet-rtse-hfarr.c"
   };

@@ -642,6 +642,7 @@ static int hf_smb_segment_overlap_conflict = -1;
 static int hf_smb_segment_multiple_tails = -1;
 static int hf_smb_segment_too_long_fragment = -1;
 static int hf_smb_segment_error = -1;
+static int hf_smb_reassembled_length = -1;
 static int hf_smb_pipe_write_len = -1;
 static int hf_smb_unix_major_version = -1;
 static int hf_smb_unix_minor_version = -1;
@@ -782,7 +783,7 @@ static const fragment_items smb_frag_items = {
 	&hf_smb_segment_too_long_fragment,
 	&hf_smb_segment_error,
 	NULL,
-
+	&hf_smb_reassembled_length,
 	"segments"
 };
 
@@ -19266,6 +19267,10 @@ proto_register_smb(void)
 	{ &hf_smb_segment_error,
 		{ "Defragmentation error", "smb.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"Defragmentation error due to illegal fragments", HFILL }},
+
+	{ &hf_smb_reassembled_length,
+		{ "Reassembled length", "smb.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"The total length of the reassembled payload", HFILL }},
 
 	{ &hf_smb_opened_in,
 		{ "Opened in", "smb.fid.opened_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,

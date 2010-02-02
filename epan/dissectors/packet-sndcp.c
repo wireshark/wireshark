@@ -68,6 +68,7 @@ static int hf_npdu_fragment_multiple_tails	= -1;
 static int hf_npdu_fragment_too_long_fragment	= -1;
 static int hf_npdu_fragment_error		= -1;
 static int hf_npdu_reassembled_in		= -1;
+static int hf_npdu_reassembled_length		= -1;
 
 /* Initialize the subtree pointers 
 */
@@ -91,6 +92,7 @@ static const fragment_items npdu_frag_items = {
     &hf_npdu_fragment_too_long_fragment,
     &hf_npdu_fragment_error,
     &hf_npdu_reassembled_in,
+    &hf_npdu_reassembled_length,
     "fragments"
 };
 
@@ -514,6 +516,13 @@ proto_register_sndcp(void)
 	"npdu.reassembled.in",
 	FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	"N-PDU fragments are reassembled in the given packet", HFILL
+      }
+    },
+    { &hf_npdu_reassembled_length,
+      {	"Reassembled length",
+	"npdu.reassembled.length",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"The total length of the reassembled payload", HFILL
       }
     },
     { &hf_npdu_fragment,

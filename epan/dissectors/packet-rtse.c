@@ -133,6 +133,7 @@ static int hf_rtse_fragment_multiple_tails = -1;
 static int hf_rtse_fragment_too_long_fragment = -1;
 static int hf_rtse_fragment_error = -1;
 static int hf_rtse_reassembled_in = -1;
+static int hf_rtse_reassembled_length = -1;
 
 static gint ett_rtse_fragment = -1;
 static gint ett_rtse_fragments = -1;
@@ -151,6 +152,8 @@ static const fragment_items rtse_frag_items = {
 	&hf_rtse_fragment_error,
 	/* Reassembled in field */
 	&hf_rtse_reassembled_in,
+	/* Reassembled length field */
+	&hf_rtse_reassembled_length,
 	/* Tag */
 	"RTSE fragments"
 };
@@ -688,7 +691,7 @@ dissect_rtse_RTSE_apdus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 /*--- End of included file: packet-rtse-fn.c ---*/
-#line 182 "packet-rtse-template.c"
+#line 185 "packet-rtse-template.c"
 
 /*
 * Dissect RTSE PDUs inside a PPDU.
@@ -851,6 +854,9 @@ void proto_register_rtse(void) {
     { &hf_rtse_reassembled_in,
       { "Reassembled RTSE in frame", "rtse.reassembled.in", FT_FRAMENUM, BASE_NONE,
 	NULL, 0x00, "This RTSE packet is reassembled in this frame", HFILL } },
+    { &hf_rtse_reassembled_length,
+      { "Reassembled RTSE length", "rtse.reassembled.length", FT_UINT32, BASE_DEC,
+	NULL, 0x00, "The total length of the reassembled payload", HFILL } },
 
 
 /*--- Included file: packet-rtse-hfarr.c ---*/
@@ -953,7 +959,7 @@ void proto_register_rtse(void) {
         "rtse.T_octetString", HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 346 "packet-rtse-template.c"
+#line 352 "packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -975,7 +981,7 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 355 "packet-rtse-template.c"
+#line 361 "packet-rtse-template.c"
   };
 
   module_t *rtse_module;

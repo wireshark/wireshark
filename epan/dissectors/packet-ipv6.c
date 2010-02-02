@@ -129,6 +129,7 @@ static int hf_ipv6_fragment_multiple_tails    = -1;
 static int hf_ipv6_fragment_too_long_fragment = -1;
 static int hf_ipv6_fragment_error	      = -1;
 static int hf_ipv6_reassembled_in	      = -1;
+static int hf_ipv6_reassembled_length	      = -1;
 
 static int hf_ipv6_mipv6_type		      = -1;
 static int hf_ipv6_mipv6_length		      = -1;
@@ -200,6 +201,7 @@ static const fragment_items ipv6_frag_items = {
 	&hf_ipv6_fragment_too_long_fragment,
 	&hf_ipv6_fragment_error,
 	&hf_ipv6_reassembled_in,
+	&hf_ipv6_reassembled_length,
 	"fragments"
 };
 
@@ -1765,6 +1767,11 @@ proto_register_ipv6(void)
       { "Reassembled IPv6 in frame", "ipv6.reassembled_in",
 				FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 				"This IPv6 packet is reassembled in this frame", HFILL }},
+
+    { &hf_ipv6_reassembled_length,
+      { "Reassembled IPv6 length", "ipv6.reassembled_length",
+				FT_UINT32, BASE_DEC, NULL, 0x0,
+				"The total length of the reassembled payload", HFILL }},
 
     /* Mobile IPv6 */
     { &hf_ipv6_mipv6_type,

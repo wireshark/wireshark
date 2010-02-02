@@ -78,6 +78,7 @@ static int hf_icmpv6_type = -1;
 static int hf_icmpv6_code = -1;
 static int hf_icmpv6_checksum = -1;
 static int hf_icmpv6_checksum_bad = -1;
+static int hf_icmpv6_nor = -1;
 static int hf_icmpv6_haad_ha_addrs = -1;
 static int hf_icmpv6_ra_cur_hop_limit = -1;
 static int hf_icmpv6_ra_router_lifetime = -1;
@@ -1829,7 +1830,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             guint16 nbRecords;
 
             nbRecords = tvb_get_ntohs( tvb, offset+4+2 );
-            proto_tree_add_text( icmp6_tree, tvb, offset+4+2, 2, "Number of records: %u", nbRecords );
+            proto_tree_add_item( icmp6_tree, hf_icmpv6_nor, tvb, offset+4+2, 2, FALSE );
             dissect_mldrv2( tvb, offset+4+2+2, nbRecords, icmp6_tree );
             break;
         }
@@ -2189,6 +2190,9 @@ proto_register_icmpv6(void)
             NULL, HFILL }},
         { &hf_icmpv6_checksum_bad,
           { "Bad Checksum",   "icmpv6.checksum_bad", FT_BOOLEAN, BASE_NONE,  NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_nor,
+          { "Number of records", "icmpv6.nor", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_haad_ha_addrs,
           { "Home Agent Addresses", "icmpv6.haad.ha_addrs", FT_IPv6, BASE_NONE, NULL, 0x0,

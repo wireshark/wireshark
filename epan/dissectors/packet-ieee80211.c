@@ -881,7 +881,7 @@ static int hf_fragment_multiple_tails = -1;
 static int hf_fragment_too_long_fragment = -1;
 static int hf_fragment_error = -1;
 static int hf_reassembled_in = -1;
-
+static int hf_reassembled_length = -1;
 
 static int proto_wlan_mgt = -1;
 
@@ -1650,6 +1650,7 @@ static const fragment_items frag_items = {
   &hf_fragment_too_long_fragment,
   &hf_fragment_error,
   &hf_reassembled_in,
+  &hf_reassembled_length,
   "fragments"
 };
 
@@ -9271,6 +9272,10 @@ proto_register_ieee80211 (void)
     {&hf_reassembled_in,
       {"Reassembled 802.11 in frame", "wlan.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
        "This 802.11 packet is reassembled in this frame", HFILL }},
+
+    {&hf_reassembled_length,
+      {"Reassembled 802.11 length", "wlan.reassembled_length", FT_UINT32, BASE_DEC, NULL, 0x0,
+       "The total length of the reassembled payload", HFILL }},
 
     {&hf_wep_iv,
      {"Initialization Vector", "wlan.wep.iv", FT_UINT24, BASE_HEX, NULL, 0,

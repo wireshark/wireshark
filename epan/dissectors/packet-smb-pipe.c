@@ -72,6 +72,7 @@ static int hf_pipe_fragment_multiple_tails = -1;
 static int hf_pipe_fragment_too_long_fragment = -1;
 static int hf_pipe_fragment_error = -1;
 static int hf_pipe_reassembled_in = -1;
+static int hf_pipe_reassembled_length = -1;
 
 static gint ett_smb_pipe = -1;
 static gint ett_smb_pipe_fragment = -1;
@@ -88,6 +89,7 @@ static const fragment_items smb_pipe_frag_items = {
 	&hf_pipe_fragment_too_long_fragment,
 	&hf_pipe_fragment_error,
 	NULL,
+	&hf_pipe_reassembled_length,
 	"fragments"
 };
 
@@ -3918,6 +3920,9 @@ proto_register_smb_pipe(void)
 		{ &hf_pipe_reassembled_in,
 			{ "This PDU is reassembled in", "pipe.reassembled_in", FT_FRAMENUM,
 			BASE_NONE, NULL, 0x0, "The DCE/RPC PDU is completely reassembled in this frame", HFILL }},
+		{ &hf_pipe_reassembled_length,
+			{ "Reassembled length", "pipe.reassembled_length", FT_UINT32,
+			BASE_DEC, NULL, 0x0, "The total length of the reassembled payload", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_smb_pipe,

@@ -129,6 +129,7 @@ static int hf_iax2_fragment_multiple_tails = -1;
 static int hf_iax2_fragment_too_long_fragment = -1;
 static int hf_iax2_fragment_error = -1;
 static int hf_iax2_reassembled_in = -1;
+static int hf_iax2_reassembled_length = -1;
 
 
 /* hf_iax2_ies is an array of header fields, one per potential Information
@@ -171,6 +172,7 @@ static const fragment_items iax2_fragment_items = {
   &hf_iax2_fragment_too_long_fragment,
   &hf_iax2_fragment_error,
   &hf_iax2_reassembled_in,
+  &hf_iax2_reassembled_length,
   "iax2 fragments"
 };
 
@@ -2557,7 +2559,12 @@ proto_register_iax2 (void)
     {&hf_iax2_reassembled_in,
      {"IAX2 fragment, reassembled in frame", "iax2.reassembled_in",
       FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-      "This IAX2 packet is reassembled in this frame", HFILL }}
+      "This IAX2 packet is reassembled in this frame", HFILL }},
+
+    {&hf_iax2_reassembled_length,
+     {"Reassembled length", "iax2.reassembled_length",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      "The total length of the reassembled payload", HFILL }}
   };
 
   static gint *ett[] = {

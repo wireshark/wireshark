@@ -132,6 +132,7 @@ static int hf_atp_segment_multiple_tails = -1;
 static int hf_atp_segment_too_long_segment = -1;
 static int hf_atp_segment_error = -1;
 static int hf_atp_reassembled_in = -1;
+static int hf_atp_reassembled_length = -1;
 
 /* ------------------------- */
 static int proto_zip = -1;
@@ -348,6 +349,7 @@ static const fragment_items atp_frag_items = {
   &hf_atp_segment_too_long_segment,
   &hf_atp_segment_error,
   &hf_atp_reassembled_in,
+  &hf_atp_reassembled_length,
   "segments"
 };
 
@@ -2093,7 +2095,11 @@ proto_register_atalk(void)
 
     { &hf_atp_reassembled_in,
       { "Reassembled ATP in frame", "atp.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-       "This ATP packet is reassembled in this frame", HFILL }}
+        "This ATP packet is reassembled in this frame", HFILL }},
+
+    { &hf_atp_reassembled_length,
+      { "Reassembled ATP length", "atp.reassembled_length", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        "The total length of the reassembled payload", HFILL }}
   };
 
   static hf_register_info hf_asp[] = {

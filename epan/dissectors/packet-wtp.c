@@ -193,6 +193,7 @@ static int hf_wtp_fragment_multiple_tails	= HF_EMPTY;
 static int hf_wtp_fragment_too_long_fragment	= HF_EMPTY;
 static int hf_wtp_fragment_error		= HF_EMPTY;
 static int hf_wtp_reassembled_in		= HF_EMPTY;
+static int hf_wtp_reassembled_length		= HF_EMPTY;
 
 /* Initialize the subtree pointers */
 static gint ett_wtp 				= ETT_EMPTY;
@@ -213,6 +214,7 @@ static const fragment_items wtp_frag_items = {
     &hf_wtp_fragment_too_long_fragment,
     &hf_wtp_fragment_error,
     &hf_wtp_reassembled_in,
+    &hf_wtp_reassembled_length,
     "fragments"
 };
 
@@ -1034,6 +1036,13 @@ proto_register_wtp(void)
 		"wtp.reassembled.in",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		"WTP fragments are reassembled in the given packet", HFILL
+	    }
+	},
+	{ &hf_wtp_reassembled_length,
+	    {	"Reassembled length",
+		"wtp.reassembled.length",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		"The total length of the reassembled payload", HFILL
 	    }
 	},
 	{ &hf_wtp_fragment,

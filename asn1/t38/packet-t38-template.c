@@ -137,6 +137,7 @@ static int hf_t38_fragment_multiple_tails = -1;
 static int hf_t38_fragment_too_long_fragment = -1;
 static int hf_t38_fragment_error = -1;
 static int hf_t38_reassembled_in = -1;
+static int hf_t38_reassembled_length = -1;
 
 static gint ett_t38 = -1;
 #include "packet-t38-ett.c"
@@ -165,6 +166,8 @@ static const fragment_items data_frag_items = {
 	&hf_t38_fragment_error,
 	/* Reassembled in field */
 	&hf_t38_reassembled_in,
+	/* Reassembled length field */
+	&hf_t38_reassembled_length,
 	/* Tag */
 	"Data fragments"
 };
@@ -701,6 +704,9 @@ proto_register_t38(void)
 		{&hf_t38_reassembled_in,
 			{"Reassembled in", "t38.reassembled.in",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+		{&hf_t38_reassembled_length,
+			{"Reassembled length", "t38.reassembled.length",
+			FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
 	};
 
 	static gint *ett[] =

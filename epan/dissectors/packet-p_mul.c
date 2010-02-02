@@ -125,6 +125,7 @@ static int hf_msg_fragment_multiple_tails = -1;
 static int hf_msg_fragment_too_long_fragment = -1;
 static int hf_msg_fragment_error = -1;
 static int hf_msg_reassembled_in = -1;
+static int hf_msg_reassembled_length = -1;
 
 static int hf_analysis_ack_time = -1;
 static int hf_analysis_trans_time = -1;
@@ -219,6 +220,8 @@ static const fragment_items p_mul_frag_items = {
   &hf_msg_fragment_error,
   /* Reassembled in field */
   &hf_msg_reassembled_in,
+  /* Reassembled length field */
+  &hf_msg_reassembled_length,
   /* Tag */
   "Message fragments"
 };
@@ -1484,6 +1487,9 @@ void proto_register_p_mul (void)
         BASE_NONE, NULL, 0x00, NULL, HFILL } },
     { &hf_msg_reassembled_in,
       { "Reassembled in", "p_mul.reassembled.in", FT_FRAMENUM, BASE_NONE,
+        NULL, 0x00, NULL, HFILL } },
+    { &hf_msg_reassembled_length,
+      { "Reassembled length", "p_mul.reassembled.length", FT_UINT32, BASE_DEC,
         NULL, 0x00, NULL, HFILL } },
 
     /*

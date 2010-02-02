@@ -76,6 +76,7 @@ const fragment_items nds_frag_items = {
     &hf_nds_segment_too_long_segment,
     &hf_nds_segment_error,
     NULL,
+    &hf_nds_reassembled_length,
     "segments"
 };
 

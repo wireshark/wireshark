@@ -63,6 +63,7 @@ static int hf_tipc_msg_fragment_multiple_tails = -1;
 static int hf_tipc_msg_fragment_too_long_fragment = -1;
 static int hf_tipc_msg_fragment_error = -1;
 static int hf_tipc_msg_reassembled_in = -1;
+static int hf_tipc_msg_reassembled_length = -1;
 
 static int hf_tipc_ver = -1;
 static int hf_tipc_usr = -1;
@@ -216,6 +217,8 @@ static const fragment_items tipc_msg_frag_items = {
 	&hf_tipc_msg_fragment_error,
 	/* Reassembled in field */
 	&hf_tipc_msg_reassembled_in,
+	/* Reassembled length field */
+	&hf_tipc_msg_reassembled_length,
 	/* Tag */
 	"TIPC Message fragments"
 };
@@ -2348,6 +2351,10 @@ proto_register_tipc(void)
 		{ &hf_tipc_msg_reassembled_in,
 			{ "Reassembled in", "tipc.msg.reassembled.in",
 				FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_tipc_msg_reassembled_length,
+			{ "Reassembled length", "tipc.msg.reassembled.length",
+				FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_tipc_ver,
 			{ "Version", "tipc.ver",

@@ -220,6 +220,7 @@ static gint hf_pct_handshake_exch             = -1;
 static gint hf_pct_handshake_sig              = -1;
 static gint hf_pct_msg_error_type             = -1;
 static int hf_ssl_reassembled_in              = -1;
+static int hf_ssl_reassembled_length          = -1;
 static int hf_ssl_segments                    = -1;
 static int hf_ssl_segment                     = -1;
 static int hf_ssl_segment_overlap             = -1;
@@ -264,6 +265,7 @@ static const fragment_items ssl_segment_items = {
 	&hf_ssl_segment_too_long_fragment,
 	&hf_ssl_segment_error,
 	&hf_ssl_reassembled_in,
+	&hf_ssl_reassembled_length,
 	"Segments"
 };
 
@@ -4391,6 +4393,10 @@ proto_register_ssl(void)
 		{ &hf_ssl_reassembled_in,
 		{ "Reassembled PDU in frame", "ssl.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"The PDU that doesn't end in this segment is reassembled in this frame", HFILL }},
+
+		{ &hf_ssl_reassembled_length,
+		{ "Reassembled PDU length", "ssl.reassembled_length", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"The total length of the reassembled payload", HFILL }},
     };
 
     /* Setup protocol subtree array */

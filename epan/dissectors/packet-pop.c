@@ -61,6 +61,7 @@ static int hf_pop_data_fragment_multiple_tails = -1;
 static int hf_pop_data_fragment_too_long_fragment = -1;
 static int hf_pop_data_fragment_error = -1;
 static int hf_pop_data_reassembled_in = -1;
+static int hf_pop_data_reassembled_length = -1;
 
 static gint ett_pop = -1;
 static gint ett_pop_reqresp = -1;
@@ -94,6 +95,8 @@ static const fragment_items pop_data_frag_items = {
   &hf_pop_data_fragment_error,
   /* Reassembled in field */
   &hf_pop_data_reassembled_in,
+  /* Reassembled length field */
+  &hf_pop_data_reassembled_length,
   /* Tag */
   "DATA fragments"
 };
@@ -420,6 +423,9 @@ proto_register_pop(void)
     { &hf_pop_data_reassembled_in,
       { "Reassembled DATA in frame", "pop.data.reassembled.in", FT_FRAMENUM, BASE_NONE,
         NULL, 0x00, "This DATA fragment is reassembled in this frame", HFILL } },
+    { &hf_pop_data_reassembled_length,
+      { "Reassembled DATA length", "pop.data.reassembled.length", FT_UINT32, BASE_DEC,
+        NULL, 0x00, "The total length of the reassembled payload", HFILL } },
   };
 
   static gint *ett[] = {

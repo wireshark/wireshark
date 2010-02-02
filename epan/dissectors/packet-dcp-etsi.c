@@ -92,6 +92,7 @@ static int hf_edcp_fragment_multiple_tails = -1;
 static int hf_edcp_fragment_too_long_fragment = -1;
 static int hf_edcp_fragment_error = -1;
 static int hf_edcp_reassembled_in = -1;
+static int hf_edcp_reassembled_length = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_edcp = -1;
@@ -118,6 +119,8 @@ static const fragment_items dcp_frag_items = {
   &hf_edcp_fragment_error,
 /* Reassembled in field */
   &hf_edcp_reassembled_in,
+/* Reassembled length field */
+  &hf_edcp_reassembled_length,
 /* Tag */
   "Message fragments"
 };
@@ -819,7 +822,10 @@ proto_register_dcp_etsi (void)
       FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL}},
     {&hf_edcp_reassembled_in,
      {"Reassembled in", "dcp-pft.reassembled.in",
-      FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL}},
+      FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL}},
+    {&hf_edcp_reassembled_length,
+     {"Reassembled length", "dcp-pft.reassembled.length",
+      FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL}},
     {&hf_edcp_c_max,
      {"C max", "dcp-pft.cmax",
       FT_UINT16, BASE_DEC, NULL, 0,

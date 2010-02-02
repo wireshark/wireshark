@@ -2073,6 +2073,12 @@ show_fragment_tree(fragment_data *fd_head, const fragment_items *fit,
 		first_frag = FALSE;
 	}
 
+	if (fit->hf_reassembled_length) {
+		proto_item *fli = proto_tree_add_uint(ft, *(fit->hf_reassembled_length),
+						      tvb, 0, 0, tvb_length (tvb));
+		PROTO_ITEM_SET_GENERATED(fli);
+	}
+
 	return show_fragment_errs_in_col(fd_head, fit, pinfo);
 }
 
@@ -2111,6 +2117,12 @@ show_fragment_seq_tree(fragment_data *fd_head, const fragment_items *fit,
 		last_fd = fd;
 		show_fragment(fd, offset, fit, ft, *fi, first_frag, tvb);
 		first_frag = FALSE;
+	}
+
+	if (fit->hf_reassembled_length) {
+		proto_item *fli = proto_tree_add_uint(ft, *(fit->hf_reassembled_length),
+						      tvb, 0, 0, tvb_length (tvb));
+		PROTO_ITEM_SET_GENERATED(fli);
 	}
 
 	return show_fragment_errs_in_col(fd_head, fit, pinfo);

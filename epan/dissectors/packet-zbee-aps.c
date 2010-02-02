@@ -127,6 +127,7 @@ static int hf_zbee_aps_fragment_multiple_tails = -1;
 static int hf_zbee_aps_fragment_too_long_fragment = -1;
 static int hf_zbee_aps_fragment_error = -1;
 static int hf_zbee_aps_reassembled_in = -1;
+static int hf_zbee_aps_reassembled_length = -1;
 static gint ett_zbee_aps_fragment = -1;
 static gint ett_zbee_aps_fragments = -1;
 
@@ -159,6 +160,8 @@ static const fragment_items zbee_aps_frag_items = {
     &hf_zbee_aps_fragment_error,
     /* Reassembled in field */
     &hf_zbee_aps_reassembled_in,
+    /* Reassembled length field */
+    &hf_zbee_aps_reassembled_length,
     /* Tag */
     "APS Message fragments"
 };
@@ -1920,6 +1923,10 @@ void proto_register_zbee_aps(void)
 
             { &hf_zbee_aps_reassembled_in,
             { "Reassembled in",         "zbee.aps.reassembled.in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+	        NULL, HFILL }},
+
+            { &hf_zbee_aps_reassembled_length,
+            { "Reassembled length",         "zbee.aps.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }}
     };
 

@@ -127,6 +127,7 @@ static int hf_ip_fragment_multiple_tails = -1;
 static int hf_ip_fragment_too_long_fragment = -1;
 static int hf_ip_fragment_error = -1;
 static int hf_ip_reassembled_in = -1;
+static int hf_ip_reassembled_length = -1;
 
 #ifdef HAVE_GEOIP
 static int hf_geoip_country = -1;
@@ -180,6 +181,7 @@ static const fragment_items ip_frag_items = {
 	&hf_ip_fragment_too_long_fragment,
 	&hf_ip_fragment_error,
 	&hf_ip_reassembled_in,
+	&hf_ip_reassembled_length,
 	"IP fragments"
 };
 
@@ -1945,7 +1947,11 @@ proto_register_ip(void)
 
 		{ &hf_ip_reassembled_in,
 		{ "Reassembled IP in frame", "ip.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-			"This IP packet is reassembled in this frame", HFILL }}
+		  "This IP packet is reassembled in this frame", HFILL }},
+
+		{ &hf_ip_reassembled_length,
+		{ "Reassembled IP length", "ip.reassembled_length", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"The total length of the reassembled payload", HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_ip,

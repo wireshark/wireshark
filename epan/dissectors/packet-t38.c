@@ -168,6 +168,7 @@ static int hf_t38_fragment_multiple_tails = -1;
 static int hf_t38_fragment_too_long_fragment = -1;
 static int hf_t38_fragment_error = -1;
 static int hf_t38_reassembled_in = -1;
+static int hf_t38_reassembled_length = -1;
 
 static gint ett_t38 = -1;
 
@@ -184,7 +185,7 @@ static gint ett_t38_T_fec_info = -1;
 static gint ett_t38_T_fec_data = -1;
 
 /*--- End of included file: packet-t38-ett.c ---*/
-#line 143 "packet-t38-template.c"
+#line 144 "packet-t38-template.c"
 static gint ett_t38_setup = -1;
 
 static gint ett_data_fragment = -1;
@@ -210,6 +211,8 @@ static const fragment_items data_frag_items = {
 	&hf_t38_fragment_error,
 	/* Reassembled in field */
 	&hf_t38_reassembled_in,
+	/* Reassembled length field */
+	&hf_t38_reassembled_length,
 	/* Tag */
 	"Data fragments"
 };
@@ -965,7 +968,7 @@ static int dissect_UDPTLPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-t38-fn.c ---*/
-#line 391 "packet-t38-template.c"
+#line 394 "packet-t38-template.c"
 
 /* initialize the tap t38_info and the conversation */
 static void
@@ -1320,7 +1323,7 @@ proto_register_t38(void)
         "t38.OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-t38-hfarr.c ---*/
-#line 669 "packet-t38-template.c"
+#line 672 "packet-t38-template.c"
 		{   &hf_t38_setup,
 		    { "Stream setup", "t38.setup", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "Stream setup, method and frame number", HFILL }},
@@ -1356,6 +1359,9 @@ proto_register_t38(void)
 		{&hf_t38_reassembled_in,
 			{"Reassembled in", "t38.reassembled.in",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+		{&hf_t38_reassembled_length,
+			{"Reassembled length", "t38.reassembled.length",
+			FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
 	};
 
 	static gint *ett[] =
@@ -1375,7 +1381,7 @@ proto_register_t38(void)
     &ett_t38_T_fec_data,
 
 /*--- End of included file: packet-t38-ettarr.c ---*/
-#line 710 "packet-t38-template.c"
+#line 716 "packet-t38-template.c"
 		&ett_t38_setup,
 		&ett_data_fragment,
 		&ett_data_fragments

@@ -80,6 +80,7 @@ static int hf_h223_mux_fragment_multiple_tails = -1;
 static int hf_h223_mux_fragment_too_long_fragment = -1;
 static int hf_h223_mux_fragment_error = -1;
 static int hf_h223_mux_reassembled_in = -1;
+static int hf_h223_mux_reassembled_length = -1;
 
 static int hf_h223_al_fragments = -1;
 static int hf_h223_al_fragment = -1;
@@ -89,6 +90,7 @@ static int hf_h223_al_fragment_multiple_tails = -1;
 static int hf_h223_al_fragment_too_long_fragment = -1;
 static int hf_h223_al_fragment_error = -1;
 static int hf_h223_al_reassembled_in = -1;
+static int hf_h223_al_reassembled_length = -1;
 
 static int hf_h223_al1 = -1;
 static int hf_h223_al1_framed = -1;
@@ -133,6 +135,7 @@ static const fragment_items h223_mux_frag_items _U_ = {
     &hf_h223_mux_fragment_too_long_fragment,
     &hf_h223_mux_fragment_error,
     &hf_h223_mux_reassembled_in,
+    &hf_h223_mux_reassembled_length,
     "fragments"
 };
 
@@ -147,6 +150,7 @@ static const fragment_items h223_al_frag_items = {
     &hf_h223_al_fragment_too_long_fragment,
     &hf_h223_al_fragment_error,
     &hf_h223_al_reassembled_in,
+    &hf_h223_al_reassembled_length,
     "fragments"
 };
 
@@ -1448,6 +1452,10 @@ void proto_register_h223 (void)
           { "MUX-PDU fragment, reassembled in frame", "h223.mux.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             "This H.223 MUX-PDU packet is reassembled in this frame", HFILL }},
 
+        { &hf_h223_mux_reassembled_length,
+          { "Reassembled length", "h223.mux.reassembled_length", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "The total length of the reassembled payload", HFILL }},
+
         /* fields for h.223-al fragments */
         { &hf_h223_al_fragment_overlap,
           { "Fragment overlap", "h223.al.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -1480,6 +1488,10 @@ void proto_register_h223 (void)
         { &hf_h223_al_reassembled_in,
           { "AL-PDU fragment, reassembled in frame", "h223.al.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             "This H.223 AL-PDU packet is reassembled in this frame", HFILL }},
+
+        { &hf_h223_al_reassembled_length,
+          { "Reassembled length", "h223.al.reassembled_length", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "The total length of the reassembled payload", HFILL }},
 
         /* h223-als */
 

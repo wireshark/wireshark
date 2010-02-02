@@ -113,6 +113,7 @@ static int hf_netb_fragment_overlap_conflict = -1;
 static int hf_netb_fragment_multiple_tails = -1;
 static int hf_netb_fragment_too_long_fragment = -1;
 static int hf_netb_fragment_error = -1;
+static int hf_netb_reassembled_length = -1;
 
 static gint ett_netb = -1;
 static gint ett_netb_name = -1;
@@ -132,6 +133,7 @@ static const fragment_items netbios_frag_items = {
 	&hf_netb_fragment_too_long_fragment,
 	&hf_netb_fragment_error,
 	NULL,
+	&hf_netb_reassembled_length,
 	"fragments"
 };
 
@@ -1396,6 +1398,10 @@ void proto_register_netbios(void)
 		{ &hf_netb_fragments,
 		{ "NetBIOS Fragments",	"netbios.fragments", FT_NONE, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_netb_reassembled_length,
+		{"Reassembled length",	"netbios.reassembled.length", FT_UINT32, BASE_DEC,
+			NULL, 0x0, "The total length of the reassembled payload", HFILL }},
 	};
 	module_t *netbios_module;
 

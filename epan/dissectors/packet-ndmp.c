@@ -240,6 +240,7 @@ static int hf_ndmp_fragment_multiple_tails = -1;
 static int hf_ndmp_fragment_too_long_fragment = -1;
 static int hf_ndmp_fragment_error = -1;
 static int hf_ndmp_reassembled_in = -1;
+static int hf_ndmp_reassembled_length = -1;
 
 static gint ett_ndmp = -1;
 static gint ett_ndmp_fraghdr = -1;
@@ -276,6 +277,8 @@ static const fragment_items ndmp_frag_items = {
        &hf_ndmp_fragment_error,
        /* Reassembled in field */
        &hf_ndmp_reassembled_in,
+       /* Reassembled length field */
+       &hf_ndmp_reassembled_length,
        /* Tag */
        "NDMP fragments"
 };
@@ -4270,6 +4273,9 @@ proto_register_ndmp(void)
 	{&hf_ndmp_reassembled_in,
 		{"Reassembled in", "ndmp.reassembled.in",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+	{&hf_ndmp_reassembled_length,
+		{"Reassembled length", "ndmp.reassembled.length",
+		FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
   };
 
   static gint *ett[] = {

@@ -210,6 +210,7 @@ static int   hf_eaptls_fragment_overlap_conflict = -1;
 static int   hf_eaptls_fragment_multiple_tails = -1;
 static int   hf_eaptls_fragment_too_long_fragment = -1;
 static int   hf_eaptls_fragment_error = -1;
+static int   hf_eaptls_reassembled_length = -1;
 static gint ett_eaptls_fragment  = -1;
 static gint ett_eaptls_fragments = -1;
 static gint ett_eap_sim_attr = -1;
@@ -227,6 +228,7 @@ static const fragment_items eaptls_frag_items = {
 	&hf_eaptls_fragment_too_long_fragment,
 	&hf_eaptls_fragment_error,
 	NULL,
+	&hf_eaptls_reassembled_length,
 	"fragments"
 };
 
@@ -1250,6 +1252,10 @@ proto_register_eap(void)
 	  { "Defragmentation error", "eaptls.fragment.error",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		"Defragmentation error due to illegal fragments", HFILL }},
+	{ &hf_eaptls_reassembled_length,
+	  { "Reassembled length", "eaptls.reassembled.length",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		"The total length of the reassembled payload", HFILL }},
 
 	/* Expanded type fields */
 	{ &hf_eapext_vendorid,

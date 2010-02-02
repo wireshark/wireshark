@@ -60,6 +60,7 @@ static int hf_gssapi_segment_multiple_tails = -1;
 static int hf_gssapi_segment_too_long_fragment = -1;
 static int hf_gssapi_segment_error = -1;
 static int hf_gssapi_reassembled_in = -1;
+static int hf_gssapi_reassembled_length = -1;
 
 static gint ett_gssapi = -1;
 static gint ett_gssapi_segment = -1;
@@ -94,7 +95,7 @@ static const fragment_items gssapi_frag_items = {
 	&hf_gssapi_segment_too_long_fragment,
 	&hf_gssapi_segment_error,
 	NULL,
-
+	&hf_gssapi_reassembled_length,
 	"fragments"
 };
 
@@ -555,7 +556,9 @@ proto_register_gssapi(void)
 	{ &hf_gssapi_reassembled_in,
 		{ "Reassembled In", "gss-api.reassembled_in", FT_FRAMENUM, BASE_NONE, 
 		  NULL, 0x0, "The frame where this pdu is reassembled", HFILL }},
-
+	{ &hf_gssapi_reassembled_length,
+		{ "Reassembled length", "gss-api.reassembled_length", FT_UINT32, BASE_DEC, 
+		  NULL, 0x0, "The total length of the reassembled payload", HFILL }},
 	};
 
 	static gint *ett[] = {

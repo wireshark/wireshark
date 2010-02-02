@@ -248,6 +248,7 @@ static int hf_msg_fragment_multiple_tails = -1;
 static int hf_msg_fragment_too_long_fragment = -1;
 static int hf_msg_fragment_error = -1;
 static int hf_msg_reassembled_in = -1;
+static int hf_msg_reassembled_length = -1;
 
 static dissector_handle_t dtls_handle;
 static dissector_handle_t ieee8023_handle;
@@ -279,6 +280,8 @@ static const fragment_items capwap_frag_items = {
   &hf_msg_fragment_error,
   /* Reassembled in field */
   &hf_msg_reassembled_in,
+  /* Reassembled length field */
+  &hf_msg_reassembled_length,
   /* Tag */
   "Message fragments"
 };
@@ -2143,6 +2146,9 @@ proto_register_capwap_control(void)
 		{ &hf_msg_reassembled_in,
 			{ "Reassembled in", "capwap.reassembled.in", FT_FRAMENUM, BASE_NONE,
 			NULL, 0x00, NULL, HFILL } },
+		{ &hf_msg_reassembled_length,
+			{ "Reassembled length", "capwap.reassembled.length", FT_UINT32, BASE_DEC,
+			NULL, 0x00, NULL, HFILL } }
 	};
 
 	/* Setup protocol subtree array */

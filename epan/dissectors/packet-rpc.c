@@ -235,6 +235,7 @@ static int hf_rpc_fragment_overlap_conflict = -1;
 static int hf_rpc_fragment_multiple_tails = -1;
 static int hf_rpc_fragment_too_long_fragment = -1;
 static int hf_rpc_fragment_error = -1;
+static int hf_rpc_reassembled_length = -1;
 
 static gint ett_rpc = -1;
 static gint ett_rpc_unknown_program = -1;
@@ -268,6 +269,7 @@ static const fragment_items rpc_frag_items = {
 	&hf_rpc_fragment_too_long_fragment,
 	&hf_rpc_fragment_error,
 	NULL,
+	&hf_rpc_reassembled_length,
 	"fragments"
 };
 
@@ -3744,6 +3746,10 @@ proto_register_rpc(void)
 		{ &hf_rpc_fragments,
 		{ "RPC Fragments", "rpc.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
+
+		{ &hf_rpc_reassembled_length,
+		{ "Reassembled length", "rpc.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"The total length of the reassembled payload", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_rpc,

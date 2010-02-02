@@ -117,6 +117,7 @@ static int hf_q931_segment_multiple_tails = -1;
 static int hf_q931_segment_too_long_segment = -1;
 static int hf_q931_segment_error = -1;
 static int hf_q931_reassembled_in = -1; 
+static int hf_q931_reassembled_length = -1; 
 
 static gint ett_q931 					= -1;
 static gint ett_q931_ie 				= -1;
@@ -136,6 +137,7 @@ static const fragment_items q931_frag_items = {
 	&hf_q931_segment_too_long_segment,
 	&hf_q931_segment_error,
 	&hf_q931_reassembled_in,
+	&hf_q931_reassembled_length,
 	"segments"
 };
 
@@ -3493,6 +3495,10 @@ proto_register_q931(void)
 		{ &hf_q931_reassembled_in,
 		  { "Reassembled Q.931 in frame", "q931.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"This Q.931 message is reassembled in this frame", HFILL}}, 
+
+		{ &hf_q931_reassembled_length,
+		  { "Reassembled Q.931 length", "q931.reassembled_length", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"The total length of the reassembled payload", HFILL}}, 
 	};
 	static gint *ett[] = {
 		&ett_q931,

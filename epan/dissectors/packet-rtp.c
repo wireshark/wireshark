@@ -114,6 +114,7 @@ static int hf_rtp_fragment_multiple_tails = -1;
 static int hf_rtp_fragment_too_long_fragment = -1;
 static int hf_rtp_fragment_error = -1;
 static int hf_rtp_reassembled_in = -1;
+static int hf_rtp_reassembled_length = -1;
 
 static gint ett_rtp_fragment = -1;
 static gint ett_rtp_fragments = -1;
@@ -129,6 +130,7 @@ static const fragment_items rtp_fragment_items = {
   &hf_rtp_fragment_too_long_fragment,
   &hf_rtp_fragment_error,
   &hf_rtp_reassembled_in,
+  &hf_rtp_reassembled_length,
   "RTP fragments"
 };
 
@@ -1919,6 +1921,11 @@ proto_register_rtp(void)
 		 {"RTP fragment, reassembled in frame", "rtp.reassembled_in",
 		  FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		  "This RTP packet is reassembled in this frame", HFILL }
+		},
+		{&hf_rtp_reassembled_length,
+		 {"Reassembled RTP length", "rtp.reassembled_length",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "The total length of the reassembled payload", HFILL }
 		},
 		{&hf_srtp_encrypted_payload,
 		 {"SRTP Encrypted Payload", "srtp.enc_payload",

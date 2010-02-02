@@ -103,6 +103,7 @@ static int hf_msg_fragment_multiple_tails = -1;
 static int hf_msg_fragment_too_long_fragment = -1;
 static int hf_msg_fragment_error = -1;
 static int hf_msg_reassembled_in = -1;
+static int hf_msg_reassembled_length = -1;
 
 /* Primary Header Processing Flag Variables */
 static guint8 pri_hdr_procflags; /*This is global to allow processing Payload Header*/
@@ -258,6 +259,8 @@ static const fragment_items msg_frag_items = {
     &hf_msg_fragment_error,
     /*Reassembled in field*/
     &hf_msg_reassembled_in,
+    /*Reassembled length field*/
+    &hf_msg_reassembled_length,
     /*Tag*/
     "Message fragments"
 };
@@ -2234,6 +2237,10 @@ proto_register_bundle(void)
     {&hf_msg_reassembled_in,
         {"Reassembled in", "bundle.msg.reassembled.in",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_msg_reassembled_length,
+        {"Reassembled length", "bundle.msg.reassembled.length",
+		FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_bundle_procflags,
         {"Primary Header Processing Flags", "bundle.primary.proc.flag",

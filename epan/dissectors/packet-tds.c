@@ -317,6 +317,7 @@ static int hf_tds_channel = -1;
 static int hf_tds_packet_number = -1;
 static int hf_tds_window = -1;
 static int hf_tds_reassembled_in = -1;
+static int hf_tds_reassembled_length = -1;
 static int hf_tds_fragments = -1;
 static int hf_tds_fragment = -1;
 static int hf_tds_fragment_overlap = -1;
@@ -362,6 +363,7 @@ static const fragment_items tds_frag_items = {
 	&hf_tds_fragment_too_long_fragment,
 	&hf_tds_fragment_error,
 	&hf_tds_reassembled_in,
+	&hf_tds_reassembled_length,
 	"fragments"
 };
 
@@ -2051,6 +2053,11 @@ proto_register_tds(void)
 			{ "Reassembled TDS in frame", "tds.reassembled_in",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"This TDS packet is reassembled in this frame", HFILL }
+		},
+		{ &hf_tds_reassembled_length,
+			{ "Reassembled TDS length", "tds.reassembled_length",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			"The total length of the reassembled payload", HFILL }
 		},
 		{ &hf_tds7_login_total_size,
 			{ "Total Packet Length", "tds7login.total_len",

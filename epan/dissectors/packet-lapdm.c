@@ -97,6 +97,7 @@ static int hf_lapdm_fragment_multiple_tails = -1;
 static int hf_lapdm_fragment_too_long_fragment = -1;
 static int hf_lapdm_fragment_error = -1;
 static int hf_lapdm_reassembled_in = -1;
+static int hf_lapdm_reassembled_length = -1;
 
 static gint ett_lapdm = -1;
 static gint ett_lapdm_address = -1;
@@ -195,6 +196,8 @@ static const fragment_items lapdm_frag_items = {
     &hf_lapdm_fragment_error,
     /* Reassembled in field */
     &hf_lapdm_reassembled_in,
+    /* Reassembled length field */
+    &hf_lapdm_reassembled_length,
     /* Tag */
     "fragments"
 };
@@ -447,7 +450,11 @@ proto_register_lapdm(void)
 
         { &hf_lapdm_reassembled_in,
         { "Reassembled in", "lapdm.reassembled.in", FT_FRAMENUM, BASE_NONE,
-        NULL, 0x00, "LAPDm Message has been reassembled in this packet.", HFILL }}
+	NULL, 0x00, "LAPDm Message has been reassembled in this packet.", HFILL }},
+
+        { &hf_lapdm_reassembled_length,
+        { "Reassembled length", "lapdm.reassembled.length", FT_UINT32, BASE_DEC,
+        NULL, 0x00, "The total length of the reassembled payload", HFILL }}
 
     };
     static gint *ett[] = {
