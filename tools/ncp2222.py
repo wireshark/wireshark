@@ -6206,6 +6206,7 @@ static int hf_nds_segment_overlap_conflict = -1;
 static int hf_nds_segment_multiple_tails = -1;
 static int hf_nds_segment_too_long_segment = -1;
 static int hf_nds_segment_error = -1;
+static int hf_nds_reassembled_length = -1;
 static int hf_nds_verb2b_req_flags = -1;
 static int hf_ncp_ip_address = -1;
 static int hf_ncp_copyright = -1;
@@ -8101,6 +8102,9 @@ proto_register_ncp2222(void)
 
 	{ &hf_nds_segment_error,
 	{ "Desegmentation error", "nds.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "Desegmentation error due to illegal segments", HFILL }},
+
+	{ &hf_nds_reassembled_length,
+	{ "Reassembled length", "nds.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0, "The total length of the reassembled payload", HFILL }},
 
 	{ &hf_nds_segment,
 	{ "NDS Fragment", "nds.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "NDPS Fragment", HFILL }},
