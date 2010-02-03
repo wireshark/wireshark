@@ -2562,7 +2562,7 @@ proto_register_iax2 (void)
       "This IAX2 packet is reassembled in this frame", HFILL }},
 
     {&hf_iax2_reassembled_length,
-     {"Reassembled length", "iax2.reassembled_length",
+     {"Reassembled length", "iax2.reassembled.length",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "The total length of the reassembled payload", HFILL }}
   };

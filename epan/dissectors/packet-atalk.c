@@ -2098,7 +2098,7 @@ proto_register_atalk(void)
         "This ATP packet is reassembled in this frame", HFILL }},
 
     { &hf_atp_reassembled_length,
-      { "Reassembled ATP length", "atp.reassembled_length", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+      { "Reassembled ATP length", "atp.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
         "The total length of the reassembled payload", HFILL }}
   };
 

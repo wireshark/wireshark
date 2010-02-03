@@ -2055,7 +2055,7 @@ proto_register_tds(void)
 			"This TDS packet is reassembled in this frame", HFILL }
 		},
 		{ &hf_tds_reassembled_length,
-			{ "Reassembled TDS length", "tds.reassembled_length",
+			{ "Reassembled TDS length", "tds.reassembled.length",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"The total length of the reassembled payload", HFILL }
 		},

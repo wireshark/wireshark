@@ -3827,7 +3827,7 @@ proto_register_tcp(void)
 			"The PDU that doesn't end in this segment is reassembled in this frame", HFILL }},
 
 		{ &hf_tcp_reassembled_length,
-		{ "Reassembled TCP length", "tcp.reassembled_length", FT_UINT32, BASE_DEC, NULL, 0x0,
+		{ "Reassembled TCP length", "tcp.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"The total length of the reassembled payload", HFILL }},
 
 		{ &hf_tcp_options,

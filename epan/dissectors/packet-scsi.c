@@ -5314,7 +5314,7 @@ proto_register_scsi (void)
           { "Reassembled SCSI DATA in frame", "scsi.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
            "This SCSI DATA packet is reassembled in this frame", HFILL }},
         { &hf_scsi_reassembled_length,
-          { "Reassembled SCSI DATA length", "scsi.reassembled_length", FT_UINT32, BASE_DEC, NULL, 0x0,
+          { "Reassembled SCSI DATA length", "scsi.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
            "The total length of the reassembled payload", HFILL }},
         { &hf_scsi_log_ppc_flags,
           {"PPC Flags", "scsi.log.ppc.flags", FT_UINT8, BASE_HEX, NULL, 0,

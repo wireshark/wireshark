@@ -1950,7 +1950,7 @@ proto_register_ip(void)
 		  "This IP packet is reassembled in this frame", HFILL }},
 
 		{ &hf_ip_reassembled_length,
-		{ "Reassembled IP length", "ip.reassembled_length", FT_UINT32, BASE_DEC, NULL, 0x0,
+		{ "Reassembled IP length", "ip.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"The total length of the reassembled payload", HFILL }}
 	};
 	static gint *ett[] = {

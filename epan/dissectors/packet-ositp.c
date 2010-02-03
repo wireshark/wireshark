@@ -1802,7 +1802,7 @@ void proto_register_cotp(void)
       { "Reassembled COTP in frame", "cotp.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	"This COTP packet is reassembled in this frame", HFILL }},
     { &hf_cotp_reassembled_length,
-      { "Reassembled COTP length", "cotp.reassembled_length", FT_UINT32, BASE_DEC, NULL, 0x0,
+      { "Reassembled COTP length", "cotp.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
 	"The total length of the reassembled payload", HFILL }},
 /* ISO DP 8073 i13.3.4(a) Source and destination TSAPs are defined as
    identifiers of unspecified type and length.

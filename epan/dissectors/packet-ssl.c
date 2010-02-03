@@ -4395,7 +4395,7 @@ proto_register_ssl(void)
 			"The PDU that doesn't end in this segment is reassembled in this frame", HFILL }},
 
 		{ &hf_ssl_reassembled_length,
-		{ "Reassembled PDU length", "ssl.reassembled_length", FT_UINT32, BASE_DEC, NULL, 0x0,
+		{ "Reassembled PDU length", "ssl.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"The total length of the reassembled payload", HFILL }},
     };
 

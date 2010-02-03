@@ -3921,7 +3921,7 @@ proto_register_smb_pipe(void)
 			{ "This PDU is reassembled in", "pipe.reassembled_in", FT_FRAMENUM,
 			BASE_NONE, NULL, 0x0, "The DCE/RPC PDU is completely reassembled in this frame", HFILL }},
 		{ &hf_pipe_reassembled_length,
-			{ "Reassembled length", "pipe.reassembled_length", FT_UINT32,
+			{ "Reassembled length", "pipe.reassembled.length", FT_UINT32,
 			BASE_DEC, NULL, 0x0, "The total length of the reassembled payload", HFILL }},
 	};
 	static gint *ett[] = {

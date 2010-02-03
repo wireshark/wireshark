@@ -557,7 +557,7 @@ proto_register_gssapi(void)
 		{ "Reassembled In", "gss-api.reassembled_in", FT_FRAMENUM, BASE_NONE, 
 		  NULL, 0x0, "The frame where this pdu is reassembled", HFILL }},
 	{ &hf_gssapi_reassembled_length,
-		{ "Reassembled length", "gss-api.reassembled_length", FT_UINT32, BASE_DEC, 
+		{ "Reassembled length", "gss-api.reassembled.length", FT_UINT32, BASE_DEC, 
 		  NULL, 0x0, "The total length of the reassembled payload", HFILL }},
 	};
 

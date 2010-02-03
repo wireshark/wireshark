@@ -3497,7 +3497,7 @@ proto_register_q931(void)
 			"This Q.931 message is reassembled in this frame", HFILL}}, 
 
 		{ &hf_q931_reassembled_length,
-		  { "Reassembled Q.931 length", "q931.reassembled_length", FT_UINT32, BASE_DEC, NULL, 0x0,
+		  { "Reassembled Q.931 length", "q931.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"The total length of the reassembled payload", HFILL}}, 
 	};
 	static gint *ett[] = {

@@ -5460,7 +5460,7 @@ proto_register_dcerpc (void)
       NULL, 0x0, "The DCE/RPC PDU is completely reassembled in the packet with this number", HFILL }},
 
 	{ &hf_dcerpc_reassembled_length,
-	  { "Reassembled length", "dcerpc.reassembled_length", FT_UINT32, BASE_DEC,
+	  { "Reassembled length", "dcerpc.reassembled.length", FT_UINT32, BASE_DEC,
 	    NULL, 0x0, "The total length of the reassembled payload", HFILL }},
 
 	{ &hf_dcerpc_unknown_if_id,

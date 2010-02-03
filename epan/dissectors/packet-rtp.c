@@ -1923,7 +1923,7 @@ proto_register_rtp(void)
 		  "This RTP packet is reassembled in this frame", HFILL }
 		},
 		{&hf_rtp_reassembled_length,
-		 {"Reassembled RTP length", "rtp.reassembled_length",
+		 {"Reassembled RTP length", "rtp.reassembled.length",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "The total length of the reassembled payload", HFILL }
 		},

@@ -1769,7 +1769,7 @@ proto_register_ipv6(void)
 				"This IPv6 packet is reassembled in this frame", HFILL }},
 
     { &hf_ipv6_reassembled_length,
-      { "Reassembled IPv6 length", "ipv6.reassembled_length",
+      { "Reassembled IPv6 length", "ipv6.reassembled.length",
 				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"The total length of the reassembled payload", HFILL }},
 
