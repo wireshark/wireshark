@@ -2965,6 +2965,11 @@ Jan Gerbecks		<jan.gerbecks [AT] stud.uni-due.de> {
 	PNRP dissector
 }
 
+Vladimir Smrekar	<vladimir.smrekar [AT] gmail.com> {
+	V.52 dissector
+	V5UA dissector
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
@@ -3134,7 +3139,7 @@ Devesh Prakash		<Devesh.Prakash [AT] citrix.com>
 Richard Kümmel		<r.kuemmel [AT] beckhoff.de>
 Darryl Champagne	<dchampagne [AT] sta.samsung.com>
 Michael Speck		<Michael.Speck [AT] avl.com>
-Gerasimos Dimitriadis	<dimeg [AT] intracom.gr>   
+Gerasimos Dimitriadis	<dimeg [AT] intracom.gr>
 Robert Simac		<rsimac [AT] cronsult.com>
 Johanna Sochos		<johanna.sochos [AT] swissqual.com>
 Felix Obenhuber		<felix [AT] obenhuber.de>

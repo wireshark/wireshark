@@ -7,9 +7,7 @@
  *
  * Copyright 2009
  *
- * ISKRATEL d.o.o. 		|	4S d.o.o.
- * http://www.iskratel.si/ 	|	http://www.4es.si/
- * <info@iskratel.si>		|	<projects@4es.si>
+ * Vladimir Smrekar <vladimir.smrekar@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -1100,7 +1098,7 @@ dissect_pulse_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
 	proto_tree  *info_tree = NULL;
 	proto_item	*ti_info;
-	guint8		info_element_length = 1; 
+	guint8		info_element_length = 1;
 	guint8		info_element = 0;
 
 	guint16 data_length;
@@ -1131,7 +1129,7 @@ dissect_line_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 {
 	proto_tree  *info_tree = NULL;
 	proto_item	*ti_info;
-	guint8		info_element_length = 1; 
+	guint8		info_element_length = 1;
 	guint8		info_element = 0;
 
 	guint16 data_length;
@@ -1162,7 +1160,7 @@ dissect_state(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	proto_tree  *info_tree = NULL;
 	proto_item	*ti_info;
-	guint8		info_element_length = 1; 
+	guint8		info_element_length = 1;
 	guint8		info_element = 0;
 
 	guint16 data_length;
@@ -1193,7 +1191,7 @@ dissect_auto_sig_sequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 {
 	proto_tree  *info_tree = NULL;
 	proto_item	*ti_info;
-	guint8		info_element_length = 1; 
+	guint8		info_element_length = 1;
 	guint8		info_element = 0;
 
 	guint16 data_length;
@@ -1224,7 +1222,7 @@ dissect_sequence_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 {
 	proto_tree  *info_tree = NULL;
 	proto_item	*ti_info;
-	guint8		info_element_length = 1; 
+	guint8		info_element_length = 1;
 	guint8		info_element = 0;
 
 	guint16 data_length;
@@ -1544,7 +1542,7 @@ dissect_performance_grading(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	proto_tree  *info_tree = NULL;
 	proto_item	*ti_info;
-	guint8		info_element_length = 1; 
+	guint8		info_element_length = 1;
 	guint8		info_element = 0;
 
 	guint16 data_length;
@@ -1576,7 +1574,7 @@ dissect_cp_rejection_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
 	proto_tree  *info_tree = NULL;
 	proto_item	*ti_info;
-	guint8		info_element_length = 1; 
+	guint8		info_element_length = 1;
 	guint8		info_element = 0;
 
 	guint16 data_length;
@@ -1891,7 +1889,7 @@ dissect_connection_incomplete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		else {
 			col_append_str(pinfo->cinfo, COL_INFO, val_to_str(tvb_get_guint8(info_tvb, info_offset+2)-0x80, connection_incomplete_reason_values, "Unknown element"));
 		}
-		
+
 	}
 }
 
@@ -2111,7 +2109,7 @@ dissect_v52_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		if (singleoctet == 1) {
 			offset += 1;
-		} 
+		}
 /*
 		if (old_offset <= offset) {
 			expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_WARN, "Zero-length information element");

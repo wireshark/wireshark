@@ -8,9 +8,7 @@
  *
  * Copyright 2009
  *
- * ISKRATEL d.o.o. 		|	4S d.o.o.
- * http://www.iskratel.si/ 	|	http://www.4es.si/
- * <info@iskratel.si>		|	<projects@4es.si>
+ * Vladimir Smrekar <vladimir.smrekar@gmail.com>
  *
  * Routines for V5.2-User Adaptation Layer dissection
  *
@@ -1408,11 +1406,11 @@ dissect_v5ua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
    } else {};
 
    if (link_status_operational > -1) {
-	if (link_status_operational == 0) { 
-		col_append_str(pinfo->cinfo, COL_INFO, " | operational"); 
+	if (link_status_operational == 0) {
+		col_append_str(pinfo->cinfo, COL_INFO, " | operational");
 	}
-	else if (link_status_operational == 1) { 
-		col_append_str(pinfo->cinfo, COL_INFO, " | non-operational"); 
+	else if (link_status_operational == 1) {
+		col_append_str(pinfo->cinfo, COL_INFO, " | non-operational");
 	}else {
 	}
 	link_status_operational = -1;
