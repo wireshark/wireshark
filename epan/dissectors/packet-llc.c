@@ -210,7 +210,6 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ OUI_TURBOCELL,		"Karlnet (Turbocell)" },
 	{ OUI_CISCOWL,			"Cisco Wireless (Aironet) L2" },
 	{ OUI_MARVELL,			"Marvell Semiconductor" },
-	{ OUI_ERICSSON_2,		"Ericsson Group" },
 	{ OUI_BRIDGED,			"Frame Relay or ATM bridged frames" },
 	{ OUI_IEEE_802_1,		"IEEE 802.1 Committee" },
 	{ OUI_ATM_FORUM,		"ATM Forum" },
@@ -221,7 +220,9 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ OUI_APPLE_ATALK,		"Apple (AppleTalk)" },
 	{ OUI_HP,				"Hewlett-Packard" },
 	{ OUI_HP_2,				"Hewlett-Packard" },
-	{ OUI_3GPP2,			"3GPP2" },
+	/* Registry Name: PPP Vendor Specific OUI Options */
+	{ OUI_3GPP2,			"3GPP2 Vendor specific packet ID" },
+	{ OUI_ERICSSON_2,		"Ericsson Group" },
 	{ 0,	NULL }
 };
 

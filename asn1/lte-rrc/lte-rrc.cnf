@@ -35,6 +35,7 @@ UE-EUTRA-Capability          @ue_eutra_cap
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
+VarMeasReport
 VarShortMAC-Input
 VarMeasConfig
 VarMeasReportList
