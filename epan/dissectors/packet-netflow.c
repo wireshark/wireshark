@@ -3360,7 +3360,7 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 
 		entry_length = tvb_get_ntohs(tvb, offset);
 
-		if (tplt.entries && (flowset_id == 3 ? i < tplt.count : 1)) {
+		if (tplt.entries && i < option_len) {
 			tplt.entries[i].type = type;
 			tplt.entries[i].length = entry_length == VARIABLE_LENGTH ? 0 : entry_length;
 			tplt.length += tplt.entries[i].length;
@@ -3371,7 +3371,7 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 
 		/* Private Enterprise Number (IPFIX only) */
 		if ((flowset_id == 3) && (type & 0x8000)) {
-			if (tplt.entries && i < tplt.count) {
+			if (tplt.entries && i < option_len) {
 				tplt.entries[i].pen = tvb_get_ntohl(tvb,offset);
 			}
 			proto_tree_add_item(pdutree,
