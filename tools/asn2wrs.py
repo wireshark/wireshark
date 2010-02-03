@@ -3106,7 +3106,11 @@ class Type (Node):
       (minv, maxv, ext) = self.constr.GetValue(ectx)
     if minv == 'MIN': minv = 'NO_BOUND'
     if maxv == 'MAX': maxv = 'NO_BOUND'
-    if str(minv).isdigit(): minv += 'U'
+    if str(minv).isdigit(): 
+      minv += 'U'
+    elif (str(minv)[0] == "-") and str(minv)[1:].isdigit():
+      if (long(minv) < -(2**31)):
+        minv = "G_GINT64_CONSTANT(%s)" % (str(minv))
     if str(maxv).isdigit():
       if (long(maxv) >= 2**32):
         maxv = "G_GINT64_CONSTANT(%sU)" % (str(maxv))

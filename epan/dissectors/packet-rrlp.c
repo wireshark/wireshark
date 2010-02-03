@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-rrlp.c                                                              */
-/* ../../tools/asn2wrs.py -L -p rrlp -c ./rrlp.cnf -s ./packet-rrlp-template -D . ../gsm_map/MAP-ExtensionDataTypes.asn ../gsm_map/MAP-LCS-DataTypes.asn RRLP-Messages.asn RRLP-Components.asn */
+/* ../../tools/asn2wrs.py -p rrlp -c ./rrlp.cnf -s ./packet-rrlp-template -D . ../gsm_map/MAP-ExtensionDataTypes.asn ../gsm_map/MAP-LCS-DataTypes.asn RRLP-Messages.asn RRLP-Components.asn */
 
 /* Input file: packet-rrlp-template.c */
 
@@ -1226,6 +1226,7 @@ dissect_rrlp_ExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_rrlp_Ext_GeographicalInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 34 "rrlp.cnf"
 
 tvbuff_t *parameter_tvb = NULL;
 
@@ -1235,6 +1236,7 @@ tvbuff_t *parameter_tvb = NULL;
 
   if(parameter_tvb)
 	dissect_geographical_description(parameter_tvb, actx->pinfo, tree);
+
 
   return offset;
 }
@@ -3537,7 +3539,7 @@ dissect_rrlp_INTEGER_M4194304_4194303(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_rrlp_T_cnavMo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            -4294967296, 4294967295U, NULL, FALSE);
+                                                            G_GINT64_CONSTANT(-4294967296), 4294967295U, NULL, FALSE);
 
   return offset;
 }
@@ -3557,7 +3559,7 @@ dissect_rrlp_T_cnavE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 static int
 dissect_rrlp_T_cnavOmega(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            -4294967296, 4294967295U, NULL, FALSE);
+                                                            G_GINT64_CONSTANT(-4294967296), 4294967295U, NULL, FALSE);
 
   return offset;
 }
@@ -3567,7 +3569,7 @@ dissect_rrlp_T_cnavOmega(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_rrlp_T_cnavOMEGA0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            -4294967296, 4294967295U, NULL, FALSE);
+                                                            G_GINT64_CONSTANT(-4294967296), 4294967295U, NULL, FALSE);
 
   return offset;
 }
@@ -3577,7 +3579,7 @@ dissect_rrlp_T_cnavOMEGA0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static int
 dissect_rrlp_T_cnavIo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            -4294967296, 4294967295U, NULL, FALSE);
+                                                            G_GINT64_CONSTANT(-4294967296), 4294967295U, NULL, FALSE);
 
   return offset;
 }
@@ -7008,10 +7010,12 @@ static const per_sequence_t PDU_sequence[] = {
 
 static int
 dissect_rrlp_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 26 "rrlp.cnf"
 	
 	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, FALSE);
 
 	col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/RRLP");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rrlp_PDU, PDU_sequence);
 
