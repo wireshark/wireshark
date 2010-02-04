@@ -649,12 +649,10 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				col_set_str(pinfo->cinfo, COL_INFO, "Reply: ");
 				col_append_str(pinfo->cinfo, COL_INFO,
 					format_text(line, first_linelen));
-				frame_label = ep_strdup_printf("Reply: %s", format_text(line, first_linelen));
 			}
 			else {
 				col_add_str(pinfo->cinfo, COL_INFO,
 					format_text(line, first_linelen));
-				frame_label = ep_strdup(format_text(line, first_linelen));
 			}
 
 		else
