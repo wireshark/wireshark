@@ -139,6 +139,21 @@ typedef struct rlc_lte_row_data {
 } rlc_lte_row_data;
 
 
+/* Common channel stats */
+typedef struct rlc_lte_common_stats {
+    guint32 bcch_frames;
+    guint32 bcch_bytes;
+    guint32 pcch_frames;
+    guint32 pcch_bytes;
+} rlc_lte_common_stats;
+
+static rlc_lte_common_stats common_stats;
+
+static GtkWidget *rlc_lte_common_bcch_frames;
+static GtkWidget *rlc_lte_common_bcch_bytes;
+static GtkWidget *rlc_lte_common_pcch_frames;
+static GtkWidget *rlc_lte_common_pcch_bytes;
+
 /* One row/UE in the UE table */
 typedef struct rlc_lte_ep {
     struct rlc_lte_ep* next;
@@ -150,6 +165,7 @@ typedef struct rlc_lte_ep {
 
 /* Top-level dialog and labels */
 static GtkWidget  *rlc_lte_stat_dlg_w = NULL;
+static GtkWidget  *rlc_lte_stat_common_channel_lb = NULL;
 static GtkWidget  *rlc_lte_stat_ues_lb = NULL;
 static GtkWidget  *rlc_lte_stat_channels_lb = NULL;
 static GtkWidget  *rlc_lte_stat_filter_buttons_lb = NULL;
@@ -206,6 +222,7 @@ rlc_lte_stat_reset(void *phs)
     gtk_frame_set_label(GTK_FRAME(rlc_lte_stat_ues_lb), title);
 
     rlc_lte_stat->total_frames = 0;
+    memset(&common_stats, 0, sizeof(common_stats));
 
     /* Remove all entries from the UE list */
     store = GTK_LIST_STORE(gtk_tree_view_get_model(rlc_lte_stat->ue_table));
@@ -301,15 +318,24 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         return 0;
     }
 
-    /* Ignore common-channel PDUs for now */
-    if ((si->channelType == CHANNEL_TYPE_BCCH) ||
-        (si->channelType == CHANNEL_TYPE_PCCH)) {
-
-        return 0;
-    }
-
     /* Inc top-level frame count */
     hs->total_frames++;
+
+    /* Common channel stats */
+    switch (si->channelType) {
+        case CHANNEL_TYPE_BCCH:
+            common_stats.bcch_frames++;
+            common_stats.bcch_bytes += si->pduLength;
+            return 1;
+
+        case CHANNEL_TYPE_PCCH:
+            common_stats.pcch_frames++;
+            common_stats.pcch_bytes += si->pduLength;
+            return 1;
+
+        default:
+            break;
+    }
 
     /* For per-UE data, must create a new row if none already existing */
     if (!hs->ep_list) {
@@ -372,9 +398,8 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             channel_stats = &te->stats.drb_stats[si->channelId-1];
             break;
 
-        case CHANNEL_TYPE_BCCH:
-        case CHANNEL_TYPE_PCCH:
-            /* TODO: count these common channels separately? */
+        default:
+            /* Shouldn't get here... */
             return 0;
     }
 
@@ -539,6 +564,7 @@ rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
 static void
 rlc_lte_stat_draw(void *phs)
 {
+    gchar   buff[32];
     guint16 number_of_ues = 0;
     gchar title[256];
 
@@ -551,6 +577,15 @@ rlc_lte_stat_draw(void *phs)
     GtkTreeModel *model;
     GtkTreeIter iter;
 
+    /* Common channel data */
+    g_snprintf(buff, sizeof(buff), "BCCH Frames: %u", common_stats.bcch_frames);
+    gtk_label_set_text(GTK_LABEL(rlc_lte_common_bcch_frames), buff);
+    g_snprintf(buff, sizeof(buff), "BCCH Bytes: %u", common_stats.bcch_bytes);
+    gtk_label_set_text(GTK_LABEL(rlc_lte_common_bcch_bytes), buff);
+    g_snprintf(buff, sizeof(buff), "PCCH Frames: %u", common_stats.pcch_frames);
+    gtk_label_set_text(GTK_LABEL(rlc_lte_common_pcch_frames), buff);
+    g_snprintf(buff, sizeof(buff), "PCCH Bytes: %u", common_stats.pcch_bytes);
+    gtk_label_set_text(GTK_LABEL(rlc_lte_common_pcch_bytes), buff);
 
     /* Per-UE table entries */
     ues_store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->ue_table));
@@ -894,13 +929,14 @@ static void rlc_lte_stat_dlg_create(void)
     GtkWidget         *bbox;
     GtkWidget         *top_level_vbox;
 
+    GtkWidget         *common_row_hbox;
     GtkWidget         *show_mac_cb;
     GtkWidget         *ues_vb;
     GtkWidget         *channels_vb;
     GtkWidget         *filter_vb;
     GtkWidget         *filter_buttons_hb;
     GtkWidget         *sn_filter_hb;
-    
+
     GtkWidget         *close_bt;
     GtkWidget         *help_bt;
 
@@ -939,6 +975,40 @@ static void rlc_lte_stat_dlg_create(void)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(show_mac_cb), FALSE);
     /* TODO: add tooltip */
     g_signal_connect(show_mac_cb, "toggled", G_CALLBACK(toggle_show_mac), hs);
+
+
+    /**********************************************/
+    /* Common Channel data                        */
+    /**********************************************/
+    rlc_lte_stat_common_channel_lb = gtk_frame_new("Common Channel Data");
+
+    /* Will add BCCH and PCCH counters into one row */
+    common_row_hbox = gtk_hbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(rlc_lte_stat_common_channel_lb), common_row_hbox);
+    gtk_container_set_border_width(GTK_CONTAINER(common_row_hbox), 5);
+
+    gtk_box_pack_start(GTK_BOX(top_level_vbox), rlc_lte_stat_common_channel_lb, FALSE, FALSE, 0);
+
+    /* Create labels (that will hold label and counter value) */
+    rlc_lte_common_bcch_frames = gtk_label_new("BCCH Frames:");
+    gtk_misc_set_alignment(GTK_MISC(rlc_lte_common_bcch_frames), 0.0f, .5f);
+    gtk_container_add(GTK_CONTAINER(common_row_hbox), rlc_lte_common_bcch_frames);
+    gtk_widget_show(rlc_lte_common_bcch_frames);
+
+    rlc_lte_common_bcch_bytes = gtk_label_new("BCCH Bytes:");
+    gtk_misc_set_alignment(GTK_MISC(rlc_lte_common_bcch_bytes), 0.0f, .5f);
+    gtk_container_add(GTK_CONTAINER(common_row_hbox), rlc_lte_common_bcch_bytes);
+    gtk_widget_show(rlc_lte_common_bcch_bytes);
+
+    rlc_lte_common_pcch_frames = gtk_label_new("PCCH Frames:");
+    gtk_misc_set_alignment(GTK_MISC(rlc_lte_common_pcch_frames), 0.0f, .5f);
+    gtk_container_add(GTK_CONTAINER(common_row_hbox), rlc_lte_common_pcch_frames);
+    gtk_widget_show(rlc_lte_common_pcch_frames);
+
+    rlc_lte_common_pcch_bytes = gtk_label_new("PCCH Bytes:");
+    gtk_misc_set_alignment(GTK_MISC(rlc_lte_common_pcch_bytes), 0.0f, .5f);
+    gtk_container_add(GTK_CONTAINER(common_row_hbox), rlc_lte_common_pcch_bytes);
+    gtk_widget_show(rlc_lte_common_pcch_bytes);
 
 
     /**********************************************/
