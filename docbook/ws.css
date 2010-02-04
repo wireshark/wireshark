@@ -41,36 +41,20 @@ div.example p.title
 }
 
 body h1 {
-  font-size: 1.4em;
-  margin: .0em 0 0 -4%;
-  line-height: 1.3;
-  border-bottom: 2px solid silver;
+  font-size: 1.3em;
 }
 
 body h2 {
-  margin: 0.5em 0 0 -4%;
-  line-height: 1.3;
-  border-bottom: 2px solid silver;
+  font-size: 1.2em;
 }
 
 body h3 {
-  margin: .8em 0 0 -3%;
-  line-height: 1.3;
+  font-size: 1.1em;
 }
 
-body h4 {
-  margin: .8em 0 0 -3%;
-  line-height: 1.3;
-}
-
-body h5 {
-  margin: .8em 0 0 -2%;
-  line-height: 1.3;
-}
-
-body h6 {
-  margin: .8em 0 0 -1%;
-  line-height: 1.3;
+body h1, body h3, body h3, body h4, body h5, body h6 {
+  letter-spacing: 0.2em;
+  border-bottom: 1px solid silver;
 }
 
 body hr {
