@@ -585,7 +585,8 @@ dissect_qsig_ie_cs5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 /*--- qsig_init_tables ---------------------------------------------------------*/
 static void qsig_init_tables(void) {
-  gint i, opcode, *key;
+  guint i;
+  gint opcode, *key;
   gchar *oid;
 
   if (qsig_opcode2oid_hashtable)

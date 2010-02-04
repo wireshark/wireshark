@@ -12544,7 +12544,8 @@ dissect_qsig_ie_cs5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 /*--- qsig_init_tables ---------------------------------------------------------*/
 static void qsig_init_tables(void) {
-  gint i, opcode, *key;
+  guint i;
+  gint opcode, *key;
   gchar *oid;
 
   if (qsig_opcode2oid_hashtable)
@@ -15840,7 +15841,7 @@ void proto_register_qsig(void) {
         "qsig.Extension", HFILL }},
 
 /*--- End of included file: packet-qsig-hfarr.c ---*/
-#line 647 "packet-qsig-template.c"
+#line 648 "packet-qsig-template.c"
   };
 
   /* List of subtrees */
@@ -16291,7 +16292,7 @@ void proto_register_qsig(void) {
     &ett_qsig_mid_SEQUENCE_OF_Extension,
 
 /*--- End of included file: packet-qsig-ettarr.c ---*/
-#line 655 "packet-qsig-template.c"
+#line 656 "packet-qsig-template.c"
   };
 
   /* Register protocol and dissector */
