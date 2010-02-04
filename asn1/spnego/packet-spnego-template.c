@@ -692,7 +692,15 @@ rrc_rotate(void *data, int len, guint16 rrc, int unrotate)
 #define KRB5_KU_USAGE_INITIATOR_SIGN	25
 
 static void
-decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_, packet_info *pinfo _U_, tvbuff_t *tvb _U_, guint16 ec _U_, guint16 rrc _U_, int keytype, unsigned int usage)
+decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_,
+			    packet_info *pinfo,
+			    tvbuff_t *checksum_tvb,
+			    tvbuff_t *encrypted_tvb,
+			    guint16 ec,
+			    guint16 rrc,
+			    gboolean is_dce,
+			    int keytype,
+			    unsigned int usage)
 {
 	int res;
 	char *rotated;
@@ -705,10 +713,23 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_, packet_info *pinfo _U_, tvbuff
 		return;
 	}
 
-	rotated = tvb_memdup(tvb, 0, tvb_length(tvb));
-	res = rrc_rotate(rotated, tvb_length(tvb), rrc, TRUE);
+	datalen = tvb_length(checksum_tvb) + tvb_length(encrypted_tvb);
 
-	next_tvb=tvb_new_child_real_data(tvb, rotated, tvb_length(tvb), tvb_reported_length(tvb));
+	rotated = g_malloc(datalen);
+
+	tvb_memcpy(checksum_tvb, rotated,
+		   0, tvb_length(checksum_tvb));
+	tvb_memcpy(encrypted_tvb, rotated + tvb_length(checksum_tvb),
+		   0, tvb_length(encrypted_tvb));
+
+	if (is_dce) {
+		rrc += ec;
+	}
+
+	res = rrc_rotate(rotated, datalen, rrc, TRUE);
+
+	next_tvb=tvb_new_child_real_data(encrypted_tvb, rotated,
+					 datalen, datalen);
 	tvb_set_free_cb(next_tvb, g_free);
 	add_new_data_source(pinfo, next_tvb, "GSSAPI CFX");
 
@@ -718,13 +739,13 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_, packet_info *pinfo _U_, tvbuff
 	if (output) {
 		char *outdata;
 
-		outdata = g_memdup(output, tvb_length(tvb));
+		outdata = g_memdup(output, tvb_length(encrypted_tvb));
 		g_free(output);
 
-		pinfo->gssapi_decrypted_tvb=tvb_new_child_real_data(tvb,
+		pinfo->gssapi_decrypted_tvb=tvb_new_child_real_data(encrypted_tvb,
 			outdata,
-			datalen-16,
-			datalen-16);
+			tvb_length(encrypted_tvb),
+			tvb_length(encrypted_tvb));
 		add_new_data_source(pinfo, pinfo->gssapi_decrypted_tvb, "Decrypted GSS-Krb5");
 		tvb_set_free_cb(pinfo->gssapi_decrypted_tvb, g_free);
 		return;
@@ -1062,21 +1083,25 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	}
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-	pinfo->gssapi_encrypted_tvb = tvb_new_subset_remaining(tvb, 16);
+{
+	tvbuff_t *checksum_tvb = tvb_new_subset(tvb, 16, checksum_size, checksum_size);
 
-	if (flags & 0x0002) {
+	if (pinfo->gssapi_data_encrypted) {
 		if(pinfo->gssapi_encrypted_tvb){
 			decrypt_gssapi_krb_cfx_wrap(tree,
 				pinfo,
+				checksum_tvb,
 				pinfo->gssapi_encrypted_tvb,
 				ec,
 				rrc,
+				(pinfo->decrypt_gssapi_tvb==DECRYPT_GSSAPI_DCE)?TRUE:FALSE,
 				-1,
 				(flags & 0x0001)?
 				KRB5_KU_USAGE_ACCEPTOR_SEAL:
 				KRB5_KU_USAGE_INITIATOR_SEAL);
 		}
 	}
+}
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 
 	/*
