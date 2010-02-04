@@ -5455,9 +5455,6 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	if (chain_offset > 0) {
 		tvbuff_t *next_tvb;
 
-		if (chain_offset < offset) {
-			THROW(ReportedBoundsError);
-		}
 		proto_item_set_len(item, chain_offset);
 
 		next_tvb = tvb_new_subset_remaining(tvb, chain_offset);
