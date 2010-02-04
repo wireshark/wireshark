@@ -2643,6 +2643,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Set context-info parts of tap struct */
     tap_info.rnti = p_mac_lte_info->rnti;
+    tap_info.ueid = p_mac_lte_info->ueid;
     tap_info.rntiType = p_mac_lte_info->rntiType;
     tap_info.isPredefinedData = p_mac_lte_info->isPredefinedData;
     tap_info.reTxCount = p_mac_lte_info->reTxCount;

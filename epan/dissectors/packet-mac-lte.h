@@ -99,6 +99,7 @@ typedef struct mac_lte_info
 typedef struct mac_lte_tap_info {
     /* Info from context */
     guint16  rnti;
+    guint16  ueid;
     guint8   rntiType;
     guint8   isPredefinedData;
     guint8   reTxCount;
