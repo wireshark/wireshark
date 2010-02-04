@@ -370,7 +370,7 @@ static int
 dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   int offset;
   rose_ctx_t *rctx;
-  gint32 opcode, service;
+  gint32 opcode = 0, service;
   const qsig_op_t *op_ptr;
   const gchar *p;
   proto_item *ti, *ti_tmp;
