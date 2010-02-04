@@ -1139,7 +1139,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
   gtk_text_view_set_buffer( bv_text_view, NULL);       /* XXX: Apparently not a good idea; If a progress_bar
                                                         *      is displayed below in delayed_create_progress_dlg()
                                                         *      there will then be a crash internally in the gtk library.
-                                                        *      (It appears that gtk_tree_view_set_buffer
+                                                        *      (It appears that gtk_text_view_set_buffer
                                                         *       queues a callback to be run when this
                                                         *       thread is next idle. Unfortunately the call to
                                                         *       gtk_main_iteration() in delayed_create_progress_dlg()
