@@ -434,7 +434,11 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	winsrepl_offset += name_len;
 
 	/* ALIGN to 4 Byte */
-	winsrepl_offset += ((winsrepl_offset & (4-1)) == 0 ? 0 : (4 - (winsrepl_offset & (4-1))));
+	/* winsrepl_offset += ((winsrepl_offset & (4-1)) == 0 ? 0 : (4 - (winsrepl_offset & (4-1)))); */
+	/* Windows including w2k8 add 4 padding bytes, when it's already 4 byte
+	 * alligned... This happens when the name has a "scope" part
+	 */
+	winsrepl_offset += 4 - (winsrepl_offset & (4-1));
 
 	/* FLAGS */
 	/*
