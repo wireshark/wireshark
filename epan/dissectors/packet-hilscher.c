@@ -82,8 +82,8 @@ static const value_string gpio_number[] = {
 };
 
 static const value_string gpio_edge[] = {
-	{ 0x0, "positive edge" },
-	{ 0x1, "negative edge" },
+	{ 0x0, "rising edge" },
+	{ 0x1, "falling edge" },
 	{ 0,   NULL }
 };
 
@@ -113,9 +113,9 @@ dissect_hilscher_netanalyzer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	gpio_edgex = (tvb_get_guint8(tvb, offset) & 0x01);
 
 	if (gpio_edgex == 0x00)
-		col_add_fstr(pinfo->cinfo, COL_INFO, "netANALYZER event on GPIO %d (positive edge)", gpio_num);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "netANALYZER event on GPIO %d (rising edge)", gpio_num);
 	else
-		col_add_fstr(pinfo->cinfo, COL_INFO, "netANALYZER event on GPIO %d (negative edge)", gpio_num);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "netANALYZER event on GPIO %d (falling edge)", gpio_num);
 }
 
 
