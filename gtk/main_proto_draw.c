@@ -1120,7 +1120,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
   unsigned int   use_digits;
   gboolean       reverse, newreverse;
   GtkTextView   *bv_text_view = GTK_TEXT_VIEW(bv);
-  GtkTextBuffer *buf = gtk_text_view_get_buffer(bv_text_view);
+  GtkTextBuffer *buf;
   GtkTextIter    iter;
   const char    *revstyle;
   GtkTextMark   *mark = NULL;
@@ -1133,10 +1133,28 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
   int         progbar_nextstep;
   int         progbar_quantum;
 
+  buf = gtk_text_view_get_buffer(bv_text_view);
+  g_object_ref(buf);
+#if 0
+  gtk_text_view_set_buffer( bv_text_view, NULL);       /* XXX: Apparently not a good idea; If a progress_bar
+                                                        *      is displayed below in delayed_create_progress_dlg()
+                                                        *      there will then be a crash internally in the gtk library.
+                                                        *      (It appears that gtk_tree_view_set_buffer
+                                                        *       queues a callback to be run when this
+                                                        *       thread is next idle. Unfortunately the call to
+                                                        *       gtk_main_iteration() in delayed_create_progress_dlg()
+                                                        *       causes the internal callback to be run which then 
+                                                        *       crashes (because the textview has no buffer ?))
+                                                        */  
+#endif
+  gtk_text_view_set_buffer( bv_text_view,
+                            gtk_text_buffer_new(NULL));/* attach a dummy buffer in place of the real buffer.
+                                                        * (XXX: Presumably this is done so there's no attempt
+                                                        *       to display the real buffer until it has been
+                                                        *       completely generated).
+                                                        */
   gtk_text_buffer_set_text(buf, "", 0);
   gtk_text_buffer_get_start_iter(buf, &iter);
-  g_object_ref(buf);
-  gtk_text_view_set_buffer( bv_text_view, NULL);
 
   /*
    * How many of the leading digits of the offset will we supply?
