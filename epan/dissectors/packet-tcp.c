@@ -3544,11 +3544,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
-  if (tcpd && (tcpd->fwd || tcpd->rev) && (tcpd->fwd->command || tcpd->rev->command)) {
+  if (tcpd && ((tcpd->fwd && tcpd->fwd->command) || (tcpd->rev && tcpd->rev->command))) {
     ti = proto_tree_add_text(tcp_tree, tvb, offset, 0, "Process Information");
-	PROTO_ITEM_SET_GENERATED(ti);
+    PROTO_ITEM_SET_GENERATED(ti);
     field_tree = proto_item_add_subtree(ti, ett_tcp_process_info);
-	if (tcpd->fwd->command) {
+    if (tcpd->fwd && tcpd->fwd->command) {
       proto_tree_add_uint_format_value(field_tree, hf_tcp_proc_dst_uid, tvb, 0, 0,
               tcpd->fwd->process_uid, "%u", tcpd->fwd->process_uid);
       proto_tree_add_uint_format_value(field_tree, hf_tcp_proc_dst_pid, tvb, 0, 0,
@@ -3557,8 +3557,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               tcpd->fwd->username, "%s", tcpd->fwd->username);
       proto_tree_add_string_format_value(field_tree, hf_tcp_proc_dst_cmd, tvb, 0, 0,
               tcpd->fwd->command, "%s", tcpd->fwd->command);
-	}
-	if (tcpd->rev->command) {
+    }
+    if (tcpd->rev && tcpd->rev->command) {
       proto_tree_add_uint_format_value(field_tree, hf_tcp_proc_src_uid, tvb, 0, 0,
               tcpd->rev->process_uid, "%u", tcpd->rev->process_uid);
       proto_tree_add_uint_format_value(field_tree, hf_tcp_proc_src_pid, tvb, 0, 0,
@@ -3567,7 +3567,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               tcpd->rev->username, "%s", tcpd->rev->username);
       proto_tree_add_string_format_value(field_tree, hf_tcp_proc_src_cmd, tvb, 0, 0,
               tcpd->rev->command, "%s", tcpd->rev->command);
-	}
+    }
   }
 
   /*
