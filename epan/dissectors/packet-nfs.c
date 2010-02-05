@@ -395,6 +395,14 @@ static int hf_nfs_gid4 = -1;
 static int hf_nfs_service4 = -1;
 static int hf_nfs_sessionid4 = -1;
 static int hf_nfs_exch_id_flags4 = -1;
+static int hf_nfs_exchid_flags_moved_refer = -1;
+static int hf_nfs_exchid_flags_moved_migr = -1;
+static int hf_nfs_exchid_flags_bind_princ = -1;
+static int hf_nfs_exchid_flags_non_pnfs = -1;
+static int hf_nfs_exchid_flags_pnfs_mds = -1;
+static int hf_nfs_exchid_flags_pnfs_ds = -1;
+static int hf_nfs_exchid_flags_upd_conf_rec_a = -1;
+static int hf_nfs_exchid_flags_confirmed_r = -1;
 static int hf_nfs_state_protect_window = -1;
 static int hf_nfs_state_protect_num_gss_handles = -1;
 static int hf_nfs_prot_info4_spi_window = -1;
@@ -527,6 +535,9 @@ static gint ett_nfs_opentype4 = -1;
 static gint ett_nfs_lock_owner4 = -1;
 static gint ett_nfs_cb_client4 = -1;
 static gint ett_nfs_client_id4 = -1;
+static gint ett_nfs_clientowner4 = -1;
+static gint ett_exchangeid_flags = -1;
+static gint ett_server_owner4 = -1;
 static gint ett_nfs_bitmap4 = -1;
 static gint ett_nfs_attr_request = -1;
 static gint ett_nfs_fattr4 = -1;
@@ -8528,19 +8539,29 @@ dissect_rpc_chanattrs4(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_rpc_nfs_impl_id4(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
+	proto_item *eia_client_impl_id_item = NULL;
+	proto_tree *eia_client_impl_id_tree = NULL;
 	guint i, count;
-	count = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_nfs_impl_id4_len, tvb, offset+0, 4,
-			count);
-	offset += 4;
-	for (i = 0; i < count; i++) {
-		offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_nii_domain4, NULL);
-		offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_nii_name4, NULL);
-		offset = dissect_nfs_nfstime4(tvb, offset, tree);
 
+	count = tvb_get_ntohl(tvb, offset);
+	eia_client_impl_id_item = proto_tree_add_text(tree, tvb, offset, 4, "eia_client_impl_idi<%u>", count);
+	eia_client_impl_id_tree = proto_item_add_subtree(eia_client_impl_id_item, ett_nfs_clientowner4);
+	offset += 4;
+
+	for (i = 0; i < count; i++) {
+		proto_item *date_item = NULL;
+		proto_tree *date_tree = NULL;
+
+		offset = dissect_nfs_utf8string(tvb, offset, eia_client_impl_id_tree, hf_nfs_nii_domain4, NULL);
+		offset = dissect_nfs_utf8string(tvb, offset, eia_client_impl_id_tree, hf_nfs_nii_name4, NULL);
+
+		date_item = proto_tree_add_text(eia_client_impl_id_tree, tvb, offset, 12, "Build timestamp(nii_date)");
+		date_tree = proto_item_add_subtree(date_item, ett_nfs_clientowner4);
+		offset = dissect_nfs_nfstime4(tvb, offset, date_tree);
 	}
 	return offset;
 }
+
 static int
 dissect_rpc_secparms4(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
@@ -8939,15 +8960,41 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 			/* Minor Version 1 */
-		case NFS4_OP_EXCHANGE_ID:
+		case NFS4_OP_EXCHANGE_ID: {
+#define EXCHGID4_FLAG_SUPP_MOVED_REFER    0x00000001
+#define EXCHGID4_FLAG_SUPP_MOVED_MIGR     0x00000002
+#define EXCHGID4_FLAG_BIND_PRINC_STATEID  0x00000100
+#define EXCHGID4_FLAG_USE_NON_PNFS        0x00010000
+#define EXCHGID4_FLAG_USE_PNFS_MDS        0x00020000
+#define EXCHGID4_FLAG_USE_PNFS_DS         0x00040000
+#define EXCHGID4_FLAG_MASK_PNFS           0x00070000
+#define EXCHGID4_FLAG_UPD_CONFIRMED_REC_A 0x40000000
+#define EXCHGID4_FLAG_CONFIRMED_R         0x80000000
+				proto_tree *eia_clientowner_tree = NULL;
+				proto_tree *eia_flags_tree = NULL;
+				guint32 exchange_id_flags = 0;
 
-			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_verifier4,
-										offset);
-			proto_item_append_text(newftree, ", Client Owner");
-			offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs_data);
-			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_exch_id_flags4, offset);
-			offset = dissect_nfs_state_protect4_a(tvb, offset, newftree);
-			offset = dissect_rpc_nfs_impl_id4(tvb, offset, newftree);
+				fitem = proto_tree_add_text(newftree, tvb, offset, 0, "eia_clientowner");
+				eia_clientowner_tree = proto_item_add_subtree(fitem, ett_nfs_clientowner4);				
+				offset = dissect_rpc_uint64(tvb, eia_clientowner_tree, hf_nfs_verifier4, offset);
+				offset = dissect_nfsdata(tvb, offset, eia_clientowner_tree, hf_nfs_data);
+			
+				exchange_id_flags = tvb_get_ntohl(tvb, offset);
+				fitem = proto_tree_add_text(newftree, tvb, offset, 4, "eia_flags:0x%08x", exchange_id_flags);
+				eia_flags_tree = proto_item_add_subtree(fitem, ett_exchangeid_flags);
+				proto_tree_add_boolean(eia_flags_tree, hf_nfs_exchid_flags_confirmed_r, tvb, offset, 1, exchange_id_flags);
+				proto_tree_add_boolean(eia_flags_tree, hf_nfs_exchid_flags_upd_conf_rec_a, tvb, offset, 1, exchange_id_flags);
+				proto_tree_add_boolean(eia_flags_tree, hf_nfs_exchid_flags_pnfs_ds, tvb, offset, 1, exchange_id_flags);
+				proto_tree_add_boolean(eia_flags_tree, hf_nfs_exchid_flags_pnfs_mds, tvb, offset, 1, exchange_id_flags);
+				proto_tree_add_boolean(eia_flags_tree, hf_nfs_exchid_flags_non_pnfs, tvb, offset, 1, exchange_id_flags);
+				proto_tree_add_boolean(eia_flags_tree, hf_nfs_exchid_flags_bind_princ, tvb, offset, 1, exchange_id_flags);
+				proto_tree_add_boolean(eia_flags_tree, hf_nfs_exchid_flags_moved_migr, tvb, offset, 1, exchange_id_flags);
+				proto_tree_add_boolean(eia_flags_tree, hf_nfs_exchid_flags_moved_refer, tvb, offset, 1, exchange_id_flags);
+				offset +=4;
+
+				offset = dissect_nfs_state_protect4_a(tvb, offset, newftree);
+				offset = dissect_rpc_nfs_impl_id4(tvb, offset, newftree);
+			}
 			break;
 
 		case NFS4_OP_CREATE_SESSION:
@@ -9293,18 +9340,37 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 			/* Minor Version 1 */
-		case NFS4_OP_EXCHANGE_ID:
-			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_clientid4,
-										offset);
-			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
-			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_exch_id_flags4, offset);
-			offset = dissect_nfs_state_protect4_r(tvb, offset, newftree);
-			offset = dissect_rpc_serverowner4(tvb, offset, newftree);
-			offset = dissect_nfsdata(tvb, offset, newftree,
-									 hf_nfs_serverscope4);
-			offset = dissect_rpc_nfs_impl_id4(tvb, offset, newftree);
-			break;
+		case NFS4_OP_EXCHANGE_ID: {
+				proto_tree *eir_flags_tree = NULL;
+				proto_tree *eir_server_owner_tree = NULL;
+				guint32 exchange_id_flags = 0;
 
+				offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_clientid4, offset);
+				offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
+				
+				exchange_id_flags = tvb_get_ntohl(tvb, offset);
+				fitem = proto_tree_add_text(newftree, tvb, offset, 4, "eir_flags:0x%08x", exchange_id_flags);
+				eir_flags_tree = proto_item_add_subtree(fitem, ett_exchangeid_flags);
+				proto_tree_add_boolean(eir_flags_tree, hf_nfs_exchid_flags_confirmed_r, tvb, offset, 1, exchange_id_flags);
+				proto_tree_add_boolean(eir_flags_tree, hf_nfs_exchid_flags_upd_conf_rec_a, tvb, offset, 1, exchange_id_flags);
+				proto_tree_add_boolean(eir_flags_tree, hf_nfs_exchid_flags_pnfs_ds, tvb, offset, 1, exchange_id_flags);
+				proto_tree_add_boolean(eir_flags_tree, hf_nfs_exchid_flags_pnfs_mds, tvb, offset, 1, exchange_id_flags);
+				proto_tree_add_boolean(eir_flags_tree, hf_nfs_exchid_flags_non_pnfs, tvb, offset, 1, exchange_id_flags);
+				proto_tree_add_boolean(eir_flags_tree, hf_nfs_exchid_flags_bind_princ, tvb, offset, 1, exchange_id_flags);
+				proto_tree_add_boolean(eir_flags_tree, hf_nfs_exchid_flags_moved_migr, tvb, offset, 1, exchange_id_flags);
+				proto_tree_add_boolean(eir_flags_tree, hf_nfs_exchid_flags_moved_refer, tvb, offset, 1, exchange_id_flags);
+				offset += 4;
+
+				offset = dissect_nfs_state_protect4_r(tvb, offset, newftree);
+
+				fitem = proto_tree_add_text(newftree, tvb, offset, 0, "eir_server_owner");
+				eir_server_owner_tree = proto_item_add_subtree(fitem, ett_server_owner4);
+				offset = dissect_rpc_serverowner4(tvb, offset, eir_server_owner_tree);
+
+				offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs_serverscope4);
+				offset = dissect_rpc_nfs_impl_id4(tvb, offset, newftree);
+			}
+			break;
 		case NFS4_OP_CREATE_SESSION:
 			offset = dissect_rpc_opaque_data(tvb, offset, newftree,
 					NULL, hf_nfs_sessionid4, TRUE, 16,
@@ -10477,7 +10543,7 @@ proto_register_nfs(void)
 			VALS(names_opentype4), 0, NULL, HFILL }},
 
 		{ &hf_nfs_state_protect_how4, {
-			"State Protect", "nfs.exchange_id.state_protect", FT_UINT32, BASE_DEC,
+			"eia_state_protect", "nfs.exchange_id.state_protect", FT_UINT32, BASE_DEC,
 			VALS(names_state_protect_how4), 0, "State Protect How", HFILL }},
 
 		{ &hf_nfs_limit_by4, {
@@ -11261,8 +11327,32 @@ proto_register_nfs(void)
 			"sessionid", "nfs.session_id4", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_exch_id_flags4, {
-			"EXCHANGE_ID flags", "nfs.exch_id_flags", FT_UINT32, BASE_HEX,
+			"eia_flags", "nfs.exch_id_flags", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
+		{ &hf_nfs_exchid_flags_moved_refer, {
+			"EXCHGID4_FLAG_SUPP_MOVED_REFER   ", "nfs.exchange_id.flags.moved_refer", FT_BOOLEAN, 32,
+			TFS(&tfs_set_notset), EXCHGID4_FLAG_SUPP_MOVED_REFER, NULL, HFILL}}, 
+		{ &hf_nfs_exchid_flags_moved_migr, {
+			"EXCHGID4_FLAG_SUPP_MOVED_MIGR    ", "nfs.exchange_id.flags.moved_migr", FT_BOOLEAN, 32,
+			TFS(&tfs_set_notset), EXCHGID4_FLAG_SUPP_MOVED_MIGR, NULL, HFILL}}, 
+		{ &hf_nfs_exchid_flags_bind_princ, {
+			"EXCHGID4_FLAG_BIND_PRINC_STATEID ", "nfs.exchange_id.flags.bind_princ", FT_BOOLEAN, 32,
+			TFS(&tfs_set_notset), EXCHGID4_FLAG_BIND_PRINC_STATEID, NULL, HFILL}},
+		{ &hf_nfs_exchid_flags_non_pnfs, {
+			"EXCHGID4_FLAG_USE_NON_PNFS       ", "nfs.exchange_id.flags.non_pnfs", FT_BOOLEAN, 32,
+			TFS(&tfs_set_notset), EXCHGID4_FLAG_USE_NON_PNFS, NULL, HFILL}},
+		{ &hf_nfs_exchid_flags_pnfs_mds, {
+			"EXCHGID4_FLAG_USE_PNFS_MDS       ", "nfs.exchange_id.flags.pnfs_mds", FT_BOOLEAN, 32,
+			TFS(&tfs_set_notset), EXCHGID4_FLAG_USE_PNFS_MDS, NULL, HFILL}},
+		{ &hf_nfs_exchid_flags_pnfs_ds, {
+			"EXCHGID4_FLAG_USE_PNFS_DS        ", "nfs.exchange_id.flags.pnfs_ds", FT_BOOLEAN, 32,
+			TFS(&tfs_set_notset), EXCHGID4_FLAG_USE_PNFS_DS, NULL, HFILL}},
+		{ &hf_nfs_exchid_flags_upd_conf_rec_a, {
+			"EXCHGID4_FLAG_UPD_CONFIRMED_REC_A", "nfs.exchange_id.flags.confirmed_rec_a", FT_BOOLEAN, 32,
+			TFS(&tfs_set_notset), EXCHGID4_FLAG_UPD_CONFIRMED_REC_A, NULL, HFILL}},
+		{ &hf_nfs_exchid_flags_confirmed_r, {
+			"EXCHGID4_FLAG_CONFIRMED_R        ", "nfs.exchange_id.flags.confirmed_r", FT_BOOLEAN, 32,
+			TFS(&tfs_set_notset), EXCHGID4_FLAG_CONFIRMED_R, NULL, HFILL}},
 		{ &hf_nfs_prot_info4_hash_alg, {
 			"Prot Info hash algorithm", "nfs.prot_info4_hash_alg", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
@@ -11282,10 +11372,10 @@ proto_register_nfs(void)
 			"State Protect num gss handles", "nfs.state_protect_num_gss_handles", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_nii_domain4, {
-			"Implementer Domain name", "nfs.nii_domain4", FT_STRING, BASE_NONE,
+			"Implementor DNS domain name(nii_domain)", "nfs.nii_domain4", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_nii_name4, {
-			"Implementation name", "nfs.nii_name4", FT_STRING, BASE_NONE,
+			"Implementation product name(nii_name)", "nfs.nii_name4", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_create_session_flags4, {
 			"CREATE_SESSION flags", "nfs.create_session_flags", FT_UINT32, BASE_HEX,
@@ -11434,6 +11524,9 @@ proto_register_nfs(void)
 		&ett_nfs_lock_owner4,
 		&ett_nfs_cb_client4,
 		&ett_nfs_client_id4,
+		&ett_nfs_clientowner4,
+		&ett_exchangeid_flags,
+		&ett_server_owner4,
 		&ett_nfs_bitmap4,
 		&ett_nfs_attr_request,
 		&ett_nfs_fattr4,
