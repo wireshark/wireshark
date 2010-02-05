@@ -1188,7 +1188,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                pinfo->pseudo_header->atm.vci,
                                pinfo->pseudo_header->atm.aal2_cid);
 
-        if (pinfo->pseudo_header->atm.flags | ATM_AAL2_NOPHDR) {
+        if (pinfo->pseudo_header->atm.flags & ATM_AAL2_NOPHDR) {
           call_dissector(fp_handle, tvb, pinfo, tree);
         } else {
           /* Skip first 4 bytes of message
