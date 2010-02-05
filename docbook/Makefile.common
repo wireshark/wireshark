@@ -108,6 +108,7 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-statusbar-empty.png		\
 	wsug_graphics/ws-statusbar-loaded.png		\
 	wsug_graphics/ws-statusbar-selected.png		\
+	wsug_graphics/ws-telephony-menu.png		\
 	wsug_graphics/ws-time-reference.png		\
 	wsug_graphics/ws-view-menu.png			\
 	wsug_graphics/note.png				\
