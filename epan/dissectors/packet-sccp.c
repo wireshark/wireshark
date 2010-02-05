@@ -1197,7 +1197,7 @@ dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	case GT_NP_LAND_MOBILE:
 		digits_tree = proto_item_add_subtree(digits_item,
 						     ett_sccp_digits);
-		dissect_e212_mcc_mnc(signals_tvb, pinfo, digits_tree, 0);
+		dissect_e212_mcc_mnc_in_address(signals_tvb, pinfo, digits_tree, 0);
 	break;
 	default:
 	break;
