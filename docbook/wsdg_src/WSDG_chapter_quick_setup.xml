@@ -36,7 +36,7 @@
           <para>C compiler:
           <ulink url="http://www.microsoft.com/express/vc/">
           Download</ulink> and install "Microsoft Visual C++
-          2008 Express Edition." (This is a very large download.)</para>
+          2008 Express Edition SP1." (This is a very large download.)</para>
         </listitem>
         <!--
         <listitem>
@@ -450,18 +450,12 @@ title Command Prompt (VC++ 2008)]]>
         </listitem>
         <listitem>
           <para><filename>vcredist_x86.exe</filename> :
-          <ulink url="http://www.microsoft.com/downloads/details.aspx?FamilyId=32BC1BEE-A3F9-4C13-9C99-220B62A191EE&amp;displaylang=en">
+          <ulink url="http://www.microsoft.com/DOWNLOADS/details.aspx?FamilyID=a5c84275-3b97-4ab7-a40d-3802b2af5fc2&amp;displaylang=en">
           Download</ulink> the C-Runtime redistributable for Visual
-          C++ 2008 Express Edition (<filename>vcredist_x86.exe</filename>)
+          C++ 2008 Express Edition SP1 (<filename>vcredist_x86.exe</filename>)
           and copy it into <filename>C:\wireshark-win32-libs</filename>
           <superscript>1</superscript>
-          <warning>
-            <title>Beware of Visual Studio Service Packs!</title>
-            <para>If you have installed the Visual Studio Service
-            Pack 1, you need a different
-            <filename>vcredist_x86.exe</filename> version! See
-            <xref linkend="ChToolsMSChain" /> for details!</para>
-          </warning></para>
+          </para>
         </listitem>
         <listitem>
           <para>If you've closed <command>cmd.exe</command> in the meantime,
@@ -479,8 +473,8 @@ title Command Prompt (VC++ 2008)]]>
         </listitem>
       </orderedlist>
       <superscript>1</superscript>Compiler dependent: This step
-      depends on the compiler variant used, for other variants than
-      the recommended Visual C++ 2008 Express Edition see the table
+      depends on the compiler variant used; for other variants than
+      the recommended Visual C++ 2008 Express Edition SP1 see the table
       at <xref linkend="ChToolsMSChain" />!</para>
     </section>
   </section>

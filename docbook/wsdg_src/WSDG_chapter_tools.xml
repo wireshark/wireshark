@@ -387,7 +387,6 @@ PARTICULAR PURPOSE.]]>
             <row>
               <entry>
                 <para>Visual C++ 2005 Express Edition</para>
-                <para>(recommended)</para>
               </entry>
               <entry>
                 <para>Yes</para>
@@ -443,7 +442,8 @@ PARTICULAR PURPOSE.]]>
             </row>
             <row>
               <entry>
-                <para>Visual C++ 2008 Express Edition</para>
+                <para>Visual C++ 2008 Express Edition SP1</para>
+                <para>(recommended)</para>
               </entry>
               <entry>
                 <para>Yes</para>
