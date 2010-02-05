@@ -861,7 +861,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *pt, *present_tree = NULL;
     proto_tree *ft;
     proto_item *ti = NULL, *hidden_item;
-    int align_offset, offset;
+    int align_offset = 0, offset;
     tvbuff_t *next_tvb;
     guint32 version;
     guint length, length_remaining;
