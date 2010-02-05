@@ -7718,7 +7718,10 @@ dissect_nfs_cb_client4(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	proto_tree *cb_location = NULL;
 	proto_item *fitem = NULL;
+	int cbprog;
 
+	cbprog = tvb_get_ntohl(tvb, offset);
+	reg_callback(cbprog);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_cb_program, offset);
 	fitem = proto_tree_add_text(tree, tvb, offset, 0, "cb_location");
 
@@ -9617,6 +9620,8 @@ static gint ett_nfs_cb_wantscancelled = -1;
 static gint ett_nfs_cb_notifylock = -1;
 static gint ett_nfs_cb_notifydeviceid = -1;
 static gint ett_nfs_cb_notify = -1;
+static gint ett_nfs_cb_reflists = -1;
+static gint ett_nfs_cb_refcalls = -1;
 static gint ett_nfs_cb_illegal = -1;
 
 static const value_string names_nfs_cb_operation[] = {
@@ -9654,16 +9659,56 @@ gint *nfs_cb_operation_ett[] =
 };
 
 static int
+dissect_nfs_cb_referring_calls(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint num_reflists, num_refcalls, i, j;
+	proto_item *rl_item, *rc_item;
+	proto_tree *rl_tree = NULL, *rc_tree = NULL;
+
+	num_reflists = tvb_get_ntohl(tvb, offset);
+	rl_item = proto_tree_add_text(tree, tvb, offset, 4,
+			"referring call lists (count: %u)", num_reflists);
+	offset += 4;
+	if (num_reflists == 0)
+		return offset;
+
+	rl_tree = proto_item_add_subtree(rl_item, ett_nfs_cb_reflists);
+
+	for (i = 0; i < num_reflists; i++) {
+		offset = dissect_rpc_opaque_data(tvb, offset, rl_tree, NULL,
+				hf_nfs_sessionid4, TRUE, 16, FALSE, NULL, NULL);
+		num_refcalls = tvb_get_ntohl(tvb, offset);
+		rc_item = proto_tree_add_text(rl_tree, tvb, offset, 4,
+				"referring calls (count: %u)", num_refcalls);
+		offset += 4;
+		for (j = 0; j < num_refcalls; j++) {
+			rc_tree = proto_item_add_subtree(rc_item, ett_nfs_cb_refcalls);
+			offset = dissect_rpc_uint32(tvb, rc_tree, hf_nfs_seqid4, offset);
+			offset = dissect_rpc_uint32(tvb, rc_tree, hf_nfs_slotid4, offset);
+		}
+	}
+
+	return offset;
+}
+
+static int
 dissect_nfs_cb_layoutrecall(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo)
 {
-	guint recalltype = hf_nfs_layouttype4;
+	guint recall_type;
 
-	if (recalltype == 1) { /* RETURN_FILE */
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_layouttype4, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_iomode4, offset);
+	offset = dissect_rpc_bool(tvb, tree, hf_nfs_cb_clorachanged, offset);
+
+	recall_type = tvb_get_ntohl(tvb, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_cb_layoutrecall_type, offset);
+
+	if (recall_type == 1) { /* RECALL_FILE */
 		offset = dissect_nfs_fh4(tvb, offset, pinfo, tree, "filehandle");  
 		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_offset4, offset);
 		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_length4, offset);
 		offset = dissect_nfs_stateid4(tvb, offset, tree);
-	} else if (recalltype == 2) { /* RETURN_FSID */
+	} else if (recall_type == 2) { /* RECALL_FSID */
 		offset = dissect_nfs_fsid4(tvb, offset, tree, "fsid");
 	}
 
@@ -9719,9 +9764,6 @@ dissect_nfs_cb_argop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 			break;
 		case NFS4_OP_CB_GETATTR:
 		case NFS4_OP_CB_LAYOUTRECALL:
-		  	offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_layouttype4, offset);
-			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_iomode4, offset);
-			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_cb_clorachanged, offset);
 			offset = dissect_nfs_cb_layoutrecall(tvb, offset, newftree, pinfo);
 			break;
 		case NFS4_OP_CB_NOTIFY:
@@ -9737,8 +9779,7 @@ dissect_nfs_cb_argop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_cachethis4, offset);
-			/* skip refs -- assume 0 */
-			offset = offset + 4;
+			offset = dissect_nfs_cb_referring_calls(tvb, offset, newftree);
 			break;
 		case NFS4_OP_CB_WANTS_CANCELLED:
 		case NFS4_OP_CB_NOTIFY_LOCK:
@@ -9891,8 +9932,13 @@ void reg_callback(int cbprog)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nfs, cbprog, ett_nfs);
 	
-	/* Register the procedure tables */
+	/*
+	 * Register the procedure tables.  The version should be 4,
+	 * but some Linux kernels set this field to 1.  "Temporarily",
+	 * accomodate these servers.
+	 */
 	rpc_init_proc_table(cbprog, 1, nfs_cb_proc, hf_nfs_cb_procedure);
+	rpc_init_proc_table(cbprog, 4, nfs_cb_proc, hf_nfs_cb_procedure);
 }
 
 void
@@ -11245,7 +11291,7 @@ proto_register_nfs(void)
 			"CREATE_SESSION flags", "nfs.create_session_flags", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_cachethis4, {
-			"Cache this?", "nfs.cachethis4", FT_BOOLEAN, BASE_NONE,
+			"cache this?", "nfs.cachethis4", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},		 
 		{ &hf_nfs_cb_procedure, {
 		   "CB Procedure", "nfs.cb_procedure", FT_UINT32, BASE_DEC,
@@ -11448,6 +11494,8 @@ proto_register_nfs(void)
 		&ett_nfs_cb_notifylock,
 		&ett_nfs_cb_notifydeviceid,
 		&ett_nfs_cb_notify,
+		&ett_nfs_cb_reflists,
+		&ett_nfs_cb_refcalls,
 		&ett_nfs_cb_illegal,
 	};
 	module_t *nfs_module;
