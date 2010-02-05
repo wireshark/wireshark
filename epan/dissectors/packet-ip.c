@@ -1563,7 +1563,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
    * be expected to be 1.  (see RFC 3171)  Flag a TTL greater than 1.
    *
    * Flag a low TTL if the packet is not destined for a multicast address
-   * (e.g. 224.0.0.0/4).
+   * (e.g. 224.0.0.0/4) ... and the payload isn't protocol 103 (PIM).
+   * (see http://tools.ietf.org/html/rfc3973#section-4.7).
    */
   if (is_a_local_network_control_block_addr(dst32)) {
     ttl = local_network_control_block_addr_valid_ttl(dst32);
@@ -1571,7 +1572,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE,
         "\"Time To Live\" != %d for a packet sent to the Local Network Control Block (see RFC 3171)", ttl);
     }
-  } else if (!is_a_multicast_addr(dst32) && iph->ip_ttl < 5) {
+  } else if (!is_a_multicast_addr(dst32) && iph->ip_ttl < 5 && (iph->ip_p != IP_PROTO_PIM)) {
     expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE, "\"Time To Live\" only %u", iph->ip_ttl);
   }
 
