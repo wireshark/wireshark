@@ -32,6 +32,9 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-capture-interfaces-win32.png	\
 	wsug_graphics/ws-capture-menu.png		\
 	wsug_graphics/ws-capture-options.png		\
+	wsug_graphics/ws-capture-options-remote-capture.png	\
+	wsug_graphics/ws-capture-options-remote-interface.png	\
+	wsug_graphics/ws-capture-options-remote-settings.png	\
 	wsug_graphics/ws-capture-preferences.png	\
 	wsug_graphics/ws-choose-color-rule.png		\
 	wsug_graphics/ws-coloring-fields.png		\
@@ -104,6 +107,7 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-statusbar-empty.png		\
 	wsug_graphics/ws-statusbar-loaded.png		\
 	wsug_graphics/ws-statusbar-selected.png		\
+	wsug_graphics/ws-telephony-menu.png		\
 	wsug_graphics/ws-time-reference.png		\
 	wsug_graphics/ws-view-menu.png			\
 	wsug_graphics/note.png				\

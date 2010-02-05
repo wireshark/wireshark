@@ -142,11 +142,11 @@
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[gcc (GCC) 3.4.4 (cygwin special) (gdc 0.12, using dmd 0.125)
+<![CDATA[gcc (GCC) 3.4.4 (cygwin special) (gdc 0.12, using dmd 0.125)
 Copyright (C) 2004 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsGDB">
       <title>gdb (GNU project debugger)</title>
@@ -167,14 +167,14 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[GNU gdb 6.5.50.20060706-cvs (cygwin-special)
+<![CDATA[GNU gdb 6.5.50.20060706-cvs (cygwin-special)
 Copyright 2003 Free Software Foundation, Inc.
 GDB is free software, covered by the GNU General Public License, and you are
 welcome to change it and/or distribute copies of it under certain conditions.
 Type "show copying" to see the conditions.
 There is absolutely no warranty for GDB.  Type "show warranty" for details.
 This GDB was configured as "i686-pc-cygwin".]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsDDD">
       <title>ddd (GNU Data Display Debugger)</title>
@@ -208,12 +208,12 @@ This GDB was configured as "i686-pc-cygwin".]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[GNU Make 3.81
+<![CDATA[GNU Make 3.81
 Copyright (C) 2006  Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.
 There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
   </section>
   <section id="ChToolsMSChain">
@@ -387,7 +387,6 @@ PARTICULAR PURPOSE.]]>
             <row>
               <entry>
                 <para>Visual C++ 2005 Express Edition</para>
-                <para>(recommended)</para>
               </entry>
               <entry>
                 <para>Yes</para>
@@ -443,7 +442,8 @@ PARTICULAR PURPOSE.]]>
             </row>
             <row>
               <entry>
-                <para>Visual C++ 2008 Express Edition</para>
+                <para>Visual C++ 2008 Express Edition SP1</para>
+                <para>(recommended)</para>
               </entry>
               <entry>
                 <para>Yes</para>
@@ -602,9 +602,6 @@ PARTICULAR PURPOSE.]]>
       unclear if the runtime needs to be installed for the C
       compiler to work - or is this only needed to compile / run
       .NET programs?!?</para>
-      <para>
-      <superscript>6</superscript>beta version, not suitable for
-      production use!</para>
       <note>
         <title>Note!</title>
         <para>The "Visual C++ Toolkit 2003" should NOT be used to
@@ -640,7 +637,7 @@ PARTICULAR PURPOSE.]]>
           required support libraries (MSVCR71.DLL) does not ship
           with the Windows operating system. This is also a
           wrongful interpretation, and the
-          <ulink url="http://www.gnu.org/licenses/gpl-faq.xml#WindowsRuntimeAndGPL">
+          <ulink url="http://www.gnu.org/licenses/gpl-faq.html#WindowsRuntimeAndGPL">
           GPL FAQ</ulink> explicitly addresses this issue.</para>
         </listitem>
       </orderedlist>Similar applies to Visual Studio 2005 and
@@ -656,10 +653,10 @@ PARTICULAR PURPOSE.]]>
       versions "ordered by release date":</para>
       <informaltable frame="all">
         <tgroup cols="4">
-          <colspec colname="c1" colwidth="25*" />
-          <colspec colname="c2" colwidth="25*" />
-          <colspec colname="c3" colwidth="25*" />
-          <colspec colname="c4" colwidth="25*" />
+          <colspec colname="c1" colwidth="55*" />
+          <colspec colname="c2" colwidth="10*" />
+          <colspec colname="c3" colwidth="15*" />
+          <colspec colname="c4" colwidth="20*" />
           <tbody>
             <row>
               <entry>
@@ -669,10 +666,10 @@ PARTICULAR PURPOSE.]]>
                 <para>cl.exe</para>
               </entry>
               <entry>
-                <para>#define _MSC_VER</para>
+                <para>_MSC_VER</para>
               </entry>
               <entry>
-                <para>required C-Runtime DLL</para>
+                <para>CRT DLL</para>
               </entry>
             </row>
             <row>
@@ -686,8 +683,7 @@ PARTICULAR PURPOSE.]]>
                 <para>1200</para>
               </entry>
               <entry align="center">
-                <para>msvcrt.dll</para>
-                <para>(Version 6)</para>
+                <para>msvcrt.dll (Version 6)</para>
               </entry>
             </row>
             <row>
@@ -754,29 +750,27 @@ PARTICULAR PURPOSE.]]>
             </row>
             <row>
               <entry>
-                <para>Windows SDK for Windows Vista and</para>
-                <para>.NET Framework 3.0 Runtime Components</para>
+                <para>Windows SDK for Windows Vista and
+                .NET Framework 3.0 Runtime Components</para>
               </entry>
             </row>
             <row>
               <entry>
                 <para>Visual Studio 2008</para>
-                <para>(Code Name "Orcas")</para>
               </entry>
-              <entry align="center" morerows="2" valign="middle">
+              <entry align="center" morerows="1" valign="middle">
                 <para>9.0</para>
               </entry>
-              <entry align="center" morerows="2" valign="middle">
+              <entry align="center" morerows="1" valign="middle">
                 <para>1500</para>
               </entry>
-              <entry align="center" morerows="2" valign="middle">
+              <entry align="center" morerows="1" valign="middle">
                 <para>msvcr90.dll</para>
               </entry>
             </row>
             <row>
               <entry>
                 <para>Visual Studio 2008 Express Edition</para>
-                <para>(Code Name "Orcas")</para>
               </entry>
             </row>
           </tbody>
@@ -790,11 +784,11 @@ PARTICULAR PURPOSE.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+<![CDATA[Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
 Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
 
 usage: cl [ option... ] filename... [ /link linkoption... ]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsNMake">
       <title>nmake.exe (Make)</title>
@@ -816,12 +810,12 @@ usage: cl [ option... ] filename... [ /link linkoption... ]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[Microsoft (R) Program Maintenance Utility   Version 6.00.9782.0
+<![CDATA[Microsoft (R) Program Maintenance Utility   Version 6.00.9782.0
 Copyright (C) Microsoft Corp 1988-1998. All rights reserved.
 
 NMAKE : fatal error U1064: MAKEFILE not found and no target specified
 Stop.]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
       <para>Documentation on nmake can be found at
       <ulink url="http://msdn2.microsoft.com/en-us/library/dd9y37ha(VS.71).aspx">
       Microsoft MSDN</ulink></para>
@@ -1111,9 +1105,9 @@ Stop.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[GNU bash, version 3.1.17(6)-release (i686-pc-cygwin)
+<![CDATA[GNU bash, version 3.1.17(6)-release (i686-pc-cygwin)
 Copyright (C) 2005 Free Software Foundation, Inc.]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32Bash">
       <title>Win32 native: -</title>
@@ -1166,8 +1160,8 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
       </para>
       <para>The output should look something like:
       <programlisting>
-        <![CDATA[Python 2.6]]>
-</programlisting>However, the version string may vary.</para>
+<![CDATA[Python 2.6]]>
+      </programlisting>However, the version string may vary.</para>
     </section>
   </section>
   <section id="ChToolsPerl">
@@ -1193,7 +1187,7 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[This is perl, v5.8.7 built for cygwin-thread-multi-64int
+<![CDATA[This is perl, v5.8.7 built for cygwin-thread-multi-64int
 (with 1 registered patch, see perl -V for more detail)
 
 Copyright 1987-2005, Larry Wall
@@ -1204,7 +1198,7 @@ GNU General Public License, which may be found in the Perl 5 source kit.
 Complete documentation for Perl, including FAQ lists, should be found on
 this system using `man perl' or `perldoc perl'.  If you have access to the
 Internet, point your browser at http://www.perl.com/, the Perl Home Page.]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32Perl">
       <title>Win32 native: perl</title>
@@ -1219,7 +1213,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[This is perl, v5.8.0 built for MSWin32-x86-multi-thread
+<![CDATA[This is perl, v5.8.0 built for MSWin32-x86-multi-thread
 (with 1 registered patch, see perl -V for more detail)
 
 Copyright 1987-2002, Larry Wall
@@ -1227,7 +1221,7 @@ Copyright 1987-2002, Larry Wall
 Binary build 805 provided by ActiveState Corp. http://www.ActiveState.com
 Built 18:08:02 Feb  4 2003
 ...]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
   </section>
   <section id="ChToolsSed">
@@ -1252,12 +1246,12 @@ Built 18:08:02 Feb  4 2003
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[GNU sed version 4.1.5
+<![CDATA[GNU sed version 4.1.5
 Copyright (C) 2003 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE,
 to the extent permitted by law.]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32Sed">
       <title>Win32 native: sed</title>
@@ -1285,13 +1279,13 @@ to the extent permitted by law.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[bison (GNU Bison) 2.3
+<![CDATA[bison (GNU Bison) 2.3
 Written by Robert Corbett and Richard Stallman.
 
 Copyright (C) 2006 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32Yacc">
       <title>Win32 native: bison</title>
@@ -1319,8 +1313,8 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[flex version 2.5.4]]>
-</programlisting>However, the version string may vary.</para>
+<![CDATA[flex version 2.5.4]]>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32Lexx">
       <title>Win32 native: flex</title>
@@ -1362,14 +1356,14 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[svn, version 1.0.5 (r9954)
+<![CDATA[svn, version 1.0.5 (r9954)
    compiled Jun 20 2004, 23:28:30
 
 Copyright (C) 2000-2004 CollabNet.
 Subversion is open source software, see http://subversion.tigris.org/
 This product includes software developed by CollabNet (http://www.Collab.Net/).
 ...]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32SVN">
       <title>Win32 native: svn</title>
@@ -1386,11 +1380,11 @@ This product includes software developed by CollabNet (http://www.Collab.Net/).
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[svn, Version 1.4.0 (r21228)
+<![CDATA[svn, Version 1.4.0 (r21228)
 
 Copyright (C) 2000-2006 CollabNet.
 ...]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
   </section>
   <section id="ChToolsSubversionGUI">
@@ -1453,14 +1447,14 @@ Copyright (C) 2000-2006 CollabNet.
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[diff (GNU diffutils) 2.8.7
+<![CDATA[diff (GNU diffutils) 2.8.7
 Written by Paul Eggert, Mike Haertel, David Hayes,
 Richard Stallman, and Len Tower.
 
 Copyright (C) 2004 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32Diff">
       <title>Win32 native: diff</title>
@@ -1507,7 +1501,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[patch 2.5.8
+<![CDATA[patch 2.5.8
 Copyright (C) 1988 Larry Wall
 Copyright (C) 2002 Free Software Foundation, Inc.
 
@@ -1517,7 +1511,7 @@ under the terms of the GNU General Public License.
 For more information about these matters, see the file named COPYING.
 
 written by Larry Wall and Paul Eggert]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32Patch">
       <title>Win32 native: patch</title>
