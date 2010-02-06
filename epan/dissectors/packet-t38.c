@@ -627,7 +627,7 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                     }
 
                     new_tvb = process_reassembled_data(tvb, offset, actx->pinfo,
-                                "Reassembled Message", frag_msg, &data_frag_items, NULL, tree);
+                                "Reassembled T38", frag_msg, &data_frag_items, NULL, tree);
 
                     /* Now reset fragmentation information in pinfo */
                     actx->pinfo->fragmented = save_fragmented;
@@ -637,7 +637,7 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
                 } else {
                     new_tvb = process_reassembled_data(tvb, offset, actx->pinfo,
-                                "Reassembled Message", frag_msg, &data_frag_items, NULL, tree);
+                                "Reassembled T38", frag_msg, &data_frag_items, NULL, tree);
 
                     /* Now reset fragmentation information in pinfo */
                     actx->pinfo->fragmented = save_fragmented;
@@ -726,7 +726,7 @@ dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                 TRUE); /* More fragments */
 
             new_tvb = process_reassembled_data(tvb, offset, actx->pinfo,
-                        "Reassembled Message", frag_msg, &data_frag_items, NULL, tree);
+                        "Reassembled T38", frag_msg, &data_frag_items, NULL, tree);
 
             if (!frag_msg) { /* Not last packet of reassembled */
                 if (Data_Field_field_type_value == 0) {
@@ -1360,7 +1360,7 @@ proto_register_t38(void)
 			{"Reassembled in", "t38.reassembled.in",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 		{&hf_t38_reassembled_length,
-			{"Reassembled length", "t38.reassembled.length",
+			{"Reassembled T38 length", "t38.reassembled.length",
 			FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
 	};
 

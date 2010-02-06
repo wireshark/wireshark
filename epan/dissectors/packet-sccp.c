@@ -2327,7 +2327,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 					 more);									/* More fragments? */
 
 		new_tvb = process_reassembled_data(tvb, variable_pointer1 + 1, pinfo,
-						   "Reassembled Message", frag_msg,
+						   "Reassembled SCCP", frag_msg,
 						   &sccp_xudt_msg_frag_items, NULL,
 						   tree);
 
@@ -2565,7 +2565,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				fragment_set_tot_len(pinfo, source_local_ref, sccp_xudt_msg_fragment_table,(octet & 0xf));
 
 			new_tvb = process_reassembled_data(tvb, variable_pointer3 + 1,
-					       pinfo, "Reassembled Message",
+					       pinfo, "Reassembled SCCP",
 					       frag_msg,
 					       &sccp_xudt_msg_frag_items,
 					       NULL, tree);
@@ -2648,7 +2648,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 		fragment_set_tot_len(pinfo, source_local_ref, sccp_xudt_msg_fragment_table,(octet & 0xf));
 
 	    new_tvb = process_reassembled_data(tvb, variable_pointer3 + 1,
-					       pinfo, "Reassembled Message",
+					       pinfo, "Reassembled SCCP",
 					       frag_msg,
 					       &sccp_xudt_msg_frag_items,
 					       NULL, tree);
@@ -3286,7 +3286,7 @@ proto_register_sccp(void)
 	FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
     },
     {&hf_sccp_xudt_msg_reassembled_length,
-	{"Reassembled length", "sccp.msg.reassembled.length",
+	{"Reassembled SCCP length", "sccp.msg.reassembled.length",
 	FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
     },
     { &hf_sccp_assoc_id,

@@ -353,7 +353,7 @@ dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		bundle_tree = proto_item_add_subtree(ti, ett_bundle);
 		new_tvb = process_reassembled_data(tvb,
 						   frame_offset + convergence_hdr_size,
-						   pinfo, "Reassembled Message", frag_msg,
+						   pinfo, "Reassembled DTN", frag_msg,
 						   &msg_frag_items, NULL, bundle_tree);
 	    }
 	    if(new_tvb){
@@ -2239,7 +2239,7 @@ proto_register_bundle(void)
 		FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     {&hf_msg_reassembled_length,
-        {"Reassembled length", "bundle.msg.reassembled.length",
+        {"Reassembled DTN length", "bundle.msg.reassembled.length",
 		FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_bundle_procflags,

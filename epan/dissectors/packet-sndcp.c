@@ -519,7 +519,7 @@ proto_register_sndcp(void)
       }
     },
     { &hf_npdu_reassembled_length,
-      {	"Reassembled length",
+      {	"Reassembled N-PDU length",
 	"npdu.reassembled.length",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"The total length of the reassembled payload", HFILL

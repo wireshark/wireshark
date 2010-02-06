@@ -4258,11 +4258,11 @@ proto_register_ndmp(void)
 		FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 	{&hf_ndmp_fragment_overlap_conflicts,
 		{"NDMP fragment overlapping with conflicting data",
-		"msg.fragment.overlap.conflicts",
+		"ndmp.fragment.overlap.conflicts",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 	{&hf_ndmp_fragment_multiple_tails,
 		{"NDMP has multiple tail fragments",
-		"msg.fragment.multiple_tails",
+		"ndmp.fragment.multiple_tails",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 	{&hf_ndmp_fragment_too_long_fragment,
 		{"NDMP fragment too long", "ndmp.fragment.too_long_fragment",
@@ -4274,7 +4274,7 @@ proto_register_ndmp(void)
 		{"Reassembled in", "ndmp.reassembled.in",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 	{&hf_ndmp_reassembled_length,
-		{"Reassembled length", "ndmp.reassembled.length",
+		{"Reassembled NDMP length", "ndmp.reassembled.length",
 		FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
   };
 

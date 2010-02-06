@@ -3748,7 +3748,7 @@ proto_register_rpc(void)
 			NULL, HFILL }},
 
 		{ &hf_rpc_reassembled_length,
-		{ "Reassembled length", "rpc.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+		{ "Reassembled RPC length", "rpc.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"The total length of the reassembled payload", HFILL }},
 	};
 	static gint *ett[] = {

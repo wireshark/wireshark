@@ -1300,7 +1300,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                          p_mul_reassembled_table, seq_no - 1,
                                          data_len, TRUE);
       new_tvb = process_reassembled_data (tvb, offset, pinfo,
-                                          "Reassembled Data", frag_msg,
+                                          "Reassembled P_MUL", frag_msg,
                                           &p_mul_frag_items, NULL, tree);
       
       if (frag_msg)
@@ -1489,7 +1489,7 @@ void proto_register_p_mul (void)
       { "Reassembled in", "p_mul.reassembled.in", FT_FRAMENUM, BASE_NONE,
         NULL, 0x00, NULL, HFILL } },
     { &hf_msg_reassembled_length,
-      { "Reassembled Data length", "p_mul.reassembled.length", FT_UINT32, BASE_DEC,
+      { "Reassembled P_MUL length", "p_mul.reassembled.length", FT_UINT32, BASE_DEC,
         NULL, 0x00, NULL, HFILL } },
 
     /*

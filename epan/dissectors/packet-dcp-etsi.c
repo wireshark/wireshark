@@ -277,7 +277,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     rx_min++;
   if (fdx)
     new_tvb = process_reassembled_data (tvb, offset, pinfo,
-                                        "Reassembled Message",
+                                        "Reassembled DCP (ETSI)",
                                         fdx, &dcp_frag_items,
                                         NULL, tree);
   else {
@@ -330,7 +330,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       }
       if(frag)
         new_tvb = process_reassembled_data (tvb, offset, pinfo,
-                                            "Reassembled Message",
+                                            "Reassembled DCP (ETSI)",
                                             frag, &dcp_frag_items,
                                             NULL, tree);
     }
@@ -407,7 +407,7 @@ dissect_pft_fragmented(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       );
   } else {
     new_tvb = process_reassembled_data (tvb, offset, pinfo,
-                                        "Reassembled Message",
+                                        "Reassembled DCP (ETSI)",
                                         frag_edcp, &dcp_frag_items,
                                         NULL, tree);
   }
@@ -824,7 +824,7 @@ proto_register_dcp_etsi (void)
      {"Reassembled in", "dcp-pft.reassembled.in",
       FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL}},
     {&hf_edcp_reassembled_length,
-     {"Reassembled length", "dcp-pft.reassembled.length",
+     {"Reassembled DCP (ETSI) length", "dcp-pft.reassembled.length",
       FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL}},
     {&hf_edcp_c_max,
      {"C max", "dcp-pft.cmax",

@@ -111,7 +111,7 @@ VAL_PTR=&Data_Field_field_type_value
                     }
 
                     new_tvb = process_reassembled_data(tvb, offset, actx->pinfo,
-                                "Reassembled Message", frag_msg, &data_frag_items, NULL, tree);
+                                "Reassembled T38", frag_msg, &data_frag_items, NULL, tree);
 
                     /* Now reset fragmentation information in pinfo */
                     actx->pinfo->fragmented = save_fragmented;
@@ -121,7 +121,7 @@ VAL_PTR=&Data_Field_field_type_value
 
                 } else {
                     new_tvb = process_reassembled_data(tvb, offset, actx->pinfo,
-                                "Reassembled Message", frag_msg, &data_frag_items, NULL, tree);
+                                "Reassembled T38", frag_msg, &data_frag_items, NULL, tree);
 
                     /* Now reset fragmentation information in pinfo */
                     actx->pinfo->fragmented = save_fragmented;
@@ -200,7 +200,7 @@ VAL_PTR=&Data_Field_field_type_value
                 TRUE); /* More fragments */
 
             new_tvb = process_reassembled_data(tvb, offset, actx->pinfo,
-                        "Reassembled Message", frag_msg, &data_frag_items, NULL, tree);
+                        "Reassembled T38", frag_msg, &data_frag_items, NULL, tree);
 
             if (!frag_msg) { /* Not last packet of reassembled */
                 if (Data_Field_field_type_value == 0) {

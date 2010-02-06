@@ -1400,7 +1400,7 @@ void proto_register_netbios(void)
 			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_reassembled_length,
-		{"Reassembled length",	"netbios.reassembled.length", FT_UINT32, BASE_DEC,
+		{"Reassembled NetBIOS length",	"netbios.reassembled.length", FT_UINT32, BASE_DEC,
 			NULL, 0x0, "The total length of the reassembled payload", HFILL }},
 	};
 	module_t *netbios_module;

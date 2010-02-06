@@ -19269,7 +19269,7 @@ proto_register_smb(void)
 			"Defragmentation error due to illegal fragments", HFILL }},
 
 	{ &hf_smb_reassembled_length,
-		{ "Reassembled length", "smb.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+		{ "Reassembled SMB length", "smb.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"The total length of the reassembled payload", HFILL }},
 
 	{ &hf_smb_opened_in,

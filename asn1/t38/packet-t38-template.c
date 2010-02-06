@@ -705,7 +705,7 @@ proto_register_t38(void)
 			{"Reassembled in", "t38.reassembled.in",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 		{&hf_t38_reassembled_length,
-			{"Reassembled length", "t38.reassembled.length",
+			{"Reassembled T38 length", "t38.reassembled.length",
 			FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
 	};
 

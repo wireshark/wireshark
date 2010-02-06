@@ -295,7 +295,7 @@ mp2t_depi_docsis_fragmentation_handle(tvbuff_t *tvb, guint offset,
                    !fragment_last);
 
     new_tvb = process_reassembled_data(tvb, offset, pinfo,
-                  "Reassembled Message",
+                  "Reassembled MP2T",
                   frag_msg, &depi_msg_frag_items,
                   NULL, tree);
 
@@ -1323,7 +1323,7 @@ proto_register_mp2t(void)
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL
 		} },
 		{  &hf_depi_msg_reassembled_length, {
-			"Reassembled length", "mp2t.depi_msg.reassembled.length",
+			"Reassembled MP2T length", "mp2t.depi_msg.reassembled.length",
 			FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL
 		} }
 	};

@@ -426,7 +426,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		pinfo->fragmented = TRUE;
 		fragment_number = tvb_get_letohs(tvb, 18);
 		frag_msg = fragment_add_seq_check(tvb, 24, pinfo, type,	msg_fragment_table, msg_reassembled_table, frag->frag_num, tvb_length_remaining(tvb, 24), fragment_number);
-		new_tvb = process_reassembled_data(tvb, 24, pinfo,"Reassembled Message", frag_msg, &msg_frag_items, NULL, ts2_tree);
+		new_tvb = process_reassembled_data(tvb, 24, pinfo,"Reassembled TeamSpeak2", frag_msg, &msg_frag_items, NULL, ts2_tree);
 		if (frag_msg)
 		{ /* Reassembled */
 			col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
@@ -1124,7 +1124,7 @@ void proto_register_ts2(void)
 		   NULL, HFILL }
 		},
 		{ &hf_msg_reassembled_length,
-		  {"Reassembled length", "ts2.reassembled.length",
+		  {"Reassembled TeamSpeak2 length", "ts2.reassembled.length",
 		   FT_UINT32, BASE_DEC,
 		   NULL, 0x00,
 		   NULL, HFILL }

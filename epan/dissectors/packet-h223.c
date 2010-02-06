@@ -1453,7 +1453,7 @@ void proto_register_h223 (void)
             "This H.223 MUX-PDU packet is reassembled in this frame", HFILL }},
 
         { &hf_h223_mux_reassembled_length,
-          { "Reassembled length", "h223.mux.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+          { "Reassembled H.223 MUX-PDU length", "h223.mux.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
             "The total length of the reassembled payload", HFILL }},
 
         /* fields for h.223-al fragments */
@@ -1490,7 +1490,7 @@ void proto_register_h223 (void)
             "This H.223 AL-PDU packet is reassembled in this frame", HFILL }},
 
         { &hf_h223_al_reassembled_length,
-          { "Reassembled length", "h223.al.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+          { "Reassembled H.223 AL-PDU length", "h223.al.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
             "The total length of the reassembled payload", HFILL }},
 
         /* h223-als */

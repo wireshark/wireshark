@@ -2647,9 +2647,8 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 		else 
 		{
 			/* Not last packet of reassembled Short Message */
-			if (check_col (g_pinfo->cinfo, COL_INFO))
-				col_append_fstr (g_pinfo->cinfo, COL_INFO,
-						" (Short Message fragment %u of %u)", g_frag, g_frags);
+			col_append_fstr (g_pinfo->cinfo, COL_INFO,
+					" (Short Message fragment %u of %u)", g_frag, g_frags);
 		}
 	} /* Else: not fragmented */
 	if (! sm_tvb) /* One single Short Message, or not reassembled */
@@ -3575,7 +3574,7 @@ proto_register_gsm_sms(void)
 			}
 		},
 		{	&hf_gsm_sms_ud_reassembled_length,
-			{	"Reassembled length",
+			{	"Reassembled Short Message length",
 				"gsm-sms-ud.reassembled.length",
 				FT_UINT32, BASE_DEC, NULL, 0x00,
 				"The total length of the reassembled payload", HFILL

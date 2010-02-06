@@ -1411,7 +1411,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 						(message_type != TIPCv2_USER_LAST_FRAGMENT));	/* More fragments? */
 
 				new_tvb = process_reassembled_data(tipc_tvb, offset, pinfo,
-						"Reassembled Message", frag_msg, &tipc_msg_frag_items,
+						"Reassembled TIPC", frag_msg, &tipc_msg_frag_items,
 						NULL, tipc_tree);
 
 				if (frag_msg) { /* Reassembled */
@@ -1963,7 +1963,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 				}
 
 				new_tvb = process_reassembled_data(tvb, offset, pinfo,
-						"Reassembled Message", frag_msg, &tipc_msg_frag_items,
+						"Reassembled TIPC", frag_msg, &tipc_msg_frag_items,
 						NULL, tipc_tree);
 
 				if (frag_msg) { /* Reassembled */
@@ -2353,7 +2353,7 @@ proto_register_tipc(void)
 				FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_tipc_msg_reassembled_length,
-			{ "Reassembled length", "tipc.msg.reassembled.length",
+			{ "Reassembled TIPC length", "tipc.msg.reassembled.length",
 				FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_tipc_ver,

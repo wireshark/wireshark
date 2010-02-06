@@ -305,7 +305,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 m); /* More fragments? */
 
             reassembled = process_reassembled_data(payload, 0, pinfo,
-                    "Reassembled Message", fd_m, &lapdm_frag_items,
+                    "Reassembled LAPDm", fd_m, &lapdm_frag_items,
                     NULL, lapdm_tree);
 
             /* Reassembled into this packet
@@ -453,7 +453,7 @@ proto_register_lapdm(void)
 	NULL, 0x00, "LAPDm Message has been reassembled in this packet.", HFILL }},
 
         { &hf_lapdm_reassembled_length,
-        { "Reassembled length", "lapdm.reassembled.length", FT_UINT32, BASE_DEC,
+        { "Reassembled LAPDm length", "lapdm.reassembled.length", FT_UINT32, BASE_DEC,
         NULL, 0x00, "The total length of the reassembled payload", HFILL }}
 
     };

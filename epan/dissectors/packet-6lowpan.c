@@ -1949,7 +1949,7 @@ dissect_6lowpan_frag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
     /* Attempt reassembly. */
     new_tvb = process_reassembled_data(tvb, offset, pinfo,
-                    "Reassembled Message", frag_data, &lowpan_frag_items,
+                    "Reassembled 6LowPAN", frag_data, &lowpan_frag_items,
                     NULL, tree);
 
     /* If reassembly was successful, then return the completed datagram. */
@@ -2168,7 +2168,7 @@ proto_register_6lowpan(void)
         { &hf_6lowpan_reassembled_in,
         { "Reassembled in",                 "6lowpan.reassembled.in",FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }},
         { &hf_6lowpan_reassembled_length,
-        { "Reassembled length",             "6lowpan.reassembled.length",FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }}
+        { "Reassembled 6LowPAN length",     "6lowpan.reassembled.length",FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }}
     };
 
     static gint *ett[] = {

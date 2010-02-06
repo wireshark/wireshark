@@ -1253,7 +1253,7 @@ proto_register_eap(void)
 		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		"Defragmentation error due to illegal fragments", HFILL }},
 	{ &hf_eaptls_reassembled_length,
-	  { "Reassembled length", "eaptls.reassembled.length",
+	  { "Reassembled EAP-TLS length", "eaptls.reassembled.length",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		"The total length of the reassembled payload", HFILL }},
 

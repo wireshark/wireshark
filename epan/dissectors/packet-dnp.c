@@ -3038,7 +3038,7 @@ proto_register_dnp3(void)
       "This PDU is reassembled in this frame", HFILL }},
 
     { &hf_dnp3_fragment_reassembled_length,
-    { "Reassembled length", "dnp3.al.fragment.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+    { "Reassembled DNP length", "dnp3.al.fragment.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
       "The total length of the reassembled payload", HFILL }}
   };
 

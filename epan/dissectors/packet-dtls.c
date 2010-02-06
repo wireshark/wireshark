@@ -1035,7 +1035,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
               {
                 /* Reassembled */
                 new_tvb = process_reassembled_data(tvb, offset+12, pinfo,
-                                                   "Reassembled Message",
+                                                   "Reassembled DTLS",
                                                    frag_msg,
                                                    &dtls_frag_items,
                                                    NULL, tree);
@@ -2217,7 +2217,7 @@ proto_register_dtls(void)
         FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
     },
     { &hf_dtls_reassembled_length,
-      { "Reassembled length", "dtls.reassembled.length",
+      { "Reassembled DTLS length", "dtls.reassembled.length",
         FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
     },
   };

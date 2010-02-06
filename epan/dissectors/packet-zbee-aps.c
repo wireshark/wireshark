@@ -586,10 +586,8 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
         proto_item_append_text(proto_root, " %s", val_to_str(packet.type, zbee_aps_frame_types, "Unknown Type"));
     }
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_clear(pinfo->cinfo, COL_INFO);
-        col_append_str(pinfo->cinfo, COL_INFO, val_to_str(packet.type, zbee_aps_frame_types, "Unknown Frame Type"));
-    }
+    col_clear(pinfo->cinfo, COL_INFO);
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(packet.type, zbee_aps_frame_types, "Unknown Frame Type"));
 
     /*  Display the FCF */
     if (tree) {
@@ -686,9 +684,7 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += sizeof(guint8);
 
         /* Update the info column. */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst Endpt: %d", packet.dst);
-        }
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst Endpt: %d", packet.dst);
     }
 
     /* If the group address is present, display it. */
@@ -701,9 +697,7 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += sizeof(guint16);
 
         /* Update the info column. */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Group: 0x%04x", packet.group);
-        }
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Group: 0x%04x", packet.group);
     }
 
     /* Get and display the cluster ID. */
@@ -747,17 +741,13 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += sizeof(guint8);
 
         /* Update the info column. */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Src Endpt: %d", packet.src);
-        }
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Src Endpt: %d", packet.src);
     }
 
     /* Display the profile ID now that the source endpoint was listed. */
     if (packet.type == ZBEE_APS_FCF_DATA) {
-        if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-            col_append_fstr(pinfo->cinfo, COL_PROTOCOL, " %s",
-                            rval_to_str(packet.profile, zbee_aps_apid_abbrs, ""));
-        }
+      col_append_fstr(pinfo->cinfo, COL_PROTOCOL, " %s",
+		      rval_to_str(packet.profile, zbee_aps_apid_abbrs, ""));
     }
 
     /* Jump here if there is no endpoint addressing in this frame. */
@@ -866,14 +856,12 @@ dissect_zbee_aps_no_endpt:
         frag_msg = fragment_add_seq_check(payload_tvb, 0, pinfo, msg_id, zbee_aps_fragment_table,
                 zbee_aps_reassembled_table, block_num, tvb_length(payload_tvb), TRUE);
 
-        new_tvb = process_reassembled_data(payload_tvb, 0, pinfo, "Reassembled Packet" ,
+        new_tvb = process_reassembled_data(payload_tvb, 0, pinfo, "Reassembled ZigBee APS" ,
                 frag_msg, &zbee_aps_frag_items, NULL, aps_tree);
 
         /* Update the info column regarding the fragmentation. */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            if (frag_msg)   col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
-            else            col_append_fstr(pinfo->cinfo, COL_INFO, " (Message fragment %u)", packet.counter);
-        }
+	if (frag_msg)   col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
+	else            col_append_fstr(pinfo->cinfo, COL_INFO, " (Message fragment %u)", packet.counter);
 
         if (new_tvb) {
             /* The reassembly handler defragmented the message, and created a new tvbuff. */
@@ -967,9 +955,7 @@ static void dissect_zbee_aps_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     offset += sizeof(guint8);
 
     /* Add the command name to the info column. */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(cmd_id, zbee_aps_cmd_names, "Unknown Command"));
-    }
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(cmd_id, zbee_aps_cmd_names, "Unknown Command"));
 
     /* Handle the contents of the command frame. */
     switch(cmd_id){
@@ -1926,7 +1912,7 @@ void proto_register_zbee_aps(void)
 	        NULL, HFILL }},
 
             { &hf_zbee_aps_reassembled_length,
-            { "Reassembled length",         "zbee.aps.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+            { "Reassembled ZigBee APS length",         "zbee.aps.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }}
     };
 

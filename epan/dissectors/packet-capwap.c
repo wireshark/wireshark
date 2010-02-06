@@ -1384,7 +1384,7 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		                              fragment_more);
 
 		next_tvb = process_reassembled_data(tvb, offset, pinfo,
-		                                    "Reassembled CAPWAP Data", frag_msg,
+		                                    "Reassembled CAPWAP", frag_msg,
 		                                    &capwap_frag_items, NULL, tree);
 
 		if (next_tvb == NULL)
@@ -1465,7 +1465,7 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		                              fragment_more);
 
 		next_tvb = process_reassembled_data(tvb, offset, pinfo,
-		                                    "Reassembled CAPWAP Data", frag_msg,
+		                                    "Reassembled CAPWAP", frag_msg,
 		                                    &capwap_frag_items, NULL, tree);
 
 		if (next_tvb == NULL)
@@ -2147,7 +2147,7 @@ proto_register_capwap_control(void)
 			{ "Reassembled in", "capwap.reassembled.in", FT_FRAMENUM, BASE_NONE,
 			NULL, 0x00, NULL, HFILL } },
 		{ &hf_msg_reassembled_length,
-			{ "Reassembled length", "capwap.reassembled.length", FT_UINT32, BASE_DEC,
+			{ "Reassembled CAPWAP length", "capwap.reassembled.length", FT_UINT32, BASE_DEC,
 			NULL, 0x00, NULL, HFILL } }
 	};
 

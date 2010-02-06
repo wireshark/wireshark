@@ -8610,11 +8610,9 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	bacapp_type = (flag >> 4) & 0x0f;
 
 	/* show some descriptive text in the INFO column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%-16s",
-			val_to_str(bacapp_type, BACnetTypeName, "# unknown APDU #"));
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%-16s",
+		val_to_str(bacapp_type, BACnetTypeName, "# unknown APDU #"));
+
 	switch (bacapp_type)
 	{
 		case BACAPP_TYPE_CONFIRMED_SERVICE_REQUEST:
@@ -8634,28 +8632,25 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 2);
 				bacapp_service = tvb_get_guint8(tvb, offset + 3);
 			}
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ",
-					val_to_str(bacapp_service,
-						BACnetConfirmedServiceChoice,
-						bacapp_unknown_service_str),bacapp_invoke_id);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ",
+				val_to_str(bacapp_service,
+					BACnetConfirmedServiceChoice,
+					bacapp_unknown_service_str),bacapp_invoke_id);
 			break;
 		case BACAPP_TYPE_UNCONFIRMED_SERVICE_REQUEST:
 			bacapp_service = tvb_get_guint8(tvb, offset + 1);
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-					val_to_str(bacapp_service,
-						BACnetUnconfirmedServiceChoice,
-						bacapp_unknown_service_str));
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(bacapp_service,
+					BACnetUnconfirmedServiceChoice,
+					bacapp_unknown_service_str));
 			break;
 		case BACAPP_TYPE_SIMPLE_ACK:
 			bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
 			bacapp_service = tvb_get_guint8(tvb, offset + 2);
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ", /* "original-invokeID" replaced */
-					val_to_str(bacapp_service,
-						BACnetConfirmedServiceChoice,
-						bacapp_unknown_service_str), bacapp_invoke_id);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ", /* "original-invokeID" replaced */
+				val_to_str(bacapp_service,
+					BACnetConfirmedServiceChoice,
+					bacapp_unknown_service_str), bacapp_invoke_id);
 			break;
 		case BACAPP_TYPE_COMPLEX_ACK:
 			/* segmented messages have 2 additional bytes */
@@ -8674,11 +8669,10 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
 				bacapp_service = tvb_get_guint8(tvb, offset + 2);
 			}
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ", /* "original-invokeID" replaced */
-					val_to_str(bacapp_service,
-						BACnetConfirmedServiceChoice,
-						bacapp_unknown_service_str), bacapp_invoke_id);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ", /* "original-invokeID" replaced */
+				val_to_str(bacapp_service,
+					BACnetConfirmedServiceChoice,
+					bacapp_unknown_service_str), bacapp_invoke_id);
 			break;
 		case BACAPP_TYPE_SEGMENT_ACK:
 			/* nothing more to add */
@@ -8686,33 +8680,30 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case BACAPP_TYPE_ERROR:
 			bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
 			bacapp_service = tvb_get_guint8(tvb, offset + 2);
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ", /* "original-invokeID" replaced */
-					val_to_str(bacapp_service,
-						BACnetConfirmedServiceChoice,
-						bacapp_unknown_service_str), bacapp_invoke_id);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ", /* "original-invokeID" replaced */
+				val_to_str(bacapp_service,
+					BACnetConfirmedServiceChoice,
+					bacapp_unknown_service_str), bacapp_invoke_id);
 			break;
 		case BACAPP_TYPE_REJECT:
 			bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
 			bacapp_reason = tvb_get_guint8(tvb, offset + 2);
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ", /* "original-invokeID" replaced */
-					val_to_split_str(bacapp_reason,
-						64,
-						BACnetRejectReason,
-						ASHRAE_Reserved_Fmt,
-						Vendor_Proprietary_Fmt), bacapp_invoke_id);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ", /* "original-invokeID" replaced */
+				val_to_split_str(bacapp_reason,
+					64,
+					BACnetRejectReason,
+					ASHRAE_Reserved_Fmt,
+					Vendor_Proprietary_Fmt), bacapp_invoke_id);
 			break;
 		case BACAPP_TYPE_ABORT:
 			bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
 			bacapp_reason = tvb_get_guint8(tvb, offset + 2);
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ", /* "original-invokeID" replaced */
-					val_to_split_str(bacapp_reason,
-						64,
-						BACnetAbortReason,
-						ASHRAE_Reserved_Fmt,
-						Vendor_Proprietary_Fmt), bacapp_invoke_id);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ", /* "original-invokeID" replaced */
+				val_to_split_str(bacapp_reason,
+					64,
+					BACnetAbortReason,
+					ASHRAE_Reserved_Fmt,
+					Vendor_Proprietary_Fmt), bacapp_invoke_id);
 			break;
 		/* UNKNOWN */
 		default:
@@ -8744,16 +8735,15 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb_reported_length_remaining(tvb, bacapp_seqno == 0 ? 0 : data_offset), /* fragment length - to the end */
 			flag & BACAPP_MORE_SEGMENTS); /* Last fragment reached? */
 		new_tvb = process_reassembled_data(tvb, bacapp_seqno == 0 ? 0 : data_offset, pinfo,
-				"Reassembled Message", frag_msg, &msg_frag_items,
+				"Reassembled BACapp", frag_msg, &msg_frag_items,
 				NULL, tree);
 
 		if (frag_msg) { /* Reassembled */
 			col_append_str(pinfo->cinfo, COL_INFO,
 				" (Message Reassembled)");
 		} else { /* Not last packet of reassembled Short Message */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO,
-				" (Message fragment %u)", bacapp_seqno);
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+			" (Message fragment %u)", bacapp_seqno);
 		}
 		if (new_tvb) { /* take it all */
 			real_size = tvb_reported_length_remaining(new_tvb, 0);
@@ -8954,33 +8944,33 @@ proto_register_bacapp(void)
 			FT_UINT16, BASE_DEC, VALS(BACnetObjectType), 0x00, "Object Type", HFILL }
 		},
 		{&hf_msg_fragments,
-			{"Message fragments", "msg.fragments",
+			{"Message fragments", "bacapp.fragments",
 			FT_NONE, BASE_NONE, NULL, 0x00,	NULL, HFILL } },
 		{&hf_msg_fragment,
-			{"Message fragment", "msg.fragment",
+			{"Message fragment", "bacapp.fragment",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 		{&hf_msg_fragment_overlap,
-			{"Message fragment overlap", "msg.fragment.overlap",
+			{"Message fragment overlap", "bacapp.fragment.overlap",
 			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 		{&hf_msg_fragment_overlap_conflicts,
 			{"Message fragment overlapping with conflicting data",
-			"msg.fragment.overlap.conflicts",
+			"bacapp.fragment.overlap.conflicts",
 			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 		{&hf_msg_fragment_multiple_tails,
 			{"Message has multiple tail fragments",
-			"msg.fragment.multiple_tails",
+			"bacapp.fragment.multiple_tails",
 			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 		{&hf_msg_fragment_too_long_fragment,
-			{"Message fragment too long", "msg.fragment.too_long_fragment",
+			{"Message fragment too long", "bacapp.fragment.too_long_fragment",
 			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 		{&hf_msg_fragment_error,
-			{"Message defragmentation error", "msg.fragment.error",
+			{"Message defragmentation error", "bacapp.fragment.error",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 		{&hf_msg_reassembled_in,
-			{"Reassembled in", "msg.reassembled.in",
+			{"Reassembled in", "bacapp.reassembled.in",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 		{&hf_msg_reassembled_length,
-			{"Reassembled length", "msg.reassembled.length",
+			{"Reassembled BACapp length", "bacapp.reassembled.length",
 			FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } }
 	};
 	static gint *ett[] = {

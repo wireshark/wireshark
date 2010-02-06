@@ -3467,7 +3467,7 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 			}
 
 			new_tvb = process_reassembled_data(parameter_tvb, offset, pinfo,
-				"Reassembled Message", frag_msg, &isup_apm_msg_frag_items,
+				"Reassembled ISUP", frag_msg, &isup_apm_msg_frag_items,
 				NULL, parameter_tree);
 
 			if (frag_msg) { /* Reassembled */
@@ -7102,26 +7102,23 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->ctype = CT_ISUP;
 	pinfo->circuit_id = cic;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		if (isup_show_cic_in_info){
-			switch (isup_standard){
-			case ITU_STANDARD:
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s (CIC %u) ", val_to_str(message_type, isup_message_type_value_acro, "reserved"), cic);
-				break;
-			case ANSI_STANDARD:
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s (CIC %u) ", val_to_str(message_type, ansi_isup_message_type_value_acro, "reserved"), cic);
-				break;
-			}
-		}else{
-			switch (isup_standard){
-			case ITU_STANDARD:
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, isup_message_type_value_acro, "reserved"));
-				break;
-			case ANSI_STANDARD:
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, ansi_isup_message_type_value_acro, "reserved"));
-				break;
-			}
+	if (isup_show_cic_in_info){
+		switch (isup_standard){
+		case ITU_STANDARD:
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s (CIC %u) ", val_to_str(message_type, isup_message_type_value_acro, "reserved"), cic);
+			break;
+		case ANSI_STANDARD:
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s (CIC %u) ", val_to_str(message_type, ansi_isup_message_type_value_acro, "reserved"), cic);
+			break;
+		}
+	}else{
+		switch (isup_standard){
+		case ITU_STANDARD:
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, isup_message_type_value_acro, "reserved"));
+			break;
+		case ANSI_STANDARD:
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, ansi_isup_message_type_value_acro, "reserved"));
+			break;
 		}
 	}
 
@@ -7166,12 +7163,10 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->circuit_id = bicc_cic;
 
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if (isup_show_cic_in_info) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s (CIC %u) ", val_to_str(message_type, isup_message_type_value_acro, "reserved"), bicc_cic);
-		} else {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, isup_message_type_value_acro, "reserved"));
-		}
+	if (isup_show_cic_in_info) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s (CIC %u) ", val_to_str(message_type, isup_message_type_value_acro, "reserved"), bicc_cic);
+	} else {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, isup_message_type_value_acro, "reserved"));
 	}
 	/* dissect CIC in main dissector since pass-along message type carrying complete BICC/ISUP message w/o CIC needs
 	 * recursive message dissector call
@@ -7206,8 +7201,7 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Extract message type field */
 	message_type = tvb_get_guint8(tvb, 0);
 	/* application/ISUP has no  CIC  */
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "ISUP:%s", val_to_str(message_type, isup_message_type_value_acro, "reserved"));
+	col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "ISUP:%s", val_to_str(message_type, isup_message_type_value_acro, "reserved"));
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
@@ -8187,7 +8181,7 @@ proto_register_isup(void)
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{&hf_isup_apm_msg_reassembled_length,
-			{"Reassembled length", "isup_apm.msg.reassembled.length",
+			{"Reassembled ISUP length", "isup_apm.msg.reassembled.length",
 			FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 		{&hf_isup_cvr_rsp_ind,

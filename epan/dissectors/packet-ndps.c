@@ -9362,7 +9362,7 @@ proto_register_ndps(void)
     		NULL, 0x0, "Desegmentation error due to illegal segments", HFILL }},
 
         { &hf_ndps_reassembled_length,
-          {"Reassembled length",	"ndps.reassembled.length", FT_UINT32, BASE_DEC,
+          {"Reassembled NDPS length",	"ndps.reassembled.length", FT_UINT32, BASE_DEC,
     		NULL, 0x0, "The total length of the reassembled payload", HFILL }},
 
         { &hf_ndps_segment,
