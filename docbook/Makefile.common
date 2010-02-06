@@ -179,7 +179,7 @@ WSDG_GRAPHICS =	\
 WSUG_SOURCE =	\
 	user-guide.xml		\
 	svn_version.xml		\
-	Makefile			\
+	Makefile		\
 	wsluarm			\
 	$(WSUG_FILES)		\
 	$(WSUG_GRAPHICS)
@@ -188,7 +188,7 @@ WSUG_SOURCE =	\
 WSDG_SOURCE =	\
 	developer-guide.xml	\
 	svn_version.xml		\
-	Makefile			\
+	Makefile		\
 	$(WSDG_FILES)		\
 	$(WSDG_GRAPHICS)
 
