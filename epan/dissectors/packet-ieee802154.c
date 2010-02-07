@@ -1321,7 +1321,7 @@ dissect_ieee802154_pendaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static void
 dissect_ieee802154_assoc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
 {
-    proto_tree          *subtree;
+    proto_tree          *subtree = NULL;
     proto_item *        ti;
     guint8              capability;
 
@@ -1371,7 +1371,7 @@ dissect_ieee802154_assoc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 static void
 dissect_ieee802154_assoc_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
 {
-    proto_tree          *subtree;
+    proto_tree          *subtree = NULL;
     proto_item          *ti;
     guint16             short_addr;
     guint8              status;
@@ -1441,7 +1441,7 @@ dissect_ieee802154_assoc_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 static void
 dissect_ieee802154_disassoc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
 {
-    proto_tree          *subtree;
+    proto_tree          *subtree = NULL;
     proto_item          *ti;
     guint8              reason;
 
@@ -1576,7 +1576,7 @@ dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static void
 dissect_ieee802154_gtsreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
 {
-    proto_tree          *subtree;
+    proto_tree          *subtree = NULL;
     proto_item          *ti;
     guint8              characteristics;
     guint8              length;
