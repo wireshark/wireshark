@@ -1494,7 +1494,7 @@ dissect_ieee802154_disassoc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
 {
-    proto_tree          *subtree;
+    proto_tree          *subtree = NULL;
     proto_item          *ti;
     guint16             pan_id;
     guint16             coord_addr;
