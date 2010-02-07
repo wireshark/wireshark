@@ -129,9 +129,9 @@ static void dissect_ieee802154_common       (tvbuff_t *, packet_info *, proto_tr
 
 /* Sub-dissector helpers. */
 static void dissect_ieee802154_fcf          (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *, guint *);
-static void dissect_ieee802154_superframe   (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *, guint *);
-static void dissect_ieee802154_gtsinfo      (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *, guint *);
-static void dissect_ieee802154_pendaddr     (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *, guint *);
+static void dissect_ieee802154_superframe   (tvbuff_t *, packet_info *, proto_tree *, guint *);
+static void dissect_ieee802154_gtsinfo      (tvbuff_t *, packet_info *, proto_tree *, guint *);
+static void dissect_ieee802154_pendaddr     (tvbuff_t *, packet_info *, proto_tree *, guint *);
 static void dissect_ieee802154_assoc_req    (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *);
 static void dissect_ieee802154_assoc_rsp    (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *);
 static void dissect_ieee802154_disassoc     (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *);
@@ -899,11 +899,11 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     /* All of the beacon fields, except the beacon payload are considered nonpayload. */
     if (packet->frame_type == IEEE802154_FCF_BEACON) {
         /* Parse the superframe spec. */
-        dissect_ieee802154_superframe(tvb, pinfo, ieee802154_tree, packet, &offset);
+        dissect_ieee802154_superframe(tvb, pinfo, ieee802154_tree, &offset);
         /* Parse the GTS information fields. */
-        dissect_ieee802154_gtsinfo(tvb, pinfo, ieee802154_tree, packet, &offset);
+        dissect_ieee802154_gtsinfo(tvb, pinfo, ieee802154_tree, &offset);
         /* Parse the Pending address list. */
-        dissect_ieee802154_pendaddr(tvb, pinfo, ieee802154_tree, packet, &offset);
+        dissect_ieee802154_pendaddr(tvb, pinfo, ieee802154_tree, &offset);
     }
     /* Only the Command ID is considered nonpayload. */
     if (packet->frame_type == IEEE802154_FCF_CMD) {
@@ -1140,7 +1140,7 @@ dissect_ieee802154_fcs:
  *---------------------------------------------------------------
  */
 static void
-dissect_ieee802154_superframe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet, guint *offset)
+dissect_ieee802154_superframe(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset)
 {
     proto_tree  *field_tree = NULL;
     proto_item  *ti;
@@ -1181,7 +1181,7 @@ dissect_ieee802154_superframe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  *---------------------------------------------------------------
  */
 static void
-dissect_ieee802154_gtsinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet, guint *offset)
+dissect_ieee802154_gtsinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset)
 {
     proto_tree  *field_tree = NULL;
     proto_tree  *subtree = NULL;
@@ -1271,7 +1271,7 @@ dissect_ieee802154_gtsinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
  *---------------------------------------------------------------
  */
 static void
-dissect_ieee802154_pendaddr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet, guint *offset)
+dissect_ieee802154_pendaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset)
 {
     proto_tree  *subtree = NULL;
     proto_item  *ti;
@@ -1880,7 +1880,7 @@ ccm_cbc_mac(const gchar *key, const gchar *iv, const gchar *a, gint a_len, const
 {
 #ifdef HAVE_LIBGCRYPT
     gcry_cipher_hd_t    cipher_hd;
-    int                 i = 0;
+    guint               i = 0;
     unsigned char       block[16];
 
     /* Open the cipher. */
@@ -1940,7 +1940,7 @@ ccm_cbc_mac(const gchar *key, const gchar *iv, const gchar *a, gint a_len, const
     /* Transform and process the remainder of a. */
     while (a_len > 0) {
         /* Copy and pad. */
-        if (a_len >= sizeof(block)) memcpy(block, a, sizeof(block));
+        if ((guint)a_len >= sizeof(block)) memcpy(block, a, sizeof(block));
         else {memcpy(block, a, a_len); memset(block+a_len, 0, sizeof(block)-a_len);}
         /* Adjust pointers. */
         a += sizeof(block);
@@ -1955,7 +1955,7 @@ ccm_cbc_mac(const gchar *key, const gchar *iv, const gchar *a, gint a_len, const
     /* Process the message, m. */
     while (m_len > 0) {
         /* Copy and pad. */
-        if (m_len >= sizeof(block)) memcpy(block, m, sizeof(block));
+        if ((guint)m_len >= sizeof(block)) memcpy(block, m, sizeof(block));
         else {memcpy(block, m, m_len); memset(block+m_len, 0, sizeof(block)-m_len);}
         /* Adjust pointers. */
         m += sizeof(block);
