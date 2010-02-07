@@ -1713,6 +1713,8 @@ emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key)
 {
 	emem_tree_t *next_tree;
 
+	if(!se_tree || !key) return NULL; /* prevent searching on NULL pointer */
+
 	if((key[0].length<1)||(key[0].length>100)){
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
@@ -1732,6 +1734,33 @@ emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key)
 	return emem_tree_lookup32_array(next_tree, key);
 }
 
+void *
+emem_tree_lookup32_array_le(emem_tree_t *se_tree, emem_tree_key_t *key)
+{
+	emem_tree_t *next_tree;
+
+	if(!se_tree || !key) return NULL; /* prevent searching on NULL pointer */
+
+	if((key[0].length<1)||(key[0].length>100)){
+		DISSECTOR_ASSERT_NOT_REACHED();
+	}
+	if((key[0].length==1)&&(key[1].length==0)){ /* last key in key array */
+		return emem_tree_lookup32_le(se_tree, *key[0].key);
+	}
+	next_tree=emem_tree_lookup32(se_tree, *key[0].key);
+	/* key[0].key not found so find le and return */
+	if(!next_tree)
+		return emem_tree_lookup32_le(se_tree, *key[0].key);
+
+	/* key[0].key found so inc key pointer and try again */
+	if(key[0].length==1){
+		key++;
+	} else {
+		key[0].length--;
+		key[0].key++;
+	}
+	return emem_tree_lookup32_array_le(next_tree, key);
+}
 
 /* Strings are stored as an array of uint32 containing the string characters
    with 4 characters in each uint32.

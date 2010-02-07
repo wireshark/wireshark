@@ -34,7 +34,7 @@ void *se_tree_lookup32(emem_tree_t *se_tree, guint32 key);
 
 2.1 se_tree_create(int type, char *name);
 se_tree_create() is used to initialize a tree that will be automatically 
-cleared and reset everytime wireshark is resetting all SEasonal storage.
+cleared and reset every time wireshark is resetting all SEasonal storage.
 That is every time you load a new capture file into wireshark or when
 you rescan the entire capture file from scratch.
 
@@ -59,7 +59,7 @@ void proto_register_...(void) {
 
 That is how easy it is to create a binary tree. You only need to create it
 once when wireshark starts and the tree will remain there until you exit
-wireshark.  Everytime a new capture is loaded, all nodes allocated to the
+wireshark.  Every time a new capture is loaded, all nodes allocated to the
 tree are freed automatically and the tree is reset without you having to do
 anything at all.
 
@@ -90,7 +90,7 @@ leaks in your code.
 NOTE: When you insert items in the tree, it is very likely that you only
 want to add any data to the tree during the very first time you process
 a particular packet.
-Wireshark may reprocess the same packet multiple times afterwards by the user
+Wireshark may reprocess the same packet multiple times afterward by the user
 clicking on the packet or for other reasons. 
 You probably DO want to protect the insert call within an if statement such
 as
@@ -126,10 +126,12 @@ Example:
 Don't forget to check that the returned pointer is non-NULL before you 
 dereference it, please.
 
+2.4 se_tree_lookup32_le(emem_tree_t *se_tree, guint32 key);
+The function will return the node that has the largest key that is
+equal to or smaller than the search key, or NULL if no such key was found.
+
 
 Simple as that, can it be easier?
-
-
 
 
 3. Advanced Usage
@@ -198,7 +200,7 @@ Don't use key like this. Please.
 Instead use this simple workaround to make it all safe :
 Specify the first index as 1 guint32 holding the total number of guints in the
 rest of the key.
-See NFS that does this to handle filehandles that may be of different lengths
+See NFS that does this to handle file handles that may be of different lengths
 in the same tree :
   emem_tree_key_t fhkey[3];
   guint32 tmplen;
@@ -213,8 +215,20 @@ in the same tree :
 
 ( /4 since we specify the length here in number of guint32 not number of bytes)
 
+3.3 se_tree_lookup32_array_le(emem_tree_t *se_tree, emem_tree_key_t *key);
+Much like the se_tree_lookup32_le, this function will return the node that has
+the largest key that is equal to or smaller than the search key, or NULL if
+no such key was found.
 
-3.3 se_tree_insert_string / se_tree_lookup_string
+When using _array_ trees, the tree that is created is a "tree of trees" where the
+last leaf has the indexed data.  Thus if you have 3 keys in the emme_tree_key_t
+structure, the "1st" tree indexes key[0].  Each node in this tree points to a
+tree indexed using key[1].  The nodes of the final tree will contain the data.
+
+This construction must be taken into account when using se_tree_lookup32_array_le.
+The program should verify that the node returned contains data that is expected.
+
+3.4 se_tree_insert_string / se_tree_lookup_string
 void emem_tree_insert_string(emem_tree_t* h, const gchar* k, void* v, guint32 flags);
 void* emem_tree_lookup_string(emem_tree_t* h, const gchar* k, guint32 flags);
 These functions are essentially wrappers for se_tree_insert32_array and

@@ -242,7 +242,11 @@ emem_tree_t *se_tree_create_non_persistent(int type, const char *name) G_GNUC_MA
  */
 #define se_tree_lookup32_array emem_tree_lookup32_array
 
-
+/* se_tree_lookup32_array_le
+ * Retrieve the data for the largest key that is less than or equal
+ * to the search key.
+ */
+#define se_tree_lookup32_array_le emem_tree_lookup32_array_le
 
 /* Create a new string based hash table */
 #define se_tree_create_string() se_tree_create(SE_TREE_TYPE_RED_BLACK)
@@ -340,6 +344,16 @@ void emem_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *
  * guint32 integer values.
  */
 void *emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key);
+
+/* This function will look up a node in the tree indexed by a
+ * multi-part tree value.
+ * The function will return the node that has the largest key that is
+ * equal to or smaller than the search key, or NULL if no such key was
+ * found.
+ * Note:  The key returned will be "less" in key order.  The usefullness
+ * of the returned node must be verified prior to use.
+ */
+void *emem_tree_lookup32_array_le(emem_tree_t *se_tree, emem_tree_key_t *key);
 
 /* case insensitive strings as keys */
 #define EMEM_TREE_STRING_NOCASE			0x00000001
