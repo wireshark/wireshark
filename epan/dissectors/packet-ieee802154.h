@@ -62,36 +62,37 @@
 #define IEEE802154_CMD_GTS_REQ_TYPE         0x20
 
 /*  Bit masks & shifts for various beacon fields */
-#define IEEE802154_BCN_BO_MASK              0x0F
-#define IEEE802154_BCN_SFO_MASK             0xF0
-#define IEEE802154_BCN_CAP_MASK             0x0F
-#define IEEE802154_BCN_BATT_EXTN_MASK       0x10
-#define IEEE802154_BCN_COORD_MASK           0x40
-#define IEEE802154_BCN_ASSOC_PERM_MASK      0x80
-#define IEEE802154_BCN_SFO_SHIFT            4
+#define IEEE802154_BEACON_ORDER_MASK        0x000F
+#define IEEE802154_SUPERFRAME_ORDER_MASK    0x00F0
+#define IEEE802154_SUPERFRAME_CAP_MASK      0x0F00
+#define IEEE802154_BATT_EXTENSION_MASK      0x1000
+#define IEEE802154_SUPERFRAME_COORD_MASK    0x4000
+#define IEEE802154_ASSOC_PERMIT_MASK        0x8000
+#define IEEE802154_SUPERFRAME_ORDER_SHIFT   4
+#define IEEE802154_SUPERFRAME_CAP_SHIFT     8
 
-#define IEEE802154_BCN_GTS_COUNT_MASK           0x03
-#define IEEE802154_BCN_GTS_PERMIT_MASK          0x80
-#define IEEE802154_BCN_GTS_DIRECTION_SLOT(i)    (0x01<<(i))
-#define IEEE802154_BCN_GTS_MAX_SLOTS            7
-#define IEEE802154_BCN_GTS_DIRECTION_SLOT1      0x01
-#define IEEE802154_BCN_GTS_DIRECTION_SLOT2      0x02
-#define IEEE802154_BCN_GTS_DIRECTION_SLOT3      0x04
-#define IEEE802154_BCN_GTS_DIRECTION_SLOT4      0x08
-#define IEEE802154_BCN_GTS_DIRECTION_SLOT5      0x10
-#define IEEE802154_BCN_GTS_DIRECTION_SLOT6      0x20
-#define IEEE802154_BCN_GTS_DIRECTION_SLOT7      0x40
-#define IEEE802154_BCN_GTS_SLOT_MASK            0x0F
-#define IEEE802154_BCN_GTS_LENGTH_MASK          0xF0
-#define IEEE802154_BCN_GTS_LENGTH_SHIFT         4
+#define IEEE802154_GTS_COUNT_MASK           0x03
+#define IEEE802154_GTS_PERMIT_MASK          0x80
+#define IEEE802154_GTS_DIRECTION_SLOT(i)    (0x01<<(i))
+#define IEEE802154_GTS_MAX_SLOTS            7
+#define IEEE802154_GTS_DIRECTION_SLOT1      0x01
+#define IEEE802154_GTS_DIRECTION_SLOT2      0x02
+#define IEEE802154_GTS_DIRECTION_SLOT3      0x04
+#define IEEE802154_GTS_DIRECTION_SLOT4      0x08
+#define IEEE802154_GTS_DIRECTION_SLOT5      0x10
+#define IEEE802154_GTS_DIRECTION_SLOT6      0x20
+#define IEEE802154_GTS_DIRECTION_SLOT7      0x40
+#define IEEE802154_GTS_SLOT_MASK            0x0F
+#define IEEE802154_GTS_LENGTH_MASK          0xF0
+#define IEEE802154_GTS_LENGTH_SHIFT         4
 
-#define IEEE802154_BCN_PADDR_SHORT_MASK     0x07
-#define IEEE802154_BCN_PADDR_LONG_MASK      0x70
-#define IEEE802154_BCN_PADDR_LONG_SHIFT     4
+#define IEEE802154_PENDADDR_SHORT_MASK      0x07
+#define IEEE802154_PENDADDR_LONG_MASK       0x70
+#define IEEE802154_PENDADDR_LONG_SHIFT      4
 
-#define IEEE802154_BCN_SFRM_DURATION        (IEEE802154_BCN_SLOT_DURATION * IEEE802154_BCN_NUM_SLOTS)
-#define IEEE802154_BCN_SLOT_DURATION        60
-#define IEEE802154_BCN_NUM_SLOTS            16
+#define IEEE802154_SUPERFRAME_DURATION      (IEEE802154_BASE_SLOT_DURATION * IEEE802154_SUPERFRAME_SLOTS)
+#define IEEE802154_BASE_SLOT_DURATION       60
+#define IEEE802154_SUPERFRAME_SLOTS         16
 
 /*  Bit-masks for the FCF */
 #define IEEE802154_FCF_TYPE_MASK            0x0007  /* Frame Type Mask */
@@ -108,6 +109,10 @@
 #define IEEE802154_FCF_DATA                 0x0001  /* Data Frame */
 #define IEEE802154_FCF_ACK                  0x0002  /* Acknowlegement Frame */
 #define IEEE802154_FCF_CMD                  0x0003  /* Command Frame */
+
+/* Frame version definitions. */
+#define IEEE802154_VERSION_2003             0x0
+#define IEEE802154_VERSION_2006             0x1
 
 /* Address Mode Definitions */
 #define IEEE802154_FCF_ADDR_NONE            0x0000
@@ -130,6 +135,7 @@
 /* Auxiliary Security Header */
 #define IEEE802154_AUX_SEC_LEVEL_MASK       0x07  /* Security Level */
 #define IEEE802154_AUX_KEY_ID_MODE_MASK     0x18  /* Key Identifier Mode */
+#define IEEE802154_AUX_KEY_ID_MODE_SHIFT    3
 #define IEEE802154_AUX_KEY_RESERVED_MASK    0xE0  /* Reserved */
 
 typedef enum {
@@ -149,6 +155,14 @@ typedef enum {
     KEY_ID_MODE_KEY_EXPLICIT_4 = 0x02,
     KEY_ID_MODE_KEY_EXPLICIT_8 = 0x03
 } ieee802154_key_id_mode;
+
+/* IEEE 802.15.4 cipher block size. */
+#define IEEE802154_CIPHER_SIZE              16
+
+/* Macro to compute the MIC length. */
+#define IEEE802154_MIC_LENGTH(_level_) ((0x2 << ((_level_) & 0x3)) & ~0x3)
+/* Macro to check for payload encryption. */
+#define IEEE802154_IS_ENCRYPTED(_level_) ((_level_) & 0x4)
 
 /*  Structure containing information regarding all necessary packet feilds. */
 typedef struct {
@@ -175,6 +189,19 @@ typedef struct {
         guint16 addr16;
         guint64 addr64;
     } src;
+
+    /* Security Info. */
+    ieee802154_security_level   security_level;
+    ieee802154_key_id_mode      key_id_mode;
+    guint32     frame_counter;
+    union {
+        guint32 addr32;
+        guint64 addr64;
+    } key_source;
+    guint8      key_index;
+
+    /* Command ID (only if frame_type == 0x3) */
+    guint8      command_id;
 } ieee802154_packet;
 
 
