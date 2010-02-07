@@ -436,6 +436,6 @@
 #define ETHERTYPE_FCFT          0xFCFC
 #endif
 
-extern const value_string etype_vals[];
+WS_VAR_IMPORT const value_string etype_vals[];
 
 #endif /* etypes.h */
