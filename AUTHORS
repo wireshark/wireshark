@@ -2970,6 +2970,10 @@ Vladimir Smrekar	<vladimir.smrekar [AT] gmail.com> {
 	V5UA dissector
 }
 
+Tobias Erichsen 	<t.erichsen [AT] gmx.de> {
+	Apple network-midi session establishment dissector
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

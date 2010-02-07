@@ -231,6 +231,7 @@ DISSECTOR_SRC = \
 	packet-aoe.c		\
 	packet-ap1394.c		\
 	packet-app-pkix-cert.c	\
+	packet-applemidi.c	\
 	packet-arcnet.c		\
 	packet-armagetronad.c 	\
 	packet-arp.c		\
