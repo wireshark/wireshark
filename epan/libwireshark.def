@@ -384,7 +384,7 @@ escape_string
 escape_string_len
 ethertype
 ether_to_str
-etype_vals
+etype_vals                 DATA
 ex_opt_add
 ex_opt_count
 ex_opt_get_next
