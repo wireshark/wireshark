@@ -126,7 +126,7 @@ dissect_applemidi( tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree ) {
 
 	command   = tvb_get_ntohs( tvb, offset + 2 );
 
-	col_add_fstr( pinfo->cinfo, COL_INFO, val_to_str( command, applemidi_commands, "Unknown Command: 0x%04x" ) );
+	col_add_fstr( pinfo->cinfo, COL_INFO, "%s", val_to_str( command, applemidi_commands, "Unknown Command: 0x%04x" ) );
 
 	if ( tree ) {
 		proto_item *ti = NULL;
