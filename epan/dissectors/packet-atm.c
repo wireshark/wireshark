@@ -78,6 +78,8 @@ static dissector_handle_t data_handle;
 
 static gboolean dissect_lanesscop = FALSE;
 
+static gint unknown_aal2_type = TRAF_UNKNOWN;
+
 /*
  * See
  *
@@ -929,6 +931,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   tvbuff_t     *next_tvb;
   guint32      crc;
   guint32      calc_crc;
+  gint         type;
   /* 
    * ATM dissector is used as "sub-dissector" for ATM pseudowires.
    * In such cases, pinfo->private_data is used to pass info from/to 
@@ -1179,27 +1182,32 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     break;
 
   case AAL_2:
-    switch (pinfo->pseudo_header->atm.type) {
-      case TRAF_UMTS_FP:
-        proto_tree_add_uint(atm_tree, hf_atm_cid, tvb, 0, 0,
-                            pinfo->pseudo_header->atm.aal2_cid);
-        proto_item_append_text(atm_ti, " (vpi=%u vci=%u cid=%u)",
-                               pinfo->pseudo_header->atm.vpi,
-                               pinfo->pseudo_header->atm.vci,
-                               pinfo->pseudo_header->atm.aal2_cid);
+    proto_tree_add_uint(atm_tree, hf_atm_cid, tvb, 0, 0,
+			pinfo->pseudo_header->atm.aal2_cid);
+    proto_item_append_text(atm_ti, " (vpi=%u vci=%u cid=%u)",
+			   pinfo->pseudo_header->atm.vpi,
+			   pinfo->pseudo_header->atm.vci,
+			   pinfo->pseudo_header->atm.aal2_cid);
 
-        if (pinfo->pseudo_header->atm.flags & ATM_AAL2_NOPHDR) {
-          call_dissector(fp_handle, tvb, pinfo, tree);
-        } else {
+    if (pinfo->pseudo_header->atm.flags & ATM_AAL2_NOPHDR) {
+      next_tvb = tvb;
+    } else {
           /* Skip first 4 bytes of message
              - side
              - length
              - UUI
              Ignoring for now... */
-          next_tvb = tvb_new_subset_remaining(tvb, 4);
+      next_tvb = tvb_new_subset_remaining(tvb, 4);
+    }
+
+    type = pinfo->pseudo_header->atm.type;
+    if (type == TRAF_UNKNOWN) {
+      type = unknown_aal2_type;
+    }
+    switch (type) {
+      case TRAF_UMTS_FP:
           call_dissector(fp_handle, next_tvb, pinfo, tree);
-        }
-        break;
+	  break;
 
       default:
         if (tree) {
@@ -1953,6 +1961,12 @@ proto_register_atm(void)
 		&ett_atm_lane_lc_tlv,
 	};
 	
+	static enum_val_t unknown_aal2_options[] = { 
+	  { "raw",     "Raw data", TRAF_UNKNOWN },
+	  { "umts_fp", "UMTS FP",  TRAF_UMTS_FP },
+	  { NULL, NULL, 0 }
+	};
+
 	module_t *atm_module;
 	
 	proto_atm = proto_register_protocol("ATM", "ATM", "atm");
@@ -1978,6 +1992,11 @@ proto_register_atm(void)
 	prefs_register_bool_preference ( atm_module, "dissect_lane_as_sscop", "Dissect LANE as SSCOP",
 		"Autodection between LANE and SSCOP is hard. As default LANE is preferred",
 		&dissect_lanesscop);
+	prefs_register_enum_preference ( atm_module, "unknown_aal2_type",
+                                 "Decode unknown AAL2 traffic as",
+                                 "Type used to dissect unknown AAL2 traffic",
+                                 &unknown_aal2_type, unknown_aal2_options, FALSE);
+
 }
 
 void
