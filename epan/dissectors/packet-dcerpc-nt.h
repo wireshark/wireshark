@@ -73,6 +73,18 @@ extern const value_string platform_id_vals[];
 	  } \
 	}
 
+#define ALIGN_TO_3_BYTES ALIGN_TO_2_OR_4_BYTES
+
+#define ALIGN_TO_2_OR_4_BYTES \
+	{ dcerpc_info *xzdi2; \
+	  xzdi2=pinfo->private_data; \
+	  if (xzdi2->call_data->flags & DCERPC_IS_NDR64) { \
+	    ALIGN_TO_4_BYTES; \
+	  } else { \
+	    ALIGN_TO_2_BYTES; \
+	  } \
+	}
+
 
 int
 dissect_ndr_counted_ascii_string_cb(tvbuff_t *tvb, int offset,
