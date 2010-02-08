@@ -45,6 +45,7 @@ void proto_reg_handoff_cpfi(void);
 
 #define CPFI_DEFAULT_UDP_PORT      5000
 #define CPFI_DEFAULT_TTOT_UDP_PORT 5001
+
 #define FIRST_TIO_CARD_ADDRESS    0x380
 
 
@@ -65,9 +66,9 @@ void proto_reg_handoff_cpfi(void);
 #define CPFI_EOF_ERROR_MASK   0x7FE00000
 
 /* configurable parameters */
-static guint cpfi_udp_port = CPFI_DEFAULT_UDP_PORT;
-static guint cpfi_ttot_udp_port = CPFI_DEFAULT_TTOT_UDP_PORT;
-static gboolean cpfi_arrow_moves = TRUE;
+static guint gbl_cpfi_udp_port      = CPFI_DEFAULT_UDP_PORT;
+static guint gbl_cpfi_ttot_udp_port = CPFI_DEFAULT_TTOT_UDP_PORT;
+static gboolean cpfi_arrow_moves    = TRUE;
 
 /* Initialize the protocol and registered fields */
 static int proto_cpfi = -1;
@@ -242,33 +243,33 @@ dissect_cpfi_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* For "real" TDAs (i.e. not for microTDAs), add hidden addresses to allow filtering */
     if ( src != 0 )
     {
-        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_instance, tvb, 0, 1, &src_instance);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_src_instance, tvb, 0, 1, &src_instance);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_board, tvb, 0, 1, &src_board);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_src_board, tvb, 0, 1, &src_board);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_port, tvb, 0, 1, &src_port);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_src_port, tvb, 0, 1, &src_port);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+      hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_instance, tvb, 0, 1, &src_instance);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_src_instance, tvb, 0, 1, &src_instance);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_board, tvb, 0, 1, &src_board);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_src_board, tvb, 0, 1, &src_board);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_port, tvb, 0, 1, &src_port);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_src_port, tvb, 0, 1, &src_port);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
     }
     if ( dst != 0 )
     {
-        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_instance, tvb, 0, 1, &dst_instance);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_dst_instance, tvb, 0, 1, &dst_instance);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_board, tvb, 0, 1, &dst_board);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_dst_board, tvb, 0, 1, &dst_board);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_port, tvb, 0, 1, &dst_port);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_dst_port, tvb, 0, 1, &dst_port);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+      hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_instance, tvb, 0, 1, &dst_instance);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_dst_instance, tvb, 0, 1, &dst_instance);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_board, tvb, 0, 1, &dst_board);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_dst_board, tvb, 0, 1, &dst_board);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_port, tvb, 0, 1, &dst_port);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_dst_port, tvb, 0, 1, &dst_port);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
     }
 
     /* add word 1 components to the protocol tree */
@@ -513,11 +514,11 @@ proto_register_cpfi(void)
   prefs_register_uint_preference(cpfi_module, "udp.port", "CPFI UDP Port",
                  "Set the port for CPFI messages (if other"
                  " than the default of 5000)",
-                 10, &cpfi_udp_port);
+                 10, &gbl_cpfi_udp_port);
   prefs_register_uint_preference(cpfi_module, "udp.port2", "InstanceToInstance UDP Port",
                  "Set the port for InstanceToInstance messages (if other"
                  " than the default of 5001)",
-                 10, &cpfi_ttot_udp_port);
+                 10, &gbl_cpfi_ttot_udp_port);
   prefs_register_bool_preference(cpfi_module, "arrow_ctl",
                 "Enable Active Arrow Control",
                 "Control the way the '-->' is displayed."
@@ -532,22 +533,28 @@ proto_register_cpfi(void)
 void
 proto_reg_handoff_cpfi(void)
 {
-  static int cpfi_init_complete = FALSE;
+  static gboolean cpfi_init_complete = FALSE;
   static dissector_handle_t cpfi_handle;
   static dissector_handle_t ttot_handle;
+  static guint cpfi_udp_port;
+  static guint cpfi_ttot_udp_port;
+
   if ( !cpfi_init_complete )
   {
-    cpfi_init_complete = TRUE;
     fc_handle     = find_dissector("fc");
     data_handle   = find_dissector("data");
     cpfi_handle   = new_create_dissector_handle(dissect_cpfi, proto_cpfi);
     ttot_handle   = new_create_dissector_handle(dissect_cpfi, proto_cpfi);
+    cpfi_init_complete = TRUE;
   }
   else
   {
     dissector_delete("udp.port", cpfi_udp_port, cpfi_handle);
     dissector_delete("udp.port", cpfi_ttot_udp_port, ttot_handle);
   }
+
+  cpfi_udp_port      = gbl_cpfi_udp_port;
+  cpfi_ttot_udp_port = gbl_cpfi_ttot_udp_port;
 
   dissector_add("udp.port", cpfi_udp_port, cpfi_handle);
   dissector_add("udp.port", cpfi_ttot_udp_port, ttot_handle);
