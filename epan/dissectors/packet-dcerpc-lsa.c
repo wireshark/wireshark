@@ -933,6 +933,7 @@ static int lsarpc_dissect_element_lsa_DomainInfoKerberos_unknown6(tvbuff_t *tvb 
 static int lsarpc_dissect_element_lsa_DomainInfoEfs_blob_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 const value_string lsarpc_lsa_DomainInfoEnum_vals[] = {
 	{ LSA_DOMAIN_INFO_POLICY_QOS, "LSA_DOMAIN_INFO_POLICY_QOS" },
 	{ LSA_DOMAIN_INFO_POLICY_EFS, "LSA_DOMAIN_INFO_POLICY_EFS" },
@@ -1705,9 +1706,10 @@ lsarpc_dissect_struct_lsa_String(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -1724,6 +1726,11 @@ lsarpc_dissect_struct_lsa_String(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -1764,9 +1771,10 @@ lsarpc_dissect_struct_lsa_StringLarge(tvbuff_t *tvb _U_, int offset _U_, packet_
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -1783,6 +1791,11 @@ lsarpc_dissect_struct_lsa_StringLarge(tvbuff_t *tvb _U_, int offset _U_, packet_
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -1830,9 +1843,10 @@ lsarpc_dissect_struct_lsa_Strings(tvbuff_t *tvb _U_, int offset _U_, packet_info
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -1847,6 +1861,11 @@ lsarpc_dissect_struct_lsa_Strings(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -1903,9 +1922,10 @@ lsarpc_dissect_struct_lsa_AsciiString(tvbuff_t *tvb _U_, int offset _U_, packet_
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -1922,6 +1942,11 @@ lsarpc_dissect_struct_lsa_AsciiString(tvbuff_t *tvb _U_, int offset _U_, packet_
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -1978,9 +2003,10 @@ lsarpc_dissect_struct_lsa_AsciiStringLarge(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -1997,6 +2023,11 @@ lsarpc_dissect_struct_lsa_AsciiStringLarge(tvbuff_t *tvb _U_, int offset _U_, pa
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -2028,6 +2059,7 @@ lsarpc_dissect_struct_lsa_LUID(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -2045,6 +2077,11 @@ lsarpc_dissect_struct_lsa_LUID(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_4_BYTES;
+	}
 
 	return offset;
 }
@@ -2076,9 +2113,10 @@ lsarpc_dissect_struct_lsa_PrivEntry(tvbuff_t *tvb _U_, int offset _U_, packet_in
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -2093,6 +2131,11 @@ lsarpc_dissect_struct_lsa_PrivEntry(tvbuff_t *tvb _U_, int offset _U_, packet_in
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -2140,9 +2183,10 @@ lsarpc_dissect_struct_lsa_PrivArray(tvbuff_t *tvb _U_, int offset _U_, packet_in
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -2158,6 +2202,11 @@ lsarpc_dissect_struct_lsa_PrivArray(tvbuff_t *tvb _U_, int offset _U_, packet_in
 
 	proto_item_set_len(item, offset-old_offset);
 
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
+
 	return offset;
 }
 
@@ -2172,11 +2221,11 @@ lsarpc_dissect_struct_lsa_PrivArray(tvbuff_t *tvb _U_, int offset _U_, packet_in
 int
 lsarpc_dissect_enum_lsa_SecurityImpersonationLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
-	guint16 parameter=0;
+	guint1632 parameter=0;
 	if(param){
-		parameter=(guint16)*param;
+		parameter=(guint1632)*param;
 	}
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
 	if(param){
 		*param=(guint32)parameter;
 	}
@@ -2228,6 +2277,7 @@ lsarpc_dissect_struct_lsa_QosInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -2249,6 +2299,11 @@ lsarpc_dissect_struct_lsa_QosInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_4_BYTES;
+	}
 
 	return offset;
 }
@@ -2351,9 +2406,10 @@ lsarpc_dissect_struct_lsa_ObjectAttribute(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -2376,6 +2432,11 @@ lsarpc_dissect_struct_lsa_ObjectAttribute(tvbuff_t *tvb _U_, int offset _U_, pac
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -2452,6 +2513,7 @@ lsarpc_dissect_struct_lsa_AuditLogInfo(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -2479,6 +2541,11 @@ lsarpc_dissect_struct_lsa_AuditLogInfo(tvbuff_t *tvb _U_, int offset _U_, packet
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_4_BYTES;
+	}
 
 	return offset;
 }
@@ -2522,11 +2589,11 @@ lsarpc_dissect_enum_lsa_PolicyAuditPolicy(tvbuff_t *tvb _U_, int offset _U_, pac
 int
 lsarpc_dissect_enum_lsa_PolicyAuditEventType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
-	guint16 parameter=0;
+	guint1632 parameter=0;
 	if(param){
-		parameter=(guint16)*param;
+		parameter=(guint1632)*param;
 	}
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
 	if(param){
 		*param=(guint32)parameter;
 	}
@@ -2585,9 +2652,10 @@ lsarpc_dissect_struct_lsa_AuditEventsInfo(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -2604,6 +2672,11 @@ lsarpc_dissect_struct_lsa_AuditEventsInfo(tvbuff_t *tvb _U_, int offset _U_, pac
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -2643,9 +2716,10 @@ lsarpc_dissect_struct_lsa_DomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_i
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -2660,6 +2734,11 @@ lsarpc_dissect_struct_lsa_DomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -2682,9 +2761,10 @@ lsarpc_dissect_struct_lsa_PDAccountInfo(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -2698,6 +2778,11 @@ lsarpc_dissect_struct_lsa_PDAccountInfo(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	proto_item_set_len(item, offset-old_offset);
 
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
+
 	return offset;
 }
 
@@ -2710,11 +2795,11 @@ lsarpc_dissect_struct_lsa_PDAccountInfo(tvbuff_t *tvb _U_, int offset _U_, packe
 int
 lsarpc_dissect_enum_lsa_PolicyServerRole(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
-	guint16 parameter=0;
+	guint1632 parameter=0;
 	if(param){
-		parameter=(guint16)*param;
+		parameter=(guint1632)*param;
 	}
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
 	if(param){
 		*param=(guint32)parameter;
 	}
@@ -2739,9 +2824,10 @@ lsarpc_dissect_struct_lsa_ServerRole(tvbuff_t *tvb _U_, int offset _U_, packet_i
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_2_BYTES;
+	ALIGN_TO_3_BYTES;
 
 	old_offset = offset;
 
@@ -2754,6 +2840,11 @@ lsarpc_dissect_struct_lsa_ServerRole(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_3_BYTES;
+	}
 
 	return offset;
 }
@@ -2785,9 +2876,10 @@ lsarpc_dissect_struct_lsa_ReplicaSourceInfo(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -2802,6 +2894,11 @@ lsarpc_dissect_struct_lsa_ReplicaSourceInfo(tvbuff_t *tvb _U_, int offset _U_, p
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -2869,6 +2966,7 @@ lsarpc_dissect_struct_lsa_DefaultQuotaInfo(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_8_BYTES;
@@ -2894,6 +2992,11 @@ lsarpc_dissect_struct_lsa_DefaultQuotaInfo(tvbuff_t *tvb _U_, int offset _U_, pa
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_8_BYTES;
+	}
 
 	return offset;
 }
@@ -2925,6 +3028,7 @@ lsarpc_dissect_struct_lsa_ModificationInfo(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_8_BYTES;
@@ -2942,6 +3046,11 @@ lsarpc_dissect_struct_lsa_ModificationInfo(tvbuff_t *tvb _U_, int offset _U_, pa
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_8_BYTES;
+	}
 
 	return offset;
 }
@@ -2978,6 +3087,7 @@ lsarpc_dissect_struct_lsa_AuditFullSetInfo(tvbuff_t *tvb _U_, int offset _U_, pa
 
 
 	proto_item_set_len(item, offset-old_offset);
+
 
 	return offset;
 }
@@ -3018,6 +3128,7 @@ lsarpc_dissect_struct_lsa_AuditFullQueryInfo(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_2_BYTES;
@@ -3037,6 +3148,11 @@ lsarpc_dissect_struct_lsa_AuditFullQueryInfo(tvbuff_t *tvb _U_, int offset _U_, 
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_2_BYTES;
+	}
 
 	return offset;
 }
@@ -3103,9 +3219,10 @@ lsarpc_dissect_struct_lsa_DnsDomainInfo(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -3126,6 +3243,11 @@ lsarpc_dissect_struct_lsa_DnsDomainInfo(tvbuff_t *tvb _U_, int offset _U_, packe
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -3151,11 +3273,11 @@ lsarpc_dissect_struct_lsa_DnsDomainInfo(tvbuff_t *tvb _U_, int offset _U_, packe
 int
 lsarpc_dissect_enum_lsa_PolicyInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
-	guint16 parameter=0;
+	guint1632 parameter=0;
 	if(param){
-		parameter=(guint16)*param;
+		parameter=(guint1632)*param;
 	}
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
 	if(param){
 		*param=(guint32)parameter;
 	}
@@ -3342,6 +3464,7 @@ lsarpc_dissect_lsa_PolicyInformation(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	}
 	proto_item_set_len(item, offset-old_offset);
 
+
 	return offset;
 }
 
@@ -3370,9 +3493,10 @@ lsarpc_dissect_struct_lsa_SidPtr(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -3385,6 +3509,11 @@ lsarpc_dissect_struct_lsa_SidPtr(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -3432,9 +3561,10 @@ lsarpc_dissect_struct_lsa_SidArray(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -3449,6 +3579,11 @@ lsarpc_dissect_struct_lsa_SidArray(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -3496,9 +3631,10 @@ lsarpc_dissect_struct_lsa_DomainList(tvbuff_t *tvb _U_, int offset _U_, packet_i
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -3513,6 +3649,11 @@ lsarpc_dissect_struct_lsa_DomainList(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -3534,11 +3675,11 @@ lsarpc_dissect_struct_lsa_DomainList(tvbuff_t *tvb _U_, int offset _U_, packet_i
 int
 lsarpc_dissect_enum_lsa_SidType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
-	guint16 parameter=0;
+	guint1632 parameter=0;
 	if(param){
-		parameter=(guint16)*param;
+		parameter=(guint1632)*param;
 	}
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
 	if(param){
 		*param=(guint32)parameter;
 	}
@@ -3581,6 +3722,7 @@ lsarpc_dissect_struct_lsa_TranslatedSid(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -3600,6 +3742,11 @@ lsarpc_dissect_struct_lsa_TranslatedSid(tvbuff_t *tvb _U_, int offset _U_, packe
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_4_BYTES;
+	}
 
 	return offset;
 }
@@ -3647,9 +3794,10 @@ lsarpc_dissect_struct_lsa_TransSidArray(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -3664,6 +3812,11 @@ lsarpc_dissect_struct_lsa_TransSidArray(tvbuff_t *tvb _U_, int offset _U_, packe
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -3720,9 +3873,10 @@ lsarpc_dissect_struct_lsa_RefDomainList(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -3740,6 +3894,11 @@ lsarpc_dissect_struct_lsa_RefDomainList(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	proto_item_set_len(item, offset-old_offset);
 
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
+
 	return offset;
 }
 
@@ -3756,11 +3915,11 @@ lsarpc_dissect_struct_lsa_RefDomainList(tvbuff_t *tvb _U_, int offset _U_, packe
 int
 lsarpc_dissect_enum_lsa_LookupNamesLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
-	guint16 parameter=0;
+	guint1632 parameter=0;
 	if(param){
-		parameter=(guint16)*param;
+		parameter=(guint1632)*param;
 	}
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
 	if(param){
 		*param=(guint32)parameter;
 	}
@@ -3803,9 +3962,10 @@ lsarpc_dissect_struct_lsa_TranslatedName(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -3822,6 +3982,11 @@ lsarpc_dissect_struct_lsa_TranslatedName(tvbuff_t *tvb _U_, int offset _U_, pack
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -3869,9 +4034,10 @@ lsarpc_dissect_struct_lsa_TransNameArray(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -3886,6 +4052,11 @@ lsarpc_dissect_struct_lsa_TransNameArray(tvbuff_t *tvb _U_, int offset _U_, pack
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -3917,6 +4088,7 @@ lsarpc_dissect_struct_lsa_LUIDAttribute(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -3934,6 +4106,11 @@ lsarpc_dissect_struct_lsa_LUIDAttribute(tvbuff_t *tvb _U_, int offset _U_, packe
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_4_BYTES;
+	}
 
 	return offset;
 }
@@ -3982,6 +4159,7 @@ lsarpc_dissect_struct_lsa_PrivilegeSet(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -4001,6 +4179,11 @@ lsarpc_dissect_struct_lsa_PrivilegeSet(tvbuff_t *tvb _U_, int offset _U_, packet
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_4_BYTES;
+	}
 
 	return offset;
 }
@@ -4057,9 +4240,10 @@ lsarpc_dissect_struct_lsa_DATA_BUF(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -4076,6 +4260,11 @@ lsarpc_dissect_struct_lsa_DATA_BUF(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -4123,9 +4312,10 @@ lsarpc_dissect_struct_lsa_DATA_BUF2(tvbuff_t *tvb _U_, int offset _U_, packet_in
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -4140,6 +4330,11 @@ lsarpc_dissect_struct_lsa_DATA_BUF2(tvbuff_t *tvb _U_, int offset _U_, packet_in
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -4161,11 +4356,11 @@ lsarpc_dissect_struct_lsa_DATA_BUF2(tvbuff_t *tvb _U_, int offset _U_, packet_in
 int
 lsarpc_dissect_enum_lsa_TrustDomInfoEnum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
-	guint16 parameter=0;
+	guint1632 parameter=0;
 	if(param){
-		parameter=(guint16)*param;
+		parameter=(guint1632)*param;
 	}
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
 	if(param){
 		*param=(guint32)parameter;
 	}
@@ -4190,9 +4385,10 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoName(tvbuff_t *tvb _U_, int offset _U_,
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -4205,6 +4401,11 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoName(tvbuff_t *tvb _U_, int offset _U_,
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -4227,6 +4428,7 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoPosixOffset(tvbuff_t *tvb _U_, int offs
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -4242,6 +4444,11 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoPosixOffset(tvbuff_t *tvb _U_, int offs
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_4_BYTES;
+	}
 
 	return offset;
 }
@@ -4289,9 +4496,10 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoPassword(tvbuff_t *tvb _U_, int offset 
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -4306,6 +4514,11 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoPassword(tvbuff_t *tvb _U_, int offset 
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -4345,9 +4558,10 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoBasic(tvbuff_t *tvb _U_, int offset _U_
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -4362,6 +4576,11 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoBasic(tvbuff_t *tvb _U_, int offset _U_
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -4437,9 +4656,10 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoInfoEx(tvbuff_t *tvb _U_, int offset _U
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -4462,6 +4682,11 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoInfoEx(tvbuff_t *tvb _U_, int offset _U
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -4502,6 +4727,7 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoBuffer(tvbuff_t *tvb _U_, int offset _U
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_8_BYTES;
@@ -4521,6 +4747,11 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoBuffer(tvbuff_t *tvb _U_, int offset _U
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_8_BYTES;
+	}
 
 	return offset;
 }
@@ -4620,9 +4851,10 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoAuthInfo(tvbuff_t *tvb _U_, int offset 
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -4645,6 +4877,11 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoAuthInfo(tvbuff_t *tvb _U_, int offset 
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -4685,9 +4922,10 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoFullInfo(tvbuff_t *tvb _U_, int offset 
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -4704,6 +4942,11 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoFullInfo(tvbuff_t *tvb _U_, int offset 
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -4735,9 +4978,10 @@ lsarpc_dissect_struct_lsa_TrustDomainInfo11(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -4752,6 +4996,11 @@ lsarpc_dissect_struct_lsa_TrustDomainInfo11(tvbuff_t *tvb _U_, int offset _U_, p
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -4801,9 +5050,10 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoInfoAll(tvbuff_t *tvb _U_, int offset _
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -4822,6 +5072,11 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoInfoAll(tvbuff_t *tvb _U_, int offset _
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -4917,7 +5172,7 @@ lsarpc_dissect_lsa_TrustedDomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint16 level;
+	guint1632 level;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -4925,8 +5180,8 @@ lsarpc_dissect_lsa_TrustedDomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TrustedDomainInfo);
 	}
 
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &level);
-	ALIGN_TO_4_BYTES;
+	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, drep, hf_index, &level);
+	ALIGN_TO_5_BYTES;
 
 	switch(level) {
 		case LSA_TRUSTED_DOMAIN_INFO_NAME:
@@ -4967,6 +5222,7 @@ lsarpc_dissect_lsa_TrustedDomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	}
 	proto_item_set_len(item, offset-old_offset);
 
+
 	return offset;
 }
 
@@ -4995,9 +5251,10 @@ lsarpc_dissect_struct_lsa_DATA_BUF_PTR(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5010,6 +5267,11 @@ lsarpc_dissect_struct_lsa_DATA_BUF_PTR(tvbuff_t *tvb _U_, int offset _U_, packet
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -5043,9 +5305,10 @@ lsarpc_dissect_struct_lsa_RightAttribute(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5058,6 +5321,11 @@ lsarpc_dissect_struct_lsa_RightAttribute(tvbuff_t *tvb _U_, int offset _U_, pack
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -5105,9 +5373,10 @@ lsarpc_dissect_struct_lsa_RightSet(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5122,6 +5391,11 @@ lsarpc_dissect_struct_lsa_RightSet(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -5152,9 +5426,10 @@ lsarpc_dissect_struct_lsa_StringPointer(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5167,6 +5442,11 @@ lsarpc_dissect_struct_lsa_StringPointer(tvbuff_t *tvb _U_, int offset _U_, packe
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -5214,9 +5494,10 @@ lsarpc_dissect_struct_lsa_DomainListEx(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5231,6 +5512,11 @@ lsarpc_dissect_struct_lsa_DomainListEx(tvbuff_t *tvb _U_, int offset _U_, packet
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -5298,6 +5584,7 @@ lsarpc_dissect_struct_lsa_DomainInfoKerberos(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_8_BYTES;
@@ -5324,6 +5611,11 @@ lsarpc_dissect_struct_lsa_DomainInfoKerberos(tvbuff_t *tvb _U_, int offset _U_, 
 
 	proto_item_set_len(item, offset-old_offset);
 
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_8_BYTES;
+	}
+
 	return offset;
 }
 
@@ -5349,14 +5641,23 @@ lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob(tvbuff_t *tvb _U_, int offset 
 	return offset;
 }
 
+static int
+lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_lsarpc_lsa_DomainInfoEfs_efs_blob, 0);
+
+	return offset;
+}
+
 int
 lsarpc_dissect_struct_lsa_DomainInfoEfs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5372,6 +5673,11 @@ lsarpc_dissect_struct_lsa_DomainInfoEfs(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	proto_item_set_len(item, offset-old_offset);
 
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
+
 	return offset;
 }
 
@@ -5385,11 +5691,11 @@ lsarpc_dissect_struct_lsa_DomainInfoEfs(tvbuff_t *tvb _U_, int offset _U_, packe
 int
 lsarpc_dissect_enum_lsa_DomainInfoEnum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
-	guint16 parameter=0;
+	guint1632 parameter=0;
 	if(param){
-		parameter=(guint16)*param;
+		parameter=(guint1632)*param;
 	}
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
 	if(param){
 		*param=(guint32)parameter;
 	}
@@ -5446,6 +5752,7 @@ lsarpc_dissect_lsa_DomainInformationPolicy(tvbuff_t *tvb _U_, int offset _U_, pa
 	}
 	proto_item_set_len(item, offset-old_offset);
 
+
 	return offset;
 }
 
@@ -5493,9 +5800,10 @@ lsarpc_dissect_struct_lsa_TranslatedName2(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5514,6 +5822,11 @@ lsarpc_dissect_struct_lsa_TranslatedName2(tvbuff_t *tvb _U_, int offset _U_, pac
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -5561,9 +5874,10 @@ lsarpc_dissect_struct_lsa_TransNameArray2(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5578,6 +5892,11 @@ lsarpc_dissect_struct_lsa_TransNameArray2(tvbuff_t *tvb _U_, int offset _U_, pac
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -5627,6 +5946,7 @@ lsarpc_dissect_struct_lsa_TranslatedSid2(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -5648,6 +5968,11 @@ lsarpc_dissect_struct_lsa_TranslatedSid2(tvbuff_t *tvb _U_, int offset _U_, pack
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_4_BYTES;
+	}
 
 	return offset;
 }
@@ -5695,9 +6020,10 @@ lsarpc_dissect_struct_lsa_TransSidArray2(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5712,6 +6038,11 @@ lsarpc_dissect_struct_lsa_TransSidArray2(tvbuff_t *tvb _U_, int offset _U_, pack
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -5769,9 +6100,10 @@ lsarpc_dissect_struct_lsa_TranslatedSid3(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5790,6 +6122,11 @@ lsarpc_dissect_struct_lsa_TranslatedSid3(tvbuff_t *tvb _U_, int offset _U_, pack
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -5837,9 +6174,10 @@ lsarpc_dissect_struct_lsa_TransSidArray3(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5854,6 +6192,11 @@ lsarpc_dissect_struct_lsa_TransSidArray3(tvbuff_t *tvb _U_, int offset _U_, pack
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -5901,9 +6244,10 @@ lsarpc_dissect_struct_lsa_ForestTrustBinaryData(tvbuff_t *tvb _U_, int offset _U
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5918,6 +6262,11 @@ lsarpc_dissect_struct_lsa_ForestTrustBinaryData(tvbuff_t *tvb _U_, int offset _U
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -5966,9 +6315,10 @@ lsarpc_dissect_struct_lsa_ForestTrustDomainInfo(tvbuff_t *tvb _U_, int offset _U
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5985,6 +6335,11 @@ lsarpc_dissect_struct_lsa_ForestTrustDomainInfo(tvbuff_t *tvb _U_, int offset _U
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -6044,7 +6399,7 @@ lsarpc_dissect_lsa_ForestTrustData(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	}
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, &level);
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	switch(level) {
 		case LSA_FOREST_TRUST_TOP_LEVEL_NAME:
@@ -6064,6 +6419,7 @@ lsarpc_dissect_lsa_ForestTrustData(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		break;
 	}
 	proto_item_set_len(item, offset-old_offset);
+
 
 	return offset;
 }
@@ -6134,6 +6490,7 @@ lsarpc_dissect_struct_lsa_ForestTrustRecord(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_8_BYTES;
@@ -6155,6 +6512,11 @@ lsarpc_dissect_struct_lsa_ForestTrustRecord(tvbuff_t *tvb _U_, int offset _U_, p
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_8_BYTES;
+	}
 
 	return offset;
 }
@@ -6210,9 +6572,10 @@ lsarpc_dissect_struct_lsa_ForestTrustInformation(tvbuff_t *tvb _U_, int offset _
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -6227,6 +6590,11 @@ lsarpc_dissect_struct_lsa_ForestTrustInformation(tvbuff_t *tvb _U_, int offset _
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -11759,7 +12127,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_LookupNames3_handle, 
 	  { "Handle", "lsarpc.lsa_LookupNames3.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_level, 
-	  { "Level", "lsarpc.lsa_QueryTrustedDomainInfoBySid.level", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_TrustDomInfoEnum_vals), 0, NULL, HFILL }},
+	  { "Level", "lsarpc.lsa_QueryTrustedDomainInfoBySid.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_TrustDomInfoEnum_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_OpenTrustedDomain_sid, 
 	  { "Sid", "lsarpc.lsa_OpenTrustedDomain.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_EnumAccounts_handle, 
@@ -11887,7 +12255,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_SetSecret_old_val, 
 	  { "Old Val", "lsarpc.lsa_SetSecret.old_val", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_TrustDomainInfoBuffer_last_update_time, 
-	  { "Last Update Time", "lsarpc.lsa_TrustDomainInfoBuffer.last_update_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	  { "Last Update Time", "lsarpc.lsa_TrustDomainInfoBuffer.last_update_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_DnsDomainInfo_dns_forest, 
 	  { "Dns Forest", "lsarpc.lsa_DnsDomainInfo.dns_forest", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_QueryDomainInformationPolicy_info, 
@@ -11901,7 +12269,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_AuditLogInfo_unknown, 
 	  { "Unknown", "lsarpc.lsa_AuditLogInfo.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_AuditLogInfo_retention_time, 
-	  { "Retention Time", "lsarpc.lsa_AuditLogInfo.retention_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	  { "Retention Time", "lsarpc.lsa_AuditLogInfo.retention_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_ObjectAttribute_sec_desc, 
 	  { "Sec Desc", "lsarpc.lsa_ObjectAttribute.sec_desc", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_DnsDomainInfo_name, 
@@ -11911,7 +12279,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_TranslatedSid2_sid_index, 
 	  { "Sid Index", "lsarpc.lsa_TranslatedSid2.sid_index", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_QuerySecret_old_mtime, 
-	  { "Old Mtime", "lsarpc.lsa_QuerySecret.old_mtime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	  { "Old Mtime", "lsarpc.lsa_QuerySecret.old_mtime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_OpenTrustedDomain_handle, 
 	  { "Handle", "lsarpc.lsa_OpenTrustedDomain.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_TransNameArray_names, 
@@ -11951,9 +12319,9 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_TrustedDomainInfo_info11, 
 	  { "Info11", "lsarpc.lsa_TrustedDomainInfo.info11", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_QosInfo_impersonation_level, 
-	  { "Impersonation Level", "lsarpc.lsa_QosInfo.impersonation_level", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_SecurityImpersonationLevel_vals), 0, NULL, HFILL }},
+	  { "Impersonation Level", "lsarpc.lsa_QosInfo.impersonation_level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SecurityImpersonationLevel_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_QueryInfoPolicy2_level, 
-	  { "Level", "lsarpc.lsa_QueryInfoPolicy2.level", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_PolicyInfo_vals), 0, NULL, HFILL }},
+	  { "Level", "lsarpc.lsa_QueryInfoPolicy2.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_PolicyInfo_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_TranslatedSid3_sid, 
 	  { "Sid", "lsarpc.lsa_TranslatedSid3.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_TrustDomainInfoBasic_netbios_name, 
@@ -11975,11 +12343,11 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_AuditFullQueryInfo_unknown, 
 	  { "Unknown", "lsarpc.lsa_AuditFullQueryInfo.unknown", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_LookupNames3_level, 
-	  { "Level", "lsarpc.lsa_LookupNames3.level", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_LookupNamesLevel_vals), 0, NULL, HFILL }},
+	  { "Level", "lsarpc.lsa_LookupNames3.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_LookupNamesLevel_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_LookupPrivDisplayName_disp_name, 
 	  { "Disp Name", "lsarpc.lsa_LookupPrivDisplayName.disp_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_LookupNames_level, 
-	  { "Level", "lsarpc.lsa_LookupNames.level", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_LookupNamesLevel_vals), 0, NULL, HFILL }},
+	  { "Level", "lsarpc.lsa_LookupNames.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_LookupNamesLevel_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_LookupNames4_count, 
 	  { "Count", "lsarpc.lsa_LookupNames4.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_LookupNames_names, 
@@ -12009,7 +12377,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_ForestTrustData_top_level_name, 
 	  { "Top Level Name", "lsarpc.lsa_ForestTrustData.top_level_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_TranslatedName2_sid_type, 
-	  { "Sid Type", "lsarpc.lsa_TranslatedName2.sid_type", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
+	  { "Sid Type", "lsarpc.lsa_TranslatedName2.sid_type", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_OpenTrustedDomain_trustdom_handle, 
 	  { "Trustdom Handle", "lsarpc.lsa_OpenTrustedDomain.trustdom_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_TrustDomainInfoFullInfo_info_ex, 
@@ -12029,7 +12397,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_DomainInfo_sid, 
 	  { "Sid", "lsarpc.lsa_DomainInfo.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoByName_level, 
-	  { "Level", "lsarpc.lsa_QueryTrustedDomainInfoByName.level", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_TrustDomInfoEnum_vals), 0, NULL, HFILL }},
+	  { "Level", "lsarpc.lsa_QueryTrustedDomainInfoByName.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_TrustDomInfoEnum_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_TrustDomainInfoInfoEx_sid, 
 	  { "Sid", "lsarpc.lsa_TrustDomainInfoInfoEx.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info, 
@@ -12043,11 +12411,11 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_PrivArray_count, 
 	  { "Count", "lsarpc.lsa_PrivArray.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_QueryTrustedDomainInfo_level, 
-	  { "Level", "lsarpc.lsa_QueryTrustedDomainInfo.level", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_TrustDomInfoEnum_vals), 0, NULL, HFILL }},
+	  { "Level", "lsarpc.lsa_QueryTrustedDomainInfo.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_TrustDomInfoEnum_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_DATA_BUF_size, 
 	  { "Size", "lsarpc.lsa_DATA_BUF.size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_QueryDomainInformationPolicy_level, 
-	  { "Level", "lsarpc.lsa_QueryDomainInformationPolicy.level", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_DomainInfoEnum_vals), 0, NULL, HFILL }},
+	  { "Level", "lsarpc.lsa_QueryDomainInformationPolicy.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_DomainInfoEnum_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_AUTH, 
 	  { "Lsa Domain Set Auth", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_SET_AUTH", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_SET_AUTH_tfs), ( 0x00000020 ), NULL, HFILL }},
 	{ &hf_lsarpc_lsa_StringLarge_string, 
@@ -12061,7 +12429,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_POSIX, 
 	  { "Lsa Domain Set Posix", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_SET_POSIX", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_SET_POSIX_tfs), ( 0x00000010 ), NULL, HFILL }},
 	{ &hf_lsarpc_lsa_SetDomainInformationPolicy_level, 
-	  { "Level", "lsarpc.lsa_SetDomainInformationPolicy.level", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_DomainInfoEnum_vals), 0, NULL, HFILL }},
+	  { "Level", "lsarpc.lsa_SetDomainInformationPolicy.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_DomainInfoEnum_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_account_access_mask, 
 	  { "Access Mask", "lsarpc.policy.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_SetInfoPolicy2_info, 
@@ -12139,7 +12507,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_LookupNames2_num_names, 
 	  { "Num Names", "lsarpc.lsa_LookupNames2.num_names", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_SetInfoPolicy2_level, 
-	  { "Level", "lsarpc.lsa_SetInfoPolicy2.level", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_PolicyInfo_vals), 0, NULL, HFILL }},
+	  { "Level", "lsarpc.lsa_SetInfoPolicy2.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_PolicyInfo_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_EnumPrivsAccount_privs, 
 	  { "Privs", "lsarpc.lsa_EnumPrivsAccount.privs", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_OpenAccount_access_mask, 
@@ -12157,7 +12525,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_TranslatedSid3_unknown, 
 	  { "Unknown", "lsarpc.lsa_TranslatedSid3.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_TranslatedName_sid_type, 
-	  { "Sid Type", "lsarpc.lsa_TranslatedName.sid_type", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
+	  { "Sid Type", "lsarpc.lsa_TranslatedName.sid_type", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_LookupSids2_names, 
 	  { "Names", "lsarpc.lsa_LookupSids2.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_EnumPrivsAccount_handle, 
@@ -12175,7 +12543,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_PrivilegeSet_count, 
 	  { "Count", "lsarpc.lsa_PrivilegeSet.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_SetTrustedDomainInfoByName_level, 
-	  { "Level", "lsarpc.lsa_SetTrustedDomainInfoByName.level", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_TrustDomInfoEnum_vals), 0, NULL, HFILL }},
+	  { "Level", "lsarpc.lsa_SetTrustedDomainInfoByName.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_TrustDomInfoEnum_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_LookupPrivDisplayName_language_id, 
 	  { "Language Id", "lsarpc.lsa_LookupPrivDisplayName.language_id", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_TransSidArray3_sids, 
@@ -12221,7 +12589,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_TrustedDomainInfo_password, 
 	  { "Password", "lsarpc.lsa_TrustedDomainInfo.password", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_ModificationInfo_db_create_time, 
-	  { "Db Create Time", "lsarpc.lsa_ModificationInfo.db_create_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	  { "Db Create Time", "lsarpc.lsa_ModificationInfo.db_create_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_NOTIFICATION, 
 	  { "Lsa Policy Notification", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_NOTIFICATION", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_NOTIFICATION_tfs), ( 0x00001000 ), NULL, HFILL }},
 	{ &hf_lsarpc_lsa_PolicyInformation_domain, 
@@ -12239,7 +12607,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_LookupSids3_unknown2, 
 	  { "Unknown2", "lsarpc.lsa_LookupSids3.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_TranslatedSid_sid_type, 
-	  { "Sid Type", "lsarpc.lsa_TranslatedSid.sid_type", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
+	  { "Sid Type", "lsarpc.lsa_TranslatedSid.sid_type", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_LookupNames2_count, 
 	  { "Count", "lsarpc.lsa_LookupNames2.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_ForestTrustDomainInfo_dns_domain_name, 
@@ -12265,7 +12633,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_SidArray_num_sids, 
 	  { "Num Sids", "lsarpc.lsa_SidArray.num_sids", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_LookupNames4_level, 
-	  { "Level", "lsarpc.lsa_LookupNames4.level", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_LookupNamesLevel_vals), 0, NULL, HFILL }},
+	  { "Level", "lsarpc.lsa_LookupNames4.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_LookupNamesLevel_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_handle, 
 	  { "Handle", "lsarpc.lsa_QueryTrustedDomainInfoBySid.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_RightSet_names, 
@@ -12301,7 +12669,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_EnumAccountRights_handle, 
 	  { "Handle", "lsarpc.lsa_EnumAccountRights.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_AuditLogInfo_time_to_shutdown, 
-	  { "Time To Shutdown", "lsarpc.lsa_AuditLogInfo.time_to_shutdown", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	  { "Time To Shutdown", "lsarpc.lsa_AuditLogInfo.time_to_shutdown", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_VIEW, 
 	  { "Lsa Account View", "lsarpc.lsa_AccountAccessMask.LSA_ACCOUNT_VIEW", FT_BOOLEAN, 32, TFS(&lsa_AccountAccessMask_LSA_ACCOUNT_VIEW_tfs), ( 0x00000001 ), NULL, HFILL }},
 	{ &hf_lsarpc_lsa_TrustDomainInfoInfoEx_domain_name, 
@@ -12457,9 +12825,9 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_PrivEntry_name, 
 	  { "Name", "lsarpc.lsa_PrivEntry.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_ServerRole_role, 
-	  { "Role", "lsarpc.lsa_ServerRole.role", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_PolicyServerRole_vals), 0, NULL, HFILL }},
+	  { "Role", "lsarpc.lsa_ServerRole.role", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_PolicyServerRole_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_TranslatedSid3_sid_type, 
-	  { "Sid Type", "lsarpc.lsa_TranslatedSid3.sid_type", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
+	  { "Sid Type", "lsarpc.lsa_TranslatedSid3.sid_type", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_LookupNames4_num_names, 
 	  { "Num Names", "lsarpc.lsa_LookupNames4.num_names", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_ForestTrustRecord_level, 
@@ -12467,7 +12835,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_EnumPrivs_max_count, 
 	  { "Max Count", "lsarpc.lsa_EnumPrivs.max_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_LookupNames2_level, 
-	  { "Level", "lsarpc.lsa_LookupNames2.level", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_LookupNamesLevel_vals), 0, NULL, HFILL }},
+	  { "Level", "lsarpc.lsa_LookupNames2.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_LookupNamesLevel_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_LookupNames3_unknown2, 
 	  { "Unknown2", "lsarpc.lsa_LookupNames3.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_DATA_BUF_length, 
@@ -12489,7 +12857,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_TranslatedName_name, 
 	  { "Name", "lsarpc.lsa_TranslatedName.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_QueryInfoPolicy_level, 
-	  { "Level", "lsarpc.lsa_QueryInfoPolicy.level", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_PolicyInfo_vals), 0, NULL, HFILL }},
+	  { "Level", "lsarpc.lsa_QueryInfoPolicy.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_PolicyInfo_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_LookupSids_domains, 
 	  { "Domains", "lsarpc.lsa_LookupSids.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_TranslatedSid_rid, 
@@ -12525,7 +12893,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_TranslatedSid2_rid, 
 	  { "Rid", "lsarpc.lsa_TranslatedSid2.rid", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_TranslatedSid2_sid_type, 
-	  { "Sid Type", "lsarpc.lsa_TranslatedSid2.sid_type", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
+	  { "Sid Type", "lsarpc.lsa_TranslatedSid2.sid_type", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_OpenTrustedDomainByName_handle, 
 	  { "Handle", "lsarpc.lsa_OpenTrustedDomainByName.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_EnumTrustedDomainsEx_handle, 
@@ -12561,7 +12929,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_ModificationInfo_modified_id, 
 	  { "Modified Id", "lsarpc.lsa_ModificationInfo.modified_id", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_QuerySecret_new_mtime, 
-	  { "New Mtime", "lsarpc.lsa_QuerySecret.new_mtime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	  { "New Mtime", "lsarpc.lsa_QuerySecret.new_mtime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_LookupPrivValue_handle, 
 	  { "Handle", "lsarpc.lsa_LookupPrivValue.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_TransSidArray2_count, 
@@ -12571,7 +12939,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_TrustedDomainInfo_full_info, 
 	  { "Full Info", "lsarpc.lsa_TrustedDomainInfo.full_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_SetInfoPolicy_level, 
-	  { "Level", "lsarpc.lsa_SetInfoPolicy.level", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_PolicyInfo_vals), 0, NULL, HFILL }},
+	  { "Level", "lsarpc.lsa_SetInfoPolicy.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_PolicyInfo_vals), 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_LookupSids3_count, 
 	  { "Count", "lsarpc.lsa_LookupSids3.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_TranslatedSid3_sid_index, 

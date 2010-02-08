@@ -53,7 +53,7 @@
 
 	typedef bitmap security_secinfo security_secinfo;
 
-	typedef [public,noejs] struct {
+	typedef [public] struct {
 		[value(2*strlen_m(string))] uint16 length;
 		[value(2*strlen_m(string))] uint16 size;
 		[charset(UTF16),size_is(size/2),length_is(length/2)] uint16 *string;
