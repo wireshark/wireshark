@@ -485,7 +485,11 @@ static gboolean global_mac_lte_attempt_ul_harq_resend_track = TRUE;
 static gint global_mac_lte_bsr_warn_threshold = 50; /* default is 19325 -> 22624 */
 
 /* Whether or not to track SRs and related frames */
-static gint global_mac_lte_track_sr = TRUE;
+static gboolean global_mac_lte_track_sr = TRUE;
+
+/* Whether or not to show RLC PDU info in info column */
+static gboolean global_mac_lte_show_rlc_info_column = FALSE;
+static guint8   s_number_of_rlc_pdus_shown = 0;
 
 
 /***********************************************************************/
@@ -1262,8 +1266,22 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* Store info in packet */
     p_add_proto_data(pinfo->fd, proto_rlc_lte, p_rlc_lte_info);
 
-    /* Don't want these columns replaced */
-    col_set_writable(pinfo->cinfo, FALSE);
+    if (!global_mac_lte_show_rlc_info_column) {
+        /* Don't want these columns replaced */
+        col_set_writable(pinfo->cinfo, FALSE);
+    }
+    else {
+        /* Clear info column before first RLC PDU */
+        if (s_number_of_rlc_pdus_shown == 0) {
+            col_clear(pinfo->cinfo, COL_INFO);
+        }
+        else {
+            /* Add a separator and protect column contents here */
+            col_append_str(pinfo->cinfo, COL_INFO, "   ||   ");
+            col_set_fence(pinfo->cinfo, COL_INFO);
+        }
+    }
+    s_number_of_rlc_pdus_shown++;
 
     /* Call it (catch exceptions so that stats will be updated) */
     TRY {
@@ -2682,7 +2700,8 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
-
+    /* Reset this counter */
+    s_number_of_rlc_pdus_shown = 0;
 
     /* Dissect the MAC PDU itself. Format depends upon RNTI type. */
     switch (p_mac_lte_info->rntiType) {
@@ -3420,6 +3439,11 @@ void proto_register_mac_lte(void)
         "Track status of SRs within UEs",
         "Track status of SRs, providing links between requests, failure indications and grants",
         &global_mac_lte_track_sr);
+
+    prefs_register_bool_preference(mac_lte_module, "show_rlc_info_column",
+        "Show RLC PDUs in Info column",
+        "When enabled, show RLC PDU info in info column, instead of MAC PDU info",
+        &global_mac_lte_show_rlc_info_column);
 
     register_init_routine(&mac_lte_init_protocol);
 }
