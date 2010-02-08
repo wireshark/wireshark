@@ -188,6 +188,7 @@ If no options are given the default is to display all infos
 
     <example id="AppToolseditcapEx">
       <title>Help information available from editcap</title>
+      <para>
       <programlisting>
 $ editcap -h
 Editcap 1.1.4
@@ -250,6 +251,13 @@ Miscellaneous:
                          Removal' options (-d, -D or -w) then Packet lengths
                          and MD5 hashes are printed to standard-out.
 
+      </programlisting>
+      </para>
+    </example>
+    <example id="AppToolseditcapEx1">
+      <title>Capture file types available from editcap</title>
+      <para>
+      <programlisting>
 $ editcap -F
 editcap: option requires an argument -- F
 editcap: The available capture file types for "F":
@@ -275,7 +283,16 @@ editcap: The available capture file types for "F":
     k12text - K12 text file
     commview - TamoSoft CommView
     pcapng - Wireshark - pcapng (experimental)
-
+      </programlisting>
+      </para>
+    </example>
+    <example id="AppToolseditcapEx2">
+      <title>Encapsulation types available from editcap</title>
+    </example>
+<!-- This cludge is needed since example doesn't break across PDF pages -->
+    <informalexample>
+      <para>
+      <programlisting>
 $ editcap -T
 editcap: option requires an argument -- T
 editcap: The available encapsulation types for "T":
@@ -396,7 +413,8 @@ editcap: The available encapsulation types for "T":
     usb-linux-mmap - USB packets with Linux header and padding
     gsm_um - GSM Um Interface
       </programlisting>
-    </example>
+      </para>
+    </informalexample>
     </para>
   </section>
 
