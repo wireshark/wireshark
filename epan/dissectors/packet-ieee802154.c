@@ -1818,7 +1818,7 @@ ccm_init_block(gchar *block, gboolean adata, gint M, guint64 addr, guint32 count
  *---------------------------------------------------------------
  */
 static gboolean
-ccm_ctr_encrypt(const gchar *key, const gchar *iv, gchar *mic, gchar *data, gint length)
+ccm_ctr_encrypt(const gchar *key _U_, const gchar *iv _U_, gchar *mic _U_, gchar *data _U_, gint length _U_)
 {
 #ifdef HAVE_LIBGCRYPT
     gcry_cipher_hd_t    cipher_hd;
@@ -1876,7 +1876,7 @@ ccm_ctr_encrypt(const gchar *key, const gchar *iv, gchar *mic, gchar *data, gint
  *---------------------------------------------------------------
  */
 static gboolean
-ccm_cbc_mac(const gchar *key, const gchar *iv, const gchar *a, gint a_len, const gchar *m, gint m_len, gchar *mic)
+ccm_cbc_mac(const gchar *key _U_, const gchar *iv _U_, const gchar *a _U_, gint a_len _U_, const gchar *m _U_, gint m_len _U_, gchar *mic _U_)
 {
 #ifdef HAVE_LIBGCRYPT
     gcry_cipher_hd_t    cipher_hd;
