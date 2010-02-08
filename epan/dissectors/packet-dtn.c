@@ -34,7 +34,6 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
 #include <string.h>
 #include <glib.h>
 
@@ -45,8 +44,6 @@
 #include "packet-dtn.h"
 
 void proto_reg_handoff_bundle(void);
-static void dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static void dissect_udp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *tvb);
 static int dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset);
 static int dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, int bundle_offset, int *lastheader);
@@ -218,10 +215,6 @@ static gint ett_metadata_hdr = -1;
 
 static guint bundle_tcp_port = 4556;
 static guint bundle_udp_port = 4556;
-
-/* Needed to allow entering port option */
-static guint tcp_port = 0;
-static guint udp_port = 0;
 
 static const value_string custody_signal_reason_codes[] = {
     {0x3, "Redundant Reception"},
@@ -2573,6 +2566,9 @@ proto_reg_handoff_bundle(void)
 {
     static dissector_handle_t tcp_bundle_handle;
     static dissector_handle_t udp_bundle_handle;
+    static guint tcp_port;
+    static guint udp_port;
+
     static int Initialized = FALSE;
 
     if (!Initialized) {
