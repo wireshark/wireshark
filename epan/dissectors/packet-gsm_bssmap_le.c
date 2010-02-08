@@ -298,7 +298,7 @@ de_bmaple_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * 10.8 Deciphering Keys
  */
 static guint16
-de_bmaple_decihp_keys(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bmaple_decihp_keys(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	gint bit_offset;
 
@@ -376,7 +376,7 @@ static const value_string bssmap_le_position_method_failure_diagnostic_vals[] = 
 	{ 0, NULL}
 };
 static guint16
-de_bmaple_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bmaple_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -445,7 +445,7 @@ de_bmaple_client(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
  * 10.16 LCS QoS
  */
 static guint16
-de_bmaple_lcs_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bmaple_lcs_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint64 verticalCoordIndicator, velocityRequested, horizontalAccuracyIndicator, verticalAccuracyIndicator;
 	guint16 bitCount;
@@ -511,7 +511,7 @@ de_bmaple_lcs_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * 10.20 Positioning Data
  */
 static guint16
-de_bmaple_pos_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bmaple_pos_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	tvbuff_t *data_tvb;
 	guint32	curr_offset;
@@ -546,7 +546,7 @@ de_bmaple_pos_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  */
 /* Dissector for the LCS Capability element */
 static guint16
-be_lcs_capability(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_lcs_capability(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	/* Extract the LCS Capability element and add to protocol tree */
 	proto_tree_add_text(tree, tvb, offset, len, "Not decoded yet");
@@ -564,7 +564,7 @@ be_lcs_capability(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  */
 /* Dissector for the Packet Measurement Report element */
 static guint16
-be_packet_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_packet_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	/* Extract the Packet Measurement Report element and add to protocol tree */
 	proto_tree_add_text(tree, tvb, offset, len, "Not decoded yet");
@@ -579,7 +579,7 @@ be_packet_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
  */
 /* Dissector for the Measured Cell Identity List element */
 static guint16
-be_measured_cell_identity(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_measured_cell_identity(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	/* Extract the Measured Cell Identity List element and add to protocol tree */
 	proto_tree_add_text(tree, tvb, offset, len, "Not decoded yet");
