@@ -223,6 +223,7 @@ static const value_string sflow_245_ipv4_precedence_types[] = {
     { SFLOW_245_IPV4_PRECEDENCE_CRITIC_ECP, "CRITIC/ECP"},
     { SFLOW_245_IPV4_PRECEDENCE_INTERNETWORK_CONTROL, "Internetwork Control"},
     { SFLOW_245_IPV4_PRECEDENCE_NETWORK_CONTROL, "Network Control"},
+    { 0, NULL}
 };
 
 /* sFlow v5 flow record formats */
@@ -1496,7 +1497,7 @@ dissect_sflow_5_extended_mpls_lvp_fec(tvbuff_t *tvb, proto_tree *tree, gint offs
     guint32 length;
 
     length = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, 4, "MPLS FEC Address Preﬁx Length: %u bytes", length);
+    proto_tree_add_text(tree, tvb, offset, 4, "MPLS FEC Address Prefix Length: %u bytes", length);
     offset += 4;
     return offset;
 }
