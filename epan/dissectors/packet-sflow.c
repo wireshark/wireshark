@@ -1707,7 +1707,7 @@ dissect_sflow_5_extended_80211_tx(tvbuff_t *tvb, proto_tree *tree, gint offset) 
 
 /* sflow v5 extended 802.11 aggregation */
 static gint
-dissect_sflow_5_extended_80211_aggregation(tvbuff_t *tvb, proto_tree *tree, gint offset) {
+dissect_sflow_5_extended_80211_aggregation(tvbuff_t *tvb _U_, proto_tree *tree _U_, gint offset) {
 
     return offset;
 }
