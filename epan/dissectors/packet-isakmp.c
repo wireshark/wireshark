@@ -74,6 +74,9 @@ static int proto_isakmp = -1;
 static int hf_isakmp_certificate_authority = -1;
 static int hf_isakmp_v2_certificate_authority = -1;
 static int hf_isakmp_nat_keepalive = -1;
+static int hf_isakmp_nat_hash = -1;
+static int hf_isakmp_nat_original_address_ipv6 = -1;
+static int hf_isakmp_nat_original_address_ipv4 = -1;
 
 static int hf_isakmp_icookie         = -1;
 static int hf_isakmp_rcookie         = -1;
@@ -81,6 +84,12 @@ static int hf_isakmp_nextpayload     = -1;
 static int hf_isakmp_version         = -1;
 static int hf_isakmp_exchangetype    = -1;
 static int hf_isakmp_flags           = -1;
+static int hf_isakmp_flag_e          = -1;
+static int hf_isakmp_flag_c          = -1;
+static int hf_isakmp_flag_a          = -1;
+static int hf_isakmp_flag_i          = -1;
+static int hf_isakmp_flag_v          = -1;
+static int hf_isakmp_flag_r          = -1;
 static int hf_isakmp_messageid       = -1;
 static int hf_isakmp_length          = -1;
 static int hf_isakmp_payloadlen      = -1;
@@ -91,7 +100,8 @@ static int hf_isakmp_spisize         = -1;
 static int hf_isakmp_prop_transforms = -1;
 static int hf_isakmp_trans_number    = -1;
 static int hf_isakmp_trans_id        = -1;
-static int hf_isakmp_id_type         = -1;
+static int hf_isakmp_id_type_v1      = -1;
+static int hf_isakmp_id_type_v2      = -1;
 static int hf_isakmp_protoid         = -1;
 static int hf_isakmp_id_port         = -1;
 static int hf_isakmp_cert_encoding   = -1;
@@ -114,11 +124,46 @@ static int hf_isakmp_cisco_frag_packetid      = -1;
 static int hf_isakmp_cisco_frag_seq     = -1;
 static int hf_isakmp_cisco_frag_last    = -1;
 
+static int hf_isakmp_cfg_type_v1 = -1;
+static int hf_isakmp_cfg_identifier = -1;
+static int hf_isakmp_cfg_type_v2 = -1;
+static int hf_isakmp_cfg_attr_type_v1 = -1;
+static int hf_isakmp_cfg_attr_type_v2 = -1;
+static int hf_isakmp_cfg_attr_length = -1;
+static int hf_isakmp_cfg_attr_value = -1;
+
+static int hf_isakmp_cfg_attr_internal_ip4_address = -1;
+static int hf_isakmp_cfg_attr_internal_ip4_netmask = -1;
+static int hf_isakmp_cfg_attr_internal_ip4_dns = -1;
+static int hf_isakmp_cfg_attr_internal_ip4_nbns = -1;
+static int hf_isakmp_cfg_attr_internal_address_expiry = -1;
+static int hf_isakmp_cfg_attr_internal_ip4_dhcp = -1;
+static int hf_isakmp_cfg_attr_application_version = -1;
+static int hf_isakmp_cfg_attr_internal_ip6_address = -1;
+static int hf_isakmp_cfg_attr_internal_ip6_netmask = -1;
+static int hf_isakmp_cfg_attr_internal_ip6_dns = -1;
+static int hf_isakmp_cfg_attr_internal_ip6_nbns = -1;
+static int hf_isakmp_cfg_attr_internal_ip6_dhcp = -1;
+static int hf_isakmp_cfg_attr_internal_ip4_subnet_ip = -1;
+static int hf_isakmp_cfg_attr_internal_ip4_subnet_netmask = -1;
+static int hf_isakmp_cfg_attr_xauth_type  = -1;
+static int hf_isakmp_cfg_attr_xauth_user_name = -1;
+static int hf_isakmp_cfg_attr_xauth_user_password = -1;
+static int hf_isakmp_cfg_attr_xauth_passcode = -1;
+static int hf_isakmp_cfg_attr_xauth_message = -1;
+static int hf_isakmp_cfg_attr_xauth_challenge = -1;
+static int hf_isakmp_cfg_attr_xauth_domain = -1;
+static int hf_isakmp_cfg_attr_xauth_status = -1;
+static int hf_isakmp_cfg_attr_xauth_next_pin = -1;
+static int hf_isakmp_cfg_attr_xauth_answer = -1;
+static int hf_isakmp_cfg_attr_unity_banner = -1;
+
 static gint ett_isakmp = -1;
 static gint ett_isakmp_flags = -1;
 static gint ett_isakmp_payload = -1;
 static gint ett_isakmp_fragment = -1;
 static gint ett_isakmp_fragments = -1;
+static gint ett_isakmp_cfg_attr = -1;
 #ifdef HAVE_LIBGCRYPT
 /* For decrypted IKEv2 Encrypted payload*/
 static gint ett_isakmp_decrypted_data = -1;
@@ -156,7 +201,9 @@ static const fragment_items isakmp_frag_items = {
 /*
  * Identifier Type
  *   RFC2407 for IKEv1
- *   draft-ietf-ipsec-ikev2-17.txt for IKEv2
+ *   RFC3554 for ID_LIST
+ *   RFC4306 for IKEv2
+ *   RFC4595 for ID_FC_NAME 
  */
 #define IKE_ID_IPV4_ADDR		1
 #define IKE_ID_FQDN			2
@@ -169,13 +216,71 @@ static const fragment_items isakmp_frag_items = {
 #define IKE_ID_DER_ASN1_DN		9
 #define IKE_ID_DER_ASN1_GN		10
 #define IKE_ID_KEY_ID			11
-
+#define IKE_ID_LIST			12
+#define IKE_ID_FC_NAME			12
+#define IKE_ID_RFC822_ADDR		3
 /*
  * Traffic Selector Type
  *   Not in use for IKEv1
  */
 #define IKEV2_TS_IPV4_ADDR_RANGE	7
 #define IKEV2_TS_IPV6_ADDR_RANGE	8
+
+/*
+ * Configuration Payload Attribute Types
+ *   draft-ietf-ipsec-isakmp-mode-cfg-05.txt for IKEv1
+ *   draft-ietf-ipsec-isakmp-xauth-06.txt and draft-beaulieu-ike-xauth-02.txt for XAUTH
+ *   RFC4306 for IKEv2
+ *   RFC-ietf-ipsecme-ikev2-ipv6-config-03.txt for INTERNAL_IP6_LINK and INTERNAL_IP6_PREFIX
+ */
+#define INTERNAL_IP4_ADDRESS		1	
+#define INTERNAL_IP4_NETMASK		2	
+#define INTERNAL_IP4_DNS		3	
+#define INTERNAL_IP4_NBNS		4	
+#define INTERNAL_ADDRESS_EXPIRY		5	
+#define INTERNAL_IP4_DHCP           	6
+#define APPLICATION_VERSION         	7
+#define INTERNAL_IP6_ADDRESS        	8
+#define INTERNAL_IP6_NETMASK 		9
+#define INTERNAL_IP6_DNS		10
+#define INTERNAL_IP6_NBNS		11
+#define INTERNAL_IP6_DHCP		12
+#define INTERNAL_IP4_SUBNET		13
+#define SUPPORTED_ATTRIBUTES		14
+#define INTERNAL_IP6_SUBNET		15
+#define MIP6_HOME_PREFIX		16
+#define INTERNAL_IP6_LINK		17
+#define INTERNAL_IP6_PREFIX		18
+/* checkpoint configuration attributes */
+#define CHKPT_DEF_DOMAIN		16387
+#define CHKPT_MAC_ADDRESS		16388
+#define CHKPT_MARCIPAN_REASON_CODE      16389
+#define CHKPT_UNKNOWN1			16400
+#define CHKPT_UNKNOWN2			16401
+#define CHKPT_UNKNOWN3			16402
+/* XAUTH configuration attributes */
+#define XAUTH_TYPE			16520
+#define XAUTH_USER_NAME			16521
+#define XAUTH_USER_PASSWORD		16522
+#define XAUTH_PASSCODE			16523
+#define XAUTH_MESSAGE			16524
+#define XAUTH_CHALLENGE			16525
+#define XAUTH_DOMAIN			16526
+#define XAUTH_STATUS			16527
+#define XAUTH_NEXT_PIN			16528	
+#define XAUTH_ANSWER			16529
+/* unity (CISCO) configuration attributes */
+#define UNITY_BANNER			28672	
+#define UNITY_SAVE_PASSWD		28673	
+#define UNITY_DEF_DOMAIN		28674	
+#define UNITY_SPLIT_DOMAIN		28675	
+#define UNITY_SPLIT_INCLUDE		28676	
+#define UNITY_NATT_PORT			28677	
+#define UNITY_SPLIT_EXCLUDE		28678	
+#define UNITY_PFS			28679	
+#define UNITY_FW_TYPE			28680	
+#define UNITY_BACKUP_SERVERS		28681	
+#define UNITY_DDNS_HOSTNAME		28682	
 
 static const value_string frag_last_vals[] = {
   { 0,	"More fragments" },
@@ -192,6 +297,155 @@ static const value_string vs_proto[] = {
   { 0,	NULL },
 };
 
+static const range_string vs_v1_cfgtype[] = {
+  { 0,0,	"Reserved" },
+  { 1,1,	"ISAKMP_CFG_REQUEST" },
+  { 2,2,	"ISAKMP_CFG_REPLY" },
+  { 3,3,	"ISAKMP_CFG_SET" },
+  { 4,4,	"ISAKMP_CFG_ACK" },
+  { 5,127,	"Future use"	},
+  { 128,256,    "Private Use"	},
+  { 0,0,	NULL },
+  };
+
+
+static const range_string vs_v2_cfgtype[] = {
+  { 0,0,	"RESERVED" },
+  { 1,1,	"CFG_REQUEST" },
+  { 2,2,	"CFG_REPLY" },
+  { 3,3,	"CFG_SET" },
+  { 4,4,	"CFG_ACK" },
+  { 5,127,	"Future use"	},
+  { 128,256,    "Private Use"	},
+  { 0,0,	NULL },
+  };
+
+static const range_string vs_v1_cfgattr[] = {
+  { 0,0,	 "RESERVED" },
+  { 1,1,	 "INTERNAL_IP4_ADDRESS" },
+  { 2,2,	 "INTERNAL_IP4_NETMASK" },
+  { 3,3,	 "INTERNAL_IP4_DNS" },
+  { 4,4,	 "INTERNAL_IP4_NBNS" },
+  { 5,5,	 "INTERNAL_ADDRESS_EXPIREY" },
+  { 6,6,	 "INTERNAL_IP4_DHCP" },
+  { 7,7,	 "APPLICATION_VERSION" },
+  { 8,8,	 "INTERNAL_IP6_ADDRESS" },
+  { 9,9,	 "INTERNAL_IP6_NETMASK" },
+  { 10,10,	 "INTERNAL_IP6_DNS" },
+  { 11,11,	 "INTERNAL_IP6_NBNS" },
+  { 12,12,	 "INTERNAL_IP6_DHCP" },
+  { 13,13,	 "INTERNAL_IP4_SUBNET" },
+  { 14,14,	 "SUPPORTED_ATTRIBUTES" },
+  { 15,16383,    "FUTURE USE"},
+  { 16384,16386, "PRIVATE USE"},
+  { 16387,16387, "CHKPT_DEF_DOMAIN" },
+  { 16388,16388, "CHKPT_MAC_ADDRESS" },
+  { 16389,16389, "CHKPT_MARCIPAN_REASON_CODE" },
+  { 16400,16400, "CHKPT_UNKNOWN1" },
+  { 16401,16401, "CHKPT_UNKNOWN2" },
+  { 16402,16402, "CHKPT_UNKNOWN3" },
+  { 16403,16519, "PRIVATE USE"},
+  { 16520,16520, "XAUTH_TYPE" },
+  { 16521,16521, "XAUTH_USER_NAME" },
+  { 16522,16522, "XAUTH_USER_PASSWORD" },
+  { 16523,16523, "XAUTH_PASSCODE" },
+  { 16524,16524, "XAUTH_MESSAGE" },
+  { 16525,16525, "XAUTH_CHALLANGE" },
+  { 16526,16526, "XAUTH_DOMAIN" },
+  { 16527,16527, "XAUTH_STATUS" },
+  { 16528,16528, "XAUTH_NEXT_PIN" },
+  { 16529,16529, "XAUTH_ANSWER" },
+  { 16530,28671, "PRIVATE USE"},
+  { 28672,28672, "UNITY_BANNER" },
+  { 28673,28673, "UNITY_SAVE_PASSWD" },
+  { 28674,28674, "UNITY_DEF_DOMAIN" },
+  { 28675,28675, "UNITY_SPLIT_DOMAIN" },
+  { 28676,28676, "UNITY_SPLIT_INCLUDE" },
+  { 28677,28677, "UNITY_NATT_PORT" },
+  { 28678,28678, "UNITY_SPLIT_EXCLUDE" },
+  { 28679,28679, "UNITY_PFS" },
+  { 28680,28680, "UNITY_FW_TYPE" },
+  { 28681,28681, "UNITY_BACKUP_SERVERS" },
+  { 28682,28682, "UNITY_DDNS_HOSTNAME" },
+  { 28683,32767, "PRIVATE USE"},
+  { 0,0,	 NULL },
+  };
+
+static const range_string vs_v2_cfgattr[] = {
+  { 0,0,	 "RESERVED" },
+  { 1,1,	 "INTERNAL_IP4_ADDRESS" },
+  { 2,2,	 "INTERNAL_IP4_NETMASK" },
+  { 3,3,	 "INTERNAL_IP4_DNS" },
+  { 4,4,	 "INTERNAL_IP4_NBNS" },
+  { 5,5,	 "INTERNAL_ADDRESS_EXPIREY" },
+  { 6,6,	 "INTERNAL_IP4_DHCP" },
+  { 7,7,	 "APPLICATION_VERSION" },
+  { 8,8,	 "INTERNAL_IP6_ADDRESS" },
+  { 9,9, 	 "RESERVED" },
+  { 10,10,	 "INTERNAL_IP6_DNS" },
+  { 11,11,	 "INTERNAL_IP6_NBNS" },
+  { 12,12,	 "INTERNAL_IP6_DHCP" },
+  { 13,13,	 "INTERNAL_IP4_SUBNET" },
+  { 14,14,	 "SUPPORTED_ATTRIBUTES" },
+  { 15,15, 	 "INTERNAL_IP6_SUBNET" },
+  { 16,16,       "MIP6_HOME_PREFIX" },
+  { 17,17,       "INTERNAL_IP6_LINK" },
+  { 18,18,       "INTERNAL_IP6_PREFIX" },
+  { 19,16383,    "RESERVED TO IANA"},
+  { 16384,32767, "PRIVATE USE"},
+  { 0,0,   	  NULL },
+  };
+
+static const range_string cfgattr_xauth_type[] = {
+  { 0,0,	 "Generic" },
+  { 1,1,	 "RADIUS-CHAP" },
+  { 2,2,	 "OTP" },
+  { 3,3,	 "S/KEY" },
+  { 4,32767,	 "Future use" },
+  { 32768,65535, "Private use" },
+  { 0,0,   	  NULL },
+  };
+
+static const value_string cfgattr_xauth_status[] = {
+  { 0,	"Fail" },
+  { 1,	"Success" },
+  { 0,	NULL },
+};
+
+static const range_string vs_v1_id_type[] = {
+  { 0,0,						"RESERVED" },
+  { IKE_ID_IPV4_ADDR,IKE_ID_IPV4_ADDR,			"IPV4_ADDR" },
+  { IKE_ID_FQDN,IKE_ID_FQDN,				"FQDN" },
+  { IKE_ID_USER_FQDN,IKE_ID_USER_FQDN,			"USER_FQDN" },
+  { IKE_ID_IPV4_ADDR_SUBNET,IKE_ID_IPV4_ADDR_SUBNET,	"IPV4_ADDR_SUBNET" },
+  { IKE_ID_IPV6_ADDR,IKE_ID_IPV6_ADDR,			"IPV6_ADDR" },
+  { IKE_ID_IPV6_ADDR_SUBNET,IKE_ID_IPV6_ADDR_SUBNET,	"IPV6_ADDR_SUBNET" },
+  { IKE_ID_IPV4_ADDR_RANGE,IKE_ID_IPV4_ADDR_RANGE,	"IPV4_ADDR_RANGE" },
+  { IKE_ID_IPV6_ADDR_RANGE,IKE_ID_IPV6_ADDR_RANGE,	"IPV6_ADDR_RANGE" },
+  { IKE_ID_DER_ASN1_DN,IKE_ID_DER_ASN1_DN,		"DER_ASN1_DN" },
+  { IKE_ID_DER_ASN1_GN,IKE_ID_DER_ASN1_GN,		"DER_ASN1_GN" },
+  { IKE_ID_KEY_ID,IKE_ID_KEY_ID,			"KEY_ID" },
+  { IKE_ID_LIST,IKE_ID_LIST,				"KEY_LIST" },
+  { 13,248,						"Future use" },
+  { 249,255,						"Private Use" },
+  { 0,0,   	  NULL },
+  };
+static const range_string vs_v2_id_type[] = {
+  { 0,0,						"RESERVED" },
+  { IKE_ID_IPV4_ADDR,IKE_ID_IPV4_ADDR,			"IPV4_ADDR" },
+  { IKE_ID_FQDN,IKE_ID_FQDN,				"FQDN" },
+  { IKE_ID_RFC822_ADDR,IKE_ID_RFC822_ADDR,		"ID_RFC822_ADDR" },
+  { 4,4,						"Unassigned" },
+  { IKE_ID_IPV6_ADDR,IKE_ID_IPV6_ADDR,			"IPV6_ADDR" },
+  { 6,8,						"Unassigned" },
+  { IKE_ID_DER_ASN1_DN,IKE_ID_DER_ASN1_DN,		"DER_ASN1_DN" },
+  { IKE_ID_DER_ASN1_GN,IKE_ID_DER_ASN1_GN,		"DER_ASN1_GN" },
+  { IKE_ID_KEY_ID,IKE_ID_KEY_ID,			"KEY_ID" },
+  { IKE_ID_FC_NAME,IKE_ID_FC_NAME,			"KEY_LIST" },
+  { 13,200,						"Future use" },
+  { 201,255,						"Private Use" },
+  { 0,0,   	  NULL },
+  };
 #define COOKIE_SIZE 8
 
 typedef struct isakmp_hdr {
@@ -208,6 +462,31 @@ typedef struct isakmp_hdr {
   guint32	message_id;
   guint32	length;
 } isakmp_hdr_t;
+
+static const true_false_string flag_e = {
+  "Encrypted", 
+  "Not encrypted"
+};
+static const true_false_string flag_c = {
+  "Commit", 
+  "No commit"
+};
+static const true_false_string flag_a = {
+  "Authentication", 
+  "No authentication"
+};
+static const true_false_string flag_i = {
+  "Initiator", 
+  "Responder"
+};
+static const true_false_string flag_v = {
+  "A higher version enabled", 
+  "No higher version"
+};
+static const true_false_string flag_r = {
+  "Response", 
+  "Request"
+};
 
 #define ISAKMP_HDR_SIZE (sizeof(struct isakmp_hdr) + (2 * COOKIE_SIZE))
 
@@ -715,9 +994,6 @@ static const char *msgtype2str(int, guint16);
 static const char *situation2str(guint32);
 static const char *v1_attrval2str(int, guint16, guint32);
 static const char *v2_attrval2str(guint16);
-static const char *cfgtype2str(int, guint8);
-static const char *cfgattr2str(int, guint16);
-static const char *id2str(int, guint8);
 static const char *v2_tstype2str(guint8);
 static const char *v2_auth2str(guint8);
 static const char *certtype2str(int, guint8);
@@ -998,9 +1274,9 @@ static void
 dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int			offset = 0, len;
-  isakmp_hdr_t		hdr;
-  proto_item *		ti;
-  proto_tree *		isakmp_tree = NULL;
+  isakmp_hdr_t	hdr;
+  proto_item *	ti;
+  proto_tree *	isakmp_tree = NULL;
   int			isakmp_version;
 #ifdef HAVE_LIBGCRYPT
   guint8                i_cookie[COOKIE_SIZE], *ic_key;
@@ -1029,11 +1305,11 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return;
   }
 
-  hdr.length = tvb_get_ntohl(tvb, offset + ISAKMP_HDR_SIZE - sizeof(hdr.length));
-  hdr.exch_type = tvb_get_guint8(tvb, COOKIE_SIZE + COOKIE_SIZE + sizeof(hdr.next_payload) + sizeof(hdr.version));
-  hdr.version = tvb_get_guint8(tvb, COOKIE_SIZE + COOKIE_SIZE + sizeof(hdr.next_payload));
+  hdr.length = tvb_get_ntohl(tvb, offset + ISAKMP_HDR_SIZE - 4);
+  hdr.exch_type = tvb_get_guint8(tvb, COOKIE_SIZE + COOKIE_SIZE + 1 + 1);
+  hdr.version = tvb_get_guint8(tvb, COOKIE_SIZE + COOKIE_SIZE + 1);
   isakmp_version = hi_nibble(hdr.version);	/* save the version */
-  hdr.flags = tvb_get_guint8(tvb, COOKIE_SIZE + COOKIE_SIZE + sizeof(hdr.next_payload) + sizeof(hdr.version) + sizeof(hdr.exch_type));
+  hdr.flags = tvb_get_guint8(tvb, COOKIE_SIZE + COOKIE_SIZE + 1 + 1 + 1);
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO,
                 exchtype2str(isakmp_version, hdr.exch_type));
@@ -1108,62 +1384,56 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     hdr.next_payload = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint_format(isakmp_tree, hf_isakmp_nextpayload, tvb, offset,
-                               sizeof(hdr.next_payload), hdr.next_payload,
+                               1, hdr.next_payload,
                                "Next payload: %s (%u)",
                                payloadtype2str(isakmp_version, hdr.next_payload),
                                hdr.next_payload);
-    offset += sizeof(hdr.next_payload);
+    offset += 1;
 
     proto_tree_add_uint_format(isakmp_tree, hf_isakmp_version, tvb, offset,
-                               sizeof(hdr.version), hdr.version, "Version: %u.%u",
+                               1, hdr.version, "Version: %u.%u",
                                hi_nibble(hdr.version), lo_nibble(hdr.version));
-    offset += sizeof(hdr.version);
+    offset += 1;
 
     hdr.exch_type = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint_format(isakmp_tree, hf_isakmp_exchangetype, tvb, offset,
-                               sizeof(hdr.exch_type), hdr.exch_type,
+                               1, hdr.exch_type,
                                "Exchange type: %s (%u)",
                                exchtype2str(isakmp_version, hdr.exch_type),
                                hdr.exch_type);
-    offset += sizeof(hdr.exch_type);
+    offset += 1;
 
     {
       proto_item *	fti;
       proto_tree *	ftree;
 
-      fti   = proto_tree_add_item(isakmp_tree, hf_isakmp_flags, tvb, offset, sizeof(hdr.flags), FALSE);
+      fti   = proto_tree_add_item(isakmp_tree, hf_isakmp_flags, tvb, offset, 1, FALSE);
       ftree = proto_item_add_subtree(fti, ett_isakmp_flags);
 
       if (isakmp_version == 1) {
-        proto_tree_add_text(ftree, tvb, offset, 1, "%s",
-                            decode_boolean_bitfield(hdr.flags, E_FLAG, sizeof(hdr.flags)*8,
-						  "Encrypted", "Not encrypted"));
-        proto_tree_add_text(ftree, tvb, offset, 1, "%s",
-                            decode_boolean_bitfield(hdr.flags, C_FLAG, sizeof(hdr.flags)*8,
-						  "Commit", "No commit"));
-        proto_tree_add_text(ftree, tvb, offset, 1, "%s",
-                            decode_boolean_bitfield(hdr.flags, A_FLAG, sizeof(hdr.flags)*8,
-						  "Authentication", "No authentication"));
+        proto_tree_add_item(ftree, hf_isakmp_flag_e, tvb, offset, 1, FALSE);
+
+        proto_tree_add_item(ftree, hf_isakmp_flag_c, tvb, offset, 1, FALSE);
+						 
+        proto_tree_add_item(ftree, hf_isakmp_flag_a, tvb, offset, 1, FALSE);
+						 
       } else if (isakmp_version == 2) {
-        proto_tree_add_text(ftree, tvb, offset, 1, "%s",
-                            decode_boolean_bitfield(hdr.flags, I_FLAG, sizeof(hdr.flags)*8,
-						  "Initiator", "Responder"));
-        proto_tree_add_text(ftree, tvb, offset, 1, "%s",
-                            decode_boolean_bitfield(hdr.flags, V_FLAG, sizeof(hdr.flags)*8,
-						  "A higher version enabled", ""));
-        proto_tree_add_text(ftree, tvb, offset, 1, "%s",
-                            decode_boolean_bitfield(hdr.flags, R_FLAG, sizeof(hdr.flags)*8,
-						  "Response", "Request"));
+        proto_tree_add_item(ftree, hf_isakmp_flag_i, tvb, offset, 1, FALSE);
+						 
+        proto_tree_add_item(ftree, hf_isakmp_flag_v, tvb, offset, 1, FALSE);
+						  
+        proto_tree_add_item(ftree, hf_isakmp_flag_r, tvb, offset, 1, FALSE);
+						 
       }
-      offset += sizeof(hdr.flags);
+      offset += 1;
     }
 
     hdr.message_id = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(isakmp_tree, hf_isakmp_messageid, tvb, offset, sizeof(hdr.message_id), FALSE);
-    offset += sizeof(hdr.message_id);
+    proto_tree_add_item(isakmp_tree, hf_isakmp_messageid, tvb, offset, 4, FALSE);
+    offset += 4;
 
     if (hdr.length < ISAKMP_HDR_SIZE) {
-      proto_tree_add_uint_format(isakmp_tree, hf_isakmp_length, tvb, offset, sizeof(hdr.length),
+      proto_tree_add_uint_format(isakmp_tree, hf_isakmp_length, tvb, offset, 4,
                                  hdr.length, "Length: (bogus, length is %u, should be at least %lu)",
                                  hdr.length, (unsigned long)ISAKMP_HDR_SIZE);
 #ifdef HAVE_LIBGCRYPT
@@ -1175,7 +1445,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     len = hdr.length - ISAKMP_HDR_SIZE;
 
     if (len < 0) {
-      proto_tree_add_uint_format(isakmp_tree, hf_isakmp_length, tvb, offset, sizeof(hdr.length),
+      proto_tree_add_uint_format(isakmp_tree, hf_isakmp_length, tvb, offset, 4,
                                  hdr.length, "Length: (bogus, length is %u, which is too large)",
                                  hdr.length);
 #ifdef HAVE_LIBGCRYPT
@@ -1184,8 +1454,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       return;
     }
 
-    proto_tree_add_item(isakmp_tree, hf_isakmp_length, tvb, offset, sizeof(hdr.length), FALSE);
-    offset += sizeof(hdr.length);
+    proto_tree_add_item(isakmp_tree, hf_isakmp_length, tvb, offset, 4, FALSE);
+    offset += 4;
 
     if (hdr.flags & E_FLAG) {
       if (len && isakmp_tree) {
@@ -1829,10 +2099,13 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
   id_type = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(tree, hf_isakmp_id_type, tvb, offset, 1, FALSE);
-  proto_tree_add_text(tree, tvb, offset, 1,
-		      "ID type: %s (%u)",
-		      id2str(isakmp_version, id_type), id_type);
+  if(isakmp_version == 1)
+  {
+     proto_tree_add_item(tree, hf_isakmp_id_type_v1, tvb, offset, 1, FALSE);
+  }else if(isakmp_version == 2)
+  {
+     proto_tree_add_item(tree, hf_isakmp_id_type_v2, tvb, offset, 1, FALSE);
+  }
   offset += 1;
   length -= 1;
 
@@ -2439,75 +2712,257 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     proto_tree_add_text(ntree, tvb, offset, length - VID_CP_LEN - sizeof(CPproduct) - sizeof(CPversion),"Check Point Vendor ID parameters");
   }
 }
+/* Returns the number of bytes consumed by this option. */
+static int
+dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offset, int isakmp_version)
+{
+	guint optlen, cfg_attr_type, len = 0;
+        int offset_end = 0;	
+	proto_item *cfg_attr_type_item;
+	proto_tree *sub_cfg_attr_type_tree;
 
+	cfg_attr_type = tvb_get_ntohs(tvb, offset);
+	optlen = tvb_get_ntohs(tvb, offset+2);
+	len = 2;
+
+	/* No Length ? */
+   	if (cfg_attr_type & 0x8000) {
+	      cfg_attr_type = cfg_attr_type & 0x7fff;
+	      len = 0;
+	      optlen = 2;
+   	}
+
+  	if (isakmp_version == 1) {
+	   cfg_attr_type_item = proto_tree_add_text(cfg_attr_type_tree, tvb, offset, 2+len+optlen, "Attribute Type: (t=%d,l=%d) %s", cfg_attr_type, optlen, rval_to_str(cfg_attr_type,vs_v1_cfgattr,"Unknown Attribute Type (%02d)") );
+	   sub_cfg_attr_type_tree = proto_item_add_subtree(cfg_attr_type_item, ett_isakmp_cfg_attr);
+	   proto_tree_add_uint(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_type_v1, tvb, offset, 2, cfg_attr_type);
+  	} else if (isakmp_version == 2) {
+	   cfg_attr_type_item = proto_tree_add_text(cfg_attr_type_tree, tvb, offset, 2+len+optlen, "Attribute Type: (t=%d,l=%d) %s", cfg_attr_type, optlen, rval_to_str(cfg_attr_type,vs_v2_cfgattr,"Unknown Attribute Type (%02d)") );
+	   sub_cfg_attr_type_tree = proto_item_add_subtree(cfg_attr_type_item, ett_isakmp_cfg_attr);
+	   proto_tree_add_uint(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_type_v2, tvb, offset, 2, cfg_attr_type);	
+	}
+	offset += 2;
+	if (len)
+	{
+	   proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_length, tvb, offset, 2, FALSE);
+           offset += 2;	
+	}
+	if (optlen==0)
+ 	{
+    	   proto_tree_add_text(sub_cfg_attr_type_tree, tvb, offset, 0,"Attribut value is empty");		
+	   return 2+len;	
+	}
+	proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_value, tvb, offset, optlen, FALSE);	
+	switch (cfg_attr_type) {
+	case INTERNAL_IP4_ADDRESS: /* 1 */
+		offset_end = offset + optlen;
+
+		if (optlen%4 == 0)
+		{
+			while (offset_end-offset > 0)
+			{
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_address, tvb, offset, 4, FALSE);
+				offset += 4;
+			}
+
+		}
+		break;
+	case INTERNAL_IP4_NETMASK: /* 2 */
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_netmask, tvb, offset, 4, FALSE);
+		break;
+	case INTERNAL_IP4_DNS: /* 3 */
+		offset_end = offset + optlen;
+
+		if (optlen%4 == 0)
+		{
+			while (offset_end-offset > 0)
+			{
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_dns, tvb, offset, 4, FALSE);
+				offset += 4;
+			}
+
+		}
+		break;
+	case INTERNAL_IP4_NBNS: /* 4 */
+		offset_end = offset + optlen;
+
+		if (optlen%4 == 0)
+		{
+			while (offset_end-offset > 0)
+			{
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_nbns, tvb, offset, 4, FALSE);
+				offset += 4;
+			}
+
+		}
+		break;
+	case INTERNAL_ADDRESS_EXPIRY: /* 5 */
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_address_expiry, tvb, offset, 4, FALSE);
+		break;
+	case INTERNAL_IP4_DHCP: /* 6 */
+		offset_end = offset + optlen;
+
+		if (optlen%4 == 0)
+		{
+			while (offset_end-offset > 0)
+			{
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_dhcp, tvb, offset, 4, FALSE);
+				offset += 4;
+			}
+
+		}
+		break;
+	case APPLICATION_VERSION: /* 7 */
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_application_version, tvb, offset, optlen, FALSE);
+		break;
+	case INTERNAL_IP6_ADDRESS: /* 8 */
+		offset_end = offset + optlen;
+
+		if (optlen%16 == 0)
+		{
+			while (offset_end-offset > 0)
+			{
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_address, tvb, offset, 16, FALSE);
+				offset += 16;
+			}
+
+		}
+		break;
+	case INTERNAL_IP6_NETMASK: /* 9 Only in IKEv1 */
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_netmask, tvb, offset, 18, FALSE);
+		break;
+	case INTERNAL_IP6_DNS: /* 10 */
+		offset_end = offset + optlen;
+
+		if (optlen%16 == 0)
+		{
+			while (offset_end-offset > 0)
+			{
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_dns, tvb, offset, 16, FALSE);
+				offset += 16;
+			}
+
+		}
+		break;
+	case INTERNAL_IP6_NBNS: /* 11 */
+		offset_end = offset + optlen;
+
+		if (optlen%16 == 0)
+		{
+			while (offset_end-offset > 0)
+			{
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_nbns, tvb, offset, 16, FALSE);
+				offset += 16;
+			}
+
+		}
+		break;
+	case INTERNAL_IP6_DHCP: /* 12 */
+		offset_end = offset + optlen;
+
+		if (optlen%16 == 0)
+		{
+			while (offset_end-offset > 0)
+			{
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_dhcp, tvb, offset, 16, FALSE);
+				offset += 16;
+			}
+
+		}
+		break;
+	case INTERNAL_IP4_SUBNET: /* 13 */
+		offset_end = offset + optlen;
+
+		if (optlen%8 == 0)
+		{
+			while (offset_end-offset > 0)
+			{
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_subnet_ip, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_subnet_netmask, tvb, offset, 4, FALSE);
+				offset += 8;
+			}
+
+		}
+		break;
+/* TODO
+SUPPORTED_ATTRIBUTES (14) a variable   0 or multiples of 2 
+INTERNAL_IP6_SUBNET (15) a variable   0 or 17 octets ( This attribute is made up of two fields:
+ the first is a sixteen-octet IPv6 address and the second is a one-octet prefix-length )
+*/
+	case XAUTH_TYPE: /* 16520 */
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_type, tvb, offset, optlen, FALSE);
+		break;
+	case XAUTH_USER_NAME: /* 16521 */
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_user_name, tvb, offset, optlen, FALSE);
+		break;
+	case XAUTH_USER_PASSWORD: /* 16522 */
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_user_password, tvb, offset, optlen, FALSE);
+		break;
+	case XAUTH_PASSCODE: /* 16523 */
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_passcode, tvb, offset, optlen, FALSE);
+		break;
+	case XAUTH_MESSAGE: /* 16524 */
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_message, tvb, offset, optlen, FALSE);
+		break;
+	case XAUTH_CHALLENGE: /* 16525 */
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_challenge, tvb, offset, optlen, FALSE);
+		break;
+	case XAUTH_DOMAIN: /* 16526 */
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_domain, tvb, offset, optlen, FALSE);
+		break;
+	case XAUTH_STATUS: /* 16527 */
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_status, tvb, offset, optlen, FALSE);
+		break;
+	case XAUTH_NEXT_PIN: /* 16528 */
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_next_pin, tvb, offset, optlen, FALSE);
+		break;
+	case XAUTH_ANSWER: /* 16527 */
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_answer, tvb, offset, optlen, FALSE);
+		break;
+
+	case UNITY_BANNER: /* 28672 */
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_unity_banner, tvb, offset, optlen, FALSE);
+		break;
+/* TODO: Support other UNITY Attributs ! */
+	default:
+		/* No Default Action */
+		break;
+	}
+	
+	return 2+len+optlen;
+}
 static void
 dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
                proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version,
                int unused _U_, guint8 inner_payload _U_)
 {
-  guint8		type;
-
+  int offset_end = 0;	
+  offset_end = offset + length;
   if (isakmp_version == 1) {
-    type = tvb_get_guint8(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, 1,
-    			"Type %s (%u)",
-    			cfgtype2str(isakmp_version, type), type);
-    offset += 2;
-    length -= 2;
 
-    proto_tree_add_text(tree, tvb, offset, 2,
-    			"Identifier: %u", tvb_get_ntohs(tvb, offset));
+    proto_tree_add_item(tree, hf_isakmp_cfg_type_v1,tvb, offset, 1, FALSE);
     offset += 2;
-    length -= 2;
+
+    proto_tree_add_item(tree, hf_isakmp_cfg_identifier,tvb, offset, 1, FALSE);
+    offset += 2;
+
   } else if (isakmp_version == 2) {
-    type = tvb_get_guint8(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, 1,
-    			"CFG Type %s (%u)",
-    			cfgtype2str(isakmp_version, type), type);
+
+    proto_tree_add_item(tree, hf_isakmp_cfg_type_v2,tvb, offset, 1, FALSE);
     offset += 4;
-    length -= 4;
+
   }
 
-  while(length>0) {
-    guint16 aft     = tvb_get_ntohs(tvb, offset);
-    guint16 typex   = aft & 0x7fff;
-    guint16 len;
-    guint32 val;
-    guint pack_len;
-
-    if (aft & 0x8000) {
-      val = tvb_get_ntohs(tvb, offset + 2);
-      proto_tree_add_text(tree, tvb, offset, 4,
-			  "%s (%u)",
-			  cfgattr2str(isakmp_version, typex), val);
-      offset += 4;
-      length -= 4;
-    }
-    else {
-      len = tvb_get_ntohs(tvb, offset + 2);
-      pack_len = 4 + len;
-      if (!get_num(tvb, offset + 4, len, &val)) {
-        proto_tree_add_text(tree, tvb, offset, pack_len,
-			    "%s: <too big (%u bytes)>",
-			    cfgattr2str(isakmp_version, typex), len);
-      } else {
-        proto_tree_add_text(tree, tvb, offset, 4,
-			    "%s (%ue)",
-			    cfgattr2str(isakmp_version, typex), val);
-      }
-      offset += pack_len;
-      length -= pack_len;
-    }
-  }
+  while(offset < offset_end) {
+    offset += dissect_config_attribute(tvb, tree, offset, isakmp_version);
+}
 }
 
 static void
 dissect_nat_discovery(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
 {
-  proto_tree_add_text(tree, tvb, offset, length,
-		      "Hash of address and port: %s",
-		      tvb_bytes_to_str(tvb, offset, length));
+  proto_tree_add_item(tree, hf_isakmp_nat_hash, tvb, offset, length, FALSE);
 }
 
 static void
@@ -2515,50 +2970,31 @@ dissect_nat_original_address(tvbuff_t *tvb, int offset, int length, proto_tree *
     proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
 {
   guint8 id_type;
-  guint32 addr_ipv4;
-  struct e_in6_addr addr_ipv6;
 
   id_type = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(tree, tvb, offset, 1,
-		      "ID type: %s (%u)",
-		      id2str(isakmp_version, id_type), id_type);
+  if(isakmp_version == 1)
+  {
+     proto_tree_add_item(tree, hf_isakmp_id_type_v1, tvb, offset, 1, FALSE);
+  }else if(isakmp_version == 2)
+  {
+     proto_tree_add_item(tree, hf_isakmp_id_type_v2, tvb, offset, 1, FALSE);
+  }
   offset += 1;
   length -= 1;
 
   offset += 3;		/* reserved */
-  length -= 3;
 
   switch (id_type) {
 
   case IKE_ID_IPV4_ADDR:
-    if (length == 4) {
-      addr_ipv4 = tvb_get_ipv4(tvb, offset);
-      proto_tree_add_text(tree, tvb, offset, length,
-			  "Original address: %s",
-			  ip_to_str((guint8 *)&addr_ipv4));
-    } else {
-      proto_tree_add_text(tree, tvb, offset, length,
-			  "Original address: bad length, should be 4, is %u",
-			  length);
-    }
+    proto_tree_add_item(tree, hf_isakmp_nat_original_address_ipv4, tvb, offset, 4, FALSE);
     break;
 
   case IKE_ID_IPV6_ADDR:
-    if (length == 16) {
-      tvb_get_ipv6(tvb, offset, &addr_ipv6);
-      proto_tree_add_text(tree, tvb, offset, length,
-			  "Original address: %s",
-			  ip6_to_str(&addr_ipv6));
-    } else {
-      proto_tree_add_text(tree, tvb, offset, length,
-			  "Original address: bad length, should be 16, is %u",
-			  length);
-    }
+    proto_tree_add_item(tree, hf_isakmp_nat_original_address_ipv6, tvb, offset, 16, FALSE);
     break;
 
   default:
-    proto_tree_add_text(tree, tvb, offset, length,
-			"Original address: bad address type");
     break;
   }
 }
@@ -3324,80 +3760,6 @@ v1_attrval2str(int ike_p1, guint16 att_type, guint32 value)
     }
   }
 }
-
-static const char *
-cfgtype2str(int isakmp_version, guint8 type)
-{
-  static const value_string vs_v1_cfgtype[] = {
-    { 0,	"Reserved" },
-    { 1,	"ISAKMP_CFG_REQUEST" },
-    { 2,	"ISAKMP_CFG_REPLY" },
-    { 3,	"ISAKMP_CFG_SET" },
-    { 4,	"ISAKMP_CFG_ACK" },
-    { 0,	NULL },
-  };
-
-#if 0
-  static const value_string vs_v2_cfgtype[] = {
-    { 0,	"RESERVED" },
-    { 1,	"CFG_REQUEST" },
-    { 2,	"CFG_REPLY" },
-    { 3,	"CFG_SET" },
-    { 4,	"CFG_ACK" },
-    { 0,	NULL },
-  };
-#endif
-
-  if (isakmp_version == 1) {
-    if (type >= 5 && type <= 127)
-      return "Future use";
-    if (type >= 128)
-      return "Private Use";
-    return val_to_str(type, vs_v1_cfgtype, "UNKNOWN-CFG-TYPE");
-  } else if (isakmp_version == 2) {
-    if (type >= 5 && type <= 127)
-      return "RESERVED TO IANA";
-    if (type >= 128)
-      return "PRIVATE USE";
-    return val_to_str(type, vs_v1_cfgtype, "UNKNOWN-CFG-TYPE");
-  }
-  return "UNKNOWN-ISAKMP-VERSION";
-}
-
-static const char *
-id2str(int isakmp_version, guint8 type)
-{
-  static const value_string vs_ident[] = {
-    { IKE_ID_IPV4_ADDR,			"IPV4_ADDR" },
-    { IKE_ID_FQDN,				"FQDN" },
-    { IKE_ID_USER_FQDN,			"USER_FQDN" },
-    { IKE_ID_IPV4_ADDR_SUBNET,	"IPV4_ADDR_SUBNET" },
-    { IKE_ID_IPV6_ADDR,			"IPV6_ADDR" },
-    { IKE_ID_IPV6_ADDR_SUBNET,	"IPV6_ADDR_SUBNET" },
-    { IKE_ID_IPV4_ADDR_RANGE,	"IPV4_ADDR_RANGE" },
-    { IKE_ID_IPV6_ADDR_RANGE,	"IPV6_ADDR_RANGE" },
-    { IKE_ID_DER_ASN1_DN,		"DER_ASN1_DN" },
-    { IKE_ID_DER_ASN1_GN,		"DER_ASN1_GN" },
-    { IKE_ID_KEY_ID,			"KEY_ID" },
-    { 0,			NULL },
-  };
-
-  if (isakmp_version == 1) {
-    if (type == 0)
-      return "RESERVED";
-    return val_to_str(type, vs_ident, "UNKNOWN-ID-TYPE");
-  } else if (isakmp_version == 2) {
-    if (type == 4 || (type >= 6 && type <=8) || (type >= 12 && type <= 200))
-      return "Reserved to IANA";
-    if (type >= 201)
-      return "Reserved for private use";
-    if (type == IKE_ID_USER_FQDN)
-      return "RFC822_ADDR";
-    return val_to_str(type, vs_ident, "UNKNOWN-ID-TYPE");
-  }
-  return "UNKNOWN-ISAKMP-VERSION";
-}
-
 static const char *
 v2_tstype2str(guint8 type)
 {
@@ -3433,7 +3795,7 @@ v2_auth2str(guint8 type)
     return "PRIVATE USE";
   return val_to_str(type, vs_v2_authmeth, "UNKNOWN-AUTHMETHOD-TYPE");
 }
-
+/*
 static const char *
 cfgattr2str(int isakmp_version, guint16 ident)
 {
@@ -3503,7 +3865,7 @@ cfgattr2str(int isakmp_version, guint16 ident)
   }
   return "UNKNOWN-ISAKMP-VERSION";
 }
-
+*/
 static const char *
 certtype2str(int isakmp_version, guint8 type)
 {
@@ -3787,6 +4149,30 @@ proto_register_isakmp(void)
       { "Flags", "isakmp.flags",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "ISAKMP Flags", HFILL }},
+    { &hf_isakmp_flag_e,
+      { "Encryption", "isakmp.flag_e",
+        FT_BOOLEAN, 8, TFS(&flag_e), E_FLAG,
+        "Encryption Bit", HFILL }},
+    { &hf_isakmp_flag_c,
+      { "Commit", "isakmp.flag_c",
+        FT_BOOLEAN, 8, TFS(&flag_c), C_FLAG,
+        "Commit Bit", HFILL }},
+    { &hf_isakmp_flag_a,
+      { "Authentication", "isakmp.flag_a",
+        FT_BOOLEAN, 8, TFS(&flag_a), A_FLAG,
+        "Authentication Bit", HFILL }},
+    { &hf_isakmp_flag_i,
+      { "Initiator", "isakmp.flag_i",
+        FT_BOOLEAN, 8, TFS(&flag_i), I_FLAG,
+        "Initiator Bit", HFILL }},
+    { &hf_isakmp_flag_v,
+      { "Version", "isakmp.flag_v",
+        FT_BOOLEAN, 8, TFS(&flag_v), V_FLAG,
+        "Version Bit", HFILL }},
+    { &hf_isakmp_flag_r,
+      { "Response", "isakmp.flag_r",
+        FT_BOOLEAN, 8, TFS(&flag_r), R_FLAG,
+        "Response Bit", HFILL }},
     { &hf_isakmp_messageid,
       { "Message ID", "isakmp.messageid",
         FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -3827,10 +4213,14 @@ proto_register_isakmp(void)
       { "Transform ID", "isakmp.trans.id",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "ISAKMP Transform ID", HFILL }},
-    { &hf_isakmp_id_type,
+    { &hf_isakmp_id_type_v1,
       { "ID type", "isakmp.id.type",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        "ISAKMP ID Type", HFILL }},
+        FT_UINT8, BASE_DEC, VALS(&vs_v1_id_type), 0x0,
+        "ISAKMP (v1) ID Type", HFILL }},
+    { &hf_isakmp_id_type_v2,
+      { "ID type", "isakmp.id.type",
+        FT_UINT8, BASE_DEC, VALS(&vs_v2_id_type), 0x0,
+        "ISAKMP (v2) ID Type", HFILL }},
     { &hf_isakmp_protoid,
       { "Protocol ID", "isakmp.protoid",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -3909,6 +4299,151 @@ proto_register_isakmp(void)
     { &hf_isakmp_nat_keepalive,
       { "NAT Keepalive", "ike.nat_keepalive", FT_NONE, BASE_NONE, NULL, 0x0, "NAT Keepalive packet", HFILL }
     },
+   { &hf_isakmp_nat_hash,
+      { "HASH of the address and port",	"ike.nat_hash",
+	FT_BYTES, BASE_NONE, NULL, 0x00,
+	NULL, HFILL }},
+   { &hf_isakmp_nat_original_address_ipv4,
+      { "NAT Original IPv4 Address",	"ike.nat_original_address_ipv4",
+	FT_IPv4, BASE_NONE, NULL, 0x00,
+	NULL, HFILL }},
+   { &hf_isakmp_nat_original_address_ipv6,
+      { "NAT Original IPv6 Address",	"ike.nat_original_address_ipv6",
+	FT_IPv6, BASE_NONE, NULL, 0x00,
+	NULL, HFILL }},
+
+    { &hf_isakmp_cfg_type_v1,
+      { "Type", "isakmp.cfg.type_v1",
+         FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(&vs_v1_cfgtype), 0x0,
+         "ISAKMP (v1) Config Type", HFILL }},
+    { &hf_isakmp_cfg_identifier,
+      { "Identifier", "isakmp.cfg.identifier",
+         FT_UINT16, BASE_DEC, NULL, 0x0,
+         "ISAKMP (v1) Config Identifier", HFILL }},
+    { &hf_isakmp_cfg_type_v2,
+      { "Type", "isakmp.cfg.type_v2",
+         FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(&vs_v2_cfgtype), 0x0,
+         "ISAKMP (v2) Config Type", HFILL }},
+	/* Attributes Type */
+   { &hf_isakmp_cfg_attr_type_v1,
+      { "Type",	"isakmp.cfg.attr.type_v1",
+	FT_UINT16, BASE_RANGE_STRING | BASE_DEC, RVALS(&vs_v1_cfgattr), 0x00,
+	"ISAKMP (v1) Config Attribute type", HFILL }},
+   { &hf_isakmp_cfg_attr_type_v2,
+      { "Type",	"isakmp.cfg.attr.type_v2",
+	FT_UINT16, BASE_RANGE_STRING | BASE_DEC, RVALS(&vs_v2_cfgattr), 0x00,
+	"ISAKMP (v2) Config Attribute type", HFILL }},
+   { &hf_isakmp_cfg_attr_length,
+      { "Length",	"isakmp.cfg.attr.length",
+	FT_UINT16, BASE_DEC, NULL, 0x00,
+	"ISAKMP Config Attribute length", HFILL }},
+   { &hf_isakmp_cfg_attr_value,
+      { "Value",	"isakmp.cfg.attr.value",
+	FT_BYTES, BASE_NONE, NULL, 0x00,
+	"ISAKMP Config Attribute value", HFILL }},
+  { &hf_isakmp_cfg_attr_internal_ip4_address,
+      { "INTERNAL IP4 ADDRESS",	"isakmp.cfg.attr.internal_ip4_address",
+	FT_IPv4, BASE_NONE, NULL, 0x00,
+	" An IPv4 address on the internal network", HFILL }},
+ { &hf_isakmp_cfg_attr_internal_ip4_netmask,
+      { "INTERNAL IP4 NETMASK",	"isakmp.cfg.attr.internal_ip4_netmask",
+	FT_IPv4, BASE_NONE, NULL, 0x00,
+	"The internal network's netmask", HFILL }},
+ { &hf_isakmp_cfg_attr_internal_ip4_dns,
+      { "INTERNAL IP4 DNS",	"isakmp.cfg.attr.internal_ip4_dns",
+	FT_IPv4, BASE_NONE, NULL, 0x00,
+	"An IPv4 address of a DNS server within the network", HFILL }},
+ { &hf_isakmp_cfg_attr_internal_ip4_nbns,
+      { "INTERNAL IP4 NBNS",	"isakmp.cfg.attr.internal_ip4_nbns",
+	FT_IPv4, BASE_NONE, NULL, 0x00,
+	"An IPv4 address of a NetBios Name Server (WINS) within the network", HFILL }},
+ { &hf_isakmp_cfg_attr_internal_address_expiry,
+      { "INTERNAL ADDRESS EXPIRY (Secs)",	"isakmp.cfg.attr.internal_address_expiry",
+	FT_UINT32, BASE_DEC, NULL, 0x00,
+	"Specifies the number of seconds that the host can use the internal IP address", HFILL }},
+ { &hf_isakmp_cfg_attr_internal_ip4_dhcp,
+      { "INTERNAL IP4 DHCP",	"isakmp.cfg.attr.internal_ip4_dhcp",
+	FT_IPv4, BASE_NONE, NULL, 0x00,
+	"the host to send any internal DHCP requests to the address", HFILL }},
+  { &hf_isakmp_cfg_attr_application_version,
+      { "APPLICATION VERSION",	"isakmp.cfg.attr.application_version",
+	FT_STRING, BASE_NONE, NULL, 0x00,
+	"The version or application information of the IPsec host", HFILL }},
+  { &hf_isakmp_cfg_attr_internal_ip6_address,
+      { "INTERNAL IP6 ADDRESS",	"isakmp.cfg.attr.internal_ip6_address",
+	FT_IPv4, BASE_NONE, NULL, 0x00,
+	" An IPv6 address on the internal network", HFILL }},
+ { &hf_isakmp_cfg_attr_internal_ip6_netmask,
+      { "INTERNAL IP4 NETMASK",	"isakmp.cfg.attr.internal_ip6_netmask",
+	FT_IPv6, BASE_NONE, NULL, 0x00,
+	"The internal network's netmask", HFILL }},
+ { &hf_isakmp_cfg_attr_internal_ip6_dns,
+      { "INTERNAL IP6 DNS",	"isakmp.cfg.attr.internal_ip6_dns",
+	FT_IPv6, BASE_NONE, NULL, 0x00,
+	"An IPv6 address of a DNS server within the network", HFILL }},
+ { &hf_isakmp_cfg_attr_internal_ip6_nbns,
+      { "INTERNAL IP6 NBNS",	"isakmp.cfg.attr.internal_ip6_nbns",
+	FT_IPv6, BASE_NONE, NULL, 0x00,
+	"An IPv6 address of a NetBios Name Server (WINS) within the network", HFILL }},
+ { &hf_isakmp_cfg_attr_internal_ip6_dhcp,
+      { "INTERNAL IP6 DHCP",	"isakmp.cfg.attr.internal_ip6_dhcp",
+	FT_IPv6, BASE_NONE, NULL, 0x00,
+	"the host to send any internal DHCP requests to the address", HFILL }},
+ { &hf_isakmp_cfg_attr_internal_ip4_subnet_ip,
+      { "INTERNAL IP4 SUBNET (IP)",	"isakmp.cfg.attr.internal_ip4_subnet_ip",
+	FT_IPv4, BASE_NONE, NULL, 0x00,
+	"The protected sub-networks that this edge-device protects (IP)", HFILL }},
+ { &hf_isakmp_cfg_attr_internal_ip4_subnet_netmask,
+      { "INTERNAL IP4 SUBNET (NETMASK)",	"isakmp.cfg.attr.internal_ip4_subnet_netmask",
+	FT_IPv4, BASE_NONE, NULL, 0x00,
+	"The protected sub-networks that this edge-device protects (IP)", HFILL }},
+  { &hf_isakmp_cfg_attr_xauth_type,
+      { "XAUTH TYPE",	"isakmp.cfg.attr.xauth.type",
+	FT_UINT16, BASE_RANGE_STRING | BASE_DEC, RVALS(&cfgattr_xauth_type), 0x00,
+	"The type of extended authentication requested", HFILL }},
+
+  { &hf_isakmp_cfg_attr_xauth_user_name,
+      { "XAUTH USER NAME",	"isakmp.cfg.attr.xauth.user_name",
+	FT_STRING, BASE_NONE, NULL, 0x00,
+	"The user name", HFILL }},
+
+  { &hf_isakmp_cfg_attr_xauth_user_password,
+      { "XAUTH USER PASSWORD",	"isakmp.cfg.attr.xauth.user_password",
+	FT_STRING, BASE_NONE, NULL, 0x00,
+	"The user's password", HFILL }},
+  { &hf_isakmp_cfg_attr_xauth_passcode,
+      { "XAUTH PASSCODE",	"isakmp.cfg.attr.xauth.passcode",
+	FT_STRING, BASE_NONE, NULL, 0x00,
+	"A token card's passcode", HFILL }},
+  { &hf_isakmp_cfg_attr_xauth_message,
+      { "XAUTH MESSAGE",	"isakmp.cfg.attr.xauth.message",
+	FT_STRING, BASE_NONE, NULL, 0x00,
+	"A textual message from an edge device to an IPSec host", HFILL }},
+  { &hf_isakmp_cfg_attr_xauth_challenge,
+      { "XAUTH CHALLENGE",	"isakmp.cfg.attr.xauth.challenge",
+	FT_STRING, BASE_NONE, NULL, 0x00,
+	"A challenge string sent from the edge device to the IPSec host for it to include in its calculation of a password", HFILL }},
+
+  { &hf_isakmp_cfg_attr_xauth_domain,
+      { "XAUTH DOMAIN",	"isakmp.cfg.attr.xauth.domain",
+	FT_STRING, BASE_NONE, NULL, 0x00,
+	"The domain to be authenticated in", HFILL }},
+  { &hf_isakmp_cfg_attr_xauth_status,
+      { "XAUTH STATUS",	"isakmp.cfg.attr.xauth.status",
+	FT_UINT16, BASE_DEC, VALS(&cfgattr_xauth_status), 0x00,
+	"A variable that is used to denote authentication success or failure", HFILL }},
+  { &hf_isakmp_cfg_attr_xauth_next_pin,
+      { "XAUTH TYPE",	"isakmp.cfg.attr.xauth.next_pin",
+	FT_STRING, BASE_NONE, NULL, 0x00,
+	"A variable which is used when the edge device is requesting that the user choose a new pin number", HFILL }},
+  { &hf_isakmp_cfg_attr_xauth_answer,
+      { "XAUTH ANSWER",	"isakmp.cfg.attr.xauth.answer",
+	FT_STRING, BASE_NONE, NULL, 0x00,
+	"A variable length ASCII string used to send input to the edge device", HFILL }},
+  { &hf_isakmp_cfg_attr_unity_banner,
+      { "UNITY BANNER",	"isakmp.cfg.attr.unity.banner",
+	FT_STRING, BASE_NONE, NULL, 0x00,
+	"Banner", HFILL }},
   };
 
 
@@ -3918,6 +4453,7 @@ proto_register_isakmp(void)
     &ett_isakmp_payload,
     &ett_isakmp_fragment,
     &ett_isakmp_fragments,
+    &ett_isakmp_cfg_attr,
 #ifdef HAVE_LIBGCRYPT
     &ett_isakmp_decrypted_data,
     &ett_isakmp_decrypted_payloads
