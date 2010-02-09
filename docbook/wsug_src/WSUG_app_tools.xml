@@ -288,8 +288,9 @@ editcap: The available capture file types for "F":
     </example>
     <example id="AppToolseditcapEx2">
       <title>Encapsulation types available from editcap</title>
+      <para></para>
     </example>
-<!-- This cludge is needed since example doesn't break across PDF pages -->
+    <!-- This kludge is needed since example doesn't break across PDF pages -->
     <informalexample>
       <para>
       <programlisting>
