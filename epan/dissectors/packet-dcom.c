@@ -229,8 +229,8 @@ static const e_uuid_t iid_unknown =       { 0x00000000, 0x0000, 0x0000, { 0xC0, 
 static const e_uuid_t uuid_null =         { 0x00000000, 0x0000, 0x0000, { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00} };
 static const e_uuid_t iid_class_factory = { 0x00000001, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 
-static GList *dcom_machines   = NULL;
-static GList *dcom_interfaces = NULL;
+GList *dcom_machines;
+GList *dcom_interfaces;
 
 static const value_string dcom_thisthat_flag_vals[] = {
     { 0, "INFO_NULL" },
@@ -241,150 +241,150 @@ static const value_string dcom_thisthat_flag_vals[] = {
 
 
 void dcom_interface_dump(void) {
-	dcom_machine_t *machine;
-	dcom_object_t *object;
-	dcom_interface_t *interf;
-	GList *machines;
-	GList *objects;
-	GList *interfaces;
+    dcom_machine_t *machine;
+    dcom_object_t *object;
+    dcom_interface_t *interf;
+    GList *machines;
+    GList *objects;
+    GList *interfaces;
 
 
-	for(machines = dcom_machines; machines != NULL; machines = g_list_next(machines)) {
-		machine = machines->data;
-		g_warning("Machine(#%4u): IP:%s", machine->first_packet, ip_to_str(machine->ip));
+    for(machines = dcom_machines; machines != NULL; machines = g_list_next(machines)) {
+        machine = machines->data;
+        g_warning("Machine(#%4u): IP:%s", machine->first_packet, ip_to_str(machine->ip));
 
-		for(objects = machine->objects; objects != NULL; objects = g_list_next(objects)) {
-			object = objects->data;
-			g_warning(" Object(#%4u): OID:0x%" G_GINT64_MODIFIER "x private:%p", object->first_packet, object->oid, object->private_data);
+        for(objects = machine->objects; objects != NULL; objects = g_list_next(objects)) {
+            object = objects->data;
+            g_warning(" Object(#%4u): OID:0x%" G_GINT64_MODIFIER "x private:%p", object->first_packet, object->oid, object->private_data);
 
-			for(interfaces = object->interfaces; interfaces != NULL; interfaces = g_list_next(interfaces)) {
-				interf = interfaces->data;
-				g_warning("  Interface(#%4u): iid:%s", 
-					  interf->first_packet, guids_resolve_uuid_to_str(&interf->iid));
-				g_warning("            ipid:%s", guids_resolve_uuid_to_str(&interf->ipid));
-			}
-		}
-	}    
+            for(interfaces = object->interfaces; interfaces != NULL; interfaces = g_list_next(interfaces)) {
+                interf = interfaces->data;
+                g_warning("  Interface(#%4u): iid:%s", 
+                    interf->first_packet, guids_resolve_uuid_to_str(&interf->iid));
+                g_warning("            ipid:%s", guids_resolve_uuid_to_str(&interf->ipid));
+            }
+        }
+    }    
 }
 
 
 dcom_interface_t *dcom_interface_find(packet_info *pinfo _U_, const guint8 *ip _U_, e_uuid_t *ipid) 
 {
-	dcom_interface_t *interf;
-	GList *interfaces;
+    dcom_interface_t *interf;
+    GList *interfaces;
 
 
-	if(memcmp(ipid, &uuid_null, sizeof(uuid_null)) == 0)
-	{
-		return NULL;
-	}
+    if(memcmp(ipid, &uuid_null, sizeof(uuid_null)) == 0)
+    {
+        return NULL;
+    }
 
-	for(interfaces = dcom_interfaces; interfaces != NULL; interfaces = g_list_next(interfaces)) {
-		interf = interfaces->data;
+    for(interfaces = dcom_interfaces; interfaces != NULL; interfaces = g_list_next(interfaces)) {
+        interf = interfaces->data;
 
-		if(memcmp(&interf->ipid, ipid, sizeof(e_uuid_t)) == 0) {
-			return interf;
-		}
-	}
+        if(memcmp(&interf->ipid, ipid, sizeof(e_uuid_t)) == 0) {
+            return interf;
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
 
 dcom_interface_t *dcom_interface_new(packet_info *pinfo, const guint8 *ip, e_uuid_t *iid, guint64 oxid, guint64 oid, e_uuid_t *ipid)
 {
-	GList *dcom_iter;
-	dcom_machine_t *machine;
-	dcom_object_t *object;
-	dcom_interface_t *interf;
+    GList *dcom_iter;
+    dcom_machine_t *machine;
+    dcom_object_t *object;
+    dcom_interface_t *interf;
 
 
-	if( memcmp(iid, &uuid_null, sizeof(uuid_null)) == 0 ||
-	    memcmp(ipid, &uuid_null, sizeof(uuid_null)) == 0)
-	{
-		return NULL;
-	}
+    if( memcmp(iid, &uuid_null, sizeof(uuid_null)) == 0 ||
+        memcmp(ipid, &uuid_null, sizeof(uuid_null)) == 0)
+    {
+        return NULL;
+    }
 
-	if(oxid == 0 || oid == 0) {
-		/*g_warning("interface_new#%u", pinfo->fd->num);*/
+    if(oxid == 0 || oid == 0) {
+        /*g_warning("interface_new#%u", pinfo->fd->num);*/
 
-		interf = se_alloc(sizeof(dcom_interface_t));
-		interf->parent = NULL;
-		interf->private_data = NULL;
-		interf->first_packet = pinfo->fd->num;
-		interf->iid = *iid;
-		interf->ipid = *ipid;
+        interf = se_alloc(sizeof(dcom_interface_t));
+        interf->parent = NULL;
+        interf->private_data = NULL;
+        interf->first_packet = pinfo->fd->num;
+        interf->iid = *iid;
+        interf->ipid = *ipid;
 
-		dcom_interfaces = g_list_append(dcom_interfaces, interf);
-		return interf;
-	}
+        dcom_interfaces = g_list_append(dcom_interfaces, interf);
+        return interf;
+    }
 
-	/* find machine */
-	dcom_iter = dcom_machines;
-	while(dcom_iter != NULL) {
-		machine = dcom_iter->data;
-		if(memcmp(machine->ip, ip, 4) == 0) {
-			break;
-		}
-		dcom_iter = g_list_next(dcom_iter);
-	}
+    /* find machine */
+    dcom_iter = dcom_machines;
+    while(dcom_iter != NULL) {
+        machine = dcom_iter->data;
+        if(memcmp(machine->ip, ip, 4) == 0) {
+            break;
+        }
+        dcom_iter = g_list_next(dcom_iter);
+    }
 
-	/* create new machine if not found */
-	if(dcom_iter == NULL) {
-		machine = se_alloc(sizeof(dcom_machine_t));
-		memcpy(machine->ip, ip, 4);
-		machine->objects = NULL;
-		machine->first_packet = pinfo->fd->num;
-		dcom_machines = g_list_append(dcom_machines, machine);
-	}
+    /* create new machine if not found */
+    if(dcom_iter == NULL) {
+        machine = se_alloc(sizeof(dcom_machine_t));
+        memcpy(machine->ip, ip, 4);
+        machine->objects = NULL;
+        machine->first_packet = pinfo->fd->num;
+        dcom_machines = g_list_append(dcom_machines, machine);
+    }
 
-	/* find object */
-	dcom_iter = machine->objects;
-	while(dcom_iter != NULL) {
-		object = dcom_iter->data;
-		if(object->oid == oid) {
-			break;
-		}
-		dcom_iter = g_list_next(dcom_iter);
-	}
+    /* find object */
+    dcom_iter = machine->objects;
+    while(dcom_iter != NULL) {
+        object = dcom_iter->data;
+        if(object->oid == oid) {
+            break;
+        }
+        dcom_iter = g_list_next(dcom_iter);
+    }
 
-	/* create new object if not found */
-	if(dcom_iter == NULL) {
-		object = se_alloc(sizeof(dcom_object_t));
-		object->parent = machine;
-		object->interfaces = NULL;
-		object->private_data = NULL;
-		object->first_packet = pinfo->fd->num;
-		object->oid = oid;
-		object->oxid = oxid;
+    /* create new object if not found */
+    if(dcom_iter == NULL) {
+        object = se_alloc(sizeof(dcom_object_t));
+        object->parent = machine;
+        object->interfaces = NULL;
+        object->private_data = NULL;
+        object->first_packet = pinfo->fd->num;
+        object->oid = oid;
+        object->oxid = oxid;
 
-		machine->objects = g_list_append(machine->objects, object);
-	}
+        machine->objects = g_list_append(machine->objects, object);
+    }
 
-	/* find interface */
-	dcom_iter = object->interfaces;
-	while(dcom_iter != NULL) {
-		interf = dcom_iter->data;
-		if(memcmp(&interf->ipid, ipid, sizeof(e_uuid_t)) == 0) {
-			break;
-		}
-		dcom_iter = g_list_next(dcom_iter);
-	}
+    /* find interface */
+    dcom_iter = object->interfaces;
+    while(dcom_iter != NULL) {
+        interf = dcom_iter->data;
+        if(memcmp(&interf->ipid, ipid, sizeof(e_uuid_t)) == 0) {
+            break;
+        }
+        dcom_iter = g_list_next(dcom_iter);
+    }
 
-	/* create new interface if not found */
-	if(dcom_iter == NULL) {
-		interf = se_alloc(sizeof(dcom_interface_t));
-		interf->parent = object;
-		interf->private_data = NULL;
-		interf->first_packet = pinfo->fd->num;
-		interf->iid = *iid;
-		interf->ipid = *ipid;
+    /* create new interface if not found */
+    if(dcom_iter == NULL) {
+        interf = se_alloc(sizeof(dcom_interface_t));
+        interf->parent = object;
+        interf->private_data = NULL;
+        interf->first_packet = pinfo->fd->num;
+        interf->iid = *iid;
+        interf->ipid = *ipid;
 
-		object->interfaces = g_list_append(object->interfaces, interf);
-		dcom_interfaces = g_list_append(dcom_interfaces, interf);
-	}
+        object->interfaces = g_list_append(object->interfaces, interf);
+        dcom_interfaces = g_list_append(dcom_interfaces, interf);
+    }
 
-	return interf;
+    return interf;
 }
 
 
@@ -2043,32 +2043,10 @@ dissect_dcom_PMInterfacePointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	return offset;
 }
 
+
 static void dcom_reinit( void) {
-	/* Note that the memory for each machine, object and interface is se_alloc'd and thus need not be freed here */
-        /* I.E: only the actual lists need to be freed.                                                              */
-	if (dcom_machines != NULL) {
-		GList *machines;
-		for(machines = dcom_machines; machines != NULL; machines = g_list_next(machines)) {
-			dcom_machine_t *machine = machines->data;
-
-			if (machine->objects != NULL) {
-				GList *objects;
-				for(objects = machine->objects; objects != NULL; objects = g_list_next(objects)) {
-					dcom_object_t *object = objects->data;
-					if (object->interfaces != NULL)
-						g_free(object->interfaces);
-				}
-				g_free(machine->objects);
-			}
-		}
-		g_free(dcom_machines);
-		dcom_machines = NULL;
-	}
-
-	if (dcom_interfaces != NULL) {
-		g_list_free(dcom_interfaces);
-		dcom_interfaces = NULL;
-	}
+	dcom_machines = NULL;
+	dcom_interfaces = NULL;
 }
 
 
