@@ -2632,6 +2632,8 @@ dissect_sflow_245_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                 default:
                     break;
             }
+            /* Make sure the length doesn't run past the end of the packet */
+            tvb_ensure_bytes_exist(tvb, offset, length);
             /* current offset points to sample length field, which is 4 bytes from the beginning of the packet*/
             offset += length;
         } else { /* unknown enterprise format, what to do?? */
