@@ -343,12 +343,7 @@ SMI_DIR=$(WIRESHARK_LIBS)\libsmi-0.4.8
 #
 # Used to map IP addresses to MaxMind GeoIP database entries
 #
-# GeoIP requires IPv6 definitions that don't ship with Visual C++ 6.0.
-# However, the Microsoft Platform SDK for Windows Server 2003 R2 provides
-# these definitions. The SDK's SetEnv.bat script defines INETSDK.
-!IF "$(MSVC_VARIANT)" != "MSVC6" || DEFINED(INETSDK)
-GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.6-win32ws\libGeoIP
-!ENDIF
+GEOIP_PKG=1.4.5ws
 
 !else
 ##### Win64 Libraries #####
@@ -564,7 +559,7 @@ AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_4_1_0_1622\AirPcap_Devpack
 #
 # Used to map IP addresses to MaxMind GeoIP database entries
 #
-GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.6-win64ws\libGeoIP
+GEOIP_PKG=1.4.6-win64ws
 
 !endif
 
@@ -1122,7 +1117,8 @@ SMI_CFLAGS=
 SMI_CONFIG=
 !ENDIF
 
-!IFDEF GEOIP_DIR
+!IFDEF GEOIP_PKG
+GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-$(GEOIP_PKG)\libGeoIP
 GEOIP_CONFIG=^#define HAVE_GEOIP 1
 GEOIP_CFLAGS=/I$(GEOIP_DIR)
 GEOIP_LIBS=$(GEOIP_DIR)\GeoIP.lib
