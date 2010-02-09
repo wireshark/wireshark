@@ -1094,7 +1094,9 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	column_info *cinfo;
 	gint col;
 	gboolean create_proto_tree;
-
+	union wtap_pseudo_header pseudo_header; /* Packet pseudo_header */
+	guint8 pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
+    
 	fdata = record->fdata;
 
 	if (dissect_columns)
@@ -1102,8 +1104,8 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	else
 		cinfo = NULL;
 
-	if (!wtap_seek_read(cfile.wth, fdata->file_off, &cfile.pseudo_header,
-		cfile.pd, fdata->cap_len, &err, &err_info)) {
+	if (!wtap_seek_read(cfile.wth, fdata->file_off, &pseudo_header,
+		pd, fdata->cap_len, &err, &err_info)) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			cf_read_error_message(err, err_info), cfile.filename);
 			return;
@@ -1121,7 +1123,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	if (dissect_columns)
 		col_custom_prime_edt(&edt, cinfo);
 
-	epan_dissect_run(&edt, &cfile.pseudo_header, cfile.pd, fdata, cinfo);
+	epan_dissect_run(&edt, &pseudo_header, pd, fdata, cinfo);
 
 	if (dissect_color)
 		fdata->color_filter = color_filters_colorize_packet(&edt);
