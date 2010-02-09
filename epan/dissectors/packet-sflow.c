@@ -2862,7 +2862,7 @@ proto_register_sflow(void) {
                 "Protocol of sampled header", HFILL}},
         { &hf_sflow_245_header,
             { "Header of sampled packet", "sflow_245.header",
-                FT_BYTES, BASE_HEX, NULL, 0x0,
+                FT_BYTES, BASE_NONE, NULL, 0x0,
                 "Data from sampled header", HFILL}},
         { &hf_sflow_245_packet_information_type,
             { "Sample type", "sflow_245.packet_information_type",
