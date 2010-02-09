@@ -1277,6 +1277,7 @@ Function myShowCallback
 	StrCmp $R0 '98' lbl_winversion_unsupported
 	StrCmp $R0 'ME' lbl_winversion_unsupported
 	StrCmp $R0 'NT 4.0' lbl_winversion_unsupported_nt4
+	StrCmp $R0 '2000' lbl_winversion_unsupported_2000
 	Goto lbl_winversion_supported
 lbl_winversion_unsupported:
 	MessageBox MB_OK \
@@ -1290,8 +1291,13 @@ lbl_winversion_unsupported_nt4:
             /SD IDOK
 	Quit
 
-lbl_winversion_supported:
+lbl_winversion_unsupported_2000:
+	MessageBox MB_OK \
+            "Windows $R0 is no longer supported. Please install Wireshark 1.2 or 1.0." \
+            /SD IDOK
+	Quit
 
+lbl_winversion_supported:
 	; detect if WinPcap should be installed
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 4.1.1"
 	ReadRegStr $WINPCAP_NAME HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"

@@ -100,6 +100,13 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            Wireshark no longer supports Windows 2000. Please use Wireshark 1.2 or 1.0 on
+            those systems.
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
