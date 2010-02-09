@@ -464,6 +464,8 @@ lowpan_dlsrc_to_ifcid(packet_info *pinfo, guint8 *ifcid)
     /* Check the link-layer address field. */
     if (pinfo->dl_src.type == AT_EUI64) {
         memcpy(ifcid, pinfo->dl_src.data, LOWPAN_IFC_ID_LEN);
+        /* RFC2464: Invert the U/L bit when using an EUI64 address. */
+        ifcid[0] ^= 0x02;
         return TRUE;
     }
 
@@ -476,6 +478,8 @@ lowpan_dlsrc_to_ifcid(packet_info *pinfo, guint8 *ifcid)
         guint64     addr;
         addr = pntoh64(&packet->src.addr64);
         memcpy(ifcid, &addr, LOWPAN_IFC_ID_LEN);
+        /* RFC2464: Invert the U/L bit when using an EUI64 address. */
+        ifcid[0] ^= 0x02;
         return TRUE;
     }
     if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
@@ -509,6 +513,8 @@ lowpan_dldst_to_ifcid(packet_info *pinfo, guint8 *ifcid)
     /* Check the link-layer address field. */
     if (pinfo->dl_dst.type == AT_EUI64) {
         memcpy(ifcid, pinfo->dl_dst.data, LOWPAN_IFC_ID_LEN);
+        /* RFC2464: Invert the U/L bit when using an EUI64 address. */
+        ifcid[0] ^= 0x02;
         return TRUE;
     }
 
@@ -521,6 +527,8 @@ lowpan_dldst_to_ifcid(packet_info *pinfo, guint8 *ifcid)
         guint64     addr;
         addr = pntoh64(&packet->dst.addr64);
         memcpy(ifcid, &addr, LOWPAN_IFC_ID_LEN);
+        /* RFC2464: Invert the U/L bit when using an EUI64 address. */
+        ifcid[0] ^= 0x02;
         return TRUE;
     }
     if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
