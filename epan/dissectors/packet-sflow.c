@@ -3459,23 +3459,34 @@ proto_reg_handoff_sflow_245(void) {
          */
         smds_handle = data_handle;
 #endif
-        /* No AAL5 (ATM Adaptation Layer 5) dissector available, use ATM dissector for now */
-        aal5_handle = find_dissector("atm");
+#if 0
+        aal5_handle = find_dissector("aal5");
+#else
+        /*
+         * No AAL5 (ATM Adaptation Layer 5) dissector available.
+         * What does the packet look like?  An AAL5 PDU?  Where
+         * do the VPI/VCI pair appear, if anywhere?
+         */
+        aal5_handle = data_handle;
+#endif
         ipv4_handle = find_dissector("ip");
         ipv6_handle = find_dissector("ipv6");
         mpls_handle = find_dissector("mpls");
+#if 0
+        pos_handle = find_dissector("pos");
+#else
         /* wireshark does not have POS dissector yet */
-        /*
-                pos_handle = find_dissector("pos");
-         */
         pos_handle = data_handle;
+#endif
         ieee80211_mac_handle = find_dissector("wlan");
-        /*
-                ieee80211_ampdu_handle = find_dissector("ampdu");
-                ieee80211_amsdu_subframe_handle = find_dissector("wlan_aggregate");
-         */
+#if 0
+        ieee80211_ampdu_handle = find_dissector("ampdu");
+        ieee80211_amsdu_subframe_handle = find_dissector("wlan_aggregate");
+#else
+        /* No handles for these */
         ieee80211_ampdu_handle = data_handle;
         ieee80211_amsdu_subframe_handle = data_handle;
+#endif
     } else {
         eth_withoutfcs_handle = data_handle;
         tr_handle = data_handle;
