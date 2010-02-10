@@ -622,8 +622,6 @@ EXTRA_DIST = \
 	debian/wireshark.manpages \
 	debian/wireshark.menu	\
 	dfilters 		\
-	docbook/Makefile.auto.am	\
-	docbook/ws.css		\
 	doxygen.cfg.in		\
 	dumpcap.c	\
 	editcap.c		\
@@ -824,7 +822,7 @@ else
 install-exec-hook:
 endif
 
-DIST_SUBDIRS = asn1 codecs doc epan gtk help packaging plugins tools wiretap wsutil
+DIST_SUBDIRS = asn1 codecs doc epan gtk help packaging plugins tools wiretap wsutil docbook
 
 if HAVE_PLUGINS
 SUBDIRS = tools wsutil wiretap epan plugins packaging help @wireshark_SUBDIRS@ . doc

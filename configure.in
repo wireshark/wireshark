@@ -183,6 +183,22 @@ AC_PATH_PROG(FOP, fop)
 AC_CHECK_PROG(HAVE_FOP, fop, "yes", "no")
 AM_CONDITIONAL(HAVE_FOP, test x$HAVE_FOP = xyes)
 
+#
+# Look for something to convert HTML to text (for docbook/)
+#
+AC_PATH_PROG(ELINKS, elinks)
+AC_CHECK_PROG(HAVE_ELINKS, elinks, "yes", "no")
+AM_CONDITIONAL(HAVE_ELINKS, test x$HAVE_ELINKS = xyes)
+
+AC_PATH_PROG(LINKS, links)
+AC_CHECK_PROG(HAVE_LINKS, links, "yes", "no")
+AM_CONDITIONAL(HAVE_LINKS, test x$HAVE_LINKS = xyes)
+
+AC_PATH_PROG(LYNX, lynx)
+AC_CHECK_PROG(HAVE_LYNX, lynx, "yes", "no")
+AM_CONDITIONAL(HAVE_LYNX, test x$HAVE_LYNX = xyes)
+
+
 # Check for hhc (html help compiler)
 AC_PATH_PROG(HHC, hhc.exe)
 AC_CHECK_PROG(HAVE_HHC, hhc.exe, "yes", "no")
@@ -1742,6 +1758,7 @@ AC_OUTPUT(
   asn1/x509sat/Makefile
   asn1/x721/Makefile
   doc/Makefile
+  docbook/Makefile
   epan/Makefile
   epan/crc/Makefile
   epan/crypt/Makefile
