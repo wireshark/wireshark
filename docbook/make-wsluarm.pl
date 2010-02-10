@@ -10,17 +10,17 @@
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -35,7 +35,7 @@ sub deb {
 }
 
 sub gorolla {
-# a gorilla stays to a chimp like gorolla stays to chomp 
+# a gorilla stays to a chimp like gorolla stays to chomp
 # but this one returns the shrugged string.
 	my $s = shift;
 	$s =~ s/^([\n]|\s)*//ms;
@@ -93,7 +93,7 @@ my $out_extension = "xml";
 
 # It's said that only perl can parse perl... my editor isn't perl...
 # if unencoded this causes my editor's autoindent to bail out so I encoded in octal
-# XXX: support \" within "" 
+# XXX: support \" within ""
 my $QUOTED_RE = "\042\050\133^\042\135*\051\042";
 
 my $TRAILING_COMMENT_RE = '((\s*|[\n\r]*)/\*(.*?)\*/)?';
@@ -101,8 +101,8 @@ my $TRAILING_COMMENT_RE = '((\s*|[\n\r]*)/\*(.*?)\*/)?';
 my @control =
 (
 # This will be scanned in order trying to match the re if it matches
-# the body will be executed immediatelly after. 
-['WSLUA_MODULE\s*([A-Z][a-zA-Z]+)([^\*]*)', 
+# the body will be executed immediatelly after.
+['WSLUA_MODULE\s*([A-Z][a-zA-Z]+)([^\*]*)',
 sub {
 	$module{name} = $1;
 	$module{descr} = $2
@@ -246,19 +246,19 @@ sub {
 	} ],
 
 [ 'WSLUA_(FINAL_)?RETURN\050\s*.*?\s*\051\s*;' . $TRAILING_COMMENT_RE,
-sub { 
+sub {
 	deb ">fr=$1=$2=$3=$4=$5=$6=$7=\n";
 	push @{${$function}{returns}} , gorolla($4) if $4 ne '';
 } ],
 
 [ '\057\052\s*_WSLUA_RETURNS_\s*(.*?)\052\057',
-	sub { 
+	sub {
 		deb ">fr2=$1=$2=$3=$4=$5=$6=$7=\n";
 		push @{${$function}{returns}} , gorolla($1) if $1 ne '';
 } ],
 
 [ 'WSLUA_ERROR\s*\050\s*(([A-Z][A-Za-z]+)_)?([a-z_]+),' . $QUOTED_RE ,
-	sub { 
+	sub {
 		deb ">e=$1=$2=$3=$4=$5=$6=$7=\n";
 		my $errors;
 		unless (exists ${$function}{errors}) {
@@ -266,7 +266,7 @@ sub {
 		} else {
 			$errors = ${$function}{errors};
 		}
-		
+
 		push @{$errors}, gorolla($4);
 	} ],
 
@@ -279,7 +279,7 @@ sub {
 		} else {
 			$errors = ${${${$function}{args}}{$5}}{errors};
 		}
-		
+
 		push @{$errors}, gorolla($6);
 	} ] ,
 );
@@ -295,15 +295,15 @@ my $file;
 while ( $file =  shift) {
 
 	next unless -f $file;
-	
+
 	%module = ();
-	
+
 	my $docfile = $file;
 	$docfile =~ s#.*/##;
 	$docfile =~ s/\.c$/.$out_extension/;
-	
-	open C, "< $file";
-	open D, "> wsluarm_src/$docfile";
+
+	open C, "< $file" or die "Can't open input file $file: $!";
+	open D, "> wsluarm_src/$docfile" or die "Can't open output file wsluarm_src/$docfile: $!";
 
 	my $b = '';
 	$b .= $_ while (<C>);
@@ -322,23 +322,23 @@ while ( $file =  shift) {
 	}
 
 	$modules{$module{name}} = $docfile;
-	
-	printf D ${$template_ref}{module_header}, $module{name}, $module{name}; 
+
+	printf D ${$template_ref}{module_header}, $module{name}, $module{name};
 	if ( exists  ${$template_ref}{module_desc} ) {
-		printf D ${$template_ref}{module_desc}, $module{descr}, $module{descr}; 		
+		printf D ${$template_ref}{module_desc}, $module{descr}, $module{descr};
 	}
-	
+
 	for my $cname (sort keys %classes) {
 		my $cl = $classes{$cname};
 		printf D ${$template_ref}{class_header}, $cname, $cname;
-		
+
 		if ( ${$cl}{descr} ) {
 			printf D ${$template_ref}{class_desc} , ${$cl}{descr};
 		}
-		
+
 		if ( $#{${$cl}{constructors}} >= 0) {
 #			printf D ${$template_ref}{class_constructors_header}, $cname, $cname;
-			
+
 			for my $c (@{${$cl}{constructors}}) {
 				function_descr($c);
 			}
@@ -348,14 +348,14 @@ while ( $file =  shift) {
 
 		if ( $#{${$cl}{methods}} >= 0) {
 #			printf D ${$template_ref}{class_methods_header}, $cname, $cname;
-			
+
 			for my $m (@{${$cl}{methods}}) {
 				function_descr($m);
 			}
-						
+
 #			printf D ${$template_ref}{class_methods_footer}, $cname, $cname;
 		}
-		
+
 		if ( $#{${$cl}{attributes}} >= 0) {
 			for my $a (@{${$cl}{attributes}}) {
 				my $a_id = ${$a}{name};
@@ -363,10 +363,10 @@ while ( $file =  shift) {
 				printf D ${$template_ref}{class_attr_header}, $a_id, ${$a}{name};
 				printf D ${$template_ref}{class_attr_descr}, ${$a}{descr}, ${$a}{descr} if ${$a}{descr};
 				printf D ${$template_ref}{class_attr_footer}, ${$a}{name}, ${$a}{name};
-				
+
 			}
 		}
-		
+
 		if (exists ${$template_ref}{class_footer}) {
 			printf D ${$template_ref}{class_footer}, $cname, $cname;
 		}
@@ -379,7 +379,7 @@ while ( $file =  shift) {
 		for my $f (@functions) {
 			function_descr($f);
 		}
-		
+
 		print D ${$template_ref}{non_method_functions_footer};
 	}
 
@@ -388,8 +388,8 @@ while ( $file =  shift) {
 	$function = undef;
 	@functions = ();
 	close C;
-	
-	printf D ${$template_ref}{module_footer}, $module{name}; 
+
+	printf D ${$template_ref}{module_footer}, $module{name};
 
 	close D;
 }
@@ -409,7 +409,7 @@ while ( $file =  shift) {
 #	$txt .= "&$module_name;\n";
 #}
 #
-#$wsluarm =~ s/<!-- WSLUA_MODULE_ENTITIES -->/$ents/; 
+#$wsluarm =~ s/<!-- WSLUA_MODULE_ENTITIES -->/$ents/;
 #$wsluarm =~ s/<!-- WSLUA_MODULE_TEXT -->/$txt/;
 #
 #open X, "> wsluarm.xml";
@@ -419,7 +419,7 @@ while ( $file =  shift) {
 sub function_descr {
 	my $f = $_[0];
 	my $label = $_[1];
-	
+
 	if (defined $label ) {
 		$label =~ s/>/&gt;/;
 		$label =~ s/</&lt;/;
@@ -429,24 +429,24 @@ sub function_descr {
 		printf D ${$template_ref}{function_header}, $section_name, $label;
 	} else {
 		my $arglist = '';
-		
+
 		for (@{ ${$f}{arglist} }) {
 			my $a = $_;
 			$a =~ tr/A-Z/a-z/;
 			$arglist .= "$a, ";
 		}
-		
+
 		$arglist =~ s/, $//;
 		my $section_name =  "${$f}{name}($arglist)";
 		$section_name =~ s/[^a-zA-Z0-9]/_/g;
-			
+
 		printf D ${$template_ref}{function_header}, $section_name , "${$f}{name}($arglist)";
-	}	
-	
+	}
+
 	printf D ${$template_ref}{function_descr}, ${$f}{descr} if ${$f}{descr};
 
 	print D ${$template_ref}{function_args_header} if $#{${$f}{arglist}} >= 0;
-	
+
 	for my $argname (@{${$f}{arglist}}) {
 		my $arg = ${${$f}{args}}{$argname};
 		$argname =~ tr/A-Z/a-z/;
@@ -462,29 +462,29 @@ sub function_descr {
 		}
 
 		printf D ${$template_ref}{function_arg_footer}, $argname, $argname;
-	
+
 	}
-	
+
 	print D ${$template_ref}{function_args_footer} if $#{${$f}{arglist}} >= 0;
-	
+
 	if ( $#{${$f}{returns}} >= 0) {
 		printf D ${$template_ref}{function_returns_header}, ${$f}{name};
 		printf D ${$template_ref}{function_returns}, $_ for @{${$f}{returns}};
 		printf D ${$template_ref}{function_returns_footer}, ${$f}{name};
-	}	
+	}
 
 	if ( $#{${$f}{errors}} >= 0) {
 		my $sname = exists ${$f}{section_name} ? ${$f}{section_name} : ${$f}{name};
-		
+
 		printf D ${$template_ref}{function_errors_header}, $sname;
 		printf D ${$template_ref}{function_errors}, $_ for @{${$f}{errors}};
 		printf D ${$template_ref}{function_errors_footer}, ${$f}{name};
-	}	
-	
+	}
+
 	if (not defined $label ) {
 		$label = '';
-	}	
-	
+	}
+
 	printf D ${$template_ref}{function_footer}, $label, $label;
-	
+
 }
