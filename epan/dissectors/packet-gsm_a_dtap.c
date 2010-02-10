@@ -454,6 +454,11 @@ static int hf_gsm_a_dtap_rej_cause	= -1;
 static int hf_gsm_a_dtap_u2u_prot_discr	= -1;
 static int hf_gsm_a_dtap_mcat	= -1;
 static int hf_gsm_a_dtap_enicm	= -1;
+static int hf_gsm_a_dtap_rand	= -1;
+static int hf_gsm_a_dtap_autn	= -1;
+static int hf_gsm_a_dtap_xres	= -1;
+static int hf_gsm_a_dtap_sres	= -1;
+static int hf_gsm_a_dtap_auts	= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
@@ -501,125 +506,64 @@ static dgt_set_t Dgt_mbcd = {
 };
 
 /*
- * [3] 10.5.3.1 Authentication parameter RAND
+ * [9] 10.5.3.1 Authentication parameter RAND
  */
 static guint16
-de_auth_param_rand(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_auth_param_rand(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
-
-	len = len;
-	curr_offset = offset;
-
-/*
- * 16 octets == 128 bits
- */
-#define	AUTH_PARAM_RAND_LEN	16
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, AUTH_PARAM_RAND_LEN,
-		"RAND value: %s",
-		tvb_bytes_to_str(tvb, curr_offset, AUTH_PARAM_RAND_LEN));
-
-	curr_offset += AUTH_PARAM_RAND_LEN;
+	/* The RAND value is 16 octets long */
+	proto_tree_add_item(tree, hf_gsm_a_dtap_rand, tvb, offset, 16, FALSE);
 
 	/* no length check possible */
-
-	return(curr_offset - offset);
+	return(16);
 }
 
 /*
- * [3] 10.5.3.1.1 Authentication Parameter AUTN (UMTS authentication challenge only)
+ * [9] 10.5.3.1.1 Authentication Parameter AUTN (UMTS and EPS authentication challenge)
  */
 static guint16
 de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+	proto_tree_add_item(tree, hf_gsm_a_dtap_autn, tvb, offset, len, FALSE);
 
-	curr_offset = offset;
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, len,
-		"AUTN value: %s",
-		tvb_bytes_to_str(tvb, curr_offset, len));
-
-	curr_offset += len;
-
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-	return(curr_offset - offset);
+	return(len);
 }
 
 /*
- * [3] 10.5.3.2 Authentication Response parameter
+ * [9] 10.5.3.2 Authentication Response parameter
  */
 static guint16
-de_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
-
-	len = len;
-	curr_offset = offset;
-
-/*
- * 4 octets == 32 bits
- */
-#define	AUTH_PARAM_SRES_LEN	4
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, AUTH_PARAM_SRES_LEN,
-		"SRES value: %s",
-		tvb_bytes_to_str(tvb, curr_offset, AUTH_PARAM_SRES_LEN));
-
-	curr_offset += AUTH_PARAM_SRES_LEN;
+    /* This IE contains either the SRES or the 4 most significant octets of the RES */
+	proto_tree_add_item(tree, hf_gsm_a_dtap_sres, tvb, offset, 4, FALSE);
 
 	/* no length check possible */
-
-	return(curr_offset - offset);
+	return(4);
 }
 
 /*
- * [3] 10.5.3.2.1 Authentication Response Parameter (extension) (UMTS authentication challenge only)
+ * [9] 10.5.3.2.1 Authentication Response Parameter (extension) (UMTS authentication challenge only)
  */
 static guint16
 de_auth_resp_param_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+	/* This IE contains all but 4 most significant octets of RES */
+	proto_tree_add_item(tree, hf_gsm_a_dtap_xres, tvb, offset, len, FALSE);
 
-	curr_offset = offset;
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, len,
-		"XRES value: %s",
-		tvb_bytes_to_str(tvb, curr_offset, len));
-
-	curr_offset += len;
-
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-	return(curr_offset - offset);
+	return(len);
 }
 
 /*
- * [3] 10.5.3.2.2 Authentication Failure parameter (UMTS authentication challenge only)
+ * [9] 10.5.3.2.2 Authentication Failure parameter (UMTS and EPS authentication challenge)
  */
 static guint16
 de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+	/* This IE contains all but 4 most significant octets of RES */
+	proto_tree_add_item(tree, hf_gsm_a_dtap_auts, tvb, offset, len, FALSE);
 
-	curr_offset = offset;
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, len,
-		"AUTS value: %s",
-		tvb_bytes_to_str(tvb, curr_offset, len));
-
-	curr_offset += len;
-
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-	return(curr_offset - offset);
+	return(len);
 }
 
 /*
@@ -6525,6 +6469,31 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_dtap_enicm,
 		{ "ENICM", "gsm_a.dtap.mcat",
 		FT_BOOLEAN, 8, TFS(&gsm_a_dtap_enicm_value), 0x04,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_rand,
+		{ "RAND value", "gsm_a.dtap.rand",
+		FT_BYTES, FT_NONE, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_autn,
+		{ "AUTN value", "gsm_a.dtap.autn",
+		FT_BYTES, FT_NONE, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_sres,
+		{ "SRES value", "gsm_a.dtap.sres",
+		FT_BYTES, FT_NONE, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_xres,
+		{ "XRES value", "gsm_a.dtap.xres",
+		FT_BYTES, FT_NONE, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_auts,
+		{ "AUTS value", "gsm_a.dtap.auts",
+		FT_BYTES, FT_NONE, NULL, 0x00,
 		NULL, HFILL }
 	},
 	};
