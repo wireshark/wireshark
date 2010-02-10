@@ -7,6 +7,8 @@
  *
  * By Yi Yu <yiyu.inbox@gmail.com>
  *
+ * $Id$
+ *
  * TODO:
  *   802.11 aggregation data dissection                         (sFlow v5)
  *   improve TCP bitwise flags dissection display               (sFlow v5)
@@ -18,24 +20,24 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
  *
- * This file (mostly) implements a dissector for sFlow (RFC3176), 
- * from the version 4 spec at http://www.sflow.org/SFLOW-DATAGRAM.txt . 
+ * This file (mostly) implements a dissector for sFlow (RFC3176),
+ * from the version 4 spec at http://www.sflow.org/SFLOW-DATAGRAM.txt .
  *
  * TODO:
  *   Fix the highlighting of the datastream when bits are selected
@@ -1292,7 +1294,7 @@ dissect_sflow_5_ipv6(tvbuff_t *tvb, proto_tree *tree, gint offset) {
        delivery priority of the packets. Priority values are divided into
        ranges: traffic where the source provides congestion control and
        non-congestion control traffic.
-     
+
        It is displayed as unsigned integer here according to sFlow specification */
 
     priority = tvb_get_ntohl(tvb, offset);
