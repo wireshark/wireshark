@@ -102,8 +102,15 @@ Wireshark Info
 
         <listitem>
           <para>
-            Wireshark no longer supports Windows 2000. Please use Wireshark 1.2 or 1.0 on
-            those systems.
+	    Wireshark no longer supports Windows 2000. Please use
+	    Wireshark 1.2 or 1.0 on those systems.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Packtets can now be ignored (excluded from dissection), similar to
+            the way they can be marked.
           </para>
         </listitem>
 
