@@ -418,9 +418,8 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
   guint8        pmipv4skipext_type;
   guint16       flags;
   gint          hdrLen;
-  guint8      cvse_reserved;
-  guint32    cvse_vendor_id;
-  guint16    cvse_vendor_type;
+  guint32       cvse_vendor_id;
+  guint16       cvse_vendor_type;
   int           cvse_local_offset= 0;
   
   /* None of this really matters if we don't have a tree */
@@ -449,7 +448,6 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	   * CVSE also breaks since it added reserved field before
 	   * the length field
 	  */
-	  cvse_reserved = tvb_get_guint8(tvb, offset + 1);
 	  ext_len = tvb_get_ntohs(tvb, offset + 2);
 	  hdrLen = 4;	  
 	}
@@ -614,7 +612,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	   * Very nasty . . breaks normal extensions, since the length is
 	   * in the wrong place :(
 	   */
-	  proto_tree_add_uint(ext_tree, hf_mip_cvse_reserved, tvb, offset, 1, cvse_reserved);
+	  proto_tree_add_item(ext_tree, hf_mip_cvse_reserved, tvb, offset, 1, FALSE);
 	  offset++;
 	  proto_tree_add_uint(ext_tree, hf_mip_ext_len, tvb, offset, 2, ext_len);
 	  offset+=2;
