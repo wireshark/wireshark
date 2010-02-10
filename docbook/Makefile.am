@@ -36,6 +36,10 @@ endif
 
 include Makefile.common
 
+WSUG_SOURCE          = $(WSUG_SOURCE)          Makefile Makefile.common
+WSDG_SOURCE          = $(WSDG_SOURCE)          Makefile Makefile.common
+RELEASE_NOTES_SOURCE = $(RELEASE_NOTES_SOURCE) Makefile Makefile.common
+
 # Automatically generate .pdf files from .fo files
 # Suse needs FOP_OPTS, Debian needs JAVA_OPTS
 .fo.pdf:
