@@ -124,7 +124,6 @@ static gint ett_mip_pmipv4_ext = -1;
 
 /* Port used for Mobile IP */
 #define UDP_PORT_MIP    434
-#define CVSE_VERIZON_ID 12951
 
 /* http://www.iana.org/assignments/mobileip-numbers */
 typedef enum {
@@ -626,7 +625,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  cvse_vendor_id = tvb_get_ntohl(tvb, cvse_local_offset);
 	  cvse_local_offset+=4;
 	  /*Vendor CVSE Type*/
-	  if( cvse_vendor_id == CVSE_VERIZON_ID ){
+	  if( cvse_vendor_id == VENDOR_VERIZON ){
  	    /*Verizon CVSE type*/	
            proto_tree_add_item(ext_tree, hf_mip_cvse_verizon_cvse_type, tvb, cvse_local_offset, 2, FALSE);	
 	  }
