@@ -3,6 +3,7 @@
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  * Copyright 2007, Ville Nuorvala <Ville.Nuorvala@secgo.com>
  * Copyright 2009, Ohuchi Munenori <ohuchi_at_iij.ad.jp>
+ * Copyright 2010, Yi Ren          <yi_ren1@agilent.com> 
  *
  * $Id$
  *
@@ -37,6 +38,7 @@
 #include <time.h>
 
 #include <epan/packet.h>
+#include <epan/sminmpec.h>
 #include "packet-ntp.h"
 
 /* Initialize the protocol and registered fields */
@@ -107,6 +109,11 @@ static int hf_mip_pmipv4skipext_deviceid_id = -1;
 static int hf_mip_pmipv4skipext_subscriberid_type = -1;
 static int hf_mip_pmipv4skipext_subscriberid_id = -1;
 static int hf_mip_pmipv4skipext_accesstechnology_type = -1;
+static int hf_mip_cvse_reserved = -1;
+static int hf_mip_cvse_vendor_org_id = -1;
+static int hf_mip_cvse_verizon_cvse_type = -1;
+static int hf_mip_cvse_vendor_cvse_type = -1;
+static int hf_mip_cvse_vendor_cvse_value = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mip = -1;
@@ -117,23 +124,37 @@ static gint ett_mip_pmipv4_ext = -1;
 
 /* Port used for Mobile IP */
 #define UDP_PORT_MIP    434
+#define CVSE_VERIZON_ID 12951
 
+/* http://www.iana.org/assignments/mobileip-numbers */
 typedef enum {
-    REGISTRATION_REQUEST = 1,
-    REGISTRATION_REPLY = 3,
-    NATT_TUNNEL_DATA = 4,
-    REGISTRATION_REVOCATION = 7,
-    REGISTRATION_REVOCATION_ACKNOWLEDGEMENT = 15,
-    EXPERIMENTAL_MESSAGE = 255
+    MIP_REGISTRATION_REQUEST = 1,
+    MIP_REGISTRATION_REPLY = 3,
+    MIP_NATT_TUNNEL_DATA = 4,
+    MIP_REGISTRATION_REVOCATION = 7,
+    MIP_REGISTRATION_REVOCATION_ACK = 15,
+    MIP_HANDOFF_REQEST = 16,
+    MIP_HANDOFF_REPLY = 17,
+    MIP_REGIONAL_REG_REQ = 18,
+    MIP_REGIONAL_REG_REP = 19,
+    MIP_FAST_BINDING_UPD = 20,
+    MIP_FAST_BINDING_ACK = 21,
+    MIP_EXPERIMENTAL_MESSAGE = 255
 } mipMessageTypes;
 
 static const value_string mip_types[] = {
-  {REGISTRATION_REQUEST, "Registration Request"},
-  {REGISTRATION_REPLY,   "Registration Reply"},
-  {NATT_TUNNEL_DATA,   "NAT Traversal Tunnel Data"},
-  {REGISTRATION_REVOCATION, "Registration Revocation"},
-  {REGISTRATION_REVOCATION_ACKNOWLEDGEMENT, "Registration Revocation Acknowledgement"},
-  {EXPERIMENTAL_MESSAGE, "Message for Experimental Use"},
+  {MIP_REGISTRATION_REQUEST,			"Registration Request"},
+  {MIP_REGISTRATION_REPLY,				"Registration Reply"},
+  {MIP_NATT_TUNNEL_DATA,				"NAT Traversal Tunnel Data"},
+  {MIP_REGISTRATION_REVOCATION,			"Registration Revocation"},
+  {MIP_REGISTRATION_REVOCATION_ACK,		"Registration Revocation Acknowledgement"},
+  {MIP_HANDOFF_REQEST,					"NAT Traversal Tunnel Data"},
+  {MIP_HANDOFF_REPLY,					"NAT Traversal Tunnel Data"},
+  {MIP_REGIONAL_REG_REQ,				"NAT Traversal Tunnel Data"},
+  {MIP_REGIONAL_REG_REP,				"NAT Traversal Tunnel Data"},
+  {MIP_FAST_BINDING_UPD,				"NAT Traversal Tunnel Data"},
+  {MIP_FAST_BINDING_ACK,				"NAT Traversal Tunnel Data"},
+  {MIP_EXPERIMENTAL_MESSAGE,			"Message for Experimental Use"},
   {0, NULL}
 };
 
@@ -209,11 +230,13 @@ typedef enum {
   MH_AUTH_EXT = 32,
   MF_AUTH_EXT = 33,
   FH_AUTH_EXT = 34,
-  GEN_AUTH_EXT = 36,      /* RFC 3012 */
-  OLD_CVSE_EXT = 37,      /* RFC 3115 */
-  CVSE_EXT = 38,          /* RFC 3115 */
-  UDP_TUN_REP_EXT = 44,   /* RFC 3519 */
-  PMIPv4_NON_SKIP_EXT = 47,  /* draft-leung-mip4-proxy-mode */
+  GEN_AUTH_EXT = 36,         /* RFC 3012 */
+  OLD_CVSE_EXT = 37,         /* RFC 3115 */
+  CVSE_EXT = 38,             /* RFC 3115 */
+  UDP_TUN_REP_EXT = 44,      /* RFC 3519 */
+  MIP_FA_ERROR_EXT = 45,     /* [RFC4636] */
+  MIP_GFA_IP_ADDR_EXT = 46,  /* [RFC4857] */
+  PMIPv4_NON_SKIP_EXT = 47,  /* [RFC5563] */
   MN_NAI_EXT = 131,       /* RFC 2794 */
   MF_CHALLENGE_EXT = 132, /* RFC 3012 */
   OLD_NVSE_EXT = 133,     /* RFC 3115 */
@@ -227,32 +250,58 @@ typedef enum {
 } MIP_EXTS;
 
 static const value_string mip_ext_types[]= {
-  {MH_AUTH_EXT, "Mobile-Home Authentication Extension"},
-  {MF_AUTH_EXT, "Mobile-Foreign Authentication Extension"},
-  {FH_AUTH_EXT, "Foreign-Home Authentication Extension"},
-  {GEN_AUTH_EXT, "Generalized Mobile-IP Authentication Extension"},
-  {OLD_CVSE_EXT, "Critical Vendor/Organization Specific Extension"},
-  {CVSE_EXT, "Critical Vendor/Organization Specific Extension"},
-  {UDP_TUN_REP_EXT, "UDP Tunnel Reply Extension"},
+  {MH_AUTH_EXT,			"Mobile-Home Authentication Extension"},
+  {MF_AUTH_EXT,			"Mobile-Foreign Authentication Extension"},
+  {FH_AUTH_EXT,			"Foreign-Home Authentication Extension"},
+  {GEN_AUTH_EXT,		"Generalized Mobile-IP Authentication Extension"},
+  {OLD_CVSE_EXT,		"Critical Vendor/Organization Specific Extension"},
+  {CVSE_EXT,			"Critical Vendor/Organization Specific Extension"},
+  {UDP_TUN_REP_EXT,		"UDP Tunnel Reply Extension"},
+  {MIP_FA_ERROR_EXT,	"FA Error Extension"},
+  {MIP_GFA_IP_ADDR_EXT, "GFA IP Address Extension"},
   {PMIPv4_NON_SKIP_EXT, "Proxy Mobile IPv4 Non-skippable Extension"},
-  {MN_NAI_EXT,  "Mobile Node NAI Extension"},
-  {MF_CHALLENGE_EXT, "MN-FA Challenge Extension"},
-  {OLD_NVSE_EXT, "Normal Vendor/Organization Specific Extension"},
-  {NVSE_EXT, "Normal Vendor/Organization Specific Extension"},
-  {REV_SUPP_EXT, "Revocation Support Extension"},
-  {DYN_HA_EXT, "Dynamic HA Extension"},
-  {UDP_TUN_REQ_EXT, "UDP Tunnel Request Extension"},
-  {MSG_STR_EXT, "Message String Extension"},
-  {PMIPv4_SKIP_EXT, "Proxy Mobile IPv4 Skippable Extension"},
-  {SKIP_EXP_EXT, "Skippable Extension for Experimental use"},
+  {128,                 "Deprecated (2001 Aug 31)"},
+  {129,                 "SKIP Firewall Traversal Extension"},                  /*[RFC2356]*/
+  {130,                 "Encapsulating Delivery Style Extension"},             /*[RFC3024]*/
+  {131,                 "Mobile Node NAI"},                                    /*[RFC2794]*/
+  {MN_NAI_EXT,			"Mobile Node NAI Extension"},
+  {MF_CHALLENGE_EXT,	"MN-FA Challenge Extension"},
+  {OLD_NVSE_EXT,		"Normal Vendor/Organization Specific Extension"},
+  {NVSE_EXT,			"Normal Vendor/Organization Specific Extension"},
+  {136,					"NAI Carrying Extension"},                                /*[RFC3846]*/
+  {REV_SUPP_EXT,		"Revocation Support Extension"},
+  {138,					"Generalized Link Layer Address Registration Extension"},   /*[RFC4881]*/
+  {DYN_HA_EXT,			"Dynamic HA Extension"},
+  {140,					"Hierarchical Foreign Agent Extension"},                    /*[RFC4857]*/
+  {141,					"Replay Protection Style"},                                 /*[RFC4857]*/
+  {142,					"Regional Registration Lifetime Extension"},                /*[RFC4857]*/
+  {UDP_TUN_REQ_EXT,		"UDP Tunnel Request Extension"},
+  {MSG_STR_EXT,			"Message String Extension"},
+  {PMIPv4_SKIP_EXT,		"Proxy Mobile IPv4 Skippable Extension"},
+  {148,					"Mobile Network Extension"},                                /*[RFC5177]*/
+  {149,					"Trusted Networks Configured (TNC) Extension"},             /*[RFC5265]*/
+  {150,					"Reserved"},
+  {151,					"Service Selection Extension"},                             /*[RFC5446]*/
+  {152,					"Dual Stack (DSMIPv4) Extension"},                          /*[RFC5454]*/
+  {SKIP_EXP_EXT,		"Skippable Extension for Experimental use"},
   {0, NULL}
 };
 
 static const value_string mip_gaext_stypes[]= {
-  {1, "MN AAA Extension"},
+  {1, "MN-AAA Authentication"},
+  {2, "FA-FA Authentication"},
+  {3, "MN-GFA Authentication"},
+  {4, "MN-PAR Auth Extension"},
   {0, NULL}
 };
 
+/* UDP Tunnel Reply Extension: */
+static const value_string mip_utrpext_stypes[]= {
+  {0, "Regular UDP Tunnel Reply Extension"},
+  {0, NULL}
+};
+
+/* Dynamic HA Extension subtypes */
 static const value_string mip_dhaext_stypes[]= {
   {1, "Requested HA Extension"},
   {2, "Redirected HA Extension"},
@@ -277,10 +326,6 @@ static const value_string mip_utrqext_encap_types[]= {
   {0, NULL}
 };
 
-static const value_string mip_utrpext_stypes[]= {
-  {0, ""},
-  {0, NULL}
-};
 
 static const value_string mip_utrpext_codes[]= {
   {0, "Will do Tunneling"},
@@ -294,6 +339,7 @@ static const value_string mip_pmipv4nonskipext_stypes[]= {
   {0, NULL}
 };
 
+/* PMIPv4 Per-Node Authentication Method Types */
 static const value_string mip_pmipv4nonskipext_pernodeauthmethod_types[]= {
   {0, "Reserved"},
   {1, "FA-HA Authentication"},
@@ -314,6 +360,7 @@ static const value_string mip_pmipv4skipext_stypes[]= {
   {0, NULL}
 };
 
+/* PMIPv4 Device ID Types */
 static const value_string mip_pmipv4skipext_deviceid_types[]= {
   {0, "Reserved"},
   {1, "Ethernet MAC address"},
@@ -323,12 +370,14 @@ static const value_string mip_pmipv4skipext_deviceid_types[]= {
   {0, NULL}
 };
 
+/* PMIPv4 Subscriber ID Types */
 static const value_string mip_pmipv4skipext_subscriberid_types[]= {
   {0, "Reserved"},
   {1, "International Mobile Subscriber Identity (IMSI)"},
   {0, NULL}
 };
 
+/* Access Technology Types */
 static const value_string mip_pmipv4skipext_accesstechnology_types[]= {
   {0, "Reserved"},
   {1, "802.3"},
@@ -339,6 +388,15 @@ static const value_string mip_pmipv4skipext_accesstechnology_types[]= {
   {6, "3GPP UTRAN/GERAN"},
   {7, "3GPP2 1xRTT/HRPD"},
   {8, "3GPP2 UMB"},
+  {0, NULL}
+};
+
+static const value_string mip_cvse_verizon_cvse_types[]= {
+  {0, "Reserved"},	
+  {1, "MIP Key Request"},
+  {2, "MIP Key Data"}, 
+  {3, "AAA Authenticator"},   
+  {4, "Public Key Invalid"},  
   {0, NULL}
 };
 
@@ -361,7 +419,11 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
   guint8        pmipv4skipext_type;
   guint16       flags;
   gint          hdrLen;
-
+  guint8      cvse_reserved;
+  guint32    cvse_vendor_id;
+  guint16    cvse_vendor_type;
+  int           cvse_local_offset= 0;
+  
   /* None of this really matters if we don't have a tree */
   if (!tree) return;
 
@@ -382,7 +444,17 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  ext_subtype = tvb_get_guint8(tvb, offset + 1);
 	  ext_len = tvb_get_ntohs(tvb, offset + 2);
 	  hdrLen = 4;
-	} else {
+	}
+	else if(ext_type==CVSE_EXT){
+	  /*
+	   * CVSE also breaks since it added reserved field before
+	   * the length field
+	  */
+	  cvse_reserved = tvb_get_guint8(tvb, offset + 1);
+	  ext_len = tvb_get_ntohs(tvb, offset + 2);
+	  hdrLen = 4;	  
+	}
+	else {
 	  ext_len = tvb_get_guint8(tvb, offset + 1);
 	  hdrLen = 2;
 	}
@@ -395,7 +467,9 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 	proto_tree_add_item(ext_tree, hf_mip_ext_type, tvb, offset, 1, ext_type);
 	offset++;
-	if (ext_type != GEN_AUTH_EXT && ext_type != PMIPv4_NON_SKIP_EXT) {
+	if (ext_type != GEN_AUTH_EXT && 
+		ext_type != PMIPv4_NON_SKIP_EXT &&
+		ext_type != CVSE_EXT) {
 	  /* Another nasty hack since GEN_AUTH_EXT and PMIPv4_NON_SKIP_EXT broke everything */
 	  proto_tree_add_uint(ext_tree, hf_mip_ext_len, tvb, offset, 1, ext_len);
 	  offset++;
@@ -535,8 +609,39 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	    proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_accesstechnology_type, tvb, offset + 1, 1, pmipv4skipext_type);
 	  }
 	  break;
-	case OLD_CVSE_EXT:      /* RFC 3115 */
+
 	case CVSE_EXT:          /* RFC 3115 */
+	  /*
+	   * Very nasty . . breaks normal extensions, since the length is
+	   * in the wrong place :(
+	   */
+	  proto_tree_add_uint(ext_tree, hf_mip_cvse_reserved, tvb, offset, 1, cvse_reserved);
+	  offset++;
+	  proto_tree_add_uint(ext_tree, hf_mip_ext_len, tvb, offset, 2, ext_len);
+	  offset+=2;
+	  /* Vendor/Org ID */
+	  /*Vendor ID & cvse type & cvse value are included in ext_len, so do not increment offset for them here.*/
+	  cvse_local_offset = offset; 
+      proto_tree_add_item(ext_tree, hf_mip_cvse_vendor_org_id, tvb, cvse_local_offset, 4, FALSE);	  
+	  cvse_vendor_id = tvb_get_ntohl(tvb, cvse_local_offset);
+	  cvse_local_offset+=4;
+	  /*Vendor CVSE Type*/
+	  if( cvse_vendor_id == CVSE_VERIZON_ID ){
+ 	    /*Verizon CVSE type*/	
+           proto_tree_add_item(ext_tree, hf_mip_cvse_verizon_cvse_type, tvb, cvse_local_offset, 2, FALSE);	
+	  }
+	  else{
+	    /*CVSE Type of Other vendor, just show raw numbers currently*/
+	    cvse_vendor_type = tvb_get_ntohs(tvb, cvse_local_offset);
+	    proto_tree_add_uint(ext_tree, hf_mip_cvse_vendor_cvse_type, tvb, cvse_local_offset, 2, cvse_vendor_type);	    
+	  }
+	  cvse_local_offset+=2;
+	  /* Vendor-CVSE-Value */
+	  /* Vendor CVSE Type+Vendor/Org ID = 6 bytes*/
+	  proto_tree_add_item(ext_tree, hf_mip_cvse_vendor_cvse_value, tvb, cvse_local_offset, ext_len - 6, FALSE);	  	
+	  break;
+	  
+	case OLD_CVSE_EXT:      /* RFC 3115 */
 	case OLD_NVSE_EXT:      /* RFC 3115 */
 	case NVSE_EXT:          /* RFC 3115 */
 	case MF_CHALLENGE_EXT:  /* RFC 3012 */
@@ -573,9 +678,8 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   type = tvb_get_guint8(tvb, offset);
   switch (type) {
-  case REGISTRATION_REQUEST:
-	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_add_fstr(pinfo->cinfo, COL_INFO,
+  case MIP_REGISTRATION_REQUEST:
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 		       "Reg Request: HoA=%s HA=%s CoA=%s",
 		       ip_to_str(tvb_get_ptr(tvb,4,4)),
 		       ip_to_str(tvb_get_ptr(tvb,8,4)),
@@ -629,9 +733,8 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	} /* if tree */
 	break;
-  case REGISTRATION_REPLY:
-	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_add_fstr(pinfo->cinfo, COL_INFO,
+  case MIP_REGISTRATION_REPLY:
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 		       "Reg Reply: HoA=%s HA=%s, Code=%u",
 		       ip_to_str(tvb_get_ptr(tvb,4,4)), 
 		       ip_to_str(tvb_get_ptr(tvb,8,4)), 
@@ -671,9 +774,8 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset += 8;
 	} /* if tree */
 	break;
-  case NATT_TUNNEL_DATA:
-	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_add_fstr(pinfo->cinfo, COL_INFO, "Tunnel Data: Next Header=%u",
+  case MIP_NATT_TUNNEL_DATA:
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Tunnel Data: Next Header=%u",
 		       tvb_get_guint8(tvb,1));
 
 	if (tree) {
@@ -701,9 +803,8 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	call_dissector(ip_handle, next_tvb, pinfo, mip_tree);
 	offset += tvb_reported_length_remaining(tvb, offset);
 	break;
-  case REGISTRATION_REVOCATION:
-	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_add_fstr(pinfo->cinfo, COL_INFO,
+  case MIP_REGISTRATION_REVOCATION:
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 		       "Reg Revocation: HoA=%s HDA=%s FDA=%s",
 		       ip_to_str(tvb_get_ptr(tvb,4,4)),
 		       ip_to_str(tvb_get_ptr(tvb,8,4)),
@@ -749,8 +850,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset += 4;
 	} /* if tree */
 	break;
-  case REGISTRATION_REVOCATION_ACKNOWLEDGEMENT:
-	if (check_col(pinfo->cinfo, COL_INFO))
+  case MIP_REGISTRATION_REVOCATION_ACK:
 	  col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Revocation Ack: HoA=%s",
 		       ip_to_str(tvb_get_ptr(tvb,4,4)));
 
@@ -1129,6 +1229,31 @@ void proto_register_mip(void)
 			FT_UINT8, BASE_DEC, VALS(mip_pmipv4skipext_accesstechnology_types), 0,
 			NULL, HFILL }
 	  },
+	  { &hf_mip_cvse_reserved,
+		 { "CVSE Reserved",                "mip.ext.cvse.reserved",
+			FT_UINT8, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+	  },	  
+         { &hf_mip_cvse_vendor_org_id,
+		 { "CVSE Vendor/org ID",                "mip.ext.cvse.vendor_id",
+			FT_UINT32, BASE_DEC, VALS(sminmpec_values), 0,
+			NULL, HFILL }
+         },	  
+         { &hf_mip_cvse_verizon_cvse_type ,
+		 { "Verizon CVSE Type",                "mip.ext.cvse.verizon_type",
+			FT_UINT16, BASE_DEC, VALS(mip_cvse_verizon_cvse_types), 0,
+			NULL, HFILL }
+         },	  
+         { &hf_mip_cvse_vendor_cvse_type ,
+		 { "Vendor CVSE Type",                "mip.ext.cvse.vendor_type",
+			FT_UINT16, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+         },          
+         { &hf_mip_cvse_vendor_cvse_value ,
+		 { "Vendor CVSE Value",                "mip.ext.cvse.vendor_value",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			NULL, HFILL }
+         }         
 	};
 
 	/* Setup protocol subtree array */
@@ -1160,3 +1285,5 @@ proto_reg_handoff_mip(void)
 	ip_handle = find_dissector("ip");
 	dissector_add("udp.port", UDP_PORT_MIP, mip_handle);
 }
+
+
