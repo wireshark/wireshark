@@ -101,20 +101,20 @@ AUTHORS-SHORT-FORMAT: ../AUTHORS-SHORT $(srcdir)/make-authors-format.pl
 wireshark.pod: $(srcdir)/wireshark.pod.template AUTHORS-SHORT-FORMAT
 	cat $(srcdir)/wireshark.pod.template AUTHORS-SHORT-FORMAT > wireshark.pod
 
-.pod.1: ../config.h
+.pod.1:
 	$(POD2MAN)					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
 	$< > $@
 
-.pod.4: ../config.h
+.pod.4:
 	$(POD2MAN)					\
 	--section=4					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
 	$< > $@
 
-.pod.html: ../config.h $(top_srcdir)/docbook/ws.css
+.pod.html:
 	$(POD2HTML)							\
 	--title="tshark - The Wireshark Network Analyzer $(VERSION)"	\
 	--css=$(top_srcdir)/docbook/ws.css				\
