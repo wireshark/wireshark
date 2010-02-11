@@ -181,6 +181,7 @@ WSUG_SOURCE =	\
 	svn_version.xml		\
 	GPL_appendix.xml	\
 	custom_layer_pdf.xsl	\
+	Makefile.common		\
 	$(WSUG_FILES)		\
 	$(WSUG_GRAPHICS)
 
@@ -190,11 +191,13 @@ WSDG_SOURCE =	\
 	svn_version.xml		\
 	GPL_appendix.xml	\
 	custom_layer_pdf.xsl	\
+	Makefile.common		\
 	$(WSDG_FILES)		\
 	$(WSDG_GRAPHICS)
 
 RELEASE_NOTES_SOURCE = \
 	release-notes.xml	\
+	Makefile.common		\
 	svn_version.xml
 
 CLEANFILES =	\

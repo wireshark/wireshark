@@ -14,9 +14,9 @@ TOOLS_DIR=..\tools
 include ..\config.nmake
 include Makefile.common
 
-WSUG_SOURCE          = $(WSUG_SOURCE)          Makefile.nmake Makefile.common
-WSDG_SOURCE          = $(WSDG_SOURCE)          Makefile.nmake Makefile.common
-RELEASE_NOTES_SOURCE = $(RELEASE_NOTES_SOURCE) Makefile.nmake Makefile.common
+WSUG_SOURCE          = $(WSUG_SOURCE)          Makefile.nmake
+WSDG_SOURCE          = $(WSDG_SOURCE)          Makefile.nmake
+RELEASE_NOTES_SOURCE = $(RELEASE_NOTES_SOURCE) Makefile.nmake
 
 # Automatically generate .pdf files from .fo files
 .fo.pdf:
