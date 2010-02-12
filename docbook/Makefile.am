@@ -47,11 +47,7 @@ endif
 
 
 if HAVE_XSLTPROC
-if HAVE_XMLLINT
-ALL_TARGETS=svn_version_check wsug.validated wsdg.validated release_notes.validated wsug wsdg release_notes 
-else
-ALL_TARGETS=svn_version_check wsug wsdg release_notes 
-endif
+ALL_TARGETS=svn_version_check wsug wsdg release_notes
 else
 # if we don't have XSLTPROC, there's nothing to do...
 ALL_TARGETS=svn_version_check
@@ -72,18 +68,22 @@ svn_version.xml: svn_version_check
 
 # Wireshark User Guide
 if HAVE_FOP
-WSUG_TARGETS=wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf 
+WSUG_TARGETS=wsug.validated wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf 
 else
-WSUG_TARGETS=wsug_html_chunked user-guide.html
+WSUG_TARGETS=wsug.validated wsug_html_chunked user-guide.html
 endif
 
 wsug: $(WSUG_TARGETS)
 
 # validate the content
 wsug.validated: $(WSUG_SOURCE) wsluarm
+if HAVE_XMLLINT
 	@ echo --- WSUG - VALIDATING XML ---
 	$(XMLLINT) --valid --noout $<
 	touch $@
+else
+	@ echo --- WSUG - SKIP VALIDATION ---
+endif
 
 # create html single page file
 user-guide.html: wsug_html/user-guide.html
@@ -97,7 +97,8 @@ wsug_html/user-guide.html: $(WSUG_SOURCE) wsluarm
 	$(XSLTPROC) --stringparam base.dir wsug_html/ --stringparam  use.id.as.filename 1 \
 		    --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ \
 		    --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 \
-		    --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > $@
+		    --stringparam html.stylesheet ws.css \
+		    --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > $@
 	-chmod -R og+rX wsug_html
 
 # create html chunked page files
@@ -111,8 +112,9 @@ wsug_html_chunked/index.html: $(WSUG_SOURCE) wsluarm
 	cp $(srcdir)/ws.css wsug_html_chunked
 	$(XSLTPROC) --stringparam base.dir wsug_html_chunked/ --stringparam  use.id.as.filename 1 \
 		    --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ \
-  		    --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 \
-		    --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
+		    --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 \
+		    --stringparam html.stylesheet ws.css \
+		    --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
 	-chmod -R og+rX wsug_html_chunked
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper
@@ -135,18 +137,22 @@ wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
 
 # Wireshark Developer Guide
 if HAVE_FOP
-WSDG_TARGETS=wsdg_html_chunked developer-guide.html developer-guide-a4.pdf developer-guide-us.pdf
+WSDG_TARGETS=wsdg.validated wsdg_html_chunked developer-guide.html developer-guide-a4.pdf developer-guide-us.pdf
 else
-WSDG_TARGETS=wsdg_html_chunked developer-guide.html
+WSDG_TARGETS=wsdg.validated wsdg_html_chunked developer-guide.html
 endif
 
 wsdg: $(WSDG_TARGETS)
 
 # validate the content
 wsdg.validated: $(WSDG_SOURCE)
+if HAVE_XMLLINT
 	@ echo --- WSDG - VALIDATING XML ---
 	$(XMLLINT) --valid --noout $<
 	touch $@
+else
+	@ echo --- WSDG - SKIP VALIDATION ---
+endif
 
 # create html single page file
 developer-guide.html: wsdg_html/developer-guide.html
@@ -159,7 +165,8 @@ wsdg_html/developer-guide.html: $(WSDG_SOURCE)
 	$(XSLTPROC) --stringparam base.dir wsdg_html/ --stringparam  use.id.as.filename 1 \
 		    --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ \
 		    --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 \
-		    --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > $@
+		    --stringparam html.stylesheet ws.css \
+		    --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > $@
 	-chmod -R og+rX wsdg_html
 
 # create html chunked page files
@@ -173,7 +180,8 @@ wsdg_html_chunked/index.html: $(WSDG_SOURCE)
 	$(XSLTPROC) --stringparam base.dir wsdg_html_chunked/ --stringparam  use.id.as.filename 1 \
 		    --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/  \
 		    --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 \
-		    --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
+		    --stringparam html.stylesheet ws.css \
+		    --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
 	-chmod -R og+rX wsdg_html_chunked
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper
@@ -190,18 +198,22 @@ developer-guide-a4.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 
 
 if HAVE_FOP
-RELEASE_NOTES_TARGETS=release-notes.html release-notes.txt release-notes-a4.pdf release-notes-us.pdf
+RELEASE_NOTES_TARGETS=release_notes.validated release-notes.html release-notes.txt release-notes-a4.pdf release-notes-us.pdf
 else
-RELEASE_NOTES_TARGETS=release-notes.html release-notes.txt
+RELEASE_NOTES_TARGETS=release_notes.validated release-notes.html release-notes.txt
 endif
 
 release_notes: $(RELEASE_NOTES_TARGETS)
 
 # validate the content
 release_notes.validated: $(RELEASE_NOTES_SOURCE)
+if HAVE_XMLLINT
 	@ echo --- RELEASE NOTES - VALIDATING XML ---
 	$(XMLLINT) --valid --noout $<
 	touch $@
+else
+	@ echo --- RELEASE NOTES - SKIP VALIDATION ---
+endif
 
 # create html single page file
 release-notes.html: $(RELEASE_NOTES_SOURCE)
@@ -211,7 +223,8 @@ release-notes.html: $(RELEASE_NOTES_SOURCE)
 # create txt single page file (through HTML)
 release-notes.txt: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - TXT ---
-	$(XSLTPROC) --stringparam generate.toc "article nop" --nonet http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl $< | $(HTML2TXT) > $@
+	$(XSLTPROC) --stringparam generate.toc "article nop" \
+		    --nonet http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl $< | $(HTML2TXT) > $@
 
 news: release-notes.txt
 	cp release-notes.txt ../NEWS 
@@ -234,7 +247,7 @@ clean-local:
 # XXX if we actually use automake to build this stuff, most of this shouldn't
 # be necessary
 EXTRA_DIST=$(WSUG_SOURCE) $(WSDG_SOURCE) $(RELEASE_NOTES_SOURCE) \
-	   check_svn_version.sh make-wsluarm.pl Makefile.nmake
+	    check_svn_version.sh make-wsluarm.pl Makefile.nmake
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
