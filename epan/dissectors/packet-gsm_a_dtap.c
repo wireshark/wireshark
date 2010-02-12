@@ -459,6 +459,11 @@ static int hf_gsm_a_dtap_autn	= -1;
 static int hf_gsm_a_dtap_xres	= -1;
 static int hf_gsm_a_dtap_sres	= -1;
 static int hf_gsm_a_dtap_auts	= -1;
+static int hf_gsm_a_dtap_autn_sqn_xor_ak = -1;
+static int hf_gsm_a_dtap_autn_amf	= -1;
+static int hf_gsm_a_dtap_autn_mac	= -1;
+static int hf_gsm_a_dtap_auts_sqn_ms_xor_ak	 = -1;
+static int hf_gsm_a_dtap_auts_mac_s	= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
@@ -524,8 +529,22 @@ de_auth_param_rand(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 static guint16
 de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	proto_tree_add_item(tree, hf_gsm_a_dtap_autn, tvb, offset, len, FALSE);
+	proto_item 	*item;
+	proto_tree	*subtree;
 
+	item = proto_tree_add_item(tree, hf_gsm_a_dtap_autn, tvb, offset, len, FALSE);
+	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_AUTH_PARAM_AUTN]);
+
+	if(len == 16)
+	{
+		proto_tree_add_item(subtree, hf_gsm_a_dtap_autn_sqn_xor_ak, tvb, offset, 6, FALSE);
+		proto_tree_add_item(subtree, hf_gsm_a_dtap_autn_amf, tvb, offset + 6, 2, FALSE);
+		proto_tree_add_item(subtree, hf_gsm_a_dtap_autn_mac, tvb, offset + 8, 8, FALSE);
+	}
+	else
+		expert_add_info_format(gsm_a_dtap_pinfo, item, PI_MALFORMED, PI_WARN,
+			"AUTN length not equal to 16");
+	
 	return(len);
 }
 
@@ -560,9 +579,21 @@ de_auth_resp_param_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 static guint16
 de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	/* This IE contains all but 4 most significant octets of RES */
-	proto_tree_add_item(tree, hf_gsm_a_dtap_auts, tvb, offset, len, FALSE);
+	proto_item 	*item;
+	proto_tree	*subtree;
 
+	item = proto_tree_add_item(tree, hf_gsm_a_dtap_auts, tvb, offset, len, FALSE);
+	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_AUTH_FAIL_PARAM]);
+
+	if(len == 14)
+	{
+		proto_tree_add_item(subtree, hf_gsm_a_dtap_auts_sqn_ms_xor_ak, tvb, offset, 6, FALSE);
+		proto_tree_add_item(subtree, hf_gsm_a_dtap_auts_mac_s, tvb, offset + 6, 8, FALSE);
+	}
+	else
+		expert_add_info_format(gsm_a_dtap_pinfo, item, PI_MALFORMED, PI_WARN,
+			"AUTS length not equal to 14");
+	
 	return(len);
 }
 
@@ -6493,6 +6524,31 @@ proto_register_gsm_a_dtap(void)
 	},
 	{ &hf_gsm_a_dtap_auts,
 		{ "AUTS value", "gsm_a.dtap.auts",
+		FT_BYTES, FT_NONE, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_autn_sqn_xor_ak,
+		{ "SQN xor AK", "gsm_a.dtap.autn.sqn_xor_ak",
+		FT_BYTES, FT_NONE, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_autn_amf,
+		{ "AMF", "gsm_a.dtap.autn.amf",
+		FT_BYTES, FT_NONE, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_autn_mac,
+		{ "MAC", "gsm_a.dtap.autn.mac",
+		FT_BYTES, FT_NONE, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_auts_sqn_ms_xor_ak,
+		{ "SQN_MS xor AK", "gsm_a.dtap.auts.sqn_ms_xor_ak",
+		FT_BYTES, FT_NONE, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_auts_mac_s,
+		{ "MAC-S", "gsm_a.dtap.auts.mac_s",
 		FT_BYTES, FT_NONE, NULL, 0x00,
 		NULL, HFILL }
 	},
