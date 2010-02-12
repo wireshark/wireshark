@@ -1797,7 +1797,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 
 		proto_tree_add_string_format(tree,
 			((oct & 0x07) == 3) ? hf_gsm_a_imeisv : hf_gsm_a_imsi,
-			tvb, curr_offset, len - (curr_offset - offset),
+			tvb, curr_offset - 1, len - (curr_offset - offset) + 1,
 			a_bigbuf,
 			"BCD Digits: %s",
 			a_bigbuf);
