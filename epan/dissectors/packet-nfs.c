@@ -422,6 +422,7 @@ static int hf_nfs_lrs_present = -1;
 static int hf_nfs_nfl_util = -1;
 static int hf_nfs_nfl_first_stripe_index = -1;
 static int hf_nfs_lrf_body_content = -1;
+static int hf_nfs_reclaim_one_fs4 = -1;
 
 /* Hidden field for v2, v3, and v4 status */
 int hf_nfs_nfsstat = -1;
@@ -590,6 +591,7 @@ static gint ett_nfs_service4 = -1;
 static gint ett_nfs_sessionid4 = -1;
 static gint ett_nfs_layoutseg = -1;
 static gint ett_nfs_layoutseg_fh = -1;
+static gint ett_nfs_reclaim_complete4 = -1;
 
 /* what type of fhandles shoudl we dissect as */
 static dissector_table_t nfs_fhandle_table;
@@ -7820,11 +7822,11 @@ static const value_string names_nfsv4_operation[] = {
 	{	NFS4_OP_LAYOUTRETURN,		"LAYOUTRETURN" },
 	{	NFS4_OP_SECINFO_NO_NAME,	"SECINFO_NO_NAME" },
 	{	NFS4_OP_SEQUENCE,		"SEQUENCE" },
-	{	NFS4_OP_SET_SSV,		"SET-SSV"},
-	{	NFS4_OP_TEST_STATEID,		"TEST-STATEID"},
-	{	NFS4_OP_WANT_DELEGATION,	"WANT-DELEG" },
-	{	NFS4_OP_DESTROY_CLIENTID,	"DESTROY-CLIENTID" },
-	{	NFS4_OP_RECLAIM_COMPLETE,	"RECLAIM-COMPLETE" },
+	{	NFS4_OP_SET_SSV,		"SET_SSV"},
+	{	NFS4_OP_TEST_STATEID,		"TEST_STATEID"},
+	{	NFS4_OP_WANT_DELEGATION,	"WANT_DELEG" },
+	{	NFS4_OP_DESTROY_CLIENTID,	"DESTROY_CLIENTID" },
+	{	NFS4_OP_RECLAIM_COMPLETE,	"RECLAIM_COMPLETE" },
 	{	NFS4_OP_ILLEGAL,		"ILLEGAL"},
 	{	0,	NULL }
 };
@@ -7886,7 +7888,7 @@ gint *nfsv4_operation_ett[] =
 	 NULL, /* test stateid */
 	 NULL, /* want delegation */
 	 NULL, /* destroy clientid */
-	 NULL  /* reclaim complete*/
+	 &ett_nfs_reclaim_complete4
 };
 
 static int
@@ -8887,6 +8889,10 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case NFS4_OP_READLINK:
 			break;
 
+		case NFS4_OP_RECLAIM_COMPLETE:
+			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_reclaim_one_fs4, offset);
+			break;
+
 		case NFS4_OP_REMOVE:
 			offset = dissect_nfs_utf8string(tvb, offset, newftree,
 				hf_nfs_component4, NULL);
@@ -9299,6 +9305,9 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case NFS4_OP_READLINK:
 			offset = dissect_nfs_utf8string(tvb, offset, newftree,
 				hf_nfs_linktext4, NULL);
+			break;
+
+		case NFS4_OP_RECLAIM_COMPLETE:
 			break;
 
 		case NFS4_OP_REMOVE:
@@ -11383,6 +11392,9 @@ proto_register_nfs(void)
 		{ &hf_nfs_cachethis4, {
 			"cache this?", "nfs.cachethis4", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},		 
+		{ &hf_nfs_reclaim_one_fs4, {
+			"reclaim one fs?", "nfs.reclaim_one_fs4", FT_BOOLEAN,
+			BASE_NONE, TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 		{ &hf_nfs_cb_procedure, {
 		   "CB Procedure", "nfs.cb_procedure", FT_UINT32, BASE_DEC,
 			VALS(nfs_cb_proc_vals), 0, NULL, HFILL }},		
@@ -11492,6 +11504,7 @@ proto_register_nfs(void)
 		&ett_nfs_read4,
 		&ett_nfs_readdir4,
 		&ett_nfs_readlink4,
+		&ett_nfs_reclaim_complete4,
 		&ett_nfs_remove4,
 		&ett_nfs_rename4,
 		&ett_nfs_renew4,
