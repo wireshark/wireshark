@@ -28,7 +28,9 @@ my @dirs; # the directories in the manifest
 my @defines; # stack of defines
 
 while ($line = <>) {
-    if($line =~ /^SetOutPath (.+)$/) {
+    if($line =~ /;.*NON_PORTABLE/) {
+	next;
+    } elsif($line =~ /^SetOutPath (.+)$/) {
 	$outpath = $1;
 	$outpath =~ s/^'(.*)'$/$1/;
 	if($outpath ne '$PROFILE') { # ignore the PROFILE

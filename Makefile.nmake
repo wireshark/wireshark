@@ -790,6 +790,10 @@ process_libs:
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		. nasm-2.02-win32.zip
 !ENDIF
+!IFDEF WIN2K_XP_PKG
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		. win2k_xp_v$(WIN2K_XP_PKG).zip
+!ENDIF
 !IF "$(WIN_SETUP_OPT)" == "--download"
     @$(SH) $(WIN_SETUP) --settag "$(WIRESHARK_LIBS)"
 !ENDIF
@@ -839,6 +843,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/upx301w
     rm -r -f $(WIRESHARK_LIBS)/GeoIP-1.4.5ws
     rm -r -f $(WIRESHARK_LIBS)/GeoIP-1.4.6-win??ws
+    rm -r -f $(WIRESHARK_LIBS)/win2k_xp
 
 ################################################################################
 # Prepare the debug trees for running Wireshark/Tshark from there.
@@ -959,7 +964,7 @@ install-all: install-generated-files
 	xcopy $(GTK_DIR)\lib\gtk-2.0\modules\libgail.dll $(INSTALL_DIR)\lib\gtk-2.0\modules /d
 	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines\libpixmap.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines /d
 !IFDEF NEED_LIBPNG_DLL
-	xcopy $(GTK_DIR)\bin\libpng12-0.dll $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\$(PNG_DLL) $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF NEED_LIBTIFF_DLL
 	xcopy $(GTK_DIR)\bin\$(TIFF_DLL) $(INSTALL_DIR) /d

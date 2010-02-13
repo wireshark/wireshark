@@ -340,6 +340,7 @@ FunctionEnd
 ; Installation execution commands
 ; ============================================================================
 
+!include "GetWindowsVersion.nsh"
 Var WINPCAP_UNINSTALL ;declare variable for holding the value of a registry key
 ;Var WIRESHARK_UNINSTALL ;declare variable for holding the value of a registry key
 
@@ -443,6 +444,25 @@ File "${MSVCR_DLL}"
 !endif	; MSVCR_DLL
 !endif	; VCREDIST_EXE
 
+!ifdef WIN2K_XP_DIR
+; ============================================================================
+; Windows 2000 support 
+; ============================================================================
+; Get the Windows version
+Call GetWindowsVersion
+Pop $R0 ; Windows Version
+
+; Check if we're able to run with this version
+StrCmp $R0 '2000' lbl_win2000
+Goto lbl_configfiles
+
+lbl_win2000:
+; Install the OldCigarettes Windows 2000 XP API Wrapper
+File "${WIN2K_XP_DIR}\bin\ws2_32.dll" ; NON_PORTABLE
+CopyFiles "$SYSDIR\ws2_32.dll" "$INSTDIR\ws2_32_org.dll"
+
+lbl_configfiles:
+!endif ; WIN2K_XP_DIR
 
 ; global config files - don't overwrite if already existing
 ;IfFileExists cfilters dont_overwrite_cfilters
@@ -754,7 +774,7 @@ File "${GTK_DIR}\bin\libcairo-2.dll"
 File "${GTK_DIR}\bin\libpangocairo-1.0-0.dll"
 !endif
 !ifdef NEED_LIBPNG_DLL
-File "${GTK_DIR}\bin\libpng12-0.dll"
+File "${GTK_DIR}\bin\${PNG_DLL}"
 !endif
 !ifdef NEED_LIBTIFF_DLL
 File "${GTK_DIR}\bin\${TIFF_DLL}"
@@ -1194,7 +1214,6 @@ FunctionEnd
 !endif
 
 
-!include "GetWindowsVersion.nsh"
 !include WinMessages.nsh
 !include "VersionCompare.nsh"
 
