@@ -56,31 +56,31 @@
 				* "keysym_vals_source" that VNC also uses. */
 
 typedef enum {
-	INVALID       =  0,
-	NONE          =  1,
-	VNC           =  2,
-	RA2           =  5,
-	RA2ne         =  6,
-	TIGHT         = 16,
-	ULTRA         = 17,
-	TLS           = 18,
-	VENCRYPT      = 19,
-	GTK_VNC_SASL  = 20,
-	MD5_HASH_AUTH = 21,
-	XVP           = 22
-} security_types_e;
+	VNC_SECURITY_TYPE_INVALID       =  0,
+	VNC_SECURITY_TYPE_NONE          =  1,
+	VNC_SECURITY_TYPE_VNC           =  2,
+	VNC_SECURITY_TYPE_RA2           =  5,
+	VNC_SECURITY_TYPE_RA2ne         =  6,
+	VNC_SECURITY_TYPE_TIGHT         = 16,
+	VNC_SECURITY_TYPE_ULTRA         = 17,
+	VNC_SECURITY_TYPE_TLS           = 18,
+	VNC_SECURITY_TYPE_VENCRYPT      = 19,
+	VNC_SECURITY_TYPE_GTK_VNC_SASL  = 20,
+	VNC_SECURITY_TYPE_MD5_HASH_AUTH = 21,
+	VNC_SECURITY_TYPE_XVP           = 22
+} vnc_security_types_e;
 
-static const value_string security_types_vs[] = {
-	{ INVALID,      "Invalid"      },
-	{ NONE,         "None"         },
-	{ VNC,          "VNC"          },
-	{ RA2,          "RA2"          },
-	{ RA2ne,        "RA2ne"        },
-	{ TIGHT,        "Tight"        },
-	{ ULTRA,        "Ultra"        },
-	{ TLS,          "TLS"          },
-	{ VENCRYPT,     "VeNCrypt"     },
-	{ GTK_VNC_SASL, "GTK-VNC SASL" },
+static const value_string vnc_security_types_vs[] = {
+	{ VNC_SECURITY_TYPE_INVALID,      "Invalid"      },
+	{ VNC_SECURITY_TYPE_NONE,         "None"         },
+	{ VNC_SECURITY_TYPE_VNC,          "VNC"          },
+	{ VNC_SECURITY_TYPE_RA2,          "RA2"          },
+	{ VNC_SECURITY_TYPE_RA2ne,        "RA2ne"        },
+	{ VNC_SECURITY_TYPE_TIGHT,        "Tight"        },
+	{ VNC_SECURITY_TYPE_ULTRA,        "Ultra"        },
+	{ VNC_SECURITY_TYPE_TLS,          "TLS"          },
+	{ VNC_SECURITY_TYPE_VENCRYPT,     "VeNCrypt"     },
+	{ VNC_SECURITY_TYPE_GTK_VNC_SASL, "GTK-VNC SASL" },
 	{ 0,  NULL                     }
 };
 
@@ -95,29 +95,38 @@ static const value_string yes_no_vs[] = {
 	{ 0,  NULL }
 };
 
-static const value_string client_message_types_vs[] = {
-	{ 0, "Set Pixel Format"           },
-	{ 2, "Set Encodings"              },
-	{ 3, "Framebuffer Update Request" },
-	{ 4, "Key Event"                  },
-	{ 5, "Pointer Event"              },
-	{ 6, "Cut Text"                   },
-	{ 0,  NULL                        }
+typedef enum {
+	VNC_CLIENT_MESSAGE_TYPE_SET_PIXEL_FORMAT	= 0,
+	VNC_CLIENT_MESSAGE_TYPE_SET_ENCODING		= 2,
+	VNC_CLIENT_MESSAGE_TYPE_FRAMEBUF_UPDATE_REQ	= 3,
+	VNC_CLIENT_MESSAGE_TYPE_KEY_EVENT		= 4,
+	VNC_CLIENT_MESSAGE_TYPE_POINTER_EVENT		= 5,
+	VNC_CLIENT_MESSAGE_TYPE_CLIENT_CUT_TEXT		= 6,
+} vnc_client_message_types_e;
+
+static const value_string vnc_client_message_types_vs[] = {
+	{ VNC_CLIENT_MESSAGE_TYPE_SET_PIXEL_FORMAT,    "Set Pixel Format"		},
+	{ VNC_CLIENT_MESSAGE_TYPE_SET_ENCODING,        "Set Encodings"			},
+	{ VNC_CLIENT_MESSAGE_TYPE_FRAMEBUF_UPDATE_REQ, "Framebuffer Update Request"	},
+	{ VNC_CLIENT_MESSAGE_TYPE_KEY_EVENT,           "Key Event"			},
+	{ VNC_CLIENT_MESSAGE_TYPE_POINTER_EVENT,       "Pointer Event"         		},
+	{ VNC_CLIENT_MESSAGE_TYPE_CLIENT_CUT_TEXT,     "Cut Text"                   	},
+	{ 0,  NULL                        						}
 };
 
 typedef enum {
-	FRAMEBUFFER_UPDATE   = 0,
-	SET_COLORMAP_ENTRIES = 1,
-	RING_BELL            = 2,
-	CUT_TEXT             = 3,
-} server_message_types_e;
+	VNC_SERVER_MESSAGE_TYPE_FRAMEBUFFER_UPDATE   = 0,
+	VNC_SERVER_MESSAGE_TYPE_SET_COLORMAP_ENTRIES = 1,
+	VNC_SERVER_MESSAGE_TYPE_RING_BELL            = 2,
+	VNC_SERVER_MESSAGE_TYPE_CUT_TEXT             = 3,
+} vnc_server_message_types_e;
 
-static const value_string server_message_types_vs[] = {
-	{ FRAMEBUFFER_UPDATE,   "Framebuffer Update"   },
-	{ SET_COLORMAP_ENTRIES, "Set Colormap Entries" },
-	{ RING_BELL,            "Ring Bell"            },
-	{ CUT_TEXT,             "Cut Text"             },
-	{ 0,  NULL                                     }
+static const value_string vnc_server_message_types_vs[] = {
+	{ VNC_SERVER_MESSAGE_TYPE_FRAMEBUFFER_UPDATE,   "Framebuffer Update"   },
+	{ VNC_SERVER_MESSAGE_TYPE_SET_COLORMAP_ENTRIES, "Set Colormap Entries" },
+	{ VNC_SERVER_MESSAGE_TYPE_RING_BELL,            "Ring Bell"            },
+	{ VNC_SERVER_MESSAGE_TYPE_CUT_TEXT,             "Cut Text"             },
+	{ 0,  NULL                        				       }
 };
 
 static const true_false_string button_mask_tfs = {
@@ -126,39 +135,113 @@ static const true_false_string button_mask_tfs = {
 };
 
 typedef enum {
-	ENCODING_DESKTOP_SIZE	= -223,
-	ENCODING_LAST_RECT	= -224,
-	ENCODING_POINTER_POS	= -232,
-	ENCODING_RICH_CURSOR	= -239,
-	ENCODING_X_CURSOR	= -240,
-	ENCODING_RAW		=  0,
-	ENCODING_COPY_RECT	=  1,
-	ENCODING_RRE		=  2,
-	ENCODING_CORRE		=  4,
-	ENCODING_HEXTILE	=  5,
-	ENCODING_ZLIB		=  6,
-	ENCODING_TIGHT		=  7,
-	ENCODING_ZLIBHEX	=  8,
-	ENCODING_RLE		= 16,
-	ENCODING_HITACHI_ZYWRLE = 17
-} encoding_type_e;
+	VNC_ENCODING_TYPE_DESKTOP_SIZE	    = 0xFFFFFF21,
+	VNC_ENCODING_TYPE_LAST_RECT	    = 0xFFFFFF20,
+	VNC_ENCODING_TYPE_POINTER_POS	    = 0xFFFFFF18,
+	VNC_ENCODING_TYPE_RICH_CURSOR	    = 0xFFFFFF11,
+	VNC_ENCODING_TYPE_X_CURSOR	    = 0xFFFFFF10,
+	VNC_ENCODING_TYPE_RAW		    =   0,
+	VNC_ENCODING_TYPE_COPY_RECT	    =   1,
+	VNC_ENCODING_TYPE_RRE		    =   2,
+	VNC_ENCODING_TYPE_CORRE		    =   4,
+	VNC_ENCODING_TYPE_HEXTILE	    =   5,
+	VNC_ENCODING_TYPE_ZLIB		    =   6,
+	VNC_ENCODING_TYPE_TIGHT		    =   7,
+	VNC_ENCODING_TYPE_ZLIBHEX	    =   8,
+	VNC_ENCODING_TYPE_ULTRA		    =   9,
+	VNC_ENCODING_TYPE_TRLE		    =  15,
+	VNC_ENCODING_TYPE_RLE		    =  16,
+	VNC_ENCODING_TYPE_HITACHI_ZYWRLE    =  17,
+	VNC_ENCODING_TYPE_JPEG_0            = -32,
+	VNC_ENCODING_TYPE_JPEG_1            = -31,
+	VNC_ENCODING_TYPE_JPEG_2            = -30,
+	VNC_ENCODING_TYPE_JPEG_3            = -29,
+	VNC_ENCODING_TYPE_JPEG_4            = -28,
+	VNC_ENCODING_TYPE_JPEG_5            = -27,
+	VNC_ENCODING_TYPE_JPEG_6            = -26,
+	VNC_ENCODING_TYPE_JPEG_7            = -25,
+	VNC_ENCODING_TYPE_JPEG_8            = -24,
+	VNC_ENCODING_TYPE_JPEG_9            = -23,
+	VNC_ENCODING_TYPE_COMPRESSION_0     = 0xFFFFFF00,
+	VNC_ENCODING_TYPE_COMPRESSION_1     = 0xFFFFFF01,
+	VNC_ENCODING_TYPE_COMPRESSION_2     = 0xFFFFFF02,
+	VNC_ENCODING_TYPE_COMPRESSION_3     = 0xFFFFFF03,
+	VNC_ENCODING_TYPE_COMPRESSION_4     = 0xFFFFFF04,
+	VNC_ENCODING_TYPE_COMPRESSION_5     = 0xFFFFFF05,
+	VNC_ENCODING_TYPE_COMPRESSION_6     = 0xFFFFFF06,
+	VNC_ENCODING_TYPE_COMPRESSION_7     = 0xFFFFFF07,
+	VNC_ENCODING_TYPE_COMPRESSION_8     = 0xFFFFFF08,
+	VNC_ENCODING_TYPE_COMPRESSION_9     = 0xFFFFFF09,	
+	VNC_ENCODING_TYPE_WMVi              = 0x574D5669,
+	VNC_ENCODING_TYPE_CACHE		    = 0xFFFF0000,
+	VNC_ENCODING_TYPE_CACHE_ENABLE	    = 0xFFFF0001,
+	VNC_ENCODING_TYPE_XOR_ZLIB	    = 0xFFFF0002,
+	VNC_ENCODING_TYPE_XOR_MONO_ZLIB	    = 0xFFFF0003,
+	VNC_ENCODING_TYPE_XOR_MULTI_ZLIB    = 0xFFFF0004,
+	VNC_ENCODING_TYPE_SOLID_COLOR	    = 0xFFFF0005,
+	VNC_ENCODING_TYPE_XOR_ENABLE	    = 0xFFFF0006,
+	VNC_ENCODING_TYPE_CACHE_ZIP	    = 0xFFFF0007,
+	VNC_ENCODING_TYPE_SOL_MONO_ZIP	    = 0xFFFF0008,
+	VNC_ENCODING_TYPE_ULTRA_ZIP	    = 0xFFFF0009,
+	VNC_ENCODING_TYPE_SERVER_STATE	    = 0xFFFF8000,
+	VNC_ENCODING_TYPE_ENABLE_KEEP_ALIVE = 0xFFFF8001,
+	VNC_ENCODING_TYPE_FTP_PROTO_VER	    = 0xFFFF8002,
+	VNC_ENCODING_TYPE_POINTER_CHANGE    = -257,
+	VNC_ENCODING_TYPE_EXT_KEY_EVENT     = -258,
+	VNC_ENCODING_TYPE_AUDIO             =  259
+} vnc_encoding_type_e;
 
 static const value_string encoding_types_vs[] = {
-	{ ENCODING_DESKTOP_SIZE,	"DesktopSize (pseudo)" },
-	{ ENCODING_LAST_RECT,		"LastRect (pseudo)"    },
-	{ ENCODING_POINTER_POS,		"Pointer pos (pseudo)" },
-	{ ENCODING_RICH_CURSOR,		"Rich Cursor (pseudo)" },
-	{ ENCODING_X_CURSOR,		"X Cursor (pseudo)"    },
-	{ ENCODING_RAW,			"Raw"                  },
-	{ ENCODING_COPY_RECT,		"CopyRect"             },
-	{ ENCODING_RRE,			"RRE"                  },
-	{ ENCODING_CORRE,		"CoRRE"                },
-	{ ENCODING_HEXTILE,		"Hextile"              },
-	{ ENCODING_ZLIB,		"Zlib"                 },
-	{ ENCODING_TIGHT,		"Tight"                },
-	{ ENCODING_ZLIBHEX,		"ZlibHex"              },
-	{ ENCODING_RLE,			"ZRLE"                 },
-	{ ENCODING_HITACHI_ZYWRLE,	"Hitachi ZYWRLE"   },
+	{ VNC_ENCODING_TYPE_DESKTOP_SIZE,	"DesktopSize (pseudo)" },
+	{ VNC_ENCODING_TYPE_LAST_RECT,		"LastRect (pseudo)"    },
+	{ VNC_ENCODING_TYPE_POINTER_POS,	"Pointer pos (pseudo)" },
+	{ VNC_ENCODING_TYPE_RICH_CURSOR,	"Rich Cursor (pseudo)" },
+	{ VNC_ENCODING_TYPE_X_CURSOR,		"X Cursor (pseudo)"    },
+	{ VNC_ENCODING_TYPE_RAW,		"Raw"                  },
+	{ VNC_ENCODING_TYPE_COPY_RECT,		"CopyRect"             },
+	{ VNC_ENCODING_TYPE_RRE,		"RRE"                  },
+	{ VNC_ENCODING_TYPE_CORRE,		"CoRRE"                },
+	{ VNC_ENCODING_TYPE_HEXTILE,		"Hextile"              },
+	{ VNC_ENCODING_TYPE_ZLIB,		"Zlib"                 },
+	{ VNC_ENCODING_TYPE_TIGHT,		"Tight"                },
+	{ VNC_ENCODING_TYPE_ZLIBHEX,		"ZlibHex"              },
+	{ VNC_ENCODING_TYPE_ULTRA,		"Ultra"		       },
+	{ VNC_ENCODING_TYPE_RLE,		"ZRLE"                 },
+	{ VNC_ENCODING_TYPE_HITACHI_ZYWRLE,	"Hitachi ZYWRLE"       },
+	{ VNC_ENCODING_TYPE_JPEG_0,		"JPEG quality level 0" },
+	{ VNC_ENCODING_TYPE_JPEG_1,		"JPEG quality level 1" },
+	{ VNC_ENCODING_TYPE_JPEG_2,		"JPEG quality level 2" },
+	{ VNC_ENCODING_TYPE_JPEG_3,		"JPEG quality level 3" },
+	{ VNC_ENCODING_TYPE_JPEG_4,		"JPEG quality level 4" },
+	{ VNC_ENCODING_TYPE_JPEG_5,		"JPEG quality level 5" },
+	{ VNC_ENCODING_TYPE_JPEG_6,		"JPEG quality level 6" },
+	{ VNC_ENCODING_TYPE_JPEG_7,		"JPEG quality level 7" },
+	{ VNC_ENCODING_TYPE_JPEG_8,		"JPEG quality level 8" },
+	{ VNC_ENCODING_TYPE_JPEG_9,		"JPEG quality level 9" },
+	{ VNC_ENCODING_TYPE_COMPRESSION_0, 	"Compression level 0"  },
+	{ VNC_ENCODING_TYPE_COMPRESSION_1, 	"Compression level 1"  },
+	{ VNC_ENCODING_TYPE_COMPRESSION_2, 	"Compression level 2"  },
+	{ VNC_ENCODING_TYPE_COMPRESSION_3, 	"Compression level 3"  },
+	{ VNC_ENCODING_TYPE_COMPRESSION_4, 	"Compression level 4"  },
+	{ VNC_ENCODING_TYPE_COMPRESSION_5, 	"Compression level 5"  },
+	{ VNC_ENCODING_TYPE_COMPRESSION_6, 	"Compression level 6"  },
+	{ VNC_ENCODING_TYPE_COMPRESSION_7, 	"Compression level 7"  },
+	{ VNC_ENCODING_TYPE_COMPRESSION_8, 	"Compression level 8"  },
+	{ VNC_ENCODING_TYPE_COMPRESSION_9, 	"Compression level 9"  },
+	/* FIXME understand for real what the below mean. Taken from Ultra VNC source code */
+/*	{ VNC_ENCODING_TYPE_CACHE,     */
+	{ VNC_ENCODING_TYPE_CACHE_ENABLE, 	"Enable Caching"},
+/*	{ VNC_ENCODING_TYPE_XOR_ZLIB,
+	{ VNC_ENCODING_TYPE_XOR_MONO_ZLIB,
+	{ VNC_ENCODING_TYPE_XOR_MULTI_ZLIB,
+	{ VNC_ENCODING_TYPE_SOLID_COLOR,
+	{ VNC_ENCODING_TYPE_XOR_ENABLE,
+	{ VNC_ENCODING_TYPE_CACHE_ZIP,
+	{ VNC_ENCODING_TYPE_SOL_MONO_ZIP,
+	{ VNC_ENCODING_TYPE_ULTRA_ZIP,
+*/	{ VNC_ENCODING_TYPE_SERVER_STATE, 	"Server State"	       },
+	{ VNC_ENCODING_TYPE_ENABLE_KEEP_ALIVE, 	"Enable Keep Alive"    },
+	{ VNC_ENCODING_TYPE_FTP_PROTO_VER, 	"FTP protocol version" },
 	{ 0,				NULL                   }
 };
 
@@ -190,36 +273,35 @@ static const value_string tight_filter_ids_vs[] = {
 
 
 typedef enum {
-	SERVER_VERSION,
-	CLIENT_VERSION,
+	VNC_SESSION_STATE_SERVER_VERSION,
+	VNC_SESSION_STATE_CLIENT_VERSION,
 
-	SECURITY,
-	SECURITY_TYPES,
+	VNC_SESSION_STATE_SECURITY,
+	VNC_SESSION_STATE_SECURITY_TYPES,
 
-	TIGHT_TUNNELING_CAPABILITIES,
-	TIGHT_TUNNEL_TYPE_REPLY,
-	TIGHT_AUTH_CAPABILITIES,
-	TIGHT_AUTH_TYPE_REPLY,
-	TIGHT_AUTH_TYPE_AND_VENDOR_CODE,
-	TIGHT_UNKNOWN_PACKET3,
+	VNC_SESSION_STATE_TIGHT_TUNNELING_CAPABILITIES,
+	VNC_SESSION_STATE_TIGHT_TUNNEL_TYPE_REPLY,
+	VNC_SESSION_STATE_TIGHT_AUTH_CAPABILITIES,
+	VNC_SESSION_STATE_TIGHT_AUTH_TYPE_REPLY,
+	VNC_SESSION_STATE_TIGHT_AUTH_TYPE_AND_VENDOR_CODE,
+	VNC_SESSION_STATE_TIGHT_UNKNOWN_PACKET3,
 
-	VNC_AUTHENTICATION_CHALLENGE,
-	VNC_AUTHENTICATION_RESPONSE,
+	VNC_SESSION_STATE_VNC_AUTHENTICATION_CHALLENGE,
+	VNC_SESSION_STATE_VNC_AUTHENTICATION_RESPONSE,
 
-	SECURITY_RESULT,
+	VNC_SESSION_STATE_SECURITY_RESULT,
 
-	CLIENT_INIT,
-	SERVER_INIT,
+	VNC_SESSION_STATE_CLIENT_INIT,
+	VNC_SESSION_STATE_SERVER_INIT,
 
-	TIGHT_INTERACTION_CAPS,
-	TIGHT_INTERACTION_CAPS_LIST,
+	VNC_SESSION_STATE_TIGHT_INTERACTION_CAPS,
+	VNC_SESSION_STATE_TIGHT_INTERACTION_CAPS_LIST,
 
-	NORMAL_TRAFFIC
+	VNC_SESSION_STATE_NORMAL_TRAFFIC
 } vnc_session_state_e;
 
 /* This structure will be tied to each conversation. */
 typedef struct {
-	guint8 security_type_selected;
 	gdouble server_proto_ver, client_proto_ver;
 	vnc_session_state_e vnc_next_state;
 	guint32 server_port;
@@ -227,14 +309,15 @@ typedef struct {
 	gint num_server_message_types;
 	gint num_client_message_types;
 	gint num_encoding_types;
+	guint8 security_type_selected;
 } vnc_conversation_t;
 
 /* This structure will be tied to each packet */
 typedef struct {
-	guint8 bytes_per_pixel;
-	guint8 depth;
 	vnc_session_state_e state;
 	gint preferred_encoding;
+	guint8 bytes_per_pixel;
+	guint8 depth;
 } vnc_packet_t;
 
 void proto_reg_handoff_vnc(void);
@@ -553,8 +636,8 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(!per_conversation_info) {
 		per_conversation_info = se_alloc(sizeof(vnc_conversation_t));
 		
-		per_conversation_info->vnc_next_state = SERVER_VERSION;
-		per_conversation_info->security_type_selected = INVALID;
+		per_conversation_info->vnc_next_state = VNC_SESSION_STATE_SERVER_VERSION;
+		per_conversation_info->security_type_selected = VNC_SECURITY_TYPE_INVALID;
 
       		conversation_add_proto_data(conversation, proto_vnc,
 					    per_conversation_info);
@@ -597,16 +680,18 @@ process_vendor(proto_tree *tree, gint hfindex, tvbuff_t *tvb, gint offset)
 	gchar *vendor;
 	proto_item *ti;
 
-	vendor = tvb_get_ephemeral_string(tvb, offset, 4);
+	if (tree) {
+		vendor = tvb_get_ephemeral_string(tvb, offset, 4);
 
-	ti = proto_tree_add_string(tree, hfindex, tvb, offset, 4, vendor);
+		ti = proto_tree_add_string(tree, hfindex, tvb, offset, 4, vendor);
 
-	if(g_ascii_strcasecmp(vendor, "STDV") == 0)
-		proto_item_append_text(ti, " (Standard VNC vendor)");
-	else if(g_ascii_strcasecmp(vendor, "TRDV") == 0)
-		proto_item_append_text(ti, " (Tridia VNC vendor)");
-	else if(g_ascii_strcasecmp(vendor, "TGHT") == 0)
-		proto_item_append_text(ti, " (Tight VNC vendor)");
+		if(g_ascii_strcasecmp(vendor, "STDV") == 0)
+			proto_item_append_text(ti, " (Standard VNC vendor)");
+		else if(g_ascii_strcasecmp(vendor, "TRDV") == 0)
+			proto_item_append_text(ti, " (Tridia VNC vendor)");
+		else if(g_ascii_strcasecmp(vendor, "TGHT") == 0)
+			proto_item_append_text(ti, " (Tight VNC vendor)");
+	}
 			
 	offset += 4;
 	return offset;
@@ -667,9 +752,9 @@ static gboolean test_vnc_protocol(tvbuff_t *tvb, packet_info *pinfo,
 	
 	if (vnc_is_client_or_server_version_message(tvb)) {
 		conversation = conversation_new(pinfo->fd->num, &pinfo->src,
-										&pinfo->dst, pinfo->ptype,
-										pinfo->srcport,
-										pinfo->destport, 0);
+						&pinfo->dst, pinfo->ptype,
+						pinfo->srcport,
+						pinfo->destport, 0);
 		conversation_set_dissector(conversation, vnc_handle);
 		dissect_vnc(tvb, pinfo, tree);
 		return TRUE;
@@ -703,7 +788,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	/* Packet dissection follows */
 	switch(per_packet_info->state) {
 
-	case SERVER_VERSION :
+	case VNC_SESSION_STATE_SERVER_VERSION :
 		if (!vnc_is_client_or_server_version_message(tvb))
 			return TRUE; /* we still hope to get a SERVER_VERSION message some day. Do not proceed yet */
 			
@@ -719,10 +804,10 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				     "Server protocol version: %s",
 				     tvb_format_text(tvb, 4, 7));
 		
-		per_conversation_info->vnc_next_state = CLIENT_VERSION;
+		per_conversation_info->vnc_next_state = VNC_SESSION_STATE_CLIENT_VERSION;
 		break;
 		
-	case CLIENT_VERSION :
+	case VNC_SESSION_STATE_CLIENT_VERSION :
 		if (!vnc_is_client_or_server_version_message(tvb))
 			return TRUE; /* we still hope to get a CLIENT_VERSION message some day. Do not proceed yet */
 		
@@ -737,10 +822,10 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				     "Client protocol version: %s",
 				     tvb_format_text(tvb, 4, 7));
 		
-		per_conversation_info->vnc_next_state = SECURITY;
+		per_conversation_info->vnc_next_state = VNC_SESSION_STATE_SECURITY;
 		break;
 
-	case SECURITY :
+	case VNC_SESSION_STATE_SECURITY :
 		col_set_str(pinfo->cinfo, COL_INFO, "Security types supported");
 		
 		/* We're checking against the client protocol version because
@@ -760,7 +845,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 						offset, 1, FALSE);
 				}
 			}
-			per_conversation_info->vnc_next_state =	SECURITY_TYPES;	
+			per_conversation_info->vnc_next_state =	VNC_SESSION_STATE_SECURITY_TYPES;	
 		} else {
 			/* Version < 3.007: The server decides the
 			 * authentication type for us to use */
@@ -771,18 +856,18 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			per_conversation_info->security_type_selected = (guint8)tvb_get_ntohl(tvb, offset);
 			switch(per_conversation_info->security_type_selected) {
 
-			case INVALID:
+			case VNC_SECURITY_TYPE_INVALID:
 				/* TODO: In this case (INVALID) the connection has failed */
 				/* and there should be an error string describing the error */
-				per_conversation_info->vnc_next_state = SECURITY_TYPES;
+				per_conversation_info->vnc_next_state = VNC_SESSION_STATE_SECURITY_TYPES;
 				break;
 
-			case NONE:
-				per_conversation_info->vnc_next_state = CLIENT_INIT;
+			case VNC_SECURITY_TYPE_NONE:
+				per_conversation_info->vnc_next_state = VNC_SESSION_STATE_CLIENT_INIT;
 				break;
 
-			case VNC:
-				per_conversation_info->vnc_next_state = VNC_AUTHENTICATION_CHALLENGE;
+			case VNC_SECURITY_TYPE_VNC:
+				per_conversation_info->vnc_next_state = VNC_SESSION_STATE_VNC_AUTHENTICATION_CHALLENGE;
 				break;
 
 			default:
@@ -793,7 +878,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 		break;
 
-	case SECURITY_TYPES :
+	case VNC_SESSION_STATE_SECURITY_TYPES :
 		col_set_str(pinfo->cinfo, COL_INFO, "Authentication type selected by client");
 		proto_tree_add_item(tree, hf_vnc_client_security_type, tvb,
 							offset, 1, FALSE);
@@ -802,24 +887,24 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 		switch(per_conversation_info->security_type_selected) {
 
-		case NONE :
+		case VNC_SECURITY_TYPE_NONE :
 			if(per_conversation_info->client_proto_ver >= 3.008)
 				per_conversation_info->vnc_next_state =
-					SECURITY_RESULT;
+					VNC_SESSION_STATE_SECURITY_RESULT;
 			else
 				per_conversation_info->vnc_next_state =
-					CLIENT_INIT;
+					VNC_SESSION_STATE_CLIENT_INIT;
 
 			break;
 
-		case VNC :
+		case VNC_SECURITY_TYPE_VNC :
 			per_conversation_info->vnc_next_state =
-				VNC_AUTHENTICATION_CHALLENGE;
+				VNC_SESSION_STATE_VNC_AUTHENTICATION_CHALLENGE;
 			break;
 
-		case TIGHT :
+		case VNC_SECURITY_TYPE_TIGHT :
 			per_conversation_info->vnc_next_state =
-				TIGHT_TUNNELING_CAPABILITIES;
+				VNC_SESSION_STATE_TIGHT_TUNNELING_CAPABILITIES;
 			break;
 
 		default :
@@ -829,7 +914,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 		break;
 
-	case TIGHT_TUNNELING_CAPABILITIES :
+	case VNC_SESSION_STATE_TIGHT_TUNNELING_CAPABILITIES :
 		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC tunneling capabilities supported");
 
 		proto_tree_add_item(tree, hf_vnc_tight_num_tunnel_types, tvb, offset, 4, FALSE);
@@ -850,19 +935,19 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		}
 
 		if (num_tunnel_types == 0)
-			per_conversation_info->vnc_next_state = TIGHT_AUTH_CAPABILITIES;
+			per_conversation_info->vnc_next_state = VNC_SESSION_STATE_TIGHT_AUTH_CAPABILITIES;
 		else
-			per_conversation_info->vnc_next_state = TIGHT_TUNNEL_TYPE_REPLY;
+			per_conversation_info->vnc_next_state = VNC_SESSION_STATE_TIGHT_TUNNEL_TYPE_REPLY;
 		break;
 
-	case TIGHT_TUNNEL_TYPE_REPLY:
+	case VNC_SESSION_STATE_TIGHT_TUNNEL_TYPE_REPLY:
 		/* Neither TightVNC nor Xvnc implement this; they just have a placeholder that emits an error
 		 * message and closes the connection (xserver/hw/vnc/auth.c:rfbProcessClientTunnelingType).
 		 * We should actually never get here...
 		 */
 		break;
 
-	case TIGHT_AUTH_CAPABILITIES:
+	case VNC_SESSION_STATE_TIGHT_AUTH_CAPABILITIES:
 		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC authentication capabilities supported");
 
 		proto_tree_add_item(tree, hf_vnc_tight_num_auth_types, tvb, offset, 4, FALSE);
@@ -882,17 +967,17 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		}
 
 		if (num_auth_types == 0)
-			per_conversation_info->vnc_next_state = CLIENT_INIT;
+			per_conversation_info->vnc_next_state = VNC_SESSION_STATE_CLIENT_INIT;
 		else
-			per_conversation_info->vnc_next_state = TIGHT_AUTH_TYPE_REPLY;
+			per_conversation_info->vnc_next_state = VNC_SESSION_STATE_TIGHT_AUTH_TYPE_REPLY;
 		break;
 
-	case TIGHT_AUTH_TYPE_REPLY:
+	case VNC_SESSION_STATE_TIGHT_AUTH_TYPE_REPLY:
 		REPORT_DISSECTOR_BUG("Unimplemented case: TightVNC authentication reply");
 		/* FIXME: implement.  See xserver/hw/vnc/auth.c:rfbProcessClientAuthType() */
 		break;		
 
-	case TIGHT_AUTH_TYPE_AND_VENDOR_CODE :
+	case VNC_SESSION_STATE_TIGHT_AUTH_TYPE_AND_VENDOR_CODE :
 		col_set_str(pinfo->cinfo, COL_INFO, "Authentication type / vendor code");
 
 		proto_tree_add_item(tree, hf_vnc_server_security_type, tvb,
@@ -907,41 +992,41 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				    offset, 8, FALSE);
 
 		per_conversation_info->vnc_next_state =
-			TIGHT_UNKNOWN_PACKET3;
+			VNC_SESSION_STATE_TIGHT_UNKNOWN_PACKET3;
 
 		break;
 		
-	case TIGHT_UNKNOWN_PACKET3 :
+	case VNC_SESSION_STATE_TIGHT_UNKNOWN_PACKET3 :
 		col_set_str(pinfo->cinfo, COL_INFO, "Unknown packet (TightVNC)");
 		
 		proto_tree_add_text(tree, tvb, offset, -1,
 				    "Unknown packet (TightVNC)");
 
 		per_conversation_info->vnc_next_state =
-			VNC_AUTHENTICATION_CHALLENGE;
+			VNC_SESSION_STATE_VNC_AUTHENTICATION_CHALLENGE;
 
 		break;
 
-	case VNC_AUTHENTICATION_CHALLENGE :
+	case VNC_SESSION_STATE_VNC_AUTHENTICATION_CHALLENGE :
 		col_set_str(pinfo->cinfo, COL_INFO, "Authentication challenge from server");
 		
 		proto_tree_add_item(tree, hf_vnc_auth_challenge, tvb,
 				    offset, 16, FALSE);
 
 		per_conversation_info->vnc_next_state =
-			VNC_AUTHENTICATION_RESPONSE;
+			VNC_SESSION_STATE_VNC_AUTHENTICATION_RESPONSE;
 		break;
 
-	case VNC_AUTHENTICATION_RESPONSE :
+	case VNC_SESSION_STATE_VNC_AUTHENTICATION_RESPONSE :
 		col_set_str(pinfo->cinfo, COL_INFO, "Authentication response from client");
 		
 		proto_tree_add_item(tree, hf_vnc_auth_response, tvb,
 				    offset, 16, FALSE);
 		
-		per_conversation_info->vnc_next_state = SECURITY_RESULT;
+		per_conversation_info->vnc_next_state = VNC_SESSION_STATE_SECURITY_RESULT;
 		break;
 
-	case SECURITY_RESULT :
+	case VNC_SESSION_STATE_SECURITY_RESULT :
 		col_set_str(pinfo->cinfo, COL_INFO, "Authentication result");
 		
 		proto_tree_add_item(tree, hf_vnc_auth_result, tvb, offset,
@@ -952,7 +1037,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		switch(auth_result) {
 
 		case 0 : /* OK */
-			per_conversation_info->vnc_next_state = CLIENT_INIT;
+			per_conversation_info->vnc_next_state = VNC_SESSION_STATE_CLIENT_INIT;
 			break;
 
 		case 1 : /* Failed */
@@ -963,7 +1048,6 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				
 				proto_tree_add_item(tree, hf_vnc_auth_error, tvb,
 						    offset, text_len, FALSE);
-				offset += text_len;
 			}
 
 			return TRUE; /* All versions: Do not continue
@@ -975,17 +1059,17 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 		break;
 
-	case CLIENT_INIT :
+	case VNC_SESSION_STATE_CLIENT_INIT :
 		col_set_str(pinfo->cinfo, COL_INFO, "Share desktop flag");
 
 		proto_tree_add_item(tree, hf_vnc_share_desktop_flag, tvb,
 				    offset, 1, FALSE);
 		
-		per_conversation_info->vnc_next_state = SERVER_INIT;
+		per_conversation_info->vnc_next_state = VNC_SESSION_STATE_SERVER_INIT;
 
 		break;
 		
-	case SERVER_INIT :
+	case VNC_SESSION_STATE_SERVER_INIT :
 		col_set_str(pinfo->cinfo, COL_INFO, "Server framebuffer parameters");
 	       
 		proto_tree_add_item(tree, hf_vnc_width, tvb, offset, 2,
@@ -1054,14 +1138,14 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 					    FALSE);
 		}
 
-		if(per_conversation_info->security_type_selected == TIGHT)
+		if(per_conversation_info->security_type_selected == VNC_SECURITY_TYPE_TIGHT)
 			per_conversation_info->vnc_next_state =
-				TIGHT_INTERACTION_CAPS;
+				VNC_SESSION_STATE_TIGHT_INTERACTION_CAPS;
 		else
-			per_conversation_info->vnc_next_state = NORMAL_TRAFFIC;
+			per_conversation_info->vnc_next_state = VNC_SESSION_STATE_NORMAL_TRAFFIC;
 		break;
 		
-	case TIGHT_INTERACTION_CAPS :
+	case VNC_SESSION_STATE_TIGHT_INTERACTION_CAPS :
 		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC Interaction Capabilities");
 
 		proto_tree_add_item(tree, hf_vnc_num_server_message_types,
@@ -1081,12 +1165,11 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 		proto_tree_add_item(tree, hf_vnc_padding, tvb, offset, 2,
 				    FALSE);
-		offset += 2;
 
-		per_conversation_info->vnc_next_state = TIGHT_INTERACTION_CAPS_LIST;
+		per_conversation_info->vnc_next_state = VNC_SESSION_STATE_TIGHT_INTERACTION_CAPS_LIST;
 		break;
 
-	case TIGHT_INTERACTION_CAPS_LIST:
+	case VNC_SESSION_STATE_TIGHT_INTERACTION_CAPS_LIST:
 		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC Interaction Capabilities list");
 
 		offset = process_tight_capabilities(tree,
@@ -1099,16 +1182,16 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 						    hf_vnc_tight_client_vendor,
 						    hf_vnc_tight_client_name,
 						    tvb, offset, per_conversation_info->num_client_message_types);
-		offset = process_tight_capabilities(tree,
+		process_tight_capabilities(tree,
 						    hf_vnc_tight_encoding_type,
 						    hf_vnc_tight_encoding_vendor,
 						    hf_vnc_tight_encoding_name,
 						    tvb, offset, per_conversation_info->num_encoding_types);
 
-		per_conversation_info->vnc_next_state = NORMAL_TRAFFIC;
+		per_conversation_info->vnc_next_state = VNC_SESSION_STATE_NORMAL_TRAFFIC;
 		break;
 
-	case NORMAL_TRAFFIC :
+	case VNC_SESSION_STATE_NORMAL_TRAFFIC :
 		return FALSE;
 	}
 
@@ -1137,32 +1220,32 @@ vnc_client_to_server(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	switch(message_type) {
 		
-	case 0 :
+	case VNC_CLIENT_MESSAGE_TYPE_SET_PIXEL_FORMAT :
 		vnc_client_set_pixel_format(tvb, pinfo, offset,
 					    vnc_client_message_type_tree);
 		break;
 
-	case 2 :
+	case VNC_CLIENT_MESSAGE_TYPE_SET_ENCODING :
 		vnc_client_set_encodings(tvb, pinfo, offset,
 					 vnc_client_message_type_tree);
 		break;
 
-	case 3 :
+	case VNC_CLIENT_MESSAGE_TYPE_FRAMEBUF_UPDATE_REQ :
 		vnc_client_framebuffer_update_request(tvb, pinfo, offset,
 						      vnc_client_message_type_tree);
 		break;
 
-	case 4 :
+	case VNC_CLIENT_MESSAGE_TYPE_KEY_EVENT :
 		vnc_client_key_event(tvb, pinfo, offset,
 				     vnc_client_message_type_tree);
 		break;
 
-	case 5:
+	case VNC_CLIENT_MESSAGE_TYPE_POINTER_EVENT:
 		vnc_client_pointer_event(tvb, pinfo, offset,
 					 vnc_client_message_type_tree);
 		break;
 
-	case 6 :
+	case VNC_CLIENT_MESSAGE_TYPE_CLIENT_CUT_TEXT :
 		vnc_client_cut_text(tvb, pinfo, offset,
 				    vnc_client_message_type_tree);
 		break;
@@ -1200,22 +1283,22 @@ vnc_server_to_client(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	switch(message_type) {
 
-	case FRAMEBUFFER_UPDATE :
+	case VNC_SERVER_MESSAGE_TYPE_FRAMEBUFFER_UPDATE :
 		bytes_needed =
 			vnc_server_framebuffer_update(tvb, pinfo, offset,
 						      vnc_server_message_type_tree);
 		break;
 
-	case SET_COLORMAP_ENTRIES :
+	case VNC_SERVER_MESSAGE_TYPE_SET_COLORMAP_ENTRIES :
 		bytes_needed = vnc_server_set_colormap_entries(tvb, pinfo, offset, vnc_server_message_type_tree);
 		break;
 
-	case RING_BELL :
+	case VNC_SERVER_MESSAGE_TYPE_RING_BELL :
 		vnc_server_ring_bell(tvb, pinfo, offset,
 				     vnc_server_message_type_tree);
 		break;
 
-	case CUT_TEXT :
+	case VNC_SERVER_MESSAGE_TYPE_CUT_TEXT :
 		bytes_needed = vnc_server_cut_text(tvb, pinfo, offset,
 						   vnc_server_message_type_tree);
 		break;
@@ -1336,12 +1419,12 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			encoding = tvb_get_ntohl(tvb, *offset);
 
 			switch(encoding) {
-			case ENCODING_RAW:
-			case ENCODING_RRE:
-			case ENCODING_CORRE:
-			case ENCODING_HEXTILE:
-			case ENCODING_ZLIB:
-			case ENCODING_TIGHT:
+			case VNC_ENCODING_TYPE_RAW:
+			case VNC_ENCODING_TYPE_RRE:
+			case VNC_ENCODING_TYPE_CORRE:
+			case VNC_ENCODING_TYPE_HEXTILE:
+			case VNC_ENCODING_TYPE_ZLIB:
+			case VNC_ENCODING_TYPE_TIGHT:
 				per_packet_info->preferred_encoding = encoding;
 				break;
 			}
@@ -1351,7 +1434,7 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	}
 
 	if (per_packet_info->preferred_encoding == -1)
-		per_packet_info->preferred_encoding = ENCODING_RAW;
+		per_packet_info->preferred_encoding = VNC_ENCODING_TYPE_RAW;
 }
 
 
@@ -1454,7 +1537,7 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	gint num_rects, i;
 	guint16 width, height;
 	guint bytes_needed = 0;
-	gint32 encoding_type;
+	guint32 encoding_type;
 	proto_item *ti, *ti_x, *ti_y, *ti_width, *ti_height;
 	proto_tree *vnc_rect_tree, *vnc_encoding_type_tree;
 	
@@ -1503,7 +1586,7 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		encoding_type = tvb_get_ntohl(tvb, *offset);
 		*offset += 4;
 
-		if (encoding_type == ENCODING_LAST_RECT)
+		if (encoding_type == VNC_ENCODING_TYPE_LAST_RECT)
 			break; /* exit the loop */
 
 		vnc_encoding_type_tree =
@@ -1511,62 +1594,62 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 		switch(encoding_type) {
 			
-		case ENCODING_RAW:
+		case VNC_ENCODING_TYPE_RAW:
 			bytes_needed = vnc_raw_encoding(tvb, pinfo, offset,
 							vnc_encoding_type_tree,
 							width, height);
 			break;
 			
-		case ENCODING_COPY_RECT:
+		case VNC_ENCODING_TYPE_COPY_RECT:
 			bytes_needed =
 				vnc_copyrect_encoding(tvb, pinfo, offset,
 						      vnc_encoding_type_tree,
 						      width, height);
 			break;
 			
-		case ENCODING_RRE:
+		case VNC_ENCODING_TYPE_RRE:
 			bytes_needed = 
 				vnc_rre_encoding(tvb, pinfo, offset,
 						 vnc_encoding_type_tree,
 						 width, height);
 			break;
 			
-		case ENCODING_HEXTILE:
+		case VNC_ENCODING_TYPE_HEXTILE:
 			bytes_needed =
 				vnc_hextile_encoding(tvb, pinfo, offset,
 						     vnc_encoding_type_tree,
 						     width, height);
 			break;
 			
-		case ENCODING_RLE:
+		case VNC_ENCODING_TYPE_RLE:
 			bytes_needed =
 				vnc_zrle_encoding(tvb, pinfo, offset,
 						  vnc_encoding_type_tree,
 						  width, height);
 			break;
 
-		case ENCODING_TIGHT:
+		case VNC_ENCODING_TYPE_TIGHT:
 			bytes_needed =
 				vnc_tight_encoding(tvb, pinfo, offset,
 						   vnc_encoding_type_tree,
 						   width, height);
 			break;
 
-		case ENCODING_RICH_CURSOR:
-		case ENCODING_X_CURSOR:
+		case VNC_ENCODING_TYPE_RICH_CURSOR:
+		case VNC_ENCODING_TYPE_X_CURSOR:
 			proto_item_append_text (ti_x,      " (hotspot X)");
 			proto_item_append_text (ti_y,      " (hotspot Y)");
 			proto_item_append_text (ti_width,  " (cursor width)");
 			proto_item_append_text (ti_height, " (cursor height)");
 
-			if (encoding_type == ENCODING_RICH_CURSOR)
+			if (encoding_type == VNC_ENCODING_TYPE_RICH_CURSOR)
 				bytes_needed = vnc_rich_cursor_encoding(tvb, pinfo, offset, vnc_encoding_type_tree, width, height);
 			else
 				bytes_needed = vnc_x_cursor_encoding(tvb, pinfo, offset, vnc_encoding_type_tree, width, height);
 
 			break;
 
-		case ENCODING_POINTER_POS:
+		case VNC_ENCODING_TYPE_POINTER_POS:
 			proto_item_append_text (ti_x,      " (pointer X)");
 			proto_item_append_text (ti_y,      " (pointer Y)");
 			proto_item_append_text (ti_width,  " (unused)");
@@ -1574,7 +1657,7 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			bytes_needed = 0;
 			break;
 
-		case ENCODING_DESKTOP_SIZE:
+		case VNC_ENCODING_TYPE_DESKTOP_SIZE:
 
 			/* There is no payload for this message type */
 
@@ -2186,7 +2269,7 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	bytes_needed = (number_of_colors * 6) + 5;
 	VNC_BYTES_NEEDED(bytes_needed);
 
-	ti = proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 1, FALSE);
 	*offset += 1; /* Skip over 1 byte of padding */
 
 	proto_tree_add_item(tree,
@@ -2196,8 +2279,7 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	ti = proto_tree_add_item(tree, hf_vnc_colormap_num_colors, tvb,
 				 *offset, 2, FALSE);
-	vnc_colormap_num_groups =
-		proto_item_add_subtree(ti, ett_vnc_colormap_num_groups);
+	proto_item_add_subtree(ti, ett_vnc_colormap_num_groups);
 
 	*offset += 2;
 
@@ -2334,17 +2416,17 @@ proto_register_vnc(void)
 		},
 		{ &hf_vnc_security_type,
 		  { "Security type", "vnc.security_type",
-		    FT_UINT8, BASE_DEC, VALS(security_types_vs), 0x0,
+		    FT_UINT8, BASE_DEC, VALS(vnc_security_types_vs), 0x0,
 		    "Security types offered by the server (VNC versions => 3.007", HFILL }
 		},
 		{ &hf_vnc_server_security_type,
 		  { "Security type", "vnc.server_security_type",
-		    FT_UINT32, BASE_DEC, VALS(security_types_vs), 0x0,
+		    FT_UINT32, BASE_DEC, VALS(vnc_security_types_vs), 0x0,
 		    "Security type mandated by the server", HFILL }
 		},
 		{ &hf_vnc_client_security_type,
 		  { "Security type selected", "vnc.client_security_type",
-		    FT_UINT8, BASE_DEC, VALS(security_types_vs), 0x0,
+		    FT_UINT8, BASE_DEC, VALS(vnc_security_types_vs), 0x0,
 		    "Security type selected by the client", HFILL }
 		},
 		{ &hf_vnc_tight_num_tunnel_types,
@@ -2594,7 +2676,7 @@ proto_register_vnc(void)
 		},
 		{ &hf_vnc_client_message_type,
 		  { "Client Message Type", "vnc.client_message_type",
-		    FT_UINT8, BASE_DEC, VALS(client_message_types_vs), 0x0,
+		    FT_UINT8, BASE_DEC, VALS(vnc_client_message_types_vs), 0x0,
 		    "Message type from client", HFILL }
 		},
 		{ &hf_vnc_client_bits_per_pixel,
@@ -2758,7 +2840,7 @@ proto_register_vnc(void)
 		/********** Server Message Types **********/
 		{ &hf_vnc_server_message_type,
 		  { "Server Message Type", "vnc.server_message_type",
-		    FT_UINT8, BASE_DEC, VALS(server_message_types_vs), 0x0,
+		    FT_UINT8, BASE_DEC, VALS(vnc_server_message_types_vs), 0x0,
 		    "Message type from server", HFILL }
 		},
 
