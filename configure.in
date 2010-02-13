@@ -684,6 +684,8 @@ else
         wireshark_SUBDIRS="codecs gtk"
 	# Honor GLIB_CFLAGS
 	AM_PATH_GLIB_2_0(2.4.0, , AC_MSG_ERROR(GLib 2.4 or later distribution not found.), gmodule)
+	# It's possible to compile GLib without GRegex but it doesn't look like anyone does.
+	AM_PATH_GLIB_2_0(2.14.0, have_gregex=yes, have_gregex=no)
 fi
 
 #
@@ -1091,7 +1093,7 @@ AC_MSG_CHECKING(whether to use libpcre for regular expressions in dfilters)
 
 AC_ARG_WITH(pcre,
   AC_HELP_STRING( [--with-pcre@<:@=DIR@:>@],
-                  [use libpcre (located in directory DIR, if supplied) to use in dfilter regular expressions.  @<:@default=yes, if available@:>@]),
+                  [use libpcre (located in directory DIR, if supplied) to use in dfilter regular expressions. Not needed if you have GLib 2.14 or later. @<:@default=yes, if available and GLib < 2.14@:>@]),
 [
 	if test $withval = no
 	then
@@ -1105,10 +1107,13 @@ AC_ARG_WITH(pcre,
 	fi
 ],[
 	#
-	# Use libpcre if it's present, otherwise don't.
-	# XXX - Should GLib 2.14 take precedence here?
+	# Use libpcre if it's present and GRegex isn't, otherwise don't.
 	#
-	want_pcre=ifavailable
+	if test $have_gregex = yes ; then
+		want_pcre=no
+	else
+		want_pcre=ifavailable
+	fi
 	pcre_dir=
 ])
 if test "x$want_pcre" = "xno" ; then
@@ -1823,7 +1828,12 @@ else
 fi
 
 if test "x$want_pcre" = "xno" ; then
-	pcre_message="no"
+	if test $have_gregex = yes
+	then
+		pcre_message="no (using GRegex instead)"
+	else
+		pcre_message="no"
+	fi
 else
 	pcre_message="yes"
 fi
