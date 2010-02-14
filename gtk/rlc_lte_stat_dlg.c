@@ -180,6 +180,10 @@ GtkWidget         *sn_filter_te;
 
 gboolean          s_show_mac = FALSE;
 
+/* State used to attempt to re-select chosen UE/channel */
+static guint16  s_reselect_ue = 0;
+static guint16  s_reselect_channel_type = 0;
+static guint16  s_reselect_channel_id;
 
 
 /* Used to keep track of whole RLC LTE statistics window */
@@ -191,6 +195,10 @@ typedef struct rlc_lte_stat_t {
     GtkTreeView   *channel_table;
 } rlc_lte_stat_t;
 
+
+static int get_channel_selection(rlc_lte_stat_t *hs,
+                                 guint16 *ueid, guint8 *rlcMode,
+                                 guint16 *channelType, guint16 *channelId);
 
 /* Show filter controls appropriate to current selection */
 static void enable_filter_controls(guint8 enabled)
@@ -576,6 +584,7 @@ rlc_lte_stat_draw(void *phs)
     GtkTreeSelection *sel;
     GtkTreeModel *model;
     GtkTreeIter iter;
+    rlc_channel_stats *channel_stats = NULL;
 
     /* Common channel data */
     g_snprintf(buff, sizeof(buff), "BCCH Frames: %u", common_stats.bcch_frames);
@@ -624,6 +633,22 @@ rlc_lte_stat_draw(void *phs)
                            -1);
     }
 
+    /* Reselect UE? */
+    if (s_reselect_ue != 0) {
+        GtkTreeIter *ue_iter = NULL;
+        rlc_lte_ep_t *ep = hs->ep_list;
+        while (ep != NULL) {
+            if (ep->stats.ueid == s_reselect_ue) {
+                ue_iter = &ep->iter;
+                break;
+            }
+            ep = ep->next;
+        }
+        if (ue_iter != NULL) {
+            gtk_tree_selection_select_iter(gtk_tree_view_get_selection(hs->ue_table), ue_iter);
+        }
+    }
+
     /* If there is a UE selected, update its counters in details window */
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(hs->ue_table));
     if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
@@ -631,6 +656,25 @@ rlc_lte_stat_draw(void *phs)
 
         gtk_tree_model_get(model, &iter, UE_TABLE_COLUMN, &ep, -1);
         rlc_lte_channels(ep, hs);
+
+        /* Reselect channel? */
+        switch (s_reselect_channel_type) {
+            case CHANNEL_TYPE_CCCH:
+                channel_stats = &(ep->stats.CCCH_stats);
+                break;
+            case CHANNEL_TYPE_DRB:
+                channel_stats = &(ep->stats.drb_stats[s_reselect_channel_id-1]);
+                break;
+            case CHANNEL_TYPE_SRB:
+                channel_stats = &(ep->stats.srb_stats[s_reselect_channel_id-1]);
+                break;
+            default:
+                break;
+        }
+
+        if ((channel_stats != NULL) && channel_stats->inUse && channel_stats->iter_valid) {
+            gtk_tree_selection_select_iter(gtk_tree_view_get_selection(hs->channel_table), &channel_stats->iter);
+        }
     }
 }
 
@@ -645,6 +689,7 @@ static void rlc_lte_select_ue_cb(GtkTreeSelection *sel, gpointer data)
     if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
         /* Show details of selected UE */
         gtk_tree_model_get(model, &iter, UE_TABLE_COLUMN, &ep, -1);
+        s_reselect_ue = ep->stats.ueid;
         rlc_lte_channels(ep, (rlc_lte_stat_t*)data);
     }
     else {
@@ -657,21 +702,25 @@ static void rlc_lte_select_ue_cb(GtkTreeSelection *sel, gpointer data)
 
 
 /* What to do when a channel list item is selected/unselected */
-static void rlc_lte_select_channel_cb(GtkTreeSelection *sel, gpointer data _U_)
+static void rlc_lte_select_channel_cb(GtkTreeSelection *sel, gpointer data)
 {
-    rlc_lte_ep_t   *ep;
     GtkTreeModel   *model;
     GtkTreeIter    iter;
+    rlc_lte_stat_t *hs = (rlc_lte_stat_t *)data;
 
     if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
+        guint16  ueid;
+        guint8   rlcMode;
+
         /* Enable buttons */
         enable_filter_controls(TRUE);
 
-        /* Show details of selected UE */
-        gtk_tree_model_get(model, &iter, UE_TABLE_COLUMN, &ep, -1);
+        /* Remember selected channel */
+        get_channel_selection(hs, &ueid, &rlcMode,
+                              &s_reselect_channel_type, &s_reselect_channel_id);
     }
     else {
-        /* Disable buttons */
+        /* No channel selected - disable buttons */
         enable_filter_controls(FALSE);
     }
 }
