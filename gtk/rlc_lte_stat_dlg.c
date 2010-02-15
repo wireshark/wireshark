@@ -201,11 +201,35 @@ static int get_channel_selection(rlc_lte_stat_t *hs,
                                  guint16 *channelType, guint16 *channelId);
 
 /* Show filter controls appropriate to current selection */
-static void enable_filter_controls(guint8 enabled)
+static void enable_filter_controls(guint8 enabled, guint8 rlcMode)
 {
     gtk_widget_set_sensitive(ul_filter_bt, enabled);
     gtk_widget_set_sensitive(dl_filter_bt, enabled);
     gtk_widget_set_sensitive(uldl_filter_bt, enabled);
+
+    switch (rlcMode) {
+        case RLC_TM_MODE:
+            gtk_widget_set_sensitive(show_only_control_pdus_cb, FALSE);
+            gtk_widget_set_sensitive(sn_filter_lb, FALSE);
+            gtk_widget_set_sensitive(sn_filter_te, FALSE);
+            break;
+        case RLC_UM_MODE:
+            gtk_widget_set_sensitive(show_only_control_pdus_cb, FALSE);
+            gtk_widget_set_sensitive(sn_filter_lb, TRUE);
+            gtk_widget_set_sensitive(sn_filter_te, TRUE);
+            break;
+        case RLC_AM_MODE:
+            gtk_widget_set_sensitive(show_only_control_pdus_cb, TRUE);
+            gtk_widget_set_sensitive(sn_filter_lb, TRUE);
+            gtk_widget_set_sensitive(sn_filter_te, TRUE);
+            break;
+
+        default:
+            gtk_widget_set_sensitive(show_only_control_pdus_cb, FALSE);
+            gtk_widget_set_sensitive(sn_filter_lb, FALSE);
+            gtk_widget_set_sensitive(sn_filter_te, FALSE);
+            break;
+    }
 }
 
 
@@ -697,7 +721,7 @@ static void rlc_lte_select_ue_cb(GtkTreeSelection *sel, gpointer data)
     }
 
     /* Channel will be deselected */
-    enable_filter_controls(FALSE);
+    enable_filter_controls(FALSE, 0);
 }
 
 
@@ -712,16 +736,17 @@ static void rlc_lte_select_channel_cb(GtkTreeSelection *sel, gpointer data)
         guint16  ueid;
         guint8   rlcMode;
 
-        /* Enable buttons */
-        enable_filter_controls(TRUE);
-
         /* Remember selected channel */
         get_channel_selection(hs, &ueid, &rlcMode,
                               &s_reselect_channel_type, &s_reselect_channel_id);
+
+        /* Enable buttons */
+        enable_filter_controls(TRUE, rlcMode);
+
     }
     else {
         /* No channel selected - disable buttons */
-        enable_filter_controls(FALSE);
+        enable_filter_controls(FALSE, 0);
     }
 }
 
@@ -1225,7 +1250,7 @@ static void rlc_lte_stat_dlg_create(void)
     /* Add filters box to top-level window */
     gtk_box_pack_start(GTK_BOX(top_level_vbox), rlc_lte_stat_filter_buttons_lb, TRUE, TRUE, 0);
 
-    enable_filter_controls(FALSE);
+    enable_filter_controls(FALSE, 0);
 
     /**********************************************/
     /* Register the tap listener                  */
