@@ -366,7 +366,7 @@ EXPAT_DLL=libexpat-1.dll
 INTL_DLL=libintl-8.dll
 
 # These macros are used by the setup target.
-GTK_PKG=2.18.6-20100209
+GTK_PKG=2.16.6-20090912
 
 #
 # Mandatory: Version numbers of GTK and pango.
