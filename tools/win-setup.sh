@@ -55,7 +55,7 @@ find_proxy() {
 
 	# ...and wget can't fetch two registry keys because...?
 	proxy_enabled=`regtool get /HKCU/Software/Microsoft/Windows/CurrentVersion/Internet\ Settings/ProxyEnable 2>/dev/null`
-	if [ -n "$proxy_enabled" -a $proxy_enabled -ne 0 ] ; then
+	if [ -n "$proxy_enabled" -a "$proxy_enabled" -ne 0 ] ; then
 		export http_proxy=`regtool get /HKCU/Software/Microsoft/Windows/CurrentVersion/Internet\ Settings/ProxyServer 2>/dev/null`
 		echo "Using Internet Explorer proxy settings."
 	fi
