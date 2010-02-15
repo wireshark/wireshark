@@ -1000,7 +1000,7 @@ install-all: install-generated-files
 	xcopy $(GTK_DIR)\lib\gtk-2.0\modules\libgail.dll $(INSTALL_DIR)\lib\gtk-2.0\modules /d
 	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines\libpixmap.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines /d
 !IFDEF NEED_LIBPNG_DLL
-	xcopy $(GTK_DIR)\bin\libpng12-0.dll $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\$(PNG_DLL) $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF NEED_LIBTIFF_DLL
 	xcopy $(GTK_DIR)\bin\$(TIFF_DLL) $(INSTALL_DIR) /d

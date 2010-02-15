@@ -818,7 +818,7 @@ File "${GTK_DIR}\bin\libcairo-2.dll"
 File "${GTK_DIR}\bin\libpangocairo-1.0-0.dll"
 !endif
 !ifdef NEED_LIBPNG_DLL
-File "${GTK_DIR}\bin\libpng12-0.dll"
+File "${GTK_DIR}\bin\${PNG_DLL}"
 !endif
 !ifdef NEED_LIBTIFF_DLL
 File "${GTK_DIR}\bin\${TIFF_DLL}"
