@@ -60,6 +60,8 @@ find_proxy() {
 	# Strip out newlines so that doesn't happen.
 	#
 	proxy_enabled=`regtool get /HKCU/Software/Microsoft/Windows/CurrentVersion/Internet\ Settings/ProxyEnable 2>/dev/null | tr -d '\012'`
+echo "proxy_enabled is:"
+echo -n "$proxy_enabled" | od -bc
 	if [ -n "$proxy_enabled" -a "$proxy_enabled" -ne 0 ] ; then
 		export http_proxy=`regtool get /HKCU/Software/Microsoft/Windows/CurrentVersion/Internet\ Settings/ProxyServer 2>/dev/null`
 		echo "Using Internet Explorer proxy settings."
