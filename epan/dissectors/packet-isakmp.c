@@ -4067,10 +4067,10 @@ UAT_BUFFER_CB_DEF(ikev2_users, spii, ikev2_uat_data_t, key.spii, key.spii_len)
 UAT_BUFFER_CB_DEF(ikev2_users, spir, ikev2_uat_data_t, key.spir, key.spir_len)
 UAT_BUFFER_CB_DEF(ikev2_users, sk_ei, ikev2_uat_data_t, sk_ei, sk_ei_len)
 UAT_BUFFER_CB_DEF(ikev2_users, sk_er, ikev2_uat_data_t, sk_er, sk_er_len)
-UAT_VS_DEF(ikev2_users, encr_alg, ikev2_uat_data_t, IKEV2_ENCR_3DES, "3DES")
+UAT_VS_DEF(ikev2_users, encr_alg, ikev2_uat_data_t, IKEV2_ENCR_3DES, "3DES [RFC2451]")
 UAT_BUFFER_CB_DEF(ikev2_users, sk_ai, ikev2_uat_data_t, sk_ai, sk_ai_len)
 UAT_BUFFER_CB_DEF(ikev2_users, sk_ar, ikev2_uat_data_t, sk_ar, sk_ar_len)
-UAT_VS_DEF(ikev2_users, auth_alg, ikev2_uat_data_t, IKEV2_AUTH_HMAC_SHA1_96, "HMAC_SHA1_96")
+UAT_VS_DEF(ikev2_users, auth_alg, ikev2_uat_data_t, IKEV2_AUTH_HMAC_SHA1_96, "HMAC_SHA1_96 [RFC2404]")
 
 static void ikev2_uat_data_update_cb(void* p, const char** err) {
   ikev2_uat_data_t *ud = p;
