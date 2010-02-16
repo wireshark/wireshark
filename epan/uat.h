@@ -128,7 +128,7 @@ typedef void (*uat_fld_tostr_cb_t)(void*, const char**, unsigned*, const void*, 
 /***********
  * Text Mode
  *
- * used for file and dialog representation of fileds in columns,
+ * used for file and dialog representation of fields in columns,
  * when the file is read it modifies the way the value is passed back to the fld_set_cb
  * (see definition bellow for description)
  ***********/
@@ -211,13 +211,17 @@ typedef struct _uat_field_t {
 /** Create a new uat
  *
  * @param name The name of the table
- * @param data_ptr A pointer to a null terminated array of pointers to the data
- * @param default_data A pointer to a struct containing default values
  * @param size The size of the structure
  * @param filename The filename to be used (either in userdir or datadir)
+ * @param from_profile TRUE if profie directory to be used
+ * @param data_ptr A pointer to a null terminated array of pointers to the data
+ * @param num_items_ptr 
+ * @param category
+ * @param help A pointer to help text
  * @param copy_cb A function that copies the data in the struct
  * @param update_cb Will be called when a record is updated
  * @param free_cb Will be called to destroy a struct in the dataset
+ * @param flds_array A pointer to an array of uat_field_t structs
  *
  * @return A freshly-allocated and populated uat_t struct.
  */
@@ -226,7 +230,7 @@ uat_t* uat_new(const char* name,
 			   const char* filename,
 			   gboolean from_profile,
 			   void** data_ptr,
-			   guint* num_items,
+			   guint* num_items_ptr,
 			   const char* category,
 			   const char* help,
 			   uat_copy_cb_t copy_cb,
