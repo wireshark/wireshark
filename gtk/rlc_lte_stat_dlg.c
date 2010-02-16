@@ -165,20 +165,20 @@ typedef struct rlc_lte_ep {
 
 /* Top-level dialog and labels */
 static GtkWidget  *rlc_lte_stat_dlg_w = NULL;
+static GtkWidget  *rlc_lte_stat_pdu_source_lb = NULL;
 static GtkWidget  *rlc_lte_stat_common_channel_lb = NULL;
 static GtkWidget  *rlc_lte_stat_ues_lb = NULL;
 static GtkWidget  *rlc_lte_stat_channels_lb = NULL;
 static GtkWidget  *rlc_lte_stat_filter_buttons_lb = NULL;
 
-GtkWidget         *ul_filter_bt;
-GtkWidget         *dl_filter_bt;
-GtkWidget         *uldl_filter_bt;
+static GtkWidget         *ul_filter_bt;
+static GtkWidget         *dl_filter_bt;
+static GtkWidget         *uldl_filter_bt;
+static GtkWidget         *show_only_control_pdus_cb;
+static GtkWidget         *sn_filter_lb;
+static GtkWidget         *sn_filter_te;
 
-GtkWidget         *show_only_control_pdus_cb;
-GtkWidget         *sn_filter_lb;
-GtkWidget         *sn_filter_te;
-
-gboolean          s_show_mac = FALSE;
+static gboolean          s_show_mac = FALSE;
 
 /* State used to attempt to re-select chosen UE/channel */
 static guint16  s_reselect_ue = 0;
@@ -901,7 +901,7 @@ static void set_channel_filter_expression(guint16  ueid,
                                      " and ((rlc-lte.am.fixed.sn == %u) or "
                                      "(rlc-lte.am.ack-sn == %u) or "
                                      "(rlc-lte.am.nack-sn == %u))",
-                                     filterOnSN, filterOnSN, filterOnSN);
+                                     filterOnSN, (filterOnSN+1) % 1024, filterOnSN);
                 break;
             case RLC_UM_MODE:
                 offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
@@ -1038,16 +1038,17 @@ static void rlc_lte_stat_dlg_create(void)
     /* Will stack widgets vertically inside dlg */
     top_level_vbox = gtk_vbox_new(FALSE, 3);       /* FALSE = not homogeneous */
     gtk_container_add(GTK_CONTAINER(rlc_lte_stat_dlg_w), top_level_vbox);
-
     gtk_container_set_border_width(GTK_CONTAINER(top_level_vbox), 6);
     gtk_widget_show(top_level_vbox);
 
     /**********************************************/
     /* Exclude-MAC checkbox                       */
+    rlc_lte_stat_pdu_source_lb = gtk_frame_new("PDUs to use");
     show_mac_cb = gtk_check_button_new_with_mnemonic("Show RLC PDUs found inside logged MAC frames");
-    gtk_container_add(GTK_CONTAINER(top_level_vbox), show_mac_cb);
+    gtk_container_add(GTK_CONTAINER(rlc_lte_stat_pdu_source_lb), show_mac_cb);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(show_mac_cb), FALSE);
-    /* TODO: add tooltip */
+    gtk_box_pack_start(GTK_BOX(top_level_vbox), rlc_lte_stat_pdu_source_lb, FALSE, FALSE, 0);
+    /* TODO: add tooltips... */
     g_signal_connect(show_mac_cb, "toggled", G_CALLBACK(toggle_show_mac), hs);
 
 
@@ -1060,7 +1061,6 @@ static void rlc_lte_stat_dlg_create(void)
     common_row_hbox = gtk_hbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(rlc_lte_stat_common_channel_lb), common_row_hbox);
     gtk_container_set_border_width(GTK_CONTAINER(common_row_hbox), 5);
-
     gtk_box_pack_start(GTK_BOX(top_level_vbox), rlc_lte_stat_common_channel_lb, FALSE, FALSE, 0);
 
     /* Create labels (that will hold label and counter value) */
@@ -1226,29 +1226,28 @@ static void rlc_lte_stat_dlg_create(void)
     g_signal_connect(uldl_filter_bt, "clicked", G_CALLBACK(uldl_filter_clicked), hs);
     gtk_widget_show(uldl_filter_bt);
 
-    /* Allow filtering only to select status PDUs for AM */
-    show_only_control_pdus_cb = gtk_check_button_new_with_mnemonic("Show only status PDUs (for AM)");
-    gtk_container_add(GTK_CONTAINER(filter_vb), show_only_control_pdus_cb);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(show_only_control_pdus_cb), FALSE);
-
-
     /* Allow filtering on specific SN number. */
     /* Row with label and text entry control  */
     sn_filter_hb = gtk_hbox_new(FALSE, 3);
     gtk_container_add(GTK_CONTAINER(filter_vb), sn_filter_hb);
     gtk_widget_show(sn_filter_hb);
 
-    sn_filter_lb = gtk_label_new("Sequence number to filter on:");
-    gtk_box_pack_start(GTK_BOX(sn_filter_hb), sn_filter_lb, TRUE, TRUE, 0);
-    gtk_widget_show(sn_filter_lb);
+    /* Allow filtering only to select status PDUs for AM */
+    show_only_control_pdus_cb = gtk_check_button_new_with_mnemonic("Show only status PDUs");
+    gtk_container_add(GTK_CONTAINER(sn_filter_hb), show_only_control_pdus_cb);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(show_only_control_pdus_cb), FALSE);
 
     sn_filter_te = gtk_entry_new();
-    gtk_box_pack_start(GTK_BOX(sn_filter_hb), sn_filter_te, TRUE, TRUE, 0);
+    gtk_box_pack_end(GTK_BOX(sn_filter_hb), sn_filter_te, FALSE, FALSE, 0);
     gtk_widget_show(sn_filter_te);
+
+    sn_filter_lb = gtk_label_new("Sequence number to filter on:");
+    gtk_box_pack_end(GTK_BOX(sn_filter_hb), sn_filter_lb, FALSE, FALSE, 0);
+    gtk_widget_show(sn_filter_lb);
 
 
     /* Add filters box to top-level window */
-    gtk_box_pack_start(GTK_BOX(top_level_vbox), rlc_lte_stat_filter_buttons_lb, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(top_level_vbox), rlc_lte_stat_filter_buttons_lb, FALSE, FALSE, 0);
 
     enable_filter_controls(FALSE, 0);
 
