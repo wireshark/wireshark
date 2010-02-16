@@ -54,20 +54,23 @@ find_proxy() {
 	fi
 
 	# ...and wget can't fetch two registry keys because...?
-	#
-	# If regtool prints a blank line, $proxy_enabled will
-	# not be a zero-length string, it'll be a newline.
-	# Strip out newlines so that doesn't happen.
-	#
 	proxy_enabled=`regtool get /HKCU/Software/Microsoft/Windows/CurrentVersion/Internet\ Settings/ProxyEnable 2>/dev/null | tr -d '\012'`
-if [ -n "$proxy_enabled" ] ; then
-echo "proxy_enabled is $proxy_enabled"
-echo "In raw bytes, that's:"
-echo -n "$proxy_enabled" | od -bc
-fi
-	if [ -n "$proxy_enabled" -a "$proxy_enabled" -ne 0 ] ; then
-		export http_proxy=`regtool get /HKCU/Software/Microsoft/Windows/CurrentVersion/Internet\ Settings/ProxyServer 2>/dev/null`
-		echo "Using Internet Explorer proxy settings."
+	#
+	# Bash's test command appears not to use short-circuit evaluation,
+	# so
+	#
+	#	-n "$proxy_enabled" -a "$proxy_enabled" -ne 0
+	#
+	# causes a complaint if "$proxy_enabled" is an empty string -
+	# the first test fails, but the second test is done anyway,
+	# and generates a complaint about the LHS of -ne not being
+	# numeric.  Therefore, we do the tests separately.
+	#
+	if [ -n "$proxy_enabled" ] ; then
+		if [ "$proxy_enabled" -ne 0 ] ; then
+			export http_proxy=`regtool get /HKCU/Software/Microsoft/Windows/CurrentVersion/Internet\ Settings/ProxyServer 2>/dev/null`
+			echo "Using Internet Explorer proxy settings."
+		fi
 	fi
 
 	if [ -z "$http_proxy" -a -z "$HTTP_PROXY" ] ; then
