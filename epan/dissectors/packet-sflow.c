@@ -54,10 +54,6 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -75,14 +71,13 @@ static range_t *global_sflow_ports = NULL;
 /*
  *	sflow_245_ports : holds the currently used range of ports for sflow
  */
-static range_t *sflow_ports = NULL;
 static gboolean global_dissect_samp_headers = TRUE;
 static gboolean global_analyze_samp_ip_headers = FALSE;
 
 #define ENTERPRISE_DEFAULT 0
 
-#define ADDRESS_IPV4 1
-#define ADDRESS_IPV6 2
+#define ADDR_TYPE_IPV4 1
+#define ADDR_TYPE_IPV6 2
 
 #define FLOWSAMPLE 1
 #define COUNTERSSAMPLE 2
@@ -97,16 +92,16 @@ static const value_string sflow_245_sampletype[] = {
     { 0, NULL}
 };
 
-#define A 1
-#define B 2
-#define G 3
-#define N 4
+#define SFLOW_5_IEEE80211_VERSION_A 1
+#define SFLOW_5_IEEE80211_VERSION_B 2
+#define SFLOW_5_IEEE80211_VERSION_G 3
+#define SFLOW_5_IEEE80211_VERSION_N 4
 
-static const value_string sflow_5_ieee80211_versiosn [] = {
-    { A, "802.11a"},
-    { B, "802.11b"},
-    { G, "802.11g"},
-    { N, "802.11n"},
+static const value_string sflow_5_ieee80211_versions [] = {
+    { SFLOW_5_IEEE80211_VERSION_A, "802.11a"},
+    { SFLOW_5_IEEE80211_VERSION_B, "802.11b"},
+    { SFLOW_5_IEEE80211_VERSION_G, "802.11g"},
+    { SFLOW_5_IEEE80211_VERSION_N, "802.11n"},
     { 0, NULL}
 };
 
@@ -870,21 +865,21 @@ dissect_sflow_245_extended_switch(tvbuff_t *tvb, proto_tree *tree, gint offset) 
 static gint
 dissect_sflow_245_extended_router(tvbuff_t *tvb, proto_tree *tree, gint offset) {
     gint32 len = 0;
-    guint32 address_type;
+    guint32 addr_type;
 
-    address_type = tvb_get_ntohl(tvb, offset);
+    addr_type = tvb_get_ntohl(tvb, offset);
     len += 4;
-    switch (address_type) {
-        case ADDRESS_IPV4:
+    switch (addr_type) {
+        case ADDR_TYPE_IPV4:
             proto_tree_add_item(tree, hf_sflow_245_nexthop_v4, tvb, offset + len, 4, FALSE);
             len += 4;
             break;
-        case ADDRESS_IPV6:
+        case ADDR_TYPE_IPV6:
             proto_tree_add_item(tree, hf_sflow_245_nexthop_v6, tvb, offset + len, 16, FALSE);
             len += 16;
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset + len - 4, 4, "Unknown address type (%u)", address_type);
+            proto_tree_add_text(tree, tvb, offset + len - 4, 4, "Unknown address type (%u)", addr_type);
             len += 4; /* not perfect, but what else to do? */
             return len; /* again, this is wrong.  but... ? */
     };
@@ -899,26 +894,26 @@ dissect_sflow_245_extended_router(tvbuff_t *tvb, proto_tree *tree, gint offset) 
 /* extended MPLS data */
 static gint
 dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, proto_tree *tree, gint offset) {
-    guint32 address_type, in_label_count, out_label_count, i, j;
+    guint32 addr_type, in_label_count, out_label_count, i, j;
     proto_tree *in_stack;
     proto_item *ti_in;
     proto_tree *out_stack;
     proto_item *ti_out;
 
-    address_type = tvb_get_ntohl(tvb, offset);
+    addr_type = tvb_get_ntohl(tvb, offset);
     offset += 4;
 
-    switch (address_type) {
-        case ADDRESS_IPV4:
+    switch (addr_type) {
+        case ADDR_TYPE_IPV4:
             proto_tree_add_item(tree, hf_sflow_245_nexthop_v4, tvb, offset, 4, FALSE);
             offset += 4;
             break;
-        case ADDRESS_IPV6:
+        case ADDR_TYPE_IPV6:
             proto_tree_add_item(tree, hf_sflow_245_nexthop_v6, tvb, offset, 16, FALSE);
             offset += 16;
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset - 4, 4, "Unknown address type (%u)", address_type);
+            proto_tree_add_text(tree, tvb, offset - 4, 4, "Unknown address type (%u)", addr_type);
             offset += 4; /* not perfect, but what else to do? */
             return offset; /* again, this is wrong.  but... ? */
     };
@@ -963,11 +958,11 @@ dissect_sflow_5_extended_nat(tvbuff_t *tvb, proto_tree *tree, gint offset) {
     offset += 4;
 
     switch (src_type) {
-        case ADDRESS_IPV4:
+        case ADDR_TYPE_IPV4:
             proto_tree_add_item(tree, hf_sflow_245_ipv4_src, tvb, offset, 4, FALSE);
             offset += 4;
             break;
-        case ADDRESS_IPV6:
+        case ADDR_TYPE_IPV6:
             proto_tree_add_item(tree, hf_sflow_245_ipv6_src, tvb, offset, 16, FALSE);
             offset += 16;
             break;
@@ -981,11 +976,11 @@ dissect_sflow_5_extended_nat(tvbuff_t *tvb, proto_tree *tree, gint offset) {
     offset += 4;
 
     switch (des_type) {
-        case ADDRESS_IPV4:
+        case ADDR_TYPE_IPV4:
             proto_tree_add_item(tree, hf_sflow_245_ipv4_des, tvb, offset, 4, FALSE);
             offset += 4;
             break;
-        case ADDRESS_IPV6:
+        case ADDR_TYPE_IPV6:
             proto_tree_add_item(tree, hf_sflow_245_ipv6_des, tvb, offset, 16, FALSE);
             offset += 16;
             break;
@@ -1003,7 +998,7 @@ static gint
 dissect_sflow_245_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset) {
     gint32 len = 0;
     gint32 i, j, comm_len, dst_len, dst_seg_len;
-    guint32 address_type, path_type;
+    guint32 addr_type, path_type;
     gint32 kludge;
 
     guint32 version = tvb_get_ntohl(tvb, 0); /* get sFlow version */
@@ -1014,19 +1009,19 @@ dissect_sflow_245_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
     /* sFlow v5 contains next hop router IP address */
     if (version == 5) {
-        address_type = tvb_get_ntohl(tvb, offset);
+        addr_type = tvb_get_ntohl(tvb, offset);
         len += 4;
-        switch (address_type) {
-            case ADDRESS_IPV4:
+        switch (addr_type) {
+            case ADDR_TYPE_IPV4:
                 proto_tree_add_item(tree, hf_sflow_245_nexthop_v4, tvb, offset + len, 4, FALSE);
                 len += 4;
                 break;
-            case ADDRESS_IPV6:
+            case ADDR_TYPE_IPV6:
                 proto_tree_add_item(tree, hf_sflow_245_nexthop_v6, tvb, offset + len, 16, FALSE);
                 len += 16;
                 break;
             default:
-                proto_tree_add_text(tree, tvb, offset + len - 4, 4, "Unknown address type (%u)", address_type);
+                proto_tree_add_text(tree, tvb, offset + len - 4, 4, "Unknown address type (%u)", addr_type);
                 len += 4; /* not perfect, but what else to do? */
         };
     }
@@ -1607,7 +1602,7 @@ dissect_sflow_5_extended_80211_rx(tvbuff_t *tvb, proto_tree *tree, gint offset) 
 
     version = tvb_get_ntohl(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 4, "Version: %s",
-            val_to_str(version, sflow_5_ieee80211_versiosn, "Unknown"));
+            val_to_str(version, sflow_5_ieee80211_versions, "Unknown"));
     offset += 4;
 
     channel = tvb_get_ntohl(tvb, offset);
@@ -1663,7 +1658,7 @@ dissect_sflow_5_extended_80211_tx(tvbuff_t *tvb, proto_tree *tree, gint offset) 
 
     version = tvb_get_ntohl(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 4, "Version: %s",
-            val_to_str(version, sflow_5_ieee80211_versiosn, "Unknown"));
+            val_to_str(version, sflow_5_ieee80211_versions, "Unknown"));
     offset += 4;
 
     transmissions = tvb_get_ntohl(tvb, offset);
@@ -2676,7 +2671,7 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_item *ti;
     proto_tree *sflow_245_tree;
     guint32 version, sub_agent_id, seqnum;
-    guint32 agent_address_type;
+    guint32 agent_addr_type;
 
     union {
         guint8 v4[4];
@@ -2702,17 +2697,17 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree_add_item(sflow_245_tree, hf_sflow_version, tvb, offset, 4, FALSE);
     offset += 4;
 
-    agent_address_type = tvb_get_ntohl(tvb, offset);
+    agent_addr_type = tvb_get_ntohl(tvb, offset);
     offset += 4;
-    switch (agent_address_type) {
-        case ADDRESS_IPV4:
+    switch (agent_addr_type) {
+        case ADDR_TYPE_IPV4:
             tvb_memcpy(tvb, agent_address.v4, offset, 4);
             if (check_col(pinfo->cinfo, COL_INFO))
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s", ip_to_str(agent_address.v4));
             proto_tree_add_item(sflow_245_tree, hf_sflow_agent_address_v4, tvb, offset, 4, FALSE);
             offset += 4;
             break;
-        case ADDRESS_IPV6:
+        case ADDR_TYPE_IPV6:
             tvb_memcpy(tvb, agent_address.v6, offset, 16);
             if (check_col(pinfo->cinfo, COL_INFO))
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s",
@@ -2760,32 +2755,6 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     return tvb_length(tvb);
 }
-
-static void
-sflow_245_delete_callback(guint32 port) {
-    if (port) {
-        dissector_delete("udp.port", port, sflow_handle);
-    }
-}
-
-static void
-sflow_245_add_callback(guint32 port) {
-    if (port) {
-        dissector_add("udp.port", port, sflow_handle);
-    }
-}
-
-static void
-sflow_245_reinit(void) {
-    if (sflow_ports) {
-        range_foreach(sflow_ports, sflow_245_delete_callback);
-        g_free(sflow_ports);
-    }
-
-    sflow_ports = range_copy(global_sflow_ports);
-    range_foreach(sflow_ports, sflow_245_add_callback);
-}
-
 
 /* Register the protocol with Wireshark */
 
@@ -2846,7 +2815,7 @@ proto_register_sflow(void) {
                 "Type of sFlow sample", HFILL}},
         { &hf_sflow_5_ieee80211_version,
             { "Version", "sflow_245.ieee80211_version",
-                FT_UINT32, BASE_DEC, VALS(sflow_5_ieee80211_versiosn), 0x0,
+                FT_UINT32, BASE_DEC, VALS(sflow_5_ieee80211_versions), 0x0,
                 "IEEE 802.11 Version", HFILL}},
         { &hf_sflow_245_ipv4_precedence_type,
             { "Precedence", "sflow_245.ipv4_precedence_type",
@@ -3416,33 +3385,45 @@ proto_register_sflow(void) {
             "Analyze data in sampled IP headers",
             "This option only makes sense if dissection of sampled headers is enabled and probably not even then.",
             &global_analyze_samp_ip_headers);
-
-
-    register_init_routine(&sflow_245_reinit);
 }
 
-/* If this dissector uses sub-dissector registration add a
-   registration routine.  This format is required because a script is
-   used to find these routines and create the code that calls these
-   routines.
- */
+
+static void
+sflow_245_delete_callback(guint32 port) {
+    if (port) {
+        dissector_delete("udp.port", port, sflow_handle);
+    }
+}
+
+static void
+sflow_245_add_callback(guint32 port) {
+    if (port) {
+        dissector_add("udp.port", port, sflow_handle);
+    }
+}
+
 void
 proto_reg_handoff_sflow_245(void) {
-    static int sflow_245_prefs_initialized = FALSE;
+    static range_t *sflow_ports;
+    static gboolean sflow_245_prefs_initialized = FALSE;
+
     if (!sflow_245_prefs_initialized) {
         sflow_handle = new_create_dissector_handle(dissect_sflow_245, proto_sflow);
+        data_handle = find_dissector("data");
         sflow_245_prefs_initialized = TRUE;
+    } else {
+        range_foreach(sflow_ports, sflow_245_delete_callback);
+        g_free(sflow_ports);
     }
 
-
-    sflow_245_reinit();
+    sflow_ports = range_copy(global_sflow_ports);
+    range_foreach(sflow_ports, sflow_245_add_callback);
 
     /*dissector_handle_t sflow_245_handle;*/
 
     /*
      * XXX - should this be done with a dissector table?
      */
-    data_handle = find_dissector("data");
 
     if (global_dissect_samp_headers) {
         eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
