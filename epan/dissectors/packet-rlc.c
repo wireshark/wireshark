@@ -153,8 +153,8 @@ static const value_string rlc_sufi_vals[] = {
 
 /* reassembly related data */
 static GHashTable *fragment_table = NULL;	/* maps rlc_channel -> fragmented sdu */
-static GHashTable *reassembled_table = NULL; /* maps fragment -> complete sdu */
-static GHashTable *sequence_table = NULL; /* channel -> seq */
+static GHashTable *reassembled_table = NULL;    /* maps fragment -> complete sdu */
+static GHashTable *sequence_table = NULL;       /* channel -> seq */
 
 /* identify an RLC channel, using one of two options:
  *  - via Radio Bearer ID and U-RNTI
@@ -405,6 +405,18 @@ static gboolean free_table_entry(gpointer key _U_,
 	return TRUE;
 }
 
+/* "Value destroy" function called each time an entry is removed
+ *  from the sequence_table hash.
+ * It frees the GList pointed to by the entry.
+ */
+static void free_sequence_table_entry_data(struct rlc_seqlist *list)
+{
+	if (list->list != NULL) {
+		g_list_free(list->list);
+		list->list = NULL;   /* for good measure */
+	}
+}
+
 static void fragment_table_init(void)
 {
 	if (fragment_table) {
@@ -416,6 +428,7 @@ static void fragment_table_init(void)
 		g_hash_table_destroy(reassembled_table);
 	}
 	if (sequence_table) {
+		/* Note: "value destroy" function wil be called for each removed hash table entry */
 		g_hash_table_foreach_remove(sequence_table, free_table_entry, NULL);
 		g_hash_table_destroy(sequence_table);
 	}
@@ -423,7 +436,8 @@ static void fragment_table_init(void)
 		rlc_channel_delete, rlc_sdu_frags_delete);
 	reassembled_table = g_hash_table_new_full(rlc_frag_hash, rlc_frag_equal,
 		rlc_frag_delete, rlc_sdu_frags_delete);
-	sequence_table = g_hash_table_new(rlc_channel_hash, rlc_channel_equal);
+	sequence_table = g_hash_table_new_full(rlc_channel_hash, rlc_channel_equal, 
+		NULL, free_sequence_table_entry_data);
 }
 
 /* add the list of fragments for this sdu to 'tree' */
