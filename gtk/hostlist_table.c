@@ -767,42 +767,48 @@ map_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
         return FALSE;
     }
 
-    /* latitude */
+    /* Latitude */
     gtk_tree_model_get(model, iter, map->col_lat, &table_entry, -1);
     fputs(table_entry, map->out_file);
     g_free(table_entry);
     fputs("\t", map->out_file);
 
-    /* longitude */
+    /* Longitude */
     gtk_tree_model_get(model, iter, map->col_lon, &table_entry, -1);
     fputs(table_entry, map->out_file);
     g_free(table_entry);
     fputs("\t", map->out_file);
 
-    /* title */
+    /* Title */
     gtk_tree_model_get(model, iter, map->col_ip, &table_entry, -1);
     fputs(table_entry, map->out_file);
     g_free(table_entry);
     fputs("\t", map->out_file);
 
-    /* description */
-    gtk_tree_model_get(model, iter, map->col_as_num, &table_entry, -1);
-    fputs("AS: ", map->out_file);
-    fputs(table_entry, map->out_file);
-    g_free(table_entry);
-    fputs("<br/>", map->out_file);
+    /* Description */
+    if (map->col_as_num >= 0) {
+        gtk_tree_model_get(model, iter, map->col_as_num, &table_entry, -1);
+        fputs("AS: ", map->out_file);
+        fputs(table_entry, map->out_file);
+        g_free(table_entry);
+        fputs("<br/>", map->out_file);
+    }
 
-    gtk_tree_model_get(model, iter, map->col_country, &table_entry, -1);
-    fputs("Country: ", map->out_file);
-    fputs(table_entry, map->out_file);
-    g_free(table_entry);
-    fputs("<br/>", map->out_file);
+    if (map->col_country >= 0) {
+        gtk_tree_model_get(model, iter, map->col_country, &table_entry, -1);
+        fputs("Country: ", map->out_file);
+        fputs(table_entry, map->out_file);
+        g_free(table_entry);
+        fputs("<br/>", map->out_file);
+    }
 
-    gtk_tree_model_get(model, iter, map->col_city, &table_entry, -1);
-    fputs("City: ", map->out_file);
-    fputs(table_entry, map->out_file);
-    g_free(table_entry);
-    fputs("<br/>", map->out_file);
+    if (map->col_country >= 0) {
+        gtk_tree_model_get(model, iter, map->col_city, &table_entry, -1);
+        fputs("City: ", map->out_file);
+        fputs(table_entry, map->out_file);
+        g_free(table_entry);
+        fputs("<br/>", map->out_file);
+    }
 
     gtk_tree_model_get(model, iter, map->col_packets, &value, -1);
     fprintf(map->out_file, "Packets: %" G_GINT64_MODIFIER "u<br/>", value);
