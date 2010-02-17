@@ -130,6 +130,7 @@ static gboolean cap_data_size = TRUE;       /* Report packet byte size    */
 static gboolean cap_duration = TRUE;        /* Report capture duration    */
 static gboolean cap_start_time = TRUE;      /* Report capture start time  */
 static gboolean cap_end_time = TRUE;        /* Report capture end time    */
+static gboolean time_as_secs = FALSE;       /* Report time values as raw seconds */
 
 static gboolean cap_data_rate_byte = TRUE;  /* Report data rate bytes/sec */
 static gboolean cap_data_rate_bit = TRUE;   /* Report data rate bites/sec */
@@ -249,6 +250,28 @@ ctime_no_lf(const time_t* timer)
   return(time_string);
 }
 
+static gchar *
+time_string(const time_t *timer, capture_info *cf_info, gboolean want_lf)
+{
+  gchar *lf = want_lf ? "\n" : "";
+  static gchar time_string[15];
+
+  if (cf_info->packet_count > 0) {
+    if (time_as_secs) {
+      /* XXX - Would it be useful to show sub-second precision? */
+      g_snprintf(time_string, 15, "%lu%s", (unsigned long) *timer, lf);
+      return time_string;
+    } else if (want_lf) {
+      return ctime(timer);
+    } else {
+      return ctime_no_lf(timer);
+    }
+  }
+
+  g_snprintf(time_string, 15, "n/a%s", lf);
+  return time_string;
+}
+
 static double
 secs_nsecs(const struct wtap_nstime * nstime)
 {
@@ -282,8 +305,8 @@ print_stats(const gchar *filename, capture_info *cf_info)
   if (cap_file_size)      printf     ("File size:           %" G_GINT64_MODIFIER "d bytes\n", cf_info->filesize);
   if (cap_data_size)      printf     ("Data size:           %" G_GINT64_MODIFIER "u bytes\n", cf_info->packet_bytes);
   if (cap_duration)       print_value("Capture duration:    ", 0, " seconds",   cf_info->duration);
-  if (cap_start_time)     printf     ("Start time:          %s", (cf_info->packet_count>0) ? ctime (&start_time_t) : "n/a\n");
-  if (cap_end_time)       printf     ("End time:            %s", (cf_info->packet_count>0) ? ctime (&stop_time_t)  : "n/a\n");
+  if (cap_start_time)     printf     ("Start time:          %s", time_string(&start_time_t, cf_info, TRUE));
+  if (cap_end_time)       printf     ("End time:            %s", time_string(&stop_time_t, cf_info, TRUE));
   if (cap_data_rate_byte) print_value("Data byte rate:      ", 2, " bytes/sec",   cf_info->data_rate);
   if (cap_data_rate_bit)  print_value("Data bit rate:       ", 2, " bits/sec",    cf_info->data_rate*8);
   if (cap_packet_size)    printf     ("Average packet size: %.2f bytes\n",        cf_info->packet_size);
@@ -412,14 +435,14 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
   if (cap_start_time) {
     putsep();
     putquote();
-    printf("%s", (cf_info->packet_count>0) ? ctime_no_lf (&start_time_t) : "n/a");
+    printf("%s", time_string(&start_time_t, cf_info, FALSE));
     putquote();
   }
 
   if (cap_end_time) {
     putsep();
     putquote();
-    printf("%s", (cf_info->packet_count>0) ? ctime_no_lf (&stop_time_t) : "n/a");
+    printf("%s", time_string(&stop_time_t, cf_info, FALSE));
     putquote();
   }
 
@@ -611,6 +634,7 @@ usage(gboolean is_error)
   fprintf(output, "  -u display the capture duration (in seconds)\n");
   fprintf(output, "  -a display the capture start time\n");
   fprintf(output, "  -e display the capture end time\n");
+  fprintf(output, "  -S display start and end times as seconds\n");
   fprintf(output, "\n");
   fprintf(output, "Statistic infos:\n");
   fprintf(output, "  -y display average data rate (in bytes/sec)\n");
@@ -710,7 +734,7 @@ main(int argc, char *argv[])
 
   /* Process the options */
 
-  while ((opt = getopt(argc, argv, "tEcs" FILE_HASH_OPT "duaeyizvhxCALTRrNqQBmb")) !=-1) {
+  while ((opt = getopt(argc, argv, "tEcs" FILE_HASH_OPT "duaeyizvhxCALTRrSNqQBmb")) !=-1) {
 
     switch (opt) {
 
@@ -752,6 +776,10 @@ main(int argc, char *argv[])
     case 'e':
       if (report_all_infos) disable_all_infos();
       cap_end_time = TRUE;
+      break;
+
+    case 'S':
+      time_as_secs = TRUE;
       break;
 
     case 'y':

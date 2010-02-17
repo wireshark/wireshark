@@ -119,6 +119,21 @@ fddi>' is specified).
 
 =back
 
+=head1 EXAMPLES
+
+To merge two capture files together, 100 seconds apart use:
+
+    capinfos -aeS a.pcap b.pcap
+    
+(Let's suppose a.pcap starts at 1009932757 and b.pcap ends
+at 873660281. 1009932757 - 873660281 - 100 = 136272376
+seconds.)
+
+    editcap -t 136272376 b.pcap b-shifted.pcap
+    mergecap -w compare.pcap a.pcap b-shifted.pcap
+
+=back
+
 =head1 SEE ALSO
 
 tcpdump(8), pcap(3), wireshark(1), tshark(1), dumpcap(1), editcap(1),
