@@ -202,9 +202,6 @@ clean:
 	cd lte-rrc
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd kerberos
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
 	cd logotype-cert-extn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
