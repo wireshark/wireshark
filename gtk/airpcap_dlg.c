@@ -550,6 +550,7 @@ on_key_management_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
         set_wireshark_decryption(FALSE);
         if (!set_airpcap_decryption(FALSE)) g_warning(CANT_SAVE_ERR_STR);
     }
+	g_free(decryption_mode_string);
 
     /* Save the configuration */
     airpcap_read_and_save_decryption_keys_from_clist(key_ls,airpcap_if_selected,airpcap_if_list); /* This will save the keys for every adapter */
