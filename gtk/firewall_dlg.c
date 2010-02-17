@@ -80,37 +80,37 @@
 
 /* Rule types */
 typedef enum {
-  RT_NONE,
-  RT_MAC_SRC,
-  RT_MAC_DST,
-  RT_IPv4_SRC,
-  RT_IPv4_DST,
-  RT_PORT_SRC,
-  RT_PORT_DST,
-  RT_IPv4_PORT_SRC,
-  RT_IPv4_PORT_DST,
-  NUM_RULE_TYPES
+    RT_NONE,
+    RT_MAC_SRC,
+    RT_MAC_DST,
+    RT_IPv4_SRC,
+    RT_IPv4_DST,
+    RT_PORT_SRC,
+    RT_PORT_DST,
+    RT_IPv4_PORT_SRC,
+    RT_IPv4_PORT_DST,
+    NUM_RULE_TYPES
 } rule_type_t;
 
 
 /* Copied from packet_info struct */
 typedef struct _rule_info_t {
-  gint product;
-  address dl_src;
-  address dl_dst;
-  address net_src;
-  address net_dst;
-  port_type ptype;
-  guint32 srcport;
-  guint32 destport;
-  GtkWidget *text;
-  GtkWidget *filter_om;
-  GtkWidget *deny_cb;
-  GtkWidget *inbound_cb;
-  GtkWidget *firewall_save_as_w;
-  gboolean inbound;
-  gboolean deny;
-  rule_type_t rule_type;
+    gint product;
+    address dl_src;
+    address dl_dst;
+    address net_src;
+    address net_dst;
+    port_type ptype;
+    guint32 srcport;
+    guint32 destport;
+    GtkWidget *text;
+    GtkWidget *filter_om;
+    GtkWidget *deny_cb;
+    GtkWidget *inbound_cb;
+    GtkWidget *firewall_save_as_w;
+    gboolean inbound;
+    gboolean deny;
+    rule_type_t rule_type;
 } rule_info_t;
 
 /* Syntax function prototypes */
@@ -144,13 +144,13 @@ static void sf_pf_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type 
 static void sf_netsh_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
 
 typedef struct _fw_product_t {
-  gchar *name;
-  gchar *comment_pfx;
-  syntax_func mac_func;
-  syntax_func ipv4_func;
-  syntax_func port_func;
-  syntax_func ipv4_port_func;
-  gboolean does_inbound;
+    gchar *name;
+    gchar *comment_pfx;
+    syntax_func mac_func;
+    syntax_func ipv4_func;
+    syntax_func port_func;
+    syntax_func ipv4_port_func;
+    gboolean does_inbound;
 } fw_product;
 
 fw_product products[] = {
@@ -185,6 +185,7 @@ static void firewall_save_as_destroy_cb(GtkWidget * win, gpointer user_data);
 
 #define WS_RULE_INFO_KEY "rule_info_key"
 
+#if 0
 /* List of "rule_info_t" structures for all rule windows. */
 static GList *rule_infos;
 
@@ -194,6 +195,7 @@ forget_rule_info(rule_info_t *rule_info)
 {
   rule_infos = g_list_remove(rule_infos, rule_info);
 }
+#endif
 
 void
 firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
@@ -658,8 +660,9 @@ firewall_destroy_cb(GtkWidget *w, gpointer data _U_)
     rule_info_t	*rule_info;
 
     rule_info = g_object_get_data(G_OBJECT(w), WS_RULE_INFO_KEY);
+#if 0
     forget_rule_info(rule_info);
-
+#endif
     g_free(rule_info);
 }
 
