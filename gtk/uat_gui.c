@@ -303,10 +303,10 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 				break;
 			}
 			case PT_TXTMOD_ENUM: {
-				text = *(char**)e;
-				text = text ? text : "";
+				gint idx = *(int*)e;
+				text = (idx >= 0) ? ((value_string *)(f[colnum].fld_data))[idx].strptr : "";
 				len = (unsigned) strlen(text);
-				break;
+                                break;
 			}
 			default:
 				g_assert_not_reached();
@@ -388,19 +388,9 @@ static gboolean uat_cancel_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 	return TRUE;
 }
 
-struct _fld_menu_item_data_t {
-	const char* text;
-	char const** valptr;
-};
-
-static void fld_menu_item_cb(GtkMenuItem *menuitem _U_, gpointer user_data) {
-	struct _fld_menu_item_data_t* md = user_data;
-	
-	*(md->valptr) = md->text;
-}
-
-static void fld_menu_item_destroy_cb(GtkMenuItem *menuitem _U_, gpointer user_data) {
-	g_free(user_data);
+static void fld_combo_box_changed_cb(GtkComboBox *combo_box, gpointer user_data) {
+	int* valptr = user_data;
+	*valptr = gtk_combo_box_get_active(combo_box);
 }
 
 static void uat_edit_dialog(uat_t* uat, gint row) {
@@ -471,44 +461,31 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 				break;
 			}
 			case PT_TXTMOD_ENUM: {
-				GtkWidget *menu, *option_menu;
-				int menu_idx, idx;
+				GtkWidget *combo_box;
+				int idx;
 				const value_string* enum_vals = f[colnum].fld_data;
-				void* valptr = g_malloc0(sizeof(void*));
-
-				menu = gtk_menu_new();
-				menu_idx = -1;
+				int* valptr = g_malloc(sizeof(int*));	/* A place to store the index of the    */
+									/*  "active" fld_data array entry       */
+									/* -1 means "nothing selected (active)" */
+				combo_box = gtk_combo_box_new_text();
+				*valptr = -1;
 				for (idx = 0; enum_vals[idx].strptr != NULL; idx++) {
-					struct _fld_menu_item_data_t* md = g_malloc(sizeof(struct _fld_menu_item_data_t));
 					const char* str = enum_vals[idx].strptr;
-					GtkWidget* menu_item = gtk_menu_item_new_with_label(str);
-					
-					md->text = str;
-					md->valptr = valptr;
-					
-					gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+					gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box), str);
 					
 					if ( g_str_equal(str, text) ) {
-						menu_idx = idx;
-						*((char const**)valptr) = str;
+						*valptr = idx;
 					}
-
-					g_signal_connect(menu_item, "activate", G_CALLBACK(fld_menu_item_cb), md);
-					g_signal_connect(menu_item, "destroy", G_CALLBACK(fld_menu_item_destroy_cb), md);
 				}
 
 				g_ptr_array_add(dd->entries,valptr);
 				g_ptr_array_add(dd->tobe_freed,valptr);
 
-				/* Create the option menu from the menu */
-				option_menu = gtk_option_menu_new();
-				gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
+				if (*valptr != -1)
+                                    gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), *valptr);
 
-				/* Set its current value to the variable's current value */
-				if (menu_idx != -1)
-					gtk_option_menu_set_history(GTK_OPTION_MENU(option_menu), menu_idx);
-
-				gtk_table_attach_defaults(GTK_TABLE(main_tb), option_menu, 1, 2, colnum+1, colnum + 2);
+				g_signal_connect(combo_box, "changed", G_CALLBACK(fld_combo_box_changed_cb), valptr);
+				gtk_table_attach_defaults(GTK_TABLE(main_tb), combo_box, 1, 2, colnum+1, colnum + 2);
 
 				break;
 			}
