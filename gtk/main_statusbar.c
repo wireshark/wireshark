@@ -445,10 +445,9 @@ packets_bar_update(void)
             } else {
                 gulong computed_elapsed = cf_get_computed_elapsed();
 
-                packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u  Time: %02lu:%02lu:%02lu.%03lu",
+                packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u Load time: %lu:%02lu.%03lu",
                     cfile.count, cfile.displayed_count, cfile.marked_count,
-                    computed_elapsed/3600000,
-                    computed_elapsed%3600000/60000,
+                    computed_elapsed/60000,
                     computed_elapsed%60000/1000,
                     computed_elapsed%1000);
             }

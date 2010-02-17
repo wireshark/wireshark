@@ -792,7 +792,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 
 #ifdef NEW_PACKET_LIST
   new_packet_list_check_end();
-  /* Don't freeze/thaw the list when doing live capture */ 
+  /* Don't freeze/thaw the list when doing live capture */
   /*new_packet_list_freeze();*/
 #else
   packet_list_check_end();
@@ -839,7 +839,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
             /* Sleep(100); */
         };
 #ifdef NEW_PACKET_LIST
-		/* Don't freeze/thaw the list when doing live capture */ 
+		/* Don't freeze/thaw the list when doing live capture */
         /*new_packet_list_thaw();*/
 #else
         packet_list_thaw();
@@ -933,7 +933,7 @@ cf_finish_tail(capture_file *cf, int *err)
 
 #ifdef NEW_PACKET_LIST
   new_packet_list_check_end();
-  /* Don't freeze/thaw the list when doing live capture */ 
+  /* Don't freeze/thaw the list when doing live capture */
   /*new_packet_list_freeze();*/
 #else
   packet_list_check_end();
@@ -956,7 +956,7 @@ cf_finish_tail(capture_file *cf, int *err)
   }
 
 #ifdef NEW_PACKET_LIST
-  /* Don't freeze/thaw the list when doing live capture */ 
+  /* Don't freeze/thaw the list when doing live capture */
   /*new_packet_list_thaw();*/
 #else
   packet_list_thaw();
@@ -1776,8 +1776,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   /* We don't yet know which will be the first and last frames displayed. */
   cf->first_displayed = NULL;
   cf->last_displayed = NULL;
-
-  reset_elapsed();
 
   /* We currently don't display any packets */
   cf->displayed_count = 0;
