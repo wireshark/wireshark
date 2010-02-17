@@ -2128,6 +2128,7 @@ dissect_ansi_637_trans_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
     return(TRUE);
 }
 
+
 static void
 dissect_ansi_637_trans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2210,7 +2211,14 @@ dissect_ansi_637_trans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
     }
 }
-
+/* Dissect SMS embedded in SIP */
+static void
+dissect_ansi_637_trans_app(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	col_set_str(pinfo->cinfo, COL_PROTOCOL,"/");
+	col_set_fence(pinfo->cinfo, COL_INFO);
+	dissect_ansi_637_trans(tvb, pinfo, tree);
+}
 /* Register the protocol with Wireshark */
 void
 proto_register_ansi_637(void)
@@ -2324,11 +2332,15 @@ proto_reg_handoff_ansi_637(void)
 {
     dissector_handle_t	ansi_637_tele_handle;
     dissector_handle_t	ansi_637_trans_handle;
+    dissector_handle_t	ansi_637_trans_app_handle;
     guint		i;
 
     ansi_637_tele_handle = create_dissector_handle(dissect_ansi_637_tele, proto_ansi_637_tele);
     ansi_637_trans_handle = create_dissector_handle(dissect_ansi_637_trans, proto_ansi_637_trans);
+	ansi_637_trans_app_handle = create_dissector_handle(dissect_ansi_637_trans_app, proto_ansi_637_trans);
 
+	/* Dissect messages embedded in SIP */
+	dissector_add_string("media_type","application/vnd.3gpp2.sms", ansi_637_trans_handle);
     /*
      * register for all known teleservices
      * '-1' is to stop before trailing '0' entry
