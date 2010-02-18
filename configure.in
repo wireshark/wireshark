@@ -680,19 +680,6 @@ if test "$GTK_OK" = "no" ; then
 	wireshark_man=""
 	# Use GLIB_CFLAGS
 	AM_PATH_GLIB_2_0(2.4.0, CFLAGS="$CFLAGS $GLIB_CFLAGS", AC_MSG_ERROR(GLib 2.4 or later distribution not found.), gmodule)
-	#
-	# Check for GLib 2.14.0; if we have it, assume it comes with
-	# GRegex, otherwise assume we don't have GRegex.
-	# It's possible to compile GLib without GRegex but it doesn't look
-	# as if anyone does.
-	#
-	# If we *don't* have GLib 2.14.0, this will clear GLIB_LIBS,
-	# and if we do, it shouldn't change it; save the version we
-	# have before running this, and restore it afterwards.
-	#
-	save_GLIB_LIBS="$GLIB_LIBS"
-	AM_PATH_GLIB_2_0(2.14.0, have_gregex=yes, have_gregex=no, gmodule)
-	GLIB_LIBS="$save_GLIB_LIBS"
 else
 	#
 	# We have GTK+, and thus will be building Wireshark unless the
@@ -703,19 +690,28 @@ else
         wireshark_SUBDIRS="codecs gtk"
 	# Don't use GLIB_CFLAGS
 	AM_PATH_GLIB_2_0(2.4.0, , AC_MSG_ERROR(GLib 2.4 or later distribution not found.), gmodule)
-	#
-	# Check for GLib 2.14.0; if we have it, assume it comes with
-	# GRegex, otherwise assume we don't have GRegex.
-	# It's possible to compile GLib without GRegex but it doesn't look
-	# as if anyone does.
-	#
-	# If we *don't* have GLib 2.14.0, this will clear GLIB_LIBS,
-	# and if we do, it shouldn't change it; save the version we
-	# have before running this, and restore it afterwards.
-	#
-	save_GLIB_LIBS="$GLIB_LIBS"
-	AM_PATH_GLIB_2_0(2.14.0, have_gregex=yes, have_gregex=no, gmodule)
-	GLIB_LIBS="$save_GLIB_LIBS"
+fi
+
+#
+# Check whether GLib includes GRegex support.
+# We just assume that everybody builds GLib 2.14.0 and later
+# with GRegex support; it's possible to compile GLib without
+# GRegex but it doesn't look as if anyone does.
+#
+AC_MSG_CHECKING(for GLIB - version >= 2.14.0)
+if test x$PKG_CONFIG != xno ; then
+    ## don't try to run the test against uninstalled libtool libs
+    if $PKG_CONFIG --uninstalled $pkg_config_args; then
+	echo "Will use uninstalled version of GLib found in PKG_CONFIG_PATH"
+	enable_glibtest=no
+    fi
+
+    if $PKG_CONFIG --atleast-version 2.14.0 glib-2.0; then
+	have_gregex=yes
+    else
+	have_gregex=no
+    fi
+    AC_MSG_RESULT($have_gregex)
 fi
 
 #
