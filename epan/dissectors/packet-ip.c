@@ -1456,7 +1456,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       sf = proto_tree_add_boolean(field_tree, hf_ip_flags_sf, tvb, offset + 6, 1, flags);
       if (flags & (IP_RF >> IP_OFFSET_WIDTH)) {
         proto_item_append_text(tf, " (Evil packet!)");
-        expert_add_info_format(pinfo, sf, /* PI_SECURITY */ 0, PI_WARN, "This is an Evil packet (RFC 3514)");
+        expert_add_info_format(pinfo, sf, PI_SECURITY, PI_WARN, "This is an Evil packet (RFC 3514)");
       }
     } else {
       proto_tree_add_boolean(field_tree, hf_ip_flags_rf, tvb, offset + 6, 1, flags);
