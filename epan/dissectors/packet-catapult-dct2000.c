@@ -1507,7 +1507,7 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
                                          const char *string)
 {
-    guint ueid;
+    guint ueid = 0;
     guint rnti;
     guint rapid;
     guint rach_attempt_number;
@@ -1525,7 +1525,9 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
         oob_event = ltemac_send_sr;
     }
     else
-    if (sscanf(string, ">> INFO MAC:    ProcessSRInd - CRNTI=%u", &rnti) == 1) {
+    if ((sscanf(string, ">> INFO MAC:    ProcessSRInd - CRNTI=%u", &rnti) == 1) ||
+        (sscanf(string, ">> INFO MAC:    SR failed for UE %u (CRNTI=%u)", &ueid, &rnti) == 2)) {
+
         oob_event = ltemac_sr_failure;
     }
     else {
@@ -1558,6 +1560,7 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
                 break;
             case ltemac_sr_failure:
                 p_mac_lte_info->rnti = rnti;
+                p_mac_lte_info->ueid = ueid;
                 p_mac_lte_info->direction = DIRECTION_DOWNLINK;
                 break;
         }

@@ -2566,6 +2566,12 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
                 break;
             case ltemac_sr_failure:
+                if (p_mac_lte_info->ueid != 0) {
+                    ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_ueid,
+                                             tvb, 0, 0, p_mac_lte_info->ueid);
+                    PROTO_ITEM_SET_GENERATED(ti);
+                }
+
                 ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_rnti,
                                          tvb, 0, 0, p_mac_lte_info->rnti);
                 PROTO_ITEM_SET_GENERATED(ti);
