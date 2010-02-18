@@ -652,9 +652,12 @@ else
 	GTK_OK=no
 fi
 
-# GLib checks
-# This doesn't add GLIB_CFLAGS to CFLAGS, because AM_PATH_GTK will add
-# GTK_CFLAGS to CFLAGS, and GTK_CFLAGS is a superset of CFLAGS.
+# GLib checks; we require GLib 2.4 or later, and require gmodule
+# support, as we need that for dynamically loading plugins.
+# If we found GTK+, this doesn't add GLIB_CFLAGS to CFLAGS, because
+# AM_PATH_GTK will add GTK_CFLAGS to CFLAGS, and GTK_CFLAGS is a
+# superset of GLIB_CFLAGS.  If we didn't find GTK+, it does add
+# GLIB_CFLAGS to CFLAGS.
 # However, this means that both @GLIB_LIBS@ and @GTK_LIBS@ will be
 # set when generating the Makefile, so we can make programs that require
 # only GLib link with @GLIB_LIBS@ and make programs that require GTK+
@@ -675,18 +678,44 @@ if test "$GTK_OK" = "no" ; then
 	fi
 	wireshark_bin=""
 	wireshark_man=""
-	# Honor GLIB_CFLAGS
+	# Use GLIB_CFLAGS
 	AM_PATH_GLIB_2_0(2.4.0, CFLAGS="$CFLAGS $GLIB_CFLAGS", AC_MSG_ERROR(GLib 2.4 or later distribution not found.), gmodule)
-	# It's possible to compile GLib without GRegex but it doesn't look like anyone does.
+	#
+	# Check for GLib 2.14.0; if we have it, assume it comes with
+	# GRegex, otherwise assume we don't have GRegex.
+	# It's possible to compile GLib without GRegex but it doesn't look
+	# as if anyone does.
+	#
+	# If we *don't* have GLib 2.14.0, this will clear GLIB_LIBS,
+	# and if we do, it shouldn't change it; save the version we
+	# have before running this, and restore it afterwards.
+	#
+	save_GLIB_LIBS="$GLIB_LIBS"
 	AM_PATH_GLIB_2_0(2.14.0, have_gregex=yes, have_gregex=no, gmodule)
+	GLIB_LIBS="$save_GLIB_LIBS"
 else
+	#
+	# We have GTK+, and thus will be building Wireshark unless the
+	# user explicitly disabled it.
+	#
 	wireshark_bin="wireshark\$(EXEEXT)"
 	wireshark_man="wireshark.1"
         wireshark_SUBDIRS="codecs gtk"
-	# Honor GLIB_CFLAGS
+	# Don't use GLIB_CFLAGS
 	AM_PATH_GLIB_2_0(2.4.0, , AC_MSG_ERROR(GLib 2.4 or later distribution not found.), gmodule)
-	# It's possible to compile GLib without GRegex but it doesn't look like anyone does.
+	#
+	# Check for GLib 2.14.0; if we have it, assume it comes with
+	# GRegex, otherwise assume we don't have GRegex.
+	# It's possible to compile GLib without GRegex but it doesn't look
+	# as if anyone does.
+	#
+	# If we *don't* have GLib 2.14.0, this will clear GLIB_LIBS,
+	# and if we do, it shouldn't change it; save the version we
+	# have before running this, and restore it afterwards.
+	#
+	save_GLIB_LIBS="$GLIB_LIBS"
 	AM_PATH_GLIB_2_0(2.14.0, have_gregex=yes, have_gregex=no, gmodule)
+	GLIB_LIBS="$save_GLIB_LIBS"
 fi
 
 #
