@@ -49,31 +49,23 @@
 #include <unistd.h>
 #endif
 
-#include <ctype.h>
-
 #include <gtk/gtk.h>
 
-#include <epan/prefs.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include <epan/charsets.h>
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
 #include <epan/dissectors/packet-ipv6.h>
 
-#include <../globals.h>
 #include <../alert_box.h>
 #include <../simple_dialog.h>
-#include <../util.h>
 #include <wsutil/file_util.h>
 
 #include <gtk/main.h>
 #include <gtk/dlg_utils.h>
 #include <gtk/file_dlg.h>
 #include <gtk/help_dlg.h>
-#include <gtk/keys.h>
 #include <gtk/gui_utils.h>
-#include <gtk/font_utils.h>
 #include "gtk/firewall_dlg.h"
 
 #define MAX_RULE_LEN 200
@@ -104,7 +96,7 @@ typedef struct _rule_info_t {
     guint32 srcport;
     guint32 destport;
     GtkWidget *text;
-    GtkWidget *filter_om;
+    GtkWidget *filter_combo_box;
     GtkWidget *deny_cb;
     GtkWidget *inbound_cb;
     GtkWidget *firewall_save_as_w;
@@ -185,6 +177,14 @@ static void firewall_save_as_destroy_cb(GtkWidget * win, gpointer user_data);
 
 #define WS_RULE_INFO_KEY "rule_info_key"
 
+
+/* Filter ComboBox model columns */
+enum {
+    FIREWALL_FILTER_COMBO_BOX_MODEL_TEXT_COL,
+    FIREWALL_FILTER_COMBO_BOX_MODEL_RULE_TYPE_COL,
+    FIREWALL_FILTER_COMBO_BOX_MODEL_NUM_COLS
+};
+
 #if 0
 /* List of "rule_info_t" structures for all rule windows. */
 static GList *rule_infos;
@@ -200,12 +200,14 @@ forget_rule_info(rule_info_t *rule_info)
 void
 firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-    GtkWidget	*rule_w, *vbox, *txt_scrollw, *text;
-    GtkWidget   *label, *product_om, *menu, *menu_item;
-    GtkWidget	*hbox, *button_hbox, *button;
-    GtkTooltips *tooltips;
-    rule_info_t	*rule_info;
-    packet_info *pinfo = &cfile.edt->pi;
+    GtkWidget	    *rule_w, *vbox, *txt_scrollw, *text;
+    GtkListStore    *filter_combo_box_store;
+    GtkWidget       *label,  *product_combo_box;
+    GtkWidget	    *hbox,   *button_hbox, *button;
+    GtkCellRenderer *cell;
+    GtkTooltips     *tooltips;
+    rule_info_t	    *rule_info;
+    packet_info     *pinfo = &cfile.edt->pi;
     guint i;
 
     rule_info = g_new0(rule_info_t, 1);
@@ -239,25 +241,27 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     label = gtk_label_new("Product");
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
-    product_om = gtk_option_menu_new();
-    menu = gtk_menu_new();
+    product_combo_box = gtk_combo_box_new_text();
     for (i = 0; i < NUM_PRODS; i++) {
-        menu_item = gtk_menu_item_new_with_label(products[i].name);
-        g_signal_connect(menu_item, "activate", G_CALLBACK(select_product), GUINT_TO_POINTER(i));
-        g_object_set_data(G_OBJECT(menu_item), WS_RULE_INFO_KEY, rule_info);
-        gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-        /* if (i == 0)
-            gtk_menu_item_select(GTK_MENU_ITEM(menu_item)); */
+        gtk_combo_box_append_text(GTK_COMBO_BOX(product_combo_box), products[i].name);
     }
-    gtk_option_menu_set_menu(GTK_OPTION_MENU(product_om), menu);
-    gtk_box_pack_start(GTK_BOX(hbox), product_om, FALSE, FALSE, 5);
+    g_object_set_data(G_OBJECT(product_combo_box), WS_RULE_INFO_KEY, rule_info);
+    g_signal_connect(product_combo_box, "changed", G_CALLBACK(select_product), NULL);
+    gtk_box_pack_start(GTK_BOX(hbox), product_combo_box, FALSE, FALSE, 5);
 
     /* type selector */
     label = gtk_label_new("Filter");
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 10);
 
-    rule_info->filter_om = gtk_option_menu_new();
-    gtk_box_pack_start(GTK_BOX(hbox), rule_info->filter_om, FALSE, FALSE, 5);
+    filter_combo_box_store = gtk_list_store_new(FIREWALL_FILTER_COMBO_BOX_MODEL_NUM_COLS, G_TYPE_STRING, G_TYPE_INT);
+    rule_info->filter_combo_box = gtk_combo_box_new_with_model(GTK_TREE_MODEL(filter_combo_box_store));
+    g_object_unref (G_OBJECT(filter_combo_box_store));
+    cell = gtk_cell_renderer_text_new();
+    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT(rule_info->filter_combo_box), cell, TRUE);
+    gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(rule_info->filter_combo_box), cell, "text", 0, NULL);
+    g_object_set_data(G_OBJECT(rule_info->filter_combo_box), WS_RULE_INFO_KEY, rule_info); \
+    g_signal_connect(rule_info->filter_combo_box, "changed", G_CALLBACK(select_filter), NULL);
+    gtk_box_pack_start(GTK_BOX(hbox), rule_info->filter_combo_box, FALSE, FALSE, 5);
 
     /* inbound selector */
     rule_info->inbound_cb = gtk_check_button_new_with_label("Inbound");
@@ -317,36 +321,44 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
        for "Follow SSL Stream" windows. */
     gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(rule_w));
 
+    gtk_combo_box_set_active(GTK_COMBO_BOX(product_combo_box), 0);  /* invokes select_product callback */
     gtk_widget_show_all(rule_w);
     window_present(rule_w);
-    gtk_option_menu_set_history(GTK_OPTION_MENU(product_om), 0);
-    select_product(rule_w, GUINT_TO_POINTER(0));
 }
 
 /* Set the current product. */
+#if GTK_CHECK_VERSION(2,6,0)
 #define ADD_TO_FILTER_MENU(rt) \
-        menu_item = gtk_menu_item_new_with_label(name); \
-        g_signal_connect(menu_item, "activate", G_CALLBACK(select_filter), \
-            GUINT_TO_POINTER(rt)); \
-        g_object_set_data(G_OBJECT(menu_item), WS_RULE_INFO_KEY, rule_info); \
-        gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item); \
-        if (! rt_set) { \
-            rt_set = TRUE; \
-            first_mi = menu_item; \
+        gtk_list_store_insert_with_values(filter_combo_box_store, &iter, G_MAXINT, \
+                                          FIREWALL_FILTER_COMBO_BOX_MODEL_TEXT_COL, name,   \
+                                          FIREWALL_FILTER_COMBO_BOX_MODEL_RULE_TYPE_COL,  rt, -1); \
+        if (rule_type == RT_NONE) { \
             rule_type = rt; \
         }
+#else
+#define ADD_TO_FILTER_MENU(rt) \
+        gtk_list_store_append(filter_combo_box_store, &iter, NULL); \
+        gtk_list_store_set(filter_combo_box_store, &iter, \
+                           FIREWALL_FILTER_COMBO_BOX_MODEL_TEXT_COL, name,   \
+                           FIREWALL_FILTER_COMBO_BOX_MODEL_RULE_TYPE_COL,  rt, -1); \
+        if (rule_type == RT_NONE) { \
+            rule_type = rt; \
+        }
+#endif
 
 #define NAME_TCP_UDP (rule_info->ptype == PT_TCP ? "TCP" : "UDP")
+
 static void
-select_product(GtkWidget *w, gpointer data)
+select_product(GtkWidget *w, gpointer data _U_)
 {
-    guint prod = GPOINTER_TO_UINT(data);
+    guint prod = gtk_combo_box_get_active(GTK_COMBO_BOX(w));
     rule_info_t	*rule_info;
     gchar name[MAX_RULE_LEN], addr_str[MAX_RULE_LEN];
     address *addr;
-    GtkWidget *menu, *menu_item, *first_mi = NULL;
+    GtkListStore *filter_combo_box_store;
+    GtkTreeIter  iter;
     rule_type_t rule_type = RT_NONE;
-    gboolean rt_set = FALSE, sensitive = FALSE;
+    gboolean sensitive = FALSE;
 
     rule_info = g_object_get_data(G_OBJECT(w), WS_RULE_INFO_KEY);
 
@@ -355,12 +367,11 @@ select_product(GtkWidget *w, gpointer data)
 
     rule_info->product = prod;
 
-    /* Clear the menu */
-    gtk_option_menu_remove_menu(GTK_OPTION_MENU(rule_info->filter_om));
-    menu = gtk_menu_new();
-    gtk_option_menu_set_menu(GTK_OPTION_MENU(rule_info->filter_om), menu);
+    filter_combo_box_store = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(rule_info->filter_combo_box)));
+    /* Clear the list store (ie: the como_box list items) */
+    gtk_list_store_clear(filter_combo_box_store);
 
-    /* Fill in valid menu items.   */
+    /* Fill in valid combo_box list items (in the list store).   */
     if (products[prod].mac_func && rule_info->dl_src.type == AT_ETHER) {
         addr = &(rule_info->dl_src);
         address_to_str_buf(addr, name, MAX_RULE_LEN);
@@ -405,33 +416,37 @@ select_product(GtkWidget *w, gpointer data)
         g_snprintf(name, MAX_RULE_LEN, "%s + %s port %u", addr_str,
             NAME_TCP_UDP, rule_info->destport);
         ADD_TO_FILTER_MENU(RT_IPv4_PORT_DST);
-        sensitive = TRUE;
     }
 
     if (rule_type != RT_NONE) {
-        gtk_widget_show_all(rule_info->filter_om);
-        gtk_option_menu_set_history(GTK_OPTION_MENU(rule_info->filter_om), 0);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(rule_info->filter_combo_box), 0); /* invokes select_filter callback */
         sensitive = TRUE;
+    } else {
+        select_filter(rule_info->filter_combo_box, NULL);  /* Call if RT_NONE [with nothing selected]  */
     }
-    gtk_widget_set_sensitive(rule_info->filter_om, sensitive);
-    gtk_widget_set_sensitive(rule_info->inbound_cb,
-        products[prod].does_inbound && sensitive);
-    gtk_widget_set_sensitive(rule_info->deny_cb, sensitive);
 
-    select_filter(w, GUINT_TO_POINTER(rule_type));
+    gtk_widget_set_sensitive(rule_info->filter_combo_box, sensitive);
+    gtk_widget_set_sensitive(rule_info->inbound_cb, products[prod].does_inbound && sensitive);
+    gtk_widget_set_sensitive(rule_info->deny_cb, sensitive);
 }
 
-/* Set the current product. */
+/* Set the rule text based upon the current product and current filter. */
 static void
-select_filter(GtkWidget *w, gpointer data)
+select_filter(GtkWidget *w, gpointer data _U_)
 {
-    rule_type_t cur_type = GPOINTER_TO_UINT(data);
+    GtkTreeIter  iter;
+    rule_type_t cur_type;
     rule_info_t	*rule_info;
 
     rule_info = g_object_get_data(G_OBJECT(w), WS_RULE_INFO_KEY);
-
-    if (cur_type >= NUM_RULE_TYPES || !rule_info)
+    if (!rule_info)
         return;
+
+    cur_type = NUM_RULE_TYPES;
+    if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(w), &iter))
+        gtk_tree_model_get(gtk_combo_box_get_model(GTK_COMBO_BOX(w)), &iter, 1, &cur_type, -1);
+    if (cur_type >= NUM_RULE_TYPES)
+        cur_type = RT_NONE;   /* Assume RT_NONE: nothing selected (or possibly an invalid value in the model) */
 
     rule_info->rule_type = cur_type;
 
@@ -677,8 +692,7 @@ firewall_copy_cmd_cb(GtkWidget *w _U_, gpointer data)
     buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(rule_info->text));
     gtk_text_buffer_get_start_iter(buf, &start);
     gtk_text_buffer_get_end_iter(buf, &end);
-    gtk_text_buffer_move_mark_by_name(buf, "insert", &start);
-    gtk_text_buffer_move_mark_by_name(buf, "selection_bound", &end);
+    gtk_text_buffer_select_range(buf, &start, &end);
     gtk_text_buffer_copy_clipboard(buf, gtk_clipboard_get(GDK_SELECTION_CLIPBOARD));
 }
 
@@ -805,3 +819,4 @@ firewall_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
     /* Note that we no longer have a dialog box. */
     rule_info->firewall_save_as_w = NULL;
 }
+
