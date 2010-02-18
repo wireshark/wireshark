@@ -132,8 +132,6 @@ seconds.)
     editcap -t 136272376 b.pcap b-shifted.pcap
     mergecap -w compare.pcap a.pcap b-shifted.pcap
 
-=back
-
 =head1 SEE ALSO
 
 tcpdump(8), pcap(3), wireshark(1), tshark(1), dumpcap(1), editcap(1),
