@@ -57,12 +57,6 @@
  *      - ChipCon/Texas Instruments CC24xx style FCS.
  *      - No FCS at all.
  *------------------------------------------------------------
- *
- *  No support has been provided for decryption. Maybe a TODO
- *  item, but this is unlikely as the decryption process requires
- *  the extended source address (to build the nonce/initial value)
- *  which will be absent most of the time.
- *------------------------------------------------------------
  */
 
 /*  Include files */
@@ -139,7 +133,19 @@ static void dissect_ieee802154_realign      (tvbuff_t *, packet_info *, proto_tr
 static void dissect_ieee802154_gtsreq       (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *);
 
 /* Decryption helpers. */
-static tvbuff_t * dissect_ieee802154_decrypt(tvbuff_t *, guint, packet_info *, ieee802154_packet *);
+typedef enum {
+    DECRYPT_PACKET_SUCCEEDED,
+    DECRYPT_NOT_ENCRYPTED,
+    DECRYPT_VERSION_UNSUPPORTED,
+    DECRYPT_PACKET_TOO_SMALL,
+    DECRYPT_SNAPLEN_TOO_SMALL,
+    DECRYPT_PACKET_NO_EXT_SRC_ADDR,
+    DECRYPT_PACKET_NO_KEY,
+    DECRYPT_PACKET_DECRYPT_FAILED,
+    DECRYPT_PACKET_MIC_CHECK_FAILED,
+    DECRYPT_PACKET_NO_PAYLOAD
+} ws_decrypt_status;
+static tvbuff_t * dissect_ieee802154_decrypt(tvbuff_t *, guint, packet_info *, ieee802154_packet *, ws_decrypt_status *);
 static void ccm_init_block                  (gchar * block, gboolean adata, gint M, guint64 addr, guint32 counter, ieee802154_security_level level, gint ctr_val);
 static gboolean ccm_ctr_encrypt             (const gchar *key, const gchar *iv, gchar *mic, gchar *data, gint length);
 static gboolean ccm_cbc_mac                 (const gchar * key, const gchar *iv, const gchar *a, gint a_len, const gchar *m, gint m_len, gchar *mic);
@@ -610,6 +616,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     volatile gboolean   fcs_ok = TRUE;
     const char          *saved_proto;
     ieee802154_packet   *packet = ep_alloc(sizeof(ieee802154_packet));
+    ws_decrypt_status   status;
 
     /* Link our packet info structure into the private data field for the
      * Network-Layer heuristic subdissectors. */
@@ -926,10 +933,52 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
      */
     /* Encrypted Payload. */
     if (packet->security_enable) {
-        payload_tvb = dissect_ieee802154_decrypt(tvb, offset, pinfo, packet);
+        payload_tvb = dissect_ieee802154_decrypt(tvb, offset, pinfo, packet, &status);
+        switch (status) {
+
+        case DECRYPT_PACKET_SUCCEEDED:
+            /* No problem. */
+            break;
+
+        case DECRYPT_NOT_ENCRYPTED:
+            /* Packet wasn't encrypted */
+            break;
+
+        case DECRYPT_VERSION_UNSUPPORTED:
+            /* We don't support decryption with that version of the protocol */
+            expert_add_info_format(pinfo, proto_root, PI_UNDECODED, PI_WARN, "We don't support decryption with protocol version %u",
+                                   packet->version);
+            break;
+
+        case DECRYPT_PACKET_TOO_SMALL:
+            /* Packet was too small to include CRC and MIC */
+            expert_add_info_format(pinfo, proto_root, PI_UNDECODED, PI_WARN, "Packet was too small to include the CRC and MIC");
+            break;
+
+        case DECRYPT_SNAPLEN_TOO_SMALL:
+            expert_add_info_format(pinfo, proto_root, PI_UNDECODED, PI_WARN, "Snapshot length was too small to include the CRC and MIC");
+            break;
+
+        case DECRYPT_PACKET_NO_EXT_SRC_ADDR:
+            expert_add_info_format(pinfo, proto_root, PI_UNDECODED, PI_WARN, "No extended source address - can't decrypt");
+            break;
+
+        case DECRYPT_PACKET_NO_KEY:
+            expert_add_info_format(pinfo, proto_root, PI_UNDECODED, PI_WARN, "No encryption key set - can't decrypt");
+            break;
+
+        case DECRYPT_PACKET_DECRYPT_FAILED:
+            expert_add_info_format(pinfo, proto_root, PI_UNDECODED, PI_WARN, "Decrypt failed");
+            break;
+
+        case DECRYPT_PACKET_MIC_CHECK_FAILED:
+            expert_add_info_format(pinfo, proto_root, PI_UNDECODED, PI_WARN, "MIC check failed");
+            break;
+
+        case DECRYPT_PACKET_NO_PAYLOAD:
+            break;
+        }
         if (!payload_tvb) {
-            /* Set expert info. */
-            expert_add_info_format(pinfo, proto_root, PI_UNDECODED, PI_WARN, "Encrypted Payload");
             /* Display the remaining payload using the data dissector. */
             payload_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb)-offset-IEEE802154_FCS_LEN);
             tvb_set_reported_length(payload_tvb, tvb_reported_length(tvb)-offset-IEEE802154_FCS_LEN);
@@ -1628,12 +1677,13 @@ dissect_ieee802154_gtsreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
  *      packet_info * pinfo         - Packet info structure.
  *      guint offset                - Offset where the ciphertext 'c' starts.
  *      ieee802154_packet *packet   - IEEE 802.15.4 packet information.
+ *      ws_decrypt_status *status   - status of decryption returned through here on failure.
  *  RETURNS
  *      tvbuff_t *                  - Decrypted payload, or NULL on decryption failure.
  *---------------------------------------------------------------
  */
 static tvbuff_t *
-dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ieee802154_packet * packet)
+dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ieee802154_packet * packet, ws_decrypt_status * status)
 {
     tvbuff_t *          dec_tvb;
     gboolean            have_mic = FALSE;
@@ -1643,24 +1693,12 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
     unsigned char       rx_mic[16];
     guint               M;
     void *              text;
-    gint                real_len;
-    gint                reported_len;
+    guint               captured_len;
+    guint               reported_len;
 
-    /* Check the version, we only support IEEE 802.15.4-2006 */
-    if (packet->version < IEEE802154_VERSION_2006) return NULL;
-
-    /* Compute the length of the MIC from the security level. */
-    M = IEEE802154_MIC_LENGTH(packet->security_level);
-    /* If the last 'M' bytes of the payload exist, then parse the MIC. */
-    have_mic = M && tvb_bytes_exist(tvb, tvb_reported_length(tvb)-M-IEEE802154_FCS_LEN, M);
-    if (have_mic) {
-        tvb_memcpy(tvb, rx_mic, tvb_reported_length(tvb)-M-IEEE802154_FCS_LEN, M);
-    }
-    /* Compute the real and reported length of the payload (since it might be truncated). */
-    real_len = tvb_length(tvb) - offset - IEEE802154_FCS_LEN - M;
-    reported_len = tvb_reported_length(tvb) - offset - IEEE802154_FCS_LEN - M;
-    if (real_len < 0) return NULL;
-    if (reported_len < 0) return NULL;
+    /* Get the captured and on-the-wire length of the payload. */
+    captured_len = tvb_length(tvb);
+    reported_len = tvb_reported_length(tvb);
 
     /*
      * If the payload is not encrypted, then we can get out now.
@@ -1673,9 +1711,61 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
      * anyone feels strongly about it, you're welcome to modify the code to
      * implement it. If you do go down that route, don't forget that l(m)==0
      * and 'a' includes the payload when security_level < encryption.
+     *
+     * XXX - this probably shouldn't include the MIC.
      */
     if (!IEEE802154_IS_ENCRYPTED(packet->security_level)) {
-        return tvb_new_subset(tvb, offset, real_len, reported_len);
+        *status = DECRYPT_NOT_ENCRYPTED;
+        return tvb_new_subset(tvb, offset, captured_len, reported_len);
+    }
+
+    /* Check the version, we only support IEEE 802.15.4-2006 */
+    if (packet->version < IEEE802154_VERSION_2006) {
+        *status = DECRYPT_VERSION_UNSUPPORTED;
+        return NULL;
+    }
+
+    /* Is there at least enough room for the FCS? */
+    if (reported_len < IEEE802154_FCS_LEN) {
+        /* No - the FCS is past the end of the packet */
+        *status = DECRYPT_PACKET_TOO_SMALL;
+        return NULL;
+    }
+    if (captured_len < IEEE802154_FCS_LEN) {
+        /* No - the FCS is past the end of the captured_data */
+        *status = DECRYPT_SNAPLEN_TOO_SMALL;
+        return NULL;
+    }
+    reported_len -= IEEE802154_FCS_LEN;
+    if (captured_len > reported_len)
+        captured_len = reported_len;
+
+    /*
+     * Compute the length of the MIC from the security level.
+     * IEEE802154_MIC_LENGTH() returns a value that's either 0, 4, 8, or 16.
+     */
+    M = IEEE802154_MIC_LENGTH(packet->security_level);
+    /*
+     * If 'M' is non-zero, and the last 'M' bytes of the payload exist,
+     * then parse the MIC.
+     *
+     * "The last 'M' bytes of the payload exist" only if the payload
+     * wasn't cut short by the snapshot length, i.e. only if
+     * captured_len >= reported_len (captured_len shouldn't be >
+     * reported_len, but...).
+     */
+    if (M != 0) {
+        if (reported_len < M) {
+            *status = DECRYPT_PACKET_TOO_SMALL;
+            return NULL;	/* packet too short for the MIC */
+        }
+        if (captured_len >= reported_len) {
+            have_mic = TRUE;
+            tvb_memcpy(tvb, rx_mic, reported_len - M, M);
+        }
+        reported_len =- M;
+        if (captured_len > reported_len)
+            captured_len = reported_len;
     }
 
     /*=====================================================
@@ -1698,6 +1788,7 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
     }
     else {
         /* TODO: Implement a lookup table or something. */
+        *status = DECRYPT_PACKET_NO_EXT_SRC_ADDR;
         return NULL;
     }
 
@@ -1707,12 +1798,15 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
      * and a variety of key configuration data. However, a single shared key
      * should be sufficient to get packet encryption off to a start.
      */
-    if (!ieee802154_key_valid) return NULL;
+    if (!ieee802154_key_valid) {
+        *status = DECRYPT_PACKET_NO_KEY;
+        return NULL;
+    }
     memcpy(key, ieee802154_key, IEEE802154_CIPHER_SIZE);
 
     /* Make a copy of the ciphertext w/o the MIC. */
     /* We will decrypt the message in-place and then use this for the new tvb. */
-    text = tvb_memdup(tvb, offset, real_len);
+    text = tvb_memdup(tvb, offset, captured_len);
 
     /*=====================================================
      * CCM* - CTR mode payload encryption
@@ -1721,8 +1815,9 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
     /* Create the CCM* initial block for decryption (Adata=0, M=0, counter=0). */
     ccm_init_block(tmp, FALSE, 0, srcAddr, packet->frame_counter, packet->security_level, 0);
     /* Perform CTR-mode transformation. */
-    if (!ccm_ctr_encrypt(key, tmp, rx_mic, text, real_len)) {
+    if (!ccm_ctr_encrypt(key, tmp, rx_mic, text, captured_len)) {
         g_free(text);
+        *status = DECRYPT_PACKET_DECRYPT_FAILED;
         return NULL;
     }
 
@@ -1735,24 +1830,33 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
         unsigned char           dec_mic[16];
 
         /* Create the CCM* initial block for authentication (Adata!=0, M!=0, counter=l(m)). */
-        ccm_init_block(tmp, TRUE, M, srcAddr, packet->frame_counter, packet->security_level, real_len);
+        ccm_init_block(tmp, TRUE, M, srcAddr, packet->frame_counter, packet->security_level, captured_len);
         /* Compute CBC-MAC authentication tag. */
-        if (!ccm_cbc_mac(key, tmp, ep_tvb_memdup(tvb, 0, offset), offset, text, real_len, dec_mic)) {
+        if (!ccm_cbc_mac(key, tmp, ep_tvb_memdup(tvb, 0, offset), offset, text, captured_len, dec_mic)) {
             g_free(text);
+            *status = DECRYPT_PACKET_MIC_CHECK_FAILED;
             return NULL;
         }
 
         /* Compare the received MIC with the one we generated. */
         if (memcmp(rx_mic, dec_mic, M) != 0) {
             g_free(text);
+            *status = DECRYPT_PACKET_MIC_CHECK_FAILED;
             return NULL;
         }
     }
 
-    /* Done! */
-    dec_tvb = tvb_new_real_data(text, real_len, reported_len);
+    /* Done! Do we actually have any decrypted payload? */
+    if (captured_len == 0) {
+        /* No. */
+        *status = DECRYPT_PACKET_NO_PAYLOAD;
+        return NULL;
+    }
+    /* Yes */
+    dec_tvb = tvb_new_real_data(text, captured_len, reported_len);
     tvb_set_child_real_data_tvbuff(tvb, dec_tvb);
     add_new_data_source(pinfo, dec_tvb, "IEEE 802.15.4 decryption");
+    *status = DECRYPT_PACKET_SUCCEEDED;
     return dec_tvb;
 } /* dissect_ieee802154_decrypt */
 
