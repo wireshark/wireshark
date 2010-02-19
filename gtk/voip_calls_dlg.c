@@ -99,16 +99,20 @@ static guint32 calls_ns = 0;     /* number of selected calls */
 
 static graph_analysis_data_t *graph_analysis_data = NULL;
 
-#define NUM_COLS 9
-#define CALL_COL_START_TIME		0
-#define CALL_COL_STOP_TIME		1
-#define CALL_COL_INITIAL_SPEAKER	2
-#define CALL_COL_FROM			3
-#define CALL_COL_TO			4
-#define CALL_COL_PROTOCOL		5
-#define CALL_COL_PACKETS		6
-#define CALL_COL_STATE			7
-#define CALL_COL_COMMENTS		8
+enum
+{
+   CALL_COL_START_TIME,
+   CALL_COL_STOP_TIME,
+   CALL_COL_INITIAL_SPEAKER,
+   CALL_COL_FROM,
+   CALL_COL_TO,
+   CALL_COL_PROTOCOL,
+   CALL_COL_PACKETS,
+   CALL_COL_STATE,
+   CALL_COL_COMMENTS,
+   CALL_COL_INFO,
+   NUM_COLS /* The number of columns */
+};
 static const GdkColor COLOR_SELECT = {0, 0x00ff, 0x80ff, 0x80ff};
 static const GdkColor COLOR_DEFAULT = {0, 0xffff, 0xffff, 0xffff};
 static const GdkColor COLOR_FOREGROUND = {0, 0x0000, 0x0000, 0x0000};
@@ -663,7 +667,196 @@ voip_calls_sort_column(GtkCList *clist_lcl, gconstpointer ptr1, gconstpointer pt
 	g_assert_not_reached();
 	return 0;
 }
+#if 0
+Start of converting the clist to a gtk_list_store
+/* Create list */
+static
+GtkWidget* create_list(void)
+{
 
+    GtkListStore *list_store;
+    GtkWidget *list;
+    GtkTreeViewColumn *column;
+    GtkCellRenderer *renderer;
+    GtkTreeSortable *sortable;
+	GtkTreeView     *list_view;
+	GtkTreeSelection  *selection;
+
+	/* Create the store */
+    list_store = gtk_list_store_new(NUM_COLS,	/* Total number of columns XXX*/
+                               G_TYPE_STRING,	/* Start Time			*/
+                               G_TYPE_STRING,	/* Stop Time			*/
+                               G_TYPE_STRING,	/* Initial Speaker		*/
+                               G_TYPE_STRING,	/* From					*/
+                               G_TYPE_STRING,	/* To					*/
+                               G_TYPE_STRING,	/* Protocol				*/
+                               G_TYPE_STRING,	/* Packets				*/
+                               G_TYPE_STRING,	/* State				*/
+                               G_TYPE_STRING,   /* Comments				*/
+                               G_TYPE_POINTER,  /* Data 				*/
+							   G_TYPE_STRING,   /* Foreground color		*/
+							   G_TYPE_STRING);  /* Background color		*/
+
+    /* Create a view */
+    list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
+
+	list_view = GTK_TREE_VIEW(list);
+	sortable = GTK_TREE_SORTABLE(list_store);
+
+#if GTK_CHECK_VERSION(2,6,0)
+	/* Speed up the list display */
+	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
+#endif
+
+    /* Setup the sortable columns */
+    gtk_tree_sortable_set_sort_column_id(sortable, CALL_COL_START_TIME, GTK_SORT_ASCENDING);
+    gtk_tree_view_set_headers_clickable(list_view, FALSE);
+
+    /* The view now holds a reference.  We can get rid of our own reference */
+    g_object_unref (G_OBJECT (list_store));
+
+    /* 
+	 * Create the first column packet, associating the "text" attribute of the
+     * cell_renderer to the first column of the model 
+	 */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Start Time", renderer, 
+		"text",	CALL_COL_START_TIME, 
+        "foreground-gdk", FOREGROUND_COLOR_COL,
+        "background-gdk", BACKGROUND_COLOR_COL,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, CALL_COL_START_TIME);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 60);
+	gtk_tree_view_column_set_fixed_width(column, 80);
+	/* Add the column to the view. */
+    gtk_tree_view_append_column (list_view, column);
+
+    /* Stop Time */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Stop Time", renderer, 
+		"text", CALL_COL_STOP_TIME,
+        "foreground-gdk", FOREGROUND_COLOR_COL,
+        "background-gdk", BACKGROUND_COLOR_COL,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, CALL_COL_STOP_TIME);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 60);
+	gtk_tree_view_column_set_fixed_width(column, 80);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* Initial Speaker */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Initial Speaker", renderer, 
+		"text", CALL_COL_INITIAL_SPEAKER,
+        "foreground-gdk", FOREGROUND_COLOR_COL,
+        "background-gdk", BACKGROUND_COLOR_COL,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, CALL_COL_INITIAL_SPEAKER);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
+	gtk_tree_view_column_set_fixed_width(column, 90);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* From */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("From", renderer, 
+		"text", CALL_COL_FROM,
+        "foreground-gdk", FOREGROUND_COLOR_COL,
+        "background-gdk", BACKGROUND_COLOR_COL,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, CALL_COL_FROM);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 130);
+	gtk_tree_view_column_set_fixed_width(column, 140);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* To */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("To", renderer, 
+		"text", CALL_COL_TO,
+        "foreground-gdk", FOREGROUND_COLOR_COL,
+        "background-gdk", BACKGROUND_COLOR_COL,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, CALL_COL_TO);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 130);
+	gtk_tree_view_column_set_fixed_width(column, 140);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* Protocol */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Protocol", renderer, 
+		"text", CALL_COL_PROTOCOL,
+        "foreground-gdk", FOREGROUND_COLOR_COL,
+        "background-gdk", BACKGROUND_COLOR_COL,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, CALL_COL_PROTOCOL);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 50);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* Packets */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Packets", renderer, 
+		"text", CALL_COL_PACKETS,
+        "foreground-gdk", FOREGROUND_COLOR_COL,
+        "background-gdk", BACKGROUND_COLOR_COL,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, CALL_COL_PACKETS);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 70);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* State */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("State", renderer, 
+		"text", CALL_COL_STATE,
+        "foreground-gdk", FOREGROUND_COLOR_COL,
+        "background-gdk", BACKGROUND_COLOR_COL,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, CALL_COL_STATE);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 60);
+	gtk_tree_view_column_set_fixed_width(column, 70);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* Comments */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Comments", renderer, 
+		"text", CALL_COL_COMMENTS,
+        "foreground-gdk", FOREGROUND_COLOR_COL,
+        "background-gdk", BACKGROUND_COLOR_COL,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, CALL_COL_COMMENTS);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 100);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* Now enable the sorting of each column */
+    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list_view), TRUE);
+    gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list_view), TRUE);
+
+	/* Setup the selection handler */
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+	gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+
+	//g_signal_connect (G_OBJECT (selection), "changed", /* select_row */
+ //                 G_CALLBACK (voip_calls_click_column_cb),
+ //                 NULL);
+	return list;
+
+}
+#endif
 
 /****************************************************************************/
 /* INTERFACE                                                                */
