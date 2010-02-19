@@ -337,7 +337,7 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
         }
 #else
 #define ADD_TO_FILTER_MENU(rt) \
-        gtk_list_store_append(filter_combo_box_store, &iter, NULL); \
+        gtk_list_store_append(filter_combo_box_store, &iter); \
         gtk_list_store_set(filter_combo_box_store, &iter, \
                            FIREWALL_FILTER_COMBO_BOX_MODEL_TEXT_COL, name,   \
                            FIREWALL_FILTER_COMBO_BOX_MODEL_RULE_TYPE_COL,  rt, -1); \
