@@ -134,7 +134,7 @@ if test "x$with_gnutls" = "xyes"; then
                 tls_message="yes"
         ]
         , [
-                echo echo "gnuTLS not found, disabling ssl decryption"
+                echo "gnuTLS not found, disabling ssl decryption"
                 tls_message="no"
         ]
   )
