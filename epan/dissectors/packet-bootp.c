@@ -776,9 +776,9 @@ bootp_get_opt_ftype(unsigned int idx)
 
 /* Returns the number of bytes consumed by this option. */
 static int
-bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
-	     gboolean first_pass, gboolean *at_end, const char **dhcp_type_p,
-	     const guint8 **vendor_class_id_p, guint8 *overload_p)
+bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
+    int eoff, gboolean first_pass, gboolean *at_end, const char **dhcp_type_p,
+    const guint8 **vendor_class_id_p, guint8 *overload_p)
 {
 	const char		*text;
 	enum field_type		ftype;
@@ -933,15 +933,6 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		/*
 		 * We don't do anything else here.
 		 */
-		return consumed;
-	}
-
-	/*
-	 * This is the second pass - if there's a protocol tree to be
-	 * built, we put stuff into it, otherwise we just return.
-	 */
-	if (bp_tree == NULL) {
-		/* Don't put anything in the protocol tree. */
 		return consumed;
 	}
 
@@ -1112,31 +1103,43 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		/* Just in case we find an option 52 in sname or file */
 		if (voff > VENDOR_INFO_OFFSET && byte >= 1 && byte <= 3) {
 			if (byte & OPT_OVERLOAD_FILE) {
-				proto_tree_add_text (bp_tree, tvb,
+				proto_item *oti;
+				oti = proto_tree_add_text (bp_tree, tvb,
 					FILE_NAME_OFFSET, FILE_NAME_LEN,
 					"Boot file name option overload");
 				o52voff = FILE_NAME_OFFSET;
 				o52eoff = FILE_NAME_OFFSET + FILE_NAME_LEN;
 				o52at_end = FALSE;
 				while (o52voff < o52eoff && !o52at_end) {
-					o52voff += bootp_option(tvb, bp_tree, o52voff,
+					o52voff += bootp_option(tvb, pinfo, bp_tree, o52voff,
 						o52eoff, FALSE, &o52at_end,
 						dhcp_type_p, vendor_class_id_p,
 						overload_p);
 				}
+				if (!o52at_end)
+				{
+					expert_add_info_format(pinfo, oti, PI_PROTOCOL,
+						PI_ERROR, "file overload end option missing");
+				}
 			}
 			if (byte & OPT_OVERLOAD_SNAME) {
-				proto_tree_add_text (bp_tree, tvb,
+				proto_item *oti;
+				oti = proto_tree_add_text (bp_tree, tvb,
 					SERVER_NAME_OFFSET, SERVER_NAME_LEN,
 					"Server host name option overload");
 				o52voff = SERVER_NAME_OFFSET;
 				o52eoff = SERVER_NAME_OFFSET + SERVER_NAME_LEN;
 				o52at_end = FALSE;
 				while (o52voff < o52eoff && !o52at_end) {
-					o52voff += bootp_option(tvb, bp_tree, o52voff,
+					o52voff += bootp_option(tvb, pinfo, bp_tree, o52voff,
 						o52eoff, FALSE, &o52at_end,
 						dhcp_type_p, vendor_class_id_p,
 						overload_p);
+				}
+				if (!o52at_end)
+				{
+					expert_add_info_format(pinfo, oti, PI_PROTOCOL,
+						PI_ERROR, "sname overload end option missing");
 				}
 			}
 			/* The final end option is not in overload */
@@ -3908,7 +3911,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tmpvoff = voff;
 	at_end = FALSE;
 	while (tmpvoff < eoff && !at_end) {
-		offset_delta = bootp_option(tvb, 0, tmpvoff, eoff, TRUE, &at_end,
+		offset_delta = bootp_option(tvb, pinfo, 0, tmpvoff, eoff, TRUE, &at_end,
 		    &dhcp_type, &vendor_class_id, &overload);
 		if (offset_delta <= 0) {
 			THROW(ReportedBoundsError);
@@ -3969,14 +3972,6 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(bp_tree, hf_bootp_secs, tvb,
 			    8, 2, FALSE);
 	}
-
-	/*
-	 * If we're not building the protocol tree, we don't need to
-	 * make a second pass.
-	 */
-	if (tree == NULL)
-		return;
-
 	flags = tvb_get_ntohs(tvb, 10);
 	fi = proto_tree_add_uint(bp_tree, hf_bootp_flags, tvb,
 			    10, 2, flags);
@@ -4014,42 +4009,41 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					   28, 16, "Client address not given");
 	}
 
-	/* The server host name is optional */
-	if (tvb_get_guint8(tvb, SERVER_NAME_OFFSET) != '\0') {
-		if (overload & OPT_OVERLOAD_SNAME) {
-			proto_tree_add_text (bp_tree, tvb,
-				SERVER_NAME_OFFSET, SERVER_NAME_LEN,
-				"Server name option overloaded by DHCP");
-		} else {
+	if (overload & OPT_OVERLOAD_SNAME) {
+		proto_tree_add_text (bp_tree, tvb,
+			SERVER_NAME_OFFSET, SERVER_NAME_LEN,
+			"Server name option overloaded by DHCP");
+	} else {
+		/* The server host name is optional */
+		if (tvb_get_guint8(tvb, SERVER_NAME_OFFSET) != '\0') {
 			proto_tree_add_item(bp_tree, hf_bootp_server, tvb,
 					   SERVER_NAME_OFFSET,
 					   SERVER_NAME_LEN, FALSE);
+
+		} else {
+			proto_tree_add_string_format(bp_tree, hf_bootp_server, tvb,
+						   SERVER_NAME_OFFSET,
+						   SERVER_NAME_LEN,
+						   "", "Server host name not given");
 		}
-	} else {
-		proto_tree_add_string_format(bp_tree, hf_bootp_server, tvb,
-					   SERVER_NAME_OFFSET,
-					   SERVER_NAME_LEN,
-					   (const gchar*)tvb_get_ptr(tvb, SERVER_NAME_OFFSET, 1),
-					   "Server host name not given");
 	}
 
-	/* Boot file */
-	if (tvb_get_guint8(tvb, FILE_NAME_OFFSET) != '\0') {
-		if (overload & OPT_OVERLOAD_FILE) {
-			proto_tree_add_text (bp_tree, tvb,
-				FILE_NAME_OFFSET, FILE_NAME_LEN,
-				"Boot file name option overloaded by DHCP");
-		} else {
+	if (overload & OPT_OVERLOAD_FILE) {
+		proto_tree_add_text (bp_tree, tvb,
+			FILE_NAME_OFFSET, FILE_NAME_LEN,
+			"Boot file name option overloaded by DHCP");
+	} else {
+		/* Boot file is optional */
+		if (tvb_get_guint8(tvb, FILE_NAME_OFFSET) != '\0') {
 			proto_tree_add_item(bp_tree, hf_bootp_file, tvb,
 					   FILE_NAME_OFFSET,
 					   FILE_NAME_LEN, FALSE);
+		} else {
+			proto_tree_add_string_format(bp_tree, hf_bootp_file, tvb,
+						   FILE_NAME_OFFSET,
+						   FILE_NAME_LEN,
+						   "", "Boot file name not given");
 		}
-	} else {
-		proto_tree_add_string_format(bp_tree, hf_bootp_file, tvb,
-					   FILE_NAME_OFFSET,
-					   FILE_NAME_LEN,
-					   (const gchar*)tvb_get_ptr(tvb, FILE_NAME_OFFSET, 1),
-					   "Boot file name not given");
 	}
 
 	voff = VENDOR_INFO_OFFSET;
@@ -4071,12 +4065,16 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	at_end = FALSE;
 	while (voff < eoff && !at_end) {
-		offset_delta = bootp_option(tvb, bp_tree, voff, eoff, FALSE, &at_end,
+		offset_delta = bootp_option(tvb, pinfo, bp_tree, voff, eoff, FALSE, &at_end,
 		    &dhcp_type, &vendor_class_id, &overload);
 		if (offset_delta <= 0) {
 			THROW(ReportedBoundsError);
 		}
 		voff += offset_delta;
+	}
+	if ((dhcp_type != NULL) && (!at_end))
+	{
+		expert_add_info_format(pinfo, ti, PI_MALFORMED /* PI_PROTOCOL */, PI_ERROR, "End option missing");
 	}
 	if (voff < eoff) {
 		/*
