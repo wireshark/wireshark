@@ -41,17 +41,17 @@
 
 /*
  * Lookup tables
- *
  */
-const gchar* ssl_version_short_names[] = {
-    "SSL",
-    "SSLv2",
-    "SSLv3",
-    "TLSv1",
-    "TLSv1.1",
-    "DTLSv1.0",
-    "PCT",
-    "TLSv1.2"
+const value_string ssl_version_short_names[] = {
+    { SSL_VER_UNKNOWN,    "SSL" },
+    { SSL_VER_SSLv2,      "SSLv2" },
+    { SSL_VER_SSLv3,      "SSLv3" },
+    { SSL_VER_TLS,        "TLSv1" },
+    { SSL_VER_TLSv1DOT1,  "TLSv1.1" },
+    { SSL_VER_DTLS,       "DTLSv1.0" },
+    { SSL_VER_PCT,        "PCT" },
+    { SSL_VER_TLSv1DOT2,  "TLSv1.2" },
+    { 0x00, NULL }
 };
 
 const value_string ssl_20_msg_types[] = {

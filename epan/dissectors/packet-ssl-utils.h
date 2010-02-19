@@ -146,9 +146,8 @@
 
 /*
  * Lookup tables
- *
  */
-extern const gchar* ssl_version_short_names[];
+extern const value_string ssl_version_short_names[];
 extern const value_string ssl_20_msg_types[];
 extern const value_string ssl_20_cipher_suites[];
 extern const value_string ssl_20_certificate_type[];
@@ -378,14 +377,14 @@ ssl_free_key(Ssl_private_key_t* key);
 extern gint
 ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree* associations, packet_info *pinfo);
 
-/* Search for the specified cipher souite id
+/** Search for the specified cipher souite id
  @param num the id of the cipher suite to be searched
  @param cs pointer to the cipher suite struct to be filled
  @return 0 if the cipher suite is found, -1 elsewhere */
 extern gint
 ssl_find_cipher(int num,SslCipherSuite* cs);
 
-/* Expand the pre_master_secret to generate all the session information
+/** Expand the pre_master_secret to generate all the session information
  * (master secret, session keys, ivs)
  @param ssl_session the store for all the session data
  @return 0 on success */
@@ -395,7 +394,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session);
 extern void
 ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
 
-/* Try to decrypt in place the encrypted pre_master_secret
+/** Try to decrypt in place the encrypted pre_master_secret
  @param ssl_session the store for the decrypted pre_master_secret
  @param encrypted_pre_master the rsa encrypted pre_master_secret
  @param pk the private key to be used for decryption
@@ -404,7 +403,7 @@ extern gint
 ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
     StringInfo* encrypted_pre_master, SSL_PRIVATE_KEY *pk);
 
-/* Try to decrypt an ssl record
+/** Try to decrypt an ssl record
  @param ssl_session the store all the session data
  @param decoder the stream decoder to be used
  @param ct the content type of this ssl record

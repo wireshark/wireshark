@@ -476,7 +476,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
   /* if we can decrypt and decryption have success
    * add decrypted data to this packet info */
-  ssl_debug_printf("decrypt_dtls_record: app_data len %d ssl state %X\n",
+  ssl_debug_printf("decrypt_dtls_record: app_data len %d, ssl state %X\n",
                    record_length, ssl->state);
   if (!(ssl->state & SSL_HAVE_SESSION_KEY)) {
     ssl_debug_printf("decrypt_dtls_record: no session key\n");
@@ -686,7 +686,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       if (version == DTLSV1DOT0_VERSION)
         {
           col_set_str(pinfo->cinfo, COL_PROTOCOL,
-                      ssl_version_short_names[SSL_VER_DTLS]);
+                      val_to_str_const(SSL_VER_DTLS, ssl_version_short_names, "SSL"));
         }
       else
         {
@@ -769,7 +769,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
 
     proto_item_set_text(dtls_record_tree,
                         "%s Record Layer: %s Protocol: %s",
-                        ssl_version_short_names[*conv_version],
+                        val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
                         val_to_str(content_type, ssl_31_content_type, "unknown"),
                         association?association->info:"Application Data");
 
@@ -826,7 +826,7 @@ dissect_dtls_change_cipher_spec(tvbuff_t *tvb,
     {
       proto_item_set_text(tree,
                           "%s Record Layer: %s Protocol: Change Cipher Spec",
-                          ssl_version_short_names[*conv_version],
+                          val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
                           val_to_str(content_type, ssl_31_content_type, "unknown"));
       proto_tree_add_item(tree, hf_dtls_change_cipher_spec, tvb,
                           offset++, 1, FALSE);
@@ -888,7 +888,7 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
         {
           proto_item_set_text(tree, "%s Record Layer: Alert "
                               "(Level: %s, Description: %s)",
-                              ssl_version_short_names[*conv_version],
+                              val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
                               level, desc);
           proto_tree_add_item(ssl_alert_tree, hf_dtls_alert_message_level,
                               tvb, offset++, 1, FALSE);
@@ -900,7 +900,7 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
         {
           proto_item_set_text(tree,
                               "%s Record Layer: Encrypted Alert",
-                              ssl_version_short_names[*conv_version]);
+                              val_to_str_const(*conv_version, ssl_version_short_names, "SSL"));
           proto_item_set_text(ssl_alert_tree,
                               "Alert Message: Encrypted Alert");
         }
@@ -1057,7 +1057,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           if (first_iteration)
             {
               proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s%s",
-                                  ssl_version_short_names[*conv_version],
+                                  val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
                                   val_to_str(content_type, ssl_31_content_type, "unknown"),
                                   (msg_type_str!=NULL) ? msg_type_str :
                                   "Encrypted Handshake Message",
@@ -1066,7 +1066,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           else
             {
               proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s%s",
-                                  ssl_version_short_names[*conv_version],
+                                  val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
                                   val_to_str(content_type, ssl_31_content_type, "unknown"),
                                   "Multiple Handshake Messages",
                                   (frag_str!=NULL) ? frag_str : "");
@@ -1185,11 +1185,11 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
               /* check for required session data */
-              ssl_debug_printf("dissect_dtls_handshake found SSL_HND_CLIENT_KEY_EXCHG state %X\n",
+              ssl_debug_printf("dissect_dtls_handshake found SSL_HND_CLIENT_KEY_EXCHG, state %X\n",
                                ssl->state);
               if ((ssl->state & (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION)) !=
                   (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION)) {
-                ssl_debug_printf("dissect_dtls_handshake not enough data to generate key (required %X)\n",
+                ssl_debug_printf("dissect_dtls_handshake not enough data to generate key (required state %X)\n",
                                  (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION));
                 break;
               }
@@ -1600,7 +1600,7 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
         if ((ssl->state &
              (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION|SSL_MASTER_SECRET)) !=
             (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION|SSL_MASTER_SECRET)) {
-          ssl_debug_printf("dissect_dtls_hnd_srv_hello not enough data to generate key (required %X)\n",
+          ssl_debug_printf("dissect_dtls_hnd_srv_hello not enough data to generate key (required state %X)\n",
                            (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION|SSL_MASTER_SECRET));
           goto no_cipher;
         }

@@ -243,7 +243,7 @@ static gint ett_ssl_certs             = -1;
 static gint ett_ssl_cert_types        = -1;
 static gint ett_ssl_dnames            = -1;
 static gint ett_ssl_random            = -1;
-static gint ett_pct_cipher_suites	  = -1;
+static gint ett_pct_cipher_suites     = -1;
 static gint ett_pct_hash_suites       = -1;
 static gint ett_pct_cert_suites       = -1;
 static gint ett_pct_exch_suites       = -1;
@@ -684,7 +684,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* Set the protocol column */
                 col_set_str(pinfo->cinfo, COL_PROTOCOL,
-                         ssl_version_short_names[*conv_version]);
+                         val_to_str_const(*conv_version, ssl_version_short_names, "SSL"));
             }
             break;
         }
@@ -719,7 +719,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
     ret = 0;
     /* if we can decrypt and decryption was a success
      * add decrypted data to this packet info */
-    ssl_debug_printf("decrypt_ssl3_record: app_data len %d ssl, state 0x%02X\n",
+    ssl_debug_printf("decrypt_ssl3_record: app_data len %d, ssl state 0x%02X\n",
         record_length, ssl->state);
     direction = ssl_packet_from_server(ssl, ssl_associations, pinfo);
 
@@ -1276,7 +1276,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
           col_append_str(pinfo->cinfo, COL_INFO, ", ");
       }
       col_append_str(pinfo->cinfo, COL_INFO, "Ignored Unknown Record");
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, ssl_version_short_names[*conv_version]);
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, val_to_str_const(*conv_version, ssl_version_short_names, "SSL"));
       return offset + available_bytes;
     }
 
@@ -1353,7 +1353,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
         /* Set the protocol column */
         col_set_str(pinfo->cinfo, COL_PROTOCOL,
-                        ssl_version_short_names[*conv_version]);
+                        val_to_str_const(*conv_version, ssl_version_short_names, "SSL"));
 
         return offset + 5 + record_length;
     }
@@ -1455,7 +1455,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL,
-                        ssl_version_short_names[*conv_version]);
+                        val_to_str_const(*conv_version, ssl_version_short_names, "SSL"));
 
     /*
      * now dissect the next layer
@@ -1537,7 +1537,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
         proto_item_set_text(ssl_record_tree,
            "%s Record Layer: %s Protocol: %s",
-            ssl_version_short_names[*conv_version],
+            val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
             val_to_str(content_type, ssl_31_content_type, "unknown"),
             association?association->info:"Application Data");
 
@@ -1574,7 +1574,7 @@ dissect_ssl3_change_cipher_spec(tvbuff_t *tvb,
     {
         proto_item_set_text(tree,
                             "%s Record Layer: %s Protocol: Change Cipher Spec",
-                            ssl_version_short_names[*conv_version],
+                            val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
                             val_to_str(content_type, ssl_31_content_type, "unknown"));
         proto_tree_add_item(tree, hf_ssl_change_cipher_spec, tvb,
                             offset++, 1, FALSE);
@@ -1634,7 +1634,7 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
         {
             proto_item_set_text(tree, "%s Record Layer: Alert "
                                 "(Level: %s, Description: %s)",
-                                ssl_version_short_names[*conv_version],
+                                val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
                                 level, desc);
             proto_tree_add_item(ssl_alert_tree, hf_ssl_alert_message_level,
                                 tvb, offset++, 1, FALSE);
@@ -1646,7 +1646,7 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
         {
             proto_item_set_text(tree,
                                 "%s Record Layer: Encrypted Alert",
-                                ssl_version_short_names[*conv_version]);
+                                val_to_str_const(*conv_version, ssl_version_short_names, "SSL"));
             proto_item_set_text(ssl_alert_tree,
                                 "Alert Message: Encrypted Alert");
         }
@@ -1743,7 +1743,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
             if (first_iteration)
             {
                 proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
-                                    ssl_version_short_names[*conv_version],
+                                    val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
                                     val_to_str(content_type, ssl_31_content_type, "unknown"),
                                     (msg_type_str!=NULL) ? msg_type_str :
                                         "Encrypted Handshake Message");
@@ -1751,7 +1751,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
             else
             {
                 proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
-                                    ssl_version_short_names[*conv_version],
+                                    val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
                                     val_to_str(content_type, ssl_31_content_type, "unknown"),
                                     "Multiple Handshake Messages");
             }
