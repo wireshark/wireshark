@@ -1763,7 +1763,7 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
             have_mic = TRUE;
             tvb_memcpy(tvb, rx_mic, reported_len - M, M);
         }
-        reported_len =- M;
+        reported_len -= M;
         if (captured_len > reported_len)
             captured_len = reported_len;
     }
