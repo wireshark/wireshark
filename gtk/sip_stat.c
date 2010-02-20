@@ -107,6 +107,7 @@ static const value_string vals_status_code[] = {
 
     { 200, "OK"},
     { 202, "Accepted"},
+    { 204, "No Notification"},
     { 299, "Success - Others"},	/* used to keep track of other Success packets */
 
     { 300, "Multiple Choices"},
@@ -135,7 +136,16 @@ static const value_string vals_status_code[] = {
     { 421, "Extension Required"},
     { 422, "Session Timer Too Small"},
     { 423, "Interval Too Brief"},
+    { 428, "Use Identity Header"},
     { 429, "Provide Referrer Identity"},
+    { 430, "Flow Failed"},
+    { 433, "Anonymity Disallowed"},
+    { 436, "Bad Identity-Info"},
+    { 437, "Unsupported Certificate"},
+    { 438, "Invalid Identity Header"},
+    { 439, "First Hop Lacks Outbound Support"},
+    { 440, "Max-Breadth Exceeded"},
+    { 470, "Consent Needed"},
     { 480, "Temporarily Unavailable"},
     { 481, "Call/Transaction Does Not Exist"},
     { 482, "Loop Detected"},
