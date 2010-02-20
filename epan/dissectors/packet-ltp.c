@@ -303,14 +303,14 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 		frame_offset += rpt_sno_size;
 
 		more_frags = FALSE;
-		frag_msg = fragment_add_check(tvb, frame_offset, pinfo, session_num, ltp_fragment_table,
-			  ltp_reassembled_table, offset,length, more_frags);
+		frag_msg = fragment_add_check(tvb, frame_offset, pinfo, (guint32)session_num, ltp_fragment_table,
+			  ltp_reassembled_table, (guint32)offset, (guint32)length, more_frags);
 	}
 	else
 	{
 		more_frags = TRUE;
-		frag_msg = fragment_add_check(tvb, frame_offset, pinfo, session_num, ltp_fragment_table,
-			 ltp_reassembled_table, offset,length, more_frags);
+		frag_msg = fragment_add_check(tvb, frame_offset, pinfo, (guint32)session_num, ltp_fragment_table,
+			 ltp_reassembled_table, (guint32)offset, (guint32)length, more_frags);
 
 	}
 
