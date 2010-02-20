@@ -1048,7 +1048,7 @@ static int
 dissect_version_5_primary_header(packet_info *pinfo,
 					proto_tree *primary_tree, tvbuff_t *tvb)
 {
-    int bundle_processing_control_flags;
+    guint64 bundle_processing_control_flags;
     guint8 cosflags;
     guint8 *dict_ptr;
     gchar  *string_ptr;
@@ -1097,12 +1097,12 @@ dissect_version_5_primary_header(packet_info *pinfo,
     proto_item *cust_ssp_offset_item = NULL;
 
     offset = 1;		/*Already displayed Version Number*/
-    bundle_processing_control_flags = evaluate_sdnv(tvb, offset, &sdnv_length);
+    bundle_processing_control_flags = evaluate_sdnv_64(tvb, offset, &sdnv_length);
 
     /* Primary Header Processing Flags */
     pri_hdr_procflags = (guint8) (bundle_processing_control_flags & 0x7f);
 
-    if (sdnv_length != 1) {
+    if (sdnv_length < 1) {
         expert_add_info_format(pinfo, primary_tree, PI_UNDECODED, PI_WARN, "Wrong bundle control flag length: %d", sdnv_length);
 	return 0;
     }
@@ -1644,7 +1644,6 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
     int sdnv_length;
     int endpoint_length;
     guint8 *string_ptr;
-    int string_length;
 
     admin_record_item = proto_tree_add_text(primary_tree, tvb, offset, -1,
 							"Administrative Record");
@@ -1792,7 +1791,6 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
 	 * Endpoint name may not be null terminated. This routine is supposed
 	 * to add the null at the end of the string buffer.
 	 */
-
 	string_ptr = tvb_get_ephemeral_string(tvb, offset, endpoint_length);
 	proto_tree_add_text(admin_record_tree, tvb, offset, endpoint_length,
     						"Bundle Endpoint ID: %s", string_ptr);
@@ -1864,10 +1862,10 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
 	proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length,
 	    				"Endpoint Length: %d", endpoint_length);
 	offset += sdnv_length; record_size += sdnv_length;
-	string_ptr = tvb_get_ephemeral_stringz(tvb, offset, &string_length);
+	string_ptr = tvb_get_ephemeral_string(tvb, offset, endpoint_length);
 	proto_tree_add_text(admin_record_tree, tvb, offset, endpoint_length,
     						"Bundle Endpoint ID: %s", string_ptr);
-	offset += string_length; record_size += string_length;
+	offset += endpoint_length; record_size += endpoint_length;
 	return record_size;
 
     }	/* End Switch */
@@ -2268,7 +2266,7 @@ proto_register_bundle(void)
     },
     {&hf_bundle_control_flags,
         {"Bundle Processing Control Flags", "bundle.primary.proc.flag",
-		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+		FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     {&hf_bundle_procflags_general,
         {"General Flags", "bundle.primary.proc.gen",
