@@ -202,8 +202,8 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	guint64 client_id;
 	guint64 offset;
 	guint64 length;
-	guint64 chkp_sno;
-	guint64 rpt_sno;
+	guint64 chkp_sno = 0;
+	guint64 rpt_sno = 0;
 
 	int segment_offset = 0;
 
