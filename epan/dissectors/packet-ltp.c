@@ -21,6 +21,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * Protocol ref:
+ * http://www.ietf.org/rfc/rfc5326.txt?number=5326
  */
 
 #ifdef HAVE_CONFIG_H
@@ -31,6 +33,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/reassemble.h>
 
 #include "packet-dtn.h"
 
@@ -39,6 +42,10 @@
 #define LTP_MAX_TRL_EXTN    16
 
 void proto_reg_handoff_ltp(void);
+
+/* For reassembling LTP segments */
+static GHashTable *ltp_fragment_table = NULL;
+static GHashTable *ltp_reassembled_table = NULL;
 
 /* Initialize the protocol and registered fields */
 static int proto_ltp = -1;
@@ -84,6 +91,17 @@ static int hf_ltp_hdr_extn_val  = -1;
 static int hf_ltp_trl_extn_tag  = -1;
 static int hf_ltp_trl_extn_len  = -1;
 static int hf_ltp_trl_extn_val  = -1;
+
+/*LTP reassembly */
+static int hf_ltp_fragments = -1;
+static int hf_ltp_fragment = -1;
+static int hf_ltp_fragment_overlap = -1;
+static int hf_ltp_fragment_overlap_conflicts = -1;
+static int hf_ltp_fragment_multiple_tails = -1;
+static int hf_ltp_fragment_too_long_fragment = -1;
+static int hf_ltp_fragment_error = -1;
+static int hf_ltp_reassembled_in = -1;
+static int hf_ltp_reassembled_length = -1;
 
 static const value_string ltp_type_codes[] = {
 	{0x0, "Red data, NOT {Checkpoint, EORP or EOB}"},
@@ -156,9 +174,31 @@ static gint ett_rpt_clm         = -1;
 static gint ett_rpt_ack_segm    = -1;
 static gint ett_session_mgmt    = -1;
 static gint ett_trl_extn        = -1;
+static gint ett_ltp_fragment	= -1;
+static gint ett_ltp_fragments	= -1;
+
+static const fragment_items ltp_frag_items = {
+    /*Fragment subtrees*/
+    &ett_ltp_fragment,
+    &ett_ltp_fragments,
+    /*Fragment Fields*/
+    &hf_ltp_fragments,
+    &hf_ltp_fragment,
+    &hf_ltp_fragment_overlap,
+    &hf_ltp_fragment_overlap_conflicts,
+    &hf_ltp_fragment_multiple_tails,
+    &hf_ltp_fragment_too_long_fragment,
+    &hf_ltp_fragment_error,
+    /*Reassembled in field*/
+    &hf_ltp_reassembled_in,
+    /*Reassembled length field*/
+    &hf_ltp_reassembled_length,
+    /*Tag*/
+    "LTP fragments"
+};
 
 static int 
-dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int frame_offset){
+dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int frame_offset,int ltp_type, guint64 session_num){
 	guint64 client_id;
 	guint64 offset;
 	guint64 length;
@@ -173,6 +213,8 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	int chkp_sno_size;
 	int rpt_sno_size;
 
+	int data_offset = 0;
+	int data_length;
 	int bundle_size = 0;
 	int dissected_data_size = 0;
 	int data_count = 1;
@@ -184,6 +226,11 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	proto_tree *ltp_data_data_tree;
 
 	tvbuff_t *datatvb;
+
+	fragment_data *frag_msg = NULL;
+	gboolean more_frags = TRUE;
+
+	tvbuff_t *new_tvb = NULL;
 
 	/* Extract the info for the data segment */
 	client_id = evaluate_sdnv_64(tvb,frame_offset + segment_offset,&client_id_size);
@@ -209,22 +256,24 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 		return 0;
 	}
 
-	chkp_sno = evaluate_sdnv_64(tvb,frame_offset + segment_offset,&chkp_sno_size);
-	segment_offset+= chkp_sno_size;
+	if(ltp_type != 0 )
+	{
+		chkp_sno = evaluate_sdnv_64(tvb,frame_offset + segment_offset,&chkp_sno_size);
+		segment_offset+= chkp_sno_size;
 
-	if((unsigned)(frame_offset + segment_offset) >= tvb_length(tvb)){
-	/* This would mean the data segment is incomplete */
-		return 0;
+		if((unsigned)(frame_offset + segment_offset) >= tvb_length(tvb)){
+		/* This would mean the data segment is incomplete */
+			return 0;
+		}
+
+		rpt_sno = evaluate_sdnv_64(tvb,frame_offset + segment_offset,&rpt_sno_size);
+		segment_offset+= rpt_sno_size;
+
+		if((unsigned)(frame_offset + segment_offset) >= tvb_length(tvb)){
+		/* This would mean the data segment is incomplete */
+			return 0;
+		}
 	}
-
-	rpt_sno = evaluate_sdnv_64(tvb,frame_offset + segment_offset,&rpt_sno_size);
-	segment_offset+= rpt_sno_size;
-
-	if((unsigned)(frame_offset + segment_offset) >= tvb_length(tvb)){
-	/* This would mean the data segment is incomplete */
-		return 0;
-	}
-
 	/* Adding size of the data */
 	segment_offset+= (int)length;
 	if((unsigned)(frame_offset + segment_offset) > tvb_length(tvb)){
@@ -245,26 +294,76 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	proto_tree_add_uint64(ltp_data_tree,hf_ltp_data_length, tvb, frame_offset,length_size,length);
 	frame_offset += length_size;
 
-	proto_tree_add_uint64(ltp_data_tree, hf_ltp_data_chkp, tvb, frame_offset,chkp_sno_size, chkp_sno);
-	frame_offset += chkp_sno_size;
-
-	proto_tree_add_uint64(ltp_data_tree, hf_ltp_data_rpt, tvb, frame_offset,rpt_sno_size, rpt_sno);
-	frame_offset += rpt_sno_size;
-	
-	while((unsigned)dissected_data_size < length)
+	if(ltp_type != 0 )
 	{
-		ltp_data_data_item = proto_tree_add_text(ltp_data_tree, tvb,frame_offset, 0, "Data[%d]",data_count);
-		ltp_data_data_tree = proto_item_add_subtree(ltp_data_data_item, ett_data_data_segm);
+		proto_tree_add_uint64(ltp_data_tree, hf_ltp_data_chkp, tvb, frame_offset,chkp_sno_size, chkp_sno);
+		frame_offset += chkp_sno_size;
 
-		datatvb = tvb_new_subset(tvb, frame_offset, (int)length - dissected_data_size, tvb_length(tvb));
-		bundle_size = dissect_complete_bundle(datatvb, pinfo, ltp_data_data_tree);
-		if(bundle_size == 0) {  /*Couldn't parse bundle*/
-			col_set_str(pinfo->cinfo, COL_INFO, "Dissection Failed");
-			return 0;           /*Give up*/
+		proto_tree_add_uint64(ltp_data_tree, hf_ltp_data_rpt, tvb, frame_offset,rpt_sno_size, rpt_sno);
+		frame_offset += rpt_sno_size;
+
+		more_frags = FALSE;
+		frag_msg = fragment_add_check(tvb, frame_offset, pinfo, session_num, ltp_fragment_table,
+			  ltp_reassembled_table, offset,length, more_frags);
+	}
+	else
+	{
+		more_frags = TRUE;
+		frag_msg = fragment_add_check(tvb, frame_offset, pinfo, session_num, ltp_fragment_table,
+			 ltp_reassembled_table, offset,length, more_frags);
+
+	}
+
+
+	if(frag_msg)
+	{
+		/* Checking if the segment is completely reassembled */
+		if(!(frag_msg->flags & FD_PARTIAL_REASSEMBLY))
+		{
+			/* if the segment has not been fragmented, then no reassembly is needed */
+			if(!more_frags && offset == 0)
+			{	
+				new_tvb = tvb_new_subset(tvb,frame_offset,tvb_length(tvb)-frame_offset,-1);
+			}
+			else
+			{
+				new_tvb = process_reassembled_data(tvb, frame_offset, pinfo, "Reassembled LTP Segment", 
+					frag_msg, &ltp_frag_items,NULL, ltp_data_tree);
+
+			}
 		}
-		frame_offset += bundle_size;
-		dissected_data_size += bundle_size;
-		data_count++;
+	}
+
+	if(new_tvb)
+	{
+		data_length = tvb_length(new_tvb);
+		while((unsigned)dissected_data_size < length)
+		{
+			ltp_data_data_item = proto_tree_add_text(ltp_data_tree, tvb,frame_offset, 0, "Data[%d]",data_count);
+			ltp_data_data_tree = proto_item_add_subtree(ltp_data_data_item, ett_data_data_segm);
+
+			datatvb = tvb_new_subset(new_tvb, data_offset, (int)data_length - dissected_data_size, tvb_length(new_tvb));
+			bundle_size = dissect_complete_bundle(datatvb, pinfo, ltp_data_data_tree);
+			if(bundle_size == 0) {  /*Couldn't parse bundle*/
+				col_set_str(pinfo->cinfo, COL_INFO, "Dissection Failed");
+				return 0;           /*Give up*/
+			}
+			data_offset += bundle_size;
+			dissected_data_size += bundle_size;
+			data_count++;
+		}
+	}
+	else
+	{
+		if(frag_msg && more_frags)
+		{
+			col_append_fstr(pinfo->cinfo, COL_INFO, "[Reassembled in %d] ",frag_msg->reassembled_in);
+		}
+		else
+		{
+			col_append_str(pinfo->cinfo, COL_INFO, "[Unfinished LTP Segment] ");
+		}
+		
 	}
 
 	return segment_offset;
@@ -622,6 +721,8 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint(ltp_header_tree,hf_ltp_trl_extn_cnt,tvb,frame_offset,1,trl_extn_cnt);
 	frame_offset++;
 
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(ltp_type,ltp_type_col_info,"Protocol Error"));
+
 	if((unsigned)frame_offset >= tvb_length(tvb)){
 		col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 		return 0;
@@ -644,7 +745,7 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Call sub routines to handle the segment content*/
 	if((ltp_type >= 0) && (ltp_type < 8)){
-		segment_offset = dissect_data_segment(ltp_tree,tvb,pinfo,frame_offset);
+		segment_offset = dissect_data_segment(ltp_tree,tvb,pinfo,frame_offset,ltp_type,session_num);
 		if(segment_offset == 0){
 			col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 			return 0;
@@ -672,7 +773,6 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 	frame_offset += segment_offset;
-	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(ltp_type,ltp_type_col_info,"Protocol Error"));
 	/* Check to see if there are any trailer extensions */
 	if(trl_extn_cnt > 0){
 		if((unsigned)frame_offset >= tvb_length(tvb)){
@@ -687,6 +787,12 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	/* Return the amount of data this dissector was able to dissect */
 	return tvb_length(tvb);
+}
+
+static void
+ltp_defragment_init(void) {
+    fragment_table_init(&ltp_fragment_table);
+    reassembled_table_init(&ltp_reassembled_table);
 }
 
 /* Register the protocol with Wireshark */
@@ -807,6 +913,43 @@ proto_register_ltp(void)
 	  {&hf_ltp_trl_extn_val,
 		  {"Value","ltp.hdr.extn.val",
 		  FT_UINT64,BASE_DEC,NULL, 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_fragments,
+		  {"LTP Fragments", "ltp.fragments",
+		  FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_fragment,
+		  {"LTP Fragment", "ltp.fragment",
+		  FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_fragment_overlap,
+		  {"LTP fragment overlap", "ltp.fragment.overlap",
+		  FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_fragment_overlap_conflicts,
+		  {"LTP fragment overlapping with conflicting data",
+		   "ltp.fragment.overlap.conflicts",
+		  FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_fragment_multiple_tails,
+		  {"LTP has multiple tails", "ltp.fragment.multiple_tails",
+		  FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_fragment_too_long_fragment,
+		  {"LTP fragment too long", "ltp.fragment.too_long_fragment",
+		  FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_fragment_error,
+		  {"LTP defragmentation error", "ltp.fragment.error",
+		  FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_reassembled_in,
+		  {"LTP reassembled in", "ltp.reassembled.in",
+		  FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_reassembled_length,
+		  {"LTP reassembled length", "ltp.reassembled.length",
+		  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
 	  }
 	};
 
@@ -822,7 +965,9 @@ proto_register_ltp(void)
 		&ett_rpt_clm,
 		&ett_rpt_ack_segm,
 		&ett_session_mgmt,
-		&ett_trl_extn
+		&ett_trl_extn,
+		&ett_ltp_fragment,
+		&ett_ltp_fragments
 	};
 
 /* Register the protocol name and description */
@@ -836,6 +981,7 @@ proto_register_ltp(void)
 	prefs_register_uint_preference(ltp_module, "udp.port", "LTP UDP Port",
 		"UDP Port to accept LTP Connections",
 		10, &ltp_port);
+	register_init_routine(ltp_defragment_init);
 }
 
 void
