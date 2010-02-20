@@ -254,13 +254,13 @@ static gchar *
 time_string(const time_t *timer, capture_info *cf_info, gboolean want_lf)
 {
   gchar *lf = want_lf ? "\n" : "";
-  static gchar time_string[15];
+  static gchar time_string_buf[15];
 
   if (cf_info->packet_count > 0) {
     if (time_as_secs) {
       /* XXX - Would it be useful to show sub-second precision? */
-      g_snprintf(time_string, 15, "%lu%s", (unsigned long) *timer, lf);
-      return time_string;
+      g_snprintf(time_string_buf, 15, "%lu%s", (unsigned long) *timer, lf);
+      return time_string_buf;
     } else if (want_lf) {
       return ctime(timer);
     } else {
@@ -268,8 +268,8 @@ time_string(const time_t *timer, capture_info *cf_info, gboolean want_lf)
     }
   }
 
-  g_snprintf(time_string, 15, "n/a%s", lf);
-  return time_string;
+  g_snprintf(time_string_buf, 15, "n/a%s", lf);
+  return time_string_buf;
 }
 
 static double
