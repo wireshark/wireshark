@@ -45,7 +45,6 @@
 /* TODO:
    - TDD mode?
    - add a preference so that padding can be verified against an expected pattern?
-   - include detected DL retransmits in stats?
 */
 
 /* Initialize the protocol and registered fields. */
@@ -1295,9 +1294,9 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 
-/* Track DL frames, and look for likely cases of likely HARQ retx */
-static void DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int offset,
-                                 proto_tree *tree, mac_lte_info *p_mac_lte_info)
+/* Track DL frames, and look for likely cases of likely HARQ retx. Return TRUE if found */
+static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int offset,
+                                proto_tree *tree, mac_lte_info *p_mac_lte_info)
 {
     DLHARQResult *result = NULL;
     proto_item *result_ti;
@@ -1335,7 +1334,6 @@ static void DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int
                         result = se_alloc(sizeof(DLHARQResult));
                         result->previousFrameNum = lastData->framenum;
                         g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result);
-
                     }
                 }
             }
@@ -1376,6 +1374,9 @@ static void DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int
         PROTO_ITEM_SET_HIDDEN(result_ti);
     }
     PROTO_ITEM_SET_GENERATED(result_ti);
+
+    /* Return TRUE if resend was detected */
+    return (result != NULL);
 }
 
 /* Track UL frames, so that when a retx is indicated, we can search for
@@ -1724,7 +1725,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     /* For downlink frames, can try to work out if this looks like a HARQ resend */
     if ((direction == DIRECTION_DOWNLINK) && global_mac_lte_attempt_dl_harq_resend_detect) {
-        DetectIfDLHARQResend(pinfo, tvb, offset, tree, p_mac_lte_info);
+        if (DetectIfDLHARQResend(pinfo, tvb, offset, tree, p_mac_lte_info)) {
+            tap_info->isDLRetx = TRUE;
+        }
     }
 
 
@@ -2670,7 +2673,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tap_info.ueid = p_mac_lte_info->ueid;
     tap_info.rntiType = p_mac_lte_info->rntiType;
     tap_info.isPredefinedData = p_mac_lte_info->isPredefinedData;
-    tap_info.reTxCount = p_mac_lte_info->reTxCount;
+    tap_info.isULRetx = (p_mac_lte_info->reTxCount >= 1);
     tap_info.crcStatusValid = p_mac_lte_info->crcStatusValid;
     tap_info.crcStatus = p_mac_lte_info->crcStatus;
     tap_info.direction = p_mac_lte_info->direction;

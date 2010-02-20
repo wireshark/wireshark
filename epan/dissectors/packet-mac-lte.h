@@ -102,10 +102,12 @@ typedef struct mac_lte_tap_info {
     guint16  ueid;
     guint8   rntiType;
     guint8   isPredefinedData;
-    guint8   reTxCount;
     guint8   crcStatusValid;
     guint8   crcStatus;
     guint8   direction;
+
+    guint8   isULRetx;
+    guint8   isDLRetx;
 
     /* Number of bytes (which part is used depends upon context settings) */
     guint32  single_number_of_bytes;

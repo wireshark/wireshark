@@ -42,6 +42,8 @@
 
 #include <gtk/gtk.h>
 
+#include "gtk/gtkglobals.h"
+
 #include <epan/packet.h>
 #include <epan/packet_info.h>
 #include <epan/tap.h>
@@ -151,6 +153,13 @@ typedef struct mac_lte_common_stats {
     guint32 rar_entries;
 } mac_lte_common_stats;
 
+/* Keep track of unique rntis & ueids */
+static guint8 used_ueids[65535];
+static guint8 used_rntis[65535];
+static guint16 number_of_ueids;
+static guint16 number_of_rntis;
+
+
 static const char * selected_ue_row_names[] = {"UL SDUs", "UL Bytes", "DL SDUs", "DL Bytes"};
 
 static mac_lte_common_stats common_stats;
@@ -172,6 +181,8 @@ static GtkWidget  *mac_lte_stat_common_channel_lb = NULL;
 static GtkWidget  *mac_lte_stat_ues_lb = NULL;
 static GtkWidget  *mac_lte_stat_selected_ue_lb = NULL;
 
+static GtkWidget  *mac_lte_stat_filters_lb = NULL;
+static GtkWidget  *filter_bt;
 
 /* Used to keep track of whole MAC LTE statistics window */
 typedef struct mac_lte_stat_t {
@@ -197,9 +208,16 @@ mac_lte_stat_reset(void *phs)
         gtk_window_set_title(GTK_WINDOW(mac_lte_stat_dlg_w), title);
     }
 
-    g_snprintf(title, sizeof(title), "UL/DL-SCH data (0 UEs)");
+    g_snprintf(title, sizeof(title), "UL/DL-SCH data (0 entries)");
     gtk_frame_set_label(GTK_FRAME(mac_lte_stat_ues_lb), title);
 
+    /* Reset counts of unique ueids & rntis */
+    memset(used_ueids, 0, 65535);
+    number_of_ueids = 0;
+    memset(used_rntis, 0, 65535);
+    number_of_rntis = 0;
+
+    /* Zero common stats */
     memset(&common_stats, 0, sizeof(common_stats));
 
     /* Remove all entries from the UE list */
@@ -270,6 +288,20 @@ static mac_lte_ep_t* alloc_mac_lte_ep(struct mac_lte_tap_info *si, packet_info *
 }
 
 
+/* Update counts of unique rntis & ueids */
+void update_ueid_rnti_counts(guint16 rnti, guint16 ueid)
+{
+    if (!used_ueids[ueid]) {
+        used_ueids[ueid] = TRUE;
+        number_of_ueids++;
+    }
+    if (!used_rntis[rnti]) {
+        used_rntis[rnti] = TRUE;
+        number_of_rntis++;
+    }
+}
+
+
 /* Process stat struct for a MAC LTE frame */
 static int
 mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
@@ -311,6 +343,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             break;
 
         default:
+            /* Error */
             return 0;
     }
 
@@ -320,10 +353,15 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         hs->ep_list = alloc_mac_lte_ep(si, pinfo);
         /* Make it the first/only entry */
         te = hs->ep_list;
+
+        /* Update counts of unique ueids & rntis */
+        update_ueid_rnti_counts(si->rnti, si->ueid);
     } else {
         /* Look among existing rows for this RNTI */
         for (tmp = hs->ep_list;(tmp != NULL); tmp = tmp->next) {
-            if (tmp->stats.rnti == si->rnti) {
+            /* Match only by RNTI and UEId together */
+            if ((tmp->stats.rnti == si->rnti) &&
+                (tmp->stats.ueid == si->ueid)){
                 te = tmp;
                 break;
             }
@@ -335,6 +373,9 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
                 /* New item is head of list */
                 te->next = hs->ep_list;
                 hs->ep_list = te;
+
+                /* Update counts of unique ueids & rntis */
+                update_ueid_rnti_counts(si->rnti, si->ueid);
             }
         }
     }
@@ -360,7 +401,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     /* Uplink */
     if (si->direction == DIRECTION_UPLINK) {
-        if (si->reTxCount >= 1) {
+        if (si->isULRetx) {
             te->stats.UL_retx_frames++;
             return 1;
         }
@@ -385,7 +426,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     /* Downlink */
     else {
-        if (si->reTxCount >= 1) {
+        if (si->isDLRetx) {
             te->stats.DL_retx_frames++;
             return 1;
         }
@@ -423,12 +464,12 @@ mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep)
     /* UL SDUs */
     for (n=0; n < PREDEFINED_COLUMN-1; n++) {
         g_snprintf(buff, sizeof(buff), "%u",
-                   mac_stat_ep ? mac_stat_ep->stats.UL_sdus_for_lcid[n] : 0);
+                   (mac_stat_ep != NULL) ? mac_stat_ep->stats.UL_sdus_for_lcid[n] : 0);
          gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[n+1][1]), buff);
     }
 
     /* Predefined */
-    if (mac_stat_ep) {
+    if (mac_stat_ep != NULL) {
         g_snprintf(buff, sizeof(buff), "%u",
                    mac_stat_ep->stats.is_predefined_data ? mac_stat_ep->stats.UL_frames : 0);
     }
@@ -441,12 +482,12 @@ mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep)
     /* UL Bytes */
     for (n=0; n < PREDEFINED_COLUMN-1; n++) {
         g_snprintf(buff, sizeof(buff), "%u",
-                   (mac_stat_ep) ? mac_stat_ep->stats.UL_bytes_for_lcid[n] : 0);
+                   (mac_stat_ep != NULL) ? mac_stat_ep->stats.UL_bytes_for_lcid[n] : 0);
         gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[n+1][2]), buff);
     }
 
     /* Predefined */
-    if (mac_stat_ep) {
+    if (mac_stat_ep != NULL) {
         g_snprintf(buff, sizeof(buff), "%u",
                    mac_stat_ep->stats.is_predefined_data ? mac_stat_ep->stats.UL_total_bytes : 0);
     }
@@ -459,11 +500,11 @@ mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep)
     /* DL SDUs */
     for (n=0; n < PREDEFINED_COLUMN-1; n++) {
         g_snprintf(buff, sizeof(buff), "%u",
-                   mac_stat_ep ? mac_stat_ep->stats.DL_sdus_for_lcid[n] : 0);
+                   (mac_stat_ep != NULL) ? mac_stat_ep->stats.DL_sdus_for_lcid[n] : 0);
         gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[n+1][3]), buff);
     }
     /* Predefined */
-    if (mac_stat_ep) {
+    if (mac_stat_ep != NULL) {
         g_snprintf(buff, sizeof(buff), "%u",
                    mac_stat_ep->stats.is_predefined_data ? mac_stat_ep->stats.DL_frames : 0);
     }
@@ -476,11 +517,11 @@ mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep)
     /* DL Bytes */
     for (n=0; n < PREDEFINED_COLUMN-1; n++) {
         g_snprintf(buff, sizeof(buff), "%u",
-                   mac_stat_ep ? mac_stat_ep->stats.DL_bytes_for_lcid[n] : 0);
+                   (mac_stat_ep != NULL) ? mac_stat_ep->stats.DL_bytes_for_lcid[n] : 0);
         gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[n+1][4]), buff);
     }
     /* Predefined */
-    if (mac_stat_ep) {
+    if (mac_stat_ep != NULL) {
         g_snprintf(buff, sizeof(buff), "%u",
                    mac_stat_ep->stats.is_predefined_data ? mac_stat_ep->stats.DL_total_bytes : 0);
     }
@@ -488,6 +529,9 @@ mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep)
         g_snprintf(buff, sizeof(buff), "%u", 0);
     }
     gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[PREDEFINED_COLUMN][4]), buff);
+
+    /* Enable/disable filter controls */
+    gtk_widget_set_sensitive(filter_bt, mac_stat_ep != NULL);
 }
 
 
@@ -529,7 +573,8 @@ mac_lte_stat_draw(void *phs)
 
     /* Set title that shows how many UEs currently in table */
     for (tmp = list; (tmp!=NULL); tmp=tmp->next, number_of_ues++);
-    g_snprintf(title, sizeof(title), "UL/DL-SCH data (%u UEs)", number_of_ues);
+    g_snprintf(title, sizeof(title), "UL/DL-SCH data (%u entries - %u unique RNTIs, %u unique UEIds)",
+               number_of_ues, number_of_rntis, number_of_ueids);
     gtk_frame_set_label(GTK_FRAME(mac_lte_stat_ues_lb), title);
 
     /* Update title to include number of UEs and frames */
@@ -580,6 +625,36 @@ mac_lte_stat_draw(void *phs)
         mac_lte_ue_details(ep);
     }
 }
+
+/* Filter button has been clicked.  Compose and set appropriate
+   display filter */
+static void filter_clicked(GtkWindow *win _U_, mac_lte_stat_t* hs _U_)
+{
+    GtkTreeSelection *sel;
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+
+    /* If there is a UE selected, update its counters in details window */
+    sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(hs->ue_table));
+    if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
+        mac_lte_ep_t *ep;
+        static char buffer[64];
+
+        /* Get the UE details */
+        gtk_tree_model_get(model, &iter, TABLE_COLUMN, &ep, -1);
+
+        /* Create the filter expression */
+        g_snprintf(buffer, 64, "mac-lte.rnti == %u and mac-lte.ueid == %u",
+                   ep->stats.rnti, ep->stats.ueid);
+
+        /* Set its value to our new string */
+        gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), buffer);
+
+        /* Run the filter */
+        main_filter_packets(&cfile, buffer, TRUE);
+    }
+}
+
 
 
 /* What to do when a list item is selected/unselected */
@@ -634,6 +709,8 @@ static void mac_lte_stat_dlg_create(void)
 
     GtkWidget     *selected_ue_vbox[NUM_CHANNEL_COLUMNS];
     GtkWidget     *selected_ue_column_titles[5];
+
+    GtkWidget     *filter_buttons_hb;
 
     GtkWidget     *close_bt;
     GtkWidget     *help_bt;
@@ -813,6 +890,28 @@ static void mac_lte_stat_dlg_create(void)
     }
 
     gtk_box_pack_start(GTK_BOX(top_level_vbox), mac_lte_stat_selected_ue_lb, FALSE, FALSE, 0);
+
+
+    /**************************************/
+    /* Filter on RNTI/UEId                */
+    /**************************************/
+    mac_lte_stat_filters_lb = gtk_frame_new("Filter on UE");
+
+    /* Horizontal row of filter buttons */
+    filter_buttons_hb = gtk_hbox_new(FALSE, 6);
+    gtk_container_add(GTK_CONTAINER(mac_lte_stat_filters_lb), filter_buttons_hb);
+    gtk_container_set_border_width(GTK_CONTAINER(filter_buttons_hb), 2);
+
+    /* Add filters box to top-level window */
+    gtk_box_pack_start(GTK_BOX(top_level_vbox), mac_lte_stat_filters_lb, FALSE, FALSE, 0);
+
+    /* Filter button */
+    filter_bt = gtk_button_new_with_label("Filter on selected this RNTI / UEId");
+    gtk_box_pack_start(GTK_BOX(filter_buttons_hb), filter_bt, FALSE, FALSE, 0);
+    g_signal_connect(filter_bt, "clicked", G_CALLBACK(filter_clicked), hs);
+    /* Initially disabled */
+    gtk_widget_set_sensitive(filter_bt, FALSE);
+    gtk_widget_show(filter_bt);
 
 
     /**********************************************/
