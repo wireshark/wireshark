@@ -81,6 +81,9 @@ thus run through C rather than C++ compilers, and not all C compilers
 support C++-style comments (GCC does, but IBM's C compiler for AIX, for
 example, doesn't do so by default).
 
+In general, don't use C99 features since some C compilers used to compile 
+Wireshark don't support C99 (E.G. Microsoft C).
+
 Don't initialize variables in their declaration with non-constant
 values. Not all compilers support this. E.g. don't use
 	guint32 i = somearray[2];
