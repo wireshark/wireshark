@@ -281,10 +281,11 @@ rawshark.exe	: $(LIBS_CHECK) config.h $(rawshark_OBJECTS) wsgetopt.obj inet_ntop
 
 # XXX: This makefile does not properly handle doing a 'nmake ... capinfos.exe' directly since some of the .objs
 #      (e.g. epan\plugins.obj) must be built first using epan\Makefile.nmake (which happens for 'nmake ... all').
+# Linking with setargv.obj enables "wildcard expansion" of command-line arguments
 capinfos.exe	: $(LIBS_CHECK) config.h $(capinfos_OBJECTS) wsgetopt.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(capinfos_OBJECTS) wsgetopt.obj $(capinfos_LIBS) image\capinfos.res
+		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(capinfos_OBJECTS) wsgetopt.obj $(capinfos_LIBS) setargv.obj image\capinfos.res
 <<
 !IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "capinfos.exe.manifest" -outputresource:capinfos.exe;1
@@ -301,10 +302,11 @@ editcap.exe	: $(LIBS_CHECK) config.h $(editcap_OBJECTS) wsgetopt.obj strptime.ob
 	mt.exe -nologo -manifest "editcap.exe.manifest" -outputresource:editcap.exe;1
 !ENDIF
 
+# Linking with setargv.obj enables "wildcard expansion" of command-line arguments
 mergecap.exe	: $(LIBS_CHECK)  config.h mergecap.obj merge.obj wsgetopt.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj merge.obj wsgetopt.obj $(mergecap_LIBS) image\mergecap.res
+		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj merge.obj wsgetopt.obj $(mergecap_LIBS) setargv.obj image\mergecap.res
 <<
 !IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "mergecap.exe.manifest" -outputresource:mergecap.exe;1
