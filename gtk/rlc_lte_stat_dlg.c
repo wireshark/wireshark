@@ -25,8 +25,6 @@
 
 /* TODO:
    - per-channel graph tap
-   - apply top-level filter (e.g. to tap only one sector)
-   - common channel stats
 */
 
 #ifdef HAVE_CONFIG_H
@@ -841,6 +839,11 @@ static void set_channel_filter_expression(guint16  ueid,
     #define MAX_FILTER_LEN 1024
     static char buffer[MAX_FILTER_LEN];
     int offset = 0;
+
+    /* Include dialog filter */
+    if (hs->filter) {
+        offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, "%s and ", hs->filter);
+    }
 
     /* Should we exclude MAC frames? */
     if (!hs->show_mac) {
