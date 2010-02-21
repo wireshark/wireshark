@@ -25,8 +25,6 @@
 
 
 /* TODO:
-   - limit by display filter?
-   - Break down traffic by cell?
    - CSV export?
 */
 
@@ -166,10 +164,7 @@ typedef struct mac_lte_stat_t {
     char       *filter;
 
     /* Labels */
-    GtkWidget  *mac_lte_stat_common_channel_lb;
     GtkWidget  *mac_lte_stat_ues_lb;
-    GtkWidget  *mac_lte_stat_selected_ue_lb;
-    GtkWidget  *mac_lte_stat_filters_lb;
 
     GtkWidget  *filter_bt;
 
@@ -187,6 +182,9 @@ typedef struct mac_lte_stat_t {
     guint8 used_rntis[65535];
     guint16 number_of_ueids;
     guint16 number_of_rntis;
+
+    guint16 selected_rnti;
+    guint16 selected_ueid;
 
     /* Labels in selected UE 'table' */
     GtkWidget *selected_ue_column_entry[NUM_CHANNEL_COLUMNS][5];
@@ -210,7 +208,7 @@ mac_lte_stat_reset(void *phs)
     if (mac_lte_stat->mac_lte_stat_dlg_w != NULL) {
         g_snprintf(title, sizeof(title), "Wireshark: LTE MAC Traffic Statistics: %s (filter=\"%s\")",
                    cf_get_display_name(&cfile),
-                   mac_lte_stat->filter);
+                   mac_lte_stat->filter ? mac_lte_stat->filter : "none");
         gtk_window_set_title(GTK_WINDOW(mac_lte_stat->mac_lte_stat_dlg_w), title);
     }
 
@@ -536,6 +534,12 @@ mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep, mac_lte_stat_t *hs)
     }
     gtk_label_set_text(GTK_LABEL(hs->selected_ue_column_entry[PREDEFINED_COLUMN][4]), buff);
 
+    /* Remember selected UE */
+    if (mac_stat_ep) {
+        hs->selected_rnti = mac_stat_ep->stats.rnti;
+        hs->selected_ueid = mac_stat_ep->stats.ueid;
+    }
+
     /* Enable/disable filter controls */
     gtk_widget_set_sensitive(hs->filter_bt, mac_stat_ep != NULL);
 }
@@ -588,9 +592,8 @@ mac_lte_stat_draw(void *phs)
                cf_get_display_name(&cfile),
                number_of_ues,
                hs->common_stats.all_frames,
-               hs->filter);
+               hs->filter ? hs->filter : "none");
     gtk_window_set_title(GTK_WINDOW(hs->mac_lte_stat_dlg_w), title);
-
 
 
     for (tmp = list; tmp; tmp=tmp->next) {
@@ -622,6 +625,25 @@ mac_lte_stat_draw(void *phs)
                            -1);
     }
 
+    /* Reselect UE? */
+    if (hs->selected_rnti != 0) {
+        GtkTreeIter *ue_iter = NULL;
+        mac_lte_ep_t *ep = hs->ep_list;
+        while (ep != NULL) {
+            if ((ep->stats.ueid == hs->selected_ueid) &&
+                (ep->stats.rnti == hs->selected_rnti)) {
+                ue_iter = &ep->iter;
+                break;
+            }
+            ep = ep->next;
+        }
+        if (ue_iter != NULL) {
+            /* Make selection */
+            gtk_tree_selection_select_iter(gtk_tree_view_get_selection(hs->ue_table),
+                                           ue_iter);
+        }
+    }
+
     /* If there is a UE selected, update its counters in details window */
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(hs->ue_table));
     if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
@@ -632,9 +654,10 @@ mac_lte_stat_draw(void *phs)
     }
 }
 
+
 /* Filter button has been clicked.  Compose and set appropriate
    display filter */
-static void filter_clicked(GtkWindow *win _U_, mac_lte_stat_t* hs _U_)
+static void filter_clicked(GtkWindow *win _U_, mac_lte_stat_t* hs)
 {
     GtkTreeSelection *sel;
     GtkTreeModel *model;
@@ -644,14 +667,20 @@ static void filter_clicked(GtkWindow *win _U_, mac_lte_stat_t* hs _U_)
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(hs->ue_table));
     if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
         mac_lte_ep_t *ep;
-        static char buffer[64];
+        #define MAX_FILTER_LEN 256
+        static char buffer[MAX_FILTER_LEN];
+        int offset = 0;
 
         /* Get the UE details */
         gtk_tree_model_get(model, &iter, TABLE_COLUMN, &ep, -1);
 
         /* Create the filter expression */
-        g_snprintf(buffer, 64, "mac-lte.rnti == %u and mac-lte.ueid == %u",
-                   ep->stats.rnti, ep->stats.ueid);
+        if (hs->filter) {
+            offset += g_snprintf(buffer, MAX_FILTER_LEN, "%s and ", hs->filter);
+        }
+        offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                             "mac-lte.rnti == %u and mac-lte.ueid == %u",
+                             ep->stats.rnti, ep->stats.ueid);
 
         /* Set its value to our new string */
         gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), buffer);
@@ -716,9 +745,12 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     GtkWidget     *ues_vb;
     GtkWidget     *selected_ue_hb;
 
+    GtkWidget     *mac_lte_stat_common_channel_lb;
+    GtkWidget     *mac_lte_stat_selected_ue_lb;
     GtkWidget     *selected_ue_vbox[NUM_CHANNEL_COLUMNS];
     GtkWidget     *selected_ue_column_titles[5];
 
+    GtkWidget     *mac_lte_stat_filters_lb;
     GtkWidget     *filter_buttons_hb;
 
     GtkWidget     *close_bt;
@@ -753,7 +785,7 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
         hs->filter = g_strdup(filter);
     }
     else {
-        hs->filter = g_strdup("None");
+        hs->filter = NULL;
     }
 
     /* Set title */
@@ -777,14 +809,14 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     /**********************************************/
     /* Common Channel data                        */
     /**********************************************/
-    hs->mac_lte_stat_common_channel_lb = gtk_frame_new("Common Channel Data");
+    mac_lte_stat_common_channel_lb = gtk_frame_new("Common Channel Data");
 
     /* Will add BCH and PCH counters into one row */
     common_row_hbox = gtk_hbox_new(FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(hs->mac_lte_stat_common_channel_lb), common_row_hbox);
+    gtk_container_add(GTK_CONTAINER(mac_lte_stat_common_channel_lb), common_row_hbox);
     gtk_container_set_border_width(GTK_CONTAINER(common_row_hbox), 5);
 
-    gtk_box_pack_start(GTK_BOX(top_level_vbox), hs->mac_lte_stat_common_channel_lb, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(top_level_vbox), mac_lte_stat_common_channel_lb, FALSE, FALSE, 0);
 
     /* Create labels (that will hold label and counter value) */
     hs->common_bch_frames = gtk_label_new("BCH Frames:");
@@ -875,10 +907,10 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     /* Details of selected UE                     */
     /**********************************************/
 
-    hs->mac_lte_stat_selected_ue_lb = gtk_frame_new("Selected UE details");
+    mac_lte_stat_selected_ue_lb = gtk_frame_new("Selected UE details");
 
     selected_ue_hb = gtk_hbox_new(FALSE, 6);
-    gtk_container_add(GTK_CONTAINER(hs->mac_lte_stat_selected_ue_lb), selected_ue_hb);
+    gtk_container_add(GTK_CONTAINER(mac_lte_stat_selected_ue_lb), selected_ue_hb);
     gtk_container_set_border_width(GTK_CONTAINER(selected_ue_hb), 5);
 
     /********************************/
@@ -918,21 +950,21 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
         }
     }
 
-    gtk_box_pack_start(GTK_BOX(top_level_vbox), hs->mac_lte_stat_selected_ue_lb, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(top_level_vbox), mac_lte_stat_selected_ue_lb, FALSE, FALSE, 0);
 
 
     /**************************************/
     /* Filter on RNTI/UEId                */
     /**************************************/
-    hs->mac_lte_stat_filters_lb = gtk_frame_new("Filter on UE");
+    mac_lte_stat_filters_lb = gtk_frame_new("Filter on UE");
 
     /* Horizontal row of filter buttons */
     filter_buttons_hb = gtk_hbox_new(FALSE, 6);
-    gtk_container_add(GTK_CONTAINER(hs->mac_lte_stat_filters_lb), filter_buttons_hb);
+    gtk_container_add(GTK_CONTAINER(mac_lte_stat_filters_lb), filter_buttons_hb);
     gtk_container_set_border_width(GTK_CONTAINER(filter_buttons_hb), 2);
 
     /* Add filters box to top-level window */
-    gtk_box_pack_start(GTK_BOX(top_level_vbox), hs->mac_lte_stat_filters_lb, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(top_level_vbox), mac_lte_stat_filters_lb, FALSE, FALSE, 0);
 
     /* Filter button */
     hs->filter_bt = gtk_button_new_with_label("Filter on selected this RNTI / UEId");
