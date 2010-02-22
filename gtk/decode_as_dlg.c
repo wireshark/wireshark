@@ -51,16 +51,16 @@
 /**************************************************/
 
 /*
- * Enum used to track which transport layer port menu item is
+ * Enum used to track which transport layer port combo_box item is
  * currently selected in the dialog.  These items are labeled "source",
  * "destination", and "source/destination".
  */
 enum srcdst_type {
-    /* The "source port" menu item is currently selected. */
+    /* The "source port" combo_box item is currently selected. */
     E_DECODE_SPORT,
-    /* The "destination port" menu item is currently selected. */
+    /* The "destination port" combo_box item is currently selected. */
     E_DECODE_DPORT,
-    /* The "source/destination port" menu item is currently selected. */
+    /* The "source/destination port" combo_box item is currently selected. */
     E_DECODE_BPORT,
     /* For SCTP only. This MUST be the last entry! */
     E_DECODE_PPID
@@ -69,7 +69,7 @@ enum srcdst_type {
 #define E_DECODE_MIN_HEIGHT 300
 #define E_NOTEBOOK "notebook"
 
-#define E_MENU_SRCDST "menu_src_dst"
+#define E_COMBO_BOX_SRCDST "combo_box_src_dst"
 
 #define E_PAGE_DPORT "dport"
 #define E_PAGE_SPORT "sport"
@@ -749,11 +749,12 @@ decode_simple (GtkWidget *notebook_pg)
 static void
 decode_transport(GtkWidget *notebook_pg)
 {
-    GtkWidget *menu, *menuitem;
+    GtkWidget *combo_box;
     GtkWidget *list;
     gchar *table_name;
     gint requested_srcdst, requested_port, ppid;
     gpointer portp;
+    gpointer ptr;
 #ifdef DEBUG
 	gchar *string;
 #endif
@@ -762,10 +763,10 @@ decode_transport(GtkWidget *notebook_pg)
     if (requested_action == E_DECODE_NO)
 	gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
 
-    menu = g_object_get_data(G_OBJECT(notebook_pg), E_MENU_SRCDST);
-
-    menuitem = gtk_menu_get_active(GTK_MENU(menu));
-    requested_srcdst = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(menuitem), "user_data"));
+    combo_box = g_object_get_data(G_OBJECT(notebook_pg), E_COMBO_BOX_SRCDST);
+    if (!ws_combo_box_get_active_pointer(GTK_COMBO_BOX(combo_box), &ptr))
+        g_assert_not_reached();  /* Programming error if no active item in combo_box */
+    requested_srcdst = GPOINTER_TO_INT(ptr);
 
 #ifdef DEBUG
     string = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TITLE);
@@ -1019,107 +1020,91 @@ decode_add_yes_no (void)
 }
 
 /**************************************************/
-/*          Dialog setup - simple menus           */
+/*          Dialog setup - simple combo_boxes     */
 /**************************************************/
 
 /*
- * This routine is called to pack an option menu into an aligment, so
+ * This routine is called to pack an combo_box into an aligment, so
  * that it doesn't expand vertically to fill up the space available to
  * it.
  *
- * @param optmenu A pointer to the option menu to be so packed.
+ * @param combo_box A pointer to the option menu to be so packed.
  *
  * @return GtkWidget * A pointer to the newly created alignment.
  */
 static GtkWidget *
-decode_add_pack_menu (GtkWidget *optmenu)
+decode_add_pack_combo_box (GtkWidget *combo_box)
 {
     GtkWidget *alignment;
 
     alignment = gtk_alignment_new(0.0f, 0.5f, 0.0f, 0.0f);
-    gtk_container_add(GTK_CONTAINER(alignment), optmenu);
+    gtk_container_add(GTK_CONTAINER(alignment), combo_box);
 
     return(alignment);
 }
 
 
 /*
- * This routine is called to add the transport port selection menu to
- * the dialog box.  This is a three choice menu: source, destination
- * and both.  The default choice for the menu is set to the source
+ * This routine is called to add the transport port selection combo_box to
+ * the dialog box.  This is a three choice combo_box: source, destination
+ * and both.  The default choice for the combo_box is set to the source
  * port number of the currently selected packet.
  *
  * @param page A pointer notebook page that will contain all
  * widgets created by this routine.
  *
  * @return GtkWidget * A pointer to the newly created alignment into
- * which we've packed the newly created option menu.
+ * which we've packed the newly created combo_box.
  */
 static GtkWidget *
-decode_add_srcdst_menu (GtkWidget *page)
+decode_add_srcdst_combo_box (GtkWidget *page)
 {
-    GtkWidget *optmenu, *menu, *menuitem, *alignment;
+    GtkWidget *combo_box, *alignment;
     gchar      tmp[100];
 
-    optmenu = gtk_option_menu_new();
-    menu = gtk_menu_new();
+    combo_box = ws_combo_box_new_text_and_pointer();
+
     g_snprintf(tmp, sizeof(tmp), "source (%u)", cfile.edt->pi.srcport);
-    menuitem = gtk_menu_item_new_with_label(tmp);
-    g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_SPORT));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
+    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), tmp, GINT_TO_POINTER(E_DECODE_SPORT));
+    ws_combo_box_set_active(GTK_COMBO_BOX(combo_box), 0); /* default */
 
     g_snprintf(tmp, sizeof(tmp), "destination (%u)", cfile.edt->pi.destport);
-    menuitem = gtk_menu_item_new_with_label(tmp);
-    g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_DPORT));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
+    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), tmp, GINT_TO_POINTER(E_DECODE_DPORT));
 
-    menuitem = gtk_menu_item_new_with_label("both");
-    g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_BPORT));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
+    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), "both", GINT_TO_POINTER(E_DECODE_BPORT));
+    g_object_set_data(G_OBJECT(page), E_COMBO_BOX_SRCDST, combo_box);
 
-    g_object_set_data(G_OBJECT(page), E_MENU_SRCDST, menu);
-    gtk_option_menu_set_menu(GTK_OPTION_MENU(optmenu), menu);
     g_object_set_data(G_OBJECT(page), E_PAGE_SPORT, GINT_TO_POINTER(cfile.edt->pi.srcport));
     g_object_set_data(G_OBJECT(page), E_PAGE_DPORT, GINT_TO_POINTER(cfile.edt->pi.destport));
 
-    alignment = decode_add_pack_menu(optmenu);
-
+    alignment = decode_add_pack_combo_box(combo_box);
     return(alignment);
 }
 
 static GtkWidget *
-decode_add_ppid_menu (GtkWidget *page)
+decode_add_ppid_combo_box (GtkWidget *page)
 {
-    GtkWidget *optmenu, *menu, *menuitem;
+    GtkWidget *combo_box;
     gchar      tmp[100];
     guint      number_of_ppid;
     
-    optmenu = gtk_option_menu_new();
-    menu = gtk_menu_new();
-    
+    combo_box = ws_combo_box_new_text_and_pointer();
+
     g_snprintf(tmp, sizeof(tmp), "PPID (%u)", 0);
-    menuitem = gtk_menu_item_new_with_label(tmp);
-    g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
-    
-    for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
+    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box),
+                                         tmp, GINT_TO_POINTER(E_DECODE_PPID));
+    ws_combo_box_set_active(GTK_COMBO_BOX(combo_box), 0);  /* default */
+
+    for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++) {
       if (cfile.edt->pi.ppids[number_of_ppid] != 0) {
           g_snprintf(tmp, sizeof(tmp), "PPID (%u)", cfile.edt->pi.ppids[number_of_ppid]);
-          menuitem = gtk_menu_item_new_with_label(tmp);
-          g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
-          gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-          gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
+          ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), 
+                                               tmp, GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
       } else
           break;
-
-    g_object_set_data(G_OBJECT(page), E_MENU_SRCDST, menu);
-    gtk_option_menu_set_menu(GTK_OPTION_MENU(optmenu), menu);
-
-    return(optmenu);
+    }
+    g_object_set_data(G_OBJECT(page), E_COMBO_BOX_SRCDST, combo_box);
+    return(combo_box);
 }
 
 /*************************************************/
@@ -1408,7 +1393,7 @@ decode_add_simple_page (const gchar *prompt, const gchar *title, const gchar *ta
  * All items created by this routine are packed into a single
  * horizontal box.  First is a label indicating whether the port(s) for
  * which the user can set the dissection is a TCP port or a UDP port.
- * Second is a menu allowing the user to select whether the source port,
+ * Second is a combo_box allowing the user to select whether the source port,
  * destination port, or both ports will have dissectors added for them.
  * Last is a (conditionally enabled) popup menu listing all possible
  * dissectors that can be used to decode the packets, and the choice
@@ -1429,7 +1414,7 @@ decode_add_simple_page (const gchar *prompt, const gchar *title, const gchar *ta
 static GtkWidget *
 decode_add_tcpudp_page (const gchar *prompt, const gchar *table_name)
 {
-    GtkWidget	*page, *label, *scrolled_window, *optmenu;
+    GtkWidget	*page, *label, *scrolled_window, *combo_box;
 
     page = gtk_hbox_new(FALSE, 5);
     g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_transport);
@@ -1439,8 +1424,8 @@ decode_add_tcpudp_page (const gchar *prompt, const gchar *table_name)
     /* Always enabled */
     label = gtk_label_new(prompt);
     gtk_box_pack_start(GTK_BOX(page), label, TRUE, TRUE, 0);
-    optmenu = decode_add_srcdst_menu(page);
-    gtk_box_pack_start(GTK_BOX(page), optmenu, TRUE, TRUE, 0);
+    combo_box = decode_add_srcdst_combo_box(page);
+    gtk_box_pack_start(GTK_BOX(page), combo_box, TRUE, TRUE, 0);
     label = gtk_label_new("port(s)");
     gtk_box_pack_start(GTK_BOX(page), label, TRUE, TRUE, 0);
 
@@ -1490,34 +1475,30 @@ decode_sctp_list_menu_start(GtkWidget **list_p, GtkWidget **scrolled_win_p)
 }
 
 static void
-decode_sctp_update_ppid_menu(GtkWidget *w _U_, GtkWidget *page)
+decode_sctp_update_ppid_combo_box(GtkWidget *w _U_, GtkWidget *page)
 {
-    GtkWidget *menu, *menuitem, *list, *scrolled_window, *sctpmenu;
+    GtkWidget *list, *scrolled_window;
+    GtkWidget *sctp_combo_box;
     gchar      tmp[100];
     guint      number_of_ppid;
     GtkListStore *sctp_store;
 
-    menu = gtk_menu_new();
+    sctp_combo_box = g_object_get_data(G_OBJECT(page), E_COMBO_BOX_SRCDST);
+    ws_combo_box_clear_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box));
 
     g_snprintf(tmp, sizeof(tmp), "PPID (%u)", 0);
-    menuitem = gtk_menu_item_new_with_label(tmp);
-    g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
-    for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
+    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box), tmp, GINT_TO_POINTER(E_DECODE_PPID));
+    ws_combo_box_set_active(GTK_COMBO_BOX(sctp_combo_box), 0); /* default */
+
+    for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++) {
       if (cfile.edt->pi.ppids[number_of_ppid] != 0) {
         g_snprintf(tmp, sizeof(tmp), "PPID (%u)", cfile.edt->pi.ppids[number_of_ppid]);
-        menuitem = gtk_menu_item_new_with_label(tmp);
-        g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
-        gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-        gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
-      } else
-        break;
+        ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box),
+                                             tmp, GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
+      }
+    }
 
-    g_object_set_data(G_OBJECT(page), E_MENU_SRCDST, menu);
     g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, "sctp.ppi");
-    sctpmenu = g_object_get_data(G_OBJECT(decode_w), "user_data");
-    gtk_option_menu_set_menu(GTK_OPTION_MENU(sctpmenu), menu);
 
     sctp_store = g_object_get_data(G_OBJECT(G_OBJECT(decode_w)), "sctp_data");
     gtk_list_store_clear(sctp_store);
@@ -1528,34 +1509,24 @@ decode_sctp_update_ppid_menu(GtkWidget *w _U_, GtkWidget *page)
 
 
 static void
-decode_sctp_update_srcdst_menu(GtkWidget *w _U_, GtkWidget *page)
+decode_sctp_update_srcdst_combo_box(GtkWidget *w _U_, GtkWidget *page)
 {
-    GtkWidget  *menu, *menuitem, *scrolled_window, *list, *sctpmenu;
+    GtkWidget *scrolled_window, *list;
+    GtkWidget *sctp_combo_box;
     gchar      tmp[100];
     GtkListStore *sctp_store;
 
-    menu = gtk_menu_new();
+    sctp_combo_box = g_object_get_data(G_OBJECT(page), E_COMBO_BOX_SRCDST);
+    ws_combo_box_clear_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box));
+
     g_snprintf(tmp, sizeof(tmp), "source (%u)", cfile.edt->pi.srcport);
-    menuitem = gtk_menu_item_new_with_label(tmp);
-    g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_SPORT));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
-
+    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box), tmp, GINT_TO_POINTER(E_DECODE_SPORT));
     g_snprintf(tmp, sizeof(tmp), "destination (%u)", cfile.edt->pi.destport);
-    menuitem = gtk_menu_item_new_with_label(tmp);
-    g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_DPORT));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
+    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box), tmp, GINT_TO_POINTER(E_DECODE_DPORT));
+    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box), "both", GINT_TO_POINTER(E_DECODE_BPORT));
+    ws_combo_box_set_active(GTK_COMBO_BOX(sctp_combo_box), 0);
 
-    menuitem = gtk_menu_item_new_with_label("both");
-    g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_BPORT));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
-
-    g_object_set_data(G_OBJECT(page), E_MENU_SRCDST, menu);
     g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, "sctp.port");
-    sctpmenu = g_object_get_data(G_OBJECT(decode_w), "user_data");
-    gtk_option_menu_set_menu(GTK_OPTION_MENU(sctpmenu), menu);
     g_object_set_data(G_OBJECT(page), E_PAGE_SPORT, GINT_TO_POINTER(cfile.edt->pi.srcport));
     g_object_set_data(G_OBJECT(page), E_PAGE_DPORT, GINT_TO_POINTER(cfile.edt->pi.destport));  
     sctp_store = g_object_get_data(G_OBJECT(G_OBJECT(decode_w)), "sctp_data");
@@ -1578,12 +1549,12 @@ decode_sctp_add_port_ppid (GtkWidget *page)
     radio_button = gtk_radio_button_new_with_label(NULL, "PPID");
     format_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radio_button));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_button), TRUE);
-    g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_sctp_update_ppid_menu), page);
+    g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_sctp_update_ppid_combo_box), page);
 
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
 
     radio_button = gtk_radio_button_new_with_label(format_grp, "Port");
-    g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_sctp_update_srcdst_menu), page);
+    g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_sctp_update_srcdst_combo_box), page);
 
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
 
@@ -1594,7 +1565,7 @@ decode_sctp_add_port_ppid (GtkWidget *page)
 static GtkWidget *
 decode_add_sctp_page (const gchar *prompt, const gchar *table_name)
 {
-    GtkWidget	*page, *label, *scrolled_window,  *radio, *vbox, *alignment, *sctpbox, *sctpmenu;
+    GtkWidget	*page, *label, *scrolled_window,  *radio, *vbox, *alignment, *sctpbox, *sctp_combo_box;
 
     page = gtk_hbox_new(FALSE, 5);
     g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_transport);
@@ -1609,9 +1580,8 @@ decode_add_sctp_page (const gchar *prompt, const gchar *table_name)
     sctpbox = gtk_hbox_new(FALSE, 5);
     label = gtk_label_new(prompt);
     gtk_box_pack_start(GTK_BOX(sctpbox), label, TRUE, TRUE, 0);  
-    sctpmenu = decode_add_ppid_menu(page);
-    g_object_set_data(G_OBJECT(decode_w), "user_data", sctpmenu);
-    alignment = decode_add_pack_menu(sctpmenu);
+    sctp_combo_box = decode_add_ppid_combo_box(page);
+    alignment = decode_add_pack_combo_box(sctp_combo_box);
 
     gtk_box_pack_start(GTK_BOX(sctpbox), alignment, TRUE, TRUE, 0);
 
@@ -1648,7 +1618,7 @@ decode_as_ok(void)
 /*
  * This routine creates the bulk of the "Decode As" dialog box.  All
  * items created by this routine are packed as pages into a notebook.
- * There will be a page for each protocol layer that can be change.
+ * There will be a page for each protocol layer that can be changed.
  *
  * @param GtkWidget * A pointer to the widget in which the notebook
  * should be installed.
