@@ -177,14 +177,6 @@ static void firewall_save_as_destroy_cb(GtkWidget * win, gpointer user_data);
 
 #define WS_RULE_INFO_KEY "rule_info_key"
 
-
-/* Filter ComboBox model columns */
-enum {
-    FIREWALL_FILTER_COMBO_BOX_MODEL_TEXT_COL,
-    FIREWALL_FILTER_COMBO_BOX_MODEL_RULE_TYPE_COL,
-    FIREWALL_FILTER_COMBO_BOX_MODEL_NUM_COLS
-};
-
 #if 0
 /* List of "rule_info_t" structures for all rule windows. */
 static GList *rule_infos;
@@ -201,10 +193,8 @@ void
 firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
 {
     GtkWidget	    *rule_w, *vbox, *txt_scrollw, *text;
-    GtkListStore    *filter_combo_box_store;
     GtkWidget       *label,  *product_combo_box;
     GtkWidget	    *hbox,   *button_hbox, *button;
-    GtkCellRenderer *cell;
     GtkTooltips     *tooltips;
     rule_info_t	    *rule_info;
     packet_info     *pinfo = &cfile.edt->pi;
@@ -253,12 +243,7 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     label = gtk_label_new("Filter");
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 10);
 
-    filter_combo_box_store = gtk_list_store_new(FIREWALL_FILTER_COMBO_BOX_MODEL_NUM_COLS, G_TYPE_STRING, G_TYPE_INT);
-    rule_info->filter_combo_box = gtk_combo_box_new_with_model(GTK_TREE_MODEL(filter_combo_box_store));
-    g_object_unref (G_OBJECT(filter_combo_box_store));
-    cell = gtk_cell_renderer_text_new();
-    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT(rule_info->filter_combo_box), cell, TRUE);
-    gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(rule_info->filter_combo_box), cell, "text", 0, NULL);
+    rule_info->filter_combo_box = ws_combo_box_new_text_and_pointer();
     g_object_set_data(G_OBJECT(rule_info->filter_combo_box), WS_RULE_INFO_KEY, rule_info); \
     g_signal_connect(rule_info->filter_combo_box, "changed", G_CALLBACK(select_filter), NULL);
     gtk_box_pack_start(GTK_BOX(hbox), rule_info->filter_combo_box, FALSE, FALSE, 5);
@@ -327,24 +312,11 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
 }
 
 /* Set the current product. */
-#if GTK_CHECK_VERSION(2,6,0)
 #define ADD_TO_FILTER_MENU(rt) \
-        gtk_list_store_insert_with_values(filter_combo_box_store, &iter, G_MAXINT, \
-                                          FIREWALL_FILTER_COMBO_BOX_MODEL_TEXT_COL, name,   \
-                                          FIREWALL_FILTER_COMBO_BOX_MODEL_RULE_TYPE_COL,  rt, -1); \
+        ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(rule_info->filter_combo_box), name, GUINT_TO_POINTER(rt)); \
         if (rule_type == RT_NONE) { \
             rule_type = rt; \
         }
-#else
-#define ADD_TO_FILTER_MENU(rt) \
-        gtk_list_store_append(filter_combo_box_store, &iter); \
-        gtk_list_store_set(filter_combo_box_store, &iter, \
-                           FIREWALL_FILTER_COMBO_BOX_MODEL_TEXT_COL, name,   \
-                           FIREWALL_FILTER_COMBO_BOX_MODEL_RULE_TYPE_COL,  rt, -1); \
-        if (rule_type == RT_NONE) { \
-            rule_type = rt; \
-        }
-#endif
 
 #define NAME_TCP_UDP (rule_info->ptype == PT_TCP ? "TCP" : "UDP")
 
@@ -355,8 +327,6 @@ select_product(GtkWidget *w, gpointer data _U_)
     rule_info_t	*rule_info;
     gchar name[MAX_RULE_LEN], addr_str[MAX_RULE_LEN];
     address *addr;
-    GtkListStore *filter_combo_box_store;
-    GtkTreeIter  iter;
     rule_type_t rule_type = RT_NONE;
     gboolean sensitive = FALSE;
 
@@ -367,9 +337,8 @@ select_product(GtkWidget *w, gpointer data _U_)
 
     rule_info->product = prod;
 
-    filter_combo_box_store = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(rule_info->filter_combo_box)));
     /* Clear the list store (ie: the como_box list items) */
-    gtk_list_store_clear(filter_combo_box_store);
+    ws_combo_box_clear_text_and_pointer(GTK_COMBO_BOX(rule_info->filter_combo_box));
 
     /* Fill in valid combo_box list items (in the list store).   */
     if (products[prod].mac_func && rule_info->dl_src.type == AT_ETHER) {
@@ -434,19 +403,22 @@ select_product(GtkWidget *w, gpointer data _U_)
 static void
 select_filter(GtkWidget *w, gpointer data _U_)
 {
-    GtkTreeIter  iter;
     rule_type_t cur_type;
     rule_info_t	*rule_info;
+    gpointer ptr;
 
     rule_info = g_object_get_data(G_OBJECT(w), WS_RULE_INFO_KEY);
     if (!rule_info)
         return;
 
-    cur_type = NUM_RULE_TYPES;
-    if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(w), &iter))
-        gtk_tree_model_get(gtk_combo_box_get_model(GTK_COMBO_BOX(w)), &iter, 1, &cur_type, -1);
+
+    if (ws_combo_box_get_active_pointer(GTK_COMBO_BOX(w), &ptr))
+        cur_type = GPOINTER_TO_UINT(ptr);
+    else
+        cur_type = RT_NONE; /* If nothing selected (eg: nothing in filter list) */
+
     if (cur_type >= NUM_RULE_TYPES)
-        cur_type = RT_NONE;   /* Assume RT_NONE: nothing selected (or possibly an invalid value in the model) */
+        return;
 
     rule_info->rule_type = cur_type;
 
