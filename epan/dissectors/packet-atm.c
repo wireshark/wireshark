@@ -1849,7 +1849,7 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   if (tree) {
-    atm_ti = proto_tree_add_protocol_format(tree, proto_atm, tvb, 0, 0, "ATM");
+    atm_ti = proto_tree_add_item(tree, proto_atm, tvb, 0, -1, FALSE);
     atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
 
     if (!pseudowire_mode) {
@@ -1969,7 +1969,7 @@ proto_register_atm(void)
 
 	module_t *atm_module;
 	
-	proto_atm = proto_register_protocol("ATM", "ATM", "atm");
+	proto_atm = proto_register_protocol("Asynchronous Transfer Mode", "ATM", "atm");
 	proto_aal1 = proto_register_protocol("ATM AAL1", "AAL1", "aal1");
 	proto_aal3_4 = proto_register_protocol("ATM AAL3/4", "AAL3/4", "aal3_4");
 	proto_oamaal = proto_register_protocol("ATM OAM AAL", "OAM AAL", "oamaal");
