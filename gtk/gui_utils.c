@@ -1326,3 +1326,122 @@ str_ptr_sort_func(GtkTreeModel *model,
     }
     return ret;
 }
+
+/**
+ * ws_combo_box_new_text_and_pointer:
+ *
+ * Convenience function which constructs a new "text and pointer" combo box, which
+ * is a #GtkComboBox just displaying strings and storing a pointer associated with 
+ * each combo_box entry; The pointer can be retrieved when an entry is selected. 
+ * If you use this function to create a text_and_pointer combo_box,
+ * you should only manipulate its data source with the
+ * following convenience function: ws_combo_box_append_text_and_pointer().
+ *
+ * @return A pointer to a new text_and_pointer combo_box.
+ */
+GtkWidget *
+ws_combo_box_new_text_and_pointer(void)
+{
+    GtkWidget       *combo_box;
+    GtkCellRenderer *cell;
+    GtkListStore    *store;
+
+    store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
+    combo_box = gtk_combo_box_new_with_model(GTK_TREE_MODEL (store));
+    g_object_unref(store);
+
+    cell = gtk_cell_renderer_text_new();
+    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combo_box), cell, TRUE);
+    gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combo_box), cell,
+                                   "text", 0,
+                                   NULL);
+
+    return combo_box;
+}
+
+/**
+ * ws_combo_box_clear_text_and_pointer:
+ * @param combo_box A #GtkComboBox constructed using ws_combo_box_new_text_and_pointer()
+ *
+ * Clears all the text_and_pointer entries in the text_and_pointer combo_box.
+ * You should use this function only with combo boxes constructed with
+ * ws_combo_box_new_text_and_pointer().
+ */
+void ws_combo_box_clear_text_and_pointer(GtkComboBox *combo_box)
+{
+    gtk_list_store_clear(GTK_LIST_STORE(gtk_combo_box_get_model(combo_box)));
+}
+
+/**
+ * ws_combo_box_append_text_and_pointer:
+ * @param combo_box A #GtkComboBox constructed using ws_combo_box_new_text_and_pointer()
+ * @param text A string to be displayed as an entry in the dropdown list of the combo_box
+ * @param ptr  A pointer to be associated with this entry of the combo_box
+ *
+ * Appends text and ptr to the list of strings and pointers stored in combo_box. Note that
+ * you can only use this function with combo boxes constructed with
+ * ws_combo_box_new_text_and_pointer().
+ */
+void
+ws_combo_box_append_text_and_pointer (GtkComboBox   *combo_box,
+                                      const gchar   *text,
+                                      const gpointer ptr)
+{
+    GtkTreeIter   iter;
+    GtkListStore *store;
+
+    store = GTK_LIST_STORE(gtk_combo_box_get_model(combo_box));
+
+    gtk_list_store_append(store, &iter);
+    gtk_list_store_set(store, &iter, 0, text, 1, ptr, -1);
+}
+
+/**
+ * ws_combo_box_get_active_pointer:
+ * @param combo_box A #GtkComboBox constructed using ws_combo_box_new_text_and_pointer()
+ * @param ptr  A pointer to a location in which to store the pointer associated with the active entry
+ * @return TRUE if an entry is selected (i.e: an active entry exists); FALSE otherwise
+ *
+ * You can only use this function with combo boxes constructed with
+ * ws_combo_box_new_text_and_pointer().
+ */
+gboolean
+ws_combo_box_get_active_pointer(GtkComboBox *combo_box, gpointer *ptr)
+{
+    GtkListStore *store;
+    GtkTreeIter iter;
+
+    *ptr = NULL;
+
+    if (gtk_combo_box_get_active_iter(combo_box, &iter)) {
+        store = GTK_LIST_STORE(gtk_combo_box_get_model(combo_box));
+        gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 
+                           1, ptr, -1);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/**
+ * ws_combo_box_get_active:
+ * @param combo_box A #GtkComboBox constructed using ws_combo_box_new_text_and_pointer()
+ * @return Index of the active entry; -1 if no entry is selected;
+ */
+gint
+ws_combo_box_get_active(GtkComboBox *combo_box) 
+{
+    return gtk_combo_box_get_active(combo_box);
+}
+
+/**
+ * ws_combo_box_set_active:
+ * @param combo_box A #GtkComboBox constructed using ws_combo_box_new_text_and_pointer()
+ * @param Index of the entry which is to be set as active (ie: selected)
+ */
+void
+ws_combo_box_set_active(GtkComboBox *combo_box, gint idx)
+{
+    gtk_combo_box_set_active(combo_box, idx);
+}
+
+
