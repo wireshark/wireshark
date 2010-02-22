@@ -275,7 +275,16 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 		}
 	}
 	/* Adding size of the data */
+	if ((segment_offset + (int)length < segment_offset) || (segment_offset + (int)length < (int)length)) {
+	/* Addition result has wrapped */
+		return 0;
+	}
 	segment_offset+= (int)length;
+
+	if ((segment_offset + frame_offset < segment_offset) || (segment_offset + frame_offset < frame_offset)) {
+	/* Addition result has wrapped */
+		return 0;
+	}
 	if((unsigned)(frame_offset + segment_offset) > tvb_length(tvb)){
 	/* This would mean the data segment is incomplete */
 		return 0;
