@@ -117,10 +117,10 @@ int ber_open(wtap *wth, int *err, gchar **err_info _U_)
 #define BER_BYTES_TO_CHECK 8
   guint8 bytes[BER_BYTES_TO_CHECK];
   int bytes_read;
-  guint8 id;
-  gint8 class;
-  gint8 tag;
-  gboolean pc;
+  guint8 ber_id;
+  gint8 ber_class;
+  gint8 ber_tag;
+  gboolean ber_pc;
   guint8 oct, nlb = 0;
   int len = 0;
   gint64 file_size;
@@ -132,18 +132,18 @@ int ber_open(wtap *wth, int *err, gchar **err_info _U_)
     return (*err != 0) ? -1 : 0;
   }
 
-  id = bytes[offset++];
+  ber_id = bytes[offset++];
 
-  class = (id>>6) & 0x03;
-  pc = (id>>5) & 0x01;
-  tag = id & 0x1F;
+  ber_class = (ber_id>>6) & 0x03;
+  ber_pc = (ber_id>>5) & 0x01;
+  ber_tag = ber_id & 0x1F;
 
   /* it must be constructed and either a SET or a SEQUENCE */
   /* or a CONTEXT less than 32 (arbitrary) */
   /* XXX: do we also want to allow APPLICATION */
-  if(!(pc &&
-       (((class == BER_CLASS_UNI) && ((tag == BER_UNI_TAG_SET) || (tag == BER_UNI_TAG_SEQ))) ||
-	((class == BER_CLASS_CON) && (tag < 32)))))
+  if(!(ber_pc &&
+       (((ber_class == BER_CLASS_UNI) && ((ber_tag == BER_UNI_TAG_SET) || (ber_tag == BER_UNI_TAG_SEQ))) ||
+	((ber_class == BER_CLASS_CON) && (ber_tag < 32)))))
     return 0;
 
   /* now check the length */
