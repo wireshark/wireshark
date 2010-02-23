@@ -1233,7 +1233,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	col_append_fstr(cinfo, COL_INFO, " %s", ip_to_str(addr));
 
 	proto_item_append_text(trr, ", addr %s", ip_to_str(addr));
-        proto_tree_add_item(rr_tree, hf_dns_rr_addr, tvb, cur_offset, 4, TRUE);
+	proto_tree_add_item(rr_tree, hf_dns_rr_addr, tvb, cur_offset, 4, FALSE);
 
       if ((class & 0x7f) == C_IN) {
 	memcpy(&addr_int, addr, sizeof(addr_int));
@@ -3498,8 +3498,8 @@ proto_register_dns(void)
 	"Response Length", HFILL }},
     { &hf_dns_rr_addr,
       { "Addr",        "dns.resp.addr",
-       FT_IPv4, BASE_NONE, NULL, 0x0,
-       "Response Address", HFILL }},
+	FT_IPv4, BASE_NONE, NULL, 0x0,
+	"Response Address", HFILL }},
     { &hf_dns_count_questions,
       { "Questions",		"dns.count.queries",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
