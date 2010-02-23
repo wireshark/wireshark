@@ -310,7 +310,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     wth->subtype_close = airopeekv9_close;
     wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
-    wth->capture.airopeek9 = (airopeek9_t)g_malloc(sizeof(airopeek9_t));
+    wth->capture.airopeek9 = (airopeek9_t *)g_malloc(sizeof(airopeek9_t));
     switch (mediaSubType) {
 
     case AIROPEEK_V9_NST_ETHERNET:
