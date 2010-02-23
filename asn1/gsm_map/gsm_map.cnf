@@ -195,7 +195,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 
 #.FN_BODY TBCD-STRING VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
- char		*digit_str;
+ const char	*digit_str;
 
  %(DEFAULT_BODY)s
 

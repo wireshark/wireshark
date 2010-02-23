@@ -334,7 +334,7 @@ decrypted version.  Then Wireshark wouldn't have to decrypt packets on the fly i
 
 
 static void
-AirPDcapDecryptWPABroadcastKey(P_EAPOL_RSN_KEY pEAPKey, guint8  *decryption_key, PAIRPDCAP_SEC_ASSOCIATION sa)
+AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption_key, PAIRPDCAP_SEC_ASSOCIATION sa)
 {
     guint8  new_key[32];
     guint8 key_version;
@@ -359,7 +359,7 @@ AirPDcapDecryptWPABroadcastKey(P_EAPOL_RSN_KEY pEAPKey, guint8  *decryption_key,
     }
 
     /* Encrypted key is in the information element field of the EAPOL key packet */
-    szEncryptedKey = g_memdup(pEAPKey->ie, key_len);
+    szEncryptedKey = (guint8 *)g_memdup(pEAPKey->ie, key_len);
 
     DEBUG_DUMP("Encrypted Broadcast key:", szEncryptedKey, key_len);
     DEBUG_DUMP("KeyIV:", pEAPKey->key_iv, 16);
@@ -440,7 +440,7 @@ AirPDcapDecryptWPABroadcastKey(P_EAPOL_RSN_KEY pEAPKey, guint8  *decryption_key,
 
 
 /* Return a pointer the the requested SA. If it doesn't exist create it. */
-PAIRPDCAP_SEC_ASSOCIATION
+static PAIRPDCAP_SEC_ASSOCIATION
 AirPDcapGetSaPtr(
     PAIRPDCAP_CONTEXT ctx,
     AIRPDCAP_SEC_ASSOCIATION_ID *id)
@@ -459,7 +459,7 @@ AirPDcapGetSaPtr(
 }
 
 #define GROUP_KEY_PAYLOAD_LEN (8+4+sizeof(EAPOL_RSN_KEY))
-INT AirPDcapScanForGroupKey(
+static INT AirPDcapScanForGroupKey(
     PAIRPDCAP_CONTEXT ctx,
     const guint8 *data,
     const guint mac_header_len,
@@ -480,7 +480,7 @@ INT AirPDcapScanForGroupKey(
         0x88, 0x8E        /* Type: 802.1X authentication */
     };
 
-    P_EAPOL_RSN_KEY pEAPKey;
+    const EAPOL_RSN_KEY *pEAPKey;
 #ifdef _DEBUG
     CHAR msgbuf[255];
 #endif
@@ -1006,7 +1006,7 @@ AirPDcapRsnaMng(
     }
 
     /* allocate a temp buffer for the decryption loop */
-    try_data=ep_alloc(*decrypt_len);
+    try_data=(UCHAR *)ep_alloc(*decrypt_len);
 
     /* start of loop added by GCS */
     for(/* sa */; sa != NULL ;sa=sa->next) {
@@ -1089,7 +1089,7 @@ AirPDcapWepMng(
     INT key_index;
     AIRPDCAP_KEY_ITEM *tmp_key;
     UINT8 useCache=FALSE;
-    UCHAR *try_data = ep_alloc(*decrypt_len);
+    UCHAR *try_data = (UCHAR *)ep_alloc(*decrypt_len);
 
     if (sa->key!=NULL)
         useCache=TRUE;
@@ -1200,7 +1200,7 @@ AirPDcapRsna4WHandshake(
     
     /* This saves the sa since we are reauthenticating which will overwrite our current sa GCS*/
     if(sa->handshake == 4) {
-        tmp_sa=se_alloc(sizeof(AIRPDCAP_SEC_ASSOCIATION));
+        tmp_sa=(AIRPDCAP_SEC_ASSOCIATION *)se_alloc(sizeof(AIRPDCAP_SEC_ASSOCIATION));
         memcpy(tmp_sa, sa, sizeof(AIRPDCAP_SEC_ASSOCIATION));
         sa->next=tmp_sa;
     }
@@ -1395,7 +1395,7 @@ AirPDcapRsna4WHandshake(
     if (AIRPDCAP_EAP_ACK(data[offset+1])==1 &&
         AIRPDCAP_EAP_MIC(data[offset])==1)
     {
-        P_EAPOL_RSN_KEY pEAPKey;
+        const EAPOL_RSN_KEY *pEAPKey;
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "4-way handshake message 3", AIRPDCAP_DEBUG_LEVEL_3);
 
         /* On reception of Message 3, the Supplicant silently discards the message if the Key Replay Counter field     */
@@ -1795,7 +1795,7 @@ parse_key_string(gchar* input_string)
     if (res && key_ba->len > 0) {
         /* Key is correct! It was probably an 'old style' WEP key */
         /* Create the decryption_key_t structure, fill it and return it*/
-        dk = g_malloc(sizeof(decryption_key_t));
+        dk = (decryption_key_t *)g_malloc(sizeof(decryption_key_t));
 
         dk->type = AIRPDCAP_KEY_TYPE_WEP;
         /* XXX - The current key handling code in the GUI requires

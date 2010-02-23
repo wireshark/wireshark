@@ -5174,7 +5174,7 @@ static int decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
     proto_tree *ext_imeisv;
     proto_item *te;
     tvbuff_t *next_tvb;
-    char *digit_str;
+    const char *digit_str;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_IMEISV, gtp_val, "Unknown"));
@@ -5193,7 +5193,7 @@ static int decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
     next_tvb = tvb_new_subset(tvb, offset, length, length);
     digit_str = unpack_digits(next_tvb, 0);
     proto_tree_add_string(ext_imeisv, hf_gtp_ext_imeisv, next_tvb, 0, -1, digit_str);
-	proto_item_append_text(te, ": %s", digit_str);
+    proto_item_append_text(te, ": %s", digit_str);
 
     return 3 + length;
 }

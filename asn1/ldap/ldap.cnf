@@ -322,7 +322,7 @@ ldap_conv_info_t *ldap_info;
 
 #.FN_BODY LDAPString VAL_PTR = &parameter_tvb
   tvbuff_t	*parameter_tvb = NULL;
-  char          *ldapstring = NULL;
+  const char    *ldapstring = NULL;
   gchar		*sc = NULL; /* semi-colon pointer */
 
   %(DEFAULT_BODY)s

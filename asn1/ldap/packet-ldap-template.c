@@ -418,7 +418,7 @@ static int dissect_mscldap_ntver_flags(proto_tree *parent_tree, tvbuff_t *tvb, i
 }
 
 /* This string contains the last LDAPString that was decoded */
-static char *attributedesc_string=NULL;
+static const char *attributedesc_string=NULL;
 
 /* This string contains the last AssertionValue that was decoded */
 static char *ldapvalue_string=NULL;
@@ -542,14 +542,14 @@ finished:
 }
 
 /* This string contains the last Filter item that was decoded */
-static char *Filter_string=NULL;
+static const char *Filter_string=NULL;
 static char *and_filter_string=NULL;
 static char *or_filter_string=NULL;
 static char *substring_value=NULL;
-static char *substring_item_init=NULL;
-static char *substring_item_any=NULL;
-static char *substring_item_final=NULL;
-static char *matching_rule_string=NULL;
+static const char *substring_item_init=NULL;
+static const char *substring_item_any=NULL;
+static const char *substring_item_final=NULL;
+static const char *matching_rule_string=NULL;
 static gboolean matching_rule_dnattr=FALSE;
 
 /* Global variables */
@@ -1234,22 +1234,22 @@ static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb
   proto_item *item;
   proto_tree *tree=NULL;
   guint fields[] = {
-			 hf_mscldap_netlogon_flags_fnc,
-		     hf_mscldap_netlogon_flags_dnc,
-		     hf_mscldap_netlogon_flags_dns,
-		     hf_mscldap_netlogon_flags_wdc,
-		     hf_mscldap_netlogon_flags_rodc,
-			 hf_mscldap_netlogon_flags_ndnc,
-		     hf_mscldap_netlogon_flags_good_timeserv,
-		     hf_mscldap_netlogon_flags_writable,
-		     hf_mscldap_netlogon_flags_closest,
-		     hf_mscldap_netlogon_flags_timeserv,
-		     hf_mscldap_netlogon_flags_kdc,
-		     hf_mscldap_netlogon_flags_ds,
-		     hf_mscldap_netlogon_flags_ldap,
-		     hf_mscldap_netlogon_flags_gc,
-		     hf_mscldap_netlogon_flags_pdc,
-			 0 };
+             hf_mscldap_netlogon_flags_fnc,
+             hf_mscldap_netlogon_flags_dnc,
+             hf_mscldap_netlogon_flags_dns,
+             hf_mscldap_netlogon_flags_wdc,
+             hf_mscldap_netlogon_flags_rodc,
+             hf_mscldap_netlogon_flags_ndnc,
+             hf_mscldap_netlogon_flags_good_timeserv,
+             hf_mscldap_netlogon_flags_writable,
+             hf_mscldap_netlogon_flags_closest,
+             hf_mscldap_netlogon_flags_timeserv,
+             hf_mscldap_netlogon_flags_kdc,
+             hf_mscldap_netlogon_flags_ds,
+             hf_mscldap_netlogon_flags_ldap,
+             hf_mscldap_netlogon_flags_gc,
+             hf_mscldap_netlogon_flags_pdc,
+             0 };
   guint  *field;
   header_field_info *hfi;
   gboolean one_bit_set = FALSE;

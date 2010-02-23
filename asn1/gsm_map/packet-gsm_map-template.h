@@ -44,7 +44,7 @@ typedef struct _gsm_map_tap_rec_t {
 #define SMS_ENCODING_UCS2_LANG	5
 
 WS_VAR_IMPORT const value_string gsm_map_opr_code_strings[];
-char* unpack_digits(tvbuff_t *tvb, int offset);
+const char* unpack_digits(tvbuff_t *tvb, int offset);
 
 extern const value_string ssCode_vals[];
 extern const value_string gsm_map_PDP_Type_Organisation_vals[];

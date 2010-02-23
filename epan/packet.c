@@ -1056,7 +1056,7 @@ dissector_delete_string(const char *name, const gchar *pattern,
 /* Change the entry for a dissector in a string dissector table
    with a particular pattern to use a new dissector handle. */
 void
-dissector_change_string(const char *name, gchar *pattern,
+dissector_change_string(const char *name, const gchar *pattern,
 			dissector_handle_t handle)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
@@ -1087,7 +1087,7 @@ dissector_change_string(const char *name, gchar *pattern,
 	dtbl_entry->current = handle;
 
 /* do the table insertion */
-	g_hash_table_insert( sub_dissectors->hash_table, pattern,
+	g_hash_table_insert( sub_dissectors->hash_table, (gpointer)pattern,
 			     (gpointer)dtbl_entry);
 }
 

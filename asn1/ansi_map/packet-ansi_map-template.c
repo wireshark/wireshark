@@ -390,7 +390,7 @@ TransactionId_table_cleanup(gpointer key , gpointer value, gpointer user_data _U
 
 }
 
-void
+static void
 ansi_map_init_transaction_table(void){
 
     /* Destroy any existing memory chunks / hashes. */
@@ -585,7 +585,7 @@ static dgt_set_t Dgt1_9_bcd = {
 };
 /* Assumes the rest of the tvb contains the digits to be turned into a string
  */
-static char*
+static const char*
 unpack_digits2(tvbuff_t *tvb, int offset,dgt_set_t *dgt){
 
     int length;
@@ -686,7 +686,7 @@ static const value_string ansi_map_np_vals[]  = {
 
 static void
 dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx _U_){
-    char *digit_str;
+    const char *digit_str;
     int   offset = 0;
 
     proto_tree *subtree;
@@ -705,7 +705,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     guint8 octet , octet_len;
     guint8 b1,b2,b3,b4;
     int    offset = 0;
-    char  *digit_str;
+    const char *digit_str;
 
     proto_tree *subtree;
 

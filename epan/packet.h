@@ -211,7 +211,7 @@ extern void dissector_delete_string(const char *name, const gchar *pattern,
 
 /* Change the entry for a dissector in a string dissector table
    with a particular pattern to use a new dissector handle. */
-extern void dissector_change_string(const char *name, gchar *pattern,
+extern void dissector_change_string(const char *name, const gchar *pattern,
     dissector_handle_t handle);
 
 /* Reset an entry in a string sub-dissector table to its initial value. */

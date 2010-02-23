@@ -4308,7 +4308,7 @@ static int
 dissect_ranap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 179 "ranap.cnf"
   tvbuff_t* imsi_tvb;
-  char		*digit_str;
+  const char	*digit_str;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 8, FALSE, &imsi_tvb);

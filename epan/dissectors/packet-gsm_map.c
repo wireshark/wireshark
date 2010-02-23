@@ -2195,7 +2195,7 @@ static const value_string gsm_map_disc_par_vals[] = {
   { 0, NULL }
 };
 
-char *
+const char *
 unpack_digits(tvbuff_t *tvb, int offset) {
 
 	int length;
@@ -2206,7 +2206,7 @@ unpack_digits(tvbuff_t *tvb, int offset) {
 	length = tvb_length(tvb);
 	if (length < offset)
 		return "";
-	digit_str = ep_alloc((length - offset)*2+1);
+	digit_str = (char *)ep_alloc((length - offset)*2+1);
 
 	while ( offset < length ){
 
@@ -2680,7 +2680,7 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 void
 dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
- char		*digit_str;
+ const char	*digit_str;
  guint8		octet;
  guint8		na;
  guint8		np;
@@ -2898,7 +2898,7 @@ static int
 dissect_gsm_map_TBCD_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 197 "gsm_map.cnf"
  tvbuff_t	*parameter_tvb;
- char		*digit_str;
+ const char	*digit_str;
 
    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
