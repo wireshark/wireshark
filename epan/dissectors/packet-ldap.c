@@ -760,9 +760,9 @@ finished:
 
 /* This string contains the last Filter item that was decoded */
 static const char *Filter_string=NULL;
-static char *and_filter_string=NULL;
-static char *or_filter_string=NULL;
-static char *substring_value=NULL;
+static const char *and_filter_string=NULL;
+static const char *or_filter_string=NULL;
+static const char *substring_value=NULL;
 static const char *substring_item_init=NULL;
 static const char *substring_item_any=NULL;
 static const char *substring_item_final=NULL;
@@ -1689,7 +1689,7 @@ dissect_ldap_T_and(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 #line 564 "ldap.cnf"
 	proto_tree *tr=NULL;
 	proto_item *it=NULL;
-	char *old_and_filter_string=and_filter_string;
+	const char *old_and_filter_string=and_filter_string;
 
 	and_filter_string=NULL;
 	if(tree){
@@ -1741,7 +1741,7 @@ dissect_ldap_T_or(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 #line 592 "ldap.cnf"
 	proto_tree *tr=NULL;
 	proto_item *it=NULL;
-	char *old_or_filter_string=or_filter_string;
+	const char *old_or_filter_string=or_filter_string;
 
 	or_filter_string=NULL;
 	if(tree){
@@ -1881,7 +1881,7 @@ dissect_ldap_SubstringFilter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 #line 653 "ldap.cnf"
 	proto_tree *tr=NULL;
 	proto_item *it=NULL;
-	char *old_substring_value=substring_value;
+	const char *old_substring_value=substring_value;
 
 	substring_value=NULL;
 	substring_item_init=NULL;

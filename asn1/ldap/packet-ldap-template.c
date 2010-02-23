@@ -543,9 +543,9 @@ finished:
 
 /* This string contains the last Filter item that was decoded */
 static const char *Filter_string=NULL;
-static char *and_filter_string=NULL;
-static char *or_filter_string=NULL;
-static char *substring_value=NULL;
+static const char *and_filter_string=NULL;
+static const char *or_filter_string=NULL;
+static const char *substring_value=NULL;
 static const char *substring_item_init=NULL;
 static const char *substring_item_any=NULL;
 static const char *substring_item_final=NULL;
