@@ -52,12 +52,13 @@ PIDL_DISSECTOR_SRC = \
 	packet-dcerpc-drsuapi.c	\
 	packet-dcerpc-dssetup.c \
 	packet-dcerpc-efs.c \
+	packet-dcerpc-frstrans.c \
 	packet-dcerpc-initshutdown.c \
 	packet-dcerpc-nspi.c \
 	packet-dcerpc-rfr.c \
+	packet-dcerpc-srvsvc.c \
 	packet-dcerpc-wkssvc.c \
-	packet-dcerpc-wzcsvc.c \
-	packet-dcerpc-frstrans.c
+	packet-dcerpc-wzcsvc.c
 
 #
 # PIDL-generated DCE RPC dissectors with warnings.
@@ -66,7 +67,6 @@ DIRTY_PIDL_DISSECTOR_SRC = \
 	packet-dcerpc-dnsserver.c 	\
 	packet-dcerpc-eventlog.c \
 	packet-dcerpc-lsa.c \
-	packet-dcerpc-srvsvc.c \
 	packet-dcerpc-winreg.c
 
 #
@@ -157,7 +157,6 @@ ASN1_DISSECTOR_SRC = \
 #
 DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-ansi_map.c \
-	packet-charging_ase.c	\
 	packet-gnm.c \
 	packet-gsm_map.c \
 	packet-inap.c \
@@ -170,11 +169,9 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-rnsap.c \
 	packet-rrc.c \
 	packet-rrlp.c \
-	packet-s1ap.c \
 	packet-snmp.c \
 	packet-t125.c \
 	packet-tcap.c \
-	packet-x2ap.c \
 	packet-x411.c \
 	packet-x420.c
 
@@ -282,6 +279,7 @@ DISSECTOR_SRC = \
 	packet-cdp.c		\
 	packet-cfm.c		\
 	packet-cgmp.c		\
+	packet-charging_ase.c	\
 	packet-chdlc.c		\
 	packet-cigi.c   	\
 	packet-cimd.c		\
@@ -789,6 +787,7 @@ DISSECTOR_SRC = \
 	packet-rudp.c		\
 	packet-rwall.c		\
 	packet-rx.c		\
+	packet-s1ap.c		\
 	packet-s5066.c		\
 	packet-sadmind.c	\
 	packet-sap.c		\
@@ -927,6 +926,7 @@ DISSECTOR_SRC = \
 	packet-x11.c		\
 	packet-x25.c		\
 	packet-x29.c		\
+	packet-x2ap.c		\
 	packet-xcsl.c		\
 	packet-xdmcp.c		\
 	packet-xml.c		\
