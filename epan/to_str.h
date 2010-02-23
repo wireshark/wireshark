@@ -70,7 +70,6 @@ extern gchar*	ipx_addr_to_str(guint32, const guint8 *);
 extern gchar*	ipxnet_to_string(const guint8 *ad);
 extern gchar*	ipxnet_to_str_punct(const guint32 ad, char punct);
 extern gchar*	vines_addr_to_str(const guint8 *addrp);
-extern void	vines_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len);
 extern gchar*	time_secs_to_str(gint32);
 extern gchar*	time_secs_to_str_unsigned(guint32);
 extern gchar*	time_msecs_to_str(gint32);
@@ -79,12 +78,13 @@ extern gchar*	abs_time_secs_to_str(time_t, gboolean);
 extern void	display_signed_time(gchar *, int, gint32, gint32, to_str_time_res_t);
 extern void	display_epoch_time(gchar *, int, time_t,  gint32, to_str_time_res_t);
 
+extern gchar*	guint32_to_str(guint32 u);
+extern void	guint32_to_str_buf(guint32 u, gchar *buf, int buf_len);
+
 extern gchar*	rel_time_to_str(nstime_t*);
 extern gchar*	rel_time_to_secs_str(nstime_t*);
 extern gchar*	guid_to_str(const e_guid_t*);
 extern gchar*	guid_to_str_buf(const e_guid_t*, gchar*, int);
-
-void tipc_addr_to_str_buf( const guint8 *data, gchar *buf, int buf_len);
 
 extern char *decode_bits_in_field(gint bit_offset, gint no_of_bits, guint64 value);
 

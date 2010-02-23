@@ -115,7 +115,15 @@ integer_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 static void
 integer_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
-	sprintf(buf, "%d", fv->value.sinteger);
+	guint32 val;
+
+	if (fv->value.sinteger < 0) {
+		*buf++ = '-';
+		val = -fv->value.sinteger;
+	} else
+		val = fv->value.sinteger;
+
+	guint32_to_str_buf(val, buf, 11);
 }
 
 static int
@@ -127,7 +135,7 @@ uinteger_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 static void
 uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
-	sprintf(buf, "%u", fv->value.uinteger);
+	guint32_to_str_buf(fv->value.uinteger, buf, 11);
 }
 
 static gboolean
@@ -403,7 +411,8 @@ boolean_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 static void
 boolean_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
-	sprintf(buf, "%s", fv->value.uinteger ? "1" : "0");
+	*buf++ = (fv->value.uinteger) ? '1' : '0';
+	*buf   = '\0';
 }
 
 /* Checks for equality with zero or non-zero */

@@ -1157,8 +1157,6 @@ col_set_time(column_info *cinfo, gint el, nstime_t *ts, char *fieldname)
 static void
 col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_src, gboolean fill_col_exprs)
 {
-  struct e_in6_addr ipv6_addr;
-
   if (addr->type == AT_NONE) {
     pinfo->cinfo->col_data[col] = "";
     /* No address, nothing to do */
@@ -1182,7 +1180,7 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_src, gboole
       pinfo->cinfo->col_expr.col_expr[col] = "eth.src";
     else
       pinfo->cinfo->col_expr.col_expr[col] = "eth.dst";
-    g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], ether_to_str(addr->data), COL_MAX_LEN);
+    address_to_str_buf(addr, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     break;
 
   case AT_IPv4:
@@ -1190,7 +1188,7 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_src, gboole
       pinfo->cinfo->col_expr.col_expr[col] = "ip.src";
     else
       pinfo->cinfo->col_expr.col_expr[col] = "ip.dst";
-    g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], ip_to_str(addr->data), COL_MAX_LEN);
+    ip_to_str_buf(addr->data, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     break;
 
   case AT_IPv6:
@@ -1198,8 +1196,7 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_src, gboole
       pinfo->cinfo->col_expr.col_expr[col] = "ipv6.src";
     else
       pinfo->cinfo->col_expr.col_expr[col] = "ipv6.dst";
-    memcpy(&ipv6_addr.bytes, addr->data, sizeof ipv6_addr.bytes);
-    g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], ip6_to_str(&ipv6_addr), COL_MAX_LEN);
+    address_to_str_buf(addr, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     break;
 
   case AT_ATALK:
@@ -1249,11 +1246,11 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src, gboo
     if (is_res)
       g_strlcpy(pinfo->cinfo->col_buf[col], get_sctp_port(port), COL_MAX_LEN);
     else
-      g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
+      guint32_to_str_buf(port, pinfo->cinfo->col_buf[col], COL_MAX_LEN);
     break;
 
   case PT_TCP:
-    g_snprintf(pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN, "%u", port);
+    guint32_to_str_buf(port, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     if (is_res)
       g_strlcpy(pinfo->cinfo->col_buf[col], get_tcp_port(port), COL_MAX_LEN);
     else
@@ -1265,7 +1262,7 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src, gboo
     break;
 
   case PT_UDP:
-    g_snprintf(pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN, "%u", port);
+    guint32_to_str_buf(port, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     if (is_res)
       g_strlcpy(pinfo->cinfo->col_buf[col], get_udp_port(port), COL_MAX_LEN);
     else
@@ -1281,7 +1278,7 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src, gboo
       pinfo->cinfo->col_expr.col_expr[col] = "ddp.src_socket";
     else
       pinfo->cinfo->col_expr.col_expr[col] = "ddp.dst_socket";
-    g_snprintf(pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN, "%u", port);
+    guint32_to_str_buf(port, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     g_strlcpy(pinfo->cinfo->col_buf[col], pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     break;
 
@@ -1351,7 +1348,7 @@ col_fill_in_frame_data(frame_data *fd, column_info *cinfo, gint col, gboolean fi
     switch (cinfo->col_fmt[col]) {
 
     case COL_NUMBER:
-      g_snprintf(cinfo->col_buf[col], COL_MAX_LEN, "%u", fd->num);
+      guint32_to_str_buf(fd->num, cinfo->col_buf[col], COL_MAX_LEN);
       cinfo->col_data[col] = cinfo->col_buf[col];
       break;
 
@@ -1366,12 +1363,12 @@ col_fill_in_frame_data(frame_data *fd, column_info *cinfo, gint col, gboolean fi
       break;
 
     case COL_PACKET_LENGTH:
-      g_snprintf(cinfo->col_buf[col], COL_MAX_LEN, "%u", fd->pkt_len);
+      guint32_to_str_buf(fd->pkt_len, cinfo->col_buf[col], COL_MAX_LEN);
       cinfo->col_data[col] = cinfo->col_buf[col];
       break;
 
     case COL_CUMULATIVE_BYTES:
-      g_snprintf(cinfo->col_buf[col], COL_MAX_LEN, "%u", fd->cum_bytes);
+      guint32_to_str_buf(fd->cum_bytes, cinfo->col_buf[col], COL_MAX_LEN);
       cinfo->col_data[col] = cinfo->col_buf[col];
       break;
 
@@ -1508,7 +1505,7 @@ col_fill_in(packet_info *pinfo, gboolean fill_col_exprs, gboolean fill_fd_colums
       break;
 
     case COL_VSAN:
-      g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->vsan);
+      guint32_to_str_buf(pinfo->vsan, pinfo->cinfo->col_buf[i], COL_MAX_LEN);
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       break;
 
@@ -1715,7 +1712,7 @@ gchar  *ptr;
 
     switch (cinfo->col_fmt[col]) {
     case COL_NUMBER: /* frame number */
-      g_snprintf(buf, COL_MAX_LEN, "%u", fd->num);
+      guint32_to_str_buf(fd->num, buf, COL_MAX_LEN);
       break;
 
     case COL_CLS_TIME:
@@ -1738,11 +1735,11 @@ gchar  *ptr;
       break;
 
     case COL_PACKET_LENGTH: /* fd->pkt_len */
-      g_snprintf(buf, COL_MAX_LEN, "%u", fd->pkt_len);
+      guint32_to_str_buf(fd->pkt_len, buf, COL_MAX_LEN);
       break;
 
     case COL_CUMULATIVE_BYTES: /* fd->cum_bytes */
-      g_snprintf(buf, COL_MAX_LEN, "%u", fd->cum_bytes);
+      guint32_to_str_buf(fd->cum_bytes, buf, COL_MAX_LEN);
       break;
 
     case COL_DEF_SRC:
@@ -1790,7 +1787,7 @@ gchar  *ptr;
     case COL_UNRES_DST_PORT:
       /* hack */
       if (GPOINTER_TO_UINT(fd->col_text[col]) <= 65536)
-          g_snprintf(buf, COL_MAX_LEN, "%u", GPOINTER_TO_UINT(fd->col_text[col]));
+          guint32_to_str_buf(GPOINTER_TO_UINT(fd->col_text[col], buf, COL_MAX_LEN));
       else
           ptr = fd->col_text[col];
       break;
@@ -1803,7 +1800,7 @@ gchar  *ptr;
       break;
 
     case COL_VSAN:
-      g_snprintf(buf, COL_MAX_LEN, "%u", GPOINTER_TO_UINT(fd->col_text[col]));
+      guint32_to_str_buf(GPOINTER_TO_UINT(fd->col_text[col]), buf, COL_MAX_LEN);
       break;
 
     case NUM_COL_FMTS:  /* keep compiler happy - shouldn't get here */

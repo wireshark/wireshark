@@ -637,7 +637,7 @@ static gchar *serv_name_lookup(guint port, port_type proto)
   if (!(g_resolv_flags & RESOLV_TRANSPORT) ||
       (servp = getservbyport(g_htons(port), serv_proto)) == NULL) {
     /* unknown port */
-    g_snprintf(tp->name, MAXNAMELEN, "%d", port);
+    guint32_to_str_buf(port, tp->name, MAXNAMELEN);
   } else {
     g_strlcpy(tp->name, servp->s_name, MAXNAMELEN);
   }
@@ -2615,12 +2615,8 @@ static gchar *ep_utoa(guint port)
 {
   gchar *bp = ep_alloc(MAXNAMELEN);
 
-  bp = &bp[MAXNAMELEN -1];
-
-  *bp = 0;
-  do {
-      *--bp = (port % 10) +'0';
-  } while ((port /= 10) != 0);
+  /* XXX, guint32_to_str() ? */
+  guint32_to_str_buf(port, bp, MAXNAMELEN);
   return bp;
 }
 
