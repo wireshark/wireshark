@@ -134,7 +134,7 @@ hex2bin(unsigned char *out, unsigned char *in)
 static int
 xml_get_int(int *val, const unsigned char *str, const unsigned char *pattern)
 {
-	char *ptr;
+	const char *ptr;
 	char *start, *end;
 	char buf[32];
 
@@ -214,7 +214,7 @@ int dct3trace_open(wtap *wth, int *err, gchar **err_info _U_)
 }
 
 
-static gboolean dct3trace_get_packet(FILE *fh, union wtap_pseudo_header *pseudo_header,
+static gboolean dct3trace_get_packet(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	unsigned char *buf, int *len, int *err, gchar **err_info)
 {
 	unsigned char line[1024];
