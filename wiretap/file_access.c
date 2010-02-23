@@ -177,7 +177,7 @@ static void init_open_routines(void) {
 
 	g_array_append_vals(open_routines_arr,open_routines_base,N_FILE_TYPES);
 
-	open_routines = (void*)open_routines_arr->data;
+	open_routines = (wtap_open_routine_t*)open_routines_arr->data;
 }
 
 void wtap_register_open_routine(wtap_open_routine_t open_routine, gboolean has_magic) {
@@ -188,7 +188,7 @@ void wtap_register_open_routine(wtap_open_routine_t open_routine, gboolean has_m
 	else
 		g_array_append_val(open_routines_arr,open_routine);
 
-	open_routines = (void*)open_routines_arr->data;
+	open_routines = (wtap_open_routine_t*)open_routines_arr->data;
 }
 
 /*
@@ -284,7 +284,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 	}
 
 	errno = ENOMEM;
-	wth = g_malloc(sizeof(wtap));
+	wth = (wtap *)g_malloc(sizeof(wtap));
 	if (wth == NULL) {
 		*err = errno;
 		return NULL;
@@ -383,7 +383,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 	return NULL;
 
 success:
-	wth->frame_buffer = g_malloc(sizeof(struct Buffer));
+	wth->frame_buffer = (struct Buffer *)g_malloc(sizeof(struct Buffer));
 	buffer_init(wth->frame_buffer, 1500);
 	return wth;
 }
@@ -640,7 +640,7 @@ static void init_file_types(void) {
 
 	g_array_append_vals(dump_open_table_arr,dump_open_table_base,wtap_num_file_types);
 
-	dump_open_table = (void*)dump_open_table_arr->data;
+	dump_open_table = (const struct file_type_info*)dump_open_table_arr->data;
 }
 
 int wtap_register_file_type(const struct file_type_info* fi) {
@@ -648,7 +648,7 @@ int wtap_register_file_type(const struct file_type_info* fi) {
 
 	g_array_append_val(dump_open_table_arr,*fi);
 
-	dump_open_table = (void*)dump_open_table_arr->data;
+	dump_open_table = (const struct file_type_info*)dump_open_table_arr->data;
 
 	return wtap_num_file_types++;
 }
@@ -751,8 +751,8 @@ static wtap_dumper* wtap_dump_alloc_wdh(int filetype, int encap, int snaplen,
 					gboolean compressed, int *err);
 static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype, gboolean compressed, int *err);
 
-static FILE *wtap_dump_file_open(wtap_dumper *wdh, const char *filename);
-static FILE *wtap_dump_file_fdopen(wtap_dumper *wdh, int fd);
+static FILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename);
+static FILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd);
 static int wtap_dump_file_close(wtap_dumper *wdh);
 
 wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
@@ -882,7 +882,7 @@ static wtap_dumper* wtap_dump_alloc_wdh(int filetype, int encap, int snaplen,
 {
 	wtap_dumper *wdh;
 
-	wdh = g_malloc(sizeof (wtap_dumper));
+	wdh = (wtap_dumper *)g_malloc(sizeof (wtap_dumper));
 	if (wdh == NULL) {
 		*err = errno;
 		return NULL;
@@ -990,7 +990,7 @@ void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped)
 
 /* internally open a file for writing (compressed or not) */
 #ifdef HAVE_LIBZ
-static FILE *wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
+static FILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
 {
 	if(wdh->compressed) {
 		return gzopen(filename, "wb");
@@ -999,7 +999,7 @@ static FILE *wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
 	}
 }
 #else
-static FILE *wtap_dump_file_open(wtap_dumper *wdh _U_, const char *filename)
+static FILE_T wtap_dump_file_open(wtap_dumper *wdh _U_, const char *filename)
 {
 	return ws_fopen(filename, "wb");
 }
@@ -1007,7 +1007,7 @@ static FILE *wtap_dump_file_open(wtap_dumper *wdh _U_, const char *filename)
 
 /* internally open a file for writing (compressed or not) */
 #ifdef HAVE_LIBZ
-static FILE *wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
+static FILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
 {
 	if(wdh->compressed) {
 		return gzdopen(fd, "wb");
@@ -1016,7 +1016,7 @@ static FILE *wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
 	}
 }
 #else
-static FILE *wtap_dump_file_fdopen(wtap_dumper *wdh _U_, int fd)
+static FILE_T wtap_dump_file_fdopen(wtap_dumper *wdh _U_, int fd)
 {
 	return fdopen(fd, "wb");
 }
