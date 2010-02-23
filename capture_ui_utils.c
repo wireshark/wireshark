@@ -258,29 +258,29 @@ build_capture_combo_list(GList *if_list, gboolean do_hide)
       /* Is this interface hidden and, if so, should we include it
          anyway? */
       if (!prefs_is_capture_device_hidden(if_info->name) || !do_hide) {
-	/* It's not hidden, or it is but we should include it in the list. */
+        /* It's not hidden, or it is but we should include it in the list. */
 
-	/* Do we have a user-supplied description? */
-	descr = capture_dev_user_descr_find(if_info->name);
-	if (descr != NULL) {
-	  /* Yes, we have a user-supplied description; use it. */
-	  if_string = g_strdup_printf("%s: %s", descr, if_info->name);
-	  g_free(descr);
-	} else {
-	  /* No, we don't have a user-supplied description; did we get
-	     one from the OS or libpcap? */
-	  if (if_info->description != NULL) {
-	    /* Yes - use it. */
-	    if_string = g_strdup_printf("%s: %s", if_info->description,
+        /* Do we have a user-supplied description? */
+        descr = capture_dev_user_descr_find(if_info->name);
+        if (descr != NULL) {
+	      /* Yes, we have a user-supplied description; use it. */
+	      if_string = g_strdup_printf("%s: %s", descr, if_info->name);
+          g_free(descr);
+        } else {
+          /* No, we don't have a user-supplied description; did we get
+	         one from the OS or libpcap? */
+          if (if_info->description != NULL) {
+            /* Yes - use it. */
+	        if_string = g_strdup_printf("%s: %s", if_info->description,
 					if_info->name);
-	  } else {
-	    /* No. */
-	    if_string = g_strdup(if_info->name);
-	  }
-	}
-	combo_list = g_list_append(combo_list, if_string);
+          } else {
+            /* No. */
+            if_string = g_strdup(if_info->name);
+          }
+        }
+        combo_list = g_list_append(combo_list, if_string);
       }
-    }
+    }/*for*/
   }
   return combo_list;
 }
