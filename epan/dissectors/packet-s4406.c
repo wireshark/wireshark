@@ -215,6 +215,8 @@ static int hf_s4406_sics = -1;                    /* SEQUENCE_SIZE_1_ub_military
 static int hf_s4406_sics_item = -1;               /* Sic */
 static int hf_s4406_dist_Extensions = -1;         /* SEQUENCE_OF_DistributionExtensionField */
 static int hf_s4406_dist_Extensions_item = -1;    /* DistributionExtensionField */
+static int hf_s4406_dist_type = -1;               /* OBJECT_IDENTIFIER */
+static int hf_s4406_dist_value = -1;              /* T_dist_value */
 static int hf_s4406_HandlingInstructions_item = -1;  /* MilitaryString */
 static int hf_s4406_MessageInstructions_item = -1;  /* MilitaryString */
 static int hf_s4406_message_type_type = -1;       /* TypeMessage */
@@ -265,6 +267,7 @@ static gint ett_s4406_ExemptedAddressSeq = -1;
 static gint ett_s4406_DistributionCodes = -1;
 static gint ett_s4406_SEQUENCE_SIZE_1_ub_military_number_of_sics_OF_Sic = -1;
 static gint ett_s4406_SEQUENCE_OF_DistributionExtensionField = -1;
+static gint ett_s4406_DistributionExtensionField = -1;
 static gint ett_s4406_HandlingInstructions = -1;
 static gint ett_s4406_MessageInstructions = -1;
 static gint ett_s4406_MessageType = -1;
@@ -491,15 +494,43 @@ dissect_s4406_SEQUENCE_SIZE_1_ub_military_number_of_sics_OF_Sic(gboolean implici
 
 
 static int
+dissect_s4406_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_s4406_T_dist_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 99 "s4406.cnf"
+/* XXX: not implemented */
+  offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
+
+
+
+  return offset;
+}
+
+
+static const ber_sequence_t DistributionExtensionField_sequence[] = {
+  { &hf_s4406_dist_type     , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_s4406_OBJECT_IDENTIFIER },
+  { &hf_s4406_dist_value    , BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_s4406_T_dist_value },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
 dissect_s4406_DistributionExtensionField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_external_type(implicit_tag, tree, tvb, offset, actx, hf_index, NULL);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   DistributionExtensionField_sequence, hf_index, ett_s4406_DistributionExtensionField);
 
   return offset;
 }
 
 
 static const ber_sequence_t SEQUENCE_OF_DistributionExtensionField_sequence_of[1] = {
-  { &hf_s4406_dist_Extensions_item, BER_CLASS_UNI, BER_UNI_TAG_EXTERNAL, BER_FLAGS_NOOWNTAG, dissect_s4406_DistributionExtensionField },
+  { &hf_s4406_dist_Extensions_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_s4406_DistributionExtensionField },
 };
 
 static int
@@ -621,7 +652,7 @@ static const value_string s4406_PrimaryPrecedence_vals[] = {
 
 static int
 dissect_s4406_PrimaryPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 101 "s4406.cnf"
+#line 105 "s4406.cnf"
   int precedence = -1;
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &precedence);
@@ -651,7 +682,7 @@ static const value_string s4406_CopyPrecedence_vals[] = {
 
 static int
 dissect_s4406_CopyPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 109 "s4406.cnf"
+#line 113 "s4406.cnf"
   int precedence = -1;
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &precedence);
@@ -1418,6 +1449,14 @@ void proto_register_s4406(void) {
       { "DistributionExtensionField", "s4406.DistributionExtensionField",
         FT_NONE, BASE_NONE, NULL, 0,
         "s4406.DistributionExtensionField", HFILL }},
+    { &hf_s4406_dist_type,
+      { "dist-type", "s4406.dist_type",
+        FT_OID, BASE_NONE, NULL, 0,
+        "s4406.OBJECT_IDENTIFIER", HFILL }},
+    { &hf_s4406_dist_value,
+      { "dist-value", "s4406.dist_value",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s4406.T_dist_value", HFILL }},
     { &hf_s4406_HandlingInstructions_item,
       { "MilitaryString", "s4406.MilitaryString",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1568,6 +1607,7 @@ void proto_register_s4406(void) {
     &ett_s4406_DistributionCodes,
     &ett_s4406_SEQUENCE_SIZE_1_ub_military_number_of_sics_OF_Sic,
     &ett_s4406_SEQUENCE_OF_DistributionExtensionField,
+    &ett_s4406_DistributionExtensionField,
     &ett_s4406_HandlingInstructions,
     &ett_s4406_MessageInstructions,
     &ett_s4406_MessageType,

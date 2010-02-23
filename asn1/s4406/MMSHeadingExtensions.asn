@@ -67,10 +67,10 @@ DistributionCodes ::= SET {
 
 Sic ::= PrintableString(SIZE (lb-military-sic..ub-military-sic))
 
-DistributionExtensionField ::= INSTANCE OF TYPE-IDENTIFIER
---DistributionExtensionField ::= SEQUENCE {
---        dist-type       OBJECT IDENTIFIER,
---        dist-value      ANY DEFINED BY dist-type }
+--DistributionExtensionField ::= INSTANCE OF TYPE-IDENTIFIER
+DistributionExtensionField ::= SEQUENCE {
+       dist-type       OBJECT IDENTIFIER,
+       dist-value      ANY --DEFINED BY dist-type-- }
 
 -- Handling instructions
 --handling-instructions IPMS-EXTENSION ::= {
