@@ -4074,7 +4074,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	if ((dhcp_type != NULL) && (!at_end))
 	{
-		expert_add_info_format(pinfo, ti, PI_MALFORMED /* PI_PROTOCOL */, PI_ERROR, "End option missing");
+		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "End option missing");
 	}
 	if (voff < eoff) {
 		/*
