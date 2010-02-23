@@ -146,7 +146,7 @@ static int wtap_file_read_till_separator (wtap *wth, char *buffer, int buflen,
 		return -1;	/* error */
 	    }
 	}
-	if (strchr (separators, c))
+	if (strchr (separators, c) != NULL)
 	{
 	    *cp = '\0';
 	    break;
@@ -310,7 +310,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     wth->subtype_close = airopeekv9_close;
     wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
-    wth->capture.airopeek9 = g_malloc(sizeof(airopeek9_t));
+    wth->capture.airopeek9 = (airopeek9_t)g_malloc(sizeof(airopeek9_t));
     switch (mediaSubType) {
 
     case AIROPEEK_V9_NST_ETHERNET:
