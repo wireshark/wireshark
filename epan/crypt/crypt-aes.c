@@ -723,7 +723,7 @@ static const guint32 rcon[] = {
 	0x1B000000, 0x36000000, /* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
 };
 
-gint rijndaelKeySetupEnc(
+static gint rijndaelKeySetupEnc(
 	guint32 rk[/*4*(Nr + 1)*/],
 	const guint8 cipherKey[],
         gint keyBits)
@@ -811,7 +811,7 @@ gint rijndaelKeySetupEnc(
 	return 0;
 }
 
-gint rijndaelKeySetupDec(
+static gint rijndaelKeySetupDec(
 	guint32 rk[/*4*(Nr + 1)*/],
 	const guint8 cipherKey[],
 	gint keyBits)
@@ -867,7 +867,7 @@ void rijndael_set_key(
 	rijndaelKeySetupDec(ctx->dk, key, bits);
 }
 
-void rijndaelEncrypt(
+static void rijndaelEncrypt(
 	const guint32 rk[/*4*(Nr + 1)*/],
 	gint Nr,
 	const guint8 pt[16],
@@ -1063,7 +1063,7 @@ void rijndael_encrypt(
 }
 
 
-void rijndaelDecrypt(const guint32 rk[/*4*(Nr + 1)*/], gint Nr, const guint8 ct[16], guint8 pt[16]) {
+static void rijndaelDecrypt(const guint32 rk[/*4*(Nr + 1)*/], gint Nr, const guint8 ct[16], guint8 pt[16]) {
 	guint32 s0, s1, s2, s3, t0, t1, t2, t3;
 #ifndef FULL_UNROLL
     gint r;

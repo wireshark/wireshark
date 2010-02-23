@@ -520,7 +520,7 @@ static INT AirPDcapScanForGroupKey(
         /* skip EAPOL MPDU and go to the first byte of the body */
         offset+=4;
 
-        pEAPKey = (P_EAPOL_RSN_KEY) (data+offset);
+        pEAPKey = (const EAPOL_RSN_KEY *) (data+offset);
 
         /* check if the key descriptor type is valid (IEEE 802.1X-2004, pg. 27) */
         if (/*pEAPKey->type!=0x1 &&*/ /* RC4 Key Descriptor Type (deprecated) */
@@ -1406,7 +1406,7 @@ AirPDcapRsna4WHandshake(
 
         /* If using WPA2 PSK, message 3 will contain an RSN for the group key (GTK KDE).
            In order to properly support decrypting WPA2-PSK packets, we need to parse this to get the group key. */
-        pEAPKey = (P_EAPOL_RSN_KEY)(&(data[offset-1]));
+        pEAPKey = (const EAPOL_RSN_KEY *)(&(data[offset-1]));
         if (pEAPKey->type == AIRPDCAP_RSN_WPA2_KEY_DESCRIPTOR){
             PAIRPDCAP_SEC_ASSOCIATION broadcast_sa;
             AIRPDCAP_SEC_ASSOCIATION_ID id;
