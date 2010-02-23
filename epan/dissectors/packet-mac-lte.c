@@ -133,6 +133,7 @@ static int hf_mac_lte_control_ue_contention_resolution = -1;
 static int hf_mac_lte_control_ue_contention_resolution_identity = -1;
 static int hf_mac_lte_control_ue_contention_resolution_msg3 = -1;
 static int hf_mac_lte_control_ue_contention_resolution_msg3_matched = -1;
+static int hf_mac_lte_control_ue_contention_resolution_time_since_msg3 = -1;
 static int hf_mac_lte_control_power_headroom = -1;
 static int hf_mac_lte_control_power_headroom_reserved = -1;
 static int hf_mac_lte_control_power_headroom_level = -1;
@@ -552,8 +553,9 @@ extern int proto_rlc_lte;
 /* Contention Resolution bodies.                               */
 
 typedef struct Msg3Data {
-    guint8  data[6];
-    guint32 framenum;
+    guint8   data[6];
+    nstime_t msg3Time;
+    guint32  framenum;
 } Msg3Data;
 
 
@@ -583,6 +585,7 @@ typedef enum ContentionResolutionStatus {
 typedef struct ContentionResolutionResult {
     ContentionResolutionStatus status;
     guint                      msg3FrameNum;
+    guint                      msSinceMsg3;
 } ContentionResolutionResult;
 
 
@@ -701,10 +704,10 @@ static const value_string sr_status_vals[] =
 
 
 typedef struct SRState {
-     SRStatus status;
-     guint32  lastSRFramenum;
-     guint32  lastGrantFramenum;
-     nstime_t requestTime;
+    SRStatus status;
+    guint32  lastSRFramenum;
+    guint32  lastGrantFramenum;
+    nstime_t requestTime;
 } SRState;
 
 
@@ -1992,7 +1995,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                             /* Compare CCCH bytes */
                             if (msg3Data != NULL) {
+                                crResult->msSinceMsg3 = (guint32)(((pinfo->fd->abs_ts.secs - msg3Data->msg3Time.secs) * 1000) +
+                                                                  ((pinfo->fd->abs_ts.nsecs - msg3Data->msg3Time.nsecs) / 1000000));
                                 crResult->msg3FrameNum = msg3Data->framenum;
+
+                                /* Compare the 6 bytes */
                                 if (memcmp(&msg3Data->data, tvb_get_ptr(tvb, offset, 6), 6) == 0) {
                                     crResult->status = Msg3Match;
                                 }
@@ -2015,23 +2022,33 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                 ti = proto_tree_add_uint(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3,
                                                          tvb, 0, 0, crResult->msg3FrameNum);
                                 PROTO_ITEM_SET_GENERATED(ti);
+                                ti = proto_tree_add_uint(cr_tree, hf_mac_lte_control_ue_contention_resolution_time_since_msg3,
+                                                         tvb, 0, 0, crResult->msSinceMsg3);
+                                PROTO_ITEM_SET_GENERATED(ti);
+
                                 ti = proto_tree_add_boolean(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3_matched,
                                                             tvb, 0, 0, TRUE);
                                 PROTO_ITEM_SET_GENERATED(ti);
-                                proto_item_append_text(cr_ti, " (matches Msg3 from frame %u)", crResult->msg3FrameNum);
+                                proto_item_append_text(cr_ti, " (matches Msg3 from frame %u, %ums ago)",
+                                                       crResult->msg3FrameNum, crResult->msSinceMsg3);
                                 break;
 
                             case Msg3NoMatch:
                                 ti = proto_tree_add_uint(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3,
                                                          tvb, 0, 0, crResult->msg3FrameNum);
                                 PROTO_ITEM_SET_GENERATED(ti);
+                                ti = proto_tree_add_uint(cr_tree, hf_mac_lte_control_ue_contention_resolution_time_since_msg3,
+                                                         tvb, 0, 0, crResult->msSinceMsg3);
+                                PROTO_ITEM_SET_GENERATED(ti);
+
                                 ti = proto_tree_add_boolean(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3_matched,
                                                              tvb, 0, 0, FALSE);
                                 expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
                                                        "CR body in Msg4 doesn't match Msg3 CCCH in frame %u",
                                                        crResult->msg3FrameNum);
                                 PROTO_ITEM_SET_GENERATED(ti);
-                                proto_item_append_text(cr_ti, " (doesn't match Msg3 from frame %u)", crResult->msg3FrameNum);
+                                proto_item_append_text(cr_ti, " (doesn't match Msg3 from frame %u, %u ago)",
+                                                       crResult->msg3FrameNum, crResult->msSinceMsg3);
                                 break;
                         };
 
@@ -2316,6 +2333,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 /* Fill in data details */
                 data->framenum = pinfo->fd->num;
                 memcpy(&data->data, tvb_get_ptr(tvb, offset, data_length), data_length);
+                data->msg3Time = pinfo->fd->abs_ts;
             }
         }
 
@@ -3242,6 +3260,12 @@ void proto_register_mac_lte(void)
             { "UE Contention Resolution Matches Msg3",
               "mac-lte.control.ue-contention-resolution.matches-msg3", FT_BOOLEAN, BASE_NONE, 0, 0x0,
               NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_ue_contention_resolution_time_since_msg3,
+            { "Time since Msg3",
+              "mac-lte.control.ue-contention-resolution.time-since-msg3", FT_UINT32, BASE_DEC, 0, 0x0,
+              "Time in ms since corresponding Msg3", HFILL
             }
         },
 
