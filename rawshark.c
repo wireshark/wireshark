@@ -1111,7 +1111,7 @@ typedef struct _pci_t {
 	int cmd_line_index;
 } pci_t;
 
-char* ftenum_to_string(header_field_info *hfi)
+static const char* ftenum_to_string(header_field_info *hfi)
 {
 	if (!hfi) {
 		return "n.a.";
@@ -1189,7 +1189,7 @@ char* ftenum_to_string(header_field_info *hfi)
 	};
 }
 
-static char* absolute_time_display_e_to_string(absolute_time_display_e atd)
+static const char* absolute_time_display_e_to_string(absolute_time_display_e atd)
 {
 	switch(atd) {
 	case ABSOLUTE_TIME_LOCAL:
@@ -1201,7 +1201,7 @@ static char* absolute_time_display_e_to_string(absolute_time_display_e atd)
 	}
 }
 
-static char* base_display_e_to_string(base_display_e bd)
+static const char* base_display_e_to_string(base_display_e bd)
 {
 	switch(bd) {
 	case BASE_NONE:
@@ -1242,7 +1242,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
 	hfinfo = finfo->hfinfo;
 
 	if (!fs_buf) {
-		fs_buf = g_malloc(fs_buf_len + 1);
+		fs_buf = (char *)g_malloc(fs_buf_len + 1);
 		fs_ptr = fs_buf;
 	}
 
@@ -1259,7 +1259,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
 		fs_len = fvalue_string_repr_len(&finfo->value, FTREPR_DFILTER);
 		while (fs_buf_len < fs_len) {
 			fs_buf_len *= 2;
-			fs_buf = g_realloc(fs_buf, fs_buf_len + 1);
+			fs_buf = (char *)g_realloc(fs_buf, fs_buf_len + 1);
 			fs_ptr = fs_buf;
 		}
 		fvalue_to_string_repr(&finfo->value,
@@ -1276,7 +1276,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
 	if (string_fmts->len > 0 && finfo->hfinfo->strings) {
 		g_string_truncate(label_s, 0);
 		for (i = 0; i < string_fmts->len; i++) {
-			sf = g_ptr_array_index(string_fmts, i);
+			sf = (string_fmt_t *)g_ptr_array_index(string_fmts, i);
 			if (sf->plain) {
 				g_string_append(label_s, sf->plain);
 			} else {
