@@ -102,8 +102,9 @@
 #include "epan/proto.h"
 #include <epan/tap.h>
 
-#include <wtap.h>
-#include <libpcap.h>
+#include <wiretap/wtap.h>
+#include <wiretap/libpcap.h>
+#include <wiretap/pcap-encap.h>
 
 #ifdef HAVE_LIBPCAP
 #include <pcap.h>

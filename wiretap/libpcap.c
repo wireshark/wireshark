@@ -32,6 +32,7 @@
 #include "buffer.h"
 #include "atm.h"
 #include "pcap-common.h"
+#include "pcap-encap.h"
 #include "libpcap.h"
 
 /* See source to the "libpcap" library for information on the "libpcap"

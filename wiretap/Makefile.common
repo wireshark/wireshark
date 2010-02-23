@@ -116,6 +116,7 @@ NONGENERATED_HEADER_FILES = \
 	ngsniffer.h		\
 	packetlogger.h		\
 	pcap-common.h		\
+	pcap-encap.h		\
 	pcapng.h		\
 	pppdump.h		\
 	radcom.h		\

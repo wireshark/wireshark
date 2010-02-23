@@ -61,7 +61,7 @@
 #include <epan/frequency-utils.h>
 
 /* Needed for wtap_pcap_encap_to_wtap_encap(). */
-#include <wiretap/libpcap.h>
+#include <wiretap/pcap-encap.h>
 
 #include "packet-frame.h"
 #include "packet-eth.h"

@@ -34,6 +34,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "erf.h"
+#include "pcap-encap.h"
 #include "pcap-common.h"
 
 /*

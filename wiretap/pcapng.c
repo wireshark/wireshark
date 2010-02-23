@@ -41,6 +41,8 @@
 #include "buffer.h"
 #include "libpcap.h"
 #include "pcap-common.h"
+#include "pcap-encap.h"
+#include "pcapng.h"
 
 #if 0
 #define pcapng_debug0(str) g_warning(str)
@@ -252,7 +254,14 @@ typedef struct wtapng_block_s {
 		wtapng_if_stats_t	if_stats;
 	} data;
 
-	/* XXX - currently don't know how to handle these! */
+	/*
+	 * XXX - currently don't know how to handle these!
+	 *
+	 * For one thing, when we're reading a block, they must be
+	 * writable, i.e. not const, so that we can read into them,
+	 * but, when we're writing a block, they can be const, and,
+	 * in fact, they sometimes point to const values.
+	 */
 	const union wtap_pseudo_header *pseudo_header;
 	struct wtap_pkthdr *packet_header;
 	const guchar *frame_buffer;
@@ -1264,7 +1273,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	wth->file_encap = WTAP_ENCAP_UNKNOWN;
 	wth->snapshot_length = 0;
 	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
-	wth->capture.pcapng = g_malloc(sizeof(pcapng_t));
+	wth->capture.pcapng = (pcapng_t *)g_malloc(sizeof(pcapng_t));
 	*wth->capture.pcapng = pn;
 	wth->subtype_read = pcapng_read;
 	wth->subtype_seek_read = pcapng_seek_read;
@@ -1766,7 +1775,7 @@ pcapng_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	/* This is a pcapng file */
 	wdh->subtype_write = pcapng_dump;
 	wdh->subtype_close = pcapng_dump_close;
-	wdh->dump.pcapng = g_malloc(sizeof(pcapng_dump_t));
+	wdh->dump.pcapng = (pcapng_dump_t *)g_malloc(sizeof(pcapng_dump_t));
 	wdh->dump.pcapng->interface_data = g_array_new(FALSE, FALSE, sizeof(interface_data_t));
 	wdh->dump.pcapng->number_of_interfaces = 0;
 

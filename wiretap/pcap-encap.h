@@ -1,7 +1,7 @@
-/* pcap-common.h
- * Declarations for code common to libpcap and pcap-NG file formats
+/* pcap-encap.h
+ * Declarations for routines to handle libpcap/pcap-NG linktype values
  *
- * $Id$
+ * $Id: pcap-common.h 28863 2009-06-27 16:08:18Z tuexen $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -24,13 +24,5 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-extern int pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
-    gboolean byte_swapped, guint packet_size,
-    gboolean check_packet_size, struct wtap_pkthdr *phdr,
-    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
-
-extern int pcap_get_phdr_size(int encap,
-    const union wtap_pseudo_header *pseudo_header);
-
-extern gboolean pcap_write_phdr(wtap_dumper *wdh, int wtap_encap,
-    const union wtap_pseudo_header *pseudo_header, int *err);
+extern int wtap_pcap_encap_to_wtap_encap(int encap);
+extern int wtap_wtap_encap_to_pcap_encap(int encap);
