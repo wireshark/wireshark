@@ -3318,9 +3318,9 @@ set_menus_for_selected_tree_row(capture_file *cf)
         set_menu_sensitivity(main_menu_factory, "/View/Expand Subtrees", cf->finfo_selected->tree_type != -1);
         set_menu_sensitivity(tree_view_menu_factory, "/Expand Subtrees", cf->finfo_selected->tree_type != -1);
         set_menu_sensitivity(tree_view_menu_factory, "/Wiki Protocol Page",
-                             TRUE);
+                             (id == -1) ? FALSE : TRUE);
         set_menu_sensitivity(tree_view_menu_factory, "/Filter Field Reference",
-                             TRUE);
+                             (id == -1) ? FALSE : TRUE);
         
         prev_abbrev = g_object_get_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev");
         if (!prev_abbrev || (strcmp (prev_abbrev, abbrev) != 0)) {
