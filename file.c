@@ -2604,8 +2604,7 @@ print_packet(capture_file *cf, frame_data *fdata,
   /* Fill in the column information if we're printing the summary
      information. */
   if (args->print_args->print_summary) {
-    if (have_custom_cols(&cf->cinfo))
-      col_custom_prime_edt(&edt, &cf->cinfo);
+    col_custom_prime_edt(&edt, &cf->cinfo);
     epan_dissect_run(&edt, pseudo_header, pd, fdata, &cf->cinfo);
     epan_dissect_fill_in_columns(&edt, FALSE, TRUE);
   } else
@@ -2938,8 +2937,7 @@ write_psml_packet(capture_file *cf, frame_data *fdata,
      if having custom columns. */
   proto_tree_needed = have_custom_cols(&cf->cinfo);
   epan_dissect_init(&edt, proto_tree_needed, proto_tree_needed);
-  if (proto_tree_needed)
-    col_custom_prime_edt(&edt, &cf->cinfo);
+  col_custom_prime_edt(&edt, &cf->cinfo);
   epan_dissect_run(&edt, pseudo_header, pd, fdata, &cf->cinfo);
   epan_dissect_fill_in_columns(&edt, FALSE, TRUE);
 
@@ -3014,8 +3012,7 @@ write_csv_packet(capture_file *cf, frame_data *fdata,
      if having custom columns. */
   proto_tree_needed = have_custom_cols(&cf->cinfo);
   epan_dissect_init(&edt, proto_tree_needed, proto_tree_needed);
-  if (proto_tree_needed)
-    col_custom_prime_edt(&edt, &cf->cinfo);
+  col_custom_prime_edt(&edt, &cf->cinfo);
   epan_dissect_run(&edt, pseudo_header, pd, fdata, &cf->cinfo);
   epan_dissect_fill_in_columns(&edt, FALSE, TRUE);
 
