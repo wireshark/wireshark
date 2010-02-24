@@ -280,11 +280,12 @@ static const value_string msg_type_strings_ms_to_sc[] = {
     { 0, NULL },
 };
 
+/* 9.2.3.3 TP-Validity-Period-Format (TP-VPF) */
 static const value_string vp_type_strings[] = {
-    { 0,	"TP VP field not present"},
-    { 1,	"TP VP field present - relative format"},
-    { 2,	"TP-VP field present - enhanced format"},
-    { 3,	"TP VP field present - absolute format"},
+    { 0,	"TP-VP field not present"},
+    { 2,	"TP-VP field present - relative format"},
+    { 1,	"TP-VP field present - enhanced format"},
+    { 3,	"TP-VP field present - absolute format"},
     { 0, NULL },
 };
 
