@@ -176,13 +176,13 @@ rpcstat_find_procs(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
 	return NULL;
 }
 
-static void *
+static void
 rpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
 {
 	rpc_proc_info_key *k=(rpc_proc_info_key *)key;
 
 	if(k->prog!=rpc_program){
-		return NULL;
+		return;
 	}
 	if(rpc_min_vers==-1){
 		rpc_min_vers=k->vers;
@@ -195,7 +195,7 @@ rpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
 		rpc_max_vers=k->vers;
 	}
 
-	return NULL;
+	return;
 }
 
 /* since the gtk2 implementation of tap is multithreaded we must protect
@@ -323,10 +323,7 @@ gtk_rpcstat_init(const char *optarg, void* userdata _U_)
 
 
 static GtkWidget *dlg=NULL;
-static GtkWidget *prog_menu;
-static GtkWidget *vers_opt, *vers_menu;
 static GtkWidget *filter_entry;
-
 
 static void
 rpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
@@ -347,63 +344,63 @@ rpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 
 
 static void
-rpcstat_version_select(GtkWidget *item _U_, gpointer key)
+rpcstat_version_select(GtkWidget *vers_combo_box, gpointer user_data _U_)
 {
-	int vers=(long)key;
+	gpointer ptr;
 
-	rpc_version=vers;
+	if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(vers_combo_box), &ptr)) {
+		g_assert_not_reached();  /* Programming error: somehow no active item */
+	}
+
+	rpc_version=GPOINTER_TO_INT(ptr);
+}
+
+
+static void
+rpcstat_program_select(GtkWidget *prog_combo_box, gpointer user_data)
+{
+	rpc_prog_info_key *k;
+	GtkWidget *vers_combo_box;
+	int i;
+
+	vers_combo_box = user_data;
+
+	if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(prog_combo_box), (gpointer)&k)) {
+		g_assert_not_reached();  /* Programming error: somehow no active item */
+	}
+	rpc_program=k->prog;
+
+	/* re-create version menu */
+	rpc_version=0;
+	g_signal_handlers_disconnect_by_func(vers_combo_box, G_CALLBACK(rpcstat_version_select), NULL );
+	ws_combo_box_clear_text_and_pointer(GTK_COMBO_BOX(vers_combo_box));
+	rpc_min_vers=-1;
+	rpc_max_vers=-1;
+	g_hash_table_foreach(rpc_procs, (GHFunc)rpcstat_find_vers, NULL);
+	for(i=rpc_min_vers;i<=rpc_max_vers;i++){
+		char vs[5];
+		g_snprintf(vs, sizeof(vs), "%d",i);
+		ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(vers_combo_box), 
+						     vs, GINT_TO_POINTER(i));
+	}
+	g_signal_connect(vers_combo_box, "changed", G_CALLBACK(rpcstat_version_select), NULL);
+	ws_combo_box_set_active(GTK_COMBO_BOX(vers_combo_box), 0); /* default: will trigger rpcstat_version_select callback */
 }
 
 
 
 static void
-rpcstat_program_select(GtkWidget *item _U_, gpointer key)
-{
-	rpc_prog_info_key *k=(rpc_prog_info_key *)key;
-	int i;
-
-	rpc_program=k->prog;
-
-	/* change version menu */
-	rpc_version=0;
-	gtk_object_destroy(GTK_OBJECT(vers_menu));
-	vers_menu=gtk_menu_new();
-	rpc_min_vers=-1;
-	rpc_max_vers=-1;
-	g_hash_table_foreach(rpc_procs, (GHFunc)rpcstat_find_vers, NULL);
-	rpc_version=rpc_min_vers;
-	for(i=rpc_min_vers;i<=rpc_max_vers;i++){
-		GtkWidget *menu_item;
-		char vs[5];
-		g_snprintf(vs, sizeof(vs), "%d",i);
-		menu_item=gtk_menu_item_new_with_label(vs);
-		g_signal_connect(menu_item, "activate", G_CALLBACK(rpcstat_version_select),
-                               (gpointer)(long) i);
-
-		gtk_widget_show(menu_item);
-		gtk_menu_shell_append(GTK_MENU_SHELL(vers_menu), menu_item);
-	}
-	gtk_option_menu_set_menu(GTK_OPTION_MENU(vers_opt), vers_menu);
-}
-
-static void *
-rpcstat_list_programs(gpointer *key, gpointer *value, gpointer *user_data _U_)
+rpcstat_list_programs(gpointer *key, gpointer *value, gpointer user_data)
 {
 	rpc_prog_info_key *k=(rpc_prog_info_key *)key;
 	rpc_prog_info_value *v=(rpc_prog_info_value *)value;
-	GtkWidget *menu_item;
+	GtkComboBox *prog_combo_box = user_data;
 
-	menu_item=gtk_menu_item_new_with_label(v->progname);
-	g_signal_connect(menu_item, "activate", G_CALLBACK(rpcstat_program_select), k);
-
-	gtk_widget_show(menu_item);
-	gtk_menu_shell_append(GTK_MENU_SHELL(prog_menu), menu_item);
+	ws_combo_box_append_text_and_pointer(prog_combo_box, v->progname, k);
 
 	if(!rpc_program){
 		rpc_program=k->prog;
 	}
-
-	return NULL;
 }
 
 static void
@@ -416,17 +413,17 @@ static void
 gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	GtkWidget *dlg_box;
-	GtkWidget *prog_box, *prog_label, *prog_opt;
+	GtkWidget *prog_box, *prog_label;
 	GtkWidget *vers_label;
+	GtkWidget *prog_combo_box, *vers_combo_box;
 	GtkWidget *filter_box, *filter_bt;
 	GtkWidget *bbox, *start_button, *cancel_button;
-	int i;
 	const char *filter;
 	static construct_args_t args = {
 	  "Service Response Time Statistics Filter",
 	  TRUE,
 	  FALSE,
-          FALSE
+	  FALSE
 	};
 
 	/* if the window is already open, bring it to front */
@@ -453,12 +450,10 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_widget_show(prog_label);
 
 	/* Program menu */
-	prog_opt=gtk_option_menu_new();
-	prog_menu=gtk_menu_new();
-	g_hash_table_foreach(rpc_progs, (GHFunc)rpcstat_list_programs, NULL);
-	gtk_option_menu_set_menu(GTK_OPTION_MENU(prog_opt), prog_menu);
-	gtk_box_pack_start(GTK_BOX(prog_box), prog_opt, TRUE, TRUE, 0);
-	gtk_widget_show(prog_opt);
+	prog_combo_box=ws_combo_box_new_text_and_pointer();
+	g_hash_table_foreach(rpc_progs, (GHFunc)rpcstat_list_programs, prog_combo_box);
+	gtk_box_pack_start(GTK_BOX(prog_box), prog_combo_box, TRUE, TRUE, 0);
+	gtk_widget_show(prog_combo_box);
 
 	/* Version label */
 	gtk_container_set_border_width(GTK_CONTAINER(prog_box), 10);
@@ -466,29 +461,16 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_box_pack_start(GTK_BOX(prog_box), vers_label, FALSE, FALSE, 0);
 	gtk_widget_show(vers_label);
 
-	/* Version menu */
-	vers_opt=gtk_option_menu_new();
-	vers_menu=gtk_menu_new();
-	rpc_min_vers=-1;
-	rpc_max_vers=-1;
-	g_hash_table_foreach(rpc_procs, (GHFunc)rpcstat_find_vers, NULL);
-	rpc_version=rpc_min_vers;
-	for(i=rpc_min_vers;i<=rpc_max_vers;i++){
-		GtkWidget *menu_item;
-		char vs[5];
-		g_snprintf(vs, sizeof(vs), "%d",i);
-		menu_item=gtk_menu_item_new_with_label(vs);
-		g_signal_connect(menu_item, "activate", G_CALLBACK(rpcstat_version_select),
-                               (gpointer)(long) i);
-
-		gtk_widget_show(menu_item);
-		gtk_menu_shell_append(GTK_MENU_SHELL(vers_menu), menu_item);
-	}
-	gtk_option_menu_set_menu(GTK_OPTION_MENU(vers_opt), vers_menu);
-	gtk_box_pack_start(GTK_BOX(prog_box), vers_opt, TRUE, TRUE, 0);
-	gtk_widget_show(vers_opt);
+	/* Note: version combo box rows set when rpcstat_program_select callback invoked below */
+	vers_combo_box=ws_combo_box_new_text_and_pointer();
+	gtk_box_pack_start(GTK_BOX(prog_box), vers_combo_box, TRUE, TRUE, 0);
+	gtk_widget_show(vers_combo_box);
 
 	gtk_box_pack_start(GTK_BOX(dlg_box), prog_box, TRUE, TRUE, 0);
+
+	g_signal_connect(prog_combo_box, "changed", G_CALLBACK(rpcstat_program_select), vers_combo_box);
+	ws_combo_box_set_active(GTK_COMBO_BOX(prog_combo_box), 0); /* invokes rpcstat_program_select callback */
+
 	gtk_widget_show(prog_box);
 
 	/* Filter box */
@@ -502,13 +484,13 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* Filter entry */
 	filter_entry=gtk_entry_new();
-        g_signal_connect(filter_entry, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
+	g_signal_connect(filter_entry, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
 	g_object_set_data(G_OBJECT(filter_box), E_FILT_AUTOCOMP_PTR_KEY, NULL);
 	g_signal_connect(filter_entry, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
 	g_signal_connect(dlg, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
 
 	/* filter prefs dialog */
-        g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_entry);
+	g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_entry);
 	/* filter prefs dialog */
 
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, TRUE, TRUE, 0);
@@ -524,27 +506,27 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_widget_show(filter_box);
 
 	/* button box */
-        bbox = dlg_button_row_new(WIRESHARK_STOCK_CREATE_STAT, GTK_STOCK_CANCEL, NULL);
+	bbox = dlg_button_row_new(WIRESHARK_STOCK_CREATE_STAT, GTK_STOCK_CANCEL, NULL);
 	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
-        gtk_widget_show(bbox);
+	gtk_widget_show(bbox);
 
-        start_button = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
-        g_signal_connect_swapped(start_button, "clicked",
-			     G_CALLBACK(rpcstat_start_button_clicked), NULL);
+	start_button = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
+	g_signal_connect_swapped(start_button, "clicked",
+				 G_CALLBACK(rpcstat_start_button_clicked), NULL);
 
-        cancel_button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-        window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);
+	cancel_button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+	window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);
 
 	/* Give the initial focus to the "Filter" entry box. */
 	gtk_widget_grab_focus(filter_entry);
 
-        gtk_widget_grab_default(start_button );
+	gtk_widget_grab_default(start_button );
 
-        g_signal_connect(dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(dlg, "destroy", G_CALLBACK(dlg_destroy_cb), NULL);
 
-        gtk_widget_show_all(dlg);
-        window_present(dlg);
+	gtk_widget_show_all(dlg);
+	window_present(dlg);
 }
 
 
