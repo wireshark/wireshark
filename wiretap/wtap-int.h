@@ -44,33 +44,11 @@
 
 #include "wtap.h"
 
-/* Information for a compressed Sniffer data stream. */
-typedef struct {
-	unsigned char *buf;	/* buffer into which we uncompress data */
-	size_t	nbytes;		/* number of bytes of data in that buffer */
-	int	nextout;	/* offset in that buffer of stream's current position */
-	gint64	comp_offset;	/* current offset in compressed data stream */
-	gint64	uncomp_offset;	/* current offset in uncompressed data stream */
-} ngsniffer_comp_stream_t;
-
 typedef struct {
   char *sdate;            /* Packet start date        */
   gboolean tcp_formatted; /* TCP/IP data formated Y/N */
   int format;             /* Trace format type        */
 } iseries_t;
-
-typedef struct {
-	guint	maj_vers;
-	guint	min_vers;
-	guint32	timeunit;
-	time_t	start;
-	guint	network;		/* network type */
-	ngsniffer_comp_stream_t seq;	/* sequential access */
-	ngsniffer_comp_stream_t rand;	/* random access */
-	GList	*first_blob;		/* list element for first blob */
-	GList	*last_blob;		/* list element for last blob */
-	GList	*current_blob;		/* list element for current blob */
-} ngsniffer_t;
 
 typedef struct {
 	gboolean byte_swapped;
@@ -79,23 +57,6 @@ typedef struct {
 typedef struct {
 	gboolean is_hpux_11;
 } nettl_t;
-
-typedef struct {
-	time_t	start;
-} lanalyzer_t;
-
-typedef enum {
-	NOT_SWAPPED,
-	SWAPPED,
-	MAYBE_SWAPPED
-} swapped_type_t;
-
-typedef struct {
-	gboolean byte_swapped;
-	swapped_type_t lengths_swapped;
-	guint16	version_major;
-	guint16	version_minor;
-} libpcap_t;
 
 typedef struct {
 	gboolean byte_swapped;
@@ -182,9 +143,6 @@ struct wtap {
 	gint64			data_offset;
 
 	union {
-		libpcap_t		*pcap;
-		lanalyzer_t		*lanalyzer;
-		ngsniffer_t		*ngsniffer;
 		iseries_t		*iseries;
 		i4btrace_t		*i4btrace;
 		nettl_t			*nettl;
@@ -219,11 +177,6 @@ typedef gboolean (*subtype_write_func)(struct wtap_dumper*,
 		const struct wtap_pkthdr*, const union wtap_pseudo_header*,
 		const guchar*, int*);
 typedef gboolean (*subtype_close_func)(struct wtap_dumper*, int*);
-
-typedef struct {
-	gboolean first_frame;
-	time_t start;
-} ngsniffer_dump_t;
 
 typedef struct {
 	gboolean first_frame;
@@ -281,7 +234,6 @@ struct wtap_dumper {
 
 	union {
 		void			*opaque;
-		ngsniffer_dump_t	*ngsniffer;
 		netmon_dump_t		*netmon;
 		netxray_dump_t		*netxray;
 		_5views_dump_t		*_5views;

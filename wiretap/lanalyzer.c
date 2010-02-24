@@ -117,6 +117,10 @@ static const guint8 LA_CyclicInformationFake[] = {
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
       };
 
+typedef struct {
+	time_t	start;
+} lanalyzer_t;
+
 static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
@@ -136,6 +140,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	guint8 cr_day, cr_month;
 	guint16 cr_year;
 	struct tm tm;
+	lanalyzer_t *lanalyzer;
 
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(LE_record_type, 1, 2, wth->fh);
@@ -158,7 +163,8 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	 * Let's get some info from it. Note that we get wth->snapshot_length
 	 * from a record later in the file. */
 	wth->file_type = WTAP_FILE_LANALYZER;
-	wth->capture.lanalyzer = g_malloc(sizeof(lanalyzer_t));
+	lanalyzer = (lanalyzer_t *)g_malloc(sizeof(lanalyzer_t));;
+	wth->capture.generic = lanalyzer;
 	wth->subtype_read = lanalyzer_read;
 	wth->subtype_seek_read = lanalyzer_seek_read;
 	wth->subtype_close = lanalyzer_close;
@@ -168,7 +174,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	/* Read records until we find the start of packets */
 	while (1) {
 		if (file_seek(wth->fh, record_length, SEEK_CUR, err) == -1) {
-			g_free(wth->capture.lanalyzer);
+			g_free(wth->capture.generic);
 			return -1;
 		}
 		wth->data_offset += record_length;
@@ -178,10 +184,10 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 		if (bytes_read != 4) {
 			*err = file_error(wth->fh);
 			if (*err != 0) {
-				g_free(wth->capture.lanalyzer);
+				g_free(wth->capture.generic);
 				return -1;
 			}
-			g_free(wth->capture.lanalyzer);
+			g_free(wth->capture.generic);
 			return 0;
 		}
 		wth->data_offset += 4;
@@ -199,10 +205,10 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 				if (bytes_read != sizeof summary) {
 					*err = file_error(wth->fh);
 					if (*err != 0) {
-						g_free(wth->capture.lanalyzer);
+						g_free(wth->capture.generic);
 						return -1;
 					}
-					g_free(wth->capture.lanalyzer);
+					g_free(wth->capture.generic);
 					return 0;
 				}
 				wth->data_offset += sizeof summary;
@@ -229,7 +235,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 				tm.tm_min = 0;
 				tm.tm_sec = 0;
 				tm.tm_isdst = -1;
-				wth->capture.lanalyzer->start = mktime(&tm);
+				lanalyzer->start = mktime(&tm);
 				/*g_message("Day %d Month %d Year %d", tm.tm_mday,
 						tm.tm_mon, tm.tm_year);*/
 				mxslc = pletohs(&summary[30]);
@@ -245,7 +251,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 						wth->file_encap = WTAP_ENCAP_TOKEN_RING;
 						break;
 					default:
-						g_free(wth->capture.lanalyzer);
+						g_free(wth->capture.generic);
 						*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 						*err_info = g_strdup_printf("lanalyzer: board type %u unknown",
 						    board_type);
@@ -258,7 +264,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 				/* Go back header number ob ytes so that lanalyzer_read
 				 * can read this header */
 				if (file_seek(wth->fh, -bytes_read, SEEK_CUR, err) == -1) {
-					g_free(wth->capture.lanalyzer);
+					g_free(wth->capture.generic);
 					return -1;
 				}
 				wth->data_offset -= bytes_read;
@@ -285,6 +291,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 	guint16		time_low, time_med, time_high, true_size;
 	guint64		t;
 	time_t		tsecs;
+	lanalyzer_t	*lanalyzer;
 
 	/* read the record type and length. */
 	errno = WTAP_ERR_CANT_READ;
@@ -370,7 +377,8 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 	t = (((guint64)time_low) << 0) + (((guint64)time_med) << 16) +
 	    (((guint64)time_high) << 32);
 	tsecs = (time_t) (t/2000000);
-	wth->phdr.ts.secs = tsecs + wth->capture.lanalyzer->start;
+	lanalyzer = (lanalyzer_t *)wth->capture.generic;
+	wth->phdr.ts.secs = tsecs + lanalyzer->start;
 	wth->phdr.ts.nsecs = ((guint32) (t - tsecs*2000000)) * 500;
 
 	if (true_size - 4 >= packet_size) {
@@ -430,7 +438,7 @@ static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
 static void
 lanalyzer_close(wtap *wth)
 {
-	g_free(wth->capture.lanalyzer);
+	g_free(wth->capture.generic);
 }
 
 /*---------------------------------------------------

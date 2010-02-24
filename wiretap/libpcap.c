@@ -38,6 +38,22 @@
 /* See source to the "libpcap" library for information on the "libpcap"
    file format. */
 
+/*
+ * Private per-wtap_t data needed to read a file.
+ */
+typedef enum {
+	NOT_SWAPPED,
+	SWAPPED,
+	MAYBE_SWAPPED
+} swapped_type_t;
+
+typedef struct {
+	gboolean byte_swapped;
+	swapped_type_t lengths_swapped;
+	guint16	version_major;
+	guint16	version_minor;
+} libpcap_t;
+
 /* On some systems, the FDDI MAC addresses are bit-swapped. */
 #if !defined(ultrix) && !defined(__alpha) && !defined(__bsdi__)
 #define BIT_SWAPPED_MAC_ADDRS
@@ -74,6 +90,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	gboolean modified;
 	gboolean aix;
 	int file_encap;
+	libpcap_t *libpcap;
 
 	/* Read in the number that should be at the start of a "libpcap" file */
 	errno = WTAP_ERR_CANT_READ;
@@ -242,10 +259,11 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* This is a libpcap file */
-	wth->capture.pcap = g_malloc(sizeof(libpcap_t));
-	wth->capture.pcap->byte_swapped = byte_swapped;
-	wth->capture.pcap->version_major = hdr.version_major;
-	wth->capture.pcap->version_minor = hdr.version_minor;
+	libpcap = (libpcap_t *)g_malloc(sizeof(libpcap_t));;
+	libpcap->byte_swapped = byte_swapped;
+	libpcap->version_major = hdr.version_major;
+	libpcap->version_minor = hdr.version_minor;
+	wth->capture.generic = libpcap;
 	wth->subtype_read = libpcap_read;
 	wth->subtype_seek_read = libpcap_seek_read;
 	wth->subtype_close = libpcap_close;
@@ -272,19 +290,19 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 
 	case 2:
 		if (hdr.version_minor < 3)
-			wth->capture.pcap->lengths_swapped = SWAPPED;
+			libpcap->lengths_swapped = SWAPPED;
 		else if (hdr.version_minor == 3)
-			wth->capture.pcap->lengths_swapped = MAYBE_SWAPPED;
+			libpcap->lengths_swapped = MAYBE_SWAPPED;
 		else
-			wth->capture.pcap->lengths_swapped = NOT_SWAPPED;
+			libpcap->lengths_swapped = NOT_SWAPPED;
 		break;
 
 	case 543:
-		wth->capture.pcap->lengths_swapped = SWAPPED;
+		libpcap->lengths_swapped = SWAPPED;
 		break;
 
 	default:
-		wth->capture.pcap->lengths_swapped = NOT_SWAPPED;
+		libpcap->lengths_swapped = NOT_SWAPPED;
 		break;
 	}
 
@@ -349,7 +367,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Well, we couldn't even read it.
 			 * Give up.
 			 */
-			g_free(wth->capture.pcap);
+			g_free(wth->capture.generic);
 			return -1;
 
 		case THIS_FORMAT:
@@ -358,7 +376,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Put the seek pointer back, and return success.
 			 */
 			if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
-				g_free(wth->capture.pcap);
+				g_free(wth->capture.generic);
 				return -1;
 			}
 			return 1;
@@ -379,7 +397,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		wth->file_type = WTAP_FILE_PCAP_SS990915;
 		if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
-			g_free(wth->capture.pcap);
+			g_free(wth->capture.generic);
 			return -1;
 		}
 	} else {
@@ -400,7 +418,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Well, we couldn't even read it.
 			 * Give up.
 			 */
-			g_free(wth->capture.pcap);
+			g_free(wth->capture.generic);
 			return -1;
 
 		case THIS_FORMAT:
@@ -410,7 +428,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Put the seek pointer back, and return success.
 			 */
 			if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
-				g_free(wth->capture.pcap);
+				g_free(wth->capture.generic);
 				return -1;
 			}
 			return 1;
@@ -429,7 +447,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		wth->file_type = WTAP_FILE_PCAP_SS990417;
 		if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
-			g_free(wth->capture.pcap);
+			g_free(wth->capture.generic);
 			return -1;
 		}
 		switch (libpcap_try(wth, err)) {
@@ -439,7 +457,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Well, we couldn't even read it.
 			 * Give up.
 			 */
-			g_free(wth->capture.pcap);
+			g_free(wth->capture.generic);
 			return -1;
 
 		case THIS_FORMAT:
@@ -448,7 +466,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Put the seek pointer back, and return success.
 			 */
 			if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
-				g_free(wth->capture.pcap);
+				g_free(wth->capture.generic);
 				return -1;
 			}
 			return 1;
@@ -469,7 +487,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		wth->file_type = WTAP_FILE_PCAP_NOKIA;
 		if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
-			g_free(wth->capture.pcap);
+			g_free(wth->capture.generic);
 			return -1;
 		}
 	}
@@ -587,6 +605,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 	int bytes_read;
 	guchar fddi_padding[3];
 	int phdr_len;
+	libpcap_t *libpcap;
 
 	bytes_read = libpcap_read_header(wth, err, err_info, &hdr);
 	if (bytes_read == -1) {
@@ -624,7 +643,9 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 
 	*data_offset = wth->data_offset;
 
-	phdr_len = pcap_process_pseudo_header(wth->fh, wth->file_type, wth->file_encap, wth->capture.pcap->byte_swapped, packet_size,
+	libpcap = (libpcap_t *)wth->capture.generic;
+	phdr_len = pcap_process_pseudo_header(wth->fh, wth->file_type,
+	    wth->file_encap, libpcap->byte_swapped, packet_size,
 	    TRUE, &wth->phdr, &wth->pseudo_header, err, err_info);
 	if (phdr_len < 0)
 		return FALSE;	/* error */
@@ -688,11 +709,14 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
     int *err, gchar **err_info)
 {
 	int phdr_len;
+	libpcap_t *libpcap;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	phdr_len = pcap_process_pseudo_header(wth->random_fh, wth->file_type, wth->file_encap, wth->capture.pcap->byte_swapped, length,
+	libpcap = (libpcap_t *)wth->capture.generic;
+	phdr_len = pcap_process_pseudo_header(wth->random_fh, wth->file_type,
+	    wth->file_encap, libpcap->byte_swapped, length,
 	    FALSE, NULL, pseudo_header, err, err_info);
 	if (phdr_len < 0)
 		return FALSE;	/* error */
@@ -814,8 +838,10 @@ static void
 adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
 {
 	guint32 temp;
+	libpcap_t *libpcap;
 
-	if (wth->capture.pcap->byte_swapped) {
+	libpcap = (libpcap_t *)wth->capture.generic;
+	if (libpcap->byte_swapped) {
 		/* Byte-swap the record header fields. */
 		hdr->ts_sec = BSWAP32(hdr->ts_sec);
 		hdr->ts_usec = BSWAP32(hdr->ts_usec);
@@ -824,7 +850,7 @@ adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
 	}
 
 	/* Swap the "incl_len" and "orig_len" fields, if necessary. */
-	switch (wth->capture.pcap->lengths_swapped) {
+	switch (libpcap->lengths_swapped) {
 
 	case NOT_SWAPPED:
 		break;
@@ -867,7 +893,7 @@ libpcap_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 static void
 libpcap_close(wtap *wth)
 {
-	g_free(wth->capture.pcap);
+	g_free(wth->capture.generic);
 }
 
 /* Returns 0 if we could write the specified encapsulation type,
