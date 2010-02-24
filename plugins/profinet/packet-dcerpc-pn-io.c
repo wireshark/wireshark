@@ -1467,8 +1467,8 @@ static const value_string pn_io_submodule_state_ar_info[] = {
 static const value_string pn_io_submodule_state_ident_info[] = {
 	{ 0x0000, "OK" },
 	{ 0x0001, "Substitute (SU)" },
-	{ 0x0001, "Wrong (WR)" },
-	{ 0x0001, "NoSubmodule (NO)" },
+	{ 0x0002, "Wrong (WR)" },
+	{ 0x0003, "NoSubmodule (NO)" },
     /*0x0004 - 0x000F reserved */
     { 0, NULL }
 };
