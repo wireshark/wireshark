@@ -54,6 +54,7 @@ SUBDIRS = 		\
 	h450-ros	\
 	h460		\
 	h501		\
+	hnbap		\
 	inap		\
 	ldap		\
 	logotypecertextn	\
@@ -84,6 +85,7 @@ SUBDIRS = 		\
 	rrc			\
 	rrlp		\
 	rtse		\
+	rua			\
 	s1ap		\
 	s4406		\
 	sabp		\

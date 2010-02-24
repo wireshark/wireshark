@@ -93,6 +93,7 @@ per: \
 	h450-ros\
 	h460	\
 	h501	\
+	hnbap	\
 	lte-rrc	\
 	nbap	\
 	mpeg-audio	\
@@ -102,6 +103,7 @@ per: \
 	rnsap	\
 	rrc		\
 	rrlp	\
+	rua		\
 	s1ap	\
 	sabp	\
 	t38		\
@@ -199,6 +201,9 @@ clean:
 	cd h501
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
+	cd hnbap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
 	cd inap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -287,6 +292,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd rrlp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd rua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd s1ap
@@ -502,6 +510,11 @@ h501::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
+hnbap::
+	cd hnbap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
 inap::
 	cd inap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
@@ -649,6 +662,11 @@ rrlp::
 
 rtse::
 	cd rtse
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+rua::
+	cd rua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
