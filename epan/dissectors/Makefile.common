@@ -97,6 +97,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-ansi_tcap.c \
 	packet-camel.c \
 	packet-cdt.c \
+	packet-charging_ase.c	\
 	packet-cmip.c \
 	packet-cmp.c \
 	packet-cms.c \
@@ -140,6 +141,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-ranap.c		\
 	packet-ros.c \
 	packet-rtse.c \
+	packet-s1ap.c		\
 	packet-s4406.c \
 	packet-sabp.c \
 	packet-smrse.c \
@@ -147,6 +149,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-ulp.c \
 	packet-wlancertextn.c \
 	packet-x224.c \
+	packet-x2ap.c		\
 	packet-x509af.c \
 	packet-x509ce.c \
 	packet-x509if.c \
@@ -279,7 +282,6 @@ DISSECTOR_SRC = \
 	packet-cdp.c		\
 	packet-cfm.c		\
 	packet-cgmp.c		\
-	packet-charging_ase.c	\
 	packet-chdlc.c		\
 	packet-cigi.c   	\
 	packet-cimd.c		\
@@ -787,7 +789,6 @@ DISSECTOR_SRC = \
 	packet-rudp.c		\
 	packet-rwall.c		\
 	packet-rx.c		\
-	packet-s1ap.c		\
 	packet-s5066.c		\
 	packet-sadmind.c	\
 	packet-sap.c		\
@@ -926,7 +927,6 @@ DISSECTOR_SRC = \
 	packet-x11.c		\
 	packet-x25.c		\
 	packet-x29.c		\
-	packet-x2ap.c		\
 	packet-xcsl.c		\
 	packet-xdmcp.c		\
 	packet-xml.c		\
