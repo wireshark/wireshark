@@ -53,7 +53,7 @@
 #define ASSERT_EQ(exp,act) do_test((exp)==(act),"Assertion failed at line %i: %s==%s (%i==%i)\n", __LINE__, #exp, #act, exp, act)
 #define ASSERT_NE(exp,act) do_test((exp)!=(act),"Assertion failed at line %i: %s!=%s (%i!=%i)\n", __LINE__, #exp, #act, exp, act)
 
-int failure = 0;
+static int failure = 0;
 
 static void
 do_test(gboolean condition, const char *format, ...)
@@ -77,14 +77,15 @@ do_test(gboolean condition, const char *format, ...)
 
 #define DATA_LEN 256
 
-char *data;
-tvbuff_t *tvb;
-packet_info pinfo;
+static char *data;
+static tvbuff_t *tvb;
+static packet_info pinfo;
 
 /* fragment_table maps from datagram ids to head of fragment_data list
    reassembled_table maps from <packet number,datagram id> to head of
    fragment_data list */
-GHashTable *fragment_table = NULL, *reassembled_table = NULL;
+static GHashTable *fragment_table;
+static GHashTable *reassembled_table;
 
 /**********************************************************************************
  *
