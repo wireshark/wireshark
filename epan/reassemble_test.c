@@ -56,12 +56,13 @@
 int failure = 0;
 
 static void
-do_test(int condition, const char *format, ...)
+do_test(gboolean condition, const char *format, ...)
 {
     va_list ap;
 
-    if(condition)
+    if (condition)
         return;
+
     va_start(ap, format);
     vfprintf(stderr, format, ap);
     va_end(ap);
