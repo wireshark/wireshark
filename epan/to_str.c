@@ -167,14 +167,14 @@ bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
 
   buf=ep_alloc(buflen);
 
-    if (punct)
+  if (punct)
     bytes_to_hexstr_punct(buf, ad, len, punct);
   else
     bytes_to_hexstr(buf, ad, len);
 
   buf[buflen-1] = '\0';
   return buf;
-  }
+}
 
 /* Max string length for displaying byte string.  */
 #define	MAX_BYTE_STR_LEN	48
@@ -186,6 +186,7 @@ bytes_to_str(const guint8 *bd, int bd_len) {
   int truncated = 0;
 
   cur=ep_alloc(MAX_BYTE_STR_LEN+3+1);
+  if (bd_len <= 0) { cur[0] = '\0'; return cur; }
 
   if (bd_len > MAX_BYTE_STR_LEN/2) {	/* bd_len > 24 */
     truncated = 1;
@@ -214,6 +215,7 @@ bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct) {
   	return bytes_to_str(bd, bd_len);
 
   cur=ep_alloc(MAX_BYTE_STR_LEN+3+1);
+  if (bd_len <= 0) { cur[0] = '\0'; return cur; }
 
   if (bd_len > MAX_BYTE_STR_LEN/3) {	/* bd_len > 16 */
      truncated = 1;
