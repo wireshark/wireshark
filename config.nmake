@@ -158,7 +158,7 @@ FONTCONFIG_DLL=libfontconfig-1.dll
 EXPAT_DLL=libexpat-1.dll
 INTL_DLL=intl.dll
 # This macro is used by the setup target.
-GTK_PKG=2.18.7-20100213
+GTK_PKG=2.16.6-20100207
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -166,7 +166,7 @@ GTK_PKG=2.18.7-20100213
 # (MAJOR + MINOR Version number but without MICRO version number)
 # These macros are used by the nsis installer script and by the setup target.
 #
-GTK_INST_VERSION=2.18
+GTK_INST_VERSION=2.16
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
@@ -358,15 +358,16 @@ NEW_PACKET_LIST_CONFIG=^#define NEW_PACKET_LIST 1
 #
 GTK_DIR=$(WIRESHARK_LIBS)\gtk2
 # These macros are used by the nsis installer script and by the install target.
-TIFF_DLL=libtiff-3.dll
-JPEG_DLL=libjpeg-7.dll
+PNG_DLL=libpng14-14.dll
+#TIFF_DLL=libtiff-3.dll
+#JPEG_DLL=libjpeg-7.dll
 FREETYPE_DLL=libfreetype-6.dll
 FONTCONFIG_DLL=libfontconfig-1.dll
 EXPAT_DLL=libexpat-1.dll
 INTL_DLL=libintl-8.dll
 
 # These macros are used by the setup target.
-GTK_PKG=2.16.6-20090912
+GTK_PKG=2.16.6-20100208
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -374,7 +375,7 @@ GTK_PKG=2.16.6-20090912
 # (MAJOR + MINOR Version number but without MICRO version number)
 # These macros are used by the nsis installer script and by the setup target.
 #
-GTK_INST_VERSION=2.18
+GTK_INST_VERSION=2.16
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
