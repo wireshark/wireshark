@@ -248,7 +248,7 @@ static int hf_ts2_fragmentnumber = -1;
 static int hf_ts2_platform_string = -1;
 static int hf_ts2_server_name = -1;
 static int hf_ts2_server_welcome_message = -1;
-static int hf_ts2_endmarker = -1;
+static int hf_ts2_parent_channel_id = -1;
 static int hf_ts2_codec = -1;
 static int hf_ts2_channel_flags = -1;
 static int hf_ts2_channel_id = -1;
@@ -265,9 +265,16 @@ static int hf_ts2_status_blockwhispers = -1;
 static int hf_ts2_status_away = -1;
 static int hf_ts2_status_mutemicrophone = -1;
 static int hf_ts2_status_mute = -1;
-
+static int hf_ts2_channel_unregistered = -1;
+static int hf_ts2_channel_moderated = -1;
+static int hf_ts2_channel_password = -1;
+static int hf_ts2_channel_subchannels = -1;
+static int hf_ts2_channel_default = -1;
+static int hf_ts2_channel_order = -1;
+static int hf_ts2_max_users = -1;
 
 static gint ett_ts2 = -1;
+static gint ett_ts2_channel_flags = -1;
 
 /* Conversation Variables */
 typedef struct
@@ -595,6 +602,9 @@ static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree)
 {
 	gint32 offset;
 	guint32 string_len;
+	proto_tree	*subtree;
+	proto_item	*item;
+
 	offset=0;
 	proto_tree_add_item(ts2_tree, hf_ts2_number_of_channels, tvb, offset, 4, TRUE);
 	offset+=4;
@@ -602,16 +612,27 @@ static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree)
 	{
 		proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, TRUE);
 		offset+=4;
-		proto_tree_add_item(ts2_tree, hf_ts2_channel_flags, tvb, offset, 1, TRUE);
+
+		/* Channel flags */
+		item = proto_tree_add_item(ts2_tree, hf_ts2_channel_flags, tvb, offset, 1, TRUE);
+		subtree = proto_item_add_subtree(item, ett_ts2_channel_flags);
+		proto_tree_add_item(subtree, hf_ts2_channel_unregistered, tvb, offset, 1, FALSE);
+		proto_tree_add_item(subtree, hf_ts2_channel_moderated, tvb, offset, 1, FALSE);
+		proto_tree_add_item(subtree, hf_ts2_channel_password, tvb, offset, 1, FALSE);
+		proto_tree_add_item(subtree, hf_ts2_channel_subchannels, tvb, offset, 1, FALSE);
+		proto_tree_add_item(subtree, hf_ts2_channel_default, tvb, offset, 1, FALSE);
 		offset+=1;
+
 		proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 1, TRUE);
 		offset+=1;
 		proto_tree_add_item(ts2_tree, hf_ts2_codec, tvb, offset, 2, TRUE);
 		offset+=2;
-		proto_tree_add_item(ts2_tree, hf_ts2_endmarker, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ts2_tree, hf_ts2_parent_channel_id, tvb, offset, 4, TRUE);
 		offset+=4;
-		proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 4, TRUE);
-		offset+=4;
+		proto_tree_add_item(ts2_tree, hf_ts2_channel_order, tvb, offset, 2, TRUE);
+		offset+=2;
+		proto_tree_add_item(ts2_tree, hf_ts2_max_users, tvb, offset, 2, TRUE);
+		offset+=2;
 		tvb_get_ephemeral_stringz(tvb, offset, &string_len);
 		proto_tree_add_item(ts2_tree, hf_ts2_channel_name, tvb, offset,string_len , TRUE);
 		offset+=string_len;
@@ -971,9 +992,9 @@ void proto_register_ts2(void)
 		    NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_ts2_endmarker,
-		  { "End Marker", "ts2.endmarker",
-		    FT_NONE, BASE_NONE,
+		{ &hf_ts2_parent_channel_id,
+		  { "Parent Channel ID", "ts2.parentchannelid",
+		    FT_UINT32, BASE_HEX,
 		    NULL, 0x0,
 		    NULL, HFILL }
 		},
@@ -985,7 +1006,7 @@ void proto_register_ts2(void)
 		},
 		{ &hf_ts2_channel_flags,
 		  { "Channel Flags", "ts2.channelflags",
-		    FT_BOOLEAN, BASE_NONE,
+		    FT_UINT8, BASE_HEX,
 		    NULL, 0x0,
 		    NULL, HFILL }
 		},
@@ -1128,13 +1149,56 @@ void proto_register_ts2(void)
 		   FT_UINT32, BASE_DEC,
 		   NULL, 0x00,
 		   NULL, HFILL }
+		},
+		{ &hf_ts2_channel_unregistered,
+		  { "Unregistered", "ts2.channelflags.unregistered",
+		    FT_BOOLEAN, 8,
+		    NULL, 0x01,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_channel_moderated,
+		  { "Moderated", "ts2.channelflags.moderated",
+		    FT_BOOLEAN, 8,
+		    NULL, 0x02,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_channel_password,
+		  { "Has password", "ts2.channelflags.has_password",
+		    FT_BOOLEAN, 8,
+		    NULL, 0x04,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_channel_subchannels,
+		  { "Has subchannels", "ts2.channelflags.has_subchannels",
+		    FT_BOOLEAN, 8,
+		    NULL, 0x08,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_channel_default,
+		  { "Default", "ts2.channelflags.default",
+		    FT_BOOLEAN, 8,
+		    NULL, 0x10,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_channel_order,
+		  { "Channel order", "ts2.channelorder",
+		    FT_UINT16, BASE_DEC,
+		    NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_max_users,
+		  { "Max users", "ts2.maxusers",
+		    FT_UINT16, BASE_DEC,
+		    NULL, 0x00,
+		    NULL, HFILL }
 		}
 	};
 
 	static gint *ett[] = {
 		&ett_ts2,
 		&ett_msg_fragment,
-		&ett_msg_fragments
+		&ett_msg_fragments,
+		&ett_ts2_channel_flags
 	};
 
 	/* Setup protocol subtree array */
