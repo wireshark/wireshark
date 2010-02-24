@@ -55,7 +55,7 @@
 
 int failure = 0;
 
-void
+static void
 do_test(int condition, const char *format, ...)
 {
     va_list ap;
