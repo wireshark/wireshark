@@ -70,13 +70,11 @@ ADD_CUSTOM_COMMAND(
       ${CMAKE_CURRENT_SOURCE_DIR}/http.tpg
 )
 
-# todo
-# Do I need any of this or is this handled by type MODULE?
-# asn1_la_LDFLAGS = -module -avoid-version
-
 add_library(tpg ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
 )
+set_target_properties(tpg PROPERTIES PREFIX "")
+#set_target_properties(tpg PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 
 target_link_libraries(tpg epan)
 

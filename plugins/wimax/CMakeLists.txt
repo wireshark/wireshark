@@ -94,13 +94,11 @@ register_dissector_files(plugin.c
 	${DISSECTOR_SRC}
 )
 
-# todo
-# Do I need any of this or is this handled by type MODULE?
-# wimax_la_LDFLAGS = -module -avoid-version
-
 add_library(wimax ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
 )
+set_target_properties(wimax PROPERTIES PREFIX "")
+#set_target_properties(wimax PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 
 target_link_libraries(wimax epan)
 

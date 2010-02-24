@@ -54,13 +54,11 @@ register_dissector_files(plugin.c
 	${DISSECTOR_SRC}
 )
 
-# todo
-# Do I need any of this or is this handled by type MODULE?
-# asn1_la_LDFLAGS = -module -avoid-version
-
 add_library(m2m ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
 )
+set_target_properties(m2m PROPERTIES PREFIX "")
+#set_target_properties(m2m PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 
 target_link_libraries(m2m epan)
 

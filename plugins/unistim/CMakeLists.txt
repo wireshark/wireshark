@@ -49,13 +49,11 @@ register_dissector_files(plugin.c
 	${DISSECTOR_SRC}
 )
 
-# todo
-# Do I need any of this or is this handled by type MODULE?
-# unistim_la_LDFLAGS = -module -avoid-version
-
 add_library(unistim ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
 )
+set_target_properties(unistim PROPERTIES PREFIX "")
+#set_target_properties(unistim PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 
 target_link_libraries(unistim epan)
 

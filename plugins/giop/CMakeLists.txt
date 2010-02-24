@@ -53,13 +53,11 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-# todo
-# Do I need any of this or is this handled by type MODULE?
-# asn1_la_LDFLAGS = -module -avoid-version
-
 add_library(cosnaming ${LINK_MODE_MODULE}
 	${COSNAMING_SRC}
 )
+set_target_properties(cosnaming PROPERTIES PREFIX "")
+#set_target_properties(cosnaming PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 
 target_link_libraries(cosnaming epan)
 
@@ -72,6 +70,8 @@ install(TARGETS cosnaming
 add_library(coseventcomm ${LINK_MODE_MODULE}
 	${COSEVENTCOMM_SRC}
 )
+set_target_properties(coseventcomm PROPERTIES PREFIX "")
+#set_target_properties(coseventcomm PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 
 target_link_libraries(coseventcomm epan)
 
@@ -84,6 +84,8 @@ install(TARGETS coseventcomm
 add_library(tango ${LINK_MODE_MODULE}
 	${TANGO_SRC}
 )
+set_target_properties(tango PROPERTIES PREFIX "")
+#set_target_properties(tango PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 
 target_link_libraries(tango epan)
 
@@ -96,6 +98,8 @@ install(TARGETS tango
 add_library(parlay ${LINK_MODE_MODULE}
 	${PARLAY_SRC}
 )
+set_target_properties(parlay PROPERTIES PREFIX "")
+#set_target_properties(parlay PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 
 target_link_libraries(parlay epan)
 

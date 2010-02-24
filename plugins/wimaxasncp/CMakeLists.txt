@@ -53,13 +53,11 @@ register_dissector_files(plugin.c
 	${DISSECTOR_SRC}
 )
 
-# todo
-# Do I need any of this or is this handled by type MODULE?
-# wimaxasncp_la_LDFLAGS = -module -avoid-version
-
 add_library(wimaxasncp ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
 )
+set_target_properties(wimaxasncp PROPERTIES PREFIX "")
+#set_target_properties(wimaxasncp PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 
 target_link_libraries(wimaxasncp epan)
 
