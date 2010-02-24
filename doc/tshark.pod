@@ -999,6 +999,32 @@ per-file memory is initialized to 0xBADDCAFE when the memory is allocated
 and is reset to 0xDEADBEEF when the memory is freed.  This functionality is
 useful mainly to developers looking for bugs in the way memory is handled.
 
+=item WIRESHARK_RUN_FROM_BUILD_DIRECTORY
+
+This environment variable causes the plugins and other data files to be loaded
+from the build directory (where the program was compiled) rather than from the
+standard locations.  It has no effect when the program in question is running
+with root (or setuid) permissions on *NIX.
+
+=item WIRESHARK_DATA_DIR
+
+This environment variable causes the various data files to be loaded from
+a directory other than the standard locations.  It has no effect when the
+program in question is running with root (or setuid) permissions on *NIX.
+
+=item WIRESHARK_PYTHON_DIR
+
+This environment variable points to an alternate location for Python.
+It has no effect when the program in question is running with root (or setuid)
+permissions on *NIX.
+
+=item ERF_RECORDS_TO_CHECK
+
+This environment variable controls the number of ERF records checked when
+deciding if a file really is in the ERF format.  Setting this environment
+variable a number higher than the default (20) would make false positives
+less likely.
+
 =back
 
 =head1 SEE ALSO
