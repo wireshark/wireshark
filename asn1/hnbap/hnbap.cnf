@@ -1,0 +1,104 @@
+# hnbap.cnf
+# hnbap conformation file
+# Copyright 2010 Neil Piercy, ip.access Limited <Neil.Piercy@ipaccess.com>
+# $Id$
+
+#.OPT
+PER
+ALIGNED
+#.END
+
+#.PDU
+HNBAP-PDU
+
+##.MAKE_DEFINES
+#ProcedureCode
+
+#.MAKE_ENUM
+ProtocolIE-ID
+ProcedureCode
+
+#.TYPE_RENAME
+ProtocolIE-Field/value     ProtocolIE_Field_value
+PrivateIE-Field/value      PrivateIE_Field_value
+InitiatingMessage/value    InitiatingMessage_value
+SuccessfulOutcome/value    SuccessfulOutcome_value
+UnsuccessfulOutcome/value  UnsuccessfulOutcome_value
+
+#.FIELD_RENAME
+InitiatingMessage/value initiatingMessagevalue
+UnsuccessfulOutcome/value unsuccessfulOutcome_value
+SuccessfulOutcome/value successfulOutcome_value
+PrivateIE-Field/value private_value
+ProtocolIE-Field/value ie_field_value
+ProtocolIE-Field/id protocol_ie_field_id
+PrivateIE-Field/id private_ie_field_id
+GeographicalLocation/geographicalCoordinates geographical_location_geographical_coordinates
+HNB-Location-Information/geographicalCoordinates hnb_location_information_geographical_coordinates
+
+#.OMIT_ASSIGNMENT
+Presence
+ProtocolIE-ContainerList
+#.END
+
+#.FN_PARS ProtocolIE-ID  VAL_PTR = &ProtocolIE_ID
+#.FN_FTR ProtocolIE-ID
+  if (tree) {
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(hnbap_ProtocolIE_ID_vals), "unknown (%d)"));
+  }
+#.END
+
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
+
+#.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
+
+#.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
+#.FN_FTR ProcedureCode
+     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+                 val_to_str(ProcedureCode, hnbap_ProcedureCode_vals,
+                            "unknown message"));
+#.END
+
+#.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
+
+#.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
+
+#.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
+
+#.REGISTER_NEW
+
+#HNBAP-PROTOCOL-IES
+Cause						N hnbap.ies id-Cause
+CriticalityDiagnostics		N hnbap.ies id-CriticalityDiagnostics
+HNB-Identity				N hnbap.ies id-HNB-Identity
+Context-ID					N hnbap.ies id-Context-ID
+UE-Identity					N hnbap.ies id-UE-Identity
+LAC							N hnbap.ies id-LAC
+RAC							N hnbap.ies id-RAC
+HNB-Location-Information	N hnbap.ies id-HNB-Location-Information
+PLMNidentity				N hnbap.ies id-PLMNidentity
+SAC							N hnbap.ies id-SAC
+CellIdentity				N hnbap.ies id-CellIdentity
+Registration-Cause			N hnbap.ies id-Registration-Cause
+UE-Capabilities				N hnbap.ies id-UE-Capabilities
+RNC-ID						N hnbap.ies id-RNC-ID
+CSG-ID						N hnbap.ies id-CSG-ID
+BackoffTimer				N hnbap.ies id-BackoffTimer
+
+#HNBAP-PROTOCOL-EXTENSION
+IP-Address	N hnbap.extension id-HNB-Internet-Information
+
+
+#HNBAP-ELEMENTARY-PROCEDURE
+HNBRegisterRequest							N hnbap.proc.imsg id-HNBRegister
+HNBRegisterAccept							N hnbap.proc.sout id-HNBRegister
+HNBRegisterReject							N hnbap.proc.uout id-HNBRegister
+UERegisterRequest							N hnbap.proc.imsg id-UERegister
+UERegisterAccept							N hnbap.proc.sout id-UERegister
+UERegisterReject							N hnbap.proc.uout id-UERegister
+UEDe-Register								N hnbap.proc.imsg id-UEDe-Register
+HNBDe-Register								N hnbap.proc.imsg id-HNBDe-Register
+ErrorIndication								N hnbap.proc.imsg id-ErrorIndication
+PrivateMessage								N hnbap.proc.imsg id-privateMessage
+
+#.END
