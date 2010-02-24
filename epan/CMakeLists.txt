@@ -176,18 +176,18 @@ set(PIDL_DISSECTOR_SRC
 	dissectors/packet-dcerpc-dfs.c
 	dissectors/packet-dcerpc-dssetup.c
 	dissectors/packet-dcerpc-efs.c
+	dissectors/packet-dcerpc-frstrans.c
 	dissectors/packet-dcerpc-initshutdown.c
 	dissectors/packet-dcerpc-nspi.c
 	dissectors/packet-dcerpc-rfr.c
+	dissectors/packet-dcerpc-srvsvc.c
 	dissectors/packet-dcerpc-wkssvc.c
 	dissectors/packet-dcerpc-wzcsvc.c
-	dissectors/packet-dcerpc-frstrans.c
 )
 set(DIRTY_PIDL_DISSECTOR_SRC
 	dissectors/packet-dcerpc-dnsserver.c
 	dissectors/packet-dcerpc-eventlog.c
 	dissectors/packet-dcerpc-lsa.c
-	dissectors/packet-dcerpc-srvsvc.c
 	dissectors/packet-dcerpc-winreg.c
 )
 set(ASN1_DISSECTOR_SRC
@@ -196,6 +196,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-ansi_tcap.c
 	dissectors/packet-camel.c
 	dissectors/packet-cdt.c
+	dissectors/packet-charging_ase.c
 	dissectors/packet-cmip.c
 	dissectors/packet-cmp.c
 	dissectors/packet-cms.c
@@ -242,20 +243,21 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-rtse.c
 	dissectors/packet-s4406.c
 	dissectors/packet-sabp.c
+	dissectors/packet-s1ap.c
 	dissectors/packet-smrse.c
 	dissectors/packet-spnego.c
 	dissectors/packet-ulp.c
 	dissectors/packet-wlancertextn.c
 	dissectors/packet-x224.c
 	dissectors/packet-x509af.c
+	dissectors/packet-x2ap.c
 	dissectors/packet-x509ce.c
 	dissectors/packet-x509if.c
-	dissectors/packet-x509sat.c 
+	dissectors/packet-x509sat.c
 )
 
 set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-ansi_map.c
-	dissectors/packet-charging_ase.c
 	dissectors/packet-gnm.c
 	dissectors/packet-gsm_map.c
 	dissectors/packet-inap.c
@@ -268,11 +270,9 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-rnsap.c
 	dissectors/packet-rrc.c
 	dissectors/packet-rrlp.c
-	dissectors/packet-s1ap.c
 	dissectors/packet-snmp.c
 	dissectors/packet-t125.c
 	dissectors/packet-tcap.c
-	dissectors/packet-x2ap.c
 	dissectors/packet-x411.c
 	dissectors/packet-x420.c
 )
