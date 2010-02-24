@@ -138,6 +138,13 @@
 #define ISERIES_FORMAT_ASCII    1
 #define ISERIES_FORMAT_UNICODE  2
 
+typedef struct {
+  gboolean have_date;     /* TRUE if we found a capture start date */
+  int year, month, day;   /* The start date */
+  gboolean tcp_formatted; /* TCP/IP data formated Y/N */
+  int format;             /* Trace format type        */
+} iseries_t;
+
 static gboolean iseries_read (wtap * wth, int *err, gchar ** err_info,
 			      gint64 *data_offset);
 static gboolean iseries_seek_read (wtap * wth, gint64 seek_off,
@@ -257,14 +264,14 @@ iseries_check_file_type (wtap * wth, int *err, int format)
   guint line;
   int num_items_scanned;
   char buf[ISERIES_LINE_LENGTH], protocol[9], tcpformat[2];
-  char *sdate;
+  iseries_t *iseries;
 
   /* Save trace format for passing between packets */
-  sdate = g_malloc (10);
-  wth->capture.iseries = g_malloc (sizeof (iseries_t));
-  wth->capture.iseries->sdate = NULL;
-  wth->capture.iseries->format = format;
-  wth->capture.iseries->tcp_formatted = FALSE;
+  iseries = (iseries_t *) g_malloc (sizeof (iseries_t));
+  wth->capture.generic = iseries;
+  iseries->have_date = FALSE;
+  iseries->format = format;
+  iseries->tcp_formatted = FALSE;
 
   for (line = 0; line < ISERIES_HDR_LINES_TO_CHECK; line++)
     {
@@ -273,7 +280,7 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 	  /*
 	   * Check that we are dealing with an ETHERNET trace
 	   */
-	  if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
+	  if (iseries->format == ISERIES_FORMAT_UNICODE)
 	    {
              iseries_UNICODE_to_ASCII ((guint8 *)buf, ISERIES_LINE_LENGTH);
 	    }
@@ -297,11 +304,11 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 	    {
 	      if (strncmp (tcpformat, "Y", 1) == 0)
 		{
-		  wth->capture.iseries->tcp_formatted = TRUE;
+		  iseries->tcp_formatted = TRUE;
 		}
 	      else
 		{
-		  wth->capture.iseries->tcp_formatted = FALSE;
+		  iseries->tcp_formatted = FALSE;
 		}
 	    }
 
@@ -310,11 +317,12 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 	   * extract it here and store for all packets to access
 	   */
 	  num_items_scanned = sscanf (buf,
-				      "   START DATE/TIME  . . . . . . :  %8s",
-				      sdate);
-	  if (num_items_scanned == 1)
+				      "   START DATE/TIME  . . . . . . :  %d/%d/%d",
+				      &iseries->month, &iseries->day,
+				      &iseries->year);
+	  if (num_items_scanned == 3)
 	    {
-	      wth->capture.iseries->sdate = sdate;
+	      iseries->have_date = TRUE;
 	    }
 
 	}
@@ -373,6 +381,7 @@ iseries_seek_next_packet (wtap * wth, int *err)
   int line;
   gint64 cur_off;
   long buflen;
+  iseries_t *iseries = (iseries_t *)wth->capture.generic;
 
   /*
    * Seeks to the beginning of the next packet, and returns the
@@ -385,7 +394,7 @@ iseries_seek_next_packet (wtap * wth, int *err)
 
 	  /* Convert UNICODE to ASCII if required and determine    */
 	  /* the number of bytes to rewind to beginning of record. */
-	  if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
+	  if (iseries->format == ISERIES_FORMAT_UNICODE)
 	    {
 	      /* buflen is #bytes to 1st 0x0A */
              buflen = iseries_UNICODE_to_ASCII ((guint8 *)buf, ISERIES_LINE_LENGTH);
@@ -478,7 +487,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   gboolean isValid, isCurrentPacket, IPread, TCPread, isDATA;
   int num_items_scanned, line, pktline, buflen, i;
   guint32 pkt_len;
-  int cap_len, pktnum, month, day, year, hr, min, sec, csec;
+  int cap_len, pktnum, hr, min, sec, csec;
   char direction[2], destmac[13], srcmac[13], type[5], ipheader[41],
     tcpheader[81];
   char hex1[17], hex2[17], hex3[17], hex4[17];
@@ -486,6 +495,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   guint8 *buf;
   char   *tcpdatabuf, *workbuf, *asciibuf;
   struct tm tm;
+  iseries_t *iseries = (iseries_t *)wth->capture.generic;
 
   /*
    * Check for packet headers in first 3 lines this should handle page breaks
@@ -506,7 +516,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	  return -1;
 	}
       /* Convert UNICODE data to ASCII */
-      if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
+      if (iseries->format == ISERIES_FORMAT_UNICODE)
 	{
          iseries_UNICODE_to_ASCII ((guint8 *)data, ISERIES_LINE_LENGTH);
 	}
@@ -550,13 +560,11 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
    * different on other platforms though all the traces I've seen seem to show resolution
    * to Milliseconds (i.e HH:MM:SS.nnnnn) or Nanoseconds (i.e HH:MM:SS.nnnnnn)
    */
-  if (wth->capture.iseries->sdate)
+  if (iseries->have_date)
     {
-      num_items_scanned =
-	sscanf (wth->capture.iseries->sdate, "%d/%d/%d", &month, &day, &year);
-      tm.tm_year = 100 + year;
-      tm.tm_mon = month - 1;
-      tm.tm_mday = day;
+      tm.tm_year = 100 + iseries->year;
+      tm.tm_mon = iseries->month - 1;
+      tm.tm_mday = iseries->day;
       tm.tm_hour = hr;
       tm.tm_min = min;
       tm.tm_sec = sec;
@@ -616,7 +624,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	}
 
       /* Convert UNICODE data to ASCII and determine line length */
-      if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
+      if (iseries->format == ISERIES_FORMAT_UNICODE)
 	{
          buflen = iseries_UNICODE_to_ASCII ((guint8 *)data, ISERIES_LINE_LENGTH);
 	}
@@ -704,7 +712,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
    * For a formated trace ensure we have read at least the IP and TCP headers otherwise
    * exit and pass error message to user.
    */
-  if (wth->capture.iseries->tcp_formatted)
+  if (iseries->tcp_formatted)
     {
       if (!IPread)
 	{
@@ -728,7 +736,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   if (isDATA)
     {
       /* packet contained data */
-      if (wth->capture.iseries->tcp_formatted)
+      if (iseries->tcp_formatted)
 	{
 	  /* build string for formatted fields */
 	  g_snprintf (asciibuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s%s%s",

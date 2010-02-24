@@ -45,12 +45,6 @@
 #include "wtap.h"
 
 typedef struct {
-  char *sdate;            /* Packet start date        */
-  gboolean tcp_formatted; /* TCP/IP data formated Y/N */
-  int format;             /* Trace format type        */
-} iseries_t;
-
-typedef struct {
 	gboolean byte_swapped;
 } i4btrace_t;
 
@@ -143,7 +137,6 @@ struct wtap {
 	gint64			data_offset;
 
 	union {
-		iseries_t		*iseries;
 		i4btrace_t		*i4btrace;
 		nettl_t			*nettl;
 		netmon_t		*netmon;
