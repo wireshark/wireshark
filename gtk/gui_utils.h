@@ -399,6 +399,8 @@ GtkWidget *ws_combo_box_new_text_and_pointer(void);
  * @param combo_box A #GtkComboBox constructed using ws_combo_box_new_text_and_pointer()
  *
  * Clears all the text_and_pointer entries in the text_and_pointer combo_box.
+ * Note: A "changed" signal will be emitted after the clear if there was 
+ * an active (selected) entry before the clear.
  * You should use this function only with combo boxes constructed with
  * ws_combo_box_new_text_and_pointer().
  */
