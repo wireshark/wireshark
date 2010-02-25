@@ -587,6 +587,18 @@ static void register_mibs(void) {
 
 		D(3,("\tModule: %s", smiModule->name));
 
+		/* TODO: Check libsmi version at compile time and disable this
+		 * workaround for libsmi versions where this problem is fixed.
+		 * Currently there is no such version. :-(
+		 */
+		if (smiModule->conformance <= 1)
+			report_failure("Stopped processing module %s due to "
+				"error(s) to prevent potential crash in libsmi.\n"
+				"Module's conformance level: %d.\n"
+				"See details at: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=560325\n",
+				 smiModule->name, smiModule->conformance);
+			continue;
+
 		for (smiNode = smiGetFirstNode(smiModule, SMI_NODEKIND_ANY);
 			 smiNode;
 			 smiNode = smiGetNextNode(smiNode, SMI_NODEKIND_ANY)) {
