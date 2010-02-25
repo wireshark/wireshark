@@ -241,6 +241,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-ros.c
 	dissectors/packet-rtnet.c
 	dissectors/packet-rtse.c
+	dissectors/packet-rua.c
 	dissectors/packet-s4406.c
 	dissectors/packet-sabp.c
 	dissectors/packet-s1ap.c
