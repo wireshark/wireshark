@@ -91,7 +91,7 @@ GtkWidget*
 capture_prefs_show(void)
 {
 	GtkWidget	*main_tb, *main_vb;
-	GtkWidget	*if_cb, *if_lb, *promisc_cb, *pcap_ng_cb, *sync_cb, *auto_scroll_cb, *show_info_cb;
+	GtkWidget	*if_cbxe, *if_lb, *promisc_cb, *pcap_ng_cb, *sync_cb, *auto_scroll_cb, *show_info_cb;
 	GtkWidget	*ifopts_lb, *ifopts_bt;
 	GList		*if_list, *combo_list;
 	int		err;
@@ -117,7 +117,7 @@ capture_prefs_show(void)
 	gtk_misc_set_alignment(GTK_MISC(if_lb), 1.0f, 0.5f);
 	gtk_widget_show(if_lb);
 
-	if_cb = gtk_combo_new();
+	if_cbxe = gtk_combo_box_entry_new_text();
 	/*
 	 * XXX - what if we can't get the list?
 	 */
@@ -125,18 +125,26 @@ capture_prefs_show(void)
 	combo_list = build_capture_combo_list(if_list, FALSE);
 	free_interface_list(if_list);
 	if (combo_list != NULL) {
-		gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), combo_list);
-		free_capture_combo_list(combo_list);
+		GList *combo_entry;
+		for (combo_entry = combo_list; combo_entry != NULL; combo_entry = g_list_next(combo_entry)) {
+				gtk_combo_box_append_text(GTK_COMBO_BOX(if_cbxe), combo_entry->data);
+		}
 	}
-	if (prefs.capture_device)
-		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry),
-		    prefs.capture_device);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_cb, 1, 2, row, row+1);
+	if (prefs.capture_device) {
+		gtk_entry_set_text(GTK_ENTRY(gtk_bin_get_child(GTK_BIN(if_cbxe))),
+				   prefs.capture_device);
+	}
+	else if (combo_list != NULL) {
+		gtk_combo_box_set_active(GTK_COMBO_BOX(if_cbxe), 0);
+	}
+	free_capture_combo_list(combo_list);
+
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_cbxe, 1, 2, row, row+1);
 	tooltips_text = "The default interface to be captured from.";
 	gtk_tooltips_set_tip(tooltips, if_lb, tooltips_text, NULL);
-	gtk_tooltips_set_tip(tooltips, GTK_COMBO(if_cb)->entry, tooltips_text, NULL);
-	gtk_widget_show(if_cb);
-	g_object_set_data(G_OBJECT(main_vb), DEVICE_KEY, if_cb);
+	gtk_tooltips_set_tip(tooltips, gtk_bin_get_child(GTK_BIN(if_cbxe)), tooltips_text, NULL);
+	gtk_widget_show(if_cbxe);
+	g_object_set_data(G_OBJECT(main_vb), DEVICE_KEY, if_cbxe);
 	row++;
 
 	/* Interface properties */
@@ -201,13 +209,13 @@ capture_prefs_show(void)
 void
 capture_prefs_fetch(GtkWidget *w)
 {
-	GtkWidget *if_cb, *promisc_cb, *pcap_ng_cb, *sync_cb, *auto_scroll_cb, *show_info_cb;
+	GtkWidget *if_cbxe, *promisc_cb, *pcap_ng_cb, *sync_cb, *auto_scroll_cb, *show_info_cb;
 	gchar	*if_text;
 
-	if_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), DEVICE_KEY);
+	if_cbxe    = (GtkWidget *)g_object_get_data(G_OBJECT(w), DEVICE_KEY);
 	promisc_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), PROM_MODE_KEY);
 	pcap_ng_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), PCAP_NG_KEY);
-	sync_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), CAPTURE_REAL_TIME_KEY);
+	sync_cb    = (GtkWidget *)g_object_get_data(G_OBJECT(w), CAPTURE_REAL_TIME_KEY);
 	auto_scroll_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), AUTO_SCROLL_KEY);
         show_info_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), SHOW_INFO_KEY);
 
@@ -215,7 +223,7 @@ capture_prefs_fetch(GtkWidget *w)
 		g_free(prefs.capture_device);
 		prefs.capture_device = NULL;
 	}
-	if_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
+	if_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(gtk_bin_get_child(GTK_BIN(if_cbxe)))));
 	/* Strip out white space */
 	g_strstrip(if_text);
 	/* If there was nothing but white space, treat that as an
