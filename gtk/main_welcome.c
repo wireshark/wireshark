@@ -225,7 +225,7 @@ welcome_button(const gchar *stock_item,
 
     g_signal_connect(eb, "enter-notify-event", G_CALLBACK(welcome_item_enter_cb), NULL);
     g_signal_connect(eb, "leave-notify-event", G_CALLBACK(welcome_item_leave_cb), NULL);
-    g_signal_connect(eb, "button-press-event", G_CALLBACK(callback), callback_data);
+    g_signal_connect(eb, "button-release-event", G_CALLBACK(callback), callback_data);
 
     /* icon */
     w = gtk_image_new_from_stock(stock_item, GTK_ICON_SIZE_LARGE_TOOLBAR);
