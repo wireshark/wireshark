@@ -24,6 +24,7 @@
 project(Wireshark C)
 
 cmake_minimum_required(VERSION 2.6)
+set(CMAKE_BACKWARDS_COMPATIBILITY 2.6)
 
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
@@ -69,10 +70,11 @@ option(AUTOGEN_pidl      "Autogenerate pidl dissectors" OFF)
 option(DISABLE_WERROR	 "Do not treat Warnings as errors" OFF)
 option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC (disables -Werror)" OFF)
 option(ENABLE_AIRPCAP	 "Enable Airpcap support" ON)
+# todo
 option(ENABLE_STATIC     "Build a static version of Wireshark (not yet working)" OFF)
 option(ENABLE_PLUGINS    "Build with plugins" ON)
 # todo
-option(ENABLE_GUIDES     "Build Guides (not yet implemented)" OFF)
+option(ENABLE_GUIDES     "Build Guides" ON)
 
 option(ENABLE_ADNS       "Build with adns support" ON)
 option(ENABLE_PCRE       "Build with pcre support" ON)
@@ -355,8 +357,11 @@ add_subdirectory( wiretap )
 add_subdirectory( wsutil )
 
 if(ENABLE_GUIDES)
-	add_subdirectory( docbook )
+#	FIXME: Disabling the build via option currently doesn't work
+#	add_subdirectory( docbook )
 endif()
+
+find_package(POD)
 
 #Platform specific
 if(UNIX)
@@ -804,8 +809,6 @@ ADD_CUSTOM_COMMAND(
 		${CMAKE_SOURCE_DIR}/doc/wireshark-filter.pod.template
 		tshark
 )
-
-find_package(POD)
 
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/capinfos 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/dumpcap 1 )

@@ -233,7 +233,7 @@ set(WSLUA_MODULES
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_util.c
 )
 
-find_package( FOP )
+find_package( FOP ) # Call before XSLTPROC
 find_package( LYNX )
 find_package( XSLTPROC )
 find_package( XMLLINT )
@@ -248,13 +248,13 @@ ADD_CUSTOM_COMMAND(
 )
 
 add_custom_target(
-	guides ALL
+	user_guides ALL
 	DEPENDS
-		wsug.validated
-#		wsug_html_chunked
-#		user-guide.html
-#		user-guide-a4.pdf
-#		user-guide-us.pdf
+		wsluarm
+		wsug_html_chunked/index.html
+		wsug_html/user-guide.html
+		user-guide-a4.pdf
+		user-guide-us.pdf
 )
 
 VALIDATE_XML(
@@ -266,43 +266,84 @@ XML2HTML(
 	wsug.validated
 	wsug_html/user-guide.html
 	single-page
-	WSUG_FILES
+	WSUG_SOURCE
 	WSUG_GRAPHICS
 )
 
-#XML2HTML(
-#	wsug.validated
-#	wsug_html_chunked/index.html
-#	chunked
-#	wsug_html_chunked
-#	WSUG_FILES
-#	WSUG_GRAPHICS
-#)
-#
-#XML2PDF(
-#	WSUG_SOURCE
-#	custom_layer_pdf.xsl
-#	A4
-#)
-#
-#XML2PDF(
-#	WSUG_SOURCE
-#	custom_layer_pdf.xsl
-#	letter
-#)
+XML2HTML(
+	wsug.validated
+	wsug_html_chunked/index.html
+	chunked
+	WSUG_SOURCE
+	WSUG_GRAPHICS
+)
 
-# wsdg: wsdg_html_chunked developer-guide.html developer-guide-a4.pdf developer-guide-us.pdf
+XML2PDF(
+	user-guide-a4.pdf
+	WSUG_SOURCE
+	custom_layer_pdf.xsl
+	A4
+)
 
-# ...
+XML2PDF(
+	user-guide-us.pdf
+	WSUG_SOURCE
+	custom_layer_pdf.xsl
+	letter
+)
+
+add_custom_target(
+	developer_guides ALL
+	DEPENDS
+		wsluarm
+		wsdg_html_chunked/index.html
+		wsdg_html/developer-guide.html
+		developer-guide-a4.pdf
+		developer-guide-us.pdf
+)
+
+VALIDATE_XML(
+	wsdg.validated
+	WSDG_SOURCE
+)
+
+XML2HTML(
+	wsdg.validated
+	wsdg_html/developer-guide.html
+	single-page
+	WSDG_SOURCE
+	WSDG_GRAPHICS
+)
+
+XML2HTML(
+	wsdg.validated
+	wsdg_html_chunked/index.html
+	chunked
+	WSDG_SOURCE
+	WSDG_GRAPHICS
+)
+
+XML2PDF(
+	developer-guide-a4.pdf
+	WSDG_SOURCE
+	custom_layer_pdf.xsl
+	A4
+)
+
+XML2PDF(
+	developer-guide-us.pdf
+	WSDG_SOURCE
+	custom_layer_pdf.xsl
+	letter
+)
 
 # release_notes: release-notes.html release-notes.txt release-notes-a4.pdf release-notes-us.pdf
-
-# ...
 
 # wsluarm
 ADD_CUSTOM_COMMAND(
 	OUTPUT
 	  wsluarm
+	COMMAND cmake -E make_directory wsluarm_src
 	COMMAND ${PERL_EXECUTABLE}
 	  ${CMAKE_CURRENT_SOURCE_DIR}/make-wsluarm.pl
 	  ${WSLUA_MODULES}
@@ -312,51 +353,4 @@ ADD_CUSTOM_COMMAND(
 	  ${CMAKE_CURRENT_SOURCE_DIR}/make-wsluarm.pl
 	  ${WSLUA_MODULES}
 )
-# ...
-
-
-# make-taps.pl depends on the current working directory
-# to find the dissector files (contents of taps file
-# depend on this actually, so just changing the paths
-# in these lists won't help).
-#ADD_CUSTOM_COMMAND(
-#    OUTPUT
-#      ${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
-#      ${CMAKE_CURRENT_BINARY_DIR}/taps.txt
-#    COMMAND ${PERL_EXECUTABLE}
-#      ${CMAKE_CURRENT_SOURCE_DIR}/make-taps.pl
-#      ${CMAKE_CURRENT_SOURCE_DIR}/taps
-#      ${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
-#      ${CMAKE_CURRENT_BINARY_DIR}/taps.txt
-#    WORKING_DIRECTORY
-#      ${CMAKE_CURRENT_SOURCE_DIR}
-#    DEPENDS
-#      ${CMAKE_CURRENT_SOURCE_DIR}/taps
-#      ${CMAKE_CURRENT_SOURCE_DIR}/make-taps.pl
-#      # Only here to add dependencies for the taps "source"files
-#      ${WSLUA_TAPS_USED}
-#)
-
-#ADD_CUSTOM_COMMAND(
-#    OUTPUT
-#      declare_wslua.h
-#      register_wslua.c
-#    COMMAND ${PERL_EXECUTABLE}
-#      ${CMAKE_CURRENT_SOURCE_DIR}/make-reg.pl
-#      ${WSLUA_MODULES}
-#    DEPENDS
-#      ${CMAKE_CURRENT_SOURCE_DIR}/make-reg.pl
-#      ${WSLUA_MODULES}
-#      # ${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
-#)
-#
-
-#install(
-#    FILES
-#	console.lua
-#	dtd_gen.lua
-#	${CMAKE_CURRENT_BINARY_DIR}/init.lua
-#    DESTINATION
-#	${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
-#)
 

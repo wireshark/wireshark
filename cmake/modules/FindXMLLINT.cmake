@@ -25,24 +25,25 @@ MARK_AS_ADVANCED(XMLLINT_EXECUTABLE)
 
 # Validate XML
 MACRO(VALIDATE_XML _validated _sources)
-    message(STATUS "Source(s): ${${_sources}}")
     # FIXME: How do I extract the first element of a variable containing a
     # list of values? Isn't there a "cleaner" solution?
-    FOREACH(_source ${${_sources}})
+    # Oh, and I have no idea why I can't directly use _source instead of
+    # having to introduce _tmpsource.
+    FOREACH(_tmpsource ${${_sources}})
+	set(_source ${_tmpsource})
 	BREAK()
     ENDFOREACH()
     ADD_CUSTOM_COMMAND(
-        OUTPUT
-          ${CMAKE_CURRENT_BINARY_DIR}/${_validated}
-        COMMAND ${XMLLINT_EXECUTABLE}
+	OUTPUT
+	    ${_validated}
+	COMMAND ${XMLLINT_EXECUTABLE}
+	  --path "${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_CURRENT_BINARY_DIR}/wsluarm_src"
 	  --valid
 	  --noout
-	  --path "${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_CURRENT_SOURCE_DIR}"
-          ${_source}
-        COMMAND touch
-          ${CMAKE_CURRENT_BINARY_DIR}/${_validated}
-        DEPENDS
-          ${_source}
-	  svn_version.xml
+	  ${_source}
+	COMMAND touch
+	  ${_validated}
+	DEPENDS
+	  ${${_sources}}
     )
 ENDMACRO(VALIDATE_XML)
