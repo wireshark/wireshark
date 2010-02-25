@@ -1741,6 +1741,7 @@ AC_OUTPUT(
   asn1/h501/Makefile
   asn1/hnbap/Makefile
   asn1/inap/Makefile
+  asn1/kerberos/Makefile
   asn1/ldap/Makefile
   asn1/logotypecertextn/Makefile
   asn1/lte-rrc/Makefile
@@ -1770,6 +1771,7 @@ AC_OUTPUT(
   asn1/rrc/Makefile
   asn1/rrlp/Makefile
   asn1/rtse/Makefile
+  asn1/rua/Makefile
   asn1/s1ap/Makefile
   asn1/s4406/Makefile
   asn1/sabp/Makefile
