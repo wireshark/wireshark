@@ -260,6 +260,7 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-ansi_map.c
 	dissectors/packet-gnm.c
 	dissectors/packet-gsm_map.c
+	dissectors/packet-hnbap.c \
 	dissectors/packet-inap.c
 	dissectors/packet-ldap.c
 	dissectors/packet-lte-rrc.c
