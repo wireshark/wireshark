@@ -190,7 +190,8 @@ int ascend_open(wtap *wth, int *err, gchar **err_info _U_)
 
   /* Do a trial parse of the first packet just found to see if we might really have an Ascend file */
   init_parse_ascend();
-  if (! parse_ascend(wth->fh, buf, &wth->pseudo_header.ascend, &header, &dummy_seek_start)) {
+  if (parse_ascend(wth->fh, buf, &wth->pseudo_header.ascend, &header,
+      &dummy_seek_start) != PARSED_RECORD) {
     return 0;
   }
 
@@ -279,7 +280,8 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
     offset = ascend_seek(wth, err);
     if (offset == -1)
       return FALSE;
-  if (! parse_ascend(wth->fh, buf, &wth->pseudo_header.ascend, &header, &(wth->capture.ascend->next_packet_seek_start))) {
+  if (parse_ascend(wth->fh, buf, &wth->pseudo_header.ascend, &header,
+      &(wth->capture.ascend->next_packet_seek_start)) != PARSED_RECORD) {
     *err = WTAP_ERR_BAD_RECORD;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
     return FALSE;
@@ -327,7 +329,8 @@ static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
 
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
-  if (! parse_ascend(wth->random_fh, pd, &pseudo_head->ascend, NULL, &(wth->capture.ascend->next_packet_seek_start))) {
+  if (parse_ascend(wth->random_fh, pd, &pseudo_head->ascend, NULL,
+      &(wth->capture.ascend->next_packet_seek_start)) != PARSED_RECORD) {
     *err = WTAP_ERR_BAD_RECORD;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
     return FALSE;

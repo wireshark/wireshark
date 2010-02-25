@@ -442,9 +442,12 @@ init_parse_ascend()
   start_time = 0;	/* we haven't see a date/time yet */
 }
 
-/* Parse the capture file.  Return the offset of the next packet, or zero
-   if there is none. */
-int
+/* Parse the capture file.
+   Returns:
+     PARSED_RECORD if we got a packet
+     PARSED_NONRECORD if the parser succeeded but didn't see a packet
+     PARSE_FAILED if the parser failed. */
+parse_t
 parse_ascend(FILE_T fh, guint8 *pd, struct ascend_phdr *phdr,
 		ascend_pkthdr *hdr, gint64 *start_of_data)
 {
@@ -507,14 +510,14 @@ parse_ascend(FILE_T fh, guint8 *pd, struct ascend_phdr *phdr,
       header->len = wirelen;
     }
 
-    return 1;
+    return PARSED_RECORD;
   }
 
   /* Didn't see any data. Still, perhaps the parser was happy.  */
   if (retval)
-    return 0;
+    return PARSE_FAILED;
   else 
-    return 1;
+    return PARSED_NONRECORD;
 }
 
 void

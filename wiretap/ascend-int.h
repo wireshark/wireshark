@@ -48,7 +48,12 @@ int ascendlex(void);
 
 void init_parse_ascend(void);
 void ascend_init_lexer(FILE_T fh);
-int parse_ascend(FILE_T fh, guint8 *pd, struct ascend_phdr *phdr,
+typedef enum {
+    PARSED_RECORD,
+    PARSED_NONRECORD,
+    PARSE_FAILED
+} parse_t;
+parse_t parse_ascend(FILE_T fh, guint8 *pd, struct ascend_phdr *phdr,
 		ascend_pkthdr *hdr, gint64 *start_of_data);
 
 #endif /* ! __ASCEND_INT_H__ */
