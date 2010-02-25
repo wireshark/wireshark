@@ -849,6 +849,9 @@ static void set_channel_filter_expression(guint16  ueid,
     if (!hs->show_mac) {
         offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, "not mac-lte and ");
     }
+    else {
+        offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, "mac-lte and ");
+    }
 
     /* UEId */
     offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, "(rlc-lte.ueid == %u) and ", ueid);
