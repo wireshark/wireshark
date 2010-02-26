@@ -48,6 +48,7 @@ ber: \
 	gsm_map	\
 	h248	\
 	inap	\
+	kerberos	\
 	ldap 	\
 	logotypecertextn	\
 	mms		\
@@ -120,6 +121,9 @@ clean:
 	cd ansi_map
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean
 	cd ..
+	cd ansi_tcap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean
+	cd ..
 	cd camel
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -144,10 +148,10 @@ clean:
 	cd dap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd disp
+	cd dop
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd dop
+	cd disp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd dsp
@@ -159,10 +163,10 @@ clean:
 	cd ftam
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd goose
+	cd gnm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd gnm
+	cd goose
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd gsm_map
@@ -207,13 +211,16 @@ clean:
 	cd inap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
+	cd kerberos
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean
+	cd ..
 	cd ldap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd lte-rrc
+	cd logotypecertextn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd logotypecertextn
+	cd lte-rrc
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd mms
@@ -285,13 +292,13 @@ clean:
 	cd ros
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd rtse
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
 	cd rrc
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd rrlp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd rtse
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd rua
@@ -350,6 +357,9 @@ clean:
 	cd ..
 	cd x509sat
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd x721
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean
 	cd ..
 
 distclean: clean
