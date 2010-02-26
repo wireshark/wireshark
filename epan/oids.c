@@ -591,7 +591,7 @@ static void register_mibs(void) {
 		 * workaround for libsmi versions where this problem is fixed.
 		 * Currently there is no such version. :-(
 		 */
-		if (smiModule->conformance <= 1)
+		if (smiModule->conformance == 1)
 			report_failure("Stopped processing module %s due to "
 				"error(s) to prevent potential crash in libsmi.\n"
 				"Module's conformance level: %d.\n"
