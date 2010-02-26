@@ -128,7 +128,7 @@ void k12_hexdump(guint level, gint64 offset, char* label, unsigned char* b, unsi
 
 static const guint8 k12_file_magic[] = { 0x00, 0x00, 0x02, 0x00 ,0x12, 0x05, 0x00, 0x10 };
 
-struct _k12_t {
+typedef struct {
     guint32 file_len;
     guint32 num_of_records; /* XXX: not sure about this */
 
@@ -136,7 +136,7 @@ struct _k12_t {
     GHashTable* src_by_name; /* k12_srcdsc_recs by stack_name */
 
     Buffer extra_info; /* Buffer to hold per packet extra information */
-};
+} k12_t;
 
 typedef struct _k12_src_desc_t {
     guint32 input;
@@ -315,6 +315,7 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 }
 
 static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset) {
+    k12_t *k12 = (k12_t *)wth->priv;
     k12_src_desc_t* src_desc;
     guint8* buffer = NULL;
     gint64 offset;
@@ -346,7 +347,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
         src_id = pntohl(buffer + K12_RECORD_SRC_ID);
 
 
-        if ( ! (src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(src_id))) ) {
+        if ( ! (src_desc = g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(src_id))) ) {
             /*
              * Some records from K15 files have a port ID of an undeclared
              * interface which happens to be the only one with the first byte changed.
@@ -354,7 +355,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
              * If the lookup of the interface record fails we'll mask it
              * and retry.
              */
-            src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(src_id&K12_RECORD_SRC_ID_MASK));
+            src_desc = g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(src_id&K12_RECORD_SRC_ID_MASK));
         }
 
         K12_DBG(5,("k12_read: record type=%x src_id=%x",type,src_id));
@@ -380,10 +381,10 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
     memcpy(buffer_start_ptr(wth->frame_buffer), buffer + K12_PACKET_FRAME, wth->phdr.caplen);
 
     /* extra information need by some protocols */
-    buffer_assure_space(&(wth->capture.k12->extra_info), extra_len);
-    memcpy(buffer_start_ptr(&(wth->capture.k12->extra_info)),
+    buffer_assure_space(&(k12->extra_info), extra_len);
+    memcpy(buffer_start_ptr(&(k12->extra_info)),
            buffer + K12_PACKET_FRAME + wth->phdr.caplen, extra_len);
-    wth->pseudo_header.k12.extra_info = (void*)buffer_start_ptr(&(wth->capture.k12->extra_info));
+    wth->pseudo_header.k12.extra_info = (void*)buffer_start_ptr(&(k12->extra_info));
     wth->pseudo_header.k12.extra_length = extra_len;
 
     wth->pseudo_header.k12.input = src_id;
@@ -410,13 +411,14 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
 
     }
 
-    wth->pseudo_header.k12.stuff = wth->capture.k12;
+    wth->pseudo_header.k12.stuff = k12;
 
     return TRUE;
 }
 
 
 static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err _U_, gchar **err_info _U_) {
+    k12_t *k12 = (k12_t *)wth->priv;
     k12_src_desc_t* src_desc;
     guint8* buffer;
     gint len;
@@ -438,20 +440,20 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
     memcpy(pd, buffer + K12_PACKET_FRAME, length);
 
     extra_len = len - K12_PACKET_FRAME - length;
-    buffer_assure_space(&(wth->capture.k12->extra_info), extra_len);
-    memcpy(buffer_start_ptr(&(wth->capture.k12->extra_info)),
+    buffer_assure_space(&(k12->extra_info), extra_len);
+    memcpy(buffer_start_ptr(&(k12->extra_info)),
            buffer + K12_PACKET_FRAME + length, extra_len);
-    wth->pseudo_header.k12.extra_info = (void*)buffer_start_ptr(&(wth->capture.k12->extra_info));
+    wth->pseudo_header.k12.extra_info = (void*)buffer_start_ptr(&(k12->extra_info));
     wth->pseudo_header.k12.extra_length = extra_len;
     if (pseudo_header) {
-        pseudo_header->k12.extra_info = (void*)buffer_start_ptr(&(wth->capture.k12->extra_info));
+        pseudo_header->k12.extra_info = (void*)buffer_start_ptr(&(k12->extra_info));
         pseudo_header->k12.extra_length = extra_len;
     }
 
     input = pntohl(buffer + K12_RECORD_SRC_ID);
     K12_DBG(5,("k12_seek_read: input=%.8x",input));
 
-	if ( ! (src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(input))) ) {
+	if ( ! (src_desc = g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(input))) ) {
 		/*
 		 * Some records from K15 files have a port ID of an undeclared
 		 * interface which happens to be the only one with the first byte changed.
@@ -459,7 +461,7 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
 		 * If the lookup of the interface record fails we'll mask it
 		 * and retry.
 		 */
-		src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(input&K12_RECORD_SRC_ID_MASK));
+		src_desc = g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(input&K12_RECORD_SRC_ID_MASK));
 	}
 
     if (src_desc) {
@@ -519,11 +521,11 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
 
     if (pseudo_header) {
         pseudo_header->k12.input = input;
-        pseudo_header->k12.stuff = wth->capture.k12;
+        pseudo_header->k12.stuff = k12;
     }
 
     wth->pseudo_header.k12.input = input;
-    wth->pseudo_header.k12.stuff = wth->capture.k12;
+    wth->pseudo_header.k12.stuff = k12;
 
     K12_DBG(5,("k12_seek_read: DONE OK"));
 
@@ -563,7 +565,10 @@ static void destroy_k12_file_data(k12_t* fd) {
 }
 
 static void k12_close(wtap *wth) {
-    destroy_k12_file_data(wth->capture.k12);
+    k12_t *k12 = (k12_t *)wth->priv;
+
+    destroy_k12_file_data(k12);
+    wth->priv = NULL;	/* destroy_k12_file_data freed it */
 #ifdef DEBUG_K12
     K12_DBG(5,("k12_close: CLOSED"));
     if (env_file) fclose(dbg_out);
@@ -622,6 +627,8 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 
         if ( len <= 0 ) {
             K12_DBG(1,("k12_open: BAD HEADER RECORD",len));
+            destroy_k12_file_data(file_data);
+            g_free(file_data);
             return -1;
         }
 
@@ -634,6 +641,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
              */
             if (file_seek(wth->fh, offset, SEEK_SET, err) == -1) {
                 destroy_k12_file_data(file_data);
+                g_free(file_data);
                 return -1;
             }
             K12_DBG(5,("k12_open: FIRST PACKET offset=%x",offset));
@@ -655,6 +663,8 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
                 g_free(rec);
                 K12_DBG(5,("k12_open: failed (name_len == 0 || stack_len == 0 "
                         "|| 0x20 + extra_len + name_len + stack_len > rec_len)  extra_len=%i name_len=%i stack_len=%i"));
+                destroy_k12_file_data(file_data);
+                g_free(file_data);
                 return 0;
             }
 
@@ -710,11 +720,17 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
     wth->subtype_read = k12_read;
     wth->subtype_seek_read = k12_seek_read;
     wth->subtype_close = k12_close;
-    wth->capture.k12 = file_data;
+    wth->priv = (void *)file_data;
     wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
     return 1;
 }
+
+typedef struct {
+	guint32 file_len;
+	guint32 num_of_records;
+	guint32 file_offset;
+} k12_dump_t;
 
 int k12_dump_can_write_encap(int encap) {
 
@@ -744,7 +760,8 @@ static gboolean do_fwrite(const void *data, size_t size, size_t count, FILE *str
 }
 
 static gboolean k12_dump_record(wtap_dumper *wdh, guint32 len,  guint8* buffer, int *err_p) {
-    guint32 junky_offset = (0x2000 - ( (wdh->dump.k12->file_offset - 0x200) % 0x2000 )) % 0x2000;
+    k12_dump_t *k12 = (k12_dump_t *)wdh->priv;
+    guint32 junky_offset = (0x2000 - ( (k12->file_offset - 0x200) % 0x2000 )) % 0x2000;
 
     if (len > junky_offset) {
         if (junky_offset) {
@@ -757,14 +774,14 @@ static gboolean k12_dump_record(wtap_dumper *wdh, guint32 len,  guint8* buffer, 
         if (! do_fwrite(buffer+junky_offset, 1, len - junky_offset, wdh->fh, err_p))
             return FALSE;
 
-        wdh->dump.k12->file_offset += len + 0x10;
+        k12->file_offset += len + 0x10;
     } else {
         if (! do_fwrite(buffer, 1, len, wdh->fh, err_p))
             return FALSE;
-        wdh->dump.k12->file_offset += len;
+        k12->file_offset += len;
     }
 
-    wdh->dump.k12->num_of_records++;
+    k12->num_of_records++;
     return TRUE;
 }
 
@@ -879,6 +896,7 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
 static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
                          const union wtap_pseudo_header *pseudo_header,
                          const guchar *pd, int *err) {
+    k12_dump_t *k12 = (k12_dump_t *)wdh->priv;
     guint32 len;
     union {
         guint8 buffer[0x2000];
@@ -896,7 +914,7 @@ static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         } record;
     } obj;
 
-    if (wdh->dump.k12->num_of_records == 0) {
+    if (k12->num_of_records == 0) {
         k12_t* file_data = pseudo_header->k12.stuff;
         /* XXX: We'll assume that any fwrite errors in k12_dump_src_setting will    */
         /*      repeat during the final k12_dump_record at the end of k12_dump      */
@@ -926,6 +944,7 @@ static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 static const guint8 k12_eof[] = {0xff,0xff};
 
 static gboolean k12_dump_close(wtap_dumper *wdh, int *err) {
+    k12_dump_t *k12 = (k12_dump_t *)wdh->priv;
     union {
         guint8 b[sizeof(guint32)];
         guint32 u;
@@ -939,12 +958,12 @@ static gboolean k12_dump_close(wtap_dumper *wdh, int *err) {
         return FALSE;
     }
 
-    d.u = g_htonl(wdh->dump.k12->file_len);
+    d.u = g_htonl(k12->file_len);
 
     if (! do_fwrite(d.b, 1, 4, wdh->fh, err))
         return FALSE;
 
-    d.u = g_htonl(wdh->dump.k12->num_of_records);
+    d.u = g_htonl(k12->num_of_records);
 
     if (! do_fwrite(d.b, 1, 4, wdh->fh, err))
         return FALSE;
@@ -954,6 +973,7 @@ static gboolean k12_dump_close(wtap_dumper *wdh, int *err) {
 
 
 gboolean k12_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err) {
+    k12_dump_t *k12;
 
     if (cant_seek) {
         *err = WTAP_ERR_CANT_WRITE_TO_PIPE;
@@ -972,10 +992,11 @@ gboolean k12_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err) {
     wdh->subtype_write = k12_dump;
     wdh->subtype_close = k12_dump_close;
 
-    wdh->dump.k12 = g_malloc(sizeof(k12_dump_t));
-    wdh->dump.k12->file_len = 0x200;
-    wdh->dump.k12->num_of_records = 0;
-    wdh->dump.k12->file_offset  = 0x200;
+    k12 = (k12_dump_t *)g_malloc(sizeof(k12_dump_t));
+    wdh->priv = (void *)k12;
+    k12->file_len = 0x200;
+    k12->num_of_records = 0;
+    k12->file_offset  = 0x200;
 
     return TRUE;
 }

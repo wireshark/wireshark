@@ -49,13 +49,16 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
 static gboolean csids_seek_read(wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
 	int *err, gchar **err_info);
-static void csids_close(wtap *wth);
 
 struct csids_header {
   guint32 seconds; /* seconds since epoch */
   guint16 zeropad; /* 2 byte zero'ed pads */
   guint16 caplen;  /* the capture length  */
 };
+
+typedef struct {
+	gboolean byteswapped;
+} csids_t;
 
 /* XXX - return -1 on I/O error and actually do something with 'err'. */
 int csids_open(wtap *wth, int *err, gchar **err_info _U_)
@@ -72,6 +75,7 @@ int csids_open(wtap *wth, int *err, gchar **err_info _U_)
 
   gboolean byteswap = FALSE;
   struct csids_header hdr;
+  csids_t *csids;
 
   /* check the file to make sure it is a csids file. */
   bytesRead = file_read( &hdr, 1, sizeof( struct csids_header), wth->fh );
@@ -133,14 +137,14 @@ int csids_open(wtap *wth, int *err, gchar **err_info _U_)
     return -1;
 
   wth->data_offset = 0;
-  wth->capture.csids = g_malloc(sizeof(csids_t));
-  wth->capture.csids->byteswapped = byteswap;
+  csids = (csids_t *)g_malloc(sizeof(csids_t));
+  wth->priv = (void *)csids;
+  csids->byteswapped = byteswap;
   wth->file_encap = WTAP_ENCAP_RAW_IP;
   wth->file_type = WTAP_FILE_CSIDS;
   wth->snapshot_length = 0; /* not known */
   wth->subtype_read = csids_read;
   wth->subtype_seek_read = csids_seek_read;
-  wth->subtype_close = csids_close;
   wth->tsprecision = WTAP_FILE_TSPREC_SEC;
 
   return 1;
@@ -150,6 +154,7 @@ int csids_open(wtap *wth, int *err, gchar **err_info _U_)
 static gboolean csids_read(wtap *wth, int *err, gchar **err_info _U_,
     gint64 *data_offset)
 {
+  csids_t *csids = (csids_t *)wth->priv;
   guint8 *buf;
   int bytesRead = 0;
   struct csids_header hdr;
@@ -187,7 +192,7 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info _U_,
   wth->phdr.ts.secs = hdr.seconds;
   wth->phdr.ts.nsecs = 0;
 
-  if( wth->capture.csids->byteswapped ) {
+  if( csids->byteswapped ) {
     PBSWAP16(buf);   /* the ip len */
     PBSWAP16(buf+2); /* ip id */
     PBSWAP16(buf+4); /* ip flags and fragoff */
@@ -206,6 +211,7 @@ csids_seek_read (wtap *wth,
 		 int *err,
 		 gchar **err_info)
 {
+  csids_t *csids = (csids_t *)wth->priv;
   int bytesRead;
   struct csids_header hdr;
 
@@ -239,17 +245,11 @@ csids_seek_read (wtap *wth,
     return FALSE;
   }
 
-  if( wth->capture.csids->byteswapped ) {
+  if( csids->byteswapped ) {
     PBSWAP16(pd);   /* the ip len */
     PBSWAP16(pd+2); /* ip id */
     PBSWAP16(pd+4); /* ip flags and fragoff */
   }
 
   return TRUE;
-}
-
-static void
-csids_close(wtap *wth)
-{
-  g_free(wth->capture.csids);
 }

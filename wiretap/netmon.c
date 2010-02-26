@@ -104,6 +104,15 @@ struct netmon_atm_hdr {
 	guint16	vci;		/* VCI */
 };
 
+typedef struct {
+	time_t	start_secs;
+	guint32	start_usecs;
+	guint8	version_major;
+	guint32 *frame_table;
+	guint32	frame_table_size;
+	guint	current_frame;
+} netmon_t;
+
 static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean netmon_seek_read(wtap *wth, gint64 seek_off,
@@ -114,7 +123,6 @@ static gboolean netmon_read_atm_pseudoheader(FILE_T fh,
 static gboolean netmon_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err);
 static void netmon_sequential_close(wtap *wth);
-static void netmon_close(wtap *wth);
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 static gboolean netmon_dump_close(wtap_dumper *wdh, int *err);
@@ -148,6 +156,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 #ifdef WORDS_BIGENDIAN
 	unsigned int i;
 #endif
+	netmon_t *netmon;
 
 	/* Read in the string that should be at the start of a Network
 	 * Monitor file */
@@ -202,11 +211,11 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 
 	/* This is a netmon file */
 	wth->file_type = file_type;
-	wth->capture.netmon = g_malloc(sizeof(netmon_t));
+	netmon = (netmon_t *)g_malloc(sizeof(netmon_t));
+	wth->priv = (void *)netmon;
 	wth->subtype_read = netmon_read;
 	wth->subtype_seek_read = netmon_seek_read;
 	wth->subtype_sequential_close = netmon_sequential_close;
-	wth->subtype_close = netmon_close;
 
 	/* NetMon capture file formats v2.1+ use per-packet encapsulation types.  NetMon 3 sets the value in
 	 * the header to 1 (Ethernet) for backwards compability. */
@@ -229,7 +238,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	tm.tm_min = pletohs(&hdr.ts_min);
 	tm.tm_sec = pletohs(&hdr.ts_sec);
 	tm.tm_isdst = -1;
-	wth->capture.netmon->start_secs = mktime(&tm);
+	netmon->start_secs = mktime(&tm);
 	/*
 	 * XXX - what if "secs" is -1?  Unlikely, but if the capture was
 	 * done in a time zone that switches between standard and summer
@@ -244,9 +253,9 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	 * intervals since 1601-01-01 00:00:00 "UTC", there, instead
 	 * of stuffing a SYSTEMTIME, which is time-zone-dependent, there?).
 	 */
-	wth->capture.netmon->start_usecs = pletohs(&hdr.ts_msec)*1000;
+	netmon->start_usecs = pletohs(&hdr.ts_msec)*1000;
 
-	wth->capture.netmon->version_major = hdr.ver_major;
+	netmon->version_major = hdr.ver_major;
 
 	/*
 	 * Get the offset of the frame index table.
@@ -270,18 +279,18 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("netmon: frame table length is %u, which is not a multiple of the size of an entry",
 		    frame_table_length);
-		g_free(wth->capture.netmon);
+		g_free(netmon);
 		return -1;
 	}
 	if (frame_table_size == 0) {
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("netmon: frame table length is %u, which means it's less than one entry in size",
 		    frame_table_length);
-		g_free(wth->capture.netmon);
+		g_free(netmon);
 		return -1;
 	}
 	if (file_seek(wth->fh, frame_table_offset, SEEK_SET, err) == -1) {
-		g_free(wth->capture.netmon);
+		g_free(netmon);
 		return -1;
 	}
 	frame_table = g_malloc(frame_table_length);
@@ -292,11 +301,11 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		g_free(frame_table);
-		g_free(wth->capture.netmon);
+		g_free(netmon);
 		return -1;
 	}
-	wth->capture.netmon->frame_table_size = frame_table_size;
-	wth->capture.netmon->frame_table = frame_table;
+	netmon->frame_table_size = frame_table_size;
+	netmon->frame_table = frame_table;
 
 #ifdef WORDS_BIGENDIAN
 	/*
@@ -307,7 +316,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 #endif
 
 	/* Set up to start reading at the first frame. */
-	wth->capture.netmon->current_frame = 0;
+	netmon->current_frame = 0;
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
 	return 1;
@@ -317,7 +326,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-	netmon_t *netmon = wth->capture.netmon;
+	netmon_t *netmon = (netmon_t *)wth->priv;
 	guint32	packet_size = 0;
 	guint32 orig_size = 0;
 	int	bytes_read;
@@ -336,8 +345,8 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 	if (netmon->current_frame >= netmon->frame_table_size) {
 		/* Yes.  We won't need the frame table any more;
 		   free it. */
-		g_free(wth->capture.netmon->frame_table);
-		wth->capture.netmon->frame_table = NULL;
+		g_free(netmon->frame_table);
+		netmon->frame_table = NULL;
 		*err = 0;	/* it's just an EOF, not an error */
 		return FALSE;
 	}
@@ -576,21 +585,22 @@ netmon_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 static void
 netmon_sequential_close(wtap *wth)
 {
-	if (wth->capture.netmon->frame_table != NULL) {
-		g_free(wth->capture.netmon->frame_table);
-		wth->capture.netmon->frame_table = NULL;
+	netmon_t *netmon = (netmon_t *)wth->priv;
+
+	if (netmon->frame_table != NULL) {
+		g_free(netmon->frame_table);
+		netmon->frame_table = NULL;
 	}
 }
 
-/* Close stuff used by the random I/O stream, if any, and free up any
-   private data structures.  (If there's a "sequential_close" routine
-   for a capture file type, it'll be called before the "close" routine
-   is called, so we don't have to free the frame table here.) */
-static void
-netmon_close(wtap *wth)
-{
-	g_free(wth->capture.netmon);
-}
+typedef struct {
+	gboolean got_first_record_time;
+	struct wtap_nstime first_record_time;
+	guint32	frame_table_offset;
+	guint32	*frame_table;
+	guint	frame_table_index;
+	guint	frame_table_size;
+} netmon_dump_t;
 
 static const int wtap_encap[] = {
 	-1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
@@ -628,6 +638,8 @@ int netmon_dump_can_write_encap(int encap)
    failure */
 gboolean netmon_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 {
+	netmon_dump_t *netmon;
+
 	/* This is a NetMon file.  We can't fill in some fields in the
 	   header until all the packets have been written, so we can't
 	   write to a pipe. */
@@ -648,12 +660,13 @@ gboolean netmon_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 	wdh->subtype_write = netmon_dump;
 	wdh->subtype_close = netmon_dump_close;
 
-	wdh->dump.netmon = g_malloc(sizeof(netmon_dump_t));
-	wdh->dump.netmon->frame_table_offset = CAPTUREFILE_HEADER_SIZE;
-	wdh->dump.netmon->got_first_record_time = FALSE;
-	wdh->dump.netmon->frame_table = NULL;
-	wdh->dump.netmon->frame_table_index = 0;
-	wdh->dump.netmon->frame_table_size = 0;
+	netmon = (netmon_dump_t *)g_malloc(sizeof(netmon_dump_t));
+	wdh->priv = (void *)netmon;
+	netmon->frame_table_offset = CAPTUREFILE_HEADER_SIZE;
+	netmon->got_first_record_time = FALSE;
+	netmon->frame_table = NULL;
+	netmon->frame_table_index = 0;
+	netmon->frame_table_size = 0;
 
 	return TRUE;
 }
@@ -663,7 +676,7 @@ gboolean netmon_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err)
 {
-	netmon_dump_t *netmon = wdh->dump.netmon;
+	netmon_dump_t *netmon = (netmon_dump_t *)wdh->priv;
 	struct netmonrec_1_x_hdr rec_1_x_hdr;
 	struct netmonrec_2_x_hdr rec_2_x_hdr;
 	char *hdrp;
@@ -796,7 +809,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
    Returns TRUE on success, FALSE on failure. */
 static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 {
-	netmon_dump_t *netmon = wdh->dump.netmon;
+	netmon_dump_t *netmon = (netmon_dump_t *)wdh->priv;
 	size_t n_to_write;
 	size_t nwritten;
 	struct netmon_hdr file_hdr;

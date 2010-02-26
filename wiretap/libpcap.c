@@ -77,7 +77,6 @@ static int libpcap_read_header(wtap *wth, int *err, gchar **err_info,
 static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
 static gboolean libpcap_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err);
-static void libpcap_close(wtap *wth);
 static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 
@@ -263,10 +262,9 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	libpcap->byte_swapped = byte_swapped;
 	libpcap->version_major = hdr.version_major;
 	libpcap->version_minor = hdr.version_minor;
-	wth->capture.generic = libpcap;
+	wth->priv = (void *)libpcap;
 	wth->subtype_read = libpcap_read;
 	wth->subtype_seek_read = libpcap_seek_read;
-	wth->subtype_close = libpcap_close;
 	wth->file_encap = file_encap;
 	wth->snapshot_length = hdr.snaplen;
 
@@ -367,7 +365,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Well, we couldn't even read it.
 			 * Give up.
 			 */
-			g_free(wth->capture.generic);
+			g_free(wth->priv);
 			return -1;
 
 		case THIS_FORMAT:
@@ -376,7 +374,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Put the seek pointer back, and return success.
 			 */
 			if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
-				g_free(wth->capture.generic);
+				g_free(wth->priv);
 				return -1;
 			}
 			return 1;
@@ -397,7 +395,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		wth->file_type = WTAP_FILE_PCAP_SS990915;
 		if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
-			g_free(wth->capture.generic);
+			g_free(wth->priv);
 			return -1;
 		}
 	} else {
@@ -418,7 +416,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Well, we couldn't even read it.
 			 * Give up.
 			 */
-			g_free(wth->capture.generic);
+			g_free(wth->priv);
 			return -1;
 
 		case THIS_FORMAT:
@@ -428,7 +426,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Put the seek pointer back, and return success.
 			 */
 			if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
-				g_free(wth->capture.generic);
+				g_free(wth->priv);
 				return -1;
 			}
 			return 1;
@@ -447,7 +445,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		wth->file_type = WTAP_FILE_PCAP_SS990417;
 		if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
-			g_free(wth->capture.generic);
+			g_free(wth->priv);
 			return -1;
 		}
 		switch (libpcap_try(wth, err)) {
@@ -457,7 +455,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Well, we couldn't even read it.
 			 * Give up.
 			 */
-			g_free(wth->capture.generic);
+			g_free(wth->priv);
 			return -1;
 
 		case THIS_FORMAT:
@@ -466,7 +464,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Put the seek pointer back, and return success.
 			 */
 			if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
-				g_free(wth->capture.generic);
+				g_free(wth->priv);
 				return -1;
 			}
 			return 1;
@@ -487,7 +485,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		wth->file_type = WTAP_FILE_PCAP_NOKIA;
 		if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
-			g_free(wth->capture.generic);
+			g_free(wth->priv);
 			return -1;
 		}
 	}
@@ -643,7 +641,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 
 	*data_offset = wth->data_offset;
 
-	libpcap = (libpcap_t *)wth->capture.generic;
+	libpcap = (libpcap_t *)wth->priv;
 	phdr_len = pcap_process_pseudo_header(wth->fh, wth->file_type,
 	    wth->file_encap, libpcap->byte_swapped, packet_size,
 	    TRUE, &wth->phdr, &wth->pseudo_header, err, err_info);
@@ -714,7 +712,7 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	libpcap = (libpcap_t *)wth->capture.generic;
+	libpcap = (libpcap_t *)wth->priv;
 	phdr_len = pcap_process_pseudo_header(wth->random_fh, wth->file_type,
 	    wth->file_encap, libpcap->byte_swapped, length,
 	    FALSE, NULL, pseudo_header, err, err_info);
@@ -840,7 +838,7 @@ adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
 	guint32 temp;
 	libpcap_t *libpcap;
 
-	libpcap = (libpcap_t *)wth->capture.generic;
+	libpcap = (libpcap_t *)wth->priv;
 	if (libpcap->byte_swapped) {
 		/* Byte-swap the record header fields. */
 		hdr->ts_sec = BSWAP32(hdr->ts_sec);
@@ -888,12 +886,6 @@ libpcap_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 		return FALSE;
 	}
 	return TRUE;
-}
-
-static void
-libpcap_close(wtap *wth)
-{
-	g_free(wth->capture.generic);
 }
 
 /* Returns 0 if we could write the specified encapsulation type,

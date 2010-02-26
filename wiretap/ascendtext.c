@@ -78,12 +78,17 @@ static const ascend_magic_string ascend_magic[] = {
   { ASCEND_PFX_ETHER,	"ETHER" },
 };
 
+typedef struct {
+	time_t inittime;
+	int adjusted;
+	gint64 next_packet_seek_start;
+} ascend_t;
+
 static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_head, guint8 *pd, int len,
 	int *err, gchar **err_info);
-static void ascend_close(wtap *wth);
 
 /* Seeks to the beginning of the next packet, and returns the
    byte offset at which the header for that packet begins.
@@ -174,11 +179,12 @@ int ascend_open(wtap *wth, int *err, gchar **err_info _U_)
   guint8 buf[ASCEND_MAX_PKT_LEN];
   ascend_pkthdr header;
   gint64 dummy_seek_start;
+  ascend_t *ascend;
 
   /* We haven't yet allocated a data structure for our private stuff;
      set the pointer to null, so that "ascend_seek()" knows not to
      fill it in. */
-  wth->capture.ascend = NULL;
+  wth->priv = NULL;
 
   offset = ascend_seek(wth, err);
   if (offset == -1) {
@@ -215,13 +221,13 @@ int ascend_open(wtap *wth, int *err, gchar **err_info _U_)
   wth->snapshot_length = ASCEND_MAX_PKT_LEN;
   wth->subtype_read = ascend_read;
   wth->subtype_seek_read = ascend_seek_read;
-  wth->subtype_close = ascend_close;
-  wth->capture.ascend = g_malloc(sizeof(ascend_t));
+  ascend = (ascend_t *)g_malloc(sizeof(ascend_t));
+  wth->priv = (void *)ascend;
 
   /* The first packet we want to read is the one that "ascend_seek()"
      just found; start searching for it at the offset at which it
      found it. */
-  wth->capture.ascend->next_packet_seek_start = offset;
+  ascend->next_packet_seek_start = offset;
 
   /* MAXen and Pipelines report the time since reboot.  In order to keep
      from reporting packet times near the epoch, we subtract the first
@@ -230,11 +236,11 @@ int ascend_open(wtap *wth, int *err, gchar **err_info _U_)
    */
   if (fstat(wth->fd, &statbuf) == -1) {
     *err = errno;
-    g_free(wth->capture.ascend);
+    g_free(ascend);
     return -1;
   }
-  wth->capture.ascend->inittime = statbuf.st_ctime;
-  wth->capture.ascend->adjusted = 0;
+  ascend->inittime = statbuf.st_ctime;
+  ascend->adjusted = 0;
   wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
   init_parse_ascend();
@@ -265,6 +271,7 @@ static void config_pseudo_header(union wtap_pseudo_header *pseudo_head)
 static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset)
 {
+  ascend_t *ascend = (ascend_t *)wth->priv;
   gint64 offset;
   guint8 *buf = buffer_start_ptr(wth->frame_buffer);
   ascend_pkthdr header;
@@ -273,7 +280,7 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
      packet's header, to just after the last packet's header (ie. at the
      start of the last packet's data). We have to get past the last
      packet's header because we might mistake part of it for a new header. */
-  if (file_seek(wth->fh, wth->capture.ascend->next_packet_seek_start,
+  if (file_seek(wth->fh, ascend->next_packet_seek_start,
                 SEEK_SET, err) == -1)
     return FALSE;
 
@@ -281,7 +288,7 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
     if (offset == -1)
       return FALSE;
   if (parse_ascend(wth->fh, buf, &wth->pseudo_header.ascend, &header,
-      &(wth->capture.ascend->next_packet_seek_start)) != PARSED_RECORD) {
+      &(ascend->next_packet_seek_start)) != PARSED_RECORD) {
     *err = WTAP_ERR_BAD_RECORD;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
     return FALSE;
@@ -291,13 +298,13 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
 
   config_pseudo_header(&wth->pseudo_header);
 
-  if (! wth->capture.ascend->adjusted) {
-    wth->capture.ascend->adjusted = 1;
+  if (! ascend->adjusted) {
+    ascend->adjusted = 1;
     if (header.start_time != 0) {
       /*
        * Capture file contained a date and time.
        * We do this only if this is the very first packet we've seen -
-       * i.e., if "wth->capture.ascend->adjusted" is false - because
+       * i.e., if "ascend->adjusted" is false - because
        * if we get a date and time after the first packet, we can't
        * go back and adjust the time stamps of the packets we've already
        * processed, and basing the time stamps of this and following
@@ -305,12 +312,12 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
        * ctime of the capture file means times before this and after
        * this can't be compared.
        */
-      wth->capture.ascend->inittime = header.start_time;
+      ascend->inittime = header.start_time;
     }
-    if (wth->capture.ascend->inittime > header.secs)
-      wth->capture.ascend->inittime -= header.secs;
+    if (ascend->inittime > header.secs)
+      ascend->inittime -= header.secs;
   }
-  wth->phdr.ts.secs = header.secs + wth->capture.ascend->inittime;
+  wth->phdr.ts.secs = header.secs + ascend->inittime;
   wth->phdr.ts.nsecs = header.usecs * 1000;
   wth->phdr.caplen = header.caplen;
   wth->phdr.len = header.len;
@@ -321,16 +328,15 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_head, guint8 *pd, int len,
+	union wtap_pseudo_header *pseudo_head, guint8 *pd, int len _U_,
 	int *err, gchar **err_info)
 {
-  /* don't care for length. */
-  (void) len;
+  ascend_t *ascend = (ascend_t *)wth->priv;
 
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
   if (parse_ascend(wth->random_fh, pd, &pseudo_head->ascend, NULL,
-      &(wth->capture.ascend->next_packet_seek_start)) != PARSED_RECORD) {
+      &(ascend->next_packet_seek_start)) != PARSED_RECORD) {
     *err = WTAP_ERR_BAD_RECORD;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
     return FALSE;
@@ -338,9 +344,4 @@ static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
 
   config_pseudo_header(pseudo_head);
   return TRUE;
-}
-
-static void ascend_close(wtap *wth)
-{
-  g_free(wth->capture.ascend);
 }

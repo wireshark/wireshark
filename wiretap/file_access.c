@@ -332,6 +332,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 	wth->subtype_sequential_close = NULL;
 	wth->subtype_close = NULL;
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+	wth->priv = NULL;
 
 	init_open_routines();
 
@@ -893,7 +894,7 @@ static wtap_dumper* wtap_dump_alloc_wdh(int filetype, int encap, int snaplen,
 	wdh->encap = encap;
 	wdh->compressed = compressed;
 	wdh->bytes_dumped = 0;
-	wdh->dump.opaque = NULL;
+	wdh->priv = NULL;
 	wdh->subtype_write = NULL;
 	wdh->subtype_close = NULL;
 	return wdh;
@@ -971,8 +972,8 @@ gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
 		/* as we don't close stdout, at least try to flush it */
 		wtap_dump_flush(wdh);
 	}
-	if (wdh->dump.opaque != NULL)
-		g_free(wdh->dump.opaque);
+	if (wdh->priv != NULL)
+		g_free(wdh->priv);
 	g_free(wdh);
 	return ret;
 }

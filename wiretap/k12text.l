@@ -295,10 +295,6 @@ static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_
 	return TRUE;
 }
 
-static void k12text_close(wtap *wth _U_) {
-	(void)0;
-}
-
 int k12text_open(wtap *wth, int *err, gchar **err_info _U_) {
 
 	k12text_reset(wth->fh);       /* init lexer buffer and vars set by lexer */
@@ -318,8 +314,6 @@ int k12text_open(wtap *wth, int *err, gchar **err_info _U_) {
 	wth->snapshot_length = 0;
 	wth->subtype_read = k12text_read;
 	wth->subtype_seek_read = k12text_seek_read;
-	wth->subtype_close = k12text_close;
-	wth->capture.generic  = NULL;
 	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
 	return 1;
@@ -382,10 +376,6 @@ static gboolean k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phd
 }
 
 
-static gboolean k12text_dump_close(wtap_dumper *wdh _U_ , int *err _U_) {
-	return TRUE;
-}
-
 gboolean k12text_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err) {
 
     if (cant_seek) {
@@ -394,7 +384,6 @@ gboolean k12text_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err) {
     }
 
     wdh->subtype_write = k12text_dump;
-    wdh->subtype_close = k12text_dump_close;
 
     return TRUE;
 }

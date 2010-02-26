@@ -33,6 +33,10 @@
 #include "i4b_trace.h"
 #include "i4btrace.h"
 
+typedef struct {
+	gboolean byte_swapped;
+} i4btrace_t;
+
 static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean i4btrace_seek_read(wtap *wth, gint64 seek_off,
@@ -43,7 +47,6 @@ static void i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr);
 static gboolean i4b_read_rec_data(FILE_T fh, guchar *pd, int length, int *err);
 static void i4b_set_pseudo_header(i4b_trace_hdr_t *hdr,
     union wtap_pseudo_header *pseudo_header);
-static void i4btrace_close(wtap *wth);
 
 /*
  * Test some fields in the header to see if they make sense.
@@ -58,6 +61,7 @@ int i4btrace_open(wtap *wth, int *err, gchar **err_info _U_)
 	int bytes_read;
 	i4b_trace_hdr_t hdr;
 	gboolean byte_swapped = FALSE;
+	i4btrace_t *i4btrace;
 
 	/* I4B trace files have no magic in the header... Sigh */
 	errno = WTAP_ERR_CANT_READ;
@@ -100,13 +104,13 @@ int i4btrace_open(wtap *wth, int *err, gchar **err_info _U_)
 	/* Get capture start time */
 
 	wth->file_type = WTAP_FILE_I4BTRACE;
-	wth->capture.i4btrace = g_malloc(sizeof(i4btrace_t));
+	i4btrace = (i4btrace_t *)g_malloc(sizeof(i4btrace_t));
+	wth->priv = (void *)i4btrace;
 	wth->subtype_read = i4btrace_read;
 	wth->subtype_seek_read = i4btrace_seek_read;
-	wth->subtype_close = i4btrace_close;
 	wth->snapshot_length = 0;	/* not known */
 
-	wth->capture.i4btrace->byte_swapped = byte_swapped;
+	i4btrace->byte_swapped = byte_swapped;
 
 	wth->file_encap = WTAP_ENCAP_ISDN;
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
@@ -235,7 +239,9 @@ i4b_read_rec_header(FILE_T fh, i4b_trace_hdr_t *hdr, int *err)
 static void
 i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr)
 {
-	if (wth->capture.i4btrace->byte_swapped) {
+	i4btrace_t *i4btrace = (i4btrace_t *)wth->priv;
+
+	if (i4btrace->byte_swapped) {
 		/*
 		 * Byte-swap the header.
 		 */
@@ -295,10 +301,4 @@ i4b_set_pseudo_header(i4b_trace_hdr_t *hdr,
 		pseudo_header->isdn.channel = 2;
 		break;
 	}
-}
-
-static void
-i4btrace_close(wtap *wth)
-{
-	g_free(wth->capture.i4btrace);
 }

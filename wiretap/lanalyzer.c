@@ -126,7 +126,6 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
-static void     lanalyzer_close(wtap *wth);
 static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err);
 
 int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
@@ -164,17 +163,16 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	 * from a record later in the file. */
 	wth->file_type = WTAP_FILE_LANALYZER;
 	lanalyzer = (lanalyzer_t *)g_malloc(sizeof(lanalyzer_t));;
-	wth->capture.generic = lanalyzer;
+	wth->priv = (void *)lanalyzer;
 	wth->subtype_read = lanalyzer_read;
 	wth->subtype_seek_read = lanalyzer_seek_read;
-	wth->subtype_close = lanalyzer_close;
 	wth->snapshot_length = 0;
 	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
 	/* Read records until we find the start of packets */
 	while (1) {
 		if (file_seek(wth->fh, record_length, SEEK_CUR, err) == -1) {
-			g_free(wth->capture.generic);
+			g_free(wth->priv);
 			return -1;
 		}
 		wth->data_offset += record_length;
@@ -184,10 +182,10 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 		if (bytes_read != 4) {
 			*err = file_error(wth->fh);
 			if (*err != 0) {
-				g_free(wth->capture.generic);
+				g_free(wth->priv);
 				return -1;
 			}
-			g_free(wth->capture.generic);
+			g_free(wth->priv);
 			return 0;
 		}
 		wth->data_offset += 4;
@@ -205,10 +203,10 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 				if (bytes_read != sizeof summary) {
 					*err = file_error(wth->fh);
 					if (*err != 0) {
-						g_free(wth->capture.generic);
+						g_free(wth->priv);
 						return -1;
 					}
-					g_free(wth->capture.generic);
+					g_free(wth->priv);
 					return 0;
 				}
 				wth->data_offset += sizeof summary;
@@ -251,7 +249,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 						wth->file_encap = WTAP_ENCAP_TOKEN_RING;
 						break;
 					default:
-						g_free(wth->capture.generic);
+						g_free(wth->priv);
 						*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 						*err_info = g_strdup_printf("lanalyzer: board type %u unknown",
 						    board_type);
@@ -264,7 +262,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 				/* Go back header number ob ytes so that lanalyzer_read
 				 * can read this header */
 				if (file_seek(wth->fh, -bytes_read, SEEK_CUR, err) == -1) {
-					g_free(wth->capture.generic);
+					g_free(wth->priv);
 					return -1;
 				}
 				wth->data_offset -= bytes_read;
@@ -377,7 +375,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 	t = (((guint64)time_low) << 0) + (((guint64)time_med) << 16) +
 	    (((guint64)time_high) << 32);
 	tsecs = (time_t) (t/2000000);
-	lanalyzer = (lanalyzer_t *)wth->capture.generic;
+	lanalyzer = (lanalyzer_t *)wth->priv;
 	wth->phdr.ts.secs = tsecs + lanalyzer->start;
 	wth->phdr.ts.nsecs = ((guint32) (t - tsecs*2000000)) * 500;
 
@@ -433,12 +431,6 @@ static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
 	}
 
 	return TRUE;
-}
-
-static void
-lanalyzer_close(wtap *wth)
-{
-	g_free(wth->capture.generic);
 }
 
 /*---------------------------------------------------
@@ -565,7 +557,7 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
       int    len;
 	  struct timeval tv;
 
-      LA_TmpInfo *itmp = (LA_TmpInfo*)(wdh->dump.opaque);
+      LA_TmpInfo *itmp = (LA_TmpInfo*)(wdh->priv);
       struct timeval td;
       int    thisSize = phdr->caplen + LA_PacketRecordSize + LA_RecordHeaderSize;
 
@@ -689,9 +681,9 @@ gboolean lanalyzer_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
             }
 
       ((LA_TmpInfo*)tmp)->init = FALSE;
-      wdh->dump.opaque         = tmp;
-      wdh->subtype_write       = lanalyzer_dump;
-      wdh->subtype_close       = lanalyzer_dump_close;
+      wdh->priv          = tmp;
+      wdh->subtype_write = lanalyzer_dump;
+      wdh->subtype_close = lanalyzer_dump_close;
 
       /* Some of the fields in the file header aren't known yet so
        just skip over it for now.  It will be created after all
@@ -721,7 +713,7 @@ gboolean lanalyzer_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
  *---------------------------------------------------*/
 static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
 {
-      LA_TmpInfo *itmp   = (LA_TmpInfo*)(wdh->dump.opaque);
+      LA_TmpInfo *itmp   = (LA_TmpInfo*)(wdh->priv);
       struct tm  *fT     = localtime( (time_t *) &(itmp->start.tv_sec));
       guint16 board_type = itmp->encap == WTAP_ENCAP_TOKEN_RING
                               ? BOARD_325TR     /* LANalyzer Board Type */

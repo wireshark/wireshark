@@ -627,6 +627,9 @@ wtap_close(wtap *wth)
 	if (wth->random_fh != NULL)
 		file_close(wth->random_fh);
 
+	if (wth->priv != NULL)
+		g_free(wth->priv);
+
 	g_free(wth);
 }
 

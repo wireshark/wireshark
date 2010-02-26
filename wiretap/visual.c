@@ -164,7 +164,6 @@ struct visual_write_info
 /* Local functions to handle file reads and writes */
 static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static void visual_close(wtap *wth);
 static gboolean visual_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
     int *err, gchar **err_info);
@@ -274,12 +273,11 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
     /* Set up the pointers to the handlers for this file type */
     wth->subtype_read = visual_read;
     wth->subtype_seek_read = visual_seek_read;
-    wth->subtype_close = visual_close;
     wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
     /* Add Visual-specific information to the wiretap struct for later use. */
-    visual = g_malloc(sizeof(struct visual_read_info));
-    wth->capture.generic = visual;
+    visual = (struct visual_read_info *)g_malloc(sizeof(struct visual_read_info));
+    wth->priv = (void *)visual;
     visual->num_pkts = pletohl(&vfile_hdr.num_pkts);
     visual->start_time = ((double) pletohl(&vfile_hdr.start_time)) * 1000000;
     visual->current_pkt = 1;
@@ -295,7 +293,7 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
 static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-    struct visual_read_info *visual = wth->capture.generic;
+    struct visual_read_info *visual = (struct visual_read_info *)wth->priv;
     guint32 packet_size = 0;
     int bytes_read;
     struct visual_pkt_hdr vpkt_hdr;
@@ -474,17 +472,6 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     }
     return TRUE;
 }
-
-
-/* Close a file opened for reading. */
-static void visual_close(wtap *wth)
-{
-    /* Free the info allocated by a Visual file reader. */
-    if (wth->capture.generic)
-        g_free(wth->capture.generic);
-    wth->capture.generic = 0;
-}
-
 
 /* Read packet data for random access.
    This gets the packet data and rebuilds the pseudo header so that
@@ -691,8 +678,8 @@ gboolean visual_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 
     /* Create a struct to hold file information for the duration
        of the write */
-    visual = g_malloc(sizeof(struct visual_write_info));
-    wdh->dump.opaque = visual;
+    visual = (struct visual_write_info *)g_malloc(sizeof(struct visual_write_info));
+    wdh->priv = (void *)visual;
     visual->index_table_index = 0;
     visual->index_table_size = 1024;
     visual->index_table = 0;
@@ -715,7 +702,7 @@ gboolean visual_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err)
 {
-    struct visual_write_info * visual = wdh->dump.opaque;
+    struct visual_write_info * visual = wdh->priv;
     struct visual_pkt_hdr vpkt_hdr;
     size_t hdr_size = sizeof vpkt_hdr;
     size_t nwritten;
@@ -841,7 +828,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
    Returns TRUE on success, FALSE on failure. */
 static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
 {
-    struct visual_write_info * visual = wdh->dump.opaque;
+    struct visual_write_info * visual = wdh->priv;
     size_t n_to_write;
     size_t nwritten;
     struct visual_file_hdr vfile_hdr;
@@ -950,16 +937,12 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
 /* Free the memory allocated by a visual file writer. */
 static void visual_dump_free(wtap_dumper *wdh)
 {
-    struct visual_write_info * visual = wdh->dump.opaque;
+    struct visual_write_info * visual = wdh->priv;
 
     if (visual)
     {
         /* Free the index table memory. */
         if (visual->index_table)
             g_free(visual->index_table);
-
-        /* Free the write file info struct. */
-        g_free(visual);
-        wdh->dump.opaque = 0;
     }
 }

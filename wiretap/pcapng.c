@@ -274,6 +274,15 @@ typedef struct interface_data_s {
 } interface_data_t;
 
 
+typedef struct {
+	gboolean byte_swapped;
+	guint16 version_major;
+	guint16 version_minor;
+	gint8 if_fcslen;
+	GArray *interface_data;
+	guint number_of_interfaces;
+} pcapng_t;
+
 static int
 pcapng_get_encap(gint id, pcapng_t *pn)
 {
@@ -1231,7 +1240,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	int bytes_read;
 	pcapng_t pn;
 	wtapng_block_t wblock;
-
+	pcapng_t *pcapng;
 
 	/* we don't know the byte swapping of the file yet */
 	pn.byte_swapped = FALSE;
@@ -1273,8 +1282,9 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	wth->file_encap = WTAP_ENCAP_UNKNOWN;
 	wth->snapshot_length = 0;
 	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
-	wth->capture.pcapng = (pcapng_t *)g_malloc(sizeof(pcapng_t));
-	*wth->capture.pcapng = pn;
+	pcapng = (pcapng_t *)g_malloc(sizeof(pcapng_t));
+	wth->priv = (void *)pcapng;
+	*pcapng = pn;
 	wth->subtype_read = pcapng_read;
 	wth->subtype_seek_read = pcapng_seek_read;
 	wth->subtype_close = pcapng_close;
@@ -1288,10 +1298,10 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 static gboolean 
 pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
+	pcapng_t *pcapng = (pcapng_t *)wth->priv;
 	int bytes_read;
 	guint64 ts;
 	wtapng_block_t wblock;
-
 
 	pcapng_debug1("pcapng_read: wth->data_offset is initially %" G_GINT64_MODIFIER "u", wth->data_offset);
 	*data_offset = wth->data_offset;
@@ -1313,7 +1323,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 	/* read next block */
 	while (1) {
-		bytes_read = pcapng_read_block(wth->fh, wth->capture.pcapng, &wblock, err, err_info);
+		bytes_read = pcapng_read_block(wth->fh, pcapng, &wblock, err, err_info);
 		if (bytes_read <= 0) {
 			pcapng_debug0("pcapng_read: couldn't read packet block");
 			return FALSE;
@@ -1335,13 +1345,13 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 	wth->phdr.caplen = wblock.data.packet.cap_len - wblock.data.packet.pseudo_header_len;
 	wth->phdr.len = wblock.data.packet.packet_len - wblock.data.packet.pseudo_header_len;
-	if (wblock.data.packet.interface_id < wth->capture.pcapng->number_of_interfaces) {
+	if (wblock.data.packet.interface_id < pcapng->number_of_interfaces) {
 		interface_data_t int_data;
 		guint64 time_units_per_second;
 		gint id;
 		
 		id = (gint)wblock.data.packet.interface_id;
-		int_data = g_array_index(wth->capture.pcapng->interface_data, interface_data_t, id);
+		int_data = g_array_index(pcapng->interface_data, interface_data_t, id);
 		time_units_per_second = int_data.time_units_per_second;
 		wth->phdr.pkt_encap = int_data.wtap_encap;
 		wth->phdr.ts.secs = (time_t)(ts / time_units_per_second);
@@ -1368,6 +1378,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length _U_,
     int *err, gchar **err_info)
 {
+	pcapng_t *pcapng = (pcapng_t *)wth->priv;
 	guint64 bytes_read64;
 	int bytes_read;
 	wtapng_block_t wblock;
@@ -1386,7 +1397,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
 	wblock.file_encap = &wth->file_encap;
 
 	/* read the block */
-	bytes_read = pcapng_read_block(wth->random_fh, wth->capture.pcapng, &wblock, err, err_info);
+	bytes_read = pcapng_read_block(wth->random_fh, pcapng, &wblock, err, err_info);
 	if (bytes_read <= 0) {
 		*err = file_error(wth->random_fh);
 		pcapng_debug3("pcapng_seek_read: couldn't read packet block (err=%d, errno=%d, bytes_read=%d).",
@@ -1408,14 +1419,20 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
 static void
 pcapng_close(wtap *wth)
 {
+	pcapng_t *pcapng = (pcapng_t *)wth->priv;
+
 	pcapng_debug0("pcapng_close: closing file");
-	if (wth->capture.pcapng->interface_data != NULL) {
-		g_array_free(wth->capture.pcapng->interface_data, TRUE);
+	if (pcapng->interface_data != NULL) {
+		g_array_free(pcapng->interface_data, TRUE);
 	}
-	g_free(wth->capture.pcapng);
 }
 
 
+
+typedef struct {
+	GArray *interface_data;
+	guint number_of_interfaces;
+} pcapng_dump_t;
 
 static gboolean
 pcapng_write_section_header_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
@@ -1658,9 +1675,10 @@ pcapng_lookup_interface_id_by_encap(int wtap_encap, wtap_dumper *wdh)
 {
 	gint i;
 	interface_data_t int_data;
-	
-	for(i = 0; i < (gint)wdh->dump.pcapng->number_of_interfaces; i++) {
-		int_data = g_array_index(wdh->dump.pcapng->interface_data, interface_data_t, i);
+	pcapng_dump_t *pcapng = (pcapng_dump_t *)wdh->priv;
+
+	for(i = 0; i < (gint)pcapng->number_of_interfaces; i++) {
+		int_data = g_array_index(pcapng->interface_data, interface_data_t, i);
 		if (wtap_encap == int_data.wtap_encap) {
 			return (guint32)i;
 		}
@@ -1678,6 +1696,7 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	interface_data_t int_data;
 	guint32 interface_id;
 	guint64 ts;
+	pcapng_dump_t *pcapng = (pcapng_dump_t *)wdh->priv;
 
 	pcapng_debug2("pcapng_dump: encap = %d (%s)",
 	              phdr->pkt_encap,
@@ -1704,11 +1723,11 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 			return FALSE;
 		}
 
-		interface_id = wdh->dump.pcapng->number_of_interfaces;
+		interface_id = pcapng->number_of_interfaces;
 		int_data.wtap_encap = phdr->pkt_encap;
 		int_data.time_units_per_second = 0;
-		g_array_append_val(wdh->dump.pcapng->interface_data, int_data);
-		wdh->dump.pcapng->number_of_interfaces++;
+		g_array_append_val(pcapng->interface_data, int_data);
+		pcapng->number_of_interfaces++;
 
 		pcapng_debug3("pcapng_dump: added interface description block with index %u for encap = %d (%s).",
 		              interface_id,
@@ -1752,9 +1771,11 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
    Returns TRUE on success, FALSE on failure. */
 static gboolean pcapng_dump_close(wtap_dumper *wdh, int *err _U_)
 {
+	pcapng_dump_t *pcapng = (pcapng_dump_t *)wdh->priv;
+
 	pcapng_debug0("pcapng_dump_close");
-	g_array_free(wdh->dump.pcapng->interface_data, TRUE);
-	wdh->dump.pcapng->number_of_interfaces = 0;
+	g_array_free(pcapng->interface_data, TRUE);
+	pcapng->number_of_interfaces = 0;
 	return TRUE;
 }
 
@@ -1765,6 +1786,7 @@ gboolean
 pcapng_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 {
 	wtapng_block_t wblock;
+	pcapng_dump_t *pcapng;
 
 	wblock.frame_buffer  = NULL;
 	wblock.pseudo_header = NULL;
@@ -1775,9 +1797,10 @@ pcapng_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	/* This is a pcapng file */
 	wdh->subtype_write = pcapng_dump;
 	wdh->subtype_close = pcapng_dump_close;
-	wdh->dump.pcapng = (pcapng_dump_t *)g_malloc(sizeof(pcapng_dump_t));
-	wdh->dump.pcapng->interface_data = g_array_new(FALSE, FALSE, sizeof(interface_data_t));
-	wdh->dump.pcapng->number_of_interfaces = 0;
+	pcapng = (pcapng_dump_t *)g_malloc(sizeof(pcapng_dump_t));
+	wdh->priv = (void *)pcapng;
+	pcapng->interface_data = g_array_new(FALSE, FALSE, sizeof(interface_data_t));
+	pcapng->number_of_interfaces = 0;
 
 	/* write the section header block */
 	wblock.type = BLOCK_TYPE_SHB;

@@ -99,7 +99,6 @@ static gboolean read_packet_data(FILE_T fh, int offset_to_frame, int offset,
     guint8 *pd, int length, int *err, char **err_info);
 static gboolean skip_to_next_packet(wtap *wth, int offset,
     int offset_to_next_packet, int *err, char **err_info);
-static gboolean observer_dump_close(wtap_dumper *wdh, int *err);
 static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 
@@ -450,6 +449,11 @@ skip_to_next_packet(wtap *wth, int offset, int offset_to_next_packet, int *err,
 	return TRUE;
 }
 
+typedef struct {
+	guint64 packet_count;
+	guint8  network_type;
+} niobserver_dump_t;
+
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
 int network_instruments_dump_can_write_encap(int encap)
@@ -473,6 +477,7 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int
 	char comment[64];
 	struct tm *current_time;
 	time_t system_time;
+	niobserver_dump_t *niobserver;
 
 	if (cant_seek) {
 		*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
@@ -480,11 +485,11 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int
 	}
 
 	wdh->subtype_write = observer_dump;
-	wdh->subtype_close = observer_dump_close;
 
-	wdh->dump.niobserver = g_malloc(sizeof(niobserver_dump_t));
-	wdh->dump.niobserver->packet_count = 0;
-	wdh->dump.niobserver->network_type = from_wtap_encap[wdh->encap];
+	niobserver = (niobserver_dump_t *)g_malloc(sizeof(niobserver_dump_t));
+	wdh->priv = (void *)niobserver;
+	niobserver->packet_count = 0;
+	niobserver->network_type = from_wtap_encap[wdh->encap];
 
 	/* create the file comment */
 	time(&system_time);
@@ -531,7 +536,7 @@ static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header _U_, const guchar *pd,
     int *err)
 {
-	niobserver_dump_t *niobserver = wdh->dump.niobserver;
+	niobserver_dump_t *niobserver = (niobserver_dump_t *)wdh->priv;
 	packet_entry_header packet_header;
 	size_t nwritten;
 	guint64 capture_nanoseconds;
@@ -579,11 +584,5 @@ static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		return FALSE;
 	}
 
-	return TRUE;
-}
-
-/* just returns TRUE, there is no clean up needed */
-static gboolean observer_dump_close(wtap_dumper *wdh _U_, int *err _U_)
-{
 	return TRUE;
 }

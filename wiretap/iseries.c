@@ -268,7 +268,7 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 
   /* Save trace format for passing between packets */
   iseries = (iseries_t *) g_malloc (sizeof (iseries_t));
-  wth->capture.generic = iseries;
+  wth->priv = (void *)iseries;
   iseries->have_date = FALSE;
   iseries->format = format;
   iseries->tcp_formatted = FALSE;
@@ -377,11 +377,11 @@ iseries_read (wtap * wth, int *err, gchar ** err_info, gint64 *data_offset)
 static gint64
 iseries_seek_next_packet (wtap * wth, int *err)
 {
+  iseries_t *iseries = (iseries_t *)wth->priv;
   char buf[ISERIES_LINE_LENGTH];
   int line;
   gint64 cur_off;
   long buflen;
-  iseries_t *iseries = (iseries_t *)wth->capture.generic;
 
   /*
    * Seeks to the beginning of the next packet, and returns the
@@ -483,6 +483,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 		      union wtap_pseudo_header *pseudo_header, guint8 * pd,
 		      int *err, gchar ** err_info)
 {
+  iseries_t *iseries = (iseries_t *)wth->priv;
   gint64 cur_off;
   gboolean isValid, isCurrentPacket, IPread, TCPread, isDATA;
   int num_items_scanned, line, pktline, buflen, i;
@@ -495,7 +496,6 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   guint8 *buf;
   char   *tcpdatabuf, *workbuf, *asciibuf;
   struct tm tm;
-  iseries_t *iseries = (iseries_t *)wth->capture.generic;
 
   /*
    * Check for packet headers in first 3 lines this should handle page breaks

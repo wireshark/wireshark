@@ -377,23 +377,35 @@ typedef	struct	nspr_pktracepart_v23
 #undef __TNL
 
 
-#define ns_setabstime(wth, AbsoluteTime, RelativeTimems)	\
+#define ns_setabstime(nstrace, AbsoluteTime, RelativeTimems)	\
 	do { \
-		wth->capture.nstrace->nspm_curtime = AbsoluteTime; \
-		wth->capture.nstrace->nspm_curtimemsec += RelativeTimems; \
-		wth->capture.nstrace->nspm_curtimelastmsec = wth->capture.nstrace->nspm_curtimemsec; \
+		(nstrace)->nspm_curtime = AbsoluteTime; \
+		(nstrace)->nspm_curtimemsec += RelativeTimems; \
+		(nstrace)->nspm_curtimelastmsec = nstrace->nspm_curtimemsec; \
 	} while(0)
 
 
-#define ns_setrelativetime(wth, RelativeTimems)	\
+#define ns_setrelativetime(nstrace, RelativeTimems)	\
 	do { \
 		guint32	rsec; \
-		wth->capture.nstrace->nspm_curtimemsec += RelativeTimems; \
-		rsec = (guint32)(wth->capture.nstrace->nspm_curtimemsec - wth->capture.nstrace->nspm_curtimelastmsec)/1000; \
-		wth->capture.nstrace->nspm_curtime += rsec; \
-		wth->capture.nstrace->nspm_curtimelastmsec += rsec * 1000; \
+		(nstrace)->nspm_curtimemsec += RelativeTimems; \
+		rsec = (guint32)((nstrace)->nspm_curtimemsec - (nstrace)->nspm_curtimelastmsec)/1000; \
+		(nstrace)->nspm_curtime += rsec; \
+		(nstrace)->nspm_curtimelastmsec += rsec * 1000; \
 	} while (0)
 
+
+typedef struct {
+	gchar *pnstrace_buf;
+	gint32 nstrace_buf_offset;
+	gint32 nstrace_buflen;
+	/* Performance Monitor Time variables */
+	guint32	nspm_curtime;		/* current time since 1970 */
+	guint64	nspm_curtimemsec;	/* current time in mili second */
+	guint64	nspm_curtimelastmsec;	/* nspm_curtime last update time in milisec */
+	guint64 nsg_creltime;
+	guint64 file_size;
+} nstrace_t;
 
 guint32 nspm_signature_isv10(gchar *sigp);
 guint32 nspm_signature_isv20(gchar *sigp);
@@ -447,6 +459,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
 	gchar *nstrace_buf;
 	gint64 file_size;
 	gint32 page_size;
+	nstrace_t *nstrace;
 
 	errno = WTAP_ERR_CANT_READ;
 
@@ -491,15 +504,16 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_seek_read = nstrace_seek_read;
 	wth->subtype_close = nstrace_close; 
 
-	wth->capture.nstrace = g_malloc(sizeof(nstrace_t));
-	wth->capture.nstrace->pnstrace_buf = nstrace_buf;
-	wth->capture.nstrace->nstrace_buflen = page_size;
-	wth->capture.nstrace->nstrace_buf_offset = 0;
-	wth->capture.nstrace->nspm_curtime = 0;
-	wth->capture.nstrace->nspm_curtimemsec = 0;
-	wth->capture.nstrace->nspm_curtimelastmsec = 0;
-	wth->capture.nstrace->nsg_creltime = 0;
-	wth->capture.nstrace->file_size = file_size;
+	nstrace = (nstrace_t *)g_malloc(sizeof(nstrace_t));
+	wth->priv = (void *)nstrace;
+	nstrace->pnstrace_buf = nstrace_buf;
+	nstrace->nstrace_buflen = page_size;
+	nstrace->nstrace_buf_offset = 0;
+	nstrace->nspm_curtime = 0;
+	nstrace->nspm_curtimemsec = 0;
+	nstrace->nspm_curtimelastmsec = 0;
+	nstrace->nsg_creltime = 0;
+	nstrace->file_size = file_size;
 
   
 	/* Set the start time by looking for the abstime record */
@@ -509,8 +523,8 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
 		if ((file_seek(wth->fh, 0, SEEK_SET, err)) == -1)
 		{
 			*err = file_error(wth->fh);
-			g_free(wth->capture.nstrace->pnstrace_buf);
-			g_free(wth->capture.nstrace);
+			g_free(nstrace->pnstrace_buf);
+			g_free(nstrace);
 			return 0;
 		}
 
@@ -518,17 +532,17 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
 		if (page_size != file_read(nstrace_buf, 1, page_size, wth->fh))
 		{
 			*err = file_error(wth->fh);
-			g_free(wth->capture.nstrace->pnstrace_buf);
-			g_free(wth->capture.nstrace);
+			g_free(nstrace->pnstrace_buf);
+			g_free(nstrace);
 			return 0;
 		}
 	
 		/* reset the buffer offset */
-		wth->capture.nstrace->nstrace_buf_offset = 0;
+		nstrace->nstrace_buf_offset = 0;
 	}
 
 	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
-	wth->phdr.ts.secs = wth->capture.nstrace->nspm_curtime; 
+	wth->phdr.ts.secs = nstrace->nspm_curtime; 
 	wth->phdr.ts.nsecs = 0;
 
 	*err = 0;
@@ -593,9 +607,10 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
 #define nstrace_set_start_time_ver(ver) \
 	gboolean nstrace_set_start_time_v##ver(wtap *wth) \
 	{\
-		gchar* nstrace_buf = wth->capture.nstrace->pnstrace_buf;\
-		gint32 nstrace_buf_offset = wth->capture.nstrace->nstrace_buf_offset;\
-		gint32 nstrace_buflen = wth->capture.nstrace->nstrace_buflen;\
+		nstrace_t *nstrace = (nstrace_t *)wth->priv;\
+		gchar* nstrace_buf = nstrace->pnstrace_buf;\
+		gint32 nstrace_buf_offset = nstrace->nstrace_buf_offset;\
+		gint32 nstrace_buflen = nstrace->nstrace_buflen;\
 		do\
 		{\
 			while (nstrace_buf_offset < nstrace_buflen)\
@@ -604,9 +619,9 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
 				switch (nspr_getv##ver##recordtype(fp))\
 				{\
 					case NSPR_ABSTIME_V##ver:\
-						ns_setabstime(wth, pletohl(&((nspr_abstime_v##ver##_t *) fp)->abs_Time), pletohs(&((nspr_abstime_v##ver##_t *) fp)->abs_RelTime));\
-						wth->capture.nstrace->nstrace_buf_offset = nstrace_buf_offset + nspr_getv##ver##recordsize(fp);\
-						wth->capture.nstrace->nstrace_buflen = nstrace_buflen;\
+						ns_setabstime(nstrace, pletohl(&((nspr_abstime_v##ver##_t *) fp)->abs_Time), pletohs(&((nspr_abstime_v##ver##_t *) fp)->abs_RelTime));\
+						nstrace->nstrace_buf_offset = nstrace_buf_offset + nspr_getv##ver##recordsize(fp);\
+						nstrace->nstrace_buflen = nstrace_buflen;\
 						return TRUE;\
  					case NSPR_UNUSEDSPACE_V10:\
 						nstrace_buf_offset = nstrace_buflen;\
@@ -617,7 +632,7 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
 			}\
 			nstrace_buf_offset = 0;\
 			wth->data_offset += nstrace_buflen;\
-			nstrace_buflen = GET_READ_PAGE_SIZE((wth->capture.nstrace->file_size - wth->data_offset));\
+			nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - wth->data_offset));\
 		}while((nstrace_buflen > 0) && (nstrace_buflen == (file_read(nstrace_buf, 1, nstrace_buflen, wth->fh))));\
 		return FALSE;\
 	}
@@ -664,11 +679,11 @@ gboolean nstrace_set_start_time(wtap *wth)
 */
 gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
-
-	guint64 nsg_creltime = wth->capture.nstrace->nsg_creltime;
-	gchar *nstrace_buf = wth->capture.nstrace->pnstrace_buf;
-	gint32 nstrace_buf_offset = wth->capture.nstrace->nstrace_buf_offset;
-	gint32 nstrace_buflen = wth->capture.nstrace->nstrace_buflen;
+	nstrace_t *nstrace = (nstrace_t *)wth->priv;
+	guint64 nsg_creltime = nstrace->nsg_creltime;
+	gchar *nstrace_buf = nstrace->pnstrace_buf;
+	gint32 nstrace_buf_offset = nstrace->nstrace_buf_offset;
+	gint32 nstrace_buflen = nstrace->nstrace_buflen;
 	nspr_pktracefull_v10_t *fp;
 	nspr_pktracepart_v10_t *pp;
       
@@ -690,7 +705,7 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 			case NSPR_PDPKTRACEFULLRX_V10:
       
 				nsg_creltime += ns_hrtime2nsec(pletohl(&fp->fp_RelTimeHr));
-				wth->phdr.ts.secs = wth->capture.nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000); 
+				wth->phdr.ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000); 
 				wth->phdr.ts.nsecs = (guint32) (nsg_creltime % 1000000000);
       
 				wth->phdr.len = pletohs(&fp->nsprRecordSize);
@@ -703,9 +718,9 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 				memcpy(buffer_start_ptr(wth->frame_buffer), fp, wth->phdr.caplen); 
 				*data_offset = wth->data_offset + nstrace_buf_offset;
       
-				wth->capture.nstrace->nstrace_buf_offset = nstrace_buf_offset + wth->phdr.len;
-				wth->capture.nstrace->nstrace_buflen = nstrace_buflen;
-				wth->capture.nstrace->nsg_creltime = nsg_creltime;
+				nstrace->nstrace_buf_offset = nstrace_buf_offset + wth->phdr.len;
+				nstrace->nstrace_buflen = nstrace_buflen;
+				nstrace->nsg_creltime = nsg_creltime;
 
 				return TRUE;
       
@@ -714,7 +729,7 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 			case NSPR_PDPKTRACEPARTRX_V10:
       
 				nsg_creltime += ns_hrtime2nsec(pletohl(&pp->pp_RelTimeHr));
-				wth->phdr.ts.secs = wth->capture.nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000); 
+				wth->phdr.ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000); 
 				wth->phdr.ts.nsecs = (guint32) (nsg_creltime % 1000000000);
       
 				wth->phdr.len =  pletohs(&pp->pp_PktSizeOrg) + nspr_pktracepart_v10_s;
@@ -726,21 +741,21 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 				memcpy(buffer_start_ptr(wth->frame_buffer), pp, wth->phdr.caplen); 
 				*data_offset = wth->data_offset + nstrace_buf_offset;
       
-				wth->capture.nstrace->nstrace_buf_offset = nstrace_buf_offset + wth->phdr.caplen;
-				wth->capture.nstrace->nsg_creltime = nsg_creltime;
-				wth->capture.nstrace->nstrace_buflen = nstrace_buflen;
+				nstrace->nstrace_buf_offset = nstrace_buf_offset + wth->phdr.caplen;
+				nstrace->nsg_creltime = nsg_creltime;
+				nstrace->nstrace_buflen = nstrace_buflen;
 
 				return TRUE;
       
 			case NSPR_ABSTIME_V10:
 
-				ns_setabstime(wth, pletohl(&((nspr_abstime_v10_t *) fp)->abs_Time), pletohl(&((nspr_abstime_v10_t *) fp)->abs_RelTime));
+				ns_setabstime(nstrace, pletohl(&((nspr_abstime_v10_t *) fp)->abs_Time), pletohl(&((nspr_abstime_v10_t *) fp)->abs_RelTime));
 				nstrace_buf_offset += pletohs(&fp->nsprRecordSize);
 				break;
       
 			case NSPR_RELTIME_V10:
 
-				ns_setrelativetime(wth, ((nspr_abstime_v10_t *) fp)->abs_RelTime);
+				ns_setrelativetime(nstrace, ((nspr_abstime_v10_t *) fp)->abs_RelTime);
 				nstrace_buf_offset += pletohs(&fp->nsprRecordSize);
 				break;
       
@@ -758,7 +773,7 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
   
 		nstrace_buf_offset = 0;
 		wth->data_offset += nstrace_buflen;
-		nstrace_buflen = GET_READ_PAGE_SIZE((wth->capture.nstrace->file_size - wth->data_offset));
+		nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - wth->data_offset));
 	}while((nstrace_buflen > 0) && (nstrace_buflen == (file_read(nstrace_buf, 1, nstrace_buflen, wth->fh))));
   
 	return FALSE;
@@ -767,7 +782,7 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 #define TIMEDEFV20(fp,type) \
 	do {\
 		nsg_creltime += ns_hrtime2nsec(pletohl(&fp->type##_RelTimeHr));\
-		wth->phdr.ts.secs = wth->capture.nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
+		wth->phdr.ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
 		wth->phdr.ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
 	}while(0)
 
@@ -811,19 +826,20 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 		buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);\
 		memcpy(buffer_start_ptr(wth->frame_buffer), fp, wth->phdr.caplen);\
 		*data_offset = wth->data_offset + nstrace_buf_offset;\
-		wth->capture.nstrace->nstrace_buf_offset = nstrace_buf_offset + nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
-		wth->capture.nstrace->nstrace_buflen = nstrace_buflen;\
-		wth->capture.nstrace->nsg_creltime = nsg_creltime;\
+		nstrace->nstrace_buf_offset = nstrace_buf_offset + nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
+		nstrace->nstrace_buflen = nstrace_buflen;\
+		nstrace->nsg_creltime = nsg_creltime;\
 		wth->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##TYPE;\
 		return TRUE;\
 	}while(0)
 
 gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
-	guint64 nsg_creltime = wth->capture.nstrace->nsg_creltime;
-	gchar *nstrace_buf = wth->capture.nstrace->pnstrace_buf;
-	gint32 nstrace_buf_offset = wth->capture.nstrace->nstrace_buf_offset;
-	gint32 nstrace_buflen = wth->capture.nstrace->nstrace_buflen;
+	nstrace_t *nstrace = (nstrace_t *)wth->priv;
+	guint64 nsg_creltime = nstrace->nsg_creltime;
+	gchar *nstrace_buf = nstrace->pnstrace_buf;
+	gint32 nstrace_buf_offset = nstrace->nstrace_buf_offset;
+	gint32 nstrace_buflen = nstrace->nstrace_buflen;
 	nspr_pktracefull_v20_t *fp20;
 	nspr_pktracefull_v21_t *fp21;
 		
@@ -865,14 +881,14 @@ gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 				{
 					fp20 = (nspr_pktracefull_v20_t *) &nstrace_buf[nstrace_buf_offset];
 					nstrace_buf_offset += nspr_getv20recordsize((nspr_hd_v20_t *)fp20);
-					ns_setabstime(wth, pletohl(&((nspr_abstime_v20_t *) fp20)->abs_Time), pletohs(&((nspr_abstime_v20_t *) fp20)->abs_RelTime));
+					ns_setabstime(nstrace, pletohl(&((nspr_abstime_v20_t *) fp20)->abs_Time), pletohs(&((nspr_abstime_v20_t *) fp20)->abs_RelTime));
 					break;
 				}
       
 				case NSPR_RELTIME_V20:
 				{
 					fp20 = (nspr_pktracefull_v20_t *) &nstrace_buf[nstrace_buf_offset];
-					ns_setrelativetime(wth, pletohs(&((nspr_abstime_v20_t *) fp20)->abs_RelTime));
+					ns_setrelativetime(nstrace, pletohs(&((nspr_abstime_v20_t *) fp20)->abs_RelTime));
 					nstrace_buf_offset += nspr_getv20recordsize((nspr_hd_v20_t *)fp20);
 					break;
       			}
@@ -897,7 +913,7 @@ gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *data_of
    
 		nstrace_buf_offset = 0;
 	    wth->data_offset += nstrace_buflen;
-    	nstrace_buflen = GET_READ_PAGE_SIZE((wth->capture.nstrace->file_size - wth->data_offset));
+    	nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - wth->data_offset));
 	}while((nstrace_buflen > 0) && (nstrace_buflen == (file_read(nstrace_buf, 1, nstrace_buflen, wth->fh))));
   
 	return FALSE;
@@ -1001,12 +1017,17 @@ gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
 */
 void nstrace_close(wtap *wth)
 {
+	nstrace_t *nstrace = (nstrace_t *)wth->priv;
 
-	g_free(wth->capture.nstrace->pnstrace_buf);
-	g_free(wth->capture.nstrace);
-	return;
+	g_free(nstrace->pnstrace_buf);
 }
 
+
+typedef struct {
+	guint16 page_offset;
+	guint16 page_len;
+	guint32 absrec_time;
+} nstrace_dump_t;
 
 /* Returns 0 if we could write the specified encapsulation type,
 ** an error indication otherwise. */
@@ -1034,6 +1055,8 @@ int nstrace_20_dump_can_write_encap(int encap)
 ** failure */
 gboolean nstrace_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 {
+	nstrace_dump_t *nstrace;
+
 	if (cant_seek) 
 	{
 		*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
@@ -1042,10 +1065,11 @@ gboolean nstrace_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 
 	wdh->subtype_write = nstrace_dump;
 
-	wdh->dump.nstr = g_malloc(sizeof(nstrace_dump_t));
-	wdh->dump.nstr->page_offset = 0;
-	wdh->dump.nstr->page_len = NSPR_PAGESIZE;
-	wdh->dump.nstr->absrec_time = 0;
+	nstrace = (nstrace_dump_t *)g_malloc(sizeof(nstrace_dump_t));
+	wdh->priv = (void *)nstrace;
+	nstrace->page_offset = 0;
+	nstrace->page_len = NSPR_PAGESIZE;
+	nstrace->absrec_time = 0;
 
 	return TRUE;
 }
@@ -1053,6 +1077,7 @@ gboolean nstrace_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 
 gboolean nstrace_add_signature(wtap_dumper *wdh)
 {
+	nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
 	size_t nwritten;
 
 	if (wdh->file_type == WTAP_FILE_NETSCALER_1_0)
@@ -1070,7 +1095,7 @@ gboolean nstrace_add_signature(wtap_dumper *wdh)
 			return FALSE;    
 
 		/* Move forward the page offset */
-		wdh->dump.nstr->page_offset += (guint16) nwritten;
+		nstrace->page_offset += (guint16) nwritten;
 	
 	} else if (wdh->file_type == WTAP_FILE_NETSCALER_2_0)
 	{
@@ -1088,7 +1113,7 @@ gboolean nstrace_add_signature(wtap_dumper *wdh)
 			return FALSE;    
 
 		/* Move forward the page offset */
-		wdh->dump.nstr->page_offset += (guint16) nwritten;
+		nstrace->page_offset += (guint16) nwritten;
 	
 	} else  
 	{
@@ -1103,6 +1128,7 @@ gboolean nstrace_add_signature(wtap_dumper *wdh)
 gboolean nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
      const guchar *pd)
 {
+	nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
 	size_t nwritten;
 	guint64 nsg_creltime;
 
@@ -1127,7 +1153,7 @@ gboolean nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			return FALSE;
 
 		/* Move forward the page offset */
-		wdh->dump.nstr->page_offset += nspr_abstime_v10_s;
+		nstrace->page_offset += nspr_abstime_v10_s;
 
 	} else if (wdh->file_type == WTAP_FILE_NETSCALER_2_0)
 	{
@@ -1149,7 +1175,7 @@ gboolean nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			return FALSE;
 
 		/* Move forward the page offset */
-		wdh->dump.nstr->page_offset += nspr_abstime_v20_s;
+		nstrace->page_offset += nspr_abstime_v20_s;
 
 	} else
 	{
@@ -1166,9 +1192,10 @@ gboolean nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err)
 {  
+	nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
 	size_t nwritten;
 
-	if (wdh->dump.nstr->page_offset == 0)
+	if (nstrace->page_offset == 0)
 	{
 		/* Add the signature record and abs time record */
 		if (wdh->file_type == WTAP_FILE_NETSCALER_1_0)
@@ -1192,16 +1219,16 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 		if (wdh->file_type == WTAP_FILE_NETSCALER_1_0)
 		{
-			if (wdh->dump.nstr->page_offset + phdr->caplen >= wdh->dump.nstr->page_len)
+			if (nstrace->page_offset + phdr->caplen >= nstrace->page_len)
 			{
 				/* Start on the next page */
-				if (fseek(wdh->fh, (wdh->dump.nstr->page_len - wdh->dump.nstr->page_offset), SEEK_CUR) == -1)
+				if (fseek(wdh->fh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR) == -1)
 				{
 					*err = errno;
 					return FALSE;
 				}
 
-				wdh->dump.nstr->page_offset = 0;
+				nstrace->page_offset = 0;
 
 				/* Possibly add signature and abstime records and increment offset */
 				if (nstrace_add_signature(wdh) == FALSE)
@@ -1220,7 +1247,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 				return FALSE;
 			}
 
-			wdh->dump.nstr->page_offset += (guint16) nwritten;
+			nstrace->page_offset += (guint16) nwritten;
 		} else if (wdh->file_type == WTAP_FILE_NETSCALER_2_0)
 		{
 			*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
@@ -1240,16 +1267,16 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			return FALSE;
 		} else if (wdh->file_type == WTAP_FILE_NETSCALER_2_0)
 		{
-			if (wdh->dump.nstr->page_offset + phdr->caplen >= wdh->dump.nstr->page_len)
+			if (nstrace->page_offset + phdr->caplen >= nstrace->page_len)
 			{
 				/* Start on the next page */
-				if (fseek(wdh->fh, (wdh->dump.nstr->page_len - wdh->dump.nstr->page_offset), SEEK_CUR) == -1)
+				if (fseek(wdh->fh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR) == -1)
 				{
 					*err = errno;
 					return FALSE;
 				}
 
-				wdh->dump.nstr->page_offset = 0;
+				nstrace->page_offset = 0;
 
 				/* Possibly add signature and abstime records and increment offset */
 				if (nstrace_add_signature(wdh) == FALSE)
@@ -1269,7 +1296,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 				return FALSE;
 			}
 
-			wdh->dump.nstr->page_offset += (guint16) nwritten;
+			nstrace->page_offset += (guint16) nwritten;
 		}
 
 		break;

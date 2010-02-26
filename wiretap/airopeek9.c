@@ -84,12 +84,15 @@ typedef struct airopeek_utime {
 	guint32 lower;
 } airopeek_utime;
 
+typedef struct {
+	gboolean	has_fcs;
+} airopeek9_t;
+
 static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean airopeekv9_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
-static void airopeekv9_close(wtap *wth);
 
 static int wtap_file_read_pattern (wtap *wth, const char *pattern, int *err)
 {
@@ -195,6 +198,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
 	WTAP_ENCAP_IEEE_802_11_WITH_RADIO
     };
     #define NUM_AIROPEEK9_ENCAPS (sizeof airopeek9_encap / sizeof airopeek9_encap[0])
+    airopeek9_t *airopeek9;
 
     wtap_file_read_unknown_bytes(&ap_hdr, sizeof(ap_hdr), wth->fh, err);
 
@@ -307,20 +311,20 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     wth->file_encap = file_encap;
     wth->subtype_read = airopeekv9_read;
     wth->subtype_seek_read = airopeekv9_seek_read;
-    wth->subtype_close = airopeekv9_close;
     wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
-    wth->capture.airopeek9 = (airopeek9_t *)g_malloc(sizeof(airopeek9_t));
+    airopeek9 = (airopeek9_t *)g_malloc(sizeof(airopeek9_t));
+    wth->priv = (void *)airopeek9;
     switch (mediaSubType) {
 
     case AIROPEEK_V9_NST_ETHERNET:
     case AIROPEEK_V9_NST_802_11:
     case AIROPEEK_V9_NST_802_11_2:
-	wth->capture.airopeek9->has_fcs = FALSE;
+	airopeek9->has_fcs = FALSE;
 	break;
 
     case AIROPEEK_V9_NST_802_11_WITH_FCS:
-	wth->capture.airopeek9->has_fcs = TRUE;
+	airopeek9->has_fcs = TRUE;
 	break;
     }
 
@@ -485,6 +489,7 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
 static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
+    airopeek9_t *airopeek9 = (airopeek9_t *)wth->priv;
     hdr_info_t hdr_info;
     int hdrlen;
     double  t;
@@ -534,7 +539,7 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
 	 * whether to supply it as an FCS or discard it.
 	 */
 	wth->pseudo_header.ieee_802_11 = hdr_info.ieee_802_11;
-	if (wth->capture.airopeek9->has_fcs)
+	if (airopeek9->has_fcs)
 	    wth->pseudo_header.ieee_802_11.fcs_len = 4;
 	else {
 	    wth->pseudo_header.ieee_802_11.fcs_len = 0;
@@ -563,6 +568,7 @@ airopeekv9_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info)
 {
+    airopeek9_t *airopeek9 = (airopeek9_t *)wth->priv;
     hdr_info_t hdr_info;
 
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
@@ -576,7 +582,7 @@ airopeekv9_seek_read(wtap *wth, gint64 seek_off,
 
     case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
 	pseudo_header->ieee_802_11 = hdr_info.ieee_802_11;
-	if (wth->capture.airopeek9->has_fcs)
+	if (airopeek9->has_fcs)
 	    pseudo_header->ieee_802_11.fcs_len = 4;
 	else
 	    pseudo_header->ieee_802_11.fcs_len = 0;
@@ -593,10 +599,4 @@ airopeekv9_seek_read(wtap *wth, gint64 seek_off,
     errno = WTAP_ERR_CANT_READ;
     wtap_file_read_expected_bytes(pd, length, wth->random_fh, err);
     return TRUE;
-}
-
-static void
-airopeekv9_close(wtap *wth)
-{
-    g_free(wth->capture.airopeek9);
 }

@@ -44,83 +44,6 @@
 
 #include "wtap.h"
 
-typedef struct {
-	gboolean byte_swapped;
-} i4btrace_t;
-
-typedef struct {
-	gboolean is_hpux_11;
-} nettl_t;
-
-typedef struct {
-	gboolean byte_swapped;
-	guint16 version_major;
-	guint16 version_minor;
-	gint8 if_fcslen;
-	GArray *interface_data;
-	guint number_of_interfaces;
-} pcapng_t;
-
-typedef struct {
-	time_t	start_secs;
-	guint32	start_usecs;
-	guint8	version_major;
-	guint32 *frame_table;
-	guint32	frame_table_size;
-	guint	current_frame;
-} netmon_t;
-
-typedef struct {
-	time_t		start_time;
-	double		ticks_per_sec;
-	double		start_timestamp;
-	gboolean	wrapped;
-	guint32		nframes;
-	gint64		start_offset;
-	gint64		end_offset;
-	int		version_major;
-	gboolean	fcs_valid;	/* if packets have valid FCS at the end */
-	guint		isdn_type;	/* 1 = E1 PRI, 2 = T1 PRI, 3 = BRI */
-} netxray_t;
-
-typedef struct {
-	time_t inittime;
-	int adjusted;
-	gint64 next_packet_seek_start;
-} ascend_t;
-
-typedef struct {
-	gboolean byteswapped;
-} csids_t;
-
-typedef struct {
-	struct timeval reference_time;
-} etherpeek_t;
-
-typedef struct {
-	gboolean	has_fcs;
-} airopeek9_t;
-
-typedef struct _k12_t k12_t;
-
-typedef struct {
-	struct wtap_nstime now;
-	time_t t0;
-} mpeg_t;
-
-typedef struct {
-	gchar *pnstrace_buf;
-	gint32 nstrace_buf_offset;
-	gint32 nstrace_buflen;
-	/* Performance Monitor Time variables */
-	guint32	nspm_curtime;		/* current time since 1970 */
-	guint64	nspm_curtimemsec;	/* current time in mili second */
-	guint64	nspm_curtimelastmsec;	/* nspm_curtime last update time in milisec */
-	guint64 nsg_creltime;
-	guint64 file_size;
-} nstrace_t;
-
-
 typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, gint64*);
 typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64, union wtap_pseudo_header*,
 					guint8*, int, int *, char **);
@@ -136,21 +59,7 @@ struct wtap {
 
 	gint64			data_offset;
 
-	union {
-		i4btrace_t		*i4btrace;
-		nettl_t			*nettl;
-		netmon_t		*netmon;
-		netxray_t		*netxray;
-		ascend_t		*ascend;
-		csids_t			*csids;
-		etherpeek_t		*etherpeek;
-		airopeek9_t		*airopeek9;
-		k12_t			*k12;
-		mpeg_t			*mpeg;
-		nstrace_t		*nstrace;
-		void			*generic;
-		pcapng_t		*pcapng;
-	} capture;
+	void			*priv;
 
 	subtype_read_func	subtype_read;
 	subtype_seek_read_func	subtype_seek_read;
@@ -171,52 +80,6 @@ typedef gboolean (*subtype_write_func)(struct wtap_dumper*,
 		const guchar*, int*);
 typedef gboolean (*subtype_close_func)(struct wtap_dumper*, int*);
 
-typedef struct {
-	gboolean first_frame;
-	struct wtap_nstime start;
-	guint32	nframes;
-} netxray_dump_t;
-
-typedef struct {
-	gboolean got_first_record_time;
-	struct wtap_nstime first_record_time;
-	guint32	frame_table_offset;
-	guint32	*frame_table;
-	guint	frame_table_index;
-	guint	frame_table_size;
-} netmon_dump_t;
-
-typedef struct {
-	guint16 page_offset;
-	guint16 page_len;
-	guint32 absrec_time;
-} nstrace_dump_t;
-
-typedef struct {
-	guint32	nframes;
-} _5views_dump_t;
-
-typedef struct {
-	guint64 packet_count;
-	guint8  network_type;
-} niobserver_dump_t;
-
-typedef struct {
-	guint32 file_len;
-	guint32 num_of_records;
-	guint32 file_offset;
-} k12_dump_t;
-
-typedef struct {
-    gboolean           first_packet_written;
-    struct wtap_nstime start_time;
-} dct2000_dump_t;
-
-typedef struct {
-	GArray *interface_data;
-	guint number_of_interfaces;
-} pcapng_dump_t;
-
 struct wtap_dumper {
 	FILE*			fh;
 	int			file_type;
@@ -225,17 +88,7 @@ struct wtap_dumper {
 	gboolean	compressed;
 	gint64		bytes_dumped;
 
-	union {
-		void			*opaque;
-		netmon_dump_t		*netmon;
-		netxray_dump_t		*netxray;
-		_5views_dump_t		*_5views;
-		niobserver_dump_t	*niobserver;
-		k12_dump_t		*k12;
-		dct2000_dump_t		*dct2000;
-		nstrace_dump_t		*nstr;
-		pcapng_dump_t		*pcapng;
-	} dump;
+	void			*priv;
 
 	subtype_write_func	subtype_write;
 	subtype_close_func	subtype_close;

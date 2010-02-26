@@ -281,7 +281,8 @@ pppdump_open(wtap *wth, int *err, gchar **err_info _U_)
 	if (file_seek(wth->fh, 5, SEEK_SET, err) == -1)
 		return -1;
 
-	state = wth->capture.generic = g_malloc(sizeof(pppdump_t));
+	state = (pppdump_t *)g_malloc(sizeof(pppdump_t));
+	wth->priv = (void *)state;
 	state->timestamp = pntohl(&buffer[1]);
 	state->tenths = 0;
 
@@ -324,7 +325,7 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	buffer_assure_space(wth->frame_buffer, PPPD_BUF_SIZE);
 	buf = buffer_start_ptr(wth->frame_buffer);
 
-	state = wth->capture.generic;
+	state = wth->priv;
 
 	/* If we have a random stream open, allocate a structure to hold
 	   the information needed to read this packet's data again. */
@@ -718,7 +719,7 @@ pppdump_seek_read(wtap *wth,
 	pkt_id		*pid;
 	gint64		num_bytes_to_skip;
 
-	state = wth->capture.generic;
+	state = wth->priv;
 
 	pid = g_ptr_array_index(state->pids, seek_off);
 	if (!pid) {
@@ -769,7 +770,7 @@ pppdump_close(wtap *wth)
 {
 	pppdump_t	*state;
 
-	state = wth->capture.generic;
+	state = (pppdump_t *)wth->priv;
 
 	if (state->seek_state) { /* should always be TRUE */
 		g_free(state->seek_state);
@@ -782,7 +783,4 @@ pppdump_close(wtap *wth)
 		}
 		g_ptr_array_free(state->pids, TRUE);
 	}
-
-	g_free(state);
-
 }

@@ -306,6 +306,19 @@ union netxrayrec_hdr {
 	struct netxrayrec_2_x_hdr hdr_2_x;
 };
 
+typedef struct {
+	time_t		start_time;
+	double		ticks_per_sec;
+	double		start_timestamp;
+	gboolean	wrapped;
+	guint32		nframes;
+	gint64		start_offset;
+	gint64		end_offset;
+	int		version_major;
+	gboolean	fcs_valid;	/* if packets have valid FCS at the end */
+	guint		isdn_type;	/* 1 = E1 PRI, 2 = T1 PRI, 3 = BRI */
+} netxray_t;
+
 static gboolean netxray_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean netxray_seek_read(wtap *wth, gint64 seek_off,
@@ -317,7 +330,6 @@ static guint netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
     union wtap_pseudo_header *pseudo_header, union netxrayrec_hdr *hdr);
 static gboolean netxray_read_rec_data(FILE_T fh, guint8 *data_ptr,
     guint32 packet_size, int *err);
-static void netxray_close(wtap *wth);
 static gboolean netxray_dump_1_1(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
@@ -364,6 +376,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	#define NUM_NETXRAY_ENCAPS (sizeof netxray_encap / sizeof netxray_encap[0])
 	int file_encap;
 	guint isdn_type = 0;
+	netxray_t *netxray;
 
 	/* Read in the string that should be at the start of a NetXRay
 	 * file */
@@ -761,22 +774,22 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 
 	/* This is a netxray file */
 	wth->file_type = file_type;
-	wth->capture.netxray = g_malloc(sizeof(netxray_t));
+	netxray = (netxray_t *)g_malloc(sizeof(netxray_t));
+	wth->priv = (void *)netxray;
 	wth->subtype_read = netxray_read;
 	wth->subtype_seek_read = netxray_seek_read;
-	wth->subtype_close = netxray_close;
 	wth->file_encap = file_encap;
 	wth->snapshot_length = 0;	/* not available in header */
-	wth->capture.netxray->start_time = pletohl(&hdr.start_time);
-	wth->capture.netxray->ticks_per_sec = ticks_per_sec;
-	wth->capture.netxray->start_timestamp = start_timestamp;
-	wth->capture.netxray->version_major = version_major;
+	netxray->start_time = pletohl(&hdr.start_time);
+	netxray->ticks_per_sec = ticks_per_sec;
+	netxray->start_timestamp = start_timestamp;
+	netxray->version_major = version_major;
 
 	/*
 	 * If frames have an extra 4 bytes of stuff at the end, is
 	 * it an FCS, or just junk?
 	 */
-	wth->capture.netxray->fcs_valid = FALSE;
+	netxray->fcs_valid = FALSE;
 	switch (file_encap) {
 
 	case WTAP_ENCAP_ETHERNET:
@@ -863,7 +876,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		if (version_major == 2) {
 			if (hdr.realtick[1] == 0x34 && hdr.realtick[2] == 0x12)
-				wth->capture.netxray->fcs_valid = TRUE;
+				netxray->fcs_valid = TRUE;
 		}
 		break;
 	}
@@ -872,21 +885,21 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	 * Remember the ISDN type, as we need it to interpret the
 	 * channel number in ISDN captures.
 	 */
-	wth->capture.netxray->isdn_type = isdn_type;
+	netxray->isdn_type = isdn_type;
 
 	/* Remember the offset after the last packet in the capture (which
 	 * isn't necessarily the last packet in the file), as it appears
 	 * there's sometimes crud after it.
 	 * XXX: Remember 'start_offset' to help testing for 'short file' at EOF
 	 */
-	wth->capture.netxray->wrapped      = FALSE;
-	wth->capture.netxray->nframes      = pletohl(&hdr.nframes);
-	wth->capture.netxray->start_offset = pletohl(&hdr.start_offset);
-	wth->capture.netxray->end_offset   = pletohl(&hdr.end_offset);
+	netxray->wrapped      = FALSE;
+	netxray->nframes      = pletohl(&hdr.nframes);
+	netxray->start_offset = pletohl(&hdr.start_offset);
+	netxray->end_offset   = pletohl(&hdr.end_offset);
 
 	/* Seek to the beginning of the data records. */
 	if (file_seek(wth->fh, pletohl(&hdr.start_offset), SEEK_SET, err) == -1) {
-		g_free(wth->capture.netxray);
+		g_free(netxray);
 		return -1;
 	}
 	wth->data_offset = pletohl(&hdr.start_offset);
@@ -898,6 +911,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 static gboolean netxray_read(wtap *wth, int *err, gchar **err_info _U_,
     gint64 *data_offset)
 {
+	netxray_t *netxray = (netxray_t *)wth->priv;
 	guint32	packet_size;
 	union netxrayrec_hdr hdr;
 	int	hdr_size;
@@ -907,7 +921,7 @@ static gboolean netxray_read(wtap *wth, int *err, gchar **err_info _U_,
 
 reread:
 	/* Have we reached the end of the packet data? */
-	if (wth->data_offset == wth->capture.netxray->end_offset) {
+	if (wth->data_offset == netxray->end_offset) {
 		/* Yes. */
 		*err = 0;	/* it's just an EOF, not an error */
 		return FALSE;
@@ -945,14 +959,14 @@ reread:
 		 * partial frame header (or partial frame data) record, then the
 		 * netxray_read... functions will detect the short record.
 		 */
-		if (wth->capture.netxray->start_offset < wth->capture.netxray->end_offset) {
+		if (netxray->start_offset < netxray->end_offset) {
 			*err = WTAP_ERR_SHORT_READ;
 			return FALSE;
 		}
 		
-		if (!wth->capture.netxray->wrapped) {
+		if (!netxray->wrapped) {
 			/* Yes.  Remember that we did. */
-			wth->capture.netxray->wrapped = TRUE;
+			netxray->wrapped = TRUE;
 			if (file_seek(wth->fh, CAPTUREFILE_HEADER_SIZE,
 			    SEEK_SET, err) == -1)
 				return FALSE;
@@ -974,7 +988,7 @@ reread:
 	/*
 	 * Read the packet data.
 	 */
-	if (wth->capture.netxray->version_major == 0)
+	if (netxray->version_major == 0)
 		packet_size = pletohs(&hdr.old_hdr.len);
 	else
 		packet_size = pletohs(&hdr.hdr_1_x.incl_len);
@@ -990,12 +1004,12 @@ reread:
 	padding = netxray_set_pseudo_header(wth, pd, packet_size,
 	    &wth->pseudo_header, &hdr);
 
-	if (wth->capture.netxray->version_major == 0) {
+	if (netxray->version_major == 0) {
 		t = (double)pletohl(&hdr.old_hdr.timelo)
 		    + (double)pletohl(&hdr.old_hdr.timehi)*4294967296.0;
-		t /= wth->capture.netxray->ticks_per_sec;
-		t -= wth->capture.netxray->start_timestamp;
-		wth->phdr.ts.secs = wth->capture.netxray->start_time + (long)t;
+		t /= netxray->ticks_per_sec;
+		t -= netxray->start_timestamp;
+		wth->phdr.ts.secs = netxray->start_time + (long)t;
 		wth->phdr.ts.nsecs = (int)((t-(double)(unsigned long)(t))
 			*1.0e9);
 		/*
@@ -1007,9 +1021,9 @@ reread:
 	} else {
 		t = (double)pletohl(&hdr.hdr_1_x.timelo)
 		    + (double)pletohl(&hdr.hdr_1_x.timehi)*4294967296.0;
-		t /= wth->capture.netxray->ticks_per_sec;
-		t -= wth->capture.netxray->start_timestamp;
-		wth->phdr.ts.secs = wth->capture.netxray->start_time + (time_t)t;
+		t /= netxray->ticks_per_sec;
+		t -= netxray->start_timestamp;
+		wth->phdr.ts.secs = netxray->start_time + (time_t)t;
 		wth->phdr.ts.nsecs = (int)((t-(double)(unsigned long)(t))
 			*1.0e9);
 		/*
@@ -1064,11 +1078,12 @@ static int
 netxray_read_rec_header(wtap *wth, FILE_T fh, union netxrayrec_hdr *hdr,
     int *err)
 {
+	netxray_t *netxray = (netxray_t *)wth->priv;
 	int	bytes_read;
 	int	hdr_size = 0;
 
 	/* Read record header. */
-	switch (wth->capture.netxray->version_major) {
+	switch (netxray->version_major) {
 
 	case 0:
 		hdr_size = sizeof (struct old_netxrayrec_hdr);
@@ -1106,13 +1121,14 @@ static guint
 netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
     union wtap_pseudo_header *pseudo_header, union netxrayrec_hdr *hdr)
 {
+	netxray_t *netxray = (netxray_t *)wth->priv;
 	guint padding = 0;
 
 	/*
 	 * If this is Ethernet, 802.11, ISDN, X.25, or ATM, set the
 	 * pseudo-header.
 	 */
-	switch (wth->capture.netxray->version_major) {
+	switch (netxray->version_major) {
 
 	case 1:
 		switch (wth->file_encap) {
@@ -1156,7 +1172,7 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 				 * We have 4 bytes of stuff at the
 				 * end of the frame - FCS, or junk?
 				 */
-			    	if (wth->capture.netxray->fcs_valid) {
+			    	if (netxray->fcs_valid) {
 					/*
 					 * FCS.
 					 */
@@ -1197,7 +1213,7 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 				 * We have 4 bytes of stuff at the
 				 * end of the frame - FCS, or junk?
 				 */
-			    	if (wth->capture.netxray->fcs_valid) {
+			    	if (netxray->fcs_valid) {
 					/*
 					 * FCS.
 					 */
@@ -1241,7 +1257,7 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 			    (hdr->hdr_2_x.xxx[12] & 0x01);
 			pseudo_header->isdn.channel =
 			    hdr->hdr_2_x.xxx[13] & 0x1F;
-			switch (wth->capture.netxray->isdn_type) {
+			switch (netxray->isdn_type) {
 
 			case 1:
 				/*
@@ -1442,11 +1458,11 @@ netxray_read_rec_data(FILE_T fh, guint8 *data_ptr, guint32 packet_size,
 	return TRUE;
 }
 
-static void
-netxray_close(wtap *wth)
-{
-	g_free(wth->capture.netxray);
-}
+typedef struct {
+	gboolean first_frame;
+	struct wtap_nstime start;
+	guint32	nframes;
+} netxray_dump_t;
 
 static const struct {
 	int	wtap_encap_value;
@@ -1490,6 +1506,8 @@ int netxray_dump_can_write_encap_1_1(int encap)
    failure */
 gboolean netxray_dump_open_1_1(wtap_dumper *wdh, gboolean cant_seek, int *err)
 {
+    netxray_dump_t *netxray;
+
     /* This is a NetXRay file.  We can't fill in some fields in the header
        until all the packets have been written, so we can't write to a
        pipe. */
@@ -1510,11 +1528,12 @@ gboolean netxray_dump_open_1_1(wtap_dumper *wdh, gboolean cant_seek, int *err)
 	return FALSE;
     }
 
-    wdh->dump.netxray = g_malloc(sizeof(netxray_dump_t));
-    wdh->dump.netxray->first_frame = TRUE;
-    wdh->dump.netxray->start.secs = 0;
-    wdh->dump.netxray->start.nsecs = 0;
-    wdh->dump.netxray->nframes = 0;
+    netxray = (netxray_dump_t *)g_malloc(sizeof(netxray_dump_t));
+    wdh->priv = (void *)netxray;
+    netxray->first_frame = TRUE;
+    netxray->start.secs = 0;
+    netxray->start.nsecs = 0;
+    netxray->nframes = 0;
 
     return TRUE;
 }
@@ -1526,7 +1545,7 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh,
 	const union wtap_pseudo_header *pseudo_header _U_,
 	const guchar *pd, int *err)
 {
-    netxray_dump_t *netxray = wdh->dump.netxray;
+    netxray_dump_t *netxray = (netxray_dump_t *)wdh->priv;
     guint64 timestamp;
     guint32 t32;
     struct netxrayrec_1_x_hdr rec_hdr;
@@ -1587,7 +1606,7 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh,
 static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
 {
     char hdr_buf[CAPTUREFILE_HEADER_SIZE - sizeof(netxray_magic)];
-    netxray_dump_t *netxray = wdh->dump.netxray;
+    netxray_dump_t *netxray = (netxray_dump_t *)wdh->priv;
     guint32 filelen;
     struct netxray_hdr file_hdr;
     size_t nwritten;
@@ -1682,6 +1701,8 @@ int netxray_dump_can_write_encap_2_0(int encap)
    failure */
 gboolean netxray_dump_open_2_0(wtap_dumper *wdh, gboolean cant_seek, int *err)
 {
+    netxray_dump_t *netxray;
+
     /* This is a NetXRay file.  We can't fill in some fields in the header
        until all the packets have been written, so we can't write to a
        pipe. */
@@ -1702,11 +1723,12 @@ gboolean netxray_dump_open_2_0(wtap_dumper *wdh, gboolean cant_seek, int *err)
 	return FALSE;
     }
 
-    wdh->dump.netxray = g_malloc(sizeof(netxray_dump_t));
-    wdh->dump.netxray->first_frame = TRUE;
-    wdh->dump.netxray->start.secs = 0;
-    wdh->dump.netxray->start.nsecs = 0;
-    wdh->dump.netxray->nframes = 0;
+    netxray = (netxray_dump_t *)g_malloc(sizeof(netxray_dump_t));
+    wdh->priv = (void *)netxray;
+    netxray->first_frame = TRUE;
+    netxray->start.secs = 0;
+    netxray->start.nsecs = 0;
+    netxray->nframes = 0;
 
     return TRUE;
 }
@@ -1718,7 +1740,7 @@ static gboolean netxray_dump_2_0(wtap_dumper *wdh,
 	const union wtap_pseudo_header *pseudo_header _U_,
 	const guchar *pd, int *err)
 {
-    netxray_dump_t *netxray = wdh->dump.netxray;
+    netxray_dump_t *netxray = (netxray_dump_t *)wdh->priv;
     guint64 timestamp;
     guint32 t32;
     struct netxrayrec_2_x_hdr rec_hdr;
@@ -1797,7 +1819,7 @@ static gboolean netxray_dump_2_0(wtap_dumper *wdh,
 static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
 {
     char hdr_buf[CAPTUREFILE_HEADER_SIZE - sizeof(netxray_magic)];
-    netxray_dump_t *netxray = wdh->dump.netxray;
+    netxray_dump_t *netxray = (netxray_dump_t *)wdh->priv;
     guint32 filelen;
     struct netxray_hdr file_hdr;
     size_t nwritten;

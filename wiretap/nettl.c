@@ -175,6 +175,10 @@ struct nettlrec_ns_ls_drv_eth_hdr {
 
 /* header is followed by data and once again the total length (2 bytes) ! */
 
+typedef struct {
+	gboolean is_hpux_11;
+} nettl_t;
+
 static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
 		gint64 *data_offset);
 static gboolean nettl_seek_read(wtap *wth, gint64 seek_off,
@@ -185,7 +189,6 @@ static int nettl_read_rec_header(wtap *wth, FILE_T fh,
 		int *err, gchar **err_info, gboolean *fddihack);
 static gboolean nettl_read_rec_data(FILE_T fh, guchar *pd, int length,
 		int *err, gboolean fddihack);
-static void nettl_close(wtap *wth);
 static gboolean nettl_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 
@@ -195,6 +198,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
     guint16 dummy[2];
     int subsys;
     int bytes_read;
+    nettl_t *nettl;
 
     /* Read in the string that should be at the start of a HP file */
     errno = WTAP_ERR_CANT_READ;
@@ -223,14 +227,14 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
 
     /* This is an nettl file */
     wth->file_type = WTAP_FILE_NETTL;
-    wth->capture.nettl = g_malloc(sizeof(nettl_t));
+    nettl = g_malloc(sizeof(nettl_t));
+    wth->priv = (void *)nettl;
     if (file_hdr.os_vers[2] == '1' && file_hdr.os_vers[3] == '1')
-	wth->capture.nettl->is_hpux_11 = TRUE;
+	nettl->is_hpux_11 = TRUE;
     else
-	wth->capture.nettl->is_hpux_11 = FALSE;
+	nettl->is_hpux_11 = FALSE;
     wth->subtype_read = nettl_read;
     wth->subtype_seek_read = nettl_seek_read;
-    wth->subtype_close = nettl_close;
     wth->snapshot_length = 0;	/* not available */
 
     /* read the first header to take a guess at the file encap */
@@ -240,7 +244,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
             return -1;
         if (bytes_read != 0) {
             *err = WTAP_ERR_SHORT_READ;
-            g_free(wth->capture.nettl);
+            g_free(nettl);
             return -1;
         }
         return 0;
@@ -280,7 +284,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
     }
 
     if (file_seek(wth->fh, FILE_HDR_SIZE, SEEK_SET, err) == -1) {
-        g_free(wth->capture.nettl);
+        g_free(nettl);
 	return -1;
     }
     wth->data_offset = FILE_HDR_SIZE;
@@ -367,6 +371,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		union wtap_pseudo_header *pseudo_header, int *err,
 		gchar **err_info, gboolean *fddihack)
 {
+    nettl_t *nettl = (nettl_t *)wth->priv;
     int bytes_read;
     struct nettlrec_hdr rec_hdr;
     guint16 hdr_len;
@@ -562,7 +567,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	     *
 	     * And what are the extra two bytes?
 	     */
-            if (wth->capture.nettl->is_hpux_11) {
+            if (nettl->is_hpux_11) {
                 if (file_seek(fh, 2, SEEK_CUR, err) == -1) return -1;
 	        offset += 2;
             }
@@ -672,11 +677,6 @@ nettl_read_rec_data(FILE_T fh, guchar *pd, int length, int *err, gboolean fddiha
 	return FALSE;
     }
     return TRUE;
-}
-
-static void nettl_close(wtap *wth)
-{
-    g_free(wth->capture.nettl);
 }
 
 

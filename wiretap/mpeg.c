@@ -48,6 +48,11 @@
 #define PES_PREFIX 1
 #define PES_VALID(n) (((n) >> 8 & 0xffffff) == PES_PREFIX)
 
+typedef struct {
+	struct wtap_nstime now;
+	time_t t0;
+} mpeg_t;
+
 static int 
 mpeg_resync(wtap *wth, int *err, gchar **err_info _U_)
 {
@@ -111,10 +116,11 @@ static gboolean
 mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 		gint64 *data_offset)
 {
+	mpeg_t *mpeg = (mpeg_t *)wth->priv;
 	guint32 n;
 	int bytes_read = mpeg_read_header(wth, err, err_info, &n);
 	unsigned int packet_size;
-	struct wtap_nstime ts = wth->capture.mpeg->now;
+	struct wtap_nstime ts = mpeg->now;
 
 	if (bytes_read == -1)
 		return FALSE;
@@ -177,12 +183,12 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 						unsigned ext = (unsigned)((bytes >> 1) & 0x1ff);
 						guint64 cr = 300 * ts_val + ext;
 						unsigned rem = (unsigned)(cr % SCRHZ);
-						wth->capture.mpeg->now.secs
-							= wth->capture.mpeg->t0 + (time_t)(cr / SCRHZ);
-						wth->capture.mpeg->now.nsecs
+						mpeg->now.secs
+							= mpeg->t0 + (time_t)(cr / SCRHZ);
+						mpeg->now.nsecs
 							= (int)(G_GINT64_CONSTANT(1000000000) * rem / SCRHZ);
 					}
-					ts = wth->capture.mpeg->now;
+					ts = mpeg->now;
 					break;
 				default:
 					packet_size = 12;
@@ -208,10 +214,10 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 		MPA_UNMARSHAL(&mpa, n);
 		if (MPA_VALID(&mpa)) {
 			packet_size = MPA_BYTES(&mpa);
-			wth->capture.mpeg->now.nsecs += MPA_DURATION_NS(&mpa);
-			if (wth->capture.mpeg->now.nsecs >= 1000000000) {
-				wth->capture.mpeg->now.secs++;
-				wth->capture.mpeg->now.nsecs -= 1000000000;
+			mpeg->now.nsecs += MPA_DURATION_NS(&mpa);
+			if (mpeg->now.nsecs >= 1000000000) {
+				mpeg->now.secs++;
+				mpeg->now.nsecs -= 1000000000;
 			}
 		} else {
 			packet_size = mpeg_resync(wth, err, err_info);
@@ -242,12 +248,6 @@ mpeg_seek_read(wtap *wth, gint64 seek_off,
 	return mpeg_read_rec_data(wth->random_fh, pd, length, err);
 }
 
-static void
-mpeg_close(wtap *wth)
-{
-	g_free(wth->capture.mpeg);
-}
-
 struct _mpeg_magic {
 	size_t len;
 	const gchar* match;
@@ -265,6 +265,7 @@ mpeg_open(wtap *wth, int *err, gchar **err_info _U_)
 	int bytes_read;
 	char magic_buf[16];
 	struct _mpeg_magic* m;
+	mpeg_t *mpeg;
 	
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(magic_buf, 1, sizeof magic_buf, wth->fh);
@@ -292,13 +293,13 @@ good_magic:
 	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 	wth->subtype_read = mpeg_read;
 	wth->subtype_seek_read = mpeg_seek_read;
-	wth->subtype_close = mpeg_close;
 	wth->snapshot_length = 0;
 
-	wth->capture.mpeg = g_malloc(sizeof(mpeg_t));
-	wth->capture.mpeg->now.secs = time(NULL);
-	wth->capture.mpeg->now.nsecs = 0;
-	wth->capture.mpeg->t0 = wth->capture.mpeg->now.secs;
+	mpeg = (mpeg_t *)g_malloc(sizeof(mpeg_t));
+	wth->priv = (void *)mpeg;
+	mpeg->now.secs = time(NULL);
+	mpeg->now.nsecs = 0;
+	mpeg->t0 = mpeg->now.secs;
 
 	return 1;
 }

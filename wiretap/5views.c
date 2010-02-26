@@ -339,6 +339,10 @@ _5views_seek_read(wtap *wth, gint64 seek_off,
 
 
 
+typedef struct {
+	guint32	nframes;
+} _5views_dump_t;
+
 static const int wtap_encap[] = {
 	-1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
 	CST_5VW_CAPTURE_ETH_FILEID,		/* WTAP_ENCAP_ETHERNET -> Ehernet Ethernet */
@@ -375,6 +379,7 @@ int _5views_dump_can_write_encap(int encap)
    failure */
 gboolean _5views_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 {
+	_5views_dump_t *_5views;
 
 	/* We can't fill in all the fields in the file header, as we
 	   haven't yet written any packets.  As we'll have to rewrite
@@ -388,8 +393,9 @@ gboolean _5views_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	/* This is a 5Views file */
 	wdh->subtype_write = _5views_dump;
 	wdh->subtype_close = _5views_dump_close;
-	wdh->dump._5views = (_5views_dump_t *)g_malloc(sizeof(_5views_dump_t));
-	wdh->dump._5views->nframes = 0;
+	_5views = (_5views_dump_t *)g_malloc(sizeof(_5views_dump_t));
+	wdh->priv = (void *)_5views;
+	_5views->nframes = 0;
 
 	return TRUE;
 }
@@ -401,7 +407,7 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 	const union wtap_pseudo_header *pseudo_header _U_,
 	const guchar *pd, int *err)
 {
-
+	_5views_dump_t *_5views = (_5views_dump_t *)wdh->priv;
 	size_t nwritten;
 	static t_5VW_TimeStamped_Header HeaderFrame;
 
@@ -440,13 +446,14 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 		return FALSE;
 	}
 
-	wdh->dump._5views->nframes ++;
+	_5views->nframes ++;
 
 	return TRUE;
 }
 
 static gboolean _5views_dump_close(wtap_dumper *wdh, int *err)
 {
+	_5views_dump_t *_5views = (_5views_dump_t *)wdh->priv;
 	t_5VW_Capture_Header file_hdr;
 	size_t nwritten;
 
@@ -486,7 +493,7 @@ static gboolean _5views_dump_close(wtap_dumper *wdh, int *err)
 	file_hdr.HeaderNbFrames.Nb = htoles(1);			/* Number of elements */
 
 	/* fill in the number of frames saved */
-	file_hdr.TramesStockeesInFile = htolel(wdh->dump._5views->nframes);
+	file_hdr.TramesStockeesInFile = htolel(_5views->nframes);
 
 	/* Write the file header. */
 	nwritten = fwrite(&file_hdr, 1, sizeof(t_5VW_Capture_Header), wdh->fh);

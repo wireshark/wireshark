@@ -701,7 +701,7 @@ int ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 
 	/* This is a ngsniffer file */
 	ngsniffer = (ngsniffer_t *)g_malloc(sizeof(ngsniffer_t));
-	wth->capture.generic = ngsniffer;
+	wth->priv = (void *)ngsniffer;
 	ngsniffer->maj_vers = maj_vers;
 	ngsniffer->min_vers = pletohs(&version.min_vers);
 
@@ -1040,7 +1040,7 @@ static gboolean ngsniffer_read(wtap *wth, int *err, gchar **err_info,
 	guint64 t, tsecs, tpsecs;
 	guchar	*pd;
 
-	ngsniffer = (ngsniffer_t *)wth->capture.generic;
+	ngsniffer = (ngsniffer_t *)wth->priv;
 	for (;;) {
 		/*
 		 * Read the record header.
@@ -1950,7 +1950,7 @@ static void ngsniffer_sequential_close(wtap *wth)
 {
 	ngsniffer_t *ngsniffer;
 
-	ngsniffer = (ngsniffer_t *)wth->capture.generic;
+	ngsniffer = (ngsniffer_t *)wth->priv;
 	if (ngsniffer->seq.buf != NULL) {
 		g_free(ngsniffer->seq.buf);
 		ngsniffer->seq.buf = NULL;
@@ -1970,14 +1970,13 @@ static void ngsniffer_close(wtap *wth)
 {
 	ngsniffer_t *ngsniffer;
 
-	ngsniffer = (ngsniffer_t *)wth->capture.generic;
+	ngsniffer = (ngsniffer_t *)wth->priv;
 	if (ngsniffer->rand.buf != NULL)
 		g_free(ngsniffer->rand.buf);
 	if (ngsniffer->first_blob != NULL) {
 		g_list_foreach(ngsniffer->first_blob, free_blob, NULL);
 		g_list_free(ngsniffer->first_blob);
 	}
-	g_free(ngsniffer);
 }
 
 typedef struct {
@@ -2034,7 +2033,7 @@ gboolean ngsniffer_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
     wdh->subtype_close = ngsniffer_dump_close;
 
     ngsniffer = (ngsniffer_dump_t *)g_malloc(sizeof(ngsniffer_dump_t));
-    wdh->dump.opaque = ngsniffer;
+    wdh->priv = (void *)ngsniffer;
     ngsniffer->first_frame = TRUE;
     ngsniffer->start = 0;
 
@@ -2064,7 +2063,7 @@ gboolean ngsniffer_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err)
 {
-    ngsniffer_dump_t *ngsniffer = (ngsniffer_dump_t *)wdh->dump.opaque;
+    ngsniffer_dump_t *ngsniffer = (ngsniffer_dump_t *)wdh->priv;
     struct frame2_rec rec_hdr;
     size_t nwritten;
     char buf[6];
@@ -2454,7 +2453,7 @@ ng_file_read(void *buffer, size_t elementsize, size_t numelements, wtap *wth,
     size_t bytes_to_copy;
     size_t bytes_left;
 
-    ngsniffer = (ngsniffer_t *)wth->capture.generic;
+    ngsniffer = (ngsniffer_t *)wth->priv;
     if (is_random) {
 	infile = wth->random_fh;
 	comp_stream = &ngsniffer->rand;
@@ -2615,7 +2614,7 @@ ng_file_seek_seq(wtap *wth, gint64 offset, int whence, int *err)
     if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED)
 	return file_seek(wth->fh, offset, whence, err);
 
-    ngsniffer = (ngsniffer_t *)wth->capture.generic;
+    ngsniffer = (ngsniffer_t *)wth->priv;
     switch (whence) {
 
     case SEEK_SET:
@@ -2664,7 +2663,7 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int whence, int *err)
     if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED)
 	return file_seek(wth->random_fh, offset, whence, err);
 
-    ngsniffer = (ngsniffer_t *)wth->capture.generic;
+    ngsniffer = (ngsniffer_t *)wth->priv;
 
     switch (whence) {
 

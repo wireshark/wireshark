@@ -147,10 +147,7 @@ jpeg_jfif_open(wtap *wth, int *err, gchar **err_info)
 			wth->tsprecision = WTAP_FILE_TSPREC_SEC;
 			wth->subtype_read = jpeg_jfif_read;
 			wth->subtype_seek_read = jpeg_jfif_seek_read;
-			wth->subtype_close = NULL;
 			wth->snapshot_length = 0;
-
-			wth->capture.generic = NULL;
 		}
 	}
 

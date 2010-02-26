@@ -142,6 +142,10 @@ static const etherpeek_encap_lookup_t etherpeek_encap[] = {
 #define NUM_ETHERPEEK_ENCAPS \
 	(sizeof (etherpeek_encap) / sizeof (etherpeek_encap[0]))
 
+typedef struct {
+	struct timeval reference_time;
+} etherpeek_t;
+
 static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean etherpeek_seek_read_v7(wtap *wth, gint64 seek_off,
@@ -154,13 +158,13 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info,
 static gboolean etherpeek_seek_read_v56(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
-static void etherpeek_close(wtap *wth);
 
 int etherpeek_open(wtap *wth, int *err, gchar **err_info _U_)
 {
 	etherpeek_header_t ep_hdr;
 	struct timeval reference_time;
 	int file_encap;
+	etherpeek_t *etherpeek;
 
 	/* EtherPeek files do not start with a magic value large enough
 	 * to be unique; hence we use the following algorithm to determine
@@ -322,9 +326,9 @@ int etherpeek_open(wtap *wth, int *err, gchar **err_info _U_)
 	 * At this point we have recognised the file type and have populated
 	 * the whole ep_hdr structure in host byte order.
 	 */
-	wth->capture.etherpeek = g_malloc(sizeof(etherpeek_t));
-	wth->capture.etherpeek->reference_time = reference_time;
-	wth->subtype_close = etherpeek_close;
+	etherpeek = (etherpeek_t *)g_malloc(sizeof(etherpeek_t));
+	wth->priv = (void *)etherpeek;
+	etherpeek->reference_time = reference_time;
 	switch (ep_hdr.master.version) {
 
 	case 5:
@@ -352,14 +356,9 @@ int etherpeek_open(wtap *wth, int *err, gchar **err_info _U_)
 	}
 
 	wth->snapshot_length   = 0; /* not available in header */
-    wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
 	return 1;
-}
-
-static void etherpeek_close(wtap *wth)
-{
-	g_free(wth->capture.etherpeek);
 }
 
 static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
@@ -535,6 +534,7 @@ etherpeek_fill_pseudo_header_v7(union wtap_pseudo_header *pseudo_header,
 static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info _U_,
     gint64 *data_offset)
 {
+	etherpeek_t *etherpeek = (etherpeek_t *)wth->priv;
 	guchar ep_pkt[ETHERPEEK_V56_PKT_SIZE];
 	guint16 length;
 	guint16 sliceLength;
@@ -594,7 +594,7 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info _U_,
 	wth->phdr.len        = length;
 	wth->phdr.caplen     = sliceLength;
 	/* timestamp is in milliseconds since reference_time */
-	wth->phdr.ts.secs  = wth->capture.etherpeek->reference_time.tv_sec
+	wth->phdr.ts.secs  = etherpeek->reference_time.tv_sec
 	    + (timestamp / 1000);
 	wth->phdr.ts.nsecs = 1000 * (timestamp % 1000) * 1000;
 
