@@ -31,6 +31,7 @@ AM_DISABLE_STATIC
 dnl Checks for programs.
 AC_PROG_CC
 AM_PROG_CC_C_O
+AC_PROG_CXX
 AC_PROG_CPP
 dnl Work around libtool bug (fixed in the version 1.5a?)
 AC_DEFUN([AC_PROVIDE_AC_LIBTOOL_DLOPEN], )
@@ -647,7 +648,11 @@ AC_DEFINE_UNQUOTED(DATAFILE_DIR,"$datafiledir", [Directory for data])
 # programs to be built with GTK+.
 #
 if test "x$enable_wireshark" = "xyes"; then
-	AM_PATH_GTK_2_0(2.4.0, CFLAGS="$CFLAGS $GTK_CFLAGS", GTK_OK=no, gthread)
+	AM_PATH_GTK_2_0(2.4.0,
+	[
+		CFLAGS="$CFLAGS $GTK_CFLAGS"
+		CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
+	], GTK_OK=no, gthread)
 else
 	GTK_OK=no
 fi
@@ -679,7 +684,11 @@ if test "$GTK_OK" = "no" ; then
 	wireshark_bin=""
 	wireshark_man=""
 	# Use GLIB_CFLAGS
-	AM_PATH_GLIB_2_0(2.4.0, CFLAGS="$CFLAGS $GLIB_CFLAGS", AC_MSG_ERROR(GLib 2.4 or later distribution not found.), gmodule)
+	AM_PATH_GLIB_2_0(2.4.0,
+	[
+		CFLAGS="$CFLAGS $GLIB_CFLAGS"
+		CXXFLAGS="$CXXFLAGS $GLIB_CFLAGS"
+	], AC_MSG_ERROR(GLib 2.4 or later distribution not found.), gmodule)
 else
 	#
 	# We have GTK+, and thus will be building Wireshark unless the
