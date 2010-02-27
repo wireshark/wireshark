@@ -47,25 +47,25 @@ static int hf_expert_group    = -1;
 static int hf_expert_severity = -1;
 
 const value_string expert_group_vals[] = {
-	{ PI_CHECKSUM,		"Checksum" },
-	{ PI_SEQUENCE,		"Sequence" },
-	{ PI_RESPONSE_CODE,	"Response" },
-	{ PI_REQUEST_CODE,	"Request" },
-	{ PI_UNDECODED,		"Undecoded" },
-	{ PI_REASSEMBLE,	"Reassemble" },
-	{ PI_MALFORMED,		"Malformed" },
-	{ PI_DEBUG,		"Debug" },
+	{ PI_CHECKSUM,          "Checksum" },
+	{ PI_SEQUENCE,          "Sequence" },
+	{ PI_RESPONSE_CODE,     "Response" },
+	{ PI_REQUEST_CODE,      "Request" },
+	{ PI_UNDECODED,         "Undecoded" },
+	{ PI_REASSEMBLE,        "Reassemble" },
+	{ PI_MALFORMED,         "Malformed" },
+	{ PI_DEBUG,             "Debug" },
 	{ PI_PROTOCOL,          "Protocol" },
-	{ PI_SECURITY,		"Security" },
+	{ PI_SECURITY,          "Security" },
 	{ 0, NULL }
 };
 
 const value_string expert_severity_vals[] = {
-	{ PI_ERROR,		"Error" },
-	{ PI_WARN,		"Warn" },
-	{ PI_NOTE,		"Note" },
-	{ PI_CHAT,		"Chat" },
-	{ 0,			"Ok" },
+	{ PI_ERROR,             "Error" },
+	{ PI_WARN,              "Warn" },
+	{ PI_NOTE,              "Note" },
+	{ PI_CHAT,              "Chat" },
+	{ 0,                    "Ok" },
 	{ 0, NULL }
 };
 
@@ -88,7 +88,7 @@ expert_init(void)
 		&ett_subexpert
 	};
 
-	if(expert_tap == -1) {
+	if (expert_tap == -1) {
 		expert_tap = register_tap("expert");
 	}
 
@@ -106,7 +106,7 @@ expert_init(void)
 void
 expert_cleanup(void)
 {
-	/* memory cleanup will be done by se_... */
+
 }
 
 
@@ -122,8 +122,7 @@ expert_get_highest_severity(void)
 static void
 expert_set_item_flags(proto_item *pi, int group, int severity)
 {
-
-	if(proto_item_set_expert_flags(pi, group, severity)) {
+	if (proto_item_set_expert_flags(pi, group, severity)) {
 		/* propagate till toplevel item */
 		pi = proto_item_get_parent(pi);
 		expert_set_item_flags(pi, group, severity);
@@ -138,8 +137,8 @@ expert_create_tree(proto_item *pi, int group, int severity, const char *msg)
 
 	tree = proto_item_add_subtree(pi, ett_expert);
 	ti = proto_tree_add_protocol_format(tree, proto_expert, NULL, 0, 0, "Expert Info (%s/%s): %s",
-					    val_to_str(severity, expert_severity_vals, "?%u?"),
-					    val_to_str(group, expert_group_vals, "?%u?"),
+					    val_to_str(severity, expert_severity_vals, "Unknown (%u)"),
+					    val_to_str(group, expert_group_vals, "Unknown (%u)"),
 					    msg);
 	PROTO_ITEM_SET_GENERATED(ti);
 
@@ -147,36 +146,30 @@ expert_create_tree(proto_item *pi, int group, int severity, const char *msg)
 }
 
 static void
-expert_set_info_vformat(
-packet_info *pinfo, proto_item *pi, int group, int severity, const char *format, va_list ap)
+expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int severity, const char *format, va_list ap)
 {
-	char		formatted[300];
-	int		tap;
-	expert_info_t	*ei;
-	proto_tree	*tree;
-	proto_item	*ti;
-
+	char            formatted[ITEM_LABEL_LENGTH];
+	int             tap;
+	expert_info_t   *ei;
+	proto_tree      *tree;
+	proto_item      *ti;
 
 	/* if this packet isn't loaded because of a read filter, don't output anything */
-	if(pinfo == NULL || pinfo->fd->num == 0) {
+	if (pinfo == NULL || PINFO_FD_NUM(pinfo) == 0) {
 		return;
 	}
 
-	if(severity > highest_severity) {
+	if (severity > highest_severity) {
 		highest_severity = severity;
 	}
 
-	if(pi != NULL && pi->finfo != NULL) {
+	if (pi != NULL && PITEM_FINFO(pi) != NULL) {
 		expert_set_item_flags(pi, group, severity);
 	}
 
-	if (check_col(pinfo->cinfo, COL_EXPERT))
-		col_add_str(pinfo->cinfo, COL_EXPERT, val_to_str(severity, expert_severity_vals, "?%u?"));
+	col_add_str(pinfo->cinfo, COL_EXPERT, val_to_str(severity, expert_severity_vals, "Unknown (%u)"));
 
-	tap = have_tap_listener(expert_tap);
-
-	/* XXX - use currently nonexistant se_vsnprintf instead */
-	g_vsnprintf(formatted, sizeof(formatted), format, ap);
+	g_vsnprintf(formatted, ITEM_LABEL_LENGTH, format, ap);
 
 	tree = expert_create_tree(pi, group, severity, formatted);
 	ti = proto_tree_add_string(tree, hf_expert_msg, NULL, 0, 0, formatted);
@@ -186,21 +179,24 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 	ti = proto_tree_add_uint(tree, hf_expert_group, NULL, 0, 0, group);
 	PROTO_ITEM_SET_GENERATED(ti);
 
+	tap = have_tap_listener(expert_tap);
+
 	if (!tap)
 		return;
 
 	ei = ep_alloc(sizeof(expert_info_t));
 
-	ei->packet_num	= pinfo->fd->num;
-	ei->group	= group;
-	ei->severity	= severity;
-	ei->protocol	= pinfo->current_proto; /* ep_strdup(pinfo->current_proto); it's a const */
-	ei->summary	= ep_strdup(formatted);
-	ei->pitem       = NULL;
+	ei->packet_num  = PINFO_FD_NUM(pinfo);
+	ei->group       = group;
+	ei->severity    = severity;
+	ei->protocol    = pinfo->current_proto;
+	ei->summary     = ep_strdup(formatted);
 
 	/* if we have a proto_item (not a faked item), set expert attributes to it */
-	if(pi != NULL && PITEM_FINFO(pi) != NULL) {
+	if (pi != NULL && PITEM_FINFO(pi) != NULL) {
 		ei->pitem = pi;
+	} else {
+		ei->pitem = NULL;
 	}
 
 	tap_queue_packet(expert_tap, pinfo, ei);
@@ -208,11 +204,9 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 
 
 void
-expert_add_info_format(
-packet_info *pinfo, proto_item *pi, int group, int severity, const char *format, ...)
+expert_add_info_format(packet_info *pinfo, proto_item *pi, int group, int severity, const char *format, ...)
 {
-	va_list	ap;
-
+	va_list ap;
 
 	va_start(ap, format);
 	expert_set_info_vformat(pinfo, pi, group, severity, format, ap);

@@ -31,14 +31,14 @@
 #include "value_string.h"
 
 
-/** only for internal and display use */
+/** only for internal and display use. */
 typedef struct expert_info_s {
 	guint32 packet_num;
 	int group;
 	int severity;
-	const gchar * protocol;
-	gchar * summary;
-    proto_item *pitem;
+	const gchar *protocol;
+	gchar *summary;
+	proto_item *pitem;
 } expert_info_t;
 
 WS_VAR_IMPORT const value_string expert_severity_vals[];
@@ -54,7 +54,7 @@ extern int
 expert_get_highest_severity(void);
 
 /** Add an expert info.
-
+ Add an expert info tree to a protocol item, with classification and message.
  @param pinfo packet info of the currently processed packet
  @param pi current protocol item (or NULL)
  @param group the expert group (like PI_CHECKSUM - see: proto.h)
