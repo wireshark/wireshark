@@ -1640,9 +1640,9 @@ static const asn_namedbit OverrideRestrictions_bits[] = {
 
 static int
 dissect_p7_OverrideRestrictions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    OverrideRestrictions_bits, hf_index, ett_p7_OverrideRestrictions,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                1, ub_ua_restrictions, OverrideRestrictions_bits, hf_index, ett_p7_OverrideRestrictions,
+                                                NULL);
 
   return offset;
 }
