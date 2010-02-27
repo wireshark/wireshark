@@ -67,7 +67,7 @@ enum fp_link_type
 {
     FP_Link_Unknown,
     FP_Link_ATM,
-    FP_Link_Ethernet,
+    FP_Link_Ethernet
 };
 
 /* Info attached to each FP packet */
