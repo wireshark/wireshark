@@ -238,7 +238,7 @@ static const value_string ccsds_secondary_header_format_id[] = {
 
 
 /* convert time from utc to julian values */
-static void utc_to_julian ( int utc, int* year, int* julianday, int* hour, int* minute, int* second )
+void utc_to_julian ( int utc, int* year, int* julianday, int* hour, int* minute, int* second )
 {
         static int Days[2][13] =
         {
