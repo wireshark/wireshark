@@ -47,8 +47,8 @@ import time
 import getopt
 import traceback
 
-from ply import lex
-from ply import yacc
+import lex
+import yacc
 
 # OID name -> number conversion table
 oid_names = {
