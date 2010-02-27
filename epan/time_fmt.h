@@ -1,7 +1,7 @@
 /* time_fmt.h
  * Definitions for various time display formats.
  *
- * $Id: to_str.h 31967 2010-02-23 19:28:38Z etxrab $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

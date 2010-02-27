@@ -26,6 +26,7 @@
 LIBWIRESHARK_SRC = 		\
 	addr_and_mask.c		\
 	addr_resolv.c		\
+	address_to_str.c	\
 	adler32.c		\
 	afn.c			\
 	asn1.c			\
