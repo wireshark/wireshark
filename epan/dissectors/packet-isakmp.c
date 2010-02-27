@@ -2734,7 +2734,7 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 {
 	guint optlen, cfg_attr_type, len = 0;
         int offset_end = 0;	
-	proto_item *cfg_attr_type_item;
+	proto_item *cfg_attr_type_item = NULL;
 	proto_tree *sub_cfg_attr_type_tree = NULL;
 
 	cfg_attr_type = tvb_get_ntohs(tvb, offset);
