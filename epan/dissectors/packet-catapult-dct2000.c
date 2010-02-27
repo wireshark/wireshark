@@ -1152,7 +1152,7 @@ static dissector_handle_t look_for_dissector(char *protocol_name)
 static void parse_outhdr_string(const guchar *outhdr_string)
 {
     int n = 0;
-    guint outhdr_string_len = (guint)strlen((gchar*)outhdr_string);
+    guint outhdr_string_len = (guint)strlen((const gchar*)outhdr_string);
 
     /* Populate values array */
     for (outhdr_values_found=0; outhdr_values_found < MAX_OUTHDR_VALUES; ) {
@@ -1173,7 +1173,7 @@ static void parse_outhdr_string(const guchar *outhdr_string)
 
         /* Convert digits into value */
         outhdr_values[outhdr_values_found++] =
-            atoi((char*)format_text((guchar*)outhdr_string+digits_start, digits));
+            atoi(format_text(outhdr_string+digits_start, digits));
 
         /* Skip comma */
         n++;
@@ -1934,7 +1934,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                        (type_of_port == PT_UDP) ? "UDP" : "TCP",
                                                        (source_addr_offset) ?
                                                            ((source_addr_length == 4) ?
-                                                              (char *)get_hostname(tvb_get_ipv4(tvb, source_addr_offset)) :
+                                                              get_hostname(tvb_get_ipv4(tvb, source_addr_offset)) :
                                                               "<ipv6-address>"
                                                             ) :
                                                            "0.0.0.0",
@@ -1943,7 +1943,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                            0,
                                                        (dest_addr_offset) ?
                                                          ((source_addr_length == 4) ?
-                                                              (char *)get_hostname(tvb_get_ipv4(tvb, dest_addr_offset)) :
+                                                              get_hostname(tvb_get_ipv4(tvb, dest_addr_offset)) :
                                                               "<ipv6-address>"
                                                             ) :
                                                            "0.0.0.0",
@@ -2070,13 +2070,13 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     if (source_addr_offset) {
                         col_append_fstr(pinfo->cinfo, COL_DEF_SRC,
                                         "(%s:%u)",
-                                        (char*)get_hostname(tvb_get_ipv4(tvb, source_addr_offset)),
+                                        get_hostname(tvb_get_ipv4(tvb, source_addr_offset)),
                                         tvb_get_ntohs(tvb, source_port_offset));
                     }
                     if (dest_addr_offset) {
                         col_append_fstr(pinfo->cinfo, COL_DEF_DST,
                                         "(%s:%u)",
-                                        (char*)get_hostname(tvb_get_ipv4(tvb, dest_addr_offset)),
+                                        get_hostname(tvb_get_ipv4(tvb, dest_addr_offset)),
                                         tvb_get_ntohs(tvb, dest_port_offset));
                     }
 
@@ -2115,7 +2115,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                        "", "SCTPPrim transport:  -> %s:%u",
                                                        (dest_addr_offset) ?
                                                          ((dest_addr_length == 4) ?
-                                                              (char *)get_hostname(tvb_get_ipv4(tvb, dest_addr_offset)) :
+                                                              get_hostname(tvb_get_ipv4(tvb, dest_addr_offset)) :
                                                               "<ipv6-address>"
                                                             ) :
                                                            "0.0.0.0",
