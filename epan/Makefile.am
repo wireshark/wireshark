@@ -158,7 +158,7 @@ reassemble_test: reassemble_test.o tvbuff.o except.o to_str.o strutil.o emem.o \
                  reassemble.o
 	$(LINK) $^ $(GLIB_LIBS) -lz
 
-tvbtest: tvbtest.o tvbuff.o except.o strutil.o emem.o
+tvbtest: tvbtest.o tvbuff.o except.o to_str.o strutil.o emem.o
 	$(LINK) $^ $(GLIB_LIBS) -lz
 
 exntest: exntest.o except.o
