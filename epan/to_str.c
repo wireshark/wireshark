@@ -507,7 +507,7 @@ gchar *
 abs_time_to_str(nstime_t *abs_time, absolute_time_display_e fmt)
 {
         struct tm *tmp = NULL;
-        const char *zonename;
+        const char *zonename = "???";
         gchar *buf = NULL;
 
 #ifdef _MSC_VER
@@ -538,8 +538,7 @@ abs_time_to_str(nstime_t *abs_time, absolute_time_display_e fmt)
 #else
                         zonename = tmp->tm_isdst ? "?ST" : "?DT";
 #endif
-                } else
-                        zonename = NULL;
+                }
                 break;
         }
         if (tmp) {
@@ -578,7 +577,7 @@ gchar *
 abs_time_secs_to_str(time_t abs_time, absolute_time_display_e fmt)
 {
         struct tm *tmp = NULL;
-        const char *zonename;
+        const char *zonename = "???";
         gchar *buf = NULL;
 
 #ifdef _MSC_VER
@@ -609,8 +608,7 @@ abs_time_secs_to_str(time_t abs_time, absolute_time_display_e fmt)
 #else
                         zonename = tmp->tm_isdst ? "?ST" : "?DT";
 #endif
-                } else
-                        zonename = NULL;
+                }
                 break;
         }
         if (tmp) {
