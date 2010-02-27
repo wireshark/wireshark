@@ -52,6 +52,7 @@ SRC_FILES = \
 A2W_FLAGS= -b -e -L
 
 EXTRA_CNF= \
+	../acse/acse-exp.cnf \
 	../disp/disp-exp.cnf \
 	../dsp/dsp-exp.cnf \
 	../crmf/crmf-exp.cnf \
@@ -59,6 +60,9 @@ EXTRA_CNF= \
 	../x509af/x509af-exp.cnf \
 	../x509if/x509if-exp.cnf \
 	../x509sat/x509sat-exp.cnf
+
+../acse/acse-exp.cnf:
+	(cd ../acse && $(MAKE_CNF_EXPORT))
 
 ../disp/disp-exp.cnf:
 	(cd ../disp && $(MAKE_CNF_EXPORT))
