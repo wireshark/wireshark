@@ -235,7 +235,7 @@ get_mpa_state(conversation_t *conversation)
  * overflows.
  * The endpoint is either the Initiator or the Responder.
  */
-guint32
+static guint32
 get_first_marker_offset(mpa_state_t *state, struct tcpinfo *tcpinfo,
 		guint8 endpoint)
 {
@@ -258,7 +258,7 @@ get_first_marker_offset(mpa_state_t *state, struct tcpinfo *tcpinfo,
  * Returns the total length of this FPDU under the assumption that a TCP
  * segement carries only one FPDU.
  */
-guint32
+static guint32
 fpdu_total_length(struct tcpinfo *tcpinfo)
 {
 	guint32 size = 0;
@@ -278,7 +278,7 @@ fpdu_total_length(struct tcpinfo *tcpinfo)
  * Returns the number of Markers of this MPA FPDU. The endpoint is either the
  * Initiator or the Responder.
  */
-guint32
+static guint32
 number_of_markers(mpa_state_t *state, struct tcpinfo *tcpinfo, guint8 endpoint)
 {
 	guint32 size;
@@ -298,12 +298,12 @@ number_of_markers(mpa_state_t *state, struct tcpinfo *tcpinfo, guint8 endpoint)
  * Removes any Markers from this FPDU by using memcpy or throws an out of memory
  * exception.
  */
-tvbuff_t *
+static tvbuff_t *
 remove_markers(tvbuff_t *tvb, packet_info *pinfo, guint32 marker_offset,
 		guint32 num_markers, guint32 orig_length)
 {
 	guint8 *mfree_buff = NULL;
-	guint8 *raw_data_ptr = NULL;
+	const guint8 *raw_data_ptr = NULL;
 	guint32 mfree_buff_length, tot_copy, cur_copy;
 	tvbuff_t *mfree_tvb = NULL;
 
@@ -318,7 +318,7 @@ remove_markers(tvbuff_t *tvb, packet_info *pinfo, guint32 marker_offset,
 	if (!mfree_buff)
 		THROW(OutOfMemoryError);
 
-	raw_data_ptr = (guint8*) tvb_get_ptr(tvb, 0, -1);
+	raw_data_ptr = tvb_get_ptr(tvb, 0, -1);
 	tot_copy = 0;
 	cur_copy = marker_offset;
 	while (tot_copy < mfree_buff_length) {
@@ -336,7 +336,7 @@ remove_markers(tvbuff_t *tvb, packet_info *pinfo, guint32 marker_offset,
 }
 
 /* returns TRUE if this TCP segment carries a MPA REQUEST and FLASE otherwise */
-gboolean
+static gboolean
 is_mpa_req(tvbuff_t *tvb, packet_info *pinfo)
 {
 	conversation_t *conversation = NULL;
@@ -388,7 +388,7 @@ is_mpa_req(tvbuff_t *tvb, packet_info *pinfo)
 }
 
 /* returns TRUE if this TCP segment carries a MPA REPLY and FALSE otherwise */
-gboolean
+static gboolean
 is_mpa_rep(tvbuff_t *tvb, packet_info *pinfo)
 {
 	conversation_t *conversation = NULL;
@@ -431,7 +431,7 @@ is_mpa_rep(tvbuff_t *tvb, packet_info *pinfo)
 }
 
 /* returns TRUE if this TCP segment carries a MPA FPDU and FALSE otherwise */
-gboolean
+static gboolean
 is_mpa_fpdu(packet_info *pinfo)
 {
 	conversation_t *conversation = NULL;
@@ -464,7 +464,7 @@ is_mpa_fpdu(packet_info *pinfo)
 }
 
 /* update packet list pane in the GUI */
-void
+static void
 mpa_packetlist(packet_info *pinfo, gint message_type)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPA");
@@ -478,7 +478,7 @@ mpa_packetlist(packet_info *pinfo, gint message_type)
 }
 
 /* dissects MPA REQUEST or MPA REPLY */
-gboolean
+static gboolean
 dissect_mpa_req_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		gint message_type)
 {
@@ -559,7 +559,7 @@ dissect_mpa_req_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 /* returns byte length of the padding */
-guint8
+static guint8
 fpdu_pad_length(guint16 ulpdu_length)
 {
 	/*
@@ -578,7 +578,7 @@ fpdu_pad_length(guint16 ulpdu_length)
 }
 
 /* returns offset for PAD */
-guint32
+static guint32
 pad_offset(struct tcpinfo *tcpinfo, guint32 fpdu_total_len,
 		guint8 pad_len)
 {
@@ -594,7 +594,7 @@ pad_offset(struct tcpinfo *tcpinfo, guint32 fpdu_total_len,
 }
 
 /* dissects CRC within a FPDU */
-void
+static void
 dissect_fpdu_crc(tvbuff_t *tvb, proto_tree *tree, mpa_state_t *state,
 		guint32 offset, guint32 length)
 {
@@ -627,7 +627,7 @@ dissect_fpdu_crc(tvbuff_t *tvb, proto_tree *tree, mpa_state_t *state,
 }
 
 /* dissects Markers within FPDU */
-void
+static void
 dissect_fpdu_markers(tvbuff_t *tvb, proto_tree *tree, mpa_state_t *state,
 		struct tcpinfo *tcpinfo, guint8 endpoint)
 {
@@ -655,7 +655,7 @@ dissect_fpdu_markers(tvbuff_t *tvb, proto_tree *tree, mpa_state_t *state,
 }
 
 /* returns the expected value of the 16 bits long MPA FPDU ULPDU LENGTH field */
-guint16
+static guint16
 expected_ulpdu_length(mpa_state_t *state, struct tcpinfo *tcpinfo,
 		guint8 endpoint)
 {
@@ -690,7 +690,7 @@ expected_ulpdu_length(mpa_state_t *state, struct tcpinfo *tcpinfo,
 }
 
 /* dissects MPA FPDU */
-guint16
+static guint16
 dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		mpa_state_t *state, struct tcpinfo *tcpinfo, guint8 endpoint)
 {
