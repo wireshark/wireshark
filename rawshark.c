@@ -729,7 +729,7 @@ main(int argc, char *argv[])
 
   /* Initialize our display fields */
   for (fc = 0; fc < disp_fields->len; fc++) {
-	protocolinfo_init(g_ptr_array_index(disp_fields, fc));
+	protocolinfo_init((char *)g_ptr_array_index(disp_fields, fc));
   }
   g_ptr_array_free(disp_fields, TRUE);
   printf("\n");
@@ -881,7 +881,7 @@ main(int argc, char *argv[])
  * @return TRUE on success, FALSE on failure.
  */
 static gboolean
-raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info, gint64 *data_offset) {
+raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err_info, gint64 *data_offset) {
   struct pcaprec_hdr hdr;
   int bytes_read = 0;
   int bytes_needed = sizeof(struct pcaprec_hdr);
@@ -946,7 +946,7 @@ static int
 load_cap_file(capture_file *cf)
 {
   int          err;
-  gchar        *err_info;
+  const gchar  *err_info;
   gint64       data_offset = 0;
   struct wtap_pkthdr  phdr;
   guchar       pd[WTAP_MAX_PACKET_SIZE];
@@ -1302,17 +1302,18 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
 								DISSECTOR_ASSERT(!hfinfo->bitmask);
 								svalue = fvalue_get_sinteger(&finfo->value);
 								if (hfinfo->display & BASE_RANGE_STRING) {
-								  g_string_append(label_s, rval_to_str(svalue, hfinfo->strings, "Unknown"));
+								  g_string_append(label_s, rval_to_str(svalue, RVALS(hfinfo->strings), "Unknown"));
 								} else {
 								  g_string_append(label_s, val_to_str(svalue, cVALS(hfinfo->strings), "Unknown"));
 								}
+								break;
 							case FT_UINT8:
 							case FT_UINT16:
 							case FT_UINT24:
 							case FT_UINT32:
 								uvalue = fvalue_get_uinteger(&finfo->value);
 								if (!hfinfo->bitmask && hfinfo->display & BASE_RANGE_STRING) {
-								  g_string_append(label_s, rval_to_str(uvalue, hfinfo->strings, "Unknown"));
+								  g_string_append(label_s, rval_to_str(uvalue, RVALS(hfinfo->strings), "Unknown"));
 								} else {
 								  g_string_append(label_s, val_to_str(uvalue, cVALS(hfinfo->strings), "Unknown"));
 								}
@@ -1348,7 +1349,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
 static int
 protocolinfo_packet(void *prs, packet_info *pinfo _U_, epan_dissect_t *edt, const void *dummy _U_)
 {
-	pci_t *rs=prs;
+	pci_t *rs=(pci_t *)prs;
 	GPtrArray *gp;
 	guint i;
 
@@ -1362,7 +1363,7 @@ protocolinfo_packet(void *prs, packet_info *pinfo _U_, epan_dissect_t *edt, cons
 	 * Print each occurrence of the field
 	 */
 	for (i = 0; i < gp->len; i++) {
-		print_field_value(gp->pdata[i], rs->cmd_line_index);
+		print_field_value((field_info *)gp->pdata[i], rs->cmd_line_index);
 	}
 
 	return 0;
@@ -1404,7 +1405,7 @@ protocolinfo_init(char *field)
 		break;
 	}
 
-	rs=g_malloc(sizeof(pci_t));
+	rs=(pci_t *)g_malloc(sizeof(pci_t));
 	rs->hf_index=hfi->id;
 	rs->filter=field;
 	rs->cmd_line_index = g_cmd_line_index++;
@@ -1431,7 +1432,7 @@ protocolinfo_init(char *field)
 
 static void
 add_string_fmt(string_fmt_e format, gchar *plain) {
-	string_fmt_t *sf = g_malloc(sizeof(string_fmt_t));
+	string_fmt_t *sf = (string_fmt_t *)g_malloc(sizeof(string_fmt_t));
 
 	sf->format = format;
 	sf->plain = g_strdup(plain);
