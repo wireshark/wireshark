@@ -709,7 +709,7 @@ void radius_date(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_
 	time_ptr.nsecs = 0;
 
 	proto_tree_add_time(tree, a->hf, tvb, offset, len, &time_ptr);
-	proto_item_append_text(avp_item, "%s", abs_time_to_str(&time_ptr, FALSE));
+	proto_item_append_text(avp_item, "%s", abs_time_to_str(&time_ptr, ABSOLUTE_TIME_LOCAL));
 }
 
 void radius_abinary(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {

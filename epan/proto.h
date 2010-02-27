@@ -47,6 +47,7 @@
 
 #include "ipv4.h"
 #include "nstime.h"
+#include "time_fmt.h"
 #include "tvbuff.h"
 #include "ftypes/ftypes.h"
 #include "register.h"
@@ -166,14 +167,8 @@ typedef enum {
 /* BASE_ values that cause the field value to be displayed twice */
 #define IS_BASE_DUAL(b) ((b)==BASE_DEC_HEX||(b)==BASE_HEX_DEC)
 
-/* For FT_ABSOLUTE_TIME, the display format is ABSOLUTE_TIME_LOCAL if
- * the time is to be displayed as local time in our time zone or
- * ABSOLUTE_TIME_UTC if the time is to be displayed as UTC. */
-
-typedef enum {
-	ABSOLUTE_TIME_LOCAL,
-	ABSOLUTE_TIME_UTC
-} absolute_time_display_e;
+/* For FT_ABSOLUTE_TIME, the display format is an absolute_time_display_e
+ * as per time_fmt.h. */
 
 typedef enum {
     HF_REF_TYPE_NONE,       /**< Field is not referenced */

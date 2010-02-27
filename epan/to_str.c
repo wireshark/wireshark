@@ -504,11 +504,11 @@ static const char *mon_names[12] = {
 };
 
 gchar *
-abs_time_to_str(nstime_t *abs_time, gboolean show_as_utc)
+abs_time_to_str(nstime_t *abs_time, absolute_time_display_e fmt)
 {
-        struct tm *tmp;
+        struct tm *tmp = NULL;
         const char *zonename;
-        gchar *buf;
+        gchar *buf = NULL;
 
 #ifdef _MSC_VER
         /* calling localtime() on MSVC 2005 with huge values causes it to crash */
@@ -518,10 +518,15 @@ abs_time_to_str(nstime_t *abs_time, gboolean show_as_utc)
             tmp = NULL;
         } else
 #endif
-        if (show_as_utc) {
+        switch (fmt) {
+
+        case ABSOLUTE_TIME_UTC:
+        case ABSOLUTE_TIME_DOY_UTC:
                 tmp = gmtime(&abs_time->secs);
                 zonename = "UTC";
-        } else {
+                break;
+
+	case ABSOLUTE_TIME_LOCAL:
                 tmp = localtime(&abs_time->secs);
                 if (tmp) {
 #if defined(HAVE_TM_ZONE)
@@ -535,28 +540,46 @@ abs_time_to_str(nstime_t *abs_time, gboolean show_as_utc)
 #endif
                 } else
                         zonename = NULL;
+                break;
         }
         if (tmp) {
-                buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d.%09ld %s",
-                    mon_names[tmp->tm_mon],
-                    tmp->tm_mday,
-                    tmp->tm_year + 1900,
-                    tmp->tm_hour,
-                    tmp->tm_min,
-                    tmp->tm_sec,
-                    (long)abs_time->nsecs,
-                    zonename);
+                switch (fmt) {
+
+                case ABSOLUTE_TIME_DOY_UTC:
+                        buf = ep_strdup_printf("%04d/%03d:%02d:%02d:%02d.%09ld %s",
+                            tmp->tm_year + 1900,
+                            tmp->tm_yday,
+                            tmp->tm_hour,
+                            tmp->tm_min,
+                            tmp->tm_sec,
+                            (long)abs_time->nsecs,
+                            zonename);
+                        break;
+
+                case ABSOLUTE_TIME_UTC:
+                case ABSOLUTE_TIME_LOCAL:
+                        buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d.%09ld %s",
+                            mon_names[tmp->tm_mon],
+                            tmp->tm_mday,
+                            tmp->tm_year + 1900,
+                            tmp->tm_hour,
+                            tmp->tm_min,
+                            tmp->tm_sec,
+                            (long)abs_time->nsecs,
+                            zonename);
+                        break;
+                }
         } else
                 buf = ep_strdup("Not representable");
         return buf;
 }
 
 gchar *
-abs_time_secs_to_str(time_t abs_time, gboolean show_as_utc)
+abs_time_secs_to_str(time_t abs_time, absolute_time_display_e fmt)
 {
-        struct tm *tmp;
+        struct tm *tmp = NULL;
         const char *zonename;
-        gchar *buf;
+        gchar *buf = NULL;
 
 #ifdef _MSC_VER
         /* calling localtime() on MSVC 2005 with huge values causes it to crash */
@@ -566,10 +589,15 @@ abs_time_secs_to_str(time_t abs_time, gboolean show_as_utc)
             tmp = NULL;
         } else
 #endif
-        if (show_as_utc) {
+        switch (fmt) {
+
+        case ABSOLUTE_TIME_UTC:
+        case ABSOLUTE_TIME_DOY_UTC:
                 tmp = gmtime(&abs_time);
                 zonename = "UTC";
-        } else {
+                break;
+
+	case ABSOLUTE_TIME_LOCAL:
                 tmp = localtime(&abs_time);
                 if (tmp) {
 #if defined(HAVE_TM_ZONE)
@@ -583,16 +611,33 @@ abs_time_secs_to_str(time_t abs_time, gboolean show_as_utc)
 #endif
                 } else
                         zonename = NULL;
+                break;
         }
         if (tmp) {
-                buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d %s",
-                    mon_names[tmp->tm_mon],
-                    tmp->tm_mday,
-                    tmp->tm_year + 1900,
-                    tmp->tm_hour,
-                    tmp->tm_min,
-                    tmp->tm_sec,
-                    zonename);
+                switch (fmt) {
+
+                case ABSOLUTE_TIME_DOY_UTC:
+                        buf = ep_strdup_printf("%04d/%03d:%02d:%02d:%02d %s",
+                            tmp->tm_year + 1900,
+                            tmp->tm_yday,
+                            tmp->tm_hour,
+                            tmp->tm_min,
+                            tmp->tm_sec,
+                            zonename);
+                        break;
+
+                case ABSOLUTE_TIME_UTC:
+                case ABSOLUTE_TIME_LOCAL:
+                        buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d %s",
+                            mon_names[tmp->tm_mon],
+                            tmp->tm_mday,
+                            tmp->tm_year + 1900,
+                            tmp->tm_hour,
+                            tmp->tm_min,
+                            tmp->tm_sec,
+                            zonename);
+                        break;
+                }
         } else
                 buf = ep_strdup("Not representable");
         return buf;

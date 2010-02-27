@@ -1100,7 +1100,7 @@ int dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len) 
 	    ts.nsecs = 0;
 	    proto_tree_add_time_format_value(tree, hf_snmp_engineid_time, tvb, offset+4, 4,
                                   &ts, "%s",
-                                  abs_time_secs_to_str(seconds, FALSE));
+                                  abs_time_secs_to_str(seconds, ABSOLUTE_TIME_LOCAL));
 	    offset+=8;
 	    len_remain=0;
 	  }

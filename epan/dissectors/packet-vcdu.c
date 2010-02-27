@@ -150,19 +150,14 @@ static const value_string smex_data_class[] = {
 
 
 
-/* prototype of utc to julian time conversion function - see packet-ccsds.c for the full source code */
-extern void utc_to_julian ( int utc, int* year, int* julianday, int* hour, int* minute, int* second );
-
-
 /* convert smex PB5 header time to a human readable string - NOT THREAD SAFE
  *
  * note:  this is not true PB5 time either, but a tsi specific version, although it is similar
  */
 static const char* smex_time_to_string ( int pb5_days_since_midnight_9_10_oct_1995, int pb5_seconds, int pb5_milliseconds )
 {
-        static const char* fmt = "%04d/%03d:%02d:%02d:%02d.%03d";
-        static char juliantime[40];
         static int utcdiff = 0;
+        nstime_t t;
 
         static int Days[2][13] =
         {
@@ -170,7 +165,7 @@ static const char* smex_time_to_string ( int pb5_days_since_midnight_9_10_oct_19
           { 0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
         };
 
-        int utc, yr, year, julianday, hour, minute, second;
+        int yr;
         int ix, days, month;
 
         /* compute the static constant difference in seconds
@@ -197,13 +192,10 @@ static const char* smex_time_to_string ( int pb5_days_since_midnight_9_10_oct_19
           utcdiff += days * 24 * 60 * 60;  /* add days in 1995 prior to October 10 */
         }
 
-        utc = ( pb5_days_since_midnight_9_10_oct_1995 * 86400 ) + pb5_seconds + utcdiff;
-        utc_to_julian ( utc, &year, &julianday, &hour, &minute, &second );
+        t.secs = ( pb5_days_since_midnight_9_10_oct_1995 * 86400 ) + pb5_seconds + utcdiff;
+	t.nsecs = pb5_milliseconds*1000000;	/* msecs to nsecs */
 
-        g_snprintf ( juliantime, sizeof(juliantime), fmt, year, julianday, hour, minute, second, pb5_milliseconds );
-
-        return juliantime;
-
+	return abs_time_to_str(&t, ABSOLUTE_TIME_DOY_UTC);
 }
 
 

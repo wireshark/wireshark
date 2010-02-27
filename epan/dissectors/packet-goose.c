@@ -507,7 +507,7 @@ dissect_goose_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 	ts.secs = seconds;
 	ts.nsecs = nanoseconds;
 
-	ptime = abs_time_to_str(&ts, TRUE);
+	ptime = abs_time_to_str(&ts, ABSOLUTE_TIME_UTC);
 
 	if(hf_index >= 0)
 	{

@@ -28,23 +28,12 @@
 #include <glib.h>
 
 #include "nstime.h"
+#include "time_fmt.h"
 #include <epan/packet_info.h>
 
 #define GUID_STR_LEN 37
 #define MAX_IP_STR_LEN 16
 #define MAX_ADDR_STR_LEN 256
-
-/*
- * Resolution of a time stamp.
- */
-typedef enum {
-	TO_STR_TIME_RES_T_SECS,	 /* seconds      */
-	TO_STR_TIME_RES_T_DSECS, /* deciseconds  */
-	TO_STR_TIME_RES_T_CSECS, /* centiseconds */
-	TO_STR_TIME_RES_T_MSECS, /* milliseconds */
-	TO_STR_TIME_RES_T_USECS, /* microseconds */
-	TO_STR_TIME_RES_T_NSECS	 /* nanoseconds  */
-} to_str_time_res_t;
 
 /*
  * These are utility functions which convert various types to strings,
@@ -73,8 +62,8 @@ extern gchar*	vines_addr_to_str(const guint8 *addrp);
 extern gchar*	time_secs_to_str(gint32);
 extern gchar*	time_secs_to_str_unsigned(guint32);
 extern gchar*	time_msecs_to_str(gint32);
-extern gchar*	abs_time_to_str(nstime_t*, gboolean);
-extern gchar*	abs_time_secs_to_str(time_t, gboolean);
+extern gchar*	abs_time_to_str(nstime_t*, absolute_time_display_e fmt);
+extern gchar*	abs_time_secs_to_str(time_t, absolute_time_display_e fmt);
 extern void	display_signed_time(gchar *, int, gint32, gint32, to_str_time_res_t);
 extern void	display_epoch_time(gchar *, int, time_t,  gint32, to_str_time_res_t);
 

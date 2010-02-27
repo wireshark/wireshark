@@ -357,7 +357,7 @@ dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   /* Show time as UTC, not local time. */
   timer = tvb_get_ntohl(tvb, offset);
   proto_tree_add_text(payload_kink_ap_req_tree, tvb, offset, 4, "EPOCH: %s", 
-		      abs_time_secs_to_str(timer, TRUE));
+		      abs_time_secs_to_str(timer, ABSOLUTE_TIME_UTC));
   offset += 4;
   
   if(payload_length > PAYLOAD_HEADER){
@@ -419,7 +419,7 @@ dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   /* Show time as UTC, not local time. */
   timer = tvb_get_ntohl(tvb, offset);
   proto_tree_add_text(payload_kink_ap_rep_tree, tvb, offset, 4, "EPOCH: %s", 
-		      abs_time_secs_to_str(timer, TRUE));
+		      abs_time_secs_to_str(timer, ABSOLUTE_TIME_UTC));
   offset += 4;
 
   if(payload_length > PAYLOAD_HEADER){

@@ -1092,7 +1092,8 @@ FIELDBASE	For FT_UINT{8,16,24,32} and FT_INT{8,16,24,32):
 
 		For FT_ABSOLUTE_TIME:
 
-		ABSOLUTE_TIME_LOCAL or ABSOLUTE_TIME_UTC
+		ABSOLUTE_TIME_LOCAL, ABSOLUTE_TIME_UTC, or
+		ABSOLUTE_TIME_DOY_UTC
 
 		For all other types:
 
@@ -1646,11 +1647,13 @@ The type of value this field holds. The current field types are:
 	FT_FLOAT		A single-precision floating point number.
 	FT_DOUBLE		A double-precision floating point number.
 	FT_ABSOLUTE_TIME	Seconds (4 bytes) and nanoseconds (4 bytes)
-				of time displayed as month name, month day,
-				year, hours, minutes, and seconds with 9
-				digits after the decimal point.
+				of time since January 1, 1970, midnight
+				UTC, displayed as the date, followed by
+				the time, as hours, minutes, and seconds
+				with 9 digits after the decimal point.
 	FT_RELATIVE_TIME	Seconds (4 bytes) and nanoseconds (4 bytes)
-				of time displayed as seconds and 9 digits
+				of time relative to an arbitrary time.
+				displayed as seconds and 9 digits
 				after the decimal point.
 	FT_STRING		A string of characters, not necessarily
 				NUL-terminated, but possibly NUL-padded.
@@ -1694,13 +1697,13 @@ signed integers; the number on the end represent how many bits are used
 to represent the number.
 
 Some constraints are imposed on the header fields depending on the type
-(e.g. FT_BYTES) of the field.  Fields of type FT_ABSOLUTE_TIME must use
-'ABSOLUTE_TIME_{LOCAL,UTC}, NULL, 0x0' as values for the 'display,
-'strings', and 'bitmask' fields, and all other non-integral types (i.e..
-types that are _not_ FT_INT* and FT_UINT*) must use 'BASE_NONE, NULL, 0x0'
-as values for the 'display', 'strings', 'bitmask' fields. The reason is
-simply that the type itself implictly defines the nature of 'display',
-'strings', 'bitmask'.
+(e.g.  FT_BYTES) of the field.  Fields of type FT_ABSOLUTE_TIME must use
+'ABSOLUTE_TIME_{LOCAL,UTC,DOY_UTC}, NULL, 0x0' as values for the
+'display, 'strings', and 'bitmask' fields, and all other non-integral
+types (i.e.. types that are _not_ FT_INT* and FT_UINT*) must use
+'BASE_NONE, NULL, 0x0' as values for the 'display', 'strings', 'bitmask'
+fields.  The reason is simply that the type itself implictly defines the
+nature of 'display', 'strings', 'bitmask'.
 
 display
 -------
@@ -1741,7 +1744,9 @@ wide the parent bitfield is.
 
 For FT_ABSOLUTE_TIME fields, 'display' is used to indicate whether the
 time is to be displayed as a time in the time zone for the machine on
-which Wireshark/TShark is running or as UTC.
+which Wireshark/TShark is running or as UTC and, for UTC, whether the
+date should be displayed as "{monthname}, {month} {day_of_month},
+{year}" or as "{year/day_of_year}".
 
 Additionally, BASE_NONE is used for 'display' as a NULL-value. That is, for 
 for non-integers other than FT_ABSOLUTE_TIME fields, and non-bitfield

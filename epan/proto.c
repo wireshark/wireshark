@@ -3336,7 +3336,7 @@ proto_custom_set(proto_tree* tree, int field_id,
 
 		case FT_ABSOLUTE_TIME:
 			g_strlcpy(result,
-				abs_time_to_str(fvalue_get(&finfo->value), (hfinfo->display == ABSOLUTE_TIME_UTC)),
+				abs_time_to_str(fvalue_get(&finfo->value), hfinfo->display),
 				size);
 			break;
 
@@ -4229,7 +4229,8 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 
 	case FT_ABSOLUTE_TIME:
 		DISSECTOR_ASSERT(hfinfo->display == ABSOLUTE_TIME_LOCAL ||
-		    hfinfo->display == ABSOLUTE_TIME_UTC);
+		    hfinfo->display == ABSOLUTE_TIME_UTC ||
+		    hfinfo->display == ABSOLUTE_TIME_DOY_UTC);
 		DISSECTOR_ASSERT(hfinfo->bitmask == 0);
 		DISSECTOR_ASSERT(hfinfo->strings == NULL);
 		break;
@@ -4471,7 +4472,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_ABSOLUTE_TIME:
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s", hfinfo->name,
-				abs_time_to_str(fvalue_get(&fi->value), (hfinfo->display == ABSOLUTE_TIME_UTC)));
+				abs_time_to_str(fvalue_get(&fi->value), hfinfo->display));
 			break;
 
 		case FT_RELATIVE_TIME:

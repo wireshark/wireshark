@@ -237,66 +237,13 @@ static const value_string ccsds_secondary_header_format_id[] = {
 
 
 
-/* convert time from utc to julian values */
-void utc_to_julian ( int utc, int* year, int* julianday, int* hour, int* minute, int* second )
-{
-        static int Days[2][13] =
-        {
-                { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
-                { 0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
-        };
-
-        int j, days_yr[2], left, secs;
-
-        /* oops... */
-        if ( ! year  ||  ! julianday  ||  ! hour  ||  ! minute  ||  ! second ) return;
-
-        *year = 1970;
-        *julianday = 0;
-        *hour = 0;
-        *minute = 0;
-        *second = 0;
-
-        days_yr[0] = days_yr[1] = 0;
-
-        for ( j=1; j < 13; ++j )
-        {
-                days_yr[0] += Days[0][j];
-                days_yr[1] += Days[1][j];
-        }
-
-        left = utc;
-        secs = days_yr[Leap(*year)] * 24 * 60 * 60;
-
-        while (left > secs)
-        {
-                ++(*year);
-                left -= secs;
-                secs = days_yr[Leap(*year)] * 24 * 60 * 60;
-        }
-
-        *julianday = (left / (24 * 60 * 60)) + 1;
-        left = left % (24 * 60 * 60);
-
-        *hour = left / (60 * 60);
-        left = left % (60 * 60);
-
-        *minute = left / 60;
-
-        *second = left % 60;
-
-}
-
-
-
 /* convert ccsds embedded time to a human readable string - NOT THREAD SAFE */
 static const char* embedded_time_to_string ( int coarse_time, int fine_time )
 {
-        static const char* fmt = "%04d/%03d:%02d:%02d:%02d.%03d";
-        static char juliantime[40];
         static int utcdiff = 0;
-
-        int utc, yr, year, julianday, hour, minute, second, fraction;
+        nstime_t t;
+        int yr;
+        int fraction;
         int multiplier = 1000;
 
         /* compute the static constant difference in seconds
@@ -313,15 +260,11 @@ static const char* embedded_time_to_string ( int coarse_time, int fine_time )
                 utcdiff += 5 * 24 * 60 * 60;  /* five days of January 1980 */
         }
 
-        utc = coarse_time + utcdiff;
-        utc_to_julian ( utc, &year, &julianday, &hour, &minute, &second );
-
+        t.secs = coarse_time + utcdiff;
         fraction = ( multiplier * ( (int)fine_time & 0xff ) ) / 256;
+        t.nsecs = fraction*1000000;	/* msecs to nsecs */
 
-        g_snprintf ( juliantime, sizeof(juliantime), fmt, year, julianday, hour, minute, second, fraction );
-
-        return juliantime;
-
+	return abs_time_to_str(&t, ABSOLUTE_TIME_DOY_UTC);
 }
 
 

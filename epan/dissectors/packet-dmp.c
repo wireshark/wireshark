@@ -2498,7 +2498,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
 				   "Submission time: %s",
 				   (subm_time & 0x7FFF) >= 0x7FF8 ?
 				   "Reserved" :
-				   abs_time_secs_to_str (dmp.subm_time, FALSE));
+				   abs_time_secs_to_str (dmp.subm_time, ABSOLUTE_TIME_LOCAL));
   field_tree = proto_item_add_subtree (tf, ett_envelope_subm_time);
   proto_tree_add_item (field_tree, hf_envelope_time_diff_present, tvb,
 		       offset, 2, FALSE);
@@ -3357,7 +3357,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
       proto_item_append_text (tf, "Reserved (0x%2.2x)", exp_time);
     } else {
       proto_item_append_text (tf, "%s (%s)", time_secs_to_str (secs),
-			      abs_time_secs_to_str (dmp.subm_time + secs, FALSE));
+			      abs_time_secs_to_str (dmp.subm_time + secs, ABSOLUTE_TIME_LOCAL));
     }
     offset += 1;
   }
@@ -3380,13 +3380,13 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
       proto_item_append_text (tf, "0 minutes in the %s (%s)",
 			      (dtg & 0x80) ? dtg_sign.true_string :
 			      dtg_sign.false_string,
-			      abs_time_secs_to_str (dmp.subm_time, FALSE));
+			      abs_time_secs_to_str (dmp.subm_time, ABSOLUTE_TIME_LOCAL));
     } else {
       proto_item_append_text (tf, "%s in the %s (%s)", time_secs_to_str(secs),
 			      (dtg & 0x80) ? dtg_sign.true_string :
 			      dtg_sign.false_string, (dtg & 0x80) ?
-			      abs_time_secs_to_str (dmp.subm_time + secs, FALSE) :
-			      abs_time_secs_to_str (dmp.subm_time - secs, FALSE));
+			      abs_time_secs_to_str (dmp.subm_time + secs, ABSOLUTE_TIME_LOCAL) :
+			      abs_time_secs_to_str (dmp.subm_time - secs, ABSOLUTE_TIME_LOCAL));
     }
     offset += 1;
   }

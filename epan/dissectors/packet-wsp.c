@@ -1798,7 +1798,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 									tvb, hdr_start, hdr_len + val_len,
 									"Requesting Time Of Day");
 						} else {
-							val_str = abs_time_secs_to_str(val, FALSE);
+							val_str = abs_time_secs_to_str(val, ABSOLUTE_TIME_LOCAL);
 							ti = proto_tree_add_string (wsp_headers,
 									hf_hdr_x_wap_tod,
 									tvb, hdr_start, hdr_len + val_len, val_str);
@@ -2833,7 +2833,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 		if (val_id <= 4) { /* Length field already parsed by macro! */ \
 			get_date_value(val, tvb, off, len, ok); \
 			if (ok) { \
-				str = abs_time_secs_to_str(val, FALSE); \
+				str = abs_time_secs_to_str(val, ABSOLUTE_TIME_LOCAL); \
 				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, str); \
@@ -2868,7 +2868,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 		if (val_id <= 4) { /* Length field already parsed by macro! */ \
 			get_date_value(val, tvb, off, len, ok); \
 			if (ok) { \
-				str = abs_time_secs_to_str(val, FALSE); \
+				str = abs_time_secs_to_str(val, ABSOLUTE_TIME_LOCAL); \
 				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, str); \
@@ -2921,7 +2921,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 							tvb, hdr_start, offset - hdr_start, \
 							"Requesting Time Of Day"); \
 				} else { \
-					str = abs_time_secs_to_str(val, FALSE); \
+					str = abs_time_secs_to_str(val, ABSOLUTE_TIME_LOCAL); \
 					tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 					ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 							tvb, hdr_start, offset - hdr_start, str); \
@@ -3591,7 +3591,7 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 						get_date_value(val, tvb, off, len, ok);
 						if (ok) { /* Valid warn-text string */
 							off += len;
-							val_str = abs_time_secs_to_str(val, FALSE);
+							val_str = abs_time_secs_to_str(val, ABSOLUTE_TIME_LOCAL);
 							str = g_strdup_printf("; date=%s", val_str);
 							proto_item_append_string(ti, str);
 							g_free(str); /* proto_XXX creates a copy */

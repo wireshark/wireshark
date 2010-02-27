@@ -1543,7 +1543,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	nstime.secs = tvb_get_ntohl(tvb, cur_offset);
 	nstime.nsecs = 0;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Signature expiration: %s",
-		abs_time_to_str(&nstime, FALSE));
+		abs_time_to_str(&nstime, ABSOLUTE_TIME_LOCAL));
 	cur_offset += 4;
 	rr_len -= 4;
 
@@ -1552,7 +1552,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	nstime.secs = tvb_get_ntohl(tvb, cur_offset);
 	nstime.nsecs = 0;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Time signed: %s",
-		abs_time_to_str(&nstime, FALSE));
+		abs_time_to_str(&nstime, ABSOLUTE_TIME_LOCAL));
 	cur_offset += 4;
 	rr_len -= 4;
 
@@ -2187,7 +2187,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	nstime.secs = tvb_get_ntohl(tvb, cur_offset);
 	nstime.nsecs = 0;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Signature inception: %s",
-		abs_time_to_str(&nstime, FALSE));
+		abs_time_to_str(&nstime, ABSOLUTE_TIME_LOCAL));
 	cur_offset += 4;
 	rr_len -= 4;
 
@@ -2196,7 +2196,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	nstime.secs = tvb_get_ntohl(tvb, cur_offset);
 	nstime.nsecs = 0;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Signature expiration: %s",
-		abs_time_to_str(&nstime, FALSE));
+		abs_time_to_str(&nstime, ABSOLUTE_TIME_LOCAL));
 	cur_offset += 4;
 	rr_len -= 4;
 
@@ -2314,7 +2314,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	nstime.secs = tsig_timelo;
 	nstime.nsecs = 0;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 6, "Time signed: %s%s",
-		abs_time_to_str(&nstime, FALSE), tsig_timehi == 0 ? "" : "(high bits set)");
+		abs_time_to_str(&nstime, ABSOLUTE_TIME_LOCAL), tsig_timehi == 0 ? "" : "(high bits set)");
 	cur_offset += 6;
 	rr_len -= 6;
 
