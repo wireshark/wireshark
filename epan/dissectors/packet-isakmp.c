@@ -712,11 +712,9 @@ scan_pluto_log(void) {
   gboolean got_cookie = FALSE;
   guchar   secret[MAX_KEY_SIZE];
   guint    secret_len = 0;
-  gchar   *icookie_pfx = "| ICOOKIE: ";
-  gchar   *enc_key_pfx = "| enc key: ";
+  static const gchar icookie_pfx[] = "| ICOOKIE: ";
+  static const gchar enc_key_pfx[] = "| enc key: ";
   gchar   *pos, *endpos;
-  gint     icpfx_len = (gint) strlen(icookie_pfx);
-  gint     ec_len = (gint) strlen(enc_key_pfx);
   gint     i;
   address  null_addr;
   unsigned long hexval;
@@ -725,9 +723,9 @@ scan_pluto_log(void) {
 
   if (log_f) {
     while (fgets(line, MAX_PLUTO_LINE, log_f)) {
-      if (strncmp(line, icookie_pfx, icpfx_len) == 0) {
+      if (strncmp(line, icookie_pfx, sizeof icookie_pfx - 1) == 0) {
         secret_len = 0;
-	pos = line + icpfx_len;
+	pos = line + sizeof icookie_pfx - 1;
 	for (i = 0; i < COOKIE_SIZE; i++) {
 	  hexval = strtoul(pos, &endpos, 16);
 	  if (endpos == pos)
@@ -737,8 +735,8 @@ scan_pluto_log(void) {
         }
         if (i == COOKIE_SIZE)
           got_cookie = TRUE;
-      } else if (strncmp(line, enc_key_pfx, ec_len) == 0) {
-	pos = line + ec_len;
+      } else if (strncmp(line, enc_key_pfx, sizeof enc_key_pfx  - 1) == 0) {
+	pos = line + sizeof enc_key_pfx - 1;
 	for (; secret_len < MAX_KEY_SIZE; secret_len++) {
 	  hexval = strtoul(pos, &endpos, 16);
 	  if (endpos == pos)
@@ -3946,7 +3944,7 @@ get_num(tvbuff_t *tvb, int offset, guint16 len, guint32 *num_p)
 #ifdef HAVE_LIBGCRYPT
 static guint
 isakmp_hash_func(gconstpointer c) {
-  guint8 *i_cookie = (guint8 *) c;
+  const guint8 *i_cookie = (guint8 *) c;
   guint   val = 0, keychunk, i;
 
   /* XOR our icookie down to the size of a guint */
