@@ -671,6 +671,26 @@ relinquish_all_capabilities()
 
 #endif /* HAVE_LIBCAP */
 
+/* Set the data link type on a pcap. */
+static const char *
+set_pcap_linktype(pcap_t *pch, char *devname
+#ifdef HAVE_PCAP_SET_DATALINK
+	_U_
+#endif
+	, int dlt)
+{
+#ifdef HAVE_PCAP_SET_DATALINK
+	if (pcap_set_datalink(pch, dlt) == 0)
+		return NULL;	/* no error */
+	return pcap_geterr(pch);
+#else
+	/* Let them set it to the type it is; reject any other request. */
+	if (get_pcap_linktype(pch, devname) == dlt)
+		return NULL;	/* no error */
+	return "That DLT isn't one of the DLTs supported by this device";
+#endif
+}
+
 /* Take care of byte order in the libpcap headers read from pipes.
  * (function taken from wiretap/libpcap.c) */
 static void

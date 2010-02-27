@@ -560,26 +560,6 @@ free_pcap_linktype_list(GList *linktype_list)
 	g_list_free(linktype_list);
 }
 
-/* Set the data link type on a pcap. */
-const char *
-set_pcap_linktype(pcap_t *pch, char *devname
-#ifdef HAVE_PCAP_SET_DATALINK
-	_U_
-#endif
-	, int dlt)
-{
-#ifdef HAVE_PCAP_SET_DATALINK
-	if (pcap_set_datalink(pch, dlt) == 0)
-		return NULL;	/* no error */
-	return pcap_geterr(pch);
-#else
-	/* Let them set it to the type it is; reject any other request. */
-	if (get_pcap_linktype(pch, devname) == dlt)
-		return NULL;	/* no error */
-	return "That DLT isn't one of the DLTs supported by this device";
-#endif
-}
-
 const char *
 linktype_val_to_name(int dlt)
 {
