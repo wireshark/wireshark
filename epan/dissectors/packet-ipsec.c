@@ -1161,7 +1161,7 @@ filter_spi_match(gchar *spi, gchar *filter)
 */
 #ifdef HAVE_LIBGCRYPT
 static gint
-compute_ascii_key(gchar **ascii_key, gchar *key)
+compute_ascii_key(gchar **ascii_key, const gchar *key)
 {
   guint key_len = 0;
   gint hex_digit;
@@ -1197,41 +1197,41 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 		}
 	      (*ascii_key)[j] = (guchar)hex_digit;
 	      j++;
-	     }
-	   else
-	     {
-	       /*
-	        * Key has an even number of characters, so we treat each
-	        * pair of hex digits as a single byte value.
-	        */
-	       key_len = ((guint) strlen(key) - 2) / 2;
+	    }
+	  else
+	    {
+	      /*
+	       * Key has an even number of characters, so we treat each
+	       * pair of hex digits as a single byte value.
+	       */
+	      key_len = ((guint) strlen(key) - 2) / 2;
 	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
-	     }
+	    }
 
-	   while(i < (strlen(key) -1))
-	     {
-	       hex_digit = g_ascii_xdigit_value(key[i]);
-	       i++;
-	       if (hex_digit == -1)
-	         {
-		   g_free(*ascii_key);
-		   *ascii_key = NULL;
-		   return -1;	/* not a valid hex digit */
-		 }
-	       key_byte = ((guchar)hex_digit) << 4;
-	       hex_digit = g_ascii_xdigit_value(key[i]);
-	       i++;
-	       if (hex_digit == -1)
-	         {
-		   g_free(*ascii_key);
-		   *ascii_key = NULL;
-		   return -1;	/* not a valid hex digit */
-		 }
-	       key_byte |= (guchar)hex_digit;
-	       (*ascii_key)[j] = key_byte;
-	       j++;
-	     }
-	   (*ascii_key)[j] = '\0';
+	  while(i < (strlen(key) -1))
+	    {
+	      hex_digit = g_ascii_xdigit_value(key[i]);
+	      i++;
+	      if (hex_digit == -1)
+	        {
+		  g_free(*ascii_key);
+		  *ascii_key = NULL;
+		  return -1;	/* not a valid hex digit */
+		}
+	      key_byte = ((guchar)hex_digit) << 4;
+	      hex_digit = g_ascii_xdigit_value(key[i]);
+	      i++;
+	      if (hex_digit == -1)
+	        {
+		  g_free(*ascii_key);
+		  *ascii_key = NULL;
+		  return -1;	/* not a valid hex digit */
+		}
+	      key_byte |= (guchar)hex_digit;
+	      (*ascii_key)[j] = key_byte;
+	      j++;
+	    }
+	  (*ascii_key)[j] = '\0';
 	}
 
       else if((strlen(key) == 2) && (key[0] == '0') && ((key[1] == 'x') || (key[1] == 'X')))
@@ -1333,7 +1333,7 @@ get_esp_sa(g_esp_sa_database *sad, gint protocol_typ, gchar *src,  gchar *dst,  
 		}
 	      else
 		*authentication_key_len = (guint)key_len;
-	      key_len = compute_ascii_key(encryption_key, (gchar *)sad -> table[i].encryption_key);
+	      key_len = compute_ascii_key(encryption_key, sad -> table[i].encryption_key);
 	      if (key_len == -1)
 		{
 		  /* Bad key; XXX - report this */
