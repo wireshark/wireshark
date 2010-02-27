@@ -760,7 +760,7 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 				int snaplen, gboolean compressed, int *err)
 {
 	wtap_dumper *wdh;
-	FILE *fh;
+	FILE_T fh;
 
 	/* Check whether we can open a capture file with that file type
 	   and that encapsulation. */
@@ -812,7 +812,7 @@ wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 				gboolean compressed, int *err)
 {
 	wtap_dumper *wdh;
-	FILE *fh;
+	FILE_T fh;
 
 	/* Check whether we can open a capture file with that file type
 	   and that encapsulation. */
