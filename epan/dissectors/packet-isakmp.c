@@ -4313,7 +4313,11 @@ proto_register_isakmp(void)
       { "Type", "isakmp.cfg.type",
          FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(vs_v2_cfgtype), 0x0,
          "ISAKMP (v2) Config Type", HFILL }},
-	/* Attributes Type */
+	/* Config Attributes Type */
+   { &hf_isakmp_cfg_attr,
+      { "Config Attribute Type",	"isakmp.cfg.attr",
+	FT_NONE, BASE_NONE, NULL, 0x00,
+	"ISAKMP Config Attribute", HFILL }},
    { &hf_isakmp_cfg_attr_type_v1,
       { "Type",	"isakmp.cfg.attr.type",
 	FT_UINT16, BASE_RANGE_STRING | BASE_DEC, RVALS(vs_v1_cfgattr), 0x00,
@@ -4322,6 +4326,10 @@ proto_register_isakmp(void)
       { "Type",	"isakmp.cfg.attr.type",
 	FT_UINT16, BASE_RANGE_STRING | BASE_DEC, RVALS(vs_v2_cfgattr), 0x00,
 	"ISAKMP (v2) Config Attribute type", HFILL }},
+   { &hf_isakmp_cfg_attr_format,
+      { "Config Attribute Format",	"isakmp.cfg.attr.format",
+	FT_BOOLEAN, 16, TFS(&attribute_format), 0x8000,
+	"ISAKMP Config Attribute Format", HFILL }},
    { &hf_isakmp_cfg_attr_length,
       { "Length",	"isakmp.cfg.attr.length",
 	FT_UINT16, BASE_DEC, NULL, 0x00,
