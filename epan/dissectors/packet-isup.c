@@ -4445,7 +4445,7 @@ static void
 dissect_isup_mlpp_precedence_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   char NI_digits[5]="";
-  char *temp_text = "";
+  const char *temp_text = "";
   guint8 indicators, digit_pair;
   guint32 bin_code;
 
@@ -4458,7 +4458,7 @@ dissect_isup_mlpp_precedence_parameter(tvbuff_t *parameter_tvb, proto_tree *para
       temp_text = "Not Allowed";
       break;
     case 0x2:
-	  temp_text = "Path reserved";
+      temp_text = "Path reserved";
       break;
     case 0x3:
       temp_text = "Spare";
