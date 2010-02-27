@@ -60,6 +60,7 @@ A2W_FLAGS= -b -e -C
 EXTRA_CNF= \
 	../acse/acse-exp.cnf \
 	../ftam/ftam-exp.cnf \
+	../p7/p7-exp.cnf \
 	../x411/x411-exp.cnf \
 	../x509af/x509af-exp.cnf \
 	../x509ce/x509ce-exp.cnf
@@ -69,6 +70,9 @@ EXTRA_CNF= \
 
 ../ftam/ftam-exp.cnf:
 	(cd ../ftam && $(MAKE_CNF_EXPORT))
+
+../p7/p7-exp.cnf:
+	(cd ../p7 && $(MAKE_CNF_EXPORT))
 
 ../x411/x411-exp.cnf:
 	(cd ../x411 && $(MAKE_CNF_EXPORT))
