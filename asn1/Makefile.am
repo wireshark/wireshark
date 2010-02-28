@@ -54,6 +54,7 @@ SUBDIRS = 		\
 	h450-ros	\
 	h460		\
 	h501		\
+	HI2Operations	\
 	hnbap		\
 	inap		\
 	kerberos	\

@@ -1,0 +1,57 @@
+-- WS Modified UmtsHI2Operations just containing the imported defines
+-- 
+-- $Id$
+UmtsHI2Operations {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulintercept(2) threeGPP(4) hi2(1) r8(8) version-1(1)} 
+
+DEFINITIONS IMPLICIT TAGS ::=
+
+BEGIN
+
+UmtsQos ::= CHOICE
+{
+	qosMobileRadio [1] OCTET STRING,
+		-- The qosMobileRadio parameter shall be coded in accordance with the § 10.5.6.5 of
+		-- document [9] without the Quality of service IEI and Length of 
+		-- quality of service IE (. That is, first 
+		-- two octets carrying 'Quality of service IEI' and 'Length of quality of service
+ 		-- IE' shall be excluded). 
+	qosGn [2] OCTET STRING
+		-- qosGn parameter shall be coded in accordance with § 7.7.34 of document [17]
+} 
+
+IMSevent ::= ENUMERATED 
+{
+	unfilteredSIPmessage (1),
+		-- This value indicates to LEMF that the whole SIP message is sent.
+
+	...,
+	sIPheaderOnly (2)
+		-- If warrant requires only IRI then specific content in a 'sIPMessage'
+		-- (e.g. 'Message', etc.) has been deleted before sending it to LEMF.
+}
+
+LDIevent ::= ENUMERATED 
+{
+	targetEntersIA 			(1),
+	targetLeavesIA			(2),
+	...
+}
+
+CorrelationValues ::= CHOICE {
+		
+		iri-to-CC 	[0]		IRI-to-CC-Correlation, -- correlates IRI to Content(s)
+		iri-to-iri	[1]		IRI-to-IRI-Correlation, -- correlates IRI to IRI 
+		both-IRI-CC	[2]		SEQUENCE { -- correlates IRI to IRI and IRI to Content(s)
+								iri-CC	[0]	IRI-to-CC-Correlation,
+								iri-IRI	[1]	IRI-to-IRI-Correlation}
+}
+ 
+ 
+IRI-to-CC-Correlation ::= SEQUENCE { -- correlates IRI to Content
+			cc 		[0] SET OF 	OCTET STRING,-- correlates IRI to multiple CCs
+			iri 	[1] 		OCTET STRING OPTIONAL 
+									-- correlates IRI to CC with signaling
+}
+IRI-to-IRI-Correlation ::= OCTET STRING -- correlates IRI to IRI
+
+END -- OF UmtsHI2Operations

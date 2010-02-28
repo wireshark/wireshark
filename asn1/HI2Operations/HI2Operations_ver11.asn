@@ -1,0 +1,962 @@
+-- $Id$
+HI2Operations
+{itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) hi2(1) version11(11)}
+
+DEFINITIONS IMPLICIT TAGS ::=
+
+BEGIN
+
+IMPORTS OPERATION,
+	ERROR
+		FROM Remote-Operations-Information-Objects
+		{joint-iso-itu-t(2) remote-operations(4) informationObjects(5) version1(0)}
+
+	-- from 3GPP TS 33.108 [61]
+	UmtsQos,
+	IMSevent,
+	LDIevent,
+	CorrelationValues
+		FROM UmtsHI2Operations
+		{itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulintercept(2) threeGPP(4) hi2(1) r8(8) version-1(1)}
+
+	-- from TS 101 909-20-01 [69]
+	TARGETACTIVITYMONITOR-1
+		FROM TS101909201
+		{itu-t(0) identified-organization(4) etsi(0) ts101909(1909) part20(20) subpart1(1) interceptVersion(0)}
+
+	-- from EN 301 040 [72]
+	TARGETACTIVITYMONITORind,
+	TARGETCOMMSMONITORind,
+	TTRAFFICind,
+	CTTRAFFICind
+		FROM EN301040
+		{itu-t(0) identified-organization(4) etsi(0) en301040 (1040) interceptVersion (0)};
+
+-- =============================
+-- Object Identifier Definitions
+-- =============================
+
+-- LawfulIntercept DomainId
+lawfulInterceptDomainId OBJECT IDENTIFIER ::= {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2)}
+
+-- Security Subdomains
+hi2DomainId OBJECT IDENTIFIER ::= {lawfulInterceptDomainId hi2(1)}
+hi2OperationId OBJECT IDENTIFIER ::= {hi2DomainId version11(11)}
+
+sending-of-IRI OPERATION ::=
+{
+	ARGUMENT	IRIsContent
+	ERRORS		{OperationErrors}
+	CODE		global:{hi2DomainId sending-of-IRI(1) version1(1)}
+}
+-- Class 2 operation. The timer shall be set to a value between 3s and 240s.
+-- The timer default value is 60s.
+-- NOTE: The same note as for HI management operation applies.
+
+IRIsContent ::= CHOICE
+{
+	iRIContent			[0] IRIContent,
+	iRISequence			[1] IRISequence
+}
+
+IRISequence ::= SEQUENCE OF IRIContent
+	-- Aggregation of IRIContent is an optional feature.
+	-- It may be applied in cases when at a given point in time several IRI records are
+	-- available for delivery to the same LEA destination.
+	-- As a general rule, records created at any event shall be sent immediately and shall
+	-- not held in the DF or MF in order to apply aggregation.
+	-- When aggregation is not to be applied, IRIContent needs to be chosen.
+
+IRIContent ::= CHOICE
+{
+	iRI-Begin-record		[1] IRI-Parameters,
+		-- At least one optional parameter must be included within the iRI-Begin-Record.
+	iRI-End-record			[2] IRI-Parameters,
+	iRI-Continue-record		[3] IRI-Parameters,
+		-- At least one optional parameter must be included within the iRI-Continue-Record.
+	iRI-Report-record		[4] IRI-Parameters,
+		-- At least one optional parameter must be included within the iRI-Report-Record.
+	...
+}
+
+unknown-version 		ERROR ::= {CODE local:0}
+missing-parameter		ERROR ::= {CODE local:1}
+unknown-parameter-value	ERROR ::= {CODE local:2}
+unknown-parameter		ERROR ::= {CODE local:3}
+
+OperationErrors			ERROR ::=
+{
+	unknown-version |
+	missing-parameter |
+	unknown-parameter-value |
+	unknown-parameter
+}
+-- These values may be sent by the LEMF, when an operation or a parameter is misunderstood.
+
+IRI-Parameters ::= SEQUENCE
+{
+	domainID							[0]	OBJECT IDENTIFIER (hi2OperationId) OPTIONAL,
+		-- for the sending entity the inclusion of the Object Identifier is mandatory
+	iRIversion							[23] ENUMERATED
+	{
+		version2(2),
+		...,
+		version3(3),
+		version4(4),
+		version5(5),
+		version6(6),
+		version7(7),
+		lastVersion(8)
+	} OPTIONAL,
+		-- Optional parameter "iRIversion" (tag 23) is redundant starting 
+		-- from TS 101 671 v2.4.1 [i.5]
+		-- where to the object identifier "domainID" was introduced into IRI-Parameters.
+		-- In order to keep backward compatibility, even when the version of the "domainID"
+		-- parameter will be incremented it is recommended to always send to LEMF the same:
+		-- enumeration value "lastVersion(8)".
+		-- if not present, it means version 1 is handled
+	lawfulInterceptionIdentifier		[1] LawfulInterceptionIdentifier,
+		-- This identifier is associated to the target.
+	communicationIdentifier				[2] CommunicationIdentifier,
+		-- used to uniquely identify an intercepted call.
+		-- Called "callIdentifier" in v1.1.1 of ES 201 671 [i.5].
+	timeStamp							[3] TimeStamp,
+		-- date and time of the event triggering the report.
+	intercepted-Call-Direct 			[4] ENUMERATED
+	{
+		not-Available(0),
+		originating-Target(1),
+			-- In case of GPRS, this indicates that the PDP context activation, modification
+			-- or deactivation is MS requested.
+		terminating-Target(2),
+			-- In case of GPRS, this indicates that the PDP context activation, modification
+			-- or deactivation is network initiated.
+		...
+	} OPTIONAL,
+	intercepted-Call-State 				[5] Intercepted-Call-State OPTIONAL,
+	ringingDuration 					[6] OCTET STRING (SIZE (3)) OPTIONAL,
+		-- Duration in seconds. BCD coded : HHMMSS
+	conversationDuration 				[7] OCTET STRING (SIZE (3)) OPTIONAL,
+		-- Duration in seconds. BCD coded : HHMMSS
+	locationOfTheTarget					[8] Location OPTIONAL,
+		-- location of the target subscriber
+	partyInformation 					[9] SET SIZE (1..10) OF PartyInformation OPTIONAL,
+		-- This parameter provides the concerned party (Originating, Terminating or forwarded
+		-- party), the identity(ies) of the party and all the information provided by the party.
+	callContentLinkInformation			[10] SEQUENCE
+	{
+		cCLink1Characteristics		[1] CallContentLinkCharacteristics OPTIONAL,
+			-- Information concerning the Content of Communication Link Tx channel established
+			-- toward the LEMF (or the sum signal channel, in case of mono mode).
+		cCLink2Characteristics		[2] CallContentLinkCharacteristics OPTIONAL,
+			-- Information concerning the Content of Communication Link Rx channel established
+			-- toward the LEMF.
+		...
+	} OPTIONAL,
+	release-Reason-Of-Intercepted-Call	[11] OCTET STRING (SIZE (2)) OPTIONAL,
+		-- Release cause coded in ITU-T Q.850 [31] format.
+		-- This parameter indicates the reason why the intercepted call cannot be established or
+		-- why the intercepted call has been released after the active phase.
+	nature-Of-The-intercepted-call		[12] ENUMERATED
+	{
+		-- Nature of the intercepted "call":
+		gSM-ISDN-PSTN-circuit-call(0),
+			-- the possible UUS content is sent through the HI2 or HI3 "data" interface
+			-- the possible call content call is established through the HI3 "circuit" interface
+		gSM-SMS-Message(1),
+			-- the SMS content is sent through the HI2 or HI3 "data" interface
+		uUS4-Messages(2),
+			-- the UUS content is sent through the HI2 or HI3 "data" interface
+		tETRA-circuit-call(3),
+			-- the possible call content call is established through the HI3 "circuit" interface
+			-- the possible data are sent through the HI3 "data" interface
+		teTRA-Packet-Data(4),
+			-- the data are sent through the HI3 "data" interface
+		gPRS-Packet-Data(5),
+			-- the data are sent through the HI3 "data" interface
+		...,
+		uMTS-circuit-call(6)
+			-- the possible call content call is established through the HI3 "circuit" interface
+			-- the possible data are sent through the HI3 "data" interface
+	} OPTIONAL,
+	serverCenterAddress					[13] PartyInformation OPTIONAL,
+		-- e.g. in case of SMS message this parameter provides the address of the relevant
+		-- server within the calling (if server is originating) or called
+		-- (if server is terminating) party address parameters
+	sMS									[14] SMS-report OPTIONAL,
+		-- this parameter provides the SMS content and associated information
+	cC-Link-Identifier					[15] CC-Link-Identifier OPTIONAL,
+		-- Depending on a network option, this parameter may be used to identify a CC link
+		-- in case of multiparty calls.
+	national-Parameters					[16] National-Parameters OPTIONAL,
+	gPRSCorrelationNumber				[18] GPRSCorrelationNumber OPTIONAL,
+	gPRSevent 							[20] GPRSEvent OPTIONAL,
+		-- This information is used to provide particular action of the target
+		-- such as attach/detach
+	sgsnAddress 						[21] DataNodeAddress OPTIONAL,
+	gPRSOperationErrorCode 				[22] GPRSOperationErrorCode OPTIONAL,
+	...,
+	ggsnAddress 						[24] DataNodeAddress OPTIONAL,
+	qOS									[25] UmtsQos OPTIONAL,
+		-- This parameter is duplicated from 3GPP TS 33.108 [61].
+	networkIdentifier					[26] Network-Identifier OPTIONAL,
+		-- This parameter is duplicated from 3GPP TS 33.108 [61].
+	sMSOriginatingAddress 				[27] DataNodeAddress OPTIONAL,
+		-- This parameter is duplicated from 3GPP TS 33.108 [61].
+	sMSTerminatingAddress 				[28] DataNodeAddress OPTIONAL,
+		-- This parameter is duplicated from 3GPP TS 33.108 [61].
+	iMSevent							[29] IMSevent OPTIONAL,
+	sIPMessage							[30] OCTET STRING OPTIONAL,
+		-- This parameter is duplicated from 3GPP TS 33.108 [61].
+	servingSGSN-number					[31] OCTET STRING (SIZE (1..20)) OPTIONAL,
+		-- This parameter is duplicated from 3GPP TS 33.108 [61].
+	servingSGSN-address					[32] OCTET STRING (SIZE (5..17)) OPTIONAL,
+		-- Octets are coded according to 3GPP TS 23.003 [76]
+		-- This parameter is duplicated from 3GPP TS 33.108 [61].
+	tARGETACTIVITYMONITOR				[33] TARGETACTIVITYMONITOR-1 OPTIONAL,
+		-- Parameter is used in TS 101 909-20-1 [69]
+	ldiEvent				 			[34] LDIevent OPTIONAL,
+		-- The "Location Dependent Interception" parameter is duplicated from 3GPP TS 33.108 [61]
+	correlation							[35] CorrelationValues OPTIONAL,
+		-- This parameter is duplicated from 3GPP TS 33.108 [61]
+	tARGETACTIVITYMONITORind			[36] TARGETACTIVITYMONITORind OPTIONAL,
+		-- Parameter is used in EN 301 040 [72]
+	tARGETCOMMSMONITORind				[37] TARGETCOMMSMONITORind OPTIONAL,
+		-- Parameter is used in EN 301 040 [72]
+	tTRAFFICind							[38] TTRAFFICind OPTIONAL,
+		-- Parameter is used in EN 301 040 [72]
+	cTTRAFFICind						[39] CTTRAFFICind OPTIONAL,
+		-- Parameter is used in EN 301 040 [72]
+	national-HI2-ASN1parameters			[255] National-HI2-ASN1parameters OPTIONAL
+}
+
+-- ==================
+-- PARAMETERS FORMATS
+-- ==================
+
+CommunicationIdentifier ::= SEQUENCE
+{
+	communication-Identity-Number	[0] OCTET STRING (SIZE (1..8)) OPTIONAL,
+		-- Temporary Identifier of an intercepted call to uniquely identify an intercepted call
+		-- within the node. This parameter is mandatory if there is associated
+		-- information sent over HI3interface (CClink, data,..) or when
+		-- CommunicationIdentifier is used for IRI other than IRI-Report-record
+		-- This parameter was called "call-Identity-Number" in V1.1.1 of ES 201 671 [i.5]
+		-- The individual digits of the communication-Identity-Number shall be represented in
+		-- ASCII format, e.g. "12345678" = 8 octets 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38.
+		-- For subaddress option only "0"..."9" shall be used.
+	network-Identifier				[1] Network-Identifier,
+	...
+}
+-- NOTE: The same "CommunicationIdentifier" value is sent :
+-- with the HI3 information for correlation purpose between the IRI and the information sent on
+-- the HI3 interfaces (CCLink, data, ..) with each IRI associated to a same intercepted call
+-- for correlation purpose between the different IRI.
+
+Network-Identifier ::= SEQUENCE
+{
+	operator-Identifier			[0] OCTET STRING (SIZE (1..5)),
+		-- It is a notification of the NWO/AP/SvP in ASCII- characters.
+		-- For subaddress option only "0"..."9" shall be used.
+		-- The parameter is mandatory.
+	network-Element-Identifier	[1] Network-Element-Identifier OPTIONAL,
+	...
+}
+
+Network-Element-Identifier ::= CHOICE
+{
+	e164-Format			[1] OCTET STRING (SIZE (1..25)),
+		-- E164 address of the node in international format. Coded in the same format as the
+		-- calling party number parameter of the ISUP (parameter part: EN 300 356 [5]).
+	x25-Format			[2] OCTET STRING (SIZE (1..25)),
+		-- X25 address
+	iP-Format			[3] OCTET STRING (SIZE (1..25)),
+		-- IP address
+	dNS-Format			[4] OCTET STRING (SIZE (1..25)),
+		-- DNS address
+	...,
+	iP-Address			[5] IPAddress
+}
+
+CC-Link-Identifier ::= 	OCTET STRING (SIZE (1..8))
+	-- Depending on a network option, this parameter may be used to identify a CClink
+	-- in case of multiparty calls.
+	-- The individual digits of the CC-Link-Identifier shall be represented in
+	-- ASCII format, e.g. "12345678" = 8 octets 0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38.
+	-- For subaddress option only "0"..."9" shall be used.
+
+TimeStamp ::= CHOICE
+{
+-- The minimum resolution required is one second.
+-- "Resolution" is the smallest incremental change that can be measured for time and
+-- is expressed with a definite number of decimal digits or bits.
+	localTime			[0] LocalTimeStamp,
+	utcTime				[1] UTCTime
+}
+
+LocalTimeStamp ::= SEQUENCE
+{
+	generalizedTime					[0] GeneralizedTime,
+		-- The minimum resolution required is one second.
+		-- "Resolution" is the smallest incremental change that can be measured for time and
+		-- is expressed with a definite number of decimal digits or bits.
+	winterSummerIndication			[1] ENUMERATED
+	{
+		notProvided(0),
+		winterTime(1),
+		summerTime(2),
+		...
+	}
+}
+
+PartyInformation ::= SEQUENCE
+{
+	party-Qualifier 					[0] ENUMERATED
+	{
+		originating-Party(0),
+			-- In this case, the partyInformation parameter provides the identities related to
+			-- the originating party and all information provided by this party.
+			-- This parameter provides also all the information concerning the redirecting
+			-- party when a forwarded call reaches a target.
+		terminating-Party(1),
+			-- In this case, the partyInformation parameter provides the identities related to
+			-- the terminating party and all information provided by this party.
+		forwarded-to-Party(2),
+			-- In this case, the partyInformation parameter provides the identities related to
+			-- the forwarded to party and parties beyond this one and all information
+			-- provided by this parties, including the call forwarding reason.
+		gPRS-Target(3),
+		...
+	},
+	partyIdentity 						[1] SEQUENCE
+	{
+		imei				[1] OCTET STRING (SIZE (8)) OPTIONAL,
+			-- See MAP format TS GSM 09.02 [32]
+		tei					[2] OCTET STRING (SIZE (1..15)) OPTIONAL,
+			-- ISDN-based Terminal Equipment Identity
+		imsi				[3] OCTET STRING (SIZE (3..8)) OPTIONAL,
+			-- See MAP format TS GSM 09.02 [32] International Mobile
+			-- Station Identity E.212 number beginning with Mobile Country Code
+		callingPartyNumber	[4] CallingPartyNumber OPTIONAL,
+			-- The calling party format is used to transmit the identity of a calling party
+		calledPartyNumber	[5] CalledPartyNumber OPTIONAL,
+			-- The called party format is used to transmit the identity of a called party or
+			-- a forwarded to party.
+		msISDN				[6] OCTET STRING (SIZE (1..9)) OPTIONAL,
+			-- MSISDN of the target, encoded in the same format as the AddressString
+			-- parameters defined in MAP format TS GSM 09.02 [32]
+		...,
+		e164-Format			[7] OCTET STRING (SIZE (1..25)) OPTIONAL,
+			-- E164 address of the node in international format. Coded in the same format as
+			-- the calling party number parameter of the ISUP (parameter part: EN 300 356 [5])
+		sip-uri				[8] OCTET STRING OPTIONAL,
+			-- Session Initiation Protocol - Uniform Resource Identifier. See RFC 3261 [59].
+			-- This parameter is duplicated from 3GPP TS 33.108 [61].
+		tel-url					[9] OCTET STRING OPTIONAL
+			-- See "URLs for Telephone Calls", RFC 3966 [68].
+			-- This parameter is duplicated from 3GPP TS 33.108 [61].
+	},
+	services-Information				[2] Services-Information OPTIONAL,
+		-- This parameter is used to transmit all the information concerning the
+		-- complementary information associated to the basic call
+	supplementary-Services-Information	[3] Supplementary-Services OPTIONAL,
+		-- This parameter is used to transmit all the information concerning the
+		-- activation/invocation of supplementary services during a call or out-of call not
+		-- provided by the previous parameters.
+	services-Data-Information 			[4] Services-Data-Information OPTIONAL,
+		-- This parameter is used to transmit all the information concerning the complementary
+		-- information associated to the basic data call.
+	...
+}
+
+CallingPartyNumber ::= CHOICE
+{
+	iSUP-Format			[1] OCTET STRING (SIZE (1..25)),
+		-- Encoded in the same format as the calling party number (parameter field)
+		-- of the ISUP (see EN 300 356 [5]).
+	dSS1-Format			[2] OCTET STRING (SIZE (1..25)),
+		-- Encoded in the format defined for the value part of the Calling party number
+		-- information element of DSS1 protocol EN 300 403-1 [6].
+		-- The DSS1 Information element identifier and the DSS1 length are not included.
+	...,
+	mAP-Format			[3] OCTET STRING (SIZE (1..25))
+		-- Encoded as AddressString of the MAP protocol TS GSM 09.02 [32].
+}
+
+CalledPartyNumber ::= CHOICE
+{
+	iSUP-Format			[1] OCTET STRING (SIZE (1..25)),
+		-- Encoded in the same format as the called party number (parameter field)
+		-- of the ISUP (see EN 300 356 [5]).
+	mAP-Format			[2] OCTET STRING (SIZE (1..25)),
+		-- Encoded as AddressString of the MAP protocol TS GSM 09.02 [32].
+	dSS1-Format			[3] OCTET STRING (SIZE (1..25)),
+		-- Encoded in the format defined for the value part of the Called party number information
+		-- element of DSS1 protocol EN 300 403-1 [6].
+		-- The DSS1 Information element identifier and the DSS1 length are not included.
+	...
+}
+
+Location ::= SEQUENCE
+{
+	e164-Number			[1] OCTET STRING (SIZE (1..25)) OPTIONAL,
+		-- Coded in the same format as the ISUP location number (parameter
+		--field) of the ISUP (see EN 300 356 [5]).
+	globalCellID		[2] OCTET STRING (SIZE (5..7)) OPTIONAL,
+		-- See MAP format (see TS GSM 09.02 [32]).
+	tetraLocation		[3] TetraLocation OPTIONAL,
+		-- This optional parameter is not in use anymore, but is kept for backwards compatibility.
+	rAI					[4] OCTET STRING (SIZE (6)) OPTIONAL,
+		-- The Routeing Area Identifier (RAI) in the current SGSN is coded in accordance with
+		-- 3GPP TS 24.008 [41] without the Routing Area Identification IEI (only the
+		-- last 6 octets are used).
+	gsmLocation			[5] GSMLocation OPTIONAL,
+	umtsLocation		[6] UMTSLocation OPTIONAL,
+	sAI					[7] OCTET STRING (SIZE (7)) OPTIONAL,
+		-- format:	PLMN-ID	3 octets (no. 1-3),
+		-- 			LAC		2 octets (no. 4-5),
+		-- 			SAC		2 octets (no. 6-7)
+		-- 			(according to 3GPP TS 25.431 [62]).
+	...,
+	oldRAI				[8] OCTET STRING (SIZE (6)) OPTIONAL
+		-- the "Routeing Area Identifier" in the old SGSN is coded in accordance with
+		-- 3GPP TS 24.008 [41] without the Routing Area Identification IEI
+		-- (only the last 6 octets are used).
+		-- This parameter is duplicated from 3GPP TS 33.108 [61].
+}
+
+TetraLocation ::= CHOICE
+	-- This optional parameter is not in use anymore, but is kept for backwards compatibility.
+{
+	ms-Loc		[1] SEQUENCE
+	{
+		mcc				[1] INTEGER (0..1023),
+			-- 10 bits EN 300 392-1 [40]
+		mnc				[2] INTEGER (0..16383),
+			-- 14 bits EN 300 392-1 [40]
+		lai				[3] INTEGER (0..65535),
+			-- 14 bits EN 300 392-1 [40]
+		ci				[4] INTEGER OPTIONAL
+	},
+	ls-Loc		[2] INTEGER
+}
+
+GSMLocation ::= CHOICE
+{
+	geoCoordinates 		[1] SEQUENCE
+	{
+		latitude	[1] PrintableString (SIZE(7..10)),
+			-- format: XDDMMSS.SS
+		longitude	[2] PrintableString (SIZE(8..11)),
+			-- format: XDDDMMSS.SS
+		mapDatum	[3] MapDatum DEFAULT wGS84,
+		...,
+		azimuth		[4] INTEGER (0..359) OPTIONAL
+			-- The azimuth is the bearing, relative to true north
+	},
+		-- format: 	XDDDMMSS.SS
+		-- 		X			: N(orth), S(outh), E(ast), W(est)
+		-- 		DD or DDD 	: degrees (numeric characters)
+		-- 		MM			: minutes (numeric characters)
+		-- 		SS.SS 		: seconds, the second part (.SS) is optional
+		-- Example:
+		-- 		latitude short form		N502312
+		-- 		longitude long form		E1122312.18
+
+	utmCoordinates		[2] SEQUENCE
+	{
+		utm-East 	[1] PrintableString (SIZE(10)),
+		utm-North 	[2] PrintableString (SIZE(7)),
+			-- Universal Transverse Mercator
+			-- example	utm-East	32U0439955
+			-- 			utm-North	5540736
+		mapDatum	[3] MapDatum DEFAULT wGS84,
+		...,
+		azimuth		[4] INTEGER (0..359) OPTIONAL
+			-- The azimuth is the bearing, relative to true north
+	},
+
+	utmRefCoordinates	[3] SEQUENCE
+	{
+		utmref-string	[2] PrintableString (SIZE(13)),
+		mapDatum		[3] MapDatum DEFAULT wGS84,
+		...
+	},
+		-- example 32UPU91294045
+
+	wGS84Coordinates 	[4] OCTET STRING
+	-- format is as defined in 3GPP TS 03.32 [57]
+}
+
+MapDatum ::= ENUMERATED
+{
+	wGS84(0),
+		-- World Geodetic System 1984
+	wGS72(1),
+	eD50(2),
+		-- European Datum 50
+	...
+}
+
+UMTSLocation ::= CHOICE
+{
+	point					[1] GA-Point,
+	pointWithUnCertainty	[2] GA-PointWithUnCertainty,
+	polygon					[3] GA-Polygon,
+	...
+}
+
+GeographicalCoordinates ::= SEQUENCE
+{
+	latitudeSign	[0] ENUMERATED
+	{
+		north(0),
+		south(1)
+	},
+	latitude		[1] INTEGER (0..8388607),
+	longitude		[2] INTEGER (-8388608..8388607),
+	...
+}
+
+GA-Point ::= SEQUENCE
+{
+	geographicalCoordinates		[0] GeographicalCoordinates,
+	...
+}
+
+GA-PointWithUnCertainty ::=SEQUENCE
+{
+	geographicalCoordinates		[0] GeographicalCoordinates,
+	uncertaintyCode				[1] INTEGER (0..127)
+}
+
+maxNrOfPoints INTEGER ::= 15
+
+GA-Polygon ::= SEQUENCE (SIZE (1..maxNrOfPoints)) OF
+	SEQUENCE
+	{
+		geographicalCoordinates		[0] GeographicalCoordinates,
+		...
+	}
+
+CallContentLinkCharacteristics ::= SEQUENCE
+{
+	cCLink-State			[1] CCLink-State OPTIONAL,
+		-- current state of the CCLink
+	release-Time			[2] TimeStamp OPTIONAL,
+		-- date and time of the release of the Call Content Link.
+	release-Reason			[3] OCTET STRING (SIZE(2)) OPTIONAL,
+		-- Release cause coded in Q.850 [31] format
+	lEMF-Address			[4] CalledPartyNumber OPTIONAL,
+		-- Directory number used to route the call toward the LEMF
+	...
+}
+
+CCLink-State ::= ENUMERATED
+{
+	setUpInProcess(1),
+		-- The set-up of the call is in process
+	callActive(2),
+	callReleased(3),
+	lack-of-resource(4),
+		-- The lack-of-resource state is sent when a CC Link cannot
+		-- be established because of lack of resource at the MF level.
+	...
+}
+
+Intercepted-Call-State ::= ENUMERATED
+{
+	idle(1),
+		-- When the intercept call is released, the state is IDLE and the reason is provided
+		-- by the release-Reason-Of-Intercepted-Call parameter.
+	setUpInProcess(2),
+		-- The set-up of the call is in process
+	connected(3),
+		-- The answer has been received
+	...
+}
+
+Services-Information ::= SEQUENCE
+{
+	iSUP-parameters				[1] ISUP-parameters OPTIONAL,
+	dSS1-parameters-codeset-0	[2] DSS1-parameters-codeset-0 OPTIONAL,
+	...,
+	mAP-parameters				[3] MAP-parameters OPTIONAL
+}
+
+ISUP-parameters ::= SET SIZE (1..256) OF OCTET STRING (SIZE (1..256))
+	-- Each "OCTET STRING" contains one additional ISUP parameter TLV coded not already defined in
+	-- the previous parameters. The Tag value is the one given in EN 300 356 [5].
+
+	-- In version 1 of the present document "iSUP-parameters" is defined as mandatory.
+	-- It might occur that no ISUP parameter is available. In that case in a version 1
+	-- implementation the value "zero" may be included in the first octet string of the SET.
+
+	-- The Length and the Value are coded in accordance with the parameter definition in
+	-- EN 300 356 [5]. Hereafter are listed the main parameters.
+	-- However other parameters may be added:
+
+	-- Transmission medium requirement: format defined in EN 300 356 [5].
+	-- This parameter can be provided with the "Party Information" of the "calling party".
+
+	-- Transmission medium requirement prime: format defined in EN 300 356 [5].
+	-- This parameter can be provided with the "Party Information" of the "calling party".
+
+DSS1-parameters-codeset-0 ::= SET SIZE (1..256) OF OCTET STRING (SIZE (1..256))
+	-- Each "OCTET STRING" contains one DSS1 parameter of the codeset-0. The parameter is coded as
+	-- described in EN 300 403-1 [6] (The DSS1 Information element identifier and the DSS1 length
+	-- are included). Hereafter are listed the main parameters.
+	-- However other parameters may be added:
+
+	-- Bearer capability: this parameter may be repeated. Format defined in EN 300 403-1 [6].
+	-- This parameter can be provided with the "Party Information" of the "calling party",
+	-- "called party" or "forwarded to party".
+
+	-- High Layer Compatibility: this parameter may be repeated. Format defined in EN 300 403-1 [6]
+	-- This parameter can be provided with the "Party Information" of the "calling party",
+	-- "called party" or "forwarded to party".
+
+	-- Low Layer capability: this parameter may be repeated. Format defined in EN 300 403-1 [6].
+	-- This parameter can be provided with the "Party Information" of the "calling party",
+	-- "called party" or "forwarded to party".
+
+MAP-parameters ::= SET SIZE (1..256) OF OCTET STRING (SIZE(1..256))
+	-- Each "OCTET STRING" contains one MAP parameter. The parameter is coded as described in
+	-- TS GSM 09.02 [32] (The map-TS-Code is included).
+
+Supplementary-Services ::= SEQUENCE
+{
+	standard-Supplementary-Services		[1] Standard-Supplementary-Services OPTIONAL,
+	non-Standard-Supplementary-Services	[2] Non-Standard-Supplementary-Services OPTIONAL,
+	other-Services						[3] Other-Services OPTIONAL,
+	...
+}
+
+Standard-Supplementary-Services ::= SEQUENCE
+{
+	iSUP-SS-parameters				[1] ISUP-SS-parameters OPTIONAL,
+	dSS1-SS-parameters-codeset-0	[2] DSS1-SS-parameters-codeset-0 OPTIONAL,
+	dSS1-SS-parameters-codeset-4	[3] DSS1-SS-parameters-codeset-4 OPTIONAL,
+	dSS1-SS-parameters-codeset-5	[4] DSS1-SS-parameters-codeset-5 OPTIONAL,
+	dSS1-SS-parameters-codeset-6	[5] DSS1-SS-parameters-codeset-6 OPTIONAL,
+	dSS1-SS-parameters-codeset-7	[6] DSS1-SS-parameters-codeset-7 OPTIONAL,
+	dSS1-SS-Invoke-components		[7] DSS1-SS-Invoke-Components OPTIONAL,
+	mAP-SS-Parameters				[8] MAP-SS-Parameters OPTIONAL,
+	mAP-SS-Invoke-Components		[9] MAP-SS-Invoke-Components OPTIONAL,
+	...
+}
+
+Non-Standard-Supplementary-Services ::= SET SIZE (1..20) OF CHOICE
+{
+	simpleIndication		[1] SimpleIndication,
+	sciData					[2] SciDataMode,
+	...
+}
+
+Other-Services ::= SET SIZE (1..50) OF OCTET STRING (SIZE (1..256))
+	-- Reference manufacturer manuals.
+
+ISUP-SS-parameters ::= SET SIZE (1..256) OF OCTET STRING (SIZE (1..256))
+	-- It must be noticed this parameter is retained for compatibility reasons.
+	-- It is recommended not to use it in new work but to use ISUP-parameters parameter.
+
+	-- Each "OCTET STRING" contains one additional ISUP parameter TLV coded not already defined in
+	-- the previous parameters. The Tag value is the one given in EN 300 356 [5].
+	-- The Length and the Value are coded in accordance with the parameter definition in 
+	-- EN 300 356 [5]. Hereafter are listed the main parameters. 
+	-- However other parameters may be added:
+
+	-- Connected Number: format defined in EN 300 356 [5].
+	-- This parameter can be provided with the "Party Information" of the
+	-- "called party" or "forwarded to party".
+
+	-- RedirectingNumber: format defined in EN 300 356 [5].
+	-- This parameter can be provided with the "Party Information" of the "originating party"
+	-- or/and of the “terminating party”.
+
+	-- Original Called Party Number: format defined in EN 300 356 [5].
+	-- This parameter can be provided with the "Party Information" of the "originating party".
+
+	-- Redirection information: format defined in EN 300 356 [5].
+	-- This parameter can be provided with the "Party Information" of the
+	-- "originating party", "forwarded to party" or/and "Terminating party".
+
+	-- Redirection Number: format defined in EN 300 356 [5].
+	-- This parameter can be provided with the "Party Information" of the
+	-- "forwarded to party" or "Terminating party".
+
+	-- Call diversion information: format defined in EN 300 356 [5].
+	-- This parameter can be provided with the "Party Information" of the
+	-- "forwarded to party" or "Terminating party".
+
+	-- Generic Number: format defined in EN 300 356 [5].
+	-- This parameter can be provided with the "Party Information" of the
+	-- "calling party", "called party" or "forwarded to party".
+	-- This parameters are used to transmit additional identities (additional, calling party
+	-- number, additional called number, etc.).
+
+	-- Generic Notification: format defined in EN 300 356 [5].
+	-- This parameter may be provided with the "Party Information" of the
+	-- "calling party", "called party" or "forwarded to party".
+	-- This parameters transmit the notification to the other part of the call of the supplementary
+	-- services activated or invoked by a subscriber during the call.
+
+	-- CUG Interlock Code: format defined in EN 300 356 [5].
+	-- This parameter can be provided with the "Party Information" of the "calling party".
+
+DSS1-SS-parameters-codeset-0 ::= SET SIZE (1..256) OF OCTET STRING (SIZE (1..256))
+	-- Each "OCTET STRING" contains one DSS1 parameter of the codeset-0. The parameter is coded as
+	-- described in EN 300 403-1 [6] (The DSS1 Information element identifier and the DSS1 length
+	-- are included). Hereafter are listed the main parameters.
+	-- However other parameters may be added:
+
+	-- Calling Party Subaddress: format defined in EN 300 403-1 [6].
+	-- This parameter can be provided with the "Party Information" of the "calling party".
+
+	-- Called Party Subaddress: format defined in EN 300 403-1 [6].
+	-- This parameter can be provided with the "Party Information" of the "calling party".
+
+	-- Connected Subaddress: format defined in recommendation (see EN 300 097-1 [14]).
+	-- This parameter can be provided with the "Party Information" of the
+	-- "called party" or "forwarded to party".
+
+	-- Connected Number: format defined in recommendation (see EN 300 097-1 [14]).
+	-- This parameter can be provided with the "Party Information" of the
+	-- "called party" or "forwarded to party".
+
+	-- Keypad facility: format defined in EN 300 403-1 [6].
+	-- This parameter can be provided with the "Party Information" of the
+	-- "calling party", "called party" or "forwarded to party".
+
+	-- Called Party Number: format defined in EN 300 403-1 [6].
+	-- This parameter could be provided with the "Party Information" of the "calling party"
+	-- when target is the originating party; it contains the dialled digits before modification
+	-- at network level (e.g. IN interaction, translation, etc …).
+
+	-- User-user: format defined in EN 300 286-1 [23]).
+	-- This parameter can be provided with the "Party Information" of the
+	-- "calling party", "called party" or "forwarded to party".
+
+DSS1-SS-parameters-codeset-4 ::= SET SIZE (1..256) OF OCTET STRING (SIZE (1..256))
+	-- Each "OCTET STRING" contains one DSS1 parameter of the codeset-4. The parameter is coded as
+	-- described in the relevant recommendation.
+
+DSS1-SS-parameters-codeset-5 ::= SET SIZE (1..256) OF OCTET STRING (SIZE (1..256))
+	-- Each "OCTET STRING" contains one DSS1 parameter of the codeset-5. The parameter is coded as
+	-- described in the relevant national recommendation.
+
+DSS1-SS-parameters-codeset-6 ::= SET SIZE (1..256) OF OCTET STRING (SIZE (1..256))
+	-- Each "OCTET STRING" contains one DSS1 parameter of the codeset-6. The parameter is coded as
+	-- described in the relevant local network recommendation.
+
+DSS1-SS-parameters-codeset-7 ::= SET SIZE (1..256) OF OCTET STRING (SIZE (1..256))
+	-- Each "octet string" contains one DSS1 parameter of the codeset-7. The parameter is coded as
+	-- described in the relevant user specific recommendation.
+
+DSS1-SS-Invoke-Components ::= SET SIZE (1..256) OF OCTET STRING (SIZE (1..256))
+	-- Each "octet string" contains one DSS1 Invoke or Return Result component.
+	-- The invoke or return result component is coded as
+	-- described in the relevant DSS1 supplementary service recommendation.
+
+	-- Invoke or Return Result component (BeginCONF): EN 300 185-1 [19]
+	-- Invoke or Return Result component (AddCONF): EN 300 185-1 [19]
+	-- Invoke or Return Result component (SplitCONF): EN 300 185-1 [19]
+	-- Invoke or Return Result component (DropCONF): EN 300 185-1 [19]
+	-- Invoke or Return Result component (IsolateCONF): EN 300 185-1 [19]
+	-- Invoke or Return Result component (ReattachCONF): EN 300 185-1 [19]
+	-- Invoke or Return Result component (PartyDISC): EN 300 185-1 [19]
+	-- Invoke or Return Result component (MCIDRequest): EN 300 130-1 [16]
+	-- Invoke or Return Result component (Begin3PTY): EN 300 188-1 [20]
+	-- Invoke or Return Result component (End3PTY): EN 300 188-1 [20]
+	-- Invoke or Return Result component (ECTExecute): EN 300 369-1 [25]
+	-- Invoke or Return Result component (ECTInform): EN 300 369-1 [25]
+	-- Invoke or Return Result component (ECTLinkIdRequest): EN 300 369-1 [25]
+	-- Invoke or Return Result component (ECTLoopTest): EN 300 369-1 [25]
+	-- Invoke or Return Result component (ExplicitECTExecute): EN 300 369-1 [25]
+	-- Invoke or Return Result component (ECT: RequestSubaddress): EN 300 369-1 [25]
+	-- Invoke or Return Result component (ECT: SubaddressTransfer): EN 300 369-1 [25]
+	-- Invoke or Return Result component (CF: ActivationDiversion): EN 300 207-1 [21]
+	-- Invoke or Return Result component (CF: DeactivationDiversion): EN 300 207-1 [21]
+	-- Invoke or Return Result component (CF: ActivationStatusNotification): EN 300 207-1 [21]
+	-- Invoke or Return Result component (CF: DeactivationStatusNotification): EN 300 207-1 [21]
+	-- Invoke or Return Result component (CF: InterrogationDiversion): EN 300 207-1 [21]
+	-- Invoke or Return Result component (CF: InterrogationServedUserNumber): EN 300 207-1 [21]
+	-- Invoke or Return Result component (CF: DiversionInformation): EN 300 207-1 [21]
+	-- Invoke or Return Result component (CF: CallDeflection): EN 300 207-1 [21]
+	-- Invoke or Return Result component (CF: CallRerouteing): EN 300 207-1 [21]
+	-- Invoke or Return Result component (CF: DivertingLegInformation1): EN 300 207-1 [21]
+	-- Invoke or Return Result component (CF: DivertingLegInformation2): EN 300 207-1 [21]
+	-- Invoke or Return Result component (CF: DivertingLegInformation3): EN 300 207-1 [21]
+	-- other invoke or return result components ...
+
+MAP-SS-Invoke-Components ::= SET SIZE (1..256) OF OCTET STRING (SIZE (1..256))
+	-- Each "octet string" contains one MAP Invoke or Return Result component.
+	-- The invoke or return result component is coded as
+	-- described in the relevant MAP supplementary service recommendation.
+
+MAP-SS-Parameters ::= SET SIZE (1..256) OF OCTET STRING (SIZE (1..256))
+	-- Each "octet string" contains one MAP Parameter. The parameter is coded as
+	-- described in the relevant MAP supplementary service recommendation.
+
+SimpleIndication ::= ENUMERATED
+{
+	call-Waiting-Indication(0),
+		-- The target has received a call waiting indication for this call
+	add-conf-Indication(1),
+		-- this call has been added to a conference
+	call-on-hold-Indication(2),
+		-- indication that this call is on hold
+	retrieve-Indication(3),
+		-- indication that this call has been retrieved
+	suspend-Indication(4),
+		-- indication that this call has been suspended
+	resume-Indication(5),
+		-- indication that this call has been resumed
+	answer-Indication(6),
+		-- indication that this call has been answered
+	...
+}
+
+SciDataMode ::= OCTET STRING (SIZE (1..256))
+
+SMS-report ::= SEQUENCE
+{
+	communicationIdentifier		[1] CommunicationIdentifier,
+		-- used to uniquely identify an intercepted call: the same used for the
+		-- relevant IRI
+		-- Called "callIdentifier" in V1.1.1 of ES 201 671 [i.5]
+	timeStamp					[2] TimeStamp,
+		-- date and time of the report. The format is
+		-- the one defined in case a) of the ASN.1 ITU-T Recommendation X.680 [33].
+		-- (year month day hour minutes seconds)
+	sMS-Contents				[3] SEQUENCE
+	{
+		initiator			[1] ENUMERATED
+		{
+			-- party which sent the SMS
+			target(0),
+			server(1),
+			undefined-party(2),
+			...
+		},
+		transfer-status		[2] ENUMERATED
+		{
+			succeed-transfer(0),
+				--the transfer of the SMS message succeeds
+			not-succeed-transfer(1),
+			undefined(2),
+			...
+		} OPTIONAL,
+		other-message		[3] ENUMERATED
+		{
+			-- In case of terminating call, indicates if the server will send other SMS.
+			yes(0),
+			no(1),
+			undefined(2),
+			...
+		} OPTIONAL,
+		content				[4] OCTET STRING (SIZE (1..270)) OPTIONAL,
+			-- Encoded in the format defined for the SMS mobile.
+		...
+	}
+}
+
+LawfulInterceptionIdentifier ::= OCTET STRING (SIZE (1..25))
+	-- It is recommended to use ASCII characters in "a"…"z", "A"…"Z", "-", "_", ".", and "0"…"9".
+	-- For subaddress option only "0"..."9" shall be used.
+
+National-Parameters ::= SET SIZE (1..40) OF OCTET STRING (SIZE (1..256))
+	-- Content defined by national law.
+
+GPRSCorrelationNumber ::= OCTET STRING (SIZE(8..20))
+
+GPRSEvent ::= ENUMERATED
+	-- see 3GPP TS 03.33 [42]
+{
+	pDPContextActivation(1),
+	startOfInterceptionWithPDPContextActive(2),
+	pDPContextDeactivation(4),
+	gPRSAttach(5),
+	gPRSDetach(6),
+	cellOrRAUpdate(10),
+	sMS(11),
+	...,
+	pDPContextModification(13)
+}
+
+Services-Data-Information ::= SEQUENCE
+{
+	gPRS-parameters 	[1] GPRS-parameters OPTIONAL,
+	...
+}
+
+GPRS-parameters ::= SEQUENCE
+{
+	pDP-address-allocated-to-the-target 	[1] DataNodeAddress OPTIONAL,
+	aPN 									[2] OCTET STRING (SIZE(1..100)) OPTIONAL,
+		-- The Access Point Name (APN) is coded in accordance with
+		-- 3GPP TS 24.008 [41] without the APN IEI (only the last 100 octets are used).
+		-- Octets are coded according to 3GPP TS 23.003 [76].
+		-- This parameter is duplicated from 3GPP TS 33.108 [61].
+	pDP-type 								[3] OCTET STRING (SIZE(2)) OPTIONAL,
+	...
+}
+
+GPRSOperationErrorCode ::= OCTET STRING (SIZE(2))
+	-- Refer to 3GPP TS 24.008 [41] for values (GMM cause or SM cause parameter).
+
+DataNodeAddress ::= CHOICE
+{
+	ipAddress 	[1] IPAddress,
+	x25Address 	[2] X25Address,
+	...
+}
+
+IPAddress ::= SEQUENCE
+{
+	iP-type			[1] ENUMERATED
+	{
+		iPV4(0),
+		iPV6(1),
+		...
+	},
+	iP-value		[2] IP-value,
+	iP-assignment	[3] ENUMERATED
+	{
+		static(1),
+			-- The static coding shall be used to report a static address.
+		dynamic(2),
+			-- The dynamic coding shall be used to report a dynamically allocated address.
+		notKnown(3),
+			-- The notKnown coding shall be used to report other then static or dynamically
+			-- allocated IP addresses.
+		...
+	} OPTIONAL,
+	...
+}
+
+IP-value ::= CHOICE
+{
+	iPBinaryAddress	[1] OCTET STRING (SIZE(4..16)),
+	iPTextAddress	[2] IA5String (SIZE(7..45)),
+	...
+}
+
+X25Address ::= OCTET STRING (SIZE(1..25))
+
+National-HI2-ASN1parameters	::= SEQUENCE
+{
+	countryCode		[1] PrintableString (SIZE (2)),
+		-- Country Code according to ISO 3166-1 [67],
+		-- the country to which the parameters inserted after the extension marker apply.
+	...
+		-- In case a given country wants to use additional national parameters according to its law,
+		-- these national parameters should be defined using the ASN.1 syntax and added after the
+		-- extension marker (...).
+		-- It is recommended that "version parameter" and "vendor identification parameter" are
+		-- included in the national parameters definition. Vendor identifications can be
+		-- retrieved from the IANA web site (see annex J). Besides, it is recommended to avoid
+		-- using tags from 240 to 255 in a formal type definition.
+}
+
+END -- end of HI2Operations

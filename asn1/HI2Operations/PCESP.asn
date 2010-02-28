@@ -1,0 +1,365 @@
+PCESP  {iso(1) identified-organization(3) dod(6) internet(1) private(4) 
+        enterprise(1) cable-Television-Laboratories-Inc(4491) clabProject(2) 
+        clabProjPacketCable(2) pktcLawfulIntercept(5) pcesp(1) version-3(3)}
+
+DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+ProtocolVersion ::= ENUMERATED { 
+  -- Versions IO1 and IO2 do not support protocol versioning.
+  io3(3), 
+  ...}
+
+CdcPdu ::= SEQUENCE {
+  protocolVersion		[0] ProtocolVersion,
+  message			[1] Message,
+  ...
+}
+
+Message ::= CHOICE {
+  answer              [1]  Answer,
+  ccclose             [2]  CCClose,
+  ccopen              [3]  CCOpen,
+  reserved0           [4]  NULL,                -- Reserved
+  origination         [5]  Origination,
+  reserved1           [6]  NULL,                -- Reserved
+  redirection         [7]  Redirection,
+  release             [8]  Release,
+  reserved2           [9]  NULL,                -- Reserved
+  terminationattempt  [10] TerminationAttempt,
+  reserved            [11] NULL,                -- Reserved
+  ccchange            [12] CCChange,
+  reserved3           [13] NULL,                -- Reserved
+  reserved4           [14] NULL,                -- Reserved
+  reserved5           [15] NULL,                -- Reserved
+  networksignal       [16] NetworkSignal,
+  subjectsignal       [17] SubjectSignal,
+  mediareport         [18] MediaReport,
+  serviceinstance     [19] ServiceInstance,
+  ...
+}
+
+Answer ::= SEQUENCE {
+  caseId              [0] CaseId,
+  accessingElementId  [1] AccessingElementId,
+  eventTime           [2] EventTime,
+  callId              [3] CallId,
+  answering           [4] PartyId              OPTIONAL,
+  ...
+}
+
+CCChange ::= SEQUENCE {
+  caseId              [0] CaseId,
+  accessingElementId  [1] AccessingElementId,
+  eventTime           [2] EventTime,
+  callId              [3] CallId,
+  cCCId               [4] EXPLICIT CCCId,
+  subject             [5] SDP                  OPTIONAL,
+  associate           [6] SDP                  OPTIONAL,
+  flowDirection       [7] FlowDirection,
+  resourceState       [8] ResourceState        OPTIONAL,
+  ...
+}
+
+CCClose ::= SEQUENCE {
+  caseId              [0] CaseId,
+  accessingElementId  [1] AccessingElementId,
+  eventTime           [2] EventTime,
+  cCCId               [3] EXPLICIT CCCId,
+  flowDirection       [4] FlowDirection,
+  ...
+}
+
+CCOpen ::= SEQUENCE {
+  caseId              [0] CaseId,
+  accessingElementId  [1] AccessingElementId,
+  eventTime           [2] EventTime,
+  ccOpenOption        CHOICE {
+  ccOpenTime            [3] SEQUENCE OF CallId,
+  reserved0             [4] NULL,               -- Reserved
+  ...
+                      },
+  cCCId               [5] EXPLICIT CCCId,
+  subject             [6] SDP                  OPTIONAL,
+  associate           [7] SDP                  OPTIONAL,
+  flowDirection       [8] FlowDirection,
+  ...
+}
+
+MediaReport ::= SEQUENCE {
+  caseId              [0] CaseId,
+  accessingElementId  [1] AccessingElementId,
+  eventTime           [2] EventTime,
+  callId              [3] CallId,
+  subject             [4] SDP                  OPTIONAL,
+  associate           [5] SDP                  OPTIONAL,
+  ...
+}
+
+NetworkSignal ::= SEQUENCE {
+  caseId              [0] CaseId,
+  accessingElementId  [1] AccessingElementId,
+  eventTime           [2] EventTime,
+  callId              [3] CallId,
+                      -- Signal
+                      -- The following four parameters are used to report 
+                      -- information regarding network-generated signals. 
+                      -- Include at least one of the following four 
+                      -- parameters to identify the network-generated signal 
+                      -- being reported.
+  alertingSignal       [4] AlertingSignal                        OPTIONAL,
+  subjectAudibleSignal [5] AudibleSignal                         OPTIONAL,
+  terminalDisplayInfo  [6] TerminalDisplayInfo                   OPTIONAL,
+  other                [7] VisibleString (SIZE (1..128, ...))    OPTIONAL,
+  -- Can be used to report undefined network signals
+  ...
+}
+
+Origination ::= SEQUENCE {
+  caseId              [0] CaseId,
+  accessingElementId  [1] AccessingElementId,
+  eventTime           [2] EventTime,
+  callId              [3] CallId,
+  calling             [4] PartyId,
+  called              [5] PartyId           OPTIONAL,
+  input               CHOICE {
+  userinput             [6] VisibleString  (SIZE (1..32, ...)),
+  translationinput      [7] VisibleString  (SIZE (1..32, ...)),
+  ...
+                      },
+  reserved0           [8] NULL,             -- Reserved
+  transitCarrierId    [9] TransitCarrierId  OPTIONAL,
+  ...
+}
+
+Redirection ::= SEQUENCE {
+  caseId              [0] CaseId,
+  accessingElementId  [1] AccessingElementId,
+  eventTime           [2] EventTime,
+  old                 [3] CallId,
+  redirectedto        [4] PartyId,
+  transitCarrierId    [5] TransitCarrierId     OPTIONAL,
+  reserved0           [6] NULL,                -- Reserved
+  reserved1           [7] NULL,                -- Reserved
+  new                 [8] CallId               OPTIONAL,
+  redirectedfrom      [9] PartyId              OPTIONAL,
+  ...
+}
+
+Release ::= SEQUENCE {
+  caseId             [0] CaseId,
+  accessingElementId [1] AccessingElementId,
+  eventTime          [2] EventTime,
+  callId             [3] CallId,
+  ...
+}
+
+ServiceInstance ::= SEQUENCE {
+  caseId              [0] CaseId,
+  accessingElementId  [1] AccessingElementId,
+  eventTime           [2] EventTime,
+  callId              [3] CallId,
+  relatedCallId       [4] CallId               OPTIONAL,
+  serviceName         [5] VisibleString (SIZE (1..128, ...)),
+  firstCallCalling    [6] PartyId              OPTIONAL,
+  secondCallCalling   [7] PartyId              OPTIONAL,
+  called              [8] PartyId              OPTIONAL,
+  calling             [9] PartyId              OPTIONAL,
+  ...
+}
+
+SubjectSignal ::= SEQUENCE {
+  caseId             [0] CaseId,
+  accessingElementId [1] AccessingElementId,
+  eventTime          [2] EventTime,
+  callId             [3] CallId                OPTIONAL,
+  signal             [4] SEQUENCE {
+                     -- The following four parameters are used to report 
+                     -- information regarding subject-initiated dialing and 
+                     -- signaling. Include at least one of the following four 
+                     -- parameters to identify the subject- initiated dialing 
+                     -- and signaling information being reported.
+  switchhookFlash            [0] VisibleString (SIZE (1..128, ...))  OPTIONAL,
+  dialedDigits               [1] VisibleString (SIZE (1..128, ...))  OPTIONAL,
+  featureKey                 [2] VisibleString (SIZE (1..128, ...))  OPTIONAL,
+  otherSignalingInformation  [3] VisibleString (SIZE (1..128, ...))  OPTIONAL,
+                      -- Can be used to report undefined subject signals
+  ...
+                        },
+  ...
+}
+
+TerminationAttempt ::= SEQUENCE {
+  caseId               [0] CaseId,
+  accessingElementId   [1] AccessingElementId,
+  eventTime            [2] EventTime,
+  callId               [3] CallId,
+  calling              [4] PartyId             OPTIONAL,
+  called               [5] PartyId             OPTIONAL,
+  reserved0            [6] NULL,               -- Reserved
+  redirectedFromInfo   [7] RedirectedFromInfo  OPTIONAL,
+  ...
+}
+
+AccessingElementId ::= VisibleString (SIZE(1..15, ...))
+                         --  Statically configured element number
+
+AlertingSignal ::= ENUMERATED {
+  notUsed               (0),   -- Reserved
+  alertingPattern0      (1),   -- normal ringing
+  alertingPattern1      (2),   -- distinctive ringing: intergroup
+  alertingPattern2      (3),   -- distinctive ringing: special/priority 
+  alertingPattern3      (4),   -- distinctive ringing: electronic key 
+                               -- telephone srvc
+  alertingPattern4      (5),   -- ringsplash, reminder ring
+  callWaitingPattern1   (6),   -- normal call waiting tone
+  callWaitingPattern2   (7),   -- incoming additional call waiting tone
+  callWaitingPattern3   (8),   -- priority additional call waiting tone
+  callWaitingPattern4   (9),   -- distinctive call waiting tone
+  bargeInTone           (10),  -- barge-in tone (e.g. for operator barge-in)
+  alertingPattern5      (11),  -- distinctive ringing: solution specific
+  alertingPattern6      (12),  -- distinctive ringing: solution specific
+  alertingPattern7      (13),  -- distinctive ringing: solution specific
+  alertingPattern8      (14),  -- distinctive ringing: solution specific
+  alertingPattern9      (15),  -- distinctive ringing: solution specific
+  ...
+}
+-- This parameter identifies the type of alerting (ringing) signal that is 
+-- applied toward the surveillance subject. See GR-506-CORE, LSSGR: Signaling 
+-- for Analog Interfaces (A Module of the LATA Switching Systems Generic 
+-- Requirements [LSSGR], FR-64).
+
+AudibleSignal ::= ENUMERATED {
+  notUsed                   (0),  -- Reserved
+  dialTone                  (1),
+  recallDialTone            (2),  -- recall dial tone, stutter dial tone 
+  ringbackTone              (3),  -- tone indicates ringing at called party 
+                                  -- end
+  reorderTone               (4),  -- reorder tone, congestion tone
+  busyTone                  (5),
+  confirmationTone          (6),  -- tone confirms receipt and processing of 
+                                  -- request
+  expensiveRouteTone        (7),  -- tone indicates outgoing route is 
+                                  -- expensive
+  messageWaitingTone        (8),
+  receiverOffHookTone       (9),  -- receiver off-hook tone, off-hook warning 
+                                  -- tone
+  specialInfoTone           (10), -- tone indicates call sent to announcement
+  denialTone                (11), -- tone indicates denial of feature request
+  interceptTone             (12), -- wireless intercept/mobile reorder tone
+  answerTone                (13), -- wireless service tone
+  tonesOff                  (14), -- wireless service tone
+  pipTone                   (15), -- wireless service tone
+  abbreviatedIntercept      (16), -- wireless service tone
+  abbreviatedCongestion     (17), -- wireless service tone
+  warningTone               (18), -- wireless service tone
+  dialToneBurst             (19), -- wireless service tone
+  numberUnObtainableTone    (20), -- wireless service tone
+  authenticationFailureTone (21), -- wireless service tone
+  ...
+}
+-- This parameter identifies the type of audible tone that is applied toward 
+-- the surveillance subject. See GR-506-CORE, LSSGR: Signaling for Analog 
+-- Interfaces (A Module of the LATA Switching Systems Generic Requirements 
+-- [LSSGR], FR-64), ANSI/TIA/EIA-41-D, Cellular Radiotelecommunications 
+-- Intersystem Operations, and GSM 02.40, Digital cellular telecommunications 
+-- system (Phase 2+); Procedure for call progress indications.
+
+CallId ::= SEQUENCE {
+  sequencenumber  [0] VisibleString (SIZE(1..25, ...)),
+  systemidentity  [1] VisibleString (SIZE(1..15, ...)),
+  ...
+}
+-- The Delivery Function generates this structure from the
+-- Billing-Correlation-ID (contained in the Event Messages).
+-- The sequencenumber is generated by converting the
+-- Timestamp (32 bits) and Event-Counter (32 bits) into 
+-- ASCII strings, separating them with a comma.  
+-- The systemidentity field is copied from the 
+-- Element-ID field
+
+CaseId ::= VisibleString (SIZE(1..25, ...))
+
+CCCId ::= CHOICE {
+  combCCC              [0] VisibleString (SIZE(1..20, ...)),
+  sepCCCpair           [1] SEQUENCE{
+  sepXmitCCC           [0] VisibleString (SIZE(1..20, ...)),
+  sepRecvCCC           [1] VisibleString (SIZE(1..20, ...)),
+  ...
+                        },
+  ...
+}  
+-- The Delivery Function MUST generate this structure
+-- from the CCC-Identifier used for the corresponding
+-- Call Content packet stream by converting the 32-bit
+-- value into an 8-character (hex-encoded) ASCII string
+-- consisting of digits 0-9 and letters A-F.
+
+EventTime ::= GeneralizedTime
+
+FlowDirection ::= ENUMERATED {
+  downstream               (1), 
+  upstream                 (2), 
+  downstream-and-upstream  (3),
+  ...
+}
+
+PartyId ::= SEQUENCE {
+  reserved0            [0]  NULL               OPTIONAL, -- Reserved
+  reserved1            [1]  NULL               OPTIONAL, -- Reserved
+  reserved2            [2]  NULL               OPTIONAL, -- Reserved
+  reserved3            [3]  NULL               OPTIONAL, -- Reserved
+  reserved4            [4]  NULL               OPTIONAL, -- Reserved
+  reserved5            [5]  NULL               OPTIONAL, -- Reserved
+  dn                   [6]  VisibleString (SIZE(1..15, ...))  OPTIONAL,
+  userProvided         [7]  VisibleString (SIZE(1..15, ...))  OPTIONAL,
+  reserved6            [8]  NULL               OPTIONAL, -- Reserved
+  reserved7            [9]  NULL               OPTIONAL, -- Reserved
+  ipAddress            [10] VisibleString (SIZE(1..32, ...))  OPTIONAL,
+  reserved8            [11] NULL               OPTIONAL, -- Reserved
+  trunkId              [12] VisibleString (SIZE(1..32, ...))  OPTIONAL,
+  reserved9            [13] NULL               OPTIONAL, -- Reserved
+  genericAddress       [14] VisibleString (SIZE(1..32, ...))  OPTIONAL,
+  genericDigits        [15] VisibleString (SIZE(1..32, ...))  OPTIONAL,
+  genericName          [16] VisibleString (SIZE(1..48, ...))  OPTIONAL,
+  port                 [17] VisibleString (SIZE(1..32, ...))  OPTIONAL,
+  context              [18] VisibleString (SIZE(1..32, ...))  OPTIONAL,
+  ...
+}
+
+RedirectedFromInfo ::= SEQUENCE {
+  lastRedirecting        [0] PartyId           OPTIONAL,
+  originalCalled         [1] PartyId           OPTIONAL,
+  numRedirections        [2] INTEGER (1..100, ...)  OPTIONAL,
+  ...
+}
+
+ResourceState ::= ENUMERATED {reserved(1), committed(2), ...}
+
+SDP ::= UTF8String
+-- The format and syntax of this field are defined in [8].
+
+TerminalDisplayInfo ::= SEQUENCE {
+  generalDisplay         [0] VisibleString (SIZE (1..80, ...))  OPTIONAL,
+    -- Can be used to report display-related
+    -- network signals not addressed by
+    -- other parameters.
+  calledNumber           [1] VisibleString (SIZE (1..40, ...))  OPTIONAL,
+  callingNumber          [2] VisibleString (SIZE (1..40, ...))  OPTIONAL,
+  callingName            [3] VisibleString (SIZE (1..40, ...))  OPTIONAL,
+  originalCalledNumber   [4] VisibleString (SIZE (1..40, ...))  OPTIONAL,
+  lastRedirectingNumber  [5] VisibleString (SIZE (1..40, ...))  OPTIONAL,
+  redirectingName        [6] VisibleString (SIZE (1..40, ...))  OPTIONAL,
+  redirectingReason      [7] VisibleString (SIZE (1..40, ...))  OPTIONAL,
+  messageWaitingNotif    [8] VisibleString (SIZE (1..40, ...))  OPTIONAL,
+  ...
+}
+-- This parameter reports information that is displayed on the surveillance 
+-- subject's terminal. See GR-506-CORE, LSSGR: Signaling for Analog 
+-- Interfaces (A Module of the LATA Switching Systems Generic Requirements 
+-- [LSSGR], FR-64).
+
+TransitCarrierId ::= VisibleString (SIZE(3..7, ...))
+
+END -- PCESP
+

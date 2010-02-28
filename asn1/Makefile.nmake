@@ -47,6 +47,7 @@ ber: \
 	goose	\
 	gsm_map	\
 	h248	\
+	HI2	\
 	inap	\
 	kerberos	\
 	ldap 	\
@@ -203,6 +204,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd h501
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd HI2Operations
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd hnbap
@@ -517,6 +521,11 @@ h460::
 
 h501::
 	cd h501
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+HI2Operations::
+	cd HI2Operations
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 

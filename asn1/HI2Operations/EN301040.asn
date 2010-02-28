@@ -1,0 +1,269 @@
+EN301040 {itu-t (0) identified-organization (4) etsi (0) en301040 (1040) interceptVersion (0)}
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+LIACTIVATEreq ::= SEQUENCE
+{
+    	timeStamp    		UTCTime,
+	invokeId		INTEGER,
+	targetAddress   	AddressType,
+    	expiryDateTime		UTCTime,
+    	targetname   		VisibleString 		OPTIONAL,
+    	additionaltargetdata	VisibleString 		OPTIONAL,
+    	monitorServiceList   	SEQUENCE OF ActivityType
+}
+
+LIACTIVATEconf ::= SEQUENCE
+{
+    	timeStamp    		UTCTime,
+	invokeId		INTEGER,
+	result			BOOLEAN,
+    	tLIInstanceid    	TLIIdType   		OPTIONAL	-- Conditional on value of Result --
+}
+
+LIMODIFYreq ::= SEQUENCE
+{
+    	tLIInstanceid           TLIIdType,
+    	timestamp               UTCTime,
+    	modificationNumber	INTEGER,
+	modificationType	CHOICE
+	{
+		halt			BOOLEAN,
+		reset			BOOLEAN,
+    		expiryDateTime   	UTCTime,
+    		targetname   		VisibleString,
+    		additionaltargetdata   	VisibleString,
+    		monitorServiceList   	SEQUENCE OF ActivityType
+	}
+}
+
+LIMODIFYconf ::= SEQUENCE
+{
+    	tLIInstanceid           TLIIdType,
+    	timestamp		UTCTime,
+    	modificationNumber	INTEGER,
+    	result			BOOLEAN
+}
+
+LISTATUSind ::= SEQUENCE
+{
+    	tLIInstanceid           TLIIdType,
+    	timestamp               UTCTime,
+    	tETRASysStatus  	StatusType
+}
+
+TARGETACTIVITYMONITORind ::= SEQUENCE
+{
+    	tLIInstanceid    	TLIIdType,  			-- header, who –
+    	timestamp    		UTCTime,   			-- header, when –
+    	targetLocation    	LocationType-en301040,   		-- header, where –
+    	targetAction   		ActivityType,
+    	supplementaryTargetaddress  	AddressType   			OPTIONAL,
+    	cotargetaddress  		SEQUENCE OF AddressType  	OPTIONAL,
+    	cotargetlocation  		SEQUENCE OF LocationType-en301040  	OPTIONAL
+}
+
+TARGETCOMMSMONITORind ::= SEQUENCE
+{
+    	tLIInstanceid    		TLIIdType,
+    	timestamp    			UTCTime,
+    	targetlocation   		LocationType-en301040,
+    	supplementaryTargetaddress  	AddressType OPTIONAL,
+    	targetcommsid   		CircuitIdType,
+    	cotargetaddress   		SEQUENCE OF AddressType 	OPTIONAL,
+    	cotargetcommsid  		SEQUENCE OF CircuitIdType 	OPTIONAL
+}
+
+TTRAFFICind ::= SEQUENCE
+{
+    	tLIInstanceid    			TLIIdType,
+	trafficPacket				BIT STRING
+}
+
+CTTRAFFICind ::= SEQUENCE
+{
+    	tLIInstanceid    			TLIIdType,
+	trafficPacket				BIT STRING
+}
+
+
+ActivityClassType ::= ENUMERATED
+{
+	allServices,
+	tETRASpeech,
+	singleSlotData24,
+	singleSlotData48,
+	singleSlotData72,
+	multiSlotData224,
+	multiSlotData248,
+	multiSlotData272,
+	multiSlotData324,
+	multiSlotData348,
+	multiSlotData372,
+	multiSlotData424,
+	multiSlotData448,
+	multiSlotData472,
+	sDSType1,
+	sDSType2,
+	sDSType3,
+	sDSType4,
+	status,
+	sDSACKType1,
+	sDSACKType2,
+	sDSACKType3,
+	sDSACKType4,
+	statusack,
+	sDSAcknowledgementsuccess,
+	sDSAcknowledgementfail,
+	sCLNSPacketData,
+	cONSPacketData,
+	internetProtocol,
+	swMIauthenticationsuccess,
+	swMIauthenticationfail,
+	iTSIauthenticationsuccess,
+	iTSIauthenticationfail,
+	oTARSCKsuccess,
+	oTARSCKfail,
+	oTARGCKsuccess,
+	oTARGCKfail,
+	oTARCCKsuccess,
+	oTARCCKfail,
+	tARGETSUSCRIPTIONDISABLEDT,
+	tARGETEQUIPMENTDISABLEDT,
+	tARGETSUSCRIPTIONDISABLEDP,
+	tARGETEQUIPEMENTDISABLEDP,
+	tARGETSUBSCRIPTIONENABLED,
+	tARGETEQUIPMENTENABLED,
+	sessionregistration,
+	sessionderegistration,
+	mIGRATION,
+	rOAMING, 
+	supplementaryService
+}
+
+ActivityType::= SEQUENCE
+{
+	cctivity	ActivityClassType,
+	callRelation	ENUMERATED
+	{
+		begin,
+		end,
+		continue,
+		report
+	},
+	direction	ENUMERATED 
+	{
+		toTarget,
+		fromTarget
+ 	} OPTIONAL, 
+	scope		ENUMERATED
+	{
+		point2Point,
+		point2MultiPoint,
+		broadcast
+	} OPTIONAL,
+	cPlaneData	BIT STRING OPTIONAL,
+	sStype		SSType OPTIONAL
+}
+
+AddressType ::= SEQUENCE
+{
+	tSI			TSIType,
+	supplementaryAddress	SEQUENCE OF TETRAAddressType OPTIONAL
+}
+
+TETRAAddressType ::= CHOICE
+{
+	tETRAaddress	TSIType,
+	pISNaddress	NumericString (SIZE (20)),
+	iP4address	BIT STRING (SIZE (32)), 	-- 32 bits –
+	iP6address	BIT STRING (SIZE (128)),	-- 128 bits –
+	e164address	NumericString (SIZE (20)),
+	tEI		TEIType
+}
+
+	
+CellIdType ::= BIT STRING (SIZE (16)) 	-- 16 bits –
+
+LocationAreaType ::= BIT STRING (SIZE (14)) -- 14 bits, as defined in ETS 300 392-2 –
+
+LocationType-en301040 ::= CHOICE
+{
+	mSLoc		TETRACGIType,
+	lSLoc		TETRAAddressType
+}
+
+
+MCCType ::= BIT STRING (SIZE (10)) 	-- 10 bits, as defined in ETS 300 392-1 –
+
+MNCType ::= BIT STRING (SIZE (14)) 	-- 14 bits, as defined in ETS 300 392-1 –
+
+SSIType ::= BIT STRING (SIZE (24)) 	-- 24 bits, as defined in ETS 300 392-1 –
+
+CircuitIdType ::= NumericString (SIZE (20))
+
+SSType ::= ENUMERATED
+{
+	ambienceListening,
+	adviceofCharge,
+	accessPriority,
+	areaSelection,
+	barringofIncomingCalls,
+	barringofOutgoingCalls,
+	callAuthorizedbyDispatcher,
+	callCompletiontoBusySubscriber,
+	callCompletiononNoReply,
+	callForwardingonBusy,
+	callForwardingonNoReply,
+	callForwardingonNotReachable,
+	callForwardingUnconditional,
+	callingLineIdentificationPresentation,
+	callingConnectedLineIdentificationRestriction,
+	connectedLineIdentificationPresentation,
+    	callReport,
+    	callRetention,
+    	callWaiting,
+    	dynamicGroupNumberAssignment,
+    	discreetListening,
+    	callHold,
+    	includeCall,
+    	lateEntry,
+    	listSearchCall,
+    	priorityCall,
+    	preemptivePriorityCall,
+    	shortNumberAddressing,
+    	transferofControl,
+    	talkingPartyIdentification
+}
+
+StatusType ::= ENUMERATED
+{
+	networkFullyAvailable,
+	networkErrorsAffectingIntercept,
+	reconfigurationInProgress,
+	sessionExpired,
+	gatewayServicesUnavailable
+}
+
+TETRACGIType ::= SEQUENCE
+{
+	mcc	MCCType,
+	mnc	MNCType,
+	lai	LocationAreaType,
+	cI	CellIdType	OPTIONAL
+}
+
+TLIIdType ::= BIT STRING (SIZE (16)) 	-- 16 bits –
+
+TSIType ::= SEQUENCE
+{
+    	mcc       MCCType,
+    	mnc       MNCType,
+    	ssi       SSIType
+}
+
+TEIType ::= BIT STRING (SIZE (60)) -- 60 bits, as defined in ETS 300 392-1 –
+
+END

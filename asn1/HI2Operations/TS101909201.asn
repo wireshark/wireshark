@@ -1,0 +1,77 @@
+-- $Id$
+TS101909201 {itu-t (0) identified-organization (4) etsi (0) ts101909 (1909) part20 (20) subpart1(1) interceptVersion (0)}
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+
+CdcPdu FROM
+	PCESP {iso(1) identified-organization(3) dod(6) internet(1) private(4)
+	enterprise(1) cable-Television-Laboratories-Inc(4491) clabProject(2)
+	clabProjPacketCable(2) pktcLawfulIntercept(5) pcesp(1) version-4(4)};
+
+TARGETACTIVITYMONITOR-1 ::= SEQUENCE
+{
+	version					INTEGER DEFAULT 1, -- header, version -
+	lIInstanceid			LIIDType, -- header, who -
+	timestamp				UTCTime, -- header, when -
+	targetLocation			LocationType, -- header, where -
+	direction				DirectionType,
+	iRITransaction			IRITransactionType DEFAULT iRIreport,
+	iRITransactionNumber	INTEGER,
+	userSignal				UserSignalType, -- Either copy or interpreted signalling
+	cryptoCheckSum			BIT STRING OPTIONAL
+}
+
+TTRAFFIC ::= SEQUENCE
+{
+	version					INTEGER DEFAULT 1, -- header, version -
+	lIInstanceid			LIIDType,
+	iRITransactionNumber	INTEGER,
+	trafficPacket			BIT STRING,
+	cryptoChecksum			BIT STRING OPTIONAL
+}
+
+CTTRAFFIC ::= SEQUENCE
+{
+	version					INTEGER DEFAULT 1, -- header, version -
+	lIInstanceid			LIIDType,
+	correspondentCount		INTEGER,
+	iRITransactionNumber	INTEGER,
+	trafficPacket			BIT STRING,
+	cryptoChecksum			BIT STRING OPTIONAL
+}
+
+DirectionType ::= ENUMERATED
+{
+	toTarget,
+	fromTarget,
+	unknown
+}
+
+UserSignalType ::= CHOICE
+{
+	copySignal				BIT STRING,
+	interpretedSignal		INTEGER,
+	cdcPdu					CdcPdu
+}
+
+IRITransactionType ::= ENUMERATED
+{
+	iRIbegin,
+	iRIcontinue,
+	iRIend,
+	iRIreport
+}
+
+LocationType ::= CHOICE
+{
+	geodeticData			BIT STRING,
+	nameAddress				PrintableString (SIZE (1..100))
+}
+
+LIIDType ::= INTEGER (0..65535) -- 16 bit integer to identify interception
+
+END
