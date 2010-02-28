@@ -2908,6 +2908,7 @@ Samu Varjonen		<samu.varjonen [AT] hiit.fi> {
 Alexis La Goutte	<alexis.lagoutte [AT] gmail.com> {
 	Aruba ERM dissector
 	CAPWAP dissector
+	Miscellaneous ISAKMP enhancements
 }
 
 Varun Notibala		<nbvarun [AT] gmail.com> {
@@ -2978,6 +2979,10 @@ Tobias Erichsen 	<t.erichsen [AT] gmx.de> {
 	Apple network-midi session establishment dissector
 }
 
+Erwin van Eijk		<erwin.vaneijk [AT] gmail.com> {
+      	ETSI ts 101 671 dissector
+}
+	
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

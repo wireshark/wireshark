@@ -162,6 +162,7 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-ansi_map.c \
 	packet-gnm.c \
 	packet-gsm_map.c \
+	packet-HI2Operations.c \
 	packet-hnbap.c \
 	packet-inap.c \
 	packet-ldap.c \
