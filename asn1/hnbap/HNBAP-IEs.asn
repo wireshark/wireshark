@@ -1,6 +1,6 @@
 -- HNBAP-IEs.asn
 --
--- 3GPP TS 25.469 V8.4.0 (2009-12)
+-- 3GPP TS 25.469 V9.0.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/html-info/25469.htm
 --
 -- 9.3.4	Information Element Definitions
@@ -143,6 +143,12 @@ CSG-Indicator	::=	ENUMERATED {
 				...
 			}
 
+CSGMembershipStatus ::= ENUMERATED { 
+	member, 
+	non-member,
+	...
+}
+
 CGI ::= SEQUENCE {
 	pLMNidentity		PLMNidentity,
 	lAC					LAC,
@@ -190,6 +196,14 @@ GeographicalCoordinates-ExtIEs HNBAP-PROTOCOL-EXTENSION ::= {
 }
 
 --H
+
+HNB-Cell-Access-Mode::= ENUMERATED {
+	closed,
+	hybrid,
+	open,
+	... 
+}
+
 HNB-Location-Information	::=	SEQUENCE	{
 	macroCoverageInfo		MacroCoverageInformation	OPTIONAL,
 	geographicalCoordinates	GeographicalLocation	OPTIONAL,
@@ -281,6 +295,8 @@ MacroCellID ::= CHOICE {
 	gERANCellID			CGI,
 	...
 }
+
+MuxPortNumber ::= INTEGER (1024..65535)
 
 --N
 --O

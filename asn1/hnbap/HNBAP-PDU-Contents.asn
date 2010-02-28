@@ -1,6 +1,6 @@
 -- HNBAP-PDU-Contents.asn
 --
--- 3GPP TS 25.469 V8.4.0 (2009-12)
+-- 3GPP TS 25.469 V9.0.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/html-info/25469.htm
 --
 -- 9.3.3	PDU Definitions
@@ -30,7 +30,8 @@ BEGIN
 
 IMPORTS
 	Cause,
-	CriticalityDiagnostics,
+	CriticalityDiagnostics, 
+	CSGMembershipStatus,
 	HNB-Location-Information,
 	HNB-Identity,
 	Context-ID,
@@ -46,7 +47,10 @@ IMPORTS
 	CellIdentity,
 	RNC-ID,
 	CSG-ID,
-	BackoffTimer
+	HNB-Cell-Access-Mode,
+	BackoffTimer,
+	MuxPortNumber
+
 
 
 FROM HNBAP-IEs
@@ -64,7 +68,8 @@ FROM HNBAP-IEs
 FROM HNBAP-Containers
 
 	id-Cause,
-	id-CriticalityDiagnostics,
+	id-CriticalityDiagnostics, 
+	id-CSGMembershipStatus,
 	id-HNB-Location-Information,
 	id-HNB-Identity,
 	id-Context-ID,
@@ -78,7 +83,11 @@ FROM HNBAP-Containers
 	id-CellIdentity,
 	id-RNC-ID,
 	id-CSG-ID,
-	id-BackoffTimer
+	id-HNB-Cell-Access-Mode,
+	id-BackoffTimer,
+	id-Service-Area-For-Broadcast,
+	id-MuxPortNumber
+
 
 FROM HNBAP-Constants;
 
@@ -107,6 +116,8 @@ HNBRegisterRequestIEs HNBAP-PROTOCOL-IES ::= {
 }
 
 HNBRegisterRequestExtensions HNBAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-Service-Area-For-Broadcast		CRITICALITY ignore	EXTENSION SAC	PRESENCE optional }|
+	{ ID id-HNB-Cell-Access-Mode			CRITICALITY reject	EXTENSION HNB-Cell-Access-Mode				PRESENCE optional},
 	...
 }
 
@@ -129,6 +140,8 @@ HNBRegisterResponseIEs HNBAP-PROTOCOL-IES ::= {
 
 
 HNBRegisterResponseExtensions HNBAP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 9 to support CS Multiplexing --
+    {ID id-MuxPortNumber           CRITICALITY ignore	EXTENSION MuxPortNumber      PRESENCE optional},
 	...
 }
 
@@ -225,6 +238,7 @@ UERegisterAcceptIEs HNBAP-PROTOCOL-IES ::= {
 
 
 UERegisterAcceptExtensions HNBAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-CSGMembershipStatus		CRITICALITY	 reject		EXTENSION CSGMembershipStatus			PRESENCE optional	},
 	...
 }
 

@@ -39,6 +39,8 @@ HNB-Location-Information/geographicalCoordinates hnb_location_information_geogra
 #.OMIT_ASSIGNMENT
 Presence
 ProtocolIE-ContainerList
+ProtocolIE-Single-Container
+CN-DomainIndicator
 #.END
 
 #.FN_PARS ProtocolIE-ID  VAL_PTR = &ProtocolIE_ID
@@ -86,8 +88,11 @@ CSG-ID						N hnbap.ies id-CSG-ID
 BackoffTimer				N hnbap.ies id-BackoffTimer
 
 #HNBAP-PROTOCOL-EXTENSION
-IP-Address	N hnbap.extension id-HNB-Internet-Information
-
+IP-Address					N hnbap.extension id-HNB-Internet-Information
+HNB-Cell-Access-Mode		N hnbap.extension id-HNB-Cell-Access-Mode
+MuxPortNumber				N hnbap.extension id-MuxPortNumber
+SAC							N hnbap.extension id-Service-Area-For-Broadcast
+CSGMembershipStatus			N hnbap.extension id-CSGMembershipStatus
 
 #HNBAP-ELEMENTARY-PROCEDURE
 HNBRegisterRequest							N hnbap.proc.imsg id-HNBRegister

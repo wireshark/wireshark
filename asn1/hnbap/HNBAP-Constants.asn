@@ -1,6 +1,6 @@
 -- HNBAP-Constants.asn
 --
--- 3GPP TS 25.469 V8.4.0 (2009-12)
+-- 3GPP TS 25.469 V9.0.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/html-info/25469.htm
 --
 -- 9.3.6	Constant Definitions
@@ -71,7 +71,11 @@ id-UE-Capabilities								ProtocolIE-ID ::= 13
 id-RNC-ID										ProtocolIE-ID ::= 14
 id-CSG-ID										ProtocolIE-ID ::= 15
 id-BackoffTimer									ProtocolIE-ID ::= 16
-id-HNB-Internet-Information							 ProtocolIE-ID ::= 17
+id-HNB-Internet-Information						ProtocolIE-ID ::= 17
+id-HNB-Cell-Access-Mode							ProtocolIE-ID ::= 18
+id-MuxPortNumber                                ProtocolIE-ID ::= 19
+id-Service-Area-For-Broadcast					ProtocolIE-ID ::= 20
+id-CSGMembershipStatus							ProtocolIE-ID ::= 21
 
 
 

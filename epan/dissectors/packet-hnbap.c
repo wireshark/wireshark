@@ -91,7 +91,11 @@ typedef enum _ProtocolIE_ID_enum {
   id_RNC_ID    =  14,
   id_CSG_ID    =  15,
   id_BackoffTimer =  16,
-  id_HNB_Internet_Information =  17
+  id_HNB_Internet_Information =  17,
+  id_HNB_Cell_Access_Mode =  18,
+  id_MuxPortNumber =  19,
+  id_Service_Area_For_Broadcast =  20,
+  id_CSGMembershipStatus =  21
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-hnbap-val.h ---*/
@@ -109,10 +113,13 @@ static int hf_hnbap_CellIdentity_PDU = -1;        /* CellIdentity */
 static int hf_hnbap_Context_ID_PDU = -1;          /* Context_ID */
 static int hf_hnbap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
 static int hf_hnbap_CSG_ID_PDU = -1;              /* CSG_ID */
+static int hf_hnbap_CSGMembershipStatus_PDU = -1;  /* CSGMembershipStatus */
+static int hf_hnbap_HNB_Cell_Access_Mode_PDU = -1;  /* HNB_Cell_Access_Mode */
 static int hf_hnbap_HNB_Location_Information_PDU = -1;  /* HNB_Location_Information */
 static int hf_hnbap_HNB_Identity_PDU = -1;        /* HNB_Identity */
 static int hf_hnbap_IP_Address_PDU = -1;          /* IP_Address */
 static int hf_hnbap_LAC_PDU = -1;                 /* LAC */
+static int hf_hnbap_MuxPortNumber_PDU = -1;       /* MuxPortNumber */
 static int hf_hnbap_PLMNidentity_PDU = -1;        /* PLMNidentity */
 static int hf_hnbap_RAC_PDU = -1;                 /* RAC */
 static int hf_hnbap_Registration_Cause_PDU = -1;  /* Registration_Cause */
@@ -353,7 +360,7 @@ dissect_hnbap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 57 "hnbap.cnf"
+#line 59 "hnbap.cnf"
      col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                  val_to_str(ProcedureCode, hnbap_ProcedureCode_vals,
                             "unknown message"));
@@ -380,6 +387,10 @@ static const value_string hnbap_ProtocolIE_ID_vals[] = {
   { id_CSG_ID, "id-CSG-ID" },
   { id_BackoffTimer, "id-BackoffTimer" },
   { id_HNB_Internet_Information, "id-HNB-Internet-Information" },
+  { id_HNB_Cell_Access_Mode, "id-HNB-Cell-Access-Mode" },
+  { id_MuxPortNumber, "id-MuxPortNumber" },
+  { id_Service_Area_For_Broadcast, "id-Service-Area-For-Broadcast" },
+  { id_CSGMembershipStatus, "id-CSGMembershipStatus" },
   { 0, NULL }
 };
 
@@ -389,7 +400,7 @@ dissect_hnbap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
 
-#line 46 "hnbap.cnf"
+#line 48 "hnbap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(hnbap_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -449,15 +460,6 @@ dissect_hnbap_ProtocolIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_hnbap_ProtocolIE_Container, ProtocolIE_Container_sequence_of,
                                                   0, maxProtocolIEs, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_hnbap_ProtocolIE_Single_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_hnbap_ProtocolIE_Field(tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
@@ -832,6 +834,22 @@ dissect_hnbap_CSG_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
+static const value_string hnbap_CSGMembershipStatus_vals[] = {
+  {   0, "member" },
+  {   1, "non-member" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_hnbap_CSGMembershipStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
 
 static int
 dissect_hnbap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -874,22 +892,6 @@ static int
 dissect_hnbap_CGI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_CGI, CGI_sequence);
-
-  return offset;
-}
-
-
-static const value_string hnbap_CN_DomainIndicator_vals[] = {
-  {   0, "cs-domain" },
-  {   1, "ps-domain" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_hnbap_CN_DomainIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -969,6 +971,23 @@ static int
 dissect_hnbap_GeographicalLocation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_GeographicalLocation, GeographicalLocation_sequence);
+
+  return offset;
+}
+
+
+static const value_string hnbap_HNB_Cell_Access_Mode_vals[] = {
+  {   0, "closed" },
+  {   1, "hybrid" },
+  {   2, "open" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_hnbap_HNB_Cell_Access_Mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -1192,6 +1211,16 @@ static int
 dissect_hnbap_LAI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_LAI, LAI_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_hnbap_MuxPortNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1024U, 65535U, NULL, FALSE);
 
   return offset;
 }
@@ -1655,6 +1684,22 @@ static int dissect_CSG_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_CSGMembershipStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_hnbap_CSGMembershipStatus(tvb, offset, &asn1_ctx, tree, hf_hnbap_CSGMembershipStatus_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_HNB_Cell_Access_Mode_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_hnbap_HNB_Cell_Access_Mode(tvb, offset, &asn1_ctx, tree, hf_hnbap_HNB_Cell_Access_Mode_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_HNB_Location_Information_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -1684,6 +1729,14 @@ static int dissect_LAC_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_hnbap_LAC(tvb, offset, &asn1_ctx, tree, hf_hnbap_LAC_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_MuxPortNumber_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_hnbap_MuxPortNumber(tvb, offset, &asn1_ctx, tree, hf_hnbap_MuxPortNumber_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -1927,6 +1980,14 @@ void proto_register_hnbap(void) {
       { "CSG-ID", "hnbap.CSG_ID",
         FT_BYTES, BASE_NONE, NULL, 0,
         "hnbap.CSG_ID", HFILL }},
+    { &hf_hnbap_CSGMembershipStatus_PDU,
+      { "CSGMembershipStatus", "hnbap.CSGMembershipStatus",
+        FT_UINT32, BASE_DEC, VALS(hnbap_CSGMembershipStatus_vals), 0,
+        "hnbap.CSGMembershipStatus", HFILL }},
+    { &hf_hnbap_HNB_Cell_Access_Mode_PDU,
+      { "HNB-Cell-Access-Mode", "hnbap.HNB_Cell_Access_Mode",
+        FT_UINT32, BASE_DEC, VALS(hnbap_HNB_Cell_Access_Mode_vals), 0,
+        "hnbap.HNB_Cell_Access_Mode", HFILL }},
     { &hf_hnbap_HNB_Location_Information_PDU,
       { "HNB-Location-Information", "hnbap.HNB_Location_Information",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1943,6 +2004,10 @@ void proto_register_hnbap(void) {
       { "LAC", "hnbap.LAC",
         FT_BYTES, BASE_NONE, NULL, 0,
         "hnbap.LAC", HFILL }},
+    { &hf_hnbap_MuxPortNumber_PDU,
+      { "MuxPortNumber", "hnbap.MuxPortNumber",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "hnbap.MuxPortNumber", HFILL }},
     { &hf_hnbap_PLMNidentity_PDU,
       { "PLMNidentity", "hnbap.PLMNidentity",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -2404,6 +2469,10 @@ proto_reg_handoff_hnbap(void)
   dissector_add("hnbap.ies", id_CSG_ID, new_create_dissector_handle(dissect_CSG_ID_PDU, proto_hnbap));
   dissector_add("hnbap.ies", id_BackoffTimer, new_create_dissector_handle(dissect_BackoffTimer_PDU, proto_hnbap));
   dissector_add("hnbap.extension", id_HNB_Internet_Information, new_create_dissector_handle(dissect_IP_Address_PDU, proto_hnbap));
+  dissector_add("hnbap.extension", id_HNB_Cell_Access_Mode, new_create_dissector_handle(dissect_HNB_Cell_Access_Mode_PDU, proto_hnbap));
+  dissector_add("hnbap.extension", id_MuxPortNumber, new_create_dissector_handle(dissect_MuxPortNumber_PDU, proto_hnbap));
+  dissector_add("hnbap.extension", id_Service_Area_For_Broadcast, new_create_dissector_handle(dissect_SAC_PDU, proto_hnbap));
+  dissector_add("hnbap.extension", id_CSGMembershipStatus, new_create_dissector_handle(dissect_CSGMembershipStatus_PDU, proto_hnbap));
   dissector_add("hnbap.proc.imsg", id_HNBRegister, new_create_dissector_handle(dissect_HNBRegisterRequest_PDU, proto_hnbap));
   dissector_add("hnbap.proc.sout", id_HNBRegister, new_create_dissector_handle(dissect_HNBRegisterAccept_PDU, proto_hnbap));
   dissector_add("hnbap.proc.uout", id_HNBRegister, new_create_dissector_handle(dissect_HNBRegisterReject_PDU, proto_hnbap));
