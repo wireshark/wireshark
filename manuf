@@ -4298,7 +4298,7 @@
 00:10:BA	Martinho-D             # MARTINHO-DAVIS SYSTEMS, INC.
 00:10:BB	DataInform             # DATA & INFORMATION TECHNOLOGY
 00:10:BC	AastraTele             # Aastra Telecom
-00:10:BD	Telecommun             # THE TELECOMMUNICATION TECHNOLOGY COMMITTEE
+00:10:BD	Telecommun             # THE TELECOMMUNICATION TECHNOLOGY COMMITTEE (TTC)
 00:10:BE	Telexis                # TELEXIS CORP.
 00:10:BF	InterairWi             # InterAir Wireless
 00:10:C0	Arma                   # ARMA, Inc.
@@ -8370,7 +8370,7 @@
 00:20:A3	Divicom                # DIVICOM INC.
 00:20:A4	Multipoint             # MULTIPOINT NETWORKS
 00:20:A5	ApiEnginee             # API ENGINEERING
-00:20:A6	Proxim                 # PROXIM, INC.
+00:20:A6	ProximWire             # Proxim Wireless
 00:20:A7	PairgainTe             # PAIRGAIN TECHNOLOGIES, INC.
 00:20:A8	SastTechno             # SAST TECHNOLOGY CORP.
 00:20:A9	WhiteHorse             # WHITE HORSE INDUSTRIAL
@@ -11459,7 +11459,7 @@
 00:50:C2:2D:E0:00/36	ResearchAp             # Research Applications
 00:50:C2:2D:F0:00/36	Micrel-Nke
 00:50:C2:2E:00:00/36	BaxterHeal             # Baxter Healthcare
-00:50:C2:2E:10:00/36	AccessKeyb             # Access Keyboards Ltd
+00:50:C2:2E:10:00/36	AccessIs               # Access IS
 00:50:C2:2E:20:00/36	BallardTec             # Ballard Technology, Inc.
 00:50:C2:2E:30:00/36	MgIndustri             # MG Industrieelektronik GmbH
 00:50:C2:2E:40:00/36	Iamba                  # iamba LTD.
@@ -13810,6 +13810,17 @@
 00:50:C2:C1:50:00/36	Ino-Instit             # INO - Institut National d'Optique
 00:50:C2:C1:60:00/36	OmicronEle             # OMICRON electronics GmbH
 00:50:C2:C1:70:00/36	Axis-Shiel             # Axis-Shield PoC AS
+00:50:C2:C1:80:00/36	Linuxstamp             # Linuxstamp Designs, LLC
+00:50:C2:C1:90:00/36	IbercompSa             # Ibercomp SA
+00:50:C2:C1:A0:00/36	Sam                    # SAM Co., Ltd.
+00:50:C2:C1:B0:00/36	Graesslin              # Graesslin GmbH
+00:50:C2:C1:C0:00/36	BectonDick             # Becton Dickinson
+00:50:C2:C1:D0:00/36	PowerbaseE             # Powerbase Energy Systems Inc.
+00:50:C2:C1:E0:00/36	Peperoni-L             # Peperoni-Light
+00:50:C2:C1:F0:00/36	Specialist             # Specialist Electronics Services Ltd
+00:50:C2:C2:00:00/36	SrcCompute             # SRC Computers, LLC
+00:50:C2:C2:10:00/36	HighgatesT             # Highgates Technology
+00:50:C2:C2:20:00/36	Audient                # Audient Ltd
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -15922,6 +15933,7 @@
 08:76:95	AutoIndust             # Auto Industrial Co., Ltd.
 08:BB:CC	Ak-NordEdv             # AK-NORD EDV VERTRIEBSGES. mbH
 08:F2:F4	NetOnePart             # Net One Partners Co.,Ltd.
+08:F6:F8	GetEnginee             # GET Engineering
 09:00:6A	AT&T
 0C:17:F1	Telecsys
 0C:1D:C2	SeahNetwor             # SeAH Networks
@@ -15959,6 +15971,7 @@
 10:BA:A5	GanaI&C                # GANA I&C CO., LTD
 10:C7:3F	MidasKlark             # Midas Klark Teknik Ltd
 10:CA:81	Precia
+10:CC:DB	AximumProd             # AXIMUM PRODUITS ELECTRONIQUES
 10:E6:AE	SourceTech             # Source Technologies, LLC
 11:00:AA	Private
 14:6E:0A	Private
@@ -15991,6 +16004,7 @@
 24:21:AB	SonyEricss             # Sony Ericsson Mobile Communications
 24:3C:20	DynamodeGr             # Dynamode Group
 24:82:8A	ProwaveTec             # Prowave Technologies Ltd.
+24:A9:37	PureStorag             # PURE Storage
 24:BF:74	Private
 24:CF:21	ShenzhenSt             # Shenzhen State Micro Technology Co., Ltd
 24:D2:CC	Smartdrive             # SmartDrive Systems Inc.
@@ -16023,6 +16037,7 @@
 30:EF:D1	AlstomStro             # Alstom Strongwish (Shenzhen) Co., Ltd.
 34:15:9E	Apple                  # Apple, Inc
 34:7E:39	NokiaDanma             # Nokia Danmark A/S
+34:83:02	Iforcom                # iForcom Co., Ltd
 34:86:2A	HeinzLackm             # Heinz Lackmann GmbH & Co KG
 34:BA:51	Se-KureCon             # Se-Kure Controls, Inc.
 34:C3:AC	SamsungEle             # Samsung Electronics
@@ -16034,11 +16049,13 @@
 38:63:F6	3nodMultim             # 3NOD MULTIMEDIA(SHENZHEN)CO.,LTD
 38:9F:83	OtnNV                  # OTN Systems N.V.
 38:BB:23	OzvisionAm             # OzVision America LLC
+38:C7:BA	CsServices             # CS Services Co.,Ltd.
 38:E7:D8	Htc                    # HTC Corporation
 38:E8:DF	BMedien+Da             # b gmbh medien + datenbanken
 38:E9:8C	RecoSPA                # Reco S.p.A.
 3C:00:00	3Com
 3C:05:AB	ProductCre             # Product Creation Studio
+3C:19:15	GfiChronoT             # GFI Chrono Time
 3C:1C:BE	JadakLlc               # JADAK LLC
 3C:2D:B7	TexasInstr             # Texas Instruments
 3C:39:C3	JwElectron             # JW Electronics Co., Ltd.
@@ -16081,6 +16098,7 @@
 44:E4:9A	Omnitronic             # OMNITRONICS PTY LTD
 44:F4:59	SamsungEle             # Samsung Electronics
 47:54:43	GtcNotRegi             # GTC (Not registered!)		(This number is a multicast!)
+48:12:49	LuxcomTech             # Luxcom Technologies Inc.
 48:1B:D2	IntronScie             # Intron Scientific co., ltd.
 48:34:3D	Iep                    # IEP GmbH
 48:44:53	Hds???                 # HDS ???
@@ -16130,6 +16148,7 @@
 58:94:6B	IntelCorpo             # Intel Corporate
 58:B0:35	Apple                  # Apple, Inc
 58:F6:7B	XiaMenUnio             # Xia Men UnionCore Technology LTD.
+5C:0E:8B	Motorola
 5C:14:37	Thyssenkru             # Thyssenkrupp Aufzugswerke GmbH
 5C:33:8E	AlphaNetwo             # Alpha Networkc Inc.
 5C:35:DA	ThereOy                # There Corporation Oy
@@ -16183,9 +16202,11 @@
 6C:5E:7A	Ubiquitous             # Ubiquitous Internet Telecom Co., Ltd
 6C:6F:18	Stereotaxi             # Stereotaxis, Inc.
 6C:8C:DB	OtusTechno             # Otus Technologies Ltd
+6C:92:BF	InspurElec             # Inspur Electronic Information Industry Co.,Ltd.
 6C:AC:60	Venetex                # Venetex Corp
 6C:BE:E9	Alcatel-Lu             # Alcatel-Lucent-IPD
 6C:D6:8A	LgElectron             # LG Electronics Inc
+6C:DC:6A	Promethean             # Promethean Limited
 6C:F0:49	Giga-ByteT             # GIGA-BYTE TECHNOLOGY CO.,LTD.
 6C:FD:B9	ProwareTec             # Proware Technologies Co Ltd.
 6C:FF:BE	MpbCommuni             # MPB Communications Inc.
@@ -16199,6 +16220,7 @@
 70:71:BC	Pegatron               # PEGATRON CORPORATION
 70:72:CF	EdgecoreNe             # EdgeCore Networks
 70:82:8E	Oleumtech              # OleumTech Corporation
+70:D5:7E	Scalar                 # Scalar Corporation
 70:D5:E7	Wellcore               # Wellcore Corporation
 70:D8:80	UposSystem             # Upos System sp. z o.o.
 70:F1:A1	LiteonTech             # Liteon Technology Corporation
@@ -16222,6 +16244,7 @@
 78:84:EE	IndraEspac             # INDRA ESPACIO S.A.
 78:92:9C	IntelCorpo             # Intel Corporate
 78:99:8F	MedilineIt             # MEDILINE ITALIA SRL
+78:A6:BD	DaeyeonCon             # DAEYEON Control&Instrument Co,.Ltd
 78:B8:1A	InterSales             # INTER SALES A/S
 78:C4:0E	H&DWireles             # H&D Wireless 
 78:DD:08	HonHaiPrec             # Hon Hai Precision Ind. Co.,Ltd. 
@@ -16231,6 +16254,7 @@
 7C:1E:B3	2nTelekomu             # 2N TELEKOMUNIKACE a.s.
 7C:20:64	AlcatelLuc             # Alcatel Lucent IPD
 7C:2C:F3	SecureElec             # Secure Electrans Ltd
+7C:2E:0D	Blackmagic             # Blackmagic Design
 7C:2F:80	GigasetCom             # Gigaset Communications GmbH
 7C:3B:D5	ImagoGroup             # Imago Group
 7C:6C:8F	AmsNeve                # AMS NEVE LTD
@@ -16258,6 +16282,7 @@
 84:C7:27	Gnodal                 # Gnodal Ltd
 88:43:E1	Cisco                  # Cisco Systems
 88:4B:39	SiemensHea             # Siemens AG, Healthcare Sector
+88:87:17	Canon                  # CANON INC.
 88:91:DD	Racktivity
 88:94:F9	GemicomTec             # Gemicom Technology, Inc.
 88:98:21	Teraon
@@ -16381,14 +16406,17 @@ B0:97:3A	E-Fuel                 # E-Fuel Corporation
 B0:AA:36	GuangdongO             # GUANGDONG OPPO MOBILE TELECOMMUNICATIONS CORP.,LTD.
 B0:C6:9A	JuniperNet             # Juniper Networks
 B0:C8:AD	PeoplePowe             # People Power Company
+B0:E3:9D	CatSystem              # CAT SYSTEM CO.,LTD.
 B0:E7:54	2wire
 B0:E9:7E	AdvancedMi             # Advanced Micro Peripherals
 B4:08:32	TcCommunic             # TC Communications
 B4:2C:BE	DirectPaym             # Direct Payment Solutions Limited
+B4:3D:B2	DegreaneHo             # Degreane Horizon
 B4:41:7A	ShenzhenGo             # ShenZhen Gongjin Electronics Co.,Ltd
 B4:58:61	CremoteLlc             # CRemote, LLC
 B4:82:FE	AskeyCompu             # Askey Computer Corp
 B4:B5:AF	MinsungEle             # Minsung Electronics
+B4:ED:19	PieDigital             # Pie Digital, Inc.
 B4:ED:54	WohlerTech             # Wohler Technologies
 B8:64:91	CkTelecom              # CK Telecom Ltd
 B8:65:3B	Bolymin                # Bolymin, Inc.
@@ -16400,6 +16428,7 @@ B8:F7:32	AryakaNetw             # Aryaka Networks Inc
 BC:05:43	Avm                    # AVM GmbH
 BC:4E:3C	CoreStaff              # CORE STAFF CO., LTD.
 BC:6A:16	Tdvine
+BC:77:37	IntelCorpo             # Intel Corporate
 BC:9D:A5	DascomEuro             # DASCOM Europe GmbH
 BC:B1:81	Sharp                  # SHARP CORPORATION
 BC:D5:B6	D2dTechnol             # d2d technologies
@@ -16468,6 +16497,7 @@ D8:28:C9	GeneralEle             # General Electric Consumer and Industrial
 D8:30:62	Apple                  # Apple, Inc
 D8:42:AC	FreecommDa             # FreeComm Data Communication Co.,Ltd.
 D8:54:3A	TexasInstr             # Texas Instruments
+D8:5D:4C	Tp-LinkTec             # TP-LINK Technologies Co.,Ltd.
 D8:AE:90	ItibiaTech             # Itibia Technologies
 D8:C3:FB	Detracom
 D8:D3:85	HewlettPac             # Hewlett Packard
@@ -16481,6 +16511,7 @@ DC:49:C9	CascoSigna             # CASCO SIGNAL LTD
 DC:A9:71	IntelCorpo             # Intel Corporate
 DC:E2:AC	LumensDigi             # Lumens Digital Optics Inc.
 DC:E7:1C	AugElektro             # AUG Elektronik GmbH
+E0:1C:EE	BravoTech              # Bravo Tech, Inc.
 E0:26:30	IntrigueTe             # Intrigue Technologies, Inc.
 E0:26:36	NortelNetw             # Nortel Networks
 E0:27:1A	TtcNext-Ge             # TTC Next-generation Home Network System WG
@@ -16515,9 +16546,11 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 EC:30:91	Cisco                  # Cisco Systems
 EC:43:E6	Awcer                  # AWCER Ltd.
 EC:44:76	Cisco                  # Cisco Systems
+EC:5C:69	Mitsubishi             # MITSUBISHI HEAVY INDUSTRIES MECHATRONICS SYSTEMS,LTD.
 EC:6C:9F	ChengduVol             # Chengdu Volans Technology CO.,LTD
 EC:8E:AD	Dlx
 EC:9B:5B	Nokia                  # Nokia Corporation
+EC:B1:06	AcuroNetwo             # Acuro Networks, Inc
 EC:C8:82	Cisco                  # Cisco Systems
 EC:CD:6D	AlliedTele             # Allied Telesis, Inc.
 EC:D0:0E	Miraerecog             # MiraeRecognition Co., Ltd.
