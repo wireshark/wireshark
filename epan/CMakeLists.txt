@@ -1127,6 +1127,7 @@ ADD_CUSTOM_COMMAND(
 set(LIBWIRESHARK_FILES
 	addr_and_mask.c
 	addr_resolv.c
+	address_to_str.c
 	adler32.c
 	afn.c
 	asn1.c
@@ -1257,11 +1258,11 @@ set(CLEAN_FILES
 )
 
 if (WERROR)
-        set_source_files_properties(
-                ${CLEAN_FILES}
-                PROPERTIES
-                COMPILE_FLAGS -Werror
-        )
+    set_source_files_properties(
+        ${CLEAN_FILES}
+        PROPERTIES
+        COMPILE_FLAGS -Werror
+    )
 endif()
 
 add_library(epan ${LINK_MODE_LIB}
