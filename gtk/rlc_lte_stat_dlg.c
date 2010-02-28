@@ -345,7 +345,8 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     /* Are we ignoring RLC frames that were found in MAC frames, or only those
        that were logged separately? */
-    if (!hs->show_mac && si->loggedInMACFrame) {
+    if ((!hs->show_mac && si->loggedInMACFrame) ||
+        (hs->show_mac && !si->loggedInMACFrame)) {
         return 0;
     }
 
