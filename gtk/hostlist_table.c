@@ -313,6 +313,28 @@ hostlist_sort_column(GtkTreeModel *model,
         return(CMP_ADDRESS(&host1->address, &host2->address));
     case 1: /* (Port) */
         CMP_INT(host1->port, host2->port);
+#ifdef HAVE_GEOIP
+    default:
+        {
+            gchar *text1, *text2;
+            double loc1 = 0, loc2 = 0;
+            
+            gtk_tree_model_get(model, a, data_column, &text1, -1);
+            gtk_tree_model_get(model, b, data_column, &text2, -1);
+            
+            if (text1) {
+                loc1 = atof(text1);
+                g_free(text1);
+            }
+
+            if (text2) {
+                loc2 = atof(text2);
+                g_free(text2);
+            }
+            CMP_INT(loc1, loc2);
+        }
+        break;
+#endif
     }
     g_assert_not_reached();
     return 0;
@@ -1094,8 +1116,16 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
         default: /* GEOIP */
             column = gtk_tree_view_column_new_with_attributes (hosttable->default_titles[i], renderer, "text", 
                                                                i, NULL);
-
             gtk_tree_view_column_set_visible(column, FALSE);
+#ifdef HAVE_GEOIP
+            if (i >= NUM_BUILTIN_COLS && i - NUM_BUILTIN_COLS < geoip_db_num_dbs()) {
+                int goip_type = geoip_db_type(i - NUM_BUILTIN_COLS);
+                if (goip_type == WS_LON_FAKE_EDITION || goip_type == WS_LAT_FAKE_EDITION) {
+                    g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
+                    gtk_tree_sortable_set_sort_func(sortable, i, hostlist_sort_column, GINT_TO_POINTER(i), NULL);
+                }
+            }
+#endif
             break;
         }
         gtk_tree_view_column_set_sort_column_id(column, i);
