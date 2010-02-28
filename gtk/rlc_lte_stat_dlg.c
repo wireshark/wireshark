@@ -65,9 +65,11 @@ enum {
     UL_FRAMES_COLUMN,
     UL_BYTES_COLUMN,
     UL_NACKS_COLUMN,
+    UL_MISSING_COLUMN,
     DL_FRAMES_COLUMN,
     DL_BYTES_COLUMN,
     DL_NACKS_COLUMN,
+    DL_MISSING_COLUMN,
     UE_TABLE_COLUMN,
     NUM_UE_COLUMNS
 };
@@ -79,21 +81,23 @@ enum {
     CHANNEL_UL_BYTES,
     CHANNEL_UL_ACKS,
     CHANNEL_UL_NACKS,
+    CHANNEL_UL_MISSING,
     CHANNEL_DL_FRAMES,
     CHANNEL_DL_BYTES,
     CHANNEL_DL_ACKS,
     CHANNEL_DL_NACKS,
+    CHANNEL_DL_MISSING,
     CHANNEL_TABLE_COLUMN,
     NUM_CHANNEL_COLUMNS
 };
 
 static const gchar *ue_titles[] = { "UEId",
-                                    "UL Frames", "UL Bytes", "UL NACKs",
-                                    "DL Frames", "DL Bytes", "DL NACKs"};
+                                    "UL Frames", "UL Bytes", "UL NACKs", "UL Missing",
+                                    "DL Frames", "DL Bytes", "DL NACKs", "DL Missing"};
 
 static const gchar *channel_titles[] = { "", "Mode",
-                                         "UL Frames", "UL Bytes", "UL ACKs", "UL NACKs",
-                                         "DL Frames", "DL Bytes", "DL ACKs", "DL NACKs"};
+                                         "UL Frames", "UL Bytes", "UL ACKs", "UL NACKs", "UL Missing",
+                                         "DL Frames", "DL Bytes", "DL ACKs", "DL NACKs", "DL Missing"};
 
 /* Stats kept for one channel */
 typedef struct rlc_channel_stats {
@@ -113,6 +117,9 @@ typedef struct rlc_channel_stats {
     guint32 DL_acks;
     guint32 DL_nacks;
 
+    guint32 UL_missing;
+    guint32 DL_missing;
+
     GtkTreeIter iter;
     gboolean iter_valid;
 } rlc_channel_stats;
@@ -127,10 +134,12 @@ typedef struct rlc_lte_row_data {
     guint32 UL_frames;
     guint32 UL_total_bytes;
     guint32 UL_total_nacks;
+    guint32 UL_total_missing;
 
     guint32 DL_frames;
     guint32 DL_total_bytes;
     guint32 DL_total_nacks;
+    guint32 DL_total_missing;
 
     rlc_channel_stats CCCH_stats;
     rlc_channel_stats srb_stats[2];
@@ -291,6 +300,8 @@ static rlc_lte_ep_t* alloc_rlc_lte_ep(struct rlc_lte_tap_info *si, packet_info *
     ep->stats.DL_total_bytes = 0;
     ep->stats.UL_total_nacks = 0;
     ep->stats.DL_total_nacks = 0;
+    ep->stats.UL_total_missing = 0;
+    ep->stats.DL_total_missing = 0;
 
     memset(&ep->stats.CCCH_stats, 0, sizeof(rlc_channel_stats));
     for (n=0; n < 2; n++) {
@@ -447,19 +458,23 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         channel_stats->UL_frames++;
         channel_stats->UL_bytes += si->pduLength;
         channel_stats->UL_nacks += si->noOfNACKs;
+        channel_stats->UL_missing += si->missingSNs;
         if (si->isControlPDU) {
             channel_stats->UL_acks++;
         }
         te->stats.UL_total_nacks += si->noOfNACKs;
+        te->stats.UL_total_missing += si->missingSNs;
     }
     else {
         channel_stats->DL_frames++;
         channel_stats->DL_bytes += si->pduLength;
         channel_stats->DL_nacks += si->noOfNACKs;
+        channel_stats->DL_missing += si->missingSNs;
         if (si->isControlPDU) {
             channel_stats->DL_acks++;
         }
         te->stats.DL_total_nacks += si->noOfNACKs;
+        te->stats.DL_total_missing += si->missingSNs;
     }
 
     return 1;
@@ -549,10 +564,12 @@ rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
                                CHANNEL_UL_BYTES, channel_stats->UL_bytes,
                                CHANNEL_UL_ACKS, channel_stats->UL_acks,
                                CHANNEL_UL_NACKS, channel_stats->UL_nacks,
+                               CHANNEL_UL_MISSING, channel_stats->UL_missing,
                                CHANNEL_DL_FRAMES, channel_stats->DL_frames,
                                CHANNEL_DL_BYTES, channel_stats->DL_bytes,
                                CHANNEL_DL_ACKS, channel_stats->DL_acks,
                                CHANNEL_DL_NACKS, channel_stats->DL_nacks,
+                               CHANNEL_DL_MISSING, channel_stats->DL_missing,
                                CHANNEL_TABLE_COLUMN, channel_stats,
                                -1);
         }
@@ -580,10 +597,12 @@ rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
                                CHANNEL_UL_BYTES, channel_stats->UL_bytes,
                                CHANNEL_UL_ACKS, channel_stats->UL_acks,
                                CHANNEL_UL_NACKS, channel_stats->UL_nacks,
+                               CHANNEL_UL_MISSING, channel_stats->UL_missing,
                                CHANNEL_DL_FRAMES, channel_stats->DL_frames,
                                CHANNEL_DL_BYTES, channel_stats->DL_bytes,
                                CHANNEL_DL_ACKS, channel_stats->DL_acks,
                                CHANNEL_DL_NACKS, channel_stats->DL_nacks,
+                               CHANNEL_DL_MISSING, channel_stats->DL_missing,
                                CHANNEL_TABLE_COLUMN, channel_stats,
                                -1);
         }
@@ -651,9 +670,11 @@ rlc_lte_stat_draw(void *phs)
                            UL_FRAMES_COLUMN, tmp->stats.UL_frames,
                            UL_BYTES_COLUMN, tmp->stats.UL_total_bytes,
                            UL_NACKS_COLUMN, tmp->stats.UL_total_nacks,
+                           UL_MISSING_COLUMN, tmp->stats.UL_total_missing,
                            DL_FRAMES_COLUMN, tmp->stats.DL_frames,
                            DL_BYTES_COLUMN, tmp->stats.DL_total_bytes,
                            DL_NACKS_COLUMN, tmp->stats.DL_total_nacks,
+                           DL_MISSING_COLUMN, tmp->stats.DL_total_missing,
                            UE_TABLE_COLUMN, tmp,
                            -1);
     }
@@ -1143,8 +1164,8 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
 
     /* Create the table of UE data */
     store = gtk_list_store_new(NUM_UE_COLUMNS, G_TYPE_INT,
-                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* UL */
-                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* DL */
+                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* UL */
+                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* DL */
                                G_TYPE_POINTER);
     hs->ue_table = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
     gtk_container_add(GTK_CONTAINER (ues_scrolled_window), GTK_WIDGET(hs->ue_table));
@@ -1198,8 +1219,8 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     /* Create the table of UE data */
     store = gtk_list_store_new(NUM_CHANNEL_COLUMNS,
                                G_TYPE_STRING, G_TYPE_STRING, /* name & type */
-                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* UL */
-                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* DL */
+                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* UL */
+                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* DL */
                                G_TYPE_POINTER);
     hs->channel_table = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
     gtk_container_add(GTK_CONTAINER (channels_scrolled_window), GTK_WIDGET(hs->channel_table));

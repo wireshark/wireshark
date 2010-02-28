@@ -51,7 +51,7 @@
 #define SEQUENCE_ANALYSIS_MAC_ONLY 1
 #define SEQUENCE_ANALYSIS_RLC_ONLY 2
 
-/* By default try to analyse the sequence of messages for AM/UM channels */
+/* By default don't try to analyse the sequence of messages for AM/UM channels */
 static gint global_rlc_lte_am_sequence_analysis = FALSE;
 static gint global_rlc_lte_um_sequence_analysis = FALSE;
 
@@ -512,9 +512,11 @@ static GHashTable *rlc_lte_frame_report_hash = NULL;
 
 /* Add to the tree values associated with sequence analysis for this frame */
 static void addChannelSequenceInfo(state_report_in_frame *p,
+                                   guint16   UEId,
                                    guint8    rlcMode,
                                    guint16   sequenceNumber,
                                    gboolean  newSegmentStarted,
+                                   rlc_lte_tap_info *tap_info,
                                    packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
     proto_tree *seqnum_tree;
@@ -544,39 +546,44 @@ static void addChannelSequenceInfo(state_report_in_frame *p,
         
                 case SN_Retx:
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_retx,
-                                             tvb, 0, 0, TRUE);
+                                                tvb, 0, 0, TRUE);
                     PROTO_ITEM_SET_GENERATED(ti);
                     expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                           "AM Frame retransmitted - most likely in response to NACK");
+                                           "AM Frame retransmitted for UE %u - most likely in response to NACK",
+                                           UEId);
                     proto_item_append_text(seqnum_ti, " - SN %u retransmitted", p->firstSN);
                     break;
-        
+
                 case SN_Repeated:
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_repeated,
                                                 tvb, 0, 0, TRUE);
                     PROTO_ITEM_SET_GENERATED(ti);
                     expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                           "AM SN Repeated - probably because didn't receive Status PDU, or maybe MAC Retx?");
+                                           "AM SN Repeated for UE %u - probably because didn't receive Status PDU, or maybe MAC Retx?",
+                                           UEId);
                     proto_item_append_text(seqnum_ti, "- SN %u Repeated",
                                            p->sequenceExpected);
                     break;
-        
+
                 case SN_Missing:
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_skipped,
                                                 tvb, 0, 0, TRUE);
                     PROTO_ITEM_SET_GENERATED(ti);
                     if (p->lastSN != p->firstSN) {
                         expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                               "AM SNs missing (%u to %u)",
-                                               p->firstSN, p->lastSN);
+                                               "AM SNs missing for UE %u (%u to %u)",
+                                               UEId, p->firstSN, p->lastSN);
                         proto_item_append_text(seqnum_ti, " - SNs missing (%u to %u)",
                                                p->firstSN, p->lastSN);
+                        tap_info->missingSNs = ((p->lastSN - p->firstSN) % 1024) + 1;
                     }
                     else {
                         expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                               "AM SN missing (%u)", p->firstSN);
+                                               "AM SN missing for UE %u (%u)",
+                                               UEId, p->firstSN);
                         proto_item_append_text(seqnum_ti, " - SN missing (%u)",
                                                p->firstSN);
+                        tap_info->missingSNs = 1;
                     }
                     break;
             }
@@ -603,8 +610,8 @@ static void addChannelSequenceInfo(state_report_in_frame *p,
             if (!p->sequenceExpectedCorrect) {
                 /* Incorrect sequence number */
                 expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                       "Wrong Sequence Number - got %u, expected %u",
-                                       sequenceNumber, p->sequenceExpected);
+                                       "Wrong Sequence Number for UE %u - got %u, expected %u",
+                                       UEId, sequenceNumber, p->sequenceExpected);
             }
             else {
                 /* Correct sequence number, so check frame indication bits consistent */
@@ -615,7 +622,8 @@ static void addChannelSequenceInfo(state_report_in_frame *p,
                                                      tvb, 0, 0, FALSE);
                         if (!p->sequenceExpectedCorrect) {
                             expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                                   "Last segment of previous PDU was not continued");
+                                                   "Last segment of previous PDU was not continued for UE %u",
+                                                   UEId);
                         }
                     }
                     else {
@@ -642,7 +650,6 @@ static void addChannelSequenceInfo(state_report_in_frame *p,
                 PROTO_ITEM_SET_GENERATED(ti);
             }
     }
-
 }
 
 /* Update the channel status and set report for this frame */
@@ -651,6 +658,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                                      guint16 sequenceNumber,
                                      gboolean first_includes_start, gboolean last_includes_end,
                                      gboolean is_resegmented _U_,
+                                     rlc_lte_tap_info *tap_info,
                                      proto_tree *tree)
 {
     rlc_channel_hash_key   channel_key;
@@ -665,9 +673,10 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
         p_report_in_frame = (state_report_in_frame*)g_hash_table_lookup(rlc_lte_frame_report_hash,
                                                                         &pinfo->fd->num);
         if (p_report_in_frame != NULL) {
-            addChannelSequenceInfo(p_report_in_frame, p_rlc_lte_info->rlcMode,
+            addChannelSequenceInfo(p_report_in_frame, p_rlc_lte_info->ueid,
+                                   p_rlc_lte_info->rlcMode,
                                    sequenceNumber, first_includes_start,
-                                   pinfo, tree, tvb);
+                                   tap_info, pinfo, tree, tvb);
             return;
         }
         else {
@@ -821,8 +830,9 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     g_hash_table_insert(rlc_lte_frame_report_hash, &pinfo->fd->num, p_report_in_frame);
 
     /* Add state report for this frame into tree */
-    addChannelSequenceInfo(p_report_in_frame, p_rlc_lte_info->rlcMode, sequenceNumber,
-                           first_includes_start, pinfo, tree, tvb);
+    addChannelSequenceInfo(p_report_in_frame, p_rlc_lte_info->ueid,
+                           p_rlc_lte_info->rlcMode, sequenceNumber,
+                           first_includes_start, tap_info, pinfo, tree, tvb);
 }
 
 
@@ -1023,7 +1033,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
         checkChannelSequenceInfo(pinfo, tvb, p_rlc_lte_info,
                                 (guint16)sn, first_includes_start, last_includes_end,
                                 FALSE, /* UM doesn't re-segment */
-                                um_header_tree);
+                                tap_info, um_header_tree);
     }
 
 
@@ -1333,8 +1343,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
         checkChannelSequenceInfo(pinfo, tvb, p_rlc_lte_info, (guint16)sn,
                                  first_includes_start, last_includes_end,
-                                 is_resegmented,
-                                 tree);
+                                 is_resegmented, tap_info, tree);
     }
 
 
@@ -2013,7 +2022,7 @@ void proto_register_rlc_lte(void)
 
     prefs_register_enum_preference(rlc_lte_module, "do_sequence_analysis_am",
         "Do sequence analysis for AM channels",
-        "Attempt to keep track of PDUs for UM channels, and point out problems",
+        "Attempt to keep track of PDUs for AM channels, and point out problems",
         &global_rlc_lte_am_sequence_analysis, sequence_analysis_vals, FALSE);
 
     prefs_register_enum_preference(rlc_lte_module, "do_sequence_analysis",

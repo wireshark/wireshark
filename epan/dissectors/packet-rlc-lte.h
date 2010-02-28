@@ -79,6 +79,8 @@ typedef struct rlc_lte_tap_info {
     #define MAX_NACKs 128
     guint8          noOfNACKs;
     guint16         NACKs[MAX_NACKs];
+
+    guint16         missingSNs;
 } rlc_lte_tap_info;
 
 
