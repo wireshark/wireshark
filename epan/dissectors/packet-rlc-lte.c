@@ -124,6 +124,7 @@ static int hf_rlc_lte_header_only = -1;
 
 /* Sequence Analysis */
 static int hf_rlc_lte_sequence_analysis = -1;
+static int hf_rlc_lte_sequence_analysis_ok = -1;
 static int hf_rlc_lte_sequence_analysis_previous_frame = -1;
 static int hf_rlc_lte_sequence_analysis_expected_sn = -1;
 static int hf_rlc_lte_sequence_analysis_framing_info_correct = -1;
@@ -541,10 +542,16 @@ static void addChannelSequenceInfo(state_report_in_frame *p,
             /********************************************/
             switch (p->amState) {
                 case SN_OK:
+                    ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
+                                                tvb, 0, 0, TRUE);
+                    PROTO_ITEM_SET_GENERATED(ti);
                     proto_item_append_text(seqnum_ti, " - OK");
                     break;
         
                 case SN_Retx:
+                    ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
+                                                tvb, 0, 0, FALSE);
+                    PROTO_ITEM_SET_GENERATED(ti);
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_retx,
                                                 tvb, 0, 0, TRUE);
                     PROTO_ITEM_SET_GENERATED(ti);
@@ -555,6 +562,9 @@ static void addChannelSequenceInfo(state_report_in_frame *p,
                     break;
 
                 case SN_Repeated:
+                    ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
+                                                tvb, 0, 0, FALSE);
+                    PROTO_ITEM_SET_GENERATED(ti);
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_repeated,
                                                 tvb, 0, 0, TRUE);
                     PROTO_ITEM_SET_GENERATED(ti);
@@ -566,6 +576,9 @@ static void addChannelSequenceInfo(state_report_in_frame *p,
                     break;
 
                 case SN_Missing:
+                    ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
+                                                tvb, 0, 0, FALSE);
+                    PROTO_ITEM_SET_GENERATED(ti);
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_skipped,
                                                 tvb, 0, 0, TRUE);
                     PROTO_ITEM_SET_GENERATED(ti);
@@ -794,11 +807,19 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
             }
 
             else {
-                /* Need to work out if new (with skips, or likely a retx (due to NACK) */
-                int delta;
-               
-                delta = (sequenceNumber - expectedSequenceNumber);
-                if (delta > 0) {
+                /* Need to work out if new (with skips, or likely a retx (due to NACK)) */
+                int delta  = (1024 + expectedSequenceNumber - sequenceNumber) % 1024;
+
+                /* Rx window is 512, so check to see if this is a retx */
+                if (delta < 512) {
+                    /* Probably a retx due to receiving NACK */
+                    p_report_in_frame->amState = SN_Retx;
+
+                    p_report_in_frame->firstSN = sequenceNumber;
+                    /* Don't update anything in channel state */
+                }
+
+                else {
                     /* Ahead of expected SN. Assume frames have been missed */
                     p_report_in_frame->amState = SN_Missing;
 
@@ -810,13 +831,6 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                     p_channel_status->previousSequenceNumber = sequenceNumber;
                     p_channel_status->previousFrameNum = pinfo->fd->num;
                     p_channel_status->previousSegmentIncomplete = !last_includes_end;
-                }
-                else {
-                    /* Probably a retx due to receiving NACK */
-                    p_report_in_frame->amState = SN_Retx;
-
-                    p_report_in_frame->firstSN = sequenceNumber;
-                    /* Don't update anything in channel state */
                 }
             }
             break;
@@ -1940,6 +1954,12 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_sequence_analysis,
             { "Sequence Analysis",
               "rlc-lte.sequence-analysis", FT_STRING, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_rlc_lte_sequence_analysis_ok,
+            { "OK",
+              "rlc-lte.sequence-analysis.ok", FT_BOOLEAN, BASE_NONE, 0, 0x0,
               NULL, HFILL
             }
         },
