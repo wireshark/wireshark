@@ -20,6 +20,9 @@ GSMCellGroupingList
 MeasuredResultOnSecULFreq
 TriggeringCondition3
 UE-Positioning-GANSS-Data
+GANSSDecipheringKeys
+GSM-CellID
+IntraFrequencyMeasuredResultsListOnSecULFreq
 #.END
 
 #.PDU
