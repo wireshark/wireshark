@@ -240,9 +240,6 @@ static int hf_HI2Operations_iRITransaction = -1;  /* IRITransactionType */
 static int hf_HI2Operations_iRITransactionNumber = -1;  /* INTEGER */
 static int hf_HI2Operations_userSignal = -1;      /* UserSignalType */
 static int hf_HI2Operations_cryptoCheckSum = -1;  /* BIT_STRING */
-static int hf_HI2Operations_trafficPacket = -1;   /* BIT_STRING */
-static int hf_HI2Operations_cryptoChecksum = -1;  /* BIT_STRING */
-static int hf_HI2Operations_correspondentCount = -1;  /* INTEGER */
 static int hf_HI2Operations_copySignal = -1;      /* BIT_STRING */
 static int hf_HI2Operations_interpretedSignal = -1;  /* INTEGER */
 static int hf_HI2Operations_cdcPdu = -1;          /* CdcPdu */
@@ -337,21 +334,7 @@ static int hf_HI2Operations_lastRedirectingNumber = -1;  /* VisibleString_SIZE_1
 static int hf_HI2Operations_redirectingName = -1;  /* VisibleString_SIZE_1_40_ */
 static int hf_HI2Operations_redirectingReason = -1;  /* VisibleString_SIZE_1_40_ */
 static int hf_HI2Operations_messageWaitingNotif = -1;  /* VisibleString_SIZE_1_40_ */
-static int hf_HI2Operations_timeStamp_01 = -1;    /* UTCTime */
-static int hf_HI2Operations_invokeId = -1;        /* INTEGER */
-static int hf_HI2Operations_targetAddress = -1;   /* AddressType */
-static int hf_HI2Operations_expiryDateTime = -1;  /* UTCTime */
-static int hf_HI2Operations_targetname = -1;      /* VisibleString */
-static int hf_HI2Operations_additionaltargetdata = -1;  /* VisibleString */
-static int hf_HI2Operations_monitorServiceList = -1;  /* SEQUENCE_OF_ActivityType */
-static int hf_HI2Operations_monitorServiceList_item = -1;  /* ActivityType */
-static int hf_HI2Operations_result = -1;          /* BOOLEAN */
 static int hf_HI2Operations_tLIInstanceid = -1;   /* TLIIdType */
-static int hf_HI2Operations_modificationNumber = -1;  /* INTEGER */
-static int hf_HI2Operations_modificationType = -1;  /* T_modificationType */
-static int hf_HI2Operations_halt = -1;            /* BOOLEAN */
-static int hf_HI2Operations_reset = -1;           /* BOOLEAN */
-static int hf_HI2Operations_tETRASysStatus = -1;  /* StatusType */
 static int hf_HI2Operations_targetLocation_01 = -1;  /* LocationType_en301040 */
 static int hf_HI2Operations_targetAction = -1;    /* ActivityType */
 static int hf_HI2Operations_supplementaryTargetaddress = -1;  /* AddressType */
@@ -363,6 +346,7 @@ static int hf_HI2Operations_targetlocation = -1;  /* LocationType_en301040 */
 static int hf_HI2Operations_targetcommsid = -1;   /* CircuitIdType */
 static int hf_HI2Operations_cotargetcommsid = -1;  /* SEQUENCE_OF_CircuitIdType */
 static int hf_HI2Operations_cotargetcommsid_item = -1;  /* CircuitIdType */
+static int hf_HI2Operations_trafficPacket = -1;   /* BIT_STRING */
 static int hf_HI2Operations_cctivity = -1;        /* ActivityClassType */
 static int hf_HI2Operations_callRelation = -1;    /* T_callRelation */
 static int hf_HI2Operations_direction_01 = -1;    /* T_direction */
@@ -455,8 +439,6 @@ static gint ett_HI2Operations_T_both_IRI_CC = -1;
 static gint ett_HI2Operations_IRI_to_CC_Correlation = -1;
 static gint ett_HI2Operations_T_cc = -1;
 static gint ett_HI2Operations_TARGETACTIVITYMONITOR_1 = -1;
-static gint ett_HI2Operations_TTRAFFIC = -1;
-static gint ett_HI2Operations_CTTRAFFIC = -1;
 static gint ett_HI2Operations_UserSignalType = -1;
 static gint ett_HI2Operations_LocationType = -1;
 static gint ett_HI2Operations_CdcPdu = -1;
@@ -483,13 +465,6 @@ static gint ett_HI2Operations_T_sepCCCpair = -1;
 static gint ett_HI2Operations_PartyId = -1;
 static gint ett_HI2Operations_RedirectedFromInfo = -1;
 static gint ett_HI2Operations_TerminalDisplayInfo = -1;
-static gint ett_HI2Operations_LIACTIVATEreq = -1;
-static gint ett_HI2Operations_SEQUENCE_OF_ActivityType = -1;
-static gint ett_HI2Operations_LIACTIVATEconf = -1;
-static gint ett_HI2Operations_LIMODIFYreq = -1;
-static gint ett_HI2Operations_T_modificationType = -1;
-static gint ett_HI2Operations_LIMODIFYconf = -1;
-static gint ett_HI2Operations_LISTATUSind = -1;
 static gint ett_HI2Operations_TARGETACTIVITYMONITORind = -1;
 static gint ett_HI2Operations_SEQUENCE_OF_AddressType = -1;
 static gint ett_HI2Operations_SEQUENCE_OF_LocationType_en301040 = -1;
@@ -3786,177 +3761,6 @@ dissect_HI2Operations_IRIsContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t TTRAFFIC_sequence[] = {
-  { &hf_HI2Operations_version, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_INTEGER },
-  { &hf_HI2Operations_lIInstanceid, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_LIIDType },
-  { &hf_HI2Operations_iRITransactionNumber, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_INTEGER },
-  { &hf_HI2Operations_trafficPacket, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_BIT_STRING },
-  { &hf_HI2Operations_cryptoChecksum, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_BIT_STRING },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_HI2Operations_TTRAFFIC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TTRAFFIC_sequence, hf_index, ett_HI2Operations_TTRAFFIC);
-
-  return offset;
-}
-
-
-static const ber_sequence_t CTTRAFFIC_sequence[] = {
-  { &hf_HI2Operations_version, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_INTEGER },
-  { &hf_HI2Operations_lIInstanceid, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_LIIDType },
-  { &hf_HI2Operations_correspondentCount, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_INTEGER },
-  { &hf_HI2Operations_iRITransactionNumber, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_INTEGER },
-  { &hf_HI2Operations_trafficPacket, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_BIT_STRING },
-  { &hf_HI2Operations_cryptoChecksum, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_BIT_STRING },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_HI2Operations_CTTRAFFIC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CTTRAFFIC_sequence, hf_index, ett_HI2Operations_CTTRAFFIC);
-
-  return offset;
-}
-
-
-
-static int
-dissect_HI2Operations_VisibleString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_VisibleString,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t SEQUENCE_OF_ActivityType_sequence_of[1] = {
-  { &hf_HI2Operations_monitorServiceList_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_ActivityType },
-};
-
-static int
-dissect_HI2Operations_SEQUENCE_OF_ActivityType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_OF_ActivityType_sequence_of, hf_index, ett_HI2Operations_SEQUENCE_OF_ActivityType);
-
-  return offset;
-}
-
-
-static const ber_sequence_t LIACTIVATEreq_sequence[] = {
-  { &hf_HI2Operations_timeStamp_01, BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_UTCTime },
-  { &hf_HI2Operations_invokeId, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_INTEGER },
-  { &hf_HI2Operations_targetAddress, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_AddressType },
-  { &hf_HI2Operations_expiryDateTime, BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_UTCTime },
-  { &hf_HI2Operations_targetname, BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_VisibleString },
-  { &hf_HI2Operations_additionaltargetdata, BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_VisibleString },
-  { &hf_HI2Operations_monitorServiceList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_SEQUENCE_OF_ActivityType },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_HI2Operations_LIACTIVATEreq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LIACTIVATEreq_sequence, hf_index, ett_HI2Operations_LIACTIVATEreq);
-
-  return offset;
-}
-
-
-
-static int
-dissect_HI2Operations_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t LIACTIVATEconf_sequence[] = {
-  { &hf_HI2Operations_timeStamp_01, BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_UTCTime },
-  { &hf_HI2Operations_invokeId, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_INTEGER },
-  { &hf_HI2Operations_result, BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_BOOLEAN },
-  { &hf_HI2Operations_tLIInstanceid, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_TLIIdType },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_HI2Operations_LIACTIVATEconf(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LIACTIVATEconf_sequence, hf_index, ett_HI2Operations_LIACTIVATEconf);
-
-  return offset;
-}
-
-
-static const value_string HI2Operations_T_modificationType_vals[] = {
-  {   0, "halt" },
-  {   1, "reset" },
-  {   2, "expiryDateTime" },
-  {   3, "targetname" },
-  {   4, "additionaltargetdata" },
-  {   5, "monitorServiceList" },
-  { 0, NULL }
-};
-
-static const ber_choice_t T_modificationType_choice[] = {
-  {   0, &hf_HI2Operations_halt  , BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_BOOLEAN },
-  {   1, &hf_HI2Operations_reset , BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_BOOLEAN },
-  {   2, &hf_HI2Operations_expiryDateTime, BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_UTCTime },
-  {   3, &hf_HI2Operations_targetname, BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_VisibleString },
-  {   4, &hf_HI2Operations_additionaltargetdata, BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_VisibleString },
-  {   5, &hf_HI2Operations_monitorServiceList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_SEQUENCE_OF_ActivityType },
-  { 0, NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_HI2Operations_T_modificationType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 T_modificationType_choice, hf_index, ett_HI2Operations_T_modificationType,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t LIMODIFYreq_sequence[] = {
-  { &hf_HI2Operations_tLIInstanceid, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_TLIIdType },
-  { &hf_HI2Operations_timestamp, BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_UTCTime },
-  { &hf_HI2Operations_modificationNumber, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_INTEGER },
-  { &hf_HI2Operations_modificationType, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_T_modificationType },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_HI2Operations_LIMODIFYreq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LIMODIFYreq_sequence, hf_index, ett_HI2Operations_LIMODIFYreq);
-
-  return offset;
-}
-
-
-static const ber_sequence_t LIMODIFYconf_sequence[] = {
-  { &hf_HI2Operations_tLIInstanceid, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_TLIIdType },
-  { &hf_HI2Operations_timestamp, BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_UTCTime },
-  { &hf_HI2Operations_modificationNumber, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_INTEGER },
-  { &hf_HI2Operations_result, BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_BOOLEAN },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_HI2Operations_LIMODIFYconf(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LIMODIFYconf_sequence, hf_index, ett_HI2Operations_LIMODIFYconf);
-
-  return offset;
-}
-
-
 static const value_string HI2Operations_StatusType_vals[] = {
   {   0, "networkFullyAvailable" },
   {   1, "networkErrorsAffectingIntercept" },
@@ -3971,22 +3775,6 @@ static int
 dissect_HI2Operations_StatusType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t LISTATUSind_sequence[] = {
-  { &hf_HI2Operations_tLIInstanceid, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_TLIIdType },
-  { &hf_HI2Operations_timestamp, BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_UTCTime },
-  { &hf_HI2Operations_tETRASysStatus, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_StatusType },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_HI2Operations_LISTATUSind(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LISTATUSind_sequence, hf_index, ett_HI2Operations_LISTATUSind);
 
   return offset;
 }
@@ -4752,18 +4540,6 @@ void proto_register_HI2Operations(void) {
       { "cryptoCheckSum", "HI2Operations.cryptoCheckSum",
         FT_BYTES, BASE_NONE, NULL, 0,
         "HI2Operations.BIT_STRING", HFILL }},
-    { &hf_HI2Operations_trafficPacket,
-      { "trafficPacket", "HI2Operations.trafficPacket",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "HI2Operations.BIT_STRING", HFILL }},
-    { &hf_HI2Operations_cryptoChecksum,
-      { "cryptoChecksum", "HI2Operations.cryptoChecksum",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "HI2Operations.BIT_STRING", HFILL }},
-    { &hf_HI2Operations_correspondentCount,
-      { "correspondentCount", "HI2Operations.correspondentCount",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "HI2Operations.INTEGER", HFILL }},
     { &hf_HI2Operations_copySignal,
       { "copySignal", "HI2Operations.copySignal",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -5140,66 +4916,10 @@ void proto_register_HI2Operations(void) {
       { "messageWaitingNotif", "HI2Operations.messageWaitingNotif",
         FT_STRING, BASE_NONE, NULL, 0,
         "HI2Operations.VisibleString_SIZE_1_40_", HFILL }},
-    { &hf_HI2Operations_timeStamp_01,
-      { "timeStamp", "HI2Operations.timeStamp",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "HI2Operations.UTCTime", HFILL }},
-    { &hf_HI2Operations_invokeId,
-      { "invokeId", "HI2Operations.invokeId",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "HI2Operations.INTEGER", HFILL }},
-    { &hf_HI2Operations_targetAddress,
-      { "targetAddress", "HI2Operations.targetAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "HI2Operations.AddressType", HFILL }},
-    { &hf_HI2Operations_expiryDateTime,
-      { "expiryDateTime", "HI2Operations.expiryDateTime",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "HI2Operations.UTCTime", HFILL }},
-    { &hf_HI2Operations_targetname,
-      { "targetname", "HI2Operations.targetname",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "HI2Operations.VisibleString", HFILL }},
-    { &hf_HI2Operations_additionaltargetdata,
-      { "additionaltargetdata", "HI2Operations.additionaltargetdata",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "HI2Operations.VisibleString", HFILL }},
-    { &hf_HI2Operations_monitorServiceList,
-      { "monitorServiceList", "HI2Operations.monitorServiceList",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "HI2Operations.SEQUENCE_OF_ActivityType", HFILL }},
-    { &hf_HI2Operations_monitorServiceList_item,
-      { "ActivityType", "HI2Operations.ActivityType",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "HI2Operations.ActivityType", HFILL }},
-    { &hf_HI2Operations_result,
-      { "result", "HI2Operations.result",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "HI2Operations.BOOLEAN", HFILL }},
     { &hf_HI2Operations_tLIInstanceid,
       { "tLIInstanceid", "HI2Operations.tLIInstanceid",
         FT_BYTES, BASE_NONE, NULL, 0,
         "HI2Operations.TLIIdType", HFILL }},
-    { &hf_HI2Operations_modificationNumber,
-      { "modificationNumber", "HI2Operations.modificationNumber",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "HI2Operations.INTEGER", HFILL }},
-    { &hf_HI2Operations_modificationType,
-      { "modificationType", "HI2Operations.modificationType",
-        FT_UINT32, BASE_DEC, VALS(HI2Operations_T_modificationType_vals), 0,
-        "HI2Operations.T_modificationType", HFILL }},
-    { &hf_HI2Operations_halt,
-      { "halt", "HI2Operations.halt",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "HI2Operations.BOOLEAN", HFILL }},
-    { &hf_HI2Operations_reset,
-      { "reset", "HI2Operations.reset",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "HI2Operations.BOOLEAN", HFILL }},
-    { &hf_HI2Operations_tETRASysStatus,
-      { "tETRASysStatus", "HI2Operations.tETRASysStatus",
-        FT_UINT32, BASE_DEC, VALS(HI2Operations_StatusType_vals), 0,
-        "HI2Operations.StatusType", HFILL }},
     { &hf_HI2Operations_targetLocation_01,
       { "targetLocation", "HI2Operations.targetLocation",
         FT_UINT32, BASE_DEC, VALS(HI2Operations_LocationType_en301040_vals), 0,
@@ -5244,6 +4964,10 @@ void proto_register_HI2Operations(void) {
       { "CircuitIdType", "HI2Operations.CircuitIdType",
         FT_STRING, BASE_NONE, NULL, 0,
         "HI2Operations.CircuitIdType", HFILL }},
+    { &hf_HI2Operations_trafficPacket,
+      { "trafficPacket", "HI2Operations.trafficPacket",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "HI2Operations.BIT_STRING", HFILL }},
     { &hf_HI2Operations_cctivity,
       { "cctivity", "HI2Operations.cctivity",
         FT_UINT32, BASE_DEC, VALS(HI2Operations_ActivityClassType_vals), 0,
@@ -5404,8 +5128,6 @@ void proto_register_HI2Operations(void) {
     &ett_HI2Operations_IRI_to_CC_Correlation,
     &ett_HI2Operations_T_cc,
     &ett_HI2Operations_TARGETACTIVITYMONITOR_1,
-    &ett_HI2Operations_TTRAFFIC,
-    &ett_HI2Operations_CTTRAFFIC,
     &ett_HI2Operations_UserSignalType,
     &ett_HI2Operations_LocationType,
     &ett_HI2Operations_CdcPdu,
@@ -5432,13 +5154,6 @@ void proto_register_HI2Operations(void) {
     &ett_HI2Operations_PartyId,
     &ett_HI2Operations_RedirectedFromInfo,
     &ett_HI2Operations_TerminalDisplayInfo,
-    &ett_HI2Operations_LIACTIVATEreq,
-    &ett_HI2Operations_SEQUENCE_OF_ActivityType,
-    &ett_HI2Operations_LIACTIVATEconf,
-    &ett_HI2Operations_LIMODIFYreq,
-    &ett_HI2Operations_T_modificationType,
-    &ett_HI2Operations_LIMODIFYconf,
-    &ett_HI2Operations_LISTATUSind,
     &ett_HI2Operations_TARGETACTIVITYMONITORind,
     &ett_HI2Operations_SEQUENCE_OF_AddressType,
     &ett_HI2Operations_SEQUENCE_OF_LocationType_en301040,
