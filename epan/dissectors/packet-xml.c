@@ -571,6 +571,8 @@ static void after_attrib(void* tvbparse_data, const void* wanted_data _U_, tvbpa
 	pi = proto_tree_add_item(current_frame->tree,hfid,value->tvb,value->offset,value->len,FALSE);
 	proto_item_set_text(pi, "%s", tvb_format_text(tok->tvb,tok->offset,tok->len));
 
+	current_frame->last_item = pi;
+	
 	new_frame = ep_alloc(sizeof(xml_frame_t));
 	new_frame->type = XML_FRAME_ATTRIB;
 	new_frame->name = name;
