@@ -28,6 +28,7 @@ LIACTIVATEconf
 LIMODIFYreq
 LIMODIFYconf
 LISTATUSind
+StatusType
 
 #.TYPE_RENAME
 

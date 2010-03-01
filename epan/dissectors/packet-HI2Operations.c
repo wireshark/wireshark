@@ -3760,25 +3760,6 @@ dissect_HI2Operations_IRIsContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
   return offset;
 }
 
-
-static const value_string HI2Operations_StatusType_vals[] = {
-  {   0, "networkFullyAvailable" },
-  {   1, "networkErrorsAffectingIntercept" },
-  {   2, "reconfigurationInProgress" },
-  {   3, "sessionExpired" },
-  {   4, "gatewayServicesUnavailable" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_HI2Operations_StatusType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
 /*--- PDUs ---*/
 
 static void dissect_IRIsContent_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
