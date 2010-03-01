@@ -542,7 +542,7 @@ lowpan_dldst_to_ifcid(packet_info *pinfo, guint8 *ifcid)
         ifcid[0] ^= 0x02;
         return TRUE;
     }
-    if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
+    if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
         lowpan_addr16_to_ifcid(packet->dst.addr16, packet->dst_pan, ifcid);
         return TRUE;
     }
