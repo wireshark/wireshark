@@ -67,6 +67,12 @@ EXTRA_DIST = \
 	packet-$(PROTOCOL_NAME)-template.h \
 	$(PROTOCOL_NAME).cnf
 
+SRC_FILES = \
+	$(EXTRA_DIST) \
+	$(EXT_ASN_FILE_LIST)
+
+A2W_FLAGS= -b -e
+
 EXTRA_CNF= \
 	../dap/dap-exp.cnf \
 	../dsp/dsp-exp.cnf
@@ -76,12 +82,3 @@ EXTRA_CNF= \
 
 ../dsp/dsp-exp.cnf:
 	(cd ../dsp && $(MAKE_CNF_EXPORT))	
-
-SRC_FILES = \
-	$(EXTRA_DIST) \
-	$(EXT_ASN_FILE_LIST)
-
-A2W_FLAGS= -b -e
-
-EXTRA_CNF=
-
