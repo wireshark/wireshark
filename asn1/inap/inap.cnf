@@ -2,6 +2,9 @@
 # inap conformation file
 # $Id$
 
+#.IMPORT ../dap/dap-exp.cnf
+#.IMPORT ../dsp/dsp-exp.cnf
+
 #.EXPORTS
 BothwayThroughConnectionInd
 CallingPartysCategory
@@ -14,12 +17,6 @@ LegID
 MiscCallInfo
 RedirectionInformation
 ServiceKey
-
-#.PDU_NEW
-#ERROR.&ParameterType
-#OPERATION.&ArgumentType
-#OPERATION.&ResultType
-#.END
 
 #.NO_EMIT
 

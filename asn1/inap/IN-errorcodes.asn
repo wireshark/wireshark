@@ -44,14 +44,13 @@ errcode-unknownLegID Code ::= local:17
 errcode-unknownResource Code ::= local:18
 
 -- Error codes for the IN CS2 error types follow 
-errcode-scfReferral Code ::=
-  local:21
+errcode-scfReferral Code ::= local:21
 
 errcode-scfTaskRefused Code ::= local:22
 
 errcode-chainingRefused Code ::= local:23
-
-errcode-executionError Code ::= local:10
+-- WS:Duplicate
+--errcode-executionError Code ::= local:10
 
 END
 

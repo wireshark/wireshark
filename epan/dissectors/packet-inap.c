@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-inap.c                                                              */
-/* ../../tools/asn2wrs.py -b -e -p inap -c ./inap.cnf -s ./packet-inap-template -D . IN-common-classes.asn IN-SSF-SCF-Classes.asn IN-SCF-SRF-Classes.asn IN-operationcodes.asn IN-object-identifiers.asn IN-common-datatypes.asn IN-SSF-SCF-datatypes.asn IN-SSF-SCF-ops-args.asn IN-SCF-SRF-datatypes.asn IN-SCF-SRF-ops-args.asn ../ros/Remote-Operations-Information-Objects.asn ../ros/Remote-Operations-Generic-ROS-PDUs.asn */
+/* ../../tools/asn2wrs.py -b -e -p inap -c ./inap.cnf -s ./packet-inap-template -D . IN-common-classes.asn IN-SSF-SCF-Classes.asn IN-SCF-SRF-Classes.asn IN-operationcodes.asn IN-object-identifiers.asn IN-common-datatypes.asn IN-SSF-SCF-datatypes.asn IN-SSF-SCF-ops-args.asn IN-SCF-SRF-datatypes.asn IN-SCF-SRF-ops-args.asn IN-errorcodes.asn IN-errortypes.asn ../ros/Remote-Operations-Information-Objects.asn ../ros/Remote-Operations-Generic-ROS-PDUs.asn */
 
 /* Input file: packet-inap-template.c */
 
@@ -53,6 +53,8 @@
 #include "packet-e164.h"
 #include "packet-isup.h"
 #include "packet-tcap.h"
+#include "packet-dap.h"
+#include "packet-dsp.h"
 
 #define PNAME  "Intelligent Network Application Protocol"
 #define PSNAME "INAP"
@@ -438,10 +440,29 @@ static int proto_inap = -1;
 #define initialCallSegment             1
 #define leg1                           0x01
 #define leg2                           0x02
+#define errcode_canceled               0
+#define errcode_cancelFailed           1
+#define errcode_eTCFailed              3
+#define errcode_improperCallerResponse 4
+#define errcode_missingCustomerRecord  6
+#define errcode_missingParameter       7
+#define errcode_parameterOutOfRange    8
+#define errcode_requestedInfoError     10
+#define errcode_systemFailure          11
+#define errcode_taskRefused            12
+#define errcode_unavailableResource    13
+#define errcode_unexpectedComponentSequence 14
+#define errcode_unexpectedDataValue    15
+#define errcode_unexpectedParameter    16
+#define errcode_unknownLegID           17
+#define errcode_unknownResource        18
+#define errcode_scfReferral            21
+#define errcode_scfTaskRefused         22
+#define errcode_chainingRefused        23
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-inap-val.h ---*/
-#line 58 "packet-inap-template.c"
+#line 60 "packet-inap-template.c"
 
 
 /*--- Included file: packet-inap-hf.c ---*/
@@ -536,6 +557,12 @@ static int hf_inap_ScriptInformationArg_PDU = -1;  /* ScriptInformationArg */
 static int hf_inap_ScriptRunArg_PDU = -1;         /* ScriptRunArg */
 static int hf_inap_SpecializedResourceReportArg_PDU = -1;  /* SpecializedResourceReportArg */
 static int hf_inap_SRFCallGapArg_PDU = -1;        /* SRFCallGapArg */
+static int hf_inap_PAR_cancelFailed_PDU = -1;     /* PAR_cancelFailed */
+static int hf_inap_PAR_requestedInfoError_PDU = -1;  /* PAR_requestedInfoError */
+static int hf_inap_ScfTaskRefusedParameter_PDU = -1;  /* ScfTaskRefusedParameter */
+static int hf_inap_ReferralParameter_PDU = -1;    /* ReferralParameter */
+static int hf_inap_UnavailableNetworkResource_PDU = -1;  /* UnavailableNetworkResource */
+static int hf_inap_PAR_taskRefused_PDU = -1;      /* PAR_taskRefused */
 static int hf_inap_Extensions_item = -1;          /* ExtensionField */
 static int hf_inap_type = -1;                     /* Code */
 static int hf_inap_criticality = -1;              /* CriticalityType */
@@ -972,6 +999,15 @@ static int hf_inap_uIScriptResult = -1;           /* T_uIScriptResult */
 static int hf_inap_uIScriptSpecificInfo_01 = -1;  /* T_uIScriptSpecificInfo_01 */
 static int hf_inap_uIScriptSpecificInfo_02 = -1;  /* T_uIScriptSpecificInfo_02 */
 static int hf_inap_sRFgapCriteria = -1;           /* SRFGapCriteria */
+static int hf_inap_problem = -1;                  /* T_problem */
+static int hf_inap_operation = -1;                /* InvokeID */
+static int hf_inap_systemFailure = -1;            /* UnavailableNetworkResource */
+static int hf_inap_scfTaskRefused = -1;           /* ScfTaskRefusedParameter */
+static int hf_inap_securityError = -1;            /* T_securityError */
+static int hf_inap_problem_01 = -1;               /* SecurityProblem */
+static int hf_inap_reason_01 = -1;                /* T_reason */
+static int hf_inap_securityParameters = -1;       /* SecurityParameters */
+static int hf_inap_tryhere = -1;                  /* AccessPointInformation */
 static int hf_inap_local_01 = -1;                 /* T_local */
 static int hf_inap_invoke = -1;                   /* Invoke */
 static int hf_inap_returnResult = -1;             /* ReturnResult */
@@ -987,7 +1023,7 @@ static int hf_inap_result = -1;                   /* T_result */
 static int hf_inap_resultArgument = -1;           /* ResultArgument */
 static int hf_inap_errcode = -1;                  /* Code */
 static int hf_inap_parameter = -1;                /* T_parameter */
-static int hf_inap_problem = -1;                  /* T_problem */
+static int hf_inap_problem_02 = -1;               /* T_problem_01 */
 static int hf_inap_general = -1;                  /* GeneralProblem */
 static int hf_inap_invokeProblem = -1;            /* InvokeProblem */
 static int hf_inap_problemReturnResult = -1;      /* ReturnResultProblem */
@@ -996,7 +1032,7 @@ static int hf_inap_present = -1;                  /* INTEGER */
 static int hf_inap_InvokeId_present = -1;         /* InvokeId_present */
 
 /*--- End of included file: packet-inap-hf.c ---*/
-#line 60 "packet-inap-template.c"
+#line 62 "packet-inap-template.c"
 
 #define MAX_SSN 254
 static range_t *global_ssn_range;
@@ -1243,6 +1279,11 @@ static gint ett_inap_ScriptEventArg = -1;
 static gint ett_inap_ScriptInformationArg = -1;
 static gint ett_inap_ScriptRunArg = -1;
 static gint ett_inap_SRFCallGapArg = -1;
+static gint ett_inap_PAR_cancelFailed = -1;
+static gint ett_inap_FailureReason = -1;
+static gint ett_inap_T_securityError = -1;
+static gint ett_inap_ScfTaskRefusedParameter = -1;
+static gint ett_inap_ReferralParameter = -1;
 static gint ett_inap_Code = -1;
 static gint ett_inap_ROS = -1;
 static gint ett_inap_Invoke = -1;
@@ -1251,11 +1292,11 @@ static gint ett_inap_ReturnResult = -1;
 static gint ett_inap_T_result = -1;
 static gint ett_inap_ReturnError = -1;
 static gint ett_inap_Reject = -1;
-static gint ett_inap_T_problem = -1;
+static gint ett_inap_T_problem_01 = -1;
 static gint ett_inap_InvokeId = -1;
 
 /*--- End of included file: packet-inap-ett.c ---*/
-#line 81 "packet-inap-template.c"
+#line 83 "packet-inap-template.c"
 
 
 /*--- Included file: packet-inap-table.c ---*/
@@ -1357,13 +1398,31 @@ const value_string inap_opr_code_strings[] = {
 
 /* INAP ERRORS */
 static const value_string inap_err_code_string_vals[] = {
-/* Unknown or empty loop list ERROR.&errorCode */
+	{ errcode_canceled                        , "canceled" },  
+	{ errcode_cancelFailed                    , "cancelFailed" },  
+	{ errcode_chainingRefused                 , "chainingRefused" },  
+	{ errcode_eTCFailed                       , "eTCFailed" },  
+	{ errcode_improperCallerResponse          , "improperCallerResponse" },  
+	{ errcode_missingCustomerRecord           , "missingCustomerRecord" },  
+	{ errcode_missingParameter                , "missingParameter" },  
+	{ errcode_parameterOutOfRange             , "parameterOutOfRange" },  
+	{ errcode_requestedInfoError              , "requestedInfoError" },  
+	{ errcode_scfTaskRefused                  , "scfTaskRefused" },  
+	{ errcode_scfReferral                     , "scfReferral" },  
+	{ errcode_systemFailure                   , "systemFailure" },  
+	{ errcode_taskRefused                     , "taskRefused" },  
+	{ errcode_unavailableResource             , "unavailableResource" },  
+	{ errcode_unexpectedComponentSequence     , "unexpectedComponentSequence" },  
+	{ errcode_unexpectedDataValue             , "unexpectedDataValue" },  
+	{ errcode_unexpectedParameter             , "unexpectedParameter" },  
+	{ errcode_unknownLegID                    , "unknownLegID" },  
+	{ errcode_unknownResource                 , "unknownResource" },  
   { 0, NULL }
 };
 
 
 /*--- End of included file: packet-inap-table.c ---*/
-#line 83 "packet-inap-template.c"
+#line 85 "packet-inap-template.c"
 
 const value_string inap_general_problem_strings[] = {
 {0,"General Problem Unrecognized Component"},
@@ -1400,7 +1459,7 @@ dissect_inap_CriticalityType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_inap_T_local(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 165 "inap.cnf"
+#line 162 "inap.cnf"
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &opcode);
 
@@ -1457,7 +1516,7 @@ dissect_inap_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_inap_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 219 "inap.cnf"
+#line 216 "inap.cnf"
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -2128,7 +2187,7 @@ dissect_inap_BCSMEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_inap_T_bearerCap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 246 "inap.cnf"
+#line 243 "inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -2283,7 +2342,7 @@ dissect_inap_CalledPartyBusinessGroupID(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_inap_CalledPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 225 "inap.cnf"
+#line 222 "inap.cnf"
   tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2334,7 +2393,7 @@ dissect_inap_CallingPartyBusinessGroupID(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_inap_CallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 235 "inap.cnf"
+#line 232 "inap.cnf"
   tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -4463,7 +4522,7 @@ dissect_inap_GlobalCallReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 int
 dissect_inap_HighLayerCompatibility(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 288 "inap.cnf"
+#line 285 "inap.cnf"
 /*
  * -- Indicates the teleservice. For encoding, DSS1 (Q.931) is used.
  */
@@ -4637,7 +4696,7 @@ dissect_inap_NumberingPlan(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_inap_OriginalCalledPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 268 "inap.cnf"
+#line 265 "inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -4700,7 +4759,7 @@ dissect_inap_Reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_inap_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 278 "inap.cnf"
+#line 275 "inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -4721,7 +4780,7 @@ dissect_inap_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 int
 dissect_inap_RedirectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 257 "inap.cnf"
+#line 254 "inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -5085,7 +5144,7 @@ dissect_inap_T_triggerId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_inap_T_triggerPar(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 204 "inap.cnf"
+#line 201 "inap.cnf"
 /* FIX ME */
 
 
@@ -7663,7 +7722,7 @@ dissect_inap_MessageReceivedArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_inap_T_uIScriptSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 210 "inap.cnf"
+#line 207 "inap.cnf"
 /* FIX ME */
 
 
@@ -7692,7 +7751,7 @@ dissect_inap_ScriptCloseArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_inap_T_uIScriptResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 207 "inap.cnf"
+#line 204 "inap.cnf"
 /* FIX ME */
 
 
@@ -7722,7 +7781,7 @@ dissect_inap_ScriptEventArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_inap_T_uIScriptSpecificInfo_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 213 "inap.cnf"
+#line 210 "inap.cnf"
 /* FIX ME */
 
 
@@ -7750,7 +7809,7 @@ dissect_inap_ScriptInformationArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_inap_T_uIScriptSpecificInfo_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 215 "inap.cnf"
+#line 212 "inap.cnf"
 /* FIX ME */
 
 
@@ -7799,6 +7858,172 @@ static int
 dissect_inap_SRFCallGapArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SRFCallGapArg_sequence, hf_index, ett_inap_SRFCallGapArg);
+
+  return offset;
+}
+
+
+static const value_string inap_T_problem_vals[] = {
+  {   0, "unknownOperation" },
+  {   1, "tooLate" },
+  {   2, "operationNotCancellable" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_inap_T_problem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t PAR_cancelFailed_sequence[] = {
+  { &hf_inap_problem        , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_inap_T_problem },
+  { &hf_inap_operation      , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_inap_InvokeID },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_PAR_cancelFailed(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   PAR_cancelFailed_sequence, hf_index, ett_inap_PAR_cancelFailed);
+
+  return offset;
+}
+
+
+static const value_string inap_ExecutionProblem_vals[] = {
+  {   1, "missingInputValues" },
+  {   2, "executionFailure" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_inap_ExecutionProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const value_string inap_PAR_requestedInfoError_vals[] = {
+  {   1, "unknownRequestedInfo" },
+  {   2, "requestedInfoNotAvailable" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_inap_PAR_requestedInfoError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string inap_T_reason_vals[] = {
+  {   0, "generic" },
+  {   1, "unobtainable" },
+  {   2, "congestion" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_inap_T_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ScfTaskRefusedParameter_sequence[] = {
+  { &hf_inap_reason_01      , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_inap_T_reason },
+  { &hf_inap_securityParameters, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dap_SecurityParameters },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_ScfTaskRefusedParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ScfTaskRefusedParameter_sequence, hf_index, ett_inap_ScfTaskRefusedParameter);
+
+  return offset;
+}
+
+
+static const ber_sequence_t T_securityError_set[] = {
+  { &hf_inap_problem_01     , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dap_SecurityProblem },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_T_securityError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              T_securityError_set, hf_index, ett_inap_T_securityError);
+
+  return offset;
+}
+
+
+static const value_string inap_FailureReason_vals[] = {
+  {   0, "systemFailure" },
+  {   1, "scfTaskRefused" },
+  {   2, "securityError" },
+  { 0, NULL }
+};
+
+static const ber_choice_t FailureReason_choice[] = {
+  {   0, &hf_inap_systemFailure  , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_inap_UnavailableNetworkResource },
+  {   1, &hf_inap_scfTaskRefused , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_inap_ScfTaskRefusedParameter },
+  {   2, &hf_inap_securityError  , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_inap_T_securityError },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_FailureReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 FailureReason_choice, hf_index, ett_inap_FailureReason,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ReferralParameter_sequence[] = {
+  { &hf_inap_tryhere        , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dsp_AccessPointInformation },
+  { &hf_inap_securityParameters, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dap_SecurityParameters },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_inap_ReferralParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ReferralParameter_sequence, hf_index, ett_inap_ReferralParameter);
+
+  return offset;
+}
+
+
+static const value_string inap_PAR_taskRefused_vals[] = {
+  {   0, "generic" },
+  {   1, "unobtainable" },
+  {   2, "congestion" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_inap_PAR_taskRefused(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -7870,7 +8095,7 @@ dissect_inap_T_linkedId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_inap_T_argument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 192 "inap.cnf"
+#line 189 "inap.cnf"
 	offset = dissect_invokeData(tree, tvb, offset, actx);
 
 
@@ -7889,7 +8114,7 @@ static const ber_sequence_t Invoke_sequence[] = {
 
 static int
 dissect_inap_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 180 "inap.cnf"
+#line 177 "inap.cnf"
   inap_opcode_type=INAP_OPCODE_INVOKE;
 
 
@@ -7903,7 +8128,7 @@ dissect_inap_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_inap_ResultArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 195 "inap.cnf"
+#line 192 "inap.cnf"
 	offset = dissect_returnResultData(tree, tvb, offset, actx);
 
 
@@ -7935,7 +8160,7 @@ static const ber_sequence_t ReturnResult_sequence[] = {
 
 static int
 dissect_inap_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 183 "inap.cnf"
+#line 180 "inap.cnf"
   inap_opcode_type=INAP_OPCODE_RETURN_RESULT;
 
 
@@ -7949,7 +8174,7 @@ dissect_inap_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_inap_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 198 "inap.cnf"
+#line 195 "inap.cnf"
 	offset = dissect_returnErrorData(tree, tvb, offset, actx);
 
 
@@ -7969,7 +8194,7 @@ static const ber_sequence_t ReturnError_sequence[] = {
 
 static int
 dissect_inap_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 186 "inap.cnf"
+#line 183 "inap.cnf"
   inap_opcode_type=INAP_OPCODE_RETURN_ERROR;
 
 
@@ -8055,7 +8280,7 @@ dissect_inap_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const value_string inap_T_problem_vals[] = {
+static const value_string inap_T_problem_01_vals[] = {
   {   0, "general" },
   {   1, "invoke" },
   {   2, "returnResult" },
@@ -8063,7 +8288,7 @@ static const value_string inap_T_problem_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t T_problem_choice[] = {
+static const ber_choice_t T_problem_01_choice[] = {
   {   0, &hf_inap_general        , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_inap_GeneralProblem },
   {   1, &hf_inap_invokeProblem  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_inap_InvokeProblem },
   {   2, &hf_inap_problemReturnResult, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_inap_ReturnResultProblem },
@@ -8072,9 +8297,9 @@ static const ber_choice_t T_problem_choice[] = {
 };
 
 static int
-dissect_inap_T_problem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_inap_T_problem_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 T_problem_choice, hf_index, ett_inap_T_problem,
+                                 T_problem_01_choice, hf_index, ett_inap_T_problem_01,
                                  NULL);
 
   return offset;
@@ -8083,13 +8308,13 @@ dissect_inap_T_problem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static const ber_sequence_t Reject_sequence[] = {
   { &hf_inap_invokeId       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_inap_InvokeId },
-  { &hf_inap_problem        , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_inap_T_problem },
+  { &hf_inap_problem_02     , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_inap_T_problem_01 },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_inap_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 189 "inap.cnf"
+#line 186 "inap.cnf"
   inap_opcode_type=INAP_OPCODE_REJECT;
 
 
@@ -8790,10 +9015,52 @@ static int dissect_SRFCallGapArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   offset = dissect_inap_SRFCallGapArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_SRFCallGapArg_PDU);
   return offset;
 }
+static int dissect_PAR_cancelFailed_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_inap_PAR_cancelFailed(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_PAR_cancelFailed_PDU);
+  return offset;
+}
+static int dissect_PAR_requestedInfoError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_inap_PAR_requestedInfoError(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_PAR_requestedInfoError_PDU);
+  return offset;
+}
+static int dissect_ScfTaskRefusedParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_inap_ScfTaskRefusedParameter(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ScfTaskRefusedParameter_PDU);
+  return offset;
+}
+static int dissect_ReferralParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_inap_ReferralParameter(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ReferralParameter_PDU);
+  return offset;
+}
+static int dissect_UnavailableNetworkResource_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_inap_UnavailableNetworkResource(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_UnavailableNetworkResource_PDU);
+  return offset;
+}
+static int dissect_PAR_taskRefused_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_inap_PAR_taskRefused(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_PAR_taskRefused_PDU);
+  return offset;
+}
 
 
 /*--- End of included file: packet-inap-fn.c ---*/
-#line 97 "packet-inap-template.c"
+#line 99 "packet-inap-template.c"
 /*
 TC-Invokable OPERATION ::=
   {activateServiceFiltering | activityTest | analysedInformation |
@@ -9121,7 +9388,24 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
   proto_item *cause;
 
   switch(errorCode) {
-/* Unknown or empty loop list ERROR.&ParameterType */
+    case errcode_cancelFailed:  /* cancelFailed */
+      dissect_PAR_cancelFailed_PDU(tvb, actx->pinfo , tree);
+      break;
+    case errcode_requestedInfoError:  /* requestedInfoError */
+      dissect_PAR_requestedInfoError_PDU(tvb, actx->pinfo , tree);
+      break;
+    case errcode_scfTaskRefused:  /* scfTaskRefused */
+      dissect_ScfTaskRefusedParameter_PDU(tvb, actx->pinfo , tree);
+      break;
+    case errcode_scfReferral:  /* scfReferral */
+      dissect_ReferralParameter_PDU(tvb, actx->pinfo , tree);
+      break;
+    case errcode_systemFailure:  /* systemFailure */
+      dissect_UnavailableNetworkResource_PDU(tvb, actx->pinfo , tree);
+      break;
+    case errcode_taskRefused:  /* taskRefused */
+      dissect_PAR_taskRefused_PDU(tvb, actx->pinfo , tree);
+      break;
   default:
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");
     proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
@@ -9132,7 +9416,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-inap-table2.c ---*/
-#line 118 "packet-inap-template.c"
+#line 120 "packet-inap-template.c"
 
 
 static guint8 inap_pdu_type = 0;
@@ -9571,6 +9855,30 @@ void proto_register_inap(void) {
       { "SRFCallGapArg", "inap.SRFCallGapArg",
         FT_NONE, BASE_NONE, NULL, 0,
         "inap.SRFCallGapArg", HFILL }},
+    { &hf_inap_PAR_cancelFailed_PDU,
+      { "PAR-cancelFailed", "inap.PAR_cancelFailed",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "inap.PAR_cancelFailed", HFILL }},
+    { &hf_inap_PAR_requestedInfoError_PDU,
+      { "PAR-requestedInfoError", "inap.PAR_requestedInfoError",
+        FT_UINT32, BASE_DEC, VALS(inap_PAR_requestedInfoError_vals), 0,
+        "inap.PAR_requestedInfoError", HFILL }},
+    { &hf_inap_ScfTaskRefusedParameter_PDU,
+      { "ScfTaskRefusedParameter", "inap.ScfTaskRefusedParameter",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "inap.ScfTaskRefusedParameter", HFILL }},
+    { &hf_inap_ReferralParameter_PDU,
+      { "ReferralParameter", "inap.ReferralParameter",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "inap.ReferralParameter", HFILL }},
+    { &hf_inap_UnavailableNetworkResource_PDU,
+      { "UnavailableNetworkResource", "inap.UnavailableNetworkResource",
+        FT_UINT32, BASE_DEC, VALS(inap_UnavailableNetworkResource_vals), 0,
+        "inap.UnavailableNetworkResource", HFILL }},
+    { &hf_inap_PAR_taskRefused_PDU,
+      { "PAR-taskRefused", "inap.PAR_taskRefused",
+        FT_UINT32, BASE_DEC, VALS(inap_PAR_taskRefused_vals), 0,
+        "inap.PAR_taskRefused", HFILL }},
     { &hf_inap_Extensions_item,
       { "ExtensionField", "inap.ExtensionField",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11315,6 +11623,42 @@ void proto_register_inap(void) {
       { "sRFgapCriteria", "inap.sRFgapCriteria",
         FT_UINT32, BASE_DEC, VALS(inap_SRFGapCriteria_vals), 0,
         "inap.SRFGapCriteria", HFILL }},
+    { &hf_inap_problem,
+      { "problem", "inap.problem",
+        FT_UINT32, BASE_DEC, VALS(inap_T_problem_vals), 0,
+        "inap.T_problem", HFILL }},
+    { &hf_inap_operation,
+      { "operation", "inap.operation",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "inap.InvokeID", HFILL }},
+    { &hf_inap_systemFailure,
+      { "systemFailure", "inap.systemFailure",
+        FT_UINT32, BASE_DEC, VALS(inap_UnavailableNetworkResource_vals), 0,
+        "inap.UnavailableNetworkResource", HFILL }},
+    { &hf_inap_scfTaskRefused,
+      { "scfTaskRefused", "inap.scfTaskRefused",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "inap.ScfTaskRefusedParameter", HFILL }},
+    { &hf_inap_securityError,
+      { "securityError", "inap.securityError",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "inap.T_securityError", HFILL }},
+    { &hf_inap_problem_01,
+      { "problem", "inap.problem",
+        FT_INT32, BASE_DEC, VALS(dap_SecurityProblem_vals), 0,
+        "dap.SecurityProblem", HFILL }},
+    { &hf_inap_reason_01,
+      { "reason", "inap.reason",
+        FT_UINT32, BASE_DEC, VALS(inap_T_reason_vals), 0,
+        "inap.T_reason", HFILL }},
+    { &hf_inap_securityParameters,
+      { "securityParameters", "inap.securityParameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "dap.SecurityParameters", HFILL }},
+    { &hf_inap_tryhere,
+      { "tryhere", "inap.tryhere",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "dsp.AccessPointInformation", HFILL }},
     { &hf_inap_local_01,
       { "local", "inap.local",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -11375,10 +11719,10 @@ void proto_register_inap(void) {
       { "parameter", "inap.parameter",
         FT_NONE, BASE_NONE, NULL, 0,
         "inap.T_parameter", HFILL }},
-    { &hf_inap_problem,
+    { &hf_inap_problem_02,
       { "problem", "inap.problem",
-        FT_UINT32, BASE_DEC, VALS(inap_T_problem_vals), 0,
-        "inap.T_problem", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(inap_T_problem_01_vals), 0,
+        "inap.T_problem_01", HFILL }},
     { &hf_inap_general,
       { "general", "inap.general",
         FT_INT32, BASE_DEC, VALS(inap_GeneralProblem_vals), 0,
@@ -11405,7 +11749,7 @@ void proto_register_inap(void) {
         "inap.InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-inap-hfarr.c ---*/
-#line 194 "packet-inap-template.c"
+#line 196 "packet-inap-template.c"
   };
 
 
@@ -11644,6 +11988,11 @@ void proto_register_inap(void) {
     &ett_inap_ScriptInformationArg,
     &ett_inap_ScriptRunArg,
     &ett_inap_SRFCallGapArg,
+    &ett_inap_PAR_cancelFailed,
+    &ett_inap_FailureReason,
+    &ett_inap_T_securityError,
+    &ett_inap_ScfTaskRefusedParameter,
+    &ett_inap_ReferralParameter,
     &ett_inap_Code,
     &ett_inap_ROS,
     &ett_inap_Invoke,
@@ -11652,11 +12001,11 @@ void proto_register_inap(void) {
     &ett_inap_T_result,
     &ett_inap_ReturnError,
     &ett_inap_Reject,
-    &ett_inap_T_problem,
+    &ett_inap_T_problem_01,
     &ett_inap_InvokeId,
 
 /*--- End of included file: packet-inap-ettarr.c ---*/
-#line 207 "packet-inap-template.c"
+#line 209 "packet-inap-template.c"
   };
 
   /* Register protocol */

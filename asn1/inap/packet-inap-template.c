@@ -45,6 +45,8 @@
 #include "packet-e164.h"
 #include "packet-isup.h"
 #include "packet-tcap.h"
+#include "packet-dap.h"
+#include "packet-dsp.h"
 
 #define PNAME  "Intelligent Network Application Protocol"
 #define PSNAME "INAP"

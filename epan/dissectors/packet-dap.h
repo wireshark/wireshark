@@ -65,6 +65,7 @@ extern const value_string dap_AttributeError_vals[];
 extern const value_string dap_NameError_vals[];
 extern const value_string dap_Referral_vals[];
 extern const value_string dap_SecurityError_vals[];
+extern const value_string dap_SecurityProblem_vals[];
 extern const value_string dap_ServiceError_vals[];
 extern const value_string dap_UpdateError_vals[];
 int dissect_dap_FamilyGrouping(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -102,6 +103,7 @@ int dissect_dap_AttributeError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 int dissect_dap_NameError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_dap_Referral(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_dap_SecurityError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+int dissect_dap_SecurityProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_dap_ServiceError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_dap_UpdateError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 

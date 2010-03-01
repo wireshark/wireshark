@@ -103,6 +103,7 @@ ServiceError
 Abandoned
 SearchControlOptions 
 SecurityError
+SecurityProblem
 ServiceControlOptions
 AbandonFailedError
 UpdateError

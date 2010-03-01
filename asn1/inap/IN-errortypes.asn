@@ -57,13 +57,14 @@ eTCFailed ERROR ::= {CODE  errcode-eTCFailed
 }
 
 -- The establish temporary connection failed.
-executionError ERROR ::= {
-  PARAMETER OPTIONALLY-PROTECTED
-    {SET {problem  [0] EXPLICIT ExecutionProblem,
-          COMPONENTS OF CommonResults},
-     dirqop.&dirErrors-QOP}
-  CODE                            errcode-executionError
-}
+-- WS:Duplicates error-code
+--executionError ERROR ::= {
+--  PARAMETER OPTIONALLY-PROTECTED
+--    {SET {problem  [0] EXPLICIT ExecutionProblem,
+--          COMPONENTS OF CommonResults}
+--     dirqop.&dirErrors-QOP},
+--  CODE                            errcode-executionError
+--}
 
 -- The executionError is returned by an Execute operation in the case of the operation is not completing.
 ExecutionProblem ::= INTEGER {missingInputValues(1), executionFailure(2)
@@ -99,15 +100,16 @@ requestedInfoError ERROR ::= {
 }
 
 -- The requested information cannot be found.
-scfBindFailure ERROR ::= {PARAMETER  FailureReason
-}
+-- WS:CODE missing comment it out
+--scfBindFailure ERROR ::= {PARAMETER  FailureReason
+--}
 
 FailureReason ::= CHOICE {
   systemFailure   [0]  UnavailableNetworkResource,
   scfTaskRefused  [1]  ScfTaskRefusedParameter,
   securityError
-    [2]  SET {problem   [0]  SecurityProblem,
-              spkmInfo  [1]  SPKM-ERROR}
+    [2]  SET {problem   [0]  SecurityProblem--,--
+--              spkmInfo  [1]  SPKM-ERROR--}
 }
 
 scfTaskRefused ERROR ::= {
@@ -116,13 +118,13 @@ scfTaskRefused ERROR ::= {
 }
 
 ScfTaskRefusedParameter ::=
-  OPTIONALLY-PROTECTED
-    {SEQUENCE {reason
+--  OPTIONALLY-PROTECTED
+    SEQUENCE {reason
                  ENUMERATED {generic(0), unobtainable(1), congestion(2)
                                                           --other values FFS
                                                           },
                securityParameters  [1]  SecurityParameters OPTIONAL
-    }, scfqop.&scfErrorsQOP}
+    }--, scfqop.&scfErrorsQOP}
 
 scfReferral ERROR ::= {
   PARAMETER  ReferralParameter
@@ -130,10 +132,10 @@ scfReferral ERROR ::= {
 }
 
 ReferralParameter ::=
-  OPTIONALLY-PROTECTED
-    {SEQUENCE {tryhere             [0]  AccessPointInformation,
+--  OPTIONALLY-PROTECTED
+    SEQUENCE {tryhere             [0]  AccessPointInformation,
                securityParameters  [1]  SecurityParameters OPTIONAL
-    }, scfqop.&scfErrorsQOP}
+    }--, scfqop.&scfErrorsQOP}
 
 systemFailure ERROR ::= {
   PARAMETER  UnavailableNetworkResource
@@ -153,13 +155,14 @@ taskRefused ERROR ::= {
 -- An entity normally capable of the task requested cannot or chooses not to perform the task at this 
 -- time. This includes error situations like congestion and unobtainable address as used in e.g. the 
 -- connect operation.
-tfcBindError ERROR ::= {
-  PARAMETER
-    SET {versions  [0]  Versions DEFAULT {v1},
-         error
-           CHOICE {serviceError   [1]  ServiceProblem,
-                   securityError  [2]  SecurityProblem}}
-}
+-- WS:CODE missing comment it out
+-- tfcBindError ERROR ::= {
+--   PARAMETER
+--     SET {versions  [0]  Versions DEFAULT {v1},
+--          error
+--            CHOICE {serviceError   [1]  ServiceProblem,
+--                    securityError  [2]  SecurityProblem}}
+-- }
 
 unavailableResource ERROR ::= {CODE  errcode-unavailableResource
 }

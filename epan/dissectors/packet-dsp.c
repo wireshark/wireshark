@@ -757,7 +757,7 @@ static const ber_sequence_t AccessPointInformation_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_dsp_AccessPointInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               AccessPointInformation_set, hf_index, ett_dsp_AccessPointInformation);

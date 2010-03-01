@@ -8,13 +8,13 @@ ServiceAdministration		x509if
 #.IMPORT	../x509sat/x509sat-exp.cnf
 
 #.EXPORTS
+AccessPoint
+AccessPointInformation
+ContinuationReference
+Exclusions
+MasterAndShadowAccessPoints 
 OperationProgress
 ReferenceType
-ContinuationReference
-AccessPoint
-MasterAndShadowAccessPoints 
-Exclusions
-
 #.TYPE_RENAME
 
 MasterOrShadowAccessPoint/category	APCategory

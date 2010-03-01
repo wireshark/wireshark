@@ -54,7 +54,9 @@ ASN_FILE_LIST= \
 	$(1248_CLASSES_ASN) \
 	$(1248_1_ASN_FILES) \
 	$(1248_2_ASN_FILES) \
-	$(1248_3_ASN_FILES)
+	$(1248_3_ASN_FILES) \
+	IN-errorcodes.asn	\
+	IN-errortypes.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
