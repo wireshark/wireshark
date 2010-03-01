@@ -67,8 +67,6 @@ EXTRA_OBJECTS = \
 	asm_utils.obj
 !ENDIF
 
-
-
 !IFDEF DOXYGEN
 DOXYGEN_DEP=doxygen
 !ENDIF
@@ -222,30 +220,46 @@ exntest: exntest.exe
 reassemble_test: reassemble_test.exe
 tvbtest: tvbtest.exe
 
+# Object files for exntest
+EXNTEST_OBJ=exntest.obj except.obj
 
-
-exntest.exe: exntest.obj except.obj
+exntest.exe: $(EXNTEST_OBJ)
 	@echo Linking $@
 	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
-		$(GLIB_LIBS) exntest.obj except.obj
+		$(GLIB_LIBS) $(EXNTEST_OBJ)
 !IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "$@.manifest" -outputresource:$@;1
 !ENDIF
 
-tvbtest.exe: tvbtest.obj tvbuff.obj except.obj to_str.obj strutil.obj emem.obj
+# Object files for tvbtest
+TVBTEST_OBJ=tvbtest.obj \
+	tvbuff.obj \
+	except.obj \
+	to_str.obj \
+	strutil.obj \
+	emem.obj
+
+tvbtest.exe: $(TVBTEST_OBJ)
 	@echo Linking $@
 	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
-		$(GLIB_LIBS) $(ZLIB_LIBS) tvbtest.obj tvbuff.obj except.obj strutil.obj emem.obj
+		$(GLIB_LIBS) $(ZLIB_LIBS) $(TVBTEST_OBJ)
 !IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "$@.manifest" -outputresource:$@;1
 !ENDIF
 
-reassemble_test.exe: reassemble_test.obj tvbuff.obj except.obj to_str.obj strutil.obj emem.obj \
-                 reassemble.obj
+# Object files for reassemble_test
+REASSEMBLE_TEST_OBJ=reassemble_test.obj \
+	tvbuff.obj \
+	except.obj \
+	to_str.obj \
+	strutil.obj \
+	emem.obj \
+	reassemble.obj
+
+reassemble_test.exe: $(REASSEMBLE_TEST_OBJ)
 	@echo Linking $@
 	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
-                $(GLIB_LIBS) $(ZLIB_LIBS) reassemble_test.obj tvbuff.obj \
-                except.obj strutil.obj emem.obj reassemble.obj
+                $(GLIB_LIBS) $(ZLIB_LIBS) $(REASSEMBLE_TEST_OBJ)
 !IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "$@.manifest" -outputresource:$@;1
 !ENDIF
