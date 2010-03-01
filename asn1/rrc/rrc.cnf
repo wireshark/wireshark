@@ -23,6 +23,7 @@ UE-Positioning-GANSS-Data
 GANSSDecipheringKeys
 GSM-CellID
 IntraFrequencyMeasuredResultsListOnSecULFreq
+CellMeasuredResultsListOnSecULFreq
 #.END
 
 #.PDU
