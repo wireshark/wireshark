@@ -67,8 +67,8 @@ eTCFailed ERROR ::= {CODE  errcode-eTCFailed
 --}
 
 -- The executionError is returned by an Execute operation in the case of the operation is not completing.
-ExecutionProblem ::= INTEGER {missingInputValues(1), executionFailure(2)
-}
+--ExecutionProblem ::= INTEGER {missingInputValues(1), executionFailure(2)
+--}
 
 -- The executeProblem identifies the cause of the execute operation failure:
 -- missingInputValues is returned in the input-values field contains the wrong input 
@@ -104,13 +104,13 @@ requestedInfoError ERROR ::= {
 --scfBindFailure ERROR ::= {PARAMETER  FailureReason
 --}
 
-FailureReason ::= CHOICE {
-  systemFailure   [0]  UnavailableNetworkResource,
-  scfTaskRefused  [1]  ScfTaskRefusedParameter,
-  securityError
-    [2]  SET {problem   [0]  SecurityProblem--,--
---              spkmInfo  [1]  SPKM-ERROR--}
-}
+--FailureReason ::= CHOICE {
+--  systemFailure   [0]  UnavailableNetworkResource,
+--  scfTaskRefused  [1]  ScfTaskRefusedParameter,
+--  securityError
+--    [2]  SET {problem   [0]  SecurityProblem,
+--              spkmInfo  [1]  SPKM-ERROR}
+--}
 
 scfTaskRefused ERROR ::= {
   PARAMETER  ScfTaskRefusedParameter

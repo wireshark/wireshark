@@ -23,6 +23,7 @@ ServiceKey
 #.OMIT_ASSIGNMENT
 # Removed as they are giving 'defined but not used' warnings currently.
 Priority
+RejectProblem
 #.END
 
 #.TYPE_RENAME

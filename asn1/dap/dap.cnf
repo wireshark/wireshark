@@ -74,7 +74,6 @@ CommonResultsSeq
 #.EXPORTS
 Filter
 Referral
-SecurityParameters
 EntryModification
 ContextSelection
 DirectoryBindArgument
@@ -104,6 +103,7 @@ Abandoned
 SearchControlOptions 
 SecurityError
 SecurityProblem
+SecurityParameters
 ServiceControlOptions
 AbandonFailedError
 UpdateError
