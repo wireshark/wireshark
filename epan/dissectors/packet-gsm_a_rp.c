@@ -593,4 +593,10 @@ proto_register_gsm_a_rp(void)
 void
 proto_reg_handoff_gsm_a_rp(void)
 {
+    dissector_handle_t	gsm_a_rp_handle;
+
+	gsm_a_rp_handle = create_dissector_handle(dissect_rp, proto_a_rp);
+	/* Dissect messages embedded in SIP */
+	dissector_add_string("media_type","application/vnd.3gpp.sms", gsm_a_rp_handle);
+
 }
