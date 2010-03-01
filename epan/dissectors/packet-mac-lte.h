@@ -121,6 +121,8 @@ typedef struct mac_lte_tap_info {
 } mac_lte_tap_info;
 
 
+/* Accessor function to check if a frame was considered to be ReTx */
+int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 
 /*****************************************************************/
 /* UDP framing format                                            */

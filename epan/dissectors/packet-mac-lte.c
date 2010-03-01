@@ -1304,6 +1304,11 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
     DLHARQResult *result = NULL;
     proto_item *result_ti;
 
+    /* FDD only for now! */
+    if (p_mac_lte_info->radioType != FDD_RADIO) {
+        return FALSE;
+    }
+
     if (!pinfo->fd->flags.visited) {
         /* First time, so set result and update DL harq table */
         LastFrameData *lastData = NULL;
@@ -1328,6 +1333,7 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
                     gint nseconds_between_packets =
                           pinfo->fd->abs_ts.nsecs - lastData->received_time.nsecs;
 
+                    /* TODO: want to round to nearest millisecond */
                     gint total_gap = (seconds_between_packets*1000) +
                                      (nseconds_between_packets / 1000000);
 
@@ -1382,6 +1388,22 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
     return (result != NULL);
 }
 
+
+/* Return TRUE if the given packet is thought to be a retx */
+int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction)
+{
+    if (direction == DIRECTION_UPLINK) {
+        /* For UL, retx count is stored in per-packet struct */
+        struct mac_lte_info *p_mac_lte_info = p_get_proto_data(pinfo->fd, proto_mac_lte);
+        return ((p_mac_lte_info != NULL) && (p_mac_lte_info->reTxCount > 0));
+    }
+    else {
+        /* For DL, must consult result table */
+        return (g_hash_table_lookup(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num)) != NULL);
+    }
+}
+
+
 /* Track UL frames, so that when a retx is indicated, we can search for
    the original tx.  We will either find it, and provide a link back to it,
    or flag that we couldn't find as an expert error */
@@ -1390,6 +1412,11 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
                                       proto_item *retx_ti)
 {
     ULHARQResult *result = NULL;
+
+    /* FDD only for now! */
+    if (p_mac_lte_info->radioType != FDD_RADIO) {
+        return;
+    }
 
     if (!pinfo->fd->flags.visited) {
         /* First time, so set result and update UL harq table */

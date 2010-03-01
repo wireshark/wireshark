@@ -35,6 +35,7 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 
+#include "packet-mac-lte.h"
 #include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
 
@@ -128,6 +129,8 @@ static int hf_rlc_lte_sequence_analysis_ok = -1;
 static int hf_rlc_lte_sequence_analysis_previous_frame = -1;
 static int hf_rlc_lte_sequence_analysis_expected_sn = -1;
 static int hf_rlc_lte_sequence_analysis_framing_info_correct = -1;
+
+static int hf_rlc_lte_sequence_analysis_mac_retx = -1;
 static int hf_rlc_lte_sequence_analysis_retx = -1;
 static int hf_rlc_lte_sequence_analysis_repeated = -1;
 static int hf_rlc_lte_sequence_analysis_skipped = -1;
@@ -315,7 +318,7 @@ static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo,
         } else {
             offset++;
         }
- 
+
         s_lengths[s_number_of_extensions++] = (guint16)length;
     }
 
@@ -488,7 +491,7 @@ typedef struct
     guint16   lastSN;
 
     /* AM Only */
-    enum { SN_OK, SN_Repeated, SN_Retx, SN_Missing} amState;
+    enum { SN_OK, SN_Repeated, SN_MAC_Retx, SN_Retx, SN_Missing} amState;
 } state_report_in_frame;
 
 
@@ -513,8 +516,7 @@ static GHashTable *rlc_lte_frame_report_hash = NULL;
 
 /* Add to the tree values associated with sequence analysis for this frame */
 static void addChannelSequenceInfo(state_report_in_frame *p,
-                                   guint16   UEId,
-                                   guint8    rlcMode,
+                                   rlc_lte_info *p_rlc_lte_info,
                                    guint16   sequenceNumber,
                                    gboolean  newSegmentStarted,
                                    rlc_lte_tap_info *tap_info,
@@ -534,7 +536,7 @@ static void addChannelSequenceInfo(state_report_in_frame *p,
                                          ett_rlc_lte_sequence_analysis);
     PROTO_ITEM_SET_GENERATED(seqnum_ti);
 
-    switch (rlcMode) {
+    switch (p_rlc_lte_info->rlcMode) {
         case RLC_AM_MODE:
 
             /********************************************/
@@ -547,7 +549,20 @@ static void addChannelSequenceInfo(state_report_in_frame *p,
                     PROTO_ITEM_SET_GENERATED(ti);
                     proto_item_append_text(seqnum_ti, " - OK");
                     break;
-        
+
+                case SN_MAC_Retx:
+                    ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
+                                                tvb, 0, 0, FALSE);
+                    PROTO_ITEM_SET_GENERATED(ti);
+                    ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_mac_retx,
+                                                tvb, 0, 0, TRUE);
+                    PROTO_ITEM_SET_GENERATED(ti);
+                    expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+                                           "AM Frame retransmitted for %s on UE %u - due to MAC retx!",
+                                           val_to_str(p_rlc_lte_info->direction, direction_vals, "Unknown"),
+                                           p_rlc_lte_info->ueid);
+                    break;
+
                 case SN_Retx:
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                 tvb, 0, 0, FALSE);
@@ -556,8 +571,9 @@ static void addChannelSequenceInfo(state_report_in_frame *p,
                                                 tvb, 0, 0, TRUE);
                     PROTO_ITEM_SET_GENERATED(ti);
                     expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                           "AM Frame retransmitted for UE %u - most likely in response to NACK",
-                                           UEId);
+                                           "AM Frame retransmitted for %s on UE %u - most likely in response to NACK",
+                                           val_to_str(p_rlc_lte_info->direction, direction_vals, "Unknown"),
+                                           p_rlc_lte_info->ueid);
                     proto_item_append_text(seqnum_ti, " - SN %u retransmitted", p->firstSN);
                     break;
 
@@ -569,8 +585,9 @@ static void addChannelSequenceInfo(state_report_in_frame *p,
                                                 tvb, 0, 0, TRUE);
                     PROTO_ITEM_SET_GENERATED(ti);
                     expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                           "AM SN Repeated for UE %u - probably because didn't receive Status PDU, or maybe MAC Retx?",
-                                           UEId);
+                                           "AM SN Repeated for %s for UE %u - probably because didn't receive Status PDU?",
+                                           val_to_str(p_rlc_lte_info->direction, direction_vals, "Unknown"),
+                                           p_rlc_lte_info->ueid);
                     proto_item_append_text(seqnum_ti, "- SN %u Repeated",
                                            p->sequenceExpected);
                     break;
@@ -584,16 +601,18 @@ static void addChannelSequenceInfo(state_report_in_frame *p,
                     PROTO_ITEM_SET_GENERATED(ti);
                     if (p->lastSN != p->firstSN) {
                         expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                               "AM SNs missing for UE %u (%u to %u)",
-                                               UEId, p->firstSN, p->lastSN);
+                                               "AM SNs missing for %s on UE %u (%u to %u)",
+                                               val_to_str(p_rlc_lte_info->direction, direction_vals, "Unknown"),
+                                               p_rlc_lte_info->ueid, p->firstSN, p->lastSN);
                         proto_item_append_text(seqnum_ti, " - SNs missing (%u to %u)",
                                                p->firstSN, p->lastSN);
                         tap_info->missingSNs = ((p->lastSN - p->firstSN) % 1024) + 1;
                     }
                     else {
                         expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                               "AM SN missing for UE %u (%u)",
-                                               UEId, p->firstSN);
+                                               "AM SN missing for %s on UE %u (%u)",
+                                               val_to_str(p_rlc_lte_info->direction, direction_vals, "Unknown"),
+                                               p_rlc_lte_info->ueid, p->firstSN);
                         proto_item_append_text(seqnum_ti, " - SN missing (%u)",
                                                p->firstSN);
                         tap_info->missingSNs = 1;
@@ -613,18 +632,18 @@ static void addChannelSequenceInfo(state_report_in_frame *p,
                 proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_previous_frame,
                                     tvb, 0, 0, p->previousFrameNum);
             }
-        
+
             /* Expected sequence number */
             ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_expected_sn,
                                     tvb, 0, 0, p->sequenceExpected);
             PROTO_ITEM_SET_GENERATED(ti);
-        
-        
+
             if (!p->sequenceExpectedCorrect) {
                 /* Incorrect sequence number */
                 expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                       "Wrong Sequence Number for UE %u - got %u, expected %u",
-                                       UEId, sequenceNumber, p->sequenceExpected);
+                                       "Wrong Sequence Number for %s on UE %u - got %u, expected %u",
+                                       val_to_str(p_rlc_lte_info->direction, direction_vals, "Unknown"),
+                                       p_rlc_lte_info->ueid, sequenceNumber, p->sequenceExpected);
             }
             else {
                 /* Correct sequence number, so check frame indication bits consistent */
@@ -636,7 +655,7 @@ static void addChannelSequenceInfo(state_report_in_frame *p,
                         if (!p->sequenceExpectedCorrect) {
                             expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
                                                    "Last segment of previous PDU was not continued for UE %u",
-                                                   UEId);
+                                                   p_rlc_lte_info->ueid);
                         }
                     }
                     else {
@@ -658,7 +677,7 @@ static void addChannelSequenceInfo(state_report_in_frame *p,
                        ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
                                                    tvb, 0, 0, TRUE);
                     }
-        
+
                 }
                 PROTO_ITEM_SET_GENERATED(ti);
             }
@@ -686,8 +705,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
         p_report_in_frame = (state_report_in_frame*)g_hash_table_lookup(rlc_lte_frame_report_hash,
                                                                         &pinfo->fd->num);
         if (p_report_in_frame != NULL) {
-            addChannelSequenceInfo(p_report_in_frame, p_rlc_lte_info->ueid,
-                                   p_rlc_lte_info->rlcMode,
+            addChannelSequenceInfo(p_report_in_frame, p_rlc_lte_info,
                                    sequenceNumber, first_includes_start,
                                    tap_info, pinfo, tree, tvb);
             return;
@@ -773,8 +791,17 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                - new SN, but with frames missed out
                Assume window whose front is at expectedSequenceNumber */
 
+            /* First of all, check to see whether frame is judged to be MAC Retx */
+            if (is_mac_lte_frame_retx(pinfo, p_rlc_lte_info->direction)) {
+                /* Just report that this is a MAC Retx */
+                p_report_in_frame->amState = SN_MAC_Retx;
+
+                /* No channel state to update */
+            }
+
+
             /* Expected? */
-            if (sequenceNumber == expectedSequenceNumber) {
+            else if (sequenceNumber == expectedSequenceNumber) {
 
                 /* Set report for this frame */
                 p_report_in_frame->sequenceExpectedCorrect = TRUE;
@@ -844,8 +871,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     g_hash_table_insert(rlc_lte_frame_report_hash, &pinfo->fd->num, p_report_in_frame);
 
     /* Add state report for this frame into tree */
-    addChannelSequenceInfo(p_report_in_frame, p_rlc_lte_info->ueid,
-                           p_rlc_lte_info->rlcMode, sequenceNumber,
+    addChannelSequenceInfo(p_report_in_frame, p_rlc_lte_info, sequenceNumber,
                            first_includes_start, tap_info, pinfo, tree, tvb);
 }
 
@@ -1083,6 +1109,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
                                           proto_item *status_ti,
                                           int offset,
                                           proto_item *top_ti,
+                                          rlc_lte_info *p_rlc_lte_info,
                                           rlc_lte_tap_info *tap_info)
 {
     guint8     cpt;
@@ -1158,11 +1185,15 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
             /* Report as expert info */
             if (e2) {
                 expert_add_info_format(pinfo, nack_ti, PI_SEQUENCE, PI_WARN,
-                                       "Status PDU reports NACK for SN=%u (partial)", (guint16)nack_sn);
+                                       "Status PDU reports NACK (partial) on %s for UE %u",
+                                       val_to_str(p_rlc_lte_info->direction, direction_vals, "Unknown"),
+                                       p_rlc_lte_info->ueid);
             }
             else {
                 expert_add_info_format(pinfo, nack_ti, PI_SEQUENCE, PI_WARN,
-                                       "Status PDU reports NACK for SN=%u", (guint16)nack_sn);
+                                       "Status PDU reports NACK on %s for UE %u",
+                                       val_to_str(p_rlc_lte_info->direction, direction_vals, "Unknown"),
+                                       p_rlc_lte_info->ueid);
             }
 
             bit_offset++;
@@ -1257,7 +1288,8 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
         /* Control PDUs are a completely separate format  */
         dissect_rlc_lte_am_status_pdu(tvb, pinfo, am_header_tree, am_header_ti,
-                                      offset, top_ti, tap_info);
+                                      offset, top_ti,
+                                      p_rlc_lte_info, tap_info);
         return;
     }
 
@@ -1978,6 +2010,12 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_sequence_analysis_framing_info_correct,
             { "Frame info continued correctly",
               "rlc-lte.sequence-analysis.framing-info-correct", FT_BOOLEAN, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_rlc_lte_sequence_analysis_mac_retx,
+            { "Frame retransmitted by MAC",
+              "rlc-lte.sequence-analysis.mac-retx", FT_BOOLEAN, BASE_NONE, 0, 0x0,
               NULL, HFILL
             }
         },
