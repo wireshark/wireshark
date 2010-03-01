@@ -206,7 +206,7 @@ void _cnd_find_hash_key_for_class_id(gpointer key,
                                      gpointer user_data){
   char* class_id = (char*)user_data;
   char* key_value = (char*)key;
-  if(strcmp(class_id, key_value) == 0) pkey = key;
+  if(strcmp(class_id, key_value) == 0) pkey = key_value;
 } /* END _cnd_find_hash_key_for_class_id() */
 
 /*

@@ -273,7 +273,7 @@ static int need_timeout_workaround;
  */
 #define THREAD_READ_TIMEOUT   100
 #define THREAD_OPEN_TIMEOUT   (5 * 1000000)
-static char *cap_pipe_err_str;
+static const char *cap_pipe_err_str;
 
 static void
 console_log_handler(const char *log_domain, GLogLevelFlags log_level,
@@ -457,7 +457,7 @@ print_statistics_loop(gboolean machine_readable)
     }
 
     for (if_entry = g_list_first(if_list); if_entry != NULL; if_entry = g_list_next(if_entry)) {
-        if_info = if_entry->data;
+        if_info = (if_info_t *)if_entry->data;
 #ifdef HAVE_PCAP_OPEN
         pch = pcap_open(if_info->name, MIN_PACKET_SIZE, 0, 0, NULL, errbuf);
 #else
@@ -465,7 +465,7 @@ print_statistics_loop(gboolean machine_readable)
 #endif
 
         if (pch) {
-            if_stat = g_malloc(sizeof(if_stat_t));
+            if_stat = (if_stat_t *)g_malloc(sizeof(if_stat_t));
             if_stat->name = g_strdup(if_info->name);
             if_stat->pch = pch;
             stat_list = g_list_append(stat_list, if_stat);
@@ -485,7 +485,7 @@ print_statistics_loop(gboolean machine_readable)
     global_ld.go = TRUE;
     while (global_ld.go) {
         for (stat_entry = g_list_first(stat_list); stat_entry != NULL; stat_entry = g_list_next(stat_entry)) {
-            if_stat = stat_entry->data;
+            if_stat = (if_stat_t *)stat_entry->data;
             pcap_stats(if_stat->pch, &ps);
 
             if (!machine_readable) {
@@ -507,7 +507,7 @@ print_statistics_loop(gboolean machine_readable)
 
     /* XXX - Not reached.  Should we look for 'q' in stdin? */
     for (stat_entry = g_list_first(stat_list); stat_entry != NULL; stat_entry = g_list_next(stat_entry)) {
-        if_stat = stat_entry->data;
+        if_stat = (if_stat_t *)stat_entry->data;
         pcap_close(if_stat->pch);
         g_free(if_stat->name);
         g_free(if_stat);
@@ -598,14 +598,14 @@ static void
 /* '='   means 'all= '  ie: no capabilities                                  */
 /* '=ip' means 'all=ip' ie: all capabilities are permissible and inheritable */
 /* ....                                                                      */
-print_caps(char *pfx) {
+print_caps(const char *pfx) {
     cap_t caps = cap_get_proc();
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
           "%s: EUID: %d  Capabilities: %s", pfx,
           geteuid(), cap_to_text(caps, NULL));
     cap_free(caps);
 #else
-print_caps(char *pfx _U_) {
+print_caps(const char *pfx _U_) {
 #endif
 }
 
@@ -656,7 +656,7 @@ relinquish_privs_except_capture(void)
 
 
 static void
-relinquish_all_capabilities()
+relinquish_all_capabilities(void)
 {
     /* Drop any and all capabilities this process may have.            */
     /* Allowed whether or not process has any privileges.              */
@@ -2559,7 +2559,7 @@ static void
 capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
   const u_char *pd)
 {
-  loop_data *ld = (void *) user;
+  loop_data *ld = (loop_data *) (void *) user;
   int err;
 
   /* We may be called multiple times from pcap_dispatch(); if we've set

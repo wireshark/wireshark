@@ -112,7 +112,7 @@ int
 megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pmi)
 {
 	megacostat_t *ms=(megacostat_t *)pms;
-	const gcp_cmd_t *mi=(gcp_cmd_t*)pmi;
+	const gcp_cmd_t *mi=(const gcp_cmd_t*)pmi;
 	nstime_t delta;
 	int ret = 0;
 
