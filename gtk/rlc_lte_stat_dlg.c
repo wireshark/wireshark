@@ -1109,7 +1109,10 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     pdu_source_lb = gtk_frame_new("PDUs to use");
     show_mac_cb = gtk_check_button_new_with_mnemonic("Show RLC PDUs found inside logged MAC frames");
     gtk_container_add(GTK_CONTAINER(pdu_source_lb), show_mac_cb);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(show_mac_cb), FALSE);
+
+    /* MAC on by default */
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(show_mac_cb), TRUE);
+    hs->show_mac = TRUE;
     gtk_box_pack_start(GTK_BOX(top_level_vbox), pdu_source_lb, FALSE, FALSE, 0);
     /* TODO: add tooltips... */
     g_signal_connect(show_mac_cb, "toggled", G_CALLBACK(toggle_show_mac), hs);
