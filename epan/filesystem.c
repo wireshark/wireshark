@@ -420,7 +420,7 @@ init_progfile_dir(const char *arg0
 			return g_strdup_printf("pathconf failed: %s\n",
 			    strerror(errno));
 		}
-		curdir = g_malloc(path_max);
+		curdir = (char *)g_malloc(path_max);
 		if (getcwd(curdir, path_max) == NULL) {
 			/*
 			 * It failed - give up, and just stick
@@ -448,7 +448,7 @@ init_progfile_dir(const char *arg0
 				if (path_end == NULL)
 					path_end = path_start + strlen(path_start);
 				path_component_len = path_end - path_start;
-				path = g_malloc(path_component_len + 1
+				path = (char *)g_malloc(path_component_len + 1
 				    + strlen(arg0) + 1);
 				memcpy(path, path_start, path_component_len);
 				path[path_component_len] = '\0';
@@ -603,7 +603,7 @@ get_datafile_dir(void)
 #ifdef _WIN32
 	char *u3deviceexecpath;
 #endif
-	static char *datafile_dir = NULL;
+	static const char *datafile_dir = NULL;
 
 	if (datafile_dir != NULL)
 		return datafile_dir;
@@ -1321,12 +1321,13 @@ copy_persconffile_profile(const char *toname, const char *fromname, char **pf_fi
 /*
  * Get the (default) directory in which personal data is stored.
  *
- * On Win32, this is the "My Documents" folder in the personal profile.
+ * On Win32, this is the "My Documents" folder in the personal profile,
+ * except that, if we're running from a U3 device, this is the
+ * "$U3_DEVICE_DOCUMENT_PATH\My Captures" folder.
  * On UNIX this is simply the current directory.
- * On a U3 device this is "$U3_DEVICE_DOCUMENT_PATH\My Captures" folder.
  */
 /* XXX - should this and the get_home_dir() be merged? */
-extern char *
+extern const char *
 get_persdatafile_dir(void)
 {
 #ifdef _WIN32
@@ -1334,7 +1335,6 @@ get_persdatafile_dir(void)
 	TCHAR tszPath[MAX_PATH];
 	char *szPath;
 	BOOL bRet;
-
 
 	/* Return the cached value, if available */
 	if (persdatafile_dir != NULL)
@@ -1346,28 +1346,30 @@ get_persdatafile_dir(void)
 	u3devicedocumentpath = getenv_utf8("U3_DEVICE_DOCUMENT_PATH");
 
 	if (u3devicedocumentpath != NULL) {
+		/* the "My Captures" sub-directory is created (if it doesn't
+		   exist) by u3util.exe when the U3 Wireshark is first run */
 
-	  /* the "My Captures" sub-directory is created (if it doesn't exist)
-		 by u3util.exe when the U3 Wireshark is first run */
+		szPath = g_strdup_printf("%s%s", u3devicedocumentpath, U3_MY_CAPTURES);
 
-	  szPath = g_strdup_printf("%s%s", u3devicedocumentpath, U3_MY_CAPTURES);
-
-	  persdatafile_dir = szPath;
-	  return szPath;
-
-		} else {
-	/* Hint: SHGetFolderPath is not available on MSVC 6 - without Platform SDK */
-	bRet = SHGetSpecialFolderPath(NULL, tszPath, CSIDL_PERSONAL, FALSE);
-	if(bRet == TRUE) {
-		szPath = utf_16to8(tszPath);
 		persdatafile_dir = szPath;
 		return szPath;
 	} else {
-		return "";
+		/*
+		 * Hint: SHGetFolderPath is not available on MSVC 6 - without
+		 * Platform SDK
+		 */
+		bRet = SHGetSpecialFolderPath(NULL, tszPath, CSIDL_PERSONAL,
+		    FALSE);
+		if(bRet == TRUE) {
+			szPath = utf_16to8(tszPath);
+			persdatafile_dir = szPath;
+			return szPath;
+		} else {
+			return "";
+		}
 	}
-}
 #else
-  return "";
+	return "";
 #endif
 }
 

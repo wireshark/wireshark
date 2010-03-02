@@ -222,7 +222,7 @@ file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* parent_te)
 
 
 void
-set_last_open_dir(char *dirname)
+set_last_open_dir(const char *dirname)
 {
     size_t len;
     gchar *new_last_open_dir;

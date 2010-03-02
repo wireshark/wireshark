@@ -186,7 +186,7 @@ extern char *get_persconffile_path(const char *filename, gboolean from_profile,
  * On Win32, this is the "My Documents" folder in the personal profile.
  * On UNIX this is simply the current directory.
  */
-extern char *get_persdatafile_dir(void);
+extern const char *get_persdatafile_dir(void);
 
 /*
  * Construct the path name of a file in $TMP/%TEMP% directory.

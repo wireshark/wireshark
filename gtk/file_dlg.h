@@ -110,6 +110,6 @@ extern char *get_last_open_dir(void);
  *
  * @param dirname the dirname
  */
-extern void set_last_open_dir(char *dirname);
+extern void set_last_open_dir(const char *dirname);
 
 #endif
