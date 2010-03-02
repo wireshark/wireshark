@@ -114,21 +114,19 @@ void topic_cb(GtkWidget *widget, topic_action_e topic);
  * @param widget parent widget (unused)
  * @param data user_data (unused)
  * @param topic the topic to display
+ * @return TRUE
  */
-void topic_menu_cb(GtkWidget *widget _U_, gpointer data _U_, topic_action_e topic);
+gboolean topic_menu_cb(GtkWidget *widget _U_, gpointer data _U_, topic_action_e topic);
 
 /** Redraw all the help dialog text widgets, to use a new font. */
 void help_redraw(void);
 
 
-/*
- * Open the help dialog and show a specific HTML help page.
- */
+/** Open the help dialog and show a specific HTML help page. */
 void help_topic_html(const gchar *topic);
 
-/* get the url string of one of the ONLINEPAGE_xxx values */
-const char *
-topic_online_url(topic_action_e action);
+/** get the url string of one of the ONLINEPAGE_xxx values */
+const char *topic_online_url(topic_action_e action);
 
 
 #endif

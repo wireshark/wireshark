@@ -346,8 +346,10 @@ topic_cb(GtkWidget *w _U_, topic_action_e action)
     topic_action(action);
 }
 
-void
-topic_menu_cb(GtkWidget *w _U_, gpointer data _U_, topic_action_e action) {
+gboolean
+topic_menu_cb(GtkWidget *w _U_, gpointer data _U_, topic_action_e action)
+{
     topic_action(action);
+    return TRUE;
 }
 
