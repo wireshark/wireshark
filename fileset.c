@@ -62,8 +62,8 @@
 
 
 typedef struct _fileset {
-  GList         *entries;
-  const char    *dirname;
+  GList   *entries;
+  char    *dirname;
 } fileset;
 
 /* this is the fileset's global data */
@@ -192,7 +192,7 @@ fileset_add_file(const char *dirname, const char *fname, gboolean current)
 
         /* Show statistics if they are valid */
         if( result == 0 ) {
-            entry = g_malloc(sizeof(fileset_entry));
+            entry = (fileset_entry *)g_malloc(sizeof(fileset_entry));
 
             entry->fullname = g_strdup(path);
             entry->name     = g_strdup(fname);
@@ -217,10 +217,10 @@ fileset_add_file(const char *dirname, const char *fname, gboolean current)
 static gint
 fileset_sort_compare(gconstpointer a, gconstpointer b)
 {
-    const fileset_entry *entry_a = a;
-    const fileset_entry *entry_b = b;
+    const fileset_entry *entry_a = (const fileset_entry *)a;
+    const fileset_entry *entry_b = (const fileset_entry *)b;
 
-	return strcmp(entry_a->name, entry_b->name);
+    return strcmp(entry_a->name, entry_b->name);
 }
 
 
@@ -233,7 +233,7 @@ void fileset_update_dlg(void)
     /* add all entires to the dialog */
     le = g_list_first(set.entries);
     while(le) {
-        fileset_dlg_add_file(le->data);
+        fileset_dlg_add_file((fileset_entry *)le->data);
         le = g_list_next(le);
     }
 }
@@ -306,7 +306,7 @@ fileset_get_current(void)
     /* add all entires to the dialog */
     le = g_list_first(set.entries);
     while(le) {
-        entry = le->data;
+        entry = (fileset_entry *)le->data;
         if(entry->current) {
             return le;
         }
@@ -334,7 +334,7 @@ fileset_get_next(void)
         return NULL;
     }
 
-    return le->data;
+    return (fileset_entry *)le->data;
 }
 
 
@@ -355,14 +355,14 @@ fileset_get_previous(void)
         return NULL;
     }
 
-    return le->data;
+    return (fileset_entry *)le->data;
 }
 
 
 /* delete a single entry */
 static void fileset_entry_delete(gpointer data, gpointer user_data _U_)
 {
-    fileset_entry *entry = data;
+    fileset_entry *entry = (fileset_entry *)data;
 
     g_free( (gpointer) entry->fullname);
     entry->fullname = NULL;

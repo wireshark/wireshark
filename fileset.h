@@ -31,12 +31,12 @@ extern "C" {
 
 
 typedef struct _fileset_entry {
-  const char    *fullname;      /* File name with path (g_strdup'ed) */
-  const char    *name;          /* File name without path (g_strdup'ed) */
-  time_t        ctime;          /* create time */
-  time_t        mtime;          /* last modified time */
-  gint64        size;           /* size of file in bytes */
-  gboolean      current;        /* is this the currently loaded file? */
+  char     *fullname;      /* File name with path (g_strdup'ed) */
+  char     *name;          /* File name without path (g_strdup'ed) */
+  time_t   ctime;          /* create time */
+  time_t   mtime;          /* last modified time */
+  gint64   size;           /* size of file in bytes */
+  gboolean current;        /* is this the currently loaded file? */
 } fileset_entry;
 
 
