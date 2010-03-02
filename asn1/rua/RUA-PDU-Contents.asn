@@ -1,6 +1,6 @@
 -- RUA-PDU-Contents.asn
 --
--- 3GPP TS 25.468 V8.1.0 (2009-12)
+-- 3GPP TS 25.468 V9.0.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/html-info/25468.htm
 --
 -- 9.3.3	PDU definitions
@@ -32,7 +32,8 @@ IMPORTS
 	Cause,
 	CriticalityDiagnostics,
 	Context-ID,
-	CN-DomainIndicator,
+	CN-DomainIndicator, 
+	CSGMembershipStatus,
 	IntraDomainNasNodeSelector,
 	RANAP-Message,
 	Establishment-Cause
@@ -53,7 +54,8 @@ FROM RUA-Containers
 	id-Cause,
 	id-CriticalityDiagnostics,
 	id-Context-ID,
-	id-CN-DomainIndicator,
+	id-CN-DomainIndicator, 
+ 	id-CSGMembershipStatus,
 	id-RANAP-Message,
 	id-IntraDomainNasNodeSelector,
 	id-Establishment-Cause
@@ -83,6 +85,8 @@ ConnectIEs RUA-PROTOCOL-IES ::= {
 }
 
 ConnectExtensions RUA-PROTOCOL-EXTENSION ::= {
+	{ ID id-CSGMembershipStatus		CRITICALITY	 ignore		EXTENSION CSGMembershipStatus		PRESENCE optional	},
+
 	...
 }
 

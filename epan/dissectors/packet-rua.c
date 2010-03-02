@@ -81,7 +81,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_RANAP_Message =   4,
   id_IntraDomainNasNodeSelector =   5,
   id_Establishment_Cause =   6,
-  id_CN_DomainIndicator =   7
+  id_CN_DomainIndicator =   7,
+  id_CSGMembershipStatus =   9
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-rua-val.h ---*/
@@ -94,6 +95,7 @@ static int proto_rua = -1;
 /*--- Included file: packet-rua-hf.c ---*/
 #line 1 "packet-rua-hf.c"
 static int hf_rua_CN_DomainIndicator_PDU = -1;    /* CN_DomainIndicator */
+static int hf_rua_CSGMembershipStatus_PDU = -1;   /* CSGMembershipStatus */
 static int hf_rua_Establishment_Cause_PDU = -1;   /* Establishment_Cause */
 static int hf_rua_Context_ID_PDU = -1;            /* Context_ID */
 static int hf_rua_IntraDomainNasNodeSelector_PDU = -1;  /* IntraDomainNasNodeSelector */
@@ -324,6 +326,7 @@ static const value_string rua_ProtocolIE_ID_vals[] = {
   { id_IntraDomainNasNodeSelector, "id-IntraDomainNasNodeSelector" },
   { id_Establishment_Cause, "id-Establishment-Cause" },
   { id_CN_DomainIndicator, "id-CN-DomainIndicator" },
+  { id_CSGMembershipStatus, "id-CSGMembershipStatus" },
   { 0, NULL }
 };
 
@@ -487,6 +490,22 @@ static int
 dissect_rua_CN_DomainIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string rua_CSGMembershipStatus_vals[] = {
+  {   0, "member" },
+  {   1, "non-member" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_rua_CSGMembershipStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -1184,6 +1203,14 @@ static int dissect_CN_DomainIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_CSGMembershipStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rua_CSGMembershipStatus(tvb, offset, &asn1_ctx, tree, hf_rua_CSGMembershipStatus_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Establishment_Cause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -1345,6 +1372,10 @@ void proto_register_rua(void) {
       { "CN-DomainIndicator", "rua.CN_DomainIndicator",
         FT_UINT32, BASE_DEC, VALS(rua_CN_DomainIndicator_vals), 0,
         "rua.CN_DomainIndicator", HFILL }},
+    { &hf_rua_CSGMembershipStatus_PDU,
+      { "CSGMembershipStatus", "rua.CSGMembershipStatus",
+        FT_UINT32, BASE_DEC, VALS(rua_CSGMembershipStatus_vals), 0,
+        "rua.CSGMembershipStatus", HFILL }},
     { &hf_rua_Establishment_Cause_PDU,
       { "Establishment-Cause", "rua.Establishment_Cause",
         FT_UINT32, BASE_DEC, VALS(rua_Establishment_Cause_vals), 0,
@@ -1698,6 +1729,7 @@ proto_reg_handoff_rua(void)
   dissector_add("rua.ies", id_IntraDomainNasNodeSelector, new_create_dissector_handle(dissect_IntraDomainNasNodeSelector_PDU, proto_rua));
   dissector_add("rua.ies", id_Establishment_Cause, new_create_dissector_handle(dissect_Establishment_Cause_PDU, proto_rua));
   dissector_add("rua.ies", id_CN_DomainIndicator, new_create_dissector_handle(dissect_CN_DomainIndicator_PDU, proto_rua));
+  dissector_add("rua.extension", id_CSGMembershipStatus, new_create_dissector_handle(dissect_CSGMembershipStatus_PDU, proto_rua));
   dissector_add("rua.proc.imsg", id_Connect, new_create_dissector_handle(dissect_Connect_PDU, proto_rua));
   dissector_add("rua.proc.imsg", id_DirectTransfer, new_create_dissector_handle(dissect_DirectTransfer_PDU, proto_rua));
   dissector_add("rua.proc.imsg", id_Disconnect, new_create_dissector_handle(dissect_Disconnect_PDU, proto_rua));

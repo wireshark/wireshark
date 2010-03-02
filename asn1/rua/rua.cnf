@@ -84,6 +84,8 @@ IntraDomainNasNodeSelector		N rua.ies id-IntraDomainNasNodeSelector
 Establishment-Cause				N rua.ies id-Establishment-Cause
 CN-DomainIndicator				N rua.ies id-CN-DomainIndicator
 
+#RUA-PROTOCOL-EXTENSION
+CSGMembershipStatus				N rua.extension id-CSGMembershipStatus
 
 #RUA-ELEMENTARY-PROCEDURE
 Connect							N rua.proc.imsg id-Connect

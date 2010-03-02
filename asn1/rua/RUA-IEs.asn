@@ -1,6 +1,6 @@
 -- RUA-IEs.asn
 --
--- 3GPP TS 25.468 V8.1.0 (2009-12)
+-- 3GPP TS 25.468 V9.0.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/html-info/25468.htm
 --
 -- 9.3.4	Information Element definitions
@@ -42,6 +42,12 @@ CN-DomainIndicator ::= ENUMERATED {
 	cs-domain, 
 	ps-domain 
 }
+
+CSGMembershipStatus ::= ENUMERATED { 
+	member, 
+	non-member,
+	...
+	}
 
 Establishment-Cause		::= ENUMERATED {
 							emergency-call,
