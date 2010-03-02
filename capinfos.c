@@ -253,7 +253,7 @@ ctime_no_lf(const time_t* timer)
 static gchar *
 time_string(const time_t *timer, capture_info *cf_info, gboolean want_lf)
 {
-  gchar *lf = want_lf ? "\n" : "";
+  const gchar *lf = want_lf ? "\n" : "";
   static gchar time_string_buf[15];
 
   if (cf_info->packet_count > 0) {
@@ -278,7 +278,7 @@ secs_nsecs(const struct wtap_nstime * nstime)
   return (nstime->nsecs / 1000000000.0) + (double)nstime->secs;
 }
 
-static void print_value(gchar *text_p1, gint width, gchar *text_p2, double value) {
+static void print_value(const gchar *text_p1, gint width, const gchar *text_p2, double value) {
   if (value > 0.0)
     printf("%s%.*f%s\n", text_p1, width, value, text_p2);
   else
@@ -333,7 +333,7 @@ putquote(void)
 }
 
 static void
-print_stats_table_header_label(gchar *label)
+print_stats_table_header_label(const gchar *label)
 {
   putsep();
   putquote();
@@ -886,7 +886,7 @@ main(int argc, char *argv[])
       gcry_md_enable(hd, GCRY_MD_RMD160);
       gcry_md_enable(hd, GCRY_MD_MD5);
     }
-    hash_buf = g_malloc(HASH_BUF_SIZE);
+    hash_buf = (char *)g_malloc(HASH_BUF_SIZE);
   }
 #endif
 
