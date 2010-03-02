@@ -143,6 +143,7 @@ static int hf_rlc_lte_sequence_analysis_retx = -1;
 static int hf_rlc_lte_sequence_analysis_repeated = -1;
 static int hf_rlc_lte_sequence_analysis_skipped = -1;
 
+static int hf_rlc_lte_sequence_analysis_repeated_nack = -1;
 
 /* Subtrees. */
 static int ett_rlc_lte = -1;
@@ -301,9 +302,9 @@ typedef struct
     guint16  previousSequenceNumber;
     guint32  previousFrameNum;
     gboolean previousSegmentIncomplete;
-} rlc_channel_status;
+} rlc_channel_sequence_analysis_status;
 
-/* The sequence analysis channel hash table instance itself        */
+/* The sequence analysis channel hash table */
 static GHashTable *rlc_lte_sequence_analysis_channel_hash = NULL;
 
 
@@ -331,17 +332,30 @@ typedef struct
 /* The sequence analysis frame report hash table instance itself   */
 static GHashTable *rlc_lte_frame_sequence_analysis_report_hash = NULL;
 
-/* TODO: add types for repeated NACKs table */
+
+/******************************************************************/
+/* Conversation-type status for repeated NACK checking on channel */
+typedef struct
+{
+    guint8          noOfNACKs;
+    guint16         NACKs[MAX_NACKs];
+} rlc_channel_repeated_nack_status;
+
+static GHashTable *rlc_lte_repeated_nack_channel_hash = NULL;
+
+typedef struct {
+    guint8          noOfNACKsRepeated;
+    guint16         repeatedNACKs[MAX_NACKs];
+} rlc_channel_repeated_nack_report_in_frame;
+
+static GHashTable *rlc_lte_frame_repeated_nack_report_hash = NULL;
 
 
 
-/* Forwad declarations */
+/********************************************************/
+/* Forward declarations & functions                     */
 void proto_reg_handoff_rlc_lte(void);
 void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-
-
-
 
 /* Dissect extension headers (common to both UM and AM) */
 static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo,
@@ -541,8 +555,7 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
     seqnum_ti = proto_tree_add_string_format(tree,
                                              hf_rlc_lte_sequence_analysis,
                                              tvb, 0, 0,
-                                             "",
-                                             "Sequence Analysis");
+                                             "", "Sequence Analysis");
     seqnum_tree = proto_item_add_subtree(seqnum_ti,
                                          ett_rlc_lte_sequence_analysis);
     PROTO_ITEM_SET_GENERATED(seqnum_ti);
@@ -706,9 +719,9 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 {
     rlc_channel_hash_key   channel_key;
     rlc_channel_hash_key   *p_channel_key;
-    rlc_channel_status     *p_channel_status;
+    rlc_channel_sequence_analysis_status     *p_channel_status;
     state_sequence_analysis_report_in_frame  *p_report_in_frame = NULL;
-    guint8                 createdChannel = FALSE;
+    gboolean               createdChannel = FALSE;
     guint16                expectedSequenceNumber = 0;
 
     /* If find stat_report_in_frame already, use that and get out */
@@ -736,7 +749,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     channel_key.direction = p_rlc_lte_info->direction;
 
     /* Do the table lookup */
-    p_channel_status = (rlc_channel_status*)g_hash_table_lookup(rlc_lte_sequence_analysis_channel_hash, &channel_key);
+    p_channel_status = (rlc_channel_sequence_analysis_status*)g_hash_table_lookup(rlc_lte_sequence_analysis_channel_hash, &channel_key);
 
     /* Create table entry if necessary */
     if (p_channel_status == NULL) {
@@ -744,7 +757,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 
         /* Allocate a new key and value */
         p_channel_key = se_alloc(sizeof(rlc_channel_hash_key));
-        p_channel_status = se_alloc0(sizeof(rlc_channel_status));
+        p_channel_status = se_alloc0(sizeof(rlc_channel_sequence_analysis_status));
 
         /* Copy key contents */
         memcpy(p_channel_key, &channel_key, sizeof(rlc_channel_hash_key));
@@ -884,6 +897,152 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     /* Add state report for this frame into tree */
     addChannelSequenceInfo(p_report_in_frame, p_rlc_lte_info, sequenceNumber,
                            first_includes_start, tap_info, pinfo, tree, tvb);
+}
+
+
+/* Add to the tree values associated with sequence analysis for this frame */
+static void addChannelRepeatedNACKInfo(rlc_channel_repeated_nack_report_in_frame *p,
+                                       rlc_lte_info *p_rlc_lte_info _U_,
+                                       packet_info *pinfo, proto_tree *tree,
+                                       tvbuff_t *tvb)
+{
+    proto_tree *seqnum_tree;
+    proto_item *seqnum_ti;
+    proto_item *ti;
+    gint       n;
+
+    /* Create subtree */
+    seqnum_ti = proto_tree_add_string_format(tree,
+                                             hf_rlc_lte_sequence_analysis,
+                                             tvb, 0, 0,
+                                             "", "Sequence Analysis");
+    seqnum_tree = proto_item_add_subtree(seqnum_ti,
+                                         ett_rlc_lte_sequence_analysis);
+    PROTO_ITEM_SET_GENERATED(seqnum_ti);
+
+    /* OK = FALSE */
+    ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
+                                tvb, 0, 0, FALSE);
+    PROTO_ITEM_SET_GENERATED(ti);
+
+    /* Add each repeated NACK as item & expert info */
+    for (n=0; n < p->noOfNACKsRepeated; n++) {
+
+        ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_repeated_nack,
+                                 tvb, 0, 0, p->repeatedNACKs[n]);
+        PROTO_ITEM_SET_GENERATED(ti);
+
+        expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_ERROR,
+                               "Same SN  (%u) NACKd for %s on UE %u in successive Status PDUs",
+                               p->repeatedNACKs[n],
+                               val_to_str(p_rlc_lte_info->direction, direction_vals, "Unknown"),
+                               p_rlc_lte_info->ueid);
+    }
+
+    /* Append count to sequence analysis root */
+    proto_item_append_text(seqnum_ti, " - %u SNs repeated from previous Status PDU",
+                           p->noOfNACKsRepeated);         
+}
+
+
+/* Update the channel repeated NACK status and set report for this frame */
+static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
+                                         rlc_lte_info *p_rlc_lte_info,
+                                         rlc_lte_tap_info *tap_info,
+                                         proto_tree *tree,
+                                         tvbuff_t *tvb)
+{
+    rlc_channel_hash_key   channel_key;
+    rlc_channel_hash_key   *p_channel_key;
+    rlc_channel_repeated_nack_status     *p_channel_status;
+    rlc_channel_repeated_nack_report_in_frame  *p_report_in_frame = NULL;
+    gboolean                 createdChannel = FALSE;
+
+    guint8          noOfNACKsRepeated = 0;
+    guint16         repeatedNACKs[MAX_NACKs];
+    gint            n, i, j;
+
+    /* If find state_report_in_frame already, use that and get out */
+    if (pinfo->fd->flags.visited) {
+        p_report_in_frame = (rlc_channel_repeated_nack_report_in_frame*)g_hash_table_lookup(rlc_lte_frame_repeated_nack_report_hash,
+                                                                                            &pinfo->fd->num);
+        if (p_report_in_frame != NULL) {
+            addChannelRepeatedNACKInfo(p_report_in_frame, p_rlc_lte_info,
+                                       pinfo, tree, tvb);
+            return;
+        }
+        else {
+            /* Give up - we must have tried already... */
+            return;
+        }
+    }
+
+
+    /**************************************************/
+    /* Create or find an entry for this channel state */
+    channel_key.ueId = p_rlc_lte_info->ueid;
+    channel_key.channelType = p_rlc_lte_info->channelType;
+    channel_key.channelId = p_rlc_lte_info->channelId;
+    channel_key.direction = p_rlc_lte_info->direction;
+
+    /* Do the table lookup */
+    p_channel_status = (rlc_channel_repeated_nack_status*)g_hash_table_lookup(rlc_lte_repeated_nack_channel_hash, &channel_key);
+
+    /* Create table entry if necessary */
+    if (p_channel_status == NULL) {
+        createdChannel = TRUE;
+
+        /* Allocate a new key and value */
+        p_channel_key = se_alloc(sizeof(rlc_channel_hash_key));
+        p_channel_status = se_alloc0(sizeof(rlc_channel_repeated_nack_status));
+
+        /* Copy key contents */
+        memcpy(p_channel_key, &channel_key, sizeof(rlc_channel_hash_key));
+        
+        /* Add entry to table */
+        g_hash_table_insert(rlc_lte_repeated_nack_channel_hash, p_channel_key, p_channel_status);
+    }
+
+    /* Copy NACKs from tap_info */
+    p_channel_status->noOfNACKs = tap_info->noOfNACKs;
+    for (n=0; n < tap_info->noOfNACKs; n++) {
+        p_channel_status->NACKs[n] = tap_info->NACKs[n];
+    }    
+
+    /* We can't detect duplicates yet if first status PDU on this channel! */
+    if (createdChannel) {
+        return;
+    }
+
+    /* Compare NACKs in status with NACKs in tap_info.
+       Note any that are repeated */
+    for (i=0; i < p_channel_status->noOfNACKs; i++) {
+        for (j=0; j < tap_info->noOfNACKs; j++) {
+            if (tap_info->NACKs[j] == p_channel_status->NACKs[i]) {
+                repeatedNACKs[noOfNACKsRepeated++] = p_channel_status->NACKs[i];
+            }
+        }
+    }
+    
+    if (noOfNACKsRepeated >= 1) {
+        gint n;
+
+        /* Create space for frame state_report */
+        p_report_in_frame = se_alloc(sizeof(rlc_channel_repeated_nack_report_in_frame));
+    
+        /* Copy in found duplicates */
+        for (n=0; n < tap_info->noOfNACKs; n++) {
+            p_report_in_frame->repeatedNACKs[n] = repeatedNACKs[n];
+        }
+        p_report_in_frame->noOfNACKsRepeated = noOfNACKsRepeated;
+    
+        /* Associate with this frame number */
+        g_hash_table_insert(rlc_lte_frame_repeated_nack_report_hash, &pinfo->fd->num, p_report_in_frame);
+    
+        /* Add state report for this frame into tree */
+        addChannelRepeatedNACKInfo(p_report_in_frame, p_rlc_lte_info,
+                                   pinfo, tree, tvb);
+    }
 }
 
 
@@ -1124,7 +1283,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 {
     guint8     cpt;
     guint64    ack_sn, nack_sn;
-    guint      nack_count = 0;
+    guint8     nack_count = 0;
     guint64    e1 = 0, e2 = 0;
     guint64    so_start, so_end;
     int        bit_offset = offset * 8;
@@ -1173,11 +1332,10 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
             /* NACK_SN */
             nack_ti = proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_nack_sn, tvb,
                                                   bit_offset, 10, &nack_sn, FALSE);
-            nack_count++;
             bit_offset += 10;
             col_append_fstr(pinfo->cinfo, COL_INFO, "  NACK_SN=%u", (guint16)nack_sn);
             proto_item_append_text(top_ti, "  NACK_SN=%u", (guint16)nack_sn);
-            tap_info->NACKs[nack_count] = (guint16)nack_sn;
+            tap_info->NACKs[nack_count++] = (guint16)nack_sn;
 
             /* E1 */
             proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_e1, tvb,
@@ -1245,6 +1403,18 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 
     /* Set selected length of control tree */
     proto_item_set_len(status_ti, offset);
+
+    
+    /* Repeated NACK analysis */
+    if (((global_rlc_lte_am_sequence_analysis == SEQUENCE_ANALYSIS_MAC_ONLY) &&
+         (p_get_proto_data(pinfo->fd, proto_mac_lte) != NULL)) ||
+        ((global_rlc_lte_am_sequence_analysis == SEQUENCE_ANALYSIS_RLC_ONLY) &&
+         (p_get_proto_data(pinfo->fd, proto_mac_lte) == NULL))) {
+
+        if (!is_mac_lte_frame_retx(pinfo, p_rlc_lte_info->direction)) {
+            checkChannelRepeatedNACKInfo(pinfo, p_rlc_lte_info, tap_info, tree, tvb);
+        }
+     }
 }
 
 
@@ -1727,14 +1897,23 @@ rlc_lte_init_protocol(void)
     if (rlc_lte_sequence_analysis_channel_hash) {
         g_hash_table_destroy(rlc_lte_sequence_analysis_channel_hash);
     }
-
     if (rlc_lte_frame_sequence_analysis_report_hash) {
         g_hash_table_destroy(rlc_lte_frame_sequence_analysis_report_hash);
     }
+    if (rlc_lte_repeated_nack_channel_hash) {
+        g_hash_table_destroy(rlc_lte_repeated_nack_channel_hash);
+    }
+    if (rlc_lte_frame_repeated_nack_report_hash) {
+        g_hash_table_destroy(rlc_lte_frame_repeated_nack_report_hash);
+    }
+
 
     /* Now create them over */
     rlc_lte_sequence_analysis_channel_hash = g_hash_table_new(rlc_channel_hash_func, rlc_channel_equal);
     rlc_lte_frame_sequence_analysis_report_hash = g_hash_table_new(rlc_frame_hash_func, rlc_frame_equal);
+
+    rlc_lte_repeated_nack_channel_hash = g_hash_table_new(rlc_channel_hash_func, rlc_channel_equal);
+    rlc_lte_frame_repeated_nack_report_hash = g_hash_table_new(rlc_frame_hash_func, rlc_frame_equal);
 }
 
 
@@ -2032,6 +2211,12 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_sequence_analysis_repeated,
             { "Repeated frame",
               "rlc-lte.sequence-analysis.repeated-frame", FT_BOOLEAN, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_rlc_lte_sequence_analysis_repeated_nack,
+            { "Repeated NACK",
+              "rlc-lte.sequence-analysis.repeated-nack", FT_UINT16, BASE_DEC, 0, 0x0,
               NULL, HFILL
             }
         },
