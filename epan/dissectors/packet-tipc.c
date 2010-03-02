@@ -757,32 +757,25 @@ tipc_v1_set_col_msgtype(packet_info *pinfo, guint8 user, guint8 msg_type)
 			 * src and dest address will be found at different location depending on User ad hdr_size
 			 */
 			datatype_hdr = TRUE;
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_data_msg_type_values, "unknown"), msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_data_msg_type_values, "unknown"), msg_type);
 			break;
 		case TIPC_NAME_DISTRIBUTOR:
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_name_dist_msg_type_values, "unknown"), msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_name_dist_msg_type_values, "unknown"), msg_type);
 			break;
 		case TIPC_CONNECTION_MANAGER:
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_cm_msg_type_values, "unknown"), msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_cm_msg_type_values, "unknown"), msg_type);
 			break;
 		case TIPC_ROUTING_MANAGER:
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_routing_mgr_msg_type_values, "unknown"), msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_routing_mgr_msg_type_values, "unknown"), msg_type);
 			break;
 		case TIPC_LINK_PROTOCOL:
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_link_prot_msg_type_values, "unknown"), msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_link_prot_msg_type_values, "unknown"), msg_type);
 			break;
 		case TIPC_CHANGEOVER_PROTOCOL:
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_cng_prot_msg_type_values, "unknown"), msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_cng_prot_msg_type_values, "unknown"), msg_type);
 			break;
 		case TIPC_SEGMENTATION_MANAGER:
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_sm_msg_type_values, "unknown"), msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_sm_msg_type_values, "unknown"), msg_type);
 			break;
 		case TIPC_MSG_BUNDLER:
 			break;
@@ -965,10 +958,8 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 
 				/* the info column shall not be deleted by the
 				 * encapsulated messages */
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_append_str(pinfo->cinfo, COL_INFO, " | ");
-					col_set_fence(pinfo->cinfo, COL_INFO);
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, " | ");
+				col_set_fence(pinfo->cinfo, COL_INFO);
 
 				dissect_tipc(data_tvb, pinfo, top_tree);
 
@@ -1418,19 +1409,16 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 					col_append_str(pinfo->cinfo, COL_INFO,
 								" (Message Reassembled)");
 				} else { /* Not last packet of reassembled Short Message */
-					if (check_col(pinfo->cinfo, COL_INFO))
-						col_append_fstr(pinfo->cinfo, COL_INFO,
-								" (Message fragment %u)", frag_no);
+					col_append_fstr(pinfo->cinfo, COL_INFO,
+							" (Message fragment %u)", frag_no);
 				}
 				if (new_tvb) { /* take it all */
 					data_tvb = new_tvb;
 
 					/* the info column shall not be deleted by the
 					 * encapsulated messages */
-					if (check_col(pinfo->cinfo, COL_INFO)) {
-						col_append_str(pinfo->cinfo, COL_INFO, " | ");
-						col_set_fence(pinfo->cinfo, COL_INFO);
-					}
+					col_append_str(pinfo->cinfo, COL_INFO, " | ");
+					col_set_fence(pinfo->cinfo, COL_INFO);
 					dissect_tipc(new_tvb, pinfo, top_tree);
 				} else { /* make a new subset */
 					data_tvb = tvb_new_subset(tipc_tvb, offset, len, reported_len);
@@ -1922,8 +1910,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 					proto_tree_add_text(tipc_tree, tvb, offset, -1, "TIPC_CHANGEOVER_PROTOCOL %s (%u)",
 							val_to_str(msg_type, tipc_cng_prot_msg_type_values, "unknown"), msg_type);
 					data_tvb = tvb_new_subset_remaining(tvb, offset);
-					if (check_col(pinfo->cinfo, COL_INFO))
-						col_set_fence(pinfo->cinfo, COL_INFO);
+					col_set_fence(pinfo->cinfo, COL_INFO);
 					dissect_tipc(data_tvb, pinfo, tipc_tree);
 					break;
 				default:
@@ -1970,9 +1957,8 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 					col_append_str(pinfo->cinfo, COL_INFO,
 								" (Message Reassembled)");
 				} else { /* Not last packet of reassembled Short Message */
-					if (check_col(pinfo->cinfo, COL_INFO))
-						col_append_fstr(pinfo->cinfo, COL_INFO,
-								" (Message fragment %u)", link_lev_seq_no);
+					col_append_fstr(pinfo->cinfo, COL_INFO,
+							" (Message fragment %u)", link_lev_seq_no);
 				}
 			}
 
@@ -1983,8 +1969,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 			}
 			pinfo->fragmented = save_fragmented;
 			if (new_tvb) {
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_set_fence(pinfo->cinfo, COL_INFO);
+				col_set_fence(pinfo->cinfo, COL_INFO);
 				dissect_tipc(next_tvb, pinfo, tipc_tree);
 				return;
 			}
@@ -1998,8 +1983,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 				msg_in_bundle_size = tvb_get_ntohl(tvb, offset);
 				proto_tree_add_text(tipc_tree, tvb, offset, msg_in_bundle_size, "%u Message in Bundle", msg_no);
 				data_tvb = tvb_new_subset(tvb, offset, msg_in_bundle_size, msg_in_bundle_size);
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_set_fence(pinfo->cinfo, COL_INFO);
+				col_set_fence(pinfo->cinfo, COL_INFO);
 				dissect_tipc(data_tvb, pinfo, tipc_tree);
 				offset = offset + msg_in_bundle_size;
 			}
@@ -2069,9 +2053,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0:
 		case TIPCv1:
 			msg_type = tvb_get_guint8(tipc_tvb, offset + 20)>>4;
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(user, tipc_user_values, "unknown"), user);
-			}
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(user, tipc_user_values, "unknown"), user);
 			/* Set msg type in info col and find out if its a data hdr or not */
 			datatype_hdr = tipc_v1_set_col_msgtype(pinfo, user, msg_type);
 			if (datatype_hdr) {
@@ -2098,12 +2080,9 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case TIPCv2:
 			msg_type = tvb_get_guint8(tipc_tvb, offset + 4)>>5;
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%-12s", val_to_str(user, tipcv2_user_short_str_vals, "unknown"));
-			}
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%-12s", val_to_str(user, tipcv2_user_short_str_vals, "unknown"));
 			/* Set msg type in info col */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				tipc_v2_set_info_col(tvb, pinfo, user, msg_type, hdr_size);
+			tipc_v2_set_info_col(tvb, pinfo, user, msg_type, hdr_size);
 
 			/* find out if its a data hdr or not */
 			switch (user) {
