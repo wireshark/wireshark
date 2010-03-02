@@ -79,7 +79,7 @@ color_filter_new(const gchar *name,    /* The name of the filter to create */
 {
 	color_filter_t *colorf;
 
-	colorf = g_malloc(sizeof (color_filter_t));
+	colorf = (color_filter_t *)g_malloc(sizeof (color_filter_t));
 	colorf->filter_name = g_strdup(name);
 	colorf->filter_text = g_strdup(filter_string);
 	colorf->bg_color = *bg_color;
@@ -137,8 +137,8 @@ color_filters_add_tmp(GSList **cfl)
 static gint
 color_filters_find_by_name_cb(gconstpointer arg1, gconstpointer arg2)
 {
-        color_filter_t *colorf = (color_filter_t *)arg1;
-        gchar          *name   = (gchar *)arg2;
+        const color_filter_t *colorf = (const color_filter_t *)arg1;
+        const gchar          *name   = (const gchar *)arg2;
 
         return (strstr(colorf->filter_name, name)==NULL) ? -1 : 0 ;
 }
@@ -148,12 +148,12 @@ color_filters_find_by_name_cb(gconstpointer arg1, gconstpointer arg2)
 void
 color_filters_set_tmp(guint8 filt_nr, gchar *filter, gboolean disabled)
 {
-	gchar  *name = NULL;
-	gchar  *tmpfilter = NULL;
-        GSList *cfl;
+	gchar          *name = NULL;
+	const gchar    *tmpfilter = NULL;
+        GSList         *cfl;
         color_filter_t *colorf;
         dfilter_t      *compiled_filter;
-	guint8 i;
+	guint8         i;
 
         /* Go through the tomporary filters and look for the same filter string.
          * If found, clear it so that a filter can be "moved" up and down the list
@@ -167,7 +167,7 @@ color_filters_set_tmp(guint8 filt_nr, gchar *filter, gboolean disabled)
 
                 name = g_strdup_printf("%s%02d",TEMP_COLOR_PREFIX,i);
                 cfl = g_slist_find_custom(color_filter_list, (gpointer *) name, color_filters_find_by_name_cb);
-                colorf = cfl->data;
+                colorf = (color_filter_t *)cfl->data;
 
                 /* Only change the filter rule if this is the rule to change or if
                  * a matching filter string has been found
@@ -230,7 +230,7 @@ color_filter_delete(color_filter_t *colorf)
 static void
 color_filter_delete_cb(gpointer filter_arg, gpointer unused _U_)
 {
-	color_filter_t *colorf = filter_arg;
+	color_filter_t *colorf = (color_filter_t *)filter_arg;
 
 	color_filter_delete(colorf);
 }
@@ -250,7 +250,7 @@ color_filter_clone(color_filter_t *colorf)
 {
 	color_filter_t *new_colorf;
 
-	new_colorf = g_malloc(sizeof (color_filter_t));
+	new_colorf = (color_filter_t *)g_malloc(sizeof (color_filter_t));
 	new_colorf->filter_name = g_strdup(colorf->filter_name);
 	new_colorf->filter_text = g_strdup(colorf->filter_text);
 	new_colorf->bg_color = colorf->bg_color;
@@ -266,10 +266,10 @@ color_filter_clone(color_filter_t *colorf)
 static void
 color_filter_list_clone_cb(gpointer filter_arg, gpointer cfl_arg)
 {
-    gpointer *cfl = cfl_arg;
+    GSList **cfl = (GSList **)cfl_arg;
     color_filter_t *new_colorf;
 
-    new_colorf = color_filter_clone(filter_arg);
+    new_colorf = color_filter_clone((color_filter_t *)filter_arg);
     *cfl = g_slist_append(*cfl, new_colorf);
 }
 
@@ -327,7 +327,7 @@ color_filters_cleanup(void)
 static void
 color_filters_clone_cb(gpointer filter_arg, gpointer user_data)
 {
-	color_filter_t * new_colorf = color_filter_clone(filter_arg);
+	color_filter_t * new_colorf = color_filter_clone((color_filter_t *)filter_arg);
         color_filter_add_cb (new_colorf, user_data);
 }
 
@@ -341,7 +341,7 @@ color_filters_clone(gpointer user_data)
 static void
 color_filter_compile_cb(gpointer filter_arg, gpointer unused _U_)
 {
-	color_filter_t *colorf = filter_arg;
+	color_filter_t *colorf = (color_filter_t *)filter_arg;
 
 	g_assert(colorf->c_colorfilter == NULL);
 	if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter)) {
@@ -357,7 +357,7 @@ color_filter_compile_cb(gpointer filter_arg, gpointer unused _U_)
 static void
 color_filter_validate_cb(gpointer filter_arg, gpointer unused _U_)
 {
-	color_filter_t *colorf = filter_arg;
+	color_filter_t *colorf = (color_filter_t *)filter_arg;
 
 	g_assert(colorf->c_colorfilter == NULL);
 	if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter)) {
@@ -422,8 +422,8 @@ color_filters_enable(gboolean enable)
 static void
 prime_edt(gpointer data, gpointer user_data)
 {
-	color_filter_t  *colorf = data;
-	epan_dissect_t   *edt = user_data;
+	color_filter_t  *colorf = (color_filter_t *)data;
+	epan_dissect_t   *edt = (epan_dissect_t *)user_data;
 
 	if (colorf->c_colorfilter != NULL)
 		epan_dissect_prime_dfilter(edt, colorf->c_colorfilter);
@@ -456,7 +456,7 @@ color_filters_colorize_packet(gint row, epan_dissect_t *edt)
         curr = color_filter_list;
 
         while(curr != NULL) {
-            colorf = curr->data;
+            colorf = (color_filter_t *)curr->data;
             if ( (!colorf->disabled) &&
                  (colorf->c_colorfilter != NULL) &&
                  dfilter_apply_edt(colorf->c_colorfilter, edt)) {
@@ -491,8 +491,8 @@ read_filters_file(FILE *f, gpointer user_data)
 	gboolean disabled = FALSE;
 	gboolean skip_end_of_line = FALSE;
 
-	name = g_malloc(name_len + 1);
-	filter_exp = g_malloc(filter_exp_len + 1);
+	name = (gchar *)g_malloc(name_len + 1);
+	filter_exp = (gchar *)g_malloc(filter_exp_len + 1);
 
 	while (1) {
 
@@ -540,7 +540,7 @@ read_filters_file(FILE *f, gpointer user_data)
 			if (i >= name_len) {
 				/* buffer isn't long enough; double its length.*/
 				name_len *= 2;
-				name = g_realloc(name, name_len + 1);
+				name = (gchar *)g_realloc(name, name_len + 1);
 			}
 			name[i++] = c;
 		}
@@ -562,7 +562,7 @@ read_filters_file(FILE *f, gpointer user_data)
 			if (i >= filter_exp_len) {
 				/* buffer isn't long enough; double its length.*/
 				filter_exp_len *= 2;
-				filter_exp = g_realloc(filter_exp, filter_exp_len + 1);
+				filter_exp = (gchar *)g_realloc(filter_exp, filter_exp_len + 1);
 			}
 			filter_exp[i++] = c;
 		}
@@ -719,8 +719,8 @@ struct write_filter_data
 static void
 write_filter(gpointer filter_arg, gpointer data_arg)
 {
-	struct write_filter_data *data = data_arg;
-	color_filter_t *colorf = filter_arg;
+	struct write_filter_data *data = (struct write_filter_data *)data_arg;
+	color_filter_t *colorf = (color_filter_t *)filter_arg;
 	FILE *f = data->f;
 
 	if ( (colorf->selected || !data->only_selected) &&
