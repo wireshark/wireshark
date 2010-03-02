@@ -545,22 +545,24 @@ const value_string special_mpls_top_label_type[] = {
 	{0,	NULL }
 };
 
-static void
+static proto_item *
 proto_tree_add_mpls_label(proto_tree * pdutree, tvbuff_t * tvb, int offset, int length, int level)
 {
+	proto_item * ti;
 	if( length == 3) {
 		guint8 b0 = tvb_get_guint8(tvb, offset);
 		guint8 b1 = tvb_get_guint8(tvb, offset + 1);
 		guint8 b2 = tvb_get_guint8(tvb, offset + 2);
-		proto_tree_add_text(pdutree, tvb, offset, length,
+		ti = proto_tree_add_text(pdutree, tvb, offset, length,
 			"MPLS-Label%d: %u exp-bits: %u %s", level,
 			((b0<<12)+(b1<<4)+(b2>>4)),
 			((b2>>1)&0x7),
 			((b2&0x1)?"top-of-stack":""));
 	} else {
-		proto_tree_add_text(pdutree, tvb, offset, length,
+		ti = proto_tree_add_text(pdutree, tvb, offset, length,
 			"MPLS-Label%d: bad length %d", level, length);
 	}
+	return ti;
 }
 
 void		proto_reg_handoff_netflow(void);
@@ -585,11 +587,11 @@ static int	dissect_v9_flowset(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
 static int	dissect_v9_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree,
 				int offset, guint16 id, guint length, hdrinfo_t * hdrinfo);
 static guint	dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree,
-			       int offset, struct v9_template * tplt);
+			       int offset, struct v9_template * tplt, hdrinfo_t * hdrinfo);
 static int	dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree,
 				   int offset, hdrinfo_t *hdrinfo, guint16 flowset_id);
 static int	dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, packet_info *pinfo,
-				    int offset, int len, hdrinfo_t * hdrinfo);
+				    int offset, int len, hdrinfo_t * hdrinfo, guint16 flowset_id);
 static int	v9_template_hash(guint16 id, const address * net_src,
 				 guint32 src_id);
 static struct v9_template *v9_template_get(guint16 id, address  * net_src,
@@ -1247,7 +1249,7 @@ dissect_v9_flowset(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, in
 		    offset, 2, FALSE);
 		offset += 2;
 
-		dissect_v9_template(pdutree, tvb, pinfo, offset, length - 4, hdrinfo);
+		dissect_v9_template(pdutree, tvb, pinfo, offset, length - 4, hdrinfo, flowset_id);
 	} else if ((flowset_id == 1) || (flowset_id == 3)) {
 		/* Option Template */
 		proto_tree_add_item(pdutree, hf_cflow_options_flowset_id, tvb,
@@ -1303,7 +1305,7 @@ dissect_v9_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int o
 			data_tree = proto_item_add_subtree(data_item,
 			    ett_dataflowset);
 
-			pdu_len = dissect_v9_pdu(tvb, pinfo, data_tree, offset, tplt);
+			pdu_len = dissect_v9_pdu(tvb, pinfo, data_tree, offset, tplt, hdrinfo);
 
 			offset += tplt->length;
                         /* XXX - Throw an exception */
@@ -1348,7 +1350,7 @@ dissect_v9_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int o
 
 static guint
 dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int offset,
-    struct v9_template * tplt)
+    struct v9_template * tplt, hdrinfo_t * hdrinfo)
 {
         int             orig_offset = offset;
 	int             i;
@@ -1428,7 +1430,7 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 		rev = 0;
 		type = tplt->entries[i].type;
 		length = tplt->entries[i].length;
-		if (type & 0x8000) {
+		if (hdrinfo->vspec == 10 && type & 0x8000) {
                   pen = tplt->entries[i].pen;
 		  if (pen == REVPEN) { /* reverse PEN */
 		    type &= 0x7fff;
@@ -1436,20 +1438,20 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 		  }
 		}
 
-                pen_type = pen << 16 | (type & 0x7fff);
-
+		pen_type = (pen > 0 && pen != REVPEN) ? pen << 16 | (type & 0x7fff) : type;
+		ti = NULL;
 		switch (pen_type) {
 
 		case 85: /* BYTES_PERMANENT */
 		case 1: /* bytes */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_octets,
+				ti = proto_tree_add_item(pdutree, hf_cflow_octets,
 				    tvb, offset, length, FALSE);
 			} else if (length == 8) {
-				proto_tree_add_item(pdutree, hf_cflow_octets64,
+				ti = proto_tree_add_item(pdutree, hf_cflow_octets64,
 				    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 				    tvb, offset, length,
 				    "Octets: length %u", length);
 			}
@@ -1458,13 +1460,13 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 		case 86: /* PACKETS_PERMANENT */
 		case 2: /* packets */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_packets,
+				ti = proto_tree_add_item(pdutree, hf_cflow_packets,
 				    tvb, offset, length, FALSE);
 			} else if (length == 8) {
-				proto_tree_add_item(pdutree, hf_cflow_packets64,
+				ti = proto_tree_add_item(pdutree, hf_cflow_packets64,
 				    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 				    tvb, offset, length,
 				    "Packets: length %u", length);
 			}
@@ -1473,134 +1475,134 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 		case 163: /*  observedFlowTotalCount */
 		case 3: /* flows */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_flows,
+				ti = proto_tree_add_item(pdutree, hf_cflow_flows,
 				    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 				    tvb, offset, length,
 				    "Flows: length %u", length);
 			}
 			break;
 
 		case 4: /* proto */
-			proto_tree_add_item(pdutree, hf_cflow_prot,
+			ti = proto_tree_add_item(pdutree, hf_cflow_prot,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 5: /* TOS */
-			proto_tree_add_item(pdutree, hf_cflow_tos,
+			ti = proto_tree_add_item(pdutree, hf_cflow_tos,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 6: /* TCP flags */
-			proto_tree_add_item(pdutree, hf_cflow_tcpflags,
+			ti = proto_tree_add_item(pdutree, hf_cflow_tcpflags,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 7: /* source port */
 		case 180: /*  udpSourcePort */
 		case 182: /*  tcpSourcePort */
-			proto_tree_add_item(pdutree, hf_cflow_srcport,
+			ti = proto_tree_add_item(pdutree, hf_cflow_srcport,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 8: /* source IP */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_srcaddr,
+				ti = proto_tree_add_item(pdutree, hf_cflow_srcaddr,
 				    tvb, offset, length, FALSE);
 			} else if (length == 16) {
-				proto_tree_add_item(pdutree, hf_cflow_srcaddr_v6,
+				ti = proto_tree_add_item(pdutree, hf_cflow_srcaddr_v6,
 				    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 				    tvb, offset, length,
 				    "SrcAddr: length %u", length);
 			}
 			break;
 
 		case 9: /* source mask */
-			proto_tree_add_item(pdutree, hf_cflow_srcmask,
+			ti = proto_tree_add_item(pdutree, hf_cflow_srcmask,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 10: /* input SNMP */
-			proto_tree_add_item(pdutree, hf_cflow_inputint,
+			ti = proto_tree_add_item(pdutree, hf_cflow_inputint,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 11: /* dest port */
 		case 181: /*  udpDestinationPort */
 		case 183: /*  tcpDestinationPort */
-			proto_tree_add_item(pdutree, hf_cflow_dstport,
+			ti = proto_tree_add_item(pdutree, hf_cflow_dstport,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 12: /* dest IP */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_dstaddr,
+				ti = proto_tree_add_item(pdutree, hf_cflow_dstaddr,
 				    tvb, offset, length, FALSE);
 			} else if (length == 16) {
-				proto_tree_add_item(pdutree, hf_cflow_dstaddr_v6,
+				ti = proto_tree_add_item(pdutree, hf_cflow_dstaddr_v6,
 				    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 				    tvb, offset, length,
 				    "DstAddr: length %u", length);
 			}
 			break;
 
 		case 13: /* dest mask */
-			proto_tree_add_item(pdutree, hf_cflow_dstmask,
+			ti = proto_tree_add_item(pdutree, hf_cflow_dstmask,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 14: /* output SNMP */
-			proto_tree_add_item(pdutree, hf_cflow_outputint,
+			ti = proto_tree_add_item(pdutree, hf_cflow_outputint,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 15: /* nexthop IP */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_nexthop,
+				ti = proto_tree_add_item(pdutree, hf_cflow_nexthop,
 				    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 				    tvb, offset, length,
 				    "NextHop: length %u", length);
 			}
 			break;
 
 		case 16: /* source AS */
-			proto_tree_add_item(pdutree, hf_cflow_srcas,
+			ti = proto_tree_add_item(pdutree, hf_cflow_srcas,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 17: /* dest AS */
-			proto_tree_add_item(pdutree, hf_cflow_dstas,
+			ti = proto_tree_add_item(pdutree, hf_cflow_dstas,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 18: /* BGP nexthop IP */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_bgpnexthop,
+				ti = proto_tree_add_item(pdutree, hf_cflow_bgpnexthop,
 				    tvb, offset, length, FALSE);
 			} else if (length == 16) {
-				proto_tree_add_item(pdutree, hf_cflow_bgpnexthop_v6,
+				ti = proto_tree_add_item(pdutree, hf_cflow_bgpnexthop_v6,
 				    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 				    tvb, offset, length,
 				    "BGPNextHop: length %u", length);
 			}
 			break;
 
 		case 19: /* multicast packets */
-			proto_tree_add_item(pdutree, hf_cflow_mulpackets,
+			ti = proto_tree_add_item(pdutree, hf_cflow_mulpackets,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 20: /* multicast octets */
-			proto_tree_add_item(pdutree, hf_cflow_muloctets,
+			ti = proto_tree_add_item(pdutree, hf_cflow_muloctets,
 			    tvb, offset, length, FALSE);
 			break;
 
@@ -1706,13 +1708,13 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 
 		case 23: /* postOctetDeltaCount */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_post_octets,
+				ti = proto_tree_add_item(pdutree, hf_cflow_post_octets,
 				    tvb, offset, length, FALSE);
 			} else if (length == 8) {
-				proto_tree_add_item(pdutree, hf_cflow_post_octets64,
+				ti = proto_tree_add_item(pdutree, hf_cflow_post_octets64,
 				    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 				    tvb, offset, length,
 				    "Post Octets: length %u", length);
 			}
@@ -1720,45 +1722,45 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 
 		case 24: /* postPacketDeltaCount */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_post_packets,
+				ti = proto_tree_add_item(pdutree, hf_cflow_post_packets,
 				    tvb, offset, length, FALSE);
 			} else if (length == 8) {
-				proto_tree_add_item(pdutree, hf_cflow_post_packets64,
+				ti = proto_tree_add_item(pdutree, hf_cflow_post_packets64,
 				    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 				    tvb, offset, length,
 				    "Post Packets: length %u", length);
 			}
 			break;
 
 		case 25: /* length_min */
-		  	  proto_tree_add_item(pdutree, hf_cflow_length_min,
+		  	  ti = proto_tree_add_item(pdutree, hf_cflow_length_min,
 				      tvb, offset, length, FALSE);
 		  	  break;
 
 		case 26: /* length_max */
-		  	  proto_tree_add_item(pdutree, hf_cflow_length_max,
+		  	  ti = proto_tree_add_item(pdutree, hf_cflow_length_max,
 				      tvb, offset, length, FALSE);
 		  	  break;
 
 		case 27: /* IPv6 src addr */
-		  	  proto_tree_add_item(pdutree, hf_cflow_srcaddr_v6,
+		  	  ti = proto_tree_add_item(pdutree, hf_cflow_srcaddr_v6,
 				      tvb, offset, length, FALSE);
 		  	  break;
 
 		case 28: /* IPv6 dst addr */
-		  	  proto_tree_add_item(pdutree, hf_cflow_dstaddr_v6,
+		  	  ti = proto_tree_add_item(pdutree, hf_cflow_dstaddr_v6,
 				      tvb, offset, length, FALSE);
 		  	  break;
 
 		case 29: /* IPv6 src addr mask */
-		  	  proto_tree_add_item(pdutree, hf_cflow_srcmask_v6,
+		  	  ti = proto_tree_add_item(pdutree, hf_cflow_srcmask_v6,
 				      tvb, offset, length, FALSE);
 		  	  break;
 
 		case 30: /* IPv6 dst addr mask */
-		  	  proto_tree_add_item(pdutree, hf_cflow_dstmask_v6,
+		  	  ti = proto_tree_add_item(pdutree, hf_cflow_dstmask_v6,
 				      tvb, offset, length, FALSE);
 		  	  break;
 
@@ -1766,202 +1768,202 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 		  /*  RFC5102 defines that Abstract Data Type of this
 		      Information Element is unsigned32 */
 		  if (length == 4) {
-		    proto_tree_add_item(pdutree, hf_cflow_ipv6_flowlabel,
+		    ti = proto_tree_add_item(pdutree, hf_cflow_ipv6_flowlabel,
 					tvb, offset, length, FALSE);
 		  }
 		  /* RFC3954 defines that length of this field is 3
 		     Bytes */
 		  else if (length == 3) {
-		    proto_tree_add_item(pdutree, hf_cflow_ipv6_flowlabel24,
+		    ti = proto_tree_add_item(pdutree, hf_cflow_ipv6_flowlabel24,
 					tvb, offset, length, FALSE);
 		  }
 		  break;
 
 		case 32: /* ICMP_TYPE */
-			proto_tree_add_item(pdutree, hf_cflow_icmp_type,
+			ti = proto_tree_add_item(pdutree, hf_cflow_icmp_type,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 33: /* IGMP_TYPE */
-			proto_tree_add_item(pdutree, hf_cflow_igmp_type,
+			ti = proto_tree_add_item(pdutree, hf_cflow_igmp_type,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 34: /* sampling interval */
-		  proto_tree_add_item(pdutree, hf_cflow_sampling_interval,
+		  ti = proto_tree_add_item(pdutree, hf_cflow_sampling_interval,
 				      tvb, offset, length, FALSE);
 		  break;
 
 		case 35: /* sampling algorithm */
-		  proto_tree_add_item(pdutree, hf_cflow_sampling_algorithm,
+		  ti = proto_tree_add_item(pdutree, hf_cflow_sampling_algorithm,
 				      tvb, offset, length, FALSE);
 		  break;
 
 		case 36: /* flow active timeout */
-		   proto_tree_add_item(pdutree, hf_cflow_flow_active_timeout,
+		   ti = proto_tree_add_item(pdutree, hf_cflow_flow_active_timeout,
 				      tvb, offset, length, FALSE);
 		  break;
 
 		case 37: /* flow inactive timeout */
-		   proto_tree_add_item(pdutree, hf_cflow_flow_inactive_timeout,
+		   ti = proto_tree_add_item(pdutree, hf_cflow_flow_inactive_timeout,
 				      tvb, offset, length, FALSE);
 		  break;
 
 		case 38: /* engine type */
-		   proto_tree_add_item(pdutree, hf_cflow_engine_type,
+		   ti = proto_tree_add_item(pdutree, hf_cflow_engine_type,
 				      tvb, offset, length, FALSE);
 		  break;
 
 		case 39: /* engine id*/
-		   proto_tree_add_item(pdutree, hf_cflow_engine_id,
+		   ti = proto_tree_add_item(pdutree, hf_cflow_engine_id,
 				      tvb, offset, length, FALSE);
 		  break;
 
 		case 40: /* bytes exported */
 			if( length == 8 ) {
-				proto_tree_add_item(pdutree, hf_cflow_octets_exp64,
+				ti = proto_tree_add_item(pdutree, hf_cflow_octets_exp64,
 					      tvb, offset, length, FALSE);
 			} else if( length == 4 ) {
-				proto_tree_add_item(pdutree, hf_cflow_octets_exp,
+				ti = proto_tree_add_item(pdutree, hf_cflow_octets_exp,
 					      tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree, tvb, offset, length,
+				ti = proto_tree_add_text(pdutree, tvb, offset, length,
 				    "BytesExported: length %u", length);
 			}
 			break;
 
 		case 41: /* packets exported */
 			if( length == 8 ) {
-				proto_tree_add_item(pdutree, hf_cflow_packets_exp64,
+				ti = proto_tree_add_item(pdutree, hf_cflow_packets_exp64,
 				    tvb, offset, length, FALSE);
 			} else if( length == 4 ) {
-				proto_tree_add_item(pdutree, hf_cflow_packets_exp,
+				ti = proto_tree_add_item(pdutree, hf_cflow_packets_exp,
 				    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree, tvb, offset, length,
+				ti = proto_tree_add_text(pdutree, tvb, offset, length,
 				    "PacketsExported: length %u", length);
 			}
 			break;
 
 		case 42: /* flows exported */
 			if( length == 8 ) {
-				proto_tree_add_item(pdutree, hf_cflow_flows_exp64,
+				ti = proto_tree_add_item(pdutree, hf_cflow_flows_exp64,
 				    tvb, offset, length, FALSE);
 			} else if( length == 4 ) {
-				proto_tree_add_item(pdutree, hf_cflow_flows_exp,
+				ti = proto_tree_add_item(pdutree, hf_cflow_flows_exp,
 				    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree, tvb, offset, length,
+				ti = proto_tree_add_text(pdutree, tvb, offset, length,
 				    "FlowsExported: length %u", length);
 			}
 			break;
 
 		case 44: /* IP source prefix */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_srcprefix,
+				ti = proto_tree_add_item(pdutree, hf_cflow_srcprefix,
 				    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree, tvb, offset, length,
+				ti = proto_tree_add_text(pdutree, tvb, offset, length,
 				    "SrcPrefix: length %u", length);
 			}
 			break;
 
 		case 45: /* IP destination prefix */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_dstprefix,
+				ti = proto_tree_add_item(pdutree, hf_cflow_dstprefix,
 				    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree, tvb, offset, length,
+				ti = proto_tree_add_text(pdutree, tvb, offset, length,
 				    "DstPrefix: length %u", length);
 			}
 			break;
 
 		case 46: /* top MPLS label type*/
-			proto_tree_add_item(pdutree, hf_cflow_mpls_top_label_type,
+			ti = proto_tree_add_item(pdutree, hf_cflow_mpls_top_label_type,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 47: /* top MPLS label PE address*/
-			proto_tree_add_item(pdutree, hf_cflow_mpls_pe_addr,
+			ti = proto_tree_add_item(pdutree, hf_cflow_mpls_pe_addr,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 48: /* Flow Sampler ID */
-			proto_tree_add_text(pdutree, tvb, offset, length,
+			ti = proto_tree_add_text(pdutree, tvb, offset, length,
 			    "FlowSamplerID: %d", tvb_get_guint8(tvb, offset));
 			break;
 
 		case 49: /* FLOW_SAMPLER_MODE  */
-			proto_tree_add_item(pdutree, hf_cflow_sampler_mode,
+			ti = proto_tree_add_item(pdutree, hf_cflow_sampler_mode,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 50: /* FLOW_SAMPLER_RANDOM_INTERVAL  */
-			proto_tree_add_item(pdutree, hf_cflow_sampler_random_interval,
+			ti = proto_tree_add_item(pdutree, hf_cflow_sampler_random_interval,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 51: /*  FLOW_CLASS */
-			proto_tree_add_item(pdutree, hf_cflow_flow_class,
+			ti = proto_tree_add_item(pdutree, hf_cflow_flow_class,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 52: /*  TTL_MINIMUM */
-			proto_tree_add_item(pdutree, hf_cflow_ttl_minimum,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ttl_minimum,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 53: /*  TTL_MAXIMUM */
-			proto_tree_add_item(pdutree, hf_cflow_ttl_maximum,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ttl_maximum,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 54: /* IPV4_ID  */
-			proto_tree_add_item(pdutree, hf_cflow_ipv4_id,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ipv4_id,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 55: /* postIpClassOfService */
-			proto_tree_add_item(pdutree, hf_cflow_post_tos,
+			ti = proto_tree_add_item(pdutree, hf_cflow_post_tos,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 56: /* sourceMacAddress */
-			proto_tree_add_item(pdutree, hf_cflow_srcmac,
+			ti = proto_tree_add_item(pdutree, hf_cflow_srcmac,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 57: /* postDestinationMacAddress */
-			proto_tree_add_item(pdutree, hf_cflow_post_dstmac,
+			ti = proto_tree_add_item(pdutree, hf_cflow_post_dstmac,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 58: /* vlanId */
-			proto_tree_add_item(pdutree, hf_cflow_vlanid,
+			ti = proto_tree_add_item(pdutree, hf_cflow_vlanid,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 59: /* postVlanId */
-			proto_tree_add_item(pdutree, hf_cflow_post_vlanid,
+			ti = proto_tree_add_item(pdutree, hf_cflow_post_vlanid,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 60: /* IP_VERSION */
-			proto_tree_add_item(pdutree, hf_cflow_ip_version,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ip_version,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 61: /* DIRECTION   */
-			proto_tree_add_item(pdutree, hf_cflow_direction,
+			ti = proto_tree_add_item(pdutree, hf_cflow_direction,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 62: /* IPV6_NEXT_HOP */
 			if (length == 16) {
-				proto_tree_add_item(pdutree, hf_cflow_nexthop_v6,
+				ti = proto_tree_add_item(pdutree, hf_cflow_nexthop_v6,
 				    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 				    tvb, offset, length,
 				    "NextHop: length %u", length);
 			}
@@ -1969,87 +1971,87 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 
 		case 63: /* BGP_IPV6_NEXT_HOP */
 			if (length == 16) {
-				proto_tree_add_item(pdutree, hf_cflow_bgpnexthop_v6,
+				ti = proto_tree_add_item(pdutree, hf_cflow_bgpnexthop_v6,
 				    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 				    tvb, offset, length,
 				    "BGPNextHop: length %u", length);
 			}
 			break;
 
 		case 64: /* ipv6ExtensionHeaders */
-			proto_tree_add_item(pdutree, hf_cflow_ipv6_exthdr,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ipv6_exthdr,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 70: /* MPLS label1*/
-			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 1);
+			ti = proto_tree_add_mpls_label(pdutree, tvb, offset, length, 1);
 			break;
 
 		case 71: /* MPLS label2*/
-			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 2);
+			ti = proto_tree_add_mpls_label(pdutree, tvb, offset, length, 2);
 			break;
 
 		case 72: /* MPLS label3*/
-			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 3);
+			ti = proto_tree_add_mpls_label(pdutree, tvb, offset, length, 3);
 			break;
 
 		case 73: /* MPLS label4*/
-			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 4);
+			ti = proto_tree_add_mpls_label(pdutree, tvb, offset, length, 4);
 			break;
 
 		case 74: /* MPLS label5*/
-			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 5);
+			ti = proto_tree_add_mpls_label(pdutree, tvb, offset, length, 5);
 			break;
 
 		case 75: /* MPLS label6*/
-			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 6);
+			ti = proto_tree_add_mpls_label(pdutree, tvb, offset, length, 6);
 			break;
 
 		case 76: /* MPLS label7*/
-			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 7);
+			ti = proto_tree_add_mpls_label(pdutree, tvb, offset, length, 7);
 			break;
 
 		case 77: /* MPLS label8*/
-			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 8);
+			ti = proto_tree_add_mpls_label(pdutree, tvb, offset, length, 8);
 			break;
 
 		case 78: /* MPLS label9*/
-			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 9);
+			ti = proto_tree_add_mpls_label(pdutree, tvb, offset, length, 9);
 			break;
 
 		case 79: /* MPLS label10*/
-			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 10);
+			ti = proto_tree_add_mpls_label(pdutree, tvb, offset, length, 10);
 			break;
 
 		case 80: /* destinationMacAddress */
-			proto_tree_add_item(pdutree, hf_cflow_dstmac,
+			ti = proto_tree_add_item(pdutree, hf_cflow_dstmac,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 81: /* postSourceMacAddress */
-			proto_tree_add_item(pdutree, hf_cflow_post_srcmac,
+			ti = proto_tree_add_item(pdutree, hf_cflow_post_srcmac,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 82: /* IF_NAME  */
-			proto_tree_add_item(pdutree, hf_cflow_if_name,
+			ti = proto_tree_add_item(pdutree, hf_cflow_if_name,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 83: /* IF_DESCR  */
-			proto_tree_add_item(pdutree, hf_cflow_if_descr,
+			ti = proto_tree_add_item(pdutree, hf_cflow_if_descr,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 84: /* SAMPLER_NAME  */
-			proto_tree_add_item(pdutree, hf_cflow_sampler_name,
+			ti = proto_tree_add_item(pdutree, hf_cflow_sampler_name,
 			    tvb, offset, length, FALSE);
 			break;
 
                 case 88: /* fragmentOffset */
-                        proto_tree_add_item(pdutree, hf_cflow_fragment_offset,
+                        ti = proto_tree_add_item(pdutree, hf_cflow_fragment_offset,
 					    tvb, offset, length, FALSE);
 			break;
 
@@ -2061,70 +2063,70 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 			break;
 
                 case 90: /* mplsVpnRouteDistinguisher */
-                        proto_tree_add_item(pdutree, hf_cflow_mpls_vpn_rd,
+                        ti = proto_tree_add_item(pdutree, hf_cflow_mpls_vpn_rd,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 91: /* mplsTopLabelPrefixLength */
-			proto_tree_add_item(pdutree, hf_cflow_mpls_top_label_prefix_length,
+			ti = proto_tree_add_item(pdutree, hf_cflow_mpls_top_label_prefix_length,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 94: /* NBAR applicationDesc */
-			proto_tree_add_item(pdutree, hf_cflow_nbar_appl_desc,
+			ti = proto_tree_add_item(pdutree, hf_cflow_nbar_appl_desc,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 95: /* NBAR applicationId */
-			proto_tree_add_item(pdutree, hf_cflow_nbar_appl_id,
+			ti = proto_tree_add_item(pdutree, hf_cflow_nbar_appl_id,
 					    tvb, offset+2, 2, FALSE);
 			break;
 
 		case 96: /* NBAR applicationName */
-			proto_tree_add_item(pdutree, hf_cflow_nbar_appl_name,
+			ti = proto_tree_add_item(pdutree, hf_cflow_nbar_appl_name,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 98: /* postIpDiffServCodePoint */
-			proto_tree_add_item(pdutree, hf_cflow_post_ip_diff_serv_code_point,
+			ti = proto_tree_add_item(pdutree, hf_cflow_post_ip_diff_serv_code_point,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 99: /* multicastReplicationFactor */
-			proto_tree_add_item(pdutree, hf_cflow_multicast_replication_factor,
+			ti = proto_tree_add_item(pdutree, hf_cflow_multicast_replication_factor,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 128: /* source AS Peer */
-			proto_tree_add_item(pdutree, hf_cflow_peer_srcas,
+			ti = proto_tree_add_item(pdutree, hf_cflow_peer_srcas,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 129: /* dest AS Peer*/
-			proto_tree_add_item(pdutree, hf_cflow_peer_dstas,
+			ti = proto_tree_add_item(pdutree, hf_cflow_peer_dstas,
 			    tvb, offset, length, FALSE);
 			break;
 
                 case 130: /*  exporterIPv4Address */
-			proto_tree_add_item(pdutree, hf_cflow_exporter_addr,
+			ti = proto_tree_add_item(pdutree, hf_cflow_exporter_addr,
 					    tvb, offset, length, FALSE);
 			break;
 
                 case 131: /*  exporterIPv6Address */
-			proto_tree_add_item(pdutree,
+			ti = proto_tree_add_item(pdutree,
 					    hf_cflow_exporter_addr_v6,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 132: /*  droppedOctetDeltaCount */
 		        if (length == 4) {
-			  proto_tree_add_item(pdutree, hf_cflow_drop_octets,
+			  ti = proto_tree_add_item(pdutree, hf_cflow_drop_octets,
 					      tvb, offset, length, FALSE);
 			} else if (length == 8) {
-			  proto_tree_add_item(pdutree, hf_cflow_drop_octets64,
+			  ti = proto_tree_add_item(pdutree, hf_cflow_drop_octets64,
 					      tvb, offset, length, FALSE);
 			} else {
-			  proto_tree_add_text(pdutree, tvb, offset, length,
+			  ti = proto_tree_add_text(pdutree, tvb, offset, length,
 					      "Dropped Octets: length %u",
 					      length);
 			}
@@ -2132,13 +2134,13 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 
                 case 133: /*  droppedPacketDeltaCount */
 		        if (length == 4) {
-			  proto_tree_add_item(pdutree, hf_cflow_drop_packets,
+			  ti = proto_tree_add_item(pdutree, hf_cflow_drop_packets,
 					      tvb, offset, length, FALSE);
 			} else if (length == 8) {
-			  proto_tree_add_item(pdutree, hf_cflow_drop_packets64,
+			  ti = proto_tree_add_item(pdutree, hf_cflow_drop_packets64,
 					      tvb, offset, length, FALSE);
 			} else {
-			  proto_tree_add_text(pdutree, tvb, offset, length,
+			  ti = proto_tree_add_text(pdutree, tvb, offset, length,
 					      "Dropped Packets: length %u",
 					      length);
 			}
@@ -2146,111 +2148,111 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 
 		case 134: /*  droppedOctetTotalCount */
                         if (length == 4) {
-			  proto_tree_add_item(pdutree, hf_cflow_drop_total_octets,
+			  ti = proto_tree_add_item(pdutree, hf_cflow_drop_total_octets,
 					      tvb, offset, length, FALSE);
 			} else if (length == 8) {
-			  proto_tree_add_item(pdutree, hf_cflow_drop_total_octets64,
+			  ti = proto_tree_add_item(pdutree, hf_cflow_drop_total_octets64,
 					      tvb, offset, length, FALSE);
 			} else {
-			  proto_tree_add_text(pdutree, tvb, offset, length,
+			  ti = proto_tree_add_text(pdutree, tvb, offset, length,
 					      "Dropped Total Octets: length %u", length);
 			}
 			break;
 
 		case 135: /*  droppedPacketTotalCount */
 		        if (length == 4) {
-			  proto_tree_add_item(pdutree, hf_cflow_drop_total_packets,
+			  ti = proto_tree_add_item(pdutree, hf_cflow_drop_total_packets,
 					      tvb, offset, length, FALSE);
 			} else if (length == 8) {
-			  proto_tree_add_item(pdutree, hf_cflow_drop_total_packets64,
+			  ti = proto_tree_add_item(pdutree, hf_cflow_drop_total_packets64,
 					      tvb, offset, length, FALSE);
 			} else {
-			  proto_tree_add_text(pdutree, tvb, offset, length,
+			  ti = proto_tree_add_text(pdutree, tvb, offset, length,
 					      "Dropped Total Packets: length %u", length);
 			}
 			break;
 
 		case 136: /*  flowEndReason */
-		        proto_tree_add_item(pdutree, hf_cflow_flow_end_reason,
+		        ti = proto_tree_add_item(pdutree, hf_cflow_flow_end_reason,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 137: /*  commonPropertiesId */
-                        proto_tree_add_item(pdutree, hf_cflow_common_properties_id,
+                        ti = proto_tree_add_item(pdutree, hf_cflow_common_properties_id,
 					    tvb, offset, length, FALSE);
 			break;
 
                 case 138: /*  observationPointId */
-                        proto_tree_add_item(pdutree, hf_cflow_observation_point_id,
+                        ti = proto_tree_add_item(pdutree, hf_cflow_observation_point_id,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 139: /* icmpTypeCodeIPv6 */
-			proto_tree_add_item(pdutree, hf_cflow_icmp_ipv6_type,
+			ti = proto_tree_add_item(pdutree, hf_cflow_icmp_ipv6_type,
 			    tvb, offset, 1, FALSE);
-			proto_tree_add_item(pdutree, hf_cflow_icmp_ipv6_code,
+			ti = proto_tree_add_item(pdutree, hf_cflow_icmp_ipv6_code,
 			    tvb, offset + 1, 1, FALSE);
 			break;
 
 		case 140: /*  mplsTopLabelIPv6Address */
 			if (length == 16) {
-				proto_tree_add_item(pdutree,
+				ti = proto_tree_add_item(pdutree,
 						    hf_cflow_mpls_pe_addr_v6,
 						    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree, tvb, offset, length,
+				ti = proto_tree_add_text(pdutree, tvb, offset, length,
 						    "mplsTopLabelIPv6Addr: length %u",
 						    length);
 			}
 			break;
 
 		case 141: /*  lineCardId */
-			proto_tree_add_item(pdutree, hf_cflow_scope_linecard,
+			ti = proto_tree_add_item(pdutree, hf_cflow_scope_linecard,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 142: /*  portId */
-		        proto_tree_add_item(pdutree, hf_cflow_port_id,
+		        ti = proto_tree_add_item(pdutree, hf_cflow_port_id,
 					    tvb, offset, length, FALSE);
 			break;
 
                 case 143: /*  meteringProcessId */
-                        proto_tree_add_item(pdutree, hf_cflow_mp_id,
+                        ti = proto_tree_add_item(pdutree, hf_cflow_mp_id,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 144: /* FLOW EXPORTER */
-			proto_tree_add_item(pdutree, hf_cflow_flow_exporter,
+			ti = proto_tree_add_item(pdutree, hf_cflow_flow_exporter,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 145: /*  templateId */
-		        proto_tree_add_item(pdutree, hf_cflow_template_id,
+		        ti = proto_tree_add_item(pdutree, hf_cflow_template_id,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 146: /*  wlanChannelId */
-		        proto_tree_add_item(pdutree, hf_cflow_wlan_channel_id,
+		        ti = proto_tree_add_item(pdutree, hf_cflow_wlan_channel_id,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 147: /*  wlanSSID */
-		        proto_tree_add_item(pdutree, hf_cflow_wlan_ssid,
+		        ti = proto_tree_add_item(pdutree, hf_cflow_wlan_ssid,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 148: /*  flowId */
-		        proto_tree_add_item(pdutree, hf_cflow_flow_id,
+		        ti = proto_tree_add_item(pdutree, hf_cflow_flow_id,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 149: /*  observationDomainId */
-		        proto_tree_add_item(pdutree, hf_cflow_od_id,
+		        ti = proto_tree_add_item(pdutree, hf_cflow_od_id,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 160: /*  systemInitTimeMilliseconds */
-		        proto_tree_add_item(pdutree, hf_cflow_sysuptime,
+		        ti = proto_tree_add_item(pdutree, hf_cflow_sysuptime,
 					    tvb, offset, length, FALSE);
 		        break;
 
@@ -2258,7 +2260,7 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 			msec_delta = tvb_get_ntohl(tvb, offset);
 			ts_delta.secs = msec_delta / 1000;
 			ts_delta.nsecs = (msec_delta % 1000) * 1000000;
-			proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb,
+			ti = proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb,
 					    offset, length, &ts_delta);
 		        break;
 
@@ -2266,19 +2268,19 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 			msec_delta = tvb_get_ntohl(tvb, offset);
 			ts_delta.secs = msec_delta / 1000000;
 			ts_delta.nsecs = (msec_delta % 1000000) * 1000000;
-			proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb,
+			ti = proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb,
 					    offset, length, &ts_delta);
 		        break;
 
 		case 164: /*  ignoredPacketTotalCount */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_ignore_packets,
+				ti = proto_tree_add_item(pdutree, hf_cflow_ignore_packets,
 						    tvb, offset, length, FALSE);
 			} else if (length == 8) {
-				proto_tree_add_item(pdutree, hf_cflow_ignore_packets64,
+				ti = proto_tree_add_item(pdutree, hf_cflow_ignore_packets64,
 						    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 						    tvb, offset, length,
 						    "Ignored Packets: length %u", length);
 			}
@@ -2286,13 +2288,13 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 
 		case 165: /*  ignoredOctetTotalCount */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_ignore_octets,
+				ti = proto_tree_add_item(pdutree, hf_cflow_ignore_octets,
 						    tvb, offset, length, FALSE);
 			} else if (length == 8) {
-				proto_tree_add_item(pdutree, hf_cflow_ignore_octets64,
+				ti = proto_tree_add_item(pdutree, hf_cflow_ignore_octets64,
 						    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 						    tvb, offset, length,
 						    "Ignored Octets: length %u", length);
 			}
@@ -2300,13 +2302,13 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 
 		case 166: /*  notSentFlowTotalCount */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_notsent_flows,
+				ti = proto_tree_add_item(pdutree, hf_cflow_notsent_flows,
 						    tvb, offset, length, FALSE);
 			} else if (length == 8) {
-				proto_tree_add_item(pdutree, hf_cflow_notsent_flows64,
+				ti = proto_tree_add_item(pdutree, hf_cflow_notsent_flows64,
 						    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 						    tvb, offset, length,
 						    "Not Sent Flows: length %u", length);
 			}
@@ -2314,13 +2316,13 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 
 		case 167: /*  notSentPacketTotalCount */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_notsent_packets,
+				ti = proto_tree_add_item(pdutree, hf_cflow_notsent_packets,
 						    tvb, offset, length, FALSE);
 			} else if (length == 8) {
-				proto_tree_add_item(pdutree, hf_cflow_notsent_packets64,
+				ti = proto_tree_add_item(pdutree, hf_cflow_notsent_packets64,
 						    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 						    tvb, offset, length,
 						    "Not Sent Packets: length %u", length);
 			}
@@ -2328,13 +2330,13 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 
 		case 168: /*  notSentOctetTotalCount */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_notsent_packets,
+				ti = proto_tree_add_item(pdutree, hf_cflow_notsent_packets,
 						    tvb, offset, length, FALSE);
 			} else if (length == 8) {
-				proto_tree_add_item(pdutree, hf_cflow_notsent_packets64,
+				ti = proto_tree_add_item(pdutree, hf_cflow_notsent_packets64,
 						    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 						    tvb, offset, length,
 						    "Not Sent Packets: length %u", length);
 			}
@@ -2342,10 +2344,10 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 
  		case 169: /* destinationIPv6Prefix */
  			if (length == 16) {
- 				proto_tree_add_item(pdutree, hf_cflow_dstnet_v6,
+ 				ti = proto_tree_add_item(pdutree, hf_cflow_dstnet_v6,
 						    tvb, offset, length, FALSE);
 			} else {
- 				proto_tree_add_text(pdutree,
+ 				ti = proto_tree_add_text(pdutree,
 						    tvb, offset, length,
 						    "DstPrefix: length %u", length);
  			}
@@ -2353,10 +2355,10 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 
 		case 170: /* sourceIPv6Prefix */
 			if (length == 16) {
-				proto_tree_add_item(pdutree, hf_cflow_srcnet_v6,
+				ti = proto_tree_add_item(pdutree, hf_cflow_srcnet_v6,
 						    tvb, offset, length, FALSE);
 			} else if (length != 4 && length != 16) {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 						    tvb, offset, length,
 						    "SrcPrefix: length %u", length);
 			}
@@ -2364,13 +2366,13 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 
 		case 171: /* postOctetTotalCount */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_post_total_octets,
+				ti = proto_tree_add_item(pdutree, hf_cflow_post_total_octets,
 						    tvb, offset, length, FALSE);
 			} else if (length == 8) {
-				proto_tree_add_item(pdutree, hf_cflow_post_total_octets64,
+				ti = proto_tree_add_item(pdutree, hf_cflow_post_total_octets64,
 						    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 						    tvb, offset, length,
 						    "Post Total Octets: length %u", length);
 			}
@@ -2378,32 +2380,32 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 
 		case 172: /* postPacketTotalCount */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_post_total_packets,
+				ti = proto_tree_add_item(pdutree, hf_cflow_post_total_packets,
 						    tvb, offset, length, FALSE);
 			} else if (length == 8) {
-				proto_tree_add_item(pdutree, hf_cflow_post_total_packets64,
+				ti = proto_tree_add_item(pdutree, hf_cflow_post_total_packets64,
 						    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 						    tvb, offset, length,
 						    "Post Total Packets: length %u", length);
 			}
 			break;
 
 		case 173: /* flowKeyIndicator */
-		        proto_tree_add_item(pdutree, hf_cflow_key,
+		        ti = proto_tree_add_item(pdutree, hf_cflow_key,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 174: /* postMCastPacketTotalCount */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_post_total_mulpackets,
+				ti = proto_tree_add_item(pdutree, hf_cflow_post_total_mulpackets,
 						    tvb, offset, length, FALSE);
 			} else if (length == 8) {
-				proto_tree_add_item(pdutree, hf_cflow_post_total_mulpackets64,
+				ti = proto_tree_add_item(pdutree, hf_cflow_post_total_mulpackets64,
 						    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 						    tvb, offset, length,
 						    "Post Total Multicast Packets: length %u", length);
 			}
@@ -2411,756 +2413,756 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 
 		case 175: /* postMCastOctetTotalCount */
 			if (length == 4) {
-				proto_tree_add_item(pdutree, hf_cflow_post_total_muloctets,
+				ti = proto_tree_add_item(pdutree, hf_cflow_post_total_muloctets,
 						    tvb, offset, length, FALSE);
 			} else if (length == 8) {
-				proto_tree_add_item(pdutree, hf_cflow_post_total_muloctets64,
+				ti = proto_tree_add_item(pdutree, hf_cflow_post_total_muloctets64,
 						    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree,
+				ti = proto_tree_add_text(pdutree,
 						    tvb, offset, length,
 						    "Post Total Multicast Octets: length %u", length);
 			}
 			break;
 
 		case 176: /* ICMP_IPv4_TYPE */
-			proto_tree_add_item(pdutree, hf_cflow_icmp_ipv4_type,
+			ti = proto_tree_add_item(pdutree, hf_cflow_icmp_ipv4_type,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 177: /* ICMP_IPv4_CODE */
-			proto_tree_add_item(pdutree, hf_cflow_icmp_ipv4_code,
+			ti = proto_tree_add_item(pdutree, hf_cflow_icmp_ipv4_code,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 178: /* ICMP_IPv6_TYPE */
-			proto_tree_add_item(pdutree, hf_cflow_icmp_ipv6_type,
+			ti = proto_tree_add_item(pdutree, hf_cflow_icmp_ipv6_type,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 179: /* ICMP_IPv6_CODE */
-			proto_tree_add_item(pdutree, hf_cflow_icmp_ipv6_code,
+			ti = proto_tree_add_item(pdutree, hf_cflow_icmp_ipv6_code,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 184: /* tcpSequenceNumber */
-			proto_tree_add_item(pdutree, hf_cflow_tcp_seq_num,
+			ti = proto_tree_add_item(pdutree, hf_cflow_tcp_seq_num,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 185: /* tcpAcknowledgementNumber */
-			proto_tree_add_item(pdutree, hf_cflow_tcp_ack_num,
+			ti = proto_tree_add_item(pdutree, hf_cflow_tcp_ack_num,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 186: /* TCP_WINDOWS_SIZE */
-			proto_tree_add_item(pdutree, hf_cflow_tcp_window_size,
+			ti = proto_tree_add_item(pdutree, hf_cflow_tcp_window_size,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 187: /* tcpUrgentPointer */
-			proto_tree_add_item(pdutree, hf_cflow_tcp_urg_ptr,
+			ti = proto_tree_add_item(pdutree, hf_cflow_tcp_urg_ptr,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 188: /* tcpHeaderLength */
-			proto_tree_add_item(pdutree, hf_cflow_tcp_header_length,
+			ti = proto_tree_add_item(pdutree, hf_cflow_tcp_header_length,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 189: /* ipHeaderLength */
-			proto_tree_add_item(pdutree, hf_cflow_ip_header_length,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ip_header_length,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 190: /* IP_TOTAL_LENGTH */
-			proto_tree_add_item(pdutree, hf_cflow_ip_total_length,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ip_total_length,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 191: /* payloadLengthIPv6 */
-			proto_tree_add_item(pdutree, hf_cflow_ipv6_payload_length,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ipv6_payload_length,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 192: /* IP_TTL */
-			proto_tree_add_item(pdutree, hf_cflow_ip_ttl,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ip_ttl,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 193: /* nextHeaderIPv6 */
-			proto_tree_add_item(pdutree, hf_cflow_ipv6_next_hdr,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ipv6_next_hdr,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 194: /* IP_TOS */
-			proto_tree_add_item(pdutree, hf_cflow_ip_tos,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ip_tos,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 195: /* IP_DSCP */
-			proto_tree_add_item(pdutree, hf_cflow_ip_dscp,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ip_dscp,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 196: /* ipPrecedence */
-			proto_tree_add_item(pdutree, hf_cflow_ip_precedence,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ip_precedence,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 197: /* fragmentFlags */
-			proto_tree_add_item(pdutree, hf_cflow_ip_fragment_flags,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ip_fragment_flags,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 198: /* BYTES_SQUARED */
 		case 199: /* BYTES_SQUARED_PERMANENT */
 			if( length == 8 ) {
-				proto_tree_add_item(pdutree, hf_cflow_octets_squared64,
+				ti = proto_tree_add_item(pdutree, hf_cflow_octets_squared64,
 				    tvb, offset, length, FALSE);
 			} else {
-				proto_tree_add_text(pdutree, tvb, offset, length,
+				ti = proto_tree_add_text(pdutree, tvb, offset, length,
 				    "Bytes Squared: length %u", length);
 			}
 			break;
 		case 200: /* mplsTopLabelTTL */
-			proto_tree_add_item(pdutree, hf_cflow_mpls_top_label_ttl,
+			ti = proto_tree_add_item(pdutree, hf_cflow_mpls_top_label_ttl,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 201: /* mplsLabelStackLength */
-			proto_tree_add_item(pdutree, hf_cflow_mpls_label_length,
+			ti = proto_tree_add_item(pdutree, hf_cflow_mpls_label_length,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 202: /* mplsLabelStackDepth */
-			proto_tree_add_item(pdutree, hf_cflow_mpls_label_depth,
+			ti = proto_tree_add_item(pdutree, hf_cflow_mpls_label_depth,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 203: /* mplsTopLabelExp */
-			proto_tree_add_item(pdutree, hf_cflow_mpls_top_label_exp,
+			ti = proto_tree_add_item(pdutree, hf_cflow_mpls_top_label_exp,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 204: /* ipPayloadLength */
-			proto_tree_add_item(pdutree, hf_cflow_ip_payload_length,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ip_payload_length,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 205: /* UDP_LENGTH */
-			proto_tree_add_item(pdutree, hf_cflow_udp_length,
+			ti = proto_tree_add_item(pdutree, hf_cflow_udp_length,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 206: /* IS_MULTICAST */
-			proto_tree_add_item(pdutree, hf_cflow_is_multicast,
+			ti = proto_tree_add_item(pdutree, hf_cflow_is_multicast,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 207: /* IP_HEADER_WORDS */
-			proto_tree_add_item(pdutree, hf_cflow_ip_header_words,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ip_header_words,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 208: /* OPTION_MAP */
-			proto_tree_add_item(pdutree, hf_cflow_option_map,
+			ti = proto_tree_add_item(pdutree, hf_cflow_option_map,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 209: /* tcpOptions */
-			proto_tree_add_item(pdutree, hf_cflow_tcp_option_map,
+			ti = proto_tree_add_item(pdutree, hf_cflow_tcp_option_map,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 210: /* paddingOctets */
-			proto_tree_add_text(pdutree, tvb, offset, length,
+			ti = proto_tree_add_text(pdutree, tvb, offset, length,
 					    "Padding (%u byte%s)",
 					    length, plurality(length, "", "s"));
 			break;
 
 		case 211: /* collectorIPv4Address */
-			proto_tree_add_item(pdutree, hf_cflow_collector_addr,
+			ti = proto_tree_add_item(pdutree, hf_cflow_collector_addr,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 212: /* collectorIPv6Address */
-			proto_tree_add_item(pdutree, hf_cflow_collector_addr_v6,
+			ti = proto_tree_add_item(pdutree, hf_cflow_collector_addr_v6,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 213: /* exportInterface */
 		        if (length == 4) {
-			  proto_tree_add_item(pdutree, hf_cflow_export_interface,
+			  ti = proto_tree_add_item(pdutree, hf_cflow_export_interface,
 					      tvb, offset, length, FALSE);
 			} else {
-			  proto_tree_add_text(pdutree,
+			  ti = proto_tree_add_text(pdutree,
 					      tvb, offset, length,
 					      "exportInterface: invalid size %d", length );
 			}
 			break;
 
 		case 214: /* exportProtocolVersion */
-			proto_tree_add_item(pdutree, hf_cflow_export_protocol_version,
+			ti = proto_tree_add_item(pdutree, hf_cflow_export_protocol_version,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 215: /* exportTransportProtocol */
-			proto_tree_add_item(pdutree, hf_cflow_export_prot,
+			ti = proto_tree_add_item(pdutree, hf_cflow_export_prot,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 216: /* collectorTransportPort */
-			proto_tree_add_item(pdutree, hf_cflow_collector_port,
+			ti = proto_tree_add_item(pdutree, hf_cflow_collector_port,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 217: /* exporterTransportPort */
-			proto_tree_add_item(pdutree, hf_cflow_exporter_port,
+			ti = proto_tree_add_item(pdutree, hf_cflow_exporter_port,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 218: /* tcpSynTotalCount */
-			 proto_tree_add_item(pdutree, hf_cflow_total_tcp_syn,
+			 ti = proto_tree_add_item(pdutree, hf_cflow_total_tcp_syn,
 					     tvb, offset, length, FALSE);
 		         break;
 
 		case 219: /* tcpFinTotalCount */
-			 proto_tree_add_item(pdutree, hf_cflow_total_tcp_fin,
+			 ti = proto_tree_add_item(pdutree, hf_cflow_total_tcp_fin,
 					     tvb, offset, length, FALSE);
 		         break;
 
 		case 220: /* tcpRstTotalCount */
-			 proto_tree_add_item(pdutree, hf_cflow_total_tcp_rst,
+			 ti = proto_tree_add_item(pdutree, hf_cflow_total_tcp_rst,
 					     tvb, offset, length, FALSE);
 		         break;
 
 		case 221: /* tcpPshTotalCount */
-			 proto_tree_add_item(pdutree, hf_cflow_total_tcp_psh,
+			 ti = proto_tree_add_item(pdutree, hf_cflow_total_tcp_psh,
 					     tvb, offset, length, FALSE);
 		         break;
 
 		case 222: /* tcpAckTotalCount */
-			 proto_tree_add_item(pdutree, hf_cflow_total_tcp_ack,
+			 ti = proto_tree_add_item(pdutree, hf_cflow_total_tcp_ack,
 					     tvb, offset, length, FALSE);
 		         break;
 
 		case 223: /* tcpUrgTotalCount */
-			 proto_tree_add_item(pdutree, hf_cflow_total_tcp_urg,
+			 ti = proto_tree_add_item(pdutree, hf_cflow_total_tcp_urg,
 					     tvb, offset, length, FALSE);
 		         break;
 
 		case 224: /* IP_TOTAL_LENGTH */
-			proto_tree_add_item(pdutree, hf_cflow_ip_total_length64,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ip_total_length64,
 			    tvb, offset, length, FALSE);
 			break;
 
 		case 237: /* postMplsTopLabelExp */
-			proto_tree_add_item(pdutree, hf_cflow_post_mpls_top_label_exp,
+			ti = proto_tree_add_item(pdutree, hf_cflow_post_mpls_top_label_exp,
 				tvb, offset, length, FALSE);
 		  break;
 
 		case 238: /* tcpWindowScale */
-			proto_tree_add_item(pdutree, hf_cflow_tcp_window_scale,
+			ti = proto_tree_add_item(pdutree, hf_cflow_tcp_window_scale,
 				tvb, offset, length, FALSE);
 		  break;
 
 		case 239: /*  biflowDirection */
-		        proto_tree_add_item(pdutree, hf_cflow_biflow_direction,
+		        ti = proto_tree_add_item(pdutree, hf_cflow_biflow_direction,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 240: /* ethernetHeaderLength */
-			proto_tree_add_item(pdutree, hf_cflow_ethernet_header_length,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ethernet_header_length,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 241: /* ethernetPayloadLength */
-			proto_tree_add_item(pdutree, hf_cflow_ethernet_payload_length,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ethernet_payload_length,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 242: /* ethernetTotalLength */
-			proto_tree_add_item(pdutree, hf_cflow_ethernet_total_length,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ethernet_total_length,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 243: /* dot1qVlanId */
-			proto_tree_add_item(pdutree, hf_cflow_dot1q_vlan_id,
+			ti = proto_tree_add_item(pdutree, hf_cflow_dot1q_vlan_id,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 244: /* dot1qPriority */
-			proto_tree_add_item(pdutree, hf_cflow_dot1q_priority,
+			ti = proto_tree_add_item(pdutree, hf_cflow_dot1q_priority,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 245: /* dot1qCustomerVlanId */
-			proto_tree_add_item(pdutree, hf_cflow_dot1q_customer_vlan_id,
+			ti = proto_tree_add_item(pdutree, hf_cflow_dot1q_customer_vlan_id,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 246: /* dot1qCustomerPriority */
-			proto_tree_add_item(pdutree, hf_cflow_dot1q_customer_priority,
+			ti = proto_tree_add_item(pdutree, hf_cflow_dot1q_customer_priority,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 247: /* metroEvcId */
-			proto_tree_add_item(pdutree, hf_cflow_metro_evc_id,
+			ti = proto_tree_add_item(pdutree, hf_cflow_metro_evc_id,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 248: /* metroEvcType */
-			proto_tree_add_item(pdutree, hf_cflow_metro_evc_type,
+			ti = proto_tree_add_item(pdutree, hf_cflow_metro_evc_type,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 249: /* pseudoWireId */
-			proto_tree_add_item(pdutree, hf_cflow_pseudo_wire_id,
+			ti = proto_tree_add_item(pdutree, hf_cflow_pseudo_wire_id,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 250: /* pseudoWireType */
-			proto_tree_add_item(pdutree, hf_cflow_pseudo_wire_type,
+			ti = proto_tree_add_item(pdutree, hf_cflow_pseudo_wire_type,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 251: /* pseudoWireControlWord */
-			proto_tree_add_item(pdutree, hf_cflow_pseudo_wire_control_word,
+			ti = proto_tree_add_item(pdutree, hf_cflow_pseudo_wire_control_word,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 252: /* ingressPhysicalInterface */
-			proto_tree_add_item(pdutree, hf_cflow_ingress_physical_interface,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ingress_physical_interface,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 253: /* egressPhysicalInterface */
-			proto_tree_add_item(pdutree, hf_cflow_egress_physical_interface,
+			ti = proto_tree_add_item(pdutree, hf_cflow_egress_physical_interface,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 254: /* postDot1qVlanId */
-			proto_tree_add_item(pdutree, hf_cflow_post_dot1q_vlan_id,
+			ti = proto_tree_add_item(pdutree, hf_cflow_post_dot1q_vlan_id,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 255: /* postDot1qCustomerVlanId */
-			proto_tree_add_item(pdutree, hf_cflow_post_dot1q_customer_vlan_id,
+			ti = proto_tree_add_item(pdutree, hf_cflow_post_dot1q_customer_vlan_id,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 256: /* ethernetType */
-			proto_tree_add_item(pdutree, hf_cflow_ethernet_type,
+			ti = proto_tree_add_item(pdutree, hf_cflow_ethernet_type,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 257: /* postIpPrecedence */
-			proto_tree_add_item(pdutree, hf_cflow_post_ip_precedence,
+			ti = proto_tree_add_item(pdutree, hf_cflow_post_ip_precedence,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 258: /* collectionTimeMilliseconds */
 			ts.secs = tvb_get_ntohl(tvb, offset);
 			ts.nsecs = tvb_get_ntohl(tvb, offset + 4);
-			timeitem = proto_tree_add_time(pdutree,
+			ti = proto_tree_add_time(pdutree,
 					       hf_cflow_collection_time_milliseconds,
 					       tvb, offset, length, &ts);
 			break;
 
 		case 259: /* exportSctpStreamId */
-			proto_tree_add_item(pdutree, hf_cflow_export_sctp_stream_id,
+			ti = proto_tree_add_item(pdutree, hf_cflow_export_sctp_stream_id,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 260: /* maxExportSeconds */
 			ts.secs = tvb_get_ntohl(tvb, offset);
 			ts.nsecs = 0;
-			proto_tree_add_time(pdutree, hf_cflow_max_export_seconds,
+			ti = proto_tree_add_time(pdutree, hf_cflow_max_export_seconds,
 				tvb, offset, length, &ts);
 			break;
 
 		case 261: /* maxFlowEndSeconds */
 			ts.secs = tvb_get_ntohl(tvb, offset);
 			ts.nsecs = 0;
-			proto_tree_add_time(pdutree, hf_cflow_max_flow_end_seconds,
+			ti = proto_tree_add_time(pdutree, hf_cflow_max_flow_end_seconds,
 				tvb, offset, length, &ts);
 			break;
 
 		case 262: /* messageMD5Checksum */
-			proto_tree_add_item(pdutree, hf_cflow_message_md5_checksum,
+			ti = proto_tree_add_item(pdutree, hf_cflow_message_md5_checksum,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 263: /* messageScope */
-			proto_tree_add_item(pdutree, hf_cflow_message_scope,
+			ti = proto_tree_add_item(pdutree, hf_cflow_message_scope,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 264: /* minExportSeconds */
 			ts.secs = tvb_get_ntohl(tvb, offset);
 			ts.nsecs = 0;
-			proto_tree_add_time(pdutree, hf_cflow_min_export_seconds,
+			ti = proto_tree_add_time(pdutree, hf_cflow_min_export_seconds,
 				tvb, offset, length, &ts);
 			break;
 
 		case 265: /* minFlowStartSeconds */
 			ts.secs = tvb_get_ntohl(tvb, offset);
 			ts.nsecs = 0;
-			proto_tree_add_time(pdutree, hf_cflow_min_flow_start_seconds,
+			ti = proto_tree_add_time(pdutree, hf_cflow_min_flow_start_seconds,
 				tvb, offset, length, &ts);
 			break;
 
 		case 266: /* opaqueOctets */
-			proto_tree_add_item(pdutree, hf_cflow_opaque_octets,
+			ti = proto_tree_add_item(pdutree, hf_cflow_opaque_octets,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 267: /* sessionScope */
-			proto_tree_add_item(pdutree, hf_cflow_session_scope,
+			ti = proto_tree_add_item(pdutree, hf_cflow_session_scope,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 268: /* maxFlowEndMicroseconds */
 			reftime = tvb_get_ptr(tvb, offset, 8);
-			proto_tree_add_bytes_format_value(pdutree, hf_cflow_max_flow_end_microseconds,
+			ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_max_flow_end_microseconds,
 				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
 			break;
 
 		case 269: /* maxFlowEndMilliseconds */
 			ts.secs = tvb_get_ntohl(tvb, offset);
 			ts.nsecs = tvb_get_ntohl(tvb, offset + 4);
-			proto_tree_add_time(pdutree, hf_cflow_max_flow_end_milliseconds,
+			ti = proto_tree_add_time(pdutree, hf_cflow_max_flow_end_milliseconds,
 				tvb, offset, length, &ts);
 			break;
 
 		case 270: /* maxFlowEndNanoseconds */
 			reftime = tvb_get_ptr(tvb, offset, 8);
-			proto_tree_add_bytes_format_value(pdutree, hf_cflow_max_flow_end_nanoseconds,
+			ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_max_flow_end_nanoseconds,
 				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
 			break;
 
 		case 271: /* minFlowStartMicroseconds */
 			reftime = tvb_get_ptr(tvb, offset, 8);
-			proto_tree_add_bytes_format_value(pdutree, hf_cflow_min_flow_start_microseconds,
+			ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_min_flow_start_microseconds,
 				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
 			break;
 
 		case 272: /* minFlowStartMilliseconds */
 			ts.secs = tvb_get_ntohl(tvb, offset);
 			ts.nsecs = tvb_get_ntohl(tvb, offset + 4);
-			proto_tree_add_time(pdutree, hf_cflow_min_flow_start_milliseconds,
+			ti = proto_tree_add_time(pdutree, hf_cflow_min_flow_start_milliseconds,
 				tvb, offset, length, &ts);
 			break;
 
 		case 273: /* minFlowStartNanoseconds */
 			reftime = tvb_get_ptr(tvb, offset, 8);
-			proto_tree_add_bytes_format_value(pdutree, hf_cflow_min_flow_start_nanoseconds,
+			ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_min_flow_start_nanoseconds,
 				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
 			break;
 
 		case 274: /* collectorCertificate */
-			proto_tree_add_item(pdutree, hf_cflow_collector_certificate,
+			ti = proto_tree_add_item(pdutree, hf_cflow_collector_certificate,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 275: /* exporterCertificate */
-			proto_tree_add_item(pdutree, hf_cflow_exporter_certificate,
+			ti = proto_tree_add_item(pdutree, hf_cflow_exporter_certificate,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 301: /* selectionSequenceId */
-			proto_tree_add_item(pdutree, hf_cflow_selection_sequence_id,
+			ti = proto_tree_add_item(pdutree, hf_cflow_selection_sequence_id,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 302: /* selectorId */
-			proto_tree_add_item(pdutree, hf_cflow_selector_id,
+			ti = proto_tree_add_item(pdutree, hf_cflow_selector_id,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 303: /* informationElementId */
-			proto_tree_add_item(pdutree, hf_cflow_information_element_id,
+			ti = proto_tree_add_item(pdutree, hf_cflow_information_element_id,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 304: /* selectorAlgorithm */
-			proto_tree_add_item(pdutree, hf_cflow_selector_algorithm,
+			ti = proto_tree_add_item(pdutree, hf_cflow_selector_algorithm,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 305: /* samplingPacketInterval */
-			proto_tree_add_item(pdutree, hf_cflow_sampling_packet_interval,
+			ti = proto_tree_add_item(pdutree, hf_cflow_sampling_packet_interval,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 306: /* samplingPacketSpace */
-			proto_tree_add_item(pdutree, hf_cflow_sampling_packet_space,
+			ti = proto_tree_add_item(pdutree, hf_cflow_sampling_packet_space,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 307: /* samplingTimeInterval */
-			proto_tree_add_item(pdutree, hf_cflow_sampling_time_interval,
+			ti = proto_tree_add_item(pdutree, hf_cflow_sampling_time_interval,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 308: /* samplingTimeSpace */
-			proto_tree_add_item(pdutree, hf_cflow_sampling_time_space,
+			ti = proto_tree_add_item(pdutree, hf_cflow_sampling_time_space,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 309: /* samplingSize */
-			proto_tree_add_item(pdutree, hf_cflow_sampling_size,
+			ti = proto_tree_add_item(pdutree, hf_cflow_sampling_size,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 310: /* samplingPopulation */
-			proto_tree_add_item(pdutree, hf_cflow_sampling_population,
+			ti = proto_tree_add_item(pdutree, hf_cflow_sampling_population,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 311: /* samplingProbability */
-			proto_tree_add_item(pdutree, hf_cflow_sampling_probability,
+			ti = proto_tree_add_item(pdutree, hf_cflow_sampling_probability,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 313: /* SECTION_HEADER */
-			proto_tree_add_item(pdutree, hf_cflow_section_header,
+			ti = proto_tree_add_item(pdutree, hf_cflow_section_header,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 314: /* SECTION_PAYLOAD */
-			proto_tree_add_item(pdutree, hf_cflow_section_payload,
+			ti = proto_tree_add_item(pdutree, hf_cflow_section_payload,
 					    tvb, offset, length, FALSE);
 			break;
 
 		case 316: /* mplsLabelStackSection */
-			proto_tree_add_item(pdutree, hf_cflow_mpls_label_stack_section,
+			ti = proto_tree_add_item(pdutree, hf_cflow_mpls_label_stack_section,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 317: /* mplsPayloadPacketSection */
-			proto_tree_add_item(pdutree, hf_cflow_mpls_payload_packet_section,
+			ti = proto_tree_add_item(pdutree, hf_cflow_mpls_payload_packet_section,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 318: /* selectorIdTotalPktsObserved */
-			proto_tree_add_item(pdutree, hf_cflow_selector_id_total_pkts_observed,
+			ti = proto_tree_add_item(pdutree, hf_cflow_selector_id_total_pkts_observed,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 319: /* selectorIdTotalPktsSelected */
-			proto_tree_add_item(pdutree, hf_cflow_selector_id_total_pkts_selected,
+			ti = proto_tree_add_item(pdutree, hf_cflow_selector_id_total_pkts_selected,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 320: /* absoluteError */
-			proto_tree_add_item(pdutree, hf_cflow_absolute_error,
+			ti = proto_tree_add_item(pdutree, hf_cflow_absolute_error,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 321: /* relativeError */
-			proto_tree_add_item(pdutree, hf_cflow_relative_error,
+			ti = proto_tree_add_item(pdutree, hf_cflow_relative_error,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 322: /* observationTimeSeconds */
 			ts.secs = tvb_get_ntohl(tvb, offset);
 			ts.nsecs = 0;
-			proto_tree_add_time(pdutree, hf_cflow_observation_time_seconds,
+			ti = proto_tree_add_time(pdutree, hf_cflow_observation_time_seconds,
 				tvb, offset, length, &ts);
 			break;
 
 		case 323: /* observationTimeMilliseconds */
 			ts.secs = tvb_get_ntohl(tvb, offset);
 			ts.nsecs = tvb_get_ntohl(tvb, offset + 4);
-			proto_tree_add_time(pdutree, hf_cflow_observation_time_milliseconds,
+			ti = proto_tree_add_time(pdutree, hf_cflow_observation_time_milliseconds,
 				tvb, offset, length, &ts);
 			break;
 
 		case 324: /* observationTimeMicroseconds */
 			reftime = tvb_get_ptr(tvb, offset, 8);
-			proto_tree_add_bytes_format_value(pdutree, hf_cflow_observation_time_microseconds,
+			ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_observation_time_microseconds,
 				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
 			break;
 
 		case 325: /* observationTimeNanoseconds */
 			reftime = tvb_get_ptr(tvb, offset, 8);
-			proto_tree_add_bytes_format_value(pdutree, hf_cflow_observation_time_nanoseconds,
+			ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_observation_time_nanoseconds,
 				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
 			break;
 
 		case 326: /* digestHashValue */
-			proto_tree_add_item(pdutree, hf_cflow_digest_hash_value,
+			ti = proto_tree_add_item(pdutree, hf_cflow_digest_hash_value,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 327: /* hashIPPayloadOffset */
-			proto_tree_add_item(pdutree, hf_cflow_hash_ippayload_offset,
+			ti = proto_tree_add_item(pdutree, hf_cflow_hash_ippayload_offset,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 328: /* hashIPPayloadSize */
-			proto_tree_add_item(pdutree, hf_cflow_hash_ippayload_size,
+			ti = proto_tree_add_item(pdutree, hf_cflow_hash_ippayload_size,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 329: /* hashOutputRangeMin */
-			proto_tree_add_item(pdutree, hf_cflow_hash_output_range_min,
+			ti = proto_tree_add_item(pdutree, hf_cflow_hash_output_range_min,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 330: /* hashOutputRangeMax */
-			proto_tree_add_item(pdutree, hf_cflow_hash_output_range_max,
+			ti = proto_tree_add_item(pdutree, hf_cflow_hash_output_range_max,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 331: /* hashSelectedRangeMin */
-			proto_tree_add_item(pdutree, hf_cflow_hash_selected_range_min,
+			ti = proto_tree_add_item(pdutree, hf_cflow_hash_selected_range_min,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 332: /* hashSelectedRangeMax */
-			proto_tree_add_item(pdutree, hf_cflow_hash_selected_range_max,
+			ti = proto_tree_add_item(pdutree, hf_cflow_hash_selected_range_max,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 333: /* hashDigestOutput */
-			proto_tree_add_item(pdutree, hf_cflow_hash_digest_output,
+			ti = proto_tree_add_item(pdutree, hf_cflow_hash_digest_output,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 334: /* hashInitialiserValue */
-			proto_tree_add_item(pdutree, hf_cflow_hash_initialiser_value,
+			ti = proto_tree_add_item(pdutree, hf_cflow_hash_initialiser_value,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 335: /* selectorName */
-			proto_tree_add_item(pdutree, hf_cflow_selector_name,
+			ti = proto_tree_add_item(pdutree, hf_cflow_selector_name,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 336: /* upperCILimit */
-			proto_tree_add_item(pdutree, hf_cflow_upper_cilimit,
+			ti = proto_tree_add_item(pdutree, hf_cflow_upper_cilimit,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 337: /* lowerCILimit */
-			proto_tree_add_item(pdutree, hf_cflow_lower_cilimit,
+			ti = proto_tree_add_item(pdutree, hf_cflow_lower_cilimit,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 338: /* confidenceLevel */
-			proto_tree_add_item(pdutree, hf_cflow_confidence_level,
+			ti = proto_tree_add_item(pdutree, hf_cflow_confidence_level,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 339: /* informationElementDataType */
-			proto_tree_add_item(pdutree, hf_cflow_information_element_data_type,
+			ti = proto_tree_add_item(pdutree, hf_cflow_information_element_data_type,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 340: /* informationElementDescription */
-			proto_tree_add_item(pdutree, hf_cflow_information_element_description,
+			ti = proto_tree_add_item(pdutree, hf_cflow_information_element_description,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 341: /* informationElementName */
-			proto_tree_add_item(pdutree, hf_cflow_information_element_name,
+			ti = proto_tree_add_item(pdutree, hf_cflow_information_element_name,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 342: /* informationElementRangeBegin */
-			proto_tree_add_item(pdutree, hf_cflow_information_element_range_begin,
+			ti = proto_tree_add_item(pdutree, hf_cflow_information_element_range_begin,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 343: /* informationElementRangeEnd */
-			proto_tree_add_item(pdutree, hf_cflow_information_element_range_end,
+			ti = proto_tree_add_item(pdutree, hf_cflow_information_element_range_end,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 344: /* informationElementSemantics */
-			proto_tree_add_item(pdutree, hf_cflow_information_element_semantics,
+			ti = proto_tree_add_item(pdutree, hf_cflow_information_element_semantics,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 345: /* informationElementUnits */
-			proto_tree_add_item(pdutree, hf_cflow_information_element_units,
+			ti = proto_tree_add_item(pdutree, hf_cflow_information_element_units,
 				tvb, offset, length, FALSE);
 			break;
 
 		case 346: /* privateEnterpriseNumber */
-			proto_tree_add_item(pdutree, hf_cflow_private_enterprise_number,
+			ti = proto_tree_add_item(pdutree, hf_cflow_private_enterprise_number,
 				tvb, offset, length, FALSE);
 			break;
 
                 /* CACE Technologies */
 		case VENDOR_CACE << 16 | 0: /* caceLocalIPv4Address */
-			proto_tree_add_item(pdutree, hf_pie_cace_local_ipv4_address,
+			ti = proto_tree_add_item(pdutree, hf_pie_cace_local_ipv4_address,
 					    tvb, offset, length, FALSE);
                         SET_ADDRESS(&local_addr, AT_IPv4, 4, tvb_get_ptr(tvb, offset, 4));
                         got_flags |= GOT_LOCAL_ADDR;
 			break;
 
 		case VENDOR_CACE << 16 | 1: /* caceRemoteIPv4Address */
-			proto_tree_add_item(pdutree, hf_pie_cace_remote_ipv4_address,
+			ti = proto_tree_add_item(pdutree, hf_pie_cace_remote_ipv4_address,
 					    tvb, offset, length, FALSE);
                         SET_ADDRESS(&remote_addr, AT_IPv4, 4, tvb_get_ptr(tvb, offset, 4));
                         got_flags |= GOT_REMOTE_ADDR;
 			break;
 
 		case VENDOR_CACE << 16 | 2: /* caceLocalIPv6Address */
-			proto_tree_add_item(pdutree, hf_pie_cace_local_ipv6_address,
+			ti = proto_tree_add_item(pdutree, hf_pie_cace_local_ipv6_address,
 					    tvb, offset, length, FALSE);
                         SET_ADDRESS(&local_addr, AT_IPv6, 16, tvb_get_ptr(tvb, offset, 16));
                         got_flags |= GOT_LOCAL_ADDR;
 			break;
 
 		case VENDOR_CACE << 16 | 3: /* caceRemoteIPv6Address */
-			proto_tree_add_item(pdutree, hf_pie_cace_remote_ipv6_address,
+			ti = proto_tree_add_item(pdutree, hf_pie_cace_remote_ipv6_address,
 					    tvb, offset, length, FALSE);
                         SET_ADDRESS(&remote_addr, AT_IPv6, 16, tvb_get_ptr(tvb, offset, 16));
                         got_flags |= GOT_REMOTE_ADDR;
 			break;
 
 		case VENDOR_CACE << 16 | 4: /* caceLocalTransportPort */
-			proto_tree_add_item(pdutree, hf_pie_cace_local_port,
+			ti = proto_tree_add_item(pdutree, hf_pie_cace_local_port,
 					    tvb, offset, length, FALSE);
                         local_port = tvb_get_ntohs(tvb, offset);
                         got_flags |= GOT_LOCAL_PORT;
 			break;
 
 		case VENDOR_CACE << 16 | 5: /* caceRemoteTransportPort */
-			proto_tree_add_item(pdutree, hf_pie_cace_remote_port,
+			ti = proto_tree_add_item(pdutree, hf_pie_cace_remote_port,
 					    tvb, offset, length, FALSE);
                         remote_port = tvb_get_ntohs(tvb, offset);
                         got_flags |= GOT_REMOTE_PORT;
 			break;
 
 		case VENDOR_CACE << 16 | 6: /* caceLocalIPv4id */
-			proto_tree_add_item(pdutree, hf_pie_cace_local_ipv4_id,
+			ti = proto_tree_add_item(pdutree, hf_pie_cace_local_ipv4_id,
 					    tvb, offset, length, FALSE);
                         ipv4_id = tvb_get_ntohs(tvb, offset);
                         got_flags |= GOT_IPv4_ID;
 			break;
 
 		case VENDOR_CACE << 16 | 7: /* caceLocalICMPid */
-			proto_tree_add_item(pdutree, hf_pie_cace_local_icmp_id,
+			ti = proto_tree_add_item(pdutree, hf_pie_cace_local_icmp_id,
 					    tvb, offset, length, FALSE);
                         icmp_id = tvb_get_ntohs(tvb, offset);
                         got_flags |= GOT_ICMP_ID;
 			break;
 
 		case VENDOR_CACE << 16 | 8: /* caceLocalProcessUserId */
-			proto_tree_add_item(pdutree, hf_pie_cace_local_uid,
+			ti = proto_tree_add_item(pdutree, hf_pie_cace_local_uid,
 					    tvb, offset, length, FALSE);
                         uid = tvb_get_ntohl(tvb, offset);
                         got_flags |= GOT_UID;
 			break;
 
 		case VENDOR_CACE << 16 | 9: /* caceLocalProcessId */
-			proto_tree_add_item(pdutree, hf_pie_cace_local_pid,
+			ti = proto_tree_add_item(pdutree, hf_pie_cace_local_pid,
 					    tvb, offset, length, FALSE);
                         pid = tvb_get_ntohl(tvb, offset);
                         got_flags |= GOT_PID;
@@ -3171,7 +3173,7 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
                         uname_str = tvb_format_text(tvb, offset+1, uname_len);
 			proto_tree_add_item(pdutree, hf_pie_cace_local_username_len,
 					    tvb, offset, 1, FALSE);
-			proto_tree_add_string(pdutree, hf_pie_cace_local_username,
+			ti = proto_tree_add_string(pdutree, hf_pie_cace_local_username,
 					    tvb, offset+1, uname_len, uname_str);
                         length = uname_len + 1;
                         got_flags |= GOT_USERNAME;
@@ -3182,7 +3184,7 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
                         cmd_str = tvb_format_text(tvb, offset+1, cmd_len);
 			proto_tree_add_item(pdutree, hf_pie_cace_local_cmd_len,
 					    tvb, offset, 1, FALSE);
-			proto_tree_add_string(pdutree, hf_pie_cace_local_cmd,
+			ti = proto_tree_add_string(pdutree, hf_pie_cace_local_cmd,
 					    tvb, offset+1, cmd_len, cmd_str);
                         length = cmd_len + 1;
                         got_flags |= GOT_COMMAND;
@@ -3190,15 +3192,14 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 
 		default:
 		  if ((type & 0x8000) && (pen != REVPEN))
-			proto_tree_add_text(pdutree, tvb, offset, length,
+			ti = proto_tree_add_text(pdutree, tvb, offset, length,
 					    "(%s) Type %u ",
 					    match_strval(pen, sminmpec_values), type & 0x7fff);
-
-		  else
-			proto_tree_add_text(pdutree, tvb, offset, length,
-					    "%s Type %u %s", pen == REVPEN ? "Reverse" : "",
-					    type & 0x7fff, decode_v9_template_types(type));
 			break;
+		}
+		if (ti && pen == REVPEN) {
+			proto_item_append_text(ti, " (Reverse Type %u %s)",
+					       type & 0x7fff, decode_v9_template_types(type));
 		}
 
 		offset += length;
@@ -3393,7 +3394,7 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 }
 
 static int
-dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, packet_info *pinfo, int offset, int length, hdrinfo_t * hdrinfo)
+dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, packet_info *pinfo, int offset, int length, hdrinfo_t * hdrinfo, guint16 flowset_id)
 {
 	struct v9_template tplt;
 	proto_tree *tplt_tree;
@@ -3453,7 +3454,7 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, packet_info *pinfo, in
 
 			type = tvb_get_ntohs(tvb, offset);
 			entry_length = tvb_get_ntohs(tvb, offset + 2);
-			if (type & 0x8000) {
+			if ((flowset_id == 2) && (type & 0x8000)) {
 			  pen = tvb_get_ntohl(tvb, offset + 4);
 			}
 
@@ -3464,21 +3465,23 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, packet_info *pinfo, in
 				tplt.entries[i].pen = pen;
 			}
 
-			if ((type & 0x8000) && (pen != REVPEN)) { /* except reverse pen */
+			if ((flowset_id == 2) && (type & 0x8000) && (pen != REVPEN)) { /* except reverse pen */
 			  proto_tree_add_text(field_tree,
 					      tvb, offset, 2,
 					      "Type: %u", type & 0x7fff);
 			} else {
 			  proto_tree_add_item(field_tree,
-					      hf_cflow_template_field_type, tvb, offset, 2, FALSE);
+					      flowset_id == 0 ? hf_cflow_template_field_type : hf_cflow_template_field_type_ipfix,
+					      tvb, offset, 2, FALSE);
 			}
 			offset += 2;
 
 			proto_tree_add_item(field_tree,
 					    hf_cflow_template_field_length, tvb, offset, 2, FALSE);
 			offset += 2;
-			if (type & 0x8000) { /* Private Enterprise Number (IPFIX only) */
-			  proto_tree_add_item(field_tree,
+			/* Private Enterprise Number (IPFIX only) */
+			if ((flowset_id == 2) && (type & 0x8000)) {
+				proto_tree_add_item(field_tree,
 					      hf_cflow_template_field_pen, tvb, offset, 4, FALSE);
 			  offset += 4;
 			}
@@ -4203,7 +4206,7 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_sampling_algorithm,
 		 {"Sampling algorithm", "cflow.sampling_algorithm",
-		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  FT_UINT8, BASE_DEC, VALS(v5_sampling_mode), 0x0,
 		  NULL, HFILL}
 		},
 		{&hf_cflow_flow_active_timeout,
