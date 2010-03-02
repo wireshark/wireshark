@@ -615,7 +615,7 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
     sa.lpSecurityDescriptor = NULL;
 
     /* Create a pipe for the child process */
-    /* (inrease this value if you have trouble while fast capture file switches) */
+    /* (increase this value if you have trouble while fast capture file switches) */
     if (! CreatePipe(&sync_pipe_read, &sync_pipe_write, &sa, 5120)) {
         /* Couldn't create the pipe between parent and child. */
         *msg = g_strdup_printf("Couldn't create sync pipe: %s", strerror(errno));
