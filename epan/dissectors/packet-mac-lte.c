@@ -1332,13 +1332,13 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
                           (pinfo->fd->abs_ts.secs - lastData->received_time.secs);
                     gint nseconds_between_packets =
                           pinfo->fd->abs_ts.nsecs - lastData->received_time.nsecs;
-
-                    /* TODO: want to round to nearest millisecond */
+                          
+                    /* Round difference to nearest millisecond */
                     gint total_gap = (seconds_between_packets*1000) +
-                                     (nseconds_between_packets / 1000000);
+                                     ((nseconds_between_packets+500000) / 1000000);
 
-                    /* Should be 8 ms apart, but allow some leeway */
-                    if ((total_gap >= 7) && (total_gap <= 9)) {
+                    /* Should be 8 ms apart */
+                    if ((total_gap == 8)) {
                         /* Resend detected!!! Store result */
                         result = se_alloc(sizeof(DLHARQResult));
                         result->previousFrameNum = lastData->framenum;
@@ -1444,11 +1444,12 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
                         gint nseconds_between_packets =
                               pinfo->fd->abs_ts.nsecs - lastData->received_time.nsecs;
 
+                        /* Round to nearest ms */
                         gint total_gap = (seconds_between_packets*1000) +
-                                         (nseconds_between_packets / 1000000);
+                                         ((nseconds_between_packets+500000) / 1000000);
 
-                        /* Should be 8 ms apart, but allow some leeway */
-                        if ((total_gap >= 7) && (total_gap <= 9)) {
+                        /* Should be 8 ms apart */
+                        if ((total_gap == 9)) {
                             /* Original detected!!! Store result */
                             result = se_alloc(sizeof(ULHARQResult));
                             result->previousFrameNum = lastData->framenum;
@@ -3414,7 +3415,6 @@ void proto_register_mac_lte(void)
         UAT_FLD_VS(lcid_drb_mappings, channel_type, "RLC Channel Type", rlc_channel_type_vals, "The MAC LCID"),
         UAT_END_FIELDS
     };
-
 
     /* Register protocol. */
     proto_mac_lte = proto_register_protocol("MAC-LTE", "MAC-LTE", "mac-lte");
