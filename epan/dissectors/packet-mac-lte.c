@@ -1334,7 +1334,7 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
                           (pinfo->fd->abs_ts.secs - lastData->received_time.secs);
                     gint nseconds_between_packets =
                           pinfo->fd->abs_ts.nsecs - lastData->received_time.nsecs;
-                          
+
                     /* Round difference to nearest millisecond */
                     gint total_gap = (seconds_between_packets*1000) +
                                      ((nseconds_between_packets+500000) / 1000000);
@@ -1451,7 +1451,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
                                          ((nseconds_between_packets+500000) / 1000000);
 
                         /* Should be 8 ms apart */
-                        if ((total_gap == 9)) {
+                        if (total_gap == 8) {
                             /* Original detected!!! Store result */
                             result = se_alloc(sizeof(ULHARQResult));
                             result->previousFrameNum = lastData->framenum;
