@@ -646,6 +646,8 @@ oid_string2encoded
 oid_string2subid
 oid_subid2encoded
 oid_subid2string
+oids_cleanup
+oids_init
 other_decode_bitfield_value
 p_add_proto_data
 p_get_proto_data
