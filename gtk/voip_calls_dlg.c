@@ -110,7 +110,6 @@ enum
    CALL_COL_PACKETS,
    CALL_COL_STATE,
    CALL_COL_COMMENTS,
-   CALL_COL_INFO,
    NUM_COLS /* The number of columns */
 };
 static const GdkColor COLOR_SELECT = {0, 0x00ff, 0x80ff, 0x80ff};
