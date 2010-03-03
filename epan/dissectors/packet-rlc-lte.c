@@ -956,7 +956,6 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
     rlc_channel_hash_key   *p_channel_key;
     rlc_channel_repeated_nack_status     *p_channel_status;
     rlc_channel_repeated_nack_report_in_frame  *p_report_in_frame = NULL;
-    gboolean                 createdChannel = FALSE;
 
     guint8          noOfNACKsRepeated = 0;
     guint16         repeatedNACKs[MAX_NACKs];
@@ -990,7 +989,6 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
 
     /* Create table entry if necessary */
     if (p_channel_status == NULL) {
-        createdChannel = TRUE;
 
         /* Allocate a new key and value */
         p_channel_key = se_alloc(sizeof(rlc_channel_hash_key));
@@ -998,20 +996,9 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
 
         /* Copy key contents */
         memcpy(p_channel_key, &channel_key, sizeof(rlc_channel_hash_key));
-        
+
         /* Add entry to table */
         g_hash_table_insert(rlc_lte_repeated_nack_channel_hash, p_channel_key, p_channel_status);
-    }
-
-    /* Copy NACKs from tap_info */
-    p_channel_status->noOfNACKs = tap_info->noOfNACKs;
-    for (n=0; n < tap_info->noOfNACKs; n++) {
-        p_channel_status->NACKs[n] = tap_info->NACKs[n];
-    }    
-
-    /* We can't detect duplicates yet if first status PDU on this channel! */
-    if (createdChannel) {
-        return;
     }
 
     /* Compare NACKs in status with NACKs in tap_info.
@@ -1023,22 +1010,28 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
             }
         }
     }
-    
+
+    /* Copy NACKs from tap_info into channel status for next time! */
+    p_channel_status->noOfNACKs = tap_info->noOfNACKs;
+    for (n=0; n < tap_info->noOfNACKs; n++) {
+        p_channel_status->NACKs[n] = tap_info->NACKs[n];
+    }
+
     if (noOfNACKsRepeated >= 1) {
         gint n;
 
         /* Create space for frame state_report */
         p_report_in_frame = se_alloc(sizeof(rlc_channel_repeated_nack_report_in_frame));
-    
+
         /* Copy in found duplicates */
         for (n=0; n < tap_info->noOfNACKs; n++) {
             p_report_in_frame->repeatedNACKs[n] = repeatedNACKs[n];
         }
         p_report_in_frame->noOfNACKsRepeated = noOfNACKsRepeated;
-    
+
         /* Associate with this frame number */
         g_hash_table_insert(rlc_lte_frame_repeated_nack_report_hash, &pinfo->fd->num, p_report_in_frame);
-    
+
         /* Add state report for this frame into tree */
         addChannelRepeatedNACKInfo(p_report_in_frame, p_rlc_lte_info,
                                    pinfo, tree, tvb);
@@ -1404,7 +1397,6 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
     /* Set selected length of control tree */
     proto_item_set_len(status_ti, offset);
 
-    
     /* Repeated NACK analysis */
     if (((global_rlc_lte_am_sequence_analysis == SEQUENCE_ANALYSIS_MAC_ONLY) &&
          (p_get_proto_data(pinfo->fd, proto_mac_lte) != NULL)) ||
