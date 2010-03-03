@@ -1,3 +1,5 @@
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
 # $Id$
 #
 #
@@ -19,15 +21,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-#Dummy entry to pas the clean target
-PROTOCOL_NAME = dummy
 
-DISSECTOR_FILES = \
-	packet-$(PROTOCOL_NAME).c
-
-EXTRA_DIST = \
-	Attribute-ASN1Module.asn \
-	ManagedObjectClassesDefinitions.asn \
-	Notification-ASN1Module.asn \
-	Parameter-ASN1Module.asn
+include ../../config.nmake
+include ../Makefile.preinc.nmake
+include Makefile.common
+include ../Makefile.inc.nmake
 
