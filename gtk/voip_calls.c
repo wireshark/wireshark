@@ -606,7 +606,7 @@ static void RTP_packet_draw(void *prs _U_)
 					gai = voip_calls_graph_list->data;
 					/* if RTP was already in the Graph, just update the comment information */
 					if (rtp_listinfo->first_frame_num == gai->frame_num){
-						duration = (guint32)nstime_to_msec(&rtp_listinfo->stop_rel) - nstime_to_msec(&rtp_listinfo->start_rel);
+						duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel) - nstime_to_msec(&rtp_listinfo->start_rel));
 						g_free(gai->comment);
 						gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
 														(rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
@@ -627,7 +627,7 @@ static void RTP_packet_draw(void *prs _U_)
 						COPY_ADDRESS(&(new_gai->dst_addr),&(rtp_listinfo->dest_addr));
 						new_gai->port_src = rtp_listinfo->src_port;
 						new_gai->port_dst = rtp_listinfo->dest_port;
-						duration = (guint32)nstime_to_msec(&rtp_listinfo->stop_rel) - nstime_to_msec(&rtp_listinfo->start_rel);
+						duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel) - nstime_to_msec(&rtp_listinfo->start_rel));
 						new_gai->frame_label = g_strdup_printf("%s (%s) %s", (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->pt_str, (rtp_listinfo->rtp_event == -1)?"":val_to_str(rtp_listinfo->rtp_event, rtp_event_type_values, "Unknown RTP Event"));
 						new_gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
 															(rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
