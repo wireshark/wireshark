@@ -803,7 +803,13 @@ static gint sip_equal(gconstpointer v, gconstpointer v2)
 		(ADDRESSES_EQUAL(&(val1->dest_address), &(val2->dest_address))) &&
 		(val1->dest_port == val2->dest_port);
 }
-
+#if 0
+/*
+20010-03-03 Changed to use g_str_hash ()
+This function seem to not generate unique enough keys
+if load generation tools are used with many thousands users.
+Leave the code for a while to se if someone gets poor performance.
+*/
 /* Compute a hash value for a given key. */
 /* Don't try to use addresses here, call-id should be almost unique. */
 static guint sip_hash_func(gconstpointer v)
@@ -821,7 +827,7 @@ static guint sip_hash_func(gconstpointer v)
 
 	return value;
 }
-
+#endif
 
 /* Initializes the hash table and the mem_chunk area each time a new
  * file is loaded or re-loaded in wireshark */
@@ -833,7 +839,7 @@ sip_init_protocol(void)
 		g_hash_table_destroy(sip_hash);
 
 	/* Now create them over */
-	sip_hash = g_hash_table_new(sip_hash_func, sip_equal);
+	sip_hash = g_hash_table_new(g_str_hash , sip_equal);
 }
 
 /* Structure to collect info about a sip uri */
