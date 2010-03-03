@@ -1018,8 +1018,6 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
     }
 
     if (noOfNACKsRepeated >= 1) {
-        gint n;
-
         /* Create space for frame state_report */
         p_report_in_frame = se_alloc(sizeof(rlc_channel_repeated_nack_report_in_frame));
 
