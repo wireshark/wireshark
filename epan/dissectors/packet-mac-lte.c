@@ -1339,8 +1339,8 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
                     gint total_gap = (seconds_between_packets*1000) +
                                      ((nseconds_between_packets+500000) / 1000000);
 
-                    /* Should be 8 ms apart */
-                    if ((total_gap == 8)) {
+                    /* Should be 8 ms apart - allow some leeway */
+                    if ((total_gap >= 7) && (total_gap <= 9)) {
                         /* Resend detected!!! Store result */
                         result = se_alloc(sizeof(DLHARQResult));
                         result->previousFrameNum = lastData->framenum;
@@ -1359,7 +1359,9 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
         thisData = &(ueData->subframe[p_mac_lte_info->subframeNumber]);
         thisData->inUse = TRUE;
         thisData->length = tvb_length_remaining(tvb, offset);
-        memcpy(thisData->data, tvb_get_ptr(tvb, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH)), thisData->length);
+        memcpy(thisData->data,
+               tvb_get_ptr(tvb, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH)),
+               MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
         thisData->subframeNumber = p_mac_lte_info->subframeNumber;
         thisData->framenum = pinfo->fd->num;
         thisData->received_time = pinfo->fd->abs_ts;
@@ -1450,8 +1452,8 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
                         gint total_gap = (seconds_between_packets*1000) +
                                          ((nseconds_between_packets+500000) / 1000000);
 
-                        /* Should be 8 ms apart */
-                        if (total_gap == 8) {
+                        /* Should be 8 ms apart - allow some leeway */
+                        if ((total_gap >= 7) && (total_gap <= 9)) {
                             /* Original detected!!! Store result */
                             result = se_alloc(sizeof(ULHARQResult));
                             result->previousFrameNum = lastData->framenum;
@@ -1471,7 +1473,9 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
         thisData = &(ueData->subframe[p_mac_lte_info->subframeNumber]);
         thisData->inUse = TRUE;
         thisData->length = tvb_length_remaining(tvb, offset);
-        memcpy(thisData->data, tvb_get_ptr(tvb, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH)), thisData->length);
+        memcpy(thisData->data,
+               tvb_get_ptr(tvb, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH)),
+               MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
         thisData->subframeNumber = p_mac_lte_info->subframeNumber;
         thisData->framenum = pinfo->fd->num;
         thisData->received_time = pinfo->fd->abs_ts;
