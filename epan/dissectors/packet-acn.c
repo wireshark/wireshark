@@ -1917,16 +1917,14 @@ dissect_acn_dmx_data_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       }
 
       /* add a snippet to info (this may be slow) */
-      if(check_col(pinfo->cinfo,COL_INFO)){
-        col_append_fstr(pinfo->cinfo,COL_INFO, ", Sc %02x, [%02x %02x %02x %02x %02x %02x...]",
-          dmx_start_code,
-          tvb_get_guint8(tvb, data_offset),
-          tvb_get_guint8(tvb, data_offset+1),
-          tvb_get_guint8(tvb, data_offset+2),
-          tvb_get_guint8(tvb, data_offset+3),
-          tvb_get_guint8(tvb, data_offset+4),
-          tvb_get_guint8(tvb, data_offset+5));
-      }
+      col_append_fstr(pinfo->cinfo,COL_INFO, ", Sc %02x, [%02x %02x %02x %02x %02x %02x...]",
+        dmx_start_code,
+        tvb_get_guint8(tvb, data_offset),
+        tvb_get_guint8(tvb, data_offset+1),
+        tvb_get_guint8(tvb, data_offset+2),
+        tvb_get_guint8(tvb, data_offset+3),
+        tvb_get_guint8(tvb, data_offset+4),
+        tvb_get_guint8(tvb, data_offset+5));
 
       /* add a header line */
       g_snprintf(buffer, BUFFER_SIZE, "%-10s: ", "Data...");
@@ -2123,9 +2121,7 @@ dissect_acn_dmx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     data_offset += 2;
 
     /* add universe to info */
-    if(check_col(pinfo->cinfo,COL_INFO)){
-      col_append_fstr(pinfo->cinfo,COL_INFO, ", Universe %d, Seq %3d", universe, sequence );
-    }
+    col_append_fstr(pinfo->cinfo,COL_INFO, ", Universe %d, Seq %3d", universe, sequence );
     proto_item_append_text(ti, ", Universe: %d, Priority: %d", universe, priority);
 
     data_offset = dissect_acn_dmx_data_pdu(tvb, pinfo, pdu_tree, data_offset, &pdu_offsets);
@@ -2486,9 +2482,7 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
       proto_item_append_text(ti, ", Src: %s", guid_to_str(&guid));
 
       /* add cid to info */
-      if(check_col(pinfo->cinfo,COL_INFO)){
-        col_add_fstr(pinfo->cinfo,COL_INFO, "CID %s", guid_to_str(&guid));
-      }
+      col_add_fstr(pinfo->cinfo,COL_INFO, "CID %s", guid_to_str(&guid));
 
       proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, header_offset, 16, FALSE);
       header_offset += 16;
@@ -2584,8 +2578,7 @@ dissect_acn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Set the protocol column */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACN");
 
-  if(check_col(pinfo->cinfo,COL_INFO))
-    col_add_fstr(pinfo->cinfo,COL_INFO, "ACN [Src Port: %d, Dst Port: %d]", pinfo->srcport, pinfo->destport );
+  col_add_fstr(pinfo->cinfo,COL_INFO, "ACN [Src Port: %d, Dst Port: %d]", pinfo->srcport, pinfo->destport );
 
   if (tree) { /* we are being asked for details */
     ti = proto_tree_add_item(tree, proto_acn, tvb, 0, -1, FALSE);

@@ -1778,7 +1778,7 @@ decode_name_label (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint off
 	}
 	name = get_name(tvb, offset +1, type);
 
-	if (pinfo && check_col(pinfo->cinfo, COL_INFO)) {
+	if (pinfo) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ": Vol=%u Did=%u", Vol, Did);
 		if (len) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, " Name=%s", name);
@@ -1824,7 +1824,7 @@ add_info_fork(tvbuff_t *tvb, packet_info *pinfo, gint offset)
 	guint16 ofork;
 
 	ofork = tvb_get_ntohs(tvb, offset);
-	if (ofork && check_col(pinfo->cinfo, COL_INFO)) {
+	if (ofork) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ": Fork=%u", ofork);
 	}
 }
@@ -1836,9 +1836,7 @@ add_info_vol(tvbuff_t *tvb, packet_info *pinfo, gint offset)
 	guint16 vol;
 
 	vol = tvb_get_ntohs(tvb, offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Vol=%u", vol);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Vol=%u", vol);
 }
 
 /* ************************** */
@@ -1846,6 +1844,7 @@ static gint
 dissect_query_afp_open_vol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 	int len;
+	const gchar *rep;
 
 	PAD(1);
 
@@ -1854,11 +1853,8 @@ dissect_query_afp_open_vol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	len = tvb_get_guint8(tvb, offset);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		const gchar *rep;
-		rep = get_name(tvb, offset, 2);
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", rep);
-	}
+	rep = get_name(tvb, offset, 2);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", rep);
 
 	if (!tree)
 		return offset;
@@ -2508,7 +2504,6 @@ static gint
 dissect_query_afp_write(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree, gint offset)
 {
 	int  param;
-	gint col_info = check_col(pinfo->cinfo, COL_INFO);
 
 
 	proto_tree_add_item(tree, hf_afp_flag, tvb, offset, 1,FALSE);
@@ -2519,17 +2514,13 @@ dissect_query_afp_write(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree, gi
 	offset += 2;
 
 	proto_tree_add_item(tree, hf_afp_offset, tvb, offset, 4,FALSE);
-	if (col_info) {
-		param = tvb_get_ntohl(tvb, offset);
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Offset=%d", param);
-	}
+	param = tvb_get_ntohl(tvb, offset);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Offset=%d", param);
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_afp_rw_count, tvb, offset, 4,FALSE);
-	if (col_info) {
-		param = tvb_get_ntohl(tvb, offset);
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Size=%d", param);
-	}
+	param = tvb_get_ntohl(tvb, offset);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Size=%d", param);
 	offset += 4;
 
 	return offset;
@@ -2578,26 +2569,21 @@ static gint
 dissect_query_afp_read(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	int param;
-	gint col_info = check_col(pinfo->cinfo, COL_INFO);
 
 	PAD(1);
 
-        add_info_fork(tvb, pinfo, offset);
+    add_info_fork(tvb, pinfo, offset);
 	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
 	offset += 2;
 
 	proto_tree_add_item(tree, hf_afp_offset, tvb, offset, 4,FALSE);
-	if (col_info) {
-		param = tvb_get_ntohl(tvb, offset);
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Offset=%d", param);
-	}
+	param = tvb_get_ntohl(tvb, offset);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Offset=%d", param);
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_afp_rw_count, tvb, offset, 4,FALSE);
-	if (col_info) {
-		param = tvb_get_ntohl(tvb, offset);
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Size=%d", param);
-	}
+	param = tvb_get_ntohl(tvb, offset);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Size=%d", param);
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_afp_newline_mask, tvb, offset, 1,FALSE);
@@ -2615,7 +2601,7 @@ dissect_query_afp_read_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 {
 	PAD(1);
 
-        add_info_fork(tvb, pinfo, offset);
+    add_info_fork(tvb, pinfo, offset);
 	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
 	offset += 2;
 
@@ -2906,10 +2892,8 @@ dissect_query_afp_set_fork_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	}
 	else {
 		proto_tree_add_item(tree, hf_afp_ofork_len, tvb, offset, 4,FALSE);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			param = tvb_get_ntohl(tvb, offset);
-			col_append_fstr(pinfo->cinfo, COL_INFO, " Size=%d", param);
-		}
+		param = tvb_get_ntohl(tvb, offset);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Size=%d", param);
 		offset += 4;
 	}
 	return offset;
@@ -4109,7 +4093,6 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	nstime_t	delta_ts;
 
 	int     len =  tvb_reported_length(tvb);
-	gint col_info = check_col(pinfo->cinfo, COL_INFO);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AFP");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -4150,16 +4133,14 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	afp_command = request_val->command;
-	if (col_info) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-			     val_to_str(afp_command, CommandCode_vals,
-					"Unknown command (%u)"),
-			     aspinfo->reply ? "reply" : "request");
-		if (aspinfo->reply && aspinfo->code != 0) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ": %s (%d)",
-			     	val_to_str(aspinfo->code, asp_error_vals,
-					"Unknown error (%u)"), aspinfo->code);
-		}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+		     val_to_str(afp_command, CommandCode_vals,
+				"Unknown command (%u)"),
+		     aspinfo->reply ? "reply" : "request");
+	if (aspinfo->reply && aspinfo->code != 0) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s (%d)",
+		     	val_to_str(aspinfo->code, asp_error_vals,
+				"Unknown error (%u)"), aspinfo->code);
 	}
 
 	if (tree)

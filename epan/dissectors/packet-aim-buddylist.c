@@ -86,11 +86,9 @@ static int dissect_aim_buddylist_oncoming(tvbuff_t *tvb, packet_info *pinfo, pro
 	int offset = 0;
 	int buddyname_length = aim_get_buddyname( buddyname, tvb, offset, offset + 1 );
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_set_str(pinfo->cinfo, COL_INFO, "Oncoming Buddy");
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-						format_text(buddyname, buddyname_length));
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "Oncoming Buddy");
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+					format_text(buddyname, buddyname_length));
 
 	offset += dissect_aim_buddyname(tvb, pinfo, offset, buddy_tree);
 
@@ -111,11 +109,9 @@ static int dissect_aim_buddylist_offgoing(tvbuff_t *tvb, packet_info *pinfo, pro
 	int offset = 0;
 	int buddyname_length = aim_get_buddyname( buddyname, tvb, offset, offset + 1 );
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_set_str(pinfo->cinfo, COL_INFO, "Offgoing Buddy");
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-						format_text(buddyname, buddyname_length));
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "Offgoing Buddy");
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+					format_text(buddyname, buddyname_length));
 
 	offset += dissect_aim_buddyname(tvb, pinfo, offset, buddy_tree);
 

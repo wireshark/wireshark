@@ -91,10 +91,8 @@ static int dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo,
 	/* Buddy Name */
 	buddyname_length = aim_get_buddyname( buddyname, tvb, offset, offset + 1 );
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Username: %s",
-						format_text(buddyname, buddyname_length));
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Username: %s",
+					format_text(buddyname, buddyname_length));
 
 	if(tree) {
 		offset+=dissect_aim_buddyname(tvb, pinfo, offset, tree);

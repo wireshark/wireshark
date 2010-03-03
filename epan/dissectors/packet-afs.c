@@ -1568,23 +1568,20 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if ( VALID_OPCODE(opcode) ) {
 		if ( vals ) {
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s %s: %s (%d)",
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s %s: %s (%d)",
 				typenode == hf_afs_ubik ? "UBIK-" : "",
 				val_to_str(port, port_types_short, "Unknown(%d)"),
 				reply ? "Reply" : "Request",
 				val_to_str(opcode, vals, "Unknown(%d)"), opcode);
 		} else {
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s %s: Unknown(%d)",
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s %s: Unknown(%d)",
 				typenode == hf_afs_ubik ? "UBIK-" : "",
 				val_to_str(port, port_types_short, "Unknown(%d)"),
 				reply ? "Reply" : "Request",
 				opcode);
 		}
 	} else {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Encrypted %s %s",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Encrypted %s %s",
 			val_to_str(port, port_types_short, "Unknown(%d)"),
 			reply ? "Reply" : "Request"
 			);

@@ -121,19 +121,16 @@ static void dissect_2dparityfec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "2dFEC");
 
    /* Configure the info column */
-   if(check_col(pinfo->cinfo, COL_INFO))
-   {
-      if(D)
-      {
-         col_add_fstr(pinfo->cinfo, COL_INFO, "Row FEC - SNBase=%u, Offset=%u, NA=%u",
-                                                SNBase, OffsetField, NAField);
-      }
-      else
-      {
-         col_add_fstr(pinfo->cinfo, COL_INFO, "Column FEC - SNBase=%u, Offset=%u, NA=%u",
-                                                SNBase, OffsetField, NAField);
-      }
-   }
+  if(D)
+  {
+     col_add_fstr(pinfo->cinfo, COL_INFO, "Row FEC - SNBase=%u, Offset=%u, NA=%u",
+                                            SNBase, OffsetField, NAField);
+  }
+  else
+  {
+     col_add_fstr(pinfo->cinfo, COL_INFO, "Column FEC - SNBase=%u, Offset=%u, NA=%u",
+                                            SNBase, OffsetField, NAField);
+  }
 
    if(tree)
    {

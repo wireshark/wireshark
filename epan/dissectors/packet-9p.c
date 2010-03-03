@@ -228,14 +228,12 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	mname = val_to_str(ninemsg, ninep_msg_type,"Unknown");
 	
 	if(strcmp(mname,"Unknown") == 0) {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO, "9P Data Continuation(?) (Tag %u)",(guint)ninemsg);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "9P Data Continuation(?) (Tag %u)",(guint)ninemsg);
 
 		return;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s Tag=%u",mname,(guint)tvb_get_letohs(tvb,offset+5));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s Tag=%u",mname,(guint)tvb_get_letohs(tvb,offset+5));
 
 	if (!tree) /*not much more of one line summary interrest yet.. */
 		return;

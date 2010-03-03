@@ -184,8 +184,7 @@ static int dissect_aim_tlv_value_icq(proto_item *ti _U_, guint16 subtype _U_, tv
 			if(icq_calls[i].subtype == req_subtype) break;
 		}
 
-		if(check_col(pinfo->cinfo, COL_INFO)) 
-			col_set_str(pinfo->cinfo, COL_INFO, icq_calls[i].name?icq_calls[i].name:"Unknown ICQ Meta Call");
+		col_set_str(pinfo->cinfo, COL_INFO, icq_calls[i].name?icq_calls[i].name:"Unknown ICQ Meta Call");
 
 		proto_item_append_text(subtype_item, " (%s)", icq_calls[i].name?icq_calls[i].name:"Unknown");
 

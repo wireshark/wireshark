@@ -756,13 +756,11 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
     if (family)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, family->name);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-	 if(subtype && family)
-	 {
+	if(subtype && family)
+	{
 		 col_set_str(pinfo->cinfo, COL_INFO, family->name);
 		 col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", subtype->name);
-	 } else {
+	} else {
 		col_set_str(pinfo->cinfo, COL_INFO, "SNAC data");
 
 		if(family)
@@ -771,8 +769,7 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Family: 0x%04x", family_id);
 
 	 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Subtype: 0x%04x", subtype_id);
-	 }
-    }
+	}
 
     if(aim_tree && family)
     {

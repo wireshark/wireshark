@@ -183,24 +183,22 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
   tpa_str = aarpproaddr_to_str(tpa_val, ar_pln, ar_pro);
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    switch (ar_op) {
-      case AARP_REQUEST:
-      case AARP_REQUEST_SWAPPED:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
-        break;
-      case AARP_REPLY:
-      case AARP_REPLY_SWAPPED:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s", spa_str, sha_str);
-        break;
-      case AARP_PROBE:
-      case AARP_PROBE_SWAPPED:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Is there a %s", tpa_str);
-        break;
-      default:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown AARP opcode 0x%04x", ar_op);
-        break;
-    }
+  switch (ar_op) {
+    case AARP_REQUEST:
+    case AARP_REQUEST_SWAPPED:
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
+      break;
+    case AARP_REPLY:
+    case AARP_REPLY_SWAPPED:
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s", spa_str, sha_str);
+      break;
+    case AARP_PROBE:
+    case AARP_PROBE_SWAPPED:
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Is there a %s", tpa_str);
+      break;
+    default:
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown AARP opcode 0x%04x", ar_op);
+      break;
   }
 
   if (tree) {

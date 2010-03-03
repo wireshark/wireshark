@@ -805,10 +805,9 @@ static void dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo,
 	NORLEL(flags, packet_id, tvb, 12); offset+=4;
 	NORLEL(flags, payload_len, tvb, 16); offset+=4;
 
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "AgentX");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "AgentX");
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s: sid=%d, tid=%d, packid=%d, plen=%d",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s: sid=%d, tid=%d, packid=%d, plen=%d",
 			val_to_str(type,type_values,"unknown"),
 			session_id,trans_id,packet_id,payload_len);
 

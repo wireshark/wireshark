@@ -526,13 +526,12 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 	proto_tree_add_int(actrace_tree, hf_actrace_cas_function, tvb, offset, 4, function);
 	offset += 4;
 
-        if (check_col(pinfo->cinfo, COL_INFO))  
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s|%d|%s|%d|%s|", 
-				val_to_str(source, actrace_cas_source_vals_short, "ukn"),
-				curr_state,
-				val_to_str(event, actrace_cas_event_vals, "%d"),
-				next_state,
-				val_to_str(function, actrace_cas_function_vals, "%d"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s|%d|%s|%d|%s|", 
+			val_to_str(source, actrace_cas_source_vals_short, "ukn"),
+			curr_state,
+			val_to_str(event, actrace_cas_event_vals, "%d"),
+			next_state,
+			val_to_str(function, actrace_cas_function_vals, "%d"));
 
 	par0 = tvb_get_ntohl(tvb, offset);
 	switch (function)
@@ -541,31 +540,27 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 			proto_tree_add_text(actrace_tree, tvb, offset, 4,
 				"Parameter 0: %s", val_to_str(par0, 
 				actrace_cas_pstn_event_vals, "Unknown (%d)"));
-			if (check_col(pinfo->cinfo, COL_INFO))  
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s|", 
-						val_to_str(par0, actrace_cas_pstn_event_vals, "%d"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s|", 
+					val_to_str(par0, actrace_cas_pstn_event_vals, "%d"));
 			break;
 		case CHANGE_COLLECT_TYPE:
 			proto_tree_add_text(actrace_tree, tvb, offset, 4,
 				"Parameter 0: %s", val_to_str(par0, 
 				actrace_cas_collect_type_vals, "Unknown (%d)"));
-			if (check_col(pinfo->cinfo, COL_INFO))  
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s|", 
-						val_to_str(par0, actrace_cas_collect_type_vals, "%d"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s|", 
+					val_to_str(par0, actrace_cas_collect_type_vals, "%d"));
 			break;
 		case SEND_MF:
 		case SEND_DEST_NUM:
 			proto_tree_add_text(actrace_tree, tvb, offset, 4,
 				"Parameter 0: %s", val_to_str(par0, 
 				actrace_cas_send_type_vals, "Unknown (%d)"));
-			if (check_col(pinfo->cinfo, COL_INFO))  
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s|", 
-						val_to_str(par0, actrace_cas_send_type_vals, "%d"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s|", 
+					val_to_str(par0, actrace_cas_send_type_vals, "%d"));
 			break;
 		default:
 			proto_tree_add_int(actrace_tree, hf_actrace_cas_par0, tvb, offset, 4, par0);
-			if (check_col(pinfo->cinfo, COL_INFO))  
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%d|", par0);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%d|", par0);
 	}
 	offset += 4;
 
@@ -573,20 +568,17 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 	if (function == SEND_EVENT) {
 		proto_tree_add_text(actrace_tree, tvb, offset, 4,
 			"Parameter 1: %s", val_to_str(par1, actrace_cas_cause_vals, "Unknown (%d)"));
-		if (check_col(pinfo->cinfo, COL_INFO))  
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s|", 
-					val_to_str(par1, actrace_cas_cause_vals, "%d"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s|", 
+				val_to_str(par1, actrace_cas_cause_vals, "%d"));
 	} else {
 		proto_tree_add_int(actrace_tree, hf_actrace_cas_par1, tvb, offset, 4, par1);
-		if (check_col(pinfo->cinfo, COL_INFO))  
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%d|", par1);
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%d|", par1);
 	}
 	offset += 4;
 
 	par2 = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_int(actrace_tree, hf_actrace_cas_par2, tvb, offset, 4, par2);
-        if (check_col(pinfo->cinfo, COL_INFO))  
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%d|", par2);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%d|", par2);
 	offset += 4;
 
 	trunk = tvb_get_ntohl(tvb, offset);
@@ -597,8 +589,7 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 	proto_tree_add_int(actrace_tree, hf_actrace_cas_bchannel, tvb, offset, 4, bchannel);
 	offset += 4;
 
-        if (check_col(pinfo->cinfo, COL_INFO))  
-		col_prepend_fstr(pinfo->cinfo, COL_INFO, "t%db%d|", trunk, bchannel);
+	col_prepend_fstr(pinfo->cinfo, COL_INFO, "t%db%d|", trunk, bchannel);
 
 	value = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_int(actrace_tree, hf_actrace_cas_connection_id, tvb, offset, 4, value);
@@ -697,9 +688,8 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	call_dissector(lapd_handle, next_tvb, pinfo, tree);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_ISDN");
-        if (check_col(pinfo->cinfo, COL_INFO))  
-		col_prepend_fstr(pinfo->cinfo, COL_INFO, "Trunk:%d  Blade %s PSTN "
-				 , trunk, value==PSTN_TO_BLADE?"<--":"-->");
+	col_prepend_fstr(pinfo->cinfo, COL_INFO, "Trunk:%d  Blade %s PSTN "
+			 , trunk, value==PSTN_TO_BLADE?"<--":"-->");
 }
 
 /*

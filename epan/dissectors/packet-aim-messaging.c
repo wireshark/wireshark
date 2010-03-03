@@ -336,12 +336,10 @@ dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree
 	offset += 2;
 
 	/* Add the outgoing username to the info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		buddyname_length = aim_get_buddyname(buddyname, tvb, offset,
-								  offset + 1);
-		col_append_fstr(pinfo->cinfo, COL_INFO, " to: %s",
-				    format_text(buddyname, buddyname_length));
-	}
+	buddyname_length = aim_get_buddyname(buddyname, tvb, offset,
+							  offset + 1);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " to: %s",
+			    format_text(buddyname, buddyname_length));
 
 	offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
 

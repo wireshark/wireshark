@@ -97,8 +97,7 @@ static int dissect_aim_chat_outgoing_msg(tvbuff_t *tvb, packet_info *pinfo, prot
 	aim_get_message( msg, tvb, 40 + buddyname_length, tvb_length(tvb) 
 					 - 40 - buddyname_length );
 
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
 	
 	return tvb_length(tvb);
 }
@@ -118,10 +117,8 @@ static int dissect_aim_chat_incoming_msg(tvbuff_t *tvb, packet_info *pinfo, prot
 	aim_get_message( msg, tvb, 36 + buddyname_length, tvb_length(tvb) 
 					 - 36 - buddyname_length );
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "from: %s", buddyname);
-		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, "from: %s", buddyname);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
 
 	if(chat_tree) {
 		proto_tree_add_text(chat_tree, tvb, 31, buddyname_length, 
