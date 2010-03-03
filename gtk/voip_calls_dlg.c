@@ -137,10 +137,10 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 
 /*	strinfo->selected = FALSE;*/
 
-	g_snprintf(field[CALL_COL_START_TIME], 15, "%i.%03i", strinfo->start_sec, strinfo->start_usec/1000);
-	g_snprintf(field[CALL_COL_STOP_TIME], 15, "%i.%03i", strinfo->stop_sec, strinfo->stop_usec/1000);
-/*	xxx display_signed_time(data[0], sizeof(field[CALL_COL_START_TIME]), strinfo->start_sec, strinfo->start_usec, TO_STR_TIME_RES_T_USECS); */
-/*	display_signed_time(data[1], sizeof(field[CALL_COL_STOP_TIME]), strinfo->stop_sec, strinfo->stop_usec, TO_STR_TIME_RES_T_USECS); */
+	g_snprintf(field[CALL_COL_START_TIME], 15, "%.3f", nstime_to_sec(&strinfo->start_rel));
+	g_snprintf(field[CALL_COL_STOP_TIME], 15, "%3f", nstime_to_sec(&strinfo->stop_rel));
+/*	XXX display_signed_time(data[0], sizeof(field[CALL_COL_START_TIME]), strinfo->start_rel.secs, strinfo->start_rel.nsecs, TO_STR_TIME_RES_T_NSECS); */
+/*	display_signed_time(data[1], sizeof(field[CALL_COL_STOP_TIME]), strinfo->stop_rel.secs, strinfo->stop_rel.nsecs, TO_STR_TIME_RES_T_NSECS); */
 	g_snprintf(field[CALL_COL_INITIAL_SPEAKER], 30, "%s", get_addr_name(&(strinfo->initial_speaker)));
 	g_snprintf(field[CALL_COL_FROM], 50, "%s", strinfo->from_identity);
 	g_snprintf(field[CALL_COL_TO], 50, "%s", strinfo->to_identity);

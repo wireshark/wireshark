@@ -146,7 +146,10 @@ typedef struct _voip_calls_info {
 	gchar *protocol_name;
 	gchar *call_comment;
 	guint16 call_num;
-	gint32 start_sec, start_usec, stop_sec, stop_usec;
+	nstime_t start_abs;
+	nstime_t stop_abs;
+	nstime_t start_rel;
+	nstime_t stop_rel;
 	gboolean selected;
 
 } voip_calls_info_t;
@@ -207,10 +210,10 @@ typedef struct _voip_rtp_stream_info {
 	guint32 first_frame_num; /* frame number of first frame */
 	guint32 setup_frame_number; /* frame number of setup message */
 	/* start of recording (GMT) of this stream */
-	guint32 start_rel_sec;         /* start stream rel seconds */
-	guint32 start_rel_usec;        /* start stream rel microseconds */
-	guint32 stop_rel_sec;         /* stop stream rel seconds */
-	guint32 stop_rel_usec;        /* stop stream rel microseconds */
+	nstime_t start_abs;
+	nstime_t stop_abs;
+	nstime_t start_rel;
+	nstime_t stop_rel;
 	gint32 rtp_event;
 } voip_rtp_stream_info_t;
 
