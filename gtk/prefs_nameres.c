@@ -31,6 +31,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
+#include <epan/oids.h>
 
 #include "../globals.h"
 
@@ -69,6 +70,8 @@
 #endif
 
 #ifdef HAVE_LIBSMI
+# define SUPPRESS_SMI_ERRORS_KEY	"suppress_smi_errors"
+# define LOAD_SMI_MODULES_KEY	"load_smi_modules"
 # define SMI_TABLE_ROWS 2
 #else
 # define SMI_TABLE_ROWS 0
@@ -102,6 +105,7 @@ nameres_prefs_show(void)
 	GtkWidget	*sm_resolv_bt;
 #ifdef HAVE_LIBSMI
 	GtkWidget	*sp_resolv_bt;
+	GtkWidget	*load_smi_modules_cb, *suppress_smi_errors_cb;
 	uat_t *smi_paths_uat;
 	uat_t *smi_modules_uat;
 #endif
@@ -174,6 +178,20 @@ nameres_prefs_show(void)
 	    "Support for this feature was not compiled into this version of Wireshark");
 #endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
 #ifdef HAVE_LIBSMI
+	/* Suppress smi errors */
+	table_row++;
+	load_smi_modules_cb = create_preference_check_button(main_tb, table_row,
+		"Enable OID resolution:", "You must restart Wireshark for this change to"
+		" take effect.", prefs.load_smi_modules);
+	g_object_set_data(G_OBJECT(main_vb), LOAD_SMI_MODULES_KEY, load_smi_modules_cb);
+
+	/* Suppress smi errors */
+	table_row++;
+	suppress_smi_errors_cb = create_preference_check_button(main_tb, table_row,
+	    "Suppress SMI errors:", "Some errors can be ignored. If unsure, set to false.",
+	    prefs.suppress_smi_errors);
+	g_object_set_data(G_OBJECT(main_vb), SUPPRESS_SMI_ERRORS_KEY, suppress_smi_errors_cb);
+
 	/* SMI paths UAT */
 	smi_paths_uat = uat_get_table_by_name("SMI Paths");
 	if (smi_paths_uat) {
@@ -201,6 +219,14 @@ nameres_prefs_show(void)
 	table_row++;
 	sm_resolv_bt = create_preference_static_text(main_tb, table_row,
 	    "SMI (MIB and PIB) modules and paths: N/A",
+	    "Support for this feature was not compiled into this version of Wireshark");
+	table_row++;
+	create_preference_static_text(main_tb, table_row,
+	    "Enable OID resolution: N/A",
+	    "Support for this feature was not compiled into this version of Wireshark");
+	table_row++;
+	create_preference_static_text(main_tb, table_row,
+	    "Suppress SMI errors: N/A",
 	    "Support for this feature was not compiled into this version of Wireshark");
 #endif /* HAVE_LIBSMI */
 
@@ -242,6 +268,8 @@ nameres_prefs_fetch(GtkWidget *w)
 #endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
 #ifdef HAVE_LIBSMI
 	GtkWidget *sp_resolv_bt, *sm_resolv_bt;
+	GtkWidget	*load_smi_modules_cb, *suppress_smi_errors_cb;
+	gboolean	load_smi_modules_orig;
 #endif
 #ifdef HAVE_GEOIP
 	GtkWidget *geoip_resolv_bt;
@@ -273,6 +301,22 @@ nameres_prefs_fetch(GtkWidget *w)
 	prefs.name_resolve_concurrency = strtol (gtk_entry_get_text(
 		GTK_ENTRY(resolv_concurrency_te)), NULL, 10);
 #endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
+#ifdef HAVE_LIBSMI
+	load_smi_modules_orig = prefs.load_smi_modules;
+	load_smi_modules_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), LOAD_SMI_MODULES_KEY);
+	prefs.load_smi_modules = GTK_TOGGLE_BUTTON (load_smi_modules_cb)->active;
+	suppress_smi_errors_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), SUPPRESS_SMI_ERRORS_KEY);
+	prefs.suppress_smi_errors = GTK_TOGGLE_BUTTON (suppress_smi_errors_cb)->active;
+
+	/* Perform actions needed when enabling/disabling OID resolution */
+	if (load_smi_modules_orig && !prefs.load_smi_modules) {
+		prefs.load_smi_modules = TRUE; /* hack to make oids_cleanup() actually do something */
+		oids_cleanup();
+		prefs.load_smi_modules = FALSE; /* end hack */
+	} else if (!load_smi_modules_orig && prefs.load_smi_modules) {
+		oids_init();
+	}
+#endif
 }
 
 void
