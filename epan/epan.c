@@ -99,7 +99,6 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	final_registration_all_protocols();
 	host_name_lookup_init();
 	expert_init();
-	oids_init();
 #ifdef HAVE_LUA_5_1
 	wslua_init(NULL);
 #endif

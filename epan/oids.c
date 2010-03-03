@@ -44,6 +44,8 @@
 
 #ifdef HAVE_LIBSMI
 #include <smi.h>
+
+static gboolean oids_init_done = FALSE;
 #endif
 
 #define D(level,args) do if (debuglevel >= level) { printf args; printf("\n"); fflush(stdout); } while(0)
@@ -486,7 +488,14 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 						   || (ft == FT_INT8) || (ft == FT_INT16) || (ft == FT_INT24) || (ft == FT_INT32) \
 						   || (ft == FT_UINT64) || (ft == FT_INT64) )
 
-static void register_mibs(void) {
+static void unregister_mibs(void) {
+	/* TODO: Unregister "MIBs" proto and clean up field array and subtree array.
+	 * Wireshark does not support that yet. :-( */
+
+	/* smiExit(); */
+}
+
+static void register_mibs() {
 	SmiModule *smiModule;
 	SmiNode *smiNode;
 	guint i;
@@ -531,8 +540,6 @@ static void register_mibs(void) {
 							  smi_paths_fields);
 
 
-	smiInit(NULL);
-
 	uat_load(smi_modules_uat, &smi_load_error);
 
 	if (smi_load_error) {
@@ -546,6 +553,22 @@ static void register_mibs(void) {
 		report_failure("Error Loading SMI Paths Table: %s",smi_load_error);
 		return;
 	}
+
+	if (!prefs.load_smi_modules) {
+		D(1,("OID resolution not enabled"));
+		return;
+	}
+
+	/* TODO: Remove this workaround when unregistration of "MIBs" proto is solved.
+	 * Wireshark does not support that yet. :-( */
+	if (oids_init_done) {
+		D(1,("Exiting register_mibs() to avoid double registration of MIBs proto."));
+		return;
+	} else {
+		oids_init_done = TRUE;
+	}
+
+	smiInit(NULL);
 
 	smi_errors = g_string_new("");
 	smiSetErrorHandler(smi_error_handler);
@@ -570,11 +593,13 @@ static void register_mibs(void) {
 	}
 
 	if (smi_errors->len) {
-		report_failure("The following errors were found while loading the MIBS:\n%s\n\n"
+		if (!prefs.suppress_smi_errors) {
+			report_failure("The following errors were found while loading the MIBS:\n%s\n\n"
 					   "The Current Path is: %s\n\nYou can avoid this error message "
 					   "by removing the missing MIB modules at Edit -> Preferences"
 					   " -> Name Resolution -> SMI (MIB and PIB) modules or by "
 					   "installing them.\n" , smi_errors->str , path_str);
+		}
 		D(1,("Errors while loading:\n%s\n",smi_errors->str));
 	}
 
@@ -592,11 +617,13 @@ static void register_mibs(void) {
 		 * Currently there is no such version. :-(
 		 */
 		if (smiModule->conformance == 1)
-			report_failure("Stopped processing module %s due to "
-				"error(s) to prevent potential crash in libsmi.\n"
-				"Module's conformance level: %d.\n"
-				"See details at: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=560325\n",
-				 smiModule->name, smiModule->conformance);
+			if (!prefs.suppress_smi_errors) {
+				report_failure("Stopped processing module %s due to "
+					"error(s) to prevent potential crash in libsmi.\n"
+					"Module's conformance level: %d.\n"
+					"See details at: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=560325\n",
+					 smiModule->name, smiModule->conformance);
+			}
 			continue;
 
 		for (smiNode = smiGetFirstNode(smiModule, SMI_NODEKIND_ANY);
@@ -731,6 +758,14 @@ static void register_mibs(void) {
 void oids_init(void) {
 #ifdef HAVE_LIBSMI
 	register_mibs();
+#else
+	D(1,("libsmi disabled oid resolution not enabled"));
+#endif
+}
+
+void oids_cleanup(void) {
+#ifdef HAVE_LIBSMI
+	unregister_mibs();
 #else
 	D(1,("libsmi disabled oid resolution not enabled"));
 #endif

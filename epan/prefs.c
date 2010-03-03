@@ -41,6 +41,7 @@
 #include <epan/filesystem.h>
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
+#include <epan/oids.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/proto.h>
@@ -1206,6 +1207,8 @@ init_prefs(void) {
 /* set the default values for the name resolution dialog box */
   prefs.name_resolve             = RESOLV_ALL ^ RESOLV_NETWORK;
   prefs.name_resolve_concurrency = 500;
+  prefs.load_smi_modules         = FALSE;
+  prefs.suppress_smi_errors	     = FALSE;
 
 /* set the default values for the tap/statistics dialog box */
   prefs.tap_update_interval = TAP_UPDATE_DEFAULT_INTERVAL;
@@ -1238,6 +1241,7 @@ prefs_reset(void)
   g_free(prefs.capture_devices_hide);
 
   uat_unload_all();
+  oids_cleanup();
   init_prefs();
 }
 
@@ -1260,6 +1264,11 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
   int         err;
   char        *pf_path;
   FILE        *pf;
+
+  /* clean up libsmi structures before reading prefs */
+  if (prefs.load_smi_modules) {
+    oids_cleanup();
+  }
 
   init_prefs();
 
@@ -1357,6 +1366,11 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
       *pf_path_return = pf_path;
     } else
       g_free(pf_path);
+  }
+
+  /* load SMI modules if needed */
+  if (prefs.load_smi_modules) {
+    oids_init();
   }
 
   return &prefs;
@@ -1673,6 +1687,8 @@ prefs_is_capture_device_hidden(const char *name)
  */
 #define PRS_NAME_RESOLVE "name_resolve"
 #define PRS_NAME_RESOLVE_CONCURRENCY "name_resolve_concurrency"
+#define PRS_NAME_RESOLVE_LOAD_SMI_MODULES "name_resolve_load_smi_modules"
+#define PRS_NAME_RESOLVE_SUPPRESS_SMI_ERRORS "name_resolve_suppress_smi_errors"
 #define PRS_CAP_NAME_RESOLVE "capture.name_resolve"
 
 /*  values for the capture dialog box */
@@ -2177,6 +2193,10 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     }
   } else if (strcmp(pref_name, PRS_NAME_RESOLVE_CONCURRENCY) == 0) {
     prefs.name_resolve_concurrency = strtol(value, NULL, 10);
+  } else if (strcmp(pref_name, PRS_NAME_RESOLVE_LOAD_SMI_MODULES) == 0) {
+    prefs.load_smi_modules = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
+  } else if (strcmp(pref_name, PRS_NAME_RESOLVE_SUPPRESS_SMI_ERRORS) == 0) {
+    prefs.suppress_smi_errors = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else if ((strcmp(pref_name, PRS_RTP_PLAYER_MAX_VISIBLE) == 0) ||
              (strcmp(pref_name, "rtp_player.max_visible") == 0)) {
     /* ... also accepting old name for this preference */
@@ -3053,6 +3073,16 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "# A decimal number.\n");
   fprintf(pf, PRS_NAME_RESOLVE_CONCURRENCY ": %d\n",
 		  prefs.name_resolve_concurrency);
+
+  fprintf(pf, "\n# Load SMI modules?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(pf, PRS_NAME_RESOLVE_LOAD_SMI_MODULES ": %s\n",
+		  prefs.load_smi_modules == TRUE ? "TRUE" : "FALSE");
+
+  fprintf(pf, "\n# Suppress SMI errors?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(pf, PRS_NAME_RESOLVE_SUPPRESS_SMI_ERRORS ": %s\n",
+		  prefs.suppress_smi_errors == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n####### Taps/Statistics ########\n");
 

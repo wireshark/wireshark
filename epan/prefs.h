@@ -147,6 +147,8 @@ typedef struct _e_prefs {
   gint     console_log_level;
   guint32  name_resolve;
   gint     name_resolve_concurrency;
+  gboolean load_smi_modules;
+  gboolean suppress_smi_errors;
   gchar   *capture_device;
   gchar   *capture_devices_linktypes;
   gchar   *capture_devices_descr;

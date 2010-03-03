@@ -27,6 +27,8 @@
 #ifndef __OIDS_H__
 #define __OIDS_H__
 
+#include <epan/ftypes/ftypes.h>
+
 #define BER_TAG_ANY -1
 
 struct _oid_bit_t {
@@ -102,6 +104,9 @@ typedef struct _oid_info_t {
 
 /* init funcion called from epan.h */
 extern void oids_init(void);
+
+/* init funcion called from epan.h */
+extern void oids_cleanup(void);
 
 /*
  * The objects returned by all these functions are all allocated with a
