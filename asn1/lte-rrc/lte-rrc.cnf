@@ -40,6 +40,12 @@ VarShortMAC-Input
 VarMeasConfig
 VarMeasReportList
 
+#.FN_HDR UL-DCCH-Message
+  actx->pinfo->link_dir = P2P_DIR_UL;
+
+#.FN_HDR DL-DCCH-Message
+  actx->pinfo->link_dir = P2P_DIR_DL;
+
 #.FN_BODY DedicatedInfoNAS VAL_PTR = &nas_eps_tvb
   tvbuff_t *nas_eps_tvb=NULL;
 

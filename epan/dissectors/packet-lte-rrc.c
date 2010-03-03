@@ -1202,8 +1202,6 @@ static int hf_lte_rrc_t310 = -1;                  /* T_t310 */
 static int hf_lte_rrc_n310 = -1;                  /* T_n310 */
 static int hf_lte_rrc_t311 = -1;                  /* T_t311 */
 static int hf_lte_rrc_n311 = -1;                  /* T_n311 */
-static int hf_lte_rrc_cellsTriggeredList = -1;    /* CellsTriggeredList */
-static int hf_lte_rrc_numberOfReportsSent = -1;   /* INTEGER */
 static int hf_lte_rrc_CellsTriggeredList_item = -1;  /* CellsTriggeredList_item */
 static int hf_lte_rrc_physCellIdEUTRA = -1;       /* PhysCellId */
 static int hf_lte_rrc_physCellIdUTRA = -1;        /* T_physCellIdUTRA */
@@ -1833,7 +1831,6 @@ static gint ett_lte_rrc_IRAT_ParametersCDMA2000_1XRTT = -1;
 static gint ett_lte_rrc_IRAT_ParametersCDMA2000_e1xCsfb_r9 = -1;
 static gint ett_lte_rrc_SupportedBandList1XRTT = -1;
 static gint ett_lte_rrc_UE_TimersAndConstants = -1;
-static gint ett_lte_rrc_VarMeasReport = -1;
 static gint ett_lte_rrc_CellsTriggeredList = -1;
 static gint ett_lte_rrc_CellsTriggeredList_item = -1;
 static gint ett_lte_rrc_T_physCellIdUTRA = -1;
@@ -13614,6 +13611,8 @@ static const per_sequence_t DL_DCCH_Message_sequence[] = {
 
 static int
 dissect_lte_rrc_DL_DCCH_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  actx->pinfo->link_dir = P2P_DIR_DL;
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_DL_DCCH_Message, DL_DCCH_Message_sequence);
 
@@ -16012,6 +16011,8 @@ static const per_sequence_t UL_DCCH_Message_sequence[] = {
 
 static int
 dissect_lte_rrc_UL_DCCH_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  actx->pinfo->link_dir = P2P_DIR_UL;
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_UL_DCCH_Message, UL_DCCH_Message_sequence);
 
@@ -16878,31 +16879,6 @@ dissect_lte_rrc_CellsTriggeredList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lte_rrc_CellsTriggeredList, CellsTriggeredList_sequence_of,
                                                   1, maxCellMeas, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_lte_rrc_INTEGER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t VarMeasReport_sequence[] = {
-  { &hf_lte_rrc_measId      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MeasId },
-  { &hf_lte_rrc_cellsTriggeredList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_CellsTriggeredList },
-  { &hf_lte_rrc_numberOfReportsSent, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_lte_rrc_VarMeasReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_VarMeasReport, VarMeasReport_sequence);
 
   return offset;
 }
@@ -21988,14 +21964,6 @@ void proto_register_lte_rrc(void) {
       { "n311", "lte-rrc.n311",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_n311_vals), 0,
         "lte_rrc.T_n311", HFILL }},
-    { &hf_lte_rrc_cellsTriggeredList,
-      { "cellsTriggeredList", "lte-rrc.cellsTriggeredList",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "lte_rrc.CellsTriggeredList", HFILL }},
-    { &hf_lte_rrc_numberOfReportsSent,
-      { "numberOfReportsSent", "lte-rrc.numberOfReportsSent",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "lte_rrc.INTEGER", HFILL }},
     { &hf_lte_rrc_CellsTriggeredList_item,
       { "CellsTriggeredList item", "lte-rrc.CellsTriggeredList_item",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_CellsTriggeredList_item_vals), 0,
@@ -22749,7 +22717,6 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_IRAT_ParametersCDMA2000_e1xCsfb_r9,
     &ett_lte_rrc_SupportedBandList1XRTT,
     &ett_lte_rrc_UE_TimersAndConstants,
-    &ett_lte_rrc_VarMeasReport,
     &ett_lte_rrc_CellsTriggeredList,
     &ett_lte_rrc_CellsTriggeredList_item,
     &ett_lte_rrc_T_physCellIdUTRA,
