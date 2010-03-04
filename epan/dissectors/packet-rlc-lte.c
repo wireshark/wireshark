@@ -566,6 +566,7 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
             /********************************************/
             /* AM                                       */
             /********************************************/
+
             switch (p->amState) {
                 case SN_OK:
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
@@ -625,18 +626,20 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                     PROTO_ITEM_SET_GENERATED(ti);
                     if (p->lastSN != p->firstSN) {
                         expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                               "AM SNs missing for %s on UE %u (%u to %u)",
+                                               "AM SNs (%u to %u) missing for %s on UE %u",
+                                               p->firstSN, p->lastSN,
                                                val_to_str(p_rlc_lte_info->direction, direction_vals, "Unknown"),
-                                               p_rlc_lte_info->ueid, p->firstSN, p->lastSN);
+                                               p_rlc_lte_info->ueid);
                         proto_item_append_text(seqnum_ti, " - SNs missing (%u to %u)",
                                                p->firstSN, p->lastSN);
                         tap_info->missingSNs = ((p->lastSN - p->firstSN) % 1024) + 1;
                     }
                     else {
                         expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                               "AM SN missing for %s on UE %u (%u)",
+                                               "AM SN (%u) missing for %s on UE %u",
+                                               p->firstSN,
                                                val_to_str(p_rlc_lte_info->direction, direction_vals, "Unknown"),
-                                               p_rlc_lte_info->ueid, p->firstSN);
+                                               p_rlc_lte_info->ueid);
                         proto_item_append_text(seqnum_ti, " - SN missing (%u)",
                                                p->firstSN);
                         tap_info->missingSNs = 1;
@@ -1326,7 +1329,10 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
             bit_offset += 10;
             col_append_fstr(pinfo->cinfo, COL_INFO, "  NACK_SN=%u", (guint16)nack_sn);
             proto_item_append_text(top_ti, "  NACK_SN=%u", (guint16)nack_sn);
-            tap_info->NACKs[nack_count++] = (guint16)nack_sn;
+            /* Copy into struct, but don't exceed buffer */
+            if (nack_count < MAX_NACKs) {
+                tap_info->NACKs[nack_count++] = (guint16)nack_sn;
+            }
 
             /* E1 */
             proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_e1, tvb,
