@@ -1589,6 +1589,9 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         len = sizeof(struct icmp6_nodeinfo);
         break;
     }
+    case ICMP6_ECHO_REQUEST:
+    case ICMP6_ECHO_REPLY:
+    case ICMP6_MEMBERSHIP_REPORT:
     case ICMP6_MIP6_DHAAD_REQUEST:
     case ICMP6_MIP6_DHAAD_REPLY:
     case ICMP6_MIP6_MPS:
