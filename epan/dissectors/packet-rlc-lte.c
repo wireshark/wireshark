@@ -337,14 +337,14 @@ static GHashTable *rlc_lte_frame_sequence_analysis_report_hash = NULL;
 /* Conversation-type status for repeated NACK checking on channel */
 typedef struct
 {
-    guint8          noOfNACKs;
+    guint16         noOfNACKs;
     guint16         NACKs[MAX_NACKs];
 } rlc_channel_repeated_nack_status;
 
 static GHashTable *rlc_lte_repeated_nack_channel_hash = NULL;
 
 typedef struct {
-    guint8          noOfNACKsRepeated;
+    guint16         noOfNACKsRepeated;
     guint16         repeatedNACKs[MAX_NACKs];
 } rlc_channel_repeated_nack_report_in_frame;
 
@@ -960,7 +960,7 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
     rlc_channel_repeated_nack_status     *p_channel_status;
     rlc_channel_repeated_nack_report_in_frame  *p_report_in_frame = NULL;
 
-    guint8          noOfNACKsRepeated = 0;
+    guint16         noOfNACKsRepeated = 0;
     guint16         repeatedNACKs[MAX_NACKs];
     gint            n, i, j;
 
@@ -1004,10 +1004,10 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
         g_hash_table_insert(rlc_lte_repeated_nack_channel_hash, p_channel_key, p_channel_status);
     }
 
-    /* Compare NACKs in status with NACKs in tap_info.
+    /* Compare NACKs in channel status with NACKs in tap_info.
        Note any that are repeated */
     for (i=0; i < p_channel_status->noOfNACKs; i++) {
-        for (j=0; j < tap_info->noOfNACKs; j++) {
+        for (j=0; j < MIN(tap_info->noOfNACKs, MAX_NACKs); j++) {
             if (tap_info->NACKs[j] == p_channel_status->NACKs[i]) {
                 repeatedNACKs[noOfNACKsRepeated++] = p_channel_status->NACKs[i];
             }
@@ -1015,9 +1015,9 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
     }
 
     /* Copy NACKs from tap_info into channel status for next time! */
-    p_channel_status->noOfNACKs = tap_info->noOfNACKs;
-    for (n=0; n < tap_info->noOfNACKs; n++) {
-        p_channel_status->NACKs[n] = tap_info->NACKs[n];
+    p_channel_status->noOfNACKs = 0;
+    for (n=0; n < MIN(tap_info->noOfNACKs, MAX_NACKs); n++) {
+        p_channel_status->NACKs[p_channel_status->noOfNACKs++] = tap_info->NACKs[n];
     }
 
     if (noOfNACKsRepeated >= 1) {
@@ -1025,7 +1025,7 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
         p_report_in_frame = se_alloc(sizeof(rlc_channel_repeated_nack_report_in_frame));
 
         /* Copy in found duplicates */
-        for (n=0; n < tap_info->noOfNACKs; n++) {
+        for (n=0; n < MIN(tap_info->noOfNACKs, MAX_NACKs); n++) {
             p_report_in_frame->repeatedNACKs[n] = repeatedNACKs[n];
         }
         p_report_in_frame->noOfNACKsRepeated = noOfNACKsRepeated;
@@ -1277,7 +1277,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 {
     guint8     cpt;
     guint64    ack_sn, nack_sn;
-    guint8     nack_count = 0;
+    guint16    nack_count = 0;
     guint64    e1 = 0, e2 = 0;
     guint64    so_start, so_end;
     int        bit_offset = offset * 8;
@@ -1332,6 +1332,10 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
             /* Copy into struct, but don't exceed buffer */
             if (nack_count < MAX_NACKs) {
                 tap_info->NACKs[nack_count++] = (guint16)nack_sn;
+            }
+            else {
+                /* Let it get bigger than the array for accurate stats... */
+                nack_count++;
             }
 
             /* E1 */
