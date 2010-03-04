@@ -36,6 +36,7 @@
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
 #include <epan/asn1.h>
+#include <epan/prefs.h>
 
 #include "packet-per.h"
 
@@ -47,6 +48,8 @@
 #define PNAME  "UTRAN Iuh interface RUA signalling"
 #define PSNAME "RUA"
 #define PFNAME "rua"
+/* Dissector to use SCTP PPID 19 or a configured SCTP port. IANA assigned port = 29169*/
+#define SCTP_PORT_RUA              29169;
 
 #include "packet-rua-val.h"
 
@@ -60,12 +63,14 @@ static int ett_rua = -1;
 
 /* initialise sub-dissector handles */
 static dissector_handle_t ranap_handle = NULL;
+static dissector_handle_t rua_ranap_handle = NULL;
 
 #include "packet-rua-ett.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
+static guint global_sctp_port = SCTP_PORT_RUA;
 
 /* Dissector tables */
 static dissector_table_t rua_ies_dissector_table;
@@ -79,6 +84,8 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+void proto_reg_handoff_rua(void);
 
 #include "packet-rua-fn.c"
 
@@ -125,6 +132,7 @@ dissect_rua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /*--- proto_register_rua -------------------------------------------*/
 void proto_register_rua(void) {
+module_t *rua_module;
 
   /* List of fields */
 
@@ -155,6 +163,9 @@ void proto_register_rua(void) {
   rua_proc_imsg_dissector_table = register_dissector_table("rua.proc.imsg", "RUA-ELEMENTARY-PROCEDURE InitiatingMessage", FT_UINT32, BASE_DEC);
   rua_proc_sout_dissector_table = register_dissector_table("rua.proc.sout", "RUA-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_UINT32, BASE_DEC);
   rua_proc_uout_dissector_table = register_dissector_table("rua.proc.uout", "RUA-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_UINT32, BASE_DEC);
+ 
+  rua_module = prefs_register_protocol(proto_rua, proto_reg_handoff_rua);
+  prefs_register_uint_preference(rua_module, "port", "RUA SCTP Port", "Set the port for RUA messages (Default of 29169)", 10, &global_sctp_port);
 
 }
 
@@ -163,12 +174,21 @@ void proto_register_rua(void) {
 void
 proto_reg_handoff_rua(void)
 {
-    dissector_handle_t rua_handle;
+        static gboolean initialized = FALSE;
+        static dissector_handle_t rua_handle;
+        static guint sctp_port;
 
-    rua_handle = find_dissector("rua");
-    ranap_handle = find_dissector("ranap");
-    dissector_add("sctp.ppi", RUA_PAYLOAD_PROTOCOL_ID, rua_handle);
-    dissector_add_handle("sctp.port", rua_handle);  /* for "decode-as" */
-
+        if (!initialized) {
+                rua_handle = find_dissector("rua");
+                rua_ranap_handle = find_dissector("ranap");
+                dissector_add("sctp.ppi", RUA_PAYLOAD_PROTOCOL_ID, rua_handle);
+                initialized = TRUE;
 #include "packet-rua-dis-tab.c"
+
+        } else {
+                dissector_delete("sctp.port", sctp_port, rua_handle);
+        }
+        /* Set our port number for future use */
+        sctp_port = global_sctp_port;
+        dissector_add("sctp.port", sctp_port, rua_handle);
 }

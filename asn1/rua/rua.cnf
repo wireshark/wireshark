@@ -34,7 +34,6 @@ PrivateIE-Field/id private_ie_field_id
 #.OMIT_ASSIGNMENT
 Presence
 ProtocolIE-ContainerList
-ProtocolIE-Single-Container
 #.END
 
 #.FN_PARS ProtocolIE-ID  VAL_PTR = &ProtocolIE_ID
@@ -50,10 +49,10 @@ ProtocolIE-Single-Container
 
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
-     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                 val_to_str(ProcedureCode, rua_ProcedureCode_vals,
-                            "unknown message"));
-#.END
+    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+           val_to_str(ProcedureCode, rua_ProcedureCode_vals,
+                      "Unknown Message"));
+    col_set_fence(actx->pinfo->cinfo, COL_INFO); /* Protect the Procedure Code COL_INFO from subdissector overwrites */
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
 
@@ -61,38 +60,98 @@ ProtocolIE-Single-Container
 
 #.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
 
-#.FN_BODY RANAP-Message  VAL_PTR = &ranap_message_tvb
-  tvbuff_t *ranap_message_tvb=NULL;
+#.FN_BODY Connect /* Set COL_INFO to Connect */
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "CONNECT" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
 
 %(DEFAULT_BODY)s
 
-	if (ranap_message_tvb)
-		call_dissector(ranap_handle,ranap_message_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
+#.FN_BODY DirectTransfer /* Set COL_INFO to DirectTransfer */
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "DIRECT_TRANSFER" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
 
+%(DEFAULT_BODY)s
+
+#.FN_BODY Disconnect /* Set COL_INFO to Disconnect */
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "DISCONNECT" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY ConnectionlessTransfer /* Set COL_INFO to ConnectionlessTransfer */
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "CONNECTIONLESS_TRANSFER" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY ErrorIndication /* Set COL_INFO to Error Indication and protect it */
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "ERROR_INDICATION" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY PrivateMessage /* Set COL_INFO to Private Message */
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "PRIVATE_MESSAGE" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY RANAP-Message  VAL_PTR = &ranap_message_tvb
+  tvbuff_t *ranap_message_tvb=NULL;
+%(DEFAULT_BODY)s
+ if ((tvb_length(ranap_message_tvb)>0)&&(rua_ranap_handle)) {  /* RUA has a RANAP-PDU, let RANAP append to COL_PROTOCOL i.e. RUA/RANAP */
+      if (check_col(actx->pinfo->cinfo, COL_PROTOCOL)) {
+         /* Protect RUA entries in the protocol and info columns from subdissector overwrites*/
+         col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
+         col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+      }
+     call_dissector(rua_ranap_handle,ranap_message_tvb,%(ACTX)s->pinfo, tree);
+  } else { /* RUA does not have a RANAP-PDU so protect existing RUA Elementary Procedure as COL_INFO */
+     col_set_fence(actx->pinfo->cinfo, COL_INFO);
+  }
 #.END
 
+
+#.ASSIGN_VALUE_TO_TYPE  # RUA ASN.1 does not have constants assigned to types,
+# ProcedureCode
+id-Connect                                      ProcedureCode
+id-DirectTransfer                               ProcedureCode
+id-Disconnect                                   ProcedureCode
+id-ConnectionlessTransfer                       ProcedureCode
+id-ErrorIndication                              ProcedureCode
+id-privateMessage                               ProcedureCode
+
+# ProtocolIE-ID
+id-Cause                                        ProtocolIE-ID
+id-CriticalityDiagnostics                       ProtocolIE-ID
+id-Context-ID                                   ProtocolIE-ID
+id-RANAP-Message                                ProtocolIE-ID
+id-IntraDomainNasNodeSelector                   ProtocolIE-ID
+id-Establishment-Cause                          ProtocolIE-ID
+id-CN-DomainIndicator                           ProtocolIE-ID
+#.END
 
 
 #.REGISTER_NEW
 
 #RUA-PROTOCOL-IES
-Cause							N rua.ies id-Cause
-CriticalityDiagnostics			N rua.ies id-CriticalityDiagnostics
-Context-ID						N rua.ies id-Context-ID
-RANAP-Message					N rua.ies id-RANAP-Message
-IntraDomainNasNodeSelector		N rua.ies id-IntraDomainNasNodeSelector
-Establishment-Cause				N rua.ies id-Establishment-Cause
-CN-DomainIndicator				N rua.ies id-CN-DomainIndicator
+Cause								N rua.ies id-Cause
+CriticalityDiagnostics				N rua.ies id-CriticalityDiagnostics
+Context-ID							N rua.ies id-Context-ID
+RANAP-Message						N rua.ies id-RANAP-Message
+IntraDomainNasNodeSelector			N rua.ies id-IntraDomainNasNodeSelector
+Establishment-Cause					N rua.ies id-Establishment-Cause
+CN-DomainIndicator					N rua.ies id-CN-DomainIndicator
 
 #RUA-PROTOCOL-EXTENSION
-CSGMembershipStatus				N rua.extension id-CSGMembershipStatus
+CSGMembershipStatus					N rua.extension id-CSGMembershipStatus
 
 #RUA-ELEMENTARY-PROCEDURE
-Connect							N rua.proc.imsg id-Connect
-DirectTransfer					N rua.proc.imsg id-DirectTransfer
-Disconnect						N rua.proc.imsg id-Disconnect
-ConnectionlessTransfer			N rua.proc.imsg id-ConnectionlessTransfer
-ErrorIndication					N rua.proc.imsg id-ErrorIndication
-PrivateMessage					N rua.proc.imsg id-privateMessage
-
+Connect								N rua.proc.imsg id-Connect
+DirectTransfer						N rua.proc.imsg id-DirectTransfer
+Disconnect							N rua.proc.imsg id-Disconnect
+ConnectionlessTransfer				N rua.proc.imsg id-ConnectionlessTransfer
+ErrorIndication						N rua.proc.imsg id-ErrorIndication
+PrivateMessage						N rua.proc.imsg id-privateMessage
 #.END
