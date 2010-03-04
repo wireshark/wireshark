@@ -233,45 +233,45 @@ typedef struct {
 } sip_header_t;
 static const sip_header_t sip_headers[] = {
 	{ "Unknown-header", 			NULL }, /* 0 Pad so that the real headers start at index 1 */
-	{ "Accept", 				NULL }, /* 1 */
-	{ "Accept-Contact",			"a"  }, /* 2 RFC3841  */
+	{ "Accept", 					NULL }, /* 1 */
+	{ "Accept-Contact",				"a"  }, /* 2 RFC3841  */
 	{ "Accept-Encoding", 			NULL }, /* 3 */
 	{ "Accept-Language", 			NULL }, /* 4 */
 	{ "Accept-Resource-Priority",		NULL },	/* 5 RFC4412 */
-	{ "Alert-Info", 			NULL },
-	{ "Allow", 				NULL },
-	{ "Allow-Events", 			"u"  },	/* 8 RFC3265  */
-	{ "Answer-Mode", 			NULL }, /* 9 RFC5373 */
+	{ "Alert-Info", 				NULL },
+	{ "Allow", 						NULL },
+	{ "Allow-Events", 				"u"  },	/* 8 RFC3265  */
+	{ "Answer-Mode", 				NULL }, /* 9 RFC5373 */
 	{ "Authentication-Info",	 	NULL },
-	{ "Authorization", 			NULL }, /* 11 */
-	{ "Call-ID", 				"i"  },
-	{ "Call-Info", 				NULL },
-	{ "Contact", 				"m"  },
+	{ "Authorization", 				NULL }, /* 11 */
+	{ "Call-ID", 					"i"  },
+	{ "Call-Info", 					NULL },
+	{ "Contact", 					"m"  },
 	{ "Content-Disposition", 		NULL },
 	{ "Content-Encoding", 			"e"  },  /*  16 */
 	{ "Content-Language", 			NULL },
 	{ "Content-Length", 			"l"  },
-	{ "Content-Type", 			"c"  },
-	{ "CSeq", 				NULL },
-	{ "Date", 				NULL },  /*  21 */
+	{ "Content-Type", 				"c"  },
+	{ "CSeq", 						NULL },
+	{ "Date", 						NULL },  /*  21 */
 /*				Encryption (Deprecated)       [RFC3261]	*/
-	{ "Error-Info", 			NULL },
-	{ "Event", 				"o"  },
-	{ "Expires", 				NULL },
+	{ "Error-Info", 				NULL },
+	{ "Event", 						"o"  },
+	{ "Expires", 					NULL },
 	/* Flow-Timer                    [RFC5626]*/
-	{ "From", 				"f"  },  /*  25 */
+	{ "From", 						"f"  },  /*  25 */
 /*				Hide                          [RFC3261] (deprecated)*/
-	{ "History-Info", 			NULL },  /*  26 RFC4244  */
-	{ "Identity", 				"y"  },  /*	 27 RFC4474  */
-	{ "Identity-Info", 			"n"  },  /*	 28 RFC4474  */
-	{ "In-Reply-To", 			NULL },	 /*  29 RFC3261  */
-	{ "Join",		 		NULL },  /*  30 RFC3911  */
-	{ "Max-Breadth", 			NULL },  /*  31 RFC5393*/
-	{ "Max-Forwards", 			NULL },  /*  32 */
-	{ "MIME-Version", 			NULL },  /*  33 */
-	{ "Min-Expires", 			NULL },  /*  34 */
-	{ "Min-SE",				NULL },  /*  35 RFC4028  */
-	{ "Organization", 			NULL },  /*  36 RFC3261  */
+	{ "History-Info", 				NULL },  /*  26 RFC4244  */
+	{ "Identity", 					"y"  },  /*	 27 RFC4474  */
+	{ "Identity-Info", 				"n"  },  /*	 28 RFC4474  */
+	{ "In-Reply-To", 				NULL },	 /*  29 RFC3261  */
+	{ "Join",		 				NULL },  /*  30 RFC3911  */
+	{ "Max-Breadth", 				NULL },  /*  31 RFC5393*/
+	{ "Max-Forwards", 				NULL },  /*  32 */
+	{ "MIME-Version", 				NULL },  /*  33 */
+	{ "Min-Expires", 				NULL },  /*  34 */
+	{ "Min-SE",						NULL },  /*  35 RFC4028  */
+	{ "Organization", 				NULL },  /*  36 RFC3261  */
 	{ "P-Access-Network-Info",		NULL },  /*  37 RFC3455  */
 	{ "P-Answer-State",		        NULL },  /*  38 RFC4964  */
 	{ "P-Asserted-Identity",        	NULL },  /*  39 RFC3325  */
@@ -284,64 +284,64 @@ static const sip_header_t sip_headers[] = {
 	{ "P-DCS-Billing-Info",         	NULL },  /*  46 RFC5503  */
 	{ "P-DCS-LAES",                 	NULL },  /*  47 RFC5503  */
 	{ "P-DCS-Redirect",             	NULL },  /*  48 RFC5503  */
-	{ "P-Early-Media",			NULL },  /*  49 RFC5009  */
+	{ "P-Early-Media",					NULL },  /*  49 RFC5009  */
 	{ "P-Media-Authorization",      	NULL },  /*  50 RFC3313  */
 	{ "P-Preferred-Identity",       	NULL },  /*  51 RFC3325  */
-	{ "P-Profile-Key",			NULL },  /*  52 RFC5002  */
-	{ "P-Refused-URI-List",			NULL },  /*  53 RFC5318  */
-	{ "P-Served-User",			NULL },  /*  54 RFC5502  */
-	{ "P-User-Database",			NULL },  /*  55 RFC4457  */
+	{ "P-Profile-Key",					NULL },  /*  52 RFC5002  */
+	{ "P-Refused-URI-List",				NULL },  /*  53 RFC5318  */
+	{ "P-Served-User",					NULL },  /*  54 RFC5502  */
+	{ "P-User-Database",				NULL },  /*  55 RFC4457  */
 	{ "P-Visited-Network-ID",       	NULL },  /*  56 RFC3455  */
 	{ "Path",                       	NULL },  /*  57 RFC3327  */
 	{ "Permission-Missing",         	NULL },  /*  58 RFC5360  */
-	{ "Priority", 				NULL },  /*  59 RFC3261  */
+	{ "Priority", 						NULL },  /*  59 RFC3261  */
 	{ "Priv-Answer-Mode",           	NULL },  /*  60 RFC5373  */
 	{ "Privacy",                    	NULL },  /*  61 RFC3323  */
-	{ "Proxy-Authenticate", 		NULL },	 /*  62 */
-	{ "Proxy-Authorization", 		NULL },	 /*  63 */
-	{ "Proxy-Require", 			NULL },	 /*  64 */
-	{ "RAck", 				NULL },  /*  65 RFC3262  */
+	{ "Proxy-Authenticate", 			NULL },	 /*  62 */
+	{ "Proxy-Authorization", 			NULL },	 /*  63 */
+	{ "Proxy-Require", 					NULL },	 /*  64 */
+	{ "RAck", 							NULL },  /*  65 RFC3262  */
 	{ "Reason",                     	NULL },  /*  66 RFC3326  */
-	{ "Record-Route", 			NULL },	 /*  67 */
-	{ "Refer-Sub", 				NULL },  /*  68 RFC4488  */
-	{ "Refer-To",				"r"  },  /*  69 RFC3515  */
-	{ "Referred-By",			"b"  },  /*  70 RFC3892  */
-	{ "Reject-Contact",			"j"  },  /*  71 RFC3841  */
-	{ "Replaces",				NULL },  /*  72 RFC3891  */
-	{ "Reply-To", 				NULL },  /*  73 RFC3261  */
-	{ "Request-Disposition",		"d"  },  /*  74 RFC3841  */
-	{ "Require", 				NULL },  /*  75 RFC3261  */
-	{ "Resource-Priority",			NULL },	 /*  76 RFC4412  */
+	{ "Record-Route", 					NULL },	 /*  67 */
+	{ "Refer-Sub", 						NULL },  /*  68 RFC4488  */
+	{ "Refer-To",						"r"  },  /*  69 RFC3515  */
+	{ "Referred-By",					"b"  },  /*  70 RFC3892  */
+	{ "Reject-Contact",					"j"  },  /*  71 RFC3841  */
+	{ "Replaces",						NULL },  /*  72 RFC3891  */
+	{ "Reply-To", 						NULL },  /*  73 RFC3261  */
+	{ "Request-Disposition",			"d"  },  /*  74 RFC3841  */
+	{ "Require", 						NULL },  /*  75 RFC3261  */
+	{ "Resource-Priority",				NULL },	 /*  76 RFC4412  */
 	/*
 	  { "Response-Key (Deprecated)     [RFC3261]
 	*/
-	{ "Retry-After", 			NULL },  /*  77 RFC3261  */
-	{ "Route", 				NULL },  /*  78 RFC3261  */
-	{ "RSeq", 				NULL },  /*  79 RFC3262  */
-	{ "Security-Client",			NULL },  /*  80 RFC3329  */
-	{ "Security-Server",			NULL },  /*  81 RFC3329  */
-	{ "Security-Verify",			NULL },  /*  82 RFC3329  */
-	{ "Server",			 	NULL },  /*  83 RFC3261  */
-	{ "Service-Route",			NULL },  /*  84 RFC3608  */
-	{ "Session-Expires",			"x"  },  /*  85 RFC4028  */
-	{ "SIP-ETag",				NULL },  /*  86 RFC3903  */
-	{ "SIP-If-Match",			NULL },  /*  87 RFC3903  */
-	{ "Subject",				"s"  },  /*  88 RFC3261  */
-	{ "Subscription-State", 		NULL },  /*  89 RFC3265  */
-	{ "Supported",				"k"	 },  /*  90 RFC3261  */
-	{ "Target-Dialog",			NULL },  /*  81 RFC4538  */
-	{ "Timestamp",				NULL },  /*  92 RFC3261  */
-	{ "To",					"t"  },  /*  93 RFC3261  */
+	{ "Retry-After", 					NULL },  /*  77 RFC3261  */
+	{ "Route", 							NULL },  /*  78 RFC3261  */
+	{ "RSeq", 							NULL },  /*  79 RFC3262  */
+	{ "Security-Client",				NULL },  /*  80 RFC3329  */
+	{ "Security-Server",				NULL },  /*  81 RFC3329  */
+	{ "Security-Verify",				NULL },  /*  82 RFC3329  */
+	{ "Server",			 				NULL },  /*  83 RFC3261  */
+	{ "Service-Route",					NULL },  /*  84 RFC3608  */
+	{ "Session-Expires",				"x"  },  /*  85 RFC4028  */
+	{ "SIP-ETag",						NULL },  /*  86 RFC3903  */
+	{ "SIP-If-Match",					NULL },  /*  87 RFC3903  */
+	{ "Subject",						"s"  },  /*  88 RFC3261  */
+	{ "Subscription-State", 			NULL },  /*  89 RFC3265  */
+	{ "Supported",						"k"	 },  /*  90 RFC3261  */
+	{ "Target-Dialog",					NULL },  /*  81 RFC4538  */
+	{ "Timestamp",						NULL },  /*  92 RFC3261  */
+	{ "To",								"t"  },  /*  93 RFC3261  */
 	{ "Trigger-Consent",            	NULL },  /*  94 RFC5360  */
-	{ "Unsupported",			NULL },  /*  95 RFC3261  */
-	{ "User-Agent", 			NULL },  /*  96 RFC3261  */
-	{ "Via",			 	"v"  },  /*  97 RFC3261  */
-	{ "Warning",		 		NULL },  /*  98 RFC3261  */
-	{ "WWW-Authenticate",			NULL },  /*  99 RFC3261  */
+	{ "Unsupported",					NULL },  /*  95 RFC3261  */
+	{ "User-Agent", 					NULL },  /*  96 RFC3261  */
+	{ "Via",			 				"v"  },  /*  97 RFC3261  */
+	{ "Warning",		 				NULL },  /*  98 RFC3261  */
+	{ "WWW-Authenticate",				NULL },  /*  99 RFC3261  */
 };
 
 
-#define POS_ACCEPT				 1
+#define POS_ACCEPT					1
 #define POS_ACCEPT_CONTACT			 2
 #define POS_ACCEPT_ENCODING			 3
 #define POS_ACCEPT_LANGUAGE			 4
@@ -738,6 +738,7 @@ static sip_info_value_t *stat_info;
  ****************************************************************************/
 
 static GHashTable *sip_hash = NULL;           /* Hash table */
+static GHashTable *sip_headers_hash = NULL;		/* Hash table */
 
 /* Types for hash table keys and values */
 #define MAX_CALL_ID_SIZE 128
@@ -834,12 +835,23 @@ static guint sip_hash_func(gconstpointer v)
 static void
 sip_init_protocol(void)
 {
+	 gint i;
+	 gchar *value_copy;
+
 	/* Destroy any existing hashes. */
 	if (sip_hash)
 		g_hash_table_destroy(sip_hash);
 
 	/* Now create them over */
 	sip_hash = g_hash_table_new(g_str_hash , sip_equal);
+	/* xx */
+	if(!sip_headers_hash){
+		sip_headers_hash = g_hash_table_new(g_str_hash , g_str_equal);
+		for (i = 1; i < array_length(sip_headers); i++){
+			value_copy = g_strdup (sip_headers[i].name);
+			g_hash_table_insert(sip_headers_hash, (gpointer)value_copy, GINT_TO_POINTER(i));
+		}
+	}
 }
 
 /* Structure to collect info about a sip uri */
@@ -3268,6 +3280,15 @@ static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
 static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset, guint header_len)
 {
         guint i;
+		guint pos=0;
+		gchar *header = tvb_format_text(tvb, offset, header_len);
+
+		if(header_len>1){
+			pos = GPOINTER_TO_INT(g_hash_table_lookup(sip_headers_hash, header));
+			if (pos!=0)
+				return pos;
+			return -1;
+		}
 
         for (i = 1; i < array_length(sip_headers); i++) {
                 if (header_len == strlen(sip_headers[i].name) &&
