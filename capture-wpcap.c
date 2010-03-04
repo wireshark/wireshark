@@ -32,6 +32,7 @@
 #include <glib.h>
 #include <gmodule.h>
 
+#include "capture_ifinfo.h"
 #include "capture-pcap-util.h"
 #include "capture-pcap-util-int.h"
 
