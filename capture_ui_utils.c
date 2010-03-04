@@ -34,7 +34,7 @@
 #include <glib.h>
 
 #include <epan/prefs.h>
-#include "capture-pcap-util.h"
+#include "capture_ifinfo.h"
 #include "capture_ui_utils.h"
 
 /*
@@ -130,12 +130,12 @@ capture_dev_user_linktype_find(const gchar *if_name)
 /*
  * Return as descriptive a name for an interface as we can get.
  * If the user has specified a comment, use that.  Otherwise,
- * if get_interface_list() supplies a description, use that,
+ * if capture_interface_list() supplies a description, use that,
  * otherwise use the interface name.
  *
  * The result must be g_free()'d when you're done with it.
  *
- * Note: given that this calls get_interface_list(), which attempts to
+ * Note: given that this calls capture_interface_list(), which attempts to
  * open all adapters it finds in order to check whether they can be
  * captured on, this is an expensive routine to call, so don't call it
  * frequently.
@@ -158,7 +158,7 @@ get_interface_descriptive_name(const char *if_name)
     /* No, we don't have a user-supplied description; did we get
        one from the OS or libpcap? */
     descr = NULL;
-    if_list = get_interface_list(&err, NULL);
+    if_list = capture_interface_list(&err, NULL);
     if (if_list != NULL && if_name != NULL) {
       if_entry = if_list;
       do {

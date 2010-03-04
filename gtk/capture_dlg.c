@@ -46,6 +46,7 @@
 #include "../capture.h"
 #include "../globals.h"
 #include "../capture_errs.h"
+#include "../capture_ifinfo.h"
 #include "../simple_dialog.h"
 #include "../capture-pcap-util.h"
 #include "../capture_ui_utils.h"
@@ -263,8 +264,8 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   GtkWidget *if_ip_lb;
   GString *ip_str = g_string_new("IP address: ");
   int ips = 0;
-  GSList *curr_ip;
-  if_addr_t *ip_addr;
+  GSList *curr_addr;
+  if_addr_t *addr;
 #ifdef HAVE_PCAP_REMOTE
   GtkWidget *iftype_cbx;
   int iftype;
@@ -344,25 +345,26 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
 	  lt_list = capture_pcap_linktype_list(if_name, NULL);
 
 	  /* create string of list of IP addresses of this interface */
-	  for (; (curr_ip = g_slist_nth(if_info->ip_addr, ips)) != NULL; ips++) {
+	  for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
 	    if (ips != 0)
 	      g_string_append(ip_str, ", ");
 
-	    ip_addr = (if_addr_t *)curr_ip->data;
-	    switch (ip_addr->type) {
+	    addr = (if_addr_t *)curr_addr->data;
+	    switch (addr->ifat_type) {
 
-	    case AT_IPv4:
+	    case IF_AT_IPv4:
 	      g_string_append(ip_str,
-		ip_to_str((guint8 *)&ip_addr->ip_addr.ip4_addr));
+		ip_to_str((guint8 *)&addr->addr.ip4_addr));
 	      break;
 
-	    case AT_IPv6:
+	    case IF_AT_IPv6:
 	      g_string_append(ip_str,
-	          ip6_to_str((struct e_in6_addr *)&ip_addr->ip_addr.ip6_addr));
+	          ip6_to_str((struct e_in6_addr *)&addr->addr.ip6_addr));
 	      break;
 
             default:
-              g_assert_not_reached();
+              /* In case we add non-IP addresses */
+              break;
 	    }
 	  }
 

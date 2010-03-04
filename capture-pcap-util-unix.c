@@ -47,8 +47,6 @@
 #include <sys/ioctl.h>
 #endif
 
-#include <pcap.h>
-
 /*
  * Keep Digital UNIX happy when including <net/if.h>.
  */
@@ -60,6 +58,7 @@ struct rtentry;
 # include <sys/sockio.h>
 #endif
 
+#include "capture_ifinfo.h"
 #include "capture-pcap-util.h"
 #include "capture-pcap-util-int.h"
 

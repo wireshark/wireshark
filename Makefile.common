@@ -44,12 +44,10 @@ GENERATED_C_FILES = \
 # All the generated files.
 GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
 
-# sources common for wireshark and tshark
+# sources common for wireshark, tshark, and rawshark
 WIRESHARK_COMMON_SRC =	\
 	$(PLATFORM_SRC) \
-	capture_errs.c	\
 	capture-pcap-util.c	\
-	capture_ui_utils.c	\
 	cfile.c	\
 	clopts_common.c	\
 	disabled_protos.c	\
@@ -66,10 +64,8 @@ WIRESHARK_COMMON_SRC =	\
 # corresponding headers
 WIRESHARK_COMMON_INCLUDES =	\
 	svnversion.h		\
-	capture_errs.h	\
 	capture-pcap-util.h	\
 	capture-pcap-util-int.h	\
-	capture_ui_utils.h	\
 	cfile.h	\
 	clopts_common.h	\
 	cmdarg_err.h	\
@@ -88,6 +84,19 @@ WIRESHARK_COMMON_INCLUDES =	\
 	tap-megaco-common.h	\
 	tap-rtp-common.h	\
 	version_info.h
+
+# sources common for wireshark and tshark, but not rawshark;
+# these are for programs that capture traffic by running dumpcap
+SHARK_COMMON_CAPTURE_SRC =	\
+	capture_errs.c		\
+	capture_ifinfo.c	\
+	capture_ui_utils.c
+
+# corresponding headers
+SHARK_COMMON_CAPTURE_INCLUDES =	\
+	capture_errs.h	\
+	capture_ifinfo.h	\
+	capture_ui_utils.h
 
 # sources for TShark taps
 TSHARK_TAP_SRC =	\
@@ -139,6 +148,7 @@ EXTRA_wireshark_INCLUDES =	\
 # wireshark specifics
 wireshark_SOURCES =	\
 	$(WIRESHARK_COMMON_SRC)	\
+	$(SHARK_COMMON_CAPTURE_SRC) \
 	airpcap_loader.c \
 	alert_box.c	\
 	capture.c	\
@@ -181,6 +191,7 @@ wireshark_INCLUDES =	\
 # tshark specifics
 tshark_SOURCES =	\
 	$(WIRESHARK_COMMON_SRC)	\
+	$(SHARK_COMMON_CAPTURE_SRC) \
 	$(TSHARK_TAP_SRC)	\
 	capture_opts.c		\
 	capture_sync.c		\
@@ -249,6 +260,7 @@ dumpcap_INCLUDES = \
 # this target needed for distribution only
 noinst_HEADERS =	\
 	$(WIRESHARK_COMMON_INCLUDES) \
+	$(SHARK_COMMON_CAPTURE_INCLUDES) \
 	$(wireshark_INCLUDES) \
 	$(EXTRA_wireshark_INCLUDES) \
 	$(dumpcap_INCLUDES)

@@ -68,6 +68,7 @@
 #include "clopts_common.h"
 #include "cmdarg_err.h"
 
+#include "capture_ifinfo.h"
 #include "capture-pcap-util.h"
 #include <wsutil/file_util.h>
 
@@ -403,7 +404,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
         cmdarg_err("There is no interface with that adapter index");
         return 1;
       }
-      if_list = get_interface_list(&err, &err_str);
+      if_list = capture_interface_list(&err, &err_str);
       if (if_list == NULL) {
         switch (err) {
 
@@ -624,11 +625,11 @@ capture_opts_list_interfaces(gboolean machine_readable)
     int         err;
     gchar       *err_str;
     int         i;
-    GSList      *ip_addr;
+    GSList      *addr;
     if_addr_t   *if_addr;
     char        addr_str[ADDRSTRLEN];
 
-    if_list = get_interface_list(&err, &err_str);
+    if_list = capture_interface_list(&err, &err_str);
     if (if_list == NULL) {
         switch (err) {
         case CANT_GET_INTERFACE_LIST:
@@ -645,7 +646,7 @@ capture_opts_list_interfaces(gboolean machine_readable)
 
     i = 1;  /* Interface id number */
     for (if_entry = g_list_first(if_list); if_entry != NULL;
-    if_entry = g_list_next(if_entry)) {
+         if_entry = g_list_next(if_entry)) {
         if_info = if_entry->data;
         printf("%d. %s", i++, if_info->name);
 
@@ -665,23 +666,23 @@ capture_opts_list_interfaces(gboolean machine_readable)
             else
                 printf("\t\t");
 
-            for(ip_addr = g_slist_nth(if_info->ip_addr, 0); ip_addr != NULL;
-                        ip_addr = g_slist_next(ip_addr)) {
-                if (ip_addr != g_slist_nth(if_info->ip_addr, 0))
+            for(addr = g_slist_nth(if_info->addrs, 0); addr != NULL;
+                        addr = g_slist_next(addr)) {
+                if (addr != g_slist_nth(if_info->addrs, 0))
                     printf(",");
 
-                if_addr = ip_addr->data;
-                switch(if_addr->type) {
-                case AT_IPv4:
-                    if (inet_ntop(AF_INET, &if_addr->ip_addr.ip4_addr, addr_str,
+                if_addr = addr->data;
+                switch(if_addr->ifat_type) {
+                case IF_AT_IPv4:
+                    if (inet_ntop(AF_INET, &if_addr->addr.ip4_addr, addr_str,
                                 ADDRSTRLEN)) {
                         printf("%s", addr_str);
                     } else {
                         printf("<unknown IPv4>");
                     }
                     break;
-                case AT_IPv6:
-                    if (inet_ntop(AF_INET6, &if_addr->ip_addr.ip6_addr,
+                case IF_AT_IPv6:
+                    if (inet_ntop(AF_INET6, &if_addr->addr.ip6_addr,
                                 addr_str, ADDRSTRLEN)) {
                         printf("%s", addr_str);
                     } else {
@@ -689,7 +690,7 @@ capture_opts_list_interfaces(gboolean machine_readable)
                     }
                     break;
                 default:
-                    printf("<type unknown %u>", if_addr->type);
+                    printf("<type unknown %u>", if_addr->ifat_type);
                 }
             }
 
@@ -748,7 +749,7 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
 	   */
       } else {
         /* No - pick the first one from the list of interfaces. */
-        if_list = get_interface_list(&err, &err_str);
+        if_list = capture_interface_list(&err, &err_str);
         if (if_list == NULL) {
           switch (err) {
 

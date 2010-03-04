@@ -26,9 +26,6 @@
 #define __PCAP_UTIL_INT_H__
 
 #ifdef HAVE_LIBPCAP
-#ifdef HAVE_PCAP_REMOTE
-#include <pcap.h>
-#endif /* HAVE_PCAP_REMOTE */
 
 extern if_info_t *if_info_new(char *name, char *description);
 extern void if_info_add_address(if_info_t *if_info, struct sockaddr *addr);

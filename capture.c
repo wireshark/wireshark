@@ -33,44 +33,7 @@
 #endif
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>         /* needed to define AF_ values on UNIX */
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>           /* needed to define AF_ values on Windows */
-#endif
-
-#ifdef NEED_INET_V6DEFS_H
-# include "inet_v6defs.h"
-#endif
-
-#include <signal.h>
-#include <errno.h>
 
 #include <glib.h>
 
@@ -78,6 +41,7 @@
 #include <epan/dfilter/dfilter.h>
 #include "file.h"
 #include "capture.h"
+#include "capture_ifinfo.h"
 #include "capture_sync.h"
 #include "capture_info.h"
 #include "capture_ui_utils.h"
@@ -650,163 +614,6 @@ capture_input_closed(capture_options *capture_opts)
         g_free(capture_opts->save_file);
         capture_opts->save_file = NULL;
     }
-}
-
-/**
- * Fetch the interface list from a child process (dumpcap).
- *
- * @return A GList containing if_info_t structs if successful, NULL (with err and possibly err_str set) otherwise.
- *
- */
-
-/* XXX - We parse simple text output to get our interface list.  Should
- * we use "real" data serialization instead, e.g. via XML? */
-GList *
-capture_interface_list(int *err, char **err_str)
-{
-    GList     *if_list = NULL;
-    int        i, j;
-    gchar     *msg;
-    gchar    **raw_list, **if_parts, **addr_parts;
-    gchar     *name;
-    if_info_t *if_info;
-    if_addr_t *if_addr;
-
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List ...");
-
-    /* Try to get our interface list */
-    *err = sync_interface_list_open(&msg);
-    if (*err != 0) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List failed!");
-        if (err_str) {
-            *err_str = msg;
-        } else {
-            g_free(msg);
-        }
-        return NULL;
-    }
-
-    /* Split our lines */
-#ifdef _WIN32
-    raw_list = g_strsplit(msg, "\r\n", 0);
-#else
-    raw_list = g_strsplit(msg, "\n", 0);
-#endif
-    g_free(msg);
-
-    for (i = 0; raw_list[i] != NULL; i++) {
-        if_parts = g_strsplit(raw_list[i], "\t", 4);
-        if (if_parts[0] == NULL || if_parts[1] == NULL || if_parts[2] == NULL ||
-                if_parts[3] == NULL) {
-            g_strfreev(if_parts);
-            continue;
-        }
-
-        /* Number followed by the name, e.g "1. eth0" */
-        name = strchr(if_parts[0], ' ');
-        if (name) {
-            name++;
-        } else {
-            g_strfreev(if_parts);
-            continue;
-        }
-
-        if_info = g_malloc0(sizeof(if_info_t));
-        if_info->name = g_strdup(name);
-        if (strlen(if_parts[1]) > 0)
-            if_info->description = g_strdup(if_parts[1]);
-        addr_parts = g_strsplit(if_parts[2], ",", 0);
-        for (j = 0; addr_parts[j] != NULL; j++) {
-            if_addr = g_malloc0(sizeof(if_addr_t));
-            if (inet_pton(AF_INET, addr_parts[j], &if_addr->ip_addr.ip4_addr)) {
-                if_addr->type = AT_IPv4;
-            } else if (inet_pton(AF_INET6, addr_parts[j],
-                    &if_addr->ip_addr.ip6_addr)) {
-                if_addr->type = AT_IPv6;
-            } else {
-                g_free(if_addr);
-                if_addr = NULL;
-            }
-            if (if_addr) {
-                if_info->ip_addr = g_slist_append(if_info->ip_addr, if_addr);
-            }
-        }
-        if (strcmp(if_parts[3], "loopback") == 0)
-            if_info->loopback = TRUE;
-        g_strfreev(if_parts);
-        g_strfreev(addr_parts);
-        if_list = g_list_append(if_list, if_info);
-    }
-    g_strfreev(raw_list);
-
-    /* Check to see if we built a list */
-    if (if_list == NULL) {
-        *err = NO_INTERFACES_FOUND;
-        if (err_str)
-            *err_str = g_strdup("No interfaces found");
-    }
-    return if_list;
-}
-
-/* XXX - We parse simple text output to get our interface list.  Should
- * we use "real" data serialization instead, e.g. via XML? */
-GList *
-capture_pcap_linktype_list(const gchar *ifname, char **err_str)
-{
-    GList     *linktype_list = NULL;
-    int        err, i;
-    gchar     *msg;
-    gchar    **raw_list, **lt_parts;
-    data_link_info_t *data_link_info;
-
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Linktype List ...");
-
-    /* Try to get our interface list */
-    err = sync_linktype_list_open(ifname, &msg);
-    if (err != 0) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Linktype List failed!");
-        if (err_str) {
-            *err_str = msg;
-        } else {
-            g_free(msg);
-        }
-        return NULL;
-    }
-
-    /* Split our lines */
-#ifdef _WIN32
-    raw_list = g_strsplit(msg, "\r\n", 0);
-#else
-    raw_list = g_strsplit(msg, "\n", 0);
-#endif
-    g_free(msg);
-
-    for (i = 0; raw_list[i] != NULL; i++) {
-        /* ...and what if the interface name has a tab in it, Mr. Clever Programmer? */
-        lt_parts = g_strsplit(raw_list[i], "\t", 3);
-        if (lt_parts[0] == NULL || lt_parts[1] == NULL || lt_parts[2] == NULL) {
-            g_strfreev(lt_parts);
-            continue;
-        }
-
-        data_link_info = g_malloc(sizeof (data_link_info_t));
-        data_link_info->dlt = (int) strtol(lt_parts[0], NULL, 10);
-        data_link_info->name = g_strdup(lt_parts[1]);
-        if (strcmp(lt_parts[2], "(not supported)") != 0)
-            data_link_info->description = g_strdup(lt_parts[2]);
-        else
-            data_link_info->description = NULL;
-
-        linktype_list = g_list_append(linktype_list, data_link_info);
-    }
-    g_strfreev(raw_list);
-
-    /* Check to see if we built a list */
-    if (linktype_list == NULL) {
-        if (err_str)
-            *err_str = NULL;
-    }
-    return linktype_list;
 }
 
 if_stat_cache_t *

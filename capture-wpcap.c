@@ -32,10 +32,6 @@
 #include <glib.h>
 #include <gmodule.h>
 
-#ifdef HAVE_LIBPCAP
-#include <pcap.h>
-#endif
-
 #include "capture-pcap-util.h"
 #include "capture-pcap-util-int.h"
 

@@ -35,8 +35,6 @@
 #include <limits.h>
 #include <string.h>
 
-#include <pcap.h>
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
@@ -48,6 +46,7 @@
 #include <wtap.h>
 #include <libpcap.h>
 
+#include "capture_ifinfo.h"
 #include "capture-pcap-util.h"
 #include "capture-pcap-util-int.h"
 
@@ -190,7 +189,7 @@ if_info_new(char *name, char *description)
 		if_info->description = NULL;
 	else
 		if_info->description = g_strdup(description);
-	if_info->ip_addr = NULL;
+	if_info->addrs = NULL;
 	if_info->loopback = FALSE;
 	return if_info;
 }
@@ -198,7 +197,7 @@ if_info_new(char *name, char *description)
 void
 if_info_add_address(if_info_t *if_info, struct sockaddr *addr)
 {
-	if_addr_t *ip_addr;
+	if_addr_t *if_addr;
 	struct sockaddr_in *ai;
 #ifdef INET6
 	struct sockaddr_in6 *ai6;
@@ -208,22 +207,22 @@ if_info_add_address(if_info_t *if_info, struct sockaddr *addr)
 
 	case AF_INET:
 		ai = (struct sockaddr_in *)addr;
-		ip_addr = g_malloc(sizeof(*ip_addr));
-		ip_addr->type = AT_IPv4;
-		ip_addr->ip_addr.ip4_addr =
+		if_addr = g_malloc(sizeof(*if_addr));
+		if_addr->ifat_type = IF_AT_IPv4;
+		if_addr->addr.ip4_addr =
 		    *((guint32 *)&(ai->sin_addr.s_addr));
-		if_info->ip_addr = g_slist_append(if_info->ip_addr, ip_addr);
+		if_info->addrs = g_slist_append(if_info->addrs, if_addr);
 		break;
 
 #ifdef INET6
 	case AF_INET6:
 		ai6 = (struct sockaddr_in6 *)addr;
-		ip_addr = g_malloc(sizeof(*ip_addr));
-		ip_addr->type = AT_IPv6;
-		memcpy((void *)&ip_addr->ip_addr.ip6_addr,
+		if_addr = g_malloc(sizeof(*if_addr));
+		if_addr->ifat_type = IF_AT_IPv6;
+		memcpy((void *)&if_addr->addr.ip6_addr,
 		    (void *)&ai6->sin6_addr.s6_addr,
-		    sizeof ip_addr->ip_addr.ip6_addr);
-		if_info->ip_addr = g_slist_append(if_info->ip_addr, ip_addr);
+		    sizeof if_addr->addr.ip6_addr);
+		if_info->addrs = g_slist_append(if_info->addrs, if_addr);
 		break;
 #endif
 	}
@@ -338,8 +337,8 @@ free_if_cb(gpointer data, gpointer user_data _U_)
 	g_free(if_info->name);
 	g_free(if_info->description);
 
-	g_slist_foreach(if_info->ip_addr, free_if_info_addr_cb, NULL);
-	g_slist_free(if_info->ip_addr);
+	g_slist_foreach(if_info->addrs, free_if_info_addr_cb, NULL);
+	g_slist_free(if_info->addrs);
 	g_free(if_info);
 }
 

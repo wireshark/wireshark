@@ -570,12 +570,11 @@ sync_pipe_start(capture_options *capture_opts) {
 }
 
 /*
- * Open dumpcap with the supplied arguments.  On success, msg points to
- * a buffer containing the dumpcap output and returns 0.  read_fd and
- * fork_child point to the pipe's file descriptor and child PID/handle,
- * respectively.  On failure, msg points to the error message returned by
- * dumpcap, and returns dumpcap's exit value.  In either case, msg must be
- * freed with g_free().
+ * Open a pipe to dumpcap with the supplied arguments.  On success, *msg
+ * is unchanged and 0 is returned; read_fd and fork_child point to the
+ * pipe's file descriptor and child PID/handle, respectively.  On failure,
+ * *msg points to an error message for the failure, and -1 is returned.
+ * In the latter case, *msg must be freed with g_free().
  */
 /* XXX - This duplicates a lot of code in sync_pipe_start() */
 #define PIPE_BUF_SIZE 5120
@@ -621,7 +620,7 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
         *msg = g_strdup_printf("Couldn't create sync pipe: %s", strerror(errno));
         g_free( (gpointer) argv[0]);
         g_free( (gpointer) argv);
-        return CANT_RUN_DUMPCAP;
+        return -1;
     }
 
     /* init STARTUPINFO */
@@ -658,7 +657,7 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
         CloseHandle(sync_pipe_write);
         g_free( (gpointer) argv[0]);
         g_free( (gpointer) argv);
-        return CANT_RUN_DUMPCAP;
+        return -1;
     }
     *fork_child = (int) pi.hProcess;
     g_string_free(args, TRUE);
@@ -673,7 +672,7 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
         *msg = g_strdup_printf("Couldn't create sync pipe: %s", strerror(errno));
         g_free( (gpointer) argv[0]);
         g_free(argv);
-        return CANT_RUN_DUMPCAP;
+        return -1;
     }
 
     if ((*fork_child = fork()) == 0) {
@@ -721,7 +720,7 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
         /* We couldn't even create the child process. */
         *msg = g_strdup_printf("Couldn't create child process: %s", strerror(errno));
         ws_close(*read_fd);
-        return CANT_RUN_DUMPCAP;
+        return -1;
     }
 
     /* we might wait for a moment till child is ready, so update screen now */
@@ -729,6 +728,12 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
     return 0;
 }
 
+/*
+ * Wait for dumpcap to finish.  On success, *msg is unchanged, and 0 is
+ * returned.  On failure, *msg points to an error message for the
+ * failure, and -1 is returned.  In the latter case, *msg must be
+ * freed with g_free().
+ */
 static int
 #ifdef _WIN32
 sync_pipe_close_command(int *read_fd, int *fork_child, gchar **msg) {
@@ -747,7 +752,7 @@ sync_pipe_close_command(int *read_fd, gchar **msg) {
     if (_cwait(&fork_child_status, *fork_child, _WAIT_CHILD) == -1) {
         *msg = g_strdup_printf("Child capture process stopped unexpectedly "
             "(errno:%u)", errno);
-        return CANT_RUN_DUMPCAP;
+        return -1;
     }
 #else
     if (wait(&fork_child_status) != -1) {
@@ -770,22 +775,25 @@ sync_pipe_close_command(int *read_fd, gchar **msg) {
                 *msg = g_strdup_printf("Child capture process died: wait status %#o",
                     fork_child_status);
             }
-            return CANT_RUN_DUMPCAP;
+            return -1;
         }
     } else {
       *msg = g_strdup_printf("Child capture process stopped unexpectedly "
         "(errno:%u)", errno);
-      return CANT_RUN_DUMPCAP;
+      return -1;
     }
 #endif
     return 0;
 }
 
 /*
- * Run dumpcap with the supplied arguments.  On success, msg points to
- * a buffer containing the dumpcap output and returns 0.  On failure, msg
- * points to the error message returned by dumpcap, and returns dumpcap's
- * exit value.  In either case, msg must be freed with g_free().
+ * Run dumpcap with the supplied arguments.  On success, *msg points to
+ * a buffer containing the dumpcap output, and 0 is returned.  On failure,
+ * *msg points to an error message, and -1 is returned.  In either case,
+ * *msg must be freed with g_free().
+ *
+ * XXX - this doesn't check the exit status of dumpcap if it can be
+ * started and its return status could be fetched.
  */
 /* XXX - This duplicates a lot of code in sync_pipe_start() */
 #define PIPE_BUF_SIZE 5120
@@ -801,8 +809,7 @@ sync_pipe_run_command(const char** argv, gchar **msg) {
     if (ret)
 	return ret;
 
-    /* We were able to set up to read dumpcap's output.  Do so and
-       return its exit value. */
+    /* We were able to set up to read dumpcap's output.  Do so. */
     msg_buf = g_string_new("");
     while ((count = ws_read(sync_pipe_read_fd, buf, PIPE_BUF_SIZE)) > 0) {
         buf[count] = '\0';
@@ -826,10 +833,10 @@ sync_pipe_run_command(const char** argv, gchar **msg) {
 }
 
 /*
- * Get an interface list using dumpcap.  On success, msg points to
- * a buffer containing the dumpcap output and returns 0.  On failure, msg
- * points to the error message returned by dumpcap, and returns dumpcap's
- * exit value.  In either case, msg must be freed with g_free().
+ * Get an interface list using dumpcap.  On success, *msg points to
+ * a buffer containing the dumpcap output, and 0 is returned.  On failure,
+ * *msg points to an error message, and -1 is returned.  In either case,
+ * msg must be freed with g_free().
  */
 int
 sync_interface_list_open(gchar **msg) {
@@ -847,7 +854,7 @@ sync_interface_list_open(gchar **msg) {
 
     if (!argv) {
         *msg = g_strdup_printf("We don't know where to find dumpcap.");
-        return CANT_RUN_DUMPCAP;
+        return -1;
     }
 
     /* Ask for the interface list */
@@ -876,10 +883,10 @@ sync_interface_list_open(gchar **msg) {
 }
 
 /*
- * Get an linktype list using dumpcap.  On success, msg points to
- * a buffer containing the dumpcap output and returns 0.  On failure, msg
- * points to the error message returned by dumpcap, and returns dumpcap's
- * exit value.  In either case, msg must be freed with g_free().
+ * Get an linktype list using dumpcap.  On success, *msg points to
+ * a buffer containing the dumpcap output, and 0 is returned.  On failure,
+ * *msg points to an error message, and -1 is returned.  In either case,
+ * *msg must be freed with g_free().
  */
 int
 sync_linktype_list_open(const gchar *ifname, gchar **msg) {
@@ -897,7 +904,7 @@ sync_linktype_list_open(const gchar *ifname, gchar **msg) {
 
     if (!argv) {
         *msg = g_strdup_printf("We don't know where to find dumpcap.");
-        return CANT_RUN_DUMPCAP;
+        return -1;
     }
 
     /* Ask for the linktype list */
@@ -928,9 +935,9 @@ sync_linktype_list_open(const gchar *ifname, gchar **msg) {
 
 /*
  * Start getting interface statistics using dumpcap.  On success, read_fd
- * contains the file descriptor for the pipe's stdout, msg is unchanged,
- * and zero is returned.  On failure, msg will point to an error message
- * that must be g_free()d and a nonzero error value will be returned.
+ * contains the file descriptor for the pipe's stdout, *msg is unchanged,
+ * and zero is returned.  On failure, *msg will point to an error message
+ * that must be g_free()d, and -1 will be returned.
  */
 int
 sync_interface_stats_open(int *read_fd, int *fork_child, gchar **msg) {
@@ -948,7 +955,7 @@ sync_interface_stats_open(int *read_fd, int *fork_child, gchar **msg) {
 
     if (!argv) {
         *msg = g_strdup_printf("We don't know where to find dumpcap.");
-        return CANT_RUN_DUMPCAP;
+        return -1;
     }
 
     /* Ask for the interface statistics */

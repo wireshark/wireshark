@@ -22,16 +22,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PCAP_UTIL_H__
-#define __PCAP_UTIL_H__
+#ifndef __CAPTURE_PCAP_UTIL_H__
+#define __CAPTURE_PCAP_UTIL_H__
 
 #ifdef HAVE_LIBPCAP
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <epan/address.h>
 
 #include <pcap.h>
 
@@ -44,28 +42,6 @@ extern "C" {
  */
 #define MIN_PACKET_SIZE 1	/* minimum amount of packet data we can read */
 
-/*
- * The list of interfaces returned by "get_interface_list()" is
- * a list of these structures.
- */
-typedef struct {
-	char	*name;          /* e.g. "eth0" */
-	char	*description;   /* from OS, e.g. "Local Area Connection" or NULL */
-	GSList  *ip_addr;       /* containing address values of if_addr_t */
-	gboolean loopback;      /* TRUE if loopback, FALSE otherwise */
-} if_info_t;
-
-/*
- * An address in the "ip_addr" list.
- */
-typedef struct {
-	address_type type;      /* AT_IPv4 or AT_IPv6 */
-	union {
-		guint32 ip4_addr;   /*  4 byte IP V4 address, or */
-		guint8 ip6_addr[16];/* 16 byte IP V6 address */
-	} ip_addr;
-} if_addr_t;
-
 GList *get_interface_list(int *err, char **err_str);
 #ifdef HAVE_PCAP_REMOTE
 GList *get_remote_interface_list(const char *hostname, const char *port,
@@ -73,25 +49,7 @@ GList *get_remote_interface_list(const char *hostname, const char *port,
                                  const char *passwd, int *err, char **err_str);
 #endif
 
-/* Error values from "get_interface_list()/capture_interface_list()". */
-#define	CANT_GET_INTERFACE_LIST	1	/* error getting list */
-#define	NO_INTERFACES_FOUND	2	/* list is empty */
-#define	CANT_RUN_DUMPCAP	3	/* problem running dumpcap */
-
-void free_interface_list(GList *if_list);
-
-/*
- * The list of data link types returned by "get_pcap_linktype_list()" is
- * a list of these structures.
- */
-typedef struct {
-	int	dlt;                /* e.g. DLT_EN10MB (which is 1) */
-	char	*name;          /* e.g. "EN10MB" or "DLT 1" */
-	char	*description;   /* descriptive name from wiretap e.g. "Ethernet", NULL if unknown */
-} data_link_info_t;
-
 GList *get_pcap_linktype_list(const char *devname, char **err_str);
-void free_pcap_linktype_list(GList *linktype_list);
 
 /* get/set the link type of an interface */
 /* (only used in capture_loop.c / capture-pcap-util.c) */
@@ -122,4 +80,4 @@ extern void get_compiled_pcap_version(GString *str);
  */
 extern void get_runtime_pcap_version(GString *str);
 
-#endif /* __PCAP_UTIL_H__ */
+#endif /* __CAPTURE_PCAP_UTIL_H__ */

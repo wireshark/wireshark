@@ -34,7 +34,7 @@ set_capture_if_dialog_for_capture_in_progress(gboolean capture_in_progress);
 
 #ifdef HAVE_LIBPCAP
 
-#include "capture-pcap-util.h"	/* for if_info_t */
+#include "capture_ifinfo.h"	/* for if_info_t */
 
 /** User requested the "Capture Interfaces" dialog box by menu or toolbar.
  *

@@ -90,6 +90,7 @@
 #include "sync_pipe.h"
 
 #include "capture_opts.h"
+#include "capture_ifinfo.h"
 #include "capture_sync.h"
 
 #include "conditions.h"
@@ -421,6 +422,25 @@ cmdarg_err_cont(const char *fmt, ...)
     fprintf(stderr, "\n");
     va_end(ap);
   }
+}
+
+/*
+ * capture_interface_list() is expected to do the right thing to get
+ * a list of interfaces.
+ *
+ * In most of the programs in the Wireshark suite, "the right thing"
+ * is to run dumpcap and ask it for the list, because dumpcap may
+ * be the only program in the suite with enough privileges to get
+ * the list.
+ *
+ * In dumpcap itself, however, we obviously can't run dumpcap to
+ * ask for the list.  Therefore, our capture_interface_list() should
+ * just call get_interface_list().
+ */
+GList *
+capture_interface_list(int *err, char **err_str)
+{
+  return get_interface_list(err, err_str);
 }
 
 typedef struct {

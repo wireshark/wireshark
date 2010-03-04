@@ -45,7 +45,7 @@ gint capture_dev_user_linktype_find(const gchar *if_name);
 
 /** Return as descriptive a name for an interface as we can get.
  * If the user has specified a comment, use that.  Otherwise,
- * if get_interface_list() supplies a description, use that,
+ * if capture_interface_list() supplies a description, use that,
  * otherwise use the interface name.
  *
  * @param if_name The name of the interface.
@@ -56,7 +56,7 @@ char *get_interface_descriptive_name(const char *if_name);
 
 /** Build the GList of available capture interfaces.
  *
- * @param if_list An interface list from get_interface_list().
+ * @param if_list An interface list from capture_interface_list().
  * @param do_hide Hide the "hidden" interfaces.
  *
  * @return A list of if_info_t structs (use free_capture_combo_list() later).
