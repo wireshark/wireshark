@@ -261,10 +261,10 @@ wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) wsgetopt.obj inet_nt
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:wireshark.exe;1
 !ENDIF
 
-tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) wsgetopt.obj inet_ntop.obj epan image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) wsgetopt.obj inet_ntop.obj inet_pton.obj epan image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) wsgetopt.obj inet_ntop.obj image\tshark.res
+		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) wsgetopt.obj inet_ntop.obj inet_pton.obj image\tshark.res
 <<
 !IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "tshark.exe.manifest" -outputresource:tshark.exe;1
