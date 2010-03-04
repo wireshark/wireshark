@@ -196,6 +196,8 @@ set(PACKAGELIST GLIB2 PCAP M LEX YACC Perl SH PythonInterp HtmlViewer ${PACKAGEL
 #Build the gui ?
 if(BUILD_wireshark)
 	set(PACKAGELIST GTK2 ${PACKAGELIST})
+	set(GTK2_OPTIONS COMPONENTS gtk)
+	set(GTK2_DEBUG true)
 endif()
 
 # SMI SNMP
@@ -264,7 +266,11 @@ set(PROGLIST text2pcap mergecap capinfos editcap dumpcap)
 
 #Let's loop the package list
 foreach(PACKAGE ${PACKAGELIST})
-	find_package(${PACKAGE} REQUIRED)
+	if(${PACKAGE}_OPTIONS)
+		find_package(${PACKAGE} ${${PACKAGE}_OPTIONS})
+	else()
+		find_package(${PACKAGE} REQUIRED)
+	endif()
 	message(${PACKAGE}_FOUND)
 	if (${PACKAGE}_FOUND)
 		set(HAVE_LIB${PACKAGE} 1)
@@ -451,11 +457,15 @@ set(WTAP_PLUGIN_SOURCES
 	epan/filesystem.c
 )
 
+set(SHARK_COMMON_CAPTURE_SRC
+	capture_errs.c
+	capture_ifinfo.c
+	capture_ui_utils.c
+)
+
 set(WIRESHARK_COMMON_SRC
 	${PLATFORM_SRC}
-	capture_errs.c
 	capture-pcap-util.c
-	capture_ui_utils.c
 	cfile.c
 	clopts_common.c
 	disabled_protos.c
@@ -588,6 +598,7 @@ if(BUILD_wireshark)
 		proto_hier_stats.c
 		summary.c
 		tempfile.c
+		${SHARK_COMMON_CAPTURE_SRC}
 		${WIRESHARK_COMMON_SRC}
 	)
 	add_executable(wireshark ${wireshark_FILES})
@@ -608,6 +619,7 @@ if(BUILD_tshark)
 		tshark-tap-register.c
 		tshark.c
 		${TSHARK_TAP_SRC}
+		${SHARK_COMMON_CAPTURE_SRC}
 	        ${WIRESHARK_COMMON_SRC}
 	)
 	add_executable(tshark ${tshark_FILES})
