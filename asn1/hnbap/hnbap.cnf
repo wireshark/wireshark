@@ -56,10 +56,9 @@ CN-DomainIndicator
 
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
-     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                 val_to_str(ProcedureCode, hnbap_ProcedureCode_vals,
-                            "unknown message"));
-#.END
+    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+             val_to_str(ProcedureCode, hnbap_ProcedureCode_vals,
+                      "Unknown Message"));
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
 
@@ -67,43 +66,147 @@ CN-DomainIndicator
 
 #.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
 
+# There is no protocol inside HNBAP so fill col info with HNBAP elementary procedure name
+#.FN_BODY HNBRegisterRequest
+	col_append_str(actx->pinfo->cinfo, COL_INFO, "HNB_REGISTER_REQUEST" );
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+	col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY HNBRegisterAccept
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "HNB_REGISTER_ACCEPT" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY HNBRegisterReject
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "HNB_REGISTER_REJECT" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY UERegisterRequest
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "UE_REGISTER_REQUEST" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY UERegisterAccept
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "UE_REGISTER_ACCEPT" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY UERegisterReject
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "UE_REGISTER_REJECT" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+%(DEFAULT_BODY)s
+
+#.FN_BODY UEDe-Register
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "UE_DE-REGISTER" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY HNBDe-Register
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "HNB_DE-REGISTER" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY ErrorIndication
+
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "ERROR_INDICATION" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY PrivateMessage
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "PRIVATE_MESSAGE" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
+%(DEFAULT_BODY)s
+#.END
+
+
+#.ASSIGN_VALUE_TO_TYPE  # HNBAP ASN.1 does not have constants assigned to types
+# ProcedureCode
+id-HNBRegister                                  ProcedureCode
+id-HNBDe-Register                               ProcedureCode
+id-UERegister                                   ProcedureCode
+id-UEDe-Register                                ProcedureCode
+id-ErrorIndication                              ProcedureCode
+id-privateMessage                               ProcedureCode
+
+# ProtocolIE-ID
+id-Cause                                        ProtocolIE-ID
+id-CriticalityDiagnostics                       ProtocolIE-ID
+id-HNB-Identity                                 ProtocolIE-ID
+id-Context-ID                                   ProtocolIE-ID
+id-UE-Identity                                  ProtocolIE-ID
+id-LAC                                          ProtocolIE-ID
+id-RAC                                          ProtocolIE-ID
+id-HNB-Location-Information                     ProtocolIE-ID
+id-PLMNidentity                                 ProtocolIE-ID
+id-SAC                                          ProtocolIE-ID
+id-CellIdentity                                 ProtocolIE-ID
+id-Registration-Cause                           ProtocolIE-ID
+id-UE-Capabilities                              ProtocolIE-ID
+id-RNC-ID                                       ProtocolIE-ID
+id-CSG-ID                                       ProtocolIE-ID
+id-BackoffTimer                                 ProtocolIE-ID
+id-HNB-Internet-Information                     ProtocolIE-ID
+#.END
+
+
 #.REGISTER_NEW
 
 #HNBAP-PROTOCOL-IES
-Cause						N hnbap.ies id-Cause
-CriticalityDiagnostics		N hnbap.ies id-CriticalityDiagnostics
-HNB-Identity				N hnbap.ies id-HNB-Identity
-Context-ID					N hnbap.ies id-Context-ID
-UE-Identity					N hnbap.ies id-UE-Identity
-LAC							N hnbap.ies id-LAC
-RAC							N hnbap.ies id-RAC
-HNB-Location-Information	N hnbap.ies id-HNB-Location-Information
-PLMNidentity				N hnbap.ies id-PLMNidentity
-SAC							N hnbap.ies id-SAC
-CellIdentity				N hnbap.ies id-CellIdentity
-Registration-Cause			N hnbap.ies id-Registration-Cause
-UE-Capabilities				N hnbap.ies id-UE-Capabilities
-RNC-ID						N hnbap.ies id-RNC-ID
-CSG-ID						N hnbap.ies id-CSG-ID
-BackoffTimer				N hnbap.ies id-BackoffTimer
+Cause								N hnbap.ies id-Cause
+CriticalityDiagnostics				N hnbap.ies id-CriticalityDiagnostics
+HNB-Identity						N hnbap.ies id-HNB-Identity
+Context-ID							N hnbap.ies id-Context-ID
+UE-Identity							N hnbap.ies id-UE-Identity
+LAC									N hnbap.ies id-LAC
+RAC									N hnbap.ies id-RAC
+HNB-Location-Information			N hnbap.ies id-HNB-Location-Information
+PLMNidentity						N hnbap.ies id-PLMNidentity
+SAC									N hnbap.ies id-SAC
+CellIdentity						N hnbap.ies id-CellIdentity
+Registration-Cause					N hnbap.ies id-Registration-Cause
+UE-Capabilities						N hnbap.ies id-UE-Capabilities
+RNC-ID								N hnbap.ies id-RNC-ID
+CSG-ID								N hnbap.ies id-CSG-ID
+BackoffTimer						N hnbap.ies id-BackoffTimer
 
 #HNBAP-PROTOCOL-EXTENSION
-IP-Address					N hnbap.extension id-HNB-Internet-Information
-HNB-Cell-Access-Mode		N hnbap.extension id-HNB-Cell-Access-Mode
-MuxPortNumber				N hnbap.extension id-MuxPortNumber
-SAC							N hnbap.extension id-Service-Area-For-Broadcast
-CSGMembershipStatus			N hnbap.extension id-CSGMembershipStatus
+IP-Address							N hnbap.extension id-HNB-Internet-Information
+HNB-Cell-Access-Mode				N hnbap.extension id-HNB-Cell-Access-Mode
+MuxPortNumber						N hnbap.extension id-MuxPortNumber
+CSGMembershipStatus					N hnbap.extension id-CSGMembershipStatus
 
 #HNBAP-ELEMENTARY-PROCEDURE
-HNBRegisterRequest							N hnbap.proc.imsg id-HNBRegister
-HNBRegisterAccept							N hnbap.proc.sout id-HNBRegister
-HNBRegisterReject							N hnbap.proc.uout id-HNBRegister
-UERegisterRequest							N hnbap.proc.imsg id-UERegister
-UERegisterAccept							N hnbap.proc.sout id-UERegister
-UERegisterReject							N hnbap.proc.uout id-UERegister
-UEDe-Register								N hnbap.proc.imsg id-UEDe-Register
-HNBDe-Register								N hnbap.proc.imsg id-HNBDe-Register
-ErrorIndication								N hnbap.proc.imsg id-ErrorIndication
-PrivateMessage								N hnbap.proc.imsg id-privateMessage
+#CLASS 1
+HNBRegisterRequest					N hnbap.proc.imsg id-HNBRegister
+HNBRegisterAccept					N hnbap.proc.sout id-HNBRegister
+HNBRegisterReject					N hnbap.proc.uout id-HNBRegister
+UERegisterRequest					N hnbap.proc.imsg id-UERegister
+UERegisterAccept					N hnbap.proc.sout id-UERegister
+UERegisterReject					N hnbap.proc.uout id-UERegister
 
+#CLASS 2
+UEDe-Register						N hnbap.proc.imsg id-UEDe-Register
+HNBDe-Register						N hnbap.proc.imsg id-HNBDe-Register
+ErrorIndication						N hnbap.proc.imsg id-ErrorIndication
+PrivateMessage						N hnbap.proc.imsg id-privateMessage
 #.END

@@ -44,6 +44,7 @@
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
 #include <epan/asn1.h>
+#include <epan/prefs.h>
 
 #include "packet-per.h"
 
@@ -55,6 +56,8 @@
 #define PNAME  "UTRAN Iuh interface HNBAP signalling"
 #define PSNAME "HNBAP"
 #define PFNAME "hnbap"
+/* Dissector will use SCTP PPID 20 or SCTP port. IANA assigned port = 29169*/
+#define SCTP_PORT_HNBAP              29169;
 
 
 /*--- Included file: packet-hnbap-val.h ---*/
@@ -99,7 +102,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-hnbap-val.h ---*/
-#line 52 "packet-hnbap-template.c"
+#line 55 "packet-hnbap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_hnbap = -1;
@@ -210,7 +213,7 @@ static int hf_hnbap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_hnbap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-hnbap-hf.c ---*/
-#line 57 "packet-hnbap-template.c"
+#line 60 "packet-hnbap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_hnbap = -1;
@@ -263,11 +266,12 @@ static gint ett_hnbap_SuccessfulOutcome = -1;
 static gint ett_hnbap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-hnbap-ett.c ---*/
-#line 62 "packet-hnbap-template.c"
+#line 65 "packet-hnbap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
+static guint global_sctp_port = SCTP_PORT_HNBAP;
 
 /* Dissector tables */
 static dissector_table_t hnbap_ies_dissector_table;
@@ -281,6 +285,7 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+void proto_reg_handoff_hnbap(void);
 
 
 /*--- Included file: packet-hnbap-fn.c ---*/
@@ -361,9 +366,10 @@ dissect_hnbap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                                             0U, 255U, &ProcedureCode, FALSE);
 
 #line 59 "hnbap.cnf"
-     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                 val_to_str(ProcedureCode, hnbap_ProcedureCode_vals,
-                            "unknown message"));
+    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+             val_to_str(ProcedureCode, hnbap_ProcedureCode_vals,
+                      "Unknown Message"));
+
 
   return offset;
 }
@@ -1395,8 +1401,16 @@ static const per_sequence_t HNBRegisterRequest_sequence[] = {
 
 static int
 dissect_hnbap_HNBRegisterRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 71 "hnbap.cnf"
+	col_append_str(actx->pinfo->cinfo, COL_INFO, "HNB_REGISTER_REQUEST" );
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+	col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_HNBRegisterRequest, HNBRegisterRequest_sequence);
+
+
+
 
   return offset;
 }
@@ -1410,8 +1424,16 @@ static const per_sequence_t HNBRegisterAccept_sequence[] = {
 
 static int
 dissect_hnbap_HNBRegisterAccept(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 78 "hnbap.cnf"
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "HNB_REGISTER_ACCEPT" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_HNBRegisterAccept, HNBRegisterAccept_sequence);
+
+
+
 
   return offset;
 }
@@ -1425,8 +1447,16 @@ static const per_sequence_t HNBRegisterReject_sequence[] = {
 
 static int
 dissect_hnbap_HNBRegisterReject(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 85 "hnbap.cnf"
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "HNB_REGISTER_REJECT" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_HNBRegisterReject, HNBRegisterReject_sequence);
+
+
+
 
   return offset;
 }
@@ -1440,8 +1470,16 @@ static const per_sequence_t HNBDe_Register_sequence[] = {
 
 static int
 dissect_hnbap_HNBDe_Register(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 119 "hnbap.cnf"
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "HNB_DE-REGISTER" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_HNBDe_Register, HNBDe_Register_sequence);
+
+
+
 
   return offset;
 }
@@ -1455,8 +1493,16 @@ static const per_sequence_t UERegisterRequest_sequence[] = {
 
 static int
 dissect_hnbap_UERegisterRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 92 "hnbap.cnf"
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "UE_REGISTER_REQUEST" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_UERegisterRequest, UERegisterRequest_sequence);
+
+
+
 
   return offset;
 }
@@ -1470,8 +1516,16 @@ static const per_sequence_t UERegisterAccept_sequence[] = {
 
 static int
 dissect_hnbap_UERegisterAccept(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 99 "hnbap.cnf"
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "UE_REGISTER_ACCEPT" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_UERegisterAccept, UERegisterAccept_sequence);
+
+
+
 
   return offset;
 }
@@ -1485,8 +1539,15 @@ static const per_sequence_t UERegisterReject_sequence[] = {
 
 static int
 dissect_hnbap_UERegisterReject(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 106 "hnbap.cnf"
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "UE_REGISTER_REJECT" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_UERegisterReject, UERegisterReject_sequence);
+
+
+
 
   return offset;
 }
@@ -1500,8 +1561,16 @@ static const per_sequence_t UEDe_Register_sequence[] = {
 
 static int
 dissect_hnbap_UEDe_Register(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 112 "hnbap.cnf"
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "UE_DE-REGISTER" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_UEDe_Register, UEDe_Register_sequence);
+
+
+
 
   return offset;
 }
@@ -1515,8 +1584,17 @@ static const per_sequence_t ErrorIndication_sequence[] = {
 
 static int
 dissect_hnbap_ErrorIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 126 "hnbap.cnf"
+
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "ERROR_INDICATION" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_ErrorIndication, ErrorIndication_sequence);
+
+
+
 
   return offset;
 }
@@ -1529,8 +1607,15 @@ static const per_sequence_t PrivateMessage_sequence[] = {
 
 static int
 dissect_hnbap_PrivateMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 134 "hnbap.cnf"
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "PRIVATE_MESSAGE" );
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_PrivateMessage, PrivateMessage_sequence);
+
+
 
   return offset;
 }
@@ -1884,7 +1969,7 @@ static void dissect_HNBAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-hnbap-fn.c ---*/
-#line 81 "packet-hnbap-template.c"
+#line 86 "packet-hnbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1948,6 +2033,7 @@ dissect_hnbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /*--- proto_register_hnbap -------------------------------------------*/
 void proto_register_hnbap(void) {
+module_t *hnbap_module;
 
   /* List of fields */
 
@@ -2362,7 +2448,7 @@ void proto_register_hnbap(void) {
         "hnbap.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-hnbap-hfarr.c ---*/
-#line 150 "packet-hnbap-template.c"
+#line 156 "packet-hnbap-template.c"
   };
 
   /* List of subtrees */
@@ -2416,7 +2502,7 @@ void proto_register_hnbap(void) {
     &ett_hnbap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-hnbap-ettarr.c ---*/
-#line 156 "packet-hnbap-template.c"
+#line 162 "packet-hnbap-template.c"
   };
 
 
@@ -2436,6 +2522,8 @@ void proto_register_hnbap(void) {
   hnbap_proc_sout_dissector_table = register_dissector_table("hnbap.proc.sout", "HNBAP-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_UINT32, BASE_DEC);
   hnbap_proc_uout_dissector_table = register_dissector_table("hnbap.proc.uout", "HNBAP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_UINT32, BASE_DEC);
 
+  hnbap_module = prefs_register_protocol(proto_hnbap, proto_reg_handoff_hnbap);
+  prefs_register_uint_preference(hnbap_module, "port", "HNBAP SCTP Port", "Set the port for HNBAP messages (Default of 29169)", 10, &global_sctp_port);
 }
 
 
@@ -2443,12 +2531,14 @@ void proto_register_hnbap(void) {
 void
 proto_reg_handoff_hnbap(void)
 {
-    dissector_handle_t hnbap_handle;
+        static gboolean initialized = FALSE;
+        static dissector_handle_t hnbap_handle;
+        static guint sctp_port;
 
-    hnbap_handle = find_dissector("hnbap");
-    dissector_add("sctp.ppi", HNBAP_PAYLOAD_PROTOCOL_ID, hnbap_handle);
-    dissector_add_handle("sctp.port", hnbap_handle);  /* for "decode-as" */
-
+        if (!initialized) {
+                hnbap_handle = find_dissector("hnbap");
+                dissector_add("sctp.ppi", HNBAP_PAYLOAD_PROTOCOL_ID, hnbap_handle);
+                initialized = TRUE;
 
 /*--- Included file: packet-hnbap-dis-tab.c ---*/
 #line 1 "packet-hnbap-dis-tab.c"
@@ -2471,7 +2561,6 @@ proto_reg_handoff_hnbap(void)
   dissector_add("hnbap.extension", id_HNB_Internet_Information, new_create_dissector_handle(dissect_IP_Address_PDU, proto_hnbap));
   dissector_add("hnbap.extension", id_HNB_Cell_Access_Mode, new_create_dissector_handle(dissect_HNB_Cell_Access_Mode_PDU, proto_hnbap));
   dissector_add("hnbap.extension", id_MuxPortNumber, new_create_dissector_handle(dissect_MuxPortNumber_PDU, proto_hnbap));
-  dissector_add("hnbap.extension", id_Service_Area_For_Broadcast, new_create_dissector_handle(dissect_SAC_PDU, proto_hnbap));
   dissector_add("hnbap.extension", id_CSGMembershipStatus, new_create_dissector_handle(dissect_CSGMembershipStatus_PDU, proto_hnbap));
   dissector_add("hnbap.proc.imsg", id_HNBRegister, new_create_dissector_handle(dissect_HNBRegisterRequest_PDU, proto_hnbap));
   dissector_add("hnbap.proc.sout", id_HNBRegister, new_create_dissector_handle(dissect_HNBRegisterAccept_PDU, proto_hnbap));
@@ -2486,5 +2575,12 @@ proto_reg_handoff_hnbap(void)
 
 
 /*--- End of included file: packet-hnbap-dis-tab.c ---*/
-#line 189 "packet-hnbap-template.c"
+#line 199 "packet-hnbap-template.c"
+
+        } else {
+                dissector_delete("sctp.port", sctp_port, hnbap_handle);
+        }
+        /* Set our port number for future use */
+        sctp_port = global_sctp_port;
+        dissector_add("sctp.port", sctp_port, hnbap_handle);
 }
