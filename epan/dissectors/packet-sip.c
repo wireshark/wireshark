@@ -835,7 +835,7 @@ static guint sip_hash_func(gconstpointer v)
 static void
 sip_init_protocol(void)
 {
-	 gint i;
+	 guint i;
 	 gchar *value_copy;
 
 	/* Destroy any existing hashes. */
