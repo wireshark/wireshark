@@ -1077,6 +1077,8 @@ dissect_type_bitmap(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int rr_l
 #define DNS_ALGO_RSASHA1            5	/* RSA/SHA1 */
 #define DNS_ALGO_DSA_NSEC3_SHA1     6	/* DSA + NSEC3/SHA1 */
 #define DNS_ALGO_RSASHA1_NSEC3_SHA1 7	/* RSA/SHA1 + NSEC3/SHA1 */
+#define DNS_ALGO_RSASHA256          8	/* RSA/SHA-256 */
+#define DNS_ALGO_RSASHA512          10	/* RSA/SHA-512 */
 #define DNS_ALGO_HMACMD5            157	/* HMAC/MD5 */
 #define	DNS_ALGO_INDIRECT           252	/* Indirect key */
 #define	DNS_ALGO_PRIVATEDNS         253	/* Private, domain name  */
@@ -1090,6 +1092,8 @@ static const value_string algo_vals[] = {
 	  { DNS_ALGO_RSASHA1,           "RSA/SHA1" },
 	  { DNS_ALGO_DSA_NSEC3_SHA1,    "DSA + NSEC3/SHA1" },
 	  { DNS_ALGO_RSASHA1_NSEC3_SHA1,"RSA/SHA1 + NSEC3/SHA1" },
+	  { DNS_ALGO_RSASHA256,         "RSA/SHA-256" },
+	  { DNS_ALGO_RSASHA512,         "RSA/SHA-512" },
 	  { DNS_ALGO_HMACMD5,           "HMAC/MD5" },
 	  { DNS_ALGO_INDIRECT,          "Indirect key" },
 	  { DNS_ALGO_PRIVATEDNS,        "Private, domain name" },
