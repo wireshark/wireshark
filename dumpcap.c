@@ -75,10 +75,9 @@
 #include "cmdarg_err.h"
 #include "version_info.h"
 
-#include <pcap.h>
-#include "pcapio.h"
-
 #include "capture-pcap-util.h"
+
+#include "pcapio.h"
 
 #ifdef _WIN32
 #include "capture-wpcap.h"

@@ -107,7 +107,6 @@
 #include <wiretap/pcap-encap.h>
 
 #ifdef HAVE_LIBPCAP
-#include <pcap.h>
 #include <setjmp.h>
 #include "capture-pcap-util.h"
 #include "pcapio.h"

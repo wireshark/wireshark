@@ -89,7 +89,6 @@
 
 #ifdef HAVE_LIBPCAP
 #include "capture_ui_utils.h"
-#include <pcap.h>
 #include "capture-pcap-util.h"
 #ifdef _WIN32
 #include "capture-wpcap.h"
