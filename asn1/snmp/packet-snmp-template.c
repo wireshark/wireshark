@@ -750,10 +750,31 @@ indexing_done:
 	} else {
 		switch(ber_class|(tag<<4)) {
 			case BER_CLASS_UNI|(BER_UNI_TAG_INTEGER<<4):
-				max_len = 4; min_len = 1;
-				if (value_len > (guint)max_len && value_len < (guint)min_len) format_error = BER_WRONG_LENGTH;
-				hfid = hf_snmp_integer32_value;
-				break;
+			{
+				gint64 val=0;
+				unsigned offset = value_offset;
+				unsigned i;
+				
+				max_len = 5; min_len = 1;
+				if (value_len > (guint)max_len && value_len < (guint)min_len) {
+					format_error = BER_WRONG_LENGTH;
+					break;
+				}
+				
+				if(value_len > 0) {
+					/* extend sign bit */
+					if(tvb_get_guint8(tvb, offset)&0x80){
+						val=-1;
+					}
+					for(i=0;i<value_len;i++){
+						val=(val<<8)|tvb_get_guint8(tvb, offset);
+						offset++;
+					}
+				}
+				proto_tree_add_int64(pt_varbind, hf_snmp_integer32_value, tvb,value_offset,value_len, val);
+
+				goto already_added;
+			}
 			case BER_CLASS_UNI|(BER_UNI_TAG_OCTETSTRING<<4):
 				hfid = hf_snmp_octetstring_value;
 				break;
@@ -804,6 +825,8 @@ indexing_done:
 			pi_value = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,FALSE);
 			expert_add_info_format(actx->pinfo, pi_value, PI_UNDECODED, PI_NOTE, "Unresolved value, Missing MIB");
 		}
+		
+already_added:
 		oid_info_is_ok = FALSE;
 	}
 
