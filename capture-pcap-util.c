@@ -183,7 +183,7 @@ if_info_new(char *name, char *description)
 {
 	if_info_t *if_info;
 
-	if_info = g_malloc(sizeof (if_info_t));
+	if_info = (if_info_t *)g_malloc(sizeof (if_info_t));
 	if_info->name = g_strdup(name);
 	if (description == NULL)
 		if_info->description = NULL;
@@ -207,7 +207,7 @@ if_info_add_address(if_info_t *if_info, struct sockaddr *addr)
 
 	case AF_INET:
 		ai = (struct sockaddr_in *)addr;
-		if_addr = g_malloc(sizeof(*if_addr));
+		if_addr = (if_addr_t *)g_malloc(sizeof(*if_addr));
 		if_addr->ifat_type = IF_AT_IPv4;
 		if_addr->addr.ip4_addr =
 		    *((guint32 *)&(ai->sin_addr.s_addr));
@@ -217,7 +217,7 @@ if_info_add_address(if_info_t *if_info, struct sockaddr *addr)
 #ifdef INET6
 	case AF_INET6:
 		ai6 = (struct sockaddr_in6 *)addr;
-		if_addr = g_malloc(sizeof(*if_addr));
+		if_addr = (if_addr_t *)g_malloc(sizeof(*if_addr));
 		if_addr->ifat_type = IF_AT_IPv6;
 		memcpy((void *)&if_addr->addr.ip6_addr,
 		    (void *)&ai6->sin6_addr.s6_addr,
@@ -332,7 +332,7 @@ free_if_info_addr_cb(gpointer addr, gpointer user_data _U_)
 static void
 free_if_cb(gpointer data, gpointer user_data _U_)
 {
-	if_info_t *if_info = data;
+	if_info_t *if_info = (if_info_t *)data;
 
 	g_free(if_info->name);
 	g_free(if_info->description);
@@ -447,7 +447,7 @@ create_data_link_info(int dlt)
 	data_link_info_t *data_link_info;
 	const char *text;
 
-	data_link_info = g_malloc(sizeof (data_link_info_t));
+	data_link_info = (data_link_info_t *)g_malloc(sizeof (data_link_info_t));
 	data_link_info->dlt = dlt;
 	text = pcap_datalink_val_to_name(dlt);
 	if (text != NULL)
@@ -546,7 +546,7 @@ get_pcap_linktype_list(const char *devname, char **err_str)
 static void
 free_linktype_cb(gpointer data, gpointer user_data _U_)
 {
-	data_link_info_t *linktype_info = data;
+	data_link_info_t *linktype_info = (data_link_info_t *)data;
 
 	g_free(linktype_info->name);
 	g_free(linktype_info->description);

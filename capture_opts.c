@@ -419,7 +419,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
         }
         return 2;
       }
-      if_info = g_list_nth_data(if_list, adapter_index - 1);
+      if_info = (if_info_t *)g_list_nth_data(if_list, adapter_index - 1);
       if (if_info == NULL) {
         cmdarg_err("There is no interface with that adapter index");
         return 1;
@@ -570,7 +570,8 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 int
 capture_opts_list_link_layer_types(capture_options *capture_opts, gboolean machine_readable)
 {
-    gchar *err_str, *desc_str;
+    gchar *err_str;
+    const gchar *desc_str;
     GList *lt_list, *lt_entry;
     data_link_info_t *data_link_info;
 
@@ -588,7 +589,7 @@ capture_opts_list_link_layer_types(capture_options *capture_opts, gboolean machi
     }
     if (machine_readable) {    /* tab-separated values to stdout */
         for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-          data_link_info = lt_entry->data;
+          data_link_info = (data_link_info_t *)lt_entry->data;
           if (data_link_info->description != NULL)
               desc_str = data_link_info->description;
           else
@@ -600,7 +601,7 @@ capture_opts_list_link_layer_types(capture_options *capture_opts, gboolean machi
         cmdarg_err_cont("Data link types (use option -y to set):");
         for (lt_entry = lt_list; lt_entry != NULL;
              lt_entry = g_list_next(lt_entry)) {
-          data_link_info = lt_entry->data;
+          data_link_info = (data_link_info_t *)lt_entry->data;
           cmdarg_err_cont("  %s", data_link_info->name);
           if (data_link_info->description != NULL)
             cmdarg_err_cont(" (%s)", data_link_info->description);
@@ -647,7 +648,7 @@ capture_opts_list_interfaces(gboolean machine_readable)
     i = 1;  /* Interface id number */
     for (if_entry = g_list_first(if_list); if_entry != NULL;
          if_entry = g_list_next(if_entry)) {
-        if_info = if_entry->data;
+        if_info = (if_info_t *)if_entry->data;
         printf("%d. %s", i++, if_info->name);
 
         if (!machine_readable) {
@@ -671,7 +672,7 @@ capture_opts_list_interfaces(gboolean machine_readable)
                 if (addr != g_slist_nth(if_info->addrs, 0))
                     printf(",");
 
-                if_addr = addr->data;
+                if_addr = (if_addr_t *)addr->data;
                 switch(if_addr->ifat_type) {
                 case IF_AT_IPv4:
                     if (inet_ntop(AF_INET, &if_addr->addr.ip4_addr, addr_str,
@@ -764,7 +765,7 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
           }
           return FALSE;
         }
-        if_info = if_list->data;	/* first interface */
+        if_info = (if_info_t *)if_list->data;	/* first interface */
         capture_opts->iface = g_strdup(if_info->name);
 	/*  We don't set iface_descr here because doing so requires
 	 *  capture_ui_utils.c which requires epan/prefs.c which is
