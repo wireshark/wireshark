@@ -3340,6 +3340,7 @@ proto_register_sccp(void)
 	sccp_users_copy_cb,
 	sccp_users_update_cb,
 	sccp_users_free_cb,
+	NULL,
 	users_flds );
 
  /* Register the protocol name and description */

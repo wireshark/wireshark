@@ -2480,6 +2480,7 @@ proto_register_http(void)
 		    header_fields_copy_cb,
 		    header_fields_update_cb,
 		    header_fields_free_cb,
+                    NULL,
 		    custom_header_uat_fields
 	);
 

@@ -1884,7 +1884,7 @@ static void snmp_users_update_cb(void* p _U_, const char** err) {
 	*err = NULL;
 
 	if (! ue->user.userName.len)
-		g_string_append_printf(es,"no userName\n",num_ueas);
+		g_string_append_printf(es,"no userName\n");
 
 	for (i=0; i<num_ueas-1; i++) {
 		snmp_ue_assoc_t* u = &(ueas[i]);
@@ -1896,7 +1896,7 @@ static void snmp_users_update_cb(void* p _U_, const char** err) {
 			if (u->engine.len > 0 && memcmp( u->engine.data,   ue->engine.data,  u->engine.len ) == 0) {
 				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
 					/* XXX: make a string for the engineId */
-					g_string_append_printf(es,"duplicate key (userName='%s' engineId='???')\n",ue->user.userName.data);
+					g_string_append_printf(es,"duplicate key (userName='%s')\n",ue->user.userName.data);
 				}
 			}
 			
@@ -1917,6 +1917,7 @@ static void snmp_users_update_cb(void* p _U_, const char** err) {
 
 	return;
 }
+
 
 UAT_LSTRING_CB_DEF(snmp_users,userName,snmp_ue_assoc_t,user.userName.data,user.userName.len)
 UAT_LSTRING_CB_DEF(snmp_users,authPassword,snmp_ue_assoc_t,user.authPassword.data,user.authPassword.len)
@@ -2062,6 +2063,7 @@ void proto_register_snmp(void) {
 					   snmp_users_copy_cb,
 					   snmp_users_update_cb,
 					   snmp_users_free_cb,
+                       renew_ue_cache,
 					   users_fields);
 
   static uat_field_t specific_traps_flds[] = {
@@ -2082,6 +2084,7 @@ void proto_register_snmp(void) {
                                       snmp_specific_trap_copy_cb,
                                       NULL,
                                       snmp_specific_trap_free_cb,
+									  NULL,
                                       specific_traps_flds);
 
   /* Register protocol */

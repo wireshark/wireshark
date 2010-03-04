@@ -427,6 +427,7 @@ void proto_register_pres(void) {
                              pres_copy_cb,
                              NULL,
                              pres_free_cb,
+                             NULL,
                              users_flds);
 
   static module_t *pres_module;

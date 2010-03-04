@@ -146,6 +146,7 @@ geoip_db_init(void) {
 			geoip_db_path_copy_cb,
 			NULL,
 			geoip_db_path_free_cb,
+                        NULL,
 			geoip_db_paths_fields);
 
 	uat_load(geoip_db_paths_uat, &geoip_load_error);

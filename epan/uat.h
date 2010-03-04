@@ -59,7 +59,21 @@ typedef struct _uat_t uat_t;
  ********************************************/
 
 /********
- * Callbacks for the entire table (these deal with entire records)
+ * Callbacks dealing with the entire table
+ ********/
+
+/*
+ * Post-Update CB
+ *
+ * to be called after to the table has being edited
+ * Will be called once the user clicks the Apply or OK button
+ * optional
+ */
+typedef void (*uat_post_update_cb_t)(void);
+
+
+/********
+ * Callbacks dealing with records (these deal with entire records)
  ********/
 
 /*
@@ -84,7 +98,7 @@ typedef void (*uat_free_cb_t)(void*);
 /*
  * Update CB
  *
- * to be called after all record fields has been updated
+ * to be called after any record fields had been updated
  * optional, record will be updated always if not given
  * update(record,&error)
  */
@@ -221,6 +235,7 @@ typedef struct _uat_field_t {
  * @param copy_cb A function that copies the data in the struct
  * @param update_cb Will be called when a record is updated
  * @param free_cb Will be called to destroy a struct in the dataset
+ * @param post_update_cb Will be called once the user clicks the Apply or OK button
  * @param flds_array A pointer to an array of uat_field_t structs
  *
  * @return A freshly-allocated and populated uat_t struct.
@@ -236,6 +251,7 @@ uat_t* uat_new(const char* name,
 			   uat_copy_cb_t copy_cb,
 			   uat_update_cb_t update_cb,
 			   uat_free_cb_t free_cb,
+			   uat_post_update_cb_t post_update_cb,
 			   uat_field_t* flds_array);
 
 /** Populate a uat using its file.

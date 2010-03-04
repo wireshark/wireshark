@@ -199,6 +199,7 @@ void proto_register_user_encap(void)
 						 user_copy_cb,
 						 NULL,
 						 user_free_cb,
+                                                 NULL,
 						 user_flds );
 	
 	prefs_register_uat_preference(module,

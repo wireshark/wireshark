@@ -57,7 +57,8 @@ struct _uat_t {
 	uat_copy_cb_t copy_cb;
 	uat_update_cb_t update_cb;
 	uat_free_cb_t free_cb;
-
+	uat_post_update_cb_t post_update_cb;
+	
 	uat_field_t* fields;
 	guint ncols;
 	GArray* user_data;

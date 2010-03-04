@@ -317,6 +317,9 @@ gboolean uat_load(uat_t* uat_in, char** err) {
 		*err = NULL;
 		return TRUE;
 	}
+	
+	if (uat->post_update_cb) 
+		uat->post_update_cb();
 }
 
 gboolean uat_load_str(uat_t* uat_in, char* entry, char** err) {
@@ -349,6 +352,10 @@ gboolean uat_load_str(uat_t* uat_in, char* entry, char** err) {
 		*err = NULL;
 		return TRUE;
 	}
+	
+	if (uat->post_update_cb) 
+			uat->post_update_cb();
+
 }
 
 /*

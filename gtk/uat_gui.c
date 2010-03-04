@@ -680,8 +680,10 @@ static void uat_cancel_cb(GtkWidget *button _U_, gpointer u) {
 static void uat_apply_cb(GtkButton *button _U_, gpointer u) {
 	uat_t* uat = u;
 
-	if (uat->changed && cfile.state == FILE_READ_DONE)
-		cf_reload(&cfile);
+	if (uat->changed) {
+		if (cfile.state == FILE_READ_DONE) cf_reload(&cfile);
+		if (uat->post_update_cb) uat->post_update_cb();
+	}
 }
 
 static void uat_ok_cb(GtkButton *button _U_, gpointer u) {
@@ -696,6 +698,10 @@ static void uat_ok_cb(GtkButton *button _U_, gpointer u) {
 		}
 
 		if (cfile.state == FILE_READ_DONE) cf_reload(&cfile);
+		
+		
+		if (uat->post_update_cb) uat->post_update_cb();
+		
 	}
 
 	g_signal_handlers_disconnect_by_func(uat->rep->window, uat_window_delete_event_cb, uat);

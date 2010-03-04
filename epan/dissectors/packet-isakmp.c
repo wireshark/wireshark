@@ -4496,6 +4496,7 @@ proto_register_isakmp(void)
       NULL,
       ikev2_uat_data_update_cb,
       NULL,
+      NULL,
       ikev2_uat_flds);
 
   prefs_register_uat_preference(isakmp_module,
