@@ -1016,6 +1016,12 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 
 	/* Start parsing of URI */
 	uri_offsets->uri_start = current_offset;
+	/* Check if it's realy a sip uri ( it might be a tel uri, parse that?) */
+	queried_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ':');
+	if (tvb_strneql(tvb, current_offset, "sip", 3) != 0)
+		return -1;
+
+/* END RAB */
 	if(uri_without_angle_quotes == TRUE)
 	{
 		/* look for the first ',' or ';' which will mark the end of this URI
@@ -2393,6 +2399,19 @@ separator_found:
 
 							if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
 								 pai_uri_item_tree = display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_pai_uri);
+						}
+						break;
+
+					case POS_P_CHARGING_FUNCTION_ADDRESSES:
+						if(hdr_tree)
+						{
+							sip_element_item = proto_tree_add_string_format(hdr_tree,
+							                   hf_header_array[hf_index], tvb,
+							                   offset, next_offset - offset,
+							                   value, "%s",
+							                   tvb_format_text(tvb, offset, linelen));
+							sip_element_tree = proto_item_add_subtree( sip_element_item,
+							                   ett_sip_element);
 						}
 						break;
 
