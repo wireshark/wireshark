@@ -844,7 +844,10 @@ sip_init_protocol(void)
 
 	/* Now create them over */
 	sip_hash = g_hash_table_new(g_str_hash , sip_equal);
-	/* xx */
+	/* Create a hastable with the SIP headers it will be used to find the related hf entry (POS_x) 
+	 * this is faster than the previously used for loop
+	 * There is no g_hash_table_destroy as the liftime is the same as the lifetime of Wireshark
+	 */
 	if(!sip_headers_hash){
 		sip_headers_hash = g_hash_table_new(g_str_hash , g_str_equal);
 		for (i = 1; i < array_length(sip_headers); i++){
@@ -2255,125 +2258,126 @@ separator_found:
 							                   value, "%s",
 							                   tvb_format_text(tvb, offset, linelen));
 							sip_element_tree = proto_item_add_subtree( sip_element_item, ett_sip_element);
-						}
-						/* See if we have a SIP/SIPS uri enclosed in <>, if so anything in front is
-						 * display info.
-						 */
-						parameter_offset = tvb_find_guint8(tvb, value_offset,value_len, '<');
-						if ( parameter_offset != -1){
-							len = parameter_offset - value_offset;
-							if ( len > 1){
-								/* Something in front, must be display info
-								 * TODO: Get rid of trailing space(s)
-								 */
-								proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, value_offset,
-								                    len, FALSE);
-							}
-							parameter_offset ++;
-							parameter_end_offset = parameter_offset;
-							/* RFC3261 paragraph 20
-							 * The Contact, From, and To header fields contain a URI.  If the URI
-							 * contains a comma, question mark or semicolon, the URI MUST be
-							 * enclosed in angle brackets (< and >).  Any URI parameters are
-							 * contained within these brackets.  If the URI is not enclosed in angle
-							 * brackets, any semicolon-delimited parameters are header-parameters,
-							 * not URI parameters.
-							 */
-							while (parameter_end_offset < line_end_offset){
-								parameter_end_offset++;
-								c = tvb_get_guint8(tvb, parameter_end_offset);
-								switch (c) {
-									case '>':
-									case ',':
-									case ';':
-									case '?':
-										goto separator_found2;
-									default :
-									break;
-								}
-							}
-separator_found2:
-							parameter_len = parameter_end_offset - parameter_offset;
-							ti_b = proto_tree_add_item(sip_element_tree, hf_sip_from_addr, tvb, parameter_offset,
-									parameter_len, FALSE);
-							from_uri_item_tree = proto_item_add_subtree(ti_b, ett_sip_from_uri);
-							/*info for the tap for voip_calls.c*/
-							stat_info->tap_from_addr=tvb_get_ephemeral_string(tvb, parameter_offset, parameter_len);
-							parameter_offset = parameter_end_offset + 1;
-							/*
-							 * URI parameters ?
-							 */
-							parameter_end_offset = tvb_find_guint8(tvb, parameter_offset,( line_end_offset - parameter_offset), ';');
-							if ( parameter_end_offset == -1)
-								parameter_end_offset = line_end_offset;
 
-							offset = parameter_end_offset;
-						}
-						else
-						{
-							/* Extract SIP/SIPS URI */
-							parameter_offset = value_offset;
-							while (parameter_offset < line_end_offset
-							       && (tvb_strneql(tvb, parameter_offset, "sip", 3) != 0))
-								parameter_offset++;
-							len = parameter_offset - value_offset;
-							if ( len > 1){
-								/* Something in front, must be display info
-								 * TODO: Get rid of trailing space(s)
+							/* See if we have a SIP/SIPS uri enclosed in <>, if so anything in front is
+							 * display info.
+							 */
+							parameter_offset = tvb_find_guint8(tvb, value_offset,value_len, '<');
+							if ( parameter_offset != -1){
+								len = parameter_offset - value_offset;
+								if ( len > 1){
+									/* Something in front, must be display info
+									 * TODO: Get rid of trailing space(s)
+									 */
+									proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, value_offset,
+														len, FALSE);
+								}
+								parameter_offset ++;
+								parameter_end_offset = parameter_offset;
+								/* RFC3261 paragraph 20
+								 * The Contact, From, and To header fields contain a URI.  If the URI
+								 * contains a comma, question mark or semicolon, the URI MUST be
+								 * enclosed in angle brackets (< and >).  Any URI parameters are
+								 * contained within these brackets.  If the URI is not enclosed in angle
+								 * brackets, any semicolon-delimited parameters are header-parameters,
+								 * not URI parameters.
 								 */
-								proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, value_offset,
-								                    len, FALSE);
+								while (parameter_end_offset < line_end_offset){
+									parameter_end_offset++;
+									c = tvb_get_guint8(tvb, parameter_end_offset);
+									switch (c) {
+										case '>':
+										case ',':
+										case ';':
+										case '?':
+											goto separator_found2;
+										default :
+										break;
+									}
+								}
+	separator_found2:
+								parameter_len = parameter_end_offset - parameter_offset;
+								ti_b = proto_tree_add_item(sip_element_tree, hf_sip_from_addr, tvb, parameter_offset,
+										parameter_len, FALSE);
+								from_uri_item_tree = proto_item_add_subtree(ti_b, ett_sip_from_uri);
+								/*info for the tap for voip_calls.c*/
+								stat_info->tap_from_addr=tvb_get_ephemeral_string(tvb, parameter_offset, parameter_len);
+								parameter_offset = parameter_end_offset + 1;
+								/*
+								 * URI parameters ?
+								 */
+								parameter_end_offset = tvb_find_guint8(tvb, parameter_offset,( line_end_offset - parameter_offset), ';');
+								if ( parameter_end_offset == -1)
+									parameter_end_offset = line_end_offset;
+
+								offset = parameter_end_offset;
 							}
-							parameter_end_offset = tvb_find_guint8(tvb, parameter_offset,
-							                                       (line_end_offset - parameter_offset), ';');
-							if ( parameter_end_offset == -1)
-								parameter_end_offset = line_end_offset;
-							parameter_len = parameter_end_offset - parameter_offset;
-							ti_b = proto_tree_add_item(sip_element_tree, hf_sip_from_addr, tvb, parameter_offset,
-											parameter_len, FALSE);
-							from_uri_item_tree = proto_item_add_subtree(ti_b, ett_sip_from_uri);
-							/*info for the tap for voip_calls.c*/
-							stat_info->tap_from_addr=tvb_get_ephemeral_string(tvb, parameter_offset, parameter_len);
-							offset = parameter_end_offset;
-						}
-						if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
+							else
 							{
-								if(uri_offsets.uri_user_end > uri_offsets.uri_user_start)
-								{
-									proto_tree_add_item(from_uri_item_tree, hf_sip_from_user, tvb, uri_offsets.uri_user_start,
-											uri_offsets.uri_user_end - uri_offsets.uri_user_start + 1, FALSE);
+								/* Extract SIP/SIPS URI */
+								parameter_offset = value_offset;
+								while (parameter_offset < line_end_offset
+									   && (tvb_strneql(tvb, parameter_offset, "sip", 3) != 0))
+									parameter_offset++;
+								len = parameter_offset - value_offset;
+								if ( len > 1){
+									/* Something in front, must be display info
+									 * TODO: Get rid of trailing space(s)
+									 */
+									proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, value_offset,
+														len, FALSE);
 								}
-
-								proto_tree_add_item(from_uri_item_tree, hf_sip_from_host, tvb, uri_offsets.uri_host_start,
-											uri_offsets.uri_host_end - uri_offsets.uri_host_start + 1, FALSE);
-
-								if(uri_offsets.uri_host_port_end > uri_offsets.uri_host_port_start)
-								{
-									proto_tree_add_item(from_uri_item_tree, hf_sip_from_port, tvb, uri_offsets.uri_host_port_start,
-											uri_offsets.uri_host_port_end - uri_offsets.uri_host_port_start + 1, FALSE);
-								}
+								parameter_end_offset = tvb_find_guint8(tvb, parameter_offset,
+																	   (line_end_offset - parameter_offset), ';');
+								if ( parameter_end_offset == -1)
+									parameter_end_offset = line_end_offset;
+								parameter_len = parameter_end_offset - parameter_offset;
+								ti_b = proto_tree_add_item(sip_element_tree, hf_sip_from_addr, tvb, parameter_offset,
+												parameter_len, FALSE);
+								from_uri_item_tree = proto_item_add_subtree(ti_b, ett_sip_from_uri);
+								/*info for the tap for voip_calls.c*/
+								stat_info->tap_from_addr=tvb_get_ephemeral_string(tvb, parameter_offset, parameter_len);
+								offset = parameter_end_offset;
 							}
+							if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
+								{
+									if(uri_offsets.uri_user_end > uri_offsets.uri_user_start)
+									{
+										proto_tree_add_item(from_uri_item_tree, hf_sip_from_user, tvb, uri_offsets.uri_user_start,
+												uri_offsets.uri_user_end - uri_offsets.uri_user_start + 1, FALSE);
+									}
 
-						/* Find parameter tag if present.
-						 * TODO make this generic to find any interesting parameter
-						 * use the same method as for SIP headers ?
-						 */
+									proto_tree_add_item(from_uri_item_tree, hf_sip_from_host, tvb, uri_offsets.uri_host_start,
+												uri_offsets.uri_host_end - uri_offsets.uri_host_start + 1, FALSE);
 
-						parameter_offset = offset;
-						while (parameter_offset < line_end_offset
-						       && (tvb_strneql(tvb, parameter_offset, "tag=", 4) != 0))
-							parameter_offset++;
-						if ( parameter_offset < line_end_offset ){ /* Tag found */
-							parameter_offset = parameter_offset + 4;
-							parameter_end_offset = tvb_find_guint8(tvb, parameter_offset,
-							                                       (line_end_offset - parameter_offset), ';');
-							if ( parameter_end_offset == -1)
-								parameter_end_offset = line_end_offset;
-							parameter_len = parameter_end_offset - parameter_offset;
-							proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
-							                    parameter_len, FALSE);
+									if(uri_offsets.uri_host_port_end > uri_offsets.uri_host_port_start)
+									{
+										proto_tree_add_item(from_uri_item_tree, hf_sip_from_port, tvb, uri_offsets.uri_host_port_start,
+												uri_offsets.uri_host_port_end - uri_offsets.uri_host_port_start + 1, FALSE);
+									}
+								}
 
-						}
+							/* Find parameter tag if present.
+							 * TODO make this generic to find any interesting parameter
+							 * use the same method as for SIP headers ?
+							 */
+
+							parameter_offset = offset;
+							while (parameter_offset < line_end_offset
+								   && (tvb_strneql(tvb, parameter_offset, "tag=", 4) != 0))
+								parameter_offset++;
+							if ( parameter_offset < line_end_offset ){ /* Tag found */
+								parameter_offset = parameter_offset + 4;
+								parameter_end_offset = tvb_find_guint8(tvb, parameter_offset,
+																	   (line_end_offset - parameter_offset), ';');
+								if ( parameter_end_offset == -1)
+									parameter_end_offset = line_end_offset;
+								parameter_len = parameter_end_offset - parameter_offset;
+								proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
+													parameter_len, FALSE);
+
+							}
+						}/* hdr_tree */
 					break;
 
 					case POS_P_ASSERTED_IDENTITY :
@@ -2386,11 +2390,10 @@ separator_found2:
 							                   tvb_format_text(tvb, offset, linelen));
 							sip_element_tree = proto_item_add_subtree( sip_element_item,
 							                   ett_sip_element);
+
+							if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
+								 pai_uri_item_tree = display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_pai_uri);
 						}
-
-
-						if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
-							 pai_uri_item_tree = display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_pai_uri);
 						break;
 
 					case POS_P_PREFERRED_IDENTITY :
@@ -2403,10 +2406,10 @@ separator_found2:
 							                   tvb_format_text(tvb, offset, linelen));
 							sip_element_tree = proto_item_add_subtree( sip_element_item,
 							                   ett_sip_element);
-						}
 
-						if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
-							 ppi_uri_item_tree = display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_ppi_uri);
+							if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
+								 ppi_uri_item_tree = display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_ppi_uri);
+						}
 						break;
 
 					case POS_PERMISSION_MISSING :
@@ -2420,9 +2423,9 @@ separator_found2:
 
 							sip_element_tree = proto_item_add_subtree( sip_element_item,
 														           ett_sip_element);
+							if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
+								 pmiss_uri_item_tree = display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_pmiss_uri);
 						}
-						if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
-							 pmiss_uri_item_tree = display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_pmiss_uri);
 						break;
 
 
@@ -2806,8 +2809,8 @@ separator_found2:
 							                             value, "%s",
 							                             tvb_format_text(tvb, offset, linelen));
 							via_tree = proto_item_add_subtree(sip_element_item, ett_sip_via);
+							dissect_sip_via_header(tvb, via_tree, value_offset, line_end_offset);
 						}
-						dissect_sip_via_header(tvb, via_tree, value_offset, line_end_offset);
 						break;
 					case POS_REASON:
 						if(hdr_tree) {
@@ -2817,8 +2820,8 @@ separator_found2:
 							                             value, "%s",
 							                             tvb_format_text(tvb, offset, linelen));
 							reason_tree = proto_item_add_subtree(sip_element_item, ett_sip_reason);
+							dissect_sip_reason_header(tvb, reason_tree, value_offset, line_end_offset);
 						}
-						dissect_sip_reason_header(tvb, reason_tree, value_offset, line_end_offset);
 						break;
 					default :
 						/* Default case is to assume its an FT_STRING field */
@@ -3283,6 +3286,7 @@ static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset, guint header_len)
 		guint pos=0;
 		gchar *header = tvb_format_text(tvb, offset, header_len);
 
+		/* Compact name is one character long */
 		if(header_len>1){
 			pos = GPOINTER_TO_INT(g_hash_table_lookup(sip_headers_hash, header));
 			if (pos!=0)
@@ -3290,10 +3294,8 @@ static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset, guint header_len)
 			return -1;
 		}
 
+		/* Look for compact name match */
         for (i = 1; i < array_length(sip_headers); i++) {
-                if (header_len == strlen(sip_headers[i].name) &&
-                    tvb_strncaseeql(tvb, offset, sip_headers[i].name, header_len) == 0)
-                        return i;
                 if (sip_headers[i].compact_name != NULL &&
                     header_len == strlen(sip_headers[i].compact_name) &&
                     tvb_strncaseeql(tvb, offset, sip_headers[i].compact_name, header_len) == 0)
