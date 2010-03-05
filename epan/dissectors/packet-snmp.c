@@ -193,6 +193,7 @@ static int hf_snmp_engineid_enterprise = -1;
 static int hf_snmp_engineid_format = -1;
 static int hf_snmp_engineid_ipv4 = -1;
 static int hf_snmp_engineid_ipv6 = -1;
+static int hf_snmp_engineid_cisco_type = -1;
 static int hf_snmp_engineid_mac = -1;
 static int hf_snmp_engineid_text = -1;
 static int hf_snmp_engineid_time = -1;
@@ -295,7 +296,7 @@ static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
 static int hf_snmp_operation = -1;                /* T_operation */
 
 /*--- End of included file: packet-snmp-hf.c ---*/
-#line 221 "packet-snmp-template.c"
+#line 222 "packet-snmp-template.c"
 
 static int hf_smux_version = -1;
 static int hf_smux_pdutype = -1;
@@ -338,7 +339,7 @@ static gint ett_snmp_SimpleOpen_U = -1;
 static gint ett_snmp_RReqPDU_U = -1;
 
 /*--- End of included file: packet-snmp-ett.c ---*/
-#line 240 "packet-snmp-template.c"
+#line 241 "packet-snmp-template.c"
 
 static const true_false_string auth_flags = {
 	"OK",
@@ -1028,6 +1029,15 @@ static const value_string snmp_engineid_format_vals[] = {
 	{ 0,   	NULL }
 };
 
+#define SNMP_ENGINEID_CISCO_AGENT 0x00
+#define SNMP_ENGINEID_CISCO_MANAGER 0x01
+
+static const value_string snmp_engineid_cisco_type_vals[] = {
+	{ SNMP_ENGINEID_CISCO_AGENT,	"Agent" },
+	{ SNMP_ENGINEID_CISCO_MANAGER,	"Manager" },
+	{ 0,	NULL }
+};
+
 /*
  * SNMP Engine ID dissection according to RFC 3411 (SnmpEngineID TC)
  * or historic RFC 1910 (AgentID)
@@ -1096,6 +1106,12 @@ int dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len) 
 	}
 	break;
       case SNMP_ENGINEID_FORMAT_MACADDRESS:
+	/* See: https://supportforums.cisco.com/message/3010617#3010617 for details. */
+	if ((enterpriseid==9)&&(len_remain==7)) {
+	  proto_tree_add_item(tree, hf_snmp_engineid_cisco_type, tvb, offset, 1, FALSE);
+	  offset++;
+	  len_remain--;
+	}
 	/* 6-byte MAC address */
 	if (len_remain==6) {
 	  proto_tree_add_item(tree, hf_snmp_engineid_mac, tvb, offset, 6, FALSE);
@@ -2686,7 +2702,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1466 "packet-snmp-template.c"
+#line 1482 "packet-snmp-template.c"
 
 
 guint
@@ -3227,6 +3243,9 @@ void proto_register_snmp(void) {
 		{ &hf_snmp_engineid_ipv6, {
 		    "Engine ID Data: IPv6 address", "snmp.engineid.ipv6", FT_IPv6, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
+		{ &hf_snmp_engineid_cisco_type, {
+		    "Engine ID Data: Cisco type", "snmp.engineid.cisco.type", FT_UINT8, BASE_NONE,
+		    VALS(snmp_engineid_cisco_type_vals), 0, NULL, HFILL }},
 		{ &hf_snmp_engineid_mac, {
 		    "Engine ID Data: MAC address", "snmp.engineid.mac", FT_ETHER, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
@@ -3534,7 +3553,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2049 "packet-snmp-template.c"
+#line 2068 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3574,7 +3593,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2065 "packet-snmp-template.c"
+#line 2084 "packet-snmp-template.c"
   };
   module_t *snmp_module;
 
