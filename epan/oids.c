@@ -495,6 +495,11 @@ static void unregister_mibs(void) {
 	/* smiExit(); */
 }
 
+static void restart_needed_warning(void) {
+	if (oids_init_done)
+		report_failure("Wireshark needs to be restarted for these changes to take effect");
+}
+
 static void register_mibs() {
 	SmiModule *smiModule;
 	SmiNode *smiNode;
@@ -524,7 +529,7 @@ static void register_mibs() {
 							  smi_mod_copy_cb,
 							  NULL,
 							  smi_mod_free_cb,
-							  NULL,
+							  restart_needed_warning,
 							  smi_fields);
 
 	smi_paths_uat = uat_new("SMI Paths",
@@ -538,7 +543,7 @@ static void register_mibs() {
 							  smi_mod_copy_cb,
 							  NULL,
 							  smi_mod_free_cb,
-							  NULL,
+							  restart_needed_warning,
 							  smi_paths_fields);
 
 
