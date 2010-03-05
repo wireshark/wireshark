@@ -80,6 +80,9 @@
 
 static dissector_handle_t rtcp_handle;
 
+/* add dissector table to permit sub-protocol registration */
+static dissector_table_t rtcp_dissector_table;
+
 static const value_string rtcp_version_vals[] =
 {
 	{ 0, "Old VAT Version" },
@@ -1404,21 +1407,41 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 	}
 	else
 	{
-		/* Unhandled application type, just show app name and raw data */
-		col_append_fstr(pinfo->cinfo, COL_INFO,"( %s ) subtype=%u",ascii_name, rtcp_subtype);
-		offset += 4;
-		packet_len -= 4;
-		/* Applications specific data */
-		if ( padding ) {
-			/* If there's padding present, we have to remove that from the data part
-			* The last octet of the packet contains the length of the padding
-			*/
-			packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
+		tvbuff_t *next_tvb;		/* tvb to pass to subdissector */
+		/* tvb == data past app name to the end of the current rtcp segment*/
+		next_tvb = tvb_new_subset(tvb, offset+4, app_length-8, app_length-8);
+		/* look for registered sub-dissectors */
+		if (dissector_try_string(rtcp_dissector_table, ascii_name, next_tvb, pinfo, tree)) {
+			/* found subdissector - return tvb_length */
+			offset += 4;
+			packet_len -= 4;
+			if ( padding ) {
+				/* If there's padding present, we have to remove that from the data part
+				* The last octet of the packet contains the length of the padding
+				*/
+				packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
+			}
+			offset += packet_len;
+			return offset;
 		}
-		proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, FALSE );
-		offset += packet_len;
+		else
+		{
+			/* Unhandled application type, just show app name and raw data */
+			col_append_fstr(pinfo->cinfo, COL_INFO,"( %s ) subtype=%u",ascii_name, rtcp_subtype);
+			offset += 4;
+			packet_len -= 4;
+			/* Applications specific data */
+			if ( padding ) {
+				/* If there's padding present, we have to remove that from the data part
+				* The last octet of the packet contains the length of the padding
+				*/
+				packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
+			}
+			proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, FALSE );
+			offset += packet_len;
 
-		return offset;
+			return offset;
+		}
 	}
 
 }
@@ -4558,6 +4581,8 @@ proto_register_rtcp(void)
 		"should be reported",
 		10, &global_rtcp_show_roundtrip_calculation_minimum);
 
+	/* Register table for sub-dissetors */
+	rtcp_dissector_table = register_dissector_table("rtcp.app.name", "RTPC Application Name", FT_STRING, BASE_NONE);
 
 }
 
