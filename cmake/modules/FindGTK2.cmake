@@ -172,6 +172,8 @@ function(_GTK2_FIND_INCLUDE_DIR _var _hdr)
             /usr/openwin/lib
             /sw/include
             /sw/lib
+            /opt/local/include
+            /opt/local/lib
             $ENV{GTKMM_BASEPATH}/include
             $ENV{GTKMM_BASEPATH}/lib
             [HKEY_CURRENT_USER\\SOFTWARE\\gtkmm\\2.4;Path]/include
