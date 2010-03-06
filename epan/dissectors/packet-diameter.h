@@ -34,6 +34,7 @@ typedef struct _diameter_req_ans_pair_t
 	guint32		ans_frame;	/* frame number in which answer was seen */
 	nstime_t	req_time;
 	nstime_t	srt_time;
+  gboolean  processing_request; /* TRUE if processing request, FALSE if processing answer. */
 } diameter_req_ans_pair_t;
 
 /* Conversation Info */

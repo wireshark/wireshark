@@ -93,6 +93,11 @@ diameterstat_packet(void *pdiameter, packet_info *pinfo, epan_dissect_t *edt _U_
 	diameterstat_t *fs=(diameterstat_t *)pdiameter;
 	int* idx = NULL;
 
+	/* Process only answers where corresponding request is found.
+	 * Unpaired daimeter messages are currently not supported by statistics. 
+	 * Return 0, since redraw is not needed. */
+	if(!diameter || diameter->processing_request || !diameter->req_frame)
+		return 0;
 
 	idx = (int*) g_hash_table_lookup(cmd_str_hash, diameter->cmd_str);
 	if (idx == NULL) {

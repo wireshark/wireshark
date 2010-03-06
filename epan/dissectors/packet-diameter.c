@@ -796,6 +796,7 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 			diameter_pair = se_alloc(sizeof(diameter_req_ans_pair_t));
 			diameter_pair->hop_by_hop_id = hop_by_hop_id;
 			diameter_pair->cmd_code = cmd;
+			diameter_pair->result_code = 0;
 			diameter_pair->cmd_str = cmd_str;
 			diameter_pair->req_frame = pinfo->fd->num;
 			diameter_pair->ans_frame = 0;
@@ -814,10 +815,15 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 	if (!diameter_pair) {
 		/* create a "fake" diameter_pair structure */
 		diameter_pair = ep_alloc(sizeof(diameter_req_ans_pair_t));
+		diameter_pair->hop_by_hop_id = hop_by_hop_id;
+		diameter_pair->cmd_code = cmd;
+		diameter_pair->result_code = 0;
+		diameter_pair->cmd_str = cmd_str;
 		diameter_pair->req_frame = 0;
 		diameter_pair->ans_frame = 0;
 		diameter_pair->req_time = pinfo->fd->abs_ts;
 	}
+	diameter_pair->processing_request=(flags_bits & 0x80)!=0;
 
 	if (!tree) return;
 
@@ -840,10 +846,7 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 			diameter_pair->srt_time = ns; 
 			it = proto_tree_add_time(diam_tree, hf_diameter_answer_time, tvb, 0, 0, &ns);
 			PROTO_ITEM_SET_GENERATED(it);
-
 			/* TODO: Populate result_code in tap record from AVP 268 */
-			/* Also TODO: See how to handle requests for which no answers were found */
-			tap_queue_packet(diameter_tap, pinfo, diameter_pair);
 		}
 	}
 
@@ -857,6 +860,14 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 		offset +=  (offset % 4) ? 4 - (offset % 4) : 0 ;
 	}
 
+
+	/* Handle requests for which no answers were found and
+	 * anawers for which no requests were found in the tap listener.
+	 * In case if you don't need unpaired requests/answers use:
+	 * if(diameter_pair->processing_request || !diameter_pair->req_frame)
+	 *   return;
+	 */
+	tap_queue_packet(diameter_tap, pinfo, diameter_pair);
 }
 
 static guint
