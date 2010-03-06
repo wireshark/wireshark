@@ -66,6 +66,15 @@
  * Oct 21, 2009: add support for RFC4328, new G.709 traffic parameters,
  * update gpid, switching and encoding type values to actual IANA numbers.
  * (FF) <francesco.fondelli[AT]gmail.com>
+ *
+ * Gen 20, 2010: add support for ERROR_STRING IF_ID TLV (see RFC 4783)
+ * (FF) <francesco.fondelli[AT]gmail.com>
+ *
+ * Feb 12, 2010: add support for generalized label interpretation: SUKLM
+ * format for SONET/SDH label (RFC 4606), t3t2t1 format for G.709 ODUk label 
+ * (RFC 4328), G.694 format for lambda label (draft-ietf-ccamp-gmpls-g-694-lamb
+ * da-labels-05).  Add related user preference option. 
+ * (FF) <francesco.fondelli[AT]gmail.com> 
  */
 
 
@@ -271,6 +280,21 @@ static gint ett_treelist[TT_MAX];
 
 /* Should we dissect bundle messages? */
 static gboolean rsvp_bundle_dissect = TRUE;
+
+/* FF: How should we dissect generalized label? */
+static enum_val_t rsvp_generalized_label_options[] = {
+    /* see RFC 3471 Section 3.2.1.2 */
+    { "data", "data (no interpretation)", 1 },
+    /* see RFC 4606 Section 3 */
+    { "SUKLM", "SONET/SDH (\"S, U, K, L, M\" scheme)", 2 },
+    /* see I-D draft-ietf-ccamp-gmpls-g-694-lambda-labels-05 */
+    { "G694", "Wavelength Label (G.694 frequency grid)", 3 },
+    /* see RFC 4328 Section 4.1 */
+    { "G709", "ODUk Label", 4 },
+    { NULL, NULL, 0 }
+};
+
+static guint rsvp_generalized_label_option = 1;
 
 /*
  * RSVP message types.
@@ -1679,7 +1703,6 @@ dissect_rsvp_ifid_tlv (proto_tree *ti, proto_tree *rsvp_object_tree,
     guint     tlv_len;
     const char *ifindex_name;
     proto_tree *rsvp_ifid_subtree, *ti2;
-    int       offset2 = offset + 4;
 
     for (tlv_off = 0; tlv_off < obj_length - 12; ) {
 	tlv_type = tvb_get_ntohs(tvb, offset+tlv_off);
@@ -1690,6 +1713,7 @@ dissect_rsvp_ifid_tlv (proto_tree *ti, proto_tree *rsvp_object_tree,
 		"Invalid length (0)");
 	    return;
 	}
+
 	switch(tlv_type) {
 	case 1:
 	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
@@ -1742,12 +1766,48 @@ dissect_rsvp_ifid_tlv (proto_tree *ti, proto_tree *rsvp_object_tree,
 				   tvb_get_ntohl(tvb, offset+tlv_off+8));
 	    break;
 
-	default:
-	    proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
-				"Logical interface: %u",
-				tvb_get_ntohl(tvb, offset2+4));
-	}
-	tlv_off += tlv_len;
+        case 516:
+            /* FF: ERROR_STRING TLV, RFC 4783 */
+            ti2 = 
+              proto_tree_add_text(rsvp_object_tree, 
+                                  tvb, offset + tlv_off, 
+                                  tlv_len,
+                                  "ERROR_STRING TLV - %s",
+                                  tvb_format_text(tvb, offset + tlv_off + 4,
+                                                  tlv_len - 4));
+            rsvp_ifid_subtree = proto_item_add_subtree(ti2, subtree_type);
+            proto_tree_add_text(rsvp_ifid_subtree, tvb, offset + tlv_off, 2,
+                                "Type: 516 (ERROR_STRING)");
+            proto_tree_add_text(rsvp_ifid_subtree, 
+                                tvb, offset + tlv_off + 2, 2,
+                                "Length: %u",
+                                tvb_get_ntohs(tvb, offset + tlv_off + 2));
+            proto_tree_add_text(rsvp_ifid_subtree, tvb, offset + tlv_off + 4, 
+                                tlv_len - 4,
+                                "Error String: %s",
+                                tvb_format_text(tvb, offset + tlv_off + 4,
+                                                tlv_len - 4));
+            break;
+
+        default:
+            /* FF: not yet known TLVs are displayed as raw data */
+            ti2 = proto_tree_add_text(rsvp_object_tree, 
+                                      tvb, offset + tlv_off, 
+                                      tlv_len,
+                                      "Unknown TLV (%u)", tlv_type);
+            rsvp_ifid_subtree = proto_item_add_subtree(ti2, subtree_type);
+            proto_tree_add_text(rsvp_ifid_subtree, tvb, offset + tlv_off, 2,
+                                "Type: %u (Unknown)", tlv_type);
+            proto_tree_add_text(rsvp_ifid_subtree, 
+                                tvb, offset + tlv_off + 2, 2,
+                                "Length: %u",
+                                tvb_get_ntohs(tvb, offset + tlv_off + 2));
+            proto_tree_add_text(rsvp_ifid_subtree, tvb, offset + tlv_off + 4, 
+                                tlv_len - 4,
+                                "Data (%d bytes)", tlv_len - 4);
+            break;
+        }
+        tlv_off += tlv_len;
     }
 }
 
@@ -3291,9 +3351,151 @@ dissect_rsvp_label_request (proto_item *ti, proto_tree *rsvp_object_tree,
     }
 }
 
-/*------------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
  * LABEL
- *------------------------------------------------------------------------------*/
+ *---------------------------------------------------------------------------*/
+
+/* 
+   FF: G.694 lambda label, see draft-ietf-ccamp-gmpls-g-694-lambda-labels-05
+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |Grid | C.S   |    Reserved     |              n                |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ */
+static void
+dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
+                      tvbuff_t *tvb,
+                      int offset)
+{
+    float freq = 0.0;
+    guint32 wavelength = 0;
+    float cs_thz = 0.0;
+
+    guint8 grid = ((tvb_get_guint8(tvb, offset) & 0xE0) >> 5);
+    guint8 cs = ((tvb_get_guint8(tvb, offset) & 0x1E) >> 1);
+    gint16 n = tvb_get_ntohs(tvb, offset + 2);
+
+    if (grid == 1) {
+      /* DWDM grid: Frequency (THz) = 193.1 THz + n * channel spacing (THz) */
+      cs_thz = 
+        cs == 1 ? 0.1 : 
+        cs == 2 ? 0.05 :
+        cs == 3 ? 0.025 :
+        cs == 4 ? 0.0125 : 
+        0.0;
+      freq = 193.1 + (n * cs_thz);
+      proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
+                          "Wavelength Label: "
+                          "grid=%s, "
+                          "channel spacing=%s, "
+                          "n=%d, "
+                          "freq=%.2fTHz",
+                          /* grid */
+                          grid == 1 ? "DWDM" : 
+                          grid == 2 ? "CWDM" : 
+                          "unknown",
+                          /* channel spacing */
+                          cs == 1 ? "100GHz" : 
+                          cs == 2 ? "50GHz" :
+                          cs == 3 ? "25GHz" :
+                          cs == 4 ? "12.5GHz" : 
+                          "unknown",
+                          /* n */
+                          n,
+                          /* frequency */
+                          freq);
+    } else if (grid == 2) {
+      /* CWDM grid: Wavelength (nm) = 1471 nm + n * 20 nm  */
+      wavelength = 1471 + (n * 20);
+      proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
+                          "Wavelength Label: "
+                          "grid=%s, "
+                          "channel spacing=%s, "
+                          "n=%d, "
+                          "wavelength=%unm",
+                          /* grid */
+                          grid == 1 ? "DWDM" : 
+                          grid == 2 ? "CWDM" : 
+                          "unknown",
+                          /* channel spacing */
+                          cs == 1 ? "20nm" : 
+                          "unknown",
+                          /* n */
+                          n,
+                          /* wavelength */
+                          wavelength);
+    } else {
+      /* unknown grid: */
+      proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
+                          "Wavelength Label: "
+                          "grid=%u, "
+                          "channel spacing=%u, "
+                          "n=%d",
+                          grid, cs, n);
+    }
+    return;
+}
+
+/* 
+   FF: SONET/SDH label, see RFC 4606
+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |               S               |   U   |   K   |   L   |   M   |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*/
+static void
+dissect_glabel_sdh(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
+                   tvbuff_t *tvb,
+                   int offset)
+{
+    guint16 s = tvb_get_ntohs(tvb, offset);
+    guint8 u = ((tvb_get_guint8(tvb, offset + 2) & 0xF0) >> 4);
+    guint8 k = ((tvb_get_guint8(tvb, offset + 2) & 0x0F) >> 0);
+    guint8 l = ((tvb_get_guint8(tvb, offset + 3) & 0xF0) >> 4);
+    guint8 m = ((tvb_get_guint8(tvb, offset + 3) & 0x0F) >> 0);
+
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
+                        "SONET/SDH Label: "
+                        "S=%u, "
+                        "U=%u, "
+                        "K=%u, "
+                        "L=%u, "
+                        "M=%u",
+                        s, u, k, l, m);
+}
+
+/* 
+    FF: G.709 label (aka ODUk label), see RFC 4328
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                   Reserved                |     t3    | t2  |t1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+     
+*/
+static void
+dissect_glabel_g709(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
+		    tvbuff_t *tvb,
+		    int offset)
+{
+    guint8 t2 = ((tvb_get_guint8(tvb, offset + 3) & 0x0E) >> 1);
+    guint8 t1 = ((tvb_get_guint8(tvb, offset + 3) & 0x01) >> 0);
+
+    guint8 t3 = ((tvb_get_guint8(tvb, offset + 2) & 0x03) << 4);
+    t3 |= ((tvb_get_guint8(tvb, offset + 3) & 0xF0) >> 4);
+
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
+                        "G.709 ODUk Label: "
+                        "t3=%u, "
+                        "t2=%u, "
+                        "t1=%u",
+                        t3, t2, t1);
+}
+
 static void
 dissect_rsvp_label (proto_tree *ti, proto_tree *rsvp_object_tree,
 		    tvbuff_t *tvb,
@@ -3323,22 +3525,30 @@ dissect_rsvp_label (proto_tree *ti, proto_tree *rsvp_object_tree,
     case 2:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 2 (Generalized Label)");
-	proto_item_set_text(ti, "%s: Generalized: ", name);
-	for (i = 0; i < mylen; i += 4) {
+	if (rsvp_generalized_label_option == 1) {
+	  /* FF: no generalized label interpretation */
+	  proto_item_set_text(ti, "%s: Generalized: ", name);
+	  for (i = 0; i < mylen; i += 4) {
 	    proto_tree_add_text(rsvp_object_tree, tvb, offset2+i, 4,
 				"Generalized Label: %u (0x%x)",
 				tvb_get_ntohl(tvb, offset2+i),
 				tvb_get_ntohl(tvb, offset2+i));
 	    if (i < 16) {
-		proto_item_append_text(ti, "0x%x%s",
-				       tvb_get_ntohl(tvb, offset2+i),
-				       i+4<mylen?", ":"");
+	      proto_item_append_text(ti, "0x%x%s",
+				     tvb_get_ntohl(tvb, offset2+i),
+				     i+4<mylen?", ":"");
 	    } else if (i == 16) {
-		proto_item_append_text(ti, "...");
+	      proto_item_append_text(ti, "...");
 	    }
+	  }
+	} else if (rsvp_generalized_label_option == 2) {
+	  dissect_glabel_sdh(ti, rsvp_object_tree, tvb, offset2);
+	} else if (rsvp_generalized_label_option == 4) {
+	  dissect_glabel_g709(ti, rsvp_object_tree, tvb, offset2);
+	} else if (rsvp_generalized_label_option == 3) {
+	  dissect_glabel_lambda(ti, rsvp_object_tree, tvb, offset2);
 	}
 	break;
-
     default:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: Unknown (%u)",
@@ -5704,6 +5914,13 @@ register_rsvp_prefs (void)
 	"Dissect sub-messages in BUNDLE message",
 	"Specifies whether Wireshark should decode and display sub-messages within BUNDLE messages",
 	&rsvp_bundle_dissect);
+    prefs_register_enum_preference(
+	rsvp_module, "generalized_label_options",
+	"Dissect generalized labels as",
+	"Specifies how Wireshark should dissect generalized labels",
+	(gint *)&rsvp_generalized_label_option,
+	rsvp_generalized_label_options,
+	FALSE);
 }
 
 void
