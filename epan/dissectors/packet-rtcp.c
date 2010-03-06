@@ -1408,8 +1408,10 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 	else
 	{
 		tvbuff_t *next_tvb;		/* tvb to pass to subdissector */
-		/* tvb == data past app name to the end of the current rtcp segment*/
-		next_tvb = tvb_new_subset(tvb, offset+4, app_length-8, app_length-8);
+		/* tvb == Pass the entire APP payload so the subdissector can have access to the
+		 * entire data set
+		 */
+		next_tvb = tvb_new_subset(tvb, offset-8, app_length+4, app_length+4);
 		/* look for registered sub-dissectors */
 		if (dissector_try_string(rtcp_dissector_table, ascii_name, next_tvb, pinfo, tree)) {
 			/* found subdissector - return tvb_length */
