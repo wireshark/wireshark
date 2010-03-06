@@ -90,9 +90,11 @@ static int hf_rlc_lte_context_pdu_length = -1;
 static int hf_rlc_lte_context_um_sn_length = -1;
 
 /* Transparent mode fields */
+static int hf_rlc_lte_tm = -1;
 static int hf_rlc_lte_tm_data = -1;
 
 /* Unacknowledged mode fields */
+static int hf_rlc_lte_um = -1;
 static int hf_rlc_lte_um_header = -1;
 static int hf_rlc_lte_um_fi = -1;
 static int hf_rlc_lte_um_fixed_e = -1;
@@ -108,6 +110,7 @@ static int hf_rlc_lte_extension_padding = -1;
 
 
 /* Acknowledged mode fields */
+static int hf_rlc_lte_am = -1;
 static int hf_rlc_lte_am_header = -1;
 static int hf_rlc_lte_am_data_control = -1;
 static int hf_rlc_lte_am_rf = -1;
@@ -1050,6 +1053,12 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
                                proto_item *top_ti _U_)
 {
     proto_item *raw_tm_ti;
+    proto_item *tm_ti;
+
+    /* Create hidden TM root */
+    tm_ti = proto_tree_add_string_format(tree, hf_rlc_lte_tm,
+                                         tvb, offset, 0, "", "UM");
+    PROTO_ITEM_SET_HIDDEN(tm_ti);
 
     /* Remaining bytes are all data */
     raw_tm_ti = proto_tree_add_item(tree, hf_rlc_lte_tm_data, tvb, offset, -1, FALSE);
@@ -1118,17 +1127,21 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     guint64 fixed_extension;
     guint64 sn;
     gint    start_offset = offset;
+    proto_item *um_ti;
     proto_tree *um_header_tree;
     proto_item *um_header_ti;
     gboolean is_truncated;
     proto_item *truncated_ti;
 
+    /* Hidden UM root */
+    um_ti = proto_tree_add_string_format(tree, hf_rlc_lte_um,
+                                         tvb, offset, 0, "", "UM");
+    PROTO_ITEM_SET_HIDDEN(um_ti);
+
     /* Add UM header subtree */
-    um_header_ti = proto_tree_add_string_format(tree,
-                                                hf_rlc_lte_um_header,
+    um_header_ti = proto_tree_add_string_format(tree, hf_rlc_lte_um_header,
                                                 tvb, offset, 0,
-                                                "",
-                                                "UM header");
+                                                "", "UM header");
     um_header_tree = proto_item_add_subtree(um_header_ti,
                                             ett_rlc_lte_um_header);
 
@@ -1434,6 +1447,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     guint8 framing_info;
     gboolean first_includes_start;
     gboolean last_includes_end;
+    proto_item *am_ti;
     proto_tree *am_header_tree;
     proto_item *am_header_ti;
     gint   start_offset = offset;
@@ -1441,12 +1455,15 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     gboolean is_truncated;
     proto_item *truncated_ti;
 
+    /* Hidden AM root */
+    am_ti = proto_tree_add_string_format(tree, hf_rlc_lte_am,
+                                         tvb, offset, 0, "", "AM");
+    PROTO_ITEM_SET_HIDDEN(am_ti);
+
     /* Add AM header subtree */
-    am_header_ti = proto_tree_add_string_format(tree,
-                                                hf_rlc_lte_am_header,
+    am_header_ti = proto_tree_add_string_format(tree, hf_rlc_lte_am_header,
                                                 tvb, offset, 0,
-                                                "",
-                                                "AM header");
+                                                "", "AM header");
     am_header_tree = proto_item_add_subtree(am_header_ti,
                                             ett_rlc_lte_am_header);
 
@@ -1976,6 +1993,12 @@ void proto_register_rlc_lte(void)
 
 
         /* Transparent mode fields */
+        { &hf_rlc_lte_tm,
+            { "TM",
+              "rlc-lte.tm", FT_STRING, BASE_NONE, NULL, 0x0,
+              "Transparent Mode", HFILL
+            }
+        },
         { &hf_rlc_lte_tm_data,
             { "TM Data",
               "rlc-lte.tm.data", FT_BYTES, BASE_NONE, 0, 0x0,
@@ -1984,6 +2007,12 @@ void proto_register_rlc_lte(void)
         },
 
         /* Unacknowledged mode fields */
+        { &hf_rlc_lte_um,
+            { "UM",
+              "rlc-lte.um", FT_STRING, BASE_NONE, NULL, 0x0,
+              "Unackowledged Mode", HFILL
+            }
+        },
         { &hf_rlc_lte_um_header,
             { "UM Header",
               "rlc-lte.um.header", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -2047,7 +2076,12 @@ void proto_register_rlc_lte(void)
             }
         },
 
-
+        { &hf_rlc_lte_am,
+            { "AM",
+              "rlc-lte.am", FT_STRING, BASE_NONE, NULL, 0x0,
+              "Ackowledged Mode", HFILL
+            }
+        },
         { &hf_rlc_lte_am_header,
             { "AM Header",
               "rlc-lte.am.header", FT_STRING, BASE_NONE, NULL, 0x0,
