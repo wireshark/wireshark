@@ -4127,7 +4127,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 				switch ( pack_component_type ){
 			
 				case 0x10:
-					str="IPv4 source address type";
+					str="IPv4 remote address type";
 					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip4_address,tvb,curr_offset,4,FALSE);
 					curr_offset+=4;
 					curr_len-=4;
@@ -4137,7 +4137,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 					break;
 
 				case 0x20:
-					str="IPv6 source address type";
+					str="IPv6 remote address type";
 					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip6_address,tvb,curr_offset,16,FALSE);
 					curr_offset+=16;
 					curr_len-=16;
@@ -4154,13 +4154,13 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 					break;
 
 				case 0x40:
-					str="Single destination port type";
+					str="Single local port type";
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port,tvb,curr_offset,2,FALSE);
 					curr_offset+=2;
 					curr_len-=2;
 
 				case 0x41:
-					str="Destination port range type";
+					str="Local port range type";
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_low,tvb,curr_offset,2,FALSE);
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_high,tvb,curr_offset,2,FALSE);
 					curr_offset+=4;
@@ -4168,14 +4168,14 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 					break;
 
 				case 0x50:
-					str="Single source port type";
+					str="Single remote port type";
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port,tvb,curr_offset,2,FALSE);
 					curr_offset+=2;
 					curr_len-=2;
 					break;
 
 				case 0x51:
-					str="Source port range type";
+					str="Remote port range type";
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_low,tvb,curr_offset,2,FALSE);
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_high,tvb,curr_offset,2,FALSE);
 					curr_offset+=4;
@@ -4221,7 +4221,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 	if (e_bit == 1){
 		 proto_tree_add_text(tf_tree, tvb, curr_offset, 1, "Note: Possible Authorization Token/Flow Identifier not decoded yet");
 	}
-	return(curr_offset - offset);
+	return(len);
 }
 
 /*

@@ -59,6 +59,7 @@ static int hf_nas_eps_spare_bits = -1;
 static int hf_nas_eps_security_header_type = -1;
 static int hf_nas_eps_msg_auth_code = -1;
 static int hf_nas_eps_seq_no = -1;
+static int hf_nas_eps_seq_no_short = -1;
 static int hf_nas_eps_emm_ebi0 = -1;
 static int hf_nas_eps_emm_ebi1 = -1;
 static int hf_nas_eps_emm_ebi2 = -1;
@@ -1025,10 +1026,14 @@ static guint16
 de_emm_nas_ksi_and_seq_no(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	int bit_offset;
 
 	curr_offset = offset;
+	bit_offset = curr_offset<<3;
 
-	proto_tree_add_text(tree, tvb, curr_offset, 1 , "KSI and sequence number");
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, bit_offset, 3, FALSE);
+	bit_offset += 3;
+	proto_tree_add_bits_item(tree, hf_nas_eps_seq_no_short, tvb, bit_offset, 5, FALSE);
 	curr_offset++;
 
 	return(curr_offset - offset);
@@ -2007,8 +2012,9 @@ de_esm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 	curr_offset = offset;
 
 	proto_tree_add_item(tree, hf_nas_eps_esm_cause, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
 
-	return(len);
+	return(curr_offset - offset);
 }
 /*
  * 9.9.4.5 ESM information transfer flag 
@@ -3452,7 +3458,7 @@ nas_esm_bearer_res_mod_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	/* 5B	Required traffic flow QoS	EPS quality of service 9.9.4.3	O	TLV	3-11 */
 	ELEM_OPT_TLV( 0x5B , NAS_PDU_TYPE_ESM, DE_ESM_EPS_QOS , " - Required traffic flow QoS" );
 	/* 58	ESM cause	ESM cause 9.9.4.4	O	TV	2 */
-	ELEM_OPT_TLV( 0x58 , NAS_PDU_TYPE_ESM, DE_ESM_CAUSE , "" );
+	ELEM_OPT_TV( 0x58 , NAS_PDU_TYPE_ESM, DE_ESM_CAUSE , "" );
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253  */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
 
@@ -4051,7 +4057,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}else{
 		/* SERVICE REQUEST (12)  is not a plain NAS message treat separately */
 		if (security_header_type == 12){
-			nas_emm_service_req(tvb, tree, offset, len-offset);
+			nas_emm_service_req(tvb, nas_eps_tree, offset, len-offset);
 			return;
 		}
 		/* Message authentication code */
@@ -4136,6 +4142,11 @@ void proto_register_nas_eps(void) {
 	},
 	{ &hf_nas_eps_seq_no,
 		{ "Sequence number","nas_eps.seq_no",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_seq_no_short,
+		{ "Sequence number (short)","nas_eps.seq_no_short",
 		FT_UINT8,BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
@@ -4330,8 +4341,8 @@ void proto_register_nas_eps(void) {
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_short_mac,
-		{ "Short MAC value","nas_eps.emm.short_mac",
-		FT_BYTES, BASE_NONE, NULL, 0x0,
+		{ "Message authentication code (short)","nas_eps.emm.short_mac",
+		FT_UINT16, BASE_HEX, NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_tai_tol,
