@@ -176,6 +176,11 @@ const value_string gsm_gm_elem_strings[] = {
 	{ 0x00,	"Tear Down Indicator" },
 	{ 0x00,	"Packet Flow Identifier" },
 	{ 0x00,	"Traffic Flow Template" },
+	{ 0x00, "Temporary Mobile Group Identity (TMGI)" },
+	{ 0x00, "MBMS bearer capabilities" },
+	{ 0x00, "MBMS protocol configuration options" },
+	{ 0x00, "Enhanced network service access point identifier" },
+	{ 0x00, "Request type" },
 	/* GPRS Common Information Elements 10.5.7 */
 	{ 0x00,	"PDP Context Status" },
 	{ 0x00,	"Radio Priority" },
@@ -275,6 +280,9 @@ static int hf_gsm_a_sm_cause_2 = -1;
 static int hf_gsm_a_sm_llc_sapi = -1;
 static int hf_gsm_a_sm_tdi = -1;
 static int hf_gsm_a_sm_packet_flow_id = -1;
+static int hf_gsm_a_sm_tmgi = -1;
+static int hf_gsm_a_sm_enh_nsapi = -1;
+static int hf_gsm_a_sm_req_type = -1;
 
 static int hf_gsm_a_gmm_net_cap_gea1 = -1;
 static int hf_gsm_a_gmm_net_cap_smdch = -1;
@@ -4216,6 +4224,139 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 	return(curr_offset - offset);
 }
 
+/*
+ * [9] 10.5.6.13 Temporary Mobile Group Identity (TMGI)
+ */
+static guint16
+de_sm_tmgi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+    curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_gsm_a_sm_tmgi, tvb, curr_offset, 3, FALSE);
+	curr_offset += 3;
+
+	NO_MORE_DATA_CHECK(len);
+	curr_offset = dissect_e212_mcc_mnc(tvb, gsm_a_dtap_pinfo, tree, curr_offset);
+
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	return(curr_offset - offset);
+}
+
+/*
+ * [9] 10.5.6.14 MBMS bearer capabilities
+ */
+static guint16
+de_sm_mbms_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset, temp32;
+	guint8 oct;
+	gchar *str;
+
+	curr_offset = offset;
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	switch (oct)
+	{
+		case 0x00: str="Subscribed maximum bit rate for downlink/reserved"; break;
+		case 0xff: str="0 kbps"; break;
+		default: str = ep_strdup_printf("%u kbps", qos_calc_bitrate(oct));
+	}
+
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_downl, tvb, 
+		curr_offset, 1, oct, "%s (%u)", str, oct);
+	curr_offset+= 1;
+
+	NO_MORE_DATA_CHECK(len);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	if (oct == 0x00)
+		str = "Use the value indicated by the Maximum bit rate for downlink";
+	else
+	{
+		temp32 = qos_calc_ext_bitrate(oct);
+		if (temp32 % 1000 == 0)
+			str = ep_strdup_printf("%u Mbps", temp32 / 1000);
+		else
+			str = ep_strdup_printf("%u kbps", temp32);
+	}
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_downl_ext, tvb, 
+		curr_offset, 1, oct, "%s (%u)", str, oct);
+
+	curr_offset+= 1;
+
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	return(curr_offset - offset);
+}
+
+/*
+ * [9] 10.5.6.15 MBMS protocol configuration options
+ */
+static guint16
+de_sm_mbms_prot_conf_opt(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 8, FALSE);
+	curr_offset++;
+
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	return(curr_offset - offset);
+}
+
+/*
+ * [9] 10.5.6.16 Enhanced network service access point identifier
+ */
+static guint16
+de_sm_enh_nsapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint8	oct;
+	gchar *str;
+
+	oct = tvb_get_guint8(tvb, offset);
+
+	if(oct < 0x80)
+		str = "Reserved";
+	else if (oct < 0xff)
+			str = ep_strdup_printf("NSAPI %u for Multimedia Broadcast/Multicast Service (MBMS) Multicast mode", oct);
+		else
+			str = "Reserved for use by lower layers in the p2p radio bearer allocation message for MBMS Broadcast mode";
+
+
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_enh_nsapi, tvb, 
+		offset, 1, oct, "%s (%u)", str, oct);
+
+	/* no length check possible */
+	return(1);
+}
+
+/*
+ * [9] 10.5.6.17 Request type
+ */
+static const value_string gsm_a_sm_req_type_vals[] = {
+	{ 0x01,	"Initial request" },
+	{ 0x02, "Handover" },
+	{ 0x03, "Unused. If received, the network shall interpret this as \"Initial request\"." },
+	{ 0, NULL }
+};
+
+static guint16
+de_sm_req_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset<<3) + 4, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_sm_req_type, tvb, offset, 1, FALSE);
+
+	/* no length check possible */
+	return(1);
+}
+
 guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* GPRS Mobility Management Information Elements 10.5.5 */
 	de_gmm_attach_res,	/* Attach Result */
@@ -4257,6 +4398,11 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	de_sm_tear_down,	/* Tear Down Indicator */
 	de_sm_pflow_id,		/* Packet Flow Identifier */
 	de_sm_tflow_temp,	/* Traffic Flow Template */
+	de_sm_tmgi,		/* Temporary Mobile Group Identity (TMGI) */
+	de_sm_mbms_bearer_cap,	/* MBMS bearer capabilities */
+	de_sm_mbms_prot_conf_opt,	/* MBMS protocol configuration options */
+	de_sm_enh_nsapi,	/* Enhanced network service access point identifier */	
+	de_sm_req_type,		/* Request type */
 	/* GPRS Common Information Elements 10.5.7 */
 	de_gc_context_stat,	/* PDP Context Status */
 	de_gc_radio_prio,	/* Radio Priority */
@@ -5402,13 +5548,38 @@ dtap_sm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 /*
  * [8] 9.5.22 Activate MBMS Context Request
  */
+static void
+dtap_sm_act_mbms_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
 
-	/* Requested MBMS NSAPI Enhanced Network service access point identifier 10.5.6.15 M V */
+	curr_offset = offset;
+	curr_len = len;
+
+	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
+
+	/* Requested MBMS NSAPI Enhanced Network service access point identifier 10.5.6.16 M V */
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_ENH_NSAPI );
+
 	/* Requested LLC SAPI LLC service access point identifier 10.5.6.9 M V 1 */
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI );
+
 	/* Supported MBMS bearer capabilities MBMS bearer capabilities 10.5.6.14 M LV 2 - 3 */
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_MBMS_BEARER_CAP , NULL );
+
 	/* Requested multicast address Packet data protocol address 10.5.6.4 M LV 3 - 19 */
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR , " - Requested multicast address" );
+
 	/* Access point name Access point name 10.5.6.1 M LV 2 - 101 */
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME , NULL );
+
 	/* 35 MBMS protocol configuration options MBMS protocol configuration options 10.5.6.15 O TLV 3 - 253 */
+	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
 
 /*
  * [8] 9.5.23 Activate MBMS Context Accept
@@ -5479,7 +5650,7 @@ static void (*dtap_msg_sm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	NULL,						/* Reserved: was allocated in earlier phases of the protocol */
 	NULL,						/* Reserved: was allocated in earlier phases of the protocol */
 	dtap_sm_status,				/* SM Status */
-	NULL,						/* Activate MBMS Context Request */
+	dtap_sm_act_mbms_req,		/* Activate MBMS Context Request */
 	NULL,						/* Activate MBMS Context Accept */
 	NULL,						/* Activate MBMS Context Reject */
 	NULL,						/* Request MBMS Context Activation */
@@ -6020,6 +6191,21 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_gmm_net_cap_epc,
 		{ "EPC Capability", "gsm_a.gmm.net_cap.epc",
 		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_epc_vals), 0x04,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_sm_tmgi,
+		{ "Temporary Mobile Group Identity (TMGI)", "gsm_a.sm.tmgi",
+		  FT_UINT24, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_sm_enh_nsapi,
+		{ "Enhanced NSAPI", "gsm_a.sm.enh_nsapi",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_sm_req_type,
+		{ "Request type", "gsm_a.sm.req_type",
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_sm_req_type_vals), 0x07,
 		NULL, HFILL }
 	},
 	};

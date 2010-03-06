@@ -982,6 +982,11 @@ typedef enum
 	DE_TEAR_DOWN_IND,				/* Tear Down Indicator */
 	DE_PACKET_FLOW_ID,				/* Packet Flow Identifier */
 	DE_TRAFFIC_FLOW_TEMPLATE,		/* Traffic Flow Template */
+	DE_TMGI,						/* Temporary Mobile Group Identity (TMGI) */
+	DE_MBMS_BEARER_CAP,				/* MBMS bearer capabilities */
+	DE_MBMS_PROT_CONF_OPT,			/* MBMS protocol configuration options */
+	DE_ENH_NSAPI,					/* Enhanced network service access point identifier */
+	DE_REQ_TYPE,					/* Request type */
 	/* GPRS Common Information Elements [8] 10.5.7 */
 	DE_PDP_CONTEXT_STAT,			/* [8] 10.5.7.1		PDP Context Status */
 	DE_RAD_PRIO,					/* [8] 10.5.7.2		Radio Priority */
