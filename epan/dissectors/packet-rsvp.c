@@ -3380,12 +3380,12 @@ dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
     if (grid == 1) {
       /* DWDM grid: Frequency (THz) = 193.1 THz + n * channel spacing (THz) */
       cs_thz = 
-        cs == 1 ? 0.1 : 
-        cs == 2 ? 0.05 :
-        cs == 3 ? 0.025 :
-        cs == 4 ? 0.0125 : 
-        0.0;
-      freq = 193.1 + (n * cs_thz);
+        cs == 1 ? 0.1f : 
+        cs == 2 ? 0.05f :
+        cs == 3 ? 0.025f :
+        cs == 4 ? 0.0125f : 
+        0.0f;
+      freq = 193.1f + (n * cs_thz);
       proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
                           "Wavelength Label: "
                           "grid=%s, "
