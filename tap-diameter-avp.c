@@ -242,7 +242,7 @@ diameteravp_init(const char *optarg, void* userdata _U_)
 	ds->filter=g_malloc0(filter_len);
 	strcat(ds->filter,"diameter");
 
-	for(str=strtok_r(options+sizeof("diameter,avp"),",",&saveptr);str;str=strtok_r(NULL,",",&saveptr))
+	for(str=strtok_s(options+sizeof("diameter,avp"),",",&saveptr);str;str=strtok_s(NULL,",",&saveptr))
 	{
 		/* Connect all requested fields with logical OR. */
 		strcat(ds->filter,"||");
