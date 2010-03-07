@@ -26,6 +26,44 @@ project(Wireshark C)
 cmake_minimum_required(VERSION 2.6)
 set(CMAKE_BACKWARDS_COMPATIBILITY 2.6)
 
+# set(PROJECT_VERSION "1.3.4-rc5")
+# set(PROJECT_VERSION "1.3.4rc5")
+# set(PROJECT_VERSION "1.3.4")
+# If not set, copy over Wireshark version from configure.in AC_INIT
+if(NOT PROJECT_VERSION)
+	file(STRINGS
+		${CMAKE_SOURCE_DIR}/configure.in
+		VERSIONLINE
+		REGEX "\\(wireshark, .*\\)"
+	)
+	string(REGEX REPLACE ".*\\(wireshark, (.*)\\).*"
+		"\\1"
+		PROJECT_VERSION
+		${VERSIONLINE}
+	)
+endif()
+string(REGEX REPLACE "([0-9]+)\\..*"
+	"\\1"
+	PROJECT_MAJOR_VERSION
+	${PROJECT_VERSION}
+)
+string(REGEX REPLACE ".*\\.([0-9]+)\\..*"
+	"\\1"
+	PROJECT_MINOR_VERSION
+	${PROJECT_VERSION}
+)
+string(REGEX REPLACE ".*\\..*\\.([0-9]+).*"
+	"\\1"
+	PROJECT_PATCH_VERSION
+	${PROJECT_VERSION}
+)
+string(REGEX REPLACE ".*\\..*\\.[0-9]+(.*)"
+	"\\1"
+	PROJECT_VERSION_EXTENSION
+	${PROJECT_VERSION}
+)
+message(STATUS "V: ${PROJECT_VERSION}, MaV: ${PROJECT_MAJOR_VERSION}, MiV: ${PROJECT_MINOR_VERSION}, PL: ${PROJECT_PATCH_VERSION}, EV: ${PROJECT_VERSION_EXTENSION}.")
+
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 INCLUDE(UseLemon)
@@ -197,7 +235,7 @@ set(PACKAGELIST GLIB2 PCAP M LEX YACC Perl SH PythonInterp HtmlViewer ${PACKAGEL
 if(BUILD_wireshark)
 	set(PACKAGELIST GTK2 ${PACKAGELIST})
 	set(GTK2_OPTIONS COMPONENTS gtk)
-	set(GTK2_DEBUG true)
+	set(GTK2_DEBUG false)
 endif()
 
 # SMI SNMP
