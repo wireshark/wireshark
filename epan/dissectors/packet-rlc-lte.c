@@ -1012,7 +1012,12 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
     for (i=0; i < p_channel_status->noOfNACKs; i++) {
         for (j=0; j < MIN(tap_info->noOfNACKs, MAX_NACKs); j++) {
             if (tap_info->NACKs[j] == p_channel_status->NACKs[i]) {
-                repeatedNACKs[noOfNACKsRepeated++] = p_channel_status->NACKs[i];
+                /* Don't add the same repeated NACK twice! */
+                if ((noOfNACKsRepeated == 0) ||
+                    (repeatedNACKs[noOfNACKsRepeated-1] != p_channel_status->NACKs[i])) {
+
+                    repeatedNACKs[noOfNACKsRepeated++] = p_channel_status->NACKs[i];
+                }
             }
         }
     }
