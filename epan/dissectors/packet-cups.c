@@ -337,7 +337,6 @@ get_unquoted_string(tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
 	const guint8* s = NULL;
 	guint l = 0;
 	gint o;
-	guchar found_needle = 0;
 
 	o = tvb_pbrk_guint8(tvb, offset, -1, (const guint8*)" \t\r\n", NULL);
 	if (o != -1) {
