@@ -220,7 +220,7 @@ diameteravp_init(const char *optarg, void* userdata _U_)
 	char* saveptr=NULL;
 	char* str=NULL;
 	int field_count=0;
-	int filter_len=0;
+	size_t filter_len=0;
 	GString *error_string;
 
 	ds=g_malloc(sizeof(diameteravp_t));
