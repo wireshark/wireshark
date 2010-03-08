@@ -679,7 +679,7 @@ static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
 static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset,
     guint header_len);
 static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree,
-    guint meth_len);
+    guint meth_len, gint linelen);
 static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree);
 static void tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
 static guint sip_is_packet_resend(packet_info *pinfo,
@@ -1967,7 +1967,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			                           tvb_format_text(tvb, offset, linelen));
 			reqresp_tree = proto_item_add_subtree(ti_a, ett_sip_reqresp);
 		}
-		dfilter_sip_request_line(tvb, reqresp_tree, token_1_len);
+		dfilter_sip_request_line(tvb, reqresp_tree, token_1_len, linelen);
 		break;
 
 	case STATUS_LINE:
@@ -2789,34 +2789,34 @@ separator_found:
 							                         offset, next_offset-offset,
 							                         FALSE);
 							PROTO_ITEM_SET_HIDDEN(ti_c);
-						}
 
-						/* Parse each individual parameter in the line */
-						comma_offset = tvb_pbrk_guint8(tvb, value_offset, line_end_offset - value_offset, " \t\r\n");
+							/* Parse each individual parameter in the line */
+							comma_offset = tvb_pbrk_guint8(tvb, value_offset, line_end_offset - value_offset, " \t\r\n", NULL);
 
-						/* Authentication-Info does not begin with the scheme name */
-						if (hf_index != POS_AUTHENTICATION_INFO)
-						{
-							proto_tree_add_item(sip_element_tree, hf_sip_auth_scheme,
-							                    tvb, value_offset, comma_offset - value_offset,
-							                    FALSE);
-						}
-
-						while ((comma_offset = dissect_sip_authorization_item(tvb, sip_element_tree, comma_offset, line_end_offset)) != -1)
-						{
-							if(comma_offset == line_end_offset)
+							/* Authentication-Info does not begin with the scheme name */
+							if (hf_index != POS_AUTHENTICATION_INFO)
 							{
-								/* Line End reached: Stop Parsing */
-								break;
+								proto_tree_add_item(sip_element_tree, hf_sip_auth_scheme,
+													tvb, value_offset, comma_offset - value_offset,
+													FALSE);
 							}
 
-							if(tvb_get_guint8(tvb, comma_offset) != ',')
+							while ((comma_offset = dissect_sip_authorization_item(tvb, sip_element_tree, comma_offset, line_end_offset)) != -1)
 							{
-								/* Undefined value reached: Stop Parsing */
-								break;
+								if(comma_offset == line_end_offset)
+								{
+									/* Line End reached: Stop Parsing */
+									break;
+								}
+
+								if(tvb_get_guint8(tvb, comma_offset) != ',')
+								{
+									/* Undefined value reached: Stop Parsing */
+									break;
+								}
+								comma_offset++; /* skip comma */
 							}
-							comma_offset++; /* skip comma */
-						}
+						}/*hdr_tree*/
 					break;
 
 					case POS_VIA:
@@ -3023,11 +3023,11 @@ separator_found:
 
 /* Display filter for SIP Request-Line */
 static void
-dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
+dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len, gint linelen)
 {
 	char	*value;
 
-	gint	next_offset, linelen, parameter_end_offset;
+	gint	parameter_end_offset;
 	guint	offset = 0;
 	guint	parameter_len = meth_len;
 	guchar	c= '\0';
@@ -3047,8 +3047,6 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
 
 	/* Copy request method for telling tap */
 	stat_info->request_method = value;
-
-	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
 	if (tree) {
 		proto_tree_add_string(tree, hf_Method, tvb, offset, parameter_len, value);
