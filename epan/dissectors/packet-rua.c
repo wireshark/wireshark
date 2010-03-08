@@ -10,7 +10,7 @@
  * Routines for UMTS Home Node B RANAP User Adaptation (RUA) packet dissection
  * Copyright 2010 Neil Piercy, ip.access Limited <Neil.Piercy@ipaccess.com>
  *
- * $Id: packet-rua-template.c 31988 2010-02-24 20:15:31Z etxrab $
+ * $Id: packet-rua-template.c 32108 2010-03-04 05:56:59Z etxrab $
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -172,7 +172,6 @@ static int hf_rua_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value 
 static int ett_rua = -1;
 
 /* initialise sub-dissector handles */
-static dissector_handle_t ranap_handle = NULL;
 static dissector_handle_t rua_ranap_handle = NULL;
 
 
@@ -216,7 +215,7 @@ static gint ett_rua_SuccessfulOutcome = -1;
 static gint ett_rua_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-rua-ett.c ---*/
-#line 69 "packet-rua-template.c"
+#line 68 "packet-rua-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -275,7 +274,7 @@ dissect_rua_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 52 "rua.cnf"
+#line 53 "rua.cnf"
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
            val_to_str(ProcedureCode, rua_ProcedureCode_vals,
                       "Unknown Message"));
@@ -345,7 +344,7 @@ dissect_rua_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
 
-#line 41 "rua.cnf"
+#line 42 "rua.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(rua_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -405,15 +404,6 @@ dissect_rua_ProtocolIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_rua_ProtocolIE_Container, ProtocolIE_Container_sequence_of,
                                                   0, maxProtocolIEs, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_rua_ProtocolIE_Single_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_rua_ProtocolIE_Field(tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
@@ -844,7 +834,7 @@ dissect_rua_IntraDomainNasNodeSelector(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_rua_RANAP_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 101 "rua.cnf"
+#line 102 "rua.cnf"
   tvbuff_t *ranap_message_tvb=NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &ranap_message_tvb);
@@ -1037,7 +1027,7 @@ static const per_sequence_t Connect_sequence[] = {
 
 static int
 dissect_rua_Connect(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 64 "rua.cnf"
+#line 65 "rua.cnf"
     col_append_str(actx->pinfo->cinfo, COL_INFO, "CONNECT" );
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
 
@@ -1059,7 +1049,7 @@ static const per_sequence_t DirectTransfer_sequence[] = {
 
 static int
 dissect_rua_DirectTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 70 "rua.cnf"
+#line 71 "rua.cnf"
     col_append_str(actx->pinfo->cinfo, COL_INFO, "DIRECT_TRANSFER" );
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
 
@@ -1081,7 +1071,7 @@ static const per_sequence_t Disconnect_sequence[] = {
 
 static int
 dissect_rua_Disconnect(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 76 "rua.cnf"
+#line 77 "rua.cnf"
     col_append_str(actx->pinfo->cinfo, COL_INFO, "DISCONNECT" );
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
 
@@ -1103,7 +1093,7 @@ static const per_sequence_t ConnectionlessTransfer_sequence[] = {
 
 static int
 dissect_rua_ConnectionlessTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 82 "rua.cnf"
+#line 83 "rua.cnf"
     col_append_str(actx->pinfo->cinfo, COL_INFO, "CONNECTIONLESS_TRANSFER" );
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
 
@@ -1125,7 +1115,7 @@ static const per_sequence_t ErrorIndication_sequence[] = {
 
 static int
 dissect_rua_ErrorIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 88 "rua.cnf"
+#line 89 "rua.cnf"
     col_append_str(actx->pinfo->cinfo, COL_INFO, "ERROR_INDICATION" );
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
     col_set_fence(actx->pinfo->cinfo, COL_INFO);
@@ -1147,7 +1137,7 @@ static const per_sequence_t PrivateMessage_sequence[] = {
 
 static int
 dissect_rua_PrivateMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 95 "rua.cnf"
+#line 96 "rua.cnf"
     col_append_str(actx->pinfo->cinfo, COL_INFO, "PRIVATE_MESSAGE" );
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
 
@@ -1381,7 +1371,7 @@ static void dissect_RUA_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-rua-fn.c ---*/
-#line 91 "packet-rua-template.c"
+#line 90 "packet-rua-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1705,7 +1695,7 @@ module_t *rua_module;
         "rua.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-rua-hfarr.c ---*/
-#line 142 "packet-rua-template.c"
+#line 141 "packet-rua-template.c"
   };
 
   /* List of subtrees */
@@ -1752,7 +1742,7 @@ module_t *rua_module;
     &ett_rua_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-rua-ettarr.c ---*/
-#line 148 "packet-rua-template.c"
+#line 147 "packet-rua-template.c"
   };
 
 
@@ -1811,7 +1801,7 @@ proto_reg_handoff_rua(void)
 
 
 /*--- End of included file: packet-rua-dis-tab.c ---*/
-#line 187 "packet-rua-template.c"
+#line 186 "packet-rua-template.c"
 
         } else {
                 dissector_delete("sctp.port", sctp_port, rua_handle);

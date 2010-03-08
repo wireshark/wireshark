@@ -62,7 +62,6 @@ static int proto_rua = -1;
 static int ett_rua = -1;
 
 /* initialise sub-dissector handles */
-static dissector_handle_t ranap_handle = NULL;
 static dissector_handle_t rua_ranap_handle = NULL;
 
 #include "packet-rua-ett.c"
