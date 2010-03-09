@@ -4243,26 +4243,26 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 			curr_len -= 2;
 			switch (param) {
 			case 0x01:
-				proto_tree_add_text(tf_tree, tvb, curr_offset, pf_length, "Authorization token value: %s",
+				proto_tree_add_text(tf_tree, tvb, curr_offset, pf_length, "Authorization token value: 0x%s",
 			                        tvb_bytes_to_str(tvb, curr_offset, pf_length));
 				break;
 				
 			case 0x02:
-				proto_tree_add_text(tf_tree, tvb, curr_offset, 2, "Media Component number value: %s",
-			                        tvb_bytes_to_str(tvb, curr_offset, 2));
-				proto_tree_add_text(tf_tree, tvb, curr_offset+2, 2, "IP flow number: %s",
-			                        tvb_bytes_to_str(tvb, curr_offset+2, 2));
+				proto_tree_add_text(tf_tree, tvb, curr_offset, 2, "Media Component number value: 0x%x",
+			                        tvb_get_bits16(tvb, curr_offset<<3, 16, FALSE));
+				proto_tree_add_text(tf_tree, tvb, curr_offset+2, 2, "IP flow number: 0x%x",
+			                        tvb_get_bits16(tvb, (curr_offset+2)<<3, 16, FALSE));
 				break;
 
 			case 0x03:
 				for (i = 0; i < pf_length; i++) {
-					proto_tree_add_text(tf_tree, tvb, curr_offset+i, 1, "Packet filter identifier %d: %s",
-			                            i, tvb_bytes_to_str(tvb, curr_offset+i, 1));
+					proto_tree_add_text(tf_tree, tvb, curr_offset+i, 1, "Packet filter identifier %d: %d",
+			                            i, tvb_get_guint8(tvb, curr_offset+i));
 				}
 				break;
 
 			default:
-				proto_tree_add_text(tf_tree, tvb, curr_offset, pf_length, "Parameter content: %s",
+				proto_tree_add_text(tf_tree, tvb, curr_offset, pf_length, "Parameter content: 0x%s",
 				                    tvb_bytes_to_str(tvb, curr_offset, pf_length));
 				break;
 			}
