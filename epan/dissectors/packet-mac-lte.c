@@ -53,6 +53,7 @@ int proto_mac_lte = -1;
 static int mac_lte_tap = -1;
 
 /* Decoding context */
+static int hf_mac_lte_context = -1;
 static int hf_mac_lte_context_radio_type = -1;
 static int hf_mac_lte_context_direction = -1;
 static int hf_mac_lte_context_rnti = -1;
@@ -862,8 +863,36 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     return TRUE;
 }
 
+
+/* Write the given formatted text to:
+   - the info column
+   - the top-level MAC PDU item
+   - another subtree item (if supplied) */
+static void write_pdu_label_and_info(proto_item *pdu_ti, proto_item *sub_ti,
+                                     packet_info *pinfo, const char *format, ...)
+{
+    #define MAX_INFO_BUFFER 256
+    static char info_buffer[MAX_INFO_BUFFER];
+    
+    va_list ap;
+
+    va_start(ap, format);
+    g_vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
+    va_end(ap);
+
+    /* Add to indicated places */
+    col_append_str(pinfo->cinfo, COL_INFO, info_buffer);
+    proto_item_append_text(pdu_ti, "%s", info_buffer);
+    if (sub_ti != NULL) {
+        proto_item_append_text(sub_ti, "%s", info_buffer);
+    }
+}
+
+
+
 /* Dissect a single Random Access Reponse body */
 static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                              proto_item *pdu_ti,
                               gint offset, guint8 rapid)
 {
     guint8 reserved;
@@ -941,11 +970,9 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_temporary_crnti, tvb, offset, 2, FALSE);
     offset += 2;
 
-    proto_item_append_text(rar_body_ti, " RAPID=%u (TA=%u, UL-Grant=%u, Temp C-RNTI=%u)",
-                           rapid, timing_advance, ul_grant, temp_crnti);
-
-    col_append_fstr(pinfo->cinfo, COL_INFO, "(RAPID=%u: TA=%u, UL-Grant=%u, Temp C-RNTI=%u) ",
-                    rapid, timing_advance, ul_grant, temp_crnti);
+    write_pdu_label_and_info(pdu_ti, rar_body_ti, pinfo,
+                             "(RAPID=%u: TA=%u, UL-Grant=%u, Temp C-RNTI=%u) ",
+                             rapid, timing_advance, ul_grant, temp_crnti);
 
     proto_item_set_len(rar_body_ti, offset-start_body_offset);
 
@@ -968,8 +995,9 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     proto_item *rar_headers_ti;
     int        start_headers_offset = offset;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "RAR (RA-RNTI=%u, SF=%u) ",
-                    p_mac_lte_info->rnti, p_mac_lte_info->subframeNumber);
+    write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                             "RAR (RA-RNTI=%u, SF=%u) ",
+                             p_mac_lte_info->rnti, p_mac_lte_info->subframeNumber);
 
     /* Create hidden 'virtual root' so can filter on mac-lte.rar */
     ti = proto_tree_add_item(tree, hf_mac_lte_rar, tvb, offset, -1, FALSE);
@@ -1031,11 +1059,9 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
             }
             backoff_indicator_seen = TRUE;
 
-            proto_item_append_text(rar_header_ti, "(Backoff Indicator=%sms)",
-                                   val_to_str(backoff_indicator, rar_bi_vals, "Illegal-value "));
-
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(Backoff Indicator=%s ms) ",
-                            val_to_str(backoff_indicator, rar_bi_vals, "Illegal-value"));
+            write_pdu_label_and_info(pdu_ti, rar_header_ti, pinfo,
+                                     "(Backoff Indicator=%sms)",
+                                     val_to_str(backoff_indicator, rar_bi_vals, "Illegal-value "));
 
             /* If present, it must be the first subheader */
             if (number_of_rars > 0) {
@@ -1079,7 +1105,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     /***************************/
     /* Read any indicated RARs */
     for (n=0; n < number_of_rars; n++) {
-        offset = dissect_rar_entry(tvb, pinfo, tree, offset, rapids[n]);
+        offset = dissect_rar_entry(tvb, pinfo, tree, pdu_ti, offset, rapids[n]);
     }
 
     /* Update TAP info */
@@ -1096,15 +1122,18 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
 /* Dissect BCH PDU */
 static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                        proto_item *pdu_ti,
                         int offset, mac_lte_info *p_mac_lte_info)
 {
     proto_item *ti;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "BCH PDU (%u bytes, on %s transport)  ",
-                    tvb_length_remaining(tvb, offset),
-                    val_to_str(p_mac_lte_info->rntiType,
-                               bch_transport_channel_vals,
-                               "Unknown"));
+    write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                             "BCH PDU (%u bytes, on %s transport)  ",
+                             tvb_length_remaining(tvb, offset),
+                             val_to_str(p_mac_lte_info->rntiType,
+                                        bch_transport_channel_vals,
+                                        "Unknown"));
+    
 
     /* Show which transport layer it came in on (inferred from RNTI type) */
     ti = proto_tree_add_uint(tree, hf_mac_lte_context_bch_transport_channel,
@@ -1155,12 +1184,13 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* Dissect PCH PDU */
 static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                        int offset, guint8 direction)
+                        proto_item *pdu_ti, int offset, guint8 direction)
 {
     proto_item *ti;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "PCH PDU (%u bytes)  ",
-                    tvb_length_remaining(tvb, offset));
+    write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                             "PCH PDU (%u bytes)  ",
+                             tvb_length_remaining(tvb, offset));
 
     /****************************************/
     /* Whole frame is PCH data              */
@@ -1240,6 +1270,7 @@ static int is_bsr_lcid(guint8 lcid)
 
 /* Helper function to call RLC dissector for SDUs (where channel params are known) */
 static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                               proto_item *pdu_ti,
                                int offset, guint16 data_length,
                                guint8 mode, guint8 direction, guint16 ueid,
                                guint16 channelType, guint16 channelId,
@@ -1281,7 +1312,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         }
         else {
             /* Add a separator and protect column contents here */
-            col_append_str(pinfo->cinfo, COL_INFO, "   ||   ");
+            write_pdu_label_and_info(pdu_ti, NULL, pinfo, "   ||   ");
             col_set_fence(pinfo->cinfo, COL_INFO);
         }
     }
@@ -1754,10 +1785,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     gboolean   expecting_body_data = FALSE;
     volatile   guint32    is_truncated = FALSE;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s: (SF=%u) UEId=%u ",
-                    (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
-                    p_mac_lte_info->subframeNumber,
-                    p_mac_lte_info->ueid);
+    write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                             "%s: (SF=%u) UEId=%u ",
+                             (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
+                             p_mac_lte_info->subframeNumber,
+                             p_mac_lte_info->ueid);
 
     tap_info->raw_length = p_mac_lte_info->length;
 
@@ -1843,16 +1875,18 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if (direction == DIRECTION_UPLINK) {
             lcid_ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_ulsch_lcid,
                                           tvb, offset, 1, FALSE);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(%s",
-                            val_to_str(lcids[number_of_headers],
-                                       ulsch_lcid_vals, "(Unknown LCID)"));
+            write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                     "(%s",
+                                     val_to_str(lcids[number_of_headers],
+                                                ulsch_lcid_vals, "(Unknown LCID)"));
         }
         else {
             lcid_ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_dlsch_lcid,
                                           tvb, offset, 1, FALSE);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(%s",
-                            val_to_str(lcids[number_of_headers],
-                                       dlsch_lcid_vals, "(Unknown LCID)"));
+            write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                     "(%s",
+                                     val_to_str(lcids[number_of_headers],
+                                                dlsch_lcid_vals, "(Unknown LCID)"));
         }
         offset++;
 
@@ -1927,14 +1961,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Close off description in info column */
         switch (pdu_lengths[number_of_headers]) {
             case 0:
-                col_append_str(pinfo->cinfo, COL_INFO, ") ");
+                write_pdu_label_and_info(pdu_ti, NULL, pinfo, ") ");
                 break;
             case -1:
-                col_append_str(pinfo->cinfo, COL_INFO, ":remainder) ");
+                write_pdu_label_and_info(pdu_ti, NULL, pinfo, ":remainder) ");
                 break;
             default:
-                col_append_fstr(pinfo->cinfo, COL_INFO, ":%u bytes) ",
-                                pdu_lengths[number_of_headers]);
+                write_pdu_label_and_info(pdu_ti, NULL, pinfo, ":%u bytes) ",
+                                         pdu_lengths[number_of_headers]);
                 break;
         }
 
@@ -2411,7 +2445,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if ((lcids[n] == 1) || (lcids[n] == 2)) {
             if (global_mac_lte_attempt_srb_decode) {
                 /* Call RLC dissector */
-                call_rlc_dissector(tvb, pinfo, tree, offset, data_length,
+                call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                    RLC_AM_MODE, direction, p_mac_lte_info->ueid,
                                    CHANNEL_TYPE_SRB, lcids[n], 0);
 
@@ -2454,22 +2488,22 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             /* Dissect according to channel type */
             switch (rlc_channel_type) {
                 case rlcUM5:
-                    call_rlc_dissector(tvb, pinfo, tree, offset, data_length,
+                    call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                        RLC_UM_MODE, direction, p_mac_lte_info->ueid,
                                        CHANNEL_TYPE_DRB, (guint16)drb_id, UM_seqnum_length);
                     break;
                 case rlcUM10:
-                    call_rlc_dissector(tvb, pinfo, tree, offset, data_length,
+                    call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                        RLC_UM_MODE, direction, p_mac_lte_info->ueid,
                                        CHANNEL_TYPE_DRB, (guint16)drb_id, UM_seqnum_length);
                     break;
                 case rlcAM:
-                    call_rlc_dissector(tvb, pinfo, tree, offset, data_length,
+                    call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                        RLC_AM_MODE, direction, p_mac_lte_info->ueid,
                                        CHANNEL_TYPE_DRB, (guint16)drb_id, 0);
                     break;
                 case rlcTM:
-                    call_rlc_dissector(tvb, pinfo, tree, offset, data_length,
+                    call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                        RLC_TM_MODE, direction, p_mac_lte_info->ueid,
                                        CHANNEL_TYPE_DRB, (guint16)drb_id, 0);
                     break;
@@ -2533,6 +2567,8 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree             *mac_lte_tree;
     proto_item             *pdu_ti;
+    proto_tree             *context_tree;
+    proto_item             *context_ti;
     proto_item             *retx_ti = NULL;
     proto_item             *ti;
     gint                   offset = 0;
@@ -2547,6 +2583,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Create protocol tree. */
     pdu_ti = proto_tree_add_item(tree, proto_mac_lte, tvb, offset, -1, FALSE);
+    proto_item_append_text(pdu_ti, " ");
     mac_lte_tree = proto_item_add_subtree(pdu_ti, ett_mac_lte);
 
 
@@ -2569,16 +2606,22 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*****************************************/
     /* Show context information              */
 
-    ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_radio_type,
+    /* Create context root */
+    context_ti = proto_tree_add_string_format(mac_lte_tree, hf_mac_lte_context,
+                                              tvb, offset, 0, "", "Context");
+    context_tree = proto_item_add_subtree(context_ti, ett_mac_lte_context);
+    PROTO_ITEM_SET_GENERATED(context_ti);
+
+    ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_radio_type,
                              tvb, 0, 0, p_mac_lte_info->radioType);
     PROTO_ITEM_SET_GENERATED(ti);
 
-    ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_direction,
+    ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_direction,
                              tvb, 0, 0, p_mac_lte_info->direction);
     PROTO_ITEM_SET_GENERATED(ti);
 
     if (p_mac_lte_info->ueid != 0) {
-        ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_ueid,
+        ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_ueid,
                                  tvb, 0, 0, p_mac_lte_info->ueid);
         PROTO_ITEM_SET_GENERATED(ti);
     }
@@ -2588,19 +2631,20 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (p_mac_lte_info->length == 0) {
         switch (p_mac_lte_info->oob_event) {
             case ltemac_send_preamble:
-                ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_rapid,
+                ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rapid,
                                          tvb, 0, 0, p_mac_lte_info->rapid);
                 PROTO_ITEM_SET_GENERATED(ti);
-                ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_rach_attempt_number,
+                ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rach_attempt_number,
                                          tvb, 0, 0, p_mac_lte_info->rach_attempt_number);
                 PROTO_ITEM_SET_GENERATED(ti);
-                ti = proto_tree_add_item(mac_lte_tree, hf_mac_lte_oob_send_preamble,
+                ti = proto_tree_add_item(context_tree, hf_mac_lte_oob_send_preamble,
                                          tvb, 0, 0, FALSE);
                 PROTO_ITEM_SET_GENERATED(ti);
 
                 /* Info column */
-                col_append_fstr(pinfo->cinfo, COL_INFO, "RACH Preamble sent for UE %u (RAPID=%u, attempt=%u)",
-                                p_mac_lte_info->ueid, p_mac_lte_info->rapid, p_mac_lte_info->rach_attempt_number);
+                write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                         "RACH Preamble sent for UE %u (RAPID=%u, attempt=%u)",
+                                         p_mac_lte_info->ueid, p_mac_lte_info->rapid, p_mac_lte_info->rach_attempt_number);
 
                 /* Add expert info (a note, unless attempt > 1) */
                 expert_add_info_format(pinfo, ti, PI_SEQUENCE,
@@ -2610,16 +2654,17 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                        p_mac_lte_info->rach_attempt_number);
                 break;
             case ltemac_send_sr:
-                ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_rnti,
+                ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rnti,
                                          tvb, 0, 0, p_mac_lte_info->rnti);
                 PROTO_ITEM_SET_GENERATED(ti);
-                ti = proto_tree_add_item(mac_lte_tree, hf_mac_lte_oob_send_sr,
+                ti = proto_tree_add_item(context_tree, hf_mac_lte_oob_send_sr,
                                          tvb, 0, 0, FALSE);
                 PROTO_ITEM_SET_GENERATED(ti);
 
                 /* Info column */
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Scheduling Request sent for UE %u (C-RNTI=%u)",
-                                p_mac_lte_info->ueid, p_mac_lte_info->rnti);
+                write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                         "Scheduling Request sent for UE %u (C-RNTI=%u)",
+                                         p_mac_lte_info->ueid, p_mac_lte_info->rnti);
 
                 /* Add expert info (an note) */
                 expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_NOTE,
@@ -2633,21 +2678,22 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             case ltemac_sr_failure:
                 if (p_mac_lte_info->ueid != 0) {
-                    ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_ueid,
+                    ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_ueid,
                                              tvb, 0, 0, p_mac_lte_info->ueid);
                     PROTO_ITEM_SET_GENERATED(ti);
                 }
 
-                ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_rnti,
+                ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rnti,
                                          tvb, 0, 0, p_mac_lte_info->rnti);
                 PROTO_ITEM_SET_GENERATED(ti);
-                ti = proto_tree_add_item(mac_lte_tree, hf_mac_lte_oob_sr_failure,
+                ti = proto_tree_add_item(context_tree, hf_mac_lte_oob_sr_failure,
                                          tvb, 0, 0, FALSE);
                 PROTO_ITEM_SET_GENERATED(ti);
 
                 /* Info column */
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Scheduling Request FAILED (C-RNTI=%u)!",
-                                p_mac_lte_info->rnti);
+                write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                         "Scheduling Request FAILED (C-RNTI=%u)!",
+                                         p_mac_lte_info->rnti);
 
                 /* Add expert info (an error) */
                 expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_ERROR,
@@ -2667,21 +2713,21 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
 
-    ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_subframe_number,
+    ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_subframe_number,
                              tvb, 0, 0, p_mac_lte_info->subframeNumber);
     PROTO_ITEM_SET_GENERATED(ti);
 
     if (p_mac_lte_info->rntiType != NO_RNTI) {
-        ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_rnti,
+        ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rnti,
                                  tvb, 0, 0, p_mac_lte_info->rnti);
         PROTO_ITEM_SET_GENERATED(ti);
     }
 
-    ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_rnti_type,
+    ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rnti_type,
                              tvb, 0, 0, p_mac_lte_info->rntiType);
     PROTO_ITEM_SET_GENERATED(ti);
 
-    ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_predefined_frame,
+    ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_predefined_frame,
                              tvb, 0, 0, p_mac_lte_info->isPredefinedData);
     if (p_mac_lte_info->isPredefinedData) {
         PROTO_ITEM_SET_GENERATED(ti);
@@ -2690,17 +2736,17 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_HIDDEN(ti);
     }
 
-    ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_length,
+    ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_length,
                              tvb, 0, 0, p_mac_lte_info->length);
     PROTO_ITEM_SET_GENERATED(ti);
     /* Infer uplink grant size */
     if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
-        ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_ul_grant_size,
+        ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_ul_grant_size,
                                  tvb, 0, 0, p_mac_lte_info->length);
         PROTO_ITEM_SET_GENERATED(ti);
     }
 
-
+    /* Retx count goes in top-level tree to make it more visible */
     if (p_mac_lte_info->reTxCount) {
         retx_ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_retx_count,
                                  tvb, 0, 0, p_mac_lte_info->reTxCount);
@@ -2714,22 +2760,22 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (p_mac_lte_info->crcStatusValid) {
-        ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_crc_status,
+        ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_crc_status,
                                  tvb, 0, 0, p_mac_lte_info->crcStatus);
         PROTO_ITEM_SET_GENERATED(ti);
         if (p_mac_lte_info->crcStatus != TRUE) {
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                    "%s Frame has CRC error",
                                    (p_mac_lte_info->direction == DIRECTION_UPLINK) ? "UL" : "DL");
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s: <CRC FAILURE> UEId=%u %s=%u ",
-                            (p_mac_lte_info->direction == DIRECTION_UPLINK) ? "UL" : "DL",
-                            p_mac_lte_info->ueid,
-                            val_to_str(p_mac_lte_info->rntiType, rnti_type_vals,
-                                       "Unknown RNTI type"),
-                            p_mac_lte_info->rnti);
+            write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                     "%s: <CRC FAILURE> UEId=%u %s=%u ",
+                                     (p_mac_lte_info->direction == DIRECTION_UPLINK) ? "UL" : "DL",
+                                     p_mac_lte_info->ueid,
+                                     val_to_str(p_mac_lte_info->rntiType, rnti_type_vals,
+                                                "Unknown RNTI type"),
+                                     p_mac_lte_info->rnti);
         }
     }
-
 
     /* Set context-info parts of tap struct */
     tap_info.rnti = p_mac_lte_info->rnti;
@@ -2747,7 +2793,9 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* If we know its predefined data, don't try to decode any further */
     if (p_mac_lte_info->isPredefinedData) {
         proto_tree_add_item(mac_lte_tree, hf_mac_lte_predefined_pdu, tvb, offset, -1, FALSE);
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Predefined data (%u bytes)", tvb_length_remaining(tvb, offset));
+        write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                 "Predefined data (%u bytes)",
+                                 tvb_length_remaining(tvb, offset));
 
         /* Queue tap info */
         if (!pinfo->in_error_pkt) {
@@ -2762,7 +2810,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (p_mac_lte_info->crcStatusValid && !p_mac_lte_info->crcStatus)) {
 
         proto_tree_add_item(mac_lte_tree, hf_mac_lte_raw_pdu, tvb, offset, -1, FALSE);
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Raw data (%u bytes)", tvb_length_remaining(tvb, offset));
+        write_pdu_label_and_info(pdu_ti, NULL, pinfo, "Raw data (%u bytes)", tvb_length_remaining(tvb, offset));
 
         /* Queue tap info */
         if (!pinfo->in_error_pkt) {
@@ -2780,7 +2828,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         case P_RNTI:
             /* PCH PDU */
-            dissect_pch(tvb, pinfo, mac_lte_tree, offset, p_mac_lte_info->direction);
+            dissect_pch(tvb, pinfo, mac_lte_tree, pdu_ti, offset, p_mac_lte_info->direction);
             break;
 
         case RA_RNTI:
@@ -2798,12 +2846,12 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         case SI_RNTI:
             /* BCH over DL-SCH */
-            dissect_bch(tvb, pinfo, mac_lte_tree, offset, p_mac_lte_info);
+            dissect_bch(tvb, pinfo, mac_lte_tree, pdu_ti, offset, p_mac_lte_info);
             break;
 
         case NO_RNTI:
             /* Must be BCH over BCH... */
-            dissect_bch(tvb, pinfo, mac_lte_tree, offset, p_mac_lte_info);
+            dissect_bch(tvb, pinfo, mac_lte_tree, pdu_ti, offset, p_mac_lte_info);
             break;
 
 
@@ -2888,6 +2936,12 @@ void proto_register_mac_lte(void)
     {
         /**********************************/
         /* Items for decoding context     */
+        { &hf_mac_lte_context,
+            { "Context",
+              "mac-lte.context", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
         { &hf_mac_lte_context_radio_type,
             { "Radio Type",
               "mac-lte.radio-type", FT_UINT8, BASE_DEC, VALS(radio_type_vals), 0x0,
