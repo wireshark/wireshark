@@ -80,7 +80,7 @@ enum
 {
    SCSI_STAT_PROG_LABEL_SBC,
    SCSI_STAT_PROG_LABEL_SSC,
-   SCSI_STAT_PROG_LABEL_MMC,
+   SCSI_STAT_PROG_LABEL_MMC
 };
 
 
@@ -107,7 +107,7 @@ scsistat_set_title(scsistat_t *rs)
 static void
 scsistat_reset(void *arg)
 {
-	scsistat_t *rs = arg;
+	scsistat_t *rs = (scsistat_t *)arg;
 
 	reset_srt_table_data(&rs->srt_table);
 	scsistat_set_title(rs);
@@ -145,8 +145,8 @@ scsistat_program_select(GtkWidget *w, gpointer key _U_)
 static int
 scsistat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2)
 {
-	scsistat_t *rs = arg;
-	const scsi_task_data_t *ri = arg2;
+	scsistat_t *rs = (scsistat_t *)arg;
+	const scsi_task_data_t *ri = (const scsi_task_data_t *)arg2;
 
 	/* we are only interested in response packets */
 	if(ri->type!=SCSI_PDU_TYPE_RSP){
@@ -169,7 +169,7 @@ scsistat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 static void
 scsistat_draw(void *arg)
 {
-	scsistat_t *rs = arg;
+	scsistat_t *rs = (scsistat_t *)arg;
 
 	draw_srt_table_data(&rs->srt_table);
 }
@@ -213,7 +213,7 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
 	int program, pos;
 	const char *filter=NULL;
 	GString *error_string;
-	char *hf_name=NULL;
+	const char *hf_name=NULL;
 
 	pos=0;
 	if(sscanf(optarg,"scsi,srt,%d,%n",&program,&pos)==1){
@@ -228,7 +228,7 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
 	}
 
 	scsi_program=program;
-	rs=g_malloc(sizeof(scsistat_t));
+	rs=(scsistat_t *)g_malloc(sizeof(scsistat_t));
         rs->cmdset=program;
         switch(program){
 	case SCSI_DEV_SBC:
@@ -301,7 +301,7 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(rs->win, close_bt, window_cancel_button_cb);
 
 	g_signal_connect(rs->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
@@ -427,11 +427,11 @@ gtk_scsistat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
         gtk_widget_show(bbox);
 
-        start_button = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
+        start_button = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
         g_signal_connect_swapped(start_button, "clicked",
 			     G_CALLBACK(scsistat_start_button_clicked), NULL);
 
-        cancel_button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+        cancel_button = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
         window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);
 
 	/* Give the initial focus to the "Filter" entry box. */
