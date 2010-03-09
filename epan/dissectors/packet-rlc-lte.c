@@ -80,6 +80,7 @@ extern int proto_pdcp_lte;
 static int rlc_lte_tap = -1;
 
 /* Decoding context */
+static int hf_rlc_lte_context = -1;
 static int hf_rlc_lte_context_mode = -1;
 static int hf_rlc_lte_context_direction = -1;
 static int hf_rlc_lte_context_priority = -1;
@@ -150,6 +151,7 @@ static int hf_rlc_lte_sequence_analysis_repeated_nack = -1;
 
 /* Subtrees. */
 static int ett_rlc_lte = -1;
+static int ett_rlc_lte_context = -1;
 static int ett_rlc_lte_um_header = -1;
 static int ett_rlc_lte_am_header = -1;
 static int ett_rlc_lte_extension_part = -1;
@@ -360,6 +362,33 @@ static GHashTable *rlc_lte_frame_repeated_nack_report_hash = NULL;
 void proto_reg_handoff_rlc_lte(void);
 void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
+
+/* Write the given formatted text to:
+   - the info column
+   - the top-level RLC PDU item
+   - another subtree item (if supplied) */
+static void write_pdu_label_and_info(proto_item *pdu_ti, proto_item *sub_ti,
+                                     packet_info *pinfo, const char *format, ...)
+{
+    #define MAX_INFO_BUFFER 256
+    static char info_buffer[MAX_INFO_BUFFER];
+    
+    va_list ap;
+
+    va_start(ap, format);
+    g_vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
+    va_end(ap);
+
+    /* Add to indicated places */
+    col_append_str(pinfo->cinfo, COL_INFO, info_buffer);
+    proto_item_append_text(pdu_ti, "%s", info_buffer);
+    if (sub_ti != NULL) {
+        proto_item_append_text(sub_ti, "%s", info_buffer);
+    }
+}
+
+
+
 /* Dissect extension headers (common to both UM and AM) */
 static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo,
                                             proto_tree *tree,
@@ -440,17 +469,12 @@ static void show_PDU_in_info(packet_info *pinfo,
                              gboolean last_includes_end)
 {
     /* Reflect this PDU in the info column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "  %s%u-byte%s%s",
-                    (first_includes_start) ? "[" : "..",
-                    length,
-                    (length > 1) ? "s" : "",
-                    (last_includes_end) ? "]" : "..");
-
-    proto_item_append_text(top_ti, "  %s%u-byte%s%s",
-                          (first_includes_start) ? "[" : "..",
-                          length,
-                          (length > 1) ? "s" : "",
-                          (last_includes_end) ? "]" : "..");
+    write_pdu_label_and_info(top_ti, NULL, pinfo,
+                             "  %s%u-byte%s%s",
+                             (first_includes_start) ? "[" : "..",
+                             length,
+                             (length > 1) ? "s" : "",
+                             (last_includes_end) ? "]" : "..");
 }
 
 
@@ -1068,8 +1092,8 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
     /* Remaining bytes are all data */
     raw_tm_ti = proto_tree_add_item(tree, hf_rlc_lte_tm_data, tvb, offset, -1, FALSE);
     if (!global_rlc_lte_call_rrc) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "   [%u-bytes]",
-                        tvb_length_remaining(tvb, offset));
+        write_pdu_label_and_info(top_ti, NULL, pinfo,
+                                 "   [%u-bytes]", tvb_length_remaining(tvb, offset));
     }
 
     if (global_rlc_lte_call_rrc) {
@@ -1212,10 +1236,8 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     tap_info->sequenceNumber = (guint16)sn;
 
     /* Show SN in info column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "  SN=%04u", (guint16)sn);
+    write_pdu_label_and_info(top_ti, NULL, pinfo, "  SN=%04u", (guint16)sn);
 
-    /* Show SN in UM header root */
-    proto_item_append_text(um_header_ti, " (SN=%u)", (guint16)sn);
     proto_item_set_len(um_header_ti, offset-start_offset);
 
 
@@ -1321,9 +1343,8 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
     proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_ack_sn, tvb,
                                 bit_offset, 10, &ack_sn, FALSE);
     bit_offset += 10;
-    col_append_fstr(pinfo->cinfo, COL_INFO, "  ACK_SN=%u", (guint16)ack_sn);
-    proto_item_append_text(top_ti, "  ACK_SN=%u", (guint16)ack_sn);
-    proto_item_append_text(status_ti, "  ACK_SN=%u", (guint16)ack_sn);
+    write_pdu_label_and_info(top_ti, status_ti, pinfo, "  ACK_SN=%u", (guint16)ack_sn);
+
     tap_info->ACKNo = (guint16)ack_sn;
 
     /* E1 */
@@ -1345,8 +1366,8 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
             nack_ti = proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_nack_sn, tvb,
                                                   bit_offset, 10, &nack_sn, FALSE);
             bit_offset += 10;
-            col_append_fstr(pinfo->cinfo, COL_INFO, "  NACK_SN=%u", (guint16)nack_sn);
-            proto_item_append_text(top_ti, "  NACK_SN=%u", (guint16)nack_sn);
+            write_pdu_label_and_info(top_ti, NULL, pinfo, "  NACK_SN=%u", (guint16)nack_sn);
+
             /* Copy into struct, but don't exceed buffer */
             if (nack_count < MAX_NACKs) {
                 tap_info->NACKs[nack_count++] = (guint16)nack_sn;
@@ -1394,12 +1415,14 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 
 
             if ((guint16)so_end == 0x7fff) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "  (SOstart=%u SOend=<END-OF_PDU>)",
-                                (guint16)so_start);
+                write_pdu_label_and_info(top_ti, NULL, pinfo,
+                                         "  (SOstart=%u SOend=<END-OF_PDU>)",
+                                         (guint16)so_start);
             }
             else {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "  (SOstart=%u SOend=%u)",
-                                (guint16)so_start, (guint16)so_end);
+                write_pdu_label_and_info(top_ti, NULL, pinfo,
+                                         "  (SOstart=%u SOend=%u)",
+                                         (guint16)so_start, (guint16)so_end);
             }
 
             /* Reset this flag here */
@@ -1468,7 +1491,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /* Add AM header subtree */
     am_header_ti = proto_tree_add_string_format(tree, hf_rlc_lte_am_header,
                                                 tvb, offset, 0,
-                                                "", "AM header");
+                                                "", "AM Header ");
     am_header_tree = proto_item_add_subtree(am_header_ti,
                                             ett_rlc_lte_am_header);
 
@@ -1480,8 +1503,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     if (!is_data) {
         /**********************/
         /* Status PDU         */
-        col_append_str(pinfo->cinfo, COL_INFO, " [CONTROL]");
-        proto_item_append_text(top_ti, " [CONTROL]");
+        write_pdu_label_and_info(top_ti, NULL, pinfo, " [CONTROL]");
 
         /* Control PDUs are a completely separate format  */
         dissect_rlc_lte_am_status_pdu(tvb, pinfo, am_header_tree, am_header_ti,
@@ -1498,17 +1520,16 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item(am_header_tree, hf_rlc_lte_am_rf, tvb, offset, 1, FALSE);
     tap_info->isResegmented = is_resegmented;
 
-    col_append_str(pinfo->cinfo, COL_INFO, (is_resegmented) ? " [DATA-SEGMENT]" : " [DATA]");
-    proto_item_append_text(top_ti, (is_resegmented) ? " [DATA-SEGMENT]" : " [DATA]");
-
+    write_pdu_label_and_info(top_ti, NULL, pinfo,
+                             (is_resegmented) ? " [DATA-SEGMENT]" : " [DATA]");
 
     /* Polling bit */
     polling = (tvb_get_guint8(tvb, offset) & 0x20) >> 5;
     proto_tree_add_item(am_header_tree, hf_rlc_lte_am_p, tvb, offset, 1, FALSE);
-    col_append_str(pinfo->cinfo, COL_INFO, (polling) ? " (P) " : "     ");
-    proto_item_append_text(top_ti,  (polling) ? " (P) " : "     ");
+
+    write_pdu_label_and_info(top_ti, NULL, pinfo, (polling) ? " (P) " : "     ");
     if (polling) {
-        proto_item_append_text(am_header_ti, " (P)");
+        proto_item_append_text(am_header_ti, " (P) ");
     }
 
     /* Framing Info */
@@ -1525,11 +1546,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     offset += 2;
     tap_info->sequenceNumber = sn;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "sn=%u", sn);
-    proto_item_append_text(top_ti, " (SN=%u)", sn);
-
-    /* Show SN in AM header root */
-    proto_item_append_text(am_header_ti, " (SN=%u)", sn);
+    write_pdu_label_and_info(top_ti, am_header_ti, pinfo, "sn=%u", sn);
 
     /***************************************/
     /* Dissect extra segment header fields */
@@ -1542,9 +1559,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         /* SO */
         segmentOffset = tvb_get_ntohs(tvb, offset) & 0x7fff;
         proto_tree_add_item(am_header_tree, hf_rlc_lte_am_segment_so, tvb, offset, 2, FALSE);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " SO=%u ", segmentOffset);
-        proto_item_append_text(top_ti, " SO=%u ", segmentOffset);
-
+        write_pdu_label_and_info(top_ti, NULL, pinfo, " SO=%u ", segmentOffset);
         offset += 2;
     }
 
@@ -1750,7 +1765,9 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree             *rlc_lte_tree;
+    proto_tree             *context_tree;
     proto_item             *top_ti;
+    proto_item             *context_ti;
     proto_item             *ti;
     proto_item             *mode_ti;
     gint                   offset = 0;
@@ -1782,41 +1799,47 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*****************************************/
     /* Show context information              */
 
-    ti = proto_tree_add_uint(rlc_lte_tree, hf_rlc_lte_context_direction,
+    /* Create context root */
+    context_ti = proto_tree_add_string_format(rlc_lte_tree, hf_rlc_lte_context,
+                                              tvb, offset, 0, "", "Context");
+    context_tree = proto_item_add_subtree(context_ti, ett_rlc_lte_context);
+    PROTO_ITEM_SET_GENERATED(context_ti);
+
+    ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_direction,
                              tvb, 0, 0, p_rlc_lte_info->direction);
     PROTO_ITEM_SET_GENERATED(ti);
 
-    mode_ti = proto_tree_add_uint(rlc_lte_tree, hf_rlc_lte_context_mode,
+    mode_ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_mode,
                                   tvb, 0, 0, p_rlc_lte_info->rlcMode);
     PROTO_ITEM_SET_GENERATED(mode_ti);
 
     if (p_rlc_lte_info->ueid != 0) {
-        ti = proto_tree_add_uint(rlc_lte_tree, hf_rlc_lte_context_ueid,
+        ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_ueid,
                                  tvb, 0, 0, p_rlc_lte_info->ueid);
         PROTO_ITEM_SET_GENERATED(ti);
     }
 
-    ti = proto_tree_add_uint(rlc_lte_tree, hf_rlc_lte_context_priority,
+    ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_priority,
                              tvb, 0, 0, p_rlc_lte_info->priority);
     PROTO_ITEM_SET_GENERATED(ti);
 
-    ti = proto_tree_add_uint(rlc_lte_tree, hf_rlc_lte_context_channel_type,
+    ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_channel_type,
                              tvb, 0, 0, p_rlc_lte_info->channelType);
     PROTO_ITEM_SET_GENERATED(ti);
 
     if ((p_rlc_lte_info->channelType == CHANNEL_TYPE_SRB) ||
         (p_rlc_lte_info->channelType == CHANNEL_TYPE_DRB)) {
-        ti = proto_tree_add_uint(rlc_lte_tree, hf_rlc_lte_context_channel_id,
+        ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_channel_id,
                                  tvb, 0, 0, p_rlc_lte_info->channelId);
         PROTO_ITEM_SET_GENERATED(ti);
     }
 
-    ti = proto_tree_add_uint(rlc_lte_tree, hf_rlc_lte_context_pdu_length,
+    ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_pdu_length,
                              tvb, 0, 0, p_rlc_lte_info->pduLength);
     PROTO_ITEM_SET_GENERATED(ti);
 
     if (p_rlc_lte_info->rlcMode == RLC_UM_MODE) {
-        ti = proto_tree_add_uint(rlc_lte_tree, hf_rlc_lte_context_um_sn_length,
+        ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_um_sn_length,
                                  tvb, 0, 0, p_rlc_lte_info->UMSequenceNumberLength);
         PROTO_ITEM_SET_GENERATED(ti);
     }
@@ -1840,21 +1863,21 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     /* Append context highlights to info column */
-    col_add_fstr(pinfo->cinfo, COL_INFO,
-                 "[%s] [%s] ",
-                 (p_rlc_lte_info->direction == 0) ? "UL" : "DL",
-                 val_to_str(p_rlc_lte_info->rlcMode, rlc_mode_short_vals, "Unknown"));
+    write_pdu_label_and_info(top_ti, NULL, pinfo,
+                             "[%s] [%s] ",
+                             (p_rlc_lte_info->direction == 0) ? "UL" : "DL",
+                             val_to_str(p_rlc_lte_info->rlcMode, rlc_mode_short_vals, "Unknown"));
     if (p_rlc_lte_info->ueid != 0) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "UEId=%u ", p_rlc_lte_info->ueid);
     }
     if (p_rlc_lte_info->channelId == 0) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
-                        val_to_str(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"));
+        write_pdu_label_and_info(top_ti, NULL, pinfo, "%s",
+                                 val_to_str(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"));
     }
     else {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s:%u",
-                        val_to_str(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
-                        p_rlc_lte_info->channelId);
+        write_pdu_label_and_info(top_ti, NULL, pinfo, "%s:%u",
+                                 val_to_str(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                                 p_rlc_lte_info->channelId);
     }
 
     /* Set context-info parts of tap struct */
@@ -1891,8 +1914,8 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case RLC_PREDEF:
             /* Predefined data (i.e. not containing a valid RLC header */
             proto_tree_add_item(rlc_lte_tree, hf_rlc_lte_predefined_pdu, tvb, offset, -1, FALSE);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   [%u-bytes]",
-                            tvb_length_remaining(tvb, offset));
+            write_pdu_label_and_info(top_ti, NULL, pinfo, "   [%u-bytes]",
+                                     tvb_length_remaining(tvb, offset));
             break;
 
         default:
@@ -1947,6 +1970,12 @@ void proto_register_rlc_lte(void)
     {
         /**********************************/
         /* Items for decoding context     */
+        { &hf_rlc_lte_context,
+            { "Context",
+              "rlc-lte.context", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
         { &hf_rlc_lte_context_mode,
             { "RLC Mode",
               "rlc-lte.mode", FT_UINT8, BASE_DEC, VALS(rlc_mode_vals), 0x0,
@@ -2271,6 +2300,7 @@ void proto_register_rlc_lte(void)
     static gint *ett[] =
     {
         &ett_rlc_lte,
+        &ett_rlc_lte_context,
         &ett_rlc_lte_um_header,
         &ett_rlc_lte_am_header,
         &ett_rlc_lte_extension_part,
