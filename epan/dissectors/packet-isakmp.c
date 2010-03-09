@@ -2711,113 +2711,117 @@ dissect_transform_ike2_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_
 	return 2+len+optlen;
 }
 static void
-dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree, packet_info *pinfo, int isakmp_version, int protocol_id )
+dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree, packet_info *pinfo
+#ifndef HAVE_LIBGCRYPT
+_U_
+#endif
+, int isakmp_version, int protocol_id )
 {
-if (isakmp_version == 1)
-{
-
-  guint8		transform_id;
-  guint8		transform_num;
-
-
+  if (isakmp_version == 1)
+  {
+    guint8		transform_id;
+    guint8		transform_num;
 #ifdef HAVE_LIBGCRYPT
-  decrypt_data_t *decr = (decrypt_data_t *) pinfo->private_data;
+    decrypt_data_t *decr = (decrypt_data_t *) pinfo->private_data;
 #endif /* HAVE_LIBGCRYPT */
-  int offset_end = 0;	
-  offset_end = offset + length;
+    int offset_end = 0;	
+    offset_end = offset + length;
 
-  transform_num = tvb_get_guint8(tvb, offset);
-  proto_item_append_text(tree," # %d",transform_num);
+    transform_num = tvb_get_guint8(tvb, offset);
+    proto_item_append_text(tree," # %d",transform_num);
 
-  proto_tree_add_item(tree, hf_isakmp_trans_number, tvb, offset, 1, FALSE);
-  offset += 1;
+    proto_tree_add_item(tree, hf_isakmp_trans_number, tvb, offset, 1, FALSE);
+    offset += 1;
 
+    transform_id = tvb_get_guint8(tvb, offset);
+    switch (protocol_id) {
+    case 1:	/* ISAKMP */
+      proto_tree_add_uint_format(tree, hf_isakmp_trans_id, tvb, offset, 1,
+                                 transform_id, "Transform ID: %s (%u)",
+                                 val_to_str(transform_id, vs_v1_trans_isakmp, "UNKNOWN-TRANS-TYPE"), transform_id);
+      break;
+    case 2:	/* AH */
+      proto_tree_add_uint_format(tree, hf_isakmp_trans_id, tvb, offset, 1,
+                                 transform_id, "Transform ID: %s (%u)",
+                                 val_to_str(transform_id, vs_v1_trans_ah, "UNKNOWN-AH-TRANS-TYPE"), transform_id);
+      break;
+    case 3:	/* ESP */
+      proto_tree_add_uint_format(tree, hf_isakmp_trans_id, tvb, offset, 1,
+                                 transform_id, "Transform ID: %s (%u)",
+                                 val_to_str(transform_id, vs_v1_trans_esp, "UNKNOWN-ESP-TRANS-TYPE"), transform_id);
+      break;
+    case 4:	/* IPCOMP */
+      proto_tree_add_uint_format(tree, hf_isakmp_trans_id, tvb, offset, 1,
+                                 transform_id, "Transform ID: %s (%u)",
+                                 val_to_str(transform_id, transform_id_ipcomp, "UNKNOWN-IPCOMP-TRANS-TYPE"), transform_id);
+      break;
+    default:
+      proto_tree_add_item(tree, hf_isakmp_trans_id, tvb, offset, 1, FALSE);
+      break;
+    }
+    offset += 3;
 
-  transform_id = tvb_get_guint8(tvb, offset);
-  switch (protocol_id) {
-  case 1:	/* ISAKMP */
-    proto_tree_add_uint_format(tree, hf_isakmp_trans_id, tvb, offset, 1,
-			transform_id, "Transform ID: %s (%u)",
-			val_to_str(transform_id, vs_v1_trans_isakmp, "UNKNOWN-TRANS-TYPE"), transform_id);
-    break;
-  case 2:	/* AH */
-    proto_tree_add_uint_format(tree, hf_isakmp_trans_id, tvb, offset, 1,
-			transform_id, "Transform ID: %s (%u)",
-			val_to_str(transform_id, vs_v1_trans_ah, "UNKNOWN-AH-TRANS-TYPE"), transform_id);
-    break;
-  case 3:	/* ESP */
-    proto_tree_add_uint_format(tree, hf_isakmp_trans_id, tvb, offset, 1,
-			transform_id, "Transform ID: %s (%u)",
-			val_to_str(transform_id, vs_v1_trans_esp, "UNKNOWN-ESP-TRANS-TYPE"), transform_id);
-    break;
-  case 4:	/* IPCOMP */
-    proto_tree_add_uint_format(tree, hf_isakmp_trans_id, tvb, offset, 1,
-			transform_id, "Transform ID: %s (%u)",
-			val_to_str(transform_id, transform_id_ipcomp, "UNKNOWN-IPCOMP-TRANS-TYPE"), transform_id);
-    break;
-  default:
-    proto_tree_add_item(tree, hf_isakmp_trans_id, tvb, offset, 1, FALSE);
-    break;
+    if (protocol_id == 1 && transform_id == 1) {
+       while (offset < offset_end) {
+         offset += dissect_transform_ike_attribute(tvb, tree, offset
+#ifdef HAVE_LIBGCRYPT
+                                                   , decr
+#endif 
+         );
+       }
+    }
+    else {
+       while (offset < offset_end) {
+         offset += dissect_transform_attribute(tvb, tree, offset);
+       }
+    }
   }
-  offset += 3;
+  else if(isakmp_version == 2)
+  {
+    guint8 transform_type;
+    int offset_end = 0;	
+    offset_end = offset + length;
 
-  if (protocol_id == 1 && transform_id == 1) {
-     while (offset < offset_end) {
-       offset += dissect_transform_ike_attribute(tvb, tree, offset
-									#ifdef HAVE_LIBGCRYPT
-									, decr
-									#endif 
-);
-     }
+    transform_type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_isakmp_trans_type, tvb, offset, 1, FALSE);
+    offset += 1;
+
+    offset += 1; /* Reserved */
+
+    switch(transform_type){
+    case TF_IKE2_ENCR:
+      proto_tree_add_item(tree, hf_isakmp_trans_encr, tvb, offset, 2, FALSE);
+      break;
+    case TF_IKE2_PRF:
+      proto_tree_add_item(tree, hf_isakmp_trans_prf, tvb, offset, 2, FALSE);
+      break;
+    case TF_IKE2_INTEG:
+      proto_tree_add_item(tree, hf_isakmp_trans_integ, tvb, offset, 2, FALSE);
+      break;
+    case TF_IKE2_DH:
+      proto_tree_add_item(tree, hf_isakmp_trans_dh, tvb, offset, 2, FALSE);
+      break;
+    case TF_IKE2_ESN:
+      proto_tree_add_item(tree, hf_isakmp_trans_esn, tvb, offset, 2, FALSE);
+      break;
+    default:
+      proto_tree_add_item(tree, hf_isakmp_trans_id_v2, tvb, offset, 2, FALSE);
+      break;
+    }
+    offset += 2;
+
+    while (offset < offset_end) {
+      offset += dissect_transform_ike2_attribute(tvb, tree, offset);
+    }
   }
-  else {
-     while (offset < offset_end) {
-       offset += dissect_transform_attribute(tvb, tree, offset);
-     }
-  }
-}
-else if(isakmp_version == 2)
-{
- guint8 transform_type;
-  int offset_end = 0;	
-  offset_end = offset + length;
-
-  transform_type = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(tree, hf_isakmp_trans_type, tvb, offset, 1, FALSE);
-  offset += 1;
-
-  offset += 1; /* Reserved */
-
-  switch(transform_type){
-	case TF_IKE2_ENCR:
- 	proto_tree_add_item(tree, hf_isakmp_trans_encr, tvb, offset, 2, FALSE);
-	break;
-	case TF_IKE2_PRF:
- 	proto_tree_add_item(tree, hf_isakmp_trans_prf, tvb, offset, 2, FALSE);
-	break;
-	case TF_IKE2_INTEG:
- 	proto_tree_add_item(tree, hf_isakmp_trans_integ, tvb, offset, 2, FALSE);
-	break;
-	case TF_IKE2_DH:
- 	proto_tree_add_item(tree, hf_isakmp_trans_dh, tvb, offset, 2, FALSE);
-	break;
-	case TF_IKE2_ESN:
- 	proto_tree_add_item(tree, hf_isakmp_trans_esn, tvb, offset, 2, FALSE);
-	break;
-	default:
- 	proto_tree_add_item(tree, hf_isakmp_trans_id_v2, tvb, offset, 2, FALSE);
-	break;
-  }
-  offset += 2;
-
-  while (offset < offset_end) {
-	offset += dissect_transform_ike2_attribute(tvb, tree, offset);
-  }
-}
 }
 
 static void
-dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, packet_info *pinfo)
+dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, packet_info *pinfo
+#ifndef HAVE_LIBGCRYPT
+_U_
+#endif
+)
 {
 #ifdef HAVE_LIBGCRYPT
   decrypt_data_t *decr = (decrypt_data_t *) pinfo->private_data;
