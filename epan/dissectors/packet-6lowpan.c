@@ -1569,11 +1569,11 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         length = (length + 7) & ~0x7;
 
         /* Create the next header structure for the IPv6 extension header. */
-        nhdr = ep_alloc0(sizeof(struct lowpan_nhdr) + sizeof(struct ip6_ext) + length);
+        nhdr = ep_alloc0(sizeof(struct lowpan_nhdr) + length);
         nhdr->next = NULL;
         nhdr->proto = ext_proto;
-        nhdr->length = length + sizeof(struct ip6_ext);
-        nhdr->reported = length + sizeof(struct ip6_ext);
+        nhdr->length = length;
+        nhdr->reported = length;
 
         /* Add the IPv6 extension header to the buffer. */
         if (ext_flags & LOWPAN_NHC_EXT_NHDR) {
