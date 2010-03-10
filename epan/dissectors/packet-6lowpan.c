@@ -408,7 +408,7 @@ static void         proto_init_6lowpan          (void);
 static gboolean     dissect_6lowpan_heur        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void         dissect_6lowpan             (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static tvbuff_t *   dissect_6lowpan_ipv6        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static tvbuff_t *   dissect_6lowpan_hc1         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size);
+static tvbuff_t *   dissect_6lowpan_hc1         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size, proto_item *length_item);
 static tvbuff_t *   dissect_6lowpan_bc0         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static tvbuff_t *   dissect_6lowpan_iphc        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size);
 static struct lowpan_nhdr * dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint dgram_size);
@@ -731,7 +731,7 @@ dissect_6lowpan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         next = dissect_6lowpan_ipv6(next, pinfo, lowpan_tree);
     }
     else if (tvb_get_bits8(next, 0, LOWPAN_PATTERN_HC1_BITS) == LOWPAN_PATTERN_HC1) {
-        next = dissect_6lowpan_hc1(next, pinfo, lowpan_tree, -1);
+        next = dissect_6lowpan_hc1(next, pinfo, lowpan_tree, -1, NULL);
     }
     else if (tvb_get_bits8(next, 0, LOWPAN_PATTERN_IPHC_BITS) == LOWPAN_PATTERN_IPHC) {
         next = dissect_6lowpan_iphc(next, pinfo, lowpan_tree, -1);
@@ -793,7 +793,7 @@ dissect_6lowpan_ipv6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
  *---------------------------------------------------------------
  */
 static tvbuff_t *
-dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size)
+dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size, proto_item *length_item)
 {
     gint                offset = 0;
     gint                bit_offset;
@@ -1049,7 +1049,14 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
         }
         /* Compute the length from the fragmentation headers. */
         else if (dgram_size >= 0) {
-            udp.length = dgram_size - sizeof(struct ip6_hdr);
+            if (dgram_size < (gint)sizeof(struct ip6_hdr)) {
+                /* Datagram size is too small */
+                expert_add_info_format(pinfo, length_item, PI_MALFORMED,
+                    PI_ERROR, "Length is less than IPv6 header length %u",
+                    (guint)sizeof(struct ip6_hdr));
+                return NULL;
+            }
+            udp.length = dgram_size - (gint)sizeof(struct ip6_hdr);
         }
         /* Compute the length from the tvbuff size. */
         else {
@@ -1963,6 +1970,7 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16             dgram_tag;
     proto_tree *        frag_tree = NULL;
     proto_item *        ti = NULL;
+    proto_item *        length_item = NULL;
     /* Reassembly parameters. */
     tvbuff_t *          new_tvb = NULL;
     tvbuff_t *          frag_tvb = NULL;
@@ -1979,7 +1987,7 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dgram_size = tvb_get_bits16(tvb, (offset * 8) + LOWPAN_PATTERN_FRAG_BITS, LOWPAN_FRAG_DGRAM_SIZE_BITS, FALSE);
     if (tree) {
         proto_tree_add_bits_item(frag_tree, hf_6lowpan_pattern, tvb, offset * 8, LOWPAN_PATTERN_FRAG_BITS, FALSE);
-        proto_tree_add_uint(frag_tree, hf_6lowpan_frag_dgram_size, tvb, offset, sizeof(guint16), dgram_size);
+        length_item = proto_tree_add_uint(frag_tree, hf_6lowpan_frag_dgram_size, tvb, offset, sizeof(guint16), dgram_size);
     }
     offset += sizeof(guint16);
 
@@ -2001,7 +2009,7 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         frag_tvb = dissect_6lowpan_ipv6(frag_tvb, pinfo, tree);
     }
     else if (tvb_get_bits8(frag_tvb, 0, LOWPAN_PATTERN_HC1_BITS) == LOWPAN_PATTERN_HC1) {
-        frag_tvb = dissect_6lowpan_hc1(frag_tvb, pinfo, tree, dgram_size);
+        frag_tvb = dissect_6lowpan_hc1(frag_tvb, pinfo, tree, dgram_size, length_item);
     }
     else if (tvb_get_bits8(frag_tvb, 0, LOWPAN_PATTERN_IPHC_BITS) == LOWPAN_PATTERN_IPHC) {
         frag_tvb = dissect_6lowpan_iphc(frag_tvb, pinfo, tree, dgram_size);
