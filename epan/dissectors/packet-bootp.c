@@ -1631,7 +1631,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		  enterprise = tvb_get_ntohl(tvb, optoff);
 
 		  vti = proto_tree_add_text(v_tree, tvb, optoff, 4,
-					    "Enterprise-number: %s-%u",
+					    "Enterprise-number: %s (%u)",
 					    val_to_str( enterprise, sminmpec_values, "Unknown"),
 					    enterprise);
 
@@ -1954,7 +1954,7 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 		while (suboptoff < optend) {
 			enterprise = tvb_get_ntohl(tvb, suboptoff);
 			vti = proto_tree_add_text(v_tree, tvb, suboptoff, 4,
-					    "Enterprise-number: %s-%u",
+					    "Enterprise-number: %s (%u)",
 					    val_to_str( enterprise, sminmpec_values, "Unknown"),
 					    enterprise);
 			suboptoff += 4;
