@@ -125,6 +125,7 @@
 #define LOWPAN_IPHC_HLIM_255            0x3
 
 /* IPHC address modes. */
+#define LOWPAN_IPHC_ADDR_SRC_UNSPEC     0x0
 #define LOWPAN_IPHC_ADDR_FULL_INLINE    0x0
 #define LOWPAN_IPHC_ADDR_64BIT_INLINE   0x1
 #define LOWPAN_IPHC_ADDR_16BIT_INLINE   0x2
@@ -134,6 +135,8 @@
 #define LOWPAN_IPHC_MCAST_48BIT         0x1
 #define LOWPAN_IPHC_MCAST_32BIT         0x2
 #define LOWPAN_IPHC_MCAST_8BIT          0x3
+
+#define LOWPAN_IPHC_MCAST_STATEFUL_48BIT 0x1
 
 /* IPHC Traffic class and flow label field sizes (in bits) */
 #define LOWPAN_IPHC_ECN_BITS            2
@@ -1122,7 +1125,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
  *      This header is still in the draft phase, but is expected
  *      to replace HC1.
  *
- *      See draft-ietf-6lowpan-hc-05.txt
+ *      See draft-ietf-6lowpan-hc-06.txt
  *  PARAMETERS
  *      tvb             ; packet buffer.
  *      pinfo           ; packet info.
@@ -1323,7 +1326,12 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
          * For now, just set the address to 0 and ignore the context bits.
          */
         addr_err = TRUE;
-        if (iphc_src_mode == LOWPAN_IPHC_ADDR_64BIT_INLINE) length = sizeof(guint64);
+        /* The unspecified address (::) */
+        if (iphc_src_mode == LOWPAN_IPHC_ADDR_SRC_UNSPEC) {
+        	length = 0;
+        	addr_err = FALSE;
+        }
+        else if (iphc_src_mode == LOWPAN_IPHC_ADDR_64BIT_INLINE) length = sizeof(guint64);
         else if (iphc_src_mode == LOWPAN_IPHC_ADDR_16BIT_INLINE) length = sizeof(guint16);
         else if (iphc_src_mode == LOWPAN_IPHC_ADDR_COMPRESSED) length = 0;
         else {
@@ -1386,7 +1394,11 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
      *---------------------------------
      */
     else if (!(iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP) && (iphc_flags & LOWPAN_IPHC_FLAG_MCAST_COMP)) {
-        if (iphc_dst_mode == LOWPAN_IPHC_MCAST_48BIT) {
+    	if (iphc_dst_mode == LOWPAN_IPHC_ADDR_FULL_INLINE) {
+    		length = sizeof(ipv6.ip6_dst);
+    		tvb_memcpy(tvb, &ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - length], offset, length);
+    	}
+    	else if (iphc_dst_mode == LOWPAN_IPHC_MCAST_48BIT) {
             ipv6.ip6_dst.bytes[0] = 0xff;
             ipv6.ip6_dst.bytes[1] = tvb_get_guint8(tvb, offset + (length++));
             ipv6.ip6_dst.bytes[11] = tvb_get_guint8(tvb, offset + (length++));
@@ -1434,7 +1446,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
      *---------------------------------
      */
     else {
-        if (iphc_dst_mode == LOWPAN_IPHC_MCAST_48BIT) {
+        if (iphc_dst_mode == LOWPAN_IPHC_MCAST_STATEFUL_48BIT) {
             ipv6.ip6_dst.bytes[0] = 0xff;
             ipv6.ip6_dst.bytes[1] = tvb_get_guint8(tvb, offset + (length++));
             ipv6.ip6_dst.bytes[2] = tvb_get_guint8(tvb, offset + (length++));
