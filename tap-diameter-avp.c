@@ -240,7 +240,7 @@ diameteravp_init(const char *optarg, void* userdata _U_)
 	}
 	filter_len=strlen(optarg)+sizeof("diameter")+field_count*sizeof("||diameter.");
 	ds->filter=g_malloc0(filter_len);
-	strcat(ds->filter,"diameter");
+	g_strlcat(ds->filter, "diameter", filter_len);
 
 #if defined (_WIN32)
 	for(str=strtok_s(options+sizeof("diameter,avp"),",",&saveptr);str;str=strtok_s(NULL,",",&saveptr))
@@ -249,12 +249,12 @@ diameteravp_init(const char *optarg, void* userdata _U_)
 #endif
 	{
 		/* Connect all requested fields with logical OR. */
-		strcat(ds->filter,"||");
+		g_strlcat(ds->filter, "||", filter_len);
 		/* Prefix field name with "diameter." by default. */
 		if(!strchr(str,'.'))
-			strcat(ds->filter,"diameter.");
+			g_strlcat(ds->filter, "diameter.", filter_len);
 		/* Append field name to the filter. */
-		strcat(ds->filter,str);
+		g_strlcat(ds->filter, str, filter_len);
 	}
 	g_free(options);
 
