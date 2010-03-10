@@ -3275,6 +3275,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
 	if (pdp_type_org == 0 )
 	{
+		/* ETSI allocated address */
 		switch (pdp_type_num)
 		{
 			case 0x00: str="Reserved, used in earlier version of this protocol"; break;
@@ -3284,6 +3285,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	}
 	else if (pdp_type_org == 1)
 	{
+		/* IETF allocated addres */
 		switch (pdp_type_num)
 		{
 			case 0x21: str="IPv4 address"; break;
@@ -3306,7 +3308,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
 			"Dynamic addressing");
-
+		curr_offset += 1;
 		return(curr_offset - offset);
 	}
 	else if ( len == 2 )
@@ -3314,7 +3316,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
 			"No PDP address is included");
-
+		curr_offset += 1;
 		return(curr_offset - offset);
 	}
 
