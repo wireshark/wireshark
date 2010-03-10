@@ -800,6 +800,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	int			o52voff, o52eoff;
 	gboolean		o52at_end;
 	guint8			s_option;
+	guint8			s_len;
 	int			ava_vid;
 	const guchar		*dns_name;
 
@@ -1591,6 +1592,18 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				proto_tree_add_text(v_tree, tvb, optoff+10, 2, "Altitude resolution: %15.10f", location.altitude_res);
 				proto_tree_add_text(v_tree, tvb, optoff+10, 1, "Altitude type: %s (%d)", val_to_str(location.altitude_type, altitude_type_values, "Unknown"), location.altitude_type);
 				proto_tree_add_text(v_tree, tvb, optoff+15, 1, "Map Datum: %s (%d)", val_to_str(location.datum_type, map_datum_type_values, "Unknown"), location.datum_type);
+			}
+		} else if (optlen == 34) {
+			s_option = tvb_get_guint8(tvb, optoff);
+			s_len = tvb_get_guint8(tvb, optoff+1);
+			if (s_option == 1) {
+				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Suboption 1: Primary DSS_ID = %s",
+					arphrdaddr_to_str(tvb_get_ptr(tvb, optoff+2, s_len+1), s_len+1, s_option));
+			} else if (s_option == 2) {
+				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Suboption 2: Secondary DSS_ID = %s", 
+					arphrdaddr_to_str(tvb_get_ptr(tvb, optoff+2, s_len+1), s_len+1, s_option));
+			} else {
+				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Unknown");
 			}
 		} else {
 			proto_tree_add_text(v_tree, tvb, optoff, optlen, "Error: Invalid length of DHCP option!");
