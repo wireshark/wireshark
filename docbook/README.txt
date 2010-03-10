@@ -115,7 +115,8 @@ format.
 
 Packages for Win32
 ------------------
-See ..\config.nmake for Win32 settings.
+See ..\config.nmake for Win32 settings. You may need to run
+"build-docbook-catalog" in order to register your catalog properly.
 
 Tool/File           Cygwin Package          Opt./Mand.  Comments
 ---------           --------------          ----------  --------
@@ -128,6 +129,7 @@ fop:                -                       O           URL: http://xml.apache.o
 jimi:               -                       O           URL: http://java.sun.com/products/jimi/ - see above
 hhc:                -                       O           URL: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp 
 zip:                Archive/zip             O
+getopt:             Utils/util-linux        O           Required to run "build-docbook-catalog"
 
 
 Packages for Suse 9.3
