@@ -22,6 +22,7 @@
  * RFC 3594: PacketCable Security Ticket Control Sub-Option (122.9)
  * RFC 3442: Classless Static Route Option for DHCP version 4
  * RFC 3825: Dynamic Host Configuration Protocol Option for Coordinate-based Location Configuration Information
+ * RFC 3925: Vendor-Identifying Vendor Options for Dynamic Host Configuration Protocol version 4 (DHCPv4)
  * RFC 3942: Reclassifying DHCPv4 Options
  * RFC 4243: Vendor-Specific Information Suboption for the Dynamic Host Configuration Protocol (DHCP) Relay Agent Option
  * RFC 4388: Dynamic Host Configuration Protocol (DHCP) Leasequery
@@ -615,7 +616,7 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 121 */ { "Classless Static Route",		       	special, NULL },
 /* 122 */ { "CableLabs Client Configuration [TODO:RFC3495]",	opaque, NULL },
 /* 123 */ { "Coordinate-based Location Configuration",	special, NULL },
-/* 124 */ { "V-I Vendor Class [TODO:RFC3925]",		opaque, NULL },
+/* 124 */ { "V-I Vendor Class",				special, NULL },
 /* 125 */ { "V-I Vendor-specific Information",		special, NULL },
 /* 126 */ { "Removed/Unassigned",			opaque, NULL },
 /* 127 */ { "Removed/Unassigend",			opaque, NULL },
@@ -1609,6 +1610,46 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			proto_tree_add_text(v_tree, tvb, optoff, optlen, "Error: Invalid length of DHCP option!");
 		}
 		break;
+
+	case 124: { 	/* V-I Vendor Class */
+	        int enterprise = 0;
+		int data_len;
+
+		optend = optoff + optlen;
+	        optleft = optlen;
+
+		while (optleft > 0) {
+
+		  if (optleft < 5) {
+		    proto_tree_add_text(v_tree, tvb, optoff,
+					optleft, "Vendor Class: malformed option");
+		    break;
+		  }
+
+		  enterprise = tvb_get_ntohl(tvb, optoff);
+
+		  vti = proto_tree_add_text(v_tree, tvb, optoff, 4,
+					    "Enterprise-number: %s (%u)",
+					    val_to_str(enterprise, sminmpec_values, "Unknown"),
+					    enterprise);
+
+		  data_len = tvb_get_guint8(tvb, optoff + 4);
+
+		  proto_tree_add_text(v_tree, tvb, optoff + 4, 1,
+				      "Data len: %d", data_len);
+		  optoff += 5;
+		  optleft -= 5;
+
+		  proto_tree_add_text(v_tree, tvb, optoff, data_len,
+				      "Vendor Class data: %s",
+				      tvb_bytes_to_str(tvb, optoff, data_len));
+
+		  /* look for next enterprise number */
+		  optoff += data_len;
+		  optleft -= data_len;
+		}
+		break;
+	}
 
 	case 125: { 	/* V-I Vendor-specific Information */
 	        int enterprise = 0;
