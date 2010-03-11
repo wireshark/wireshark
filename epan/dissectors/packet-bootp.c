@@ -307,6 +307,11 @@ static const value_string civic_address_type_values[] = {
 	{ 0, NULL }
 };
 
+static const value_string cablelab_ipaddr_mode_vals[] = {
+	{ 1, "IPv4" },
+	{ 2, "IPv6" },
+	{ 0, NULL }
+};
 
 static gboolean novell_string = FALSE;
 
@@ -1614,6 +1619,15 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	case 124: { 	/* V-I Vendor Class */
 	        int enterprise = 0;
 		int data_len;
+
+		if (optlen == 1) {
+			/* CableLab specific */
+			s_option = tvb_get_guint8(tvb, optoff);
+			proto_tree_add_text(v_tree, tvb, optoff, optlen, 
+					    "CableLabs IP addressing mode preference: %s",
+					    val_to_str (s_option, cablelab_ipaddr_mode_vals, "Unknown"));
+			break;
+		}
 
 		optend = optoff + optlen;
 	        optleft = optlen;
