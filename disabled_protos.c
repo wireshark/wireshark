@@ -176,7 +176,7 @@ read_disabled_protos_list_file(const char *ff_path, FILE *ff,
 
   /* Allocate the protocol name buffer. */
   prot_name_len = INIT_BUF_SIZE;
-  prot_name = g_malloc(prot_name_len + 1);
+  prot_name = (char *)g_malloc(prot_name_len + 1);
 
   for (line = 1; ; line++) {
     /* Lines in a disabled protocol file contain the "filter name" of
@@ -212,7 +212,7 @@ read_disabled_protos_list_file(const char *ff_path, FILE *ff,
       if (prot_name_index >= prot_name_len) {
 	/* protocol name buffer isn't long enough; double its length. */
 	prot_name_len *= 2;
-	prot_name = g_realloc(prot_name, prot_name_len + 1);
+	prot_name = (char *)g_realloc(prot_name, prot_name_len + 1);
       }
       prot_name[prot_name_index] = c;
       prot_name_index++;
@@ -250,7 +250,7 @@ read_disabled_protos_list_file(const char *ff_path, FILE *ff,
     if (prot_name_index >= prot_name_len) {
       /* protocol name buffer isn't long enough; double its length. */
       prot_name_len *= 2;
-      prot_name = g_realloc(prot_name, prot_name_len + 1);
+      prot_name = (char *)g_realloc(prot_name, prot_name_len + 1);
     }
     prot_name[prot_name_index] = '\0';
 

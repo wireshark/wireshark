@@ -66,7 +66,7 @@ get_args_as_string(int argc, char **argv, int optindex)
 	/*
 	 * Allocate the buffer for the string.
 	 */
-	argstring = g_malloc(len);
+	argstring = (char *)g_malloc(len);
 
 	/*
 	 * Now construct the string.
@@ -255,7 +255,7 @@ const gchar *get_conn_cfilter(void) {
 		if (hostlen == 0)
 			return "";	/* no hostname supplied */
 
-		phostname = g_malloc(hostlen + 1);
+		phostname = (char *)g_malloc(hostlen + 1);
 		memcpy(phostname, lastp, hostlen);
 		phostname[hostlen] = '\0';
 

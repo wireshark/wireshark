@@ -492,7 +492,7 @@ print_pdml_geninfo(proto_tree *tree, FILE *fh)
 	if (g_ptr_array_len(finfo_array) < 1) {
 		return;
 	}
-	frame_finfo = finfo_array->pdata[0];
+	frame_finfo = (field_info *)finfo_array->pdata[0];
 	g_ptr_array_free(finfo_array, TRUE);
 
 	/* frame.number --> geninfo.num */
@@ -524,7 +524,7 @@ print_pdml_geninfo(proto_tree *tree, FILE *fh)
 	if (g_ptr_array_len(finfo_array) < 1) {
 		return;
 	}
-	timestamp = fvalue_get(&((field_info*)finfo_array->pdata[0])->value);
+	timestamp = (nstime_t *)fvalue_get(&((field_info*)finfo_array->pdata[0])->value);
 	g_ptr_array_free(finfo_array, TRUE);
 
 	/* Print geninfo start */
@@ -692,7 +692,7 @@ get_field_data(GSList *src_list, field_info *fi)
 	gint length, tvbuff_length;
 
 	for (src_le = src_list; src_le != NULL; src_le = src_le->next) {
-		src = src_le->data;
+		src = (data_source *)src_le->data;
 		src_tvb = src->tvb;
 		if (fi->ds_tvb == src_tvb) {
 			/*
@@ -807,7 +807,7 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
 
 	for (src_le = edt->pi.data_src; src_le != NULL;
 	    src_le = src_le->next) {
-		src = src_le->data;
+		src = (data_source *)src_le->data;
 		tvb = src->tvb;
 		if (multiple_sources) {
 			name = get_data_source_name(src);
@@ -1012,7 +1012,7 @@ print_preamble_text(print_stream_t *self _U_, gchar *filename _U_)
 static gboolean
 print_line_text(print_stream_t *self, int indent, const char *line)
 {
-	output_text *output = self->data;
+	output_text *output = (output_text *)self->data;
 	char space[MAX_INDENT+1];
 	int i;
 	int num_spaces;
@@ -1045,7 +1045,7 @@ print_bookmark_text(print_stream_t *self _U_, const gchar *name _U_,
 static gboolean
 new_page_text(print_stream_t *self)
 {
-	output_text *output = self->data;
+	output_text *output = (output_text *)self->data;
 
 	fputs("\f", output->fh);
 	return !ferror(output->fh);
@@ -1061,7 +1061,7 @@ print_finale_text(print_stream_t *self _U_)
 static gboolean
 destroy_text(print_stream_t *self)
 {
-	output_text *output = self->data;
+	output_text *output = (output_text *)self->data;
 	gboolean ret;
 
 	ret = close_print_dest(output->to_file, output->fh);
@@ -1085,10 +1085,10 @@ print_stream_text_alloc(int to_file, FILE *fh)
 	print_stream_t *stream;
 	output_text *output;
 
-	output = g_malloc(sizeof *output);
+	output = (output_text *)g_malloc(sizeof *output);
 	output->to_file = to_file;
 	output->fh = fh;
-	stream = g_malloc(sizeof (print_stream_t));
+	stream = (print_stream_t *)g_malloc(sizeof (print_stream_t));
 	stream->ops = &print_text_ops;
 	stream->data = output;
 
@@ -1121,7 +1121,7 @@ typedef struct {
 static gboolean
 print_preamble_ps(print_stream_t *self, gchar *filename)
 {
-	output_ps *output = self->data;
+	output_ps *output = (output_ps *)self->data;
 	unsigned char psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
 
 	print_ps_preamble(output->fh);
@@ -1139,7 +1139,7 @@ print_preamble_ps(print_stream_t *self, gchar *filename)
 static gboolean
 print_line_ps(print_stream_t *self, int indent, const char *line)
 {
-	output_ps *output = self->data;
+	output_ps *output = (output_ps *)self->data;
 	unsigned char psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
 
 	ps_clean_string(psbuffer, line, MAX_PS_LINE_LENGTH);
@@ -1150,7 +1150,7 @@ print_line_ps(print_stream_t *self, int indent, const char *line)
 static gboolean
 print_bookmark_ps(print_stream_t *self, const gchar *name, const gchar *title)
 {
-	output_ps *output = self->data;
+	output_ps *output = (output_ps *)self->data;
 	unsigned char psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
 
 	/*
@@ -1180,7 +1180,7 @@ print_bookmark_ps(print_stream_t *self, const gchar *name, const gchar *title)
 static gboolean
 new_page_ps(print_stream_t *self)
 {
-	output_ps *output = self->data;
+	output_ps *output = (output_ps *)self->data;
 
 	fputs("formfeed\n", output->fh);
 	return !ferror(output->fh);
@@ -1189,7 +1189,7 @@ new_page_ps(print_stream_t *self)
 static gboolean
 print_finale_ps(print_stream_t *self)
 {
-	output_ps *output = self->data;
+	output_ps *output = (output_ps *)self->data;
 
 	print_ps_finale(output->fh);
 	return !ferror(output->fh);
@@ -1198,7 +1198,7 @@ print_finale_ps(print_stream_t *self)
 static gboolean
 destroy_ps(print_stream_t *self)
 {
-	output_ps *output = self->data;
+	output_ps *output = (output_ps *)self->data;
 	gboolean ret;
 
 	ret = close_print_dest(output->to_file, output->fh);
@@ -1222,10 +1222,10 @@ print_stream_ps_alloc(int to_file, FILE *fh)
 	print_stream_t *stream;
 	output_ps *output;
 
-	output = g_malloc(sizeof *output);
+	output = (output_ps *)g_malloc(sizeof *output);
 	output->to_file = to_file;
 	output->fh = fh;
-	stream = g_malloc(sizeof (print_stream_t));
+	stream = (print_stream_t *)g_malloc(sizeof (print_stream_t));
 	stream->ops = &print_ps_ops;
 	stream->data = output;
 
@@ -1286,7 +1286,7 @@ void output_fields_free(output_fields_t* fields)
     if(NULL != fields->fields) {
         gsize i;
         for(i = 0; i < fields->fields->len; ++i) {
-            gchar* field = g_ptr_array_index(fields->fields,i);
+            gchar* field = (gchar *)g_ptr_array_index(fields->fields,i);
             g_free(field);
         }
         g_ptr_array_free(fields->fields, TRUE);
@@ -1405,7 +1405,7 @@ void write_fields_preamble(output_fields_t* fields, FILE *fh)
     }
 
     for(i = 0; i < fields->fields->len; ++i) {
-        const gchar* field = g_ptr_array_index(fields->fields,i);
+        const gchar* field = (const gchar *)g_ptr_array_index(fields->fields,i);
         if(i != 0 ) {
             fputc(fields->separator, fh);
         }
@@ -1420,7 +1420,7 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
     field_info *fi;
     gpointer field_index;
 
-    call_data = data;
+    call_data = (write_field_data_t *)data;
     fi = PNODE_FINFO(node);
 
     g_assert(fi && "dissection with an invisible proto tree?");
@@ -1465,7 +1465,7 @@ void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, FILE 
 
         i = 0;
         while( i < fields->fields->len) {
-            gchar* field = g_ptr_array_index(fields->fields, i);
+            gchar* field = (gchar *)g_ptr_array_index(fields->fields, i);
              /* Store field indicies +1 so that zero is not a valid value,
               * and can be distinguished from NULL as a pointer.
               */

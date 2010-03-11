@@ -175,7 +175,7 @@ create_tempfile(char **namebuf, const char *pfx)
 	 */
 	if (tf_path[idx] == NULL) {
 		tf_path_len[idx] = INITIAL_PATH_SIZE;
-		tf_path[idx] = g_malloc(tf_path_len[idx]);
+		tf_path[idx] = (char *)g_malloc(tf_path_len[idx]);
 	}
 
 	/*
@@ -185,7 +185,7 @@ create_tempfile(char **namebuf, const char *pfx)
 
 	while (g_snprintf(tf_path[idx], tf_path_len[idx], "%s%c%s" TMP_FILE_SUFFIX, tmp_dir, G_DIR_SEPARATOR, pfx) > tf_path_len[idx]) {
 		tf_path_len[idx] *= 2;
-		tf_path[idx] = g_realloc(tf_path[idx], tf_path_len[idx]);
+		tf_path[idx] = (char *)g_realloc(tf_path[idx], tf_path_len[idx]);
 	}
 
 	if (namebuf) {
@@ -226,7 +226,7 @@ create_tempdir(char **namebuf, const char *pfx)
 	 */
 	if (td_path[idx] == NULL) {
 		td_path_len[idx] = INITIAL_PATH_SIZE;
-		td_path[idx] = g_malloc(td_path_len[idx]);
+		td_path[idx] = (char *)g_malloc(td_path_len[idx]);
 	}
 
 	/*
@@ -236,7 +236,7 @@ create_tempdir(char **namebuf, const char *pfx)
 
 	while (g_snprintf(td_path[idx], td_path_len[idx], "%s%c%s" TMP_FILE_SUFFIX, tmp_dir, G_DIR_SEPARATOR, pfx) > td_path_len[idx]) {
 		td_path_len[idx] *= 2;
-		td_path[idx] = g_realloc(td_path[idx], td_path_len[idx]);
+		td_path[idx] = (char *)g_realloc(td_path[idx], td_path_len[idx]);
 	}
 
 	if (namebuf) {
