@@ -117,7 +117,7 @@ static GHashTable * ieee802154_addr_table = NULL;
 /* Value used for the hash table. */
 typedef struct {
     guint64     addr;
-    //guint32   frame_counter;  /* TODO for frame counter sequence checks. Any other security state to save across packets? */
+    /*guint32   frame_counter;   TODO for frame counter sequence checks. Any other security state to save across packets? */
 } ieee802154_long_addr;
 
 /* Keys used for the hash table. */
