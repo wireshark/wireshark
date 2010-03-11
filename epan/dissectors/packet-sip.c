@@ -890,6 +890,7 @@ typedef struct _uri_offset_info
 	gint uri_host_port_end;
 } uri_offset_info;
 
+static void
 sip_uri_offset_init(uri_offset_info *uri_offsets){
 
 	/* Initialize the uri_offsets */
@@ -923,7 +924,6 @@ dissect_sip_uri2(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 	gint comma_offset;
 	gint semicolon_offset;
 	gint parameter_end_offset;
-	gboolean uri_without_angle_quotes = FALSE;
 	gboolean in_ipv6 = FALSE;
 
 	/* skip Spaces and Tabs */
@@ -2329,8 +2329,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		proto_tree *pmiss_uri_item_tree = NULL;
 		proto_tree *ppi_uri_item_tree = NULL;
 		proto_tree *tc_uri_item_tree = NULL;
-		proto_tree *to_uri_item_tree = NULL;
-		proto_tree *from_uri_item_tree = NULL;
 		uri_offset_info uri_offsets;
 
 
