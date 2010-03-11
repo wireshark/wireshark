@@ -918,7 +918,7 @@ static gint
 dissect_sip_uri2(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
                 gint line_end_offset, uri_offset_info *uri_offsets)
 {
-	gchar c;
+	gchar c = '\0';
 	gint current_offset;
 	gint queried_offset;
 	gint comma_offset;
