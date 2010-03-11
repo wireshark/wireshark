@@ -7,6 +7,9 @@
  *
  * Copyright 2009
  *
+ * ISKRATEL d.o.o.             |       4S d.o.o.
+ * http://www.iskratel.si/     |       http://www.4es.si/
+ * <info@iskratel.si>          |       <projects@4es.si>
  * Vladimir Smrekar <vladimir.smrekar@gmail.com>
  *
  * Wireshark - Network traffic analyzer
