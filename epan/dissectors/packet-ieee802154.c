@@ -79,6 +79,7 @@
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
+#include <epan/uat.h>
 #include <epan/strutil.h>
 
 /* Use libgcrypt for cipher libraries. */
@@ -107,10 +108,109 @@ static const gchar *ieee802154_key_str = NULL;
 static gboolean     ieee802154_key_valid;
 static guint8       ieee802154_key[IEEE802154_CIPHER_SIZE];
 
-/*  Function declarations */
+/*-------------------------------------
+ * Address Hash Table
+ *-------------------------------------
+ */
+static GHashTable * ieee802154_addr_table = NULL;
+
+/* Value used for the hash table. */
+typedef struct {
+    guint64     addr;
+    //guint32   frame_counter;  /* TODO for frame counter sequence checks. Any other security state to save across packets? */
+} ieee802154_long_addr;
+
+/* Keys used for the hash table. */
+typedef struct {
+    guint16     addr;
+    guint16     pan;
+} ieee802154_short_addr;
+
+/* Key hash function. */
+static guint
+ieee802154_addr_hash(gconstpointer key)
+{
+    return (((ieee802154_short_addr *)key)->addr) | (((ieee802154_short_addr *)key)->pan << 16);
+}
+
+/* Key equals function. */
+static gboolean
+ieee802154_addr_equals(gconstpointer a, gconstpointer b)
+{
+    return (((ieee802154_short_addr *)a)->addr == ((ieee802154_short_addr *)b)->addr) &&
+           (((ieee802154_short_addr *)a)->pan == ((ieee802154_short_addr *)b)->pan);
+}
+
+/* Function to update the address table. */
+/* TODO: Make this a public function, in case other layers expose short-to-extended address pairs. */
+static void ieee802154_addr_update(guint16 short_addr, guint16 pan, guint64 long_addr)
+{
+    ieee802154_short_addr   addr16;
+    ieee802154_long_addr *  addr64;
+    addr16.addr = short_addr;
+    addr16.pan = pan;
+    addr64 = g_hash_table_lookup(ieee802154_addr_table, &addr16);
+    if (addr64) {
+        addr64->addr = long_addr;
+    }
+    else {
+        addr64 = se_alloc(sizeof(ieee802154_long_addr));
+        addr64->addr = long_addr;
+        g_hash_table_insert(ieee802154_addr_table, se_memdup(&addr16, sizeof(addr16)), addr64);
+    }
+} /* ieee802154_addr_update */
+
+/*-------------------------------------
+ * Static Address Mapping UAT
+ *-------------------------------------
+ */
+/* UAT entry structure. */
+typedef struct {
+    guchar *    eui64;
+    guint       eui64_len;
+    guint       addr16;
+    guint       pan;
+} static_addr_t;
+
+/* UAT variables */
+static uat_t *          static_addr_uat = NULL;
+static static_addr_t *  static_addrs = NULL;
+static guint            num_static_addrs = 0;
+
+/* Sanity-checks a UAT record. */
+static void
+addr_uat_update_cb(void* r, const char** err)
+{
+    static_addr_t *     map = r;
+    /* Ensure a valid short address */
+    if (map->addr16 >= IEEE802154_NO_ADDR16) {
+        *err = "Invalid short address";
+    }
+    /* Ensure a valid PAN identifier. */
+    if (map->pan >= IEEE802154_BCAST_PAN) {
+        *err = "Invalid PAN identifier";
+    }
+    /* Ensure a valid EUI-64 length */
+    if (map->eui64_len != sizeof(guint64)) {
+        *err = "Invalid EUI-64";
+    }
+} /* ieee802154_addr_uat_update_cb */
+
+/* Field callbacks. */
+UAT_HEX_CB_DEF(addr_uat, addr16, static_addr_t)
+UAT_HEX_CB_DEF(addr_uat, pan, static_addr_t)
+UAT_BUFFER_CB_DEF(addr_uat, eui64, static_addr_t, eui64, eui64_len)
+
+/*-------------------------------------
+ * Dissector Function Prototypes
+ *-------------------------------------
+ */
 /* Register Functions. Loads the dissector into Wireshark. */
 void proto_reg_handoff_ieee802154   (void);
 void proto_register_ieee802154      (void);
+
+static void proto_init_ieee802154   (void);
+/* TODO: cleanup. */
 
 /* Dissection Routines. */
 static void dissect_ieee802154_nonask_phy   (tvbuff_t *, packet_info *, proto_tree *);
@@ -1476,6 +1576,11 @@ dissect_ieee802154_assoc_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
     }
 
+    /* Update the address table. */
+    if ((status == IEEE802154_CMD_ASRSP_AS_SUCCESS) && (short_addr != IEEE802154_NO_ADDR16)) {
+        ieee802154_addr_update(short_addr, packet->dst_pan, packet->dst.addr64);
+    }
+
     /* Call the data dissector for any leftover bytes. */
     if (tvb_length(tvb) > offset) {
         call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
@@ -1593,6 +1698,10 @@ dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Addr: 0x%04x", short_addr);
     }
     offset += 2;
+    /* Update the address table. */
+    if ((short_addr != IEEE802154_NO_ADDR16) && (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT)) {
+        ieee802154_addr_update(short_addr, packet->dst_pan, packet->dst.addr64);
+    }
 
     /* Get and display the channel page, if it exists. Added in IEEE802.15.4-2006 */
     if (tvb_bytes_exist(tvb, offset, 1)) {
@@ -1744,12 +1853,28 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
      *
      * Also need to find the extended address of the sender.
      */
-    /* Get the extended source address. */
     if (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
+        /* The source EUI-64 is included in the headers. */
         srcAddr = packet->src.addr64;
     }
+    else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
+        ieee802154_short_addr   addr16;
+        ieee802154_long_addr  * addr64;
+
+        /* Try to lookup the EUI-64 from the address table. */
+        addr16.addr = packet->src.addr16;
+        addr16.pan = packet->src_pan;
+        addr64 = (ieee802154_long_addr *)g_hash_table_lookup(ieee802154_addr_table, &addr16);
+        if (!addr64) {
+            /* Lookup failed.  */
+            *status = DECRYPT_PACKET_NO_EXT_SRC_ADDR;
+            return NULL;
+        }
+        /* Lookup successful. */
+        srcAddr = addr64->addr;
+    }
     else {
-        /* TODO: Implement a lookup table or something. */
+        /* No addressing is present in the headers. We're screwed. */
         *status = DECRYPT_PACKET_NO_EXT_SRC_ADDR;
         return NULL;
     }
@@ -2082,6 +2207,7 @@ ccm_cbc_mac(const gchar *key _U_, const gchar *iv _U_, const gchar *a _U_, gint 
  */
 void proto_register_ieee802154(void)
 {
+    /* Protocol fields  */
     static hf_register_info hf_phy[] = {
         /* PHY level */
 
@@ -2097,7 +2223,6 @@ void proto_register_ieee802154(void)
         { "Frame Length",                   "wpan-nonask-phy.frame_length", FT_UINT8, BASE_HEX, NULL, IEEE802154_PHY_LENGTH_MASK,
             NULL, HFILL }},
     };
-
 
     static hf_register_info hf[] = {
         { &hf_ieee802154_frame_type,
@@ -2327,6 +2452,7 @@ void proto_register_ieee802154(void)
             "Key Index for processing of the protected frame", HFILL }}
     };
 
+    /* Subtrees */
     static gint *ett[] = {
         &ett_ieee802154_nonask_phy,
         &ett_ieee802154_nonask_phy_phr,
@@ -2344,7 +2470,21 @@ void proto_register_ieee802154(void)
         &ett_ieee802154_pendaddr
     };
 
+    /* Preferences. */
     module_t *ieee802154_module;
+
+    static uat_field_t addr_uat_flds[] = {
+        UAT_FLD_HEX(addr_uat,addr16,"Short Address",
+                "16-bit short address in hexadecimal."),
+        UAT_FLD_HEX(addr_uat,pan,"PAN Identifier",
+                "16-bit PAN identifier in hexadecimal."),
+        UAT_FLD_BUFFER(addr_uat,eui64,"EUI-64",
+                "64-bit extended unique identifier."),
+        UAT_END_FIELDS
+    };
+
+    /* Register the init routine. */
+    register_init_routine(proto_init_ieee802154);
 
     /*  Register Protocol name and description. */
     proto_ieee802154 = proto_register_protocol("IEEE 802.15.4 Low-Rate Wireless PAN", "IEEE 802.15.4", "wpan");
@@ -2371,6 +2511,25 @@ void proto_register_ieee802154(void)
                                    "Dissect data only if FCS is ok",
                                    "Dissect data only if FCS is ok.",
                                    &ieee802154_fcs_ok);
+
+    /* Create a UAT for static address mappings. */
+    static_addr_uat = uat_new("Static Addresses",
+            sizeof(static_addr_t),      /* record size */
+            "802154_addresses",         /* filename */
+            TRUE,                       /* from_profile */
+            (void*) &static_addrs,      /* data_ptr */
+            &num_static_addrs,          /* numitems_ptr */
+            UAT_CAT_GENERAL,            /* category */
+            NULL,                       /* help */
+            NULL,                       /* copy callback */
+            addr_uat_update_cb,         /* update callback */
+            NULL,                       /* free callback */
+            NULL,                       /* post update callback */
+            addr_uat_flds);             /* UAT field definitions */
+    prefs_register_uat_preference(ieee802154_module, "static_addr",
+                "Static Addresses",
+                "A table of static address mappings between 16-bit short addressing and EUI-64 addresses",
+                static_addr_uat);
 
     /* Register preferences for a decryption key */
     /* TODO: Implement a UAT for multiple keys, and with more advanced key management. */
@@ -2437,4 +2596,36 @@ void proto_reg_handoff_ieee802154(void)
     /* Register dissector handles. */
     dissector_add("ethertype", ieee802154_ethertype, ieee802154_handle);
 } /* proto_reg_handoff_ieee802154 */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_init_ieee802154
+ *  DESCRIPTION
+ *      Init routine for the IEEE 802.15.4 dissector. Creates a
+ *      hash table for mapping 16-bit to 64-bit addresses and
+ *      populates it with static address pairs from a UAT
+ *      preference table.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+static void
+proto_init_ieee802154(void)
+{
+    guint       i;
+
+    /* Destroy the hash table, if it exists. */
+    if (ieee802154_addr_table)
+        g_hash_table_destroy(ieee802154_addr_table);
+
+    /* (Re)create the hash table. */
+    ieee802154_addr_table = g_hash_table_new(ieee802154_addr_hash, ieee802154_addr_equals);
+
+    /* Re-load the hash table from the static address UAT. */
+    for (i=0; (i<num_static_addrs) && (static_addrs); i++) {
+        ieee802154_addr_update((guint16)static_addrs[i].addr16, (guint16)static_addrs[i].pan, pntoh64(static_addrs[i].eui64));
+    } /* for */
+} /* proto_init_ieee802154 */
 
