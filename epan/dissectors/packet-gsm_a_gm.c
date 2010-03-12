@@ -5599,7 +5599,7 @@ dtap_sm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [8] 9.5.22 Activate MBMS Context Request
+ * [9] 9.5.22 Activate MBMS Context Request
  */
 static void
 dtap_sm_act_mbms_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5635,20 +5635,98 @@ dtap_sm_act_mbms_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [8] 9.5.23 Activate MBMS Context Accept
+ * [9] 9.5.23 Activate MBMS Context Accept
  */
+static void
+dtap_sm_act_mbms_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_TMGI, NULL);
+
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI );
+
+	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
 
 /*
- * [8] 9.5.24 Activate MBMS Context Reject
+ * [9] 9.5.24 Activate MBMS Context Reject
  */
+static void
+dtap_sm_act_mbms_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
 
+	curr_offset = offset;
+	curr_len = len;
+
+	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
+
+	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+	
 /*
- * [8] 9.5.25 Request MBMS Context Activation
+ * [9] 9.5.25 Request MBMS Context Activation
  */
+static void
+dtap_sm_req_mbms_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_NET_SAPI );
+
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR , " - Offered multicast address" );
+
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME , NULL );
+
+	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
 
 /*
  * [8] 9.5.26 Request MBMS Context Activation Reject
  */
+static void
+dtap_sm_req_mbms_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
+
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
+
+	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
 
 #define	NUM_GSM_DTAP_MSG_GMM (sizeof(gsm_a_dtap_msg_gmm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_gmm[NUM_GSM_DTAP_MSG_GMM];
@@ -5704,10 +5782,10 @@ static void (*dtap_msg_sm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	NULL,						/* Reserved: was allocated in earlier phases of the protocol */
 	dtap_sm_status,				/* SM Status */
 	dtap_sm_act_mbms_req,		/* Activate MBMS Context Request */
-	NULL,						/* Activate MBMS Context Accept */
-	NULL,						/* Activate MBMS Context Reject */
-	NULL,						/* Request MBMS Context Activation */
-	NULL,						/* Request MBMS Context Activation Reject */
+	dtap_sm_act_mbms_acc,		/* Activate MBMS Context Accept */
+	dtap_sm_act_mbms_rej,		/* Activate MBMS Context Reject */
+	dtap_sm_req_mbms_act,		/* Request MBMS Context Activation */
+	dtap_sm_req_mbms_rej,		/* Request MBMS Context Activation Reject */
 	NULL,	/* NONE */
 };
 
