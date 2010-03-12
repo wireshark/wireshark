@@ -366,9 +366,10 @@ dissect_hnbap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                                             0U, 255U, &ProcedureCode, FALSE);
 
 #line 59 "hnbap.cnf"
-    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-             val_to_str(ProcedureCode, hnbap_ProcedureCode_vals,
-                      "Unknown Message"));
+  if (strcmp(val_to_str(ProcedureCode, hnbap_ProcedureCode_vals, "Unknown"), "Unknown") == 0) {
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+                      "Unknown Message");
+  } /* Known Procedures should be included below and broken out as ELEMENTARY names to avoid confusion */
 
 
   return offset;
@@ -1401,11 +1402,9 @@ static const per_sequence_t HNBRegisterRequest_sequence[] = {
 
 static int
 dissect_hnbap_HNBRegisterRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 71 "hnbap.cnf"
-	col_append_str(actx->pinfo->cinfo, COL_INFO, "HNB_REGISTER_REQUEST" );
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-	col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+#line 72 "hnbap.cnf"
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "HNB_REGISTER_REQUEST ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_HNBRegisterRequest, HNBRegisterRequest_sequence);
 
@@ -1424,11 +1423,9 @@ static const per_sequence_t HNBRegisterAccept_sequence[] = {
 
 static int
 dissect_hnbap_HNBRegisterAccept(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 78 "hnbap.cnf"
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "HNB_REGISTER_ACCEPT" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+#line 77 "hnbap.cnf"
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "HNB_REGISTER_ACCEPT ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_HNBRegisterAccept, HNBRegisterAccept_sequence);
 
@@ -1447,11 +1444,9 @@ static const per_sequence_t HNBRegisterReject_sequence[] = {
 
 static int
 dissect_hnbap_HNBRegisterReject(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 85 "hnbap.cnf"
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "HNB_REGISTER_REJECT" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+#line 82 "hnbap.cnf"
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "HNB_REGISTER_REJECT ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_HNBRegisterReject, HNBRegisterReject_sequence);
 
@@ -1470,11 +1465,9 @@ static const per_sequence_t HNBDe_Register_sequence[] = {
 
 static int
 dissect_hnbap_HNBDe_Register(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 119 "hnbap.cnf"
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "HNB_DE-REGISTER" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+#line 107 "hnbap.cnf"
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "HNB_DE-REGISTER ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_HNBDe_Register, HNBDe_Register_sequence);
 
@@ -1493,11 +1486,9 @@ static const per_sequence_t UERegisterRequest_sequence[] = {
 
 static int
 dissect_hnbap_UERegisterRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 92 "hnbap.cnf"
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "UE_REGISTER_REQUEST" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+#line 87 "hnbap.cnf"
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "UE_REGISTER_REQUEST ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_UERegisterRequest, UERegisterRequest_sequence);
 
@@ -1516,11 +1507,9 @@ static const per_sequence_t UERegisterAccept_sequence[] = {
 
 static int
 dissect_hnbap_UERegisterAccept(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 99 "hnbap.cnf"
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "UE_REGISTER_ACCEPT" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+#line 92 "hnbap.cnf"
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "UE_REGISTER_ACCEPT ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_UERegisterAccept, UERegisterAccept_sequence);
 
@@ -1539,10 +1528,9 @@ static const per_sequence_t UERegisterReject_sequence[] = {
 
 static int
 dissect_hnbap_UERegisterReject(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 106 "hnbap.cnf"
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "UE_REGISTER_REJECT" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+#line 97 "hnbap.cnf"
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "UE_REGISTER_REJECT ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_UERegisterReject, UERegisterReject_sequence);
 
@@ -1561,11 +1549,9 @@ static const per_sequence_t UEDe_Register_sequence[] = {
 
 static int
 dissect_hnbap_UEDe_Register(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 112 "hnbap.cnf"
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "UE_DE-REGISTER" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+#line 102 "hnbap.cnf"
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "UE_DE-REGISTER ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_UEDe_Register, UEDe_Register_sequence);
 
@@ -1584,12 +1570,10 @@ static const per_sequence_t ErrorIndication_sequence[] = {
 
 static int
 dissect_hnbap_ErrorIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 126 "hnbap.cnf"
-
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "ERROR_INDICATION" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+#line 112 "hnbap.cnf"
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "ERROR_INDICATION ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO); /* Protect info from CriticalityDiagnostics decodes */
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_ErrorIndication, ErrorIndication_sequence);
 
@@ -1607,11 +1591,9 @@ static const per_sequence_t PrivateMessage_sequence[] = {
 
 static int
 dissect_hnbap_PrivateMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 134 "hnbap.cnf"
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "PRIVATE_MESSAGE" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+#line 118 "hnbap.cnf"
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "PRIVATE_MESSAGE ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_PrivateMessage, PrivateMessage_sequence);
 

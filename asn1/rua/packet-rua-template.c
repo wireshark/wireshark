@@ -61,8 +61,8 @@ static int proto_rua = -1;
 /* Initialize the subtree pointers */
 static int ett_rua = -1;
 
-/* initialise sub-dissector handles */
-static dissector_handle_t rua_ranap_handle = NULL;
+ /* initialise sub-dissector handles */
+ static dissector_handle_t ranap_handle = NULL;
 
 #include "packet-rua-ett.c"
 
@@ -179,7 +179,7 @@ proto_reg_handoff_rua(void)
 
         if (!initialized) {
                 rua_handle = find_dissector("rua");
-                rua_ranap_handle = find_dissector("ranap");
+                ranap_handle = find_dissector("ranap");
                 dissector_add("sctp.ppi", RUA_PAYLOAD_PROTOCOL_ID, rua_handle);
                 initialized = TRUE;
 #include "packet-rua-dis-tab.c"

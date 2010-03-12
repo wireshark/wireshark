@@ -50,10 +50,10 @@ ProtocolIE-Single-Container
 
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
-    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-           val_to_str(ProcedureCode, rua_ProcedureCode_vals,
-                      "Unknown Message"));
-    col_set_fence(actx->pinfo->cinfo, COL_INFO); /* Protect the Procedure Code COL_INFO from subdissector overwrites */
+  if (strcmp(val_to_str(ProcedureCode, rua_ProcedureCode_vals, "Unknown"), "Unknown") == 0) {
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+                      "Unknown Message ");
+  } /* Known Procedures should be included below and broken out as ELEMENTARY names to avoid confusion */
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
 
@@ -61,55 +61,45 @@ ProtocolIE-Single-Container
 
 #.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
 
-#.FN_BODY Connect /* Set COL_INFO to Connect */
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "CONNECT" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-
+#.FN_BODY Connect 
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+             "CONNECT ");
 %(DEFAULT_BODY)s
 
-#.FN_BODY DirectTransfer /* Set COL_INFO to DirectTransfer */
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "DIRECT_TRANSFER" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-
+#.FN_BODY DirectTransfer 
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+             "DIRECT_TRANSFER ");
 %(DEFAULT_BODY)s
 
-#.FN_BODY Disconnect /* Set COL_INFO to Disconnect */
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "DISCONNECT" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-
+#.FN_BODY Disconnect 
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+             "DISCONNECT ");
 %(DEFAULT_BODY)s
 
-#.FN_BODY ConnectionlessTransfer /* Set COL_INFO to ConnectionlessTransfer */
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "CONNECTIONLESS_TRANSFER" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-
+#.FN_BODY ConnectionlessTransfer 
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+             "CONNECTIONLESS_TRANSFER ");
 %(DEFAULT_BODY)s
 
-#.FN_BODY ErrorIndication /* Set COL_INFO to Error Indication and protect it */
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "ERROR_INDICATION" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+#.FN_BODY ErrorIndication 
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+             "ERROR_INDICATION ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO); /* Protect info from CriticalityDiagnostics decodes */
 %(DEFAULT_BODY)s
 
-#.FN_BODY PrivateMessage /* Set COL_INFO to Private Message */
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "PRIVATE_MESSAGE" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-
+#.FN_BODY PrivateMessage 
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+             "PRIVATE_MESSAGE ");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RANAP-Message  VAL_PTR = &ranap_message_tvb
   tvbuff_t *ranap_message_tvb=NULL;
 %(DEFAULT_BODY)s
- if ((tvb_length(ranap_message_tvb)>0)&&(rua_ranap_handle)) {  /* RUA has a RANAP-PDU, let RANAP append to COL_PROTOCOL i.e. RUA/RANAP */
-      if (check_col(actx->pinfo->cinfo, COL_PROTOCOL)) {
-         /* Protect RUA entries in the protocol and info columns from subdissector overwrites*/
-         col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
-         col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
-      }
-     call_dissector(rua_ranap_handle,ranap_message_tvb,%(ACTX)s->pinfo, tree);
-  } else { /* RUA does not have a RANAP-PDU so protect existing RUA Elementary Procedure as COL_INFO */
-     col_set_fence(actx->pinfo->cinfo, COL_INFO);
+ if ((tvb_length(ranap_message_tvb)>0)&&(ranap_handle)) {  /* RUA has a RANAP-PDU */
+     col_set_str(actx->pinfo->cinfo, COL_INFO,
+             "(RUA) ");                                    /* Set info to (RUA) to make room for RANAP */ 
+     col_set_fence(actx->pinfo->cinfo, COL_INFO);  
+     call_dissector(ranap_handle,ranap_message_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
   }
 #.END
 

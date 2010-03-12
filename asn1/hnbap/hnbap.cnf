@@ -55,10 +55,11 @@ CN-DomainIndicator
 #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
-#.FN_FTR ProcedureCode
-    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-             val_to_str(ProcedureCode, hnbap_ProcedureCode_vals,
-                      "Unknown Message"));
+#.FN_FTR ProcedureCode 
+  if (strcmp(val_to_str(ProcedureCode, hnbap_ProcedureCode_vals, "Unknown"), "Unknown") == 0) {
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+                      "Unknown Message");
+  } /* Known Procedures should be included below and broken out as ELEMENTARY names to avoid confusion */
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
 
@@ -68,73 +69,54 @@ CN-DomainIndicator
 
 # There is no protocol inside HNBAP so fill col info with HNBAP elementary procedure name
 #.FN_BODY HNBRegisterRequest
-	col_append_str(actx->pinfo->cinfo, COL_INFO, "HNB_REGISTER_REQUEST" );
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-	col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "HNB_REGISTER_REQUEST ");
 %(DEFAULT_BODY)s
 
 #.FN_BODY HNBRegisterAccept
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "HNB_REGISTER_ACCEPT" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "HNB_REGISTER_ACCEPT ");
 %(DEFAULT_BODY)s
 
 #.FN_BODY HNBRegisterReject
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "HNB_REGISTER_REJECT" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "HNB_REGISTER_REJECT ");
 %(DEFAULT_BODY)s
 
 #.FN_BODY UERegisterRequest
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "UE_REGISTER_REQUEST" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "UE_REGISTER_REQUEST ");
 %(DEFAULT_BODY)s
 
 #.FN_BODY UERegisterAccept
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "UE_REGISTER_ACCEPT" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "UE_REGISTER_ACCEPT ");
 %(DEFAULT_BODY)s
 
 #.FN_BODY UERegisterReject
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "UE_REGISTER_REJECT" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "UE_REGISTER_REJECT ");
 %(DEFAULT_BODY)s
 
 #.FN_BODY UEDe-Register
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "UE_DE-REGISTER" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "UE_DE-REGISTER ");
 %(DEFAULT_BODY)s
 
 #.FN_BODY HNBDe-Register
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "HNB_DE-REGISTER" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "HNB_DE-REGISTER ");
 %(DEFAULT_BODY)s
 
 #.FN_BODY ErrorIndication
-
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "ERROR_INDICATION" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "ERROR_INDICATION ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO); /* Protect info from CriticalityDiagnostics decodes */
 %(DEFAULT_BODY)s
 
 #.FN_BODY PrivateMessage
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "PRIVATE_MESSAGE" );
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "PRIVATE_MESSAGE ");
 %(DEFAULT_BODY)s
 #.END
 
