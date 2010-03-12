@@ -905,7 +905,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                     p_report_in_frame->amState = SN_Missing;
 
                     p_report_in_frame->firstSN = expectedSequenceNumber;
-                    p_report_in_frame->lastSN = sequenceNumber-1;
+                    p_report_in_frame->lastSN = (1024 + sequenceNumber-1) % 1024;
 
                     /* Update channel state - forget about missed SNs */
                     p_report_in_frame->sequenceExpected = expectedSequenceNumber;
