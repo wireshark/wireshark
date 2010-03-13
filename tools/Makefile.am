@@ -25,26 +25,33 @@ SUBDIRS = lemon
 
 PIDL_FILES= \
 	pidl/MANIFEST					\
+	pidl/META.yml					\
 	pidl/Makefile.PL				\
 	pidl/README					\
 	pidl/TODO					\
+	pidl/config.m4					\
+	pidl/config.mk					\
 	pidl/expr.yp					\
 	pidl/idl.yp					\
 	pidl/lib/Parse/Pidl.pm				\
+	pidl/lib/Parse/Pidl/CUtil.pm			\
 	pidl/lib/Parse/Pidl/Compat.pm			\
 	pidl/lib/Parse/Pidl/Dump.pm			\
 	pidl/lib/Parse/Pidl/Expr.pm			\
 	pidl/lib/Parse/Pidl/IDL.pm			\
 	pidl/lib/Parse/Pidl/NDR.pm			\
+	pidl/lib/Parse/Pidl/ODL.pm			\
 	pidl/lib/Parse/Pidl/Samba3/ClientNDR.pm		\
 	pidl/lib/Parse/Pidl/Samba3/ServerNDR.pm		\
 	pidl/lib/Parse/Pidl/Samba4.pm			\
-	pidl/lib/Parse/Pidl/Samba4/EJS.pm		\
+	pidl/lib/Parse/Pidl/Samba4/COM/Header.pm	\
+	pidl/lib/Parse/Pidl/Samba4/COM/Proxy.pm		\
+	pidl/lib/Parse/Pidl/Samba4/COM/Stub.pm		\
 	pidl/lib/Parse/Pidl/Samba4/Header.pm		\
 	pidl/lib/Parse/Pidl/Samba4/NDR/Client.pm	\
 	pidl/lib/Parse/Pidl/Samba4/NDR/Parser.pm	\
 	pidl/lib/Parse/Pidl/Samba4/NDR/Server.pm	\
-	pidl/lib/Parse/Pidl/Samba4/SWIG.pm		\
+	pidl/lib/Parse/Pidl/Samba4/Python.pm		\
 	pidl/lib/Parse/Pidl/Samba4/TDR.pm		\
 	pidl/lib/Parse/Pidl/Samba4/Template.pm		\
 	pidl/lib/Parse/Pidl/Typelist.pm			\
@@ -57,6 +64,7 @@ PIDL_FILES= \
 	pidl/smb_interfaces.pm				\
 	pidl/smb_interfaces.yp				\
 	pidl/tests/Util.pm				\
+	pidl/tests/cutil.pl				\
 	pidl/tests/dump.pl				\
 	pidl/tests/header.pl				\
 	pidl/tests/ndr.pl				\
@@ -74,6 +82,7 @@ PIDL_FILES= \
 	pidl/tests/parse_idl.pl				\
 	pidl/tests/samba-ndr.pl				\
 	pidl/tests/samba3-cli.pl			\
+	pidl/tests/samba3-srv.pl			\
 	pidl/tests/tdr.pl				\
 	pidl/tests/test_util.pl				\
 	pidl/tests/typelist.pl				\
