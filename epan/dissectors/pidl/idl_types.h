@@ -5,31 +5,14 @@
 #define STR_NOTERM	LIBNDR_FLAG_STR_NOTERM
 #define STR_NULLTERM	LIBNDR_FLAG_STR_NULLTERM
 #define STR_BYTESIZE	LIBNDR_FLAG_STR_BYTESIZE
-#define STR_FIXLEN32	LIBNDR_FLAG_STR_FIXLEN32
-#define STR_FIXLEN15	LIBNDR_FLAG_STR_FIXLEN15
 #define STR_CONFORMANT  LIBNDR_FLAG_STR_CONFORMANT
 #define STR_CHARLEN	LIBNDR_FLAG_STR_CHARLEN
 #define STR_UTF8	LIBNDR_FLAG_STR_UTF8
 
 /*
-  a UCS2 string prefixed with [size], 32 bits
-*/
-#define lstring		[flag(STR_SIZE4)] string
-
-/*
   a null terminated UCS2 string
 */
 #define nstring		[flag(STR_NULLTERM)] string
-
-/*
-  fixed length 32 character UCS-2 string
-*/
-#define string32	[flag(STR_FIXLEN32)] string
-
-/*
-  fixed length 16 character ascii string
-*/
-#define astring15       [flag(STR_ASCII|STR_FIXLEN15)] string
 
 /*
   an ascii string prefixed with [offset] [length], both 32 bits
@@ -84,3 +67,6 @@
   this is used to control formatting of uint8 arrays
 */
 #define NDR_PAHEX LIBNDR_PRINT_ARRAY_HEX
+
+#define NDR_RELATIVE_REVERSE LIBNDR_FLAG_RELATIVE_REVERSE
+#define NDR_NO_RELATIVE_REVERSE LIBNDR_FLAG_NO_RELATIVE_REVERSE
