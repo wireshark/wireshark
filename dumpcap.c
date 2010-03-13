@@ -84,6 +84,11 @@
 #include <wsutil/unicode-utils.h>
 #endif
 
+#ifndef _WIN32
+#include <sys/socket.h>
+#include <sys/un.h>
+#endif
+
 #include <wsutil/privileges.h>
 
 #include "sync_pipe.h"
@@ -856,13 +861,15 @@ cap_pipe_select(int pipe_fd) {
 
 
 /* Mimic pcap_open_live() for pipe captures
- * We check if "pipename" is "-" (stdin) or a FIFO, open it, and read the
- * header.
+
+ * We check if "pipename" is "-" (stdin), a AF_UNIX socket, or a FIFO,
+ * open it, and read the header.
+ *
  * N.B. : we can't read the libpcap formats used in RedHat 6.1 or SuSE 6.3
  * because we can't seek on pipes (see wiretap/libpcap.c for details) */
 static void
 cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
-                 char *errmsg, int errmsgl)
+                   char *errmsg, int errmsgl)
 {
 #ifdef USE_THREADS
   GTimeVal wait_time;
@@ -870,6 +877,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
 #endif
 #ifndef _WIN32
   struct stat pipe_stat;
+  struct sockaddr_un sa;
   int          sel_ret;
   int          b;
   unsigned int bytes_read;
@@ -890,7 +898,8 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_open_live: %s", pipename);
 
   /*
-   * XXX (T)Wireshark blocks until we return
+   * XXX - this blocks until a pcap per-file header has been written to
+   * the pipe, so it could block indefinitely.
    */
   if (strcmp(pipename, "-") == 0) {
 #ifndef _WIN32
@@ -906,12 +915,70 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
       else {
         g_snprintf(errmsg, errmsgl,
           "The capture session could not be initiated "
-          "due to error on pipe: %s", strerror(errno));
+          "due to error getting information on pipe/socket: %s", strerror(errno));
         ld->cap_pipe_err = PIPERR;
       }
       return;
     }
-    if (! S_ISFIFO(pipe_stat.st_mode)) {
+    if (S_ISFIFO(pipe_stat.st_mode)) {
+      fd = ws_open(pipename, O_RDONLY | O_NONBLOCK, 0000 /* no creation so don't matter */);
+      if (fd == -1) {
+        g_snprintf(errmsg, errmsgl,
+            "The capture session could not be initiated "
+            "due to error on pipe open: %s", strerror(errno));
+        ld->cap_pipe_err = PIPERR;
+        return;
+      }
+    } else if (S_ISSOCK(pipe_stat.st_mode)) {
+      fd = socket(AF_UNIX, SOCK_STREAM, 0);
+      if (fd == -1) {
+        g_snprintf(errmsg, errmsgl,
+	    "The capture session could not be initiated "
+	    "due to error on socket create: %s", strerror(errno));
+        ld->cap_pipe_err = PIPERR;
+	return;
+      }
+      sa.sun_family = AF_UNIX;
+      /*
+       * The Single UNIX Specification says:
+       *
+       *   The size of sun_path has intentionally been left undefined.
+       *   This is because different implementations use different sizes.
+       *   For example, 4.3 BSD uses a size of 108, and 4.4 BSD uses a size
+       *   of 104. Since most implementations originate from BSD versions,
+       *   the size is typically in the range 92 to 108.
+       *
+       *   Applications should not assume a particular length for sun_path
+       *   or assume that it can hold {_POSIX_PATH_MAX} bytes (256).
+       *
+       * It also says
+       *
+       *   The <sys/un.h> header shall define the sockaddr_un structure,
+       *   which shall include at least the following members:
+       *
+       *   sa_family_t  sun_family  Address family. 
+       *   char         sun_path[]  Socket pathname.
+       *
+       * so we assume that it's an array, with a specified size,
+       * and that the size reflects the maximum path length.
+       */
+      if (g_strlcpy(sa.sun_path, pipename, sizeof sa.sun_path) > sizeof sa.sun_path) {
+        /* Path name too long */
+        g_snprintf(errmsg, errmsgl,
+	    "The capture session coud not be initiated "
+	    "due to error on socket connect: Path name too long");
+        ld->cap_pipe_err = PIPERR;
+	return;
+      }
+      b = connect(fd, (struct sockaddr *)&sa, sizeof sa);
+      if (b == -1) {
+        g_snprintf(errmsg, errmsgl,
+	    "The capture session coud not be initiated "
+	    "due to error on socket connect: %s", strerror(errno));
+        ld->cap_pipe_err = PIPERR;
+	return;
+      }
+    } else {
       if (S_ISCHR(pipe_stat.st_mode)) {
         /*
          * Assume the user specified an interface on a system where
@@ -922,17 +989,9 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
       {
         g_snprintf(errmsg, errmsgl,
             "The capture session could not be initiated because\n"
-            "\"%s\" is neither an interface nor a pipe", pipename);
+            "\"%s\" is neither an interface nor a socket nor a pipe", pipename);
         ld->cap_pipe_err = PIPERR;
       }
-      return;
-    }
-    fd = ws_open(pipename, O_RDONLY | O_NONBLOCK, 0000 /* no creation so don't matter */);
-    if (fd == -1) {
-      g_snprintf(errmsg, errmsgl,
-          "The capture session could not be initiated "
-          "due to error on pipe open: %s", strerror(errno));
-      ld->cap_pipe_err = PIPERR;
       return;
     }
 #else /* _WIN32 */
@@ -989,7 +1048,6 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
         return;
       }
     }
-
 #endif /* _WIN32 */
   }
 
