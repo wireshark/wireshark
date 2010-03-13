@@ -59,10 +59,6 @@ struct tevent_req *rpccli_bar_send(TALLOC_CTX *mem_ctx,
 
 	/* Out parameters */
 
-	if (DEBUGLEVEL >= 10) {
-		NDR_PRINT_IN_DEBUG(bar, &state->orig);
-	}
-
 	/* make a temporary copy, that we pass to the dispatch function */
 	state->tmp = state->orig;
 
@@ -104,10 +100,6 @@ static void rpccli_bar_done(struct tevent_req *subreq)
 	/* Reset temporary structure */
 	ZERO_STRUCT(state->tmp);
 
-	if (DEBUGLEVEL >= 10) {
-		NDR_PRINT_OUT_DEBUG(bar, &state->orig);
-	}
-
 	tevent_req_done(req);
 }
 
@@ -133,14 +125,10 @@ NTSTATUS rpccli_bar_recv(struct tevent_req *req,
 NTSTATUS rpccli_bar(struct rpc_pipe_client *cli,
 		    TALLOC_CTX *mem_ctx)
 {
-\tstruct bar r;
-\tNTSTATUS status;
+	struct bar r;
+	NTSTATUS status;
 
-\t/* In parameters */
-
-\tif (DEBUGLEVEL >= 10) {
-\t\tNDR_PRINT_IN_DEBUG(bar, &r);
-\t}
+	/* In parameters */
 
 	status = cli->dispatch(cli,
 				mem_ctx,
@@ -148,22 +136,18 @@ NTSTATUS rpccli_bar(struct rpc_pipe_client *cli,
 				NDR_BAR,
 				&r);
 
-\tif (!NT_STATUS_IS_OK(status)) {
-\t\treturn status;
-\t}
+	if (!NT_STATUS_IS_OK(status)) {
+		return status;
+	}
 
-\tif (DEBUGLEVEL >= 10) {
-\t\tNDR_PRINT_OUT_DEBUG(bar, &r);
-\t}
+	if (NT_STATUS_IS_ERR(status)) {
+		return status;
+	}
 
-\tif (NT_STATUS_IS_ERR(status)) {
-\t\treturn status;
-\t}
+	/* Return variables */
 
-\t/* Return variables */
-
-\t/* Return result */
-\treturn NT_STATUS_OK;
+	/* Return result */
+	return NT_STATUS_OK;
 }
 
 ");
@@ -204,10 +188,6 @@ struct tevent_req *rpccli_bar_send(TALLOC_CTX *mem_ctx,
 
 	/* Result */
 	ZERO_STRUCT(state->orig.out.result);
-
-	if (DEBUGLEVEL >= 10) {
-		NDR_PRINT_IN_DEBUG(bar, &state->orig);
-	}
 
 	/* make a temporary copy, that we pass to the dispatch function */
 	state->tmp = state->orig;
@@ -253,10 +233,6 @@ static void rpccli_bar_done(struct tevent_req *subreq)
 	/* Reset temporary structure */
 	ZERO_STRUCT(state->tmp);
 
-	if (DEBUGLEVEL >= 10) {
-		NDR_PRINT_OUT_DEBUG(bar, &state->orig);
-	}
-
 	tevent_req_done(req);
 }
 
@@ -287,14 +263,10 @@ NTSTATUS rpccli_bar(struct rpc_pipe_client *cli,
 		    TALLOC_CTX *mem_ctx,
 		    WERROR *werror)
 {
-\tstruct bar r;
-\tNTSTATUS status;
+	struct bar r;
+	NTSTATUS status;
 
-\t/* In parameters */
-
-\tif (DEBUGLEVEL >= 10) {
-\t\tNDR_PRINT_IN_DEBUG(bar, &r);
-\t}
+	/* In parameters */
 
 	status = cli->dispatch(cli,
 				mem_ctx,
@@ -302,26 +274,22 @@ NTSTATUS rpccli_bar(struct rpc_pipe_client *cli,
 				NDR_BAR,
 				&r);
 
-\tif (!NT_STATUS_IS_OK(status)) {
-\t\treturn status;
-\t}
+	if (!NT_STATUS_IS_OK(status)) {
+		return status;
+	}
 
-\tif (DEBUGLEVEL >= 10) {
-\t\tNDR_PRINT_OUT_DEBUG(bar, &r);
-\t}
+	if (NT_STATUS_IS_ERR(status)) {
+		return status;
+	}
 
-\tif (NT_STATUS_IS_ERR(status)) {
-\t\treturn status;
-\t}
+	/* Return variables */
 
-\t/* Return variables */
+	/* Return result */
+	if (werror) {
+		*werror = r.out.result;
+	}
 
-\t/* Return result */
-\tif (werror) {
-\t\t*werror = r.out.result;
-\t}
-
-\treturn werror_to_ntstatus(r.out.result);
+	return werror_to_ntstatus(r.out.result);
 }
 
 ");
@@ -333,4 +301,4 @@ my $e = { NAME => "foo", ORIGINAL => { FILE => "f", LINE => -1 },
           LEVELS => [ { TYPE => "ARRAY", SIZE_IS => "mysize" }, { TYPE => "DATA", DATA_TYPE => "int" } ]};
 
 $x->ParseOutputArgument($fn, $e);
-is($x->{res}, "memcpy(foo, r.out.foo, mysize * sizeof(*foo));\n");
+is($x->{res}, "memcpy(foo, r.out.foo, (mysize) * sizeof(*foo));\n");

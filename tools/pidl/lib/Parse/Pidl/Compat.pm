@@ -125,6 +125,10 @@ sub CheckElement($)
 		warning($e, "relative() pointer property not supported");
 	}
 
+	if (has_property($e, "relative_short")) {
+		warning($e, "relative_short() pointer property not supported");
+	}
+
 	if (has_property($e, "flag")) {
 		warning($e, "ignoring flag() property");
 	}

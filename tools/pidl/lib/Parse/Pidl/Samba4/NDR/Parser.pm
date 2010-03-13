@@ -567,17 +567,24 @@ sub ParseElementPushLevel
 	}
 
 	if ($l->{TYPE} eq "POINTER" and $deferred) {
+		my $rel_var_name = $var_name;
 		if ($l->{POINTER_TYPE} ne "ref") {
 			$self->pidl("if ($var_name) {");
 			$self->indent;
 			if ($l->{POINTER_TYPE} eq "relative") {
-				$self->pidl("NDR_CHECK(ndr_push_relative_ptr2($ndr, $var_name));");
+				$self->pidl("NDR_CHECK(ndr_push_relative_ptr2_start($ndr, $rel_var_name));");
+			}
+			if ($l->{POINTER_TYPE} eq "relative_short") {
+				$self->pidl("NDR_CHECK(ndr_push_short_relative_ptr2($ndr, $var_name));");
 			}
 		}
 		$var_name = get_value_of($var_name);
 		$self->ParseElementPushLevel($e, GetNextLevel($e, $l), $ndr, $var_name, $env, 1, 1);
 
 		if ($l->{POINTER_TYPE} ne "ref") {
+			if ($l->{POINTER_TYPE} eq "relative") {
+				$self->pidl("NDR_CHECK(ndr_push_relative_ptr2_end($ndr, $rel_var_name));");
+			}
 			$self->deindent;
 			$self->pidl("}");
 		}
@@ -670,6 +677,8 @@ sub ParsePtrPush($$$$$)
 		}
 	} elsif ($l->{POINTER_TYPE} eq "relative") {
 		$self->pidl("NDR_CHECK(ndr_push_relative_ptr1($ndr, $var_name));");
+	} elsif ($l->{POINTER_TYPE} eq "relative_short") {
+		$self->pidl("NDR_CHECK(ndr_push_short_relative_ptr1($ndr, $var_name));");
 	} elsif ($l->{POINTER_TYPE} eq "unique") {
 		$self->pidl("NDR_CHECK(ndr_push_unique_ptr($ndr, $var_name));");
 	} elsif ($l->{POINTER_TYPE} eq "full") {
@@ -1038,7 +1047,7 @@ sub ParseElementPullLevel
 			$self->pidl("if ($var_name) {");
 			$self->indent;
 
-			if ($l->{POINTER_TYPE} eq "relative") {
+			if ($l->{POINTER_TYPE} eq "relative" or $l->{POINTER_TYPE} eq "relative_short") {
 				$self->pidl("uint32_t _relative_save_offset;");
 				$self->pidl("_relative_save_offset = $ndr->offset;");
 				$self->pidl("NDR_CHECK(ndr_pull_relative_ptr2($ndr, $var_name));");
@@ -1053,7 +1062,12 @@ sub ParseElementPullLevel
 		$self->ParseMemCtxPullEnd($e, $l, $ndr);
 
 		if ($l->{POINTER_TYPE} ne "ref") {
-    			if ($l->{POINTER_TYPE} eq "relative") {
+			if ($l->{POINTER_TYPE} eq "relative") {
+				$self->pidl("if ($ndr->offset > $ndr->relative_highest_offset) {");
+				$self->indent;
+				$self->pidl("$ndr->relative_highest_offset = $ndr->offset;");
+				$self->deindent;
+				$self->pidl("}");
 				$self->pidl("$ndr->offset = _relative_save_offset;");
 			}
 			$self->deindent;
@@ -1165,6 +1179,8 @@ sub ParsePtrPull($$$$$)
 		 ($l->{POINTER_TYPE} eq "relative") or
 		 ($l->{POINTER_TYPE} eq "full")) {
 		$self->pidl("NDR_CHECK(ndr_pull_generic_ptr($ndr, &_ptr_$e->{NAME}));");
+	} elsif ($l->{POINTER_TYPE} eq "relative_short") {
+		$self->pidl("NDR_CHECK(ndr_pull_relative_ptr_short($ndr, &_ptr_$e->{NAME}));");
 	} else {
 		die("Unhandled pointer type $l->{POINTER_TYPE}");
 	}
@@ -1185,7 +1201,7 @@ sub ParsePtrPull($$$$$)
 	}
 
 	#$self->pidl("memset($var_name, 0, sizeof($var_name));");
-	if ($l->{POINTER_TYPE} eq "relative") {
+	if ($l->{POINTER_TYPE} eq "relative" or $l->{POINTER_TYPE} eq "relative_short") {
 		$self->pidl("NDR_CHECK(ndr_pull_relative_ptr1($ndr, $var_name, _ptr_$e->{NAME}));");
 	}
 	$self->deindent;
@@ -1466,9 +1482,13 @@ sub DeclarePtrVariables($$)
 {
 	my ($self,$e) = @_;
 	foreach my $l (@{$e->{LEVELS}}) {
+		my $size = 32;
 		if ($l->{TYPE} eq "POINTER" and 
 			not ($l->{POINTER_TYPE} eq "ref" and $l->{LEVEL} eq "TOP")) {
-			$self->pidl("uint32_t _ptr_$e->{NAME};");
+			if ($l->{POINTER_TYPE} eq "relative_short") {
+				$size = 16;
+			}
+			$self->pidl("uint${size}_t _ptr_$e->{NAME};");
 			last;
 		}
 	}
@@ -2135,7 +2155,7 @@ sub AllocateArrayLevel($$$$$$)
 		$self->pidl("}");
 		if (grep(/in/,@{$e->{DIRECTION}}) and
 		    grep(/out/,@{$e->{DIRECTION}})) {
-			$self->pidl("memcpy(r->out.$e->{NAME}, r->in.$e->{NAME}, $size * sizeof(*r->in.$e->{NAME}));");
+			$self->pidl("memcpy(r->out.$e->{NAME}, r->in.$e->{NAME}, ($size) * sizeof(*r->in.$e->{NAME}));");
 		}
 		return;
 	}

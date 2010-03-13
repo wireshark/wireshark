@@ -39,7 +39,7 @@ $VERSION = '0.01';
 
 use strict;
 use Parse::Pidl qw(warning fatal);
-use Parse::Pidl::Typelist qw(hasType getType expandAlias);
+use Parse::Pidl::Typelist qw(hasType getType expandAlias mapScalarType);
 use Parse::Pidl::Util qw(has_property property_matches);
 
 # Alignment of the built-in scalar types
@@ -351,6 +351,7 @@ sub pointer_type($)
 	return "sptr" if (has_property($e, "sptr"));
 	return "unique" if (has_property($e, "unique"));
 	return "relative" if (has_property($e, "relative"));
+	return "relative_short" if (has_property($e, "relative_short"));
 	return "ignore" if (has_property($e, "ignore"));
 
 	return undef;
@@ -902,6 +903,7 @@ my %property_list = (
 	"unique"		=> ["ELEMENT"],
 	"ignore"		=> ["ELEMENT"],
 	"relative"		=> ["ELEMENT"],
+	"relative_short"	=> ["ELEMENT"],
 	"null_is_ffffffff" => ["ELEMENT"],
 	"relative_base"		=> ["TYPEDEF", "STRUCT", "UNION"],
 
@@ -1010,13 +1012,13 @@ sub ValidElement($)
 			my $discriminator_type = has_property($type->{DATA}, "switch_type");
 			$discriminator_type = "uint32" unless defined ($discriminator_type);
 
-			my $t1 = mapToScalar($discriminator_type);
+			my $t1 = mapScalarType(mapToScalar($discriminator_type));
 
 			if (not defined($t1)) {
 				fatal($e, el_name($e) . ": unable to map discriminator type '$discriminator_type' to scalar");
 			}
 
-			my $t2 = mapToScalar($e2->{TYPE});
+			my $t2 = mapScalarType(mapToScalar($e2->{TYPE}));
 			if (not defined($t2)) {
 				fatal($e, el_name($e) . ": unable to map variable used for switch_is() to scalar");
 			}
@@ -1059,6 +1061,7 @@ sub ValidElement($)
 		has_property($e, "ptr") or
 		has_property($e, "unique") or
 		has_property($e, "relative") or
+		has_property($e, "relative_short") or
 		has_property($e, "ref"))) {
 		fatal($e, el_name($e) . " : pointer properties on non-pointer element\n");	
 	}

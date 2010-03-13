@@ -105,9 +105,9 @@ sub ParseOutputArgument($$$;$$)
 		} else {
 			my $size_is = ParseExpr($l->{SIZE_IS}, $env, $e->{ORIGINAL});
 			if (has_property($e, "charset")) {
-				$self->pidl("memcpy(CONST_DISCARD(char *, $o$e->{NAME}), ${r}out.$e->{NAME}, $size_is * sizeof(*$o$e->{NAME}));");
+				$self->pidl("memcpy(discard_const_p(uint8_t *, $o$e->{NAME}), ${r}out.$e->{NAME}, ($size_is) * sizeof(*$o$e->{NAME}));");
 			} else {
-				$self->pidl("memcpy($o$e->{NAME}, ${r}out.$e->{NAME}, $size_is * sizeof(*$o$e->{NAME}));");
+				$self->pidl("memcpy($o$e->{NAME}, ${r}out.$e->{NAME}, ($size_is) * sizeof(*$o$e->{NAME}));");
 			}
 		}
 	} else {
@@ -207,13 +207,6 @@ sub ParseFunctionAsyncSend($$$)
 		$self->pidl("");
 	}
 
-	$self->pidl("if (DEBUGLEVEL >= 10) {");
-	$self->indent;
-	$self->pidl("NDR_PRINT_IN_DEBUG($fn->{NAME}, &state->orig);");
-	$self->deindent;
-	$self->pidl("}");
-	$self->pidl("");
-
 	if ($out_params > 0) {
 		$self->pidl("state->out_mem_ctx = talloc_named_const(state, 0,");
 		$self->pidl("\t\t     \"$out_mem_ctx\");");
@@ -300,13 +293,6 @@ sub ParseFunctionAsyncDone($$$)
 
 	$self->pidl("/* Reset temporary structure */");
 	$self->pidl("ZERO_STRUCT(state->tmp);");
-	$self->pidl("");
-
-	$self->pidl("if (DEBUGLEVEL >= 10) {");
-	$self->indent;
-	$self->pidl("NDR_PRINT_OUT_DEBUG($fn->{NAME}, &state->orig);");
-	$self->deindent;
-	$self->pidl("}");
 	$self->pidl("");
 
 	$self->pidl("tevent_req_done(req);");
@@ -399,12 +385,6 @@ sub ParseFunctionSync($$$)
 	}
 
 	$self->pidl("");
-	$self->pidl("if (DEBUGLEVEL >= 10) {");
-	$self->indent;
-	$self->pidl("NDR_PRINT_IN_DEBUG($fn->{NAME}, &r);");
-	$self->deindent;
-	$self->pidl("}");
-	$self->pidl("");
 	$self->pidl("status = cli->dispatch(cli,");
 	$self->pidl("\t\t\tmem_ctx,");
 	$self->pidl("\t\t\t&ndr_table_$if,");
@@ -418,12 +398,6 @@ sub ParseFunctionSync($$$)
 	$self->deindent;
 	$self->pidl("}");
 
-	$self->pidl("");
-	$self->pidl("if (DEBUGLEVEL >= 10) {");
-	$self->indent;
-	$self->pidl("NDR_PRINT_OUT_DEBUG($fn->{NAME}, &r);");
-	$self->deindent;
-	$self->pidl("}");
 	$self->pidl("");
 	$self->pidl("if (NT_STATUS_IS_ERR(status)) {");
 	$self->indent;
