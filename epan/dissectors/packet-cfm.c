@@ -57,6 +57,7 @@ static const value_string opcodetypenames[] = {
 	{ LCK,		"Lock Signal (LCK)" },
 	{ TST,		"Test Signal (TST)" },
 	{ APS,		"Automatic Protection Switching (APS)" },
+	{ RAPS,		"Ring-Automatic Protection Switching (R-APS)" },
 	{ MCC,		"Maintenance Communication Channel (MCC)" },
 	{ LMM,		"Loss Measurement Message (LMM)" },
 	{ LMR,		"Loss Measurement Reply (LMR)" },
@@ -164,6 +165,21 @@ static const value_string testTLVpatterntypes[] = {
 	{ 3, "PRBS (2.e-31 -1), with CRC-32" },
 	{ 0, NULL }
 };
+static const value_string rapsrequeststatevalues[] = {
+	{ 0,  "No Request" },
+	{ 11, "Signal Failure" },
+	{ 0,  NULL }
+};
+static const value_string rapsrplblockedvalues[] = {
+	{ 0, "Not Blocked" },
+	{ 1, "Blocked" },
+	{ 0, NULL }
+};
+static const value_string rapsdnfvalues[] = {
+	{ 0, "Flush DB" },
+	{ 1, "Do Not Flush DB" },
+	{ 0, NULL }
+};
 
 
 static int hf_cfm_md_level = -1;
@@ -228,6 +244,14 @@ static int hf_cfm_tst_sequence_num = -1;
 
 static int hf_cfm_aps_pdu = -1;
 static int hf_cfm_aps_data = -1;
+
+static int hf_cfm_raps_pdu = -1;
+static int hf_cfm_raps_req_st = -1;
+static int hf_cfm_raps_flags = -1;
+static int hf_cfm_raps_flags_rb = -1;
+static int hf_cfm_raps_flags_dnf = -1;
+static int hf_cfm_raps_node_id = -1;
+static int hf_cfm_raps_reserved = -1;
 
 static int hf_cfm_mcc_pdu = -1;
 static int hf_cfm_mcc_data = -1;
@@ -296,6 +320,7 @@ static gint ett_cfm_ccm_itu = -1;
 static gint ett_cfm_pdu = -1;
 static gint ett_cfm_all_tlvs = -1;
 static gint ett_cfm_tlv = -1;
+static gint ett_cfm_raps_flags = -1;
 
 /* Register CFM EOAM protocol */
 void proto_register_cfm(void)
@@ -525,6 +550,36 @@ void proto_register_cfm(void)
 		},
 		{ &hf_cfm_aps_data,
 			{ "APS data", "cfm.aps.data", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		
+		/* CFM R-APS */
+		{ &hf_cfm_raps_pdu,
+			{ "CFM R-APS PDU", "cfm.raps.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_raps_req_st,
+			{ "Request/State", "cfm.raps.req.st", FT_UINT8,
+			BASE_HEX, VALS(rapsrequeststatevalues), 0xF0, NULL, HFILL }
+		},
+		{ &hf_cfm_raps_flags,
+			{ "R-APS Flags", "cfm.raps.flags", FT_UINT8,
+			BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_raps_flags_rb,
+			{ "RPL Blocked", "cfm.raps.flags.rb", FT_UINT8,
+			BASE_HEX, VALS(rapsrplblockedvalues), 0x80, NULL, HFILL }
+		},
+		{ &hf_cfm_raps_flags_dnf,
+			{ "Do Not Flush", "cfm.raps.flags.dnf", FT_UINT8,
+			BASE_HEX, VALS(rapsdnfvalues), 0x40, NULL, HFILL }
+		},
+		{ &hf_cfm_raps_node_id,
+			{ "R-APS Node ID", "cfm.raps.node.id", FT_ETHER,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_raps_reserved,
+			{ "R-APS Reserved", "cfm.raps.reserved", FT_BYTES,
 			BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 
@@ -787,7 +842,8 @@ void proto_register_cfm(void)
 		&ett_cfm_ccm_itu,
 		&ett_cfm_pdu,
 		&ett_cfm_all_tlvs,
-		&ett_cfm_tlv
+		&ett_cfm_tlv,
+		&ett_cfm_raps_flags
 	};
 
 	proto_cfm = proto_register_protocol (
@@ -1110,6 +1166,44 @@ static int dissect_cfm_aps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 		offset += cfm_tlv_offset;
 	}
 
+	return offset;
+}
+
+static int dissect_cfm_raps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti = NULL;
+	proto_item *fi = NULL;
+	proto_item *ri = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
+	proto_tree *cfm_flag_tree = NULL;
+	proto_tree *raps_flag_tree = NULL;
+
+	ti = proto_tree_add_item(tree, hf_cfm_raps_pdu, tvb, offset, -1, FALSE);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Reserved, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_raps_req_st, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	ri = proto_tree_add_item(cfm_pdu_tree, hf_cfm_raps_flags, tvb, offset, 1, FALSE);
+	raps_flag_tree = proto_item_add_subtree(ri, ett_cfm_raps_flags);
+	proto_tree_add_item(raps_flag_tree, hf_cfm_raps_flags_rb, tvb, offset, 1, FALSE);
+	proto_tree_add_item(raps_flag_tree, hf_cfm_raps_flags_dnf, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_raps_node_id, tvb, offset, 6, FALSE);
+	offset += 6;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_raps_reserved, tvb, offset, 24, FALSE);
+	offset += 24;
+  
 	return offset;
 }
 
@@ -1530,6 +1624,9 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case APS:
 			offset = dissect_cfm_aps(tvb, pinfo, tree, offset);
+			break;
+		case RAPS:
+			offset = dissect_cfm_raps(tvb, pinfo, tree, offset);
 			break;
 		case MCC:
 			offset = dissect_cfm_mcc(tvb, pinfo, tree, offset);
