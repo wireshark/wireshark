@@ -118,9 +118,11 @@ static const true_false_string tfs_keyinfo_key_type =
 	{ "Pairwise key", "Group key" };
 #define KEYDES_VER_TYPE1	0x01
 #define KEYDES_VER_TYPE2	0x02
+#define KEYDES_VER_TYPE3	0x03
 static const value_string keydes_ver[] = {
 	{ KEYDES_VER_TYPE1,	"HMAC-MD5 for MIC and RC4 for encryption" },
-	{ KEYDES_VER_TYPE2,	"HMAC-SHA1 for MIC and AES-CCMP for encryption" },
+	{ KEYDES_VER_TYPE2,	"HMAC-SHA1 for MIC and AES key wrap for encryption" },
+	{ KEYDES_VER_TYPE3,	"AES-128-CMAC for MIC and AES key wrap for encryption" },
 	{ 0, 		NULL }
 };
 
@@ -184,6 +186,38 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset += 1;
       if (keydesc_type == EAPOL_WPA_KEY || keydesc_type == EAPOL_RSN_KEY) {
 	keyinfo = tvb_get_ntohs(tvb, offset);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+          if (keyinfo & KEY_INFO_REQUEST_MASK) {
+            col_set_str(pinfo->cinfo, COL_INFO, "Key (Request)");
+            if (keyinfo & KEY_INFO_ERROR_MASK)
+              col_set_str(pinfo->cinfo, COL_INFO, "Key (Request, Error)");
+          } else if (keyinfo & KEY_INFO_KEY_TYPE_MASK) {
+            guint16 masked;
+            masked = keyinfo &
+              (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK |
+               KEY_INFO_KEY_MIC_MASK | KEY_INFO_SECURE_MASK);
+            switch (masked) {
+            case KEY_INFO_KEY_ACK_MASK:
+              col_set_str(pinfo->cinfo, COL_INFO, "Key (msg 1/4)");
+              break;
+            case KEY_INFO_KEY_MIC_MASK:
+              col_set_str(pinfo->cinfo, COL_INFO, "Key (msg 2/4)");
+              break;
+            case (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK |
+                  KEY_INFO_KEY_MIC_MASK | KEY_INFO_SECURE_MASK):
+              col_set_str(pinfo->cinfo, COL_INFO, "Key (msg 3/4)");
+              break;
+            case (KEY_INFO_KEY_MIC_MASK | KEY_INFO_SECURE_MASK):
+              col_set_str(pinfo->cinfo, COL_INFO, "Key (msg 4/4)");
+              break;
+            }
+          } else {
+            if (keyinfo & KEY_INFO_KEY_ACK_MASK)
+              col_set_str(pinfo->cinfo, COL_INFO, "Key (Group msg 1/2)");
+            else
+              col_set_str(pinfo->cinfo, COL_INFO, "Key (Group msg 2/2)");
+          }
+        }
 	keyinfo_item =
 	  proto_tree_add_uint(eapol_tree, hf_eapol_wpa_keydes_keyinfo, tvb,
 			      offset, 2, keyinfo);
