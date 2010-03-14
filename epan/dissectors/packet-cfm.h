@@ -37,6 +37,7 @@
 #define LCK 0x23
 #define TST 0x25
 #define APS 0x27
+#define RAPS 0x28
 #define MCC 0x29
 #define LMM 0x2B
 #define LMR 0x2A
