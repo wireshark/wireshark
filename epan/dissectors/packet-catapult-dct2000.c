@@ -697,8 +697,8 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
                                 tvb, offset, 1, FALSE);
             logicalChannelType = (LogicalChannelType)tvb_get_guint8(tvb, offset++);
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                            val_to_str(logicalChannelType, rlc_logical_channel_vals,
-                                       "UNKNOWN-CHANNEL"));
+                            val_to_str_const(logicalChannelType, rlc_logical_channel_vals,
+                                             "UNKNOWN-CHANNEL"));
 
             switch (logicalChannelType) {
                 case Channel_BCCH:
@@ -977,8 +977,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                                         tvb, offset, 1, FALSE);
                     p_pdcp_lte_info->channelType = tvb_get_guint8(tvb, offset++);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                                    val_to_str(p_pdcp_lte_info->channelType, rlc_logical_channel_vals,
-                                               "UNKNOWN-CHANNEL"));
+                                    val_to_str_const(p_pdcp_lte_info->channelType, rlc_logical_channel_vals,
+                                                     "UNKNOWN-CHANNEL"));
 
                     switch (p_pdcp_lte_info->channelType) {
                         case Channel_BCCH:
@@ -1366,11 +1366,19 @@ static void attach_mac_lte_info(packet_info *pinfo)
     p_mac_lte_info = se_alloc0(sizeof(struct mac_lte_info));
 
     /* Populate the struct from outhdr values */
-    p_mac_lte_info->crcStatusValid = FALSE;
+    p_mac_lte_info->crcStatusValid = FALSE;  /* not set yet */
 
     p_mac_lte_info->radioType = outhdr_values[i++] + 1;
     p_mac_lte_info->rntiType = outhdr_values[i++];
     p_mac_lte_info->direction = outhdr_values[i++];
+    /* Set these extra PHY present flags to FALSE by default */
+    if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
+        p_mac_lte_info->detailed_phy_info.ul_info.present = FALSE;
+    }
+    else {
+        p_mac_lte_info->detailed_phy_info.dl_info.present = FALSE;
+    }
+
     p_mac_lte_info->subframeNumber = outhdr_values[i++];
     p_mac_lte_info->isPredefinedData = outhdr_values[i++];
     p_mac_lte_info->rnti = outhdr_values[i++];
@@ -1379,14 +1387,37 @@ static void attach_mac_lte_info(packet_info *pinfo)
     if (outhdr_values_found > 8) {
         p_mac_lte_info->reTxCount = outhdr_values[i++];
     }
-    if (outhdr_values_found > 9) {
+    if (outhdr_values_found == 10) {
         /* CRC only valid for Downlink */
         if (p_mac_lte_info->direction == DIRECTION_DOWNLINK) {
             p_mac_lte_info->crcStatusValid = TRUE;
-            p_mac_lte_info->crcStatus = outhdr_values[i++];
+            p_mac_lte_info->detailed_phy_info.dl_info.crc_status = outhdr_values[i++];
         }
         else {
             i++;
+        }
+    }
+
+    if (outhdr_values_found > 10) {
+        /* Extra PHY parameters */
+        if (p_mac_lte_info->direction == DIRECTION_DOWNLINK) {
+            p_mac_lte_info->detailed_phy_info.dl_info.present = outhdr_values[i++];
+            p_mac_lte_info->detailed_phy_info.dl_info.dci_format = outhdr_values[i++];
+            p_mac_lte_info->detailed_phy_info.dl_info.resource_allocation_type = outhdr_values[i++];
+            p_mac_lte_info->detailed_phy_info.dl_info.aggregation_level = outhdr_values[i++];
+            p_mac_lte_info->detailed_phy_info.dl_info.mcs_index = outhdr_values[i++];
+            p_mac_lte_info->detailed_phy_info.dl_info.redundancy_version_index = outhdr_values[i++];
+            p_mac_lte_info->detailed_phy_info.dl_info.retx = outhdr_values[i++];
+            p_mac_lte_info->detailed_phy_info.dl_info.resource_block_length = outhdr_values[i++];
+            p_mac_lte_info->crcStatusValid = TRUE;
+            p_mac_lte_info->detailed_phy_info.dl_info.crc_status = outhdr_values[i++];
+        }
+        else {
+            p_mac_lte_info->detailed_phy_info.ul_info.present = outhdr_values[i++];
+            p_mac_lte_info->detailed_phy_info.ul_info.modulation_type = outhdr_values[i++];
+            p_mac_lte_info->detailed_phy_info.ul_info.tbs_index = outhdr_values[i++];
+            p_mac_lte_info->detailed_phy_info.ul_info.resource_block_length = outhdr_values[i++];
+            p_mac_lte_info->detailed_phy_info.ul_info.resource_block_start = outhdr_values[i++];
         }
     }
 

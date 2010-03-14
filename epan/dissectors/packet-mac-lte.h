@@ -87,8 +87,31 @@ typedef struct mac_lte_info
     guint16         length;
     guint8          reTxCount;
     guint8          crcStatusValid;
-    guint8          crcStatus;
 
+    /* More Physical layer info (direction-specific) */
+    union {
+        struct mac_lte_ul_phy_info
+        {
+            guint8 present;
+            guint8 modulation_type;
+            guint8 tbs_index;
+            guint8 resource_block_length;
+            guint8 resource_block_start;
+        } ul_info;
+        struct mac_lte_dl_phy_info
+        {
+            guint8 present;
+            guint8 dci_format;
+            guint8 resource_allocation_type;
+            guint8 aggregation_level;
+            guint8 mcs_index;
+            guint8 redundancy_version_index;
+            guint8 retx;
+            guint8 resource_block_length; 
+            guint8 crc_status;
+        } dl_info;
+    } detailed_phy_info;
+    
     /* Relating to out-of-band events */
     mac_lte_oob_event  oob_event;
     guint8             rapid;
