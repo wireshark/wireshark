@@ -641,6 +641,14 @@ static hf_sip_uri_t sip_from_uri = {
 	&hf_sip_from_port,
 	&ett_sip_from_uri
 };
+
+static hf_sip_uri_t sip_req_uri = {
+	&hf_sip_ruri,
+	&hf_sip_ruri_user,
+	&hf_sip_ruri_host,
+	&hf_sip_ruri_port,
+	&ett_sip_ruri
+};
 /*
  * Type of line.  It's either a SIP Request-Line, a SIP Status-Line, or
  * another type of line.
@@ -692,7 +700,7 @@ static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
     guint meth_len, guint *meth_idx);
 static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset,
     guint header_len);
-static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree,
+static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint meth_len, gint linelen);
 static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree);
 static void tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
@@ -933,6 +941,8 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 		/* Nothing to parse */
 		return -1;
 	}
+	/* Set uri start offset in case this was caled directly */
+	uri_offsets->uri_start = current_offset;
 
 	/* Check if it's realy a sip uri ( it might be a tel uri, parse that?) */
 	queried_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ':');
@@ -1217,7 +1227,7 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, uri_offset_info* u
 	ti = proto_tree_add_item(sip_element_tree, *(uri->hf_sip_addr), tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start + 1, FALSE);
 	uri_item_tree = proto_item_add_subtree(ti, *(uri->ett_uri));
 
-	if(uri_offsets->uri_user_end >= uri_offsets->uri_user_start) {
+	if(uri_offsets->uri_user_end > uri_offsets->uri_user_start) {
 		proto_tree_add_item(uri_item_tree, *(uri->hf_sip_user), tvb, uri_offsets->uri_user_start,
 		     		    uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1, FALSE);
 	}
@@ -1955,7 +1965,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			                           tvb_format_text(tvb, offset, linelen));
 			reqresp_tree = proto_item_add_subtree(ti_a, ett_sip_reqresp);
 		}
-		dfilter_sip_request_line(tvb, reqresp_tree, token_1_len, linelen);
+		dfilter_sip_request_line(tvb, reqresp_tree, pinfo, token_1_len, linelen);
 		break;
 
 	case STATUS_LINE:
@@ -2871,23 +2881,20 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 /* Display filter for SIP Request-Line */
 static void
-dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len, gint linelen)
+dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint meth_len, gint linelen)
 {
 	char	*value;
 
-	gint	parameter_end_offset;
 	guint	offset = 0;
 	guint	parameter_len = meth_len;
-	guchar	c= '\0';
-	gboolean in_ipv6=FALSE;
-	proto_tree *ruri_item_tree = NULL;
-	proto_item *ti;
+	uri_offset_info uri_offsets;
 
 	/*
 	 * We know we have the entire method; otherwise, "sip_parse_line()"
 	 * would have returned OTHER_LINE.
 	 * Request-Line  =  Method SP Request-URI SP SIP-Version CRLF
 	 * SP = single space
+	 * Request-URI    =  SIP-URI / SIPS-URI / absoluteURI
 	 */
 
 	/* get method string*/
@@ -2900,74 +2907,11 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len, gint l
 		proto_tree_add_string(tree, hf_Method, tvb, offset, parameter_len, value);
 
 		/* build Request-URI tree*/
-		offset=parameter_len+1;
-		parameter_len = (tvb_find_guint8(tvb, offset, linelen, ' '))-offset; /* calc R-URI len*/
-		ti = proto_tree_add_item(tree, hf_sip_ruri, tvb, offset, parameter_len, FALSE);
-		ruri_item_tree = proto_item_add_subtree(ti, ett_sip_ruri);
-
-		offset = (tvb_find_guint8(tvb, offset, linelen, ':'))+1; /* calc R-URI User/Host begin*/
-		if ((tvb_find_guint8(tvb, offset, linelen, '@')) != -1){
-			/* R-URI: User Part found*/
-			parameter_len = (tvb_find_guint8(tvb, offset, linelen, '@'))-offset; /* calc R-URI User len*/
-			if (parameter_len > 0) {
-				proto_tree_add_item(ruri_item_tree, hf_sip_ruri_user, tvb, offset,
-				parameter_len, FALSE);
-			}
-			offset = offset + parameter_len + 1;
-		}
-		parameter_end_offset=offset;
-
-		in_ipv6 = (tvb_get_guint8(tvb, parameter_end_offset) == '[');
-		while (parameter_end_offset < linelen){
-			parameter_end_offset++;
-			c = tvb_get_guint8(tvb, parameter_end_offset);
-			switch (c) {
-				case ',':
-				case ';':
-				case '?':
-				case ' ':
-					goto host_end_found;
-				case ':':
-					if (!in_ipv6)
-						goto host_end_found;
-					break;
-				case '[':
-					in_ipv6 = TRUE;
-					break;
-				case ']':
-					in_ipv6 = FALSE;
-					break;
-				default :
-				break;
-			}
-		}
-		host_end_found:
-		parameter_len = parameter_end_offset-offset; /* calc R-URI host len*/
-		proto_tree_add_item(ruri_item_tree, hf_sip_ruri_host, tvb, offset, parameter_len, FALSE);
-
-		offset = offset + parameter_len + 1;
-
-		if (c == ':'){
-			/* R-URI: Host Port found */
-			parameter_end_offset = offset;
-			while (parameter_end_offset < linelen){
-				parameter_end_offset++;
-				c = tvb_get_guint8(tvb, parameter_end_offset);
-				switch (c) {
-					case ',':
-					case ';':
-					case '?':
-					case ' ':
-						goto host_port_end_found;
-					default :
-					break;
-				}
-			}
-			host_port_end_found:
-			parameter_len = parameter_end_offset-offset; /* calc R-URI Host Port len*/
-			proto_tree_add_item(ruri_item_tree, hf_sip_ruri_port, tvb, offset, parameter_len, FALSE);
-		}
-		/* end of Request-URI tree*/
+		offset=offset + parameter_len+1;
+		sip_uri_offset_init(&uri_offsets);
+		uri_offsets.uri_end = tvb_find_guint8(tvb, offset, linelen, ' ')-1; /* calc R-URI len*/
+		dissect_sip_uri(tvb, pinfo, offset, linelen, &uri_offsets);
+		display_sip_uri(tvb, tree, &uri_offsets, &sip_req_uri);
 	}
 }
 
