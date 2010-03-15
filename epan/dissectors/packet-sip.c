@@ -641,14 +641,6 @@ static hf_sip_uri_t sip_from_uri = {
 	&hf_sip_from_port,
 	&ett_sip_from_uri
 };
-
-static hf_sip_uri_t sip_req_uri = {
-	&hf_sip_ruri,
-	&hf_sip_ruri_user,
-	&hf_sip_ruri_host,
-	&hf_sip_ruri_port,
-	&ett_sip_ruri
-};
 /*
  * Type of line.  It's either a SIP Request-Line, a SIP Status-Line, or
  * another type of line.
@@ -700,7 +692,7 @@ static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
     guint meth_len, guint *meth_idx);
 static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset,
     guint header_len);
-static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree,
     guint meth_len, gint linelen);
 static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree);
 static void tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
@@ -898,7 +890,6 @@ typedef struct _uri_offset_info
 	gint uri_host_port_end;
 } uri_offset_info;
 
-static void
 sip_uri_offset_init(uri_offset_info *uri_offsets){
 
 	/* Initialize the uri_offsets */
@@ -923,15 +914,16 @@ sip_uri_offset_init(uri_offset_info *uri_offsets){
  * - sip_uri_offset_init() must have been called first.
  */
 static gint
-dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
+dissect_sip_uri2(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
                 gint line_end_offset, uri_offset_info *uri_offsets)
 {
-	gchar c = '\0';
+	gchar c;
 	gint current_offset;
 	gint queried_offset;
 	gint comma_offset;
 	gint semicolon_offset;
 	gint parameter_end_offset;
+	gboolean uri_without_angle_quotes = FALSE;
 	gboolean in_ipv6 = FALSE;
 
 	/* skip Spaces and Tabs */
@@ -941,8 +933,6 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 		/* Nothing to parse */
 		return -1;
 	}
-	/* Set uri start offset in case this was caled directly */
-	uri_offsets->uri_start = current_offset;
 
 	/* Check if it's realy a sip uri ( it might be a tel uri, parse that?) */
 	queried_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ':');
@@ -1204,9 +1194,320 @@ dissect_sip_name_addr_or_addr_spec(tvbuff_t *tvb, packet_info *pinfo _U_, gint s
 		uri_offsets->name_addr_end = queried_offset;
 		uri_offsets->uri_end = queried_offset - 1;
 	}
-	return dissect_sip_uri(tvb, pinfo, current_offset, line_end_offset, uri_offsets);
+	return dissect_sip_uri2(tvb, pinfo, current_offset, line_end_offset, uri_offsets);
 }
 
+/* Code to parse a sip uri.
+ * Returns Offset end off parsing or -1 for unsuccessful parsing
+ * - sip_uri_offset_init() must have been called first.
+ */
+static gint
+dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
+                gint line_end_offset, uri_offset_info *uri_offsets)
+{
+	gchar c;
+	gint i;
+	gint current_offset;
+	gint queried_offset;
+	gint colon_offset;
+	gint comma_offset;
+	gint semicolon_offset;
+	gint question_mark_offset;
+	gint parameter_end_offset;
+	gboolean uri_without_angle_quotes = FALSE;
+	gboolean in_ipv6 = FALSE;
+
+	/* skip Spaces and Tabs */
+	current_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
+
+	if(current_offset >= line_end_offset) {
+		/* Nothing to parse */
+		return -1;
+	}
+
+	uri_offsets->name_addr_start = current_offset;
+
+	/* First look, if we have a display name */
+	c=tvb_get_guint8(tvb, current_offset);
+	switch(c)
+	{
+		case '"':
+			/* We have a display name, look for the next unescaped '"' */
+			uri_offsets->display_name_start = current_offset;
+			do
+			{
+				queried_offset = tvb_find_guint8(tvb, current_offset + 1, line_end_offset - (current_offset + 1), '"');
+				if(queried_offset == -1)
+				{
+					/* malformed URI */
+					return -1;
+				}
+				current_offset = queried_offset;
+
+				/* Is it escaped? */
+				/* count back slashes before '"' */
+				for(i=1;tvb_get_guint8(tvb, queried_offset - i) == '\\';i++);
+				i--;
+
+				if(i % 2 == 0)
+				{
+					/* not escaped */
+					break;
+				}
+			} while (current_offset < line_end_offset);
+			if(current_offset >= line_end_offset)
+			{
+				/* malformed URI */
+				return -1;
+			}
+
+			uri_offsets->display_name_end = current_offset;
+
+			/* find start of the URI */
+			queried_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, '<');
+			if(queried_offset == -1)
+			{
+				/* malformed Uri */
+				return -1;
+			}
+			current_offset = queried_offset + 1;
+			break;
+
+		case '<':
+			/* We don't have a display name */
+			current_offset++;
+			break;
+
+		default:
+			/* We have either an URI without angles or a display name with a limited character set */
+			/* Look for the right angle quote or colon */
+			queried_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, '<');
+			colon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ':');
+			if(queried_offset != -1 && colon_offset != -1)
+			{
+				if(queried_offset < colon_offset)
+				{
+					/* we have an URI with angle quotes */
+					uri_offsets->display_name_start = current_offset;
+					uri_offsets->display_name_end = queried_offset - 1;
+					current_offset = queried_offset + 1;
+				}
+				else
+				{
+					/* we have an URI without angle quotes */
+					uri_without_angle_quotes = TRUE;
+				}
+			}
+			else
+			{
+				if(queried_offset != -1)
+				{
+					/* we have an URI with angle quotes */
+					uri_offsets->display_name_start = current_offset;
+					uri_offsets->display_name_end = queried_offset - 1;
+					current_offset = queried_offset + 1;
+					break;
+				}
+				if(colon_offset != -1)
+				{
+					/* we have an URI without angle quotes */
+					uri_without_angle_quotes = TRUE;
+					break;
+				}
+				/* If this point is reached, we can't parse the URI */
+				return -1;
+			}
+			break;
+	}
+
+	/* Start parsing of URI */
+	uri_offsets->uri_start = current_offset;
+	/* Check if it's realy a sip uri ( it might be a tel uri, parse that?) */
+	queried_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ':');
+	if (tvb_strneql(tvb, current_offset, "sip", 3) != 0)
+		return -1;
+
+	if(uri_without_angle_quotes == TRUE)
+	{
+		/* look for the first ',' or ';' which will mark the end of this URI
+		 * In this case a semicolon indicates a header field parameter, and not an uri parameter.
+		 */
+		comma_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ',');
+		semicolon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ';');
+
+		if (semicolon_offset != -1 && comma_offset != -1)
+		{
+			if(semicolon_offset < comma_offset)
+			{
+				uri_offsets->uri_end = semicolon_offset - 1;
+			}
+			else
+			{
+				uri_offsets->uri_end = comma_offset - 1;
+			}
+		}
+		else
+		{
+			if (semicolon_offset != -1)
+			{
+				uri_offsets->uri_end = semicolon_offset - 1;
+			}
+			else if (comma_offset != -1)
+			{
+				uri_offsets->uri_end = comma_offset - 1;
+			} else {
+
+				/* If both offsets are equal to -1, we don't have a semicolon or a comma.
+			 	* In that case, we assume that the end of the URI is at the line end
+				 */
+				uri_offsets->uri_end = line_end_offset - 3; /* remove '\r\n' */
+			}
+		}
+		uri_offsets->name_addr_end = uri_offsets->uri_end;
+		current_offset = uri_offsets->uri_end + 1; /* Now save current_offset, as it is the value to be returned now */
+	}
+	else
+	{
+		/* look for closing angle quote */
+		queried_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, '>');
+		if(queried_offset == -1)
+		{
+			/* malformed Uri */
+			return -1;
+		}
+		uri_offsets->name_addr_end = queried_offset;
+		uri_offsets->uri_end = queried_offset - 1;
+		current_offset = queried_offset; /* Now save current_offset. It contains the value we have to return */
+
+		/* Look for '@' within URI */
+		queried_offset = tvb_find_guint8(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, '@');
+		if(queried_offset == -1)
+		{
+			/* no '@': look for the first ';' or '?' in the URI */
+			question_mark_offset = tvb_find_guint8(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, '?');
+			semicolon_offset = tvb_find_guint8(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, ';');
+		}
+		else
+		{
+			/* with '@': look for the first ';' or '?' behind the '@' */
+			question_mark_offset = tvb_find_guint8(tvb, queried_offset, uri_offsets->uri_end - queried_offset, '?');
+			semicolon_offset = tvb_find_guint8(tvb, queried_offset, uri_offsets->uri_end - queried_offset, ';');
+		}
+
+		/* Set Parameter*/
+		if (semicolon_offset != -1 && question_mark_offset != -1)
+		{
+			if(semicolon_offset < question_mark_offset)
+			{
+				uri_offsets->uri_parameters_start = semicolon_offset;
+			}
+			else
+			{
+				uri_offsets->uri_parameters_start = question_mark_offset;
+			}
+			uri_offsets->uri_parameters_end = uri_offsets->uri_end;
+			uri_offsets->uri_end = uri_offsets->uri_parameters_start - 1;
+		}
+		else
+		{
+			if (semicolon_offset != -1)
+			{
+				uri_offsets->uri_parameters_start = semicolon_offset;
+				uri_offsets->uri_parameters_end = uri_offsets->uri_end;
+				uri_offsets->uri_end = uri_offsets->uri_parameters_start - 1;
+			}
+			if (question_mark_offset != -1)
+			{
+				uri_offsets->uri_parameters_start = question_mark_offset;
+				uri_offsets->uri_parameters_end = uri_offsets->uri_end;
+				uri_offsets->uri_end = uri_offsets->uri_parameters_start - 1;
+			}
+			/* If both offsets are equal to -1, we don't have a semicolon or a question mark.
+			 * In that case, we don't have to save any offsets.
+			 */
+		}
+
+	}
+
+	/* Look for URI address parts (user, host, host-port) */
+
+	/* Look for '@' within URI */
+	queried_offset = tvb_find_guint8(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, '@');
+	if(queried_offset == -1)
+	{
+	/* no '@' = no user part */
+	uri_offsets->uri_host_start = tvb_find_guint8(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, ':')+1;
+	}
+	else
+	{
+	/* with '@' = with user part */
+	uri_offsets->uri_user_start = tvb_find_guint8(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, ':')+1;
+	uri_offsets->uri_user_end = tvb_find_guint8(tvb, uri_offsets->uri_user_start, uri_offsets->uri_end - uri_offsets->uri_start, '@')-1;
+	uri_offsets->uri_host_start = uri_offsets->uri_user_end + 2;
+	}
+
+	/* find URI-Host end*/
+	parameter_end_offset = uri_offsets->uri_host_start;
+
+	in_ipv6 = (tvb_get_guint8(tvb, parameter_end_offset) == '[');
+	while (parameter_end_offset < line_end_offset)
+	{
+			parameter_end_offset++;
+			c = tvb_get_guint8(tvb, parameter_end_offset);
+			switch (c) {
+				case '>':
+				case ',':
+				case ';':
+				case '?':
+				case ' ':
+				case '\r':
+					goto uri_host_end_found;
+				case ':':
+					if (!in_ipv6)
+						goto uri_host_end_found;
+					break;
+				case '[':
+					in_ipv6 = TRUE;
+					break;
+				case ']':
+					in_ipv6 = FALSE;
+					break;
+				default :
+				break;
+				}
+	}
+
+	uri_host_end_found:
+
+		uri_offsets->uri_host_end = parameter_end_offset - 1;
+
+		if (c == ':')
+		{
+			uri_offsets->uri_host_port_start = parameter_end_offset + 1;
+			parameter_end_offset = uri_offsets->uri_host_port_start;
+				while (parameter_end_offset < line_end_offset)
+				{
+						parameter_end_offset++;
+						c = tvb_get_guint8(tvb, parameter_end_offset);
+						switch (c) {
+							case '>':
+							case ',':
+							case ';':
+							case '?':
+							case ' ':
+							case '\r':
+								goto uri_host_port_end_found;
+							default :
+							break;
+						}
+				}
+
+			uri_host_port_end_found:
+
+			uri_offsets->uri_host_port_end = parameter_end_offset -1;
+		}
+		return current_offset;
+}
 
 /*
 * Code to add dissected SIP URI Information to proto tree
@@ -1227,7 +1528,7 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, uri_offset_info* u
 	ti = proto_tree_add_item(sip_element_tree, *(uri->hf_sip_addr), tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start + 1, FALSE);
 	uri_item_tree = proto_item_add_subtree(ti, *(uri->ett_uri));
 
-	if(uri_offsets->uri_user_end > uri_offsets->uri_user_start) {
+	if(uri_offsets->uri_user_end >= uri_offsets->uri_user_start) {
 		proto_tree_add_item(uri_item_tree, *(uri->hf_sip_user), tvb, uri_offsets->uri_user_start,
 		     		    uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1, FALSE);
 	}
@@ -1965,7 +2266,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			                           tvb_format_text(tvb, offset, linelen));
 			reqresp_tree = proto_item_add_subtree(ti_a, ett_sip_reqresp);
 		}
-		dfilter_sip_request_line(tvb, reqresp_tree, pinfo, token_1_len, linelen);
+		dfilter_sip_request_line(tvb, reqresp_tree, token_1_len, linelen);
 		break;
 
 	case STATUS_LINE:
@@ -2028,6 +2329,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		proto_tree *pmiss_uri_item_tree = NULL;
 		proto_tree *ppi_uri_item_tree = NULL;
 		proto_tree *tc_uri_item_tree = NULL;
+		proto_tree *to_uri_item_tree = NULL;
+		proto_tree *from_uri_item_tree = NULL;
 		uri_offset_info uri_offsets;
 
 
@@ -2119,19 +2422,21 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							                   tvb_format_text(tvb, offset, linelen));
 							sip_element_tree = proto_item_add_subtree( sip_element_item,
 							                   ett_sip_element);
-							/* To        =  ( "To" / "t" ) HCOLON ( name-addr
-							 *               / addr-spec ) *( SEMI to-param )
-							 */
-							sip_uri_offset_init(&uri_offsets);
-							if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
-								display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_to_uri);
-								if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
-									stat_info->tap_to_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start, 
-										uri_offsets.name_addr_end - uri_offsets.name_addr_start);
-								}
-								offset = uri_offsets.name_addr_end +1;
+						}
+						/* To        =  ( "To" / "t" ) HCOLON ( name-addr
+						 *               / addr-spec ) *( SEMI to-param )
+						 */
+						sip_uri_offset_init(&uri_offsets);
+						if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
+							display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_to_uri);
+							if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
+								stat_info->tap_to_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start, 
+									uri_offsets.name_addr_end - uri_offsets.name_addr_start);
 							}
+							offset = uri_offsets.name_addr_end +1;
+						}
 
+						if(hdr_tree) {
 							/* Find parameter tag if present.
 							 * TODO make this generic to find any interesting parameter
 							 * use the same method as for SIP headers ?
@@ -2172,22 +2477,24 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							                   value, "%s",
 							                   tvb_format_text(tvb, offset, linelen));
 							sip_element_tree = proto_item_add_subtree( sip_element_item, ett_sip_element);
-							/*
-							 * From        =  ( "From" / "f" ) HCOLON from-spec
-							 * from-spec   =  ( name-addr / addr-spec )
-							 *                *( SEMI from-param )
-							 */
+						}
+						/*
+						 * From        =  ( "From" / "f" ) HCOLON from-spec
+						 * from-spec   =  ( name-addr / addr-spec )
+						 *                *( SEMI from-param )
+						 */
 
-							sip_uri_offset_init(&uri_offsets);
-							if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
-								display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_from_uri);
-								if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
-									stat_info->tap_from_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start, 
-										uri_offsets.name_addr_end - uri_offsets.name_addr_start);
-								}
-								offset = uri_offsets.name_addr_end +1;
+						sip_uri_offset_init(&uri_offsets);
+						if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
+							display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_from_uri);
+							if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
+								stat_info->tap_from_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start, 
+									uri_offsets.name_addr_end - uri_offsets.name_addr_start);
 							}
+							offset = uri_offsets.name_addr_end +1;
+						}
 
+						if(hdr_tree) {
 							/* Find parameter tag if present.
 							 * TODO make this generic to find any interesting parameter
 							 * use the same method as for SIP headers ?
@@ -2222,15 +2529,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							sip_element_tree = proto_item_add_subtree( sip_element_item,
 							                   ett_sip_element);
 
-							/*
-							 * PAssertedID = "P-Asserted-Identity" HCOLON PAssertedID-value
-							 *                *(COMMA PAssertedID-value)
-							 * PAssertedID-value = name-addr / addr-spec
-							 *
-							 * Initialize the uri_offsets
-							 */
+							/* Initialize the uri_offsets */
 							sip_uri_offset_init(&uri_offsets);
-							if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
+							if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
 								 pai_uri_item_tree = display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_pai_uri);
 						}
 						break;
@@ -2258,15 +2559,10 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							                   tvb_format_text(tvb, offset, linelen));
 							sip_element_tree = proto_item_add_subtree( sip_element_item,
 							                   ett_sip_element);
-							/*
-							 * PPreferredID = "P-Preferred-Identity" HCOLON PPreferredID-value
-							 *                   *(COMMA PPreferredID-value)
-							 * PPreferredID-value = name-addr / addr-spec
-							 * 
-							 * Initialize the uri_offsets
-							 */
+
+							/* Initialize the uri_offsets */
 							sip_uri_offset_init(&uri_offsets);
-							if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
+							if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
 								 ppi_uri_item_tree = display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_ppi_uri);
 						}
 						break;
@@ -2282,15 +2578,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 							sip_element_tree = proto_item_add_subtree( sip_element_item,
 														           ett_sip_element);
-							/* 
-							 * Permission-Missing  =  "Permission-Missing" HCOLON per-miss-spec
-							 *                        *( COMMA per-miss-spec )
-							 * per-miss-spec       =  ( name-addr / addr-spec )
-							 *                       *( SEMI generic-param )
-							 * Initialize the uri_offsets
-							 */
+							/* Initialize the uri_offsets */
 							sip_uri_offset_init(&uri_offsets);
-							if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
+							if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
 								 pmiss_uri_item_tree = display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_pmiss_uri);
 						}
 						break;
@@ -2308,16 +2598,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							sip_element_tree = proto_item_add_subtree( sip_element_item,
 																		ett_sip_element);
 						}
-						/* 
-						 * Trigger-Consent     =  "Trigger-Consent" HCOLON trigger-cons-spec
-						 *                        *( COMMA trigger-cons-spec )
-						 * trigger-cons-spec   =  ( SIP-URI / SIPS-URI )
-						 *                        *( SEMI trigger-param )
-						 * trigger-param       =  target-uri / generic-param
-						 * target-uri          =  "target-uri" EQUAL
-						 *                            LDQUOT *( qdtext / quoted-pair ) RDQUOT
-						 * Initialize the uri_offsets
-						 */
+
+						/* Initialize the uri_offsets */
 						sip_uri_offset_init(&uri_offsets);
 						if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1) {
 
@@ -2881,20 +3163,23 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 /* Display filter for SIP Request-Line */
 static void
-dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint meth_len, gint linelen)
+dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len, gint linelen)
 {
 	char	*value;
 
+	gint	parameter_end_offset;
 	guint	offset = 0;
 	guint	parameter_len = meth_len;
-	uri_offset_info uri_offsets;
+	guchar	c= '\0';
+	gboolean in_ipv6=FALSE;
+	proto_tree *ruri_item_tree = NULL;
+	proto_item *ti;
 
 	/*
 	 * We know we have the entire method; otherwise, "sip_parse_line()"
 	 * would have returned OTHER_LINE.
 	 * Request-Line  =  Method SP Request-URI SP SIP-Version CRLF
 	 * SP = single space
-	 * Request-URI    =  SIP-URI / SIPS-URI / absoluteURI
 	 */
 
 	/* get method string*/
@@ -2907,11 +3192,74 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
 		proto_tree_add_string(tree, hf_Method, tvb, offset, parameter_len, value);
 
 		/* build Request-URI tree*/
-		offset=offset + parameter_len+1;
-		sip_uri_offset_init(&uri_offsets);
-		uri_offsets.uri_end = tvb_find_guint8(tvb, offset, linelen, ' ')-1; /* calc R-URI len*/
-		dissect_sip_uri(tvb, pinfo, offset, linelen, &uri_offsets);
-		display_sip_uri(tvb, tree, &uri_offsets, &sip_req_uri);
+		offset=parameter_len+1;
+		parameter_len = (tvb_find_guint8(tvb, offset, linelen, ' '))-offset; /* calc R-URI len*/
+		ti = proto_tree_add_item(tree, hf_sip_ruri, tvb, offset, parameter_len, FALSE);
+		ruri_item_tree = proto_item_add_subtree(ti, ett_sip_ruri);
+
+		offset = (tvb_find_guint8(tvb, offset, linelen, ':'))+1; /* calc R-URI User/Host begin*/
+		if ((tvb_find_guint8(tvb, offset, linelen, '@')) != -1){
+			/* R-URI: User Part found*/
+			parameter_len = (tvb_find_guint8(tvb, offset, linelen, '@'))-offset; /* calc R-URI User len*/
+			if (parameter_len > 0) {
+				proto_tree_add_item(ruri_item_tree, hf_sip_ruri_user, tvb, offset,
+				parameter_len, FALSE);
+			}
+			offset = offset + parameter_len + 1;
+		}
+		parameter_end_offset=offset;
+
+		in_ipv6 = (tvb_get_guint8(tvb, parameter_end_offset) == '[');
+		while (parameter_end_offset < linelen){
+			parameter_end_offset++;
+			c = tvb_get_guint8(tvb, parameter_end_offset);
+			switch (c) {
+				case ',':
+				case ';':
+				case '?':
+				case ' ':
+					goto host_end_found;
+				case ':':
+					if (!in_ipv6)
+						goto host_end_found;
+					break;
+				case '[':
+					in_ipv6 = TRUE;
+					break;
+				case ']':
+					in_ipv6 = FALSE;
+					break;
+				default :
+				break;
+			}
+		}
+		host_end_found:
+		parameter_len = parameter_end_offset-offset; /* calc R-URI host len*/
+		proto_tree_add_item(ruri_item_tree, hf_sip_ruri_host, tvb, offset, parameter_len, FALSE);
+
+		offset = offset + parameter_len + 1;
+
+		if (c == ':'){
+			/* R-URI: Host Port found */
+			parameter_end_offset = offset;
+			while (parameter_end_offset < linelen){
+				parameter_end_offset++;
+				c = tvb_get_guint8(tvb, parameter_end_offset);
+				switch (c) {
+					case ',':
+					case ';':
+					case '?':
+					case ' ':
+						goto host_port_end_found;
+					default :
+					break;
+				}
+			}
+			host_port_end_found:
+			parameter_len = parameter_end_offset-offset; /* calc R-URI Host Port len*/
+			proto_tree_add_item(ruri_item_tree, hf_sip_ruri_port, tvb, offset, parameter_len, FALSE);
+		}
+		/* end of Request-URI tree*/
 	}
 }
 
