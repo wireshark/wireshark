@@ -858,7 +858,7 @@ sip_init_protocol(void)
 
 	/* Now create them over */
 	sip_hash = g_hash_table_new(g_str_hash , sip_equal);
-	/* Create a hastable with the SIP headers it will be used to find the related hf entry (POS_x) 
+	/* Create a hastable with the SIP headers it will be used to find the related hf entry (POS_x)
 	 * this is faster than the previously used for loop
 	 * There is no g_hash_table_destroy as the liftime is the same as the lifetime of Wireshark
 	 */
@@ -890,6 +890,7 @@ typedef struct _uri_offset_info
 	gint uri_host_port_end;
 } uri_offset_info;
 
+static void
 sip_uri_offset_init(uri_offset_info *uri_offsets){
 
 	/* Initialize the uri_offsets */
@@ -923,7 +924,6 @@ dissect_sip_uri2(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 	gint comma_offset;
 	gint semicolon_offset;
 	gint parameter_end_offset;
-	gboolean uri_without_angle_quotes = FALSE;
 	gboolean in_ipv6 = FALSE;
 
 	/* skip Spaces and Tabs */
@@ -2329,11 +2329,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		proto_tree *pmiss_uri_item_tree = NULL;
 		proto_tree *ppi_uri_item_tree = NULL;
 		proto_tree *tc_uri_item_tree = NULL;
-		proto_tree *to_uri_item_tree = NULL;
-		proto_tree *from_uri_item_tree = NULL;
 		uri_offset_info uri_offsets;
-
-
 
 
 
@@ -2430,7 +2426,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
 							display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_to_uri);
 							if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
-								stat_info->tap_to_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start, 
+								stat_info->tap_to_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start,
 									uri_offsets.name_addr_end - uri_offsets.name_addr_start);
 							}
 							offset = uri_offsets.name_addr_end +1;
@@ -2488,7 +2484,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
 							display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_from_uri);
 							if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
-								stat_info->tap_from_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start, 
+								stat_info->tap_from_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start,
 									uri_offsets.name_addr_end - uri_offsets.name_addr_start);
 							}
 							offset = uri_offsets.name_addr_end +1;
