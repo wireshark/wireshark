@@ -1561,7 +1561,7 @@ WS_VAR_IMPORT int           num_tree_types;
 
 /** glib doesn't have g_ptr_array_len of all things!*/
 #ifndef g_ptr_array_len
-#define g_ptr_array_len(a)      ((a)->len)
+#define g_ptr_array_len(a)      ((a)?(a)->len:0)
 #endif
 
 /** Get number of bits of a header_field.
