@@ -584,6 +584,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-gssapi.c
 	dissectors/packet-gtp.c
 	dissectors/packet-gtpv2.c
+	dissectors/packet-gvcp.c
 	dissectors/packet-gvrp.c
 	dissectors/packet-h1.c
 	dissectors/packet-h221_nonstd.c
