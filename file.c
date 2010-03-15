@@ -1599,6 +1599,7 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
   const char *filter_new = dftext ? dftext : "";
   const char *filter_old = cf->dfilter ? cf->dfilter : "";
   dfilter_t   *dfcode;
+  GTimeVal     start_time;
 
   /* if new filter equals old one, do nothing unless told to do so */
   if (!force && strcmp(filter_new, filter_old) == 0) {
@@ -1646,6 +1647,8 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
   /* We have a valid filter.  Replace the current filter. */
   g_free(cf->dfilter);
   cf->dfilter = dftext;
+  g_get_current_time(&start_time);
+
 
   /* Now rescan the packet list, applying the new filter, but not
      throwing away information constructed on a previous pass. */
@@ -1945,6 +1948,9 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   /* Unfreeze the packet list. */
   if (!add_to_packet_list)
     new_packet_list_recreate_visible_rows();
+
+  /* Compute the time it took to filter the file */
+  compute_elapsed(&start_time);
 
   new_packet_list_thaw();
 
