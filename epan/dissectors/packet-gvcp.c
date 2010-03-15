@@ -147,15 +147,15 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   info = ep_strbuf_new(val_to_str(packet_opcode, opcode_names, "Unknown opcode (0x%04x)"));
 
   /* check that GVCP header+payload match total packet size */
-  if (tvb_length(tvb) < 8+(guint32)packet_plsize) {
-    ep_strbuf_append_printf(info, " (truncated? %d bytes missing)", 
-                            packet_plsize + 8 - tvb_length(tvb));
+  if (tvb_reported_length(tvb) < 8+(guint32)packet_plsize) {
+    ep_strbuf_append_printf(info, " (truncated? %u bytes missing)", 
+                            (8 + packet_plsize) - tvb_reported_length(tvb));
     col_add_str(pinfo->cinfo, COL_INFO, info->str);
     return tvb_length(tvb);/* or should we assume this is not GVCP, return 0?*/
   }
-  if (tvb_length(tvb) > 8+(guint32)packet_plsize) {
-    ep_strbuf_append_printf(info, " (%d excess bytes)", 
-                            -(packet_plsize + 8 - tvb_length(tvb)));
+  if (tvb_reported_length(tvb) > 8+(guint32)packet_plsize) {
+    ep_strbuf_append_printf(info, " (%u excess bytes)", 
+                            tvb_reported_length(tvb) - (8 + packet_plsize));
     col_add_str(pinfo->cinfo, COL_INFO, info->str);
     return tvb_length(tvb);/* or should we assume this is not GVCP, return 0?*/
   }
