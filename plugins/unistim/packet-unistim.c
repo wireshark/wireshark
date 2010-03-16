@@ -93,7 +93,8 @@ static gint dissect_uftp_message(proto_tree *unistim_tree, packet_info *pinfo,
 static void set_ascii_item(proto_tree *unistim_tree, tvbuff_t *tvb,
                            gint offset,guint msg_len);
 static void set_ascii_null_term_item(proto_tree *msg_tree,tvbuff_t *tvb, 
-                                     gint offset,guint msg_len, char *label);
+                                     gint offset,guint msg_len,
+                                     const char *label);
 
 
 static int proto_unistim = -1;
@@ -167,15 +168,15 @@ static const value_string command_address[]={
 
 static int
 dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree){
-   gint offset=0;
-   proto_item *ti= NULL;
-   proto_item *ti1= NULL;
-   proto_tree *overall_unistim_tree = NULL;
-   proto_tree *rudpm_tree=NULL;
-   gint size;
+    gint offset=0;
+    proto_item *ti= NULL;
+    proto_item *ti1= NULL;
+    proto_tree *overall_unistim_tree = NULL;
+    proto_tree *rudpm_tree=NULL;
+    gint size;
 
-   /* heuristic*/
-   switch(tvb_get_guint8(tvb,offset+4)) {/*rudp packet type 0,1,2 only */
+    /* heuristic*/
+    switch(tvb_get_guint8(tvb,offset+4)) {/*rudp packet type 0,1,2 only */
       case 0x0:/*NAK*/
       case 0x1:/*ACK*/
          break;
@@ -193,13 +194,13 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree){
          break;
       default:
          return 0;
-   }
+    }
 
 
-   size=tvb_length_remaining(tvb, offset);
-   col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNISTIM");
+    size=tvb_length_remaining(tvb, offset);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNISTIM");
       /* Clear out stuff in the info column */
-   col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
     ti = proto_tree_add_item(tree,proto_unistim,tvb,offset,-1,FALSE);
     overall_unistim_tree = proto_item_add_subtree(ti,ett_unistim);
     ti1=proto_tree_add_text(overall_unistim_tree,tvb,offset,5,"Reliable UDP");
@@ -208,7 +209,7 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree){
     proto_tree_add_item(rudpm_tree,hf_unistim_seq_nu,tvb,offset,4,FALSE);
 
     /* Allocate new mem for queueing */
-    uinfo = se_alloc(sizeof(unistim_info_t));
+    uinfo = (unistim_info_t *)se_alloc(sizeof(unistim_info_t));
 
     /* Clear tap struct */
     uinfo->rudp_type = 0;
@@ -2555,9 +2556,9 @@ set_ascii_item(proto_tree *msg_tree,tvbuff_t *tvb, gint offset,guint msg_len){
    gsize buffer_index=0;
    guint16 msg_index=0;
    guint8 character;
-   char *label="DATA: ";
+   const char *label="DATA: ";
    #define MAX_BUFFER 1024
-   buffer=ep_alloc(MAX_BUFFER);
+   buffer=(char *)ep_alloc(MAX_BUFFER);
 
    buffer_index=g_strlcpy(buffer,label,MAX_BUFFER);
    while((buffer_index<MAX_BUFFER-2)&&(msg_index<msg_len)){
@@ -2583,13 +2584,13 @@ set_ascii_item(proto_tree *msg_tree,tvbuff_t *tvb, gint offset,guint msg_len){
 }
 
 static void
-set_ascii_null_term_item(proto_tree *msg_tree,tvbuff_t *tvb, gint offset,guint msg_len,char *label){
+set_ascii_null_term_item(proto_tree *msg_tree,tvbuff_t *tvb, gint offset,guint msg_len,const char *label){
    char *buffer=NULL;
    gsize buffer_index=0;
    guint16 msg_index=0;
    guint8 character;
    #define MAX_BUFFER 1024
-   buffer=ep_alloc(MAX_BUFFER);
+   buffer=(char *)ep_alloc(MAX_BUFFER);
 
    buffer_index=g_strlcpy(buffer,label,MAX_BUFFER);
    while((buffer_index<MAX_BUFFER-2)&&(msg_index<msg_len)){
