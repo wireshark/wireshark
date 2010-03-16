@@ -98,18 +98,17 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ilh_tree = proto_item_add_subtree(ilh_item, ett_interlink_header);
 	}
 
-	if (ilh_tree) proto_tree_add_item(ilh_tree, hf_interlink_id,
-		tvb, offset, 4, FALSE);
-	offset += 4;
-	if (ilh_tree) proto_tree_add_item(ilh_tree, hf_interlink_version,
-		tvb, offset, 2, TRUE);
-	offset += 2;
-	if (ilh_tree) proto_tree_add_item(ilh_tree, hf_interlink_cmd,
-		tvb, offset, 2, TRUE);
-	offset += 2;
-	if (ilh_tree) proto_tree_add_item(ilh_tree, hf_interlink_seq,
-		tvb, offset, 2, TRUE);
-	offset += 2;
+	if (ilh_tree) {
+		proto_tree_add_item(ilh_tree, hf_interlink_id, tvb, offset, 4, FALSE);
+		offset += 4;
+		proto_tree_add_item(ilh_tree, hf_interlink_version, tvb, offset, 2, TRUE);
+		offset += 2;
+		proto_tree_add_item(ilh_tree, hf_interlink_cmd, tvb, offset, 2, TRUE);
+		offset += 2;
+		proto_tree_add_item(ilh_tree, hf_interlink_seq, tvb, offset, 2, TRUE);
+		offset += 2;
+	}
+
 	if (ilh_tree) {
 		proto_item	*flags_item;
 		proto_tree	*flags_tree = NULL;
@@ -141,15 +140,14 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_append_fstr(pinfo->cinfo, COL_INFO, "Type: 0x%02x, Version: %d",
 		ilb_type, ilb_version);
 
-	if (ilb_tree) proto_tree_add_item(ilb_tree, hf_interlink_block_type,
-				tvb, offset, 1, FALSE);
-	offset += 1;
-	if (ilb_tree) proto_tree_add_item(ilb_tree, hf_interlink_block_version,
-				tvb, offset, 1, FALSE);
-	offset += 1;
-	if (ilb_tree) proto_tree_add_item(ilb_tree, hf_interlink_block_length,
-				tvb, offset, 2, TRUE);
-	offset += 2;
+	if (ilb_tree) {
+		proto_tree_add_item(ilb_tree, hf_interlink_block_type, tvb, offset, 1, FALSE);
+		offset += 1;
+		proto_tree_add_item(ilb_tree, hf_interlink_block_version, tvb, offset, 1, FALSE);
+		offset += 1;
+		proto_tree_add_item(ilb_tree, hf_interlink_block_length, tvb, offset, 2, TRUE);
+		offset += 2;
+	}
 
 	/* Generate a new tvb for the rest. */
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
