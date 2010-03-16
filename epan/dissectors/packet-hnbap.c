@@ -57,7 +57,7 @@
 #define PSNAME "HNBAP"
 #define PFNAME "hnbap"
 /* Dissector will use SCTP PPID 20 or SCTP port. IANA assigned port = 29169*/
-#define SCTP_PORT_HNBAP              29169;
+#define SCTP_PORT_HNBAP              29169
 
 
 /*--- Included file: packet-hnbap-val.h ---*/
@@ -2009,7 +2009,7 @@ dissect_hnbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* create the hnbap protocol tree */
     hnbap_item = proto_tree_add_item(tree, proto_hnbap, tvb, 0, -1, FALSE);
     hnbap_tree = proto_item_add_subtree(hnbap_item, ett_hnbap);
-    
+
     dissect_HNBAP_PDU_PDU(tvb, pinfo, hnbap_tree);
 }
 
@@ -2493,7 +2493,7 @@ module_t *hnbap_module;
   /* Register fields and subtrees */
   proto_register_field_array(proto_hnbap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
- 
+
   /* Register dissector */
   register_dissector("hnbap", dissect_hnbap, proto_hnbap);
 
