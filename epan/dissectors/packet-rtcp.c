@@ -751,7 +751,7 @@ dissect_rtcp_rtpfb_tmmbr( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, prot
 }
 
 static int
-dissect_rtcp_rtpfb_nack( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item, int num_fci)
+dissect_rtcp_rtpfb_nack( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item)
 {    
     int i;
     char strbuf[64];
@@ -831,7 +831,7 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
     while ((offset - start_offset) < packet_length) {
       counter++;
       if (rtcp_rtpfb_fmt == 1) {
-        offset = dissect_rtcp_rtpfb_nack(tvb, offset, rtcp_tree, top_item, counter);
+        offset = dissect_rtcp_rtpfb_nack(tvb, offset, rtcp_tree, top_item);
       } else if (rtcp_rtpfb_fmt == 3) {
         offset = dissect_rtcp_rtpfb_tmmbr(tvb, offset, rtcp_tree, top_item, counter, 1);
       } else if (rtcp_rtpfb_fmt == 4) {
