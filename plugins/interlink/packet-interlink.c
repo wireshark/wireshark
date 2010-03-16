@@ -57,7 +57,7 @@ static dissector_handle_t data_handle;
 static dissector_table_t subdissector_table;
 
 static const true_false_string flags_set_notset = {
-    "Set", "Not set"
+	"Set", "Not set"
 };
 
 static const value_string names_cmd[] = {
@@ -80,13 +80,13 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissector_handle_t	handle;
 	tvbuff_t	*next_tvb;
 
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "INTERLINK");
-        col_clear(pinfo->cinfo, COL_INFO);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "INTERLINK");
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
 		proto_item	*il_item = NULL;
 		il_item = proto_tree_add_item(tree, proto_interlink,
-                                tvb, 0, 16, FALSE);
+								tvb, 0, 16, FALSE);
 		if (il_item)
 			il_tree = proto_item_add_subtree(il_item, ett_interlink);
 	}
@@ -132,9 +132,8 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item	*ilb_item = NULL;
 		ilb_item = proto_tree_add_text(il_tree, tvb, offset, 4, "Block Header");
 		if (ilb_item)
-			ilb_tree = proto_item_add_subtree(ilb_item, ett_interlink_block)
-;
-        }
+			ilb_tree = proto_item_add_subtree(ilb_item, ett_interlink_block);
+	}
 
 	ilb_type = tvb_get_guint8(tvb, offset);
 	ilb_version = tvb_get_guint8(tvb, offset + 1);
@@ -143,13 +142,13 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ilb_type, ilb_version);
 
 	if (ilb_tree) proto_tree_add_item(ilb_tree, hf_interlink_block_type,
-                tvb, offset, 1, FALSE);
+				tvb, offset, 1, FALSE);
 	offset += 1;
 	if (ilb_tree) proto_tree_add_item(ilb_tree, hf_interlink_block_version,
-                tvb, offset, 1, FALSE);
+				tvb, offset, 1, FALSE);
 	offset += 1;
 	if (ilb_tree) proto_tree_add_item(ilb_tree, hf_interlink_block_length,
-                tvb, offset, 2, TRUE);
+				tvb, offset, 2, TRUE);
 	offset += 2;
 
 	/* Generate a new tvb for the rest. */
