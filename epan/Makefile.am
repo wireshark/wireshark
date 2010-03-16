@@ -229,6 +229,7 @@ plugin_src = \
 	../plugins/giop/packet-cosnaming.c \
 	../plugins/giop/packet-coseventcomm.c \
 	../plugins/gryphon/packet-gryphon.c \
+	../plugins/interlink/packet-interlink.c \
 	../plugins/irda/packet-irda.c \
 	../plugins/m2m/packet-m2m.c \
 	../plugins/m2m/wimax_tlv.c \
