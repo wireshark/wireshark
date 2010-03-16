@@ -84,7 +84,7 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
-		proto_item	*il_item = NULL;
+		proto_item	*il_item;
 		il_item = proto_tree_add_item(tree, proto_interlink,
 								tvb, 0, 16, FALSE);
 		if (il_item)
@@ -111,7 +111,7 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tvb, offset, 2, TRUE);
 	offset += 2;
 	if (ilh_tree) {
-		proto_item	*flags_item = NULL;
+		proto_item	*flags_item;
 		proto_tree	*flags_tree = NULL;
 
 		flags_item = proto_tree_add_item(ilh_tree, hf_interlink_flags,
@@ -129,7 +129,7 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 2;
 
 	if (tree) {
-		proto_item	*ilb_item = NULL;
+		proto_item	*ilb_item;
 		ilb_item = proto_tree_add_text(il_tree, tvb, offset, 4, "Block Header");
 		if (ilb_item)
 			ilb_tree = proto_item_add_subtree(ilb_item, ett_interlink_block);
