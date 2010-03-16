@@ -144,7 +144,6 @@ typedef struct _io_stat_graph_t {
 	GtkWidget *filter_field;
 	GtkWidget *advanced_buttons;
 	int calc_type;
-	io_stat_calc_type_t calc_types[MAX_CALC_TYPES];
 	int hf_index;
 	GtkWidget *calc_field;
 	GdkColor color;
@@ -1243,7 +1242,7 @@ gtk_iostat_init(const char *optarg _U_, void* userdata _U_)
 
 	io=g_malloc(sizeof(io_stat_t));
 	io->needs_redraw=TRUE;
-	io->interval=1000;
+	io->interval=tick_interval_values[DEFAULT_TICK_VALUE];
 	io->window=NULL;
 	io->draw_area=NULL;
 	io->pixmap=NULL;
@@ -1492,16 +1491,15 @@ create_draw_area(io_stat_t *io, GtkWidget *box)
 }
 
 
-static void
-tick_interval_select(GtkWidget *item, gpointer key)
+static void tick_interval_select(GtkWidget *item, gpointer key)
 {
-	int val;
+	int i;
 	io_stat_t *io;
 
 	io=(io_stat_t *)key;
-	val=(long)g_object_get_data(G_OBJECT(item), "tick_interval");
+	i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
-	io->interval=val;
+	io->interval=tick_interval_values[i];
 	cf_retap_packets(&cfile, FALSE);
 	gdk_window_raise(io->window->window);
 	io_stat_redraw(io);
@@ -1510,12 +1508,12 @@ tick_interval_select(GtkWidget *item, gpointer key)
 static void
 pixels_per_tick_select(GtkWidget *item, gpointer key)
 {
-	int val;
+	int i;
 	io_stat_t *io;
 
 	io=(io_stat_t *)key;
-	val=(long)g_object_get_data(G_OBJECT(item), "pixels_per_tick");
-	io->pixels_per_tick=val;
+	i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
+	io->pixels_per_tick=pixels_per_tick[i];
 	io_stat_redraw(io);
 }
 
@@ -1526,85 +1524,80 @@ plot_style_select(GtkWidget *item, gpointer key)
 	io_stat_graph_t *ppt;
 
 	ppt=(io_stat_graph_t *)key;
-	val=(long)g_object_get_data(G_OBJECT(item), "plot_style");
+	val=gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
 	ppt->plot_style=val;
 
 	io_stat_redraw(ppt->io);
 }
 
-static void
-create_pixels_per_tick_menu_items(io_stat_t *io, GtkWidget *menu)
+static GtkWidget *
+create_pixels_per_tick_menu_items(io_stat_t *io)
 {
 	char str[5];
-	GtkWidget *menu_item;
+	GtkWidget *combo_box;
 	int i;
+
+	combo_box = gtk_combo_box_new_text ();
 
 	for(i=0;i<MAX_PIXELS_PER_TICK;i++){
 		g_snprintf(str, 5, "%u", pixels_per_tick[i]);
-		menu_item=gtk_menu_item_new_with_label(str);
-
-		g_object_set_data(G_OBJECT(menu_item), "pixels_per_tick",
-                                GUINT_TO_POINTER(pixels_per_tick[i]));
-		g_signal_connect(menu_item, "activate", G_CALLBACK(pixels_per_tick_select), io);
-		gtk_widget_show(menu_item);
-		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-	}
-	gtk_menu_set_active(GTK_MENU(menu), DEFAULT_PIXELS_PER_TICK);
-	return;
+		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
 }
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_PIXELS_PER_TICK);
+	g_signal_connect(combo_box, "changed", G_CALLBACK(pixels_per_tick_select), (gpointer)io);
 
+	return combo_box;
+}
 
 static void
 yscale_select(GtkWidget *item, gpointer key)
 {
-	int val;
+        int i;
 	io_stat_t *io;
 
 	io=(io_stat_t *)key;
-	val=(long)g_object_get_data(G_OBJECT(item), "yscale_max");
+		i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
-	io->max_y_units=val;
+        io->max_y_units = yscale_max[i];
 	io_stat_redraw(io);
 }
 
-static void
-create_tick_interval_menu_items(io_stat_t *io, GtkWidget *menu)
+static GtkWidget *
+create_tick_interval_menu_items(io_stat_t *io)
 {
+	GtkWidget *combo_box;
 	char str[15];
-	GtkWidget *menu_item;
 	int i;
+
+	combo_box = gtk_combo_box_new_text ();
 
 	for(i=0;i<MAX_TICK_VALUES;i++){
-		if(tick_interval_values[i]>=60000){
-			g_snprintf(str, 15, "%u min", tick_interval_values[i]/60000);
-		} else if(tick_interval_values[i]>=1000){
-			g_snprintf(str, 15, "%u sec", tick_interval_values[i]/1000);
+            if(tick_interval_values[i]>=1000){
+                    g_snprintf(str, sizeof(str), "%u sec", tick_interval_values[i]/1000);
 		} else if(tick_interval_values[i]>=100){
-			g_snprintf(str, 15, "0.%1u sec", (tick_interval_values[i]/100)%10);
+                    g_snprintf(str, sizeof(str), "0.%1u sec", (tick_interval_values[i]/100)%10);
 		} else if(tick_interval_values[i]>=10){
-			g_snprintf(str, 15, "0.%02u sec", (tick_interval_values[i]/10)%10);
+                    g_snprintf(str, sizeof(str), "0.%02u sec", (tick_interval_values[i]/10)%10);
 		} else {
-			g_snprintf(str, 15, "0.%03u sec", (tick_interval_values[i])%10);
+                    g_snprintf(str, sizeof(str), "0.%03u sec", (tick_interval_values[i])%10);
 		}
-
-		menu_item=gtk_menu_item_new_with_label(str);
-		g_object_set_data(G_OBJECT(menu_item), "tick_interval",
-                                GUINT_TO_POINTER(tick_interval_values[i]));
-		g_signal_connect(menu_item, "activate", G_CALLBACK(tick_interval_select), (gpointer)io);
-		gtk_widget_show(menu_item);
-		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+			gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
 	}
-	gtk_menu_set_active(GTK_MENU(menu), DEFAULT_TICK_VALUE);
-	return;
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_TICK_VALUE);
+	g_signal_connect(combo_box, "changed", G_CALLBACK(tick_interval_select), (gpointer)io);
+
+	return combo_box;
 }
 
-static void
-create_yscale_max_menu_items(io_stat_t *io, GtkWidget *menu)
+static GtkWidget *
+create_yscale_max_menu_items(io_stat_t *io)
 {
 	char str[15];
-	GtkWidget *menu_item;
+	GtkWidget *combo_box;
 	int i;
+
+	combo_box = gtk_combo_box_new_text ();
 
 	for(i=0;i<MAX_YSCALE;i++){
 		if(yscale_max[i]==LOGARITHMIC_YSCALE){
@@ -1614,41 +1607,33 @@ create_yscale_max_menu_items(io_stat_t *io, GtkWidget *menu)
 		} else {
 			g_snprintf(str, 15, "%u", yscale_max[i]);
 		}
-		menu_item=gtk_menu_item_new_with_label(str);
-		g_object_set_data(G_OBJECT(menu_item), "yscale_max",
-		                GUINT_TO_POINTER(yscale_max[i]));
-		g_signal_connect(menu_item, "activate", G_CALLBACK(yscale_select), io);
-		gtk_widget_show(menu_item);
-		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
 	}
-	gtk_menu_set_active(GTK_MENU(menu), DEFAULT_YSCALE);
-	return;
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_YSCALE);
+	g_signal_connect(combo_box, "changed", G_CALLBACK(yscale_select), (gpointer)io);
+	return combo_box;
 }
 
 static void
 count_type_select(GtkWidget *item, gpointer key)
 {
 	static gboolean advanced_visible=FALSE;
-	int val, i;
+	int i;
 	io_stat_t *io;
 
 	io=(io_stat_t *)key;
-	val=(long)g_object_get_data(G_OBJECT(item), "count_type");
-
-	io->count_type=val;
+	io->count_type = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
 	if(io->count_type==COUNT_TYPE_ADVANCED){
 		for(i=0;i<MAX_GRAPHS;i++){
 			disable_graph(&io->graphs[i]);
 			gtk_widget_show(io->graphs[i].advanced_buttons);
 /* redraw the entire window so the unhidden widgets show up, hopefully */
-{GdkRectangle update_rect;
-update_rect.x=0;
-update_rect.y=0;
-update_rect.width=io->window->allocation.width;
-update_rect.height=io->window->allocation.height;
-gtk_widget_draw(io->window, &update_rect);
-}
+	gtk_widget_queue_draw_area(io->window,
+						   0,
+						   0,
+						   io->window->allocation.width,
+						   io->window->allocation.height);
 		}
 		advanced_visible=TRUE;
 		io_stat_redraw(io);
@@ -1663,29 +1648,28 @@ gtk_widget_draw(io->window, &update_rect);
 	}
 }
 
-static void
-create_frames_or_bytes_menu_items(io_stat_t *io, GtkWidget *menu)
+static GtkWidget *
+create_frames_or_bytes_menu_items(io_stat_t *io)
 {
-	GtkWidget *menu_item;
+	GtkWidget *combo_box;
 	int i;
 
+	combo_box = gtk_combo_box_new_text ();
+
 	for(i=0;i<MAX_COUNT_TYPES;i++){
-		menu_item=gtk_menu_item_new_with_label(count_type_names[i]);
-		g_object_set_data(G_OBJECT(menu_item), "count_type", GINT_TO_POINTER(i));
-		g_signal_connect(menu_item, "activate", G_CALLBACK(count_type_select), io);
-		gtk_widget_show(menu_item);
-		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), count_type_names[i]);
 	}
-	return;
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), 0);
+	g_signal_connect(combo_box, "changed", G_CALLBACK(count_type_select), (gpointer)io);
+	return combo_box;
 }
 
 static void
-create_ctrl_menu(io_stat_t *io, GtkWidget *box, const char *name, void (*func)(io_stat_t *io, GtkWidget *menu))
+create_ctrl_menu(io_stat_t *io, GtkWidget *box, const char *name, GtkWidget * (*func)(io_stat_t *io))
 {
 	GtkWidget *hbox;
 	GtkWidget *label;
-	GtkWidget *option_menu;
-	GtkWidget *menu;
+	GtkWidget *combo_box;
 
 	hbox=gtk_hbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(box), hbox);
@@ -1696,12 +1680,9 @@ create_ctrl_menu(io_stat_t *io, GtkWidget *box, const char *name, void (*func)(i
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
-	option_menu=gtk_option_menu_new();
-	menu=gtk_menu_new();
-	(*func)(io, menu);
-	gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
-	gtk_box_pack_end(GTK_BOX(hbox), option_menu, FALSE, FALSE, 0);
-	gtk_widget_show(option_menu);
+	combo_box = (*func)(io);
+	gtk_box_pack_end(GTK_BOX(hbox), combo_box, FALSE, FALSE, 0);
+	gtk_widget_show(combo_box);
 }
 
 static void
@@ -1901,43 +1882,41 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 
 
 static void
-calc_type_select(GtkWidget *item _U_, gpointer key)
+calc_type_select(GtkWidget *item, gpointer key)
 {
-	io_stat_calc_type_t *ct=(io_stat_calc_type_t *)key;
+	io_stat_graph_t *gio = (io_stat_graph_t *)key;
 
-	ct->gio->calc_type=ct->calc_type;
+	gio->calc_type=gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
 	/* disable the graph */
-	disable_graph(ct->gio);
-	io_stat_redraw(ct->gio->io);
+	disable_graph(gio);
+	io_stat_redraw(gio->io);
 }
 
 
-static void
-create_calc_types_menu_items(io_stat_graph_t *gio, GtkWidget *menu)
+static GtkWidget *
+create_calc_types_menu_items(io_stat_graph_t *gio)
 {
-	GtkWidget *menu_item;
+	GtkWidget *combo_box;
 	int i;
 
+	combo_box = gtk_combo_box_new_text ();
+
 	for(i=0;i<MAX_CALC_TYPES;i++){
-		gio->calc_types[i].gio=gio;
-		gio->calc_types[i].calc_type=i;
-		menu_item=gtk_menu_item_new_with_label(calc_type_names[i]);
-		g_signal_connect(menu_item, "activate", G_CALLBACK(calc_type_select), &gio->calc_types[i]);
-		gtk_widget_show(menu_item);
-		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), calc_type_names[i]);
 	}
-	return;
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), 0);
+	g_signal_connect(combo_box, "changed", G_CALLBACK(calc_type_select), gio);
+	return combo_box;
 }
 
 
 static void
-create_advanced_menu(io_stat_graph_t *gio, GtkWidget *box, const char *name, void (*func)(io_stat_graph_t *io, GtkWidget *menu))
+create_advanced_menu(io_stat_graph_t *gio, GtkWidget *box, const char *name,  GtkWidget *(*func)(io_stat_graph_t *io))
 {
 	GtkWidget *hbox;
 	GtkWidget *label;
-	GtkWidget *option_menu;
-	GtkWidget *menu;
+	GtkWidget *combo_box;
 
 	hbox=gtk_hbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(box), hbox);
@@ -1948,12 +1927,9 @@ create_advanced_menu(io_stat_graph_t *gio, GtkWidget *box, const char *name, voi
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
-	option_menu=gtk_option_menu_new();
-	menu=gtk_menu_new();
-	(*func)(gio, menu);
-	gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
-	gtk_box_pack_end(GTK_BOX(hbox), option_menu, FALSE, FALSE, 0);
-	gtk_widget_show(option_menu);
+	combo_box = (*func)(gio);
+	gtk_box_pack_end(GTK_BOX(hbox), combo_box, FALSE, FALSE, 0);
+	gtk_widget_show(combo_box);
 }
 
 static void
@@ -2003,9 +1979,7 @@ filter_button_clicked(GtkWidget *w, gpointer uio)
 static void
 create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 {
-	GtkWidget *option_menu;
-	GtkWidget *menu;
-	GtkWidget *menu_item;
+	GtkWidget *combo_box;
 	GtkWidget *hbox;
 	GtkWidget *label;
         char str[256];
@@ -2074,20 +2048,15 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
-	option_menu=gtk_option_menu_new();
-	menu=gtk_menu_new();
+	combo_box = gtk_combo_box_new_text ();
 	for(i=0;i<MAX_PLOT_STYLES;i++){
-		menu_item=gtk_menu_item_new_with_label(plot_style_name[i]);
-		g_object_set_data(G_OBJECT(menu_item), "plot_style", GINT_TO_POINTER(i));
-		g_signal_connect(menu_item, "activate", G_CALLBACK(plot_style_select), &gio->io->graphs[num-1]);
-		gtk_widget_show(menu_item);
-		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), plot_style_name[i]);
 	}
-	gtk_menu_set_active(GTK_MENU(menu), DEFAULT_PLOT_STYLE);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_PLOT_STYLE);
+	g_signal_connect(combo_box, "changed", G_CALLBACK(plot_style_select), &gio->io->graphs[num-1]);
 
-	gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
-	gtk_box_pack_end(GTK_BOX(hbox), option_menu, FALSE, FALSE, 0);
-	gtk_widget_show(option_menu);
+	gtk_box_pack_end(GTK_BOX(hbox), combo_box, FALSE, FALSE, 0);
+	gtk_widget_show(combo_box);
 
 
 	return;

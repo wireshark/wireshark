@@ -70,91 +70,39 @@ Wireshark Info
 -->
 
         <listitem><para>
-          Wireshark could crash while decrypting Kerberos data.
+          Add support for FT_BOOLEAN fields to wslua FieldInfo.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4049">Bug
+          4049</ulink>)
         </para></listitem>
 
         <listitem><para>
-          Address display filters hang Wireshark.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=658">Bug
-          658</ulink>)
+          Windows 2000 support has been restored.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4176">Bug
+          4176</ulink>)
         </para></listitem>
 
         <listitem><para>
-          PSML - structure context node missing.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1564">Bug
-          1564</ulink>)
+          Wrong dissection on be_cell_id_list for bssmap.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4437">Bug
+          4437</ulink>)
         </para></listitem>
 
         <listitem><para>
-           Wireshark doesn't dynamically update the packet list.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1605">Bug
-          1605</ulink>)
+           I/O Graph dropdown boxes not working correctly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4487">Bug
+          4487</ulink>)
         </para></listitem>
 
         <listitem><para>
-          LUA: There's no tvb_get_stringz() equivalent.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2244">Bug
-          2244</ulink>)
+          In GSM SMS PDU TPVPF showing wrong.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4524">Bug
+          4524</ulink>)
         </para></listitem>
 
         <listitem><para>
-          tvb_new_real_data is prone to memory leak.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3917">Bug
-          3917</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Malformed OPC UA traffic makes Wireshark "freeze".
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3986">Bug
-          3986</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Analyze&#8594;Expert... doesn't show IP "Bad Checksum" errors.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4177">Bug
-          4177</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark can't decrypt WPA(2)-PSK when passphrase is 63 bytes.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4183">Bug
-          4183</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          RTP stream analysis: Wrong jitter values after clicking the refresh button.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4340">Bug
-          4340</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark decodes bootp option 2 incorrectly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4342">Bug
-          4342</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Deleting SMI modules causes Wireshark to crash.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4354">Bug
-          4354</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark decodes kerberos AS-REQ PADATA incorrect.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4363">Bug
-          4363</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          PDML output from TShark includes invalid characters.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4402">Bug
-          4402</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Empty GPRS LLC S frames cause truncated data exception.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4417">Bug
-          4417</ulink>)
+          Profinet: May be wrong defined byte meaning.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4525">Bug
+          4525</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -166,10 +114,7 @@ Wireshark Info
     <section id="NewFeatures"><title>New and Updated Features</title>
     <para>
 
-Feature parity between the 64- and 32-bit Windows installer has been improved.
-The 64-bit installer now supports the "matches" operator, GeoIP location, and
-most types of decryption. Kerberos decryption and OID resolution are still not
-supported.
+There are no new features in this release.
 
     </para>
     </section>
@@ -185,18 +130,12 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
-BJNP,
-BOOTP/DHCP,
-DHCPv6,
-FIP,
-GPRS LLC,
-IEEE 802.11,
-IP,
-Kerberos,
-OPCUA,
-SCTP,
-SSL,
-ZRTP
+BSSMAP,
+DMP,
+GSM SMS,
+LDSS,
+PN/IO,
+PPP
 
     </para>
     </section>

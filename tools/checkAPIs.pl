@@ -217,6 +217,8 @@ my %deprecatedGtkFunctions = (
                 'gtk_accel_group_ref',                         'E',
                 'gtk_accel_group_unref',                       'E',
 		'gtk_action_block_activate_from',              'E',
+				'gtk_action_connect_proxy',					   'E',
+				'gtk_action_disconnect_proxy',				   'E',
 		'gtk_action_unblock_activate_from',            'E',
                 'gtk_binding_entry_add',                       'E',
                 'gtk_binding_entry_add_signall',               'E',
@@ -802,7 +804,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_vbutton_box_get_spacing_default',         'E',
                 'gtk_vbutton_box_set_layout_default',          'E',
                 'gtk_vbutton_box_set_spacing_default',         'E',
-                'gtk_widget_draw',                             'W', # gtk_widget_queue_draw_area(): 
+                'gtk_widget_draw',                             'E', # gtk_widget_queue_draw_area(): 
                                                                     #  "in general a better choice if you want
                                                                     #  to draw a region of a widget."
                 'gtk_widget_pop_visual',                       'E',

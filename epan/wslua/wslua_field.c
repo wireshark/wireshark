@@ -63,6 +63,9 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
 		case FT_NONE:
 			lua_pushnil(L);
 			return 1;
+		case FT_BOOLEAN:
+			lua_pushboolean(L,(int)fvalue_get_uinteger(&(fi->value)));
+			return 1;
 		case FT_UINT8:
 		case FT_UINT16:
 		case FT_UINT24:

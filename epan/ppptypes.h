@@ -36,7 +36,8 @@
 #define PPP_ROHC_LCID	0x5	/* ROHC large-CID */
 #define PPP_IP		0x21	/* Internet Protocol */
 #define PPP_OSI		0x23    /* OSI Protocol */
-#define PPP_DEC4	0x25	/* DECnet Phase IV */
+#define PPP_XNSIDP	0x25	/* Xerox NS IDP */
+#define PPP_DEC4	0x27	/* DECnet Phase IV */
 #define PPP_AT		0x29	/* AppleTalk Protocol */
 #define PPP_IPX		0x2b	/* IPX protocol */
 #define	PPP_VJC_COMP	0x2d	/* VJ compressed TCP */
@@ -86,7 +87,7 @@
 #define PPP_MPLS_UNI	0x0281	/* MPLS Unicast */
 #define PPP_MPLS_MULTI	0x0283	/* MPLS Multicast */
 #define PPP_P12844	0x0285	/* IEEE p1284.4 standard - data packets */
-#define PPP_ETSI	0x0287	/* ETSI TETRA Networks Procotol Type 1 */
+#define PPP_TETRA	0x0287	/* ETSI TETRA Networks Procotol Type 1 */
 #define PPP_MFTP	0x0289	/* Multichannel Flow Treatment Protocol */
 #define PPP_RTP_CTCPND	0x2063	/* RTP IPHC Compressed TCP No Delta */
 #define PPP_RTP_CS	0x2065	/* RTP IPHC Context State */
@@ -97,6 +98,7 @@
 #define PPP_EXPANDAP	0x4005	/* Expand accelarator protocol */
 #define PPP_ODSICP	0x4007	/* ODSICP NCP */
 #define PPP_DOCSIS	0x4009	/* DOCSIS DLL */
+#define PPP_CETACEANNDP	0x400b	/* Cetacean Network Detection Protocol */
 #define PPP_LZS		0x4021	/* Stacker LZS */
 #define PPP_REFTEK	0x4023	/* RefTek Protocol */
 #define PPP_FC		0x4025	/* Fibre Channel */
@@ -136,8 +138,8 @@
 #define PPP_ACSPC	0x8235	/* Apple Client Server Protocol Control */
 #define PPP_MPLSCP	0x8281	/* MPLS Control Protocol */
 #define PPP_P12844CP	0x8285	/* IEEE p1284.4 standard - Protocol Control */
-#define PPP_ETSICP	0x8287	/* ETSI TETRA TNP1 Control Protocol */
-#define PPP_MFTPCP	0x8287	/* Multichannel Flow Treatment Protocol */
+#define PPP_TETRACP	0x8287	/* ETSI TETRA TNP1 Control Protocol */
+#define PPP_MFTPCP	0x8289	/* Multichannel Flow Treatment Protocol */
 #define PPP_LCP		0xc021	/* Link Control Protocol */
 #define PPP_PAP		0xc023	/* Password Authentication Protocol */
 #define PPP_LQR		0xc025	/* Link Quality Report protocol */
@@ -151,8 +153,8 @@
 #define PPP_EAP		0xc227	/* Extensible Authentication Protocol */
 #define PPP_SIEP	0xc229	/* Mitsubishi Security Information Exchange Protocol*/
 #define PPP_SBAP	0xc26f	/* Stampede Bridging Authorization Protocol */
-#define PPP_PRPAP	0x281	/* Proprietary Authentication Protocol */
-#define PPP_PRPAP2	0x283	/* Proprietary Authentication Protocol */
-#define PPP_PRPNIAP	0x481	/* Proprietary Node ID Authentication Protocol */
+#define PPP_PRPAP	0xc281	/* Proprietary Authentication Protocol */
+#define PPP_PRPAP2	0xc283	/* Proprietary Authentication Protocol */
+#define PPP_PRPNIAP	0xc481	/* Proprietary Node ID Authentication Protocol */
 
 #endif /* ppptypes.h */
