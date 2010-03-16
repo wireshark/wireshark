@@ -88,7 +88,7 @@ static int ett_amr_toc = -1;
 
 static guint temp_dynamic_payload_type = 0;
 static gint amr_encoding_type = 0;
-static gint amr_mode = AMR_NB;
+static gint pref_amr_mode = AMR_NB;
 
 
 /* Currently only octet aligned works */
@@ -314,7 +314,7 @@ dissect_amr_wb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 }
 
 static void
-dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
+dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint amr_mode){
 	proto_item *item;
 	int ft;
 	int bit_offset = 0;
@@ -427,7 +427,7 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
 }
 /* Code to actually dissect the packets */
 static void
-dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr_mode)
 {
 	int offset = 0;
 	int bit_offset = 0;
@@ -440,8 +440,6 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti,*toc_item;
 	proto_tree *amr_tree, *toc_tree;
 
-/* Make entries in Protocol column and Info column on summary display */
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMR");
 	if (tree) {
 
 		ti = proto_tree_add_item(tree, proto_amr, tvb, 0, -1, FALSE);
@@ -454,7 +452,7 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0: /* RFC 3267 Byte aligned */
 			break;
 		case 1: /* RFC 3267 Bandwidth-efficient */
-			dissect_amr_be(tvb, pinfo, amr_tree);
+			dissect_amr_be(tvb, pinfo, amr_tree, amr_mode);
 			return;
 		case 2: /* AMR IF1 */
 			if (amr_mode==AMR_NB)
@@ -533,6 +531,29 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 }
 
+/* Code to actually dissect the packets */
+static void
+dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+
+/* Make entries in Protocol column and Info column on summary display */
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMR");
+
+	dissect_amr_common(tvb, pinfo, tree, pref_amr_mode);
+}
+
+static void
+dissect_amr_wb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+
+/* Make entries in Protocol column and Info column on summary display */
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMR-WB");
+	dissect_amr_common(tvb, pinfo, tree, AMR_WB);
+}
+
+
+
+
 typedef struct _amr_capability_t {
   const gchar *id;
   const gchar *name;
@@ -599,6 +620,7 @@ void
 proto_reg_handoff_amr(void)
 {
 	static dissector_handle_t amr_handle;
+	static dissector_handle_t amr_wb_handle;
 	static guint dynamic_payload_type;
 	static gboolean amr_prefs_initialized = FALSE;
 
@@ -607,7 +629,9 @@ proto_reg_handoff_amr(void)
 		amr_capability_t *ftr; 
 
 		amr_handle = find_dissector("amr");
+		amr_wb_handle = find_dissector("amr-wb");
 		dissector_add_string("rtp_dyn_payload_type","AMR", amr_handle);
+		dissector_add_string("rtp_dyn_payload_type","AMR-WB", amr_wb_handle);
 
 		/* 
 		 * Register H.245 Generic parameter name(s)
@@ -804,9 +828,10 @@ proto_register_amr(void)
 	prefs_register_enum_preference(amr_module, "mode",
 				       "The AMR mode",
 				       "The AMR mode",
-				       &amr_mode, modes, AMR_NB);
+				       &pref_amr_mode, modes, AMR_NB);
 	
 	register_dissector("amr", dissect_amr, proto_amr);
+	register_dissector("amr-wb", dissect_amr_wb, proto_amr);
 	register_dissector("amr_if1_nb", dissect_amr_nb_if1, proto_amr);
 	register_dissector("amr_if1_wb", dissect_amr_wb_if1, proto_amr);
 	register_dissector("amr_if2_nb", dissect_amr_nb_if2, proto_amr);
