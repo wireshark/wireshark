@@ -40,7 +40,7 @@
  * TODO:
  * - fill holes (missing opcodes / field meanings / ...)
  * - conversation level:
- *   . validity of anwers (is CMD packet propoerly ACK'ed by follow-up packet?)
+ *   . validity of anwers (is CMD packet properly ACK'ed by follow-up packet?)
  *   . reassemble, unzip, store and parse XML file, so that addresses
  *     may be translated back into register names
  *
@@ -50,8 +50,6 @@
 #endif
 
 #include <epan/packet.h>
-
-void proto_reg_handoff_gvcp(void);
 
 #define GVCP_PORT 3956
 
@@ -131,8 +129,10 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* packets from the camera GVCP_PORT to the PC seem to start 
      with 0x0000, but can be different on error condition (e.g. 0x8005) */
-  /* if ( pinfo->srcport == GVCP_PORT && tvb_get_ntohs(tvb, 0) != 0x0 )
-     return 0; */
+#if 0
+  if ( pinfo->srcport == GVCP_PORT && tvb_get_ntohs(tvb, 0) != 0x0 )
+    return 0;
+#endif
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "GVCP");
   /* Clear out stuff in the info column */
@@ -339,15 +339,6 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 void
-proto_reg_handoff_gvcp(void)
-{
-  static dissector_handle_t gvcp_handle;
-
-  gvcp_handle = new_create_dissector_handle(dissect_gvcp, proto_gvcp);
-  dissector_add("udp.port", GVCP_PORT, gvcp_handle);
-}
-
-void
 proto_register_gvcp(void)
 {
   static hf_register_info hf[] = {
@@ -462,3 +453,13 @@ proto_register_gvcp(void)
   proto_register_subtree_array(ett, array_length(ett));
 
 }
+
+void
+proto_reg_handoff_gvcp(void)
+{
+  dissector_handle_t gvcp_handle;
+
+  gvcp_handle = new_create_dissector_handle(dissect_gvcp, proto_gvcp);
+  dissector_add("udp.port", GVCP_PORT, gvcp_handle);
+}
+
