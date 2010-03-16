@@ -12,6 +12,8 @@
  *
  * Copyright 2005, Nagarjuna Venna <nvenna@brixnet.com>
  *
+ * Copyright 2010, Matteo Valdina <zanfire@gmail.com>
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -45,6 +47,9 @@
  * RTCP XR is specified in RFC 3611.
  *
  * See also http://www.iana.org/assignments/rtp-parameters
+ *
+ * RTCP FB is specified in RFC 4585 and extended by RFC 5104
+ * 
  */
 
 
@@ -93,17 +98,17 @@ static const value_string rtcp_version_vals[] =
 
 /* RTCP packet types according to Section A.11.1 */
 /* And http://www.iana.org/assignments/rtp-parameters */
-#define RTCP_SR   200
-#define RTCP_RR   201
-#define RTCP_SDES 202
-#define RTCP_BYE  203
-#define RTCP_APP  204
-#define RTCP_RTPFB  205
+#define RTCP_SR    200
+#define RTCP_RR    201
+#define RTCP_SDES  202
+#define RTCP_BYE   203
+#define RTCP_APP   204
+#define RTCP_RTPFB 205
 #define RTCP_PSFB  206
 #define RTCP_XR    207
 /* Supplemental H.261 specific RTCP packet types according to Section C.3.5 */
-#define RTCP_FIR  192
-#define RTCP_NACK 193
+#define RTCP_FIR   192
+#define RTCP_NACK  193
 
 static const value_string rtcp_packet_type_vals[] =
 {
@@ -114,7 +119,7 @@ static const value_string rtcp_packet_type_vals[] =
 	{ RTCP_APP,  "Application specific" },
 	{ RTCP_FIR,  "Full Intra-frame Request (H.261)" },
 	{ RTCP_NACK, "Negative Acknowledgement (H.261)" },
-	{ RTCP_RTPFB, "Generic RTP Feedback" },
+	{ RTCP_RTPFB,"Generic RTP Feedback" },
 	{ RTCP_PSFB, "Payload-specific" },
 	{ RTCP_XR,   "Extended report (RFC 3611)"},
 	{ 0,         NULL }
@@ -293,10 +298,12 @@ static const value_string rtcp_app_mux_selection_vals[] =
 	{  0,   NULL}
 };
 
-/* RFC 4585 */
+/* RFC 4585 and RFC 5104 */
 static const value_string rtcp_rtpfb_fmt_vals[] =
 {
 	{  1,	"Generic negative acknowledgement (NACK)"},
+  {  3, "Temporary Maximum Media Stream Bit Rate Request (TMMBR)"},
+  {  4, "Temporary Maximum Media Stream Bit Rate Notification (TMMBN)"},
 	{  31,	"Reserved for future extensions"},
 	{  0,	NULL }
 };
@@ -306,7 +313,11 @@ static const value_string rtcp_psfb_fmt_vals[] =
 	{  1,	"Picture Loss Indication"},
 	{  2,	"Slice Loss Indication"},
 	{  3,	"Reference Picture Selection Indication"},
-	{  15,	"Application Layer Feedback"},
+  {  4, "Full Intra Request (FIR) Command"},
+  {  5, "Temporal-Spatial Trade-off Request (TSTR)"},
+  {  6, "Temporal-Spatial Trade-off Notification (TSTN"},
+  {  7, "Video Back Channel Message (VBCM)"},
+  {  15,	"Application Layer Feedback"},
 	{  31,	"Reserved for future extensions"},
 	{  0,	NULL }
 };
@@ -320,6 +331,7 @@ static int hf_rtcp_sc                = -1;
 static int hf_rtcp_pt                = -1;
 static int hf_rtcp_length            = -1;
 static int hf_rtcp_ssrc_sender       = -1;
+static int hf_rtcp_ssrc_media_source = -1;
 static int hf_rtcp_ntp               = -1;
 static int hf_rtcp_ntp_msw           = -1;
 static int hf_rtcp_ntp_lsw           = -1;
@@ -430,6 +442,14 @@ static int hf_rtcp_rtpfb_nack_pid = -1;
 static int hf_rtcp_rtpfb_nack_blp = -1;
 static int hf_rtcp_psfb_fmt = -1;
 static int hf_rtcp_fci = -1;
+static int hf_rtcp_psfb_fir_fci_ssrc = -1;
+static int hf_rtcp_psfb_fir_fci_csn = -1;
+static int hf_rtcp_psfb_fir_fci_reserved = -1;
+static int hf_rtcp_rtpfb_tmbbr_fci_ssrc = -1;
+static int hf_rtcp_rtpfb_tmbbr_fci_exp = -1;
+static int hf_rtcp_rtpfb_tmbbr_fci_mantissa = -1;
+static int hf_rtcp_rtpfb_tmbbr_fci_bitrate = -1;
+static int hf_rtcp_rtpfb_tmbbr_fci_messuredoverhead = -1;
 static int hf_srtcp_e = -1;
 static int hf_srtcp_index = -1;
 static int hf_srtcp_mki = -1;
@@ -692,18 +712,98 @@ dissect_rtcp_nack( tvbuff_t *tvb, int offset, proto_tree *tree )
 }
 
 static int
-dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item)
+dissect_rtcp_rtpfb_tmmbr( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item, int num_fci, int is_notification)
 {
-    unsigned int rtcp_rtpfb_fmt = 0;
+    int bitrate = 0;
+    int exp = 0;
+    guint32 mantissa = 0;
+    proto_item *ti = (proto_item*) NULL;
+    proto_tree *fci_tree = (proto_tree*) NULL;
+
+    if (is_notification == 1) {
+      ti = proto_tree_add_text( rtcp_tree, tvb, offset, 8, "TMMBN %d", num_fci );
+    } else {
+		  ti = proto_tree_add_text( rtcp_tree, tvb, offset, 8, "TMMBR %d", num_fci );
+    }
+
+		fci_tree = proto_item_add_subtree( ti, ett_ssrc );
+    /* SSRC 32 bit*/
+    proto_tree_add_item( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_ssrc, tvb, offset, 4, FALSE );
+    offset += 4;
+    /* Exp 6 bit*/
+    proto_tree_add_item( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_exp, tvb, offset, 1, FALSE );
+    exp = (tvb_get_guint8(tvb, offset) & 0xfc) >> 2;
+		/* Mantissa 17 bit*/
+    proto_tree_add_item( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_mantissa, tvb, offset, 3, FALSE );
+    mantissa = (tvb_get_ntohl( tvb, offset) & 0x3fffe00) >> 9;
+    bitrate = mantissa << exp;
+    proto_tree_add_string_format_value( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_bitrate, tvb, offset, 3, "", "%u", bitrate);
+    offset += 3;
+    /* Overhead */
+    proto_tree_add_item( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_messuredoverhead, tvb, offset, 1, FALSE );
+    offset += 1;
+
+    if (top_item != NULL) {
+		  proto_item_append_text(top_item, ": TMMBR: %u", bitrate);
+	  }
+
+    return offset;
+}
+
+static int
+dissect_rtcp_rtpfb_nack( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item, int num_fci)
+{    
+    int i;
+    char strbuf[64];
+    int nack_num_frames_lost = 0;
+    proto_tree *bitfield_tree;
     unsigned int rtcp_rtpfb_nack_pid = 0;
     unsigned int rtcp_rtpfb_nack_blp = 0;
-    int i;
-    proto_item *ti;
-    proto_tree *bitfield_tree;
-    char strbuf[64];
-    int start_offset = offset;
+    proto_item *ti = (proto_item*) NULL;
+
+    proto_tree_add_item(rtcp_tree, hf_rtcp_rtpfb_nack_pid, tvb, offset, 2, FALSE);
+		rtcp_rtpfb_nack_pid = tvb_get_ntohs(tvb, offset);		
+    offset += 2;
+	  
+    ti = proto_tree_add_item(rtcp_tree, hf_rtcp_rtpfb_nack_blp, tvb, offset, 2, FALSE);
+				
+    proto_item_set_text(ti, "RTCP Transport Feedback NACK BLP: ");
+		rtcp_rtpfb_nack_blp = tvb_get_ntohs(tvb, offset);
+		bitfield_tree = proto_item_add_subtree( ti, ett_rtcp_nack_blp);
+		nack_num_frames_lost ++;
+		if (rtcp_rtpfb_nack_blp) {
+		  for (i = 0; i < 16; i ++) {
+			  g_snprintf(strbuf, 64, "Frame %d also lost", rtcp_rtpfb_nack_pid + i + 1);
+				proto_tree_add_text(bitfield_tree, tvb, offset, 2, "%s",
+				decode_boolean_bitfield(rtcp_rtpfb_nack_blp, (1<<i), 16, strbuf, ""));
+
+				if (rtcp_rtpfb_nack_blp & (1<<i)) {
+				  proto_item *hidden_ti;
+					hidden_ti = proto_tree_add_uint(bitfield_tree, hf_rtcp_rtpfb_nack_pid, tvb, offset, 2, rtcp_rtpfb_nack_pid + i + 1);
+					PROTO_ITEM_SET_HIDDEN(hidden_ti);
+					proto_item_append_text(ti, "%d ", rtcp_rtpfb_nack_pid + i + 1);
+					nack_num_frames_lost ++;
+				}
+			}
+		} else {
+		  proto_item_set_text(ti, "0 (No additional frames lost)");
+		}
+    offset += 2;
+    
+    if (top_item != NULL) {
+		  proto_item_append_text(top_item, ": NACK: %d frames lost", nack_num_frames_lost);
+	  }
+    return offset;
+}
+
+
+static int
+dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item)
+{
+    unsigned int counter = 0;
+    unsigned int rtcp_rtpfb_fmt = 0;
     int packet_length = 0;
-    int nack_num_frames_lost = 0;
+    int start_offset = offset;
 
     /* Transport layer FB message */
     /* Feedback message type (FMT): 5 bits */
@@ -724,55 +824,23 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
     offset += 4;
 
     /* SSRC of media source, 32 bits */
-    proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, FALSE );
+    proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_media_source, tvb, offset, 4, FALSE );
     offset += 4;
 
     /* Transport-Layer Feedback Message Elements */
-    switch (rtcp_rtpfb_fmt) {
-    	case 1:
-			/* NACK */
-			while ((offset - start_offset) < packet_length) {
-				proto_tree_add_item(rtcp_tree, hf_rtcp_rtpfb_nack_pid,
-				                    tvb, offset, 2, FALSE);
-				rtcp_rtpfb_nack_pid = tvb_get_ntohs(tvb, offset);
-				offset += 2;
-				ti = proto_tree_add_item(rtcp_tree, hf_rtcp_rtpfb_nack_blp,
-				                         tvb, offset, 2, FALSE);
-				proto_item_set_text(ti, "RTCP Transport Feedback NACK BLP: ");
-				rtcp_rtpfb_nack_blp = tvb_get_ntohs(tvb, offset);
-				bitfield_tree = proto_item_add_subtree( ti, ett_rtcp_nack_blp);
-				nack_num_frames_lost ++;
-				if (rtcp_rtpfb_nack_blp) {
-					for (i = 0; i < 16; i ++) {
-						g_snprintf(strbuf, 64, "Frame %d also lost", rtcp_rtpfb_nack_pid + i + 1);
-						proto_tree_add_text(bitfield_tree, tvb, offset, 2, "%s",
-						decode_boolean_bitfield(rtcp_rtpfb_nack_blp, (1<<i),
-											16, strbuf, ""));
-						if (rtcp_rtpfb_nack_blp & (1<<i)) {
-							proto_item *hidden_ti;
-							hidden_ti = proto_tree_add_uint(bitfield_tree, hf_rtcp_rtpfb_nack_pid,
-																   tvb, offset, 2,
-																   rtcp_rtpfb_nack_pid + i + 1);
-							PROTO_ITEM_SET_HIDDEN(hidden_ti);
-							proto_item_append_text(ti, "%d ", rtcp_rtpfb_nack_pid + i + 1);
-							nack_num_frames_lost ++;
-						}
-					}
-				} else {
-					proto_item_set_text(ti, "0 (No additional frames lost)");
-				}
-				offset += 2;
-			}
-
-			if (top_item) {
-				proto_item_append_text(top_item, ": NACK: %d frames lost", nack_num_frames_lost);
-			}
-			break;
-
-		default:
-			/* Unknown FMT */
-			proto_tree_add_item(rtcp_tree, hf_rtcp_fci, tvb, offset, packet_length - offset, FALSE );
-			offset = start_offset + packet_length;
+    while ((offset - start_offset) < packet_length) {
+      counter++;
+      if (rtcp_rtpfb_fmt == 1) {
+        offset = dissect_rtcp_rtpfb_nack(tvb, offset, rtcp_tree, top_item, counter);
+      } else if (rtcp_rtpfb_fmt == 3) {
+        offset = dissect_rtcp_rtpfb_tmmbr(tvb, offset, rtcp_tree, top_item, counter, 1);
+      } else if (rtcp_rtpfb_fmt == 4) {
+        offset = dissect_rtcp_rtpfb_tmmbr(tvb, offset, rtcp_tree, top_item, counter, 0);
+      } else {
+			  /* Unknown FMT */
+			  proto_tree_add_item(rtcp_tree, hf_rtcp_fci, tvb, offset, packet_length - offset, FALSE );
+			  offset = start_offset + packet_length;
+      }
 	}
 
 	return offset;
@@ -781,6 +849,11 @@ static int
 dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
 		   int packet_length )
 {
+    unsigned int counter = 0;
+    unsigned int num_fci = 0;
+    unsigned int read_fci = 0;
+	  proto_tree *fci_tree = (proto_tree*) NULL;
+	  proto_item *ti = (proto_item*) NULL;
     unsigned int rtcp_psfb_fmt = 0;
     int base_offset = offset;
 
@@ -795,6 +868,7 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
     offset++;
 
     /* Packet length in 32 bit words MINUS one, 16 bits */
+    num_fci = (tvb_get_ntohs(tvb, offset) - 2);
     offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
 
     /* SSRC of packet sender, 32 bits */
@@ -802,15 +876,37 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
     offset += 4;
 
     /* SSRC of media source, 32 bits */
-    proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, FALSE );
+    proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_media_source, tvb, offset, 4, FALSE );
     offset += 4;
 
     /* Feedback Control Information (FCI) */
-    if (packet_length > 2) {
-        proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, packet_length - (offset - base_offset), FALSE );
-        offset = base_offset + packet_length;
+	  while ( read_fci < num_fci ) {
+      /* Handle FIR */
+      if (rtcp_psfb_fmt == 4) {
+        /* Create a new subtree for a length of 8 bytes */
+		    ti = proto_tree_add_text( rtcp_tree, tvb, offset, 8, "FIR %u", ++counter );
+		    fci_tree = proto_item_add_subtree( ti, ett_ssrc );
+        /* SSRC 32 bit*/
+        proto_tree_add_item( fci_tree, hf_rtcp_psfb_fir_fci_ssrc, tvb, offset, 4, FALSE );
+        offset += 4;
+        /* Command Sequence Number 8 bit*/
+        proto_tree_add_item( fci_tree, hf_rtcp_psfb_fir_fci_csn, tvb, offset, 1, FALSE );
+  		  /*proto_tree_add_item( ssrc_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE );*/
+		    offset += 1;
+        /* Reserved 24 bit*/
+        proto_tree_add_item( fci_tree, hf_rtcp_psfb_fir_fci_reserved, tvb, offset, 3, FALSE );
+        offset += 3;
+        read_fci += 2;
+      } else {
+        break;
+      }
     }
 
+    /* Append undecoded FCI information */
+    if ((packet_length - (offset - base_offset)) > 0) {
+      proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, packet_length - (offset - base_offset), FALSE );
+      offset = base_offset + packet_length;
+    }
     return offset;
 }
 
@@ -2052,6 +2148,7 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 	guint8 rr_flt;
 	int rr_offset = offset;
 
+
 	while ( counter <= count ) {
 		guint32 lsr, dlsr;
 
@@ -2863,6 +2960,18 @@ proto_register_rtcp(void)
 			{
 				"Sender SSRC",
 				"rtcp.senderssrc",
+				FT_UINT32,
+				BASE_HEX_DEC,
+				NULL,
+				0x0,
+				NULL, HFILL
+			}
+		},
+		{
+      &hf_rtcp_ssrc_media_source,
+			{
+				"Media source SSRC",
+				"rtcp.mediassrc",
 				FT_UINT32,
 				BASE_HEX_DEC,
 				NULL,
@@ -4322,6 +4431,103 @@ proto_register_rtcp(void)
 				NULL, HFILL
 			}
 		},
+    {
+      &hf_rtcp_psfb_fir_fci_ssrc,
+			{
+				"SSRC",
+				"rtcp.psfb.fir.fci.ssrc",
+				FT_UINT32,
+				BASE_HEX_DEC,
+				NULL,
+				0x0,
+				NULL, HFILL
+			}
+		},
+    {
+      &hf_rtcp_psfb_fir_fci_csn,
+			{
+				"Command Sequence Number",
+				"rtcp.psfb.fir.fci.csn",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				NULL, HFILL
+			}
+		},
+    {
+      &hf_rtcp_psfb_fir_fci_reserved,
+			{
+				"Reserved",
+				"rtcp.psfb.fir.fci.reserved",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				NULL, HFILL
+			}
+		},
+    {
+      &hf_rtcp_rtpfb_tmbbr_fci_ssrc,
+			{
+				"SSRC",
+				"rtcp.rtpfb.tmmbr.fci.ssrc",
+				FT_UINT32,
+				BASE_HEX_DEC,
+				NULL,
+				0x0,
+				NULL, HFILL
+			}
+		},
+    {
+      &hf_rtcp_rtpfb_tmbbr_fci_exp,
+			{
+				"MxTBR Exp",
+				"rtcp.rtpfb.tmmbr.fci.exp",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0xfc,
+				NULL, HFILL
+			}
+		},
+    {
+      &hf_rtcp_rtpfb_tmbbr_fci_mantissa,
+			{
+				"MxTBR Mantissa",
+				"rtcp.rtpfb.tmmbr.fci.mantissa",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x3fffe,
+				NULL, HFILL
+			}
+		},
+    {
+      &hf_rtcp_rtpfb_tmbbr_fci_bitrate,
+			{
+				"Maximum total media bit rate",
+				"rtcp.rtpfb.tmmbr.fci.bitrate",
+				FT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				NULL, HFILL
+			}
+		},
+    {
+      &hf_rtcp_rtpfb_tmbbr_fci_messuredoverhead,
+			{
+				"Messured Overhead",
+				"rtcp.rtpfb.tmmbr.fci.messuredoverhead",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x1ff,
+				NULL, HFILL
+			}
+		},
+
 
 		{
 			&hf_srtcp_e,
@@ -4584,7 +4790,7 @@ proto_register_rtcp(void)
 		10, &global_rtcp_show_roundtrip_calculation_minimum);
 
 	/* Register table for sub-dissetors */
-	rtcp_dissector_table = register_dissector_table("rtcp.app.name", "RTPC Application Name", FT_STRING, BASE_NONE);
+	rtcp_dissector_table = register_dissector_table("rtcp.app.name", "RTCP Application Name", FT_STRING, BASE_NONE);
 
 }
 
