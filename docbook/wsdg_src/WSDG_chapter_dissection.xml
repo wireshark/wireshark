@@ -955,6 +955,7 @@ static gint *ett[] =
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include "packet-tcp.h"
 
 ...
 
