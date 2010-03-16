@@ -206,10 +206,10 @@ proto_register_interlink(void)
 			BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_interlink_flags_req_ack, {
 			"REQ_ACK", "interlink.flags.req_ack", FT_BOOLEAN,
-			BASE_HEX, TFS(&flags_set_notset), 0x01, NULL, HFILL }},
+			16, TFS(&flags_set_notset), 0x01, NULL, HFILL }},
 		{ &hf_interlink_flags_inc_ack_port, {
 			"INC_ACK_PORT", "interlink.flags.inc_ack_port", FT_BOOLEAN,
-			BASE_HEX, TFS(&flags_set_notset), 0x02, NULL, HFILL }},
+			16, TFS(&flags_set_notset), 0x02, NULL, HFILL }},
 		{ &hf_interlink_block_type, {
 			"Type", "interlink.type", FT_UINT8,
 			BASE_HEX, NULL, 0, NULL, HFILL }},
