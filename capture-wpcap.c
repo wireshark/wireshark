@@ -105,7 +105,7 @@ static int 	(*p_pcap_list_datalinks)(pcap_t *, int **);
 static int	(*p_pcap_set_datalink)(pcap_t *, int);
 #endif
 
-#ifdef HAVE_FREE_DATALINKS
+#ifdef HAVE_PCAP_FREE_DATALINKS
 static int 	(*p_pcap_free_datalinks)(int *);
 #endif
 
