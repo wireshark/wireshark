@@ -178,6 +178,9 @@
 /* Define to 1 if you have the `pcap_datalink_name_to_val' function. */
 #cmakedefine HAVE_PCAP_DATALINK_NAME_TO_VAL 1
 
+/* Define to 1 if you have the `pcap_datalink_val_to_description' function. */
+#cmakedefine HAVE_PCAP_DATALINK_VAL_TO_DESCRIPTION 1
+
 /* Define to 1 if you have the `pcap_datalink_val_to_name' function. */
 #cmakedefine HAVE_PCAP_DATALINK_VAL_TO_NAME 1
 
@@ -187,6 +190,9 @@
 
 /* Define to 1 if you have the `pcap_freecode' function. */
 #cmakedefine HAVE_PCAP_FREECODE 1
+
+/* Define to 1 if you have the `pcap_free_datalinks' function. */
+#cmakedefine HAVE_PCAP_FREE_DATALINKS 1
 
 /* Define to 1 if you have the `pcap_get_selectable_fd' function. */
 #cmakedefine HAVE_PCAP_GET_SELECTABLE_FD 1
