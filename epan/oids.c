@@ -515,6 +515,7 @@ void register_mibs(void) {
 							  smi_mod_copy_cb,
 							  NULL,
 							  smi_mod_free_cb,
+							  NULL,
 							  smi_fields);
 
 	smi_paths_uat = uat_new("SMI Paths",
@@ -528,6 +529,7 @@ void register_mibs(void) {
 							  smi_mod_copy_cb,
 							  NULL,
 							  smi_mod_free_cb,
+							  NULL,
 							  smi_paths_fields);
 
 

@@ -1075,11 +1075,11 @@ static snmp_ue_assoc_t* localize_ue( snmp_ue_assoc_t* o, const guint8* engine, g
 #define localized_match(a,u,ul,e,el) \
 	( a->user.userName.len == ul \
 	&& a->engine.len == el \
-	&& memcmp( a->user.userName.data, u, (a->user.userName.len < ul) ? a->user.userName.len : ul ) == 0 \
-	&& memcmp( a->engine.data,   e, (a->engine.len   < el) ? a->engine.len   : el ) == 0 )
+	&& memcmp( a->user.userName.data, u, ul ) == 0 \
+	&& memcmp( a->engine.data,   e,  el ) == 0 )
 
 #define unlocalized_match(a,u,l) \
-	( a->user.userName.len == l && memcmp( a->user.userName.data, u, a->user.userName.len < l ? a->user.userName.len : l) == 0 )
+	( a->user.userName.len == l && memcmp( a->user.userName.data, u, l) == 0 )
 
 static snmp_ue_assoc_t* get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb) {
 	static snmp_ue_assoc_t* a;
@@ -1772,7 +1772,8 @@ static void snmp_usm_password_to_key_sha1(const guint8 *password,
  }
 
 
-static void process_prefs(void) {}
+static void process_prefs(void) {
+}
 
 static void* snmp_users_copy_cb(void* dest, const void* orig, unsigned len _U_) {
 	const snmp_ue_assoc_t* o = orig;
@@ -1820,10 +1821,34 @@ static void snmp_users_free_cb(void* p) {
 static void snmp_users_update_cb(void* p _U_, const char** err) {
 	snmp_ue_assoc_t* ue = p;
 	GString* es = g_string_new("");
+	unsigned i;
 
 	*err = NULL;
 
-	if (! ue->user.userName.len) g_string_append(es,"no userName, ");
+	if (! ue->user.userName.len)
+		g_string_append_printf(es,"no userName\n");
+
+	for (i=0; i<num_ueas-1; i++) {
+		snmp_ue_assoc_t* u = &(ueas[i]);
+		
+		
+		if ( u->user.userName.len == ue->user.userName.len
+			&& u->engine.len == ue->engine.len ) {
+			
+			if (u->engine.len > 0 && memcmp( u->engine.data,   ue->engine.data,  u->engine.len ) == 0) {
+				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
+					/* XXX: make a string for the engineId */
+					g_string_append_printf(es,"duplicate key (userName='%s')\n",ue->user.userName.data);
+				}
+			}
+			
+			if (u->engine.len == 0) {
+				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
+					g_string_append_printf(es,"duplicate key (userName='%s' engineId=NONE)\n",ue->user.userName.data);
+				}
+			}
+		}
+	}
 
 	if (es->len) {
 		g_string_truncate(es,es->len-2);
@@ -1834,6 +1859,7 @@ static void snmp_users_update_cb(void* p _U_, const char** err) {
 
 	return;
 }
+
 
 UAT_LSTRING_CB_DEF(snmp_users,userName,snmp_ue_assoc_t,user.userName.data,user.userName.len)
 UAT_LSTRING_CB_DEF(snmp_users,authPassword,snmp_ue_assoc_t,user.authPassword.data,user.authPassword.len)
@@ -1952,6 +1978,7 @@ void proto_register_snmp(void) {
 					   snmp_users_copy_cb,
 					   snmp_users_update_cb,
 					   snmp_users_free_cb,
+					   renew_ue_cache,
 					   users_fields);
 
   /* Register protocol */
@@ -1998,6 +2025,7 @@ void proto_register_snmp(void) {
 	value_sub_dissectors_table = register_dissector_table("snmp.variable_oid","SNMP Variable OID", FT_STRING, BASE_NONE);
 
 	register_init_routine(renew_ue_cache);
+
 }
 
 

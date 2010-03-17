@@ -462,6 +462,7 @@ proto_register_k12(void)
 		    k12_copy_cb,
 		    k12_update_cb,
 		    k12_free_cb,
+                    NULL,
 		    uat_k12_flds);
 
   k12_module = prefs_register_protocol(proto_k12, NULL);

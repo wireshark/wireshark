@@ -609,6 +609,7 @@ void dfilter_macro_init(void) {
 				    macro_copy,
 				    macro_update,
 				    macro_free,
+                                    NULL,
 				    uat_fields);
 
 	fvt_cache = g_hash_table_new(g_str_hash,g_str_equal);

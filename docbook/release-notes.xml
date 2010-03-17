@@ -70,6 +70,24 @@ Wireshark Info
 -->
 
         <listitem><para>
+          SNMPv3 Engine ID registration.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2426">Bug
+          2426</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Open file dialog always displayed when clicking anywhere on Wireshark.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2478">Bug
+          2478</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Negative INTEGER number displayed as positive number in SNMP dissector.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3230">Bug
+          3230</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Add support for FT_BOOLEAN fields to wslua FieldInfo.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4049">Bug
           4049</ulink>)
@@ -94,6 +112,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Runtime Error when right-clicking field and selecting "Filter Field Reference".
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4522">Bug
+          4522</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           In GSM SMS PDU TPVPF showing wrong.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4524">Bug
           4524</ulink>)
@@ -103,6 +127,12 @@ Wireshark Info
           Profinet: May be wrong defined byte meaning.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4525">Bug
           4525</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Certain EDP display filters trigger Wireshark/tshark runtime error.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4563">Bug
+          4563</ulink>)
         </para></listitem>
 
       </itemizedlist>

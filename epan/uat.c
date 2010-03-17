@@ -67,6 +67,7 @@ uat_t* uat_new(const char* name,
 			   uat_copy_cb_t copy_cb,
 			   uat_update_cb_t update_cb,
 			   uat_free_cb_t free_cb,
+			   uat_post_update_cb_t post_update_cb,
 			   uat_field_t* flds_array) {
 	/* Create new uat */
 	uat_t* uat = g_malloc(sizeof(uat_t));
@@ -91,6 +92,7 @@ uat_t* uat_new(const char* name,
 	uat->copy_cb = copy_cb;
 	uat->update_cb = update_cb;
 	uat->free_cb = free_cb;
+	uat->post_update_cb = post_update_cb;
 	uat->fields = flds_array;
 	uat->user_data = g_array_new(FALSE,FALSE,(guint)uat->record_size);
 	uat->changed = FALSE;

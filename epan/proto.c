@@ -1473,12 +1473,8 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gin
 	proto_tree_set_representation(pi, format, ap);
 	va_end(ap);
 
-	if (start == 0) {
-		proto_tree_set_protocol_tvb(new_fi, tvb);
-	}
-	else {
-		proto_tree_set_protocol_tvb(new_fi, NULL);
-	}
+	proto_tree_set_protocol_tvb(new_fi, (start == 0 ? tvb : tvb_new_subset(tvb, start, length, length)));
+
 	return pi;
 }
 
