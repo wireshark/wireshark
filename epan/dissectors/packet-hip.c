@@ -38,10 +38,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 
@@ -57,10 +53,10 @@ typedef enum {
 	HIP_R1,
 	HIP_I2,
 	HIP_R2,
-	UPDATE=16,
-	NOTIFY=17,
-	CLOSE=18,
-	CLOSE_ACK=19
+	HIP_UPDATE=16,
+	HIP_NOTIFY=17,
+	HIP_CLOSE=18,
+	HIP_CLOSE_ACK=19
 } HIP_PACKETS;
 
 /* HIP TLV parameters listed in order of RFCs */
@@ -131,21 +127,21 @@ static const value_string pinfo_vals[] = {
 	{ HIP_R1, "HIP R1 (HIP Responder Packet)" },
 	{ HIP_I2, "HIP I2 (Second HIP Initiator Packet)" },
 	{ HIP_R2, "HIP R2 (Second HIP Responder Packet)" },
-	{ UPDATE, "HIP UPDATE (HIP Update Packet)" },
-	{ NOTIFY, "HIP NOTIFY (HIP Notify Packet)" },
-	{ CLOSE, "HIP CLOSE (HIP Close Packet)" },
-	{ CLOSE_ACK, "HIP CLOSE_ACK (HIP Close Acknowledgement Packet)" },
+	{ HIP_UPDATE, "HIP UPDATE (HIP Update Packet)" },
+	{ HIP_NOTIFY, "HIP NOTIFY (HIP Notify Packet)" },
+	{ HIP_CLOSE, "HIP CLOSE (HIP Close Packet)" },
+	{ HIP_CLOSE_ACK, "HIP CLOSE_ACK (HIP Close Acknowledgement Packet)" },
 	{ 0, NULL }
 };
 
 static const value_string hip_param_vals[] = {
 	{ PARAM_ESP_INFO, "ESP_INFO" },
-        { PARAM_R1_COUNTER, "R1_COUNTER" },
-        { PARAM_LOCATOR, "LOCATOR" },
-        { PARAM_PUZZLE, "PUZZLE" },
-        { PARAM_SOLUTION, "SOLUTION" },
+	{ PARAM_R1_COUNTER, "R1_COUNTER" },
+	{ PARAM_LOCATOR, "LOCATOR" },
+	{ PARAM_PUZZLE, "PUZZLE" },
+	{ PARAM_SOLUTION, "SOLUTION" },
 	{ PARAM_SEQ, "SEQ" },
-        { PARAM_ACK, "ACK" },
+	{ PARAM_ACK, "ACK" },
 	{ PARAM_DIFFIE_HELLMAN, "DIFFIE_HELLMAN" },
 	{ PARAM_HIP_TRANSFORM, "HIP_TRANSFORM" },
 	{ PARAM_ENCRYPTED, "ENCRYPTED" },
@@ -163,13 +159,13 @@ static const value_string hip_param_vals[] = {
 	{ PARAM_ECHO_RESPONSE_UNSIGNED, "ECHO_RESPONSE_UNSIGNED" },
 	{ PARAM_NAT_TRAVERSAL_MODE, "NAT_TRAVERSAL_MODE" },
 	{ PARAM_TRANSACTION_PACING, "TRANSACTION_PACING" },
-        { PARAM_RELAY_FROM, "RELAY_FROM" },
-        { PARAM_RELAY_TO, "RELAY_TO" },
-        { PARAM_RELAY_HMAC, "RELAY_HMAC" },
+	{ PARAM_RELAY_FROM, "RELAY_FROM" },
+	{ PARAM_RELAY_TO, "RELAY_TO" },
+	{ PARAM_RELAY_HMAC, "RELAY_HMAC" },
 	{ PARAM_REG_INFO, "REG_INFO" },
 	{ PARAM_REG_REQUEST, "REG_REQUEST" },
-        { PARAM_REG_RESPONSE, "REG_RESPONSE" },
-        { PARAM_REG_FROM, "REG_FROM" },
+	{ PARAM_REG_RESPONSE, "REG_RESPONSE" },
+	{ PARAM_REG_FROM, "REG_FROM" },
 	{ 0, NULL }
 };
 
@@ -404,10 +400,10 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 hiph_shim6_fixed_bit_s;    /* This is always 0              */
 	guint8 hiph_packet_type;          /* packet type                   */
 	guint8 hiph_res_ver, hiph_version, hiph_reserved;              
-                                          /* byte for reserved and version */
+					  /* byte for reserved and version */
 	guint8 hiph_shim6_fixed_bit_p;    /* This is always 1              */
 	/* checksum_h */                  /* checksum                      */
-        /* control_h */                   /* control                       */
+	/* control_h */                   /* control                       */
 	/* HIP parameters ...  */ 
 
 	/*  load the top pane info. This should be overwritten by
@@ -507,7 +503,7 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		ti = proto_tree_add_item(hip_tree, hf_hip_controls, tvb, offset+6, 2, FALSE);
 		if (ti) { 
-                        /* HIP Controls subtree */
+			/* HIP Controls subtree */
 			ti = proto_item_add_subtree(ti, ett_hip_controls);			
 			proto_tree_add_boolean(ti, hf_hip_controls_anon, tvb, 
 					       offset+7,1, control_h);
@@ -600,7 +596,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 		proto_tree_add_item(t, hf_hip_tlv_r1count, tvb, newoffset, 8, FALSE);
 		break;
 	case PARAM_LOCATOR: 
-                /* RFC 5206 section 4. and 
+		/* RFC 5206 section 4. and 
 		   draft-ietf-hip-nat-raversal-06.txt section 5.7. 
 		   for type 2 locators */
 		t = proto_item_add_subtree(ti, ett_hip_tlv_data);
@@ -795,7 +791,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 			newoffset += 2;
 		}
 		break; 
-        case PARAM_TRANSACTION_PACING: 
+	case PARAM_TRANSACTION_PACING: 
 		t = proto_item_add_subtree(ti, ett_hip_tlv_data);
 		/* Min Ta */
 		proto_tree_add_item(t, hf_hip_tlv_transaction_minta, tvb, newoffset, 4, FALSE);
@@ -967,14 +963,14 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 		/* Reserved */
 		proto_tree_add_item(t, hf_hip_tlv_notification_res, tvb, newoffset, 2, FALSE);
 		newoffset += 2;
-                /* Notification Message Type */
+		/* Notification Message Type */
 		proto_tree_add_item(t, hf_hip_tlv_notification_type, tvb, newoffset, 2, FALSE);
 		newoffset += 2;
 		/* Notification Data */
 		proto_tree_add_item(t, hf_hip_tlv_notification_data, tvb, newoffset,
 				     tlv_len-4, FALSE);
 		break;
-        case PARAM_ECHO_REQUEST_SIGNED:
+	case PARAM_ECHO_REQUEST_SIGNED:
 	case PARAM_ECHO_RESPONSE_SIGNED: 
 	case PARAM_ECHO_REQUEST_UNSIGNED: 
 	case PARAM_ECHO_RESPONSE_UNSIGNED: 
@@ -989,7 +985,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 	case PARAM_REG_FAILED:
 		t = proto_item_add_subtree(ti, ett_hip_tlv_data);
 		if (type == PARAM_REG_INFO) { 
-                        /* Min Lifetime */
+			/* Min Lifetime */
 			proto_tree_add_item(t, hf_hip_tlv_reg_ltmin, tvb, newoffset, 1, FALSE);
 			newoffset++;
 		        /* Max Lifetime */
@@ -997,12 +993,12 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 			newoffset++;
 			tlv_len -= 2;
 		} else if (type == PARAM_REG_FAILED) { 
-                        /* Failure Type */
+			/* Failure Type */
 			proto_tree_add_item(t, hf_hip_tlv_reg_failtype, tvb, newoffset, 1, FALSE);
 			newoffset++;;
 			tlv_len--;
 		} else { 
-                        /* Lifetime */
+			/* Lifetime */
 			proto_tree_add_item(t, hf_hip_tlv_reg_lt, tvb, newoffset, 1, FALSE);
 			newoffset++;
 			tlv_len--;
@@ -1020,8 +1016,8 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 		break;
 	case PARAM_HMAC: 
 	case PARAM_HMAC_2: 
-       case PARAM_RVS_HMAC:
-       case PARAM_RELAY_HMAC:
+	case PARAM_RVS_HMAC:
+	case PARAM_RELAY_HMAC:
 		t = proto_item_add_subtree(ti, ett_hip_tlv_data);
 		/* HMAC */
 		proto_tree_add_item(t, hf_hip_tlv_hmac, tvb, offset+4,
@@ -1036,7 +1032,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 					   n, "%u (%s)", n, 
 					   val_to_str(n, sig_alg_vals, "Unknown"));
 		newoffset++;
-                /* Signature */
+		/* Signature */
 		proto_tree_add_item(t, hf_hip_tlv_sig, tvb, newoffset, tlv_len-1,
 				    FALSE);
 		break;
@@ -1057,46 +1053,45 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 	case PARAM_RELAY_FROM:
 		t = proto_item_add_subtree(ti, ett_hip_tlv_data);
 		/* Port */
-                proto_tree_add_item(t, hf_hip_tlv_relay_from_port, tvb, newoffset, 2, FALSE);
+		proto_tree_add_item(t, hf_hip_tlv_relay_from_port, tvb, newoffset, 2, FALSE);
 		newoffset += 2; 
 		/* Protocol */
-                proto_tree_add_item(t, hf_hip_tlv_relay_from_protocol, tvb, newoffset, 1, FALSE);
-                newoffset += 1; 
+		proto_tree_add_item(t, hf_hip_tlv_relay_from_protocol, tvb, newoffset, 1, FALSE);
+		newoffset += 1; 
 		/* Reserved */
-                proto_tree_add_item(t, hf_hip_tlv_relay_from_reserved, tvb, newoffset, 1, FALSE);
-                newoffset += 1; 
+		proto_tree_add_item(t, hf_hip_tlv_relay_from_reserved, tvb, newoffset, 1, FALSE);
+		newoffset += 1; 
 		/* Address */
-                proto_tree_add_item(t, hf_hip_tlv_relay_to_address, tvb, newoffset, 16, FALSE);
+		proto_tree_add_item(t, hf_hip_tlv_relay_to_address, tvb, newoffset, 16, FALSE);
 		break;
 	case PARAM_RELAY_TO:
 		t = proto_item_add_subtree(ti, ett_hip_tlv_data);
 		/* Port */
-                proto_tree_add_item(t, hf_hip_tlv_relay_to_port, tvb, newoffset, 2, FALSE);
+		proto_tree_add_item(t, hf_hip_tlv_relay_to_port, tvb, newoffset, 2, FALSE);
 		newoffset += 2; 
 		/* Protocol */
 		proto_tree_add_item(t, hf_hip_tlv_relay_to_protocol, tvb, newoffset, 1, FALSE);
 		newoffset += 1; 
 		/* Reserved */
-                proto_tree_add_item(t, hf_hip_tlv_relay_to_reserved, tvb, newoffset, 1, FALSE);
-                newoffset += 1; 
+		proto_tree_add_item(t, hf_hip_tlv_relay_to_reserved, tvb, newoffset, 1, FALSE);
+		newoffset += 1; 
 		/* Address */
-                proto_tree_add_item(t, hf_hip_tlv_relay_to_address, tvb, newoffset, 16, FALSE);
+		proto_tree_add_item(t, hf_hip_tlv_relay_to_address, tvb, newoffset, 16, FALSE);
 		break;
 	case PARAM_REG_FROM:
 		t = proto_item_add_subtree(ti, ett_hip_tlv_data);
 		/* Port */
-                proto_tree_add_item(t, hf_hip_tlv_reg_from_port, tvb, newoffset, 2, FALSE);
-                newoffset += 2; 
+		proto_tree_add_item(t, hf_hip_tlv_reg_from_port, tvb, newoffset, 2, FALSE);
+		newoffset += 2; 
 		/* Protocol */
-                proto_tree_add_item(t, hf_hip_tlv_reg_from_protocol, tvb, newoffset, 1, FALSE);
-                newoffset += 1; 
+		proto_tree_add_item(t, hf_hip_tlv_reg_from_protocol, tvb, newoffset, 1, FALSE);
+		newoffset += 1; 
 		/* Reserved */
-                proto_tree_add_item(t, hf_hip_tlv_reg_from_reserved, tvb, newoffset, 1, FALSE);
-                newoffset += 1; 
+		proto_tree_add_item(t, hf_hip_tlv_reg_from_reserved, tvb, newoffset, 1, FALSE);
+		newoffset += 1; 
 		/* Address */
-                proto_tree_add_item(t, hf_hip_tlv_reg_from_address, tvb, newoffset, 16, FALSE);
+		proto_tree_add_item(t, hf_hip_tlv_reg_from_address, tvb, newoffset, 16, FALSE);
 		break;
-
 	default:
 		break;
 	}
@@ -1201,7 +1196,7 @@ proto_register_hip(void)
 				
 	        { &hf_hip_tlv_ei_res,
 		{ "Reserved", "hip.tlv_esp_info_reserved", 
-                  FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		  FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		
 	        { &hf_hip_tlv_ei_keyidx,
 		  { "Keymaterial Index", "hip.tlv_esp_info_key_index", 
@@ -1223,7 +1218,7 @@ proto_register_hip(void)
 		  { "ACKed Peer Update ID", "hip.tlv_ack_updid", 
 		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		
-                { &hf_hip_tlv_dh_group_id,
+		{ &hf_hip_tlv_dh_group_id,
 		  { "Group ID", "hip.tlv.dh_group_id", 
 		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
@@ -1231,78 +1226,78 @@ proto_register_hip(void)
 		  { "Public Value Length", "hip.tlv.dh_pv_length", 
 		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_dh_pub,
+		{ &hf_hip_tlv_dh_pub,
 		  { "Public Value", "hip.tlv.dh_public_value", 
 		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		
-                { &hf_hip_tlv_trans_id,
+		{ &hf_hip_tlv_trans_id,
 		  { "Transform ID", "hip.tlv.trans_id", 
 		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		
-                { &hf_hip_tlv_esp_reserved,
+		{ &hf_hip_tlv_esp_reserved,
 		  { "Reserved", "hip.tlv.esp_trans_res", 
 		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		
-                { &hf_hip_tlv_host_id_len,
+		{ &hf_hip_tlv_host_id_len,
 		  { "Host Identity Length", "hip.tlv.host_id_length", 
 		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		
-                { &hf_hip_tlv_host_di_type,
+		{ &hf_hip_tlv_host_di_type,
 		  { "Domain Identifier Type", "hip.tlv.host_domain_id_type", 
 		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		
-                { &hf_hip_tlv_host_di_len,
+		{ &hf_hip_tlv_host_di_len,
 		  { "Domain Identifier Length", "hip.tlv.host_domain_id_length", 
 		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		
-                { &hf_hip_tlv_host_id_hdr,
+		{ &hf_hip_tlv_host_id_hdr,
 		  { "Host Identity flags", "hip.tlv.host_id_hdr", 
 		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		
-                { &hf_hip_tlv_host_id_hdr_flags,
+		{ &hf_hip_tlv_host_id_hdr_flags,
 		  { "Host Identity Header Flags", "hip.tlv.host_id_header_flags", 
 		    FT_UINT32, BASE_HEX, VALS(hi_hdr_flags_vals), 
 		    HI_HDR_FLAGS_MASK, NULL, HFILL }},
 		
-                { &hf_hip_tlv_host_id_hdr_proto,
+		{ &hf_hip_tlv_host_id_hdr_proto,
 		  { "Host Identity Header Protocol", "hip.tlv.host_id_header_proto", 
 		    FT_UINT32, BASE_HEX, VALS(hi_hdr_proto_vals), 
 		    HI_HDR_PROTO_MASK, NULL, HFILL }},
 		
-                { &hf_hip_tlv_host_id_hdr_alg,
+		{ &hf_hip_tlv_host_id_hdr_alg,
 		  { "Host Identity Header Algorithm", "hip.tlv.host_id_header_algo", 
 		    FT_UINT32, BASE_HEX, VALS(hi_hdr_alg_vals), 
 		    HI_HDR_ALG_MASK, NULL, HFILL }},
 		
-                { &hf_hip_tlv_host_id_t,
+		{ &hf_hip_tlv_host_id_t,
 		  { "Host Identity T", "hip.tlv.host_identity_t", 
 		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		
-                { &hf_hip_tlv_host_id_q,
+		{ &hf_hip_tlv_host_id_q,
 		  { "Host Identity Q", "hip.tlv.host_identity_q", 
 		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		
-                { &hf_hip_tlv_host_id_p,
+		{ &hf_hip_tlv_host_id_p,
 		  { "Host Identity P", "hip.tlv.host_id_p", 
 		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_host_id_g,
+		{ &hf_hip_tlv_host_id_g,
 		  { "Host Identity G", "hip.tlv.host_id_g", 
 		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_host_id_y,
+		{ &hf_hip_tlv_host_id_y,
 		  { "Host Identity Y (public value)", "hip.tlv.host_id_y", 
 		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		
-                { &hf_hip_tlv_host_id_e_len,
+		{ &hf_hip_tlv_host_id_e_len,
 		  { "RSA Host Identity exponent length (e_len)", "hip.tlv.host_id_e_length",
 		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		
-                { &hf_hip_tlv_host_id_e,
+		{ &hf_hip_tlv_host_id_e,
 		  { "RSA Host Identity exponent (e)", "hip.tlv.host_id_e", 
 		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		
-                { &hf_hip_tlv_host_id_n,
+		{ &hf_hip_tlv_host_id_n,
 		  { "RSA Host Identity public modulus (n)", "hip.tlv.host_id_n", 
 		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 				
@@ -1346,59 +1341,59 @@ proto_register_hip(void)
 		  { "HMAC", "hip.tlv.hmac", 
 		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		
-                { &hf_hip_tlv_sig_alg,
+		{ &hf_hip_tlv_sig_alg,
 		  { "Signature Algorithm", "hip.tlv.sig_alg", 
 		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		
-                { &hf_hip_tlv_sig,
+		{ &hf_hip_tlv_sig,
 		  { "Signature", "hip.tlv.sig", 
 		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		
-                { &hf_hip_tlv_enc_reserved,
+		{ &hf_hip_tlv_enc_reserved,
 		  { "Reserved", "hip.tlv.enc_reserved", 
 		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_locator_traffic_type,
+		{ &hf_hip_tlv_locator_traffic_type,
 		  { "Traffic Type", "hip.tlv.locator_traffic_type", 
 		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_locator_type,
+		{ &hf_hip_tlv_locator_type,
 		  { "Locator Type", "hip.tlv.locator_type", 
 		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_locator_len,
+		{ &hf_hip_tlv_locator_len,
 		  { "Locator Length", "hip.tlv.locator_len", 
 		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_locator_reserved,
+		{ &hf_hip_tlv_locator_reserved,
 		  { "Reserved", "hip.tlv.locator_reserved", 
 		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_locator_lifetime,
+		{ &hf_hip_tlv_locator_lifetime,
 		  { "Locator Lifetime", "hip.tlv.locator_lifetime", 
 		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_locator_port,
+		{ &hf_hip_tlv_locator_port,
 		  { "Locator port", "hip.tlv.locator_port", 
 		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_locator_transport_protocol,
+		{ &hf_hip_tlv_locator_transport_protocol,
 		  { "Locator transport protocol", "hip.tlv.locator_transport_protocol", 
 		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_locator_kind,
+		{ &hf_hip_tlv_locator_kind,
 		  { "Locator kind", "hip.tlv.locator_kind", 
 		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_locator_priority,
+		{ &hf_hip_tlv_locator_priority,
 		  { "Locator priority", "hip.tlv.locator_priority", 
 		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_locator_spi,
+		{ &hf_hip_tlv_locator_spi,
 		  { "Locator spi", "hip.tlv.locator_spi", 
 		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_locator_address,
+		{ &hf_hip_tlv_locator_address,
 		  { "Locator" , "hip.tlv.locator_address", 
 		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
@@ -1426,63 +1421,63 @@ proto_register_hip(void)
 		  { "NAT Traversal Mode ID", "hip.tlv.nat_traversal_mode_id", 
 		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_relay_from_port,
+		{ &hf_hip_tlv_relay_from_port,
 		  { "Relay From Port", "hip.tlv.relay_from_port", 
 		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_relay_to_port,
+		{ &hf_hip_tlv_relay_to_port,
 		  { "Relay To Port", "hip.tlv.relay_to_port", 
 		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		
-                { &hf_hip_tlv_reg_from_port,
+		{ &hf_hip_tlv_reg_from_port,
 		  { "Port", "hip.tlv.reg_from_port", 
 		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_transaction_minta,
+		{ &hf_hip_tlv_transaction_minta,
 		  { "Min Ta" , "hip.tlv_transaction_minta", 
 		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_from_address,
+		{ &hf_hip_tlv_from_address,
 		  { "Address" , "hip.tlv_from_address", 
 		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_rvs_address,
+		{ &hf_hip_tlv_rvs_address,
 		  { "RVS Address" , "hip.tlv_rvs_address", 
 		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_relay_from_protocol,
+		{ &hf_hip_tlv_relay_from_protocol,
 		  { "Protocol" , "hip.tlv_relay_from_protocol", 
 		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_relay_from_reserved,
+		{ &hf_hip_tlv_relay_from_reserved,
 		  { "Reserved" , "hip.tlv_relay_from_reserved", 
 		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_relay_from_address,
+		{ &hf_hip_tlv_relay_from_address,
 		  { "Address" , "hip.tlv_relay_from_address", 
 		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_relay_to_protocol,
+		{ &hf_hip_tlv_relay_to_protocol,
 		  { "Protocol" , "hip.tlv_relay_to_protocol", 
 		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_relay_to_reserved,
+		{ &hf_hip_tlv_relay_to_reserved,
 		  { "Reserved" , "hip.tlv_relay_to_reserved", 
 		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_relay_to_address,
+		{ &hf_hip_tlv_relay_to_address,
 		  { "Address" , "hip.tlv_relay_to_address", 
 		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_reg_from_protocol,
+		{ &hf_hip_tlv_reg_from_protocol,
 		  { "Protocol" , "hip.tlv_reg_from_protocol", 
 		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_reg_from_reserved,
+		{ &hf_hip_tlv_reg_from_reserved,
 		  { "Reserved" , "hip.tlv_reg_from_reserved", 
 		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-                { &hf_hip_tlv_reg_from_address,
+		{ &hf_hip_tlv_reg_from_address,
 		  { "Address" , "hip.tlv_reg_from_address", 
 		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
@@ -1513,5 +1508,5 @@ proto_reg_handoff_hip(void)
 	dissector_add("ip.proto", IP_PROTO_HIP, hip_handle);
 
 	hip_handle2 = create_dissector_handle(dissect_hip_in_udp, proto_hip);
-       dissector_add("udp.port", 10500, hip_handle2);
+	dissector_add("udp.port", 10500, hip_handle2);
 }
