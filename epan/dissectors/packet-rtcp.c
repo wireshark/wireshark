@@ -1746,24 +1746,29 @@ static void parse_xr_type_specific_field(tvbuff_t *tvb, gint offset, guint block
     }
 }
 
-static gboolean validate_xr_block_length(tvbuff_t *tvb, int offset, guint block_type, guint block_len, proto_tree *tree)
+static gboolean validate_xr_block_length(tvbuff_t *tvb, packet_info *pinfo, int offset, guint block_type, guint block_len, proto_tree *tree)
 {
-    proto_tree_add_uint(tree, hf_rtcp_xr_block_length, tvb, offset, 2, block_len);
+	proto_item *ti;
+    
+	ti = proto_tree_add_uint(tree, hf_rtcp_xr_block_length, tvb, offset, 2, block_len);
     switch (block_type) {
     case RTCP_XR_REF_TIME:
         if (block_len != 2)
-            proto_tree_add_text(tree, tvb, offset, 2, "Invalid block length, should be 2");
+			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
+			                      "Invalid block length, should be 2");
         return FALSE;
 
     case RTCP_XR_STATS_SUMRY:
         if (block_len != 9)
-            proto_tree_add_text(tree, tvb, offset, 2, "Invalid block length, should be 9");
+			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
+			                      "Invalid block length, should be 9");
         return FALSE;
 
     case RTCP_XR_VOIP_METRCS:
     case RTCP_XR_BT_XNQ:
-        if (block_len != 8)
-            proto_tree_add_text(tree, tvb, offset, 2, "Invalid block length, should be 8");
+		if (block_len != 8)
+			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
+			                      "Invalid block length, should be 8");
         return FALSE;
 
     default:
@@ -1773,7 +1778,7 @@ static gboolean validate_xr_block_length(tvbuff_t *tvb, int offset, guint block_
 }
 
 static int
-dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree, gint packet_len)
+dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, gint packet_len)
 {
     guint block_num = 1;
     guint temp_value = 0;                          /* used when checking spare bits in block type 8 */
@@ -1806,7 +1811,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
             parse_xr_type_specific_field(tvb, offset + 1, block_type, xr_block_tree);
             if (packet_len >= 4) {
                 block_length = tvb_get_ntohs(tvb, offset + 2);
-                valid = validate_xr_block_length(tvb, offset + 2, block_type, block_length, xr_block_tree);
+                valid = validate_xr_block_length(tvb, pinfo, offset + 2, block_type, block_length, xr_block_tree);
             }
         } else {
             proto_tree_add_text(xr_block_tree, tvb, offset + 1, packet_len, "Missing Required Block Headers");
