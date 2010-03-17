@@ -38,9 +38,13 @@ static int hf_nb_rtpmux_dstport    = -1;
 static int hf_nb_rtpmux_length     = -1;
 static int hf_nb_rtpmux_srcport    = -1;
 static int hf_nb_rtpmux_data       = -1;
+static int hf_nb_rtpmux_cmp_rtp_sequence_no   = -1;
+static int hf_nb_rtpmux_cmp_rtp_timestamp     = -1;
+static int hf_nb_rtpmux_cmp_rtp_data          = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_nb_rtpmux = -1;
+static gint ett_nb_rtpmux_cmp_rtp_hdr = -1;
 
 static dissector_handle_t rtpdissector;
 
@@ -49,8 +53,8 @@ static int
 dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti;
-    proto_tree *nb_rtpmux_tree;
+    proto_item *ti, *cmp_rtp_item;
+    proto_tree *nb_rtpmux_tree, *nb_rtpmux_cmp_rtp_tree;
     unsigned int offset = 0;
 
     /*  First, if at all possible, do some heuristics to check if the packet cannot
@@ -96,6 +100,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         unsigned int length;
         gint captured_length;
         tvbuff_t* next_tvb;
+		gboolean tbit;
 
         length = tvb_get_guint8(tvb, offset+2);
         ti = proto_tree_add_item(tree, proto_nb_rtpmux, tvb, offset,
@@ -105,33 +110,54 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* XXX - what if the T bit is set? */
         proto_tree_add_item(nb_rtpmux_tree,
             hf_nb_rtpmux_compressed, tvb, offset, 1, FALSE);
-        dstport = (tvb_get_ntohs(tvb, offset) & 0x7fff) << 1;
-        proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_dstport, tvb, offset, 2, dstport );
-        proto_tree_add_item(nb_rtpmux_tree,
-            hf_nb_rtpmux_length, tvb, offset+2, 1, FALSE);
-        srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
-        proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );
+		tbit = tvb_get_guint8(tvb,offset)>>7;
+		if(tbit == 1){
+			/* 6.4.2.4 Transport Format for multiplexing with RTP header compression */
+			dstport = (tvb_get_ntohs(tvb, offset) & 0x7fff) << 1;
+			proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_dstport, tvb, offset, 2, dstport );
+			proto_tree_add_item(nb_rtpmux_tree,
+				hf_nb_rtpmux_length, tvb, offset+2, 1, FALSE);
+			srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
+			proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );
+			cmp_rtp_item = proto_tree_add_text( nb_rtpmux_tree, tvb, offset+5, 3, "Compressed RTP header" );
+			nb_rtpmux_cmp_rtp_tree = proto_item_add_subtree(cmp_rtp_item, ett_nb_rtpmux_cmp_rtp_hdr);
+			/* Sequence Number (SN) */
+			proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_sequence_no, tvb, offset+5, 1, FALSE);
+			/* Timestamp (TS) */
+			proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_timestamp, tvb, offset+6, 2, FALSE);
+			if (length != 0)
+				proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_data,tvb, offset+8, length-3, FALSE);
 
-        if (length != 0)
-        {
-            /* We have an RTP payload. */
-            if (rtpdissector)
-            {
-                captured_length = tvb_length_remaining(tvb, offset + 5);
-                if (captured_length > (gint)length)
-                    captured_length = length;
-                next_tvb = tvb_new_subset(tvb, offset+5, captured_length,
-                                          length);
+		}else{
+			/* 6.4.2.3 Transport Format for multiplexing without RTP Header Compression */
+			dstport = (tvb_get_ntohs(tvb, offset) & 0x7fff) << 1;
+			proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_dstport, tvb, offset, 2, dstport );
+			proto_tree_add_item(nb_rtpmux_tree,
+				hf_nb_rtpmux_length, tvb, offset+2, 1, FALSE);
+			srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
+			proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );
 
-                call_dissector(rtpdissector, next_tvb, pinfo, nb_rtpmux_tree);
-            }
-            else
-            {
-                proto_tree_add_item(nb_rtpmux_tree,
-                    hf_nb_rtpmux_data, tvb, offset+5, length, FALSE);
-            }
-        }
-        offset += 5+length;
+			if (length != 0)
+			{
+				/* We have an RTP payload. */
+				if (rtpdissector)
+				{
+					captured_length = tvb_length_remaining(tvb, offset + 5);
+					if (captured_length > (gint)length)
+						captured_length = length;
+					next_tvb = tvb_new_subset(tvb, offset+5, captured_length,
+											  length);
+
+					call_dissector(rtpdissector, next_tvb, pinfo, nb_rtpmux_tree);
+				}
+				else
+				{
+					proto_tree_add_item(nb_rtpmux_tree,
+						hf_nb_rtpmux_data, tvb, offset+5, length, FALSE);
+				}
+			}
+			offset += 5+length;
+		}
     }
 
     /* Return the amount of data this dissector was able to dissect */
@@ -173,12 +199,29 @@ proto_register_nb_rtpmux(void)
             { "RTP Packet", "nb_rtpmux.data",
              FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
-        }
+        },
+       { &hf_nb_rtpmux_cmp_rtp_sequence_no,
+            { "Sequence Number", "nb_rtpmux.cmp_rtp.sequence_no",
+             FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+       }, 
+       { &hf_nb_rtpmux_cmp_rtp_timestamp,
+            { "Timestamp", "nb_rtpmux.cmp_rtp.timestamp",
+             FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL } 
+       },
+       { &hf_nb_rtpmux_cmp_rtp_data,
+            { "RTP Data", "nb_rtpmux.cmp_rtp.data",
+             FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL,HFILL }
+       }
+
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
-        &ett_nb_rtpmux
+        &ett_nb_rtpmux,
+		&ett_nb_rtpmux_cmp_rtp_hdr
     };
 
     /* Register the protocol name and description */
