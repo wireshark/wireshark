@@ -106,9 +106,13 @@ static const value_string rtcp_version_vals[] =
 #define RTCP_RTPFB 205
 #define RTCP_PSFB  206
 #define RTCP_XR    207
+#define RTCP_AVB  208
+#define RTCP_RSI  209
 /* Supplemental H.261 specific RTCP packet types according to Section C.3.5 */
 #define RTCP_FIR   192
 #define RTCP_NACK  193
+#define RTCP_SMPTETC 194
+#define RTCP_IJ   195
 
 static const value_string rtcp_packet_type_vals[] =
 {
@@ -117,11 +121,15 @@ static const value_string rtcp_packet_type_vals[] =
 	{ RTCP_SDES, "Source description" },
 	{ RTCP_BYE,  "Goodbye" },
 	{ RTCP_APP,  "Application specific" },
-	{ RTCP_FIR,  "Full Intra-frame Request (H.261)" },
-	{ RTCP_NACK, "Negative Acknowledgement (H.261)" },
 	{ RTCP_RTPFB,"Generic RTP Feedback" },
 	{ RTCP_PSFB, "Payload-specific" },
 	{ RTCP_XR,   "Extended report (RFC 3611)"},
+	{ RTCP_AVB,  "AVB RTCP packet (IEEE1733)" },
+	{ RTCP_RSI,  "Receiver Summary Information" },
+	{ RTCP_FIR,  "Full Intra-frame Request (H.261)" },
+	{ RTCP_NACK, "Negative Acknowledgement (H.261)" },
+	{ RTCP_SMPTETC, "SMPTE time-code mapping" },
+	{ RTCP_IJ,   "Extended inter-arrival jitter report" },
 	{ 0,         NULL }
 };
 
@@ -162,6 +170,9 @@ static const value_string rtcp_sdes_type_vals[] =
 #define RTCP_XR_STATS_SUMRY 6
 #define RTCP_XR_VOIP_METRCS 7
 #define RTCP_XR_BT_XNQ      8
+#define RTCP_XR_TI_VOIP     9
+#define RTCP_XR_PR_LOSS_RLE 10
+#define RTCP_XR_MC_ACQ      11
 
 static const value_string rtcp_xr_type_vals[] =
 {
@@ -173,6 +184,9 @@ static const value_string rtcp_xr_type_vals[] =
 	{ RTCP_XR_STATS_SUMRY,  "Statistics Summary Report Block" },
 	{ RTCP_XR_VOIP_METRCS,  "VoIP Metrics Report Block" },
 	{ RTCP_XR_BT_XNQ,       "BT XNQ RTCP XR (RFC5093) Report Block" },
+	{ RTCP_XR_TI_VOIP,      "Texas Instruments Extended VoIP Quality Block" },
+	{ RTCP_XR_PR_LOSS_RLE,  "Post-repair Loss RLE Report Block" },
+	{ RTCP_XR_MC_ACQ,       "Multicast Acquisition Report Block" },
 	{ 0, NULL}
 };
 
