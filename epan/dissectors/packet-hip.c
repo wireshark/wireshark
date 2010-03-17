@@ -381,7 +381,6 @@ static gint ett_hip_controls = -1;
 static gint ett_hip_tlv = -1;
 static gint ett_hip_tlv_data = -1;
 static gint ett_hip_tlv_host_id_hdr = -1;
-static gint ett_hip_locator_data = -1;
 
 /* Dissect the HIP packet */
 static void 
@@ -562,7 +561,7 @@ static int
 dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len)
 {
 	proto_tree *t=NULL;
-	proto_item *ti_tlv, *ti_loc;
+	proto_item *ti_tlv;
 	guint8 n, algorithm, reg_type;
 	guint16 trans, hi_len, di_len, di_type, e_len, pv_len;
 	guint32 reserved, hi_hdr;
@@ -604,86 +603,66 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 		tlv_len -= 4;
 		/* loop through included locators */ 
 		while (tlv_len > 0) {
-			/* Every locator to new tree node 
-			   Skip ahead and read the 0 or 1 type locator from 8 bytes
-			   and type 2 locator from 20 bytes to be used as the top level 
-			   tree_item for this subtree
-			*/
-			locator_type = tvb_get_guint8(tvb, newoffset + 1);
+			/* Traffic type */
+			proto_tree_add_item(t, hf_hip_tlv_locator_traffic_type, tvb,
+					    newoffset, 1, FALSE);
+			newoffset++; 
+			/* Locator type */
+			locator_type = tvb_get_guint8(tvb, newoffset);
+			proto_tree_add_item(t, hf_hip_tlv_locator_type, tvb, newoffset, 1, FALSE);
+			newoffset++;
+			/* Locator length */
+			proto_tree_add_item(t, hf_hip_tlv_locator_len, tvb, newoffset, 1, FALSE);
+			newoffset++;
+			/* Reserved includes the Preferred bit */
+			reserved = tvb_get_guint8(tvb, newoffset);
+			proto_tree_add_uint_format(t, hf_hip_tlv_locator_reserved, tvb, 
+						   newoffset, 1, reserved,	
+						   "Reserved: 0x%x %s", reserved,
+						   (reserved >> 31) ? "(Preferred)" : "");
+			newoffset++;
+			/* Locator lifetime */ 
+			proto_tree_add_item(t, hf_hip_tlv_locator_lifetime, tvb,
+					    newoffset, 4, FALSE);
+			newoffset += 4;
+			/* Locator types 1 and 0 RFC 5206 section 4.2.*/
 			if (locator_type == 1 || locator_type == 0) {
-				ti_loc = proto_tree_add_item(t, hf_hip_tlv_locator_address, 
-							     tvb, newoffset + 8, 16, FALSE);
+				/* Locator */
+				proto_tree_add_item(t, hf_hip_tlv_locator_address, tvb, newoffset, 16, FALSE);
+				newoffset += 16;
+				tlv_len -= 24;
+			/* Locator type 2 draft-ietf-hip-nat-raversal-06.txt section 5.7. */
 			} else if (locator_type == 2) {
-				ti_loc = proto_tree_add_item(t, hf_hip_tlv_locator_address, 
-							     tvb, newoffset + 20, 16, FALSE);
-			}                          
-			if (ti_loc) { 
-				ti_loc = proto_item_add_subtree(ti_loc, ett_hip_locator_data);
-				/* Traffic type */
-				proto_tree_add_item(ti_loc, hf_hip_tlv_locator_traffic_type, tvb,
+				/* Tansport port */
+				proto_tree_add_item(t, hf_hip_tlv_locator_port, tvb, 
+						    newoffset, 2, FALSE);
+				newoffset += 2; 
+				/* Transport protocol */
+				transport_proto = tvb_get_guint8(tvb, newoffset);
+				/* draft-ietf-hip-nat-traversal-06 section 5.6 */
+				proto_tree_add_uint_format(t, hf_hip_tlv_locator_transport_protocol,
+							   tvb, newoffset, 1, transport_proto,	
+							   "Transport protocol: %d %s", 
+							   transport_proto,
+							   (transport_proto == 17) ? 
+							   "(UDP)" : "");
+				newoffset++;
+				/* Kind */
+				proto_tree_add_item(t, hf_hip_tlv_locator_kind, tvb, 
 						    newoffset, 1, FALSE);
-				newoffset++; 
-#if 0
-				/* Locator type */
-				locator_type = tvb_get_guint8(tvb, newoffset);
-#endif
-				proto_tree_add_item(ti_loc, hf_hip_tlv_locator_type, tvb, newoffset, 1, FALSE);
 				newoffset++;
-				/* Locator length */
-				proto_tree_add_item(ti_loc, hf_hip_tlv_locator_len, tvb, newoffset, 1, FALSE);
-				newoffset++;
-				/* Reserved includes the Preferred bit */
-				reserved = tvb_get_guint8(tvb, newoffset);
-				proto_tree_add_uint_format(ti_loc, hf_hip_tlv_locator_reserved, tvb, 
-							   newoffset, 1, reserved,	
-							   "Reserved: 0x%x %s", reserved,
-							   (reserved >> 31) ? "(Preferred)" : "");
-				newoffset++;
-				/* Locator lifetime */ 
-				proto_tree_add_item(ti_loc, hf_hip_tlv_locator_lifetime, tvb,
+				/* Priority */
+				proto_tree_add_item(t, hf_hip_tlv_locator_priority, tvb,
 						    newoffset, 4, FALSE);
-				newoffset += 4;
-				/* Locator types 1 and 0 RFC 5206 section 4.2.*/
-				if (locator_type == 1 || locator_type == 0) {
-					/* Locator */
-					proto_tree_add_item(ti_loc, hf_hip_tlv_locator_address, 
-							    tvb, newoffset, 16, FALSE);
-					newoffset += 16;
-					tlv_len -= 24;
-					/* Locator type 2 draft-ietf-hip-nat-raversal-06.txt section 5.7. */
-				} else if (locator_type == 2) {
-					/* Tansport port */
-					proto_tree_add_item(ti_loc, hf_hip_tlv_locator_port, tvb, 
-							    newoffset, 2, FALSE);
-					newoffset += 2; 
-					/* Transport protocol */
-					transport_proto = tvb_get_guint8(tvb, newoffset);
-					/* draft-ietf-hip-nat-traversal-06 section 5.6 */
-					proto_tree_add_uint_format(ti_loc, hf_hip_tlv_locator_transport_protocol,
-								   tvb, newoffset, 1, transport_proto,	
-								   "Transport protocol: %d %s", 
-								   transport_proto,
-								   (transport_proto == 17) ? 
-								   "(UDP)" : "");
-					newoffset++;
-					/* Kind */
-					proto_tree_add_item(ti_loc, hf_hip_tlv_locator_kind, tvb, 
-							    newoffset, 1, FALSE);
-					newoffset++;
-					/* Priority */
-					proto_tree_add_item(ti_loc, hf_hip_tlv_locator_priority, tvb,
-							    newoffset, 4, FALSE);
-					newoffset += 4;    
-					/* SPI */
-					proto_tree_add_item(ti_loc, hf_hip_tlv_locator_spi, tvb,
-							    newoffset, 4, FALSE);
-					newoffset += 4; 
-					/* Locator */
-					proto_tree_add_item(ti_loc, hf_hip_tlv_locator_address, 
-							    tvb, newoffset, 16, FALSE);
-					newoffset += 16;
-					tlv_len -= 36;                        
-				}
+				newoffset += 4;    
+				/* SPI */
+				proto_tree_add_item(t, hf_hip_tlv_locator_spi, tvb,
+						    newoffset, 4, FALSE);
+				newoffset += 4; 
+				/* Locator */
+				proto_tree_add_item(t, hf_hip_tlv_locator_address, tvb, newoffset, 16, FALSE);
+				newoffset += 16;
+				tlv_len -= 36;                        
 			}
 		}
 		break;
@@ -1510,7 +1489,6 @@ proto_register_hip(void)
 		&ett_hip_tlv,
 		&ett_hip_tlv_data,
 		&ett_hip_tlv_host_id_hdr,
-		&ett_hip_locator_data,
 	};
 
 	proto_hip = proto_register_protocol("Host Identity Protocol",
