@@ -2460,11 +2460,11 @@ dissect_isup_event_information_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
   Dissector Parameter User-to-user information- no detailed dissection since defined in Rec. Q.931
  */
 static void
-dissect_isup_user_to_user_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_isup_user_to_user_information_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 { guint length = tvb_reported_length(parameter_tvb);
   proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1,
 	  "User-to-user info (-> Q.931)");
-  dissect_q931_user_user_ie(parameter_tvb, 0, length,
+  dissect_q931_user_user_ie(parameter_tvb, pinfo, 0, length,
     parameter_tree );
   proto_item_set_text(parameter_item, "User-to-user information,(%u byte%s length)",
 	length , plurality(length, "", "s"));
@@ -5368,7 +5368,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
 				dissect_isup_signalling_point_code_parameter(parameter_tvb, parameter_tree, parameter_item);
 				break;
 			case PARAM_TYPE_USER_TO_USER_INFO:
-				dissect_isup_user_to_user_information_parameter(parameter_tvb, parameter_tree, parameter_item);
+				dissect_isup_user_to_user_information_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
 				break;
 			case PARAM_TYPE_CONNECTED_NR:
 				dissect_isup_connected_number_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -5671,7 +5671,7 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_in
 				dissect_isup_signalling_point_code_parameter(parameter_tvb, parameter_tree, parameter_item);
 				break;
 			case PARAM_TYPE_USER_TO_USER_INFO:
-				dissect_isup_user_to_user_information_parameter(parameter_tvb, parameter_tree, parameter_item);
+				dissect_isup_user_to_user_information_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
 				break;
 			case PARAM_TYPE_CONNECTED_NR:
 				dissect_isup_connected_number_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -6518,7 +6518,7 @@ dissect_isup_call_progress_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
   Dissector Message Type User-to-User information
  */
 static gint
-dissect_isup_user_to_user_information_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
+dissect_isup_user_to_user_information_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
   tvbuff_t *parameter_tvb;
@@ -6541,7 +6541,7 @@ dissect_isup_user_to_user_information_message(tvbuff_t *message_tvb, proto_tree 
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
   actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
-  dissect_isup_user_to_user_information_parameter(parameter_tvb, parameter_tree, parameter_item);
+  dissect_isup_user_to_user_information_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
   offset += PARAMETER_POINTER_LENGTH;
 
   return offset;
@@ -6747,7 +6747,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
 				opt_part_possible = TRUE;
 				break;
 			case MESSAGE_TYPE_USER2USER_INFO:
-				offset += dissect_isup_user_to_user_information_message(parameter_tvb, isup_tree);
+				offset += dissect_isup_user_to_user_information_message(parameter_tvb, pinfo, isup_tree);
 				opt_part_possible = TRUE;
 				break;
 			case MESSAGE_TYPE_UNEQUIPPED_CIC:
@@ -6944,7 +6944,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
 				opt_part_possible = TRUE;
 				break;
 			case MESSAGE_TYPE_USER2USER_INFO:
-				offset += dissect_isup_user_to_user_information_message(parameter_tvb, isup_tree);
+				offset += dissect_isup_user_to_user_information_message(parameter_tvb, pinfo, isup_tree);
 				opt_part_possible = TRUE;
 				break;
 			case MESSAGE_TYPE_UNEQUIPPED_CIC:

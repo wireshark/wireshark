@@ -39,7 +39,7 @@ extern void dissect_q931_progress_indicator_ie(tvbuff_t *, int, int,
 extern void dissect_q931_high_layer_compat_ie(tvbuff_t *, int, int,
     proto_tree *);
 
-extern void dissect_q931_user_user_ie(tvbuff_t *tvb, int offset, int len,
+extern void dissect_q931_user_user_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
     proto_tree *tree);
 
 extern const value_string q931_cause_location_vals[];

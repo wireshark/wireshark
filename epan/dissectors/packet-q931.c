@@ -154,9 +154,13 @@ static dissector_table_t ie_dissector_table;
 /* desegmentation of Q.931 over TPKT over TCP */
 static gboolean q931_desegment = TRUE;
 
+/* Subdissectors */
 static dissector_handle_t h225_handle;
 static dissector_handle_t q931_tpkt_handle;
 static dissector_handle_t q931_tpkt_pdu_handle;
+static dissector_handle_t data_handle = NULL; 
+
+static heur_dissector_list_t q931_user_heur_subdissector_list;
 
 static void
 dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
@@ -2438,11 +2442,12 @@ dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
 /*
  * Dissect a User-user information element.
  */
+#define	Q931_PROTOCOL_DISCRIMINATOR_USER	0x00
 #define	Q931_PROTOCOL_DISCRIMINATOR_IA5		0x04
 #define Q931_PROTOCOL_DISCRIMINATOR_ASN1	0x05
 
 const value_string q931_protocol_discriminator_vals[] = {
-	{ 0x00,					"User-specific protocol" },
+	{ Q931_PROTOCOL_DISCRIMINATOR_USER, "User-specific protocol" },
 	{ 0x01,					"OSI high layer protocols" },
 	{ 0x02,					"X.244" },
 	{ Q931_PROTOCOL_DISCRIMINATOR_IA5,	"IA5 characters" },
@@ -2453,10 +2458,11 @@ const value_string q931_protocol_discriminator_vals[] = {
 };
 
 void
-dissect_q931_user_user_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q931_user_user_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
     proto_tree *tree)
 {
 	guint8 octet;
+	tvbuff_t *next_tvb = NULL;
 
 	if (len == 0)
 		return;
@@ -2471,6 +2477,14 @@ dissect_q931_user_user_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	switch (octet) {
+
+	case Q931_PROTOCOL_DISCRIMINATOR_USER:
+		next_tvb = tvb_new_subset(tvb, offset, len, len);
+		proto_tree_add_text(tree, tvb, offset, len, "User information: %d octets", len);
+		if (!dissector_try_heuristic(q931_user_heur_subdissector_list, next_tvb, pinfo, tree)) {
+		call_dissector_only(data_handle, next_tvb, pinfo, tree);
+		}
+		break;
 
 	case Q931_PROTOCOL_DISCRIMINATOR_IA5:
 		proto_tree_add_text(tree, tvb, offset, len, "User information: %s",
@@ -3140,7 +3154,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 
 				case CS0 | Q931_IE_USER_USER:
 					if (q931_tree != NULL) {
-						dissect_q931_user_user_ie(tvb,
+						dissect_q931_user_user_ie(tvb, pinfo,
 							offset + 2, info_element_len,
 							ie_tree);
 					}
@@ -3525,6 +3539,7 @@ proto_register_q931(void)
 	/* subdissector code */
 	codeset_dissector_table = register_dissector_table("q931.codeset", "Q.931 Codeset", FT_UINT8, BASE_HEX);
 	ie_dissector_table = register_dissector_table("q931.ie", "Q.931 IE", FT_UINT16, BASE_HEX);
+	register_heur_dissector_list("q931_user", &q931_user_heur_subdissector_list);
 
 	q931_module = prefs_register_protocol(proto_q931, NULL);
 	prefs_register_bool_preference(q931_module, "desegment_h323_messages",
@@ -3559,6 +3574,8 @@ proto_reg_handoff_q931(void)
 	 * Information.
 	 */
 	h225_handle = find_dissector("h225");
+
+	data_handle = find_dissector("data");
 
 	/*
 	 * For H.323.
