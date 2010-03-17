@@ -1123,6 +1123,11 @@ oid_get_default_mib_path(void) {
 	guint i;
 
 	path_str = g_string_new("");
+	
+	if (!prefs.load_smi_modules) {
+		D(1,("OID resolution not enabled"));
+		return path_str->str;
+	}
 #ifdef _WIN32
 #define PATH_SEPARATOR ";"
 	path = get_datafile_path("snmp\\mibs");
