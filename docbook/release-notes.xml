@@ -135,6 +135,12 @@ Wireshark Info
           4563</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Some NCP frames trigger "Dissector bug, protocol NCP".
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4565">Bug
+          4565</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -164,8 +170,11 @@ BSSMAP,
 DMP,
 GSM SMS,
 LDSS,
+NCP,
 PN/IO,
-PPP
+PPP,
+SIP,
+SNMP
 
     </para>
     </section>
