@@ -222,6 +222,7 @@ add_library(ui STATIC
 	${WIRESHARK_TAP_SRC}
 	wireshark-tap-register.c
 )
+set_target_properties(ui PROPERTIES LINK_FLAGS ${WS_LINK_FLAGS})
 
 #install(TARGETS ui
 #	LIBRARY DESTINATION lib

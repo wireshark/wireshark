@@ -122,15 +122,16 @@ set(wslua_LIBS
 	${LUA_LIBRARIES}
 )
 
-add_library(wslua STATIC
-	${WSLUA_FILES}
-)
-
 add_custom_target(
      wsluaauxiliary ALL
      DEPENDS
 	init.lua
 )
+
+add_library(wslua STATIC
+	${WSLUA_FILES}
+)
+set_target_properties(wslua PROPERTIES LINK_FLAGS ${WS_LINK_FLAGS})
 
 target_link_libraries(wslua ${wslua_LIBS})
 

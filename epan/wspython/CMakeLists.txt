@@ -50,6 +50,7 @@ set(wspython_LIBS
 add_library(wspython STATIC
 	${WSPYTHON_FILES}
 )
+set_target_properties(wspython PROPERTIES LINK_FLAGS ${WS_LINK_FLAGS})
 
 target_link_libraries(wspython ${wspython_LIBS})
 

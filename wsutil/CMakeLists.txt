@@ -43,6 +43,7 @@ set(wsutil_LIBS
 add_library(wsutil ${LINK_MODE_LIB}
   ${WSUTIL_FILES}
 )
+set_target_properties(wsutil PROPERTIES LINK_FLAGS ${WS_LINK_FLAGS})
 
 target_link_libraries(wsutil ${wsutil_LIBS})
 
