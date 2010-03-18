@@ -990,7 +990,7 @@ http://www.iana.org/assignments/radius-types
 			<enum name="3GPP Zh" code="16777221"/>
 			<enum name="3GPP Gq" code="16777222"/>
 			<enum name="3GPP Gmb" code="16777223"/>
-			<enum name="3GPP Gx" code="16777224"/>
+			<enum name="3GPP Gx(Obsolete)" code="16777224"/>
 			<enum name="3GPP Gx over Gy" code="16777225"/>
 			<enum name="3GPP MM10" code="16777226"/>
 			<enum name="Ericsson MSI" code="16777227"/>
@@ -1019,6 +1019,7 @@ http://www.iana.org/assignments/radius-types
       <enum name="3GPP STaMIP" code="16777250"/>
       <enum name="3GPP S6a" code="16777251"/>
       <enum name="3GPP S13" code="16777252"/>
+			<enum name="3GPP Gxx" code="16777266"/>
       <enum name="Relay" code="4294967295"/>
 
 		</avp>		
@@ -1039,7 +1040,7 @@ http://www.iana.org/assignments/radius-types
 			<enum name="3GPP Zh" code="16777221"/>
 			<enum name="3GPP Gq" code="16777222"/>
 			<enum name="3GPP Gmb" code="16777223"/>
-			<enum name="3GPP Gx" code="16777224"/>
+			<enum name="3GPP Gx(Obsolete)" code="16777224"/>
 			<enum name="3GPP Gx over Gy" code="16777225"/>
 			<enum name="3GPP MM10" code="16777226"/>
 			<enum name="Ericsson MSI" code="16777227"/>
@@ -1069,6 +1070,7 @@ http://www.iana.org/assignments/radius-types
       <enum name="3GPP STaMIP" code="16777250"/>
       <enum name="3GPP S6a" code="16777251"/>
       <enum name="3GPP S13" code="16777252"/>
+			<enum name="3GPP Gxx" code="16777266"/>
     </avp>
 		<avp name="Vendor-Specific-Application-Id" code="260" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<grouped>
@@ -4096,7 +4098,9 @@ http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 
 	<application id="16777216" name="3GPP Cx" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
 	</application>
-  <application id="16777224" name="3GPP Gx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
+  <application id="16777224" name="3GPP Gx(Obsolete)" uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm">
+  </application>
+  <application id="16777238" name="3GPP Gx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
   </application>
   <application id="16777251" name="3GPP S6a/S6d" uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516">
     <!-- http://www.3gpp.org/ftp/Specs/html-info/29272.htm -->
@@ -4109,6 +4113,8 @@ http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
     <command name="3GPP-Reset" code="322" vendor-id="None"/> <!--[3GPP TS 29.272][RFC5516] -->
     <command name="3GPP-Notify" code="323" vendor-id="None"/> <!--[3GPP TS 29.272][RFC5516] -->
     <command name="3GPP-ME-Identity-Check" code="324" vendor-id="None"/> <!--[3GPP TS 29.272][RFC5516] -->
+  </application>
+  <application id="16777266" name="3GPP Gxx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
   </application>
   &nasreq;
   &eap;
