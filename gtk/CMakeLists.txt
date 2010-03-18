@@ -193,7 +193,6 @@ set(WIRESHARK_TAP_SRC
 	smb_stat.c
 	smb2_stat.c
 	stats_tree_stat.c
-	t38_analysis.c
 	tcp_graph.c
 	voip_calls_dlg.c
 	wlan_stat_dlg.c
