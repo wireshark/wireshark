@@ -232,6 +232,19 @@ static int hf_nfs_offset3 = -1;
 static int hf_nfs_count3 = -1;
 static int hf_nfs_count3_maxcount = -1;
 static int hf_nfs_count3_dircount= -1;
+static int hf_nfs_mode3 = -1;
+static int hf_nfs_mode3_suid = -1;
+static int hf_nfs_mode3_sgid = -1;
+static int hf_nfs_mode3_sticky = -1;
+static int hf_nfs_mode3_rusr = -1;
+static int hf_nfs_mode3_wusr = -1;
+static int hf_nfs_mode3_xusr = -1;
+static int hf_nfs_mode3_rgrp = -1;
+static int hf_nfs_mode3_wgrp = -1;
+static int hf_nfs_mode3_xgrp = -1;
+static int hf_nfs_mode3_roth = -1;
+static int hf_nfs_mode3_woth = -1;
+static int hf_nfs_mode3_xoth = -1;
 
 /* NFSv4 */
 static int hf_nfs_nfsstat4 = -1;
@@ -3433,49 +3446,30 @@ dissect_writeverf3(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 /* RFC 1813, Page 16 */
 static int
-dissect_mode3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name, guint32 *mode)
+dissect_mode3(tvbuff_t *tvb, int offset, proto_tree *tree, guint32 *mode)
 {
-	guint32 mode3;
-	proto_item* mode3_item;
-	proto_tree* mode3_tree;
+	static const int *mode_bits[] = {
+		&hf_nfs_mode3_suid,
+		&hf_nfs_mode3_sgid,
+		&hf_nfs_mode3_sticky,
+		&hf_nfs_mode3_rusr,
+		&hf_nfs_mode3_wusr,
+		&hf_nfs_mode3_xusr,
+		&hf_nfs_mode3_rgrp,
+		&hf_nfs_mode3_wgrp,
+		&hf_nfs_mode3_xgrp,
+		&hf_nfs_mode3_roth,
+		&hf_nfs_mode3_woth,
+		&hf_nfs_mode3_xoth,
+		NULL
+	};
 
-	mode3 = tvb_get_ntohl(tvb, offset+0);
+
 	if(mode){
-		*mode=mode3;
+		*mode=tvb_get_ntohl(tvb, offset+0);
 	}
 
-	if (tree) {
-		mode3_item = proto_tree_add_text(tree, tvb, offset, 4,
-			"%s: 0%o", name, mode3);
-
-		mode3_tree = proto_item_add_subtree(mode3_item, ett_nfs_mode3);
-
-		/* RFC 1813, Page 23 */
-		proto_tree_add_text(mode3_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode3,   0x800, 12, "Set user id on exec", "not SUID"));
-		proto_tree_add_text(mode3_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode3,   0x400, 12, "Set group id on exec", "not SGID"));
-		proto_tree_add_text(mode3_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode3,   0x200, 12, "Save swapped text even after use", "not save swapped text"));
-		proto_tree_add_text(mode3_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode3,   0x100, 12, "Read permission for owner", "no Read permission for owner"));
-		proto_tree_add_text(mode3_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode3,    0x80, 12, "Write permission for owner", "no Write permission for owner"));
-		proto_tree_add_text(mode3_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode3,    0x40, 12, "Execute permission for owner", "no Execute permission for owner"));
-		proto_tree_add_text(mode3_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode3,    0x20, 12, "Read permission for group", "no Read permission for group"));
-		proto_tree_add_text(mode3_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode3,    0x10, 12, "Write permission for group", "no Write permission for group"));
-		proto_tree_add_text(mode3_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode3,     0x8, 12, "Execute permission for group", "no Execute permission for group"));
-		proto_tree_add_text(mode3_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode3,     0x4, 12, "Read permission for others", "no Read permission for others"));
-		proto_tree_add_text(mode3_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode3,     0x2, 12, "Write permission for others", "no Write permission for others"));
-		proto_tree_add_text(mode3_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode3,     0x1, 12, "Execute permission for others", "no Execute permission for others"));
-	}
+	proto_tree_add_bitmask(tree, tvb, offset, hf_nfs_mode3, ett_nfs_mode3, mode_bits, FALSE);
 
 	offset += 4;
 	return offset;
@@ -3731,7 +3725,7 @@ dissect_nfs_fattr3(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tr
 	offset = dissect_ftype3(tvb,offset,fattr3_tree,hf_nfs_fattr3_type,&type);
 
 	/* mode */
-	offset = dissect_mode3(tvb,offset,fattr3_tree,"mode",&mode);
+	offset = dissect_mode3(tvb,offset,fattr3_tree,&mode);
 
 	/* nlink */
 	offset = dissect_rpc_uint32(tvb, fattr3_tree, hf_nfs_fattr3_nlink,
@@ -4023,7 +4017,7 @@ dissect_set_mode3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	switch (set_it) {
 		case 1:
 			offset = dissect_mode3(tvb, offset, set_mode3_tree,
-					"mode", NULL);
+					NULL);
 		break;
 		default:
 			/* void */
@@ -11416,6 +11410,58 @@ proto_register_nfs(void)
 		{ &hf_nfs_cb_clorachanged, {
 			"Clora changed", "nfs.clorachanged", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+
+		{ &hf_nfs_mode3, {
+			"Mode", "nfs.mode3", FT_UINT32, BASE_OCT,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs_mode3_suid, {
+			"S_ISUID", "nfs.mode3.suid", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0x800, NULL, HFILL }},
+
+		{ &hf_nfs_mode3_sgid, {
+			"S_ISGID", "nfs.mode3.sgid", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0x400, NULL, HFILL }},
+
+		{ &hf_nfs_mode3_sticky, {
+			"S_ISVTX", "nfs.mode3.sticky", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0x200, NULL, HFILL }},
+
+		{ &hf_nfs_mode3_rusr, {
+			"S_IRUSR", "nfs.mode3.rusr", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0x100, NULL, HFILL }},
+
+		{ &hf_nfs_mode3_wusr, {
+			"S_IWUSR", "nfs.mode3.wusr", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0x080, NULL, HFILL }},
+
+		{ &hf_nfs_mode3_xusr, {
+			"S_IXUSR", "nfs.mode3.xusr", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0x040, NULL, HFILL }},
+
+		{ &hf_nfs_mode3_rgrp, {
+			"S_IRGRP", "nfs.mode3.rgrp", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0x020, NULL, HFILL }},
+
+		{ &hf_nfs_mode3_wgrp, {
+			"S_IWGRP", "nfs.mode3.wgrp", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0x010, NULL, HFILL }},
+
+		{ &hf_nfs_mode3_xgrp, {
+			"S_IXGRP", "nfs.mode3.xgrp", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0x008, NULL, HFILL }},
+
+		{ &hf_nfs_mode3_roth, {
+			"S_IROTH", "nfs.mode3.roth", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0x004, NULL, HFILL }},
+
+		{ &hf_nfs_mode3_woth, {
+			"S_IWOTH", "nfs.mode3.woth", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0x002, NULL, HFILL }},
+
+		{ &hf_nfs_mode3_xoth, {
+			"S_IXOTH", "nfs.mode3.xoth", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0x001, NULL, HFILL }},
 
 	/* Hidden field for v2, v3, and v4 status */
 		{ &hf_nfs_nfsstat, {
