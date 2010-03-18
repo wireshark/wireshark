@@ -18,6 +18,7 @@
 	<!ENTITY gqpolicy SYSTEM "gqpolicy.xml">
 	<!ENTITY etsie2e4 SYSTEM "etsie2e4.xml">
 	<!ENTITY Ericsson SYSTEM "Ericsson.xml">
+	<!ENTITY mobileipv6 SYSTEM "mobileipv6.xml">
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
@@ -982,6 +983,10 @@ http://www.iana.org/assignments/radius-types
       <enum name="Diameter Credit Control" code="4"/>
       <enum name="Diameter EAP" code="5"/>
       <enum name="Diameter Session Initiation Protocol (SIP) Application" code="6"/>
+			<enum name="Diameter Mobile IPv6 IKE   (MIP6I)" code="7"/>
+      <enum name="Diameter Mobile IPv6 Auth  (MIP6A)" code="8"/>
+      <enum name="Diameter QoS application" code="9"/>
+      <!-- 10-16777215 Unassigned -->
       <enum name="3GPP CX/DX" code="16777216"/>
 			<enum name="3GPP Sh" code="16777217"/>
 			<enum name="3GPP Re/Rf" code="16777218"/>
@@ -1019,7 +1024,26 @@ http://www.iana.org/assignments/radius-types
       <enum name="3GPP STaMIP" code="16777250"/>
       <enum name="3GPP S6a" code="16777251"/>
       <enum name="3GPP S13" code="16777252"/>
-			<enum name="3GPP Gxx" code="16777266"/>
+      <enum name="ETSI Re" code="16777253"/>
+      <enum name="ETSI GOCAP" code="16777254"/>
+      <enum name="SLg" code="16777255"/>
+      <enum name="ITU-T Rw" code="16777256"/>
+      <enum name="ETSI a4" code="16777257"/>
+      <enum name="ITU-T Rt" code="16777258"/>
+      <enum name="CARA" code="16777259"/>
+      <enum name="CAMA" code="16777260"/>
+      <enum name="Femtocell extension to Diameter EAP Application" code="16777261"/>
+      <enum name="ITU-T Ru" code="16777262"/>
+      <enum name="ITU-T Ng" code="16777263"/>
+      <enum name="3GPP SWm" code="16777264"/>
+      <enum name="3GPP SWx" code="16777265"/>
+      <enum name="3GPP Gxx" code="16777266"/>
+      <enum name="3GPP S9" code="16777267"/>
+      <enum name="3GPP Zpn" code="16777268"/>
+      <enum name="Ericsson HSI" code="16777269"/>
+      <enum name="Juniper-Example" code="16777270"/>
+      <enum name="ITU-T Ri" code="16777271"/>
+      <enum name="3GPP S6b" code="16777272"/>
       <enum name="Relay" code="4294967295"/>
 
 		</avp>		
@@ -1032,6 +1056,8 @@ http://www.iana.org/assignments/radius-types
       <enum name="Diameter Credit Control" code="4"/>
       <enum name="Diameter EAP" code="5"/>
       <enum name="Diameter Session Initiation Protocol (SIP) Application" code="6"/>
+			<enum name="Diameter Mobile IPv6 IKE   (MIP6I)" code="7"/>
+			<enum name="Diameter Mobile IPv6 Auth  (MIP6A)" code="8"/>
       <enum name="3GPP CX/DX" code="16777216"/>
 			<enum name="3GPP Sh" code="16777217"/>
 			<enum name="3GPP Re/Rf" code="16777218"/>
@@ -1062,7 +1088,6 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Policy Processing" code="16777243"/>   
 			<enum name="Juniper Policy-Control-JSRC" code="16777244"/>   
 			<enum name="ITU-T S-TC1" code="16777245"/>                                              <!-- ITU-T Rec. Q.3221 --> 
-			<enum name="Relay" code="4294967295"/>
       <enum name="NSN Unified Charging Trigger Function (UCTF)" code="16777246"/>
       <enum name="3GPP2 CAN Access Authentication and Authorization" code="16777247"/>
       <enum name="3GPP2 WLAN Interworking Access Authentication and Authorization" code="16777248"/>
@@ -1070,7 +1095,27 @@ http://www.iana.org/assignments/radius-types
       <enum name="3GPP STaMIP" code="16777250"/>
       <enum name="3GPP S6a" code="16777251"/>
       <enum name="3GPP S13" code="16777252"/>
-			<enum name="3GPP Gxx" code="16777266"/>
+      <enum name="ETSI Re" code="16777253"/>
+      <enum name="ETSI GOCAP" code="16777254"/>
+      <enum name="SLg" code="16777255"/>
+      <enum name="ITU-T Rw" code="16777256"/>
+      <enum name="ETSI a4" code="16777257"/>
+      <enum name="ITU-T Rt" code="16777258"/>
+      <enum name="CARA" code="16777259"/>
+      <enum name="CAMA" code="16777260"/>
+      <enum name="Femtocell extension to Diameter EAP Application" code="16777261"/>
+      <enum name="ITU-T Ru" code="16777262"/>
+      <enum name="ITU-T Ng" code="16777263"/>
+      <enum name="3GPP SWm" code="16777264"/>
+      <enum name="3GPP SWx" code="16777265"/>
+      <enum name="3GPP Gxx" code="16777266"/>
+      <enum name="3GPP S9" code="16777267"/>
+      <enum name="3GPP Zpn" code="16777268"/>
+      <enum name="Ericsson HSI" code="16777269"/>
+      <enum name="Juniper-Example" code="16777270"/>
+      <enum name="ITU-T Ri" code="16777271"/>
+      <enum name="3GPP S6b" code="16777272"/>
+      <enum name="Relay" code="4294967295"/>
     </avp>
 		<avp name="Vendor-Specific-Application-Id" code="260" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<grouped>
@@ -1118,9 +1163,11 @@ http://www.iana.org/assignments/radius-types
 			<enum name="DIAMETER_UNREGISTERED_SERVICE" code="2005"/>
 			<enum name="DIAMETER_SUCCESS_SERVER_NAME_NOT_STORED" code="2006"/>
 			<enum name="DIAMETER_SERVER_SELECTION" code="2007"/>
-			<enum name="DIAMETER_SUCCESS_AUTH_SENT_SERVER_NOT_STORED" code="2008"/>
+      <enum name="DIAMETER_SUCCESS_AUTH_SENT_SERVER_NOT_STORED" code="2008"/>
+      <enum name="DIAMETER_SUCCESS_RELOCATE_HA" code="2009"/>
+      <!-- 2010-2999 Unassigned -->
 
-			<enum name="DIAMETER_COMMAND_UNSUPPORTED" code="3001"/>
+      <enum name="DIAMETER_COMMAND_UNSUPPORTED" code="3001"/>
 			<enum name="DIAMETER_UNABLE_TO_DELIVER" code="3002"/>
 			<enum name="DIAMETER_REALM_NOT_SERVED" code="3003"/>
 			<enum name="DIAMETER_TOO_BUSY" code="3004"/>
@@ -1130,6 +1177,7 @@ http://www.iana.org/assignments/radius-types
 			<enum name="DIAMETER_INVALID_HDR_BITS" code="3008"/>
 			<enum name="DIAMETER_INVALID_AVP_BITS" code="3009"/>
 			<enum name="DIAMETER_UNKNOWN_PEER" code="3010"/>
+      <!-- 3011-3999 Unassigned -->
 
 			<enum name="DIAMETER_AUTHENTICATION_REJECTED" code="4001"/>
 			<enum name="DIAMETER_OUT_OF_SPACE" code="4002"/>
@@ -1142,6 +1190,7 @@ http://www.iana.org/assignments/radius-types
 			<enum name="DIAMETER_CREDIT_CONTROL_NOT_APPLICABLE" code="4011"/>
 			<enum name="DIAMETER_CREDIT_LIMIT_REACHED" code="4012"/>
 			<enum name="DIAMETER_USER_NAME_REQUIRED" code="4013"/>
+      <!-- 4014-4999 Unassigned -->
 
 			<enum name="DIAMETER_AVP_UNSUPPORTED" code="5001"/>
 			<enum name="DIAMETER_UNKNOWN_SESSION_ID" code="5002"/>
@@ -1161,6 +1210,7 @@ http://www.iana.org/assignments/radius-types
 			<enum name="DIAMETER_INVALID_AVP_BIT_COMBO" code="5016"/>
 			<enum name="DIAMETER_NO_COMMON_SECURITY" code="5017"/>
 			<enum name="DIAMETER_RADIUS_AVP_UNTRANSLATABLE" code="5018"/>
+      <!-- 5019-5023 Unassigned -->
 			<enum name="DIAMETER_ERROR_NO_FOREIGN_HA_SERVICE" code="5024"/>
 			<enum name="DIAMETER_ERROR_END_TO_END_MIP_KEY_ENCRYPTION" code="5025"/>
 			<enum name="DIAMETER_USER_UNKNOWN" code="5030"/>
@@ -1173,8 +1223,10 @@ http://www.iana.org/assignments/radius-types
 			<enum name="DIAMETER_ERROR_AUTH_SCHEME_NOT_SUPPORTED" code="5037"/>
 			<enum name="DIAMETER_ERROR_IN_ASSIGNMENT_TYPE" code="5038"/>
 			<enum name="DIAMETER_ERROR_TOO_MUCH_DATA" code="5039"/>
-			<enum name="DIAMETER_ERROR_NOT SUPPORTED_USER_DATA" code="5040"/>
-		</avp>
+      <enum name="DIAMETER_ERROR_NOT SUPPORTED_USER_DATA" code="5040"/>
+      <enum name="DIAMETER_ERROR_MIP6_AUTH_MODE" code="5041"/>
+      <!-- 5042-4294967295 Unassigned -->
+    </avp>
 		<avp name="Product-Name" code="269" mandatory="mustnot" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
@@ -1378,15 +1430,7 @@ http://www.iana.org/assignments/radius-types
 			<type type-name="Unsigned32"/>
 		</avp>
 <!--
-486 MIP6-Agent-Info [RFC5447]    
-487 MIP-Careof-Address [RFC-ietf-dime-mip6-split-17] 
-488 MIP-Authenticator [RFC-ietf-dime-mip6-split-17] 
-489 MIP-MAC-Mobility-Data [RFC-ietf-dime-mip6-split-17] 
-490 MIP-Timestamp [RFC-ietf-dime-mip6-split-17] 
-491 MIP-MN-HA-SPI [RFC-ietf-dime-mip6-split-17] 
-492 MIP-MN-HA-MSA [RFC-ietf-dime-mip6-split-17] 
-493 Service-Selection [RFC-ietf-dime-mip6-split-17] 
-494 MIP6-Auth-Mode [RFC-ietf-dime-mip6-split-17] 
+486 - 494 in mobileipv6.xml
 495 TMOD-1 [RFC5624] 
 496 Token-Rate [RFC5624] 
 497 Bucket-Depth [RFC5624] 
@@ -1396,7 +1440,86 @@ http://www.iana.org/assignments/radius-types
 501 TMOD-2 [RFC5624] 
 502 Bandwidth [RFC5624] 
 503 PHB-Class [RFC5624] 
-504-0xffffff Unassigned 
+504 - 507 in mobileipv6.xml
+503 PHB-Class [RFC5624] 
+504 PMIP6-DHCP-Server-Address [RFC5779] 
+505 PMIP6-IPv4-Home-Address [RFC5779] 
+506 Mobile-Node-Identifier [RFC5779] 
+507 Service-Configuration [RFC5779] 
+508 QoS-Resources [RFC5777] 
+509 Filter-Rule [RFC5777] 
+510 Filter-Rule-Precedence [RFC5777] 
+511 Classifier [RFC5777] 
+512 Classifier-ID [RFC5777] 
+513 Protocol [RFC5777] 
+514 Direction [RFC5777] 
+515 From-Spec [RFC5777] 
+516 To-Spec [RFC5777] 
+517 Negated [RFC5777] 
+518 IP-Address [RFC5777] 
+519 IP-Address-Range [RFC5777] 
+520 IP-Address-Start [RFC5777] 
+521 IP-Address-End [RFC5777] 
+522 IP-Address-Mask [RFC5777] 
+523 IP-Mask-Bit-Mask-Width [RFC5777] 
+524 MAC-Address [RFC5777] 
+525 MAC-Address-Mask [RFC5777] 
+526 MAC-Address-Mask-Pattern [RFC5777] 
+527 EUI64-Address [RFC5777] 
+528 EUI64-Address-Mask [RFC5777] 
+529 EUI64-Address-Mask-Pattern [RFC5777] 
+530 Port [RFC5777] 
+531 Port-Range [RFC5777] 
+532 Port-Start [RFC5777] 
+533 Port-End [RFC5777] 
+534 Use-Assigned-Address [RFC5777] 
+535 Diffserv-Code-Point [RFC5777] 
+536 Fragmentation-Flag [RFC5777] 
+537 IP-Option [RFC5777] 
+538 IP-Option-Type [RFC5777] 
+539 IP-Option-Value [RFC5777] 
+540 TCP-Option [RFC5777] 
+541 TCP-Option-Type [RFC5777] 
+542 TCP-Option-Value [RFC5777] 
+543 TCP-Flags [RFC5777] 
+544 TCP-Flag-Type [RFC5777] 
+545 ICMP-Type [RFC5777] 
+546 ICMP-Type-Number [RFC5777] 
+547 ICMP-Code [RFC5777] 
+548 ETH-Option [RFC5777] 
+549 ETH-Proto-Type [RFC5777] 
+550 ETH-Ether-Type [RFC5777] 
+551 ETH-SAP [RFC5777] 
+552 VLAN-ID-Range [RFC5777] 
+553 S-VID-Start [RFC5777] 
+554 S-VID-End [RFC5777] 
+555 C-VID-Start [RFC5777] 
+556 C-VID-End [RFC5777] 
+557 User-Priority-Range [RFC5777] 
+558 Low-User-Priority [RFC5777] 
+559 High-User-Priority [RFC5777] 
+560 Time-Of-Day-Condition [RFC5777] 
+561 Time-Of-Day-Start [RFC5777] 
+562 Time-Of-Day-End [RFC5777] 
+563 Day-Of-Week-Mask [RFC5777] 
+564 Day-Of-Month-Mask [RFC5777] 
+565 Month-Of-Year-Mask [RFC5777] 
+566 Absolute-Start-Time [RFC5777] 
+567 Absolute-Start-Fractional-Seconds [RFC5777] 
+568 Absolute-End-Time [RFC5777] 
+569 Absolute-End-Fractional-Seconds [RFC5777] 
+570 Timezone-Flag [RFC5777] 
+571 Timezone-Offset [RFC5777] 
+572 Treatment-Action [RFC5777] 
+573 QoS-Profile-Id [RFC5777] 
+574 QoS-Profile-Template [RFC5777] 
+575 QoS-Semantics [RFC5777] 
+576 QoS-Parameters [RFC5777] 
+577 Excess-Treatment [RFC5777] 
+578 QoS-Capability [RFC5777] 
+579 QoS-Authorization-Data [RFC-ietf-dime-diameter-qos-15] 
+580 Bound-Auth-Session-Id [RFC-ietf-dime-diameter-qos-15] 
+581-0xffffff Unassigned 
 
 -->
     <avp name="Example-AVP" code="999999" mandatory="mustnot" vendor-bit="may">
@@ -4129,4 +4252,5 @@ http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 	&gqpolicy;
 	&etsie2e4;
 	&Ericsson;
+	&mobileipv6;
 </dictionary>

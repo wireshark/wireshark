@@ -78,6 +78,7 @@ diameter_DATA = \
 	diameter/gqpolicy.xml \
 	diameter/imscxdx.xml \
 	diameter/mobileipv4.xml \
+	diameter/mobileipv6.xml \
 	diameter/nasreq.xml \
 	diameter/sip.xml \
 	diameter/sunping.xml \
