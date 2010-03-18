@@ -18,6 +18,7 @@
  * RFC 3046: DHCP Relay Agent Information Option
  * RFC 3118: Authentication for DHCP Messages
  * RFC 3203: DHCP reconfigure extension
+ * RFC 3315: Dynamic Host Configuration Protocol for IPv6 (DHCPv6)
  * RFC 3495: DHCP Option (122) for CableLabs Client Configuration
  * RFC 3594: PacketCable Security Ticket Control Sub-Option (122.9)
  * RFC 3442: Classless Static Route Option for DHCP version 4
@@ -25,6 +26,7 @@
  * RFC 3925: Vendor-Identifying Vendor Options for Dynamic Host Configuration Protocol version 4 (DHCPv4)
  * RFC 3942: Reclassifying DHCPv4 Options
  * RFC 4243: Vendor-Specific Information Suboption for the Dynamic Host Configuration Protocol (DHCP) Relay Agent Option
+ * RFC 4361: Node-specific Client Identifiers for Dynamic Host Configuration Protocol Version Four (DHCPv4)
  * RFC 4388: Dynamic Host Configuration Protocol (DHCP) Leasequery
  * RFC 4776: Dynamic Host Configuration Protocol (DHCPv4 and DHCPv6) Option for Civic Addresses Configuration Information
  * RFC 5223: Discovering Location-to-Service Translation (LoST) Servers Using the Dynamic Host Configuration Protocol (DHCP)
@@ -156,6 +158,10 @@ static const char *pref_optionstring = "";
 #define RFC3825_ALTITUDE_UNCERTAINTY_OUTOFRANGE   6
 #define RFC3825_ALTITUDE_TYPE_OUTOFRANGE          7
 #define RFC3825_DATUM_TYPE_OUTOFRANGE             8
+
+#define	DUID_LLT		1
+#define	DUID_EN			2
+#define	DUID_LL			3
 
 struct rfc3825_location_fixpoint_t {
 
@@ -310,6 +316,14 @@ static const value_string civic_address_type_values[] = {
 static const value_string cablelab_ipaddr_mode_vals[] = {
 	{ 1, "IPv4" },
 	{ 2, "IPv6" },
+	{ 0, NULL }
+};
+
+static const value_string duidtype_vals[] =
+{
+	{ DUID_LLT,	"link-layer address plus time" },
+	{ DUID_EN,	"assigned by vendor based on Enterprise number" },
+	{ DUID_LL,	"link-layer address" },
 	{ 0, NULL }
 };
 
@@ -809,6 +823,10 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	guint8			s_len;
 	int			ava_vid;
 	const guchar		*dns_name;
+	guint16			duidtype;
+	guint16			hwtype;
+	guint8			*buf;
+	int			enterprise; 
 
 
 	static const value_string slpda_vals[] = {
@@ -1204,6 +1222,116 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		break;
 
 	case 61:	/* Client Identifier */
+		if (optlen > 0)
+			byte = tvb_get_guint8(tvb, optoff);
+		else
+			byte = 0;
+
+		/* We *MAY* use hwtype/hwaddr. If we have 7 bytes, I'll
+		   guess that the first is the hwtype, and the last 6
+		   are the hw addr */
+		/* See http://www.iana.org/assignments/arp-parameters */
+		/* RFC2132 9.14 Client-identifier has the following to say:
+		   A hardware type of 0 (zero) should be used when the value
+		   field contains an identifier other than a hardware address
+		   (e.g. a fully qualified domain name). */
+
+		if (optlen == 7 && byte > 0 && byte < 48) {
+			proto_tree_add_text(v_tree, tvb, optoff, 1,
+				"Hardware type: %s",
+				arphrdtype_to_str(byte,
+					"Unknown (0x%02x)"));
+			if (byte == ARPHRD_ETHER || byte == ARPHRD_IEEE802)
+				proto_tree_add_item(v_tree,
+				    hf_bootp_hw_ether_addr, tvb, optoff+1, 6,
+				    FALSE);
+			else
+				proto_tree_add_text(v_tree, tvb, optoff+1, 6,
+					"Client hardware address: %s",
+					arphrdaddr_to_str(tvb_get_ptr(tvb, optoff+1, 6),
+					6, byte));
+		} else if (optlen == 17 && byte == 0) {
+			/* Identifier is a UUID */
+			proto_tree_add_item(v_tree, hf_bootp_client_identifier_uuid,
+					    tvb, optoff + 1, 16, TRUE);
+		/* From RFC 4631 paragraph 6.1 DHCPv4 Client Behavior: 
+			To send an RFC 3315-style binding identifier in a DHCPv4 'client
+			identifier' option, the type of the 'client identifier' option is set
+			to 255.	*/
+		} else if (byte == 255) {
+			/*	The type field is immediately followed by the IAID, which is
+				an opaque 32-bit quantity	*/
+			proto_tree_add_text(v_tree, tvb, optoff+1, 4,
+				"IAID: %s",
+				arphrdaddr_to_str(tvb_get_ptr(tvb, optoff+1, 4),
+				4, byte));
+			optoff = optoff + 5;
+			duidtype = tvb_get_ntohs(tvb, optoff);
+			proto_tree_add_text(v_tree, tvb, optoff, 2,
+				"DUID type: %s (%u)",
+						val_to_str(duidtype,
+							   duidtype_vals, "Unknown"),
+						duidtype);
+			switch (duidtype) {
+			case DUID_LLT:
+				if (optlen < 8) {
+					proto_tree_add_text(v_tree, tvb, optoff,
+						optlen, "DUID: malformed option");
+					break;
+				}
+				hwtype=tvb_get_ntohs(tvb, optoff + 2);
+				proto_tree_add_text(v_tree, tvb, optoff + 2, 2,
+					"Hardware type: %s (%u)", arphrdtype_to_str(hwtype, "Unknown"),
+					hwtype);
+				/* XXX seconds since Jan 1 2000 */
+				proto_tree_add_text(v_tree, tvb, optoff + 4, 4,
+					"Time: %u", tvb_get_ntohl(tvb, optoff + 4));
+				if (optlen > 8) {
+					proto_tree_add_text(v_tree, tvb, optoff + 8,
+						optlen - 13, "Link-layer address: %s",
+						arphrdaddr_to_str(tvb_get_ptr(tvb, optoff+8, optlen-13), optlen-13, hwtype));
+				}
+				break;
+			case DUID_EN:
+				if (optlen < 6) {
+					proto_tree_add_text(v_tree, tvb, optoff,
+						optlen, "DUID: malformed option");
+					break;
+				}
+				enterprise = tvb_get_ntohl(tvb, optoff+2);
+				proto_tree_add_text(v_tree, tvb, optoff + 2, 4,
+					    "Enterprise-number: %s (%u)",
+					    val_to_str( enterprise, sminmpec_values, "Unknown"),
+					    enterprise);
+				if (optlen > 6) {
+						buf = tvb_bytes_to_str(tvb, optoff + 6, optlen - 11);
+					proto_tree_add_text(v_tree, tvb, optoff + 6,
+						optlen - 11, "identifier: %s", buf);
+				}
+				break;
+			case DUID_LL:
+				if (optlen < 4) {
+					proto_tree_add_text(v_tree, tvb, optoff,
+						optlen, "DUID: malformed option");
+					break;
+				}
+				hwtype=tvb_get_ntohs(tvb, optoff + 2);
+				proto_tree_add_text(v_tree, tvb, optoff + 2, 2,
+					"Hardware type: %s (%u)",
+					arphrdtype_to_str(hwtype, "Unknown"),
+					hwtype);
+				if (optlen > 4) {
+					proto_tree_add_text(v_tree, tvb, optoff + 4,
+						optlen - 9, "Link-layer address: %s",
+						arphrdaddr_to_str(tvb_get_ptr(tvb, optoff+4, optlen-9), optlen-9, hwtype));
+				}
+				break;
+			}
+		} else {
+			/* otherwise, it's opaque data */
+		}
+		break;
+		
 	case 97:        /* Client Identifier (UUID) */
 		if (optlen > 0)
 			byte = tvb_get_guint8(tvb, optoff);
@@ -2010,7 +2138,7 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 		while (suboptoff < optend) {
 			enterprise = tvb_get_ntohl(tvb, suboptoff);
 			datalen = tvb_get_guint8(tvb, suboptoff+4);
-			vti = proto_tree_add_text(v_tree, tvb, suboptoff, 4 + datalen,
+			vti = proto_tree_add_text(v_tree, tvb, suboptoff, 4 + datalen + 1,
 					    "Enterprise-number: %s (%u)",
 					    val_to_str( enterprise, sminmpec_values, "Unknown"),
 					    enterprise);
