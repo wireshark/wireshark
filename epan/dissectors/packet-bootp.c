@@ -823,10 +823,6 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	guint8			s_len;
 	int			ava_vid;
 	const guchar		*dns_name;
-	guint16			duidtype;
-	guint16			hwtype;
-	guint8			*buf;
-	int			enterprise; 
 
 
 	static const value_string slpda_vals[] = {
@@ -1259,6 +1255,11 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			identifier' option, the type of the 'client identifier' option is set
 			to 255.	*/
 		} else if (byte == 255) {
+			guint16	duidtype;
+			guint16	hwtype;
+			guint8	*buf;
+			int	enterprise; 
+
 			/*	The type field is immediately followed by the IAID, which is
 				an opaque 32-bit quantity	*/
 			proto_tree_add_text(v_tree, tvb, optoff+1, 4,
