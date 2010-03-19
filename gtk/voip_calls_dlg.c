@@ -196,7 +196,8 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 	const gcp_ctx_t* ctx;
 
 	filter_string = g_strdup(gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget)));
-	pos = filter_length = strlen(filter_string);
+	filter_length = strlen(filter_string);
+	pos = (int)filter_length;	/* we assume the filter won't be more than 2^31-1 octets long */
 	g_strstrip(filter_string);
 
 	if (strlen(filter_string) > 0)
