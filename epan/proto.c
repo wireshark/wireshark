@@ -4836,7 +4836,7 @@ hfinfo_uint_vals_format(header_field_info *hfinfo)
 			format = "%s: %s (%u)";
 			break;
 		case BASE_OCT: /* I'm lazy */
-			format = "%s: %s (%o)";
+			format = "%s: %s (%#o)";
 			break;
 		case BASE_HEX:
 		case BASE_HEX_DEC:
@@ -4901,7 +4901,7 @@ hfinfo_uint_format(header_field_info *hfinfo)
 				}
 				break;
 			case BASE_OCT: /* I'm lazy */
-				format = "%s: %o";
+				format = "%s: %#o";
 				break;
 			case BASE_HEX:
 				switch(hfinfo->type) {
@@ -4985,7 +4985,7 @@ hfinfo_uint_value_format(header_field_info *hfinfo)
 				}
 				break;
 			case BASE_OCT:
-				format = "%o";
+				format = "%#o";
 				break;
 			case BASE_HEX:
 				switch(hfinfo->type) {
@@ -5048,7 +5048,7 @@ hfinfo_int_vals_format(header_field_info *hfinfo)
 			format = "%s: %s (%d)";
 			break;
 		case BASE_OCT: /* I'm lazy */
-			format = "%s: %s (%o)";
+			format = "%s: %s (%#o)";
 			break;
 		case BASE_HEX:
 		case BASE_HEX_DEC:
@@ -5091,7 +5091,7 @@ hfinfo_uint64_format(header_field_info *hfinfo)
 			format = "%s: %" G_GINT64_MODIFIER "u (%" G_GINT64_MODIFIER "x)";
 			break;
 		case BASE_OCT: /* I'm lazy */
-			format = "%s: %" G_GINT64_MODIFIER "o";
+			format = "%s: %#" G_GINT64_MODIFIER "o";
 			break;
 		case BASE_HEX:
 			format = "%s: 0x%016" G_GINT64_MODIFIER "x";
@@ -5136,7 +5136,7 @@ hfinfo_int_format(header_field_info *hfinfo)
 			}
 			break;
 		case BASE_OCT: /* I'm lazy */
-			format = "%s: %o";
+			format = "%s: %#o";
 			break;
 		case BASE_HEX:
 			switch(hfinfo->type) {
@@ -5213,7 +5213,7 @@ hfinfo_int_value_format(header_field_info *hfinfo)
 			}
 			break;
 		case BASE_OCT:
-			format = "%o";
+			format = "%#o";
 			break;
 		case BASE_HEX:
 			switch(hfinfo->type) {
@@ -5274,7 +5274,7 @@ hfinfo_int64_format(header_field_info *hfinfo)
 			format = "%s: %" G_GINT64_MODIFIER "d (%" G_GINT64_MODIFIER "x)";
 			break;
 		case BASE_OCT: /* I'm lazy */
-			format = "%s: %" G_GINT64_MODIFIER "o";
+			format = "%s: %#" G_GINT64_MODIFIER "o";
 			break;
 		case BASE_HEX:
 			format = "%s: 0x%016" G_GINT64_MODIFIER "x";
