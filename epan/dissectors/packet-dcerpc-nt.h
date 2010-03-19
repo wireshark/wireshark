@@ -35,7 +35,7 @@ extern const value_string platform_id_vals[];
 
 #define ALIGN_TO_8_BYTES \
 	{ dcerpc_info *xzdi; \
-	  xzdi=pinfo->private_data; \
+	  xzdi=(dcerpc_info *)pinfo->private_data; \
 	  if(!xzdi->conformant_run) { \
 		if(offset&0x07) { \
 			offset=(offset&0xfffffff8)+8; \
@@ -44,7 +44,7 @@ extern const value_string platform_id_vals[];
 	}
 #define ALIGN_TO_4_BYTES \
 	{ dcerpc_info *xzdi; \
-	  xzdi=pinfo->private_data; \
+	  xzdi=(dcerpc_info *)pinfo->private_data; \
 	  if(!xzdi->conformant_run) { \
 		if(offset&0x03) { \
 			offset=(offset&0xfffffffc)+4; \
@@ -53,7 +53,7 @@ extern const value_string platform_id_vals[];
 	}
 #define ALIGN_TO_2_BYTES \
 	{ dcerpc_info *xzdi; \
-	  xzdi=pinfo->private_data; \
+	  xzdi=(dcerpc_info *)pinfo->private_data; \
 	  if(!xzdi->conformant_run) { \
 		if(offset&0x01) { \
 			offset=(offset&0xfffffffe)+2; \
@@ -65,7 +65,7 @@ extern const value_string platform_id_vals[];
 
 #define ALIGN_TO_4_OR_8_BYTES \
 	{ dcerpc_info *xzdi2; \
-	  xzdi2=pinfo->private_data; \
+	  xzdi2=(dcerpc_info *)pinfo->private_data; \
 	  if (xzdi2->call_data->flags & DCERPC_IS_NDR64) { \
 	    ALIGN_TO_8_BYTES; \
 	  } else { \
@@ -77,7 +77,7 @@ extern const value_string platform_id_vals[];
 
 #define ALIGN_TO_2_OR_4_BYTES \
 	{ dcerpc_info *xzdi2; \
-	  xzdi2=pinfo->private_data; \
+	  xzdi2=(dcerpc_info *)pinfo->private_data; \
 	  if (xzdi2->call_data->flags & DCERPC_IS_NDR64) { \
 	    ALIGN_TO_4_BYTES; \
 	  } else { \

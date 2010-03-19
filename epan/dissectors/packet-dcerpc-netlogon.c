@@ -53,7 +53,7 @@ extern const char *gbl_nt_password;
 #ifdef DEBUG_NETLOGON
 #include <stdio.h>
 #define debugprintf(...) fprintf(stderr,__VA_ARGS__)
-static void printnbyte(const guint8* tab,int nb,char* txt,char* txt2)
+static void printnbyte(const guint8* tab,int nb,const char* txt,const char* txt2)
 {
   int i=0;
   debugprintf("%s ",txt);
@@ -65,7 +65,7 @@ static void printnbyte(const guint8* tab,int nb,char* txt,char* txt2)
 }
 #else
 #define debugprintf(...)
-static void printnbyte(const guint8* tab _U_,int nb _U_,char* txt _U_,char* txt2 _U_) {}
+static void printnbyte(const guint8* tab _U_,int nb _U_,const char* txt _U_,const char* txt2 _U_) {}
 #endif
 
 #define NETLOGON_FLAG_80000000 0x80000000
@@ -962,8 +962,8 @@ netlogon_dissect_BYTE_byte(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			guint8 *drep)
 {
-		offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep,
-			hf_netlogon_unknown_char, NULL);
+	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_unknown_char, NULL);
 
 	return offset;
 }
@@ -1018,7 +1018,7 @@ netlogon_dissect_LOGON_IDENTITY_INFO(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_logon_id, NULL);
 
-  offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_acct_name, 1);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
@@ -1155,6 +1155,7 @@ netlogon_dissect_CHALLENGE(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+#if 0
 /*
  * IDL typedef struct {
  * IDL   LOGON_IDENTITY_INFO logon_info;
@@ -1163,30 +1164,28 @@ netlogon_dissect_CHALLENGE(tvbuff_t *tvb, int offset,
  * IDL   STRING lmchallengeresponse;
  * IDL } NETWORK_INFO;
  */
-/*
 static void dissect_nt_chal_resp_cb(packet_info *pinfo _U_, proto_tree *tree,
 				    proto_item *item _U_, tvbuff_t *tvb,
 				    int start_offset, int end_offset,
 				    void *callback_args )
 {
-	int len;
+  int len;
   gint options = GPOINTER_TO_INT(callback_args);
   gint levels = CB_STR_ITEM_LEVELS(options);
   char *s;
 
 
-	/ * Skip over 3 guint32's in NDR format * /
+  /* Skip over 3 guint32's in NDR format */
 
-	if (start_offset % 4)
-		start_offset += 4 - (start_offset % 4);
+  if (start_offset % 4)
+    start_offset += 4 - (start_offset % 4);
 
-	start_offset += 12;
-	len = end_offset - start_offset;
+  start_offset += 12;
+  len = end_offset - start_offset;
 
-  s = tvb_bytes_to_str(
-    tvb, start_offset , len  );
+  s = tvb_bytes_to_str(tvb, start_offset, len);
 
-  / * Append string to upper-level proto_items * /
+  /* Append string to upper-level proto_items */
 
   if (levels > 0 && item && s && s[0]) {
     proto_item_append_text(item, ": %s", s);
@@ -1203,12 +1202,13 @@ static void dissect_nt_chal_resp_cb(packet_info *pinfo _U_, proto_tree *tree,
       }
     }
   }
-	/ * Call ntlmv2 response dissector   * /
+  /* Call ntlmv2 response dissector */
 
-	if (len > 24)
-		dissect_ntlmv2_response(tvb, tree, start_offset, len);
+  if (len > 24)
+    dissect_ntlmv2_response(tvb, tree, start_offset, len);
 }
-*/
+#endif
+
 static int
 netlogon_dissect_NETWORK_INFO(tvbuff_t *tvb, int offset,
 		packet_info *pinfo, proto_tree *tree,
@@ -1219,32 +1219,35 @@ netlogon_dissect_NETWORK_INFO(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 	offset = netlogon_dissect_CHALLENGE(tvb, offset,
 		pinfo, tree, drep);
-/*
+#if 0
  	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 		NDR_POINTER_UNIQUE, "NT ",
 		hf_netlogon_nt_owf_password, 0);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_data_length, NULL);*/
-  offset = dissect_ndr_lm_nt_hash_helper(tvb,offset,pinfo, tree, drep, hf_netlogon_lm_chal_resp, 0,TRUE);
-  offset = dissect_ndr_lm_nt_hash_helper(tvb,offset,pinfo, tree, drep, hf_netlogon_lm_chal_resp, 0,TRUE);
- /* Not really sure that it really works with NTLM v2 ....*/
-   /*
+		hf_netlogon_data_length, NULL);
+#endif
+	offset = dissect_ndr_lm_nt_hash_helper(tvb,offset,pinfo, tree, drep, hf_netlogon_lm_chal_resp, 0,TRUE);
+	offset = dissect_ndr_lm_nt_hash_helper(tvb,offset,pinfo, tree, drep, hf_netlogon_lm_chal_resp, 0,TRUE);
+	/* Not really sure that it really works with NTLM v2 ....*/
+#if 0
 	offset = netlogon_dissect_LM_OWF_PASSWORD(tvb, offset,
 		pinfo, tree, drep);
 
 	offset = netlogon_dissect_NT_OWF_PASSWORD(tvb, offset,
 		pinfo, tree, drep);
-*/
+#endif
 	return offset;
-	/*offset = dissect_ndr_counted_byte_array_cb(
+#if 0
+	offset = dissect_ndr_counted_byte_array_cb(
 		tvb, offset, pinfo, tree, drep, hf_netlogon_nt_chal_resp,
-    dissect_nt_chal_resp_cb,GINT_TO_POINTER(2));
+	dissect_nt_chal_resp_cb,GINT_TO_POINTER(2));
 		hf_netlogon_nt_chal_resp, 0);
 
 	offset = dissect_ndr_counted_byte_array(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_lm_chal_resp, 0);
 
-	return offset;*/
+	return offset;
+#endif
 }
 
 
@@ -1271,15 +1274,17 @@ netlogon_dissect_SERVICE_INFO(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
+
 static int
 netlogon_dissect_GENERIC_INFO(tvbuff_t *tvb, int offset,
 		packet_info *pinfo, proto_tree *tree,
 		guint8 *drep)
 {
-  dcerpc_info *di;
-  dcerpc_call_value *dcv;
-  di=pinfo->private_data;
-  dcv = (dcerpc_call_value *)di->call_data;
+	dcerpc_info *di;
+	dcerpc_call_value *dcv;
+
+	di=pinfo->private_data;
+	dcv = (dcerpc_call_value *)di->call_data;
 
 	offset = netlogon_dissect_LOGON_IDENTITY_INFO(tvb, offset,
 		pinfo, tree, drep);
@@ -1290,7 +1295,7 @@ netlogon_dissect_GENERIC_INFO(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_data_length, NULL);
 
-  offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_BYTE_array, NDR_POINTER_REF,
 		"Logon Data", -1);
 	return offset;
@@ -1675,7 +1680,7 @@ netlogon_dissect_VALIDATION_SAM_INFO(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 
-  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_netlogon_dummy1_long, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -1747,8 +1752,8 @@ netlogon_dissect_VALIDATION_SAM_INFO2(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			guint8 *drep)
 {
-  offset = netlogon_dissect_VALIDATION_SAM_INFO(tvb,offset,pinfo,tree,drep);
-  /*
+	offset = netlogon_dissect_VALIDATION_SAM_INFO(tvb,offset,pinfo,tree,drep);
+#if 0
 	int i;
 
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
@@ -1802,7 +1807,7 @@ netlogon_dissect_VALIDATION_SAM_INFO2(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_num_rids, NULL);
 
-  offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_GROUP_MEMBERSHIP_ARRAY, NDR_POINTER_UNIQUE,
 		"GROUP_MEMBERSHIP_ARRAY", -1);
 
@@ -1831,11 +1836,11 @@ netlogon_dissect_VALIDATION_SAM_INFO2(tvbuff_t *tvb, int offset,
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_netlogon_unknown_long, NULL);
 	}
-*/
+#endif
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_num_sid, NULL);
 
-  offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY, NDR_POINTER_UNIQUE,
 		"SID_AND_ATTRIBUTES_ARRAY:", -1);
 
@@ -1928,8 +1933,9 @@ netlogon_dissect_PAC_LOGON_INFO(tvbuff_t *tvb, int offset,
 			guint8 *drep)
 {
 	guint32 rgc;
-  offset = netlogon_dissect_VALIDATION_SAM_INFO(tvb,offset,pinfo,tree,drep);
-	/*int i;
+	offset = netlogon_dissect_VALIDATION_SAM_INFO(tvb,offset,pinfo,tree,drep);
+#if 0
+	int i;
 
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_logon_time);
@@ -1982,7 +1988,7 @@ netlogon_dissect_PAC_LOGON_INFO(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_num_rids, NULL);
 
-  offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_GROUP_MEMBERSHIP_ARRAY, NDR_POINTER_UNIQUE,
 		"GROUP_MEMBERSHIP_ARRAY", -1);
 
@@ -2010,7 +2016,8 @@ netlogon_dissect_PAC_LOGON_INFO(tvbuff_t *tvb, int offset,
 	for(i=0;i<7;i++){
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_netlogon_unknown_long, NULL);
-	}*/
+	}
+#endif
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_num_sid, NULL);
@@ -2126,11 +2133,11 @@ netlogon_dissect_VALIDATION_GENERIC_INFO2 (tvbuff_t *tvb, int offset,
  	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_data_length, NULL);
 
-  offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_BYTE_array, NDR_POINTER_REF,
 		"Validation Data", -1);
 
- return offset;
+	return offset;
 }
 /*
  * IDL typedef struct {
@@ -2309,7 +2316,7 @@ netlogon_dissect_netrlogonsamlogonflags_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_validation_level, NULL);
 
-  offset = netlogon_dissect_EXTRA_FLAGS(tvb, offset, pinfo, tree, drep);
+	offset = netlogon_dissect_EXTRA_FLAGS(tvb, offset, pinfo, tree, drep);
 
 	return offset;
 }
@@ -2329,7 +2336,7 @@ netlogon_dissect_netrlogonsamlogonflags_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_authoritative, NULL);
 
-  offset = netlogon_dissect_EXTRA_FLAGS(tvb, offset, pinfo, tree, drep);
+	offset = netlogon_dissect_EXTRA_FLAGS(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_netlogon_rc, NULL);
@@ -2502,9 +2509,8 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
   /* As we are not always keeping this it could be more intelligent to g_malloc it
      and if we decide to keep it then transform it into se_alloc */
   vars = se_alloc(sizeof(netlogon_auth_vars));
-	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
-		pinfo, tree, drep);
-	offset = dissect_ndr_pointer_cb(
+  offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset, pinfo, tree, drep);
+  offset = dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_REF,
 		"Computer Name", hf_netlogon_computer_name,
@@ -5607,8 +5613,8 @@ netlogon_dissect_UNICODE_MULTI_byte(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			guint8 *drep)
 {
-		offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep,
-			hf_netlogon_unknown_char, NULL);
+	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_unknown_char, NULL);
 
 	return offset;
 }
@@ -5719,18 +5725,18 @@ dissect_ndr_trust_extension(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_trust_len, &len);
 
-  if( max * 2 == 16 ) {
-    offset = netlogon_dissect_DOMAIN_TRUST_FLAGS(tvb, offset, pinfo, tree, drep);
+	if( max * 2 == 16 ) {
+		offset = netlogon_dissect_DOMAIN_TRUST_FLAGS(tvb, offset, pinfo, tree, drep);
 
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-      hf_netlogon_trust_parent_index, NULL);
+		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_netlogon_trust_parent_index, NULL);
 
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-      hf_netlogon_trust_type, NULL);
+		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_netlogon_trust_type, NULL);
 
-    offset = netlogon_dissect_DOMAIN_TRUST_ATTRIBS(tvb, offset, pinfo, tree, drep);
-  }
-  /* else do something scream shout .... */
+		offset = netlogon_dissect_DOMAIN_TRUST_ATTRIBS(tvb, offset, pinfo, tree, drep);
+	}
+	/* else do something scream shout .... */
 
 	return offset;
 }
@@ -5757,7 +5763,8 @@ netlogon_dissect_BLOB_array(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
-int
+
+static int
 dissect_ndr_ulongs_as_counted_string(tvbuff_t *tvb, int offset,
             packet_info *pinfo, proto_tree *tree,
             guint8 *drep, int hf_index)
@@ -5911,7 +5918,7 @@ netlogon_dissect_LSA_POLICY_INFO(tvbuff_t *tvb _U_, int offset,
 {
 	proto_item *item=NULL;
 	proto_tree *subtree=NULL;
-  guint32 len;
+	guint32 len;
 	dcerpc_info *di;
 
 	di=pinfo->private_data;
@@ -5931,7 +5938,7 @@ netlogon_dissect_LSA_POLICY_INFO(tvbuff_t *tvb _U_, int offset,
 		netlogon_dissect_BLOB_array, NDR_POINTER_UNIQUE,
 		"Pointer:", -1);
 
-  return offset;
+	return offset;
 }
 
 
@@ -5961,7 +5968,7 @@ netlogon_dissect_WORKSTATION_INFO(tvbuff_t *tvb , int offset ,
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 		NDR_POINTER_UNIQUE, "Dummy 1", hf_netlogon_dummy_string, 0);
 
-  offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 		NDR_POINTER_UNIQUE, "Dummy 2", hf_netlogon_dummy_string2, 0);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
@@ -5993,7 +6000,7 @@ netlogon_dissect_WORKSTATION_INFO(tvbuff_t *tvb , int offset ,
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dummy4_long, NULL);
-  return offset;
+	return offset;
 }
 
 static int
@@ -6004,8 +6011,9 @@ netlogon_dissect_WORKSTATION_INFORMATION(tvbuff_t *tvb , int offset ,
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_WORKSTATION_INFO, NDR_POINTER_UNIQUE,
 		"WORKSTATION INFO", -1);
-  return offset;
+	return offset;
 }
+
 static int
 netlogon_dissect_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
@@ -6025,7 +6033,7 @@ netlogon_dissect_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 /*	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_num_trusts, NULL);
 
-  offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_DOMAIN_TRUST_INFO, NDR_POINTER_UNIQUE,
 		"LSA Policy", -1);
 */
@@ -6112,8 +6120,8 @@ netlogon_dissect_element_844_byte(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			guint8 *drep)
 {
-		offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep,
-			hf_netlogon_unknown_char, NULL);
+	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_unknown_char, NULL);
 
 	return offset;
 }
@@ -6228,8 +6236,8 @@ netlogon_dissect_element_865_byte(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			guint8 *drep)
 {
-		offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep,
-			hf_netlogon_unknown_char, NULL);
+	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_unknown_char, NULL);
 
 	return offset;
 }
@@ -6250,8 +6258,8 @@ netlogon_dissect_element_866_byte(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			guint8 *drep)
 {
-		offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep,
-			hf_netlogon_unknown_char, NULL);
+	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_unknown_char, NULL);
 
 	return offset;
 }
@@ -6349,22 +6357,22 @@ netlogon_dissect_WORKSTATION_BUFFER(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_level, &level);
-  if( level == 2 ) {
-    /* Specs are not very clear (as usual ...) it seems that the
-     * structure in both case is a NETLOGON_WORKSTATION_INFO
-     * but in this case only the LSA POLICY INFO will contain
-     * something
-     */
-	  offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		  	netlogon_dissect_WORKSTATION_INFORMATION, NDR_POINTER_UNIQUE,
-			  "LSA POLICY INFO", -1);
-  }
-  else {
-    if ( level == 1) {
- 	  offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		  	netlogon_dissect_WORKSTATION_INFORMATION, NDR_POINTER_UNIQUE,
-			  "WORKSTATION INFORMATION", -1);}
-  }
+	if (level == 2) {
+		/* Specs are not very clear (as usual ...) it seems that the
+		 * structure in both case is a NETLOGON_WORKSTATION_INFO
+		 * but in this case only the LSA POLICY INFO will contain
+		 * something
+		 */
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_WORKSTATION_INFORMATION, NDR_POINTER_UNIQUE,
+			"LSA POLICY INFO", -1);
+	}
+	else {
+		if (level == 1) {
+			offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+				netlogon_dissect_WORKSTATION_INFORMATION, NDR_POINTER_UNIQUE,
+				"WORKSTATION INFORMATION", -1);}
+	}
 	return offset;
 }
 
@@ -6727,11 +6735,12 @@ static int netlogon_dissect_neg_options(tvbuff_t *tvb,proto_tree *tree,guint32 f
   }
   return 0;
 }
+
 static int
 netlogon_dissect_netrserverauthenticate3_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-  guint32 flags;
+	guint32 flags;
 	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
 		pinfo, tree, drep);
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
@@ -6745,20 +6754,23 @@ netlogon_dissect_netrserverauthenticate3_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,
 		hf_client_credential, NULL);
-  /*
+#if 0
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_CREDENTIAL, NDR_POINTER_REF,
-		"Client Challenge", -1);*/
+		"Client Challenge", -1);
+#endif
 
-	/*offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_neg_flags, NULL);*/
-  ALIGN_TO_4_BYTES;
+#if 0
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_neg_flags, NULL);
+#endif
+	ALIGN_TO_4_BYTES;
 
-  flags = tvb_get_letohl (tvb, offset);
-  netlogon_dissect_neg_options(tvb,tree,flags,offset);
-  seen.isseen = FALSE;
-  seen.num = 0;
-  offset +=4;
+	flags = tvb_get_letohl (tvb, offset);
+	netlogon_dissect_neg_options(tvb,tree,flags,offset);
+	seen.isseen = FALSE;
+	seen.num = 0;
+	offset +=4;
 	return offset;
 }
 
@@ -6834,7 +6846,7 @@ static guint32 get_keytab_as_list(md4_pass **p_pass_list,const char* ntlm_pass _
 		add_ntlm = 0;
 	}
 
-	*p_pass_list = ep_alloc(nb_pass*sizeof(md4_pass));
+	*p_pass_list = (md4_pass *)ep_alloc(nb_pass*sizeof(md4_pass));
 	pass_list=*p_pass_list;
 	if(add_ntlm) {
 		memcpy(pass_list[0].md4,&(ntlm_pass_hash.md4),sizeof(md4_pass));
@@ -6880,7 +6892,7 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
 
   generate_hash_key(pinfo,1,&key,NULL);
 
-  vars = g_hash_table_lookup(netlogon_auths, &key);
+  vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths, &key);
   if(vars != NULL) {
     while(vars != NULL && vars->next_start != -1 && vars->next_start < (int) pinfo->fd->num ) {
      debugprintf("looping auth reply...\n");
@@ -7039,8 +7051,8 @@ netlogon_dissect_netrlogongetdomaininfo_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
        /* Unlike the other NETLOGON RPCs, this is not a unique pointer. */
-  offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-             NDR_POINTER_REF, "Server Handle", hf_netlogon_computer_name, 0);
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+		NDR_POINTER_REF, "Server Handle", hf_netlogon_computer_name, 0);
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 		NDR_POINTER_UNIQUE, "Computer Name",
 		hf_netlogon_computer_name, 0);
@@ -7451,10 +7463,10 @@ netlogon_dissect_netrlogonsamlogonex_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_validation_level, NULL);
 
-  offset = netlogon_dissect_EXTRA_FLAGS(tvb, offset, pinfo, tree, drep);
+	offset = netlogon_dissect_EXTRA_FLAGS(tvb, offset, pinfo, tree, drep);
 
-/*
-  offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+#if 0
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 		NDR_POINTER_UNIQUE, "unknown string",
 	        hf_netlogon_unknown_string, 0);
 
@@ -7474,7 +7486,8 @@ netlogon_dissect_netrlogonsamlogonex_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_pointer_long, NDR_POINTER_UNIQUE,
-		"ULONG pointer: unknown_ULONG", hf_netlogon_unknown_long);*/
+		"ULONG pointer: unknown_ULONG", hf_netlogon_unknown_long);
+#endif
 	return offset;
 }
 
@@ -7490,11 +7503,11 @@ netlogon_dissect_netrlogonsamlogonex_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_authoritative, NULL);
 
-  offset = netlogon_dissect_EXTRA_FLAGS(tvb, offset, pinfo, tree, drep);
+	offset = netlogon_dissect_EXTRA_FLAGS(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_netlogon_rc, NULL);
-/*
+#if 0
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_VALIDATION, NDR_POINTER_UNIQUE,
 		"VALIDATION: unknown_NETLOGON_VALIDATION", -1);
@@ -7509,7 +7522,7 @@ netlogon_dissect_netrlogonsamlogonex_reply(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_netlogon_rc, NULL);
-*/
+#endif
 	return offset;
 }
 
@@ -7860,7 +7873,7 @@ static const value_string seal_algs[] = {
 static int get_seal_key(const guint8 *session_key,int key_len,guint64 sequence,guint8* seal_key)
 {
   guint8 zeros[4];
-  guint8 *buf = g_malloc(key_len);
+  guint8 *buf = (guint8 *)g_malloc(key_len);
   guint8 buf2[16];
   guint8 zero_sk[16];
   int i = 0;
@@ -7921,7 +7934,7 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
   /*debugprintf("Dissection of request data offset %d len=%d on packet %d\n",offset,tvb_length_remaining(tvb,offset),pinfo->fd->num);*/
 
   generate_hash_key(pinfo,is_server,&key,NULL);
-  vars = g_hash_table_lookup(netlogon_auths, &key);
+  vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths, &key);
 
   if(vars != NULL  ) {
     while(vars != NULL && vars->next_start != -1 && vars->next_start < (int) pinfo->fd->num ) {
@@ -7939,7 +7952,7 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
 
        crypt_rc4_init(&rc4state,vars->encryption_key,16);
        crypt_rc4(&rc4state,(guint8*)&copyconfounder,8);
-       decrypted = tvb_memdup(tvb, offset,data_len);
+       decrypted = (guint8*)tvb_memdup(tvb, offset,data_len);
        crypt_rc4_init(&rc4state,vars->encryption_key,16);
        crypt_rc4(&rc4state,decrypted,data_len);
        buf = tvb_new_real_data(decrypted, data_len, data_len);
@@ -7983,7 +7996,7 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   int update_vars = 0;
 
   generate_hash_key(pinfo,is_server,&key,NULL);
-  vars = g_hash_table_lookup(netlogon_auths,(gconstpointer*) &key);
+  vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths,(gconstpointer*) &key);
   if(  ! (seen.isseen && seen.num == pinfo->fd->num) ) {
     /*
      * Create a new tree, and split into x components ...
@@ -8658,14 +8671,14 @@ static hf_register_info hf[] = {
 		NULL, 0x0, "Number of RIDs", HFILL }},
 
 	{ &hf_netlogon_num_controllers,
-    { "Num DCs", "netlogon.num_dc", FT_UINT32, BASE_DEC,
-    NULL, 0x0, "Number of domain controllers", HFILL }},
+		{ "Num DCs", "netlogon.num_dc", FT_UINT32, BASE_DEC,
+		NULL, 0x0, "Number of domain controllers", HFILL }},
 
-  { &hf_netlogon_num_sid,
-    { "Num Extra SID", "netlogon.num_sid", FT_UINT32, BASE_DEC,
-    NULL, 0x0, "", HFILL }},
+	{ &hf_netlogon_num_sid,
+		{ "Num Extra SID", "netlogon.num_sid", FT_UINT32, BASE_DEC,
+		NULL, 0x0, "", HFILL }},
 
-  { &hf_netlogon_flags,
+	{ &hf_netlogon_flags,
 		{ "Flags", "netlogon.flags", FT_UINT32, BASE_HEX,
 		NULL, 0x0, NULL, HFILL }},
 
@@ -8750,100 +8763,100 @@ static hf_register_info hf[] = {
 		NULL, 0x0, "Negotiation Flags", HFILL }},
 
 	{ &hf_netlogon_neg_flags_80000000,
-    { "Not used 80000000", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_80000000, "Not used", HFILL }},
+		{ "Not used 80000000", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_80000000, "Not used", HFILL }},
 
 	{ &hf_netlogon_neg_flags_40000000,
-    { "Authenticated RPC supported", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_40000000, "Authenticated RPC supported", HFILL }},
+		{ "Authenticated RPC supported", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_40000000, "Authenticated RPC supported", HFILL }},
 
 	{ &hf_netlogon_neg_flags_20000000,
-    { "Authenticated RPC via lsass supported", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_20000000, "rpc via lsass", HFILL }},
+		{ "Authenticated RPC via lsass supported", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_20000000, "rpc via lsass", HFILL }},
 
 	{ &hf_netlogon_neg_flags_10000000,
-    { "Not used 10000000", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_10000000, "Not used", HFILL }},
+		{ "Not used 10000000", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_10000000, "Not used", HFILL }},
 
 	{ &hf_netlogon_neg_flags_8000000,
-    { "Not used 8000000", "ntlmssp.neg_flags.na800000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_8000000, "Not used", HFILL }},
+		{ "Not used 8000000", "ntlmssp.neg_flags.na800000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_8000000, "Not used", HFILL }},
 
 	{ &hf_netlogon_neg_flags_4000000,
-    { "Not used 4000000", "ntlmssp.neg_flags.na400000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_4000000, "Not used", HFILL }},
+		{ "Not used 4000000", "ntlmssp.neg_flags.na400000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_4000000, "Not used", HFILL }},
 
 	{ &hf_netlogon_neg_flags_2000000,
-    { "Not used 2000000", "ntlmssp.neg_flags.na200000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_2000000, "Not used", HFILL }},
+		{ "Not used 2000000", "ntlmssp.neg_flags.na200000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_2000000, "Not used", HFILL }},
 
 	{ &hf_netlogon_neg_flags_1000000,
-    { "Not used 1000000", "ntlmssp.neg_flags.na100000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_1000000, "Not used", HFILL }},
+		{ "Not used 1000000", "ntlmssp.neg_flags.na100000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_1000000, "Not used", HFILL }},
 
 	{ &hf_netlogon_neg_flags_800000,
-    { "Not used 800000", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_800000, "Not used", HFILL }},
+		{ "Not used 800000", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_800000, "Not used", HFILL }},
 
 	{ &hf_netlogon_neg_flags_400000,
-    { "AES & SHA2 supported", "ntlmssp.neg_flags.na400000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_USEAES, "AES&SHA2", HFILL }},
+		{ "AES & SHA2 supported", "ntlmssp.neg_flags.na400000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_USEAES, "AES&SHA2", HFILL }},
 
 	{ &hf_netlogon_neg_flags_200000,
-    { "RODC pass-through", "ntlmssp.neg_flags.na200000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_200000, "rodc pt", HFILL }},
+		{ "RODC pass-through", "ntlmssp.neg_flags.na200000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_200000, "rodc pt", HFILL }},
 
 	{ &hf_netlogon_neg_flags_100000,
-    { "NO NT4 emulation", "ntlmssp.neg_flags.na100000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_100000, "No NT4 emu", HFILL }},
+		{ "NO NT4 emulation", "ntlmssp.neg_flags.na100000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_100000, "No NT4 emu", HFILL }},
 
 	{ &hf_netlogon_neg_flags_80000,
-    { "Cross forest trust", "ntlmssp.neg_flags.na80000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_80000, "Cross forest trust", HFILL }},
+		{ "Cross forest trust", "ntlmssp.neg_flags.na80000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_80000, "Cross forest trust", HFILL }},
 
 	{ &hf_netlogon_neg_flags_40000,
-    { "GetDomainInfo supported", "ntlmssp.neg_flags.na40000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_40000, "GetDomainInfo", HFILL }},
+		{ "GetDomainInfo supported", "ntlmssp.neg_flags.na40000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_40000, "GetDomainInfo", HFILL }},
 
 	{ &hf_netlogon_neg_flags_20000,
-    { "ServerPasswordSet2 supported", "ntlmssp.neg_flags.na20000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_20000, "PasswordSet2", HFILL }},
+		{ "ServerPasswordSet2 supported", "ntlmssp.neg_flags.na20000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_20000, "PasswordSet2", HFILL }},
 
 	{ &hf_netlogon_neg_flags_10000,
-    { "DNS trusts supported", "ntlmssp.neg_flags.na10000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_10000, "DNS Trusts", HFILL }},
+		{ "DNS trusts supported", "ntlmssp.neg_flags.na10000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_10000, "DNS Trusts", HFILL }},
 
 	{ &hf_netlogon_neg_flags_8000,
-    { "Transitive trusts", "ntlmssp.neg_flags.na8000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_8000, "Transitive trust", HFILL }},
+		{ "Transitive trusts", "ntlmssp.neg_flags.na8000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_8000, "Transitive trust", HFILL }},
 
 	{ &hf_netlogon_neg_flags_4000,
-    { "Strong key", "ntlmssp.neg_flags.na4000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_STRONGKEY, "Strong key", HFILL }},
+		{ "Strong key", "ntlmssp.neg_flags.na4000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_STRONGKEY, "Strong key", HFILL }},
 
 	{ &hf_netlogon_neg_flags_2000,
-    { "Avoid replication Auth database", "ntlmssp.neg_flags.na2000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_2000, "Avoid replication auth database", HFILL }},
+		{ "Avoid replication Auth database", "ntlmssp.neg_flags.na2000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_2000, "Avoid replication auth database", HFILL }},
 
 	{ &hf_netlogon_neg_flags_1000,
-    { "Avoid replication account database", "ntlmssp.neg_flags.na1000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_1000, "Avoid replication account database", HFILL }},
+		{ "Avoid replication account database", "ntlmssp.neg_flags.na1000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_1000, "Avoid replication account database", HFILL }},
 
 	{ &hf_netlogon_neg_flags_800,
-    { "Concurent RPC", "ntlmssp.neg_flags.na800", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_800, "Concurent RPC", HFILL }},
+		{ "Concurent RPC", "ntlmssp.neg_flags.na800", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_800, "Concurent RPC", HFILL }},
 
 	{ &hf_netlogon_neg_flags_400,
-    { "Generic pass-through", "ntlmssp.neg_flags.na400", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_400, "Generic pass-through", HFILL }},
+		{ "Generic pass-through", "ntlmssp.neg_flags.na400", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_400, "Generic pass-through", HFILL }},
 
 	{ &hf_netlogon_neg_flags_200,
-    { "SendToSam", "ntlmssp.neg_flags.na200", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_200, "SendToSam", HFILL }},
+		{ "SendToSam", "ntlmssp.neg_flags.na200", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_200, "SendToSam", HFILL }},
 
 	{ &hf_netlogon_neg_flags_100,
-    { "Refusal of password change", "ntlmssp.neg_flags.na100", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_100, "PWD change refusal", HFILL }},
+		{ "Refusal of password change", "ntlmssp.neg_flags.na100", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_100, "PWD change refusal", HFILL }},
 
 	{ &hf_netlogon_neg_flags_80,
-    { "DatabaseRedo call", "ntlmssp.neg_flags.na80", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_80, "DatabaseRedo call", HFILL }},
+		{ "DatabaseRedo call", "ntlmssp.neg_flags.na80", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_80, "DatabaseRedo call", HFILL }},
 
 	{ &hf_netlogon_neg_flags_40,
-    { "Handle multiple SIDs", "ntlmssp.neg_flags.na40", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_40, "Handle multiple SIDs", HFILL }},
+		{ "Handle multiple SIDs", "ntlmssp.neg_flags.na40", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_40, "Handle multiple SIDs", HFILL }},
 
 	{ &hf_netlogon_neg_flags_20,
-    { "Restarting full DC sync", "ntlmssp.neg_flags.na20", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_20, "Restarting full DC sync", HFILL }},
+		{ "Restarting full DC sync", "ntlmssp.neg_flags.na20", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_20, "Restarting full DC sync", HFILL }},
 
 	{ &hf_netlogon_neg_flags_10,
-    { "BDC handling Changelogs", "ntlmssp.neg_flags.na10", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_10, "BDC Changelog", HFILL }},
+		{ "BDC handling Changelogs", "ntlmssp.neg_flags.na10", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_10, "BDC Changelog", HFILL }},
 
 	{ &hf_netlogon_neg_flags_8,
-    { "Promotion count(deprecated)", "ntlmssp.neg_flags.na8", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_8, "Promotion count", HFILL }},
+		{ "Promotion count(deprecated)", "ntlmssp.neg_flags.na8", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_8, "Promotion count", HFILL }},
 
 	{ &hf_netlogon_neg_flags_4,
-    { "RC4 encryption", "ntlmssp.neg_flags.na4", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_4, "RC4", HFILL }},
+		{ "RC4 encryption", "ntlmssp.neg_flags.na4", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_4, "RC4", HFILL }},
 
 	{ &hf_netlogon_neg_flags_2,
-    { "NT3.5 BDC continious update", "ntlmssp.neg_flags.na2", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_2, "NT3.5", HFILL }},
+		{ "NT3.5 BDC continious update", "ntlmssp.neg_flags.na2", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_2, "NT3.5", HFILL }},
 
 	{ &hf_netlogon_neg_flags_1,
-    { "Account lockout", "ntlmssp.neg_flags.na1", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_1, "Account lockout", HFILL }},
+		{ "Account lockout", "ntlmssp.neg_flags.na1", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_1, "Account lockout", HFILL }},
 
 	{ &hf_netlogon_dc_flags,
 		{ "Domain Controller Flags", "netlogon.dc.flags", FT_UINT32, BASE_HEX,
@@ -9399,8 +9412,8 @@ static hf_register_info hf[] = {
 	};
 
         static gint *ett[] = {
-    &ett_dcerpc_netlogon,
-    &ett_authenticate_flags,
+		&ett_dcerpc_netlogon,
+		&ett_authenticate_flags,
 		&ett_CYPHER_VALUE,
 		&ett_QUOTA_LIMITS,
 		&ett_IDENTITY_INFO,
@@ -9419,7 +9432,7 @@ static hf_register_info hf[] = {
 		&ett_DS_DOMAIN_TRUSTS,
 		&ett_BLOB,
 		&ett_DOMAIN_TRUST_INFO,
-    &ett_LSA_POLICY_INFO,
+		&ett_LSA_POLICY_INFO,
 		&ett_trust_flags,
 		&ett_trust_attribs,
 		&ett_get_dcname_request_flags,
@@ -9429,7 +9442,7 @@ static hf_register_info hf[] = {
 		&ett_secchan_verf,
 		&ett_group_attrs,
 		&ett_user_flags,
-    &ett_nt_counted_longs_as_string,
+		&ett_nt_counted_longs_as_string,
 		&ett_user_account_control
         };
 
@@ -9457,9 +9470,9 @@ void
 proto_reg_handoff_dcerpc_netlogon(void)
 {
          /* Register protocol as dcerpc */
-  seen.isseen = FALSE;
-  seen.num = 0;
-  dcerpc_init_uuid(proto_dcerpc_netlogon, ett_dcerpc_netlogon,
+	seen.isseen = FALSE;
+	seen.num = 0;
+	dcerpc_init_uuid(proto_dcerpc_netlogon, ett_dcerpc_netlogon,
                    &uuid_dcerpc_netlogon, ver_dcerpc_netlogon,
                    dcerpc_netlogon_dissectors, hf_netlogon_opnum);
 
