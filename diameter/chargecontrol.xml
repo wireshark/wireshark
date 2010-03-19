@@ -179,7 +179,7 @@
 		</avp>
 		<avp name="Used-Service-Unit" code="446" mandatory="must">
 			<grouped>
-				<gavp name="Tariff-Change-Usage "/>
+				<gavp name="Tariff-Change-Usage"/>
 				<gavp name="CC-Time"/>
 				<gavp name="CC-Money"/>
 				<gavp name="CC-Total-Octets"/>
@@ -252,7 +252,7 @@
 			<grouped>
 				<gavp name="G-S-U-Pool-Identifier"/>
 				<gavp name="CC-Unit-Type"/>
-				<gavp name="Unit-Value "/>
+				<gavp name="Unit-Value"/>
 			</grouped>
 		</avp>
 		<avp name="User-Equipment-Info" code="458" mandatory="may">
