@@ -177,6 +177,8 @@ static gint hf_eigrp_ip_ext_reserved2 = -1;
 static gint hf_eigrp_ip_ext_prefixlen = -1;
 
 /* IPX internal route TLV */
+static gint hf_eigrp_ipx_int_nexthop_addr = -1;
+static gint hf_eigrp_ipx_int_nexthop_id = -1;
 static gint hf_eigrp_ipx_int_delay = -1;
 static gint hf_eigrp_ipx_int_bandwidth = -1;
 static gint hf_eigrp_ipx_int_mtu = -1;
@@ -184,8 +186,12 @@ static gint hf_eigrp_ipx_int_hopcount = -1;
 static gint hf_eigrp_ipx_int_reliability = -1;
 static gint hf_eigrp_ipx_int_load = -1;
 static gint hf_eigrp_ipx_int_reserved = -1;
+static gint hf_eigrp_ipx_int_dst = -1;
 
 /* IPX external route TLV */
+static gint hf_eigrp_ipx_ext_nexthop_addr = -1;
+static gint hf_eigrp_ipx_ext_nexthop_id = -1;
+static gint hf_eigrp_ipx_ext_origrouter = -1;
 static gint hf_eigrp_ipx_ext_as = -1;
 static gint hf_eigrp_ipx_ext_tag = -1;
 static gint hf_eigrp_ipx_ext_proto = -1;
@@ -199,7 +205,7 @@ static gint hf_eigrp_ipx_ext_hopcount = -1;
 static gint hf_eigrp_ipx_ext_reliability = -1;
 static gint hf_eigrp_ipx_ext_load = -1;
 static gint hf_eigrp_ipx_ext_reserved2 = -1;
-
+static gint hf_eigrp_ipx_ext_dst = -1;
 
 /* AppleTalk cable configuration TLV */
 static gint hf_eigrp_at_cbl_routerid = -1;
@@ -738,9 +744,9 @@ static void dissect_eigrp_ipx_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	int offset = 0;
 	proto_item *ti_dst;
 
-	proto_tree_add_text(tree, tvb, offset, 4, "Next Hop Address = %08x", tvb_get_ntohl(tvb, 4));
+	proto_tree_add_item(tree, hf_eigrp_ipx_int_nexthop_addr, tvb, offset, 4, FALSE);
 	offset += 4;
-	proto_tree_add_text(tree, tvb, offset, 6, "Next Hop ID      = %04x:%04x:%04x", tvb_get_ntohs(tvb, 4), tvb_get_ntohs(tvb, 6), tvb_get_ntohs(tvb, 8));
+	proto_tree_add_item(tree, hf_eigrp_ipx_int_nexthop_id, tvb, offset, 6, FALSE);
 	offset += 6;
 	proto_tree_add_item(tree, hf_eigrp_ipx_int_delay, tvb, offset, 4, FALSE);
 	offset += 4;
@@ -756,7 +762,7 @@ static void dissect_eigrp_ipx_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	offset += 1;
 	proto_tree_add_item(tree, hf_eigrp_ipx_int_reserved, tvb, offset, 2, FALSE);
 	offset += 2;
-        ti_dst = proto_tree_add_text(tree, tvb, offset, 4, "Destination Address =  %08x", tvb_get_ntohl(tvb, 26));
+	ti_dst = proto_tree_add_item(tree, hf_eigrp_ipx_int_dst, tvb, offset, 4, FALSE);
         proto_item_append_text(ti, "  =   %08x%s", tvb_get_ntohl(tvb, 26), ((tvb_get_ntohl(tvb, 10) == 0xffffffff) ? " - Destination unreachable":""));
 	if (tvb_get_ntohl(tvb, 10) == 0xffffffff) {
 		expert_add_info_format(pinfo, ti_dst, PI_RESPONSE_CODE, PI_NOTE, "Destination unreachable");
@@ -768,12 +774,11 @@ static void dissect_eigrp_ipx_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	int offset = 0;
 	proto_item *ti_dst;
 
-	proto_tree_add_text(tree, tvb, offset, 4, "Next Hop Address = %08x", tvb_get_ntohl(tvb, 4));
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_nexthop_addr, tvb, offset, 4, FALSE);
 	offset += 4;
-	proto_tree_add_text(tree, tvb, offset, 6, "Next Hop ID      = %04x:%04x:%04x", tvb_get_ntohs(tvb, 4), tvb_get_ntohs(tvb, 6), tvb_get_ntohs(tvb, 8));
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_nexthop_id, tvb, offset, 6, FALSE);
 	offset += 6;
-
-        proto_tree_add_text(tree, tvb, offset, 6, "Originating router ID = %04x:%04x:%04x", tvb_get_ntohs(tvb, 10), tvb_get_ntohs(tvb, 12), tvb_get_ntohs(tvb, 14));
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_origrouter, tvb, offset, 6, FALSE);
 	offset += 6;
 	proto_tree_add_item(tree, hf_eigrp_ipx_ext_as, tvb, offset, 4, FALSE);
 	offset += 4;
@@ -802,7 +807,7 @@ static void dissect_eigrp_ipx_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	offset += 1;
 	proto_tree_add_item(tree, hf_eigrp_ipx_ext_reserved2, tvb, offset, 2, FALSE);
 	offset += 2;
-        ti_dst = proto_tree_add_text(tree, tvb, offset, 4, "Destination Address =  %08x", tvb_get_ntohl(tvb, 46));
+	ti_dst = proto_tree_add_item(tree, hf_eigrp_ipx_ext_dst, tvb, offset, 4, FALSE);
         proto_item_append_text(ti, "  =   %08x%s", tvb_get_ntohl(tvb, 46), ((tvb_get_ntohl(tvb, 30) == 0xffffffff) ? " - Destination unreachable":""));
 	if (tvb_get_ntohl(tvb, 30) == 0xffffffff) {
 		expert_add_info_format(pinfo, ti_dst, PI_RESPONSE_CODE, PI_NOTE, "Destination unreachable");
@@ -1353,6 +1358,16 @@ void proto_register_eigrp(void) {
      NULL, HFILL }
     }, 
 /* IPX internal route TLV */
+   { &hf_eigrp_ipx_int_nexthop_addr,
+    { "Next Hop Address", "eigrp.ipx_int.nexthop_addr",
+     FT_IPXNET, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_int_nexthop_id,
+    { "Next Hop ID", "eigrp.ipx_int.nexthop_id",
+     FT_ETHER, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    }, 
    { &hf_eigrp_ipx_int_delay,
     { "Delay", "eigrp.ipx_int.delay",
      FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -1388,7 +1403,27 @@ void proto_register_eigrp(void) {
      FT_UINT16, BASE_DEC, NULL, 0x0,
      NULL, HFILL }
     }, 
+   { &hf_eigrp_ipx_int_dst,
+    { "Destination", "eigrp.ipx_int.dst",
+     FT_IPXNET, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    },
 /* IPX external route TLV */
+   { &hf_eigrp_ipx_ext_nexthop_addr,
+    { "Next Hop Address", "eigrp.ipx_ext.nexthop_addr",
+     FT_IPXNET, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_ext_nexthop_id,
+    { "Next Hop ID", "eigrp.ipx_ext.nexthop_id",
+     FT_ETHER, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_ext_origrouter,
+    { "Originating router", "eigrp.ipx_ext.origrouter",
+     FT_ETHER, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    },
    { &hf_eigrp_ipx_ext_as,
     { "Originating A.S.", "eigrp.ipx_ext.as",
      FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -1454,6 +1489,11 @@ void proto_register_eigrp(void) {
      FT_UINT16, BASE_DEC, NULL, 0x0,
      NULL, HFILL }
     }, 
+   { &hf_eigrp_ipx_ext_dst,
+    { "Destination", "eigrp.ipx_ext.dst",
+     FT_IPXNET, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    },
 /* AppleTalk cable configuration TLV */
    { &hf_eigrp_at_cbl_routerid,
     { "AppleTalk Router ID", "eigrp.at_cbl.routerid",
