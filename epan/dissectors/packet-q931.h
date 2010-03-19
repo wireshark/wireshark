@@ -88,6 +88,8 @@ extern const value_string q931_call_state_vals[];
 #define	Q931_SUSPEND_ACK		0x2D
 #define	Q931_SUSPEND_REJECT		0x21
 #define	Q931_USER_INFORMATION	0x20
+#define	Q931_DETACH             0x40
+#define	Q931_DETACH_ACKNOWLEDGE 0x48
 #define	Q931_DISCONNECT			0x45
 #define	Q931_RELEASE			0x4D
 #define	Q931_RELEASE_COMPLETE	0x5A
@@ -95,6 +97,8 @@ extern const value_string q931_call_state_vals[];
 #define	Q931_RESTART_ACK		0x4E
 #define	Q931_CONGESTION_CONTROL	0x79
 #define	Q931_FACILITY			0x62
+#define	Q931_FACILITY_ACKNOWLEDGE 0x6A
+#define	Q931_FACILITY_REJECT    0x72
 #define	Q931_INFORMATION		0x7B
 #define	Q931_NOTIFY				0x6E
 #define	Q931_REGISTER			0x64
