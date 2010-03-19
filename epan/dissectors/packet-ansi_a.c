@@ -808,7 +808,7 @@ my_dgt_tbcd_unpack(
     return(cnt);
 }
 
-const gchar *
+static const gchar *
 ansi_a_so_int_to_str(
     gint32      so)
 {
@@ -1937,7 +1937,7 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
         other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
         proto_tree_add_text(tree,
             tvb, curr_offset, 1,
-            "%s :  MEID Hex Digit 1: %hhX",
+            "%s :  MEID Hex Digit 1: %X",
             a_bigbuf,
             (oct & 0xf0) >> 4);
 
@@ -8306,7 +8306,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
             format_assigned &&
             (first_assigned_found == FALSE))
         {
-            key = g_malloc(sizeof(gint));
+            key = (gint *)g_malloc(sizeof(gint));
             *key = rtp_payload_type;
             g_hash_table_insert(rtp_dyn_payload, key, g_strdup(mime_type));
 
@@ -8716,7 +8716,7 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
             {
                 gchar *a_add_string;
 
-                a_add_string=ep_alloc(1024);
+                a_add_string=(gchar *)ep_alloc(1024);
                 a_add_string[0] = '\0';
                 consumed =
                     (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 2,
@@ -8794,7 +8794,7 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const g
         {
             gchar *a_add_string;
 
-            a_add_string=ep_alloc(1024);
+            a_add_string=(gchar *)ep_alloc(1024);
             a_add_string[0] = '\0';
             consumed = (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 1, -1, a_add_string, 1024);
 
@@ -8903,7 +8903,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
         {
             gchar *a_add_string;
 
-            a_add_string=ep_alloc(1024);
+            a_add_string=(gchar *)ep_alloc(1024);
             a_add_string[0] = '\0';
             consumed =
                 (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 1,
@@ -8957,7 +8957,7 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
     {
         gchar *a_add_string;
 
-        a_add_string=ep_alloc(1024);
+        a_add_string=(gchar *)ep_alloc(1024);
         a_add_string[0] = '\0';
         consumed = (*elem_1_fcn[dec_idx])(tvb, tree, curr_offset, -1, a_add_string, 1024);
     }
@@ -12065,7 +12065,7 @@ proto_register_ansi_a(void)
      * initializes "ett_let" as an array size.  Therefore, we dynamically
      * allocate the array instead.
      */
-    ett = g_malloc(ett_len);
+    ett = (gint **)g_malloc(ett_len);
 
     memset((void *) ett_dtap_msg, -1, sizeof(ett_dtap_msg));
     memset((void *) ett_bsmap_msg, -1, sizeof(ett_bsmap_msg));
