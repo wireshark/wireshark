@@ -152,16 +152,16 @@ Cause B<TShark> to run in "multiple files" mode.  In "multiple files" mode,
 B<TShark> will write to several capture files. When the first capture file
 fills up, B<TShark> will switch writing to the next file and so on.
 
-The created filenames are based on the filename given with the B<-w> option, the number of
-the file and on the creation date and time,
-e.g. outfile_00001_20050604120117.pcap, outfile_00001_20050604120523.pcap, ...
+The created filenames are based on the filename given with the B<-w> option,
+the number of the file and on the creation date and time,
+e.g. outfile_00001_20050604120117.pcap, outfile_00002_20050604120523.pcap, ...
 
 With the I<files> option it's also possible to form a "ring buffer".
 This will fill up new files until the number of files specified,
 at which point B<TShark> will discard the data in the first file and start
 writing to that file and so on. If the I<files> option is not set,
 new files filled up until one of the capture stop conditions match (or
-until the disk if full).
+until the disk is full).
 
 The criterion is of the form I<key>B<:>I<value>,
 where I<key> is one of:
@@ -173,7 +173,10 @@ B<filesize>:I<value> switch to the next file after it reaches a size of
 I<value> kilobytes (where a kilobyte is 1024 bytes).
 
 B<files>:I<value> begin again with the first file after I<value> number of
-files were written (form a ring buffer).
+files were written (form a ring buffer).  This option requires either
+B<duration> or B<filesize> to be specified to control when to go to the next
+file.  It should be noted that each B<-b> parameter takes exactly one criterion;
+to specify two criterion, each must be preceded by the B<-b> option.
 
 =item -B  E<lt>capture buffer sizeE<gt> (Win32 only)
 

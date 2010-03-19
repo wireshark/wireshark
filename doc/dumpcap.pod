@@ -13,7 +13,7 @@ S<[ B<-c> E<lt>capture packet countE<gt> ]>
 S<[ B<-D> ]>
 S<[ B<-f> E<lt>capture filterE<gt> ]>
 S<[ B<-h> ]>
-S<[ B<-i> E<lt>capture interfaceE<gt>|- ]> 
+S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
 S<[ B<-L> ]>
 S<[ B<-n> ]>
 S<[ B<-M> ]>
@@ -27,19 +27,19 @@ S<[ B<-y> E<lt>capture link typeE<gt> ]>
 =head1 DESCRIPTION
 
 B<Dumpcap> is a network traffic dump tool.  It lets you capture packet
-data from a live network and write the packets to a file.  B<Dumpcap>'s 
-native capture file format is B<libpcap> format, which is also the format 
-used by B<Wireshark>, B<tcpdump> and various other tools.  
+data from a live network and write the packets to a file.  B<Dumpcap>'s
+native capture file format is B<libpcap> format, which is also the format
+used by B<Wireshark>, B<tcpdump> and various other tools.
 When the B<-n> option is specified, the output file is written in the
 new B<pcapng> format.
 
-Without any options set it will 
-use the pcap library to capture traffic from the first available network 
+Without any options set it will
+use the pcap library to capture traffic from the first available network
 interface and writes the received raw packet data, along with the packets'
 time stamps into a libpcap file.
 
-If the B<-w> option is not specified, B<Dumpcap> writes to a newly 
-created libpcap file with a randomly chosen name. 
+If the B<-w> option is not specified, B<Dumpcap> writes to a newly
+created libpcap file with a randomly chosen name.
 If the B<-w> option is specified, B<Dumpcap> writes to the file
 specified by that option.
 
@@ -59,45 +59,48 @@ where I<test> is one of:
 B<duration>:I<value> Stop writing to a capture file after I<value> seconds have elapsed.
 
 B<filesize>:I<value> Stop writing to a capture file after it reaches a size of I<value>
-kilobytes (where a kilobyte is 1024 bytes). If this option 
-is used together with the -b option, dumpcap will stop writing to the 
+kilobytes (where a kilobyte is 1024 bytes). If this option
+is used together with the -b option, dumpcap will stop writing to the
 current capture file and switch to the next one if filesize is reached.
 
 B<files>:I<value> Stop writing to capture files after I<value> number of files were written.
 
 =item -b  E<lt>capture ring buffer optionE<gt>
 
-Cause B<Dumpcap> to run in "multiple files" mode.  In "multiple files" mode, 
-B<Dumpcap> will write to several capture files. When the first capture file 
+Cause B<Dumpcap> to run in "multiple files" mode.  In "multiple files" mode,
+B<Dumpcap> will write to several capture files. When the first capture file
 fills up, B<Dumpcap> will switch writing to the next file and so on.
 
-The created filenames are based on the filename given with the B<-w> option, the number of 
-the file and on the creation date and time, 
-e.g. outfile_00001_20050604120117.pcap, outfile_00001_20050604120523.pcap, ...
+The created filenames are based on the filename given with the B<-w> option,
+the number of the file and on the creation date and time,
+e.g. outfile_00001_20050604120117.pcap, outfile_00002_20050604120523.pcap, ...
 
-With the I<files> option it's also possible to form a "ring buffer". 
-This will fill up new files until the number of files specified, 
-at which point B<Dumpcap> will discard the data in the first file and start 
+With the I<files> option it's also possible to form a "ring buffer".
+This will fill up new files until the number of files specified,
+at which point B<Dumpcap> will discard the data in the first file and start
 writing to that file and so on. If the I<files> option is not set,
-new files filled up until one of the capture stop conditions match (or 
-until the disk if full).
+new files filled up until one of the capture stop conditions match (or
+until the disk is full).
 
 The criterion is of the form I<key>B<:>I<value>,
 where I<key> is one of:
 
-B<duration>:I<value> switch to the next file after I<value> seconds have 
+B<duration>:I<value> switch to the next file after I<value> seconds have
 elapsed, even if the current file is not completely filled up.
 
-B<filesize>:I<value> switch to the next file after it reaches a size of 
-I<value> kilobytes (where a kilobyte is 1024 bytes). 
+B<filesize>:I<value> switch to the next file after it reaches a size of
+I<value> kilobytes (where a kilobyte is 1024 bytes).
 
-B<files>:I<value> begin again with the first file after I<value> number of 
-files were written (form a ring buffer).
+B<files>:I<value> begin again with the first file after I<value> number of
+files were written (form a ring buffer).  This option requires either
+B<duration> or B<filesize> to be specified to control when to go to the next
+file.  It should be noted that each B<-b> parameter takes exactly one criterion;
+to specify two criterion, each must be preceded by the B<-b> option.
 
 =item -B  E<lt>capture buffer size (Win32 only)E<gt>
 
 Win32 only: set capture buffer size (in MB, default is 1MB). This is used by the
-the capture driver to buffer packet data until that data can be written to 
+the capture driver to buffer packet data until that data can be written to
 disk. If you encounter packet drops while capturing, try to increase this size.
 
 =item -c  E<lt>capture packet countE<gt>
@@ -113,24 +116,24 @@ interface name, possibly followed by a text description of the
 interface, is printed.  The interface name or the number can be supplied
 to the B<-i> option to specify an interface on which to capture.
 
-This can be useful on systems that don't have a command to list them  
+This can be useful on systems that don't have a command to list them
 (e.g., Windows systems, or UNIX systems lacking B<ifconfig -a>);
 the number can be useful on Windows 2000 and later systems, where the
 interface name is a somewhat complex string.
 
 Note that "can capture" means that B<Dumpcap> was able to open
-that device to do a live capture. Depending on your system you may need to 
-run dumpcap from an account with special privileges (for example, as root) 
+that device to do a live capture. Depending on your system you may need to
+run dumpcap from an account with special privileges (for example, as root)
 to be able to capture network traffic.
-If "B<dumpcap -D>" is not run from such an account, it will not list 
+If "B<dumpcap -D>" is not run from such an account, it will not list
 any interfaces.
 
 =item -f  E<lt>capture filterE<gt>
 
 Set the capture filter expression.
 
-The entire filter expression must be specified as a single argument (which means 
-that if it contains spaces, it must be quoted).  
+The entire filter expression must be specified as a single argument (which means
+that if it contains spaces, it must be quoted).
 
 =item -h
 
@@ -139,7 +142,7 @@ Print the version and options and exits.
 =item -i  E<lt>capture interfaceE<gt>|-
 
 Set the name of the network interface or pipe to use for live packet
-capture. 
+capture.
 
 Network interface names should match one of the names listed in
 "B<dumpcap -D>" (described above); a number, as reported by
@@ -184,7 +187,7 @@ machine.
 
 =item -s  E<lt>capture snaplenE<gt>
 
-Set the default snapshot length to use when capturing live data. 
+Set the default snapshot length to use when capturing live data.
 No more than I<snaplen> bytes of each network packet will be read into
 memory, or saved to disk.  A value of 0 specifies a snapshot length of
 65535, so that the full packet is captured; this is the default.
@@ -199,7 +202,7 @@ Print the version and exit.
 
 =item -w  E<lt>outfileE<gt>
 
-Write raw packet data to I<outfile>.  
+Write raw packet data to I<outfile>.
 
 NOTE: The usage of "-" for stdout is not allowed here!
 
@@ -229,6 +232,6 @@ L<http://www.wireshark.org/docs/man-pages>.
 
 =head1 AUTHORS
 
-B<Dumpcap> is derived from the B<Wireshark> capturing engine code; 
+B<Dumpcap> is derived from the B<Wireshark> capturing engine code;
 see the list of
 authors in the B<Wireshark> man page for a list of authors of that code.
