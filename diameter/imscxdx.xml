@@ -14,8 +14,7 @@
 		<!-- ************************** IMS Cx Dx AVPS ********************* -->
 <!--
 	These AVP:s collide(share AVP code number) with other 3GPP AVP:s (TGPPGmb.xml)
-	comment out 1 - 28 here and uncomment the ones in TGPPGmb.xml if you want to use them.
--->
+	uncomment 1 - 28 here and uncomment the ones in TGPPGmb.xml if you want to use these.
     <avp name="Visited-Network-Identifier(Obsolete CN#25)" code="1" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
       <type type-name="OctetString"/>
     </avp>
@@ -56,7 +55,6 @@
     <avp name="SIP-Authentication-Context(Obsolete CN#25)" code="12" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
       <type type-name="OctetString"/>
     </avp>
-    <!-- GROUPED -->
     <avp name="SIP-Auth-Data-Item(Obsolete CN#25)" code="13" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
       <grouped>
         <gavp name="SIP-Item-Number"/>
@@ -86,7 +84,6 @@
       <enum name="Authentication-Timeout" code="10"/>
       <enum name="Deregistration-Too-Much-Data" code="11"/>
     </avp>
-    <!-- GROUPED -->
     <avp name="Deregistration-Reason(Obsolete CN#25)" code="16" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
       <grouped>
         <gavp name="Reason-Code"/>
@@ -103,7 +100,6 @@
     <avp name="Reason-Info(Obsolete CN#25)" code="18" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
       <type type-name="UTF8String"/>
     </avp>
-    <!-- GROUPED -->
     <avp name="Charging-Information(Obsolete CN#25)" code="19" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
       <grouped>
         <gavp name="Primary-Event-Charging-Function-Name"/>
@@ -147,6 +143,7 @@
     <avp name="Integrity-Key(Obsolete CN#25)" code="28" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
       <type type-name="OctetString"/>
     </avp>
+    -->
     <!-- ************************ END IMS Cx Dx AVPS ******************* -->
 		<!-- ************************** IMS Cx Dx AVPS 3GPP TS 29.229 version 6.7.0 Release 6 ********************* -->
 		<!-- Note: The AVP codes from 633 to 699 are reserved for TS 29.229. -->
