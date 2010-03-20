@@ -1244,8 +1244,8 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   /* the rest of the implementation is just working fine :-( */
 #if 0
   gtk_widget_show(compressed_cb);
-  g_object_set_data(G_OBJECT(file_save_as_w), "compressed", compressed_cb);
 #endif
+  g_object_set_data(G_OBJECT(file_save_as_w), "compressed", compressed_cb);
   /* Ok: now "select" the default filetype which invokes select_file_type_cb */
   g_signal_connect(ft_combo_box, "changed", G_CALLBACK(select_file_type_cb), NULL);
   ws_combo_box_set_active(GTK_COMBO_BOX(ft_combo_box), combo_box_item_to_select);
