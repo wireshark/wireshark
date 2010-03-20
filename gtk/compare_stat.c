@@ -932,8 +932,8 @@ gtk_comparestat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* create adjustments. Spans between 0 and 100, starting at 0 and
 	 * moves in increments of 1 */
-	start_integer=GTK_ADJUSTMENT(gtk_adjustment_new(0.0, 0.0, 100.0, 1.0, 5.0, 5.0));
-	stop_integer=GTK_ADJUSTMENT(gtk_adjustment_new(0.0, 0.0, 100.0, 1.0, 5.0, 5.0));
+	start_integer=GTK_ADJUSTMENT(gtk_adjustment_new(0.0, 0.0, 100.0, 1.0, 5.0, 0.0));
+	stop_integer=GTK_ADJUSTMENT(gtk_adjustment_new(0.0, 0.0, 100.0, 1.0, 5.0, 0.0));
 
 	/* create spin button. Not displaying decimal */
 	spin_start_int=gtk_spin_button_new(start_integer, 1.0, 0);
@@ -999,7 +999,7 @@ gtk_comparestat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* create adjustments. Spans between 0 and 100, starting at 0 and
 	 * moves in increments of 1 */
-	var_integer=GTK_ADJUSTMENT(gtk_adjustment_new(0.0, 0.0, 100.0, 1.0, 5.0, 5.0));
+	var_integer=GTK_ADJUSTMENT(gtk_adjustment_new(0.0, 0.0, 100.0, 1.0, 5.0, 0.0));
 
 	/* create spin button. Not displaying decimal */
 	spin_var_int=gtk_spin_button_new(var_integer, 0.0, 2);
