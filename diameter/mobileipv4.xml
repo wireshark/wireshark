@@ -10,9 +10,13 @@
 		<!-- ************************** Mobile-IPv4 AVPS ********************* -->
 <!--
 http://www.iana.org/assignments/aaa-parameters
-318            MIP-FA-to-HA-SPI                   [RFC4004] conflicting to 3GPP TS29.234
-319            MIP-FA-to-MN-SPI                   [RFC4004] conflicting to 3GPP TS29.234
 -->
+		<avp name="MIP-FA-to-HA-SPI" code="318" mandatory="must" protected="may" vendor-bit="mustnot" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="MIP-FA-to-MN-SPI" code="319" mandatory="must" protected="may" vendor-bit="mustnot" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+		</avp>
 		<avp name="MIP-Reg-Request" code="320" mandatory="must" protected="may" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="OctetString"/>
 		</avp>
