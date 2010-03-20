@@ -1596,6 +1596,21 @@ static int hf_E212_mnc						= -1;
 static int hf_E212_msin						= -1;
 
 /*
+ * MCC/MNC dissection - little endian MNC encoding
+ *
+ * MNC of length 2:
+ * 
+ *	 8   7   6   5   4   3   2   1
+ * +---+---+---+---+---+---+---+---+
+ * |  MCC digit 2  |  MCC digit 1  |  octet x
+ * +---------------+---------------+
+ * |    Filler     |  MCC digit 3  |  octet x+1
+ * +---------------+---------------+
+ * |  MNC digit 2  |  MNC digit 1  |  octet x+2
+ * +---------------+---------------+
+ *
+ * MNC of length 3:
+ *
  *	 8   7   6   5   4   3   2   1
  * +---+---+---+---+---+---+---+---+
  * |  MCC digit 2  |  MCC digit 1  |  octet x
@@ -1604,9 +1619,34 @@ static int hf_E212_msin						= -1;
  * +---------------+---------------+
  * |  MNC digit 2  |  MNC digit 1  |  octet x+2
  * +---------------+---------------+
+ *
+ *
+ * MCC/MNC dissection - big endian MNC encoding
+ *
+ * MNC of length 2:
+ * 
+ *	 8   7   6   5   4   3   2   1
+ * +---+---+---+---+---+---+---+---+
+ * |  MCC digit 2  |  MCC digit 1  |  octet x
+ * +---------------+---------------+
+ * |    Filler     |  MCC digit 3  |  octet x+1
+ * +---------------+---------------+
+ * |  MNC digit 2  |  MNC digit 1  |  octet x+2
+ * +---------------+---------------+
+ *
+ * MNC of length 3:
+ *
+ *	 8   7   6   5   4   3   2   1
+ * +---+---+---+---+---+---+---+---+
+ * |  MCC digit 2  |  MCC digit 1  |  octet x
+ * +---------------+---------------+
+ * |  MNC digit 1  |  MCC digit 3  |  octet x+1
+ * +---------------+---------------+
+ * |  MNC digit 3  |  MNC digit 2  |  octet x+2
+ * +---------------+---------------+
  */
 int
-dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset){
+dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian){
 
 	int			start_offset;	
 	guint8		octet;
@@ -1632,7 +1672,10 @@ dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	mcc = 100 * mcc1 + 10 * mcc2 + mcc3;
 	mnc = 10 * mnc1 + mnc2;
 	if (mnc3 != 0xf) {
-		mnc = 10 * mnc + mnc3;
+		if(little_endian)
+			mnc = 10 * mnc + mnc3;
+		else
+			mnc = 100 * mnc3 + mnc;
 	}
 	item = proto_tree_add_uint(tree, hf_E212_mcc , tvb, start_offset, 2, mcc );
 	if ((mcc1 > 9) || (mcc2 > 9) || (mcc3 > 9))

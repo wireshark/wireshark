@@ -2541,7 +2541,7 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 		mcc,mnc,lac,rac);
 
 	subtree = proto_item_add_subtree(item, ett_gmm_rai);
-	dissect_e212_mcc_mnc(tvb, gsm_a_dtap_pinfo, subtree, offset);
+	dissect_e212_mcc_mnc(tvb, gsm_a_dtap_pinfo, subtree, offset, TRUE);
 
 	proto_tree_add_item(subtree, hf_gsm_a_lac, tvb, curr_offset+3, 2, FALSE);
 	proto_tree_add_item(subtree, hf_gsm_a_gm_rac, tvb, curr_offset+5, 1, FALSE);
@@ -4291,7 +4291,7 @@ de_sm_tmgi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	curr_offset += 3;
 
 	NO_MORE_DATA_CHECK(len);
-	curr_offset = dissect_e212_mcc_mnc(tvb, gsm_a_dtap_pinfo, tree, curr_offset);
+	curr_offset = dissect_e212_mcc_mnc(tvb, gsm_a_dtap_pinfo, tree, curr_offset, TRUE);
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 

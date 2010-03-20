@@ -3653,7 +3653,7 @@ dissect_gsm_map_LAIFixedLength(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
          if (!parameter_tvb) 
                 return offset; 
         subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_LAIFixedLength); 
-        dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0); 
+        dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, TRUE); 
 
 
 

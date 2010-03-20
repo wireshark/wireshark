@@ -1631,7 +1631,7 @@ dissect_bssap_global_cn_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	 */
 	plmn_item = proto_tree_add_item(global_cn_id_tree, hf_bssap_plmn_id, tvb, offset, 3, FALSE);
 	plmn_tree = proto_item_add_subtree(plmn_item, ett_bssap_plmn);
-	dissect_e212_mcc_mnc(tvb, pinfo, plmn_tree, offset);
+	dissect_e212_mcc_mnc(tvb, pinfo, plmn_tree, offset, TRUE);
 	offset = offset + 3;
 
 	/* Octet 6 - 7 CN-Id (INTEGER 0..4095) */
