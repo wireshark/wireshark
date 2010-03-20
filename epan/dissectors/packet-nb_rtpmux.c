@@ -156,8 +156,8 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						hf_nb_rtpmux_data, tvb, offset+5, length, FALSE);
 				}
 			}
-			offset += 5+length;
-		}
+		} /* if tbit */
+		offset += 5+length;
     }
 
     /* Return the amount of data this dissector was able to dissect */
