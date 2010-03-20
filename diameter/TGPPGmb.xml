@@ -5,7 +5,7 @@
 	<application id="16777223" name="3GPP Gmb" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
 <!--
 	These AVP:s collide(share AVP code number) with other 3GPP AVP:s  (3GPP Cx imscxdx.xml)
-	comment those out if you want to use these.
+	comment out these if you want to use them.
 -->
 		<avp name="3GPP-IMSI" code="1" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
@@ -88,7 +88,6 @@
     <avp name="3GPP-Allocate-IPType" code="27" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="OctetString"/>
     </avp>
-    
     
     <avp name="TMGI" code="900" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
