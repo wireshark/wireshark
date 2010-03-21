@@ -82,14 +82,17 @@ static void file_open_ok_cb(GtkWidget *w, gpointer fs);
 static void file_open_destroy_cb(GtkWidget *win, gpointer user_data);
 static void file_merge_ok_cb(GtkWidget *w, gpointer fs);
 static void file_merge_destroy_cb(GtkWidget *win, gpointer user_data);
-static void select_file_type_cb(GtkWidget *w, gpointer data);
+static void file_save_as_select_file_type_cb(GtkWidget *w, gpointer data);
 static void file_save_as_ok_cb(GtkWidget *w, gpointer fs);
 static void file_save_as_destroy_cb(GtkWidget *win, gpointer user_data);
 static void file_color_import_ok_cb(GtkWidget *w, gpointer filter_list);
 static void file_color_import_destroy_cb(GtkWidget *win, gpointer user_data);
 static void file_color_export_ok_cb(GtkWidget *w, gpointer filter_list);
 static void file_color_export_destroy_cb(GtkWidget *win, gpointer user_data);
-static gint set_file_type_list(GtkWidget *combo_box);
+static gint set_file_type_list(GtkWidget *combo_box, int default_file_type);
+
+#define E_FILE_TYPE_COMBO_BOX_KEY "file_type_combo_box"
+#define E_COMPRESSED_CB_KEY       "compressed_cb"
 
 #define E_FILE_M_RESOLVE_KEY	  "file_dlg_mac_resolve_key"
 #define E_FILE_N_RESOLVE_KEY	  "file_dlg_network_resolve_key"
@@ -118,10 +121,9 @@ static gint set_file_type_list(GtkWidget *combo_box);
 static GtkWidget *file_save_as_w;
 
 /* XXX - can we make these not be static? */
-static packet_range_t range;
-static gboolean color_selected;
-static int filetype;
-static GtkWidget *range_tb;
+static packet_range_t  range;
+static gboolean        color_selected;
+static GtkWidget      *range_tb;
 
 #define PREVIEW_STR_MAX         200
 
@@ -731,6 +733,7 @@ file_merge_cmd(GtkWidget *w)
 		*filter_bt, *filter_te, *prepend_rb, *chrono_rb,
 		*append_rb, *prev;
   GtkTooltips *tooltips = gtk_tooltips_new();
+  int combo_box_item_to_select;
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
   static construct_args_t args = {
@@ -747,7 +750,6 @@ file_merge_cmd(GtkWidget *w)
   }
 
   /* Default to saving all packets, in the file's current format. */
-  filetype = cfile.cd_t;
 
   file_merge_w = file_selection_new("Wireshark: Merge with Capture File",
                                    FILE_SELECTION_OPEN);
@@ -798,9 +800,11 @@ file_merge_cmd(GtkWidget *w)
   ft_combo_box = ws_combo_box_new_text_and_pointer();
 
   /* Generate the list of file types we can save. */
-  set_file_type_list(ft_combo_box);
+  combo_box_item_to_select = set_file_type_list(ft_combo_box, cfile.cd_t);
   gtk_box_pack_start(GTK_BOX(ft_hb), ft_combo_box, FALSE, FALSE, 0);
   gtk_widget_show(ft_combo_box);
+  g_object_set_data(G_OBJECT(file_merge_w), E_FILE_TYPE_COMBO_BOX_KEY, ft_combo_box);
+  ws_combo_box_set_active(GTK_COMBO_BOX(ft_combo_box), combo_box_item_to_select); /* No callback */
 
   filter_hbox = gtk_hbox_new(FALSE, 1);
   gtk_container_set_border_width(GTK_CONTAINER(filter_hbox), 0);
@@ -917,12 +921,15 @@ static void
 file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   gchar       *cf_name, *s;
   const gchar *rfilter;
-  GtkWidget   *filter_te, *rb;
+  GtkWidget   *ft_combo_box, *filter_te, *rb;
   dfilter_t   *rfcode = NULL;
   int          err;
   cf_status_t  merge_status;
   char        *in_filenames[2];
   char        *tmpname;
+  gpointer     ptr;
+  int          file_type;
+
 
   cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
   filter_te = g_object_get_data(G_OBJECT(w), E_RFILTER_TE_KEY);
@@ -932,6 +939,12 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
     g_free(cf_name);
     return;
   }
+
+  ft_combo_box  = g_object_get_data(G_OBJECT(w), E_FILE_TYPE_COMBO_BOX_KEY);
+  if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(ft_combo_box), &ptr)) {
+      g_assert_not_reached();  /* Programming error: somehow nothing is active */
+  }
+  file_type = GPOINTER_TO_INT(ptr);
 
   /* Perhaps the user specified a directory instead of a file.
      Check whether they did. */
@@ -951,20 +964,20 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
       /* chronological order */
       in_filenames[0] = cfile.filename;
       in_filenames[1] = cf_name;
-      merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype, FALSE);
+      merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type, FALSE);
   } else {
       rb = g_object_get_data(G_OBJECT(w), E_MERGE_PREPEND_KEY);
       if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
           /* prepend file */
           in_filenames[0] = cf_name;
           in_filenames[1] = cfile.filename;
-          merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype,
+          merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type,
                                         TRUE);
       } else {
           /* append file */
           in_filenames[0] = cfile.filename;
           in_filenames[1] = cf_name;
-          merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype,
+          merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type,
                                         TRUE);
       }
   }
@@ -1102,7 +1115,7 @@ can_save_with_wiretap(int ft)
    returns: index of default entry
  */
 static gint
-set_file_type_list(GtkWidget *combo_box)
+set_file_type_list(GtkWidget *combo_box, int default_file_type)
 {
   int   ft;
   guint idx;
@@ -1118,7 +1131,7 @@ set_file_type_list(GtkWidget *combo_box)
     if (can_save_with_wiretap(ft)) {
       /* OK, we can write it out in this type. */
       ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), wtap_file_type_string(ft), GINT_TO_POINTER(ft));
-      if (ft == filetype) {
+      if (ft == default_file_type) {
         /* Default to the same format as the file, if it's supported. */
         item_to_select = idx;
       }
@@ -1130,23 +1143,19 @@ set_file_type_list(GtkWidget *combo_box)
 }
 
 static void
-select_file_type_cb(GtkWidget *w, gpointer data _U_)
+file_save_as_select_file_type_cb(GtkWidget *w, gpointer data _U_)
 {
-  int new_filetype;
+  int new_file_type;
   gpointer ptr;
   GtkWidget *compressed_cb;
 
   if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(w), &ptr)) {
       g_assert_not_reached();  /* Programming error: somehow nothing is active */
   }
-  new_filetype = GPOINTER_TO_INT(ptr);
+  new_file_type = GPOINTER_TO_INT(ptr);
 
-  if (filetype != new_filetype) {
-    filetype = new_filetype;
-    compressed_cb = g_object_get_data(G_OBJECT(file_save_as_w), "compressed");
-    if(compressed_cb)
-	    gtk_widget_set_sensitive(compressed_cb, wtap_dump_can_compress(new_filetype));
-  }
+  compressed_cb = g_object_get_data(G_OBJECT(file_save_as_w), E_COMPRESSED_CB_KEY);
+  gtk_widget_set_sensitive(compressed_cb, wtap_dump_can_compress(new_file_type));
 }
 
 /*
@@ -1185,7 +1194,6 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   }
 
   /* Default to saving all packets, in the file's current format. */
-  filetype = cfile.cd_t;
 
   /* init the packet range */
   packet_range_init(&range);
@@ -1228,9 +1236,10 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   ft_combo_box = ws_combo_box_new_text_and_pointer();
 
   /* Generate the list of file types we can save. */
-  combo_box_item_to_select = set_file_type_list(ft_combo_box);
+  combo_box_item_to_select = set_file_type_list(ft_combo_box, cfile.cd_t);
   gtk_box_pack_start(GTK_BOX(ft_hb), ft_combo_box, FALSE, FALSE, 0);
   gtk_widget_show(ft_combo_box);
+  g_object_set_data(G_OBJECT(file_save_as_w), E_FILE_TYPE_COMBO_BOX_KEY, ft_combo_box);
 
   /* dynamic values in the range frame */
   range_update_dynamics(range_tb);
@@ -1245,9 +1254,9 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
 #if 0
   gtk_widget_show(compressed_cb);
 #endif
-  g_object_set_data(G_OBJECT(file_save_as_w), "compressed", compressed_cb);
-  /* Ok: now "select" the default filetype which invokes select_file_type_cb */
-  g_signal_connect(ft_combo_box, "changed", G_CALLBACK(select_file_type_cb), NULL);
+  g_object_set_data(G_OBJECT(file_save_as_w), E_COMPRESSED_CB_KEY, compressed_cb);
+  /* Ok: now "select" the default filetype which invokes file_save_as_select_file_type_cb */
+  g_signal_connect(ft_combo_box, "changed", G_CALLBACK(file_save_as_select_file_type_cb), NULL);
   ws_combo_box_set_active(GTK_COMBO_BOX(ft_combo_box), combo_box_item_to_select);
 
   g_signal_connect(file_save_as_w, "destroy",
@@ -1272,14 +1281,22 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 /* (and probably continue with a pending operation) */
 static void
 file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
-  gchar	*cf_name;
-  gchar	*dirname;
+  GtkWidget *ft_combo_box;
   GtkWidget *compressed_cb;
-
+  gchar	    *cf_name;
+  gchar	    *dirname;
+  gpointer   ptr;
+  int        file_type;
 
   cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
 
-  compressed_cb = g_object_get_data(G_OBJECT(file_save_as_w), "compressed");
+  compressed_cb = g_object_get_data(G_OBJECT(fs), E_COMPRESSED_CB_KEY);
+  ft_combo_box  = g_object_get_data(G_OBJECT(fs), E_FILE_TYPE_COMBO_BOX_KEY);
+
+  if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(ft_combo_box), &ptr)) {
+      g_assert_not_reached();  /* Programming error: somehow nothing is active */
+  }
+  file_type = GPOINTER_TO_INT(ptr);
 
   /* XXX - if the user requests to save to an already existing filename, */
   /* ask in a dialog if that's intended */
@@ -1287,7 +1304,7 @@ file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
 
   /* Write out the packets (all, or only the ones from the current
      range) to the file with the specified name. */
-  if (cf_save(&cfile, cf_name, &range, filetype,
+  if (cf_save(&cfile, cf_name, &range, file_type,
 	  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(compressed_cb))) != CF_OK) {
     /* The write failed; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
@@ -1374,7 +1391,7 @@ static void file_save_as_exists_answered_cb(gpointer dialog _U_, gint btn, gpoin
 
 /* user pressed "Save" dialog "Ok" button */
 static void
-file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
+file_save_as_ok_cb(GtkWidget *file_save_as_w _U_, gpointer fs) {
   gchar	*cf_name;
   gpointer  dialog;
 
