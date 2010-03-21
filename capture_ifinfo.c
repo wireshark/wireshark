@@ -1,4 +1,4 @@
-/* capture.c
+/* capture_ifinfo.c
  * Routines for getting interface information from dumpcap
  *
  * $Id$
