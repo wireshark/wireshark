@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2010-03-13)
+(last updated 2010-03-21)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -938,9 +938,9 @@ Decimal
     Kevin Smith
       ---none---
 231
-  Fujitsu Siemens Computers
+  Fujitsu Technology Solutions GmbH (previous was 'Fujitsu Siemens Computers')
     Detlef Rothe
-      detlef.rothe&fujitsu-siemens.com
+      detlef.rothe&ts.fujitsu.com
 232
   Compaq
     
@@ -41426,9 +41426,9 @@ Decimal
     Donnie Kang
       neokids&n-top.com
 10368
-  Fujitsu Siemens Computers
+  Fujitsu Technology Solutions GmbH (previous was 'Fujitsu Siemens Computers')
     Detlef Rothe
-      detlef.rothe&fujitsu-siemens.com
+      detlef.rothe&ts.fujitsu.com
 10369
   Fujitsu Prime Software Technologies Ltd.
     yukihiko Sakurai
@@ -58664,8 +58664,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       andrew&mysticcoders.com
 14777
   izenpe s.a.
-    Juanjo Carrasco
-      jjcarrasco&izenpe.com
+    Iñigo Barreira
+      inigo_barreira&hotmail.com
 14778
   GEV - Ecole des Mines
     Laurent Menu-Kerforn
@@ -65011,7 +65011,7 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Frédéric Gobry
       frederic.gobry&smartdata.ch
 16365
-  Swissrisk AG
+  Swissrisk Financial Systems GmbH (previous was 'Swissrisk AG')
     Holger Kuest
       holger.kuest&swissrisk.com
 16366
@@ -81463,9 +81463,9 @@ Nancy - FRANCE
     Manfred Dorner
       dorner&fh-weingarten.de
 20477
-  Buongiorno Vitaminic S.p.A.
-    Ulderico Arcidiaco
-      ulderico.arcidiaco&buongiorno.com
+  Buongiorno S.p.A.
+    Alessandro Gatteschi
+      servers&buongiorno.com
 20478
   Noopys Store company
     Carmen
@@ -141170,7 +141170,7 @@ Decentralization / Helenic Public Administra
       fendy&primateknologi.com
 35396
   ZAO Intercross
-    Vladimir Gushchin
+    Elinskiy Igor
       gushin&intercross.ru
 35397
   x-fabric GmbH
@@ -141201,8 +141201,8 @@ Decentralization / Helenic Public Administra
     Matthias Luehr
       luehr&hs-mittweida.de
 35404
-  BCOC
-    GuoHuan
+  Beijing C&W Optical Communication Technology Co.,Ltd.
+    Guo Huan
       gh&bcoc.com.cn
 35405
   Default Deny Security
@@ -141264,6 +141264,186 @@ Decentralization / Helenic Public Administra
   Electron, Ltd.
     Gushchin Vladimir
       info&electron-ru.com
+35420
+  rtron
+    Dennis Lee
+      kwlee&r-tron.com
+35421
+  ChinaScope Financial Limited
+    Frank Liu
+      it&chinascopefinancial.com
+35422
+  Schweizer Paraplegiker-Zentrum
+    Staub Bruno
+      bruno.staub&paranet.ch
+35423
+  berolina Schriftbild GmbH & Co. KG
+    René Steffin
+      r.steffin&berolina.de
+35424
+  Viprinet GmbH
+    Simon Ley
+      ley&viprinet.com
+35425
+  Mastery Technologies, Inc.
+    Dave Lawson
+      dlawson&masterytech.com
+35426
+  The OpenSSH Project
+    Damien Miller
+      djm&openssh.com
+35427
+  Data Turbine, Inc.
+    Scott Schoenthal
+      scott.schoenthal&dataturbine.com
+35428
+  Sterling Computer Systems
+    Lionel Johnson
+      ljohnson&sterling1.com
+35429
+  Limis
+    Fabien Costard
+      fabien.costard&limis.fr
+35430
+  IntelligentWorks Co., Ltd.
+    KITAMURA Hideyuki
+      kitamura&intelligentworks.co.jp
+35431
+  KAMFU Infomation & Technology Co., LTD.
+    Xue Lihui
+      xuelihui&gmail.com
+35432
+  Superblock, LLC
+    joshua stein
+      jcs&superblock.net
+35433
+  Connexion Technologies
+    Joel Burgess
+      joel.burgess&cnxntech.com
+35434
+  Quadrant Newmedia Corp.
+    Darren Widenmaier
+      iana.oid&quadrant.net
+35435
+  Anabasis Consulting Ltd.
+    Lawrence Weeks
+      lweeks&anabasis.net
+35436
+  01.com, Inc.
+    Lawrence Weeks
+      hostmaster&01.com
+35437
+  SERPRO - Serviço Federal de Processamento de Dados
+    Rodrigo Hjort
+      rodrigo.hjort&serpro.gov.br
+35438
+  ekom21 - KGRZ Hessen
+    Carsten Scherb
+      carsten.scherb&ekom21.de
+35439
+  App B.V.
+    Jeff Reiffers
+      jeff&appsoftware.nl
+35440
+  Faivre et Mahon
+    Florian Mahon
+      info&faivre-et-mahon.ch
+35441
+  corporacion empresarial iunka
+    Iurii Andamasov
+      yuriy&iunika.net
+35442
+  deZem GmbH
+    Michael Bayer
+      m.bayer&dezem.de
+35443
+  Cat Consulting, Inc
+    Beth Hunt
+      info2&catconsulting.com
+35444
+  Spectralnet Sollutions, LLC
+    Kevin R. James
+      kevin&spectralnet.com
+35445
+  Information Security Service Digital United
+    Chia Huan Wu
+      willie&issdu.com.tw
+35446
+  Connaught FactsLine Ltd.
+    Gabriel Bixade
+      gbix73&yahoo.com
+35447
+  SeeByte Ltd.
+    Stephane Chazelas
+      postmaster&seebyte.com
+35448
+  Video Location Service
+    Sebastien Baguette
+      iana-pen&sav-dnv.be
+35449
+  Keytech BVBA
+    Cedric Ghiot
+      c.ghiot&keytech.be
+35450
+  Storagedata
+    Mark Ruijter
+      mruijter&storagedata.nl
+35451
+  Incenp
+    Damien Goutte-Gattat
+      dgouttegattat&incenp.org
+35452
+  Commercial Bank DeltaCredit
+    Alexander Kotkov
+      itsecurity&deltacredit.ru
+35453
+  DREAM TRAIN INTERNET, INC.
+    Hiroshi TAKITA
+      dti-nsg&dti.ad.jp
+35454
+  Niometrics Pte Ltd
+    Christos Ricudis
+      ricudis&niometrics.com
+35455
+  Tokyo Metropolitan Organization for Medical Research
+    Toshi Akazawa
+      ns-media&igakuken.or.jp
+35456
+  Westway Nominees
+    Justin Twiss
+      justin.twiss&bekkers.com.au
+35457
+  Infocomm Development Authority Of Singapore
+    Lau Chee Kiong
+      lau_chee_kiong&ida.gov.sg
+35458
+  Dossot Networks
+    David Dossot
+      david&dossot.net
+35459
+  LEMKO Corporation
+    Chris White
+      cwhite&lemko.com
+35460
+  EDAXI UG (haftungsbeschraenkt)
+    Jochen Schoenfeld
+      js&edaxi.de
+35461
+  Bernhard Dick
+    Bernhard Dick
+      bernhard&bdick.de
+35462
+  Qingdao Hisense Media Networks LTD
+    zhangfengxi
+      fengxiboy&gmail.com
+35463
+  EfiCode Oy
+    Eija Virkkala
+      hostmaster&eficode.fi
+35464
+  Blues Point Partners Pty Ltd
+    Peter Horne
+      ph&bluespointpartners.com
 
 
 End of Document
