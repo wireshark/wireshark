@@ -181,8 +181,8 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 	GString *filter_string_fwd;
 	const gchar *filter_prepend;
 	gboolean is_first = TRUE;
-	GList* list;
-	GList* list2;
+	GList* lista;
+	GList* listb;
 	voip_calls_info_t *listinfo;
 	graph_analysis_item_t *gai;
 	size_t filter_length;
@@ -212,21 +212,21 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 	g_string_append_printf(filter_string_fwd, "(");
 
 	/* Build a new filter based on frame numbers */
-	list = g_list_first(voip_calls_get_info()->callsinfo_list);
-	while (list) {
-		listinfo = list->data;
+	lista = g_list_first(voip_calls_get_info()->callsinfo_list);
+	while (lista) {
+		listinfo = lista->data;
 		if (listinfo->selected) {
-			list2 = g_list_first(voip_calls_get_info()->graph_analysis->list);
-			while (list2) {
-				gai = list2->data;
+			listb = g_list_first(voip_calls_get_info()->graph_analysis->list);
+			while (listb) {
+				gai = listb->data;
 				if (gai->conv_num == listinfo->call_num) {
 					g_string_append_printf(filter_string_fwd, "%sframe.number == %u", is_first?"":" or ", gai->frame_num);
 					is_first = FALSE;
 				}
-				list2 = g_list_next(list2);
+				listb = g_list_next(listb);
 			}
 		}
-		list = g_list_next(list);
+		lista = g_list_next(lista);
 	}
 
 	g_string_append_printf(filter_string_fwd, ")");
@@ -241,9 +241,9 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 		g_string_append_printf(filter_string_fwd, "(");
 		is_first = TRUE;
 		/* Build a new filter based on protocol fields */
-		list = g_list_first(voip_calls_get_info()->callsinfo_list);
-		while (list) {
-			listinfo = list->data;
+		lista = g_list_first(voip_calls_get_info()->callsinfo_list);
+		while (lista) {
+			listinfo = lista->data;
 			if (listinfo->selected) {
 				if (!is_first)
 					g_string_append_printf(filter_string_fwd, " or ");
@@ -274,13 +274,13 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 						(guint8)((h323info->q931_crv & 0xff00)>>8),
 						(guint8) (h323info->q931_crv2 & 0x00ff),
 						(guint8)((h323info->q931_crv2 & 0xff00)>>8));
-					list2 = g_list_first(h323info->h245_list);
-					while (list2) {
-						h245_add = list2->data;
+					listb = g_list_first(h323info->h245_list);
+					while (listb) {
+						h245_add = listb->data;
 						g_string_append_printf(filter_string_fwd,
 							" || (ip.addr == %s && tcp.port == %d && h245)",
 							ip_to_str((guint8 *)&(h245_add->h245_address)), h245_add->h245_port);
-						list2 = g_list_next(list2);
+						listb = g_list_next(listb);
 					}
 					g_string_append_printf(filter_string_fwd, ")");
 					break;
@@ -297,7 +297,7 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 				}
 				is_first = FALSE;
 			}
-			list = g_list_next(list);
+			lista = g_list_next(lista);
 		}
 
 		g_string_append_printf(filter_string_fwd, ")");
@@ -320,33 +320,33 @@ static void
 on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 {
 	graph_analysis_item_t *gai;
-	GList* list;
-	GList* list2;
+	GList* lista;
+	GList* listb;
 	voip_calls_info_t *listinfo;
 
 	/* reset the "display" parameter in graph analysis */
-	list2 = g_list_first(voip_calls_get_info()->graph_analysis->list);
-	while (list2) {
-		gai = list2->data;
+	listb = g_list_first(voip_calls_get_info()->graph_analysis->list);
+	while (listb) {
+		gai = listb->data;
 		gai->display = FALSE;
-		list2 = g_list_next(list2);
+		listb = g_list_next(listb);
 	}
 
 	/* set the display for selected calls */
-	list = g_list_first(voip_calls_get_info()->callsinfo_list);
-	while (list) {
-		listinfo = list->data;
+	lista = g_list_first(voip_calls_get_info()->callsinfo_list);
+	while (lista) {
+		listinfo = lista->data;
 		if (listinfo->selected) {
-			list2 = g_list_first(voip_calls_get_info()->graph_analysis->list);
-			while (list2) {
-				gai = list2->data;
+			listb = g_list_first(voip_calls_get_info()->graph_analysis->list);
+			while (listb) {
+				gai = listb->data;
 				if (gai->conv_num == listinfo->call_num) {
 					gai->display = TRUE;
 				}
-				list2 = g_list_next(list2);
+				listb = g_list_next(listb);
 			}
 		}
-		list = g_list_next(list);
+		lista = g_list_next(lista);
 	}
 
 	/* create or refresh the graph windows */
@@ -774,7 +774,7 @@ voip_calls_dlg_create(void)
 /* update the contents of the list view */
 /* list: pointer to list of voip_calls_info_t* */
 void
-voip_calls_dlg_update(GList *list)
+voip_calls_dlg_update(GList *listx)
 {
 	gchar label_text[256];
 	if (voip_calls_dlg != NULL) {
@@ -789,10 +789,10 @@ voip_calls_dlg_update(GList *list)
 			voip_calls_get_info()->rejected_calls);
 		gtk_label_set_text(GTK_LABEL(status_label), label_text);
 
-		list = g_list_first(list);
-		while (list) {
-			add_to_list_store((voip_calls_info_t*)(list->data));
-			list = g_list_next(list);
+		listx = g_list_first(listx);
+		while (listx) {
+			add_to_list_store((voip_calls_info_t*)(listx->data));
+			listx = g_list_next(listx);
 		}
 
 		g_snprintf(label_text, 256,
