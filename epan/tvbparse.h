@@ -58,7 +58,7 @@
  
  The wanted elements are instantiated once by the proto_register_xxx function.
  
- The parser is isntantiated for every packet and it mantains its state.
+ The parser is instantiated for every packet and it mantains its state.
  
  The element's data is destroyed before the next packet is dissected.
  */
