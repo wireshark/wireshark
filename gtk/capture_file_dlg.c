@@ -1391,7 +1391,7 @@ static void file_save_as_exists_answered_cb(gpointer dialog _U_, gint btn, gpoin
 
 /* user pressed "Save" dialog "Ok" button */
 static void
-file_save_as_ok_cb(GtkWidget *file_save_as_w _U_, gpointer fs) {
+file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
   gchar	*cf_name;
   gpointer  dialog;
 
