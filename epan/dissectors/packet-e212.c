@@ -1681,10 +1681,17 @@ dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	if ((mcc1 > 9) || (mcc2 > 9) || (mcc3 > 9))
 		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "MCC contains non-decimal digits");
 
-	item = proto_tree_add_uint_format(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
-				   "Mobile Network Code (MNC): %s (%u)",
+	if(mnc3 != 0x0f)
+		item = proto_tree_add_uint_format(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
+				   "Mobile Network Code (MNC): %s (%03u)",
 				   val_to_str(mcc * 1000 + mnc, mcc_mnc_codes, "Unknown"),
 				   mnc);
+	else
+		item = proto_tree_add_uint_format(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
+				   "Mobile Network Code (MNC): %s (%02u)",
+				   val_to_str(mcc * 1000 + mnc, mcc_mnc_codes, "Unknown"),
+				   mnc);
+
 	if ((mnc1 > 9) || (mnc2 > 9) || ((mnc3 > 9) && (mnc3 != 0x0f)))
 		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "MNC contains non-decimal digits");
 
@@ -1772,10 +1779,17 @@ dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	if ((mcc1 > 9) || (mcc2 > 9) || (mcc3 > 9))
 		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "MCC contains non-decimal digits");
 
-	item = proto_tree_add_uint_format(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
-				   "Mobile Network Code (MNC): %s (%u)",
+	if(long_mnc)
+		item = proto_tree_add_uint_format(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
+				   "Mobile Network Code (MNC): %s (%03u)",
 				   val_to_str(mcc * 1000 + mnc, mcc_mnc_codes, "Unknown"),
 				   mnc);
+	else
+		item = proto_tree_add_uint_format(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
+				   "Mobile Network Code (MNC): %s (%02u)",
+				   val_to_str(mcc * 1000 + mnc, mcc_mnc_codes, "Unknown"),
+				   mnc);
+
 	if ((mnc1 > 9) || (mnc2 > 9) || (long_mnc && (mnc3 > 9)))
 		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "MNC contains non-decimal digits");
 
