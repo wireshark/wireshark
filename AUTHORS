@@ -2989,6 +2989,10 @@ Tobias Erichsen 	<t.erichsen [AT] gmx.de> {
 Erwin van Eijk		<erwin.vaneijk [AT] gmail.com> {
       	ETSI ts 101 671 dissector
 }
+
+Venkateshwaran Dorai	<venkateshwaran.d [AT] gmail.com> {
+	Server/Application State Protocol [SASP] (RFC 4678 )
+}
 	
 and by:
 

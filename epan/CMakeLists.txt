@@ -891,6 +891,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-s5066.c
 	dissectors/packet-sadmind.c
 	dissectors/packet-sap.c
+	dissectors/packet-sasp.c
 	dissectors/packet-sbus.c
 	dissectors/packet-sccp.c
 	dissectors/packet-sccpmg.c
