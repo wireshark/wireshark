@@ -190,7 +190,7 @@ static int ett_mac_lte_bch = -1;
 static int ett_mac_lte_pch = -1;
 static int ett_mac_lte_contention_resolution = -1;
 static int ett_mac_lte_power_headroom = -1;
-
+static int ett_mac_lte_oob = -1;
 
 
 /* Constants and value strings */
@@ -2827,20 +2827,26 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* There are several out-of-band MAC events that may be indicated in the context info. */
     /* Handle them here */
     if (p_mac_lte_info->length == 0) {
+        proto_item *preamble_ti;
+        proto_tree *preamble_tree;
+
         switch (p_mac_lte_info->oob_event) {
             case ltemac_send_preamble:
-                ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rapid,
+                preamble_ti = proto_tree_add_item(mac_lte_tree, hf_mac_lte_oob_send_preamble,
+                                                  tvb, 0, 0, FALSE);
+                preamble_tree = proto_item_add_subtree(preamble_ti, ett_mac_lte_oob);
+                PROTO_ITEM_SET_GENERATED(ti);
+
+                ti = proto_tree_add_uint(preamble_tree, hf_mac_lte_context_rapid,
                                          tvb, 0, 0, p_mac_lte_info->rapid);
                 PROTO_ITEM_SET_GENERATED(ti);
-                ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rach_attempt_number,
+
+                ti = proto_tree_add_uint(preamble_tree, hf_mac_lte_context_rach_attempt_number,
                                          tvb, 0, 0, p_mac_lte_info->rach_attempt_number);
-                PROTO_ITEM_SET_GENERATED(ti);
-                ti = proto_tree_add_item(context_tree, hf_mac_lte_oob_send_preamble,
-                                         tvb, 0, 0, FALSE);
                 PROTO_ITEM_SET_GENERATED(ti);
 
                 /* Info column */
-                write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                write_pdu_label_and_info(pdu_ti, preamble_ti, pinfo,
                                          "RACH Preamble sent for UE %u (RAPID=%u, attempt=%u)",
                                          p_mac_lte_info->ueid, p_mac_lte_info->rapid, p_mac_lte_info->rach_attempt_number);
 
@@ -2855,7 +2861,8 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rnti,
                                          tvb, 0, 0, p_mac_lte_info->rnti);
                 PROTO_ITEM_SET_GENERATED(ti);
-                ti = proto_tree_add_item(context_tree, hf_mac_lte_oob_send_sr,
+
+                ti = proto_tree_add_item(mac_lte_tree, hf_mac_lte_oob_send_sr,
                                          tvb, 0, 0, FALSE);
                 PROTO_ITEM_SET_GENERATED(ti);
 
@@ -2884,7 +2891,8 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rnti,
                                          tvb, 0, 0, p_mac_lte_info->rnti);
                 PROTO_ITEM_SET_GENERATED(ti);
-                ti = proto_tree_add_item(context_tree, hf_mac_lte_oob_sr_failure,
+
+                ti = proto_tree_add_item(mac_lte_tree, hf_mac_lte_oob_sr_failure,
                                          tvb, 0, 0, FALSE);
                 PROTO_ITEM_SET_GENERATED(ti);
 
@@ -3319,8 +3327,8 @@ void proto_register_mac_lte(void)
 
         /* Out-of-band events */
         { &hf_mac_lte_oob_send_preamble,
-            { "RACH Preamble sent",
-              "mac-lte.preamble-sent", FT_NONE, BASE_NONE, NULL, 0x0,
+            { "PRACH: ",
+              "mac-lte.preamble-sent", FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },
@@ -3778,7 +3786,8 @@ void proto_register_mac_lte(void)
         &ett_mac_lte_bsr,
         &ett_mac_lte_pch,
         &ett_mac_lte_contention_resolution,
-        &ett_mac_lte_power_headroom
+        &ett_mac_lte_power_headroom,
+        &ett_mac_lte_oob
     };
 
     static enum_val_t show_info_col_vals[] = {
