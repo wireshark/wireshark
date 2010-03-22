@@ -156,7 +156,7 @@ expert_dlg_draw(void *data)
     const char *entries[2];   /**< column entries */
     GtkListStore *list_store;
     GtkTreeIter iter;
-    gchar *color_str;
+    gchar *color_str = NULL;
     guint packet_no = 0;
 	const gchar *group_str;
 	const gchar *severity_str;

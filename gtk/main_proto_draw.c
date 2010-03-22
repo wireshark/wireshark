@@ -484,7 +484,7 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
     int           row, column;
     guint         ndigits;
     gint          x, y;
-    int           byte;
+    int           byte = -1;
     tvbuff_t     *tvb;
 
     tree = g_object_get_data(G_OBJECT(widget), E_BYTE_VIEW_TREE_PTR);
