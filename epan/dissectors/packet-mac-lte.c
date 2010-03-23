@@ -2882,12 +2882,6 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
                 break;
             case ltemac_sr_failure:
-                if (p_mac_lte_info->ueid != 0) {
-                    ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_ueid,
-                                             tvb, 0, 0, p_mac_lte_info->ueid);
-                    PROTO_ITEM_SET_GENERATED(ti);
-                }
-
                 ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rnti,
                                          tvb, 0, 0, p_mac_lte_info->rnti);
                 PROTO_ITEM_SET_GENERATED(ti);
@@ -2898,12 +2892,14 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* Info column */
                 write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                                         "Scheduling Request FAILED (C-RNTI=%u)!",
+                                         "Scheduling Request FAILED for UE %u (C-RNTI=%u)",
+                                         p_mac_lte_info->ueid,
                                          p_mac_lte_info->rnti);
 
                 /* Add expert info (an error) */
                 expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_ERROR,
-                                       "Scheduling Request failed for RNTI %u",
+                                       "Scheduling Request failed for UE %u (RNTI %u)",
+                                       p_mac_lte_info->ueid,
                                        p_mac_lte_info->rnti);
 
                 /* Update SR status */
