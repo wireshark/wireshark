@@ -2098,6 +2098,17 @@ tcp_info_append_str(packet_info *pinfo, const char *abbrev, const char *val)
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s[%s]", abbrev, val);
 }
 
+
+static void
+dissect_tcpopt_sack_perm(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+{
+  proto_item *hidden_item;
+  hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_sack_perm, tvb, offset,
+				       optlen, TRUE);
+  tcp_info_append_uint(pinfo, "SACK_PERM", TRUE);
+}
+
 static void
 dissect_tcpopt_maxseg(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
@@ -2604,7 +2615,7 @@ static const ip_tcp_opt tcpopts[] = {
     NULL,
     FIXED_LENGTH,
     TCPOLEN_SACK_PERM,
-    NULL,
+    dissect_tcpopt_sack_perm,
   },
   {
     TCPOPT_SACK,
@@ -3853,20 +3864,20 @@ proto_register_tcp(void)
 		    HFILL}},
 
 		{ &hf_tcp_option_sack_perm,
-		  { "TCP Sack Perm Option", "tcp.options.sack_perm",
+		  { "TCP SACK Permitted Option", "tcp.options.sack_perm",
 		    FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_tcp_option_sack,
-		  { "TCP Sack Option", "tcp.options.sack", FT_BOOLEAN,
+		  { "TCP SACK Option", "tcp.options.sack", FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_tcp_option_sack_sle,
-		  {"TCP Sack Left Edge", "tcp.options.sack_le", FT_UINT32,
+		  {"TCP SACK Left Edge", "tcp.options.sack_le", FT_UINT32,
 		   BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_tcp_option_sack_sre,
-		  {"TCP Sack Right Edge", "tcp.options.sack_re", FT_UINT32,
+		  {"TCP SACK Right Edge", "tcp.options.sack_re", FT_UINT32,
 		   BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_tcp_option_echo,
