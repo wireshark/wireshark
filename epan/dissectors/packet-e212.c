@@ -280,8 +280,10 @@ const value_string E212_codes[] = {
 };
 
 /*
- * Annex to ITU Operational Bulletin
- * No. 932 - 15.V.2009
+ * Annex to ITU Operational Bulletin No. 932 - 15.V.2009
+ * Amendment No. 1 - ITU Operation Bulletin No. 933 - 1.VI.2009
+ * Amendment No. 2 - ITU Operation Bulletin No. 934 - 15.VI.2009
+ * Amendment No. 3 - ITU Operation Bulletin No. 935 - 1.VII.2009
  * 
  * According to Recommendation ITU-T E.212 (05/2008)
  *
@@ -328,12 +330,29 @@ const value_string mcc_mnc_codes[] = {
 	{  208130, "SFR (Zones Blanches)" },
 	{  208200, "Bouygues Telecom" },
 	{  208210, "Bouygues Telecom" },
+	{  208220, "Transatel" },
 	{  208880, "Bouygues Telecom (Zones Blanches)" },
 	{  213030, "Mobiland" },
-	{  214010, "Vodafone" },
-	{  214030, "Amena" },
-	{  214040, "Xfera" },
-	{  214070, "Movistar" },
+	{  214010, "Vodafone Espana, S.A.U." },
+	{  214030, "France Telecom Espana, S.A." },
+	{  214040, "Xfera Moviles, S.A." },
+	{  214050, "Telefonica Moviles Espana, S.A.U." },
+	{  214060, "Vodafone Espana, S.A.U." },
+	{  214070, "Telefonica Moviles Espana, S.A.U." },
+	{  214080, "Euskaltel, S.A." },
+	{  214090, "France Telecom Espana, S.A." },
+	{  214150, "BT Espana Compania de Servicios Globales de Telecomunicaciones, S.A.U." },
+	{  214160, "Telecable de Asturias, S.A.U." },
+	{  214170, "R Cable y Telecomunicaciones Galicia, S.A." },
+	{  214180, "Cableuropa, S.A.U." },
+	{  214190, "E-plus Moviles, S.L." },
+	{  214200, "Fonyou Telecom, S.L." },
+	{  214210, "Jazz Telecom, S.A.U." },
+	{  214220, "Best Spain Telecom, S.L." },
+	{  214230, "Barablu Movil Espana, S.L.U." },
+	{  214240, "Vizzavi Espana, S.L." },
+	{  214250, "Lycamobile, S.L." },
+	{  214260, "Lleida Networks Serveis Telematics, S.L." },
 	{  216010, "Pannon GSM" },
 	{  216300, "Westel Mobile" },
 	{  216700, "Vodafone" },
@@ -797,6 +816,10 @@ const value_string mcc_mnc_codes[] = {
 	{  340010, "Orange Caraibe Mobiles" },
 	{  340020, "Outremer Telecom" },
 	{  340030, "Saint Martin et Saint Barthelemy Telcell Sarl" },
+	{  340080, "Dauphin Telecom" },
+	{  340100, "Guadeloupe Telephone Mobile" },
+	{  340110, "Guyane Telephone Mobile" },
+	{  340120, "Martinique Telephone Mobile" },
 	{  340200, "Bouygues Telecom Caraibe" },
 	{  342600, "Cable & Wireless (Barbados) Ltd." },
 	{  342820, "Sunbeach Communications" },
@@ -1534,6 +1557,7 @@ const value_string mcc_mnc_codes[] = {
 	{  730030, "Smartcom" },
 	{  730040, "Centennial Cayman Corp. Chile S.A." },
 	{  730050, "Multikom S.A." },
+	{  730060, "Blue Two Chile S.A." },
 	{  730100, "Entel" },
 	{  732001, "Colombia Telecomunicaciones S.A. - Telecom" },
 	{  732002, "Edatel S.A." },
