@@ -94,6 +94,14 @@
  * "wtap-int.h", put "file_error()" into a file by itself, which can
  * cheerfully include "wtap.h" and get "gzseek()" misdeclared, and include
  * just "zlib.h" in this file - *after* undefining HAVE_UNISTD_H.
+ *
+ * XXX - this is not working with zlib 1.2.4 and, at least on some non-
+ * 4.4-Lite-derived systems (such as some Linux distributions), with
+ * some earlier versions of zlib.  Perhaps the configure script should
+ * check whether off_t is long or not and, if it is, just trust zlib
+ * to work without this mess.  That won't help with zlib 1.2.4, as
+ * if you build and install that on OS X, which *is* 4.4-Lite-derived,
+ * it still doesn't work right.
  */
 #ifdef __OpenBSD__
 #ifndef HAVE_UNISTD_H
