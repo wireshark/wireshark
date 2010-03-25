@@ -145,8 +145,21 @@ static int hf_isakmp_notify_msgtype_v2  = -1;
 static int hf_isakmp_notify_data  = -1;
 static int hf_isakmp_notify_data_dpd_are_you_there = -1;
 static int hf_isakmp_notify_data_dpd_are_you_there_ack = -1;
+static int hf_isakmp_notify_data_unity_load_balance = -1;
 static int hf_isakmp_notify_data_ipcomp_cpi = -1;
 static int hf_isakmp_notify_data_ipcomp_transform_id = -1;
+static int hf_isakmp_notify_data_redirect_gw_ident_type = -1;
+static int hf_isakmp_notify_data_redirect_gw_ident_len = -1;
+static int hf_isakmp_notify_data_redirect_new_resp_gw_ident_ipv4 = -1;
+static int hf_isakmp_notify_data_redirect_new_resp_gw_ident_ipv6 = -1;
+static int hf_isakmp_notify_data_redirect_new_resp_gw_ident_fqdn = -1;
+static int hf_isakmp_notify_data_redirect_new_resp_gw_ident = -1;
+static int hf_isakmp_notify_data_redirect_nonce_data = -1;
+static int hf_isakmp_notify_data_redirect_org_resp_gw_ident_ipv4 = -1;
+static int hf_isakmp_notify_data_redirect_org_resp_gw_ident_ipv6 = -1;
+static int hf_isakmp_notify_data_redirect_org_resp_gw_ident = -1;
+static int hf_isakmp_notify_data_ticket_lifetime = -1;
+static int hf_isakmp_notify_data_ticket_data = -1;
 static int hf_isakmp_delete_doi  = -1;
 static int hf_isakmp_delete_protoid_v1 = -1;
 static int hf_isakmp_delete_protoid_v2 = -1;
@@ -501,6 +514,7 @@ static const value_string exchange_v2_type[] = {
   { 35,	"IKE_AUTH " },
   { 36,	"CREATE_CHILD_SA" },
   { 37,	"INFORMATIONAL" },
+  { 38,	"IKE_SA_RESUME" }, /* RFC5723 */
   { 0,	NULL },
 };
 
@@ -718,7 +732,12 @@ static const value_string transform_id_ipcomp[] = {
   { 4,	"LZJH" },
   { 0,	NULL },
 };
-
+static const value_string redirect_gateway_identity_type[] = {
+  { 1,	"IPv4 address" },
+  { 2,	"IPv6 address" },
+  { 3,	"FQDN" },
+  { 0,	NULL },
+};
 static const value_string transform_attr_sa_life_type[] = {
   { 0,	"RESERVED" },
   { 1,	"Seconds" },
@@ -1088,7 +1107,11 @@ static const range_string notifmsg_v1_type[] = {
   { 32768,36135,"Private Use" },
   { 36136,36136,"R-U-THERE"  },     
   { 36137,36137,"R-U-THERE-ACK"  },   
-  { 36138,40959,"Private Use" },
+  { 36138,40500,"Private Use" },
+  { 40501,40501,"UNITY-LOAD-BALANCE" },
+  { 40502,40502,"UNITY-UNKNOWN" },
+  { 40503,40503,"UNITY-GROUP-HASH" },
+  { 40503,40959,"Private Use" },
   { 40960,65535,"RESERVED (Future Use)" },
   { 0,0,	NULL },
 };
@@ -3158,6 +3181,9 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
           case 36137: /* DPD ARE YOU THERE ACK */
                proto_tree_add_item(tree, hf_isakmp_notify_data_dpd_are_you_there_ack, tvb, offset, length, FALSE);
           break;
+          case 40501: /* UNITY Load Balance */
+               proto_tree_add_item(tree, hf_isakmp_notify_data_unity_load_balance, tvb, offset, length, FALSE);
+          break;
           default:
                /* No Default Action */
           break;
@@ -3169,6 +3195,56 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
           case 16387: /* IPCOMP_SUPPORTED */
                proto_tree_add_item(tree, hf_isakmp_notify_data_ipcomp_cpi, tvb, offset, 2, FALSE);
                proto_tree_add_item(tree, hf_isakmp_notify_data_ipcomp_transform_id, tvb, offset+2, 1, FALSE);
+          break;
+         case 16407: /* REDIRECT */
+               proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_gw_ident_type, tvb, offset, 1, FALSE);
+               proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_gw_ident_len, tvb, offset+1, 1, FALSE);
+               switch(tvb_get_guint8(tvb,offset)){ /* Ident Type ? */
+                case 1:
+                 proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident_ipv4, tvb, offset+2, 4, FALSE);
+                break;
+                case 2:
+                 proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident_ipv6, tvb, offset+2, 16, FALSE);               
+                break;
+                case 3:
+                 proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident_fqdn, tvb, offset+2, tvb_get_guint8(tvb,offset+1), FALSE);               
+                break;
+                default :
+                  proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident, tvb, offset+2, tvb_get_guint8(tvb,offset+1), FALSE);
+                break;
+               }
+               length -= tvb_get_guint8(tvb,offset+1)-2;
+               offset += tvb_get_guint8(tvb,offset+1)+2;
+               if(length)
+               {
+                  proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_nonce_data, tvb, offset, length, FALSE);
+               }
+          break;
+         case 16408: /* REDIRECT_FROM */
+               proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_gw_ident_type, tvb, offset, 1, FALSE);
+               proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_gw_ident_len, tvb, offset+1, 1, FALSE);
+               switch(tvb_get_guint8(tvb,offset)){ /* Ident Type ? */
+                case 1:
+                 proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_org_resp_gw_ident_ipv4, tvb, offset+2, 4, FALSE);
+                break;
+                case 2:
+                 proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_org_resp_gw_ident_ipv6, tvb, offset+2, 16, FALSE);               
+                break;
+                default :
+                  proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_org_resp_gw_ident, tvb, offset+2, tvb_get_guint8(tvb,offset+1), FALSE);
+                break;
+               }
+               length -= tvb_get_guint8(tvb,offset+1)-2;
+               offset += tvb_get_guint8(tvb,offset+1)+2;
+          break;
+          case 16409: /* TICKET_LT_OPAQUE */
+               proto_tree_add_item(tree, hf_isakmp_notify_data_ticket_lifetime, tvb, offset, 4, FALSE);
+               offset += 4;
+               length -= 4;
+               proto_tree_add_item(tree, hf_isakmp_notify_data_ticket_data, tvb, offset, length, FALSE);
+          break;
+          case 16413: /* TICKET_OPAQUE */
+               proto_tree_add_item(tree, hf_isakmp_notify_data_ticket_data, tvb, offset, length, FALSE);
           break;
           default:
                /* No Default Action */
@@ -4584,6 +4660,10 @@ proto_register_isakmp(void)
       { "DPD ARE-YOU-THERE-ACK sequence", "isakmp.notify.data.dpd.are_you_there_ack",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
+    { &hf_isakmp_notify_data_unity_load_balance,
+      { "UNITY LOAD BALANCE", "isakmp.notify.data.unity.load_balance",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_isakmp_notify_data_ipcomp_cpi,
       { "IPCOMP CPI", "isakmp.notify.data.ipcomp.cpi",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -4591,6 +4671,55 @@ proto_register_isakmp(void)
     { &hf_isakmp_notify_data_ipcomp_transform_id,
       { "IPCOMP CPI", "isakmp.notify.data.ipcomp.cpi",
         FT_UINT8, BASE_DEC, VALS(transform_id_ipcomp), 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_redirect_gw_ident_type,
+      { "Gateway Identity Type", "isakmp.notify.data.redirect.gw_ident.type",
+        FT_UINT8, BASE_DEC, VALS(redirect_gateway_identity_type), 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_redirect_gw_ident_len,
+      { "Gateway Identity Length", "isakmp.notify.data.redirect.gw_ident.len",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_redirect_new_resp_gw_ident_ipv4,
+      { "New Responder Gateway Identity (IPv4)", "isakmp.notify.data.redirect.new_resp_gw_ident.ipv4",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_redirect_new_resp_gw_ident_ipv6,
+      { "New Responder Gateway Identity (IPv6)", "isakmp.notify.data.redirect.new_resp_gw_ident.ipv6",
+        FT_IPv6, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_redirect_new_resp_gw_ident_fqdn,
+      { "New Responder Gateway Identity (FQDN)", "isakmp.notify.data.redirect.new_resp_gw_ident.fqdn",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_redirect_new_resp_gw_ident,
+      { "New Responder Gateway Identity (DATA)", "isakmp.notify.data.redirect.new_resp_gw_ident.data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_redirect_nonce_data,
+      { "Redirect Nonce Data", "isakmp.notify.data.redirect.nonce_data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_redirect_org_resp_gw_ident_ipv4,
+      { "Original Responder Gateway Identity (IPv4)", "isakmp.notify.data.redirect.org_resp_gw_ident.ipv4",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_redirect_org_resp_gw_ident_ipv6,
+      { "Original Responder Gateway Identity (IPv6)", "isakmp.notify.data.redirect.org_resp_gw_ident.ipv6",
+        FT_IPv6, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_redirect_org_resp_gw_ident,
+      { "Original Responder Gateway Identity (DATA)", "isakmp.notify.data.redirect.org_resp_gw_ident.data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_isakmp_notify_data_ticket_lifetime,
+      { "TICKET OPAQUE Lifetime", "isakmp.notify.data.ticket_opaque.lifetime",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "The Lifetime field contains a relative time value, the number of seconds until the ticket expires (encoded as an unsigned integer).", HFILL }},
+    { &hf_isakmp_notify_data_ticket_data,
+      { "TICKET OPAQUE Data", "isakmp.notify.data.ticket_opaque.data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_isakmp_delete_doi,
