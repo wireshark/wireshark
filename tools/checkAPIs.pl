@@ -1016,7 +1016,7 @@ while ($_ = $ARGV[0])
                 $errorCount++;
         }
 
-        # Brute force check for value_string arrays which are not NULL terminated
+        # Brute force check for value_string arrays which are missing {0, NULL} as the final (terminating) array entry
         if ($check_value_string_array_null_termination) {
                 #  Assumption: definition is of form (pseudo-Regex):
                 #    " (static const|static|const) value_string .+ = { .+ ;" (possibly over multiple lines) 
@@ -1034,7 +1034,7 @@ while ($_ = $ARGV[0])
                         # However: since this usage is present in some number of cases, we'll allow for now
                         if ($vs !~ / , NULL [}] ,? [}] ; $/xo) {
                                 $vsx =~ /( value_string [^=]+ ) = /xo;
-                                printf STDERR "Error: %-35.35s: Not terminated: %s\n", $filename, $1;
+                                printf STDERR "Error: %-35.35s: {0, NULL} is required as the last value_string array entry: %s\n", $filename, $1;
                                 $errorCount++;
                         }
                         if ($vs !~ / (static)? const value_string /xo)  {
