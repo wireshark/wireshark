@@ -28,6 +28,7 @@
  * RFC 4243: Vendor-Specific Information Suboption for the Dynamic Host Configuration Protocol (DHCP) Relay Agent Option
  * RFC 4361: Node-specific Client Identifiers for Dynamic Host Configuration Protocol Version Four (DHCPv4)
  * RFC 4388: Dynamic Host Configuration Protocol (DHCP) Leasequery
+ * RFC 4578: Dynamic Host Configuration Protocol (DHCP) Options for PXE
  * RFC 4776: Dynamic Host Configuration Protocol (DHCPv4 and DHCPv6) Option for Civic Addresses Configuration Information
  * RFC 5223: Discovering Location-to-Service Translation (LoST) Servers Using the Dynamic Host Configuration Protocol (DHCP)
  * RFC 5417: CAPWAP Access Controller DHCP Option
@@ -501,6 +502,10 @@ static const value_string bootp_client_arch[] = {
 	{ 0x0003, "DEC Alpha" },
 	{ 0x0004, "ArcX86" },
 	{ 0x0005, "Intel Lean Client" },
+	{ 0x0006, "EFI IA32" },
+	{ 0x0007, "EFI BC" },
+	{ 0x0008, "EFI Xscale" },
+	{ 0x0009, "EFI x86-64" },
 	{ 0,      NULL }
 };
 
@@ -869,7 +874,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		if (!first_pass) {
 			if (bp_tree != NULL) {
 				proto_tree_add_text(bp_tree, tvb, voff, i,
-				    "Padding (%d byte%s)", i, (i>1)?"s":"");
+				    "Padding (%d byte%s)", i, plurality(i, "", "s"));
 			}
 		}
 		consumed = i;
@@ -1097,15 +1102,15 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			}
 		} else if (*vendor_class_id_p != NULL &&
 			   ((strncmp((const gchar*)*vendor_class_id_p, "pktc", strlen("pktc")) == 0) ||
-                            (strncmp((const gchar*)*vendor_class_id_p, "docsis", strlen("docsis")) == 0) ||
-                            (strncmp((const gchar*)*vendor_class_id_p, "OpenCable2.0", strlen("OpenCable2.0")) == 0) ||
-                            (strncmp((const gchar*)*vendor_class_id_p, "CableHome", strlen("CableHome")) == 0))) {
-		        /* CableLabs standard - see www.cablelabs.com/projects */
-		        proto_item_append_text(vti, " (CableLabs)");
+			    (strncmp((const gchar*)*vendor_class_id_p, "docsis", strlen("docsis")) == 0) ||
+			    (strncmp((const gchar*)*vendor_class_id_p, "OpenCable2.0", strlen("OpenCable2.0")) == 0) ||
+			    (strncmp((const gchar*)*vendor_class_id_p, "CableHome", strlen("CableHome")) == 0))) {
+			/* CableLabs standard - see www.cablelabs.com/projects */
+			proto_item_append_text(vti, " (CableLabs)");
 
 			optend = optoff + optlen;
 			while (optoff < optend) {
-			        optoff = dissect_vendor_cablelabs_suboption(v_tree,
+				optoff = dissect_vendor_cablelabs_suboption(v_tree,
 					tvb, optoff, optend);
 			}
 		}
@@ -4260,7 +4265,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    (tvb_get_ntohl(tvb, voff) == 0x63825363)) {
 		ip_addr = tvb_get_ipv4(tvb, voff);
 		proto_tree_add_ipv4_format_value(bp_tree, hf_bootp_cookie, tvb,
-			voff, 4, ip_addr, "(OK)");
+			voff, 4, ip_addr, "DHCP");
 		voff += 4;
 	} else {
 		proto_tree_add_text(bp_tree,  tvb,
