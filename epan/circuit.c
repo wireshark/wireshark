@@ -98,6 +98,7 @@ circuit_cleanup(void)
 void
 circuit_init(void)
 {
+	g_assert(circuit_hashtable == NULL);
 	circuit_hashtable = g_hash_table_new(circuit_hash, circuit_match);
 
 	/*
