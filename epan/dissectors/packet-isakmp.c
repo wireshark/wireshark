@@ -278,6 +278,13 @@ static int hf_isakmp_cfg_attr_internal_ip6_nbns = -1;
 static int hf_isakmp_cfg_attr_internal_ip6_dhcp = -1;
 static int hf_isakmp_cfg_attr_internal_ip4_subnet_ip = -1;
 static int hf_isakmp_cfg_attr_internal_ip4_subnet_netmask = -1;
+static int hf_isakmp_cfg_attr_supported_attributes = -1;
+static int hf_isakmp_cfg_attr_internal_ip6_subnet_ip = -1;
+static int hf_isakmp_cfg_attr_internal_ip6_subnet_prefix = -1;
+static int hf_isakmp_cfg_attr_internal_ip6_link_interface = -1;
+static int hf_isakmp_cfg_attr_internal_ip6_link_id = -1;
+static int hf_isakmp_cfg_attr_internal_ip6_prefix_ip = -1;
+static int hf_isakmp_cfg_attr_internal_ip6_prefix_length = -1;
 static int hf_isakmp_cfg_attr_xauth_type  = -1;
 static int hf_isakmp_cfg_attr_xauth_user_name = -1;
 static int hf_isakmp_cfg_attr_xauth_user_password = -1;
@@ -375,7 +382,7 @@ static const fragment_items isakmp_frag_items = {
  *   draft-ietf-ipsec-isakmp-mode-cfg-05.txt for IKEv1
  *   draft-ietf-ipsec-isakmp-xauth-06.txt and draft-beaulieu-ike-xauth-02.txt for XAUTH
  *   RFC4306 for IKEv2
- *   RFC-ietf-ipsecme-ikev2-ipv6-config-03.txt for INTERNAL_IP6_LINK and INTERNAL_IP6_PREFIX
+ *   RFC5739 for INTERNAL_IP6_LINK and INTERNAL_IP6_PREFIX
  */
 #define INTERNAL_IP4_ADDRESS		1	
 #define INTERNAL_IP4_NETMASK		2	
@@ -1146,7 +1153,7 @@ static const range_string notifmsg_v2_type[] = {
   { 16411,16411,        "TICKET_ACK" },                        /* RFC5723 */
   { 16412,16412,        "TICKET_NACK" },                       /* RFC5723 */
   { 16413,16413,        "TICKET_OPAQUE" },                     /* RFC5723 */
-  { 16414,16414,        "LINK_ID" },                           /* RFC-ietf-ipsecme-ikev2-ipv6-config-03.txt */
+  { 16414,16414,        "LINK_ID" },                           /* RFC5739 */
   { 16415,16415,        "USE_WESP_MODE" },                     /* RFC-ietf-ipsecme-traffic-visibility-12.txt */
   { 16416,40959,        "RESERVED TO IANA - STATUS TYPES" },  
   { 40960,65535,        "Private Use - STATUS TYPES" },  
@@ -3606,11 +3613,55 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 
 		}
 		break;
-/* TODO
-SUPPORTED_ATTRIBUTES (14) a variable   0 or multiples of 2 
-INTERNAL_IP6_SUBNET (15) a variable   0 or 17 octets ( This attribute is made up of two fields:
- the first is a sixteen-octet IPv6 address and the second is a one-octet prefix-length )
-*/
+	case SUPPORTED_ATTRIBUTES: /* 14 */
+		offset_end = offset + optlen;
+
+		if (optlen%2 == 0)
+		{
+			while (offset_end-offset > 0)
+			{
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_supported_attributes, tvb, offset, 2, FALSE);
+				offset += 2;
+			}
+
+		}
+		break;
+	case INTERNAL_IP6_SUBNET: /* 15 */
+		offset_end = offset + optlen;
+
+		if (optlen%17 == 0)
+		{
+			while (offset_end-offset > 0)
+			{
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_subnet_ip, tvb, offset, 16, FALSE);
+				offset += 16;
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_subnet_prefix, tvb, offset, 1, FALSE);
+				offset += 1;
+			}
+
+		}
+		break;
+	case INTERNAL_IP6_LINK: /* 17 */
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_link_interface, tvb, offset, 8, FALSE);
+		offset += 8;
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_link_id, tvb, offset, optlen-8, FALSE);
+		offset += optlen-8;
+		break;
+	case INTERNAL_IP6_PREFIX: /* 18 */
+		offset_end = offset + optlen;
+
+		if (optlen%17 == 0)
+		{
+			while (offset_end-offset > 0)
+			{
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_prefix_ip, tvb, offset, 16, FALSE);
+				offset += 16;
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_prefix_length, tvb, offset, 1, FALSE);
+				offset += 1;
+			}
+
+		}
+		break;
 	case XAUTH_TYPE: /* 16520 */
 		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_type, tvb, offset, optlen, FALSE);
 		proto_item_append_text(cfg_attr_type_item," : %s", rval_to_str(tvb_get_ntohs(tvb, offset), cfgattr_xauth_type, "Unknown %d"));
@@ -5054,7 +5105,7 @@ proto_register_isakmp(void)
  { &hf_isakmp_cfg_attr_internal_ip6_dhcp,
       { "INTERNAL IP6 DHCP",	"isakmp.cfg.attr.internal_ip6_dhcp",
 	FT_IPv6, BASE_NONE, NULL, 0x00,
-	"the host to send any internal DHCP requests to the address", HFILL }},
+	"The host to send any internal DHCP requests to the address", HFILL }},
  { &hf_isakmp_cfg_attr_internal_ip4_subnet_ip,
       { "INTERNAL IP4 SUBNET (IP)",	"isakmp.cfg.attr.internal_ip4_subnet_ip",
 	FT_IPv4, BASE_NONE, NULL, 0x00,
@@ -5063,6 +5114,35 @@ proto_register_isakmp(void)
       { "INTERNAL IP4 SUBNET (NETMASK)",	"isakmp.cfg.attr.internal_ip4_subnet_netmask",
 	FT_IPv4, BASE_NONE, NULL, 0x00,
 	"The protected sub-networks that this edge-device protects (IP)", HFILL }},
+ { &hf_isakmp_cfg_attr_supported_attributes,
+      { "SUPPORTED ATTRIBUTES",	"isakmp.cfg.attr.supported_attributes",
+	FT_UINT16, BASE_DEC, NULL, 0x00,
+	NULL, HFILL }},
+ { &hf_isakmp_cfg_attr_internal_ip6_subnet_ip,
+      { "INTERNAL_IP6_SUBNET (IP)",	"isakmp.cfg.attr.internal_ip6_subnet_ip",
+	FT_IPv6, BASE_NONE, NULL, 0x00,
+	NULL, HFILL }},
+ { &hf_isakmp_cfg_attr_internal_ip6_subnet_prefix,
+      { "INTERNAL_IP6_SUBNET (PREFIX)",	"isakmp.cfg.attr.internal_ip6_subnet_prefix",
+	FT_UINT8, BASE_DEC, NULL, 0x00,
+	NULL, HFILL }},
+ { &hf_isakmp_cfg_attr_internal_ip6_link_interface,
+      { "INTERNAL_IP6_LINK (Link-Local Interface ID)",	"isakmp.cfg.attr.internal_ip6_link_interface",
+	FT_UINT64, BASE_DEC, NULL, 0x00,
+	"The Interface ID used for link-local address (by the party that sent this attribute)", HFILL }},
+ { &hf_isakmp_cfg_attr_internal_ip6_link_id,
+      { "INTERNAL_IP6_LINK (IKEv2 Link ID)",	"isakmp.cfg.attr.internal_ip6_link_id",
+	FT_BYTES, BASE_NONE, NULL, 0x00,
+	"The Link ID is selected by the VPN gateway and is treated as an opaque octet string by the client.", HFILL }},
+ { &hf_isakmp_cfg_attr_internal_ip6_prefix_ip,
+      { "INTERNAL_IP6_PREFIX (IP)",	"isakmp.cfg.attr.internal_ip6_prefix_ip",
+	FT_IPv6, BASE_NONE, NULL, 0x00,
+	"An IPv6 prefix assigned to the virtual link", HFILL }},
+ { &hf_isakmp_cfg_attr_internal_ip6_prefix_length,
+      { "INTERNAL_IP6_PREFIX (Length)",	"isakmp.cfg.attr.internal_ip6_prefix_length",
+	FT_UINT8, BASE_DEC, NULL, 0x00,
+	 "The length of the prefix in bits (usually 64)", HFILL }},
+
   { &hf_isakmp_cfg_attr_xauth_type,
       { "XAUTH TYPE",	"isakmp.cfg.attr.xauth.type",
 	FT_UINT16, BASE_RANGE_STRING | BASE_DEC, RVALS(cfgattr_xauth_type), 0x00,
