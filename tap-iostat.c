@@ -43,7 +43,7 @@
 
 typedef struct _io_stat_t {
 	gint32 interval;	/* unit is ms */
-	guint32 num_items;
+	guint64 num_items;
 	struct _io_stat_item_t *items;
 	const char **filters;
 } io_stat_t;	
@@ -62,9 +62,9 @@ typedef struct _io_stat_item_t {
 	gint32 time;		/* unit is ms since start of capture */
 	int calc_type;
 	int hf_index;
-	guint32 frames;
-	guint32 num;
-	guint32 counter;
+	guint64 frames;
+	guint64 num;
+	guint64 counter;
 } io_stat_item_t;
 
 
@@ -128,11 +128,17 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 				case FT_UINT32:
 					it->counter+=fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
 					break;
+				case FT_UINT64:
+					it->counter+=fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+					break;
 				case FT_INT8:
 				case FT_INT16:
 				case FT_INT24:
 				case FT_INT32:
 					it->counter+=fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
+					break;
+				case FT_INT64:
+					it->counter+=(gint64)fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
 					break;
 				}
 			}
@@ -142,7 +148,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
 		if(gp){
 			int type;
-			guint32 val;
+			guint64 val;
 			nstime_t *new_time;
 
 			type=proto_registrar_get_ftype(it->hf_index);
@@ -153,6 +159,14 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 				case FT_UINT24:
 				case FT_UINT32:
 					val=fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
+					if((it->frames==1)&&(i==0)){
+						it->counter=val;
+					} else if(val<it->counter){
+						it->counter=val;
+					}				
+					break;
+				case FT_UINT64:
+					val=fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
 					} else if(val<it->counter){
@@ -170,9 +184,17 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 						it->counter=val;
 					}
 					break;
+				case FT_INT64:
+					val=fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+					if((it->frames==1)&&(i==0)){
+						it->counter=val;
+					} else if((gint64)val<(gint64)(it->counter)){
+						it->counter=val;
+					}
+					break;
 				case FT_RELATIVE_TIME:
 					new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
-					val=(guint32) (new_time->secs*1000+new_time->nsecs/1000000);
+					val=(guint64) (new_time->secs*1000+new_time->nsecs/1000000);
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
 					} else if(val<it->counter){
@@ -187,7 +209,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
 		if(gp){
 			int type;
-			guint32 val;
+			guint64 val;
 			nstime_t *new_time;
 
 			type=proto_registrar_get_ftype(it->hf_index);
@@ -198,6 +220,14 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 				case FT_UINT24:
 				case FT_UINT32:
 					val=fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
+					if((it->frames==1)&&(i==0)){
+						it->counter=val;
+					} else if(val>it->counter){
+						it->counter=val;
+					}				
+					break;
+				case FT_UINT64:
+					val=fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
 					} else if(val>it->counter){
@@ -215,9 +245,17 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 						it->counter=val;
 					}				
 					break;
+				case FT_INT64:
+					val=fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+					if((it->frames==1)&&(i==0)){
+						it->counter=val;
+					} else if((gint64)val>(gint64)(it->counter)){
+						it->counter=val;
+					}				
+					break;
 				case FT_RELATIVE_TIME:
 					new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
-					val=(guint32) (new_time->secs*1000+new_time->nsecs/1000000);
+					val=(guint64) (new_time->secs*1000+new_time->nsecs/1000000);
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
 					} else if(val>it->counter){
@@ -232,7 +270,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
 		if(gp){
 			int type;
-			guint32 val;
+			guint64 val;
 			nstime_t *new_time;
 
 			type=proto_registrar_get_ftype(it->hf_index);
@@ -246,6 +284,11 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 					val=fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
 					it->counter+=val;
 					break;
+				case FT_UINT64:
+				case FT_INT64:
+					val=fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+					it->counter+=val;
+					break;
 				case FT_INT8:
 				case FT_INT16:
 				case FT_INT24:
@@ -255,7 +298,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 					break;
 				case FT_RELATIVE_TIME:
 					new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
-					val=(guint32) (new_time->secs*1000+new_time->nsecs/1000000);
+					val=(guint64) (new_time->secs*1000+new_time->nsecs/1000000);
 					it->counter+=val;
 					break;
 				}
@@ -273,10 +316,10 @@ iostat_draw(void *arg)
 	io_stat_item_t *mit = arg;
 	io_stat_t *iot;
 	io_stat_item_t **items;
-	guint32 *frames;
-	guint32 *counters;
-	guint32 *num;
-	guint32 i,more_items;
+	guint64 *frames;
+	guint64 *counters;
+	guint64 *num;
+	guint64 i,more_items;
 	gint t;
 
 	iot=mit->parent;
@@ -287,11 +330,11 @@ iostat_draw(void *arg)
         if(iot->interval!=G_MAXINT32) 
                 printf("Interval: %d.%03d secs\n", iot->interval/1000, iot->interval%1000);
 	for(i=0;i<iot->num_items;i++){
-		printf("Column #%d: %s\n",i,iot->filters[i]?iot->filters[i]:"");
+		printf("Column #%" G_GINT64_MODIFIER "u: %s\n",i,iot->filters[i]?iot->filters[i]:"");
 	}
 	printf("                ");
 	for(i=0;i<iot->num_items;i++){
-		printf("|   Column #%-2d   ",i);
+		printf("|   Column #%-2" G_GINT64_MODIFIER "u   ",i);
 	}
 	printf("\n");
 	printf("Time            ");
@@ -320,9 +363,9 @@ iostat_draw(void *arg)
 	printf("\n");
 
 	items=g_malloc(sizeof(io_stat_item_t *)*iot->num_items);
-	frames=g_malloc(sizeof(guint32)*iot->num_items);
-	counters=g_malloc(sizeof(guint32)*iot->num_items);
-	num=g_malloc(sizeof(guint32)*iot->num_items);
+	frames=g_malloc(sizeof(guint64)*iot->num_items);
+	counters=g_malloc(sizeof(guint64)*iot->num_items);
+	num=g_malloc(sizeof(guint64)*iot->num_items);
 	/* preset all items at the first interval */
 	for(i=0;i<iot->num_items;i++){
 		items[i]=&iot->items[i];
@@ -365,13 +408,13 @@ iostat_draw(void *arg)
 			for(i=0;i<iot->num_items;i++){
 				switch(iot->items[i].calc_type){
 				case CALC_TYPE_BYTES:
-					printf("%6d %9d ",frames[i],counters[i]);
+					printf("%6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u ",frames[i], counters[i]);
 					break;
 				case CALC_TYPE_COUNT:
-					printf("        %8d ", counters[i]);
+					printf("        %8" G_GINT64_MODIFIER "u ", counters[i]);
 					break;
 				case CALC_TYPE_SUM:
-					printf("        %8d ", counters[i]);
+					printf("        %8" G_GINT64_MODIFIER "u ", counters[i]);
 					break;
 				case CALC_TYPE_MIN:
 					switch(proto_registrar_get_ftype(iot->items[i].hf_index)){
@@ -379,16 +422,18 @@ iostat_draw(void *arg)
 					case FT_UINT16:
 					case FT_UINT24:
 					case FT_UINT32:
-						printf("        %8u ", counters[i]);
+					case FT_UINT64:
+						printf("        %8" G_GINT64_MODIFIER "u ", counters[i]);
 						break;
 					case FT_INT8:
 					case FT_INT16:
 					case FT_INT24:
 					case FT_INT32:
-						printf("        %8d ", counters[i]);
+					case FT_INT64:
+						printf("        %8" G_GINT64_MODIFIER "d ", counters[i]);
 						break;
 					case FT_RELATIVE_TIME:
-						printf("      %6d.%03d ", counters[i]/1000, counters[i]%1000);
+						printf("      %6" G_GINT64_MODIFIER "d.%03d ", counters[i]/1000, (gint)counters[i]%1000);
 						break;
 					}
 					break;
@@ -398,16 +443,18 @@ iostat_draw(void *arg)
 					case FT_UINT16:
 					case FT_UINT24:
 					case FT_UINT32:
-						printf("        %8u ", counters[i]);
+					case FT_UINT64:
+						printf("        %8" G_GINT64_MODIFIER "u ", counters[i]);
 						break;
 					case FT_INT8:
 					case FT_INT16:
 					case FT_INT24:
 					case FT_INT32:
-						printf("        %8d ", counters[i]);
+					case FT_INT64:
+						printf("        %8" G_GINT64_MODIFIER "d ", counters[i]);
 						break;
 					case FT_RELATIVE_TIME:
-						printf("      %6d.%03d ", counters[i]/1000, counters[i]%1000);
+						printf("      %6" G_GINT64_MODIFIER "d.%03d ", counters[i]/1000, (gint)counters[i]%1000);
 						break;
 					}
 					break;
@@ -420,17 +467,19 @@ iostat_draw(void *arg)
 					case FT_UINT16:
 					case FT_UINT24:
 					case FT_UINT32:
-						printf("        %8u ", counters[i]/num[i]);
+					case FT_UINT64:
+						printf("        %8" G_GINT64_MODIFIER "u ", counters[i]/num[i]);
 						break;
 					case FT_INT8:
 					case FT_INT16:
 					case FT_INT24:
 					case FT_INT32:
-						printf("        %8d ", counters[i]/num[i]);
+					case FT_INT64:
+						printf("        %8" G_GINT64_MODIFIER "d ", counters[i]/num[i]);
 						break;
 					case FT_RELATIVE_TIME:
 						counters[i]/=num[i];
-						printf("      %6d.%03d ", counters[i]/1000, counters[i]%1000);
+						printf("      %6" G_GINT64_MODIFIER "d.%03d ", counters[i]/1000, (gint)counters[i]%1000);
 						break;
 					}
 					break;
@@ -537,10 +586,12 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
+		case FT_UINT64:
 		case FT_INT8:
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
+		case FT_INT64:
 			/* these types support all calculations */
 			break;
 		case FT_RELATIVE_TIME:
@@ -555,20 +606,6 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 			default:
 				fprintf(stderr,
 				    "tshark: %s is a relative-time field, so %s(*) calculations are not supported on it.",
-				    field,
-				    calc_type_table[j].func_name);
-				exit(10);
-			}
-			break;
-		case FT_UINT64:
-		case FT_INT64:
-			/*
-			 * XXX - support this if gint64/guint64 are
-			 * available?
-			 */
-			if(io->items[i].calc_type!=CALC_TYPE_COUNT){
-				fprintf(stderr,
-				    "tshark: %s is a 64-bit integer, so %s(*) calculations are not supported on it.",
 				    field,
 				    calc_type_table[j].func_name);
 				exit(10);
