@@ -38,6 +38,7 @@
 /*
  * Annex to ITU Operational Bulletin
  * No. 897 - 1.XII.2007
+ * including amendments up to ITU Operational Bulletin No. 951 - 1.III.2010
  * 
  * COMPLEMENT TO ITU-T RECOMMENDATION E.212 (05/2004)
  */
@@ -134,6 +135,7 @@ const value_string E212_codes[] = {
 	{  402,	"Bhutan (Kingdom of)" },
 	{  404,	"India (Republic of)" },
 	{  405,	"India (Republic of)" },
+	{  406,	"India (Republic of)" },
 	{  410,	"Pakistan (Islamic Republic of)" },
 	{  412,	"Afghanistan" },
 	{  413,	"Sri Lanka (Democratic Socialist Republic of)" },
@@ -281,8 +283,7 @@ const value_string E212_codes[] = {
 
 /*
  * Annex to ITU Operational Bulletin No. 932 - 15.V.2009
- * including all amendments up to:
- *   Amendment No. 17 - ITU Operation Bulletin No. 951 - 1.III.2010
+ * including amendments up to ITU Operational Bulletin No. 951 - 1.III.2010
  * 
  * According to Recommendation ITU-T E.212 (05/2008)
  *
