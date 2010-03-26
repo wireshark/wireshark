@@ -55,17 +55,19 @@
 #include "epan/nstime.h"
 #include "epan/ftypes/ftypes.h"
 #include "register.h"
-#include <epan/dissectors/packet-diameter.h>
+#include "epan/to_str.h"
+#include "epan/dissectors/packet-diameter.h"
 
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _diameteravp_t {
 	guint32 frame;
 	guint32 diammsg_toprocess;
+	guint32 cmd_code;
 	guint32 req_count;
 	guint32 ans_count;
 	guint32 paired_ans_count;
-	char* filter;
+	gchar* filter;
 } diameteravp_t;
 
 /* Copied from proto.c */
@@ -98,13 +100,13 @@ diam_tree_to_csv(proto_node* node, gpointer data)
 	field_info* fi;
 	header_field_info	*hfi;
 	if(!node) {
-		fprintf(stderr,"traverse end: node='%p' data='%p'\n",node,data);
+		fprintf(stderr,"traverse end: empty node. node='%p' data='%p'\n",node,data);
 		return FALSE;
 	}
 	fi=node->finfo;
 	hfi=fi ? fi->hfinfo : NULL;
 	if(!hfi) {
-		fprintf(stderr,"traverse end2: Hfi not found node='%p'\n",node);
+		fprintf(stderr,"traverse end: hfi not found. node='%p'\n",node);
 		return FALSE;
 	}
 	ftype=fi->value.ftype->ftype;
@@ -144,32 +146,39 @@ diameteravp_packet(void *pds, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	header_field_info* hfi=NULL;
 	field_info* finfo=NULL;
 	const diameter_req_ans_pair_t* dp=pdi;
+	diameteravp_t *ds=NULL;
+
+	/* Validate paramerers. */
+	if(!dp || !edt || !edt->tree)
+		return ret;
 
 	/* Several diameter messages within one frame are possible.                    *
 	 * Check if we processing the message in same frame like befor or in new frame.*/
-	diameteravp_t *ds=(diameteravp_t *)pds;
+	ds=(diameteravp_t *)pds;
 	if(pinfo->fd->num > ds->frame) {
 		ds->frame=pinfo->fd->num;
 		ds->diammsg_toprocess=0;
 	} else {
 			ds->diammsg_toprocess+=1;
 	}
+
 	/* Extract data from request/answer pair provided by diameter dissector.*/
-	if(dp) {
-		is_request=dp->processing_request;
-		cmd_code=dp->cmd_code;
-		result_code=dp->result_code;
-		req_frame=dp->req_frame;
-		ans_frame=dp->ans_frame;
-		if(!is_request) {
-			nstime_t ns;
-			nstime_delta(&ns, &pinfo->fd->abs_ts, &dp->req_time);
-			resp_time=nstime_to_sec(&ns);
-			resp_time=resp_time<0?0.:resp_time;
-		}
+	is_request=dp->processing_request;
+	cmd_code=dp->cmd_code;
+	result_code=dp->result_code;
+	req_frame=dp->req_frame;
+	ans_frame=dp->ans_frame;
+	if(!is_request) {
+		nstime_t ns;
+		nstime_delta(&ns, &pinfo->fd->abs_ts, &dp->req_time);
+		resp_time=nstime_to_sec(&ns);
+		resp_time=resp_time<0?0.:resp_time;
 	}
-	if (!edt || !edt->tree || cmd_code!=272)
+
+	/* Check command code provided by command line option.*/
+	if (ds->cmd_code && ds->cmd_code!=cmd_code)
 		return ret;
+
 	/* Loop over top level nodes */
 	node = edt->tree->first_child;
 	while (node != NULL) {
@@ -177,7 +186,7 @@ diameteravp_packet(void *pds, packet_info *pinfo, epan_dissect_t *edt _U_, const
 		node = current->next;
 		finfo=current->finfo;
 		hfi=finfo ? finfo->hfinfo : NULL;
-		/*fprintf(stderr,"diameteravp_packet %d %p %p node=%p abbrev=%s\n",cmd_code,edt,edt->tree,current,hfi->abbrev);*/
+		/*fprintf(stderr,"DEBUG: diameteravp_packet %d %p %p node=%p abbrev=%s\n",cmd_code,edt,edt->tree,current,hfi->abbrev);*/
 		/* process current diameter subtree in the current frame. */
 		if(hfi && hfi->abbrev && strcmp(hfi->abbrev,"diameter")==0) {
 			/* Process current diameter message in the frame */
@@ -190,7 +199,8 @@ diameteravp_packet(void *pds, packet_info *pinfo, epan_dissect_t *edt _U_, const
 						ds->paired_ans_count++;
 				}
 				/* Output frame data.*/
-				printf("frame='%d' proto='diameter' msgnr='%d' is_request='%d' cmd='%d' req_frame='%d' ans_frame='%d' resp_time='%f' ",pinfo->fd->num,ds->diammsg_toprocess,is_request,cmd_code,req_frame,ans_frame,resp_time);
+				printf("frame='%d' time='%f' src='%s' srcport='%d' dst='%s' dstport='%d' proto='diameter' msgnr='%d' is_request='%d' cmd='%d' req_frame='%d' ans_frame='%d' resp_time='%f' ",
+								pinfo->fd->num,nstime_to_sec(&pinfo->fd->abs_ts),ep_address_to_str(&pinfo->src),pinfo->srcport,ep_address_to_str(&pinfo->dst), pinfo->destport,ds->diammsg_toprocess,is_request,cmd_code,req_frame,ans_frame,resp_time);
 				/* Visit selected nodes of one diameter message.*/
 				tree_traverse_pre_order(current, diam_tree_to_csv, &ds);
 				/* End of message.*/
@@ -216,47 +226,45 @@ static void
 diameteravp_init(const char *optarg, void* userdata _U_)
 {
 	diameteravp_t *ds;
-	char* options=NULL;
-	char* saveptr=NULL;
-	char* str=NULL;
-	int field_count=0;
-	size_t filter_len=0;
-	GString *error_string;
+	gchar* field=NULL;
+	gchar** tokens;
+	guint opt_count=0;
+	guint opt_idx=0;
+	GString* filter=NULL;
+	GString* error_string=NULL;
 
 	ds=g_malloc(sizeof(diameteravp_t));
 	ds->frame=0;
 	ds->diammsg_toprocess=0;
+	ds->cmd_code=0;
 	ds->req_count=0;
 	ds->ans_count=0;
 	ds->paired_ans_count=0;
-	str=NULL;
 	ds->filter=NULL;
 
-	options=g_strdup(optarg);
-	for(str=options;*str;str++)
-	{
-		if(*str==',')
-			field_count++;
-	}
-	filter_len=strlen(optarg)+sizeof("diameter")+field_count*sizeof("||diameter.");
-	ds->filter=g_malloc0(filter_len);
-	g_strlcat(ds->filter, "diameter", filter_len);
+	filter=g_string_new("diameter");
 
-#if defined (_WIN32)
-	for(str=strtok_s(options+sizeof("diameter,avp"),",",&saveptr);str;str=strtok_s(NULL,",",&saveptr))
-#else
-	for(str=strtok_r(options+sizeof("diameter,avp"),",",&saveptr);str;str=strtok_r(NULL,",",&saveptr))
-#endif
+	/* Split command line options. */
+	tokens = g_strsplit(optarg,",", 1024);
+	opt_count=g_strv_length(tokens);
+	if (opt_count>2)
+		ds->cmd_code=(guint32)atoi(tokens[2]);
+
+	/* Loop over diameter field names. */
+	for(opt_idx=3;opt_idx<opt_count;opt_idx++)
 	{
+		/* Current field from command line arguments. */
+		field=tokens[opt_idx];
 		/* Connect all requested fields with logical OR. */
-		g_strlcat(ds->filter, "||", filter_len);
+		g_string_append(filter,"||");
 		/* Prefix field name with "diameter." by default. */
-		if(!strchr(str,'.'))
-			g_strlcat(ds->filter, "diameter.", filter_len);
+		if(!strchr(field,'.'))
+			g_string_append(filter, "diameter.");
 		/* Append field name to the filter. */
-		g_strlcat(ds->filter, str, filter_len);
+		g_string_append(filter, field);
 	}
-	g_free(options);
+	g_strfreev(tokens);
+	ds->filter=g_string_free(filter,FALSE);
 
 	error_string=register_tap_listener("diameter", ds, ds->filter, 0, NULL, diameteravp_packet, diameteravp_draw);
 	if(error_string){

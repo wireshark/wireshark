@@ -1943,7 +1943,7 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 				<gavp name="GGSN-Address"/>
 				<gavp name="CG-Address"/>
 				<gavp name="3GPP-IMSI-MCC-MNC"/>
-				<gavp name="3GPP-GGSN- MCC-MNC"/>
+				<gavp name="3GPP-GGSN-MCC-MNC"/>
 				<gavp name="3GPP-NSAPI"/>
 				<gavp name="Called-Station-Id"/>
 				<gavp name="3GPP-Session-Stop-Indicator"/>

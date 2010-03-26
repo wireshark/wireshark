@@ -671,6 +671,49 @@ B<-z "proto,colinfo,nfs.fh.hash && ip.src==1.2.3.4,nfs.fh.hash">
 
 This option can be used multiple times on the command line.
 
+=item B<-z> diameter,avp[,I<cmd.code>,I<field>,I<field>,I<...>]
+
+This option enables extraction of most important diameter fields from large capture files.
+Exactly one text line for each diameter message with matched B<diameter.cmd.code> will be printed. 
+
+Empty diameter command code or '*' can be specified to mach any B<diameter.cmd.code>
+
+Example: B<-z diameter,avp>  extract default field set from diameter messages.
+
+Example: B<-z diameter,avp,280>  extract default field set from diameter DWR messages.
+
+Example: B<-z diameter,avp,272>  extract default field set from diameter CC messages.
+
+Extract most important fields from diameter CC messages:
+
+B<tshark -r file.cap.gz -q -z diameter,avp,272,CC-Request-Type,CC-Request-Number,Session-Id,Subscription-Id-Data,Rating-Group,Result-Code> 
+
+Following fields will be printed out for each diameter message:
+
+  "frame"        Frame number.
+  "time"         Unix time of the frame arrival.
+  "src"          Source address.
+  "srcport"      Source port.
+  "dst"          Destination address.
+  "dstport"      Destination port.
+  "proto"        Constant string 'diameter', which can be used for post processing of tshark output. e.g. grep/sed/awk.
+  "msgnr"        seq. number of diameter message within the frame. E.g. '2' for the third diameter message in the same frame.
+  "is_request"   '0' if message is a request, '1' if message is an answer.
+  "cmd"          diameter.cmd_code, E.g. '272' for credit control messages.
+  "req_frame"    Number of frame where matched request was found or '0'.
+  "ans_frame"    Number of frame where matched answer was found or '0'.
+  "resp_time"    response time in seconds, '0' in case if matched Request/Answer is not found in trace. E.g. in the begin or end of capture.
+
+B<-z diameter,avp> option is much faster than B<-V -T text> or B<-T pdml> options.
+
+B<-z diameter,avp> option is more powerful than B<-T field> and B<-z proto,colinfo> options.
+
+Multiple diameter messages in one frame are supported.
+
+Several fields with same name within one diameter message are supported, e.g. I<diameter.Subscription-Id-Data> or I<diameter.Rating-Group>.
+
+Note: B<tshark -q> option is recommended to suppress default B<tshark> output.
+
 =item B<-z> rpc,rtt,I<program>,I<version>[,I<filter>]
 
 Collect call/reply RTT data for I<program>/I<version>.  Data collected

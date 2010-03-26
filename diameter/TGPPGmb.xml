@@ -58,7 +58,7 @@
     <avp name="3GPP-IPv6-DNS-Server" code="17" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="3GPP-SGSN MCC-MNC" code="18" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+    <avp name="3GPP-SGSN-MCC-MNC" code="18" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="UTF8String"/>
     </avp>
     <avp name="3GPP-Teardown Indicator" code="19" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
