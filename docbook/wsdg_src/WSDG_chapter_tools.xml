@@ -270,16 +270,13 @@ PARTICULAR PURPOSE.]]>
                 <para>Compiler Package</para>
               </entry>
               <entry>
-                <para>IDE /</para>
-                <para>Debugger?</para>
+                <para>IDE / Debugger?</para>
               </entry>
               <entry>
-                <para>Publicly</para>
-                <para>available?</para>
+                <para>Publicly available?</para>
               </entry>
               <entry>
-                <para>Platform SDK</para>
-                <para>required?</para>
+                <para>Platform SDK required?</para>
               </entry>
               <entry>
                 <para>config.nmake:</para>
@@ -304,9 +301,10 @@ PARTICULAR PURPOSE.]]>
                 <para>Commercial
                 <superscript>1</superscript></para>
               </entry>
-              <entry align="center" morerows="3" valign="middle">
-                <para>No
-                <superscript>2</superscript></para>
+              <entry>
+                <para>
+                <ulink url="http://www.microsoft.com/msdownload/platformsdk/sdkupdate/psdk-full.htm">
+                Free Download</ulink> (342MB)</para>
               </entry>
               <entry>
                 <para>MSVC6</para>
@@ -329,6 +327,10 @@ PARTICULAR PURPOSE.]]>
               <entry>
                 <para>Commercial
                 <superscript>1</superscript></para>
+              </entry>
+              <entry align="center" morerows="2" valign="middle">
+                <para>No
+                <superscript>2</superscript></para>
               </entry>
               <entry>
                 <para>MSVC2002</para>
@@ -393,14 +395,12 @@ PARTICULAR PURPOSE.]]>
               </entry>
               <entry>
                 <para>
-                <ulink url="http://www.microsoft.com/express/2005/download/default.aspx">
-                Free Download</ulink>(474MB)</para>
+                <ulink url="http://www.microsoft.com/express/2005/download/default.aspx">Free Download</ulink>
+		(474MB)</para>
               </entry>
               <entry>
                 <para>
-                  <ulink url="#">Free Download</ulink>
-                </para>
-                <para>(420MB)</para>
+                  <ulink url="#">Free Download</ulink> (420MB)</para>
               </entry>
               <entry>
                 <para>MSVC2005EE</para>
@@ -478,13 +478,11 @@ PARTICULAR PURPOSE.]]>
               </entry>
               <entry>
                 <para>
-                <ulink url="#">Free Download</ulink>(104MB)</para>
+                <ulink url="#">Free Download</ulink> (104MB)</para>
               </entry>
               <entry align="center" morerows="2" valign="middle">
                 <para>
-                  <ulink url="#">Free Download</ulink>
-                </para>
-                <para>(420MB)</para>
+                  <ulink url="#">Free Download</ulink> (420MB)</para>
               </entry>
               <entry>
                 <para>DOTNET10</para>
@@ -508,7 +506,7 @@ PARTICULAR PURPOSE.]]>
               </entry>
               <entry>
                 <para>
-                <ulink url="#">Free Download</ulink>(106MB)</para>
+                <ulink url="#">Free Download</ulink> (106MB)</para>
               </entry>
               <entry>
                 <para>DOTNET11</para>
@@ -531,7 +529,7 @@ PARTICULAR PURPOSE.]]>
               </entry>
               <entry>
                 <para>
-                <ulink url="#">Free Download</ulink>(363MB)</para>
+                <ulink url="#">Free Download</ulink> (363MB)</para>
               </entry>
               <entry>
                 <para>DOTNET20</para>
@@ -554,7 +552,7 @@ PARTICULAR PURPOSE.]]>
               </entry>
               <entry>
                 <para>
-                <ulink url="#">Free Download</ulink>(1188MB)</para>
+                <ulink url="#">Free Download</ulink> (1188MB)</para>
               </entry>
               <entry>
                 <para>No
