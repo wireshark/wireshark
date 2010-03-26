@@ -311,7 +311,7 @@ stats_tree_register(const char *tapname, const char *abbr, const char *name,
 }
 
 extern stats_tree*
-stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, char *filter)
+stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter)
 {
 	stats_tree *st = g_malloc(sizeof(stats_tree));
 

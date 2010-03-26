@@ -160,7 +160,7 @@ extern void stats_tree_presentation(void (*registry_iterator)(gpointer,gpointer,
 				    void (*reset_tree)(stats_tree*),
 				    void *data);
 
-extern stats_tree *stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, char *filter);
+extern stats_tree *stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter);
 
 /* callback for taps */
 extern int  stats_tree_packet(void*, packet_info*, epan_dissect_t*, const void *);
