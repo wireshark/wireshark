@@ -6,17 +6,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -46,7 +46,7 @@ typedef struct _io_stat_t {
 	guint64 num_items;
 	struct _io_stat_item_t *items;
 	const char **filters;
-} io_stat_t;	
+} io_stat_t;
 
 #define CALC_TYPE_BYTES	0
 #define CALC_TYPE_COUNT	1
@@ -163,7 +163,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 						it->counter=val;
 					} else if(val<it->counter){
 						it->counter=val;
-					}				
+					}
 					break;
 				case FT_UINT64:
 					val=fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
@@ -171,7 +171,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 						it->counter=val;
 					} else if(val<it->counter){
 						it->counter=val;
-					}				
+					}
 					break;
 				case FT_INT8:
 				case FT_INT16:
@@ -199,7 +199,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 						it->counter=val;
 					} else if(val<it->counter){
 						it->counter=val;
-					}				
+					}
 					break;
 				}
 			}
@@ -224,7 +224,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 						it->counter=val;
 					} else if(val>it->counter){
 						it->counter=val;
-					}				
+					}
 					break;
 				case FT_UINT64:
 					val=fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
@@ -232,7 +232,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 						it->counter=val;
 					} else if(val>it->counter){
 						it->counter=val;
-					}				
+					}
 					break;
 				case FT_INT8:
 				case FT_INT16:
@@ -243,7 +243,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 						it->counter=val;
 					} else if((gint32)val>(gint32)(it->counter)){
 						it->counter=val;
-					}				
+					}
 					break;
 				case FT_INT64:
 					val=fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
@@ -251,7 +251,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 						it->counter=val;
 					} else if((gint64)val>(gint64)(it->counter)){
 						it->counter=val;
-					}				
+					}
 					break;
 				case FT_RELATIVE_TIME:
 					new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
@@ -260,7 +260,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 						it->counter=val;
 					} else if(val>it->counter){
 						it->counter=val;
-					}				
+					}
 					break;
 				}
 			}
@@ -327,8 +327,8 @@ iostat_draw(void *arg)
 	printf("\n");
 	printf("===================================================================\n");
 	printf("IO Statistics\n");
-        if(iot->interval!=G_MAXINT32) 
-                printf("Interval: %d.%03d secs\n", iot->interval/1000, iot->interval%1000);
+	if(iot->interval!=G_MAXINT32)
+		printf("Interval: %d.%03d secs\n", iot->interval/1000, iot->interval%1000);
 	for(i=0;i<iot->num_items;i++){
 		printf("Column #%" G_GINT64_MODIFIER "u: %s\n",i,iot->filters[i]?iot->filters[i]:"");
 	}
@@ -397,24 +397,24 @@ iostat_draw(void *arg)
 		}
 
 		if(more_items){
-                        if(iot->interval==G_MAXINT32) {
-			        printf("000.000-         ");
-                        } else {
-        			printf("%03d.%03d-%03d.%03d  ",
-        				t/1000,t%1000,
-        				(t+iot->interval)/1000,
-                                        (t+iot->interval)%1000);
-                        }
+			if(iot->interval==G_MAXINT32) {
+				printf("000.000-         ");
+			} else {
+				printf("%03d.%03d-%03d.%03d  ",
+					t/1000,t%1000,
+					(t+iot->interval)/1000,
+					(t+iot->interval)%1000);
+			}
 			for(i=0;i<iot->num_items;i++){
 				switch(iot->items[i].calc_type){
 				case CALC_TYPE_BYTES:
 					printf("%6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u ",frames[i], counters[i]);
 					break;
 				case CALC_TYPE_COUNT:
-					printf("        %8" G_GINT64_MODIFIER "u ", counters[i]);
+					printf(" %15" G_GINT64_MODIFIER "u ", counters[i]);
 					break;
 				case CALC_TYPE_SUM:
-					printf("        %8" G_GINT64_MODIFIER "u ", counters[i]);
+					printf(" %15" G_GINT64_MODIFIER "u ", counters[i]);
 					break;
 				case CALC_TYPE_MIN:
 					switch(proto_registrar_get_ftype(iot->items[i].hf_index)){
@@ -423,17 +423,17 @@ iostat_draw(void *arg)
 					case FT_UINT24:
 					case FT_UINT32:
 					case FT_UINT64:
-						printf("        %8" G_GINT64_MODIFIER "u ", counters[i]);
+						printf(" %15" G_GINT64_MODIFIER "u ", counters[i]);
 						break;
 					case FT_INT8:
 					case FT_INT16:
 					case FT_INT24:
 					case FT_INT32:
 					case FT_INT64:
-						printf("        %8" G_GINT64_MODIFIER "d ", counters[i]);
+						printf(" %15" G_GINT64_MODIFIER "d ", counters[i]);
 						break;
 					case FT_RELATIVE_TIME:
-						printf("      %6" G_GINT64_MODIFIER "d.%03d ", counters[i]/1000, (gint)counters[i]%1000);
+						printf(" %11" G_GINT64_MODIFIER "d.%03d ", counters[i]/1000, (gint)counters[i]%1000);
 						break;
 					}
 					break;
@@ -444,17 +444,17 @@ iostat_draw(void *arg)
 					case FT_UINT24:
 					case FT_UINT32:
 					case FT_UINT64:
-						printf("        %8" G_GINT64_MODIFIER "u ", counters[i]);
+						printf(" %15" G_GINT64_MODIFIER "u ", counters[i]);
 						break;
 					case FT_INT8:
 					case FT_INT16:
 					case FT_INT24:
 					case FT_INT32:
 					case FT_INT64:
-						printf("        %8" G_GINT64_MODIFIER "d ", counters[i]);
+						printf(" %15" G_GINT64_MODIFIER "d ", counters[i]);
 						break;
 					case FT_RELATIVE_TIME:
-						printf("      %6" G_GINT64_MODIFIER "d.%03d ", counters[i]/1000, (gint)counters[i]%1000);
+						printf(" %11" G_GINT64_MODIFIER "d.%03d ", counters[i]/1000, (gint)counters[i]%1000);
 						break;
 					}
 					break;
@@ -468,18 +468,18 @@ iostat_draw(void *arg)
 					case FT_UINT24:
 					case FT_UINT32:
 					case FT_UINT64:
-						printf("        %8" G_GINT64_MODIFIER "u ", counters[i]/num[i]);
+						printf(" %15" G_GINT64_MODIFIER "u ", counters[i]/num[i]);
 						break;
 					case FT_INT8:
 					case FT_INT16:
 					case FT_INT24:
 					case FT_INT32:
 					case FT_INT64:
-						printf("        %8" G_GINT64_MODIFIER "d ", counters[i]/num[i]);
+						printf(" %15" G_GINT64_MODIFIER "d ", counters[i]/num[i]);
 						break;
 					case FT_RELATIVE_TIME:
 						counters[i]/=num[i];
-						printf("      %6" G_GINT64_MODIFIER "d.%03d ", counters[i]/1000, (gint)counters[i]%1000);
+						printf(" %11" G_GINT64_MODIFIER "d.%03d ", counters[i]/1000, (gint)counters[i]%1000);
 						break;
 					}
 					break;
@@ -541,7 +541,7 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 	hfi=NULL;
 	for(j=0; calc_type_table[j].func_name; j++){
 		namelen=strlen(calc_type_table[j].func_name);
-                if(filter
+		if(filter
 		    && strncmp(filter, calc_type_table[j].func_name, namelen) == 0
 		    && *(filter+namelen)=='('){
 			io->items[i].calc_type=calc_type_table[j].calc_type;
@@ -574,7 +574,7 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 				g_free(field);
 				exit(10);
 			}
-	
+
 			io->items[i].hf_index=hfi->id;
 			break;
 		}
@@ -650,7 +650,7 @@ static void
 iostat_init(const char *optarg, void* userdata _U_)
 {
 	float interval_float;
-	gint32 interval; 
+	gint32 interval;
 	int idx=0;
 	io_stat_t *io;
 	const char *filter=NULL;
@@ -666,21 +666,21 @@ iostat_init(const char *optarg, void* userdata _U_)
 		exit(1);
 	}
 
-        /* if interval is 0, calculate statistics over the whole file
-         * by setting the interval to G_MAXINT32
-         */
-        if(interval_float==0) {
-                interval=G_MAXINT32;
-        } else {
-	        /* make interval be number of ms */
-	        interval=(gint32)(interval_float*1000.0+0.9);	
-        }
+	/* if interval is 0, calculate statistics over the whole file
+	 * by setting the interval to G_MAXINT32
+	 */
+	if(interval_float==0) {
+		interval=G_MAXINT32;
+	} else {
+		/* make interval be number of ms */
+		interval=(gint32)(interval_float*1000.0+0.9);
+	}
 
 	if(interval<1){
 		fprintf(stderr, "tshark: \"-z\" interval must be >=0.001 seconds or 0.\n");
 		exit(10);
 	}
-	
+
 	io=g_malloc(sizeof(io_stat_t));
 	io->interval=interval;
 	if((!filter)||(filter[0]==0)){
@@ -704,7 +704,7 @@ iostat_init(const char *optarg, void* userdata _U_)
 		io->items=g_malloc(sizeof(io_stat_item_t)*io->num_items);
 		io->filters=g_malloc(sizeof(char *)*io->num_items);
 
-		/* for each filter, register a tap listener */		
+		/* for each filter, register a tap listener */
 		i=0;
 		str=filter;
 		do{
@@ -720,9 +720,9 @@ iostat_init(const char *optarg, void* userdata _U_)
 				register_io_tap(io, i, tmp);
 			}
 			str=pos+1;
-			i++;			
+			i++;
 		} while(pos);
-	}			
+	}
 }
 
 void
