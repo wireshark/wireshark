@@ -246,7 +246,7 @@ typedef struct _rtp_decoder_t {
 
 
 /****************************************************************************/
-static void 
+static void
 rtp_key_destroy(gpointer key)
 {
 	g_free(key);
@@ -254,7 +254,7 @@ rtp_key_destroy(gpointer key)
 }
 
 /****************************************************************************/
-static void 
+static void
 rtp_channel_value_destroy(gpointer rci_arg)
 {
 	rtp_channel_info_t *rci = rci_arg;
@@ -265,7 +265,7 @@ rtp_channel_value_destroy(gpointer rci_arg)
 }
 
 /****************************************************************************/
-static void 
+static void
 rtp_stream_value_destroy(gpointer rsi_arg)
 {
 	rtp_stream_info_t *rsi = rsi_arg;
@@ -281,7 +281,7 @@ rtp_stream_value_destroy(gpointer rsi_arg)
 		g_free(rp->payload_data);
 		g_free(rp);
 		rp = NULL;
-	
+
 		rtp_packets_list = g_list_next(rtp_packets_list);
 	}
 	g_free((void *)(rsi->src_addr.data));
@@ -291,7 +291,7 @@ rtp_stream_value_destroy(gpointer rsi_arg)
 }
 
 /****************************************************************************/
-static void 
+static void
 rtp_decoder_value_destroy(gpointer dec_arg)
 {
 	rtp_decoder_t *dec = dec_arg;
@@ -303,13 +303,13 @@ rtp_decoder_value_destroy(gpointer dec_arg)
 
 /****************************************************************************/
 static void
-set_sensitive_check_bt(gchar *key _U_ , rtp_channel_info_t *rci, guint *stop _U_ ) 
+set_sensitive_check_bt(gchar *key _U_ , rtp_channel_info_t *rci, guint *stop _U_ )
 {
-	gtk_widget_set_sensitive(rci->check_bt, !(*stop));	
+	gtk_widget_set_sensitive(rci->check_bt, !(*stop));
 }
 
 /****************************************************************************/
-static void 
+static void
 bt_state(gboolean decode, gboolean play, gboolean pause, gboolean stop)
 {
 	gboolean new_jitter_value = FALSE;
@@ -322,36 +322,36 @@ bt_state(gboolean decode, gboolean play, gboolean pause, gboolean stop)
 	} else {
 		gtk_widget_set_sensitive(jitter_spinner, decode);
 	}
-		
+
 	if (new_jitter_buff != (int) gtk_spin_button_get_value((GtkSpinButton * )jitter_spinner)) {
 		new_jitter_value = TRUE;
 	}
 
 	/* set the sensitive state of play only if there is a channel selected */
-	if ( play && (rtp_channels->rci[0] || rtp_channels->rci[1]) && !new_jitter_value) {		
+	if ( play && (rtp_channels->rci[0] || rtp_channels->rci[1]) && !new_jitter_value) {
 		gtk_widget_set_sensitive(bt_play, TRUE);
 	} else {
 		gtk_widget_set_sensitive(bt_play, FALSE);
 	}
-	
+
 	if (!new_jitter_value) {
 		gtk_widget_set_sensitive(bt_pause, pause);
 		gtk_widget_set_sensitive(bt_stop, stop);
 
 		/* Set sensitive to the check buttons based on the STOP state */
 		if (rtp_channels_hash)
-			g_hash_table_foreach( rtp_channels_hash, (GHFunc)set_sensitive_check_bt, &stop);	
+			g_hash_table_foreach( rtp_channels_hash, (GHFunc)set_sensitive_check_bt, &stop);
 	} else {
 		gtk_widget_set_sensitive(bt_pause, FALSE);
 		gtk_widget_set_sensitive(bt_stop, FALSE);
 
 		if (rtp_channels_hash)
-			g_hash_table_foreach( rtp_channels_hash, (GHFunc)set_sensitive_check_bt, &false_val);	
+			g_hash_table_foreach( rtp_channels_hash, (GHFunc)set_sensitive_check_bt, &false_val);
 	}
 }
 
 /****************************************************************************/
-void 
+void
 add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 {
 	rtp_stream_info_t *stream_info = NULL;
@@ -417,10 +417,10 @@ add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 }
 
 /****************************************************************************/
-/* Mark the RTP stream to be played. Use the voip_calls graph to see if the 
+/* Mark the RTP stream to be played. Use the voip_calls graph to see if the
  * setup_frame is there and then if the associated voip_call is selected.
  */
-static void 
+static void
 mark_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U_)
 {
 	GList*  graph_list;
@@ -459,10 +459,10 @@ mark_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U
 }
 
 /****************************************************************************/
-/* Mark the ALL RTP stream to be played. This is called when calling the 
+/* Mark the ALL RTP stream to be played. This is called when calling the
  * RTP player from the "RTP Analysis" window
  */
-static void 
+static void
 mark_all_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U_)
 {
 	rsi->play = TRUE;
@@ -470,10 +470,10 @@ mark_all_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer pt
 }
 
 /****************************************************************************/
-/* Decode a RTP packet 
+/* Decode a RTP packet
  * Return the number of decoded bytes
  */
-static int 
+static int
 decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash)
 {
 	unsigned int  payload_type;
@@ -519,13 +519,13 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
 		tmp_buff = g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 1);
 		decodeG711u(rp->payload_data, rp->info->info_payload_len,
 			  tmp_buff, &decoded_bytes);
-		break; 
+		break;
 
 	case PT_PCMA:	/* G.711 A-law */
 		tmp_buff = g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 1);
 		decodeG711a(rp->payload_data, rp->info->info_payload_len,
 			  tmp_buff, &decoded_bytes);
-		break; 
+		break;
 
 #ifdef HAVE_G729_G723
 	case PT_G729:	/* G.729 */
@@ -534,13 +534,13 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
 		tmp_buff = g_malloc(sizeof(SAMPLE) * ((rp->info->info_payload_len + 8) / 10) * 80);
 		decodeG729(rp->payload_data, rp->info->info_payload_len,
 			  tmp_buff, &decoded_bytes);
-		break; 
+		break;
 
 	case PT_G723:	/* G.723 */
 		if (rp->info->info_payload_len%24 == 0)	/* G723 High 6.4kbps */
-			tmp_buff = g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 10); /* G723 High 64kbps/6.4kbps = 10  */	
+			tmp_buff = g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 10); /* G723 High 64kbps/6.4kbps = 10  */
 		else if (rp->info->info_payload_len%20 == 0)    /* G723 Low 5.3kbps */
-			tmp_buff = g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 13); /* G723 High 64kbps/5.3kbps = 13  */	
+			tmp_buff = g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 13); /* G723 High 64kbps/5.3kbps = 13  */
 		else {
 			return 0;
 		}
@@ -577,7 +577,7 @@ update_progress_bar(gfloat fraction)
 /****************************************************************************/
 /* Decode the RTP streams and add them to the RTP channels struct
  */
-static void 
+static void
 decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 {
 	GString *key_str = NULL;
@@ -610,7 +610,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 	sample_t silence;
 	sample_t sample;
 	guint8 status;
-	guint32 start_timestamp; 
+	guint32 start_timestamp;
 	GHashTable *decoders_hash = NULL;
 
 	guint32 progbar_nextstep;
@@ -620,7 +620,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 	silence.val = 0;
 	silence.status = S_NORMAL;
 
-	/* skip it if we are not going to play it */ 
+	/* skip it if we are not going to play it */
 	if (rsi->play == FALSE) {
 		return;
 	}
@@ -649,7 +649,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 		rci = g_malloc(sizeof(rtp_channel_info_t));
 		rci->call_num = rsi->call_num;
 		rci->start_time = rsi->start_time;
-		rci->end_time = rsi->start_time;		
+		rci->end_time = rsi->start_time;
 		rci->selected = FALSE;
 		rci->frame_index = 0;
 		rci->drop_by_jitter_buff = 0;
@@ -720,7 +720,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 
 			progbar_nextstep += progbar_quantum;
 		}
-		
+
 
 		rp = rtp_packets_list->data;
 		if (first == TRUE) {
@@ -757,17 +757,17 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 		if (delay<0) delay = -delay;
 
 		if (diff<0) diff = -diff;
-  
+
 		total_time = (double)rp->arrive_offset/1000;
-#if DEBUG		
-		printf("seq = %d arr = %f abs_diff = %f index = %d tim = %f ji=%d jb=%f\n",rp->info->info_seq_num, 
+#ifdef DEBUG
+		printf("seq = %d arr = %f abs_diff = %f index = %d tim = %f ji=%d jb=%f\n",rp->info->info_seq_num,
 			total_time, diff, rci->samples->len, ((double)rci->samples->len/8000 - total_time)*1000, 0,
 				(mean_delay + 4*variation)*1000);
 		fflush(stdout);
 #endif
-		/* if the jitter buffer was exceeded */	
+		/* if the jitter buffer was exceeded */
 		if ( diff*1000 > jitter_buff ) {
-#if DEBUG
+#ifdef DEBUG
 			printf("Packet drop by jitter buffer exceeded\n");
 #endif
 			rci->drop_by_jitter_buff++;
@@ -775,7 +775,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 
 			/* if there was a silence period (more than two packetization period) resync the source */
 			if ( (rtp_time - rtp_time_prev) > pack_period*2 ){
-#if DEBUG
+#ifdef DEBUG
 				printf("Resync...\n");
 #endif
 
@@ -820,7 +820,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 				g_array_append_val(rci->samples, sample);
 				status = S_NORMAL;
 			}
-	
+
 			rtp_time_prev = rtp_time;
 			pack_period = (double)(decoded_bytes/2)/SAMPLE_RATE;
 			decoded_bytes_prev = decoded_bytes;
@@ -843,7 +843,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 }
 
 /****************************************************************************/
-static gint 
+static gint
 h_scrollbar_changed(GtkWidget *widget _U_, gpointer user_data)
 {
 	rtp_channel_info_t *rci = (rtp_channel_info_t *)user_data;
@@ -855,8 +855,8 @@ static gboolean draw_cursors(gpointer data);
 
 /****************************************************************************/
 static void
-stop_channels(void) 
-{	
+stop_channels(void)
+{
 	PaError err;
 	GtkWidget *dialog;
 
@@ -911,9 +911,9 @@ stop_channels(void)
 }
 
 /****************************************************************************/
-/* Draw a cursor in a channel graph 
+/* Draw a cursor in a channel graph
  */
-static void 
+static void
 draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 {
 #if PORTAUDIO_API_1
@@ -969,7 +969,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 			rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
 
 		gdk_draw_drawable(rci->draw_area->window,
-			rci->draw_area->style->fg_gc[GTK_WIDGET_STATE(rci->draw_area)],	
+			rci->draw_area->style->fg_gc[GTK_WIDGET_STATE(rci->draw_area)],
 			rci->pixmap,
 			(int) (idx/MULT), 0,
 			(int) (idx/MULT), 0,
@@ -982,7 +982,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 	/* Move the horizontal scroll bar */
 #if 0
 	if ( (rci->cursor_prev/MULT < (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) &&
-		(idx/MULT >= (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) ){		
+		(idx/MULT >= (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) ){
 		for (i=1; i<10; i++) {
 			rci->h_scrollbar_adjustment->value += rci->h_scrollbar_adjustment->page_size/10;
 			gtk_adjustment_value_changed(rci->h_scrollbar_adjustment);
@@ -999,8 +999,8 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 		}
 
 		gtk_adjustment_value_changed(rci->h_scrollbar_adjustment);
-	} else if ( (rci->cursor_prev/MULT < (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) && 
-		(idx/MULT >= (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) ){	
+	} else if ( (rci->cursor_prev/MULT < (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) &&
+		(idx/MULT >= (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) ){
 		rci->cursor_catch = FALSE;
 		for (i=1; i<10; i++) {
 			rci->h_scrollbar_adjustment->value = min(rci->h_scrollbar_adjustment->upper-rci->h_scrollbar_adjustment->page_size, rci->h_scrollbar_adjustment->value + (rci->h_scrollbar_adjustment->page_size/20));
@@ -1042,9 +1042,9 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 }
 
 /****************************************************************************/
-/* Move and draw the cursor in the graph 
+/* Move and draw the cursor in the graph
  */
-static gboolean 
+static gboolean
 draw_cursors(gpointer data _U_)
 {
 	if (!rtp_channels) return FALSE;
@@ -1063,7 +1063,7 @@ static void
 init_rtp_channels_vals(void)
 {
 	rtp_play_channels_t *rpci = rtp_channels;
-	
+
 	/* if we only have one channel to play, we just use the info from that channel */
 	if (rpci->rci[0] == NULL) {
 		rpci->max_frame_index = rpci->rci[1]->max_frame_index;
@@ -1089,7 +1089,7 @@ init_rtp_channels_vals(void)
 		} else {
 			rpci->start_index[1] = 0;
 			rpci->start_index[0] = (guint32)(SAMPLE_RATE/1000) * (guint32)(rpci->rci[0]->start_time - rpci->rci[1]->start_time);
-		} 
+		}
 
 		if (rpci->rci[0]->end_time < rpci->rci[1]->end_time) {
 			rpci->end_index[0] = rpci->max_frame_index - ((guint32)(SAMPLE_RATE/1000) * (guint32)(rpci->rci[1]->end_time - rpci->rci[0]->end_time));
@@ -1097,7 +1097,7 @@ init_rtp_channels_vals(void)
 		} else {
 			rpci->end_index[1] = rpci->max_frame_index - ((guint32)(SAMPLE_RATE/1000) * (guint32)(rpci->rci[0]->end_time - rpci->rci[1]->end_time));
 			rpci->end_index[0] = rpci->max_frame_index;
-		} 
+		}
 	}
 }
 
@@ -1142,7 +1142,7 @@ static int paCallback( const void *inputBuffer, void *outputBuffer,
 #if PORTAUDIO_API_1
 	rpci->out_diff_time = outTime -  Pa_StreamTime(pa_stream) ;
 #else /* PORTAUDIO_API_1 */
-	rpci->out_diff_time = (guint32)(SAMPLE_RATE) * (outTime->outputBufferDacTime - Pa_GetStreamTime(pa_stream)) ; 
+	rpci->out_diff_time = (guint32)(SAMPLE_RATE) * (outTime->outputBufferDacTime - Pa_GetStreamTime(pa_stream)) ;
 #endif /* PORTAUDIO_API_1 */
 
 
@@ -1195,7 +1195,7 @@ static int paCallback( const void *inputBuffer, void *outputBuffer,
 }
 
 /****************************************************************************/
-static void 
+static void
 on_bt_check_clicked(GtkButton *button _U_, gpointer user_data _U_)
 {
 	rtp_channel_info_t *rci = user_data;
@@ -1248,7 +1248,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 	GdkGC *amber_gc;
 	GdkColor red_color = {0, 65535, 0, 0};
 	GdkColor amber_color = {0, 65535, 49152, 0};
-	
+
 	if (GDK_IS_DRAWABLE(rci->pixmap)) {
 		/* Clear out old plot */
 		gdk_draw_rectangle(rci->pixmap,
@@ -1377,7 +1377,7 @@ static gint expose_event_channels(GtkWidget *widget, GdkEventExpose *event)
 }
 
 /****************************************************************************/
-static gint 
+static gint
 configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_)
 {
 	rtp_channel_info_t *rci;
@@ -1385,7 +1385,7 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_)
 
 	/* the first color is blue to highlight the selected item
 	 * the other collors are the same as in the Voip Graph analysys
-	 * to match the same calls 
+	 * to match the same calls
 	 */
         static GdkColor col[MAX_NUM_COL_CONV+1] = {
                 {0,     0x00FF, 0x00FF, 0xFFFF},
@@ -1436,7 +1436,7 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_)
 }
 
 /****************************************************************************/
-static gint 
+static gint
 button_press_event_channel(GtkWidget *widget, GdkEventButton *event _U_)
 {
 	rtp_channel_info_t *rci;
@@ -1471,7 +1471,7 @@ button_press_event_channel(GtkWidget *widget, GdkEventButton *event _U_)
 		rtp_channels->channel = !(rtp_channels->channel);
 		rci->selected = TRUE;
 
-		/* set the sensitive state of the buttons (decode, play, pause, stop) */		
+		/* set the sensitive state of the buttons (decode, play, pause, stop) */
 		bt_state(TRUE, TRUE, FALSE, FALSE);
 	}
 
@@ -1482,7 +1482,7 @@ button_press_event_channel(GtkWidget *widget, GdkEventButton *event _U_)
 	}
 
 	rci->frame_index = (unsigned int) (event->x * MULT);
-	
+
 	prev_index = rtp_channels->frame_index;
 	rtp_channels->frame_index = rtp_channels->start_index[this_channel] + rci->frame_index;
 	rtp_channels->pause_duration += prev_index - rtp_channels->frame_index;
@@ -1524,13 +1524,13 @@ add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _
 
 	/* create the channel draw area */
 	rci->draw_area=gtk_drawing_area_new();
-	
+
 	rci->scroll_window=gtk_scrolled_window_new(NULL, NULL);
 
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (rci->scroll_window), GTK_POLICY_ALWAYS, GTK_POLICY_NEVER);
 	rci->h_scrollbar_adjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(rci->scroll_window));
 
-	
+
 	gtk_widget_set_size_request(rci->draw_area, (gint)(rci->samples->len/MULT), CHANNEL_HEIGHT);
 
 
@@ -1573,7 +1573,7 @@ add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _
 
 	rci->check_bt = gtk_check_button_new_with_label(label->str);
 	gtk_box_pack_start(GTK_BOX (channels_vb), rci->check_bt, FALSE, FALSE, 1);
-	
+
 	/* Create the Separator if it is not the last one */
 	(*counter)++;
 	if (*counter < g_hash_table_size(rtp_channels_hash)) {
@@ -1588,15 +1588,15 @@ add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _
 
 /****************************************************************************/
 static void
-count_channel_frames(gchar *key _U_ , rtp_channel_info_t *rci, gpointer ptr _U_ ) 
+count_channel_frames(gchar *key _U_ , rtp_channel_info_t *rci, gpointer ptr _U_ )
 {
 	total_frames += rci->samples->len;
 }
 
 /****************************************************************************/
 static void
-play_channels(void) 
-{	
+play_channels(void)
+{
 	PaError err;
 	GtkWidget *dialog;
 
@@ -1661,7 +1661,7 @@ play_channels(void)
 		}
 #else /* PORTAUDIO_API_1 */
 		if (Pa_GetDefaultOutputDevice() != paNoDevice) {
-			err = Pa_OpenDefaultStream( 
+			err = Pa_OpenDefaultStream(
 				&pa_stream,
 				0,
 				NUM_CHANNELS,     /* Stereo output */
@@ -1679,13 +1679,13 @@ play_channels(void)
 
 			PaHostApiIndex host_api_index;
 			const PaHostApiInfo *host_api_info;
-				
+
 			for (host_api_index=0; host_api_index<host_api_count; host_api_index++)
 			{
 				/* Skip the default host API, that didn't work before */
 				if (host_api_index == default_host_api_index)
 					continue;
-				
+
 				/* If we find a host API with a device, then take it. */
 				host_api_info = Pa_GetHostApiInfo(host_api_index);
 				if (host_api_info->deviceCount > 0)
@@ -1700,7 +1700,7 @@ play_channels(void)
 				stream_parameters.sampleFormat = PA_SAMPLE_TYPE;     /* 16 bit Integer output */
 				stream_parameters.suggestedLatency = 0;
 				stream_parameters.hostApiSpecificStreamInfo = NULL;
-#if DEBUG
+#ifdef DEBUG
 				g_print("Trying Host API: %s\n", host_api_info->name);
 #endif
 				err = Pa_OpenStream(
@@ -1803,8 +1803,8 @@ play_channels(void)
 
 /****************************************************************************/
 static void
-pause_channels(void) 
-{	
+pause_channels(void)
+{
 	rtp_channels->pause = !(rtp_channels->pause);
 
 	/* reactivate the cusrosr display if no in pause */
@@ -1813,12 +1813,12 @@ pause_channels(void)
 		g_timeout_add_full(G_PRIORITY_DEFAULT_IDLE, MULT*1000/SAMPLE_RATE, draw_cursors, NULL, NULL);
 	}
 
-	/* set the sensitive state of the buttons (decode, play, pause, stop) */	
+	/* set the sensitive state of the buttons (decode, play, pause, stop) */
 	bt_state(FALSE, TRUE, FALSE, TRUE);
 }
 
 /****************************************************************************/
-static void 
+static void
 reset_rtp_channels(void)
 {
 	rtp_channels->channel = 0;
@@ -1838,7 +1838,7 @@ reset_rtp_channels(void)
 
 /****************************************************************************/
 static void
-remove_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, gpointer ptr _U_ ) 
+remove_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, gpointer ptr _U_ )
 {
 	g_object_unref(rci->pixmap);
 	gtk_widget_destroy(rci->draw_area);
@@ -1891,8 +1891,8 @@ reset_rtp_player(void)
 
 /****************************************************************************/
 static void
-decode_streams(void) 
-{	
+decode_streams(void)
+{
 	guint statusbar_context;
 	guint counter;
 
@@ -1915,10 +1915,10 @@ decode_streams(void)
 	/* reset the Progress Bar count */
 	progbar_count = 0;
 
-	/* Mark the RTP streams to be played using the selected VoipCalls. If voip_calls is NULL 
+	/* Mark the RTP streams to be played using the selected VoipCalls. If voip_calls is NULL
            then this was called from "RTP Analysis" so mark all strams */
 	if (rtp_streams_hash) {
-		if (voip_calls)          
+		if (voip_calls)
 			g_hash_table_foreach( rtp_streams_hash, (GHFunc)mark_rtp_stream_to_play, NULL);
 		else
 			g_hash_table_foreach( rtp_streams_hash, (GHFunc)mark_all_rtp_stream_to_play, NULL);
@@ -1931,7 +1931,7 @@ decode_streams(void)
 	total_frames = 0;
 	/* Count the frames in all the RTP channels */
 	if (rtp_channels_hash)
-		g_hash_table_foreach( rtp_channels_hash, (GHFunc)count_channel_frames, NULL);	
+		g_hash_table_foreach( rtp_channels_hash, (GHFunc)count_channel_frames, NULL);
 
 	/* reset the Progress Bar count again for the progress of creating the channels view */
 	progbar_count = 0;
@@ -1941,14 +1941,14 @@ decode_streams(void)
 	/* Display the RTP channels in the window */
 	counter = 0;
 	if (rtp_channels_hash)
-		g_hash_table_foreach( rtp_channels_hash, (GHFunc)add_channel_to_window, &counter);	
+		g_hash_table_foreach( rtp_channels_hash, (GHFunc)add_channel_to_window, &counter);
 
 	/* Resize the main scroll window to display no more than preferred (or default) max channels, scroll bar will be used if needed */
 
         if (prefs.rtp_player_max_visible < 1 || prefs.rtp_player_max_visible > 10)
                 prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
 
-	gtk_widget_set_size_request(main_scrolled_window, CHANNEL_WIDTH, 
+	gtk_widget_set_size_request(main_scrolled_window, CHANNEL_WIDTH,
 		min(counter, prefs.rtp_player_max_visible) * (CHANNEL_HEIGHT+60));
 
 	gtk_widget_show_all(main_scrolled_window);
@@ -1969,7 +1969,7 @@ decode_streams(void)
 }
 
 /****************************************************************************/
-static void 
+static void
 on_cb_use_rtp_clicked(GtkToggleButton  *button _U_, gpointer user_data _U_)
 {
 	/* set the sensitive state of the buttons (decode, play, pause, stop) */
@@ -1977,28 +1977,28 @@ on_cb_use_rtp_clicked(GtkToggleButton  *button _U_, gpointer user_data _U_)
 }
 
 /****************************************************************************/
-static void 
+static void
 on_bt_decode_clicked(GtkButton *button _U_, gpointer user_data _U_)
 {
 	decode_streams();
 }
 
 /****************************************************************************/
-static void 
+static void
 on_bt_play_clicked(GtkButton *button _U_, gpointer user_data _U_)
 {
 	play_channels();
 }
 
 /****************************************************************************/
-static void 
+static void
 on_bt_pause_clicked(GtkButton *button _U_, gpointer user_data _U_)
 {
 	pause_channels();
 }
 
 /****************************************************************************/
-static void 
+static void
 on_bt_stop_clicked(GtkButton *button _U_, gpointer user_data _U_)
 {
 	stop_channels();
@@ -2062,7 +2062,7 @@ rtp_player_dlg_create(void)
 	GtkTooltips *tooltips = gtk_tooltips_new();
 
 	title_name_ptr = cf_get_display_name(&cfile);
-	win_name = g_strdup_printf("%s - VoIP - RTP Player", title_name_ptr);	
+	win_name = g_strdup_printf("%s - VoIP - RTP Player", title_name_ptr);
 
 	rtp_player_dlg_w = dlg_window_new(win_name);  /* transient_for top_level */
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(rtp_player_dlg_w), TRUE);
@@ -2073,7 +2073,7 @@ rtp_player_dlg_create(void)
 	main_vb = gtk_vbox_new (FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(rtp_player_dlg_w), main_vb);
 	gtk_container_set_border_width (GTK_CONTAINER (main_vb), 2);
-	
+
 	main_scrolled_window=gtk_scrolled_window_new(NULL, NULL);
 	gtk_container_set_border_width (GTK_CONTAINER (main_scrolled_window), 4);
 	gtk_widget_set_size_request(main_scrolled_window, CHANNEL_WIDTH, 0);
@@ -2090,7 +2090,7 @@ rtp_player_dlg_create(void)
 	gtk_box_pack_start (GTK_BOX(main_vb), h_jitter_buttons_box, FALSE, FALSE, 0);
 	label = gtk_label_new("Jitter buffer [ms] ");
 	gtk_box_pack_start(GTK_BOX(h_jitter_buttons_box), label, FALSE, FALSE, 0);
-	
+
 	jitter_spinner_adj = (GtkAdjustment *) gtk_adjustment_new (50, 0, 500, 5, 10, 0);
 	jitter_spinner = gtk_spin_button_new (jitter_spinner_adj, 5, 0);
 	gtk_box_pack_start(GTK_BOX(h_jitter_buttons_box), jitter_spinner, FALSE, FALSE, 0);
@@ -2157,7 +2157,7 @@ rtp_player_dlg_create(void)
 
 	/* set the sensitive state of the buttons (decode, play, pause, stop) */
 	bt_state(TRUE, FALSE, FALSE, FALSE);
-	
+
 	gtk_widget_show_all(rtp_player_dlg_w);
 
 	/* Force gtk to redraw the window before starting decoding the packet */
@@ -2202,23 +2202,23 @@ rtp_player_init(voip_calls_tapinfo_t *voip_calls_tap)
 
 	reset_rtp_channels();
 
-#if DEBUG
+#ifdef DEBUG
 	g_print("Pa_GetHostApiCount() = %d\n", Pa_GetHostApiCount());
 	g_print("Pa_GetDefaultHostApi() = %d\n", Pa_GetDefaultHostApi());
-	
+
 	if ((Pa_GetHostApiCount() >= 0) && (Pa_GetDefaultHostApi() >= 0))
 	{
 		unsigned int i;
 		PaHostApiIndex api_index;
 		const PaHostApiInfo *api_info = Pa_GetHostApiInfo( (unsigned int)Pa_GetDefaultHostApi() );
 		g_print("Default PaHostApiInfo.type = %d (%s)\n", api_info->type, api_info->name);
-		
+
 		for (i=0; i<(unsigned int)Pa_GetHostApiCount(); i++)
 		{
 			api_info = Pa_GetHostApiInfo( i );
 			g_print("PaHostApiInfo[%u].type = %d (%s)\n", i, api_info->type, api_info->name);
 		}
-		
+
 		api_index = Pa_HostApiTypeIdToHostApiIndex( paALSA );
 		if (api_index < 0)
 		{
@@ -2234,7 +2234,7 @@ rtp_player_init(voip_calls_tapinfo_t *voip_calls_tap)
 
 	/* create the dialog window */
 	rtp_player_dlg_create();
-	
+
 }
 
 #endif /* HAVE_LIBPORTAUDIO */
