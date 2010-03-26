@@ -43,7 +43,7 @@
 
 typedef struct _io_stat_t {
 	gint32 interval;	/* unit is ms */
-	guint64 num_items;
+	guint32 num_items;
 	struct _io_stat_item_t *items;
 	const char **filters;
 } io_stat_t;
@@ -319,7 +319,8 @@ iostat_draw(void *arg)
 	guint64 *frames;
 	guint64 *counters;
 	guint64 *num;
-	guint64 i,more_items;
+	guint32 i;
+	gboolean more_items;
 	gint t;
 
 	iot=mit->parent;
@@ -374,7 +375,7 @@ iostat_draw(void *arg)
 	/* loop the items until we run out of them all */
 	t=0;
 	do {
-		more_items=0;
+		more_items=FALSE;
 		for(i=0;i<iot->num_items;i++){
 			frames[i]=0;
 			counters[i]=0;
@@ -392,7 +393,7 @@ iostat_draw(void *arg)
 			}
 
 			if(items[i]){
-				more_items=1;
+				more_items=TRUE;
 			}
 		}
 
