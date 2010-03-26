@@ -246,7 +246,9 @@ diameteravp_init(const char *optarg, void* userdata _U_)
 
 	/* Split command line options. */
 	tokens = g_strsplit(optarg,",", 1024);
-	opt_count=g_strv_length(tokens);
+	opt_count=0;
+	while (tokens[opt_count])
+		opt_count++;
 	if (opt_count>2)
 		ds->cmd_code=(guint32)atoi(tokens[2]);
 
