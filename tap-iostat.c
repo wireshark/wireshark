@@ -331,11 +331,11 @@ iostat_draw(void *arg)
 	if(iot->interval!=G_MAXINT32)
 		printf("Interval: %d.%03d secs\n", iot->interval/1000, iot->interval%1000);
 	for(i=0;i<iot->num_items;i++){
-		printf("Column #%" G_GINT64_MODIFIER "u: %s\n",i,iot->filters[i]?iot->filters[i]:"");
+		printf("Column #%u: %s\n",i,iot->filters[i]?iot->filters[i]:"");
 	}
 	printf("                ");
 	for(i=0;i<iot->num_items;i++){
-		printf("|   Column #%-2" G_GINT64_MODIFIER "u   ",i);
+		printf("|   Column #%-2u   ",i);
 	}
 	printf("\n");
 	printf("Time            ");
