@@ -849,6 +849,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/c-ares-1.5.3ws
     rm -r -f $(WIRESHARK_LIBS)/c-ares-1.6.0ws
     rm -r -f $(WIRESHARK_LIBS)/c-ares-1.7.0-win??ws
+    rm -r -f $(WIRESHARK_LIBS)/c-ares-1.7.1-win??ws
     rm -r -f $(WIRESHARK_LIBS)/gettext-0.14.5
     rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17
     rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17-1
