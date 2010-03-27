@@ -52,11 +52,96 @@
 
 #define DEFAULT_DIS_UDP_PORT 3000
 
+/* Encoding type the last 14 bits */
+#define DIS_ENCODING_TYPE(word)	((word) & 0x3FFF)
+
+
 static gint proto_dis = -1;
+int hf_dis_proto_ver = -1;
+int hf_dis_exercise_id = -1;
+int hf_dis_pdu_type = -1;
+int hf_dis_proto_fam = -1;
+int hf_dis_pdu_length = -1;
+int hf_dis_entity_id_site = -1;
+int hf_dis_entity_id_application = -1;
+int hf_dis_entity_id_entity = -1;
+int hf_dis_num_art_params = -1;
+int hf_dis_radio_id = -1;
+int hf_dis_ens = -1;
+int hf_dis_ens_class = -1;
+int hf_dis_ens_type = -1;
+int hf_dis_tdl_type = -1;
+int hf_dis_sample_rate = -1;
+int hf_dis_data_length = -1;
+int hf_dis_num_of_samples = -1;
+int hf_dis_signal_data = -1;
+int hf_dis_radio_category = -1;
+int hf_dis_nomenclature_version = -1;
+int hf_dis_nomenclature = -1;
+int hf_dis_radio_transmit_state = -1;
+int hf_dis_radio_input_source = -1;
+int hf_dis_antenna_pattern_type = -1;
+int hf_dis_antenna_pattern_length = -1;
+int hf_dis_transmit_frequency = -1;
+int hf_dis_spread_spectrum_usage = -1;
+int hf_dis_frequency_hopping = -1;
+int hf_dis_pseudo_noise_modulation = -1;
+int hf_dis_time_hopping = -1;
+int hf_dis_modulation_major = -1;
+int hf_dis_modulation_system = -1;
+int hf_dis_crypto_system = -1;
+int hf_dis_crypto_key = -1;
+int hf_dis_encryption_mode = -1;
+int hf_dis_key_identifier = -1;
+int hf_dis_modulation_parameter_length = -1;
+int hf_dis_mod_param_fh_net_id = -1;
+int hf_dis_mod_param_fh_set_id = -1;
+int hf_dis_mod_param_fh_lo_set_id = -1;
+int hf_dis_mod_param_fh_msg_start = -1;
+int hf_dis_mod_param_fh_reserved = -1;
+int hf_dis_mod_param_fh_sync_time_offset = -1;
+int hf_dis_mod_param_fh_security_key = -1;
+int hf_dis_mod_param_fh_clear_channel = -1;
+int hf_dis_mod_param_dump = -1;
+int hf_dis_mod_param_ts_allocation_mode = -1;
+int hf_dis_mod_param_transmitter_prim_mode = -1;
+int hf_dis_mod_param_transmitter_second_mode = -1;
+int hf_dis_mod_param_sync_state = -1;
+int hf_dis_mod_param_network_sync_id = -1;
+int hf_dis_antenna_pattern_parameter_dump = -1;
+
+/* Initialize the subtree pointers */
 static gint ett_dis = -1;
 static gint ett_dis_header = -1;
 static gint ett_dis_po_header = -1;
 static gint ett_dis_payload = -1;
+int ett_dis_ens = -1;
+int ett_dis_crypto_key = -1;
+
+static const true_false_string dis_modulation_spread_spectrum = {
+  "Spread Spectrum modulation in use",
+  "Spread Spectrum modulation not in use"
+};
+
+static const true_false_string dis_frequency_hopping_value = {
+  "Frequency hopping modulation used",
+  "Frequency hopping modulation not used"
+};
+
+static const true_false_string dis_encryption_mode_value = {
+  "diphase encryption mode",
+  "baseband encryption mode"
+};
+
+static const true_false_string dis_pseudo_noise_value = {
+  "Pseudo Noise modulation used",
+  "Pseudo Noise modulation not used"
+};
+
+static const true_false_string dis_time_hopping_value = {
+  "Time hopping modulation used",
+  "Time hopping modulation not used"
+};
 
 static guint dis_udp_port = DEFAULT_DIS_UDP_PORT;
 
@@ -73,6 +158,7 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *dis_header_node = 0;
     proto_item *dis_payload_tree = 0;
     proto_item *dis_payload_node = 0;
+    const gchar *infoStrings = 0;    
     gint offset = 0;
     const gchar *pduString = 0;
     DIS_ParserNode *pduParser = 0;
@@ -93,9 +179,10 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pduType = DIS_PDUTYPE_OTHER;
     protocolFamily = DIS_PROTOCOLFAMILY_OTHER;
     persistentObjectPduType = DIS_PERSISTENT_OBJECT_TYPE_OTHER;
-
+    
+    /* set the protocol column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, dis_proto_name_short);
-
+    
     /* Add the top-level DIS node under which the rest of the fields will be
      * displayed.
      */
@@ -108,8 +195,14 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dis_header_node = proto_tree_add_text(dis_tree, tvb, offset, -1, "Header");
     dis_header_tree = proto_item_add_subtree(dis_header_node, ett_dis_header);
     offset = parseFields(tvb, dis_header_tree, offset, DIS_FIELDS_PDU_HEADER);
+
     proto_item_set_end(dis_header_node, tvb, offset);
 
+    /* Locate the string name for the PDU type enumeration,
+     * or default to "Unknown".
+    */
+    pduString = val_to_str(pduType, DIS_PDU_Type_Strings, "Unknown"); 
+    
     /* Locate the appropriate PDU parser, if type is known.
      */
     switch (protocolFamily)
@@ -173,10 +266,6 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         break;
     default:
-        /* Locate the string name for the PDU type enumeration,
-         * or default to "Unknown".
-         */
-        pduString = val_to_str(pduType, DIS_PDU_Type_Strings, "Unknown"); 
 
         /* Add a node to contain the DIS PDU fields.
          */
@@ -190,12 +279,20 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             pduParser = DIS_PARSER_ENTITY_STATE_PDU;
             break;
 
+        /* DIS Radio Communications protocol (RCP) family PDUs */
+        case DIS_PDUTYPE_TRANSMITTER:
+            pduParser = DIS_PARSER_TRANSMITTER_PDU;
+            break;
+        case DIS_PDUTYPE_SIGNAL:
+            pduParser = DIS_PARSER_SIGNAL_PDU;
+            break;
+                             
         /* DIS Warfare PDUs */
         case DIS_PDUTYPE_FIRE:
             pduParser = DIS_PARSER_FIRE_PDU;
             break;
         case DIS_PDUTYPE_DETONATION:
-            if ( protocolVersion < DIS_VERSION_IEEE_1278_1_200X )
+            if ( disProtocolVersion < DIS_VERSION_IEEE_1278_1_200X )
             {
                 pduParser = DIS_PARSER_DETONATION_PDU;
             }
@@ -289,8 +386,51 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dis_payload_tree = proto_item_add_subtree(dis_payload_node,
             ett_dis_payload);
         offset = parseFields(tvb, dis_payload_tree, offset, pduParser);
+
         proto_item_set_end(dis_payload_node, tvb, offset);
     }
+
+    /* add detail to the INFO column if avalaible */
+    if ( check_col( pinfo->cinfo, COL_INFO) ) {
+    
+        switch (pduType)
+        {
+        /* DIS Entity Information / Interaction PDUs */
+        case DIS_PDUTYPE_ENTITY_STATE:
+            col_add_fstr( pinfo->cinfo, COL_INFO,
+                          "PDUType: %s, %s, %s",
+                          pduString, 
+                          val_to_str(entityKind, DIS_PDU_EntityKind_Strings, "Unknown Entity Kind"),
+                          val_to_str(entityDomain, DIS_PDU_Domain_Strings, "Unknown Entity Domain")
+                         );          
+            break;
+    
+        case DIS_PDUTYPE_SIGNAL:
+            col_add_fstr( pinfo->cinfo, COL_INFO,
+                          "PDUType: %s, RadioID=%u, Encoding Type=%s, Number of Samples=%u",
+                          pduString, 
+                          radioID,
+                          val_to_str(DIS_ENCODING_TYPE(encodingScheme), DIS_PDU_Encoding_Type_Strings, "Unknown Encoding Type"),
+                          numSamples
+                          ); 
+            break;
+        case DIS_PDUTYPE_TRANSMITTER:
+            col_add_fstr( pinfo->cinfo, COL_INFO,
+                          "PDUType: %s, RadioID=%u, Transmit State=%s",
+                          pduString, 
+                          radioID,
+                          val_to_str(disRadioTransmitState, DIS_PDU_RadioTransmitState_Strings, "Unknown Transmit State")
+                          ); 
+            break;
+        default:
+            /* set the basic info column (pdu type) */
+    	    col_add_fstr( pinfo->cinfo, COL_INFO,
+    	                 "PDUType: %s", 
+    	                  pduString);
+            break;
+        }
+    }
+    
     return tvb_length(tvb);
 }
 
@@ -300,20 +440,287 @@ void proto_reg_handoff_dis(void);
 
 void proto_register_dis(void)
 {
-    /* Only these 3 ett variables will be present for every DIS PDU --
-     * the rest are dynamic based on PDU type.
-     */
+
+/* registration with the filtering engine */		
+    static hf_register_info hf[] = 
+    { 
+       { &hf_dis_proto_ver,
+         { "Proto version",	      "dis.proto_ver",
+    	  FT_UINT8, BASE_DEC, VALS(DIS_PDU_ProtocolVersion_Strings), 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_exercise_id,
+         { "Excercise ID",	      "dis.exer_id",
+    	  FT_UINT8, BASE_DEC, NULL, 0x0,
+    		NULL, HFILL }
+    	},
+       { &hf_dis_pdu_type,
+         { "PDU type",	      "dis.pdu_type",
+    	  FT_UINT8, BASE_DEC, VALS(DIS_PDU_Type_Strings), 0x0,
+       	NULL, HFILL }
+       },
+       { &hf_dis_proto_fam,
+         { "Proto Family",	      "dis.proto_fam",
+    	  FT_UINT8, BASE_DEC, VALS(DIS_PDU_ProtocolFamily_Strings), 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_pdu_length,
+         { "PDU Length",	      "dis.pdu_length",
+    	  FT_UINT16, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_entity_id_site,
+         { "Entity ID Site",	      "dis.entity_id_site",
+    	  FT_UINT16, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_entity_id_application,
+         { "Entity ID Application",	      "dis.entity_id_application",
+    	  FT_UINT16, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_entity_id_entity,
+         { "Entity ID Entity",	      "dis.entity_id_entity",
+    	  FT_UINT16, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_num_art_params,
+         { "Number of Articulation Parameters",  "dis.num_articulation_params",
+    	  FT_UINT8, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_radio_id,
+         { "Radio ID",  "dis.radio.radio_id",
+    	  FT_UINT16, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_ens,
+         { "Encoding Scheme",  "dis.radio.encoding_scheme",
+    	  FT_UINT16, BASE_HEX, NULL, 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_ens_class,
+         { "Encoding Class",  "dis.radio.encoding_class",
+    	  FT_UINT16, BASE_DEC, VALS(DIS_PDU_Encoding_Class_Strings), 0xc000,
+         	NULL, HFILL }
+       },
+       { &hf_dis_ens_type,
+         { "Encoding Type", "dis.radio.encoding_type",
+    	  FT_UINT16, BASE_DEC, VALS(DIS_PDU_Encoding_Type_Strings), 0x3fff,
+         	NULL, HFILL }
+       },
+       { &hf_dis_tdl_type,
+         { "TDL Type", "dis.radio.tdl_type",
+    	  FT_UINT16, BASE_DEC, VALS(DIS_PDU_TDL_Type_Strings), 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_sample_rate,
+         { "Sample Rate", "dis.radio.sample_rate",
+    	  FT_UINT32, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_data_length,
+         { "Data Length", "dis.radio.data_length",
+    	  FT_UINT16, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_num_of_samples,
+         { "Number of Samples", "dis.radio.num_of_samples",
+    	  FT_UINT16, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_signal_data,
+		 {"Data", "dis.radio.signal_data",
+		  FT_BYTES,	BASE_NONE, NULL, 0x0,
+			NULL, HFILL}
+       },
+       { &hf_dis_radio_category,
+         { "Radio Category", "dis.radio.radio_category",
+    	  FT_UINT8, BASE_DEC, VALS(DIS_PDU_RadioCategory_Strings), 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_nomenclature_version,
+         { "Nomenclature Version", "dis.radio.nomenclature_version",
+    	  FT_UINT8, BASE_DEC, VALS(DIS_PDU_NomenclatureVersion_Strings), 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_nomenclature,
+         { "Nomenclature", "dis.radio.nomenclature",
+    	  FT_UINT16, BASE_DEC, VALS(DIS_PDU_Nomenclature_Strings), 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_radio_transmit_state,
+         { "Radio Transmit State", "dis.radio.transmit_state",
+    	  FT_UINT8, BASE_DEC, VALS(DIS_PDU_RadioTransmitState_Strings), 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_radio_input_source,
+         { "Radio Input Source", "dis.radio.input_source",
+    	  FT_UINT8, BASE_DEC, VALS(DIS_PDU_RadioInputSource_Strings), 0x0,
+         	NULL, HFILL }
+       },  
+       { &hf_dis_antenna_pattern_type,
+         { "Antenna Pattern Type", "dis.radio.antenna_pattern_type",
+    	  FT_UINT16, BASE_DEC, VALS(DIS_PDU_AntennaPatternType_Strings), 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_antenna_pattern_length,
+         { "Antenna Pattern Length", "dis.radio.antenna_pattern_length",
+    	  FT_UINT16, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_transmit_frequency,
+         { "Transmit Frequency (Hz)", "dis.radio.frequency",
+    	  FT_UINT64, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_spread_spectrum_usage,
+         { "Spread Spectrum", "dis.radio.mod_type.spread_spectrum_usage",
+		  FT_BOOLEAN, 16, TFS(&dis_modulation_spread_spectrum),0xFFFF,
+			NULL, HFILL }
+       }, 
+       { &hf_dis_frequency_hopping,
+		 { "Frequency Hopping modulation", "dis.radio.mod_type.frequency_hopping",
+		  FT_BOOLEAN, 16, TFS(&dis_frequency_hopping_value),0x0001,
+			NULL, HFILL }
+       },
+       { &hf_dis_pseudo_noise_modulation,
+		 { "Psuedo noise modulation",  "dis.radio.mod_type.pseudo_noise_modulation",
+		  FT_BOOLEAN, 16, TFS(&dis_pseudo_noise_value),0x0002,
+			NULL, HFILL }
+       },
+       { &hf_dis_time_hopping,
+		 { "Time Hopping modulation",  "dis.radio.mod_type.time_hopping",
+		  FT_BOOLEAN, 16, TFS(&dis_time_hopping_value),0x0004,
+			NULL, HFILL }
+       },
+       { &hf_dis_modulation_major,
+         { "Major Modulation", "dis.radio.mod_type.major",
+    	  FT_UINT16, BASE_DEC, VALS(DIS_PDU_MajorModulation_Strings), 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_modulation_system,
+         { "System Modulation", "dis.radio.mod_type.system",
+    	  FT_UINT16, BASE_DEC, VALS(DIS_PDU_SystemModulation_Strings), 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_crypto_system,
+         { "Crypto System", "dis.radio.crypto_system",
+    	  FT_UINT16, BASE_DEC, VALS(DIS_PDU_CryptoSystem_Strings), 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_crypto_key,
+         { "Encryption Key",  "dis.radio.encryption_key",
+    	  FT_UINT16, BASE_HEX, NULL, 0x0,
+         	NULL, HFILL }
+       },
+      { &hf_dis_encryption_mode,
+		 { "Encryption Mode",  "dis.radio.encryption_key.mode",
+		  FT_BOOLEAN, 16, TFS(&dis_encryption_mode_value),0x8000,
+			NULL, HFILL }
+       },
+       { &hf_dis_key_identifier,
+		 { "Encryption Key ID",  "dis.radio.encryption_key.id",
+		  FT_UINT16, BASE_DEC, NULL,0x7FFF,
+			NULL, HFILL }
+       }, 
+       { &hf_dis_modulation_parameter_length,
+         { "Modulation Parameter Length", "dis.radio.mod_param.length",
+    	  FT_UINT8, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_mod_param_fh_net_id,
+         { "Frequency Hopping Network ID", "dis.radio.mod_param.cctt_cingars.fh_nw_id",
+    	  FT_UINT16, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_mod_param_fh_set_id,
+         { "Frequency Set ID", "dis.radio.mod_param.cctt_cingars.fh_set_id",
+    	  FT_UINT16, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_mod_param_fh_lo_set_id,
+         { "Frequency Lockout Set ID", "dis.radio.mod_param.cctt_cingars.fh_lo_set_id",
+    	  FT_UINT16, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_mod_param_fh_msg_start,
+         { "Start of Message", "dis.radio.mod_param.cctt_cingars.fh_msg_start",
+    	  FT_UINT8, BASE_DEC, VALS(DIS_PDU_ModParamMsgStart_Strings), 0x0,
+         	NULL, HFILL }
+       },  
+       { &hf_dis_mod_param_fh_reserved,
+         { "Reserved", "dis.radio.mod_param.cctt_cingars.fh_reserved",
+    	  FT_UINT8, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },  
+       { &hf_dis_mod_param_fh_sync_time_offset,
+         { "Sync Time Offset (Seconds)", "dis.radio.mod_param.cctt_cingars.fh_sync_offset",
+    	  FT_UINT32, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },  
+       { &hf_dis_mod_param_fh_security_key,
+         { "Transmission Security Key", "dis.radio.mod_param.cctt_cingars.fh_securit_key",
+    	  FT_UINT16, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },
+       { &hf_dis_mod_param_fh_clear_channel,
+         { "Clear Channel", "dis.radio.mod_param.cctt_cingars.fh_clr_channel",
+    	  FT_UINT8, BASE_DEC, VALS(DIS_PDU_ModParamClrChannel_Strings), 0x0,
+         	NULL, HFILL }
+       },  
+       { &hf_dis_mod_param_dump,
+		 {"Modulation Parameter All", "dis.radio.mod_param.all",
+		  FT_BYTES,	BASE_NONE, NULL, 0x0,
+			NULL, HFILL}
+       },
+       { &hf_dis_mod_param_ts_allocation_mode,
+         { "Time Slot Allocaton Mode", "dis.radio.mod_param.jtids.ts_alloc_mode",
+    	  FT_UINT8, BASE_DEC, VALS(DIS_PDU_TSAllocationFidelity_Strings), 0x0,
+         	NULL, HFILL }
+       },  
+       { &hf_dis_mod_param_transmitter_prim_mode,
+         { "Transmitter Primary Mode", "dis.radio.mod_param.jtids.transmitter_primary_mode",
+    	  FT_UINT8, BASE_DEC, VALS(DIS_PDU_TerminalPrimaryMode_Strings), 0x0,
+         	NULL, HFILL }
+       },         
+       { &hf_dis_mod_param_transmitter_second_mode,
+         { "Transmitter Primary Mode", "dis.radio.mod_param.jtids.transmitter_secondary_mode",
+    	  FT_UINT8, BASE_DEC, VALS(DIS_PDU_TerminalSecondaryMode_Strings), 0x0,
+         	NULL, HFILL }
+       },         
+       { &hf_dis_mod_param_sync_state,
+         { "Synchronization State", "dis.radio.mod_param.jtids.sync_state",
+    	  FT_UINT8, BASE_DEC, VALS(DIS_PDU_ModParamSyncState_Strings), 0x0,
+         	NULL, HFILL }
+       },         
+       { &hf_dis_mod_param_network_sync_id,
+         { "Network Sync ID", "dis.radio.mod_param.jtids.network_sync_id",
+    	  FT_UINT32, BASE_DEC, NULL, 0x0,
+         	NULL, HFILL }
+       },  
+       { &hf_dis_antenna_pattern_parameter_dump,
+		 {"Antenna Pattern Parameter", "dis.radio.antenna_parameter",
+		  FT_BYTES,	BASE_NONE, NULL, 0x0,
+			NULL, HFILL}
+       },
+    };
+	
+    /* Setup protocol subtree array */
     static gint *ett[] =
     {
         &ett_dis,
         &ett_dis_header,
         &ett_dis_po_header,
+        &ett_dis_ens,
+        &ett_dis_crypto_key,
         &ett_dis_payload
     };
 
     module_t *dis_module;
 
     proto_dis = proto_register_protocol(dis_proto_name, dis_proto_name_short, "dis");
+    proto_register_field_array(proto_dis, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     dis_module = prefs_register_protocol(proto_dis, proto_reg_handoff_dis);

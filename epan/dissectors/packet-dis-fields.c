@@ -34,29 +34,39 @@
 #include "packet-dis-enums.h"
 #include "packet-dis-pdus.h"
 
-guint32 protocolVersion;
+/* all of these variables are assigned by reference */
+/* *(parserNode.outputVar) = value                  */
+guint32 disProtocolVersion;
 guint32 pduType;
 guint32 protocolFamily;
 guint32 persistentObjectPduType;
 guint32 entityKind;
 guint32 entityDomain;
+guint32 radioID;
+guint32 disRadioTransmitState;
+guint32 encodingScheme;
+guint32 numSamples;
 guint32 numFixed;
 guint32 numVariable;
 guint32 variableDatumLength;
 guint32 variableParameterType;
 guint32 variableRecordLength;
 guint32 variableRecordType;
+guint32 majorModulation;
+guint32 systemModulation;
+guint32 modulationParamLength;
+guint32 disAntennaPattern;
 
 /* Headers
  */
 DIS_ParserNode DIS_FIELDS_PDU_HEADER[] =
 {
-    { DIS_FIELDTYPE_PROTOCOL_VERSION, "Protocol Version",0,0,0,&protocolVersion },
-    { DIS_FIELDTYPE_UINT8,            "Exercise ID",0,0,0,0 },
+    { DIS_FIELDTYPE_PROTOCOL_VERSION, "Protocol Version",0,0,0,&disProtocolVersion },
+    { DIS_FIELDTYPE_EXERCISE_ID,      "Exercise ID",0,0,0,0 },
     { DIS_FIELDTYPE_PDU_TYPE,         "PDU Type",0,0,0,&pduType },
     { DIS_FIELDTYPE_PROTOCOL_FAMILY,  "Protocol Family",0,0,0,&protocolFamily },
     { DIS_FIELDTYPE_TIMESTAMP,        "Timestamp",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16,           "Length",0,0,0,0 },
+    { DIS_FIELDTYPE_PDU_LENGTH,       "Length",0,0,0,0 },
     { DIS_FIELDTYPE_PAD16,            "Padding",0,0,0,0 },
     { DIS_FIELDTYPE_END,              NULL,0,0,0,0 }
 };
@@ -74,6 +84,7 @@ DIS_ParserNode DIS_FIELDS_PERSISTENT_OBJECT_HEADER[] =
 
 /* Composite types
  */
+ 
 DIS_ParserNode DIS_FIELDS_BURST_DESCRIPTOR[] =
 {
     { DIS_FIELDTYPE_ENTITY_TYPE, "Munition",0,0,0,0 },
@@ -93,10 +104,10 @@ DIS_ParserNode DIS_FIELDS_CLOCK_TIME[] =
 
 DIS_ParserNode DIS_FIELDS_ENTITY_ID[] =
 {
-    { DIS_FIELDTYPE_UINT16, "Site",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16, "Application",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16, "Entity",0,0,0,0 },
-    { DIS_FIELDTYPE_END,    NULL,0,0,0,0 }
+    { DIS_FIELDTYPE_SITE,        "Site",0,0,0,0 },
+    { DIS_FIELDTYPE_APPLICATION, "Application",0,0,0,0 },
+    { DIS_FIELDTYPE_ENTITY,      "Entity",0,0,0,0 },
+    { DIS_FIELDTYPE_END,         NULL,0,0,0,0 }
 };
 
 DIS_ParserNode DIS_FIELDS_ENTITY_TYPE[] =
@@ -109,6 +120,26 @@ DIS_ParserNode DIS_FIELDS_ENTITY_TYPE[] =
     { DIS_FIELDTYPE_SPECIFIC,    "Specific",0,0,0,0 },
     { DIS_FIELDTYPE_EXTRA,       "Extra",0,0,0,0 },
     { DIS_FIELDTYPE_END,         NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_RADIO_ENTITY_TYPE[] =
+{
+    { DIS_FIELDTYPE_ENTITY_KIND,          "Entity Kind",0,0,0,&entityKind },
+    { DIS_FIELDTYPE_DOMAIN,               "Domain",0,0,0,&entityDomain },
+    { DIS_FIELDTYPE_COUNTRY,              "Country",0,0,0,0 },
+    { DIS_FIELDTYPE_RADIO_CATEGORY,       "Radio Category",0,0,0,0 },
+    { DIS_FIELDTYPE_NOMENCLATURE_VERSION, "Nomenclature Version",0,0,0,0 },
+    { DIS_FIELDTYPE_NOMENCLATURE,         "Nomenclature",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                  NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_MODULATION_TYPE[] =
+{
+    { DIS_FIELDTYPE_SPREAD_SPECTRUM,        "Spread Spectrum",0,0,0,0 },
+    { DIS_FIELDTYPE_MODULATION_MAJOR,       "Major",0,0,0,&majorModulation },
+    { DIS_FIELDTYPE_MODULATION_DETAIL,      "Detail",0,0,0,0 },
+    { DIS_FIELDTYPE_MODULATION_SYSTEM,      "System",0,0,0,&systemModulation }, 
+    { DIS_FIELDTYPE_END,                    NULL,0,0,0,0 }
 };
 
 DIS_ParserNode DIS_FIELDS_EVENT_ID[] =
@@ -150,6 +181,30 @@ DIS_ParserNode DIS_FIELDS_VECTOR_FLOAT_64[] =
     { DIS_FIELDTYPE_END,     NULL,0,0,0,0 }
 };
 
+DIS_ParserNode DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS[] =
+{
+    { DIS_FIELDTYPE_FH_NETWORK_ID,        "Frequency Hopping Network ID",0,0,0,0 },
+    { DIS_FIELDTYPE_FH_SET_ID,            "Frequency Set ID",0,0,0,0 },
+    { DIS_FIELDTYPE_LO_SET_ID,            "Lockout Set ID",0,0,0,0 },
+    { DIS_FIELDTYPE_FH_MSG_START,         "Frequency Hopping Message Start",0,0,0,0 },
+    { DIS_FIELDTYPE_RESERVED,             "Reserved",0,0,0,0 },
+    { DIS_FIELDTYPE_FH_SYNC_TIME_OFFSET,  "FH Synchronization Time Offset",0,0,0,0 },
+    { DIS_FIELDTYPE_FH_SECURITY_KEY,      "Transmission Security Key",0,0,0,0 },
+    { DIS_FIELDTYPE_FH_CLEAR_CHANNEL,     "Clear Channel",0,0,0,0 },
+    { DIS_FIELDTYPE_PAD8,                 "Padding",0,0,0,0 },            
+    { DIS_FIELDTYPE_END,                  NULL,0,0,0,0 }
+}; 
+
+DIS_ParserNode DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS[] =
+{
+    { DIS_FIELDTYPE_TS_ALLOCATION_MODE,           "Time Slot Allocaton Mode",0,0,0,0 },
+    { DIS_FIELDTYPE_TRANSMITTER_PRIMARY_MODE,     "Transmitter Primary Mode",0,0,0,0 },
+    { DIS_FIELDTYPE_TRANSMITTER_SECONDARY_MODE,   "Transmitter Secondary Mode",0,0,0,0 },
+    { DIS_FIELDTYPE_JTIDS_SYNC_STATE,             "Synchronization State",0,0,0,0 },
+    { DIS_FIELDTYPE_NETWORK_SYNC_ID,              "Network Sync ID",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                          NULL,0,0,0,0 }
+}; 
+         
 /* Array records
  */
 DIS_ParserNode DIS_FIELDS_FIXED_DATUM[] =
@@ -322,6 +377,9 @@ void initializeFieldParsers()
     initializeParser(DIS_FIELDS_VR_APPLICATION_HEALTH_STATUS);
     initializeParser(DIS_FIELDS_VR_APPLICATION_INITIALIZATION);
     initializeParser(DIS_FIELDS_VR_DATA_QUERY);
+    initializeParser(DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS);
+    initializeParser(DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS);
+    
 }
 
 /* Adjust an offset variable for proper alignment for a specified field length.
@@ -522,6 +580,8 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
     const value_string *enumStrings = 0;
     guint32 enumVal = 0;
     const gchar *enumStr = 0;
+    proto_item *pi = NULL;
+    int dis_hf_id = -1;
 
     offset = alignOffset(offset, numBytes);
 
@@ -547,12 +607,15 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
         break;
     case DIS_FIELDTYPE_PROTOCOL_VERSION:
         enumStrings = DIS_PDU_ProtocolVersion_Strings;
+        dis_hf_id = hf_dis_proto_ver;
         break;
     case DIS_FIELDTYPE_PROTOCOL_FAMILY:
         enumStrings = DIS_PDU_ProtocolFamily_Strings;
+        dis_hf_id = hf_dis_proto_fam;
         break;
     case DIS_FIELDTYPE_PDU_TYPE:
         enumStrings = DIS_PDU_Type_Strings;
+        dis_hf_id = hf_dis_pdu_type;
         break;
     case DIS_FIELDTYPE_ENTITY_KIND:
         enumStrings = DIS_PDU_EntityKind_Strings;
@@ -566,6 +629,15 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
     case DIS_FIELDTYPE_FROZEN_BEHAVIOR:
         enumStrings = DIS_PDU_FrozenBehavior_Strings;
         break;
+    case DIS_FIELDTYPE_RADIO_CATEGORY:
+        enumStrings = DIS_PDU_RadioCategory_Strings;
+        break;        
+    case DIS_FIELDTYPE_NOMENCLATURE_VERSION:
+        enumStrings = DIS_PDU_NomenclatureVersion_Strings;
+        break;        
+    case DIS_FIELDTYPE_NOMENCLATURE:
+        enumStrings = DIS_PDU_Nomenclature_Strings;
+        break;        
     case DIS_FIELDTYPE_CATEGORY:
         if (entityKind == DIS_ENTITYKIND_PLATFORM)
         {
@@ -613,6 +685,33 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
     case DIS_FIELDTYPE_RESPONSE_FLAG:
         enumStrings = DIS_PDU_DisResponseFlag_Strings;
         break;
+    case DIS_FIELDTYPE_MODULATION_DETAIL:
+        switch (majorModulation) {
+	       case DIS_MAJOR_MOD_AMPLITUDE:
+              enumStrings = DIS_PDU_DetailModulationAmplitude_Strings;
+              break;
+	       case DIS_MAJOR_MOD_AMPLITUDE_AND_ANGLE:
+              enumStrings = DIS_PDU_DetailModulationAmpAndAngle_Strings;
+              break;
+	       case DIS_MAJOR_MOD_ANGLE:
+	          enumStrings = DIS_PDU_DetailModulationAngle_Strings;
+              break;
+	       case DIS_MAJOR_MOD_COMBINATION:
+	          enumStrings = DIS_PDU_DetailModulationCombination_Strings;
+              break;
+	       case DIS_MAJOR_MOD_PULSE:
+	          enumStrings = DIS_PDU_DetailModulationPulse_Strings;
+              break;
+	       case DIS_MAJOR_MOD_UNMODULATED:
+	          enumStrings = DIS_PDU_DetailModulationUnmodulated_Strings;
+              break;
+	       case DIS_MAJOR_MOD_CPSM: /* CPSM only has "other" defined */
+	       case DIS_MAJOR_MOD_OTHER:
+           default:
+              enumStrings = DIS_PDU_DetailModulationCPSM_Strings;
+              break;
+        }
+        break;
     default:
         enumStrings = 0;
         break; 
@@ -643,8 +742,13 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
         enumStr = "Unknown Enum Type";
     }
 
-    proto_tree_add_text(tree, tvb, offset, numBytes, "%s = %s",
-        parserNode.fieldLabel, enumStr);
+    if (dis_hf_id != -1) {
+       pi = proto_tree_add_item(tree, dis_hf_id, tvb, offset, 1, FALSE);
+/*       proto_item_set_text(pi, "%s = %s", parserNode.fieldLabel, enumStr); */
+    }
+    else
+       proto_tree_add_text(tree, tvb, offset, numBytes, "%s = %s",
+           parserNode.fieldLabel, enumStr);
 
     if (parserNode.outputVar != 0)
     {
@@ -666,6 +770,22 @@ gint parseField_Float(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNo
     floatVal = tvb_get_ntohieee_float(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 4, "%s = %f",
         parserNode.fieldLabel, floatVal);
+
+    offset += 4;
+
+    return offset;
+}
+
+/* Parse a 4-byte floating-point value, given text label.
+ */
+gint parseField_Float_Text(tvbuff_t *tvb, proto_tree *tree, gint offset, gchar *charStr)
+{
+    gfloat floatVal;
+
+    offset = alignOffset(offset, 4);
+    floatVal = tvb_get_ntohieee_float(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 4, "%s = %f",
+        charStr, floatVal);
 
     offset += 4;
 

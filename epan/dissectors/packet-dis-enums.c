@@ -267,6 +267,328 @@ const value_string DIS_PDU_Category_SpacePlatform_Strings[] =
     { 0,                                NULL }
 };
 
+const value_string DIS_PDU_Encoding_Class_Strings[] =
+{
+    { DIS_ENCODING_CLASS_ENCODED_AUDIO,    "Encoded Audio" },
+    { DIS_ENCODING_CLASS_RAW_BINARY_DATA,  "Raw Binary Data" },
+    { DIS_ENCODING_CLASS_APPL_SPEC_DATA,   "Application-Specific Data" },
+    { DIS_ENCODING_CLASS_DB_INDEX,         "Database index" },
+    { 0,                                   NULL }
+};
+
+const value_string DIS_PDU_Encoding_Type_Strings[] =
+{
+    { DIS_ENCODING_TYPE_OTHER,               "Other" },
+    { DIS_ENCODING_TYPE_MU_LAW,              "8-bit mu-law" },
+    { DIS_ENCODING_TYPE_CVSD,                "CVSD per MIL-STD-188-113" },
+    { DIS_ENCODING_TYPE_ADPCM_G721,          "ADPCM per CCITT G.721" },
+    { DIS_ENCODING_TYPE_16BIT_LINEAR_PCM,    "16-bit linear PCM" },
+    { DIS_ENCODING_TYPE_8BIT_LINEAR_PCM,     "8-bit linear PCM" },
+    { DIS_ENCODING_TYPE_VECTOR_QUANTIZATION, "VQ (Vector Quantization" },
+    { 0,                                NULL }
+};
+
+const value_string DIS_PDU_TDL_Type_Strings[] =
+{
+    {DIS_TDL_TYPE_OTHER,                     "Other" },   
+    {DIS_TDL_TYPE_PADIL,                     "PADIL" },                                                               
+    {DIS_TDL_TYPE_NATO_LINK1,                "NATO Link-1" },                                                       
+    {DIS_TDL_TYPE_ATDL1,                     "ATDL-1" },                                                               
+    {DIS_TDL_TYPE_LINK_11B,                  "Link 11B (TADIL B)" },                                                   
+    {DIS_TDL_TYPE_SADL,                      "Situational Awareness Data Link (SADL)" },                               
+    {DIS_TDL_TYPE_JTIDS_TADIL_J,             "Link 16 Legacy Format  (JTIDS/TADIL-J) " },                              
+    {DIS_TDL_TYPE_JTIDS_FDL_TADIL_J,         "Link 16 Legacy Format (JTIDS/FDL/TADIL-J)" },                            
+    {DIS_TDL_TYPE_LINK_11A,                  "Link 11A (TADIL A)" },                                                   
+    {DIS_TDL_TYPE_IJMS,                      "IJMS" },                                                                 
+    {DIS_TDL_TYPE_LINK_4A,                   "Link 4A (TADIL C)" },                                                    
+    {DIS_TDL_TYPE_LINK_4C,                   "Link 4C" },                                                              
+    {DIS_TDL_TYPE_TIBS,                      "TIBS" },                                                                 
+    {DIS_TDL_TYPE_ATL,                       "ATL" },                                                                  
+    {DIS_TDL_TYPE_CONSTANT_SRC,              "Constant Source" },                                                      
+    {DIS_TDL_TYPE_ABBRV_CC,                  "Abbreviated Command and Control" },                                      
+    {DIS_TDL_TYPE_MILSTAR,                   "MILSTAR" },                                                              
+    {DIS_TDL_TYPE_ATHS,                      "ATHS" },                                                                 
+    {DIS_TDL_TYPE_OTHGOLD,                   "OTHGOLD" },                                                              
+    {DIS_TDL_TYPE_TACELINT,                  "TACELINT" },                                                             
+    {DIS_TDL_TYPE_AWW13,                     "Weapons Data Link (AWW-13)" },                                           
+    {DIS_TDL_TYPE_ABBRV_CC_2,                "Abbreviated Command and Control" },                                      
+    {DIS_TDL_TYPE_EPLRS,                     "Enhanced Position Location Reporting System (EPLRS)" },                  
+    {DIS_TDL_TYPE_PLRS,                      "Position Location Reporting System  (PLRS)" },                           
+    {DIS_TDL_TYPE_SINCGARS,                  "SINCGARS" },                                                             
+    {DIS_TDL_TYPE_HAVE_QUICK_I,              "Have Quick I" },                                                         
+    {DIS_TDL_TYPE_HAVE_QUICK_II,             "Have Quick II" },                                                        
+    {DIS_TDL_TYPE_HAVE_QUICK_IIA,            "Have Quick IIA (Saturn)" },                                              
+    {DIS_TDL_TYPE_IFDL1,                     "Intra-Flight Data Link 1" },                                             
+    {DIS_TDL_TYPE_IFDL2,                     "Intra-Flight Data Link 2" },                                             
+    {DIS_TDL_TYPE_IDM,                       "Improved Data Modem (IDM)" },                                            
+    {DIS_TDL_TYPE_AFAPD,                     "Air Force Application Program Development (AFAPD)" },                    
+    {DIS_TDL_TYPE_CEC,                       "Cooperative Engagement Capability (CEC)" },                              
+    {DIS_TDL_TYPE_FAAD_FDL,                  "Forward Area Air Defense (FAAD) Data Link (FDL)" },                      
+    {DIS_TDL_TYPE_GBDL,                      "Ground Based Data Link (GBDL)" },                                        
+    {DIS_TDL_TYPE_IVIS,                      "Intra Vehicular Info System (IVIS)" },                                   
+    {DIS_TDL_TYPE_MTS,                       "Marine Tactical System (MTS)" },                                         
+    {DIS_TDL_TYPE_TACFIRE,                   "Tactical Fire Direction System (TACFIRE)" },                             
+    {DIS_TDL_TYPE_IBS,                       "Integrated Broadcast Service (IBS)" },                                   
+    {DIS_TDL_TYPE_ABIT,                      "Airborne Information Transfer (ABIT)" },                                 
+    {DIS_TDL_TYPE_ATARS,                     "Advanced Tactical Airborne Reconnaissance System (ATARS) Data Link" },   
+    {DIS_TDL_TYPE_BGPHES,                    "Battle Group Passive Horizon Extension System (BGPHES) Data Link" },     
+    {DIS_TDL_TYPE_CHBDL,                     "Common High Bandwidth Data Link (CHBDL)" },                              
+    {DIS_TDL_TYPE_GUARDRAIL_IDL,             "Guardrail Interoperable Data Link (IDL)" },                              
+    {DIS_TDL_TYPE_GUARDRAIL_CSS1,            "Guardrail Common Sensor System One (CSS1) Data Link" },                  
+    {DIS_TDL_TYPE_GUARDRAIL_CSS2,            "Guardrail Common Sensor System Two (CSS2) Data Link" },                  
+    {DIS_TDL_TYPE_GUARDRAIL_CSS2_MRDL,       "Guardrail CSS2 Multi-Role Data Link (MRDL)" },                           
+    {DIS_TDL_TYPE_GUARDRAIL_CSS2_DASR,       "Guardrail CSS2 Direct Air to Satellite Relay (DASR) Data Link" },        
+    {DIS_TDL_TYPE_LOS_TETHER,                "Line of Sight (LOS) Data Link Implementation (LOS tether)" },            
+    {DIS_TDL_TYPE_LWCDL,                     "Lightweight CDL (LWCDL)" },                                              
+    {DIS_TDL_TYPE_L_52M,                     "L-52M (SR-71)" },                                                        
+    {DIS_TDL_TYPE_RR_ROWL_DL,                "Rivet Reach/Rivet Owl Data Link" },                                      
+    {DIS_TDL_TYPE_SENIOR_SPAN,               "Senior Span" },                                                          
+    {DIS_TDL_TYPE_SENIOR_SPUR,               "Senior Spur" },                                                          
+    {DIS_TDL_TYPE_SENIOR_STRETCH,            "Senior Stretch." },                                                      
+    {DIS_TDL_TYPE_SENIOR_YEAR_IDL,           "Senior Year Interoperable Data Link (IDL)" },                            
+    {DIS_TDL_TYPE_SPACE_CDL,                 "Space CDL" },                                                            
+    {DIS_TDL_TYPE_TR_1_MIST_ADL,             "TR-1 mode MIST Airborne Data Link" },                                    
+    {DIS_TDL_TYPE_KU_BAND_SATCOM,            "Ku-band SATCOM Data Link Implementation (UAV)" },                        
+    {DIS_TDL_TYPE_MECDL,                     "Mission Equipment Control Data link (MECDL)" },                          
+    {DIS_TDL_TYPE_RADAR_DATA_TSDL,           "Radar Data Transmitting Set Data Link" },                                
+    {DIS_TDL_TYPE_SCDL,                      "Surveillance and Control Data Link (SCDL)" },                            
+    {DIS_TDL_TYPE_TACTICAL_UAV_VIDEO,        "Tactical UAV Video" },                                                   
+    {DIS_TDL_TYPE_UHF_SATCOM,                "UHF SATCOM Data Link Implementation (UAV)" },                            
+    {DIS_TDL_TYPE_TCDL,                      "Tactical Common Data Link (TCDL)" },                                     
+    {DIS_TDL_TYPE_LLAPI,                     "Low Level Air Picture Interface (LLAPI)" },                              
+    {DIS_TDL_TYPE_WEAPONS_DL,                "Weapons Data Link (AGM-130)" },                                          
+    {DIS_TDL_TYPE_GC3,                       "GC3" },                                                                  
+    {DIS_TDL_TYPE_LINK16_STD,                "Link 16 Standardized Format (JTIDS/MIDS/TADIL J)" },                     
+    {DIS_TDL_TYPE_LINK16_EDR,                "Link 16 Enhanced Data Rate (EDR JTIDS/MIDS/TADIL-J)" },                  
+    {DIS_TDL_TYPE_JTIDS_NET_DATA_LOAD,       "JTIDS/MIDS Net Data Load (TIMS/TOMS)" },                                 
+    {DIS_TDL_TYPE_LINK22,                    "Link 22" },                                                              
+	{DIS_TDL_TYPE_AFIWC_IADS,                "AFIWC IADS Communications Links" },                                      
+    { 0,                                     NULL }
+};
+
+const value_string DIS_PDU_RadioCategory_Strings[] =
+{
+	{0,	    "Other" },
+	{1,	    "Voice Transmission/Reception" },
+	{2,	    "Data Link Transmission/Reception" },
+	{3,	    "Voice and Data Link Transmission/Reception" },
+	{4,	    "Instrumented Landing System (ILS) Glideslope Transmitter" },
+	{5,	    "Instrumented Landing System (ILS) Localizer Transmitter" },
+	{6,	    "Instrumented Landing System (ILS) Outer Marker Beacon" },
+	{7,	    "Instrumented Landing System (ILS) Middle Marker Beacon" },
+	{8,	    "Instrumented Landing System (ILS) Inner Marker Beacon" },
+	{9,	    "Instrumented Landing System (ILS) Receiver (Platform Radio)" },
+	{10,	"Tactical Air Navigation (TACAN) Transmitter (Ground Fixed Equipment)" },
+	{11,	"Tactical Air Navigation (TACAN) Receiver (Moving Platform Equipment)" },
+	{12,	"Tactical Air Navigation (TACAN) Transmitter/Receiver (Moving Platform Equipment)" },
+	{13,	"Variable Omni-Ranging (VOR) Transmitter (Ground Fixed Equipment)" },
+	{14,	"Variable Omni-Ranging (VOR) with Distance Measuring Equipment (DME) Transmitter (Ground Fixed Equipment)" },
+	{15,	"Combined VOR/ILS Receiver (Moving Platform Equipment)" },
+	{16,	"Combined VOR & TACAN (VORTAC) Transmitter" },
+	{17,	"Non-Directional Beacon (NDB) Transmitter" },
+	{18,	"Non-Directional Beacon (NDB) Receiver" },
+	{19,	"Non-Directional Beacon (NDB) with Distance Measuring Equipment (DME) Transmitter" },
+	{20,	"Distance Measuring Equipment (DME)" },
+    {0,     NULL }
+};
+
+const value_string DIS_PDU_NomenclatureVersion_Strings[] =
+{
+    {0,	   "Other" },
+    {1,	   "Joint Electronics Type Designation System (JETDS) Nomenclature (AN/ per Mil-STD-196)" },
+    {2,	   "Manufacturer Designation" },
+    {3,	   "National Designation" },
+    {0,    NULL }
+};
+
+const value_string DIS_PDU_Nomenclature_Strings[] =
+{
+    {0,    "Other" },
+    {1,	   "AN/ARN-118" },
+    {2,	   "AN/ARN-139" },
+    {3,	   "Generic Ground Fixed Transmitter" },
+    {4,	   "Generic Ground Mobile Transmitter" },
+    {0,    NULL }
+};
+
+const value_string DIS_PDU_RadioTransmitState_Strings[] =
+{
+    {0,    "Off" },
+    {1,    "On but not transmitting" },
+    {2,    "On and transmitting" },
+    {0,    NULL }
+};
+
+const value_string DIS_PDU_RadioInputSource_Strings[] =
+{
+    {0,    "Other" },
+    {1,    "Pilot" },
+    {2,    "Copilot" },
+    {3,    "First Officer" },
+    {4,    "Driver" },
+    {5,    "Loader" },
+    {6,    "Gunner" },
+    {7,    "Commander" },
+    {8,    "Digital Data Device" },
+    {9,    "Intercom" },
+    {0,    NULL }
+};
+
+const value_string DIS_PDU_AntennaPatternType_Strings[] =
+{
+    {0,    "Omni-directional" },
+    {1,    "Beam" },
+    {2,    "Spherical harmonic" },
+    {0,    NULL }
+};
+
+const value_string DIS_PDU_MajorModulation_Strings[] =
+{
+	{DIS_MAJOR_MOD_OTHER,                    "Other" },
+    {DIS_MAJOR_MOD_AMPLITUDE,                "Amplitude" },
+    {DIS_MAJOR_MOD_AMPLITUDE_AND_ANGLE,      "Amplitude and Angle" },
+    {DIS_MAJOR_MOD_ANGLE,                    "Angle" },
+    {DIS_MAJOR_MOD_COMBINATION,              "Combination" },
+    {DIS_MAJOR_MOD_PULSE,                    "Pulse" },
+    {DIS_MAJOR_MOD_UNMODULATED,              "Unmodulated" },
+    {DIS_MAJOR_MOD_CPSM,                     "Carrier Phase Shift Modulation (CPSM)" },
+    {0,                                      NULL }
+};
+
+const value_string DIS_PDU_DetailModulationAmplitude_Strings[] =
+{
+    {0,    "Other" },
+    {1,    "AFSK (Audio Frequency Shift Keying)" },
+    {2,    "AM (Amplitude Modulation)" },
+    {3,    "CW (Continuous Wave Modulation)" },
+    {4,    "DSB (Double Sideband)" },
+    {5,    "ISB (Independent Sideband)" },
+    {6,    "LSB (Single Band Suppressed Carrier, Lower Sideband Mode)" },
+    {7,    "SSB-Full (Single Sideband Full Carrier)" },
+    {8,    "SSB-Reduc (Single Band Reduced Carrier)" },
+    {9,    "USB (Single Band Suppressed Carrier, Upper Sideband Mode)" },
+    {10,   "VSB (Vestigial Sideband)" },
+    {0,    NULL }
+};
+
+const value_string DIS_PDU_DetailModulationAmpAndAngle_Strings[] =
+{
+    {0,    "Other" },
+    {1,    "Amplitude and Angle" },
+    {0,    NULL }
+};
+
+const value_string DIS_PDU_DetailModulationAngle_Strings[] =
+{
+    {0,    "Other" },
+    {1,    "FM (Frequency Modulation)" },
+    {2,    "FSK (Frequency Shift Keying)" },
+    {3,    "PM (Phase Modulation)" },
+    {0,    NULL }
+};
+
+const value_string DIS_PDU_DetailModulationCombination_Strings[] =
+{
+    {0,    "Other" },
+    {1,    "Amplitude-Angle-Pulse" },
+    {0,    NULL }
+};
+
+const value_string DIS_PDU_DetailModulationPulse_Strings[] =
+{
+    {0,    "Other" },
+    {1,    "Pulse" },
+    {2,    "X Band TACAN Pulse" },
+    {3,    "Y Band TACAN Pulse" },
+    {0,    NULL }
+};
+
+const value_string DIS_PDU_DetailModulationUnmodulated_Strings[] =
+{
+    {0,    "Other" },
+    {1,    "Continuous Wave emission of an unmodulated carrier" },
+    {0,    NULL }
+};
+
+const value_string DIS_PDU_DetailModulationCPSM_Strings[] =
+{
+    {0,    "Other" },
+    {0,    NULL }
+};
+
+const value_string DIS_PDU_ModParamMsgStart_Strings[] = 
+{
+    {0,    "Not start of message" },
+    {1,    "Start of Message" },
+    {0,    NULL }
+};
+
+const value_string DIS_PDU_ModParamClrChannel_Strings[] = 
+{
+    {0,    "Not clear channel" },
+    {1,    "Clear channel" },
+    {0,    NULL }
+};
+
+const value_string DIS_PDU_TSAllocationFidelity_Strings[] = 
+{
+    {0,    "Time Slot Allocation Fidelity Level 0" },
+    {1,    "Time Slot Allocation Fidelity Level 1" },
+    {2,    "Time Slot Allocation Fidelity Level 2" },
+    {3,    "Time Slot Allocation Fidelity Level 3" },
+    {4,    "Time Slot Allocation Fidelity Level 4" },
+    {0,    NULL }
+};
+
+const value_string DIS_PDU_TerminalPrimaryMode_Strings[] = 
+{
+    {0,    "NTR" },
+    {1,    "JTIDS Unit Participant" },
+    {0,    NULL }
+};
+
+const value_string DIS_PDU_TerminalSecondaryMode_Strings[] = 
+{
+    {0,    "None" },
+    {1,    "Net Position Reference" },
+    {2,    "Primary Navigation Controller" },
+    {3,    "Secondary Navigation Controller" },
+    {0,    NULL }
+};
+
+const value_string DIS_PDU_ModParamSyncState_Strings[] = 
+{
+    {0,    "Undefined" },
+    {1,    "Coarse Synchronization" },
+    {1,    "Fine Synchronization" },    
+    {0,    NULL }
+};
+
+
+const value_string DIS_PDU_SystemModulation_Strings[] =
+{
+    {0,    "Other" },
+    {1,    "Generic" },
+    {2,    "HQ" },
+    {3,    "HQII" },
+    {4,    "HQIIA" },
+    {5,    "SINCGARS" },
+    {6,    "CCTT SINCGARS" },
+    {7,    "EPLRS (Enhanced Position Location Reporting System)" },
+    {8,    "JTIDS/MIDS" }, 
+    {0,    NULL }
+};
+ 
+const value_string DIS_PDU_CryptoSystem_Strings[] =
+{
+    {0,    "Other" }, 
+    {1,    "KY-28" },
+    {2,    "VINSON (KY-57, KY-58, SINCGARS ICOM)" }, 
+    {3,	   "Narrow Spectrum Secure Voice (NSVE)" },
+    {4,	   "Wide Spectrum Secure Voice (WSVE)" },
+    {0,    NULL }
+};
+  
 const value_string DIS_PDU_AcknowledgeFlag_Strings[] =
 {
     { DIS_ACKNOWLEDGE_FLAG_CREATE_ENTITY,            "Create Entity" },

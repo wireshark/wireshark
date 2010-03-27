@@ -29,6 +29,29 @@
 
 #include <epan/value_string.h>
 
+extern const value_string DIS_PDU_RadioCategory_Strings[];
+extern const value_string DIS_PDU_NomenclatureVersion_Strings[];
+extern const value_string DIS_PDU_Nomenclature_Strings[];
+extern const value_string DIS_PDU_RadioTransmitState_Strings[];
+extern const value_string DIS_PDU_RadioInputSource_Strings[];
+extern const value_string DIS_PDU_MajorModulation_Strings[];
+extern const value_string DIS_PDU_DetailModulationAmplitude_Strings[];
+extern const value_string DIS_PDU_DetailModulationAmpAndAngle_Strings[];
+extern const value_string DIS_PDU_DetailModulationAngle_Strings[];
+extern const value_string DIS_PDU_DetailModulationCombination_Strings[];
+extern const value_string DIS_PDU_DetailModulationPulse_Strings[];
+extern const value_string DIS_PDU_DetailModulationUnmodulated_Strings[];
+extern const value_string DIS_PDU_DetailModulationCPSM_Strings[];
+extern const value_string DIS_PDU_SystemModulation_Strings[];
+extern const value_string DIS_PDU_CryptoSystem_Strings[];
+extern const value_string DIS_PDU_ModParamMsgStart_Strings[];
+extern const value_string DIS_PDU_ModParamClrChannel_Strings[];
+extern const value_string DIS_PDU_TSAllocationFidelity_Strings[];
+extern const value_string DIS_PDU_TerminalPrimaryMode_Strings[]; 
+extern const value_string DIS_PDU_TerminalSecondaryMode_Strings[]; 
+extern const value_string DIS_PDU_ModParamSyncState_Strings[];
+
+
 typedef enum
 {
     DIS_VERSION_OTHER             = 0,
@@ -274,6 +297,147 @@ typedef enum
 } DIS_PDU_Category_SpacePlatform;
 
 extern const value_string DIS_PDU_Category_SpacePlatform_Strings[];
+
+typedef enum
+{
+    DIS_ENCODING_CLASS_ENCODED_AUDIO               = 0,
+    DIS_ENCODING_CLASS_RAW_BINARY_DATA             = 1,
+    DIS_ENCODING_CLASS_APPL_SPEC_DATA              = 2,
+    DIS_ENCODING_CLASS_DB_INDEX                    = 3
+} DIS_PDU_Encoding_Class;
+
+extern const value_string DIS_PDU_Encoding_Class_Strings[];
+
+typedef enum
+{
+    DIS_ENCODING_TYPE_OTHER                        = 0,
+	DIS_ENCODING_TYPE_MU_LAW                       = 1,
+    DIS_ENCODING_TYPE_CVSD                         = 2,
+    DIS_ENCODING_TYPE_ADPCM_G721                   = 3,
+    DIS_ENCODING_TYPE_16BIT_LINEAR_PCM             = 4,
+    DIS_ENCODING_TYPE_8BIT_LINEAR_PCM              = 5,
+    DIS_ENCODING_TYPE_VECTOR_QUANTIZATION          = 6
+} DIS_PDU_Encoding_Type;
+
+extern const value_string DIS_PDU_Encoding_Type_Strings[];
+
+typedef enum
+{
+    DIS_TDL_TYPE_OTHER                        = 0,
+    DIS_TDL_TYPE_PADIL                        = 1,
+    DIS_TDL_TYPE_NATO_LINK1                   = 2,
+    DIS_TDL_TYPE_ATDL1                        = 3,
+    DIS_TDL_TYPE_LINK_11B                     = 4,
+    DIS_TDL_TYPE_SADL                         = 5,
+    DIS_TDL_TYPE_JTIDS_TADIL_J                = 6,
+    DIS_TDL_TYPE_JTIDS_FDL_TADIL_J            = 7,
+    DIS_TDL_TYPE_LINK_11A                     = 8,
+    DIS_TDL_TYPE_IJMS                         = 9,
+    DIS_TDL_TYPE_LINK_4A                      = 10,
+    DIS_TDL_TYPE_LINK_4C                      = 11,
+    DIS_TDL_TYPE_TIBS                         = 12,
+    DIS_TDL_TYPE_ATL                          = 13,
+    DIS_TDL_TYPE_CONSTANT_SRC                 = 14,
+    DIS_TDL_TYPE_ABBRV_CC                     = 15,
+    DIS_TDL_TYPE_MILSTAR                      = 16,
+    DIS_TDL_TYPE_ATHS                         = 17,
+    DIS_TDL_TYPE_OTHGOLD                      = 18,
+    DIS_TDL_TYPE_TACELINT                     = 19,
+    DIS_TDL_TYPE_AWW13                        = 20,
+    DIS_TDL_TYPE_ABBRV_CC_2                   = 21,
+    DIS_TDL_TYPE_EPLRS                        = 22,
+    DIS_TDL_TYPE_PLRS                         = 23,
+    DIS_TDL_TYPE_SINCGARS                     = 24,
+    DIS_TDL_TYPE_HAVE_QUICK_I                 = 25,
+    DIS_TDL_TYPE_HAVE_QUICK_II                = 26,
+    DIS_TDL_TYPE_HAVE_QUICK_IIA               = 27,
+    DIS_TDL_TYPE_IFDL1                        = 28,
+    DIS_TDL_TYPE_IFDL2                        = 29,
+    DIS_TDL_TYPE_IDM                          = 30,
+    DIS_TDL_TYPE_AFAPD                        = 31,
+    DIS_TDL_TYPE_CEC                          = 32,
+    DIS_TDL_TYPE_FAAD_FDL                     = 33,
+    DIS_TDL_TYPE_GBDL                         = 34,
+    DIS_TDL_TYPE_IVIS                         = 35,
+    DIS_TDL_TYPE_MTS                          = 36,
+    DIS_TDL_TYPE_TACFIRE                      = 37,
+    DIS_TDL_TYPE_IBS                          = 38,
+    DIS_TDL_TYPE_ABIT                         = 39,
+    DIS_TDL_TYPE_ATARS                        = 40,
+    DIS_TDL_TYPE_BGPHES                       = 41,
+    DIS_TDL_TYPE_CHBDL                        = 42,
+    DIS_TDL_TYPE_GUARDRAIL_IDL                = 43,
+    DIS_TDL_TYPE_GUARDRAIL_CSS1               = 44,
+    DIS_TDL_TYPE_GUARDRAIL_CSS2               = 45,
+    DIS_TDL_TYPE_GUARDRAIL_CSS2_MRDL          = 46,
+    DIS_TDL_TYPE_GUARDRAIL_CSS2_DASR          = 47,
+    DIS_TDL_TYPE_LOS_TETHER                   = 48,
+    DIS_TDL_TYPE_LWCDL                        = 49,
+    DIS_TDL_TYPE_L_52M                        = 50,
+    DIS_TDL_TYPE_RR_ROWL_DL                   = 51,
+    DIS_TDL_TYPE_SENIOR_SPAN                  = 52,
+    DIS_TDL_TYPE_SENIOR_SPUR                  = 53,
+    DIS_TDL_TYPE_SENIOR_STRETCH               = 54,
+    DIS_TDL_TYPE_SENIOR_YEAR_IDL              = 55,
+    DIS_TDL_TYPE_SPACE_CDL                    = 56,
+    DIS_TDL_TYPE_TR_1_MIST_ADL                = 57,
+    DIS_TDL_TYPE_KU_BAND_SATCOM               = 58,
+    DIS_TDL_TYPE_MECDL                        = 59,
+    DIS_TDL_TYPE_RADAR_DATA_TSDL              = 60,
+    DIS_TDL_TYPE_SCDL                         = 61,
+    DIS_TDL_TYPE_TACTICAL_UAV_VIDEO           = 62,
+    DIS_TDL_TYPE_UHF_SATCOM                   = 63,
+    DIS_TDL_TYPE_TCDL                         = 64,
+    DIS_TDL_TYPE_LLAPI                        = 65,
+    DIS_TDL_TYPE_WEAPONS_DL                   = 66,
+    DIS_TDL_TYPE_GC3                          = 99,
+    DIS_TDL_TYPE_LINK16_STD                   = 100,
+    DIS_TDL_TYPE_LINK16_EDR                   = 101,
+    DIS_TDL_TYPE_JTIDS_NET_DATA_LOAD          = 102,
+    DIS_TDL_TYPE_LINK22                       = 103,
+	DIS_TDL_TYPE_AFIWC_IADS                   = 104
+} DIS_PDU_TDL_Type;
+
+extern const value_string DIS_PDU_TDL_Type_Strings[];
+
+typedef enum
+{
+    DIS_PATTERN_OMNI_DIRECTIONAL             = 0,
+    DIS_PATTERN_BEAM                         = 1,
+    DIS_PATTERN_SPHERICAL_HARMONIC           = 2
+} DIS_PDU_AntennaPattern_Type;
+
+extern const value_string DIS_PDU_AntennaPatternType_Strings[];   
+    
+typedef enum
+{
+	DIS_SYSTEM_MOD_OTHER                     = 0,
+    DIS_SYSTEM_MOD_GENERIC                   = 1,
+    DIS_SYSTEM_MOD_HQ                        = 2,
+    DIS_SYSTEM_MOD_HQII                      = 3,
+    DIS_SYSTEM_MOD_HQIIA                     = 4,
+    DIS_SYSTEM_MOD_SINCGARS                  = 5,
+    DIS_SYSTEM_MOD_CCTT_SINCGARS             = 6,
+    DIS_SYSTEM_MOD_EPLRS                     = 7,
+    DIS_SYSTEM_MOD_JTIDS_MIDS                = 8
+} DIS_PDU_SYSTEM_MODULATION_TYPE;
+
+extern const value_string DIS_PDU_SystemModulation_Strings[];
+
+typedef enum
+{
+	DIS_MAJOR_MOD_OTHER                      = 0,
+    DIS_MAJOR_MOD_AMPLITUDE                  = 1,
+    DIS_MAJOR_MOD_AMPLITUDE_AND_ANGLE        = 2,
+    DIS_MAJOR_MOD_ANGLE                      = 3,
+    DIS_MAJOR_MOD_COMBINATION                = 4,
+    DIS_MAJOR_MOD_PULSE                      = 5,
+    DIS_MAJOR_MOD_UNMODULATED                = 6,
+    DIS_MAJOR_MOD_CPSM                       = 7
+} DIS_PDU_MAJOR_MODULATION_TYPE;
+
+extern const value_string DIS_PDU_MajorModulation_Strings[];
+
 
 typedef enum
 {
