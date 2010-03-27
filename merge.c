@@ -41,7 +41,7 @@ merge_open_in_files(int in_file_count, char *const *in_file_names,
   merge_in_file_t *files;
   gint64 size;
 
-  files = g_malloc(files_size);
+  files = (merge_in_file_t *)g_malloc(files_size);
   *in_files = files;
 
   for (i = 0; i < in_file_count; i++) {
