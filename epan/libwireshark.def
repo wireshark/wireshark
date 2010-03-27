@@ -711,6 +711,7 @@ proto_get_protocol_long_name
 proto_initialize_all_prefixes
 proto_is_private
 proto_is_protocol_enabled
+proto_tree_add_bitmask_text
 proto_item_add_subtree
 proto_item_append_text
 proto_item_fill_label
