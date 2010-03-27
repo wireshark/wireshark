@@ -158,7 +158,6 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *dis_header_node = 0;
     proto_item *dis_payload_tree = 0;
     proto_item *dis_payload_node = 0;
-    const gchar *infoStrings = 0;    
     gint offset = 0;
     const gchar *pduString = 0;
     DIS_ParserNode *pduParser = 0;
