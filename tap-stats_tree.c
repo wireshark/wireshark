@@ -50,7 +50,7 @@ struct _tree_cfg_pres {
 static void
 draw_stats_tree(void *psp)
 {
-	stats_tree *st = psp;
+	stats_tree *st = (stats_tree *)psp;
 	GString *s;
 	gchar *fmt;
 	stat_node *child;
@@ -84,7 +84,7 @@ init_stats_tree(const char *optarg, void *userdata _U_)
 
 		if (cfg != NULL) {
 			if (strncmp (optarg, cfg->pr->init_string, strlen(cfg->pr->init_string)) == 0){
-				st = stats_tree_new(cfg,NULL,(char*)(optarg)+strlen(cfg->pr->init_string));
+				st = stats_tree_new(cfg,NULL,optarg+strlen(cfg->pr->init_string));
 			} else {
 				report_failure("Wrong stats_tree (%s) found when looking at ->init_string",abbr);
 				return;
@@ -121,9 +121,9 @@ init_stats_tree(const char *optarg, void *userdata _U_)
 void
 register_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
 {
-	stats_tree_cfg *cfg = v;
+	stats_tree_cfg *cfg = (stats_tree_cfg *)v;
 	
-	cfg->pr = g_malloc(sizeof(tree_cfg_pres));
+	cfg->pr = (tree_cfg_pres *)g_malloc(sizeof(tree_cfg_pres));
 	cfg->pr->init_string = g_strdup_printf("%s,tree", cfg->abbr);
 
 	register_stat_cmd_arg(cfg->pr->init_string, init_stats_tree, NULL);

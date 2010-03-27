@@ -106,7 +106,7 @@ sctpstat_reset(void *phs)
 
 
 static sctp_ep_t* 
-alloc_sctp_ep(struct _sctp_info *si)
+alloc_sctp_ep(const struct _sctp_info *si)
 {
 	sctp_ep_t* ep;
 	guint16 chunk_type;
@@ -136,7 +136,7 @@ sctpstat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, cons
 
 	sctpstat_t *hs=(sctpstat_t *)phs;
 	sctp_ep_t *tmp = NULL, *te = NULL;
-	struct _sctp_info *si = (struct _sctp_info *) phi;
+	const struct _sctp_info *si = (const struct _sctp_info *) phi;
 	guint32 tvb_number;
 	guint8 chunk_type;
 
@@ -223,7 +223,7 @@ sctpstat_init(const char *optarg, void* userdata _U_)
 	sctpstat_t *hs;
 	GString *error_string;
 
-	hs = g_malloc(sizeof(sctpstat_t));
+	hs = (sctpstat_t *)g_malloc(sizeof(sctpstat_t));
 	if(!strncmp(optarg,"sctp,stat,",11)){
 		hs->filter=g_strdup(optarg+11);
 	} else {
