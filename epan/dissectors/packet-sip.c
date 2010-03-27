@@ -76,7 +76,7 @@ static gint proto_sip                     = -1;
 static gint proto_raw_sip                 = -1;
 static gint hf_raw_sip_line               = -1;
 static gint hf_msg_hdr                    = -1;
-static gint hf_Method                     = -1;
+static gint hf_sip_Method                     = -1;
 static gint hf_Request_Line               = -1;
 static gint hf_sip_ruri                   = -1;
 static gint hf_sip_ruri_user              = -1;
@@ -700,7 +700,7 @@ static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
     guint meth_len, guint *meth_idx);
 static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset,
     guint header_len);
-static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint offset,
     guint meth_len, gint linelen);
 static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree);
 static void tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
@@ -1929,19 +1929,15 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	case REQUEST_LINE:
 		is_known_request = sip_is_known_request(tvb, offset, token_1_len, &current_method_idx);
 		descr = is_known_request ? "Request" : "Unknown request";
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
-			             descr,
-			             tvb_format_text(tvb, offset, linelen - SIP2_HDR_LEN - 1));
-		}
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
+		             descr,
+		             tvb_format_text(tvb, offset, linelen - SIP2_HDR_LEN - 1));
 		break;
 
 	case STATUS_LINE:
 		descr = "Status";
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Status: %s",
-			             tvb_format_text(tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1));
-		}
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Status: %s",
+		             tvb_format_text(tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1));
 		stat_info->reason_phrase = tvb_get_ephemeral_string(tvb, offset + SIP2_HDR_LEN + 5, linelen - (SIP2_HDR_LEN + 5));
 		break;
 
@@ -1965,7 +1961,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			                           tvb_format_text(tvb, offset, linelen));
 			reqresp_tree = proto_item_add_subtree(ti_a, ett_sip_reqresp);
 		}
-		dfilter_sip_request_line(tvb, reqresp_tree, pinfo, token_1_len, linelen);
+		dfilter_sip_request_line(tvb, reqresp_tree, pinfo, offset, token_1_len, linelen);
 		break;
 
 	case STATUS_LINE:
@@ -2884,11 +2880,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 /* Display filter for SIP Request-Line */
 static void
-dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint meth_len, gint linelen)
+dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint offset, guint meth_len, gint linelen)
 {
 	char	*value;
-
-	guint	offset = 0;
 	guint	parameter_len = meth_len;
 	uri_offset_info uri_offsets;
 
@@ -2907,13 +2901,14 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
 	stat_info->request_method = value;
 
 	if (tree) {
-		proto_tree_add_string(tree, hf_Method, tvb, offset, parameter_len, value);
+		proto_tree_add_string(tree, hf_sip_Method, tvb, offset, parameter_len, value);
 
 		/* build Request-URI tree*/
 		offset=offset + parameter_len+1;
 		sip_uri_offset_init(&uri_offsets);
-		uri_offsets.uri_end = tvb_find_guint8(tvb, offset, linelen, ' ')-1; /* calc R-URI len*/
-		dissect_sip_uri(tvb, pinfo, offset, linelen, &uri_offsets);
+		/* calc R-URI len*/
+		uri_offsets.uri_end = tvb_find_guint8(tvb, offset, linelen, ' ')-1; 
+		dissect_sip_uri(tvb, pinfo, offset, offset + linelen, &uri_offsets);
 		display_sip_uri(tvb, tree, &uri_offsets, &sip_req_uri);
 	}
 }
@@ -3586,7 +3581,7 @@ void proto_register_sip(void)
                         FT_STRING, BASE_NONE, NULL, 0,
                         "Message Header in SIP message", HFILL }
                 },
-		{ &hf_Method,
+		{ &hf_sip_Method,
 		       { "Method", 		"sip.Method",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"SIP Method", HFILL }
