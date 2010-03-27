@@ -652,7 +652,7 @@ static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
     guint meth_len, guint *meth_idx);
 static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset,
     guint header_len);
-static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree,
+static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, gint offset,
     guint meth_len);
 static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree);
 static void tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
@@ -1929,7 +1929,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			                           tvb_format_text(tvb, offset, linelen));
 			reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
 		}
-		dfilter_sip_request_line(tvb, reqresp_tree, token_1_len);
+		dfilter_sip_request_line(tvb, reqresp_tree, offset, token_1_len);
 		break;
 
 	case STATUS_LINE:
@@ -2964,12 +2964,11 @@ separator_found2:
 
 /* Display filter for SIP Request-Line */
 static void
-dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
+dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, gint offset, guint meth_len)
 {
 	char	*value;
 
 	gint	next_offset, linelen, parameter_end_offset;
-	guint	offset = 0;
 	guint	parameter_len = meth_len;
 	guchar	c= '\0';
 	gboolean in_ipv6=FALSE;
@@ -2995,7 +2994,7 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
 		proto_tree_add_string(tree, hf_Method, tvb, offset, parameter_len, value);
 
 		/* build Request-URI tree*/
-		offset=parameter_len+1;
+		offset= offset + parameter_len+1;
 		parameter_len = (tvb_find_guint8(tvb, offset, linelen, ' '))-offset; /* calc R-URI len*/
 		ti = proto_tree_add_item(tree, hf_sip_ruri, tvb, offset, parameter_len, FALSE);
 		ruri_item_tree = proto_item_add_subtree(ti, ett_sip_ruri);
