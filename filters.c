@@ -211,9 +211,9 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
 
   /* Allocate the filter name buffer. */
   filt_name_len = INIT_BUF_SIZE;
-  filt_name = g_malloc(filt_name_len + 1);
+  filt_name = (char *)g_malloc(filt_name_len + 1);
   filt_expr_len = INIT_BUF_SIZE;
-  filt_expr = g_malloc(filt_expr_len + 1);
+  filt_expr = (char *)g_malloc(filt_expr_len + 1);
 
   for (line = 1; ; line++) {
     /* Lines in a filter file are of the form
@@ -257,7 +257,7 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
 	if (filt_name_index >= filt_name_len) {
 	  /* Filter name buffer isn't long enough; double its length. */
 	  filt_name_len *= 2;
-	  filt_name = g_realloc(filt_name, filt_name_len + 1);
+	  filt_name = (char *)g_realloc(filt_name, filt_name_len + 1);
 	}
 	filt_name[filt_name_index] = '\0';
 	break;
@@ -272,7 +272,7 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
       if (filt_name_index >= filt_name_len) {
 	/* Filter name buffer isn't long enough; double its length. */
 	filt_name_len *= 2;
-	filt_name = g_realloc(filt_name, filt_name_len + 1);
+	filt_name = (char *)g_realloc(filt_name, filt_name_len + 1);
       }
       filt_name[filt_name_index] = c;
       filt_name_index++;
@@ -324,7 +324,7 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
       if (filt_expr_index >= filt_expr_len) {
 	/* Filter expressioin buffer isn't long enough; double its length. */
 	filt_expr_len *= 2;
-	filt_expr = g_realloc(filt_expr, filt_expr_len + 1);
+	filt_expr = (char *)g_realloc(filt_expr, filt_expr_len + 1);
       }
       filt_expr[filt_expr_index] = c;
       filt_expr_index++;
@@ -348,7 +348,7 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
     if (filt_expr_index >= filt_expr_len) {
       /* Filter expressioin buffer isn't long enough; double its length. */
       filt_expr_len *= 2;
-      filt_expr = g_realloc(filt_expr, filt_expr_len + 1);
+      filt_expr = (char *)g_realloc(filt_expr, filt_expr_len + 1);
     }
     filt_expr[filt_expr_index] = '\0';
 
@@ -592,7 +592,7 @@ void copy_filter_list(filter_list_type_t dest_type, filter_list_type_t src_type)
 
     /* copy the list entries */
     while(flp_src) {
-        filt = (flp_src)->data;
+        filt = (filter_def *)(flp_src->data);
 
         *flpp_dest = add_filter_entry(*flpp_dest, filt->name, filt->strval);
         flp_src = g_list_next(flp_src);
