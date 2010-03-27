@@ -3666,7 +3666,7 @@ find_packet(capture_file *cf,
   gchar       status_str[100];
   int         progbar_nextstep;
   int         progbar_quantum;
-  char       *title;
+  const char *title;
 
   start_fd = cf->current_frame;
   if (start_fd != NULL)  {
