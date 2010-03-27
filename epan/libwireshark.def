@@ -95,7 +95,7 @@ col_set_str
 col_set_time
 col_set_writable
 col_setup
-CommandCode_vals	DATA
+CommandCode_vals        DATA
 conversation_add_proto_data
 conversation_delete_proto_data
 conversation_get_proto_data
@@ -128,10 +128,10 @@ dcerpc_get_transport_salt
 dcerpc_hooks_init_protos        DATA
 dcerpc_init_uuid
 dcerpc_uuids                    DATA
-dcom_hresult_vals				DATA
+dcom_hresult_vals                               DATA
 dcom_interface_find
 dcom_interface_new
-dcom_variant_type_vals			DATA
+dcom_variant_type_vals                  DATA
 decode_bitfield_value
 decode_bits_in_field
 decode_boolean_bitfield
@@ -320,7 +320,7 @@ dissector_try_heuristic
 dissector_try_port
 dissector_try_string
 draw_tap_listeners
-dscp_vals						DATA
+dscp_vals                                               DATA
 dtbl_entry_get_handle
 dtbl_entry_get_initial_handle
 EBCDIC_to_ASCII
@@ -881,12 +881,12 @@ rtp_payload_type_short_vals    DATA
 rtp_payload_type_vals           DATA
 running_in_build_directory
 rval_to_str
-sccp_message_type_acro_values		DATA
-scsi_mmc_vals					DATA
-scsi_osd_vals					DATA
-scsi_sbc_vals					DATA
-scsi_smc_vals					DATA
-scsi_ssc_vals					DATA
+sccp_message_type_acro_values           DATA
+scsi_mmc_vals                                   DATA
+scsi_osd_vals                                   DATA
+scsi_sbc_vals                                   DATA
+scsi_smc_vals                                   DATA
+scsi_ssc_vals                                   DATA
 se_alloc
 se_alloc0
 se_memdup
@@ -943,14 +943,14 @@ stream_new_circ
 stream_process_reassembled
 string_or_null
 string_to_name_resolve
-sua_co_class_type_acro_values	DATA
+sua_co_class_type_acro_values   DATA
 swaptab
 t30_facsimile_control_field_vals_short  DATA
 t30_facsimile_control_field_vals        DATA
 t38_T30_data_vals                   DATA
-t38_T30_indicator_vals		DATA
+t38_T30_indicator_vals          DATA
 t38_add_address
-T_h323_message_body_vals	DATA
+T_h323_message_body_vals        DATA
 tap_push_tapped_queue
 tap_build_interesting
 tap_queue_init
