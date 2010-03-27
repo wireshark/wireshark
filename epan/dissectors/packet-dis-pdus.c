@@ -1,4 +1,4 @@
-    /* packet-dis-pdus.c
+/* packet-dis-pdus.c
  * Routines and definitions for DIS PDU parsing.
  * Copyright 2005, Scientific Research Corporation
  * Initial implementation by Jeremy Ouellette <jouellet@scires.com>
@@ -78,15 +78,15 @@ DIS_ParserNode DIS_PARSER_TRANSMITTER_PDU[] =
     { DIS_FIELDTYPE_REL_ANTENNA_LOCATON,          "Relative Antenna Location",0,0,0,0 },
     { DIS_FIELDTYPE_ANTENNA_PATTERN_TYPE,         "Antenna Pattern Type",0,0,0,&disAntennaPattern },
     { DIS_FIELDTYPE_ANTENNA_PATTERN_LENGTH,       "Antenna Pattern Length",0,0,0,0 },
-    { DIS_FIELDTYPE_TRANSMIT_FREQUENCY,           "Transmit Frequency",0,0,0,0 }, 
-    { DIS_FIELDTYPE_FLOAT32,                      "Transmit Frequency Bandwidth",0,0,0,0 }, 
+    { DIS_FIELDTYPE_TRANSMIT_FREQUENCY,           "Transmit Frequency",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT32,                      "Transmit Frequency Bandwidth",0,0,0,0 },
     { DIS_FIELDTYPE_FLOAT32,                      "Transmit Power",0,0,0,0 },
-    { DIS_FIELDTYPE_MODULATION_TYPE,              "Modulation Type",0,0,0,0 }, 
+    { DIS_FIELDTYPE_MODULATION_TYPE,              "Modulation Type",0,0,0,0 },
     { DIS_FIELDTYPE_CRYPTO_SYSTEM,                "Crypto System",0,0,0,0 },
     { DIS_FIELDTYPE_CRYPTO_KEY_ID,                "Crypto Key ID",0,0,0,0 },
     { DIS_FIELDTYPE_MODULATION_PARAMETER_LENGTH,  "Modulation Parameter Length",0,0,0,&modulationParamLength },
-    { DIS_FIELDTYPE_PAD24,                        "Padding",0,0,0,0 }, 
-    { DIS_FIELDTYPE_MODULATION_PARAMETERS,        "Modulation Parameters",0,0,0,0 },     
+    { DIS_FIELDTYPE_PAD24,                        "Padding",0,0,0,0 },
+    { DIS_FIELDTYPE_MODULATION_PARAMETERS,        "Modulation Parameters",0,0,0,0 },
     /* need to finish decoding this PDU */
     { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
 };
@@ -100,7 +100,7 @@ DIS_ParserNode DIS_PARSER_SIGNAL_PDU[] =
     { DIS_FIELDTYPE_SAMPLE_RATE,             "Sample Rate",0,0,0,0 },
     { DIS_FIELDTYPE_DATA_LENGTH,             "Data Length",0,0,0,0 },
     { DIS_FIELDTYPE_NUMBER_OF_SAMPLES,       "Number of Samples",0,0,0,&numSamples },
-    { DIS_FIELDTYPE_RADIO_DATA,              "Radio Data",0,0,0,0 }, 
+    { DIS_FIELDTYPE_RADIO_DATA,              "Radio Data",0,0,0,0 },
     { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
 };
 
@@ -430,7 +430,7 @@ void initializeParsers(void)
     /* DIS Radio Communications protocol (RCP) family PDUs */
     initializeParser(DIS_PARSER_TRANSMITTER_PDU);
     initializeParser(DIS_PARSER_SIGNAL_PDU);
-    
+
     /* DIS Warfare PDUs */
     initializeParser(DIS_PARSER_FIRE_PDU);
     initializeParser(DIS_PARSER_DETONATION_PDU);
@@ -543,7 +543,7 @@ void initializeParser(DIS_ParserNode parserNodes[])
                 DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS,
                 &parserNodes[parserIndex].ettVar);
             break;
-        
+
         case DIS_FIELDTYPE_BURST_DESCRIPTOR:
             parserNodes[parserIndex].children = createSubtree(
                 DIS_FIELDS_BURST_DESCRIPTOR,
@@ -604,7 +604,7 @@ void initializeParser(DIS_ParserNode parserNodes[])
                 DIS_FIELDS_MODULATION_TYPE,
                 &parserNodes[parserIndex].ettVar);
             break;
-            
+
         /* Array records */
         case DIS_FIELDTYPE_FIXED_DATUMS:
             parserNodes[parserIndex].children = createSubtree(
@@ -643,14 +643,14 @@ void initializeParser(DIS_ParserNode parserNodes[])
  */
 gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNodes[])
 {
-    guint fieldIndex = 0;
-    guint fieldRepeatLen = 0;
-    guint64 uintVal = 0;
-    proto_item *pi = NULL;
-   	proto_tree	*sub_tree = NULL;
-	tvbuff_t    *newtvb = NULL;
-    gint         length = 0;
-    guint16 spread_spectrum = 0;
+    guint        fieldIndex     = 0;
+    guint        fieldRepeatLen = 0;
+    guint64      uintVal        = 0;
+    proto_item  *pi             = NULL;
+    proto_tree  *sub_tree       = NULL;
+    tvbuff_t    *newtvb         = NULL;
+    gint         length         = 0;
+    guint16 spread_spectrum     = 0;
 
 
     length = tvb_length_remaining(tvb, offset);
@@ -772,12 +772,12 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
             break;
 
         case DIS_FIELDTYPE_RADIO_DATA:
-       		newtvb = tvb_new_subset(tvb, offset, 
-       		                        tvb_length_remaining(tvb, offset),
-       		                        tvb_reported_length_remaining(tvb, offset)
-       		                       );
-      		proto_tree_add_item(tree, hf_dis_signal_data, newtvb, 0, -1, FALSE );
-      		/* ****ck******* need to look for padding bytes */
+            newtvb = tvb_new_subset(tvb, offset,
+                                    tvb_length_remaining(tvb, offset),
+                                    tvb_reported_length_remaining(tvb, offset)
+                );
+            proto_tree_add_item(tree, hf_dis_signal_data, newtvb, 0, -1, FALSE );
+            /* ****ck******* need to look for padding bytes */
             break;
         case DIS_FIELDTYPE_RADIO_CATEGORY:
             proto_tree_add_item(tree, hf_dis_radio_category, tvb, offset, 1, FALSE);
@@ -794,7 +794,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
         case DIS_FIELDTYPE_RADIO_TRANSMIT_STATE:
             uintVal = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_dis_radio_transmit_state, tvb, offset, 1, FALSE);
-            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;            
+            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             offset += 1;
             break;
         case DIS_FIELDTYPE_RADIO_INPUT_SOURCE:
@@ -802,9 +802,9 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
             offset += 1;
             break;
         case  DIS_FIELDTYPE_ANTENNA_PATTERN_TYPE:
-            uintVal = tvb_get_ntohs(tvb, offset);        
+            uintVal = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(tree, hf_dis_antenna_pattern_type, tvb, offset, 2, FALSE);
-            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;                        
+            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             offset += 2;
             break;
         case DIS_FIELDTYPE_ANTENNA_PATTERN_LENGTH:
@@ -826,13 +826,13 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
         case DIS_FIELDTYPE_MODULATION_MAJOR:
             uintVal = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(tree, hf_dis_modulation_major, tvb, offset, 2, FALSE);
-            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;            
+            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             offset += 2;
             break;
         case DIS_FIELDTYPE_MODULATION_SYSTEM:
             uintVal = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(tree, hf_dis_modulation_system, tvb, offset, 2, FALSE);
-            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;                        
+            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             offset += 2;
             break;
         case DIS_FIELDTYPE_CRYPTO_SYSTEM:
@@ -848,14 +848,14 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
             offset += 2;
             break;
         case DIS_FIELDTYPE_MODULATION_PARAMETER_LENGTH:
-            uintVal = tvb_get_guint8(tvb, offset);       
+            uintVal = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_dis_modulation_parameter_length, tvb, offset, 1, FALSE);
-            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;                 
+            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             offset += 1;
             break;
         case DIS_FIELDTYPE_FH_NETWORK_ID:
             proto_tree_add_item(tree, hf_dis_mod_param_fh_net_id, tvb, offset, 2, FALSE);
-            offset += 2;        
+            offset += 2;
             break;
         case DIS_FIELDTYPE_FH_SET_ID:
             proto_tree_add_item(tree, hf_dis_mod_param_fh_set_id, tvb, offset, 2, FALSE);
@@ -877,31 +877,31 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
             proto_tree_add_item(tree, hf_dis_mod_param_fh_sync_time_offset, tvb, offset, 4, FALSE);
             offset += 4;
             break;
-        case DIS_FIELDTYPE_FH_SECURITY_KEY:      
+        case DIS_FIELDTYPE_FH_SECURITY_KEY:
             proto_tree_add_item(tree, hf_dis_mod_param_fh_security_key, tvb, offset, 2, FALSE);
             offset += 2;
             break;
-        case DIS_FIELDTYPE_FH_CLEAR_CHANNEL:              
-            proto_tree_add_item(tree, hf_dis_mod_param_fh_clear_channel, tvb, offset, 1, FALSE);                                    
+        case DIS_FIELDTYPE_FH_CLEAR_CHANNEL:
+            proto_tree_add_item(tree, hf_dis_mod_param_fh_clear_channel, tvb, offset, 1, FALSE);
             offset += 1;
             break;
-        case DIS_FIELDTYPE_TS_ALLOCATION_MODE:              
+        case DIS_FIELDTYPE_TS_ALLOCATION_MODE:
             proto_tree_add_item(tree, hf_dis_mod_param_ts_allocation_mode, tvb, offset, 1, FALSE);
             offset += 1;
             break;
-        case DIS_FIELDTYPE_TRANSMITTER_PRIMARY_MODE:              
+        case DIS_FIELDTYPE_TRANSMITTER_PRIMARY_MODE:
             proto_tree_add_item(tree, hf_dis_mod_param_transmitter_prim_mode, tvb, offset, 1, FALSE);
             offset += 1;
             break;
-        case DIS_FIELDTYPE_TRANSMITTER_SECONDARY_MODE:              
+        case DIS_FIELDTYPE_TRANSMITTER_SECONDARY_MODE:
             proto_tree_add_item(tree, hf_dis_mod_param_transmitter_second_mode, tvb, offset, 1, FALSE);
             offset += 1;
             break;
-        case DIS_FIELDTYPE_JTIDS_SYNC_STATE:              
+        case DIS_FIELDTYPE_JTIDS_SYNC_STATE:
             proto_tree_add_item(tree, hf_dis_mod_param_sync_state, tvb, offset, 1, FALSE);
             offset += 1;
             break;
-        case DIS_FIELDTYPE_NETWORK_SYNC_ID:              
+        case DIS_FIELDTYPE_NETWORK_SYNC_ID:
             proto_tree_add_item(tree, hf_dis_mod_param_network_sync_id, tvb, offset, 4, FALSE);
             offset += 4;
             break;
@@ -909,41 +909,41 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
             /* need to check to see if mod parms length > 0 */
             /* could get here when there are antenna pattern parameter but no mod params */
             if (modulationParamLength > 0 ) { /* we do have a mod param */
-	           if (systemModulation == DIS_SYSTEM_MOD_CCTT_SINCGARS)
-	           {
-                  pi = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                           parserNodes[fieldIndex].fieldLabel);
-                  sub_tree = proto_item_add_subtree(pi, parserNodes[fieldIndex].ettVar);                           
-                  offset = parseFields(tvb, sub_tree, offset, DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS);
-                  proto_item_set_end(pi, tvb, offset);
-		          break; 
-               }
-               else if (systemModulation == DIS_SYSTEM_MOD_JTIDS_MIDS) {  
-                  pi = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                           parserNodes[fieldIndex].fieldLabel);
-                  sub_tree = proto_item_add_subtree(pi, parserNodes[fieldIndex].ettVar);
-                  offset = parseFields(tvb, sub_tree, offset, DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS);
-                  proto_item_set_end(pi, tvb, offset);
-		          break;     
-	           }
-	           else {  /* just dump what is available */
-       		      newtvb = tvb_new_subset(tvb, offset,modulationParamLength, modulationParamLength);
-      		      proto_tree_add_item(tree, hf_dis_mod_param_dump, newtvb, 0, -1, FALSE );
-                  offset += modulationParamLength;                        		      
-		          break; 
-	           }           
+                if (systemModulation == DIS_SYSTEM_MOD_CCTT_SINCGARS)
+                {
+                    pi = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+                                             parserNodes[fieldIndex].fieldLabel);
+                    sub_tree = proto_item_add_subtree(pi, parserNodes[fieldIndex].ettVar);
+                    offset = parseFields(tvb, sub_tree, offset, DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS);
+                    proto_item_set_end(pi, tvb, offset);
+                    break;
+                }
+                else if (systemModulation == DIS_SYSTEM_MOD_JTIDS_MIDS) {
+                    pi = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+                                             parserNodes[fieldIndex].fieldLabel);
+                    sub_tree = proto_item_add_subtree(pi, parserNodes[fieldIndex].ettVar);
+                    offset = parseFields(tvb, sub_tree, offset, DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS);
+                    proto_item_set_end(pi, tvb, offset);
+                    break;
+                }
+                else {  /* just dump what is available */
+                    newtvb = tvb_new_subset(tvb, offset,modulationParamLength, modulationParamLength);
+                    proto_tree_add_item(tree, hf_dis_mod_param_dump, newtvb, 0, -1, FALSE );
+                    offset += modulationParamLength;
+                    break;
+                }
             } /* else, leave offset alone, and then check antenna pattern param field */
             break;
         case DIS_FIELDTYPE_ANTENNA_PATTERN_PARAMETERS:
             /* just dump the bytes for now.  Need to do finish */
-       		newtvb = tvb_new_subset(tvb, offset, 
-       		                        tvb_length_remaining(tvb, offset),
-       		                        tvb_reported_length_remaining(tvb, offset)
-       		                       );
-      		proto_tree_add_item(tree, hf_dis_antenna_pattern_parameter_dump, newtvb, 0, -1, FALSE );
+            newtvb = tvb_new_subset(tvb, offset,
+                                    tvb_length_remaining(tvb, offset),
+                                    tvb_reported_length_remaining(tvb, offset)
+                );
+            proto_tree_add_item(tree, hf_dis_antenna_pattern_parameter_dump, newtvb, 0, -1, FALSE );
             break;
-                        
-                                    
+
+
         /* padding */
         case DIS_FIELDTYPE_PAD8:
             offset = parseField_Pad(tvb, tree, offset,
@@ -956,7 +956,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
         case DIS_FIELDTYPE_PAD24:
             offset = parseField_Pad(tvb, tree, offset,
                 parserNodes[fieldIndex], 3 * fieldRepeatLen);
-            break;            
+            break;
         case DIS_FIELDTYPE_PAD32:
             offset = parseField_Pad(tvb, tree, offset,
                 parserNodes[fieldIndex], 4 * fieldRepeatLen);
@@ -1145,22 +1145,22 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
 
                 for (i = 0; i < numFixed; ++i)
                 {
-	                /* is remaining length large enough for another fixed datum (ID & value) */
-					length = tvb_length_remaining(tvb, offset); 
-	                if ( length >= 8  )
+                    /* is remaining length large enough for another fixed datum (ID & value) */
+                    length = tvb_length_remaining(tvb, offset);
+                    if ( length >= 8  )
                     {
-                       proto_item *newSubtree;
-                       newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                           parserNodes[fieldIndex].fieldLabel);
-                       newSubtree = proto_item_add_subtree(newField, ettFixedData);
-                       offset = parseFields
-                           (tvb, newSubtree, offset,
-                            parserNodes[fieldIndex].children);
-                       proto_item_set_end(newField, tvb, offset);
+                        proto_item *newSubtree;
+                        newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+                                                       parserNodes[fieldIndex].fieldLabel);
+                        newSubtree = proto_item_add_subtree(newField, ettFixedData);
+                        offset = parseFields
+                            (tvb, newSubtree, offset,
+                             parserNodes[fieldIndex].children);
+                        proto_item_set_end(newField, tvb, offset);
                     }
                     else {
-	                   THROW(ReportedBoundsError);
-	                   break;
+                        THROW(ReportedBoundsError);
+                        break;
                     }
                 }
             }
@@ -1182,16 +1182,16 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
 
                 for (i = 0; i < numFixed; ++i)
                 {
-	                /* is remaining length large enough for another fixed datum ID (32 bit int) */
-	                if (tvb_length_remaining(tvb, offset) >= 4  )
+                    /* is remaining length large enough for another fixed datum ID (32 bit int) */
+                    if (tvb_length_remaining(tvb, offset) >= 4  )
                     {
                        offset = parseFields
                            (tvb, newSubtree, offset,
                             parserNodes[fieldIndex].children);
                     }
                     else {
-	                   THROW(ReportedBoundsError);
-	                   break;
+                        THROW(ReportedBoundsError);
+                        break;
                     }
                 }
                 proto_item_set_end(newField, tvb, offset);
@@ -1280,25 +1280,25 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
 
                 for (i = 0; i < numVariable; ++i)
                 {
-	                /* simple check to detect malformed, field parsers will detect specifics */
-					length = tvb_length_remaining(tvb, offset); 
-	                if ( length > 0  )
+                    /* simple check to detect malformed, field parsers will detect specifics */
+                    length = tvb_length_remaining(tvb, offset);
+                    if ( length > 0  )
                     {
-                       proto_item *newSubtree;
-                       newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                           parserNodes[fieldIndex].fieldLabel);
-                       newSubtree = proto_item_add_subtree(newField,
-                           ettVariableRecords[i]);
-                       offset = parseFields
-                           (tvb, newSubtree, offset,
-                            parserNodes[fieldIndex].children);
-                       offset = parseField_VariableRecord
-                           (tvb, newSubtree, offset);
-                       proto_item_set_end(newField, tvb, offset);
+                        proto_item *newSubtree;
+                        newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+                                                       parserNodes[fieldIndex].fieldLabel);
+                        newSubtree = proto_item_add_subtree(newField,
+                                                            ettVariableRecords[i]);
+                        offset = parseFields
+                            (tvb, newSubtree, offset,
+                             parserNodes[fieldIndex].children);
+                        offset = parseField_VariableRecord
+                            (tvb, newSubtree, offset);
+                        proto_item_set_end(newField, tvb, offset);
                     }
                     else {
-	                   THROW(ReportedBoundsError);
-	                   break;
+                        THROW(ReportedBoundsError);
+                        break;
                     }
                 }
             }
@@ -1306,7 +1306,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
         default:
             break;
         }
-        
+
         ++fieldIndex;
         length = tvb_length_remaining(tvb, offset);
     }

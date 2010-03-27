@@ -84,7 +84,7 @@ DIS_ParserNode DIS_FIELDS_PERSISTENT_OBJECT_HEADER[] =
 
 /* Composite types
  */
- 
+
 DIS_ParserNode DIS_FIELDS_BURST_DESCRIPTOR[] =
 {
     { DIS_FIELDTYPE_ENTITY_TYPE, "Munition",0,0,0,0 },
@@ -138,7 +138,7 @@ DIS_ParserNode DIS_FIELDS_MODULATION_TYPE[] =
     { DIS_FIELDTYPE_SPREAD_SPECTRUM,        "Spread Spectrum",0,0,0,0 },
     { DIS_FIELDTYPE_MODULATION_MAJOR,       "Major",0,0,0,&majorModulation },
     { DIS_FIELDTYPE_MODULATION_DETAIL,      "Detail",0,0,0,0 },
-    { DIS_FIELDTYPE_MODULATION_SYSTEM,      "System",0,0,0,&systemModulation }, 
+    { DIS_FIELDTYPE_MODULATION_SYSTEM,      "System",0,0,0,&systemModulation },
     { DIS_FIELDTYPE_END,                    NULL,0,0,0,0 }
 };
 
@@ -191,9 +191,9 @@ DIS_ParserNode DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS[] =
     { DIS_FIELDTYPE_FH_SYNC_TIME_OFFSET,  "FH Synchronization Time Offset",0,0,0,0 },
     { DIS_FIELDTYPE_FH_SECURITY_KEY,      "Transmission Security Key",0,0,0,0 },
     { DIS_FIELDTYPE_FH_CLEAR_CHANNEL,     "Clear Channel",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD8,                 "Padding",0,0,0,0 },            
+    { DIS_FIELDTYPE_PAD8,                 "Padding",0,0,0,0 },
     { DIS_FIELDTYPE_END,                  NULL,0,0,0,0 }
-}; 
+};
 
 DIS_ParserNode DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS[] =
 {
@@ -203,8 +203,8 @@ DIS_ParserNode DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS[] =
     { DIS_FIELDTYPE_JTIDS_SYNC_STATE,             "Synchronization State",0,0,0,0 },
     { DIS_FIELDTYPE_NETWORK_SYNC_ID,              "Network Sync ID",0,0,0,0 },
     { DIS_FIELDTYPE_END,                          NULL,0,0,0,0 }
-}; 
-         
+};
+
 /* Array records
  */
 DIS_ParserNode DIS_FIELDS_FIXED_DATUM[] =
@@ -379,7 +379,7 @@ void initializeFieldParsers()
     initializeParser(DIS_FIELDS_VR_DATA_QUERY);
     initializeParser(DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS);
     initializeParser(DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS);
-    
+
 }
 
 /* Adjust an offset variable for proper alignment for a specified field length.
@@ -631,13 +631,13 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
         break;
     case DIS_FIELDTYPE_RADIO_CATEGORY:
         enumStrings = DIS_PDU_RadioCategory_Strings;
-        break;        
+        break;
     case DIS_FIELDTYPE_NOMENCLATURE_VERSION:
         enumStrings = DIS_PDU_NomenclatureVersion_Strings;
-        break;        
+        break;
     case DIS_FIELDTYPE_NOMENCLATURE:
         enumStrings = DIS_PDU_Nomenclature_Strings;
-        break;        
+        break;
     case DIS_FIELDTYPE_CATEGORY:
         if (entityKind == DIS_ENTITYKIND_PLATFORM)
         {
@@ -687,34 +687,34 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
         break;
     case DIS_FIELDTYPE_MODULATION_DETAIL:
         switch (majorModulation) {
-	       case DIS_MAJOR_MOD_AMPLITUDE:
-              enumStrings = DIS_PDU_DetailModulationAmplitude_Strings;
-              break;
-	       case DIS_MAJOR_MOD_AMPLITUDE_AND_ANGLE:
-              enumStrings = DIS_PDU_DetailModulationAmpAndAngle_Strings;
-              break;
-	       case DIS_MAJOR_MOD_ANGLE:
-	          enumStrings = DIS_PDU_DetailModulationAngle_Strings;
-              break;
-	       case DIS_MAJOR_MOD_COMBINATION:
-	          enumStrings = DIS_PDU_DetailModulationCombination_Strings;
-              break;
-	       case DIS_MAJOR_MOD_PULSE:
-	          enumStrings = DIS_PDU_DetailModulationPulse_Strings;
-              break;
-	       case DIS_MAJOR_MOD_UNMODULATED:
-	          enumStrings = DIS_PDU_DetailModulationUnmodulated_Strings;
-              break;
-	       case DIS_MAJOR_MOD_CPSM: /* CPSM only has "other" defined */
-	       case DIS_MAJOR_MOD_OTHER:
-           default:
-              enumStrings = DIS_PDU_DetailModulationCPSM_Strings;
-              break;
+        case DIS_MAJOR_MOD_AMPLITUDE:
+            enumStrings = DIS_PDU_DetailModulationAmplitude_Strings;
+            break;
+        case DIS_MAJOR_MOD_AMPLITUDE_AND_ANGLE:
+            enumStrings = DIS_PDU_DetailModulationAmpAndAngle_Strings;
+            break;
+        case DIS_MAJOR_MOD_ANGLE:
+            enumStrings = DIS_PDU_DetailModulationAngle_Strings;
+            break;
+        case DIS_MAJOR_MOD_COMBINATION:
+            enumStrings = DIS_PDU_DetailModulationCombination_Strings;
+            break;
+        case DIS_MAJOR_MOD_PULSE:
+            enumStrings = DIS_PDU_DetailModulationPulse_Strings;
+            break;
+        case DIS_MAJOR_MOD_UNMODULATED:
+            enumStrings = DIS_PDU_DetailModulationUnmodulated_Strings;
+            break;
+        case DIS_MAJOR_MOD_CPSM: /* CPSM only has "other" defined */
+        case DIS_MAJOR_MOD_OTHER:
+        default:
+            enumStrings = DIS_PDU_DetailModulationCPSM_Strings;
+            break;
         }
         break;
     default:
         enumStrings = 0;
-        break; 
+        break;
     }
 
     switch(numBytes)
@@ -825,7 +825,7 @@ gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_Pars
    double ms;
 
    offset = alignOffset(offset, 4);
-   
+
    /* convert to host value */
    uintVal = tvb_get_ntohl(tvb, offset);
    /* determine absolute vis sim time */
