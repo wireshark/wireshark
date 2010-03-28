@@ -1075,6 +1075,31 @@ create_user_window_title(const gchar *caption)
 }
 
 /* XXX move toggle_tree over from proto_draw.c to handle GTK+ 1 */
+/*
+ * This callback is invoked when keyboard focus is within either 
+ * the packetlist view or the detail view.  The keystrokes processed 
+ * within this callback are attempting to modify the detail view.  
+ * Within the detail view we special case the Left Arrow, Backspace 
+ * and Enter keys depending on the state of the expander (if any)
+ * for the item in focus.
+ *
+ * Returning FALSE allows processing of the original key_press_event 
+ * by other callbacks.  Left/Right scrolling of the packetlist
+ * view and expanding/collapsing of the detail view lists is
+ * handled by the default GtkTreeView key-press-event call back.
+ *
+ * XXX - Would an improved version of this callback test to see which
+ * of the two GtkTreeView lists has focus?  Left/Right scrolling of 
+ * the packetlist is currently not optimal.  It will take several 
+ * right or left keypress events before the packetlist responds.  
+ * The problem appears to be that the focus is on a particular cell
+ * within the highlighted row cell (like a spreadsheet).  Scrolling
+ * of the view  right or left will not occur until the focus is 
+ * moved to a cell off the left or right edge of the packet list 
+ * view.  Also TAB/SHIFT-TAB events can move keyboard focus to 
+ * the packetlist header where there is currently visual hint
+ * a header cell has focus.
+ */
 static int
 tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data _U_)
 {
@@ -1084,6 +1109,7 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
     GtkTreeModel* model;
     GtkTreePath* path;
     gboolean    expanded;
+    int rc = FALSE;
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
     if(!selection) {
@@ -1103,17 +1129,17 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
     switch (event->keyval) {
         case GDK_Left:
             if(expanded) {
-                /* subtree is expanded, collapse it */
-                gtk_tree_view_collapse_row(GTK_TREE_VIEW(tree), path);
-                gtk_tree_path_free(path);
-                return TRUE;
+                /* subtree is expanded, collapse it by letting default callback handle it. */
+                rc = FALSE;
+                break; 
             }
             /* No break - fall through to jumping to the parent */
         case GDK_BackSpace:
             if (!expanded) {
                 /* subtree is already collapsed, jump to parent node */
                 if(! gtk_tree_model_iter_parent(model, &parent, &iter)) {
-                    return FALSE;
+                    rc = FALSE;
+                    break; 
                 }
                 gtk_tree_path_free(path);
                 path = gtk_tree_model_get_path(model, &parent);
@@ -1123,15 +1149,10 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
                 gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), path,
                                                  NULL /* focus_column */,
                                                  FALSE /* !start_editing */);
-                gtk_tree_path_free(path);
-                return TRUE;
+                rc = TRUE;
+                break; 
             }
             break;
-        case GDK_Right:
-            /* try to expand the subtree */
-            gtk_tree_view_expand_row(GTK_TREE_VIEW(tree), path, FALSE /* !open_all */);
-            gtk_tree_path_free(path);
-            return TRUE;
         case GDK_Return:
         case GDK_KP_Enter:
             /* Reverse the current state. */
@@ -1140,11 +1161,14 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
             else
                 gtk_tree_view_expand_row(GTK_TREE_VIEW(tree), path, FALSE /* !open_all */);
             gtk_tree_path_free(path);
-	    return TRUE;
+            rc = TRUE;
+            break; 
     }
 
-    gtk_tree_path_free(path);
-    return FALSE;
+    if(path) {
+        gtk_tree_path_free(path);
+    }
+    return rc;
 }
 
 void
