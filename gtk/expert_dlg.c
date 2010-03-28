@@ -315,7 +315,10 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
     /* The view now holds a reference.  We can get rid of our own reference */
     g_object_unref (G_OBJECT (store));
 
-    gtk_widget_modify_font(GTK_WIDGET (etd->tree_view), user_font_get_regular());
+    /* Let the font be the default one to have the same look as the rest of the tabs
+	 * Bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4388
+	 * gtk_widget_modify_font(GTK_WIDGET (etd->tree_view), user_font_get_regular());
+	 */
 
     /* Create a cell renderer */
     renderer = gtk_cell_renderer_text_new ();
