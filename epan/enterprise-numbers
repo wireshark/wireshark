@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2010-03-21)
+(last updated 2010-03-28)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -443,8 +443,8 @@ Decimal
       fontaine_rene&emc.com
 107
   Bull Company
-    Anthony Berent
-      berent&rdgeng.enet.dec.com
+    Alain BOUCHET
+      alain.bouchet&bull.net
 108
   Emulex Corporation
     Jeff Freeman
@@ -12038,9 +12038,9 @@ Decimal
     Frans Bouwmeester
       bm&topcall.co.at
 3008
-  Open Service
-    Joe Minieri
-      jminieri&open.com
+  LogMatrix Inc (Open Service)
+    Chris Boldiston
+      techsupport&logmatrix.com
 3009
   SYNCLAYER Inc.
     Yuichi Hasegawa
@@ -16506,9 +16506,9 @@ Decimal
     Nehling
       kornelius.nehling&pdb.siemens.de
 4126
-  Open Service
-    Joe Minieri
-      jminieri&open.com
+  LogMatrix Inc (Open Service)
+    Chris Boldiston
+      techsupport&logmatrix.com
 4127
   Mercury Computer Systems, Inc.
     Yan Xiao
@@ -55471,9 +55471,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Kevin J. Schmidt
       snmp&guarded.net
 13979
-  CompuCS Inc.
+  Mintact Software Inc (previous was 'CompuCS Inc.')
     Min Chen
-      mg_chen&163.net
+      min.chen&mintact.com
 13980
   Platinum Web Pages
     Ron Pfingsten
@@ -89114,7 +89114,7 @@ Limited
 22388
   SENTELCO
     Jon Bieker
-      jbieker&pursuit-zone.com
+      jbieker&sentelco.com
 22389
   IRIS Corporation Berhad
     Nrin Tan
@@ -111683,8 +111683,8 @@ Decentralization / Helenic Public Administra
       contact-iana&pilotsystems.net
 28025
   Capita Business Services Ltd
-    Dan Clark
-      dan.clark&capita.co.uk
+    Richard Stone
+      richard.stone&capita.co.uk
 28026
   Hostbasket
     Hans Thienpondt
@@ -136012,7 +136012,7 @@ Decentralization / Helenic Public Administra
     Petr Absolon
       iana&tescoma.com
 34107
-  SELEX Sensors & Airborne Systems
+  SELEX GALILEO
     Davina Forster
       davina.forster&selexgalileo.com
 34108
@@ -141444,6 +141444,226 @@ Decentralization / Helenic Public Administra
   Blues Point Partners Pty Ltd
     Peter Horne
       ph&bluespointpartners.com
+35465
+  Bank Julius Baer & Co. Ltd.
+    Sebastian Kowalski
+      sebastian.kowalski&juliusbaer.com
+35466
+  Forsway Scandinavia AB
+    Edvin Lindqvist
+      edvin.lindqvist&forsway.com
+35467
+  OOO"SpinBrain"
+    Nickolay Redin
+      ya&spinbrain.com
+35468
+  KTU RLSC
+    Vygintas Kazanavicius
+      vkaza&ifko.ktu.lt
+35469
+  Seamless Distribution AB
+    Radoslaw Kozlowski
+      radoslaw.kozlowski&seamless.se
+35470
+  First-Matrix
+    Juan Meyer
+      juan&first-matrix.com
+35471
+  Johns Byrne Company
+    Brett Gustafson
+      brett.gustafson&johnsbyrne.com
+35472
+  blichmann.de
+    Christian Blichmann
+      pen-request-iana&blichmann.de
+35473
+  UNETCONVERGENCE
+    Lee Jun Yong
+      jylee&unetconv.co.kr
+35474
+  TransMIT GmbH
+    Michael Kröning
+      Kroening&transmit.de
+35475
+  Sprengnetter GmbH
+    Markus Tondorf
+      m.tondorf&sprengnetter.de
+35476
+  The Overtis Group Limited
+    Jeremy Barker
+      jeremy.barker&overtis.com
+35477
+  Dataram Corporation
+    Jason Caulkins
+      jcaulkins&dataram.com
+35478
+  The UNIX Man Consulting, LLC
+    Evan Cofsky
+      evan&theunixman.com
+35479
+  Academic Medical Center
+    Ewald H. Beekman
+      E.H.Beekman&amc.nl
+35480
+  Kutak Rock LLP
+    Jim Cook
+      postmaster&kutakrock.com
+35481
+  LightningIO
+    Ben Kelly
+      kibelan&gmail.com
+35482
+  Image Soft Oy
+    Matti Suuronen
+      matti.suuronen&imagesoft.fi
+35483
+  Exagate
+    Dogan Erdogan
+      dogan.erdogan&exagate.com
+35484
+  Alphacom LLC.
+    Aleksey Zhukov
+      drdaeman&netwi.ru
+35485
+  Derrick & Associates, Inc
+    Michael Derrick
+      tech&dnacorp.net
+35486
+  Television New Zealand Ltd
+    Norm Cross
+      norm.cross&tvnz.co.nz
+35487
+  The Salvation Army USA Western Territory
+    Doug Neely
+      doug.neely&usw.salvationarmy.org
+35488
+  The Corosync Cluster Engine Project
+    Steven Charles Dake
+      sdake&redhat.com
+35489
+  Radiofid Ltd
+    Nikita Nazarenko
+      nnazarenko&radiofid.ru
+35490
+  AGEPS - APHP
+    Martin Hilka
+      martin.hilka&eps.aphp.fr
+35491
+  M.S. Projekt Management + Vertrieb GmbH
+    Peter Siebertz
+      mail&pmv-gmbh.de
+35492
+  rheinland-versicherungen
+    markus schellen
+      markus.schellen&rheinland-versicherungen.de
+35493
+  EMBED-IT OG
+    Marcello Presulli
+      m.presulli&embed-it.com
+35494
+  act750
+    Frederic Duclos
+      frederic.duclos&act750.com
+35495
+  Arjo Wiggins Chartham Limited
+    Malcolm Laws
+      malcolm.laws&arjowiggins.com
+35496
+  Interface Devices Ltd
+    Vadim Govorovski
+      vadim&interface-devices.com
+35497
+  GenLan d.o.o.
+    Sebastijan Sef
+      info&genlan.si
+35498
+  VDG Security BV
+    Robin Hermann
+      robin&vdg-security.com
+35499
+  Stratos NZ Ltd
+    David Liversidge
+      david.liversidge&stratosglobal.com
+35500
+  Aim co., Ltd.
+    Takayuki Eimizu
+      t-eimizu&aim.ac
+35501
+  Access General Insurance Holdings
+    John Zucco
+      jzucco&accessgeneral.com
+35502
+  BIGSSS
+    Jakob Lenfers
+      lenfers&bigsss-bremen.de
+35503
+  CybersCube
+    Victor Fang
+      victor.fang&cyberscube.com
+35504
+  Eitelwein Net
+    Michael Eitelwein
+      michael&eitelwein.net
+35505
+  Lindenbaum GmbH
+    Ahmad Masrieh
+      iana-ext&lindenbaum.eu
+35506
+  Streamezzo S.A.
+    Cédric Gégout
+      stz-server&streamezzo.com
+35507
+  Ben Clifford
+    Ben Clifford
+      benc&hawaga.org.uk
+35508
+  Addiva Engineering AB
+    Mikael Sandberg
+      mikael.sandberg&addiva.se
+35509
+  C Squared Systems, LLC
+    Chris Dallaire
+      chris.dallaire&csquaredsystems.com
+35510
+  Tecnicas De Soft, S.A.
+    Antonio Rodriguez Fernandez
+      antonio-rodriguez&tecnicasdesoft.es
+35511
+  VirtualScopics
+    Colin Rhodes
+      colin_rhodes&virtualscopics.com
+35512
+  OSSEra, Inc
+    Fazhong Deng
+      david_deng&ossera.com
+35513
+  AixConcept GmbH
+    Sebastian Fillinger
+      sfillinger&aixconcept.de
+35514
+  Liquidweb Inc
+    Nick Cappelletti
+      network&liquidweb.com
+35515
+  KJ3 Elektronik
+    Johan Johansson
+      johan&kj3.net
+35516
+  Suomen Teollisuusosa Oy
+    Harry Flink
+      to-steo-from-iana-about-pen&steo.fi
+35517
+  Shernet
+    Adam Sher
+      adam&shernet.net
+35518
+  Bay Talkitec Private Limited
+    Krishnamoorthy Raghunath
+      raghu&baytalkitec.com
+35519
+  Maldives Monetary Authority
+    Shawn Rasheed
+      shawn&mma.gov.mv
 
 
 End of Document
