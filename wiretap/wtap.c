@@ -388,7 +388,7 @@ static struct encap_type_info encap_table_base[] = {
 	{ "Endace Record File", "erf" },
 
 	/* WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR */
-	{ "Bluetooth H4 with linux header", "bluetooth-h4" },
+	{ "Bluetooth H4 with linux header", "bluetooth-h4-linux" },
 
 	/* WTAP_ENCAP_SITA */
 	{ "SITA WAN packets", "sita-wan" },
