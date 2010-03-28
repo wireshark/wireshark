@@ -752,7 +752,7 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
     f->abbr = g_strdup(abbr);
     f->type = type;
     f->vs = NULL;
-    f->base = ( type == FT_FLOAT || type == FT_DOUBLE) ? BASE_DEC : BASE_NONE;
+    f->base = BASE_NONE;
     f->mask = 0;
     if (blob && strcmp(blob, f->name) != 0) {
       f->blob = g_strdup(blob);
