@@ -2991,9 +2991,13 @@ Erwin van Eijk		<erwin.vaneijk [AT] gmail.com> {
 }
 
 Venkateshwaran Dorai	<venkateshwaran.d [AT] gmail.com> {
-	Server/Application State Protocol [SASP] (RFC 4678 )
+	Server/Application State Protocol [SASP] (RFC 4678 ) dissector
 }
 	
+Ben Greear		<greearb [AT] candelatech.com> {
+	LANforge dissector
+}
+
 
 and by:
 
