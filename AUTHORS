@@ -2998,6 +2998,10 @@ Ben Greear		<greearb [AT] candelatech.com> {
 	LANforge dissector
 }
 
+Richard Kümmel		<r.kuemmel [AT] beckhoff.de> {
+	EtherCAT dissector
+}
+
 
 and by:
 
@@ -3165,7 +3169,6 @@ Sandhya Gopinath	<Sandhya.Gopinath [AT] citrix.com>
 Raghav SN		<Raghav.SN [AT] citrix.com>
 Murali Raja		<Murali.Raja [AT] citrix.com>
 Devesh Prakash		<Devesh.Prakash [AT] citrix.com>
-Richard Kümmel		<r.kuemmel [AT] beckhoff.de>
 Darryl Champagne	<dchampagne [AT] sta.samsung.com>
 Michael Speck		<Michael.Speck [AT] avl.com>
 Gerasimos Dimitriadis	<dimeg [AT] intracom.gr>
