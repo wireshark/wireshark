@@ -49,7 +49,8 @@ typedef union _EslFlagsUnion
         guint16    port1        : 1;
         guint16    port0        : 1;
         guint16    extended     : 1;
-        guint16    reserved     : 2;
+	guint16    port11       : 1;
+	guint16    port10       : 1;
         guint16    crcError     : 1;
         guint16    alignError   : 1;
         guint16    timeStampEna : 1;
@@ -74,7 +75,8 @@ typedef union _EslFlagsUnion
 #define esl_port1_bitmask        0x0040
 #define esl_port0_bitmask        0x0080
 #define esl_extended_bitmask     0x0100
-
+#define esl_port11_bitmask       0x0200
+#define esl_port10_bitmask       0x0400
 #define esl_crcError_bitmask     0x0800
 #define esl_alignError_bitmask   0x1000
 #define esl_timeStampEna_bitmask 0x2000
@@ -165,6 +167,10 @@ static guint16 flags_to_port(guint16 flagsValue) {
         return 8;
     else if ( (flagsValue & esl_port9_bitmask) != 0 )
         return 9;
+    else if ( (flagsValue & esl_port10_bitmask) != 0 )
+        return 10;
+    else if ( (flagsValue & esl_port11_bitmask) != 0 )
+        return 11;
 
     return -1;
 }
@@ -215,7 +221,7 @@ gboolean is_esl_header(tvbuff_t *tvb, gint offset)
     return tvb_get_guint8(tvb, offset) == 0x01 &&
         tvb_get_guint8(tvb, offset+1) == 0x01 &&
         tvb_get_guint8(tvb, offset+2) == 0x05 &&
-        tvb_get_guint8(tvb, offset+3) == 0x10 &&
+        (tvb_get_guint8(tvb, offset+3) == 0x10 ||tvb_get_guint8(tvb, offset+3) == 0x11)&&
         tvb_get_guint8(tvb, offset+4) == 0x00 &&
         tvb_get_guint8(tvb, offset+5) == 0x00;
 }
@@ -323,12 +329,12 @@ proto_register_esl(void) {
         },
         { &hf_esl_crcerror,
           { "Crc Error", "esl.crcerror",
-            FT_BOOLEAN, 16, TFS(&flags_yes_no), 0x1000 /* XXX: Should be 0x0800 to match struct definition ?? */,
+            FT_BOOLEAN, 16, TFS(&flags_yes_no), esl_crcError_bitmask,
             NULL, HFILL }
         },
         { &hf_esl_alignerror,
           { "Alignment Error", "esl.alignerror",
-            FT_BOOLEAN, 16, TFS(&flags_yes_no), 0x0800 /* xxx: Should be 0x1000 to match struct definition ?? */,
+            FT_BOOLEAN, 16, TFS(&flags_yes_no), esl_alignError_bitmask,
             NULL, HFILL }
         },
         { &hf_esl_timestamp,
