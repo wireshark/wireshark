@@ -213,7 +213,7 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_CHDLC_WITH_PHDR */
 	{ "Cisco HDLC with Directional Info", "chdlc-with-direction" },
 
-	/* WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR */
+	/* WTAP_ENCAP_BLUETOOTH_H4 */
 	{ "Bluetooth H4", "bluetooth-h4" },
 
 	/* WTAP_ENCAP_MTP2 */
@@ -387,8 +387,8 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_ERF */
 	{ "Endace Record File", "erf" },
 
-	/* WTAP_ENCAP_BT_H4 */
-	{ "Bluetooth H4 with linux header", "bluetooth-h4" },
+	/* WTAP_ENCAP_BT_H4_WITH_PHDR */
+	{ "Bluetooth H4 with linux header", "bluetooth-h4-linux" },
 
 	/* WTAP_ENCAP_SITA */
 	{ "SITA WAN packets", "sita-wan" },

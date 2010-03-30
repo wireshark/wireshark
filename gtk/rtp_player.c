@@ -749,7 +749,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 		if (diff<0) diff = -diff;
   
 		total_time = (double)rp->arrive_offset/1000;
-#if DEBUG		
+#if DEBUG
 		printf("seq = %d arr = %f abs_diff = %f index = %d tim = %f ji=%d jb=%f\n",rp->info->info_seq_num, 
 			total_time, diff, rci->samples->len, ((double)rci->samples->len/8000 - total_time)*1000, 0,
 				(mean_delay + 4*variation)*1000);
@@ -770,6 +770,13 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 #endif
 
 				silence_frames = (gint32)((arrive_time - arrive_time_prev)*SAMPLE_RATE - decoded_bytes_prev/2);
+
+				/* Fix for bug 4119: don't insert more than 1000 silence frames.
+				 * XXX - is there a better thing to do here?
+				 */
+				if (silence_frames > 1000)
+					silence_frames = 1000;
+
 				for (i = 0; i< silence_frames; i++) {
 					silence.status = status;
 					g_array_append_val(rci->samples, silence);
@@ -791,6 +798,13 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 				rci->wrong_timestamp++;
 				status = S_WRONG_TIMESTAMP;
 			}
+
+			/* Fix for bug 4119: don't insert more than 1000 silence frames.
+			 * XXX - is there a better thing to do here?
+			 */
+			if (silence_frames > 1000)
+				silence_frames = 1000;
+
 			for (i = 0; i< silence_frames; i++) {
 				silence.status = status;
 				g_array_append_val(rci->samples, silence);
@@ -815,7 +829,6 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 			pack_period = (double)(decoded_bytes/2)/SAMPLE_RATE;
 			decoded_bytes_prev = decoded_bytes;
 			arrive_time_prev = arrive_time;
-
 		}
 
 		if (out_buff) {

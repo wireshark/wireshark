@@ -230,7 +230,12 @@ capture_get_linktype (gchar *if_name)
 {
   gint linktype, *linktype_p;
 
+  if (linktype_history) {
   linktype_p = g_hash_table_lookup (linktype_history, if_name);
+  } else {
+    linktype_p = NULL;
+  }
+
   if (linktype_p) {
     linktype = *linktype_p;
   } else {

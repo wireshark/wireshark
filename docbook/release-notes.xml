@@ -29,6 +29,7 @@ Wireshark Info
   <section id="WhatsNew"><title>What's New</title>
     <section id="BugFixes"><title>Bug Fixes</title>
 
+<![ IGNORE [
     <para>
 
       The following vulnerabilities have been fixed. See the
@@ -55,19 +56,20 @@ Wireshark Info
       </itemizedlist>
 
     </para>
+]]>
 
     <para>
     The following bugs have been fixed:
 
       <itemizedlist>
 
-<!--
+<![ IGNORE [
         <listitem><para>
           Wireshark will go all Weezer on you and destroy your sweater.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=0000">Bug
           0000</ulink>)
         </para></listitem>
--->
+]]>
 
         <listitem><para>
           SNMPv3 Engine ID registration.
@@ -91,6 +93,12 @@ Wireshark Info
           Add support for FT_BOOLEAN fields to wslua FieldInfo.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4049">Bug
           4049</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark crashes w/ GLib error when trying to play RTP stream.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4119">Bug
+          4119</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -130,6 +138,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          GLib-CRITICAL ** Message.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4547">Bug
+          4547</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Certain EDP display filters trigger Wireshark/tshark runtime error.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4563">Bug
           4563</ulink>)
@@ -139,6 +153,12 @@ Wireshark Info
           Some NCP frames trigger "Dissector bug, protocol NCP".
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4565">Bug
           4565</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          The encapsulation abbreviation "bluetooth-h4" is ambiguous.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4613">Bug
+          4613</ulink>)
         </para></listitem>
 
       </itemizedlist>
