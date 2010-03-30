@@ -2650,7 +2650,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	offset += 1 + 1 + info_element_len;
 	/* Reassembly */
-	frag_len = tvb_length_remaining(tvb, offset);
+	frag_len = tvb_reported_length_remaining(tvb, offset);
 	fd_head = fragment_add_seq_next(tvb, offset, pinfo, call_ref_val,
 									q931_fragment_table, q931_reassembled_table,
 									frag_len, more_frags);
