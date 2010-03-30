@@ -37,7 +37,6 @@
 #include <epan/frequency-utils.h>
 #include <epan/tap.h>
 #include <epan/prefs.h>
-#include <epan/addr_resolv.h>
 #include "packet-ieee80211.h"
 #include "packet-radiotap.h"
 
@@ -94,7 +93,6 @@ enum ieee80211_radiotap_type {
     IEEE80211_RADIOTAP_DB_ANTNOISE = 13,
     IEEE80211_RADIOTAP_RX_FLAGS = 14,
     IEEE80211_RADIOTAP_XCHANNEL = 18,
-	IEEE80211_RADIOTAP_VENDOR_SPECIFIC = 30,
     IEEE80211_RADIOTAP_EXT = 31
 };
 
@@ -238,12 +236,6 @@ static int hf_radiotap_tx_attenuation = -1;
 static int hf_radiotap_db_tx_attenuation = -1;
 static int hf_radiotap_txpower = -1;
 
-static int hf_radiotap_vendor_ns = -1;
-static int hf_radiotap_ven_oui = -1;
-static int hf_radiotap_ven_subns = -1;
-static int hf_radiotap_ven_skip = -1;
-static int hf_radiotap_ven_data = -1;
-
 /* "Present" flags */
 static int hf_radiotap_present_tsft = -1;
 static int hf_radiotap_present_flags = -1;
@@ -262,7 +254,6 @@ static int hf_radiotap_present_db_antnoise = -1;
 static int hf_radiotap_present_hdrfcs = -1;
 static int hf_radiotap_present_rxflags = -1;
 static int hf_radiotap_present_xchannel = -1;
-static int hf_radiotap_present_vendor_namespace = -1;
 static int hf_radiotap_present_ext = -1;
 
 /* "present.flags" flags */
@@ -286,7 +277,6 @@ static gint ett_radiotap_flags = -1;
 static gint ett_radiotap_rxflags = -1;
 static gint ett_radiotap_channel_flags = -1;
 static gint ett_radiotap_xchannel_flags = -1;
-static gint ett_radiotap_vendor = -1;
 
 static dissector_handle_t ieee80211_handle;
 static dissector_handle_t ieee80211_datapad_handle;
@@ -459,7 +449,6 @@ proto_register_radiotap(void)
 #define RADIOTAP_MASK_DB_ANTNOISE           0x00002000
 #define RADIOTAP_MASK_RX_FLAGS              0x00004000
 #define RADIOTAP_MASK_XCHANNEL              0x00040000
-#define RADIOTAP_MASK_VENDOR_NAMESPACE      0x40000000
 #define RADIOTAP_MASK_EXT                   0x80000000
 
     /* Boolean 'present' flags */
@@ -547,11 +536,6 @@ proto_register_radiotap(void)
       { "Channel+", "radiotap.present.xchannel",
 	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_XCHANNEL,
 	"Specifies if the extended channel info field is present", HFILL } },
-
-	{ &hf_radiotap_present_vendor_namespace,
-      { "Vendor Namespace", "radiotap.present.vendor_namespace",
-	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_VENDOR_NAMESPACE,
-	"Specifies if the Vendor Namespace field is present", HFILL } },
 
     { &hf_radiotap_present_ext,
       { "Ext", "radiotap.present.ext",
@@ -795,31 +779,6 @@ proto_register_radiotap(void)
 	FT_INT32, BASE_DEC, NULL, 0x0,
 	"Transmit power in decibels per one milliwatt (dBm)", HFILL } },
 
-    { &hf_radiotap_vendor_ns,
-      { "Vendor namespace", "radiotap.vendor_ns",
-	FT_NONE, BASE_NONE, NULL, 0x0,
-	"Vendor namespace", HFILL } },
-
-    { &hf_radiotap_ven_oui,
-      { "Vendor OUI", "radiotap.vendor_oui",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
-	"Vendor OUI", HFILL } },
-
-    { &hf_radiotap_ven_subns,
-      { "Vendor sub namespace", "radiotap.vendor_subns",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"Vendor-specified sub namespace", HFILL } },
-
-    { &hf_radiotap_ven_skip,
-      { "Vendor data length", "radiotap.vendor_data_len",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Length of vendor-specified data", HFILL } },
-
-    { &hf_radiotap_ven_data,
-      { "Vendor data", "radiotap.vendor_data",
-	FT_NONE, BASE_NONE, NULL, 0x0,
-	"Vendor-specified data", HFILL } },
-
     /* Special variables */
     { &hf_radiotap_fcs_bad,
       { "Bad FCS", "radiotap.fcs_bad",
@@ -833,8 +792,7 @@ proto_register_radiotap(void)
     &ett_radiotap_flags,
     &ett_radiotap_rxflags,
     &ett_radiotap_channel_flags,
-    &ett_radiotap_xchannel_flags,
-	&ett_radiotap_vendor
+    &ett_radiotap_xchannel_flags
   };
   module_t *radiotap_module;
 
@@ -861,7 +819,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *pt, *present_tree = NULL;
     proto_tree *ft;
     proto_item *ti = NULL, *hidden_item;
-    int align_offset = 0, offset;
+    int align_offset, offset;
     tvbuff_t *next_tvb;
     guint32 version;
     guint length, length_remaining;
@@ -870,13 +828,11 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 db, rflags;
     guint32 present, next_present;
     int bit;
-	const guint8 *data_ptr;
     /* backward compat with bit 14 == fcs in header */
     proto_item *hdr_fcs_ti = NULL;
     int hdr_fcs_offset = 0;
     guint32 sent_fcs = 0;
     guint32 calc_fcs;
-	int skip_len;
 
     struct _radiotap_info *radiotap_info;
     static struct _radiotap_info rtp_info_arr[1];
@@ -966,27 +922,11 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	proto_tree_add_item(present_tree, hf_radiotap_present_xchannel,
 	    tvb, 4, 4, TRUE);
-	/* Bit 30 */
-	proto_tree_add_item(present_tree, hf_radiotap_present_vendor_namespace,
-	    tvb, 4, 4, TRUE);
-	/* Bit 31 */
 	proto_tree_add_item(present_tree, hf_radiotap_present_ext,
 	    tvb, 4, 4, TRUE);
     }
     offset += RADIOTAP_MIN_HEADER_LEN;
     length_remaining -= RADIOTAP_MIN_HEADER_LEN;
-	if (present & (1 << IEEE80211_RADIOTAP_EXT)) {
-		if(present & (1 << IEEE80211_RADIOTAP_VENDOR_SPECIFIC)) {
-			proto_tree_add_text(present_tree, tvb, offset, 4,"Vendor extended it_present %s",
-				decode_bits_in_field(offset<<3,32,tvb_get_letohl(tvb, offset)));
-		}else{
-			proto_tree_add_text(present_tree, tvb, offset, 4,"Extended it_present %s",
-				decode_bits_in_field(offset<<3,32,tvb_get_letohl(tvb, offset)));
-		}
-		/* 4 + pad ? */
-		offset+=8;
-		length_remaining -=8;
-	}
 
     rflags = 0;
     for (; present; present = next_present) {
@@ -1342,31 +1282,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 length_remaining-=2;
             }
 	    break;
-	
-
 	}
-	case IEEE80211_RADIOTAP_VENDOR_SPECIFIC:
-	{
-		proto_tree *vt, *ven_tree = NULL;
-
-	    offset += align_offset;
-	    length_remaining -= align_offset;
-	    if (length_remaining < 5)
-		    break;
-   	    skip_len = tvb_get_guint8(tvb, offset+4);
-        vt = proto_tree_add_item(radiotap_tree, hf_radiotap_vendor_ns,tvb, offset, skip_len+6, FALSE);
-        ven_tree = proto_item_add_subtree(vt, ett_radiotap_vendor);		align_offset = ALIGN_OFFSET(offset, 5);
-		data_ptr = tvb_get_ptr(tvb, offset, 3);
-		proto_tree_add_bytes_format (ven_tree, hf_radiotap_ven_oui, tvb, offset + 2, 3,
-			data_ptr, "Vendor: %s", get_manuf_name(data_ptr));
-        proto_tree_add_item(ven_tree, hf_radiotap_ven_subns, tvb, offset + 3, 1, FALSE);
-        proto_tree_add_item(ven_tree, hf_radiotap_ven_skip, tvb, offset + 4, 2, TRUE);
-        proto_tree_add_item(ven_tree, hf_radiotap_ven_data, tvb, offset + 6, skip_len, TRUE);
-	    offset+=(5+skip_len);
-	    length_remaining-=(5+skip_len);
-        break;
-	}
-
 	default:
 	    /*
 	     * This indicates a field whose size we do not
