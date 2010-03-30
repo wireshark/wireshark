@@ -108,7 +108,7 @@ if test "x$with_gnutls" = "xyes"; then
                 if test x$libgnutls_config_prefix != x ; then
 	                AC_MSG_ERROR([[gnuTLS not found; install gnuTLS-devel package for your system]])
                 else
-                        echo echo "gnuTLS not found, disabling ssl decryption"
+                        echo "gnuTLS not found, disabling ssl decryption"
                         tls_message="no"
                 fi
         ]
