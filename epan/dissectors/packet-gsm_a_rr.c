@@ -1859,7 +1859,7 @@ de_rr_utran_cm(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
     if (len)
     {
         rrc_irat_ho_info_tvb = tvb_new_subset(tvb, curr_offset, len, len);
-        if (rrc_irat_ho_info_handle)
+        if (rrc_irat_ho_info_handle && gsm_a_dtap_pinfo)
 			/* gsm_a_dtap_pinfo MUST be set by any dissector calling de_rr_utran_cm */
             call_dissector(rrc_irat_ho_info_handle, rrc_irat_ho_info_tvb, gsm_a_dtap_pinfo, tree);
     }
@@ -6324,7 +6324,7 @@ de_rr_ho_to_utran_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
     if (len)
     {
         rrc_irat_ho_to_utran_cmd_tvb = tvb_new_subset(tvb, curr_offset, len, len);
-        if (rrc_irat_ho_to_utran_cmd_handle)
+        if (rrc_irat_ho_to_utran_cmd_handle && gsm_a_dtap_pinfo)
 			/* gsm_a_dtap_pinfo MUST be set by any dissector calling de_rr_ho_to_utran_cmd */
             call_dissector(rrc_irat_ho_to_utran_cmd_handle, rrc_irat_ho_to_utran_cmd_tvb, gsm_a_dtap_pinfo, tree);
     }
