@@ -48,6 +48,7 @@
 #include <epan/tap.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include "packet-q708.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_mtp3  = -1;
@@ -488,6 +489,7 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
   proto_item *label_item, *label_dpc_item, *label_opc_item;
   proto_item *hidden_item;
   proto_tree *label_tree;
+  proto_tree *pc_subtree;
   int *hf_dpc_string;
   int *hf_opc_string;
 
@@ -510,10 +512,21 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
     label_dpc_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_dpc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
     if (mtp3_pc_structured())
       proto_item_append_text(label_dpc_item, " (%s)", mtp3_pc_to_str(dpc));
+    if(mtp3_addr_dpc->ni == 0)
+    {
+      pc_subtree = proto_item_add_subtree(label_dpc_item, ett_mtp3_label_dpc);
+      analyze_q708_ispc(tvb, pc_subtree, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, dpc);
+	}
+      
 
     label_opc_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_opc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
     if (mtp3_pc_structured())
       proto_item_append_text(label_opc_item, " (%s)", mtp3_pc_to_str(opc));
+    if(mtp3_addr_opc->ni == 0)
+    {
+      pc_subtree = proto_item_add_subtree(label_opc_item, ett_mtp3_label_opc);
+      analyze_q708_ispc(tvb, pc_subtree, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, opc);
+	}
 
     proto_tree_add_uint(label_tree, hf_mtp3_itu_sls, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
     break;

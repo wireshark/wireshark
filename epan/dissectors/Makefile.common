@@ -740,6 +740,7 @@ DISSECTOR_SRC = \
 	packet-pw-cesopsn.c	\
 	packet-pw-satop.c	\
 	packet-q2931.c		\
+	packet-q708.c		\
 	packet-q931.c		\
 	packet-q933.c		\
 	packet-qllc.c		\
@@ -1178,6 +1179,7 @@ DISSECTOR_INCLUDES =	\
 	packet-pres.h	\
 	packet-pw-atm.h		\
 	packet-pw-common.h	\
+	packet-q708.h	\
 	packet-q931.h	\
 	packet-q932.h	\
 	packet-qsig.h	\
