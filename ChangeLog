@@ -1,27 +1,4 @@
 ------------------------------------------------------------------------
-r31281 | gerald | 2009-12-15 16:51:13 -0800 (Tue, 15 Dec 2009) | 2 lines
-Changed paths:
-   M /trunk-1.2/ChangeLog
-   M /trunk-1.2/NEWS
-
-Update NEWS and ChangeLog.
-
-------------------------------------------------------------------------
-r31282 | gerald | 2009-12-16 09:41:40 -0800 (Wed, 16 Dec 2009) | 2 lines
-Changed paths:
-   M /trunk-1.2/capture.c
-   M /trunk-1.2/gtk/main.c
-
-Backport the parts of r31275 that didn't make it in the first attempt.
-
-------------------------------------------------------------------------
-r31296 | gerald | 2009-12-17 09:31:31 -0800 (Thu, 17 Dec 2009) | 2 lines
-Changed paths:
-   M /trunk-1.2/version.conf
-
-Build 1.2.5.
-
-------------------------------------------------------------------------
 r31300 | gerald | 2009-12-17 13:17:43 -0800 (Thu, 17 Dec 2009) | 2 lines
 Changed paths:
    M /trunk-1.2/config.nmake
@@ -815,5 +792,593 @@ Changed paths:
    M /trunk-1.2/debian/changelog
 
 Adjust release timestamp.
+
+------------------------------------------------------------------------
+r31691 | gerald | 2010-01-26 16:00:53 -0800 (Tue, 26 Jan 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/ChangeLog
+   M /trunk-1.2/NEWS
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/print.c
+   M /trunk-1.2/tools/win32-setup.sh
+   M /trunk-1.2/tools/win64-setup.sh
+
+Final documentation and library tag updates, plus a bonus bug fix.
+
+------------------------------------------------------------------------
+r31692 | gerald | 2010-01-26 16:01:28 -0800 (Tue, 26 Jan 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/version.conf
+
+Build 1.2.6.
+
+------------------------------------------------------------------------
+r31702 | gerald | 2010-01-27 08:04:19 -0800 (Wed, 27 Jan 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/packaging/macosx/Info.plist.in
+   M /trunk-1.2/version_info.c
+
+Update the copyright year.
+
+------------------------------------------------------------------------
+r31711 | gerald | 2010-01-27 17:24:30 -0800 (Wed, 27 Jan 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/config.nmake
+   M /trunk-1.2/configure.in
+   M /trunk-1.2/debian/changelog
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/version.conf
+
+1.2.6 -> 1.2.7.
+
+------------------------------------------------------------------------
+r31719 | gerald | 2010-01-28 09:36:41 -0800 (Thu, 28 Jan 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/Makefile.nmake
+
+Use the right User's Guide version.
+
+------------------------------------------------------------------------
+r31743 | gerald | 2010-01-31 08:05:01 -0800 (Sun, 31 Jan 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-01-31]
+------------------------------------------------------------------------
+r31801 | jake | 2010-02-05 11:09:46 -0800 (Fri, 05 Feb 2010) | 54 lines
+Changed paths:
+   M /trunk-1.2/docbook/Makefile.common
+   M /trunk-1.2/docbook/user-guide.xml
+   M /trunk-1.2/docbook/wsdg_src/WSDG_chapter_tools.xml
+   A /trunk-1.2/docbook/wsug_graphics/ws-capture-options-remote-capture.png
+   A /trunk-1.2/docbook/wsug_graphics/ws-capture-options-remote-interface.png
+   A /trunk-1.2/docbook/wsug_graphics/ws-capture-options-remote-settings.png
+   M /trunk-1.2/docbook/wsug_graphics/ws-capture-options.png
+   M /trunk-1.2/docbook/wsug_graphics/ws-menu.png
+   M /trunk-1.2/docbook/wsug_graphics/ws-statistics-menu.png
+   A /trunk-1.2/docbook/wsug_graphics/ws-telephony-menu.png
+   M /trunk-1.2/docbook/wsug_src/WSUG_chapter_capture.xml
+
+Copy over missing files and revisions listed on roadmap from the trunk:
+------------------------------------------------------------------------
+r31317 | jake | 2009-12-19 00:14:26 +0100 (Sat, 19 Dec 2009) | 1 line
+Changed paths:
+   M /trunk/docbook/user-guide.xml
+   M /trunk/docbook/wsug_graphics/ws-menu.png
+   M /trunk/docbook/wsug_graphics/ws-statistics-menu.png
+   A /trunk/docbook/wsug_graphics/ws-telephony-menu.png
+   M /trunk/docbook/wsug_src/WSUG_chapter_use.xml
+
+Update the User Guide to show the current menu.
+------------------------------------------------------------------------
+r31154 | jake | 2009-12-02 20:33:28 +0100 (Wed, 02 Dec 2009) | 3 lines
+Changed paths:
+   M /trunk/docbook/Makefile.common
+   M /trunk/docbook/user-guide.xml
+   A /trunk/docbook/wsug_graphics/ws-capture-options-remote-capture.png
+   A /trunk/docbook/wsug_graphics/ws-capture-options-remote-interface.png
+   A /trunk/docbook/wsug_graphics/ws-capture-options-remote-settings.png
+   M /trunk/docbook/wsug_graphics/ws-capture-options.png
+   M /trunk/docbook/wsug_src/WSUG_chapter_capture.xml
+
+Update User Guide:
+- New Capture Options dialog.
+- Add Remote Capture section.
+------------------------------------------------------------------------
+r30848 | gerald | 2009-11-07 00:57:01 +0100 (Sat, 07 Nov 2009) | 3 lines
+Changed paths:
+   M /trunk/docbook/wsdg_src/WSDG_chapter_tools.xml
+
+Fix a warning in a table (which results in an error in Fop 0.95). Reformat
+it slightly while we're at it.
+------------------------------------------------------------------------
+r31325 | guy | 2009-12-19 23:12:36 +0100 (Sat, 19 Dec 2009) | 2 lines
+Changed paths:
+   M /trunk/docbook/wsdg_src/WSDG_chapter_tools.xml
+
+Get rid of no-longer-applicable and no-longer-referred-to footnote.
+------------------------------------------------------------------------
+r31326 | jake | 2009-12-20 15:49:49 +0100 (Sun, 20 Dec 2009) | 2 lines
+Changed paths:
+   M /trunk/docbook/wsdg_src/WSDG_chapter_tools.xml
+
+Clean up the docbook source code, apply proper tags, update references.
+Update readme information, add some editing information for authors.
+------------------------------------------------------------------------
+r31797 | wmeier | 2010-02-05 04:37:46 +0100 (Fri, 05 Feb 2010) | 4 lines
+Changed paths:
+   M /trunk/docbook/wsdg_src/WSDG_chapter_tools.xml
+
+From Chris Maynard:  "Wrong download link to vcredist_x86.exe"
+(from me): Change a few additional cases of "2008EE" to "2008EE SP1"
+  and indicate that 2008EE SP1 is recommended (rather than 2005EE).
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r31819 | gerald | 2010-02-07 08:04:37 -0800 (Sun, 07 Feb 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-02-07]
+------------------------------------------------------------------------
+r31850 | gerald | 2010-02-09 13:07:12 -0800 (Tue, 09 Feb 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/Makefile.nmake
+   M /trunk-1.2/config.nmake
+   M /trunk-1.2/tools/win32-setup.sh
+
+Switch back to GeoIP 1.4.5 for the Win32 1.2 build.
+
+------------------------------------------------------------------------
+r31872 | gerald | 2010-02-12 16:46:00 -0800 (Fri, 12 Feb 2010) | 9 lines
+Changed paths:
+   M /trunk-1.2/Makefile.nmake
+   M /trunk-1.2/config.nmake
+   M /trunk-1.2/packaging/nsis/Makefile.nmake
+   M /trunk-1.2/packaging/nsis/wireshark.nsi
+   M /trunk-1.2/packaging/ws-manifest.pl
+   M /trunk-1.2/tools/win32-setup.sh
+
+From Jaap:
+
+Install the OldCigarettes Windows 2000 XP API Wrapper on Windows 2000.
+
+From me:
+
+Add the API wrapper to the setup. Exclude it from the U3 and PortableApps
+packages. Switch back to GeoIP 1.4.6. Update the GTK+ bundle.
+
+------------------------------------------------------------------------
+r31873 | gerald | 2010-02-12 17:22:07 -0800 (Fri, 12 Feb 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/config.nmake
+
+Try to fix the 64-bit build.
+
+------------------------------------------------------------------------
+r31879 | gerald | 2010-02-14 08:04:16 -0800 (Sun, 14 Feb 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-02-14]
+------------------------------------------------------------------------
+r31906 | jake | 2010-02-17 12:38:01 -0800 (Wed, 17 Feb 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/asn1/Makefile.nmake
+
+Complete the port of Revision 31175, which was only partially done in Revision 31211.
+------------------------------------------------------------------------
+r31940 | gerald | 2010-02-21 08:04:00 -0800 (Sun, 21 Feb 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-02-21]
+------------------------------------------------------------------------
+r31996 | gerald | 2010-02-24 15:41:28 -0800 (Wed, 24 Feb 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/config.nmake
+   M /trunk-1.2/tools/win32-setup.sh
+   M /trunk-1.2/tools/win64-setup.sh
+
+Use the current GTK+ 2.16.6 bundle.
+
+------------------------------------------------------------------------
+r32048 | gerald | 2010-02-28 08:04:55 -0800 (Sun, 28 Feb 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-02-28]
+------------------------------------------------------------------------
+r32137 | gerald | 2010-03-07 08:04:39 -0800 (Sun, 07 Mar 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-03-07]
+------------------------------------------------------------------------
+r32187 | gerald | 2010-03-14 08:04:48 -0700 (Sun, 14 Mar 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-03-14]
+------------------------------------------------------------------------
+r32215 | gerald | 2010-03-16 16:22:42 -0700 (Tue, 16 Mar 2010) | 102 lines
+Changed paths:
+   M /trunk-1.2/acinclude.m4
+   M /trunk-1.2/configure.in
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/dissectors/packet-dmp.c
+   M /trunk-1.2/epan/dissectors/packet-gsm_a_bssmap.c
+   M /trunk-1.2/epan/dissectors/packet-gsm_sms.c
+   M /trunk-1.2/epan/dissectors/packet-ldss.c
+   M /trunk-1.2/epan/dissectors/packet-ppp.c
+   M /trunk-1.2/epan/ppptypes.h
+   M /trunk-1.2/epan/wslua/wslua_field.c
+   M /trunk-1.2/epan/wslua/wslua_tree.c
+   M /trunk-1.2/gtk/io_stat.c
+   M /trunk-1.2/gtk/main_proto_draw.c
+   M /trunk-1.2/plugins/profinet/packet-dcerpc-pn-io.c
+   M /trunk-1.2/tools/checkAPIs.pl
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r30249 | stig | 2009-10-02 09:51:31 -0700 (Fri, 02 Oct 2009) | 3 lines
+Changed paths:
+   M /trunk/epan/wslua/wslua_field.c
+   M /trunk/epan/wslua/wslua_tree.c
+
+From Beth via bug 4049:
+Add support for FT_BOOLEAN fields to FieldInfo and TreeItem.
+------------------------------------------------------------------------
+r30305 | etxrab | 2009-10-04 08:49:52 -0700 (Sun, 04 Oct 2009) | 1 line
+Changed paths:
+   M /trunk/gtk/io_stat.c
+   M /trunk/tools/checkAPIs.pl
+
+Get rid of deprecated symblol gtk_widget_draw().
+------------------------------------------------------------------------
+r30729 | stig | 2009-10-27 06:59:05 -0700 (Tue, 27 Oct 2009) | 2 lines
+Changed paths:
+   M /trunk/gtk/io_stat.c
+
+Use correct default value in tick interval combo box.
+------------------------------------------------------------------------
+r31032 | dimeg | 2009-11-20 08:23:18 -0800 (Fri, 20 Nov 2009) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-gsm_a_bssmap.c
+
+When decoding a Cell Identifier, curr_offset is not increased after
+reading rnc-id
+------------------------------------------------------------------------
+r31659 | stig | 2010-01-25 05:58:07 -0800 (Mon, 25 Jan 2010) | 6 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-dmp.c
+   M /trunk/epan/dissectors/packet-ldss.c
+
+Change back from tvb_child_uncompress() to tvb_uncompress() when
+parent is NULL, because this will lead to a DISSECTOR_ASSERT in 
+tvb_set_child_real_data_tvbuff().
+
+This bug was introduced in revision 31499.
+------------------------------------------------------------------------
+r31786 | wmeier | 2010-02-04 06:41:22 -0800 (Thu, 04 Feb 2010) | 2 lines
+Changed paths:
+   M /trunk/gtk/main_proto_draw.c
+
+Fix a crash which occurs if a progress bar is displayed while generating a hex bytes pane.
+------------------------------------------------------------------------
+r31787 | wmeier | 2010-02-04 07:03:30 -0800 (Thu, 04 Feb 2010) | 2 lines
+Changed paths:
+   M /trunk/gtk/main_proto_draw.c
+
+Fix a typo....
+------------------------------------------------------------------------
+r31918 | guy | 2010-02-18 16:05:34 -0800 (Thu, 18 Feb 2010) | 2 lines
+Changed paths:
+   M /trunk/configure.in
+
+There's an echo in here....
+------------------------------------------------------------------------
+r31919 | guy | 2010-02-18 16:15:29 -0800 (Thu, 18 Feb 2010) | 3 lines
+Changed paths:
+   M /trunk/acinclude.m4
+
+Don't say "Checking for broken pcap-config" if we don't have a
+pcap-config to check for brokenness.
+------------------------------------------------------------------------
+r31978 | stig | 2010-02-24 00:22:33 -0800 (Wed, 24 Feb 2010) | 3 lines
+Changed paths:
+   M /trunk/plugins/profinet/packet-dcerpc-pn-io.c
+
+From Hannes Diethelm via bug 4525:
+Corrected values for IdentInfo (which was obviously wrong)
+------------------------------------------------------------------------
+r31985 | etxrab | 2010-02-24 04:41:01 -0800 (Wed, 24 Feb 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-gsm_sms.c
+
+GSM SMS PDU TPVPF wrong interpretation.
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4524
+------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+------------------------------------------------------------------------
+r30570 | etxrab | 2009-10-16 03:32:06 -0700 (Fri, 16 Oct 2009) | 1 line
+Changed paths:
+   M /trunk/gtk/io_stat.c
+
+More gtk_option_menu -> gtk_combo_box
+------------------------------------------------------------------------
+r31738 | jake | 2010-01-30 02:43:46 -0800 (Sat, 30 Jan 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ppp.c
+   M /trunk/epan/ppptypes.h
+
+IANA updates and fixes for PPP types.
+------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r32223 | gerald | 2010-03-17 12:14:44 -0700 (Wed, 17 Mar 2010) | 72 lines
+Changed paths:
+   M /trunk-1.2/asn1/pres/packet-pres-template.c
+   M /trunk-1.2/asn1/snmp/packet-snmp-template.c
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/dfilter/dfilter-macro.c
+   M /trunk-1.2/epan/dissectors/packet-http.c
+   M /trunk-1.2/epan/dissectors/packet-isakmp.c
+   M /trunk-1.2/epan/dissectors/packet-k12.c
+   M /trunk-1.2/epan/dissectors/packet-pres.c
+   M /trunk-1.2/epan/dissectors/packet-sccp.c
+   M /trunk-1.2/epan/dissectors/packet-sip.c
+   M /trunk-1.2/epan/dissectors/packet-snmp.c
+   M /trunk-1.2/epan/dissectors/packet-user_encap.c
+   M /trunk-1.2/epan/geoip_db.c
+   M /trunk-1.2/epan/oids.c
+   M /trunk-1.2/epan/proto.c
+   M /trunk-1.2/epan/uat-int.h
+   M /trunk-1.2/epan/uat.c
+   M /trunk-1.2/epan/uat.h
+   M /trunk-1.2/epan/uat_load.l
+   M /trunk-1.2/gtk/main_menu.c
+   M /trunk-1.2/gtk/main_welcome.c
+   M /trunk-1.2/gtk/uat_gui.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r31987 | jake | 2010-02-24 11:05:55 -0800 (Wed, 24 Feb 2010) | 4 lines
+Changed paths:
+   M /trunk/gtk/menus.c
+
+Fix for bug 4522:
+Don't offer "Wiki Protocol Page" and "Filter Field Reference" in the 
+context menu when a Text item is selected.
+------------------------------------------------------------------------
+r32005 | jake | 2010-02-25 09:41:57 -0800 (Thu, 25 Feb 2010) | 3 lines
+Changed paths:
+   M /trunk/gtk/main_welcome.c
+
+Fix for bug 2478:
+"Push to test. Release to detonate."
+------------------------------------------------------------------------
+r32090 | etxrab | 2010-03-03 07:29:38 -0800 (Wed, 03 Mar 2010) | 6 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-sip.c
+
+Changed to use g_str_hash ()
+sip_hash_func() function seem to not generate unique enough keys
+if load generation tools are used with many thousands users.
+Loading time ~5 min -> 30s
+
+There is a memory leak in the sip_is_packet_resend area as well.
+------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+------------------------------------------------------------------------
+r32081 | etxrab | 2010-03-01 21:44:04 -0800 (Mon, 01 Mar 2010) | 3 lines
+Changed paths:
+   M /trunk/asn1/snmp/packet-snmp-template.c
+   M /trunk/epan/dissectors/packet-snmp.c
+
+From Luis Ontanon:
+Check for duplicate entries in usmUserTable.
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2426
+------------------------------------------------------------------------
+r32112 | stig | 2010-03-04 04:50:18 -0800 (Thu, 04 Mar 2010) | 4 lines
+Changed paths:
+   M /trunk/asn1/pres/packet-pres-template.c
+   M /trunk/asn1/snmp/packet-snmp-template.c
+   M /trunk/epan/dfilter/dfilter-macro.c
+   M /trunk/epan/dissectors/packet-http.c
+   M /trunk/epan/dissectors/packet-isakmp.c
+   M /trunk/epan/dissectors/packet-k12.c
+   M /trunk/epan/dissectors/packet-mac-lte.c
+   M /trunk/epan/dissectors/packet-pres.c
+   M /trunk/epan/dissectors/packet-sccp.c
+   M /trunk/epan/dissectors/packet-snmp.c
+   M /trunk/epan/dissectors/packet-user_encap.c
+   M /trunk/epan/geoip_db.c
+   M /trunk/epan/oids.c
+   M /trunk/epan/uat-int.h
+   M /trunk/epan/uat.c
+   M /trunk/epan/uat.h
+   M /trunk/epan/uat_load.l
+   M /trunk/gtk/uat_gui.c
+
+From LEGO via bug 3459:
+Add a callback to UAT to be called after the table has being updated,
+use it to renew the snmp_ue_cache.
+------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r32227 | gerald | 2010-03-17 13:05:43 -0700 (Wed, 17 Mar 2010) | 13 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/proto.h
+
+Add r32193:
+
+------------------------------------------------------------------------
+r32193 | jake | 2010-03-15 01:14:58 -0700 (Mon, 15 Mar 2010) | 3 lines
+Changed paths:
+   M /trunk/epan/proto.h
+
+Fix for bug 4565:
+As a true 'pseudo' GLib function, act benign when presented a NULL pointer.
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r32242 | etxrab | 2010-03-19 00:22:29 -0700 (Fri, 19 Mar 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/Makefile.am
+   M /trunk-1.2/diameter/chargecontrol.xml
+   M /trunk-1.2/diameter/dictionary.xml
+   M /trunk-1.2/diameter/mobileipv4.xml
+   A /trunk-1.2/diameter/mobileipv6.xml
+   M /trunk-1.2/packaging/nsis/wireshark.nsi
+
+Update Dimaeter xml files.
+------------------------------------------------------------------------
+r32255 | etxrab | 2010-03-20 15:25:54 -0700 (Sat, 20 Mar 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/diameter/TGPPGmb.xml
+   M /trunk-1.2/diameter/imscxdx.xml
+   M /trunk-1.2/diameter/mobileipv4.xml
+
+AVP updates
+------------------------------------------------------------------------
+r32260 | gerald | 2010-03-21 08:05:22 -0700 (Sun, 21 Mar 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-03-21]
+------------------------------------------------------------------------
+r32315 | etxrab | 2010-03-27 14:43:18 -0700 (Sat, 27 Mar 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/epan/dissectors/packet-sip.c
+
+Fix for" Parsing SIP messages within the same TCP Packet report a wrong SIP method"
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4570
+------------------------------------------------------------------------
+r32318 | gerald | 2010-03-28 08:04:45 -0700 (Sun, 28 Mar 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-03-28]
+------------------------------------------------------------------------
+r32332 | gerald | 2010-03-30 16:47:50 -0700 (Tue, 30 Mar 2010) | 38 lines
+Changed paths:
+   M /trunk-1.2/AUTHORS
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/gtk/capture_dlg.c
+   M /trunk-1.2/gtk/rtp_player.c
+   M /trunk-1.2/wiretap/wtap.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r31438 | stig | 2010-01-04 03:59:27 -0800 (Mon, 04 Jan 2010) | 2 lines
+Changed paths:
+   M /trunk/gtk/capture_dlg.c
+
+Check for valid linktype_history in capture_get_linktype().
+------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+------------------------------------------------------------------------
+r32304 | morriss | 2010-03-26 17:54:11 -0700 (Fri, 26 Mar 2010) | 7 lines
+Changed paths:
+   M /trunk/gtk/rtp_player.c
+
+Fix (or at least work around the crash in)
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4119 :
+
+Never insert more than 1000 silence frames (e.g., if the sequence number jumps
+massively).  There may be a better way, but at least now we won't crash.
+Leave a comment in the code indicating this.
+------------------------------------------------------------------------
+r32321 | guy | 2010-03-28 12:35:14 -0700 (Sun, 28 Mar 2010) | 4 lines
+Changed paths:
+   M /trunk/AUTHORS
+   M /trunk/wiretap/wtap.c
+
+From Robert Bullen: give the Bluetooth-H4-with-Linux-pseudo-header
+encapsulation a name different from the no-pseudo-header H4
+encapsulation.
+------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r32333 | gerald | 2010-03-30 16:53:38 -0700 (Tue, 30 Mar 2010) | 38 lines
+Changed paths:
+   M /trunk-1.2/tap-iostat.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r32296 | morriss | 2010-03-26 14:07:49 -0700 (Fri, 26 Mar 2010) | 7 lines
+Changed paths:
+   M /trunk/tap-iostat.c
+
+Use 64-bit counters throughout.  This fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3205
+though most of the other taps also need such a change.
+
+Note: the columns don't align with really big numbers.
+
+Add support for 64-bit ftypes.
+------------------------------------------------------------------------
+r32298 | morriss | 2010-03-26 14:19:30 -0700 (Fri, 26 Mar 2010) | 4 lines
+Changed paths:
+   M /trunk/tap-iostat.c
+
+Use one space and a larger printf field width instead of many spaces and a
+smaller field width.  This allows printf to use those extra spaces if it needs
+to, helping column alignment when the numbers are big.
+------------------------------------------------------------------------
+r32299 | guy | 2010-03-26 15:30:54 -0700 (Fri, 26 Mar 2010) | 5 lines
+Changed paths:
+   M /trunk/tap-iostat.c
+
+If we have more than 4294967295 items, we have a real problem, as we
+allocate memory for each item.
+
+Use gboolean for Boolean flags.
+------------------------------------------------------------------------
+r32300 | guy | 2010-03-26 15:36:22 -0700 (Fri, 26 Mar 2010) | 2 lines
+Changed paths:
+   M /trunk/tap-iostat.c
+
+Print 32-bit counters with the right format.
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r32334 | gerald | 2010-03-30 17:01:29 -0700 (Tue, 30 Mar 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+
+Update the release notes.
 
 ------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-Wireshark 1.2.6 Release Notes
+Wireshark 1.2.7 Release Notes
 
    ------------------------------------------------------------------
 
@@ -12,58 +12,52 @@ What's New
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed. See the security
-   advisory for details and a workaround.
-
-     o Babi discovered several buffer overflows in the LWRES
-       dissector.
-
-       Versions affected: 0.9.15 to 1.0.10, 1.2.0 to 1.2.4
-
    The following bugs have been fixed:
 
-     o Wireshark could crash while decrypting Kerberos data.
+     o SNMPv3 Engine ID registration. (Bug 2426)
 
-     o Address display filters hang Wireshark. (Bug 658)
+     o Open file dialog always displayed when clicking anywhere on
+       Wireshark. (Bug 2478)
 
-     o PSML - structure context node missing. (Bug 1564)
+     o tshark reports wrong number of bytes on big dumpfiles with -z
+       io,stat. (Bug 3205)
 
-     o Wireshark doesn't dynamically update the packet list. (Bug
-       1605)
+     o Negative INTEGER number displayed as positive number in SNMP
+       dissector. (Bug 3230)
 
-     o LUA: There's no tvb_get_stringz() equivalent. (Bug 2244)
+     o Add support for FT_BOOLEAN fields to wslua FieldInfo. (Bug
+       4049)
 
-     o tvb_new_real_data is prone to memory leak. (Bug 3917)
+     o Wireshark crashes w/ GLib error when trying to play RTP
+       stream. (Bug 4119)
 
-     o Malformed OPC UA traffic makes Wireshark "freeze". (Bug 3986)
+     o Windows 2000 support has been restored. (Bug 4176)
 
-     o Analyze->Expert... doesn't show IP "Bad Checksum" errors. (Bug
-       4177)
+     o Wrong dissection on be_cell_id_list for bssmap. (Bug 4437)
 
-     o Wireshark can't decrypt WPA(2)-PSK when passphrase is 63
-       bytes. (Bug 4183)
+     o I/O Graph dropdown boxes not working correctly. (Bug 4487)
 
-     o RTP stream analysis: Wrong jitter values after clicking the
-       refresh button. (Bug 4340)
+     o Runtime Error when right-clicking field and selecting "Filter
+       Field Reference". (Bug 4522)
 
-     o Wireshark decodes bootp option 2 incorrectly. (Bug 4342)
+     o In GSM SMS PDU TPVPF showing wrong. (Bug 4524)
 
-     o Deleting SMI modules causes Wireshark to crash. (Bug 4354)
+     o Profinet: May be wrong defined byte meaning. (Bug 4525)
 
-     o Wireshark decodes kerberos AS-REQ PADATA incorrect. (Bug 4363)
+     o GLib-CRITICAL ** Message. (Bug 4547)
 
-     o PDML output from TShark includes invalid characters. (Bug
-       4402)
+     o Certain EDP display filters trigger Wireshark/tshark runtime
+       error. (Bug 4563)
 
-     o Empty GPRS LLC S frames cause truncated data exception. (Bug
-       4417)
+     o Some NCP frames trigger "Dissector bug, protocol NCP". (Bug
+       4565)
+
+     o The encapsulation abbreviation "bluetooth-h4" is ambiguous.
+       (Bug 4613)
 
   New and Updated Features
 
-   Feature parity between the 64- and 32-bit Windows installer has
-   been improved. The 64-bit installer now supports the "matches"
-   operator, GeoIP location, and most types of decryption. Kerberos
-   decryption and OID resolution are still not supported.
+   There are no new features in this release.
 
   New Protocol Support
 
@@ -71,8 +65,7 @@ What's New
 
   Updated Protocol Support
 
-   BJNP, BOOTP/DHCP, DHCPv6, FIP, GPRS LLC, IEEE 802.11, IP,
-   Kerberos, OPCUA, SCTP, SSL, ZRTP
+   BSSMAP, DMP, GSM SMS, LDSS, NCP, PN/IO, PPP, SIP, SNMP
 
   Updated Capture File Support
 
