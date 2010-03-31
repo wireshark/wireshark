@@ -84,6 +84,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          tshark reports wrong number of bytes on big dumpfiles with -z io,stat.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3205">Bug
+          3205</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Negative INTEGER number displayed as positive number in SNMP dissector.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3230">Bug
           3230</ulink>)
