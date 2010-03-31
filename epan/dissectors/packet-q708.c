@@ -41,7 +41,7 @@ static int hf_q708_ispc_operator_name = -1;
  * List of Signalling Area/Network Codes (SANC)
  * Annex to the ITU Operational Bulletin No. 940 - 15.IX.2009
  *
- * Mapping of SANC to Geographical Area or Signalling Network       
+ * Mapping of SANC to Geographical Area or Signalling Network
  */
 const value_string q708_sanc_areas[] = {
 	{  512, "Liechtenstein (Principality of)" },
@@ -11148,8 +11148,8 @@ analyze_q708_ispc(tvbuff_t *tvb, proto_tree *tree, int offset, int length, guint
 
 	sanc = ispc >> 3;
 
-    proto_tree_add_uint_format_value(tree, hf_q708_sanc, tvb, offset, length, sanc,
-		"%s (%u-%03u)", 
+	proto_tree_add_uint_format_value(tree, hf_q708_sanc, tvb, offset, length, sanc,
+		"%s (%u-%03u)",
 		val_to_str(sanc, q708_sanc_areas, "Unknown"),
 		sanc >> 8, sanc & 0xff);
 	proto_tree_add_string(tree, hf_q708_ispc_name, tvb, offset, length,
@@ -11169,13 +11169,13 @@ proto_register_q708(void)
 	},
 	{ &hf_q708_ispc_name,
 		{ "Unique Signalling Point Name","q708.ispc_name",
-		FT_STRING, BASE_NONE, NULL, 0x0,          
+		FT_STRING, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_q708_ispc_operator_name,
-      { "Signalling Point Operator Name", "q708.ispc_operator_name",
-        FT_STRING, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+		{ "Signalling Point Operator Name", "q708.ispc_operator_name",
+		FT_STRING, BASE_NONE, NULL, 0,
+		NULL, HFILL }},
 	};
 
 	/*
