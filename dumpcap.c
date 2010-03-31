@@ -2730,7 +2730,8 @@ main(int argc, char *argv[])
      * number of 10.0.0, not 10.1.0 - go figure).
      */
     if (strcmp(osinfo.release, "10.0.0") == 0 ||
-        strcmp(osinfo.release, "10.1.0") == 0)
+        strcmp(osinfo.release, "10.1.0") == 0 ||
+        strcmp(osinfo.release, "10.3.0") == 0)
       need_timeout_workaround = 1;
   }
 #endif
