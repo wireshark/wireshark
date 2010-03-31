@@ -17,6 +17,7 @@ AdmissionRejectReason_vals      DATA
 airpdcap_ctx                    DATA
 AirPDcapDestroyContext
 AirPDcapInitContext
+analyze_q708_ispc
 ansi_a_bsmap_strings     DATA
 ansi_a_dtap_strings     DATA
 ansi_a_ios401_bsmap_strings     DATA
