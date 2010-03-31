@@ -55,7 +55,8 @@
 #define PSNAME "X2AP"
 #define PFNAME "x2ap"
 
-#define SCCP_SSN_X2AP 143
+/* Dissector will use SCTP PPID 27 or SCTP port. IANA assigned port = 36422 */
+#define SCTP_PORT_X2AP	36422
 
 #include "packet-x2ap-val.h"
 
@@ -73,6 +74,7 @@ static int ett_x2ap_TransportLayerAddress = -1;
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
+static guint gbl_x2apSctpPort=SCTP_PORT_X2AP;
 
 /* Dissector tables */
 static dissector_table_t x2ap_ies_dissector_table;
@@ -180,12 +182,26 @@ void
 proto_reg_handoff_x2ap(void)
 {
 	dissector_handle_t x2ap_handle;
+	static gboolean Initialized=FALSE;
+	static guint SctpPort;
 
 	x2ap_handle = find_dissector("x2ap");
-	dissector_add("sctp.ppi", X2AP_PAYLOAD_PROTOCOL_ID, x2ap_handle);
-	dissector_add_handle("sctp.port", x2ap_handle);  /* for "decode-as" */
-
+	if (!Initialized) {
+		dissector_add_handle("sctp.port", x2ap_handle);  /* for "decode-as" */
+		dissector_add("sctp.ppi", X2AP_PAYLOAD_PROTOCOL_ID, x2ap_handle);
+		Initialized=TRUE;
 #include "packet-x2ap-dis-tab.c"
+	} else {
+		if (SctpPort != 0) {
+			dissector_delete("sctp.port", SctpPort, x2ap_handle);
+		}
+	}
+
+	SctpPort=gbl_x2apSctpPort;
+	if (SctpPort != 0) {
+		dissector_add("sctp.port", SctpPort, x2ap_handle);
+	}
+
 }
 
 
