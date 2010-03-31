@@ -502,12 +502,18 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 /* Reserved 49 */
 #define TAG_EXT_SUPP_RATES           0x32
 #define TAG_NEIGHBOR_REPORT          0x34
+#define TAG_MOBILITY_DOMAIN          0x36  /* IEEE Std 802.11r-2008 */
+#define TAG_FAST_BSS_TRANSITION      0x37  /* IEEE Std 802.11r-2008 */
+#define TAG_TIMEOUT_INTERVAL         0x38  /* IEEE Std 802.11r-2008 */
+#define TAG_RIC_DATA                 0x39  /* IEEE Std 802.11r-2008 */
 #define TAG_HT_INFO                  0x3D  /* IEEE Stc 802.11n/D2.0 */
 #define TAG_SECONDARY_CHANNEL_OFFSET 0x3E  /* IEEE Stc 802.11n/D1.10/D2.0 */
 #define TAG_WSIE                     0x45   /* tag of the Wave Service Information (802.11p) */
 #define TAG_20_40_BSS_CO_EX          0x48   /* IEEE P802.11n/D6.0 */
 #define TAG_20_40_BSS_INTOL_CH_REP   0x49   /* IEEE P802.11n/D6.0 */
 #define TAG_OVERLAP_BSS_SCAN_PAR     0x49   /* IEEE P802.11n/D6.0 */
+#define TAG_RIC_DESCRIPTOR           0x4B  /* IEEE Std 802.11r-2008 */
+#define TAG_MMIE                     0x4C  /* IEEE Std 802.11w-2009 */
 #define TAG_EXTENDED_CAPABILITIES    0X7F   /* IEEE Stc 802.11n/D1.10/D2.0 */
 #define TAG_AGERE_PROPRIETARY        0x80
 #define TAG_CISCO_CCX1_CKIP          0x85  /* Cisco Compatible eXtensions */
@@ -655,9 +661,13 @@ static const value_string aruba_mgt_typevals[] = {
 #define CAT_BLOCK_ACK          3
 #define CAT_PUBLIC             4
 
-#define CAT_RADIO_MEASUREMENT   6
+#define CAT_RADIO_MEASUREMENT   5
+#define CAT_FAST_BSS_TRANSITION 6
 #define CAT_HT                  7
+#define CAT_SA_QUERY            8
+#define CAT_PUBLIC_PROTECTED    9
 #define CAT_MGMT_NOTIFICATION   17
+#define CAT_VENDOR_SPECIFIC_PROTECTED 126
 #define CAT_VENDOR_SPECIFIC     127
 
 #define SM_ACTION_MEASUREMENT_REQUEST   0
@@ -1406,6 +1416,17 @@ static int hf_tag_supported_reg_classes_current = -1;
 static int hf_tag_supported_reg_classes_alternate = -1;
 /*** End: Supported Regulatory Classes Tag - Dustin Johnson ***/
 
+/* IEEE Std 802.11r-2008 7.3.2.47 */
+static int hf_ieee80211_tag_mobility_domain_mdid = -1;
+static int hf_ieee80211_tag_mobility_domain_ft_capab = -1;
+static int hf_ieee80211_tag_mobility_domain_ft_capab_ft_over_ds = -1;
+static int hf_ieee80211_tag_mobility_domain_ft_capab_resource_req = -1;
+
+/* IEEE Std 802.11w-2009 7.3.2.55 */
+static int hf_ieee80211_tag_mmie_keyid = -1;
+static int hf_ieee80211_tag_mmie_ipn = -1;
+static int hf_ieee80211_tag_mmie_mic = -1;
+
 /* 802.11n 7.3.2.48 */
 static int hta_cap = -1;
 static int hta_ext_chan_offset = -1;
@@ -1434,11 +1455,14 @@ static int antsel_b5 = -1;
 static int antsel_b6 = -1;
 static int antsel_b7 = -1;
 
-static int rsn_cap = -1;
-static int rsn_cap_preauth = -1;
-static int rsn_cap_no_pairwise = -1;
-static int rsn_cap_ptksa_replay_counter = -1;
-static int rsn_cap_gtksa_replay_counter = -1;
+static int hf_ieee80211_rsn_cap = -1;
+static int hf_ieee80211_rsn_cap_preauth = -1;
+static int hf_ieee80211_rsn_cap_no_pairwise = -1;
+static int hf_ieee80211_rsn_cap_ptksa_replay_counter = -1;
+static int hf_ieee80211_rsn_cap_gtksa_replay_counter = -1;
+static int hf_ieee80211_rsn_cap_mfpr = -1;
+static int hf_ieee80211_rsn_cap_mfpc = -1;
+static int hf_ieee80211_rsn_cap_peerkey = -1;
 
 static int hf_aironet_ie_type = -1;
 static int hf_aironet_ie_version = -1;
@@ -3302,6 +3326,7 @@ static const value_string wpa_cipher_vals[] =
   {3, "AES (OCB)"},
   {4, "AES (CCM)"},
   {5, "WEP (104-bit)"},
+  {6, "BIP"},
   {0, NULL}
 };
 
@@ -3310,6 +3335,10 @@ static const value_string wpa_keymgmt_vals[] =
   {0, "NONE"},
   {1, "WPA"},
   {2, "PSK"},
+  {3, "FT over IEEE 802.1X"},
+  {4, "FT using PSK"},
+  {5, "WPA (SHA256)"},
+  {6, "PSK (SHA256)"},
   {0, NULL}
 };
 
@@ -3642,7 +3671,6 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tag_tvb)
 {
   guint tag_off = 0;
   guint tag_len = tvb_length(tag_tvb);
-  guint16 rsn_capab;
   char out_buff[SHORT_STR];
   int i, count;
   proto_item *cap_item;
@@ -3715,20 +3743,16 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tag_tvb)
   if (i <= count || tag_off + 2 > tag_len)
     goto done;
 
-  rsn_capab = tvb_get_letohs(tag_tvb, tag_off);
-  g_snprintf(out_buff, SHORT_STR, "RSN Capabilities 0x%04x", rsn_capab);
-  cap_item = proto_tree_add_uint_format(tree, rsn_cap, tag_tvb,
-          tag_off, 2, rsn_capab,
-          "RSN Capabilities: 0x%04X", rsn_capab);
+  cap_item = proto_tree_add_item(tree, hf_ieee80211_rsn_cap, tag_tvb, tag_off, 2, FALSE);
   cap_tree = proto_item_add_subtree(cap_item, ett_rsn_cap_tree);
-  proto_tree_add_boolean(cap_tree, rsn_cap_preauth, tag_tvb, tag_off, 2,
-       rsn_capab);
-  proto_tree_add_boolean(cap_tree, rsn_cap_no_pairwise, tag_tvb, tag_off, 2,
-       rsn_capab);
-  proto_tree_add_uint(cap_tree, rsn_cap_ptksa_replay_counter, tag_tvb, tag_off, 2,
-          rsn_capab);
-  proto_tree_add_uint(cap_tree, rsn_cap_gtksa_replay_counter, tag_tvb, tag_off, 2,
-          rsn_capab);
+
+  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_preauth, tag_tvb, tag_off, 2, FALSE);
+  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_no_pairwise, tag_tvb, tag_off, 2, FALSE);
+  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_ptksa_replay_counter, tag_tvb, tag_off, 2, FALSE);
+  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_gtksa_replay_counter, tag_tvb, tag_off, 2, FALSE);
+  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_mfpr, tag_tvb, tag_off, 2, FALSE);
+  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_mfpc, tag_tvb, tag_off, 2, FALSE);
+  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_peerkey, tag_tvb, tag_off, 2, FALSE);
   tag_off += 2;
 
   if (tag_off + 2 > tag_len)
@@ -3750,10 +3774,58 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tag_tvb)
     tag_off += PMKID_LEN;
   }
 
+  if (tag_off + 4 > tag_len)
+    goto done;
+
+  if (!tvb_memeql(tag_tvb, tag_off, RSN_OUI, 3)) {
+    g_snprintf(out_buff, SHORT_STR, "Group management cipher suite: %s",
+               val_to_str(tvb_get_guint8(tag_tvb, tag_off + 3),
+                          wpa_cipher_vals, "UNKNOWN"));
+    proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off, 4,
+                          out_buff);
+    tag_off += 4;
+  }
+
 done:
   if (tag_off < tag_len)
     proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off,
         tag_len - tag_off, "Not interpreted");
+}
+
+static void
+dissect_mobility_domain(proto_tree *tree, tvbuff_t *tvb, int offset,
+                        guint32 tag_len)
+{
+  if (tag_len < 3) {
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset, tag_len,
+                          "MDIE content length must be at least 3 bytes");
+    return;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_mobility_domain_mdid,
+                      tvb, offset, 2, FALSE);
+  proto_tree_add_item(tree, hf_ieee80211_tag_mobility_domain_ft_capab,
+                      tvb, offset + 2, 1, FALSE);
+  proto_tree_add_item(tree, hf_ieee80211_tag_mobility_domain_ft_capab_ft_over_ds,
+                      tvb, offset + 2, 1, FALSE);
+  proto_tree_add_item(tree, hf_ieee80211_tag_mobility_domain_ft_capab_resource_req,
+                      tvb, offset + 2, 1, FALSE);
+}
+
+static void
+dissect_mmie(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 tag_len)
+{
+  if (tag_len < 16) {
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset, tag_len,
+                          "MMIE content length must be at least 16 bytes");
+    return;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_mmie_keyid, tvb, offset, 2, TRUE);
+  proto_tree_add_item(tree, hf_ieee80211_tag_mmie_ipn, tvb, offset + 2, 6,
+		      TRUE);
+  proto_tree_add_item(tree, hf_ieee80211_tag_mmie_mic, tvb, offset + 8, 8,
+		      FALSE);
 }
 
 static void
@@ -4498,6 +4570,12 @@ static const value_string tag_num_vals[] = {
   { TAG_QUIET,                    "Quiet"},
   { TAG_IBSS_DFS,                 "IBSS DFS"},
   { TAG_EXTENDED_CAPABILITIES,    "Extended Capabilities"},
+  { TAG_MOBILITY_DOMAIN,          "Mobility Domain"},
+  { TAG_FAST_BSS_TRANSITION,      "Fast BSS Transition"},
+  { TAG_TIMEOUT_INTERVAL,         "Timeout Interval"},
+  { TAG_RIC_DATA,                 "RIC Data"},
+  { TAG_RIC_DESCRIPTOR,           "RIC Descriptor"},
+  { TAG_MMIE,                     "Management MIC"},
   #if 0 /*Not yet assigned tag numbers by ANA */
   { TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement"},
   { TAG_SUPPORTED_REGULATORY_CLASSES, "Supported Regulatory Classes"},
@@ -5095,6 +5173,14 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     case TAG_RSN_IE:
       tag_tvb = tvb_new_subset(tvb, offset + 2, tag_len, tag_len);
       dissect_rsn_ie(tree, tag_tvb);
+      break;
+
+    case TAG_MOBILITY_DOMAIN:
+      dissect_mobility_domain(tree, tvb, offset + 2, tag_len);
+      break;
+
+    case TAG_MMIE:
+      dissect_mmie(tree, tvb, offset + 2, tag_len);
       break;
 
     case TAG_HT_CAPABILITY:
@@ -8506,6 +8592,7 @@ proto_register_ieee80211 (void)
   static const value_string auth_alg[] = {
     {0x00, "Open System"},
     {0x01, "Shared key"},
+    {0x02, "Fast BSS Transition"},
     {0x80, "Network EAP"},  /* Cisco proprietary? */
     {0, NULL}
   };
@@ -8780,6 +8867,9 @@ proto_register_ieee80211 (void)
      "short slot operation"},
     {0x1A, "Association denied due to requesting station not supporting "
      "DSSS-OFDM operation"},
+    {0x1C, "R0KH unreachable"},
+    {0x1E, "Association request rejected temporarily; try again later"},
+    {0x1F, "Robust Management frame policy violation"},
     {0x20, "Unspecified, QoS-related failure"},
     {0x21, "Association denied due to QAP having insufficient bandwidth "
       "to handle another QSTA"},
@@ -8807,6 +8897,10 @@ proto_register_ieee80211 (void)
     {0x30, "Direct Link is not allowed in the BSS by policy"},
     {0x31, "Destination STA is not present within this QBSS."},
     {0x32, "The Destination STA is not a QSTA."},
+    {0x34, "Invalid FT Action frame count"},
+    {0x35, "Invalid pairwise master key identifier (PMKID)"},
+    {0x36, "Invalid MDIE"},
+    {0x37, "Invalid FTIE"},
     {0x00, NULL}
   };
 
@@ -8817,8 +8911,12 @@ proto_register_ieee80211 (void)
     {CAT_BLOCK_ACK, "Block Ack"},
     {CAT_PUBLIC, "Public Action"},
     {CAT_RADIO_MEASUREMENT, "Radio Measurement"},
+    {CAT_FAST_BSS_TRANSITION, "Fast BSS Transition"},
     {CAT_HT, "High Throughput"},
+    {CAT_SA_QUERY, "SA Query"},
+    {CAT_PUBLIC_PROTECTED, "Protected Dual of Public Action"},
     {CAT_MGMT_NOTIFICATION, "Management Notification"},
+    {CAT_VENDOR_SPECIFIC_PROTECTED, "Vendor-specific Protected"},
     {CAT_VENDOR_SPECIFIC, "Vendor Specific"},
     {0, NULL}
   };
@@ -10634,31 +10732,46 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
-    {&rsn_cap,
+    {&hf_ieee80211_rsn_cap,
      {"RSN Capabilities", "wlan_mgt.rsn.capabilities", FT_UINT16, BASE_HEX,
       NULL, 0, "RSN Capability information", HFILL }},
 
-    {&rsn_cap_preauth,
+    {&hf_ieee80211_rsn_cap_preauth,
      {"RSN Pre-Auth capabilities", "wlan_mgt.rsn.capabilities.preauth",
       FT_BOOLEAN, 16, TFS (&rsn_preauth_flags), 0x0001,
       NULL, HFILL }},
 
-    {&rsn_cap_no_pairwise,
+    {&hf_ieee80211_rsn_cap_no_pairwise,
      {"RSN No Pairwise capabilities", "wlan_mgt.rsn.capabilities.no_pairwise",
       FT_BOOLEAN, 16, TFS (&rsn_no_pairwise_flags), 0x0002,
       NULL, HFILL }},
 
-    {&rsn_cap_ptksa_replay_counter,
+    {&hf_ieee80211_rsn_cap_ptksa_replay_counter,
      {"RSN PTKSA Replay Counter capabilities",
       "wlan_mgt.rsn.capabilities.ptksa_replay_counter",
       FT_UINT16, BASE_HEX, VALS (&rsn_cap_replay_counter), 0x000C,
       NULL, HFILL }},
 
-    {&rsn_cap_gtksa_replay_counter,
+    {&hf_ieee80211_rsn_cap_gtksa_replay_counter,
      {"RSN GTKSA Replay Counter capabilities",
       "wlan_mgt.rsn.capabilities.gtksa_replay_counter",
       FT_UINT16, BASE_HEX, VALS (&rsn_cap_replay_counter), 0x0030,
       NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_cap_mfpr,
+     {"Management Frame Protection Required",
+      "wlan_mgt.rsn.capabilities.mfpr",
+      FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_cap_mfpc,
+     {"Management Frame Protection Capable",
+      "wlan_mgt.rsn.capabilities.mfpc",
+      FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_cap_peerkey,
+     {"PeerKey Enabled",
+      "wlan_mgt.rsn.capabilities.peerkey",
+      FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL }},
 
     {&ht_cap,
      {"HT Capabilities Info", "wlan_mgt.ht.capabilities", FT_UINT16, BASE_HEX,
@@ -11894,8 +12007,35 @@ proto_register_ieee80211 (void)
       FT_BOOLEAN, 16, NULL, 0x4000, "High Throughput Control AC Constraint", HFILL }},
     {&hf_htc_rdg_more_ppdu,
      {"RDG/More PPDU", "wlan_mgt.htc.rdg_more_ppdu",
-      FT_BOOLEAN, 16, NULL, 0x8000, "High Throughput Control RDG/More PPDU", HFILL }}
+      FT_BOOLEAN, 16, NULL, 0x8000, "High Throughput Control RDG/More PPDU", HFILL }},
     /* End: HT Control (+HTC) */
+
+    /* MDIE */
+    {&hf_ieee80211_tag_mobility_domain_mdid,
+     {"Mobility Domain Identifier", "wlan_mgt.mobility_domain.mdid",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_mobility_domain_ft_capab,
+     {"FT Capability and Policy", "wlan_mgt.mobility_domain.ft_capab",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_mobility_domain_ft_capab_ft_over_ds,
+     {"Fast BSS Transition over DS",
+      "wlan_mgt.mobility_domain.ft_capab.ft_over_ds",
+      FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }},
+    {&hf_ieee80211_tag_mobility_domain_ft_capab_resource_req,
+     {"Resource Request Protocol Capability",
+      "wlan_mgt.mobility_domain.ft_capab.resource_req",
+      FT_UINT8, BASE_HEX, NULL, 0x02, NULL, HFILL }},
+
+    /* MDIE */
+    {&hf_ieee80211_tag_mmie_keyid,
+     {"KeyID", "wlan_mgt.mmie.keyid",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_mmie_ipn,
+     {"IPN", "wlan_mgt.mmie.ipn",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_mmie_mic,
+     {"MIC", "wlan_mgt.mmie.mic",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }}
   };
 
   static hf_register_info aggregate_fields[] = {
