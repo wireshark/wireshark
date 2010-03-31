@@ -29,75 +29,19 @@ Wireshark Info
   <section id="WhatsNew"><title>What's New</title>
     <section id="BugFixes"><title>Bug Fixes</title>
 
-<![ IGNORE [
-    <para>
-
-      The following vulnerabilities have been fixed.  See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2010-01.html">security advisory</ulink> for details and a workaround.
-
-      <itemizedlist>
-
-        <listitem>
-          <para>
-            The SMB and SMB2 dissectors could crash.
-            <!-- Fixed in trunk: r31187 -->
-            <!-- Fixed in trunk-1.2: r31211 -->
-            <!-- Fixed in trunk-1.0: r31671 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4301">Bug
-            4301</ulink>)
-          </para>
-          <para>Versions affected: 0.9.0 to 1.0.10, 1.2.0 to 1.2.4</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-4377">CVE-2009-4377</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The Infiniband dissector could crash on some platforms.
-            <!-- Fixed in trunk: r28839 -->
-            <!-- Fixed in trunk-1.2: r29099 -->
-            <!-- Fixed in trunk-1.0: r31671 -->
-          </para>
-          <para>Versions affected: 1.0.6 to 1.0.10, 1.2.0</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-2563">CVE-2009-2563</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Babi discovered several buffer overflows in the LWRES dissector.
-            <!-- Fixed in trunk: r31524 -->
-            <!-- Fixed in trunk-1.2: r31596 -->
-            <!-- Fixed in trunk-1.0: r31671 -->
-          </para>
-          <para>Versions affected: 0.9.15 to 1.0.10, 1.2.0 to 1.2.5</para>
-          <!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
-          </para>
-          -->
-        </listitem>
-
-      </itemizedlist>
-
-    </para>
-]]>
-
     <para>
 
     The following bugs have been fixed:
 
       <itemizedlist>
 
-<![ IGNORE [
+<!--
         <listitem><para>
           Wireshark will go all Weezer on you and destroy your sweater.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=0000">Bug
           0000</ulink>)
         </para></listitem>
-]]>
+-->
 
         <listitem><para>
           The encapsulation abbreviation "bluetooth-h4" is ambiguous.
@@ -127,24 +71,22 @@ There are no new protocols in this release.
     </para>
     </section>
 
-    <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
+    <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
+    <para>
 
-
-
+There are no new or updated protocols.
 
     </para>
     </section>
 
-<![ IGNORE [
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-<none>
+There is no new or updated capture file support.
 
     </para>
     </section>
 
-]]>
   </section>
 
   <section id="GettingWireshark"><title>Getting Wireshark</title>

@@ -1,4 +1,4 @@
-Wireshark 1.0.11 Release Notes
+Wireshark 1.0.12 Release Notes
 
    ------------------------------------------------------------------
 
@@ -12,29 +12,10 @@ What's New
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed. See the security
-   advisory for details and a workaround.
-
-     o The SMB and SMB2 dissectors could crash. (Bug 4301)
-
-       Versions affected: 0.9.0 to 1.0.10, 1.2.0 to 1.2.4
-
-       CVE-2009-4377
-
-     o The Infiniband dissector could crash on some platforms.
-
-       Versions affected: 1.0.6 to 1.0.10, 1.2.0
-
-       CVE-2009-2563
-
-     o Babi discovered several buffer overflows in the LWRES
-       dissector.
-
-       Versions affected: 0.9.15 to 1.0.10, 1.2.0 to 1.2.4
-
    The following bugs have been fixed:
 
-     o Wireshark locks up some Windows 2000 systems. (Bug 3270)
+     o The encapsulation abbreviation "bluetooth-h4" is ambiguous.
+       (Bug 4613)
 
   New and Updated Features
 
@@ -46,7 +27,11 @@ What's New
 
   Updated Protocol Support
 
-   Infiniband, Kerberos, LWRES, SMB, SMB2
+   There are no new or updated protocols.
+
+  New and Updated Capture File Support
+
+   There is no new or updated capture file support.
 
 Getting Wireshark
 

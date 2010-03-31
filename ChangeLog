@@ -1,119 +1,4 @@
 ------------------------------------------------------------------------
-r30716 | gerald | 2009-10-26 11:41:22 -0700 (Mon, 26 Oct 2009) | 2 lines
-Changed paths:
-   M /trunk-1.0/ChangeLog
-   M /trunk-1.0/version.conf
-
-Make the 1.0.10 release.
-
-------------------------------------------------------------------------
-r30718 | gerald | 2009-10-26 11:46:27 -0700 (Mon, 26 Oct 2009) | 2 lines
-Changed paths:
-   M /trunk-1.0/NEWS
-   M /trunk-1.0/docbook/release-notes.xml
-
-Fix the release notes. Update NEWS.
-
-------------------------------------------------------------------------
-r30737 | gerald | 2009-10-27 13:24:36 -0700 (Tue, 27 Oct 2009) | 2 lines
-Changed paths:
-   M /trunk-1.0/config.nmake
-   M /trunk-1.0/configure.in
-   M /trunk-1.0/debian/changelog
-   M /trunk-1.0/docbook/release-notes.xml
-
-Bump the version to 1.0.10.
-
-------------------------------------------------------------------------
-r30740 | gerald | 2009-10-27 14:58:29 -0700 (Tue, 27 Oct 2009) | 2 lines
-Changed paths:
-   M /trunk-1.0/version.conf
-
-Switch back to interim versions.
-
-------------------------------------------------------------------------
-r30743 | gerald | 2009-10-27 15:05:39 -0700 (Tue, 27 Oct 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/docbook/release-notes.xml
-
-Simplify the download text as recommended by Ulf.
-------------------------------------------------------------------------
-r30793 | gerald | 2009-11-01 08:04:03 -0800 (Sun, 01 Nov 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-11-01]
-------------------------------------------------------------------------
-r30862 | gerald | 2009-11-08 08:03:53 -0800 (Sun, 08 Nov 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-11-08]
-------------------------------------------------------------------------
-r30965 | gerald | 2009-11-15 08:03:57 -0800 (Sun, 15 Nov 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-11-15]
-------------------------------------------------------------------------
-r31045 | gerald | 2009-11-22 08:03:58 -0800 (Sun, 22 Nov 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-11-22]
-------------------------------------------------------------------------
-r31117 | gerald | 2009-11-29 08:03:49 -0800 (Sun, 29 Nov 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-11-29]
-------------------------------------------------------------------------
-r31136 | gerald | 2009-11-30 13:57:53 -0800 (Mon, 30 Nov 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-11-30]
-------------------------------------------------------------------------
-r31183 | gerald | 2009-12-06 08:03:57 -0800 (Sun, 06 Dec 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-12-06]
-------------------------------------------------------------------------
-r31367 | gerald | 2009-12-27 13:54:59 -0800 (Sun, 27 Dec 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-12-27]
-------------------------------------------------------------------------
-r31436 | gerald | 2010-01-03 08:03:57 -0800 (Sun, 03 Jan 2010) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-01-03]
-------------------------------------------------------------------------
-r31478 | gerald | 2010-01-10 08:04:00 -0800 (Sun, 10 Jan 2010) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-01-10]
-------------------------------------------------------------------------
-r31550 | gerald | 2010-01-17 08:04:05 -0800 (Sun, 17 Jan 2010) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-01-17]
-------------------------------------------------------------------------
 r31630 | gerald | 2010-01-22 16:38:17 -0800 (Fri, 22 Jan 2010) | 2 lines
 Changed paths:
    M /trunk-1.0/Makefile.nmake
@@ -220,5 +105,159 @@ In our case, not being able to read the Kerberos configuration file
 isn't a big deal.
 ------------------------------------------------------------------------
 
+
+------------------------------------------------------------------------
+r31687 | gerald | 2010-01-26 14:45:22 -0800 (Tue, 26 Jan 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/ChangeLog
+   M /trunk-1.0/NEWS
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/tools/win32-setup.sh
+
+Update the Windows library tag and documentation.
+
+------------------------------------------------------------------------
+r31688 | gerald | 2010-01-26 14:45:58 -0800 (Tue, 26 Jan 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/version.conf
+
+Build 1.0.11.
+
+------------------------------------------------------------------------
+r31703 | gerald | 2010-01-27 08:08:44 -0800 (Wed, 27 Jan 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/packaging/macosx/Info.plist.in
+   M /trunk-1.0/version_info.c
+
+Update the copyright year.
+
+------------------------------------------------------------------------
+r31706 | gerald | 2010-01-27 11:31:03 -0800 (Wed, 27 Jan 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/debian/changelog
+
+One last (?) change for 1.0.11.
+
+------------------------------------------------------------------------
+r31710 | gerald | 2010-01-27 17:19:49 -0800 (Wed, 27 Jan 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/config.nmake
+   M /trunk-1.0/configure.in
+   M /trunk-1.0/debian/changelog
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/version.conf
+
+1.0.11 -> 1.0.12.
+
+------------------------------------------------------------------------
+r31742 | gerald | 2010-01-31 08:04:26 -0800 (Sun, 31 Jan 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-01-31]
+------------------------------------------------------------------------
+r31818 | gerald | 2010-02-07 08:04:02 -0800 (Sun, 07 Feb 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-02-07]
+------------------------------------------------------------------------
+r31878 | gerald | 2010-02-14 08:03:40 -0800 (Sun, 14 Feb 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-02-14]
+------------------------------------------------------------------------
+r31939 | gerald | 2010-02-21 08:02:57 -0800 (Sun, 21 Feb 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-02-21]
+------------------------------------------------------------------------
+r32047 | gerald | 2010-02-28 08:04:10 -0800 (Sun, 28 Feb 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-02-28]
+------------------------------------------------------------------------
+r32136 | gerald | 2010-03-07 08:04:03 -0800 (Sun, 07 Mar 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-03-07]
+------------------------------------------------------------------------
+r32186 | gerald | 2010-03-14 08:04:07 -0700 (Sun, 14 Mar 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-03-14]
+------------------------------------------------------------------------
+r32259 | gerald | 2010-03-21 08:04:32 -0700 (Sun, 21 Mar 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-03-21]
+------------------------------------------------------------------------
+r32317 | gerald | 2010-03-28 08:03:59 -0700 (Sun, 28 Mar 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-03-28]
+------------------------------------------------------------------------
+r32330 | gerald | 2010-03-30 16:33:56 -0700 (Tue, 30 Mar 2010) | 39 lines
+Changed paths:
+   M /trunk-1.0/AUTHORS
+   M /trunk-1.0/configure.in
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/gtk/proto_draw.c
+   M /trunk-1.0/wiretap/wtap.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r31787 | wmeier | 2010-02-04 07:03:30 -0800 (Thu, 04 Feb 2010) | 2 lines
+Changed paths:
+   M /trunk/gtk/main_proto_draw.c
+
+Fix a typo....
+------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+------------------------------------------------------------------------
+r31786 | wmeier | 2010-02-04 06:41:22 -0800 (Thu, 04 Feb 2010) | 2 lines
+Changed paths:
+   M /trunk/gtk/main_proto_draw.c
+
+Fix a crash which occurs if a progress bar is displayed while generating a hex bytes pane.
+------------------------------------------------------------------------
+r31918 | guy | 2010-02-18 16:05:34 -0800 (Thu, 18 Feb 2010) | 2 lines
+Changed paths:
+   M /trunk/configure.in
+
+There's an echo in here....
+------------------------------------------------------------------------
+r32321 | guy | 2010-03-28 12:35:14 -0700 (Sun, 28 Mar 2010) | 4 lines
+Changed paths:
+   M /trunk/AUTHORS
+   M /trunk/wiretap/wtap.c
+
+From Robert Bullen: give the Bluetooth-H4-with-Linux-pseudo-header
+encapsulation a name different from the no-pseudo-header H4
+encapsulation.
+------------------------------------------------------------------------
+
+
+Update the release notes.
 
 ------------------------------------------------------------------------
