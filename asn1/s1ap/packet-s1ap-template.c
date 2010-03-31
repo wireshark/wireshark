@@ -57,8 +57,8 @@
 #define PSNAME "S1AP"
 #define PFNAME "s1ap"
 
-/* No SCTP port registered with IANA for S1AP yet */
-#define SCTP_PORT_S1AP	0
+/* Dissector will use SCTP PPID 18 or SCTP port. IANA assigned port = 36412 */
+#define SCTP_PORT_S1AP	36412
 
 static dissector_handle_t nas_eps_handle;
 
@@ -183,8 +183,9 @@ proto_reg_handoff_s1ap(void)
 	static dissector_handle_t s1ap_handle;
 	static guint SctpPort;
 
+	s1ap_handle = find_dissector("s1ap");
+
 	if (!Initialized) {
-		s1ap_handle = find_dissector("s1ap");
 		nas_eps_handle = find_dissector("nas-eps");
 		dissector_add_handle("sctp.port", s1ap_handle);   /* for "decode-as"  */
 		dissector_add("sctp.ppi", S1AP_PAYLOAD_PROTOCOL_ID,   s1ap_handle);

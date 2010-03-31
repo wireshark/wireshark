@@ -65,8 +65,8 @@
 #define PSNAME "S1AP"
 #define PFNAME "s1ap"
 
-/* No SCTP port registered with IANA for S1AP yet */
-#define SCTP_PORT_S1AP	0
+/* Dissector will use SCTP PPID 18 or SCTP port. IANA assigned port = 36412 */
+#define SCTP_PORT_S1AP	36412
 
 static dissector_handle_t nas_eps_handle;
 
@@ -7758,8 +7758,9 @@ proto_reg_handoff_s1ap(void)
 	static dissector_handle_t s1ap_handle;
 	static guint SctpPort;
 
+	s1ap_handle = find_dissector("s1ap");
+
 	if (!Initialized) {
-		s1ap_handle = find_dissector("s1ap");
 		nas_eps_handle = find_dissector("nas-eps");
 		dissector_add_handle("sctp.port", s1ap_handle);   /* for "decode-as"  */
 		dissector_add("sctp.ppi", S1AP_PAYLOAD_PROTOCOL_ID,   s1ap_handle);
@@ -7966,7 +7967,7 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 193 "packet-s1ap-template.c"
+#line 194 "packet-s1ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete("sctp.port", SctpPort, s1ap_handle);
@@ -9567,7 +9568,7 @@ void proto_register_s1ap(void) {
         "s1ap.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 221 "packet-s1ap-template.c"
+#line 222 "packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -9789,7 +9790,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 231 "packet-s1ap-template.c"
+#line 232 "packet-s1ap-template.c"
   };
 
   module_t *s1ap_module;
