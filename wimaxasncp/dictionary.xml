@@ -201,28 +201,31 @@
 
     <tlv name="Authorization Policy"
          type="21"
-         decoder="WIMAXASNCP_TLV_ENUM8">
+         decoder="WIMAXASNCP_TLV_BITFLAGS8">
 
         <enum name="RSA authorization"
-              code="0x01"/>
+              code="WIMAXASNCP_BIT8(7)"/>
 
         <enum name="EAP authorization"
-              code="0x02"/>
+              code="WIMAXASNCP_BIT8(6)"/>
 
         <enum name="Authenticated-EAP authorization"
-              code="0x04"/>
+              code="WIMAXASNCP_BIT8(5)"/>
 
         <enum name="HMAC supported"
-              code="0x08"/>
+              code="WIMAXASNCP_BIT8(4)"/>
 
         <enum name="RSA Authentication at Re-entry"
-              code="0x10"/>
+              code="WIMAXASNCP_BIT8(3)"/>
 
         <enum name="EAP Authentication at Re-entry"
-              code="0x20"/>
+              code="WIMAXASNCP_BIT8(2)"/>
 
         <enum name="Authenticated EAP-based authorization at reentry"
-              code="0x30"/>
+              code="WIMAXASNCP_BIT8(1)"/>
+	      
+        <enum name="Reserved"
+              code="WIMAXASNCP_BIT8(0)"/>	
     </tlv>
 
     <!-- ****************************************************************** -->

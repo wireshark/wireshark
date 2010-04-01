@@ -81,6 +81,7 @@ static int hf_wimaxasncp_tlv                    = -1;
 static int hf_wimaxasncp_tlv_type               = -1;
 static int hf_wimaxasncp_tlv_length             = -1;
 static int hf_wimaxasncp_tlv_value_bytes        = -1;
+static int hf_wimaxasncp_tlv_value_bitflags8    = -1;
 static int hf_wimaxasncp_tlv_value_bitflags16   = -1;
 static int hf_wimaxasncp_tlv_value_bitflags32   = -1;
 static int hf_wimaxasncp_tlv_value_protocol     = -1;
@@ -99,6 +100,7 @@ static guint global_wimaxasncp_udp_port = WIMAXASNCP_DEF_UDP_PORT;
 static gint ett_wimaxasncp                                       = -1;
 static gint ett_wimaxasncp_flags                                 = -1;
 static gint ett_wimaxasncp_tlv                                   = -1;
+static gint ett_wimaxasncp_tlv_value_bitflags8                   = -1;
 static gint ett_wimaxasncp_tlv_value_bitflags16                  = -1;
 static gint ett_wimaxasncp_tlv_value_bitflags32                  = -1;
 static gint ett_wimaxasncp_tlv_protocol_list                     = -1;
@@ -438,6 +440,7 @@ static const value_string wimaxasncp_decode_type_vals[] =
   { WIMAXASNCP_TLV_ETHER,               "WIMAXASNCP_TLV_ETHER"},
   { WIMAXASNCP_TLV_ASCII_STRING,        "WIMAXASNCP_TLV_ASCII_STRING"},
   { WIMAXASNCP_TLV_FLAG0,               "WIMAXASNCP_TLV_FLAG0"},
+  { WIMAXASNCP_TLV_BITFLAGS8,           "WIMAXASNCP_TLV_BITFLAGS8"},  
   { WIMAXASNCP_TLV_BITFLAGS16,          "WIMAXASNCP_TLV_BITFLAGS16"},
   { WIMAXASNCP_TLV_BITFLAGS32,          "WIMAXASNCP_TLV_BITFLAGS32"},
   { WIMAXASNCP_TLV_ID,                  "WIMAXASNCP_TLV_ID"},
@@ -741,6 +744,63 @@ static void wimaxasncp_dissect_tlv_value(
 
         return;
     }
+    case WIMAXASNCP_TLV_BITFLAGS8:
+    {
+        if (length != 1)
+        {
+            /* encoding error */
+            break;
+        }
+
+        if (tlv_info->enums == NULL)
+        {
+            /* enum values missing */
+        }
+
+        if (tree)
+        {
+            proto_tree *flags_tree;
+            proto_item *item;
+            guint8 value;
+            guint i;
+
+            value = tvb_get_guint8(tvb, offset);
+
+            item = proto_tree_add_uint_format(
+                tree, tlv_info->hf_value,
+                tvb, offset, length, value,
+                "Value: %s",
+		decode_numeric_bitfield(value, 0xff, 8, "0x%02x"));
+
+            proto_item_append_text(tlv_item, " - 0x%02x", value);
+
+            if (value != 0)
+            {
+                flags_tree = proto_item_add_subtree(
+                    item, ett_wimaxasncp_tlv_value_bitflags8);
+
+                for (i = 0; i < 8; ++i)
+                {
+                    guint8 mask;
+                    mask = 1 << (7 - i);
+
+                    if (value & mask)
+                    {
+                        const gchar *s;
+			    
+                        s = wimaxasncp_get_enum_name(tlv_info, value & mask);
+
+                        proto_tree_add_uint_format(
+                            flags_tree, hf_wimaxasncp_tlv_value_bitflags8,
+                            tvb, offset, length, value,
+                            "Bit #%u is set: %s", i, s);
+                    }
+                }
+            }
+        }
+  
+	return;
+    }    
     case WIMAXASNCP_TLV_BITFLAGS16:
     {
         if (length != 2)
@@ -2420,6 +2480,11 @@ static void add_tlv_reg_info(
         add_reg_info(
             &tlv->hf_value, name, abbrev, FT_STRING, BASE_NONE, blurb);
         break;
+    
+    case WIMAXASNCP_TLV_BITFLAGS8:
+        add_reg_info(
+            &tlv->hf_value, name, abbrev, FT_UINT8, BASE_HEX, blurb);
+        break;
 
     case WIMAXASNCP_TLV_BITFLAGS16:
         add_reg_info(
@@ -2988,6 +3053,19 @@ register_wimaxasncp_fields(const char* unused _U_)
                 }
             },
             {
+                &hf_wimaxasncp_tlv_value_bitflags8,
+                {
+                    "Value",
+                    "wimaxasncp.tlv_value_bitflags8",
+                    FT_UINT8,
+                    BASE_HEX,
+                    NULL,
+                    0xff,
+                    NULL,
+                    HFILL
+                }
+            },		
+            {
                 &hf_wimaxasncp_tlv_value_bitflags16,
                 {
                     "Value",
@@ -3050,6 +3128,7 @@ register_wimaxasncp_fields(const char* unused _U_)
             &ett_wimaxasncp,
             &ett_wimaxasncp_flags,
             &ett_wimaxasncp_tlv,
+            &ett_wimaxasncp_tlv_value_bitflags8,	    
             &ett_wimaxasncp_tlv_value_bitflags16,
             &ett_wimaxasncp_tlv_value_bitflags32,
             &ett_wimaxasncp_tlv_protocol_list,
