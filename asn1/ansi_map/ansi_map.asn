@@ -3118,7 +3118,7 @@ NumberPortabilityRequestRes ::= [PRIVATE 18] SET {
 -- 6.4.2.h ServiceRequest Updated with N.S0023-0 v 1.0
 
 ServiceRequest ::= [PRIVATE 18] SET {
-	serviceID								[245] IMPLICIT ServiceID,
+	serviceID								[246] IMPLICIT ServiceID,
 	-- M 6.5.2.bz
 	accessDeniedReason						[20] IMPLICIT AccessDeniedReason OPTIONAL,
 	-- O 6.5.2.1 c d
