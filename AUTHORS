@@ -2324,9 +2324,9 @@ Francesco Fondelli	<francesco.fondelli [AT] gmail.com> {
 	RSVP extensions for G.709 Optical Transport Networks Control, RFC 4328
 	Update GMPLS GPID, Switching and Encoding type values
 	Support for generalized label interpretation:
-	    SUKLM format for SONET/SDH label (RFC 4606), t3t2t1 format for 
-	    G.709 ODUk label (RFC 4328), G.694 format for lambda label 
-	    (draft-ietf-ccamp-gmpls-g-694-lambda-labels-05).  Add related 
+	    SUKLM format for SONET/SDH label (RFC 4606), t3t2t1 format for
+	    G.709 ODUk label (RFC 4328), G.694 format for lambda label
+	    (draft-ietf-ccamp-gmpls-g-694-lambda-labels-05).  Add related
 	    user preference option.
 	RSVP IF_ID ERROR_STRING TLV support, RFC 4783
 }
@@ -2993,13 +2993,17 @@ Erwin van Eijk		<erwin.vaneijk [AT] gmail.com> {
 Venkateshwaran Dorai	<venkateshwaran.d [AT] gmail.com> {
 	Server/Application State Protocol [SASP] (RFC 4678 ) dissector
 }
-	
+
 Ben Greear		<greearb [AT] candelatech.com> {
 	LANforge dissector
 }
 
 Richard Kümmel		<r.kuemmel [AT] beckhoff.de> {
 	EtherCAT dissector
+}
+
+Yi Yu		<yiyu.inbox [AT] gmail.com> {
+	Updates to the sFlow dissector
 }
 
 
