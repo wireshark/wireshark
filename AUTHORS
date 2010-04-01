@@ -3002,8 +3002,12 @@ Richard Kümmel		<r.kuemmel [AT] beckhoff.de> {
 	EtherCAT dissector
 }
 
-Yi Yu		<yiyu.inbox [AT] gmail.com> {
+Yi Yu			<yiyu.inbox [AT] gmail.com> {
 	Updates to the sFlow dissector
+}
+
+Aniruddha A		<aniruddha.a [AT] gmail.com> {
+	ANCP (Access Node Control Protocol) dissector
 }
 
 

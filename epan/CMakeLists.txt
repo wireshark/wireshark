@@ -321,6 +321,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-alcap.c
 	dissectors/packet-amqp.c
 	dissectors/packet-amr.c
+	dissectors/packet-ancp.c
 	dissectors/packet-ans.c
 	dissectors/packet-ansi_637.c
 	dissectors/packet-ansi_683.c
