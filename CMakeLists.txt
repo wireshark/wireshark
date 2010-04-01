@@ -117,7 +117,7 @@ option(ENABLE_GUIDES     "Build Guides" ON)
 option(ENABLE_ADNS       "Build with adns support" ON)
 option(ENABLE_PCRE       "Build with pcre support" ON)
 option(ENABLE_PORTAUDIO  "Build with portaudio support" ON)
-option(ENABLE_Z          "Build with zlib compression support" ON)
+option(ENABLE_ZLIB       "Build with zlib compression support" ON)
 option(ENABLE_LUA	 "Build with lua dissector support" ON)
 option(ENABLE_PYTHON	 "Build with python dissector support" ON)
 option(ENABLE_SMI	 "Build with smi snmp support" ON)
@@ -291,8 +291,8 @@ elseif(ENABLE_ADNS)     # Gnu asynchronous DNS
 endif()
 
 # Zlib compression
-if(ENABLE_Z)
-	set(PACKAGELIST Z ${PACKAGELIST})
+if(ENABLE_ZLIB)
+	set(PACKAGELIST ZLIB ${PACKAGELIST})
 endif()
 
 # Lua 5.1 dissectors
