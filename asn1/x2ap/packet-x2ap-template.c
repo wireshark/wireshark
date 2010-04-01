@@ -39,6 +39,7 @@
 #include <string.h>
 
 #include <epan/asn1.h>
+#include <epan/prefs.h>
 #include <epan/sctpppids.h>
 
 #include "packet-per.h"
@@ -88,6 +89,7 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+void proto_reg_handoff_x2ap(void);
 
 #include "packet-x2ap-fn.c"
 
@@ -157,6 +159,7 @@ void proto_register_x2ap(void) {
 #include "packet-x2ap-ettarr.c"
   };
 
+  module_t *x2ap_module;
 
   /* Register protocol */
   proto_x2ap = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -173,6 +176,15 @@ void proto_register_x2ap(void) {
   x2ap_proc_imsg_dissector_table = register_dissector_table("x2ap.proc.imsg", "X2AP-ELEMENTARY-PROCEDURE InitiatingMessage", FT_UINT32, BASE_DEC);
   x2ap_proc_sout_dissector_table = register_dissector_table("x2ap.proc.sout", "X2AP-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_UINT32, BASE_DEC);
   x2ap_proc_uout_dissector_table = register_dissector_table("x2ap.proc.uout", "X2AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_UINT32, BASE_DEC);
+
+  /* Register configuration options for ports */
+  x2ap_module = prefs_register_protocol(proto_x2ap, proto_reg_handoff_x2ap);
+
+  prefs_register_uint_preference(x2ap_module, "sctp.port",
+                                 "X2AP SCTP Port",
+                                 "Set the SCTP port for X2AP messages",
+                                 10,
+                                 &gbl_x2apSctpPort);
 
 }
 

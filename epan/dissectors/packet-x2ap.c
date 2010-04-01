@@ -47,6 +47,7 @@
 #include <string.h>
 
 #include <epan/asn1.h>
+#include <epan/prefs.h>
 #include <epan/sctpppids.h>
 
 #include "packet-per.h"
@@ -165,7 +166,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-x2ap-val.h ---*/
-#line 62 "packet-x2ap-template.c"
+#line 63 "packet-x2ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_x2ap = -1;
@@ -425,7 +426,7 @@ static int hf_x2ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_x2ap_value = -1;                    /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-x2ap-hf.c ---*/
-#line 68 "packet-x2ap-template.c"
+#line 69 "packet-x2ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_x2ap = -1;
@@ -545,7 +546,7 @@ static gint ett_x2ap_SuccessfulOutcome = -1;
 static gint ett_x2ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-x2ap-ett.c ---*/
-#line 73 "packet-x2ap-template.c"
+#line 74 "packet-x2ap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -564,6 +565,7 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+void proto_reg_handoff_x2ap(void);
 
 
 /*--- Included file: packet-x2ap-fn.c ---*/
@@ -4244,7 +4246,7 @@ static void dissect_X2AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-x2ap-fn.c ---*/
-#line 93 "packet-x2ap-template.c"
+#line 95 "packet-x2ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -5303,7 +5305,7 @@ void proto_register_x2ap(void) {
         "x2ap.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-x2ap-hfarr.c ---*/
-#line 151 "packet-x2ap-template.c"
+#line 153 "packet-x2ap-template.c"
   };
 
   /* List of subtrees */
@@ -5425,9 +5427,10 @@ void proto_register_x2ap(void) {
     &ett_x2ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-x2ap-ettarr.c ---*/
-#line 158 "packet-x2ap-template.c"
+#line 160 "packet-x2ap-template.c"
   };
 
+  module_t *x2ap_module;
 
   /* Register protocol */
   proto_x2ap = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -5444,6 +5447,15 @@ void proto_register_x2ap(void) {
   x2ap_proc_imsg_dissector_table = register_dissector_table("x2ap.proc.imsg", "X2AP-ELEMENTARY-PROCEDURE InitiatingMessage", FT_UINT32, BASE_DEC);
   x2ap_proc_sout_dissector_table = register_dissector_table("x2ap.proc.sout", "X2AP-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_UINT32, BASE_DEC);
   x2ap_proc_uout_dissector_table = register_dissector_table("x2ap.proc.uout", "X2AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_UINT32, BASE_DEC);
+
+  /* Register configuration options for ports */
+  x2ap_module = prefs_register_protocol(proto_x2ap, proto_reg_handoff_x2ap);
+
+  prefs_register_uint_preference(x2ap_module, "sctp.port",
+                                 "X2AP SCTP Port",
+                                 "Set the SCTP port for X2AP messages",
+                                 10,
+                                 &gbl_x2apSctpPort);
 
 }
 
@@ -5547,7 +5559,7 @@ proto_reg_handoff_x2ap(void)
 
 
 /*--- End of included file: packet-x2ap-dis-tab.c ---*/
-#line 194 "packet-x2ap-template.c"
+#line 206 "packet-x2ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete("sctp.port", SctpPort, x2ap_handle);
