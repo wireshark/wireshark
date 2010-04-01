@@ -171,6 +171,24 @@ cf_status_t cf_save(capture_file * cf, const char *fname, packet_range_t *range,
 const gchar *cf_get_display_name(capture_file *cf);
 
 /**
+ * Set the source of the capture data for temporary files, e.g.
+ * "Interface eth0" or "Pipe from Pong"
+ *
+ * @param cf the capture file
+ * @param source the source description. this will be copied internally.
+ */
+void cf_set_tempfile_source(capture_file *cf, gchar *source);
+
+/**
+ * Get the source of the capture data for temporary files. Guaranteed to
+ * return a non-null value. The returned value should not be freed.
+ *
+ * @param cf the capture file
+ * @param source the source description. this will be copied internally.
+ */
+const gchar *cf_get_tempfile_source(capture_file *cf);
+
+/**
  * Get the number of packets in the capture file.
  * 
  * @param cf the capture file

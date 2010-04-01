@@ -1024,9 +1024,33 @@ cf_get_display_name(capture_file *cf)
   } else {
     /* The file we read is a temporary file from a live capture;
        we don't mention its name. */
-    displayname = "(Untitled)";
+    if (cf->source) {
+      displayname = cf->source;
+    } else {
+      displayname = "(Untitled)";
+    }
   }
   return displayname;
+}
+
+void cf_set_tempfile_source(capture_file *cf, gchar *source) {
+  if (cf->source) {
+    g_free(cf->source);
+  }
+
+  if (source) {
+    cf->source = g_strdup(source);
+  } else {
+    cf->source = g_strdup("");
+  }
+}
+
+const gchar *cf_get_tempfile_source(capture_file *cf) {
+  if (!cf->source) {
+    return "";
+  }
+
+  return cf->source;
 }
 
 /* XXX - use a macro instead? */
@@ -4623,3 +4647,16 @@ cf_reload(capture_file *cf) {
      we should free up our copy. */
   g_free(filename);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 2
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=2 expandtab
+ * :indentSize=2:tabSize=2:noTabs=true:
+ */

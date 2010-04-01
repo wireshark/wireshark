@@ -34,7 +34,8 @@
 #include <ctype.h>
 #include <glib.h>
 
-#include <epan/prefs.h>
+#include "epan/prefs.h"
+#include "epan/ex-opt.h"
 #include "capture_ifinfo.h"
 #include "capture_ui_utils.h"
 
@@ -155,6 +156,11 @@ get_interface_descriptive_name(const char *if_name)
   if (descr != NULL) {
     /* Yes - make a copy of that. */
     descr = g_strdup(descr);
+  } else if (strcmp(if_name, "-") == 0) {
+    descr = g_strdup(ex_opt_get_nth("stdin_descr", 0));
+    if (!descr) {
+      descr = g_strdup("Standard input");
+    }
   } else {
     /* No, we don't have a user-supplied description; did we get
        one from the OS or libpcap? */
