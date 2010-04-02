@@ -131,14 +131,17 @@ void new_window_cb(GtkWidget *w _U_)
   struct PacketWinData *DataPtr;
   int i;
 
+#ifdef NEW_PACKET_LIST
+  int err;
+  gchar *err_info;
+#endif /* NEW_PACKET_LIST */
+
   if (!cfile.current_frame) {
     /* nothing has been captured so far */
     return;
   }
 
 #ifdef NEW_PACKET_LIST
-  int err;
-  gchar *err_info;
 
   /* With the new packetlists "lazy columns" it's neccesary to reread the frame */
   if (!wtap_seek_read(cfile.wth, cfile.current_frame->file_off, &cfile.pseudo_header,
