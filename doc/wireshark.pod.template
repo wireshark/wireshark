@@ -497,6 +497,9 @@ is in the form I<extension_key>B<:>I<value>, where I<extension_key> can be:
 B<lua_script>:I<lua_script_filename> tells B<Wireshark> to load the given script in addition to the
 default Lua scripts.
 
+B<stdin_descr>:I<description> tells B<Wireshark> to use the given description when
+capturing from standard input (B<-i ->).
+
 =item -z  E<lt>statisticsE<gt>
 
 Get B<Wireshark> to collect various types of statistics and display the result
