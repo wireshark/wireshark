@@ -413,17 +413,17 @@ extern gboolean proto_field_is_referenced(proto_tree *tree, int proto_id);
  @param ti the parent item of the new subtree
  @param idx one of the ett_ array elements registered with proto_register_subtree_array()
  @return the new subtree */
-extern proto_tree* proto_item_add_subtree(proto_item *ti, gint idx);
+extern proto_tree* proto_item_add_subtree(proto_item *ti, const gint idx);
 
 /** Get an existing subtree under an item.
  @param ti the parent item of the subtree
  @return the subtree or NULL */
-extern proto_tree* proto_item_get_subtree(proto_item *ti);
+extern proto_tree* proto_item_get_subtree(const proto_item *ti);
 
 /** Get the parent of a subtree item.
  @param ti the child item in the subtree
  @return parent item or NULL */
-extern proto_item* proto_item_get_parent(proto_item *ti);
+extern proto_item* proto_item_get_parent(const proto_item *ti);
 
 /** Get Nth generation parent item.
  @param ti the child item in the subtree
@@ -448,7 +448,7 @@ extern void proto_item_append_text(proto_item *ti, const char *format, ...)
 /** Set proto_item's length inside tvb, after it has already been created.
  @param ti the item to set the length
  @param length the new length ot the item */
-extern void proto_item_set_len(proto_item *ti, gint length);
+extern void proto_item_set_len(proto_item *ti, const gint length);
 
 /**
  * Sets the length of the item based on its start and on the specified
@@ -466,7 +466,7 @@ extern void proto_item_set_end(proto_item *ti, tvbuff_t *tvb, gint end);
  * to add a variable-length field (e.g., FT_NSTRING_UINT8).
  @param ti the item to get the length from
  @return the current length */
-extern int proto_item_get_len(proto_item *ti);
+extern int proto_item_get_len(const proto_item *ti);
 
 /**
  * Sets an expert info to the proto_item.
@@ -475,7 +475,7 @@ extern int proto_item_get_len(proto_item *ti);
  @param severity of this info (e.g. PI_ERROR)
  @return TRUE if value was written
  */
-extern gboolean proto_item_set_expert_flags(proto_item *ti, int group, guint severity);
+extern gboolean proto_item_set_expert_flags(proto_item *ti, const int group, const guint severity);
 
 
 
@@ -509,12 +509,12 @@ proto_tree_set_fake_protocols(proto_tree *tree, gboolean fake_protocols);
  @param hfid the interesting field id
  @todo what *does* interesting mean? */
 extern void
-proto_tree_prime_hfid(proto_tree *tree, int hfid);
+proto_tree_prime_hfid(proto_tree *tree, const int hfid);
 
 /** Get a parent item of a subtree.
  @param tree the tree to get the parent from
  @return parent item */
-extern proto_item* proto_tree_get_parent(proto_tree *tree);
+extern proto_item* proto_tree_get_parent(const proto_tree *tree);
 
 /** Get the root tree from any subtree.
  @param tree the tree to get the root from
@@ -533,7 +533,7 @@ extern void proto_tree_move_item(proto_tree *tree, proto_item *fixed_item, proto
   @param tvb the tv buffer of the current data
   @param start the start offset of the appendix
   @param length the length of the appendix */
-extern void proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint start, gint length);
+extern void proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint start, const gint length);
 
 
 /** Add an item to a proto_tree, using the text label registered to that item.
@@ -546,8 +546,8 @@ extern void proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint start,
  @param little_endian big or little endian byte representation
  @return the newly created item */
 extern proto_item *
-proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    gint start, gint length, gboolean little_endian);
+proto_tree_add_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
+    const gint start, gint length, const gboolean little_endian);
 
 /** Add a text-only node to a proto_tree.
  @param tree the tree to append this item to
@@ -1360,13 +1360,13 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
 /** Mark protocol as private
  @param proto_id the handle of the protocol */
 extern void
-proto_mark_private(int proto_id);
+proto_mark_private(const int proto_id);
 
 /** Return if protocol is private
  @param proto_id the handle of the protocol
  @return TRUE if it is a private protocol, FALSE is not. */
 extern gboolean
-proto_is_private(int proto_id);
+proto_is_private(const int proto_id);
 
 /** This is the type of function can be registered to get called whenever
     a given field was not found but a its prefix is matched
@@ -1388,7 +1388,7 @@ extern void proto_initialize_all_prefixes(void);
  @param hf the hf_register_info array
  @param num_records the number of records in hf */
 extern void
-proto_register_field_array(int parent, hf_register_info *hf, int num_records);
+proto_register_field_array(const int parent, hf_register_info *hf, const int num_records);
 
 /** Register a protocol subtree (ett) array.
  @param indices array of ett indices
@@ -1403,12 +1403,12 @@ extern int proto_registrar_n(void);
 /** Get name of registered header_field number n.
  @param n item # n (0-indexed)
  @return the name of this registered item */
-extern const char* proto_registrar_get_name(int n);
+extern const char* proto_registrar_get_name(const int n);
 
 /** Get abbreviation of registered header_field number n.
  @param n item # n (0-indexed)
  @return the abbreviation of this registered item */
-extern const char* proto_registrar_get_abbrev(int n);
+extern const char* proto_registrar_get_abbrev(const int n);
 
 /** Get the header_field information based upon a field or protocol id.
  @param hfindex item # n (0-indexed)
@@ -1423,22 +1423,22 @@ extern header_field_info* proto_registrar_get_byname(const char *field_name);
 /** Get enum ftenum FT_ of registered header_field number n.
  @param n item # n (0-indexed)
  @return the registered item */
-extern int proto_registrar_get_ftype(int n);
+extern int proto_registrar_get_ftype(const int n);
 
 /** Get parent protocol of registered header_field number n.
  @param n item # n (0-indexed)
  @return -1 if item _is_ a protocol */
-extern int proto_registrar_get_parent(int n);
+extern int proto_registrar_get_parent(const int n);
 
 /** Is item # n a protocol?
  @param n item # n (0-indexed)
  @return TRUE if it's a protocol, FALSE if it's not */
-extern gboolean proto_registrar_is_protocol(int n);
+extern gboolean proto_registrar_is_protocol(const int n);
 
 /** Get length of registered field according to field type.
  @param n item # n (0-indexed)
  @return 0 means undeterminable at registration time, -1 means unknown field */
-extern gint proto_registrar_get_length(int n);
+extern gint proto_registrar_get_length(const int n);
 
 
 /** Routines to use to iterate over the protocols and their fields;
@@ -1446,7 +1446,7 @@ extern gint proto_registrar_get_length(int n);
  * appropriate hfinfo pointer, and keep state in "*cookie". */
 extern int proto_get_first_protocol(void **cookie);
 extern int proto_get_next_protocol(void **cookie);
-extern header_field_info *proto_get_first_protocol_field(int proto_id, void **cookle);
+extern header_field_info *proto_get_first_protocol_field(const int proto_id, void **cookle);
 extern header_field_info *proto_get_next_protocol_field(void **cookle);
 
 /** Given a protocol's filter_name.
@@ -1461,66 +1461,66 @@ extern gboolean proto_can_toggle_protocol(int proto_id);
 
 /** Get the "protocol_t" structure for the given protocol's item number.
  @param proto_id protocol id (0-indexed) */
-extern protocol_t *find_protocol_by_id(int proto_id);
+extern protocol_t *find_protocol_by_id(const int proto_id);
 
 /** Get the protocol's name for the given protocol's item number.
  @param proto_id protocol id (0-indexed)
  @return its name */
-extern const char *proto_get_protocol_name(int proto_id);
+extern const char *proto_get_protocol_name(const int proto_id);
 
 /** Get the protocol's item number, for the given protocol's "protocol_t".
  @return its proto_id */
-extern int proto_get_id(protocol_t *protocol);
+extern int proto_get_id(const protocol_t *protocol);
 
 /** Get the protocol's short name, for the given protocol's "protocol_t".
  @return its short name. */
-extern const char *proto_get_protocol_short_name(protocol_t *protocol);
+extern const char *proto_get_protocol_short_name(const protocol_t *protocol);
 
 /** Get the protocol's long name, for the given protocol's "protocol_t".
  @return its long name. */
-extern const char *proto_get_protocol_long_name(protocol_t *protocol);
+extern const char *proto_get_protocol_long_name(const protocol_t *protocol);
 
 /** Is protocol's decoding enabled ?
  @param protocol
  @return TRUE if decoding is enabled, FALSE if not */
-extern gboolean proto_is_protocol_enabled(protocol_t *protocol);
+extern gboolean proto_is_protocol_enabled(const protocol_t *protocol);
 
 /** Get a protocol's filter name by it's item number.
  @param proto_id protocol id (0-indexed)
  @return its filter name. */
-extern const char *proto_get_protocol_filter_name(int proto_id);
+extern const char *proto_get_protocol_filter_name(const int proto_id);
 
 /** Enable / Disable protocol of the given item number.
  @param proto_id protocol id (0-indexed)
  @param enabled enable / disable the protocol */
-extern void proto_set_decoding(int proto_id, gboolean enabled);
+extern void proto_set_decoding(const int proto_id, const gboolean enabled);
 
 /** Enable all protocols */
 extern void proto_enable_all(void);
 
 /** Disable disabling/enabling of protocol of the given item number.
  @param proto_id protocol id (0-indexed) */
-extern void proto_set_cant_toggle(int proto_id);
+extern void proto_set_cant_toggle(const int proto_id);
 
 /** Checks for existence any protocol or field within a tree.
  @param tree "Protocols" are assumed to be a child of the [empty] root node.
  @param id hfindex of protocol or field
  @return TRUE = found, FALSE = not found
  @todo add explanation of id parameter */
-extern gboolean proto_check_for_protocol_or_field(proto_tree* tree, int id);
+extern gboolean proto_check_for_protocol_or_field(const proto_tree* tree, const int id);
 
 /** Return GPtrArray* of field_info pointers for all hfindex that appear in
     tree. Only works with primed trees, and is fast.
  @param tree tree of interest
  @param hfindex primed hfindex
  @return GPtrArry pointer */
-extern GPtrArray* proto_get_finfo_ptr_array(proto_tree *tree, int hfindex);
+extern GPtrArray* proto_get_finfo_ptr_array(const proto_tree *tree, const int hfindex);
 
 /** Return whether we're tracking any interesting fields.
     Only works with primed trees, and is fast.
  @param tree tree of interest
  @return TRUE if we're tracking interesting fields */
-extern gboolean proto_tracking_interesting_fields(proto_tree *tree);
+extern gboolean proto_tracking_interesting_fields(const proto_tree *tree);
 
 /** Return GPtrArray* of field_info pointers for all hfindex that appear in
     tree. Works with any tree, primed or unprimed, and is slower than
@@ -1528,7 +1528,7 @@ extern gboolean proto_tracking_interesting_fields(proto_tree *tree);
  @param tree tree of interest
  @param hfidex index of field info of interest
  @return GPtrArry pointer */
-extern GPtrArray* proto_find_finfo(proto_tree *tree, int hfindex);
+extern GPtrArray* proto_find_finfo(proto_tree *tree, const int hfindex);
 
 /** Return GPtrArray* of field_info pointers containg all hfindexes that appear
     in tree.
@@ -1545,7 +1545,7 @@ extern void proto_registrar_dump_values(void);
 /** Dumps a glossary of the protocol and field registrations to STDOUT.
  * Format 1 is the original format. Format 2 includes the base (for integers)
  * and the blurb. */
-extern void proto_registrar_dump_fields(int format);
+extern void proto_registrar_dump_fields(const int format);
 
 
 
@@ -1568,7 +1568,7 @@ WS_VAR_IMPORT int           num_tree_types;
  @param hfinfo header_field
  @return the bitwidth */
 extern int
-hfinfo_bitwidth(header_field_info *hfinfo);
+hfinfo_bitwidth(const header_field_info *hfinfo);
 
 
 
@@ -1616,8 +1616,8 @@ proto_find_field_from_offset(proto_tree *tree, guint offset, tvbuff_t *tvb);
  @param little_endian big or little endian byte representation
  @return the newly created item */
 extern proto_item *
-proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, guint offset,
-		int hf_hdr, gint ett, const int **fields, gboolean little_endian);
+proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, const guint offset,
+		const int hf_hdr, const gint ett, const int **fields, const gboolean little_endian);
 
 /** Add a text with a subtree of bitfields.
  @param tree the tree to append this item to
@@ -1630,9 +1630,9 @@ proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, guint offset,
  @param little_endian big or little endian byte representation
  @return the newly created item */
 extern proto_item *
-proto_tree_add_bitmask_text(proto_tree *tree, tvbuff_t *tvb, guint offset, guint len,
+proto_tree_add_bitmask_text(proto_tree *tree, tvbuff_t *tvb, const guint offset, const guint len,
 		const char *name, const char *fallback,
-		gint ett, const int **fields, gboolean little_endian, int flags);
+		const gint ett, const int **fields, const gboolean little_endian, const int flags);
 
 #define BMT_NO_APPEND	0x01	/**< Don't change the title at all */
 #define BMT_NO_INT	0x02	/**< Don't add integral (non-boolean) fields to title */
@@ -1649,7 +1649,7 @@ proto_tree_add_bitmask_text(proto_tree *tree, tvbuff_t *tvb, guint offset, guint
  @param little_endian big or little endian byte representation
  @return the newly created item */
 extern proto_item *
-proto_tree_add_bits_item(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian);
+proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const gboolean little_endian);
 
 /** Add bits to a proto_tree, using the text label registered to that item.
    The item is extracted from the tvbuff handed to it.
@@ -1662,7 +1662,7 @@ proto_tree_add_bits_item(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
  @param little_endian big or little endian byte representation
  @return the newly created item */
 extern proto_item *
-proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint64 *return_value, gboolean little_endian);
+proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, guint64 *return_value, const gboolean little_endian);
 
 /** Add bits for a FT_UINT8, FT_UINT16, FT_UINT24 or FT_UINT32
     header field to a proto_tree, with the format generating the
@@ -1677,8 +1677,8 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
  @param ... printf like parameters
  @return the newly created item */
 extern proto_item *
-proto_tree_add_uint_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits,
-	guint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
+proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits,
+	const guint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add bits for a FT_BOOLEAN header field to a proto_tree, with
     the format generating the string for the value and with the field
@@ -1693,7 +1693,7 @@ proto_tree_add_uint_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *
  @param ... printf like parameters
  @return the newly created item */
 extern proto_item *
-proto_tree_add_boolean_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits,
+proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits,
 	guint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add bits for a FT_INT8, FT_INT16, FT_INT24 or FT_INT32
@@ -1709,7 +1709,7 @@ proto_tree_add_boolean_bits_format_value(proto_tree *tree, int hf_index, tvbuff_
  @param ... printf like parameters
  @return the newly created item */
 extern proto_item *
-proto_tree_add_int_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits,
+proto_tree_add_int_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits,
 	gint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add bits for a FT_FLOAT header field to a proto_tree, with
@@ -1725,8 +1725,8 @@ proto_tree_add_int_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *t
  @param ... printf like parameters
  @return the newly created item */
 extern proto_item *
-proto_tree_add_float_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits,
-	float value, const char *format, ...) G_GNUC_PRINTF(7,8);
+proto_tree_add_float_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits,
+	const float value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Check if given string is a valid field name
  @param field_name the field name to check
@@ -1741,9 +1741,9 @@ proto_check_field_name(const gchar *field_name);
  @param expr the filter expression
  @param aize the size of the string buffer */
 const gchar *
-proto_custom_set(proto_tree* tree, int field_id,
+proto_custom_set(proto_tree* tree, const int field_id,
                              gchar *result,
-                             gchar *expr, int size );
+                             gchar *expr, const int size );
 
 #ifdef __cplusplus
 }

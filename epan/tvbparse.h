@@ -89,7 +89,7 @@ typedef struct _tvbparse_t tvbparse_t;
 typedef void (*tvbparse_action_t)(void* tvbparse_data, const void* wanted_data, struct _tvbparse_elem_t* elem);
 
 typedef int (*tvbparse_condition_t)
-(tvbparse_t*, int,
+(tvbparse_t*, const int,
  const tvbparse_wanted_t*, 
  tvbparse_elem_t**);
 
@@ -192,7 +192,7 @@ struct _tvbparse_elem_t {
  * When looked for it returns a simple element one character long if the char
  * at the current offset matches one of the the needles.
  */
-tvbparse_wanted_t* tvbparse_char(int id,
+tvbparse_wanted_t* tvbparse_char(const int id,
 								 const gchar* needles,
 								 const void* private_data,
 								 tvbparse_action_t before_cb,
@@ -204,7 +204,7 @@ tvbparse_wanted_t* tvbparse_char(int id,
  * When looked for it returns a simple element one character long if the char
  * at the current offset does not match one of the the needles.
  */
-tvbparse_wanted_t* tvbparse_not_char(int id,
+tvbparse_wanted_t* tvbparse_not_char(const int id,
 									 const gchar* needle,
 									 const void* private_data,
 									 tvbparse_action_t before_cb,
@@ -218,9 +218,9 @@ tvbparse_wanted_t* tvbparse_not_char(int id,
  * An element will be returned if at least min_len chars are given (1 if it's 0) 
  * It will get at most max_len chars or as much as it can if max_len is 0.
  */
-tvbparse_wanted_t* tvbparse_chars(int id,
-								  guint min_len,
-								  guint max_len,
+tvbparse_wanted_t* tvbparse_chars(const int id,
+								  const guint min_len,
+								  const guint max_len,
 								  const gchar* needles,
 								  const void* private_data,
 								  tvbparse_action_t before_cb,
@@ -235,9 +235,9 @@ tvbparse_wanted_t* tvbparse_chars(int id,
  * An element will be returned if at least min_len chars are given (1 if it's 0) 
  * It will get at most max_len chars or as much as it can if max_len is 0.
  */
-tvbparse_wanted_t* tvbparse_not_chars(int id,
-									  guint min_len,
-									  guint max_len,
+tvbparse_wanted_t* tvbparse_not_chars(const int id,
+									  const guint min_len,
+									  const guint max_len,
 									  const gchar* needles,
 									  const void* private_data,
 									  tvbparse_action_t before_cb,
@@ -249,7 +249,7 @@ tvbparse_wanted_t* tvbparse_not_chars(int id,
  * When looked for it returns a simple element if we have the given string at
  * the current offset 
  */
-tvbparse_wanted_t* tvbparse_string(int id,
+tvbparse_wanted_t* tvbparse_string(const int id,
 								   const gchar* string,
 								   const void* private_data,
 								   tvbparse_action_t before_cb,
@@ -261,7 +261,7 @@ tvbparse_wanted_t* tvbparse_string(int id,
  * When looked for it returns a simple element if we have a matching string at
  * the current offset 
  */
-tvbparse_wanted_t* tvbparse_casestring(int id,
+tvbparse_wanted_t* tvbparse_casestring(const int id,
 									   const gchar* str,
 									   const void* data,
 									   tvbparse_action_t before_cb,
@@ -283,7 +283,7 @@ tvbparse_wanted_t* tvbparse_casestring(int id,
  * op_mode values determine how the terminating element and the current offset
  * of the parser are handled 
  */
-tvbparse_wanted_t* tvbparse_until(int id,
+tvbparse_wanted_t* tvbparse_until(const int id,
 								  const void* private_data,
 								  tvbparse_action_t before_cb,
 								  tvbparse_action_t after_cb,
@@ -299,7 +299,7 @@ tvbparse_wanted_t* tvbparse_until(int id,
  * The list of candidates is terminated with a NULL
  *
  */
-tvbparse_wanted_t* tvbparse_set_oneof(int id,
+tvbparse_wanted_t* tvbparse_set_oneof(const int id,
 									  const void* private_data,
 									  tvbparse_action_t before_cb,
 									  tvbparse_action_t after_cb,
@@ -309,7 +309,7 @@ tvbparse_wanted_t* tvbparse_set_oneof(int id,
  * hashed
  */
 
-tvbparse_wanted_t* tvbparse_hashed(int id,
+tvbparse_wanted_t* tvbparse_hashed(const int id,
                                    const void* data, 
                                    tvbparse_action_t before_cb,
                                    tvbparse_action_t after_cb,
@@ -329,7 +329,7 @@ void tvbparse_hashed_add(tvbparse_wanted_t* w, ...);
  * The list of candidates is terminated with a NULL.
  *
  */
-tvbparse_wanted_t* tvbparse_set_seq(int id,
+tvbparse_wanted_t* tvbparse_set_seq(const int id,
 									const void* private_data,
 									tvbparse_action_t before_cb,
 									tvbparse_action_t after_cb,
@@ -342,9 +342,9 @@ tvbparse_wanted_t* tvbparse_set_seq(int id,
  * a composed element is returned.
  *
  */
-tvbparse_wanted_t* tvbparse_some(int id,
-								 guint min,
-								 guint max,
+tvbparse_wanted_t* tvbparse_some(const int id,
+								 const guint min,
+								 const guint max,
 								 const void* private_data,
 								 tvbparse_action_t before_cb,
 								 tvbparse_action_t after_cb,
@@ -403,12 +403,12 @@ tvbparse_wanted_t* tvbparse_ft_numcmp(int id,
  *
  *  C strings are matched with tvbparse_quoted(-1,NULL,NULL,NULL,"\"","\\")
  */
-tvbparse_wanted_t* tvbparse_quoted(int id,
+tvbparse_wanted_t* tvbparse_quoted(const int id,
 								   const void* data,
 								   tvbparse_action_t before_cb,
 								   tvbparse_action_t after_cb,
-								   char quote,
-								   char escape);
+								   const char quote,
+								   const char escape);
 
 /*
  * a helper callback for quoted strings that will shrink the token to contain
@@ -429,7 +429,7 @@ void tvbparse_shrink_token_cb(void* tvbparse_data,
 * ignore: a wanted token type to be ignored (the associated cb WILL be called when it matches)
 */
 tvbparse_t* tvbparse_init(tvbuff_t* tvb,
-						  int offset,
+						  const int offset,
 						  int len,
 						  void* private_data,
 						  const tvbparse_wanted_t* ignore);

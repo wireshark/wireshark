@@ -74,7 +74,7 @@ struct ptvcursor {
 
 /* Candidates for assembler */
 static int
-wrs_count_bitshift(guint32 bitmask)
+wrs_count_bitshift(const guint32 bitmask)
 {
 	int bitshift = 0;
 
@@ -144,20 +144,20 @@ static void fill_label_bitfield(field_info *fi, gchar *label_str);
 static void fill_label_int(field_info *fi, gchar *label_str);
 static void fill_label_int64(field_info *fi, gchar *label_str);
 
-static const char* hfinfo_uint_vals_format(header_field_info *hfinfo);
-static const char* hfinfo_uint_format(header_field_info *hfinfo);
-static const char* hfinfo_uint_value_format(header_field_info *hfinfo);
-static const char* hfinfo_uint64_format(header_field_info *hfinfo);
-static const char* hfinfo_int_vals_format(header_field_info *hfinfo);
-static const char* hfinfo_int_format(header_field_info *hfinfo);
-static const char* hfinfo_int_value_format(header_field_info *hfinfo);
-static const char* hfinfo_int64_format(header_field_info *hfinfo);
+static const char* hfinfo_uint_vals_format(const header_field_info *hfinfo);
+static const char* hfinfo_uint_format(const header_field_info *hfinfo);
+static const char* hfinfo_uint_value_format(const header_field_info *hfinfo);
+static const char* hfinfo_uint64_format(const header_field_info *hfinfo);
+static const char* hfinfo_int_vals_format(const header_field_info *hfinfo);
+static const char* hfinfo_int_format(const header_field_info *hfinfo);
+static const char* hfinfo_int_value_format(const header_field_info *hfinfo);
+static const char* hfinfo_int64_format(const header_field_info *hfinfo);
 
 static proto_item*
 proto_tree_add_node(proto_tree *tree, field_info *fi);
 
 static header_field_info *
-get_hfi_and_length(int hfindex, tvbuff_t *tvb, gint start, gint *length,
+get_hfi_and_length(int hfindex, tvbuff_t *tvb, const gint start, gint *length,
 	gint *item_length);
 
 static field_info *
@@ -1471,8 +1471,8 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
 /* Add an item to a proto_tree, using the text label registered to that item;
    the item is extracted from the tvbuff handed to it. */
 proto_item *
-proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-	gint start, gint length, gboolean little_endian)
+proto_tree_add_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
+	const gint start, gint length, const gboolean little_endian)
 {
 	field_info	*new_fi;
 	header_field_info	*hfinfo;
@@ -1490,7 +1490,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 /* Add a FT_NONE to a proto_tree */
 proto_item *
-proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+proto_tree_add_none_format(proto_tree *tree, const int hfindex, tvbuff_t *tvb, const gint start,
 		gint length, const char *format, ...)
 {
 	proto_item		*pi;
@@ -3150,7 +3150,7 @@ get_hfi_and_length(int hfindex, tvbuff_t *tvb, gint start, gint *length,
 
 static field_info *
 new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
-	gint start, gint item_length)
+	const gint start, const gint item_length)
 {
 	field_info		*fi;
 
@@ -3177,7 +3177,7 @@ new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 }
 
 static field_info *
-alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, const gint start,
 	gint *length)
 {
 	header_field_info	*hfinfo;
@@ -3282,9 +3282,9 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 
 /* -------------------------- */
 const gchar *
-proto_custom_set(proto_tree* tree, int field_id,
+proto_custom_set(proto_tree* tree, const int field_id,
 							 gchar *result,
-							 gchar *expr, int size )
+							 gchar *expr, const int size )
 {
 	guint32		u_integer;
 	gint32		integer;
@@ -3526,7 +3526,7 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 }
 
 void
-proto_item_set_len(proto_item *pi, gint length)
+proto_item_set_len(proto_item *pi, const gint length)
 {
 	field_info *fi;
 
@@ -3569,7 +3569,7 @@ proto_item_set_end(proto_item *pi, tvbuff_t *tvb, gint end)
 }
 
 int
-proto_item_get_len(proto_item *pi)
+proto_item_get_len(const proto_item *pi)
 {
 	field_info *fi = PITEM_FINFO(pi);
 	return fi ? fi->length : -1;
@@ -3583,7 +3583,7 @@ proto_item_get_len(proto_item *pi)
 }
 
 gboolean
-proto_item_set_expert_flags(proto_item *pi, int group, guint severity)
+proto_item_set_expert_flags(proto_item *pi, const int group, const guint severity)
 {
 	if(pi == NULL || PITEM_FINFO(pi) == NULL)
 		return FALSE;
@@ -3632,7 +3632,7 @@ proto_tree_create_root(void)
 /* "prime" a proto_tree with a single hfid that a dfilter
  * is interested in. */
 void
-proto_tree_prime_hfid(proto_tree *tree _U_, gint hfid)
+proto_tree_prime_hfid(proto_tree *tree _U_, const gint hfid)
 {
 	header_field_info *hfinfo;
 
@@ -3658,7 +3658,7 @@ proto_tree_prime_hfid(proto_tree *tree _U_, gint hfid)
 }
 
 proto_tree*
-proto_item_add_subtree(proto_item *pi,	gint idx) {
+proto_item_add_subtree(proto_item *pi,	const gint idx) {
 	field_info *fi;
 
 	if (!pi)
@@ -3676,7 +3676,7 @@ proto_item_add_subtree(proto_item *pi,	gint idx) {
 }
 
 proto_tree*
-proto_item_get_subtree(proto_item *pi) {
+proto_item_get_subtree(const proto_item *pi) {
 	field_info *fi;
 
 	if (!pi)
@@ -3688,7 +3688,7 @@ proto_item_get_subtree(proto_item *pi) {
 }
 
 proto_item*
-proto_item_get_parent(proto_item *ti) {
+proto_item_get_parent(const proto_item *ti) {
 	if (!ti)
 		return (NULL);
 	return ti->parent;
@@ -3708,7 +3708,7 @@ proto_item_get_parent_nth(proto_item *ti, int gen) {
 
 
 proto_item*
-proto_tree_get_parent(proto_tree *tree) {
+proto_tree_get_parent(const proto_tree *tree) {
 	if (!tree)
 		return (NULL);
 	return (proto_item*) tree;
@@ -3771,7 +3771,7 @@ proto_tree_move_item(proto_tree *tree, proto_item *fixed_item, proto_item *item_
 }
 
 void
-proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint start, gint length)
+proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint start, const gint length)
 {
 	field_info *fi;
 
@@ -3890,7 +3890,7 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
 }
 
 void
-proto_mark_private(int proto_id)
+proto_mark_private(const int proto_id)
 {
 	protocol_t *protocol = find_protocol_by_id(proto_id);
 	if (protocol)
@@ -3898,7 +3898,7 @@ proto_mark_private(int proto_id)
 }
 
 gboolean
-proto_is_private(int proto_id)
+proto_is_private(const int proto_id)
 {
 	protocol_t *protocol = find_protocol_by_id(proto_id);
 	if (protocol)
@@ -3941,7 +3941,7 @@ proto_get_next_protocol(void **cookie)
 }
 
 header_field_info *
-proto_get_first_protocol_field(int proto_id, void **cookie)
+proto_get_first_protocol_field(const int proto_id, void **cookie)
 {
 	protocol_t *protocol = find_protocol_by_id(proto_id);
 	hf_register_info *ptr;
@@ -3970,7 +3970,7 @@ proto_get_next_protocol_field(void **cookie)
 }
 
 protocol_t *
-find_protocol_by_id(int proto_id)
+find_protocol_by_id(const int proto_id)
 {
 	header_field_info *hfinfo;
 
@@ -3992,7 +3992,7 @@ static gint compare_filter_name(gconstpointer proto_arg,
 }
 
 int
-proto_get_id(protocol_t *protocol)
+proto_get_id(const protocol_t *protocol)
 {
 	return protocol->proto_id;
 }
@@ -4012,7 +4012,7 @@ int proto_get_id_by_filter_name(const gchar* filter_name)
 }
 
 const char *
-proto_get_protocol_name(int proto_id)
+proto_get_protocol_name(const int proto_id)
 {
 	protocol_t *protocol;
 
@@ -4021,7 +4021,7 @@ proto_get_protocol_name(int proto_id)
 }
 
 const char *
-proto_get_protocol_short_name(protocol_t *protocol)
+proto_get_protocol_short_name(const protocol_t *protocol)
 {
 	if (protocol == NULL)
 		return "(none)";
@@ -4029,7 +4029,7 @@ proto_get_protocol_short_name(protocol_t *protocol)
 }
 
 const char *
-proto_get_protocol_long_name(protocol_t *protocol)
+proto_get_protocol_long_name(const protocol_t *protocol)
 {
 	if (protocol == NULL)
 		return "(none)";
@@ -4037,7 +4037,7 @@ proto_get_protocol_long_name(protocol_t *protocol)
 }
 
 const char *
-proto_get_protocol_filter_name(int proto_id)
+proto_get_protocol_filter_name(const int proto_id)
 {
 	protocol_t *protocol;
 
@@ -4048,13 +4048,13 @@ proto_get_protocol_filter_name(int proto_id)
 }
 
 gboolean
-proto_is_protocol_enabled(protocol_t *protocol)
+proto_is_protocol_enabled(const protocol_t *protocol)
 {
 	return protocol->is_enabled;
 }
 
 gboolean
-proto_can_toggle_protocol(int proto_id)
+proto_can_toggle_protocol(const int proto_id)
 {
 	protocol_t *protocol;
 
@@ -4063,7 +4063,7 @@ proto_can_toggle_protocol(int proto_id)
 }
 
 void
-proto_set_decoding(int proto_id, gboolean enabled)
+proto_set_decoding(const int proto_id, const gboolean enabled)
 {
 	protocol_t *protocol;
 
@@ -4090,7 +4090,7 @@ proto_enable_all(void)
 }
 
 void
-proto_set_cant_toggle(int proto_id)
+proto_set_cant_toggle(const int proto_id)
 {
 	protocol_t *protocol;
 
@@ -4101,7 +4101,7 @@ proto_set_cant_toggle(int proto_id)
 /* for use with static arrays only, since we don't allocate our own copies
 of the header_field_info struct contained within the hf_register_info struct */
 void
-proto_register_field_array(int parent, hf_register_info *hf, int num_records)
+proto_register_field_array(const int parent, hf_register_info *hf, const int num_records)
 {
 	int			field_id, i;
 	hf_register_info	*ptr = hf;
@@ -4244,7 +4244,7 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 }
 
 static int
-proto_register_field_init(header_field_info *hfinfo, int parent)
+proto_register_field_init(header_field_info *hfinfo, const int parent)
 {
 
 	tmp_fld_check_assert(hfinfo);
@@ -4324,7 +4324,7 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 }
 
 void
-proto_register_subtree_array(gint *const *indices, int num_indices)
+proto_register_subtree_array(gint *const *indices, const int num_indices)
 {
 	int	i;
 	gint	*const *ptr = indices;
@@ -4786,7 +4786,7 @@ fill_label_int64(field_info *fi, gchar *label_str)
 }
 
 int
-hfinfo_bitwidth(header_field_info *hfinfo)
+hfinfo_bitwidth(const header_field_info *hfinfo)
 {
 	int bitwidth = 0;
 
@@ -4822,7 +4822,7 @@ hfinfo_bitwidth(header_field_info *hfinfo)
 }
 
 static const char*
-hfinfo_uint_vals_format(header_field_info *hfinfo)
+hfinfo_uint_vals_format(const header_field_info *hfinfo)
 {
 	const char *format = NULL;
 
@@ -4866,7 +4866,7 @@ hfinfo_uint_vals_format(header_field_info *hfinfo)
 }
 
 static const char*
-hfinfo_uint_format(header_field_info *hfinfo)
+hfinfo_uint_format(const header_field_info *hfinfo)
 {
 	const char *format = NULL;
 
@@ -4950,7 +4950,7 @@ hfinfo_uint_format(header_field_info *hfinfo)
 }
 
 static const char*
-hfinfo_uint_value_format(header_field_info *hfinfo)
+hfinfo_uint_value_format(const header_field_info *hfinfo)
 {
 	const char *format = NULL;
 
@@ -5034,7 +5034,7 @@ hfinfo_uint_value_format(header_field_info *hfinfo)
 }
 
 static const char*
-hfinfo_int_vals_format(header_field_info *hfinfo)
+hfinfo_int_vals_format(const header_field_info *hfinfo)
 {
 	const char *format = NULL;
 
@@ -5078,7 +5078,7 @@ hfinfo_int_vals_format(header_field_info *hfinfo)
 }
 
 static const char*
-hfinfo_uint64_format(header_field_info *hfinfo)
+hfinfo_uint64_format(const header_field_info *hfinfo)
 {
 	const char *format = NULL;
 
@@ -5107,7 +5107,7 @@ hfinfo_uint64_format(header_field_info *hfinfo)
 }
 
 static const char*
-hfinfo_int_format(header_field_info *hfinfo)
+hfinfo_int_format(const header_field_info *hfinfo)
 {
 	const char *format = NULL;
 
@@ -5184,7 +5184,7 @@ hfinfo_int_format(header_field_info *hfinfo)
 }
 
 static const char*
-hfinfo_int_value_format(header_field_info *hfinfo)
+hfinfo_int_value_format(const header_field_info *hfinfo)
 {
 	const char *format = NULL;
 
@@ -5261,7 +5261,7 @@ hfinfo_int_value_format(header_field_info *hfinfo)
 }
 
 static const char*
-hfinfo_int64_format(header_field_info *hfinfo)
+hfinfo_int64_format(const header_field_info *hfinfo)
 {
 	const char *format = NULL;
 
@@ -5296,7 +5296,7 @@ proto_registrar_n(void)
 }
 
 const char*
-proto_registrar_get_name(int n)
+proto_registrar_get_name(const int n)
 {
 	header_field_info *hfinfo;
 
@@ -5305,7 +5305,7 @@ proto_registrar_get_name(int n)
 }
 
 const char*
-proto_registrar_get_abbrev(int n)
+proto_registrar_get_abbrev(const int n)
 {
 	header_field_info *hfinfo;
 
@@ -5314,7 +5314,7 @@ proto_registrar_get_abbrev(int n)
 }
 
 int
-proto_registrar_get_ftype(int n)
+proto_registrar_get_ftype(const int n)
 {
 	header_field_info *hfinfo;
 
@@ -5323,7 +5323,7 @@ proto_registrar_get_ftype(int n)
 }
 
 int
-proto_registrar_get_parent(int n)
+proto_registrar_get_parent(const int n)
 {
 	header_field_info *hfinfo;
 
@@ -5332,7 +5332,7 @@ proto_registrar_get_parent(int n)
 }
 
 gboolean
-proto_registrar_is_protocol(int n)
+proto_registrar_is_protocol(const int n)
 {
 	header_field_info *hfinfo;
 
@@ -5345,7 +5345,7 @@ proto_registrar_is_protocol(int n)
  * 0 means undeterminable at time of registration
  * -1 means the field is not registered. */
 gint
-proto_registrar_get_length(int n)
+proto_registrar_get_length(const int n)
 {
 	header_field_info *hfinfo;
 
@@ -5356,7 +5356,7 @@ proto_registrar_get_length(int n)
 /* Looks for a protocol or a field in a proto_tree. Returns TRUE if
  * it exists anywhere, or FALSE if it exists nowhere. */
 gboolean
-proto_check_for_protocol_or_field(proto_tree* tree, int id)
+proto_check_for_protocol_or_field(const proto_tree* tree, const int id)
 {
 	GPtrArray *ptrs = proto_get_finfo_ptr_array(tree, id);
 
@@ -5377,7 +5377,7 @@ proto_check_for_protocol_or_field(proto_tree* tree, int id)
  * The caller should *not* free the GPtrArray*; proto_tree_free_node()
  * handles that. */
 GPtrArray*
-proto_get_finfo_ptr_array(proto_tree *tree, int id)
+proto_get_finfo_ptr_array(const proto_tree *tree, const int id)
 {
 	if (!tree)
 		return NULL;
@@ -5390,7 +5390,7 @@ proto_get_finfo_ptr_array(proto_tree *tree, int id)
 }
 
 gboolean
-proto_tracking_interesting_fields(proto_tree *tree)
+proto_tracking_interesting_fields(const proto_tree *tree)
 {
 	if (!tree)
 		return FALSE;
@@ -5426,7 +5426,7 @@ find_finfo(proto_node *node, gpointer data)
 * g_ptr_array_free(<array>, TRUE).
 */
 GPtrArray*
-proto_find_finfo(proto_tree *tree, int id)
+proto_find_finfo(proto_tree *tree, const int id)
 {
 	ffdata_t	ffdata;
 
@@ -5473,7 +5473,7 @@ typedef struct {
 } offset_search_t;
 
 static gboolean
-check_for_offset(proto_node *node, gpointer data)
+check_for_offset(proto_node *node, const gpointer data)
 {
 	field_info			*fi = PNODE_FINFO(node);
 	offset_search_t		*offsearch = data;
@@ -5728,7 +5728,7 @@ proto_registrar_dump_values(void)
  * Field 8 = bitmask: format: hex: 0x....
  */
 void
-proto_registrar_dump_fields(int format)
+proto_registrar_dump_fields(const int format)
 {
 	header_field_info	*hfinfo, *parent_hfinfo;
 	int			i, len;
@@ -5848,7 +5848,7 @@ proto_registrar_dump_fields(int format)
 }
 
 static const char*
-hfinfo_numeric_format(header_field_info *hfinfo)
+hfinfo_numeric_format(const header_field_info *hfinfo)
 {
 	const char *format = NULL;
 
@@ -6188,8 +6188,8 @@ proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt)
  *	proto_tree_add_bitmask_text() functions.
  */
 static gboolean
-proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, int offset, int len, gint ett,
-	const int **fields, gboolean little_endian, int flags, gboolean first)
+proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset, const int len, const gint ett,
+	const int **fields, const gboolean little_endian, const int flags, gboolean first)
 {
 	guint32 value = 0, tmpval;
 	proto_tree *tree = NULL;
@@ -6324,8 +6324,8 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, int offset, int len
  * matched string displayed on the expansion line.
  */
 proto_item *
-proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb, guint offset, int hf_hdr,
-		gint ett, const int **fields, gboolean little_endian)
+proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb, const guint offset, const int hf_hdr,
+		const gint ett, const int **fields, const gboolean little_endian)
 {
 	proto_item *item = NULL;
 	header_field_info *hf;
@@ -6346,9 +6346,9 @@ proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb, guint offset, int
 
 /* The same as proto_tree_add_bitmask(), but using an arbitrary text as a top-level item */
 proto_item *
-proto_tree_add_bitmask_text(proto_tree *parent_tree, tvbuff_t *tvb, guint offset, guint len,
+proto_tree_add_bitmask_text(proto_tree *parent_tree, tvbuff_t *tvb, const guint offset, const guint len,
 		const char *name, const char *fallback,
-		gint ett, const int **fields, gboolean little_endian, int flags)
+		const gint ett, const int **fields, const gboolean little_endian, const int flags)
 {
 	proto_item *item = NULL;
 
@@ -6365,7 +6365,7 @@ proto_tree_add_bitmask_text(proto_tree *parent_tree, tvbuff_t *tvb, guint offset
 }
 
 proto_item *
-proto_tree_add_bits_item(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian)
+proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const gboolean little_endian)
 {
 	header_field_info	*hfinfo;
 
@@ -6381,7 +6381,7 @@ proto_tree_add_bits_item(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
  */
 
 proto_item *
-proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint64 *return_value, gboolean little_endian)
+proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, guint64 *return_value, const gboolean little_endian)
 {
 	const char *format = NULL;
 	gint	offset;
@@ -6497,7 +6497,7 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 }
 
 proto_item *
-proto_tree_add_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, void *value_ptr, gchar *value_str)
+proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, void *value_ptr, gchar *value_str)
 {
 	gint	offset;
 	guint	length;
@@ -6599,7 +6599,7 @@ proto_tree_add_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, 
 	va_end(ap);
 
 proto_item *
-proto_tree_add_uint_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits,
+proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits,
 	guint32 value, const char *format, ...)
 {
 	va_list ap;
@@ -6627,7 +6627,7 @@ proto_tree_add_uint_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *
 }
 
 proto_item *
-proto_tree_add_float_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits,
+proto_tree_add_float_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits,
 	float value, const char *format, ...)
 {
 	va_list ap;
@@ -6644,7 +6644,7 @@ proto_tree_add_float_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t 
 }
 
 proto_item *
-proto_tree_add_int_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits,
+proto_tree_add_int_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits,
 	gint32 value, const char *format, ...)
 {
 	va_list ap;
@@ -6672,7 +6672,7 @@ proto_tree_add_int_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *t
 }
 
 proto_item *
-proto_tree_add_boolean_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits,
+proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits,
 	guint32 value, const char *format, ...)
 {
 	va_list ap;

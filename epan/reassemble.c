@@ -246,7 +246,7 @@ free_all_fragments(gpointer key_arg, gpointer value, gpointer user_data _U_)
 }
 
 /* ------------------------- */
-static fragment_data *new_head(guint32 flags)
+static fragment_data *new_head(const guint32 flags)
 {
 	fragment_data *fd_head;
 	/* If head/first structure in list only holds no other data than
@@ -413,7 +413,7 @@ reassemble_init(void)
  * g_free() that buffer.
  */
 unsigned char *
-fragment_delete(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
+fragment_delete(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table)
 {
 	fragment_data *fd_head, *fd;
 	fragment_key key;
@@ -460,7 +460,7 @@ fragment_delete(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
  * matching this packet. I.e. Is there reassembly going on or not for this packet?
  */
 fragment_data *
-fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
+fragment_get(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table)
 {
 	fragment_data *fd_head;
 	fragment_key key;
@@ -477,7 +477,7 @@ fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
 
 /* id *must* be the frame number for this to work! */
 fragment_data *
-fragment_get_reassembled(packet_info *pinfo _U_, guint32 id, GHashTable *reassembled_table)
+fragment_get_reassembled(const guint32 id, GHashTable *reassembled_table)
 {
 	fragment_data *fd_head;
 	reassembled_key key;
@@ -491,7 +491,7 @@ fragment_get_reassembled(packet_info *pinfo _U_, guint32 id, GHashTable *reassem
 }
 
 fragment_data *
-fragment_get_reassembled_id(packet_info *pinfo, guint32 id, GHashTable *reassembled_table)
+fragment_get_reassembled_id(const packet_info *pinfo, const guint32 id, GHashTable *reassembled_table)
 {
 	fragment_data *fd_head;
 	reassembled_key key;
@@ -519,8 +519,8 @@ fragment_get_reassembled_id(packet_info *pinfo, guint32 id, GHashTable *reassemb
  * actually means we want to defragment 3 blocks, block 0, 1 and 2.
  */
 void
-fragment_set_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
-			 guint32 tot_len)
+fragment_set_tot_len(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table,
+			 const guint32 tot_len)
 {
 	fragment_data *fd_head;
 	fragment_key key;
@@ -541,7 +541,7 @@ fragment_set_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
 }
 
 guint32
-fragment_get_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
+fragment_get_tot_len(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table)
 {
 	fragment_data *fd_head;
 	fragment_key key;
@@ -570,7 +570,7 @@ fragment_get_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
 */
 
 void
-fragment_set_partial_reassembly(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
+fragment_set_partial_reassembly(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table)
 {
 	fragment_data *fd_head;
 	fragment_key key;
@@ -634,8 +634,8 @@ fragment_unhash(GHashTable *fragment_table, fragment_key *key)
  * frame number.
  */
 static void
-fragment_reassembled(fragment_data *fd_head, packet_info *pinfo,
-		 GHashTable *reassembled_table, guint32 id)
+fragment_reassembled(fragment_data *fd_head, const packet_info *pinfo,
+		 GHashTable *reassembled_table, const guint32 id)
 {
 	reassembled_key *new_key;
 	fragment_data *fd;
@@ -687,9 +687,9 @@ fragment_reassembled(fragment_data *fd_head, packet_info *pinfo,
  * are lowered when a new extension process is started.
  */
 static gboolean
-fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
-		 packet_info *pinfo, guint32 frag_offset,
-		 guint32 frag_data_len, gboolean more_frags)
+fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
+		 const packet_info *pinfo, const guint32 frag_offset,
+		 const guint32 frag_data_len, const gboolean more_frags)
 {
 	fragment_data *fd;
 	fragment_data *fd_i;
@@ -914,10 +914,10 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 }
 
 static fragment_data *
-fragment_add_common(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
-		 GHashTable *fragment_table, guint32 frag_offset,
-		 guint32 frag_data_len, gboolean more_frags,
-		 gboolean check_already_added)
+fragment_add_common(tvbuff_t *tvb, const int offset, const packet_info *pinfo, const guint32 id,
+		 GHashTable *fragment_table, const guint32 frag_offset,
+		 const guint32 frag_data_len, const gboolean more_frags,
+		 const gboolean check_already_added)
 {
 	fragment_key key, *new_key;
 	fragment_data *fd_head;
@@ -1028,9 +1028,9 @@ fragment_add_common(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 }
 
 fragment_data *
-fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
-		 GHashTable *fragment_table, guint32 frag_offset,
-		 guint32 frag_data_len, gboolean more_frags)
+fragment_add(tvbuff_t *tvb, const int offset, const packet_info *pinfo, const guint32 id,
+		 GHashTable *fragment_table, const guint32 frag_offset,
+		 const guint32 frag_data_len, const gboolean more_frags)
 {
 	return fragment_add_common(tvb, offset, pinfo, id, fragment_table,
 		frag_offset, frag_data_len, more_frags, TRUE);
@@ -1041,20 +1041,20 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
  * to the same reassembled PDU, e.g. with ONC RPC-over-TCP.
  */
 fragment_data *
-fragment_add_multiple_ok(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			 guint32 id, GHashTable *fragment_table,
-			 guint32 frag_offset, guint32 frag_data_len,
-			 gboolean more_frags)
+fragment_add_multiple_ok(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
+			 const guint32 id, GHashTable *fragment_table,
+			 const guint32 frag_offset, const guint32 frag_data_len,
+			 const gboolean more_frags)
 {
 	return fragment_add_common(tvb, offset, pinfo, id, fragment_table,
 		frag_offset, frag_data_len, more_frags, FALSE);
 }
 
 fragment_data *
-fragment_add_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		 guint32 id, GHashTable *fragment_table,
-		 GHashTable *reassembled_table, guint32 frag_offset,
-		 guint32 frag_data_len, gboolean more_frags)
+fragment_add_check(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
+		 const guint32 id, GHashTable *fragment_table,
+		 GHashTable *reassembled_table, const guint32 frag_offset,
+		 const guint32 frag_data_len, const gboolean more_frags)
 {
 	reassembled_key reass_key;
 	fragment_key key, *new_key, *old_key;
@@ -1145,7 +1145,7 @@ fragment_add_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static void
 fragment_defragment_and_free (fragment_data *fd_head, fragment_data *fd,
-				  packet_info *pinfo)
+				  const packet_info *pinfo)
 {
 	fragment_data *fd_i = NULL;
 	fragment_data *last_fd = NULL;
@@ -1216,10 +1216,10 @@ fragment_defragment_and_free (fragment_data *fd_head, fragment_data *fd,
  * The bsn for the first block is 0.
  */
 static gboolean
-fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
-		 packet_info *pinfo, guint32 frag_number,
-		 guint32 frag_data_len, gboolean more_frags,
-		 guint32 flags _U_)
+fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
+		 const packet_info *pinfo, const guint32 frag_number,
+		 const guint32 frag_data_len, const gboolean more_frags,
+		 const guint32 flags _U_)
 {
 	fragment_data *fd;
 	fragment_data *fd_i;
@@ -1451,9 +1451,9 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
  * The bsn for the first block is 0.
  */
 fragment_data *
-fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
-		 GHashTable *fragment_table, guint32 frag_number,
-		 guint32 frag_data_len, gboolean more_frags)
+fragment_add_seq(tvbuff_t *tvb, const int offset, const packet_info *pinfo, const guint32 id,
+		 GHashTable *fragment_table, const guint32 frag_number,
+		 const guint32 frag_data_len, const gboolean more_frags)
 {
 	fragment_key key;
 
@@ -1470,10 +1470,10 @@ fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 
 
 fragment_data *
-fragment_add_dcerpc_dg(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
+fragment_add_dcerpc_dg(tvbuff_t *tvb, int offset, const packet_info *pinfo, const guint32 id,
 					void *v_act_id,
-					GHashTable *fragment_table, guint32 frag_number,
-					guint32 frag_data_len, gboolean more_frags)
+					GHashTable *fragment_table, const guint32 frag_number,
+					const guint32 frag_data_len, const gboolean more_frags)
 {
 	e_uuid_t *act_id = (e_uuid_t *)v_act_id;
 	dcerpc_fragment_key key;
@@ -1491,11 +1491,11 @@ fragment_add_dcerpc_dg(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id
 }
 
 fragment_data *
-fragment_add_seq_key(tvbuff_t *tvb, int offset, packet_info *pinfo,
+fragment_add_seq_key(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
 					 void *key, fragment_key_copier key_copier,
 					GHashTable *fragment_table, guint32 frag_number,
-					guint32 frag_data_len, gboolean more_frags,
-					guint32 flags)
+					const guint32 frag_data_len, const gboolean more_frags,
+					const guint32 flags)
 {
 	fragment_data *fd_head;
 	fd_head = g_hash_table_lookup(fragment_table, key);
@@ -1645,11 +1645,11 @@ fragment_add_seq_key(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * XXX - Should we simply return NULL for zero-length fragments?
  */
 static fragment_data *
-fragment_add_seq_check_work(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		 guint32 id, GHashTable *fragment_table,
-		 GHashTable *reassembled_table, guint32 frag_number,
-		 guint32 frag_data_len, gboolean more_frags,
-		 guint32 flags)
+fragment_add_seq_check_work(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
+		 const guint32 id, GHashTable *fragment_table,
+		 GHashTable *reassembled_table, const guint32 frag_number,
+		 const guint32 frag_data_len, const gboolean more_frags,
+		 const guint32 flags)
 {
 	reassembled_key reass_key;
 	fragment_key key;
@@ -1713,10 +1713,10 @@ fragment_add_seq_check_work(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 fragment_data *
-fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		 guint32 id, GHashTable *fragment_table,
-		 GHashTable *reassembled_table, guint32 frag_number,
-		 guint32 frag_data_len, gboolean more_frags)
+fragment_add_seq_check(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
+		 const guint32 id, GHashTable *fragment_table,
+		 GHashTable *reassembled_table, const guint32 frag_number,
+		 const guint32 frag_data_len, const gboolean more_frags)
 {
 	return fragment_add_seq_check_work(tvb, offset, pinfo, id,
 		fragment_table, reassembled_table, frag_number, frag_data_len,
@@ -1746,8 +1746,8 @@ fragment_add_seq_next(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 void
-fragment_start_seq_check(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
-			 guint32 tot_len)
+fragment_start_seq_check(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table,
+			 const guint32 tot_len)
 {
 	fragment_key key, *new_key;
 	fragment_data *fd_head;
@@ -1790,7 +1790,7 @@ fragment_start_seq_check(packet_info *pinfo, guint32 id, GHashTable *fragment_ta
 }
 
 fragment_data *
-fragment_end_seq_next(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
+fragment_end_seq_next(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table,
 			  GHashTable *reassembled_table)
 {
 	reassembled_key reass_key;
@@ -1869,7 +1869,7 @@ fragment_end_seq_next(packet_info *pinfo, guint32 id, GHashTable *fragment_table
  * just put a "reassembled in" item into the protocol tree.
  */
 tvbuff_t *
-process_reassembled_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
+process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 	const char *name, fragment_data *fd_head, const fragment_items *fit,
 	gboolean *update_col_infop, proto_tree *tree)
 {
@@ -1953,8 +1953,8 @@ process_reassembled_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * it in the top-level item for that subtree.
  */
 static void
-show_fragment(fragment_data *fd, int offset, const fragment_items *fit,
-	proto_tree *ft, proto_item *fi, gboolean first_frag, tvbuff_t *tvb)
+show_fragment(fragment_data *fd, const int offset, const fragment_items *fit,
+	proto_tree *ft, proto_item *fi, const gboolean first_frag, tvbuff_t *tvb)
 {
 	proto_item *fei=NULL;
 	int hf;

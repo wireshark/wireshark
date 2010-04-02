@@ -2621,7 +2621,7 @@ static int rounded4(int n)
 
 /* We assume the order to be consistent, until proven wrong. */
 
-static gboolean consistentWithOrder(int length, tvbuff_t *tvb, int offset, guint16 (*v16)(tvbuff_t *, gint))
+static gboolean consistentWithOrder(int length, tvbuff_t *tvb, int offset, guint16 (*v16)(tvbuff_t *, const gint))
 {
       switch(tvb_get_guint8(tvb, offset)) {
 	  case X_CreateWindow:
@@ -2837,7 +2837,7 @@ static gboolean consistentWithOrder(int length, tvbuff_t *tvb, int offset, guint
 
 /* -1 means doesn't match, +1 means match, 0 means don't know */
 
-static int x_endian_match(tvbuff_t *tvb, guint16 (*v16)(tvbuff_t *, gint))
+static int x_endian_match(tvbuff_t *tvb, guint16 (*v16)(tvbuff_t *, const gint))
 {
       int offset, nextoffset;
       int atLeastOne = 0;
