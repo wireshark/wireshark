@@ -756,13 +756,13 @@ int main(int argc, char **argv) {
 			return 1;
 	}
 
-	d = wimaxasncp_dict_scan(dname,fname,1);
+	d = wimaxasncp_dict_scan(dname,fname,1,&dict_error);
 
-        if (dict_error)
-        {
-                printf("wimaxasncp - %s", dict_error);
-                g_free(dict_error);
-        }
+	if (dict_error)
+	{
+		printf("wimaxasncp - %s", dict_error);
+		g_free(dict_error);
+	}
 
 	wimaxasncp_dict_print(stdout, d);
 
