@@ -35,19 +35,19 @@ typedef struct _fmt_data {
   gchar *custom_field;
 } fmt_data;
 
-const gchar         *col_format_to_string(const gint);
-const gchar         *col_format_desc(const gint);
-gint                 get_column_format(const gint);
-void                 get_column_format_matches(gboolean *, const gint);
-gint                 get_column_format_from_str(const gchar *);
-gchar               *get_column_title(const gint);
-const gchar         *get_column_custom_field(const gint);
-const gchar         *get_column_width_string(const gint, const gint);
-const char          *get_column_longest_string(const gint);
-gint                 get_column_char_width(const gint format);
+const gchar         *col_format_to_string(gint);
+const gchar         *col_format_desc(gint);
+gint                 get_column_format(gint);
+void                 get_column_format_matches(gboolean *, gint);
+gint                 get_column_format_from_str(gchar *);
+gchar               *get_column_title(gint);
+const gchar         *get_column_custom_field(gint);
+const gchar         *get_column_width_string(gint, gint);
+const char          *get_column_longest_string(gint);
+gint                 get_column_char_width(gint format);
 
 void
-build_column_format_array(column_info *cinfo, const gint num_cols, const gboolean reset_fences);
+build_column_format_array(column_info *cinfo, gint num_cols, gboolean reset_fences);
 
 #ifdef __cplusplus
 }

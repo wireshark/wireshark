@@ -191,6 +191,6 @@
 #define IP_PROTO_NCS_HEARTBEAT  224             /* Novell NCS Heartbeat - http://support.novell.com/cgi-bin/search/searchtid.cgi?/10071158.htm */
 
 extern const value_string ipproto_val[];
-extern const char *ipprotostr(const int proto);
+extern const char *ipprotostr(int proto);
 
 #endif /* ipproto.h */

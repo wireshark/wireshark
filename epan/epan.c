@@ -150,7 +150,7 @@ epan_circuit_cleanup(void)
 }
 
 epan_dissect_t*
-epan_dissect_init(epan_dissect_t	*edt, const gboolean create_proto_tree, const gboolean proto_tree_visible)
+epan_dissect_init(epan_dissect_t	*edt, gboolean create_proto_tree, gboolean proto_tree_visible)
 {
 	g_assert(edt);
 
@@ -166,7 +166,7 @@ epan_dissect_init(epan_dissect_t	*edt, const gboolean create_proto_tree, const g
 }
 
 epan_dissect_t*
-epan_dissect_new(const gboolean create_proto_tree, const gboolean proto_tree_visible)
+epan_dissect_new(gboolean create_proto_tree, gboolean proto_tree_visible)
 {
 	epan_dissect_t	*edt;
 
@@ -176,7 +176,7 @@ epan_dissect_new(const gboolean create_proto_tree, const gboolean proto_tree_vis
 }
 
 void
-epan_dissect_fake_protocols(epan_dissect_t *edt, const gboolean fake_protocols)
+epan_dissect_fake_protocols(epan_dissect_t *edt, gboolean fake_protocols)
 {
 	if (edt)
 		proto_tree_set_fake_protocols(edt->tree, fake_protocols);
@@ -227,13 +227,13 @@ epan_dissect_prime_dfilter(epan_dissect_t *edt, const dfilter_t* dfcode)
 const gchar *
 epan_custom_set(epan_dissect_t *edt, int field_id,
                              gchar *result,
-                             gchar *expr, const int size )
+                             gchar *expr, int size )
 {
     return proto_custom_set(edt->tree, field_id, result, expr, size);
 }
 
 void
-epan_dissect_fill_in_columns(epan_dissect_t *edt, const gboolean fill_col_exprs, const gboolean fill_fd_colums)
+epan_dissect_fill_in_columns(epan_dissect_t *edt, gboolean fill_col_exprs, gboolean fill_fd_colums)
 {
     col_custom_set_edt(edt, edt->pi.cinfo);
     col_fill_in(&edt->pi, fill_col_exprs, fill_fd_colums);

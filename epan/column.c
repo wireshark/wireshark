@@ -179,7 +179,7 @@ static const gchar *dlist[NUM_COL_FMTS] = {
 };
 
 const gchar *
-col_format_desc(const gint fmt) {
+col_format_desc(gint fmt) {
   g_assert((fmt >= 0) && (fmt < NUM_COL_FMTS));
   return(dlist[fmt]);
 }
@@ -187,7 +187,7 @@ col_format_desc(const gint fmt) {
 /* Marks each array element true if it can be substituted for the given
    column format */
 void
-get_column_format_matches(gboolean *fmt_list, const gint format) {
+get_column_format_matches(gboolean *fmt_list, gint format) {
 
   /* Get the obvious: the format itself */
   if ((format >= 0) && (format < NUM_COL_FMTS))
@@ -311,7 +311,7 @@ get_column_format_matches(gboolean *fmt_list, const gint format) {
 /* Returns a string representing the longest possible value for
    a timestamp column type. */
 static const char *
-get_timestamp_column_longest_string(const gint type, const gint precision)
+get_timestamp_column_longest_string(gint type, gint precision)
 {
 
     switch(type) {
@@ -452,7 +452,7 @@ get_timestamp_column_longest_string(const gint type, const gint precision)
 /* Returns the longer string of the column title or the hard-coded width of
  * its contents for building the packet list layout. */
 const gchar *
-get_column_width_string(const gint format, const gint col)
+get_column_width_string(gint format, gint col)
 {
     if(strlen(get_column_longest_string(format)) >
        strlen(get_column_title(col)))
@@ -474,7 +474,7 @@ get_column_width_string(const gint format, const gint col)
    is somewhat arbitrary in any case.  We should probably clean
    that up eventually, though. */
 const char *
-get_column_longest_string(const gint format)
+get_column_longest_string(gint format)
 {
   switch (format) {
     case COL_NUMBER:
@@ -610,13 +610,13 @@ get_column_longest_string(const gint format)
 /* Returns the longest possible width, in characters, for a particular
    column type. */
 gint
-get_column_char_width(const gint format)
+get_column_char_width(gint format)
 {
   return (gint)strlen(get_column_longest_string(format));
 }
 
 gint
-get_column_format(const gint col)
+get_column_format(gint col)
 {
   GList    *clp = g_list_nth(prefs.col_list, col);
   fmt_data *cfmt;
@@ -630,7 +630,7 @@ get_column_format(const gint col)
 }
 
 gint
-get_column_format_from_str(const gchar *str)
+get_column_format_from_str(gchar *str)
 {
   gint i;
 
@@ -642,7 +642,7 @@ get_column_format_from_str(const gchar *str)
 }
 
 gchar *
-get_column_title(const gint col)
+get_column_title(gint col)
 {
   GList    *clp = g_list_nth(prefs.col_list, col);
   fmt_data *cfmt;
@@ -656,7 +656,7 @@ get_column_title(const gint col)
 }
 
 const gchar *
-get_column_custom_field(const gint col)
+get_column_custom_field(gint col)
 {
   GList    *clp = g_list_nth(prefs.col_list, col);
   fmt_data *cfmt;
@@ -670,7 +670,7 @@ get_column_custom_field(const gint col)
 }
 
 void
-build_column_format_array(column_info *cinfo, const gint num_cols, const gboolean reset_fences)
+build_column_format_array(column_info *cinfo, gint num_cols, gboolean reset_fences)
 {
   int i;
 

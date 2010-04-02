@@ -80,28 +80,28 @@ typedef struct conversation {
 extern void conversation_cleanup(void);
 extern void conversation_init(void);
 
-extern conversation_t *conversation_new(const guint32 setup_frame, const address *addr1, const address *addr2,
-    const port_type ptype, const guint32 port1, const guint32 port2, const guint options);
+extern conversation_t *conversation_new(guint32 setup_frame, address *addr1, address *addr2,
+    port_type ptype, guint32 port1, guint32 port2, guint options);
 
-extern conversation_t *find_conversation(const guint32 frame_num, const address *addr_a, const address *addr_b,
-    const port_type ptype, const guint32 port_a, const guint32 port_b, const guint options);
+extern conversation_t *find_conversation(guint32 frame_num, address *addr_a, address *addr_b,
+    port_type ptype, guint32 port_a, guint32 port_b, guint options);
 
-extern void conversation_add_proto_data(conversation_t *conv, const int proto,
+extern void conversation_add_proto_data(conversation_t *conv, int proto,
     void *proto_data);
-extern void *conversation_get_proto_data(const conversation_t *conv, const int proto);
-extern void conversation_delete_proto_data(conversation_t *conv, const int proto);
+extern void *conversation_get_proto_data(conversation_t *conv, int proto);
+extern void conversation_delete_proto_data(conversation_t *conv, int proto);
 
 extern void conversation_set_dissector(conversation_t *conversation,
-    const dissector_handle_t handle);
+    dissector_handle_t handle);
 extern gboolean
-try_conversation_dissector(const address *addr_a, const address *addr_b, const port_type ptype,
-    const guint32 port_a, const guint32 port_b, tvbuff_t *tvb, packet_info *pinfo,
+try_conversation_dissector(address *addr_a, address *addr_b, port_type ptype,
+    guint32 port_a, guint32 port_b, tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree);
 
 /* These routines are used to set undefined values for a conversation */
 
-extern void conversation_set_port2(conversation_t *conv, const guint32 port);
-extern void conversation_set_addr2(conversation_t *conv, const address *addr);
+extern void conversation_set_port2(conversation_t *conv, guint32 port);
+extern void conversation_set_addr2(conversation_t *conv, address *addr);
 
 #ifdef __cplusplus
 }

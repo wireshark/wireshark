@@ -187,7 +187,7 @@ const value_string ipproto_val[] = {
     { 0,		NULL },
 };
 
-const char *ipprotostr(const int proto) {
+const char *ipprotostr(int proto) {
     const char *s;
 
     if ((s = match_strval(proto, ipproto_val)) != NULL)

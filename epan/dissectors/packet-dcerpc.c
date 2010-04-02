@@ -3163,7 +3163,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
        then exit
     */
     if(pinfo->fd->flags.visited){
-	fd_head=fragment_get_reassembled(frame, dcerpc_co_reassemble_table);
+	fd_head=fragment_get_reassembled(pinfo, frame, dcerpc_co_reassemble_table);
 	goto end_cn_stub;
     }
 

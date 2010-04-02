@@ -52,11 +52,11 @@
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
 
 static const guint8*
-ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint length,
+ensure_contiguous_no_exception(tvbuff_t *tvb, gint offset, gint length,
 		int *exception);
 
 static const guint8*
-ensure_contiguous(tvbuff_t *tvb, const gint offset, const gint length);
+ensure_contiguous(tvbuff_t *tvb, gint offset, gint length);
 
 #if GLIB_CHECK_VERSION(2,10,0)
 #else
@@ -87,7 +87,7 @@ tvbuff_cleanup(void)
 }
 
 static void
-tvb_init(tvbuff_t *tvb, const tvbuff_type type)
+tvb_init(tvbuff_t *tvb, tvbuff_type type)
 {
 	tvb_backing_t	*backing;
 	tvb_comp_t	*composite;
@@ -130,7 +130,7 @@ tvb_init(tvbuff_t *tvb, const tvbuff_type type)
 
 
 tvbuff_t*
-tvb_new(const tvbuff_type type)
+tvb_new(tvbuff_type type)
 {
 	tvbuff_t	*tvb;
 
@@ -146,7 +146,7 @@ tvb_new(const tvbuff_type type)
 }
 
 static tvbuff_t*
-tvb_new_with_subset(const guint subset_tvb_offset, const guint subset_tvb_length)
+tvb_new_with_subset(guint subset_tvb_offset, guint subset_tvb_length)
 {
 	tvbuff_t *tvb = tvb_new(TVBUFF_SUBSET);
 	tvb->tvbuffs.subset.offset = subset_tvb_offset;
@@ -217,7 +217,7 @@ tvb_free(tvbuff_t* tvb)
 }
 
 guint
-tvb_increment_usage_count(tvbuff_t* tvb, const guint count)
+tvb_increment_usage_count(tvbuff_t* tvb, guint count)
 {
 	tvb->usage_count += count;
 
@@ -225,7 +225,7 @@ tvb_increment_usage_count(tvbuff_t* tvb, const guint count)
 }
 
 guint
-tvb_decrement_usage_count(tvbuff_t* tvb, const guint count)
+tvb_decrement_usage_count(tvbuff_t* tvb, guint count)
 {
 	if (tvb->usage_count <= count) {
 		tvb->usage_count = 1;
@@ -256,7 +256,7 @@ tvb_free_chain(tvbuff_t* tvb)
 
 
 void
-tvb_set_free_cb(tvbuff_t* tvb, const tvbuff_free_cb_t func)
+tvb_set_free_cb(tvbuff_t* tvb, tvbuff_free_cb_t func)
 {
 	DISSECTOR_ASSERT(tvb);
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_REAL_DATA);
@@ -281,7 +281,7 @@ tvb_set_child_real_data_tvbuff(tvbuff_t* parent, tvbuff_t* child)
 }
 
 static void
-tvb_set_real_data_no_exceptions(tvbuff_t* tvb, const guint8* data, const guint length, const gint reported_length)
+tvb_set_real_data_no_exceptions(tvbuff_t* tvb, const guint8* data, guint length, gint reported_length)
 {
 	tvb->real_data = data;
 	tvb->length = length;
@@ -290,7 +290,7 @@ tvb_set_real_data_no_exceptions(tvbuff_t* tvb, const guint8* data, const guint l
 }
 
 void
-tvb_set_real_data(tvbuff_t* tvb, const guint8* data, const guint length, const gint reported_length)
+tvb_set_real_data(tvbuff_t* tvb, const guint8* data, guint length, gint reported_length)
 {
 	DISSECTOR_ASSERT(tvb);
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_REAL_DATA);
@@ -302,7 +302,7 @@ tvb_set_real_data(tvbuff_t* tvb, const guint8* data, const guint length, const g
 }
 
 tvbuff_t*
-tvb_new_real_data(const guint8* data, const guint length, const gint reported_length)
+tvb_new_real_data(const guint8* data, guint length, gint reported_length)
 {
 	tvbuff_t	*tvb;
 
@@ -322,7 +322,7 @@ tvb_new_real_data(const guint8* data, const guint length, const gint reported_le
 }
 
 tvbuff_t*
-tvb_new_child_real_data(tvbuff_t *parent, const guint8* data, const guint length, const gint reported_length)
+tvb_new_child_real_data(tvbuff_t *parent, const guint8* data, guint length, gint reported_length)
 {
 	tvbuff_t *tvb = tvb_new_real_data(data, length, reported_length);
 	if (tvb) {
@@ -346,7 +346,7 @@ tvb_new_child_real_data(tvbuff_t *parent, const guint8* data, const guint length
  * that gets an exception, so the error is reported as an error in that
  * protocol rather than the containing protocol.  */
 static gboolean
-compute_offset_length(const guint tvb_length_val, const guint tvb_reported_length_val, const gint offset, const gint length_val,
+compute_offset_length(guint tvb_length_val, guint tvb_reported_length_val, gint offset, gint length_val,
 		guint *offset_ptr, guint *length_ptr, int *exception)
 {
 	DISSECTOR_ASSERT(offset_ptr);
@@ -410,7 +410,7 @@ compute_offset_length(const guint tvb_length_val, const guint tvb_reported_lengt
 
 
 static gboolean
-check_offset_length_no_exception(const guint tvb_length_val, const guint tvb_reported_length_val, const gint offset, gint const length_val,
+check_offset_length_no_exception(guint tvb_length_val, guint tvb_reported_length_val, gint offset, gint length_val,
 		guint *offset_ptr, guint *length_ptr, int *exception)
 {
 	guint	end_offset;
@@ -460,7 +460,7 @@ check_offset_length_no_exception(const guint tvb_length_val, const guint tvb_rep
  * either is out of bounds. Sets integer ptrs to the new offset
  * and length. */
 static void
-check_offset_length(const guint tvb_length_val, const guint tvb_reported_length_val, const gint offset, gint const length_val,
+check_offset_length(guint tvb_length_val, guint tvb_reported_length_val, gint offset, gint length_val,
 		guint *offset_ptr, guint *length_ptr)
 {
 	int exception = 0;
@@ -472,7 +472,7 @@ check_offset_length(const guint tvb_length_val, const guint tvb_reported_length_
 }
 
 static void
-tvb_set_subset_no_exceptions(tvbuff_t *tvb, tvbuff_t *backing, const gint reported_length)
+tvb_set_subset_no_exceptions(tvbuff_t *tvb, tvbuff_t *backing, gint reported_length)
 {
 	tvb->tvbuffs.subset.tvb		= backing;
 	tvb->length			= tvb->tvbuffs.subset.length;
@@ -495,7 +495,7 @@ tvb_set_subset_no_exceptions(tvbuff_t *tvb, tvbuff_t *backing, const gint report
 
 void
 tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
-		const gint backing_offset, const gint backing_length, const gint reported_length)
+		gint backing_offset, gint backing_length, gint reported_length)
 {
 	DISSECTOR_ASSERT(tvb);
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_SUBSET);
@@ -511,7 +511,7 @@ tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
 }
 
 tvbuff_t*
-tvb_new_subset(tvbuff_t *backing, const gint backing_offset, const gint backing_length, const gint reported_length)
+tvb_new_subset(tvbuff_t *backing, gint backing_offset, gint backing_length, gint reported_length)
 {
 	tvbuff_t	*tvb;
 	guint		subset_tvb_offset;
@@ -539,7 +539,7 @@ tvb_new_subset(tvbuff_t *backing, const gint backing_offset, const gint backing_
 }
 
 tvbuff_t*
-tvb_new_subset_remaining(tvbuff_t *backing, const gint backing_offset)
+tvb_new_subset_remaining(tvbuff_t *backing, gint backing_offset)
 {
 	tvbuff_t	*tvb;
 	guint		subset_tvb_offset;
@@ -626,7 +626,7 @@ tvb_composite_finalize(tvbuff_t* tvb)
 
 
 guint
-tvb_length(const tvbuff_t* tvb)
+tvb_length(tvbuff_t* tvb)
 {
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -634,7 +634,7 @@ tvb_length(const tvbuff_t* tvb)
 }
 
 gint
-tvb_length_remaining(const tvbuff_t *tvb, const gint offset)
+tvb_length_remaining(tvbuff_t *tvb, gint offset)
 {
 	guint	abs_offset, abs_length;
 
@@ -649,7 +649,7 @@ tvb_length_remaining(const tvbuff_t *tvb, const gint offset)
 }
 
 guint
-tvb_ensure_length_remaining(const tvbuff_t *tvb, const gint offset)
+tvb_ensure_length_remaining(tvbuff_t *tvb, gint offset)
 {
 	guint	abs_offset, abs_length;
 	int	exception;
@@ -679,7 +679,7 @@ tvb_ensure_length_remaining(const tvbuff_t *tvb, const gint offset)
 /* Validates that 'length' bytes are available starting from
  * offset (pos/neg). Does not throw an exception. */
 gboolean
-tvb_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length)
+tvb_bytes_exist(tvbuff_t *tvb, gint offset, gint length)
 {
 	guint		abs_offset, abs_length;
 
@@ -699,7 +699,7 @@ tvb_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length)
 /* Validates that 'length' bytes are available starting from
  * offset (pos/neg). Throws an exception if they aren't. */
 void
-tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length)
+tvb_ensure_bytes_exist(tvbuff_t *tvb, gint offset, gint length)
 {
 	guint		abs_offset, abs_length;
 
@@ -722,7 +722,7 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length
 }
 
 gboolean
-tvb_offset_exists(const tvbuff_t *tvb, const gint offset)
+tvb_offset_exists(tvbuff_t *tvb, gint offset)
 {
 	guint		abs_offset, abs_length;
 
@@ -739,7 +739,7 @@ tvb_offset_exists(const tvbuff_t *tvb, const gint offset)
 }
 
 guint
-tvb_reported_length(const tvbuff_t* tvb)
+tvb_reported_length(tvbuff_t* tvb)
 {
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -747,7 +747,7 @@ tvb_reported_length(const tvbuff_t* tvb)
 }
 
 gint
-tvb_reported_length_remaining(const tvbuff_t *tvb, const gint offset)
+tvb_reported_length_remaining(tvbuff_t *tvb, gint offset)
 {
 	guint	abs_offset, abs_length;
 
@@ -771,7 +771,7 @@ tvb_reported_length_remaining(const tvbuff_t *tvb, const gint offset)
 
    Also adjusts the data length. */
 void
-tvb_set_reported_length(tvbuff_t* tvb, const guint reported_length)
+tvb_set_reported_length(tvbuff_t* tvb, guint reported_length)
 {
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -807,7 +807,7 @@ first_real_data_ptr(tvbuff_t *tvb)
 #endif
 
 static guint
-offset_from_real_beginning(const tvbuff_t *tvb, const guint counter)
+offset_from_real_beginning(tvbuff_t *tvb, guint counter)
 {
 	tvbuff_t	*member;
 
@@ -827,14 +827,14 @@ offset_from_real_beginning(const tvbuff_t *tvb, const guint counter)
 }
 
 guint
-tvb_offset_from_real_beginning(const tvbuff_t *tvb)
+tvb_offset_from_real_beginning(tvbuff_t *tvb)
 {
 	return offset_from_real_beginning(tvb, 0);
 }
 
 static const guint8*
-composite_ensure_contiguous_no_exception(tvbuff_t *tvb, const guint abs_offset,
-		const guint abs_length)
+composite_ensure_contiguous_no_exception(tvbuff_t *tvb, guint abs_offset,
+		guint abs_length)
 {
 	guint		i, num_members;
 	tvb_comp_t	*composite;
@@ -877,7 +877,7 @@ composite_ensure_contiguous_no_exception(tvbuff_t *tvb, const guint abs_offset,
 }
 
 static const guint8*
-ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint length,
+ensure_contiguous_no_exception(tvbuff_t *tvb, gint offset, gint length,
 		int *exception)
 {
 	guint	abs_offset, abs_length;
@@ -912,7 +912,7 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint leng
 }
 
 static const guint8*
-ensure_contiguous(tvbuff_t *tvb, const gint offset, const gint length)
+ensure_contiguous(tvbuff_t *tvb, gint offset, gint length)
 {
 	int exception;
 	const guint8 *p;
@@ -926,7 +926,7 @@ ensure_contiguous(tvbuff_t *tvb, const gint offset, const gint length)
 }
 
 static const guint8*
-fast_ensure_contiguous(tvbuff_t *tvb, const gint offset, const guint length)
+fast_ensure_contiguous(tvbuff_t *tvb, gint offset, guint length)
 {
 	guint	end_offset;
 	guint	u_offset;
@@ -955,7 +955,7 @@ fast_ensure_contiguous(tvbuff_t *tvb, const gint offset, const guint length)
 }
 
 static const guint8*
-guint8_find(const guint8* haystack, const size_t haystacklen, const guint8 needle)
+guint8_find(const guint8* haystack, size_t haystacklen, guint8 needle)
 {
 	const guint8	*b;
 	int		i;
@@ -1056,7 +1056,7 @@ composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, size_t abs_len
 }
 
 void*
-tvb_memcpy(tvbuff_t *tvb, void* target, const gint offset, size_t length)
+tvb_memcpy(tvbuff_t *tvb, void* target, gint offset, size_t length)
 {
 	guint	abs_offset, abs_length;
 
@@ -1109,7 +1109,7 @@ tvb_memcpy(tvbuff_t *tvb, void* target, const gint offset, size_t length)
  * meaning "to the end of the buffer"?
  */
 void*
-tvb_memdup(tvbuff_t *tvb, const gint offset, size_t length)
+tvb_memdup(tvbuff_t *tvb, gint offset, size_t length)
 {
 	guint	abs_offset, abs_length;
 	void	*duped;
@@ -1139,7 +1139,7 @@ tvb_memdup(tvbuff_t *tvb, const gint offset, size_t length)
  * after the current packet has been dissected.
  */
 void*
-ep_tvb_memdup(tvbuff_t *tvb, const gint offset, size_t length)
+ep_tvb_memdup(tvbuff_t *tvb, gint offset, size_t length)
 {
 	guint	abs_offset, abs_length;
 	void	*duped;
@@ -1155,14 +1155,14 @@ ep_tvb_memdup(tvbuff_t *tvb, const gint offset, size_t length)
 
 
 const guint8*
-tvb_get_ptr(tvbuff_t *tvb, const gint offset, const gint length)
+tvb_get_ptr(tvbuff_t *tvb, gint offset, gint length)
 {
 	return ensure_contiguous(tvb, offset, length);
 }
 
 /* ---------------- */
 guint8
-tvb_get_guint8(tvbuff_t *tvb, const gint offset)
+tvb_get_guint8(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
@@ -1171,7 +1171,7 @@ tvb_get_guint8(tvbuff_t *tvb, const gint offset)
 }
 
 guint16
-tvb_get_ntohs(tvbuff_t *tvb, const gint offset)
+tvb_get_ntohs(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
@@ -1180,7 +1180,7 @@ tvb_get_ntohs(tvbuff_t *tvb, const gint offset)
 }
 
 guint32
-tvb_get_ntoh24(tvbuff_t *tvb, const gint offset)
+tvb_get_ntoh24(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
@@ -1189,7 +1189,7 @@ tvb_get_ntoh24(tvbuff_t *tvb, const gint offset)
 }
 
 guint32
-tvb_get_ntohl(tvbuff_t *tvb, const gint offset)
+tvb_get_ntohl(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
@@ -1198,7 +1198,7 @@ tvb_get_ntohl(tvbuff_t *tvb, const gint offset)
 }
 
 guint64
-tvb_get_ntoh64(tvbuff_t *tvb, const gint offset)
+tvb_get_ntoh64(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
@@ -1248,13 +1248,13 @@ tvb_get_ntoh64(tvbuff_t *tvb, const gint offset)
 #define IEEE_SP_BIAS ((1 << (IEEE_SP_EXP_WIDTH - 1)) - 1)
 
 static int
-ieee_float_is_zero(const guint32 w)
+ieee_float_is_zero(guint32 w)
 {
 	return ((w & ~IEEE_SP_SIGN_MASK) == 0);
 }
 
 static gfloat
-get_ieee_float(const guint32 w)
+get_ieee_float(guint32 w)
 {
 	long sign;
 	long exponent;
@@ -1309,13 +1309,13 @@ get_ieee_float(const guint32 w)
 #define IEEE_DP_BIAS ((1 << (IEEE_DP_EXP_WIDTH - 1)) - 1)
 
 static int
-ieee_double_is_zero(const guint64 w)
+ieee_double_is_zero(guint64 w)
 {
 	return ((w & ~IEEE_SP_SIGN_MASK) == 0);
 }
 
 static gdouble
-get_ieee_double(const guint64 w)
+get_ieee_double(guint64 w)
 {
 	gint64 sign;
 	gint64 exponent;
@@ -1361,7 +1361,7 @@ get_ieee_double(const guint64 w)
  * "float" format?
  */
 gfloat
-tvb_get_ntohieee_float(tvbuff_t *tvb, const int offset)
+tvb_get_ntohieee_float(tvbuff_t *tvb, int offset)
 {
 #if defined(vax)
 	return get_ieee_float(tvb_get_ntohl(tvb, offset));
@@ -1381,7 +1381,7 @@ tvb_get_ntohieee_float(tvbuff_t *tvb, const int offset)
  * big-endian form, and returns a "double".
  */
 gdouble
-tvb_get_ntohieee_double(tvbuff_t *tvb, const int offset)
+tvb_get_ntohieee_double(tvbuff_t *tvb, int offset)
 {
 #if defined(vax)
 	union {
@@ -1410,7 +1410,7 @@ tvb_get_ntohieee_double(tvbuff_t *tvb, const int offset)
 }
 
 guint16
-tvb_get_letohs(tvbuff_t *tvb, const gint offset)
+tvb_get_letohs(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
@@ -1419,7 +1419,7 @@ tvb_get_letohs(tvbuff_t *tvb, const gint offset)
 }
 
 guint32
-tvb_get_letoh24(tvbuff_t *tvb, const gint offset)
+tvb_get_letoh24(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
@@ -1428,7 +1428,7 @@ tvb_get_letoh24(tvbuff_t *tvb, const gint offset)
 }
 
 guint32
-tvb_get_letohl(tvbuff_t *tvb, const gint offset)
+tvb_get_letohl(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
@@ -1437,7 +1437,7 @@ tvb_get_letohl(tvbuff_t *tvb, const gint offset)
 }
 
 guint64
-tvb_get_letoh64(tvbuff_t *tvb, const gint offset)
+tvb_get_letoh64(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
@@ -1454,7 +1454,7 @@ tvb_get_letoh64(tvbuff_t *tvb, const gint offset)
  * "float" format?
  */
 gfloat
-tvb_get_letohieee_float(tvbuff_t *tvb, const int offset)
+tvb_get_letohieee_float(tvbuff_t *tvb, int offset)
 {
 #if defined(vax)
 	return get_ieee_float(tvb_get_letohl(tvb, offset));
@@ -1474,7 +1474,7 @@ tvb_get_letohieee_float(tvbuff_t *tvb, const int offset)
  * little-endian form, and returns a "double".
  */
 gdouble
-tvb_get_letohieee_double(tvbuff_t *tvb, const int offset)
+tvb_get_letohieee_double(tvbuff_t *tvb, int offset)
 {
 #if defined(vax)
 	union {
@@ -1506,7 +1506,7 @@ tvb_get_letohieee_double(tvbuff_t *tvb, const int offset)
  * We do *not* convert them to host byte order; we leave them in
  * network byte order. */
 guint32
-tvb_get_ipv4(tvbuff_t *tvb, const gint offset)
+tvb_get_ipv4(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 	guint32 addr;
@@ -1518,7 +1518,7 @@ tvb_get_ipv4(tvbuff_t *tvb, const gint offset)
 
 /* Fetch an IPv6 address. */
 void
-tvb_get_ipv6(tvbuff_t *tvb, const gint offset, struct e_in6_addr *addr)
+tvb_get_ipv6(tvbuff_t *tvb, gint offset, struct e_in6_addr *addr)
 {
 	const guint8* ptr;
 
@@ -1528,7 +1528,7 @@ tvb_get_ipv6(tvbuff_t *tvb, const gint offset, struct e_in6_addr *addr)
 
 /* Fetch a GUID. */
 void
-tvb_get_ntohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid)
+tvb_get_ntohguid(tvbuff_t *tvb, gint offset, e_guid_t *guid)
 {
 	ensure_contiguous(tvb, offset, sizeof(*guid));
 	guid->data1 = tvb_get_ntohl(tvb, offset);
@@ -1538,7 +1538,7 @@ tvb_get_ntohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid)
 }
 
 void
-tvb_get_letohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid)
+tvb_get_letohguid(tvbuff_t *tvb, gint offset, e_guid_t *guid)
 {
 	ensure_contiguous(tvb, offset, sizeof(*guid));
 	guid->data1 = tvb_get_letohl(tvb, offset);
@@ -1548,7 +1548,7 @@ tvb_get_letohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid)
 }
 
 void
-tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const gboolean little_endian)
+tvb_get_guid(tvbuff_t *tvb, gint offset, e_guid_t *guid, gboolean little_endian)
 {
 	if (little_endian) {
 		tvb_get_letohguid(tvb, offset, guid);
@@ -1582,7 +1582,7 @@ static const guint16 bit_mask16[] = {
 
 /* Get 1 - 8 bits */
 guint8
-tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits)
+tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, gint no_of_bits)
 {
 	gint	offset;
 	guint16	value = 0;
@@ -1627,7 +1627,7 @@ static const guint32 bit_mask32[] = {
 };
 
 guint16
-tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits,const gboolean little_endian)
+tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_endian)
 {
 	gint	offset;
 	guint16	value = 0;
@@ -1681,7 +1681,7 @@ static const guint64 bit_mask64[] = {
 };
 
 guint32
-tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const gboolean little_endian)
+tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian)
 {
 	gint	offset;
 	guint32	value = 0;
@@ -1723,7 +1723,7 @@ tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const gboo
 }
 
 guint64
-tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const gboolean little_endian)
+tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian)
 {
 	gint	offset;
 	guint64	value = 0;
@@ -1765,7 +1765,7 @@ tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const gboo
 }
 
 guint32
-tvb_get_bits(tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const gboolean little_endian)
+tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian)
 {
 	/* This function can handle only up to 32 requested bits */
 	if (no_of_bits > 32)
@@ -1794,7 +1794,7 @@ tvb_get_bits(tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const 
  * in that case, -1 will be returned if the boundary is reached before
  * finding needle. */
 gint
-tvb_find_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const guint8 needle)
+tvb_find_guint8(tvbuff_t *tvb, gint offset, gint maxlength, guint8 needle)
 {
 	const guint8	*result;
 	guint		abs_offset, junk_length;
@@ -1859,7 +1859,7 @@ tvb_find_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
  * in that case, -1 will be returned if the boundary is reached before
  * finding needle. */
 gint
-tvb_pbrk_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const const guint8 *needles, guchar *found_needle)
+tvb_pbrk_guint8(tvbuff_t *tvb, gint offset, gint maxlength, const guint8 *needles, guchar *found_needle)
 {
 	const guint8	*result;
 	guint		abs_offset, junk_length;
@@ -1922,7 +1922,7 @@ tvb_pbrk_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const co
  * If the NUL isn't found, it throws the appropriate exception.
  */
 guint
-tvb_strsize(tvbuff_t *tvb, const gint offset)
+tvb_strsize(tvbuff_t *tvb, gint offset)
 {
 	guint	abs_offset, junk_length;
 	gint	nul_offset;
@@ -1956,7 +1956,7 @@ tvb_strsize(tvbuff_t *tvb, const gint offset)
  * of tvbuff.
  * Returns -1 if 'maxlength' reached before finding EOS. */
 gint
-tvb_strnlen(tvbuff_t *tvb, const gint offset, const guint maxlength)
+tvb_strnlen(tvbuff_t *tvb, gint offset, guint maxlength)
 {
 	gint	result_offset;
 	guint	abs_offset, junk_length;
@@ -1984,7 +1984,7 @@ tvb_strnlen(tvbuff_t *tvb, const gint offset, const guint maxlength)
  * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
 gint
-tvb_strneql(tvbuff_t *tvb, const gint offset, const gchar *str, const gint size)
+tvb_strneql(tvbuff_t *tvb, gint offset, const gchar *str, gint size)
 {
 	const guint8 *ptr;
 
@@ -2011,7 +2011,7 @@ tvb_strneql(tvbuff_t *tvb, const gint offset, const gchar *str, const gint size)
  * 0 if it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
 gint
-tvb_strncaseeql(tvbuff_t *tvb, const gint offset, const gchar *str, const gint size)
+tvb_strncaseeql(tvbuff_t *tvb, gint offset, const gchar *str, gint size)
 {
 	const guint8 *ptr;
 
@@ -2038,7 +2038,7 @@ tvb_strncaseeql(tvbuff_t *tvb, const gint offset, const gchar *str, const gint s
  * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
 gint
-tvb_memeql(tvbuff_t *tvb, const gint offset, const guint8 *str, size_t size)
+tvb_memeql(tvbuff_t *tvb, gint offset, const guint8 *str, size_t size)
 {
 	const guint8 *ptr;
 
@@ -2065,7 +2065,7 @@ tvb_memeql(tvbuff_t *tvb, const gint offset, const guint8 *str, size_t size)
  * free the result returned.  The len parameter is the number of guint16's
  * to convert from Unicode. */
 char *
-tvb_fake_unicode(tvbuff_t *tvb, int offset, const int len, const gboolean little_endian)
+tvb_fake_unicode(tvbuff_t *tvb, int offset, int len, gboolean little_endian)
 {
 	char *buffer;
 	int i;
@@ -2100,7 +2100,7 @@ tvb_fake_unicode(tvbuff_t *tvb, int offset, const int len, const gboolean little
  * when wireshark starts decoding the next packet.
  */
 char *
-tvb_get_ephemeral_faked_unicode(tvbuff_t *tvb, int offset, const int len, const gboolean little_endian)
+tvb_get_ephemeral_faked_unicode(tvbuff_t *tvb, int offset, int len, gboolean little_endian)
 {
 	char *buffer;
 	int i;
@@ -2131,7 +2131,7 @@ tvb_get_ephemeral_faked_unicode(tvbuff_t *tvb, int offset, const int len, const 
  */
 
 gchar *
-tvb_format_text(tvbuff_t *tvb, const gint offset, const gint size)
+tvb_format_text(tvbuff_t *tvb, gint offset, gint size)
 {
   const guint8 *ptr;
   gint len = size;
@@ -2149,7 +2149,7 @@ tvb_format_text(tvbuff_t *tvb, const gint offset, const gint size)
  */
 
 gchar *
-tvb_format_text_wsp(tvbuff_t *tvb, const gint offset, const gint size)
+tvb_format_text_wsp(tvbuff_t *tvb, gint offset, gint size)
 {
   const guint8 *ptr;
   gint len = size;
@@ -2170,7 +2170,7 @@ tvb_format_text_wsp(tvbuff_t *tvb, const gint offset, const gint size)
  * the null padding characters as "\000".
  */
 gchar *
-tvb_format_stringzpad(tvbuff_t *tvb, const gint offset, const gint size)
+tvb_format_stringzpad(tvbuff_t *tvb, gint offset, gint size)
 {
   const guint8 *ptr, *p;
   gint len = size;
@@ -2194,7 +2194,7 @@ tvb_format_stringzpad(tvbuff_t *tvb, const gint offset, const gint size)
  * the null padding characters as "\000".
  */
 gchar *
-tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
+tvb_format_stringzpad_wsp(tvbuff_t *tvb, gint offset, gint size)
 {
   const guint8 *ptr, *p;
   gint len = size;
@@ -2222,7 +2222,7 @@ tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
  * Throws an exception if the tvbuff ends before the string does.
  */
 guint8 *
-tvb_get_string(tvbuff_t *tvb, const gint offset, const gint length)
+tvb_get_string(tvbuff_t *tvb, gint offset, gint length)
 {
 	const guint8 *ptr;
 	guint8 *strbuf = NULL;
@@ -2252,7 +2252,7 @@ tvb_get_string(tvbuff_t *tvb, const gint offset, const gint length)
  * after the current packet has been dissected.
  */
 guint8 *
-tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length)
+tvb_get_ephemeral_string(tvbuff_t *tvb, gint offset, gint length)
 {
 	const guint8 *ptr;
 	guint8 *strbuf = NULL;
@@ -2281,7 +2281,7 @@ tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length)
  * when wireshark starts or opens a new capture.
  */
 guint8 *
-tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const gint length)
+tvb_get_seasonal_string(tvbuff_t *tvb, gint offset, gint length)
 {
 	const guint8 *ptr;
 	guint8 *strbuf = NULL;
@@ -2306,7 +2306,7 @@ tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const gint length)
  * string (including the terminating null) through a pointer.
  */
 guint8 *
-tvb_get_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
+tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp)
 {
 	guint size;
 	guint8 *strptr;
@@ -2333,7 +2333,7 @@ tvb_get_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
  * after the current packet has been dissected.
  */
 guint8 *
-tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
+tvb_get_ephemeral_stringz(tvbuff_t *tvb, gint offset, gint *lengthp)
 {
 	guint size;
 	guint8 *strptr;
@@ -2359,7 +2359,7 @@ tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
  * when wireshark starts or opens a new capture.
  */
 guint8 *
-tvb_get_seasonal_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
+tvb_get_seasonal_stringz(tvbuff_t *tvb, gint offset, gint *lengthp)
 {
 	guint size;
 	guint8 *strptr;
@@ -2391,7 +2391,7 @@ tvb_get_seasonal_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
  * including the terminating-NUL.
  */
 static gint
-_tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer,
+_tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint bufsize, guint8* buffer,
 		gint *bytes_copied)
 {
 	gint	stringlen;
@@ -2475,7 +2475,7 @@ _tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8*
  * at the correct spot, terminating the string.
  */
 gint
-tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer)
+tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint bufsize, guint8* buffer)
 {
 	gint bytes_copied;
 
@@ -2489,7 +2489,7 @@ tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* 
  * a NUL is placed at the end of buffer to terminate it.
  */
 gint
-tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer)
+tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint bufsize, guint8* buffer)
 {
 	gint	len, bytes_copied;
 
@@ -2526,8 +2526,8 @@ tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8*
  * terminator.	(It's not set if we return -1.)
  */
 gint
-tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset,
-	const gboolean desegment)
+tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *next_offset,
+	gboolean desegment)
 {
 	gint eob_offset;
 	gint eol_offset;
@@ -2642,7 +2642,7 @@ tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset,
  * terminator.
  */
 gint
-tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset, int len,
+tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 	gint *next_offset)
 {
 	gint cur_offset, char_offset;
@@ -2783,7 +2783,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset, int len,
  *			character following offset or offset + maxlength -1 whichever
  *			is smaller.
  */
-gint tvb_skip_wsp(tvbuff_t* tvb, const gint offset, const gint maxlength)
+gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength)
 {
 	gint counter = offset;
 	gint end = offset + maxlength,tvb_len;
@@ -2807,7 +2807,7 @@ gint tvb_skip_wsp(tvbuff_t* tvb, const gint offset, const gint maxlength)
 	return (counter);
 }
 
-gint tvb_skip_wsp_return(tvbuff_t* tvb, const gint offset){
+gint tvb_skip_wsp_return(tvbuff_t* tvb, gint offset){
 	gint counter = offset;
 	gint end;
 	guint8 tempchar;
@@ -2827,7 +2827,7 @@ gint tvb_skip_wsp_return(tvbuff_t* tvb, const gint offset){
  * separator.
  */
 gchar *
-tvb_bytes_to_str_punct(tvbuff_t *tvb, const gint offset, const gint len, const gchar punct)
+tvb_bytes_to_str_punct(tvbuff_t *tvb, gint offset, gint len, gchar punct)
 {
 	return bytes_to_str_punct(tvb_get_ptr(tvb, offset, len), len, punct);
 }
@@ -2837,14 +2837,14 @@ tvb_bytes_to_str_punct(tvbuff_t *tvb, const gint offset, const gint len, const g
  * to the string with the formatted data.
  */
 gchar *
-tvb_bytes_to_str(tvbuff_t *tvb, const gint offset, const gint len)
+tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len)
 {
 	return bytes_to_str(tvb_get_ptr(tvb, offset, len), len);
 }
 
 /* Find a needle tvbuff within a haystack tvbuff. */
 gint
-tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, const gint haystack_offset)
+tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, gint haystack_offset)
 {
 	guint		haystack_abs_offset, haystack_abs_length;
 	const guint8	*haystack_data;
@@ -2887,7 +2887,7 @@ tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, const gint haystack_o
 #undef TVB_Z_DEBUG
 
 tvbuff_t *
-tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
+tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 {
 	gint err = Z_OK;
 	guint bytes_out = 0;
@@ -3139,13 +3139,13 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 }
 #else
 tvbuff_t *
-tvb_uncompress(tvbuff_t *tvb _U_, const int offset _U_, int comprlen _U_)
+tvb_uncompress(tvbuff_t *tvb _U_, int offset _U_, int comprlen _U_)
 {
 	return NULL;
 }
 #endif
 
-tvbuff_t* tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int comprlen)
+tvbuff_t* tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, int offset, int comprlen)
 {
 	tvbuff_t *new_tvb = tvb_uncompress(tvb, offset, comprlen);
 	if (new_tvb)

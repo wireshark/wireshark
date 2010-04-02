@@ -89,16 +89,16 @@ epan_get_version(void);
 
 /* initialize an existing single packet dissection */
 epan_dissect_t*
-epan_dissect_init(epan_dissect_t	*edt, const gboolean create_proto_tree, const gboolean proto_tree_visible);
+epan_dissect_init(epan_dissect_t	*edt, gboolean create_proto_tree, gboolean proto_tree_visible);
 
 /* get a new single packet dissection */
 /* should be freed using epan_dissect_free() after packet dissection completed */
 epan_dissect_t*
-epan_dissect_new(const gboolean create_proto_tree, const gboolean proto_tree_visible);
+epan_dissect_new(gboolean create_proto_tree, gboolean proto_tree_visible);
 
 /* Indicate whether we should fake protocols or not */
 void
-epan_dissect_fake_protocols(epan_dissect_t *edt, const gboolean fake_protocols);
+epan_dissect_fake_protocols(epan_dissect_t *edt, gboolean fake_protocols);
 
 /* run a single packet dissection */
 void
@@ -111,7 +111,7 @@ epan_dissect_prime_dfilter(epan_dissect_t *edt, const dfilter_t *dfcode);
 
 /* fill the dissect run output into the packet list columns */
 void
-epan_dissect_fill_in_columns(epan_dissect_t *edt, const gboolean fill_col_exprs, const gboolean fill_fd_colums);
+epan_dissect_fill_in_columns(epan_dissect_t *edt, gboolean fill_col_exprs, gboolean fill_fd_colums);
 
 /* releases resources attached to the packet dissection. DOES NOT free the actual pointer */
 void
@@ -124,6 +124,6 @@ epan_dissect_free(epan_dissect_t* edt);
 /* Sets custom column */
 const gchar *
 epan_custom_set(epan_dissect_t *edt, int id,
-				gchar *result, gchar *expr, const int size );
+				gchar *result, gchar *expr, int size );
 
 #endif /* EPAN_H */

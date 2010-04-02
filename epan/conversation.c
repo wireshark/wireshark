@@ -97,7 +97,7 @@ typedef struct _conv_proto_data {
  * options bits are set (NO_ADDR2 and NO_PORT2).
  */
 static conversation_t *
-conversation_create_from_template(conversation_t *conversation, const address *addr2, const guint32 port2)
+conversation_create_from_template(conversation_t *conversation, address *addr2, guint32 port2)
 {
    /*
     * Add a new conversation and keep the conversation template only if the
@@ -474,8 +474,8 @@ conversation_init(void)
  * when searching for this conversation.
  */
 conversation_t *
-conversation_new(const guint32 setup_frame, const address *addr1, const address *addr2, const port_type ptype,
-    const guint32 port1, const guint32 port2, const guint options)
+conversation_new(guint32 setup_frame, address *addr1, address *addr2, port_type ptype,
+    guint32 port1, guint32 port2, guint options)
 {
 /*
 	DISSECTOR_ASSERT(!(options | CONVERSATION_TEMPLATE) || ((options | (NO_ADDR2 | NO_PORT2 | NO_PORT2_FORCE))) &&
@@ -555,7 +555,7 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
  * update the options and port values, insert the updated key.
  */
 void
-conversation_set_port2(conversation_t *conv, const guint32 port)
+conversation_set_port2(conversation_t *conv, guint32 port)
 {
    DISSECTOR_ASSERT(!(conv->options & CONVERSATION_TEMPLATE) &&
             "Use the conversation_create_from_template function when the CONVERSATION_TEMPLATE bit is set in the options mask");
@@ -589,7 +589,7 @@ conversation_set_port2(conversation_t *conv, const guint32 port)
  * table, update the options and port values, insert the updated key.
  */
 void
-conversation_set_addr2(conversation_t *conv, const address *addr)
+conversation_set_addr2(conversation_t *conv, address *addr)
 {
    DISSECTOR_ASSERT(!(conv->options & CONVERSATION_TEMPLATE) &&
             "Use the conversation_create_from_template function when the CONVERSATION_TEMPLATE bit is set in the options mask");
@@ -623,8 +623,8 @@ conversation_set_addr2(conversation_t *conv, const address *addr)
  * {addr1, port1, addr2, port2} and set up before frame_num.
  */
 static conversation_t *
-conversation_lookup_hashtable(GHashTable *hashtable, const guint32 frame_num, const address *addr1, const address *addr2,
-    const port_type ptype, const guint32 port1, const guint32 port2)
+conversation_lookup_hashtable(GHashTable *hashtable, guint32 frame_num, address *addr1, address *addr2,
+    port_type ptype, guint32 port1, guint32 port2)
 {
 	conversation_t* conversation;
 	conversation_t* match;
@@ -693,8 +693,8 @@ conversation_lookup_hashtable(GHashTable *hashtable, const guint32 frame_num, co
  *	otherwise, we found no matching conversation, and return NULL.
  */
 conversation_t *
-find_conversation(const guint32 frame_num, const address *addr_a, const address *addr_b, const port_type ptype,
-    const guint32 port_a, const guint32 port_b, const guint options)
+find_conversation(guint32 frame_num, address *addr_a, address *addr_b, port_type ptype,
+    guint32 port_a, guint32 port_b, guint options)
 {
    conversation_t *conversation;
 
@@ -1014,7 +1014,7 @@ p_compare(gconstpointer a, gconstpointer b)
 }
 
 void
-conversation_add_proto_data(conversation_t *conv, const int proto, void *proto_data)
+conversation_add_proto_data(conversation_t *conv, int proto, void *proto_data)
 {
 	conv_proto_data *p1 = se_alloc(sizeof(conv_proto_data));
 
@@ -1028,7 +1028,7 @@ conversation_add_proto_data(conversation_t *conv, const int proto, void *proto_d
 }
 
 void *
-conversation_get_proto_data(const conversation_t *conv, const int proto)
+conversation_get_proto_data(conversation_t *conv, int proto)
 {
 	conv_proto_data temp, *p1;
 	GSList *item;
@@ -1048,7 +1048,7 @@ conversation_get_proto_data(const conversation_t *conv, const int proto)
 }
 
 void
-conversation_delete_proto_data(conversation_t *conv, const int proto)
+conversation_delete_proto_data(conversation_t *conv, int proto)
 {
 	conv_proto_data temp;
 	GSList *item;
@@ -1066,7 +1066,7 @@ conversation_delete_proto_data(conversation_t *conv, const int proto)
 }
 
 void
-conversation_set_dissector(conversation_t *conversation, const dissector_handle_t handle)
+conversation_set_dissector(conversation_t *conversation, dissector_handle_t handle)
 {
 	conversation->dissector_handle = handle;
 }
@@ -1082,8 +1082,8 @@ conversation_set_dissector(conversation_t *conversation, const dissector_handle_
  * this function returns FALSE.
  */
 gboolean
-try_conversation_dissector(const address *addr_a, const address *addr_b, const port_type ptype,
-    const guint32 port_a, const guint32 port_b, tvbuff_t *tvb, packet_info *pinfo,
+try_conversation_dissector(address *addr_a, address *addr_b, port_type ptype,
+    guint32 port_a, guint32 port_b, tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree)
 {
 	conversation_t *conversation;

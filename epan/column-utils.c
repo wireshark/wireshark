@@ -48,7 +48,7 @@
 /* Allocate all the data structures for constructing column data, given
    the number of columns. */
 void
-col_setup(column_info *cinfo, const gint num_cols)
+col_setup(column_info *cinfo, gint num_cols)
 {
   int i;
 
@@ -101,7 +101,7 @@ col_get_writable(column_info *cinfo)
 }
 
 void
-col_set_writable(column_info *cinfo, const gboolean writable)
+col_set_writable(column_info *cinfo, gboolean writable)
 {
     if (cinfo)
         cinfo->writable = writable;
@@ -115,14 +115,14 @@ col_set_writable(column_info *cinfo, const gboolean writable)
     ((cinfo)->col_first[el] >= 0))
 
 gint
-check_col(column_info *cinfo, const gint el)
+check_col(column_info *cinfo, gint el)
 {
   return CHECK_COL(cinfo, el);
 }
 
 /* Sets the fence for a column to be at the end of the column. */
 void
-col_set_fence(column_info *cinfo, const gint el)
+col_set_fence(column_info *cinfo, gint el)
 {
   int i;
 
@@ -143,7 +143,7 @@ col_set_fence(column_info *cinfo, const gint el)
    later append to it, as the later append will cause a string
    copy to be done. */
 void
-col_clear(column_info *cinfo, const gint el)
+col_clear(column_info *cinfo, gint el)
 {
   int    i;
   int    fence;
@@ -254,7 +254,7 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
 }
 
 static void
-col_do_append_sep_va_fstr(column_info *cinfo, const gint el, const gchar *separator,
+col_do_append_sep_va_fstr(column_info *cinfo, gint el, const gchar *separator,
               const gchar *format, va_list ap)
 {
   int  i;
@@ -294,7 +294,7 @@ col_do_append_sep_va_fstr(column_info *cinfo, const gint el, const gchar *separa
 
 /* Appends a vararg list to a packet info string. */
 void
-col_append_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
+col_append_fstr(column_info *cinfo, gint el, const gchar *format, ...)
 {
   va_list ap;
 
@@ -309,7 +309,7 @@ col_append_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
 /* Appends a vararg list to a packet info string.
  * Prefixes it with the given separator if the column is not empty. */
 void
-col_append_sep_fstr(column_info *cinfo, const gint el, const gchar *separator,
+col_append_sep_fstr(column_info *cinfo, gint el, const gchar *separator,
         const gchar *format, ...)
 {
   va_list ap;
@@ -330,7 +330,7 @@ col_append_sep_fstr(column_info *cinfo, const gint el, const gchar *separator,
 #define COL_BUF_MAX_LEN (((COL_MAX_INFO_LEN) > (COL_MAX_LEN)) ? \
     (COL_MAX_INFO_LEN) : (COL_MAX_LEN))
 void
-col_prepend_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
+col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
 {
   va_list     ap;
   int         i;
@@ -371,7 +371,7 @@ col_prepend_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
   va_end(ap);
 }
 void
-col_prepend_fence_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
+col_prepend_fence_fstr(column_info *cinfo, gint el, const gchar *format, ...)
 {
   va_list     ap;
   int         i;
@@ -418,7 +418,7 @@ col_prepend_fence_fstr(column_info *cinfo, const gint el, const gchar *format, .
 /* Use this if "str" points to something that won't stay around (and
    must thus be copied). */
 void
-col_add_str(column_info *cinfo, const gint el, const gchar* str)
+col_add_str(column_info *cinfo, gint el, const gchar* str)
 {
   int    i;
   int    fence;
@@ -455,7 +455,7 @@ col_add_str(column_info *cinfo, const gint el, const gchar* str)
 /* Use this if "str" points to something that will stay around (and thus
    needn't be copied). */
 void
-col_set_str(column_info *cinfo, const gint el, const gchar* str)
+col_set_str(column_info *cinfo, gint el, const gchar* str)
 {
   int i;
   int fence;
@@ -499,7 +499,7 @@ col_set_str(column_info *cinfo, const gint el, const gchar* str)
 
 /* Adds a vararg list to a packet info string. */
 void
-col_add_fstr(column_info *cinfo, const gint el, const gchar *format, ...) {
+col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
   va_list ap;
   int     i;
   int     fence;
@@ -536,7 +536,7 @@ col_add_fstr(column_info *cinfo, const gint el, const gchar *format, ...) {
 }
 
 static void
-col_do_append_str(column_info *cinfo, const gint el, const gchar* separator,
+col_do_append_str(column_info *cinfo, gint el, const gchar* separator,
     const gchar* str)
 {
   int    i;
@@ -570,7 +570,7 @@ col_do_append_str(column_info *cinfo, const gint el, const gchar* separator,
 }
 
 void
-col_append_str(column_info *cinfo, const gint el, const gchar* str)
+col_append_str(column_info *cinfo, gint el, const gchar* str)
 {
   if (!CHECK_COL(cinfo, el))
     return;
@@ -579,7 +579,7 @@ col_append_str(column_info *cinfo, const gint el, const gchar* str)
 }
 
 void
-col_append_sep_str(column_info *cinfo, const gint el, const gchar* separator,
+col_append_sep_str(column_info *cinfo, gint el, const gchar* separator,
     const gchar* str)
 {
   if (!CHECK_COL(cinfo, el))
@@ -593,7 +593,7 @@ col_append_sep_str(column_info *cinfo, const gint el, const gchar* separator,
 
 /* --------------------------------- */
 gboolean
-col_has_time_fmt(column_info *cinfo, const gint col)
+col_has_time_fmt(column_info *cinfo, gint col)
 {
   return ((cinfo->fmt_matx[col][COL_CLS_TIME]) ||
           (cinfo->fmt_matx[col][COL_ABS_TIME]) ||
@@ -604,7 +604,7 @@ col_has_time_fmt(column_info *cinfo, const gint col)
 }
 
 static gint
-set_abs_date_time(const frame_data *fd, gchar *buf)
+set_abs_date_time(frame_data *fd, gchar *buf)
 {
   struct tm *tmp;
   time_t then;
@@ -688,7 +688,7 @@ set_abs_date_time(const frame_data *fd, gchar *buf)
 }
 
 static void
-col_set_abs_date_time(const frame_data *fd, column_info *cinfo, const int col)
+col_set_abs_date_time(frame_data *fd, column_info *cinfo, int col)
 {
   if (set_abs_date_time(fd, cinfo->col_buf[col])) {
       cinfo->col_expr.col_expr[col] = "frame.time";
@@ -698,7 +698,7 @@ col_set_abs_date_time(const frame_data *fd, column_info *cinfo, const int col)
 }
 
 static gint
-set_rel_time(const frame_data *fd, gchar *buf)
+set_rel_time(frame_data *fd, gchar *buf)
 {
   switch(timestamp_get_precision()) {
       case(TS_PREC_FIXED_SEC):
@@ -738,7 +738,7 @@ set_rel_time(const frame_data *fd, gchar *buf)
 }
 
 static void
-col_set_rel_time(const frame_data *fd, column_info *cinfo, const int col)
+col_set_rel_time(frame_data *fd, column_info *cinfo, int col)
 {
   if (set_rel_time(fd, cinfo->col_buf[col])) {
       cinfo->col_expr.col_expr[col] = "frame.time_relative";
@@ -748,7 +748,7 @@ col_set_rel_time(const frame_data *fd, column_info *cinfo, const int col)
 }
 
 static gint
-set_delta_time(const frame_data *fd, gchar *buf)
+set_delta_time(frame_data *fd, gchar *buf)
 {
   switch(timestamp_get_precision()) {
       case(TS_PREC_FIXED_SEC):
@@ -788,7 +788,7 @@ set_delta_time(const frame_data *fd, gchar *buf)
 }
 
 static void
-col_set_delta_time(const frame_data *fd, column_info *cinfo, const int col)
+col_set_delta_time(frame_data *fd, column_info *cinfo, int col)
 {
   if (set_delta_time(fd, cinfo->col_buf[col])) {
       cinfo->col_expr.col_expr[col] = "frame.time_delta";
@@ -798,7 +798,7 @@ col_set_delta_time(const frame_data *fd, column_info *cinfo, const int col)
 }
 
 static gint
-set_delta_time_dis(const frame_data *fd, gchar *buf)
+set_delta_time_dis(frame_data *fd, gchar *buf)
 {
   switch(timestamp_get_precision()) {
       case(TS_PREC_FIXED_SEC):
@@ -838,7 +838,7 @@ set_delta_time_dis(const frame_data *fd, gchar *buf)
 }
 
 static void
-col_set_delta_time_dis(const frame_data *fd, column_info *cinfo, const int col)
+col_set_delta_time_dis(frame_data *fd, column_info *cinfo, int col)
 {
   if (set_delta_time_dis(fd, cinfo->col_buf[col])) {
     cinfo->col_expr.col_expr[col] = "frame.time_delta_displayed";
@@ -848,7 +848,7 @@ col_set_delta_time_dis(const frame_data *fd, column_info *cinfo, const int col)
 }
 
 static gint
-set_abs_time(const frame_data *fd, gchar *buf)
+set_abs_time(frame_data *fd, gchar *buf)
 {
   struct tm *tmp;
   time_t then;
@@ -915,7 +915,7 @@ set_abs_time(const frame_data *fd, gchar *buf)
 }
 
 static void
-col_set_abs_time(const frame_data *fd, column_info *cinfo, const int col)
+col_set_abs_time(frame_data *fd, column_info *cinfo, int col)
 {
   if (set_abs_time(fd, cinfo->col_buf[col])) {
       cinfo->col_expr.col_expr[col] = "frame.time";
@@ -925,7 +925,7 @@ col_set_abs_time(const frame_data *fd, column_info *cinfo, const int col)
 }
 
 static gint
-set_epoch_time(const frame_data *fd, gchar *buf)
+set_epoch_time(frame_data *fd, gchar *buf)
 {
   switch(timestamp_get_precision()) {
       case(TS_PREC_FIXED_SEC):
@@ -965,7 +965,7 @@ set_epoch_time(const frame_data *fd, gchar *buf)
 }
 
 static void
-col_set_epoch_time(const frame_data *fd, column_info *cinfo, const int col)
+col_set_epoch_time(frame_data *fd, column_info *cinfo, int col)
 {
   if (set_epoch_time(fd, cinfo->col_buf[col])) {
     cinfo->col_expr.col_expr[col] = "frame.time_delta";
@@ -1021,7 +1021,7 @@ set_cls_time(frame_data *fd, gchar *buf)
 #endif
 
 static void
-col_set_cls_time(const frame_data *fd, column_info *cinfo, const gint col)
+col_set_cls_time(frame_data *fd, column_info *cinfo, gint col)
 {
   switch (timestamp_get_type()) {
     case TS_ABSOLUTE:
@@ -1063,7 +1063,7 @@ col_set_cls_time(const frame_data *fd, column_info *cinfo, const gint col)
    requiring us to stuff the text into the widget from outside, we
    might be able to clean this up. */
 void
-col_set_fmt_time(const frame_data *fd, column_info *cinfo, const gint fmt, const gint col)
+col_set_fmt_time(frame_data *fd, column_info *cinfo, gint fmt, gint col)
 {
   COL_CHECK_REF_TIME(fd, cinfo->col_buf[col]);
 
@@ -1100,7 +1100,7 @@ col_set_fmt_time(const frame_data *fd, column_info *cinfo, const gint fmt, const
 
 /* --------------------------- */
 void
-col_set_time(column_info *cinfo, const gint el, const nstime_t *ts, char *fieldname)
+col_set_time(column_info *cinfo, gint el, nstime_t *ts, char *fieldname)
 {
   int col;
 
@@ -1155,7 +1155,7 @@ col_set_time(column_info *cinfo, const gint el, const nstime_t *ts, char *fieldn
 }
 
 static void
-col_set_addr(packet_info *pinfo, const int col, const address *addr, const gboolean is_src, const gboolean fill_col_exprs)
+col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_src, gboolean fill_col_exprs)
 {
   if (addr->type == AT_NONE) {
     pinfo->cinfo->col_data[col] = "";
@@ -1230,7 +1230,7 @@ col_set_addr(packet_info *pinfo, const int col, const address *addr, const gbool
 
 /* ------------------------ */
 static void
-col_set_port(packet_info *pinfo, const int col, const gboolean is_res, const gboolean is_src, const gboolean fill_col_exprs _U_)
+col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src, gboolean fill_col_exprs _U_)
 {
   guint32 port;
 
@@ -1319,7 +1319,7 @@ col_set_port(packet_info *pinfo, const int col, const gboolean is_res, const gbo
 }
 
 gboolean
-col_based_on_frame_data(column_info *cinfo, const gint col)
+col_based_on_frame_data(column_info *cinfo, gint col)
 {
     g_assert(cinfo);
     g_assert(col < cinfo->num_cols);
@@ -1343,7 +1343,7 @@ col_based_on_frame_data(column_info *cinfo, const gint col)
 }
 
 void
-col_fill_in_frame_data(const frame_data *fd, column_info *cinfo, const gint col, const gboolean fill_col_exprs)
+col_fill_in_frame_data(frame_data *fd, column_info *cinfo, gint col, gboolean fill_col_exprs)
 {
     switch (cinfo->col_fmt[col]) {
 
@@ -1409,7 +1409,7 @@ col_fill_in_frame_data(const frame_data *fd, column_info *cinfo, const gint col,
 }
 
 void
-col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const gboolean fill_fd_colums)
+col_fill_in(packet_info *pinfo, gboolean fill_col_exprs, gboolean fill_fd_colums)
 {
   int i;
 

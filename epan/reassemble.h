@@ -132,12 +132,12 @@ void reassemble_init(void);
  * Returns a pointer to the head of the fragment data list if we have all the
  * fragments, NULL otherwise.
  */
-extern fragment_data *fragment_add(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
-    const guint32 id, GHashTable *fragment_table, const guint32 frag_offset,
-    guint32 const frag_data_len, const gboolean more_frags);
-extern fragment_data *fragment_add_multiple_ok(tvbuff_t *tvb, const int offset,
-    const packet_info *pinfo, const guint32 id, GHashTable *fragment_table,
-    const guint32 frag_offset, const guint32 frag_data_len, const gboolean more_frags);
+extern fragment_data *fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    guint32 id, GHashTable *fragment_table, guint32 frag_offset,
+    guint32 frag_data_len, gboolean more_frags);
+extern fragment_data *fragment_add_multiple_ok(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, guint32 id, GHashTable *fragment_table,
+    guint32 frag_offset, guint32 frag_data_len, gboolean more_frags);
 
 /*
  * This routine extends fragment_add to use a "reassembled_table".
@@ -147,10 +147,10 @@ extern fragment_data *fragment_add_multiple_ok(tvbuff_t *tvb, const int offset,
  * to the table of reassembled fragments, and return a pointer to the
  * head of the fragment list.
  */
-extern fragment_data *fragment_add_check(tvbuff_t *tvb, const int offset,
-    const packet_info *pinfo, const guint32 id, GHashTable *fragment_table,
-    GHashTable *reassembled_table, const guint32 frag_offset,
-    const guint32 frag_data_len, const gboolean more_frags);
+extern fragment_data *fragment_add_check(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, guint32 id, GHashTable *fragment_table,
+    GHashTable *reassembled_table, guint32 frag_offset,
+    guint32 frag_data_len, gboolean more_frags);
 
 /* same as fragment_add() but this one assumes frag_number is a block
    sequence number. note that frag_number is 0 for the first fragment. */
@@ -186,24 +186,24 @@ extern fragment_data *fragment_add_check(tvbuff_t *tvb, const int offset,
  * inserting a new entry to the hash.
  */
 extern fragment_data *
-fragment_add_seq_key(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
+fragment_add_seq_key(tvbuff_t *tvb, int offset, packet_info *pinfo,
                      void *key, fragment_key_copier key_copier,
                      GHashTable *fragment_table, guint32 frag_number,
-                     const guint32 frag_data_len, const gboolean more_frags,
-                     const guint32 flags);
+                     guint32 frag_data_len, gboolean more_frags,
+                     guint32 flags);
 
 /* a wrapper for fragment_add_seq_key - uses a key of source, dest and id */
-extern fragment_data *fragment_add_seq(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
-    const guint32 id, GHashTable *fragment_table, const guint32 frag_number,
-    const guint32 frag_data_len, const gboolean more_frags);
+extern fragment_data *fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    guint32 id, GHashTable *fragment_table, guint32 frag_number,
+    guint32 frag_data_len, gboolean more_frags);
 
 /* another wrapper for fragment_add_seq_key - uses a key of source, dest, id
  * and act_id */
 extern fragment_data *
-fragment_add_dcerpc_dg(tvbuff_t *tvb, const int offset, const packet_info *pinfo, const guint32 id,
+fragment_add_dcerpc_dg(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	void *act_id,
-	GHashTable *fragment_table, const guint32 frag_number,
-	const guint32 frag_data_len, const gboolean more_frags);
+	GHashTable *fragment_table, guint32 frag_number,
+	guint32 frag_data_len, gboolean more_frags);
 
 /*
  * These routines extend fragment_add_seq_key to use a "reassembled_table".
@@ -214,10 +214,10 @@ fragment_add_dcerpc_dg(tvbuff_t *tvb, const int offset, const packet_info *pinfo
  * head of the fragment list.
  */
 extern fragment_data *
-fragment_add_seq_check(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
-	     const guint32 id, GHashTable *fragment_table,
-	     GHashTable *reassembled_table, const guint32 frag_number,
-	     const guint32 frag_data_len, const gboolean more_frags);
+fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	     guint32 id, GHashTable *fragment_table,
+	     GHashTable *reassembled_table, guint32 frag_number,
+	     guint32 frag_data_len, gboolean more_frags);
 
 extern fragment_data *
 fragment_add_seq_802_11(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -231,11 +231,11 @@ fragment_add_seq_next(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	     guint32 frag_data_len, gboolean more_frags);
 
 extern void
-fragment_start_seq_check(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table,
-			 const guint32 tot_len);
+fragment_start_seq_check(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
+			 guint32 tot_len);
 
 extern fragment_data *
-fragment_end_seq_next(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table,
+fragment_end_seq_next(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
 		      GHashTable *reassembled_table);
 /* to specify how much to reassemble, for fragmentation where last fragment can not be
  * identified by flags or such.
@@ -245,12 +245,12 @@ fragment_end_seq_next(const packet_info *pinfo, const guint32 id, GHashTable *fr
  *
  */
 extern void
-fragment_set_tot_len(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table,
-		     const guint32 tot_len);
+fragment_set_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
+		     guint32 tot_len);
 
 /* to resad whatever totlen previously set */
 extern guint32
-fragment_get_tot_len(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table);
+fragment_get_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
 
 /*
  * This function will set the partial reassembly flag(FD_PARTIAL_REASSEMBLY) for a fh.
@@ -261,21 +261,21 @@ fragment_get_tot_len(const packet_info *pinfo, const guint32 id, GHashTable *fra
  * and if FD_DEFRAGMENTED is set, the reassembly process will be continued.
  */
 extern void
-fragment_set_partial_reassembly(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table);
+fragment_set_partial_reassembly(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
 
 /* This function is used to check if there is partial or completed reassembly state
  * matching this packet. I.e. Are there reassembly going on or not for this packet?
  */
 extern fragment_data *
-fragment_get(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table);
+fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
 
 /* The same for the reassemble table */
 /* id *must* be the frame number for this to work! */
 extern fragment_data *
-fragment_get_reassembled(const guint32 id, GHashTable *reassembled_table);
+fragment_get_reassembled(packet_info *pinfo, guint32 id, GHashTable *reassembled_table);
 
 extern fragment_data *
-fragment_get_reassembled_id(const packet_info *pinfo, const guint32 id, GHashTable *reassembled_table);
+fragment_get_reassembled_id(packet_info *pinfo, guint32 id, GHashTable *reassembled_table);
 
 /* This will free up all resources and delete reassembly state for this PDU.
  * Except if the PDU is completely reassembled, then it would NOT deallocate the
@@ -286,7 +286,7 @@ fragment_get_reassembled_id(const packet_info *pinfo, const guint32 id, GHashTab
  * g_free() that buffer.
  */
 extern unsigned char *
-fragment_delete(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table);
+fragment_delete(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
 
 /* hf_fragment, hf_fragment_error, and hf_reassembled_in should be
    FT_FRAMENUM, the others should be FT_BOOLEAN
@@ -309,7 +309,7 @@ typedef struct _fragment_items {
 } fragment_items;
 
 extern tvbuff_t *
-process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
+process_reassembled_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
     const char *name, fragment_data *fd_head, const fragment_items *fit,
     gboolean *update_col_infop, proto_tree *tree);
 

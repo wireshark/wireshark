@@ -114,7 +114,7 @@ const gchar *se_get_addr_name(const address *addr);
 /* the result which is always NUL ('\0') terminated. The buffer should be large enough to */
 /* contain size characters including the terminator */
 
-void get_addr_name_buf(const address *addr, gchar *buf, gsize size);
+void get_addr_name_buf(address *addr, gchar *buf, gsize size);
 
 
 /*
@@ -142,7 +142,7 @@ extern const gchar *get_hostname(guint addr);
 
 /* get_hostname6 returns the host name, or numeric addr if not found */
 struct e_in6_addr;
-extern const gchar* get_hostname6(const struct e_in6_addr *ad);
+extern const gchar* get_hostname6(struct e_in6_addr *ad);
 
 /* get_ether_name returns the logical name if found in ethers files else
    "<vendor>_%02x:%02x:%02x" if the vendor code is known else
@@ -174,7 +174,7 @@ guint32 get_ipxnet_addr(const gchar *name, gboolean *known);
 extern void add_ipv4_name(guint addr, const gchar *name);
 
 /* adds a hostname/IPv6 in the hash table */
-extern void add_ipv6_name(const struct e_in6_addr *addr, const gchar *name);
+extern void add_ipv6_name(struct e_in6_addr *addr, const gchar *name);
 
 /* add ethernet address / name corresponding to IP address  */
 extern void add_ether_byip(guint ip, const guint8 *eth);

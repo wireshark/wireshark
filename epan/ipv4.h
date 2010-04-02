@@ -42,9 +42,9 @@ ipv4_addr* ipv4_addr_new(void);
 /* Frees an ipv4 struct */
 void ipv4_addr_free(ipv4_addr *ipv4);
 
-void ipv4_addr_set_host_order_addr(ipv4_addr *ipv4, const guint32 new_addr);
-void ipv4_addr_set_net_order_addr(ipv4_addr *ipv4, const guint32 new_addr);
-void ipv4_addr_set_netmask_bits(ipv4_addr *ipv4, const guint new_nmask_bits);
+void ipv4_addr_set_host_order_addr(ipv4_addr *ipv4, guint32 new_addr);
+void ipv4_addr_set_net_order_addr(ipv4_addr *ipv4, guint32 new_addr);
+void ipv4_addr_set_netmask_bits(ipv4_addr *ipv4, guint new_nmask_bits);
 
 guint32 ipv4_get_net_order_addr(ipv4_addr *ipv4);
 guint32 ipv4_get_host_order_addr(ipv4_addr *ipv4);
