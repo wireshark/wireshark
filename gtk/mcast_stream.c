@@ -177,8 +177,8 @@ static int mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt
 	 * address (for IPv6).
 	 */
 	if ((pinfo->dl_dst.type != AT_ETHER) ||
-	    ((strncmp("01005E", bytes_to_str(pinfo->dl_dst.data, pinfo->dl_dst.len), 6) != 0) &&
-	     (strncmp("3333", bytes_to_str(pinfo->dl_dst.data, pinfo->dl_dst.len), 4) != 0)) )
+	    ((g_ascii_strncasecmp("01005E", bytes_to_str(pinfo->dl_dst.data, pinfo->dl_dst.len), 6) != 0) &&
+	     (g_ascii_strncasecmp("3333", bytes_to_str(pinfo->dl_dst.data, pinfo->dl_dst.len), 4) != 0)) )
 		return 0;
 
 	/* check whether we already have a stream with these parameters in the list */
