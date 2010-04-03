@@ -30,7 +30,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-t38.h"

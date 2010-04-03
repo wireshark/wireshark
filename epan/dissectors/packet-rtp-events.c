@@ -43,7 +43,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
-#include <stdio.h>
 #include <string.h>
 #include "packet-rtp-events.h"
 #include "packet-rtp.h"

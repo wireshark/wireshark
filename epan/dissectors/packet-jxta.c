@@ -36,7 +36,6 @@
 #endif
 
 #include <limits.h>
-#include <stdio.h>
 #include <string.h>
 
 #define G_LOG_DOMAIN "jxta"

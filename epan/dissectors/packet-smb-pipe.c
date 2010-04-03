@@ -35,8 +35,6 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
 # include "config.h"
 #endif
 
-#include <stdio.h>
-
 #include <time.h>
 #include <string.h>
 #include <glib.h>

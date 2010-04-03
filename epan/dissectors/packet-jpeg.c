@@ -35,7 +35,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include <epan/rtp_pt.h>

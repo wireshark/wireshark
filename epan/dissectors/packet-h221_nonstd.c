@@ -26,7 +26,6 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <gmodule.h>
 #include <ctype.h>

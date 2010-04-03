@@ -28,7 +28,6 @@
 #endif
 
 #include <string.h>
-#include <stdio.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-tr.h"

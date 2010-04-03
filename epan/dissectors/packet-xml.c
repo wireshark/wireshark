@@ -41,8 +41,6 @@
 #include <stdarg.h>
 #include <errno.h>
 
-#include <stdio.h>
-
 #include <glib.h>
 
 #include <wsutil/str_util.h>

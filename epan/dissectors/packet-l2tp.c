@@ -94,7 +94,6 @@ static int hf_l2tp_cisco_avp_type = -1;
 #include "config.h"
 #endif
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>

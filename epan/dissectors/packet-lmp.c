@@ -44,8 +44,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif

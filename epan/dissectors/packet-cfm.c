@@ -35,7 +35,6 @@
 #endif
 
 #include <epan/packet.h>
-#include <stdio.h>
 #include <glib.h>
 #include <string.h>
 #include <epan/etypes.h>

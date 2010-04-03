@@ -34,7 +34,6 @@
 #endif
 
 #include <string.h>
-#include <stdio.h>
 #include <errno.h>
 #include <ctype.h>
 #include <glib.h>

@@ -32,7 +32,6 @@
 #include <epan/crc32.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 

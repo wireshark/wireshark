@@ -29,7 +29,6 @@
 #endif
 
 #if 0
-#include <stdio.h>
 #include <string.h>
 #endif
 #include <glib.h>

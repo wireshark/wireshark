@@ -27,7 +27,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
 #include <errno.h>
 #include <glib.h>
 #include <string.h>
