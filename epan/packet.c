@@ -81,7 +81,7 @@ packet_cleanup(void)
  * of the tvbuff to reflect the specified length.
  */
 void
-set_actual_length(tvbuff_t *tvb, guint specified_len)
+set_actual_length(tvbuff_t *tvb, const guint specified_len)
 {
 	if (specified_len < tvb_reported_length(tvb)) {
 		/* Adjust the length of this tvbuff to include only the specified
@@ -361,7 +361,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 /*********************** code added for sub-dissector lookup *********************/
 
 /*
- * An dissector handle.
+ * A dissector handle.
  */
 struct dissector_handle {
 	const char	*name;		/* dissector name */
@@ -668,7 +668,7 @@ find_dissector_table(const char *name)
 
 /* Find an entry in a uint dissector table. */
 static dtbl_entry_t *
-find_uint_dtbl_entry(dissector_table_t sub_dissectors, guint32 pattern)
+find_uint_dtbl_entry(dissector_table_t sub_dissectors, const guint32 pattern)
 {
 	switch (sub_dissectors->type) {
 
@@ -718,7 +718,7 @@ dissector_add_sanity_check(const char *name, guint32 pattern, dissector_handle_t
 
 /* Add an entry to a uint dissector table. */
 void
-dissector_add(const char *name, guint32 pattern, dissector_handle_t handle)
+dissector_add(const char *name, const guint32 pattern, dissector_handle_t handle)
 {
 	dissector_table_t sub_dissectors;
 	dtbl_entry_t *dtbl_entry;
@@ -774,7 +774,7 @@ dissector_add(const char *name, guint32 pattern, dissector_handle_t handle)
 /*	If temporary dissectors are deleted, then the original dissector must */
 /*	be available. */
 void
-dissector_delete(const char *name, guint32 pattern,
+dissector_delete(const char *name, const guint32 pattern,
 	dissector_handle_t handle _U_)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
@@ -805,7 +805,7 @@ dissector_delete(const char *name, guint32 pattern,
 /* Change the entry for a dissector in a uint dissector table
    with a particular pattern to use a new dissector handle. */
 void
-dissector_change(const char *name, guint32 pattern, dissector_handle_t handle)
+dissector_change(const char *name, const guint32 pattern, dissector_handle_t handle)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
@@ -841,7 +841,7 @@ dissector_change(const char *name, guint32 pattern, dissector_handle_t handle)
 
 /* Reset an entry in a uint dissector table to its initial value. */
 void
-dissector_reset(const char *name, guint32 pattern)
+dissector_reset(const char *name, const guint32 pattern)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
@@ -874,8 +874,8 @@ dissector_reset(const char *name, guint32 pattern)
    otherwise return FALSE. */
 
 gboolean
-dissector_try_port_new(dissector_table_t sub_dissectors, guint32 port,
-		       tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean add_proto_name)
+dissector_try_port_new(dissector_table_t sub_dissectors, const guint32 port,
+		       tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name)
 {
 	dtbl_entry_t *dtbl_entry;
 	struct dissector_handle *handle;
@@ -926,7 +926,7 @@ dissector_try_port_new(dissector_table_t sub_dissectors, guint32 port,
 }
 
 gboolean
-dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
+dissector_try_port(dissector_table_t sub_dissectors, const guint32 port,
 		   tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
@@ -935,7 +935,7 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 /* Look for a given value in a given uint dissector table and, if found,
    return the dissector handle for that value. */
 dissector_handle_t
-dissector_get_port_handle(dissector_table_t sub_dissectors, guint32 port)
+dissector_get_port_handle(dissector_table_t const sub_dissectors, const guint32 port)
 {
 	dtbl_entry_t *dtbl_entry;
 
@@ -948,7 +948,7 @@ dissector_get_port_handle(dissector_table_t sub_dissectors, guint32 port)
 
 /* Find an entry in a string dissector table. */
 static dtbl_entry_t *
-find_string_dtbl_entry(dissector_table_t sub_dissectors, const gchar *pattern)
+find_string_dtbl_entry(dissector_table_t const sub_dissectors, const gchar *pattern)
 {
 	switch (sub_dissectors->type) {
 
@@ -1414,7 +1414,7 @@ typedef struct dissector_foreach_table_info {
  * Called for each entry in the table of all dissector tables.
  */
 static void
-dissector_all_tables_foreach_table_func (gpointer key, gpointer value, gpointer user_data)
+dissector_all_tables_foreach_table_func (gpointer key, const gpointer value, const gpointer user_data)
 {
 	dissector_table_t table;
 	dissector_foreach_table_info_t *info;
@@ -1440,8 +1440,8 @@ dissector_all_tables_foreach_table (DATFunc_table func,
 }
 
 dissector_table_t
-register_dissector_table(const char *name, const char *ui_name, ftenum_t type,
-			 int base)
+register_dissector_table(const char *name, const char *ui_name, const ftenum_t type,
+			 const int base)
 {
 	dissector_table_t	sub_dissectors;
 
@@ -1530,7 +1530,7 @@ find_heur_dissector_list(const char *name)
 }
 
 void
-heur_dissector_add(const char *name, heur_dissector_t dissector, int proto)
+heur_dissector_add(const char *name, heur_dissector_t dissector, const int proto)
 {
 	heur_dissector_list_t *sub_dissectors = find_heur_dissector_list(name);
 	heur_dtbl_entry_t *dtbl_entry;
@@ -1555,7 +1555,7 @@ static int find_matching_heur_dissector( gconstpointer a, gconstpointer b) {
 		(dtbl_entry_a->protocol == dtbl_entry_b->protocol) ? 0 : 1;
 }
 
-void heur_dissector_delete(const char *name, heur_dissector_t dissector, int proto) {
+void heur_dissector_delete(const char *name, heur_dissector_t dissector, const int proto) {
 	heur_dissector_list_t *sub_dissectors = find_heur_dissector_list(name);
 	heur_dtbl_entry_t dtbl_entry;
 	GSList* found_entry;
@@ -1693,7 +1693,7 @@ static GHashTable *registered_dissectors = NULL;
 /* Get the short name of the protocol for a dissector handle, if it has
    a protocol. */
 const char *
-dissector_handle_get_short_name(dissector_handle_t handle)
+dissector_handle_get_short_name(const dissector_handle_t handle)
 {
 	if (handle->protocol == NULL) {
 		/*
@@ -1710,7 +1710,7 @@ dissector_handle_get_short_name(dissector_handle_t handle)
 /* Get the index of the protocol for a dissector handle, if it has
    a protocol. */
 int
-dissector_handle_get_protocol_index(dissector_handle_t handle)
+dissector_handle_get_protocol_index(const dissector_handle_t handle)
 {
 	if (handle->protocol == NULL) {
 		/*
@@ -1734,7 +1734,7 @@ find_dissector(const char *name)
 
 /* Create an anonymous handle for a dissector. */
 dissector_handle_t
-create_dissector_handle(dissector_t dissector, int proto)
+create_dissector_handle(dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
 
@@ -1748,7 +1748,7 @@ create_dissector_handle(dissector_t dissector, int proto)
 }
 
 dissector_handle_t
-new_create_dissector_handle(new_dissector_t dissector, int proto)
+new_create_dissector_handle(new_dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
 
@@ -1763,7 +1763,7 @@ new_create_dissector_handle(new_dissector_t dissector, int proto)
 
 /* Register a dissector by name. */
 void
-register_dissector(const char *name, dissector_t dissector, int proto)
+register_dissector(const char *name, dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
 
@@ -1787,7 +1787,7 @@ register_dissector(const char *name, dissector_t dissector, int proto)
 }
 
 void
-new_register_dissector(const char *name, new_dissector_t dissector, int proto)
+new_register_dissector(const char *name, new_dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
 
@@ -1861,7 +1861,7 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 
 static void
 dissector_dump_decodes_display(const gchar *table_name,
-			       ftenum_t selector_type _U_, gpointer key, gpointer value,
+			       ftenum_t selector_type _U_, const gpointer key, const gpointer value,
 			       gpointer user_data _U_)
 {
 	guint32 selector = (guint32)(unsigned long) key;

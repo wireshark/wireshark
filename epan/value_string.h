@@ -55,20 +55,20 @@ typedef struct _range_string {
    Returns the associated string ptr, and sets "*idx" to the index in
    that table, on a match, and returns NULL, and sets "*idx" to -1,
    on failure. */
-extern const gchar* match_strval_idx(guint32 val, const value_string *vs, gint *idx);
+extern const gchar* match_strval_idx(const guint32 val, const value_string *vs, gint *idx);
 
 /* Like match_strval_idx(), but doesn't return the index. */
-extern const gchar* match_strval(guint32 val, const value_string *vs);
+extern const gchar* match_strval(const guint32 val, const value_string *vs);
 
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
-extern const gchar* val_to_str(guint32 val, const value_string *vs, const char *fmt);
+extern const gchar* val_to_str(const guint32 val, const value_string *vs, const char *fmt);
 
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.
    Returns 'unknown_str', on failure. */
-extern const gchar* val_to_str_const(guint32 val, const value_string *vs, const char *unknown_str);
+extern const gchar* val_to_str_const(const guint32 val, const value_string *vs, const char *unknown_str);
 
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr, and sets "*idx" to the index in
@@ -86,13 +86,13 @@ extern const gchar* str_to_str(const gchar *val, const string_string *vs, const 
 
 /* Generate a string describing an enumerated bitfield (an N-bit field
    with various specific values having particular names). */
-extern const char *decode_enumerated_bitfield(guint32 val, guint32 mask,
-  int width, const value_string *tab, const char *fmt);
+extern const char *decode_enumerated_bitfield(const guint32 val, const guint32 mask,
+  const int width, const value_string *tab, const char *fmt);
 
 /* Generate a string describing an enumerated bitfield (an N-bit field
    with various specific values having particular names). */
-extern const char *decode_enumerated_bitfield_shifted(guint32 val, guint32 mask,
-  int width, const value_string *tab, const char *fmt);
+extern const char *decode_enumerated_bitfield_shifted(const guint32 val, const guint32 mask,
+  const int width, const value_string *tab, const char *fmt);
 
 
 /* ranges aware versions */
@@ -100,15 +100,15 @@ extern const char *decode_enumerated_bitfield_shifted(guint32 val, guint32 mask,
 /* Tries to match val against each range in the range_string array rs.
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
-extern const gchar* rval_to_str(guint32 val, const range_string *rs, const char *fmt);
+extern const gchar* rval_to_str(const guint32 val, const range_string *rs, const char *fmt);
 
 /* Tries to match val against each range in the range_string array rs.
    Returns the associated string ptr, and sets "*idx" to the index in
    that table, on a match, and returns NULL, and sets "*idx" to -1,
    on failure. */
-extern const gchar *match_strrval_idx(guint32 val, const range_string *rs, gint *idx);
+extern const gchar *match_strrval_idx(const guint32 val, const range_string *rs, gint *idx);
 
 /* Like match_strrval_idx(), but doesn't return the index. */
-extern const gchar *match_strrval(guint32 val, const range_string *rs);
+extern const gchar *match_strrval(const guint32 val, const range_string *rs);
 
 #endif /* __VALUE_STRING_H__ */

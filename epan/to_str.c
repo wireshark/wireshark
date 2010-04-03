@@ -118,7 +118,7 @@ bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct) {
  * the resulting string is (len-1) bytes shorter)
  */
 gchar *
-bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
+bytestring_to_str(const guint8 *ad, const guint32 len, const char punct) {
   gchar *buf;
   size_t       buflen;
 
@@ -203,7 +203,7 @@ bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct) {
 }
 
 static int
-guint32_to_str_buf_len(guint32 u) {
+guint32_to_str_buf_len(const guint32 u) {
     if (u >= 1000000000)return 10;
     if (u >= 100000000) return 9;
     if (u >= 10000000)	return 8;
@@ -280,7 +280,7 @@ guint32_to_str_buf(guint32 u, gchar *buf, int buf_len) {
 }
 
 gchar *
-guint32_to_str(guint32 u) {
+guint32_to_str(const guint32 u) {
   int str_len = 16; /* guint32_to_str_buf_len(u)+1; */
 
   gchar *bp = ep_alloc(str_len);
@@ -309,7 +309,7 @@ guint32_to_str(guint32 u) {
  * If time is negative, add a '-' to all non-null components.
  */
 static void
-time_secs_to_str_buf(gint32 time_val, guint32 frac, gboolean is_nsecs,
+time_secs_to_str_buf(gint32 time_val, const guint32 frac, const gboolean is_nsecs,
 			   emem_strbuf_t *buf)
 {
   int hours, mins, secs;
@@ -360,7 +360,7 @@ time_secs_to_str_buf(gint32 time_val, guint32 frac, gboolean is_nsecs,
 }
 
 gchar *
-time_secs_to_str(gint32 time_val)
+time_secs_to_str(const gint32 time_val)
 {
   emem_strbuf_t *buf;
 
@@ -376,7 +376,7 @@ time_secs_to_str(gint32 time_val)
 }
 
 static void
-time_secs_to_str_buf_unsigned(guint32 time_val, guint32 frac, gboolean is_nsecs,
+time_secs_to_str_buf_unsigned(guint32 time_val, const guint32 frac, const gboolean is_nsecs,
 			 emem_strbuf_t *buf)
 {
   int hours, mins, secs;
@@ -413,7 +413,7 @@ time_secs_to_str_buf_unsigned(guint32 time_val, guint32 frac, gboolean is_nsecs,
 }
 
 gchar *
-time_secs_to_str_unsigned(guint32 time_val)
+time_secs_to_str_unsigned(const guint32 time_val)
 {
   emem_strbuf_t *buf;
 
@@ -473,7 +473,7 @@ static const char *mon_names[12] = {
 };
 
 gchar *
-abs_time_to_str(nstime_t *abs_time, absolute_time_display_e fmt)
+abs_time_to_str(const nstime_t *abs_time, const absolute_time_display_e fmt)
 {
         struct tm *tmp = NULL;
         const char *zonename = "???";
@@ -543,7 +543,7 @@ abs_time_to_str(nstime_t *abs_time, absolute_time_display_e fmt)
 }
 
 gchar *
-abs_time_secs_to_str(time_t abs_time, absolute_time_display_e fmt)
+abs_time_secs_to_str(const time_t abs_time, const absolute_time_display_e fmt)
 {
         struct tm *tmp = NULL;
         const char *zonename = "???";
@@ -611,8 +611,8 @@ abs_time_secs_to_str(time_t abs_time, absolute_time_display_e fmt)
 }
 
 void
-display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 frac,
-    to_str_time_res_t units)
+display_signed_time(gchar *buf, int buflen, const gint32 sec, gint32 frac,
+    const to_str_time_res_t units)
 {
 	/* If the fractional part of the time stamp is negative,
 	   print its absolute value and, if the seconds part isn't
@@ -659,8 +659,8 @@ display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 frac,
 
 
 void
-display_epoch_time(gchar *buf, int buflen, time_t sec, gint32 frac,
-    to_str_time_res_t units)
+display_epoch_time(gchar *buf, int buflen, const time_t sec, gint32 frac,
+    const to_str_time_res_t units)
 {
 	double elapsed_secs;
 
@@ -715,7 +715,7 @@ display_epoch_time(gchar *buf, int buflen, time_t sec, gint32 frac,
  * Display a relative time as days/hours/minutes/seconds.
  */
 gchar *
-rel_time_to_str(nstime_t *rel_time)
+rel_time_to_str(const nstime_t *rel_time)
 {
 	emem_strbuf_t *buf;
 	const char *sign;
@@ -757,7 +757,7 @@ rel_time_to_str(nstime_t *rel_time)
  * Display a relative time as seconds.
  */
 gchar *
-rel_time_to_secs_str(nstime_t *rel_time)
+rel_time_to_secs_str(const nstime_t *rel_time)
 {
         gchar *buf;
 
@@ -775,7 +775,7 @@ rel_time_to_secs_str(nstime_t *rel_time)
  */
 
 char *
-decode_bits_in_field(gint bit_offset, gint no_of_bits, guint64 value)
+decode_bits_in_field(const gint bit_offset, const gint no_of_bits, const guint64 value)
 {
 	guint64 mask = 0,tmp;
 	char *str;
@@ -826,7 +826,7 @@ decode_bits_in_field(gint bit_offset, gint no_of_bits, guint64 value)
    Return a pointer to the character after that string. */
 /*XXX this needs a buf_len check */
 char *
-other_decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width)
+other_decode_bitfield_value(char *buf, const guint32 val, const guint32 mask, const int width)
 {
   int i;
   guint32 bit;
@@ -858,7 +858,7 @@ other_decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width)
 }
 
 char *
-decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width)
+decode_bitfield_value(char *buf, const guint32 val, const guint32 mask, const int width)
 {
   char *p;
 
@@ -871,7 +871,7 @@ decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width)
 /* Generate a string describing a Boolean bitfield (a one-bit field that
    says something is either true of false). */
 const char *
-decode_boolean_bitfield(guint32 val, guint32 mask, int width,
+decode_boolean_bitfield(const guint32 val, const guint32 mask, const int width,
     const char *truedesc, const char *falsedesc)
 {
   char *buf;
@@ -889,7 +889,7 @@ decode_boolean_bitfield(guint32 val, guint32 mask, int width,
 /* Generate a string describing a numeric bitfield (an N-bit field whose
    value is just a number). */
 const char *
-decode_numeric_bitfield(guint32 val, guint32 mask, int width,
+decode_numeric_bitfield(const guint32 val, const guint32 mask, const int width,
     const char *fmt)
 {
   char *buf;
@@ -912,7 +912,7 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
  XXX update the ep_address_to_str stuff to use this function.
 */
 void
-ip_to_str_buf(const guint8 *ad, gchar *buf, int buf_len)
+ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len)
 {
 	register gchar const *p;
 	register gchar *b=buf;

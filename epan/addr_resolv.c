@@ -265,7 +265,7 @@ static int      service_resolution_initialized = 0;
 static gboolean new_resolved_objects = FALSE;
 
 static hashether_t *add_eth_name(const guint8 *addr, const gchar *name);
-static void add_serv_port_cb(guint32 port);
+static void add_serv_port_cb(const guint32 port);
 
 /*
  * Flag controlling what names to resolve.
@@ -422,10 +422,10 @@ static int fgetline(char **buf, int *size, FILE *fp)
  *  Local function definitions
  */
 static subnet_entry_t subnet_lookup(const guint32 addr);
-static void subnet_entry_set(guint32 subnet_addr, guint32 mask_length, const gchar* name);
+static void subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, const gchar* name);
 
 
-static void add_service_name(hashport_t **proto_table, guint port, const char *service_name)
+static void add_service_name(hashport_t **proto_table, const guint port, const char *service_name)
 {
   int hash_idx;
   hashport_t *tp;
@@ -525,7 +525,7 @@ static void parse_service_line (char *line)
 
 
 static void
-add_serv_port_cb(guint32 port)
+add_serv_port_cb(const guint32 port)
 {
     if ( port ) {
       add_service_name(cb_port_table, port, cb_service);
@@ -574,7 +574,7 @@ static void initialize_services(void)
 
 
 
-static gchar *serv_name_lookup(guint port, port_type proto)
+static gchar *serv_name_lookup(const guint port, const port_type proto)
 {
   int hash_idx;
   hashport_t *tp;
@@ -650,7 +650,7 @@ static gchar *serv_name_lookup(guint port, port_type proto)
 /* Fill in an IP4 structure with info from subnets file or just with the
  * string form of the address.
  */
-static void fill_dummy_ip4(guint addr, hashipv4_t* volatile tp)
+static void fill_dummy_ip4(const guint addr, hashipv4_t* volatile tp)
 {
   subnet_entry_t subnet_entry;
 
@@ -728,7 +728,7 @@ c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
 #endif /* HAVE_C_ARES */
 
 /* --------------- */
-static hashipv4_t *new_ipv4(guint addr)
+static hashipv4_t *new_ipv4(const guint addr)
 {
     hashipv4_t *tp = g_malloc(sizeof(hashipv4_t));
     tp->addr = addr;
@@ -739,7 +739,7 @@ static hashipv4_t *new_ipv4(guint addr)
     return tp;
 }
 
-static hashipv4_t *host_lookup(guint addr, gboolean resolve, gboolean *found)
+static hashipv4_t *host_lookup(const guint addr, const gboolean resolve, gboolean *found)
 {
   int hash_idx;
   hashipv4_t * volatile tp;
@@ -817,7 +817,7 @@ static hashipv4_t *host_lookup(guint addr, gboolean resolve, gboolean *found)
 
 } /* host_name_lookup */
 
-static gchar *host_name_lookup(guint addr, gboolean *found)
+static gchar *host_name_lookup(const guint addr, gboolean *found)
 {
   hashipv4_t *tp;
   tp = host_lookup(addr, TRUE, found);
@@ -838,7 +838,7 @@ static hashipv6_t *new_ipv6(const struct e_in6_addr *addr)
 }
 
 /* ------------------------------------ */
-static hashipv6_t *host_lookup6(const struct e_in6_addr *addr, gboolean resolve, gboolean *found)
+static hashipv6_t *host_lookup6(const struct e_in6_addr *addr, const gboolean resolve, gboolean *found)
 {
   int hash_idx;
   hashipv6_t * volatile tp;
@@ -1016,7 +1016,7 @@ static const gchar *se_solve_address_to_name(const address *addr)
  */
 static gboolean
 parse_ether_address(const char *cp, ether_t *eth, unsigned int *mask,
-                    gboolean manuf_file)
+                    const gboolean manuf_file)
 {
   int i;
   unsigned long num;
@@ -1112,7 +1112,7 @@ parse_ether_address(const char *cp, ether_t *eth, unsigned int *mask,
 }
 
 static int parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
-                gboolean manuf_file)
+                const gboolean manuf_file)
 {
   /*
    *  See the ethers(4) or ethers(5) man page for ethers file format
@@ -1159,7 +1159,7 @@ static void end_ethent(void)
   }
 }
 
-static ether_t *get_ethent(unsigned int *mask, gboolean manuf_file)
+static ether_t *get_ethent(unsigned int *mask, const gboolean manuf_file)
 {
 
   static ether_t eth;
@@ -1267,7 +1267,7 @@ static int hash_eth_wka(const guint8 *addr, unsigned int mask)
             (HASHETHSIZE - 1);
 }
 
-static void add_manuf_name(guint8 *addr, unsigned int mask, gchar *name)
+static void add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
 {
   int hash_idx;
   hashmanuf_t *tp;
@@ -1377,7 +1377,7 @@ static hashmanuf_t *manuf_name_lookup(const guint8 *addr)
 
 } /* manuf_name_lookup */
 
-static hashether_t *wka_name_lookup(const guint8 *addr, unsigned int mask)
+static hashether_t *wka_name_lookup(const guint8 *addr, const unsigned int mask)
 {
   int hash_idx;
   hashether_t *(*wka_tp)[HASHETHSIZE];
@@ -1501,7 +1501,7 @@ static hashether_t *add_eth_name(const guint8 *addr, const gchar *name)
 } /* add_eth_name */
 
 /* XXXX */
-static hashether_t *eth_name_lookup(const guint8 *addr, gboolean resolve)
+static hashether_t *eth_name_lookup(const guint8 *addr, const gboolean resolve)
 {
   int hash_idx;
   hashmanuf_t *manufp;
@@ -2130,7 +2130,7 @@ static subnet_entry_t subnet_lookup(const guint32 addr)
  * The definition is taken by masking the address passed in with the mask of the
  * given length.
  */
-static void subnet_entry_set(guint32 subnet_addr, guint32 mask_length, const gchar* name)
+static void subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, const gchar* name)
 {
     subnet_length_entry_t* entry;
     hashipv4_t * tp;
@@ -2167,7 +2167,7 @@ static void subnet_entry_set(guint32 subnet_addr, guint32 mask_length, const gch
     have_subnet_entry = TRUE;
 }
 
-static guint32 get_subnet_mask(guint32 mask_length) {
+static guint32 get_subnet_mask(const guint32 mask_length) {
 
     static guint32 masks[SUBNETLENGTHSIZE];
     static gboolean initialised = FALSE;
@@ -2509,7 +2509,7 @@ host_name_lookup_cleanup(void) {
 
 #endif /* HAVE_C_ARES */
 
-extern const gchar *get_hostname(guint addr)
+extern const gchar *get_hostname(const guint addr)
 {
   gboolean found;
   gboolean resolve = g_resolv_flags & RESOLV_NETWORK;
@@ -2523,7 +2523,7 @@ extern const gchar *get_hostname(guint addr)
 
 /* -------------------------- */
 
-extern const gchar *get_hostname6(struct e_in6_addr *addr)
+extern const gchar *get_hostname6(const struct e_in6_addr *addr)
 {
   gboolean found;
   gboolean resolve = g_resolv_flags & RESOLV_NETWORK;
@@ -2535,7 +2535,7 @@ extern const gchar *get_hostname6(struct e_in6_addr *addr)
 }
 
 /* -------------------------- */
-extern void add_ipv4_name(guint addr, const gchar *name)
+extern void add_ipv4_name(const guint addr, const gchar *name)
 {
   int hash_idx;
   hashipv4_t *tp;
@@ -2571,7 +2571,7 @@ extern void add_ipv4_name(guint addr, const gchar *name)
 } /* add_ipv4_name */
 
 /* -------------------------- */
-extern void add_ipv6_name(struct e_in6_addr *addrp, const gchar *name)
+extern void add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
 {
   int hash_idx;
   hashipv6_t *tp;
@@ -2706,7 +2706,7 @@ const gchar *se_get_addr_name(const address *addr)
   return se_address_to_str(addr);
 }
 
-void get_addr_name_buf(address *addr, gchar *buf, gsize size)
+void get_addr_name_buf(const address *addr, gchar *buf, gsize size)
 {
   const gchar *result = get_addr_name(addr);
 
@@ -2805,7 +2805,7 @@ extern guint8 *get_ether_addr(const gchar *name)
 
 } /* get_ether_addr */
 
-extern void add_ether_byip(guint ip, const guint8 *eth)
+extern void add_ether_byip(const guint ip, const guint8 *eth)
 {
 
   gchar *host;

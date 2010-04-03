@@ -150,7 +150,7 @@ extern void dissector_all_tables_foreach_table (DATFunc_table func,
 
 /* a protocol uses the function to register a sub-dissector table */
 extern dissector_table_t register_dissector_table(const char *name,
-    const char *ui_name, ftenum_t type, int base);
+    const char *ui_name, const ftenum_t type, const int base);
 
 /* Find a dissector table by table name. */
 extern dissector_table_t find_dissector_table(const char *name);
@@ -167,38 +167,38 @@ extern ftenum_t get_dissector_table_selector_type(const char *name);
 extern int get_dissector_table_base(const char *name);
 
 /* Add an entry to a uint dissector table. */
-extern void dissector_add(const char *abbrev, guint32 pattern,
+extern void dissector_add(const char *abbrev, const guint32 pattern,
     dissector_handle_t handle);
 
 /* Delete the entry for a dissector in a uint dissector table
    with a particular pattern. */
-extern void dissector_delete(const char *name, guint32 pattern,
+extern void dissector_delete(const char *name, const guint32 pattern,
     dissector_handle_t handle);
 
 /* Change the entry for a dissector in a uint dissector table
    with a particular pattern to use a new dissector handle. */
-extern void dissector_change(const char *abbrev, guint32 pattern,
+extern void dissector_change(const char *abbrev, const guint32 pattern,
     dissector_handle_t handle);
 
 /* Reset an entry in a uint dissector table to its initial value. */
-extern void dissector_reset(const char *name, guint32 pattern);
+extern void dissector_reset(const char *name, const guint32 pattern);
 
 /* Look for a given value in a given uint dissector table and, if found,
    call the dissector with the arguments supplied, and return TRUE,
    otherwise return FALSE. */
 extern gboolean dissector_try_port(dissector_table_t sub_dissectors,
-    guint32 port, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+    const guint32 port, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Look for a given value in a given uint dissector table and, if found,
    call the dissector with the arguments supplied, and return TRUE,
    otherwise return FALSE. */
 extern gboolean dissector_try_port_new(dissector_table_t sub_dissectors, 
-	guint32 port, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean add_proto_name);
+	const guint32 port, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name);
 
 /* Look for a given value in a given uint dissector table and, if found,
    return the dissector handle for that value. */
 extern dissector_handle_t dissector_get_port_handle(
-    dissector_table_t sub_dissectors, guint32 port);
+    dissector_table_t const sub_dissectors, const guint32 port);
 
 /* Add an entry to a string dissector table. */
 extern void dissector_add_string(const char *name, const gchar *pattern,
@@ -268,7 +268,7 @@ extern gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
  * @param proto the protocol id of the sub-dissector
  */
 extern void heur_dissector_add(const char *name, heur_dissector_t dissector,
-    int proto);
+    const int proto);
 
 /** Remove a sub-dissector from a heuristic dissector list.
  *  Call this in the prefs_reinit function of the sub-dissector.
@@ -277,28 +277,28 @@ extern void heur_dissector_add(const char *name, heur_dissector_t dissector,
  * @param dissector the sub-dissector to be unregistered
  * @param proto the protocol id of the sub-dissector
  */
-extern void heur_dissector_delete(const char *name, heur_dissector_t dissector, int proto);
+extern void heur_dissector_delete(const char *name, heur_dissector_t dissector, const int proto);
 
 /* Register a dissector. */
 extern void register_dissector(const char *name, dissector_t dissector,
-    int proto);
+    const int proto);
 extern void new_register_dissector(const char *name, new_dissector_t dissector,
-    int proto);
+    const int proto);
 
 /* Get the short name of the protocol for a dissector handle. */
-extern const char *dissector_handle_get_short_name(dissector_handle_t handle);
+extern const char *dissector_handle_get_short_name(const dissector_handle_t handle);
 
 /* Get the index of the protocol for a dissector handle. */
-extern int dissector_handle_get_protocol_index(dissector_handle_t handle);
+extern int dissector_handle_get_protocol_index(const dissector_handle_t handle);
 
 /* Find a dissector by name. */
 extern dissector_handle_t find_dissector(const char *name);
 
 /* Create an anonymous handle for a dissector. */
 extern dissector_handle_t create_dissector_handle(dissector_t dissector,
-    int proto);
+    const int proto);
 extern dissector_handle_t new_create_dissector_handle(new_dissector_t dissector,
-    int proto);
+    const int proto);
 
 /* Call a dissector through a handle and if no dissector was found
  * pass if over to the "data" dissector instead.
@@ -339,7 +339,7 @@ extern void dissect_cleanup(void);
  * Given a tvbuff, and a length from a packet header, adjust the length
  * of the tvbuff to reflect the specified length.
  */
-extern void set_actual_length(tvbuff_t *tvb, guint specified_len);
+extern void set_actual_length(tvbuff_t *tvb, const guint specified_len);
 
 /* Allow protocols to register "init" routines, which are called before
    we make a pass through a capture file and dissect all its packets

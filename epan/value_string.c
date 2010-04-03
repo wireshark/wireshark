@@ -37,7 +37,7 @@
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
 const gchar*
-val_to_str(guint32 val, const value_string *vs, const char *fmt) {
+val_to_str(const guint32 val, const value_string *vs, const char *fmt) {
   const gchar *ret;
 
   g_assert(fmt != NULL);
@@ -53,7 +53,7 @@ val_to_str(guint32 val, const value_string *vs, const char *fmt) {
    Returns the associated string ptr on a match.
    Returns 'unknown_str', on failure. */
 const gchar*
-val_to_str_const(guint32 val, const value_string *vs, const char *unknown_str) {
+val_to_str_const(const guint32 val, const value_string *vs, const char *unknown_str) {
   const gchar *ret;
 
   g_assert(unknown_str != NULL);
@@ -70,7 +70,7 @@ val_to_str_const(guint32 val, const value_string *vs, const char *unknown_str) {
    that table, on a match, and returns NULL, and sets "*idx" to -1,
    on failure. */
 const gchar*
-match_strval_idx(guint32 val, const value_string *vs, gint *idx) {
+match_strval_idx(const guint32 val, const value_string *vs, gint *idx) {
   gint i = 0;
 
   if(vs) {
@@ -89,7 +89,7 @@ match_strval_idx(guint32 val, const value_string *vs, gint *idx) {
 
 /* Like match_strval_idx(), but doesn't return the index. */
 const gchar*
-match_strval(guint32 val, const value_string *vs) {
+match_strval(const guint32 val, const value_string *vs) {
     gint ignore_me;
     return match_strval_idx(val, vs, &ignore_me);
 }
@@ -142,7 +142,7 @@ match_strstr(const gchar *val, const string_string *vs) {
 /* Generate a string describing an enumerated bitfield (an N-bit field
    with various specific values having particular names). */
 const char *
-decode_enumerated_bitfield(guint32 val, guint32 mask, int width,
+decode_enumerated_bitfield(const guint32 val, const guint32 mask, const int width,
     const value_string *tab, const char *fmt)
 {
   static char buf[1025];
@@ -157,7 +157,7 @@ decode_enumerated_bitfield(guint32 val, guint32 mask, int width,
 /* Generate a string describing an enumerated bitfield (an N-bit field
    with various specific values having particular names). */
 const char *
-decode_enumerated_bitfield_shifted(guint32 val, guint32 mask, int width,
+decode_enumerated_bitfield_shifted(const guint32 val, const guint32 mask, const int width,
     const value_string *tab, const char *fmt)
 {
   static char buf[1025];
@@ -180,7 +180,7 @@ decode_enumerated_bitfield_shifted(guint32 val, guint32 mask, int width,
 /* Tries to match val against each range in the range_string array rs.
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
-const gchar *rval_to_str(guint32 val, const range_string *rs, const char *fmt) 
+const gchar *rval_to_str(const guint32 val, const range_string *rs, const char *fmt) 
 {
   const gchar *ret = NULL;
 
@@ -197,7 +197,7 @@ const gchar *rval_to_str(guint32 val, const range_string *rs, const char *fmt)
    Returns the associated string ptr, and sets "*idx" to the index in
    that table, on a match, and returns NULL, and sets "*idx" to -1,
    on failure. */
-const gchar *match_strrval_idx(guint32 val, const range_string *rs, gint *idx)
+const gchar *match_strrval_idx(const guint32 val, const range_string *rs, gint *idx)
 {
   gint i = 0;
 
@@ -216,7 +216,7 @@ const gchar *match_strrval_idx(guint32 val, const range_string *rs, gint *idx)
 }
 
 /* Like match_strrval_idx(), but doesn't return the index. */
-const gchar *match_strrval(guint32 val, const range_string *rs)
+const gchar *match_strrval(const guint32 val, const range_string *rs)
 {
     gint ignore_me = 0;
     return match_strrval_idx(val, rs, &ignore_me);

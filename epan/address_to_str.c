@@ -127,7 +127,7 @@ ip6_to_str_buf(const struct e_in6_addr *ad, gchar *buf)
 }
 
 gchar*
-ipx_addr_to_str(guint32 net, const guint8 *ad)
+ipx_addr_to_str(const guint32 net, const guint8 *ad)
 {
 	gchar	*buf;
 	char	*name;
@@ -152,7 +152,7 @@ ipxnet_to_string(const guint8 *ad)
 }
 
 gchar *
-ipxnet_to_str_punct(const guint32 ad, char punct)
+ipxnet_to_str_punct(const guint32 ad, const char punct)
 {
   gchar *buf = ep_alloc(12);
 

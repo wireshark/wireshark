@@ -104,7 +104,7 @@ static tvbparse_elem_t* new_tok(tvbparse_t* tt,
 	return tok;
 }
 
-static int ignore_fcn(tvbparse_t* tt,int offset) {
+static int ignore_fcn(tvbparse_t* tt, int offset) {
     int len = 0;
     int consumed;
     tvbparse_elem_t* ignored = NULL;
@@ -132,7 +132,7 @@ static int ignore_fcn(tvbparse_t* tt,int offset) {
 }
 
 
-static int cond_char (tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
+static int cond_char (tvbparse_t* tt, const int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
     gchar c,t;
     guint i;
 
@@ -158,7 +158,7 @@ static int cond_char (tvbparse_t* tt, int offset, const tvbparse_wanted_t * want
     return -1;
 }
 
-tvbparse_wanted_t* tvbparse_char(int id,
+tvbparse_wanted_t* tvbparse_char(const int id,
                                  const gchar* chr,
                                  const void* data,
                                  tvbparse_action_t before_cb,
@@ -217,9 +217,9 @@ next_char:
     }
 }
 
-tvbparse_wanted_t* tvbparse_chars(int id,
-								  guint min_len,
-								  guint max_len,
+tvbparse_wanted_t* tvbparse_chars(const int id,
+								  const guint min_len,
+								  const guint max_len,
 								  const gchar* chr,
 								  const void* data,
 								  tvbparse_action_t before_cb,
@@ -239,7 +239,7 @@ tvbparse_wanted_t* tvbparse_chars(int id,
 }
 
 
-static int cond_not_char(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
+static int cond_not_char(tvbparse_t* tt, const int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
     gchar c, t;
     guint i;
     gboolean not_matched = FALSE;
@@ -271,7 +271,7 @@ static int cond_not_char(tvbparse_t* tt, int offset, const tvbparse_wanted_t * w
     }
 }
 
-tvbparse_wanted_t* tvbparse_not_char(int id,
+tvbparse_wanted_t* tvbparse_not_char(const int id,
                                      const gchar* chr,
                                      const void* data,
                                      tvbparse_action_t before_cb,
@@ -331,9 +331,9 @@ end_not_chars:
     }
 }
 
-tvbparse_wanted_t* tvbparse_not_chars(int id,
-									  guint min_len,
-									  guint max_len,
+tvbparse_wanted_t* tvbparse_not_chars(const int id,
+									  const guint min_len,
+									  const guint max_len,
 									  const gchar* chr,
 									  const void* data,
 									  tvbparse_action_t before_cb,
@@ -354,7 +354,7 @@ tvbparse_wanted_t* tvbparse_not_chars(int id,
 }
 
 
-static int cond_string(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
+static int cond_string(tvbparse_t* tt, const int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
     int len = wanted->len;
 #ifdef TVBPARSE_DEBUG
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_STRING) g_warning("cond_string: control='%s'",wanted->control.str);
@@ -374,7 +374,7 @@ static int cond_string(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wan
     }
 }
 
-tvbparse_wanted_t* tvbparse_string(int id,
+tvbparse_wanted_t* tvbparse_string(const int id,
 								   const gchar* str,
 								   const void* data,
 								   tvbparse_action_t before_cb,
@@ -392,7 +392,7 @@ tvbparse_wanted_t* tvbparse_string(int id,
 	return w;
 }
 
-static int cond_casestring(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
+static int cond_casestring(tvbparse_t* tt, const int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
     int len = wanted->len;
 #ifdef TVBPARSE_DEBUG
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_CASESTRING) g_warning("cond_casestring: control='%s'",wanted->control.str);
@@ -413,7 +413,7 @@ static int cond_casestring(tvbparse_t* tt, int offset, const tvbparse_wanted_t *
     }
 }
 
-tvbparse_wanted_t* tvbparse_casestring(int id,
+tvbparse_wanted_t* tvbparse_casestring(const int id,
                                        const gchar* str,
                                        const void* data,
                                        tvbparse_action_t before_cb,
@@ -431,7 +431,7 @@ tvbparse_wanted_t* tvbparse_casestring(int id,
 	return w;
 }
 
-static int cond_one_of(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
+static int cond_one_of(tvbparse_t* tt, const int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
     guint i;
 #ifdef TVBPARSE_DEBUG
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_ONEOF) g_warning("cond_one_of: START");
@@ -463,7 +463,7 @@ static int cond_one_of(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wan
     return -1;
 }
 
-tvbparse_wanted_t* tvbparse_set_oneof(int id,
+tvbparse_wanted_t* tvbparse_set_oneof(const int id,
                                       const void* data, 
                                       tvbparse_action_t before_cb,
                                       tvbparse_action_t after_cb,
@@ -490,7 +490,7 @@ tvbparse_wanted_t* tvbparse_set_oneof(int id,
 	return w;
 }
 
-static int cond_hash(tvbparse_t* tt, int offset, const tvbparse_wanted_t* wanted, tvbparse_elem_t** tok) {
+static int cond_hash(tvbparse_t* tt, const int offset, const tvbparse_wanted_t* wanted, tvbparse_elem_t** tok) {
     int key_len;
     gchar* key = NULL;
     tvbparse_elem_t* key_elem = NULL;
@@ -541,7 +541,7 @@ static int cond_hash(tvbparse_t* tt, int offset, const tvbparse_wanted_t* wanted
     return tot_len;
 }
 
-tvbparse_wanted_t* tvbparse_hashed(int id,
+tvbparse_wanted_t* tvbparse_hashed(const int id,
                                    const void* data, 
                                    tvbparse_action_t before_cb,
                                    tvbparse_action_t after_cb,
@@ -639,7 +639,7 @@ static int cond_seq(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted
 }
 
 
-tvbparse_wanted_t* tvbparse_set_seq(int id,
+tvbparse_wanted_t* tvbparse_set_seq(const int id,
                                     const void* data,
                                     tvbparse_action_t before_cb,
                                     tvbparse_action_t after_cb,
@@ -726,9 +726,9 @@ static int cond_some(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wante
     return offset - start;
 }
 
-tvbparse_wanted_t* tvbparse_some(int id,
-								 guint from,
-								 guint to,
+tvbparse_wanted_t* tvbparse_some(const int id,
+								 const guint from,
+								 const guint to,
 								 const void* data,
 								 tvbparse_action_t before_cb,
 								 tvbparse_action_t after_cb,
@@ -751,7 +751,7 @@ tvbparse_wanted_t* tvbparse_some(int id,
 }
 
 
-static int cond_until(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
+static int cond_until(tvbparse_t* tt, const int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
     tvbparse_elem_t* new = NULL;
     int len = 0;
     int target_offset = offset;
@@ -805,7 +805,7 @@ static int cond_until(tvbparse_t* tt, int offset, const tvbparse_wanted_t * want
     }
 }
 
-tvbparse_wanted_t* tvbparse_until(int id,
+tvbparse_wanted_t* tvbparse_until(const int id,
                                   const void* data,
                                   tvbparse_action_t before_cb,
                                   tvbparse_action_t after_cb,
@@ -824,7 +824,7 @@ tvbparse_wanted_t* tvbparse_until(int id,
 	return w;
 }
 
-static int cond_handle(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
+static int cond_handle(tvbparse_t* tt, const int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
     tvbparse_wanted_t* w = *(wanted->control.handle);
     int len = w->condition(tt, offset, w,  tok);
 
@@ -844,7 +844,7 @@ tvbparse_wanted_t* tvbparse_handle(tvbparse_wanted_t** handle) {
 	return w;
 }
 
-static int cond_end(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted _U_, tvbparse_elem_t** tok) {
+static int cond_end(tvbparse_t* tt, const int offset, const tvbparse_wanted_t * wanted _U_, tvbparse_elem_t** tok) {
     if (offset == tt->end_offset) {
         *tok = new_tok(tt,wanted->id,offset,0,wanted);
         return 0;
@@ -853,7 +853,7 @@ static int cond_end(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted
     }
 }
 
-tvbparse_wanted_t* tvbparse_end_of_buffer(int id,
+tvbparse_wanted_t* tvbparse_end_of_buffer(const int id,
                                const void* data,
                                tvbparse_action_t before_cb,
                                tvbparse_action_t after_cb) {
@@ -1156,12 +1156,12 @@ tvbparse_wanted_t* tvbparse_ft_numcmp(int id,
 #endif
 
 
-tvbparse_wanted_t* tvbparse_quoted(int id,
+tvbparse_wanted_t* tvbparse_quoted(const int id,
 								   const void* data,
 								   tvbparse_action_t before_cb,
 								   tvbparse_action_t after_cb,
-								   char quote,
-								   char esc) {
+								   const char quote,
+								   const char esc) {
 	
 	gchar* esc_quot = g_strdup_printf("%c%c",esc,quote);
 	gchar* quot = g_strdup_printf("%c",quote);
@@ -1193,7 +1193,7 @@ void tvbparse_shrink_token_cb(void* tvbparse_data _U_,
 }
 
 tvbparse_t* tvbparse_init(tvbuff_t* tvb,
-						  int offset,
+						  const int offset,
 						  int len,
 						  void* data,
 						  const tvbparse_wanted_t* ignore) {
@@ -1214,7 +1214,7 @@ tvbparse_t* tvbparse_init(tvbuff_t* tvb,
 }
 
 gboolean tvbparse_reset(tvbparse_t* tt,
-						int offset,
+						const int offset,
 						int len) {
 	
 #ifdef TVBPARSE_DEBUG

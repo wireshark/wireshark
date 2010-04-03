@@ -53,19 +53,19 @@ ipv4_addr_free(ipv4_addr *ipv4)
 }
 
 void
-ipv4_addr_set_host_order_addr(ipv4_addr *ipv4, guint32 new_addr)
+ipv4_addr_set_host_order_addr(ipv4_addr *ipv4, const guint32 new_addr)
 {
 	ipv4->addr = new_addr;
 }
 
 void
-ipv4_addr_set_net_order_addr(ipv4_addr *ipv4, guint32 new_addr)
+ipv4_addr_set_net_order_addr(ipv4_addr *ipv4, const guint32 new_addr)
 {
 	ipv4->addr = g_ntohl(new_addr);
 }
 
 void
-ipv4_addr_set_netmask_bits(ipv4_addr *ipv4, guint new_nmask_bits)
+ipv4_addr_set_netmask_bits(ipv4_addr *ipv4, const guint new_nmask_bits)
 {
 	static guint32 bitmasks[33] = {
 		0x00000000,
