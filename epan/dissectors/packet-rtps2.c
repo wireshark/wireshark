@@ -54,13 +54,13 @@
 # include "config.h"
 #endif
 
-#include  <stdio.h>
-#include  <stdlib.h>
-#include  <string.h>
-#include  <glib.h>
-#include  <epan/packet.h>
-#include  <epan/addr_resolv.h>
-#include  <epan/prefs.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <glib.h>
+#include <epan/packet.h>
+#include <epan/addr_resolv.h>
+#include <epan/prefs.h>
 
 
 #include "packet-rtps2.h"
