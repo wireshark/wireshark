@@ -31,8 +31,9 @@
 #include <epan/emem.h>
 #include <epan/value_string.h>
 
-#ifdef HAVE_LIBGNUTLS
 #include <stdio.h>
+
+#ifdef HAVE_LIBGNUTLS
 #include <gcrypt.h>
 #include <gnutls/x509.h>
 #include <gnutls/pkcs12.h>
