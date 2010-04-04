@@ -1092,7 +1092,7 @@ proto_item *proto_tree_add_uint_format(proto_tree *tree _U_, int hfindex _U_,
                                        const char *format _U_, ...)
 { return NULL; }
 
-proto_tree* proto_item_add_subtree(proto_item *ti _U_, gint idx _U_)
+proto_tree* proto_item_add_subtree(proto_item *ti _U_, const gint idx _U_)
 { return NULL; }
 
 proto_item *proto_tree_add_boolean(proto_tree *tree _U_, int hfindex _U_,
@@ -1100,15 +1100,16 @@ proto_item *proto_tree_add_boolean(proto_tree *tree _U_, int hfindex _U_,
                                    gint length _U_, guint32 value _U_)
 { return NULL; }
 
-proto_item *proto_tree_add_item(proto_tree *tree _U_, int hfindex _U_,
-                                tvbuff_t *tvb _U_, gint start _U_,
-                                gint length _U_, gboolean little_endian _U_)
+proto_item *proto_tree_add_item(proto_tree *tree _U_, const int hfindex _U_,
+                                tvbuff_t *tvb _U_, const gint start _U_,
+                                gint length _U_,
+                                const gboolean little_endian _U_)
 { return NULL; }
 
-gint check_col(column_info *cinfo _U_, gint col _U_)
+gint check_col(column_info *cinfo _U_, const gint col _U_)
 { return 0; }
 
-void col_add_fstr(column_info *cinfo _U_, gint col _U_, const gchar *format _U_,
+void col_add_fstr(column_info *cinfo _U_, const gint col _U_, const gchar *format _U_,
                        ...)
 {}
 
