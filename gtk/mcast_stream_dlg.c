@@ -54,10 +54,6 @@
 #include "gtk/gui_utils.h"
 #include "gtk/gtkglobals.h"
 
-#include "image/clist_ascend.xpm"
-#include "image/clist_descend.xpm"
-
-
 /* Capture callback data keys */
 #define E_MCAST_ENTRY_1     "burst_interval"
 #define E_MCAST_ENTRY_2     "burst_alarm"
@@ -78,87 +74,52 @@ static const gchar PAR_LABEL_TEXT[] = "\nBurst int: ms   Burst alarm: pps    Buf
 static GtkWidget *mcast_stream_dlg = NULL;
 static GtkWidget *mcast_params_dlg = NULL;
 
-static GtkWidget *clist = NULL;
+static GtkListStore *list_store = NULL;
+static GtkTreeIter list_iter;
+static GtkWidget *list = NULL;
 static GtkWidget *top_label = NULL;
 static GtkWidget *label_fwd = NULL;
 static GtkWidget *label_par = NULL;
+static GtkWidget *bt_filter = NULL;
 
 static mcast_stream_info_t* selected_stream_fwd = NULL;  /* current selection */
 static GList *last_list = NULL;
 
 static guint32 streams_nb = 0;     /* number of displayed streams */
 
-#define NUM_COLS 12
-static const gchar *titles[NUM_COLS] =  {"Src IP addr", "Src port",  "Dst IP addr", "Dst port", "Packets", "Packets/s", "Avg Bw", "Max Bw", "Max burst", "Burst Alarms", "Max buffer", "Buff Alarms"};
-
-/****************************************************************************/
-/* append a line to clist */
-static void add_to_clist(mcast_stream_info_t* strinfo)
+enum
 {
-	gchar label_text[256];
-	gint added_row;
-	gchar *data[NUM_COLS];
-	int i;
-	char *savelocale;
-
-	/* save the current locale */
-	savelocale = setlocale(LC_NUMERIC, NULL);
-	/* switch to "C" locale to avoid problems with localized decimal separators
-		in g_snprintf("%f") functions */
-	setlocale(LC_NUMERIC, "C");
-	data[0] = g_strdup(get_addr_name(&(strinfo->src_addr)));
-	data[1] = g_strdup_printf("%u", strinfo->src_port);
-	data[2] = g_strdup(get_addr_name(&(strinfo->dest_addr)));
-	data[3] = g_strdup_printf("%u", strinfo->dest_port);
-	data[4] = g_strdup_printf("%u", strinfo->npackets);
-	data[5] = g_strdup_printf("%u /s", strinfo->apackets);
-	data[6] = g_strdup_printf("%2.1f Mbps", strinfo->average_bw);
-	data[7] = g_strdup_printf("%2.1f Mbps", strinfo->element.maxbw);
-	data[8] = g_strdup_printf("%u / %dms", strinfo->element.topburstsize, burstint);
-	data[9] = g_strdup_printf("%u", strinfo->element.numbursts);
-	data[10] = g_strdup_printf("%.1f KB", (float)strinfo->element.topbuffusage/1000);
-	data[11] = g_strdup_printf("%u", strinfo->element.numbuffalarms);
-
-	/* restore previous locale setting */
-	setlocale(LC_NUMERIC, savelocale);
-
-	added_row = gtk_clist_append(GTK_CLIST(clist), data);
-	for (i = 0; i < NUM_COLS; i++)
-		g_free(data[i]);
-
-	/* set data pointer of last row to point to user data for that row */
-	gtk_clist_set_row_data(GTK_CLIST(clist), added_row, strinfo);
-
-	/* Update the top label with the number of detected streams */
-	g_snprintf(label_text, sizeof(label_text),
-	        "Detected %d Multicast streams,   Average Bw: %.1f Mbps   Max Bw: %.1f Mbps   Max burst: %d / %dms   Max buffer: %.1f KB",
-	        ++streams_nb,
-		mcaststream_get_info()->allstreams->average_bw, mcaststream_get_info()->allstreams->element.maxbw,
-		mcaststream_get_info()->allstreams->element.topburstsize, burstint,
-		(float)(mcaststream_get_info()->allstreams->element.topbuffusage)/1000);
-	 gtk_label_set_text(GTK_LABEL(top_label), label_text);
-
-         g_snprintf(label_text, sizeof(label_text), "\nBurst int: %u ms   Burst alarm: %u pps   Buffer alarm: %u Bytes   Stream empty speed: %u Kbps   Total empty speed: %u Kbps\n",
-		burstint, trigger, bufferalarm, emptyspeed, cumulemptyspeed);
-	gtk_label_set_text(GTK_LABEL(label_par), label_text);
-}
+   MC_COL_SRC_ADDR,
+   MC_COL_SRC_PORT,
+   MC_COL_DST_ADDR,
+   MC_COL_DST_PORT,
+   MC_COL_PACKETS,
+   MC_COL_PPS,
+   MC_COL_AVG_BW,
+   MC_COL_MAX_BW,
+   MC_COL_MAX_BURST,
+   MC_COL_BURST_ALARM,
+   MC_COL_MAX_BUFFER,
+   MC_COL_BUFFER_ALARM,
+   MC_COL_DATA,
+   NUM_COLS /* The number of columns */
+};
 
 /****************************************************************************/
 /* CALLBACKS                                                                */
 /****************************************************************************/
 static void
-mcaststream_on_destroy                      (GtkObject       *object _U_,
-                                        gpointer         user_data _U_)
+mcaststream_on_destroy(GtkObject *object _U_, gpointer user_data _U_)
 {
 	/* Remove the stream tap listener */
 	remove_tap_listener_mcast_stream();
 
 	/* Is there a params window open? */
-        if (mcast_params_dlg != NULL)
-                window_destroy(mcast_params_dlg);
+	if (mcast_params_dlg != NULL)
+		window_destroy(mcast_params_dlg);
 
 	/* Clean up memory used by stream tap */
-	mcaststream_reset((mcaststream_tapinfo_t*) mcaststream_get_info());
+	mcaststream_reset((mcaststream_tapinfo_t*)mcaststream_get_info());
 
 	/* Note that we no longer have a "Mcast Streams" dialog box. */
 	mcast_stream_dlg = NULL;
@@ -167,48 +128,43 @@ mcaststream_on_destroy                      (GtkObject       *object _U_,
 
 /****************************************************************************/
 static void
-mcaststream_on_unselect                  (GtkButton       *button _U_,
-                                        gpointer         user_data _U_)
+mcaststream_on_unselect(GtkButton *button _U_, gpointer user_data _U_)
 {
+	GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+	gtk_tree_selection_unselect_all(selection);
+
 	selected_stream_fwd = NULL;
-	gtk_clist_unselect_all(GTK_CLIST(clist));
 	gtk_label_set_text(GTK_LABEL(label_fwd), FWD_LABEL_TEXT);
+	gtk_widget_set_sensitive(bt_filter, FALSE);
 }
 
 
 /****************************************************************************/
 static void
-mcaststream_on_filter                    (GtkButton       *button _U_,
-                                        gpointer         user_data _U_)
+mcaststream_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 {
-	gchar *filter_string = NULL;
 	gchar *filter_string_fwd = NULL;
 	gchar ip_version[3];
 
 	if (selected_stream_fwd==NULL)
 		return;
 
-	if (selected_stream_fwd)
-	{
-		if (selected_stream_fwd->src_addr.type==AT_IPv6){
-                    g_strlcpy(ip_version,"v6",sizeof(ip_version));
-		}
-		else{
-			ip_version[0] = '\0';
-		}
-		filter_string_fwd = g_strdup_printf(
-			"(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u)",
-			ip_version,
-			ep_address_to_str(&(selected_stream_fwd->src_addr)),
-			selected_stream_fwd->src_port,
-			ip_version,
-			ep_address_to_str(&(selected_stream_fwd->dest_addr)),
-			selected_stream_fwd->dest_port);
-        filter_string = filter_string_fwd;
+	if (selected_stream_fwd->src_addr.type==AT_IPv6){
+		g_strlcpy(ip_version,"v6",sizeof(ip_version));
+	} else {
+		ip_version[0] = '\0';
 	}
+	filter_string_fwd = g_strdup_printf(
+		"(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u)",
+		ip_version,
+		ep_address_to_str(&(selected_stream_fwd->src_addr)),
+		selected_stream_fwd->src_port,
+		ip_version,
+		ep_address_to_str(&(selected_stream_fwd->dest_addr)),
+		selected_stream_fwd->dest_port);
 
-        gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
-        g_free(filter_string);
+	gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd);
+	g_free(filter_string_fwd);
 
 /*
 	main_filter_packets(&cfile, filter_string, FALSE);
@@ -216,109 +172,29 @@ mcaststream_on_filter                    (GtkButton       *button _U_,
 */
 }
 
-
 /****************************************************************************/
 /* when the user selects a row in the stream list */
 static void
-mcaststream_on_select_row(GtkCList *clist_lcl,
-			  gint row _U_,
-			  gint column _U_,
-			  GdkEventButton *event _U_,
-			  gpointer user_data _U_)
+mcaststream_on_select_row(GtkTreeSelection *selection, gpointer data _U_)
 {
 	gchar label_text[80];
 
-	selected_stream_fwd = gtk_clist_get_row_data(GTK_CLIST(clist_lcl), row);
-	g_snprintf(label_text, sizeof(label_text), "Selected: %s:%u -> %s:%u",
+	if (gtk_tree_selection_get_selected(selection, NULL, &list_iter))
+	{
+		gtk_tree_model_get(GTK_TREE_MODEL(list_store), &list_iter, MC_COL_DATA, &selected_stream_fwd, -1);
+		g_snprintf(label_text, sizeof(label_text), "Selected: %s:%u -> %s:%u",
 			get_addr_name(&(selected_stream_fwd->src_addr)),
 			selected_stream_fwd->src_port,
 			get_addr_name(&(selected_stream_fwd->dest_addr)),
 			selected_stream_fwd->dest_port
-	);
-	gtk_label_set_text(GTK_LABEL(label_fwd), label_text);
-
-/*
-	gtk_widget_set_sensitive(filter_bt, TRUE);
-*/
-	/* TODO: activate other buttons when implemented */
-}
-
-
-/****************************************************************************/
-typedef struct column_arrows {
-	GtkWidget *table;
-	GtkWidget *ascend_pm;
-	GtkWidget *descend_pm;
-} column_arrows;
-
-
-/****************************************************************************/
-static void
-mcaststream_click_column_cb(GtkCList *clist_lcl, gint column, gpointer data)
-{
-	column_arrows *col_arrows = (column_arrows *) data;
-	int i;
-
-	gtk_clist_freeze(clist_lcl);
-
-	for (i=0; i<NUM_COLS; i++) {
-		gtk_widget_hide(col_arrows[i].ascend_pm);
-		gtk_widget_hide(col_arrows[i].descend_pm);
-	}
-
-	if (column == clist_lcl->sort_column) {
-		if (clist_lcl->sort_type == GTK_SORT_ASCENDING) {
-			clist_lcl->sort_type = GTK_SORT_DESCENDING;
-			gtk_widget_show(col_arrows[column].descend_pm);
-		} else {
-			clist_lcl->sort_type = GTK_SORT_ASCENDING;
-			gtk_widget_show(col_arrows[column].ascend_pm);
-		}
+		);
+		gtk_label_set_text(GTK_LABEL(label_fwd), label_text);
+		gtk_widget_set_sensitive(bt_filter, TRUE);
 	} else {
-		clist_lcl->sort_type = GTK_SORT_ASCENDING;
-		gtk_widget_show(col_arrows[column].ascend_pm);
-		gtk_clist_set_sort_column(clist_lcl, column);
+		selected_stream_fwd = NULL;
+		gtk_label_set_text(GTK_LABEL(label_fwd), FWD_LABEL_TEXT);
+		gtk_widget_set_sensitive(bt_filter, FALSE);
 	}
-	gtk_clist_thaw(clist_lcl);
-
-	gtk_clist_sort(clist_lcl);
-}
-
-
-/****************************************************************************/
-static gint
-mcaststream_sort_column(GtkCList *clist_lcl, gconstpointer ptr1, gconstpointer ptr2)
-{
-	char *text1 = NULL;
-	char *text2 = NULL;
-	int i1, i2;
-
-	const GtkCListRow *row1 = (const GtkCListRow *) ptr1;
-	const GtkCListRow *row2 = (const GtkCListRow *) ptr2;
-
-	text1 = GTK_CELL_TEXT (row1->cell[clist_lcl->sort_column])->text;
-	text2 = GTK_CELL_TEXT (row2->cell[clist_lcl->sort_column])->text;
-
-	switch(clist_lcl->sort_column){
-	case 0:
-	case 2:
-		return strcmp (text1, text2);
-	case 1:
-	case 3:
-	case 4:
-	case 5:
-	case 6:
-	case 7:
-	case 8:
-	case 9:
-	case 10:
-	case 11:
-		i1=atoi(text1);
-		i2=atoi(text2);
-		return i1-i2;
-	}
-	g_assert_not_reached();
-	return 0;
 }
 
 
@@ -327,8 +203,8 @@ mcaststream_sort_column(GtkCList *clist_lcl, gconstpointer ptr1, gconstpointer p
 /****************************************************************************/
 static void mcast_params_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
-        /* Note that we no longer have a mcast params dialog box. */
-        mcast_params_dlg = NULL;
+	/* Note that we no longer have a mcast params dialog box. */
+	mcast_params_dlg = NULL;
 }
 
 
@@ -337,89 +213,92 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
 	GtkWidget   *fnumber_te;
 	const gchar *fnumber_text;
-	gint32        fnumber;
+	gint32       fnumber;
 	char        *p;
 
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_1);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
 	fnumber = strtoul(fnumber_text, &p, 10);
-	if ( (p == fnumber_text || *p != '\0') || (fnumber <=0) || (fnumber > 1000) ){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The burst interval should be between 1 and 1000 ms ");
-		return; }
+	if ( (p == fnumber_text || *p != '\0') || (fnumber <= 0) || (fnumber > 1000) ) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The burst interval should be between 1 and 1000 ms.");
+		return;
+	}
 	burstint = fnumber;
 
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_2);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
 	fnumber = strtoul(fnumber_text, &p, 10);
-	if ( (p == fnumber_text || *p != '\0') || (fnumber <=0) ){
+	if ( (p == fnumber_text || *p != '\0') || (fnumber <= 0) ) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The burst alarm threshold you entered isn't valid.");
-		return; }
+		return;
+	}
 	trigger = fnumber;
 
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_3);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
 	fnumber = strtoul(fnumber_text, &p, 10);
-	if ( (p == fnumber_text || *p != '\0') || (fnumber <=0) ){
+	if ( (p == fnumber_text || *p != '\0') || (fnumber <= 0) ) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The buffer alarm threshold you entered isn't valid.");
-		return; }
+		return;
+	}
 	bufferalarm = fnumber;
 
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_4);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
 	fnumber = strtoul(fnumber_text, &p, 10);
-	if ( (p == fnumber_text || *p != '\0') || (fnumber <=0) || (fnumber > 10000000) ){
+	if ( (p == fnumber_text || *p != '\0') || (fnumber <= 0) || (fnumber > 10000000) ) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The stream empty speed should be between 1 and 10000000");
-		return; }
+		return;
+	}
 	emptyspeed = fnumber;
 
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_5);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
 	fnumber = strtoul(fnumber_text, &p, 10);
-	if ( (p == fnumber_text || *p != '\0') || (fnumber <=0) || (fnumber > 10000000) ){
+	if ( (p == fnumber_text || *p != '\0') || (fnumber <= 0) || (fnumber > 10000000) ) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The total empty speed should be between 1 and 10000000");
-		return; }
+		return;
+	}
 	cumulemptyspeed = fnumber;
 
 	window_destroy(GTK_WIDGET(parent_w));
 
 	/* Clean up memory used by stream tap */
-        mcaststream_reset((mcaststream_tapinfo_t*) mcaststream_get_info());
+	mcaststream_reset((mcaststream_tapinfo_t*)mcaststream_get_info());
 	/* retap all packets */
-        cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile);
 
 }
 
 
-
 static void
-mcast_on_params                      (GtkButton       *button _U_,
-                                        gpointer         data _U_)
+mcast_on_params(GtkButton *button _U_, gpointer data _U_)
 {
 	GtkWidget *main_vb;
-        GtkWidget *label, *hbuttonbox, *table;
-        GtkWidget *ok_bt, *cancel_bt;
+	GtkWidget *label, *hbuttonbox, *table;
+	GtkWidget *ok_bt, *cancel_bt;
 	GtkWidget *entry1, *entry2, *entry3, *entry4, *entry5;
 	gchar label_text[51];
 
 	if (mcast_params_dlg != NULL) {
-                /* There's already a Params dialog box; reactivate it. */
-                reactivate_window(mcast_params_dlg);
-                return;
-        }
+		/* There's already a Params dialog box; reactivate it. */
+		reactivate_window(mcast_params_dlg);
+		return;
+	}
 
 	mcast_params_dlg = dlg_window_new("Wireshark: Set parameters for Multicast Stream Analysis");
-	gtk_window_set_destroy_with_parent (GTK_WINDOW(mcast_params_dlg), TRUE);
-        gtk_window_set_default_size(GTK_WINDOW(mcast_params_dlg), 210, 210);
+	gtk_window_set_destroy_with_parent(GTK_WINDOW(mcast_params_dlg), TRUE);
+	gtk_window_set_default_size(GTK_WINDOW(mcast_params_dlg), 210, 210);
 
-        gtk_widget_show(mcast_params_dlg);
+	gtk_widget_show(mcast_params_dlg);
 
-        /* Container for each row of widgets */
-        main_vb = gtk_vbox_new(FALSE, 3);
-        gtk_container_set_border_width(GTK_CONTAINER(main_vb), 2);
-        gtk_container_add(GTK_CONTAINER(mcast_params_dlg), main_vb);
-        gtk_widget_show(main_vb);
+	/* Container for each row of widgets */
+	main_vb = gtk_vbox_new(FALSE, 3);
+	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 2);
+	gtk_container_add(GTK_CONTAINER(mcast_params_dlg), main_vb);
+	gtk_widget_show(main_vb);
 
-	table = gtk_table_new (6, 2, FALSE);
+	table = gtk_table_new(6, 2, FALSE);
 	gtk_container_add (GTK_CONTAINER (main_vb), table);
 
 	label = gtk_label_new("  Burst measurement interval (ms)  ");
@@ -456,18 +335,18 @@ mcast_on_params                      (GtkButton       *button _U_,
 	gtk_widget_show (table);
 
 	/* button row */
-	hbuttonbox = gtk_hbutton_box_new ();
+	hbuttonbox = gtk_hbutton_box_new();
 	gtk_table_attach_defaults(GTK_TABLE(table), hbuttonbox, 0, 2, 5, 6);
 	ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-	gtk_container_add (GTK_CONTAINER (hbuttonbox), ok_bt);
+	gtk_container_add (GTK_CONTAINER(hbuttonbox), ok_bt);
 	cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-	gtk_container_add (GTK_CONTAINER (hbuttonbox), cancel_bt);
+	gtk_container_add (GTK_CONTAINER(hbuttonbox), cancel_bt);
 	GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
-	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_END);
-	gtk_box_set_spacing (GTK_BOX (hbuttonbox), 0);
+	gtk_button_box_set_layout(GTK_BUTTON_BOX(hbuttonbox), GTK_BUTTONBOX_END);
+	gtk_box_set_spacing(GTK_BOX(hbuttonbox), 0);
 
 	g_signal_connect(mcast_params_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-        g_signal_connect(mcast_params_dlg, "destroy", G_CALLBACK(mcast_params_destroy_cb), NULL);
+	g_signal_connect(mcast_params_dlg, "destroy", G_CALLBACK(mcast_params_destroy_cb), NULL);
 	g_signal_connect(ok_bt, "clicked", G_CALLBACK(mcast_params_ok_cb), mcast_params_dlg);
 	window_set_cancel_button(mcast_params_dlg, cancel_bt, window_cancel_button_cb);
 
@@ -483,24 +362,304 @@ mcast_on_params                      (GtkButton       *button _U_,
 }
 
 
+/****************************************************************************/
+/* append a line to list */
+static void
+add_to_list_store(mcast_stream_info_t* strinfo)
+{
+	gchar label_text[256];
+	gchar *data[NUM_COLS];
+	int i;
+	char *savelocale;
 
-static void mcaststream_dlg_create (void)
+	/* save the current locale */
+	savelocale = setlocale(LC_NUMERIC, NULL);
+	/* switch to "C" locale to avoid problems with localized decimal separators
+		in g_snprintf("%f") functions */
+	setlocale(LC_NUMERIC, "C");
+	data[0] = g_strdup(get_addr_name(&(strinfo->src_addr)));
+	data[1] = g_strdup_printf("%u", strinfo->src_port);
+	data[2] = g_strdup(get_addr_name(&(strinfo->dest_addr)));
+	data[3] = g_strdup_printf("%u", strinfo->dest_port);
+	data[4] = g_strdup_printf("%u", strinfo->npackets);
+	data[5] = g_strdup_printf("%u /s", strinfo->apackets);
+	data[6] = g_strdup_printf("%2.1f Mbps", strinfo->average_bw);
+	data[7] = g_strdup_printf("%2.1f Mbps", strinfo->element.maxbw);
+	data[8] = g_strdup_printf("%u / %dms", strinfo->element.topburstsize, burstint);
+	data[9] = g_strdup_printf("%u", strinfo->element.numbursts);
+	data[10] = g_strdup_printf("%.1f KB", (float)strinfo->element.topbuffusage/1000);
+	data[11] = g_strdup_printf("%u", strinfo->element.numbuffalarms);
+
+	/* restore previous locale setting */
+	setlocale(LC_NUMERIC, savelocale);
+
+	/* Acquire an iterator */
+	gtk_list_store_append(list_store, &list_iter);
+
+	/* Fill the new row */
+	gtk_list_store_set(list_store, &list_iter,
+			    MC_COL_SRC_ADDR, data[0],
+			    MC_COL_SRC_PORT, data[1],
+			    MC_COL_DST_ADDR, data[2],
+			    MC_COL_DST_PORT, data[3],
+			    MC_COL_PACKETS, data[4],
+			    MC_COL_PPS, data[5],
+			    MC_COL_AVG_BW, data[6],
+			    MC_COL_MAX_BW, data[7],
+			    MC_COL_MAX_BURST, data[8],
+			    MC_COL_BURST_ALARM, data[9],
+			    MC_COL_MAX_BUFFER, data[10],
+			    MC_COL_BUFFER_ALARM, data[11],
+			    MC_COL_DATA, strinfo,
+			    -1);
+
+	for (i = 0; i < NUM_COLS-1; i++)
+		g_free(data[i]);
+
+	/* Update the top label with the number of detected streams */
+	g_snprintf(label_text, sizeof(label_text),
+		"Detected %d Multicast streams,   Average Bw: %.1f Mbps   Max Bw: %.1f Mbps   Max burst: %d / %dms   Max buffer: %.1f KB",
+		++streams_nb,
+		mcaststream_get_info()->allstreams->average_bw, mcaststream_get_info()->allstreams->element.maxbw,
+		mcaststream_get_info()->allstreams->element.topburstsize, burstint,
+		(float)(mcaststream_get_info()->allstreams->element.topbuffusage)/1000);
+	gtk_label_set_text(GTK_LABEL(top_label), label_text);
+
+	g_snprintf(label_text, sizeof(label_text), "\nBurst int: %u ms   Burst alarm: %u pps   Buffer alarm: %u Bytes   Stream empty speed: %u Kbps   Total empty speed: %u Kbps\n",
+		burstint, trigger, bufferalarm, emptyspeed, cumulemptyspeed);
+	gtk_label_set_text(GTK_LABEL(label_par), label_text);
+}
+
+/****************************************************************************/
+/* Create list view */
+static void
+create_list_view(void)
+{
+	GtkTreeViewColumn *column;
+	GtkCellRenderer   *renderer;
+	GtkTreeSortable   *sortable;
+	GtkTreeView       *list_view;
+	GtkTreeSelection  *selection;
+
+	/* Create the store */
+	list_store = gtk_list_store_new(NUM_COLS,       /* Total number of columns */
+					G_TYPE_STRING,  /* Source address */
+					G_TYPE_STRING,  /* Source port */
+					G_TYPE_STRING,  /* Destination address */
+					G_TYPE_STRING,  /* Destination port */
+					G_TYPE_STRING,  /* Packets */
+					G_TYPE_STRING,  /* Packets per second */
+					G_TYPE_STRING,  /* Average bandwidth */
+					G_TYPE_STRING,  /* Max. bandwidth */
+					G_TYPE_STRING,  /* Max. burst */
+					G_TYPE_STRING,  /* Burst alarms */
+					G_TYPE_STRING,  /* Max. buffers */
+					G_TYPE_STRING,  /* Buffer alarms */
+					G_TYPE_POINTER  /* Data */
+				       );
+
+	/* Create a view */
+	list = gtk_tree_view_new_with_model(GTK_TREE_MODEL(list_store));
+
+	list_view = GTK_TREE_VIEW(list);
+	sortable = GTK_TREE_SORTABLE(list_store);
+
+#if GTK_CHECK_VERSION(2,6,0)
+	/* Speed up the list display */
+	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
+#endif
+
+	/* Setup the sortable columns */
+	gtk_tree_sortable_set_sort_column_id(sortable, MC_COL_SRC_ADDR, GTK_SORT_ASCENDING);
+	gtk_tree_view_set_headers_clickable(list_view, FALSE);
+
+	/* The view now holds a reference.  We can get rid of our own reference */
+	g_object_unref(G_OBJECT(list_store));
+
+	/*
+	 * Create the first column packet, associating the "text" attribute of the
+	 * cell_renderer to the first column of the model
+	 */
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("Src IP addr", renderer,
+		"text", MC_COL_SRC_ADDR,
+		NULL);
+	gtk_tree_view_column_set_sort_column_id(column, MC_COL_SRC_ADDR);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 60);
+	gtk_tree_view_column_set_fixed_width(column, 100);
+	/* Add the column to the view. */
+	gtk_tree_view_append_column(list_view, column);
+
+	/* Source port */
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("Src port", renderer,
+		"text", MC_COL_SRC_PORT,
+		NULL);
+	gtk_tree_view_column_set_sort_column_id(column, MC_COL_SRC_PORT);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 60);
+	gtk_tree_view_column_set_fixed_width(column, 80);
+	gtk_tree_view_append_column(list_view, column);
+
+	/* Destination address */
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("Dst IP addr", renderer,
+		"text", MC_COL_DST_ADDR,
+		NULL);
+	gtk_tree_view_column_set_sort_column_id(column, MC_COL_DST_ADDR);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 60);
+	gtk_tree_view_column_set_fixed_width(column, 100);
+	gtk_tree_view_append_column(list_view, column);
+
+	/* Destination port */
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("Dst port", renderer,
+		"text", MC_COL_DST_PORT,
+		NULL);
+	gtk_tree_view_column_set_sort_column_id(column, MC_COL_DST_PORT);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 60);
+	gtk_tree_view_column_set_fixed_width(column, 80);
+	gtk_tree_view_append_column(list_view, column);
+
+	/* Packets */
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("Packets", renderer,
+		"text", MC_COL_PACKETS,
+		NULL);
+	gtk_tree_view_column_set_sort_column_id(column, MC_COL_PACKETS);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 60);
+	gtk_tree_view_column_set_fixed_width(column, 80);
+	gtk_tree_view_append_column(list_view, column);
+
+	/* Packets/s */
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("Packets/s", renderer,
+		"text", MC_COL_PPS,
+		NULL);
+	gtk_tree_view_column_set_sort_column_id(column, MC_COL_PPS);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 60);
+	gtk_tree_view_column_set_fixed_width(column, 90);
+	gtk_tree_view_append_column(list_view, column);
+
+	/* Average bandwidth */
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("Avg Bw", renderer,
+		"text", MC_COL_AVG_BW,
+		NULL);
+	gtk_tree_view_column_set_sort_column_id(column, MC_COL_AVG_BW);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 70);
+	gtk_tree_view_column_set_fixed_width(column, 80);
+	gtk_tree_view_append_column(list_view, column);
+
+	/* Max. bandwidth */
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("Max Bw", renderer,
+		"text", MC_COL_MAX_BW,
+		NULL);
+	gtk_tree_view_column_set_sort_column_id(column, MC_COL_MAX_BW);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 70);
+	gtk_tree_view_column_set_fixed_width(column, 80);
+	gtk_tree_view_append_column(list_view, column);
+
+	/* Max. bursts */
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("Max bursts", renderer,
+		"text", MC_COL_MAX_BURST,
+		NULL);
+	gtk_tree_view_column_set_sort_column_id(column, MC_COL_MAX_BURST);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 70);
+	gtk_tree_view_column_set_fixed_width(column, 100);
+	gtk_tree_view_append_column(list_view, column);
+
+	/* Burst alarms*/
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("Burst alarms", renderer,
+		"text", MC_COL_BURST_ALARM,
+		NULL);
+	gtk_tree_view_column_set_sort_column_id(column, MC_COL_BURST_ALARM);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 90);
+	gtk_tree_view_column_set_fixed_width(column, 110);
+	gtk_tree_view_append_column(list_view, column);
+
+	/* Max. buffers */
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("Max buffers", renderer,
+		"text", MC_COL_MAX_BUFFER,
+		NULL);
+	gtk_tree_view_column_set_sort_column_id(column, MC_COL_MAX_BUFFER);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 90);
+	gtk_tree_view_column_set_fixed_width(column, 100);
+	gtk_tree_view_append_column(list_view, column);
+
+	/* Buffer alarms */
+	renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes("Buffer alarms", renderer,
+		"text", MC_COL_BUFFER_ALARM,
+		NULL);
+	gtk_tree_view_column_set_sort_column_id(column, MC_COL_BUFFER_ALARM);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 90);
+	gtk_tree_view_column_set_fixed_width(column, 120);
+	gtk_tree_view_append_column(list_view, column);
+
+	/* Now enable the sorting of each column */
+	gtk_tree_view_set_rules_hint(list_view, TRUE);
+	gtk_tree_view_set_headers_clickable(list_view, TRUE);
+
+	/* Setup the selection handler */
+	selection = gtk_tree_view_get_selection(list_view);
+	gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+
+	g_signal_connect(G_OBJECT(selection), "changed", /* (un)select_row */
+			 G_CALLBACK(mcaststream_on_select_row),
+			 NULL);
+
+}
+
+
+/****************************************************************************/
+/* Create dialog */
+static void
+mcaststream_dlg_create(void)
 {
     GtkWidget *mcaststream_dlg_w;
     GtkWidget *main_vb;
     GtkWidget *scrolledwindow;
     GtkWidget *hbuttonbox;
     /*GtkWidget *bt_unselect;*/
-    GtkWidget *bt_filter;
     GtkWidget *bt_params;
     GtkWidget *bt_close;
     GtkTooltips *tooltips = gtk_tooltips_new();
 
-    column_arrows *col_arrows;
-    GtkWidget *column_lb;
-    int i;
+    const gchar *title_name_ptr;
+    gchar *win_name;
 
-    mcaststream_dlg_w = dlg_window_new("Wireshark: UDP Multicast Streams");
+    title_name_ptr = cf_get_display_name(&cfile);
+    win_name = g_strdup_printf("%s - UDP Multicast Streams", title_name_ptr);
+    mcaststream_dlg_w = dlg_window_new(win_name);    
+
     gtk_window_set_default_size(GTK_WINDOW(mcaststream_dlg_w), 620, 400);
 
     main_vb = gtk_vbox_new (FALSE, 0);
@@ -513,69 +672,13 @@ static void mcaststream_dlg_create (void)
     scrolledwindow = scrolled_window_new (NULL, NULL);
     gtk_box_pack_start (GTK_BOX (main_vb), scrolledwindow, TRUE, TRUE, 0);
 
-    clist = gtk_clist_new (NUM_COLS);
-    gtk_container_add (GTK_CONTAINER (scrolledwindow), clist);
-
-    gtk_clist_set_column_width (GTK_CLIST (clist), 0, 95);
-    gtk_clist_set_column_width (GTK_CLIST (clist), 1, 55);
-    gtk_clist_set_column_width (GTK_CLIST (clist), 2, 95);
-    gtk_clist_set_column_width (GTK_CLIST (clist), 3, 55);
-    gtk_clist_set_column_width (GTK_CLIST (clist), 4, 70);
-    gtk_clist_set_column_width (GTK_CLIST (clist), 5, 70);
-    gtk_clist_set_column_width (GTK_CLIST (clist), 6, 60);
-    gtk_clist_set_column_width (GTK_CLIST (clist), 7, 60);
-    gtk_clist_set_column_width (GTK_CLIST (clist), 8, 80);
-    gtk_clist_set_column_width (GTK_CLIST (clist), 9, 85);
-    gtk_clist_set_column_width (GTK_CLIST (clist), 10, 80);
-    gtk_clist_set_column_width (GTK_CLIST (clist), 11, 80);
-
-    gtk_clist_set_column_justification(GTK_CLIST(clist), 0, GTK_JUSTIFY_CENTER);
-    gtk_clist_set_column_justification(GTK_CLIST(clist), 1, GTK_JUSTIFY_CENTER);
-    gtk_clist_set_column_justification(GTK_CLIST(clist), 2, GTK_JUSTIFY_CENTER);
-    gtk_clist_set_column_justification(GTK_CLIST(clist), 3, GTK_JUSTIFY_CENTER);
-    gtk_clist_set_column_justification(GTK_CLIST(clist), 4, GTK_JUSTIFY_CENTER);
-    gtk_clist_set_column_justification(GTK_CLIST(clist), 5, GTK_JUSTIFY_CENTER);
-    gtk_clist_set_column_justification(GTK_CLIST(clist), 6, GTK_JUSTIFY_CENTER);
-    gtk_clist_set_column_justification(GTK_CLIST(clist), 7, GTK_JUSTIFY_CENTER);
-    gtk_clist_set_column_justification(GTK_CLIST(clist), 8, GTK_JUSTIFY_CENTER);
-    gtk_clist_set_column_justification(GTK_CLIST(clist), 9, GTK_JUSTIFY_CENTER);
-    gtk_clist_set_column_justification(GTK_CLIST(clist), 10, GTK_JUSTIFY_CENTER);
-    gtk_clist_set_column_justification(GTK_CLIST(clist), 11, GTK_JUSTIFY_CENTER);
-
-    gtk_clist_column_titles_show (GTK_CLIST (clist));
-
-    gtk_clist_set_compare_func(GTK_CLIST(clist), mcaststream_sort_column);
-    gtk_clist_set_sort_column(GTK_CLIST(clist), 0);
-    gtk_clist_set_sort_type(GTK_CLIST(clist), GTK_SORT_ASCENDING);
+    create_list_view();
+    gtk_container_add(GTK_CONTAINER(scrolledwindow), list);
 
     gtk_widget_show(mcaststream_dlg_w);
 
-    /* sort by column feature */
-    col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_COLS);
-
-    for (i=0; i<NUM_COLS; i++) {
-        col_arrows[i].table = gtk_table_new(2, 2, FALSE);
-        gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
-        column_lb = gtk_label_new(titles[i]);
-        gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-        gtk_widget_show(column_lb);
-
-        col_arrows[i].ascend_pm = xpm_to_widget(clist_ascend_xpm);
-        gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-        col_arrows[i].descend_pm = xpm_to_widget(clist_descend_xpm);
-        gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-        /* make src-ip be the default sort order */
-        if (i == 0) {
-            gtk_widget_show(col_arrows[i].ascend_pm);
-        }
-        gtk_clist_set_column_widget(GTK_CLIST(clist), i, col_arrows[i].table);
-        gtk_widget_show(col_arrows[i].table);
-    }
-
-    g_signal_connect(clist, "click-column", G_CALLBACK(mcaststream_click_column_cb), col_arrows);
-
     label_fwd = gtk_label_new (FWD_LABEL_TEXT);
-    /*gtk_box_pack_start (GTK_BOX (main_vb), label_fwd, FALSE, FALSE, 0);*/
+    gtk_box_pack_start (GTK_BOX (main_vb), label_fwd, FALSE, FALSE, 0);
 
     label_par = gtk_label_new (PAR_LABEL_TEXT);
     gtk_box_pack_start (GTK_BOX (main_vb), label_par, FALSE, FALSE, 0);
@@ -603,7 +706,6 @@ static void mcaststream_dlg_create (void)
     gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
     GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 
-    g_signal_connect(clist, "select_row", G_CALLBACK(mcaststream_on_select_row), NULL);
     /*g_signal_connect(bt_unselect, "clicked", G_CALLBACK(mcaststream_on_unselect), NULL);*/
     g_signal_connect(bt_params, "clicked", G_CALLBACK(mcast_on_params), NULL);
     g_signal_connect(bt_filter, "clicked", G_CALLBACK(mcaststream_on_filter), NULL);
@@ -618,6 +720,9 @@ static void mcaststream_dlg_create (void)
     mcaststream_on_unselect(NULL, NULL);
 
     mcast_stream_dlg = mcaststream_dlg_w;
+
+    g_free(win_name);
+
 }
 
 
@@ -631,13 +736,13 @@ static void mcaststream_dlg_create (void)
 void mcaststream_dlg_update(GList *list)
 {
 	if (mcast_stream_dlg != NULL) {
-		gtk_clist_clear(GTK_CLIST(clist));
+		gtk_list_store_clear(list_store);
 		streams_nb = 0;
 
 		list = g_list_first(list);
 		while (list)
 		{
-			add_to_clist((mcast_stream_info_t*)(list->data));
+			add_to_list_store((mcast_stream_info_t*)(list->data));
 			list = g_list_next(list);
 		}
 
