@@ -91,53 +91,49 @@ dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VMLAB");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    vmlab_tree = NULL;
-
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_vmlab, tvb, 0, 24, FALSE);
-        vmlab_tree = proto_item_add_subtree(ti, ett_vmlab);
+    ti = proto_tree_add_item(tree, proto_vmlab, tvb, 0, 24, FALSE);
+    vmlab_tree = proto_item_add_subtree(ti, ett_vmlab);
    
-        /* Flags*/
-        attributes = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(vmlab_tree, hf_vmlab_flags_part1,    tvb, offset, 1, FALSE);
-        proto_tree_add_item(vmlab_tree, hf_vmlab_flags_fragment, tvb, offset, 1, FALSE);
-        proto_tree_add_item(vmlab_tree, hf_vmlab_flags_part2,    tvb, offset, 1, FALSE);
-        if (attributes & 0x04) {
-            proto_item_append_text(ti, ", Fragment");
-        }
-        offset += 1;
-        
-        /* Portgroup*/
-        portgroup = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint(vmlab_tree, hf_vmlab_portgroup, tvb, offset, 1, portgroup);
-        proto_item_append_text(ti, ", Portgroup: %d", portgroup);
-        offset += 1;
-
-        /* The next two bytes were always 0x0000 as far as I could tell*/
-        offset += 2;
-
-        /* Not really clear, what the difference between this and the next MAC address is
-         Both are usually equal*/
-        eth_addr=tvb_get_ptr(tvb, offset, 6);
-        proto_tree_add_ether(vmlab_tree, hf_vmlab_eth_addr, tvb, offset, 6, eth_addr);
-        offset += 6;
-
-        dst_addr=tvb_get_ptr(tvb, offset, 6);
-        proto_tree_add_ether(vmlab_tree, hf_vmlab_eth_dst, tvb, offset, 6, dst_addr);
-        offset += 6;
-
-        /* Source MAC*/
-        src_addr=tvb_get_ptr(tvb, offset, 6);
-        proto_tree_add_ether(vmlab_tree, hf_vmlab_eth_src, tvb, offset, 6, src_addr);
-        offset += 6;
-
-        proto_item_append_text(ti, ", Src: %s (%s), Dst: %s (%s)", 
-            get_ether_name(src_addr), ether_to_str(src_addr), get_ether_name(dst_addr), ether_to_str(dst_addr));
-        
-        /*Encapsulated Ethertype is also part of the block*/
-        encap_proto = tvb_get_ntohs(tvb, offset);
-        offset += 2;
+    /* Flags*/
+    attributes = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(vmlab_tree, hf_vmlab_flags_part1,    tvb, offset, 1, FALSE);
+    proto_tree_add_item(vmlab_tree, hf_vmlab_flags_fragment, tvb, offset, 1, FALSE);
+    proto_tree_add_item(vmlab_tree, hf_vmlab_flags_part2,    tvb, offset, 1, FALSE);
+    if (attributes & 0x04) {
+        proto_item_append_text(ti, ", Fragment");
     }
+    offset += 1;
+        
+    /* Portgroup*/
+    portgroup = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(vmlab_tree, hf_vmlab_portgroup, tvb, offset, 1, portgroup);
+    proto_item_append_text(ti, ", Portgroup: %d", portgroup);
+    offset += 1;
+
+    /* The next two bytes were always 0x0000 as far as I could tell*/
+    offset += 2;
+
+    /* Not really clear, what the difference between this and the next MAC address is
+       Both are usually equal*/
+    eth_addr=tvb_get_ptr(tvb, offset, 6);
+    proto_tree_add_ether(vmlab_tree, hf_vmlab_eth_addr, tvb, offset, 6, eth_addr);
+    offset += 6;
+
+    dst_addr=tvb_get_ptr(tvb, offset, 6);
+    proto_tree_add_ether(vmlab_tree, hf_vmlab_eth_dst, tvb, offset, 6, dst_addr);
+    offset += 6;
+
+    /* Source MAC*/
+    src_addr=tvb_get_ptr(tvb, offset, 6);
+    proto_tree_add_ether(vmlab_tree, hf_vmlab_eth_src, tvb, offset, 6, src_addr);
+    offset += 6;
+
+    proto_item_append_text(ti, ", Src: %s (%s), Dst: %s (%s)", 
+                           get_ether_name(src_addr), ether_to_str(src_addr), get_ether_name(dst_addr), ether_to_str(dst_addr));
+        
+    /* Encapsulated Ethertype is also part of the block*/
+    encap_proto = tvb_get_ntohs(tvb, offset);
+    offset += 2;
 
     /* Now call whatever was encapsulated*/
     ethertype(encap_proto, tvb, offset, pinfo, tree, vmlab_tree, hf_vmlab_etype, hf_vmlab_trailer, 0);
