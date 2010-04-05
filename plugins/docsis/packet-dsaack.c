@@ -56,12 +56,9 @@ dissect_dsaack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   transid = tvb_get_ntohs (tvb, 0);
   response = tvb_get_guint8 (tvb, 2);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    {
-      col_add_fstr (pinfo->cinfo, COL_INFO,
-		    "Dynamic Service Add Ack ID = %u (%s)", transid,
-		    val_to_str (response, docsis_conf_code, "%s"));
-    }
+  col_add_fstr (pinfo->cinfo, COL_INFO,
+	    "Dynamic Service Add Ack ID = %u (%s)", transid,
+	    val_to_str (response, docsis_conf_code, "%s"));
 
   if (tree)
     {

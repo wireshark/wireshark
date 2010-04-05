@@ -728,9 +728,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
 
   /* Set the protocol column */
-  if(check_col(pinfo->cinfo, COL_PROTOCOL)){
-    col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "ASN.1 %s", current_pduname);
-  }
+  col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "ASN.1 %s", current_pduname);
 
   col_clear(pinfo->cinfo, COL_INFO);
 
@@ -780,9 +778,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
 
   /* Set the info column */
-  if(check_col(pinfo->cinfo, COL_INFO)){
-    col_add_str(pinfo->cinfo, COL_INFO, headstr );
-  }
+  col_add_str(pinfo->cinfo, COL_INFO, headstr );
 
   /*
    * If we have a non-null tree (ie we are building the proto_tree
@@ -892,8 +888,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    if (ti2 && PDUerrcount && asn1_debug) /* show error counts only when in debug mode.... */
 		    proto_item_append_text(ti2," (%d error%s)", PDUerrcount, (PDUerrcount>1)?"s":empty);
 	}
-	if(check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, "[%d msg%s]", i, (i>1)?"s":empty);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "[%d msg%s]", i, (i>1)?"s":empty);
 	if (ti)
 		proto_item_append_text(ti, ", %d msg%s", i, (i>1)?"s":empty);
     }
@@ -901,8 +896,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    RETHROW;
     }
     CATCH(ReportedBoundsError) {
-	    if(check_col(pinfo->cinfo, COL_INFO))
-	  	    col_append_fstr(pinfo->cinfo, COL_INFO, "[%d+1 msg%s]", i, (i>0)?"s":empty);
+  	    col_append_fstr(pinfo->cinfo, COL_INFO, "[%d+1 msg%s]", i, (i>0)?"s":empty);
 	    if (ti)
 		    proto_item_append_text(ti, ", %d+1 msg%s", i, (i>1)?"s":empty);
 	    if (ti2)

@@ -223,21 +223,19 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     frmtyp = flags & ~RESPONSE_FLAGS;
 
     if (!is_msgresp_add) {
-	/*
-	 * This tvbuff includes padding to make its length a multiple
-	 * of 4 bytes; set it to the actual length.
-	 */
-	set_actual_length(tvb, msglen + FRAME_HEADER_LEN);
+		/*
+		 * This tvbuff includes padding to make its length a multiple
+		 * of 4 bytes; set it to the actual length.
+		 */
+		set_actual_length(tvb, msglen + FRAME_HEADER_LEN);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    /*
 	     * Indicate what kind of message this is.
 	     */
 	    if (frmtyp >= SIZEOF (frame_type))
-		col_set_str(pinfo->cinfo, COL_INFO, "- Invalid -");
+			col_set_str(pinfo->cinfo, COL_INFO, "- Invalid -");
 	    else
-		col_set_str(pinfo->cinfo, COL_INFO, frame_type[frmtyp]);
-	}
+			col_set_str(pinfo->cinfo, COL_INFO, frame_type[frmtyp]);
     }
 
     if (tree == NULL)

@@ -458,7 +458,7 @@ static unsigned dissect_ttp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root,
 {
     unsigned    offset = 0;
     guint8      head;
-
+	char		buf[128];
 
     if (tvb_length(tvb) == 0)
         return 0;
@@ -468,15 +468,9 @@ static unsigned dissect_ttp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root,
 
     head = tvb_get_guint8(tvb, offset);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        char    buf[128];
-
-
-        g_snprintf(buf, 128, ", Credit=%d", head & ~TTP_PARAMETERS);
-        col_append_str(pinfo->cinfo, COL_INFO, buf);
-    }
-
+    g_snprintf(buf, 128, ", Credit=%d", head & ~TTP_PARAMETERS);
+    col_append_str(pinfo->cinfo, COL_INFO, buf);
+ 
     if (root)
     {
         /* create display subtree for the protocol */
@@ -518,7 +512,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
     address             destaddr;
     conversation_t*     conv;
     iap_conversation_t* iap_conv;
-
+	char    buf[128];
 
     if (tvb_length(tvb) == 0)
         return;
@@ -602,20 +596,14 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
                     }
             }
 
-            if (check_col(pinfo->cinfo, COL_INFO))
-            {
-                char    buf[128];
+            col_add_str(pinfo->cinfo, COL_INFO, "GetValueByClass: \"");
 
-
-                col_add_str(pinfo->cinfo, COL_INFO, "GetValueByClass: \"");
-
-                tvb_memcpy(tvb, buf, offset + 1 + 1, clen);
-                memcpy(&buf[clen], "\" \"", 3);
-                tvb_memcpy(tvb, buf + clen + 3, offset + 1 + 1 + clen + 1, alen);
-                buf[clen + 3 + alen] = '\"';
-                buf[clen + 3 + alen + 1] = 0;
-                col_append_str(pinfo->cinfo, COL_INFO, buf);
-            }
+            tvb_memcpy(tvb, buf, offset + 1 + 1, clen);
+            memcpy(&buf[clen], "\" \"", 3);
+            tvb_memcpy(tvb, buf + clen + 3, offset + 1 + 1 + clen + 1, alen);
+            buf[clen + 3 + alen] = '\"';
+            buf[clen + 3 + alen + 1] = 0;
+            col_append_str(pinfo->cinfo, COL_INFO, buf);
     }
 
     if (root)
@@ -729,43 +717,40 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
         }
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO))
+    col_set_str(pinfo->cinfo, COL_INFO, "Result: ");
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(retcode, iap_return_vals, "0x%02X"));
+
+    switch (op)
     {
-        col_set_str(pinfo->cinfo, COL_INFO, "Result: ");
-        col_append_str(pinfo->cinfo, COL_INFO, val_to_str(retcode, iap_return_vals, "0x%02X"));
-
-        switch (op)
-        {
-            case GET_VALUE_BY_CLASS:
-                if (retcode == 0)
+        case GET_VALUE_BY_CLASS:
+            if (retcode == 0)
+            {
+                guint8 *string;
+                switch (tvb_get_guint8(tvb, offset + 6))
                 {
-                    guint8 *string;
-                    switch (tvb_get_guint8(tvb, offset + 6))
-                    {
-                        case IAS_MISSING:
-                            g_snprintf(buf, 300, ", Missing");
-                            break;
+                    case IAS_MISSING:
+                        g_snprintf(buf, 300, ", Missing");
+                        break;
 
-                        case IAS_INTEGER:
-                            g_snprintf(buf, 300, ", Integer: %d", tvb_get_ntohl(tvb, offset + 7));
-                            break;
+                    case IAS_INTEGER:
+                        g_snprintf(buf, 300, ", Integer: %d", tvb_get_ntohl(tvb, offset + 7));
+                        break;
 
-                        case IAS_OCT_SEQ:
-                            g_snprintf(buf, 300, ", %d Octets", tvb_get_ntohs(tvb, offset + 7));
-                            break;
+                    case IAS_OCT_SEQ:
+                        g_snprintf(buf, 300, ", %d Octets", tvb_get_ntohs(tvb, offset + 7));
+                        break;
 
-                        case IAS_STRING:
-                            n = tvb_get_guint8(tvb, offset + 8);
-                            string = tvb_get_ephemeral_string(tvb, offset + 9, n);
-                            g_snprintf(buf, 300, ", \"%s\"", string);
-                            break;
-                    }
-                    col_append_str(pinfo->cinfo, COL_INFO, buf);
-                    if (tvb_get_ntohs(tvb, offset + 2) > 1)
-                        col_append_str(pinfo->cinfo, COL_INFO, ", ...");
+                    case IAS_STRING:
+                        n = tvb_get_guint8(tvb, offset + 8);
+                        string = tvb_get_ephemeral_string(tvb, offset + 9, n);
+                        g_snprintf(buf, 300, ", \"%s\"", string);
+                        break;
                 }
-                break;
-        }
+                col_append_str(pinfo->cinfo, COL_INFO, buf);
+                if (tvb_get_ntohs(tvb, offset + 2) > 1)
+                    col_append_str(pinfo->cinfo, COL_INFO, ", ...");
+            }
+            break;
     }
 
     if (root)
@@ -1066,23 +1051,19 @@ static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     {
         opcode = tvb_get_guint8(tvb, offset+2);
 
-        if (check_col(pinfo->cinfo, COL_INFO))
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d, ", slsap, dlsap);
+        col_append_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, lmp_opcode_vals, "0x%02X"));
+        if ((opcode == ACCESSMODE_CMD) || (opcode == ACCESSMODE_CNF))
         {
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d, ", slsap, dlsap);
-            col_append_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, lmp_opcode_vals, "0x%02X"));
-            if ((opcode == ACCESSMODE_CMD) || (opcode == ACCESSMODE_CNF))
-            {
-                col_append_str(pinfo->cinfo, COL_INFO, " (");
-                col_append_str(pinfo->cinfo, COL_INFO,
-                               val_to_str(tvb_get_guint8(tvb, offset+4), lmp_mode_vals, "0x%02X"));
-                col_append_str(pinfo->cinfo, COL_INFO, ")");
-            }
+            col_append_str(pinfo->cinfo, COL_INFO, " (");
+            col_append_str(pinfo->cinfo, COL_INFO,
+                           val_to_str(tvb_get_guint8(tvb, offset+4), lmp_mode_vals, "0x%02X"));
+            col_append_str(pinfo->cinfo, COL_INFO, ")");
         }
     }
     else
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d, Len=%d", slsap, dlsap,
-                         tvb_length(tvb) - 2);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d, Len=%d", slsap, dlsap,
+                     tvb_length(tvb) - 2);
 
     if (root)
     {
@@ -1498,15 +1479,13 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
     offset++;
 
     saddr = tvb_get_letohl(tvb, offset);
-    if (check_col(pinfo->cinfo, COL_DEF_SRC))
-        col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08X", saddr);
+    col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08X", saddr);
     if (lap_tree)
         proto_tree_add_uint(i_tree, hf_xid_saddr, tvb, offset, 4, saddr);
     offset += 4;
 
     daddr = tvb_get_letohl(tvb, offset);
-    if (check_col(pinfo->cinfo, COL_DEF_DST))
-        col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%08X", daddr);
+    col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%08X", daddr);
     if (lap_tree)
         proto_tree_add_uint(i_tree, hf_xid_daddr, tvb, offset, 4, daddr);
     offset += 4;
@@ -1523,13 +1502,10 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
     if (is_command)
     {
         s = tvb_get_guint8(tvb, offset);
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            if (s == 0xFF)
-                col_append_str(pinfo->cinfo, COL_INFO, ", s=final");
-            else
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", s=%u", s);
-        }
+        if (s == 0xFF)
+            col_append_str(pinfo->cinfo, COL_INFO, ", s=final");
+        else
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", s=%u", s);
         if (lap_tree)
         {
             ti = proto_tree_add_uint(i_tree, hf_xid_slotnr, tvb, offset, 1, s);
@@ -1554,6 +1530,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
         unsigned    hints_len;
         guint8      hint1 = 0;
         guint8      hint2 = 0;
+        char buf[23];
 
         if (root)
         {
@@ -1629,18 +1606,14 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
             {
                 if (cset == 0x00)
                 {
-                    if (check_col(pinfo->cinfo, COL_INFO))
-                    {
-                        char buf[23];
 
-                        if (name_len > 22)
-                            name_len = 22;
-                        tvb_memcpy(tvb, buf, offset, name_len);
-                        buf[name_len] = 0;
-                        col_append_str(pinfo->cinfo, COL_INFO, ", \"");
-                        col_append_str(pinfo->cinfo, COL_INFO, buf);
-                        col_append_str(pinfo->cinfo, COL_INFO, "\"");
-                    }
+                    if (name_len > 22)
+                        name_len = 22;
+                    tvb_memcpy(tvb, buf, offset, name_len);
+                    buf[name_len] = 0;
+                    col_append_str(pinfo->cinfo, COL_INFO, ", \"");
+                    col_append_str(pinfo->cinfo, COL_INFO, buf);
+                    col_append_str(pinfo->cinfo, COL_INFO, "\"");
                     if (root)
                         proto_tree_add_item(lmp_tree, hf_lmp_xid_name, tvb, offset,
                                             -1, FALSE);
@@ -1670,7 +1643,7 @@ static void dissect_log(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     {
         col_set_str(pinfo->cinfo, COL_INFO, "WARNING: Missed one or more messages while capturing!");
     }
-    else if (check_col(pinfo->cinfo, COL_INFO))
+    else 
     {
         guint   length;
         char    buf[256];
@@ -1724,18 +1697,15 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     col_clear(pinfo->cinfo, COL_INFO);
 
     /* set direction column */
-    if (check_col(pinfo->cinfo, COL_IF_DIR))
+    switch (pinfo->pseudo_header->irda.pkttype)
     {
-        switch (pinfo->pseudo_header->irda.pkttype)
-        {
-            case IRDA_OUTGOING:
-                col_set_str(pinfo->cinfo, COL_IF_DIR, "Out");
-                break;
-                
-            case IRDA_INCOMING:
-                col_set_str(pinfo->cinfo, COL_IF_DIR, "In");
-                break;
-        }
+        case IRDA_OUTGOING:
+            col_set_str(pinfo->cinfo, COL_IF_DIR, "Out");
+            break;
+            
+        case IRDA_INCOMING:
+            col_set_str(pinfo->cinfo, COL_IF_DIR, "In");
+            break;
     }
 
     /* decode values used for demuxing */
@@ -1804,8 +1774,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
                 saddr = tvb_get_letohl(tvb, offset);
                 if (!is_response)
                 {
-                    if (check_col(pinfo->cinfo, COL_DEF_SRC))
-                        col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08X", saddr);
+                    col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08X", saddr);
                 }
                 if (root)
                     proto_tree_add_uint(i_tree, hf_snrm_saddr, tvb, offset, 4, saddr);
@@ -1814,8 +1783,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
                 daddr = tvb_get_letohl(tvb, offset);
                 if (!is_response)
                 {
-                    if (check_col(pinfo->cinfo, COL_DEF_DST))
-                        col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%08X", daddr);
+                    col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%08X", daddr);
                 }
                 if (root)
                     proto_tree_add_uint(i_tree, hf_snrm_daddr, tvb, offset, 4, daddr);
@@ -1824,8 +1792,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
                 ca = tvb_get_guint8(tvb, offset);
                 if (!is_response)
                 {
-                    if (check_col(pinfo->cinfo, COL_INFO))
-                        col_append_fstr(pinfo->cinfo, COL_INFO, ", ca=0x%02X",
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ", ca=0x%02X",
                                         ca >> 1);
                 }
                 if (root)
@@ -1852,15 +1819,13 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
                     }
 
                     saddr = tvb_get_letohl(tvb, offset);
-                    if (check_col(pinfo->cinfo, COL_DEF_SRC))
-                        col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08X", saddr);
+                    col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08X", saddr);
                     if (root)
                         proto_tree_add_uint(i_tree, hf_ua_saddr, tvb, offset, 4, saddr);
                     offset += 4;
 
                     daddr = tvb_get_letohl(tvb, offset);
-                    if (check_col(pinfo->cinfo, COL_DEF_DST))
-                        col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%08X", daddr);
+                    col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%08X", daddr);
                     if (root)
                         proto_tree_add_uint(i_tree, hf_ua_daddr, tvb, offset, 4, daddr);
                     offset += 4;

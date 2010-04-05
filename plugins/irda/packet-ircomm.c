@@ -166,6 +166,8 @@ static void dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
 {
     unsigned offset = 0;
     unsigned clen;
+    char        buf[128];
+    unsigned    len;
 
 
     if (tvb_length(tvb) == 0)
@@ -175,19 +177,15 @@ static void dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrCOMM");
 
     clen = tvb_get_guint8(tvb, offset);
-
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        char        buf[128];
-        unsigned    len = tvb_length(tvb) - 1 - clen;
+	len = tvb_length(tvb) - 1 - clen;
 
 
-        if (len > 0)
-            g_snprintf(buf, 128, "Clen=%d, UserData: %d byte%s", clen, len, (len > 1)? "s": "");
-        else
-            g_snprintf(buf, 128, "Clen=%d", clen);
-        col_add_str(pinfo->cinfo, COL_INFO, buf);
-    }
+
+    if (len > 0)
+        g_snprintf(buf, 128, "Clen=%d, UserData: %d byte%s", clen, len, (len > 1)? "s": "");
+    else
+        g_snprintf(buf, 128, "Clen=%d", clen);
+    col_add_str(pinfo->cinfo, COL_INFO, buf);
 
     if (root)
     {
@@ -220,7 +218,7 @@ static void dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
 static void dissect_raw_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 {
     unsigned len = tvb_length(tvb);
-
+	char    buf[128];
 
     if (len == 0)
         return;
@@ -228,13 +226,8 @@ static void dissect_raw_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
     /* Make entries in Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrCOMM");
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        char    buf[128];
-
-        g_snprintf(buf, 128, "User Data: %d byte%s", len, (len > 1)? "s": "");
-        col_add_str(pinfo->cinfo, COL_INFO, buf);
-    }
+    g_snprintf(buf, 128, "User Data: %d byte%s", len, (len > 1)? "s": "");
+    col_add_str(pinfo->cinfo, COL_INFO, buf);
 
     if (root)
     {

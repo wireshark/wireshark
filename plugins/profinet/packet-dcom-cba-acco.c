@@ -1072,11 +1072,9 @@ dissect_HResultArray_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
 						&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
-			u32ArraySize,
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
+		u32ArraySize,
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -1119,11 +1117,9 @@ dissect_ICBAAccoServer_SetActivation_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
 						&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
-			u32ArraySize,
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
+		u32ArraySize,
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -1166,11 +1162,9 @@ dissect_ICBAAccoServerSRT_Disconnect_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
 						&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
-			u32ArraySize,
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
+		u32ArraySize,
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -1213,11 +1207,9 @@ dissect_ICBAAccoServerSRT_SetActivation_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
 						&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
-			u32ArraySize,
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
+		u32ArraySize,
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -1363,9 +1355,7 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
 		u32Idx++;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Consumer=\"%s\" Cnt=%u", szCons, u32Count);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Consumer=\"%s\" Cnt=%u", szCons, u32Count);
 
 	return u32VariableOffset;
 }
@@ -1557,9 +1547,8 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
 		u32Idx++;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Consumer=\"%s\" Cnt=%u", szCons, u32Count);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Consumer=\"%s\" Cnt=%u", szCons, u32Count);
+
 
 	return u32VariableOffset;
 }
@@ -1646,12 +1635,10 @@ dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
         u32Idx++;
     }
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s Cnt=%u -> %s",
-			(u8FirstConnect) ? "First" : "NotFirst",
-			u32Idx-1,
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s Cnt=%u -> %s",
+		(u8FirstConnect) ? "First" : "NotFirst",
+		u32Idx-1,
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -1713,9 +1700,8 @@ dissect_ICBAAccoServer_Disconnect_rqst(tvbuff_t *tvb, int offset,
 	}
 
 	/* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
+
 
 	return offset;
 }
@@ -1775,11 +1761,9 @@ dissect_ICBAAccoServer_Disconnect_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
 						&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
-			u32ArraySize,
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
+		u32ArraySize,
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -1816,9 +1800,7 @@ dissect_ICBAAccoServerSRT_Disconnect_rqst(tvbuff_t *tvb, int offset,
 	}
 
 	/* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
 
 	return offset;
 }
@@ -1860,9 +1842,7 @@ dissect_ICBAAccoServer_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
     }
 
 	/* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Consumer=\"%s\"", szStr);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Consumer=\"%s\"", szStr);
 
 	return offset;
 }
@@ -1892,10 +1872,8 @@ dissect_ICBAAccoServer_DisconnectMe_resp(tvbuff_t *tvb, int offset,
         cba_connection_disconnectme(tvb, pinfo, tree, call->cons, call->prov);
     }
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return offset;
 }
@@ -1937,9 +1915,7 @@ dissect_ICBAAccoServerSRT_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
     }
 
 	/* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Consumer=\"%s\"", szStr);
-	}
+ 	col_append_fstr(pinfo->cinfo, COL_INFO, " Consumer=\"%s\"", szStr);
 
 	return offset;
 }
@@ -1969,10 +1945,8 @@ dissect_ICBAAccoServerSRT_DisconnectMe_resp(tvbuff_t *tvb, int offset,
         cba_frame_disconnectme(tvb, pinfo, tree, call->cons, call->prov);
     }
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
-		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -1995,10 +1969,8 @@ dissect_ICBAAccoServer_Ping_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
                     &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return offset;
 }
@@ -2039,9 +2011,8 @@ dissect_ICBAAccoServer_SetActivation_rqst(tvbuff_t *tvb, int offset,
 	}
 
 	/* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
-	}
+
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
 
 	return offset;
 }
@@ -2082,9 +2053,7 @@ dissect_ICBAAccoServerSRT_SetActivation_rqst(tvbuff_t *tvb, int offset,
 	}
 
 	/* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
 
 	return offset;
 }
@@ -2109,9 +2078,7 @@ dissect_ICBAAccoServer_Ping_rqst(tvbuff_t *tvb, int offset,
 		hf_cba_acco_conn_consumer, szStr, u32MaxStr);
 
 	/* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Consumer=\"%s\"", szStr);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Consumer=\"%s\"", szStr);
 
 	return offset;
 }
@@ -2252,10 +2219,8 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
 
 
 	/* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": %sConsCRID=0x%x Len=%u QoS=%u",
-            (u32Flags & 0x2) ? "Reco " : "", u16CRID, u16CRLength, u16QoSValue);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %sConsCRID=0x%x Len=%u QoS=%u",
+           (u32Flags & 0x2) ? "Reco " : "", u16CRID, u16CRLength, u16QoSValue);
 
 	return offset;
 }
@@ -2352,12 +2317,10 @@ dissect_ICBAAccoServerSRT_ConnectCR_resp(tvbuff_t *tvb, int offset,
         u32Idx++;
     }
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s PCRID=0x%x -> %s",
-			(u8FirstConnect) ? "FirstCR" : "NotFirstCR",
-			u32ProvCRID,
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s PCRID=0x%x -> %s",
+		(u8FirstConnect) ? "FirstCR" : "NotFirstCR",
+		u32ProvCRID,
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -2419,10 +2382,8 @@ dissect_ICBAAccoServerSRT_DisconnectCR_rqst(tvbuff_t *tvb, int offset,
 	}
 
 	/* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": PCRID=0x%x",
-            u32ProvCRID);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": PCRID=0x%x",
+           u32ProvCRID);
 
 	return offset;
 }
@@ -2476,10 +2437,8 @@ dissect_ICBAAccoServerSRT_DisconnectCR_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
 						&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -2647,12 +2606,10 @@ dissect_ICBAAccoServerSRT_Connect_rqst(tvbuff_t *tvb, int offset,
 	}
 
 	/* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s Cnt=%u PCRID=0x%x",
-			(u8LastConnect) ? "LastOfCR" : "",
-			u32Idx-1,
-			u32ProvCRID);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s Cnt=%u PCRID=0x%x",
+		(u8LastConnect) ? "LastOfCR" : "",
+		u32Idx-1,
+		u32ProvCRID);
 
 	return u32VariableOffset;
 }
@@ -2739,11 +2696,9 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
         u32Idx++;
     }
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
-			u32Idx-1,
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
+		u32Idx-1,
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -2766,12 +2721,10 @@ dissect_Server_GetProvIDs_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
                         hf_cba_acco_count, &u32Count);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if (u32Count) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u ProvID=", u32Count);
-		} else {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
-		}
+	if (u32Count) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u ProvID=", u32Count);
+	} else {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
 	}
 
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
@@ -2786,14 +2739,12 @@ dissect_Server_GetProvIDs_resp(tvbuff_t *tvb, int offset,
 					 tree, drep, 
 					 hf_cba_acco_conn_prov_id, &u32ProvID, u32Idx);
 
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				if (u32Idx == 1) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, "0x%x", u32ProvID);
-				} else if (u32Idx < 10) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, ",0x%x", u32ProvID);
-				} else if (u32Idx == 10) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, ",...");
-				}
+			if (u32Idx == 1) {
+				col_append_fstr(pinfo->cinfo, COL_INFO, "0x%x", u32ProvID);
+			} else if (u32Idx < 10) {
+				col_append_fstr(pinfo->cinfo, COL_INFO, ",0x%x", u32ProvID);
+			} else if (u32Idx == 10) {
+				col_append_fstr(pinfo->cinfo, COL_INFO, ",...");
 			}
 
 			u32Idx++;
@@ -2803,10 +2754,8 @@ dissect_Server_GetProvIDs_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
                         &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return offset;
 }
@@ -2838,9 +2787,7 @@ dissect_Server_GetProvConnections_rqst(tvbuff_t *tvb, int offset,
 	}
 
 	/* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
 
 	return offset;
 }
@@ -2941,10 +2888,8 @@ dissect_Server_GetProvConnections_resp(tvbuff_t *tvb, int offset,
 	u32VariableOffset = dissect_dcom_HRESULT(tvb, u32VariableOffset, pinfo, tree, drep, 
                         &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return u32VariableOffset;
 }
@@ -3025,8 +2970,7 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 
 	/* update column info now */
 #if 0
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, " Cnt=%u", u16Count);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " Cnt=%u", u16Count);
 #endif
 
 	/* is this an OnDataChanged buffer format (version), we know? */
@@ -3191,8 +3135,7 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 	}
 	proto_item_set_len(conn_data_item, offset);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", QC (G:%u,U:%u,B:%u)", 
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", QC (G:%u,U:%u,B:%u)", 
 		qc_good, qc_uncertain, qc_bad);
 
 	return offset;
@@ -3293,10 +3236,8 @@ dissect_ICBAAccoCallback_OnDataChanged_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
                     &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return offset;
 }
@@ -3336,10 +3277,8 @@ dissect_ICBAAccoCallback_Gnip_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
                     &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return offset;
 }
@@ -3376,9 +3315,7 @@ dissect_ICBAAccoServer2_GetConnectionData_rqst(tvbuff_t *tvb, int offset,
     }
 
 	/* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Consumer=\"%s\"", szStr);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Consumer=\"%s\"", szStr);
 
 	return offset;
 }
@@ -3435,10 +3372,8 @@ dissect_ICBAAccoServer2_GetConnectionData_resp(tvbuff_t *tvb, int offset,
 						&u32HResult);
 
 	/* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return offset;
 }
@@ -3529,12 +3464,10 @@ dissect_ICBAAccoMgt_AddConnections_rqst(tvbuff_t *tvb, int offset,
 	}
 
 	/* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Prov=\"%s\" State=%s Cnt=%u", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Prov=\"%s\" State=%s Cnt=%u", 
 			szConsumer, 
 			val_to_str(u8State, cba_acco_conn_state_vals, "Unknown (0x%02x)"),
 			u32Count);
-	}
 
 	return u32VariableOffset;
 }
@@ -3590,19 +3523,15 @@ dissect_ICBAAccoMgt_AddConnections_resp(tvbuff_t *tvb, int offset,
 		}
 
 	    /* update column info now */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-		    col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
-	    }
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
     }
 	
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
 						&u32HResult);
 
 	/* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -3634,9 +3563,7 @@ dissect_ICBAAccoMgt_RemoveConnections_rqst(tvbuff_t *tvb, int offset,
 	}
 
 	/* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
 
 	return offset;
 }
@@ -3672,9 +3599,7 @@ dissect_ICBAAccoMgt_SetActivationState_rqst(tvbuff_t *tvb, int offset,
 	}
 
 	/* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
 
 	return offset;
 }
@@ -3700,8 +3625,7 @@ dissect_ICBAAccoMgt_GetInfo_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
                         &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_append_fstr(pinfo->cinfo, COL_INFO, ": %u/%u -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %u/%u -> %s", 
 	  u32CurCnt, u32Max,
 	  val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
@@ -3731,12 +3655,10 @@ dissect_ICBAAccoMgt_GetIDs_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
                         hf_cba_acco_count, &u32Count);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if (u32Count) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u ConsID=", u32Count);
-		} else {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
-		}
+	if (u32Count) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u ConsID=", u32Count);
+	} else {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
 	}
 
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
@@ -3767,14 +3689,12 @@ dissect_ICBAAccoMgt_GetIDs_resp(tvbuff_t *tvb, int offset,
 				val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 			proto_item_set_len(sub_item, offset - u32SubStart);
 
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				if (u32Idx == 1) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, "0x%x", u32ConsID);
-				} else if (u32Idx < 10) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, ",0x%x", u32ConsID);
-				} else if (u32Idx == 10) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, ",...");
-				}
+			if (u32Idx == 1) {
+				col_append_fstr(pinfo->cinfo, COL_INFO, "0x%x", u32ConsID);
+			} else if (u32Idx < 10) {
+				col_append_fstr(pinfo->cinfo, COL_INFO, ",0x%x", u32ConsID);
+			} else if (u32Idx == 10) {
+				col_append_fstr(pinfo->cinfo, COL_INFO, ",...");
 			}
 
 			u32Idx++;
@@ -3784,10 +3704,8 @@ dissect_ICBAAccoMgt_GetIDs_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
                         &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return offset;
 }
@@ -3810,12 +3728,10 @@ dissect_ICBAAccoMgt2_GetConsIDs_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
                         hf_cba_acco_count, &u32Count);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if (u32Count) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u ConsID=", u32Count);
-		} else {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
-		}
+	if (u32Count) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u ConsID=", u32Count);
+	} else {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
 	}
 
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
@@ -3830,14 +3746,12 @@ dissect_ICBAAccoMgt2_GetConsIDs_resp(tvbuff_t *tvb, int offset,
 					 tree, drep, 
 					 hf_cba_acco_conn_cons_id, &u32ConsID, u32Idx);
 
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				if (u32Idx == 1) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, "0x%x", u32ConsID);
-				} else if (u32Idx < 10) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, ",0x%x", u32ConsID);
-				} else if (u32Idx == 10) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, ",...");
-				}
+			if (u32Idx == 1) {
+				col_append_fstr(pinfo->cinfo, COL_INFO, "0x%x", u32ConsID);
+			} else if (u32Idx < 10) {
+				col_append_fstr(pinfo->cinfo, COL_INFO, ",0x%x", u32ConsID);
+			} else if (u32Idx == 10) {
+				col_append_fstr(pinfo->cinfo, COL_INFO, ",...");
 			}
 
 			u32Idx++;
@@ -3847,10 +3761,8 @@ dissect_ICBAAccoMgt2_GetConsIDs_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
                         &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return offset;
 }
@@ -3957,10 +3869,8 @@ dissect_ICBAAccoMgt2_GetConsConnections_resp(tvbuff_t *tvb, int offset,
 	u32VariableOffset = dissect_dcom_HRESULT(tvb, u32VariableOffset, pinfo, tree, drep, 
                         &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return u32VariableOffset;
 }
@@ -4037,10 +3947,8 @@ dissect_ICBAAccoMgt2_DiagConsConnections_resp(tvbuff_t *tvb, int offset,
 	u32VariableOffset = dissect_dcom_HRESULT(tvb, u32VariableOffset, pinfo, tree, drep, 
                         &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return u32VariableOffset;
 }
@@ -4179,10 +4087,8 @@ dissect_ICBAAccoMgt_GetConnections_resp(tvbuff_t *tvb, int offset,
 	u32VariableOffset = dissect_dcom_HRESULT(tvb, u32VariableOffset, pinfo, tree, drep, 
                         &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return u32VariableOffset;
 }
@@ -4209,12 +4115,10 @@ dissect_ICBAAccoMgt_ReviseQoS_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
                         hf_cba_acco_conn_qos_value, &u16QoSValue);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": RTAuto=\"%s\" QoSType=%s QoSValue=%u", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": RTAuto=\"%s\" QoSType=%s QoSValue=%u", 
 			szStr, 
 			val_to_str(u16QoSType, cba_qos_type_vals, "Unknown (0x%04x)"),
 			u16QoSValue);
-	}
 
 	return offset;
 }
@@ -4236,8 +4140,7 @@ dissect_ICBAAccoMgt_ReviseQoS_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
                         &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_append_fstr(pinfo->cinfo, COL_INFO, ": %u -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %u -> %s", 
 	  u16QoSValue,
 	  val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
@@ -4261,8 +4164,7 @@ dissect_ICBAAccoMgt_get_PingFactor_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
                         &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_append_fstr(pinfo->cinfo, COL_INFO, ": %u -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %u -> %s", 
 	  u16PF,
 	  val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
@@ -4282,8 +4184,7 @@ dissect_ICBAAccoMgt_put_PingFactor_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
                         hf_cba_acco_ping_factor, &u16PF);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_append_fstr(pinfo->cinfo, COL_INFO, ": %u", u16PF);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %u", u16PF);
 
 	return offset;
 }
@@ -4306,11 +4207,9 @@ dissect_ICBAAccoMgt_get_CDBCookie_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
                         &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": CDBCookie=0x%x -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": CDBCookie=0x%x -> %s", 
 			u32Cookie, 
 			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return offset;
 }
@@ -4340,11 +4239,9 @@ dissect_ICBAAccoMgt_GetDiagnosis_rqst(tvbuff_t *tvb, int offset,
 	    proto_tree_add_item(tree, hf_cba_acco_diag_data, tvb, offset, u32InLength, FALSE);
     }
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s: %u bytes",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s: %u bytes",
 			val_to_str(u32Request, cba_acco_diag_req_vals, "Unknown request (0x%08x)"),
             u32InLength);
-	}
 
 	return offset;
 }
@@ -4366,10 +4263,8 @@ dissect_ICBAAccoMgt_GetDiagnosis_resp(tvbuff_t *tvb, int offset,
 	    proto_tree_add_item(tree, hf_cba_acco_diag_data, tvb, offset, u32OutLength, FALSE);
     }
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": %u bytes", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %u bytes", 
             u32OutLength);
-	}
 
 	return offset;
 }
@@ -4410,9 +4305,7 @@ dissect_ICBAAccoSync_ReadItems_rqst(tvbuff_t *tvb, int offset,
 		u32Idx++;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
 
 	return u32VariableOffset;
 }
@@ -4482,11 +4375,9 @@ dissect_ICBAAccoSync_ReadItems_resp(tvbuff_t *tvb, int offset,
 	u32VariableOffset = dissect_dcom_HRESULT(tvb, u32VariableOffset, pinfo, tree, drep, 
                        &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s", 
 	  u32ArraySize,
 	  val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return u32VariableOffset;
 }
@@ -4542,9 +4433,7 @@ dissect_ICBAAccoSync_WriteItems_rqst(tvbuff_t *tvb, int offset,
 		u32Idx++;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
 
 	return u32VariableOffset;
 }
@@ -4610,9 +4499,7 @@ dissect_ICBAAccoSync_WriteItemsQCD_rqst(tvbuff_t *tvb, int offset,
 		u32Idx++;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
 
 	return u32VariableOffset;
 }

@@ -367,10 +367,8 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 /* Make entries in Protocol column and Info column on summary display */
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "DOCSIS");
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    {
-      col_clear (pinfo->cinfo, COL_INFO);
-      switch (fctype)
+    col_clear (pinfo->cinfo, COL_INFO);
+    switch (fctype)
 	{
 	case FCTYPE_PACKET:
 	  col_set_str (pinfo->cinfo, COL_INFO, "Packet PDU");
@@ -392,7 +390,6 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	    col_set_str (pinfo->cinfo, COL_INFO, "Mac Specific");
 	  break;
 	}			/* switch */
-    }				/* if */
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */

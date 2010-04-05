@@ -101301,7 +101301,6 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
      * Do not clear COL_INFO, as nothing is being written there by
      * this dissector yet. So leave it as is from the GIOP dissector.
      * TODO: add something useful to COL_INFO
-     *  if (check_col(pinfo->cinfo, COL_INFO))
      *     col_clear(pinfo->cinfo, COL_INFO);
      */
 

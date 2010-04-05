@@ -77,18 +77,15 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   sid = tvb_get_ntohs (tvb, 0);
   upchid = tvb_get_guint8 (tvb, 2);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    {
-      col_clear (pinfo->cinfo, COL_INFO);
-      if (upchid > 0)
+  col_clear (pinfo->cinfo, COL_INFO);
+  if (upchid > 0)
 	col_add_fstr (pinfo->cinfo, COL_INFO,
 		      "Ranging Response: SID = %u, Upstream Channel = %u (U%u)",
 		      sid, upchid, upchid - 1);
-      else
+  else
 	col_add_fstr (pinfo->cinfo, COL_INFO,
 		      "Ranging Response: SID = %u, Telephony Return", sid);
 
-    }
 
   if (tree)
     {

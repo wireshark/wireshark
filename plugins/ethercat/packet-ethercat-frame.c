@@ -97,12 +97,9 @@ static void dissect_ethercat_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    if (!dissector_try_port(ethercat_frame_dissector_table, hdr.v.protocol,
        next_tvb, pinfo, tree))
    {
-      if (check_col (pinfo->cinfo, COL_PROTOCOL))
-      {
-         col_add_fstr (pinfo->cinfo, COL_PROTOCOL, "0x%04x", hdr.v.protocol);
-      }
+      col_add_fstr (pinfo->cinfo, COL_PROTOCOL, "0x%04x", hdr.v.protocol);
       /* No sub dissector wanted to handle this payload, decode it as general
-         data instead. */
+      data instead. */
       call_dissector (ethercat_frame_data_handle, next_tvb, pinfo, tree);
    }
 }

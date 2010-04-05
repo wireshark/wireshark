@@ -51,12 +51,9 @@ dissect_dsareq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   transid = tvb_get_ntohs (tvb, 0);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    {
-      col_clear (pinfo->cinfo, COL_INFO);
-      col_add_fstr (pinfo->cinfo, COL_INFO,
-		    "Dynamic Service Addition Request Tran-id = %u", transid);
-    }
+  col_clear (pinfo->cinfo, COL_INFO);
+  col_add_fstr (pinfo->cinfo, COL_INFO,
+	    "Dynamic Service Addition Request Tran-id = %u", transid);
 
   if (tree)
     {

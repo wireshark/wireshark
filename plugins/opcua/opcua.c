@@ -203,10 +203,7 @@ static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
     
     /* Clear out stuff in the info column */
-    if(check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_set_str(pinfo->cinfo, COL_INFO, g_szMessageTypes[msgtype]);
-    }
+    col_set_str(pinfo->cinfo, COL_INFO, g_szMessageTypes[msgtype]);
 
     if (tree && pfctParse)
     {

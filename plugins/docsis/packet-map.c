@@ -87,18 +87,15 @@ dissect_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   upchid = tvb_get_guint8 (tvb, 0);
   ucd_count = tvb_get_guint8 (tvb, 1);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    {
-      col_clear (pinfo->cinfo, COL_INFO);
-      if (upchid > 0)
+  col_clear (pinfo->cinfo, COL_INFO);
+  if (upchid > 0)
 	col_add_fstr (pinfo->cinfo, COL_INFO,
 		      "Map Message:  Channel ID = %u (U%u), UCD Count = %u,  # IE's = %u",
 		      upchid, upchid - 1, ucd_count, numie);
-      else
+  else
 	col_add_fstr (pinfo->cinfo, COL_INFO,
 		      "Map Message:  Channel ID = %u (Telephony Return), UCD Count = %u, # IE's = %u",
 		      upchid, ucd_count, numie);
-    }
 
   if (tree)
     {

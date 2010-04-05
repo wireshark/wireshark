@@ -51,13 +51,10 @@ dissect_uccreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   chid = tvb_get_guint8 (tvb, 0);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    {
-      col_clear (pinfo->cinfo, COL_INFO);
-      col_add_fstr (pinfo->cinfo, COL_INFO,
-		    "Upstream Channel Change request  Channel ID = %u (U%u)",
-		    chid, (chid > 0 ? chid - 1 : chid));
-    }
+  col_clear (pinfo->cinfo, COL_INFO);
+  col_add_fstr (pinfo->cinfo, COL_INFO,
+	    "Upstream Channel Change request  Channel ID = %u (U%u)",
+	    chid, (chid > 0 ? chid - 1 : chid));
 
   if (tree)
     {

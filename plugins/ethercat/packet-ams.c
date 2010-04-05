@@ -822,14 +822,11 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   else
   {
-     if (check_col(pinfo->cinfo, COL_INFO))
-     {
-        if ( (stateflags & AMSCMDSF_RESPONSE) == 0 )
-           col_append_str(pinfo->cinfo, COL_INFO, "AMS Request");
-        else
-           col_append_str(pinfo->cinfo, COL_INFO, "AMS Response");
-     }
-     if( tree && ams_length-offset > 0 )
+    if ( (stateflags & AMSCMDSF_RESPONSE) == 0 )
+       col_append_str(pinfo->cinfo, COL_INFO, "AMS Request");
+    else
+       col_append_str(pinfo->cinfo, COL_INFO, "AMS Response");
+    if( tree && ams_length-offset > 0 )
         proto_tree_add_item(ams_tree, hf_ams_data, tvb, offset, ams_length-offset, TRUE);
   }
 

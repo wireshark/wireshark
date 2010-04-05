@@ -637,8 +637,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
             init_sdo_header(&sdo, tvb, offset);
 
             CANopenSdoReqFormatter(&sdo, szText, nMax);
-            if (check_col(pinfo->cinfo, COL_INFO))
-               col_append_str(pinfo->cinfo, COL_INFO, szText);
+             col_append_str(pinfo->cinfo, COL_INFO, szText);
 
             if( tree )
             {
@@ -727,8 +726,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
             init_sdo_header(&sdo, tvb, offset);
 
             CANopenSdoResFormatter(&sdo, szText, nMax);
-            if (check_col(pinfo->cinfo, COL_INFO))
-               col_append_str(pinfo->cinfo, COL_INFO, szText);
+            col_append_str(pinfo->cinfo, COL_INFO, szText);
 
             if( tree )
             {
@@ -805,8 +803,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
             init_sdo_info_header(&info, tvb, offset);
 
             CANopenSdoInfoFormatter(&info, szText, nMax);
-            if (check_col(pinfo->cinfo, COL_INFO))
-               col_append_str(pinfo->cinfo, COL_INFO, szText);
+            col_append_str(pinfo->cinfo, COL_INFO, szText);
 
             if( tree )
             {
@@ -940,8 +937,7 @@ static void dissect_ecat_soe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    if( soe_length >= ETHERCAT_SOE_HEADER_LEN )
    {
       SoeFormatter(tvb, offset, szText, nMax, soe_length);
-      if (check_col(pinfo->cinfo, COL_INFO))
-         col_append_str(pinfo->cinfo, COL_INFO, szText);
+      col_append_str(pinfo->cinfo, COL_INFO, szText);
 
       if( tree )
       {
@@ -1034,14 +1030,11 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    {
       ETHERCAT_EOE_HEADER eoe;
       init_eoe_header(&eoe, tvb, offset);
-      if (check_col(pinfo->cinfo, COL_INFO))
-      {
-         if ( eoe.anEoeHeaderInfoUnion.v.Type == EOE_TYPE_FRAME_FRAG )
-            g_snprintf ( szText, nMax, "EoE-Frag %d", eoe.anEoeHeaderDataUnion.v.Fragment);
-         else
-            g_snprintf ( szText, nMax, "EoE");
+      if ( eoe.anEoeHeaderInfoUnion.v.Type == EOE_TYPE_FRAME_FRAG )
+         g_snprintf ( szText, nMax, "EoE-Frag %d", eoe.anEoeHeaderDataUnion.v.Fragment);
+      else
+         g_snprintf ( szText, nMax, "EoE");
          col_append_str(pinfo->cinfo, COL_INFO, szText);
-      }
 
       {
          ecat_eoe_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_eoe);
@@ -1177,11 +1170,9 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
          }
       }
 
-      if (check_col(pinfo->cinfo, COL_INFO))
-         col_prepend_fstr(pinfo->cinfo, COL_INFO, "EoE(");
+      col_prepend_fstr(pinfo->cinfo, COL_INFO, "EoE(");
 
-      if (check_col(pinfo->cinfo, COL_PROTOCOL))
-         col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "EoE-");
+      col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "EoE-");
    }
    else
    {
@@ -1211,8 +1202,7 @@ static void dissect_ecat_foe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    if( foe_length >= ETHERCAT_FOE_HEADER_LEN )
    {
       FoeFormatter(tvb, offset, szText, nMax, foe_length);
-      if (check_col(pinfo->cinfo, COL_INFO))
-         col_append_str(pinfo->cinfo, COL_INFO, szText);
+      col_append_str(pinfo->cinfo, COL_INFO, szText);
 
       if( tree )
       {

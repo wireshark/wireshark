@@ -171,8 +171,6 @@ static void
    upchid = tvb_get_guint8 (tvb, 0);
    
    /* if the upstream Channel ID is 0 then this is for Telephony Return) */
-   if (check_col (pinfo->cinfo, COL_INFO))
-     {
 	col_clear (pinfo->cinfo, COL_INFO);
 	if (upchid > 0)
 	  col_add_fstr (pinfo->cinfo, COL_INFO,
@@ -182,7 +180,6 @@ static void
 	  col_add_fstr (pinfo->cinfo, COL_INFO,
 			"UCD Message:  Channel ID = %u (Telephony Return)",
 			upchid);
-     }
    
    if (tree)
      {

@@ -216,10 +216,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tlv_len = get_tlv_length(&m2m_tlv_info);
 			if(tlv_type == -1 || tlv_len > 64000 || tlv_len < 1)
 			{	/* invalid tlv info */
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "M2M TLV error");
-				}
+				col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "M2M TLV error");
 				/* display the invalid TLV in HEX */
 				proto_tree_add_item(m2m_tree, hf_wimax_invalid_tlv, tvb, offset, (length - offset), FALSE);
 				break;
@@ -426,20 +423,17 @@ static void pdu_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint
 	gint pdu_length = 0;
 
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
+	switch (frag_type)
 	{
-		switch (frag_type)
-		{
-			case TLV_FIRST_FRAG:
-				col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "First TLV Fragment (%d)", frag_number);
-			break;
-			case TLV_LAST_FRAG:
-				col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Last TLV Fragment (%d)", frag_number);
-			break;
-			case TLV_MIDDLE_FRAG:
-				col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Middle TLV Fragment %d", frag_number);
-			break;
-		}
+		case TLV_FIRST_FRAG:
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "First TLV Fragment (%d)", frag_number);
+		break;
+		case TLV_LAST_FRAG:
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Last TLV Fragment (%d)", frag_number);
+		break;
+		case TLV_MIDDLE_FRAG:
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Middle TLV Fragment %d", frag_number);
+		break;
 	}
 	if(frag_type == TLV_NO_FRAG)
 	{	/* not fragmented PDU */
@@ -462,8 +456,7 @@ static void pdu_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint
 			pdu_tvb = NULL;
 			if(frag_type == TLV_LAST_FRAG)
 			{	/* update the info column */
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Incomplete PDU frame");
+				col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Incomplete PDU frame");
 			}
 		}
 	}
