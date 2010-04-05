@@ -55,8 +55,6 @@ void proto_reg_handoff_vmlab(void);
 
 static int proto_vmlab = -1;
 
-static int hf_vmlab_attributes = -1;
-
 static int hf_vmlab_flags_part1 = -1;		/* Unknown so far */
 static int hf_vmlab_flags_fragment = -1;
 static int hf_vmlab_flags_part2 = -1;		/* Unknown so far */
