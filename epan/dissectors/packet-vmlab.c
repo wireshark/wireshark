@@ -89,7 +89,7 @@ dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8	    attributes;
     guint8	    portgroup;
 
-    guint16 encap_proto;
+    volatile guint16 encap_proto;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VMLAB");
     col_clear(pinfo->cinfo, COL_INFO);
