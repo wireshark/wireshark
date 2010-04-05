@@ -146,14 +146,14 @@ proto_register_vmlab(void)
     static hf_register_info hf[] = {
 
         { &hf_vmlab_flags_part1,    { "Unknown       ", "vmlab.unknown1", 
-            FT_UINT8, BASE_HEX, NULL, 0xF8, NULL, HFILL }},
+            FT_UINT8, BASE_HEX,  NULL, 0xF8, NULL, HFILL }},
         { &hf_vmlab_flags_fragment, { "More Fragments", "vmlab.fragment", 
-            FT_UINT8, BASE_HEX, VALS(fragment_vals), 0x04, NULL, HFILL }},
+            FT_UINT8, BASE_NONE, VALS(fragment_vals), 0x04, NULL, HFILL }},
         { &hf_vmlab_flags_part2,    { "Unknown       ", "vmlab.unknown2", 
-            FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }},
+            FT_UINT8, BASE_HEX,  NULL, 0x03, NULL, HFILL }},
 
         { &hf_vmlab_portgroup,      { "Portgroup        ", "vmlab.pgrp", 
-            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+            FT_UINT8, BASE_DEC,  NULL, 0, NULL, HFILL }},
         { &hf_vmlab_eth_src,        { "Source           ", "vmlab.src", 
             FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_vmlab_eth_dst,        { "Destination      ", "vmlab.dst", 
