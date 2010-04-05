@@ -157,6 +157,12 @@ get_interface_descriptive_name(const char *if_name)
     /* Yes - make a copy of that. */
     descr = g_strdup(descr);
   } else if (strcmp(if_name, "-") == 0) {
+    /*
+     * Strictly speaking, -X (extension) options are for modules, e.g. Lua
+     * and using one here stretches that definition. However, this doesn't
+     * waste a single-letter option on something that might be rarely used
+     * and is backward-compatible to 1.0.
+     */
     descr = g_strdup(ex_opt_get_nth("stdin_descr", 0));
     if (!descr) {
       descr = g_strdup("Standard input");
