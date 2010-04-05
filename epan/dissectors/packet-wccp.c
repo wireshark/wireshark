@@ -1,5 +1,5 @@
 /* packet-wccp.c
- * Routines for Web Cache Coordination Protocol dissection
+ * Routines for Web Cache Communication Protocol dissection
  * Jerry Talkington <jtalkington@users.sourceforge.net>
  *
  * $Id$
@@ -1446,7 +1446,7 @@ proto_register_wccp(void)
 		&ett_unknown_info,
 	};
 
-	proto_wccp = proto_register_protocol("Web Cache Coordination Protocol",
+	proto_wccp = proto_register_protocol("Web Cache Communication Protocol",
 	    "WCCP", "wccp");
 	proto_register_field_array(proto_wccp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

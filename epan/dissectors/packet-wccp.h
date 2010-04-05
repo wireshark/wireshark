@@ -1,5 +1,5 @@
 /* packet-wccp.h
- * Declarations for Cisco Web Cache Coordination Protocol
+ * Declarations for Cisco Web Cache Communication Protocol
  *
  * $Id$
  *
