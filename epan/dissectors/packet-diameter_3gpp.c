@@ -43,6 +43,7 @@
 
 #include "packet-gsm_map.h"
 #include "packet-gsm_a_common.h"
+#include "packet-e164.h"
 #include "packet-e212.h"
 
 /* Initialize the protocol and registered fields */
@@ -54,6 +55,7 @@ static int hf_diameter_3gpp_ipaddr					= -1;
 static int hf_diameter_3gpp_mbms_required_qos_prio	= -1;
 static int hf_diameter_3gpp_tmgi					= -1;
 static int hf_diameter_mbms_service_id				= -1;
+static int hf_diameter_address_digits = -1;
 
 static gint diameter_3gpp_msisdn_ett				= -1;
 static gint diameter_3gpp_tmgi_ett					= -1;
@@ -69,11 +71,15 @@ dissect_diameter_3gpp_msisdn(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 	proto_item* item;
 	proto_tree *sub_tree;
 	int offset = 0;
+	const char     *digit_str;
 
 	item = proto_tree_add_item(tree, hf_diameter_3gpp_msisdn, tvb, offset, 6, FALSE);
 	sub_tree = proto_item_add_subtree(item,diameter_3gpp_msisdn_ett);
 
-	dissect_gsm_map_msisdn(tvb, pinfo, sub_tree);
+	dissect_e164_cc(tvb, sub_tree, offset, TRUE);
+
+	digit_str = unpack_digits(tvb, 1);
+	proto_tree_add_string(sub_tree, hf_diameter_address_digits, tvb, 1, -1, digit_str);
 
 	return tvb_length(tvb);
 
@@ -220,6 +226,11 @@ proto_register_diameter_3gpp(void)
 		{ &hf_diameter_mbms_service_id,
 			{ "MBMS Service ID",           "diameter.3gpp.mbms_service_id",
 			FT_UINT24, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_diameter_address_digits,
+			{ "Address digits", "diameter.3gpp.address_digits",
+			FT_STRING, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
 	};

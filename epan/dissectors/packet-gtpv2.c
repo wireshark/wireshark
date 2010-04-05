@@ -40,6 +40,7 @@
 
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
+#include "packet-e164.h"
 #include "packet-e212.h"
 
 /*GTPv2 Message->GTP Header(SB)*/
@@ -109,6 +110,7 @@ static int hf_gtpv2_ambr_down= -1;
 static int hf_gtpv2_ip_address_ipv4= -1;
 static int hf_gtpv2_ip_address_ipv6= -1;
 static int hf_gtpv2_mei= -1;
+static int hf_gtpv2_address_digits = -1;
 
 static int hf_gtpv2_bearer_qos_pvi= -1;
 static int hf_gtpv2_bearer_qos_pl= -1;
@@ -626,9 +628,13 @@ dissect_gtpv2_mei(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
  * Editor's note: MSISDN coding will be defined in TS 24.301.
  */
 static void
-dissect_gtpv2_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+dissect_gtpv2_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
-	dissect_gsm_map_msisdn(tvb, pinfo, tree); 
+	const char     *digit_str;
+
+	dissect_e164_cc(tvb, tree, 0, TRUE);
+	digit_str = unpack_digits(tvb, 1);
+	proto_tree_add_string(tree, hf_gtpv2_address_digits, tvb, 1, -1, digit_str);
 }
 
 /*
@@ -2214,6 +2220,11 @@ void proto_register_gtpv2(void)
 		{"Node Type", "gtpv2.node_type",
 		FT_UINT8, BASE_DEC, VALS(gtpv2_node_type_vals), 0x0,
 		NULL, HFILL}
+		},
+		{ &hf_gtpv2_address_digits,
+			{ "Address digits", "gtpv2.address_digits",
+			FT_STRING, BASE_NONE, NULL, 0,
+			NULL, HFILL }
 		},
 
 	 };
