@@ -93,7 +93,7 @@ capture_vlan(const guchar *pd, int offset, int len, packet_counts *ld ) {
 static void
 dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *ti;
+  proto_item *ti;
   guint16 tci;
   volatile guint16 encap_proto;
   volatile gboolean is_802_2;
