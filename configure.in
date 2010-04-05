@@ -191,9 +191,11 @@ AC_PATH_PROG(ELINKS, elinks)
 AC_CHECK_PROG(HAVE_ELINKS, elinks, "yes", "no")
 AM_CONDITIONAL(HAVE_ELINKS, test x$HAVE_ELINKS = xyes)
 
-AC_PATH_PROG(LINKS, links)
-AC_CHECK_PROG(HAVE_LINKS, links, "yes", "no")
-AM_CONDITIONAL(HAVE_LINKS, test x$HAVE_LINKS = xyes)
+## links: Fails as used in docbook/Makefile.am
+## (Rather than fixing things we'll just disable the use of links).
+##AC_PATH_PROG(LINKS, links)
+##AC_CHECK_PROG(HAVE_LINKS, links, "yes", "no")
+##AM_CONDITIONAL(HAVE_LINKS, test x$HAVE_LINKS = xyes)
 
 AC_PATH_PROG(LYNX, lynx)
 AC_CHECK_PROG(HAVE_LYNX, lynx, "yes", "no")

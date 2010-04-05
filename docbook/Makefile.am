@@ -20,16 +20,18 @@ FOP_OPTS=-Xmx256m
 # Sorry about the indenting, but that's what automake requires...
 if HAVE_ELINKS
 HTML2TXT=$(ELINKS) -dump -dump-width 72
-else
-if HAVE_LINKS
-HTML2TXT=$(LINKS) -dump -width 72
+## links: -dump requires 'url' argument (as opposed to elinks & lynx)
+## (Rather than fixing things we'll just disable the use of links).
+##else
+##if HAVE_LINKS
+##HTML2TXT=$(LINKS) -dump -width 72
 else
 if HAVE_LYNX
 HTML2TXT=$(LYNX) -dump -width=72 -nolist -stdin -force-html
 else
 HTML2TXT="true"
 endif
-endif
+##endif
 endif
 
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
