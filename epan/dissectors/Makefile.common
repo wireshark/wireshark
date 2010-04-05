@@ -907,6 +907,7 @@ DISSECTOR_SRC = \
 	packet-v120.c		\
 	packet-v5ua.c		\
 	packet-v52.c		\
+	packet-vmlab.c		\
 	packet-vcdu.c		\
 	packet-vicp.c		\
 	packet-vines.c		\
