@@ -833,7 +833,7 @@ HHC_EXE="$(HHC_DIR)\hhc.exe"
 # This could also be "lynx", or "true" if neither elinks nor lynx is installed
 # (cygwin: lynx works, elinks not available, links and true doesn't produce output)
 #HTML2TXT=elinks -dump -dump-width 72
-#HTML2TXT=links -dump -width 72
+##HTML2TXT=links -dump -width 72 ## XXX: Fails: For links -dump requires 'url' (filename) arg.
 #HTML2TXT=lynx -dump -width=72 -nolist -stdin
 
 !IFNDEF HTML2TXT
