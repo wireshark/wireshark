@@ -125,6 +125,7 @@ const value_string etype_vals[] = {
   { ETHERTYPE_TTE_PCF, "TTEthernet Protocol Control Frame" },
   { ETHERTYPE_LLTD, "Link Layer Topology Discovery (LLTD)" },
   { ETHERTYPE_WSMP, "(WAVE) Short Message Protocol (WSM)" },
+  { ETHERTYPE_VMLAB, "VMware Lab Manager" },
   { ETHERTYPE_COBRANET, "Cirrus Cobranet Packet" },
   { ETHERTYPE_NSRP, "Juniper Netscreen Redundant Protocol" },
     /*

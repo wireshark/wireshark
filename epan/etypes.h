@@ -33,7 +33,7 @@
 #define IEEE_802_3_MAX_LEN 1500
 
 #ifndef ETHERTYPE_UNK
-#define ETHERTYPE_UNK		0x0000
+#define ETHERTYPE_UNK			0x0000
 #endif
 
 /* Sources:
@@ -56,46 +56,43 @@
 /* Order these values by number */
 
 #ifndef ETHERTYPE_XNS_IDP
-#define ETHERTYPE_XNS_IDP	0x0600
+#define ETHERTYPE_XNS_IDP		0x0600
 #endif
 
 #ifndef ETHERTYPE_IP
-#define ETHERTYPE_IP		0x0800
+#define ETHERTYPE_IP			0x0800
 #endif
 
 #ifndef ETHERTYPE_X25L3
-#define ETHERTYPE_X25L3		0x0805
+#define ETHERTYPE_X25L3			0x0805
 #endif
 
 #ifndef ETHERTYPE_ARP
-#define ETHERTYPE_ARP		0x0806
+#define ETHERTYPE_ARP			0x0806
 #endif
 
 #ifndef ETHERTYPE_WOL
-#define ETHERTYPE_WOL		0x0842 /* Wake on LAN.  Not offically registered. */
+#define ETHERTYPE_WOL			0x0842	/* Wake on LAN.  Not offically registered. */
 #endif
 
 #ifndef ETHERTYPE_WMX_M2M
-#define ETHERTYPE_WMX_M2M	0x08f0
+#define ETHERTYPE_WMX_M2M		0x08F0
 #endif
 
 #ifndef ETHERTYPE_VINES_IP
-#define ETHERTYPE_VINES_IP	0x0bad
+#define ETHERTYPE_VINES_IP		0x0BAD
 #endif
 
 #ifndef ETHERTYPE_VINES_ECHO
-#define ETHERTYPE_VINES_ECHO	0x0baf
+#define ETHERTYPE_VINES_ECHO		0x0BAF
 #endif
 
 #ifndef ETHERTYPE_TRAIN
-/*
- * Created by Microsoft Network Monitor as a summary packet.
- */
-#define ETHERTYPE_TRAIN		0x1984
+#define ETHERTYPE_TRAIN			0x1984	/* Created by Microsoft Network Monitor as a summary packet */
 #endif
 
 #ifndef ETHERTYPE_CGMP
-#define ETHERTYPE_CGMP		0x2001
+#define ETHERTYPE_CGMP			0x2001
 #endif
 
 #ifndef ETHERTYPE_CENTRINO_PROMISC
@@ -103,127 +100,127 @@
 #endif
 
 #ifndef ETHERTYPE_3C_NBP_DGRAM
-#define ETHERTYPE_3C_NBP_DGRAM	0x3c07
+#define ETHERTYPE_3C_NBP_DGRAM		0x3C07
 #endif
 
 #ifndef ETHERTYPE_EPL_V1
-#define ETHERTYPE_EPL_V1	0x3E3F
+#define ETHERTYPE_EPL_V1		0x3E3F
 #endif
 
 #ifndef ETHERTYPE_DEC
-#define ETHERTYPE_DEC		0x6000
+#define ETHERTYPE_DEC			0x6000
 #endif
 
 #ifndef ETHERTYPE_DNA_DL
-#define ETHERTYPE_DNA_DL	0x6001
+#define ETHERTYPE_DNA_DL		0x6001
 #endif
 
 #ifndef ETHERTYPE_DNA_RC
-#define ETHERTYPE_DNA_RC	0x6002
+#define ETHERTYPE_DNA_RC		0x6002
 #endif
 
 #ifndef ETHERTYPE_DNA_RT
-#define ETHERTYPE_DNA_RT	0x6003
+#define ETHERTYPE_DNA_RT		0x6003
 #endif
 
 #ifndef ETHERTYPE_LAT
-#define ETHERTYPE_LAT		0x6004
+#define ETHERTYPE_LAT			0x6004
 #endif
 
 #ifndef ETHERTYPE_DEC_DIAG
-#define ETHERTYPE_DEC_DIAG	0x6005
+#define ETHERTYPE_DEC_DIAG		0x6005
 #endif
 
 #ifndef ETHERTYPE_DEC_CUST
-#define ETHERTYPE_DEC_CUST	0x6006
+#define ETHERTYPE_DEC_CUST		0x6006
 #endif
 
 #ifndef ETHERTYPE_DEC_SCA
-#define ETHERTYPE_DEC_SCA	0x6007
+#define ETHERTYPE_DEC_SCA		0x6007
 #endif
 
 #ifndef ETHERTYPE_ETHBRIDGE
-#define ETHERTYPE_ETHBRIDGE	0x6558	/* transparent Ethernet bridging [RFC1701]*/
+#define ETHERTYPE_ETHBRIDGE		0x6558	/* transparent Ethernet bridging [RFC1701]*/
 #endif
 
 #ifndef ETHERTYPE_RAW_FR
-#define ETHERTYPE_RAW_FR	0x6559	/* Raw Frame Relay        [RFC1701] */
+#define ETHERTYPE_RAW_FR		0x6559	/* Raw Frame Relay        [RFC1701] */
 #endif
 
 #ifndef ETHERTYPE_REVARP
-#define ETHERTYPE_REVARP	0x8035
+#define ETHERTYPE_REVARP		0x8035
 #endif
 
 #ifndef ETHERTYPE_DEC_LB
-#define ETHERTYPE_DEC_LB	0x8038
+#define ETHERTYPE_DEC_LB		0x8038
 #endif
 
 #ifndef ETHERTYPE_DEC_LAST
-#define ETHERTYPE_DEC_LAST	0x8041	/* DEC Local Area Systems Transport */
+#define ETHERTYPE_DEC_LAST		0x8041	/* DEC Local Area Systems Transport */
 #endif
 
 #ifndef ETHERTYPE_ATALK
-#define ETHERTYPE_ATALK		0x809b
+#define ETHERTYPE_ATALK			0x809B
 #endif
 
 #ifndef ETHERTYPE_SNA
-#define ETHERTYPE_SNA		0x80d5
+#define ETHERTYPE_SNA			0x80D5
 #endif
 
 #ifndef ETHERTYPE_DLR
-#define ETHERTYPE_DLR		0x80e1  /* Allen-Bradley Company, Inc. */
-#endif								/* EtherNet/IP Device Level Ring */
+#define ETHERTYPE_DLR			0x80E1  /* Allen-Bradley Company, Inc., EtherNet/IP Device Level Ring */
+#endif
 
 #ifndef ETHERTYPE_AARP
-#define ETHERTYPE_AARP		0x80f3
+#define ETHERTYPE_AARP			0x80F3
 #endif
 
 #ifndef ETHERTYPE_VLAN
-#define ETHERTYPE_VLAN		0x8100	/* 802.1Q Virtual LAN */
+#define ETHERTYPE_VLAN			0x8100	/* 802.1Q Virtual LAN */
 #endif
 
 #ifndef ETHERTYPE_NSRP
-#define ETHERTYPE_NSRP		0x8133
+#define ETHERTYPE_NSRP			0x8133
 #endif
 
 #ifndef ETHERTYPE_IPX
-#define ETHERTYPE_IPX		0x8137
+#define ETHERTYPE_IPX			0x8137
 #endif
 
 #ifndef ETHERTYPE_SNMP
-#define ETHERTYPE_SNMP		0x814c	/* SNMP over Ethernet, RFC 1089 */
+#define ETHERTYPE_SNMP			0x814C	/* SNMP over Ethernet, RFC 1089 */
 #endif
 
 #ifndef ETHERTYPE_WCP
-#define ETHERTYPE_WCP		0x80ff	/* Wellfleet Compression Protocol */
+#define ETHERTYPE_WCP			0x80FF	/* Wellfleet Compression Protocol */
 #endif
 
 #ifndef ETHERTYPE_STP
-#define ETHERTYPE_STP		0x8181	/* STP, HIPPI-ST */
+#define ETHERTYPE_STP			0x8181	/* STP, HIPPI-ST */
 #endif
 
 #ifndef ETHERTYPE_ISMP
-#define ETHERTYPE_ISMP		0x81fd	/* Cabletron Interswitch Message Protocol */
+#define ETHERTYPE_ISMP			0x81FD	/* Cabletron Interswitch Message Protocol */
 #endif
 
 #ifndef ETHERTYPE_ISMP_TBFLOOD
-#define ETHERTYPE_ISMP_TBFLOOD	0x81ff	/* Cabletron Interswitch Message Protocol */
+#define ETHERTYPE_ISMP_TBFLOOD		0x81FF	/* Cabletron Interswitch Message Protocol */
 #endif
 
 #ifndef ETHERTYPE_QNX_QNET6
-#define ETHERTYPE_QNX_QNET6	0x8204	/* 0x8204 QNX QNET/LWL4 for QNX6 OS; 0x8203 for QNX4 OS QNET */
+#define ETHERTYPE_QNX_QNET6		0x8204	/* 0x8204 QNX QNET/LWL4 for QNX6 OS; 0x8203 for QNX4 OS QNET */
 #endif
 
 #ifndef ETHERTYPE_IPv6
-#define ETHERTYPE_IPv6		0x86dd
+#define ETHERTYPE_IPv6			0x86DD
 #endif
 
 #ifndef ETHERTYPE_WLCCP
-#define ETHERTYPE_WLCCP		0x872d	/* Cisco Wireless Lan Context Control Protocol */
+#define ETHERTYPE_WLCCP			0x872D	/* Cisco Wireless Lan Context Control Protocol */
 #endif
 
 #ifndef ETHERTYPE_MAC_CONTROL
-#define ETHERTYPE_MAC_CONTROL	0x8808
+#define ETHERTYPE_MAC_CONTROL		0x8808
 #endif
 
 #ifndef ETHERTYPE_SLOW_PROTOCOLS
@@ -231,43 +228,43 @@
 #endif
 
 #ifndef ETHERTYPE_PPP
-#define ETHERTYPE_PPP		0x880b	/* no, this is not PPPoE */
+#define ETHERTYPE_PPP			0x880B	/* no, this is not PPPoE */
 #endif
 
 #ifndef ETHERTYPE_COBRANET
-#define ETHERTYPE_COBRANET	0x8819	/* Cirrus cobranet */
+#define ETHERTYPE_COBRANET		0x8819	/* Cirrus cobranet */
 #endif
 
 #ifndef ETHERTYPE_MPLS
-#define ETHERTYPE_MPLS		0x8847	/* MPLS unicast packet */
+#define ETHERTYPE_MPLS			0x8847	/* MPLS unicast packet */
 #endif
 
 #ifndef ETHERTYPE_MPLS_MULTI
-#define ETHERTYPE_MPLS_MULTI	0x8848	/* MPLS multicast packet */
+#define ETHERTYPE_MPLS_MULTI		0x8848	/* MPLS multicast packet */
 #endif
 
 #ifndef ETHERTYPE_FOUNDRY
-#define ETHERTYPE_FOUNDRY	0x885a	/* Some Foundry proprietary protocol */
+#define ETHERTYPE_FOUNDRY		0x885A	/* Some Foundry proprietary protocol */
 #endif
 
 #ifndef ETHERTYPE_PPPOED
-#define ETHERTYPE_PPPOED	0x8863	/* PPPoE Discovery Protocol */
+#define ETHERTYPE_PPPOED		0x8863	/* PPPoE Discovery Protocol */
 #endif
 
 #ifndef ETHERTYPE_PPPOES
-#define ETHERTYPE_PPPOES	0x8864	/* PPPoE Session Protocol */
+#define ETHERTYPE_PPPOES		0x8864	/* PPPoE Session Protocol */
 #endif
 
 #ifndef ETHERTYPE_INTEL_ANS
-#define ETHERTYPE_INTEL_ANS	0x886d	/* Intel ANS (NIC teaming) http://www.intel.com/support/network/adapter/ans/probes.htm */
+#define ETHERTYPE_INTEL_ANS		0x886D	/* Intel ANS (NIC teaming) http://www.intel.com/support/network/adapter/ans/probes.htm */
 #endif
 
 #ifndef ETHERTYPE_MS_NLB_HEARTBEAT
-#define ETHERTYPE_MS_NLB_HEARTBEAT	0x886f	/* MS Network Load Balancing heartbeat http://www.microsoft.com/technet/treeview/default.asp?url=/TechNet/prodtechnol/windows2000serv/deploy/confeat/nlbovw.asp */
+#define ETHERTYPE_MS_NLB_HEARTBEAT	0x886F	/* MS Network Load Balancing heartbeat http://www.microsoft.com/technet/treeview/default.asp?url=/TechNet/prodtechnol/windows2000serv/deploy/confeat/nlbovw.asp */
 #endif
 
 #ifndef ETHERTYPE_HOMEPLUG
-#define ETHERTYPE_HOMEPLUG    0x887B  /* IEEE assigned Ethertype */
+#define ETHERTYPE_HOMEPLUG		0x887B	/* IEEE assigned Ethertype */
 #endif
 
 #ifndef ETHERTYPE_CDMA2000_A10_UBS
@@ -275,56 +272,56 @@
 #endif
 
 #ifndef ETHERTYPE_EAPOL
-#define ETHERTYPE_EAPOL 	0x888e  /* 802.1x Authentication */
+#define ETHERTYPE_EAPOL 		0x888E  /* 802.1x Authentication */
 #endif
 
 #ifndef ETHERTYPE_PROFINET
-#define ETHERTYPE_PROFINET 	0x8892  /* PROFIBUS PROFINET protocol */
+#define ETHERTYPE_PROFINET		0x8892	/* PROFIBUS PROFINET protocol */
 #endif
 
 #ifndef ETHERTYPE_HYPERSCSI
-#define ETHERTYPE_HYPERSCSI     0x889A  /* HyperSCSI */
+#define ETHERTYPE_HYPERSCSI     	0x889A	/* HyperSCSI */
 #endif
 
 #ifndef ETHERTYPE_CSM_ENCAPS
-#define ETHERTYPE_CSM_ENCAPS	0x889B /* Mindspeed Technologies www.mindspeed.com */
+#define ETHERTYPE_CSM_ENCAPS		0x889B	/* Mindspeed Technologies www.mindspeed.com */
 #endif
 
 #ifndef ETHERTYPE_TELKONET
-#define ETHERTYPE_TELKONET	0x88A1 /* Telkonet powerline ethernet */
+#define ETHERTYPE_TELKONET		0x88A1	/* Telkonet powerline ethernet */
 #endif
 
 #ifndef ETHERTYPE_AOE
-#define ETHERTYPE_AOE           0x88A2
+#define ETHERTYPE_AOE           	0x88A2
 #endif
 
 #ifndef ETHERTYPE_ECATF
-#define ETHERTYPE_ECATF 0x88A4 /* Ethernet type for EtherCAT frames */
+#define ETHERTYPE_ECATF			0x88A4	/* Ethernet type for EtherCAT frames */
 #endif
 
 #ifndef ETHERTYPE_IEEE_802_1AD
-#define ETHERTYPE_IEEE_802_1AD  0x88A8 /* IEEE 802.1ad Provider Bridge, Q-in-Q */
+#define ETHERTYPE_IEEE_802_1AD  	0x88A8	/* IEEE 802.1ad Provider Bridge, Q-in-Q */
 #endif
 
 #ifndef ETHERTYPE_EPL_V2
-#define ETHERTYPE_EPL_V2        0x88AB
+#define ETHERTYPE_EPL_V2        	0x88AB	/* communication profile for Real-Time Ethernet */
 #endif
 
 #ifndef ETHERTYPE_XIMETA
-#define ETHERTYPE_XIMETA       0x88AD /* XiMeta Technology Americas Inc. */
-#endif								  /* proprietary communication protocol */
+#define ETHERTYPE_XIMETA		0x88AD	/* XiMeta Technology Americas Inc. proprietary communication protocol */
+#endif
 
 #ifndef ETHERTYPE_BRDWALK
-#define ETHERTYPE_BRDWALK       0x88AE
+#define ETHERTYPE_BRDWALK       	0x88AE
 #endif
 
 
 #ifndef ETHERTYPE_IEEE802_OUI_EXTENDED
-#define ETHERTYPE_IEEE802_OUI_EXTENDED 0x88B7	/* IEEE 802a OUI Extended Ethertype */
+#define ETHERTYPE_IEEE802_OUI_EXTENDED	0x88B7	/* IEEE 802a OUI Extended Ethertype */
 #endif
 
 #ifndef ETHERTYPE_IEC61850_GOOSE
-#define ETHERTYPE_IEC61850_GOOSE	0x88b8  /* IEC 61850 is a global standard for the use in utility communication,*/
+#define ETHERTYPE_IEC61850_GOOSE	0x88B8  /* IEC 61850 is a global standard for the use in utility communication,*/
 #endif						/* in particular for the information exchange between IED's in a power */
 						/* transmission or distribution substation. */
 						/*  There are three types of application services
@@ -337,103 +334,106 @@
 						    and IEC 61850-9-2. */
 
 #ifndef ETHERTYPE_IEC61850_GSE
-#define ETHERTYPE_IEC61850_GSE		0x88b9  /* IEC 61850 is a global standard for the use in utility communication,*/
+#define ETHERTYPE_IEC61850_GSE		0x88B9  /* IEC 61850 is a global standard for the use in utility communication,*/
 #endif						/* in particular for the information exchange between IED's in a power */
 
 #ifndef ETHERTYPE_IEC61850_SV
-#define ETHERTYPE_IEC61850_SV		0x88ba	/* IEC 61850 is a global standard for the use in utility communication,*/
+#define ETHERTYPE_IEC61850_SV		0x88BA	/* IEC 61850 is a global standard for the use in utility communication,*/
 #endif						/* in particular for the information exchange between IED's in a power */
 
 #ifndef ETHERTYPE_TIPC
-#define ETHERTYPE_TIPC	0x88ca  /* TIPC  (Transparent Inter Process Communication, */
-#endif				/* http://tipc.sourceforge.net/) Ericsson Research Canada Inc */
+#define ETHERTYPE_TIPC			0x88CA  /* TIPC  (Transparent Inter Process Communication, */
+#endif						/* http://tipc.sourceforge.net/) Ericsson Research Canada Inc */
 
 #ifndef ETHERTYPE_RSN_PREAUTH
-#define ETHERTYPE_RSN_PREAUTH	0x88c7  /* 802.11i Pre-Authentication */
+#define ETHERTYPE_RSN_PREAUTH		0x88C7  /* 802.11i Pre-Authentication */
 #endif
 
 #ifndef ETHERTYPE_LLDP
-#define ETHERTYPE_LLDP	        0x88cc  /* IEEE 802.1AB Link Layer Discovery Protocol (LLDP) */
+#define ETHERTYPE_LLDP	        	0x88CC  /* IEEE 802.1AB Link Layer Discovery Protocol (LLDP) */
 #endif
 
 #ifndef ETHERTYPE_SERCOS
-#define ETHERTYPE_SERCOS        0x88cd  /* SERCOS interface real-time protocol for motion control */
+#define ETHERTYPE_SERCOS        	0x88CD  /* SERCOS interface real-time protocol for motion control */
 #endif
 
 #ifndef ETHERTYPE_3GPP2
-#define ETHERTYPE_3GPP2	        0x88d2  /* This will be used in a revision of the Interoperabi */
-#endif					/* Specification (IOS) for cdma2000 Access Network Interfaces (document numbers A.S0011-B */
-					/* through A.S0017-B v1.0). This document already uses the Ether type 8881 */
+#define ETHERTYPE_3GPP2	        	0x88D2  /* This will be used in a revision of the Interoperabi */
+#endif						/* Specification (IOS) for cdma2000 Access Network Interfaces (document numbers A.S0011-B */
+						/* through A.S0017-B v1.0). This document already uses the Ether type 8881 */
 
 #ifndef ETHERTYPE_LLTD
-#define ETHERTYPE_LLTD			0x88d9  /* Link Layer Topology Discovery (LLTD) */
+#define ETHERTYPE_LLTD			0x88D9  /* Link Layer Topology Discovery (LLTD) */
 #endif
 
-#ifndef ETHERTYPE_WSMP					/* Wireless Access in a Vehicle Environment */
-#define ETHERTYPE_WSMP			0x88dc	/*(WAVE) Short Message Protocol (WSM) as defined */
-#endif									/* in IEEE P1609.3. */
+#ifndef ETHERTYPE_WSMP				/* Wireless Access in a Vehicle Environment */
+#define ETHERTYPE_WSMP			0x88DC	/* (WAVE) Short Message Protocol (WSM) as defined */
+#endif						/* in IEEE P1609.3. */
+
+#ifndef ETHERTYPE_VMLAB
+#define ETHERTYPE_VMLAB			0x88DE  /* VMware LabManager (used to be Akimbi Systems) */
+#endif
 
 #ifndef ETHERTYPE_MRP
-#define ETHERTYPE_MRP	        0x88e3  /* IEC 61158-6-10 Media Redundancy Protocol (MRP) */
+#define ETHERTYPE_MRP	        	0x88E3  /* IEC 61158-6-10 Media Redundancy Protocol (MRP) */
 #endif
 
 #ifndef ETHERTYPE_IEEE_802_1AH
-#define ETHERTYPE_IEEE_802_1AH  0x88E7  /* IEEE 802.1ah Provider Backbone Bridge Mac-in-Mac */
+#define ETHERTYPE_IEEE_802_1AH  	0x88E7  /* IEEE 802.1ah Provider Backbone Bridge Mac-in-Mac */
 #endif
 
 #ifndef ETHERTYPE_PTP
-#define ETHERTYPE_PTP		0x88F7	/* IEEE1588v2 (PTPv2) over Ethernet */
-#endif					/* in particular for the information exchange between IED's in a power */
-					/* transmission or distribution substation. */
-					/*  There are three types of application services */
+#define ETHERTYPE_PTP			0x88F7	/* IEEE1588v2 (PTPv2) over Ethernet */
+#endif						/* in particular for the information exchange between IED's in a power */
+						/* transmission or distribution substation. */
+						/*  There are three types of application services */
 
 #ifndef ETHERTYPE_PRP
-#define ETHERTYPE_PRP		0x88FB	/* Parallel Redundancy Protocol (IEC62439 Chapter 6) */
+#define ETHERTYPE_PRP			0x88FB	/* Parallel Redundancy Protocol (IEC62439 Chapter 6) */
 #endif
 
 #ifndef ETHERTYPE_FLIP
-#define ETHERTYPE_FLIP		0x8901	/* Nokia Siemens Networks */
-#endif								/* Flow Layer Internal Protocol */
+#define ETHERTYPE_FLIP			0x8901	/* Nokia Siemens Networks Flow Layer Internal Protocol */
+#endif
 
 #ifndef ETHERTYPE_CFM
-#define ETHERTYPE_CFM		0x8902	/* IEEE 802.1ag Connectivity Fault Management */
-#endif								/* (CFM) protocol. */
+#define ETHERTYPE_CFM			0x8902	/* IEEE 802.1ag Connectivity Fault Management(CFM) protocol */
+#endif
 
 #ifndef ETHERTYPE_FCOE
-#define ETHERTYPE_FCOE		0x8906	/* Fibre Channel over Ethernet */
+#define ETHERTYPE_FCOE			0x8906	/* Fibre Channel over Ethernet */
 #endif
 
 #ifndef ETHERTYPE_LINX
-#define ETHERTYPE_LINX          0x8911  /* ENEA LINX IPC protocol over Ethernet */
+#define ETHERTYPE_LINX          	0x8911  /* ENEA LINX IPC protocol over Ethernet */
 #endif
 
 #ifndef ETHERTYPE_FIP
-#define ETHERTYPE_FIP		0x8914	/* FCoE Initialization Protocol */
+#define ETHERTYPE_FIP			0x8914	/* FCoE Initialization Protocol */
 #endif
 
 #ifndef ETHERTYPE_TTE_PCF
-#define ETHERTYPE_TTE_PCF	0x891d  /* TTEthernet Protocol Control Frame */
+#define ETHERTYPE_TTE_PCF		0x891D  /* TTEthernet Protocol Control Frame */
 #endif
 
 #ifndef ETHERTYPE_LOOP
-#define ETHERTYPE_LOOP		0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */
+#define ETHERTYPE_LOOP			0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */
 #endif
 
-#ifndef ETHERTYPE_RTMAC
-#define ETHERTYPE_RTMAC		0x9021 	/* RTnet: Real-Time Media Access Control */
-#endif
-
-#ifndef ETHERTYPE_RTCFG
-#define ETHERTYPE_RTCFG		0x9022 	/* RTnet: Real-Time Configuration Protocol */
-#endif
-
-#ifndef ETHERTYPE_LLT
-#define ETHERTYPE_LLT           0xCAFE /* Veritas Low Latency Transport (not officially registered) */
-#endif
-
-#ifndef ETHERTYPE_FCFT
-/* type used to transport FC frames+MDS hdr internal to Cisco's MDS switch */
-#define ETHERTYPE_FCFT          0xFCFC
+#ifndef ETHERTYPE_RTMAC         	
+#define ETHERTYPE_RTMAC			0x9021 	/* RTnet: Real-Time Media Access Control */
+#endif                          	
+					
+#ifndef ETHERTYPE_RTCFG         	
+#define ETHERTYPE_RTCFG			0x9022 	/* RTnet: Real-Time Configuration Protocol */
+#endif                          	
+					
+#ifndef ETHERTYPE_LLT           	
+#define ETHERTYPE_LLT           	0xCAFE	/* Veritas Low Latency Transport (not officially registered) */
+#endif                          	
+					
+#ifndef ETHERTYPE_FCFT          	
+#define ETHERTYPE_FCFT          	0xFCFC	/* used to transport FC frames+MDS hdr internal to Cisco's MDS switch */
 #endif
 
 WS_VAR_IMPORT const value_string etype_vals[];
