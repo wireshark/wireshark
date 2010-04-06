@@ -76,7 +76,7 @@ dissect_bpkmrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   code = tvb_get_guint8 (tvb, 0);
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "BPKM Response (%s)",
-	    val_to_str (code, code_field_vals, "%s"));
+	    val_to_str (code, code_field_vals, "Unknown code %u"));
 
   if (tree)
     {
@@ -95,9 +95,6 @@ dissect_bpkmrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   /* Code to Call subdissector */
   attrs_tvb = tvb_new_subset_remaining (tvb, 4);
   call_dissector (attrs_handle, attrs_tvb, pinfo, tree);
-
-
-
 }
 
 
