@@ -76,7 +76,7 @@ static GtkWidget *mcast_params_dlg = NULL;
 
 static GtkListStore *list_store = NULL;
 static GtkTreeIter list_iter;
-static GtkWidget *list = NULL;
+static GtkWidget *list_w    = NULL;
 static GtkWidget *top_label = NULL;
 static GtkWidget *label_fwd = NULL;
 static GtkWidget *label_par = NULL;
@@ -130,7 +130,7 @@ mcaststream_on_destroy(GtkObject *object _U_, gpointer user_data _U_)
 static void
 mcaststream_on_unselect(GtkButton *button _U_, gpointer user_data _U_)
 {
-	GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+	GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list_w));
 	gtk_tree_selection_unselect_all(selection);
 
 	selected_stream_fwd = NULL;
@@ -459,9 +459,9 @@ create_list_view(void)
 				       );
 
 	/* Create a view */
-	list = gtk_tree_view_new_with_model(GTK_TREE_MODEL(list_store));
+	list_w = gtk_tree_view_new_with_model(GTK_TREE_MODEL(list_store));
 
-	list_view = GTK_TREE_VIEW(list);
+	list_view = GTK_TREE_VIEW(list_w);
 	sortable = GTK_TREE_SORTABLE(list_store);
 
 #if GTK_CHECK_VERSION(2,6,0)
@@ -673,7 +673,7 @@ mcaststream_dlg_create(void)
     gtk_box_pack_start (GTK_BOX (main_vb), scrolledwindow, TRUE, TRUE, 0);
 
     create_list_view();
-    gtk_container_add(GTK_CONTAINER(scrolledwindow), list);
+    gtk_container_add(GTK_CONTAINER(scrolledwindow), list_w);
 
     gtk_widget_show(mcaststream_dlg_w);
 
