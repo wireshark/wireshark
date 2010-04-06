@@ -66,7 +66,6 @@ root altogether:
 # chmod 750 /usr/bin/dumpcap
 # chgrp packetcapture /usr/bin/dumpcap
 # setcap cap_net_raw,cap_net_admin+eip /usr/bin/dumpcap
-# setcap cap_net_raw,cap_net_admin+eip /usr/bin/tshark
 
 4. Customization.
 
