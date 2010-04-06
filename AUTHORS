@@ -3010,6 +3010,11 @@ Aniruddha A		<aniruddha.a [AT] gmail.com> {
 	ANCP (Access Node Control Protocol) dissector
 }
 
+David Aggeler		<david_aggeler [AT] hispeed.ch> {
+	Numerous DICOM dissector enhancements and fixes
+	VMLAB (VMware Lab Manager) dissector
+}
+
 
 and by:
 
@@ -3162,7 +3167,6 @@ Giodi Giorgi		<g.giorgi [AT] gmail.com>
 Peter Hertting		<Peter.Hertting [AT] gmx.net>
 Jess Balint		<jbalint [AT] gmail.com>
 Bahaa Naamneh		<b.naamneh [AT] gmail.com>
-David Aggeler		<david_aggeler [AT] hispeed.ch>
 Magnus Sörman		<magnus.sorman [AT] ericsson.com
 Pascal Quantin		<pascal.quantin [AT] gmail.com>
 Roy Marples		<roy [AT] marples.name>
