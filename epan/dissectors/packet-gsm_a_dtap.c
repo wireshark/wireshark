@@ -93,7 +93,6 @@
 
 #include <stdlib.h>
 
-#include <string.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>

@@ -28,7 +28,6 @@
 #endif
 
 #include <glib.h>
-#include <string.h>
 #include <epan/packet.h>
 #include <epan/oui.h>
 #include <epan/nlpid.h>

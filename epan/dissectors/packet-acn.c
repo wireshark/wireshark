@@ -49,7 +49,6 @@
 #include <epan/prefs.h>
 #include <epan/packet.h>
 #include <epan/ipv6-utils.h>
-#include <string.h>
 
 #include "packet-acn.h"
 

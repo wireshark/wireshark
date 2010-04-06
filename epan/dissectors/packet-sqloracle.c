@@ -30,7 +30,6 @@
 
 #include <glib.h>
 #include <ctype.h>
-#include <string.h>
 #include <epan/packet.h>
 #include "packet-sqloracle.h"
 

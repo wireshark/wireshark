@@ -47,7 +47,6 @@
 #endif
 
 #include <stdlib.h>
-#include <string.h>
 #include <glib.h>
 #include <gmodule.h>
 #include <epan/packet.h>

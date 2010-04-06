@@ -30,7 +30,6 @@
 # include "config.h"
 #endif
 
-#include <string.h>
 #include <math.h>
 #include <glib.h>
 #include <epan/packet.h>

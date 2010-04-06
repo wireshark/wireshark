@@ -34,8 +34,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <string.h>
-
 #include <epan/packet.h>
 #include <epan/tap.h>
 

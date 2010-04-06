@@ -29,7 +29,6 @@
 # include "config.h"
 #endif
 
-#include <string.h>
 #include <glib.h>
 #include <epan/prefs.h>
 #include <epan/packet.h>

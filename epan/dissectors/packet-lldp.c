@@ -32,7 +32,6 @@
 #endif
 
 #include <stdlib.h>
-#include <string.h>
 
 #include <gmodule.h>
 #include <glib.h>

@@ -32,8 +32,6 @@
 
 #include <stdlib.h>
 
-#include <string.h>
-
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/emem.h>

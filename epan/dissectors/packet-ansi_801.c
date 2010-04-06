@@ -49,8 +49,6 @@
 # include <netinet/in.h>
 #endif
 
-#include <string.h>
-
 #include <epan/packet.h>
 
 

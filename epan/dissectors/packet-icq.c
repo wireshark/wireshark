@@ -40,7 +40,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <time.h>
-#include <string.h>
 #include <glib.h>
 
 #include <epan/packet.h>

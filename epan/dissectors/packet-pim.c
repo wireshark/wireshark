@@ -28,7 +28,6 @@
 #endif
 
 #include <stddef.h>  /* For offsetof */
-#include <string.h>
 #include <glib.h>
 
 #include <epan/packet.h>

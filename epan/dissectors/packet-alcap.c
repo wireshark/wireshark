@@ -33,7 +33,6 @@
 # include "config.h"
 #endif
 
-#include <string.h>
 #include <glib.h>
 
 #include <wsutil/str_util.h>

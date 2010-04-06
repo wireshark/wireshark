@@ -35,8 +35,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <string.h>
-
 #include "packet-tpkt.h"
 #include "packet-frame.h"
 #include <epan/prefs.h>
