@@ -111,7 +111,7 @@ Lynx
 ----
 Text based web browser used to convert release_notes.html into plain text 
 format.
-
+(Alternative [*nix]: elinks)
 
 Packages for Win32
 ------------------
@@ -169,8 +169,8 @@ Tip: The actual DTD version of Gentoo is 4.4, but wireshark docs still use 4.2.
      See into the Gentoo handbook howto unmask old versions.
 
 
-Packages for Fedora 7
----------------------
+Packages for Fedora
+-------------------
 Tool/File           Package                 Opt./Mand.  Comments
 ---------           -------                 ----------  --------
 xsltproc:           libxslt                 M
