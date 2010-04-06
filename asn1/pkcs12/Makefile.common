@@ -45,10 +45,11 @@ SRC_FILES = \
 
 A2W_FLAGS= -b -e
 
+# Note the order here is important, cms needs at least x509af-exp to be generated first 
 EXTRA_CNF= \
-	../cms/cms-exp.cnf \
-	../x509if/x509if-exp.cnf \
-	../x509af/x509af-exp.cnf
+	../x509if/x509if-exp.cnf  \
+	../x509af/x509af-exp.cnf \
+	../cms/cms-exp.cnf 
 
 ../cms/cms-exp.cnf:
 	(cd ../cms && $(MAKE_CNF_EXPORT))

@@ -494,7 +494,7 @@ dissect_pkcs12_T_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 static const ber_sequence_t DigestInfo_sequence[] = {
-  { &hf_pkcs12_digestAlgorithm, -1/*imported*/, -1/*imported*/, BER_FLAGS_NOOWNTAG, dissect_cms_DigestAlgorithmIdentifier },
+  { &hf_pkcs12_digestAlgorithm, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cms_DigestAlgorithmIdentifier },
   { &hf_pkcs12_digest       , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cms_Digest },
   { NULL, 0, 0, 0, NULL }
 };
@@ -800,7 +800,7 @@ dissect_pkcs12_EncryptedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 	
 
 	dissector_handle=create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_pkcs12);
-	dissector_change_string("ber.oid", (gchar*) object_identifier_id, dissector_handle);
+	dissector_change_string("ber.oid", object_identifier_id, dissector_handle);
 	
 	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx, actx->created_item);
 	
