@@ -29,7 +29,6 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/conversation.h>
-#include <string.h>
 #include "packet-usb.h"
 #include "packet-scsi.h"
 

@@ -32,7 +32,6 @@
 #include <ctype.h>
 #include <time.h>
 #include <glib.h>
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>

@@ -31,7 +31,6 @@
 #include <sys/types.h>
 #endif
 
-#include <string.h>
 #include <glib.h>
 #include <gmodule.h>
 

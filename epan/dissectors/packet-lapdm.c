@@ -56,7 +56,6 @@
 #endif
 
 #include <glib.h>
-#include <string.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/xdlc.h>

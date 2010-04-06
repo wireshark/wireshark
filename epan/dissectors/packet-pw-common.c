@@ -27,7 +27,6 @@
 # include "config.h"
 #endif
 
-#include <string.h>
 #include <epan/packet.h>
 #include "packet-pw-common.h"
 

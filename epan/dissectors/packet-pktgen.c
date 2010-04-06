@@ -35,7 +35,6 @@
 
 #if 0
 #include <stdlib.h>
-#include <string.h>
 #endif
 
 #include <glib.h>

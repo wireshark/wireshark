@@ -29,7 +29,6 @@
 #include "config.h"
 #endif /* HAVE_CONFIG_H */
 
-#include <string.h>
 #include <stdlib.h>
 #include <glib.h>
 #include <gmodule.h>

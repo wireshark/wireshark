@@ -29,7 +29,6 @@
 #endif
 
 #if 0
-#include <string.h>
 #endif
 #include <glib.h>
 #include <epan/packet.h>

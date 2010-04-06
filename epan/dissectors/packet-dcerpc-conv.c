@@ -32,8 +32,6 @@
 #include <sys/types.h>
 #endif
 
-#include <string.h>
-
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-dcerpc.h"

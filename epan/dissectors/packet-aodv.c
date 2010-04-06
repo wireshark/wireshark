@@ -30,7 +30,6 @@
 #ifdef HAVE_STDDEF_H
 #include <stddef.h>
 #endif
-#include <string.h>
 
 #include <glib.h>
 

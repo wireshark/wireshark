@@ -34,7 +34,6 @@
 #include <epan/tap.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
-#include <string.h>
 #include "packet-usb.h"
 #include "packet-usb-hid.h"
 

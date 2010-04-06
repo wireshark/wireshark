@@ -33,7 +33,6 @@
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
 #include <stdlib.h>
-#include <string.h>
 
 
 /* Packet Classes */

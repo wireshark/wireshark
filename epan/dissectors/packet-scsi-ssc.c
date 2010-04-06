@@ -36,7 +36,6 @@
 #endif
 
 #include <glib.h>
-#include <string.h>
 #include <epan/strutil.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>

@@ -28,7 +28,6 @@
 # include "config.h"
 #endif
 
-#include <string.h>
 #include <epan/packet.h>
 #include "packet-dis-fields.h"
 #include "packet-dis-enums.h"

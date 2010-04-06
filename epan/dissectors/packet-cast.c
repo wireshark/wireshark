@@ -28,8 +28,6 @@
 # include "config.h"
 #endif
 
-#include <string.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 

@@ -34,7 +34,6 @@
 #endif
 
 #include <glib.h>
-#include <string.h>
 #include <epan/packet.h>
 
 static int proto_cosine = -1;

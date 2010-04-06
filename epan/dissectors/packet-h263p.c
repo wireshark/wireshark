@@ -36,8 +36,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <string.h>
-
 #include <epan/prefs.h>
 
 #include "packet-h263.h"

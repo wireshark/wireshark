@@ -31,7 +31,6 @@
 #endif
 
 #include <time.h>
-#include <string.h>
 #include <glib.h>
 #include <ctype.h>
 #include <epan/packet.h>

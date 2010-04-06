@@ -39,8 +39,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <string.h>
-
 #include "packet-h263.h"
 
 static int proto_h263_data		= -1;

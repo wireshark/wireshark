@@ -38,8 +38,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <string.h>
-
 #include <epan/rtp_pt.h>
 
 #define RTP_MPG_MBZ(word) ( word >> 11)

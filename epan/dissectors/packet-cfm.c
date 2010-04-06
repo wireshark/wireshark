@@ -36,7 +36,6 @@
 
 #include <epan/packet.h>
 #include <glib.h>
-#include <string.h>
 #include <epan/etypes.h>
 #include "packet-cfm.h"
 

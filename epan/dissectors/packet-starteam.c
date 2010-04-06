@@ -33,8 +33,6 @@
 # include "config.h"
 #endif
 
-#include <string.h>
-
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>

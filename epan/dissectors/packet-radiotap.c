@@ -30,7 +30,6 @@
 #endif
 
 #include <glib.h>
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/crc32.h>

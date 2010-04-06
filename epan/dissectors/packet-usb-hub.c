@@ -33,7 +33,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <string.h>
 #include "packet-usb.h"
 
 /* protocols and header fields */

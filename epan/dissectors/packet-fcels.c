@@ -33,7 +33,6 @@
 #endif
 
 #include <stdlib.h>
-#include <string.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>

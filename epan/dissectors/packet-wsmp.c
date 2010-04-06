@@ -30,7 +30,6 @@
 #endif
 
 #include <stdlib.h>
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
