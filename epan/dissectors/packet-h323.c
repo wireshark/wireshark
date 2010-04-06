@@ -40,7 +40,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-per.h"
@@ -133,7 +132,7 @@ static int hf_h323_timeToLive = -1;               /* TimeToLive */
 static int hf_h323_includeFastStart = -1;         /* NULL */
 
 /*--- End of included file: packet-h323-hf.c ---*/
-#line 96 "packet-h323-template.c"
+#line 95 "packet-h323-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -154,7 +153,7 @@ static gint ett_h323_T_fastStart = -1;
 static gint ett_h323_StatusInquiry_RD = -1;
 
 /*--- End of included file: packet-h323-ett.c ---*/
-#line 99 "packet-h323-template.c"
+#line 98 "packet-h323-template.c"
 
 
 /*--- Included file: packet-h323-fn.c ---*/
@@ -445,7 +444,7 @@ static int dissect_RobustnessData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-h323-fn.c ---*/
-#line 101 "packet-h323-template.c"
+#line 100 "packet-h323-template.c"
 
 /*--- proto_register_h323 ----------------------------------------------*/
 void proto_register_h323(void) {
@@ -569,7 +568,7 @@ void proto_register_h323(void) {
         "h323.NULL", HFILL }},
 
 /*--- End of included file: packet-h323-hfarr.c ---*/
-#line 108 "packet-h323-template.c"
+#line 107 "packet-h323-template.c"
   };
 
   /* List of subtrees */
@@ -592,7 +591,7 @@ void proto_register_h323(void) {
     &ett_h323_StatusInquiry_RD,
 
 /*--- End of included file: packet-h323-ettarr.c ---*/
-#line 113 "packet-h323-template.c"
+#line 112 "packet-h323-template.c"
   };
 
   /* Register protocol */

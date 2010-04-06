@@ -42,7 +42,6 @@
 #include <epan/expert.h>
 #include <epan/nstime.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"
@@ -120,7 +119,7 @@ static int hf_goose_bcd = -1;                     /* INTEGER */
 static int hf_goose_booleanArray = -1;            /* BIT_STRING */
 
 /*--- End of included file: packet-goose-hf.c ---*/
-#line 55 "packet-goose-template.c"
+#line 54 "packet-goose-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_goose = -1;
@@ -147,7 +146,7 @@ static gint ett_goose_SEQUENCE_OF_Data = -1;
 static gint ett_goose_Data = -1;
 
 /*--- End of included file: packet-goose-ett.c ---*/
-#line 60 "packet-goose-template.c"
+#line 59 "packet-goose-template.c"
 
 
 /*--- Included file: packet-goose-fn.c ---*/
@@ -689,7 +688,7 @@ dissect_goose_GOOSEpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 /*--- End of included file: packet-goose-fn.c ---*/
-#line 62 "packet-goose-template.c"
+#line 61 "packet-goose-template.c"
 
 /*
 * Dissect GOOSE PDUs inside a PPDU.
@@ -992,7 +991,7 @@ void proto_register_goose(void) {
         "goose.BIT_STRING", HFILL }},
 
 /*--- End of included file: packet-goose-hfarr.c ---*/
-#line 136 "packet-goose-template.c"
+#line 135 "packet-goose-template.c"
   };
 
   /* List of subtrees */
@@ -1020,7 +1019,7 @@ void proto_register_goose(void) {
     &ett_goose_Data,
 
 /*--- End of included file: packet-goose-ettarr.c ---*/
-#line 142 "packet-goose-template.c"
+#line 141 "packet-goose-template.c"
   };
 
 	/* Register protocol */

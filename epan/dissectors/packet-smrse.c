@@ -39,7 +39,6 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"
@@ -88,7 +87,7 @@ static int hf_smrse_sm_diag_info = -1;            /* RP_UD */
 static int hf_smrse_ms_address = -1;              /* SMS_Address */
 
 /*--- End of included file: packet-smrse-hf.c ---*/
-#line 53 "packet-smrse-template.c"
+#line 52 "packet-smrse-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_smrse = -1;
@@ -108,7 +107,7 @@ static gint ett_smrse_RPError = -1;
 static gint ett_smrse_RPAlertSC = -1;
 
 /*--- End of included file: packet-smrse-ett.c ---*/
-#line 57 "packet-smrse-template.c"
+#line 56 "packet-smrse-template.c"
 
 
 
@@ -484,7 +483,7 @@ dissect_smrse_RPAlertSC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 /*--- End of included file: packet-smrse-fn.c ---*/
-#line 60 "packet-smrse-template.c"
+#line 59 "packet-smrse-template.c"
 
 static const value_string tag_vals[] = {
 	{  1,	"AliveTest" },
@@ -699,7 +698,7 @@ void proto_register_smrse(void) {
         "smrse.SMS_Address", HFILL }},
 
 /*--- End of included file: packet-smrse-hfarr.c ---*/
-#line 166 "packet-smrse-template.c"
+#line 165 "packet-smrse-template.c"
   };
 
   /* List of subtrees */
@@ -721,7 +720,7 @@ void proto_register_smrse(void) {
     &ett_smrse_RPAlertSC,
 
 /*--- End of included file: packet-smrse-ettarr.c ---*/
-#line 172 "packet-smrse-template.c"
+#line 171 "packet-smrse-template.c"
   };
 
   /* Register protocol */

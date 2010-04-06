@@ -36,7 +36,6 @@
 #include <epan/asn1.h>
 #include <epan/strutil.h>
 
-#include <stdio.h>
 #include <string.h>
 #include "packet-ber.h"
 #include "packet-tcap.h"

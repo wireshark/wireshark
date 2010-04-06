@@ -40,7 +40,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"
@@ -217,7 +216,7 @@ static int hf_x509sat_T_bitNamedDays_friday = -1;
 static int hf_x509sat_T_bitNamedDays_saturday = -1;
 
 /*--- End of included file: packet-x509sat-hf.c ---*/
-#line 50 "packet-x509sat-template.c"
+#line 49 "packet-x509sat-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -272,7 +271,7 @@ static gint ett_x509sat_T_between = -1;
 static gint ett_x509sat_LocaleContextSyntax = -1;
 
 /*--- End of included file: packet-x509sat-ett.c ---*/
-#line 53 "packet-x509sat-template.c"
+#line 52 "packet-x509sat-template.c"
 
 
 /*--- Included file: packet-x509sat-fn.c ---*/
@@ -1729,7 +1728,7 @@ static void dissect_GUID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 
 
 /*--- End of included file: packet-x509sat-fn.c ---*/
-#line 55 "packet-x509sat-template.c"
+#line 54 "packet-x509sat-template.c"
 
 
 /*--- proto_register_x509sat ----------------------------------------------*/
@@ -2370,7 +2369,7 @@ void proto_register_x509sat(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-x509sat-hfarr.c ---*/
-#line 63 "packet-x509sat-template.c"
+#line 62 "packet-x509sat-template.c"
   };
 
   /* List of subtrees */
@@ -2427,7 +2426,7 @@ void proto_register_x509sat(void) {
     &ett_x509sat_LocaleContextSyntax,
 
 /*--- End of included file: packet-x509sat-ettarr.c ---*/
-#line 68 "packet-x509sat-template.c"
+#line 67 "packet-x509sat-template.c"
   };
 
   /* Register protocol */
@@ -2598,7 +2597,7 @@ void proto_reg_handoff_x509sat(void) {
 
 
 /*--- End of included file: packet-x509sat-dis-tab.c ---*/
-#line 83 "packet-x509sat-template.c"
+#line 82 "packet-x509sat-template.c"
 
   /* OBJECT CLASSES */
 

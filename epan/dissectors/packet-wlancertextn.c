@@ -40,7 +40,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"
@@ -62,7 +61,7 @@ static int hf_wlancertextn_SSIDList_PDU = -1;     /* SSIDList */
 static int hf_wlancertextn_SSIDList_item = -1;    /* SSID */
 
 /*--- End of included file: packet-wlancertextn-hf.c ---*/
-#line 51 "packet-wlancertextn-template.c"
+#line 50 "packet-wlancertextn-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -71,7 +70,7 @@ static int hf_wlancertextn_SSIDList_item = -1;    /* SSID */
 static gint ett_wlancertextn_SSIDList = -1;
 
 /*--- End of included file: packet-wlancertextn-ett.c ---*/
-#line 54 "packet-wlancertextn-template.c"
+#line 53 "packet-wlancertextn-template.c"
 
 
 /*--- Included file: packet-wlancertextn-fn.c ---*/
@@ -109,7 +108,7 @@ static void dissect_SSIDList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-wlancertextn-fn.c ---*/
-#line 56 "packet-wlancertextn-template.c"
+#line 55 "packet-wlancertextn-template.c"
 
 
 /*--- proto_register_wlancertextn ----------------------------------------------*/
@@ -130,7 +129,7 @@ void proto_register_wlancertextn(void) {
         "wlancertextn.SSID", HFILL }},
 
 /*--- End of included file: packet-wlancertextn-hfarr.c ---*/
-#line 64 "packet-wlancertextn-template.c"
+#line 63 "packet-wlancertextn-template.c"
   };
 
   /* List of subtrees */
@@ -141,7 +140,7 @@ void proto_register_wlancertextn(void) {
     &ett_wlancertextn_SSIDList,
 
 /*--- End of included file: packet-wlancertextn-ettarr.c ---*/
-#line 69 "packet-wlancertextn-template.c"
+#line 68 "packet-wlancertextn-template.c"
   };
 
   /* Register protocol */
@@ -164,7 +163,7 @@ void proto_reg_handoff_wlancertextn(void) {
 
 
 /*--- End of included file: packet-wlancertextn-dis-tab.c ---*/
-#line 84 "packet-wlancertextn-template.c"
+#line 83 "packet-wlancertextn-template.c"
   oid_add_from_string("id-kp-eapOverPPP","1.3.6.1.5.5.7.3.13");
   oid_add_from_string("id-kp-eapOverLAN","1.3.6.1.5.5.7.3.14");
 }

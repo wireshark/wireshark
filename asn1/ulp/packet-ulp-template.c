@@ -35,7 +35,6 @@
 #include <epan/prefs.h>
 #include <epan/asn1.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-per.h"

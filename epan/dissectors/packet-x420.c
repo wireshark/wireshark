@@ -40,7 +40,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"
@@ -345,7 +344,7 @@ static const value_string charsetreg_vals [] = {
 #define ub_telephone_number            32
 
 /*--- End of included file: packet-x420-val.h ---*/
-#line 89 "packet-x420-template.c"
+#line 88 "packet-x420-template.c"
 
 
 /*--- Included file: packet-x420-hf.c ---*/
@@ -730,7 +729,7 @@ static int hf_x420_RecipientSecurityRequest_ipn_non_repudiation = -1;
 static int hf_x420_RecipientSecurityRequest_ipn_proof = -1;
 
 /*--- End of included file: packet-x420-hf.c ---*/
-#line 91 "packet-x420-template.c"
+#line 90 "packet-x420-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_x420 = -1;
@@ -864,7 +863,7 @@ static gint ett_x420_T_body_part_token_choice = -1;
 static gint ett_x420_T_choice = -1;
 
 /*--- End of included file: packet-x420-ett.c ---*/
-#line 95 "packet-x420-template.c"
+#line 94 "packet-x420-template.c"
 
 
 /*--- Included file: packet-x420-fn.c ---*/
@@ -4531,7 +4530,7 @@ static void dissect_ForwardedContentToken_PDU(tvbuff_t *tvb _U_, packet_info *pi
 
 
 /*--- End of included file: packet-x420-fn.c ---*/
-#line 97 "packet-x420-template.c"
+#line 96 "packet-x420-template.c"
 
 /*
 * Dissect X420 PDUs inside a PPDU.
@@ -6076,7 +6075,7 @@ void proto_register_x420(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-x420-hfarr.c ---*/
-#line 129 "packet-x420-template.c"
+#line 128 "packet-x420-template.c"
   };
 
   /* List of subtrees */
@@ -6212,7 +6211,7 @@ void proto_register_x420(void) {
     &ett_x420_T_choice,
 
 /*--- End of included file: packet-x420-ettarr.c ---*/
-#line 135 "packet-x420-template.c"
+#line 134 "packet-x420-template.c"
   };
 
   /* Register protocol */
@@ -6332,7 +6331,7 @@ void proto_reg_handoff_x420(void) {
 
 
 /*--- End of included file: packet-x420-dis-tab.c ---*/
-#line 151 "packet-x420-template.c"
+#line 150 "packet-x420-template.c"
 
   register_ber_oid_dissector("2.6.1.10.0", dissect_x420, proto_x420, "InterPersonal Message (1984)");
   register_ber_oid_dissector("2.6.1.10.1", dissect_x420, proto_x420, "InterPersonal Message (1988)");

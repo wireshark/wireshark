@@ -41,7 +41,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"
@@ -190,7 +189,7 @@ static int hf_cms_issuerUniqueID = -1;            /* UniqueIdentifier */
 static int hf_cms_extensions = -1;                /* Extensions */
 
 /*--- End of included file: packet-cms-hf.c ---*/
-#line 58 "packet-cms-template.c"
+#line 57 "packet-cms-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -252,7 +251,7 @@ static gint ett_cms_T_subject = -1;
 static gint ett_cms_SEQUENCE_OF_Attribute = -1;
 
 /*--- End of included file: packet-cms-ett.c ---*/
-#line 61 "packet-cms-template.c"
+#line 60 "packet-cms-template.c"
 
 static int dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2wrs stops generating these silly wrappers */
 
@@ -1837,7 +1836,7 @@ static void dissect_RC2CBCParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 
 /*--- End of included file: packet-cms-fn.c ---*/
-#line 139 "packet-cms-template.c"
+#line 138 "packet-cms-template.c"
 
 /*--- proto_register_cms ----------------------------------------------*/
 void proto_register_cms(void) {
@@ -2345,7 +2344,7 @@ void proto_register_cms(void) {
         "x509af.Extensions", HFILL }},
 
 /*--- End of included file: packet-cms-hfarr.c ---*/
-#line 150 "packet-cms-template.c"
+#line 149 "packet-cms-template.c"
   };
 
   /* List of subtrees */
@@ -2409,7 +2408,7 @@ void proto_register_cms(void) {
     &ett_cms_SEQUENCE_OF_Attribute,
 
 /*--- End of included file: packet-cms-ettarr.c ---*/
-#line 155 "packet-cms-template.c"
+#line 154 "packet-cms-template.c"
   };
 
   /* Register protocol */
@@ -2453,7 +2452,7 @@ void proto_reg_handoff_cms(void) {
 
 
 /*--- End of included file: packet-cms-dis-tab.c ---*/
-#line 176 "packet-cms-template.c"
+#line 175 "packet-cms-template.c"
 
   oid_add_from_string("id-data","1.2.840.113549.1.7.1");
   oid_add_from_string("id-alg-des-ede3-cbc","1.2.840.113549.3.7");

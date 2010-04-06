@@ -39,7 +39,6 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"
@@ -68,7 +67,7 @@ static int hf_pkcs1_digestAlgorithm = -1;         /* DigestAlgorithmIdentifier *
 static int hf_pkcs1_digest = -1;                  /* Digest */
 
 /*--- End of included file: packet-pkcs1-hf.c ---*/
-#line 48 "packet-pkcs1-template.c"
+#line 47 "packet-pkcs1-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -79,7 +78,7 @@ static gint ett_pkcs1_RSAPrivateKey = -1;
 static gint ett_pkcs1_DigestInfo = -1;
 
 /*--- End of included file: packet-pkcs1-ett.c ---*/
-#line 51 "packet-pkcs1-template.c"
+#line 50 "packet-pkcs1-template.c"
 
 
 /*--- Included file: packet-pkcs1-fn.c ---*/
@@ -177,7 +176,7 @@ dissect_pkcs1_DigestInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 /*--- End of included file: packet-pkcs1-fn.c ---*/
-#line 53 "packet-pkcs1-template.c"
+#line 52 "packet-pkcs1-template.c"
 
 /*--- proto_register_pkcs1 ----------------------------------------------*/
 void proto_register_pkcs1(void) {
@@ -233,7 +232,7 @@ void proto_register_pkcs1(void) {
         "pkcs1.Digest", HFILL }},
 
 /*--- End of included file: packet-pkcs1-hfarr.c ---*/
-#line 60 "packet-pkcs1-template.c"
+#line 59 "packet-pkcs1-template.c"
   };
 
   /* List of subtrees */
@@ -246,7 +245,7 @@ void proto_register_pkcs1(void) {
     &ett_pkcs1_DigestInfo,
 
 /*--- End of included file: packet-pkcs1-ettarr.c ---*/
-#line 65 "packet-pkcs1-template.c"
+#line 64 "packet-pkcs1-template.c"
   };
 
   /* Register protocol */

@@ -32,7 +32,6 @@
 #include <epan/asn1.h>
 #include <epan/oids.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"

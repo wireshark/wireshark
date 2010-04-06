@@ -48,7 +48,6 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include <epan/prefs.h>
@@ -884,7 +883,7 @@ static int hf_h225_stopped = -1;                  /* NULL */
 static int hf_h225_notAvailable = -1;             /* NULL */
 
 /*--- End of included file: packet-h225-hf.c ---*/
-#line 110 "packet-h225-template.c"
+#line 109 "packet-h225-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h225 = -1;
@@ -1131,7 +1130,7 @@ static gint ett_h225_ServiceControlResponse = -1;
 static gint ett_h225_T_result = -1;
 
 /*--- End of included file: packet-h225-ett.c ---*/
-#line 114 "packet-h225-template.c"
+#line 113 "packet-h225-template.c"
 
 /* Preferences */
 static guint h225_tls_port = TLS_PORT_CS;
@@ -7463,7 +7462,7 @@ static int dissect_RasMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-h225-fn.c ---*/
-#line 138 "packet-h225-template.c"
+#line 137 "packet-h225-template.c"
 
 
 /* Forward declaration we need below */
@@ -10625,7 +10624,7 @@ void proto_register_h225(void) {
         "h225.NULL", HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 235 "packet-h225-template.c"
+#line 234 "packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -10874,7 +10873,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 241 "packet-h225-template.c"
+#line 240 "packet-h225-template.c"
   };
   module_t *h225_module;
 

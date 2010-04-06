@@ -38,7 +38,6 @@
 #endif
 
 #include <glib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include <epan/packet.h>
@@ -89,7 +88,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-rua-val.h ---*/
-#line 55 "packet-rua-template.c"
+#line 54 "packet-rua-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_rua = -1;
@@ -166,7 +165,7 @@ static int hf_rua_successfulOutcome_value = -1;   /* SuccessfulOutcome_value */
 static int hf_rua_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-rua-hf.c ---*/
-#line 60 "packet-rua-template.c"
+#line 59 "packet-rua-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_rua = -1;
@@ -215,7 +214,7 @@ static gint ett_rua_SuccessfulOutcome = -1;
 static gint ett_rua_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-rua-ett.c ---*/
-#line 68 "packet-rua-template.c"
+#line 67 "packet-rua-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -1361,7 +1360,7 @@ static void dissect_RUA_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-rua-fn.c ---*/
-#line 90 "packet-rua-template.c"
+#line 89 "packet-rua-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1685,7 +1684,7 @@ module_t *rua_module;
         "rua.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-rua-hfarr.c ---*/
-#line 141 "packet-rua-template.c"
+#line 140 "packet-rua-template.c"
   };
 
   /* List of subtrees */
@@ -1732,7 +1731,7 @@ module_t *rua_module;
     &ett_rua_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-rua-ettarr.c ---*/
-#line 147 "packet-rua-template.c"
+#line 146 "packet-rua-template.c"
   };
 
 
@@ -1791,7 +1790,7 @@ proto_reg_handoff_rua(void)
 
 
 /*--- End of included file: packet-rua-dis-tab.c ---*/
-#line 186 "packet-rua-template.c"
+#line 185 "packet-rua-template.c"
 
         } else {
                 dissector_delete("sctp.port", sctp_port, rua_handle);

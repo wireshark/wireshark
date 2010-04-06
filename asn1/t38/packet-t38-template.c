@@ -55,7 +55,6 @@
 #include <epan/tap.h>
 #include <epan/expert.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-t38.h"

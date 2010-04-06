@@ -48,7 +48,6 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include <epan/prefs.h>
@@ -215,7 +214,7 @@ typedef enum _IndicationMessage_enum {
 } IndicationMessage_enum;
 
 /*--- End of included file: packet-h245-val.h ---*/
-#line 88 "packet-h245-template.c"
+#line 87 "packet-h245-template.c"
 
 static const value_string h245_RequestMessage_short_vals[] = {
 	{ RequestMessage_nonStandard              ,	"NSM" },
@@ -1906,7 +1905,7 @@ static int hf_h245_encrypted = -1;                /* OCTET_STRING */
 static int hf_h245_encryptedAlphanumeric = -1;    /* EncryptedAlphanumeric */
 
 /*--- End of included file: packet-h245-hf.c ---*/
-#line 374 "packet-h245-template.c"
+#line 373 "packet-h245-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h245 = -1;
@@ -2407,7 +2406,7 @@ static gint ett_h245_FlowControlIndication = -1;
 static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 
 /*--- End of included file: packet-h245-ett.c ---*/
-#line 379 "packet-h245-template.c"
+#line 378 "packet-h245-template.c"
 
 /* Forward declarations */
 static int dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -14452,7 +14451,7 @@ static void dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-h245-fn.c ---*/
-#line 388 "packet-h245-template.c"
+#line 387 "packet-h245-template.c"
 
 static void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -20133,7 +20132,7 @@ void proto_register_h245(void) {
         "h245.EncryptedAlphanumeric", HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 464 "packet-h245-template.c"
+#line 463 "packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -20636,7 +20635,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 471 "packet-h245-template.c"
+#line 470 "packet-h245-template.c"
   };
   module_t *h245_module;
 

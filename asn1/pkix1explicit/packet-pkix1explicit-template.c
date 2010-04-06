@@ -34,7 +34,6 @@
 #include <epan/oids.h>
 #include <epan/afn.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"

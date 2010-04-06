@@ -41,7 +41,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"
@@ -483,7 +482,7 @@ static int hf_dap_SearchControlOptions_separateFamilyMembers = -1;
 static int hf_dap_SearchControlOptions_searchFamily = -1;
 
 /*--- End of included file: packet-dap-hf.c ---*/
-#line 69 "packet-dap-template.c"
+#line 68 "packet-dap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dap = -1;
@@ -662,7 +661,7 @@ static gint ett_dap_UpdateError = -1;
 static gint ett_dap_T_signedUpdateError = -1;
 
 /*--- End of included file: packet-dap-ett.c ---*/
-#line 73 "packet-dap-template.c"
+#line 72 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-val.h ---*/
@@ -687,7 +686,7 @@ static gint ett_dap_T_signedUpdateError = -1;
 #define id_errcode_dsaReferral         9
 
 /*--- End of included file: packet-dap-val.h ---*/
-#line 75 "packet-dap-template.c"
+#line 74 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-table.c ---*/
@@ -725,7 +724,7 @@ static const value_string dap_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-dap-table.c ---*/
-#line 77 "packet-dap-template.c"
+#line 76 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-fn.c ---*/
@@ -4780,7 +4779,7 @@ static int dissect_UpdateError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-dap-fn.c ---*/
-#line 79 "packet-dap-template.c"
+#line 78 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-table11.c ---*/
@@ -4812,7 +4811,7 @@ static const ros_opr_t dap_opr_tab[] = {
 
 
 /*--- End of included file: packet-dap-table11.c ---*/
-#line 81 "packet-dap-template.c"
+#line 80 "packet-dap-template.c"
 
 /*--- Included file: packet-dap-table21.c ---*/
 #line 1 "packet-dap-table21.c"
@@ -4841,7 +4840,7 @@ static const ros_err_t dap_err_tab[] = {
 
 
 /*--- End of included file: packet-dap-table21.c ---*/
-#line 82 "packet-dap-template.c"
+#line 81 "packet-dap-template.c"
 
 static const ros_info_t dap_ros_info = {
   "DAP",
@@ -6481,7 +6480,7 @@ void proto_register_dap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-dap-hfarr.c ---*/
-#line 101 "packet-dap-template.c"
+#line 100 "packet-dap-template.c"
   };
 
   /* List of subtrees */
@@ -6662,7 +6661,7 @@ void proto_register_dap(void) {
     &ett_dap_T_signedUpdateError,
 
 /*--- End of included file: packet-dap-ettarr.c ---*/
-#line 107 "packet-dap-template.c"
+#line 106 "packet-dap-template.c"
   };
   module_t *dap_module;
 

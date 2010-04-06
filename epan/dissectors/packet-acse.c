@@ -53,7 +53,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"
@@ -192,7 +191,7 @@ static int hf_acse_ACSE_requirements_higher_level_association = -1;
 static int hf_acse_ACSE_requirements_nested_association = -1;
 
 /*--- End of included file: packet-acse-hf.c ---*/
-#line 75 "packet-acse-template.c"
+#line 74 "packet-acse-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_acse = -1;
@@ -236,7 +235,7 @@ static gint ett_acse_Authentication_value_other = -1;
 static gint ett_acse_Authentication_value = -1;
 
 /*--- End of included file: packet-acse-ett.c ---*/
-#line 79 "packet-acse-template.c"
+#line 78 "packet-acse-template.c"
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 
@@ -1654,7 +1653,7 @@ dissect_acse_AE_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 /*--- End of included file: packet-acse-fn.c ---*/
-#line 155 "packet-acse-template.c"
+#line 154 "packet-acse-template.c"
 
 
 /*
@@ -2205,7 +2204,7 @@ void proto_register_acse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-acse-hfarr.c ---*/
-#line 273 "packet-acse-template.c"
+#line 272 "packet-acse-template.c"
   };
 
   /* List of subtrees */
@@ -2251,7 +2250,7 @@ void proto_register_acse(void) {
     &ett_acse_Authentication_value,
 
 /*--- End of included file: packet-acse-ettarr.c ---*/
-#line 279 "packet-acse-template.c"
+#line 278 "packet-acse-template.c"
   };
 
   /* Register protocol */

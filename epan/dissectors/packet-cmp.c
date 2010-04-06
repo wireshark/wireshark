@@ -41,7 +41,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include <epan/oids.h>
@@ -242,7 +241,7 @@ static int hf_cmp_PKIFailureInfo_systemFailure = -1;
 static int hf_cmp_PKIFailureInfo_duplicateCertReq = -1;
 
 /*--- End of included file: packet-cmp-hf.c ---*/
-#line 75 "packet-cmp-template.c"
+#line 74 "packet-cmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_cmp = -1;
@@ -298,7 +297,7 @@ static gint ett_cmp_PollRepContent = -1;
 static gint ett_cmp_PollRepContent_item = -1;
 
 /*--- End of included file: packet-cmp-ett.c ---*/
-#line 79 "packet-cmp-template.c"
+#line 78 "packet-cmp-template.c"
 
 static const char *object_identifier_id;
 
@@ -1462,7 +1461,7 @@ static void dissect_SuppLangTagsValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-cmp-fn.c ---*/
-#line 84 "packet-cmp-template.c"
+#line 83 "packet-cmp-template.c"
 
 static int
 dissect_cmp_pdu(tvbuff_t *tvb, proto_tree *tree, asn1_ctx_t *actx)
@@ -2352,7 +2351,7 @@ void proto_register_cmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-#line 341 "packet-cmp-template.c"
+#line 340 "packet-cmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -2410,7 +2409,7 @@ void proto_register_cmp(void) {
     &ett_cmp_PollRepContent_item,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-#line 347 "packet-cmp-template.c"
+#line 346 "packet-cmp-template.c"
 	};
 	module_t *cmp_module;
 
@@ -2504,7 +2503,7 @@ void proto_reg_handoff_cmp(void) {
 
 
 /*--- End of included file: packet-cmp-dis-tab.c ---*/
-#line 419 "packet-cmp-template.c"
+#line 418 "packet-cmp-template.c"
 		inited = TRUE;
 	}
 

@@ -43,7 +43,6 @@
 #include <epan/asn1.h>
 #include <epan/strutil.h>
 
-#include <stdio.h>
 #include <string.h>
 #include "packet-ber.h"
 #include "packet-tcap.h"
@@ -119,7 +118,7 @@ static int hf_ansi_tcap_paramSequence = -1;       /* T_paramSequence */
 static int hf_ansi_tcap_paramSet = -1;            /* T_paramSet */
 
 /*--- End of included file: packet-ansi_tcap-hf.c ---*/
-#line 59 "packet-ansi_tcap-template.c"
+#line 58 "packet-ansi_tcap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
@@ -161,7 +160,7 @@ static gint ett_ansi_tcap_T_paramSequence = -1;
 static gint ett_ansi_tcap_T_paramSet = -1;
 
 /*--- End of included file: packet-ansi_tcap-ett.c ---*/
-#line 74 "packet-ansi_tcap-template.c"
+#line 73 "packet-ansi_tcap-template.c"
 
 #define MAX_SSN 254
 
@@ -1305,7 +1304,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 311 "packet-ansi_tcap-template.c"
+#line 310 "packet-ansi_tcap-template.c"
 
 
 
@@ -1632,7 +1631,7 @@ proto_register_ansi_tcap(void)
         "ansi_tcap.T_paramSet", HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 429 "packet-ansi_tcap-template.c"
+#line 428 "packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1669,7 +1668,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 439 "packet-ansi_tcap-template.c"
+#line 438 "packet-ansi_tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {

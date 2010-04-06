@@ -53,7 +53,6 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"
@@ -589,7 +588,7 @@ static int hf_camel_present = -1;                 /* INTEGER */
 static int hf_camel_InvokeId_present = -1;        /* InvokeId_present */
 
 /*--- End of included file: packet-camel-hf.c ---*/
-#line 111 "packet-camel-template.c"
+#line 110 "packet-camel-template.c"
 
 static struct camelsrt_info_t * gp_camelsrt_info;
 
@@ -803,7 +802,7 @@ static gint ett_camel_T_problem = -1;
 static gint ett_camel_InvokeId = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 135 "packet-camel-template.c"
+#line 134 "packet-camel-template.c"
 
 
 /* Preference settings default */
@@ -1122,7 +1121,7 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-camel-val.h ---*/
-#line 269 "packet-camel-template.c"
+#line 268 "packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table.c ---*/
@@ -1212,7 +1211,7 @@ static const value_string camel_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-camel-table.c ---*/
-#line 271 "packet-camel-template.c"
+#line 270 "packet-camel-template.c"
 
 static char camel_number_to_char(int number)
 {
@@ -6746,7 +6745,7 @@ static void dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 316 "packet-camel-template.c"
+#line 315 "packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table2.c ---*/
@@ -6954,7 +6953,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-camel-table2.c ---*/
-#line 318 "packet-camel-template.c"
+#line 317 "packet-camel-template.c"
 
 
 static guint8 camel_pdu_type = 0;
@@ -7077,7 +7076,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 433 "packet-camel-template.c"
+#line 432 "packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
     g_free(ssn_range);
@@ -9131,7 +9130,7 @@ void proto_register_camel(void) {
         "camel.InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 606 "packet-camel-template.c"
+#line 605 "packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -9334,7 +9333,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 619 "packet-camel-template.c"
+#line 618 "packet-camel-template.c"
   };
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);

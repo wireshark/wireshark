@@ -40,7 +40,6 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"
@@ -127,7 +126,7 @@ static int hf_ess_issuer = -1;                    /* GeneralNames */
 static int hf_ess_serialNumber = -1;              /* CertificateSerialNumber */
 
 /*--- End of included file: packet-ess-hf.c ---*/
-#line 52 "packet-ess-template.c"
+#line 51 "packet-ess-template.c"
 
 
 /*--- Included file: packet-ess-val.h ---*/
@@ -151,7 +150,7 @@ static int hf_ess_serialNumber = -1;              /* CertificateSerialNumber */
 #define id_sha256                      "2.16.840.1.101.3.4.2.1"
 
 /*--- End of included file: packet-ess-val.h ---*/
-#line 54 "packet-ess-template.c"
+#line 53 "packet-ess-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -190,7 +189,7 @@ static gint ett_ess_ESSCertID = -1;
 static gint ett_ess_IssuerSerial = -1;
 
 /*--- End of included file: packet-ess-ett.c ---*/
-#line 57 "packet-ess-template.c"
+#line 56 "packet-ess-template.c"
 
 static const char *object_identifier_id;
 
@@ -958,7 +957,7 @@ static void dissect_SigningCertificateV2_PDU(tvbuff_t *tvb _U_, packet_info *pin
 
 
 /*--- End of included file: packet-ess-fn.c ---*/
-#line 61 "packet-ess-template.c"
+#line 60 "packet-ess-template.c"
 
 
 /*--- proto_register_ess ----------------------------------------------*/
@@ -1238,7 +1237,7 @@ void proto_register_ess(void) {
         "x509af.CertificateSerialNumber", HFILL }},
 
 /*--- End of included file: packet-ess-hfarr.c ---*/
-#line 72 "packet-ess-template.c"
+#line 71 "packet-ess-template.c"
   };
 
   /* List of subtrees */
@@ -1279,7 +1278,7 @@ void proto_register_ess(void) {
     &ett_ess_IssuerSerial,
 
 /*--- End of included file: packet-ess-ettarr.c ---*/
-#line 77 "packet-ess-template.c"
+#line 76 "packet-ess-template.c"
   };
 
   /* Register protocol */
@@ -1316,6 +1315,6 @@ void proto_reg_handoff_ess(void) {
 
 
 /*--- End of included file: packet-ess-dis-tab.c ---*/
-#line 92 "packet-ess-template.c"
+#line 91 "packet-ess-template.c"
 }
 

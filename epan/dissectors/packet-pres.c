@@ -44,7 +44,6 @@
 #include <epan/expert.h>
 #include <epan/uat.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include <epan/asn1.h>
@@ -186,7 +185,7 @@ static int hf_pres_User_session_requirements_symmetric_synchronize = -1;
 static int hf_pres_User_session_requirements_data_separation = -1;
 
 /*--- End of included file: packet-pres-hf.c ---*/
-#line 98 "packet-pres-template.c"
+#line 97 "packet-pres-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pres           = -1;
@@ -232,7 +231,7 @@ static gint ett_pres_User_session_requirements = -1;
 static gint ett_pres_UD_type = -1;
 
 /*--- End of included file: packet-pres-ett.c ---*/
-#line 103 "packet-pres-template.c"
+#line 102 "packet-pres-template.c"
 
 UAT_DEC_CB_DEF(pres_users, ctx_id, pres_user_t)
 UAT_CSTRING_CB_DEF(pres_users, oid, pres_user_t)
@@ -1374,7 +1373,7 @@ static void dissect_UDC_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-pres-fn.c ---*/
-#line 230 "packet-pres-template.c"
+#line 229 "packet-pres-template.c"
 
 
 /*
@@ -1866,7 +1865,7 @@ void proto_register_pres(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pres-hfarr.c ---*/
-#line 405 "packet-pres-template.c"
+#line 404 "packet-pres-template.c"
   };
 
   /* List of subtrees */
@@ -1913,7 +1912,7 @@ void proto_register_pres(void) {
     &ett_pres_UD_type,
 
 /*--- End of included file: packet-pres-ettarr.c ---*/
-#line 411 "packet-pres-template.c"
+#line 410 "packet-pres-template.c"
   };
 
   static uat_field_t users_flds[] = {

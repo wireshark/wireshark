@@ -54,7 +54,6 @@
 #include <epan/emem.h>
 #include <epan/asn1.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"
@@ -114,7 +113,7 @@ static int hf_spnego_ContextFlags_confFlag = -1;
 static int hf_spnego_ContextFlags_integFlag = -1;
 
 /*--- End of included file: packet-spnego-hf.c ---*/
-#line 83 "packet-spnego-template.c"
+#line 82 "packet-spnego-template.c"
 
 /* Global variables */
 static const char *MechType_oid;
@@ -140,7 +139,7 @@ static gint ett_spnego_NegTokenTarg = -1;
 static gint ett_spnego_InitialContextToken_U = -1;
 
 /*--- End of included file: packet-spnego-ett.c ---*/
-#line 97 "packet-spnego-template.c"
+#line 96 "packet-spnego-template.c"
 
 /*
  * Unfortunately, we have to have a forward declaration of this,
@@ -603,7 +602,7 @@ dissect_spnego_InitialContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 /*--- End of included file: packet-spnego-fn.c ---*/
-#line 108 "packet-spnego-template.c"
+#line 107 "packet-spnego-template.c"
 /*
  * This is the SPNEGO KRB5 dissector. It is not true KRB5, but some ASN.1
  * wrapped blob with an OID, USHORT token ID, and a Ticket, that is also
@@ -1984,7 +1983,7 @@ void proto_register_spnego(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1400 "packet-spnego-template.c"
+#line 1399 "packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -2006,7 +2005,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1410 "packet-spnego-template.c"
+#line 1409 "packet-spnego-template.c"
 	};
 
 	/* Register protocol */

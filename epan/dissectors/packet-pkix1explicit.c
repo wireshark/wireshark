@@ -42,7 +42,6 @@
 #include <epan/oids.h>
 #include <epan/afn.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include "packet-ber.h"
@@ -111,7 +110,7 @@ static int hf_pkix1explicit_min_01 = -1;          /* ASId */
 static int hf_pkix1explicit_max_01 = -1;          /* ASId */
 
 /*--- End of included file: packet-pkix1explicit-hf.c ---*/
-#line 59 "packet-pkix1explicit-template.c"
+#line 58 "packet-pkix1explicit-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -141,7 +140,7 @@ static gint ett_pkix1explicit_ASIdOrRange = -1;
 static gint ett_pkix1explicit_ASRange = -1;
 
 /*--- End of included file: packet-pkix1explicit-ett.c ---*/
-#line 62 "packet-pkix1explicit-template.c"
+#line 61 "packet-pkix1explicit-template.c"
 
 
 static const char *object_identifier_id;
@@ -814,7 +813,7 @@ static void dissect_ASIdentifiers_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-pkix1explicit-fn.c ---*/
-#line 106 "packet-pkix1explicit-template.c"
+#line 105 "packet-pkix1explicit-template.c"
 
 
 /*--- proto_register_pkix1explicit ----------------------------------------------*/
@@ -1010,7 +1009,7 @@ void proto_register_pkix1explicit(void) {
         "pkix1explicit.ASId", HFILL }},
 
 /*--- End of included file: packet-pkix1explicit-hfarr.c ---*/
-#line 125 "packet-pkix1explicit-template.c"
+#line 124 "packet-pkix1explicit-template.c"
   };
 
   /* List of subtrees */
@@ -1043,7 +1042,7 @@ void proto_register_pkix1explicit(void) {
     &ett_pkix1explicit_ASRange,
 
 /*--- End of included file: packet-pkix1explicit-ettarr.c ---*/
-#line 131 "packet-pkix1explicit-template.c"
+#line 130 "packet-pkix1explicit-template.c"
   };
 
   /* Register protocol */
@@ -1069,6 +1068,6 @@ void proto_reg_handoff_pkix1explicit(void) {
 
 
 /*--- End of included file: packet-pkix1explicit-dis-tab.c ---*/
-#line 147 "packet-pkix1explicit-template.c"
+#line 146 "packet-pkix1explicit-template.c"
 }
 
