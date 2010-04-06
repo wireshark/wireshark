@@ -780,6 +780,7 @@ voip_calls_dlg_update(GList *listx)
 	if (voip_calls_dlg != NULL) {
 		calls_nb = 0;
 		calls_ns = 0;
+		gtk_list_store_clear(list_store);
 
 		g_snprintf(label_text, 256,
 			"Total: Calls: %u   Start packets: %u   Completed calls: %u   Rejected calls: %u",
