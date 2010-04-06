@@ -6,6 +6,9 @@
 #.IMPORT ../ros/ros-exp.cnf
 #.IMPORT ../rtse/rtse-exp.cnf
 
+#.MODULE
+Reliable-Transfer-APDU            rtse
+
 #.EXPORTS
 SequenceNumber
 SignatureStatus
