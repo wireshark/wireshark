@@ -143,18 +143,15 @@ void dissect_siii_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIII AT");
 
-  if(check_col(pinfo->cinfo, COL_INFO))
+  if(phase & 0x80) /* communication phase switching in progress */
   {
-      if(phase & 0x80) /* communication phase switching in progress */
-      {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Phase=CP?s -> CP%u",
-              (phase&0x0f));
-      }
-      else /* communication as usual */
-      {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Phase=CP%u",
-              (phase&0x0f));
-      }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " Phase=CP?s -> CP%u",
+          (phase&0x0f));
+  }
+  else /* communication as usual */
+  {
+     col_append_fstr(pinfo->cinfo, COL_INFO, " Phase=CP%u",
+          (phase&0x0f));
   }
 
   ti = proto_tree_add_text(tree, tvb, 0, -1, "AT%u", telno);

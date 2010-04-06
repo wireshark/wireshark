@@ -69,10 +69,7 @@ dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   tel_no = type &0xF; /* even though it's reserved (the V1.1 spec states that it is reserved for additional MDT/AT) */
 
-  if(check_col(pinfo->cinfo, COL_INFO))
-  {
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s%u Channel=%s", tel_type, tel_no, tel_ch);
-  }
+  col_append_fstr(pinfo->cinfo, COL_INFO, "%s%u Channel=%s", tel_type, tel_no, tel_ch);
 
   ti = proto_tree_add_item(tree, proto_siii, tvb, 0, -1, FALSE);
 

@@ -208,8 +208,7 @@ dissect_PNPTCP_Subdomain(tvbuff_t *tvb, int offset,
     offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_ptcp_subdomain_uuid, &uuid);
 
     if(u16FrameID == 0xff00 || u16FrameID == 0xff01) {
-        if (check_col(pinfo->cinfo, COL_INFO))
-          col_append_fstr(pinfo->cinfo, COL_INFO, ", Master=%02x:%02x:%02x:%02x:%02x:%02x",
+       col_append_fstr(pinfo->cinfo, COL_INFO, ", Master=%02x:%02x:%02x:%02x:%02x:%02x",
             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     }
 
@@ -248,8 +247,7 @@ dissect_PNPTCP_Time(tvbuff_t *tvb, int offset,
 	proto_item_append_text(item, ": Seconds=%u NanoSeconds=%u EpochNumber=%u",
         Seconds, NanoSeconds, EpochNumber);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", Time: %4us %09uns, Epoch: %u", 
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Time: %4us %09uns, Epoch: %u", 
         Seconds, NanoSeconds, EpochNumber);
 
     return offset;
@@ -308,8 +306,7 @@ dissect_PNPTCP_Master(tvbuff_t *tvb, int offset,
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", Prio1=\"%s\"",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Prio1=\"%s\"",
         val_to_str(MasterPriority1, pn_ptcp_master_prio1_short_vals, "(Reserved: 0x%x)"));
 
 	proto_item_append_text(item, ": Prio1=\"%s\", Prio2=%s, Clock: Class=\"%s\", Accuracy=%s, Variance=%d",
@@ -343,8 +340,7 @@ dissect_PNPTCP_PortParameter(tvbuff_t *tvb, int offset,
 	proto_item_append_text(item, ": T2PortRxDelay=%uns, T3PortTxDelay=%uns",
         t2portrxdelay, t3porttxdelay);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", T2Rx=%uns, T3Tx=%uns",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", T2Rx=%uns, T3Tx=%uns",
         t2portrxdelay, t3porttxdelay);
 
     return offset;
@@ -368,8 +364,7 @@ dissect_PNPTCP_DelayParameter(tvbuff_t *tvb, int offset,
     proto_item_append_text(item, ": PortMAC=%02x:%02x:%02x:%02x:%02x:%02x",
         mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", PortMAC=%02x:%02x:%02x:%02x:%02x:%02x",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", PortMAC=%02x:%02x:%02x:%02x:%02x:%02x",
         mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     return offset;
@@ -391,8 +386,7 @@ dissect_PNPTCP_PortTime(tvbuff_t *tvb, int offset,
 
 	proto_item_append_text(item, ": T2TimeStamp=%uns", t2timestamp);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", T2TS=%uns", t2timestamp);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", T2TS=%uns", t2timestamp);
 
 	return offset;
 }
@@ -585,8 +579,7 @@ dissect_PNPTCP_FollowUpPDU(tvbuff_t *tvb, int offset,
     /* Delay1ns_FUP */
     offset = dissect_pn_int32(tvb, offset, pinfo, header_tree, hf_pn_ptcp_delay1ns_fup, &delay1ns_fup);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq=%3u, Delay=%11dns", name, seq_id, delay1ns_fup);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq=%3u, Delay=%11dns", name, seq_id, delay1ns_fup);
     proto_item_append_text(item, "%s: Sequence=%u, Delay=%dns", name_short, seq_id, delay1ns_fup);
     proto_item_append_text(header_item, ": Sequence=%u, Delay=%dns", seq_id, delay1ns_fup);
 
@@ -645,8 +638,7 @@ dissect_PNPTCP_RTSyncPDU(tvbuff_t *tvb, int offset,
     delay1ns_64 = ((guint64) delay10ns) * 10 + delay1ns_8 + delay1ns_32;
     delayms = (guint32) (delay1ns_64 / (1000 * 1000));
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq=%3u, Delay=%11" G_GINT64_MODIFIER "uns",
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq=%3u, Delay=%11" G_GINT64_MODIFIER "uns",
             name, seq_id, delay1ns_64);
     proto_item_append_text(item, "%s: Sequence=%u, Delay=%" G_GINT64_MODIFIER "uns", 
         name_short, seq_id, delay1ns_64);
@@ -689,8 +681,7 @@ dissect_PNPTCP_AnnouncePDU(tvbuff_t *tvb, int offset,
     /* Padding 6 bytes */
     offset = dissect_pn_padding(tvb, offset, pinfo, header_tree, 6);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq=%3u", name, seq_id);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq=%3u", name, seq_id);
     proto_item_append_text(item, "%s: Sequence=%u", name_short, seq_id);
     proto_item_append_text(header_item, ": Sequence=%u", seq_id);
 
@@ -728,8 +719,7 @@ dissect_PNPTCP_DelayPDU(tvbuff_t *tvb, int offset,
     /* Delay1ns_FUP */
     offset = dissect_pn_uint32(tvb, offset, pinfo, header_tree, hf_pn_ptcp_delay1ns, &delay1ns);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq=%3u, Delay=%11uns", name, seq_id, delay1ns);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq=%3u, Delay=%11uns", name, seq_id, delay1ns);
     proto_item_append_text(item, "%s: Sequence=%u, Delay=%uns", name_short, seq_id, delay1ns);
     proto_item_append_text(header_item, ": Sequence=%u, Delay=%uns", seq_id, delay1ns);
 
@@ -827,8 +817,7 @@ dissect_PNPTCP_Data_heur(tvbuff_t *tvb,
     default:
         offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_length_remaining(tvb, offset));
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Reserved FrameID 0x%04x", u16FrameID);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "Reserved FrameID 0x%04x", u16FrameID);
 
 	proto_item_append_text(item, "Reserved FrameID 0x%04x", u16FrameID);
 

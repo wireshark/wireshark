@@ -1522,21 +1522,18 @@ static void wimaxasncp_dissect_tlv_value(
         }
 
         /* Add code and type to info column */
-        if (check_col(pinfo->cinfo, COL_INFO))
+        col_append_str(pinfo->cinfo, COL_INFO, " [");
+        col_append_str(pinfo->cinfo, COL_INFO,
+                        val_to_str(eap_code, eap_code_vals, "Unknown code (0x%02X)"));
+
+        if (eap_code == EAP_REQUEST || eap_code == EAP_RESPONSE)
         {
-            col_append_str(pinfo->cinfo, COL_INFO, " [");
+            col_append_str(pinfo->cinfo, COL_INFO, ", ");
             col_append_str(pinfo->cinfo, COL_INFO,
-                            val_to_str(eap_code, eap_code_vals, "Unknown code (0x%02X)"));
-
-            if (eap_code == EAP_REQUEST || eap_code == EAP_RESPONSE)
-            {
-                col_append_str(pinfo->cinfo, COL_INFO, ", ");
-                col_append_str(pinfo->cinfo, COL_INFO,
-                                val_to_str(eap_type, eap_type_vals, "Unknown type (0x%02X)"));
-            }
-
-            col_append_str(pinfo->cinfo, COL_INFO, "]");
+                            val_to_str(eap_type, eap_type_vals, "Unknown type (0x%02X)"));
         }
+
+        col_append_str(pinfo->cinfo, COL_INFO, "]");
 
 
         {
@@ -1989,17 +1986,14 @@ static guint dissect_wimaxasncp_backend(
         offset += dissect_wimaxasncp_tlvs(tlv_tvb, pinfo, tree);
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, " - MSID:%s", pmsid);
+    if (dbit_show)
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " - MSID:%s", pmsid);
-        if (dbit_show)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", TID:D+0x%04x", tid);
-        }
-        else
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", TID:0x%04x", tid);
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", TID:D+0x%04x", tid);
+    }
+    else
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", TID:0x%04x", tid);
     }
 
     return offset;

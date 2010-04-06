@@ -230,12 +230,10 @@ dissect_ICBABrowse_get_Count_resp(tvbuff_t *tvb, int offset,
                         &u32HResult);
 
 	if (u32HResult) {	/* !S_OK */
-	    if (check_col(pinfo->cinfo, COL_INFO))
-	      col_append_fstr(pinfo->cinfo, COL_INFO, "-> %s", 
+      col_append_fstr(pinfo->cinfo, COL_INFO, "-> %s", 
 			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
     } else {
-	    if (check_col(pinfo->cinfo, COL_INFO))
-	      col_append_fstr(pinfo->cinfo, COL_INFO, " Cnt=%u -> S_OK", u32Count);
+      col_append_fstr(pinfo->cinfo, COL_INFO, " Cnt=%u -> S_OK", u32Count);
     }
 	    
 
@@ -258,9 +256,8 @@ dissect_ICBABrowse_BrowseItems_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
                         hf_cba_browse_max_return, &u32MaxReturn);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Offset=%u MaxReturn=%u", 
-			u32Offset, u32MaxReturn);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Offset=%u MaxReturn=%u", 
+		u32Offset, u32MaxReturn);
 
 	return offset;
 }
@@ -297,8 +294,7 @@ dissect_ICBABrowse_BrowseItems_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 				&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
@@ -317,9 +313,8 @@ dissect_ICBABrowse2_get_Count2_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
                         hf_cba_browse_selector, &u32Selector);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Selector=%u", 
-			u32Selector);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Selector=%u", 
+		u32Selector);
 
 	return offset;
 }
@@ -344,9 +339,8 @@ dissect_ICBABrowse2_BrowseItems2_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
                         hf_cba_browse_max_return, &u32MaxReturn);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Sel=%u Offset=%u MaxReturn=%u", 
-			u32Selector, u32Offset, u32MaxReturn);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Sel=%u Offset=%u MaxReturn=%u", 
+		u32Selector, u32Offset, u32MaxReturn);
 
 	return offset;
 }
@@ -383,8 +377,7 @@ dissect_ICBABrowse2_BrowseItems2_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 				&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
@@ -416,8 +409,7 @@ dissect_ICBAPersist2_Save2_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 				&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
@@ -447,10 +439,8 @@ dissect_get_BSTR_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 				&u32HResult);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\" -> %s", szStr,
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\" -> %s", szStr,
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -472,11 +462,9 @@ dissect_get_ProductionDate_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 				&u32HResult);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Date: %g -> %s",
-			r8Date,
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Date: %g -> %s",
+		r8Date,
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -502,10 +490,8 @@ dissect_get_SerialNo_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 				&u32HResult);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -527,11 +513,9 @@ dissect_ICBATime_get_Time_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 				&u32HResult);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Time: %g -> %s", 
-			r8Date,
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Time: %g -> %s", 
+		r8Date,
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -596,9 +580,7 @@ dissect_ICBAPhysicalDevice_get_LogicalDevice_rqst(tvbuff_t *tvb, int offset,
         info->call_data->private_data = call;
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-	      col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\"", szStr);
-	}
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\"", szStr);
 
 	return offset;
 }
@@ -638,8 +620,7 @@ dissect_ICBAPhysicalDevice_get_LogicalDevice_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 				&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 		  val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
@@ -666,8 +647,7 @@ dissect_ICBAPhysicalDevice2_Type_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 				&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		  col_append_fstr(pinfo->cinfo, COL_INFO, " App=%s Stack=%s -> %s", 
+	  col_append_fstr(pinfo->cinfo, COL_INFO, " App=%s Stack=%s -> %s", 
 		  (u16MultiApp) ? "Multi" : "Single",
 		  (u16PROFInetDCOMStack) ? "PN-DCOM" : "MS-DCOM",
 		  val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
@@ -701,8 +681,7 @@ dissect_PROFInetRevision_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 				&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		  col_append_fstr(pinfo->cinfo, COL_INFO, " Revision=%u.%u.%u.%u -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Revision=%u.%u.%u.%u -> %s", 
 		  u16Major, u16Minor, u16ServicePack, u16Build,
 		  val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
@@ -726,8 +705,7 @@ dissect_ICBAPhysicalDevice2_get_PDevStamp_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 				&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		  col_append_fstr(pinfo->cinfo, COL_INFO, " PDevStamp=0x%x -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " PDevStamp=0x%x -> %s", 
 		  u32PDevStamp,
 		  val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
@@ -755,11 +733,9 @@ dissect_Revision_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 				&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": %u.%u -> %s", 
-			u16Major, u16Minor,
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %u.%u -> %s", 
+		u16Major, u16Minor,
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -787,10 +763,8 @@ dissect_ICBALogicalDevice_get_Name_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 				&u32HResult);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\" -> %s", szStr,
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\" -> %s", szStr,
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -832,10 +806,8 @@ dissect_ICBALogicalDevice_get_ACCO_resp(tvbuff_t *tvb, int offset,
 
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return offset;
 }
@@ -854,10 +826,8 @@ dissect_ICBALogicalDevice_get_RTAuto_resp(tvbuff_t *tvb, int offset,
 
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return offset;
 }
@@ -881,9 +851,7 @@ dissect_ICBALogicalDevice_Get_RTAuto_rqst(tvbuff_t *tvb, int offset,
 			hf_cba_name, szStr, u32MaxStr);
 	}
 	
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\"", szStr);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\"", szStr);
 
 	return offset;
 }
@@ -920,11 +888,9 @@ dissect_ComponentInfo_resp(tvbuff_t *tvb, int offset,
 	
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": ID=\"%s\" Version=\"%s\" -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": ID=\"%s\" Version=\"%s\" -> %s", 
 			szStr, szStr2,
 			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return offset;
 }
@@ -951,11 +917,9 @@ dissect_PBAddressInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 						hf_cba_pbaddress_address, &u8Addr);
         u32ArraySize-=2;
 
-        proto_item_append_text(sub_item, ": ID=0x%x Addr=%u", u8ID, u8Addr);
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-	        col_append_fstr(pinfo->cinfo, COL_INFO, ", ID=0x%x Addr=%u", 
-		        u8ID, u8Addr);
-        }
+    proto_item_append_text(sub_item, ": ID=0x%x Addr=%u", u8ID, u8Addr);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", ID=0x%x Addr=%u", 
+        u8ID, u8Addr);
     }
 }
 
@@ -972,10 +936,8 @@ dissect_PBAddressInfo_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, &u32HResult);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
-		    val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	    val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
     return offset;
 }
@@ -1011,11 +973,9 @@ dissect_Advise_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
                         &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cookie=0x%x -> %s", 
-			u32Cookie, 
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cookie=0x%x -> %s", 
+		u32Cookie, 
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -1033,10 +993,8 @@ dissect_Unadvise_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
                         hf_cba_cookie, &u32Cookie);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cookie=0x%x", 
-			u32Cookie);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cookie=0x%x", 
+		u32Cookie);
 
 	return offset;
 }
@@ -1058,11 +1016,9 @@ dissect_ICBAState_get_State_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
                         &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": State=%s -> %s", 
-			val_to_str(u16State, cba_state_vals, "Unknown (0x%08x)"),
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": State=%s -> %s", 
+		val_to_str(u16State, cba_state_vals, "Unknown (0x%08x)"),
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -1084,11 +1040,9 @@ dissect_ICBAStateEvent_OnStateChanged_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
                         hf_cba_old_state, &u16OldState);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": NewState=%s OldState=%s", 
-			val_to_str(u16NewState, cba_state_vals, "Unknown (0x%04x)"),
-			val_to_str(u16OldState, cba_state_vals, "Unknown (0x%04x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": NewState=%s OldState=%s", 
+		val_to_str(u16NewState, cba_state_vals, "Unknown (0x%04x)"),
+		val_to_str(u16OldState, cba_state_vals, "Unknown (0x%04x)") );
 
 	return offset;
 }
@@ -1110,11 +1064,9 @@ dissect_ICBAGroupError_OnGroupErrorChanged_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
                         hf_cba_old_grouperror, &u16OldGroupError);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": NewGE=%s OldGE=%s", 
-			val_to_str(u16NewGroupError, cba_grouperror_vals, "Unknown (0x%04x)"),
-			val_to_str(u16OldGroupError, cba_grouperror_vals, "Unknown (0x%04x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": NewGE=%s OldGE=%s", 
+		val_to_str(u16NewGroupError, cba_grouperror_vals, "Unknown (0x%04x)"),
+		val_to_str(u16OldGroupError, cba_grouperror_vals, "Unknown (0x%04x)") );
 
 	return offset;
 }
@@ -1138,11 +1090,9 @@ dissect_ICBAPhysicalDevicePCEvent_OnLogicalDeviceAdded_rqst(tvbuff_t *tvb, int o
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
                         &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cookie=0x%x %s", 
-			u32Cookie,
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cookie=0x%x %s", 
+		u32Cookie,
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -1168,12 +1118,10 @@ dissect_ICBAGroupError_GroupError_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
                         &u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": GroupError=%s Cookie=0x%x -> %s", 
-			val_to_str(u16GroupError, cba_grouperror_vals, "Unknown (0x%08x)"),
-			u32Cookie,
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": GroupError=%s Cookie=0x%x -> %s", 
+		val_to_str(u16GroupError, cba_grouperror_vals, "Unknown (0x%08x)"),
+		u32Cookie,
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }

@@ -142,18 +142,15 @@ void dissect_siii_mdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   t_phase = (tvb_get_guint8(tvb, 1)&0x8F); /* read communication phase out of SERCOS III header */
   telno = (tvb_get_guint8(tvb, 0) & 0xF); /* read number of MDT out of SERCOS III header */
 
-  if(check_col(pinfo->cinfo, COL_INFO))
+  if(t_phase & 0x80) /* communication phase switching in progress */
   {
-      if(t_phase & 0x80) /* communication phase switching in progress */
-      {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Phase=CP?s -> CP%u",
-              (t_phase&0x0f));
-      }
-      else /* communication as usual */
-      {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Phase=CP%u",
-              (t_phase&0x0f));
-      }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " Phase=CP?s -> CP%u",
+          (t_phase&0x0f));
+  }
+  else /* communication as usual */
+  {
+    col_append_fstr(pinfo->cinfo, COL_INFO, " Phase=CP%u",
+          (t_phase&0x0f));
   }
 
   ti = proto_tree_add_text(tree, tvb, 0, -1, "MDT%u", telno);

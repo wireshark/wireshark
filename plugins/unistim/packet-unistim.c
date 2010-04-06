@@ -235,20 +235,17 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree){
     switch(tvb_get_guint8(tvb,offset)) {
           case 0x00:
               /*NAK*/
-              if (check_col(pinfo->cinfo, COL_INFO))
-                     col_add_fstr(pinfo->cinfo, COL_INFO, "NAK for seq -   0x%X",
-                                   tvb_get_ntohl(tvb, offset-4));
+              col_add_fstr(pinfo->cinfo, COL_INFO, "NAK for seq -   0x%X",
+                              tvb_get_ntohl(tvb, offset-4));
               break;
           case 0x01:
               /*ACK*/
-              if (check_col(pinfo->cinfo, COL_INFO))
-                     col_add_fstr(pinfo->cinfo, COL_INFO, "ACK for seq -   0x%X",
-                                   tvb_get_ntohl(tvb, offset-4));
+              col_add_fstr(pinfo->cinfo, COL_INFO, "ACK for seq -   0x%X",
+                          tvb_get_ntohl(tvb, offset-4));
               break;
           case 0x02:
-              if (check_col(pinfo->cinfo, COL_INFO))
-                     col_add_fstr(pinfo->cinfo, COL_INFO, "Payload seq -   0x%X",
-                                   tvb_get_ntohl(tvb, offset-4));
+              col_add_fstr(pinfo->cinfo, COL_INFO, "Payload seq -   0x%X",
+                            tvb_get_ntohl(tvb, offset-4));
               offset+=1;
               dissect_payload(overall_unistim_tree,tvb,offset,pinfo);
               break;
