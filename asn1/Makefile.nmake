@@ -47,7 +47,7 @@ ber: \
 	goose	\
 	gsm_map	\
 	h248	\
-	HI2	\
+	HI2Operations	\
 	inap	\
 	kerberos	\
 	ldap 	\
