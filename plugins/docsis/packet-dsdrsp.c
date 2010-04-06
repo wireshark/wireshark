@@ -56,7 +56,7 @@ dissect_dsdrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
 	    "Dynamic Service Delete Response Tran id = %u (%s)",
-	    tranid, val_to_str (confcode, docsis_conf_code, "%s"));
+	    tranid, val_to_str (confcode, docsis_conf_code, "%d"));
 
   if (tree)
     {

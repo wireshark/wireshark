@@ -146,12 +146,12 @@ dissect_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  if (sid == 0x3FFF)
 	    proto_tree_add_uint_format (map_tree, hf_docsis_map_ie, tvb, pos, 4,
 				      ie, "SID = 0x%x (All CM's), IUC = %s, Offset = %u",
-				      sid, val_to_str (iuc, iuc_vals, "%s"),
+				      sid, val_to_str (iuc, iuc_vals, "%d"),
 				      offset);
 	  else
 	    proto_tree_add_uint_format (map_tree, hf_docsis_map_ie, tvb, pos, 4,
 				      ie, "SID = %u, IUC = %s, Offset = %u",
-				      sid, val_to_str (iuc, iuc_vals, "%s"),
+				      sid, val_to_str (iuc, iuc_vals, "%d"),
 				      offset);
 	  pos = pos + 4;
 	}			/* for... */

@@ -75,7 +75,7 @@ dissect_bpkmreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   code = tvb_get_guint8 (tvb, 0);
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "BPKM Request (%s)",
-	    val_to_str (code, code_field_vals, "%s"));
+	    val_to_str (code, code_field_vals, "%d"));
 
   if (tree)
     {
