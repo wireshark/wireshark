@@ -42,8 +42,6 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-acse.h"
 #include "packet-ros.h"
@@ -501,7 +499,7 @@ static int hf_x411_UniversalOrganizationalUnitNames_item = -1;  /* UniversalOrga
 static int hf_x411_character_encoding = -1;       /* T_character_encoding */
 static int hf_x411_two_octets = -1;               /* BMPString_SIZE_1_ub_string_length */
 static int hf_x411_four_octets = -1;              /* UniversalString_SIZE_1_ub_string_length */
-static int hf_x411_iso_639_language_code = -1;    /* PrintableString_SIZE_CONSTR32134928 */
+static int hf_x411_iso_639_language_code = -1;    /* PrintableString_SIZE_CONSTR32534896 */
 static int hf_x411_x121_dcc_code_01 = -1;         /* T_x121_dcc_code_01 */
 static int hf_x411_iso_3166_alpha2_code_01 = -1;  /* T_iso_3166_alpha2_code_01 */
 static int hf_x411_numeric_code = -1;             /* T_numeric_code */
@@ -669,7 +667,7 @@ static int hf_x411_G3FacsimileNonBasicParameters_jpeg = -1;
 static int hf_x411_G3FacsimileNonBasicParameters_processable_mode_26 = -1;
 
 /*--- End of included file: packet-x411-hf.c ---*/
-#line 84 "packet-x411-template.c"
+#line 82 "packet-x411-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_x411 = -1;
@@ -871,7 +869,7 @@ static gint ett_x411_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientMessageSubmiss
 static gint ett_x411_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields = -1;
 
 /*--- End of included file: packet-x411-ett.c ---*/
-#line 95 "packet-x411-template.c"
+#line 93 "packet-x411-template.c"
 
 /* Dissector tables */
 static dissector_table_t x411_extension_dissector_table;
@@ -922,7 +920,7 @@ static const value_string p3_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-x411-table.c ---*/
-#line 102 "packet-x411-template.c"
+#line 100 "packet-x411-template.c"
 
 
 /*--- Included file: packet-x411-fn.c ---*/
@@ -6507,7 +6505,7 @@ dissect_x411_T_character_encoding(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 static int
-dissect_x411_PrintableString_SIZE_CONSTR32134928(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_x411_PrintableString_SIZE_CONSTR32534896(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
                                                         actx, tree, tvb, offset,
                                                         2, 5, hf_index, NULL);
@@ -6518,7 +6516,7 @@ dissect_x411_PrintableString_SIZE_CONSTR32134928(gboolean implicit_tag _U_, tvbu
 
 static const ber_sequence_t UniversalOrBMPString_set[] = {
   { &hf_x411_character_encoding, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x411_T_character_encoding },
-  { &hf_x411_iso_639_language_code, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x411_PrintableString_SIZE_CONSTR32134928 },
+  { &hf_x411_iso_639_language_code, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x411_PrintableString_SIZE_CONSTR32534896 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -8554,7 +8552,7 @@ static void dissect_SecurityClassification_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-x411-fn.c ---*/
-#line 104 "packet-x411-template.c"
+#line 102 "packet-x411-template.c"
 
 
 /*--- Included file: packet-x411-table11.c ---*/
@@ -8586,7 +8584,7 @@ static const ros_opr_t p3_opr_tab[] = {
 
 
 /*--- End of included file: packet-x411-table11.c ---*/
-#line 106 "packet-x411-template.c"
+#line 104 "packet-x411-template.c"
 
 /*--- Included file: packet-x411-table21.c ---*/
 #line 1 "packet-x411-table21.c"
@@ -8631,7 +8629,7 @@ static const ros_err_t p3_err_tab[] = {
 
 
 /*--- End of included file: packet-x411-table21.c ---*/
-#line 107 "packet-x411-template.c"
+#line 105 "packet-x411-template.c"
 
 static const ros_info_t p3_ros_info = {
   "P3",
@@ -10419,7 +10417,7 @@ void proto_register_x411(void) {
     { &hf_x411_iso_639_language_code,
       { "iso-639-language-code", "x411.iso_639_language_code",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x411.PrintableString_SIZE_CONSTR32134928", HFILL }},
+        "x411.PrintableString_SIZE_CONSTR32534896", HFILL }},
     { &hf_x411_x121_dcc_code_01,
       { "x121-dcc-code", "x411.x121_dcc_code",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -11078,7 +11076,7 @@ void proto_register_x411(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-x411-hfarr.c ---*/
-#line 249 "packet-x411-template.c"
+#line 247 "packet-x411-template.c"
   };
 
   /* List of subtrees */
@@ -11282,7 +11280,7 @@ void proto_register_x411(void) {
     &ett_x411_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields,
 
 /*--- End of included file: packet-x411-ettarr.c ---*/
-#line 262 "packet-x411-template.c"
+#line 260 "packet-x411-template.c"
   };
 
   module_t *x411_module;
@@ -11474,7 +11472,7 @@ void proto_reg_handoff_x411(void) {
 
 
 /*--- End of included file: packet-x411-dis-tab.c ---*/
-#line 297 "packet-x411-template.c"
+#line 295 "packet-x411-template.c"
 
   /* APPLICATION CONTEXT */
 

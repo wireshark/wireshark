@@ -42,7 +42,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <string.h>
 #include <ctype.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
@@ -285,7 +284,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-s1ap-val.h ---*/
-#line 65 "packet-s1ap-template.c"
+#line 64 "packet-s1ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_s1ap = -1;
@@ -689,7 +688,7 @@ static int hf_s1ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_s1ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-s1ap-hf.c ---*/
-#line 72 "packet-s1ap-template.c"
+#line 71 "packet-s1ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_s1ap = -1;
@@ -910,7 +909,7 @@ static gint ett_s1ap_SuccessfulOutcome = -1;
 static gint ett_s1ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-s1ap-ett.c ---*/
-#line 81 "packet-s1ap-template.c"
+#line 80 "packet-s1ap-template.c"
 
 enum{
 	INITIATING_MESSAGE,
@@ -7694,7 +7693,7 @@ static int dissect_S1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-s1ap-fn.c ---*/
-#line 123 "packet-s1ap-template.c"
+#line 122 "packet-s1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -7966,7 +7965,7 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 193 "packet-s1ap-template.c"
+#line 192 "packet-s1ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete("sctp.port", SctpPort, s1ap_handle);
@@ -9567,7 +9566,7 @@ void proto_register_s1ap(void) {
         "s1ap.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 221 "packet-s1ap-template.c"
+#line 220 "packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -9789,7 +9788,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 231 "packet-s1ap-template.c"
+#line 230 "packet-s1ap-template.c"
   };
 
   module_t *s1ap_module;

@@ -33,8 +33,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 
 #define PNAME  "HI2Operations"

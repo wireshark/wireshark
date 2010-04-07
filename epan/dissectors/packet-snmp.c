@@ -58,8 +58,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <string.h>
 #include <ctype.h>
 
 #include <glib.h>
@@ -296,7 +294,7 @@ static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
 static int hf_snmp_operation = -1;                /* T_operation */
 
 /*--- End of included file: packet-snmp-hf.c ---*/
-#line 222 "packet-snmp-template.c"
+#line 220 "packet-snmp-template.c"
 
 static int hf_smux_version = -1;
 static int hf_smux_pdutype = -1;
@@ -339,7 +337,7 @@ static gint ett_snmp_SimpleOpen_U = -1;
 static gint ett_snmp_RReqPDU_U = -1;
 
 /*--- End of included file: packet-snmp-ett.c ---*/
-#line 241 "packet-snmp-template.c"
+#line 239 "packet-snmp-template.c"
 
 static const true_false_string auth_flags = {
 	"OK",
@@ -2702,7 +2700,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1482 "packet-snmp-template.c"
+#line 1480 "packet-snmp-template.c"
 
 
 guint
@@ -3553,7 +3551,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2068 "packet-snmp-template.c"
+#line 2066 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3593,7 +3591,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2084 "packet-snmp-template.c"
+#line 2082 "packet-snmp-template.c"
   };
   module_t *snmp_module;
 

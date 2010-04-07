@@ -40,8 +40,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-per.h"
 
 #define PNAME  "H.283 Logical Channel Transport"
@@ -87,7 +85,7 @@ static int hf_h283_deviceListResp = -1;           /* T_deviceListResp */
 static int hf_h283_deviceChange = -1;             /* NULL */
 
 /*--- End of included file: packet-h283-hf.c ---*/
-#line 46 "packet-h283-template.c"
+#line 44 "packet-h283-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h283 = -1;
@@ -110,7 +108,7 @@ static gint ett_h283_LCTIndication = -1;
 static gint ett_h283_NonStandardMessage = -1;
 
 /*--- End of included file: packet-h283-ett.c ---*/
-#line 50 "packet-h283-template.c"
+#line 48 "packet-h283-template.c"
 
 /* Subdissectors */
 static dissector_handle_t rdc_pdu_handle; 
@@ -568,7 +566,7 @@ static int dissect_LCTPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 
 
 /*--- End of included file: packet-h283-fn.c ---*/
-#line 59 "packet-h283-template.c"
+#line 57 "packet-h283-template.c"
 
 static int
 dissect_h283_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -724,7 +722,7 @@ void proto_register_h283(void) {
         "h283.NULL", HFILL }},
 
 /*--- End of included file: packet-h283-hfarr.c ---*/
-#line 82 "packet-h283-template.c"
+#line 80 "packet-h283-template.c"
   };
 
   /* List of subtrees */
@@ -749,7 +747,7 @@ void proto_register_h283(void) {
     &ett_h283_NonStandardMessage,
 
 /*--- End of included file: packet-h283-ettarr.c ---*/
-#line 88 "packet-h283-template.c"
+#line 86 "packet-h283-template.c"
   };
 
   /* Register protocol */

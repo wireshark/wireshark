@@ -33,8 +33,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-tpkt.h"
 #include "packet-per.h"
 #include "packet-h225.h"

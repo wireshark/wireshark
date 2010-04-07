@@ -39,8 +39,6 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 
 #include "packet-x509if.h"
@@ -166,7 +164,7 @@ static int proto_s4406 = -1;
 #define ub_data_size                   65535
 
 /*--- End of included file: packet-s4406-val.h ---*/
-#line 52 "packet-s4406-template.c"
+#line 50 "packet-s4406-template.c"
 
 
 /*--- Included file: packet-s4406-hf.c ---*/
@@ -252,7 +250,7 @@ static int hf_s4406_Acp127NotificationType_acp127_pn = -1;
 static int hf_s4406_Acp127NotificationType_acp127_tn = -1;
 
 /*--- End of included file: packet-s4406-hf.c ---*/
-#line 54 "packet-s4406-template.c"
+#line 52 "packet-s4406-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_s4406 = -1;
@@ -288,7 +286,7 @@ static gint ett_s4406_MMMessageParameters = -1;
 static gint ett_s4406_Acp127NotificationType = -1;
 
 /*--- End of included file: packet-s4406-ett.c ---*/
-#line 58 "packet-s4406-template.c"
+#line 56 "packet-s4406-template.c"
 
 
 /*--- Included file: packet-s4406-fn.c ---*/
@@ -1239,7 +1237,7 @@ static void dissect_Acp127NotificationType_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-s4406-fn.c ---*/
-#line 60 "packet-s4406-template.c"
+#line 58 "packet-s4406-template.c"
 
 
 /*
@@ -1590,7 +1588,7 @@ void proto_register_s4406(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-s4406-hfarr.c ---*/
-#line 94 "packet-s4406-template.c"
+#line 92 "packet-s4406-template.c"
   };
 
   /* List of subtrees */
@@ -1628,7 +1626,7 @@ void proto_register_s4406(void) {
     &ett_s4406_Acp127NotificationType,
 
 /*--- End of included file: packet-s4406-ettarr.c ---*/
-#line 100 "packet-s4406-template.c"
+#line 98 "packet-s4406-template.c"
   };
 
   /* Register protocol */
@@ -1679,7 +1677,7 @@ void proto_reg_handoff_s4406(void) {
 
 
 /*--- End of included file: packet-s4406-dis-tab.c ---*/
-#line 115 "packet-s4406-template.c"
+#line 113 "packet-s4406-template.c"
 
   register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_s4406, proto_s4406, "STANAG 4406");
 

@@ -35,8 +35,6 @@
 # include "config.h"
 #endif
 
-#include <string.h>
-
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
@@ -79,7 +77,7 @@ static int hf_q932_ros_present = -1;              /* INTEGER */
 static int hf_q932_ros_InvokeId_present = -1;     /* InvokeId_present */
 
 /*--- End of included file: packet-q932-ros-hf.c ---*/
-#line 46 "packet-q932-ros-template.c"
+#line 44 "packet-q932-ros-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -97,7 +95,7 @@ static gint ett_q932_ros_T_problem = -1;
 static gint ett_q932_ros_InvokeId = -1;
 
 /*--- End of included file: packet-q932-ros-ett.c ---*/
-#line 49 "packet-q932-ros-template.c"
+#line 47 "packet-q932-ros-template.c"
 
 /* Preferences */
 
@@ -675,7 +673,7 @@ static int dissect_ROS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 
 
 /*--- End of included file: packet-q932-ros-fn.c ---*/
-#line 64 "packet-q932-ros-template.c"
+#line 62 "packet-q932-ros-template.c"
 
 /*--- dissect_q932_ros -----------------------------------------------------*/
 static int dissect_q932_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
@@ -790,7 +788,7 @@ void proto_register_q932_ros(void) {
         "q932_ros.InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-q932-ros-hfarr.c ---*/
-#line 78 "packet-q932-ros-template.c"
+#line 76 "packet-q932-ros-template.c"
   };
 
   /* List of subtrees */
@@ -810,7 +808,7 @@ void proto_register_q932_ros(void) {
     &ett_q932_ros_InvokeId,
 
 /*--- End of included file: packet-q932-ros-ettarr.c ---*/
-#line 83 "packet-q932-ros-template.c"
+#line 81 "packet-q932-ros-template.c"
   };
 
   /* Register protocol and dissector */

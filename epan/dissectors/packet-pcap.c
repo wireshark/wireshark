@@ -44,7 +44,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
-#include <string.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 
@@ -237,7 +236,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-pcap-val.h ---*/
-#line 62 "packet-pcap-template.c"
+#line 61 "packet-pcap-template.c"
 
 static dissector_handle_t pcap_handle = NULL;
 
@@ -1360,7 +1359,7 @@ static int hf_pcap_AvailableSubChannelNumbers_subCh1 = -1;
 static int hf_pcap_AvailableSubChannelNumbers_subCh0 = -1;
 
 /*--- End of included file: packet-pcap-hf.c ---*/
-#line 69 "packet-pcap-template.c"
+#line 68 "packet-pcap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_pcap = -1;
@@ -1752,7 +1751,7 @@ static gint ett_pcap_UnsuccessfulOutcome = -1;
 static gint ett_pcap_Outcome = -1;
 
 /*--- End of included file: packet-pcap-ett.c ---*/
-#line 74 "packet-pcap-template.c"
+#line 73 "packet-pcap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -13042,7 +13041,7 @@ static int dissect_PCAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-pcap-fn.c ---*/
-#line 98 "packet-pcap-template.c"
+#line 97 "packet-pcap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -13239,7 +13238,7 @@ proto_reg_handoff_pcap(void)
 
 
 /*--- End of included file: packet-pcap-dis-tab.c ---*/
-#line 172 "packet-pcap-template.c"
+#line 171 "packet-pcap-template.c"
     } else {
         range_foreach(ssn_range, range_delete_callback);
         g_free(ssn_range);
@@ -17700,7 +17699,7 @@ void proto_register_pcap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pcap-hfarr.c ---*/
-#line 188 "packet-pcap-template.c"
+#line 187 "packet-pcap-template.c"
   };
 
   /* List of subtrees */
@@ -18093,7 +18092,7 @@ void proto_register_pcap(void) {
     &ett_pcap_Outcome,
 
 /*--- End of included file: packet-pcap-ettarr.c ---*/
-#line 194 "packet-pcap-template.c"
+#line 193 "packet-pcap-template.c"
   };
 
   module_t *pcap_module;

@@ -102,8 +102,6 @@
 #include <epan/tap.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-ansi_map.h"
 #include "packet-ansi_a.h"
@@ -878,7 +876,7 @@ static int hf_ansi_map_interSystemSMSDeliveryPointToPointRes = -1;  /* InterSyst
 static int hf_ansi_map_qualificationRequest2Res = -1;  /* QualificationRequest2Res */
 
 /*--- End of included file: packet-ansi_map-hf.c ---*/
-#line 322 "packet-ansi_map-template.c"
+#line 320 "packet-ansi_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ansi_map = -1;
@@ -1138,7 +1136,7 @@ static gint ett_ansi_map_InvokeData = -1;
 static gint ett_ansi_map_ReturnData = -1;
 
 /*--- End of included file: packet-ansi_map-ett.c ---*/
-#line 354 "packet-ansi_map-template.c"
+#line 352 "packet-ansi_map-template.c"
 
 /* Global variables */
 static dissector_table_t is637_tele_id_dissector_table; /* IS-637 Teleservice ID */
@@ -15500,7 +15498,7 @@ dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3633 "packet-ansi_map-template.c"
+#line 3631 "packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -19342,7 +19340,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.QualificationRequest2Res", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5282 "packet-ansi_map-template.c"
+#line 5280 "packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19603,7 +19601,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5315 "packet-ansi_map-template.c"
+#line 5313 "packet-ansi_map-template.c"
     };
 
 

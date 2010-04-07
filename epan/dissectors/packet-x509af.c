@@ -40,8 +40,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-x509af.h"
 #include "packet-x509ce.h"
@@ -136,7 +134,7 @@ static int hf_x509af_q = -1;                      /* INTEGER */
 static int hf_x509af_g = -1;                      /* INTEGER */
 
 /*--- End of included file: packet-x509af-hf.c ---*/
-#line 53 "packet-x509af-template.c"
+#line 51 "packet-x509af-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pkix_crl = -1;
@@ -177,7 +175,7 @@ static gint ett_x509af_SET_OF_AttributeType = -1;
 static gint ett_x509af_DSS_Params = -1;
 
 /*--- End of included file: packet-x509af-ett.c ---*/
-#line 57 "packet-x509af-template.c"
+#line 55 "packet-x509af-template.c"
 
 static const char *algorithm_id;
 static const char *extension_id;
@@ -891,7 +889,7 @@ static void dissect_DSS_Params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-x509af-fn.c ---*/
-#line 62 "packet-x509af-template.c"
+#line 60 "packet-x509af-template.c"
 
 const char *x509af_get_last_algorithm_id(void) {
   return algorithm_id;
@@ -1233,7 +1231,7 @@ void proto_register_x509af(void) {
         "x509af.INTEGER", HFILL }},
 
 /*--- End of included file: packet-x509af-hfarr.c ---*/
-#line 103 "packet-x509af-template.c"
+#line 101 "packet-x509af-template.c"
   };
 
   /* List of subtrees */
@@ -1276,7 +1274,7 @@ void proto_register_x509af(void) {
     &ett_x509af_DSS_Params,
 
 /*--- End of included file: packet-x509af-ettarr.c ---*/
-#line 109 "packet-x509af-template.c"
+#line 107 "packet-x509af-template.c"
   };
 
   /* Register protocol */
@@ -1310,7 +1308,7 @@ void proto_reg_handoff_x509af(void) {
 
 
 /*--- End of included file: packet-x509af-dis-tab.c ---*/
-#line 129 "packet-x509af-template.c"
+#line 127 "packet-x509af-template.c"
 
 	/*XXX these should really go to a better place but since that
 	  I have not that ITU standard, ill put it here for the time

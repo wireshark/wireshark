@@ -42,8 +42,6 @@
 #include <epan/expert.h>
 #include <epan/nstime.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-acse.h"
 #include "packet-mms.h"
@@ -727,7 +725,7 @@ static int hf_mms_Transitions_idle_to_active = -1;
 static int hf_mms_Transitions_any_to_deleted = -1;
 
 /*--- End of included file: packet-mms-hf.c ---*/
-#line 51 "packet-mms-template.c"
+#line 49 "packet-mms-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_mms = -1;
@@ -944,7 +942,7 @@ static gint ett_mms_DirectoryEntry = -1;
 static gint ett_mms_FileAttributes = -1;
 
 /*--- End of included file: packet-mms-ett.c ---*/
-#line 55 "packet-mms-template.c"
+#line 53 "packet-mms-template.c"
 
 
 /*--- Included file: packet-mms-fn.c ---*/
@@ -7056,7 +7054,7 @@ dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 /*--- End of included file: packet-mms-fn.c ---*/
-#line 57 "packet-mms-template.c"
+#line 55 "packet-mms-template.c"
 
 /*
 * Dissect MMS PDUs inside a PPDU.
@@ -9765,7 +9763,7 @@ void proto_register_mms(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-mms-hfarr.c ---*/
-#line 97 "packet-mms-template.c"
+#line 95 "packet-mms-template.c"
   };
 
   /* List of subtrees */
@@ -9984,7 +9982,7 @@ void proto_register_mms(void) {
     &ett_mms_FileAttributes,
 
 /*--- End of included file: packet-mms-ettarr.c ---*/
-#line 103 "packet-mms-template.c"
+#line 101 "packet-mms-template.c"
   };
 
   /* Register protocol */

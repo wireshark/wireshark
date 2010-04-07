@@ -39,8 +39,6 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-pkinit.h"
 #include "packet-cms.h"
@@ -79,7 +77,7 @@ static int hf_pkinit_dhNonce = -1;                /* INTEGER */
 static int hf_pkinit_dhKeyExpiration = -1;        /* KerberosTime */
 
 /*--- End of included file: packet-pkinit-hf.c ---*/
-#line 49 "packet-pkinit-template.c"
+#line 47 "packet-pkinit-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -95,7 +93,7 @@ static gint ett_pkinit_PaPkAsRep = -1;
 static gint ett_pkinit_KDCDHKeyInfo = -1;
 
 /*--- End of included file: packet-pkinit-ett.c ---*/
-#line 52 "packet-pkinit-template.c"
+#line 50 "packet-pkinit-template.c"
 
 static int dissect_KerberosV5Spec2_KerberosTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 static int dissect_KerberosV5Spec2_Checksum(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
@@ -284,7 +282,7 @@ static void dissect_KDCDHKeyInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-pkinit-fn.c ---*/
-#line 57 "packet-pkinit-template.c"
+#line 55 "packet-pkinit-template.c"
 
 int
 dissect_pkinit_PA_PK_AS_REQ(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
@@ -405,7 +403,7 @@ void proto_register_pkinit(void) {
         "KerberosV5Spec2.KerberosTime", HFILL }},
 
 /*--- End of included file: packet-pkinit-hfarr.c ---*/
-#line 89 "packet-pkinit-template.c"
+#line 87 "packet-pkinit-template.c"
   };
 
   /* List of subtrees */
@@ -423,7 +421,7 @@ void proto_register_pkinit(void) {
     &ett_pkinit_KDCDHKeyInfo,
 
 /*--- End of included file: packet-pkinit-ettarr.c ---*/
-#line 94 "packet-pkinit-template.c"
+#line 92 "packet-pkinit-template.c"
   };
 
   /* Register protocol */
@@ -446,6 +444,6 @@ void proto_reg_handoff_pkinit(void) {
 
 
 /*--- End of included file: packet-pkinit-dis-tab.c ---*/
-#line 109 "packet-pkinit-template.c"
+#line 107 "packet-pkinit-template.c"
 }
 

@@ -39,8 +39,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <string.h>
-
 #include <epan/asn1.h>
 #include "packet-ber.h"
 
@@ -173,7 +171,7 @@ static int hf_t125_Segmentation_begin = -1;
 static int hf_t125_Segmentation_end = -1;
 
 /*--- End of included file: packet-t125-hf.c ---*/
-#line 47 "packet-t125-template.c"
+#line 45 "packet-t125-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_t125 = -1;
@@ -249,7 +247,7 @@ static gint ett_t125_ConnectMCSPDU = -1;
 static gint ett_t125_DomainMCSPDU = -1;
 
 /*--- End of included file: packet-t125-ett.c ---*/
-#line 51 "packet-t125-template.c"
+#line 49 "packet-t125-template.c"
 
 
 /*--- Included file: packet-t125-fn.c ---*/
@@ -2122,7 +2120,7 @@ static int dissect_ConnectMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-t125-fn.c ---*/
-#line 53 "packet-t125-template.c"
+#line 51 "packet-t125-template.c"
 
 static int
 dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
@@ -2626,7 +2624,7 @@ void proto_register_t125(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-t125-hfarr.c ---*/
-#line 88 "packet-t125-template.c"
+#line 86 "packet-t125-template.c"
   };
 
   /* List of subtrees */
@@ -2704,7 +2702,7 @@ void proto_register_t125(void) {
     &ett_t125_DomainMCSPDU,
 
 /*--- End of included file: packet-t125-ettarr.c ---*/
-#line 94 "packet-t125-template.c"
+#line 92 "packet-t125-template.c"
   };
 
   /* Register protocol */

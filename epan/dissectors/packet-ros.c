@@ -42,8 +42,6 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-pres.h"
 #include "packet-ros.h"
@@ -116,7 +114,7 @@ static int hf_ros_local = -1;                     /* INTEGER */
 static int hf_ros_global = -1;                    /* OBJECT_IDENTIFIER */
 
 /*--- End of included file: packet-ros-hf.c ---*/
-#line 80 "packet-ros-template.c"
+#line 78 "packet-ros-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ros = -1;
@@ -134,7 +132,7 @@ static gint ett_ros_InvokeId = -1;
 static gint ett_ros_Code = -1;
 
 /*--- End of included file: packet-ros-ett.c ---*/
-#line 84 "packet-ros-template.c"
+#line 82 "packet-ros-template.c"
 
 static dissector_table_t ros_oid_dissector_table=NULL;
 
@@ -997,7 +995,7 @@ dissect_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 /*--- End of included file: packet-ros-fn.c ---*/
-#line 373 "packet-ros-template.c"
+#line 371 "packet-ros-template.c"
 
 /*
 * Dissect ROS PDUs inside a PPDU.
@@ -1244,7 +1242,7 @@ void proto_register_ros(void) {
         "ros.OBJECT_IDENTIFIER", HFILL }},
 
 /*--- End of included file: packet-ros-hfarr.c ---*/
-#line 507 "packet-ros-template.c"
+#line 505 "packet-ros-template.c"
   };
 
   /* List of subtrees */
@@ -1265,7 +1263,7 @@ void proto_register_ros(void) {
     &ett_ros_Code,
 
 /*--- End of included file: packet-ros-ettarr.c ---*/
-#line 514 "packet-ros-template.c"
+#line 512 "packet-ros-template.c"
   };
 
   /* Register protocol */

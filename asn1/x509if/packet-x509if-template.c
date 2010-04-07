@@ -32,8 +32,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-dap.h"
 #include "packet-x509if.h"

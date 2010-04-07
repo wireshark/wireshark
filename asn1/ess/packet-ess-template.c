@@ -32,8 +32,6 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-ess.h"
 #include "packet-cms.h"

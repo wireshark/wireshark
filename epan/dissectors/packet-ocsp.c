@@ -38,7 +38,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <string.h>
 #include <asn1.h>
 
 #include "packet-ber.h"
@@ -111,7 +110,7 @@ static int hf_ocsp_crlNum = -1;                   /* INTEGER */
 static int hf_ocsp_crlTime = -1;                  /* GeneralizedTime */
 
 /*--- End of included file: packet-ocsp-hf.c ---*/
-#line 51 "packet-ocsp-template.c"
+#line 50 "packet-ocsp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ocsp = -1;
@@ -139,7 +138,7 @@ static gint ett_ocsp_ServiceLocator = -1;
 static gint ett_ocsp_CrlID = -1;
 
 /*--- End of included file: packet-ocsp-ett.c ---*/
-#line 55 "packet-ocsp-template.c"
+#line 54 "packet-ocsp-template.c"
 
 static const char *responseType_id;
 
@@ -649,7 +648,7 @@ static void dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 
 
 /*--- End of included file: packet-ocsp-fn.c ---*/
-#line 60 "packet-ocsp-template.c"
+#line 59 "packet-ocsp-template.c"
 
 
 static int
@@ -913,7 +912,7 @@ void proto_register_ocsp(void) {
         "ocsp.GeneralizedTime", HFILL }},
 
 /*--- End of included file: packet-ocsp-hfarr.c ---*/
-#line 115 "packet-ocsp-template.c"
+#line 114 "packet-ocsp-template.c"
   };
 
   /* List of subtrees */
@@ -943,7 +942,7 @@ void proto_register_ocsp(void) {
     &ett_ocsp_CrlID,
 
 /*--- End of included file: packet-ocsp-ettarr.c ---*/
-#line 121 "packet-ocsp-template.c"
+#line 120 "packet-ocsp-template.c"
   };
 
   /* Register protocol */
@@ -978,6 +977,6 @@ void proto_reg_handoff_ocsp(void) {
 
 
 /*--- End of included file: packet-ocsp-dis-tab.c ---*/
-#line 144 "packet-ocsp-template.c"
+#line 143 "packet-ocsp-template.c"
 }
 

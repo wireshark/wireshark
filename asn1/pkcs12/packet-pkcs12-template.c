@@ -33,9 +33,6 @@
 #include <epan/asn1.h>
 #include <epan/prefs.h>
 
-#include <stdio.h>
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-pkcs12.h"
 #include "packet-x509af.h"

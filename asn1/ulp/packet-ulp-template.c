@@ -35,8 +35,6 @@
 #include <epan/prefs.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-per.h"
 #include "packet-tcp.h"
 #include "packet-gsm_map.h"

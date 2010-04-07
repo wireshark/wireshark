@@ -43,8 +43,6 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-pres.h"
 #include "packet-acse.h"
@@ -97,7 +95,7 @@ static int hf_rtse_t61String = -1;                /* T_t61String */
 static int hf_rtse_octetString = -1;              /* T_octetString */
 
 /*--- End of included file: packet-rtse-hf.c ---*/
-#line 64 "packet-rtse-template.c"
+#line 62 "packet-rtse-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_rtse = -1;
@@ -114,7 +112,7 @@ static gint ett_rtse_SessionConnectionIdentifier = -1;
 static gint ett_rtse_CallingSSuserReference = -1;
 
 /*--- End of included file: packet-rtse-ett.c ---*/
-#line 68 "packet-rtse-template.c"
+#line 66 "packet-rtse-template.c"
 
 
 static dissector_table_t rtse_oid_dissector_table=NULL;
@@ -690,7 +688,7 @@ dissect_rtse_RTSE_apdus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 /*--- End of included file: packet-rtse-fn.c ---*/
-#line 184 "packet-rtse-template.c"
+#line 182 "packet-rtse-template.c"
 
 /*
 * Dissect RTSE PDUs inside a PPDU.
@@ -958,7 +956,7 @@ void proto_register_rtse(void) {
         "rtse.T_octetString", HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 351 "packet-rtse-template.c"
+#line 349 "packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -980,7 +978,7 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 360 "packet-rtse-template.c"
+#line 358 "packet-rtse-template.c"
   };
 
   module_t *rtse_module;

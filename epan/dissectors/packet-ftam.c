@@ -45,8 +45,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-acse.h"
 #include "packet-ftam.h"
@@ -484,7 +482,7 @@ static int hf_ftam_Attribute_Names_read_l8gal_qualifiCatiOnS = -1;
 static int hf_ftam_Attribute_Names_read_private_use = -1;
 
 /*--- End of included file: packet-ftam-hf.c ---*/
-#line 60 "packet-ftam-template.c"
+#line 58 "packet-ftam-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ftam = -1;
@@ -655,7 +653,7 @@ static gint ett_ftam_Attribute_Names = -1;
 static gint ett_ftam_AE_title = -1;
 
 /*--- End of included file: packet-ftam-ett.c ---*/
-#line 64 "packet-ftam-template.c"
+#line 62 "packet-ftam-template.c"
 
 
 /*--- Included file: packet-ftam-fn.c ---*/
@@ -4747,7 +4745,7 @@ dissect_ftam_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 /*--- End of included file: packet-ftam-fn.c ---*/
-#line 66 "packet-ftam-template.c"
+#line 64 "packet-ftam-template.c"
 
 /*
 * Dissect FTAM unstructured text
@@ -6472,7 +6470,7 @@ void proto_register_ftam(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ftam-hfarr.c ---*/
-#line 130 "packet-ftam-template.c"
+#line 128 "packet-ftam-template.c"
   };
 
   /* List of subtrees */
@@ -6645,7 +6643,7 @@ void proto_register_ftam(void) {
     &ett_ftam_AE_title,
 
 /*--- End of included file: packet-ftam-ettarr.c ---*/
-#line 136 "packet-ftam-template.c"
+#line 134 "packet-ftam-template.c"
   };
 
   /* Register protocol */

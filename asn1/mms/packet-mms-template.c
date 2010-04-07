@@ -34,8 +34,6 @@
 #include <epan/expert.h>
 #include <epan/nstime.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-acse.h"
 #include "packet-mms.h"

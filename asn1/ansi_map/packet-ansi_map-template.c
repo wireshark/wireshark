@@ -94,8 +94,6 @@
 #include <epan/tap.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-ansi_map.h"
 #include "packet-ansi_a.h"

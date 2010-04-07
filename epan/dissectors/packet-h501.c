@@ -41,8 +41,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-tpkt.h"
 #include "packet-per.h"
 #include "packet-h225.h"
@@ -309,7 +307,7 @@ static int hf_h501_releaseCompleteReason = -1;    /* ReleaseCompleteReason */
 static int hf_h501_causeIE = -1;                  /* INTEGER_1_65535 */
 
 /*--- End of included file: packet-h501-hf.c ---*/
-#line 50 "packet-h501-template.c"
+#line 48 "packet-h501-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h501 = -1;
@@ -417,7 +415,7 @@ static gint ett_h501_Role = -1;
 static gint ett_h501_TerminationCause = -1;
 
 /*--- End of included file: packet-h501-ett.c ---*/
-#line 54 "packet-h501-template.c"
+#line 52 "packet-h501-template.c"
 
 /* Dissectors */
 static dissector_handle_t h501_pdu_handle;
@@ -2519,7 +2517,7 @@ static int dissect_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-h501-fn.c ---*/
-#line 66 "packet-h501-template.c"
+#line 64 "packet-h501-template.c"
 
 static int
 dissect_h501_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -3560,7 +3558,7 @@ void proto_register_h501(void) {
         "h501.INTEGER_1_65535", HFILL }},
 
 /*--- End of included file: packet-h501-hfarr.c ---*/
-#line 102 "packet-h501-template.c"
+#line 100 "packet-h501-template.c"
   };
 
   /* List of subtrees */
@@ -3670,7 +3668,7 @@ void proto_register_h501(void) {
     &ett_h501_TerminationCause,
 
 /*--- End of included file: packet-h501-ettarr.c ---*/
-#line 108 "packet-h501-template.c"
+#line 106 "packet-h501-template.c"
   };
 
   /* Register protocol */

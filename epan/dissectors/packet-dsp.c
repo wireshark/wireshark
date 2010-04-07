@@ -41,8 +41,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-acse.h"
 #include "packet-ros.h"
@@ -211,7 +209,7 @@ static int hf_dsp_signed = -1;                    /* BOOLEAN */
 static int hf_dsp_other = -1;                     /* EXTERNAL */
 
 /*--- End of included file: packet-dsp-hf.c ---*/
-#line 65 "packet-dsp-template.c"
+#line 63 "packet-dsp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dsp = -1;
@@ -291,7 +289,7 @@ static gint ett_dsp_AuthenticationLevel = -1;
 static gint ett_dsp_T_basicLevels = -1;
 
 /*--- End of included file: packet-dsp-ett.c ---*/
-#line 69 "packet-dsp-template.c"
+#line 67 "packet-dsp-template.c"
 
 
 /*--- Included file: packet-dsp-fn.c ---*/
@@ -1789,7 +1787,7 @@ static void dissect_DitBridgeKnowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-dsp-fn.c ---*/
-#line 71 "packet-dsp-template.c"
+#line 69 "packet-dsp-template.c"
 
 /*
 * Dissect X518 PDUs inside a ROS PDUs
@@ -2547,7 +2545,7 @@ void proto_register_dsp(void) {
         "dsp.EXTERNAL", HFILL }},
 
 /*--- End of included file: packet-dsp-hfarr.c ---*/
-#line 276 "packet-dsp-template.c"
+#line 274 "packet-dsp-template.c"
   };
 
   /* List of subtrees */
@@ -2629,7 +2627,7 @@ void proto_register_dsp(void) {
     &ett_dsp_T_basicLevels,
 
 /*--- End of included file: packet-dsp-ettarr.c ---*/
-#line 282 "packet-dsp-template.c"
+#line 280 "packet-dsp-template.c"
   };
   module_t *dsp_module;
 
@@ -2670,7 +2668,7 @@ void proto_reg_handoff_dsp(void) {
 
 
 /*--- End of included file: packet-dsp-dis-tab.c ---*/
-#line 312 "packet-dsp-template.c"
+#line 310 "packet-dsp-template.c"
 
   /* APPLICATION CONTEXT */
 

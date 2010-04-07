@@ -32,8 +32,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-per.h"
 
 #define PNAME  "H.282 Remote Device Control"

@@ -32,8 +32,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <string.h>
-
 #include <epan/asn1.h>
 
 #include "packet-tcp.h"

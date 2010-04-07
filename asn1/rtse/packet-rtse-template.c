@@ -35,8 +35,6 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-pres.h"
 #include "packet-acse.h"

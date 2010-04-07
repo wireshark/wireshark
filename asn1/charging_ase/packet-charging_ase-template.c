@@ -31,8 +31,6 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-charging_ase.h"
 

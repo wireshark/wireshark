@@ -39,8 +39,6 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-x509ce.h"
 #include "packet-x509af.h"
@@ -255,7 +253,7 @@ static int hf_x509ce_EntrustInfoFlags_webCategory = -1;
 static int hf_x509ce_EntrustInfoFlags_sETCategory = -1;
 
 /*--- End of included file: packet-x509ce-hf.c ---*/
-#line 54 "packet-x509ce-template.c"
+#line 52 "packet-x509ce-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -322,7 +320,7 @@ static gint ett_x509ce_EntrustVersionInfo = -1;
 static gint ett_x509ce_EntrustInfoFlags = -1;
 
 /*--- End of included file: packet-x509ce-ett.c ---*/
-#line 57 "packet-x509ce-template.c"
+#line 55 "packet-x509ce-template.c"
 
 static const char *object_identifier_id;
 
@@ -1816,7 +1814,7 @@ static void dissect_EntrustVersionInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-x509ce-fn.c ---*/
-#line 61 "packet-x509ce-template.c"
+#line 59 "packet-x509ce-template.c"
 
 
 static void
@@ -2625,7 +2623,7 @@ void proto_register_x509ce(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-x509ce-hfarr.c ---*/
-#line 101 "packet-x509ce-template.c"
+#line 99 "packet-x509ce-template.c"
   };
 
   /* List of subtrees */
@@ -2694,7 +2692,7 @@ void proto_register_x509ce(void) {
     &ett_x509ce_EntrustInfoFlags,
 
 /*--- End of included file: packet-x509ce-ettarr.c ---*/
-#line 106 "packet-x509ce-template.c"
+#line 104 "packet-x509ce-template.c"
   };
 
   /* Register protocol */
@@ -2756,7 +2754,7 @@ void proto_reg_handoff_x509ce(void) {
 
 
 /*--- End of included file: packet-x509ce-dis-tab.c ---*/
-#line 121 "packet-x509ce-template.c"
+#line 119 "packet-x509ce-template.c"
 	register_ber_oid_dissector("2.5.29.24", dissect_x509ce_invalidityDate_callback, proto_x509ce, "id-ce-invalidityDate");
 	register_ber_oid_dissector("2.5.29.51", dissect_x509ce_baseUpdateTime_callback, proto_x509ce, "id-ce-baseUpdateTime");
 }

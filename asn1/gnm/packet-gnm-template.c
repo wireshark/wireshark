@@ -35,7 +35,6 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 
-#include <string.h>
 #include "packet-ber.h"
 #include "packet-cmip.h"
 #include "packet-gnm.h"

@@ -44,8 +44,6 @@
 #include <epan/expert.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-inap.h"
 #include "packet-q931.h"
@@ -461,7 +459,7 @@ static int proto_inap = -1;
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-inap-val.h ---*/
-#line 59 "packet-inap-template.c"
+#line 57 "packet-inap-template.c"
 
 
 /*--- Included file: packet-inap-hf.c ---*/
@@ -1027,7 +1025,7 @@ static int hf_inap_present = -1;                  /* INTEGER */
 static int hf_inap_InvokeId_present = -1;         /* InvokeId_present */
 
 /*--- End of included file: packet-inap-hf.c ---*/
-#line 61 "packet-inap-template.c"
+#line 59 "packet-inap-template.c"
 
 #define MAX_SSN 254
 static range_t *global_ssn_range;
@@ -1289,7 +1287,7 @@ static gint ett_inap_T_problem_01 = -1;
 static gint ett_inap_InvokeId = -1;
 
 /*--- End of included file: packet-inap-ett.c ---*/
-#line 82 "packet-inap-template.c"
+#line 80 "packet-inap-template.c"
 
 
 /*--- Included file: packet-inap-table.c ---*/
@@ -1415,7 +1413,7 @@ static const value_string inap_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-inap-table.c ---*/
-#line 84 "packet-inap-template.c"
+#line 82 "packet-inap-template.c"
 
 const value_string inap_general_problem_strings[] = {
 {0,"General Problem Unrecognized Component"},
@@ -8966,7 +8964,7 @@ static int dissect_PAR_taskRefused_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-inap-fn.c ---*/
-#line 98 "packet-inap-template.c"
+#line 96 "packet-inap-template.c"
 /*
 TC-Invokable OPERATION ::=
   {activateServiceFiltering | activityTest | analysedInformation |
@@ -9322,7 +9320,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-inap-table2.c ---*/
-#line 119 "packet-inap-template.c"
+#line 117 "packet-inap-template.c"
 
 
 static guint8 inap_pdu_type = 0;
@@ -11639,7 +11637,7 @@ void proto_register_inap(void) {
         "inap.InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-inap-hfarr.c ---*/
-#line 195 "packet-inap-template.c"
+#line 193 "packet-inap-template.c"
   };
 
 
@@ -11893,7 +11891,7 @@ void proto_register_inap(void) {
     &ett_inap_InvokeId,
 
 /*--- End of included file: packet-inap-ettarr.c ---*/
-#line 208 "packet-inap-template.c"
+#line 206 "packet-inap-template.c"
   };
 
   /* Register protocol */

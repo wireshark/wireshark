@@ -42,8 +42,6 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-rrc.h"
@@ -92,7 +90,7 @@ static guint32 lte_rrc_rat_type_value = -1;
 #define maxReestabInfo                 32
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 54 "packet-lte-rrc-template.c"
+#line 52 "packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
@@ -1244,7 +1242,7 @@ static int hf_lte_rrc_key_eNodeB_Star = -1;       /* Key_eNodeB_Star */
 static int hf_lte_rrc_ue_InactiveTime = -1;       /* T_ue_InactiveTime */
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 59 "packet-lte-rrc-template.c"
+#line 57 "packet-lte-rrc-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_lte_rrc = -1;
@@ -1860,7 +1858,7 @@ static gint ett_lte_rrc_AdditionalReestabInfo = -1;
 static gint ett_lte_rrc_RRM_Config = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 64 "packet-lte-rrc-template.c"
+#line 62 "packet-lte-rrc-template.c"
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
@@ -17531,7 +17529,7 @@ static int dissect_UERadioAccessCapabilityInformation_PDU(tvbuff_t *tvb _U_, pac
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 70 "packet-lte-rrc-template.c"
+#line 68 "packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -22129,7 +22127,7 @@ void proto_register_lte_rrc(void) {
         "lte_rrc.T_ue_InactiveTime", HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 95 "packet-lte-rrc-template.c"
+#line 93 "packet-lte-rrc-template.c"
   };
 
   /* List of subtrees */
@@ -22746,7 +22744,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_RRM_Config,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 101 "packet-lte-rrc-template.c"
+#line 99 "packet-lte-rrc-template.c"
   };
 
 
@@ -22774,7 +22772,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 113 "packet-lte-rrc-template.c"
+#line 111 "packet-lte-rrc-template.c"
 
 }
 

@@ -40,8 +40,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-pkixproxy.h"
 
@@ -61,7 +59,7 @@ static int hf_pkixproxy_policyLanguage = -1;      /* OBJECT_IDENTIFIER */
 static int hf_pkixproxy_policy = -1;              /* OCTET_STRING */
 
 /*--- End of included file: packet-pkixproxy-hf.c ---*/
-#line 47 "packet-pkixproxy-template.c"
+#line 45 "packet-pkixproxy-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -71,7 +69,7 @@ static gint ett_pkixproxy_ProxyCertInfoExtension = -1;
 static gint ett_pkixproxy_ProxyPolicy = -1;
 
 /*--- End of included file: packet-pkixproxy-ett.c ---*/
-#line 50 "packet-pkixproxy-template.c"
+#line 48 "packet-pkixproxy-template.c"
 
 
 /*--- Included file: packet-pkixproxy-fn.c ---*/
@@ -145,7 +143,7 @@ static void dissect_ProxyCertInfoExtension_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-pkixproxy-fn.c ---*/
-#line 52 "packet-pkixproxy-template.c"
+#line 50 "packet-pkixproxy-template.c"
 
 
 /*--- proto_register_pkixproxy ----------------------------------------------*/
@@ -178,7 +176,7 @@ void proto_register_pkixproxy(void) {
         "pkixproxy.OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-pkixproxy-hfarr.c ---*/
-#line 60 "packet-pkixproxy-template.c"
+#line 58 "packet-pkixproxy-template.c"
   };
 
   /* List of subtrees */
@@ -190,7 +188,7 @@ void proto_register_pkixproxy(void) {
     &ett_pkixproxy_ProxyPolicy,
 
 /*--- End of included file: packet-pkixproxy-ettarr.c ---*/
-#line 65 "packet-pkixproxy-template.c"
+#line 63 "packet-pkixproxy-template.c"
   };
 
   /* Register protocol */
@@ -212,7 +210,7 @@ void proto_reg_handoff_pkixproxy(void) {
 
 
 /*--- End of included file: packet-pkixproxy-dis-tab.c ---*/
-#line 80 "packet-pkixproxy-template.c"
+#line 78 "packet-pkixproxy-template.c"
   oid_add_from_string("id-ppl-anyLanguage","1.3.6.1.5.5.7.21.0");
   oid_add_from_string("id-ppl-inheritAll","1.3.6.1.5.5.7.21.1");
   oid_add_from_string("id-ppl-independent","1.3.6.1.5.5.7.21.2");

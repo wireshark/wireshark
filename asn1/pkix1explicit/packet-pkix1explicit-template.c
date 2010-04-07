@@ -34,8 +34,6 @@
 #include <epan/oids.h>
 #include <epan/afn.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-pkix1explicit.h"
 #include "packet-x509af.h"

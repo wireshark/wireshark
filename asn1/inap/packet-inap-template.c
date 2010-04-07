@@ -36,8 +36,6 @@
 #include <epan/expert.h>
 #include <epan/asn1.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 #include "packet-inap.h"
 #include "packet-q931.h"

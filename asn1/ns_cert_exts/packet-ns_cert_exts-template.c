@@ -30,8 +30,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <string.h>
-
 #include "packet-ber.h"
 
 #define PNAME  "NetScape Certificate Extensions"
