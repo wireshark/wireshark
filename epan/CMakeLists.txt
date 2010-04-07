@@ -838,6 +838,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-pw-cesopsn.c
 	dissectors/packet-pw-satop.c
 	dissectors/packet-q2931.c
+	dissectors/packet-q708.c
 	dissectors/packet-q931.c
 	dissectors/packet-q933.c
 	dissectors/packet-qllc.c
