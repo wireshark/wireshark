@@ -4956,7 +4956,8 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *la
 	guint32 lvt, l;
 	gsize inbytesleft, outbytesleft = 512;
 	guint offs, extra = 1;
-	guint8 *str_val, *coding;
+	guint8 *str_val;
+	const char *coding;
 	guint8 bf_arr[512], *out = &bf_arr[0];
 	proto_item *ti;
 	proto_tree *subtree;
