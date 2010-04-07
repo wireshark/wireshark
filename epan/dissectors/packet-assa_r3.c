@@ -3190,7 +3190,7 @@ static const guint16 ccitt_16 [256] =
 
 static guint16 utilCrcCalculate (const void *ptr, guint16 len, guint16 crc)
 {
-  guint8 *p = (guint8 *) ptr;
+  const guint8 *p = (guint8 *) ptr;
 
   while (len--)
     crc = (guint16) ((crc << 8) ^ ccitt_16 [(crc >> 8) ^ *p++]);
