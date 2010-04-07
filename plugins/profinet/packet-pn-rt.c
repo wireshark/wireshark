@@ -36,12 +36,6 @@
 #include <netinet/in.h>
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <gmodule.h>
-#include <ctype.h>
-#include <time.h>
-#include <string.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
