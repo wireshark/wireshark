@@ -59,13 +59,20 @@ capabilities library (on which it depends) is found.
 Warnings are displayed when Wireshark and TShark are run
 as root.
 
-For systems that have libcap and the "setcap" utility you can avoid
-root altogether:
+For Linux systems that have libcap and the "setcap" utility you can
+avoid root altogether:
 
 # groupadd -g packetcapture
 # chmod 750 /usr/bin/dumpcap
 # chgrp packetcapture /usr/bin/dumpcap
 # setcap cap_net_raw,cap_net_admin+eip /usr/bin/dumpcap
+
+For Linux systems without filesystem capabilities you can limit root
+to dumpcap:
+
+# groupadd -g packetcapture
+# chgrp packetcapture /usr/bin/dumpcap
+# chmod 4750 /usr/bin/dumpcap
 
 4. Customization.
 
@@ -81,7 +88,8 @@ defined as a string. If you need a numeric definition, let us know.
 
 5. Trademarks.
 
-Wireshark and the "fin" logo are registered trademarks of Gerald Combs.
+Wireshark and the "fin" logo are registered trademarks of the Wireshark
+Foundation.
 
 6. Spelling.
 
