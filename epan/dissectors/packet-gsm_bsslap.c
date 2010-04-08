@@ -246,7 +246,6 @@ de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 {
    guint32 curr_offset;
    tvbuff_t *rrlp_tvb;
-   static packet_info p_info;
    guint16 length;
   
    length = tvb_get_ntohs(tvb, offset);
@@ -256,7 +255,7 @@ de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
    {
       rrlp_tvb = tvb_new_subset(tvb, curr_offset, length, length);
       if (bsslap_rrlp_handle)
-         call_dissector(bsslap_rrlp_handle, rrlp_tvb, &p_info, tree);
+         call_dissector(bsslap_rrlp_handle, rrlp_tvb, gsm_a_dtap_pinfo, tree);
    }
 
    curr_offset += length;
@@ -804,6 +803,7 @@ dissect_gsm_bsslap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int	offset=0;
 	guint8 octet;
 
+	gsm_a_dtap_pinfo = pinfo;
 /* Make entries in Protocol column and Info column on summary display */
 	col_append_str(pinfo->cinfo, COL_PROTOCOL, "/BSSLAP");
 	if (tree) {
