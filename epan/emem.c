@@ -593,7 +593,7 @@ emem_scrub_memory(char *buf, size_t size, gboolean alloc)
 }
 
 static emem_chunk_t *
-emem_create_chunk() {
+emem_create_chunk(void) {
 #if defined (_WIN32)
 	BOOL ret;
 	char *buf_end, *prot1, *prot2;
