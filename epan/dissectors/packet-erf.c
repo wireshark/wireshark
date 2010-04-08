@@ -188,6 +188,7 @@ static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;
 
 static dissector_handle_t infiniband_handle;
+static dissector_handle_t infiniband_link_handle;
 
 typedef enum { 
   ERF_HDLC_CHDLC = 0,
@@ -330,6 +331,7 @@ static const value_string erf_type_vals[] = {
   { ERF_TYPE_IPV4, "IPV4"},
   { ERF_TYPE_IPV6, "IPV6"},
   { ERF_TYPE_RAW_LINK, "RAW_LINK"},
+  { ERF_TYPE_INFINIBAND_LINK, "INFINIBAND_LINK"},
   {0, NULL}
 };
 
@@ -901,6 +903,13 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       call_dissector(data_handle, tvb, pinfo, erf_tree);
     break;
 
+  case ERF_TYPE_INFINIBAND_LINK:
+    if (infiniband_link_handle)
+      call_dissector(infiniband_link_handle, tvb, pinfo, erf_tree);
+    else
+      call_dissector(data_handle, tvb, pinfo, erf_tree);
+    break;
+
   case ERF_TYPE_LEGACY:
   case ERF_TYPE_IP_COUNTER:
   case ERF_TYPE_TCP_FLOW_COUNTER:
@@ -1322,10 +1331,10 @@ proto_reg_handoff_erf(void)
   /* Get handle for IP dissectors) */
   ipv4_handle = find_dissector("ip");
   ipv6_handle = find_dissector("ipv6");
-
 	
   /* Get handle for Infiniband dissector */
   infiniband_handle = find_dissector("infiniband");
+  infiniband_link_handle = find_dissector("infiniband_link");
 
   /* Get handles for serial line protocols */
   chdlc_handle = find_dissector("chdlc");

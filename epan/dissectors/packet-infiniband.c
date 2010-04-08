@@ -484,6 +484,77 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     
 }
 
+static void
+dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    /* Top Level Item */
+    proto_item *infiniband_link_packet = NULL;
+
+    /* The Link Subtree */
+    proto_tree *link_tree = NULL;
+
+    proto_item *operand_item = NULL;
+    gint offset = 0;                /* Current Offset */
+    guint8 operand;                 /* Link packet Operand */
+
+    operand =  tvb_get_guint8(tvb, offset);
+    operand = (operand & 0xF0) >> 4;
+
+    /* Mark the Packet type as Infiniband in the wireshark UI */
+    /* Clear other columns */
+    if(pinfo->cinfo)
+    {
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "InfiniBand Link");
+        col_clear(pinfo->cinfo, COL_INFO);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+		     val_to_str(operand, Operand_Description, "Unknown (0x%1x)"));
+
+    }
+
+    /* Get the parent tree from the ERF dissector.  We don't want to nest under ERF */
+    if(tree && tree->parent)
+    {
+        /* Set the normal tree outside of ERF */
+        tree = tree->parent;
+        /* Set a global reference for nested protocols */
+        top_tree = tree;
+    }
+
+    if(!tree)
+    {
+        /* If no packet details are being dissected, extract some high level info for the packet view */
+        /* Assigns column values rather than full tree population */
+        dissect_general_info(tvb, offset, pinfo);
+        return;
+    }
+
+    /* Top Level Packet */
+    infiniband_link_packet = proto_tree_add_item(tree, proto_infiniband_link, tvb, offset, -1, FALSE);
+ 
+    /* Headers Level Tree */
+    link_tree = proto_item_add_subtree(infiniband_link_packet, ett_link);
+
+    operand_item = proto_tree_add_item(link_tree, hf_infiniband_link_op, tvb, offset, 2, FALSE);
+
+    if (operand > 1) {
+	proto_item_set_text(operand_item, "%s", "Reserved");
+	call_dissector(data_handle, tvb, pinfo, link_tree);
+    } else {
+	proto_tree_add_item(link_tree, hf_infiniband_link_fctbs, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	proto_tree_add_item(link_tree, hf_infiniband_link_vl, tvb, offset, 2, FALSE);
+	proto_tree_add_item(link_tree, hf_infiniband_link_fccl, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	proto_tree_add_item(link_tree, hf_infiniband_link_lpcrc, tvb, offset, 2, FALSE);
+	offset += 2;
+	
+    }
+
+}
+
+
 /* Description: Finds the header sequence that follows the Base Transport Header.
 * Somwhat inefficient (should be using a single key,value pair data structure)
 * But uses pure probablity to take a stab at better efficiency.
@@ -4852,7 +4923,35 @@ void proto_register_infiniband(void)
         &ett_mcmemberrecord,
         &ett_tracerecord,
         &ett_multipathrecord,
-        &ett_serviceassocrecord
+        &ett_serviceassocrecord,
+    };
+
+    static hf_register_info hf_link[] = {    
+        { &hf_infiniband_link_op, {
+                "Operand", "infiniband_link.op",
+                FT_UINT16, BASE_DEC, VALS(Operand_Description), 0xF000, NULL, HFILL}
+        },
+        { &hf_infiniband_link_fctbs, {
+                "Flow Control Total Blocks Sent", "infiniband_link.fctbs",
+                FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL}
+        },
+        { &hf_infiniband_link_vl, {
+                "Virtual Lane", "infiniband_link.vl",
+                FT_UINT16, BASE_DEC, NULL, 0xF000, NULL, HFILL}
+        },
+        { &hf_infiniband_link_fccl, {
+                "Flow Control Credit Limit", "infiniband_link.fccl",
+                FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL}
+        },
+        { &hf_infiniband_link_lpcrc, {
+                "Link Packet CRC", "infiniband_link.lpcrc",
+                FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
+        }
+    };
+
+
+    static gint *ett_link_array[] = {
+        &ett_link
     };
 
     proto_infiniband = proto_register_protocol("InfiniBand", "InfiniBand", "infiniband");
@@ -4860,6 +4959,13 @@ void proto_register_infiniband(void)
 
     proto_register_field_array(proto_infiniband, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+
+    proto_infiniband_link = proto_register_protocol("InfiniBand Link", "InfiniBand Link", "infiniband_link");
+    register_dissector("infiniband_link", dissect_infiniband_link, proto_infiniband_link);
+
+    proto_register_field_array(proto_infiniband_link, hf_link, array_length(hf_link));
+    proto_register_subtree_array(ett_link_array, array_length(ett_link_array));
 
 }
 

@@ -31,6 +31,7 @@
 
 /* Wireshark ID */
 static int proto_infiniband = -1;
+static int proto_infiniband_link = -1;
 
 /* Variables to hold expansion values between packets */
 /* static gint ett_infiniband = -1;                */
@@ -84,6 +85,8 @@ static gint ett_tracerecord = -1;
 static gint ett_multipathrecord = -1;
 static gint ett_serviceassocrecord = -1;
 
+static gint ett_link = -1;
+
 /* Global ref to highest level tree should we find other protocols encapsulated in IB */
 static proto_tree *top_tree = NULL;
  
@@ -108,6 +111,7 @@ static dissector_handle_t data_handle;
 static dissector_table_t ethertype_dissector_table;
 
 static void dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static gint32 find_next_header_sequence(guint32 OpCode);
 static gboolean contains(guint32 value, guint32* arr, int length);
 static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo);
@@ -931,6 +935,20 @@ static int hf_infiniband_Trap_GIDADDR2 = -1;
 static int hf_infiniband_Trap_DataValid = -1;
 static int hf_infiniband_Trap_PKEY = -1;
 static int hf_infiniband_Trap_SWLIDADDR = -1;
+
+/* Infiniband Link */
+static int hf_infiniband_link_op = -1;
+static int hf_infiniband_link_fctbs = -1;
+static int hf_infiniband_link_vl = -1;
+static int hf_infiniband_link_fccl = -1;
+static int hf_infiniband_link_lpcrc = -1;
+
+/* Trap Type/Descriptions for dissection */
+static const value_string Operand_Description[]= {
+    { 0, " Normal Flow Control"},
+    { 1, " Flow Control Init"},
+    { 0, NULL}
+};
 
 /* Trap Type/Descriptions for dissection */
 static const value_string Trap_Description[]= {

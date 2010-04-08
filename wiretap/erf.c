@@ -157,8 +157,8 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
       return 0;
     }
     
-    /* The ERF_TYPE_MAX is the PAD record, but the last used type is ERF_TYPE_RAW_LINK */
-    if ((header.type & 0x7F) > ERF_TYPE_RAW_LINK) {
+    /* The ERF_TYPE_MAX is the PAD record, but the last used type is ERF_TYPE_INFINIBAND_LINK */
+    if ((header.type & 0x7F) > ERF_TYPE_INFINIBAND_LINK) {
       return 0;
     }
     
@@ -387,6 +387,7 @@ static int erf_read_header(FILE_T fh,
   case ERF_TYPE_IPV6:
   case ERF_TYPE_RAW_LINK:
   case ERF_TYPE_INFINIBAND:
+  case ERF_TYPE_INFINIBAND_LINK:
     /***
     if (phdr != NULL) {
       phdr->len =  g_htons(erf_header->wlen);
