@@ -1422,6 +1422,27 @@ static int hf_ieee80211_tag_mobility_domain_ft_capab = -1;
 static int hf_ieee80211_tag_mobility_domain_ft_capab_ft_over_ds = -1;
 static int hf_ieee80211_tag_mobility_domain_ft_capab_resource_req = -1;
 
+/* IEEE Std 802.11r-2008 7.3.2.48 */
+static int hf_ieee80211_tag_ft_mic_control = -1;
+static int hf_ieee80211_tag_ft_element_count = -1;
+static int hf_ieee80211_tag_ft_mic = -1;
+static int hf_ieee80211_tag_ft_anonce = -1;
+static int hf_ieee80211_tag_ft_snonce = -1;
+static int hf_ieee80211_tag_ft_subelem_id = -1;
+static int hf_ieee80211_tag_ft_subelem_len = -1;
+static int hf_ieee80211_tag_ft_subelem_data = -1;
+static int hf_ieee80211_tag_ft_subelem_r1kh_id = -1;
+static int hf_ieee80211_tag_ft_subelem_gtk_key_info = -1;
+static int hf_ieee80211_tag_ft_subelem_gtk_key_id = -1;
+static int hf_ieee80211_tag_ft_subelem_gtk_key_length = -1;
+static int hf_ieee80211_tag_ft_subelem_gtk_rsc = -1;
+static int hf_ieee80211_tag_ft_subelem_gtk_key = -1;
+static int hf_ieee80211_tag_ft_subelem_r0kh_id = -1;
+static int hf_ieee80211_tag_ft_subelem_igtk_key_id = -1;
+static int hf_ieee80211_tag_ft_subelem_igtk_ipn = -1;
+static int hf_ieee80211_tag_ft_subelem_igtk_key_length = -1;
+static int hf_ieee80211_tag_ft_subelem_igtk_key = -1;
+
 /* IEEE Std 802.11w-2009 7.3.2.55 */
 static int hf_ieee80211_tag_mmie_keyid = -1;
 static int hf_ieee80211_tag_mmie_ipn = -1;
@@ -3342,6 +3363,16 @@ static const value_string wpa_keymgmt_vals[] =
   {0, NULL}
 };
 
+static const value_string ft_subelem_id_vals[] =
+{
+  {0, "Reserved"},
+  {1, "PMK-R1 key holder identifier (R1KH-ID)"},
+  {2, "GTK subelement"},
+  {3, "PMK-R0 key holder identifier (R0KH-ID)"},
+  {4, "IGTK"},
+  {0, NULL}
+};
+
 
 static void
 dissect_vendor_ie_wpawme(proto_item * item, proto_tree * tree, tvbuff_t * tag_tvb)
@@ -3810,6 +3841,110 @@ dissect_mobility_domain(proto_tree *tree, tvbuff_t *tvb, int offset,
                       tvb, offset + 2, 1, FALSE);
   proto_tree_add_item(tree, hf_ieee80211_tag_mobility_domain_ft_capab_resource_req,
                       tvb, offset + 2, 1, FALSE);
+}
+
+static void
+dissect_fast_bss_transition(proto_tree *tree, tvbuff_t *tvb, int offset,
+                            guint32 tag_len)
+{
+  int end = offset + tag_len;
+  if (tag_len < 82) {
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset, tag_len,
+                          "FTIE content length must be at least 82 bytes");
+    return;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_ft_mic_control,
+                      tvb, offset, 2, TRUE);
+  proto_tree_add_item(tree, hf_ieee80211_tag_ft_element_count,
+                      tvb, offset, 2, TRUE);
+  offset += 2;
+  proto_tree_add_item(tree, hf_ieee80211_tag_ft_mic,
+                      tvb, offset, 16, FALSE);
+  offset += 16;
+  proto_tree_add_item(tree, hf_ieee80211_tag_ft_anonce,
+                      tvb, offset, 32, FALSE);
+  offset += 32;
+  proto_tree_add_item(tree, hf_ieee80211_tag_ft_snonce,
+                      tvb, offset, 32, FALSE);
+  offset += 32;
+
+  while (offset + 2 <= end) {
+    guint8 id, len;
+    int s_end;
+    proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_id,
+                        tvb, offset, 1, FALSE);
+    id = tvb_get_guint8(tvb, offset);
+    offset++;
+
+    proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_len,
+                        tvb, offset, 1, FALSE);
+    len = tvb_get_guint8(tvb, offset);
+    offset++;
+
+    if (offset + len > end) {
+      proto_tree_add_string(tree, tag_interpretation, tvb, offset,
+                            end - offset, "Invalid FTIE subelement");
+      return;
+    }
+
+    s_end = offset + len;
+    switch (id) {
+    case 1:
+      proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_r1kh_id,
+                          tvb, offset, len, FALSE);
+      break;
+    case 2:
+      proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_gtk_key_info,
+                          tvb, offset, 2, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_gtk_key_id,
+                          tvb, offset, 2, TRUE);
+      offset += 2;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_gtk_key_length,
+                          tvb, offset, 1, FALSE);
+      offset++;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_gtk_rsc,
+                          tvb, offset, 8, FALSE);
+      offset += 8;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_gtk_key,
+                          tvb, offset, s_end - offset, FALSE);
+      break;
+    case 3:
+      proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_r0kh_id,
+                          tvb, offset, len, FALSE);
+      break;
+    case 4:
+      proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_igtk_key_id,
+                          tvb, offset, 2, TRUE);
+      offset += 2;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_igtk_ipn,
+                          tvb, offset, 6, FALSE);
+      offset += 6;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_igtk_key_length,
+                          tvb, offset, 1, FALSE);
+      offset++;
+      if (offset > s_end)
+        break;
+      proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_igtk_key,
+                          tvb, offset, 24, FALSE);
+      break;
+    default:
+      proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_data,
+                          tvb, offset, len, FALSE);
+      break;
+    }
+    offset = s_end;
+  }
 }
 
 static void
@@ -5177,6 +5312,10 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
     case TAG_MOBILITY_DOMAIN:
       dissect_mobility_domain(tree, tvb, offset + 2, tag_len);
+      break;
+
+    case TAG_FAST_BSS_TRANSITION:
+      dissect_fast_bss_transition(tree, tvb, offset + 2, tag_len);
       break;
 
     case TAG_MMIE:
@@ -12026,7 +12165,66 @@ proto_register_ieee80211 (void)
       "wlan_mgt.mobility_domain.ft_capab.resource_req",
       FT_UINT8, BASE_HEX, NULL, 0x02, NULL, HFILL }},
 
-    /* MDIE */
+    /* FTIE */
+    {&hf_ieee80211_tag_ft_mic_control,
+     {"MIC Control", "wlan_mgt.ft.mic_control",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_element_count,
+     {"Element Count", "wlan_mgt.ft.element_count",
+      FT_UINT16, BASE_DEC, NULL, 0xff00, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_mic,
+     {"MIC", "wlan_mgt.ft.mic",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_anonce,
+     {"ANonce", "wlan_mgt.ft.anonce",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_snonce,
+     {"SNonce", "wlan_mgt.ft.snonce",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_subelem_id,
+     {"Subelement ID", "wlan_mgt.ft.subelem.id",
+      FT_UINT8, BASE_DEC, VALS(ft_subelem_id_vals), 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_subelem_len,
+     {"Length", "wlan_mgt.ft.subelem.len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_subelem_data,
+     {"Data", "wlan_mgt.ft.subelem.data",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_subelem_r1kh_id,
+     {"PMK-R1 key holder identifier (R1KH-ID)", "wlan_mgt.ft.subelem.r1kh_id",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_subelem_gtk_key_info,
+     {"Key Info", "wlan_mgt.ft.subelem.gtk.key_info",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_subelem_gtk_key_id,
+     {"Key ID", "wlan_mgt.ft.subelem.gtk.key_id",
+      FT_UINT16, BASE_DEC, NULL, 0x0003, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_subelem_gtk_key_length,
+     {"Key Length", "wlan_mgt.ft.subelem.gtk.key_length",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_subelem_gtk_rsc,
+     {"RSC", "wlan_mgt.ft.subelem.gtk.rsc",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_subelem_gtk_key,
+     {"GTK", "wlan_mgt.ft.subelem.gtk.key",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_subelem_r0kh_id,
+     {"PMK-R0 key holder identifier (R0KH-ID)", "wlan_mgt.ft.subelem.r0kh_id",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_subelem_igtk_key_id,
+     {"Key ID", "wlan_mgt.ft.subelem.igtk.key_id",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_subelem_igtk_ipn,
+     {"IPN", "wlan_mgt.ft.subelem.igtk.ipn",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_subelem_igtk_key_length,
+     {"Key Length", "wlan_mgt.ft.subelem.igtk.key_length",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_ft_subelem_igtk_key,
+     {"Wrapped Key (IGTK)", "wlan_mgt.ft.subelem.igtk.key",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    /* MMIE */
     {&hf_ieee80211_tag_mmie_keyid,
      {"KeyID", "wlan_mgt.mmie.keyid",
       FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
