@@ -4243,6 +4243,8 @@ http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
     <!-- http://www.3gpp.org/ftp/Specs/html-info/29272.htm -->
     <command name="3GPP-ME-Identity-Check" code="324" vendor-id="None"/> <!--[3GPP TS 29.272][RFC5516] -->
   </application>
+  <application id="16777265" name="3GPP SWx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
+  </application>
   <application id="16777266" name="3GPP Gxx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
   </application>
   &nasreq;
