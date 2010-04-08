@@ -210,10 +210,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		if(message_type < MAC_MGMT_MSG_TYPE_MAX)
 		{
 			/* Display message type in Info column */
-			if (check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", mgt_msg_abbrv[message_type]);
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", mgt_msg_abbrv[message_type]);
 		}
 		else
 		{

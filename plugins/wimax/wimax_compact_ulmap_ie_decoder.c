@@ -388,10 +388,7 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 
 #ifdef DEBUG
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Compact UL-MAP IEs");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Compact UL-MAP IEs");
 #endif
 	/* set the local offset */
 	ul_map_offset = offset;
@@ -978,10 +975,7 @@ static guint wimax_compact_ulmap_rcid_ie_decoder(proto_tree *tree, packet_info *
 
 #ifdef DEBUG
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RCID IE");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RCID IE");
 #endif
 	if(nibble_offset & 1)
 	{
@@ -1068,10 +1062,7 @@ static guint wimax_compact_ulmap_harq_control_ie_decoder(proto_tree *tree, packe
 
 #ifdef DEBUG
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "HARQ Control IE");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "HARQ Control IE");
 #endif
 	/* Get the first byte */
 	byte = tvb_get_guint8(tvb, offset);
@@ -1134,10 +1125,7 @@ static guint wimax_culmap_extension_ie_decoder(proto_tree *tree, packet_info *pi
 
 #ifdef DEBUG
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "UL-MAP Extension IE");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "UL-MAP Extension IE");
 #endif
 	/* Get the first 16-bit word */
 	tvb_value = tvb_get_ntohs(tvb, offset);
@@ -1213,10 +1201,7 @@ guint wimax_cdma_allocation_ie_decoder(proto_tree *tree, packet_info *pinfo _U_,
 
 #ifdef DEBUG
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "CDMA Allocation IE");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "CDMA Allocation IE");
 #endif
 	/* Get the first byte */
 	byte = tvb_get_guint8(tvb, offset);
@@ -1281,10 +1266,7 @@ guint wimax_extended_uiuc_dependent_ie_decoder(proto_tree *tree, packet_info *pi
 
 #ifdef DEBUG
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Extended UIUC IE");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Extended UIUC IE");
 #endif
 
 	/* get the first byte */

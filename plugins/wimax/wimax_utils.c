@@ -1715,10 +1715,7 @@ void wimax_error_parameter_set_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Error Parameter Set");
-		}
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Error Parameter Set");
 		return;
 	}
 	/* process the classifier error parameter set */
@@ -1731,10 +1728,7 @@ void wimax_error_parameter_set_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "EPS TLV error");
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "EPS TLV error");
 			proto_tree_add_item(ceps_tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 			break;
 		}
@@ -1803,10 +1797,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Convergence Service Parameter Encoding Rules");
-		}
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Convergence Service Parameter Encoding Rules");
 		return;
 	}
 	/* process WiMax Service Flow Encodings */
@@ -1819,10 +1810,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "CSPER TLV error");
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "CSPER TLV error");
 			proto_tree_add_item(csper_tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 			break;
 		}
@@ -1854,10 +1842,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 						length = get_tlv_length(&tlv_info);
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
-							if(check_col(pinfo->cinfo, COL_INFO))
-							{
-								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "ATM Classifier TLV error");
-							}
+							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "ATM Classifier TLV error");
 							proto_tree_add_item(tlv_tree, hf_cst_invalid_tlv, tvb, offset, (tlv_len - tlv_offset), FALSE);
 							break;
 						}
@@ -1931,10 +1916,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 						length = get_tlv_length(&tlv_info);
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
-							if(check_col(pinfo->cinfo, COL_INFO))
-							{
-								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Packet Classification Rule TLV error");
-							}
+							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Packet Classification Rule TLV error");
 							proto_tree_add_item(tlv_tree, hf_cst_invalid_tlv, tvb, offset, (tlv_len - tlv_offset), FALSE);
 							break;
 						}
@@ -2091,10 +2073,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 						length = get_tlv_length(&tlv_info);
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
-							if(check_col(pinfo->cinfo, COL_INFO))
-							{
-								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PHS n Rule TLV error");
-							}
+							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PHS n Rule TLV error");
 							proto_tree_add_item(tlv_tree, hf_cst_invalid_tlv, tvb, offset, (tlv_len - tlv_offset), FALSE);
 							break;
 						}
@@ -2177,10 +2156,7 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Service Flow Encodings");
-		}
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Service Flow Encodings");
 		return;
 	}
 	while(offset < tvb_len)
@@ -2192,10 +2168,7 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Service Flow Encodings TLV error");
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Service Flow Encodings TLV error");
 			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 			break;
 		}
@@ -2617,10 +2590,7 @@ void wimax_security_negotiation_parameters_decoder(tvbuff_t *tvb, packet_info *p
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Security Negotiation Parameters");
-		}
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Security Negotiation Parameters");
 		return;
 	}
 	/* process Security Negotiation Parameter TLVs */
@@ -2634,10 +2604,7 @@ void wimax_security_negotiation_parameters_decoder(tvbuff_t *tvb, packet_info *p
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Security Negotiation Params TLV error");
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Security Negotiation Params TLV error");
 			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 			break;
 		}
@@ -2740,10 +2707,7 @@ void wimax_cryptographic_suite_list_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Crypto Suite List");
-		}
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Crypto Suite List");
 		return;
 	}
 	/* process Cryptographic Suite List (11.9.15) */
@@ -2756,10 +2720,7 @@ void wimax_cryptographic_suite_list_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Crypto Suite List TLV error");
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Crypto Suite List TLV error");
 			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 			break;
 		}
@@ -2813,10 +2774,7 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid PKM TLV");
-		}
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid PKM TLV");
 		return;
 	}
 	/* process PKM message TLV Encoded Attributes (11.9) */
@@ -2830,10 +2788,7 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PKM TLV error");
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PKM TLV error");
 			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 			break;
 		}
@@ -3043,10 +2998,7 @@ void wimax_tek_parameters_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid TEK Params");
-		}
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid TEK Params");
 		return;
 	}
 	/* process PKM Message TEK Parameters (11.9.8) */
@@ -3060,10 +3012,7 @@ void wimax_tek_parameters_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "TEK Param TLV error");
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "TEK Param TLV error");
 			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 			break;
 		}
@@ -3130,10 +3079,7 @@ void wimax_pkm_configuration_settings_decoder(tvbuff_t *tvb, packet_info *pinfo,
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid PKM Config Settings");
-		}
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid PKM Config Settings");
 		return;
 	}
 	/* process PKM Configuration Settings (11.9.19) */
@@ -3147,10 +3093,7 @@ void wimax_pkm_configuration_settings_decoder(tvbuff_t *tvb, packet_info *pinfo,
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PKM Config Settings TLV error");
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PKM Config Settings TLV error");
 			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 			break;
 		}
@@ -3225,10 +3168,7 @@ void wimax_sa_descriptor_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid SA-Descriptor");
-		}
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid SA-Descriptor");
 		return;
 	}
 	/* process SA-Descriptor (11.9.17) */
@@ -3242,10 +3182,7 @@ void wimax_sa_descriptor_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SA-Descriptor TLV error");
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SA-Descriptor TLV error");
 			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 			break;
 		}
@@ -3311,10 +3248,7 @@ void wimax_security_capabilities_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Security Capabilities");
-		}
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Security Capabilities");
 		return;
 	}
 	/* process Security Capabilities (11.9.13) */
@@ -3328,10 +3262,7 @@ void wimax_security_capabilities_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Security Capabilities TLV error");
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Security Capabilities TLV error");
 			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 			break;
 		}
@@ -3383,10 +3314,7 @@ void wimax_vendor_specific_information_decoder(tvbuff_t *tvb, packet_info *pinfo
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Vendor Specific Info");
-		}
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Vendor Specific Info");
 		proto_tree_add_text(tree, tvb, 0, tvb_len, "Invalid TLV info");
 		return;
 	}
@@ -3401,10 +3329,7 @@ void wimax_vendor_specific_information_decoder(tvbuff_t *tvb, packet_info *pinfo
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Vendor Specific Info TLV error");
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Vendor Specific Info TLV error");
 			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 			break;
 		}
@@ -3473,10 +3398,7 @@ guint wimax_common_tlv_encoding_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Common TLV encoding");
-		}
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Common TLV encoding");
 		proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, 0, tvb_len, FALSE);
 		return 0;
 	}
@@ -3491,10 +3413,7 @@ guint wimax_common_tlv_encoding_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Common TLV encoding TLV error");
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Common TLV encoding TLV error");
 			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 			break;
 		}

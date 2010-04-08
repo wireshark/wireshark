@@ -89,11 +89,8 @@ static void dissect_wimax_phy_attributes_decoder(tvbuff_t *tvb, packet_info *pin
 	proto_tree *phy_tree = NULL;
 
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		/*col_append_str(pinfo->cinfo, COL_INFO, "PDU Burst Physical Attributes:");*/
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PHY-attr");
-	}
+	/*col_append_str(pinfo->cinfo, COL_INFO, "PDU Burst Physical Attributes:");*/
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PHY-attr");
 	if (tree)
 	{	/* we are being asked for details */
 		/* get the tvb reported length */

@@ -386,10 +386,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			tlv_len = get_tlv_length(&tlv_info);
 			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
-				if(check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DCD TLV error");
-				}
+				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DCD TLV error");
 				proto_tree_add_item(dcd_tree, hf_dcd_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 				break;
 			}
@@ -423,10 +420,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 						length = get_tlv_length(&tlv_info);
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
-							if(check_col(pinfo->cinfo, COL_INFO))
-							{
-								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DL Burst Profile TLV error");
-							}
+							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DL Burst Profile TLV error");
 							proto_tree_add_item(tlv_tree, hf_dcd_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), FALSE);
 							break;
 						}
@@ -711,10 +705,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 						length = get_tlv_length(&tlv_info);
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
-							if(check_col(pinfo->cinfo, COL_INFO))
-							{
-								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Trigger TLV error");
-							}
+							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Trigger TLV error");
 							proto_tree_add_item(tlv_tree, hf_dcd_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), FALSE);
 							break;
 						}

@@ -53,10 +53,7 @@ static void dissect_wimax_cdma_code_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 	proto_tree *cdma_tree = NULL;
 
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "CDMA Code Attribute");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "CDMA Code Attribute");
 	if (tree)
 	{	/* we are being asked for details */
 		/* get the tvb reported length */

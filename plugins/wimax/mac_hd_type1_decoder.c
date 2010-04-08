@@ -233,10 +233,7 @@ void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 		}
 #ifdef DEBUG
 		/* update the info column */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, type1_subtype_abbrv[]);
-		}
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, type1_subtype_abbrv[]);
 #endif
 		/* get the parent */
 		parent_item = proto_tree_get_parent(tree);
@@ -251,14 +248,12 @@ void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 		if(sub_type < TYPE_I_SUBTYPE_MAX)
 		{
 			/* update the info column */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, type1_subtype_abbrv[sub_type]);
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, type1_subtype_abbrv[sub_type]);
 		}
 		else
 		{
 			/* update the info column */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Unknown type 1 subtype");
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Unknown type 1 subtype");
 			/* display MAC Header Type I Subtype */
 			proto_tree_add_protocol_format(ti_tree, proto_mac_header_type_1_decoder, tvb, offset, tvb_len, "Unknown type 1 subtype: %u", sub_type);
 			/* display the MAC Type I Header in Hex */

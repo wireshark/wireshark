@@ -298,10 +298,7 @@ void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			tlv_len = get_tlv_length(&tlv_info);
 			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
-				if(check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-REQ TLV error");
-				}
+				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-REQ TLV error");
 				proto_tree_add_item(rep_tree, hf_rep_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 				break;
 			}
@@ -327,10 +324,7 @@ void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					length = get_tlv_length(&tlv_info);
 					if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 					{	/* invalid tlv info */
-						if(check_col(pinfo->cinfo, COL_INFO))
-						{
-							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-REQ Report Request TLV error");
-						}
+						col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-REQ Report Request TLV error");
 						proto_tree_add_item(tlv_tree, hf_rep_invalid_tlv, tvb, (offset + tlv_offset), (tlv_len - offset - tlv_offset), FALSE);
 						break;
 					}
@@ -472,10 +466,7 @@ void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			tlv_len = get_tlv_length(&tlv_info);
 			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
-				if(check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-RSP TLV error");
-				}
+				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-RSP TLV error");
 				proto_tree_add_item(rep_tree, hf_rep_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 				break;
 			}
@@ -501,10 +492,7 @@ void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						length = get_tlv_length(&tlv_info);
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
-							if(check_col(pinfo->cinfo, COL_INFO))
-							{
-								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-RSP report subtype TLV error");
-							}
+							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-RSP report subtype TLV error");
 							proto_tree_add_item(tlv_tree, hf_rep_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), FALSE);
 							break;
 						}
@@ -579,10 +567,7 @@ void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						length = get_tlv_length(&tlv_info);
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
-							if(check_col(pinfo->cinfo, COL_INFO))
-							{
-								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-RSP channel subtype TLV error");
-							}
+							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-RSP channel subtype TLV error");
 							proto_tree_add_item(tlv_tree, hf_rep_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), FALSE);
 							break;
 						}
@@ -631,10 +616,7 @@ void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						length = get_tlv_length(&tlv_info);
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
-							if(check_col(pinfo->cinfo, COL_INFO))
-							{
-								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-RSP zone-specific phy CINR report subtype TLV error");
-							}
+							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-RSP zone-specific phy CINR report subtype TLV error");
 							proto_tree_add_item(tlv_tree, hf_rep_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), FALSE);
 							break;
 						}
@@ -722,10 +704,7 @@ void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						length = get_tlv_length(&tlv_info);
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
-							if(check_col(pinfo->cinfo, COL_INFO))
-							{
-								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-RSP preamble physical CINR report subtype TLV error");
-							}
+							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-RSP preamble physical CINR report subtype TLV error");
 							proto_tree_add_item(tlv_tree, hf_rep_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), FALSE);
 							break;
 						}
@@ -770,10 +749,7 @@ void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						length = get_tlv_length(&tlv_info);
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
-							if(check_col(pinfo->cinfo, COL_INFO))
-							{
-								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-RSP zone-specific effective CINR report subtype TLV error");
-							}
+							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-RSP zone-specific effective CINR report subtype TLV error");
 							proto_tree_add_item(tlv_tree, hf_rep_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), FALSE);
 							break;
 						}
@@ -832,10 +808,7 @@ void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						length = get_tlv_length(&tlv_info);
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
-							if(check_col(pinfo->cinfo, COL_INFO))
-							{
-								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-RSP preamble effective CINR report subtype TLV error");
-							}
+							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REP-RSP preamble effective CINR report subtype TLV error");
 							proto_tree_add_item(tlv_tree, hf_rep_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), FALSE);
 							break;
 						}

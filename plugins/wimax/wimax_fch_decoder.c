@@ -110,10 +110,7 @@ static void dissect_wimax_fch_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	if(!bs_address.len)
 		COPY_ADDRESS(&bs_address, &(pinfo->src));
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "FCH");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "FCH");
 	if (tree)
 	{	/* we are being asked for details */
 		/* display FCH dissector info */

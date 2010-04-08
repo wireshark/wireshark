@@ -408,10 +408,7 @@ void dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 		}
 #ifdef DEBUG
 		/* update the info column */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "MAC Signaling Header Type II");
-		}
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "MAC Signaling Header Type II");
 #endif
 		/* get the parent */
 		parent_item = proto_tree_get_parent(tree);
@@ -438,14 +435,12 @@ void dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 			if(fb_type < TYPE_II_FB_TYPE_MAX)
 			{
 				/* update the info column */
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, type2_fb_type_abbrv[fb_type]);
+				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, type2_fb_type_abbrv[fb_type]);
 			}
 			else
 			{
 				/* update the info column */
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Unknown type 2 fb type");
+				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Unknown type 2 fb type");
 				/* display the MAC Type I Header in Hex */
 				proto_tree_add_item(ti_tree, hf_mac_header_type_2_value_bytes, tvb, offset, tvb_len, FALSE);
 				return;
@@ -791,10 +786,7 @@ void dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 		else
 		{
 			/* update the info column */
-			if (check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Error - Undefined Type");
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Error - Undefined Type");
 		}
 	}
 }

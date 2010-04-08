@@ -56,10 +56,7 @@ static void dissect_wimax_ffb_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	proto_tree *ffb_tree = NULL;
 
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Fast Feedback Burst:");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Fast Feedback Burst:");
 	if (tree)
 	{	/* we are being asked for details */
 		/* get the tvb reported length */

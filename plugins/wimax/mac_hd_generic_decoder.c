@@ -638,10 +638,7 @@ static guint decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pinfo,
 	guint starting_offset = payload_offset;
 
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Packing subhdr");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Packing subhdr");
 	/* add the Packing subheader info */
 	proto_item_append_text(parent_item, ", Packing Subheader");
 	/* display Packing subheader type */
@@ -739,10 +736,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 	{	/* we are being asked for details */
 #ifdef DEBUG
 		/* update the info column */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "GMH");
-		}
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "GMH");
 #endif
 		/* Get the frame length */
 		tvb_len =  tvb_reported_length(tvb);
@@ -852,10 +846,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 		/* if Mesh subheader is present */
 		if (mesh_subheader)
 		{	/* update the info column */
-			if (check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Mesh subhdr");
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Mesh subhdr");
 			/* add the Mesh subheader info */
 			proto_item_append_text(parent_item, ", Mesh Subheader");
 			/* display Mesh subheader type */
@@ -874,10 +865,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 			if (is_down_link(&(pinfo->src)))
 			{	/* Fast-feedback allocation (DL) subheader is present */
 				/* update the info column */
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Fast-fb subhdr");
-				}
+				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Fast-fb subhdr");
 				/* add the Fast-feedback subheader info */
 				proto_item_append_text(parent_item, ", Fast-feedback Subheader");
 				/* display Fast-feedback allocation subheader type */
@@ -892,10 +880,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 			}
 			else	/* Grant management (UL) subheader is present */
 			{	/* update the info column */
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Grant mgmt subhdr");
-				}
+				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Grant mgmt subhdr");
 				/* add the Grant management subheader info */
 				proto_item_append_text(parent_item, ", Grant Management Subheader");
 				/* display Grant management subheader type */
@@ -947,10 +932,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 		/* if Fragmentation subheader is present */
 		if (fragment_subheader)
 		{	/* update the info column */
-			if (check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Frag subhdr");
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Frag subhdr");
 			/* add the Fragmentation subheader info */
 			proto_item_append_text(parent_item, ", Frag Subheader");
 			/* display Fragmentation subheader type */
@@ -1125,8 +1107,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 /*					if (frag_type == LAST_FRAG)*/
 					{	/* error */
 						/* update the info column */
-						if (check_col(pinfo->cinfo, COL_INFO))
-							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Dropped the incomplete frame");
+						col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Dropped the incomplete frame");
 					}
 #endif
 #if 0
@@ -1157,8 +1138,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 						if (ret_length != new_payload_len)
 						{	/* error */
 							/* update the info column */
-							if (check_col(pinfo->cinfo, COL_INFO))
-								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "incorrect ARQ fb payload size");
+							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "incorrect ARQ fb payload size");
 						}
 #endif
 					}
@@ -1166,10 +1146,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 					{	/* check the payload type */
 						if (mac_cid == cid_padding)
 						{	/* update the info column */
-							if (check_col(pinfo->cinfo, COL_INFO))
-							{
-								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Padding CID");
-							}
+							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Padding CID");
 							/* get the parent */
 							generic_item = proto_tree_get_parent(tree);
 							/* add the MAC header info */
@@ -1188,10 +1165,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 						}
 						else /* data transport PDU */
 						{	/* update the info column */
-							if (check_col(pinfo->cinfo, COL_INFO))
-							{
-								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Data");
-							}
+							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Data");
 							/* add the MAC payload info */
 							proto_item_append_text(parent_item, ", Data");
 							/* display payload info */
@@ -1283,10 +1257,7 @@ static gint extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 	proto_tree *ti_tree = NULL;
 
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ext subhdrs");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ext subhdrs");
 
 	/* Get the tvb reported length */
 	length =  tvb_reported_length(tvb);
@@ -1418,10 +1389,7 @@ static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 	proto_tree *sub_tree = NULL;
 
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "ARQ feedback payld");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "ARQ feedback payld");
 
 	/* add the MAC header info */
 	proto_item_append_text(parent_item, ", ARQ feedback payload");

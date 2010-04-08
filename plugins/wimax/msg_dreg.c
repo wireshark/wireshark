@@ -436,10 +436,7 @@ void dissect_mac_mgmt_msg_dreg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pr
 			tlv_len = get_tlv_length(&tlv_info);
 			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DREG-REQ TLV error");
-				}
+				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DREG-REQ TLV error");
 				proto_tree_add_item(dreg_req_tree, hf_dreg_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 				break;
 			}
@@ -525,10 +522,7 @@ void dissect_mac_mgmt_msg_dreg_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, pr
 			tlv_len = get_tlv_length(&tlv_info);
 			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DREG-CMD TLV error");
-				}
+				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DREG-CMD TLV error");
 				proto_tree_add_item(dreg_cmd_tree, hf_dreg_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 				break;
 			}

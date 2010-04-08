@@ -93,10 +93,7 @@ void dissect_mac_mgmt_msg_res_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			tlv_len = get_tlv_length(&tlv_info);
 			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
-				if(check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RES-CMD TLV error");
-				}
+				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RES-CMD TLV error");
 				proto_tree_add_item(res_cmd_tree, hf_res_cmd_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 				break;
 			}

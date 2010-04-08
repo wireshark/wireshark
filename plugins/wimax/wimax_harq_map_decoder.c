@@ -97,10 +97,7 @@ void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		return;
 	}
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "HARQ-MAP Message: ");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "HARQ-MAP Message: ");
 	if (tree)
 	{	/* we are being asked for details */
 		/* get the parent */

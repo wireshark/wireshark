@@ -147,10 +147,7 @@ static void dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		else if((first_byte & WIMAX_INVALID_PDU_MASK) == WIMAX_INVALID_PDU_MASK)
 		{	/* Invalid PDU */
 			/* update the info column */
-			if (check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid PDU");
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid PDU");
 			/* display message */
 			pdu_item = proto_tree_add_protocol_format(tree, proto_wimax_pdu_decoder, tvb, offset, length, "Invalid PDU  (%u bytes)", length);
 			/* add subtree */
@@ -167,10 +164,7 @@ static void dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		if(mac_hcs != mac_hcs_calculated)
 		{
 			/* update the info column */
-			if (check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "MAC Header CRC error");
-			}
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "MAC Header CRC error");
 			/* display message */
 			pdu_item = proto_tree_add_protocol_format(tree, proto_wimax_pdu_decoder, tvb, offset, WIMAX_MAC_HEADER_SIZE, "MAC Header CRC error %X (in header) and %X (calculated)", mac_hcs, mac_hcs_calculated);
 			/* add subtree */

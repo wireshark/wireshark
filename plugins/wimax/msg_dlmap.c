@@ -2107,10 +2107,7 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
     guint32	   mac_crc, calculated_crc;
 
     /* update the info column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Compressed DL-MAP");
-    }
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Compressed DL-MAP");
 
     INC_CID = 0;
 

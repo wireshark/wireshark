@@ -585,19 +585,13 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			tlv_len = get_tlv_length(&tlv_info);
 			if (tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SBC-REQ TLV error");
-				}
+				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SBC-REQ TLV error");
 				proto_tree_add_item(sbc_tree, hf_sbc_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 				break;
 			}
 			if (tlv_type == 0)
 			{	/* invalid tlv type */
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid SBC TLV type");
-				}
+				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid SBC TLV type");
 				proto_tree_add_item(sbc_tree, hf_sbc_unknown_type, tvb, offset, 1, FALSE);
 				offset++;
 				continue;
@@ -1146,19 +1140,13 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			tlv_len = get_tlv_length(&tlv_info);
 			if (tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SBC-RSP TLV error");
-				}
+				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SBC-RSP TLV error");
 				proto_tree_add_item(sbc_tree, hf_sbc_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
 				break;
 			}
 			if (tlv_type == 0)
 			{	/* invalid tlv type */
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid SBC TLV type");
-				}
+				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid SBC TLV type");
 				proto_tree_add_item(sbc_tree, hf_sbc_unknown_type, tvb, offset, 1, FALSE);
 				offset++;
 				continue;
