@@ -216,7 +216,7 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 
 	/* Set up the new order to create the zebra effect */
 	fInfoTemp=se_tree_lookup32(cs->packet_tree, pinfo->fd->num);
-	if(check_col(pinfo->cinfo, COL_INFO)&&(fInfoTemp!=NULL)){
+	if((fInfoTemp!=NULL)){
 		col_set_time(pinfo->cinfo, COL_INFO, &fInfoTemp->zebra_time, "ZebraTime");
 	}
 

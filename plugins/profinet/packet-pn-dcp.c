@@ -339,8 +339,7 @@ dissect_PNDCP_Option(tvbuff_t *tvb, int offset, packet_info *pinfo,
         val_to_str(option, pn_dcp_option, "Unknown"), val_to_str(suboption, val_str, "Unknown"));
 
     if(append_col) {
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(suboption, val_str, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(suboption, val_str, "Unknown"));
     }
 
     return offset;

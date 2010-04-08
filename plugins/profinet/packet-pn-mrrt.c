@@ -152,8 +152,7 @@ dissect_PNMRRT_PDU(tvbuff_t *tvb, int offset,
         default:
             offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, length);
 
-	    if (check_col(pinfo->cinfo, COL_INFO))
-		    col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown TLVType 0x%x", type);
+	    col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown TLVType 0x%x", type);
 	    proto_item_append_text(item, "Unknown TLVType 0x%x", type);
         }
     }
