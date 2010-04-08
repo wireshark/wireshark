@@ -40,35 +40,45 @@ privileges have been moved out of the GUI to dumpcap.
 WIRESHARK CONTAINS NEARLY TWO MILLION LINES OF SOURCE CODE. DO NOT RUN
 THEM AS ROOT.
 
-There are two configure-time options on non-Windows systems that affect
-the privileges a normal user needs to capture traffic and list
-interfaces: "--enable-setuid-install" and "--with-libcap". Setting
-"--enable-setuid-install" to "yes" will install dumpcap setuid root.
-This is necessary for non-root users to be able to capture on most
+Warnings are displayed when Wireshark and TShark are run as root.
+
+There are several configure-time options on non-Windows systems that
+affect the privileges a normal user needs to capture traffic and list
+interfaces:
+  
+    --enable-setcap-install   Install dumpcap with cap_net_admin and
+                              cap_net_raw capabilities. Linux only.
+
+    --enable-setuid-install   Install dumpcap setuid root.
+
+    --with-libcap             If running as root, try to grab
+                              CAP_NET_ADMIN and CAP_NET_RAW, then drop
+                              privileges. Linux only.
+
+    --with-dumpcap-group=...  Restricts dumpcap execution to the
+                              specified group.
+
+These are necessary for non-root users to be able to capture on most
 systems, e.g. on Linux or FreeBSD if the user doesn't have permissions
-to access /dev/bpf*. It is disabled by default. Note that enabling this
-allows packet capture for ALL users on your system. If this is not
-desired, you should restrict dumpcap execution to a specific group or
-user.
+to access /dev/bpf*. Setcap installation is preferred over setuid on
+Linux. If "--enable-setcap-install" is used it will override any setuid
+settings.
 
-If the "--with-libcap" option is enabled, dumpcap will try to drop any
-setuid privileges it may have while retaining the CAP_NET_ADMIN and
-CAP_NET_RAW capabilities. It is enabled by default, if the Linux
-capabilities library (on which it depends) is found.
+The "--with-libcap" option is only useful when dumpcap is installed
+setuid. If it is enabled dumpcap will try to drop any setuid privileges
+it may have while retaining the CAP_NET_ADMIN and CAP_NET_RAW
+capabilities. It is enabled by default, if the Linux capabilities
+library (on which it depends) is found.
 
-Warnings are displayed when Wireshark and TShark are run
-as root.
-
-For Linux systems that have libcap and the "setcap" utility you can
-avoid root altogether:
+Note that enabling setcap or setuid installation allows packet capture
+for ALL users on your system. If this is not desired, you can restrict
+dumpcap execution to a specific group or user. The following two examples
+show how to restrict access using setcap and setuid respectively:
 
 # groupadd -g packetcapture
 # chmod 750 /usr/bin/dumpcap
 # chgrp packetcapture /usr/bin/dumpcap
 # setcap cap_net_raw,cap_net_admin+eip /usr/bin/dumpcap
-
-For Linux systems without filesystem capabilities you can limit root
-to dumpcap:
 
 # groupadd -g packetcapture
 # chgrp packetcapture /usr/bin/dumpcap

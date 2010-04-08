@@ -1251,6 +1251,28 @@ else
 fi
 
 
+dnl Check if dumpcap should be installed with filesystem capabilities
+AC_PATH_PROG(SETCAP, setcap)
+AC_ARG_ENABLE(setcap-install,
+  AC_HELP_STRING( [--enable-setcap-install],
+                  [install dumpcap with cap_net_admin and cap_net_raw @<:@default=no@:>@]),
+    enable_setcap_install=$enableval,enable_setcap_install=no)
+
+AC_MSG_CHECKING(whether to install dumpcap with cap_net_admin and cap_net_raw capabilities)
+if test "x$enable_setcap_install" = "xno" ; then
+	AC_MSG_RESULT(no)
+else
+	if test "x$SETCAP" = "x" ; then
+		AC_MSG_RESULT(no. Setcap not found)
+	elif test "x$enable_dumpcap" = "xno" ; then
+		AC_MSG_ERROR(Setcap install works only with dumpcap but dumpcap is disabled)
+	else
+		AC_MSG_RESULT(yes)
+	fi
+fi
+
+AM_CONDITIONAL(SETCAP_INSTALL, test x$enable_setcap_install = xyes)
+
 dnl Check if dumpcap should be installed setuid
 AC_ARG_ENABLE(setuid-install,
   AC_HELP_STRING( [--enable-setuid-install],
@@ -1261,7 +1283,10 @@ AC_MSG_CHECKING(whether to install dumpcap setuid)
 if test "x$enable_setuid_install" = "xno" ; then
 	AC_MSG_RESULT(no)
 else
-	if test "x$enable_dumpcap" = "xno" ; then
+	if test "x$enable_setcap_install" = "xyes" ; then
+		enable_setuid_install=no
+		AC_MSG_RESULT(no; using setcap instead)
+	elif test "x$enable_dumpcap" = "xno" ; then
 		AC_MSG_ERROR(Setuid install works only with dumpcap but dumpcap is disabled)
 	else
 		AC_MSG_RESULT(yes)
@@ -1270,6 +1295,22 @@ fi
 
 AM_CONDITIONAL(SETUID_INSTALL, test x$enable_setuid_install = xyes)
 AC_CHECK_FUNCS(setresuid setresgid)
+
+dnl ...but our Network Operations group is named "no"!
+DUMPCAP_GROUP=''
+AC_ARG_WITH(dumpcap-group,
+  AC_HELP_STRING( [--with-dumpcap-group=GROUP],
+                  [restrict dumpcap to GROUP]),
+[
+  if test "x$withval" = "xyes"; then
+      AC_MSG_ERROR([No dumpcap group specified.])
+  elif test "x$withval" != "xno"; then
+      AC_MSG_RESULT($withval)
+      DUMPCAP_GROUP="$withval"
+  fi
+])
+AC_SUBST(DUMPCAP_GROUP)
+AM_CONDITIONAL(HAVE_DUMPCAP_GROUP, test x$DUMPCAP_GROUP != x)
 
 dnl libcap (not libpcap) check
 LIBCAP_LIBS=''
@@ -1857,10 +1898,23 @@ dnl AC_CONFIG_FILES([tools/setuid-root.pl], [chmod +x tools/setuid-root.pl])
 
 # Pretty messages
 
+if test "x$enable_setcap_install" = "xyes" ; then
+	setcap_message="yes"
+else
+	setcap_message="no"
+fi
+
+
 if test "x$enable_setuid_install" = "xyes" ; then
 	setuid_message="yes"
 else
 	setuid_message="no"
+fi
+
+if test "x$DUMPCAP_GROUP" = "x" ; then
+	dumpcap_group_message="(none)"
+else
+	dumpcap_group_message="$DUMPCAP_GROUP"
 fi
 
 if test "x$want_zlib" = "xno" ; then
@@ -1948,7 +2002,9 @@ echo "                      Build randpkt : $enable_randpkt"
 echo "                       Build dftest : $enable_dftest"
 echo "                     Build rawshark : $enable_rawshark"
 echo ""
+echo "  Install dumpcap with capabilities : $setcap_message"
 echo "             Install dumpcap setuid : $setuid_message"
+echo "                  Use dumpcap group : $dumpcap_group_message"
 echo "                        Use plugins : $have_plugins"
 echo "                    Use lua library : $lua_message"
 echo "                 Use python binding : $python_message"

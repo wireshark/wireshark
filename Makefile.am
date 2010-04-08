@@ -817,12 +817,20 @@ EXTRA_DIST = \
 	wireshark.desktop	\
 	wka.tmpl
 
-if SETUID_INSTALL
 install-exec-hook:
-	-chmod +s $(DESTDIR)$(bindir)/dumpcap
-else
-install-exec-hook:
+if HAVE_DUMPCAP_GROUP
+	-chgrp $(DUMPCAP_GROUP) $(DESTDIR)$(bindir)/dumpcap
 endif
+if SETCAP_INSTALL
+	-$(SETCAP) cap_net_raw,cap_net_admin+eip $(DESTDIR)$(bindir)/dumpcap
+	-chmod o-rws $(DESTDIR)$(bindir)/dumpcap
+else
+if SETUID_INSTALL
+	-chmod o-rws $(DESTDIR)$(bindir)/dumpcap
+	-chmod +s $(DESTDIR)$(bindir)/dumpcap
+endif
+endif
+
 
 DIST_SUBDIRS = asn1 codecs doc epan gtk help packaging plugins tools wiretap wsutil docbook
 
