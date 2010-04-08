@@ -53,6 +53,7 @@ A2W_FLAGS= -b -e -L
 
 EXTRA_CNF= \
 	../acse/acse-exp.cnf \
+	../dop/dop-exp.cnf \
 	../disp/disp-exp.cnf \
 	../dsp/dsp-exp.cnf \
 	../crmf/crmf-exp.cnf \
@@ -63,6 +64,9 @@ EXTRA_CNF= \
 
 ../acse/acse-exp.cnf:
 	(cd ../acse && $(MAKE_CNF_EXPORT))
+
+../dop/dop-exp.cnf:
+	(cd ../dop && $(MAKE_CNF_EXPORT))
 
 ../disp/disp-exp.cnf:
 	(cd ../disp && $(MAKE_CNF_EXPORT))
