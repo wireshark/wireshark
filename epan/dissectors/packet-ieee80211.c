@@ -461,6 +461,9 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define FIELD_HT_INFORMATION            0x2F
 #define FIELD_HT_ACTION_CODE            0x30
 #define FIELD_PA_ACTION_CODE            0x31
+#define FIELD_FT_ACTION_CODE            0x32
+#define FIELD_STA_ADDRESS               0x33
+#define FIELD_TARGET_AP_ADDRESS         0x34
 
 /* ************************************************************************* */
 /*        Logical field codes (IEEE 802.11 encoding of tags)                 */
@@ -710,6 +713,12 @@ static const value_string aruba_mgt_typevals[] = {
 #define HT_ACTION_ANT_SEL_FEEDBACK            7
 #define HT_ACTION_HT_INFO_EXCHANGE            8
 
+/* IEEE Std 802.11r-2008, 7.4.8, Table 7-57g */
+#define FT_ACTION_REQUEST               1
+#define FT_ACTION_RESPONSE              2
+#define FT_ACTION_CONFIRM               3
+#define FT_ACTION_ACK                   4
+
 /* Vendor actions */
 /* MARVELL */
 #define MRVL_ACTION_MESH_MANAGEMENT     1
@@ -926,25 +935,28 @@ static int hf_chan_tx_pow  =    -1;
 /* ************************************************************************* */
 /*                      Fixed fields found in mgt frames                     */
 /* ************************************************************************* */
-static int ff_auth_alg = -1;            /* Authentication algorithm field            */
-static int ff_auth_seq = -1;            /* Authentication transaction sequence       */
-static int ff_current_ap = -1;          /* Current AP MAC address                    */
-static int ff_listen_ival = -1;         /* Listen interval fixed field               */
-static int ff_timestamp = -1;           /* 64 bit timestamp                          */
-static int ff_beacon_interval = -1;     /* 16 bit Beacon interval                    */
-static int ff_assoc_id = -1;            /* 16 bit AID field                          */
-static int ff_reason = -1;              /* 16 bit reason code                        */
-static int ff_status_code = -1;         /* Status code                               */
-static int ff_category_code = -1;       /* 8 bit Category code */
-static int ff_action_code = -1;         /* 8 bit Action code */
-static int ff_dialog_token = -1;        /* 8 bit Dialog token */
-static int ff_wme_action_code = -1;     /* Management notification action code */
-static int ff_wme_status_code = -1;     /* Management notification setup response status code */
-static int ff_qos_action_code = -1;
-static int ff_dls_action_code = -1;
-static int ff_dst_mac_addr = -1;        /* DLS destination MAC addressi */
-static int ff_src_mac_addr = -1;        /* DLS source MAC addressi */
-static int ff_dls_timeout = -1;         /* DLS timeout value */
+static int hf_ieee80211_ff_auth_alg = -1;            /* Authentication algorithm field            */
+static int hf_ieee80211_ff_auth_seq = -1;            /* Authentication transaction sequence       */
+static int hf_ieee80211_ff_current_ap = -1;          /* Current AP MAC address                    */
+static int hf_ieee80211_ff_listen_ival = -1;         /* Listen interval fixed field               */
+static int hf_ieee80211_ff_timestamp = -1;           /* 64 bit timestamp                          */
+static int hf_ieee80211_ff_beacon_interval = -1;     /* 16 bit Beacon interval                    */
+static int hf_ieee80211_ff_assoc_id = -1;            /* 16 bit AID field                          */
+static int hf_ieee80211_ff_reason = -1;              /* 16 bit reason code                        */
+static int hf_ieee80211_ff_status_code = -1;         /* Status code                               */
+static int hf_ieee80211_ff_category_code = -1;       /* 8 bit Category code */
+static int hf_ieee80211_ff_action_code = -1;         /* 8 bit Action code */
+static int hf_ieee80211_ff_dialog_token = -1;        /* 8 bit Dialog token */
+static int hf_ieee80211_ff_wme_action_code = -1;     /* Management notification action code */
+static int hf_ieee80211_ff_wme_status_code = -1;     /* Management notification setup response status code */
+static int hf_ieee80211_ff_qos_action_code = -1;
+static int hf_ieee80211_ff_dls_action_code = -1;
+static int hf_ieee80211_ff_dst_mac_addr = -1;        /* DLS destination MAC addressi */
+static int hf_ieee80211_ff_src_mac_addr = -1;        /* DLS source MAC addressi */
+static int hf_ieee80211_ff_dls_timeout = -1;         /* DLS timeout value */
+static int hf_ieee80211_ff_ft_action_code = -1; /* 8 bit FT Action code */
+static int hf_ieee80211_ff_sta_address = -1;
+static int hf_ieee80211_ff_target_ap_address = -1;
 
 /* Vendor specific */
 static int ff_marvell_action_type = -1;
@@ -1157,9 +1169,9 @@ static int tim_dtim_period = -1;
 static int tim_bmapctl = -1;
 
 
-static int hf_fixed_parameters = -1;  /* Protocol payload for management frames */
-static int hf_tagged_parameters = -1;  /* Fixed payload item */
-static int hf_tagged_ssid = -1;
+static int hf_ieee80211_fixed_parameters = -1;  /* Protocol payload for management frames */
+static int hf_ieee80211_tagged_parameters = -1;  /* Fixed payload item */
+static int hf_ieee80211_tagged_ssid = -1;
 static int hf_wep_iv = -1;
 static int hf_wep_iv_weak = -1;
 static int hf_tkip_extiv = -1;
@@ -2266,7 +2278,7 @@ get_fixed_parameter_tree (proto_tree * tree, tvbuff_t *tvb, int start, int size)
 {
   proto_item *fixed_fields;
   fixed_fields =
-    proto_tree_add_uint_format (tree, hf_fixed_parameters, tvb, start,
+    proto_tree_add_uint_format (tree, hf_ieee80211_fixed_parameters, tvb, start,
         size, size, "Fixed parameters (%d bytes)",
         size);
 
@@ -2282,7 +2294,7 @@ get_tagged_parameter_tree (proto_tree * tree, tvbuff_t *tvb, int start, int size
 {
   proto_item *tagged_fields;
 
-  tagged_fields = proto_tree_add_uint_format (tree, hf_tagged_parameters,
+  tagged_fields = proto_tree_add_uint_format (tree, hf_ieee80211_tagged_parameters,
     tvb,
     start,
     2,
@@ -2412,7 +2424,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         dataptr[1],
         dataptr[0]);
 
-      proto_tree_add_string (tree, ff_timestamp, tvb, offset, 8, out_buff);
+      proto_tree_add_string (tree, hf_ieee80211_ff_timestamp, tvb, offset, 8, out_buff);
       length += 8;
       break;
 
@@ -2421,7 +2433,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         capability = tvb_get_letohs (tvb, offset);
         temp_double = (double)capability;
         temp_double = temp_double * 1024 / 1000000;
-        proto_tree_add_double_format (tree, ff_beacon_interval, tvb, offset, 2,
+        proto_tree_add_double_format (tree, hf_ieee80211_ff_beacon_interval, tvb, offset, 2,
           temp_double,"Beacon Interval: %f [Seconds]", temp_double);
         if (check_col (g_pinfo->cinfo, COL_INFO)) {
           col_append_fstr(g_pinfo->cinfo, COL_INFO, ", BI=%d", capability);
@@ -2471,69 +2483,69 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         break;
       }
     case FIELD_AUTH_ALG:
-      proto_tree_add_item (tree, ff_auth_alg, tvb, offset, 2, TRUE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_auth_alg, tvb, offset, 2, TRUE);
       length += 2;
       break;
 
     case FIELD_AUTH_TRANS_SEQ:
-      proto_tree_add_item (tree, ff_auth_seq, tvb, offset, 2, TRUE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_auth_seq, tvb, offset, 2, TRUE);
       length += 2;
       break;
 
     case FIELD_CURRENT_AP_ADDR:
-      proto_tree_add_item (tree, ff_current_ap, tvb, offset, 6, FALSE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_current_ap, tvb, offset, 6, FALSE);
       length += 6;
       break;
 
     case FIELD_LISTEN_IVAL:
-      proto_tree_add_item (tree, ff_listen_ival, tvb, offset, 2, TRUE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_listen_ival, tvb, offset, 2, TRUE);
       length += 2;
       break;
 
     case FIELD_REASON_CODE:
-      proto_tree_add_item (tree, ff_reason, tvb, offset, 2, TRUE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_reason, tvb, offset, 2, TRUE);
       length += 2;
       break;
 
     case FIELD_ASSOC_ID:
-      proto_tree_add_uint(tree, ff_assoc_id, tvb, offset, 2,
+      proto_tree_add_uint(tree, hf_ieee80211_ff_assoc_id, tvb, offset, 2,
         ASSOC_ID(tvb_get_letohs(tvb,offset)));
-      /* proto_tree_add_item (tree, ff_assoc_id, tvb, offset, 2, TRUE); */
+      /* proto_tree_add_item (tree, hf_ieee80211_ff_assoc_id, tvb, offset, 2, TRUE); */
       length += 2;
       break;
 
     case FIELD_STATUS_CODE:
-      proto_tree_add_item (tree, ff_status_code, tvb, offset, 2, TRUE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_status_code, tvb, offset, 2, TRUE);
       length += 2;
       break;
 
     case FIELD_CATEGORY_CODE:
-      proto_tree_add_item (tree, ff_category_code, tvb, offset, 1, TRUE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_category_code, tvb, offset, 1, TRUE);
       length += 1;
       break;
 
     case FIELD_ACTION_CODE:
-      proto_tree_add_item (tree, ff_action_code, tvb, offset, 1, TRUE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_action_code, tvb, offset, 1, TRUE);
       length += 1;
       break;
 
     case FIELD_DIALOG_TOKEN:
-      proto_tree_add_item (tree, ff_dialog_token, tvb, offset, 1, TRUE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_dialog_token, tvb, offset, 1, TRUE);
       length += 1;
       break;
 
     case FIELD_WME_ACTION_CODE:
-      proto_tree_add_item (tree, ff_wme_action_code, tvb, offset, 1, TRUE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_wme_action_code, tvb, offset, 1, TRUE);
       length += 1;
       break;
 
     case FIELD_WME_STATUS_CODE:
-      proto_tree_add_item (tree, ff_wme_status_code, tvb, offset, 1, TRUE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_wme_status_code, tvb, offset, 1, TRUE);
       length += 1;
       break;
 
     case FIELD_QOS_ACTION_CODE:
-      proto_tree_add_item (tree, ff_qos_action_code, tvb, offset, 1, TRUE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_qos_action_code, tvb, offset, 1, TRUE);
       length += 1;
       break;
 
@@ -2635,22 +2647,22 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       }
 
     case FIELD_DLS_ACTION_CODE:
-      proto_tree_add_item (tree, ff_dls_action_code, tvb, offset, 1, TRUE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_dls_action_code, tvb, offset, 1, TRUE);
       length += 1;
       break;
 
     case FIELD_DST_MAC_ADDR:
-      proto_tree_add_item (tree, ff_dst_mac_addr, tvb, offset, 6, TRUE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_dst_mac_addr, tvb, offset, 6, TRUE);
       length += 6;
       break;
 
     case FIELD_SRC_MAC_ADDR:
-      proto_tree_add_item (tree, ff_src_mac_addr, tvb, offset, 6, TRUE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_src_mac_addr, tvb, offset, 6, TRUE);
       length += 6;
       break;
 
     case FIELD_DLS_TIMEOUT:
-      proto_tree_add_item (tree, ff_dls_timeout, tvb, offset, 2, TRUE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_dls_timeout, tvb, offset, 2, TRUE);
       length += 2;
       break;
 
@@ -3118,7 +3130,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                       add_fixed_field(action_tree, tvb, offset+4, FIELD_DST_MAC_ADDR);
                       add_fixed_field(action_tree, tvb, offset+10, FIELD_SRC_MAC_ADDR);
                       length += 16;
-                      if (!ff_status_code)
+                      if (!hf_ieee80211_ff_status_code)
                         add_fixed_field(action_tree, tvb, offset+16, FIELD_CAP_INFO);
                       break;
 
@@ -3211,6 +3223,55 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                       }
                       break;
                   }
+                length += offset - start;  /* Size of fixed fields */
+                break;
+              }
+
+            case CAT_FAST_BSS_TRANSITION:
+              {
+                guint start = offset;
+                guint8 code;
+                offset += add_fixed_field(action_tree, tvb, offset,
+                                          FIELD_CATEGORY_CODE);
+                code = tvb_get_guint8(tvb, offset);
+                offset += add_fixed_field(action_tree, tvb, offset,
+                                          FIELD_FT_ACTION_CODE);
+
+                switch (code) {
+                case FT_ACTION_REQUEST:
+                  offset += add_fixed_field(action_tree, tvb, offset,
+                                            FIELD_STA_ADDRESS);
+                  offset += add_fixed_field(action_tree, tvb, offset,
+                                            FIELD_TARGET_AP_ADDRESS);
+                  /* Followed by FT Request frame body (IEs) */
+                  break;
+                case FT_ACTION_RESPONSE:
+                  offset += add_fixed_field(action_tree, tvb, offset,
+                                            FIELD_STA_ADDRESS);
+                  offset += add_fixed_field(action_tree, tvb, offset,
+                                            FIELD_TARGET_AP_ADDRESS);
+                  offset += add_fixed_field(action_tree, tvb, offset,
+                                            FIELD_STATUS_CODE);
+                  /* Followed by FT Response frame body (IEs) */
+                  break;
+                case FT_ACTION_CONFIRM:
+                  offset += add_fixed_field(action_tree, tvb, offset,
+                                            FIELD_STA_ADDRESS);
+                  offset += add_fixed_field(action_tree, tvb, offset,
+                                            FIELD_TARGET_AP_ADDRESS);
+                  /* Followed by FT Confirm frame body (IEs) */
+                  break;
+                case FT_ACTION_ACK:
+                  offset += add_fixed_field(action_tree, tvb, offset,
+                                            FIELD_STA_ADDRESS);
+                  offset += add_fixed_field(action_tree, tvb, offset,
+                                            FIELD_TARGET_AP_ADDRESS);
+                  offset += add_fixed_field(action_tree, tvb, offset,
+                                            FIELD_STATUS_CODE);
+                  /* Followed by FT Ack frame body (IEs) */
+                  break;
+                }
+
                 length += offset - start;  /* Size of fixed fields */
                 break;
               }
@@ -3334,7 +3395,26 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
               length += 1;  /* Size of fixed fields */
               break;
           }
+        break;
       }
+
+    case FIELD_FT_ACTION_CODE:
+      proto_tree_add_item(tree, hf_ieee80211_ff_ft_action_code, tvb, offset, 1,
+                          FALSE);
+      length += 1;
+      break;
+
+    case FIELD_STA_ADDRESS:
+      proto_tree_add_item(tree, hf_ieee80211_ff_sta_address, tvb, offset, 6,
+                          FALSE);
+      length += 6;
+      break;
+
+    case FIELD_TARGET_AP_ADDRESS:
+      proto_tree_add_item(tree, hf_ieee80211_ff_target_ap_address, tvb, offset, 6,
+                          FALSE);
+      length += 6;
+      break;
   }
   return length;
 }
@@ -4802,7 +4882,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         } else {
           proto_item_append_text(ti, ": Broadcast");
         }
-        en = proto_tree_add_string_format (tree, hf_tagged_ssid, tvb, offset + 2,
+        en = proto_tree_add_string_format (tree, hf_ieee80211_tagged_ssid, tvb, offset + 2,
                                            tag_len, format_text(ssid, tag_len),
                                            "SSID: %s", format_text(ssid, tag_len));
         PROTO_ITEM_SET_HIDDEN (en);
@@ -5113,9 +5193,9 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       switch (type)
         {
           case 0:
-            proto_tree_add_item(tree, ff_src_mac_addr, tvb, offset + 5,
+            proto_tree_add_item(tree, hf_ieee80211_ff_src_mac_addr, tvb, offset + 5,
                     6, TRUE);
-            proto_tree_add_item(tree, ff_dst_mac_addr, tvb, offset + 11,
+            proto_tree_add_item(tree, hf_ieee80211_ff_dst_mac_addr, tvb, offset + 11,
                     6, TRUE);
             proto_tree_add_item(tree, hf_ether_type, tvb, offset + 17,
                     2, TRUE);
@@ -9250,6 +9330,14 @@ proto_register_ieee80211 (void)
     { 0, NULL }
   };
 
+  static const value_string ft_action_codes[] ={
+    {FT_ACTION_REQUEST, "FT Request"},
+    {FT_ACTION_RESPONSE, "FT Response"},
+    {FT_ACTION_CONFIRM, "FT Confirm"},
+    {FT_ACTION_ACK, "FT Ack"},
+    {0, NULL}
+  };
+
   static hf_register_info hf[] = {
     {&hf_mactime,
      {"MAC timestamp", "wlan.mactime", FT_UINT64, BASE_DEC, NULL, 0x0,
@@ -10243,27 +10331,27 @@ proto_register_ieee80211 (void)
 
   static hf_register_info ff[] = {
 
-    {&ff_timestamp,
+    {&hf_ieee80211_ff_timestamp,
      {"Timestamp", "wlan_mgt.fixed.timestamp", FT_STRING, BASE_NONE,
       NULL, 0, NULL, HFILL }},
 
-    {&ff_auth_alg,
+    {&hf_ieee80211_ff_auth_alg,
      {"Authentication Algorithm", "wlan_mgt.fixed.auth.alg",
       FT_UINT16, BASE_DEC, VALS (&auth_alg), 0, NULL, HFILL }},
 
-    {&ff_beacon_interval,
+    {&hf_ieee80211_ff_beacon_interval,
      {"Beacon Interval", "wlan_mgt.fixed.beacon", FT_DOUBLE, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_fixed_parameters,
+    {&hf_ieee80211_fixed_parameters,
      {"Fixed parameters", "wlan_mgt.fixed.all", FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_tagged_parameters,
+    {&hf_ieee80211_tagged_parameters,
      {"Tagged parameters", "wlan_mgt.tagged.all", FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_tagged_ssid,
+    {&hf_ieee80211_tagged_ssid,
      {"SSID", "wlan_mgt.ssid", FT_STRING, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
@@ -10693,43 +10781,43 @@ proto_register_ieee80211 (void)
      {"Immediate Block Ack", "wlan_mgt.fixed.capabilities.imm_blk_ack",
       FT_BOOLEAN, 16, TFS (&cf_imm_blk_ack_flags), 0x8000, NULL, HFILL }},
 
-    {&ff_auth_seq,
+    {&hf_ieee80211_ff_auth_seq,
      {"Authentication SEQ", "wlan_mgt.fixed.auth_seq",
       FT_UINT16, BASE_HEX, NULL, 0, "Authentication Sequence Number", HFILL }},
 
-    {&ff_assoc_id,
+    {&hf_ieee80211_ff_assoc_id,
      {"Association ID", "wlan_mgt.fixed.aid",
       FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
-    {&ff_listen_ival,
+    {&hf_ieee80211_ff_listen_ival,
      {"Listen Interval", "wlan_mgt.fixed.listen_ival",
       FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
-    {&ff_current_ap,
+    {&hf_ieee80211_ff_current_ap,
      {"Current AP", "wlan_mgt.fixed.current_ap",
       FT_ETHER, BASE_NONE, NULL, 0, "MAC address of current AP", HFILL }},
 
-    {&ff_reason,
+    {&hf_ieee80211_ff_reason,
      {"Reason code", "wlan_mgt.fixed.reason_code",
       FT_UINT16, BASE_HEX, VALS (&reason_codes), 0,
       "Reason for unsolicited notification", HFILL }},
 
-    {&ff_status_code,
+    {&hf_ieee80211_ff_status_code,
      {"Status code", "wlan_mgt.fixed.status_code",
       FT_UINT16, BASE_HEX, VALS (&status_codes), 0,
       "Status of requested event", HFILL }},
 
-    {&ff_category_code,
+    {&hf_ieee80211_ff_category_code,
      {"Category code", "wlan_mgt.fixed.category_code",
       FT_UINT16, BASE_DEC, VALS (&category_codes), 0,
       "Management action category", HFILL }},
 
-    {&ff_action_code,
+    {&hf_ieee80211_ff_action_code,
      {"Action code", "wlan_mgt.fixed.action_code",
       FT_UINT16, BASE_DEC, VALS (&action_codes), 0,
       "Management action code", HFILL }},
 
-    {&ff_dialog_token,
+    {&hf_ieee80211_ff_dialog_token,
      {"Dialog token", "wlan_mgt.fixed.dialog_token",
       FT_UINT8, BASE_HEX, NULL, 0, "Management action dialog token", HFILL }},
 
@@ -10795,17 +10883,17 @@ proto_register_ieee80211 (void)
      {"Lifetime", "wlan_mgt.fixed.lifetime",
       FT_UINT32, BASE_DEC, NULL, 0, "Route Lifetime", HFILL }},
 
-    {&ff_wme_action_code,
+    {&hf_ieee80211_ff_wme_action_code,
      {"Action code", "wlan_mgt.fixed.action_code",
       FT_UINT16, BASE_HEX, VALS (&wme_action_codes), 0,
       "Management notification action code", HFILL }},
 
-    {&ff_wme_status_code,
+    {&hf_ieee80211_ff_wme_status_code,
      {"Status code", "wlan_mgt.fixed.status_code",
       FT_UINT16, BASE_HEX, VALS (&wme_status_codes), 0,
       "Management notification setup response status code", HFILL }},
 
-    {&ff_qos_action_code,
+    {&hf_ieee80211_ff_qos_action_code,
      {"Action code", "wlan_mgt.fixed.action_code",
       FT_UINT16, BASE_HEX, VALS (&qos_action_codes), 0,
       "QoS management action code", HFILL }},
@@ -10817,20 +10905,33 @@ proto_register_ieee80211 (void)
       "Block Ack action code", HFILL }},
     /*** End: Block Ack Action Fixed Field - Dustin Johnson ***/
 
-    {&ff_dls_action_code,
+    {&hf_ieee80211_ff_dls_action_code,
      {"Action code", "wlan_mgt.fixed.action_code",
       FT_UINT16, BASE_HEX, VALS (&dls_action_codes), 0,
       "DLS management action code", HFILL }},
 
-    {&ff_dst_mac_addr,
+    {&hf_ieee80211_ff_dst_mac_addr,
      {"Destination address", "wlan_mgt.fixed.dst_mac_addr",
       FT_ETHER, BASE_NONE, NULL, 0, "Destination MAC address", HFILL }},
 
-    {&ff_src_mac_addr,
+    {&hf_ieee80211_ff_src_mac_addr,
      {"Source address", "wlan_mgt.fixed.src_mac_addr",
       FT_ETHER, BASE_NONE, NULL, 0, "Source MAC address", HFILL }},
 
-    {&ff_dls_timeout,
+    {&hf_ieee80211_ff_ft_action_code,
+     {"Action code", "wlan_mgt.fixed.action_code",
+      FT_UINT8, BASE_DEC, VALS(&ft_action_codes), 0,
+      "Management action code", HFILL }},
+
+    {&hf_ieee80211_ff_sta_address,
+     {"STA Address", "wlan_mgt.fixed.sta_address",
+      FT_ETHER, BASE_NONE, NULL, 0, "STA address", HFILL }},
+
+    {&hf_ieee80211_ff_target_ap_address,
+     {"Target AP Address", "wlan_mgt.fixed.target_ap_address",
+      FT_ETHER, BASE_NONE, NULL, 0, "Target AP MAC address", HFILL }},
+
+    {&hf_ieee80211_ff_dls_timeout,
      {"DLS timeout", "wlan_mgt.fixed.dls_timeout",
       FT_UINT16, BASE_HEX, NULL, 0, "DLS timeout value", HFILL }},
 
