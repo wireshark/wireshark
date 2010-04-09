@@ -938,7 +938,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	datalen = tvb_length_remaining(tvb, offset);
 	if (headers.have_content_length && headers.content_length != -1) {
 		if (datalen > headers.content_length)
-			datalen = headers.content_length;
+			datalen = (int)headers.content_length;
 
 		/*
 		 * XXX - limit the reported length in the tvbuff we'll
@@ -956,7 +956,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		reported_datalen = tvb_reported_length_remaining(tvb, offset);
 		if (reported_datalen > headers.content_length)
-			reported_datalen = headers.content_length;
+			reported_datalen = (int)headers.content_length;
 	} else {
 		switch (http_type) {
 
