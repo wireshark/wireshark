@@ -46,7 +46,7 @@ dirs:
 
 nsis-bits:
 	cd ../../nsis
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake user-guide.chm NEWS.txt
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake user-guide.chm
 	cd ../portableapps/win32
 
 $(WSMANIFEST):

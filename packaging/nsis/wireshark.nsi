@@ -403,10 +403,10 @@ File "..\..\epan\wslua\dtd_gen.lua"
 !ifdef SMI_DIR
 File "${SMI_DIR}\lib\smi.dll"
 !endif
-File "${BUILD_DIR}\COPYING.txt"
-File "${BUILD_DIR}\NEWS.txt"
-File "${BUILD_DIR}\README.txt"
-File "${BUILD_DIR}\README.windows.txt"
+File "..\..\wireshark-gtk2\COPYING.txt"
+File "..\..\wireshark-gtk2\NEWS.txt"
+File "..\..\wireshark-gtk2\README.txt"
+File "..\..\wireshark-gtk2\README.windows.txt"
 File "..\..\doc\AUTHORS-SHORT"
 File "..\..\manuf"
 File "..\..\services"
@@ -652,13 +652,13 @@ File "..\..\wimaxasncp\dictionary.dtd"
 SetOutPath $INSTDIR
 
 SetOutPath $INSTDIR\help
-File "${BUILD_DIR}\help\toc"
-File "${BUILD_DIR}\help\overview.txt"
-File "${BUILD_DIR}\help\getting_started.txt"
-File "${BUILD_DIR}\help\capturing.txt"
-File "${BUILD_DIR}\help\capture_filters.txt"
-File "${BUILD_DIR}\help\display_filters.txt"
-File "${BUILD_DIR}\help\faq.txt"
+File "..\..\wireshark-gtk2\help\toc"
+File "..\..\wireshark-gtk2\help\overview.txt"
+File "..\..\wireshark-gtk2\help\getting_started.txt"
+File "..\..\wireshark-gtk2\help\capturing.txt"
+File "..\..\wireshark-gtk2\help\capture_filters.txt"
+File "..\..\wireshark-gtk2\help\display_filters.txt"
+File "..\..\wireshark-gtk2\help\faq.txt"
 
 ; Write the uninstall keys for Windows
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" "DisplayVersion" "${VERSION}"

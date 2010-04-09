@@ -56,7 +56,7 @@ u3-dirs:
 
 nsis-bits:
 	cd ../../nsis
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake user-guide.chm NEWS.txt
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake user-guide.chm
 	cd ../u3/win32
 
 distribution.nmake:	makenmake.pl
