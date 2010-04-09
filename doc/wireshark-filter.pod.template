@@ -387,10 +387,8 @@ the Perl-Compatible Regular Expressions library: see B<http://www.pcre.org/>.
 
 This manpage does not describe the capture filter syntax, which is
 different. See the manual page of pcap-filter(4) or, if that doesn't exist,
-tcpdump(8) for a description of capture
-filters. Microsoft Windows versions use WinPcap from
-L<http://www.winpcap.org/> for which the capture filter syntax is described
-in L<http://www.winpcap.org/docs/man/html/group__language.html>.
+tcpdump(8), or, if that doesn't exist, L<http://wiki.wireshark.org/CaptureFilters>
+for a description of capture filters.
 
 =head1 SEE ALSO
 
