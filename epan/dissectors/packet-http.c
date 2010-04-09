@@ -239,7 +239,7 @@ typedef struct {
 	char	*content_type;
 	char	*content_type_parameters;
 	gboolean have_content_length;
-	long	content_length;	/* XXX - make it 64-bit? */
+	gint64	content_length;
 	char	*content_encoding;
 	char	*transfer_encoding;
 } headers_t;
@@ -2053,7 +2053,15 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 
 		case HDR_CONTENT_LENGTH:
+#if GLIB_CHECK_VERSION(2,12,0)
+			eh_ptr->content_length = g_ascii_strtoll(value, &p, 10);
+#elif defined(HAVE_STRTOLL)
+			eh_ptr->content_length = strtoll(value, &p, 10);
+#else
+			/* Punt and grab a 32-bit value */
 			eh_ptr->content_length = strtol(value, &p, 10);
+#endif
+
 			up = (guchar *)p;
 			if (eh_ptr->content_length < 0 || p == value ||
 			    (*up != '\0' && !isspace(*up))) {
@@ -2070,7 +2078,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				 */
 				eh_ptr->have_content_length = TRUE;
 				header_tree = proto_item_add_subtree(hdr_item, ett_http_header_item);
-				tree_item = proto_tree_add_uint(header_tree, hf_http_content_length,
+				tree_item = proto_tree_add_uint64(header_tree, hf_http_content_length,
 					tvb, offset, len, eh_ptr->content_length);
 				PROTO_ITEM_SET_GENERATED(tree_item);
 			}
@@ -2330,7 +2338,7 @@ proto_register_http(void)
 		"HTTP Content-Length header", HFILL }},
 	    { &hf_http_content_length,
 	      { "Content length",	"http.content_length",
-		FT_UINT32, BASE_DEC, NULL, 0x0,
+		FT_UINT64, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }},
 	    { &hf_http_content_encoding,
 	      { "Content-Encoding",	"http.content_encoding",
