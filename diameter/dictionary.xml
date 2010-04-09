@@ -963,11 +963,35 @@ http://www.iana.org/assignments/radius-types
 			<type type-name="UTF8String"/>
 		</avp>
 <!--
-123     Delegated-IPv6-Prefix                    [RFC4818]
-124-191   (unassigned)
+123       Delegated-IPv6-Prefix                    [RFC4818]
+    <avp name="MIP6-Feature-Vector" code="124" mandatory="may">
+      <type type-name="Unsigned64"/>
+    </avp>
+124       MIP6-Feature-Vector                      [RFC5447]
+125       MIP6-Home-Link-Prefix                    [RFC5447]
+126       Operator-Name                            [RFC5580]
+127       Location-Information                     [RFC5580]
+128       Location-Data                            [RFC5580]
+129       Basic-Location-Policy-Rules              [RFC5580]
+130       Extended-Location-Policy-Rules           [RFC5580]
+131       Location-Capable                         [RFC5580]
+132       Requested-Location-Info                  [RFC5580]
+133       Framed-Management-Protocol               [RFC5607]
+134       Management-Transport-Protection          [RFC5607]
+135       Management-Policy-Id                     [RFC5607]
+136       Management-Privilege-Level               [RFC5607]
+137       PKM-SS-Cert                              [RFC-zorn-radius-pkmv1-12.txt]
+138       PKM-CA-Cert                              [RFC-zorn-radius-pkmv1-12.txt]
+139       PKM-Auth-Wait-Timeout                    [RFC-zorn-radius-pkmv1-12.txt]
+140       PKM-Cryptosuite-List                     [RFC-zorn-radius-pkmv1-12.txt]
+141       PKM-SAID                                 [RFC-zorn-radius-pkmv1-12.txt]
+142       PKM-SA-Descriptor                        [RFC-zorn-radius-pkmv1-12.txt]
+143       PKM-Auth-Key                             [RFC-zorn-radius-pkmv1-12.txt]
+144-191   Unassigned
 192-223   Experimental Use                         [RFC3575]
 224-240   Implementation Specific                  [RFC3575]
 241-255   Reserved                                 [RFC3575]   
+
 
 -->
 		<!-- ******************* DIAMETER BASE PROTOCOL AVPS ************************ -->
@@ -3643,13 +3667,47 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
 			<enum name="FALSE" code="0"/>
 			<enum name="TRUE" code="1"/>
 		</avp>
+    <avp name="Non-3GPP-User-Data" code="1500" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="Subscription-ID"/>
+        <gavp name="Non-3GPP-IP-Access"/>
+        <gavp name="Non-3GPP-IP-Access-APN"/>
+        <gavp name="RAT-Type"/>
+        <gavp name="Session-Timeout"/>
+        <gavp name="MIP6-Feature-Vector"/>
+        <gavp name="AMBR"/>
+        <gavp name="3GPP-Charging-Characteristics"/>
+        <gavp name="APN-OI-Replacement"/>
+        <gavp name="APN-Configuration"/>
+        <gavp name="Trace-Info"/>
+      </grouped>
+    </avp>
+    <avp name="Non-3GPP-IP-Access" code="1501" vendor-bit="must" mandatory="mustnot" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="NON_3GPP_SUBSCRIPTION_ALLOWED" code="0"/>
+      <enum name="NON_3GPP_SUBSCRIPTION_BARRED" code="1"/>
+    </avp>
+    <avp name="Non-3GPP-IP-Access-APN" code="1502" vendor-bit="must" mandatory="mustnot" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="NON_3GPP_APNS_ENABLE" code="0"/>
+      <enum name="NON_3GPP_APNS_DISABLE" code="1"/>
+    </avp>
+    <avp name="AN-Trusted" code="1503" vendor-bit="must" mandatory="mustnot" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="TRUSTED" code="0"/>
+      <enum name="UNTRUSTED" code="1"/>
+    </avp>
+    <avp name="ANID" code="1504" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="Trace-Info" code="1505" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="Trace-Data"/>
+        <gavp name="Trace-Reference"/>
+      </grouped>
+    </avp>
     <!--    
 Note: The AVP codes from 1485 to 1499 are reserved for TS 29.272.
-1500	Non-3GPP-User-Data	Grouped	29.273 [20]
-1501	Non-3GPP-IP-Access	Enumerated	
-1502	Non-3GPP-IP-Access-APN	Enumerated	
-1503	SGW-Address	Address	
-1504	ANID	UTF8String
 1505 Trace-Info Grouped
 Note: The AVP codes from 1506 to 1599 are reserved for TS 29.273
 -->
