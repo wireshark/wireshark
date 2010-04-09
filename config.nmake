@@ -1,7 +1,7 @@
 # $Id$
 
-# Some more informations about the settings in this file, can be found
-# in the file README.win32 and the Developer's Guide (available online).
+# Some more information about the settings in this file can be found in
+# the file README.windows and the Developer's Guide (available online).
 
 ##### Target platform #####
 # Only "win32" and "win64" are valid (for now).
@@ -601,6 +601,10 @@ LEX=flex
 
 # command for yacc/bison (cygwin's bison recommended)
 YACC=bison
+
+# Commands to convert UNIX line endings to DOS/Windows
+UNIX2DOS=u2d
+TEXTIFY=$(SH) $(TOOLS_DIR)/textify.sh
 
 #
 # Optional: To build the NSIS installer.

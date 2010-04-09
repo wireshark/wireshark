@@ -578,7 +578,7 @@ EXTRA_DIST = \
 	README.macos		\
 	README.tru64		\
 	README.vmware		\
-	README.win32		\
+	README.windows		\
 	aclocal-fallback/glib-2.0.m4 \
 	aclocal-fallback/gtk-2.0.m4 \
 	aclocal-flags		\

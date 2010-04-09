@@ -21,9 +21,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-
-UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
-
 generate_dissector: $(DISSECTOR_FILES)
 
 generate_export: $(EXPORT_FILES)
@@ -79,15 +76,7 @@ maintainer-clean: distclean
 # the generated stuff has "\n".
 
 fix_eol: generate_dissector
-   <<fix_file.bat
-IF "%1"=="" EXIT
-move %1 %1.tmp
-$(UNIX2DOS) < %1.tmp > %1
-	del /f %1.tmp
-<<
-   <<fix_eol.bat
-FOR %%A IN ($(DISSECTOR_FILES)) DO CALL fix_file.bat %%A
-<<
+	u2d $(DISSECTOR_FILES)
 
 copy_files: generate_dissector
    <<copy_files.bat

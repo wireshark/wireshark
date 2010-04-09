@@ -12,38 +12,37 @@ include ../../config.nmake
 include Custom.nmake
 
 
-UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
-
-
 EXE=../../tshark.exe ../../editcap.exe \
 !IFDEF GTK_DIR
 	../../wireshark.exe \
 !ENDIF
 	../../text2pcap.exe ../../mergecap.exe ../../capinfos.exe WinPcap_4_1_1.exe
 DLL=../../wiretap/wiretap-$(WTAP_VERSION).dll ../../wsutil/libwsutil.dll
-DOC=../../doc/ws.css			\
-	../../doc/capinfos.html 	\
-	../../doc/dumpcap.html		\
-	../../doc/editcap.html 		\
-	../../doc/idl2wrs.html 		\
-	../../doc/mergecap.html 	\
-	../../doc/rawshark.html 	\
-	../../doc/text2pcap.html 	\
-	../../doc/rawshark.html		\
-	../../doc/tshark.html		\
-	../../doc/wireshark-filter.html	\
-	../../doc/wireshark.html	\
-	../../README			\
-	../../README.win32
-DOC_dos=NEWS.txt
+DOC=../../doc/ws.css				\
+	../../doc/capinfos.html 		\
+	../../doc/dumpcap.html			\
+	../../doc/editcap.html 			\
+	../../doc/idl2wrs.html 			\
+	../../doc/mergecap.html 		\
+	../../doc/rawshark.html 		\
+	../../doc/text2pcap.html 		\
+	../../doc/rawshark.html			\
+	../../doc/tshark.html			\
+	../../doc/wireshark-filter.html		\
+	../../doc/wireshark.html		\
+	../../$(INSTALL_DIR)/COPYING.txt	\
+	../../$(INSTALL_DIR)/NEWS.txt		\
+	../../$(INSTALL_DIR)/README.txt		\
+	../../$(INSTALL_DIR)/README.windows.txt
+
 GPL=../../COPYING
-HELP=../../help/capture_filters.txt \
-	../../help/capturing.txt \
-	../../help/display_filters.txt \
-	../../help/faq.txt \
-	../../help/getting_started.txt \
-	../../help/overview.txt \
-	../../help/toc
+HELP=../../$(INSTALL_DIR)/help/capture_filters.txt \
+	../../$(INSTALL_DIR)/help/capturing.txt \
+	../../$(INSTALL_DIR)/help/display_filters.txt \
+	../../$(INSTALL_DIR)/help/faq.txt \
+	../../$(INSTALL_DIR)/help/getting_started.txt \
+	../../$(INSTALL_DIR)/help/overview.txt \
+	../../$(INSTALL_DIR)/help/toc
 
 PLUGINS= \
 	../../plugins/asn1/asn1.dll \
@@ -76,16 +75,13 @@ NSI=wireshark.nsi \
 DELIVERABLES=$(EXE) $(DLL) $(DOC) $(DOC_dos) $(GPL) $(HELP) $(PLUGINS)
 
 !IFDEF MAKENSIS
-all: NEWS.txt wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe
+all: wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe
 !ELSE
 all: _FORCE_
 	@echo ? NSIS not available (MAKENSIS not defined in config.nmake)
 	@echo.
 	@exit 1
 !ENDIF
-
-NEWS.txt: ../../NEWS
-	$(UNIX2DOS) < ../../NEWS > NEWS.txt
 
 # fetch the latest available user-guide.chm version
 user-guide.chm::
@@ -97,6 +93,7 @@ wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe : user-guide.chm $(NSI) $(
 	/DWIRESHARK_TARGET_PLATFORM=$(WIRESHARK_TARGET_PLATFORM) \
 	/DMSVC_VARIANT=$(MSVC_VARIANT) \
 	/DWIRESHARK_LIBS=$(WIRESHARK_LIBS) \
+	/DBUILD_DIR=..\..\$(INSTALL_DIR) \
 !IFDEF MSVCR_DLL
 	/DMSVCR_DLL="$(MSVCR_DLL)" \
 !ENDIF

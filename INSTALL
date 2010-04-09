@@ -14,7 +14,7 @@ Installation
 These are installation instructions for Unix and Unix-like systems
 that can run the "configure" script in this same directory. These
 are not the installation instructions for Windows systems; see
-README.win32 for those instructions.
+README.windows for those instructions.
 
 0. This is software.  Beware.
 

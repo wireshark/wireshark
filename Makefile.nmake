@@ -938,11 +938,10 @@ install-generated-files:
 	xcopy "doc\AUTHORS-SHORT" $(INSTALL_DIR) /d
 	xcopy ".\manuf" $(INSTALL_DIR) /d
 	xcopy ".\services" $(INSTALL_DIR) /d
-	xcopy ".\README" $(INSTALL_DIR) /d
-	xcopy ".\README.win32" $(INSTALL_DIR) /d
-	xcopy "doc\AUTHORS-SHORT-FORMAT" $(INSTALL_DIR) /d
-	xcopy ".\COPYING" $(INSTALL_DIR) /d
-	copy ".\NEWS" $(INSTALL_DIR)\NEWS.txt
+	$(TEXTIFY) ".\COPYING" $(INSTALL_DIR)
+	$(TEXTIFY) ".\NEWS" $(INSTALL_DIR)
+	$(TEXTIFY) ".\README" $(INSTALL_DIR)
+	$(TEXTIFY) ".\README.windows" $(INSTALL_DIR)
 	xcopy ".\cfilters" $(INSTALL_DIR) /d
 	xcopy ".\colorfilters" $(INSTALL_DIR) /d
 	xcopy ".\dfilters" $(INSTALL_DIR) /d
@@ -957,8 +956,7 @@ install-generated-files:
 	xcopy ".\help\*.*" $(INSTALL_DIR)\help /d
 # you can't reliably use xcopy to rename files "on the fly" (so copy first, then rename)
 	xcopy ".\help\faq.txt" $(INSTALL_DIR) /d
-	if exist $(INSTALL_DIR)\FAQ del $(INSTALL_DIR)\FAQ
-	ren $(INSTALL_DIR)\faq.txt FAQ 
+	$(UNIX2DOS) $(INSTALL_DIR)/help/*.txt
 	if not exist $(INSTALL_DIR)\dtds mkdir $(INSTALL_DIR)\dtds
 	xcopy ".\dtds\*.*" $(INSTALL_DIR)\dtds /d
 	if not exist $(INSTALL_DIR)\asn1 mkdir $(INSTALL_DIR)\asn1
