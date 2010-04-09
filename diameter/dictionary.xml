@@ -964,18 +964,33 @@ http://www.iana.org/assignments/radius-types
 		</avp>
 <!--
 123       Delegated-IPv6-Prefix                    [RFC4818]
+-->
     <avp name="MIP6-Feature-Vector" code="124" mandatory="may">
       <type type-name="Unsigned64"/>
     </avp>
-124       MIP6-Feature-Vector                      [RFC5447]
-125       MIP6-Home-Link-Prefix                    [RFC5447]
-126       Operator-Name                            [RFC5580]
-127       Location-Information                     [RFC5580]
-128       Location-Data                            [RFC5580]
-129       Basic-Location-Policy-Rules              [RFC5580]
-130       Extended-Location-Policy-Rules           [RFC5580]
-131       Location-Capable                         [RFC5580]
-132       Requested-Location-Info                  [RFC5580]
+    <avp name="MIP6-Home-Link-Prefix" code="125" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <!-- RFC5580 -->
+    <avp name="Operator-Name" code="126" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Location-Information" code="127" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Location-Data" code="128" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Basic-Location-Policy-Rules" code="129" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Extended-Location-Policy-Rules" code="130" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Location-Capable" code="131" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <!--
 133       Framed-Management-Protocol               [RFC5607]
 134       Management-Transport-Protection          [RFC5607]
 135       Management-Policy-Id                     [RFC5607]
