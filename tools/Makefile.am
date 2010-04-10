@@ -117,7 +117,6 @@ EXTRA_DIST = \
 	runlex.sh					\
 	setuid-root.pl.in				\
 	make-sminmpec.pl 			\
-	unix2dos.pl					\
 	win32-setup.sh					\
 	win64-setup.sh					\
 	win-setup.sh					\
