@@ -97,6 +97,9 @@ wrs_count_bitshift(const guint32 bitmask)
 	   will still have somewhere to attach to			\
 	   or else filtering will not work (they would be ignored since tree\
 	   would be NULL).						\
+	   DONT try to fake a node where PTREE_FINFO(tree) is NULL	\
+	   since dissectors that want to do proto_item_set_len() or	\
+	   other operations that dereference this would crash.		\
 	   We fake FT_PROTOCOL unless some clients have requested us	\
 	   not to do so. \
 	*/								\
@@ -111,12 +114,14 @@ wrs_count_bitshift(const guint32 bitmask)
 	}								\
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);			\
 	if(!(PTREE_DATA(tree)->visible)){				\
+		if(PTREE_FINFO(tree)){					\
 			if((hfinfo->ref_type != HF_REF_TYPE_DIRECT)	\
 			&& (hfinfo->type!=FT_PROTOCOL ||		\
 				PTREE_DATA(tree)->fake_protocols)){	\
 				/* just return tree back to the caller */\
 				return tree;				\
 			}						\
+		}							\
 	}
 
 /** See inlined comments.
@@ -3727,11 +3732,6 @@ proto_tree_get_root(proto_tree *tree) {
 void
 proto_tree_move_item(proto_tree *tree, proto_item *fixed_item, proto_item *item_to_move)
 {
-	/* This function doesn't generate any values. It only reorganizes the prococol tree
-	 * so we can bail out immediately if it isn't visible. */
-	if (!tree || !PTREE_DATA(tree)->visible)
-		return;
-
 	DISSECTOR_ASSERT(item_to_move->parent == tree);
 	DISSECTOR_ASSERT(fixed_item->parent == tree);
 
