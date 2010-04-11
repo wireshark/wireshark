@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2010-04-04)
+(last updated 2010-04-09)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -1406,9 +1406,9 @@ Decimal
     Gary Dunlap
       gdunlap&dothill.com
 348
-  American Express Travel Related Services
-    Steve Kimmel
-      mibadmin&amex-trs.com
+  American Express Company
+    Fred Gibbins
+      oidadmin&aexp.com
 349
   Compu-Shack
     Tomas Vocetka
@@ -13610,9 +13610,9 @@ Decimal
     Frank Guan
       fguan&alacritycom.com
 3401
-  Network Associates, Inc.
-    Dean Au
-      dean_au&nai.com
+  McAfee Inc. (previous was 'Network Associates, Inc.')
+    Brandon Conway
+      itsecurity&mcafee.com
 3402
   Magicom Integrated Solutions
     Yossi Appleboum
@@ -39462,9 +39462,9 @@ Decimal
     Francois GOAS
       francois.goas&b2i-toulouse.com
 9877
-  California State University, Hayward
+  California State University, East Bay
     Kent C. McKinney
-      kmckinney&csuhayward.edu
+      kent.mckinney&csueastbay.edu
 9878
   CareGroup HealthCare System
     Scott A. McWilliams
@@ -120940,7 +120940,7 @@ Decentralization / Helenic Public Administra
       technicalservices&smart421.com
 30339
   Ministry of Information and Communications of Viet Nam
-    Dr. Dao Dinh Kha, Deputy Director of Division of Information Resources Development
+    Dr. Dao Dinh Kha, Director of National Center of Digital Signature Authentication 
       dinhkha&mic.gov.vn
 30340
   Moderntimes
@@ -141698,7 +141698,7 @@ Decentralization / Helenic Public Administra
       steve&flex-radio.com
 35528
   ADLANTIA
-    Jesús Broceño
+    Jesus Broceno
       jesus.broceno&adlantia.com
 35529
   Evony LLC
@@ -141836,6 +141836,154 @@ Decentralization / Helenic Public Administra
   Service Elements
     David Smith
       davidsm&selements.com.au
+35563
+  saladisdead.com
+    Aaron Angel
+      aja&saladisdead.com
+35564
+  Universidad Catolica Andres Bello
+    Rafael Andara
+      randara&ucab.edu.ve
+35565
+  Koozyt, Inc.
+    Mr. Atsushi Shionozaki
+      snmp-admin&koozyt.com
+35566
+  trammell.ch
+    Brian Trammell
+      brian&trammell.ch
+35567
+  CME Group
+    Bryan Green
+      bryan.green&cmegroup.com
+35568
+  Beth Israel Deaconess Medical Center
+    Jacob Hesterman
+      hesterman&invicro.com
+35569
+  A-dec Inc.
+    James Ward
+      james.ward&a-dec.com
+35570
+  Travel Tripper LLC
+    Michael V Spoonauer
+      michael&traveltripper.com
+35571
+  LU-Hosting
+    Leo Unglaub
+      leo&leo-unglaub.net
+35572
+  Arends IT+TK
+    Gerrit Arends
+      gerrit.arends&arends-itk.net
+35573
+  sitel
+    Itay Moav
+      itay.moav&email.sitel.org
+35574
+  Dambach-Werke GmbH
+    Alex Gottschalck
+      alex.gottschalck&dambach.de
+35575
+  ByteSource Technology Consulting GmbH
+    Alexander Penev
+      contact&bytesource.net
+35576
+  Ailux S.r.l.
+    Giacomo Vianelli
+      giacomo.vianelli&ailux.eu
+35577
+  LivingData Gesellschaft für angewandte Informationstechnologien mbH
+    Michael Rieck
+      michael.rieck&livingdata.de
+35578
+  Southern Telecommunications Company
+    Artem Alimov
+      a.alimov&mail.stcompany.ru
+35579
+  Super Group Trading (Pty) Ltd
+    Adam Orpen
+      adam&supergrp.com
+35580
+  Technisys, Inc.
+    Tom Mirochna
+      tmirochna&tsys-inc.com
+35581
+  Linct
+    Thomas Andrews
+      iana-admin&grok.co.za
+35582
+  mTrust, s. r. o. 
+    Ing. Vladimír Popík 
+      vladimir.popik&mtrust.sk
+35583
+  Drizzle
+    Edward Konetzko
+      konetzed&quixoticagony.com
+35584
+  BANK AL MAGHRIB
+    FAIK Hicham
+      h.faik&bkam.ma
+35585
+  Intelcan Technosystems Inc.
+    Hector Nunez
+      hectorn&intelcan.com
+35586
+  Competentum
+    Pavel Bondarenko
+      bondarenko&competentum.ru
+35587
+  White Birch Paper division Papier Masson
+    Marc Côté
+      marccote&papiermasson.com
+35588
+  ndl.kiev.ua
+    Alexander Tsvyashchenko
+      ndl&ndl.kiev.ua
+35589
+  Partido PIRATA
+    Rafa Couto
+      rafacouto&gmail.com
+35590
+  Convergent Communications, Inc
+    Mike Knoblock
+      mknoblock&ccinet.us
+35591
+  Limited Liability Company "Mejregiongaz "
+    Pusev Alexsey V.
+      u6000025&mrg.gazprom.ru
+35592
+  FiberSensing S.A.
+    José Sá
+      jose.sa&fibersensing.com
+35593
+  Thales / Rockwell Collins
+    James Brokenbek
+      jebroken&rockwellcollins.com
+35594
+  iCOMcept GmbH
+    Sven Schoenfelder
+      schoenfelder&icomcept.de
+35595
+  distributedmatter.net
+    Bruno Harbulot
+      iana&distributedmatter.net
+35596
+  Innovid Co., Ltd.
+    Jeongseok Kim
+      jskim&innovid.co.kr
+35597
+  "TeleMiks" UE
+    Eugene Sheffer
+      e.sheffer&mail.ru
+35598
+  PIWorks Inc
+    Artem Fedorenko
+      artem.fedorenko&piworks.net
+35599
+  Marketware
+    Antonio Barros de Sousa
+      asousa&marketware.eu
 
 
 End of Document
