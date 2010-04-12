@@ -1022,7 +1022,8 @@ static guint get_foo_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	</para>
 	   <example><title>Initialising a tap</title>
 	   <programlisting>
-<![CDATA[#include <epan/tap.h>
+<![CDATA[#include <epan/packet.h>
+#include <epan/tap.h>
 
 static int foo_tap = -1;
 
