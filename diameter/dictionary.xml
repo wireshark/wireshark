@@ -2221,13 +2221,13 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
 29.210
 ******** Found in TGPPGmb.xml ********
 -->
-		<avp name="Bearer-Usage" code="1000" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Bearer-Usage" code="1000" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="GENERAL" code="0"/>
 			<enum name="IMS SIGNALLING" code="1"/>
 			<enum name="DEDICATED" code="2"/>
 		</avp>
-		<avp name="Charging-Rule-Install" code="1001" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Charging-Rule-Install" code="1001" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Charging-Rule-Definition"/>
 				<gavp name="Charging-Rule-Name"/>
@@ -2238,13 +2238,13 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
         <gavp name="Resource-Allocation-Notification"/>
       </grouped>
 		</avp>
-		<avp name="Charging-Rule-Remove" code="1002" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Charging-Rule-Remove" code="1002" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Charging-Rule-Name"/>
 				<gavp name="Charging-Rule-Base-Name"/>
 			</grouped>
 		</avp>
-		<avp name="Charging-Rule-Definition" code="1003" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Charging-Rule-Definition" code="1003" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
         <gavp name="Charging-Rule-Name"/>
         <gavp name="Service-Identifier"/>
@@ -2262,13 +2262,13 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
         <gavp name="Flows"/>
       </grouped>
 		</avp>
-		<avp name="Charging-Rule-Base-Name" code="1004" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Charging-Rule-Base-Name" code="1004" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
-		<avp name="Charging-Rule-Name" code="1005" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Charging-Rule-Name" code="1005" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Event-Trigger" code="1006" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Event-Trigger" code="1006" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			  <enum name="SGSN CHANGE" code="0"/>
 			  <enum name="QOS CHANGE" code="1"/>
@@ -2299,34 +2299,34 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
 			  <enum name="RECOVERY OF BEARER" code="1002"/>
 			  <enum name="POLICY ENFORCEMENT FAILED" code="1003"/>
 		</avp>
-		<avp name="Metering-Method" code="1007" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Metering-Method" code="1007" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="DURATION" code="0" /> 
 			<enum name="VOLUME" code="1" />							
 			<enum name="DURATION_VOLUME" code="1" />			
 		</avp>
-		<avp name="Offline" code="1008" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Offline" code="1008" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="DISABLE_OFFLINE" code="0"/>
 			<enum name="ENABLE_OFFLINE" code="1"/>
 		</avp>
-		<avp name="Online" code="1009">
+		<avp name="Online" code="1009" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="DISABLE_ONLINE" code="0"/>
 			<enum name="ENABLE_ONLINE" code="1"/>
 		</avp>
-		<avp name="Precedence" code="1010" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Precedence" code="1010" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Reporting-Level" code="1011" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Reporting-Level" code="1011" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="CHARGING RULE LEVEL" code="0"/>
 			<enum name="RATING GROUP LEVEL" code="1"/>
 		</avp>
-		<avp name="TFT-Filter" code="1012">
+		<avp name="TFT-Filter" code="1012" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="IPFilterRule"/>
 		</avp>
-		<avp name="TFT-Packet-Filter-Information" code="1013" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<avp name="TFT-Packet-Filter-Information" code="1013" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Precedence"/>
 				<gavp name="TFT-Filter"/>
@@ -2335,7 +2335,7 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
         <gavp name="Flow-Label"/>
       </grouped>		
 		</avp>
-		<avp name="ToS-Traffic-Class" code="1014" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<avp name="ToS-Traffic-Class" code="1014" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="OctetString"/>
 		</avp>
 		<avp name="PDP-Session-operation" code="1015" vendor-id="TGPP" protected="may" mandatory="must"	may-encrypt="yes" vendor-bit="must">
@@ -2451,7 +2451,7 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
       <enum name="RESOURCE_ALLOCATION_FAILURE"			code="10"/>
       <enum name="UNSUCCESSFUL_QOS_VALIDATION"			code="11"/>
     </avp>
-    <avp name="RAT-Type" code="1032" vendor-id="TGPP" protected="may" mandatory="must"	may-encrypt="yes" vendor-bit="must">
+    <avp name="RAT-Type" code="1032" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Enumerated" />
       <enum name="WLAN" code="0" />
       <enum name="UTRAN" code="1000" />
@@ -2463,7 +2463,7 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
       <enum name="HRPD" code="2001" />
       <enum name="UMB" code="2002" />
     </avp>
-    <avp name="Event-Report-Indication" code="1033" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Event-Report-Indication" code="1033" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <grouped>
         <gavp name="Event-Trigger"/>
         <gavp name="RAT-Type"/>
@@ -2479,40 +2479,40 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
         <gavp name="Pre-emption-Vulnerability"/>
       </grouped>
     </avp>
-    <avp name="CoA-IP-Address" code="1035" vendor-bit="must" vendor-id="TGPP">
+    <avp name="CoA-IP-Address" code="1035" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="IPAddress"/>
     </avp>
-    <avp name="Tunnel-Header-Filter" code="1036" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Tunnel-Header-Filter" code="1036" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="IPFilterRule"/>
     </avp>
-    <avp name="Tunnel-Header-Length" code="1037" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Tunnel-Header-Length" code="1037" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Tunnel-Information" code="1038" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Tunnel-Information" code="1038" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <grouped>
         <gavp name="Tunnel-Header-Length"/>
         <gavp name="Tunnel-Header-Filter"/>
       </grouped>
     </avp>
-    <avp name="CoA-Information" code="1039" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+    <avp name="CoA-Information" code="1039" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <grouped>
         <gavp name="Tunnel-Information"/>
         <gavp name="CoA-IP-Address"/>
       </grouped>
     </avp>
-    <avp name="APN-Aggregate-Max-Bitrate-DL" code="1040" vendor-bit="must" vendor-id="TGPP">
+    <avp name="APN-Aggregate-Max-Bitrate-DL" code="1040" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="APN-Aggregate-Max-Bitrate-UL" code="1041" vendor-bit="must" vendor-id="TGPP">
+    <avp name="APN-Aggregate-Max-Bitrate-UL" code="1041" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Revalidation-Time" code="1042" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Revalidation-Time" code="1042" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Time"/>
     </avp>
-    <avp name="Rule-Activation-Time" code="1043" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Rule-Activation-Time" code="1043" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Time"/>
     </avp>
-    <avp name="Rule-DeActivation-Time" code="1044" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Rule-DeActivation-Time" code="1044" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Time"/>
     </avp>
     <avp name="Session-Release-Cause" code="1045" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
@@ -2521,7 +2521,7 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
       <enum name="UE_SUBSCRIPTION_REASON" 	code="1"/>
       <enum name="INSUFFICIENT_SERVER_RESOURCES" 	code="2"/>
     </avp>
-    <avp name="Priority-Level" code="1046" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Priority-Level" code="1046" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Unsigned32"/>
     </avp>
     <avp name="Pre-emption-Capability" code="1047" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
@@ -2534,25 +2534,25 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
       <enum name="PRE-EMPTION_VULNERABILITY_ENABLED" 			code="0"/>
       <enum name="PRE-EMPTION_VULNERABILITY_DISABLED" 	code="1"/>
     </avp>
-    <avp name="Default-EPS-Bearer-QoS" code="1049" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Default-EPS-Bearer-QoS" code="1049" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <grouped>
         <gavp name="QoS-Class-Identifier"/>
         <gavp name="Allocation-Retention-Priority"/>
       </grouped>
     </avp>
-    <avp name="AN-GW-Address" code="1050" vendor-bit="must" vendor-id="TGPP">
+    <avp name="AN-GW-Address" code="1050" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="IPAddress"/>
     </avp>
     <avp name="Resource-Allocation-Notification" code="1051" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Enumerated"/>
       <enum name="ENABLE_NOTIFICATION" 			code="0"/>
     </avp>
-    <avp name="QoS-Rule-Remove" code="1052" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+    <avp name="QoS-Rule-Remove" code="1052" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <grouped>
         <gavp name="QoS-Rule-Name"/>
       </grouped>
     </avp>
-    <avp name="QoS-Rule-Definition" code="1053" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+    <avp name="QoS-Rule-Definition" code="1053" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <grouped>
         <gavp name="QoS-Rule-Name"/>
         <gavp name="Flow-Information"/>
@@ -2560,23 +2560,23 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
         <gavp name="Precedence"/>
       </grouped>
     </avp>
-    <avp name="QoS-Rule-Name" code="1054" vendor-bit="must" vendor-id="TGPP">
+    <avp name="QoS-Rule-Name" code="1054" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="OctetString,"/>
     </avp>
-    <avp name="QoS-Rule-Report" code="1055" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+    <avp name="QoS-Rule-Report" code="1055" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <grouped>
         <gavp name="QoS-Rule-Name"/>
         <gavp name="PCC-Rule-Status"/>
         <gavp name="Rule-Failure-Code"/>
       </grouped>
     </avp>
-    <avp name="Security-Parameter-Index" code="1056" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Security-Parameter-Index" code="1056" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Flow-Label" code="1057" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Flow-Label" code="1057" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Flow-Information" code="1058" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Flow-Information" code="1058" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <grouped>
         <gavp name="Flow-Description"/>
         <gavp name="Packet-Filter-Identifier"/>
@@ -2585,13 +2585,13 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
         <gavp name="Flow-Label"/>
       </grouped>
     </avp>
-    <avp name="Packet-Filter-Content" code="1059" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Packet-Filter-Content" code="1059" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="IPFilterRule"/>
     </avp>
-    <avp name="Packet-Filter-Identifier" code="1060" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Packet-Filter-Identifier" code="1060" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Packet-Filter-Information" code="1061" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Packet-Filter-Information" code="1061" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <grouped>
         <gavp name="Packet-Filter-Identifier"/>
         <gavp name="Precedence"/>
@@ -2601,16 +2601,57 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
         <gavp name="Flow-Label"/>
       </grouped>
     </avp>
-    <avp name="Packet-Filter-Operation" code="1062" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Packet-Filter-Operation" code="1062" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Enumerated"/>
       <enum name="DELETION" 			code="0"/>
       <enum name="ADDITION" 	code="1"/>
       <enum name="MODIFICATION" 	code="2"/>
     </avp>
-    <!-- 
-    1063 Resource-Allocation-Notification Enumerated
-    -->
-    <!-- Note: The AVP codes from 1064 to 1099 are reserved for TS 29.212 -->
+    <avp name="Resource-Allocation-Notification" code="1063" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="ENABLE_NOTIFICATION"  code="0"/>
+    </avp>
+    <avp name="Session-Linking-Indicator" code="1064" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="SESSION_LINKING_IMMEDIATE"  code="0"/>
+      <enum name="SESSION_LINKING_DEFERRED"   code="1"/>
+    </avp>
+    <avp name="PDN-Connection-ID" code="1065" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Monitoring-Key" code="1066" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Usage-Monitoring-Information" code="1067" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="Monitoring-Key"/>
+        <gavp name="Granted-Service-Unit"/>
+        <gavp name="Used-Service-Unit"/>
+        <gavp name="Usage-Monitoring-Level"/>
+        <gavp name="Usage-Monitoring-Report"/>
+        <gavp name="Usage-Monitoring-Support"/>
+      </grouped>
+    </avp>
+    <avp name="Usage-Monitoring-Level" code="1068" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="SESSION_LEVEL"  code="0"/>
+      <enum name="PCC_RULE_LEVEL"   code="1"/>
+    </avp>
+    <avp name="Usage-Monitoring-Report" code="1069" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="USAGE_MONITORING_REPORT_REQUIRED"  code="0"/>
+    </avp>
+    <avp name="Usage-Monitoring-Support" code="1070" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="USAGE_MONITORING_DISABLED"  code="0"/>
+    </avp>
+    <avp name="CSG-Information-Reporting" code="1071" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="CHANGE_CSG_CELL"  code="0"/>
+      <enum name="CHANGE_CSG_SUBSCRIBED_HYBRID_CELL"   code="1"/>
+      <enum name="CHANGE_CSG_UNSUBSCRIBED_HYBRID_CELL"   code="2"/>
+    </avp>
+    <!-- Note: The AVP codes from 1072 to 1099 are reserved for TS 29.212 -->
 <!-- ETSI TS 129 140 V6.3.0 (2005-12) -->
 		<avp name="Served-User-Identity" code="1100" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
