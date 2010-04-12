@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.423 V9.1.0 (2009-12)
+-- 3GPP TS 36.423 V9.2.0 (2010-03)
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -27,6 +27,9 @@ IMPORTS
 FROM X2AP-CommonDataTypes
 
 
+	CellActivationRequest,
+	CellActivationResponse,
+	CellActivationFailure,
 	ENBConfigurationUpdate,
 	ENBConfigurationUpdateAcknowledge,
 	ENBConfigurationUpdateFailure,
@@ -57,6 +60,7 @@ FROM X2AP-CommonDataTypes
 
 FROM X2AP-PDU-Contents
 
+	id-cellActivation,
 	id-eNBConfigurationUpdate,
 	id-errorIndication,
 	id-handoverCancel, 
@@ -151,7 +155,8 @@ X2AP-ELEMENTARY-PROCEDURES-CLASS-1 X2AP-ELEMENTARY-PROCEDURE ::= {
 	x2Setup													|
 	resourceStatusReportingInitiation						|
 	eNBConfigurationUpdate									|
-	mobilitySettingsChange									,
+	mobilitySettingsChange									|
+	cellActivation											,
 	...
 }
 
@@ -275,6 +280,14 @@ mobilitySettingsChange	X2AP-ELEMENTARY-PROCEDURE ::= {
 	SUCCESSFUL OUTCOME		MobilityChangeAcknowledge
 	UNSUCCESSFUL OUTCOME	MobilityChangeFailure
 	PROCEDURE CODE			id-mobilitySettingsChange
+	CRITICALITY				reject
+}
+
+cellActivation	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		CellActivationRequest
+	SUCCESSFUL OUTCOME		CellActivationResponse
+	UNSUCCESSFUL OUTCOME	CellActivationFailure
+	PROCEDURE CODE			id-cellActivation
 	CRITICALITY				reject
 }
 

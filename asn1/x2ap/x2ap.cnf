@@ -161,6 +161,7 @@ id-privateMessage						ProcedureCode
 id-mobilitySettingsChange				ProcedureCode
 id-rLFIndication						ProcedureCode
 id-handoverReport						ProcedureCode
+id-cellActivation						ProcedureCode
 
 # ProtocolIE-ID
 
@@ -219,7 +220,12 @@ id-SourceCellECGI															ProtocolIE-ID
 id-FailureCellECGI															ProtocolIE-ID
 id-HandoverReportType														ProtocolIE-ID
 id-PRACH-Configuration														ProtocolIE-ID
-
+id-MBSFN-Subframe-Info														ProtocolIE-ID
+id-ServedCellsToActivate													ProtocolIE-ID
+id-ActivatedCellList														ProtocolIE-ID
+id-DeactivationIndication													ProtocolIE-ID
+id-UE-RLF-Report-Container													ProtocolIE-ID
+ 
 #.REGISTER_NEW
 
 #X2AP-PROTOCOL-IES
@@ -275,11 +281,16 @@ ShortMAC-I									N x2ap.ies id-ShortMAC-I
 ECGI										N x2ap.ies id-SourceCellECGI
 ECGI										N x2ap.ies id-FailureCellECGI
 HandoverReportType							N x2ap.ies id-HandoverReportType
+UE-RLF-Report-Container						N x2ap.ies id-UE-RLF-Report-Container
+ServedCellsToActivate						N x2ap.ies id-ServedCellsToActivate
+ActivatedCellList							N x2ap.ies id-ActivatedCellList
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
 CompositeAvailableCapacityGroup				N x2ap.extension id-CompositeAvailableCapacityGroup
 PRACH-Configuration							N x2ap.extension id-PRACH-Configuration
+MBSFN-Subframe-Infolist						N x2ap.extension id-MBSFN-Subframe-Info
+DeactivationIndication						N x2ap.extension id-DeactivationIndication
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
@@ -323,6 +334,11 @@ RLFIndication						N x2ap.proc.imsg id-rLFIndication
 MobilityChangeRequest				N x2ap.proc.imsg id-mobilitySettingsChange
 MobilityChangeAcknowledge			N x2ap.proc.sout id-mobilitySettingsChange
 MobilityChangeFailure				N x2ap.proc.uout id-mobilitySettingsChange
+
+CellActivationRequest				N x2ap.proc.imsg id-cellActivation
+CellActivationResponse				N x2ap.proc.sout id-cellActivation
+CellActivationFailure				N x2ap.proc.uout id-cellActivation
+
 
 #.TYPE_ATTR
 BitRate TYPE = FT_UINT64 DISPLAY = BASE_DEC STRINGS = NULL

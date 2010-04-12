@@ -2,7 +2,7 @@
  * Routines for dissecting Evolved Universal Terrestrial Radio Access Network (EUTRAN);
  * X2 Application Protocol (X2AP);
  * 3GPP TS 36.423 packet dissection
- * Copyright 2007-2008, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2007-2010, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -25,7 +25,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  * Ref: 
- * 3GPP TS 36.423 V8.0.0 (2007-12)
+ * 3GPP TS 36.423 V9.2.0 (2010-03)
  */
 
 #ifdef HAVE_CONFIG_H

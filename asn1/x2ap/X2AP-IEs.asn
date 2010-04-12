@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.423 V9.1.0 (2009-12)
+-- 3GPP TS 36.423 V9.2.0 (2010-03)
 -- 9.3.5	Information Element Definitions
 -- **************************************************************
 --
@@ -18,7 +18,8 @@ BEGIN
 IMPORTS
 	
 	id-E-RAB-Item,
-	id-Number-of-Antennaports,
+	id-Number-of-Antennaports, 
+	id-MBSFN-Subframe-Info,
 	id-PRACH-Configuration,
 
 	maxnoofBearers,	
@@ -35,7 +36,8 @@ IMPORTS
 	maxnoofNeighbours,
 	maxnoofPRBs,
 	maxNrOfErrors,
-	maxPools
+	maxPools,
+	maxnoofMBSFN
 
 FROM X2AP-Constants
 
@@ -146,7 +148,9 @@ CauseRadioNetwork ::= ENUMERATED {
 	...,
 	load-balancing,
 	handover-optimisation,
-	value-out-of-allowed-range
+	value-out-of-allowed-range,
+	multiple-E-RAB-ID-instances,
+	switch-off-ongoing
 
 }
 
@@ -248,6 +252,10 @@ CyclicPrefixUL ::= ENUMERATED {
 
 -- D
 
+DeactivationIndication::= ENUMERATED { 
+	deactivated,
+	...
+}
 
 DL-Forwarding ::= ENUMERATED {
 	dL-forwardingProposed,
@@ -393,7 +401,7 @@ ForbiddenLAs-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 ForbiddenLACs ::= SEQUENCE (SIZE(1..maxnoofForbLACs)) OF LAC
 
-
+Fourframes ::= BIT STRING (SIZE (24))
 
 -- G
 
@@ -451,7 +459,7 @@ GU-Group-ID-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 GUMMEI			::= SEQUENCE {
 	
 	gU-Group-ID		GU-Group-ID,
-	mMME-Code			MME-Code,
+	mME-Code			MME-Code,
 	iE-Extensions					ProtocolExtensionContainer { {GUMMEI-ExtIEs} } OPTIONAL,
 	...
 }
@@ -571,6 +579,20 @@ MME-Code		::= OCTET STRING (SIZE (1))
 
 Measurement-ID	::= INTEGER (1..4095, ...) 
 
+MBSFN-Subframe-Infolist::= SEQUENCE (SIZE(1.. maxnoofMBSFN)) OF MBSFN-Subframe-Info
+
+MBSFN-Subframe-Info	::= SEQUENCE {
+	radioframeAllocationPeriod		RadioframeAllocationPeriod,
+	radioframeAllocationOffset		RadioframeAllocationOffset,
+	subframeAllocation				SubframeAllocation,
+	iE-Extensions			ProtocolExtensionContainer { { MBSFN-Subframe-Info-ExtIEs } } 	OPTIONAL,
+	...
+}
+
+MBSFN-Subframe-Info-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 MobilityParametersModificationRange ::= SEQUENCE {
 	handoverTriggerChangeLowerLimit		INTEGER (-20..20),
 	handoverTriggerChangeUpperLimit		INTEGER (-20..20),
@@ -607,6 +629,9 @@ Number-of-Antennaports ::= ENUMERATED {
 }
 
 -- O
+
+Oneframe ::= BIT STRING (SIZE (6))
+
 -- P
 
 PDCP-SN ::= INTEGER (0..4095)  
@@ -729,6 +754,17 @@ DL-Total-PRB-usage::= INTEGER (0..100)
 
 UL-Total-PRB-usage::= INTEGER (0..100)
 
+RadioframeAllocationPeriod ::= ENUMERATED{
+	n1, 
+	n2, 
+	n4, 
+	n8, 
+	n16, 
+	n32,
+	...
+}
+
+RadioframeAllocationOffset ::= INTEGER (0..7, ...)
 
 -- S
 
@@ -768,8 +804,9 @@ ServedCell-Information ::= SEQUENCE {
 }
 
 ServedCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-Number-of-Antennaports			CRITICALITY ignore	EXTENSION Number-of-Antennaports				PRESENCE optional }|
-	{ ID id-PRACH-Configuration				CRITICALITY ignore	EXTENSION PRACH-Configuration				PRESENCE optional },
+	{ ID id-Number-of-Antennaports		CRITICALITY ignore	EXTENSION Number-of-Antennaports			PRESENCE optional }|
+	{ ID id-PRACH-Configuration			CRITICALITY ignore	EXTENSION PRACH-Configuration				PRESENCE optional },
+	{ ID id-MBSFN-Subframe-Info			CRITICALITY ignore	EXTENSION MBSFN-Subframe-Infolist			PRESENCE optional},
 	...
 }
 
@@ -819,6 +856,11 @@ SpecialSubframePatterns ::= ENUMERATED {
 
 SubscriberProfileIDforRFP ::= INTEGER (1..256) 
 
+SubframeAllocation ::= CHOICE {
+	oneframe						Oneframe,
+	fourframes						Fourframes,
+	...
+}
 
 -- T
 
@@ -940,9 +982,10 @@ UL-HighInterferenceIndicationInfo-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-
 UL-HighInterferenceIndication ::= BIT STRING (SIZE(1..110, ...))
 
+UE-RLF-Report-Container::= OCTET STRING
+-- This IE is a transparent container and shall be encoded as the rlfReport field contained in the UEInformationResponse message as defined in [9]
 
 -- V
 -- W
