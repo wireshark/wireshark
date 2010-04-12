@@ -601,6 +601,7 @@ id-CellAccessMode									ProtocolIE-ID
 id-CSGMembershipStatus								ProtocolIE-ID
 id-LPPa-PDU											ProtocolIE-ID
 id-Routing-ID										ProtocolIE-ID
+id-Time-Synchronization-Info						ProtocolIE-ID
 #.END
 
 #.REGISTER_NEW
@@ -742,6 +743,7 @@ Routing-ID								N s1ap.ies id-Routing-ID
 #RAB-Parameters							N s1ap.extension id-AlternativeRABConfiguration
 #Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf N s1ap.extension id-Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf
 Data-Forwarding-Not-Possible			N s1ap.extension id-Data-Forwarding-Not-Possible
+TimeSynchronizationInfo					N s1ap.extension id-Time-Synchronization-Info
 
 #S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired						N s1ap.proc.imsg id-HandoverPreparation

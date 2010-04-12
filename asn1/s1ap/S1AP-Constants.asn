@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V9.1.0 (2009-12)
+-- 3GPP TS 36.413 V9.2.0 (2010-03)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -261,8 +261,6 @@ id-CellAccessMode								ProtocolIE-ID ::= 145
 id-CSGMembershipStatus 							ProtocolIE-ID ::= 146
 id-LPPa-PDU										ProtocolIE-ID ::= 147
 id-Routing-ID									ProtocolIE-ID ::= 148
+id-Time-Synchronization-Info					ProtocolIE-ID ::= 149
 
 END
-
-
-

@@ -1,6 +1,6 @@
 /* packet-s1ap.c
  * Routines for E-UTRAN S1 Application Protocol (S1AP) packet dissection
- * Copyright 2007-2009, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2007-2010, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -24,7 +24,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V8.5.0 (2009-03)
+ * References: 3GPP TS 36.413 V9.2.0 (2010-03)
  */
 
 #ifdef HAVE_CONFIG_H

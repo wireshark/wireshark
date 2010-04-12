@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V9.1.0 (2009-12)
+-- 3GPP TS 36.413 V9.2.0 (2010-03)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -18,7 +18,8 @@ BEGIN
 IMPORTS
 	id-E-RABInformationListItem,
 	id-E-RABItem,
-	id-Bearers-SubjectToStatusTransfer-Item,
+	id-Bearers-SubjectToStatusTransfer-Item, 
+	id-Time-Synchronization-Info,
 	maxNrOfCSGs,
 	maxNrOfE-RABs,
 	maxNrOfErrors,
@@ -29,7 +30,6 @@ IMPORTS
 	maxnoofEPLMNsPlusOne,
 	maxnoofForbLACs,
 	maxnoofForbTACs,
-	maxnoofTACs,
 	maxnoofCells,
 	maxnoofCellID,
 	maxnoofEmergencyAreaID,
@@ -85,9 +85,9 @@ Bearers-SubjectToStatusTransfer-ItemIEs S1AP-PROTOCOL-IES ::= {
 
 Bearers-SubjectToStatusTransfer-Item ::= SEQUENCE {
 	e-RAB-ID								E-RAB-ID,
-	uL-COUNTvalue								COUNTvalue,
-	dL-COUNTvalue								COUNTvalue,
-	receiveStatusofULPDCPSDUs					ReceiveStatusofULPDCPSDUs			OPTIONAL,
+	uL-COUNTvalue							COUNTvalue,
+	dL-COUNTvalue							COUNTvalue,
+	receiveStatusofULPDCPSDUs				ReceiveStatusofULPDCPSDUs			OPTIONAL,
 	iE-Extensions							ProtocolExtensionContainer { {Bearers-SubjectToStatusTransfer-ItemExtIEs} } OPTIONAL,
 	...
 }
@@ -121,7 +121,7 @@ CancelledCellinEAI ::= SEQUENCE (SIZE(1..maxnoofCellinEAI)) OF CancelledCellinEA
 
 CancelledCellinEAI-Item ::= SEQUENCE {
 	eCGI					EUTRAN-CGI,
-	numberOfBroadcasts	NumberOfBroadcasts,
+	numberOfBroadcasts		NumberOfBroadcasts,
 	iE-Extensions			ProtocolExtensionContainer { {CancelledCellinEAI-Item-ExtIEs} } OPTIONAL,
 	...
 }
@@ -228,7 +228,8 @@ CauseNas ::= ENUMERATED {
 	authentication-failure,
 	detach,
 	unspecified,
-	...
+	...,
+	csg-subscription-expiry
 }
 
 CellAccessMode ::= ENUMERATED {
@@ -536,7 +537,7 @@ E-RABInformationListIEs S1AP-PROTOCOL-IES ::= {
 }
 
 E-RABInformationListItem ::= SEQUENCE {
-	e-RAB-ID					E-RAB-ID,
+	e-RAB-ID						E-RAB-ID,
 	dL-Forwarding					DL-Forwarding		OPTIONAL,
 	iE-Extensions					ProtocolExtensionContainer { {E-RABInformationListItem-ExtIEs} }			OPTIONAL,
 	...
@@ -554,7 +555,7 @@ E-RABItemIEs 	S1AP-PROTOCOL-IES ::= {
 }
 
 E-RABItem ::= SEQUENCE {
-	e-RAB-ID				E-RAB-ID,
+	e-RAB-ID					E-RAB-ID,
 	cause						Cause,
 	iE-Extensions				ProtocolExtensionContainer { {E-RABItem-ExtIEs} } OPTIONAL,
 	...
@@ -589,7 +590,7 @@ EUTRAN-CGI-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-EUTRANRoundTripDelayEstimationInfo ::= INTEGER (0..255)
+EUTRANRoundTripDelayEstimationInfo ::= INTEGER (0..2047)
 
 ExtendedRNC-ID					::= INTEGER (4096..65535)
 
@@ -642,7 +643,7 @@ GBR-QosInformation ::= SEQUENCE {
 	e-RAB-MaximumBitrateUL			BitRate,
 	e-RAB-GuaranteedBitrateDL		BitRate,
 	e-RAB-GuaranteedBitrateUL		BitRate,
-	iE-Extensions						ProtocolExtensionContainer { { GBR-QosInformation-ExtIEs} } OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { GBR-QosInformation-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -657,7 +658,7 @@ GUMMEI			::= SEQUENCE {
 	pLMN-Identity		PLMNidentity,
 	mME-Group-ID		MME-Group-ID,
 	mME-Code			MME-Code,
-	iE-Extensions					ProtocolExtensionContainer { {GUMMEI-ExtIEs} } OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {GUMMEI-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -672,7 +673,7 @@ HandoverRestrictionList ::= SEQUENCE {
 	equivalentPLMNs				EPLMNs					OPTIONAL,
 	forbiddenTAs				ForbiddenTAs			OPTIONAL,
 	forbiddenLAs				ForbiddenLAs			OPTIONAL,
-	forbiddenInterRATs				ForbiddenInterRATs			OPTIONAL, 
+	forbiddenInterRATs			ForbiddenInterRATs		OPTIONAL, 
 	iE-Extensions				ProtocolExtensionContainer { {HandoverRestrictionList-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -781,7 +782,7 @@ OldBSS-ToNewBSS-Information		::= OCTET STRING
 OverloadAction ::= ENUMERATED {
 reject-non-emergency-mo-dt,
 reject-all-rrc-cr-signalling,
-permit-emergency-sessions-only,
+permit-emergency-sessions-and-mobile-terminated-services-only,
 	...
 }
 
@@ -844,8 +845,8 @@ RequestType-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 }
 
 RIMTransfer ::= SEQUENCE {
-	rIMInformation					RIMInformation,
-	rIMRoutingAddress				RIMRoutingAddress		OPTIONAL,
+	rIMInformation			RIMInformation,
+	rIMRoutingAddress		RIMRoutingAddress		OPTIONAL,
 	iE-Extensions			ProtocolExtensionContainer { { RIMTransfer-ExtIEs} }			OPTIONAL,
 	...
 }
@@ -858,7 +859,8 @@ RIMInformation ::= OCTET STRING
 
 RIMRoutingAddress ::= CHOICE {
 	gERAN-Cell-ID			GERAN-Cell-ID,
-	...
+	...,
+	targetRNC-ID			TargetRNC-ID
 }
 
 ReportArea ::= ENUMERATED {
@@ -882,7 +884,7 @@ RRC-Establishment-Cause ::= ENUMERATED {
 	...
 }
 
-Routing-ID		::= OCTET STRING (SIZE (4))
+Routing-ID		::= INTEGER (0..255)
 
 -- S
 
@@ -913,8 +915,8 @@ SONInformation ::= CHOICE{
 
 SONInformationRequest ::= ENUMERATED { 
 	x2TNL-Configuration-Info,
-	...
-}
+	...,
+	time-Synchronization-Info}
 
 SONInformationReply ::= SEQUENCE {
 	x2TNLConfigurationInfo			X2TNLConfigurationInfo			OPTIONAL,
@@ -923,6 +925,8 @@ SONInformationReply ::= SEQUENCE {
 }
 
 SONInformationReply-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 9 to transfer Time synchronization information --
+	{ID id-Time-Synchronization-Info	CRITICALITY ignore		EXTENSION TimeSynchronizationInfo		PRESENCE optional},
 	...
 }
 
@@ -968,9 +972,9 @@ SRVCCHOIndication ::= ENUMERATED {
 
 SourceeNB-ToTargeteNB-TransparentContainer		::= SEQUENCE {
 	rRC-Container					RRC-Container,
-	e-RABInformationList		E-RABInformationList		OPTIONAL,
+	e-RABInformationList			E-RABInformationList		OPTIONAL,
 	targetCell-ID					EUTRAN-CGI,
-	subscriberProfileIDforRFP				SubscriberProfileIDforRFP		OPTIONAL,
+	subscriberProfileIDforRFP		SubscriberProfileIDforRFP		OPTIONAL,
 	uE-HistoryInformation			UE-HistoryInformation,
 	iE-Extensions			ProtocolExtensionContainer { {SourceeNB-ToTargeteNB-TransparentContainer-ExtIEs} } OPTIONAL,
 	...
@@ -1018,6 +1022,21 @@ SupportedTAs-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+StratumLevel ::= INTEGER (0..3, ...)
+
+SynchronizationStatus ::= ENUMERATED { synchronous, asynchronous, ... }
+
+TimeSynchronizationInfo ::= SEQUENCE {
+	stratumLevel					StratumLevel,
+	synchronizationStatus			SynchronizationStatus,
+	iE-Extensions					ProtocolExtensionContainer { { TimeSynchronizationInfo-ExtIEs} } OPTIONAL,
+	...
+}
+
+TimeSynchronizationInfo-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 S-TMSI ::= SEQUENCE {
 	mMEC	MME-Code,
 	m-TMSI	M-TMSI,
@@ -1051,7 +1070,7 @@ TAI-Broadcast ::= SEQUENCE (SIZE(1..maxnoofTAIforWarning)) OF TAI-Broadcast-Item
 TAI-Broadcast-Item ::= SEQUENCE {
 	tAI					TAI,
 	completedCellinTAI	CompletedCellinTAI,
-	iE-Extensions			ProtocolExtensionContainer { {TAI-Broadcast-Item-ExtIEs} } OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {TAI-Broadcast-Item-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1064,7 +1083,7 @@ TAI-Cancelled ::= SEQUENCE (SIZE(1..maxnoofTAIforWarning)) OF TAI-Cancelled-Item
 TAI-Cancelled-Item ::= SEQUENCE {
 	tAI					TAI,
 	cancelledCellinTAI	CancelledCellinTAI,
-	iE-Extensions			ProtocolExtensionContainer { {TAI-Cancelled-Item-ExtIEs} } OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {TAI-Cancelled-Item-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1089,7 +1108,7 @@ TBCD-STRING ::= OCTET STRING (SIZE (3))
 TargetID ::= CHOICE {
 	targeteNB-ID			TargeteNB-ID,
 	targetRNC-ID			TargetRNC-ID,
-	cGI				CGI,
+	cGI						CGI,
 	...
 }
 
@@ -1109,7 +1128,7 @@ TargetRNC-ID ::= SEQUENCE {
 	rAC					RAC 		OPTIONAL,
 	rNC-ID				RNC-ID,
 	extendedRNC-ID		ExtendedRNC-ID		OPTIONAL,
-	iE-Extensions	ProtocolExtensionContainer { {TargetRNC-ID-ExtIEs} } OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {TargetRNC-ID-ExtIEs} } OPTIONAL,
 	...
 	}
 
@@ -1120,7 +1139,7 @@ TargetRNC-ID-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 
 
 TargeteNB-ToSourceeNB-TransparentContainer		::= SEQUENCE {
-	rRC-Container					RRC-Container,
+	rRC-Container			RRC-Container,
 	iE-Extensions			ProtocolExtensionContainer { {TargeteNB-ToSourceeNB-TransparentContainer-ExtIEs} } OPTIONAL,
 	...
 }
@@ -1141,7 +1160,7 @@ TransportLayerAddress		::= BIT STRING (SIZE(1..160, ...))
 
 TraceActivation ::= SEQUENCE {
 	e-UTRAN-Trace-ID					E-UTRAN-Trace-ID,
-	interfacesToTrace			InterfacesToTrace,
+	interfacesToTrace				InterfacesToTrace,
 traceDepth						TraceDepth,
 traceCollectionEntityIPAddress	TransportLayerAddress,
 	iE-Extensions					ProtocolExtensionContainer { { TraceActivation-ExtIEs} }		OPTIONAL,
@@ -1228,8 +1247,8 @@ UERadioCapability ::= OCTET STRING
 
 UESecurityCapabilities ::= SEQUENCE {
 	encryptionAlgorithms			EncryptionAlgorithms,
-	integrityProtectionAlgorithms		IntegrityProtectionAlgorithms,
-	iE-Extensions				ProtocolExtensionContainer { { UESecurityCapabilities-ExtIEs} }		OPTIONAL,
+	integrityProtectionAlgorithms	IntegrityProtectionAlgorithms,
+	iE-Extensions					ProtocolExtensionContainer { { UESecurityCapabilities-ExtIEs} }		OPTIONAL,
 ...
 }
 
@@ -1273,6 +1292,3 @@ X2TNLConfigurationInfo-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 -- Z
 
 END
-
-
-

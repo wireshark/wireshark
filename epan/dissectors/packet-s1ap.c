@@ -8,7 +8,7 @@
 #line 1 "packet-s1ap-template.c"
 /* packet-s1ap.c
  * Routines for E-UTRAN S1 Application Protocol (S1AP) packet dissection
- * Copyright 2007-2009, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2007-2010, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -32,7 +32,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V8.5.0 (2009-03)
+ * References: 3GPP TS 36.413 V9.2.0 (2010-03)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -280,7 +280,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_CellAccessMode = 145,
   id_CSGMembershipStatus = 146,
   id_LPPa_PDU  = 147,
-  id_Routing_ID = 148
+  id_Routing_ID = 148,
+  id_Time_Synchronization_Info = 149
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-s1ap-val.h ---*/
@@ -360,6 +361,7 @@ static int hf_s1ap_ServedGUMMEIs_PDU = -1;        /* ServedGUMMEIs */
 static int hf_s1ap_ServedPLMNs_PDU = -1;          /* ServedPLMNs */
 static int hf_s1ap_SubscriberProfileIDforRFP_PDU = -1;  /* SubscriberProfileIDforRFP */
 static int hf_s1ap_SupportedTAs_PDU = -1;         /* SupportedTAs */
+static int hf_s1ap_TimeSynchronizationInfo_PDU = -1;  /* TimeSynchronizationInfo */
 static int hf_s1ap_S_TMSI_PDU = -1;               /* S_TMSI */
 static int hf_s1ap_TAI_PDU = -1;                  /* TAI */
 static int hf_s1ap_TargetID_PDU = -1;             /* TargetID */
@@ -599,6 +601,7 @@ static int hf_s1ap_reportArea = -1;               /* ReportArea */
 static int hf_s1ap_rIMInformation = -1;           /* RIMInformation */
 static int hf_s1ap_rIMRoutingAddress = -1;        /* RIMRoutingAddress */
 static int hf_s1ap_gERAN_Cell_ID = -1;            /* GERAN_Cell_ID */
+static int hf_s1ap_targetRNC_ID = -1;             /* TargetRNC_ID */
 static int hf_s1ap_nextHopChainingCount = -1;     /* INTEGER_0_7 */
 static int hf_s1ap_nextHopParameter = -1;         /* SecurityKey */
 static int hf_s1ap_sONInformationRequest = -1;    /* SONInformationRequest */
@@ -624,6 +627,8 @@ static int hf_s1ap_ServedPLMNs_item = -1;         /* PLMNidentity */
 static int hf_s1ap_SupportedTAs_item = -1;        /* SupportedTAs_Item */
 static int hf_s1ap_tAC = -1;                      /* TAC */
 static int hf_s1ap_broadcastPLMNs = -1;           /* BPLMNs */
+static int hf_s1ap_stratumLevel = -1;             /* StratumLevel */
+static int hf_s1ap_synchronizationStatus = -1;    /* SynchronizationStatus */
 static int hf_s1ap_mMEC = -1;                     /* MME_Code */
 static int hf_s1ap_m_TMSI = -1;                   /* M_TMSI */
 static int hf_s1ap_TAIListforWarning_item = -1;   /* TAI */
@@ -633,7 +638,6 @@ static int hf_s1ap_completedCellinTAI = -1;       /* CompletedCellinTAI */
 static int hf_s1ap_TAI_Cancelled_item = -1;       /* TAI_Cancelled_Item */
 static int hf_s1ap_cancelledCellinTAI = -1;       /* CancelledCellinTAI */
 static int hf_s1ap_CompletedCellinTAI_item = -1;  /* CompletedCellinTAI_Item */
-static int hf_s1ap_targetRNC_ID = -1;             /* TargetRNC_ID */
 static int hf_s1ap_cGI = -1;                      /* CGI */
 static int hf_s1ap_rNC_ID = -1;                   /* RNC_ID */
 static int hf_s1ap_extendedRNC_ID = -1;           /* ExtendedRNC_ID */
@@ -782,6 +786,7 @@ static gint ett_s1ap_ServedMMECs = -1;
 static gint ett_s1ap_ServedPLMNs = -1;
 static gint ett_s1ap_SupportedTAs = -1;
 static gint ett_s1ap_SupportedTAs_Item = -1;
+static gint ett_s1ap_TimeSynchronizationInfo = -1;
 static gint ett_s1ap_S_TMSI = -1;
 static gint ett_s1ap_TAIListforWarning = -1;
 static gint ett_s1ap_TAI = -1;
@@ -1223,6 +1228,7 @@ static const value_string s1ap_ProtocolIE_ID_vals[] = {
   { id_CSGMembershipStatus, "id-CSGMembershipStatus" },
   { id_LPPa_PDU, "id-LPPa-PDU" },
   { id_Routing_ID, "id-Routing-ID" },
+  { id_Time_Synchronization_Info, "id-Time-Synchronization-Info" },
   { 0, NULL }
 };
 
@@ -2097,6 +2103,7 @@ static const value_string s1ap_CauseNas_vals[] = {
   {   1, "authentication-failure" },
   {   2, "detach" },
   {   3, "unspecified" },
+  {   4, "csg-subscription-expiry" },
   { 0, NULL }
 };
 
@@ -2104,7 +2111,7 @@ static const value_string s1ap_CauseNas_vals[] = {
 static int
 dissect_s1ap_CauseNas(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, TRUE, 0, NULL);
+                                     4, NULL, TRUE, 1, NULL);
 
   return offset;
 }
@@ -2970,7 +2977,7 @@ dissect_s1ap_E_RABLevelQoSParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static int
 dissect_s1ap_EUTRANRoundTripDelayEstimationInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, FALSE);
+                                                            0U, 2047U, NULL, FALSE);
 
   return offset;
 }
@@ -3435,7 +3442,7 @@ dissect_s1ap_NumberofBroadcastRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static const value_string s1ap_OverloadAction_vals[] = {
   {   0, "reject-non-emergency-mo-dt" },
   {   1, "reject-all-rrc-cr-signalling" },
-  {   2, "permit-emergency-sessions-only" },
+  {   2, "permit-emergency-sessions-and-mobile-terminated-services-only" },
   { 0, NULL }
 };
 
@@ -3538,13 +3545,43 @@ dissect_s1ap_RIMInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
+
+static int
+dissect_s1ap_RNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 4095U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t TargetRNC_ID_sequence[] = {
+  { &hf_s1ap_lAI            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_LAI },
+  { &hf_s1ap_rAC            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_RAC },
+  { &hf_s1ap_rNC_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_RNC_ID },
+  { &hf_s1ap_extendedRNC_ID , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ExtendedRNC_ID },
+  { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_TargetRNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_TargetRNC_ID, TargetRNC_ID_sequence);
+
+  return offset;
+}
+
+
 static const value_string s1ap_RIMRoutingAddress_vals[] = {
   {   0, "gERAN-Cell-ID" },
+  {   1, "targetRNC-ID" },
   { 0, NULL }
 };
 
 static const per_choice_t RIMRoutingAddress_choice[] = {
   {   0, &hf_s1ap_gERAN_Cell_ID  , ASN1_EXTENSION_ROOT    , dissect_s1ap_GERAN_Cell_ID },
+  {   1, &hf_s1ap_targetRNC_ID   , ASN1_NOT_EXTENSION_ROOT, dissect_s1ap_TargetRNC_ID },
   { 0, NULL, 0, NULL }
 };
 
@@ -3577,16 +3614,6 @@ dissect_s1ap_RIMTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_s1ap_RepetitionPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4095U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_s1ap_RNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 4095U, NULL, FALSE);
 
@@ -3656,8 +3683,8 @@ dissect_s1ap_RRC_Establishment_Cause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_s1ap_Routing_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       4, 4, FALSE, NULL);
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, FALSE);
 
   return offset;
 }
@@ -3711,6 +3738,7 @@ dissect_s1ap_SerialNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static const value_string s1ap_SONInformationRequest_vals[] = {
   {   0, "x2TNL-Configuration-Info" },
+  {   1, "time-Synchronization-Info" },
   { 0, NULL }
 };
 
@@ -3718,7 +3746,7 @@ static const value_string s1ap_SONInformationRequest_vals[] = {
 static int
 dissect_s1ap_SONInformationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, TRUE, 1, NULL);
 
   return offset;
 }
@@ -4086,6 +4114,48 @@ dissect_s1ap_SupportedTAs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
+
+static int
+dissect_s1ap_StratumLevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 3U, NULL, TRUE);
+
+  return offset;
+}
+
+
+static const value_string s1ap_SynchronizationStatus_vals[] = {
+  {   0, "synchronous" },
+  {   1, "asynchronous" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s1ap_SynchronizationStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t TimeSynchronizationInfo_sequence[] = {
+  { &hf_s1ap_stratumLevel   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_StratumLevel },
+  { &hf_s1ap_synchronizationStatus, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_SynchronizationStatus },
+  { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_TimeSynchronizationInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_TimeSynchronizationInfo, TimeSynchronizationInfo_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t S_TMSI_sequence[] = {
   { &hf_s1ap_mMEC           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_MME_Code },
   { &hf_s1ap_m_TMSI         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_M_TMSI },
@@ -4111,24 +4181,6 @@ dissect_s1ap_TAIListforWarning(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_s1ap_TAIListforWarning, TAIListforWarning_sequence_of,
                                                   1, maxnoofTAIforWarning, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t TargetRNC_ID_sequence[] = {
-  { &hf_s1ap_lAI            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_LAI },
-  { &hf_s1ap_rAC            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_RAC },
-  { &hf_s1ap_rNC_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_RNC_ID },
-  { &hf_s1ap_extendedRNC_ID , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ExtendedRNC_ID },
-  { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_s1ap_TargetRNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_s1ap_TargetRNC_ID, TargetRNC_ID_sequence);
 
   return offset;
 }
@@ -6690,6 +6742,14 @@ static int dissect_SupportedTAs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_TimeSynchronizationInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_TimeSynchronizationInfo(tvb, offset, &asn1_ctx, tree, hf_s1ap_TimeSynchronizationInfo_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_S_TMSI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -7890,6 +7950,7 @@ proto_reg_handoff_s1ap(void)
   dissector_add("s1ap.ies", id_LPPa_PDU, new_create_dissector_handle(dissect_LPPa_PDU_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_Routing_ID, new_create_dissector_handle(dissect_Routing_ID_PDU, proto_s1ap));
   dissector_add("s1ap.extension", id_Data_Forwarding_Not_Possible, new_create_dissector_handle(dissect_Data_Forwarding_Not_Possible_PDU, proto_s1ap));
+  dissector_add("s1ap.extension", id_Time_Synchronization_Info, new_create_dissector_handle(dissect_TimeSynchronizationInfo_PDU, proto_s1ap));
   dissector_add("s1ap.proc.imsg", id_HandoverPreparation, new_create_dissector_handle(dissect_HandoverRequired_PDU, proto_s1ap));
   dissector_add("s1ap.proc.sout", id_HandoverPreparation, new_create_dissector_handle(dissect_HandoverCommand_PDU, proto_s1ap));
   dissector_add("s1ap.proc.uout", id_HandoverPreparation, new_create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_s1ap));
@@ -8202,7 +8263,7 @@ void proto_register_s1ap(void) {
         "s1ap.RRC_Establishment_Cause", HFILL }},
     { &hf_s1ap_Routing_ID_PDU,
       { "Routing-ID", "s1ap.Routing_ID",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "s1ap.Routing_ID", HFILL }},
     { &hf_s1ap_SecurityKey_PDU,
       { "SecurityKey", "s1ap.SecurityKey",
@@ -8260,6 +8321,10 @@ void proto_register_s1ap(void) {
       { "SupportedTAs", "s1ap.SupportedTAs",
         FT_UINT32, BASE_DEC, NULL, 0,
         "s1ap.SupportedTAs", HFILL }},
+    { &hf_s1ap_TimeSynchronizationInfo_PDU,
+      { "TimeSynchronizationInfo", "s1ap.TimeSynchronizationInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.TimeSynchronizationInfo", HFILL }},
     { &hf_s1ap_S_TMSI_PDU,
       { "S-TMSI", "s1ap.S_TMSI",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9216,6 +9281,10 @@ void proto_register_s1ap(void) {
       { "gERAN-Cell-ID", "s1ap.gERAN_Cell_ID",
         FT_NONE, BASE_NONE, NULL, 0,
         "s1ap.GERAN_Cell_ID", HFILL }},
+    { &hf_s1ap_targetRNC_ID,
+      { "targetRNC-ID", "s1ap.targetRNC_ID",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.TargetRNC_ID", HFILL }},
     { &hf_s1ap_nextHopChainingCount,
       { "nextHopChainingCount", "s1ap.nextHopChainingCount",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -9316,6 +9385,14 @@ void proto_register_s1ap(void) {
       { "broadcastPLMNs", "s1ap.broadcastPLMNs",
         FT_UINT32, BASE_DEC, NULL, 0,
         "s1ap.BPLMNs", HFILL }},
+    { &hf_s1ap_stratumLevel,
+      { "stratumLevel", "s1ap.stratumLevel",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "s1ap.StratumLevel", HFILL }},
+    { &hf_s1ap_synchronizationStatus,
+      { "synchronizationStatus", "s1ap.synchronizationStatus",
+        FT_UINT32, BASE_DEC, VALS(s1ap_SynchronizationStatus_vals), 0,
+        "s1ap.SynchronizationStatus", HFILL }},
     { &hf_s1ap_mMEC,
       { "mMEC", "s1ap.mMEC",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -9352,10 +9429,6 @@ void proto_register_s1ap(void) {
       { "CompletedCellinTAI-Item", "s1ap.CompletedCellinTAI_Item",
         FT_NONE, BASE_NONE, NULL, 0,
         "s1ap.CompletedCellinTAI_Item", HFILL }},
-    { &hf_s1ap_targetRNC_ID,
-      { "targetRNC-ID", "s1ap.targetRNC_ID",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "s1ap.TargetRNC_ID", HFILL }},
     { &hf_s1ap_cGI,
       { "cGI", "s1ap.cGI",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9661,6 +9734,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_ServedPLMNs,
     &ett_s1ap_SupportedTAs,
     &ett_s1ap_SupportedTAs_Item,
+    &ett_s1ap_TimeSynchronizationInfo,
     &ett_s1ap_S_TMSI,
     &ett_s1ap_TAIListforWarning,
     &ett_s1ap_TAI,
