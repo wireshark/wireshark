@@ -11,18 +11,18 @@ CWD="`dirname \"$0\"`"
 export VERSION=`/usr/bin/sw_vers | grep ProductVersion | cut -f2 -d'.'`
 
 # On Leopard, X11.app is installed by default, and will be started
-# automatically via launchd.  On older systems, we need to start 
+# automatically via launchd.  On older systems, we need to start
 # X11 ourself.
 
 # For Panther and Tiger, start X11
 if [[ $VERSION -le 4 ]]; then
-	# FIXME apparently this removes the xterm that starts with X 
-	# from xinitrc but when is it really used? Should we modify 
+	# FIXME apparently this removes the xterm that starts with X
+	# from xinitrc but when is it really used? Should we modify
 	# the .xinitrc of the user without warning?
 	ps -wx -ocommand | grep -e '[X]11' > /dev/null
-	if [ "$?" != "0" -a ! -f ${HOME}/.xinitrc ]; then
-	    echo "rm -f ${HOME}/.xinitrc" > ${HOME}/.xinitrc
-	    sed 's/xterm/# xterm/' /usr/X11R6/lib/X11/xinit/xinitrc >> ${HOME}/.xinitrc
+	if [ "$?" != "0" -a ! -f "${HOME}/.xinitrc" ]; then
+	    echo "rm -f \"${HOME}/.xinitrc\"" > "${HOME}/.xinitrc"
+	    sed 's/xterm/# xterm/' /usr/X11R6/lib/X11/xinit/xinitrc >> "${HOME}/.xinitrc"
 	fi
 
 	# Start X11 and get DISPLAY
@@ -42,7 +42,7 @@ fi
 
 
 # Warn the user about time-consuming generation of fontconfig caches.
-test -f ${HOME}/.wireshark/.fccache-new || exit 12
+test -f "${HOME}/.wireshark/.fccache-new" || exit 12
 
 
 BASE="`echo "$0" | sed -e 's/\/Contents\/Resources\/script/\//'`"

@@ -49,7 +49,7 @@ if [ "$APPNAME" == "wireshark" ] ; then # Apply GUI settings
 	export GNOME_VFS_MODULE_PATH="$TOP/lib/gnome-vfs-2.0/modules"
 
 	# Set GTK theme (only if there is no .gtkrc-2.0 in the user's home)
-	if [[ ! -e $HOME/.gtkrc-2.0 ]]; then
+	if [[ ! -e "$HOME/.gtkrc-2.0" ]]; then
 		# prepare the theme depending on OS X appearance settings
 		(
 			cd "$TOP/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/"
@@ -69,15 +69,15 @@ if [ "$APPNAME" == "wireshark" ] ; then # Apply GUI settings
 	# This '#' needs to be escaped in pango.modules for Pango to work properly.
 	ESCAPEDTOP=`echo $TOP | sed 's/#/\\\\\\\\#/'`
 
-	mkdir -p ${HOME}/.wireshark-etc
-	sed 's|${HOME}|'"$HOME|g" "$TOP/etc/pango/pangorc" > ${HOME}/.wireshark-etc/pangorc
+	mkdir -p "${HOME}/.wireshark-etc"
+	sed 's|\\${HOME}|'"\"$HOME\"|g" "$TOP/etc/pango/pangorc" > "${HOME}/.wireshark-etc/pangorc"
 	sed 's|${CWD}|'"$ESCAPEDTOP|g" "$TOP/etc/pango/pango.modules" \
-		> ${HOME}/.wireshark-etc/pango.modules
-	cp -f "$TOP/etc/pango/pangox.aliases" ${HOME}/.wireshark-etc/
+		> "${HOME}/.wireshark-etc/pango.modules"
+	cp -f "$TOP/etc/pango/pangox.aliases" "${HOME}/.wireshark-etc/"
 	sed 's|${CWD}|'"$TOP|g" "$TOP/etc/gtk-2.0/gtk.immodules" \
-		> ${HOME}/.wireshark-etc/gtk.immodules
+		> "${HOME}/.wireshark-etc/gtk.immodules"
 	sed 's|${CWD}|'"$TOP|g" "$TOP/etc/gtk-2.0/gdk-pixbuf.loaders" \
-		> ${HOME}/.wireshark-etc/gdk-pixbuf.loaders
+		> "${HOME}/.wireshark-etc/gdk-pixbuf.loaders"
 fi
 
 exec "$CWD/$APPNAME-bin" "$@"
