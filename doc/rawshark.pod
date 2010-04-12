@@ -285,6 +285,10 @@ file syntax; each line contains one IP address and name, separated by
 whitespace. The same directory as for the personal preferences file is
 used.
 
+Capture filter name resolution is handled by libpcap on UNIX-compatible
+systems and WinPCAP on Windows.  As such the Wireshark personal F<hosts> file
+will not be consulted for capture filter name resolution.
+
 =item Name Resolution (ethers)
 
 The F<ethers> files are consulted to correlate 6-byte hardware addresses to
@@ -307,6 +311,10 @@ example, F<C:\Program Files\Wireshark>) on Windows systems.
 
 The personal F<ethers> file is looked for in the same directory as the personal
 preferences file.
+
+Capture filter name resolution is handled by libpcap on UNIX-compatible
+systems and WinPCAP on Windows.  As such the Wireshark personal F<ethers> file
+will not be consulted for capture filter name resolution.
 
 =item Name Resolution (manuf)
 
