@@ -307,8 +307,8 @@ static const true_false_string tfs_flags_authenticated = {
 };
 
 static const true_false_string tfs_flags_checkdisable = {
-	"Non-authenticated data is acceptable",
-	"Non-authenticated data is unacceptable"
+	"Acceptable",
+	"Unacceptable"
 };
 
 /* Opcodes */
@@ -3233,18 +3233,19 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (flags & F_RESPONSE) {
       proto_tree_add_item(field_tree, hf_dns_flags_recavail,
 		tvb, offset + DNS_FLAGS, 2, FALSE);
-      proto_tree_add_item(field_tree, hf_dns_flags_z,
+    }
+    proto_tree_add_item(field_tree, hf_dns_flags_z,
 		tvb, offset + DNS_FLAGS, 2, FALSE);
+    if (flags & F_RESPONSE) {
       proto_tree_add_item(field_tree, hf_dns_flags_authenticated,
 		tvb, offset + DNS_FLAGS, 2, FALSE);
+    }
+    proto_tree_add_item(field_tree, hf_dns_flags_checkdisable,
+                tvb, offset + DNS_FLAGS, 2, FALSE);
+    if (flags & F_RESPONSE) {
       proto_tree_add_item(field_tree, hf_dns_flags_rcode,
 		tvb, offset + DNS_FLAGS, 2, FALSE);
-    } else {
-      proto_tree_add_item(field_tree, hf_dns_flags_z,
-		tvb, offset + DNS_FLAGS, 2, FALSE);
-      proto_tree_add_item(field_tree, hf_dns_flags_checkdisable,
-		tvb, offset + DNS_FLAGS, 2, FALSE);
-    }
+    } 
   }
 
   quest = tvb_get_ntohs(tvb, offset + DNS_QUEST);
@@ -3440,7 +3441,7 @@ proto_register_dns(void)
 	FT_BOOLEAN, 16, TFS(&tfs_flags_authenticated), F_AUTHENTIC,
 	"Was the reply data authenticated by the server?", HFILL }},
     { &hf_dns_flags_checkdisable,
-      { "Non-authenticated data OK",	"dns.flags.checkdisable",
+      { "Non-authenticated data",	"dns.flags.checkdisable",
 	FT_BOOLEAN, 16, TFS(&tfs_flags_checkdisable), F_CHECKDISABLE,
 	"Is non-authenticated data acceptable?", HFILL }},
     { &hf_dns_flags_rcode,
