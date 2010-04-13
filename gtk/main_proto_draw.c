@@ -91,7 +91,7 @@
 
 static GtkWidget *
 add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
-    proto_tree *tree, GtkWidget *tree_view);
+	     proto_tree *tree, GtkWidget *tree_view);
 
 static void
 proto_tree_draw_node(proto_node *node, gpointer data);
@@ -214,7 +214,7 @@ expand_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
 
 static void
 collapse_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
-            GtkTreePath *path _U_, gpointer user_data _U_)
+	      GtkTreePath *path _U_, gpointer user_data _U_)
 {
     field_info	 *finfo;
     GtkTreeModel *model;
@@ -275,7 +275,7 @@ struct field_lookup_info {
 
 static gboolean
 lookup_finfo(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
-            gpointer data)
+	     gpointer data)
 {
     field_info *fi;
     struct field_lookup_info *fli = (struct field_lookup_info *)data;
@@ -288,7 +288,9 @@ lookup_finfo(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
     return FALSE;
 }
 
-GtkTreePath *tree_find_by_field_info(GtkTreeView *tree_view, field_info *finfo) {
+GtkTreePath
+*tree_find_by_field_info(GtkTreeView *tree_view, field_info *finfo)
+{
   GtkTreeModel *model;
   struct field_lookup_info fli;
 
@@ -690,7 +692,7 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
 
   g_signal_connect(byte_view, "show", G_CALLBACK(byte_view_realize_cb), NULL);
   g_signal_connect(byte_view, "button_press_event", G_CALLBACK(byte_view_button_press_cb),
-                 g_object_get_data(G_OBJECT(popup_menu_object), PM_BYTES_VIEW_KEY));
+		   g_object_get_data(G_OBJECT(popup_menu_object), PM_BYTES_VIEW_KEY));
 
   g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TREE_PTR, tree);
   g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TREE_VIEW_PTR, tree_view);
@@ -756,7 +758,8 @@ savehex_dlg_destroy_cb(void)
 }
 
 
-static void copy_hex_all_info(GString* copy_buffer, const guint8* data_p, int data_len, gboolean append_text)
+static void
+copy_hex_all_info(GString* copy_buffer, const guint8* data_p, int data_len, gboolean append_text)
 {
     const int byte_line_length = 16; /* Print out data for 16 bytes on one line */
     int i, j;
@@ -771,7 +774,7 @@ static void copy_hex_all_info(GString* copy_buffer, const guint8* data_p, int da
     char_str= g_string_new("");
 
     i = 0;
-	while (i<data_len){
+    while (i<data_len) {
         if(end_of_line) {
             g_string_append_printf(hex_str,"%04x  ",i); /* Offset - note that we _append_ here */
         }
@@ -811,22 +814,25 @@ static void copy_hex_all_info(GString* copy_buffer, const guint8* data_p, int da
             g_string_assign(char_str,"");
             g_string_assign(hex_str, "\n");
         }
-	}
+    }
 
-	g_string_free(hex_str, TRUE);
-	g_string_free(char_str, TRUE);
+    g_string_free(hex_str, TRUE);
+    g_string_free(char_str, TRUE);
 }
 
-static
-int copy_hex_bytes_text_only(GString* copy_buffer, const guint8* data_p, int data_len _U_)
+static int
+copy_hex_bytes_text_only(GString* copy_buffer, const guint8* data_p, int data_len _U_)
 {
 
     gchar to_append;
 
+    /* Copy printable characters, newlines, and (horizontal) tabs. */
     if(isprint(*data_p)) {
         to_append = *data_p;
     } else if(*data_p==0x0a) {
-        to_append = '\n'; /* Copied from old copy_hex_cb function; not sure why this is needed - portablity?*/
+        to_append = '\n';
+    } else if(*data_p==0x09) {
+        to_append = '\t';
     } else {
         return 1; /* Just ignore non-printable bytes */
     }
@@ -844,7 +850,7 @@ int copy_hex_bytes_hex(GString* copy_buffer, const guint8* data_p, int data_len 
 void
 copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
 {
-	GtkWidget *bv;
+    GtkWidget *bv;
 
     guint len = 0;
     int bytes_consumed = 0;
@@ -852,17 +858,17 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
 
     const guint8* data_p;
 
-	GString* copy_buffer = g_string_new(""); /* String to copy to clipboard */
+    GString* copy_buffer = g_string_new(""); /* String to copy to clipboard */
 
-	bv = get_notebook_bv_ptr(byte_nb_ptr_gbl);
-	if (bv == NULL) {
-		/* shouldn't happen */
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
-		return;
-	}
+    bv = get_notebook_bv_ptr(byte_nb_ptr_gbl);
+    if (bv == NULL) {
+	    /* shouldn't happen */
+	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
+	    return;
+    }
 
-	data_p = get_byte_view_data_and_length(bv, &len);
-	g_assert(data_p != NULL);
+    data_p = get_byte_view_data_and_length(bv, &len);
+    g_assert(data_p != NULL);
 
     flags = data_type & CD_FLAGSMASK;
     data_type = data_type & CD_TYPEMASK;
@@ -1001,13 +1007,13 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 }
 
 /* Launch the dialog box to put up the file selection box etc */
-void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
+void
+savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 {
 	int start, end;
 	guint len;
 	const guint8 *data_p = NULL;
         gchar *label;
-
         GtkWidget   *bv;
 	GtkWidget   *dlg_lb;
 
@@ -1586,11 +1592,10 @@ void proto_draw_colors_init(void)
 }
 
 
-static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
-                                             GtkCellRenderer *cell,
-                                             GtkTreeModel *tree_model,
-                                             GtkTreeIter *iter,
-                                             gpointer data _U_)
+static void
+tree_cell_renderer(GtkTreeViewColumn *tree_column _U_, GtkCellRenderer *cell,
+		   GtkTreeModel *tree_model, GtkTreeIter *iter,
+		   gpointer data _U_)
 {
     field_info   *fi;
 
@@ -1709,11 +1714,8 @@ main_tree_view_new(e_prefs *prefs_p, GtkWidget **tree_view_p)
                                                            "text", 0, NULL);
   column = gtk_tree_view_get_column(GTK_TREE_VIEW(tree_view),
                                     col_offset - 1);
-  gtk_tree_view_column_set_cell_data_func(column,
-                                             renderer,
-                                             tree_cell_renderer,
-                                             NULL,
-                                             NULL);
+  gtk_tree_view_column_set_cell_data_func(column, renderer, tree_cell_renderer,
+					  NULL, NULL);
 
   gtk_tree_view_column_set_sizing(GTK_TREE_VIEW_COLUMN(column),
                                   GTK_TREE_VIEW_COLUMN_AUTOSIZE);
@@ -1729,7 +1731,8 @@ main_tree_view_new(e_prefs *prefs_p, GtkWidget **tree_view_p)
   return tv_scrollw;
 }
 
-void expand_all_tree(proto_tree *protocol_tree _U_, GtkWidget *tree_view)
+void
+expand_all_tree(proto_tree *protocol_tree _U_, GtkWidget *tree_view)
 {
   int i;
   for(i=0; i < num_tree_types; i++) {
@@ -1738,7 +1741,8 @@ void expand_all_tree(proto_tree *protocol_tree _U_, GtkWidget *tree_view)
   gtk_tree_view_expand_all(GTK_TREE_VIEW(tree_view));
 }
 
-void collapse_all_tree(proto_tree *protocol_tree _U_, GtkWidget *tree_view)
+void
+collapse_all_tree(proto_tree *protocol_tree _U_, GtkWidget *tree_view)
 {
   int i;
   for(i=0; i < num_tree_types; i++) {
