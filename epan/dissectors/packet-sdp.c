@@ -209,6 +209,7 @@ typedef struct {
   char *connection_type;
   char *media_type;
   char *encoding_name[SDP_NO_OF_PT]; 
+  char *encoding_name_and_rate[SDP_NO_OF_PT]; 
   char *media_port[SDP_MAX_RTP_CHANNELS];
   char *media_proto[SDP_MAX_RTP_CHANNELS];
   transport_media_pt_t media[SDP_MAX_RTP_CHANNELS];
@@ -235,7 +236,7 @@ void proto_reg_handoff_sdp(void);
 
 /* static functions */
 
-static void call_sdp_subdissector(tvbuff_t *tvb, packet_info *pinfo, int hf, proto_tree* ti,
+static void call_sdp_subdissector(tvbuff_t *tvb, packet_info *pinfo, int hf, proto_tree* ti, int lenght,
                                   transport_info_t *transport_info);
 
 /* Subdissector functions */
@@ -250,7 +251,7 @@ static void dissect_sdp_encryption_key(tvbuff_t *tvb, proto_item * ti);
 static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti);
 static void dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
                               transport_info_t *transport_info);
-static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, transport_info_t *transport_info);
+static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, int length,transport_info_t *transport_info);
 
 static void
 dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -296,6 +297,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   transport_info.media_type=NULL;
   for (n=0; n < SDP_NO_OF_PT; n++){
     transport_info.encoding_name[n]=unknown_encoding;
+	transport_info.encoding_name_and_rate[n]=unknown_encoding;
   }
   for (n=0; n < SDP_MAX_RTP_CHANNELS; n++)
   {
@@ -433,7 +435,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                          linelen-tokenoffset,
                                          linelen-tokenoffset),
                                          pinfo,
-                                         hf,sub_ti,&transport_info),
+                                         hf,sub_ti,linelen-tokenoffset,&transport_info),
     offset = next_offset;
   }
 
@@ -572,7 +574,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-call_sdp_subdissector(tvbuff_t *tvb, packet_info *pinfo, int hf, proto_tree* ti, transport_info_t *transport_info){
+call_sdp_subdissector(tvbuff_t *tvb, packet_info *pinfo, int hf, proto_tree* ti, int length,transport_info_t *transport_info){
   if(hf == hf_owner){
     dissect_sdp_owner(tvb,ti);
   } else if ( hf == hf_connection_info) {
@@ -592,7 +594,7 @@ call_sdp_subdissector(tvbuff_t *tvb, packet_info *pinfo, int hf, proto_tree* ti,
   } else if ( hf == hf_media ) {
     dissect_sdp_media(tvb,ti,transport_info);
   } else if ( hf == hf_media_attribute ){
-    dissect_sdp_media_attribute(tvb,pinfo,ti,transport_info);
+    dissect_sdp_media_attribute(tvb,pinfo,ti, length, transport_info);
   }
 }
 
@@ -1458,11 +1460,12 @@ static gint find_sdp_media_attribute_names(tvbuff_t *tvb, int offset, guint len)
   return -1;
 }
 
-static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_item * ti, transport_info_t *transport_info){
+static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_item * ti, int length, transport_info_t *transport_info){
   proto_tree *sdp_media_attribute_tree;
   proto_item *fmtp_item, *media_format_item;
   proto_tree *fmtp_tree;
   gint offset, next_offset, tokenlen, n, colon_offset;
+  gint start_offset;
   guint8 *field_name;
   guint8 *payload_type;
   guint8 *attribute_value;
@@ -1533,6 +1536,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
     tokenlen = next_offset - offset;
 
+	start_offset = offset;
     proto_tree_add_item(sdp_media_attribute_tree, hf_media_encoding_name, tvb,
                         offset, tokenlen, FALSE);
 
@@ -1544,10 +1548,15 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     }
     transport_info->encoding_name[pt] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
 	
-
-    offset = next_offset + 1;
-    tvb_find_line_end_unquoted(tvb, offset, -1, &next_offset);
-
+    next_offset =  next_offset + 1;
+    offset = next_offset;
+	while (length-1 >= next_offset){
+		if(!isdigit(tvb_get_guint8(tvb, next_offset)))
+			break;
+		next_offset++;
+	}
+	transport_info->encoding_name_and_rate[pt] = (char*)tvb_get_ephemeral_string(tvb, start_offset, next_offset - start_offset);
+	proto_tree_add_text(sdp_media_attribute_tree, tvb, start_offset, next_offset - start_offset, "[Debug: %s]",transport_info->encoding_name_and_rate[pt]);
     tokenlen = next_offset - offset;
     proto_tree_add_item(sdp_media_attribute_tree, hf_media_sample_rate, tvb,
                         offset, tokenlen, FALSE);
