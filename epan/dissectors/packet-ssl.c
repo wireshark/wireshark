@@ -1292,9 +1292,13 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
              * Yes.  Tell the TCP dissector where the data for this
              * message starts in the data it handed us, and how many
              * more bytes we need, and return.
+             * Fix for bug 4535: Don't get just the data we need, get
+             * one more segment. Otherwise when the next segment does 
+             * not contain all the rest of the SSL PDU, reassembly will
+             * break.
              */
             pinfo->desegment_offset = offset;
-            pinfo->desegment_len = 5 - available_bytes;
+            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
             *need_desegmentation = TRUE;
             return offset;
         }
