@@ -253,8 +253,10 @@ static void dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
                               transport_info_t *transport_info);
 static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, int length,transport_info_t *transport_info);
 
-static void free_encoding_name_str (encoding_name_and_rate_t *encoding_name_and_rate)
+static void free_encoding_name_str (void *ptr)
 {
+  encoding_name_and_rate_t *encoding_name_and_rate = (encoding_name_and_rate_t *)ptr;
+
   if (encoding_name_and_rate->encoding_name) {
     g_free(encoding_name_and_rate->encoding_name);
   }
@@ -1325,7 +1327,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       /* ascii_bytes_to_tvb requires the "=" to be in the buffer */
-      data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter); 
+      data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
       if(mp4ves_handle && data_tvb){
         dissect_mp4ves_config(data_tvb, pinfo, tree);
       }
@@ -1352,7 +1354,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
   }
 
 
-  /* Dissect the H264 profile-level-id parameter 
+  /* Dissect the H264 profile-level-id parameter
    * RFC 3984:
    * A base16 [6] (hexadecimal) representation of
    * the following three bytes in the sequence
@@ -1367,7 +1369,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
   if (mime_type != NULL && g_ascii_strcasecmp(mime_type, "H264") == 0) {
     if (strcmp(field_name, "profile-level-id") == 0) {
       int length;
- 	
+
       /* Length includes "=" as it's required by ascii_bytes_to_tvb()*/
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
@@ -1411,7 +1413,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
       }else{
         tokenlen = end_offset - offset;
       }
-		
+
       data_p = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       proto_tree_add_text(tree, tvb, offset, tokenlen, "NAL unit 1 string: %s", data_p);
 
@@ -1552,10 +1554,10 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     *key=atol((char*)payload_type);
     pt = atoi((char*)payload_type);
     if (pt >= SDP_NO_OF_PT) {
-      return;   /* Invalid */ 
+      return;   /* Invalid */
     }
     transport_info->encoding_name[pt] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
-	
+
     next_offset =  next_offset + 1;
     offset = next_offset;
 	while (length-1 >= next_offset){
@@ -1629,13 +1631,13 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
       tokenlen = next_offset - offset;
 
-		  
+
       media_format_item = proto_tree_add_item(sdp_media_attribute_tree,
                                               hf_media_format, tvb, offset,
                                               tokenlen, FALSE);
       media_format = atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen));
       if (media_format >= SDP_NO_OF_PT) {
-        return;   /* Invalid */ 
+        return;   /* Invalid */
       }
 
       /* Append encoding name to format if known */
@@ -1654,7 +1656,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
           has_more_pars = FALSE;
           next_offset= tvb_length(tvb);
         }else{
-	
+
         }
 
         /* There are at least 2 - add the first parameter */
@@ -1668,7 +1670,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
         decode_sdp_fmtp(fmtp_tree, tvb, pinfo, offset, tokenlen,
                         transport_info->encoding_name[media_format]);
 
-        /* Move offset past "; " and onto firts char */	
+        /* Move offset past "; " and onto firts char */
         offset = next_offset + 1;
       }
     }

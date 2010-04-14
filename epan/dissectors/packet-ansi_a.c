@@ -8062,8 +8062,10 @@ elem_a2p_bearer_session(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 /*
  * IOS 5 4.2.90
  */
-static void free_encoding_name_str (encoding_name_and_rate_t *encoding_name_and_rate)
+static void free_encoding_name_str (void *ptr)
 {
+  encoding_name_and_rate_t *encoding_name_and_rate = (encoding_name_and_rate_t *)ptr;
+
   if (encoding_name_and_rate->encoding_name) {
     g_free(encoding_name_and_rate->encoding_name);
   }
@@ -8882,7 +8884,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
     }
-    
+
     dec_idx = ansi_a_elem_1_strings[idx].dec_index;
 
     parm_len = tvb_get_guint8(tvb, curr_offset);

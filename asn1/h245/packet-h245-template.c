@@ -323,8 +323,10 @@ static void update_unicast_addr(unicast_addr_t *req_addr, unicast_addr_t *ack_ad
   }
 }
 
-static void free_encoding_name_str (encoding_name_and_rate_t *encoding_name_and_rate)
+static void free_encoding_name_str (void *ptr)
 {
+  encoding_name_and_rate_t *encoding_name_and_rate = (encoding_name_and_rate_t *)ptr;
+
   if (encoding_name_and_rate->encoding_name) {
     g_free(encoding_name_and_rate->encoding_name);
   }
