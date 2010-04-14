@@ -35,7 +35,9 @@
 
 #ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>		/* needed to define AF_ values on Windows */
+#if _MSC_VER < 1600             /* VC10 (and presumably future VC versions will) have this definition */
 #define EAFNOSUPPORT    WSAEAFNOSUPPORT
+#endif
 #endif
 
 #ifdef HAVE_NETINET_IN_H

@@ -217,8 +217,8 @@
 #define WIN32			1
 #endif
 
-/* Visual C 9 (2008) now needs these prototypes */
-#if _MSC_VER == 1500
+/* Visual C 9 (2008) & Visual C 10 (2010) need these prototypes */
+#if _MSC_VER == 1500 || _MSC_VER == 1600
 #define NTDDI_VERSION NTDDI_WIN2K
 #define _WIN32_WINNT _WIN32_WINNT_WIN2K
 #endif
