@@ -287,7 +287,7 @@ static void analyze_pdu_config(mate_cfg_pdu* cfg) {
 	hfri.hfinfo.name = g_strdup_printf("%s time",cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.RelativeTime",cfg->name);
 	hfri.hfinfo.type = FT_FLOAT;
-	hfri.hfinfo.display = BASE_DEC;
+	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = "Seconds passed since the start of capture";
 	
 	g_array_append_val(matecfg->hfrs,hfri);
@@ -296,7 +296,7 @@ static void analyze_pdu_config(mate_cfg_pdu* cfg) {
 	hfri.hfinfo.name = g_strdup_printf("%s time since beginning of Gop",cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.TimeInGop",cfg->name);
 	hfri.hfinfo.type = FT_FLOAT;
-	hfri.hfinfo.display = BASE_DEC;
+	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = "Seconds passed since the start of the GOP";
 	
 	g_array_append_val(matecfg->hfrs,hfri);
@@ -332,7 +332,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	hfri.hfinfo.name = g_strdup_printf("%s start time",cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.StartTime",cfg->name);
 	hfri.hfinfo.type = FT_FLOAT;
-	hfri.hfinfo.display = BASE_DEC;
+	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = g_strdup_printf("Seconds passed since the beginning of capture to the start of this %s",cfg->name);
 
 	g_array_append_val(matecfg->hfrs,hfri);
@@ -356,6 +356,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.NumOfPdus",cfg->name);
 	hfri.hfinfo.blurb = g_strdup_printf("Number of PDUs assigned to this %s",cfg->name);
 	hfri.hfinfo.type = FT_UINT32;
+	hfri.hfinfo.display = BASE_DEC;
 
 	g_array_append_val(matecfg->hfrs,hfri);
 
@@ -366,6 +367,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 
 	if (cfg->pdu_tree_mode == GOP_FRAME_TREE) {
 		hfri.hfinfo.type = FT_FRAMENUM;
+		hfri.hfinfo.display = BASE_NONE;
 		g_array_append_val(matecfg->hfrs,hfri);
 	} else 	if (cfg->pdu_tree_mode == GOP_PDU_TREE) {
 		hfri.hfinfo.type = FT_UINT32;
@@ -457,7 +459,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	hfri.hfinfo.name = "GopStart frame";
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.GopStart",cfg->name);
 	hfri.hfinfo.type = FT_FRAMENUM;
-	hfri.hfinfo.display = BASE_DEC;
+	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = g_strdup("The start frame of a GOP");
 	
 	g_array_append_val(matecfg->hfrs,hfri);
@@ -466,7 +468,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	hfri.hfinfo.name = "GopStop frame";
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.GopStop",cfg->name);
 	hfri.hfinfo.type = FT_FRAMENUM;
-	hfri.hfinfo.display = BASE_DEC;
+	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = g_strdup("The stop frame of a GOP");
 	
 	g_array_append_val(matecfg->hfrs,hfri);
@@ -491,7 +493,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	hfri.hfinfo.name = "a GOP";
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Gop",cfg->name);
 	hfri.hfinfo.type = FT_STRING;
-	hfri.hfinfo.display = BASE_DEC;
+	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = g_strdup_printf("a GOPs assigned to this %s",cfg->name);
 
 	g_array_append_val(matecfg->hfrs,hfri);
