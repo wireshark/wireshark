@@ -1172,6 +1172,7 @@ DISSECTOR_INCLUDES =	\
 	packet-pkcs12.h	\
 	packet-pkix1explicit.h	\
 	packet-pkix1implicit.h	\
+	packet-pkixac.h	\
 	packet-pkixproxy.h	\
 	packet-pkixqualified.h	\
 	packet-pkixtsp.h	\
