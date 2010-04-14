@@ -319,7 +319,7 @@ gop_tree_mode_default ::= .
 gop_show_times_default ::= SHOW_TIMES_KW true_false(B) SEMICOLON. { mc->defaults.gop.show_times = B; }
 gop_show_times_default ::= .
 
-gog_defaults ::= GOG_KW OPEN_BRACE gog_expiration_default gop_tree_mode_default gog_goptree_default CLOSE_BRACE SEMICOLON.
+gog_defaults ::= GOG_KW OPEN_BRACE gog_expiration_default gop_tree_mode_default gog_goptree_default gog_show_times_default CLOSE_BRACE SEMICOLON.
 gog_defaults ::= .
 
 gog_expiration_default ::= EXPIRATION_KW time_value(B) SEMICOLON. { mc->defaults.gop.expiration = B; }
@@ -327,6 +327,9 @@ gog_expiration_default ::= .
 
 gog_goptree_default ::= GOP_TREE_KW gop_tree_type(B) SEMICOLON. { mc->defaults.gog.gop_tree_mode = B; }
 gog_goptree_default ::= .
+
+gog_show_times_default ::= SHOW_TIMES_KW true_false(B) SEMICOLON. { mc->defaults.gog.show_times = B; }
+gog_show_times_default ::= .
 
 
 /******************************************* TRANSFORM
@@ -541,19 +544,19 @@ gop_decl(A) ::= GOP_KW NAME(Name) ON_KW pdu_name(PduName) MATCH_KW avpl(Key) OPE
 
 	cfg->on_pdu = PduName;
 	cfg->key = Key;
-    cfg->drop_unassigned = DropUnassigned;
-    cfg->show_times = ShowTimes;
-    cfg->pdu_tree_mode = TreeMode;
-    cfg->expiration = Expiration;
-    cfg->idle_timeout = IdleTimeout;
-    cfg->lifetime = Lifetime;
-    cfg->start = Start;
-    cfg->stop = Stop;
-    cfg->transforms = Transform;
+	cfg->drop_unassigned = DropUnassigned;
+	cfg->show_times = ShowTimes;
+	cfg->pdu_tree_mode = TreeMode;
+	cfg->expiration = Expiration;
+	cfg->idle_timeout = IdleTimeout;
+	cfg->lifetime = Lifetime;
+	cfg->start = Start;
+	cfg->stop = Stop;
+	cfg->transforms = Transform;
 
-    merge_avpl(cfg->extra,Extra,TRUE);
-    delete_avpl(Extra,TRUE);
-}
+	merge_avpl(cfg->extra,Extra,TRUE);
+	delete_avpl(Extra,TRUE);
+    }
 
 gop_drop_unassigned_statement(A) ::= DROP_UNASSIGNED_KW true_false(B) SEMICOLON. { A = B; }
 gop_drop_unassigned_statement(A) ::= . { A =  mc->defaults.gop.drop_unassigned; }
@@ -614,7 +617,8 @@ gog_decl ::= GOG_KW NAME(Name) OPEN_BRACE
     transform_list_statement(Transforms)
     gog_expiration_statement(Expiration)
     gog_goptree_statement(Tree)
- CLOSE_BRACE SEMICOLON. {
+    show_times_statement(ShowTimes)
+    CLOSE_BRACE SEMICOLON. {
 	mate_cfg_gog* cfg = NULL;
 
 	if ( g_hash_table_lookup(mc->gogcfgs,Name) ) {
@@ -627,9 +631,10 @@ gog_decl ::= GOG_KW NAME(Name) OPEN_BRACE
 	cfg->gop_tree_mode = Tree;
 	cfg->transforms = Transforms;
 	cfg->keys = Keys;
+	cfg->show_times = ShowTimes;
 
-    merge_avpl(cfg->extra,Extra,TRUE);
-    delete_avpl(Extra,TRUE);
+	merge_avpl(cfg->extra,Extra,TRUE);
+	delete_avpl(Extra,TRUE);
 }
 
 gog_goptree_statement(A) ::= GOP_TREE_KW gop_tree_type(B) SEMICOLON. { A = B; }

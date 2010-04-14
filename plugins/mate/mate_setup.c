@@ -136,6 +136,7 @@ extern mate_cfg_gog* new_gogcfg(gchar* name) {
 	cfg->hfid_gog_num_of_gops = -1;
 	cfg->hfid_gog_gop = -1;
 	cfg->hfid_gog_gopstart = -1;
+	cfg->hfid_gog_gopstop = -1;
 	
 	cfg->hfid_start_time = -1;
 	cfg->hfid_stop_time = -1;
@@ -218,10 +219,10 @@ extern gchar* add_ranges(gchar* range,GPtrArray* range_ptr_arr) {
 
 static void new_attr_hfri(gchar* item_name, GHashTable* hfids, gchar* name) {
 	int* p_id = g_malloc(sizeof(int));
-
 	hf_register_info hfri;
 
 	memset(&hfri, 0, sizeof hfri);
+	*p_id = -1;
 	hfri.p_id = p_id;
 	hfri.hfinfo.name = g_strdup(name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.%s",item_name,name);
@@ -605,6 +606,7 @@ extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 	matecfg->defaults.pdu.match_mode = AVPL_STRICT;
 	matecfg->defaults.pdu.replace_mode = AVPL_INSERT;
 	
+		/* gop prefs */
 	matecfg->defaults.gop.expiration = -1.0;
 	matecfg->defaults.gop.idle_timeout = -1.0;
 	matecfg->defaults.gop.lifetime = -1.0;
@@ -612,8 +614,9 @@ extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 	matecfg->defaults.gop.show_times = TRUE;
 	matecfg->defaults.gop.drop_unassigned = FALSE;
 	
-		/* gop prefs */
+		/* gog prefs */
 	matecfg->defaults.gog.expiration = 5.0;
+	matecfg->defaults.gog.show_times = TRUE;
 	matecfg->defaults.gog.gop_tree_mode = GOP_BASIC_TREE;
 
 	/* what to dbgprint */
