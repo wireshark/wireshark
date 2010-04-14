@@ -612,8 +612,8 @@ standard libpcap format.
       </para>
     </tip>
     <para>
-      There are two types of coloring rules in Wireshark. Temporary ones that are
-      only used until you quit the program. And permanent ones that will be saved to
+      There are two types of coloring rules in Wireshark; temporary ones that are
+      only used until you quit the program, and permanent ones that will be saved to
       a preference file so that they are available on a next session.
     </para>
     <para>
