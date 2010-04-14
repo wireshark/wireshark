@@ -3097,14 +3097,20 @@ static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset, guint header_len)
 			pos = GPOINTER_TO_INT(g_hash_table_lookup(sip_headers_hash, header));
 			if (pos!=0)
 				return pos;
-			return -1;
 		}
+		/* Previous searching in the hash is case sensitive.
+           If the name has not been not found it could be also long name with case different from RFC,
+           it is not recommended but allowed.
+        */
 
-		/* Look for compact name match */
+		/* Look for compact name match or long name with non-standard case */
         for (i = 1; i < array_length(sip_headers); i++) {
                 if (sip_headers[i].compact_name != NULL &&
                     header_len == strlen(sip_headers[i].compact_name) &&
                     tvb_strncaseeql(tvb, offset, sip_headers[i].compact_name, header_len) == 0)
+                        return i;
+                if (header_len == strlen(sip_headers[i].name) &&
+                    tvb_strncaseeql(tvb, offset, sip_headers[i].name, header_len) == 0)
                         return i;
         }
 
