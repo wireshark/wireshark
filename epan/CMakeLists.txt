@@ -231,6 +231,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-pkinit.c
 	dissectors/packet-pkix1explicit.c
 	dissectors/packet-pkix1implicit.c
+	dissectors/packet-pkixac.c
 	dissectors/packet-pkixproxy.c
 	dissectors/packet-pkixqualified.c
 	dissectors/packet-pkixtsp.c

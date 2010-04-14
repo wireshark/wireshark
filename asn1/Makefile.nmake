@@ -59,6 +59,7 @@ ber: \
 	pkcs1	\
 	pkcs12	\
 	pkinit	\
+	pkixac	\
 	pkix1explicit	\
 	pkix1implicit	\
 	pkixproxy		\
@@ -258,6 +259,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd pkinit
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd pkixac
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd pkix1explicit
@@ -606,6 +610,11 @@ pkcs12::
 
 pkinit::
 	cd pkinit
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+pkixac::
+	cd pkixac
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 

@@ -72,6 +72,7 @@ SUBDIRS = 		\
 	pkcs1		\
 	pkcs12		\
 	pkinit		\
+	pkixac		\
 	pkix1explicit	\
 	pkix1implicit	\
 	pkixproxy	\

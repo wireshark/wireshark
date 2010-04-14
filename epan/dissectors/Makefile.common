@@ -171,6 +171,7 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-nbap.c \
 	packet-pcap.c \
 	packet-pkcs12.c \
+	packet-pkixac.c \
 	packet-pres.c \
 	packet-rnsap.c \
 	packet-rrc.c \
