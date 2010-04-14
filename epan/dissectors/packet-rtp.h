@@ -45,6 +45,7 @@ struct _rtp_info {
 	guint32		  info_setup_frame_num; /* the frame num of the packet that set this RTP connection */
 	const guint8* info_data;           /* pointer to raw rtp data */
 	gchar		  *info_payload_type_str;
+	gint		  info_payload_rate;
 	/*
 	* info_data: pointer to raw rtp data = header + payload incl. padding.
 	* That should be safe because the "epan_dissect_t" constructed for the packet
@@ -113,6 +114,11 @@ struct _rtp_conversation_info
 												   */
 	struct srtp_info *srtp_info;    /* SRTP context */
 };
+
+typedef struct {
+	char *encoding_name;
+	int   sample_rate;
+} encoding_name_and_rate_t;
 
 /* Add an RTP conversation with the given details */
 void rtp_add_address(packet_info *pinfo,

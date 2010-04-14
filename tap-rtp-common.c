@@ -571,7 +571,11 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 				clock_rate = 0;
 				statinfo->flags |= STAT_FLAG_PT_T_EVENT;
 			}else{
-				clock_rate = get_dyn_pt_clock_rate(rtpinfo-> info_payload_type_str);
+				if(rtpinfo->info_payload_rate !=0){
+					clock_rate = rtpinfo->info_payload_rate;
+				}else{
+					clock_rate = get_dyn_pt_clock_rate(rtpinfo-> info_payload_type_str);
+				}
 			}
 		}else{
 			clock_rate = 0;

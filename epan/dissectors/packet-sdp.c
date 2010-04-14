@@ -208,8 +208,8 @@ typedef struct {
   char *connection_address;
   char *connection_type;
   char *media_type;
-  char *encoding_name[SDP_NO_OF_PT]; 
-  char *encoding_name_and_rate[SDP_NO_OF_PT]; 
+  char *encoding_name[SDP_NO_OF_PT];
+  int   sample_rate[SDP_NO_OF_PT];
   char *media_port[SDP_MAX_RTP_CHANNELS];
   char *media_proto[SDP_MAX_RTP_CHANNELS];
   transport_media_pt_t media[SDP_MAX_RTP_CHANNELS];
@@ -252,6 +252,13 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info *pinfo, pro
 static void dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
                               transport_info_t *transport_info);
 static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, int length,transport_info_t *transport_info);
+
+static void free_encoding_name_str (encoding_name_and_rate_t *encoding_name_and_rate)
+{
+  if (encoding_name_and_rate->encoding_name) {
+    g_free(encoding_name_and_rate->encoding_name);
+  }
+}
 
 static void
 dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -297,7 +304,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   transport_info.media_type=NULL;
   for (n=0; n < SDP_NO_OF_PT; n++){
     transport_info.encoding_name[n]=unknown_encoding;
-	transport_info.encoding_name_and_rate[n]=unknown_encoding;
+	transport_info.sample_rate[n] = 0;
   }
   for (n=0; n < SDP_MAX_RTP_CHANNELS; n++)
   {
@@ -305,7 +312,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     transport_info.media_proto[n]=NULL;
     transport_info.media[n].pt_count = 0;
     transport_info.media[n].rtp_dyn_payload =
-        g_hash_table_new_full( g_int_hash, g_int_equal, g_free, g_free);
+        g_hash_table_new_full( g_int_hash, g_int_equal, g_free, free_encoding_name_str);
   }
   transport_info.media_count = 0;
 
@@ -539,9 +546,9 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
       /* if the payload type is dynamic (96 to 127), check the hash table to add the desc in the SDP summary */
       if ( (transport_info.media[n].pt[i] >=96) && (transport_info.media[n].pt[i] <=127) ) {
-        gchar *str_dyn_pt = g_hash_table_lookup(transport_info.media[n].rtp_dyn_payload, &transport_info.media[n].pt[i]);
-        if (str_dyn_pt)
-          g_snprintf(sdp_pi->summary_str, 50, "%s %s", sdp_pi->summary_str, str_dyn_pt);
+        encoding_name_and_rate_t *encoding_name_and_rate_pt = g_hash_table_lookup(transport_info.media[n].rtp_dyn_payload, &transport_info.media[n].pt[i]);
+        if (encoding_name_and_rate_pt)
+          g_snprintf(sdp_pi->summary_str, 50, "%s %s", sdp_pi->summary_str, encoding_name_and_rate_pt->encoding_name);
         else
           g_snprintf(sdp_pi->summary_str, 50, "%s %d", sdp_pi->summary_str, transport_info.media[n].pt[i]);
       } else
@@ -1476,6 +1483,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   const char *h324ext_h223lcparm = "h324ext/h223lcparm";
   gboolean has_more_pars = TRUE;
   tvbuff_t *h245_tvb;
+  encoding_name_and_rate_t *encoding_name_and_rate;
 
   offset = 0;
   next_offset = 0;
@@ -1555,11 +1563,10 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 			break;
 		next_offset++;
 	}
-	transport_info->encoding_name_and_rate[pt] = (char*)tvb_get_ephemeral_string(tvb, start_offset, next_offset - start_offset);
-	proto_tree_add_text(sdp_media_attribute_tree, tvb, start_offset, next_offset - start_offset, "[Debug: %s]",transport_info->encoding_name_and_rate[pt]);
     tokenlen = next_offset - offset;
     proto_tree_add_item(sdp_media_attribute_tree, hf_media_sample_rate, tvb,
                         offset, tokenlen, FALSE);
+	transport_info->sample_rate[pt] = atoi(tvb_get_ephemeral_string(tvb, offset, tokenlen));
     /* As per RFC2327 it is possible to have multiple Media Descriptions ("m=").
        For example:
 
@@ -1579,27 +1586,34 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
      */
     if (transport_info->media_count == 0) {
       for (n=0; n < SDP_MAX_RTP_CHANNELS; n++) {
-        if (n==0)
+        encoding_name_and_rate = g_malloc( sizeof(encoding_name_and_rate_t));
+		encoding_name_and_rate->encoding_name = g_strdup(transport_info->encoding_name[pt]);
+		encoding_name_and_rate->sample_rate = transport_info->sample_rate[pt];
+	    if (n==0){
           g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
-                              key, g_strdup(transport_info->encoding_name[pt]));
+                              key, encoding_name_and_rate);
+		  }
         else {    /* we create a new key and encoding_name to assign to the other hash tables */
           gint *key2;
           key2=g_malloc( sizeof(gint) );
           *key2=atol((char*)payload_type);
           g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
-                              key2, g_strdup(transport_info->encoding_name[pt]));
+                              key2, encoding_name_and_rate);
         }
       }
       return;
       /* if the "a=" is after an "m=", only apply to this "m=" */
     }else
       /* in case there is an overflow in SDP_MAX_RTP_CHANNELS, we keep always the last "m=" */
+      encoding_name_and_rate = g_malloc( sizeof(encoding_name_and_rate_t));
+	  encoding_name_and_rate->encoding_name = g_strdup(transport_info->encoding_name[pt]);
+	  encoding_name_and_rate->sample_rate = transport_info->sample_rate[pt];
       if (transport_info->media_count == SDP_MAX_RTP_CHANNELS-1)
         g_hash_table_insert(transport_info->media[ transport_info->media_count ].rtp_dyn_payload,
-                            key, g_strdup(transport_info->encoding_name[pt]));
+                            key, encoding_name_and_rate);
       else
         g_hash_table_insert(transport_info->media[ transport_info->media_count-1 ].rtp_dyn_payload,
-                            key, g_strdup(transport_info->encoding_name[pt]));
+                            key, encoding_name_and_rate);
     break;
   case SDP_FMTP:
     if(sdp_media_attribute_tree){

@@ -8062,6 +8062,13 @@ elem_a2p_bearer_session(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 /*
  * IOS 5 4.2.90
  */
+static void free_encoding_name_str (encoding_name_and_rate_t *encoding_name_and_rate)
+{
+  if (encoding_name_and_rate->encoding_name) {
+    g_free(encoding_name_and_rate->encoding_name);
+  }
+}
+
 static guint8
 elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -8081,7 +8088,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
     GHashTable                          *rtp_dyn_payload;
     gint                                *key;
 
-    rtp_dyn_payload = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
+    rtp_dyn_payload = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, free_encoding_name_str);
 
     first_assigned_found = FALSE;
 
@@ -8305,9 +8312,13 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
             format_assigned &&
             (first_assigned_found == FALSE))
         {
+			encoding_name_and_rate_t *encoding_name_and_rate = g_malloc( sizeof(encoding_name_and_rate_t));
             key = (gint *)g_malloc(sizeof(gint));
             *key = rtp_payload_type;
-            g_hash_table_insert(rtp_dyn_payload, key, g_strdup(mime_type));
+			encoding_name_and_rate->encoding_name =  g_strdup(mime_type);
+			/* Assumtion; all pt:s above have a sample rate of 8000 */
+			encoding_name_and_rate->sample_rate = 8000;
+            g_hash_table_insert(rtp_dyn_payload, key, encoding_name_and_rate);
 
             first_assigned_found = TRUE;
 
