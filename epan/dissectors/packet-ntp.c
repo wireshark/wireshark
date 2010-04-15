@@ -195,13 +195,15 @@ static const struct {
 	const char *data;
 } primary_sources[] = {
 	{ "LOCL",	"uncalibrated local clock" },
-	{ "PPS\0",	"atomic clock or other pulse-per-second source" },
+	{ "CESM",	"calibrated Cesium clock" },
+	{ "RBDM",	"calibrated Rubidium clock" },
+	{ "PPS\0",	"calibrated quartz clock or other pulse-per-second source" },
 	{ "ACTS",	"NIST dialup modem service" },
 	{ "USNO",	"USNO modem service" },
 	{ "PTB\0",	"PTB (Germany) modem service" },
 	{ "TDF\0",	"Allouis (France) Radio 164 kHz" },
 	{ "DCF\0",	"Mainflingen (Germany) Radio 77.5 kHz" },
-	{ "MSF\0",	"Rugby (UK) Radio 60 kHz" },
+	{ "MSF\0",	"Anthorn (UK) Radio 60 kHz" },
 	{ "WWV\0",	"Ft. Collins (US) Radio 2.5, 5, 10, 15, 20 MHz" },
 	{ "WWVB",	"Boulder (US) Radio 60 kHz" },
 	{ "WWVH",	"Kauai Hawaii (US) Radio 2.5, 5, 10, 15 MHz" },
