@@ -35,7 +35,7 @@
 
 #ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>		/* needed to define AF_ values on Windows */
-#if _MSC_VER < 1600             /* VC10 (and presumably future VC versions will) have this definition */
+#if _MSC_VER < 1600             /* Windows VC10 (and presumably newer) errno.h defines EAFNOSUPPORT */
 #define EAFNOSUPPORT    WSAEAFNOSUPPORT
 #endif
 #endif
