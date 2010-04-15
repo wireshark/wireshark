@@ -53,15 +53,94 @@
 -->
 		<!-- *********************** Commands ***************************** -->
 		<!-- Diameter Base Protocol Command Codes -->
-		<command name="Capabilities-Exchange" code="257" vendor-id="None"/>
-		<command name="Re-Auth" code="258" vendor-id="None"/>
-		<command name="Accounting" code="271" vendor-id="None"/>
-		<command name="Abort-Session" code="274" vendor-id="None">
-		</command>
-		<command name="Session-Termination" code="275" vendor-id="None"/>
-		<command name="Device-Watchdog" code="280" vendor-id="None"/>
-		<command name="Disconnect-Peer" code="282" vendor-id="None"/>
-		<!-- ********************** End Commands ************************** -->
+    <!-- 0-255 RADIUS compatability codes [http://www.iana.org/assignments/radius-types] -->
+    <!--256 Unassigned -->
+		<command name="Capabilities-Exchange"         code="257" vendor-id="None"/>
+		<command name="Re-Auth"                       code="258" vendor-id="None"/>
+    <!-- 259 Unassigned  
+         260 AMR / AMA [RFC4004]     mobileipv4.xml
+         261 Unassigned  
+         262 HAR / HAA [RFC4004]     mobileipv4.xml
+         263-264 Unassigned  
+         265 AAR / AAA [RFC4005]     nasreq.xml
+         266-267 Unassigned  
+         268 DER / DEA [RFC4072]     eap.xml
+         269-270 Unassigned 
+-->
+		<command name="Accounting"                    code="271" vendor-id="None"/>
+    <!-- 272 CCR / CCA [RFC4006]     chargecontrol.xml
+         273 Unassigned 
+-->
+		<command name="Abort-Session"                 code="274" vendor-id="None"/>
+		<command name="Session-Termination"           code="275" vendor-id="None"/>
+    <!--276-279 Unassigned -->
+		<command name="Device-Watchdog"               code="280" vendor-id="None"/>
+		<command name="Disconnect-Peer"               code="282" vendor-id="None"/>
+    <!--283 UAR / UAA [RFC4740]      sip.xml
+        284 SAR / SAA [RFC4740]      sip.xml
+        285 LIR / LIA [RFC4740]      sip.xml
+        286 MAR / MAA [RFC4740]      sip.xml
+        287 RTR / RTA [RFC4740]      sip.xml
+        288 PPR / PPA [RFC4740]      sip.xml
+        289-299 Unassigned  
+        300-313 Allocated for 3GPP [RFC3589] 
+           imscxdx.xml ( 300 - 305 )
+           300	User-Authorization-Request/-Answer	UAR/UAA	29.229 [2]
+           301	Server-Assignment-Request/-Answer	SAR/SAA	
+           302	Location-Info-Request/-Answer	LIR/LIA	
+           303	Multimedia-Auth-Request/-Answer	MAR/MAA	
+           304	Registration-Termination-Request/-Answer	RTR/RTA	
+           305	Push-Profile-Request/-Answer	PPR/PPA	
+           TGPPSh.xml  ( 306 - 309 )
+           306	User-Data-Request/-Answer	UDR/UDA	
+           307	Profile-Update-Request/-Answer	PUR/PUA	
+           308	Subscribe-Notifications-Request/-Answer	SNR/SNA	
+           309	Push-Notification-Request/-Answer	PNR/PNA	
+           -->
+
+    <command name="Boostrapping-Info"             code="310" vendor-id="None"/>        <!-- BIR/BIA	29.109 [7] -->
+    <command name="Message-Process"               code="311" vendor-id="None"/>        <!-- MPR/MPA	29.140 [16] -->
+    <command name="GBAPush-Info"                  code="312" vendor-id="None"/>        <!-- GPR/GPI	29.109 [7] -->
+    <!-- 313 (Not used yet) -->
+    <command name="Policy-Data"                    code="314" vendor-id="None"/>         <!-- PDR / PDA [RFC5224] -->
+    <command name="Policy-Install"                 code="315" vendor-id="None"/>         <!--  (PIA) [ITU-T Rec. Q.3303.3][RFC5431] -->
+    -->
+    <!-- http://www.3gpp.org/ftp/Specs/html-info/29272.htm -->
+    <command name="3GPP-Update-Location"            code="316" vendor-id="None"/>
+    <command name="3GPP-Cancel-Location"            code="317" vendor-id="None"/>         <!--[3GPP TS 29.272][RFC5516] -->
+    <command name="3GPP-Authentication-Information" code="318" vendor-id="None"/>         <!--[3GPP TS 29.272][RFC5516] -->
+    <command name="3GPP-Insert-Subscriber-Data"     code="319" vendor-id="None"/>         <!--[3GPP TS 29.272][RFC5516] -->
+    <command name="3GPP-Delete-Subscriber-Data"     code="320" vendor-id="None"/>         <!--[3GPP TS 29.272][RFC5516] -->
+    <command name="3GPP-Purge-UE"                   code="321" vendor-id="None"/>         <!--[3GPP TS 29.272][RFC5516] -->
+    <command name="3GPP-Reset"                      code="322" vendor-id="None"/>         <!--[3GPP TS 29.272][RFC5516] -->
+    <command name="3GPP-Notify"                     code="323" vendor-id="None"/>         <!--[3GPP TS 29.272][RFC5516] -->
+
+    <command name="3GPP-ME-Identity-Check"          code="324" vendor-id="None"/>         <!--(ECR/ECA) [3GPP TS 29.272][RFC5516] -->
+    <command name="MIP6"                            code="325" vendor-id="None"/>         <!--(MIR/MIA) [RFC5778] -->
+    <command name="QoS-Authorization"               code="326" vendor-id="None"/>         <!--(QAR/QAA) [RFC-ietf-dime-diameter-qos-15] -->
+    <command name="QoS-Install"                     code="327" vendor-id="None"/>         <!--(QIR/QIA) [RFC-ietf-dime-diameter-qos-15] -->
+    <!-- 
+        328-8388607 Unassigned
+        8388608 WIMAX-HRPD-SFF Request/Answer [http://www.3gpp2.org/Public_html/specs/tsgx.cfm][3GPP2 X.S0058-0 v1.0][Avi_Lior]
+        8388609 WiMAX-Diameter-EAP-Request/Answer (WDER/WDEA) WDE [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+        8388610 WiMAX-Change-of-Authorization-Request/Answer (WCAR/WCAA) WCA [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+        8388611 WiMAX-Reauthentication-Request/Answer (WRAR/WRAA) WRA [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+        8388612 WiMAX-Session-Termination-Request/Answer (WSTR/WSTA) WST [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+        8388613 WiMAX-Abort-Session-Request/Answer (WASR/WASA) WAS [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+        8388614 WiMAX-Home-Agent-IPv4-Request/Answer (WHA4R/WHA4A) WHA4 [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+        8388615 WiMAX-Home-Agent-IPv6-Request/Answer (WHA6R/WHA6A) WHA6 [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+        8388616 WiMAX-DHCP-Request/Answer (WDHCPR/WDHCPA) WDHCP [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+        8388617 WiMAX-LAA-Request/Answer (WLAAR/WLAA) WLAA [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+        8388618 WiMAX-Location-Accounting-Request/Answer (WLACR/WLACA) WLAC [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+        8388619 WiMAX-Location-Measurement-Query-Request/Answer (WLMQR/WLMQA) WLMQ [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+        8388620 3GPP-Provide-Location-Request/Answer (PLR/PLA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.172][Kimmo_Kymalainen]
+        8388621 3GPP-Location-Report-Request/Answer (LRR/LRA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.172][Kimmo_Kymalainen]
+        8388622 3GPP-LCS-Routing-Info-Request/Answer (RIR/RIA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.173][Kimmo_Kymalainen]
+        8388623-16777213 Unassigned
+        16777214 Experimental code [RFC3588]
+        16777215 Experimental code [RFC3588]
+        -->
+        <!-- ********************** End Commands ************************** -->
 		<!-- ************************* Vendors **************************** -->
 		<vendor vendor-id="None" code="0" name="None"/>
 		<vendor vendor-id="HP"    code="11"    name="Hewlett Packard"/>
@@ -1252,6 +1331,7 @@ http://www.iana.org/assignments/radius-types
       <!-- 5019-5023 Unassigned -->
 			<enum name="DIAMETER_ERROR_NO_FOREIGN_HA_SERVICE" code="5024"/>
 			<enum name="DIAMETER_ERROR_END_TO_END_MIP_KEY_ENCRYPTION" code="5025"/>
+      <!-- 5026-5029 Unassigned -->
 			<enum name="DIAMETER_USER_UNKNOWN" code="5030"/>
 			<enum name="DIAMETER_RATING_FAILED" code="5031"/>
 			<enum name="DIAMETER_ERROR_USER_UNKNOWN" code="5032"/>
@@ -1384,7 +1464,7 @@ http://www.iana.org/assignments/radius-types
 			<enum name="DIAMETER_SUBSEQUENT_REGISTRATION" code="2002"/>
 			<enum name="DIAMETER_UNREGISTERED_SERVICE" code="2003"/>
 			<enum name="DIAMETER_SUCCESS_SERVER_NAME_NOT_STORED" code="2004"/>
-			<enum name="SDIAMETER_SERVER_SELECTION" code="2005"/>
+			<enum name="DIAMETER_SERVER_SELECTION(Deprecated value)" code="2005"/>
       
 			<enum name="DIAMETER_USER_DATA_NOT_AVAILABLE" code="4100"/>
 			<enum name="DIAMETER_PRIOR_UPDATE_IN_PROGRESS" code="4101"/>
@@ -1643,6 +1723,8 @@ Note: The AVP codes from 320 to 399 are reserved for TS 29.234
 416 Private-Identity-Request Enumerated
 417 GBA-Push-Info OctectString
 418 NAF-SA-Identifier OctectString
+419	Security-Feature-Request	OctetString
+420	Security-Feature-Response	OctetString
 29.109 [7]
 Note: TThe AVP codes from 419 to 499 are reserved for TS 29.109
 -->
@@ -1650,14 +1732,14 @@ Note: TThe AVP codes from 419 to 499 are reserved for TS 29.109
  NOTE AVP 500 - 523 is in gqpolicy.xml
       AVP 524 - 527 is in TGPPRx.xml (3GPP TS 29.214)
 Note: The AVP codes from 524 to 599 are reserved for TS 29.209 and TS 29.211
- NOTE AVP 600 - 649 is in imscxdx.xml
+ NOTE AVP 600 - 650 is in imscxdx.xml
 
-Note: The AVP codes from 650 to 699 are reserved for TS 29.229.
+Note: The AVP codes from 651 to 699 are reserved for TS 29.229.
  ************************** 3GPP Sh AVPS        **************************
  ************************** NOTE see TGPPSh.xml **************************
  ************************** 3GPP TS 29.329      **************************
- **************************	  700 - 711         **************************
-Note: The AVP codes from 711 to799 are reserved for TS 29.329.
+ **************************	  700 - 712         **************************
+Note: The AVP codes from 712 to799 are reserved for TS 29.329.
 Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 -->
 		<!-- 3GPP Diameter charging applications (3GPP TS 32.299 version 7.0.0 Release 7)-->
@@ -4132,8 +4214,13 @@ Note: The AVP codes from 1506 to 1599 are reserved for TS 29.273
     <avp name="Local-Sequence-Number" code="2063" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Unsigned32"/>
     </avp>
+    <avp name="Node-Id" code="2064" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
     <!--  
-      Note: The AVP codes from 2064 to 2099 are reserved for TS 32.299
+2065	SGW-Change	 Enumerated
+2066	Charging-Characteristic-Selection-Mode	Enumerated
+      Note: The AVP codes from 2067 to 2099 are reserved for TS 32.299
       -->
     <!--
 2100	reserved	-	32.299 [5]
@@ -4228,7 +4315,54 @@ Note: The AVP codes from 2204 to 2299 are reserved for TS 29.215
       <enum name="Unauthenticated" code="1"/>
 		</avp>
 <!--
-Note: The AVP codes from 2300 to 2399 are reserved for TS 32.299
+2309	Account-Expiration	Time
+2310	AoC-Format	Enumerated
+2311	AoC-Service	Enumerated
+2312	AoC-Service-Obligatory-Type	Grouped
+2313	AoC-Service-Type	Enumerated
+2314	AoC-Subscription-Information	Grouped
+2315	Preferred-AoC-Currency	Unsigned32
+2316	Reason-Code	Enumerated
+2317	CSG-Access-Mode	Enumerated
+2318	CSG-Membership-Indication	Enumerated
+2319	User-CSG-Information	Grouped
+
+Note: The AVP codes from 2320 to 2399 are reserved for TS 32.299
+2400	LMSI	OctetString	
+2401	Serving-Node	Grouped	
+2402	MME-Name	DiameterIdentity	
+2403	MSC-Number	OctetString	
+2404	LCS-Capabilities-Sets	Unsigned32	
+2405	GMLC-Address	Address	
+2406	Additional-Serving-Node	Grouped	
+2407	PPR-Address	Address	
+Note: The AVP codes from 2408 to 2499 are reserved for TS 29.173
+2500	Location-Type	Enumerated	
+2501	LCS-EPS-Client-Name	Grouped	
+2502	LCS-Requestor-Name	Grouped	
+2503	LCS-Priority	Unsigned32	
+2504	LCS-QoS	Grouped	
+2505	Horizontal-Accuracy	Unsigned32	
+2506	Vertical-Accuracy	Unsigned32	
+2507	Vertical-Requested	Enumerated	
+2508	Velocity-Requested	Enumerated	
+2509	Response-Time	Enumerated	
+2510	Supported-GAD-Shapes	Unsigned32	
+2511	LCS-Codeword	UTF8String	
+2512	LCS-Privacy-Check	Enumerated	
+2513	Accuracy-Fulfilment-Indicator	Enumerated	
+2514	Age-Of-Location-Estimate	Unsigned32	
+2515	Velocity-Estimate	OctetString	
+2516	EUTRAN-Positioning-Data	OctetString	
+2517	ECGI	OctetString	
+2518	Location-Event	Enumerated	
+2519	Pseudonym-Indicator	Enumerated	
+2520	LCS-Service-Type-ID	Unsigned32	
+2521	LCS-Privacy-Check-Non-Session  	Grouped	
+2522	LCS-Privacy-Check-Session  	Grouped	
+2523	LCS-QoS-Class	Enumerated	
+Note: The AVP codes from 2524 to 2599 are reserved for TS 29.172
+
 -->
 <!--- TGPP2 AVP's X.S0013-014-0 
 http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S0013-014%20v0.3.0%20SBBC%20Ty%20Stage-3.doc
@@ -4343,15 +4477,6 @@ http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
   <application id="16777238" name="3GPP Gx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
   </application>
   <application id="16777251" name="3GPP S6a/S6d" uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516">
-    <!-- http://www.3gpp.org/ftp/Specs/html-info/29272.htm -->
-    <command name="3GPP-Update-Location" code="316" vendor-id="None"/>
-    <command name="3GPP-Cancel-Location" code="317" vendor-id="None"/> <!-- [3GPP TS 29.272][RFC5516] -->
-    <command name="3GPP-Authentication-Information" code="318" vendor-id="None"/> <!-- [3GPP TS 29.272][RFC5516] -->
-    <command name="3GPP-Insert-Subscriber-Data" code="319" vendor-id="None"/> <!--[3GPP TS 29.272][RFC5516] -->
-    <command name="3GPP-Delete-Subscriber-Data" code="320" vendor-id="None"/> <!--[3GPP TS 29.272][RFC5516] -->
-    <command name="3GPP-Purge-UE" code="321" vendor-id="None"/> <!--[3GPP TS 29.272][RFC5516] -->
-    <command name="3GPP-Reset" code="322" vendor-id="None"/> <!--[3GPP TS 29.272][RFC5516] -->
-    <command name="3GPP-Notify" code="323" vendor-id="None"/> <!--[3GPP TS 29.272][RFC5516] -->
   </application>
   <application id="16777252" name="3GPP S13/S13'" uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516">
     <!-- http://www.3gpp.org/ftp/Specs/html-info/29272.htm -->

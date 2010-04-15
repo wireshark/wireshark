@@ -71,6 +71,8 @@
 		<avp name="DSAI-Tag" code="711" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
       <type type-name="OctetString"/>
     </avp>
+<!-- 
+712	One-Time-Notification	Enumerated
 -->
 		<!-- ************************ END 3GPP Sh AVPS ******************* -->
 
