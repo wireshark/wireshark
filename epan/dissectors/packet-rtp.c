@@ -651,7 +651,9 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 			gchar *payload_type_str = NULL;
 			encoding_name_and_rate_t *encoding_name_and_rate_pt = NULL;
 			encoding_name_and_rate_pt = g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
-			payload_type_str = encoding_name_and_rate_pt->encoding_name;
+			if (encoding_name_and_rate_pt) {
+				payload_type_str = encoding_name_and_rate_pt->encoding_name;
+			}
 			if (payload_type_str){
 				found_match = dissector_try_string(rtp_dyn_pt_dissector_table,
 								   payload_type_str, newtvb, pinfo, tree);
@@ -937,8 +939,10 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		if ((hdr_new->pt > 95) && (hdr_new->pt < 128)) {
 			if (p_conv_data && p_conv_data->rtp_dyn_payload){
 				encoding_name_and_rate_t *encoding_name_and_rate_pt = NULL;
-				payload_type_str = g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &hdr_new->pt);
-				payload_type_str = encoding_name_and_rate_pt->encoding_name;
+				encoding_name_and_rate_pt = g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &hdr_new->pt);
+				if (encoding_name_and_rate_pt) {
+					payload_type_str = encoding_name_and_rate_pt->encoding_name;
+				}
 			}
 		}
 		/* Add a subtree for this header and add items */
@@ -1169,8 +1173,10 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		if (p_conv_data && p_conv_data->rtp_dyn_payload){
 			encoding_name_and_rate_t *encoding_name_and_rate_pt = NULL;
 			encoding_name_and_rate_pt = g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
-			rtp_info->info_payload_type_str = encoding_name_and_rate_pt->encoding_name;
-			rtp_info->info_payload_rate = encoding_name_and_rate_pt->sample_rate;
+			if (encoding_name_and_rate_pt) {
+				rtp_info->info_payload_type_str = encoding_name_and_rate_pt->encoding_name;
+				rtp_info->info_payload_rate = encoding_name_and_rate_pt->sample_rate;
+			}
 		}
 	}
 
