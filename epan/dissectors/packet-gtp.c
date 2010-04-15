@@ -2638,11 +2638,11 @@ static gint gtp_sn_equal_matched(gconstpointer k1, gconstpointer k2)
     const gtp_msg_hash_t *key1 = k1;
     const gtp_msg_hash_t *key2 = k2;
 
-    if( key1->req_frame && key2->req_frame && (key1->req_frame!=key2->req_frame) ){
+    if ( key1->req_frame && key2->req_frame && (key1->req_frame!=key2->req_frame) ) {
         return 0;
     }
 
-    if( key1->rep_frame && key2->rep_frame && (key1->rep_frame!=key2->rep_frame) ){
+    if ( key1->rep_frame && key2->rep_frame && (key1->rep_frame!=key2->rep_frame) ) {
         return 0;
     }
 
@@ -2687,7 +2687,7 @@ static gtp_msg_hash_t *gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, p
 
     gcrp = g_hash_table_lookup(gtp_info->matched, &gcr);
 
-    if(gcrp){
+    if (gcrp) {
 
         gcrp->is_request=gcr.is_request;
 
@@ -2702,11 +2702,11 @@ static gtp_msg_hash_t *gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, p
             gcr.seq_nr=seq_nr;
 
             gcrp=g_hash_table_lookup(gtp_info->unmatched, &gcr);
-            if(gcrp){
+            if (gcrp) {
                 g_hash_table_remove(gtp_info->unmatched, gcrp);
             }
             /* if we cant reuse the old one, grab a new chunk */
-            if(!gcrp){
+            if (!gcrp) {
                 gcrp = se_alloc(sizeof(gtp_msg_hash_t));
             }
             gcrp->seq_nr=seq_nr;
@@ -2726,7 +2726,7 @@ static gtp_msg_hash_t *gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, p
             gcrp=g_hash_table_lookup(gtp_info->unmatched, &gcr);
 
             if (gcrp) {
-		if(!gcrp->rep_frame){
+		if (!gcrp->rep_frame) {
                     g_hash_table_remove(gtp_info->unmatched, gcrp);
                     gcrp->rep_frame=pinfo->fd->num;
                     gcrp->is_request=FALSE;
@@ -3916,40 +3916,40 @@ static int decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const 
         if (max_sdu_size > 0 && max_sdu_size <= 150) {
             mss = max_sdu_size * 10;
             proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_sdu_size, tvb, offset + (5 - 1) * utf8_type + 1, utf8_type, mss,
-                                       "Maximum SDU size : %u octets", mss);
+                                       "Maximum SDU size: %u octets", mss);
         }
 
         if (max_ul == 0 || max_ul == 255)
             proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (6 - 1) * utf8_type + 1, utf8_type, max_ul);
         if (max_ul > 0 && max_ul <= 63)
             proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (6 - 1) * utf8_type + 1, utf8_type, max_ul,
-				       "Maximum bit rate for uplink : %u kbps", max_ul);
+				       "Maximum bit rate for uplink: %u kbps", max_ul);
         if (max_ul > 63 && max_ul <= 127) {
             mu = 64 + (max_ul - 64) * 8;
             proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (6 - 1) * utf8_type + 1, utf8_type, mu,
-				       "Maximum bit rate for uplink : %u kbps", mu);
+				       "Maximum bit rate for uplink: %u kbps", mu);
         }
 
         if (max_ul > 127 && max_ul <= 254) {
             mu = 576 + (max_ul - 128) * 64;
             proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (6 - 1) * utf8_type + 1, utf8_type, mu,
-				       "Maximum bit rate for uplink : %u kbps", mu);
+				       "Maximum bit rate for uplink: %u kbps", mu);
         }
 
         if (max_dl == 0 || max_dl == 255)
             proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_max_dl, tvb, offset + (7 - 1) * utf8_type + 1, utf8_type, max_dl);
         if (max_dl > 0 && max_dl <= 63)
             proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_dl, tvb, offset + (7 - 1) * utf8_type + 1, utf8_type, max_dl,
-				       "Maximum bit rate for downlink : %u kbps", max_dl);
+				       "Maximum bit rate for downlink: %u kbps", max_dl);
         if (max_dl > 63 && max_dl <= 127) {
             md = 64 + (max_dl - 64) * 8;
             proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_dl, tvb, offset + (7 - 1) * utf8_type + 1, utf8_type, md,
-				       "Maximum bit rate for downlink : %u kbps", md);
+				       "Maximum bit rate for downlink: %u kbps", md);
         }
         if (max_dl > 127 && max_dl <= 254) {
             md = 576 + (max_dl - 128) * 64;
             proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_dl, tvb, offset + (7 - 1) * utf8_type + 1, utf8_type, md,
-				       "Maximum bit rate for downlink : %u kbps", md);
+				       "Maximum bit rate for downlink: %u kbps", md);
         }
 
         proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_res_ber, tvb, offset + (8 - 1) * utf8_type + 1, utf8_type, res_ber);
@@ -3961,16 +3961,16 @@ static int decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const 
             proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (10 - 1) * utf8_type + 1, utf8_type, guar_ul);
         if (guar_ul > 0 && guar_ul <= 63)
             proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (10 - 1) * utf8_type + 1, utf8_type, guar_ul,
-				       "Guaranteed bit rate for uplink : %u kbps", guar_ul);
+				       "Guaranteed bit rate for uplink: %u kbps", guar_ul);
         if (guar_ul > 63 && guar_ul <= 127) {
             gu = 64 + (guar_ul - 64) * 8;
             proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (10 - 1) * utf8_type + 1, utf8_type, gu,
-				       "Guaranteed bit rate for uplink : %u kbps", gu);
+				       "Guaranteed bit rate for uplink: %u kbps", gu);
         }
         if (guar_ul > 127 && guar_ul <= 254) {
             gu = 576 + (guar_ul - 128) * 64;
             proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (10 - 1) * utf8_type + 1, utf8_type, gu,
-				       "Guaranteed bit rate for uplink : %u kbps", gu);
+				       "Guaranteed bit rate for uplink: %u kbps", gu);
         }
 
         /* Octet 13 */
@@ -4039,35 +4039,35 @@ static int decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const 
             if (max_ul_ext > 0 && max_ul_ext <= 0x4a) {
                 md = 8600 + max_ul_ext * 100;
                 proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (15 - 1) * utf8_type + 1, utf8_type, md,
-                                           "Ext Maximum bit rate for uplink : %u kbps", md);
+                                           "Ext Maximum bit rate for uplink: %u kbps", md);
             }
             if (max_ul_ext > 0x4a && max_ul_ext <= 0xba) {
                 md = 16 + (max_ul_ext-0x4a);
                 proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (15 - 1) * utf8_type + 1, utf8_type, md,
-                                           "Ext Maximum bit rate for uplink : %u Mbps", md);
+                                           "Ext Maximum bit rate for uplink: %u Mbps", md);
             }
             if (max_ul_ext > 0xba && max_ul_ext <= 0xfa) {
                 md = 128 + (max_ul_ext-0xba)*2;
                 proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (15 - 1) * utf8_type + 1, utf8_type, md,
-                                           "Ext Maximum bit rate for uplink : %u Mbps", md);
+                                           "Ext Maximum bit rate for uplink: %u Mbps", md);
             }
             /* Octet 18 */
-            if(guar_ul_ext == 0)
-                proto_tree_add_text(ext_tree_qos, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, "Use the value indicated by the Guaranteed bit rate for uplink in octet 13");
+            if (guar_ul_ext == 0)
+                proto_tree_add_text(ext_tree_qos, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, "Use the value indicated by the Guaranteed bit rate for uplink in octet 12");
             if (guar_ul_ext > 0 && guar_ul_ext <= 0x4a) {
                 gd = 8600 + guar_ul_ext * 100;
                 proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
-                                           "Ext Guaranteed bit rate for uplink : %u kbps", gd);
+                                           "Ext Guaranteed bit rate for uplink: %u kbps", gd);
             }
             if (guar_ul_ext > 0x4a && max_ul_ext <= 0xba) {
                 gd = 16 + (guar_ul_ext-0x4a);
                 proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
-                                           "Ext Guaranteed bit rate for uplink : %u Mbps", gd);
+                                           "Ext Guaranteed bit rate for uplink: %u Mbps", gd);
             }
             if (guar_ul_ext > 0xba && max_ul_ext <= 0xfa) {
                 gd = 128 + (guar_ul_ext-0xba)*2;
                 proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
-                                           "Ext Guaranteed bit rate for uplink : %u Mbps", gd);
+                                           "Ext Guaranteed bit rate for uplink: %u Mbps", gd);
             }
         }
 
@@ -6299,9 +6299,9 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	 * Should this be moved to after the conversation stuff to retain that functionality for GTPv2 ???
 	 */
 	version = tvb_get_guint8(tvb,0)>>5;
-	if(version==2){
+	if (version==2) {
 		/* GTPv2-C 3GPP TS 29.274 */
-		if(gtpv2_handle){
+		if (gtpv2_handle) {
 			call_dissector(gtpv2_handle, tvb, pinfo, tree);
 			return;
 		}
@@ -6529,10 +6529,10 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	    }
 
             /*Use sequence number to track Req/Resp pairs*/
-            if(seq_no) {
+            if (seq_no) {
                 gcrp = gtp_match_response(tvb, pinfo, gtp_tree, seq_no, gtp_hdr.message);
                 /*pass packet to tap for response time reporting*/
-                if(gcrp) {
+                if (gcrp) {
                     tap_queue_packet(gtp_tap,pinfo,gcrp);
                 }
             }
@@ -6702,7 +6702,7 @@ void proto_register_gtp(void)
 	{&hf_gtp_qos_delay,
 	 {"QoS delay", "gtp.qos_delay", FT_UINT8, BASE_DEC, VALS(qos_delay_type), GTP_EXT_QOS_DELAY_MASK, "Quality of Service Delay Class", HFILL}},
 	{&hf_gtp_qos_reliability,
-	 {"QoS reliability", "gtp.qos_reliabilty", FT_UINT8, BASE_DEC, VALS(qos_reliability_type), GTP_EXT_QOS_RELIABILITY_MASK,
+	 {"QoS reliability", "gtp.qos_reliability", FT_UINT8, BASE_DEC, VALS(qos_reliability_type), GTP_EXT_QOS_RELIABILITY_MASK,
 	  "Quality of Service Reliability Class", HFILL}},
 	{&hf_gtp_qos_peak,
 	 {"QoS peak", "gtp.qos_peak", FT_UINT8, BASE_DEC, VALS(qos_peak_type), GTP_EXT_QOS_PEAK_MASK, "Quality of Service Peak Throughput", HFILL}},
