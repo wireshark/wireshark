@@ -40,9 +40,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <stdio.h>
-#include <string.h>
-
 #include <epan/asn1.h>
 #include "packet-ber.h"
 #include "packet-pkixac.h"
@@ -111,7 +108,7 @@ static int hf_pkixac_ClassList_secret = -1;
 static int hf_pkixac_ClassList_topSecret = -1;
 
 /*--- End of included file: packet-pkixac-hf.c ---*/
-#line 52 "packet-pkixac-template.c"
+#line 49 "packet-pkixac-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pkixac = -1;
@@ -137,7 +134,7 @@ static gint ett_pkixac_AttrSpec = -1;
 static gint ett_pkixac_ProxyInfo = -1;
 
 /*--- End of included file: packet-pkixac-ett.c ---*/
-#line 56 "packet-pkixac-template.c"
+#line 53 "packet-pkixac-template.c"
 
 static const char *object_identifier_id;
 
@@ -564,7 +561,7 @@ static void dissect_ProxyInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-pkixac-fn.c ---*/
-#line 60 "packet-pkixac-template.c"
+#line 57 "packet-pkixac-template.c"
 
 /*--- proto_register_pkixac ----------------------------------------------*/
 void proto_register_pkixac(void) {
@@ -772,7 +769,7 @@ void proto_register_pkixac(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pkixac-hfarr.c ---*/
-#line 67 "packet-pkixac-template.c"
+#line 64 "packet-pkixac-template.c"
   };
 
   /* List of subtrees */
@@ -800,7 +797,7 @@ void proto_register_pkixac(void) {
     &ett_pkixac_ProxyInfo,
 
 /*--- End of included file: packet-pkixac-ettarr.c ---*/
-#line 73 "packet-pkixac-template.c"
+#line 70 "packet-pkixac-template.c"
   };
 
   /* Register protocol */
@@ -831,6 +828,6 @@ void proto_reg_handoff_pkixac(void) {
 
 
 /*--- End of included file: packet-pkixac-dis-tab.c ---*/
-#line 88 "packet-pkixac-template.c"
+#line 85 "packet-pkixac-template.c"
 }
 
