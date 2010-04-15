@@ -1749,7 +1749,7 @@ date should be displayed as "{monthname}, {month} {day_of_month},
 {year}" or as "{year/day_of_year}".
 
 Additionally, BASE_NONE is used for 'display' as a NULL-value. That is, for 
-for non-integers other than FT_ABSOLUTE_TIME fields, and non-bitfield
+non-integers other than FT_ABSOLUTE_TIME fields, and non-bitfield
 FT_BOOLEANs, you'll want to use BASE_NONE in the 'display' field.  You may
 not use BASE_NONE for integers.
 
