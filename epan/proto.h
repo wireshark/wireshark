@@ -185,7 +185,7 @@ struct _header_field_info {
 	const char		*name;           /**< full name of this field */
 	const char		*abbrev;         /**< abbreviated name of this field */
 	enum ftenum		 type;           /**< field type, one of FT_ (from ftypes.h) */
-	int			 display;        /**< one of BASE_, or number of field bits for FT_BOOLEAN */
+	int			 display;        /**< one of BASE_, or field bit-width if FT_BOOLEAN and non-zero bitmask */
 	const void		*strings;        /**< value_string, range_string or true_false_string,
 				                      typically converted by VALS(), RVALS() or TFS().
 				                      If this is an FT_PROTOCOL then it points to the
