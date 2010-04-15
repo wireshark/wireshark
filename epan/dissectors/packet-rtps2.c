@@ -1073,6 +1073,10 @@ static void rtps_util_add_vendor_id(proto_tree *tree,
       g_strlcpy(vendor_name, RTPS_VENDOR_RTI_STRING, MAX_VENDOR_ID_SIZE);
       break;
 
+    case RTPS_VENDOR_TOC:
+      g_strlcpy(vendor_name, RTPS_VENDOR_TOC_STRING, MAX_VENDOR_ID_SIZE);
+      break;
+
     default:
       g_snprintf(vendor_name, MAX_VENDOR_ID_SIZE, "%d.%d", major, minor);
   }
@@ -2309,7 +2313,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
                         int        is_key,
                         const gint offset_begin,
                         char     * name,
-                        int        seq_max_len, /* -1 = not a sequence field */
+                        int        seq_max_len, /* 0 = not a sequence field (-1 = unbounded seq) */
                         guint32 *  arr_dimension, /* if !NULL: array of 10 int */
                         int        ndds_40_hack) {
   const gint original_offset = offset;
@@ -2467,7 +2471,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
                           0,
                           field_offset_begin,
                           member_name,
-                          -1,
+                          0,
                           NULL,
                           ndds_40_hack);
 */
@@ -2485,7 +2489,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
                     (discriminator_enum_name ? " " : ""),
                     (discriminator_enum_name ? discriminator_enum_name : ""));
 
-        if (seq_max_len != -1) {
+        if (seq_max_len != 0) {
           /* We're dissecting a sequence of struct, bypass the seq definition */
           g_snprintf(type_name, 40, "%s", struct_name);
           break;
@@ -2555,7 +2559,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
                     0,
                     field_offset_begin,
                     member_name,
-                    -1,
+                    0,
                     NULL,
                     ndds_40_hack);
         }
@@ -2661,7 +2665,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
             typecode_name = "struct";
         }
 
-        if (seq_max_len != -1) {
+        if (seq_max_len != 0) {
           /* We're dissecting a sequence of struct, bypass the seq definition */
           g_snprintf(type_name, 40, "%s", struct_name);
           break;
@@ -2745,7 +2749,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
                           member_is_key,
                           field_offset_begin,
                           member_name,
-                          -1,
+                          0,
                           NULL,
                           ndds_40_hack);
           }
@@ -2838,7 +2842,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
                           is_key,
                           offset_begin,
                           name,
-                          -1,
+                          0,
                           size,
                           ndds_40_hack);
         /* Differently from the other typecodes, the line has been already printed */
@@ -2901,7 +2905,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
   } /* switch(tk_id) */
 
   /* Sequence print */
-  if (seq_max_len != -1) {
+  if (seq_max_len != 0) {
     proto_tree_add_text(tree,
                   tvb,
                   offset_begin,
@@ -5342,7 +5346,7 @@ static gint dissect_parameter_sequence(proto_tree *tree,
                         0,      /* isKey */
                         offset,
                         NULL,   /* name */
-                        -1,     /* not a seq field */
+                        0,      /* not a seq field */
                         NULL,   /* not an array */
                         0);     /* ndds 4.0 hack: init to false */
               break;
@@ -5454,6 +5458,36 @@ static gint dissect_parameter_sequence(proto_tree *tree,
 
           } /* End of switch for parameters for vendor RTI */
         } /* End of branch vendor RTI */
+	else if (vendor_id == RTPS_VENDOR_TOC) {
+          switch(parameter) {
+            /* 0...2...........7...............15.............23...............31
+             * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+             * | PID_TYPECODE                  |            length             | 
+             * +---------------+---------------+---------------+---------------+
+             * |                                                               |
+             * +                    Type code description                      +
+             * |                                                               |
+             * +---------------+---------------+---------------+---------------+
+             */
+            case PID_TYPECODE:
+              rtps_util_add_typecode(rtps_parameter_tree,
+                        tvb,
+                        offset,
+                        little_endian,
+                        0,      /* indent level */
+                        0,      /* isPointer */
+                        -1,     /* bitfield */
+                        0,      /* isKey */
+                        offset,
+                        NULL,   /* name */
+                        0,      /* not a seq field */
+                        NULL,   /* not an array */
+                        0);     /* ndds 4.0 hack: init to false */
+              break;
+	    default:
+	      break;
+	  } /* End of switch for parameters for vendor TOC */
+	} /* End of branch vendor TOC */
 
         /* Put here other branches if you are planning to dissect parameters
          * ID from different vendors.

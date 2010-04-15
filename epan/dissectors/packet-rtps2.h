@@ -330,6 +330,8 @@ typedef enum {
 #define RTPS_VENDOR_UNKNOWN_STRING      "VENDOR_ID_UNKNOWN (0x0000)"
 #define RTPS_VENDOR_RTI                 (0x0101)
 #define RTPS_VENDOR_RTI_STRING          "Real-Time Innovations, Inc."
+#define RTPS_VENDOR_TOC                 (0x0106)
+#define RTPS_VENDOR_TOC_STRING          "Twin Oaks Computing, Inc."
 
 /* Parameter Liveliness */
 #define LIVELINESS_AUTOMATIC            (0)
