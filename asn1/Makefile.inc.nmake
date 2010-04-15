@@ -79,6 +79,14 @@ fix_eol: generate_dissector
 	u2d $(DISSECTOR_FILES)
 
 copy_files: generate_dissector
-   <<copy_files.bat
-FOR %%A IN ($(DISSECTOR_FILES)) DO xcopy %%A ..\..\epan\dissectors /d /y
+   @<<copy_files.bat
+@FOR %%A IN ($(DISSECTOR_FILES)) DO xcopy %%A ..\..\epan\dissectors /d /y
+<<
+
+compare_files: generate_dissector
+   @<<compare_files.bat
+@setlocal
+@set CYGWIN=%CYGWIN% nodosfilewarning
+@FOR %%A IN ($(DISSECTOR_FILES)) DO @diff -U 0 -I '[[:blank:]]\*[[:blank:]]\^$Id:[[:blank:]]' %%A ..\..\epan\dissectors
+@exit /b 0
 <<
