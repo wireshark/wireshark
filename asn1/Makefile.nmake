@@ -1,5 +1,6 @@
 ## Makefile for building wireshark.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+##  (See 'Logic' below for additional details)
 #
 # $Id$
 #
@@ -31,24 +32,17 @@
 #    (If ASN1_MAKE_TARGET is not defined then default to "copy_files"
 #     which generates the individual ASN1 dissector files and then copies 
 #     the generated .[hc] files to epan\dissectors).
-# 2. If this Makefile is invoked with a target, then do the action for the target:
-#    Reinvoke this Makefile without a target and with ASN1_MAKE_TARGET 
+#
+# 2. If this Makefile is invoked with one of the following targets, then do the action for the target:
+#    Reinvoke this Makefile with 'all' as target and with ASN1_MAKE_TARGET 
 #     defined as appropriate.
-#    Possible targets:
-#     clean
-#     generate_dissectors  : generate the dissectors but do *not* copy the [.hc] files to epan\dissectors
-#     compare_files        : generate the dissectors and then *compare* the .[hc] files to epan\dissectors
-#     copy_files           : generate the dissectors and then copy the .[hc] files to epan\dissectors
-#                          :  (This is, in effect, the same as invoking this makefile w/o a target).
+#       clean
+#       generate_dissector   : generate the dissectors but do *not* copy the [.hc] files to epan\dissectors
+#       compare_files        : generate the dissectors and then *compare* the .[hc] files to epan\dissectors
+#       copy_files           : generate the dissectors and then copy the .[hc] files to epan\dissectors
+#                            :  (This is, in effect, the same as invoking this makefile w/o a target).
 
-!IFNDEF ASN1_MAKE_TARGET
-ASN1_MAKE_TARGET=copy_files
-!ENDIF
-
-
-all: ber per
-
-ber: \
+BER_LIST= \
 	acp133	\
 	acse	\
 	ansi_map\
@@ -108,7 +102,7 @@ ber: \
 	x509if	\
 	x509sat
 
-per: \
+PER_LIST= \
 	h225	\
 	h235	\
 	h245	\
@@ -136,413 +130,26 @@ per: \
 	ulp		\
 	x2ap
 
-# ASN1 individual targets
-cdt::
-	cd cdt
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-charging_ase::
-	cd charging_ase
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-cmip::
-	cd cmip
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-cmp::
-	cd cmp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-crmf::
-	cd crmf
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-cms::
-	cd cms
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-dap::
-	cd dap
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-dop::
-	cd dop
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-disp::
-	cd disp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-dsp::
-	cd dsp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-ess::
-	cd ess
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-ftam::
-	cd ftam
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-gnm::
-	cd gnm
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-goose::
-	cd goose
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-gsm_map::
-	cd gsm_map
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-h225::
-	cd h225
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-h235::
-	cd h235
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-h245::
-	cd h245
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-h248::
-	cd h248
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-h282::
-	cd h282
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-h283::
-	cd h283
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-h323::
-	cd h323
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-h450::
-	cd h450
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-h450-ros::
-	cd h450-ros
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-h460::
-	cd h460
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-h501::
-	cd h501
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-HI2Operations::
-	cd HI2Operations
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-hnbap::
-	cd hnbap
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-inap::
-	cd inap
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-ldap::
-	cd ldap
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-lte-rrc::
-	cd lte-rrc
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-logotypecertextn::
-	cd logotypecertextn
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-mms::
-	cd mms
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-mpeg-audio::
-	cd mpeg-audio
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-mpeg-pes::
-	cd mpeg-pes
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-nbap::
-	cd nbap
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-ns_cert_exts::
-	cd ns_cert_exts
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-ocsp::
-	cd ocsp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-p7::
-	cd p7
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-pcap::
-	cd pcap
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-pkcs1::
-	cd pkcs1
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-pkcs12::
-	cd pkcs12
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-pkinit::
-	cd pkinit
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-pkixac::
-	cd pkixac
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-pkix1explicit::
-	cd pkix1explicit
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-pkix1implicit::
-	cd pkix1implicit
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-pkixproxy::
-	cd pkixproxy
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-pkixqualified::
-	cd pkixqualified
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-pkixtsp::
-	cd pkixtsp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-pres::
-	cd pres
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-q932::
-	cd q932
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-q932-ros::
-	cd q932-ros
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-qsig::
-	cd qsig
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-ranap::
-	cd ranap
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-rnsap::
-	cd rnsap
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-ros::
-	cd ros
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-rrc::
-	cd rrc
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-rrlp::
-	cd rrlp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-rtse::
-	cd rtse
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-rua::
-	cd rua
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-s1ap::
-	cd s1ap
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-s4406::
-	cd s4406
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-sabp::
-	cd sabp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-smrse::
-	cd smrse
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-snmp::
-	cd snmp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-spnego::
-	cd spnego
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-t125::
-	cd t125
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-t38::
-	cd t38
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-tcap::
-	cd tcap
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-ulp::
-	cd ulp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-wlancertextn::
-	cd wlancertextn
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-x2ap::
-	cd x2ap
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
-
-x411::
-	cd x411
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
 
-x420::
-	cd x420
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
+!IFNDEF ASN1_MAKE_TARGET
+ASN1_MAKE_TARGET=copy_files
+!ENDIF
 
-x509af::
-	cd x509af
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
+all: ber per
 
-x509ce::
-	cd x509ce
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
+ber: $(BER_LIST)
 
-x509if::
-	cd x509if
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
-	cd ..
+per: $(PER_LIST)
 
-x509sat::
-	cd x509sat
+$(BER_LIST) $(PER_LIST) ::
+	cd $@
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
 	cd ..
-
-
-## -----
 
 # When this Makefile is invoked with an explicit target then
-#  this Makefile is re-invoked with no target but with
+#  this Makefile is re-invoked with 'all' as target and with
 #  ASN1_MAKE_TARGET defined as to the action needed.
 
-clean:
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	ASN1_MAKE_TARGET=clean
-
-generate_dissectors:
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	ASN1_MAKE_TARGET=all
-
-compare_files:
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	ASN1_MAKE_TARGET=compare_files
-
-copy_files:
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	ASN1_MAKE_TARGET=copy_files
-
+clean generate_dissector compare_files copy_files :
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	all ASN1_MAKE_TARGET=$@
 
