@@ -81,11 +81,11 @@ gchar* ep_strdup_printf(const gchar* fmt, ...)
  * delimiter. If max_tokens is reached, the remainder of string is appended
  * to the last token. Consecutive delimiters are treated as a single delimiter.
  *
- * the vector and all the strings are allocated with packet lifetime scope
+ * The vector and all the strings are allocated with packet lifetime scope
  */
 gchar** ep_strsplit(const gchar* string, const gchar* delimiter, int max_tokens);
 
-/* release all memory allocated in the previous packet dissector */
+/* release all memory allocated in the previous packet dissection */
 void ep_free_all(void);
 
 
@@ -206,9 +206,9 @@ typedef struct _emem_tree_t {
 emem_tree_t *se_tree_create(int type, const char *name) G_GNUC_MALLOC;
 
 /* This function is similar to the se_tree_create() call but with the
- * difference that when the se memory is release everything including the
+ * difference that when the se memory is released everything including the
  * pointer to the tree itself will be released.
- * This tree will not be just reset to zero  it will be completely forgotten
+ * This tree will not be just reset to zero, it will be completely forgotten
  * by the allocator.
  * Use this function for when you want to store the pointer to a tree inside
  * another structure that is also se allocated so that when the structure is
@@ -222,7 +222,7 @@ emem_tree_t *se_tree_create_non_persistent(int type, const char *name) G_GNUC_MA
 #define se_tree_insert32 emem_tree_insert32
 
 /* se_tree_lookup32
- * Retrieve the data at the search key. the search key is a 32bit integer value
+ * Retrieve the data at the search key. The search key is a 32bit integer value
  */
 #define se_tree_lookup32 emem_tree_lookup32
 
@@ -323,9 +323,9 @@ typedef struct _emem_tree_key_t {
  * number of words.
  *
  * One way to guarantee this is the way that NFS does this for the
- * nfs_name_snoop_known  tree which holds filehandles for both v2 and v3.
+ * nfs_name_snoop_known tree which holds filehandles for both v2 and v3.
  * v2 filehandles are always 32 bytes (8 words) while v3 filehandles can have
- * any length (though 32bytes are most common).
+ * any length (though 32 bytes are most common).
  * The NFS dissector handles this by providing a guint32 containing the length
  * as the very first item in this vector :
  *
@@ -375,8 +375,8 @@ gboolean emem_tree_foreach(emem_tree_t* emem_tree, tree_foreach_func callback, v
  * ****************************************************************** */
 
 typedef struct _emem_strbuf_t {
-    gchar *str;             /* points to the character data. It may move as text is       */
-                            /*  added. The str field is nul-terminated and so can         */
+    gchar *str;             /* Points to the character data. It may move as text is       */
+                            /*  added. The str field is null-terminated and so can        */
                             /*  be used as an ordinary C string.                          */
     gsize len;              /* strlen: ie: length of str not including trailing '\0'      */
     gsize alloc_len;        /* num bytes curently allocated for str: 1 .. MAX_STRBUF_LEN  */
@@ -481,8 +481,8 @@ void emem_print_tree(emem_tree_t* emem_tree);
 
 /* #define DEBUG_INTENSE_CANARY_CHECKS */
 
-/* Helper to troubleshoot ep memory corruption
- * if compiled and the environment variable WIRESHARK_DEBUG_EP_INTENSE_CANARY exists
+/* Helper to troubleshoot ep memory corruption.
+ * If compiled and the environment variable WIRESHARK_DEBUG_EP_INTENSE_CANARY exists
  * it will check the canaries and when found corrupt stop there in the hope
  * the corruptor is still there in the stack.
  * Some checkpoints are already set in packet.c in strategic points
