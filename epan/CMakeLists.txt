@@ -570,7 +570,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-gnutella.c
 	dissectors/packet-gpef.c
 	dissectors/packet-gprs-llc.c
-	dissectors/packet-gprs-ns.c
 	dissectors/packet-gre.c
 	dissectors/packet-gsm_a_bssmap.c
 	dissectors/packet-gsm_a_common.c
