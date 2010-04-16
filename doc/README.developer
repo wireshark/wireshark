@@ -26,16 +26,16 @@ root dir.
 
 You'll find additional information in the following README files:
 
-- README.capture - the capture engine internals
-- README.design - Wireshark software design - incomplete
-- README.developer - this file
+- README.capture        - the capture engine internals
+- README.design         - Wireshark software design - incomplete
+- README.developer      - this file
 - README.display_filter - Display Filter Engine
-- README.idl2wrs - CORBA IDL converter
-- README.packaging - how to distribute a software package containing WS
-- README.regression - regression testing of WS and TS
-- README.stats_tree - a tree statistics counting specific packets
-- README.tapping - "tap" a dissector to get protocol specific events
-- README.xml-output - how to work with the PDML exported output
+- README.idl2wrs        - CORBA IDL converter
+- README.packaging      - how to distribute a software package containing WS
+- README.regression     - regression testing of WS and TS
+- README.stats_tree     - a tree statistics counting specific packets
+- README.tapping        - "tap" a dissector to get protocol specific events
+- README.xml-output     - how to work with the PDML exported output
 - wiretap/README.developer - how to add additional capture file types to
   Wiretap
 
@@ -44,10 +44,11 @@ You'll find additional information in the following README files:
 You'll find additional dissector related information in the following README
 files:
 
-- README.binarytrees - fast access to large data collections
-- README.heuristic - what are heuristic dissectors and how to write them
-- README.malloc - how to obtain "memory leak free" memory
-- README.plugins - how to "pluginize" a dissector
+- README.binarytrees    - fast access to large data collections
+- README.heuristic      - what are heuristic dissectors and how to write them
+- README.malloc         - how to obtain "memory leak free" memory
+- README.plugins        - how to "pluginize" a dissector
+- README.python         - writing a dissector in PYTHON.
 - README.request_response_tracking - how to track req./resp. times and such
 
 0.3 Contributors
@@ -1534,7 +1535,7 @@ be called at startup:
 
 	the file containing a dissector's "register" routine must be
 	added to "DISSECTOR_SRC" in "epan/dissectors/Makefile.common"
-	(and to "epan/CMakeLists.txt");
+	(and in "epan/CMakeLists.txt");
 
 	the "register" routine must have a name of the form
 	"proto_register_XXX";
@@ -2830,6 +2831,8 @@ to the DISSECTOR_SRC section of epan/CMakeLists.txt
 
   - Create a Wiki page on the protocol at <http://wiki.wireshark.org>.
     A template is provided so it is easy to setup in a consistent style.
+      See: <http://wiki.wireshark.org/HowToEdit>
+      and  <http://wiki.wireshark.org/ProtocolReference>
 
   - If possible, add sample capture files to the sample captures page at
     <http://wiki.wireshark.org/SampleCaptures>.  These files are used by
