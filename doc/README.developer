@@ -698,8 +698,9 @@ protocol, if any.
 Usually, you will put your newly created dissector file into the directory
 epan/dissectors, just like all the other packet-....c files already in there.
 
-Also, please add your dissector file to the corresponding makefile,
-described in section "1.9 Editing Makefile.common to add your dissector" below.
+Also, please add your dissector file to the corresponding makefiles,
+described in section "1.9 Editing Makefile.common and CMakeLists.txt 
+to add your dissector" below.
 
 Dissectors that use the dissector registration to register with a lower level
 dissector don't need to define a prototype in the .h file. For other
@@ -720,6 +721,9 @@ code inside
 
 is needed only if you are using a function from libpcre, e.g. the
 "pcre_compile()" function.
+
+The stdio.h, stdlib.h and string.h header files should be included only as needed.
+
 
 The "$Id$" in the comment will be updated by Subversion when the file is
 checked in.
@@ -764,9 +768,12 @@ SVN repository (committed).
 # include "config.h"
 #endif
 
+#if 0
+/* Include only as needed */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#endif
 
 #include <glib.h>
 
@@ -1526,7 +1533,8 @@ generated automatically; to arrange that a protocol's register routine
 be called at startup:
 
 	the file containing a dissector's "register" routine must be
-	added to "DISSECTOR_SRC" in "epan/dissectors/Makefile.common";
+	added to "DISSECTOR_SRC" in "epan/dissectors/Makefile.common"
+	(and to "epan/CMakeLists.txt");
 
 	the "register" routine must have a name of the form
 	"proto_register_XXX";
@@ -2771,7 +2779,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissector_next( next_tvb, pinfo, tree);
 
 
-1.9 Editing Makefile.common to add your dissector.
+1.9 Editing Makefile.common and CMakeLists.txt to add your dissector.
 
 To arrange that your dissector will be built as part of Wireshark, you
 must add the name of the source file for your dissector to the
@@ -2785,6 +2793,10 @@ them to the 'DISSECTOR_INCLUDES' macro in the 'Makefile.common' file in
 the 'epan/dissectors' directory, so that it's included when release source
 tarballs are built (otherwise, the source in the release tarballs won't
 compile).
+
+In addition to the above, you should add your dissector source file name 
+to the DISSECTOR_SRC section of epan/CMakeLists.txt
+
 
 1.10 Using the SVN source code tree.
 
