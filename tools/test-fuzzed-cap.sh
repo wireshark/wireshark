@@ -26,4 +26,7 @@ ulimit -S -t $MAX_CPU_TIME -v $MAX_VMEM
 # Allow core files to be generated
 ulimit -c unlimited
 
-WIRESHARK_DEBUG_SE_USE_CANARY= ./tshark -nVxr $1 > /dev/null
+export WIRESHARK_DEBUG_SCRUB_MEMORY=1
+export WIRESHARK_DEBUG_SE_USE_CANARY=1
+
+./tshark -nVxr $1 > /dev/null
