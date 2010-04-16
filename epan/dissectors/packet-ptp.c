@@ -2172,23 +2172,10 @@ dissect_ptp_v2_timeInterval(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree
 	proto_item 	*ptptimeInterval_ti;
 	proto_tree 	*ptptimeInterval_subtree;
 
-	time_ns = tvb_get_ntohl(tvb, *cur_offset);
-
+	time_ns = tvb_get_ntoh64(tvb, *cur_offset);
+	time_double = (1.0*time_ns) / 65536.0;
+	time_ns = time_ns >> 16;
 	time_subns = tvb_get_ntohs(tvb, *cur_offset+6);
-
-	time_ns = time_ns << 16;
-
-	if(time_ns & 0x800000){
-		time_ns = time_ns | G_GINT64_CONSTANT(0xFFFFFFFFFF000000);
-		time_ns = time_ns | tvb_get_ntohs(tvb, *cur_offset+4);
-
-		time_double = ((1.0*time_ns) + (time_subns/65536.0));
-	}
-	else
-	{
-		time_ns = time_ns | tvb_get_ntohs(tvb, *cur_offset+4);
-		time_double = time_ns + (time_subns/65536.0);
-	}
 
 	ptptimeInterval_ti = proto_tree_add_text(tree, tvb, *cur_offset, 8,
 		"%s: %f nanoseconds", name, time_double);
