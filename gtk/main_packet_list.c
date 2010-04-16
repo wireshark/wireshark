@@ -714,9 +714,6 @@ packet_list_set_sel_browse(gboolean val, gboolean force_set)
 void
 packet_list_set_font(PangoFontDescription *font)
 {
-    int i;
-    gint col_width;
-    PangoLayout *layout;
 
     /* Manually set the font so it can be used right away in the
      * pango_layout_get_pixel_size call below.  The gtk_widget_modify_font
@@ -724,6 +721,15 @@ packet_list_set_font(PangoFontDescription *font)
     packet_list->style->font_desc = pango_font_description_copy(font);
 
     gtk_widget_modify_font(packet_list, font);
+
+}
+
+void
+packet_list_set_default_column_sizes(void)
+{
+    int i;
+    gint col_width;
+    PangoLayout *layout;
 
     /* Compute default column sizes. */
     for (i = 0; i < cfile.cinfo.num_cols; i++) {
@@ -765,6 +771,7 @@ packet_list_new(e_prefs *prefs)
 
     packet_list_set_sel_browse(prefs->gui_plist_sel_browse, FALSE);
     packet_list_set_font(user_font_get_regular());
+    packet_list_set_default_column_sizes();
     gtk_widget_set_name(packet_list, "packet list");
     g_signal_connect(packet_list, "select-row", G_CALLBACK(packet_list_select_cb), NULL);
     g_signal_connect(packet_list, "unselect-row", G_CALLBACK(packet_list_unselect_cb), NULL);
