@@ -2916,6 +2916,7 @@ Alexis La Goutte	<alexis.lagoutte [AT] gmail.com> {
 	Aruba ERM dissector
 	CAPWAP dissector
 	Miscellaneous ISAKMP enhancements
+	Packet TCP Mood Option (RFC5841) support
 }
 
 Varun Notibala		<nbvarun [AT] gmail.com> {
