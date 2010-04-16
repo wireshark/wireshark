@@ -850,9 +850,9 @@ Index: file.h
 	  </para>
 	  </listitem>
 	  <listitem><para>
-	  <command>Submit dissectors as build-in whenever possible.</command>
+	  <command>Submit dissectors as built-in whenever possible.</command>
 	  Developing a new dissector as a plugin is a good idea because compiling is
-	  quicker, but it's best to convert dissectors to the build-in style before
+	  quicker, but it's best to convert dissectors to the built-in style before
 	  submitting for checkin. This reduces the number of files that must be installed
 	  with Wireshark and ensures your dissector will be available on all platforms.
 	  </para><para>
@@ -1074,7 +1074,7 @@ diff -c -r1.5 dlnames.c
 	<note><title>Note!</title>
 	<para>
 	This action is only possible/allowed by the Wireshark core developers who
-	have write access to the Subversion repository. It is put in here, to have
+	have write access to the Subversion repository. It is put in here to have
 	all information in one place.
 	</para>
 	</note>
@@ -1089,7 +1089,7 @@ diff -c -r1.5 dlnames.c
 	</listitem>
 	<listitem>
 	<para>
-	Add a line to each new file, containing the following text (case is
+	Add a line to each new file containing the following text (case is
 	important, so don't write ID or id or iD):
 <programlisting>
 $Id&#36;
@@ -1133,14 +1133,14 @@ $Id&#36;
 	</para>
 	</listitem>
 	</orderedlist>
-	Don't forget a brief description of the reason for the commit, so other
+	Don't forget a brief description of the reason for the commit so other
 	developers don't need to read the diff in order to know what has changed.
 	</para>
   </section>
   <section id="ChSrcBinary">
 	<title>Binary packaging</title>
 	<para>
-	Delivering binary packages, makes it much easier for the end-users to
+	Delivering binary packages makes it much easier for the end-users to
 	install Wireshark on their target system. This section will explain how
 	the binary packages are made.
 	</para>
