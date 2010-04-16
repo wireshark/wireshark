@@ -1194,12 +1194,20 @@ main(int argc, char *argv[])
       }
       case 'V':        /* Verbose */
         verbose = TRUE;
+	/*  The user asked for a verbose output, so let's ensure they get it,
+	 *  even if they're writing to a file.
+	 */
+	print_packet_info = TRUE;
         break;
       case 'x':        /* Print packet data in hex (and ASCII) */
-          print_hex = TRUE;
-          break;
+        print_hex = TRUE;
+	/*  The user asked for hex output, so let's ensure they get it,
+	 *  even if they're writing to a file.
+	 */
+	print_packet_info = TRUE;
+        break;
       case 'X':
-          break;
+        break;
       case 'z':
         /* We won't call the init function for the stat this soon
            as it would disallow MATE's fields (which are registered
