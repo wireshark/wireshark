@@ -917,6 +917,7 @@ DISSECTOR_SRC = \
 	packet-vnc.c		\
 	packet-vrrp.c		\
 	packet-vtp.c		\
+	packet-vxi11.c		\
 	packet-wap.c		\
 	packet-wassp.c		\
 	packet-wbxml.c		\

@@ -3015,6 +3015,10 @@ David Aggeler		<david_aggeler [AT] hispeed.ch> {
 	VMLAB (VMware Lab Manager) dissector
 }
 
+Jens Kilian		<jjk [AT] acm.org> {
+	VXI-11 (a.k.a. Network Instrument Protocol) dissector
+}
+
 
 and by:
 
