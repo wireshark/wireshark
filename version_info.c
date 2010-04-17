@@ -531,6 +531,11 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	g_string_append(str, ", ");
 	get_runtime_pcap_version(str);
 
+        /* zlib */
+#ifdef HAVE_LIBZ
+        g_string_append_printf(str, ", with libz %s", zlibVersion());
+#endif
+
     /* GnuTLS */
 #ifdef HAVE_LIBGNUTLS
 	g_string_append_printf(str, ", GnuTLS %s", gnutls_check_version(NULL));
