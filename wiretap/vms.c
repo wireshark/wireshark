@@ -489,7 +489,8 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
     }
     /* Avoid TCPIPTRACE-W-BUFFERSFUL, TCPIPtrace could not save n packets.
      * errors. */
-    file_gets(line, VMS_LINE_LENGTH, fh);
+    if (!file_gets(line, VMS_LINE_LENGTH, fh))
+        return FALSE;
     return TRUE;
 }
 

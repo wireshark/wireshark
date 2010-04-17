@@ -67,7 +67,9 @@ int packetlogger_open(wtap *wth, int *err, gchar **err_info _U_)
 
 	if(!packetlogger_read_header(&pl_hdr, wth->fh, err))
 		return -1;
-	file_read(&type, 1, 1, wth->fh);
+
+	if (file_read(&type, 1, 1, wth->fh) <= 0)
+		return -1;
 
 	/* Verify this file belongs to us */
 	if (!((8 <= pl_hdr.len) && (pl_hdr.len < 65536) &&
