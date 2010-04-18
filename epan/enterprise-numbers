@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2010-04-09)
+(last updated 2010-04-18)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -39626,9 +39626,9 @@ Decimal
     Brian Beuning
       bbeuning&delosps.com
 9918
-  DOC/NOAA/NESDIS/NODC
+  National Oceanic and Atmospheric Administration (NOAA)
     Jefferson Ogata
-      jefferson.ogata&noaa.gov
+      IANA.PEN.9918&noaa.gov
 9919
   earth9.com Pte Ltd
     Earl Allan
@@ -100502,8 +100502,8 @@ de Bruxelles, asbl
       francois.logier&linog-consulting.com
 25233
   ACS
-    Qiang Wu
-      Qiang.Wu&acs-inc.com
+    Dennis Cox
+      Dennis.Cox&acs-inc.com
 25234
   Emdeon Corporation
     Matthew Kiser
@@ -141931,7 +141931,7 @@ Decentralization / Helenic Public Administra
 35586
   Competentum
     Pavel Bondarenko
-      bondarenko&competentum.ru
+      iana&competentum.ru
 35587
   White Birch Paper division Papier Masson
     Marc Côté
@@ -141984,6 +141984,198 @@ Decentralization / Helenic Public Administra
   Marketware
     Antonio Barros de Sousa
       asousa&marketware.eu
+35600
+  TCC R&D GmbH
+    Uwe Danzeglocke
+      danzeglocke&tcc.de
+35601
+  TransCanada Pipelines Ltd
+    Rob Sealock
+      rob_sealock&transcanada.com
+35602
+  Syndetic Pty Ltd
+    Ross Varnes
+      ross.varnes&syndetic.com.au
+35603
+  TIANJIN DEVISER ELECTRONICS INSTRUMENT CO.,LTD
+    Cao Yuliang
+      susan&deviser.com.cn
+35604
+  Compal Broadband Networks Inc.
+    Roy Huang
+      roy_huang&compalbn.com
+35605
+  Montani Webdevelopment + Strategie
+    J.A. Vroegop
+      jav&montani.nl
+35606
+  ZAO NPC "KOMPYUTERNYE TECHNOLOGII"
+    Alexandr Bondarenko
+      komtex&perm.ru
+35607
+  Wireless eSystems
+    Casey Calloway
+      ccalloway&irespond.com
+35608
+  Answer Quick
+    Mike Demoulin
+      technical&answerquick.com
+35609
+  AXIe Consortium, Inc.
+    Robert George Helsel
+      execdir&axiestandard.org
+35610
+  Itel snc
+    Alessandro Tomassini
+      atomassini&itel.it
+35611
+  SOFT PROJECT C.A.
+    Jesús Lara
+      jesuslarag&gmail.com
+35612
+  Digital Mages
+    Arthur Corliss
+      corliss&digitalmages.com
+35613
+  Linktrust
+    Neil Liu
+      liuhj&linktrust.com.cn
+35614
+  ITK-Engineering
+    Andreas Pfeiffer
+      andreas.pfeiffer&itk-engineering.de
+35615
+  Basilea Pharmaceutica Ltd
+    Dirk Wacker
+      itsecurity&basilea.com
+35616
+  Deltanet AG
+    Daniel Neff
+      daniel.neff&deltanet.ch
+35617
+  XtcN
+    Richard Lamb
+      slamb&xtcn.com
+35618
+  Beanfield Technologies Inc.
+    Brent Bloxam
+      brent&beanfield.com
+35619
+  Mittwald CM Service
+    Frank Bergmann
+      iana-pen&mittwald.de
+35620
+  William Beaumont Hospitals
+    Dale Thomas
+      drthomas&smtpgw.beaumont.edu
+35621
+  Patrick Kobly
+    Patrick Kobly
+      patrick&kobly.com
+35622
+  Akaflieg Stuttgart
+    Pascal Groß
+      pascal.grosz&me.com
+35623
+  Albino Slug Studios
+    Simon Walker
+      stwalkerster&albinoslugstudios.co.uk
+35624
+  tuxad.com
+    Frank W. Bergmann
+      iana-pen&tuxad.com
+35625
+  Vembu Technologies Private Limited
+    S. Gopal Krishnan
+      snmp&vembu.com
+35626
+  CHONGQING JINGHONG HI-TECH CO.,LTD
+    zonghua qin
+      13629731011&163.com
+35627
+  Atera Networks LTD
+    Oren Cohen
+      oren&ateranetworks.com
+35628
+  Unitas Network GmbH
+    Joerg Deckert
+      jdeckert&unitas-network.de
+35629
+  PL-grid
+    Grzegorz Kosicki
+      grzegorz.kosicki&wcss.pl
+35630
+  Qube Technologies Sp. z o.o.
+    Wojciech Kozerski
+      wkozerski&qube.pl
+35631
+  CyberTrans Japan
+    Iftah Bratspiess
+      iftah&web-silicon.com
+35632
+  ntop
+    Luca Deri
+      deri&ntop.org
+35633
+  Open Sistemas
+    Fernando Monera
+      sistemas&opensistemas.com
+35634
+  Karl Wörwag Lack- und Farbenfabrik GmbH & Co. KG
+    Klaus Fellmeth
+      klaus.fellmeth&woerwag.de
+35635
+  GFR Software Solutions AG
+    Claude Strübin
+      struebin&gfr.ch
+35636
+  KION GROUP GmbH
+    Markus Wintruff
+      cns&kion-ims.com
+35637
+  ubiqu access b.v.
+    Boris Goranov
+      boris.goranov&ubiqu.nl
+35638
+  Flughafen Wien AG
+    Gerald Schinagl
+      g.schinagl&viennaairport.com
+35639
+  Wydawnictwo Naukowe PWN S.A.
+    Rafal Szmigiel
+      rafal.szmigiel&pwn.pl
+35640
+  Appareo Systems, LLC
+    Paul Olson
+      polson&appareo.com
+35641
+  Universidad de los Andes
+    Andres Holguin
+      a-holgui&uniandes.edu.co
+35642
+  Paneda AS
+    Thomas Flølo
+      thomas.flolo&paneda.no
+35643
+  EURIX srl
+    Decarlini Paolo
+      decarlini&eurix.it
+35644
+  Olson Consulting
+    Paul Olson
+      paulo&olson-consulting.com
+35645
+  ZiChen Tech. Co. Ltd.
+    Kevin Zheng
+      kevin.z.y&163.com
+35646
+  CTS cashpro s.p.a.
+    Calo' Massimo
+      m.calo&ctsgroup.it
+35647
+  Deposita Systems (Pty) Ltd
+    Tristan Dopler
+      tristan.dopler&deposita.co.za
 
 
 End of Document
