@@ -43,91 +43,91 @@
 #                            :  (This is, in effect, the same as invoking this makefile w/o a target).
 
 BER_LIST= \
-	acp133	\
-	acse	\
-	ansi_map\
-	ansi_tcap	\
-	camel	\
-	cdt		\
-	charging_ase	\
-	cmip	\
-	cmp		\
-	crmf	\
-	cms		\
-	dap		\
-	dop		\
-	disp	\
-	dsp		\
-	ess		\
-	ftam	\
-	gnm		\
-	goose	\
-	gsm_map	\
-	h248	\
-	HI2Operations	\
-	inap	\
-	kerberos	\
-	ldap 	\
+	acp133			\
+	acse			\
+	ansi_map		\
+	ansi_tcap		\
+	camel			\
+	cdt			\
+	charging_ase		\
+	cmip			\
+	cmp			\
+	crmf			\
+	cms			\
+	dap			\
+	dop			\
+	disp			\
+	dsp			\
+	ess			\
+	ftam			\
+	gnm			\
+	goose			\
+	gsm_map			\
+	h248			\
+	HI2Operations		\
+	inap			\
+###	kerberos		\
+	ldap 			\
 	logotypecertextn	\
-	mms		\
-	ns_cert_exts	\
-	ocsp	\
-	p7		\
-	pkcs1	\
-	pkcs12	\
-	pkinit	\
-	pkixac	\
-	pkix1explicit	\
-	pkix1implicit	\
+	mms			\
+	ns_cert_exts		\
+	ocsp			\
+	p7			\
+	pkcs1			\
+	pkcs12			\
+	pkinit			\
+	pkixac			\
+	pkix1explicit		\
+	pkix1implicit		\
 	pkixproxy		\
-	pkixqualified	\
-	pkixtsp	\
-	pres	\
-	q932	\
-	q932-ros\
-	qsig	\
-	ros		\
-	rtse	\
-	s4406	\
-	smrse	\
-	snmp	\
-	spnego	\
-	t125	\
-	tcap	\
-	wlancertextn	\
-	x411	\
-	x420	\
-	x509af	\
-	x509ce	\
-	x509if	\
+	pkixqualified		\
+	pkixtsp			\
+	pres			\
+	q932			\
+	q932-ros		\
+	qsig			\
+	ros			\
+	rtse			\
+	s4406			\
+	smrse			\
+	snmp			\
+	spnego			\
+	t125			\
+	tcap			\
+	wlancertextn		\
+	x411			\
+	x420			\
+	x509af			\
+	x509ce			\
+	x509if			\
 	x509sat
 
 PER_LIST= \
-	h225	\
-	h235	\
-	h245	\
-	h282	\
-	h283	\
-	h323	\
-	h450	\
-	h450-ros\
-	h460	\
-	h501	\
-	hnbap	\
-	lte-rrc	\
-	nbap	\
-	mpeg-audio	\
-	mpeg-pes	\
-	pcap	\
-	ranap	\
-	rnsap	\
-	rrc		\
-	rrlp	\
-	rua		\
-	s1ap	\
-	sabp	\
-	t38		\
-	ulp		\
+	h225			\
+	h235			\
+	h245			\
+	h282			\
+	h283			\
+	h323			\
+	h450			\
+	h450-ros		\
+	h460			\
+	h501			\
+	hnbap			\
+	lte-rrc			\
+	nbap			\
+	mpeg-audio		\
+	mpeg-pes		\
+	pcap			\
+	ranap			\
+	rnsap			\
+	rrc			\
+	rrlp			\
+	rua			\
+	s1ap			\
+	sabp			\
+	t38			\
+	ulp			\
 	x2ap
 
 
@@ -141,7 +141,7 @@ ber: $(BER_LIST)
 
 per: $(PER_LIST)
 
-$(BER_LIST) $(PER_LIST) ::
+$(BER_LIST) $(PER_LIST) : _FORCE_  # _FORCE_ req'd since each target actually exists
 	cd $@
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(ASN1_MAKE_TARGET)
 	cd ..
@@ -152,4 +152,7 @@ $(BER_LIST) $(PER_LIST) ::
 
 clean generate_dissector compare_files copy_files :
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	all ASN1_MAKE_TARGET=$@
+
+####
+_FORCE_:  ## Assumption: no file named _FORCE_ exists in the current directory
 
