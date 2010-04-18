@@ -206,7 +206,7 @@ packaging: all
 	cd ..
 !ELSE
 packaging: _FORCE_
-	@echo ? NSIS not available (MAKENSIS not defined in config.nmake)
+	@echo \? NSIS not available (MAKENSIS not defined in config.nmake)
 	@echo.
 	@exit 1
 !ENDIF
