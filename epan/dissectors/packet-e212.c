@@ -37,10 +37,10 @@
 
 /*
  * Annex to ITU Operational Bulletin
- * No. 897 - 1.XII.2007
- * including amendments up to ITU Operational Bulletin No. 951 - 1.III.2010
- * 
- * COMPLEMENT TO ITU-T RECOMMENDATION E.212 (05/2004)
+ * No. 953 - 1.IV.2010
+ * including amendments up to ITU Operational Bulletin No. 954 - 15.IV.2010
+ *
+ * COMPLEMENT TO ITU-T RECOMMENDATION E.212 (05/2008)
  */
 const value_string E212_codes[] = {
 	{  202,	"Greece" },
@@ -108,8 +108,7 @@ const value_string E212_codes[] = {
 	{  332,	"United States Virgin Islands" },
 	{  334,	"Mexico" },
 	{  338,	"Jamaica" },
-	{  340,	"Martinique (French Department of)" },
-	{  340,	"Guadeloupe (French Department of)" },
+	{  340,	"Martinique/Guadeloupe (French Departments of)" },
 	{  342,	"Barbados" },
 	{  344,	"Antigua and Barbuda" },
 	{  346,	"Cayman Islands" },
@@ -283,7 +282,7 @@ const value_string E212_codes[] = {
 
 /*
  * Annex to ITU Operational Bulletin No. 932 - 15.V.2009
- * including amendments up to ITU Operational Bulletin No. 951 - 1.III.2010
+ * including amendments up to ITU Operational Bulletin No. 954 - 15.IV.2010
  * 
  * According to Recommendation ITU-T E.212 (05/2008)
  *
@@ -1451,9 +1450,12 @@ const value_string mcc_mnc_codes[] = {
 	{  641140, "House of Integrated Technology and Systems Uganda Ltd" },
 	{  641220, "Warid Telecom Uganda Ltd." },
 	{  641660, "i-Tel Ltd" },
-	{  642010, "Spacetel Burundi" },
-	{  642020, "Safaris" },
-	{  642030, "Telecel Burundi Company" },
+	{  642010, "ECONET" },
+	{  642020, "AFRICELL" },
+	{  642030, "ONAMOB" },
+	{  642070, "LACELL" },
+	{  642080, "HITS TELECOM" },
+	{  642820, "U.COM" },
 	{  643010, "T.D.M. GSM" },
 	{  643040, "VM Sarl" },
 	{  645010, "Celtel Zambia Ltd." },
