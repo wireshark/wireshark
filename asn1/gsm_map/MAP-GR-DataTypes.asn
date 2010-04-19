@@ -1,6 +1,6 @@
 -- $Id$
 --
--- Taken from 3GPP TS 29.002 V9.0.0 (2009-12)
+-- Taken from 3GPP TS 29.002 V9.1.0 (2010-03)
 --
 --17.7.12	Group Call data types
  
@@ -76,7 +76,8 @@ PrepareGroupCallArg ::= SEQUENCE {
 	...,
 	vstk			[5] VSTK		OPTIONAL,
 	vstk-rand		[6] VSTK-RAND	OPTIONAL,
-	talkerChannelParameter	[7] NULL		OPTIONAL }
+	talkerChannelParameter	[7] NULL		OPTIONAL,
+	uplinkReplyIndicator	[8] NULL		OPTIONAL}
 
 VSTK ::= OCTET STRING (SIZE (16))
 

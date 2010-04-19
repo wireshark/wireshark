@@ -547,6 +547,8 @@ static int hf_gsm_map_ms_contextId = -1;          /* ContextId */
 static int hf_gsm_map_ms_gprsEnhancementsSupportIndicator = -1;  /* NULL */
 static int hf_gsm_map_ms_smsCallBarringSupportIndicator = -1;  /* NULL */
 static int hf_gsm_map_ms_supportedFeatures = -1;  /* SupportedFeatures */
+static int hf_gsm_map_ms_t_adsDataRetrieval = -1;  /* NULL */
+static int hf_gsm_map_ms_homogeneousSupportOfIMSVoiceOverPSSessions = -1;  /* BOOLEAN */
 static int hf_gsm_map_ms_sgsn_mmeSeparationSupported = -1;  /* NULL */
 static int hf_gsm_map_ms_an_APDU = -1;            /* AccessNetworkSignalInfo */
 static int hf_gsm_map_ms_integrityProtectionInfo = -1;  /* IntegrityProtectionInformation */
@@ -565,6 +567,8 @@ static int hf_gsm_map_ms_rab_ConfigurationIndicator = -1;  /* NULL */
 static int hf_gsm_map_ms_iuSelectedCodec = -1;    /* Codec */
 static int hf_gsm_map_ms_alternativeChannelType = -1;  /* RadioResourceInformation */
 static int hf_gsm_map_ms_tracePropagationList = -1;  /* TracePropagationList */
+static int hf_gsm_map_ms_aoipSupportedCodecsListAnchor = -1;  /* AoIPCodecsList */
+static int hf_gsm_map_ms_aoipSelectedCodecTarget = -1;  /* AoIPCodec */
 static int hf_gsm_map_ms_integrityProtectionAlgorithms = -1;  /* PermittedIntegrityProtectionAlgorithms */
 static int hf_gsm_map_ms_encryptionAlgorithms = -1;  /* PermittedEncryptionAlgorithms */
 static int hf_gsm_map_ms_targetCellId = -1;       /* GlobalCellId */
@@ -585,6 +589,7 @@ static int hf_gsm_map_ms_multipleBearerNotSupported = -1;  /* NULL */
 static int hf_gsm_map_ms_selectedUMTS_Algorithms = -1;  /* SelectedUMTS_Algorithms */
 static int hf_gsm_map_ms_chosenRadioResourceInformation = -1;  /* ChosenRadioResourceInformation */
 static int hf_gsm_map_ms_iuAvailableCodecsList = -1;  /* CodecList */
+static int hf_gsm_map_ms_aoipAvailableCodecsListMap = -1;  /* AoIPCodecsList */
 static int hf_gsm_map_ms_integrityProtectionAlgorithm = -1;  /* ChosenIntegrityProtectionAlgorithm */
 static int hf_gsm_map_ms_encryptionAlgorithm = -1;  /* ChosenEncryptionAlgorithm */
 static int hf_gsm_map_ms_chosenChannelInfo = -1;  /* ChosenChannelInfo */
@@ -593,16 +598,24 @@ static int hf_gsm_map_ms_targetMSC_Number = -1;   /* ISDN_AddressString */
 static int hf_gsm_map_ms_selectedRab_Id = -1;     /* RAB_Id */
 static int hf_gsm_map_ms_selectedGSM_Algorithm = -1;  /* SelectedGSM_Algorithm */
 static int hf_gsm_map_ms_iUSelectedCodec = -1;    /* Codec */
+static int hf_gsm_map_ms_codec1 = -1;             /* AoIPCodec */
+static int hf_gsm_map_ms_codec2 = -1;             /* AoIPCodec */
+static int hf_gsm_map_ms_codec3 = -1;             /* AoIPCodec */
+static int hf_gsm_map_ms_codec4 = -1;             /* AoIPCodec */
+static int hf_gsm_map_ms_codec5 = -1;             /* AoIPCodec */
+static int hf_gsm_map_ms_codec6 = -1;             /* AoIPCodec */
+static int hf_gsm_map_ms_codec7 = -1;             /* AoIPCodec */
+static int hf_gsm_map_ms_codec8 = -1;             /* AoIPCodec */
 static int hf_gsm_map_ms_utranCodecList = -1;     /* CodecList */
 static int hf_gsm_map_ms_geranCodecList = -1;     /* CodecList */
-static int hf_gsm_map_ms_codec1 = -1;             /* Codec */
-static int hf_gsm_map_ms_codec2 = -1;             /* Codec */
-static int hf_gsm_map_ms_codec3 = -1;             /* Codec */
-static int hf_gsm_map_ms_codec4 = -1;             /* Codec */
-static int hf_gsm_map_ms_codec5 = -1;             /* Codec */
-static int hf_gsm_map_ms_codec6 = -1;             /* Codec */
-static int hf_gsm_map_ms_codec7 = -1;             /* Codec */
-static int hf_gsm_map_ms_codec8 = -1;             /* Codec */
+static int hf_gsm_map_ms_codec1_01 = -1;          /* Codec */
+static int hf_gsm_map_ms_codec2_01 = -1;          /* Codec */
+static int hf_gsm_map_ms_codec3_01 = -1;          /* Codec */
+static int hf_gsm_map_ms_codec4_01 = -1;          /* Codec */
+static int hf_gsm_map_ms_codec5_01 = -1;          /* Codec */
+static int hf_gsm_map_ms_codec6_01 = -1;          /* Codec */
+static int hf_gsm_map_ms_codec7_01 = -1;          /* Codec */
+static int hf_gsm_map_ms_codec8_01 = -1;          /* Codec */
 static int hf_gsm_map_ms_RelocationNumberList_item = -1;  /* RelocationNumber */
 static int hf_gsm_map_ms_immediateResponsePreferred = -1;  /* NULL */
 static int hf_gsm_map_ms_re_synchronisationInfo = -1;  /* Re_synchronisationInfo */
@@ -666,6 +679,8 @@ static int hf_gsm_map_ms_pdp_ChargingCharacteristics = -1;  /* ChargingCharacter
 static int hf_gsm_map_ms_ext2_QoS_Subscribed = -1;  /* Ext2_QoS_Subscribed */
 static int hf_gsm_map_ms_ext3_QoS_Subscribed = -1;  /* Ext3_QoS_Subscribed */
 static int hf_gsm_map_ms_ext4_QoS_Subscribed = -1;  /* Ext4_QoS_Subscribed */
+static int hf_gsm_map_ms_ext_pdp_Type = -1;       /* Ext_PDP_Type */
+static int hf_gsm_map_ms_ext_pdp_Address = -1;    /* PDP_Address */
 static int hf_gsm_map_ms_gprsDataList = -1;       /* GPRSDataList */
 static int hf_gsm_map_ms_gprs_CSI = -1;           /* GPRS_CSI */
 static int hf_gsm_map_ms_mo_sms_CSI = -1;         /* SMS_CSI */
@@ -844,6 +859,11 @@ static int hf_gsm_map_ms_ps_SubscriberState = -1;  /* PS_SubscriberState */
 static int hf_gsm_map_ms_ms_Classmark2 = -1;      /* MS_Classmark2 */
 static int hf_gsm_map_ms_gprs_MS_Class = -1;      /* GPRSMSClass */
 static int hf_gsm_map_ms_mnpInfoRes = -1;         /* MNPInfoRes */
+static int hf_gsm_map_ms_imsVoiceOverPS_SessionsIndication = -1;  /* IMS_VoiceOverPS_SessionsInd */
+static int hf_gsm_map_ms_lastUE_ActivityTime = -1;  /* Time */
+static int hf_gsm_map_ms_lastRAT_Type = -1;       /* Used_RAT_Type */
+static int hf_gsm_map_ms_eps_SubscriberState = -1;  /* PS_SubscriberState */
+static int hf_gsm_map_ms_locationInformationEPS = -1;  /* LocationInformationEPS */
 static int hf_gsm_map_ms_routeingNumber = -1;     /* RouteingNumber */
 static int hf_gsm_map_ms_numberPortabilityStatus = -1;  /* NumberPortabilityStatus */
 static int hf_gsm_map_ms_mSNetworkCapability = -1;  /* MSNetworkCapability */
@@ -855,6 +875,7 @@ static int hf_gsm_map_ms_requestedDomain = -1;    /* DomainType */
 static int hf_gsm_map_ms_imei_01 = -1;            /* NULL */
 static int hf_gsm_map_ms_ms_classmark = -1;       /* NULL */
 static int hf_gsm_map_ms_mnpRequestedInfo = -1;   /* NULL */
+static int hf_gsm_map_ms_t_adsData = -1;          /* NULL */
 static int hf_gsm_map_ms_ageOfLocationInformation = -1;  /* AgeOfLocationInformation */
 static int hf_gsm_map_ms_geographicalInformation = -1;  /* GeographicalInformation */
 static int hf_gsm_map_ms_vlr_number = -1;         /* ISDN_AddressString */
@@ -864,16 +885,18 @@ static int hf_gsm_map_ms_selectedLSA_Id = -1;     /* LSAIdentity */
 static int hf_gsm_map_ms_geodeticInformation = -1;  /* GeodeticInformation */
 static int hf_gsm_map_ms_currentLocationRetrieved = -1;  /* NULL */
 static int hf_gsm_map_ms_sai_Present = -1;        /* NULL */
-static int hf_gsm_map_ms_locationInformationEPS = -1;  /* LocationInformationEPS */
+static int hf_gsm_map_ms_userCSGInformation = -1;  /* UserCSGInformation */
 static int hf_gsm_map_ms_e_utranCellGlobalIdentity = -1;  /* OCTET_STRING_SIZE_7 */
 static int hf_gsm_map_ms_trackingAreaIdentity = -1;  /* OCTET_STRING_SIZE_6 */
 static int hf_gsm_map_ms_routeingAreaIdentity = -1;  /* RAIdentity */
 static int hf_gsm_map_ms_selectedLSAIdentity = -1;  /* LSAIdentity */
+static int hf_gsm_map_ms_accessMode = -1;         /* OCTET_STRING_SIZE_1 */
+static int hf_gsm_map_ms_cmi = -1;                /* OCTET_STRING_SIZE_1 */
 static int hf_gsm_map_ms_assumedIdle = -1;        /* NULL */
 static int hf_gsm_map_ms_camelBusy = -1;          /* NULL */
 static int hf_gsm_map_ms_netDetNotReachable = -1;  /* NotReachableReason */
 static int hf_gsm_map_ms_notProvidedFromVLR = -1;  /* NULL */
-static int hf_gsm_map_ms_notProvidedFromSGSN = -1;  /* NULL */
+static int hf_gsm_map_ms_notProvidedFromSGSNorMME = -1;  /* NULL */
 static int hf_gsm_map_ms_ps_Detached = -1;        /* NULL */
 static int hf_gsm_map_ms_ps_AttachedNotReachableForPaging = -1;  /* NULL */
 static int hf_gsm_map_ms_ps_AttachedReachableForPaging = -1;  /* NULL */
@@ -899,6 +922,9 @@ static int hf_gsm_map_ms_qos2_Negotiated = -1;    /* Ext2_QoS_Subscribed */
 static int hf_gsm_map_ms_qos3_Subscribed = -1;    /* Ext3_QoS_Subscribed */
 static int hf_gsm_map_ms_qos3_Requested = -1;     /* Ext3_QoS_Subscribed */
 static int hf_gsm_map_ms_qos3_Negotiated = -1;    /* Ext3_QoS_Subscribed */
+static int hf_gsm_map_ms_qos4_Subscribed = -1;    /* Ext4_QoS_Subscribed */
+static int hf_gsm_map_ms_qos4_Requested = -1;     /* Ext4_QoS_Subscribed */
+static int hf_gsm_map_ms_qos4_Negotiated = -1;    /* Ext4_QoS_Subscribed */
 static int hf_gsm_map_ms_subscriberIdentity = -1;  /* SubscriberIdentity */
 static int hf_gsm_map_ms_requestedSubscriptionInfo = -1;  /* RequestedSubscriptionInfo */
 static int hf_gsm_map_ms_callForwardingData = -1;  /* CallForwardingData */
@@ -910,6 +936,7 @@ static int hf_gsm_map_ms_supportedSGSN_CAMEL_Phases = -1;  /* SupportedCamelPhas
 static int hf_gsm_map_ms_offeredCamel4CSIsInVLR = -1;  /* OfferedCamel4CSIs */
 static int hf_gsm_map_ms_offeredCamel4CSIsInSGSN = -1;  /* OfferedCamel4CSIs */
 static int hf_gsm_map_ms_msisdn_BS_List = -1;     /* MSISDN_BS_List */
+static int hf_gsm_map_ms_csg_SubscriptionDataList = -1;  /* CSG_SubscriptionDataList */
 static int hf_gsm_map_ms_requestedSS_Info = -1;   /* SS_ForBS_Code */
 static int hf_gsm_map_ms_odb = -1;                /* NULL */
 static int hf_gsm_map_ms_requestedCAMEL_SubscriptionInfo = -1;  /* RequestedCAMEL_SubscriptionInfo */
@@ -917,6 +944,7 @@ static int hf_gsm_map_ms_supportedVLR_CAMEL_Phases_01 = -1;  /* NULL */
 static int hf_gsm_map_ms_supportedSGSN_CAMEL_Phases_01 = -1;  /* NULL */
 static int hf_gsm_map_ms_additionalRequestedCAMEL_SubscriptionInfo = -1;  /* AdditionalRequestedCAMEL_SubscriptionInfo */
 static int hf_gsm_map_ms_msisdn_BS_List_01 = -1;  /* NULL */
+static int hf_gsm_map_ms_csg_SubscriptionDataRequested = -1;  /* NULL */
 static int hf_gsm_map_ms_MSISDN_BS_List_item = -1;  /* MSISDN_BS */
 static int hf_gsm_map_ms_password = -1;           /* Password */
 static int hf_gsm_map_ms_wrongPasswordAttemptsCounter = -1;  /* WrongPasswordAttemptsCounter */
@@ -935,9 +963,10 @@ static int hf_gsm_map_ms_modificationRequestFor_CSI = -1;  /* ModificationReques
 static int hf_gsm_map_ms_modificationRequestFor_ODB_data = -1;  /* ModificationRequestFor_ODB_data */
 static int hf_gsm_map_ms_modificationRequestFor_IP_SM_GW_Data = -1;  /* ModificationRequestFor_IP_SM_GW_Data */
 static int hf_gsm_map_ms_activationRequestForUE_reachability = -1;  /* ServingNode */
+static int hf_gsm_map_ms_modificationRequestFor_CSG = -1;  /* ModificationRequestFor_CSG */
+static int hf_gsm_map_ms_modifyNotificationToCSE = -1;  /* ModificationInstruction */
 static int hf_gsm_map_ms_ss_InfoFor_CSE = -1;     /* Ext_SS_InfoFor_CSE */
 static int hf_gsm_map_ms_forwardedToNumber_01 = -1;  /* AddressString */
-static int hf_gsm_map_ms_modifyNotificationToCSE = -1;  /* ModificationInstruction */
 static int hf_gsm_map_ms_odb_data = -1;           /* ODB_Data */
 static int hf_gsm_map_ms_requestedCamel_SubscriptionInfo = -1;  /* RequestedCAMEL_SubscriptionInfo */
 static int hf_gsm_map_ms_modifyCSI_State = -1;    /* ModificationInstruction */
@@ -964,7 +993,6 @@ static int hf_gsm_map_ms_sgsn_CAMEL_SubscriptionInfo = -1;  /* SGSN_CAMEL_Subscr
 static int hf_gsm_map_ms_accessRestrictionData = -1;  /* AccessRestrictionData */
 static int hf_gsm_map_ms_ics_Indicator = -1;      /* BOOLEAN */
 static int hf_gsm_map_ms_eps_SubscriptionData = -1;  /* EPS_SubscriptionData */
-static int hf_gsm_map_ms_csg_SubscriptionDataList = -1;  /* CSG_SubscriptionDataList */
 static int hf_gsm_map_ms_ue_ReachabilityRequestIndicator = -1;  /* NULL */
 /* named bits */
 static int hf_gsm_map_ms_SupportedRAT_Types_utran = -1;
@@ -1152,6 +1180,7 @@ static int hf_gsm_map_ch_allowedServices = -1;    /* AllowedServices */
 static int hf_gsm_map_ch_unavailabilityCause = -1;  /* UnavailabilityCause */
 static int hf_gsm_map_ch_releaseResourcesSupported = -1;  /* NULL */
 static int hf_gsm_map_ch_gsm_BearerCapability = -1;  /* ExternalSignalInfo */
+static int hf_gsm_map_ch_mtRoamingRetryIndicator = -1;  /* NULL */
 static int hf_gsm_map_ch_ccbs_Possible = -1;      /* NULL */
 static int hf_gsm_map_ch_keepCCBS_CallIndicator = -1;  /* NULL */
 static int hf_gsm_map_ch_roamingNumber = -1;      /* ISDN_AddressString */
@@ -1222,6 +1251,8 @@ static int hf_gsm_map_lcs_gprsNodeIndicator = -1;  /* NULL */
 static int hf_gsm_map_lcs_additional_Number = -1;  /* Additional_Number */
 static int hf_gsm_map_lcs_supportedLCS_CapabilitySets = -1;  /* SupportedLCS_CapabilitySets */
 static int hf_gsm_map_lcs_additional_LCS_CapabilitySets = -1;  /* SupportedLCS_CapabilitySets */
+static int hf_gsm_map_lcs_mme_Name = -1;          /* DiameterIdentity */
+static int hf_gsm_map_lcs_aaa_Server_Name = -1;   /* DiameterIdentity */
 static int hf_gsm_map_lcs_locationType = -1;      /* LocationType */
 static int hf_gsm_map_lcs_mlc_Number = -1;        /* ISDN_AddressString */
 static int hf_gsm_map_lcs_lcs_ClientID = -1;      /* LCS_ClientID */
@@ -1287,6 +1318,7 @@ static int hf_gsm_map_lcs_cellIdOrSai = -1;       /* CellGlobalIdOrServiceAreaId
 static int hf_gsm_map_lcs_sai_Present = -1;       /* NULL */
 static int hf_gsm_map_lcs_accuracyFulfilmentIndicator = -1;  /* AccuracyFulfilmentIndicator */
 static int hf_gsm_map_lcs_velocityEstimate = -1;  /* VelocityEstimate */
+static int hf_gsm_map_lcs_targetServingNodeForHandover = -1;  /* ServingNodeAddress */
 static int hf_gsm_map_lcs_lcs_Event = -1;         /* LCS_Event */
 static int hf_gsm_map_lcs_na_ESRD = -1;           /* ISDN_AddressString */
 static int hf_gsm_map_lcs_na_ESRK = -1;           /* ISDN_AddressString */
@@ -1295,6 +1327,9 @@ static int hf_gsm_map_lcs_deferredmt_lrData = -1;  /* Deferredmt_lrData */
 static int hf_gsm_map_lcs_pseudonymIndicator = -1;  /* NULL */
 static int hf_gsm_map_lcs_sequenceNumber = -1;    /* SequenceNumber */
 static int hf_gsm_map_lcs_terminationCause = -1;  /* TerminationCause */
+static int hf_gsm_map_lcs_msc_Number = -1;        /* ISDN_AddressString */
+static int hf_gsm_map_lcs_sgsn_Number = -1;       /* ISDN_AddressString */
+static int hf_gsm_map_lcs_mme_Number = -1;        /* DiameterIdentity */
 /* named bits */
 static int hf_gsm_map_lcs_DeferredLocationEventType_msAvailable = -1;
 static int hf_gsm_map_lcs_DeferredLocationEventType_enteringIntoArea = -1;
@@ -1323,6 +1358,7 @@ static int hf_gsm_map_gr_extensionContainer = -1;  /* ExtensionContainer */
 static int hf_gsm_map_gr_vstk = -1;               /* VSTK */
 static int hf_gsm_map_gr_vstk_rand = -1;          /* VSTK_RAND */
 static int hf_gsm_map_gr_talkerChannelParameter = -1;  /* NULL */
+static int hf_gsm_map_gr_uplinkReplyIndicator = -1;  /* NULL */
 static int hf_gsm_map_gr_groupCallNumber = -1;    /* ISDN_AddressString */
 static int hf_gsm_map_gr_imsi = -1;               /* IMSI */
 static int hf_gsm_map_gr_talkerPriority = -1;     /* TalkerPriority */
@@ -1523,6 +1559,8 @@ static int hf_gsm_ss_sequenceNumber = -1;         /* SequenceNumber */
 static int hf_gsm_ss_terminationCause = -1;       /* TerminationCause */
 static int hf_gsm_ss_mo_lrShortCircuit = -1;      /* NULL */
 static int hf_gsm_ss_ganssAssistanceData = -1;    /* GANSSAssistanceData */
+static int hf_gsm_ss_multiplePositioningProtocolPDUs = -1;  /* MultiplePositioningProtocolPDUs */
+static int hf_gsm_ss_MultiplePositioningProtocolPDUs_item = -1;  /* PositioningProtocolPDU */
 static int hf_gsm_ss_decipheringKeys = -1;        /* DecipheringKeys */
 static int hf_gsm_ss_add_LocationEstimate = -1;   /* Add_GeographicalInformation */
 static int hf_gsm_ss_reportingPLMNList = -1;      /* ReportingPLMNList */
@@ -1769,6 +1807,7 @@ static gint ett_gsm_map_ms_ChosenRadioResourceInformation = -1;
 static gint ett_gsm_map_ms_PrepareSubsequentHO_Arg_U = -1;
 static gint ett_gsm_map_ms_PrepareSubsequentHO_Res_U = -1;
 static gint ett_gsm_map_ms_ProcessAccessSignalling_Arg_U = -1;
+static gint ett_gsm_map_ms_AoIPCodecsList = -1;
 static gint ett_gsm_map_ms_SupportedCodecsList = -1;
 static gint ett_gsm_map_ms_CodecList = -1;
 static gint ett_gsm_map_ms_SendEndSignal_Arg_U = -1;
@@ -1910,6 +1949,7 @@ static gint ett_gsm_map_ms_RequestedInfo = -1;
 static gint ett_gsm_map_ms_LocationInformation = -1;
 static gint ett_gsm_map_ms_LocationInformationEPS = -1;
 static gint ett_gsm_map_ms_LocationInformationGPRS = -1;
+static gint ett_gsm_map_ms_UserCSGInformation = -1;
 static gint ett_gsm_map_ms_SubscriberState = -1;
 static gint ett_gsm_map_ms_PS_SubscriberState = -1;
 static gint ett_gsm_map_ms_PDP_ContextInfoList = -1;
@@ -1926,6 +1966,7 @@ static gint ett_gsm_map_ms_CallBarringData = -1;
 static gint ett_gsm_map_ms_ODB_Info = -1;
 static gint ett_gsm_map_ms_CAMEL_SubscriptionInfo = -1;
 static gint ett_gsm_map_ms_AnyTimeModificationArg = -1;
+static gint ett_gsm_map_ms_ModificationRequestFor_CSG = -1;
 static gint ett_gsm_map_ms_ServingNode = -1;
 static gint ett_gsm_map_ms_AnyTimeModificationRes = -1;
 static gint ett_gsm_map_ms_ModificationRequestFor_CF_Info = -1;
@@ -2002,6 +2043,7 @@ static gint ett_gsm_map_lcs_ReportingPLMN = -1;
 static gint ett_gsm_map_lcs_ProvideSubscriberLocation_Res = -1;
 static gint ett_gsm_map_lcs_SubscriberLocationReport_Arg = -1;
 static gint ett_gsm_map_lcs_Deferredmt_lrData = -1;
+static gint ett_gsm_map_lcs_ServingNodeAddress = -1;
 static gint ett_gsm_map_lcs_SubscriberLocationReport_Res = -1;
 
 /* --- Module MAP-GR-DataTypes --- --- ---                                    */
@@ -2113,6 +2155,7 @@ static gint ett_gsm_ss_UserUserServiceArg = -1;
 static gint ett_gsm_ss_LocationNotificationArg = -1;
 static gint ett_gsm_ss_LocationNotificationRes = -1;
 static gint ett_gsm_ss_LCS_MOLRArg = -1;
+static gint ett_gsm_ss_MultiplePositioningProtocolPDUs = -1;
 static gint ett_gsm_ss_LCS_MOLRRes = -1;
 static gint ett_gsm_ss_LCS_AreaEventRequestArg = -1;
 static gint ett_gsm_ss_LCS_AreaEventReportArg = -1;
@@ -7428,6 +7471,8 @@ static const ber_sequence_t gsm_map_ms_SGSN_Capability_sequence[] = {
   { &hf_gsm_map_ms_smsCallBarringSupportIndicator, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
   { &hf_gsm_map_ms_supportedRAT_TypesIndicator, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_SupportedRAT_Types },
   { &hf_gsm_map_ms_supportedFeatures, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_SupportedFeatures },
+  { &hf_gsm_map_ms_t_adsDataRetrieval, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
+  { &hf_gsm_map_ms_homogeneousSupportOfIMSVoiceOverPSSessions, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_BOOLEAN },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -7860,14 +7905,14 @@ dissect_gsm_map_ms_Codec(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 static const ber_sequence_t gsm_map_ms_CodecList_sequence[] = {
-  { &hf_gsm_map_ms_codec1   , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
-  { &hf_gsm_map_ms_codec2   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
-  { &hf_gsm_map_ms_codec3   , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
-  { &hf_gsm_map_ms_codec4   , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
-  { &hf_gsm_map_ms_codec5   , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
-  { &hf_gsm_map_ms_codec6   , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
-  { &hf_gsm_map_ms_codec7   , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
-  { &hf_gsm_map_ms_codec8   , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
+  { &hf_gsm_map_ms_codec1_01, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
+  { &hf_gsm_map_ms_codec2_01, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
+  { &hf_gsm_map_ms_codec3_01, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
+  { &hf_gsm_map_ms_codec4_01, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
+  { &hf_gsm_map_ms_codec5_01, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
+  { &hf_gsm_map_ms_codec6_01, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
+  { &hf_gsm_map_ms_codec7_01, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
+  { &hf_gsm_map_ms_codec8_01, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
   { &hf_gsm_map_ms_extensionContainer, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ExtensionContainer },
   { NULL, 0, 0, 0, NULL }
 };
@@ -7897,6 +7942,38 @@ dissect_gsm_map_ms_SupportedCodecsList(gboolean implicit_tag _U_, tvbuff_t *tvb 
 }
 
 
+
+static int
+dissect_gsm_map_ms_AoIPCodec(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ms_AoIPCodecsList_sequence[] = {
+  { &hf_gsm_map_ms_codec1   , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_AoIPCodec },
+  { &hf_gsm_map_ms_codec2   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_AoIPCodec },
+  { &hf_gsm_map_ms_codec3   , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_AoIPCodec },
+  { &hf_gsm_map_ms_codec4   , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_AoIPCodec },
+  { &hf_gsm_map_ms_codec5   , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_AoIPCodec },
+  { &hf_gsm_map_ms_codec6   , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_AoIPCodec },
+  { &hf_gsm_map_ms_codec7   , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_AoIPCodec },
+  { &hf_gsm_map_ms_codec8   , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_AoIPCodec },
+  { &hf_gsm_map_ms_extensionContainer, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ExtensionContainer },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ms_AoIPCodecsList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ms_AoIPCodecsList_sequence, hf_index, ett_gsm_map_ms_AoIPCodecsList);
+
+  return offset;
+}
+
+
 static const ber_sequence_t gsm_map_ms_ForwardAccessSignalling_Arg_U_sequence[] = {
   { &hf_gsm_map_ms_an_APDU  , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gsm_map_AccessNetworkSignalInfo },
   { &hf_gsm_map_ms_integrityProtectionInfo, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_IntegrityProtectionInformation },
@@ -7916,6 +7993,8 @@ static const ber_sequence_t gsm_map_ms_ForwardAccessSignalling_Arg_U_sequence[] 
   { &hf_gsm_map_ms_iuSelectedCodec, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
   { &hf_gsm_map_ms_alternativeChannelType, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_RadioResourceInformation },
   { &hf_gsm_map_ms_tracePropagationList, BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_om_TracePropagationList },
+  { &hf_gsm_map_ms_aoipSupportedCodecsListAnchor, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_AoIPCodecsList },
+  { &hf_gsm_map_ms_aoipSelectedCodecTarget, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_AoIPCodec },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -8022,6 +8101,7 @@ static const ber_sequence_t gsm_map_ms_PrepareHO_Arg_U_sequence[] = {
   { &hf_gsm_map_ms_imeisv   , BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMEI },
   { &hf_gsm_map_ms_alternativeChannelType, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_RadioResourceInformation },
   { &hf_gsm_map_ms_tracePropagationList, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_om_TracePropagationList },
+  { &hf_gsm_map_ms_aoipSupportedCodecsListAnchor, BER_CLASS_CON, 26, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_AoIPCodecsList },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -8164,6 +8244,8 @@ static const ber_sequence_t gsm_map_ms_PrepareHO_Res_U_sequence[] = {
   { &hf_gsm_map_ms_extensionContainer, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ExtensionContainer },
   { &hf_gsm_map_ms_iuSelectedCodec, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
   { &hf_gsm_map_ms_iuAvailableCodecsList, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_CodecList },
+  { &hf_gsm_map_ms_aoipSelectedCodecTarget, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_AoIPCodec },
+  { &hf_gsm_map_ms_aoipAvailableCodecsListMap, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_AoIPCodecsList },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -8261,6 +8343,8 @@ static const ber_sequence_t gsm_map_ms_ProcessAccessSignalling_Arg_U_sequence[] 
   { &hf_gsm_map_ms_extensionContainer, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ExtensionContainer },
   { &hf_gsm_map_ms_iUSelectedCodec, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Codec },
   { &hf_gsm_map_ms_iuAvailableCodecsList, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_CodecList },
+  { &hf_gsm_map_ms_aoipSelectedCodecTarget, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_AoIPCodec },
+  { &hf_gsm_map_ms_aoipAvailableCodecsListMap, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_AoIPCodecsList },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -9890,6 +9974,16 @@ dissect_gsm_map_ms_APN_OI_Replacement(gboolean implicit_tag _U_, tvbuff_t *tvb _
 }
 
 
+
+static int
+dissect_gsm_map_ms_Ext_PDP_Type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t gsm_map_ms_PDP_Context_sequence[] = {
   { &hf_gsm_map_ms_pdp_ContextId, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_gsm_map_ms_ContextId },
   { &hf_gsm_map_ms_pdp_Type , BER_CLASS_CON, 16, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_PDP_Type },
@@ -9904,6 +9998,8 @@ static const ber_sequence_t gsm_map_ms_PDP_Context_sequence[] = {
   { &hf_gsm_map_ms_ext3_QoS_Subscribed, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Ext3_QoS_Subscribed },
   { &hf_gsm_map_ms_ext4_QoS_Subscribed, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Ext4_QoS_Subscribed },
   { &hf_gsm_map_ms_apn_oi_Replacement, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_APN_OI_Replacement },
+  { &hf_gsm_map_ms_ext_pdp_Type, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Ext_PDP_Type },
+  { &hf_gsm_map_ms_ext_pdp_Address, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_PDP_Address },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -11164,6 +11260,7 @@ dissect_gsm_map_ms_RestoreDataRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 static const value_string gsm_map_ms_DomainType_vals[] = {
   {   0, "cs-Domain" },
   {   1, "ps-Domain" },
+  {   2, "eps-Domain" },
   { 0, NULL }
 };
 
@@ -11186,6 +11283,7 @@ static const ber_sequence_t gsm_map_ms_RequestedInfo_sequence[] = {
   { &hf_gsm_map_ms_imei_01  , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
   { &hf_gsm_map_ms_ms_classmark, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
   { &hf_gsm_map_ms_mnpRequestedInfo, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
+  { &hf_gsm_map_ms_t_adsData, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -11270,6 +11368,10 @@ static const ber_sequence_t gsm_map_ms_LocationInformationEPS_sequence[] = {
   { &hf_gsm_map_ms_e_utranCellGlobalIdentity, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_OCTET_STRING_SIZE_7 },
   { &hf_gsm_map_ms_trackingAreaIdentity, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_OCTET_STRING_SIZE_6 },
   { &hf_gsm_map_ms_extensionContainer, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ExtensionContainer },
+  { &hf_gsm_map_ms_geographicalInformation, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_GeographicalInformation },
+  { &hf_gsm_map_ms_geodeticInformation, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_GeodeticInformation },
+  { &hf_gsm_map_ms_currentLocationRetrieved, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
+  { &hf_gsm_map_ms_ageOfLocationInformation, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_AgeOfLocationInformation },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -11277,6 +11379,33 @@ static int
 dissect_gsm_map_ms_LocationInformationEPS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    gsm_map_ms_LocationInformationEPS_sequence, hf_index, ett_gsm_map_ms_LocationInformationEPS);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_map_ms_OCTET_STRING_SIZE_1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ms_UserCSGInformation_sequence[] = {
+  { &hf_gsm_map_ms_csg_Id   , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_CSG_Id },
+  { &hf_gsm_map_ms_extensionContainer, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ExtensionContainer },
+  { &hf_gsm_map_ms_accessMode, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_OCTET_STRING_SIZE_1 },
+  { &hf_gsm_map_ms_cmi      , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_OCTET_STRING_SIZE_1 },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ms_UserCSGInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ms_UserCSGInformation_sequence, hf_index, ett_gsm_map_ms_UserCSGInformation);
 
   return offset;
 }
@@ -11295,6 +11424,7 @@ static const ber_sequence_t gsm_map_ms_LocationInformation_sequence[] = {
   { &hf_gsm_map_ms_currentLocationRetrieved, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
   { &hf_gsm_map_ms_sai_Present, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
   { &hf_gsm_map_ms_locationInformationEPS, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_LocationInformationEPS },
+  { &hf_gsm_map_ms_userCSGInformation, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_UserCSGInformation },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -11385,6 +11515,7 @@ static const ber_sequence_t gsm_map_ms_LocationInformationGPRS_sequence[] = {
   { &hf_gsm_map_ms_geodeticInformation, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_GeodeticInformation },
   { &hf_gsm_map_ms_currentLocationRetrieved, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
   { &hf_gsm_map_ms_ageOfLocationInformation, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_AgeOfLocationInformation },
+  { &hf_gsm_map_ms_userCSGInformation, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_UserCSGInformation },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -11462,6 +11593,11 @@ static const ber_sequence_t gsm_map_ms_PDP_ContextInfo_sequence[] = {
   { &hf_gsm_map_ms_qos3_Subscribed, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Ext3_QoS_Subscribed },
   { &hf_gsm_map_ms_qos3_Requested, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Ext3_QoS_Subscribed },
   { &hf_gsm_map_ms_qos3_Negotiated, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Ext3_QoS_Subscribed },
+  { &hf_gsm_map_ms_qos4_Subscribed, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Ext4_QoS_Subscribed },
+  { &hf_gsm_map_ms_qos4_Requested, BER_CLASS_CON, 26, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Ext4_QoS_Subscribed },
+  { &hf_gsm_map_ms_qos4_Negotiated, BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Ext4_QoS_Subscribed },
+  { &hf_gsm_map_ms_ext_pdp_Type, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Ext_PDP_Type },
+  { &hf_gsm_map_ms_ext_pdp_Address, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_PDP_Address },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -11488,7 +11624,7 @@ dissect_gsm_map_ms_PDP_ContextInfoList(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 
 static const value_string gsm_map_ms_PS_SubscriberState_vals[] = {
-  {   0, "notProvidedFromSGSN" },
+  {   0, "notProvidedFromSGSNorMME" },
   {   1, "ps-Detached" },
   {   2, "ps-AttachedNotReachableForPaging" },
   {   3, "ps-AttachedReachableForPaging" },
@@ -11499,7 +11635,7 @@ static const value_string gsm_map_ms_PS_SubscriberState_vals[] = {
 };
 
 static const ber_choice_t gsm_map_ms_PS_SubscriberState_choice[] = {
-  {   0, &hf_gsm_map_ms_notProvidedFromSGSN, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
+  {   0, &hf_gsm_map_ms_notProvidedFromSGSNorMME, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
   {   1, &hf_gsm_map_ms_ps_Detached, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
   {   2, &hf_gsm_map_ms_ps_AttachedNotReachableForPaging, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
   {   3, &hf_gsm_map_ms_ps_AttachedReachableForPaging, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
@@ -11610,6 +11746,22 @@ dissect_gsm_map_ms_MNPInfoRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
+static const value_string gsm_map_ms_IMS_VoiceOverPS_SessionsInd_vals[] = {
+  {   0, "imsVoiceOverPS-SessionsNotSupported" },
+  {   1, "imsVoiceOverPS-SessionsSupported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gsm_map_ms_IMS_VoiceOverPS_SessionsInd(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t gsm_map_ms_SubscriberInfo_sequence[] = {
   { &hf_gsm_map_ms_locationInformation, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_LocationInformation },
   { &hf_gsm_map_ms_subscriberState, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gsm_map_ms_SubscriberState },
@@ -11620,6 +11772,11 @@ static const ber_sequence_t gsm_map_ms_SubscriberInfo_sequence[] = {
   { &hf_gsm_map_ms_ms_Classmark2, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_MS_Classmark2 },
   { &hf_gsm_map_ms_gprs_MS_Class, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_GPRSMSClass },
   { &hf_gsm_map_ms_mnpInfoRes, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_MNPInfoRes },
+  { &hf_gsm_map_ms_imsVoiceOverPS_SessionsIndication, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_IMS_VoiceOverPS_SessionsInd },
+  { &hf_gsm_map_ms_lastUE_ActivityTime, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Time },
+  { &hf_gsm_map_ms_lastRAT_Type, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Used_RAT_Type },
+  { &hf_gsm_map_ms_eps_SubscriberState, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gsm_map_ms_PS_SubscriberState },
+  { &hf_gsm_map_ms_locationInformationEPS, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_LocationInformationEPS },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -11730,6 +11887,7 @@ static const ber_sequence_t gsm_map_ms_RequestedSubscriptionInfo_sequence[] = {
   { &hf_gsm_map_ms_extensionContainer, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ExtensionContainer },
   { &hf_gsm_map_ms_additionalRequestedCAMEL_SubscriptionInfo, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_AdditionalRequestedCAMEL_SubscriptionInfo },
   { &hf_gsm_map_ms_msisdn_BS_List_01, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
+  { &hf_gsm_map_ms_csg_SubscriptionDataRequested, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -11896,6 +12054,7 @@ static const ber_sequence_t gsm_map_ms_AnyTimeSubscriptionInterrogationRes_seque
   { &hf_gsm_map_ms_offeredCamel4CSIsInVLR, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_OfferedCamel4CSIs },
   { &hf_gsm_map_ms_offeredCamel4CSIsInSGSN, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_OfferedCamel4CSIs },
   { &hf_gsm_map_ms_msisdn_BS_List, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_MSISDN_BS_List },
+  { &hf_gsm_map_ms_csg_SubscriptionDataList, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_CSG_SubscriptionDataList },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -12029,6 +12188,21 @@ dissect_gsm_map_ms_ServingNode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
+static const ber_sequence_t gsm_map_ms_ModificationRequestFor_CSG_sequence[] = {
+  { &hf_gsm_map_ms_modifyNotificationToCSE, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_ModificationInstruction },
+  { &hf_gsm_map_ms_extensionContainer, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ExtensionContainer },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ms_ModificationRequestFor_CSG(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ms_ModificationRequestFor_CSG_sequence, hf_index, ett_gsm_map_ms_ModificationRequestFor_CSG);
+
+  return offset;
+}
+
+
 static const ber_sequence_t gsm_map_ms_AnyTimeModificationArg_sequence[] = {
   { &hf_gsm_map_ms_subscriberIdentity, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_map_SubscriberIdentity },
   { &hf_gsm_map_ms_gsmSCF_Address, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_map_ISDN_AddressString },
@@ -12040,6 +12214,7 @@ static const ber_sequence_t gsm_map_ms_AnyTimeModificationArg_sequence[] = {
   { &hf_gsm_map_ms_modificationRequestFor_ODB_data, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_ModificationRequestFor_ODB_data },
   { &hf_gsm_map_ms_modificationRequestFor_IP_SM_GW_Data, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_ModificationRequestFor_IP_SM_GW_Data },
   { &hf_gsm_map_ms_activationRequestForUE_reachability, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_ServingNode },
+  { &hf_gsm_map_ms_modificationRequestFor_CSG, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_ModificationRequestFor_CSG },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -12137,6 +12312,7 @@ static const ber_sequence_t gsm_map_ms_NoteSubscriberDataModifiedArg_sequence[] 
   { &hf_gsm_map_ms_allInformationSent, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NULL },
   { &hf_gsm_map_ms_extensionContainer, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_gsm_map_ExtensionContainer },
   { &hf_gsm_map_ms_ue_reachable, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_ServingNode },
+  { &hf_gsm_map_ms_csg_SubscriptionDataList, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_CSG_SubscriptionDataList },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -12569,6 +12745,7 @@ static const ber_sequence_t gsm_map_ch_SendRoutingInfoRes_U_sequence[] = {
   { &hf_gsm_map_ch_unavailabilityCause, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ch_UnavailabilityCause },
   { &hf_gsm_map_ch_releaseResourcesSupported, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ch_NULL },
   { &hf_gsm_map_ch_gsm_BearerCapability, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ExternalSignalInfo },
+  { &hf_gsm_map_ch_mtRoamingRetryIndicator, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ch_NULL },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -13071,6 +13248,16 @@ dissect_gsm_map_lcs_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
+
+static int
+dissect_gsm_map_lcs_DiameterIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t gsm_map_lcs_LCSLocationInfo_sequence[] = {
   { &hf_gsm_map_lcs_networkNode_Number, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsm_map_ISDN_AddressString },
   { &hf_gsm_map_lcs_lmsi    , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_LMSI },
@@ -13079,6 +13266,8 @@ static const ber_sequence_t gsm_map_lcs_LCSLocationInfo_sequence[] = {
   { &hf_gsm_map_lcs_additional_Number, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_sm_Additional_Number },
   { &hf_gsm_map_lcs_supportedLCS_CapabilitySets, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_SupportedLCS_CapabilitySets },
   { &hf_gsm_map_lcs_additional_LCS_CapabilitySets, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_SupportedLCS_CapabilitySets },
+  { &hf_gsm_map_lcs_mme_Name, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_DiameterIdentity },
+  { &hf_gsm_map_lcs_aaa_Server_Name, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_DiameterIdentity },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -13762,6 +13951,30 @@ dissect_gsm_map_lcs_VelocityEstimate(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 }
 
 
+static const value_string gsm_map_lcs_ServingNodeAddress_vals[] = {
+  {   0, "msc-Number" },
+  {   1, "sgsn-Number" },
+  {   2, "mme-Number" },
+  { 0, NULL }
+};
+
+static const ber_choice_t gsm_map_lcs_ServingNodeAddress_choice[] = {
+  {   0, &hf_gsm_map_lcs_msc_Number, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_map_ISDN_AddressString },
+  {   1, &hf_gsm_map_lcs_sgsn_Number, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_map_ISDN_AddressString },
+  {   2, &hf_gsm_map_lcs_mme_Number, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_DiameterIdentity },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_lcs_ServingNodeAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 gsm_map_lcs_ServingNodeAddress_choice, hf_index, ett_gsm_map_lcs_ServingNodeAddress,
+                                 NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t gsm_map_lcs_ProvideSubscriberLocation_Res_sequence[] = {
   { &hf_gsm_map_lcs_locationEstimate, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsm_map_lcs_Ext_GeographicalInformation },
   { &hf_gsm_map_lcs_ageOfLocationEstimate, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_AgeOfLocationInformation },
@@ -13775,6 +13988,7 @@ static const ber_sequence_t gsm_map_lcs_ProvideSubscriberLocation_Res_sequence[]
   { &hf_gsm_map_lcs_accuracyFulfilmentIndicator, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_AccuracyFulfilmentIndicator },
   { &hf_gsm_map_lcs_velocityEstimate, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_VelocityEstimate },
   { &hf_gsm_map_lcs_mo_lrShortCircuitIndicator, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_NULL },
+  { &hf_gsm_map_lcs_targetServingNodeForHandover, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gsm_map_lcs_ServingNodeAddress },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -13793,6 +14007,7 @@ static const value_string gsm_map_lcs_LCS_Event_vals[] = {
   {   2, "mo-lr" },
   {   3, "deferredmt-lrResponse" },
   {   4, "deferredmo-lrTTTPInitiation" },
+  {   5, "emergencyCallHandover" },
   { 0, NULL }
 };
 
@@ -13883,6 +14098,7 @@ static const ber_sequence_t gsm_map_lcs_SubscriberLocationReport_Arg_sequence[] 
   { &hf_gsm_map_lcs_sequenceNumber, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_SequenceNumber },
   { &hf_gsm_map_lcs_periodicLDRInfo, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_PeriodicLDRInfo },
   { &hf_gsm_map_lcs_mo_lrShortCircuitIndicator, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_NULL },
+  { &hf_gsm_map_lcs_targetServingNodeForHandover, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gsm_map_lcs_ServingNodeAddress },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -14000,6 +14216,7 @@ static const ber_sequence_t gsm_map_gr_PrepareGroupCallArg_sequence[] = {
   { &hf_gsm_map_gr_vstk     , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_gr_VSTK },
   { &hf_gsm_map_gr_vstk_rand, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_gr_VSTK_RAND },
   { &hf_gsm_map_gr_talkerChannelParameter, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_gr_NULL },
+  { &hf_gsm_map_gr_uplinkReplyIndicator, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_gr_NULL },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -16311,6 +16528,29 @@ dissect_gsm_ss_GANSSAssistanceData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
+
+static int
+dissect_gsm_ss_PositioningProtocolPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_MultiplePositioningProtocolPDUs_sequence_of[1] = {
+  { &hf_gsm_ss_MultiplePositioningProtocolPDUs_item, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsm_ss_PositioningProtocolPDU },
+};
+
+static int
+dissect_gsm_ss_MultiplePositioningProtocolPDUs(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      gsm_ss_MultiplePositioningProtocolPDUs_sequence_of, hf_index, ett_gsm_ss_MultiplePositioningProtocolPDUs);
+
+  return offset;
+}
+
+
 static const ber_sequence_t gsm_ss_LCS_MOLRArg_sequence[] = {
   { &hf_gsm_ss_molr_Type    , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_ss_MOLR_Type },
   { &hf_gsm_ss_locationMethod, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LocationMethod },
@@ -16333,6 +16573,7 @@ static const ber_sequence_t gsm_ss_LCS_MOLRArg_sequence[] = {
   { &hf_gsm_ss_terminationCause, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_TerminationCause },
   { &hf_gsm_ss_mo_lrShortCircuit, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_NULL },
   { &hf_gsm_ss_ganssAssistanceData, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_GANSSAssistanceData },
+  { &hf_gsm_ss_multiplePositioningProtocolPDUs, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_MultiplePositioningProtocolPDUs },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -20114,6 +20355,14 @@ void proto_register_gsm_map(void) {
       { "supportedFeatures", "gsm_map.ms.supportedFeatures",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_map_ms.SupportedFeatures", HFILL }},
+    { &hf_gsm_map_ms_t_adsDataRetrieval,
+      { "t-adsDataRetrieval", "gsm_map.ms.t_adsDataRetrieval",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "gsm_map_ms.NULL", HFILL }},
+    { &hf_gsm_map_ms_homogeneousSupportOfIMSVoiceOverPSSessions,
+      { "homogeneousSupportOfIMSVoiceOverPSSessions", "gsm_map.ms.homogeneousSupportOfIMSVoiceOverPSSessions",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "gsm_map_ms.BOOLEAN", HFILL }},
     { &hf_gsm_map_ms_sgsn_mmeSeparationSupported,
       { "sgsn-mmeSeparationSupported", "gsm_map.ms.sgsn_mmeSeparationSupported",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -20186,6 +20435,14 @@ void proto_register_gsm_map(void) {
       { "tracePropagationList", "gsm_map.ms.tracePropagationList",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map_om.TracePropagationList", HFILL }},
+    { &hf_gsm_map_ms_aoipSupportedCodecsListAnchor,
+      { "aoipSupportedCodecsListAnchor", "gsm_map.ms.aoipSupportedCodecsListAnchor",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "gsm_map_ms.AoIPCodecsList", HFILL }},
+    { &hf_gsm_map_ms_aoipSelectedCodecTarget,
+      { "aoipSelectedCodecTarget", "gsm_map.ms.aoipSelectedCodecTarget",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_ms.AoIPCodec", HFILL }},
     { &hf_gsm_map_ms_integrityProtectionAlgorithms,
       { "integrityProtectionAlgorithms", "gsm_map.ms.integrityProtectionAlgorithms",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -20266,6 +20523,10 @@ void proto_register_gsm_map(void) {
       { "iuAvailableCodecsList", "gsm_map.ms.iuAvailableCodecsList",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map_ms.CodecList", HFILL }},
+    { &hf_gsm_map_ms_aoipAvailableCodecsListMap,
+      { "aoipAvailableCodecsListMap", "gsm_map.ms.aoipAvailableCodecsListMap",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "gsm_map_ms.AoIPCodecsList", HFILL }},
     { &hf_gsm_map_ms_integrityProtectionAlgorithm,
       { "integrityProtectionAlgorithm", "gsm_map.ms.integrityProtectionAlgorithm",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -20298,6 +20559,38 @@ void proto_register_gsm_map(void) {
       { "iUSelectedCodec", "gsm_map.ms.iUSelectedCodec",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_map_ms.Codec", HFILL }},
+    { &hf_gsm_map_ms_codec1,
+      { "codec1", "gsm_map.ms.codec1",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_ms.AoIPCodec", HFILL }},
+    { &hf_gsm_map_ms_codec2,
+      { "codec2", "gsm_map.ms.codec2",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_ms.AoIPCodec", HFILL }},
+    { &hf_gsm_map_ms_codec3,
+      { "codec3", "gsm_map.ms.codec3",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_ms.AoIPCodec", HFILL }},
+    { &hf_gsm_map_ms_codec4,
+      { "codec4", "gsm_map.ms.codec4",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_ms.AoIPCodec", HFILL }},
+    { &hf_gsm_map_ms_codec5,
+      { "codec5", "gsm_map.ms.codec5",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_ms.AoIPCodec", HFILL }},
+    { &hf_gsm_map_ms_codec6,
+      { "codec6", "gsm_map.ms.codec6",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_ms.AoIPCodec", HFILL }},
+    { &hf_gsm_map_ms_codec7,
+      { "codec7", "gsm_map.ms.codec7",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_ms.AoIPCodec", HFILL }},
+    { &hf_gsm_map_ms_codec8,
+      { "codec8", "gsm_map.ms.codec8",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_ms.AoIPCodec", HFILL }},
     { &hf_gsm_map_ms_utranCodecList,
       { "utranCodecList", "gsm_map.ms.utranCodecList",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -20306,35 +20599,35 @@ void proto_register_gsm_map(void) {
       { "geranCodecList", "gsm_map.ms.geranCodecList",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map_ms.CodecList", HFILL }},
-    { &hf_gsm_map_ms_codec1,
+    { &hf_gsm_map_ms_codec1_01,
       { "codec1", "gsm_map.ms.codec1",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_map_ms.Codec", HFILL }},
-    { &hf_gsm_map_ms_codec2,
+    { &hf_gsm_map_ms_codec2_01,
       { "codec2", "gsm_map.ms.codec2",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_map_ms.Codec", HFILL }},
-    { &hf_gsm_map_ms_codec3,
+    { &hf_gsm_map_ms_codec3_01,
       { "codec3", "gsm_map.ms.codec3",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_map_ms.Codec", HFILL }},
-    { &hf_gsm_map_ms_codec4,
+    { &hf_gsm_map_ms_codec4_01,
       { "codec4", "gsm_map.ms.codec4",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_map_ms.Codec", HFILL }},
-    { &hf_gsm_map_ms_codec5,
+    { &hf_gsm_map_ms_codec5_01,
       { "codec5", "gsm_map.ms.codec5",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_map_ms.Codec", HFILL }},
-    { &hf_gsm_map_ms_codec6,
+    { &hf_gsm_map_ms_codec6_01,
       { "codec6", "gsm_map.ms.codec6",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_map_ms.Codec", HFILL }},
-    { &hf_gsm_map_ms_codec7,
+    { &hf_gsm_map_ms_codec7_01,
       { "codec7", "gsm_map.ms.codec7",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_map_ms.Codec", HFILL }},
-    { &hf_gsm_map_ms_codec8,
+    { &hf_gsm_map_ms_codec8_01,
       { "codec8", "gsm_map.ms.codec8",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_map_ms.Codec", HFILL }},
@@ -20590,6 +20883,14 @@ void proto_register_gsm_map(void) {
       { "ext4-QoS-Subscribed", "gsm_map.ms.ext4_QoS_Subscribed",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_map_ms.Ext4_QoS_Subscribed", HFILL }},
+    { &hf_gsm_map_ms_ext_pdp_Type,
+      { "ext-pdp-Type", "gsm_map.ms.ext_pdp_Type",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_ms.Ext_PDP_Type", HFILL }},
+    { &hf_gsm_map_ms_ext_pdp_Address,
+      { "ext-pdp-Address", "gsm_map.ms.ext_pdp_Address",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_ms.PDP_Address", HFILL }},
     { &hf_gsm_map_ms_gprsDataList,
       { "gprsDataList", "gsm_map.ms.gprsDataList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -21302,6 +21603,26 @@ void proto_register_gsm_map(void) {
       { "mnpInfoRes", "gsm_map.ms.mnpInfoRes",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map_ms.MNPInfoRes", HFILL }},
+    { &hf_gsm_map_ms_imsVoiceOverPS_SessionsIndication,
+      { "imsVoiceOverPS-SessionsIndication", "gsm_map.ms.imsVoiceOverPS_SessionsIndication",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_ms_IMS_VoiceOverPS_SessionsInd_vals), 0,
+        "gsm_map_ms.IMS_VoiceOverPS_SessionsInd", HFILL }},
+    { &hf_gsm_map_ms_lastUE_ActivityTime,
+      { "lastUE-ActivityTime", "gsm_map.ms.lastUE_ActivityTime",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_ms.Time", HFILL }},
+    { &hf_gsm_map_ms_lastRAT_Type,
+      { "lastRAT-Type", "gsm_map.ms.lastRAT_Type",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_ms_Used_RAT_Type_vals), 0,
+        "gsm_map_ms.Used_RAT_Type", HFILL }},
+    { &hf_gsm_map_ms_eps_SubscriberState,
+      { "eps-SubscriberState", "gsm_map.ms.eps_SubscriberState",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_ms_PS_SubscriberState_vals), 0,
+        "gsm_map_ms.PS_SubscriberState", HFILL }},
+    { &hf_gsm_map_ms_locationInformationEPS,
+      { "locationInformationEPS", "gsm_map.ms.locationInformationEPS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "gsm_map_ms.LocationInformationEPS", HFILL }},
     { &hf_gsm_map_ms_routeingNumber,
       { "routeingNumber", "gsm_map.ms.routeingNumber",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -21346,6 +21667,10 @@ void proto_register_gsm_map(void) {
       { "mnpRequestedInfo", "gsm_map.ms.mnpRequestedInfo",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map_ms.NULL", HFILL }},
+    { &hf_gsm_map_ms_t_adsData,
+      { "t-adsData", "gsm_map.ms.t_adsData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "gsm_map_ms.NULL", HFILL }},
     { &hf_gsm_map_ms_ageOfLocationInformation,
       { "ageOfLocationInformation", "gsm_map.ms.ageOfLocationInformation",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -21382,10 +21707,10 @@ void proto_register_gsm_map(void) {
       { "sai-Present", "gsm_map.ms.sai_Present",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map_ms.NULL", HFILL }},
-    { &hf_gsm_map_ms_locationInformationEPS,
-      { "locationInformationEPS", "gsm_map.ms.locationInformationEPS",
+    { &hf_gsm_map_ms_userCSGInformation,
+      { "userCSGInformation", "gsm_map.ms.userCSGInformation",
         FT_NONE, BASE_NONE, NULL, 0,
-        "gsm_map_ms.LocationInformationEPS", HFILL }},
+        "gsm_map_ms.UserCSGInformation", HFILL }},
     { &hf_gsm_map_ms_e_utranCellGlobalIdentity,
       { "e-utranCellGlobalIdentity", "gsm_map.ms.e_utranCellGlobalIdentity",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -21402,6 +21727,14 @@ void proto_register_gsm_map(void) {
       { "selectedLSAIdentity", "gsm_map.ms.selectedLSAIdentity",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_map_ms.LSAIdentity", HFILL }},
+    { &hf_gsm_map_ms_accessMode,
+      { "accessMode", "gsm_map.ms.accessMode",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_ms.OCTET_STRING_SIZE_1", HFILL }},
+    { &hf_gsm_map_ms_cmi,
+      { "cmi", "gsm_map.ms.cmi",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_ms.OCTET_STRING_SIZE_1", HFILL }},
     { &hf_gsm_map_ms_assumedIdle,
       { "assumedIdle", "gsm_map.ms.assumedIdle",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -21418,8 +21751,8 @@ void proto_register_gsm_map(void) {
       { "notProvidedFromVLR", "gsm_map.ms.notProvidedFromVLR",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map_ms.NULL", HFILL }},
-    { &hf_gsm_map_ms_notProvidedFromSGSN,
-      { "notProvidedFromSGSN", "gsm_map.ms.notProvidedFromSGSN",
+    { &hf_gsm_map_ms_notProvidedFromSGSNorMME,
+      { "notProvidedFromSGSNorMME", "gsm_map.ms.notProvidedFromSGSNorMME",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map_ms.NULL", HFILL }},
     { &hf_gsm_map_ms_ps_Detached,
@@ -21522,6 +21855,18 @@ void proto_register_gsm_map(void) {
       { "qos3-Negotiated", "gsm_map.ms.qos3_Negotiated",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_map_ms.Ext3_QoS_Subscribed", HFILL }},
+    { &hf_gsm_map_ms_qos4_Subscribed,
+      { "qos4-Subscribed", "gsm_map.ms.qos4_Subscribed",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_ms.Ext4_QoS_Subscribed", HFILL }},
+    { &hf_gsm_map_ms_qos4_Requested,
+      { "qos4-Requested", "gsm_map.ms.qos4_Requested",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_ms.Ext4_QoS_Subscribed", HFILL }},
+    { &hf_gsm_map_ms_qos4_Negotiated,
+      { "qos4-Negotiated", "gsm_map.ms.qos4_Negotiated",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_ms.Ext4_QoS_Subscribed", HFILL }},
     { &hf_gsm_map_ms_subscriberIdentity,
       { "subscriberIdentity", "gsm_map.ms.subscriberIdentity",
         FT_UINT32, BASE_DEC, VALS(gsm_map_SubscriberIdentity_vals), 0,
@@ -21566,6 +21911,10 @@ void proto_register_gsm_map(void) {
       { "msisdn-BS-List", "gsm_map.ms.msisdn_BS_List",
         FT_UINT32, BASE_DEC, NULL, 0,
         "gsm_map_ms.MSISDN_BS_List", HFILL }},
+    { &hf_gsm_map_ms_csg_SubscriptionDataList,
+      { "csg-SubscriptionDataList", "gsm_map.ms.csg_SubscriptionDataList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "gsm_map_ms.CSG_SubscriptionDataList", HFILL }},
     { &hf_gsm_map_ms_requestedSS_Info,
       { "requestedSS-Info", "gsm_map.ms.requestedSS_Info",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -21592,6 +21941,10 @@ void proto_register_gsm_map(void) {
         "gsm_map_ms.AdditionalRequestedCAMEL_SubscriptionInfo", HFILL }},
     { &hf_gsm_map_ms_msisdn_BS_List_01,
       { "msisdn-BS-List", "gsm_map.ms.msisdn_BS_List",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "gsm_map_ms.NULL", HFILL }},
+    { &hf_gsm_map_ms_csg_SubscriptionDataRequested,
+      { "csg-SubscriptionDataRequested", "gsm_map.ms.csg_SubscriptionDataRequested",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map_ms.NULL", HFILL }},
     { &hf_gsm_map_ms_MSISDN_BS_List_item,
@@ -21666,6 +22019,14 @@ void proto_register_gsm_map(void) {
       { "activationRequestForUE-reachability", "gsm_map.ms.activationRequestForUE_reachability",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_map_ms.ServingNode", HFILL }},
+    { &hf_gsm_map_ms_modificationRequestFor_CSG,
+      { "modificationRequestFor-CSG", "gsm_map.ms.modificationRequestFor_CSG",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "gsm_map_ms.ModificationRequestFor_CSG", HFILL }},
+    { &hf_gsm_map_ms_modifyNotificationToCSE,
+      { "modifyNotificationToCSE", "gsm_map.ms.modifyNotificationToCSE",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_ms_ModificationInstruction_vals), 0,
+        "gsm_map_ms.ModificationInstruction", HFILL }},
     { &hf_gsm_map_ms_ss_InfoFor_CSE,
       { "ss-InfoFor-CSE", "gsm_map.ms.ss_InfoFor_CSE",
         FT_UINT32, BASE_DEC, VALS(gsm_map_ms_Ext_SS_InfoFor_CSE_vals), 0,
@@ -21674,10 +22035,6 @@ void proto_register_gsm_map(void) {
       { "forwardedToNumber", "gsm_map.ms.forwardedToNumber",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_map.AddressString", HFILL }},
-    { &hf_gsm_map_ms_modifyNotificationToCSE,
-      { "modifyNotificationToCSE", "gsm_map.ms.modifyNotificationToCSE",
-        FT_UINT32, BASE_DEC, VALS(gsm_map_ms_ModificationInstruction_vals), 0,
-        "gsm_map_ms.ModificationInstruction", HFILL }},
     { &hf_gsm_map_ms_odb_data,
       { "odb-data", "gsm_map.ms.odb_data",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -21782,10 +22139,6 @@ void proto_register_gsm_map(void) {
       { "eps-SubscriptionData", "gsm_map.ms.eps_SubscriptionData",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map_ms.EPS_SubscriptionData", HFILL }},
-    { &hf_gsm_map_ms_csg_SubscriptionDataList,
-      { "csg-SubscriptionDataList", "gsm_map.ms.csg_SubscriptionDataList",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "gsm_map_ms.CSG_SubscriptionDataList", HFILL }},
     { &hf_gsm_map_ms_ue_ReachabilityRequestIndicator,
       { "ue-ReachabilityRequestIndicator", "gsm_map.ms.ue_ReachabilityRequestIndicator",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -22521,6 +22874,10 @@ void proto_register_gsm_map(void) {
       { "gsm-BearerCapability", "gsm_map.ch.gsm_BearerCapability",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map.ExternalSignalInfo", HFILL }},
+    { &hf_gsm_map_ch_mtRoamingRetryIndicator,
+      { "mtRoamingRetryIndicator", "gsm_map.ch.mtRoamingRetryIndicator",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "gsm_map_ch.NULL", HFILL }},
     { &hf_gsm_map_ch_ccbs_Possible,
       { "ccbs-Possible", "gsm_map.ch.ccbs_Possible",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -22788,6 +23145,14 @@ void proto_register_gsm_map(void) {
       { "additional-LCS-CapabilitySets", "gsm_map.lcs.additional_LCS_CapabilitySets",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_map_ms.SupportedLCS_CapabilitySets", HFILL }},
+    { &hf_gsm_map_lcs_mme_Name,
+      { "mme-Name", "gsm_map.lcs.mme_Name",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_lcs.DiameterIdentity", HFILL }},
+    { &hf_gsm_map_lcs_aaa_Server_Name,
+      { "aaa-Server-Name", "gsm_map.lcs.aaa_Server_Name",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_lcs.DiameterIdentity", HFILL }},
     { &hf_gsm_map_lcs_locationType,
       { "locationType", "gsm_map.lcs.locationType",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -23048,6 +23413,10 @@ void proto_register_gsm_map(void) {
       { "velocityEstimate", "gsm_map.lcs.velocityEstimate",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_map_lcs.VelocityEstimate", HFILL }},
+    { &hf_gsm_map_lcs_targetServingNodeForHandover,
+      { "targetServingNodeForHandover", "gsm_map.lcs.targetServingNodeForHandover",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_lcs_ServingNodeAddress_vals), 0,
+        "gsm_map_lcs.ServingNodeAddress", HFILL }},
     { &hf_gsm_map_lcs_lcs_Event,
       { "lcs-Event", "gsm_map.lcs.lcs_Event",
         FT_UINT32, BASE_DEC, VALS(gsm_map_lcs_LCS_Event_vals), 0,
@@ -23080,6 +23449,18 @@ void proto_register_gsm_map(void) {
       { "terminationCause", "gsm_map.lcs.terminationCause",
         FT_UINT32, BASE_DEC, VALS(gsm_map_lcs_TerminationCause_vals), 0,
         "gsm_map_lcs.TerminationCause", HFILL }},
+    { &hf_gsm_map_lcs_msc_Number,
+      { "msc-Number", "gsm_map.lcs.msc_Number",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map.ISDN_AddressString", HFILL }},
+    { &hf_gsm_map_lcs_sgsn_Number,
+      { "sgsn-Number", "gsm_map.lcs.sgsn_Number",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map.ISDN_AddressString", HFILL }},
+    { &hf_gsm_map_lcs_mme_Number,
+      { "mme-Number", "gsm_map.lcs.mme_Number",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_map_lcs.DiameterIdentity", HFILL }},
     { &hf_gsm_map_lcs_DeferredLocationEventType_msAvailable,
       { "msAvailable", "gsm_map.lcs.msAvailable",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -23177,6 +23558,10 @@ void proto_register_gsm_map(void) {
         "gsm_map_gr.VSTK_RAND", HFILL }},
     { &hf_gsm_map_gr_talkerChannelParameter,
       { "talkerChannelParameter", "gsm_map.gr.talkerChannelParameter",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "gsm_map_gr.NULL", HFILL }},
+    { &hf_gsm_map_gr_uplinkReplyIndicator,
+      { "uplinkReplyIndicator", "gsm_map.gr.uplinkReplyIndicator",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map_gr.NULL", HFILL }},
     { &hf_gsm_map_gr_groupCallNumber,
@@ -23952,6 +24337,14 @@ void proto_register_gsm_map(void) {
       { "ganssAssistanceData", "gsm_ss.ganssAssistanceData",
         FT_BYTES, BASE_NONE, NULL, 0,
         "gsm_ss.GANSSAssistanceData", HFILL }},
+    { &hf_gsm_ss_multiplePositioningProtocolPDUs,
+      { "multiplePositioningProtocolPDUs", "gsm_ss.multiplePositioningProtocolPDUs",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "gsm_ss.MultiplePositioningProtocolPDUs", HFILL }},
+    { &hf_gsm_ss_MultiplePositioningProtocolPDUs_item,
+      { "PositioningProtocolPDU", "gsm_ss.PositioningProtocolPDU",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "gsm_ss.PositioningProtocolPDU", HFILL }},
     { &hf_gsm_ss_decipheringKeys,
       { "decipheringKeys", "gsm_ss.decipheringKeys",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -24218,6 +24611,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ms_PrepareSubsequentHO_Arg_U,
     &ett_gsm_map_ms_PrepareSubsequentHO_Res_U,
     &ett_gsm_map_ms_ProcessAccessSignalling_Arg_U,
+    &ett_gsm_map_ms_AoIPCodecsList,
     &ett_gsm_map_ms_SupportedCodecsList,
     &ett_gsm_map_ms_CodecList,
     &ett_gsm_map_ms_SendEndSignal_Arg_U,
@@ -24359,6 +24753,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ms_LocationInformation,
     &ett_gsm_map_ms_LocationInformationEPS,
     &ett_gsm_map_ms_LocationInformationGPRS,
+    &ett_gsm_map_ms_UserCSGInformation,
     &ett_gsm_map_ms_SubscriberState,
     &ett_gsm_map_ms_PS_SubscriberState,
     &ett_gsm_map_ms_PDP_ContextInfoList,
@@ -24375,6 +24770,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ms_ODB_Info,
     &ett_gsm_map_ms_CAMEL_SubscriptionInfo,
     &ett_gsm_map_ms_AnyTimeModificationArg,
+    &ett_gsm_map_ms_ModificationRequestFor_CSG,
     &ett_gsm_map_ms_ServingNode,
     &ett_gsm_map_ms_AnyTimeModificationRes,
     &ett_gsm_map_ms_ModificationRequestFor_CF_Info,
@@ -24451,6 +24847,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_lcs_ProvideSubscriberLocation_Res,
     &ett_gsm_map_lcs_SubscriberLocationReport_Arg,
     &ett_gsm_map_lcs_Deferredmt_lrData,
+    &ett_gsm_map_lcs_ServingNodeAddress,
     &ett_gsm_map_lcs_SubscriberLocationReport_Res,
 
 /* --- Module MAP-GR-DataTypes --- --- ---                                    */
@@ -24562,6 +24959,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_ss_LocationNotificationArg,
     &ett_gsm_ss_LocationNotificationRes,
     &ett_gsm_ss_LCS_MOLRArg,
+    &ett_gsm_ss_MultiplePositioningProtocolPDUs,
     &ett_gsm_ss_LCS_MOLRRes,
     &ett_gsm_ss_LCS_AreaEventRequestArg,
     &ett_gsm_ss_LCS_AreaEventReportArg,

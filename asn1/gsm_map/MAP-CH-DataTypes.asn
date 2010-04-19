@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V9.0.0 (2009-12)
+-- 3GPP TS 29.002 V9.1.0 (2010-03)
 -- 17.7.3	Call handling data types
  
 MAP-CH-DataTypes {
@@ -191,7 +191,8 @@ SendRoutingInfoRes ::= [3] SEQUENCE {
 	allowedServices	[20] AllowedServices	OPTIONAL,
 	unavailabilityCause	[21] UnavailabilityCause	OPTIONAL,
 	releaseResourcesSupported	[22] NULL		OPTIONAL,
-	gsm-BearerCapability	[23] ExternalSignalInfo	OPTIONAL
+	gsm-BearerCapability	[23] ExternalSignalInfo	OPTIONAL,
+	mtRoamingRetryIndicator	[24] NULL		OPTIONAL
 	}
 
 AllowedServices ::= BIT STRING {

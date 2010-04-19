@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 24.080 V9.0.0 (2009-12)
+-- 3GPP TS 24.080 V9.1.0 (2010-03)
 -- 4.4.2	ASN.1 data types
 SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3)
@@ -27,7 +27,7 @@ FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
    map-SS-DataTypes (14) version10 (10)}
 
--- GSN-Address, WS fix, fault in spec this is now in CommonDataTypes
+--- GSN-Address, WS fix, fault in spec this is now in CommonDataTypes
 CUG-Index,
 NotificationToMSUser
 FROM MAP-MS-DataTypes {
@@ -41,9 +41,8 @@ AlertingPattern,
 LCSClientExternalID,
 AddressString,
 LCSServiceTypeID,
-AgeOfLocationInformation,
-GSN-Address -- WS fix
-
+GSN-Address, -- WS fix
+AgeOfLocationInformation
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
    map-CommonDataTypes (18) version10 (10)}
@@ -312,7 +311,8 @@ LCS-MOLRArg	::= SEQUENCE {
 	sequenceNumber 		[17] SequenceNumber 		OPTIONAL,
 	terminationCause 	[18] TerminationCause 		OPTIONAL,
 	mo-lrShortCircuit	[19]	NULL				OPTIONAL,
-	ganssAssistanceData	[20] GANSSAssistanceData	OPTIONAL }
+	ganssAssistanceData	[20] GANSSAssistanceData	OPTIONAL,
+	multiplePositioningProtocolPDUs	[21] MultiplePositioningProtocolPDUs	OPTIONAL }
 -- The parameter locationMethod shall be included if and only if the molr-Type is set to value 
 -- deCipheringKeys or assistanceData.
 -- The parameter gpsAssistanceData shall be included if and only if the molr-Type is set to value 
@@ -321,6 +321,21 @@ LCS-MOLRArg	::= SEQUENCE {
 -- assistanceData and locationMethod is set to value assistedGANSS or assistedGPSandGANSS.
 -- supportedGADShapes shall not be included for deferred MO-LR initiation or deferred MO-LR or MT-LR
 -- responses 
+-- multiplePositioningProtocolPDUs may only be included for E-UTRAN access.
+-- locationMethod shall not be included for E-UTRAN access.
+-- gpsAssistanceData shall not be included for E-UTRAN access.
+-- h-gmlc-address shall not be included for E-UTRAN access.
+-- locationEstimate shall not be included for E-UTRAN access.
+-- velocityEstimate shall not be included for E-UTRAN access.
+-- referenceNumber shall not be included for E-UTRAN access.
+-- periodicLDRInfo shall not be included for E-UTRAN access.
+-- locationUpdateRequest shall not be included for E-UTRAN access.
+-- sequenceNumber shall not be included for E-UTRAN access.
+-- terminationCause shall not be included for E-UTRAN access.
+-- mo-lrShortCircuit shall not be included for E-UTRAN access.
+-- ganssAssistanceData shall not be included for E-UTRAN access.
+
+
 
 MOLR-Type::= ENUMERATED {
 	locationEstimate			(0),
@@ -333,7 +348,9 @@ MOLR-Type::= ENUMERATED {
 	deferredMt-lrOrmo-lrCancellation (6)}
 -- exception handling:
 -- an unrecognized value shall be rejected by the receiver with a return error cause of
--- unexpected data value.
+-- unexpected data value. 
+-- For E-UTRAN access, only locationEstimate or assistanceData shall be included
+
 
 LocationMethod::= ENUMERATED {
 	msBasedEOTD			(0),
@@ -367,6 +384,14 @@ TerminationCause ::= ENUMERATED {
 	uETermination     (1),
 	...} 
 
+MultiplePositioningProtocolPDUs ::= SEQUENCE (SIZE (1..maxNumLPPMsg)) OF PositioningProtocolPDU
+
+PositioningProtocolPDU ::= OCTET STRING
+-- PositioningProtocolPDU contains a LPP message defined in 3GPP TS 36.355 [17].
+
+maxNumLPPMsg INTEGER ::= 3
+
+
 
 LCS-MOLRRes::= SEQUENCE {
 	locationEstimate		[0]	Ext-GeographicalInformation		OPTIONAL,
@@ -394,6 +419,12 @@ LCS-MOLRRes::= SEQUENCE {
 -- in LocationRequestArg was set to value deCipheringKeys.
 -- Parameter velocityEstimate may only be included if the lcs-QoS in LCS-MOLRarg includes
 -- velocityRequest
+-- decipheringKeys shall not be included for E-UTRAN access.
+-- referenceNumber shall not be included for E-UTRAN access.
+-- h-gmlc-address shall not be included for E-UTRAN access.
+-- mo-lrShortCircuit shall not be included for E-UTRAN access.
+-- reportingPLMNList shall not be included for E-UTRAN access.
+
 
 
 DecipheringKeys::= OCTET STRING (SIZE (15))

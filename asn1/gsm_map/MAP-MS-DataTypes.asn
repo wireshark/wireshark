@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V9.0.0 (2009-12) 
+-- 3GPP TS 29.002 V9.1.0 (2010-03) 
 -- 17.7.1	Mobile Service data types
 
 MAP-MS-DataTypes {
@@ -555,7 +555,12 @@ SGSN-Capability ::= SEQUENCE{
 	supportedLCS-CapabilitySets	[5]  SupportedLCS-CapabilitySets	OPTIONAL,
 	offeredCamel4CSIs	[6] OfferedCamel4CSIs	OPTIONAL,
 	smsCallBarringSupportIndicator	[7]	NULL		OPTIONAL,	supportedRAT-TypesIndicator	[8]	SupportedRAT-Types	OPTIONAL,
-	supportedFeatures	[9] SupportedFeatures	OPTIONAL }
+	supportedFeatures	[9] SupportedFeatures	OPTIONAL,
+	t-adsDataRetrieval	[10] NULL		OPTIONAL,
+	homogeneousSupportOfIMSVoiceOverPSSessions [11] BOOLEAN	OPTIONAL
+	--	"true" indicates homogeneous support, "false" indicates homogeneous non-support
+	--	in the complete SGSN area
+ }
 
 SupportedFeatures::= BIT STRING {
 	odb-all-apn (0),
@@ -612,7 +617,9 @@ ForwardAccessSignalling-Arg ::= [3] SEQUENCE {
 	rab-ConfigurationIndicator	[13] NULL		OPTIONAL,
 	iuSelectedCodec	[14]	Codec	OPTIONAL,
 	alternativeChannelType	[15]	RadioResourceInformation	OPTIONAL,
-	tracePropagationList	[17]	TracePropagationList	OPTIONAL }
+	tracePropagationList	[17]	TracePropagationList	OPTIONAL,
+ 	aoipSupportedCodecsListAnchor	[18] AoIPCodecsList	OPTIONAL,
+ 	aoipSelectedCodecTarget	[19] AoIPCodec	OPTIONAL }
 
 AllowedGSM-Algorithms ::= OCTET STRING (SIZE (1))
 	-- internal structure is coded as Algorithm identifier octet from
@@ -682,7 +689,8 @@ PrepareHO-Arg ::= [3] SEQUENCE {
 	uesbi-Iu		[21]	UESBI-Iu	OPTIONAL,
 	imeisv		[22]	IMEI		OPTIONAL,
 	alternativeChannelType	[23]	RadioResourceInformation	OPTIONAL,
-	tracePropagationList	[25]	TracePropagationList	OPTIONAL	 }
+	tracePropagationList	[25]	TracePropagationList	OPTIONAL,
+	aoipSupportedCodecsListAnchor	[26] AoIPCodecsList	OPTIONAL	 }
 
 BSSMAP-ServiceHandoverList ::= SEQUENCE SIZE (1.. maxNumOfServiceHandovers) OF
 				BSSMAP-ServiceHandoverInfo
@@ -728,7 +736,9 @@ PrepareHO-Res ::= [3] SEQUENCE {
 	extensionContainer	[4]	ExtensionContainer	OPTIONAL,
 	...,
 	iuSelectedCodec	[7] Codec		OPTIONAL,
-	iuAvailableCodecsList	[8] CodecList	OPTIONAL }
+	iuAvailableCodecsList	[8] CodecList	OPTIONAL,
+	aoipSelectedCodecTarget	[9] AoIPCodec	OPTIONAL,
+	aoipAvailableCodecsListMap	[10] AoIPCodecsList	OPTIONAL }
 
 SelectedUMTS-Algorithms ::= SEQUENCE {
 	integrityProtectionAlgorithm	[0] 	ChosenIntegrityProtectionAlgorithm	OPTIONAL,
@@ -785,7 +795,32 @@ ProcessAccessSignalling-Arg ::= [3] SEQUENCE {
 	extensionContainer	[0]	ExtensionContainer 	OPTIONAL,
 	...,
 	iUSelectedCodec	[5] Codec		OPTIONAL,
-	iuAvailableCodecsList	[6] CodecList	OPTIONAL }
+	iuAvailableCodecsList	[6] CodecList	OPTIONAL,
+	aoipSelectedCodecTarget	[7] AoIPCodec	OPTIONAL,
+	aoipAvailableCodecsListMap	[8] AoIPCodecsList	OPTIONAL }
+
+AoIPCodecsList ::= SEQUENCE {
+	codec1		[1] AoIPCodec,
+	codec2		[2] AoIPCodec		OPTIONAL,
+	codec3		[3] AoIPCodec		OPTIONAL,
+	codec4		[4] AoIPCodec		OPTIONAL,
+	codec5		[5] AoIPCodec		OPTIONAL,
+	codec6		[6] AoIPCodec		OPTIONAL,
+	codec7		[7] AoIPCodec		OPTIONAL,
+	codec8		[8] AoIPCodec		OPTIONAL,
+	extensionContainer	[9] ExtensionContainer		OPTIONAL,
+	...}
+	-- Codecs are sent in priority order where codec1 has highest priority
+
+AoIPCodec ::= OCTET STRING (SIZE (1..3))
+
+	-- The internal structure is defined as follows:
+	-- octet 1	Coded as Speech Codec Elements in 3GPP TS 48.008
+	--				with the exception that FI, PI, PT and TF bits shall
+	--			be set to 0
+	-- octets 2,3	Optional; in case of AMR codec types it defines
+	--			the supported codec configurations as defined in
+	--			3GPP TS 48.008
 
 SupportedCodecsList ::= SEQUENCE {
 	utranCodecList	[0] CodecList	OPTIONAL,
@@ -920,7 +955,7 @@ EPC-AV ::= SEQUENCE {
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	...}
 
-KASME ::= OCTET STRING (SIZE (16))
+KASME ::= OCTET STRING (SIZE (32))
 
 RequestingNodeType ::= ENUMERATED {
 	vlr  (0),
@@ -1118,7 +1153,7 @@ PDN-GW-Identity ::= SEQUENCE {
 	extensionContainer	[3] ExtensionContainer	OPTIONAL,
 	... }
 
-FQDN ::=  OCTET STRING (SIZE (9..100))
+FQDN ::=  OCTET STRING (SIZE (9..255))
 
 
 PDN-GW-AllocationType ::= ENUMERATED {
@@ -1194,9 +1229,18 @@ PDP-Context ::= SEQUENCE {
 	-- ext3-QoS-Subscribed may be present only if ext2-QoS-Subscribed is present.
 	ext4-QoS-Subscribed	[4] Ext4-QoS-Subscribed	OPTIONAL,
 	-- ext4-QoS-Subscribed may be present only if ext3-QoS-Subscribed is present. 
-	apn-oi-Replacement	[5]	APN-OI-Replacement	OPTIONAL
+	apn-oi-Replacement	[5]	APN-OI-Replacement	OPTIONAL,
 	-- this apn-oi-Replacement refers to the APN level apn-oi-Replacement and has
 	-- higher priority than UE level apn-oi-Replacement.
+	ext-pdp-Type	[6] Ext-PDP-Type	OPTIONAL,
+	-- contains the value IPv4v6 defined in 3GPP TS 29.060 [105], if the PDP can be
+	-- accessed by dual-stack UEs
+	ext-pdp-Address	[7] PDP-Address	OPTIONAL
+	-- contains an additional IP address in case of dual-stack static IP address assignment
+	-- for the UE.
+	-- it may contain an IPv4 or an IPv6 address/prefix, and it may be present
+	-- only if pdp-Address is present; if both are present, each parameter shall
+	-- contain a different type of address (IPv4 or IPv6).
 	 }
 
 ContextId ::= INTEGER (1..maxNumOfPDP-Contexts)
@@ -1275,6 +1319,11 @@ APN ::=  OCTET STRING (SIZE (2..63))
 
 PDP-Type ::= OCTET STRING (SIZE (2))
 	-- Octets are coded according to TS 3GPP TS 29.060 [105]
+	-- Only the values PPP, IPv4 and IPv6 are allowed for this parameter.
+
+Ext-PDP-Type ::= OCTET STRING (SIZE (2))
+	-- Octets are coded, similarly to PDP-Type, according to TS 3GPP TS 29.060 [105].
+	-- Only the value IPv4v6 is allowed for this parameter.
 
 PDP-Address ::= OCTET STRING (SIZE (1..16))
 	-- Octets are coded according to TS 3GPP TS 29.060 [105]
@@ -2354,13 +2403,23 @@ SubscriberInfo ::= SEQUENCE {
 	imei			[5] IMEI		OPTIONAL,
 	ms-Classmark2	[6] MS-Classmark2	OPTIONAL,
 	gprs-MS-Class	[7] GPRSMSClass	OPTIONAL,
-	mnpInfoRes	[8] MNPInfoRes	OPTIONAL }
+	mnpInfoRes	[8] MNPInfoRes	OPTIONAL,
+	imsVoiceOverPS-SessionsIndication	[9] IMS-VoiceOverPS-SessionsInd	OPTIONAL,
+	lastUE-ActivityTime	[10] Time		OPTIONAL,
+	lastRAT-Type	[11] Used-RAT-Type	OPTIONAL,
+	eps-SubscriberState	[12] PS-SubscriberState	OPTIONAL,
+	locationInformationEPS	[13] LocationInformationEPS	OPTIONAL }
 
 --	If the HLR receives locationInformation, subscriberState or ms-Classmark2 from an SGSN
 --	it shall discard them.
 --	If the HLR receives locationInformationGPRS, ps-SubscriberState or gprs-MS-Class from
 --	a VLR it shall discard them.
 --	If the HLR receives parameters which it has not requested, it shall discard them.
+
+IMS-VoiceOverPS-SessionsInd ::= ENUMERATED {
+	imsVoiceOverPS-SessionsNotSupported	(0),
+	imsVoiceOverPS-SessionsSupported	(1)
+	}
 
 MNPInfoRes ::= SEQUENCE {
 	routeingNumber	[0] RouteingNumber 	OPTIONAL,
@@ -2416,16 +2475,19 @@ RequestedInfo ::= SEQUENCE {
 	requestedDomain	[4] DomainType	OPTIONAL,
 	imei			[6] NULL		OPTIONAL,
 	ms-classmark	[5] NULL		OPTIONAL,
-	mnpRequestedInfo	[7] NULL 		OPTIONAL }
+	mnpRequestedInfo	[7] NULL 		OPTIONAL,
+	t-adsData		[8] NULL		OPTIONAL }
 
 --	currentLocation shall be absent if locationInformation is absent
+--	t-adsData shall be absent in messages sent to the VLR
 
 DomainType ::=  ENUMERATED {
 	cs-Domain		(0),
 	ps-Domain		(1),
-	...}
+	...,
+	eps-Domain	(2)}
 -- exception handling:
--- reception of values > 1 shall be mapped to 'cs-Domain'
+-- reception of values > 2 shall be mapped to 'cs-Domain'
 
 LocationInformation ::= SEQUENCE {
 	ageOfLocationInformation	AgeOfLocationInformation	OPTIONAL,
@@ -2440,11 +2502,17 @@ LocationInformation ::= SEQUENCE {
 	geodeticInformation	[7] GeodeticInformation	OPTIONAL, 
 	currentLocationRetrieved	[8] NULL		OPTIONAL,
 	sai-Present	[9] NULL		OPTIONAL,
-	locationInformationEPS	[10]LocationInformationEPS	OPTIONAL }
+	locationInformationEPS	[10] LocationInformationEPS	OPTIONAL,
+	userCSGInformation	[11] UserCSGInformation	OPTIONAL }
 -- sai-Present indicates that the cellGlobalIdOrServiceAreaIdOrLAI parameter contains
 -- a Service Area Identity.
 -- currentLocationRetrieved shall be present 
 -- if the location information were retrieved after a successfull paging.
+-- if the locationinformationEPS IE is present then the cellGlobalIdOrServiceAreaIdOrLAI IE
+-- shall be absent. 
+-- UserCSGInformation contains the CSG ID, Access mode, and the CSG Membership Indication in
+-- the case the Access mode is Hybrid Mode.
+
 
 LocationInformationEPS ::= SEQUENCE {
 	e-utranCellGlobalIdentity	[0] OCTET STRING (SIZE(7))		OPTIONAL,
@@ -2452,7 +2520,14 @@ LocationInformationEPS ::= SEQUENCE {
 	trackingAreaIdentity	[1] OCTET STRING (SIZE(6))		OPTIONAL,
 -- Octets are coded as described in 3GPP TS 29.118.
 	extensionContainer	[2] ExtensionContainer		OPTIONAL,
+	geographicalInformation	[3] GeographicalInformation		OPTIONAL,
+	geodeticInformation	[4] GeodeticInformation		OPTIONAL,
+	currentLocationRetrieved	[5] NULL			OPTIONAL,
+	ageOfLocationInformation	[6] AgeOfLocationInformation		OPTIONAL,
 	...}
+-- currentLocationRetrieved shall be present if the location information
+-- was retrieved after successful paging.
+
 
 LocationInformationGPRS ::= SEQUENCE {
 	cellGlobalIdOrServiceAreaIdOrLAI	[0] CellGlobalIdOrServiceAreaIdOrLAI OPTIONAL,
@@ -2465,11 +2540,23 @@ LocationInformationGPRS ::= SEQUENCE {
 	sai-Present	[6] NULL		OPTIONAL,
 	geodeticInformation	[7] GeodeticInformation	OPTIONAL,
 	currentLocationRetrieved	[8] NULL		OPTIONAL,
-	ageOfLocationInformation	[9] AgeOfLocationInformation	OPTIONAL }
+	ageOfLocationInformation	[9] AgeOfLocationInformation	OPTIONAL,
+	userCSGInformation	[10] UserCSGInformation	OPTIONAL }
 -- sai-Present indicates that the cellGlobalIdOrServiceAreaIdOrLAI parameter contains
 -- a Service Area Identity.
 -- currentLocationRetrieved shall be present if the location information
 -- was retrieved after successful paging.
+-- UserCSGInformation contains the CSG ID, Access mode, and the CSG Membership Indication in
+-- the case the Access mode is Hybrid Mode. 
+
+
+UserCSGInformation ::= SEQUENCE {
+	csg-Id	 	[0] CSG-Id,
+	extensionContainer	[1] ExtensionContainer		OPTIONAL,
+	...,
+	accessMode	[2] OCTET STRING (SIZE(1))		OPTIONAL,
+	cmi			[3] OCTET STRING (SIZE(1))		OPTIONAL }
+-- The encoding of the accessMode and cmi parameters are as defined in 3GPP TS 29.060 [105].
 
 RAIdentity ::= OCTET STRING (SIZE (6))
 -- Routing Area Identity is coded in accordance with 3GPP TS 29.060 [105].
@@ -2509,7 +2596,7 @@ SubscriberState ::= CHOICE {
 	notProvidedFromVLR	[2] NULL}
 
 PS-SubscriberState ::= CHOICE {
-	notProvidedFromSGSN	[0] NULL,
+	notProvidedFromSGSNorMME	[0] NULL,
 	ps-Detached	[1] NULL,
 	ps-AttachedNotReachableForPaging	[2] NULL,
 	ps-AttachedReachableForPaging	[3] NULL,
@@ -2546,12 +2633,28 @@ PDP-ContextInfo ::= SEQUENCE {
 	-- qos2-Requested may be present only if qos-Requested is present.
 	qos2-Negotiated	[20] Ext2-QoS-Subscribed	OPTIONAL,
 	-- qos2-Negotiated may be present only if qos-Negotiated is present.
-		qos3-Subscribed	[21] Ext3-QoS-Subscribed	OPTIONAL,
+	qos3-Subscribed	[21] Ext3-QoS-Subscribed	OPTIONAL,
 	-- qos3-Subscribed may be present only if qos2-Subscribed is present.
 	qos3-Requested	[22] Ext3-QoS-Subscribed	OPTIONAL,
 	-- qos3-Requested may be present only if qos2-Requested is present.
-	qos3-Negotiated	[23] Ext3-QoS-Subscribed	OPTIONAL
+	qos3-Negotiated	[23] Ext3-QoS-Subscribed	OPTIONAL,
 	-- qos3-Negotiated may be present only if qos2-Negotiated is present.
+	qos4-Subscribed	[25] Ext4-QoS-Subscribed	OPTIONAL,
+	-- qos4-Subscribed may be present only if qos3-Subscribed is present.
+	qos4-Requested	[26] Ext4-QoS-Subscribed	OPTIONAL,
+	-- qos4-Requested may be present only if qos3-Requested is present.
+	qos4-Negotiated	[27] Ext4-QoS-Subscribed	OPTIONAL,
+	-- qos4-Negotiated may be present only if qos3-Negotiated is present. 
+	ext-pdp-Type	[28] Ext-PDP-Type	OPTIONAL,
+	-- contains the value IPv4v6 defined in 3GPP TS 29.060 [105], if the PDP can be
+	-- accessed by dual-stack UEs.
+	ext-pdp-Address	[29] PDP-Address	OPTIONAL
+	-- contains an additional IP address in case of dual-stack static IP address assignment
+	-- for the UE.
+	-- it may contain an IPv4 or an IPv6 address/prefix, and it may be present
+	-- only if pdp-Address is present; if both are present, each parameter shall
+	-- contain a different type of address (IPv4 or IPv6).
+
 }
 
 NSAPI ::= INTEGER (0..15)
@@ -2613,7 +2716,8 @@ AnyTimeSubscriptionInterrogationRes ::= SEQUENCE {
 	... ,
 	offeredCamel4CSIsInVLR	[8] OfferedCamel4CSIs	OPTIONAL,
 	offeredCamel4CSIsInSGSN	[9] OfferedCamel4CSIs	OPTIONAL,
-	msisdn-BS-List	[10] MSISDN-BS-List	OPTIONAL }
+	msisdn-BS-List	[10] MSISDN-BS-List	OPTIONAL,
+	csg-SubscriptionDataList	[11] CSG-SubscriptionDataList	OPTIONAL }
 
 RequestedSubscriptionInfo ::= SEQUENCE {
 	requestedSS-Info	[1] SS-ForBS-Code	OPTIONAL,
@@ -2626,7 +2730,8 @@ RequestedSubscriptionInfo ::= SEQUENCE {
 	additionalRequestedCAMEL-SubscriptionInfo
 				[7] AdditionalRequestedCAMEL-SubscriptionInfo
 							OPTIONAL,
-	msisdn-BS-List	[8] NULL		OPTIONAL }
+	msisdn-BS-List	[8] NULL		OPTIONAL,
+	csg-SubscriptionDataRequested	[9] NULL		OPTIONAL }
 
 MSISDN-BS-List ::= SEQUENCE SIZE (1..maxNumOfMSISDN) OF
 				MSISDN-BS
@@ -2720,7 +2825,13 @@ AnyTimeModificationArg ::= SEQUENCE {
 	...,
 	modificationRequestFor-ODB-data	[7]	ModificationRequestFor-ODB-data OPTIONAL,
 	modificationRequestFor-IP-SM-GW-Data	[8]	ModificationRequestFor-IP-SM-GW-Data OPTIONAL,
-	activationRequestForUE-reachability	[9]	ServingNode	OPTIONAL }
+	activationRequestForUE-reachability	[9]	ServingNode	OPTIONAL,
+	modificationRequestFor-CSG	[10]	ModificationRequestFor-CSG	OPTIONAL }
+
+ModificationRequestFor-CSG ::= SEQUENCE {
+	modifyNotificationToCSE	[0]	ModificationInstruction	OPTIONAL,
+	extensionContainer	[1]	ExtensionContainer	OPTIONAL,
+	...}
 
 ServingNode ::= BIT STRING {
 	mme (0)} (SIZE (1..8))
@@ -2793,7 +2904,8 @@ NoteSubscriberDataModifiedArg ::= SEQUENCE {
 	allInformationSent	[4] NULL		OPTIONAL,
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	...,
-	ue-reachable	[5] ServingNode	OPTIONAL }
+	ue-reachable	[5] ServingNode	OPTIONAL,
+	csg-SubscriptionDataList	[6] CSG-SubscriptionDataList	OPTIONAL }
 
 NoteSubscriberDataModifiedRes ::= SEQUENCE {
 	extensionContainer	ExtensionContainer	OPTIONAL,

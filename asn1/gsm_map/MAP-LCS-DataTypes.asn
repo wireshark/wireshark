@@ -1,7 +1,7 @@
 -- $Id$
 -- MAP-LCS-DataTypes.asn
 --
--- Taken from 3GPP TS 29.002  V9.0.0 (2009-12)
+-- Taken from 3GPP TS 29.002  V9.1.0 (2010-03)
 --
 -- 17.7.13 Location service data types
 --
@@ -102,7 +102,7 @@ RoutingInfoForLCS-Res ::= SEQUENCE {
 
 LCSLocationInfo ::= SEQUENCE {
 	networkNode-Number	ISDN-AddressString,
-	-- NetworkNode-number can be either msc-number or sgsn-number
+	-- NetworkNode-number can be msc-number, sgsn-number or a dummy value of "0"
 	lmsi			[0] LMSI		OPTIONAL,
 	extensionContainer	[1] ExtensionContainer	OPTIONAL,
 	... ,
@@ -110,7 +110,9 @@ LCSLocationInfo ::= SEQUENCE {
 	-- gprsNodeIndicator is set only if the SGSN number is sent as the Network Node Number
 	additional-Number	[3] Additional-Number	OPTIONAL,
 	supportedLCS-CapabilitySets	[4]	SupportedLCS-CapabilitySets	OPTIONAL,
-	additional-LCS-CapabilitySets	[5]	SupportedLCS-CapabilitySets	OPTIONAL
+	additional-LCS-CapabilitySets	[5]	SupportedLCS-CapabilitySets	OPTIONAL,
+	mme-Name		[6]	DiameterIdentity	OPTIONAL,
+	aaa-Server-Name	[8]	DiameterIdentity	OPTIONAL
 	}
 
 ProvideSubscriberLocation-Arg ::= SEQUENCE {
@@ -402,7 +404,8 @@ ProvideSubscriberLocation-Res ::= SEQUENCE {
 	sai-Present	[7] NULL		OPTIONAL,
 	accuracyFulfilmentIndicator	[8] AccuracyFulfilmentIndicator		OPTIONAL,
 	velocityEstimate	[9] VelocityEstimate	OPTIONAL,
-	mo-lrShortCircuitIndicator	[10] NULL		OPTIONAL }
+	mo-lrShortCircuitIndicator	[10] NULL		OPTIONAL,
+	targetServingNodeForHandover	[11] ServingNodeAddress	OPTIONAL }
 
 --	if deferredmt-lrResponseIndicator is set, locationEstimate is ignored.
 
@@ -575,7 +578,8 @@ SubscriberLocationReport-Arg ::= SEQUENCE {
 	velocityEstimate	[20] VelocityEstimate	OPTIONAL,
 	sequenceNumber	[21] SequenceNumber	OPTIONAL,
 	periodicLDRInfo	[22] PeriodicLDRInfo	OPTIONAL,
-	mo-lrShortCircuitIndicator	[23] NULL		OPTIONAL }
+	mo-lrShortCircuitIndicator	[23] NULL		OPTIONAL,
+	targetServingNodeForHandover	[24] ServingNodeAddress	OPTIONAL }
 
 	-- one of msisdn or imsi is mandatory
 	-- a location estimate that is valid for the locationEstimate parameter should 
@@ -607,7 +611,8 @@ LCS-Event ::= ENUMERATED {
 	mo-lr  (2),
 	...,
 	deferredmt-lrResponse  (3) ,
-	deferredmo-lrTTTPInitiation  (4)  }
+	deferredmo-lrTTTPInitiation  (4),
+	emergencyCallHandover (5)  }
 	--	deferredmt-lrResponse is applicable to the delivery of a location estimate 
 	--	for an LDR initiated earlier by either the network (via an MT-LR activate deferred 
 	--	location) or the UE (via a deferred MO-LR TTTP initiation)
@@ -636,6 +641,14 @@ TerminationCause ::= ENUMERATED {
 -- an unrecognized value shall be treated the same as value 1 (errorundefined) 
 
 SequenceNumber ::= INTEGER (1..maxReportingAmount)
+
+ServingNodeAddress ::= CHOICE {
+	msc-Number	[0] ISDN-AddressString,
+	sgsn-Number	[1] ISDN-AddressString,
+	mme-Number	[2] DiameterIdentity }
+
+DiameterIdentity ::= OCTET STRING (SIZE(9..255))
+-- content of DiameterIdentity is defined in IETF RFC 3588 [139]
 
 SubscriberLocationReport-Res ::= SEQUENCE {
 	extensionContainer	ExtensionContainer	OPTIONAL, 
