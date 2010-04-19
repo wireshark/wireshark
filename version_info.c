@@ -532,7 +532,7 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	get_runtime_pcap_version(str);
 
         /* zlib */
-#ifdef HAVE_LIBZ
+#if defined(HAVE_LIBZ) && !defined(_WIN32)
         g_string_append_printf(str, ", with libz %s", zlibVersion());
 #endif
 
