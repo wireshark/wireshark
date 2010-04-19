@@ -588,6 +588,10 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     start_offset = end_offset;
   }
 
+  if (end_offset == -1) {
+    end_offset = 0;
+  }
+
   /* specify a content type until we can work it out for ourselves */
   /* content_type_str = "multipart/mixed"; */
 
@@ -607,7 +611,7 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* just show the lines or highlight the rest of the buffer as message text */
 
-    item = proto_tree_add_item(tree, hf_imf_message_text, tvb, start_offset, -1 , FALSE);
+    item = proto_tree_add_item(tree, hf_imf_message_text, tvb, end_offset, -1 , FALSE);
     text_tree = proto_item_add_subtree(item, ett_imf_message_text);
 
     start_offset = end_offset;
@@ -623,7 +627,7 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
       proto_tree_add_text(text_tree, tvb, start_offset, end_offset - start_offset,
 			  "%s",
-			  tvb_format_text(tvb, start_offset, end_offset - start_offset - 2));
+			  tvb_format_text_wsp(tvb, start_offset, end_offset - start_offset));
 
       /*
        * Step to the next line.
