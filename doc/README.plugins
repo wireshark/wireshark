@@ -89,7 +89,6 @@ You will also need to change the following files:
 	CMakeLists.txt
 	epan/Makefile.am
 	Makefile.am
-	Makefile.nmake
 	packaging/nsis/Makefile.nmake
 	packaging/nsis/wireshark.nsi
 	plugins/Makefile.am
@@ -116,19 +115,9 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 
 3.2 Changes to plugins/Makefile.nmake
 
-To the Makefile.nmake you need to add the following (in
-alphabetical order) for your plugin to the process-plugins: rule
-
-	cd xxx
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
-
-Then add a copy command to the install-plugins rule:
-
-	...
-	xcopy plugins\xxx\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	cd plugins
-	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake install-plugins
+In plugins/Makefile.nmake you need to add to the PLUGINS_LIST  
+(in alphabetical order) the name of your dissector (actually:
+the name of the plugins sub-directory which contains your dissector).
 
 3.3 Changes to the top level Makefile.am
 

@@ -4,7 +4,26 @@
 
 include ..\config.nmake
 
-## To add a plugin: Add entry to process-plugins and to install-plugins
+## To add a plugin: Add entry to PLUGIN_LIST
+
+PLUGIN_LIST = \
+	asn1        \
+	docsis      \
+	ethercat    \
+	giop        \
+	gryphon     \
+	interlink   \
+	irda        \
+	m2m         \
+	mate        \
+	opcua       \
+	profinet    \
+	sercosiii   \
+	stats_tree  \
+	unistim     \
+	wimax       \
+	wimaxasncp
+
 
 all:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake PLUGIN_TARGET= process-plugins
@@ -29,56 +48,18 @@ maintainer-clean-local: distclean-local
 checkapi: 
         $(MAKE) -f Makefile.nmake PLUGIN_TARGET=checkapi process-plugins 
 
-process-plugins:
-	cd asn1
+
+
+process-plugins : $(PLUGIN_LIST) custom
+
+$(PLUGIN_LIST) : _FORCE_   # _FORCE_ req'd since each target actually exists
+	cd $@
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
-	cd docsis
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
-	cd ethercat
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
-	cd giop
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
-	cd gryphon
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
-	cd interlink
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
-	cd irda
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
-	cd m2m
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
-	cd mate
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
-	cd opcua
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
-	cd profinet
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
-	cd sercosiii
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
-	cd stats_tree
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
-	cd unistim
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
-	cd wimax
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
-	cd wimaxasncp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
+
+custom :
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake $(PLUGIN_TARGET)
+
 
 ################################################################################
 # copy all plugins to $(INSTALL_DIR)/plugins/$(VERSION), so Wireshark will load them, when
@@ -87,26 +68,14 @@ process-plugins:
 
 install-plugins:
 !IFDEF ENABLE_LIBWIRESHARK
-	cd..
-	xcopy plugins\asn1\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\docsis\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\ethercat\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\giop\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\gryphon\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\interlink\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\irda\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\m2m\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\mate\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\opcua\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\profinet\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\sercosiii\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\stats_tree\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\unistim\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\wimax\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\wimaxasncp\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	cd ..
+	@for %f in ( $(PLUGIN_LIST) ) do xcopy plugins\%f\*.dll  $(INSTALL_DIR)\plugins\$(VERSION) /d
 	cd plugins
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake install-plugins
 !ENDIF
 
 clean-deps:
 	
+####
+_FORCE_:  ## Assumption: no file named _FORCE_ exists in the current directory
+
