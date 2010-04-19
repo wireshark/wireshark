@@ -234,6 +234,8 @@ static const value_string nas_msg_emm_strings[] = {
 	{ 0x62,	"Downlink NAS transport"},
 	{ 0x63,	"Uplink NAS transport"},
 	{ 0x64, "CS Service notification"},
+	{ 0x68, "Downlink generic NAS transport"},
+	{ 0x69, "Uplink generic NAS transport"},
 	{ 0,	NULL }
 };
 
@@ -261,6 +263,7 @@ static const value_string nas_msg_esm_strings[] = {
 	{ 0xd7,	"Bearer resource modification reject"},
 	{ 0xd9,	"ESM information request"},
 	{ 0xda,	"ESM information response"},
+	{ 0xdb,	"Notification"},
 	{ 0xe8,	"ESM status"},
 	{ 0,	NULL }
 };
@@ -558,6 +561,8 @@ gint ett_nas_eps_emm_elem[NUM_NAS_EMM_ELEM];
 typedef enum
 {
 	/* 9.9.3	EPS Mobility Management (EMM) information elements */
+	DE_EMM_ADD_UPD_RES,			/* 9.9.3.0A Additional update result */
+	DE_EMM_ADD_UPD_TYPE,		/* 9.9.3.0B Additional update type */
 	DE_EMM_AUTH_FAIL_PAR,		/* 9.9.3.1	Authentication failure parameter (dissected in packet-gsm_a_dtap.c)*/
 	DE_EMM_AUTN,				/* 9.9.3.2	Authentication parameter AUTN */
 	DE_EMM_AUTH_PAR_RAND,		/* 9.9.3.3	Authentication parameter RAND */
@@ -601,7 +606,11 @@ typedef enum
 	DE_EMM_SS_CODE,				/* 9.9.3.39	SS Code */
 	DE_EMM_LCS_IND,				/* 9.9.3.40	LCS indicator */
 	DE_EMM_LCS_CLIENT_ID,		/* 9.9.3.41	LCS client identity */
+	DE_EMM_GEN_MSG_CONT_TYPE,	/* 9.9.3.42 Generic message container type */
+	DE_EMM_GEN_MSG_CONT,		/* 9.9.3.43 Generic message container */
+	DE_EMM_VOICE_DMN_PREF,		/* 9.9.3.44 Voice domain preference and UE's usage setting */
 	DE_EMM_NONE					/* NONE */
+
 }
 nas_emm_elem_idx_t;
 
@@ -1727,6 +1736,49 @@ de_emm_lcs_client_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 	return(len);
 }
 
+/* 
+ * 9.9.3.42 Generic message container type	
+ */
+
+static guint16
+de_emm_gen_msg_cont_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_text(tree, tvb, offset, len, "Not dissected yet");
+
+	return(len);
+}
+/* 
+ * 9.9.3.43 Generic message container
+ */
+static guint16
+de_emm_gen_msg_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_text(tree, tvb, offset, len, "Not dissected yet");
+
+	return(len);
+}
+/* 
+ * 9.9.3.44 Voice domain preference and UE's usage setting
+ */
+static guint16
+de_emm_gen_voice_dmn_pref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_text(tree, tvb, offset, len, "Not dissected yet");
+
+	return(len);
+}
 /*
  * 9.9.4	EPS Session Management (ESM) information elements
  */
@@ -2183,6 +2235,8 @@ static const value_string nas_eps_esm_request_type_values[] = {
 
 guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* 9.9.3	EPS Mobility Management (EMM) information elements */
+	NULL,						/* 9.9.3.0A Additional update result */
+	NULL,						/* 9.9.3.0B Additional update type */
 	NULL,						/* 9.9.3.1	Authentication failure parameter(dissected in packet-gsm_a_dtap.c) */
 	NULL,						/* 9.9.3.2	Authentication parameter AUTN(packet-gsm_a_dtap.c) */
 	NULL,						/* 9.9.3.3	Authentication parameter RAND */
@@ -2226,6 +2280,9 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	de_emm_ss_code,				/* 9.9.3.39	SS Code */
 	de_emm_lcs_ind,				/* 9.9.3.40	LCS indicator */
 	de_emm_lcs_client_id,		/* 9.9.3.41	LCS client identity */
+	de_emm_gen_msg_cont_type,	/* 9.9.3.42 Generic message container type */
+	de_emm_gen_msg_cont,		/* 9.9.3.43 Generic message container */
+	de_emm_gen_voice_dmn_pref,	/* 9.9.3.44 Voice domain preference and UE's usage setting */
 	NULL,	/* NONE */
 };
 
@@ -3203,13 +3260,43 @@ nas_emm_ul_nas_trans(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 /*
  * 8.2.31	Downlink generic NAS transport
  */
-/* written later */
+static void
+nas_emm_ul_gen_nas_trans(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* Generic message container type Generic message container type 9.9.3.42 M V 1 */
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_EMM_GEN_MSG_CONT_TYPE);
+	/* Generic message container Generic message container 9.9.3.43 M LV-E 3-n */
+	ELEM_MAND_LV_E(NAS_PDU_TYPE_EMM,  DE_EMM_GEN_MSG_CONT, "")
+	/* 65 Additional information Additional information 9.9.2.0 O TLV 3-n */
+}
 
 /*
  * 8.2.32	Uplink generic NAS transport
  */
-/* written later */
+static void
+nas_emm_dl_gen_nas_trans(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
 
+	curr_offset = offset;
+	curr_len = len;
+
+	/* Generic message container type Generic message container type 9.9.3.42 M V 1 */
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_EMM_GEN_MSG_CONT_TYPE);
+	/* Generic message container Generic message container 9.9.3.43 M LV-E 3-n */
+	ELEM_MAND_LV_E(NAS_PDU_TYPE_EMM,  DE_EMM_GEN_MSG_CONT, "")
+	/* 65 Additional information Additional information 9.9.2.0 O TLV 3-n */
+
+}
 
 /*
  * 8.3	EPS session management messages
@@ -3667,7 +3754,18 @@ nas_esm_mod_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
 /*
  * 8.3.18A Notification
  */
-/* written later */
+static void
+nas_esm_notification(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* Notification indicator Notification indicator 9.9.4.7A M LV 2 */
+	proto_tree_add_text(tree, tvb, offset, len, "Not dissected yet");
+}
 
 /*
  * 8.3.19 PDN connectivity reject
@@ -3801,6 +3899,7 @@ static void (*nas_msg_esm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	nas_esm_bearer_res_mod_rej,			/* Bearer resource modification reject*/
 	nas_esm_inf_req,					/* ESM information request, No IE:s*/
 	nas_esm_inf_resp,					/* ESM information response*/
+	nas_esm_notification,				/* Notification */
 	nas_esm_status,						/* ESM status */
 
 	NULL,	/* NONE */
@@ -3855,6 +3954,8 @@ static void (*nas_msg_emm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	nas_emm_dl_nas_trans,		/* Downlink NAS transport */
 	nas_emm_ul_nas_trans,		/* Uplink NAS transport */
 	nas_emm_cs_serv_not,		/* 8.2.9	CS service notification */
+	nas_emm_ul_gen_nas_trans,	/* Downlink generic NAS transport */
+	nas_emm_dl_gen_nas_trans,	/* Uplink generic NAS transport */
 	NULL,	/* NONE */
 
 };
