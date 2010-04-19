@@ -2260,7 +2260,7 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
           else if (strcmp(pref_name, "x.25") == 0)
             module = prefs_find_module("x25");
           else if (strcmp(pref_name, "nsip") == 0)
-            module = prefs_find_module("gprs_ns");
+            module = prefs_find_module("gprs-ns");
 	  else if (strcmp(pref_name, "etheric") == 0 ||
 		   strcmp(pref_name, "isup_thin") == 0)
 	    /* This protocols was removed 7. July 2009 */
