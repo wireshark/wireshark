@@ -256,6 +256,11 @@ typedef struct field_info {
 /** The protocol field is actually a URL */
 #define FI_URL                  0x00000004
 
+/** The protocol field value is in little endian */
+#define FI_LITTLE_ENDIAN        0x00000008
+/** The protocol field value is in big endian */
+#define FI_BIG_ENDIAN           0x00000010
+
 /** convenience macro to get field_info.flags */
 #define FI_GET_FLAG(fi, flag) ((fi) ? (fi->flags & flag) : 0)
 /** convenience macro to set field_info.flags */

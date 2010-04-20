@@ -86,6 +86,7 @@
 #define E_BYTE_VIEW_START_KEY     "byte_view_start"
 #define E_BYTE_VIEW_END_KEY       "byte_view_end"
 #define E_BYTE_VIEW_MASK_KEY      "byte_view_mask"
+#define E_BYTE_VIEW_MASKLE_KEY    "byte_view_mask_le"
 #define E_BYTE_VIEW_APP_START_KEY "byte_view_app_start"
 #define E_BYTE_VIEW_APP_END_KEY   "byte_view_app_end"
 #define E_BYTE_VIEW_ENCODE_KEY    "byte_view_encode"
@@ -1093,7 +1094,7 @@ savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 }
 
 static GtkTextMark *
-packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int start, int end, guint32 mask, int use_digits, int create_mark)
+packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int start, int end, guint32 mask, int mask_le, int use_digits, int create_mark)
 {
 	GtkTextIter i_start, i_stop, iter;
 
@@ -1173,11 +1174,13 @@ packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int start, int end, guint32 mas
 		/* XXX, merge & optimize? */
 
 		/* XXX, Spaces are not highlighted - good thing or bad? */
+
+		if (mask_le) /* LSB of mask first (little-endian) */
 		while (start_line <= stop_line) {
-			int end_line = (start_line == stop_line) ? stop_line_pos : per_line;
+			int line_pos_end = (start_line == stop_line) ? stop_line_pos : per_line;
 			int line_pos = start_line_pos;
 
-			while (line_pos < end_line) {
+			while (line_pos < line_pos_end) {
 				int lop = 8 / bits_per_one;
 				int mask_per_one = (1 << bits_per_one) - 1;
 				int ascii_on = 0;
@@ -1210,6 +1213,45 @@ packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int start, int end, guint32 mas
 
 			start_line_pos = 0;
 			start_line++;
+		}
+		else /* mask starting from end (big-endian) */
+		while (start_line <= stop_line) {
+			int line_pos_start = (stop_line == start_line) ? start_line_pos : 0;
+			int line_pos = stop_line_pos-1;
+
+			while (line_pos >= line_pos_start) {
+				int lop = 8 / bits_per_one;
+				int mask_per_one = (1 << bits_per_one) - 1;
+				int ascii_on = 0;
+
+				while (lop--) {
+					if ((mask & mask_per_one)) {
+						/* bits/hex */
+						gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, hex_fix(line_pos)+lop);
+						gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, hex_fix(line_pos)+lop+1);
+						gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
+
+						ascii_on = 1;
+					}
+					mask >>= bits_per_one;
+				}
+
+				/* at least one bit of ascii was one -> turn ascii on */
+				if (ascii_on) {
+					/* ascii */
+					gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, ascii_fix(line_pos));
+					gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, ascii_fix(line_pos)+1);
+					gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
+				}
+
+				if (!mask)
+					goto end;
+
+				line_pos--;
+			}
+
+			stop_line_pos = per_line;
+			stop_line--;
 		}
 	}
 end:
@@ -1451,7 +1493,8 @@ packet_hex_print_common(GtkTextBuffer *buf, GtkWidget *bv, const guint8 *pd, int
 
 static void
 packet_hex_update(GtkWidget *bv, const guint8 *pd, int len, int bstart,
-			int bend, guint32 bmask, int astart, int aend, int encoding)
+			int bend, guint32 bmask, int bmask_le,
+			int astart, int aend, int encoding)
 {
 	GtkTextView   *bv_text_view = GTK_TEXT_VIEW(bv);
 	GtkTextBuffer *buf = gtk_text_view_get_buffer(bv_text_view);
@@ -1493,8 +1536,8 @@ packet_hex_update(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 	ndigits = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_NDIGITS_KEY));
 
 	/* mark reverse tags */
-	mark = packet_hex_apply_reverse_tag(buf, bstart, bend, bmask, ndigits, 1);
-	packet_hex_apply_reverse_tag(buf, astart, aend, 0x00, ndigits, 0);
+	mark = packet_hex_apply_reverse_tag(buf, bstart, bend, bmask, bmask_le, ndigits, 1);
+	packet_hex_apply_reverse_tag(buf, astart, aend, 0x00, 0, ndigits, 0);
 
 	gtk_text_view_set_buffer(bv_text_view, buf);
 
@@ -1514,7 +1557,7 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
   /* to redraw the display if preferences change.		*/
 
   int bstart = -1, bend = -1, blen = -1;
-  guint32 bmask = 0x00;
+  guint32 bmask = 0x00; int bmask_le = 0;
   int astart = -1, aend = -1, alen = -1;
 
   if (finfo != NULL) {
@@ -1525,10 +1568,14 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
     astart = finfo->appendix_start;
     alen = finfo->appendix_length;
 
-    /* XXX, for now there's no support for masks && len > 1 cause of endianess problems */
-    if (blen > 1)
-      bmask = 0x00;
+    if (FI_GET_FLAG(finfo, FI_LITTLE_ENDIAN))
+      bmask_le = 1;
+    else if (FI_GET_FLAG(finfo, FI_BIG_ENDIAN))
+      bmask_le = 0;
+    else
+      bmask_le = (G_BYTE_ORDER == G_LITTLE_ENDIAN);
   }
+
   if (bstart >= 0 && blen > 0) {
     bend = bstart + blen;
   }
@@ -1548,12 +1595,13 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
   g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY, GINT_TO_POINTER(bstart));
   g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bend));
   g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_KEY, GINT_TO_POINTER(bmask));
+  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASKLE_KEY, GINT_TO_POINTER(bmask_le));
   g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY, GINT_TO_POINTER(astart));
   g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY, GINT_TO_POINTER(aend));
   g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY,
                   GUINT_TO_POINTER((guint)fd->flags.encoding));
 
-  packet_hex_update(bv, pd, len, bstart, bend, bmask, astart, aend, fd->flags.encoding);
+  packet_hex_update(bv, pd, len, bstart, bend, bmask, bmask_le, astart, aend, fd->flags.encoding);
 }
 
 /*
@@ -1563,7 +1611,7 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
 void
 packet_hex_reprint(GtkWidget *bv)
 {
-  int start, end, mask, encoding;
+  int start, end, mask, mask_le, encoding;
   int astart, aend;
   const guint8 *data;
   guint len = 0;
@@ -1571,13 +1619,14 @@ packet_hex_reprint(GtkWidget *bv)
   start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
   end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
   mask = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_KEY));
+  mask_le = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_MASKLE_KEY));
   astart = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY));
   aend = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY));
   data = get_byte_view_data_and_length(bv, &len);
   g_assert(data != NULL);
   encoding = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY));
 
-  packet_hex_update(bv, data, len, start, end, mask, astart, aend, encoding);
+  packet_hex_update(bv, data, len, start, end, mask, mask_le, astart, aend, encoding);
 }
 
 /* List of all protocol tree widgets, so we can globally set the selection

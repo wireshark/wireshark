@@ -1415,6 +1415,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			DISSECTOR_ASSERT_NOT_REACHED();
 			break;
 	}
+	FI_SET_FLAG(new_fi, (little_endian) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN);
 
 	/* Don't add new node to proto_tree until now so that any exceptions
 	 * raised by a tvbuff access method doesn't leave junk in the proto_tree. */
