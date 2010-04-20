@@ -315,7 +315,7 @@ static GHashTable *rlc_lte_sequence_analysis_channel_hash = NULL;
 /* Types for sequence analysis frame report hash table                  */
 /* This is a table from framenum -> state_report_in_frame               */
 /* This is necessary because the per-packet info is already being used  */
-/* for conext information before the dissector is called                */
+/* for context information before the dissector is called               */
 
 /* Info to attach to frame when first read, recording what to show about sequence */
 typedef struct
@@ -389,7 +389,7 @@ static void write_pdu_label_and_info(proto_item *pdu_ti, proto_item *sub_ti,
 
 
 /* Dissect extension headers (common to both UM and AM) */
-static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo,
+static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo _U_,
                                             proto_tree *tree,
                                             int offset)
 {
@@ -448,11 +448,6 @@ static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo,
         padding = tvb_get_guint8(tvb, offset) & 0x0f;
         ti = proto_tree_add_item(tree, hf_rlc_lte_extension_padding,
                                  tvb, offset, 1, FALSE);
-        if (padding != 0) {
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                      "Extension Header padding not zero (found 0x%x)", padding);
-        }
-        offset++;
     }
 
     return offset;
