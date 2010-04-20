@@ -85,6 +85,7 @@
 #define E_BYTE_VIEW_TVBUFF_KEY    "byte_view_tvbuff"
 #define E_BYTE_VIEW_START_KEY     "byte_view_start"
 #define E_BYTE_VIEW_END_KEY       "byte_view_end"
+#define E_BYTE_VIEW_MASK_KEY      "byte_view_mask"
 #define E_BYTE_VIEW_APP_START_KEY "byte_view_app_start"
 #define E_BYTE_VIEW_APP_END_KEY   "byte_view_app_end"
 #define E_BYTE_VIEW_ENCODE_KEY    "byte_view_encode"
@@ -1091,7 +1092,131 @@ savehex_cb(GtkWidget * w _U_, gpointer data _U_)
     window_destroy(savehex_dlg);
 }
 
+static GtkTextMark *
+packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int start, int end, guint32 mask, int use_digits, int create_mark)
+{
+	GtkTextIter i_start, i_stop, iter;
 
+	GtkTextTag    *revstyle_tag;
+	const char    *revstyle;
+
+	int per_line = 0;
+	int per_one = 0;
+	int bits_per_one = 0;
+	int hex_offset, ascii_offset;
+
+	int start_line, start_line_pos;
+	int stop_line, stop_line_pos;
+
+	if (start == -1 || end == -1)
+		return NULL;
+
+	/* Display with inverse video ? */
+	if (prefs.gui_hex_dump_highlight_style)
+		revstyle = "reverse";
+	else
+		revstyle = "bold";
+
+	revstyle_tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buf), revstyle);
+
+	switch (recent.gui_bytes_view) {
+	case BYTES_HEX:
+		per_line = BYTES_PER_LINE;
+		per_one  = 2+1;	/* "ff " */
+		bits_per_one = 4;
+		break;
+	case BYTES_BITS:
+		per_line = BITS_PER_LINE;
+		per_one  = 8+1;	/* "10101010 " */
+		bits_per_one = 1;
+		break;
+	default:
+		g_assert_not_reached();
+	}
+
+	start_line = start / per_line;
+	start_line_pos = start % per_line;
+
+	stop_line = end / per_line;
+	stop_line_pos = end % per_line;
+
+#define hex_fix(pos)   hex_offset + (pos * per_one) + (pos / BYTE_VIEW_SEP) - (pos == per_line)
+#define ascii_fix(pos) ascii_offset + pos + (pos / BYTE_VIEW_SEP) - (pos == per_line)
+
+	hex_offset = use_digits + 2;
+	ascii_offset = hex_fix(per_line) + 2;
+
+	gtk_text_buffer_get_iter_at_line_index(buf, &iter, start_line, hex_fix(start_line_pos));
+
+	/* stig: it should be done only for bitview... */
+	if (mask == 0x00 || recent.gui_bytes_view != BYTES_BITS) {
+		while (start_line <= stop_line) {
+			int end_line = (start_line == stop_line) ? stop_line_pos : per_line;
+
+			if (start_line_pos == end_line) break;
+
+			/* bits/hex */
+			gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, hex_fix(start_line_pos));
+			gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, hex_fix(end_line)-1);
+			gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
+
+			/* ascii */
+			gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, ascii_fix(start_line_pos));
+			gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, ascii_fix(end_line));
+			gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
+
+			start_line_pos = 0;
+			start_line++;
+		}
+
+	} else {
+		/* XXX, merge & optimize? */
+
+		/* XXX, Spaces are not highlighted - good thing or bad? */
+		while (start_line <= stop_line) {
+			int end_line = (start_line == stop_line) ? stop_line_pos : per_line;
+			int line_pos = start_line_pos;
+
+			while (line_pos < end_line) {
+				int lop = 8 / bits_per_one;
+				int mask_per_one = (1 << bits_per_one) - 1;
+				int ascii_on = 0;
+
+				while (lop--) {
+					if ((mask & mask_per_one)) {
+						/* bits/hex */
+						gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, hex_fix(line_pos)+lop);
+						gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, hex_fix(line_pos)+lop+1);
+						gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
+
+						ascii_on = 1;
+					}
+					mask >>= bits_per_one;
+				}
+
+				/* at least one bit of ascii was one -> turn ascii on */
+				if (ascii_on) {
+					/* ascii */
+					gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, ascii_fix(line_pos));
+					gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, ascii_fix(line_pos)+1);
+					gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
+				}
+
+				if (!mask)
+					goto end;
+
+				line_pos++;
+			}
+
+			start_line_pos = 0;
+			start_line++;
+		}
+	}
+end:
+	return (create_mark) ? gtk_text_buffer_create_mark(buf, NULL, &iter, TRUE) : NULL;
+#undef hex_fix
+#undef ascii_fix
+}
 
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES	100
@@ -1112,8 +1237,7 @@ savehex_cb(GtkWidget * w _U_, gpointer data _U_)
  * the hex dump column.
  */
 static void
-packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
-			int bend, int astart, int aend, int encoding)
+packet_hex_print_common(GtkTextBuffer *buf, GtkWidget *bv, const guint8 *pd, int len, int encoding)
 {
   int            i = 0, j, k = 0, b, cur;
   guchar         line[MAX_LINES_LEN + 1];
@@ -1124,12 +1248,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
   guchar         c = '\0';
   unsigned int   use_digits;
-  gboolean       reverse, newreverse;
-  GtkTextView   *bv_text_view = GTK_TEXT_VIEW(bv);
-  GtkTextBuffer *buf;
   GtkTextIter    iter;
-  const char    *revstyle;
-  GtkTextMark   *mark = NULL;
 
   progdlg_t  *progbar = NULL;
   float       progbar_val;
@@ -1139,26 +1258,6 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
   int         progbar_nextstep;
   int         progbar_quantum;
 
-  buf = gtk_text_view_get_buffer(bv_text_view);
-  g_object_ref(buf);
-#if 0
-  gtk_text_view_set_buffer( bv_text_view, NULL);       /* XXX: Apparently not a good idea; If a progress_bar
-                                                        *      is displayed below in delayed_create_progress_dlg()
-                                                        *      there will then be a crash internally in the gtk library.
-                                                        *      (It appears that gtk_text_view_set_buffer
-                                                        *       queues a callback to be run when this
-                                                        *       thread is next idle. Unfortunately the call to
-                                                        *       gtk_main_iteration() in delayed_create_progress_dlg()
-                                                        *       causes the internal callback to be run which then 
-                                                        *       crashes (because the textview has no buffer ?))
-                                                        */  
-#endif
-  gtk_text_view_set_buffer( bv_text_view,
-                            gtk_text_buffer_new(NULL));/* attach a dummy buffer in place of the real buffer.
-                                                        * (XXX: Presumably this is done so there's no attempt
-                                                        *       to display the real buffer until it has been
-                                                        *       completely generated).
-                                                        */
   gtk_text_buffer_set_text(buf, "", 0);
   gtk_text_buffer_get_start_iter(buf, &iter);
 
@@ -1252,14 +1351,6 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
     line[cur++] = ' ';
     line[cur++] = ' ';
 
-    /* Display with inverse video ? */
-    if (prefs.gui_hex_dump_highlight_style)
-      revstyle = "reverse";
-    else
-      revstyle = "bold";
-
-    /* Do we start in reverse? */
-    reverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
     j   = i;
     switch (recent.gui_bytes_view) {
     case BYTES_HEX:
@@ -1270,11 +1361,6 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       break;
     default:
       g_assert_not_reached();
-    }
-    if (reverse) {
-      gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
-					     "plain", NULL);
-      cur = 0;
     }
     /* Print the hex bit */
     while (i < k) {
@@ -1307,13 +1393,6 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 	}
       }
       i++;
-      newreverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
-      /* Have we gone from reverse to plain? */
-      if (reverse && (reverse != newreverse)) {
-        gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
-                                                 revstyle, NULL);
-        cur = 0;
-      }
       /* Inter byte space if not at end of line */
       if (i < k) {
         line[cur++] = ' ';
@@ -1322,22 +1401,6 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
           line[cur++] = ' ';
         }
       }
-      /* Have we gone from plain to reversed? */
-      if (!reverse && (reverse != newreverse)) {
-	    gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
-                                                 "plain", NULL);
-        /* If [astart..aend) and [bstart..bend) are disjoint, select first one as a marker */
-        if (!mark)
-          mark = gtk_text_buffer_create_mark(buf, NULL, &iter, TRUE);
-        cur = 0;
-      }
-      reverse = newreverse;
-    }
-    if (reverse) {
-      /* Print remaining part of line */
-      gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
-                                             revstyle, NULL);
-      cur = 0;
     }
 
     /* Print some space at the end of the line */
@@ -1345,13 +1408,6 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 
     /* Print the ASCII bit */
     i = j;
-    /* Do we start in reverse? */
-    reverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
-    if (reverse) {
-      gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
-                                             "plain",NULL);
-      cur = 0;
-    }
 
     while (i < k) {
       if (i < len) {
@@ -1369,38 +1425,16 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
         line[cur++] = ' ';
       }
       i++;
-      newreverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
-      /* Have we gone from reverse to plain? */
-      if (reverse && (reverse != newreverse)) {
-        gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
-                                                 revstyle, NULL);
-
-        cur = 0;
-      }
       if (i < k) {
         /* insert a space every BYTE_VIEW_SEP bytes */
         if( ( i % BYTE_VIEW_SEP ) == 0 ) {
           line[cur++] = ' ';
         }
       }
-      /* Have we gone from plain to reversed? */
-      if (!reverse && (reverse != newreverse)) {
-        gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
-                                                 "plain", NULL);
-        cur = 0;
-      }
-      reverse = newreverse;
-    }
-    /* Print remaining part of line */
-    if (reverse) {
-        gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
-                                             revstyle, NULL);
-        cur = 0;
     }
     line[cur++] = '\n';
     if (cur >= (MAX_LINES_LEN - MAX_LINE_LEN)) {
-        gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
-                                             "plain", NULL);
+        gtk_text_buffer_insert(buf, &iter, line, cur);
         cur = 0;
     }
   }
@@ -1410,18 +1444,66 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
   if (progbar != NULL)
     destroy_progress_dlg(progbar);
 
-  /* scroll text into position */
   if (cur) {
-        gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
-                                             "plain", NULL);
+        gtk_text_buffer_insert(buf, &iter, line, cur);
   }
-  gtk_text_view_set_buffer( bv_text_view, buf);
+}
 
-  if (mark) {
-    gtk_text_view_scroll_to_mark(bv_text_view, mark, 0.0, TRUE, 1.0, 0.0);
-    gtk_text_buffer_delete_mark(buf, mark);
-  }
-  g_object_unref(buf);
+static void
+packet_hex_update(GtkWidget *bv, const guint8 *pd, int len, int bstart,
+			int bend, guint32 bmask, int astart, int aend, int encoding)
+{
+	GtkTextView   *bv_text_view = GTK_TEXT_VIEW(bv);
+	GtkTextBuffer *buf = gtk_text_view_get_buffer(bv_text_view);
+	GtkTextMark   *mark;
+	int ndigits;
+
+	GtkTextIter start, end;
+
+	g_object_ref(buf);
+
+#if 0
+	/* XXX: Apparently not a good idea; If a progress_bar
+	 *      is displayed below in delayed_create_progress_dlg()
+	 *      there will then be a crash internally in the gtk library.
+	 *      (It appears that gtk_text_view_set_buffer
+	 *       queues a callback to be run when this
+	 *       thread is next idle. Unfortunately the call to
+	 *       gtk_main_iteration() in delayed_create_progress_dlg()
+	 *       causes the internal callback to be run which then 
+	 *       crashes (because the textview has no buffer ?))
+	 */  
+	gtk_text_view_set_buffer(bv_text_view, NULL); 
+#endif
+
+	/* attach a dummy buffer in place of the real buffer.
+	 * (XXX: Presumably this is done so there's no attempt
+	 *       to display the real buffer until it has been
+	 *       completely generated).
+	 */
+	gtk_text_view_set_buffer(bv_text_view, gtk_text_buffer_new(NULL));
+
+	packet_hex_print_common(buf, bv, pd, len, encoding);
+
+	/* mark everything with "plain" tag */
+	gtk_text_buffer_get_start_iter(buf, &start);
+	gtk_text_buffer_get_end_iter(buf, &end);
+	gtk_text_buffer_apply_tag_by_name(buf, "plain", &start, &end);
+
+	ndigits = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_NDIGITS_KEY));
+
+	/* mark reverse tags */
+	mark = packet_hex_apply_reverse_tag(buf, bstart, bend, bmask, ndigits, 1);
+	packet_hex_apply_reverse_tag(buf, astart, aend, 0x00, ndigits, 0);
+
+	gtk_text_view_set_buffer(bv_text_view, buf);
+
+	/* scroll text into position */
+	if (mark) {
+		gtk_text_view_scroll_to_mark(bv_text_view, mark, 0.0, TRUE, 1.0, 0.0);
+		gtk_text_buffer_delete_mark(buf, mark);
+	}
+	g_object_unref(buf);
 }
 
 void
@@ -1432,31 +1514,46 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
   /* to redraw the display if preferences change.		*/
 
   int bstart = -1, bend = -1, blen = -1;
+  guint32 bmask = 0x00;
   int astart = -1, aend = -1, alen = -1;
 
   if (finfo != NULL) {
     bstart = finfo->start;
     blen = finfo->length;
+    /* bmask = finfo->hfinfo->bitmask << finfo->hfinfo->bitshift; */ 	/* (value & mask) >> shift */
+    bmask = finfo->hfinfo->bitmask;
     astart = finfo->appendix_start;
     alen = finfo->appendix_length;
+
+    /* XXX, for now there's no support for masks && len > 1 cause of endianess problems */
+    if (blen > 1)
+      bmask = 0x00;
   }
-  if (bstart >= 0 && blen >= 0) {
+  if (bstart >= 0 && blen > 0) {
     bend = bstart + blen;
   }
-  if (astart >= 0 && alen >= 0) {
+  if (astart >= 0 && alen > 0) {
     aend = astart + alen;
+  }
+
+  if (bend == -1 && aend != -1) {
+    bstart = astart;
+    bmask = 0x00;
+    bend = aend;
+    astart = aend = -1;
   }
 
   /* save the information needed to redraw the text */
   /* should we save the fd & finfo pointers instead ?? */
   g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY, GINT_TO_POINTER(bstart));
   g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bend));
+  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_KEY, GINT_TO_POINTER(bmask));
   g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY, GINT_TO_POINTER(astart));
   g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY, GINT_TO_POINTER(aend));
   g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY,
                   GUINT_TO_POINTER((guint)fd->flags.encoding));
 
-  packet_hex_print_common(bv, pd, len, bstart, bend, astart, aend, fd->flags.encoding);
+  packet_hex_update(bv, pd, len, bstart, bend, bmask, astart, aend, fd->flags.encoding);
 }
 
 /*
@@ -1466,20 +1563,21 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
 void
 packet_hex_reprint(GtkWidget *bv)
 {
-  int start, end, encoding;
+  int start, end, mask, encoding;
   int astart, aend;
   const guint8 *data;
   guint len = 0;
 
   start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
   end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
+  mask = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_KEY));
   astart = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY));
   aend = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY));
   data = get_byte_view_data_and_length(bv, &len);
   g_assert(data != NULL);
   encoding = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY));
 
-  packet_hex_print_common(bv, data, len, start, end, astart, aend, encoding);
+  packet_hex_update(bv, data, len, start, end, mask, astart, aend, encoding);
 }
 
 /* List of all protocol tree widgets, so we can globally set the selection
