@@ -68,7 +68,6 @@ my %struct =  # Not reset; contains structures already defined.
 (
     # structures defined by xproto, but not used by any extension
     CHAR2B => 1,
-    POINT => 1,
     ARC => 1,
     FORMAT => 1,
     VISUALTYPE => 1,
@@ -126,6 +125,9 @@ my %struct =  # Not reset; contains structures already defined.
 
     # structures defined by xv, but never used (bug in xcb?)
     Image => 1,
+    
+    # structures defined by xkb, but never used (bug in xcb?)
+    CountedString8 => 1,
 );
 my %enum;  # Not reset; contains enums already defined.
 my $header;
@@ -144,6 +146,12 @@ my $error;
 # glRender sub-op output files
 my $enum;
 
+
+my $mesadir = 'mesa/src/mesa/glapi';
+if (-d 'mesa/src/mesa/glapi/gen') {
+    # Mesa API definitions moved recently (February 22, 2010)
+    $mesadir = 'mesa/src/mesa/glapi/gen';
+}
 
 sub mesa_category_start {
     my ($t, $elt) = @_;
@@ -376,6 +384,9 @@ eot
     $t->purge;
 }
 
+sub get_op($;$);
+sub get_unop($;$);
+
 sub get_ref($$)
 {
     my $elt = shift;
@@ -390,6 +401,7 @@ sub get_ref($$)
 	}
 	when ('value') { $rv = $elt->text(); }
 	when ('op') { $rv = get_op($elt, $refref); }
+	when (['unop','popcount']) { $rv = get_unop($elt, $refref); }
 	default { die "Invalid op fragment: $_" }
     }
     return $rv;
@@ -399,7 +411,7 @@ sub get_op($;$) {
     my $op = shift;
     my $refref = shift // {};
 
-    my @elements = $op->children(qr/fieldref|value|op/);
+    my @elements = $op->children(qr/fieldref|value|op|unop|popcount/);
     (@elements == 2) or die ("Wrong number of children for 'op'\n");
     my $left;
     my $right;
@@ -408,6 +420,27 @@ sub get_op($;$) {
     $right = get_ref($elements[1], $refref);
 
     return "($left " . $op->att('op') . " $right)";
+}
+
+sub get_unop($;$) {
+    my $op = shift;
+    my $refref = shift // {};
+
+    my @elements = $op->children(qr/fieldref|value|op|unop|popcount/);
+    (@elements == 1) or die ("Wrong number of children for 'unop'\n");
+    my $left;
+
+    $left = get_ref($elements[0], $refref);
+
+    given ($op->name()) {
+	when ('unop') {
+	    return '(' . $op->att('op') . "$left)";
+	}
+	when ('popcount') {
+	    return "popcount($left)";
+	}
+	default { die "Invalid unop element $op->name()\n"; }
+    }
 }
 
 sub dump_enum_values($)
@@ -433,6 +466,8 @@ sub dump_enum_values($)
     return $enumname;
 }
 
+sub register_element($$$;$);
+
 sub register_element($$$;$)
 {
     my $e = shift;
@@ -440,12 +475,15 @@ sub register_element($$$;$)
     my $humanpat = shift;
     my $indent = shift // ' ' x 4;
 
-    return if ($e->name() eq 'pad');
+    given ($e->name()) {
+	when ('pad') { return; }     # Pad has no variables
+	when ('switch') { return; }  # Switch defines varaibles in a tighter scope to avoid collisions
+    }
 
     # Register field with wireshark
 
     my $fieldname = $e->att('name');
-    my $type = $e->att('type');
+    my $type = $e->att('type') or die ("Field $fieldname does not have a valid type\n");
     $type =~ s/^.*://;
 
     my $regname = 'hf_x11_'.sprintf ($varpat, $fieldname);
@@ -511,94 +549,137 @@ sub register_element($$$;$)
     }
 }
 
-sub dissect_element($$$;$$)
+sub dissect_element($$$$;$$);
+
+sub dissect_element($$$$;$$)
 {
     my $e = shift;
     my $varpat = shift;
+    my $humanpat = shift;
     my $length = shift;
     my $adjustlength = shift;
     my $indent = shift // ' ' x 4;
 
-    if ($e->name() eq 'pad') {
-	my $bytes = $e->att('bytes');
-	print $impl $indent."UNUSED($bytes);\n";
-	$length += $bytes;
-    } elsif ($e->name() eq 'field') {
-	my $fieldname = $e->att('name');
-	my $regname = 'hf_x11_'.sprintf ($varpat, $fieldname);
-	my $type = $e->att('type');
-	$type =~ s/^.*://;
+    given ($e->name()) {
+	when ('pad') {
+	    my $bytes = $e->att('bytes');
+	    print $impl $indent."UNUSED($bytes);\n";
+	    $length += $bytes;
+	}
+	when ('field') {
+	    my $fieldname = $e->att('name');
+	    my $regname = 'hf_x11_'.sprintf ($varpat, $fieldname);
+	    my $type = $e->att('type');
+	    $type =~ s/^.*://;
 
-	if ($basictype{$type} or $simpletype{$type}) {
-	    my $info = $basictype{$type} // $simpletype{$type};
-	    my $size = $info->{'size'};
-	    my $get = $info->{'get'};
+	    if ($basictype{$type} or $simpletype{$type}) {
+		my $info = $basictype{$type} // $simpletype{$type};
+		my $size = $info->{'size'};
+		my $get = $info->{'get'};
 
-	    if ($e->att('enum') // $e->att('altenum')) {
-		my $fieldsize = $size * 8;
-		say $impl $indent."f_$fieldname = field$fieldsize(tvb, offsetp, t, $regname, little_endian);";
-	    } elsif ($e->att('mask')) {
-		say $impl $indent."f_$fieldname = $get(tvb, *offsetp);";
-		say $impl $indent."{";
-		say $impl $indent."    proto_item *ti = proto_tree_add_item(t, $regname, tvb, *offsetp, $size, little_endian);";
-		say $impl $indent."    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);";
+		if ($e->att('enum') // $e->att('altenum')) {
+		    my $fieldsize = $size * 8;
+		    say $impl $indent."f_$fieldname = field$fieldsize(tvb, offsetp, t, $regname, little_endian);";
+		} elsif ($e->att('mask')) {
+		    say $impl $indent."f_$fieldname = $get(tvb, *offsetp);";
+		    say $impl $indent."{";
+		    say $impl $indent."    proto_item *ti = proto_tree_add_item(t, $regname, tvb, *offsetp, $size, little_endian);";
+		    say $impl $indent."    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);";
 
-		my $bytesize = $info->{'size'};
-		my $bit = $enum{$e->att('mask')}{bit};
-		for my $val (sort { $a <=> $b } keys %$bit) {
-		    my $item = $regname . '_mask_' . $$bit{$val};
+		    my $bytesize = $info->{'size'};
+		    my $bit = $enum{$e->att('mask')}{bit};
+		    for my $val (sort { $a <=> $b } keys %$bit) {
+			my $item = $regname . '_mask_' . $$bit{$val};
 
-		    say $impl "$indent    proto_tree_add_item(bitmask_tree, $item, tvb, *offsetp, $bytesize, little_endian);";
+			say $impl "$indent    proto_tree_add_item(bitmask_tree, $item, tvb, *offsetp, $bytesize, little_endian);";
+		    }
+
+		    say $impl $indent."}";
+		    say $impl $indent."*offsetp += $size;";
+		} else {
+		    print $impl $indent."f_$fieldname = $get(tvb, *offsetp);\n";
+		    print $impl $indent."proto_tree_add_item(t, $regname, tvb, *offsetp, $size, little_endian);\n";
+		    print $impl $indent."*offsetp += $size;\n";
+		}
+		$length += $size;
+	    } elsif ($struct{$type}) {
+		# TODO: variable-lengths (when $info->{'size'} == 0 )
+		my $info = $struct{$type};
+		$length += $info->{'size'};
+		print $impl $indent."struct_$info->{'name'}(tvb, offsetp, t, little_endian, 1);\n";
+	    } else {
+		die ("Unrecognized type: $type\n");
+	    }
+	}
+	when ('list') {
+	    my $fieldname = $e->att('name');
+	    my $regname = 'hf_x11_'.sprintf ($varpat, $fieldname);
+	    my $type = $e->att('type');
+	    $type =~ s/^.*://;
+
+	    my $info = $basictype{$type} // $simpletype{$type} // $struct{$type};
+	    my $lencalc = "(length - $length) / $info->{'size'}";
+	    my $lentype = $e->first_child();
+	    if (defined $lentype) {
+		given ($lentype->name()) {
+		    when ('value') { $lencalc = $lentype->text(); }
+		    when ('fieldref') { $lencalc = 'f_'.$lentype->text(); }
+		    when ('op') { $lencalc = get_op($lentype); }
+		    when (['unop','popcount']) { $lencalc = get_unop($lentype); }
+		}
+	    }
+
+	    if ($basictype{$type} or $simpletype{$type}) {
+		my $list = $info->{'list'};
+		$regname .= ", $regname".'_item' if ($info->{'size'} > 1);
+		print $impl $indent."$list(tvb, offsetp, t, $regname, $lencalc, little_endian);\n";
+	    } elsif ($struct{$type}) {
+		print $impl $indent."struct_$info->{'name'}(tvb, offsetp, t, little_endian, $lencalc);\n";
+	    } else {
+		die ("Unrecognized type: $type\n");
+	    }
+
+	    if ($adjustlength && defined($lentype)) {
+	      # Some requests end with a list of unspecified length
+	      # Adjust the length field here so that the next $lencalc will be accurate
+	      say $impl $indent."length -= $lencalc * $info->{'size'};";
+	    }
+	}
+	when ('switch') {
+	    my $switchtype = $e->first_child() or die("Switch element not defined");
+
+	    my $switchon = get_ref($switchtype, {});
+	    my @elements = $e->children('bitcase');
+	    for my $case (@elements) {
+		my $ref = $case->first_child('enumref');
+		my $enum_ref = $ref->att('ref');
+		my $field = $ref->text();
+		my $bit = $enum{$enum_ref}{rbit}{$field};
+		if (! defined($bit)) {
+		    for my $foo (keys %{$enum{$enum_ref}{rbit}}) { say "'$foo'"; }
+		    die ("Field '$field' not found in '$enum_ref'");
+		}
+		$bit = "(1 << $bit)";
+		say $impl $indent."if (($switchon & $bit) != 0) {";
+
+		my $vp = $varpat;
+		my $hp = $humanpat;
+
+		$vp =~ s/%s/${field}_%s/;
+		$hp =~ s/%s/${field}.%s/;
+
+		my @sub_elements = $case->children(qr/pad|field|list|switch/);
+		foreach my $sub_e (@sub_elements) {
+		    register_element($sub_e, $vp, $hp, $indent . '    ');
+		}
+		foreach my $sub_e (@sub_elements) {
+		    $length = dissect_element($sub_e, $vp, $hp, $length, $adjustlength, $indent . '    ');
 		}
 
 		say $impl $indent."}";
-		say $impl $indent."*offsetp += $size;";
-	    } else {
-		print $impl $indent."f_$fieldname = $get(tvb, *offsetp);\n";
-		print $impl $indent."proto_tree_add_item(t, $regname, tvb, *offsetp, $size, little_endian);\n";
-		print $impl $indent."*offsetp += $size;\n";
-	    }
-	    $length += $size;
-	} elsif ($struct{$type}) {
-	    # TODO: variable-lengths (when $info->{'size'} == 0 )
-	    my $info = $struct{$type};
-	    $length += $info->{'size'};
-	    print $impl $indent."struct_$type(tvb, offsetp, t, little_endian, 1);\n";
-	} else {
-	    die ("Unrecognized type: $type\n");
-	}
-    } else {	# list
-	my $fieldname = $e->att('name');
-	my $regname = 'hf_x11_'.sprintf ($varpat, $fieldname);
-	my $type = $e->att('type');
-	$type =~ s/^.*://;
-
-	my $info = $basictype{$type} // $simpletype{$type} // $struct{$type};
-	my $lencalc = "(length - $length) / $info->{'size'}";
-	my $lentype = $e->first_child();
-	if (defined $lentype) {
-	    given ($lentype->name()) {
-		when ('value') { $lencalc = $lentype->text(); }
-		when ('fieldref') { $lencalc = 'f_'.$lentype->text(); }
-		when ('op') { $lencalc = get_op($lentype); }
 	    }
 	}
-
-	if ($basictype{$type} or $simpletype{$type}) {
-	    my $list = $info->{'list'};
-	    $regname .= ", $regname".'_item' if ($info->{'size'} > 1);
-	    print $impl $indent."$list(tvb, offsetp, t, $regname, $lencalc, little_endian);\n";
-	} elsif ($struct{$type}) {
-	    print $impl $indent."struct_$type(tvb, offsetp, t, little_endian, $lencalc);\n";
-	} else {
-	    die ("Unrecognized type: $type\n");
-	}
-
-	if ($adjustlength && defined($lentype)) {
-	  # Some requests end with a list of unspecified length
-	  # Adjust the length field here so that the next $lencalc will be accurate
-	  say $impl $indent."length -= $lencalc * $info->{'size'};";
-	}
+	default { die "Unknown field type: $_\n"; }
     }
     return $length;
 }
@@ -612,7 +693,7 @@ sub struct {
 	return;
     }
 
-    my @elements = $elt->children(qr/pad|field|list/);
+    my @elements = $elt->children(qr/pad|field|list|switch/);
 
     print(" - Struct $name\n");
 
@@ -624,30 +705,45 @@ sub struct {
     foreach my $e (@elements) {
 	my $count;
 	$count = 1;
-        if ($e->name() eq 'pad') {
-            my $bytes = $e->att('bytes');
-	    $size += $bytes;
-	    next;
-        } elsif ($e->name() eq 'list') {
-            my $type = $e->att('type');
-	    my $info = $basictype{$type} // $simpletype{$type} // $struct{$type};
-	    my $count;
-
-	    $needi = 1 if ($info->{'size'} == 0);
-
-	    if ($e->has_child('fieldref') || $e->has_child('op')) {
-		my $ref = $e->first_child('fieldref');
-		if (defined $ref) {
-		    $refs{$ref->text()} = 1;
-		} else {
-		    get_op($e->first_child('op'), \%refs);
-		}
-		$count = 0;
-		$dynamic = 1;
-	    } else {
-		$count = $e->first_child('value')->text();
+	given ($e->name()) {
+	    when ('pad') {
+		my $bytes = $e->att('bytes');
+		$size += $bytes;
+		next;
 	    }
-	} # else 'field'
+	    when ('list') {
+		my $type = $e->att('type');
+		my $info = $basictype{$type} // $simpletype{$type} // $struct{$type};
+		my $count;
+
+		$needi = 1 if ($info->{'size'} == 0);
+
+		my $value = $e->first_child();
+		given($value->name()) {
+		    when ('fieldref') {
+			$refs{$value->text()} = 1;
+			$count = 0;
+			$dynamic = 1;
+		    }
+		    when ('op') {
+			get_op($value, \%refs);
+			$count = 0;
+			$dynamic = 1;
+		    }
+		    when (['unop','popcount']) {
+			get_unop($value, \%refs);
+			$count = 0;
+			$dynamic = 1;
+		    }
+		    when ('value') {
+			$count = $value->text();
+		    }
+		    default { die("Invalid list size $_\n"); }
+		}
+	    }
+	    when ('field') { }
+	    default { die("unrecognized field $_\n"); }
+	}
 
 	my $type = $e->att('type');
 	my $info = $basictype{$type} // $simpletype{$type} // $struct{$type};
@@ -689,6 +785,7 @@ eot
 
 		    given ($len->name()) {
 			when ('op') { $sizemul = get_op($len, \%refs); }
+			when (['unop','popcount']) { $sizemul = get_unop($len, \%refs); }
 			when ('fieldref') { $sizemul = 'f_'.$len->text(); }
 			when ('value') {
 			    if ($infosize) {
@@ -756,11 +853,11 @@ eot
 ;
     my $length = 0;
     foreach my $e (@elements) {
-	$length = dissect_element($e, $varpat, $length, 0, "\t");
+	$length = dissect_element($e, $varpat, $humanpat, $length, 0, "\t");
     }
 
     print $impl "    }\n}\n";
-    $struct{$name} = { size => $size };
+    $struct{$name} = { size => $size, name => $name };
     $t->purge;
 }
 
@@ -787,7 +884,7 @@ sub union {
 	my $type = $e->att('type');
 	my $info = $basictype{$type} // $simpletype{$type} // $struct{$type};
 
-	$info->{'size'} > 0 or die ("Error: Union containing variable sized struct\n");
+	$info->{'size'} > 0 or die ("Error: Union containing variable sized struct $type\n");
 	push @sizes, $info->{'size'};
     }
     @sizes = sort {$b <=> $a} @sizes;
@@ -805,27 +902,33 @@ static void struct_$name(tvbuff_t *tvb, int *offsetp, proto_tree *root, int litt
     for (i = 0; i < count; i++) {
 	proto_item *item;
 	proto_tree *t;
-
-	item = proto_tree_add_item(root, hf_x11_union_$name, tvb, base, $size, little_endian);
-	t = proto_item_add_subtree(item, ett_x11_rectangle);
-
 eot
 ;
 
     my $varpat = 'union_'.$name.'_%s';
     my $humanpat = "union.$name.%s";
 
-    my $length = 0;
+    foreach my $e (@elements) {
+	register_element($e, $varpat, $humanpat, "\t");
+    }
+
+    print $impl <<eot
+	item = proto_tree_add_item(root, hf_x11_union_$name, tvb, base, $size, little_endian);
+	t = proto_item_add_subtree(item, ett_x11_rectangle);
+
+eot
+;
+
     foreach my $e (@elements) {
 	say $impl '        *offsetp = base;';
-	dissect_element($e, $varpat, 0, 0, "\t");
+	dissect_element($e, $varpat, $humanpat, 0, 0, "\t");
     }
     say $impl "        base += $size;";
     say $impl '    }';
     say $impl '    *offsetp = base;';
     say $impl '}';
 
-    $struct{$name} = { size => $size };
+    $struct{$name} = { size => $size, name => $name };
     $t->purge;
 }
 
@@ -844,7 +947,8 @@ sub enum {
 
     my $value = {};
     my $bit = {};
-    $enum{$name} = { value => $value, bit => $bit };
+    my $rbit = {};
+    $enum{$name} = { value => $value, bit => $bit, rbit => $rbit };
 
     my $nextvalue = 0;
 
@@ -860,6 +964,7 @@ sub enum {
 		}
 		when ('bit') {
 		    $$bit{$val} = $n;
+		    $$rbit{$n} = $val;
 		}
 	    }
 	} else {
@@ -879,7 +984,7 @@ sub request {
     $request{$elt->att('opcode')} = $name;
 
     my $length = 4;
-    my @elements = $elt->children(qr/pad|field|list/);
+    my @elements = $elt->children(qr/pad|field|list|switch/);
 
     # Wireshark defines _U_ to mean "Unused" (compiler specific define)
     if (!@elements) {
@@ -905,11 +1010,11 @@ eot
     }
 
     foreach my $e (@elements) {
-	if ($e->name() eq 'list' && $name eq 'Render' && $e->att('name') eq 'data' && -e 'mesa/src/mesa/glapi/gl_API.xml') {
+	if ($e->name() eq 'list' && $name eq 'Render' && $e->att('name') eq 'data' && -e "$mesadir/gl_API.xml") {
 	    # Special case: Use mesa-generated dissector for 'data'
 	    print $impl "    dispatch_glx_render(tvb, pinfo, offsetp, t, little_endian, (length - $length));\n";
 	} else {
-	    $length = dissect_element($e, $varpat, $length, 1);
+	    $length = dissect_element($e, $varpat, $humanpat, $length, 1);
 	}
     }
 
@@ -922,7 +1027,7 @@ eot
 	$varpat = $header.'_'.$name.'_reply_%s';
 	$humanpat = "$header.$name.reply.%s";
 
-	@elements = $reply->children(qr/pad|field|list/);
+	@elements = $reply->children(qr/pad|field|list|switch/);
 
 	# Wireshark defines _U_ to mean "Unused" (compiler specific define)
 	if (!@elements) {
@@ -944,7 +1049,7 @@ eot
 	my $first = 1;
 	my $length = 1;
 	foreach my $e (@elements) {
-	    $length = dissect_element($e, $varpat, $length);
+	    $length = dissect_element($e, $varpat, $humanpat, $length);
 	    if ($first) {
 		$first = 0;
 		say $impl '    sequence_number = VALUE16(tvb, *offsetp);';
@@ -989,7 +1094,13 @@ sub typedef {
 
     # Duplicate the type
     my $info = $basictype{$oldname} // $simpletype{$oldname};
-    $simpletype{$newname} = $info;
+    if ($info) {
+	$simpletype{$newname} = $info;
+    } elsif ($struct{$oldname}) {
+	$struct{$newname} = $struct{$oldname};
+    } else {
+	die ("$oldname not found while attempting to typedef $newname\n");
+    }
 
     $t->purge;
 }
@@ -1015,7 +1126,7 @@ sub event {
     $event{$elt->att('number')} = $name;
 
     my $length = 1;
-    my @elements = $elt->children(qr/pad|field|list/);
+    my @elements = $elt->children(qr/pad|field|list|switch/);
 
     # Wireshark defines _U_ to mean "Unused" (compiler specific define)
     if (!@elements) {
@@ -1043,7 +1154,7 @@ eot
 
     my $first = 1;
     foreach my $e (@elements) {
-	$length = dissect_element($e, $varpat, $length);
+	$length = dissect_element($e, $varpat, $humanpat, $length);
 	if ($first) {
 	    $first = 0;
 	    say $impl "    CARD16(event_sequencenumber);";
@@ -1243,7 +1354,7 @@ print $reg "\n/* Generated by $0 below this line */\n";
 print $decl "\n/* Generated by $0 below this line */\n";
 
 # Mesa for glRender
-if (-e 'mesa/src/mesa/glapi/gl_API.xml') {
+if (-e "$mesadir/gl_API.xml") {
     $enum = new IO::File '> x11-glx-render-enum.h'
 	    or die ("Cannot open x11-glx-render-enum.h for writing\n");
     add_generated_header($enum, 'mesa');
@@ -1263,7 +1374,7 @@ if (-e 'mesa/src/mesa/glapi/gl_API.xml') {
 		    'type' => \&mesa_type,
 		    'function' => \&mesa_function,
 		});
-    $xml->parsefile('mesa/src/mesa/glapi/gl_API.xml') or die ("Cannot open gl_API\n");
+    $xml->parsefile("$mesadir/gl_API.xml") or die ("Cannot open gl_API\n");
 
     print $enum "    { 0, NULL }\n";
     print $enum "};\n";
