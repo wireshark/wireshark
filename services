@@ -1,18 +1,18 @@
 # This is a local copy of the IANA port-numbers file.
 #
-# Wireshark uses it to resolve port numbers into human readable 
+# Wireshark uses it to resolve port numbers into human readable
 # service names, e.g. TCP port 80 -> http.
 #
 # It is subject to copyright and being used with IANA's permission:
 # http://www.wireshark.org/lists/wireshark-dev/200708/msg00160.html
 #
-# The original file can be found at: 
+# The original file can be found at:
 # http://www.iana.org/assignments/port-numbers
 #
 
 PORT NUMBERS
 
-(last updated 2009-09-30)
+(last updated 2010-04-19)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -71,7 +71,7 @@ its contact port.  The contact port is sometimes called the
 To the extent possible, these same port assignments are used with the
 UDP [RFC768].
 
-The range for assigned ports managed by the IANA is 0-1023.
+The range for well-known ports managed by the IANA is 0-1023.
 
 Port Assignments:
 
@@ -257,8 +257,8 @@ xns-mail         58/udp    XNS Mail
                  59/tcp    any private file service
                  59/udp    any private file service
 #                          Jon Postel <postel&isi.edu>
-                 60/tcp    Unassigned
-                 60/udp    Unassigned
+#                60/tcp    Unassigned
+#                60/udp    Unassigned
 ni-mail          61/tcp    NI MAIL
 ni-mail          61/udp    NI MAIL
 #                          Steve Kille <S.Kille&isode.com>
@@ -451,7 +451,8 @@ smakynet        122/udp    SMAKYNET
 #                          Pierre Arnaud <pierre.arnaud&iname.com>
 ntp             123/tcp    Network Time Protocol
 ntp             123/udp    Network Time Protocol
-#                          Dave Mills <Mills&HUEY.UDEL.EDU>
+#                          Dave Mills <mills&udel.edu>
+#                          [RFC-ietf-ntp-ntpv4-proto-13.txt]
 ansatrader      124/tcp    ANSA REX Trader
 ansatrader      124/udp    ANSA REX Trader
 #                          Nicola J. Howarth <njh&ansa.co.uk>
@@ -1035,9 +1036,10 @@ meta5           393/udp    Meta5
 embl-ndt        394/tcp    EMBL Nucleic Data Transfer
 embl-ndt        394/udp    EMBL Nucleic Data Transfer
 #                          Peter Gad <peter&bmc.uu.se>
-netcp           395/tcp    NETscout Control Protocol
-netcp           395/udp    NETscout Control Protocol
-#                          Anil Singhal <---none--->
+netcp           395/tcp    NetScout Control Protocol
+netcp           395/udp    NetScout Control Protocol
+#                          Old contact: Anil Singhal <---none--->
+#                          Current contact: Ashwani Singhal <Ashwani.Singhal&netscout.com> 07 April 2010
 netware-ip      396/tcp    Novell Netware over IP
 netware-ip      396/udp    Novell Netware over IP
 mptn            397/tcp    Multi Protocol Trans. Net.
@@ -1081,7 +1083,7 @@ prm-nm          409/udp    Prospero Resource Manager Node Man.
 #                          B. Clifford Neuman <bcn&isi.edu>
 decladebug      410/tcp    DECLadebug Remote Debug Protocol
 decladebug      410/udp    DECLadebug Remote Debug Protocol
-#                          Anthony Berent <anthony.berent&reo.mts.dec.com>
+#                          Hewlett-Packard <-TBA->
 rmt             411/tcp    Remote MT Protocol
 rmt             411/udp    Remote MT Protocol
 #                          Peter Eriksson <pen&lysator.liu.se>
@@ -2970,11 +2972,12 @@ healthd         1281/udp   healthd
 emperion        1282/tcp   Emperion
 emperion        1282/udp   Emperion
 #                          Claus Thor Barth <iana&barth.dk>
-productinfo     1283/tcp   ProductInfo
-productinfo     1283/udp   ProductInfo
+productinfo     1283/tcp   Product Information 
+productinfo     1283/udp   Product Information 
 iee-qfx         1284/tcp   IEE-QFX
 iee-qfx         1284/udp   IEE-QFX
-#                          Kevin D. Quitt <KQuitt&IEEInc.com>
+#                          Previous contact: Kevin D. Quitt <KQuitt&IEEInc.com>
+#                          Current contact: Mehrdad Ashtiani <mashtiani&ieeinc.com> 19 October 2009
 neoiface        1285/tcp   neoiface
 neoiface        1285/udp   neoiface
 #                          Jason McManus <jasonm&neoinformatics.com>
@@ -3490,7 +3493,7 @@ csdmbase        1467/tcp    CSDMBASE
 csdmbase        1467/udp    CSDMBASE  
 csdm            1468/tcp    CSDM      
 csdm            1468/udp    CSDM      
-#               Robert Stabl <stabl&informatik.uni-muenchen.de>
+#                           Robert Stabl <stabl&informatik.uni-muenchen.de>
 aal-lm          1469/tcp    Active Analysis Limited License Manager
 aal-lm          1469/udp    Active Analysis Limited License Manager
 #                           David Snocken  +44 (71)437-7009
@@ -3501,7 +3504,7 @@ csdmbase        1471/tcp    csdmbase
 csdmbase        1471/udp    csdmbase   
 csdm            1472/tcp    csdm       
 csdm            1472/udp    csdm       
-#               Robert Stabl <stabl&informatik.uni-muenchen.de>
+#                           Robert Stabl <stabl&informatik.uni-muenchen.de>
 openmath        1473/tcp    OpenMath   
 openmath        1473/udp    OpenMath   
 #                           Garth Mayville <mayville&maplesoft.on.ca>
@@ -3510,7 +3513,7 @@ telefinder      1474/udp    Telefinder
 #                           Jim White <Jim_White&spiderisland.com>
 taligent-lm     1475/tcp    Taligent License Manager  
 taligent-lm     1475/udp    Taligent License Manager  
-#               Mark Sapsford <Mark_Sapsford@@taligent.com>
+#                           Mark Sapsford <Mark_Sapsford@@taligent.com>
 clvm-cfg        1476/tcp    clvm-cfg  
 clvm-cfg        1476/udp    clvm-cfg  
 #                           Eric Soderberg <seric&cup.hp.com>
@@ -4610,9 +4613,10 @@ sunscalar-svc	1860/udp    SunSCALAR Services
 lecroy-vicp	1861/tcp    LeCroy VICP
 lecroy-vicp	1861/udp    LeCroy VICP
 #			    Anthony Cake <anthonyrc&lecroy.com>
-techra-server	1862/tcp    techra-server
-techra-server	1862/udp    techra-server
-#			    Roy Lyseng <roy.lyseng&maxware.no>
+mysql-cm-agent  1862/tcp    MySQL Cluster Manager Agent
+mysql-cm-agent  1862/udp    MySQL Cluster Manager Agent
+#			    Old contact: Roy Lyseng <roy.lyseng&maxware.no>
+#                           Current contact: Andrew Morgan <andrew.morgan&sun.com> 08 December 2009
 msnp		1863/tcp    MSNP
 msnp		1863/udp    MSNP
 #			    William Lai <wlai&microsoft.com>
@@ -5113,7 +5117,6 @@ dls		2047/udp
 dls-monitor	2048/tcp
 dls-monitor	2048/udp
 #                         <== NOTE Conflict on 2049 !
-#                         <== NOTE Conflict on 2049 !
 # We resolve the conflict by commenting out the "shilp" entry; I can't
 # find much about "shilp" with Google, and there's no reference for it,
 # but NFS is a very well-known protocol and used a lot.
@@ -5123,7 +5126,7 @@ nfs             2049/tcp   Network File System - Sun Microsystems
 nfs             2049/udp   Network File System - Sun Microsystems
 #                          Brent Callaghan <brent&terra.eng.sun.com>
 nfs             2049/sctp  Network File System
-#                          [RFC-draft-ietf-nfsv4-rpc-netid-06.txt]
+#                          [RFC5665]
 av-emb-config   2050/tcp   Avaya EMB Config Port
 av-emb-config   2050/udp   Avaya EMB Config Port
 #                          John Yeager <johnyeager&avaya.com>
@@ -6019,7 +6022,7 @@ dbref           2365/udp   dbref
 #                          Yoshihiro Yamazaki <yamazaki&ael.fujitsu.co.jp>
 qip-login       2366/tcp   qip-login
 qip-login       2366/udp   qip-login
-#			               Mike Morgan <mmorgan&lucent.com>
+#			Mike Morgan <mmorgan&lucent.com>
 service-ctrl	2367/tcp   Service Control
 service-ctrl	2367/udp   Service Control
 #                          Humberto Sanchez <Humberto_Sanchez&hp.com>
@@ -7549,6 +7552,7 @@ m3ua            2905/tcp   M3UA
 #               2905/udp   De-registered (2001 June 07)
 m3ua            2905/sctp  M3UA
 #                          Lyndon Ong <LyOng&ciena.com>
+#                          [RFC4666]
 caller9         2906/tcp   CALLER9
 caller9         2906/udp   CALLER9
 #                          Shams Naqi <SSNAQVI&aol.com>
@@ -7671,9 +7675,10 @@ h248-binary	2945/sctp  Megaco/H.248 binary
 fjsvmpor        2946/tcp   FJSVmpor
 fjsvmpor        2946/udp   FJSVmpor
 #                          Naoki Hayashi <ha&fjh.se.fujitsu.co.jp>
-gpsd            2947/tcp   GPSD
-gpsd            2947/udp   GPSD
-#                          Derrick J. Brashear <shadow&dementia.org>
+gpsd            2947/tcp   GPS Daemon request/response protocol
+gpsd            2947/udp   GPS Daemon request/response protocol
+#                          Previous contact: Derrick J. Brashear <shadow&dementia.org>
+#                          Current contact: Eric S. Raymond <esr&thyrsus.com> 19 April 2010
 wap-push        2948/tcp   WAP PUSH
 wap-push        2948/udp   WAP PUSH
 wap-pushsecure  2949/tcp   WAP PUSH SECURE
@@ -8484,12 +8489,12 @@ global-cd-port  3229/udp   Global CD Port
 sftdst-port     3230/tcp   Software Distributor Port
 sftdst-port     3230/udp   Software Distributor Port
 #                          Andrea Lanza <andrea.lanza&frameweb.it>
-dsnl            3231/tcp   Delta Solutions Direct
-dsnl            3231/udp   Delta Solutions Direct
+vidigo          3231/tcp   VidiGo communication (previous was: Delta Solutions Direct)
+vidigo          3231/udp   VidiGo communication (previous was: Delta Solutions Direct)
 #                          Peter Ijkhout <peter&deltasolutions.nl>
 mdtp            3232/tcp   MDT port
 mdtp            3232/udp   MDT port
-#                          IJsbrand Wijnands <ice&cisco.com>
+#                          [RFC-ietf-l3vpn-2547bis-mcast-10.txt]
 whisker         3233/tcp   WhiskerControl main port
 whisker         3233/udp   WhiskerControl main port
 #                          Rudolf Cardinal <rudolf&pobox.com> February 2002
@@ -9165,6 +9170,9 @@ ecomm           3477/udp   eComm link port
 stun            3478/tcp   Session Traversal Utilities for NAT (STUN) port
 stun            3478/udp   Session Traversal Utilities for NAT (STUN) port
 #                          [RFC5389]
+turn            3478/tcp   TURN over TCP
+turn            3478/udp   TURN over UDP
+#                          [RFC-ietf-behave-turn-16.txt]
 twrpc           3479/tcp   2Wire RPC
 twrpc           3479/udp   2Wire RPC
 #                          2Wire IANA Contact <iana&2wire.com> April 2002
@@ -9356,7 +9364,7 @@ qftest-lookup   3543/udp   qftest Lookup Port
 #                          Gregor Schmid <gs&qfs.de> July 2002
 teredo          3544/tcp   Teredo Port
 teredo          3544/udp   Teredo Port
-#                          Dave Thaler <dthaler&microsoft.com> July 2002
+#                          [RFC4380]
 camac           3545/tcp   CAMAC equipment
 camac           3545/udp   CAMAC equipment
 #                          Eugene Zhiganov <zed&dfe3300.karelia.ru> July 2002
@@ -9670,7 +9678,7 @@ vxcrnbuport     3652/udp   VxCR NBU Default Port
 tsp             3653/tcp   Tunnel Setup Protocol
 tsp             3653/udp   Tunnel Setup Protocol
 #                          Marc Blanchet <marc.blanchet&viagenie.ca> January 2003
-#                          [RFC-blanchet-v6ops-tunnelbroker-tsp-04.txt] 
+#                          [RFC5572] 
 vaprtm          3654/tcp   VAP RealTime Messenger
 vaprtm          3654/udp   VAP RealTime Messenger
 #                          Boris Polevoy <vapcom&mail.ru> January 2003
@@ -10048,9 +10056,10 @@ bim-pem         3783/udp   Impact Mgr./PEM Gateway
 #                          Walter G. Giroir <walt_giroir&bmc.com> July 2003
 bfd-control     3784/tcp   BFD Control Protocol
 bfd-control     3784/udp   BFD Control Protocol
+#                          [RFC-ietf-bfd-v4v6-1hop-10.txt]
 bfd-echo        3785/tcp   BFD Echo Protocol 
 bfd-echo        3785/udp   BFD Echo Protocol
-#                          Dave Katz <dkatz&juniper.net> Dave Ward <dward&cisco.com> July 2003
+#                          [RFC-ietf-bfd-v4v6-1hop-10.txt]
 upstriggervsw   3786/tcp   VSW Upstrigger port
 upstriggervsw   3786/udp   VSW Upstrigger port
 #                          Mark-Tim Junghanns <mjunghanns&vangerow.de> July 2003
@@ -11162,7 +11171,19 @@ iadt-disc       4169/udp   Internet ADT Discovery Protocol
 d-cinema-csp    4170/tcp   SMPTE Content Synchonization Protocol
 #                          Michael Karagosian <michael.karagosian&mkpe.com> 04 September 2008
 #               4170/udp   Reserved
-#               4171-4176  Unassigned
+ml-svnet        4171/tcp   Maxlogic Supervisor Communication
+#                          Taha Paksu <tahapaksu&mavili.com.tr> 21 December 2009
+#               4171/udp   Reserved
+pcoip           4172/tcp   PC over IP
+pcoip           4172/udp   PC over IP
+#                          Ken Unger <kunger&teradici.com> 23 December 2009
+#               4173-4174  Unassigned
+bccp            4175/tcp   Brocade Cluster Communication Protocol
+#                          Norival Figueira <nfigueir&brocade.com> 07 April 2010
+#               4175/udp   Reserved
+tl-ipcproxy     4176/tcp   Translattice Cluster IPC Proxy
+#                          Michael Lyle <protocols&translattice.com> 03 November 2009
+#               4176/udp   Reserved
 wello		4177/tcp   Wello P2P pubsub service
 wello		4177/udp   Wello P2P pubsub service
 #			   Christian Westbrook <cw&wellohorld.com> 15 November 2007
@@ -11209,7 +11230,14 @@ sieve           4190/tcp   ManageSieve Protocol
 #               4191/tcp   Reserved
 dsmipv6         4191/udp   Dual Stack MIPv6 NAT Traversal
 #                          [RFC5555]
-#               4192-4198  Unassigned
+azeti           4192/tcp   Azeti Agent Service
+#                          Uwe Holz <uwe.holz&azeti.net> 09 November 2009
+azeti-bd        4192/udp   azeti blinddate
+#                          Michael Werski <michael.werski&azeti.net> 18 February 2010
+pvxplusio       4193/tcp   PxPlus remote file srvr
+#                          Mike King <mike.king&pvxplus.com> 09 November 2009
+#               4193/udp   Reserved 
+#               4194-4198  Unassigned
 eims-admin      4199/tcp   EIMS ADMIN
 eims-admin      4199/udp   EIMS ADMIN
 #                          Glenn Anderson <glenn&qualcomm.co.nz> 
@@ -11247,7 +11275,16 @@ dserver		4309/udp   Exsequi Appliance Discovery
 mirrtex         4310/tcp   Mir-RT exchange service 
 mirrtex         4310/udp   Mir-RT exchange service 
 #                          Sylvain Robert <sylvain.robert&datadis.com> 14 February 2008
-#		4311-4319  Unassigned
+p6ssmc          4311/tcp   P6R Secure Server Management Console
+#                          Jim Susoy <jim.susoy&p6r.com> 21 January 2010
+#               4311/udp   Reserved
+pscl-mgt        4312/tcp   Parascale Membership Manager
+#                          John Muth <muth&parascale.com> 21 January 2010
+#               4312/udp   Reserved
+perrla          4313/tcp   PERRLA User Services
+#                          Cliff Batson <cliff&perrla.com> 21 January 2010
+#               4313/udp   Reserved
+#		4314-4319  Unassigned
 fdt-rcatp	4320/tcp   FDT Remote Categorization Protocol
 fdt-rcatp	4320/udp   FDT Remote Categorization Protocol
 #			   Russell P. Holsclaw, Fast Data Technology, Inc. <rholsclaw&fastdatatech.com> March 2006
@@ -11347,12 +11384,16 @@ epmd            4369/udp   Erlang Port Mapper Daemon
 elpro_tunnel    4370/tcp   ELPRO V2 Protocol Tunnel
 elpro_tunnel    4370/udp   ELPRO V2 Protocol Tunnel
 #                          Harry Courtice <harry.courtice&elprotech.com> 14 April 2008
-l2c-connect     4371/tcp   LAN 2 CAN connection service
+l2c-control     4371/tcp   LAN2CAN Control
 #                          Phil Tolson <philtolson&eaton.com> 07 July 2008
-#               4371/udp   Reserved
-l2c-info        4372/tcp   LAN 2 CAN information service 
+#                          Modified: 21 January 2010
+l2c-disc        4371/udp   LAN2CAN Discovery
+#                          Phil Tolson <philtolson&eaton.com> 21 January 2010
+l2c-data        4372/tcp   LAN2CAN Data
 #                          Phil Tolson <philtolson&eaton.com> 07 July 2008
-#               4372/udp   Reserved
+#                          Modified: 21 January 2010
+l2c-data        4372/udp   LAN2CAN Data
+#                          Phil Tolson <philtolson&eaton.com> 21 January 2010
 remctl		4373/tcp   Remote Authenticated Command Service
 remctl		4373/udp   Remote Authenticated Command Service
 #			   Russ Allbery <rra&stanford.edu> 30 August 2007
@@ -11421,7 +11462,13 @@ nacagent        4407/tcp   Network Access Control Agent
 slscc           4408/tcp   SLS Technology Control Centre
 #                          Steven Sweeting <ssweeting&sls-technology.com> 28 January 2008
 #               4408/udp   Reserved
-#               4409-4425  Unassigned
+netcabinet-com  4409/tcp   Net-Cabinet comunication
+#                          Ian Manning <ian&baycastle.co.uk> 16 December 2009
+#               4409/udp   Reserved
+itwo-server     4410/tcp   RIB iTWO Application Server
+#                          Kristean Heisler <Kristean.Heisler&rib-software.com> 16 December 2009
+#               4410/udp   Reserved
+#               4411-4425  Unassigned
 beacon-port-2   4426/tcp   SMARTS Beacon Port
 beacon-port-2   4426/udp   SMARTS Beacon Port
 #                          Eyal Yardeni <eyal.yardeni&smarts.com> November 2003
@@ -11516,8 +11563,8 @@ ehs-ssl         4536/udp   Event Heap Server SSL
 wssauthsvc      4537/tcp   WSS Security Service
 wssauthsvc      4537/udp   WSS Security Service
 #			   Mark Tirschwell <mark.tirschwell&wallstreetsystems.com> January 2006
-isigate		4538/tcp   isigate
-isigate		4538/udp   isigate
+swx-gate        4538/tcp   Software Data Exchange Gateway
+swx-gate        4538/udp   Software Data Exchange Gateway
 #			   Julien VALIENTE <j.valiente&objectif-software.com> May 2006
 #               4539-4544  Unassigned
 worldscores	4545/tcp   WorldScores
@@ -11540,7 +11587,7 @@ gds-adppiw-db	4550/udp   Perman I Interbase Server
 #			   Leo Lesage <leo.lesage&adp.nl> April 2006
 ieee-mih        4551/tcp   MIH Services
 ieee-mih        4551/udp   MIH Services
-#                          [RFC-ietf-mipshop-mstp-solution-12.txt]
+#                          [RFC5677]
 menandmice-mon  4552/tcp   Men and Mice Monitoring
 menandmice-mon  4552/udp   Men and Mice Monitoring
 #                          Carsten Strotmann <carsten.strotmann&menandmice.com> 20 May 2009
@@ -11577,7 +11624,7 @@ bmc-reporting   4568/udp   BMC Reporting
 #                          Portnoy Boxman <portnoy_boxman&bmc.com>
 iax             4569/tcp   Inter-Asterisk eXchange
 iax             4569/udp   Inter-Asterisk eXchange
-#                          [RFC-guy-iax-05.txt]
+#                          [RFC5456]
 #               4570-4590  Unassigned
 l3t-at-an       4591/tcp   HRPD L3T (AT-AN)
 l3t-at-an       4591/udp   HRPD L3T (AT-AN)
@@ -11611,7 +11658,10 @@ piranha2        4601/udp   Piranha2
 mtsserver       4602/tcp   EAX MTS Server
 #                          Pedro A Rodriguez <pedro.rdz&eaxtechnologies.com.mx> 06 August 2008
 #               4602/udp   Reserved
-#               4603-4657  Unassigned
+menandmice-upg  4603/tcp   Men & Mice Upgrade Agent
+#                          Eggert Thorlacius  <eggi&menandmice.com> 27 January 2010
+#               4603/udp   Reserved
+#               4604-4657  Unassigned
 playsta2-app    4658/tcp   PlayStation2 App Port
 playsta2-app    4658/udp   PlayStation2 App Port
 playsta2-lob    4659/tcp   PlayStation2 Lobby Port
@@ -11734,7 +11784,13 @@ gearman         4730/udp   Gearman Job Queue System
 remcap          4731/tcp   Remote Capture Protocol
 #                          Marc Donner <mail&poweraudio.de> 16 January 2009
 #               4731/udp   Reserved
-#               4732-4736  Unassigned
+#               4732/tcp   Reserved
+ohmtrigger      4732/udp   OHM server trigger
+#                          Franck Lefevre <franck.lefevre&digitalairways.com> 18 November 2009
+resorcs         4733/tcp   RES Orchestration Catalog Services
+#                          Bob Janssen <b.janssen&ressoftware.com>  18 November 2009
+#               4733/udp   Reserved
+#               4734-4736  Unassigned
 ipdr-sp         4737/tcp   IPDR/SP
 ipdr-sp         4737/udp   IPDR/SP
 #                          Ken Sarno <kensarno&insightbb.com> August 2005
@@ -11788,7 +11844,10 @@ cncp            4785/udp   Cisco Nexus Control Protocol
 smart-install   4786/tcp   Smart Install Service
 #                          Amit Nigam <amnigam&cisco.com> 24 August 2009
 #               4786/udp   Reserved
-#               4787-4799  Unassigned
+sia-ctrl-plane  4787/tcp   Service Insertion Architecture (SIA) Control-Plane
+#                          Shree Murthy <shree&cisco.com> 29 October 2009
+#               4787/udp   Reserved
+#               4788-4799  Unassigned
 iims            4800/tcp   Icona Instant Messenging System
 iims            4800/udp   Icona Instant Messenging System
 iwec            4801/tcp   Icona Web Embedded Chat
@@ -11861,7 +11920,19 @@ cc-tracking     4870/udp   Citcom Tracking Service
 wired           4871/tcp   Wired
 wired           4871/udp   Wired
 #			   Axel Andersson <axel&zankasoftware.com> February 2006
-#               4872-4883  Unassigned
+#               4872-4879  Unassigned
+hislip          4880/tcp   IVI High-Speed LAN Instrument Protocol
+#                          Joe Mueller <joe_mueller&agilent.com> 11 January 2010
+#               4880/udp   Reserved
+#               4881/tcp   Reserved
+socp-t          4881/udp   SOCP Time Synchronization Protocol
+#                          Joe Haver <joe_haver&agilent.com> 22 March 2010
+#               4882/tcp   Reserved
+socp-c          4882/udp   SOCP Control Protocol
+#                          Joe Haver <joe_haver&agilent.com> 22 March 2010
+wmlserver       4883/tcp   Meier-Phelps License Server
+#                          William Phelps <william&meier-phelps.com> 22 March 2010
+#               4883/udp   Reserved
 hivestor        4884/tcp   HiveStor Distributed File System
 hivestor        4884/udp   HiveStor Distributed File System
 #                          Nicholas Young <ntchkd&gmail.com> 10 July 2008 
@@ -11922,7 +11993,10 @@ pwgwims         4951/udp   PWG WIMS
 sagxtsds        4952/tcp   SAG Directory Server
 sagxtsds        4952/udp   SAG Directory Server
 #			   Michael Chirila <Michael.Chirila&softwareag.com> January 2006
-#               4953-4968  Unassigned
+dbsyncarbiter   4953/tcp   Synchronization Arbiter
+#                          Dave Neudoerffer <dave.neudoerffer&sybase.com> 18 November 2009
+#               4953/udp   Reserved
+#               4954-4968  Unassigned
 ccss-qmm        4969/tcp   CCSS QMessageMonitor
 ccss-qmm        4969/udp   CCSS QMessageMonitor
 ccss-qsm        4970/tcp   CCSS QSystemMonitor
@@ -11997,7 +12071,10 @@ fmpro-v6	5013/udp   FileMaker, Inc. - Proprietary transport
 #               5014/tcp   Reserved
 onpsocket       5014/udp   Overlay Network Protocol
 #                          Roger Matthias <rogermatthias&Yahoo.co.uk> 24 August 2009
-#               5015-5019  Unassigned
+fmwp            5015/tcp   FileMaker, Inc. - Web publishing
+#                          Alex Chen <alex_chen&filemaker.com> 25 November 2009
+#               5015/udp   Reserved
+#               5016-5019  Unassigned
 zenginkyo-1     5020/tcp   zenginkyo-1
 zenginkyo-1     5020/udp   zenginkyo-1
 zenginkyo-2     5021/tcp   zenginkyo-2
@@ -12030,7 +12107,7 @@ surfpass	5030/udp   SurfPass
 #			   Olivier Guezenec <olivier.guezenec&cogilab.com> December 2006
 #               5031/tcp   Reserved
 dmp             5031/udp   Direct Message Protocol
-#                           Gjermund Wallenius <gwallenius&ndlocis.mil.no> 30 September 2009
+#                          Gjermund Wallenius <gwallenius&ndlocis.mil.no> 30 September 2009
 #               5032-5041  Unassigned
 asnaacceler8db  5042/tcp   asnaacceler8db
 asnaacceler8db  5042/udp   asnaacceler8db
@@ -12041,7 +12118,10 @@ swxadmin        5043/udp   ShopWorX Administration
 lxi-evntsvc     5044/tcp   LXI Event Service
 lxi-evntsvc     5044/udp   LXI Event Service
 #                          Nick Barendt <nbarendt&vxitech.com> August 2005
-#               5045-5048  Unassigned 
+osp             5045/tcp   Open Settlement Protocol
+#                          Dmitry Isakbayev <dmitry&transnexus.com> 05 March 2010
+#               5045/udp   Reserved
+#               5046-5048  Unassigned 
 ivocalize	5049/tcp   iVocalize Web Conference
 ivocalize	5049/udp   iVocalize Web Conference
 #			   Bryan Vergato <iana&ivocalize.com> May 2006
@@ -12078,7 +12158,12 @@ sip             5060/udp   SIP
 sip-tls         5061/tcp   SIP-TLS
 sip-tls         5061/udp   SIP-TLS
 #                          Henning Schulzrinne <hgs&cs.columbia.edu>
-#               5062-5063  Unassigned
+na-localise     5062/tcp   Localisation access
+na-localise     5062/udp   Localisation access
+#                          Jean-Pierre Garcia <jp.garcia&netia.com> 28 October 2009
+csrpc           5063/tcp   centrify secure RPC
+#                          Paul Moore <paul.moore&centrify.com> 28 October 2009
+#               5063/udp   Reserved
 ca-1            5064/tcp   Channel Access 1
 ca-1            5064/udp   Channel Access 1
 ca-2            5065/tcp   Channel Access 2
@@ -12142,7 +12227,10 @@ magpie          5092/udp   Magpie Binary
 sentinel-lm     5093/tcp   Sentinel LM
 sentinel-lm     5093/udp   Sentinel LM
 #                          Derick Snyder <dsnyder&rainbow.com>
-#               5094-5098  Unassigned 
+hart-ip         5094/tcp   HART-IP
+hart-ip         5094/udp   HART-IP
+#                          Wally Pratt Jr <wallyp&hartcomm.org> 02 March 2010
+#               5095-5098  Unassigned 
 sentlm-srv2srv  5099/tcp   SentLM Srv2Srv
 sentlm-srv2srv  5099/udp   SentLM Srv2Srv
 #                          Derick Snyder <dsnyder&rainbow.com>
@@ -12181,7 +12269,15 @@ gradecam        5117/tcp   GradeCam Image Processing
 nbt-pc          5133/tcp   Policy Commander
 nbt-pc          5133/udp   Policy Commander
 #                          Emily Harris <eharris&newboundary.com> November 2004
-#               5134-5136  Unassigned
+ppactivation    5134/tcp   PP ActivationServer
+#                          Ian Bradley <development&pocketprograms.com> 14 October 2009
+#               5134/udp   Reserved
+erp-scale       5135/tcp   ERP-Scale 
+#                          Ian Bradley <development&pocketprograms.com> 14 October 2009
+#               5135/udp   Reserved
+#               5136/tcp   Reserved
+minotaur-sa     5136/udp   Minotaur SA
+#                          Kenneth Flynn <flynnk&darkcornersoftware.com> 14 October 2009
 ctsd            5137/tcp   MyCTS server port
 ctsd            5137/udp   MyCTS server port
 #                          Jilles Oldenbeuving <ojilles&hotmail.com> June 2002
@@ -12245,7 +12341,10 @@ aol-2           5192/udp   AmericaOnline2
 aol-3           5193/tcp   AmericaOnline3
 aol-3           5193/udp   AmericaOnline3
 #                          Bruce Mackey <BAMackey&aol.com>
-#               5194-5199  Unassigned
+cpscomm         5194/tcp   CipherPoint Config Service
+#                          CipherPoint Software, inc. <wshea&cipherpointsoftware.com> 03 March 2010
+#               5194/udp   Reserved
+#               5195-5199  Unassigned
 targus-getdata  5200/tcp   TARGUS GetData 
 targus-getdata  5200/udp   TARGUS GetData  
 targus-getdata1 5201/tcp   TARGUS GetData 1
@@ -12327,11 +12426,19 @@ xmpp-server     5269/udp   XMPP Server Connection
 xmp             5270/tcp   Cartographer XMP
 xmp             5270/udp   Cartographer XMP
 #                          Bobby Krupczak <rdk&krupczak.org> 03 April 2008 
-#               5271       Unassigned 
+cuelink         5271/tdp   StageSoft CueLink messaging
+cuelink-disc    5271/udp   StageSoft CueLink discovery
+#                          Todd Pichler <todd.pichler&stagesoft.com> 26 March 2010
 pk              5272/tcp   PK
 pk              5272/udp   PK
 #                          Patrick Kara <Patrick&EBA.NET>
-#               5273-5281  Unassigned
+#               5273-5279  Unassigned
+xmpp-bosh       5280/tcp   Bidirectional-streams Over Synchronous HTTP (BOSH)
+#                          Peter Saint-Andre <stpeter&stpeter.im> 25 November 2009
+#               5280/udp   Reserved
+undo-lm         5281/tcp   Undo License Manager
+#                          Julian Smith <jsmith&undo-software.com> 19 April 2010
+#               5281/udp   Reserved
 transmit-port   5282/tcp   Marimba Transmitter Port
 transmit-port   5282/udp   Marimba Transmitter Port
 #                          Johan Eriksson <johan&marimba.com> April 2002
@@ -12405,6 +12512,9 @@ xkotodrcp	5344/udp   xkoto DRCP
 stuns           5349/tcp   STUN over TLS
 stuns           5349/udp   Reserved for a future enhancement of STUN
 #                          [RFC5389]
+turns           5349/tcp   TURN over TLS
+turns           5349/udp   Reserved for a future enhancement of TURN
+#                          [RFC-ietf-behave-turn-16.txt]
 nat-pmp-status	5350/tcp   NAT-PMP Status Announcements
 nat-pmp-status	5350/udp   NAT-PMP Status Announcements
 #			   Stuart Cheshire <cheshire&apple.com> 03 December 2007
@@ -12558,7 +12668,13 @@ sgi-arrayd      5434/udp   SGI Array Services Daemon
 sceanics        5435/tcp   SCEANICS situation and action notification
 sceanics        5435/udp   SCEANICS situation and action notification
 #                          Richard Olsen <olsen.richard&yahoo.com>
-#               5436-5442  Unassigned
+#               5436/tcp   Reserved
+                5436/udp   pmip6-cntl
+#                          [RFC-ietf-netlmm-pmip6-ipv4-support-18.txt]
+#               5437/tcp   Reserved
+                5437/udp   pmip6-data
+#                          [RFC-ietf-netlmm-pmip6-ipv4-support-18.txt]
+#               5438-5442  Unassigned
 spss            5443/tcp   Pearson HTTPS
 spss            5443/udp   Pearson HTTPS
 #                          Pearson <chad.smith&pearson.com> 17 January 2008
@@ -12638,7 +12754,10 @@ sdmmp		5573/udp   SAS Domain Management Messaging Protocol
 lsi-bobcat      5574/tcp   SAS IO Forwarding
 #                          Mandar Joshi <mandar.joshi&lsi.com> 09 February 2009 
 #               5574/udp   Reserved
-#               5575-5578  Unassigned
+ora-oap         5575/tcp   Oracle Access Protocol
+#                          Peter Povinec <peter.povinec&oracle.com> 13 April 2010
+#               5575/udp   Reserved
+#               5576-5578  Unassigned
 fdtracks        5579/tcp   FleetDisplay Tracking Service
 #                          Henrik Woffinden <hw&nitramlexa.com> 22 September 2008
 #               5579/udp   Unassigned
@@ -12795,7 +12914,9 @@ ms-ilm-sts      5726/tcp   Microsoft Lifecycle Manager Secure Token Service
 asgenf          5727/tcp   ASG Event Notification Framework
 #                          Arman Bedonian <Arman.Bedonian&asg.com> 15 July 2009
 #               5727/udp   Reserved
-#               5728-5728  Unassigned
+io-dist-data    5728/tcp   Dist. I/O Comm. Service Data and Control
+io-dist-group   5728/udp   Dist. I/O Comm. Service Group Membership
+#                          Harish Kuttan <harish.k&hp.com> 22 March 2010
 openmail        5729/tcp   Openmail User Agent Layer
 openmail        5729/udp   Openmail User Agent Layer
 #                          OpenMail Encyclopedia <opencyc&hpopd.pwd.hp.com>
@@ -12867,11 +12988,16 @@ vts-rpc         5780/tcp   Visual Tag System RPC
 3par-mgmt-ssl   5783/tcp   3PAR Management Service with SSL
 3par-mgmt-ssl   5783/udp   3PAR Management Service with SSL
 #                          Don Marselle <don.marselle&3par.com> 19 March 2008
-#               5784       Unassigned
+#               5784/tcp   Reserved
+ibar            5784/udp   Cisco Interbox Application Redundancy
+#                          Cullen Jennings <fluffy&cisco.com> 03 February 2010
 3par-rcopy      5785/tcp   3PAR Inform Remote Copy
 3par-rcopy      5785/udp   3PAR Inform Remote Copy
 #                          Don Marselle <don.marselle&3Par.com> 09 April 2008
-#               5786-5792  Unassigned
+#               5786/tcp   Reserved
+cisco-redu      5786/udp   redundancy notification
+#                          Ming Zhang <mzhang&cisco.com> 04 February 2010
+#               5787-5792  Unassigned
 xtreamx		5793/tcp   XtreamX Supervised Peer message
 xtreamx		5793/udp   XtreamX Supervised Peer message
 #			   Ahmad Tajuddin Samsudin <tajuddin&tmrnd.com.my> February 2007
@@ -12978,7 +13104,10 @@ directplay8     6073/udp   DirectPlay8
 max		6074/tcp   Microsoft Max
 max		6074/udp   Microsoft Max
 #			   Jay Beavers <Jay.Beavers&Microsoft.Com> February 2006
-#               6075-6083  Unassigned
+dpm-acm         6075/tcp   Microsoft DPM Access Control Manager
+#                          Prabu Ambravaneswaran <prambrav&microsoft.com> 29 October 2009
+#               6075/udp   Reserved
+#               6076-6083  Unassigned
 p2p-sip         6084/tcp   Peer to Peer Infrastructure Protocol
 #                          Cullen Jennings <fluffy&cisco.com> 29 January 2009
 #               6084/udp   Reserved
@@ -12991,7 +13120,10 @@ pdtp		6086/udp   PDTP P2P
 ldss		6087/tcp   Local Download Sharing Service
 ldss		6087/udp   Local Download Sharing Service
 #			   Clifford Heath <cjh&managesoft.com> May 2006
-#               6088-6099  Unassigned
+#               6088-6098  Unassigned
+raxa-mgmt       6099/tcp   RAXA Management
+#                          Sukanta Ganguly <sganguly&kineticnetworks.com>
+#               6099/udp   Reserved
 synchronet-db   6100/tcp   SynchroNet-db
 synchronet-db   6100/udp   SynchroNet-db
 synchronet-rtc  6101/tcp   SynchroNet-rtc
@@ -13078,7 +13210,11 @@ ricardo-lm      6148/udp   Ricardo North America License Manager
 tal-pod         6149/tcp   tal-pod 
 tal-pod         6149/udp   tal-pod 
 #                          Steven Loomis <srl&taligent.com>
-#               6150-6160  Unassigned 
+#               6150-6158  Unassigned 
+efb-aci         6159/tcp   EFB Application Control Interface
+#                          Jonathan Schaaf <j.schaaf&astronautics.com> 10 February 2010
+#               6159/udp   Reserved
+#               6160       Unassigned 
 patrol-ism      6161/tcp   PATROL Internet Srv Mgr
 patrol-ism      6161/udp   PATROL Internet Srv Mgr
 patrol-coll     6162/tcp   PATROL Collector
@@ -13128,7 +13264,11 @@ bmc-grx         6300/udp   BMC GRX
 bmc_ctd_ldap	6301/tcp   BMC CONTROL-D LDAP SERVER
 bmc_ctd_ldap	6301/udp   BMC CONTROL-D LDAP SERVER
 #			   Portnoy Boxman <Portnoy_Boxman&bmc.com> September 2006
-#               6302-6315  Unassigned
+#               6302-6305  Unassigned
+ufmp            6306/tcp   Unified Fabric Management Protocol
+ufmp            6306/udp   Unified Fabric Management Protocol
+#                          Albert Berlovitch <albertb&voltaire.com> 17 December 2009
+#               6307-6315  Unassigned
 abb-escp        6316/tcp   Ethernet Sensor Communications Protocol
 abb-escp        6316/udp   Ethernet Sensor Communications Protocol
 #                          Jaime Antolin <jaime.antolin&ie.abb.com> 25 September 2008
@@ -13192,7 +13332,13 @@ boe-resssvr4    6410       Business Objects Enterprise internal server
 faxcomservice	6417/tcp   Faxcom Message Service
 faxcomservice	6417/udp   Faxcom Message Service
 #			   Albert Leung <aleung&biscom.com> April 2006
-#               6418-6419  Unassigned
+syserverremote  6418/tcp   SYserver remote commands
+#                          David Ashkenazi <david&synel.co.il> 23 March 2010
+#               6418/udp   Reserved
+svdrp           6419/tcp   Simple VDR Protocol
+#                          Previous contact: Christian Tramnitz <christian&tramnitz.com> 23 March 2010
+#                          Current contact: Klaus Schmidinger <Klaus.Schmidinger&tvdr.de> 31 March 2010
+#               6419/udp   Reserved
 nim-vdrshell    6420/tcp   NIM_VDRShell
 nim-vdrshell    6420/udp   NIM_VDRShell
 nim-wan         6421/tcp   NIM_WAN
@@ -13318,7 +13464,8 @@ esp		6567/udp   eSilo Storage Protocol
 #			   Andrew Chernow <andrew&esilo.com> January 2007
 canit_store     6568/tcp   CanIt Storage Manager
 #                          David F. Skoll <dfs&roaringpenguin.com> 22 April 2009
-#               6568/udp   Reserved
+rp-reputation   6568/udp   Roaring Penguin IP Address Reputation Collection
+#                          David F. Skoll <dfs&roaringpenguin.com> 05 February 2010
 #               6569-6578  Unassigned
 affiliate	6579/tcp   Affiliate
 affiliate	6579/udp   Affiliate
@@ -13359,7 +13506,12 @@ mcftp		6622/udp   Multicast FTP
 ktelnet         6623/tcp   Kerberos V5 Telnet
 ktelnet         6623/udp   Kerberos V5 Telnet
 #                          Robert J. Scott <rob&hpcmo.hpc.mil> August 2005
-#               6624-6625  Unassigned
+datascaler-db   6624/tcp   DataScaler database
+#                          Vasu Murthy <vmurthy&datascaler.com> 08 February 2010
+#               6624/udp   Reserved
+datascaler-ctl  6625/tcp   DataScaler control
+#                          Vasu Murthy <vmurthy&datascaler.com> 08 February 2010
+#               6625/udp   Reserved
 wago-service	6626/tcp   WAGO Service and Update
 wago-service	6626/udp   WAGO Service and Update
 #			   Wolfgang Adler <electronicc_rd&wago.com> April 2006
@@ -13371,7 +13523,10 @@ afesc-mc        6628/udp   AFE Stock Channel M/C
 #                          K.K Ho <kk.ho&afe-solutions.com> April 2004
 #               6629-6630  Unassigned
 #               6631       Unassigned (Returned 28 May 2004)
-#               6632-6664  Unassigned
+mxodbc-connect  6632/tcp   eGenix mxODBC Connect 
+#                          Marc-Andre Lemburg <mal&egenix.com> 13 November 2009
+#               6632/udp   Reserved        
+#               6633-6664  Unassigned
 ircu		6665-6669/tcp  IRCU
 ircu		6665-6669/udp  IRCU
 #			               Brian Tackett <cym&acrux.net>
@@ -13386,22 +13541,42 @@ vision_server   6672/udp   vision_server
 vision_elmd     6673/tcp   vision_elmd
 vision_elmd     6673/udp   vision_elmd
 #                          Chris Kramer <CKramer&gis.shl.com>
-#               6674-6699  Unassigned
-frc-hp          6700/sctp  ForCES HP (High Priority) channel
-#                          Jamal Hadi Salim <hadi&mojatatu.com> 04 August 2009
-kti-icad-srvr	6701/tcp   KTI/ICAD Nameserver
-kti-icad-srvr	6701/udp   KTI/ICAD Nameserver
-#			               Stanley Knutson <Stanley.Knutson&KTIworld.com> 
-frc-mp          6701/sctp  ForCES MP (Medium Priority) channel
-#                          Jamal Hadi Salim <hadi&mojatatu.com> 04 August 2009
-frc-lp          6702/sctp  ForCES LP (Low priority) channel
-#                          Jamal Hadi Salim <hadi&mojatatu.com> 04 August 2009
+#               6674-6686  Unassigned
+clever-ctrace   6687/tcp   CleverView for cTrace Message Service
+#                          David Cheng <davec&aesclever.com> 01 February 2010
+#               6687/udp   Reserved
+clever-tcpip    6688/tcp   CleverView for TCP/IP Message Service
+#                          David Cheng <davec&aesclever.com> 13 October 2009
+#               6688/udp   Reserved
+tsa             6689/tcp   Tofino Security Appliance
+tsa             6689/udp   Tofino Security Appliance
+#                          Scott Howard <scott&byressecurity.com> 13 October 2009
+#               6690-6699  Unassigned
+#               6700       Unassigned (Removed 2010-01-26)
+kti-icad-srvr   6701/tcp   KTI/ICAD Nameserver
+kti-icad-srvr   6701/udp   KTI/ICAD Nameserver
+#                          Stanley Knutson <Stanley.Knutson&KTIworld.com> 
+#               6701/sctp  Unassigned (Removed 2010-01-26)
 e-design-net    6702/tcp   e-Design network 
-e-design-net    6702/udp   e-Design network 
+e-design-net    6702/udp   e-Design network
+#               Janos Lerch <lerch&softic.hu> February 2006
+#               6702/sctp  Unassigned (Removed 2010-01-26) 
 e-design-web    6703/tcp   e-Design web 
 e-design-web    6703/udp   e-Design web 
-#			   Janos Lerch <lerch&softic.hu> February 2006
-#               6704-6713  Unassigned
+#               Janos Lerch <lerch&softic.hu> February 2006
+#               6704/udp   Reserved
+#               6704/tcp   Reserved
+frc-hp          6704/sctp  ForCES HP (High Priority) channel
+#                          [RFC5811]
+#               6705/udp   Reserved
+#               6705/tcp   Reserved
+frc-mp          6705/sctp  ForCES MP (Medium Priority) channel
+#                          [RFC5811]
+#               6706/udp   Reserved
+#               6706/tcp   Reserved
+frc-lp          6706/sctp  ForCES LP (Low priority) channel
+#                          [RFC5811]
+#               6707-6713  Unassigned
 ibprotocol      6714/tcp   Internet Backplane Protocol
 ibprotocol      6714/udp   Internet Backplane Protocol
 #                          Alessandro Bassi <abassi&cs.utk.edu>
@@ -13447,7 +13622,11 @@ hnm             6791/udp   Halcyon Network Manager
 acnet		6801/tcp   ACNET Control System Protocol
 acnet		6801/udp   ACNET Control System Protocol
 #			   Rich Neswold <neswold&fnal.gov> February 2007
-#               6802-6830  Unassigned
+#               6802-6816  Unassigned
+pentbox-sim     6817/tcp   PenTBox Secure IM Protocol
+#                          Alberto Ortega Llamas <alberto.kun666&gmail.com> 04 November 2009
+#               6817/udp   Reserved
+#               6818-6830  Unassigned
 ambit-lm        6831/tcp   ambit-lm
 ambit-lm        6831/udp   ambit-lm
 #                          Don Hejna <djhejna&ambit.com>
@@ -13461,7 +13640,11 @@ netmo-http	6842/udp   Netmo HTTP
 iccrushmore     6850/tcp    ICCRUSHMORE
 iccrushmore     6850/udp    ICCRUSHMORE
 #                           Dave Hubbard <dave&icc.net>
-#               6851-6887   Unassigned
+#               6851-6867   Unassigned
+acctopus-cc     6868/tcp    Acctopus Command Channel
+acctopus-st     6868/udp    Acctopus Status
+#                           Stefan Auweiler <stefan.auweiler&saitc.de> 16 November 2009
+#               6869-6887   Unassigned
 muse            6888/tcp    MUSE
 muse            6888/udp    MUSE
 #                           Muse Communications Corporation
@@ -13566,7 +13749,10 @@ op-probe        7030/udp    ObjectPlanet probe
 arcp            7070/tcp    ARCP
 arcp            7070/udp    ARCP
 #                           Jude George <jude&nas.nasa.gov>
-#               7071-7079   Unassigned
+iwg1            7071/tcp    IWGADTS Aircraft Housekeeping Message
+iwg1            7071/udp    IWGADTS Aircraft Housekeeping Message
+#                           Don Sullivan <donald.v.sullivan&nasa.gov> 16 February 2010
+#               7072-7079   Unassigned
 empowerid       7080/tcp    EmpowerID Communication
 empowerid       7080/udp    EmpowerID Communication
 #                           Matthew Whited <matt&thedotnetfactory.com> 16 January 2008
@@ -13609,7 +13795,20 @@ doc-server      7165/udp    Document WCF Server
 aruba-server    7166/tcp    Aruba eDiscovery Server
 aruba-server    7166/udp    Aruba eDiscovery Server
 #                           Micha Ben-Efraim <benmi07&ca.com> 07 January 2008              
-#               7167-7173   Unassigned
+casrmagent      7167/tcp    CA SRM Agent 
+#                           Venkata Krishna <VenkataKrishna.Bezawada&ca.com> 24 February 2010
+#               7167/udp    Reserved
+#               7168        Unassigned
+ccag-pib        7169/tcp    Consequor Consulting Process Integration Bridge 
+ccag-pib        7169/udp    Consequor Consulting Process Integration Bridge 
+#                           Frank Goenninger <frank.goenninger&consequor.de> 22 February 2010
+nsrp            7170/tcp    Adaptive Name/Service Resolution
+nsrp            7170/udp    Adaptive Name/Service Resolution
+#                           Geoff Back <geoff&demonlair.co.uk> 01 February 2010
+drm-production  7171/tcp    Discovery and Retention Mgt Production
+drm-production  7171/udp    Discovery and Retention Mgt Production
+#                           Micha Ben-Efraim <micha.ben-efraim&ca.com> 18 February 2010
+#               7172-7173   Unassigned
 clutild         7174/tcp    Clutild
 clutild         7174/udp    Clutild
 #                           Cheryl Stoutenburg <cstoutenburg&vnet.ibm.com>
@@ -13658,7 +13857,8 @@ itactionserver2 7281/udp    ITACTIONSERVER 2
 #                           Brian Taylor <btaylor&imagetag.com>
 mzca-action     7282/tcp    eventACTION/ussACTION (MZCA) server
 #                           Gord Tomlin <gord.tomlin&actionsoftware.com> 30 January 2009
-#               7282/udp    Reserved
+mzca-alert      7282/udp    eventACTION/ussACTION (MZCA) alert 
+#                           Gord Tomlin <gord.tomlin&actionsoftware.com> 21 January 2010
 #               7283-7299   Unassigned 
 swx             7300-7359   The Swiss Exchange
 #                           Edgar Blum <edgar.blum&swx.ch>
@@ -13803,7 +14003,13 @@ zen-pawn	7628/udp    Primary Agent Work Notification
 xdas		7629/tcp    OpenXDAS Wire Protocol
 xdas		7629/udp    OpenXDAS Wire Protocol
 #			    John Calcote <jcalcote&novell.com> October 2006
-#               7630-7632   Unassigned 
+hawk            7630/tcp    HA Web Konsole
+#                           Tim Serong <tserong&novell.com> 31 March 2010
+#               7630/udp    Reserved
+tesla-sys-msg   7631/tcp    TESLA System Messaging
+#                           Andy Perreault <aperreault&erlphase.com> 31 March 2010
+#               7631/udp    Reserved
+#               7632        Unassigned 
 pmdfmgt         7633/tcp    PMDF Management
 pmdfmgt         7633/udp    PMDF Management
 #                           Hunter Goatley <goathunter&goatley.com>
@@ -14100,7 +14306,11 @@ radan-http      8088/tcp    Radan HTTP
 radan-http      8088/udp    Radan HTTP
 #                           Previous contact: Steve Hay <Steve.Hay&uk.radan.com> April 2002
 #                           Current contact: Steve Hay <SteveHay&planit.com> 13 June 2008
-#               8089-8096   Unassigned
+#               8089-8090   Unassigned
+jamlink         8091/tcp    Jam Link Framework
+#                           Evgeniy Filatov <evgeniyfilatov&yandex.ru> 25 November 2009
+#               8091/udp    Reserved
+#               8092-8096   Unassigned
 sac		8097/tcp    SAC Port Id
 sac		8097/udp    SAC Port Id
 #			    Girish Bhat <gbhat&cranite.com> April 2006
@@ -14207,7 +14417,10 @@ synapse-nhttp   8280/udp    Synapse Non Blocking HTTP
 #               8281-8291   Unassigned
 blp3		8292/tcp    Bloomberg professional
 blp3		8292/udp    Bloomberg professional
-#               8293        Unassigned
+#			    Albert Hou <ahou1&bloomberg.com> May 2006
+hiperscan-id    8293/tcp    Hiperscan Identification Service
+#                           Thomas Klose <thomas.klose&hiperscan.com> 15 December 2009
+#               8293/udp    Reserved
 blp4		8294/tcp    Bloomberg intelligent client
 blp4		8294/udp    Bloomberg intelligent client
 #			    Albert Hou <ahou1&bloomberg.com> May 2006
@@ -14487,7 +14700,14 @@ swa-3           9025/udp    Secure Web Access - 3
 swa-4           9026/tcp    Secure Web Access - 4
 swa-4           9026/udp    Secure Web Access - 4
 #                           Tim McGranaghan <tim_mcgranaghan&mech.disa.mil>
-#               9027-9079   Unassigned
+#               9027-9049   Unassigned
+versiera        9050/tcp    Versiera Agent Listener
+#                           Frank Pikelner <frank.pikelner&netcraftcommunications.com> 15 January 2010
+#               9050/udp    Reserved
+fio-cmgmt       9051/tcp    Fusion-io Central Manager Service
+#                           Jim Sermersheim <jims&fusionio.com> 15 January 2010
+#               9051/udp    Reserved
+#               9052-9079   Unassigned
 glrpc           9080/tcp    Groove GLRPC
 glrpc           9080/udp    Groove GLRPC
 #                           Adrian Popescu <Adrian_Popescu&groove.net> September 2002
@@ -14542,7 +14762,13 @@ peerwire        9104/udp    PeerWire
 xadmin          9105/tcp    Xadmin Control Service
 xadmin          9105/udp    Xadmin Control Service
 #                           Ariën Huisken <xadmin&huisken-systems.nl> 15 June 2009
-#               9106-9118   Unassigned
+astergate       9106/tcp    Astergate Control Service
+astergate-disc  9106/udp    Astergate Discovery Service
+#                           Ariën Huisken <astergate&huisken-systems.nl> 04 January 2010
+astergatefax    9107/tcp    AstergateFax Control Service
+#                           Gijs Middelkamp <astergate-fax&huisken-systems.nl> 03 February 2010
+#               9107/udp    Reserved
+#               9108-9118   Unassigned
 mxit		9119/tcp    MXit Instant Messaging
 mxit		9119/udp    MXit Instant Messaging
 #			    Marnus Freeman <marnus&swistgroup.com> February 2006
@@ -14666,7 +14892,15 @@ armcenterhttps	9295/udp    ARMCenter https Service
 vrace		9300/tcp    Virtual Racing Service
 vrace		9300/udp    Virtual Racing Service
 #			    Pete Loeffen, President, Digital Rowing Inc. <peterl&digitalrowing.com> October 2006
-#               9301-9317   Unassigned
+#               9301-9305   Unassigned
+sphinxql        9306/tcp    Sphinx search server (MySQL listener)
+#                           Andrew Aksyonoff <shodan&sphinxsearch.com> 20 October 2009
+#               9306/udp    Reserved
+#               9307-9311   Unassigned
+sphinxapi       9312/tcp    Sphinx search server
+#                           Andrew Aksyonoff <shodan&sphinxsearch.com> 20 October 2009
+#               9312/udp    Reserved
+#               9313-9317   Unassigned
 secure-ts       9318/tcp    PKIX TimeStamp over TLS
 secure-ts       9318/udp    PKIX TimeStamp over TLS
 #                           Niklas Weiss <n.weiss&d-trust.net> November 2004
@@ -14742,7 +14976,8 @@ ismserver   	9500/udp    ismserver
 #               9501-9534   Unassigned
 mngsuite        9535/tcp    Management Suite Remote Control
 mngsuite        9535/udp    Management Suite Remote Control
-#                           Alan Butt <alan.butt&landesk.com>
+#                           Previous contact: Alan Butt <alan.butt&landesk.com>
+#                           Current contact: Trevor Perkes <trevor.perkes&landesk.com> 15 January 2010
 laes-bf		9536/tcp    Surveillance buffering function
 laes-bf		9536/udp    Surveillance buffering function
 #			    Glen Myers <glen.myers&ipfabrics.com> May 2007
@@ -14754,9 +14989,10 @@ trispen-sra     9555/udp    Trispen Secure Remote Access
 ldgateway	9592/tcp    LANDesk Gateway
 ldgateway	9592/udp    LANDesk Gateway
 #			    Alan Butt <alan.butt&landesk.com> March 2006
-cba8            9593/tcp    LANDesk Management Agent
-cba8            9593/udp    LANDesk Management Agent
-#                           Alan Butt <alan.butt&landesk.com> November 2004
+cba8            9593/tcp    LANDesk Management Agent (cba8)
+cba8            9593/udp    LANDesk Management Agent (cba8)
+#                           Previous contact: Alan Butt <alan.butt&landesk.com> November 2004
+#                           Current contact: Trevor Perkes <trevor.perkes&landesk.com> 01 February 2010
 msgsys          9594/tcp    Message System
 msgsys          9594/udp    Message System
 pds             9595/tcp    Ping Discovery Service
@@ -15050,7 +15286,12 @@ blocks		10288/udp  Blocks
 cosir           10321/tcp   Computer Op System Information Report
 #                           Kevin C. Barber <kevin.c.barber&saic.com> 13 January 2009
 #               10321/udp   Reserved
-#		10322-10539 Unassigned
+#		10322-10499 Unassigned
+#               10500/tcp  Reserved
+hip-nat-t       10500/udp  HIP NAT-Traversal
+#                          [RFC-ietf-hip-nat-traversal-09.txt]
+#                          Ari Keränen <ari.keranen&ericsson.com>
+#		10501-10539 Unassigned
 MOS-lower	10540/tcp  MOS Media Object Metadata Port 
 MOS-lower	10540/udp  MOS Media Object Metadata Port
 MOS-upper	10541/tcp  MOS Running Order Port
@@ -15436,11 +15677,18 @@ soundsvirtual   17185/udp  Sounds Virtual
 chipper         17219/tcp  Chipper
 chipper         17219/udp  Chipper
 #                          Ronald Jimmink <Ronald.Jimmink&chipper.nl>
-#               17220-17234 Unassigned
+#               17220-17233 Unassigned
+integrius-stp   17234/tcp  Integrius Secure Tunnel Protocol
+integrius-stp   17234/udp  Integrius Secure Tunnel Protocol
+#                          Christian Klemetsson, Integrius AB <christian.klemetsson&integrius.se> 04 March 2010
 ssh-mgmt        17235/tcp  SSH Tectia Manager
 ssh-mgmt        17235/udp  SSH Tectia Manager
 #                          Ville Laurikari <vlaurika&ssh.com> August 2005
-#               17236-17728 Unassigned
+#               17236-17499 Unassigned
+db-lsp          17500/tcp  Dropbox LanSync Protocol
+db-lsp-disc     17500/udp  Dropbox LanSync Discovery
+#                          Paul Bohm <paul&dropbox.com> 21 January 2010
+#               17501-17728 Unassigned
 ea		17729/tcp  Eclipse Aviation
 ea		17729/udp  Eclipse Aviation
 #			   William Schmidt <info&eclipseaviation.com> March 2006
@@ -15461,7 +15709,11 @@ sw-orion        17777/tcp  SolarWinds Orion
 biimenu         18000/tcp  Beckman Instruments, Inc.
 biimenu         18000/udp  Beckman Instruments, Inc.
 #                          R. L. Meyering <RLMEYERING&BIIVAX.DP.BECKMAN.COM>
-#               18001-18180 Unassigned
+#               18001-18103 Unassigned
+radpdf          18104/tcp  RAD PDF Service
+#                          Christopher Truxaw <ctruxaw&ctdeveloping.com> 13 April 2010
+#               18104/udp  Reserved
+#               18105-18180 Unassigned
 opsec-cvp       18181/tcp  OPSEC CVP 
 opsec-cvp       18181/udp  OPSEC CVP 
 opsec-ufp       18182/tcp  OPSEC UFP
@@ -15593,7 +15845,7 @@ tmophl7mts      20046/udp  TMOP HL7 Message Transfer Service
 nfsrdma         20049/tcp  Network File System (NFS) over RDMA
 nfsrdma         20049/udp  Network File System (NFS) over RDMA
 nfsrdma         20049/sctp Network File System (NFS) over RDMA
-#                          [RFC-ietf-nfsv4-rpcrdma-09.txt]
+#                          [RFC5666]
 #               20050-20166 Unassigned
 tolfab		20167/tcp   TOLfab Data Change
 tolfab		20167/udp   TOLfab Data Change
@@ -16028,7 +16280,11 @@ filenet-peior   32776/udp   FileNET BPM IOR
 filenet-obrok	32777/tcp   FileNet BPM CORBA
 filenet-obrok	32777/udp   FileNet BPM CORBA
 #			   Chris Adkins <cadkins&filenet.com> October 2006
-#               32778-32895 Unassigned
+#               32778-32800 Unassigned
+mlsn            32801/tcp   Multiple Listing Service Network
+mlsn            32801/udp   Multiple Listing Service Network
+#                           Corey Leong <cleong&gr8c.org> 27 January 2010
+#               32802-32895 Unassigned
 idmgratm        32896/tcp   Attachmate ID Manager
 idmgratm        32896/udp   Attachmate ID Manager
 #                           George Gianelos <GeorgeGi&Attachmate.com> March 2003
@@ -16040,7 +16296,11 @@ aurora-balaena  33123/udp   Aurora (Balaena Ltd)
 diamondport     33331/tcp   DiamondCentral Interface
 diamondport     33331/udp   DiamondCentral Interface
 #                           Edward Browdy <ebrowdy&cryptek.com> July 2002
-#               33332-33433 Unassigned
+#               33332       Unassigned
+dgi-serv        33333/tcp   Digital Gaslight Service
+#                           George Flanagin <george&digitalgaslight.com> 02 March 2010
+#               33333/udp   Reserved            
+#               33334-33433 Unassigned
 traceroute      33434/tcp   traceroute use
 traceroute      33434/udp   traceroute use
 #                           IANA <iana&iana.org>
@@ -16229,7 +16489,11 @@ nimhub          48002/udp   Nimbus Hub
 nimgtw          48003/tcp   Nimbus Gateway
 nimgtw          48003/udp   Nimbus Gateway
 #                           Carstein Seeberg <case&nimsoft.no>
-#               48004-48127 Unassigned
+#               48004-48048 Unassigned
+3gpp-cbsp       48049/tcp   3GPP Cell Broadcast Service Protocol
+#                           Gert Thomasen <gert.thomasen&etsi.org> 07 December 2009
+#               48049/udp   Reserved
+#               48050-48127 Unassigned
 isnetserv	48128/tcp   Image Systems Network Services
 isnetserv	48128/udp   Image Systems Network Services
 #			    Bengt Gustafsson <bengt.gustafsson&imagesystems.se> May 2006
@@ -16345,6 +16609,9 @@ References
 [RFC4379]  K. Kompella and G. Swallow, "Detecting Multi-Protocol Label Switched (MPLS) 
            Data Plane Failures", RFC 4379, February 2006.
 
+[RFC4380]  C. Huitema, "Teredo: Tunneling IPv6 over UDP through Network Address 
+           Translations (NATs)", RFC 4380, February 2006.
+
 [RFC4409]  R. Gellens and J. Klensin, "Message Submission for Mail", RFC 4409, 
            April 2006.
 
@@ -16361,6 +16628,9 @@ References
 [RFC4656]  S. Shalunov, A. Karp, J.W. Boote and M.J. Zekauskas,
            "A One-way Active Measurement Protocol (OWAMP)", RFC 4656, September 2006.
 
+[RFC4666]  K. Morneault, Ed., J. Pastor-Balbas, Ed., "Signaling System 7 (SS7) Message 
+           Transfer Part 3 (MTP3) - User Adaptation Layer (M3UA)", RFC 4666, September 
+           2006.
 
 [RFC4744]  E. Lear and K. Crozier, "Using the NETCONF Protocol over Blocks Extensible 
            Exchange Protocol (BEEP)", RFC 4744, December 2006.
@@ -16424,9 +16694,8 @@ References
 [RFC5357]  K. Hedayat, R. Krzanowski, A. Morton, K. Yum, J. Babiarz, "A Two-way 
            Active Measurement Protocol (TWAMP)", RFC 5357, October 2008.
 
-[RFC-guy-iax-05.txt]
-           M. Spencer, B. Capouch, E. Guy, Ed., F. Miller, K. Shumard, "IAX: 
-           Inter-Asterisk eXchange Version 2", RFC XXXX, Month Year.
+[RFC5456]  M. Spencer, B. Capouch, E. Guy, Ed., F. Miller, K. Shumard, "IAX: 
+           Inter-Asterisk eXchange Version 2", RFC 5456, February 2010.
 
 [RFC5415]  P. Calhoun, Ed., M. Montemurro, Ed., D. Stanley, Ed., "CAPWAP 
            Protocol Specification", RFC 5415, March 2009.
@@ -16438,20 +16707,17 @@ References
            A. Melnikov, Ed., T. Martin, "A Protocol for Remotely Managing 
            Sieve Scripts", RFC XXXX, Month Year.
 
-[RFC-ietf-mipshop-mstp-solution-12.txt]
-           T. Melia, Ed., G. Bajko, S. Das, N. Golmie, J. Zuniga, "IEEE 802.21 
-           Mobility Services Framework Design (MSFD)", RFC XXXX, Month Year.
+[RFC5677]  T. Melia, Ed., G. Bajko, S. Das, N. Golmie, J. Zuniga, "IEEE 802.21 
+           Mobility Services Framework Design (MSFD)", RFC 5677, December 2009.
 
-[RFC-draft-ietf-nfsv4-rpc-netid-06.txt]
-           M. Eisler, "IANA Considerations for RPC Net Identifiers and Universal 
-           Address Formats", RFC XXXX, Month Year.
+[RFC5665]  M. Eisler, "IANA Considerations for RPC Net Identifiers and Universal 
+           Address Formats", RFC 5665, January 2010.
 
 [RFC5539]  M. Badra, "NETCONF Over Transport Layer Security (TLS)", RFC 5539, 
            May 2009.
 
-[RFC-ietf-nfsv4-rpcrdma-09.txt]
-           T. Talpey, B. Callaghan, "Remote Direct Memory Access Transport for 
-           Remote Procedure Call", RFC XXXX, Month Year.
+[RFC5666]  T. Talpey, B. Callaghan, "Remote Direct Memory Access Transport for 
+           Remote Procedure Call", RFC 5666, January 2010.
 
 [RFC5555]  H. Soliman, Ed., "Mobile IPv6 Support for Dual Stack Hosts and Routers", 
            RFC 5555, June 2009.
@@ -16459,16 +16725,42 @@ References
 [RFC5592]  D. Harrington, J. Salowey, W. Hardaker, "Secure Shell Transport Model 
            for SNMP", RFC 5592, June 2009.
 
-[RFC-blanchet-v6ops-tunnelbroker-tsp-04.txt]
-           M. Blanchet and F. Parent, "IPv6 Tunnel Broker with the Tunnel Setup 
-           Protocol (TSP)", RFC ####, Month Year.
+[RFC5572]  M. Blanchet and F. Parent, "IPv6 Tunnel Broker with the Tunnel Setup 
+           Protocol (TSP)", RFC 5572, February 2010.
 
 [RFC-ietf-nsis-ntlp-20.txt]
            H. Schulzrinne, R. Hancock, "GIST: General Internet Signalling Transport", 
            RFC XXXX, Month Year. 
 
+[RFC-ietf-bfd-v4v6-1hop-10.txt]
+           D. Katz, D. Ward, "BFD for IPv4 and IPv6 (Single Hop)", RFC XXXX, Month Year.
+
 [RFC5734]  S. Hollenbeck, "Extensible Provisioning Protocol (EPP) Transport over TCP", 
            RFC 5734, August 2009.
+
+[RFC-ietf-behave-turn-16.txt]
+           J. Rosenberg, R. Mahy, P. Matthews, "Traversal Using Relays around NAT (TURN): 
+           Relay Extensions to Session Traversal Utilities for NAT (STUN)", RFC XXXX, 
+           Month Year. 
+
+[RFC-ietf-hip-nat-traversal-09.txt]
+           M. Komu, T. Henderson, H. Tschofenig, J. Melen, A. Keranen, Ed., "Basic HIP 
+           Extensions for Traversal of Network Address Translators", RFC XXXX, Month Year.
+
+[RFC5811]  J. Hadi Salim, K. Ogawa, "SCTP based TML (Transport Mapping Layer) for ForCES 
+           protocol", RFC 5811, March 2010.
+
+[RFC-ietf-l3vpn-2547bis-mcast-10.txt]
+           E. Rosen, Ed., R. Aggarwal, Ed., "Multicast in MPLS/BGP IP VPNs", RFC XXXX, 
+           Month Year. 
+
+[RFC-ietf-ntp-ntpv4-proto-13.txt]
+           J. Burbank, W. Kasch, J. Martin, Ed., D. Mills, "Network Time Protocol Version 4 
+           Protocol And Algorithms Specification," RFC XXXX, Month Year. 
+
+[RFC-ietf-netlmm-pmip6-ipv4-support-18.txt]
+           R. Wakikawa, S. Gundavelli, "IPv4 Support for Proxy Mobile IPv6", 
+           RFC XXXX, Month Year.
 
 []
 
