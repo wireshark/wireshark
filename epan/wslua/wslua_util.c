@@ -56,6 +56,12 @@ WSLUA_API const gchar* lua_shiftstring(lua_State* L, int i) {
     }
 }
 
+WSLUA_FUNCTION wslua_get_version(lua_State* L) { /* Get Wireshark version */
+    gchar* str = VERSION;
+    lua_pushstring(L,str);
+    WSLUA_RETURN(1); /* version string */
+}
+
 WSLUA_FUNCTION wslua_format_date(lua_State* LS) { /* Formats an absolute timestamp into a human readable date */ 
 #define WSLUA_ARG_format_date_TIMESTAMP 1 /* A timestamp value to convert. */
 	lua_Number timestamp = luaL_checknumber(LS,WSLUA_ARG_format_date_TIMESTAMP);
