@@ -1171,6 +1171,7 @@ static const value_string zero_is_none_vals[] = {
 #define LISTofBYTE(name, length) { listOfByte(tvb, offsetp, t, hf_x11_##name, (length), little_endian); }
 #define LISTofCARD8(name, length) { listOfByte(tvb, offsetp, t, hf_x11_##name, (length), little_endian); }
 #define LISTofIPADDRESS(name, length) { listOfByte(tvb, offsetp, t, hf_x11_##name, (length), FALSE); }
+#define LISTofCARD16(name, length) { listOfCard16(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_item, (length) / 2, little_endian); }
 #define LISTofCARD32(name, length) { listOfCard32(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_item, (length) / 4, little_endian); }
 #define LISTofCOLORITEM(name, length) { listOfColorItem(tvb, offsetp, t, hf_x11_##name, (length) / 12, little_endian); }
 #define LISTofKEYCODE(map, name, length) { listOfKeycode(tvb, offsetp, t, hf_x11_##name, map, (length), little_endian); }
@@ -3412,10 +3413,26 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    WINDOW(window);
 	    ATOM(property);
 	    ATOM(type);
-	    CARD8(format);
+	    v8 = CARD8(format);
 	    UNUSED(3);
 	    v32 = CARD32(data_length);
-	    LISTofBYTE(data, v32);
+	    switch (v8) {
+	    case 8:
+		if (v32)
+		    LISTofBYTE(data, v32);
+		break;
+	    case 16:
+		if (v32)
+		    LISTofCARD16(data16, v32 * 2);
+		break;
+	    case 32:
+		if (v32)
+		    LISTofCARD32(data32, v32 * 4);
+		break;
+	    default:
+		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Invalid Format");
+		break;
+	    }
 	    PAD();
 	    break;
 
