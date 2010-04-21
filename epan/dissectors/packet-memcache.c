@@ -38,18 +38,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
 #include <glib.h>
+
 #include <epan/conversation.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/base64.h>
 #include <epan/emem.h>
 #include <epan/stats_tree.h>
-
 #include <epan/req_resp_hdrs.h>
-
-#include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
