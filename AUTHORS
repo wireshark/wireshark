@@ -2846,6 +2846,7 @@ David Castleford	<david.castleford [AT] orange-ftgroup.com> {
 
 Peter Harris		<pharris[AT]opentext.com> {
 	X11 extension decoding
+	X11 dissector fixes
 }
 
 Martin Lutz		<MartinL [AT] copadata.at> {
