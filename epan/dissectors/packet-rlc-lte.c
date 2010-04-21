@@ -448,6 +448,7 @@ static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo _U
         padding = tvb_get_guint8(tvb, offset) & 0x0f;
         ti = proto_tree_add_item(tree, hf_rlc_lte_extension_padding,
                                  tvb, offset, 1, FALSE);
+        offset++;
     }
 
     return offset;
