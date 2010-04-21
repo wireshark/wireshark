@@ -5,6 +5,9 @@
  * USB basic dissector
  * By Paolo Abeni <paolo.abeni@email.it>
  * Ronnie Sahlberg 2006
+ * Chris Maynard 2010 <chris[dot]maynard[at]gtech[dot]com>
+ * 
+ * http://www.usb.org/developers/docs/usb_20_122909-2.zip
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,6 +29,7 @@
 # include "config.h"
 #endif
 
+#include <isprint.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/etypes.h>
@@ -49,6 +53,8 @@ static int hf_usb_device_address = -1;
 static int hf_usb_bus_id = -1;
 static int hf_usb_setup_flag = -1;
 static int hf_usb_data_flag = -1;
+static int hf_usb_urb_ts_sec = -1;
+static int hf_usb_urb_ts_usec = -1;
 static int hf_usb_urb_status = -1;
 static int hf_usb_urb_len = -1;
 static int hf_usb_data_len = -1;
@@ -131,9 +137,157 @@ static int usb_tap = -1;
 static dissector_table_t usb_bulk_dissector_table;
 static dissector_table_t usb_control_dissector_table;
 
+/* http://www.usb.org/developers/docs/USB_LANGIDs.pdf */
 static const value_string usb_langid_vals[] = {
-    {0x0000,	"no language specified"},
-    {0x0409,	"English (United States)"},
+    {0x0000, "no language specified"},
+    {0x0436, "Afrikaans"},
+    {0x041c, "Albanian"},
+    {0x0401, "Arabic (Saudi Arabia)"},
+    {0x0801, "Arabic (Iraq)"},
+    {0x0c01, "Arabic (Egypt)"},
+    {0x1001, "Arabic (Libya)"},
+    {0x1401, "Arabic (Algeria)"},
+    {0x1801, "Arabic (Morocco)"},
+    {0x1c01, "Arabic (Tunisia)"},
+    {0x2001, "Arabic (Oman)"},
+    {0x2401, "Arabic (Yemen)"},
+    {0x2801, "Arabic (Syria)"},
+    {0x2c01, "Arabic (Jordan)"},
+    {0x3001, "Arabic (Lebanon)"},
+    {0x3401, "Arabic (Kuwait)"},
+    {0x3801, "Arabic (U.A.E.)"},
+    {0x3c01, "Arabic (Bahrain)"},
+    {0x4001, "Arabic (Qatar)"},
+    {0x042b, "Armenian"},
+    {0x044d, "Assamese"},
+    {0x042c, "Azeri (Latin)"},
+    {0x082c, "Azeri (Cyrillic)"},
+    {0x042d, "Basque"},
+    {0x0423, "Belarussian"},
+    {0x0445, "Bengali"},
+    {0x0402, "Bulgarian"},
+    {0x0455, "Burmese"},
+    {0x0403, "Catalan"},
+    {0x0404, "Chinese (Taiwan)"},
+    {0x0804, "Chinese (PRC)"},
+    {0x0c04, "Chinese (Hong Kong SAR, PRC)"},
+    {0x1004, "Chinese (Singapore)"},
+    {0x1404, "Chinese (Macau SAR)"},
+    {0x041a, "Croatian"},
+    {0x0405, "Czech"},
+    {0x0406, "Danish"},
+    {0x0413, "Dutch (Netherlands)"},
+    {0x0813, "Dutch (Belgium)"},
+    {0x0409, "English (United States)"},
+    {0x0809, "English (United Kingdom)"},
+    {0x0c09, "English (Australian)"},
+    {0x1009, "English (Canadian)"},
+    {0x1409, "English (New Zealand)"},
+    {0x1809, "English (Ireland)"},
+    {0x1c09, "English (South Africa)"},
+    {0x2009, "English (Jamaica)"},
+    {0x2409, "English (Caribbean)"},
+    {0x2809, "English (Belize)"},
+    {0x2c09, "English (Trinidad)"},
+    {0x3009, "English (Zimbabwe)"},
+    {0x3409, "English (Philippines)"},
+    {0x0425, "Estonian"},
+    {0x0438, "Faeroese"},
+    {0x0429, "Farsi"},
+    {0x040b, "Finnish"},
+    {0x040c, "French (Standard)"},
+    {0x080c, "French (Belgian)"},
+    {0x0c0c, "French (Canadian)"},
+    {0x100c, "French (Switzerland)"},
+    {0x140c, "French (Luxembourg)"},
+    {0x180c, "French (Monaco)"},
+    {0x0437, "Georgian"},
+    {0x0407, "German (Standard)"},
+    {0x0807, "German (Switzerland)"},
+    {0x0c07, "German (Austria)"},
+    {0x1007, "German (Luxembourg)"},
+    {0x1407, "German (Liechtenstein)"},
+    {0x0408, "Greek"},
+    {0x0447, "Gujarati"},
+    {0x040d, "Hebrew"},
+    {0x0439, "Hindi"},
+    {0x040e, "Hungarian"},
+    {0x040f, "Icelandic"},
+    {0x0421, "Indonesian"},
+    {0x0410, "Italian (Standard)"},
+    {0x0810, "Italian (Switzerland)"},
+    {0x0411, "Japanese"},
+    {0x044b, "Kannada"},
+    {0x0860, "Kashmiri (India)"},
+    {0x043f, "Kazakh"},
+    {0x0457, "Konkani"},
+    {0x0412, "Korean"},
+    {0x0812, "Korean (Johab)"},
+    {0x0426, "Latvian"},
+    {0x0427, "Lithuanian"},
+    {0x0827, "Lithuanian (Classic)"},
+    {0x042f, "Macedonian"},
+    {0x043e, "Malay (Malaysian)"},
+    {0x083e, "Malay (Brunei Darussalam)"},
+    {0x044c, "Malayalam"},
+    {0x0458, "Manipuri"},
+    {0x044e, "Marathi"},
+    {0x0861, "Nepali (India)"},
+    {0x0414, "Norwegian (Bokmal)"},
+    {0x0814, "Norwegian (Nynorsk)"},
+    {0x0448, "Oriya"},
+    {0x0415, "Polish"},
+    {0x0416, "Portuguese (Brazil)"},
+    {0x0816, "Portuguese (Standard)"},
+    {0x0446, "Punjabi"},
+    {0x0418, "Romanian"},
+    {0x0419, "Russian"},
+    {0x044f, "Sanskrit"},
+    {0x0c1a, "Serbian (Cyrillic)"},
+    {0x081a, "Serbian (Latin)"},
+    {0x0459, "Sindhi"},
+    {0x041b, "Slovak"},
+    {0x0424, "Slovenian"},
+    {0x040a, "Spanish (Traditional Sort)"},
+    {0x080a, "Spanish (Mexican)"},
+    {0x0c0a, "Spanish (Modern Sort)"},
+    {0x100a, "Spanish (Guatemala)"},
+    {0x140a, "Spanish (Costa Rica)"},
+    {0x180a, "Spanish (Panama)"},
+    {0x1c0a, "Spanish (Dominican Republic)"},
+    {0x200a, "Spanish (Venezuela)"},
+    {0x240a, "Spanish (Colombia)"},
+    {0x280a, "Spanish (Peru)"},
+    {0x2c0a, "Spanish (Argentina)"},
+    {0x300a, "Spanish (Ecuador)"},
+    {0x340a, "Spanish (Chile)"},
+    {0x380a, "Spanish (Uruguay)"},
+    {0x3c0a, "Spanish (Paraguay)"},
+    {0x400a, "Spanish (Bolivia)"},
+    {0x440a, "Spanish (El Salvador)"},
+    {0x480a, "Spanish (Honduras)"},
+    {0x4c0a, "Spanish (Nicaragua)"},
+    {0x500a, "Spanish (Puerto Rico)"},
+    {0x0430, "Sutu"},
+    {0x0441, "Swahili (Kenya)"},
+    {0x041d, "Swedish"},
+    {0x081d, "Swedish (Finland)"},
+    {0x0449, "Tamil"},
+    {0x0444, "Tatar (Tatarstan)"},
+    {0x044a, "Telugu"},
+    {0x041e, "Thai"},
+    {0x041f, "Turkish"},
+    {0x0422, "Ukrainian"},
+    {0x0420, "Urdu (Pakistan)"},
+    {0x0820, "Urdu (India)"},
+    {0x0443, "Uzbek (Latin)"},
+    {0x0843, "Uzbek (Cyrillic)"},
+    {0x042a, "Vietnamese"},
+    {0x04ff, "HID (Usage Data Descriptor)"},
+    {0xf0ff, "HID (Vendor Defined 1)"},
+    {0xf4ff, "HID (Vendor Defined 2)"},
+    {0xf8ff, "HID (Vendor Defined 3)"},
+    {0xfcff, "HID (Vendor Defined 4)"},
     {0, NULL}
 };
 
@@ -979,7 +1133,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvb
     /* bmAttributes */
     if (tree) {
         ep_attrib_item=proto_tree_add_item(tree, hf_usb_bmAttributes, tvb, offset, 1, TRUE);
-	ep_attrib_tree=proto_item_add_subtree(ep_attrib_item, ett_endpoint_bmAttributes);
+        ep_attrib_tree=proto_item_add_subtree(ep_attrib_item, ett_endpoint_bmAttributes);
     }
     proto_tree_add_item(ep_attrib_tree, hf_usb_bEndpointAttributeTransfer, tvb, offset, 1, TRUE);
     /* isochronous only */
@@ -1192,6 +1346,8 @@ static int
 dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info)
 {
     proto_item *item=NULL;
+	guint32 data_len;
+
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
             val_to_str(usb_trans_info->u.get_descriptor.type, descriptor_type_vals, "Unknown type %u"));
@@ -1225,8 +1381,9 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree, 
         /* XXX dissect the descriptor coming back from the device */
         item=proto_tree_add_text(tree, tvb, offset, -1, "GET DESCRIPTOR data (unknown descriptor type)");
         tree=proto_item_add_subtree(item, ett_descriptor_device);
-        proto_tree_add_item(tree, hf_usb_data, tvb, offset, pinfo->pseudo_header->linux_usb.data_len, FALSE);
-        offset += pinfo->pseudo_header->linux_usb.data_len;
+		tvb_memcpy(tvb, (guint8 *)&data_len, offset, 4);
+		proto_tree_add_uint(tree, hf_usb_data, tvb, offset, 4, data_len);
+        offset += data_len;
         break;
     }
 
@@ -1537,8 +1694,8 @@ static const value_string setup_request_names_vals[] = {
 
 
 static const true_false_string tfs_bmrequesttype_direction = {
-	"Device-to-host",
-	"Host-to-device"
+    "Device-to-host",
+    "Host-to-device"
 };
 
 static const value_string bmrequesttype_type_vals[] = {
@@ -1560,106 +1717,94 @@ static int
 dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset,
     int *type)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-	guint8 bmRequestType;
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
 
-	if(parent_tree){
-	        item=proto_tree_add_item(parent_tree, hf_usb_bmRequestType, tvb, offset, 1, TRUE);
-		tree = proto_item_add_subtree(item, ett_usb_setup_bmrequesttype);
-	}
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_usb_bmRequestType, tvb, offset, 1, TRUE);
+        tree = proto_item_add_subtree(item, ett_usb_setup_bmrequesttype);
+    }
 
-	bmRequestType = tvb_get_guint8(tvb, offset);
-	*type = (bmRequestType & USB_TYPE_MASK) >>5;
-	proto_tree_add_item(tree, hf_usb_bmRequestType_direction, tvb, offset, 1, TRUE);
-	proto_tree_add_item(tree, hf_usb_bmRequestType_type, tvb, offset, 1, TRUE);
-	proto_tree_add_item(tree, hf_usb_bmRequestType_recipient, tvb, offset, 1, TRUE);
+    *type = USB_TYPE(tvb_get_guint8(tvb, offset));
+    proto_tree_add_item(tree, hf_usb_bmRequestType_direction, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_usb_bmRequestType_type, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_usb_bmRequestType_recipient, tvb, offset, 1, TRUE);
 
-	offset++;
-	return offset;
+    return ++offset;
 }
 
+/* Adds the Linux USB pseudo header fields to the tree.
+ * NOTE: The multi-byte fields in this header (and only this header) are in 
+ *       host-endian format so we can't use proto_tree_add_item() nor the
+ *       tvb_get_xyz() routines and is the reason for the tvb_memcpy() and
+ *       proto_tree_add_uint[64]() pairs below. */
 static void
 dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 transfer_type;
     const gchar* val_str;
+	guint8 type, flag;
+	guint16 val16;
+	guint32 val32;
+	guint64 val64;
 
-    proto_tree_add_uint64(tree, hf_usb_urb_id, tvb, 0, 0,
-                          pinfo->pseudo_header->linux_usb.id);
+	tvb_memcpy(tvb, (guint8 *)&val64, 0, 8);
+    proto_tree_add_uint64(tree, hf_usb_urb_id, tvb, 0, 8, val64);
 
     /* show the event type of this URB as string and as a character */
-    val_str = val_to_str(pinfo->pseudo_header->linux_usb.event_type,
-        usb_urb_type_vals, "Unknown %d");
-    proto_tree_add_string_format_value(tree, hf_usb_urb_type, tvb, 0, 0,
-        &(pinfo->pseudo_header->linux_usb.event_type),
-        "%s ('%c')", val_str,
-        pinfo->pseudo_header->linux_usb.event_type);
-
-    transfer_type = pinfo->pseudo_header->linux_usb.transfer_type;
-    proto_tree_add_uint(tree, hf_usb_transfer_type, tvb, 0, 0, transfer_type);
+	type = tvb_get_guint8(tvb, 8);
+    val_str = val_to_str(type, usb_urb_type_vals, "Unknown %d");
+    proto_tree_add_string_format_value(tree, hf_usb_urb_type, tvb, 8, 1,
+        &type, "%s ('%c')", val_str, isprint(type) ? type : '.');
+    
+	proto_tree_add_item(tree, hf_usb_transfer_type, tvb, 9, 1, FALSE);
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
+		transfer_type = tvb_get_guint8(tvb, 9);
         col_append_str(pinfo->cinfo, COL_INFO,
             val_to_str(transfer_type, usb_transfer_type_vals, "Unknown type %x"));
     }
 
-    proto_tree_add_uint(tree, hf_usb_endpoint_number, tvb, 0, 0,
-                        pinfo->pseudo_header->linux_usb.endpoint_number);
+    proto_tree_add_item(tree, hf_usb_endpoint_number, tvb, 10, 1, FALSE);
+    proto_tree_add_item(tree, hf_usb_device_address, tvb, 11, 1, FALSE);
 
-    proto_tree_add_uint(tree, hf_usb_device_address, tvb, 0, 0,
-                        pinfo->pseudo_header->linux_usb.device_address);
-
-    proto_tree_add_uint(tree, hf_usb_bus_id, tvb, 0, 0,
-                        pinfo->pseudo_header->linux_usb.bus_id);
+	tvb_memcpy(tvb, (guint8 *)&val16, 12, 2);
+    proto_tree_add_uint(tree, hf_usb_bus_id, tvb, 12, 2, val16);
 
     /* Right after the pseudo header we always have
-     * sizeof(struct usb_device_setup_hdr)=8 bytes. The content of these
-     * bytes have only meaning in case setup_flag == 0.
+     * sizeof(struct usb_device_setup_hdr) bytes. The content of these
+     * bytes only have meaning in case setup_flag == 0.
      */
-    if (pinfo->pseudo_header->linux_usb.setup_flag == 0) {
-        proto_tree_add_string_format_value(tree, hf_usb_setup_flag, tvb,
-            0, 0,
-            &(pinfo->pseudo_header->linux_usb.setup_flag),
-            "present (%d)",
-            pinfo->pseudo_header->linux_usb.setup_flag);
+	flag = tvb_get_guint8(tvb, 14);
+    if (flag == 0) {
+        proto_tree_add_string(tree, hf_usb_setup_flag, tvb, 14, 1, "relevant (0)");
     } else {
         proto_tree_add_string_format_value(tree, hf_usb_setup_flag, tvb,
-            0, 0,
-            &(pinfo->pseudo_header->linux_usb.setup_flag),
-            "not present ('%c')",
-            pinfo->pseudo_header->linux_usb.setup_flag);
+            14, 1, &flag, "not relevant ('%c')", isprint(flag) ? flag: '.');
     }
 
-    if (pinfo->pseudo_header->linux_usb.data_flag == 0) {
-        proto_tree_add_string_format_value(tree, hf_usb_data_flag, tvb,
-            0, 0,
-            &(pinfo->pseudo_header->linux_usb.data_flag),
-            "present (%d)",
-            pinfo->pseudo_header->linux_usb.data_flag);
+	flag = tvb_get_guint8(tvb, 15);
+    if (flag == 0) {
+        proto_tree_add_string(tree, hf_usb_data_flag, tvb, 15, 1, "present (0)");
     } else {
         proto_tree_add_string_format_value(tree, hf_usb_data_flag, tvb,
-            0, 0,
-            &(pinfo->pseudo_header->linux_usb.data_flag),
-            "not present ('%c')",
-            pinfo->pseudo_header->linux_usb.data_flag);
+            15, 1, &flag, "not present ('%c')", isprint(flag) ? flag : '.');
     }
 
-    /* Timestamp was already processed by libpcap,
-     * skip it for now:
-     *   pinfo->pseudo_header->linux_usb.ts_sec
-     *   pinfo->pseudo_header->linux_usb.ts_usec
-     */
+	tvb_memcpy(tvb, (guint8 *)&val64, 16, 8);
+    proto_tree_add_uint64(tree, hf_usb_urb_ts_sec, tvb, 16, 8, val64);
+	
+	tvb_memcpy(tvb, (guint8 *)&val32, 24, 4);
+    proto_tree_add_uint(tree, hf_usb_urb_ts_usec, tvb, 24, 4, val32);
 
-    proto_tree_add_int(tree, hf_usb_urb_status, tvb, 0, 0,
-                        pinfo->pseudo_header->linux_usb.status);
+	tvb_memcpy(tvb, (guint8 *)&val32, 28, 4);
+    proto_tree_add_int(tree, hf_usb_urb_status, tvb, 28, 4, val32);
 
-    proto_tree_add_uint(tree, hf_usb_urb_len, tvb, 0, 0,
-                        pinfo->pseudo_header->linux_usb.urb_len);
+	tvb_memcpy(tvb, (guint8 *)&val32, 32, 4);
+    proto_tree_add_uint(tree, hf_usb_urb_len, tvb, 32, 4, val32);
 
-    proto_tree_add_uint(tree, hf_usb_data_len, tvb, 0, 0,
-                        pinfo->pseudo_header->linux_usb.data_len);
-
+	tvb_memcpy(tvb, (guint8 *)&val32, 36, 4);
+    proto_tree_add_uint(tree, hf_usb_data_len, tvb, 36, 4, val32);
 }
 
 static void
@@ -1684,21 +1829,18 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     /* add usb hdr*/
     if (parent) {
       proto_item *ti = NULL;
-      ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0, sizeof(struct usb_device_setup_hdr), "USB URB");
-
+      ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0,
+          sizeof(struct linux_usb_phdr) + sizeof(struct usb_device_setup_hdr), "USB URB");
       tree = proto_item_add_subtree(ti, usb_hdr);
     }
 
-    dissect_linux_usb_pseudo_header(tvb, pinfo, tree);
-
-    type = pinfo->pseudo_header->linux_usb.transfer_type;
-
-    endpoint = pinfo->pseudo_header->linux_usb.endpoint_number & (~URB_TRANSFER_IN);
-
-    tmp_addr = pinfo->pseudo_header->linux_usb.device_address;
-    setup_flag = pinfo->pseudo_header->linux_usb.setup_flag;
-
-    is_request = (pinfo->pseudo_header->linux_usb.event_type == URB_SUBMIT) ? TRUE : FALSE;
+    dissect_linux_usb_pseudo_header(tvb, pinfo, tree);  
+    is_request = (tvb_get_guint8(tvb, 8) == URB_SUBMIT) ? TRUE : FALSE;
+    type = tvb_get_guint8(tvb, 9);
+    endpoint = tvb_get_guint8(tvb, 10) & (~URB_TRANSFER_IN);
+    tmp_addr = tvb_get_guint8(tvb, 11);
+    setup_flag = tvb_get_guint8(tvb, 14);
+    offset += sizeof(struct linux_usb_phdr); /* skip pseudo header */
 
     /* Set up addresses and ports. */
     if (is_request) {
@@ -1775,7 +1917,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     }
 
     tap_data=ep_alloc(sizeof(usb_tap_data_t));
-    tap_data->urb_type=(guint8)pinfo->pseudo_header->linux_usb.event_type;
+    tap_data->urb_type=tvb_get_guint8(tvb, 8);
     tap_data->transfer_type=(guint8)type;
     tap_data->conv_info=usb_conv_info;
     tap_data->trans_info=usb_trans_info;
@@ -1790,22 +1932,16 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         item=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, 0, 0, usb_conv_info->interfaceClass);
         PROTO_ITEM_SET_GENERATED(item);
 
-        /* Skip setup header - it's never present */
-        offset += 8;
+        /* Skip setup header - it's not applicable */
+        offset += sizeof(struct usb_device_setup_hdr);
 
         /*
          * If this is padded (as is the case if the capture is done in
          * memory-mapped mode), skip the padding; it's padded to a multiple
-         * of 64 bits *after* the pseudo-header and setup header.  The
-         * pseudo-header is 40 bytes, and the setup header is 8 bytes,
-         * so that's 16 bytes of padding to 64 bytes.  (The pseudo-header
-         * was removed from the packet data by Wiretap, so the offset
-         * is relative to the beginning of the setup header, not relative
-         * to the beginning of the raw packet data, so we can't just
-         * round it up to a multiple of 64.)
+         * of 64 bits *after* the pseudo-header and setup header.
          */
         if (padded)
-            offset += 16;
+            offset += (64 - ((sizeof(struct linux_usb_phdr) + sizeof(struct usb_device_setup_hdr)) % 64)) % 64;
 
         if(tvb_reported_length_remaining(tvb, offset)){
             tvbuff_t *next_tvb;
@@ -1836,7 +1972,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
                 /* this is a request */
 
-                /* Dissect the setup header - it's present */
+                /* Dissect the setup header - it's applicable */
 
                 ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, sizeof(struct usb_device_setup_hdr), "URB setup");
                 setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
@@ -1857,7 +1993,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                      * dissector
                      */
                     proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, TRUE);
-                    offset += 1;
+                    offset++;
 
                     if (check_col(pinfo->cinfo, COL_INFO)) {
                         col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request",
@@ -1887,18 +2023,10 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                      * If this is padded (as is the case if the capture
                      * is done in memory-mapped mode), skip the padding;
                      * it's padded to a multiple of 64 bits *after* the
-                     * pseudo-header and setup header.  The pseudo-header
-                     * is 40 bytes, and the setup header is 8 bytes, so
-                     * that's 16 bytes of padding to 64 bytes.  (The
-                     * pseudo-header was removed from the packet data by
-                     * Wiretap, so the offset is relative to the beginning
-                     * of the setup header, not relative to the beginning
-                     * of the raw packet data, so we can't just round it up
-                     * to a multiple of 64.)
+                     * pseudo-header and setup header.  
                      */
                     if (padded)
-                        offset += 16;
-
+                        offset += (64 - ((sizeof(struct linux_usb_phdr) + sizeof(struct usb_device_setup_hdr)) % 64)) % 64;
                     break;
 
                 case RQT_SETUP_TYPE_CLASS:
@@ -1909,7 +2037,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     }
                     /* Else no class dissector, just display generic fields */
                     proto_tree_add_item(setup_tree, hf_usb_request_unknown_class, tvb, offset, 1, TRUE);
-                    offset += 1;
+                    offset++;
                     proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, TRUE);
                     offset += 2;
                     proto_tree_add_item(setup_tree, hf_usb_index, tvb, offset, 2, TRUE);
@@ -1917,9 +2045,10 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 2, TRUE);
                     offset += 2;
                     break;
+
                 default:
                     proto_tree_add_item(setup_tree, hf_usb_request_unknown_class, tvb, offset, 1, TRUE);
-                    offset += 1;
+                    offset++;
                     proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, TRUE);
                     offset += 2;
                     proto_tree_add_item(setup_tree, hf_usb_index, tvb, offset, 2, TRUE);
@@ -1928,46 +2057,33 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     offset += 2;
                 }
             } else {
-                /* Skip setup header - it's not present */
-
-                offset += 8;
+                /* Skip setup header - it's not applicable */
+                offset += sizeof(struct usb_device_setup_hdr);
 
                 /*
                  * If this is padded (as is the case if the capture is done
                  * in memory-mapped mode), skip the padding; it's padded to
                  * a multiple of 64 bits *after* the pseudo-header and setup
-                 * header.  The pseudo-header is 40 bytes, and the setup
-                 * header is 8 bytes, so that's 16 bytes of padding to 64
-                 * bytes.  (The pseudo-header was removed from the packet
-                 * data by Wiretap, so the offset is relative to the beginning
-                 * of the setup header, not relative to the beginning of the
-                 * raw packet data, so we can't just round it up to a multiple
-                 * of 64.)
+                 * header.
                  */
                 if (padded)
-                    offset += 16;
+                    offset += (64 - ((sizeof(struct linux_usb_phdr) + sizeof(struct usb_device_setup_hdr)) % 64)) % 64;
             }
         } else {
             tvbuff_t *next_tvb;
 
             /* this is a response */
 
-            /* Skip setup header - it's never present for responses */
-            offset += 8;
+            /* Skip setup header - it's never applicable for responses */
+            offset += sizeof(struct usb_device_setup_hdr);
 
             /*
              * If this is padded (as is the case if the capture is done in
              * memory-mapped mode), skip the padding; it's padded to a multiple
-             * of 64 bits *after* the pseudo-header and setup header.  The
-             * pseudo-header is 40 bytes, and the setup header is 8 bytes,
-             * so that's 16 bytes of padding to 64 bytes.  (The pseudo-header
-             * was removed from the packet data by Wiretap, so the offset
-             * is relative to the beginning of the setup header, not relative
-             * to the beginning of the raw packet data, so we can't just
-             * round it up to a multiple of 64.)
+             * of 64 bits *after* the pseudo-header and setup header.
              */
             if (padded)
-                offset += 16;
+                offset += (64 - ((sizeof(struct linux_usb_phdr) + sizeof(struct usb_device_setup_hdr)) % 64)) % 64;
 
             if(usb_trans_info){
                 /* Try to find a class specific dissector */
@@ -1976,7 +2092,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     return;
                 }
 
-                type_2 = (usb_trans_info->requesttype & USB_TYPE_MASK) >>5;
+                type_2 = USB_TYPE(usb_trans_info->requesttype);
                 switch (type_2) {
 
                 case RQT_SETUP_TYPE_STANDARD:
@@ -2028,22 +2144,16 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         if (setup_flag == 0) {
             proto_item *ti = NULL;
             proto_tree *setup_tree = NULL;
-            guint8 requesttype, request;
             int type_2;
 
-            /* Dissect the setup header - it's present */
+            /* Dissect the setup header - it's applicable */
 
             ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, sizeof(struct usb_device_setup_hdr), "URB setup");
             setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
 
-
-            requesttype=tvb_get_guint8(tvb, offset);
             offset=dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type_2);
-
-            request=tvb_get_guint8(tvb, offset);
             proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, TRUE);
-            offset += 1;
-
+            offset++;
             proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, TRUE);
             offset += 2;
             proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, TRUE);
@@ -2051,25 +2161,17 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, TRUE);
             offset += 2;
         } else {
-            /* Skip setup header - it's not present */
-
-            offset += 8;
+            /* Skip setup header - it's not applicable */
+            offset += sizeof(struct usb_device_setup_hdr);
         }
 
         /*
          * If this is padded (as is the case if the capture is done in
          * memory-mapped mode), skip the padding; it's padded to a multiple
-         * of 64 bits *after* the pseudo-header and setup header.  The
-         * pseudo-header is 40 bytes, and the setup header is 8 bytes,
-         * so that's 16 bytes of padding to 64 bytes.  (The pseudo-header
-         * was removed from the packet data by Wiretap, so the offset
-         * is relative to the beginning of the setup header, not relative
-         * to the beginning of the raw packet data, so we can't just
-         * round it up to a multiple of 64.)
+         * of 64 bits *after* the pseudo-header and setup header.
          */
         if (padded)
-            offset += 16;
-
+            offset += (64 - ((sizeof(struct linux_usb_phdr) + sizeof(struct usb_device_setup_hdr)) % 64)) % 64;
         break;
     }
 
@@ -2128,12 +2230,22 @@ proto_register_usb(void)
         { &hf_usb_setup_flag,
         { "Device setup request", "usb.setup_flag", FT_STRING, BASE_NONE,
                  NULL, 0x0,
-                 "USB device setup request is present (0) or not", HFILL }},
+                 "USB device setup request is relevant (0) or not", HFILL }},
 
         { &hf_usb_data_flag,
         { "Data", "usb.data_flag", FT_STRING, BASE_NONE,
                  NULL, 0x0,
                  "USB data is present (0) or not", HFILL }},
+
+        { &hf_usb_urb_ts_sec,
+        { "URB sec", "usb.urb_ts_sec", FT_UINT64, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_usb_urb_ts_usec,
+        { "URB usec", "usb.urb_ts_usec", FT_UINT32, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL }},
 
         { &hf_usb_urb_status,
         { "URB status", "usb.urb_status", FT_INT32, BASE_DEC,
@@ -2185,19 +2297,19 @@ proto_register_usb(void)
 
         { &hf_usb_wFeatureSelector,
         { "wFeatureSelector", "usb.setup.wFeatureSelector", FT_UINT16, BASE_DEC,
-	   VALS(usb_feature_selector_vals), 0x0, NULL, HFILL }},
+                VALS(usb_feature_selector_vals), 0x0, NULL, HFILL }},
 
         { &hf_usb_wInterface,
         { "wInterface", "usb.setup.wInterface", FT_UINT16, BASE_DEC,
-	   NULL, 0x0, NULL, HFILL }},
+                NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_wStatus,
         { "wStatus", "usb.setup.wStatus", FT_UINT16, BASE_HEX,
-	   NULL, 0x0, NULL, HFILL }},
+                NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_wFrameNumber,
         { "wFrameNumber", "usb.setup.wFrameNumber", FT_UINT16, BASE_DEC,
-	   NULL, 0x0, NULL, HFILL }},
+                NULL, 0x0, NULL, HFILL }},
 
     /* --------------------------------- */
         { &hf_usb_data,
@@ -2394,18 +2506,17 @@ proto_register_usb(void)
         { "Direction", "usb.bEndpointAddress.direction", FT_BOOLEAN, 8,
           TFS(&tfs_endpoint_direction), 0x80, NULL, HFILL }},
 
-	{ &hf_usb_request_in,
-		{ "Request in", "usb.request_in", FT_FRAMENUM, BASE_NONE,
-		NULL, 0, "The request to this packet is in this packet", HFILL }},
+        { &hf_usb_request_in,
+        { "Request in", "usb.request_in", FT_FRAMENUM, BASE_NONE,
+          NULL, 0, "The request to this packet is in this packet", HFILL }},
 
-	{ &hf_usb_time,
-		{ "Time from request", "usb.time", FT_RELATIVE_TIME, BASE_NONE,
-		NULL, 0, "Time between Request and Response for USB cmds", HFILL }},
+        { &hf_usb_time,
+        { "Time from request", "usb.time", FT_RELATIVE_TIME, BASE_NONE,
+          NULL, 0, "Time between Request and Response for USB cmds", HFILL }},
 
-	{ &hf_usb_response_in,
-		{ "Response in", "usb.response_in", FT_FRAMENUM, BASE_NONE,
-		NULL, 0, "The response to this packet is in this packet", HFILL }},
-
+        { &hf_usb_response_in,
+        { "Response in", "usb.response_in", FT_FRAMENUM, BASE_NONE,
+          NULL, 0, "The response to this packet is in this packet", HFILL }},
     };
 
     static gint *usb_subtrees[] = {

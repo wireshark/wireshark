@@ -924,33 +924,44 @@ pcap_read_sita_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
 	return TRUE;
 }
 
-static gboolean
-pcap_read_linux_usb_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, gboolean byte_swapped, int *err)
-{
-	int	bytes_read;
+/*
+ * Offset of the *end* of a field within a particular structure.
+ */
+#define END_OFFSETOF(basep, fieldp) \
+	(((char *)(void *)(fieldp)) - ((char *)(void *)(basep)) + \
+	    sizeof(*fieldp))
 
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&pseudo_header->linux_usb, 1,
-	    sizeof (struct linux_usb_phdr), fh);
-	if (bytes_read != sizeof (struct linux_usb_phdr)) {
-		*err = file_error(fh);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
+static void
+pcap_process_linux_usb_pseudoheader(guint packet_size, gboolean byte_swapped,
+    guint8 *pd)
+{
+	struct linux_usb_phdr *phdr;
 
 	if (byte_swapped) {
-		pseudo_header->linux_usb.id = GUINT64_SWAP_LE_BE(pseudo_header->linux_usb.id);
-		pseudo_header->linux_usb.bus_id = GUINT16_SWAP_LE_BE(pseudo_header->linux_usb.bus_id);
-		pseudo_header->linux_usb.ts_sec = GUINT64_SWAP_LE_BE(pseudo_header->linux_usb.ts_sec);
-		pseudo_header->linux_usb.ts_usec = GUINT32_SWAP_LE_BE(pseudo_header->linux_usb.ts_usec);
-		pseudo_header->linux_usb.status = GUINT32_SWAP_LE_BE(pseudo_header->linux_usb.status);
-		pseudo_header->linux_usb.urb_len = GUINT32_SWAP_LE_BE(pseudo_header->linux_usb.urb_len);
-		pseudo_header->linux_usb.data_len = GUINT32_SWAP_LE_BE(pseudo_header->linux_usb.data_len);
-	}
+		phdr = (struct linux_usb_phdr *)pd;
 
-	return TRUE;
+		if (packet_size < END_OFFSETOF(phdr, &phdr->id))
+			return;
+		PBSWAP64((guint8 *)&phdr->id);
+		if (packet_size < END_OFFSETOF(phdr, &phdr->bus_id))
+			return;
+		PBSWAP16((guint8 *)&phdr->bus_id);
+		if (packet_size < END_OFFSETOF(phdr, &phdr->ts_sec))
+			return;
+		PBSWAP64((guint8 *)&phdr->ts_sec);
+		if (packet_size < END_OFFSETOF(phdr, &phdr->ts_usec))
+			return;
+		PBSWAP32((guint8 *)&phdr->ts_usec);
+		if (packet_size < END_OFFSETOF(phdr, &phdr->status))
+			return;
+		PBSWAP32((guint8 *)&phdr->status);
+		if (packet_size < END_OFFSETOF(phdr, &phdr->urb_len))
+			return;
+		PBSWAP32((guint8 *)&phdr->urb_len);
+		if (packet_size < END_OFFSETOF(phdr, &phdr->data_len))
+			return;
+		PBSWAP32((guint8 *)&phdr->data_len);
+	}
 }
 
 static gboolean
@@ -1144,8 +1155,8 @@ pcap_read_i2c_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, i
 }
 
 int
-pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap, gboolean bytes_swapped, guint packet_size,
-    gboolean check_packet_size, struct wtap_pkthdr *phdr,
+pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
+    guint packet_size, gboolean check_packet_size, struct wtap_pkthdr *phdr,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
 {
 	int phdr_len = 0;
@@ -1289,26 +1300,6 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap, gboolean by
 		phdr_len = SITA_HDR_LEN;
 		break;
 
-	case WTAP_ENCAP_USB_LINUX:
-	case WTAP_ENCAP_USB_LINUX_MMAPPED:
-		if (check_packet_size &&
-		    packet_size < sizeof (struct linux_usb_phdr)) {
-			/*
-			 * Uh-oh, the packet isn't big enough to even
-			 * have a pseudo-header.
-			 */
-			*err = WTAP_ERR_BAD_RECORD;
-			*err_info = g_strdup_printf("pcap: Linux USB file has a %u-byte packet, too small to have even a Linux USB pseudo-header",
-			    packet_size);
-			return -1;
-		}
-		if (!pcap_read_linux_usb_pseudoheader(fh,
-		    pseudo_header, bytes_swapped, err))
-			return -1;	/* Read error */
-
-		phdr_len = (int)sizeof (struct linux_usb_phdr);
-		break;
-
 	case WTAP_ENCAP_BLUETOOTH_H4:
 		/* We don't have pseudoheader, so just pretend we received everything. */
 		pseudo_header->p2p.sent = FALSE;
@@ -1412,6 +1403,23 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap, gboolean by
 	return phdr_len;
 }
 
+void
+pcap_read_post_process(int wtap_encap, guint packet_size,
+    gboolean bytes_swapped, guchar *pd)
+{
+	switch (wtap_encap) {
+
+	case WTAP_ENCAP_USB_LINUX:
+	case WTAP_ENCAP_USB_LINUX_MMAPPED:
+		pcap_process_linux_usb_pseudoheader(packet_size,
+		    bytes_swapped, pd);
+		break;
+
+	default:
+		break;
+	}
+}
+
 int
 pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 {
@@ -1437,11 +1445,6 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 
 	case WTAP_ENCAP_SITA:
 		hdrsize = SITA_HDR_LEN;
-		break;
-
-	case WTAP_ENCAP_USB_LINUX:
-	case WTAP_ENCAP_USB_LINUX_MMAPPED:
-		hdrsize = (int)sizeof (struct linux_usb_phdr);
 		break;
 
 	case WTAP_ENCAP_ERF:
@@ -1634,26 +1637,6 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 			return FALSE;
 		}
 		wdh->bytes_dumped += sizeof(sita_hdr);
-		break;
-
-	case WTAP_ENCAP_USB_LINUX:
-	case WTAP_ENCAP_USB_LINUX_MMAPPED:
-		/*
-		 * Write out the pseudo-header; it has the same format
-		 * as the Linux USB header, and that header is supposed
-		 * to be written in the host byte order of the machine
-		 * writing the file.
-		 */
-		nwritten = fwrite(&pseudo_header->linux_usb, 1,
-		    sizeof(pseudo_header->linux_usb), wdh->fh);
-		if (nwritten != sizeof(pseudo_header->linux_usb)) {
-			if (nwritten == 0 && ferror(wdh->fh))
-				*err = errno;
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
-			return FALSE;
-		}
-		wdh->bytes_dumped += sizeof(lapd_hdr);
 		break;
 
 	case WTAP_ENCAP_ERF:

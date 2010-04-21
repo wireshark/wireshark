@@ -106,6 +106,7 @@ typedef struct _usb_tap_data_t {
 #define USB_DIR_IN                      0x80            /* to host */
 
 #define USB_TYPE_MASK                   (0x03 << 5)
+#define USB_TYPE(type)                  (((type) & USB_TYPE_MASK) >> 5)
 #define RQT_SETUP_TYPE_STANDARD	0
 #define RQT_SETUP_TYPE_CLASS	1
 #define RQT_SETUP_TYPE_VENDOR	2

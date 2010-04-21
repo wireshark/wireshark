@@ -2256,6 +2256,7 @@ Chris Maynard		<Christopher.Maynard [AT] GTECH.COM> {
 	Add Doxygen comments to the CRC-16 and CRC-32 headers
 	Add support for RFC 2520: NHRP with Mobile NHCs
 	    and RFC 2735: NHRP Support for Virtual Private Networks
+	Add support for PPP-over-USB
 }
 
 SEKINE Hideki		<sekineh [AT] gf7.so-net.ne.jp> {

@@ -122,9 +122,25 @@ extern gint wtap_num_file_types;
 	 ((((x)&0xFF00)>>8) | \
 	  (((x)&0x00FF)<<8))
 
-/* Macros to byte-swap possibly-unaligned 32-bit and 16-bit quantities;
+/* Macros to byte-swap possibly-unaligned 64-bit, 32-bit and 16-bit quantities;
  * they take a pointer to the quantity, and byte-swap it in place.
  */
+#define PBSWAP64(p) \
+	{			\
+	guint8 tmp;		\
+	tmp = (p)[7];		\
+	(p)[7] = (p)[0];	\
+	(p)[0] = tmp;		\
+	tmp = (p)[6];		\
+	(p)[6] = (p)[1];	\
+	(p)[1] = tmp;		\
+	tmp = (p)[5];		\
+	(p)[5] = (p)[2];	\
+	(p)[2] = tmp;		\
+	tmp = (p)[4];		\
+	(p)[4] = (p)[3];	\
+	(p)[3] = tmp;		\
+	}
 #define PBSWAP32(p) \
 	{			\
 	guint8 tmp;		\

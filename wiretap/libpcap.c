@@ -643,8 +643,8 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 
 	libpcap = (libpcap_t *)wth->priv;
 	phdr_len = pcap_process_pseudo_header(wth->fh, wth->file_type,
-	    wth->file_encap, libpcap->byte_swapped, packet_size,
-	    TRUE, &wth->phdr, &wth->pseudo_header, err, err_info);
+	    wth->file_encap, packet_size, TRUE, &wth->phdr,
+	    &wth->pseudo_header, err, err_info);
 	if (phdr_len < 0)
 		return FALSE;	/* error */
 
@@ -698,6 +698,8 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		}
 	}
 
+	pcap_read_post_process(wth->file_encap, wth->phdr.caplen,
+	    libpcap->byte_swapped, buffer_start_ptr(wth->frame_buffer));
 	return TRUE;
 }
 
@@ -714,8 +716,7 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 
 	libpcap = (libpcap_t *)wth->priv;
 	phdr_len = pcap_process_pseudo_header(wth->random_fh, wth->file_type,
-	    wth->file_encap, libpcap->byte_swapped, length,
-	    FALSE, NULL, pseudo_header, err, err_info);
+	    wth->file_encap, length, FALSE, NULL, pseudo_header, err, err_info);
 	if (phdr_len < 0)
 		return FALSE;	/* error */
 
@@ -746,6 +747,8 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 				atm_guess_lane_type(pd, length, pseudo_header);
 		}
 	}
+	pcap_read_post_process(wth->file_encap, length,
+	    libpcap->byte_swapped, pd);
 	return TRUE;
 }
 

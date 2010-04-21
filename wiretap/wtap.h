@@ -633,6 +633,7 @@ struct catapult_dct2000_phdr
 /*
  * USB setup header as defined in USB specification
  * See usb_20.pdf, Chapter 9.3 'USB Device Requests' for details.
+ * http://www.usb.org/developers/docs/usb_20_122909-2.zip
  */
 struct usb_device_setup_hdr {
     gint8 bmRequestType;
@@ -658,7 +659,7 @@ struct linux_usb_phdr {
     guint8 endpoint_number; /* Endpoint number (0-15) and transfer direction */
     guint8 device_address;  /* 0-127 */
     guint16 bus_id;
-    gint8 setup_flag;       /* 0, if the urb setup header is present */
+    gint8 setup_flag;       /* 0, if the urb setup header is meaningful */
     gint8 data_flag;        /* 0, if urb data is present */
     gint64 ts_sec;
     gint32 ts_usec;
@@ -837,12 +838,11 @@ union wtap_pseudo_header {
 	struct cosine_phdr	cosine;
 	struct irda_phdr	irda;
 	struct nettl_phdr	nettl;
-	struct mtp2_phdr        mtp2;
+	struct mtp2_phdr	mtp2;
 	struct k12_phdr		k12;
 	struct lapd_phdr	lapd;
 	struct catapult_dct2000_phdr dct2000;
-	struct linux_usb_phdr	linux_usb;
-	struct erf_mc_phdr      erf;
+	struct erf_mc_phdr	erf;
 	struct sita_phdr	sita;
 	struct bthci_phdr	bthci;
 	struct l1event_phdr	l1event;
@@ -863,7 +863,6 @@ struct wtap_pkthdr {
 	int pkt_encap;
 };
 
-struct wtap;
 struct Buffer;
 struct wtap_dumper;
 
@@ -1025,6 +1024,8 @@ int wtap_register_encap_type(char* name, char* short_name);
 	/* We're trying to open the standard input for random access */
 #define WTAP_ERR_COMPRESSION_NOT_SUPPORTED -19
 	/* The filetype doesn't support output compression */
+#define	WTAP_ERR_CANT_SEEK			-20
+	/* An attempt to seek failed, reason unknown */
 
 /* Errors from zlib; zlib error Z_xxx turns into Wiretap error
    WTAP_ERR_ZLIB + Z_xxx.
