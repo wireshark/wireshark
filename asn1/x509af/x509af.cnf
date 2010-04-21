@@ -17,6 +17,7 @@ AttributeCertificateAssertion
 AttributeCertificateInfo
 AttributeCertificationPath
 Certificate
+Certificate_PDU
 Certificates
 CertificateList
 CertificatePair
