@@ -165,8 +165,9 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
         fi
     fi
 
-    export WIRESHARK_DEBUG_SCRUB_MEMORY=1
-    export WIRESHARK_DEBUG_SE_USE_CANARY=1
+    export WIRESHARK_DEBUG_SCRUB_MEMORY=
+    export WIRESHARK_DEBUG_SE_USE_CANARY=
+    export MALLOC_CHECK_=3
     "$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
         > /dev/null 2> $TMP_DIR/$ERR_FILE
     RETVAL=$?
