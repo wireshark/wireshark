@@ -2360,11 +2360,18 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         ta_value = tvb_get_guint8(tvb, offset) & 0x3f;
                         ta_ti = proto_tree_add_item(tree, hf_mac_lte_control_timing_advance,
                                                     tvb, offset, 1, FALSE);
-                        if (ta_value > 0) {
+
+                        if (ta_value == 31) {
                             expert_add_info_format(pinfo, ta_ti, PI_SEQUENCE,
-                                                   (ta_value <= 31) ? PI_NOTE : PI_WARN,
-                                                   "Timing Advance control element received (%u)",
-                                                   ta_value);
+                                                   PI_NOTE,
+                                                   "Timing Advance control element received (no correction needed)");
+                        }
+                        else {
+                            expert_add_info_format(pinfo, ta_ti, PI_SEQUENCE,
+                                                   PI_WARN,
+                                                   "Timing Advance control element received (%u) %s correction needed",
+                                                   ta_value,
+                                                   (ta_value < 31) ? "-ve" : "+ve");
                         }
                         offset++;
                     }
