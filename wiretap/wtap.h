@@ -641,6 +641,12 @@ struct catapult_dct2000_phdr
  * above.
  *
  * See linux/Documentation/usb/usbmon.txt and libpcap/pcap/usb.h for details.
+ *
+ * With WTAP_ENCAP_USB_LINUX, packets have the 48-byte header; with
+ * WTAP_ENCAP_USB_LINUX_MMAPPED, they have the 64-byte header.  There
+ * is no indication of whether the header has the "struct iso_rec", or
+ * whether the last 16 bytes of a 64-byte header are all zeros or are
+ * a "struct linux_usb_phdr_ext".
  */
 
 /*
