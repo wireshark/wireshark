@@ -143,7 +143,7 @@ static const value_string eof_vals[] = {
     {MDSHDR_EOFni,               "EOFni"},
     {MDSHDR_EOFrt,               "EOFrt"},
     {MDSHDR_EOFrti,              "EOFrti"},
-    {MDSHDR_EOF_UNKNOWN,         ""},
+    /*{MDSHDR_EOF_UNKNOWN,         ""}, intentionally removed*/
     {0,                          NULL},
 };
 
@@ -164,7 +164,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 sof, eof;
     guint16 vsan;
     guint8 span_id;
-    int trailer_start = 0;
+    int trailer_start = 0; /*0 means "no trailer found"*/
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MDS Header");
@@ -177,7 +177,9 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     span_id = (tvb_get_ntohs (tvb, offset+MDSHDR_VSAN_OFFSET) & 0xF000) >> 12;
     
     /* The Mdshdr trailer is at the end of the frame */
-    if (tvb_length (tvb) >= MDSHDR_HEADER_SIZE + pktlen) {
+    if (tvb_length (tvb) >= MDSHDR_HEADER_SIZE + pktlen
+     /* Avoid header/trailer overlap if something wrong */
+     && pktlen >= MDSHDR_TRAILER_SIZE ) {
         trailer_start = MDSHDR_HEADER_SIZE + pktlen - MDSHDR_TRAILER_SIZE; 
     
         eof = tvb_get_guint8 (tvb, trailer_start);
@@ -242,7 +244,8 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_HIDDEN(hidden_item);
         
         /* Add Mdshdr Trailer part */
-        if (tvb_length (tvb) >= MDSHDR_HEADER_SIZE + pktlen) {
+        if (tvb_length (tvb) >= MDSHDR_HEADER_SIZE + pktlen
+         && 0 != trailer_start) {
             ti_trlr = proto_tree_add_text (mdshdr_tree_main, tvb, trailer_start,
                                            MDSHDR_TRAILER_SIZE,
                                            "MDS Trailer");
@@ -253,11 +256,16 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item (mdshdr_tree_trlr, hf_mdshdr_fccrc, tvb,
                                  trailer_start+2, MDSHDR_SIZE_INT32, 0);
         }
+        else {
+            proto_tree_add_text (mdshdr_tree_main, tvb, 0, 0, "MDS Trailer: Not Found");        
+        }
     }
     
     /* If this protocol has a sub-dissector call it here, see section 1.8 */
-    if (tvb_length (tvb) >= MDSHDR_HEADER_SIZE + pktlen) {
+    if (tvb_length (tvb) >= MDSHDR_HEADER_SIZE + pktlen
+     && 0 != pktlen /*if something wrong*/) {
         next_tvb = tvb_new_subset (tvb, MDSHDR_HEADER_SIZE, pktlen, pktlen);
+        /* XXX what to do with the rest of this frame? --ArtemTamazov */
     }
     else {
         next_tvb = tvb_new_subset_remaining (tvb, MDSHDR_HEADER_SIZE);
