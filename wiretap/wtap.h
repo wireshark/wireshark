@@ -644,13 +644,27 @@ struct usb_device_setup_hdr {
 };
 
 /*
+ * Information from the URB for Isochronous transfers.
+ */
+struct iso_rec {
+    guint32 error_count;
+    guint32 numdesc;
+};
+
+/*
  * Header prepended by Linux kernel to each USB event.
- * Always followed by a struct usb_device_setup_hdr, although that header
- * is valid only if setup_flag is 0; otherwise it's 8 bytes of junk.
+ * Always followed either by:
+ *
+ * 	a struct usb_device_setup_hdr, if "setup_flag" is 0;
+ *
+ *	a struct iso_rec, if this is an isochronous transfer;
+ *
+ *	8 bytes of junk, otherwise.
+ *
  * (Setup flag is '-', 'D', 'Z', or 0.  Data flag is '<', '>', 'Z', or 0.)
  * See linux/Documentation/usb/usbmon.txt and libpcap/pcap/usb.h for details.
  *
- * We present this as a pseudo-header; the values are in host byte order.
+ * The values are in *host* byte order.
  */
 struct linux_usb_phdr {
     guint64 id;             /* urb id, to link submission and completion events */
