@@ -227,7 +227,7 @@ exntest.exe: $(EXNTEST_OBJ)
 	@echo Linking $@
 	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
 		$(GLIB_LIBS) $(EXNTEST_OBJ)
-!IF $(MSC_VER_REQUIRED) >= 1400
+!IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "$@.manifest" -outputresource:$@;1
 !ENDIF
 
@@ -243,7 +243,7 @@ tvbtest.exe: $(TVBTEST_OBJ)
 	@echo Linking $@
 	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
 		$(GLIB_LIBS) $(ZLIB_LIBS) $(TVBTEST_OBJ)
-!IF $(MSC_VER_REQUIRED) >= 1400
+!IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "$@.manifest" -outputresource:$@;1
 !ENDIF
 
@@ -260,7 +260,7 @@ reassemble_test.exe: $(REASSEMBLE_TEST_OBJ)
 	@echo Linking $@
 	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
                 $(GLIB_LIBS) $(ZLIB_LIBS) $(REASSEMBLE_TEST_OBJ)
-!IF $(MSC_VER_REQUIRED) >= 1400
+!IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "$@.manifest" -outputresource:$@;1
 !ENDIF
 

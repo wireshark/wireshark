@@ -691,6 +691,12 @@ MSC_VER_REQUIRED=1600
 !ERROR MSVC_VARIANT unknown
 !ENDIF
 
+## Manifest processing is not needed for VC10 (Visual Studio 2010 C)
+## See: http://msdn.microsoft.com/en-us/library/dd293574.aspx
+!IF ($(MSC_VER_REQUIRED) >= 1400) && ($(MSC_VER_REQUIRED) < 1600)
+MANIFEST_INFO_REQUIRED=1
+!ENDIF
+
 # Compiler flags:
 # /W3  warning level 3 (0 less - 4 most, 1 default)
 # /Zi  create .pdb file for debugging
@@ -736,7 +742,7 @@ LOCAL_CFLAGS= $(LOCAL_CFLAGS) /MP
 #
 LOCAL_LDFLAGS=/DEBUG /MACHINE:$(TARGET_MACHINE)
 DLL_LDFLAGS =
-!IF $(MSC_VER_REQUIRED) >= 1400
+!IFDEF MANIFEST_INFO_REQUIRED
 DLL_LDFLAGS = /MANIFEST:no
 !ENDIF
 
