@@ -59,6 +59,7 @@ static int hf_mac_lte_context_rnti = -1;
 static int hf_mac_lte_context_rnti_type = -1;
 static int hf_mac_lte_context_ueid = -1;
 static int hf_mac_lte_context_subframe_number = -1;
+static int hf_mac_lte_context_grant_subframe_number = -1;
 static int hf_mac_lte_context_predefined_frame = -1;
 static int hf_mac_lte_context_length = -1;
 static int hf_mac_lte_context_ul_grant_size = -1;
@@ -1125,7 +1126,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     timing_advance = (tvb_get_ntohs(tvb, offset) & 0x7ff0) >> 4;
     ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ta, tvb, offset, 2, FALSE);
     if (timing_advance != 0) {
-        expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+        expert_add_info_format(pinfo, ti, PI_SEQUENCE, (timing_advance <= 31) ? PI_NOTE : PI_WARN,
                                "RAR Timing advance not zero (%u)", timing_advance);
     }
     offset++;
@@ -1550,31 +1551,41 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
         LastFrameDataAllSubframes *ueData =
             g_hash_table_lookup(mac_lte_dl_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti));
         if (ueData != NULL) {
-            /* Looking for a frame sent 8 subframes previously */
-            lastData = &(ueData->subframe[(p_mac_lte_info->subframeNumber+2) % 10]);
-            if (lastData->inUse) {
-                /* Compare time, sf, data to see if this looks like a retx */
-                if ((tvb_length_remaining(tvb, offset) == lastData->length) &&
-                    (memcmp(lastData->data,
-                            tvb_get_ptr(tvb, offset, lastData->length),
-                            MIN(lastData->length, MAX_EXPECTED_PDU_LENGTH)) == 0)) {
 
-                    /* Work out gap between frames */
-                    gint seconds_between_packets = (gint)
-                          (pinfo->fd->abs_ts.secs - lastData->received_time.secs);
-                    gint nseconds_between_packets =
-                          pinfo->fd->abs_ts.nsecs - lastData->received_time.nsecs;
+            /* Looking for a frame sent 8 or 9 subframes previously.
+               TODO: have even seen retx 10 SFs later... */
+            gboolean found_match = FALSE;
+            gint SFs_ago;
 
-                    /* Round difference to nearest millisecond */
-                    gint total_gap = (seconds_between_packets*1000) +
-                                     ((nseconds_between_packets+500000) / 1000000);
+            for (SFs_ago=8; (SFs_ago <= 9) && !found_match; SFs_ago++) {
+                /* Check 8 SFs ago */
+                lastData = &(ueData->subframe[(p_mac_lte_info->subframeNumber+(10-SFs_ago)) % 10]);
+                if (lastData->inUse) {
+                    /* Compare time, sf, data to see if this looks like a retx */
+                    if ((tvb_length_remaining(tvb, offset) == lastData->length) &&
+                        (memcmp(lastData->data,
+                                tvb_get_ptr(tvb, offset, lastData->length),
+                                MIN(lastData->length, MAX_EXPECTED_PDU_LENGTH)) == 0)) {
 
-                    /* Should be 8 ms apart - allow some leeway */
-                    if ((total_gap >= 7) && (total_gap <= 9)) {
-                        /* Resend detected!!! Store result */
-                        result = se_alloc(sizeof(DLHARQResult));
-                        result->previousFrameNum = lastData->framenum;
-                        g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result);
+                        /* Work out gap between frames */
+                        gint seconds_between_packets = (gint)
+                              (pinfo->fd->abs_ts.secs - lastData->received_time.secs);
+                        gint nseconds_between_packets =
+                              pinfo->fd->abs_ts.nsecs - lastData->received_time.nsecs;
+
+                        /* Round difference to nearest millisecond */
+                        gint total_gap = (seconds_between_packets*1000) +
+                                         ((nseconds_between_packets+500000) / 1000000);
+
+                        /* Should be equal to number of subframes - allow some leeway */
+                        if ((total_gap >= (SFs_ago-1)) && (total_gap <= (SFs_ago+1))) {
+                            found_match = TRUE;
+
+                            /* Resend detected!!! Store result */
+                            result = se_alloc(sizeof(DLHARQResult));
+                            result->previousFrameNum = lastData->framenum;
+                            g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result);
+                        }
                     }
                 }
             }
@@ -2349,9 +2360,12 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         ta_value = tvb_get_guint8(tvb, offset) & 0x3f;
                         ta_ti = proto_tree_add_item(tree, hf_mac_lte_control_timing_advance,
                                                     tvb, offset, 1, FALSE);
-                        expert_add_info_format(pinfo, ta_ti, PI_SEQUENCE, PI_WARN,
-                                               "Timing Advance control element received (%u)",
-                                               ta_value);
+                        if (ta_value > 0) {
+                            expert_add_info_format(pinfo, ta_ti, PI_SEQUENCE,
+                                                   (ta_value <= 31) ? PI_NOTE : PI_WARN,
+                                                   "Timing Advance control element received (%u)",
+                                                   ta_value);
+                        }
                         offset++;
                     }
                     break;
@@ -3181,6 +3195,12 @@ void proto_register_mac_lte(void)
             { "Subframe",
               "mac-lte.subframe", FT_UINT16, BASE_DEC, 0, 0x0,
               "Subframe number associated with message", HFILL
+            }
+        },
+        { &hf_mac_lte_context_grant_subframe_number,
+            { "Grant Subframe",
+              "mac-lte.grant-subframe", FT_UINT16, BASE_DEC, 0, 0x0,
+              "Subframe grant for this PDU was received", HFILL
             }
         },
         { &hf_mac_lte_context_predefined_frame,
