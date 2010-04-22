@@ -614,57 +614,43 @@ struct catapult_dct2000_phdr
 };
 
 /*
- * possible event type
- */
-#define URB_SUBMIT        'S'
-#define URB_COMPLETE      'C'
-#define URB_ERROR         'E'
-
-/*
- * possible transfer mode
- */
-#define URB_ISOCHRONOUS   0x0
-#define URB_INTERRUPT     0x1
-#define URB_CONTROL       0x2
-#define URB_BULK          0x3
-
-#define URB_TRANSFER_IN   0x80		/* to host */
-
-/*
- * USB setup header as defined in USB specification
- * See usb_20.pdf, Chapter 9.3 'USB Device Requests' for details.
- * http://www.usb.org/developers/docs/usb_20_122909-2.zip
- */
-struct usb_device_setup_hdr {
-    gint8 bmRequestType;
-    guint8 bRequest;
-    guint16 wValue;
-    guint16 wIndex;
-    guint16 wLength;
-};
-
-/*
- * Information from the URB for Isochronous transfers.
- */
-struct iso_rec {
-    guint32 error_count;
-    guint32 numdesc;
-};
-
-/*
- * Header prepended by Linux kernel to each USB event.
- * Always followed either by:
+ * When not using the memory-mapped interface to capture USB events,
+ * code that reads those events can use the MON_IOCX_GET ioctl to
+ * read a 48-byte header consisting of a "struct linux_usb_phdr", as
+ * defined below, followed immediately by one of:
  *
- * 	a struct usb_device_setup_hdr, if "setup_flag" is 0;
+ *	8 bytes of a "struct usb_device_setup_hdr", if "setup_flag"
+ *	in the preceding "struct linux_usb_phdr" is 0;
  *
- *	a struct iso_rec, if this is an isochronous transfer;
+ *	in Linux 2.6.30 or later, 8 bytes of a "struct iso_rec", if
+ *	this is an isochronous transfer;
  *
  *	8 bytes of junk, otherwise.
  *
- * (Setup flag is '-', 'D', 'Z', or 0.  Data flag is '<', '>', 'Z', or 0.)
+ * In Linux 2.6.31 and later, it can also use the MON_IOCX_GETX ioctl
+ * to read a 64-byte header; that header consists of the 48 bytes
+ * above, followed immediately by 16 bytes of a "struct linux_usb_phdr_ext",
+ * as defined below.
+ *
+ * In Linux 2.6.21 and later, there's a memory-mapped interface to
+ * capture USB events.  In that interface, the events in the memory-mapped
+ * buffer have a 64-byte header, followed immediately by the data.
+ * In Linux 2.6.21 through 2.6.30.x, the 64-byte header is the 48-byte
+ * header described above, followed by 16 bytes of zeroes; in Linux
+ * 2.6.31 and later, the 64-byte header is the 64-byte header described
+ * above.
+ *
  * See linux/Documentation/usb/usbmon.txt and libpcap/pcap/usb.h for details.
+ */
+
+/*
+ * Header prepended by Linux kernel to each USB event.
+ *
+ * (Setup flag is '-', 'D', 'Z', or 0.  Data flag is '<', '>', 'Z', or 0.)
  *
  * The values are in *host* byte order.
+ *
+ * This structure is 40 bytes long.
  */
 struct linux_usb_phdr {
     guint64 id;             /* urb id, to link submission and completion events */
@@ -680,6 +666,60 @@ struct linux_usb_phdr {
     gint32 status;
     guint32 urb_len;        /* whole len of urb this event refers to */
     guint32 data_len;       /* amount of urb data really present in this event */
+};
+
+/*
+ * event_type values
+ */
+#define URB_SUBMIT        'S'
+#define URB_COMPLETE      'C'
+#define URB_ERROR         'E'
+
+/*
+ * transfer_type values
+ */
+#define URB_ISOCHRONOUS   0x0
+#define URB_INTERRUPT     0x1
+#define URB_CONTROL       0x2
+#define URB_BULK          0x3
+
+#define URB_TRANSFER_IN   0x80		/* to host */
+
+/*
+ * USB setup header as defined in USB specification
+ * See usb_20.pdf, Chapter 9.3 'USB Device Requests' for details.
+ * http://www.usb.org/developers/docs/usb_20_122909-2.zip
+ *
+ * This structure is 8 bytes long.
+ */
+struct usb_device_setup_hdr {
+    gint8 bmRequestType;
+    guint8 bRequest;
+    guint16 wValue;
+    guint16 wIndex;
+    guint16 wLength;
+};
+
+/*
+ * Information from the URB for Isochronous transfers.
+ *
+ * This structure is 8 bytes long.
+ */
+struct iso_rec {
+    gint32 error_count;
+    gint32 numdesc;
+};
+
+/*
+ * Additional data provided by Linux 2.6.31 and later kernels.
+ *
+ * This structure is 16 bytes long.
+ */
+struct linux_usb_phdr_ext {
+    gint32 interval;    /* only for Interrupt and Isochronous events */
+    gint32 start_frame; /* for Isochronous */
+    guint32 xfer_flags; /* copy of URB's transfer_flags */
+    guint32 ndesc;      /* actual number of isochronous descriptors */
 };
 
 #define LIBPCAP_BT_PHDR_SENT    0
