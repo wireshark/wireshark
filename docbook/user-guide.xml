@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" 
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
 
 <!-- $Id$ -->
@@ -24,7 +24,7 @@ BIOGRAPHICAL SECTION
   <!ENTITY AuthorFirstName3 "Ed">
   <!ENTITY AuthorOtherName3 "">
   <!ENTITY AuthorSurname3 "Warnicke">
-  
+
   <!ENTITY AuthorFullName4 "Luis E. Garcia Ontanon">
   <!ENTITY AuthorFirstName4 "Luis">
   <!ENTITY AuthorOtherName4 "Enrique">
@@ -135,7 +135,7 @@ FILE SECTION
 <!-- These refer to graphics files and figures contained in the document -->
   <!-- -->
   <!ENTITY WiresharkLogo SYSTEM "./wsug_graphics/ws-logo.png" NDATA PNG>
-  
+
   <!-- 1st Chapter -->
   <!ENTITY WiresharkMain1 SYSTEM "./wsug_graphics/ws-main.png" NDATA PNG>
 
@@ -158,7 +158,7 @@ FILE SECTION
   <!ENTITY WiresharkStatusbarFilter SYSTEM "./wsug_graphics/ws-statusbar-filter.png" NDATA PNG>
   <!ENTITY WiresharkPacketSelected1 SYSTEM "./wsug_graphics/ws-packet-selected.png" NDATA PNG>
   <!ENTITY WiresharkPacketSepView SYSTEM "./wsug_graphics/ws-packet-sep-win.png" NDATA PNG>
-  <!ENTITY WiresharkFilterTCP SYSTEM "./wsug_graphics/ws-display-filter-tcp.png" NDATA PNG>  
+  <!ENTITY WiresharkFilterTCP SYSTEM "./wsug_graphics/ws-display-filter-tcp.png" NDATA PNG>
   <!ENTITY WiresharkColoringRulesDialog SYSTEM "./wsug_graphics/ws-coloring-rules-dialog.png" NDATA PNG>
   <!ENTITY WiresharkColoringFields SYSTEM "./wsug_graphics/ws-coloring-fields.png" NDATA PNG>
   <!ENTITY WiresharkEditColorDialog SYSTEM "./wsug_graphics/ws-edit-color-rule-dialog.png" NDATA PNG>
@@ -167,8 +167,8 @@ FILE SECTION
   <!ENTITY WiresharkExpertInfoDialog SYSTEM "./wsug_graphics/ws-expert-infos.png" NDATA PNG>
   <!ENTITY WiresharkChooseColorDialog SYSTEM "./wsug_graphics/ws-choose-color-rule.png" NDATA PNG>
   <!ENTITY WiresharkFollowStream SYSTEM "./wsug_graphics/ws-follow-stream.png" NDATA PNG>
-  <!ENTITY WiresharkFindPacket SYSTEM "./wsug_graphics/ws-find-packet.png" NDATA PNG>  
-  <!ENTITY WiresharkGoToPacket SYSTEM "./wsug_graphics/ws-goto-packet.png" NDATA PNG>  
+  <!ENTITY WiresharkFindPacket SYSTEM "./wsug_graphics/ws-find-packet.png" NDATA PNG>
+  <!ENTITY WiresharkGoToPacket SYSTEM "./wsug_graphics/ws-goto-packet.png" NDATA PNG>
   <!ENTITY WiresharkGUIPreferences SYSTEM "./wsug_graphics/ws-gui-preferences.png" NDATA PNG>
   <!ENTITY WiresharkGUIInterfaceOptions SYSTEM "./wsug_graphics/ws-gui-interface-options.png" NDATA PNG>
   <!ENTITY WiresharkGUILayoutPreferences SYSTEM "./wsug_graphics/ws-gui-layout-preferences.png" NDATA PNG>
@@ -240,6 +240,7 @@ FILE SECTION
   <!ENTITY WiresharkStatsEndpoints SYSTEM "./wsug_graphics/ws-stats-endpoints.png" NDATA PNG>
   <!ENTITY WiresharkStatsConversations SYSTEM "./wsug_graphics/ws-stats-conversations.png" NDATA PNG>
   <!ENTITY WiresharkStatsIOGraphs SYSTEM "./wsug_graphics/ws-stats-iographs.png" NDATA PNG>
+  <!ENTITY WiresharkStatsCompare SYSTEM "./wsug_graphics/ws-stats-compare.png" NDATA PNG>
   <!ENTITY WiresharkStatsWLANTraffic SYSTEM "./wsug_graphics/ws-stats-wlan-traffic.png" NDATA PNG>
   <!ENTITY WiresharkStatsLTEMACTraffic SYSTEM "./wsug_graphics/ws-stats-lte-mac-traffic.png" NDATA PNG>
   <!ENTITY WiresharkStatsLTERLCTraffic SYSTEM "./wsug_graphics/ws-stats-lte-rlc-traffic.png" NDATA PNG>
@@ -261,13 +262,13 @@ FILE SECTION
   <!ENTITY WiresharkCaptureOptionsRemoteSettingsDialog SYSTEM "./wsug_graphics/ws-capture-options-remote-settings.png" NDATA PNG>
 
   <!-- Fifth Chapter -->
-  <!ENTITY WiresharkOpenDialog20 SYSTEM "./wsug_graphics/ws-open-gtk20.png" NDATA PNG> 
+  <!ENTITY WiresharkOpenDialog20 SYSTEM "./wsug_graphics/ws-open-gtk20.png" NDATA PNG>
   <!ENTITY WiresharkSaveAsDialog20 SYSTEM "./wsug_graphics/ws-save-as-gtk20.png" NDATA PNG>
   <!ENTITY WiresharkMergeDialog20 SYSTEM "./wsug_graphics/ws-merge-gtk20.png" NDATA PNG>
-  <!ENTITY WiresharkOpenDialog24 SYSTEM "./wsug_graphics/ws-open-gtk24.png" NDATA PNG> 
+  <!ENTITY WiresharkOpenDialog24 SYSTEM "./wsug_graphics/ws-open-gtk24.png" NDATA PNG>
   <!ENTITY WiresharkSaveAsDialog24 SYSTEM "./wsug_graphics/ws-save-as-gtk24.png" NDATA PNG>
   <!ENTITY WiresharkMergeDialog24 SYSTEM "./wsug_graphics/ws-merge-gtk24.png" NDATA PNG>
-  <!ENTITY WiresharkOpenDialogWin32 SYSTEM "./wsug_graphics/ws-open-win32.png" NDATA PNG> 
+  <!ENTITY WiresharkOpenDialogWin32 SYSTEM "./wsug_graphics/ws-open-win32.png" NDATA PNG>
   <!ENTITY WiresharkSaveAsDialogWin32 SYSTEM "./wsug_graphics/ws-save-as-win32.png" NDATA PNG>
   <!ENTITY WiresharkMergeDialogWin32 SYSTEM "./wsug_graphics/ws-merge-win32.png" NDATA PNG>
   <!ENTITY WiresharkFileSetDialog SYSTEM "./wsug_graphics/ws-file-set-dialog.png" NDATA PNG>
@@ -343,18 +344,18 @@ WSLua Reference Manual
   &ChapterCustomize;
 
   &WsLuaRm;
-  
+
   &AppFiles;
   &AppProtocols;
-  &AppMessages;  
+  &AppMessages;
   &AppTools;
-  
+
   &AppGPL;
 
   <!--  Removed, as these chapters must be reworked
   &Glossary;
   &Index;
   &AppHowItWorks;
-  &ChapterTroubleshoot;   
+  &ChapterTroubleshoot;
   -->
 </book>

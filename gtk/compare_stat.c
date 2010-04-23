@@ -407,7 +407,7 @@ call_foreach_merge_settings(gpointer value, gpointer arg)
 	if((fInfo->num==tot_packet_amount)&&(cs->stop_packet_nr_first==G_MAXINT32)&&(cs->start_packet_nr_first!=G_MAXINT32)){
 		fInfoTemp=se_tree_lookup32(cs->packet_tree, cs->start_packet_nr_first);
 		if(fInfoTemp==NULL){
-			fprintf(stderr,"ERROR: start number not set correctly\n");
+			fprintf(stderr,"ERROR: Incorrect start number\n");
 		}
 		if(fInfoTemp && fmod(fInfoTemp->zebra_time.nsecs, 2)){
 			/*first file*/
@@ -446,7 +446,7 @@ call_foreach_merge_settings(gpointer value, gpointer arg)
 	/* no start found */
 	if(fInfo->num==tot_packet_amount&&compare_start!=0&&compare_stop!=0){
 		if(cs->start_packet_nr_first==G_MAXINT32){
-			report_failure("Start point couldn't be set, choose a lower compare start");
+			report_failure("Start point couldn't be set. Please choose a lower start number.");
 		}
 	}
 
@@ -485,7 +485,7 @@ call_foreach_print_ip_tree(gpointer value, gpointer user_data)
 	if(show_it){
 		if((fInfo->fg->count<MERGED_FILES)){
 			gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, NULL);
-			gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "Packet lost", COUNT, fInfo->fg->count, DELTA, 0.0, -1);
+			gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "Lost packet", COUNT, fInfo->fg->count, DELTA, 0.0, -1);
 		}
 
 		if(fInfo->fg->count > MERGED_FILES){
@@ -493,31 +493,31 @@ call_foreach_print_ip_tree(gpointer value, gpointer user_data)
 			gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "More than two packets", COUNT, fInfo->fg->count, DELTA, 0.0, -1);
 			if(fInfo->fg->cksum == WRONG_CHKSUM) {
 				gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, &cs->iter);
-				gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, IP_ID, fInfo->id, PROBLEM, "Checksum error over IP header", COUNT, fInfo->fg->count, DELTA, 0.0, -1);
+				gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, IP_ID, fInfo->id, PROBLEM, "IP header checksum incorrect", COUNT, fInfo->fg->count, DELTA, 0.0, -1);
 			}
 		}
 		if(fInfo->fg->count == MERGED_FILES){
 			if(fInfo->fg->cksum == WRONG_CHKSUM) {
 				gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, NULL);
-				gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "Checksum error over IP header", COUNT, fInfo->fg->count, DELTA, delta, -1);
+				gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "IP header checksum incorrect", COUNT, fInfo->fg->count, DELTA, delta, -1);
 				if(((delta < (average-cs->stats.variance)) || (delta > (average+cs->stats.variance))) && (delta > 0.0) && (cs->stats.variance!=0)){
 					gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, &cs->iter);
-					gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, IP_ID, fInfo->id, PROBLEM, "Not arrived in time", COUNT, fInfo->fg->count, DELTA, delta, -1);
+					gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, IP_ID, fInfo->id, PROBLEM, "Late arrival", COUNT, fInfo->fg->count, DELTA, delta, -1);
 				}
 				if((nstime_cmp(&fInfo->fg->predecessor_time, &fInfo->zebra_time)>0||nstime_cmp(&fInfo->fg->partner->fg->predecessor_time, &fInfo->fg->partner->zebra_time)>0) && (fInfo->zebra_time.nsecs!=MERGED_FILES) && ON_method){
 					gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, &cs->iter);
-					gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, IP_ID, fInfo->id, PROBLEM, "Not correct order", COUNT, fInfo->fg->count, DELTA, delta, -1);
+					gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, IP_ID, fInfo->id, PROBLEM, "Out of order", COUNT, fInfo->fg->count, DELTA, delta, -1);
 				}
 			} else if(((delta < (average-cs->stats.variance)) || (delta > (average+cs->stats.variance))) && (delta > 0.0) && (cs->stats.variance!=0)) {
 				gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, NULL);
-				gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "Not arrived in time", COUNT, fInfo->fg->count, DELTA, delta, -1);
+				gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "Late arrival", COUNT, fInfo->fg->count, DELTA, delta, -1);
 				if((nstime_cmp(&fInfo->fg->predecessor_time, &fInfo->zebra_time)>0||nstime_cmp(&fInfo->fg->partner->fg->predecessor_time, &fInfo->fg->partner->zebra_time)>0) && fInfo->zebra_time.nsecs != MERGED_FILES && ON_method){
 					gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, &cs->iter);
-					gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, IP_ID, fInfo->id, PROBLEM, "Not correct order", COUNT, fInfo->fg->count, DELTA, delta, -1);
+					gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, IP_ID, fInfo->id, PROBLEM, "Out of order", COUNT, fInfo->fg->count, DELTA, delta, -1);
 				}
 			} else if((nstime_cmp(&fInfo->fg->predecessor_time, &fInfo->zebra_time)>0||nstime_cmp(&fInfo->fg->partner->fg->predecessor_time, &fInfo->fg->partner->zebra_time)>0) && fInfo->zebra_time.nsecs != MERGED_FILES && ON_method){
 				gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, NULL);
-				gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "Not correct order", COUNT, fInfo->fg->count, DELTA, delta, -1);
+				gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "Out of order", COUNT, fInfo->fg->count, DELTA, delta, -1);
 			}
 		}
 	}
@@ -686,7 +686,7 @@ setup_tree_view(GtkWidget *treeview)
 	/* Create a new GtkCellRendererText, add it to the tree view column and
 	 * append the column to the tree view. */
 	renderer=gtk_cell_renderer_text_new ();
-	column=gtk_tree_view_column_new_with_attributes("IP Id", renderer, "text", IP_ID, NULL);
+	column=gtk_tree_view_column_new_with_attributes("IP ID", renderer, "text", IP_ID, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW (treeview), column);
 	renderer=gtk_cell_renderer_text_new ();
 	column=gtk_tree_view_column_new_with_attributes("Problem", renderer, "text", PROBLEM, NULL);
@@ -953,7 +953,7 @@ gtk_comparestat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* radio label */
 	gtk_container_set_border_width(GTK_CONTAINER(differ_box), 1);
-	differ_label=gtk_label_new("File distinction:");
+	differ_label=gtk_label_new("Endpoint distinction:");
 	gtk_box_pack_start(GTK_BOX(differ_box), differ_label, FALSE, FALSE, 0);
 	gtk_widget_show(differ_label);
 
@@ -978,8 +978,8 @@ gtk_comparestat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_widget_show(order_label);
 
 	/* create radio buttons */
-	radio_ON=gtk_radio_button_new_with_label (NULL, "ON");
-	radio_OFF=gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(radio_ON), "OFF");
+	radio_ON=gtk_radio_button_new_with_label (NULL, "On");
+	radio_OFF=gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(radio_ON), "Off");
 	gtk_box_pack_start(GTK_BOX(order_box), radio_ON, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(order_box), radio_OFF, TRUE, TRUE, 0);
 	gtk_widget_show(radio_ON);

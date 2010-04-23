@@ -594,14 +594,102 @@
     </para>
   </section>
   </section>
-<!--
   <section id="ChStatCompareCaptureFiles">
     <title>Compare two capture files</title>
     <para>
       Compare two capture files.
     </para>
+
+    <para>
+      This feature works best when you have merged two capture files
+      chronologically, one from each side of a client/server connection.
+    </para>
+
+    <para>
+      The merged capture data is checked for missing packets. If a matching
+      connection is found it is checked for:
+        <itemizedlist>
+            <listitem>
+            <para>
+             IP header checksums
+            </para>
+            </listitem>
+            <listitem>
+            <para>
+             Excessive delay (defined by the "Time variance" setting)
+            </para>
+            </listitem>
+            <listitem>
+            <para>
+             Packet order
+            </para>
+            </listitem>
+        </itemizedlist>
+    </para>
+
+    <figure><title>The "Compare" window</title>
+     <graphic entityref="WiresharkStatsCompare" format="PNG"/>
+    </figure>
+
+    <para>
+        You can configure the following:
+        <itemizedlist>
+        <listitem>
+        <para>
+            <command>Start compare:</command> Start comparing when this many
+            IP IDs are matched. A zero value starts comparing immediately.
+        </para>
+        </listitem>
+        <listitem>
+        <para>
+            <command>Stop compare:</command> Stop comparing when we can no longer
+            match this many IP IDs. Zero always compares.
+        </para>
+        </listitem>
+        <listitem>
+        <para>
+            <command>Endpoint distinction:</command> Use MAC addresses or IP
+            time-to-live values to determine connection enpoints.
+        </para>
+        </listitem>
+        <listitem>
+        <para>
+            <command>Check order:</command> Check for the same IP ID in the
+            previous packet at each end.
+        </para>
+        </listitem>
+        <listitem>
+        <para>
+            <command>Time variance:</command> Trigger an error if the packet
+            arrives this many milliseconds after the average delay.
+        </para>
+        </listitem>
+        <listitem>
+        <para>
+            <command>Filter:</command> Limit comparison to packets that match
+            this display filter.
+        </para>
+        </listitem>
+        </itemizedlist>
+    </para>
+
+    <para>
+        The info column contains new numbering so the same packets are parallel.
+    </para>
+    <para>
+        The color filtering differentiate the two files from each other. A
+        “zebra” effect is create if the Info column is sorted.
+    </para>
+
+    <tip><title>Tip!</title>
+    <para>
+        If you click on an item in the error list its corresponding packet will
+        be selected in the main window.
+    </para>
+    </tip>
+
+
   </section>
--->
   <section id="ChStatWLANTraffic">
     <title>WLAN Traffic Statistics</title>
     <para>
