@@ -45,6 +45,7 @@
 #include <epan/sctpppids.h>
 #include <epan/emem.h>
 #include "packet-mtp3.h"
+#include "packet-q708.h"
 #include <epan/tap.h>
 
 #define SCTP_PORT_M3UA         2905
@@ -307,6 +308,8 @@ static int m3ua_tap = -1;
 static gint ett_m3ua = -1;
 static gint ett_parameter = -1;
 static gint ett_mtp3_equiv = -1;
+static gint ett_q708_opc = -1;
+static gint ett_q708_dpc = -1;
 
 static module_t *m3ua_module;
 static dissector_handle_t mtp3_handle, data_handle;
@@ -502,7 +505,7 @@ static const value_string unavailability_cause_values[] = {
 #define SATELLITE_ISUP_USER_ID           10
 #define RESERVED_11_USER_ID              11
 #define AAL_2_SIGNALING_USER_ID          12
-#define BICC_USER_ID			 13
+#define BICC_USER_ID                     13
 #define GATEWAY_CONTROL_PROTOCOL_USER_ID 14
 #define RESERVED_15_USER_ID              15
 
@@ -520,7 +523,7 @@ static const value_string user_identity_values[] = {
   { SATELLITE_ISUP_USER_ID, "Satellite ISUP" },
   { RESERVED_11_USER_ID,    "Reserved"       },
   { AAL_2_SIGNALING_USER_ID,"AAL type2 Signaling"},
-  { BICC_USER_ID,	    "Bearer Independent Call Control (BICC)"},
+  { BICC_USER_ID,           "Bearer Independent Call Control (BICC)"},
   { GATEWAY_CONTROL_PROTOCOL_USER_ID, "Gateway Control Protocol"},
   { RESERVED_15_USER_ID,    "Reserved"       },
 
@@ -1123,6 +1126,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   tvbuff_t *payload_tvb;
   proto_item *item;
   mtp3_tap_rec_t* mtp3_tap = ep_alloc0(sizeof(mtp3_tap_rec_t));
+  proto_tree *q708_tree;
 
 
   mtp3_tap->addr_dpc.type = mtp3_standard;
@@ -1147,9 +1151,19 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
     item = proto_tree_add_item(parameter_tree, hf_protocol_data_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER);
     if (mtp3_pc_structured())
       proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntohl(parameter_tvb, DATA_OPC_OFFSET)));
+    if(mtp3_tap->addr_opc.ni == 0)
+    {
+        q708_tree = proto_item_add_subtree(item,ett_q708_opc);
+        analyze_q708_ispc(parameter_tvb, q708_tree, DATA_OPC_OFFSET, DATA_OPC_LENGTH, mtp3_tap->addr_opc.pc);
+    }
     item = proto_tree_add_item(parameter_tree, hf_protocol_data_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_DPC_LENGTH, NETWORK_BYTE_ORDER);
     if (mtp3_pc_structured())
       proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntohl(parameter_tvb, DATA_DPC_OFFSET)));
+    if(mtp3_tap->addr_dpc.ni == 0)
+    {
+        q708_tree = proto_item_add_subtree(item,ett_q708_dpc);
+        analyze_q708_ispc(parameter_tvb, q708_tree, DATA_DPC_OFFSET, DATA_DPC_LENGTH, mtp3_tap->addr_dpc.pc);
+    }
 
     proto_tree_add_item(parameter_tree, hf_protocol_data_si,  parameter_tvb, DATA_SI_OFFSET,  DATA_SI_LENGTH,  NETWORK_BYTE_ORDER);
     proto_tree_add_item(parameter_tree, hf_protocol_data_ni,  parameter_tvb, DATA_NI_OFFSET,  DATA_NI_LENGTH,  NETWORK_BYTE_ORDER);
@@ -1314,7 +1328,7 @@ dissect_v5_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   padding_length = tvb_length(parameter_tvb) - length;
 
   if (!tree && tag != V5_PROTOCOL_DATA_PARAMETER_TAG)
-    return;	/* Nothing to do here */
+    return;    /* Nothing to do here */
 
   /* create proto_tree stuff */
   parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str(tag, v5_parameter_tag_values, "Unknown parameter"));
@@ -1441,7 +1455,7 @@ dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   padding_length = tvb_length(parameter_tvb) - length;
 
   if (!tree && tag != V6_PROTOCOL_DATA_1_PARAMETER_TAG && tag != V6_PROTOCOL_DATA_2_PARAMETER_TAG)
-    return;	/* Nothing to do here */
+    return;    /* Nothing to do here */
 
   /* create proto_tree stuff */
   parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str(tag, v6_parameter_tag_values, "Unknown parameter"));
@@ -1608,7 +1622,7 @@ dissect_v7_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   padding_length = tvb_length(parameter_tvb) - length;
 
   if (!tree && tag != V7_PROTOCOL_DATA_1_PARAMETER_TAG && tag != V7_PROTOCOL_DATA_2_PARAMETER_TAG)
-    return;	/* Nothing to do here */
+    return;    /* Nothing to do here */
 
   /* create proto_tree stuff */
   parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str(tag, v7_parameter_tag_values, "Unknown parameter"));
@@ -1775,7 +1789,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
 
 
   if (!tree && tag != PROTOCOL_DATA_PARAMETER_TAG)
-    return;	/* Nothing to do here */
+    return;    /* Nothing to do here */
 
   /* create proto_tree stuff */
   parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str(tag, parameter_tag_values, "Unknown parameter"));
@@ -1912,7 +1926,7 @@ dissect_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, pro
   common_header_tvb = tvb_new_subset(message_tvb, 0, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   parameters_tvb    = tvb_new_subset_remaining(message_tvb, COMMON_HEADER_LENGTH);
   if (version == M3UA_V5)
-  	dissect_v5_common_header(common_header_tvb, pinfo, m3ua_tree);
+    dissect_v5_common_header(common_header_tvb, pinfo, m3ua_tree);
   else
     dissect_common_header(common_header_tvb, pinfo, m3ua_tree);
 
@@ -2045,6 +2059,8 @@ proto_register_m3ua(void)
     &ett_m3ua,
     &ett_parameter,
     &ett_mtp3_equiv,
+    &ett_q708_opc,
+    &ett_q708_dpc,
   };
 
   static enum_val_t options[] = {
