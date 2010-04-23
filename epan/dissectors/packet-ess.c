@@ -37,8 +37,12 @@
 #endif
 
 #include <glib.h>
+#include <string.h>
+
 #include <epan/packet.h>
 #include <epan/asn1.h>
+#include <epan/prefs.h>
+#include <epan/uat.h>
 
 #include "packet-ber.h"
 #include "packet-ess.h"
@@ -50,9 +54,22 @@
 #define PSNAME "ESS"
 #define PFNAME "ess"
 
+typedef struct _ess_category_attributes_t {
+   char *oid;
+   guint lacv;
+   char *name;
+} ess_category_attributes_t;
+
+static ess_category_attributes_t *ess_category_attributes;
+static guint num_ess_category_attributes;
+
 /* Initialize the protocol and registered fields */
 static int proto_ess = -1;
 static int hf_ess_SecurityCategory_type_OID = -1;
+static int hf_ess_Category_attribute = -1;
+
+static gint ett_Category_attributes = -1;
+
 
 /*--- Included file: packet-ess-hf.c ---*/
 #line 1 "packet-ess-hf.c"
@@ -91,12 +108,16 @@ static int hf_ess_utf8String = -1;                /* UTF8String_SIZE_1_MAX */
 static int hf_ess_SecurityCategories_item = -1;   /* SecurityCategory */
 static int hf_ess_type = -1;                      /* T_type */
 static int hf_ess_value = -1;                     /* T_value */
-static int hf_ess_tagName = -1;                   /* OBJECT_IDENTIFIER */
-static int hf_ess_attributeFlags = -1;            /* BIT_STRING */
+static int hf_ess_restrictiveTagName = -1;        /* T_restrictiveTagName */
+static int hf_ess_restrictiveAttributeFlags = -1;  /* T_restrictiveAttributeFlags */
+static int hf_ess_tagName = -1;                   /* T_tagName */
 static int hf_ess_attributeList = -1;             /* SET_OF_SecurityAttribute */
 static int hf_ess_attributeList_item = -1;        /* SecurityAttribute */
+static int hf_ess_permissiveTagName = -1;         /* T_permissiveTagName */
+static int hf_ess_permissiveAttributeFlags = -1;  /* T_permissiveAttributeFlags */
+static int hf_ess_informativeTagName = -1;        /* T_informativeTagName */
 static int hf_ess_attributes = -1;                /* FreeFormField */
-static int hf_ess_bitSetAttributes = -1;          /* BIT_STRING */
+static int hf_ess_informativeAttributeFlags = -1;  /* T_informativeAttributeFlags */
 static int hf_ess_securityAttributes = -1;        /* SET_OF_SecurityAttribute */
 static int hf_ess_securityAttributes_item = -1;   /* SecurityAttribute */
 static int hf_ess_EquivalentLabels_item = -1;     /* ESSSecurityLabel */
@@ -124,7 +145,7 @@ static int hf_ess_issuer = -1;                    /* GeneralNames */
 static int hf_ess_serialNumber = -1;              /* CertificateSerialNumber */
 
 /*--- End of included file: packet-ess-hf.c ---*/
-#line 49 "packet-ess-template.c"
+#line 66 "packet-ess-template.c"
 
 
 /*--- Included file: packet-ess-val.h ---*/
@@ -148,7 +169,7 @@ static int hf_ess_serialNumber = -1;              /* CertificateSerialNumber */
 #define id_sha256                      "2.16.840.1.101.3.4.2.1"
 
 /*--- End of included file: packet-ess-val.h ---*/
-#line 51 "packet-ess-template.c"
+#line 68 "packet-ess-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -187,9 +208,76 @@ static gint ett_ess_ESSCertID = -1;
 static gint ett_ess_IssuerSerial = -1;
 
 /*--- End of included file: packet-ess-ett.c ---*/
-#line 54 "packet-ess-template.c"
+#line 71 "packet-ess-template.c"
 
 static const char *object_identifier_id;
+
+UAT_CSTRING_CB_DEF(ess_category_attributes, oid, ess_category_attributes_t);
+UAT_DEC_CB_DEF(ess_category_attributes, lacv, ess_category_attributes_t);
+UAT_CSTRING_CB_DEF(ess_category_attributes, name, ess_category_attributes_t);
+
+static void *
+ess_copy_cb(void *dest, const void *orig, unsigned len _U_)
+{
+  ess_category_attributes_t *u = dest;
+  const ess_category_attributes_t *o = orig;
+
+  u->oid  = g_strdup(o->oid);
+  u->lacv = o->lacv;
+  u->name = g_strdup(o->name);
+
+  return dest;
+}
+
+static void
+ess_free_cb(void *r)
+{
+  ess_category_attributes_t *u = r;
+
+  g_free(u->oid);
+  g_free(u->name);
+}
+
+static void
+ess_dissect_attribute (guint32 value, asn1_ctx_t *actx)
+{
+  guint i;
+   
+  for (i = 0; i < num_ess_category_attributes; i++) {
+    ess_category_attributes_t *u = &(ess_category_attributes[i]);
+
+    if ((strcmp (u->oid, object_identifier_id) == 0) &&
+        (u->lacv == value))
+    {
+       proto_item_append_text (actx->created_item, " (%s)", u->name);
+       break;
+    }
+  }
+}
+
+static void
+ess_dissect_attribute_flags (tvbuff_t *tvb, asn1_ctx_t *actx)
+{
+  proto_tree *tree;
+  guint8 *value;
+  guint i;
+   
+  tree = proto_item_add_subtree (actx->created_item, ett_Category_attributes);
+  value = tvb_get_ephemeral_string (tvb, 0, tvb_length (tvb));
+  
+  for (i = 0; i < num_ess_category_attributes; i++) {
+    ess_category_attributes_t *u = &(ess_category_attributes[i]);
+
+    if ((strcmp (u->oid, object_identifier_id) == 0) &&
+        ((u->lacv / 8) < tvb_length (tvb)) &&
+        (value[u->lacv / 8] & (1 << (8 - (u->lacv % 8)))))
+    {
+       proto_tree_add_string_format (tree, hf_ess_Category_attribute, tvb,
+                                     u->lacv / 8, 1, u->name,
+                                     "%s (%d)", u->name, u->lacv);
+    }
+  }
+}
 
 
 /*--- Included file: packet-ess-fn.c ---*/
@@ -453,7 +541,7 @@ dissect_ess_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_ess_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 44 "ess.cnf"
+#line 50 "ess.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -509,8 +597,8 @@ dissect_ess_ESSSecurityLabel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 
 static int
-dissect_ess_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+dissect_ess_T_restrictiveTagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   return offset;
 }
@@ -518,18 +606,25 @@ dissect_ess_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 static int
-dissect_ess_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
+dissect_ess_T_restrictiveAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 77 "ess.cnf"
+  tvbuff_t *attributes;
+  
+    offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, hf_index, -1,
-                                    NULL);
+                                    &attributes);
+
+  ess_dissect_attribute_flags (attributes, actx);
+  
+
 
   return offset;
 }
 
 
 static const ber_sequence_t RestrictiveTag_sequence[] = {
-  { &hf_ess_tagName         , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_ess_OBJECT_IDENTIFIER },
-  { &hf_ess_attributeFlags  , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_ess_BIT_STRING },
+  { &hf_ess_restrictiveTagName, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_ess_T_restrictiveTagName },
+  { &hf_ess_restrictiveAttributeFlags, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_ess_T_restrictiveAttributeFlags },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -544,9 +639,25 @@ dissect_ess_RestrictiveTag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 static int
+dissect_ess_T_tagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
+
+  return offset;
+}
+
+
+
+static int
 dissect_ess_SecurityAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+#line 68 "ess.cnf"
+  guint32 attribute;
+  
+    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                &attribute);
+
+  ess_dissect_attribute (attribute, actx);
+  
+
 
   return offset;
 }
@@ -566,7 +677,7 @@ dissect_ess_SET_OF_SecurityAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static const ber_sequence_t EnumeratedTag_sequence[] = {
-  { &hf_ess_tagName         , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_ess_OBJECT_IDENTIFIER },
+  { &hf_ess_tagName         , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_ess_T_tagName },
   { &hf_ess_attributeList   , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_ess_SET_OF_SecurityAttribute },
   { NULL, 0, 0, 0, NULL }
 };
@@ -580,9 +691,36 @@ dissect_ess_EnumeratedTag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
+
+static int
+dissect_ess_T_permissiveTagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ess_T_permissiveAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 86 "ess.cnf"
+  tvbuff_t *attributes;
+  
+    offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                    NULL, hf_index, -1,
+                                    &attributes);
+
+  ess_dissect_attribute_flags (attributes, actx);
+  
+
+
+  return offset;
+}
+
+
 static const ber_sequence_t PermissiveTag_sequence[] = {
-  { &hf_ess_tagName         , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_ess_OBJECT_IDENTIFIER },
-  { &hf_ess_attributeFlags  , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_ess_BIT_STRING },
+  { &hf_ess_permissiveTagName, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_ess_T_permissiveTagName },
+  { &hf_ess_permissiveAttributeFlags, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_ess_T_permissiveAttributeFlags },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -595,6 +733,33 @@ dissect_ess_PermissiveTag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
+
+static int
+dissect_ess_T_informativeTagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ess_T_informativeAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 95 "ess.cnf"
+  tvbuff_t *attributes;
+  
+    offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                    NULL, hf_index, -1,
+                                    &attributes);
+
+  ess_dissect_attribute_flags (attributes, actx);
+  
+
+
+  return offset;
+}
+
+
 static const value_string ess_FreeFormField_vals[] = {
   {   0, "bitSetAttributes" },
   {   1, "securityAttributes" },
@@ -602,7 +767,7 @@ static const value_string ess_FreeFormField_vals[] = {
 };
 
 static const ber_choice_t FreeFormField_choice[] = {
-  {   0, &hf_ess_bitSetAttributes, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_ess_BIT_STRING },
+  {   0, &hf_ess_informativeAttributeFlags, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_ess_T_informativeAttributeFlags },
   {   1, &hf_ess_securityAttributes, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_ess_SET_OF_SecurityAttribute },
   { 0, NULL, 0, 0, 0, NULL }
 };
@@ -618,7 +783,7 @@ dissect_ess_FreeFormField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 
 static const ber_sequence_t InformativeTag_sequence[] = {
-  { &hf_ess_tagName         , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_ess_OBJECT_IDENTIFIER },
+  { &hf_ess_informativeTagName, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_ess_T_informativeTagName },
   { &hf_ess_attributes      , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ess_FreeFormField },
   { NULL, 0, 0, 0, NULL }
 };
@@ -955,8 +1120,7 @@ static void dissect_SigningCertificateV2_PDU(tvbuff_t *tvb _U_, packet_info *pin
 
 
 /*--- End of included file: packet-ess-fn.c ---*/
-#line 58 "packet-ess-template.c"
-
+#line 142 "packet-ess-template.c"
 
 /*--- proto_register_ess ----------------------------------------------*/
 void proto_register_ess(void) {
@@ -966,6 +1130,9 @@ void proto_register_ess(void) {
     { &hf_ess_SecurityCategory_type_OID, 
       { "type", "ess.type_OID", FT_STRING, BASE_NONE, NULL, 0,
 	"Type of Security Category", HFILL }},
+    { &hf_ess_Category_attribute, 
+      { "Attribute", "ess.attribute", FT_STRING, BASE_NONE, NULL, 0,
+	NULL, HFILL }},
 
 /*--- Included file: packet-ess-hfarr.c ---*/
 #line 1 "packet-ess-hfarr.c"
@@ -1109,14 +1276,18 @@ void proto_register_ess(void) {
       { "value", "ess.value",
         FT_NONE, BASE_NONE, NULL, 0,
         "ess.T_value", HFILL }},
+    { &hf_ess_restrictiveTagName,
+      { "tagName", "ess.tagName",
+        FT_OID, BASE_NONE, NULL, 0,
+        "ess.T_restrictiveTagName", HFILL }},
+    { &hf_ess_restrictiveAttributeFlags,
+      { "attributeFlags", "ess.attributeFlags",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "ess.T_restrictiveAttributeFlags", HFILL }},
     { &hf_ess_tagName,
       { "tagName", "ess.tagName",
         FT_OID, BASE_NONE, NULL, 0,
-        "ess.OBJECT_IDENTIFIER", HFILL }},
-    { &hf_ess_attributeFlags,
-      { "attributeFlags", "ess.attributeFlags",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "ess.BIT_STRING", HFILL }},
+        "ess.T_tagName", HFILL }},
     { &hf_ess_attributeList,
       { "attributeList", "ess.attributeList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -1125,14 +1296,26 @@ void proto_register_ess(void) {
       { "SecurityAttribute", "ess.SecurityAttribute",
         FT_INT32, BASE_DEC, NULL, 0,
         "ess.SecurityAttribute", HFILL }},
+    { &hf_ess_permissiveTagName,
+      { "tagName", "ess.tagName",
+        FT_OID, BASE_NONE, NULL, 0,
+        "ess.T_permissiveTagName", HFILL }},
+    { &hf_ess_permissiveAttributeFlags,
+      { "attributeFlags", "ess.attributeFlags",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "ess.T_permissiveAttributeFlags", HFILL }},
+    { &hf_ess_informativeTagName,
+      { "tagName", "ess.tagName",
+        FT_OID, BASE_NONE, NULL, 0,
+        "ess.T_informativeTagName", HFILL }},
     { &hf_ess_attributes,
       { "attributes", "ess.attributes",
         FT_UINT32, BASE_DEC, VALS(ess_FreeFormField_vals), 0,
         "ess.FreeFormField", HFILL }},
-    { &hf_ess_bitSetAttributes,
+    { &hf_ess_informativeAttributeFlags,
       { "bitSetAttributes", "ess.bitSetAttributes",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "ess.BIT_STRING", HFILL }},
+        "ess.T_informativeAttributeFlags", HFILL }},
     { &hf_ess_securityAttributes,
       { "securityAttributes", "ess.securityAttributes",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -1235,11 +1418,12 @@ void proto_register_ess(void) {
         "x509af.CertificateSerialNumber", HFILL }},
 
 /*--- End of included file: packet-ess-hfarr.c ---*/
-#line 69 "packet-ess-template.c"
+#line 155 "packet-ess-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
+     &ett_Category_attributes,
 
 /*--- Included file: packet-ess-ettarr.c ---*/
 #line 1 "packet-ess-ettarr.c"
@@ -1276,8 +1460,31 @@ void proto_register_ess(void) {
     &ett_ess_IssuerSerial,
 
 /*--- End of included file: packet-ess-ettarr.c ---*/
-#line 74 "packet-ess-template.c"
+#line 161 "packet-ess-template.c"
   };
+  
+  static uat_field_t attributes_flds[] = {
+    UAT_FLD_CSTRING(ess_category_attributes,oid, "Tag Set", "Category Tag Set (Object Identifier)"),
+    UAT_FLD_DEC(ess_category_attributes,lacv, "Value", "Label And Cert Value"),
+    UAT_FLD_CSTRING(ess_category_attributes,name, "Name", "Category Name"),
+    UAT_END_FIELDS
+  };
+
+  uat_t *attributes_uat = uat_new("ESS Category Attributes",
+                                  sizeof(ess_category_attributes_t),
+                                  "ess_category_attributes",
+                                  TRUE,
+                                  (void**) &ess_category_attributes,
+                                  &num_ess_category_attributes,
+                                  UAT_CAT_PORTS,
+                                  "ChEssCategoryAttributes",
+                                  ess_copy_cb,
+                                  NULL,
+                                  ess_free_cb,
+                                  NULL,
+                                  attributes_flds);
+
+  static module_t *ess_module;
 
   /* Register protocol */
   proto_ess = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -1285,6 +1492,13 @@ void proto_register_ess(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_ess, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  
+  ess_module = prefs_register_protocol(proto_ess, NULL);
+
+  prefs_register_uat_preference(ess_module, "attributes_table",
+                                "ESS Category Attributes",
+                                "ESS category attributes translation table",
+                                attributes_uat);
 
 }
 
@@ -1313,6 +1527,6 @@ void proto_reg_handoff_ess(void) {
 
 
 /*--- End of included file: packet-ess-dis-tab.c ---*/
-#line 89 "packet-ess-template.c"
+#line 206 "packet-ess-template.c"
 }
 
