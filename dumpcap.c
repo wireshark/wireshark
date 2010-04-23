@@ -277,7 +277,6 @@ static gboolean need_timeout_workaround;
  * Timeout, in microseconds, for threaded reads from a pipe.
  */
 #define THREAD_READ_TIMEOUT   100
-#define THREAD_OPEN_TIMEOUT   (5 * 1000000)
 static const char *cap_pipe_err_str;
 
 static void
@@ -871,10 +870,6 @@ static void
 cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
                    char *errmsg, int errmsgl)
 {
-#ifdef USE_THREADS
-  GTimeVal wait_time;
-  gpointer q_status;
-#endif
 #ifndef _WIN32
   struct stat pipe_stat;
   struct sockaddr_un sa;
@@ -1083,14 +1078,8 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   ld->cap_pipe_bytes_to_read = sizeof(magic);
   /* We don't have to worry about cap_pipe_read_mtx here */
   g_async_queue_push(cap_pipe_pending_q, ld->cap_pipe_buf);
-  g_get_current_time(&wait_time);
-  g_time_val_add(&wait_time, THREAD_OPEN_TIMEOUT);
-  q_status = g_async_queue_timed_pop(cap_pipe_done_q, &wait_time);
-  if (!q_status) {
-    /* XXX - Are there more appropriate values we should use? */
-    g_snprintf(errmsg, errmsgl, "Timeout on pipe magic during open");
-    goto error;
-  } else if (ld->cap_pipe_bytes_read <= 0) {
+  g_async_queue_pop(cap_pipe_done_q);
+  if (ld->cap_pipe_bytes_read <= 0) {
     if (ld->cap_pipe_bytes_read == 0)
       g_snprintf(errmsg, errmsgl, "End of file on pipe magic during open");
     else
@@ -1162,13 +1151,8 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   ld->cap_pipe_bytes_read = 0;
   ld->cap_pipe_bytes_to_read = sizeof(struct pcap_hdr);
   g_async_queue_push(cap_pipe_pending_q, ld->cap_pipe_buf);
-  g_get_current_time(&wait_time);
-  g_time_val_add(&wait_time, THREAD_OPEN_TIMEOUT);
-  q_status = g_async_queue_timed_pop(cap_pipe_done_q, &wait_time);
-  if (!q_status) {
-    g_snprintf(errmsg, errmsgl, "Timeout on pipe header during open");
-    goto error;
-  } else if (ld->cap_pipe_bytes_read <= 0) {
+  g_async_queue_pop(cap_pipe_done_q);
+  if (ld->cap_pipe_bytes_read <= 0) {
     if (ld->cap_pipe_bytes_read == 0)
       g_snprintf(errmsg, errmsgl, "End of file on pipe header during open");
     else
@@ -1205,11 +1189,6 @@ error:
 #ifndef _WIN32
   ws_close(fd);
   ld->cap_pipe_fd = -1;
-#else
-  if (ld->cap_pipe_h != INVALID_HANDLE_VALUE) {
-    CloseHandle(ld->cap_pipe_h);
-    ld->cap_pipe_h = INVALID_HANDLE_VALUE;
-  }
 #endif
   return;
 
