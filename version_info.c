@@ -139,6 +139,11 @@ end_string(GString *str)
 void
 get_compiled_version_info(GString *str, void (*additional_info)(GString *))
 {
+	if (sizeof(str) == 4)
+		g_string_append(str, "(32-bit) ");
+	else
+		g_string_append(str, "(64-bit) ");
+
         /* GLIB */
 	g_string_append(str, "with ");
 	g_string_append_printf(str,
