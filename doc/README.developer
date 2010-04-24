@@ -82,7 +82,7 @@ thus run through C rather than C++ compilers, and not all C compilers
 support C++-style comments (GCC does, but IBM's C compiler for AIX, for
 example, doesn't do so by default).
 
-In general, don't use C99 features since some C compilers used to compile 
+In general, don't use C99 features since some C compilers used to compile
 Wireshark don't support C99 (E.G. Microsoft C).
 
 Don't initialize variables in their declaration with non-constant
@@ -100,7 +100,7 @@ Don't declare variables in the middle of executable code; not all C
 compilers support that.  Variables should be declared outside a
 function, or at the beginning of a function or compound statement.
 
-Don't use anonymous unions; not all compilers support it. 
+Don't use anonymous unions; not all compilers support it.
 Example:
 typedef struct foo {
   guint32 foo;
@@ -146,7 +146,7 @@ functions won't accept a size_t on LLP64:
 	size_t i;
 	char greeting[] = "hello, sailor";
 	guint byte_after_greet;
-	
+
 	i = strlen(greeting);
 	byte_after_greet = tvb_get_guint8(tvb, i); /* Compiler warning */
 
@@ -156,7 +156,7 @@ will have to cast to a compatible data type, e.g.
 	size_t i;
 	char greeting[] = "hello, sailor";
 	guint byte_after_greet;
-	
+
 	i = strlen(greeting);
 	byte_after_greet = tvb_get_guint8(tvb, (gint) i); /* OK */
 
@@ -165,7 +165,7 @@ or
 	gint i;
 	char greeting[] = "hello, sailor";
 	guint byte_after_greet;
-	
+
 	i = (gint) strlen(greeting);
 	byte_after_greet = tvb_get_guint8(tvb, i); /* OK */
 
@@ -413,10 +413,10 @@ cause a trap, which will, at best, result in the OS slowly performing an
 unaligned access for you, and will, on at least some platforms, cause
 the program to be terminated.
 
-Wireshark supports platforms with GLib 2.4[.x]/GTK+ 2.4[.x] or newer. 
-If a Glib/GTK+ mechanism is available only in Glib/GTK+ versions 
+Wireshark supports platforms with GLib 2.4[.x]/GTK+ 2.4[.x] or newer.
+If a Glib/GTK+ mechanism is available only in Glib/GTK+ versions
 newer than 2.4/2.4 then use "#if GTK_CHECK_VERSION(...)" to conditionally
-compile code using that mechanism. 
+compile code using that mechanism.
 
 When different code must be used on UN*X and Win32, use a #if or #ifdef
 that tests _WIN32, not WIN32.  Try to write code portably whenever
@@ -700,7 +700,7 @@ Usually, you will put your newly created dissector file into the directory
 epan/dissectors, just like all the other packet-....c files already in there.
 
 Also, please add your dissector file to the corresponding makefiles,
-described in section "1.9 Editing Makefile.common and CMakeLists.txt 
+described in section "1.9 Editing Makefile.common and CMakeLists.txt
 to add your dissector" below.
 
 Dissectors that use the dissector registration to register with a lower level
@@ -785,7 +785,7 @@ SVN repository (committed).
    in a header file. If not, a header file is not needed at all. */
 #include "packet-PROTOABBREV.h"
 
-/* Forward declaration we need below (if using proto_reg_handoff...     
+/* Forward declaration we need below (if using proto_reg_handoff...
    as a prefs callback)       */
 void proto_reg_handoff_PROTOABBREV(void);
 
@@ -993,11 +993,11 @@ proto_register_PROTOABBREV(void)
    This exact format is required because a script is used to find these
    routines and create the code that calls these routines.
 
-   If this function is registered as a prefs callback (see prefs_register_protocol 
+   If this function is registered as a prefs callback (see prefs_register_protocol
    above) this function is also called by preferences whenever "Apply" is pressed;
    In that case, it should accommodate being called more than once.
 
-   This form of the reg_handoff function is used if if you perform 
+   This form of the reg_handoff function is used if if you perform
    registration functions which are dependent upon prefs. See below
    for a simpler form  which can be used if there are no
    prefs-dependent registration functions.
@@ -1026,10 +1026,10 @@ proto_reg_handoff_PROTOABBREV(void)
 		  If you perform registration functions which are dependent upon
 		  prefs the you should de-register everything which was associated
 		  with the previous settings and re-register using the new prefs
-		  settings here. In general this means you need to keep track of 
-		  the PROTOABBREV_handle and the value the preference had at the time 
+		  settings here. In general this means you need to keep track of
+		  the PROTOABBREV_handle and the value the preference had at the time
 		  you registered.  The PROTOABBREV_handle value and the value of the
-		  preference can be saved using local statics in this 
+		  preference can be saved using local statics in this
 		  function (proto_reg_handoff).
 		*/
 
@@ -1093,7 +1093,7 @@ FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
 		FT_RELATIVE_TIME, FT_STRING, FT_STRINGZ, FT_EBCDIC,
 		FT_UINT_STRING,	FT_ETHER, FT_BYTES, FT_UINT_BYTES, FT_IPv4,
 		FT_IPv6, FT_IPXNET, FT_FRAMENUM, FT_PROTOCOL, FT_GUID, FT_OID
-FIELDDISPLAY	For FT_UINT{8,16,24,32} and FT_INT{8,16,24,32):
+FIELDDISPLAY	For FT_UINT{8,16,24,32,64} and FT_INT{8,16,24,32,64):
 
 		BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX, BASE_HEX_DEC,
 		or BASE_CUSTOM, possibly ORed with BASE_RANGE_STRING
@@ -1279,16 +1279,16 @@ Byte Array Accessors:
 gchar *tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len);
 
 Formats a bunch of data from a tvbuff as bytes, returning a pointer
-to the string with the data formatted as two hex digits for each byte. 
+to the string with the data formatted as two hex digits for each byte.
 The string pointed to is stored in an "ep_alloc'd" buffer which will be freed
 before the next frame is dissected. The formatted string will contain the hex digits
-for at most the first 16 bytes of the data. If len is greater than 16 bytes, a 
+for at most the first 16 bytes of the data. If len is greater than 16 bytes, a
 trailing "..." will be added to the string.
 
 gchar *tvb_bytes_to_str_punct(tvbuff_t *tvb, gint offset, gint len, gchar punct);
 
 This function is similar to tvb_bytes_to_str(...) except that 'punct' is inserted
-between the hex representation of each byte. 
+between the hex representation of each byte.
 
 
 Copying memory:
@@ -1762,7 +1762,7 @@ which Wireshark/TShark is running or as UTC and, for UTC, whether the
 date should be displayed as "{monthname}, {month} {day_of_month},
 {year}" or as "{year/day_of_year}".
 
-Additionally, BASE_NONE is used for 'display' as a NULL-value. That is, for 
+Additionally, BASE_NONE is used for 'display' as a NULL-value. That is, for
 non-integers other than FT_ABSOLUTE_TIME fields, and non-bitfield
 FT_BOOLEANs, you'll want to use BASE_NONE in the 'display' field.  You may
 not use BASE_NONE for integers.
@@ -1863,7 +1863,7 @@ If the field is a bitfield, then the bitmask is the mask which will
 leave only the bits needed to make the field when ANDed with a value.
 The proto_tree routines will calculate 'bitshift' automatically
 from 'bitmask', by finding the rightmost set bit in the bitmask.
-This shift is applied before applying string mapping functions or 
+This shift is applied before applying string mapping functions or
 filtering.
 If the field is not a bitfield, then bitmask should be set to 0.
 
@@ -2795,7 +2795,7 @@ the 'epan/dissectors' directory, so that it's included when release source
 tarballs are built (otherwise, the source in the release tarballs won't
 compile).
 
-In addition to the above, you should add your dissector source file name 
+In addition to the above, you should add your dissector source file name
 to the DISSECTOR_SRC section of epan/CMakeLists.txt
 
 
