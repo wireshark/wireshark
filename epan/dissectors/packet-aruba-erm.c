@@ -28,12 +28,12 @@
 /*
  * Format:
  *  Use the Header of Record (Packet) Header
- * 
+ *
  * typedef struct pcaprec_hdr_s {
- *       guint32 ts_sec;          timestamp seconds 
- *       guint32 ts_usec;         timestamp microseconds 
- *       guint32 incl_len;        number of octets of packet saved in file 
- *       guint32 orig_len;        actual length of packet 
+ *       guint32 ts_sec;          timestamp seconds
+ *       guint32 ts_usec;         timestamp microseconds
+ *       guint32 incl_len;        number of octets of packet saved in file
+ *       guint32 orig_len;        actual length of packet
  * } pcaprec_hdr_t;
  *
  * Following with 802.11 header
@@ -70,7 +70,7 @@ dissect_aruba_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *aruba_erm_tree;
     tvbuff_t   *eth_tvb;
     nstime_t ts;
-    
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
     col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
 
@@ -81,7 +81,7 @@ dissect_aruba_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ts.secs = tvb_get_ntohl(tvb, 0);
         ts.nsecs = tvb_get_ntohl(tvb,4)*1000;
         proto_tree_add_time(aruba_erm_tree, hf_aruba_erm_time, tvb, 0, 8,&ts);
-        proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_incl_len, tvb, 8, 4, FALSE); 
+        proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_incl_len, tvb, 8, 4, FALSE);
         proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_orig_len, tvb, 12, 4, FALSE);
     }
 
@@ -97,7 +97,7 @@ proto_register_aruba_erm(void)
     static hf_register_info hf[] = {
 
         { &hf_aruba_erm_time,
-          { "Packet Capture Timestamp", "aruba_erm.time", FT_ABSOLUTE_TIME, BASE_NONE, NULL,
+          { "Packet Capture Timestamp", "aruba_erm.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL,
             0x00, NULL, HFILL }},
         { &hf_aruba_erm_incl_len,
           { "Packet Captured Length", "aruba_erm.incl_len", FT_UINT32, BASE_DEC, NULL,

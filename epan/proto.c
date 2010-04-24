@@ -4196,22 +4196,32 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 	    { FT_OID,		"FT_OID" },
 	    { 0,		NULL } };
 
-	/* XXX - absolute_time_display enum? */
 	static const value_string hf_display[] = {
-	    { BASE_NONE,	"BASE_NONE" },
-	    { BASE_DEC,		"BASE_DEC" },
-	    { BASE_HEX,		"BASE_HEX" },
-	    { BASE_OCT,		"BASE_OCT" },
-	    { BASE_DEC_HEX,	"BASE_DEC_HEX" },
-	    { BASE_HEX_DEC,	"BASE_HEX_DEC" },
-	    { BASE_CUSTOM,	"BASE_CUSTOM" },
-	    { 0,		NULL } };
+	    { BASE_NONE,			"BASE_NONE" },
+	    { BASE_DEC,				"BASE_DEC" },
+	    { BASE_HEX,				"BASE_HEX" },
+	    { BASE_OCT,				"BASE_OCT" },
+	    { BASE_DEC_HEX,			"BASE_DEC_HEX" },
+	    { BASE_HEX_DEC,			"BASE_HEX_DEC" },
+	    { BASE_CUSTOM,			"BASE_CUSTOM" },
+	    { BASE_NONE|BASE_RANGE_STRING,	"BASE_NONE|BASE_RANGE_STRING" },
+	    { BASE_DEC|BASE_RANGE_STRING,	"BASE_DEC|BASE_RANGE_STRING" },
+	    { BASE_HEX|BASE_RANGE_STRING,	"BASE_HEX|BASE_RANGE_STRING" },
+	    { BASE_OCT|BASE_RANGE_STRING,	"BASE_OCT|BASE_RANGE_STRING" },
+	    { BASE_DEC_HEX|BASE_RANGE_STRING,	"BASE_DEC_HEX|BASE_RANGE_STRING" },
+	    { BASE_HEX_DEC|BASE_RANGE_STRING,	"BASE_HEX_DEC|BASE_RANGE_STRING" },
+	    { BASE_CUSTOM|BASE_RANGE_STRING,	"BASE_CUSTOM|BASE_RANGE_STRING" },
+	    { ABSOLUTE_TIME_LOCAL,		"ABSOLUTE_TIME_LOCAL" },
+	    { ABSOLUTE_TIME_UTC,		"ABSOLUTE_TIME_LOCAL" },
+	    { ABSOLUTE_TIME_DOY_UTC,		"ABSOLUTE_TIME_LOCAL" },
+	    { 0,				NULL } };
 
 	/* The field must have a name (with length > 0) */
 	if (!hfinfo->name || !hfinfo->name[0]) {
 		if (hfinfo->abbrev)
 			/* Try to identify the field */
-			g_error("Field (abbrev='%s') does not have a name\n", hfinfo->abbrev);
+			g_error("Field (abbrev='%s') does not have a name\n",
+				hfinfo->abbrev);
 		else
 			/* Hum, no luck */
 			g_error("Field does not have a name (nor an abbreviation)\n");
@@ -4222,7 +4232,9 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 	if (!hfinfo->abbrev)
 		g_error("Field '%s' does not have an abbreviation\n", hfinfo->name);
 
-	/* These types of fields are allowed to have value_strings, true_false_strings or a protocol_t struct*/
+	/*  These types of fields are allowed to have value_strings,
+	 *  true_false_strings or a protocol_t struct
+	 */
 	if (hfinfo->strings != NULL && !(
 	    (hfinfo->type == FT_UINT8) ||
 	    (hfinfo->type == FT_UINT16) ||
@@ -4236,7 +4248,8 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 	    (hfinfo->type == FT_PROTOCOL) ||
 	    (hfinfo->type == FT_FRAMENUM) ))
 		g_error("Field '%s' (%s) has a 'strings' value but is of type %s (which is not allowed to have strings)\n",
-			hfinfo->name, hfinfo->abbrev, val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+			hfinfo->name, hfinfo->abbrev,
+			val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
 
 	switch (hfinfo->type) {
 
@@ -4245,10 +4258,10 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 	case FT_INT24:
 	case FT_INT32:
 	case FT_INT64:
-		/*	Hexadecimal and octal are, in printf() and everywhere else,
-		 *	unsigned so don't allow dissectors to register a signed
-		 *	field to be displayed unsigned.  (Else how would we
-		 *	display values negative values?)
+		/*	Hexadecimal and octal are, in printf() and everywhere
+		 *	else, unsigned so don't allow dissectors to register a
+		 *	signed field to be displayed unsigned.  (Else how would
+		 *	we display negative values?)
 		 *
 		 *	If you want to take out this check, be sure to fix
 		 *	hfinfo_numeric_format() so that it does not assert out
@@ -4260,68 +4273,76 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 		    hfinfo->display == BASE_DEC_HEX ||
 		    hfinfo->display == BASE_OCT)
 			g_error("Field '%s' (%s) is signed (%s) but is being displayed unsigned (%s)\n",
-				hfinfo->name, hfinfo->abbrev, val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
-				val_to_str(hfinfo->display, hf_display, "(Unknown: %d)"));
+				hfinfo->name, hfinfo->abbrev,
+				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
+				val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
 		/* FALL THROUGH */
 	case FT_UINT8:
 	case FT_UINT16:
 	case FT_UINT24:
 	case FT_UINT32:
 		if (hfinfo->strings == NULL) {
-			/* Require integral types (other than frame number, which is
-			   always displayed in decimal) to have a number base */
+			/*  Require integral types (other than frame number,
+			 *  which is always displayed in decimal) to have a
+			 *  number base */
 			if (hfinfo->display == BASE_NONE)
 				g_error("Field '%s' (%s) is an integral value (%s) without strings but is being displayed as BASE_NONE\n",
-					hfinfo->name, hfinfo->abbrev, val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+					hfinfo->name, hfinfo->abbrev,
+					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
 		}
 		break;
 
 	case FT_UINT64:
 		if (hfinfo->display == BASE_NONE)
 			g_error("Field '%s' (%s) is an integral value (%s) but is being displayed as BASE_NONE\n",
-				hfinfo->name, hfinfo->abbrev, val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+				hfinfo->name, hfinfo->abbrev,
+				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
 		break;
 
 	case FT_PROTOCOL:
 	case FT_FRAMENUM:
 		if (hfinfo->display != BASE_NONE)
 			g_error("Field '%s' (%s) is an %s but is being displayed as %s instead of BASE_NONE\n",
-				hfinfo->name, hfinfo->abbrev, val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
-				val_to_str(hfinfo->display, hf_display, "(Unknown: %d)"));
+				hfinfo->name, hfinfo->abbrev,
+				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
+				val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
 		if (hfinfo->bitmask != 0)
 			g_error("Field '%s' (%s) is an %s but has a bitmask\n",
-				hfinfo->name, hfinfo->abbrev, val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+				hfinfo->name, hfinfo->abbrev,
+				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
 		break;
 
 	case FT_BOOLEAN:
 		break;
 
 	case FT_ABSOLUTE_TIME:
-		/*  Note: ABSOLUTE_TIME enum values overlap with the BASE_
-		 *  values so this doesn't catch every problem.
-		 */
 		if (!(hfinfo->display == ABSOLUTE_TIME_LOCAL ||
 		    hfinfo->display == ABSOLUTE_TIME_UTC ||
 		    hfinfo->display == ABSOLUTE_TIME_DOY_UTC))
 			g_error("Field '%s' (%s) is a %s but is being displayed as %s instead of as a time\n",
-				hfinfo->name, hfinfo->abbrev, val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
-				val_to_str(hfinfo->display, hf_display, "(Unknown: %d)"));
+				hfinfo->name, hfinfo->abbrev,
+				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
+				val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
 		if (hfinfo->bitmask != 0)
 			g_error("Field '%s' (%s) is an %s but has a bitmask\n",
-				hfinfo->name, hfinfo->abbrev, val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+				hfinfo->name, hfinfo->abbrev,
+				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
 		break;
 
 	default:
 		if (hfinfo->display != BASE_NONE)
 			g_error("Field '%s' (%s) is an %s but is being displayed as %s instead of BASE_NONE\n",
-				hfinfo->name, hfinfo->abbrev, val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
-				val_to_str(hfinfo->display, hf_display, "(Unknown: %d)"));
+				hfinfo->name, hfinfo->abbrev,
+				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
+				val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
 		if (hfinfo->bitmask != 0)
 			g_error("Field '%s' (%s) is an %s but has a bitmask\n",
-				hfinfo->name, hfinfo->abbrev, val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+				hfinfo->name, hfinfo->abbrev,
+				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
 		if (hfinfo->strings != NULL)
 			g_error("Field '%s' (%s) is an %s but has a strings value\n",
-				hfinfo->name, hfinfo->abbrev, val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+				hfinfo->name, hfinfo->abbrev,
+				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
 		break;
 	}
 }
