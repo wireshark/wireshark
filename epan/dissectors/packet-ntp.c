@@ -334,13 +334,13 @@ static const value_string ctrl_peer_status_authenable_types[] = {
 	{ 1,		"authentication enabled (peer.authenable" },
 	{ 0,		NULL}
 };
-	
+
 static const value_string ctrl_peer_status_authentic_types[] = {
 	{ 0,		"authentication not okay (peer.authentic)" },
 	{ 1,		"authentication okay (peer.authentic)" },
 	{ 0,		NULL}
 };
-	
+
 static const value_string ctrl_peer_status_reach_types[] = {
 	{ 0,		"reachability not okay (peer.reach != 0)" },
 	{ 1,		"reachability okay (peer.reach != 0)" },
@@ -1013,7 +1013,7 @@ dissect_ntp_ctrl_clockstatus(tvbuff_t *tvb, proto_tree *status_tree, guint16 off
 	 * | Clock Status  |  Event Code   |
 	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 	 */
-	proto_tree_add_uint(status_tree, hf_ntpctrl_clk_status, tvb, offset, 2, status); 
+	proto_tree_add_uint(status_tree, hf_ntpctrl_clk_status, tvb, offset, 2, status);
 	proto_tree_add_uint(status_tree, hf_ntpctrl_clk_status_code, tvb, offset, 2, status);
 }
 
@@ -1023,14 +1023,14 @@ dissect_ntp_ctrl(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	proto_tree *flags_tree;
 	proto_item *tf;
 	guint8 flags2;
-	
+
 	proto_tree *status_tree, *data_tree, *item_tree;
 	proto_item *ts, *td, *ti;
 	guint16 status;
 	guint16 associd;
 	guint16 datalen;
 	guint16 data_offset;
-	
+
 	tvbparse_t *tt;
 	tvbparse_elem_t *element;
 
@@ -1051,7 +1051,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_opcode, tvb, 1, 1, flags2);
 
 	proto_tree_add_uint(ntp_tree, hf_ntpctrl_sequence, tvb, 2, 2, tvb_get_ntohs(tvb, 2));
-	
+
 	status = tvb_get_ntohs(tvb, 4);
 	associd = tvb_get_ntohs(tvb, 6);
 	ts = proto_tree_add_uint(ntp_tree, hf_ntpctrl_status, tvb, 4, 2, status);
@@ -1079,7 +1079,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 			case NTPCTRL_OP_WRITECLOCK:
 				dissect_ntp_ctrl_clockstatus(tvb, status_tree, 4, status);
 				break;
-			case NTPCTRL_OP_SETTRAP:	
+			case NTPCTRL_OP_SETTRAP:
 			case NTPCTRL_OP_UNSETTRAP:
 				break;
 			}
@@ -1089,7 +1089,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	proto_tree_add_uint(ntp_tree, hf_ntpctrl_offset, tvb, 8, 2, tvb_get_ntohs(tvb, 8));
 	datalen = tvb_get_ntohs(tvb, 10);
 	proto_tree_add_uint(ntp_tree, hf_ntpctrl_count, tvb, 10, 2, datalen);
-	
+
 	/*
 	 * dissect Data part of the NTP control message
 	 */
@@ -1100,7 +1100,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 		switch(flags2 & NTPCTRL_OP_MASK) {
 		case NTPCTRL_OP_READSTAT:
 			if (!associd) {
-				/* 
+				/*
 				 * if associd == 0 then data part contains a list of the form
 				 * <association identifier><status word>,
 				 */
@@ -1164,11 +1164,11 @@ init_parser(void)
 		NULL);
 	/* the following specifies an assignment of the form identifier=value */
 	tvbparse_wanted_t* want_assignment = tvbparse_set_seq(-1, NULL, NULL, NULL,
-		want_identifier,  
+		want_identifier,
 		want_equalsign,
 		want_value,
 		NULL);
-		
+
 	/* we ignore white space characters */
 	want_ignore = tvbparse_chars(-1, 1, 0, ", \t\r\n", NULL, NULL, NULL);
 	/* data part of control messages consists of either identifiers or assignments */
@@ -1331,13 +1331,13 @@ proto_register_ntp(void)
 			VALS(ctrl_err_status_types), NTP_CTRL_ERRSTATUS_CODE_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_sys_status_li, {
 			"Leap Indicator", "ntpctrl.sys_status.li", FT_UINT16, BASE_DEC,
-			VALS(li_types), NTPCTRL_SYSSTATUS_LI_MASK, NULL, HFILL }},	
+			VALS(li_types), NTPCTRL_SYSSTATUS_LI_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_sys_status_clksrc, {
 			"Clock Source", "ntpctrl.sys_status.clksrc", FT_UINT16, BASE_DEC,
-			VALS(ctrl_sys_status_clksource_types), NTPCTRL_SYSSTATUS_CLK_MASK, NULL, HFILL }},	
+			VALS(ctrl_sys_status_clksource_types), NTPCTRL_SYSSTATUS_CLK_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_sys_status_count, {
 			"System Event Counter", "ntpctrl.sys_status.count", FT_UINT16, BASE_DEC,
-			NULL, NTPCTRL_SYSSTATUS_COUNT_MASK, NULL, HFILL }},	
+			NULL, NTPCTRL_SYSSTATUS_COUNT_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_sys_status_code, {
 			"System Event Code", "ntpctrl.sys_status.code", FT_UINT16, BASE_DEC,
 			VALS(ctrl_sys_status_event_types), NTPCTRL_SYSSTATUS_CODE_MASK, NULL, HFILL }},
@@ -1354,7 +1354,7 @@ proto_register_ntp(void)
 			"Peer Status", "ntpctrl.peer_status.reach", FT_UINT16, BASE_DEC,
 			VALS(ctrl_peer_status_reach_types), NTPCTRL_PEERSTATUS_REACH_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_peer_status_b4, {
-			"Peer Status: reserved", "", FT_UINT16, BASE_DEC,
+			"Peer Status: reserved", "ntpctrl.peer_status.reserved", FT_UINT16, BASE_DEC,
 			NULL, NTPCTRL_PEERSTATUS_RESERVED_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_peer_status_selection, {
 			"Peer Selection", "ntpctrl.peer_status.selection", FT_UINT16, BASE_DEC,
@@ -1389,7 +1389,7 @@ proto_register_ntp(void)
 		{ &hf_ntpctrl_trapmsg, {
 			"Trap message", "ntpctrl.trapmsg", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
-			
+
 		{ &hf_ntppriv_flags_r, {
 			"Response bit", "ntppriv.flags.r", FT_UINT8, BASE_DEC,
 			VALS(priv_r_types), NTPPRIV_R_MASK, NULL, HFILL }},
@@ -1428,8 +1428,8 @@ proto_register_ntp(void)
 	    "ntp");
 	proto_register_field_array(proto_ntp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	
-	init_parser();	
+
+	init_parser();
 }
 
 void

@@ -399,7 +399,7 @@ void dissect_pw_cesopsn_udp( tvbuff_t * tvb_original, packet_info * pinfo, proto
 void proto_register_pw_cesopsn(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_cw	,{"Control Word"		,""
+		{ &hf_cw	,{"Control Word"		,"pwcesopsn.cw"
 				,FT_NONE			,BASE_NONE		,NULL
 				,0				,NULL			,HFILL }}
 		,{&hf_cw_bits03,{"Bits 0 to 3"			,"pwcesopsn.cw.bits03"

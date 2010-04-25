@@ -412,7 +412,7 @@ void dissect_pw_satop_udp( tvbuff_t * tvb_original, packet_info * pinfo, proto_t
 void proto_register_pw_satop(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_cw	,{"Control Word"		,""
+		{ &hf_cw	,{"Control Word"		,"pwsatop.cw"
 				,FT_NONE			,BASE_NONE		,NULL
 				,0				,NULL			,HFILL }}
 		,{&hf_cw_bits03,{"Bits 0 to 3"			,"pwsatop.cw.bits03"
