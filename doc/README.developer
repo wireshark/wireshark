@@ -736,7 +736,7 @@ SVN repository (committed).
 ------------------------------------Cut here------------------------------------
 /* packet-PROTOABBREV.c
  * Routines for PROTONAME dissection
- * Copyright 200x, YOUR_NAME <YOUR_EMAIL_ADDRESS>
+ * Copyright 201x, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
  * $Id$
  *
