@@ -22,6 +22,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/*
+ * 04/26/2010: WMeier: "Class-Based Flow Control [CBFC] Pause Frame"  dissection added
+ *             See: http://www.ieee802.org/1/files/public/docs2007/new-cm-barrass-pause-proposal.pdf
+ */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -34,14 +39,59 @@
 
 static int proto_macctrl = -1;
 
-static gint ett_macctrl = -1;
-static int hf_macctrl_opcode = -1;
-static int hf_macctrl_pause_time = -1;
+static int hf_macctrl_opcode       = -1;
+static int hf_macctrl_pause_time   = -1;
+static int hf_macctrl_cbfc_enbv    = -1;
+static int hf_macctrl_cbfc_enbv_c0 = -1;
+static int hf_macctrl_cbfc_enbv_c1 = -1;
+static int hf_macctrl_cbfc_enbv_c2 = -1;
+static int hf_macctrl_cbfc_enbv_c3 = -1;
+static int hf_macctrl_cbfc_enbv_c4 = -1;
+static int hf_macctrl_cbfc_enbv_c5 = -1;
+static int hf_macctrl_cbfc_enbv_c6 = -1;
+static int hf_macctrl_cbfc_enbv_c7 = -1;
+static int hf_macctrl_cbfc_pause_time_c0 = -1;
+static int hf_macctrl_cbfc_pause_time_c1 = -1;
+static int hf_macctrl_cbfc_pause_time_c2 = -1;
+static int hf_macctrl_cbfc_pause_time_c3 = -1;
+static int hf_macctrl_cbfc_pause_time_c4 = -1;
+static int hf_macctrl_cbfc_pause_time_c5 = -1;
+static int hf_macctrl_cbfc_pause_time_c6 = -1;
+static int hf_macctrl_cbfc_pause_time_c7 = -1;
 
-#define MACCTRL_PAUSE	0x0001
+static gint ett_macctrl            = -1;
+static gint ett_macctrl_cbfc_enbv  = -1;
+static gint ett_macctrl_cbfc_pause_times = -1;
+
+static const int *macctrl_cbfc_enbv_list[] = {
+  &hf_macctrl_cbfc_enbv_c0,
+  &hf_macctrl_cbfc_enbv_c1,
+  &hf_macctrl_cbfc_enbv_c2,
+  &hf_macctrl_cbfc_enbv_c3,
+  &hf_macctrl_cbfc_enbv_c4,
+  &hf_macctrl_cbfc_enbv_c5,
+  &hf_macctrl_cbfc_enbv_c6,
+  &hf_macctrl_cbfc_enbv_c7,
+  NULL
+};
+
+static const int *macctrl_cbfc_pause_times_list[] = {
+  &hf_macctrl_cbfc_pause_time_c0,
+  &hf_macctrl_cbfc_pause_time_c1,
+  &hf_macctrl_cbfc_pause_time_c2,
+  &hf_macctrl_cbfc_pause_time_c3,
+  &hf_macctrl_cbfc_pause_time_c4,
+  &hf_macctrl_cbfc_pause_time_c5,
+  &hf_macctrl_cbfc_pause_time_c6,
+  &hf_macctrl_cbfc_pause_time_c7
+};
+
+#define MACCTRL_PAUSE                        0x0001
+#define MACCTRL_CLASS_BASED_FLOW_CNTRL_PAUSE 0x0101
 
 static const value_string opcode_vals[] = {
   { MACCTRL_PAUSE, "Pause" },
+  { MACCTRL_CLASS_BASED_FLOW_CNTRL_PAUSE, "Class Based Flow Control [CBFC] Pause" },
   { 0, NULL }
 };
 
@@ -50,48 +100,137 @@ dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *ti;
   proto_tree *macctrl_tree = NULL;
-  guint16 opcode;
-  guint16 pause_time;
+  proto_tree *pause_times_tree = NULL;
+  guint16     opcode;
+  guint16     pause_time;
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "CTRL");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC CTRL");
   col_clear(pinfo->cinfo, COL_INFO);
 
   opcode = tvb_get_ntohs(tvb, 0);
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_macctrl, tvb, 0, 4, FALSE);
+    ti = proto_tree_add_item(tree, proto_macctrl, tvb, 0, 46, FALSE);
     macctrl_tree = proto_item_add_subtree(ti, ett_macctrl);
-		
+
     proto_tree_add_uint(macctrl_tree, hf_macctrl_opcode, tvb, 0, 2, opcode);
   }
 
   switch (opcode) {
 
-  case MACCTRL_PAUSE:
-    pause_time = tvb_get_ntohs(tvb, 2);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "MAC PAUSE: pause_time %u quanta",
-                 pause_time);
-    if (tree)
-      proto_tree_add_uint(macctrl_tree, hf_macctrl_pause_time, tvb, 2, 2,
-                          pause_time);
-    break;
-  } 
+    case MACCTRL_PAUSE:
+      pause_time = tvb_get_ntohs(tvb, 2);
+      col_add_fstr(pinfo->cinfo, COL_INFO, "MAC PAUSE: pause_time: %u quanta",
+                   pause_time);
+      if (tree)
+        proto_tree_add_uint(macctrl_tree, hf_macctrl_pause_time, tvb, 2, 2,
+                            pause_time);
+      break;
+
+    case MACCTRL_CLASS_BASED_FLOW_CNTRL_PAUSE:
+      col_set_str(pinfo->cinfo, COL_INFO, "MAC CLASS BASED FLOW CONTROL PAUSE");
+      if (tree) {
+        int i;
+        proto_tree_add_bitmask(macctrl_tree, tvb, 2, hf_macctrl_cbfc_enbv, 
+                               ett_macctrl_cbfc_enbv, macctrl_cbfc_enbv_list, FALSE);
+
+        ti = proto_tree_add_text(macctrl_tree, tvb, 4, 8*2, "CBFC Class Pause Times");
+        pause_times_tree = proto_item_add_subtree(ti, ett_macctrl_cbfc_pause_times);
+
+        for (i=0; i<8; i++) {
+          proto_tree_add_item(ti, *macctrl_cbfc_pause_times_list[i], tvb, 4+i*2, 2, FALSE);
+        }
+      }
+      break;
+
+  }
 }
 
 void
 proto_register_macctrl(void)
 {
   static hf_register_info hf[] = {
-    { &hf_macctrl_opcode, 
+    { &hf_macctrl_opcode,
       { "Opcode", "macctrl.opcode", FT_UINT16, BASE_HEX,
         VALS(opcode_vals), 0x0, "MAC Control opcode", HFILL}},
 
     { &hf_macctrl_pause_time,
       { "pause_time", "macctrl.pause_time", FT_UINT16, BASE_DEC,
-        NULL, 0x0, "MAC control PAUSE frame pause_time", HFILL }}
+        NULL, 0x0, "MAC control PAUSE frame pause_time", HFILL }},
+
+    { &hf_macctrl_cbfc_enbv,
+      { "CBFC Class Enable Vector", "macctrl.cbfc.enbv", FT_UINT16, BASE_HEX,
+        NULL, 0x0, NULL, HFILL }},
+
+    { &hf_macctrl_cbfc_enbv_c0,
+      { "C0", "macctrl.cbfc.enbv.c0", FT_BOOLEAN, 16,
+        NULL, 0x01, NULL, HFILL }},
+
+    { &hf_macctrl_cbfc_enbv_c1,
+      { "C1", "macctrl.cbfc.enbv.c1", FT_BOOLEAN, 16,
+        NULL, 0x02, NULL, HFILL }},
+
+    { &hf_macctrl_cbfc_enbv_c2,
+      { "C2", "macctrl.cbfc.enbv.c2", FT_BOOLEAN, 16,
+        NULL, 0x04, NULL, HFILL }},
+
+    { &hf_macctrl_cbfc_enbv_c3,
+      { "C3", "macctrl.cbfc.enbv.c3", FT_BOOLEAN, 16,
+        NULL, 0x08, NULL, HFILL }},
+
+    { &hf_macctrl_cbfc_enbv_c4,
+      { "C4", "macctrl.cbfc.enbv.c4", FT_BOOLEAN, 16,
+        NULL, 0x10, NULL, HFILL }},
+
+    { &hf_macctrl_cbfc_enbv_c5,
+      { "C5", "macctrl.cbfc.enbv.c5", FT_BOOLEAN, 16,
+        NULL, 0x20, NULL, HFILL }},
+
+    { &hf_macctrl_cbfc_enbv_c6,
+      { "C6", "macctrl.cbfc.enbv.c6", FT_BOOLEAN, 16,
+        NULL, 0x40, NULL, HFILL }},
+
+    { &hf_macctrl_cbfc_enbv_c7,
+      { "C7", "macctrl.cbfc.enbv.c7", FT_BOOLEAN, 16,
+        NULL, 0x80, NULL, HFILL }},
+
+    { &hf_macctrl_cbfc_pause_time_c0,
+      { "C0", "macctrl.cbfc.pause_time.c0", FT_UINT16, BASE_DEC,
+        NULL, 0x00, NULL, HFILL }},
+
+    { &hf_macctrl_cbfc_pause_time_c1,
+      { "C1", "macctrl.cbfc.pause_time.c1", FT_UINT16, BASE_DEC,
+        NULL, 0x00, NULL, HFILL }},
+
+    { &hf_macctrl_cbfc_pause_time_c2,
+      { "C2", "macctrl.cbfc.pause_time.c2", FT_UINT16, BASE_DEC,
+        NULL, 0x00, NULL, HFILL }},
+
+    { &hf_macctrl_cbfc_pause_time_c3,
+      { "C3", "macctrl.cbfc.pause_time.c3", FT_UINT16, BASE_DEC,
+        NULL, 0x00, NULL, HFILL }},
+
+    { &hf_macctrl_cbfc_pause_time_c4,
+      { "C4", "macctrl.cbfc.pause_time.c4", FT_UINT16, BASE_DEC,
+        NULL, 0x00, NULL, HFILL }},
+
+    { &hf_macctrl_cbfc_pause_time_c5,
+      { "C5", "macctrl.cbfc.pause_time.c5", FT_UINT16, BASE_DEC,
+        NULL, 0x00, NULL, HFILL }},
+
+    { &hf_macctrl_cbfc_pause_time_c6,
+      { "C6", "macctrl.cbfc.pause_time.c6", FT_UINT16, BASE_DEC,
+        NULL, 0x00, NULL, HFILL }},
+
+    { &hf_macctrl_cbfc_pause_time_c7,
+      { "C7", "macctrl.cbfc.pause_time.c7", FT_UINT16, BASE_DEC,
+        NULL, 0x00, NULL, HFILL }}
+
   };
 
   static gint *ett[] = {
         &ett_macctrl,
+        &ett_macctrl_cbfc_enbv,
+        &ett_macctrl_cbfc_pause_times
   };
   proto_macctrl = proto_register_protocol("MAC Control", "MACC", "macc");
   proto_register_field_array(proto_macctrl, hf, array_length(hf));
