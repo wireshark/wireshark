@@ -3,15 +3,15 @@
 **
 ** Copyright (C) 2006-2009 ascolab GmbH. All Rights Reserved.
 ** Web: http://www.ascolab.com
-** 
+**
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU General Public License
 ** as published by the Free Software Foundation; either version 2
 ** of the License, or (at your option) any later version.
-** 
+**
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-** 
+**
 ** Project: OpcUa Wireshark Plugin
 **
 ** Description: OpcUa Enum Type Parser
@@ -447,76 +447,76 @@ void registerEnumTypes(int proto)
     static hf_register_info hf[] =
     {
         { &hf_opcua_NodeIdType,
-        {  "NodeIdType", "", FT_UINT32, BASE_HEX,  VALS(g_NodeIdTypeTable), 0x0, NULL, HFILL }
+        {  "NodeIdType", "opcua.NodeIdType", FT_UINT32, BASE_HEX,  VALS(g_NodeIdTypeTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_DialogConditionChoice,
-        {  "DialogConditionChoice", "", FT_UINT32, BASE_HEX,  VALS(g_DialogConditionChoiceTable), 0x0, NULL, HFILL }
+        {  "DialogConditionChoice", "opcua.DialogConditionChoice", FT_UINT32, BASE_HEX,  VALS(g_DialogConditionChoiceTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_IdType,
-        {  "IdType", "", FT_UINT32, BASE_HEX,  VALS(g_IdTypeTable), 0x0, NULL, HFILL }
+        {  "IdType", "opcua.IdType", FT_UINT32, BASE_HEX,  VALS(g_IdTypeTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_NodeClass,
-        {  "NodeClass", "", FT_UINT32, BASE_HEX,  VALS(g_NodeClassTable), 0x0, NULL, HFILL }
+        {  "NodeClass", "opcua.NodeClass", FT_UINT32, BASE_HEX,  VALS(g_NodeClassTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_MessageSecurityMode,
-        {  "MessageSecurityMode", "", FT_UINT32, BASE_HEX,  VALS(g_MessageSecurityModeTable), 0x0, NULL, HFILL }
+        {  "MessageSecurityMode", "opcua.MessageSecurityMode", FT_UINT32, BASE_HEX,  VALS(g_MessageSecurityModeTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_UserTokenType,
-        {  "UserTokenType", "", FT_UINT32, BASE_HEX,  VALS(g_UserTokenTypeTable), 0x0, NULL, HFILL }
+        {  "UserTokenType", "opcua.UserTokenType", FT_UINT32, BASE_HEX,  VALS(g_UserTokenTypeTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_ApplicationType,
-        {  "ApplicationType", "", FT_UINT32, BASE_HEX,  VALS(g_ApplicationTypeTable), 0x0, NULL, HFILL }
+        {  "ApplicationType", "opcua.ApplicationType", FT_UINT32, BASE_HEX,  VALS(g_ApplicationTypeTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_SecurityTokenRequestType,
-        {  "SecurityTokenRequestType", "", FT_UINT32, BASE_HEX,  VALS(g_SecurityTokenRequestTypeTable), 0x0, NULL, HFILL }
+        {  "SecurityTokenRequestType", "opcua.SecurityTokenRequestType", FT_UINT32, BASE_HEX,  VALS(g_SecurityTokenRequestTypeTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_ComplianceLevel,
-        {  "ComplianceLevel", "", FT_UINT32, BASE_HEX,  VALS(g_ComplianceLevelTable), 0x0, NULL, HFILL }
+        {  "ComplianceLevel", "opcua.ComplianceLevel", FT_UINT32, BASE_HEX,  VALS(g_ComplianceLevelTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_AttributeWriteMask,
-        {  "AttributeWriteMask", "", FT_UINT32, BASE_HEX,  VALS(g_AttributeWriteMaskTable), 0x0, NULL, HFILL }
+        {  "AttributeWriteMask", "opcua.AttributeWriteMask", FT_UINT32, BASE_HEX,  VALS(g_AttributeWriteMaskTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_NodeAttributesMask,
-        {  "NodeAttributesMask", "", FT_UINT32, BASE_HEX,  VALS(g_NodeAttributesMaskTable), 0x0, NULL, HFILL }
+        {  "NodeAttributesMask", "opcua.NodeAttributesMask", FT_UINT32, BASE_HEX,  VALS(g_NodeAttributesMaskTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_EnumeratedTestType,
-        {  "EnumeratedTestType", "", FT_UINT32, BASE_HEX,  VALS(g_EnumeratedTestTypeTable), 0x0, NULL, HFILL }
+        {  "EnumeratedTestType", "opcua.EnumeratedTestType", FT_UINT32, BASE_HEX,  VALS(g_EnumeratedTestTypeTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_BrowseDirection,
-        {  "BrowseDirection", "", FT_UINT32, BASE_HEX,  VALS(g_BrowseDirectionTable), 0x0, NULL, HFILL }
+        {  "BrowseDirection", "opcua.BrowseDirection", FT_UINT32, BASE_HEX,  VALS(g_BrowseDirectionTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_BrowseResultMask,
-        {  "BrowseResultMask", "", FT_UINT32, BASE_HEX,  VALS(g_BrowseResultMaskTable), 0x0, NULL, HFILL }
+        {  "BrowseResultMask", "opcua.BrowseResultMask", FT_UINT32, BASE_HEX,  VALS(g_BrowseResultMaskTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_FilterOperator,
-        {  "FilterOperator", "", FT_UINT32, BASE_HEX,  VALS(g_FilterOperatorTable), 0x0, NULL, HFILL }
+        {  "FilterOperator", "opcua.FilterOperator", FT_UINT32, BASE_HEX,  VALS(g_FilterOperatorTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_TimestampsToReturn,
-        {  "TimestampsToReturn", "", FT_UINT32, BASE_HEX,  VALS(g_TimestampsToReturnTable), 0x0, NULL, HFILL }
+        {  "TimestampsToReturn", "opcua.TimestampsToReturn", FT_UINT32, BASE_HEX,  VALS(g_TimestampsToReturnTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_HistoryUpdateMode,
-        {  "HistoryUpdateMode", "", FT_UINT32, BASE_HEX,  VALS(g_HistoryUpdateModeTable), 0x0, NULL, HFILL }
+        {  "HistoryUpdateMode", "opcua.HistoryUpdateMode", FT_UINT32, BASE_HEX,  VALS(g_HistoryUpdateModeTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_MonitoringMode,
-        {  "MonitoringMode", "", FT_UINT32, BASE_HEX,  VALS(g_MonitoringModeTable), 0x0, NULL, HFILL }
+        {  "MonitoringMode", "opcua.MonitoringMode", FT_UINT32, BASE_HEX,  VALS(g_MonitoringModeTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_DataChangeTrigger,
-        {  "DataChangeTrigger", "", FT_UINT32, BASE_HEX,  VALS(g_DataChangeTriggerTable), 0x0, NULL, HFILL }
+        {  "DataChangeTrigger", "opcua.DataChangeTrigger", FT_UINT32, BASE_HEX,  VALS(g_DataChangeTriggerTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_DeadbandType,
-        {  "DeadbandType", "", FT_UINT32, BASE_HEX,  VALS(g_DeadbandTypeTable), 0x0, NULL, HFILL }
+        {  "DeadbandType", "opcua.DeadbandType", FT_UINT32, BASE_HEX,  VALS(g_DeadbandTypeTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_RedundancySupport,
-        {  "RedundancySupport", "", FT_UINT32, BASE_HEX,  VALS(g_RedundancySupportTable), 0x0, NULL, HFILL }
+        {  "RedundancySupport", "opcua.RedundancySupport", FT_UINT32, BASE_HEX,  VALS(g_RedundancySupportTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_ServerState,
-        {  "ServerState", "", FT_UINT32, BASE_HEX,  VALS(g_ServerStateTable), 0x0, NULL, HFILL }
+        {  "ServerState", "opcua.ServerState", FT_UINT32, BASE_HEX,  VALS(g_ServerStateTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_ModelChangeStructureVerbMask,
-        {  "ModelChangeStructureVerbMask", "", FT_UINT32, BASE_HEX,  VALS(g_ModelChangeStructureVerbMaskTable), 0x0, NULL, HFILL }
+        {  "ModelChangeStructureVerbMask", "opcua.ModelChangeStructureVerbMask", FT_UINT32, BASE_HEX,  VALS(g_ModelChangeStructureVerbMaskTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_ExceptionDeviationFormat,
-        {  "ExceptionDeviationFormat", "", FT_UINT32, BASE_HEX,  VALS(g_ExceptionDeviationFormatTable), 0x0, NULL, HFILL }
+        {  "ExceptionDeviationFormat", "opcua.ExceptionDeviationFormat", FT_UINT32, BASE_HEX,  VALS(g_ExceptionDeviationFormatTable), 0x0, NULL, HFILL }
         },
     };
 

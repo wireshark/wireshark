@@ -227,28 +227,28 @@ void registerSimpleTypes(int proto)
     {
         /* full name  ,           abbreviation  ,       type     , display  , strings, bitmask, blurb, id, parent, ref_count, bitshift */
         { &hf_opcua_diag_mask_symbolicflag,
-        {  "has symbolic id",           "", FT_BOOLEAN, 8, NULL, DIAGNOSTICINFO_ENCODINGMASK_SYMBOLICID_FLAG, NULL, HFILL }
+        {  "has symbolic id",           "opcua.has_symbolic_id", FT_BOOLEAN, 8, NULL, DIAGNOSTICINFO_ENCODINGMASK_SYMBOLICID_FLAG, NULL, HFILL }
         },
         { &hf_opcua_diag_mask_namespaceflag,
-        {  "has namespace",             "", FT_BOOLEAN, 8, NULL, DIAGNOSTICINFO_ENCODINGMASK_NAMESPACE_FLAG, NULL, HFILL }
+        {  "has namespace",             "opcua.has_namespace", FT_BOOLEAN, 8, NULL, DIAGNOSTICINFO_ENCODINGMASK_NAMESPACE_FLAG, NULL, HFILL }
         },
         { &hf_opcua_diag_mask_localizedtextflag,
-        {  "has localizedtext",         "", FT_BOOLEAN, 8, NULL, DIAGNOSTICINFO_ENCODINGMASK_LOCALIZEDTEXT_FLAG, NULL, HFILL }
+        {  "has localizedtext",         "opcua.has_localizedtext", FT_BOOLEAN, 8, NULL, DIAGNOSTICINFO_ENCODINGMASK_LOCALIZEDTEXT_FLAG, NULL, HFILL }
         },
         { &hf_opcua_diag_mask_additionalinfoflag,
-        {  "has additional info",       "", FT_BOOLEAN, 8, NULL, DIAGNOSTICINFO_ENCODINGMASK_ADDITIONALINFO_FLAG, NULL, HFILL }
+        {  "has additional info",       "opcua.has_additional_info", FT_BOOLEAN, 8, NULL, DIAGNOSTICINFO_ENCODINGMASK_ADDITIONALINFO_FLAG, NULL, HFILL }
         },
         { &hf_opcua_diag_mask_innerstatuscodeflag,
-        {  "has inner statuscode",      "", FT_BOOLEAN, 8, NULL, DIAGNOSTICINFO_ENCODINGMASK_INNERSTATUSCODE_FLAG, NULL, HFILL }
+        {  "has inner statuscode",      "opcua.has_inner_statuscode", FT_BOOLEAN, 8, NULL, DIAGNOSTICINFO_ENCODINGMASK_INNERSTATUSCODE_FLAG, NULL, HFILL }
         },
         { &hf_opcua_diag_mask_innerdiaginfoflag,
-        {  "has inner diagnostic info", "", FT_BOOLEAN, 8, NULL, DIAGNOSTICINFO_ENCODINGMASK_INNERDIAGNOSTICINFO_FLAG, NULL, HFILL }
+        {  "has inner diagnostic info", "opcua.has_inner_diagnostic_code", FT_BOOLEAN, 8, NULL, DIAGNOSTICINFO_ENCODINGMASK_INNERDIAGNOSTICINFO_FLAG, NULL, HFILL }
         },
         { &hf_opcua_loctext_mask_localeflag,
-        {  "has locale information", "", FT_BOOLEAN, 8, NULL, LOCALIZEDTEXT_ENCODINGBYTE_LOCALE, NULL, HFILL }
+        {  "has locale information", "opcua.has_locale_information", FT_BOOLEAN, 8, NULL, LOCALIZEDTEXT_ENCODINGBYTE_LOCALE, NULL, HFILL }
         },
         { &hf_opcua_loctext_mask_textflag,
-        {  "has text", "", FT_BOOLEAN, 8, NULL, LOCALIZEDTEXT_ENCODINGBYTE_TEXT, NULL, HFILL }
+        {  "has text", "opcua.has_text", FT_BOOLEAN, 8, NULL, LOCALIZEDTEXT_ENCODINGBYTE_TEXT, NULL, HFILL }
         },
         { &hf_opcua_nodeid_encodingmask,
         {  "NodeId EncodingMask",        "application.nodeid.encodingmask", FT_UINT8,   BASE_HEX,  VALS(g_nodeidmasks), 0x0,    NULL,    HFILL }
@@ -259,31 +259,31 @@ void registerSimpleTypes(int proto)
         { &hf_opcua_nodeid_numeric,
         {  "NodeId Identifier Numeric",  "application.nodeid.numeric",      FT_UINT32,  BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
         },
-        { &hf_opcua_localizedtext_locale, { "Locale", "", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_opcua_localizedtext_text,   { "Text",   "", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_opcua_qualifiedname_id,     { "Id",     "", FT_UINT16, BASE_DEC,  NULL, 0x0, NULL, HFILL } },
-        { &hf_opcua_qualifiedname_name,   { "Name",   "", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_opcua_datavalue_mask_valueflag,           {  "has value", "",            FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_VALUE, NULL, HFILL } },
-        { &hf_opcua_datavalue_mask_statuscodeflag,      {  "has statuscode", "",       FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_STATUSCODE, NULL, HFILL } },
-        { &hf_opcua_datavalue_mask_sourcetimestampflag, {  "has source timestamp", "", FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_SOURCETIMESTAMP, NULL, HFILL } },
-        { &hf_opcua_datavalue_mask_servertimestampflag, {  "has server timestamp", "", FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_SERVERTIMESTAMP, NULL, HFILL } },
-        { &hf_opcua_datavalue_mask_sourcepicoseconds, {  "has source picoseconds", "", FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_SOURCEPICOSECONDS, NULL, HFILL } },
-        { &hf_opcua_datavalue_mask_serverpicoseconds, {  "has server picoseconds", "", FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_SERVERPICOSECONDS, NULL, HFILL } },
-        { &hf_opcua_variant_encodingmask, { "Variant Type", "", FT_UINT8, BASE_HEX, VALS(g_VariantTypes), 0x0, NULL, HFILL } },
-        { &hf_opcua_SourceTimestamp, { "SourceTimestamp", "", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL } },
-        { &hf_opcua_SourcePicoseconds, { "SourcePicoseconds", "", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_opcua_ServerTimestamp, { "ServerTimestamp", "", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL } },
-        { &hf_opcua_ServerPicoseconds, { "ServerPicoseconds", "", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_opcua_diag_symbolicid,      { "SymbolicId", "",       FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_opcua_diag_namespace,       { "Namespace", "",       FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_opcua_diag_localizedtext,   { "LocaliezdText", "",   FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_opcua_diag_additionalinfo,  { "AdditionalInfo", "",  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_opcua_diag_innerstatuscode, { "InnerStatusCode", "", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-        { &hf_opcua_extobj_mask_binbodyflag, {  "has binary body", "", FT_BOOLEAN, 8, NULL, EXTOBJ_ENCODINGMASK_BINBODY_FLAG, NULL, HFILL } },
-        { &hf_opcua_extobj_mask_xmlbodyflag, {  "has xml body",    "", FT_BOOLEAN, 8, NULL, EXTOBJ_ENCODINGMASK_XMLBODY_FLAG, NULL, HFILL } },
-        { &hf_opcua_ArraySize, { "ArraySize", "", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_opcua_Uri, { "Uri", "", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_opcua_ServerIndex, { "ServerIndex", "", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } }
+        { &hf_opcua_localizedtext_locale, { "Locale", "opcua.Locale", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_localizedtext_text,   { "Text", "opcua.Text", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_qualifiedname_id,     { "Id", "opcua.Id", FT_UINT16, BASE_DEC,  NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_qualifiedname_name,   { "Name", "opcua.Name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_datavalue_mask_valueflag,           {  "has value", "opcua.has_value",            FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_VALUE, NULL, HFILL } },
+        { &hf_opcua_datavalue_mask_statuscodeflag,      {  "has statuscode", "opcua.has_statuscode",       FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_STATUSCODE, NULL, HFILL } },
+        { &hf_opcua_datavalue_mask_sourcetimestampflag, {  "has source timestamp", "opcua.has_source_timestamp", FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_SOURCETIMESTAMP, NULL, HFILL } },
+        { &hf_opcua_datavalue_mask_servertimestampflag, {  "has server timestamp", "opcua.has_server_timestamp", FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_SERVERTIMESTAMP, NULL, HFILL } },
+        { &hf_opcua_datavalue_mask_sourcepicoseconds, {  "has source picoseconds", "opcua.has_source_picoseconds", FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_SOURCEPICOSECONDS, NULL, HFILL } },
+        { &hf_opcua_datavalue_mask_serverpicoseconds, {  "has server picoseconds", "opcua.has_server_picoseconds", FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_SERVERPICOSECONDS, NULL, HFILL } },
+        { &hf_opcua_variant_encodingmask, { "Variant Type", "opcua.has_value", FT_UINT8, BASE_HEX, VALS(g_VariantTypes), 0x0, NULL, HFILL } },
+        { &hf_opcua_SourceTimestamp, { "SourceTimestamp", "opcua.SourceTimestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_SourcePicoseconds, { "SourcePicoseconds", "opcua.SourcePicoseconds", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_ServerTimestamp, { "ServerTimestamp", "opcua.ServerTimestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_ServerPicoseconds, { "ServerPicoseconds", "opcua.ServerPicoseconds", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_diag_symbolicid,      { "SymbolicId", "opcua.SymbolicId",       FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_diag_namespace,       { "Namespace", "opcua.Namespace",       FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_diag_localizedtext,   { "LocaliezdText", "opcua.LocaliezdText",   FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_diag_additionalinfo,  { "AdditionalInfo", "opcua.AdditionalInfo",  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_diag_innerstatuscode, { "InnerStatusCode", "opcua.InnerStatusCode", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_extobj_mask_binbodyflag, {  "has binary body", "opcua.has_binary_body", FT_BOOLEAN, 8, NULL, EXTOBJ_ENCODINGMASK_BINBODY_FLAG, NULL, HFILL } },
+        { &hf_opcua_extobj_mask_xmlbodyflag, {  "has xml body",    "opcua.has_xml_body", FT_BOOLEAN, 8, NULL, EXTOBJ_ENCODINGMASK_XMLBODY_FLAG, NULL, HFILL } },
+        { &hf_opcua_ArraySize, { "ArraySize", "opcua.ArraySize", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_Uri, { "Uri", "opcua.Uri", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_opcua_ServerIndex, { "ServerIndex", "opcua.ServerIndex", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } }
     };
 
     proto_register_field_array(proto, hf, array_length(hf));
