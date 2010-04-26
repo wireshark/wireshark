@@ -6,7 +6,7 @@
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  * Copyright (c) 2007 by Luis E. Garcia Ontanon <luis@ontanon.org>
  *
- * Support for Request-Answer tracking and Tapping 
+ * Support for Request-Answer tracking and Tapping
  * introduced by Abhik Sarkar
  *
  * Wireshark - Network traffic analyzer
@@ -758,24 +758,24 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 		PROTO_ITEM_SET_GENERATED(iu);
 	}
 
-	
+
 	hop_by_hop_id = tvb_get_ntohl(tvb, 12);
 	proto_tree_add_item(diam_tree,hf_diameter_hopbyhopid,tvb,12,4,FALSE);
 	proto_tree_add_item(diam_tree,hf_diameter_endtoendid,tvb,16,4,FALSE);
 
 	/* Conversation tracking stuff */
-	/* 
+	/*
 	 * FIXME: Looking at epan/conversation.c it seems unlike that this will work properly in
 	 * multi-homed SCTP connections. This will probably need to be fixed at some point.
 	 */
 
-	conversation = find_conversation(pinfo->fd->num, 
+	conversation = find_conversation(pinfo->fd->num,
 				&pinfo->src, &pinfo->dst,
-				pinfo->ptype, 
+				pinfo->ptype,
 				pinfo->srcport, pinfo->destport, 0);
 	if (conversation == NULL) {
 		/* We don't yet have a conversation, so create one. */
-		conversation = conversation_new(pinfo->fd->num, 
+		conversation = conversation_new(pinfo->fd->num,
 					&pinfo->src, &pinfo->dst,
 					pinfo->ptype,
 					pinfo->srcport, pinfo->destport, 0);
@@ -843,7 +843,7 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 			PROTO_ITEM_SET_GENERATED(it);
 
 			nstime_delta(&ns, &pinfo->fd->abs_ts, &diameter_pair->req_time);
-			diameter_pair->srt_time = ns; 
+			diameter_pair->srt_time = ns;
 			it = proto_tree_add_time(diam_tree, hf_diameter_answer_time, tvb, 0, 0, &ns);
 			PROTO_ITEM_SET_GENERATED(it);
 			/* TODO: Populate result_code in tap record from AVP 268 */
@@ -1359,56 +1359,19 @@ dictionary_load(void)
 static void
 range_delete_callback(guint32 port)
 {
-    dissector_delete("tcp.port", port, diameter_tcp_handle);
+	dissector_delete("tcp.port", port, diameter_tcp_handle);
 }
 
 static void
 range_add_callback(guint32 port)
 {
-    dissector_add("tcp.port", port, diameter_tcp_handle);
-}
-
-void
-proto_reg_handoff_diameter(void)
-{
-	static gboolean Initialized=FALSE;
-	static guint SctpPort;
-	static dissector_handle_t diameter_handle;
-	static range_t *diameter_tcp_port_range;
-
-	if (!Initialized) {
-		diameter_handle = find_dissector("diameter");
-		diameter_tcp_handle = create_dissector_handle(dissect_diameter_tcp,
-							      proto_diameter);
-		data_handle = find_dissector("data");
-		eap_handle = find_dissector("eap");
-		/* Register special decoding for some AVP:s */
-		/* AVP Code: 266 Vendor-Id */
-		dissector_add("diameter.base", 266, 
-				new_create_dissector_handle(dissect_diameter_vedor_id, proto_diameter));
-		/* AVP Code: 462 EAP-Payload */
-		dissector_add("diameter.base", 462, 
-			new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
-		/* AVP Code: 463 EAP-Reissued-Payload */
-		dissector_add("diameter.base", 463, 
-			new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
-
-		Initialized=TRUE;
-	} else {
-		range_foreach(diameter_tcp_port_range, range_delete_callback);
-		g_free(diameter_tcp_port_range);
-		dissector_delete("sctp.port", SctpPort, diameter_handle);
-	}
-
-	/* set port for future deletes */
-	diameter_tcp_port_range = range_copy(global_diameter_tcp_port_range);
-	range_foreach(diameter_tcp_port_range, range_add_callback);
-
-	SctpPort=gbl_diameterSctpPort;
-	dissector_add("sctp.port", gbl_diameterSctpPort, diameter_handle);
+	dissector_add("tcp.port", port, diameter_tcp_handle);
 }
 
 /* registration with the filtering engine */
+
+void proto_reg_handoff_diameter(void);
+
 void
 proto_register_diameter(void)
 {
@@ -1549,7 +1512,7 @@ proto_register_diameter(void)
 	/* Allow dissector to find be found by name. */
 	new_register_dissector("diameter", dissect_diameter, proto_diameter);
 
-	/* Register dissector table(s) to do sub dissection of AVP:s ( OctetStrings) */ 
+	/* Register dissector table(s) to do sub dissection of AVP:s ( OctetStrings) */
 	diameter_dissector_table = register_dissector_table("diameter.base", "DIAMETER_3GPP_AVPS", FT_UINT32, BASE_DEC);
 	diameter_3gpp_avp_dissector_table = register_dissector_table("diameter.3gpp", "DIAMETER_3GPP_AVPS", FT_UINT32, BASE_DEC);
 
@@ -1594,4 +1557,44 @@ proto_register_diameter(void)
 	diameter_tap = register_tap("diameter");
 
 } /* proto_register_diameter */
+
+void
+proto_reg_handoff_diameter(void)
+{
+	static gboolean Initialized=FALSE;
+	static guint SctpPort;
+	static dissector_handle_t diameter_handle;
+	static range_t *diameter_tcp_port_range;
+
+	if (!Initialized) {
+		diameter_handle = find_dissector("diameter");
+		diameter_tcp_handle = create_dissector_handle(dissect_diameter_tcp,
+							      proto_diameter);
+		data_handle = find_dissector("data");
+		eap_handle = find_dissector("eap");
+		/* Register special decoding for some AVP:s */
+		/* AVP Code: 266 Vendor-Id */
+		dissector_add("diameter.base", 266,
+				new_create_dissector_handle(dissect_diameter_vedor_id, proto_diameter));
+		/* AVP Code: 462 EAP-Payload */
+		dissector_add("diameter.base", 462,
+			new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
+		/* AVP Code: 463 EAP-Reissued-Payload */
+		dissector_add("diameter.base", 463,
+			new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
+
+		Initialized=TRUE;
+	} else {
+		range_foreach(diameter_tcp_port_range, range_delete_callback);
+		g_free(diameter_tcp_port_range);
+		dissector_delete("sctp.port", SctpPort, diameter_handle);
+	}
+
+	/* set port for future deletes */
+	diameter_tcp_port_range = range_copy(global_diameter_tcp_port_range);
+	range_foreach(diameter_tcp_port_range, range_add_callback);
+
+	SctpPort=gbl_diameterSctpPort;
+	dissector_add("sctp.port", gbl_diameterSctpPort, diameter_handle);
+}
 
