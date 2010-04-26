@@ -1959,7 +1959,7 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	}
     }
-    
+
     /* Queue packet for Tap */
     tap_queue_packet(ucp_tap, pinfo, tap_rec);
 
@@ -2725,17 +2725,15 @@ proto_register_ucp(void)
     ucp_module = prefs_register_protocol(proto_ucp, NULL);
     prefs_register_bool_preference(ucp_module, "desegment_ucp_messages",
                            "Reassemble UCP messages spanning multiple TCP segments",
-                           "Whether the UCP dissector should reassemble messages spanning multiple TCP segments."
-                           " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+                           "Whether the UCP dissector should reassemble messages spanning"
+                           " multiple TCP segments."
+                           " To use this option, you must also enable "
+                           "\"Allow subdissectors to reassemble TCP streams\" in the "
+                           "TCP protocol settings.",
                            &ucp_desegment);
 
 }
 
-/*
- * If dissector uses sub-dissector registration add a registration routine.
- * This format is required because a script is used to find these routines and
- * create the code that calls these routines.
- */
 void
 proto_reg_handoff_ucp(void)
 {
