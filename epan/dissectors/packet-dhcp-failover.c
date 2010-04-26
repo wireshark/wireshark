@@ -948,24 +948,10 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    get_dhcpfo_pdu_len, dissect_dhcpfo_pdu);
 }
 
-void
-proto_reg_handoff_dhcpfo(void)
-{
-	static gboolean initialized = FALSE;
-	static dissector_handle_t dhcpfo_handle;
-	static guint saved_tcp_port;
-
-	if (!initialized) {
-		dhcpfo_handle = create_dissector_handle(dissect_dhcpfo, proto_dhcpfo);
-		initialized = TRUE;
-	} else {
-		dissector_delete("tcp.port", saved_tcp_port, dhcpfo_handle);
-	}
-	dissector_add("tcp.port", tcp_port_pref, dhcpfo_handle);
-	saved_tcp_port = tcp_port_pref;
-}
-
 /* Register the protocol with Wireshark */
+
+void proto_reg_handoff_dhcpfo(void);
+
 void
 proto_register_dhcpfo(void)
 {
@@ -1207,3 +1193,21 @@ proto_register_dhcpfo(void)
 	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &dhcpfo_desegment);
 }
+
+void
+proto_reg_handoff_dhcpfo(void)
+{
+	static gboolean initialized = FALSE;
+	static dissector_handle_t dhcpfo_handle;
+	static guint saved_tcp_port;
+
+	if (!initialized) {
+		dhcpfo_handle = create_dissector_handle(dissect_dhcpfo, proto_dhcpfo);
+		initialized = TRUE;
+	} else {
+		dissector_delete("tcp.port", saved_tcp_port, dhcpfo_handle);
+	}
+	dissector_add("tcp.port", tcp_port_pref, dhcpfo_handle);
+	saved_tcp_port = tcp_port_pref;
+}
+
