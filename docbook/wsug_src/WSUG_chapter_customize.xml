@@ -1251,6 +1251,41 @@ standard libpcap format.
   </section>
 
 
+  <section id="ChEssCategoryAttributes"><title>ESS Category Attributes</title>
+  <para>
+    Wireshark uses this table to map ESS Security Category attributes to textual
+    representations.  The values to put in this table are usually found in a 
+    <ulink url="http://www.xmlspif.org/">XML SPIF</ulink>, which is used for defining
+    security labels.
+  </para>
+  <para>
+    This table is handled by an <xref linkend="ChUserTable"/> with the following fields.
+  </para>
+  <variablelist>
+      <varlistentry><term><command>Tag Set</command></term>
+      <listitem>
+          <para>
+            An Object Identifier representing the Category Tag Set.
+          </para>
+      </listitem>
+      </varlistentry>
+      <varlistentry><term><command>Value</command></term>
+      <listitem>
+          <para>
+            The value (Label And Cert Value) representing the Category.
+          </para>
+      </listitem>
+      </varlistentry>
+      <varlistentry><term><command>Name</command></term>
+      <listitem>
+          <para>
+            The textual representation for the value.
+          </para>
+      </listitem>
+      </varlistentry>
+  </variablelist>
+  </section>
+
   <section id="ChGeoIPDbPaths"><title>GeoIP Database Paths</title>
     <para>
       If your copy of Wireshark supports <ulink url="http://www.maxmind.com/">MaxMind's</ulink> GeoIP library, you can use their databases to match IP addresses to countries, cites, autonomous system numbers, ISPs, and other bits of information. Some databases are <ulink url="http://www.maxmind.com/download/geoip/database/">available at no cost</ulink>, while others require a licensing fee. See <ulink url="http://www.maxmind.com/app/ip-location">the MaxMind web site</ulink> for more information.
