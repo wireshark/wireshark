@@ -38,7 +38,9 @@ const true_false_string tfs_yes_no = { "Yes", "No" };
 const true_false_string tfs_set_notset = { "Set", "Not set" };
 const true_false_string tfs_enabled_disabled = { "Enabled", "Disabled" };
 const true_false_string tfs_ok_error = { "Ok", "Error" };
+const true_false_string tfs_error_ok = { "Error", "Ok" };
 const true_false_string tfs_success_fail = { "Success", "Fail" };
+const true_false_string tfs_fail_success = { "Fail", "Success" };
 const true_false_string tfs_on_off = { "On", "Off" };
 const true_false_string tfs_ack_nack = { "Ack", "Nack" };
 const true_false_string tfs_odd_even = { "Odd", "Even" };
@@ -53,3 +55,6 @@ const true_false_string tfs_command_response = { "Command", "Response" };
 const true_false_string tfs_capable_not_capable = { "Capable", "Not capable" };
 const true_false_string tfs_supported_not_supported = { "Supported", "Not supported" };
 const true_false_string tfs_used_notused = { "Used", "Not used" };
+const true_false_string tfs_high_low = { "High", "Low" };
+const true_false_string tfs_pressed_not_pressed = { "Pressed", "Not pressed" };
+
