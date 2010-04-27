@@ -379,7 +379,7 @@ else
 rawshark_LDFLAGS = -export-dynamic
 endif
 
-# Libraries and plugin flags with which to link tshark.
+# Libraries and plugin flags with which to link rawshark.
 rawshark_LDADD = \
 	$(wireshark_optional_objects)	\
 	wiretap/libwiretap.la		\
