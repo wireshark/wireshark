@@ -2013,6 +2013,38 @@ read_hosts_file (const char *hostspath)
   return TRUE;
 } /* read_hosts_file */
 
+gboolean
+add_ip_name_from_string (const char *address, const char *name)
+{
+  guint32 host_addr[4]; /* IPv4 */
+  struct e_in6_addr ip6_addr; /* IPv6 */
+  gboolean is_ipv6;
+  int ret;
+
+  ret = inet_pton(AF_INET6, address, &ip6_addr);
+  if (ret == -1)
+    /* Error parsing address */
+    return FALSE;
+
+  if (ret == 1) {
+    /* Valid IPv6 */
+    is_ipv6 = TRUE;
+  } else {
+    /* Not valid IPv6 - valid IPv4? */
+    if (inet_pton(AF_INET, address, &host_addr) != 1)
+      return FALSE; /* no */
+    is_ipv6 = FALSE;
+  }
+
+  if (is_ipv6) {
+    add_ipv6_name(&ip6_addr, name);
+  } else {
+    add_ipv4_name(host_addr[0], name);
+  }
+
+  return TRUE;
+} /* read_hosts_file */
+
 
 /* Read in a list of subnet definition - name pairs.
  * <line> = <comment> | <entry> | <whitespace>

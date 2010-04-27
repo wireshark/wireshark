@@ -351,6 +351,9 @@ extern void change_configuration_profile(const gchar *profile_name);
 /** redissect packets and update UI */
 extern void redissect_packets(void);
 
+/** Fetch all IP addresses from selected row */
+extern GList *get_ip_address_list_from_packet_list_row(gpointer data);
+
 extern GtkWidget *pkt_scrollw;
 
 #endif /* __MAIN_H__ */

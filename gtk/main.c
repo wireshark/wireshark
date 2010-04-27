@@ -499,6 +499,73 @@ selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
     }
 }
 
+static gboolean
+is_address_column (gint column)
+{
+  if (((cfile.cinfo.col_fmt[column] == COL_DEF_SRC) ||
+       (cfile.cinfo.col_fmt[column] == COL_RES_SRC) ||
+       (cfile.cinfo.col_fmt[column] == COL_DEF_DST) ||
+       (cfile.cinfo.col_fmt[column] == COL_RES_DST)) &&
+      strlen(cfile.cinfo.col_expr.col_expr_val[column]))
+  {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+GList *
+get_ip_address_list_from_packet_list_row(gpointer data)
+{
+    gint    row = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_ROW_KEY));
+    gint    column = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY));
+    gint    col;
+    frame_data *fdata;
+    GList      *addr_list = NULL;
+    int         err;
+    gchar       *err_info;
+
+#ifdef NEW_PACKET_LIST
+    fdata = (frame_data *) new_packet_list_get_row_data(row);
+#else
+    fdata = (frame_data *) packet_list_get_row_data(row);
+#endif
+
+    if (fdata != NULL) {
+        epan_dissect_t edt;
+
+        if (!wtap_seek_read(cfile.wth, fdata->file_off, &cfile.pseudo_header,
+                   cfile.pd, fdata->cap_len, &err, &err_info))
+	{
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      cf_read_error_message(err, err_info), cfile.filename);
+            return NULL;
+        }
+
+        epan_dissect_init(&edt, FALSE, FALSE);
+        col_custom_prime_edt(&edt, &cfile.cinfo);
+
+        epan_dissect_run(&edt, &cfile.pseudo_header, cfile.pd, fdata, &cfile.cinfo);
+        epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
+
+	/* First check selected column */
+	if (is_address_column (column)) {
+	  addr_list = g_list_append (addr_list, se_strdup_printf("%s", cfile.cinfo.col_expr.col_expr_val[column]));
+        }
+
+	for (col = 0; col < cfile.cinfo.num_cols; col++) {
+	  /* Then check all columns except the selected */
+	  if ((col != column) && (is_address_column (col))) {
+	    addr_list = g_list_append (addr_list, se_strdup_printf("%s", cfile.cinfo.col_expr.col_expr_val[col]));
+	  }
+	}
+
+        epan_dissect_cleanup(&edt);
+    }
+
+    return addr_list;
+}
+
 static gchar *
 get_filter_from_packet_list_row_and_column(gpointer data)
 {

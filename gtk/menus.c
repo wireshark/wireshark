@@ -93,6 +93,7 @@
 #include "gtk/main_welcome.h"
 #include "gtk/uat_gui.h"
 #include "gtk/gui_utils.h"
+#include "gtk/manual_addr_resolv.h"
 
 #ifdef NEW_PACKET_LIST
 #include "gtk/new_packet_list.h"
@@ -834,6 +835,8 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 #endif /* NEW_PACKET_LIST */
     {"/Set Time Reference (toggle)", NULL, GTK_MENU_FUNC(reftime_frame_cb), REFTIME_TOGGLE, "<StockItem>", WIRESHARK_STOCK_TIME,},
 
+    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Manually Resolve Address", NULL, GTK_MENU_FUNC(manual_addr_resolv_dlg), 0, NULL, NULL,},
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
     {"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
@@ -2769,6 +2772,8 @@ set_menus_for_selected_packet(capture_file *cf)
                          cf->current_frame != NULL);
     set_menu_sensitivity(packet_list_menu_factory, "/Show Packet in New Window",
                          cf->current_frame != NULL);
+    set_menu_sensitivity(packet_list_menu_factory, "/Manually Resolve Address",
+                         cf->current_frame != NULL ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
     set_menu_sensitivity(packet_list_menu_factory, "/SCTP",
                          cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_SCTP) : FALSE);
     set_menu_sensitivity(main_menu_factory, "/Analyze/Follow TCP Stream",

@@ -238,6 +238,9 @@ topic_action(topic_action_e action)
     case(HELP_CONFIG_PROFILES_DIALOG):
         help_topic_html("ChCustConfigProfilesSection.html");
         break;
+    case (HELP_MANUAL_ADDR_RESOLVE_DIALOG):
+        help_topic_html("ChManualAddressResolveSection.html");
+	break;
     case(HELP_PRINT_DIALOG):
         help_topic_html("ChIOPrintSection.html");
         break;
