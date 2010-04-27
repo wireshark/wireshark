@@ -49,6 +49,19 @@ val_to_str(const guint32 val, const value_string *vs, const char *fmt) {
   return ep_strdup_printf(fmt, val);
 }
 
+const gchar*
+val_to_str_ext(const guint32 val, const value_string_ext *vs, const char *fmt) {
+  const gchar *ret;
+
+  g_assert(fmt != NULL);
+
+  ret = match_strval_ext(val, vs);
+  if (ret != NULL)
+    return ret;
+
+  return ep_strdup_printf(fmt, val);
+}
+
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.
    Returns 'unknown_str', on failure. */
@@ -59,6 +72,19 @@ val_to_str_const(const guint32 val, const value_string *vs, const char *unknown_
   g_assert(unknown_str != NULL);
 
   ret = match_strval(val, vs);
+  if (ret != NULL)
+    return ret;
+
+  return unknown_str;
+}
+
+const gchar*
+val_to_str_ext_const(const guint32 val, const value_string_ext *vs, const char *unknown_str) {
+  const gchar *ret;
+
+  g_assert(unknown_str != NULL);
+
+  ret = match_strval_ext(val, vs);
   if (ret != NULL)
     return ret;
 
@@ -93,6 +119,40 @@ match_strval(const guint32 val, const value_string *vs) {
     gint ignore_me;
     return match_strval_idx(val, vs, &ignore_me);
 }
+
+const gchar*
+match_strval_ext(const guint32 val, const value_string_ext *vs) {
+  guint low, idx, max;
+  guint32 item;
+  if(vs) {
+    switch(vs->match_type){
+    case VS_DEFAULT: 
+      /* XXX: reinit? */
+    case VS_SEARCH:
+      return match_strval(val, vs->vals);
+    case VS_INDEX:
+      return (val < vs->length) ? vs->vals[val].strptr : NULL;
+    case VS_BIN_TREE:
+      for (low = 0, max = vs->length; low < max; ) {
+        idx = (low + max) / 2;
+        item = vs->vals[idx].value;
+
+        if (val < item)
+          max = idx;
+        else if (val > item)
+         low = idx + 1;
+        else
+          return vs->vals[idx].strptr;
+      }
+      break;
+    default:
+      g_assert_not_reached();
+      break;
+    }
+  }
+  return NULL;
+}
+
 
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.

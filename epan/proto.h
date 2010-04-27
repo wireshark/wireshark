@@ -159,10 +159,15 @@ typedef enum {
 	BASE_CUSTOM	/**< call custom routine (in ->strings) to format */
 } base_display_e;
 
+#define IS_INT_TYPE(type) \
+  ((type) == FT_UINT8 || (type) == FT_UINT16 || (type) == FT_UINT24 || (type) == FT_UINT32 || (type) == FT_UINT64 || \
+   (type) == FT_INT8 || (type) == FT_INT16 || (type) == FT_INT24 || (type) == FT_INT32 || (type) == FT_INT64)
+
 /* Following constants have to be ORed with a base_display_e when dissector
  * want to use specials MACROs (for the moment, only RVALS) for a
  * header_field_info */
 #define BASE_RANGE_STRING 0x10
+#define BASE_EXT_STRING 0x20
 
 /* BASE_ values that cause the field value to be displayed twice */
 #define IS_BASE_DUAL(b) ((b)==BASE_DEC_HEX||(b)==BASE_HEX_DEC)

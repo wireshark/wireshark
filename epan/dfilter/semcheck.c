@@ -232,6 +232,10 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 	}
 	else {
 		const value_string *vals = hfinfo->strings;
+
+		if (hfinfo->display & BASE_EXT_STRING)
+			vals = ((value_string_ext *) vals)->vals;
+
 		while (vals->strptr != NULL) {
 			if (g_ascii_strcasecmp(s, vals->strptr) == 0) {
 				return mk_uint32_fvalue(vals->value);
