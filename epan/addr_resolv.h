@@ -177,7 +177,7 @@ extern void add_ipv4_name(const guint addr, const gchar *name);
 extern void add_ipv6_name(const struct e_in6_addr *addr, const gchar *name);
 
 /* adds a hostname in the hash table */
-extern gboolean add_ip_name_from_string (const char *address, const char *name);
+extern gboolean add_ip_name_from_string (const char *addr, const char *name);
 
 /* add ethernet address / name corresponding to IP address  */
 extern void add_ether_byip(const guint ip, const guint8 *eth);
