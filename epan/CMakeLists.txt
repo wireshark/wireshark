@@ -980,6 +980,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-tpkt.c
 	dissectors/packet-tpncp.c
 	dissectors/packet-tr.c
+	dissectors/packet-trill.c
 	dissectors/packet-trmac.c
 	dissectors/packet-tsp.c
 	dissectors/packet-tte.c

@@ -3022,6 +3022,10 @@ Jens Kilian		<jjk [AT] acm.org> {
 	VXI-11 (a.k.a. Network Instrument Protocol) dissector
 }
 
+David Bond		<mokon [AT] mokon.net> {
+	TRILL (TRansparent Interconnection of Lots of Links) dissector
+}
+
 
 and by:
 
