@@ -226,9 +226,9 @@ static const struct {
 	{ 127,		WTAP_ENCAP_IEEE_802_11_WLAN_RADIOTAP },  /* 802.11 plus radiotap WLAN header */
 	{ 128,		WTAP_ENCAP_TZSP },	/* Tazmen Sniffer Protocol */
 	{ 129,		WTAP_ENCAP_ARCNET_LINUX },
-        { 130,          WTAP_ENCAP_JUNIPER_MLPPP }, /* Juniper MLPPP on ML-, LS-, AS- PICs */
-        { 131,          WTAP_ENCAP_JUNIPER_MLFR }, /* Juniper MLFR (FRF.15) on ML-, LS-, AS- PICs */
-        { 133,          WTAP_ENCAP_JUNIPER_GGSN},
+	{ 130,		WTAP_ENCAP_JUNIPER_MLPPP }, /* Juniper MLPPP on ML-, LS-, AS- PICs */
+	{ 131,		WTAP_ENCAP_JUNIPER_MLFR }, /* Juniper MLFR (FRF.15) on ML-, LS-, AS- PICs */
+	{ 133,		WTAP_ENCAP_JUNIPER_GGSN},
 	/*
 	 * Values 132-134, 136 not listed here are reserved for use
 	 * in Juniper hardware.
@@ -280,8 +280,8 @@ static const struct {
 	 * but it is used for some Linux IP filtering (ipfilter?).
 	 */
 
-        /* Ethernet PPPoE frames captured on a service PIC */
-        { 167,          WTAP_ENCAP_JUNIPER_PPPOE },
+	/* Ethernet PPPoE frames captured on a service PIC */
+	{ 167,		WTAP_ENCAP_JUNIPER_PPPOE },
 
         /*
 	 * 168 is reserved for more Juniper private-chassis-
@@ -301,16 +301,16 @@ static const struct {
 
 	{ 177,		WTAP_ENCAP_LINUX_LAPD },
 
-        /* Ethernet frames prepended with meta-information */
-        { 178,          WTAP_ENCAP_JUNIPER_ETHER },
-        /* PPP frames prepended with meta-information */
-        { 179,          WTAP_ENCAP_JUNIPER_PPP },
-        /* Frame-Relay frames prepended with meta-information */
-        { 180,          WTAP_ENCAP_JUNIPER_FRELAY },
-        /* C-HDLC frames prepended with meta-information */
-        { 181,          WTAP_ENCAP_JUNIPER_CHDLC },
-        /* VOIP Frames prepended with meta-information */
-        { 183,          WTAP_ENCAP_JUNIPER_VP },
+    /* Ethernet frames prepended with meta-information */
+	{ 178,		WTAP_ENCAP_JUNIPER_ETHER },
+	/* PPP frames prepended with meta-information */
+	{ 179,		WTAP_ENCAP_JUNIPER_PPP },
+	/* Frame-Relay frames prepended with meta-information */
+	{ 180,		WTAP_ENCAP_JUNIPER_FRELAY },
+	/* C-HDLC frames prepended with meta-information */
+	{ 181,		WTAP_ENCAP_JUNIPER_CHDLC },
+	/* VOIP Frames prepended with meta-information */
+	{ 183,		WTAP_ENCAP_JUNIPER_VP },
 	/* raw USB packets */
 	{ 186, 		WTAP_ENCAP_USB },
 	/* Bluetooth HCI UART transport (part H:4) frames, like hcidump */
@@ -321,14 +321,14 @@ static const struct {
 	{ 189, 		WTAP_ENCAP_USB_LINUX },
 	/* CAN 2.0b frame */
 	{ 190, 		WTAP_ENCAP_CAN20B },
-        /* Per-Packet Information header */
-        { 192,          WTAP_ENCAP_PPI },
+	/* Per-Packet Information header */
+	{ 192,		WTAP_ENCAP_PPI },
 	/* IEEE 802.15.4 Wireless PAN */
 	{ 195,		WTAP_ENCAP_IEEE802_15_4 },
 	/* SITA File Encapsulation */
-	{ 196,	        WTAP_ENCAP_SITA },
+	{ 196,		WTAP_ENCAP_SITA },
 	/* Endace Record File Encapsulation */
-	{ 197,	        WTAP_ENCAP_ERF },
+	{ 197,		WTAP_ENCAP_ERF },
 	/* IPMB */
 	{ 199,		WTAP_ENCAP_IPMB },
 	/* Bluetooth HCI UART transport (part H:4) frames, like hcidump */
@@ -351,14 +351,14 @@ static const struct {
 	/* USB packets with padded Linux-specified header */
 	{ 220, 		WTAP_ENCAP_USB_LINUX_MMAPPED },
 	/* Fibre Channel FC-2 frame */
-	{ 224,          WTAP_ENCAP_FIBRE_CHANNEL_FC2 },
+	{ 224,		WTAP_ENCAP_FIBRE_CHANNEL_FC2 },
 	/* Fibre Channel FC-2 frame with Delimiter */
-	{ 225,          WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS },
+	{ 225,		WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS },
 	/* Solaris IPNET */
-	{ 226,          WTAP_ENCAP_IPNET },
+	{ 226,		WTAP_ENCAP_IPNET },
 
 	/* SocketCAN frame */
-	{ 227,          WTAP_ENCAP_SOCKETCAN },
+	{ 227,		WTAP_ENCAP_SOCKETCAN },
 
 	/*
 	 * To repeat:
