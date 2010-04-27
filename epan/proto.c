@@ -4393,38 +4393,11 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 	}
 }
 
-static void
-proto_reinit_value_string(value_string_ext *vse)
-{
-	const value_string *vals = vse->vals;
-	int type = VS_INDEX;
-	guint32 prev = 0;
-	guint i;
-
-	for (i = 0; i < vse->length; i++) {
-		if (type == VS_INDEX && vals[i].value != i)
-			type = VS_BIN_TREE;
-
-		if (type == VS_BIN_TREE && prev > vals[i].value) {
-			type = VS_SEARCH;
-			break;
-		}
-
-		prev = vals[i].value;
-	}
-
-	vse->match_type = type;
-	printf("%p: %d\n", vse, type);
-}
-
 static int
 proto_register_field_init(header_field_info *hfinfo, const int parent)
 {
 
 	tmp_fld_check_assert(hfinfo);
-
-	if (hfinfo->strings && (hfinfo->display & BASE_EXT_STRING) && IS_INT_TYPE(hfinfo->type))
-		proto_reinit_value_string((value_string_ext *) hfinfo->strings);
 
 	/* if this is a bitfield, compute bitshift */
 	if (hfinfo->bitmask) {

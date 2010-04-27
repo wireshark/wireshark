@@ -34,24 +34,17 @@ typedef struct _value_string {
   const gchar   *strptr;
 } value_string;
 
-/* The way matching of value is done in a value_string:
- * 0 default, value will be set in proto_register_field_init()
- * 1 Sequential search (as in a normal value string)
- * 2 The value used as an index(the value string MUST have all values 0-max defined)
- * 3 Binary search, the valuse MUST be in numerical order.
- */
-#define VS_DEFAULT  0 
-#define VS_SEARCH   1
-#define VS_INDEX    2
-#define VS_BIN_TREE 3
+struct _value_string_ext;
+typedef const char *(*value_string_match_t)(const guint32, const struct _value_string_ext *);
 
-typedef struct {
-  guint match_type;             /* One of the values abowe */
+typedef struct _value_string_ext {
+  value_string_match_t match;
   guint length;                 /* length of the array */
   const value_string *vals;     /* the value string */
 } value_string_ext;
 
-#define VALUE_STRING_EXT_INIT(x) { VS_DEFAULT, array_length(x)-1, x }
+const gchar *match_strval_ext_init(const guint32 val, value_string_ext *vse);
+#define VALUE_STRING_EXT_INIT(x) { (value_string_match_t) match_strval_ext_init, array_length(x)-1, x }
 
 /* Struct for the str_to_str, match_strstr_idx, and match_strstr functions */
 

@@ -120,39 +120,91 @@ match_strval(const guint32 val, const value_string *vs) {
     return match_strval_idx(val, vs, &ignore_me);
 }
 
-const gchar*
-match_strval_ext(const guint32 val, const value_string_ext *vs) {
+static const gchar *
+_match_strval_linear(const guint32 val, const value_string_ext *vs)
+{
+  return match_strval(val, vs->vals);
+}
+
+static const gchar *
+_match_strval_index(const guint32 val, const value_string_ext *vs)
+{
+  return (val < vs->length) ? vs->vals[val].strptr : NULL;
+}
+
+static const gchar *
+_match_strval_bsearch(const guint32 val, const value_string_ext *vs)
+{
   guint low, idx, max;
   guint32 item;
-  if(vs) {
-    switch(vs->match_type){
-    case VS_DEFAULT: 
-      /* XXX: reinit? */
-    case VS_SEARCH:
-      return match_strval(val, vs->vals);
-    case VS_INDEX:
-      return (val < vs->length) ? vs->vals[val].strptr : NULL;
-    case VS_BIN_TREE:
-      for (low = 0, max = vs->length; low < max; ) {
-        idx = (low + max) / 2;
-        item = vs->vals[idx].value;
 
-        if (val < item)
-          max = idx;
-        else if (val > item)
-         low = idx + 1;
-        else
-          return vs->vals[idx].strptr;
-      }
-      break;
-    default:
-      g_assert_not_reached();
-      break;
-    }
+  for (low = 0, max = vs->length; low < max; ) {
+    idx = (low + max) / 2;
+    item = vs->vals[idx].value;
+
+    if (val < item)
+      max = idx;
+    else if (val > item)
+      low = idx + 1;
+    else
+      return vs->vals[idx].strptr;
   }
   return NULL;
 }
 
+const gchar *
+match_strval_ext_init(const guint32 val, value_string_ext *vse)
+{
+  const value_string *vals = vse->vals;
+
+/* The way matching of value is done in a value_string:
+ * 0 default, value will be set in proto_register_field_init()
+ * 1 Sequential search (as in a normal value string)
+ * 2 The value used as an index(the value string MUST have all values 0-max defined)
+ * 3 Binary search, the valuse MUST be in numerical order.
+ */
+  enum { VS_SEARCH = 0, VS_INDEX, VS_BIN_TREE } type = VS_INDEX;
+
+  guint32 prev = 0;
+  guint i;
+
+  for (i = 0; i < vse->length; i++) {
+    if (type == VS_INDEX && vals[i].value != i)
+      type = VS_BIN_TREE;
+
+    if (type == VS_BIN_TREE && prev > vals[i].value) {
+      type = VS_SEARCH;
+      break;
+    }
+
+    prev = vals[i].value;
+  }
+  
+  switch (type) {
+  case VS_SEARCH:
+    vse->match = _match_strval_linear;
+    break;
+  case VS_INDEX:
+    vse->match = _match_strval_index;
+    break;
+  case VS_BIN_TREE:
+    vse->match = _match_strval_bsearch;
+    break;
+  default:
+    g_assert_not_reached();
+    break;
+  }
+
+  printf("%p: %d\n", vse, type);
+  return vse->match(val, vse);
+}
+
+const gchar*
+match_strval_ext(const guint32 val, const value_string_ext *vs) {
+    if (vs)
+      return vs->match(val, vs);
+    return NULL;
+}
 
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.
