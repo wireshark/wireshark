@@ -979,7 +979,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         field_tree = proto_item_add_subtree(ti, ett_ieee802154_aux_sec_key_id);
         /* Add key source, if it exists. */
         if (packet->key_id_mode == KEY_ID_MODE_KEY_EXPLICIT_4) {
-          packet->key_source.addr32 = (guint64) tvb_get_ntohl(tvb, offset);
+          packet->key_source.addr32 = tvb_get_ntohl(tvb, offset);
           proto_tree_add_uint64(field_tree, hf_ieee802154_aux_sec_key_source, tvb, offset, 4, packet->key_source.addr32);
           proto_item_set_len(ti, 1 + 4);
           offset += sizeof (guint32);
@@ -2003,22 +2003,22 @@ ccm_init_block(gchar *block, gboolean adata, gint M, guint64 addr, guint32 count
     if (adata) block[i] |= (1 << 6); /* Adata */
     i++;
     /* Nonce: Source Address || Frame Counter || Security Level */
-    block[i++] = (addr >> 56) & 0xff;
-    block[i++] = (addr >> 48) & 0xff;
-    block[i++] = (addr >> 40) & 0xff;
-    block[i++] = (addr >> 32) & 0xff;
-    block[i++] = (addr >> 24) & 0xff;
-    block[i++] = (addr >> 16) & 0xff;
-    block[i++] = (addr >> 8) & 0xff;
-    block[i++] = (addr >> 0) & 0xff;
-    block[i++] = (counter >> 24) & 0xff;
-    block[i++] = (counter >> 16) & 0xff;
-    block[i++] = (counter >> 8) & 0xff;
-    block[i++] = (counter >> 0) & 0xff;
+    block[i++] = (guint8)((addr >> 56) & 0xff);
+    block[i++] = (guint8)((addr >> 48) & 0xff);
+    block[i++] = (guint8)((addr >> 40) & 0xff);
+    block[i++] = (guint8)((addr >> 32) & 0xff);
+    block[i++] = (guint8)((addr >> 24) & 0xff);
+    block[i++] = (guint8)((addr >> 16) & 0xff);
+    block[i++] = (guint8)((addr >> 8) & 0xff);
+    block[i++] = (guint8)((addr >> 0) & 0xff);
+    block[i++] = (guint8)((counter >> 24) & 0xff);
+    block[i++] = (guint8)((counter >> 16) & 0xff);
+    block[i++] = (guint8)((counter >> 8) & 0xff);
+    block[i++] = (guint8)((counter >> 0) & 0xff);
     block[i++] = level;
     /* Plaintext length. */
-    block[i++] = (ctr_val >> 8) & 0xff;
-    block[i++] = (ctr_val >> 0) & 0xff;
+    block[i++] = (guint8)((ctr_val >> 8) & 0xff);
+    block[i++] = (guint8)((ctr_val >> 0) & 0xff);
 } /* ccm_init_block */
 
 /*FUNCTION:------------------------------------------------------
