@@ -85,7 +85,7 @@ extern const gchar* val_to_str_ext(const guint32 val, const value_string_ext *vs
 extern const gchar* val_to_str_const(const guint32 val, const value_string *vs, const char *unknown_str);
 extern const gchar* val_to_str_ext_const(const guint32 val, const value_string_ext *vs, const char *unknown_str);
 
-/* Tries to match val against each element in the value_string array vs.
+/* Tries to match val against each element in the string_string array vs.
    Returns the associated string ptr, and sets "*idx" to the index in
    that table, on a match, and returns NULL, and sets "*idx" to -1,
    on failure. */
@@ -94,7 +94,7 @@ extern const gchar* match_strstr_idx(const gchar *val, const string_string *vs, 
 /* Like match_strval_idx(), but doesn't return the index. */
 extern const gchar* match_strstr(const gchar *val, const string_string *vs);
 
-/* Tries to match val against each element in the value_string array vs.
+/* Tries to match val against each element in the string_string array vs.
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
 extern const gchar* str_to_str(const gchar *val, const string_string *vs, const char *fmt);
