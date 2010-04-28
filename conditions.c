@@ -214,10 +214,10 @@ void _cnd_find_hash_key_for_class_id(gpointer key,
  *
  * Local Variables:
  * c-basic-offset: 2
- * tab-width: 2
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=2 expandtab
- * :indentSize=2:tabSize=2:noTabs=true:
+ * ex: set shiftwidth=2 tabstop=8 expandtab
+ * :indentSize=2:tabSize=8:noTabs=true:
  */
