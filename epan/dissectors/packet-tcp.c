@@ -1600,6 +1600,14 @@ again:
 		   contain a continuation of a higher-level PDU.
 		   Call the normal subdissector.
 		*/
+
+		/*
+		 * Supply the sequence number of this segment. We set this here
+		 * because this segment could be after another in the same packet,
+		 * in which case seq was incremented at the end of the loop.
+		 */
+		tcpinfo->seq = seq;
+
 		process_tcp_payload(tvb, offset, pinfo, tree, tcp_tree,
 				sport, dport, 0, 0, FALSE, tcpd);
 		called_dissector = TRUE;
