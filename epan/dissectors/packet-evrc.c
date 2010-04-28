@@ -318,7 +318,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
 
             i++;
 
-            if ((frame_count & 0x01) == 0)
+	    if (i < frame_count)
             {
                 /* even number of frames */
                 proto_tree_add_item(toc_tree, hf_toc_frame_type_low, tvb, offset, 1, FALSE);
@@ -337,7 +337,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
             proto_tree_add_item(toc_tree, hf_evrc_padding, tvb, offset-1, 1, FALSE);
         }
 
-        proto_item_set_len(item, (offset - 1) - saved_offset);
+        proto_item_set_len(item, offset - saved_offset);
     }
 
     i = 0;
