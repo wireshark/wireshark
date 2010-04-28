@@ -955,21 +955,6 @@ fast_ensure_contiguous(tvbuff_t *tvb, const gint offset, const guint length)
 }
 
 static const guint8*
-guint8_find(const guint8* haystack, const size_t haystacklen, const guint8 needle)
-{
-	const guint8	*b;
-	int		i;
-
-	for (b = haystack, i = 0; (guint) i < haystacklen; i++, b++) {
-		if (*b == needle) {
-			return b;
-		}
-	}
-
-	return NULL;
-}
-
-static const guint8*
 guint8_pbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles, guchar *found_needle)
 {
 	gchar tmp[256] = { 0 };
@@ -1822,7 +1807,7 @@ tvb_find_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 
 	/* If we have real data, perform our search now. */
 	if (tvb->real_data) {
-		result = guint8_find(tvb->real_data + abs_offset, limit, needle);
+		result = memchr(tvb->real_data + abs_offset, needle, limit);
 		if (result == NULL) {
 			return -1;
 		}
