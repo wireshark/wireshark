@@ -280,9 +280,9 @@ static void add_h223_mux_element(h223_call_direction_data *direct, guint8 mc, h2
     h223_mux_element_listitem *li;
     h223_mux_element_listitem **old_li_ptr;
     h223_mux_element_listitem *old_li;
-    
+
     DISSECTOR_ASSERT(mc < 16);
-    
+
     li = se_alloc(sizeof(h223_mux_element_listitem));
     old_li_ptr = &(direct->mux_table[mc]);
     old_li = *old_li_ptr;
@@ -310,11 +310,11 @@ static void add_h223_mux_element(h223_call_direction_data *direct, guint8 mc, h2
 static h223_mux_element* find_h223_mux_element(h223_call_direction_data* direct, guint8 mc, guint32 framenum, guint32 pkt_offset)
 {
     h223_mux_element_listitem* li;
-    
+
     DISSECTOR_ASSERT(mc < 16);
-    
+
     li = direct->mux_table[mc];
-    
+
     while( li && li->next && li->next->first_frame < framenum )
         li = li->next;
     while( li && li->next && li->next->first_frame == framenum && li->next->pdu_offset < pkt_offset )
@@ -420,7 +420,7 @@ static h223_call_info *create_call_info( guint32 start_frame )
     /* initialise the call info */
     init_direction_data(&datax -> direction_data[0]);
     init_direction_data(&datax -> direction_data[1]);
-        
+
     /* FIXME shouldn't this be figured out dynamically? */
     datax -> h223_level = 2;
 
@@ -446,7 +446,7 @@ static h223_call_info *find_or_create_call_info_circ(packet_info * pinfo)
         return NULL;
 
     datax = (h223_call_info *)circuit_get_proto_data(circ, proto_h223);
-    
+
     if( datax == NULL ) {
         datax = create_call_info(pinfo->fd->num);
 
@@ -456,11 +456,11 @@ static h223_call_info *find_or_create_call_info_circ(packet_info * pinfo)
 #endif
         circuit_add_proto_data(circ, proto_h223, datax);
     }
-    
+
     /* work out what direction we're really going in */
     if( pinfo->p2p_dir < 0 || pinfo->p2p_dir > 1)
         pinfo->p2p_dir = P2P_DIR_SENT;
-    
+
     return datax;
 }
 
@@ -484,7 +484,7 @@ static h223_call_info *find_or_create_call_info_conv(packet_info * pinfo)
 
     if(datax == NULL && pinfo->ptype == PT_UDP ) {
         conversation_t *conv2;
-        
+
         /* RTP tracks the two sides of the conversation totally separately;
          * this messes us up totally.
          *
@@ -523,7 +523,7 @@ static h223_call_info *find_or_create_call_info_conv(packet_info * pinfo)
                 pinfo->dst.data[0], pinfo->dst.data[1], pinfo->dst.data[2], pinfo->dst.data[3],
                 pinfo->destport);
 #endif
-            
+
         conversation_add_proto_data(conv, proto_h223, datax);
         /* add the source details so we can distinguish directions
          * in future */
@@ -535,7 +535,7 @@ static h223_call_info *find_or_create_call_info_conv(packet_info * pinfo)
     if( ADDRESSES_EQUAL( &(pinfo->src), &(datax->srcaddress))
         && pinfo->srcport == datax->srcport )
         pinfo->p2p_dir = P2P_DIR_SENT;
-    else 
+    else
         pinfo->p2p_dir = P2P_DIR_RECV;
 
     return datax;
@@ -646,7 +646,7 @@ static void dissect_mux_al_pdu( tvbuff_t *tvb,
             next_tvb = tvb;
             al_subitem = proto_tree_add_item(al_tree, hf_h223_al_payload, next_tvb, 0, -1, FALSE);
             break;
-        
+
         case al2WithSequenceNumbers:
             al2_sequenced = TRUE;
             /* fall-through */
@@ -663,7 +663,7 @@ static void dissect_mux_al_pdu( tvbuff_t *tvb,
             /* check minimum payload length */
             if(len < (al2_sequenced?2U:1U))
                 THROW(BoundsError);
-        
+
             data_start = 0;
             if( al2_sequenced ) {
                 proto_tree_add_item(al_tree, hf_h223_al2_seqno, tvb, 0, 1, TRUE);
@@ -754,12 +754,12 @@ static void dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb,
             }
         }
 
-        
+
         if( lc_params != NULL ) {
                 if( lc_params->segmentable && lc_params->al_type != al1NotFramed ) {
                     stream_t *substream;
                     stream_pdu_fragment_t *frag;
-                
+
                     substream = find_stream_circ(subcircuit,pinfo->p2p_dir);
                     if(substream == NULL )
                         substream = stream_new_circ(subcircuit,pinfo->p2p_dir);
@@ -780,7 +780,7 @@ static void dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb,
                     }
 
                     next_tvb = stream_process_reassembled(
-                        next_tvb, 0, pinfo, 
+                        next_tvb, 0, pinfo,
                         "Reassembled H.223 AL-PDU",
                         frag, &h223_al_frag_items,
                         NULL, vc_tree);
@@ -885,7 +885,7 @@ static guint32 dissect_mux_payload_by_me_list( tvbuff_t *tvb, packet_info *pinfo
  * call_info    data structure for h223 call
  * mc           multiplex code for this PDU
  * endOfMuxSdu  true if the end-of-sdu flag was set
- */ 
+ */
 static void dissect_mux_payload( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
                                  proto_tree *pdu_tree,
                                  h223_call_info* call_info, guint8 mc, gboolean endOfMuxSdu )
@@ -899,7 +899,7 @@ static void dissect_mux_payload( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_
     } else {
         /* no entry found in mux-table. ignore packet and dissect as data */
         proto_tree *vc_tree = NULL;
-            
+
         if(pdu_tree) {
             proto_item *vc_item = proto_tree_add_item(pdu_tree, hf_h223_mux_deact, tvb, 0, len, FALSE);
             vc_tree = proto_item_add_subtree(vc_item, ett_h223_mux_deact);
@@ -943,7 +943,7 @@ static void dissect_mux_pdu( tvbuff_t *tvb, packet_info * pinfo,
     g_debug("%u: dissecting complete H.223 MUX-PDU, pkt_offset %u, len %u",
             pinfo->fd->num, pkt_offset, tvb_reported_length(tvb));
 #endif
-    
+
     switch(call_info->h223_level) {
         case 0: case 1:
             raw_hdr = tvb_get_guint8(tvb,0);
@@ -964,7 +964,7 @@ static void dissect_mux_pdu( tvbuff_t *tvb, packet_info * pinfo,
 
             if(errors != -1) {
                 correct_hdr = raw_hdr ^ (guint32)errors;
-    
+
                 mc = (guint8)(correct_hdr & 0xf);
                 mpl = (guint8)((correct_hdr >> 4) & 0xff);
 
@@ -987,7 +987,7 @@ static void dissect_mux_pdu( tvbuff_t *tvb, packet_info * pinfo,
             DISSECTOR_ASSERT_NOT_REACHED();
     }
 
-    
+
     if( h223_tree ) {
         if( mpl == 0 ) {
             pdu_item = proto_tree_add_item (h223_tree, hf_h223_mux_stuffing_pdu, tvb, 0, -1, FALSE);
@@ -1061,7 +1061,7 @@ static void dissect_mux_pdu( tvbuff_t *tvb, packet_info * pinfo,
         call_dissector(data_handle,next_tvb,pinfo,vc_tree);
 
         offset += len;
-    } 
+    }
 
     /* add the closing HDLC flag */
     if( pdu_tree )
@@ -1089,7 +1089,7 @@ static gboolean attempt_mux_level1_header_parse(guint32 nbytes, guint32 hdr, gui
 {
     /* this is untested */
     DISSECTOR_ASSERT_NOT_REACHED();
-    
+
     if(nbytes < 2)
         return FALSE;
 
@@ -1106,7 +1106,7 @@ static gboolean attempt_mux_level1_header_parse(guint32 nbytes, guint32 hdr, gui
 static gboolean attempt_mux_level2_3_header_parse(guint32 nbytes, guint32 hdr, guint32 *minlen)
 {
     gint32 errors;
-    
+
     if(nbytes < 3)
         return FALSE;
 
@@ -1118,7 +1118,7 @@ static gboolean attempt_mux_level2_3_header_parse(guint32 nbytes, guint32 hdr, g
         ((hdr & 0xFF0000) >> 16) |
         (hdr & 0x00FF00) |
         ((hdr & 0x0000FF) << 16);
-    
+
     errors = golay_errors(hdr);
     if(errors != -1) {
         hdr ^= errors;
@@ -1176,16 +1176,16 @@ static gint dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset, packe
     gboolean header_parsed = FALSE;
     guint32 header_buf = 0, tail_buf = 0;
     guint32 pdu_minlen = 0;
-    
+
 
 #ifdef DEBUG_H223_FRAGMENTATION
     g_debug("%d: dissecting H.223 PDU, start_offset %u, %u bytes left",
             pinfo->fd->num,start_offset, tvb_reported_length_remaining( tvb, start_offset ));
 #endif
-    
+
     while( more_frags && offset < tvb_reported_length( tvb )) {
         guint8 byte = tvb_get_guint8(tvb, offset++);
-        
+
         /* read a byte into the header buf, if necessary */
         if((offset-start_offset) <= 4) {
             header_buf <<= 8;
@@ -1349,7 +1349,7 @@ static void dissect_h223_bitswapped (tvbuff_t * tvb, packet_info * pinfo, proto_
 
     /* Add the reversed data to the data source list. */
     add_new_data_source(pinfo, reversed_tvb, "Bit-swapped H.223 frame" );
-    
+
     dissect_h223(reversed_tvb,pinfo,tree);
 }
 
@@ -1364,12 +1364,12 @@ static void h223_init_protocol (void)
 void proto_register_h223 (void)
 {
     /* A header field is something you can search/filter on.
-     * 
+     *
      * We create a structure to register our fields. It consists of an
      * array of hf_register_info structures, each of which are of the format
      * {&(field id), {name, abbrev, type, display, strings, bitmask, blurb, HFILL}}.
      */
-   
+
     static hf_register_info hf[] = {
         { &hf_h223_non_h223_data,
           { "Non-H.223 data", "h223.non-h223", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -1390,7 +1390,7 @@ void proto_register_h223 (void)
         { &hf_h223_mux_rawhdr,
           { "Raw value", "h223.mux.rawhdr", FT_UINT24, BASE_HEX, NULL, 0x0,
             "Raw header bytes", HFILL }},
-        
+
         { &hf_h223_mux_correctedhdr,
           { "Corrected value", "h223.mux.correctedhdr", FT_UINT24, BASE_HEX, NULL, 0x0,
             "Corrected header bytes", HFILL }},
@@ -1410,11 +1410,11 @@ void proto_register_h223 (void)
         { &hf_h223_mux_vc,
           { "H.223 virtual circuit", "h223.mux.vc", FT_UINT16, BASE_DEC, NULL, 0x0,
             "H.223 Virtual Circuit", HFILL }},
-        
+
         { &hf_h223_mux_extra,
           { "Extraneous data", "h223.mux.extra", FT_NONE, BASE_NONE, NULL, 0x0,
             "data beyond mpl", HFILL }},
-        
+
         { &hf_h223_mux_hdlc2,
           { "HDLC flag", "h223.mux.hdlc", FT_UINT16, BASE_HEX, NULL, 0x0,
             "framing flag", HFILL }},
@@ -1423,31 +1423,31 @@ void proto_register_h223 (void)
         { &hf_h223_mux_fragment_overlap,
           { "Fragment overlap", "h223.mux.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             "Fragment overlaps with other fragments", HFILL }},
-        
+
         { &hf_h223_mux_fragment_overlap_conflict,
           { "Conflicting data in fragment overlap",     "h223.mux.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             "Overlapping fragments contained conflicting data", HFILL }},
-        
+
         { &hf_h223_mux_fragment_multiple_tails,
           { "Multiple tail fragments found",    "h223.mux.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             "Several tails were found when defragmenting the packet", HFILL }},
-        
+
         { &hf_h223_mux_fragment_too_long_fragment,
           { "Fragment too long",        "h223.mux.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             "Fragment contained data past end of packet", HFILL }},
-        
+
         { &hf_h223_mux_fragment_error,
           { "Defragmentation error", "h223.mux.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             "Defragmentation error due to illegal fragments", HFILL }},
-        
+
         { &hf_h223_mux_fragment,
           { "H.223 MUX-PDU Fragment", "h223.mux.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
-        
+
         { &hf_h223_mux_fragments,
           { "H.223 MUX-PDU Fragments", "h223.mux.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
-        
+
         { &hf_h223_mux_reassembled_in,
           { "MUX-PDU fragment, reassembled in frame", "h223.mux.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             "This H.223 MUX-PDU packet is reassembled in this frame", HFILL }},
@@ -1460,31 +1460,31 @@ void proto_register_h223 (void)
         { &hf_h223_al_fragment_overlap,
           { "Fragment overlap", "h223.al.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             "Fragment overlaps with other fragments", HFILL }},
-        
+
         { &hf_h223_al_fragment_overlap_conflict,
           { "Conflicting data in fragment overlap",     "h223.al.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             "Overlapping fragments contained conflicting data", HFILL }},
-        
+
         { &hf_h223_al_fragment_multiple_tails,
           { "Multiple tail fragments found",    "h223.al.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             "Several tails were found when defragmenting the packet", HFILL }},
-        
+
         { &hf_h223_al_fragment_too_long_fragment,
           { "Fragment too long",        "h223.al.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             "Fragment contained data past end of packet", HFILL }},
-        
+
         { &hf_h223_al_fragment_error,
           { "Defragmentation error", "h223.al.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             "Defragmentation error due to illegal fragments", HFILL }},
-        
+
         { &hf_h223_al_fragment,
           { "H.223 AL-PDU Fragment", "h223.al.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
-        
+
         { &hf_h223_al_fragments,
           { "H.223 AL-PDU Fragments", "h223.al.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
-        
+
         { &hf_h223_al_reassembled_in,
           { "AL-PDU fragment, reassembled in frame", "h223.al.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             "This H.223 AL-PDU packet is reassembled in this frame", HFILL }},
@@ -1560,7 +1560,7 @@ void proto_register_h223 (void)
     proto_register_subtree_array (ett, array_length (ett));
     register_dissector("h223", dissect_h223, proto_h223);
     register_dissector("h223_bitswapped", dissect_h223_bitswapped, proto_h223_bitswapped);
-        
+
     /* register our init routine to be called at the start of a capture,
        to clear out our hash tables etc */
     register_init_routine(&h223_init_protocol);
@@ -1587,10 +1587,10 @@ void proto_reg_handoff_h223(void)
  *
  * Local Variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=4 tabstop=4 expandtab
- * :indentSize=4:tabSize=4:noTabs=true:
+ * ex: set shiftwidth=4 tabstop=8 expandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

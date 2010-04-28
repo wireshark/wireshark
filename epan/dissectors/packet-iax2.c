@@ -2603,7 +2603,7 @@ void
 proto_reg_handoff_iax2 (void)
 {
   dissector_handle_t v110_handle = NULL;
-  
+
   dissector_add("udp.port", IAX2_PORT, find_dissector("iax2"));
   v110_handle =  find_dissector("v110");
   if(v110_handle)
@@ -2616,10 +2616,10 @@ proto_reg_handoff_iax2 (void)
  *
  * Local Variables:
  * c-basic-offset: 2
- * tab-width: 2
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=2 expandtab
- * :indentSize=2:tabSize=2:noTabs=true:
+ * ex: set shiftwidth=2 tabstop=8 expandtab
+ * :indentSize=2:tabSize=8:noTabs=true:
  */

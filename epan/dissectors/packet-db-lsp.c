@@ -62,7 +62,7 @@ static gint ett_db_lsp = -1;
 /* desegmentation of tcp payload */
 static gboolean db_lsp_desegment = TRUE;
 
-static void 
+static void
 dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *db_lsp_tree;
@@ -76,7 +76,7 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   db_lsp_item = proto_tree_add_item (tree, proto_db_lsp, tvb, offset, -1, FALSE);
   db_lsp_tree = proto_item_add_subtree (db_lsp_item, ett_db_lsp);
-  
+
   type = tvb_get_guint8 (tvb, offset);
   proto_tree_add_item (db_lsp_tree, hf_type, tvb, offset, 1, FALSE);
   offset += 1;
@@ -114,7 +114,7 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item_set_len (db_lsp_item, length + 5);
 }
 
-static guint 
+static guint
 get_db_lsp_pdu_len (packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
   if (tvb_get_ntohs (tvb, offset + 1) != 0x0301) {
@@ -125,14 +125,14 @@ get_db_lsp_pdu_len (packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
   return tvb_get_ntohs (tvb, offset + 3) + 5;
 }
 
-static void 
+static void
 dissect_db_lsp_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   tcp_dissect_pdus (tvb, pinfo, tree, db_lsp_desegment, 5,
                     get_db_lsp_pdu_len, dissect_db_lsp_pdu);
 }
 
-static void 
+static void
 dissect_db_lsp_disc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *db_lsp_tree;
@@ -148,33 +148,33 @@ dissect_db_lsp_disc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree_add_item (db_lsp_tree, hf_text, tvb, offset, -1, FALSE);
 }
 
-void 
+void
 proto_register_db_lsp (void)
-{ 
-  static hf_register_info hf[] = { 
+{
+  static hf_register_info hf[] = {
     { &hf_type,
       { "Type", "db-lsp.type",
-        FT_UINT8, BASE_DEC_HEX, NULL, 0x0, 
+        FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
         "Type", HFILL } },
 
     { &hf_magic,
       { "Magic", "db-lsp.magic",
-        FT_UINT16, BASE_DEC_HEX, NULL, 0x0, 
+        FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
         "Magic number", HFILL } },
 
     { &hf_length,
       { "Length", "db-lsp.length",
-        FT_UINT16, BASE_DEC_HEX, NULL, 0x0, 
+        FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
         "Length in bytes", HFILL } },
 
     { &hf_value,
       { "Value", "db-lsp.value",
-        FT_BYTES, BASE_NONE, NULL, 0x0, 
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
 
     { &hf_text,
       { "Text", "db-lsp.text",
-        FT_STRING, BASE_NONE, NULL, 0x0, 
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
   };
 
@@ -188,14 +188,14 @@ proto_register_db_lsp (void)
   proto_db_lsp_disc = proto_register_protocol (PNAME_DISC, PSNAME_DISC, PFNAME_DISC);
   register_dissector ("db-lsp.tcp", dissect_db_lsp_tcp, proto_db_lsp);
   register_dissector ("db-lsp.udp", dissect_db_lsp_disc, proto_db_lsp_disc);
-  
+
   proto_register_field_array (proto_db_lsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
   /* Register our configuration options */
   db_lsp_module = prefs_register_protocol (proto_db_lsp, NULL);
 
-  prefs_register_bool_preference (db_lsp_module, "desegment_pdus", 
+  prefs_register_bool_preference (db_lsp_module, "desegment_pdus",
                                   "Reassemble PDUs spanning multiple TCP segments",
                                   "Whether the LAN sync dissector should reassemble PDUs"
                                   " spanning multiple TCP segments."
@@ -204,7 +204,7 @@ proto_register_db_lsp (void)
                                   &db_lsp_desegment);
 }
 
-void 
+void
 proto_reg_handoff_db_lsp (void)
 {
   dissector_handle_t db_lsp_tcp_handle;
@@ -222,10 +222,10 @@ proto_reg_handoff_db_lsp (void)
  *
  * Local Variables:
  * c-basic-offset: 2
- * tab-width: 2
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=2 expandtab
- * :indentSize=2:tabSize=2:noTabs=true:
+ * ex: set shiftwidth=2 tabstop=8 expandtab
+ * :indentSize=2:tabSize=8:noTabs=true:
  */

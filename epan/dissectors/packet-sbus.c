@@ -1640,10 +1640,10 @@ proto_reg_handoff_sbus(void)
  *
  * Local Variables:
  * c-basic-offset: 7
- * tab-width: 7
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=3 tabstop=3 expandtab
- * :indentSize=7:tabSize=7:noTabs=true:
+ * ex: set shiftwidth=7 tabstop=8 expandtab
+ * :indentSize=7:tabSize=8:noTabs=true:
  */
