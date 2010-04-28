@@ -1,5 +1,5 @@
 /* capture_wpcap_packet.c
- * WinPcap-specific interfaces for low-level information (packet.dll).  
+ * WinPcap-specific interfaces for low-level information (packet.dll).
  * We load WinPcap at run
  * time, so that we only need one Wireshark binary and one TShark binary
  * for Windows, regardless of whether WinPcap is installed or not.
@@ -50,8 +50,8 @@
 
 #include "capture_wpcap_packet.h"
 
-/* packet32.h requires sockaddr_storage 
- * whether sockaddr_storage is defined or not depends on the Platform SDK 
+/* packet32.h requires sockaddr_storage
+ * whether sockaddr_storage is defined or not depends on the Platform SDK
  * version installed. The only one not defining it is the SDK that comes
  * with MSVC 6.0 (WINVER 0x0400).
  *
@@ -98,11 +98,11 @@ struct sockaddr_storage {
 gboolean has_wpacket = FALSE;
 
 
-/* This module will use the PacketRequest function in packet.dll (coming with WinPcap) to "directly" access 
+/* This module will use the PacketRequest function in packet.dll (coming with WinPcap) to "directly" access
  * the Win32 NDIS network driver(s) and ask for various values (status, statistics, ...).
  *
- * Unfortunately, the definitions required for this are not available through the usual windows header files, 
- * but require the Windows "Device Driver Kit" which is not available for free :-( 
+ * Unfortunately, the definitions required for this are not available through the usual windows header files,
+ * but require the Windows "Device Driver Kit" which is not available for free :-(
  *
  * Fortunately, the definitions needed to access the various NDIS values are available from various OSS projects:
  * - WinPcap in Ntddndis.h
@@ -134,55 +134,55 @@ static void      (*p_PacketCloseAdapter) (LPADAPTER);
 static int       (*p_PacketRequest) (LPADAPTER, int, void *);
 
 typedef struct {
-	const char	*name;
-	gpointer	*ptr;
-	gboolean	optional;
+    const char  *name;
+    gpointer    *ptr;
+    gboolean    optional;
 } symbol_table_t;
 
-#define SYM(x, y)	{ STRINGIFY(x) , (gpointer) &CONCAT(p_,x), y }
+#define SYM(x, y)   { STRINGIFY(x) , (gpointer) &CONCAT(p_,x), y }
 
 void
 wpcap_packet_load(void)
 {
 
-	/* These are the symbols I need or want from packet.dll */
-	static const symbol_table_t	symbols[] = {
-		SYM(PacketGetVersion, FALSE),
-		SYM(PacketOpenAdapter, FALSE),
-		SYM(PacketCloseAdapter, FALSE),
-		SYM(PacketRequest, FALSE),
-		{ NULL, NULL, FALSE }
-	};
+    /* These are the symbols I need or want from packet.dll */
+    static const symbol_table_t symbols[] = {
+        SYM(PacketGetVersion, FALSE),
+        SYM(PacketOpenAdapter, FALSE),
+        SYM(PacketCloseAdapter, FALSE),
+        SYM(PacketRequest, FALSE),
+        { NULL, NULL, FALSE }
+    };
 
-	GModule		*wh; /* wpcap handle */
-	const symbol_table_t	*sym;
+    GModule     *wh; /* wpcap handle */
+    const symbol_table_t    *sym;
 
-	wh = g_module_open("packet", 0);
+    wh = g_module_open("packet", 0);
 
-	if (!wh) {
-		return;
-	}
+    if (!wh) {
+        return;
+    }
 
-	sym = symbols;
-	while (sym->name) {
-		if (!g_module_symbol(wh, sym->name, sym->ptr)) {
-			if (sym->optional) {
-				/*
-				 * We don't care if it's missing; we just
-				 * don't use it.
-				 */
-				*sym->ptr = NULL;
-			} else {
-				/*
-				 * We require this symbol.
-				 */
-				return;
-			}
-		}
-		sym++;
-	}
+    sym = symbols;
+    while (sym->name) {
+        if (!g_module_symbol(wh, sym->name, sym->ptr)) {
+            if (sym->optional) {
+                /*
+                 * We don't care if it's missing; we just
+                 * don't use it.
+                 */
+                *sym->ptr = NULL;
+            } else {
+                /*
+                 * We require this symbol.
+                 */
+                return;
+            }
+        }
+        sym++;
+    }
 
-	has_wpacket = TRUE;
+    has_wpacket = TRUE;
 }
 
 
@@ -208,7 +208,7 @@ wpcap_packet_open(char *if_name)
 {
     LPADAPTER   adapter;
 
-	g_assert(has_wpacket);
+    g_assert(has_wpacket);
     adapter = p_PacketOpenAdapter(if_name);
 
     return adapter;
@@ -220,13 +220,13 @@ void
 wpcap_packet_close(void *adapter)
 {
 
-	g_assert(has_wpacket);
+    g_assert(has_wpacket);
     p_PacketCloseAdapter(adapter);
 }
 
 
 /* do a packet request call */
-int 
+int
 wpcap_packet_request(void *adapter, ULONG Oid, int set, char *value, unsigned int *length)
 {
     BOOLEAN    Status;
@@ -234,14 +234,14 @@ wpcap_packet_request(void *adapter, ULONG Oid, int set, char *value, unsigned in
     PPACKET_OID_DATA  OidData;
 
 
-	g_assert(has_wpacket);
+    g_assert(has_wpacket);
 
     if(p_PacketRequest == NULL) {
         g_warning("packet_request not available\n");
         return 0;
     }
 
-	/* get a buffer suitable for PacketRequest() */
+    /* get a buffer suitable for PacketRequest() */
     OidData=GlobalAllocPtr(GMEM_MOVEABLE | GMEM_ZEROINIT,IoCtlBufferLength);
     if (OidData == NULL) {
         g_warning("GlobalAllocPtr failed for %u\n", IoCtlBufferLength);
@@ -255,15 +255,15 @@ wpcap_packet_request(void *adapter, ULONG Oid, int set, char *value, unsigned in
     Status = p_PacketRequest(adapter, set, OidData);
 
     if(Status) {
-		if(OidData->Length <= *length) {
-			/* copy value from driver */
-			memcpy(value, OidData->Data, OidData->Length);
-			*length = OidData->Length;
-		} else {
-			/* the driver returned a value that is longer than expected (and longer than the given buffer) */
-			g_warning("returned oid too long, Oid: 0x%x OidLen:%u MaxLen:%u", Oid, OidData->Length, *length);
-			Status = FALSE;
-		}
+        if(OidData->Length <= *length) {
+            /* copy value from driver */
+            memcpy(value, OidData->Data, OidData->Length);
+            *length = OidData->Length;
+        } else {
+            /* the driver returned a value that is longer than expected (and longer than the given buffer) */
+            g_warning("returned oid too long, Oid: 0x%x OidLen:%u MaxLen:%u", Oid, OidData->Length, *length);
+            Status = FALSE;
+        }
     }
 
     GlobalFreePtr (OidData);
@@ -315,7 +315,7 @@ wpcap_packet_request_ulong(void *adapter, ULONG Oid, ULONG *value)
 void
 wpcap_packet_load(void)
 {
-	return;
+    return;
 }
 
 #endif /* HAVE_LIBPCAP */
@@ -325,10 +325,10 @@ wpcap_packet_load(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
- * indent-tabs-mode: t
+ * tab-width: 8
+ * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=4 tabstop=4 noexpandtab
- * :indentSize=4:tabSize=4:noTabs=false:
+ * ex: set shiftwidth=4 tabstop=8 expandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
