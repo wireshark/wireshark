@@ -972,22 +972,20 @@ guint8_find(const guint8* haystack, const size_t haystacklen, const guint8 needl
 static const guint8*
 guint8_pbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles, guchar *found_needle)
 {
-	const guint8	*b;
-	int		i;
-	guint8		item, needle;
-	const guint8	*needlep;
+	gchar tmp[256] = { 0 };
+	const guint8 *haystack_end;
+	
+	while (*needles)
+		tmp[*needles++] = 1;
 
-	for (b = haystack, i = 0; (guint) i < haystacklen; i++, b++) {
-		item = *b;
-		needlep = needles;
-		while ((needle = *needlep) != '\0') {
-			if (item == needle){
-				if(found_needle)
-					*found_needle = needle;
-				return b;
-			}
-			needlep++;
+	haystack_end = haystack + haystacklen;
+	while (haystack < haystack_end) {
+		if (tmp[*haystack]) {
+			if(found_needle)
+				*found_needle = *haystack;
+			return haystack;
 		}
+		haystack++;
 	}
 
 	return NULL;
