@@ -75,7 +75,7 @@ static gint proto_sip                     = -1;
 static gint proto_raw_sip                 = -1;
 static gint hf_raw_sip_line               = -1;
 static gint hf_msg_hdr                    = -1;
-static gint hf_sip_Method                     = -1;
+static gint hf_sip_Method                 = -1;
 static gint hf_Request_Line               = -1;
 static gint hf_sip_ruri                   = -1;
 static gint hf_sip_ruri_user              = -1;
@@ -825,31 +825,7 @@ static gint sip_equal(gconstpointer v, gconstpointer v2)
 		(ADDRESSES_EQUAL(&(val1->dest_address), &(val2->dest_address))) &&
 		(val1->dest_port == val2->dest_port);
 }
-#if 0
-/*
-20010-03-03 Changed to use g_str_hash ()
-This function seem to not generate unique enough keys
-if load generation tools are used with many thousands users.
-Leave the code for a while to se if someone gets poor performance.
-*/
-/* Compute a hash value for a given key. */
-/* Don't try to use addresses here, call-id should be almost unique. */
-static guint sip_hash_func(gconstpointer v)
-{
-	gint n;
-	const sip_hash_key *key = v;
-	guint value = (guint)strlen(key->call_id);
-	gint chars_to_use = value / 4;
 
-	/* First few characters from the call-id should be enough... */
-	for (n=0; n < chars_to_use; n++)
-	{
-		value += key->call_id[n];
-	}
-
-	return value;
-}
-#endif
 
 /* Initializes the hash table and the mem_chunk area each time a new
  * file is loaded or re-loaded in wireshark */
@@ -1327,28 +1303,28 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 	/* Build the tree, now */
 	if(tree)
 	{
-		ti = proto_tree_add_string(tree, hf_sip_contact_item, tvb, start_offset, contact_item_end_offset - start_offset + 1,
-		                           tvb_format_text(tvb, start_offset, contact_item_end_offset - start_offset + 1));
+		ti = proto_tree_add_item(tree, hf_sip_contact_item, tvb,
+		                  start_offset, contact_item_end_offset - start_offset + 1,
+		                  FALSE);
 		contact_item_tree = proto_item_add_subtree(ti, ett_sip_contact_item);
 
-		ti = proto_tree_add_string(contact_item_tree, hf_sip_uri, tvb, uri_offsets.name_addr_start, uri_offsets.name_addr_end - uri_offsets.name_addr_start + 1,
-		                           tvb_format_text(tvb, uri_offsets.name_addr_start, uri_offsets.name_addr_end - uri_offsets.name_addr_start + 1));
+		ti = proto_tree_add_item(contact_item_tree, hf_sip_uri, tvb,
+		                  uri_offsets.name_addr_start, uri_offsets.name_addr_end - uri_offsets.name_addr_start + 1,
+		                  FALSE);
 		uri_tree = proto_item_add_subtree(ti, ett_sip_uri);
 
 		if(uri_offsets.display_name_start != -1 && uri_offsets.display_name_end != -1)
 		{
-			proto_tree_add_string(uri_tree, hf_sip_display, tvb, uri_offsets.display_name_start,
-			                      uri_offsets.display_name_end - uri_offsets.display_name_start + 1,
-			                      tvb_format_text(tvb, uri_offsets.display_name_start,
-			                                      uri_offsets.display_name_end - uri_offsets.display_name_start + 1));
+			proto_tree_add_item(uri_tree, hf_sip_display, tvb,
+					              uri_offsets.display_name_start, uri_offsets.display_name_end - uri_offsets.display_name_start + 1,
+						          FALSE);
 		}
 
 		if(uri_offsets.uri_start != -1 && uri_offsets.uri_end != -1)
 		{
-			proto_tree_add_string(uri_tree, hf_sip_contact_addr, tvb, uri_offsets.uri_start,
-			                      uri_offsets.uri_end - uri_offsets.uri_start + 1,
-			                      tvb_format_text(tvb, uri_offsets.uri_start,
-			                                      uri_offsets.uri_end - uri_offsets.uri_start + 1));
+			proto_tree_add_item(uri_tree, hf_sip_contact_addr, tvb,
+					              uri_offsets.uri_start, uri_offsets.uri_end - uri_offsets.uri_start + 1,
+						          FALSE);
 		}
 
 		/* Parse URI and Contact header Parameters now */
@@ -1956,8 +1932,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 	case REQUEST_LINE:
 		if (sip_tree) {
-			ti_a = proto_tree_add_string(sip_tree, hf_Request_Line, tvb, offset, next_offset-offset,
-			                           tvb_format_text(tvb, offset, linelen));
+			ti_a = proto_tree_add_item(sip_tree, hf_Request_Line, tvb,
+						offset, linelen, FALSE);
+
 			reqresp_tree = proto_item_add_subtree(ti_a, ett_sip_reqresp);
 		}
 		dfilter_sip_request_line(tvb, reqresp_tree, pinfo, offset, token_1_len, linelen);
@@ -1965,8 +1942,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 	case STATUS_LINE:
 		if (sip_tree) {
-			ti_a = proto_tree_add_string(sip_tree, hf_Status_Line, tvb, offset, next_offset-offset,
-			                           tvb_format_text(tvb, offset, linelen));
+			ti_a = proto_tree_add_item(sip_tree, hf_Status_Line, tvb,
+						offset, linelen, FALSE);
 			reqresp_tree = proto_item_add_subtree(ti_a, ett_sip_reqresp);
 		}
 		dfilter_sip_status_line(tvb, reqresp_tree);
@@ -2360,7 +2337,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 						/* Walk past number and spaces characters to get to start
 						   of method name */
-						for (sub_value_offset=0; sub_value_offset < (gint)strlen(value); sub_value_offset++)
+						for (sub_value_offset=0; sub_value_offset < linelen; sub_value_offset++)
 						{
 							if (!isdigit((guchar)value[sub_value_offset]))
 							{
@@ -2371,7 +2348,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							}
 						}
 
-						for (; sub_value_offset < (gint)strlen(value); sub_value_offset++)
+						for (; sub_value_offset < linelen; sub_value_offset++)
 						{
 							if (isalpha((guchar)value[sub_value_offset]))
 							{
@@ -2380,7 +2357,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							}
 						}
 
-						if (sub_value_offset == (gint)strlen(value))
+						if (sub_value_offset == linelen)
 						{
 							/* Didn't find method name */
 							THROW(ReportedBoundsError);
@@ -2388,7 +2365,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						}
 
 						/* Extract method name from value */
-						strlen_to_copy = (int)strlen(value)-sub_value_offset;
+						strlen_to_copy = (int)linelen-sub_value_offset;
 						if (strlen_to_copy > MAX_CSEQ_METHOD_SIZE) {
 							/* Note the error in the protocol tree */
 							if (hdr_tree) {
@@ -2430,7 +2407,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						}
 
 						/* RSeq number */
-						for (sub_value_offset=0; sub_value_offset < (gint)strlen(value); sub_value_offset++)
+						for (sub_value_offset=0; sub_value_offset < linelen; sub_value_offset++)
 						{
 							if (!isdigit((guchar)value[sub_value_offset]))
 							{
@@ -2442,7 +2419,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						}
 
 						/* Get to start of CSeq number */
-						for ( ; sub_value_offset < (gint)strlen(value); sub_value_offset++)
+						for ( ; sub_value_offset < linelen; sub_value_offset++)
 						{
 							if (value[sub_value_offset] != ' ' &&
 						        value[sub_value_offset] != '\t')
@@ -2453,7 +2430,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						cseq_no_offset = sub_value_offset;
 
 						/* CSeq number */
-						for ( ; sub_value_offset < (gint)strlen(value); sub_value_offset++)
+						for ( ; sub_value_offset < linelen; sub_value_offset++)
 						{
 							if (!isdigit((guchar)value[sub_value_offset]))
 							{
@@ -2466,7 +2443,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						}
 
 						/* Get to start of CSeq method name */
-						for ( ; sub_value_offset < (gint)strlen(value); sub_value_offset++)
+						for ( ; sub_value_offset < linelen; sub_value_offset++)
 						{
 							if (isalpha((guchar)value[sub_value_offset]))
 							{
@@ -2476,7 +2453,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						}
 						cseq_method_offset = sub_value_offset;
 
-						if (sub_value_offset == (gint)strlen(value))
+						if (sub_value_offset == linelen)
 						{
 							/* Didn't find method name */
 							THROW(ReportedBoundsError);
@@ -2488,7 +2465,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						{
 							proto_tree_add_item(rack_tree, hf_sip_rack_cseq_method, tvb,
 							                    value_offset + sub_value_offset,
-							                    (int)strlen(value)-sub_value_offset, FALSE);
+							                    (int)linelen-sub_value_offset, FALSE);
 						}
 
 						break;
@@ -3088,31 +3065,31 @@ static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
 /* Returns index of method in sip_headers */
 static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset, guint header_len)
 {
-        guint i;
-		guint pos=0;
-		gchar *header = tvb_format_text(tvb, offset, header_len);
+	gchar *header = tvb_get_ephemeral_string(tvb, offset, header_len);
+	guint pos;
 
-		/* Compact name is one character long */
-		if(header_len>1){
-			pos = GPOINTER_TO_INT(g_hash_table_lookup(sip_headers_hash, header));
-			if (pos!=0)
-				return pos;
-		}
-		/* Previous searching in the hash is case sensitive.
-           If the name has not been not found it could be also long name with case different from RFC,
-           it is not recommended but allowed.
-        */
+	/* Compact name is one character long */
+	if(header_len>1){
+		pos = GPOINTER_TO_INT(g_hash_table_lookup(sip_headers_hash, header));
+		if (pos!=0)
+			return pos;
+	}
+	/* Previous searching in the hash is case sensitive.
+	   If the name has not been not found it could be also long name with case different from RFC,
+	   it is not recommended but allowed.
+	 */
 
-		/* Look for compact name match or long name with non-standard case */
-        for (i = 1; i < array_length(sip_headers); i++) {
-                if (sip_headers[i].compact_name != NULL &&
-                    header_len == strlen(sip_headers[i].compact_name) &&
-                    tvb_strncaseeql(tvb, offset, sip_headers[i].compact_name, header_len) == 0)
-                        return i;
-                if (header_len == strlen(sip_headers[i].name) &&
-                    tvb_strncaseeql(tvb, offset, sip_headers[i].name, header_len) == 0)
-                        return i;
-        }
+	/* Look for compact name match or long name with non-standard case */
+	for (pos = 1; pos < array_length(sip_headers); pos++) {
+		if (sip_headers[pos].compact_name != NULL &&
+				header_len == strlen(sip_headers[pos].compact_name) &&
+				g_ascii_strncasecmp(header, sip_headers[pos].compact_name, header_len) == 0)
+			return pos;
+
+		if (header_len == strlen(sip_headers[pos].name) &&
+				g_ascii_strncasecmp(header, sip_headers[pos].name, header_len) == 0)
+			return pos;
+	}
 
         return -1;
 }
@@ -3126,6 +3103,7 @@ tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 	proto_tree *raw_tree = NULL;
 	proto_item *ti = NULL;
 	int next_offset, linelen, end_offset;
+	char *str;
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_raw_sip, tvb, offset, length, FALSE);
@@ -3138,10 +3116,11 @@ tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 		tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 		linelen = next_offset - offset;
 		if (raw_tree) {
+			str = tvb_format_text(tvb, offset, linelen);
 			proto_tree_add_string_format(raw_tree, hf_raw_sip_line, tvb, offset, linelen,
-						     tvb_format_text(tvb, offset, linelen),
+						     str,
 						     "%s",
-						     tvb_format_text(tvb, offset, linelen));
+						     str);
 		}
 		offset = next_offset;
 	}
