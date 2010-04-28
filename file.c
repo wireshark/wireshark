@@ -133,8 +133,8 @@ static void ref_time_packets(capture_file *cf);
 
 /* this callback mechanism should possibly be replaced by the g_signal_...() stuff (if I only would know how :-) */
 typedef struct {
-    cf_callback_t cb_fct;
-    gpointer user_data;
+  cf_callback_t cb_fct;
+  gpointer user_data;
 } cf_callback_data_t;
 
 static GList *cf_callbacks = NULL;
@@ -142,97 +142,97 @@ static GList *cf_callbacks = NULL;
 static void
 cf_callback_invoke(int event, gpointer data)
 {
-    cf_callback_data_t *cb;
-    GList *cb_item = cf_callbacks;
+  cf_callback_data_t *cb;
+  GList *cb_item = cf_callbacks;
 
-    /* there should be at least one interested */
-    g_assert(cb_item != NULL);
+  /* there should be at least one interested */
+  g_assert(cb_item != NULL);
 
-    while(cb_item != NULL) {
-        cb = cb_item->data;
-        cb->cb_fct(event, data, cb->user_data);
-        cb_item = g_list_next(cb_item);
-    }
+  while(cb_item != NULL) {
+    cb = cb_item->data;
+    cb->cb_fct(event, data, cb->user_data);
+    cb_item = g_list_next(cb_item);
+  }
 }
 
 
 void
 cf_callback_add(cf_callback_t func, gpointer user_data)
 {
-    cf_callback_data_t *cb;
+  cf_callback_data_t *cb;
 
-    cb = g_malloc(sizeof(cf_callback_data_t));
-    cb->cb_fct = func;
-    cb->user_data = user_data;
+  cb = g_malloc(sizeof(cf_callback_data_t));
+  cb->cb_fct = func;
+  cb->user_data = user_data;
 
-    cf_callbacks = g_list_append(cf_callbacks, cb);
+  cf_callbacks = g_list_append(cf_callbacks, cb);
 }
 
 void
 cf_callback_remove(cf_callback_t func)
 {
-    cf_callback_data_t *cb;
-    GList *cb_item = cf_callbacks;
+  cf_callback_data_t *cb;
+  GList *cb_item = cf_callbacks;
 
-    while(cb_item != NULL) {
-        cb = cb_item->data;
-        if(cb->cb_fct == func) {
-            cf_callbacks = g_list_remove(cf_callbacks, cb);
-            g_free(cb);
-            return;
-        }
-        cb_item = g_list_next(cb_item);
+  while(cb_item != NULL) {
+    cb = cb_item->data;
+    if(cb->cb_fct == func) {
+      cf_callbacks = g_list_remove(cf_callbacks, cb);
+      g_free(cb);
+      return;
     }
+    cb_item = g_list_next(cb_item);
+  }
 
-    g_assert_not_reached();
+  g_assert_not_reached();
 }
 
 void
 cf_timestamp_auto_precision(capture_file *cf)
 {
 #ifdef NEW_PACKET_LIST
-    int i;
+  int i;
 #endif
-    int prec = timestamp_get_precision();
+  int prec = timestamp_get_precision();
 
 
-    /* don't try to get the file's precision if none is opened */
-    if(cf->state == FILE_CLOSED) {
-        return;
+  /* don't try to get the file's precision if none is opened */
+  if(cf->state == FILE_CLOSED) {
+    return;
+  }
+
+  /* if we are in auto mode, set precision of current file */
+  if(prec == TS_PREC_AUTO ||
+     prec == TS_PREC_AUTO_SEC ||
+     prec == TS_PREC_AUTO_DSEC ||
+     prec == TS_PREC_AUTO_CSEC ||
+     prec == TS_PREC_AUTO_MSEC ||
+     prec == TS_PREC_AUTO_USEC ||
+     prec == TS_PREC_AUTO_NSEC)
+  {
+    switch(wtap_file_tsprecision(cf->wth)) {
+    case(WTAP_FILE_TSPREC_SEC):
+      timestamp_set_precision(TS_PREC_AUTO_SEC);
+      break;
+    case(WTAP_FILE_TSPREC_DSEC):
+      timestamp_set_precision(TS_PREC_AUTO_DSEC);
+      break;
+    case(WTAP_FILE_TSPREC_CSEC):
+      timestamp_set_precision(TS_PREC_AUTO_CSEC);
+      break;
+    case(WTAP_FILE_TSPREC_MSEC):
+      timestamp_set_precision(TS_PREC_AUTO_MSEC);
+      break;
+    case(WTAP_FILE_TSPREC_USEC):
+      timestamp_set_precision(TS_PREC_AUTO_USEC);
+      break;
+    case(WTAP_FILE_TSPREC_NSEC):
+      timestamp_set_precision(TS_PREC_AUTO_NSEC);
+      break;
+    default:
+      g_assert_not_reached();
     }
-
-    /* if we are in auto mode, set precision of current file */
-    if(prec == TS_PREC_AUTO ||
-      prec == TS_PREC_AUTO_SEC ||
-      prec == TS_PREC_AUTO_DSEC ||
-      prec == TS_PREC_AUTO_CSEC ||
-      prec == TS_PREC_AUTO_MSEC ||
-      prec == TS_PREC_AUTO_USEC ||
-      prec == TS_PREC_AUTO_NSEC)
-    {
-        switch(wtap_file_tsprecision(cf->wth)) {
-        case(WTAP_FILE_TSPREC_SEC):
-            timestamp_set_precision(TS_PREC_AUTO_SEC);
-            break;
-        case(WTAP_FILE_TSPREC_DSEC):
-            timestamp_set_precision(TS_PREC_AUTO_DSEC);
-            break;
-        case(WTAP_FILE_TSPREC_CSEC):
-            timestamp_set_precision(TS_PREC_AUTO_CSEC);
-            break;
-        case(WTAP_FILE_TSPREC_MSEC):
-            timestamp_set_precision(TS_PREC_AUTO_MSEC);
-            break;
-        case(WTAP_FILE_TSPREC_USEC):
-            timestamp_set_precision(TS_PREC_AUTO_USEC);
-            break;
-        case(WTAP_FILE_TSPREC_NSEC):
-            timestamp_set_precision(TS_PREC_AUTO_NSEC);
-            break;
-        default:
-            g_assert_not_reached();
-        }
-    }
+  }
 #ifdef NEW_PACKET_LIST
   /* Set the column widths of those columns that show the time in
      "command-line-specified" format. */
@@ -247,25 +247,25 @@ cf_timestamp_auto_precision(capture_file *cf)
 gulong
 cf_get_computed_elapsed(void)
 {
-    return computed_elapsed;
+  return computed_elapsed;
 }
 
 static void reset_elapsed(void)
 {
-    computed_elapsed = 0;
+  computed_elapsed = 0;
 }
 
 static void compute_elapsed(GTimeVal *start_time)
 {
-    gdouble    delta_time;
-    GTimeVal   time_now;
+  gdouble    delta_time;
+  GTimeVal   time_now;
 
-    g_get_current_time(&time_now);
+  g_get_current_time(&time_now);
 
-    delta_time = (time_now.tv_sec - start_time->tv_sec) * 1e6 +
+  delta_time = (time_now.tv_sec - start_time->tv_sec) * 1e6 +
     time_now.tv_usec - start_time->tv_usec;
 
-    computed_elapsed = (gulong) (delta_time / 1000); /* ms*/
+  computed_elapsed = (gulong) (delta_time / 1000); /* ms*/
 }
 
 cf_status_t
@@ -465,23 +465,23 @@ static void outofmemory_cb(gpointer dialog _U_, gint btn _U_, gpointer data _U_)
 
 static float calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos){
 
-    float   progbar_val;
+  float   progbar_val;
 
-    progbar_val = (gfloat) file_pos / (gfloat) size;
-    if (progbar_val > 1.0) {
+  progbar_val = (gfloat) file_pos / (gfloat) size;
+  if (progbar_val > 1.0) {
     /* The file probably grew while we were reading it.
        Update file size, and try again. */
-      size = wtap_file_size(cf->wth, NULL);
-      if (size >= 0)
-        progbar_val = (gfloat) file_pos / (gfloat) size;
-       /* If it's still > 1, either "wtap_file_size()" failed (in which
-          case there's not much we can do about it), or the file
-          *shrank* (in which case there's not much we can do about
-          it); just clip the progress value at 1.0. */
-      if (progbar_val > 1.0f)
-        progbar_val = 1.0f;
-    }
-    return progbar_val;
+    size = wtap_file_size(cf->wth, NULL);
+    if (size >= 0)
+      progbar_val = (gfloat) file_pos / (gfloat) size;
+    /* If it's still > 1, either "wtap_file_size()" failed (in which
+       case there's not much we can do about it), or the file
+       *shrank* (in which case there's not much we can do about
+       it); just clip the progress value at 1.0. */
+    if (progbar_val > 1.0f)
+      progbar_val = 1.0f;
+  }
+  return progbar_val;
 }
 
 cf_read_status_t
@@ -542,7 +542,7 @@ cf_read(capture_file *cf, gboolean from_save)
   if (size >= 0){
     progbar_quantum = size/N_PROGBAR_UPDATES;
     if (progbar_quantum < MIN_QUANTUM)
-        progbar_quantum = MIN_QUANTUM;
+      progbar_quantum = MIN_QUANTUM;
   }else
     progbar_quantum = 0;
   /* Progress so far. */
@@ -559,18 +559,18 @@ cf_read(capture_file *cf, gboolean from_save)
 
   while ((wtap_read(cf->wth, &err, &err_info, &data_offset))) {
     if (size >= 0) {
-        count++;
+      count++;
       /* Create the progress bar if necessary.
        * Check wether it should be created or not every MIN_NUMBER_OF_PACKET
        */
       if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)){
         progbar_val = calc_progbar_val( cf, size, data_offset);
         if (from_save == FALSE)
-           progbar = delayed_create_progress_dlg("Loading", name_ptr,
-             TRUE, &stop_flag, &start_time, progbar_val);
+          progbar = delayed_create_progress_dlg("Loading", name_ptr,
+                                                TRUE, &stop_flag, &start_time, progbar_val);
         else
-           progbar = delayed_create_progress_dlg("Saving", name_ptr,
-             TRUE, &stop_flag, &start_time, progbar_val);
+          progbar = delayed_create_progress_dlg("Saving", name_ptr,
+                                                TRUE, &stop_flag, &start_time, progbar_val);
       }
 
       /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -579,34 +579,34 @@ cf_read(capture_file *cf, gboolean from_save)
          to see if there's any pending input from an X server, and doing
          that for every packet can be costly, especially on a big file. */
       if (data_offset >= progbar_nextstep) {
-          if (progbar != NULL) {
-              progbar_val = calc_progbar_val( cf, size, data_offset);
-              /* update the packet lists content on the first run or frequently on very large files */
-              /* (on smaller files the display update takes longer than reading the file) */
+        if (progbar != NULL) {
+          progbar_val = calc_progbar_val( cf, size, data_offset);
+          /* update the packet lists content on the first run or frequently on very large files */
+          /* (on smaller files the display update takes longer than reading the file) */
 #ifdef HAVE_LIBPCAP
-              if (progbar_quantum > 500000 || displayed_once == 0) {
-                  if ((auto_scroll_live || displayed_once == 0 || cf->displayed_count < 1000) && cf->plist_end != NULL) {
-                      displayed_once = 1;
+          if (progbar_quantum > 500000 || displayed_once == 0) {
+            if ((auto_scroll_live || displayed_once == 0 || cf->displayed_count < 1000) && cf->plist_end != NULL) {
+              displayed_once = 1;
 #ifdef NEW_PACKET_LIST
-                  new_packet_list_thaw();
-                  if (auto_scroll_live)
-                      new_packet_list_moveto_end();
-                  new_packet_list_freeze();
+              new_packet_list_thaw();
+              if (auto_scroll_live)
+                new_packet_list_moveto_end();
+              new_packet_list_freeze();
 #else
-                  packet_list_thaw();
-                  if (auto_scroll_live)
-                      packet_list_moveto_end();
-                  packet_list_freeze();
+              packet_list_thaw();
+              if (auto_scroll_live)
+                packet_list_moveto_end();
+              packet_list_freeze();
 #endif /* NEW_PACKET_LIST */
-                  }
+            }
           }
 #endif /* HAVE_LIBPCAP */
-            g_snprintf(status_str, sizeof(status_str),
-                       "%" G_GINT64_MODIFIER "dKB of %" G_GINT64_MODIFIER "dKB",
-                       data_offset / 1024, size / 1024);
-            update_progress_dlg(progbar, progbar_val, status_str);
-          }
-         progbar_nextstep += progbar_quantum;
+          g_snprintf(status_str, sizeof(status_str),
+                     "%" G_GINT64_MODIFIER "dKB of %" G_GINT64_MODIFIER "dKB",
+                     data_offset / 1024, size / 1024);
+          update_progress_dlg(progbar, progbar_val, status_str);
+        }
+        progbar_nextstep += progbar_quantum;
       }
     }
 
@@ -620,27 +620,27 @@ cf_read(capture_file *cf, gboolean from_save)
       break;
     }
     TRY {
-        read_packet(cf, dfcode, filtering_tap_listeners, tap_flags, data_offset);
+      read_packet(cf, dfcode, filtering_tap_listeners, tap_flags, data_offset);
     }
     CATCH(OutOfMemoryError) {
-        gpointer dialog;
+      gpointer dialog;
 
-        dialog = simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-              "%sOut Of Memory!%s\n"
-              "\n"
-              "Sorry, but Wireshark has to terminate now!\n"
-              "\n"
-              "Some infos / workarounds can be found at:\n"
-              "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
-              simple_dialog_primary_start(), simple_dialog_primary_end());
-        /* we have to terminate, as we cannot recover from the memory error */
-        simple_dialog_set_cb(dialog, outofmemory_cb, NULL);
-        while(1) {
-            main_window_update();
-            /* XXX - how to avoid a busy wait? */
-            /* Sleep(100); */
-        };
-        break;
+      dialog = simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                             "%sOut Of Memory!%s\n"
+                             "\n"
+                             "Sorry, but Wireshark has to terminate now!\n"
+                             "\n"
+                             "Some infos / workarounds can be found at:\n"
+                             "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
+                             simple_dialog_primary_start(), simple_dialog_primary_end());
+      /* we have to terminate, as we cannot recover from the memory error */
+      simple_dialog_set_cb(dialog, outofmemory_cb, NULL);
+      while(1) {
+        main_window_update();
+        /* XXX - how to avoid a busy wait? */
+        /* Sleep(100); */
+      };
+      break;
     }
     ENDTRY;
   }
@@ -681,10 +681,10 @@ cf_read(capture_file *cf, gboolean from_save)
 #else
   packet_list_thaw();
 #endif
-   if (from_save == FALSE)
-     cf_callback_invoke(cf_cb_file_read_finished, cf);
-   else
-     cf_callback_invoke(cf_cb_file_save_finished, cf);
+  if (from_save == FALSE)
+    cf_callback_invoke(cf_cb_file_read_finished, cf);
+  else
+    cf_callback_invoke(cf_cb_file_save_finished, cf);
 
   /* If we have any displayed packets to select, select the first of those
      packets by making the first row the selected row. */
@@ -698,13 +698,13 @@ cf_read(capture_file *cf, gboolean from_save)
 
   if(stop_flag) {
     simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-          "%sFile loading was cancelled!%s\n"
-          "\n"
-          "The remaining packets in the file were discarded.\n"
-          "\n"
-          "As a lot of packets from the original file will be missing,\n"
-          "remember to be careful when saving the current content to a file.\n",
-          simple_dialog_primary_start(), simple_dialog_primary_end());
+                  "%sFile loading was cancelled!%s\n"
+                  "\n"
+                  "The remaining packets in the file were discarded.\n"
+                  "\n"
+                  "As a lot of packets from the original file will be missing,\n"
+                  "remember to be careful when saving the current content to a file.\n",
+                  simple_dialog_primary_start(), simple_dialog_primary_end());
     return CF_READ_ERROR;
   }
 
@@ -716,34 +716,34 @@ cf_read(capture_file *cf, gboolean from_save)
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-               "The capture file has a packet with a network type that Wireshark doesn't support.\n(%s)",
-               err_info);
+                 "The capture file has a packet with a network type that Wireshark doesn't support.\n(%s)",
+                 err_info);
       g_free(err_info);
       errmsg = errmsg_errno;
       break;
 
     case WTAP_ERR_CANT_READ:
       errmsg = "An attempt to read from the capture file failed for"
-               " some unknown reason.";
+        " some unknown reason.";
       break;
 
     case WTAP_ERR_SHORT_READ:
       errmsg = "The capture file appears to have been cut short"
-               " in the middle of a packet.";
+        " in the middle of a packet.";
       break;
 
     case WTAP_ERR_BAD_RECORD:
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-               "The capture file appears to be damaged or corrupt.\n(%s)",
-               err_info);
+                 "The capture file appears to be damaged or corrupt.\n(%s)",
+                 err_info);
       g_free(err_info);
       errmsg = errmsg_errno;
       break;
 
     default:
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-           "An error occurred while reading the"
-           " capture file: %s.", wtap_strerror(err));
+                 "An error occurred while reading the"
+                 " capture file: %s.", wtap_strerror(err));
       errmsg = errmsg_errno;
       break;
     }
@@ -805,46 +805,46 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
     if (cf->state == FILE_READ_ABORTED) {
       /* Well, the user decided to exit Wireshark.  Break out of the
          loop, and let the code below (which is called even if there
-     aren't any packets left to read) exit. */
+         aren't any packets left to read) exit. */
       break;
     }
     TRY{
-        if (read_packet(cf, dfcode, filtering_tap_listeners, tap_flags,
-                        data_offset) != -1) {
-            visible = TRUE;
-            newly_displayed_packets++;
-        }else{
-            visible = FALSE;
-        }
+      if (read_packet(cf, dfcode, filtering_tap_listeners, tap_flags,
+                      data_offset) != -1) {
+        visible = TRUE;
+        newly_displayed_packets++;
+      }else{
+        visible = FALSE;
+      }
     }
     CATCH(OutOfMemoryError) {
-        gpointer dialog;
+      gpointer dialog;
 
-        dialog = simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-              "%sOut Of Memory!%s\n"
-              "\n"
-              "Sorry, but Wireshark has to terminate now!\n"
-              "\n"
-              "The capture file is not lost, it can be found at:\n"
-              "%s\n"
-              "\n"
-              "Some infos / workarounds can be found at:\n"
-              "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
-              simple_dialog_primary_start(), simple_dialog_primary_end(), cf->filename);
-        /* we have to terminate, as we cannot recover from the memory error */
-        simple_dialog_set_cb(dialog, outofmemory_cb, NULL);
-        while(1) {
-            main_window_update();
-            /* XXX - how to avoid a busy wait? */
-            /* Sleep(100); */
-        };
+      dialog = simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                             "%sOut Of Memory!%s\n"
+                             "\n"
+                             "Sorry, but Wireshark has to terminate now!\n"
+                             "\n"
+                             "The capture file is not lost, it can be found at:\n"
+                             "%s\n"
+                             "\n"
+                             "Some infos / workarounds can be found at:\n"
+                             "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
+                             simple_dialog_primary_start(), simple_dialog_primary_end(), cf->filename);
+      /* we have to terminate, as we cannot recover from the memory error */
+      simple_dialog_set_cb(dialog, outofmemory_cb, NULL);
+      while(1) {
+        main_window_update();
+        /* XXX - how to avoid a busy wait? */
+        /* Sleep(100); */
+      };
 #ifdef NEW_PACKET_LIST
-		/* Don't freeze/thaw the list when doing live capture */
-        /*new_packet_list_thaw();*/
+      /* Don't freeze/thaw the list when doing live capture */
+      /*new_packet_list_thaw();*/
 #else
-        packet_list_thaw();
+      packet_list_thaw();
 #endif
-        return CF_READ_ABORTED;
+      return CF_READ_ABORTED;
     }
     ENDTRY;
     to_read--;
@@ -856,7 +856,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   }
 
   /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: count %u state: %u err: %u",
-      cf->count, cf->state, *err);*/
+    cf->count, cf->state, *err);*/
 
 #ifdef NEW_PACKET_LIST
   /* Don't freeze/thaw the list when doing live capture */
@@ -865,7 +865,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
    * isn't automatically selected.
    */
   if(!cf->current_frame)
-	  new_packet_list_select_first_row();
+    new_packet_list_select_first_row();
 #else
   /* XXX - this causes "flickering" of the list */
   packet_list_thaw();
@@ -1057,56 +1057,56 @@ const gchar *cf_get_tempfile_source(capture_file *cf) {
 int
 cf_get_packet_count(capture_file *cf)
 {
-    return cf->count;
+  return cf->count;
 }
 
 /* XXX - use a macro instead? */
 void
 cf_set_packet_count(capture_file *cf, int packet_count)
 {
-    cf->count = packet_count;
+  cf->count = packet_count;
 }
 
 /* XXX - use a macro instead? */
 gboolean
 cf_is_tempfile(capture_file *cf)
 {
-    return cf->is_tempfile;
+  return cf->is_tempfile;
 }
 
 void cf_set_tempfile(capture_file *cf, gboolean is_tempfile)
 {
-    cf->is_tempfile = is_tempfile;
+  cf->is_tempfile = is_tempfile;
 }
 
 
 /* XXX - use a macro instead? */
 void cf_set_drops_known(capture_file *cf, gboolean drops_known)
 {
-    cf->drops_known = drops_known;
+  cf->drops_known = drops_known;
 }
 
 /* XXX - use a macro instead? */
 void cf_set_drops(capture_file *cf, guint32 drops)
 {
-    cf->drops = drops;
+  cf->drops = drops;
 }
 
 /* XXX - use a macro instead? */
 gboolean cf_get_drops_known(capture_file *cf)
 {
-    return cf->drops_known;
+  return cf->drops_known;
 }
 
 /* XXX - use a macro instead? */
 guint32 cf_get_drops(capture_file *cf)
 {
-    return cf->drops;
+  return cf->drops;
 }
 
 void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode)
 {
-    cf->rfcode = rfcode;
+  cf->rfcode = rfcode;
 }
 
 #ifdef NEW_PACKET_LIST
@@ -4653,10 +4653,10 @@ cf_reload(capture_file *cf) {
  *
  * Local Variables:
  * c-basic-offset: 2
- * tab-width: 2
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=2 expandtab
- * :indentSize=2:tabSize=2:noTabs=true:
+ * ex: set shiftwidth=2 tabstop=8 expandtab
+ * :indentSize=2:tabSize=8:noTabs=true:
  */
