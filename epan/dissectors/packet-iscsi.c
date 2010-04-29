@@ -36,6 +36,7 @@
 # include "config.h"
 #endif
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -524,15 +525,113 @@ iscsi_min(int a, int b) {
     return (a < b)? a : b;
 }
 
+/* TargetAddress describes a iscsi port, possibly using a non-standard port
+   so we can use this to set up a conversation dissector to that port.
+
+   TargetAddress is of the form :
+   TargetAddress=domainname[:port][,portal-group-tag]
+
+   where domainname is either a dns-name, an ipv4 address is dotted-decimal
+   form or a bracketed ipv6 address.
+   so treat this as signalling, parse the value and register iscis as a conversation
+   dissector for the address/port that TargetAddress points to.
+   (it starts to be common to use redirectors to point to non-3260 ports)
+*/
+void
+iscsi_dissect_TargetAddress(packet_info *pinfo, proto_tree *tree _U_,char *val)
+{
+	address *addr = NULL;
+	int port;
+	char *value = ep_strdup(val);
+	char *a = NULL, *p = NULL, *pgt = NULL;
+
+	if (value[0] == '[') {
+		/* this looks like an ipv6 address */
+		p = index(value, ']');
+		if (p != NULL) {
+			a = value+1;
+			*p = 0;
+			p += 2;	/* skip past "]:" */
+
+			pgt = index(p, ',');
+			if (pgt != NULL) {
+				*pgt++ = 0;
+			}
+
+			/* cant handle ipv6 yet */
+		}
+	} else {
+		/* This is either a ipv4 address or a dns name */
+		int i0,i1,i2,i3;
+		if (sscanf(value, "%d.%d.%d.%d", &i0,&i1,&i2,&i3) == 4) {
+			/* looks like a ipv4 address */
+			p = index(value, ':');
+			if (p != NULL) {
+				a = value;
+				*p++ = 0;
+	
+				pgt = index(p, ',');
+				if (pgt != NULL) {
+					*pgt++ = 0;
+				}
+				
+				addr = ep_alloc(sizeof(address));
+				addr->type = AT_IPv4;
+				addr->len  = 4;
+				addr->data = ep_alloc(4);
+				((char *)addr->data)[0] = i0;
+				((char *)addr->data)[1] = i1;
+				((char *)addr->data)[2] = i2;
+				((char *)addr->data)[3] = i3;
+
+				port = atoi(p);
+			}
+
+		}
+	}
+
+
+	/* attach a conversation dissector to this address/port tuple */
+	if (addr && !pinfo->fd->flags.visited) {
+		conversation_t *conv;
+
+		conv = conversation_new(pinfo->fd->num, addr, addr, PT_TCP, port, port, NO_ADDR2|NO_PORT2);
+		if (conv == NULL) {
+			return;
+		}
+		conversation_set_dissector(conv, iscsi_handle);
+	}
+
+}
+
 static gint
-addTextKeys(proto_tree *tt, tvbuff_t *tvb, gint offset, guint32 text_len) {
+addTextKeys(packet_info *pinfo, proto_tree *tt, tvbuff_t *tvb, gint offset, guint32 text_len) {
     const gint limit = offset + text_len;
+
     while(offset < limit) {
+	char *key = NULL, *value = NULL;
 	gint len = tvb_strnlen(tvb, offset, limit - offset);
-	if(len == -1)
+
+	if(len == -1) {
 	    len = limit - offset;
-	else
+	} else {
 	    len = len + 1;
+	}
+
+	key = ep_memdup(tvb_get_ptr(tvb, offset, len), len);
+	if (key == NULL) {
+		break;
+	}
+	value = index(key, '=');
+	if (value == NULL) {
+		break;
+	}
+	*value++ = 0;
+
+	if (!strcmp(key, "TargetAddress")) {
+		iscsi_dissect_TargetAddress(pinfo, tt, value);
+	}
+
 	proto_tree_add_item(tt, hf_iscsi_KeyValue, tvb, offset, len, FALSE);
 	offset += len;
     }
@@ -606,14 +705,14 @@ handleDataSegment(proto_item *ti, tvbuff_t *tvb, guint offset, guint dataSegment
 }
 
 static int
-handleDataSegmentAsTextKeys(proto_item *ti, tvbuff_t *tvb, guint offset, guint dataSegmentLen, guint endOffset, int digestsActive) {
+handleDataSegmentAsTextKeys(packet_info *pinfo, proto_item *ti, tvbuff_t *tvb, guint offset, guint dataSegmentLen, guint endOffset, int digestsActive) {
     if(endOffset > offset) {
 	int dataOffset = offset;
 	int textLen = iscsi_min(dataSegmentLen, endOffset - offset);
 	if(textLen > 0) {
 	    proto_item *tf = proto_tree_add_text(ti, tvb, offset, textLen, "Key/Value Pairs");
 	    proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_KeyValues);
-	    offset = addTextKeys(tt, tvb, offset, textLen);
+	    offset = addTextKeys(pinfo, tt, tvb, offset, textLen);
 	}
 	if(offset < endOffset && (offset & 3) != 0) {
 	    int padding = 4 - (offset & 3);
@@ -1062,7 +1161,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    } else {
 		offset += 48;
 	    }
-	    offset = handleDataSegmentAsTextKeys(ti, tvb, offset, data_segment_len, end_offset, digestsActive);
+	    offset = handleDataSegmentAsTextKeys(pinfo, ti, tvb, offset, data_segment_len, end_offset, digestsActive);
     } else if(opcode == ISCSI_OPCODE_LOGIN_RESPONSE) {
 	    /* Login Response */
 	    int digestsActive = 0;
@@ -1129,7 +1228,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    } else {
 		offset += 48;
 	    }
-	    offset = handleDataSegmentAsTextKeys(ti, tvb, offset, data_segment_len, end_offset, digestsActive);
+	    offset = handleDataSegmentAsTextKeys(pinfo, ti, tvb, offset, data_segment_len, end_offset, digestsActive);
     } else if(opcode == ISCSI_OPCODE_TEXT_COMMAND) {
 	    /* Text Command */
 	    {
@@ -1154,7 +1253,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
 	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
-	    offset = handleDataSegmentAsTextKeys(ti, tvb, offset, data_segment_len, end_offset, TRUE);
+	    offset = handleDataSegmentAsTextKeys(pinfo, ti, tvb, offset, data_segment_len, end_offset, TRUE);
     } else if(opcode == ISCSI_OPCODE_TEXT_RESPONSE) {
 	    /* Text Response */
 	    {
@@ -1180,7 +1279,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
 	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
-	    offset = handleDataSegmentAsTextKeys(ti, tvb, offset, data_segment_len, end_offset, TRUE);
+	    offset = handleDataSegmentAsTextKeys(pinfo, ti, tvb, offset, data_segment_len, end_offset, TRUE);
     } else if(opcode == ISCSI_OPCODE_SCSI_DATA_OUT) {
 	    /* SCSI Data Out (write) */
 	    {
