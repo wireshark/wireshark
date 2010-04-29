@@ -1931,6 +1931,47 @@ read_configuration_files(char **gdp_path, char **dp_path)
   return prefs_p;
 }
 
+/*  Check if there's something important to tell the user during startup.
+ *  We want to do this *after* showing the main window so that any windows
+ *  we pop up will be above the main window.
+ */
+static void
+#ifdef _WIN32
+check_and_warn_user_startup(gchar *cf_name)
+#else
+check_and_warn_user_startup(gchar *cf_name _U_)
+#endif
+{
+  gchar               *cur_user, *cur_group;
+  gpointer             priv_warning_dialog;
+
+  /* Tell the user not to run as root. */
+  if (running_with_special_privs() && recent.privs_warn_if_elevated) {
+    cur_user = get_cur_username();
+    cur_group = get_cur_groupname();
+    priv_warning_dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+      "Running as user \"%s\" and group \"%s\".\n"
+      "This could be dangerous.", cur_user, cur_group);
+    g_free(cur_user);
+    g_free(cur_group);
+    simple_dialog_check_set(priv_warning_dialog, "Don't show this message again.");
+    simple_dialog_set_cb(priv_warning_dialog, priv_warning_dialog_cb, NULL);
+  }
+
+#ifdef _WIN32
+  /* Warn the user if npf.sys isn't loaded. */
+  if (!stdin_capture && !cf_name && !npf_sys_is_running() && recent.privs_warn_if_no_npf && get_os_major_version() >= 6) {
+    priv_warning_dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+      "The NPF driver isn't running.  You may have trouble\n"
+      "capturing or listing interfaces.");
+    simple_dialog_check_set(priv_warning_dialog, "Don't show this message again.");
+    simple_dialog_set_cb(priv_warning_dialog, npf_warning_dialog_cb, NULL);
+  }
+#endif
+
+}
+
+
 /* And now our feature presentation... [ fade to music ] */
 int
 main(int argc, char *argv[])
@@ -1964,14 +2005,12 @@ main(int argc, char *argv[])
   e_prefs             *prefs_p;
   char                 badopt;
   GtkWidget           *splash_win = NULL;
-  gpointer             priv_warning_dialog;
   GLogLevelFlags       log_flags;
   guint                go_to_packet = 0;
   gboolean             jump_backwards = FALSE, saved_bw = FALSE;
   dfilter_t           *jump_to_filter = NULL;
   int                  optind_initial;
   int                  status;
-  gchar               *cur_user, *cur_group;
 
 #ifdef _WIN32
 #ifdef HAVE_AIRPCAP
@@ -2736,29 +2775,6 @@ main(int argc, char *argv[])
 
   g_timeout_add(info_update_freq, resolv_update_cb, NULL);
 
-  /* Tell the user not to run as root. */
-  if (running_with_special_privs() && recent.privs_warn_if_elevated) {
-    cur_user = get_cur_username();
-    cur_group = get_cur_groupname();
-    priv_warning_dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-      "Running as user \"%s\" and group \"%s\".\n"
-      "This could be dangerous.", cur_user, cur_group);
-    g_free(cur_user);
-    g_free(cur_group);
-    simple_dialog_check_set(priv_warning_dialog, "Don't show this message again.");
-    simple_dialog_set_cb(priv_warning_dialog, priv_warning_dialog_cb, NULL);
-  }
-
-#ifdef _WIN32
-  /* Warn the user if npf.sys isn't loaded. */
-  if (!stdin_capture && !cf_name && !npf_sys_is_running() && recent.privs_warn_if_no_npf && get_os_major_version() >= 6) {
-    priv_warning_dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-      "The NPF driver isn't running.  You may have trouble\n"
-      "capturing or listing interfaces.");
-    simple_dialog_check_set(priv_warning_dialog, "Don't show this message again.");
-    simple_dialog_set_cb(priv_warning_dialog, npf_warning_dialog_cb, NULL);
-  }
-#endif
 
   /* If we were given the name of a capture file, read it in now;
      we defer it until now, so that, if we can't open it, and pop
@@ -2768,6 +2784,7 @@ main(int argc, char *argv[])
      up on top of us. */
   if (cf_name) {
     show_main_window(TRUE);
+    check_and_warn_user_startup(cf_name);
     if (rfilter != NULL) {
       if (!dfilter_compile(rfilter, &rfcode)) {
         bad_dfilter_alert_box(rfilter);
@@ -2838,6 +2855,7 @@ main(int argc, char *argv[])
           dfilter_free(rfcode);
         cfile.rfcode = NULL;
         show_main_window(FALSE);
+	/* Don't call check_and_warn_user_startup(): we did it above */
         set_menus_for_capture_in_progress(FALSE);
         set_capture_if_dialog_for_capture_in_progress(FALSE);
       }
@@ -2854,6 +2872,7 @@ main(int argc, char *argv[])
       }
       /* "-k" was specified; start a capture. */
       show_main_window(TRUE);
+      check_and_warn_user_startup(cf_name);
       if (capture_start(&global_capture_opts)) {
         /* The capture started.  Open stat windows; we do so after creating
 	   the main window, to avoid GTK warnings, and after successfully
@@ -2866,6 +2885,7 @@ main(int argc, char *argv[])
     }
     else {
       show_main_window(FALSE);
+      check_and_warn_user_startup(cf_name);
       set_menus_for_capture_in_progress(FALSE);
       set_capture_if_dialog_for_capture_in_progress(FALSE);
     }
@@ -2877,6 +2897,7 @@ main(int argc, char *argv[])
     }
 #else /* HAVE_LIBPCAP */
     show_main_window(FALSE);
+    check_and_warn_user_startup(cf_name);
     set_menus_for_capture_in_progress(FALSE);
     set_capture_if_dialog_for_capture_in_progress(FALSE);
 #endif /* HAVE_LIBPCAP */
