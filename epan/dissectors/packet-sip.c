@@ -1341,8 +1341,8 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 static gint
 dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
 {
-	gchar c;
-	gint current_offset;
+	//gchar c;
+	gint current_offset, par_name_end_offset;
 	gint equals_offset = 0;
 	gchar *name;
 	header_parameter_t *auth_parameter;
@@ -1358,54 +1358,20 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
 	}
 
 	current_offset = start_offset;
-
-	/* Now look for the end of the parameter */
-	while (current_offset < line_end_offset)
-	{
-		c = tvb_get_guint8(tvb, current_offset);
-
-		if (c == '=')
-		{
-			equals_offset = current_offset;
-		}
-
-		if(c == '"')
-		{
-			/* look for the next unescaped '"' */
-			do
-			{
-				current_offset = tvb_find_guint8(tvb, current_offset + 1, line_end_offset - (current_offset + 1), '"');
-				if(current_offset == -1)
-				{
-					/* malformed parameter */
-					return -1;
-				}
-
-				/* Is it escaped?
-				 * Look for uneven number of backslashes before '"' */
-				for(i=0;tvb_get_guint8(tvb, current_offset - (i+1) ) == '\\';i++);
-				i=i%2;
-			} while (i == 1);
-			current_offset++;
-			current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
-			continue;
-		}
-
-		if (c == ',')
-		{
-			break;
-		}
-		current_offset++;
-	}
-
-	if (equals_offset == 0)
-	{
-		/* Give up if equals not found */
+	equals_offset = tvb_find_guint8(tvb, current_offset + 1, line_end_offset - (current_offset + 1), '=');
+	if(current_offset == -1){
+		/* malformed parameter */
 		return -1;
 	}
+	par_name_end_offset = equals_offset - 1;
+	par_name_end_offset = tvb_skip_wsp_return(tvb,par_name_end_offset);
 
 	/* Extract the parameter name */
-	name = tvb_get_ephemeral_string(tvb, start_offset, equals_offset-start_offset);
+	name = tvb_get_ephemeral_string(tvb, start_offset, par_name_end_offset-start_offset+1);
+	current_offset =  tvb_find_guint8(tvb, par_name_end_offset, line_end_offset - par_name_end_offset, ',');
+	if(current_offset==-1)
+		/* Last parameter, line end */
+		current_offset = line_end_offset;
 
 	/* Try to add parameter as a filterable item */
 	for (auth_parameter = &auth_parameters_hf_array[i];
@@ -2651,11 +2617,13 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							/* Authentication-Info does not begin with the scheme name */
 							if (hf_index != POS_AUTHENTICATION_INFO)
 							{
+								/* The first time comma_offset is "start of parameters" */
 								comma_offset = tvb_pbrk_guint8(tvb, value_offset, line_end_offset - value_offset, " \t\r\n", NULL);
 								proto_tree_add_item(sip_element_tree, hf_sip_auth_scheme,
 													tvb, value_offset, comma_offset - value_offset,
 													FALSE);
 							}else{
+								/* The first time comma_offset is "start of parameters" */
 								comma_offset = value_offset;
 							}
 
