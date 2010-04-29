@@ -697,8 +697,7 @@ static line_type_t sip_parse_line(tvbuff_t *tvb, int offset, gint linelen,
     guint *token_1_len);
 static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
     guint meth_len, guint *meth_idx);
-static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset,
-    guint header_len);
+static gint sip_is_known_sip_header(gchar *header_name, guint header_len);
 static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint offset,
     guint meth_len, gint linelen);
 static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree);
@@ -849,6 +848,8 @@ sip_init_protocol(void)
 		sip_headers_hash = g_hash_table_new(g_str_hash , g_str_equal);
 		for (i = 1; i < array_length(sip_headers); i++){
 			value_copy = g_strdup (sip_headers[i].name);
+			/* Store (and compare) the string in lower case) */
+			ascii_strdown_inplace(value_copy);
 			g_hash_table_insert(sip_headers_hash, (gpointer)value_copy, GINT_TO_POINTER(i));
 		}
 	}
@@ -2044,7 +2045,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			}
 		} else {
 			header_len = colon_offset - offset;
-			hf_index = sip_is_known_sip_header(tvb, offset, header_len);
+			header_name = (gchar*)tvb_get_ephemeral_string(tvb, offset, header_len);
+			ascii_strdown_inplace(header_name);
+			hf_index = sip_is_known_sip_header(header_name, header_len);
 
 			/*
 			 * Skip whitespace after the colon.
@@ -2061,8 +2064,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 				proto_item *ti_c = proto_tree_add_text(hdr_tree, tvb,
 				                                     offset, next_offset - offset, "%s",
 				                                     tvb_format_text(tvb, offset, linelen));
-				header_name = (gchar*)tvb_get_ephemeral_string(tvb, offset, header_len);
-				ascii_strdown_inplace(header_name);
 				ext_hdr_handle = dissector_get_string_handle(ext_hdr_subdissector_table, header_name);
 				if (ext_hdr_handle != NULL) {
 					tvbuff_t *next_tvb2;
@@ -3087,36 +3088,30 @@ static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
         return FALSE;
 }
 
-/* Returns index of method in sip_headers */
-static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset, guint header_len)
+/* 
+ * Returns index of method in sip_headers 
+ * Header namne should be in lower case
+ */
+static gint sip_is_known_sip_header(gchar *header_name, guint header_len)
 {
-	gchar *header = tvb_get_ephemeral_string(tvb, offset, header_len);
 	guint pos;
 
 	/* Compact name is one character long */
 	if(header_len>1){
-		pos = GPOINTER_TO_INT(g_hash_table_lookup(sip_headers_hash, header));
+		pos = GPOINTER_TO_INT(g_hash_table_lookup(sip_headers_hash, header_name));
 		if (pos!=0)
 			return pos;
 	}
-	/* Previous searching in the hash is case sensitive.
-	   If the name has not been not found it could be also long name with case different from RFC,
-	   it is not recommended but allowed.
-	 */
 
-	/* Look for compact name match or long name with non-standard case */
+	/* Look for compact name match */
 	for (pos = 1; pos < array_length(sip_headers); pos++) {
 		if (sip_headers[pos].compact_name != NULL &&
 				header_len == strlen(sip_headers[pos].compact_name) &&
-				g_ascii_strncasecmp(header, sip_headers[pos].compact_name, header_len) == 0)
-			return pos;
-
-		if (header_len == strlen(sip_headers[pos].name) &&
-				g_ascii_strncasecmp(header, sip_headers[pos].name, header_len) == 0)
+				g_ascii_strncasecmp(header_name, sip_headers[pos].compact_name, header_len) == 0)
 			return pos;
 	}
 
-        return -1;
+    return -1;
 }
 
 /*
