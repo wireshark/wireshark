@@ -547,13 +547,13 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, proto_tree *tree _U_,char *val)
 
 	if (value[0] == '[') {
 		/* this looks like an ipv6 address */
-		p = index(value, ']');
+		p = strchr(value, ']');
 		if (p != NULL) {
 			a = value+1;
 			*p = 0;
 			p += 2;	/* skip past "]:" */
 
-			pgt = index(p, ',');
+			pgt = strchr(p, ',');
 			if (pgt != NULL) {
 				*pgt++ = 0;
 			}
@@ -565,16 +565,16 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, proto_tree *tree _U_,char *val)
 		int i0,i1,i2,i3;
 		if (sscanf(value, "%d.%d.%d.%d", &i0,&i1,&i2,&i3) == 4) {
 			/* looks like a ipv4 address */
-			p = index(value, ':');
+			p = strchr(value, ':');
 			if (p != NULL) {
 				a = value;
 				*p++ = 0;
-	
-				pgt = index(p, ',');
+
+				pgt = strchr(p, ',');
 				if (pgt != NULL) {
 					*pgt++ = 0;
 				}
-				
+
 				addr = ep_alloc(sizeof(address));
 				addr->type = AT_IPv4;
 				addr->len  = 4;
@@ -622,7 +622,7 @@ addTextKeys(packet_info *pinfo, proto_tree *tt, tvbuff_t *tvb, gint offset, guin
 	if (key == NULL) {
 		break;
 	}
-	value = index(key, '=');
+	value = strchr(key, '=');
 	if (value == NULL) {
 		break;
 	}
