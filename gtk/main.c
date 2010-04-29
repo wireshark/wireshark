@@ -882,7 +882,7 @@ void expand_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
 void apply_as_custom_column_cb (GtkWidget *widget _U_, gpointer data _U_)
 {
   if (cfile.finfo_selected) {
-    column_prefs_add_custom(COL_CUSTOM, cfile.finfo_selected->hfinfo->name, 
+    column_prefs_add_custom(COL_CUSTOM, cfile.finfo_selected->hfinfo->name,
                             cfile.finfo_selected->hfinfo->abbrev);
     /* Recreate the packet list according to new preferences */
 #ifdef NEW_PACKET_LIST
@@ -1195,7 +1195,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
   fprintf(output, "  -g <packet number>       go to specified packet number after \"-r\"\n");
   fprintf(output, "  -J <jump filter>         jump to the first packet matching the (display) filter\n");
-  fprintf(output, "  -j                       search backwards for a matching packet after \"-J\"\n"); 
+  fprintf(output, "  -j                       search backwards for a matching packet after \"-J\"\n");
   fprintf(output, "  -m <font>                set the font name used for most text\n");
   fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
   fprintf(output, "  -X <key>:<value>         eXtension options, see man page for details\n");
@@ -1359,7 +1359,7 @@ unprotect_thread_critical_region(void)
  * Periodically process outstanding hostname lookups. If we have new items,
  * redraw the packet list and tree view.
  */
-  
+
 static gboolean
 resolv_update_cb(gpointer data _U_)
 {
@@ -1371,7 +1371,7 @@ resolv_update_cb(gpointer data _U_)
 
   /* Always check. Even if we don't do async lookups we could still get
      passive updates, e.g. from DNS packets. */
-  return TRUE;   
+  return TRUE;
 }
 
 
@@ -2317,8 +2317,6 @@ main(int argc, char *argv[])
   tap_update_timer_id = g_timeout_add(prefs_p->tap_update_interval, tap_update_cb, NULL);
 #endif /* !_WIN32 && G_THREADS_ENABLED && USE_THREADS */
 
-  g_timeout_add(info_update_freq, resolv_update_cb, NULL);
-
   splash_update(RA_CONFIGURATION, NULL, (gpointer)splash_win);
 
 
@@ -2397,7 +2395,7 @@ main(int argc, char *argv[])
         break;
       case 'J':        /* Jump to the first packet which matches the filter criteria */
         jfilter = optarg;
-        break;            
+        break;
       case 'l':        /* Automatic scrolling in live capture mode */
 #ifdef HAVE_LIBPCAP
         auto_scroll_live = TRUE;
@@ -2736,6 +2734,8 @@ main(int argc, char *argv[])
   /* the window can be sized only, if it's not already shown, so do it now! */
   main_load_window_geometry(top_level);
 
+  g_timeout_add(info_update_freq, resolv_update_cb, NULL);
+
   /* Tell the user not to run as root. */
   if (running_with_special_privs() && recent.privs_warn_if_elevated) {
     cur_user = get_cur_username();
@@ -2800,7 +2800,7 @@ main(int argc, char *argv[])
              file. */
           /* if the user told us to jump to a specific packet, do it now */
           if(go_to_packet != 0) {
-            /* Jump to the specified frame number, kept for backward 
+            /* Jump to the specified frame number, kept for backward
                compatibility. */
             cf_goto_frame(&cfile, go_to_packet);
           } else if (jfilter != NULL) {
