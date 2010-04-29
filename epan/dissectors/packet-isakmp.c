@@ -1700,7 +1700,7 @@ scan_pluto_log(void) {
 static tvbuff_t *
 decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_len, isakmp_hdr_t *hdr) {
   decrypt_data_t *decr = (decrypt_data_t *) pinfo->private_data;
-  gchar *decrypted_data = NULL;
+  guint8 *decrypted_data = NULL;
   gint gcry_md_algo, gcry_cipher_algo;
   gcry_md_hd_t md_ctx;
   gcry_cipher_hd_t decr_ctx;

@@ -632,7 +632,7 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *
 					    );
 		if (ret >= 0) {
 			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
-			pinfo->gssapi_decrypted_tvb=tvb_new_child_real_data(tvb, 
+			pinfo->gssapi_decrypted_tvb=tvb_new_child_real_data(tvb,
 				output_message_buffer,
 				ret, ret);
 			tvb_set_free_cb(pinfo->gssapi_decrypted_tvb, g_free);
@@ -702,8 +702,8 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_,
 			    unsigned int usage)
 {
 	int res;
-	char *rotated;
-	char *output;
+	guint8 *rotated;
+	guint8 *output;
 	int datalen;
 	tvbuff_t *next_tvb;
 
@@ -736,7 +736,7 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_,
 		  keytype, &datalen);
 
 	if (output) {
-		char *outdata;
+		guint8 *outdata;
 
 		outdata = g_memdup(output, tvb_length(encrypted_tvb));
 		g_free(output);
