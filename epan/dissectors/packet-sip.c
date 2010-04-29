@@ -2601,10 +2601,34 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 					break;
 
 					case POS_AUTHORIZATION:
+						/* Authorization     =  "Authorization" HCOLON credentials
+						 * credentials       =  ("Digest" LWS digest-response)
+						 *                      / other-response
+						 * digest-response   =  dig-resp *(COMMA dig-resp)
+						 * other-response    =  auth-scheme LWS auth-param
+						 *                      *(COMMA auth-param)
+						 */
 					case POS_WWW_AUTHENTICATE:
+						/* Proxy-Authenticate  =  "Proxy-Authenticate" HCOLON challenge
+						 * challenge           =  ("Digest" LWS digest-cln *(COMMA digest-cln))
+						 *                        / other-challenge
+						 * other-challenge     =  auth-scheme LWS auth-param
+						 *                        *(COMMA auth-param)
+						 * auth-scheme         =  token
+						 */ 
 					case POS_PROXY_AUTHENTICATE:
+						/* Proxy-Authenticate  =  "Proxy-Authenticate" HCOLON challenge
+						 */
 					case POS_PROXY_AUTHORIZATION:
+						/* Proxy-Authorization  =  "Proxy-Authorization" HCOLON credentials
+						 */
 					case POS_AUTHENTICATION_INFO:
+						/* Authentication-Info  =  "Authentication-Info" HCOLON ainfo
+						 *                        *(COMMA ainfo)
+						 * ainfo                =  nextnonce / message-qop
+						 *                         / response-auth / cnonce
+						 *                         / nonce-count
+						 */
 						/* Add tree using whole text of line */
 						if (hdr_tree) {
 							proto_item *ti_c;
@@ -2623,17 +2647,18 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							                         FALSE);
 							PROTO_ITEM_SET_HIDDEN(ti_c);
 
-							/* Parse each individual parameter in the line */
-							comma_offset = tvb_pbrk_guint8(tvb, value_offset, line_end_offset - value_offset, " \t\r\n", NULL);
-
 							/* Authentication-Info does not begin with the scheme name */
 							if (hf_index != POS_AUTHENTICATION_INFO)
 							{
+								comma_offset = tvb_pbrk_guint8(tvb, value_offset, line_end_offset - value_offset, " \t\r\n", NULL);
 								proto_tree_add_item(sip_element_tree, hf_sip_auth_scheme,
 													tvb, value_offset, comma_offset - value_offset,
 													FALSE);
+							}else{
+								comma_offset = value_offset;
 							}
 
+							/* Parse each individual parameter in the line */
 							while ((comma_offset = dissect_sip_authorization_item(tvb, sip_element_tree, comma_offset, line_end_offset)) != -1)
 							{
 								if(comma_offset == line_end_offset)
