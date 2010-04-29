@@ -683,7 +683,6 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 		return;
 
 	switch (cfile.cinfo.col_fmt[col]) {
-		case COL_DEF_SRC:
 		case COL_RES_SRC:	/* COL_DEF_SRC is currently just like COL_RES_SRC */
 		case COL_UNRES_SRC:
 		case COL_DEF_DL_SRC:
@@ -692,7 +691,6 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 		case COL_DEF_NET_SRC:
 		case COL_RES_NET_SRC:
 		case COL_UNRES_NET_SRC:
-		case COL_DEF_DST:
 		case COL_RES_DST:	/* COL_DEF_DST is currently just like COL_RES_DST */
 		case COL_UNRES_DST:
 		case COL_DEF_DL_DST:
@@ -709,6 +707,8 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 			++packet_list->const_strings;
 #endif
 			break;
+		case COL_DEF_SRC:
+		case COL_DEF_DST:
 		case COL_PROTOCOL:
 		case COL_INFO:
 		case COL_IF_DIR:

@@ -1158,7 +1158,6 @@ static void
 col_set_addr(packet_info *pinfo, const int col, const address *addr, const gboolean is_src, const gboolean fill_col_exprs)
 {
   if (addr->type == AT_NONE) {
-    pinfo->cinfo->col_data[col] = "";
     /* No address, nothing to do */
     return;
   }
