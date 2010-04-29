@@ -475,7 +475,11 @@ about_license_page_new(void)
   GtkWidget   *page;
   char *absolute_path;
 
+#if defined(_WIN32)
+  absolute_path = get_datafile_path("COPYING.txt");
+#else
   absolute_path = get_datafile_path("COPYING");
+#endif
   page = text_page_new(absolute_path);
 
   return page;
