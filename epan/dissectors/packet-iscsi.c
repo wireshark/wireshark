@@ -1582,7 +1582,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	tvb_rlen=tvb_reported_length_remaining(tvb, cdb_offset);
 	scsi_opcode=tvb_get_guint8(tvb, cdb_offset);
 	if(ahs_cdb_length && ahs_cdb_length<1024){
-		char *cdb_buf;
+		guint8 *cdb_buf;
 
 		/* We have a variable length CDB where bytes >16 is transported
 		 * in the AHS.
