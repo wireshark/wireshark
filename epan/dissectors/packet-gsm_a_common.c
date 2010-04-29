@@ -460,6 +460,74 @@ static const value_string e_utra_meas_and_report_support_vals[] = {
 	{ 0, NULL}
 };
 
+const value_string gsm_a_rr_rxlev_vals [] = {
+    { 0, "< -110 dBm"},
+    { 1, "-110 <= x < -109 dBm"},
+    { 2, "-109 <= x < -108 dBm"},
+    { 3, "-108 <= x < -107 dBm"},
+    { 4, "-107 <= x < -106 dBm"},
+    { 5, "-106 <= x < -105 dBm"},
+    { 6, "-105 <= x < -104 dBm"},
+    { 7, "-104 <= x < -103 dBm"},
+    { 8, "-103 <= x < -102 dBm"},
+    { 9, "-102 <= x < -101 dBm"},
+    {10, "-101 <= x < -100 dBm"},
+    {11, "-100 <= x < -99 dBm"},
+    {12, "-99 <= x < -98 dBm"},
+    {13, "-98 <= x < -97 dBm"},
+    {14, "-97 <= x < -96 dBm"},
+    {15, "-96 <= x < -95 dBm"},
+    {16, "-95 <= x < -94 dBm"},
+    {17, "-94 <= x < -93 dBm"},
+    {18, "-93 <= x < -92 dBm"},
+    {19, "-92 <= x < -91 dBm"},
+    {20, "-91 <= x < -90 dBm"},
+    {21, "-90 <= x < -89 dBm"},
+    {22, "-89 <= x < -88 dBm"},
+    {23, "-88 <= x < -87 dBm"},
+    {24, "-87 <= x < -86 dBm"},
+    {25, "-86 <= x < -85 dBm"},
+    {26, "-85 <= x < -84 dBm"},
+    {27, "-84 <= x < -83 dBm"},
+    {28, "-83 <= x < -82 dBm"},
+    {29, "-82 <= x < -81 dBm"},
+    {30, "-81 <= x < -80 dBm"},
+    {31, "-80 <= x < -79 dBm"},
+    {32, "-79 <= x < -78 dBm"},
+    {33, "-78 <= x < -77 dBm"},
+    {34, "-77 <= x < -76 dBm"},
+    {35, "-76 <= x < -75 dBm"},
+    {36, "-75 <= x < -74 dBm"},
+    {37, "-74 <= x < -73 dBm"},
+    {38, "-73 <= x < -72 dBm"},
+    {39, "-72 <= x < -71 dBm"},
+    {40, "-71 <= x < -70 dBm"},
+    {41, "-70 <= x < -69 dBm"},
+    {42, "-69 <= x < -68 dBm"},
+    {43, "-68 <= x < -67 dBm"},
+    {44, "-67 <= x < -66 dBm"},
+    {45, "-66 <= x < -65 dBm"},
+    {46, "-65 <= x < -64 dBm"},
+    {47, "-64 <= x < -63 dBm"},
+    {48, "-63 <= x < -62 dBm"},
+    {49, "-62 <= x < -61 dBm"},
+    {50, "-61 <= x < -60 dBm"},
+    {51, "-60 <= x < -59 dBm"},
+    {52, "-59 <= x < -58 dBm"},
+    {53, "-58 <= x < -57 dBm"},
+    {54, "-57 <= x < -56 dBm"},
+    {55, "-56 <= x < -55 dBm"},
+    {56, "-55 <= x < -54 dBm"},
+    {57, "-54 <= x < -53 dBm"},
+    {58, "-53 <= x < -52 dBm"},
+    {59, "-52 <= x < -51 dBm"},
+    {60, "-51 <= x < -50 dBm"},
+    {61, "-50 <= x < -49 dBm"},
+    {62, "-49 <= x < -48 dBm"},
+    {63, ">= -48 dBm"},
+    { 0, NULL}
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_a_common = -1;
 
@@ -593,6 +661,7 @@ static int hf_gsm_a_additional_positioning_caps	= -1;
 static int hf_gsm_a_e_utra_fdd_support			= -1;
 static int hf_gsm_a_e_utra_tdd_support			= -1;
 static int hf_gsm_a_e_utra_meas_and_report_support	= -1;
+static int hf_gsm_a_rxlev_ncell                 = -1;
 
 static int hf_gsm_a_geo_loc_type_of_shape = -1;
 static int hf_gsm_a_geo_loc_sign_of_lat	= -1;

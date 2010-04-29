@@ -49,5 +49,8 @@ typedef struct {
 
 extern const value_string tab_cause[];
 
+
+void decode_pdu_suspend_ack(build_info_t *bi);
+
 #endif /* __PACKET_BSSGP_H__ */
 

@@ -13,6 +13,7 @@ InterRATHandoverInfo
 InterRATHandoverInfo_PDU
 ToTargetRNC-Container_PDU
 TargetRNC-ToSourceRNC-Container_PDU
+HandoverToUTRANCommand_PDU
 #.OMIT_ASSIGNMENT
 UE-RadioAccessCapability-v890ext
 UL-PhysChCapabilityFDD-r6

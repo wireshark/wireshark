@@ -43,6 +43,7 @@
 #include "packet-ranap.h"
 #include "packet-e212.h"
 #include "packet-sccp.h"
+#include "packet-gsm_a_common.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */

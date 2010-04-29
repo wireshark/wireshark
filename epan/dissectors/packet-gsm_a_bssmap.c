@@ -48,10 +48,12 @@
 #include <epan/asn1.h>
 
 #include "packet-bssap.h"
+#include "packet-bssgp.h"
 #include "packet-sccp.h"
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 #include "packet-ranap.h"
+#include "packet-rrc.h"
 
 /* PROTOTYPES/FORWARDS */
 
@@ -263,26 +265,29 @@ const value_string gsm_bssmap_elem_strings[] = {
 	{ 0, NULL }
 };
 
-#if 0
 /* 3.2.3 Signalling Field Element Coding */
-static const value_string bssap_sig_field_values[] = {
+static const value_string bssmap_field_element_ids[] = {
 
-	{ 0x1,	"Extra information" },						/* 3.2.3.1  */
-	{ 0x2,	"Current Channel Type 2" },					/* 3.2.2.2  */
-	{ 0x3,	"Target cell radio information" },			/* 3.2.3.3  */
-	{ 0x4,	"GPRS Suspend information" },				/* 3.2.3.4  */
-	{ 0x5,	"MultiRate configuration information" },	/* 3.2.3.5  */
-	{ 0x6,	"Dual Transfer Mode information" },			/* 3.2.3.6  */
-	{ 0x7,	"Inter RAT Handover Info" },				/* 3.2.3.7  */
+	{ 0x1,	"BSSMAP Field Element: Extra information" },						/* 3.2.3.1  */
+	{ 0x2,	"BSSMAP Field Element: Current Channel Type 2" },					/* 3.2.2.2  */
+	{ 0x3,	"BSSMAP Field Element: Target cell radio information" },			/* 3.2.3.3  */
+	{ 0x4,	"BSSMAP Field Element: GPRS Suspend information" },				/* 3.2.3.4  */
+	{ 0x5,	"BSSMAP Field Element: MultiRate configuration information" },	/* 3.2.3.5  */
+	{ 0x6,	"BSSMAP Field Element: Dual Transfer Mode information" },			/* 3.2.3.6  */
+	{ 0x7,	"BSSMAP Field Element: Inter RAT Handover Info" },				/* 3.2.3.7  */
 	/*{ 0x7,	"UE Capability information" },*/				/* 3.2.3.7  */
-	{ 0x8,	"cdma2000 Capability Information" },		/* 3.2.3.8  */
-	{ 0x9,	"Downlink Cell Load Information" },			/* 3.2.3.9  */
-	{ 0xa,	"Uplink Cell Load Information" },			/* 3.2.3.10 */
-	{ 0xb,	"Cell Load Information Group" },			/* 3.2.3.11 */
-	{ 0xc,	"Cell Load Information" },					/* 3.2.3.12 */
+	{ 0x8,	"BSSMAP Field Element: cdma2000 Capability Information" },		/* 3.2.3.8  */
+	{ 0x9,	"BSSMAP Field Element: Downlink Cell Load Information" },			/* 3.2.3.9  */
+	{ 0xa,	"BSSMAP Field Element: Uplink Cell Load Information" },			/* 3.2.3.10 */
+	{ 0xb,	"BSSMAP Field Element: Cell Load Information Group" },			/* 3.2.3.11 */
+	{ 0xc,	"BSSMAP Field Element: Cell Load Information" },					/* 3.2.3.12 */
+	{ 0x0d,	"BSSMAP Field Element: PS Indication" },                          /* 3.2.3.13 */
+	{ 0x0e,	"BSSMAP Field Element: DTM Handover Command Indication" },        /* 3.2.3.14 */
+	{ 0x6f,	"VGCS talker mode" }, /* although technically not a Field Element, 
+                                     this IE can appear in Old BSS to New BSS information */
 	{ 0, NULL }
 };
-#endif
+
 static const value_string bssap_cc_values[] = {
 	{ 0x00,		"not further specified" },
 	{ 0x80,		"FACCH or SDCCH" },
@@ -377,12 +382,40 @@ static const true_false_string bssmap_cause_extension_value = {
 	"One Octet"
 };
 
+/* Current Channel Type */
+static const value_string chan_mode_vals[] = {
+    { 0, "signalling only" },
+    { 1, "speech (full rate or half rate)" },
+    { 6, "data, 14.5 kbit/s radio interface rate" },
+    { 3, "data, 12.0 kbit/s radio interface rate" },
+    { 4, "data, 6.0 kbit/s radio interface rate" },
+    { 5, "data, 3.6 kbit/s radio interface rate" },
+    { 0x0f, "reserved" },
+    { 0, NULL}
+};
+
+static const value_string fe_cur_chan_type2_chan_field_vals[] = {
+    { 1, "SDCCH" },
+    { 8, "1 Full rate TCH" },
+    { 9, "1 Half rate TCH" },
+    { 10, "2 Full Rate TCHs" },
+    { 11, "3 Full Rate TCHs" },
+    { 12, "4 Full Rate TCHs" },
+    { 13, "5 Full Rate TCHs" },
+    { 14, "6 Full Rate TCHs" },
+    { 15, "7 Full Rate TCHs" },
+    { 4, "8 Full Rate TCHs" },
+    { 0, "reserved" },
+    { 0, NULL}
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_a_bssmap = -1;
 
 static int hf_gsm_a_bssmap_msg_type = -1;
 int hf_gsm_a_length = -1;
 int hf_gsm_a_bssmap_elem_id = -1;
+static int hf_gsm_a_bssmap_field_elem_id = -1;
 int hf_gsm_a_bssmap_cell_ci = -1;
 static int hf_gsm_a_bssmap_cell_lac = -1;
 static int hf_gsm_a_bssmap_sac = -1;
@@ -400,6 +433,7 @@ static int hf_gsm_a_bssmap_seq_no = -1;
 static int hf_gsm_a_bssap_cell_id_list_seg_cell_id_disc = -1;
 static int hf_gsm_a_bssap_res_ind_method = -1;
 static int hf_gsm_a_bssmap_ch_mode = -1;
+static int hf_gsm_a_bssmap_cur_ch_mode = -1;
 static int hf_gsm_a_bssmap_channel = -1;
 static int hf_gsm_a_bssmap_trace_trigger_id = -1;
 static int hf_gsm_a_bssmap_trace_priority_indication = -1;
@@ -452,20 +486,47 @@ static int hf_gsm_a_bssmap_location_type_location_information = -1;
 static int hf_gsm_a_bssmap_location_type_positioning_method = -1;
 static int hf_gsm_a_bssmap_chan_type_extension = -1;
 static int hf_gsm_a_bssmap_cause_extension = -1;
+static int hf_fe_extra_info_prec = -1;
+static int hf_fe_extra_info_lcs = -1;
+static int hf_fe_extra_info_ue_prob = -1;
+static int hf_fe_extra_info_spare = -1;
+static int hf_fe_cur_chan_type2_chan_mode = -1;
+static int hf_fe_cur_chan_type2_chan_mode_spare = -1;
+static int hf_fe_cur_chan_type2_chan_field = -1;
+static int hf_fe_cur_chan_type2_chan_field_spare = -1;
+static int hf_fe_target_radio_cell_info_rxlev_ncell = -1;
+static int hf_fe_target_radio_cell_info_rxlev_ncell_spare = -1;
+static int hf_fe_dtm_info_dtm_ind = -1;
+static int hf_fe_dtm_info_sto_ind = -1;
+static int hf_fe_dtm_info_egprs_ind = -1;
+static int hf_fe_dtm_info_spare_bits = -1;
+static int hf_fe_cell_load_info_cell_capacity_class = -1;
+static int hf_fe_cell_load_info_load_value = -1;
+static int hf_fe_cell_load_info_rt_load_value = -1;
+static int hf_fe_cell_load_info_nrt_load_information_value = -1;
+static int hf_fe_ps_indication = -1;
+static int hf_fe_dtm_ho_command_ind_spare = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
 static gint ett_cell_list = -1;
 static gint ett_dlci = -1;
 static gint ett_codec_lst = -1;
+static gint ett_bss_to_bss_info = -1;
 
 static char a_bigbuf[1024];
 
 static dissector_handle_t gsm_bsslap_handle = NULL;
 static dissector_handle_t dtap_handle;
+static dissector_handle_t bssgp_handle;
+static dissector_handle_t rrc_handle;
 
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
+static guint8 cell_discriminator = 0x0f;  /* tracks whether handover is to UMTS */
+
+static guint16
+be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
 
 /*
 This enum has been moved to packet-gsm_a_common to
@@ -1617,6 +1678,7 @@ be_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 	proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 4, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_bssmap_be_cell_id_disc, tvb, curr_offset, 1, FALSE);
 	disc = oct&0x0f;
+    cell_discriminator = disc; /* may be required later */
 	curr_offset++;
 
 	NO_MORE_DATA_CHECK(len);
@@ -1781,11 +1843,32 @@ be_l3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 */
 	l3_tvb = tvb_new_subset(tvb, curr_offset, len, len);
 
-	call_dissector(dtap_handle, l3_tvb, g_pinfo, g_tree);
+    /* This information element carries a radio interface message. 
+       In the case of an Intersystem handover to UMTS, 
+       this information element contains a HANDOVER TO UTRAN COMMAND message 
+       as defined in 3GPP TS 25.331. 
+       In the case of an Inter BSC handover, 
+       it contains an RR HANDOVER COMMAND message as defined in 3GPP TS 44.018. 
+       In the case of an Intersystem handover to cdma2000, 
+       this information element contains the HANDOVER TO CDMA2000 COMMAND message, 
+       as defined in 3GPP TS 44.018. */
+
+    /* note that we can't (from this PDU alone) determine whether a handover is to UMTS or cdma2000
+       for now we will always assume (GSM or) UMTS.
+       Maybe if cdma2000 support is added later, a preference option would select dissection of cdma2000 or UMTS. */
+    if (cell_discriminator < 8) {
+        /* GSM */
+        call_dissector(dtap_handle, l3_tvb, g_pinfo, g_tree);
+    }
+    else if (cell_discriminator < 13) {
+        dissect_rrc_HandoverToUTRANCommand_PDU(l3_tvb, g_pinfo, g_tree);
+    }
 
 	curr_offset += len;
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    cell_discriminator = 0x0f;
 
 	return(curr_offset - offset);
 }
@@ -2513,7 +2596,7 @@ be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	/* Channel mode */
-	proto_tree_add_item(tree, hf_gsm_a_bssmap_ch_mode, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_cur_ch_mode, tvb, curr_offset, 1, FALSE);
 	/* Channel */
 	proto_tree_add_item(tree, hf_gsm_a_bssmap_channel, tvb, curr_offset, 1, FALSE);
 
@@ -2679,20 +2762,24 @@ be_conf_evo_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 /*
  * 3.2.2.58 Old BSS to New BSS information
  */
-static guint16
-be_old_bss_to_new_bss_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+/* This function is only called from other protocols (e.g. RANAP),
+   internally, the Field Element dissector is called directly */
+void
+bssmap_old_bss_to_new_bss_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 {
-	guint32	curr_offset;
+    guint16 len;
+    if (!tree) {
+        return;
+    }
 
-	curr_offset = offset;
+	g_pinfo = pinfo;
+	g_tree = tree;
 
-	if (len == 0)
-		return len;
+	len = tvb_length(tvb);
+    be_field_element_dissect(tvb, tree, 0, len, NULL, 0);
 
-	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
-
-
-	return(len);
+	g_pinfo = NULL;
+	g_tree = NULL;
 }
 /*
  * 3.2.2.59 (void)
@@ -3046,9 +3133,6 @@ be_geran_cls_m(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	curr_offset = offset;
 
 	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
-	/* The Source RNC to Target RNC transparent Information value (structure and encoding) 
-	 * for cdma2000 is defined in relevant specifications.
-	 */
 
 	return(len);
 }
@@ -3059,17 +3143,27 @@ be_geran_cls_m(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 /*
  * 3.2.2.80 New BSS to Old BSS Information
  */
-static guint16
-be_new_bss_to_old_bss_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+/* This function is only called from other protocols (e.g. RANAP),
+   internally, the Field Element dissector is called directly */
+void
+bssmap_new_bss_to_old_bss_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 {
-	guint32	curr_offset;
+    guint16 len;
+    if (!tree) {
+        return;
+    }
 
-	curr_offset = offset;
+	g_pinfo = pinfo;
+	g_tree = tree;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+	len = tvb_length(tvb);
+    be_field_element_dissect(tvb, tree, 0, len, NULL, 0);
 
-	return(len);
+	g_pinfo = NULL;
+	g_tree = NULL;
 }
+
+
 /*
  * 3.2.2.81 Inter-System Information 
  */
@@ -3696,7 +3790,7 @@ guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
 	de_d_gb_call_ref,	/* Group Call Reference */
 	NULL,				/* eMLPP Priority */
 	be_conf_evo_ind,	/* Configuration Evolution Indication */
-	be_old_bss_to_new_bss_inf,	/* Old BSS to New BSS Information */
+	be_field_element_dissect,	/* Old BSS to New BSS Information */
 	be_lsa_id,			/* LSA Identifier */
 	be_lsa_id_list,		/* LSA Identifier List */
 	be_lsa_info,		/* LSA Information */
@@ -3720,7 +3814,7 @@ guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
 	be_src_rnc_to_tar_rnc_cdma,	/* Source RNC to target RNC transparent information (cdma2000) */
 	be_geran_cls_m,		/* GERAN Classmark */
 	NULL,				/* GERAN BSC Container */
-	be_new_bss_to_old_bss_inf,	/* New BSS to Old BSS Information */
+	be_field_element_dissect,	/* New BSS to Old BSS Information */
 	be_inter_sys_inf,	/*	Inter-System Information */
 	be_sna_acc_inf,		/* SNA Access Information */
 	NULL,				/* VSTK_RAND Information */
@@ -3755,7 +3849,289 @@ guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
 
 	NULL,	/* NONE */
 };
+/* 3.2.3	Signalling Field Element Coding */
+/* 3.2.3.1	Extra information */
+static const value_string fe_extra_info_prec_vals[] = {
+    { 0, "The old BSS recommends that this allocation request should not cause a pre-emption an existing connection" },
+    { 1, "The old BSS recommends that this allocation request is allowed to preempt an existing connection based on the information supplied in the Priority information element, if available" },
+    { 0, NULL}
+};
 
+static const value_string fe_extra_info_lcs_vals[] = {
+    { 0, "No ongoing LCS procedure" },
+    { 1, "An ongoing LCS procedure was interrupted by handover. The new BSS may notify the SMLC when the handover is completed" },
+    { 0, NULL}
+};
+
+static const value_string fe_extra_info_ue_prob_vals[] = {
+    { 0, "This MS supports handover to UMTS" },
+    { 1, "This MS does not support handover to UMTS" },
+    { 0, NULL}
+};
+
+static guint16
+be_fe_extra_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_item(tree, hf_fe_extra_info_prec, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_fe_extra_info_lcs, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_fe_extra_info_ue_prob, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_fe_extra_info_spare, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+
+/* 3.2.3.2	Current Channel type 2 */
+static guint16
+be_fe_cur_chan_type2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_item(tree, hf_fe_cur_chan_type2_chan_mode, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_fe_cur_chan_type2_chan_mode_spare, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+	proto_tree_add_item(tree, hf_fe_cur_chan_type2_chan_field, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_fe_cur_chan_type2_chan_field_spare, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+
+/* 3.2.3.3	Target cell radio information */
+static guint16
+be_fe_target_radio_cell_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_item(tree, hf_fe_target_radio_cell_info_rxlev_ncell, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_fe_target_radio_cell_info_rxlev_ncell_spare, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+
+/* 3.2.3.4	GPRS Suspend Information */
+static guint16
+be_fe_gprs_suspend_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset = offset;
+    build_info_t bi;
+
+    /* This Field Element contains the contents of the Gb interface SUSPEND ACK PDU, 
+       Call the BSSGP dissector here, assuming that the encoding is per 48.018 */
+
+    bi.tvb = tvb;
+    bi.offset = offset;
+    bi.pinfo = g_pinfo;
+    bi.bssgp_tree = tree;
+    bi.parent_tree = g_tree;
+    bi.dl_data = TRUE;
+    bi.ul_data = FALSE;
+    bi.pdutype = 0x0c; /* BSSGP_PDU_SUSPEND_ACK */
+
+    decode_pdu_suspend_ack(&bi);
+	curr_offset += len;
+
+	return(curr_offset - offset);
+}
+
+/* 3.2.3.5	MultiRate configuration Information */
+
+/* 3.2.3.6	Dual Transfer Mode information */
+static const value_string gsm_a_bssmap_dtm_info_dtm_ind_vals[] = {
+	{ 0,	"The MS has resources allocated exclusively for the CS domain in the old cell" },
+	{ 1,	"The MS has resources allocated for both the CS and PS domains in the old cell" },
+	{ 0, NULL },
+};
+
+static const value_string gsm_a_bssmap_dtm_info_sto_ind_vals[] = {
+	{ 0,	"The MS is in multislot operation in the old cell" },
+	{ 1,	"The MS is in single timeslot operation in the old cell" },
+	{ 0, NULL },
+};
+
+static const value_string gsm_a_bssmap_dtm_info_egprs_ind_vals[] = {
+	{ 0,	"The MS has no TBF using E-GPRS in the old cell" },
+	{ 1,	"The MS has a TBF using E-GPRS in the old cell" },
+	{ 0, NULL },
+};
+
+static guint16
+be_fe_dual_transfer_mode_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_item(tree, hf_fe_dtm_info_dtm_ind, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_fe_dtm_info_sto_ind, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_fe_dtm_info_egprs_ind, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_fe_dtm_info_spare_bits, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+
+/* 3.2.3.7	Inter RAT Handover Info */
+static guint16
+be_fe_inter_rat_handover_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	tvbuff_t	*container_tvb;
+
+    /* Octets 3-n are encoded as Inter RAT Handover Info as defined in 3GPP TS 25.331 */
+    container_tvb = tvb_new_subset(tvb, offset, len, len);
+    dissect_rrc_InterRATHandoverInfo_PDU(container_tvb, g_pinfo , tree);
+
+    return len;
+}
+
+/* 3.2.3.8	cdma2000 Capability Information */
+
+/* 3.2.3.9	Downlink Cell Load Information */
+
+/* 3.2.3.10	Uplink Cell Load Information */
+
+
+static const value_string gsm_a_bssmap_cell_load_nrt_vals[] = {
+	{ 0,	"NRT Load is low" },
+	{ 1,	"NRT load is medium" },
+	{ 2,	"NRT load is high. (Probability to admit a new user is low.)" },
+	{ 3,	"NRT overload. (Probability to admit a new user is low, packets are discarded and the source is recommended to reduce the data flow.)" },
+	{ 0, NULL },
+};
+
+/* 3.2.3.11	Cell Load Information Group */
+static guint16
+be_fe_cell_load_info_group(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+    curr_offset += be_cell_id(tvb, tree, curr_offset, len, NULL, 0);
+    curr_offset += be_field_element_dissect(tvb, tree, curr_offset, len + offset - curr_offset, NULL, 0);
+
+	return(curr_offset - offset);
+}
+
+/* 3.2.3.12	Cell Load Information */
+static guint16
+be_fe_cell_load_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_item(tree, hf_fe_cell_load_info_cell_capacity_class, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+	proto_tree_add_item(tree, hf_fe_cell_load_info_load_value, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+	proto_tree_add_item(tree, hf_fe_cell_load_info_rt_load_value, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+	proto_tree_add_item(tree, hf_fe_cell_load_info_nrt_load_information_value, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+
+/* 3.2.3.13	PS Indication */
+static guint16
+be_fe_ps_indication(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_item(tree, hf_fe_ps_indication, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+
+/* 3.2.3.14	DTM Handover Command Indication */
+static guint16
+be_fe_dtm_ho_command_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_item(tree, hf_fe_dtm_ho_command_ind_spare, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+
+static guint16 (*bssmap_bss_to_bss_element_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_) = {
+	be_fe_extra_info,              /* { 0x01,		"Extra information" }, */
+	be_fe_cur_chan_type2,          /* { 0x02,		"Current Channel Type 2" }, */
+	be_fe_target_radio_cell_info,  /* { 0x03,		"Target cell radio information" }, */
+	be_fe_gprs_suspend_info,       /* { 0x04,		"GPRS Suspend information" }, */
+	de_rr_multirate_conf,          /* { 0x05,		"MultiRate configuration information" }, */
+	be_fe_dual_transfer_mode_info, /* { 0x06,		"Dual Transfer Mode Information" }, */
+	be_fe_inter_rat_handover_info, /* { 0x07,		"Inter RAT Handover Info" }, */
+	NULL,                          /* { 0x08,		"cdma2000 Capability Information" }, */
+	be_fe_cell_load_info,          /* { 0x09,		"Downlink Cell Load Information" }, */
+	be_fe_cell_load_info,          /* { 0x0a,		"Uplink Cell Load Information" }, */
+	be_fe_cell_load_info_group,    /* { 0x0b,		"Cell Load Information Group" }, */
+	be_fe_cell_load_info,          /* { 0x0c,		"Cell Load Information" }, */
+	be_fe_ps_indication,           /* { 0x0d,		"PS Indication" }, */
+	be_fe_dtm_ho_command_ind,      /* { 0x0e,		"DTM Handover Command Indication" }, */
+	be_vgcs_talker_mode,           /* { 0x6f,		"VGCS talker mode" }, */ /* not really a field element
+                                                     but does appear in old bss to new bss info */
+	NULL,	/* NONE */
+};
+
+static guint16
+be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset, ie_len, idx, fe_start_offset;
+    const gchar *str;
+    proto_item *item = NULL;
+    proto_tree *  bss_to_bss_tree = NULL;
+
+	curr_offset = offset;
+
+
+    while (curr_offset - offset + 2 < len) {
+        guint8 oct;
+        /*
+         * add name
+         */
+        oct = tvb_get_guint8(tvb, curr_offset++);
+    
+        str = match_strval_idx((guint32) oct, bssmap_field_element_ids, &idx);
+        ie_len = tvb_get_guint8(tvb, curr_offset++);
+    
+        /*
+         * add Field Element name
+         */
+        item = proto_tree_add_uint_format(tree, hf_gsm_a_bssmap_field_elem_id,
+        tvb, curr_offset - 2, ie_len + 2, oct, "%s (%X)", str, oct);
+
+        bss_to_bss_tree = proto_item_add_subtree(item, ett_bss_to_bss_info);
+        fe_start_offset = curr_offset;
+    
+        /*
+         * decode field element
+         */
+        if ((str == NULL) || (bssmap_bss_to_bss_element_fcn[idx] == NULL))
+        {
+            proto_tree_add_text(bss_to_bss_tree,
+                tvb, curr_offset, ie_len,
+                "Field Element not decoded");
+            curr_offset += ie_len;
+        }
+        else
+        {
+            /* dissect the field element */
+            curr_offset += (*bssmap_bss_to_bss_element_fcn[idx])(tvb, bss_to_bss_tree, curr_offset, ie_len, NULL, 0);
+
+            EXTRANEOUS_DATA_CHECK(ie_len, curr_offset - fe_start_offset);
+        }
+    }
+    return len;
+}
 /* MESSAGE FUNCTIONS */
 
 /*
@@ -5914,6 +6290,8 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		(*bssmap_msg_fcn[idx])(tvb, bssmap_tree, offset, len - offset);
 	}
+	g_pinfo = NULL;
+	g_tree = NULL;
 }
 
 /* Register the protocol with Wireshark */
@@ -5935,6 +6313,11 @@ proto_register_gsm_a_bssmap(void)
 	{ &hf_gsm_a_bssmap_elem_id,
 		{ "Element ID",	"gsm_a_bssmap.elem_id",
 		FT_UINT8, BASE_DEC, NULL, 0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_bssmap_field_elem_id,
+		{ "Field Element ID",	"gsm_a_bssmap.field_elem_id",
+		FT_UINT8, BASE_HEX, VALS(bssmap_field_element_ids), 0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_length,
@@ -6027,6 +6410,11 @@ proto_register_gsm_a_bssmap(void)
 		FT_UINT8,BASE_DEC,  VALS(gsm_a_bssmap_ch_mode_vals), 0xf0,
 		NULL, HFILL }
 	},
+    { &hf_gsm_a_bssmap_cur_ch_mode,
+    { "Channel Mode", "fe_cur_chan_type2.chan_mode",
+        FT_UINT8, BASE_HEX, VALS(chan_mode_vals), 0xf0,
+        NULL, HFILL }
+    },
 	{ &hf_gsm_a_bssmap_channel,
 		{ "Channel","gsm_a_bssmap.channel",
 		FT_UINT8,BASE_DEC,  VALS(gsm_a_bssmap_channel_vals), 0x0f,
@@ -6271,27 +6659,127 @@ proto_register_gsm_a_bssmap(void)
 	{ &hf_gsm_a_bssmap_location_type_location_information,
         { "Location Information", "gsm_a_bssmap.locationType.locationInformation", 
 		FT_UINT8, BASE_HEX, VALS(bssmap_location_information_vals), 0x0, 
-		NULL, HFILL}
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_location_type_positioning_method,
         { "Positioning Method", "gsm_a_bssmap.locationType.positioningMethod", 
 		FT_UINT8, BASE_HEX, VALS(bssmap_positioning_method_vals), 0x0, 
-		NULL, HFILL}
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_chan_type_extension,
 	{ "Extension", "gsm_a_bssmap.chanType.permittedIndicator.extension",
 		FT_BOOLEAN, 8, TFS(&bssmap_chan_type_extension_value), 0x80,
-		NULL, HFILL}
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_cause_extension,
 	{ "Extension", "gsm_a_bssmap.causeType.extension",
 		FT_BOOLEAN, 8, TFS(&bssmap_cause_extension_value), 0x80,
-		NULL, HFILL}
+		NULL, HFILL }
 	},
+    { &hf_fe_extra_info_prec,
+    { "Pre-emption Recommendation", "fe_extra_info.prec",
+        FT_UINT8, BASE_DEC, VALS(fe_extra_info_prec_vals), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_fe_extra_info_lcs,
+    { "LCS Information", "fe_extra_info.lcs",
+        FT_UINT8, BASE_DEC, VALS(fe_extra_info_lcs_vals), 0x02,
+        NULL, HFILL }
+    },
+    { &hf_fe_extra_info_ue_prob,
+    { "UE support of UMTS", "fe_extra_info.ue_prob",
+        FT_UINT8, BASE_DEC, VALS(fe_extra_info_ue_prob_vals), 0x04,
+        NULL, HFILL }
+    },
+    { &hf_fe_extra_info_spare,
+    { "Extra Information Spare bits", "fe_extra_info.spare",
+        FT_UINT8, BASE_HEX, NULL, 0xf8,
+        NULL, HFILL }
+    },
+    { &hf_fe_cur_chan_type2_chan_mode,
+    { "Channel Mode", "fe_cur_chan_type2.chan_mode",
+         FT_UINT8, BASE_HEX, VALS(chan_mode_vals), 0x0f,
+         NULL, HFILL }
+    },
+    { &hf_fe_cur_chan_type2_chan_mode_spare,
+    { "Channel Mode Spare bits", "fe_cur_chan_type2_chan_mode.spare",
+        FT_UINT8, BASE_HEX, NULL, 0xf0,
+        NULL, HFILL }
+    },
+    { &hf_fe_cur_chan_type2_chan_field,
+    { "Channel Field", "fe_cur_chan_type2.chan_field",
+        FT_UINT8, BASE_HEX, VALS(fe_cur_chan_type2_chan_field_vals),0x0f,
+        NULL, HFILL }
+    },
+    { &hf_fe_cur_chan_type2_chan_field_spare,
+    { "Channel field Spare bits", "fe_cur_chan_type2_chan_field.spare",
+        FT_UINT8, BASE_HEX, NULL, 0xf0,
+        NULL, HFILL }
+    },
+    { &hf_fe_target_radio_cell_info_rxlev_ncell,
+    { "RXLEV-NCELL", "fe_target_radio_cell_info.rxlev_ncell",
+        FT_UINT8, BASE_HEX, VALS(gsm_a_rr_rxlev_vals), 0x3f,
+        NULL, HFILL }
+    },
+    { &hf_fe_target_radio_cell_info_rxlev_ncell_spare,
+    { "RXLEV-NCELL Spare bits", "fe_target_radio_cell_info.rxlev_ncell_spare",
+        FT_UINT8, BASE_HEX, NULL, 0xc0,
+        NULL, HFILL }
+    },
+    { &hf_fe_dtm_info_dtm_ind,
+    { "DTM indicator", "fe_dtm_info.dtm_ind",
+        FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_dtm_info_dtm_ind_vals), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_fe_dtm_info_sto_ind,
+    { "Time Slot Operation indicator", "fe_dtm_info.sto_ind",
+        FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_dtm_info_sto_ind_vals), 0x02,
+        NULL, HFILL }
+    },
+    { &hf_fe_dtm_info_egprs_ind,
+    { "EGPRS indicator", "fe_dtm_info.egprs_ind",
+        FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_dtm_info_egprs_ind_vals), 0x04,
+        NULL, HFILL }
+    },
+    { &hf_fe_dtm_info_spare_bits,
+    { "DTM Info Spare bits", "fe_dtm_info.spare_bits",
+        FT_UINT8, BASE_HEX, NULL, 0xf8,
+        NULL, HFILL }
+    },
+    { &hf_fe_cell_load_info_cell_capacity_class,
+    { "Cell capacity class", "fe_cell_load_info.cell_capacity_class",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_fe_cell_load_info_load_value,
+    { "Load value", "fe_cell_load_info.load_info",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_fe_cell_load_info_rt_load_value,
+    { "Realtime load value", "fe_cell_load_info.rt_load_value",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_fe_cell_load_info_nrt_load_information_value,
+    { "Non-Realtime load information value", "fe_cell_load_info.nrt_load_info_value",
+        FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_cell_load_nrt_vals), 0,
+        NULL, HFILL }
+    },
+    { &hf_fe_ps_indication,
+    { "PS Indication", "fe_ps_indication.value",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_fe_dtm_ho_command_ind_spare,
+    { "Spare octet", "fe_dtm_ho_command_ind.spare",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }
+    },
 	};
 
 	/* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	4
+#define	NUM_INDIVIDUAL_ELEMS	5
 	gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSMAP_MSG +
 		  NUM_GSM_BSSMAP_ELEM];
 
@@ -6299,6 +6787,7 @@ proto_register_gsm_a_bssmap(void)
 	ett[1] = &ett_cell_list;
 	ett[2] = &ett_dlci;
 	ett[3] = &ett_codec_lst,
+    ett[4] = &ett_bss_to_bss_info,
 
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 
@@ -6337,5 +6826,7 @@ proto_reg_handoff_gsm_a_bssmap(void)
 
 	dtap_handle = find_dissector("gsm_a_dtap");
 	gsm_bsslap_handle = find_dissector("gsm_bsslap");
+    bssgp_handle = find_dissector ("bssgp");
+    rrc_handle = find_dissector ("rrc");
 }
 

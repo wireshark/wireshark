@@ -230,6 +230,29 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
 #.END
 
+#.FN_BODY OldBSS-ToNewBSS-Information  VAL_PTR = &bss_info_tvb
+  tvbuff_t *bss_info_tvb=NULL;
+
+%(DEFAULT_BODY)s
+	if (bss_info_tvb)
+            bssmap_old_bss_to_new_bss_info(bss_info_tvb, tree, actx->pinfo);
+#.END
+
+#.FN_BODY NewBSS-To-OldBSS-Information  VAL_PTR = &bss_info_tvb
+  tvbuff_t *bss_info_tvb=NULL;
+
+%(DEFAULT_BODY)s
+	if (bss_info_tvb)
+            bssmap_new_bss_to_old_bss_info(bss_info_tvb, tree, actx->pinfo);
+#.END
+
+#.FN_BODY L3-Information VAL_PTR = &l3_info_tvb
+  tvbuff_t *l3_info_tvb=NULL;
+
+%(DEFAULT_BODY)s
+	if (l3_info_tvb)
+		dissector_try_port(nas_pdu_dissector_table, 0x1, l3_info_tvb, %(ACTX)s->pinfo, proto_tree_get_root(tree));
+#.END
 
 # following construction is not supported by asn2wrs
 # PLMNidentity ::= TBCD-STRING (SIZE (3))

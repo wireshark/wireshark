@@ -4882,7 +4882,7 @@ decode_pdu_suspend(build_info_t *bi) {
   decode_pdu_general(ies, 2, bi);
 }
 
-static void
+void
 decode_pdu_suspend_ack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
     { BSSGP_IEI_TLLI, NULL,

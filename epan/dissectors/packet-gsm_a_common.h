@@ -566,6 +566,9 @@ void dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 void dissect_bssmap_le(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
+void bssmap_old_bss_to_new_bss_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo);
+void bssmap_new_bss_to_old_bss_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo);
+
 void dtap_mm_mm_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
 
 guint16 be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc);
@@ -644,6 +647,7 @@ extern const value_string gsm_a_qos_traff_hdl_pri_vals[];
 extern const value_string gsm_a_type_of_number_values[];
 extern const value_string gsm_a_numbering_plan_id_values[]; 
 extern const value_string gsm_a_sms_vals[];
+extern const value_string gsm_a_rr_rxlev_vals [];
 
 typedef enum
 {
