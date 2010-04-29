@@ -1341,7 +1341,6 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 static gint
 dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
 {
-	//gchar c;
 	gint current_offset, par_name_end_offset;
 	gint equals_offset = 0;
 	gchar *name;
