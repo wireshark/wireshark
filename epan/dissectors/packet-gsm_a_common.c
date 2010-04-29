@@ -661,7 +661,6 @@ static int hf_gsm_a_additional_positioning_caps	= -1;
 static int hf_gsm_a_e_utra_fdd_support			= -1;
 static int hf_gsm_a_e_utra_tdd_support			= -1;
 static int hf_gsm_a_e_utra_meas_and_report_support	= -1;
-static int hf_gsm_a_rxlev_ncell                 = -1;
 
 static int hf_gsm_a_geo_loc_type_of_shape = -1;
 static int hf_gsm_a_geo_loc_sign_of_lat	= -1;
