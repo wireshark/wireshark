@@ -123,6 +123,7 @@ static gboolean report_all_infos = TRUE;    /* Report all infos           */
 
 static gboolean cap_file_type = TRUE;       /* Report capture type        */
 static gboolean cap_file_encap = TRUE;      /* Report encapsulation       */
+static gboolean cap_snaplen = TRUE;         /* Packet size limit (snaplen)*/
 static gboolean cap_packet_count = TRUE;    /* Report packet count        */
 static gboolean cap_file_size = TRUE;       /* Report file size           */
 
@@ -186,6 +187,7 @@ enable_all_infos(void)
 
   cap_file_type = TRUE;
   cap_file_encap = TRUE;
+  cap_snaplen = TRUE;
   cap_packet_count = TRUE;
   cap_file_size = TRUE;
 
@@ -211,6 +213,7 @@ disable_all_infos(void)
 
   cap_file_type = FALSE;
   cap_file_encap = FALSE;
+  cap_snaplen = FALSE;
   cap_packet_count = FALSE;
   cap_file_size = FALSE;
 
@@ -301,6 +304,10 @@ print_stats(const gchar *filename, capture_info *cf_info)
   if (filename)           printf     ("File name:           %s\n", filename);
   if (cap_file_type)      printf     ("File type:           %s\n", file_type_string);
   if (cap_file_encap)     printf     ("File encapsulation:  %s\n", file_encap_string);
+  if (cap_snaplen && cf_info->snap_set)
+                          printf     ("Packet size limit:   %u bytes\n", cf_info->snaplen);
+  else if(cap_snaplen && !cf_info->snap_set)
+                          printf     ("Packet size limit:   (not set)\n");
   if (cap_packet_count)   printf     ("Number of packets:   %u\n", cf_info->packet_count);
   if (cap_file_size)      printf     ("File size:           %" G_GINT64_MODIFIER "d bytes\n", cf_info->filesize);
   if (cap_data_size)      printf     ("Data size:           %" G_GINT64_MODIFIER "u bytes\n", cf_info->packet_bytes);
@@ -350,6 +357,7 @@ print_stats_table_header(void)
 
   if (cap_file_type)      print_stats_table_header_label("File type");
   if (cap_file_encap)     print_stats_table_header_label("File encapsulation");
+  if (cap_snaplen)        print_stats_table_header_label("Packet size limit");
   if (cap_packet_count)   print_stats_table_header_label("Number of packets");
   if (cap_file_size)      print_stats_table_header_label("File size (bytes)");
   if (cap_data_size)      print_stats_table_header_label("Data size (bytes)");
@@ -402,6 +410,15 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
     putquote();
     printf("%s", file_encap_string);
     putquote();
+  }
+
+  if (cap_snaplen) {
+    putsep();
+    putquote();
+    if(cf_info->snap_set)
+      printf("%u", cf_info->snaplen);
+    else
+      printf("(not set)");
   }
 
   if (cap_packet_count) {
@@ -563,6 +580,13 @@ process_cap_file(wtap *wth, const char *filename)
   /* File Encapsulation */
   cf_info.file_encap = wtap_file_encap(wth);
 
+  /* Packet size limit (snaplen) */
+  cf_info.snaplen = wtap_snapshot_length(wth);
+  if(cf_info.snaplen > 0)
+    cf_info.snap_set = TRUE;
+  else
+    cf_info.snap_set = FALSE;
+
   /* # of packets */
   cf_info.packet_count = packet;
 
@@ -629,6 +653,7 @@ usage(gboolean is_error)
   fprintf(output, "  -c display the number of packets\n");
   fprintf(output, "  -s display the size of the file (in bytes)\n");
   fprintf(output, "  -d display the total length of all packets (in bytes)\n");
+  fprintf(output, "  -l display the packet size limit (snapshot length)\n");
   fprintf(output, "\n");
   fprintf(output, "Time infos:\n");
   fprintf(output, "  -u display the capture duration (in seconds)\n");
@@ -734,7 +759,7 @@ main(int argc, char *argv[])
 
   /* Process the options */
 
-  while ((opt = getopt(argc, argv, "tEcs" FILE_HASH_OPT "duaeyizvhxCALTRrSNqQBmb")) !=-1) {
+  while ((opt = getopt(argc, argv, "tEcs" FILE_HASH_OPT "dluaeyizvhxCALTRrSNqQBmb")) !=-1) {
 
     switch (opt) {
 
@@ -746,6 +771,11 @@ main(int argc, char *argv[])
     case 'E':
       if (report_all_infos) disable_all_infos();
       cap_file_encap = TRUE;
+      break;
+
+    case 'l':
+      if (report_all_infos) disable_all_infos();
+      cap_snaplen = TRUE;
       break;
 
     case 'c':
