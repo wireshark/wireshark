@@ -379,7 +379,8 @@ typedef struct {
  *  Miscellaneous functions
  */
 
-static int fgetline(char **buf, int *size, FILE *fp)
+static int
+fgetline(char **buf, int *size, FILE *fp)
 {
   int len;
   int c;
@@ -391,7 +392,7 @@ static int fgetline(char **buf, int *size, FILE *fp)
     if (*size == 0)
       *size = BUFSIZ;
 
-     *buf = g_malloc(*size);
+    *buf = g_malloc(*size);
   }
 
   g_assert(*buf);
@@ -425,7 +426,8 @@ static subnet_entry_t subnet_lookup(const guint32 addr);
 static void subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, const gchar* name);
 
 
-static void add_service_name(hashport_t **proto_table, const guint port, const char *service_name)
+static void
+add_service_name(hashport_t **proto_table, const guint port, const char *service_name)
 {
   int hash_idx;
   hashport_t *tp;
@@ -460,7 +462,8 @@ static void add_service_name(hashport_t **proto_table, const guint port, const c
 }
 
 
-static void parse_service_line (char *line)
+static void
+parse_service_line (char *line)
 {
   /*
    *  See the services(4) or services(5) man page for services file format
@@ -533,7 +536,8 @@ add_serv_port_cb(const guint32 port)
 }
 
 
-static void parse_services_file(const char * path)
+static void
+parse_services_file(const char * path)
 {
   FILE *serv_p;
   static int     size = 0;
@@ -552,7 +556,8 @@ static void parse_services_file(const char * path)
   fclose(serv_p);
 }
 
-static void initialize_services(void)
+static void
+initialize_services(void)
 {
 
   /* the hash table won't ignore duplicates, so use the personal path first */
@@ -574,7 +579,8 @@ static void initialize_services(void)
 
 
 
-static gchar *serv_name_lookup(const guint port, const port_type proto)
+static gchar
+*serv_name_lookup(const guint port, const port_type proto)
 {
   int hash_idx;
   hashport_t *tp;
@@ -619,12 +625,12 @@ static gchar *serv_name_lookup(const guint port, const port_type proto)
   } else {
     while(1) {
       if( tp->port == port ) {
-    return tp->name;
+        return tp->name;
       }
       if (tp->next == NULL) {
-    tp->next = (hashport_t *)g_malloc(sizeof(hashport_t));
-    tp = tp->next;
-    break;
+	tp->next = (hashport_t *)g_malloc(sizeof(hashport_t));
+	tp = tp->next;
+	break;
       }
       tp = tp->next;
     }
@@ -650,7 +656,8 @@ static gchar *serv_name_lookup(const guint port, const port_type proto)
 /* Fill in an IP4 structure with info from subnets file or just with the
  * string form of the address.
  */
-static void fill_dummy_ip4(const guint addr, hashipv4_t* volatile tp)
+static void
+fill_dummy_ip4(const guint addr, hashipv4_t* volatile tp)
 {
   subnet_entry_t subnet_entry;
 
@@ -728,7 +735,8 @@ c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
 #endif /* HAVE_C_ARES */
 
 /* --------------- */
-static hashipv4_t *new_ipv4(const guint addr)
+static hashipv4_t *
+new_ipv4(const guint addr)
 {
   hashipv4_t *tp = g_malloc(sizeof(hashipv4_t));
   tp->addr = addr;
@@ -739,7 +747,8 @@ static hashipv4_t *new_ipv4(const guint addr)
   return tp;
 }
 
-static hashipv4_t *host_lookup(const guint addr, const gboolean resolve, gboolean *found)
+static hashipv4_t *
+host_lookup(const guint addr, const gboolean resolve, gboolean *found)
 {
   int hash_idx;
   hashipv4_t * volatile tp;
@@ -817,7 +826,8 @@ static hashipv4_t *host_lookup(const guint addr, const gboolean resolve, gboolea
 
 } /* host_name_lookup */
 
-static gchar *host_name_lookup(const guint addr, gboolean *found)
+static gchar *
+host_name_lookup(const guint addr, gboolean *found)
 {
   hashipv4_t *tp;
   tp = host_lookup(addr, TRUE, found);
@@ -826,7 +836,8 @@ static gchar *host_name_lookup(const guint addr, gboolean *found)
 
 
 /* --------------- */
-static hashipv6_t *new_ipv6(const struct e_in6_addr *addr)
+static hashipv6_t *
+new_ipv6(const struct e_in6_addr *addr)
 {
   hashipv6_t *tp = g_malloc(sizeof(hashipv6_t));
   tp->addr = *addr;
@@ -838,7 +849,8 @@ static hashipv6_t *new_ipv6(const struct e_in6_addr *addr)
 }
 
 /* ------------------------------------ */
-static hashipv6_t *host_lookup6(const struct e_in6_addr *addr, const gboolean resolve, gboolean *found)
+static hashipv6_t *
+host_lookup6(const struct e_in6_addr *addr, const gboolean resolve, gboolean *found)
 {
   int hash_idx;
   hashipv6_t * volatile tp;
@@ -922,7 +934,8 @@ static hashipv6_t *host_lookup6(const struct e_in6_addr *addr, const gboolean re
 } /* host_lookup6 */
 
 #if 0
-static gchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
+static gchar *
+host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
 {
   hashipv6_t *tp;
   tp = host_lookup6(addr, TRUE, found);
@@ -930,7 +943,8 @@ static gchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
 }
 #endif
 
-static const gchar *solve_address_to_name(const address *addr)
+static const gchar *
+solve_address_to_name(const address *addr)
 {
   switch (addr->type) {
 
@@ -957,7 +971,8 @@ static const gchar *solve_address_to_name(const address *addr)
   }
 }
 
-static const gchar *se_solve_address_to_name(const address *addr)
+static const gchar *
+se_solve_address_to_name(const address *addr)
 {
   switch (addr->type) {
 
@@ -1111,8 +1126,9 @@ parse_ether_address(const char *cp, ether_t *eth, unsigned int *mask,
   return TRUE;
 }
 
-static int parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
-                const gboolean manuf_file)
+static int
+parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
+                 const gboolean manuf_file)
 {
   /*
    *  See the ethers(4) or ethers(5) man page for ethers file format
@@ -1143,7 +1159,8 @@ static int parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
 
 static FILE *eth_p = NULL;
 
-static void set_ethent(char *path)
+static void
+set_ethent(char *path)
 {
   if (eth_p)
     rewind(eth_p);
@@ -1151,7 +1168,8 @@ static void set_ethent(char *path)
     eth_p = ws_fopen(path, "r");
 }
 
-static void end_ethent(void)
+static void
+end_ethent(void)
 {
   if (eth_p) {
     fclose(eth_p);
@@ -1159,7 +1177,8 @@ static void end_ethent(void)
   }
 }
 
-static ether_t *get_ethent(unsigned int *mask, const gboolean manuf_file)
+static ether_t *
+get_ethent(unsigned int *mask, const gboolean manuf_file)
 {
 
   static ether_t eth;
@@ -1179,7 +1198,8 @@ static ether_t *get_ethent(unsigned int *mask, const gboolean manuf_file)
 
 } /* get_ethent */
 
-static ether_t *get_ethbyname(const gchar *name)
+static ether_t *
+get_ethbyname(const gchar *name)
 {
   ether_t *eth;
 
@@ -1203,7 +1223,8 @@ static ether_t *get_ethbyname(const gchar *name)
 
 } /* get_ethbyname */
 
-static ether_t *get_ethbyaddr(const guint8 *addr)
+static ether_t *
+get_ethbyaddr(const guint8 *addr)
 {
 
   ether_t *eth;
@@ -1228,7 +1249,8 @@ static ether_t *get_ethbyaddr(const guint8 *addr)
 
 } /* get_ethbyaddr */
 
-static int hash_eth_wka(const guint8 *addr, unsigned int mask)
+static int
+hash_eth_wka(const guint8 *addr, unsigned int mask)
 {
   if (mask <= 8) {
     /* All but the topmost byte is masked out */
@@ -1251,23 +1273,24 @@ static int hash_eth_wka(const guint8 *addr, unsigned int mask)
     /* All but the topmost 4 bytes are masked out */
     return ((((addr[0] << 8) | addr[1]) ^
              ((addr[2] << 8) | (addr[3] & (0xFF << (8 - mask)))))) &
-     (HASHETHSIZE - 1);
+            (HASHETHSIZE - 1);
   }
   mask -= 8;
   if (mask <= 8) {
     /* All but the topmost 5 bytes are masked out */
     return ((((addr[1] << 8) | addr[2]) ^
              ((addr[3] << 8) | (addr[4] & (0xFF << (8 - mask)))))) &
-     (HASHETHSIZE - 1);
+            (HASHETHSIZE - 1);
   }
   mask -= 8;
   /* No bytes are fully masked out */
   return ((((addr[1] << 8) | addr[2]) ^
            ((addr[3] << 8) | (addr[4] & (0xFF << (8 - mask)))))) &
-            (HASHETHSIZE - 1);
+          (HASHETHSIZE - 1);
 }
 
-static void add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
+static void
+add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
 {
   int hash_idx;
   hashmanuf_t *tp;
@@ -1291,12 +1314,12 @@ static void add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
       tp = manuf_table[hash_idx] = (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
     } else {
       while(1) {
-    if (tp->next == NULL) {
-      tp->next = (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
-      tp = tp->next;
-      break;
-    }
-    tp = tp->next;
+	if (tp->next == NULL) {
+	  tp->next = (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
+	  tp = tp->next;
+	  break;
+	}
+	tp = tp->next;
       }
     }
 
@@ -1321,13 +1344,13 @@ static void add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
   } else {
     while(1) {
       if (memcmp(etp->addr, addr, sizeof(etp->addr)) == 0) {
-    /* address already known */
-    return;
+	/* address already known */
+	return;
       }
       if (etp->next == NULL) {
-    etp->next = (hashether_t *)g_malloc(sizeof(hashether_t));
-    etp = etp->next;
-    break;
+	etp->next = (hashether_t *)g_malloc(sizeof(hashether_t));
+	etp = etp->next;
+	break;
       }
       etp = etp->next;
     }
@@ -1340,7 +1363,8 @@ static void add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
 
 } /* add_manuf_name */
 
-static hashmanuf_t *manuf_name_lookup(const guint8 *addr)
+static hashmanuf_t *
+manuf_name_lookup(const guint8 *addr)
 {
   int hash_idx;
   hashmanuf_t *tp;
@@ -1377,7 +1401,8 @@ static hashmanuf_t *manuf_name_lookup(const guint8 *addr)
 
 } /* manuf_name_lookup */
 
-static hashether_t *wka_name_lookup(const guint8 *addr, const unsigned int mask)
+static hashether_t *
+wka_name_lookup(const guint8 *addr, const unsigned int mask)
 {
   int hash_idx;
   hashether_t *(*wka_tp)[HASHETHSIZE];
@@ -1418,7 +1443,8 @@ static hashether_t *wka_name_lookup(const guint8 *addr, const unsigned int mask)
 
 } /* wka_name_lookup */
 
-static void initialize_ethers(void)
+static void
+initialize_ethers(void)
 {
   ether_t *eth;
   char *manuf_path;
@@ -1427,7 +1453,7 @@ static void initialize_ethers(void)
   /* Compute the pathname of the ethers file. */
   if (g_ethers_path == NULL) {
     g_ethers_path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
-        get_systemfile_dir(), ENAME_ETHERS);
+				    get_systemfile_dir(), ENAME_ETHERS);
   }
 
   /* Set g_pethers_path here, but don't actually do anything
@@ -1454,7 +1480,8 @@ static void initialize_ethers(void)
 
 } /* initialize_ethers */
 
-static hashether_t *add_eth_name(const guint8 *addr, const gchar *name)
+static hashether_t *
+add_eth_name(const guint8 *addr, const gchar *name)
 {
   int hash_idx;
   hashether_t *tp;
@@ -1469,19 +1496,19 @@ static hashether_t *add_eth_name(const guint8 *addr, const gchar *name)
   } else {
     while(1) {
       if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
-    /* address already known */
-    if (!tp->is_dummy_entry) {
-      return tp;
-    } else {
-      /* replace this dummy (manuf) entry with a real name */
-      new_one = FALSE;
-      break;
-    }
+	/* address already known */
+	if (!tp->is_dummy_entry) {
+	  return tp;
+	} else {
+	  /* replace this dummy (manuf) entry with a real name */
+	  new_one = FALSE;
+	  break;
+	}
       }
       if (tp->next == NULL) {
-    tp->next = (hashether_t *)g_malloc(sizeof(hashether_t));
-    tp = tp->next;
-    break;
+	tp->next = (hashether_t *)g_malloc(sizeof(hashether_t));
+	tp = tp->next;
+	break;
       }
       tp = tp->next;
     }
@@ -1501,7 +1528,8 @@ static hashether_t *add_eth_name(const guint8 *addr, const gchar *name)
 } /* add_eth_name */
 
 /* XXXX */
-static hashether_t *eth_name_lookup(const guint8 *addr, const gboolean resolve)
+static hashether_t *
+eth_name_lookup(const guint8 *addr, const gboolean resolve)
 {
   int hash_idx;
   hashmanuf_t *manufp;
@@ -1519,19 +1547,18 @@ static hashether_t *eth_name_lookup(const guint8 *addr, const gboolean resolve)
   } else {
     while(1) {
       if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
-    return tp;
+	return tp;
       }
       if (tp->next == NULL) {
-    tp->next = (hashether_t *)g_malloc(sizeof(hashether_t));
-    tp = tp->next;
-    break;
+	tp->next = (hashether_t *)g_malloc(sizeof(hashether_t));
+	tp = tp->next;
+	break;
       }
       tp = tp->next;
     }
   }
 
   /* fill in a new entry */
-
   memcpy(tp->addr, addr, sizeof(tp->addr));
   tp->next = NULL;
   g_strlcpy(tp->hexa, bytestring_to_str(addr, sizeof(tp->addr), ':'), sizeof(tp->hexa));
@@ -1649,7 +1676,8 @@ static hashether_t *eth_name_lookup(const guint8 *addr, const gboolean resolve)
 
 } /* eth_name_lookup */
 
-static guint8 *eth_addr_lookup(const gchar *name)
+static guint8 *
+eth_addr_lookup(const gchar *name)
 {
   ether_t *eth;
   hashether_t *tp;
@@ -1661,7 +1689,7 @@ static guint8 *eth_addr_lookup(const gchar *name)
     tp = table[i];
     while (tp) {
       if (strcmp(tp->name, name) == 0)
-    return tp->addr;
+	return tp->addr;
       tp = tp->next;
     }
   }
@@ -1681,7 +1709,8 @@ static guint8 *eth_addr_lookup(const gchar *name)
 
 
 /* IPXNETS */
-static int parse_ipxnets_line(char *line, ipxnet_t *ipxnet)
+static int
+parse_ipxnets_line(char *line, ipxnet_t *ipxnet)
 {
   /*
    *  We allow three address separators (':', '-', and '.'),
@@ -1733,7 +1762,8 @@ static int parse_ipxnets_line(char *line, ipxnet_t *ipxnet)
 
 static FILE *ipxnet_p = NULL;
 
-static void set_ipxnetent(char *path)
+static void
+set_ipxnetent(char *path)
 {
   if (ipxnet_p)
     rewind(ipxnet_p);
@@ -1741,7 +1771,8 @@ static void set_ipxnetent(char *path)
     ipxnet_p = ws_fopen(path, "r");
 }
 
-static void end_ipxnetent(void)
+static void
+end_ipxnetent(void)
 {
   if (ipxnet_p) {
     fclose(ipxnet_p);
@@ -1749,7 +1780,8 @@ static void end_ipxnetent(void)
   }
 }
 
-static ipxnet_t *get_ipxnetent(void)
+static ipxnet_t *
+get_ipxnetent(void)
 {
 
   static ipxnet_t ipxnet;
@@ -1769,7 +1801,8 @@ static ipxnet_t *get_ipxnetent(void)
 
 } /* get_ipxnetent */
 
-static ipxnet_t *get_ipxnetbyname(const gchar *name)
+static ipxnet_t *
+get_ipxnetbyname(const gchar *name)
 {
   ipxnet_t *ipxnet;
 
@@ -1793,9 +1826,9 @@ static ipxnet_t *get_ipxnetbyname(const gchar *name)
 
 } /* get_ipxnetbyname */
 
-static ipxnet_t *get_ipxnetbyaddr(guint32 addr)
+static ipxnet_t *
+get_ipxnetbyaddr(guint32 addr)
 {
-
   ipxnet_t *ipxnet;
 
   set_ipxnetent(g_ipxnets_path);
@@ -1817,7 +1850,8 @@ static ipxnet_t *get_ipxnetbyaddr(guint32 addr)
 
 } /* get_ipxnetbyaddr */
 
-static void initialize_ipxnets(void)
+static void
+initialize_ipxnets(void)
 {
   /* Compute the pathname of the ipxnets file.
    *
@@ -1839,7 +1873,8 @@ static void initialize_ipxnets(void)
 
 } /* initialize_ipxnets */
 
-static hashipxnet_t *add_ipxnet_name(guint addr, const gchar *name)
+static hashipxnet_t *
+add_ipxnet_name(guint addr, const gchar *name)
 {
   int hash_idx;
   hashipxnet_t *tp;
@@ -1870,7 +1905,8 @@ static hashipxnet_t *add_ipxnet_name(guint addr, const gchar *name)
 
 } /* add_ipxnet_name */
 
-static gchar *ipxnet_name_lookup(const guint addr)
+static gchar *
+ipxnet_name_lookup(const guint addr)
 {
   int hash_idx;
   hashipxnet_t *tp;
@@ -1885,12 +1921,12 @@ static gchar *ipxnet_name_lookup(const guint addr)
   } else {
     while(1) {
       if (tp->addr == addr) {
-    return tp->name;
+	return tp->name;
       }
       if (tp->next == NULL) {
-    tp->next = (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
-    tp = tp->next;
-    break;
+	tp->next = (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
+	tp = tp->next;
+	break;
       }
       tp = tp->next;
     }
@@ -1903,7 +1939,7 @@ static gchar *ipxnet_name_lookup(const guint addr)
 
   if ( (ipxnet = get_ipxnetbyaddr(addr)) == NULL) {
     /* unknown name */
-      g_snprintf(tp->name, MAXNAMELEN, "%X", addr);
+    g_snprintf(tp->name, MAXNAMELEN, "%X", addr);
 
   } else {
     g_strlcpy(tp->name, ipxnet->name, MAXNAMELEN);
@@ -1913,7 +1949,8 @@ static gchar *ipxnet_name_lookup(const guint addr)
 
 } /* ipxnet_name_lookup */
 
-static guint ipxnet_addr_lookup(const gchar *name, gboolean *success)
+static guint
+ipxnet_addr_lookup(const gchar *name, gboolean *success)
 {
   ipxnet_t *ipxnet;
   hashipxnet_t *tp;
@@ -1926,7 +1963,7 @@ static guint ipxnet_addr_lookup(const gchar *name, gboolean *success)
     while (tp) {
       if (strcmp(tp->name, name) == 0) {
         *success = TRUE;
-    return tp->addr;
+	return tp->addr;
       }
       tp = tp->next;
     }
@@ -2111,7 +2148,8 @@ read_subnets_file (const char *subnetspath)
   return TRUE;
 } /* read_subnets_file */
 
-static subnet_entry_t subnet_lookup(const guint32 addr)
+static subnet_entry_t
+subnet_lookup(const guint32 addr)
 {
   subnet_entry_t subnet_entry;
   guint32 i;
@@ -2162,7 +2200,8 @@ static subnet_entry_t subnet_lookup(const guint32 addr)
  * The definition is taken by masking the address passed in with the mask of the
  * given length.
  */
-static void subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, const gchar* name)
+static void
+subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, const gchar* name)
 {
   subnet_length_entry_t* entry;
   hashipv4_t * tp;
@@ -2199,7 +2238,8 @@ static void subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, con
   have_subnet_entry = TRUE;
 }
 
-static guint32 get_subnet_mask(const guint32 mask_length) {
+static guint32
+get_subnet_mask(const guint32 mask_length) {
 
   static guint32 masks[SUBNETLENGTHSIZE];
   static gboolean initialised = FALSE;
@@ -2259,11 +2299,12 @@ static guint32 get_subnet_mask(const guint32 mask_length) {
   }
 }
 
-static void subnet_name_lookup_init(void)
+static void
+subnet_name_lookup_init(void)
 {
   gchar* subnetspath;
-
   guint32 i;
+
   for(i = 0; i < SUBNETLENGTHSIZE; ++i) {
     guint32 length = i + 1;
 
@@ -2381,7 +2422,7 @@ host_name_lookup_init(void) {
 #endif /* HAVE_GNU_ADNS */
 #endif /* HAVE_C_ARES */
 
-    subnet_name_lookup_init();
+  subnet_name_lookup_init();
 }
 
 #ifdef HAVE_C_ARES
@@ -2406,11 +2447,11 @@ host_name_lookup_process(gpointer data _U_) {
     async_dns_queue_head = g_list_remove(async_dns_queue_head, (void *) caqm);
     if (caqm->family == AF_INET) {
       ares_gethostbyaddr(ghba_chan, &caqm->addr.ip4, sizeof(guint32), AF_INET,
-        c_ares_ghba_cb, caqm);
+			 c_ares_ghba_cb, caqm);
       async_dns_in_flight++;
     } else if (caqm->family == AF_INET6) {
       ares_gethostbyaddr(ghba_chan, &caqm->addr.ip6, sizeof(struct e_in6_addr),
-        AF_INET6, c_ares_ghba_cb, caqm);
+                         AF_INET6, c_ares_ghba_cb, caqm);
       async_dns_in_flight++;
     }
   }
@@ -2474,11 +2515,11 @@ host_name_lookup_process(gpointer data _U_) {
     if (! almsg->submitted && almsg->type == AF_INET) {
       addr_bytes = (guint8 *) &almsg->ip4_addr;
       g_snprintf(addr_str, sizeof addr_str, "%u.%u.%u.%u.in-addr.arpa.", addr_bytes[3],
-          addr_bytes[2], addr_bytes[1], addr_bytes[0]);
+		 addr_bytes[2], addr_bytes[1], addr_bytes[0]);
       /* XXX - what if it fails? */
       adns_submit (ads, addr_str, adns_r_ptr, 0, NULL, &almsg->query);
       almsg->submitted = TRUE;
-       async_dns_in_flight++;
+      async_dns_in_flight++;
     }
     cur = cur->next;
   }
@@ -2490,17 +2531,17 @@ host_name_lookup_process(gpointer data _U_) {
     if (almsg->submitted) {
       ret = adns_check(ads, &almsg->query, &ans, NULL);
       if (ret == 0) {
-    if (ans->status == adns_s_ok) {
-      add_ipv4_name(almsg->ip4_addr, *ans->rrs.str);
-    }
-    dequeue = TRUE;
+	if (ans->status == adns_s_ok) {
+	  add_ipv4_name(almsg->ip4_addr, *ans->rrs.str);
+	}
+	dequeue = TRUE;
       }
     }
     cur = cur->next;
     if (dequeue) {
       async_dns_queue_head = g_list_remove(async_dns_queue_head, (void *) almsg);
       g_free(almsg);
-       async_dns_in_flight--;
+      async_dns_in_flight--;
     }
   }
 
@@ -2521,7 +2562,7 @@ host_name_lookup_cleanup(void) {
 
   if (async_dns_initialized)
     adns_finish(ads);
-   async_dns_initialized = FALSE;
+  async_dns_initialized = FALSE;
 }
 
 #else /* HAVE_GNU_ADNS */
@@ -2541,7 +2582,8 @@ host_name_lookup_cleanup(void) {
 
 #endif /* HAVE_C_ARES */
 
-extern const gchar *get_hostname(const guint addr)
+extern const gchar *
+get_hostname(const guint addr)
 {
   gboolean found;
   gboolean resolve = g_resolv_flags & RESOLV_NETWORK;
@@ -2555,7 +2597,8 @@ extern const gchar *get_hostname(const guint addr)
 
 /* -------------------------- */
 
-extern const gchar *get_hostname6(const struct e_in6_addr *addr)
+extern const gchar *
+get_hostname6(const struct e_in6_addr *addr)
 {
   gboolean found;
   gboolean resolve = g_resolv_flags & RESOLV_NETWORK;
@@ -2567,7 +2610,8 @@ extern const gchar *get_hostname6(const struct e_in6_addr *addr)
 }
 
 /* -------------------------- */
-extern void add_ipv4_name(const guint addr, const gchar *name)
+extern void
+add_ipv4_name(const guint addr, const gchar *name)
 {
   int hash_idx;
   hashipv4_t *tp;
@@ -2603,7 +2647,8 @@ extern void add_ipv4_name(const guint addr, const gchar *name)
 } /* add_ipv4_name */
 
 /* -------------------------- */
-extern void add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
+extern void
+add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
 {
   int hash_idx;
   hashipv6_t *tp;
@@ -2643,7 +2688,8 @@ extern void add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
 /* -----------------
  * unsigned integer to ascii
 */
-static gchar *ep_utoa(guint port)
+static gchar *
+ep_utoa(guint port)
 {
   gchar *bp = ep_alloc(MAXNAMELEN);
 
@@ -2653,7 +2699,8 @@ static gchar *ep_utoa(guint port)
 }
 
 
-extern gchar *get_udp_port(guint port)
+extern gchar *
+get_udp_port(guint port)
 {
 
   if (!(g_resolv_flags & RESOLV_TRANSPORT)) {
@@ -2664,7 +2711,8 @@ extern gchar *get_udp_port(guint port)
 
 } /* get_udp_port */
 
-extern gchar *get_dccp_port(guint port)
+extern gchar *
+get_dccp_port(guint port)
 {
 
   if (!(g_resolv_flags & RESOLV_TRANSPORT)) {
@@ -2676,7 +2724,8 @@ extern gchar *get_dccp_port(guint port)
 } /* get_dccp_port */
 
 
-extern gchar *get_tcp_port(guint port)
+extern gchar *
+get_tcp_port(guint port)
 {
 
   if (!(g_resolv_flags & RESOLV_TRANSPORT)) {
@@ -2687,7 +2736,8 @@ extern gchar *get_tcp_port(guint port)
 
 } /* get_tcp_port */
 
-extern gchar *get_sctp_port(guint port)
+extern gchar *
+get_sctp_port(guint port)
 {
 
   if (!(g_resolv_flags & RESOLV_TRANSPORT)) {
@@ -2698,7 +2748,8 @@ extern gchar *get_sctp_port(guint port)
 
 } /* get_sctp_port */
 
-const gchar *get_addr_name(const address *addr)
+const gchar *
+get_addr_name(const address *addr)
 {
   const gchar *result;
 
@@ -2718,7 +2769,8 @@ const gchar *get_addr_name(const address *addr)
   return ep_address_to_str(addr);
 }
 
-const gchar *se_get_addr_name(const address *addr)
+const gchar *
+se_get_addr_name(const address *addr)
 {
   const gchar *result;
 
@@ -2738,7 +2790,8 @@ const gchar *se_get_addr_name(const address *addr)
   return se_address_to_str(addr);
 }
 
-void get_addr_name_buf(const address *addr, gchar *buf, gsize size)
+void
+get_addr_name_buf(const address *addr, gchar *buf, gsize size)
 {
   const gchar *result = get_addr_name(addr);
 
@@ -2746,7 +2799,8 @@ void get_addr_name_buf(const address *addr, gchar *buf, gsize size)
 } /* get_addr_name_buf */
 
 
-gchar *get_ether_name(const guint8 *addr)
+gchar *
+get_ether_name(const guint8 *addr)
 {
   hashether_t *tp;
   gboolean resolve = g_resolv_flags & RESOLV_MAC;
@@ -2768,7 +2822,8 @@ gchar *get_ether_name(const guint8 *addr)
  * If it's not found, simply return NULL. We DO NOT make a new
  * hash entry for it with the hex digits turned into a string.
  */
-gchar *get_ether_name_if_known(const guint8 *addr)
+gchar *
+get_ether_name_if_known(const guint8 *addr)
 {
   int hash_idx;
   hashether_t *tp;
@@ -2823,7 +2878,8 @@ gchar *get_ether_name_if_known(const guint8 *addr)
 }
 
 
-extern guint8 *get_ether_addr(const gchar *name)
+extern guint8 *
+get_ether_addr(const gchar *name)
 {
 
   /* force resolution (do not check g_resolv_flags) */
@@ -2837,7 +2893,8 @@ extern guint8 *get_ether_addr(const gchar *name)
 
 } /* get_ether_addr */
 
-extern void add_ether_byip(const guint ip, const guint8 *eth)
+extern void
+add_ether_byip(const guint ip, const guint8 *eth)
 {
 
   gchar *host;
@@ -2857,7 +2914,8 @@ extern void add_ether_byip(const guint ip, const guint8 *eth)
 
 } /* add_ether_byip */
 
-extern const gchar *get_ipxnet_name(const guint32 addr)
+extern const gchar *
+get_ipxnet_name(const guint32 addr)
 {
 
   if (!(g_resolv_flags & RESOLV_NETWORK)) {
@@ -2873,7 +2931,8 @@ extern const gchar *get_ipxnet_name(const guint32 addr)
 
 } /* get_ipxnet_name */
 
-extern guint32 get_ipxnet_addr(const gchar *name, gboolean *known)
+extern guint32
+get_ipxnet_addr(const gchar *name, gboolean *known)
 {
   guint32 addr;
   gboolean success;
@@ -2892,7 +2951,8 @@ extern guint32 get_ipxnet_addr(const gchar *name, gboolean *known)
 
 } /* get_ipxnet_addr */
 
-extern const gchar *get_manuf_name(const guint8 *addr)
+extern const gchar *
+get_manuf_name(const guint8 *addr)
 {
   gchar *cur;
   hashmanuf_t  *manufp;
@@ -2913,7 +2973,8 @@ extern const gchar *get_manuf_name(const guint8 *addr)
 } /* get_manuf_name */
 
 
-const gchar *get_manuf_name_if_known(const guint8 *addr)
+const gchar *
+get_manuf_name_if_known(const guint8 *addr)
 {
   hashmanuf_t  *manufp;
 
@@ -2956,7 +3017,8 @@ c_ares_ghi_cb(void *arg, int status, int timeouts _U_, struct hostent *hp) {
  * a host name, to a numeric IP address.  Return TRUE if we succeed and
  * set "*addrp" to that numeric IP address; return FALSE if we fail.
  * Used more in the dfilter parser rather than in packet dissectors */
-gboolean get_host_ipaddr(const char *host, guint32 *addrp)
+gboolean
+get_host_ipaddr(const char *host, guint32 *addrp)
 {
   struct in_addr      ipaddr;
 #ifdef HAVE_C_ARES
@@ -3035,7 +3097,8 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp)
  * Return TRUE if we succeed and set "*addrp" to that numeric IP address;
  * return FALSE if we fail.
  */
-gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
+gboolean
+get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
 {
 #ifdef HAVE_C_ARES
   struct timeval tv = { 0, GHI_TIMEOUT }, *tvp;
