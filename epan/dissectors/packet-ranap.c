@@ -11891,14 +11891,14 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	dissect_RANAP_PDU_PDU(tvb, pinfo, ranap_tree);
 	if (pinfo->sccp_info) {
-		sccp_msg_info_t* sccp_msg = pinfo->sccp_info;
+		sccp_msg_info_t* sccp_msg_lcl = pinfo->sccp_info;
 
-		if (sccp_msg->data.co.assoc)
-			sccp_msg->data.co.assoc->payload = SCCP_PLOAD_RANAP;
+		if (sccp_msg_lcl->data.co.assoc)
+			sccp_msg_lcl->data.co.assoc->payload = SCCP_PLOAD_RANAP;
 
-		if (! sccp_msg->data.co.label && ProcedureCode != 0xFFFFFFFF) {
+		if (! sccp_msg_lcl->data.co.label && ProcedureCode != 0xFFFFFFFF) {
 			const gchar* str = val_to_str(ProcedureCode, ranap_ProcedureCode_vals,"Unknown RANAP");
-			sccp_msg->data.co.label = se_strdup(str);
+			sccp_msg_lcl->data.co.label = se_strdup(str);
 		}
 	}
 }
