@@ -5874,7 +5874,9 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
     default:
 	/* This should never happen. */
-	DISSECTOR_ASSERT_NOT_REACHED();
+        if (tree) {
+            proto_tree_add_text(tree, tvb, 0, 0, "Unknown session type");
+        }
 	break;
     }
 
