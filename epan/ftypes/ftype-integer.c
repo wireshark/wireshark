@@ -129,7 +129,7 @@ sint_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogF
 			}
 			else {
 				/*
-				 * XXX - can "strtoul()" set errno to
+				 * XXX - can "strtol()" set errno to
 				 * ERANGE without returning ULONG_MAX?
 				 */
 				logfunc("\"%s\" is not an integer.", s);
