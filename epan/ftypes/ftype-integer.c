@@ -146,6 +146,15 @@ sint_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogF
 			logfunc("\"%s\" causes an integer overflow.", s);
 		return FALSE;
 	}
+	if (value < G_MININT32) {
+		/*
+		 * Fits in a long, but not in a gint32 (a long might be
+		 * 64 bits).
+		 */
+		if (logfunc != NULL)
+			logfunc("\"%s\" causes an integer underflow.", s);
+		return FALSE;
+	}
 
 	fv->value.sinteger = (gint32)value;
 	return TRUE;
