@@ -900,7 +900,74 @@ set_tree_styles_all(void)
   g_list_foreach(trees, set_tree_styles_cb, NULL);
 }
 
+/* Move the currently-selected item in a list store up or down one position. */
+gboolean
+tree_view_list_store_move_selection(GtkTreeView *tree, gboolean move_up)
+{
+  GtkTreeIter       from, to;
+  GtkTreeModel     *model;
+  GtkTreeSelection *sel;
+  GtkTreePath      *path_from, *path_to;
 
+  sel = gtk_tree_view_get_selection(tree);
+  if (! gtk_tree_selection_get_selected(sel, &model, &from)) {
+    return FALSE;
+  }
+
+  path_from = gtk_tree_model_get_path(model, &from);
+  if (!path_from) {
+    return FALSE;
+  }
+
+  path_to = gtk_tree_path_copy(path_from);
+  /* XXX - Why does one return void and the other return a gboolean? */
+  if (move_up) {
+    gtk_tree_path_prev(path_to);
+  } else {
+    gtk_tree_path_next(path_to);
+  }
+
+  if (gtk_tree_path_compare(path_from, path_to) == 0) {
+    gtk_tree_path_free(path_from);
+    gtk_tree_path_free(path_to);
+    return FALSE;
+  }
+
+  gtk_tree_model_get_iter(model, &to, path_to);
+  gtk_list_store_swap(GTK_LIST_STORE(model), &from, &to);
+  gtk_tree_path_free(path_from);
+  gtk_tree_path_free(path_to);
+  return TRUE;
+}
+
+/* Find the selected row number in a list store. */
+gint
+tree_view_list_store_get_selected_row(GtkTreeView *tree) {
+  GtkTreeIter       iter;
+  GtkTreeModel     *model;
+  GtkTreeSelection *sel;
+  GtkTreePath      *path;
+  gchar            *path_str;
+  gint              row;
+
+  sel = gtk_tree_view_get_selection(tree);
+  if (! gtk_tree_selection_get_selected(sel, &model, &iter)) {
+    return -1;
+  }
+
+  path = gtk_tree_model_get_path(model, &iter);
+  if (!path) {
+    return FALSE;
+  }
+  
+  path_str = gtk_tree_path_to_string(path);
+  gtk_tree_path_free(path);
+  
+  row = (gint) strtol(path_str, NULL, 10);
+  g_free(path_str);
+  
+  return row;
+}
 
 /* append a row to the simple list */
 /* use it like: simple_list_append(list, 0, "first", 1, "second", -1) */

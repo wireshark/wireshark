@@ -32,6 +32,8 @@
  * + improvements
  *   - field value check (red/green editbox)
  *   - tooltips (add field descriptions)
+ * - Make cells editable
+ * - Allow reordering via drag and drop
  */
 
 #ifdef HAVE_CONFIG_H
@@ -72,7 +74,8 @@ struct _uat_rep_t {
 	GtkWidget* window;
 	GtkWidget* vbox;
 	GtkWidget* scrolledwindow;
-	GtkWidget* clist;
+	GtkTreeView* list;
+	GtkListStore *list_store;
 	GtkWidget* bbox;
 	GtkWidget* bt_new;
 	GtkWidget* bt_edit;
@@ -178,20 +181,24 @@ static void append_row(uat_t* uat, guint idx) {
 	GPtrArray* a = g_ptr_array_new();
 	void* rec = UAT_INDEX_PTR(uat,idx);
 	uat_field_t* f = uat->fields;
-	guint rownum;
 	guint colnum;
+	GtkTreeIter iter;
 
 	if (! uat->rep) return;
 
-	gtk_clist_freeze(GTK_CLIST(uat->rep->clist));
+	/* gtk_clist_freeze(GTK_CLIST(uat->rep->clist)); */
 
-	for ( colnum = 0; colnum < uat->ncols; colnum++ )
+	gtk_list_store_insert_before(uat->rep->list_store, &iter, NULL);
+	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
 		g_ptr_array_add(a,fld_tostr(rec,&(f[colnum])));
+		gtk_list_store_set(uat->rep->list_store, &iter, colnum, fld_tostr(rec,&(f[colnum])), -1);
+	}
 
-	rownum = gtk_clist_append(GTK_CLIST(uat->rep->clist), (gchar**)a->pdata);
-	gtk_clist_set_row_data(GTK_CLIST(uat->rep->clist), rownum, rec);
+	
+	/* rownum = gtk_clist_append(GTK_CLIST(uat->rep->clist), (gchar**)a->pdata);
+	gtk_clist_set_row_data(GTK_CLIST(uat->rep->clist), rownum, rec); */
 
-	gtk_clist_thaw(GTK_CLIST(uat->rep->clist));
+	/* gtk_clist_thaw(GTK_CLIST(uat->rep->clist)); */
 
 	g_ptr_array_free(a,TRUE);
 }
@@ -200,16 +207,24 @@ static void reset_row(uat_t* uat, guint idx) {
 	void* rec = UAT_INDEX_PTR(uat,idx);
 	uat_field_t* f = uat->fields;
 	guint colnum;
+	GtkTreePath *path;
+	GtkTreeIter iter;
 
 	if (! uat->rep) return;
 
-	gtk_clist_freeze(GTK_CLIST(uat->rep->clist));
-	
+	/* gtk_clist_freeze(GTK_CLIST(uat->rep->clist)); */
+
+	path = gtk_tree_path_new_from_indices(idx, -1);
+	if (!path || !gtk_tree_model_get_iter(GTK_TREE_MODEL(uat->rep->list_store), &iter, path)) {
+		return;
+	}
+
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
-		gtk_clist_set_text(GTK_CLIST(uat->rep->clist), idx, colnum, fld_tostr(rec,&(f[colnum])));
+		gtk_list_store_set(uat->rep->list_store, &iter, colnum, fld_tostr(rec,&(f[colnum])), -1);
+		/* gtk_clist_set_text(GTK_CLIST(uat->rep->clist), idx, colnum, fld_tostr(rec,&(f[colnum]))); */
 	}
 	
-	gtk_clist_thaw(GTK_CLIST(uat->rep->clist));
+	/* gtk_clist_thaw(GTK_CLIST(uat->rep->clist)); */
 
 }
 
@@ -306,7 +321,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 				gint idx = *(int*)e;
 				text = (idx >= 0) ? ((value_string *)(f[colnum].fld_data))[idx].strptr : "";
 				len = (unsigned) strlen(text);
-                                break;
+				break;
 			}
 			default:
 				g_assert_not_reached();
@@ -482,7 +497,7 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 				g_ptr_array_add(dd->tobe_freed,valptr);
 
 				if (*valptr != -1)
-                                    gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), *valptr);
+					gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), *valptr);
 
 				g_signal_connect(combo_box, "changed", G_CALLBACK(fld_combo_box_changed_cb), valptr);
 				gtk_table_attach_defaults(GTK_TABLE(main_tb), combo_box, 1, 2, colnum+1, colnum + 2);
@@ -507,11 +522,18 @@ struct _uat_del {
 
 static void uat_del_cb(GtkButton *button _U_, gpointer u) {
 	struct _uat_del* ud = u;
+	GtkTreeIter iter;
+	GtkTreePath *path;
 
 	uat_remove_record_idx(ud->uat, ud->idx);
 
-	if (ud->uat->rep)
-		gtk_clist_remove(GTK_CLIST(ud->uat->rep->clist),ud->idx);
+	if (ud->uat->rep) {
+		path = gtk_tree_path_new_from_indices(ud->idx, -1);
+		if (path && gtk_tree_model_get_iter(GTK_TREE_MODEL(ud->uat->rep->list_store), &iter, path)) {
+			gtk_list_store_remove(ud->uat->rep->list_store, &iter);
+		}
+		/* gtk_clist_remove(GTK_CLIST(ud->uat->rep->clist),ud->idx); */
+	}
 
 	ud->uat->changed = TRUE;
 	set_buttons(ud->uat,-1);
@@ -590,12 +612,16 @@ static void uat_new_cb(GtkButton *button _U_, gpointer u) {
 	uat_edit_dialog(uat, -1);
 }
 
-static void uat_edit_cb(GtkButton *button _U_, gpointer u) {
+static void uat_edit_cb(GtkWidget *button _U_, gpointer u) {
 	uat_t* uat = u;
 
 	if (! uat->rep) return;
 
 	uat_edit_dialog(uat, uat->rep->selected);
+}
+
+static void uat_double_click_cb(GtkWidget *tv, GtkTreePath *path _U_, GtkTreeViewColumn *column _U_, gpointer u) {
+	uat_edit_cb(tv, u);
 }
 
 static void uat_delete_cb(GtkButton *button _U_, gpointer u) {
@@ -625,12 +651,13 @@ static gboolean uat_window_delete_event_cb(GtkWindow *w _U_, GdkEvent* e _U_, gp
 
 static void uat_up_cb(GtkButton *button _U_, gpointer u) {
 	uat_t* uat = u;
-	guint row = uat->rep->selected;
+	gint row = uat->rep->selected;
 
 	g_assert(row > 0);
 
 	uat_swap(uat,row,row-1);
-	gtk_clist_swap_rows(GTK_CLIST(uat->rep->clist),row,row-1);
+	tree_view_list_store_move_selection(uat->rep->list, TRUE);
+	/* gtk_clist_swap_rows(GTK_CLIST(uat->rep->clist),row,row-1); */
 
 	uat->changed = TRUE;
 
@@ -641,12 +668,13 @@ static void uat_up_cb(GtkButton *button _U_, gpointer u) {
 
 static void uat_down_cb(GtkButton *button _U_, gpointer u) {
 	uat_t* uat = u;
-	guint row = uat->rep->selected;
+	gint row = uat->rep->selected;
 
-	g_assert(row < *uat->nrows_p - 1);
+	g_assert(row >= 0 && (guint) row < *uat->nrows_p - 1);
 
 	uat_swap(uat,row,row+1);
-	gtk_clist_swap_rows(GTK_CLIST(uat->rep->clist),row,row+1);
+	tree_view_list_store_move_selection(uat->rep->list, FALSE);
+	/* gtk_clist_swap_rows(GTK_CLIST(uat->rep->clist),row,row+1); */
 
 	uat->changed = TRUE;
 
@@ -713,9 +741,11 @@ static void uat_ok_cb(GtkButton *button _U_, gpointer u) {
 
 
 
-static void remember_selected_row(GtkCList *clist _U_, gint row, gint column _U_, GdkEvent *event _U_, gpointer u) {
+static void remember_selected_row(GtkWidget *w _U_, gpointer u) {
 	uat_t* uat = u;
+	gint row;
 
+	row = tree_view_list_store_get_selected_row(uat->rep->list);
 	uat->rep->selected = row;
 
 	gtk_widget_set_sensitive (uat->rep->bt_edit, TRUE);
@@ -807,7 +837,11 @@ static GtkWidget* uat_window(void* u) {
 	uat_rep_t* rep;
 	guint i;
 	guint colnum;
+	GType *col_types;
 	GtkWidget *hbox, *vbox, *move_hbox, *edit_hbox;
+	GtkTreeViewColumn *column;
+	GtkCellRenderer *renderer;
+	GtkTreeSelection *selection;
 
 	if (uat->rep) {
 		window_present(uat->rep->window);
@@ -839,28 +873,49 @@ static GtkWidget* uat_window(void* u) {
 	rep->scrolledwindow = scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(rep->scrolledwindow), GTK_SHADOW_IN);
 
-	rep->clist = gtk_clist_new(uat->ncols);
-	gtk_container_add(GTK_CONTAINER(rep->scrolledwindow), rep->clist);
+	col_types = g_malloc(sizeof(GType) * uat->ncols);
+	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
+		col_types[colnum] = G_TYPE_STRING;
+	}
+	rep->list_store = gtk_list_store_newv(uat->ncols, col_types);
+	g_free(col_types);
+
+	rep->list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(rep->list_store))); /* uat->ncols */
+	gtk_container_add(GTK_CONTAINER(rep->scrolledwindow), GTK_WIDGET(rep->list));
 	gtk_box_pack_start(GTK_BOX(hbox), rep->scrolledwindow, TRUE, TRUE, 0);
 
+	selection = gtk_tree_view_get_selection(rep->list);
+	gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
+		renderer = gtk_cell_renderer_text_new();
+		column = gtk_tree_view_column_new_with_attributes(f[colnum].title,
+			renderer, "text", colnum, NULL);
+		gtk_tree_view_column_set_resizable (column,TRUE);
+		gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+		gtk_tree_view_append_column (rep->list, column);
+
+		/*
 		gtk_clist_set_column_title(GTK_CLIST(rep->clist), colnum, f[colnum].title);
 		gtk_clist_set_column_auto_resize(GTK_CLIST(rep->clist), colnum, TRUE);
+		*/
 	}
 
+	/*
 	gtk_clist_column_titles_show(GTK_CLIST(rep->clist));
 	gtk_clist_freeze(GTK_CLIST(rep->clist));
+	*/
 
 	for ( i = 0 ; i < *(uat->nrows_p); i++ ) {
 		append_row(uat, i);
 	}
 
-	gtk_clist_thaw(GTK_CLIST(rep->clist));
+	/* gtk_clist_thaw(GTK_CLIST(rep->clist)); */
 
 /*	rep->selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(rep->clist)); 
 	gtk_tree_selection_set_mode(rep->selection, GTK_SELECTION_SINGLE);
 */
-    gtk_clist_set_selection_mode(GTK_CLIST(rep->clist), GTK_SELECTION_SINGLE);
+	/* gtk_clist_set_selection_mode(GTK_CLIST(rep->clist), GTK_SELECTION_SINGLE); */
 
 	if(uat->help) {
 		GtkWidget* help_btn;
@@ -908,7 +963,8 @@ static GtkWidget* uat_window(void* u) {
 
 
 /*	g_signal_connect(rep->selection, "changed", G_CALLBACK(remember_selected_row), uat);*/
-	g_signal_connect(rep->clist, "select-row", G_CALLBACK(remember_selected_row), uat);
+	g_signal_connect(rep->list, "row-activated", G_CALLBACK(uat_double_click_cb), uat);
+	g_signal_connect(selection, "changed", G_CALLBACK(remember_selected_row), uat);
 
 
 	g_signal_connect(rep->bt_new, "clicked", G_CALLBACK(uat_new_cb), uat);
@@ -932,7 +988,7 @@ static GtkWidget* uat_window(void* u) {
 		g_signal_connect(GTK_WINDOW(rep->window), "destroy", G_CALLBACK(uat_window_delete_event_cb), uat);
 	}
 	
-	gtk_widget_grab_focus(rep->clist);
+	gtk_widget_grab_focus(GTK_WIDGET(rep->list));
 
 	gtk_widget_show_all(rep->window);
 	window_present(rep->window);

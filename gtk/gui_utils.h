@@ -230,9 +230,24 @@ extern void set_scrollbar_placement_all(void);
 
 /** Create a GtkTreeView, give it the right styles, and remember it.
  *
- * @param model the model (the data) of this tree view
+ * @param model The model (the data) of this tree view.
  */
 extern GtkWidget *tree_view_new(GtkTreeModel *model);
+
+/** Move the currently-selected item in a list store up or down one position.
+ *
+ * @param tree GtkTreeView using a GtkListStore.
+ * @param move_up TRUE to move the selected item up or FALSE to move it down.
+ * @return TRUE if successful, FALSE otherwise.
+ */
+extern gboolean tree_view_list_store_move_selection(GtkTreeView *tree, gboolean move_up);
+
+/** Find the selected row in a list store.
+ *
+ * @param tree GtkTreeView using a GtkListStore.
+ * @return The selected row number or -1 if no row is selected.
+ */
+extern gint tree_view_list_store_get_selected_row(GtkTreeView *tree);
 
 /** Create a simple list widget.
  *
