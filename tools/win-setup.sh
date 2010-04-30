@@ -28,8 +28,10 @@ TAG_FILE="current_tag.txt"
 
 err_exit () {
 	echo ""
+	echo "ERROR: $1"
+	shift
 	for str in "$@" ; do
-	    echo "ERROR: $str"
+	    echo "$str"
 	done
 	echo ""
 	exit 1
@@ -120,7 +122,8 @@ case "$1" in
 	if [ -n "$MISSING_APPS" ]; then
 		echo
 		echo "Can't find: $MISSING_APPS"
-		err_exit "These are probably optional cygwin packages not yet installed. Try to install them using cygwin's setup.exe!"
+ 		err_exit "These application(s) are either not installed or simply can't be found in the current PATH: $PATH." \
+ 		"" "For additional help, please visit:" "    http://www.wireshark.org/docs/wsdg_html_chunked/ChSetupWin32.html"
 	fi
 	;;
 --libverify)
