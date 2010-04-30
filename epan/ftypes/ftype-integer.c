@@ -62,7 +62,7 @@ get_sinteger(fvalue_t *fv)
 
 
 static gboolean
-val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+uint_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	unsigned long value;
 	char    *endptr;
@@ -103,6 +103,51 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 	}
 
 	fv->value.uinteger = (guint32)value;
+	return TRUE;
+}
+
+static gboolean
+sint_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+{
+	long value;
+	char *endptr;
+
+	errno = 0;
+	value = strtol(s, &endptr, 0);
+
+	if (errno == EINVAL || endptr == s || *endptr != '\0') {
+		/* This isn't a valid number. */
+		if (logfunc != NULL)
+			logfunc("\"%s\" is not a valid number.", s);
+		return FALSE;
+	}
+	if (errno == ERANGE) {
+		if (logfunc != NULL) {
+			if (value == LONG_MAX) {
+				logfunc("\"%s\" causes an integer overflow.",
+				    s);
+			}
+			else {
+				/*
+				 * XXX - can "strtoul()" set errno to
+				 * ERANGE without returning ULONG_MAX?
+				 */
+				logfunc("\"%s\" is not an integer.", s);
+			}
+		}
+		return FALSE;
+	}
+	if (value > G_MAXINT32) {
+		/*
+		 * Fits in an long, but not in a gint32
+		 * (a long might be 64 bits).
+		 */
+		if (logfunc != NULL)
+			logfunc("\"%s\" causes an integer overflow.", s);
+		return FALSE;
+	}
+
+	fv->value.sinteger = (gint32)value;
 	return TRUE;
 }
 
@@ -149,7 +194,7 @@ ipxnet_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, Lo
 	 * up as an IPX network name if it does, and if that fails,
 	 * we'll log a message.
 	 */
-	if (val_from_unparsed(fv, s, TRUE, NULL)) {
+	if (uint_from_unparsed(fv, s, TRUE, NULL)) {
 		return TRUE;
 	}
 
@@ -457,7 +502,7 @@ ftype_register_integers(void)
 		1,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		uint_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		uinteger_to_repr,		/* val_to_string_repr */
 		uinteger_repr_len,		/* len_string_repr */
@@ -494,7 +539,7 @@ ftype_register_integers(void)
 		2,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		uint_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		uinteger_to_repr,		/* val_to_string_repr */
 		uinteger_repr_len,		/* len_string_repr */
@@ -531,7 +576,7 @@ ftype_register_integers(void)
 		3,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		uint_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		uinteger_to_repr,		/* val_to_string_repr */
 		uinteger_repr_len,		/* len_string_repr */
@@ -568,7 +613,7 @@ ftype_register_integers(void)
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		uint_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		uinteger_to_repr,		/* val_to_string_repr */
 		uinteger_repr_len,		/* len_string_repr */
@@ -642,7 +687,7 @@ ftype_register_integers(void)
 		1,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		sint_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		integer_to_repr,		/* val_to_string_repr */
 		integer_repr_len,		/* len_string_repr */
@@ -679,7 +724,7 @@ ftype_register_integers(void)
 		2,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		sint_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		integer_to_repr,		/* val_to_string_repr */
 		integer_repr_len,		/* len_string_repr */
@@ -716,7 +761,7 @@ ftype_register_integers(void)
 		3,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		sint_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		integer_to_repr,		/* val_to_string_repr */
 		integer_repr_len,		/* len_string_repr */
@@ -753,7 +798,7 @@ ftype_register_integers(void)
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		sint_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		integer_to_repr,		/* val_to_string_repr */
 		integer_repr_len,		/* len_string_repr */
@@ -827,7 +872,7 @@ ftype_register_integers(void)
 		0,				/* wire_size */
 		boolean_fvalue_new,		/* new_value */
 		NULL,				/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		uint_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		boolean_to_repr,		/* val_to_string_repr */
 		boolean_repr_len,		/* len_string_repr */
@@ -903,7 +948,7 @@ ftype_register_integers(void)
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		uint_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		uinteger_to_repr,		/* val_to_string_repr */
 		uinteger_repr_len,		/* len_string_repr */
