@@ -2121,7 +2121,7 @@ Martin Mathieson        <martin.r.mathieson [AT] googlemail.com> {
 	Catapult DCT2000 file support
 	UMTS FP support
 	LTE: MAC, RLC and PDCP support
-	LTE MAC Stats
+	LTE MAC and RLC Stats
 }
 
 Christian Wagner        <Christian.Wagner [AT] stud.uni-karlsruhe.de> {

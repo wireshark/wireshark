@@ -807,7 +807,7 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
 
     /* Top-level opcode */
     top_ti = proto_tree_add_item(tree, hf_catapult_dct2000_lte_ccpri_opcode,
-			                     tvb, offset, 1, FALSE);
+                                 tvb, offset, 1, FALSE);
     opcode = tvb_get_guint8(tvb, offset++);
 
     /* Skip 2-byte length field */
@@ -815,7 +815,7 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
 
     /* Cell-id */
     proto_tree_add_item(tree, hf_catapult_dct2000_lte_cellid,
-			tvb, offset, 2, FALSE);
+                        tvb, offset, 2, FALSE);
     offset += 2;
 
     /* Status (ind only) */
@@ -823,7 +823,7 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
         proto_item *ti;
         guint8 status = tvb_get_guint8(tvb, offset);
         ti = proto_tree_add_item(tree, hf_catapult_dct2000_lte_ccpri_status,
-			                     tvb, offset, 1, FALSE);
+                                 tvb, offset, 1, FALSE);
         offset++;
 
         if (status != 0) {
@@ -1826,7 +1826,6 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /**********************************************************/
 
             /* Show context.port in src or dest column as appropriate */
-            /* TODO: doesn't work at the moment...                    */
             if (direction == 0) {
                 col_add_fstr(pinfo->cinfo, COL_DEF_SRC,
                              "%s.%u",

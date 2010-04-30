@@ -936,7 +936,7 @@ static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
 {
     #define MAX_INFO_BUFFER 256
     static char info_buffer[MAX_INFO_BUFFER];
-    
+
     va_list ap;
 
     va_start(ap, format);
@@ -1333,7 +1333,6 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                              val_to_str_const(p_mac_lte_info->rntiType,
                                               bch_transport_channel_vals,
                                               "Unknown"));
-    
 
     /* Show which transport layer it came in on (inferred from RNTI type) */
     ti = proto_tree_add_uint(tree, hf_mac_lte_context_bch_transport_channel,
@@ -3086,8 +3085,6 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Queue tap info */
-    /* TODO: if any of above (esp RRC dissection) throws exception, this isn't reached,
-       but if call too early, won't have details... */
     tap_queue_packet(mac_lte_tap, pinfo, &tap_info);
 }
 
