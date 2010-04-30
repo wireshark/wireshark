@@ -1508,34 +1508,17 @@ col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const gboolean fi
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       break;
 
-    case COL_CUSTOM:    /* done by col_custom_set_edt() */
-      break;
-
-    case COL_PROTOCOL:  /* currently done by dissectors */
-    case COL_INFO:      /* currently done by dissectors */
-      break;
-
-    case COL_IF_DIR:    /* currently done by dissectors */
-      break;
-
-    case COL_DCE_CALL:  /* done by dcerpc */
-      break;
-
-    case COL_8021Q_VLAN_ID: /* done by packet-nstrace.c and packet-vlan.c */
-      break;
-
-    case COL_EXPERT:    /* done by expert.c */
-      break;
-
-    case COL_FREQ_CHAN: /* done by radio dissectors */
-      break;
-
-    case COL_TX_RATE:	/* done by packet-radiotap.c */
-      break;
-
     case NUM_COL_FMTS:  /* keep compiler happy - shouldn't get here */
-    default:
       g_assert_not_reached();
+      break;
+    default:
+      if (pinfo->cinfo->col_fmt[i] >= NUM_COL_FMTS) {
+        g_assert_not_reached();
+      }
+      /*
+       * Formatting handled by col_custom_set_edt() (COL_CUSTOM), expert.c
+       * (COL_EXPERT), or individual dissectors.
+       */
       break;
     }
   }
