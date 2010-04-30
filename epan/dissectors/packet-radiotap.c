@@ -90,7 +90,7 @@ enum ieee80211_radiotap_type {
     IEEE80211_RADIOTAP_ANTENNA = 11,
     IEEE80211_RADIOTAP_DB_ANTSIGNAL = 12,
     IEEE80211_RADIOTAP_DB_ANTNOISE = 13,
-    IEEE80211_RADIOTAP_RX_FLAGS = 14,
+    IEEE80211_RADIOTAP_RX_FLAGS = 14,	/* could also be FCS */
     IEEE80211_RADIOTAP_XCHANNEL = 18,
     IEEE80211_RADIOTAP_EXT = 31
 };
@@ -885,44 +885,44 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	present_tree = proto_item_add_subtree(pt, ett_radiotap_present);
 
 	proto_tree_add_item(present_tree, hf_radiotap_present_tsft,
-	    tvb, 4, 4, TRUE);
+	    tvb, offset + 4, 4, TRUE);
 	proto_tree_add_item(present_tree, hf_radiotap_present_flags,
-	    tvb, 4, 4, TRUE);
+	    tvb, offset + 4, 4, TRUE);
 	proto_tree_add_item(present_tree, hf_radiotap_present_rate,
-	    tvb, 4, 4, TRUE);
+	    tvb, offset + 4, 4, TRUE);
 	proto_tree_add_item(present_tree, hf_radiotap_present_channel,
-	    tvb, 4, 4, TRUE);
+	    tvb, offset + 4, 4, TRUE);
 	proto_tree_add_item(present_tree, hf_radiotap_present_fhss,
-	    tvb, 4, 4, TRUE);
+	    tvb, offset + 4, 4, TRUE);
 	proto_tree_add_item(present_tree, hf_radiotap_present_dbm_antsignal,
-	    tvb, 4, 4, TRUE);
+	    tvb, offset + 4, 4, TRUE);
 	proto_tree_add_item(present_tree, hf_radiotap_present_dbm_antnoise,
-	    tvb, 4, 4, TRUE);
+	    tvb, offset + 4, 4, TRUE);
 	proto_tree_add_item(present_tree, hf_radiotap_present_lock_quality,
-	    tvb, 4, 4, TRUE);
+	    tvb, offset + 4, 4, TRUE);
 	proto_tree_add_item(present_tree, hf_radiotap_present_tx_attenuation,
-	    tvb, 4, 4, TRUE);
+	    tvb, offset + 4, 4, TRUE);
 	proto_tree_add_item(present_tree, hf_radiotap_present_db_tx_attenuation,
-	    tvb, 4, 4, TRUE);
+	    tvb, offset + 4, 4, TRUE);
 	proto_tree_add_item(present_tree, hf_radiotap_present_dbm_tx_attenuation,
-	    tvb, 4, 4, TRUE);
+	    tvb, offset + 4, 4, TRUE);
 	proto_tree_add_item(present_tree, hf_radiotap_present_antenna,
-	    tvb, 4, 4, TRUE);
+	    tvb, offset + 4, 4, TRUE);
 	proto_tree_add_item(present_tree, hf_radiotap_present_db_antsignal,
-	    tvb, 4, 4, TRUE);
+	    tvb, offset + 4, 4, TRUE);
 	proto_tree_add_item(present_tree, hf_radiotap_present_db_antnoise,
-	    tvb, 4, 4, TRUE);
+	    tvb, offset + 4, 4, TRUE);
 	if (radiotap_bit14_fcs) {
 		proto_tree_add_item(present_tree, hf_radiotap_present_hdrfcs,
-			tvb, 4, 4, TRUE);
+			tvb, offset + 4, 4, TRUE);
 	} else {
 		proto_tree_add_item(present_tree, hf_radiotap_present_rxflags,
-			tvb, 4, 4, TRUE);
+			tvb, offset + 4, 4, TRUE);
 	}
 	proto_tree_add_item(present_tree, hf_radiotap_present_xchannel,
-	    tvb, 4, 4, TRUE);
+	    tvb, offset + 4, 4, TRUE);
 	proto_tree_add_item(present_tree, hf_radiotap_present_ext,
-	    tvb, 4, 4, TRUE);
+	    tvb, offset + 4, 4, TRUE);
     }
     offset += RADIOTAP_MIN_HEADER_LEN;
     length_remaining -= RADIOTAP_MIN_HEADER_LEN;
@@ -936,6 +936,22 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	bit = BITNO_32(present ^ next_present);
 
 	switch (bit) {
+
+	case IEEE80211_RADIOTAP_TSFT:
+	    align_offset = ALIGN_OFFSET(offset, 8);
+	    offset += align_offset;
+	    length_remaining -= align_offset;
+	    if (length_remaining < 8)
+		break;
+            radiotap_info->tsft=tvb_get_letoh64(tvb, offset);
+	    if (tree) {
+		proto_tree_add_uint64(radiotap_tree, hf_radiotap_mactime,
+				tvb, offset, 8,radiotap_info->tsft );
+	    }
+	    offset+=8;
+	    length_remaining-=8;
+	    break;
+
 	case IEEE80211_RADIOTAP_FLAGS:
 	{
 	    proto_tree *flags_tree;
@@ -968,6 +984,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    length_remaining--;
 	    break;
 	}
+
 	case IEEE80211_RADIOTAP_RATE:
 	    if (length_remaining < 1)
 		break;
@@ -987,82 +1004,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    length_remaining--;
             radiotap_info->rate = rate;
 	    break;
-	case IEEE80211_RADIOTAP_DBM_ANTSIGNAL:
-	    if (length_remaining < 1)
-		break;
-	    dbm = (gint8) tvb_get_guint8(tvb, offset);
-	    col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
-	    if (tree) {
-		proto_tree_add_int_format(radiotap_tree,
-					  hf_radiotap_dbm_antsignal,
-					  tvb, offset, 1, dbm,
-					  "SSI Signal: %d dBm", dbm);
-	    }
-	    offset++;
-	    length_remaining--;
-            radiotap_info->dbm_antsignal=dbm;
-	    break;
-	case IEEE80211_RADIOTAP_DB_ANTSIGNAL:
-	    if (length_remaining < 1)
-		break;
-	    db = tvb_get_guint8(tvb, offset);
-	    col_add_fstr(pinfo->cinfo, COL_RSSI, "%u dB", db);
-	    if (tree) {
-		proto_tree_add_uint_format(radiotap_tree,
-					   hf_radiotap_db_antsignal,
-					   tvb, offset, 1, db,
-					   "SSI Signal: %u dB", db);
-	    }
-	    offset++;
-	    length_remaining--;
-	    break;
-	case IEEE80211_RADIOTAP_DBM_ANTNOISE:
-	    if (length_remaining < 1)
-		break;
-	    dbm = (gint8) tvb_get_guint8(tvb, offset);
-	    if (tree) {
-		proto_tree_add_int_format(radiotap_tree,
-					  hf_radiotap_dbm_antnoise,
-					  tvb, offset, 1, dbm,
-					  "SSI Noise: %d dBm", dbm);
-	    }
-	    offset++;
-	    length_remaining--;
-            radiotap_info->dbm_antnoise=dbm;
-	    break;
-	case IEEE80211_RADIOTAP_DB_ANTNOISE:
-	    if (length_remaining < 1)
-		break;
-	    db = tvb_get_guint8(tvb, offset);
-	    if (tree) {
-		proto_tree_add_uint_format(radiotap_tree,
-					   hf_radiotap_db_antnoise,
-					   tvb, offset, 1, db,
-					   "SSI Noise: %u dB", db);
-	    }
-	    offset++;
-	    length_remaining--;
-	    break;
-	case IEEE80211_RADIOTAP_ANTENNA:
-	    if (length_remaining < 1)
-		break;
-	    if (tree) {
-		proto_tree_add_uint(radiotap_tree, hf_radiotap_antenna,
-				   tvb, offset, 1, tvb_get_guint8(tvb, offset));
-	    }
-	    offset++;
-	    length_remaining--;
-	    break;
-	case IEEE80211_RADIOTAP_DBM_TX_POWER:
-	    if (length_remaining < 1)
-		break;
-	    if (tree) {
-		proto_tree_add_int(radiotap_tree, hf_radiotap_txpower,
-				   tvb, offset, 1, tvb_get_guint8(tvb, offset));
-	    }
-	    offset++;
-	    length_remaining--;
-	    break;
+
 	case IEEE80211_RADIOTAP_CHANNEL:
 	{
 	    proto_item *it;
@@ -1118,6 +1060,180 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    length_remaining-=4;
 	    break;
 	}
+
+	case IEEE80211_RADIOTAP_FHSS:
+	    align_offset = ALIGN_OFFSET(offset, 2);
+	    offset += align_offset;
+	    length_remaining -= align_offset;
+	    if (length_remaining < 2)
+		break;
+	    proto_tree_add_item(radiotap_tree, hf_radiotap_fhss_hopset,
+		tvb, offset, 1, FALSE);
+	    proto_tree_add_item(radiotap_tree, hf_radiotap_fhss_pattern,
+		tvb, offset, 1, FALSE);
+	    offset+=2;
+	    length_remaining-=2;
+	    break;
+
+	case IEEE80211_RADIOTAP_DBM_ANTSIGNAL:
+	    if (length_remaining < 1)
+		break;
+	    dbm = (gint8) tvb_get_guint8(tvb, offset);
+	    col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
+	    if (tree) {
+		proto_tree_add_int_format(radiotap_tree,
+					  hf_radiotap_dbm_antsignal,
+					  tvb, offset, 1, dbm,
+					  "SSI Signal: %d dBm", dbm);
+	    }
+	    offset++;
+	    length_remaining--;
+            radiotap_info->dbm_antsignal=dbm;
+	    break;
+
+	case IEEE80211_RADIOTAP_DBM_ANTNOISE:
+	    if (length_remaining < 1)
+		break;
+	    dbm = (gint8) tvb_get_guint8(tvb, offset);
+	    if (tree) {
+		proto_tree_add_int_format(radiotap_tree,
+					  hf_radiotap_dbm_antnoise,
+					  tvb, offset, 1, dbm,
+					  "SSI Noise: %d dBm", dbm);
+	    }
+	    offset++;
+	    length_remaining--;
+            radiotap_info->dbm_antnoise=dbm;
+	    break;
+
+	case IEEE80211_RADIOTAP_LOCK_QUALITY:
+	    align_offset = ALIGN_OFFSET(offset, 2);
+	    offset += align_offset;
+	    length_remaining -= align_offset;
+	    if (length_remaining < 2)
+		break;
+	    if (tree) {
+		proto_tree_add_uint(radiotap_tree, hf_radiotap_quality,
+				tvb, offset, 2, tvb_get_letohs(tvb, offset));
+	    }
+	    offset+=2;
+	    length_remaining-=2;
+	    break;
+
+	case IEEE80211_RADIOTAP_TX_ATTENUATION:
+	    align_offset = ALIGN_OFFSET(offset, 2);
+	    offset += align_offset;
+	    length_remaining -= align_offset;
+	    if (length_remaining < 2)
+		break;
+	    proto_tree_add_item(radiotap_tree, hf_radiotap_tx_attenuation,
+		tvb, offset, 2, FALSE);
+	    offset+=2;
+	    length_remaining-=2;
+	    break;
+
+	case IEEE80211_RADIOTAP_DB_TX_ATTENUATION:
+	    align_offset = ALIGN_OFFSET(offset, 2);
+	    offset += align_offset;
+	    length_remaining -= align_offset;
+	    if (length_remaining < 2)
+		break;
+	    proto_tree_add_item(radiotap_tree, hf_radiotap_db_tx_attenuation,
+		tvb, offset, 2, FALSE);
+	    offset+=2;
+	    length_remaining-=2;
+	    break;
+
+	case IEEE80211_RADIOTAP_DBM_TX_POWER:
+	    if (length_remaining < 1)
+		break;
+	    if (tree) {
+		proto_tree_add_int(radiotap_tree, hf_radiotap_txpower,
+				   tvb, offset, 1, tvb_get_guint8(tvb, offset));
+	    }
+	    offset++;
+	    length_remaining--;
+	    break;
+
+	case IEEE80211_RADIOTAP_ANTENNA:
+	    if (length_remaining < 1)
+		break;
+	    if (tree) {
+		proto_tree_add_uint(radiotap_tree, hf_radiotap_antenna,
+				   tvb, offset, 1, tvb_get_guint8(tvb, offset));
+	    }
+	    offset++;
+	    length_remaining--;
+	    break;
+
+	case IEEE80211_RADIOTAP_DB_ANTSIGNAL:
+	    if (length_remaining < 1)
+		break;
+	    db = tvb_get_guint8(tvb, offset);
+	    col_add_fstr(pinfo->cinfo, COL_RSSI, "%u dB", db);
+	    if (tree) {
+		proto_tree_add_uint_format(radiotap_tree,
+					   hf_radiotap_db_antsignal,
+					   tvb, offset, 1, db,
+					   "SSI Signal: %u dB", db);
+	    }
+	    offset++;
+	    length_remaining--;
+	    break;
+
+	case IEEE80211_RADIOTAP_DB_ANTNOISE:
+	    if (length_remaining < 1)
+		break;
+	    db = tvb_get_guint8(tvb, offset);
+	    if (tree) {
+		proto_tree_add_uint_format(radiotap_tree,
+					   hf_radiotap_db_antnoise,
+					   tvb, offset, 1, db,
+					   "SSI Noise: %u dB", db);
+	    }
+	    offset++;
+	    length_remaining--;
+	    break;
+
+	case IEEE80211_RADIOTAP_RX_FLAGS:
+	{
+	    proto_tree *flags_tree;
+	    if (radiotap_bit14_fcs) {
+	        align_offset = ALIGN_OFFSET(offset, 4);
+	        offset += align_offset;
+	        length_remaining -= align_offset;
+	        if (length_remaining < 4)
+	            break;
+                if (tree) {
+                    sent_fcs = tvb_get_ntohl(tvb, offset);
+                    hdr_fcs_ti = proto_tree_add_uint(radiotap_tree, hf_radiotap_fcs,
+                                                     tvb, offset, 4, sent_fcs);
+                    hdr_fcs_offset = offset;
+                }
+                offset+=4;
+                length_remaining-=4;
+	    } else {
+	        proto_item *it;
+
+                align_offset = ALIGN_OFFSET(offset, 2);
+                offset += align_offset;
+                length_remaining -= align_offset;
+                if (length_remaining < 2)
+                    break;
+                if (tree) {
+                    flags = tvb_get_letohs(tvb, offset);
+                    it = proto_tree_add_uint(radiotap_tree, hf_radiotap_rxflags,
+                            tvb, offset, 2, flags);
+                    flags_tree = proto_item_add_subtree(it, ett_radiotap_rxflags);
+                    proto_tree_add_boolean(flags_tree, hf_radiotap_rxflags_badplcp,
+                            tvb, offset, 1, flags);
+                }
+                offset+=2;
+                length_remaining-=2;
+            }
+	    break;
+	}
+
 	case IEEE80211_RADIOTAP_XCHANNEL:
 	{
 	    proto_item *it;
@@ -1182,106 +1298,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    length_remaining-=8;
 	    break;
 	}
-	case IEEE80211_RADIOTAP_FHSS:
-	    align_offset = ALIGN_OFFSET(offset, 2);
-	    offset += align_offset;
-	    length_remaining -= align_offset;
-	    if (length_remaining < 2)
-		break;
-	    proto_tree_add_item(radiotap_tree, hf_radiotap_fhss_hopset,
-		tvb, offset, 1, FALSE);
-	    proto_tree_add_item(radiotap_tree, hf_radiotap_fhss_pattern,
-		tvb, offset, 1, FALSE);
-	    offset+=2;
-	    length_remaining-=2;
-	    break;
-	case IEEE80211_RADIOTAP_TX_ATTENUATION:
-	    align_offset = ALIGN_OFFSET(offset, 2);
-	    offset += align_offset;
-	    length_remaining -= align_offset;
-	    if (length_remaining < 2)
-		break;
-	    proto_tree_add_item(radiotap_tree, hf_radiotap_tx_attenuation,
-		tvb, offset, 2, FALSE);
-	    offset+=2;
-	    length_remaining-=2;
-	    break;
-	case IEEE80211_RADIOTAP_DB_TX_ATTENUATION:
-	    align_offset = ALIGN_OFFSET(offset, 2);
-	    offset += align_offset;
-	    length_remaining -= align_offset;
-	    if (length_remaining < 2)
-		break;
-	    proto_tree_add_item(radiotap_tree, hf_radiotap_db_tx_attenuation,
-		tvb, offset, 2, FALSE);
-	    offset+=2;
-	    length_remaining-=2;
-	    break;
-	case IEEE80211_RADIOTAP_TSFT:
-	    align_offset = ALIGN_OFFSET(offset, 8);
-	    offset += align_offset;
-	    length_remaining -= align_offset;
-	    if (length_remaining < 8)
-		break;
-            radiotap_info->tsft=tvb_get_letoh64(tvb, offset);
-	    if (tree) {
-		proto_tree_add_uint64(radiotap_tree, hf_radiotap_mactime,
-				tvb, offset, 8,radiotap_info->tsft );
-	    }
-	    offset+=8;
-	    length_remaining-=8;
-	    break;
-	case IEEE80211_RADIOTAP_LOCK_QUALITY:
-	    align_offset = ALIGN_OFFSET(offset, 2);
-	    offset += align_offset;
-	    length_remaining -= align_offset;
-	    if (length_remaining < 2)
-		break;
-	    if (tree) {
-		proto_tree_add_uint(radiotap_tree, hf_radiotap_quality,
-				tvb, offset, 2, tvb_get_letohs(tvb, offset));
-	    }
-	    offset+=2;
-	    length_remaining-=2;
-	    break;
-	case IEEE80211_RADIOTAP_RX_FLAGS:
-	{
-	    proto_tree *flags_tree;
-	    if (radiotap_bit14_fcs) {
-	        align_offset = ALIGN_OFFSET(offset, 4);
-	        offset += align_offset;
-	        length_remaining -= align_offset;
-	        if (length_remaining < 4)
-	            break;
-                if (tree) {
-                    sent_fcs = tvb_get_ntohl(tvb, offset);
-                    hdr_fcs_ti = proto_tree_add_uint(radiotap_tree, hf_radiotap_fcs,
-                                                     tvb, offset, 4, sent_fcs);
-                    hdr_fcs_offset = offset;
-                }
-                offset+=4;
-                length_remaining-=4;
-	    } else {
-	        proto_item *it;
 
-                align_offset = ALIGN_OFFSET(offset, 2);
-                offset += align_offset;
-                length_remaining -= align_offset;
-                if (length_remaining < 2)
-                    break;
-                if (tree) {
-                    flags = tvb_get_letohs(tvb, offset);
-                    it = proto_tree_add_uint(radiotap_tree, hf_radiotap_rxflags,
-                            tvb, offset, 2, flags);
-                    flags_tree = proto_item_add_subtree(it, ett_radiotap_rxflags);
-                    proto_tree_add_boolean(flags_tree, hf_radiotap_rxflags_badplcp,
-                            tvb, offset, 1, flags);
-                }
-                offset+=2;
-                length_remaining-=2;
-            }
-	    break;
-	}
 	default:
 	    /*
 	     * This indicates a field whose size we do not
