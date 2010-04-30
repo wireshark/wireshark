@@ -1066,45 +1066,45 @@ rtpstream_dlg_create (void)
 /****************************************************************************/
 
 /****************************************************************************/
-/* update the contents of the dialog box clist */
+/* update the contents of the dialog box list_store */
 /* list: pointer to list of rtp_stream_info_t* */
-void rtpstream_dlg_update(GList *list)
+void rtpstream_dlg_update(GList *list_lcl)
 {
 	if (rtp_stream_dlg != NULL) {
 		gtk_list_store_clear(list_store);
 		streams_nb = 0;
 
-		list = g_list_first(list);
-		while (list)
+		list_lcl = g_list_first(list_lcl);
+		while (list_lcl)
 		{
-			add_to_list_store((rtp_stream_info_t*)(list->data));
-			list = g_list_next(list);
+			add_to_list_store((rtp_stream_info_t*)(list_lcl->data));
+			list_lcl = g_list_next(list_lcl);
 		}
 
 		rtpstream_on_unselect(NULL, NULL);
 	}
 
-	last_list = list;
+	last_list = list_lcl;
 }
 
 
 /****************************************************************************/
-/* update the contents of the dialog box clist */
+/* update the contents of the dialog box list_store */
 /* list: pointer to list of rtp_stream_info_t* */
-void rtpstream_dlg_show(GList *list)
+void rtpstream_dlg_show(GList *list_lcl)
 {
 	if (rtp_stream_dlg != NULL) {
 		/* There's already a dialog box; reactivate it. */
 		reactivate_window(rtp_stream_dlg);
 		/* Another list since last call? */
-		if (list != last_list) {
-			rtpstream_dlg_update(list);
+		if (list_lcl != last_list) {
+			rtpstream_dlg_update(list_lcl);
 		}
 	}
 	else {
 		/* Create and show the dialog box */
 		rtpstream_dlg_create();
-		rtpstream_dlg_update(list);
+		rtpstream_dlg_update(list_lcl);
 	}
 }
 
