@@ -254,7 +254,7 @@ static void mark_lval_deprecated(const char *s);
 [-\+[:alnum:]_.:]+	{
 	/* Is it a field name? */
 	header_field_info *hfinfo;
-    df_func_def_t *df_func_def;
+	df_func_def_t *df_func_def;
 
 	hfinfo = proto_registrar_get_byname(yytext);
 	if (hfinfo) {
@@ -262,16 +262,16 @@ static void mark_lval_deprecated(const char *s);
 		return set_lval(TOKEN_FIELD, hfinfo);
 	}
 	else {
-        /* Is it a function name? */
-        df_func_def = df_func_lookup(yytext);
-        if (df_func_def) {
-            /* yes, it's a dfilter function */
-            return set_lval(TOKEN_FUNCTION, df_func_def);
-        }
-        else {
-            /* No, so treat it as an unparsed string */
-            return set_lval(TOKEN_UNPARSED, yytext);
-        }
+		/* Is it a function name? */
+		df_func_def = df_func_lookup(yytext);
+		if (df_func_def) {
+		    /* yes, it's a dfilter function */
+		    return set_lval(TOKEN_FUNCTION, df_func_def);
+		}
+		else {
+		    /* No, so treat it as an unparsed string */
+		    return set_lval(TOKEN_UNPARSED, yytext);
+		}
 	}
 }
 
