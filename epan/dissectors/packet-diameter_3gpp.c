@@ -172,6 +172,9 @@ void
 proto_reg_handoff_diameter_3gpp(void)
 {
 
+	/* AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
+	/* Registered by packet-gtp.c */
+
 	/* AVP Code: 701 MSISDN */
 	dissector_add("diameter.3gpp", 701, new_create_dissector_handle(dissect_diameter_3gpp_msisdn, proto_diameter_3gpp));
 
@@ -181,11 +184,16 @@ proto_reg_handoff_diameter_3gpp(void)
 	/* AVP Code: 900 TMGI */
 	dissector_add("diameter.3gpp", 900, new_create_dissector_handle(dissect_diameter_3gpp_tmgi, proto_diameter_3gpp));
 
-	/* AVP Code: 918 MBMS-BMSC-SSM-IP-Address */
-	dissector_add("diameter.3gpp", 918, new_create_dissector_handle(dissect_diameter_3gpp_ipaddr, proto_diameter_3gpp));
+	/* AVP Code: 904 MBMS-Session-Duration */
+	/* AVP Code: 911 MBMS-Time-To-Data-Transfer */
+	/* Registered by packet-gtp.c */
 
 	/* AVP Code: 913 MBMS-Required-QoS */
 	dissector_add("diameter.3gpp", 913, new_create_dissector_handle(dissect_diameter_3gpp_mbms_required_qos, proto_diameter_3gpp));
+
+	/* AVP Code: 918 MBMS-BMSC-SSM-IP-Address */
+	dissector_add("diameter.3gpp", 918, new_create_dissector_handle(dissect_diameter_3gpp_ipaddr, proto_diameter_3gpp));
+
 
 
 	xml_handle = find_dissector("xml");

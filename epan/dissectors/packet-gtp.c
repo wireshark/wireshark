@@ -4078,6 +4078,14 @@ static int decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const 
     return retval;
 }
 
+/* Diameter 3GPP AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
+static int
+dissect_diameter_3gpp_qosprofile(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+
+    decode_qos_umts(tvb, 0, tree, "UMTS GTP QoS Profile", 3);
+	return tvb_length(tvb);
+}
+
 static const gchar *dissect_radius_qos_umts(proto_tree * tree, tvbuff_t * tvb)
 {
     decode_qos_umts(tvb, 0, tree, "UMTS GTP QoS Profile", 3);
@@ -7082,6 +7090,8 @@ void proto_reg_handoff_gtp(void)
 	radius_register_avp_dissector(VENDOR_THE3GPP, 12, dissect_radius_selection_mode);
 	radius_register_avp_dissector(VENDOR_THE3GPP, 22, dissect_radius_user_loc);
 
+
+
 	ip_handle = find_dissector("ip");
 	ipv6_handle = find_dissector("ipv6");
 	ppp_handle = find_dissector("ppp");
@@ -7090,6 +7100,8 @@ void proto_reg_handoff_gtp(void)
 	sndcpxid_handle = find_dissector("sndcpxid");
 	gtpv2_handle = find_dissector("gtpv2");
 	bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
+	/* AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
+	dissector_add("diameter.3gpp", 5, new_create_dissector_handle(dissect_diameter_3gpp_qosprofile, proto_gtp));
 	/* AVP Code: 904 MBMS-Session-Duration */
 	dissector_add("diameter.3gpp", 904, new_create_dissector_handle(dissect_gtp_mbms_ses_dur, proto_gtp));
 	/* AVP Code: 911 MBMS-Time-To-Data-Transfer */
