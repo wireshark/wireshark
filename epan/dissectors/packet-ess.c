@@ -1474,7 +1474,7 @@ void proto_register_ess(void) {
                                   sizeof(ess_category_attributes_t),
                                   "ess_category_attributes",
                                   TRUE,
-                                  (void**) &ess_category_attributes,
+                                  (void*) &ess_category_attributes,
                                   &num_ess_category_attributes,
                                   UAT_CAT_PORTS,
                                   "ChEssCategoryAttributes",
