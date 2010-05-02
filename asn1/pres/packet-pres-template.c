@@ -419,7 +419,7 @@ void proto_register_pres(void) {
                              sizeof(pres_user_t),
                              "pres_context_list",
                              TRUE,
-                             (void**) &pres_users,
+                             (void*) &pres_users,
                              &num_pres_users,
                              UAT_CAT_PORTS,
                              "ChPresContextList",
