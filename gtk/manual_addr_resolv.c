@@ -54,14 +54,14 @@ man_addr_ill_addr_cb (gpointer dialog _U_, gint btn _U_, gpointer data _U_)
 static void
 man_addr_resolv_ok (GtkWidget *w _U_, gpointer data _U_)
 {
-  GtkWidget   *addr_te, *name_te, *resolv_cb;
+  GtkWidget   *addr_cb, *name_te, *resolv_cb;
   const gchar *addr, *name;
   gboolean     active, redissect = FALSE;
 
-  addr_te = g_object_get_data (G_OBJECT(man_addr_resolv_dlg), "address");
+  addr_cb = g_object_get_data (G_OBJECT(man_addr_resolv_dlg), "address");
   name_te = g_object_get_data (G_OBJECT(man_addr_resolv_dlg), "name");
 
-  addr = gtk_entry_get_text (GTK_ENTRY (addr_te));
+  addr = gtk_combo_box_get_active_text (GTK_COMBO_BOX(addr_cb));
   name = gtk_entry_get_text (GTK_ENTRY (name_te));
 
   if (strlen (addr) && strlen (name)) {
@@ -103,7 +103,7 @@ manual_addr_resolv_dlg (GtkWidget *w _U_, gpointer data)
 {
   GtkWidget   *vbox, *bbox, *table, *sep;
   GtkWidget   *ok_bt, *close_bt, *help_bt;
-  GtkWidget   *addr_lb, *addr_cm, *addr_te;
+  GtkWidget   *addr_lb, *addr_cb;
   GtkWidget   *name_lb, *name_te, *resolv_cb;
   GList       *addr_list = NULL;
   GtkTooltips *tooltips = gtk_tooltips_new();
@@ -120,15 +120,17 @@ manual_addr_resolv_dlg (GtkWidget *w _U_, gpointer data)
   addr_lb = gtk_label_new("Address:");
   gtk_table_attach_defaults (GTK_TABLE (table), addr_lb, 0, 1, 0, 1);
 
-  addr_cm = gtk_combo_new();
-  gtk_combo_disable_activate(GTK_COMBO(addr_cm));
-  addr_te = GTK_COMBO(addr_cm)->entry;
+  addr_cb = gtk_combo_box_entry_new_text();
   if (data) {
+    GList *addr_entry;
     addr_list = get_ip_address_list_from_packet_list_row(data);
-    gtk_combo_set_popdown_strings(GTK_COMBO(addr_cm), addr_list);
+    for (addr_entry = addr_list; addr_entry != NULL; addr_entry = g_list_next (addr_entry)) {
+      gtk_combo_box_append_text(GTK_COMBO_BOX(addr_cb), addr_entry->data);
+    }
+    gtk_combo_box_set_active (GTK_COMBO_BOX(addr_cb), 0);
   }
-  gtk_table_attach_defaults (GTK_TABLE (table), addr_cm, 1, 2, 0, 1);
-  g_object_set_data (G_OBJECT(man_addr_resolv_dlg), "address", addr_te);
+  gtk_table_attach_defaults (GTK_TABLE (table), addr_cb, 1, 2, 0, 1);
+  g_object_set_data (G_OBJECT(man_addr_resolv_dlg), "address", addr_cb);
 
   name_lb = gtk_label_new("Name:");
   gtk_table_attach_defaults (GTK_TABLE (table), name_lb, 0, 1, 1, 2);
@@ -156,7 +158,6 @@ manual_addr_resolv_dlg (GtkWidget *w _U_, gpointer data)
   g_signal_connect (ok_bt, "clicked", G_CALLBACK(man_addr_resolv_ok), NULL);
   gtk_widget_set_sensitive (ok_bt, FALSE);
   g_signal_connect(name_te, "changed", G_CALLBACK(name_te_changed_cb), ok_bt);
-  dlg_set_activate(addr_te, ok_bt);
   dlg_set_activate(name_te, ok_bt);
 
   close_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_CLOSE);
