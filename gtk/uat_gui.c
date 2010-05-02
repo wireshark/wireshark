@@ -842,6 +842,9 @@ static GtkWidget* uat_window(void* u) {
 	GtkTreeViewColumn *column;
 	GtkCellRenderer *renderer;
 	GtkTreeSelection *selection;
+	GtkTooltips *tooltips;
+
+	tooltips = gtk_tooltips_new();
 
 	if (uat->rep) {
 		window_present(uat->rep->window);
@@ -894,6 +897,8 @@ static GtkWidget* uat_window(void* u) {
 		gtk_tree_view_column_set_resizable (column,TRUE);
 		gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 		gtk_tree_view_append_column (rep->list, column);
+		if (f[colnum].desc != NULL)
+			gtk_tooltips_set_tip(tooltips, column->button, f[colnum].desc, NULL);
 
 		/*
 		gtk_clist_set_column_title(GTK_CLIST(rep->clist), colnum, f[colnum].title);
