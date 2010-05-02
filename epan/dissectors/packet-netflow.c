@@ -588,6 +588,10 @@ static int	dissect_v9_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdu
 				int offset, guint16 id, guint length, hdrinfo_t * hdrinfo);
 static guint	dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree,
 			       int offset, struct v9_template * tplt, hdrinfo_t * hdrinfo);
+static guint	dissect_v9_pdu_scope(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree,
+			       int offset, struct v9_template * tplt);
+static guint	dissect_v9_pdu_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree,
+				    int offset, struct v9_template * tplt, hdrinfo_t * hdrinfo, guint8 ipfix_scope_flag);
 static int	dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree,
 				   int offset, hdrinfo_t *hdrinfo, guint16 flowset_id);
 static int	dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, packet_info *pinfo,
@@ -1352,7 +1356,75 @@ static guint
 dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int offset,
     struct v9_template * tplt, hdrinfo_t * hdrinfo)
 {
-        int             orig_offset = offset;
+	int             orig_offset = offset;
+	if (hdrinfo->vspec == 10) {
+		offset += dissect_v9_pdu_data(tvb, pinfo, pdutree, offset, tplt, hdrinfo, 1);
+	} else  {
+		offset += dissect_v9_pdu_scope(tvb, pinfo, pdutree, offset, tplt);
+	}
+	offset += dissect_v9_pdu_data(tvb, pinfo, pdutree, offset, tplt, hdrinfo, 0);
+	return (guint) (offset - orig_offset);
+}
+
+static guint
+dissect_v9_pdu_scope(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int offset,
+    struct v9_template * tplt)
+{
+	int             orig_offset = offset;
+	proto_item *    ti;
+	if(tplt->scopes != NULL) {
+		int             i;
+		for(i = 0; i < tplt->count_scopes; i++) {
+			guint16 type = tplt->scopes[i].type;
+			guint16 length = tplt->scopes[i].length;
+			if (!length) {
+				continue;
+			}
+			switch( type ) {
+			case 1: /* system */
+				ti = proto_tree_add_item(pdutree, hf_cflow_scope_system,
+				       tvb, offset, length, FALSE);
+				if (length > 0 && length != 4) {
+					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+							       "ScopeSystem: invalid size %u", length);
+				} /* zero-length system scope is valid */
+				break;
+			case 2: /* interface */
+				ti = proto_tree_add_item(pdutree, hf_cflow_scope_interface,
+				       tvb, offset, length, FALSE);
+				if (length != 4) {
+					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+							       "ScopeInterface: invalid size %u", length);
+				}
+				break;
+			case 3: /* linecard */
+				proto_tree_add_item(pdutree, hf_cflow_scope_linecard,
+						tvb, offset, length, FALSE);
+				break;
+			case 4: /* netflow cache */
+				proto_tree_add_item(pdutree, hf_cflow_scope_cache,
+						tvb, offset, length, FALSE);
+				break;
+			case 5: /* tplt */
+				proto_tree_add_item(pdutree, hf_cflow_scope_template,
+						tvb, offset, length, FALSE);
+				break;
+			default: /* unknown */
+				proto_tree_add_item(pdutree, hf_cflow_scope_unknown,
+						tvb, offset, length, FALSE);
+				break;
+			}
+			offset += length;
+		}
+	}
+        return (guint) (offset - orig_offset);
+}
+
+static guint
+dissect_v9_pdu_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int offset,
+		    struct v9_template * tplt, hdrinfo_t * hdrinfo, guint8 ipfix_scope_flag)
+{
+	int             orig_offset = offset;
 	int             i;
 	int             rev;
 	nstime_t        ts_start[2], ts_end[2];
@@ -1363,75 +1435,36 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 	guint32         msec_delta;
 	proto_tree *    timetree = 0;
 	proto_item *    timeitem = 0;
-        address         local_addr, remote_addr;
-        guint16         local_port = 0, remote_port = 0, ipv4_id = 0, icmp_id = 0;
-        guint32         uid = 0, pid = 0;
-        int             uname_len;
-        gchar *         uname_str = NULL;
-        int             cmd_len;
-        gchar *         cmd_str = NULL;
-        guint16         got_flags = 0;
+	address         local_addr, remote_addr;
+	guint16         local_port = 0, remote_port = 0, ipv4_id = 0, icmp_id = 0;
+	guint32         uid = 0, pid = 0;
+	int             uname_len;
+	gchar *         uname_str = NULL;
+	int             cmd_len;
+	gchar *         cmd_str = NULL;
+	guint16         got_flags = 0;
 	proto_item *    ti;
 	const guint8 *reftime;
+	guint16 count = ipfix_scope_flag ? tplt->count_scopes : tplt->count;
+	struct v9_template_entry *entries = ipfix_scope_flag ? tplt->scopes : tplt->entries;
+	
+	if (entries == NULL) {
+		return 0;
+	}
 
 	offset_s[0] = offset_s[1] = offset_e[0] = offset_e[1] = 0;
 	msec_start[0] = msec_start[1] = msec_end[0] = msec_end[1] = 0;
 
-	if(tplt->scopes != NULL) {
-		for(i = 0; i < tplt->count_scopes; i++) {
-			guint16 type = tplt->scopes[i].type;
-	    		guint16 length = tplt->scopes[i].length;
-			if (!length) {
-				continue;
-			}
-	   		switch( type ) {
-	   		case 1: /* system */
-				ti = proto_tree_add_item(pdutree, hf_cflow_scope_system,
-				       tvb, offset, length, FALSE);
-				if (length > 0 && length != 4) {
-					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
-							       "ScopeSystem: invalid size %u", length);
-				} /* zero-length system scope is valid */
-				break;
-	   		case 2: /* interface */
-				ti = proto_tree_add_item(pdutree, hf_cflow_scope_interface,
-				       tvb, offset, length, FALSE);
-				if (length != 4) {
-					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
-							       "ScopeInterface: invalid size %u", length);
-				}
-				break;
-	   		case 3: /* linecard */
-				proto_tree_add_item(pdutree, hf_cflow_scope_linecard,
-						tvb, offset, length, FALSE);
-				break;
-	   		case 4: /* netflow cache */
-				proto_tree_add_item(pdutree, hf_cflow_scope_cache,
-						tvb, offset, length, FALSE);
-				break;
-	   		case 5: /* tplt */
-				proto_tree_add_item(pdutree, hf_cflow_scope_template,
-						tvb, offset, length, FALSE);
-				break;
-	   		default: /* unknown */
-				proto_tree_add_item(pdutree, hf_cflow_scope_unknown,
-						tvb, offset, length, FALSE);
-				break;
-			}
-			offset += length;
- 		}
-	}
-
-	for (i = 0; i < tplt->count; i++) {
-                guint64 pen_type;
+	for (i = 0; i < count; i++) {
+		guint64 pen_type;
 		guint16 type, length;
 		guint32 pen = 0;
 
 		rev = 0;
-		type = tplt->entries[i].type;
-		length = tplt->entries[i].length;
+		type = entries[i].type;
+		length = entries[i].length;
 		if (hdrinfo->vspec == 10 && type & 0x8000) {
-                  pen = tplt->entries[i].pen;
+		  pen = entries[i].pen;
 		  if (pen == REVPEN) { /* reverse PEN */
 		    type &= 0x7fff;
 		    rev = 1;
@@ -1455,7 +1488,7 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 				    tvb, offset, length,
 				    "Octets: length %u", length);
 			}
-		  break;
+			break;
 
 		case 86: /* PACKETS_PERMANENT */
 		case 2: /* packets */
