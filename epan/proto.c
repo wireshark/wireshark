@@ -6557,8 +6557,8 @@ proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
  * Offset should be given in bits from the start of the tvb.
  */
 
-proto_item *
-proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
+static proto_item *
+_proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
 			    const gint bit_offset, const gint no_of_bits,
 			    guint64 *return_value, const gboolean little_endian)
 {
@@ -6678,7 +6678,21 @@ proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
 }
 
 proto_item *
-proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
+proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
+			    const gint bit_offset, const gint no_of_bits,
+			    guint64 *return_value, const gboolean little_endian)
+{
+	proto_item *item;
+
+	if ((item = _proto_tree_add_bits_ret_val(tree, hf_index, tvb, bit_offset, no_of_bits, return_value, little_endian))) {
+		FI_SET_FLAG(PNODE_FINFO(item), FI_BITS_OFFSET(bit_offset));
+		FI_SET_FLAG(PNODE_FINFO(item), FI_BITS_SIZE(no_of_bits));
+	}
+	return item;
+}
+
+static proto_item *
+_proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 				 tvbuff_t *tvb, const gint bit_offset,
 				 const gint no_of_bits, void *value_ptr,
 				 gchar *value_str)
@@ -6775,6 +6789,21 @@ proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 		return NULL;
 		break;
 	}
+}
+
+proto_item *
+proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
+				 tvbuff_t *tvb, const gint bit_offset,
+				 const gint no_of_bits, void *value_ptr,
+				 gchar *value_str)
+{
+	proto_item *item;
+
+	if ((item = _proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, value_ptr, value_str))) {
+		FI_SET_FLAG(PNODE_FINFO(item), FI_BITS_OFFSET(bit_offset));
+		FI_SET_FLAG(PNODE_FINFO(item), FI_BITS_SIZE(no_of_bits));
+	}
+	return item;
 }
 
 #define CREATE_VALUE_STRING(dst,format,ap) \

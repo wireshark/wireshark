@@ -261,6 +261,11 @@ typedef struct field_info {
 #define FI_LITTLE_ENDIAN        0x00000008
 /** The protocol field value is in big endian */
 #define FI_BIG_ENDIAN           0x00000010
+/** Field value start from nth bit (values from 0x20 - 0x100) */
+#define FI_BITS_OFFSET(n)        ((n & 7) << 5) 
+/** Field value takes n bits (values from 0x100 - 0x4000) */
+/* if 0, it means that field takes fi->length * 8 */
+#define FI_BITS_SIZE(n)         ((n & 63) << 8)
 
 /** convenience macro to get field_info.flags */
 #define FI_GET_FLAG(fi, flag) ((fi) ? (fi->flags & flag) : 0)
@@ -270,6 +275,9 @@ typedef struct field_info {
       if (fi) \
         (fi)->flags = (fi)->flags | (flag); \
     } while(0)
+
+#define FI_GET_BITS_OFFSET(fi) (FI_GET_FLAG(fi, FI_BITS_OFFSET(7)) >> 5)
+#define FI_GET_BITS_SIZE(fi)   (FI_GET_FLAG(fi, FI_BITS_SIZE(63)) >> 8)
 
 /** One of these exists for the entire protocol tree. Each proto_node
  * in the protocol tree points to the same copy. */

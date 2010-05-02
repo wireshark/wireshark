@@ -1152,30 +1152,25 @@ packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int start, int end, guint32 mas
 	/* stig: it should be done only for bitview... */
 	if (mask == 0x00 || recent.gui_bytes_view != BYTES_BITS) {
 		while (start_line <= stop_line) {
-			int end_line = (start_line == stop_line) ? stop_line_pos : per_line;
+			int line_pos_end = (start_line == stop_line) ? stop_line_pos : per_line;
 
-			if (start_line_pos == end_line) break;
+			if (start_line_pos == line_pos_end) break;
 
 			/* bits/hex */
 			gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, hex_fix(start_line_pos));
-			gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, hex_fix(end_line)-1);
+			gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, hex_fix(line_pos_end)-1);
 			gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
 
 			/* ascii */
 			gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, ascii_fix(start_line_pos));
-			gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, ascii_fix(end_line));
+			gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, ascii_fix(line_pos_end));
 			gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
 
 			start_line_pos = 0;
 			start_line++;
 		}
 
-	} else {
-		/* XXX, merge & optimize? */
-
-		/* XXX, Spaces are not highlighted - good thing or bad? */
-
-		if (mask_le) /* LSB of mask first (little-endian) */
+	} else if (mask_le) { /* LSB of mask first (little-endian) */
 		while (start_line <= stop_line) {
 			int line_pos_end = (start_line == stop_line) ? stop_line_pos : per_line;
 			int line_pos = start_line_pos;
@@ -1214,9 +1209,9 @@ packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int start, int end, guint32 mas
 			start_line_pos = 0;
 			start_line++;
 		}
-		else /* mask starting from end (big-endian) */
+	} else { /* mask starting from end (big-endian) */
 		while (start_line <= stop_line) {
-			int line_pos_start = (stop_line == start_line) ? start_line_pos : 0;
+			int line_pos_start = (start_line == stop_line) ? start_line_pos : 0;
 			int line_pos = stop_line_pos-1;
 
 			while (line_pos >= line_pos_start) {
@@ -1227,8 +1222,8 @@ packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int start, int end, guint32 mas
 				while (lop--) {
 					if ((mask & mask_per_one)) {
 						/* bits/hex */
-						gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, hex_fix(line_pos)+lop);
-						gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, hex_fix(line_pos)+lop+1);
+						gtk_text_buffer_get_iter_at_line_index(buf, &i_start, stop_line, hex_fix(line_pos)+lop);
+						gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, stop_line, hex_fix(line_pos)+lop+1);
 						gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
 
 						ascii_on = 1;
@@ -1239,8 +1234,8 @@ packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int start, int end, guint32 mas
 				/* at least one bit of ascii was one -> turn ascii on */
 				if (ascii_on) {
 					/* ascii */
-					gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, ascii_fix(line_pos));
-					gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, ascii_fix(line_pos)+1);
+					gtk_text_buffer_get_iter_at_line_index(buf, &i_start, stop_line, ascii_fix(line_pos));
+					gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, stop_line, ascii_fix(line_pos)+1);
 					gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
 				}
 
@@ -1572,8 +1567,25 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
       bmask_le = 1;
     else if (FI_GET_FLAG(finfo, FI_BIG_ENDIAN))
       bmask_le = 0;
-    else
+    else { /* unknown endianess - disable mask
       bmask_le = (G_BYTE_ORDER == G_LITTLE_ENDIAN);
+      */
+      bmask = 0x00;
+    }
+
+    if (bmask == 0x00) {
+      int bito = FI_GET_BITS_OFFSET(finfo);
+      int bitc = FI_GET_BITS_SIZE(finfo);
+      int bitt = bito + bitc;
+
+      /* construct mask using bito & bitc */
+      /* XXX, mask has only 32 bit, later we can store bito&bitc, and use them (which should be faster) */
+      if (bitt > 0 && bitt < 32) {
+        
+        bmask = ((1 << bitc) - 1) << (8-(bitt & 0x7)); /* always? */
+	bmask_le = 0; /* ? */
+     }
+    }
   }
 
   if (bstart >= 0 && blen > 0) {
