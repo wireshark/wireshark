@@ -165,7 +165,7 @@ doxygen: doxygen.cfg doxygen-run doxygen.chm
 checkapi: checkapi-base checkapi-todo
 
 checkapi-base:
-	$(PERL) ../tools/checkAPIs.pl -g deprecated-gtk \
+	$(PERL) ../tools/checkAPIs.pl -g deprecated-gtk-todo \
 	$(WIRESHARK_GTK_SRC) \
 	$(WIRESHARK_TAP_SRC) 
 

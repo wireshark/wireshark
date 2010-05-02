@@ -352,7 +352,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_color_selection_set_change_palette_hook', 'E', 
                 'gtk_color_selection_set_color',               'E',
                 'gtk_color_selection_set_update_policy',       'E',
-                'gtk_combo_disable_activate',                  'W', # GtkComboBox ... (avail since 2.4/2.6/2.10/2.14)
+                'gtk_combo_disable_activate',                  'E', # GtkComboBox ... (avail since 2.4/2.6/2.10/2.14)
                 'gtk_combo_new',                               'W',
                 'gtk_combo_set_case_sensitive',                'W',
                 'gtk_combo_set_item_string',                   'E',
@@ -599,7 +599,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_option_menu_get_history',                 'E', # GtkComboBox ... (avail since 2.4/2.6/2.10/2.14)
                 'gtk_option_menu_get_menu',                    'E',
                 'gtk_option_menu_new',                         'W',
-                'gtk_option_menu_remove_menu',                 'W',
+                'gtk_option_menu_remove_menu',                 'E',
                 'gtk_option_menu_set_history',                 'W',
                 'gtk_option_menu_set_menu',                    'W',
                 'gtk_paint_string',                            'E',
