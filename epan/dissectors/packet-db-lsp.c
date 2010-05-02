@@ -54,6 +54,8 @@ static int proto_db_lsp_disc = -1;
 static int hf_type = -1;
 static int hf_magic = -1;
 static int hf_length = -1;
+static int hf_opvalue = -1;
+static int hf_data = -1;
 static int hf_value = -1;
 static int hf_text = -1;
 
@@ -61,6 +63,22 @@ static gint ett_db_lsp = -1;
 
 /* desegmentation of tcp payload */
 static gboolean db_lsp_desegment = TRUE;
+
+#define TYPE_CONFIG   0x16
+#define TYPE_DATA     0x17
+
+static const value_string type_vals[] = {
+  { TYPE_CONFIG,    "Configuration" },
+  { TYPE_DATA,      "Data" },
+  { 0, NULL }
+};
+
+#define OP_CERT       0x0B
+
+static const value_string op_vals[] = {
+  { OP_CERT,   "Certificate" },
+  { 0, NULL }
+};
 
 static void
 dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -100,13 +118,21 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return;
   }
 
-  opvalue = tvb_get_guint8 (tvb, offset);
-  proto_tree_add_item (db_lsp_tree, hf_value, tvb, offset, length, FALSE);
+  if (type == TYPE_CONFIG) {
+    opvalue = tvb_get_guint8 (tvb, offset);
+    proto_tree_add_item (db_lsp_tree, hf_opvalue, tvb, offset, 1, FALSE);
 
-  if (type == 0x16 && opvalue == 0x0B) {
-    /* X509 Certificate */
-    tvbuff_t *cert_tvb = tvb_new_subset (tvb, offset+10, length-10, length-10);
-    dissect_x509af_Certificate_PDU (cert_tvb, pinfo, db_lsp_tree);
+    if (opvalue == OP_CERT) {
+      /* X509 Certificate */
+      tvbuff_t *cert_tvb = tvb_new_subset (tvb, offset+10, length-10, length-10);
+      dissect_x509af_Certificate_PDU (cert_tvb, pinfo, db_lsp_tree);
+    } else {
+      proto_tree_add_item (db_lsp_tree, hf_value, tvb, offset, length, FALSE);
+    }
+  } else if (type == TYPE_DATA) {
+    proto_tree_add_item (db_lsp_tree, hf_data, tvb, offset, length, FALSE);
+  } else {
+    proto_tree_add_item (db_lsp_tree, hf_value, tvb, offset, length, FALSE);
   }
   offset += length;
 
@@ -154,7 +180,7 @@ proto_register_db_lsp (void)
   static hf_register_info hf[] = {
     { &hf_type,
       { "Type", "db-lsp.type",
-        FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+        FT_UINT8, BASE_DEC_HEX, VALS(type_vals), 0x0,
         "Type", HFILL } },
 
     { &hf_magic,
@@ -167,9 +193,19 @@ proto_register_db_lsp (void)
         FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
         "Length in bytes", HFILL } },
 
+    { &hf_opvalue,
+      { "OP Value", "db-lsp.op",
+        FT_UINT8, BASE_DEC_HEX, VALS(op_vals), 0x0, 
+        "OP Value", HFILL } },
+
     { &hf_value,
       { "Value", "db-lsp.value",
         FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL } },
+
+    { &hf_data,
+      { "Data", "db-lsp.data",
+        FT_BYTES, BASE_NONE, NULL, 0x0, 
         NULL, HFILL } },
 
     { &hf_text,
