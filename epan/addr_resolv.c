@@ -904,7 +904,7 @@ host_lookup6(const struct e_in6_addr *addr, const gboolean resolve, gboolean *fo
      * going to risk changing the semantics.
      */
     if (!tp->is_dummy_entry) {
-      strcpy(tp->name, tp->ip6);
+      g_strlcpy(tp->name, tp->ip6, MAXNAMELEN);
       ip6_to_str_buf(addr, tp->name);
       tp->is_dummy_entry = TRUE;
     }
@@ -926,7 +926,7 @@ host_lookup6(const struct e_in6_addr *addr, const gboolean resolve, gboolean *fo
   /* unknown host or DNS timeout */
   if (!tp->is_dummy_entry) {
     tp->is_dummy_entry = TRUE;
-    strcpy(tp->name, tp->ip6);
+    g_strlcpy(tp->name, tp->ip6, MAXNAMELEN);
   }
   *found = FALSE;
   return tp;
@@ -1563,7 +1563,7 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve)
   tp->next = NULL;
   g_strlcpy(tp->hexa, bytestring_to_str(addr, sizeof(tp->addr), ':'), sizeof(tp->hexa));
   if (!resolve) {
-    strcpy(tp->name, tp->hexa);
+    g_strlcpy(tp->name, tp->hexa, MAXNAMELEN);
     return tp;
   }
 
