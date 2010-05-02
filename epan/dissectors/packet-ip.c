@@ -1308,7 +1308,7 @@ guint16 ip_checksum(const guint8 *ptr, int len)
 static void
 dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-  proto_tree *ip_tree = NULL, *field_tree;
+  proto_tree *ip_tree = NULL, *field_tree= NULL;
   proto_item *ti = NULL, *tf;
   guint32    addr;
   int        offset = 0;
