@@ -1313,7 +1313,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   guint32    addr;
   int        offset = 0;
   guint      hlen, optlen;
-  guint16    flags;
   guint8     nxt;
   guint16    ipsum;
   fragment_data *ipfd_head=NULL;
@@ -1447,23 +1446,23 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
   iph->ip_off = tvb_get_ntohs(tvb, offset + 6);
   if (tree) {
-    flags = (iph->ip_off & (IP_RF | IP_DF | IP_MF)) >> IP_OFFSET_WIDTH;
-    tf = proto_tree_add_uint(ip_tree, hf_ip_flags, tvb, offset + 6, 1, flags);
+    int bit_offset = (offset + 6) * 8;
+    tf = proto_tree_add_bits_item(field_tree, hf_ip_flags, tvb, bit_offset + 0, 3, FALSE);
     field_tree = proto_item_add_subtree(tf, ett_ip_off);
     if (ip_security_flag) {
       proto_item *sf;
-      sf = proto_tree_add_boolean(field_tree, hf_ip_flags_sf, tvb, offset + 6, 1, flags);
-      if (flags & (IP_RF >> IP_OFFSET_WIDTH)) {
+      sf = proto_tree_add_bits_item(field_tree, hf_ip_flags_sf, tvb, bit_offset + 0, 1, FALSE);
+      if (iph->ip_off & IP_RF) {
         proto_item_append_text(tf, " (Evil packet!)");
         expert_add_info_format(pinfo, sf, PI_SECURITY, PI_WARN, "This is an Evil packet (RFC 3514)");
       }
     } else {
-      proto_tree_add_boolean(field_tree, hf_ip_flags_rf, tvb, offset + 6, 1, flags);
+      proto_tree_add_bits_item(field_tree, hf_ip_flags_rf, tvb, bit_offset + 0, 1, TRUE);
     }
-    if (flags & (IP_DF >> IP_OFFSET_WIDTH)) proto_item_append_text(tf, " (Don't Fragment)");
-    proto_tree_add_boolean(field_tree, hf_ip_flags_df, tvb, offset + 6, 1, flags);
-    if (flags & (IP_MF >> IP_OFFSET_WIDTH)) proto_item_append_text(tf, " (More Fragments)");
-    proto_tree_add_boolean(field_tree, hf_ip_flags_mf, tvb, offset + 6, 1, flags);
+    if (iph->ip_off & IP_DF) proto_item_append_text(tf, " (Don't Fragment)");
+    proto_tree_add_bits_item(field_tree, hf_ip_flags_df, tvb, bit_offset + 1, 1, FALSE);
+    if (iph->ip_off & IP_MF) proto_item_append_text(tf, " (More Fragments)");
+    proto_tree_add_bits_item(field_tree, hf_ip_flags_mf, tvb, bit_offset + 2, 1, FALSE);
 
     proto_tree_add_uint(ip_tree, hf_ip_frag_offset, tvb, offset + 6, 2,
       (iph->ip_off & IP_OFFSET)*8);
@@ -1878,20 +1877,20 @@ proto_register_ip(void)
 			NULL, HFILL }},
 
 		{ &hf_ip_flags_sf,
-		{ "Security flag", "ip.flags.sf", FT_BOOLEAN, IP_FLAGS_WIDTH, TFS(&flags_sf_set_evil),
-			IP_RF >> IP_OFFSET_WIDTH, "Security flag (RFC 3514)", HFILL }},
+		{ "Security flag", "ip.flags.sf", FT_BOOLEAN, IP_FLAGS_WIDTH, TFS(&flags_sf_set_evil), 0x0,
+			"Security flag (RFC 3514)", HFILL }},
 
 		{ &hf_ip_flags_rf,
-		{ "Reserved bit", "ip.flags.rb", FT_BOOLEAN, IP_FLAGS_WIDTH, TFS(&tfs_set_notset),
-			IP_RF >> IP_OFFSET_WIDTH, NULL, HFILL }},
+		{ "Reserved bit", "ip.flags.rb", FT_BOOLEAN, IP_FLAGS_WIDTH, TFS(&tfs_set_notset), 0x0,
+			NULL, HFILL }},
 
 		{ &hf_ip_flags_df,
-		{ "Don't fragment", "ip.flags.df", FT_BOOLEAN, IP_FLAGS_WIDTH, TFS(&tfs_set_notset),
-			IP_DF >> IP_OFFSET_WIDTH, NULL, HFILL }},
+		{ "Don't fragment", "ip.flags.df", FT_BOOLEAN, IP_FLAGS_WIDTH, TFS(&tfs_set_notset), 0x0,
+			NULL, HFILL }},
 
 		{ &hf_ip_flags_mf,
-		{ "More fragments", "ip.flags.mf", FT_BOOLEAN, IP_FLAGS_WIDTH, TFS(&tfs_set_notset),
-			IP_MF >> IP_OFFSET_WIDTH, NULL, HFILL }},
+		{ "More fragments", "ip.flags.mf", FT_BOOLEAN, IP_FLAGS_WIDTH, TFS(&tfs_set_notset), 0x0,
+			NULL, HFILL }},
 
 		{ &hf_ip_frag_offset,
 		{ "Fragment offset",	"ip.frag_offset", FT_UINT16, BASE_DEC, NULL, 0x0,
