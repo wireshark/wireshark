@@ -91,6 +91,13 @@ man_addr_resolv_ok (GtkWidget *w _U_, gpointer data _U_)
   man_addr_resolv_dlg = NULL;
 }
 
+static void
+name_te_changed_cb(GtkWidget *name_te, GtkWidget *ok_bt)
+{
+  const gchar *name = gtk_entry_get_text (GTK_ENTRY (name_te));
+  gtk_widget_set_sensitive (ok_bt, strlen (name) > 0 ? TRUE : FALSE);
+}
+
 void
 manual_addr_resolv_dlg (GtkWidget *w _U_, gpointer data)
 {
@@ -147,6 +154,8 @@ manual_addr_resolv_dlg (GtkWidget *w _U_, gpointer data)
 
   ok_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
   g_signal_connect (ok_bt, "clicked", G_CALLBACK(man_addr_resolv_ok), NULL);
+  gtk_widget_set_sensitive (ok_bt, FALSE);
+  g_signal_connect(name_te, "changed", G_CALLBACK(name_te_changed_cb), ok_bt);
   dlg_set_activate(addr_te, ok_bt);
   dlg_set_activate(name_te, ok_bt);
 
