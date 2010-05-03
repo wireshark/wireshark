@@ -47,11 +47,13 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include <epan/conversation.h>
 #include <epan/stats_tree.h>
 
 #include "packet-tcp.h"
 
 /* Prototypes   */
+static void dissect_ucp_tcp(tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_ucp_common(tvbuff_t *, packet_info *, proto_tree *);
 
 /* Tap Record */
@@ -63,8 +65,8 @@ typedef struct _ucp_tap_rec_t {
 
 /* Preferences */
 gboolean ucp_desegment = TRUE;
-/* STX + TRN 2 num. char.+ LEN 5 num. char. + O/R Char 'O' or 'R' + OT 2 num. char. */
-#define UCP_HEADER_SIZE 11
+/* STX + TRN(2 num. char.) + / + LEN(5 num. char.) + / + 'O'/'R' + / + OT(2 num. char.) + / */
+#define UCP_HEADER_SIZE 15
 
 /*
  * Convert ASCII-hex character to binary equivalent. No checks, assume
@@ -72,20 +74,24 @@ gboolean ucp_desegment = TRUE;
  */
 #define AHex2Bin(n)     (((n) & 0x40) ? ((n) & 0x0F) + 9 : ((n) & 0x0F))
 
-#define UCP_STX         0x02                    /* Start of UCP PDU     */
-#define UCP_ETX         0x03                    /* End of UCP PDU       */
+#define UCP_STX         0x02                    /* Start of UCP PDU      */
+#define UCP_ETX         0x03                    /* End of UCP PDU        */
 
-#define UCP_MALFORMED   -1                      /* Not a valid PDU      */
-#define UCP_SHORTENED   -2                      /* May be valid but short */
-#define UCP_INV_CHK     -3                      /* Checksum doesn't add up */
+#define UCP_MALFORMED   -1                      /* Not a valid PDU       */
+#define UCP_INV_CHK     -2                      /* Incorrect checksum    */
 
-#define UCP_O_R_OFFSET 10                       /* Location of O/R field*/
-#define UCP_OT_OFFSET  12                       /* Location of OT field */
+#define UCP_TRN_OFFSET   1
+#define UCP_LEN_OFFSET   4
+#define UCP_O_R_OFFSET  10                      /* Location of O/R field */
+#define UCP_OT_OFFSET   12                      /* Location of OT field  */
 
-#define UCP_TRN_LEN     2                       /* Length of TRN-field  */
-#define UCP_LEN_LEN     5                       /* Length of LEN-field  */
-#define UCP_O_R_LEN     1                       /* Length of O/R-field  */
-#define UCP_OT_LEN      2                       /* Length of OT-field   */
+#define UCP_TRN_LEN      2                      /* Length of TRN-field   */
+#define UCP_LEN_LEN      5                      /* Length of LEN-field   */
+#define UCP_O_R_LEN      1                      /* Length of O/R-field   */
+#define UCP_OT_LEN       2                      /* Length of OT-field    */
+
+
+static  dissector_handle_t ucp_handle;
 
 /*
  * Initialize the protocol and registered fields
@@ -102,134 +108,134 @@ static int hf_ucp_hdr_OT        = -1;
 /*
  * Stats section
  */
-static int st_ucp_messages      = -1;
-static int st_ucp_ops           = -1;
-static int st_ucp_res           = -1;
-static int st_ucp_results       = -1;
-static int st_ucp_results_pos   = -1;
-static int st_ucp_results_neg   = -1;
+static int st_ucp_messages       = -1;
+static int st_ucp_ops            = -1;
+static int st_ucp_res            = -1;
+static int st_ucp_results        = -1;
+static int st_ucp_results_pos    = -1;
+static int st_ucp_results_neg    = -1;
 
-static gchar* st_str_ucp        = "UCP Messages";
-static gchar* st_str_ops        = "Operations";
-static gchar* st_str_res        = "Results";
-static gchar* st_str_ucp_res    = "UCP Results Acks/Nacks";
-static gchar* st_str_pos        = "Positive";
-static gchar* st_str_neg        = "Negative";
+static gchar* st_str_ucp         = "UCP Messages";
+static gchar* st_str_ops         = "Operations";
+static gchar* st_str_res         = "Results";
+static gchar* st_str_ucp_res     = "UCP Results Acks/Nacks";
+static gchar* st_str_pos         = "Positive";
+static gchar* st_str_neg         = "Negative";
 
 /*
  * Data (variable) section
  */
-static int hf_ucp_oper_section  = -1;
-static int hf_ucp_parm_AdC      = -1;
-static int hf_ucp_parm_OAdC     = -1;
-static int hf_ucp_parm_DAdC     = -1;
-static int hf_ucp_parm_AC       = -1;
-static int hf_ucp_parm_OAC      = -1;
-static int hf_ucp_parm_BAS      = -1;
-static int hf_ucp_parm_LAR      = -1;
-static int hf_ucp_parm_LAC      = -1;
-static int hf_ucp_parm_L1R      = -1;
-static int hf_ucp_parm_L1P      = -1;
-static int hf_ucp_parm_L3R      = -1;
-static int hf_ucp_parm_L3P      = -1;
-static int hf_ucp_parm_LCR      = -1;
-static int hf_ucp_parm_LUR      = -1;
-static int hf_ucp_parm_LRR      = -1;
-static int hf_ucp_parm_RT       = -1;
-static int hf_ucp_parm_NoN      = -1;
-static int hf_ucp_parm_NoA      = -1;
-static int hf_ucp_parm_NoB      = -1;
-static int hf_ucp_parm_NAC      = -1;
-static int hf_ucp_parm_PNC      = -1;
-static int hf_ucp_parm_AMsg     = -1;
-static int hf_ucp_parm_LNo      = -1;
-static int hf_ucp_parm_LST      = -1;
-static int hf_ucp_parm_TNo      = -1;
-static int hf_ucp_parm_CS       = -1;
-static int hf_ucp_parm_PID      = -1;
-static int hf_ucp_parm_NPL      = -1;
-static int hf_ucp_parm_GA       = -1;
-static int hf_ucp_parm_RP       = -1;
-static int hf_ucp_parm_LRP      = -1;
-static int hf_ucp_parm_PR       = -1;
-static int hf_ucp_parm_LPR      = -1;
-static int hf_ucp_parm_UM       = -1;
-static int hf_ucp_parm_LUM      = -1;
-static int hf_ucp_parm_RC       = -1;
-static int hf_ucp_parm_LRC      = -1;
-static int hf_ucp_parm_NRq      = -1;
-static int hf_ucp_parm_GAdC     = -1;
-static int hf_ucp_parm_A_D      = -1;
-static int hf_ucp_parm_CT       = -1;
-static int hf_ucp_parm_AAC      = -1;
-static int hf_ucp_parm_MNo      = -1;
-static int hf_ucp_parm_R_T      = -1;
-static int hf_ucp_parm_IVR5x    = -1;
-static int hf_ucp_parm_REQ_OT   = -1;
-static int hf_ucp_parm_SSTAT    = -1;
-static int hf_ucp_parm_LMN      = -1;
-static int hf_ucp_parm_NMESS    = -1;
-static int hf_ucp_parm_NMESS_str= -1;
-static int hf_ucp_parm_NAdC     = -1;
-static int hf_ucp_parm_NT       = -1;
-static int hf_ucp_parm_NPID     = -1;
-static int hf_ucp_parm_LRq      = -1;
-static int hf_ucp_parm_LRAd     = -1;
-static int hf_ucp_parm_LPID     = -1;
-static int hf_ucp_parm_DD       = -1;
-static int hf_ucp_parm_DDT      = -1;
-static int hf_ucp_parm_STx      = -1;
-static int hf_ucp_parm_ST       = -1;
-static int hf_ucp_parm_SP       = -1;
-static int hf_ucp_parm_VP       = -1;
-static int hf_ucp_parm_RPID     = -1;
-static int hf_ucp_parm_SCTS     = -1;
-static int hf_ucp_parm_Dst      = -1;
-static int hf_ucp_parm_Rsn      = -1;
-static int hf_ucp_parm_DSCTS    = -1;
-static int hf_ucp_parm_MT       = -1;
-static int hf_ucp_parm_NB       = -1;
-static int hf_ucp_data_section  = -1;
-static int hf_ucp_parm_MMS      = -1;
-static int hf_ucp_parm_DCs      = -1;
-static int hf_ucp_parm_MCLs     = -1;
-static int hf_ucp_parm_RPI      = -1;
-static int hf_ucp_parm_CPg      = -1;
-static int hf_ucp_parm_RPLy     = -1;
-static int hf_ucp_parm_OTOA     = -1;
-static int hf_ucp_parm_HPLMN    = -1;
-static int hf_ucp_parm_RES4     = -1;
-static int hf_ucp_parm_RES5     = -1;
-static int hf_ucp_parm_OTON     = -1;
-static int hf_ucp_parm_ONPI     = -1;
-static int hf_ucp_parm_STYP0    = -1;
-static int hf_ucp_parm_STYP1    = -1;
-static int hf_ucp_parm_ACK      = -1;
-static int hf_ucp_parm_PWD      = -1;
-static int hf_ucp_parm_NPWD     = -1;
-static int hf_ucp_parm_VERS     = -1;
-static int hf_ucp_parm_LAdC     = -1;
-static int hf_ucp_parm_LTON     = -1;
-static int hf_ucp_parm_LNPI     = -1;
-static int hf_ucp_parm_OPID     = -1;
-static int hf_ucp_parm_RES1     = -1;
-static int hf_ucp_parm_RES2     = -1;
-static int hf_ucp_parm_MVP      = -1;
-static int hf_ucp_parm_EC       = -1;
-static int hf_ucp_parm_SM       = -1;
+static int hf_ucp_oper_section   = -1;
+static int hf_ucp_parm_AdC       = -1;
+static int hf_ucp_parm_OAdC      = -1;
+static int hf_ucp_parm_DAdC      = -1;
+static int hf_ucp_parm_AC        = -1;
+static int hf_ucp_parm_OAC       = -1;
+static int hf_ucp_parm_BAS       = -1;
+static int hf_ucp_parm_LAR       = -1;
+static int hf_ucp_parm_LAC       = -1;
+static int hf_ucp_parm_L1R       = -1;
+static int hf_ucp_parm_L1P       = -1;
+static int hf_ucp_parm_L3R       = -1;
+static int hf_ucp_parm_L3P       = -1;
+static int hf_ucp_parm_LCR       = -1;
+static int hf_ucp_parm_LUR       = -1;
+static int hf_ucp_parm_LRR       = -1;
+static int hf_ucp_parm_RT        = -1;
+static int hf_ucp_parm_NoN       = -1;
+static int hf_ucp_parm_NoA       = -1;
+static int hf_ucp_parm_NoB       = -1;
+static int hf_ucp_parm_NAC       = -1;
+static int hf_ucp_parm_PNC       = -1;
+static int hf_ucp_parm_AMsg      = -1;
+static int hf_ucp_parm_LNo       = -1;
+static int hf_ucp_parm_LST       = -1;
+static int hf_ucp_parm_TNo       = -1;
+static int hf_ucp_parm_CS        = -1;
+static int hf_ucp_parm_PID       = -1;
+static int hf_ucp_parm_NPL       = -1;
+static int hf_ucp_parm_GA        = -1;
+static int hf_ucp_parm_RP        = -1;
+static int hf_ucp_parm_LRP       = -1;
+static int hf_ucp_parm_PR        = -1;
+static int hf_ucp_parm_LPR       = -1;
+static int hf_ucp_parm_UM        = -1;
+static int hf_ucp_parm_LUM       = -1;
+static int hf_ucp_parm_RC        = -1;
+static int hf_ucp_parm_LRC       = -1;
+static int hf_ucp_parm_NRq       = -1;
+static int hf_ucp_parm_GAdC      = -1;
+static int hf_ucp_parm_A_D       = -1;
+static int hf_ucp_parm_CT        = -1;
+static int hf_ucp_parm_AAC       = -1;
+static int hf_ucp_parm_MNo       = -1;
+static int hf_ucp_parm_R_T       = -1;
+static int hf_ucp_parm_IVR5x     = -1;
+static int hf_ucp_parm_REQ_OT    = -1;
+static int hf_ucp_parm_SSTAT     = -1;
+static int hf_ucp_parm_LMN       = -1;
+static int hf_ucp_parm_NMESS     = -1;
+static int hf_ucp_parm_NMESS_str = -1;
+static int hf_ucp_parm_NAdC      = -1;
+static int hf_ucp_parm_NT        = -1;
+static int hf_ucp_parm_NPID      = -1;
+static int hf_ucp_parm_LRq       = -1;
+static int hf_ucp_parm_LRAd      = -1;
+static int hf_ucp_parm_LPID      = -1;
+static int hf_ucp_parm_DD        = -1;
+static int hf_ucp_parm_DDT       = -1;
+static int hf_ucp_parm_STx       = -1;
+static int hf_ucp_parm_ST        = -1;
+static int hf_ucp_parm_SP        = -1;
+static int hf_ucp_parm_VP        = -1;
+static int hf_ucp_parm_RPID      = -1;
+static int hf_ucp_parm_SCTS      = -1;
+static int hf_ucp_parm_Dst       = -1;
+static int hf_ucp_parm_Rsn       = -1;
+static int hf_ucp_parm_DSCTS     = -1;
+static int hf_ucp_parm_MT        = -1;
+static int hf_ucp_parm_NB        = -1;
+static int hf_ucp_data_section   = -1;
+static int hf_ucp_parm_MMS       = -1;
+static int hf_ucp_parm_DCs       = -1;
+static int hf_ucp_parm_MCLs      = -1;
+static int hf_ucp_parm_RPI       = -1;
+static int hf_ucp_parm_CPg       = -1;
+static int hf_ucp_parm_RPLy      = -1;
+static int hf_ucp_parm_OTOA      = -1;
+static int hf_ucp_parm_HPLMN     = -1;
+static int hf_ucp_parm_RES4      = -1;
+static int hf_ucp_parm_RES5      = -1;
+static int hf_ucp_parm_OTON      = -1;
+static int hf_ucp_parm_ONPI      = -1;
+static int hf_ucp_parm_STYP0     = -1;
+static int hf_ucp_parm_STYP1     = -1;
+static int hf_ucp_parm_ACK       = -1;
+static int hf_ucp_parm_PWD       = -1;
+static int hf_ucp_parm_NPWD      = -1;
+static int hf_ucp_parm_VERS      = -1;
+static int hf_ucp_parm_LAdC      = -1;
+static int hf_ucp_parm_LTON      = -1;
+static int hf_ucp_parm_LNPI      = -1;
+static int hf_ucp_parm_OPID      = -1;
+static int hf_ucp_parm_RES1      = -1;
+static int hf_ucp_parm_RES2      = -1;
+static int hf_ucp_parm_MVP       = -1;
+static int hf_ucp_parm_EC        = -1;
+static int hf_ucp_parm_SM        = -1;
 
-static int hf_ucp_parm_XSer     = -1;
-static int hf_xser_service      = -1;
-static int hf_xser_length       = -1;
-static int hf_xser_data         = -1;
+static int hf_ucp_parm_XSer      = -1;
+static int hf_xser_service       = -1;
+static int hf_xser_length        = -1;
+static int hf_xser_data          = -1;
 
 /* Initialize the subtree pointers */
-static gint ett_ucp  = -1;
-static gint ett_sub  = -1;
-static gint ett_XSer = -1;
+static gint ett_ucp              = -1;
+static gint ett_sub              = -1;
+static gint ett_XSer             = -1;
 
 /* Tap */
-static int ucp_tap              = -1;
+static int ucp_tap               = -1;
 
 /*
  * Value-arrays for certain field-contents
@@ -701,13 +707,15 @@ ucp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
 /*!
  * Checks whether the PDU looks a bit like UCP and checks the checksum
  *
+ * Note: check_ucp is called only with a buffer of at least LEN+2 bytes.
+ *       IOW: The buffer should contain a complete UCP PDU [STX ... ETX]
+ *
  * \param       tvb     The buffer with PDU-data
  * \param       endpkt  Returns pointer, indicating the end of the PDU
  *
  * \return              The state of this PDU
  * \retval      0               Definitely UCP
- * \retval      UCP_SHORTENED   Packet may be there, but not complete
- * \retval      UCP_MALFORMED   Hmmmm, not UCP after all...
+ * \retval      UCP_MALFORMED   ???
  * \retval      UCP_INV_CHK     Nice packet, but checksum doesn't add up...
  */
 static int
@@ -721,11 +729,6 @@ check_ucp(tvbuff_t *tvb, int *endpkt)
     length = tvb_find_guint8(tvb, offset, -1, UCP_ETX);
     if (length == -1) {
         *endpkt = tvb_reported_length_remaining(tvb, offset);
-        return UCP_SHORTENED;
-    }
-    if (length > (int) tvb_reported_length(tvb)) {
-        /* XXX - "cannot happen" */
-        *endpkt = 0;
         return UCP_MALFORMED;
     }
     for (; offset < (guint) (length - 2); offset++)
@@ -1695,46 +1698,49 @@ add_6xO(proto_tree *tree, tvbuff_t *tvb, guint8 OT)
 #undef UcpHandleTime
 #undef UcpHandleData
 
-/* Code to actually dissect the packets */
-/*
- * Overlapping data for these functions
- */
-static int       result, endpkt;
-
 /*
  * The heuristic dissector
  */
+
 static gboolean
 dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint8       O_R;           /* Request or response                  */
+    conversation_t *conversation;
 
-    /* This runs atop TCP, so we are guaranteed that there is at least one
-       byte in the tvbuff. */
-    if (tvb_get_guint8(tvb, 0) != UCP_STX)
+    /* Heuristic */
+
+    if (tvb_length(tvb) < UCP_HEADER_SIZE)
         return FALSE;
 
-    result = check_ucp(tvb, &endpkt);
-
-    if (result == UCP_MALFORMED)
+    if ((tvb_get_guint8(tvb, 0)                            != UCP_STX) ||
+        (tvb_get_guint8(tvb, UCP_TRN_OFFSET + UCP_TRN_LEN) != '/') ||
+        (tvb_get_guint8(tvb, UCP_LEN_OFFSET + UCP_LEN_LEN) != '/') ||
+        (tvb_get_guint8(tvb, UCP_O_R_OFFSET + UCP_O_R_LEN) != '/') ||
+        (tvb_get_guint8(tvb, UCP_OT_OFFSET  + UCP_OT_LEN)  != '/'))
         return FALSE;
-    if (endpkt < UCP_OT_OFFSET + 1)
-        /*
-         * Might be shortened packet but don't handle anyway.
-         */
+
+    if (match_strval(tvb_get_guint8(tvb, UCP_O_R_OFFSET), vals_hdr_O_R) == NULL)
         return FALSE;
 
     /*
-     * Try getting the operation-type and whether it's a request/response
-     */
-    O_R = tvb_get_guint8(tvb, UCP_O_R_OFFSET);
-    if (match_strval(O_R, vals_hdr_O_R) == NULL)
-        return FALSE;
-    /*
-     * Ok, looks like a valid packet, go dissect.
+     * Ok, looks like a valid packet
      */
 
-    dissect_ucp_common(tvb, pinfo, tree);
+    /* Set up a conversation with attached dissector so dissect_ucp_heur
+     *  won't be called any more for this TCP connection.
+     */
+
+    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, 
+                                     pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+    if (conversation == NULL)
+    {
+        conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                        pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+    }
+    conversation_set_dissector(conversation, ucp_handle);
+
+    dissect_ucp_tcp(tvb, pinfo, tree);
+
     return TRUE;
 }
 
@@ -1764,6 +1770,9 @@ dissect_ucp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*
  * The actual dissector
  */
+
+/* We get here only with at least LEN+2 bytes in the buffer */
+
 static void
 dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1772,6 +1781,8 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8       OT;            /* Operation type                       */
     guint        intval;
     int          i;
+    int          result;
+    int          endpkt;
     ucp_tap_rec_t* tap_rec;     /* Tap record                           */
 
     /* Set up structures needed to add the protocol subtree and manage it */
@@ -1785,8 +1796,6 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UCP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    /* This runs atop TCP, so we are guaranteed that there is at least one
-       byte in the tvbuff. */
     if (tvb_get_guint8(tvb, 0) != UCP_STX){
                 proto_tree_add_text(tree, tvb, 0, -1,"UCP_STX missing, this is not a new packet");
                 return;
@@ -1808,14 +1817,11 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tap_rec->operation = OT;
 
      /* Make entries in  Info column on summary display */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UCP");
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
                      val_to_str(OT,  vals_hdr_OT,  "unknown operation"),
                      val_to_str(O_R, vals_hdr_O_R, "Unknown (%d)"));
-        if (result == UCP_SHORTENED)
-            col_append_str(pinfo->cinfo, COL_INFO, " [short packet]");
-        else if (result == UCP_INV_CHK)
+        if (result == UCP_INV_CHK)
             col_append_str(pinfo->cinfo, COL_INFO, " [checksum invalid]");
     }
 
@@ -1857,10 +1863,8 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += UCP_OT_LEN;
 
         /*
-         * Variable part starts here. Don't dissect if not complete.
+         * Variable part starts here. 
          */
-        if (result == UCP_SHORTENED)
-            return;
 
         tmp_tvb = tvb_new_subset_remaining(tvb, offset);
         sub_ti = proto_tree_add_item(ucp_tree, hf_ucp_oper_section, tvb,
@@ -2752,16 +2756,14 @@ proto_register_ucp(void)
 void
 proto_reg_handoff_ucp(void)
 {
-    dissector_handle_t ucp_handle;
-
     /*
-     * UCP can be spoken on any port so, when not on a specific port, try this
-     * one whenever TCP is spoken.
+     * UCP can be spoken on any port so, when not on a specific port, try heuristic
+     * whenever TCP is spoken.
      */
     heur_dissector_add("tcp", dissect_ucp_heur, proto_ucp);
 
     /*
-     * Also register as one that can be selected by a TCP port number.
+     * Also register as a dissectoir that can be selected by a TCP port number via "decode as".
      */
     ucp_handle = create_dissector_handle(dissect_ucp_tcp, proto_ucp);
     dissector_add_handle("tcp.port", ucp_handle);
