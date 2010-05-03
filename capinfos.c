@@ -312,7 +312,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
                           printf     ("Packet size limit:   file hdr: (not set)\n");
   if (cf_info->snaplen_max_inferred > 0) {
     if (cf_info->snaplen_min_inferred == cf_info->snaplen_max_inferred)
-                          printf     ("Packet size limit:   inferred: %u bytes\n", cf_info->snaplen_min_inferred); 
+                          printf     ("Packet size limit:   inferred: %u bytes\n", cf_info->snaplen_min_inferred);
     else
                           printf     ("Packet size limit:   inferred: %u bytes - %u bytes (range)\n",
                                       cf_info->snaplen_min_inferred, cf_info->snaplen_max_inferred);
@@ -434,11 +434,11 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
     if (cf_info->snaplen_max_inferred > 0) {
       putsep();
       putquote();
-      printf("%u%", cf_info->snaplen_min_inferred);
+      printf("%u", cf_info->snaplen_min_inferred);
       putquote();
       putsep();
       putquote();
-      printf("%u%", cf_info->snaplen_max_inferred);
+      printf("%u", cf_info->snaplen_max_inferred);
       putquote();
     }
     else {
@@ -450,7 +450,7 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
       putquote();
       printf("n/a");
       putquote();
-    }      
+    }
   }
 
   if (cap_packet_count) {
@@ -582,7 +582,7 @@ process_cap_file(wtap *wth, const char *filename)
     packet++;
 
     /* If caplen < len for a rcd, then presumably           */
-    /* 'Limit packet capture length' was done for this rcd. */ 
+    /* 'Limit packet capture length' was done for this rcd. */
     /* Keep track as to the min/max actual snapshot lengths */
     /*  seen for this file.                                 */
     if (phdr->caplen < phdr->len) {
