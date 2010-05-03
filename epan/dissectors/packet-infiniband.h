@@ -86,6 +86,7 @@ static gint ett_mcmemberrecord = -1;
 static gint ett_tracerecord = -1;
 static gint ett_multipathrecord = -1;
 static gint ett_serviceassocrecord = -1;
+static gint ett_perfclass = -1;
 
 static gint ett_link = -1;
 
@@ -136,7 +137,7 @@ static void parse_RWH(proto_tree *, tvbuff_t *, gint *offset, packet_info *);
 static void parse_SUBN_LID_ROUTED(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
 static void parse_SUBN_DIRECTED_ROUTE(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
 static void parse_SUBNADMN(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
-static void parse_PERF(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_PERF(proto_tree *, tvbuff_t *, packet_info *, gint *offset);
 static void parse_BM(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_DEV_MGT(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_COM_MGT(proto_tree *, tvbuff_t *, gint *offset);
@@ -176,6 +177,14 @@ static void parse_SMInfo(proto_tree*, tvbuff_t*, gint *offset);
 static void parse_VendorDiag(proto_tree*, tvbuff_t*, gint *offset);
 static void parse_LedInfo(proto_tree*, tvbuff_t*, gint *offset);
 static void parse_LinkSpeedWidthPairsTable(proto_tree*, tvbuff_t*, gint *offset);
+
+/* These methods parse individual attributes for specific MAD management classes.
+* Naming convention FunctionHandle = "parse_" + [Management Class] + "_" + [Attribute Name]; 
+* Where [Management Class] is the shorthand name for the management class as defined
+* in the MAD Management Classes section below in this file, and [Attribute Name] is the
+* attribute identifier from the corresponding chapter of the IB Specification */
+static void parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset);
+static void parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset);
 
 /* Subnet Administration */
 static void parse_InformInfo(proto_tree*, tvbuff_t*, gint *offset);
@@ -879,6 +888,40 @@ static int hf_infiniband_Notice_DataDetails = -1;
 /* static int hf_infiniband_Notice_IssuerGID = -1;             */
 /* static int hf_infiniband_Notice_ClassTrapSpecificData = -1; */
 
+/* PortCounters attribute in Performance class */
+static int hf_infiniband_PortCounters = -1;
+static int hf_infiniband_PortCounters_PortSelect = -1;
+static int hf_infiniband_PortCounters_CounterSelect = -1;
+static int hf_infiniband_PortCounters_SymbolErrorCounter = -1;
+static int hf_infiniband_PortCounters_LinkErrorRecoveryCounter = -1;
+static int hf_infiniband_PortCounters_LinkDownedCounter = -1;
+static int hf_infiniband_PortCounters_PortRcvErrors = -1;
+static int hf_infiniband_PortCounters_PortRcvRemotePhysicalErrors = -1;
+static int hf_infiniband_PortCounters_PortRcvSwitchRelayErrors = -1;
+static int hf_infiniband_PortCounters_PortXmitDiscards = -1;
+static int hf_infiniband_PortCounters_PortXmitConstraintErrors = -1;
+static int hf_infiniband_PortCounters_PortRcvConstraintErrors = -1;
+static int hf_infiniband_PortCounters_LocalLinkIntegrityErrors = -1;
+static int hf_infiniband_PortCounters_ExcessiveBufferOverrunErrors = -1;
+static int hf_infiniband_PortCounters_VL15Dropped = -1;
+static int hf_infiniband_PortCounters_PortXmitData = -1;
+static int hf_infiniband_PortCounters_PortRcvData = -1;
+static int hf_infiniband_PortCounters_PortXmitPkts = -1;
+static int hf_infiniband_PortCounters_PortRcvPkts = -1;
+
+/* Extended PortCounters attribute in Performance class */
+static int hf_infiniband_PortCountersExt = -1;
+static int hf_infiniband_PortCountersExt_PortSelect = -1;
+static int hf_infiniband_PortCountersExt_CounterSelect = -1;
+static int hf_infiniband_PortCountersExt_PortXmitData = -1;
+static int hf_infiniband_PortCountersExt_PortRcvData = -1;
+static int hf_infiniband_PortCountersExt_PortXmitPkts = -1;
+static int hf_infiniband_PortCountersExt_PortRcvPkts = -1;
+static int hf_infiniband_PortCountersExt_PortUnicastXmitPkts = -1;
+static int hf_infiniband_PortCountersExt_PortUnicastRcvPkts = -1;
+static int hf_infiniband_PortCountersExt_PortMulticastXmitPkts = -1;
+static int hf_infiniband_PortCountersExt_PortMulticastRcvPkts = -1;
+
 /* Notice DataDetails and ClassTrapSpecific Data for certain traps 
 * Note that traps reuse many fields, so they are only declared once under the first trap that they appear.
 * There is no need to redeclare them for specific Traps (as with other SA Attributes) because they are uniform between Traps. */
@@ -995,6 +1038,10 @@ static const value_string Trap_Description[]= {
 #define VENDOR_2_END 0x4F           /* End of the second Vendor Specific Range */
 #define APPLICATION_START 0x10      /* Start of Application Specific Range */
 #define APPLICATION_END 0x2F        /* End of Application Specific Range */
+
+/* Performance class Attributes */
+#define ATTR_PORT_COUNTERS      0x0012
+#define ATTR_PORT_COUNTERS_EXT  0x001D
 
 /* Link Next Header Values */
 #define IBA_GLOBAL 3
@@ -1319,6 +1366,8 @@ static guint32 opCode_PAYLD[] = {
 * static guint32 opCode_AETH[] = {
 * RC_ACKNOWLEDGE
 * }; */
+
+#define MAD_DATA_SIZE     232     /* size of data field a MAD payload carries */
 
 #define MAD_DATA_SIZE     232     /* size of data field a MAD payload carries */
 

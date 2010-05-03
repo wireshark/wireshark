@@ -901,7 +901,7 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                 break;
                 case PERF:
                     /* parse performance */
-                    parse_PERF(parentTree, tvb, &local_offset);
+                    parse_PERF(parentTree, tvb, pinfo, &local_offset);
                 break;
                 case BM:
                     /* parse baseboard mgmt */
@@ -1284,8 +1284,9 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
 /* Parse Performance Management
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
+* IN: pinfo - the pinfo struct from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_PERF(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static void parse_PERF(proto_tree *parentTree, tvbuff_t *tvb, packet_info *pinfo, gint *offset)
 {
     /* Parse the Common MAD Header */
     MAD_Data MadData;
@@ -1297,9 +1298,22 @@ static void parse_PERF(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
         /* TODO: Mark Corrupt Packet - Not enough bytes exist for at least the Common MAD header which is present in all MAD packets */
         return;
     }
-    local_offset = *offset;
-    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 256, FALSE); local_offset += 256;
-    proto_item_set_text(PERF_header_item, "%s", "PERF - Performance Management MAD (Dissector Not Implemented)");
+
+    local_offset = *offset; /* offset now points to the start of the MAD data field */
+
+    switch (MadData.attributeID) {
+        case ATTR_PORT_COUNTERS:
+            parse_PERF_PortCounters(parentTree, tvb, pinfo, &local_offset);
+            break;
+        case ATTR_PORT_COUNTERS_EXT:
+            parse_PERF_PortCountersExtended(parentTree, tvb, pinfo, &local_offset);
+            break;
+        default:
+            PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, FALSE); local_offset += MAD_DATA_SIZE;
+            proto_item_set_text(PERF_header_item, "%s", "PERF - Performance Management MAD (Dissector Not Implemented)");
+            break;
+    }
+
     *offset = local_offset;
 }
 
@@ -2994,6 +3008,83 @@ static void parse_ServiceAssociationRecord(proto_tree* parentTree, tvbuff_t* tvb
 
     proto_tree_add_item(ServiceAssociationRecord_header_tree, hf_infiniband_ServiceAssociationRecord_ServiceKey,        tvb, local_offset, 16, FALSE); local_offset +=16;
     proto_tree_add_item(ServiceAssociationRecord_header_tree, hf_infiniband_ServiceAssociationRecord_ServiceName,       tvb, local_offset, 64, FALSE); local_offset +=64;
+}
+
+/* Parse PortCounters MAD from the Performance management class.
+* IN:   parentTree - The tree to add the dissection to
+*       tvb - The tvbbuff of packet data
+*       offset - The offset in TVB where the attribute begins
+*       pinfo - The packet info structure with column information  */
+static void parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset)
+{
+    proto_item *perf_item = NULL;
+    proto_tree *perf_tree = NULL;
+    gint local_offset = *offset;
+
+    col_set_str(pinfo->cinfo, COL_INFO, "PERF (PortCounters)");
+
+    perf_item = proto_tree_add_item(parentTree, hf_infiniband_PortCounters, tvb, local_offset, 40, FALSE);
+    perf_tree = proto_item_add_subtree(perf_item, ett_perfclass);
+
+    local_offset += 40; /* skip reserved field */
+    local_offset += 1;  /* skip reserved field */
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortSelect,  tvb, local_offset, 1, FALSE); local_offset += 1;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_CounterSelect, tvb, local_offset, 2, FALSE); local_offset += 2;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_SymbolErrorCounter, tvb, local_offset, 2, FALSE); local_offset += 2;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_LinkErrorRecoveryCounter, tvb, local_offset, 1, FALSE); local_offset += 1;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_LinkDownedCounter, tvb, local_offset, 1, FALSE); local_offset += 1;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortRcvErrors, tvb, local_offset, 2, FALSE); local_offset += 2;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortRcvRemotePhysicalErrors, tvb, local_offset, 2, FALSE); local_offset += 2;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortRcvSwitchRelayErrors, tvb, local_offset, 2, FALSE); local_offset += 2;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortXmitDiscards, tvb, local_offset, 2, FALSE); local_offset += 2;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortXmitConstraintErrors, tvb, local_offset, 1, FALSE); local_offset += 1;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortRcvConstraintErrors, tvb, local_offset, 1, FALSE); local_offset += 1;
+    local_offset += 1;  /* skip reserved field */
+    proto_tree_add_bits_item(perf_tree, hf_infiniband_PortCounters_LocalLinkIntegrityErrors, tvb, local_offset*8, 4, FALSE);
+    proto_tree_add_bits_item(perf_tree, hf_infiniband_PortCounters_ExcessiveBufferOverrunErrors, tvb, local_offset*8 + 4, 4, FALSE); local_offset += 1;
+    local_offset += 2;  /* skip reserved field */
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_VL15Dropped, tvb, local_offset, 2, FALSE); local_offset += 2;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortXmitData, tvb, local_offset, 4, FALSE); local_offset += 4;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortRcvData, tvb, local_offset, 4, FALSE); local_offset += 4;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortXmitPkts, tvb, local_offset, 4, FALSE); local_offset += 4;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortRcvPkts, tvb, local_offset, 4, FALSE); local_offset += 4;
+
+    *offset = local_offset; /* update caller's offset to point to end of the PortCounters payload */
+    return;
+}
+
+/* Parse PortCountersExtended MAD from the Performance management class.
+* IN:   parentTree - The tree to add the dissection to
+*       tvb - The tvbbuff of packet data
+*       offset - The offset in TVB where the attribute begins
+*       pinfo - The packet info structure with column information  */
+static void parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset)
+{
+    proto_item *perf_item = NULL;
+    proto_tree *perf_tree = NULL;
+    gint local_offset = *offset;
+
+    col_set_str(pinfo->cinfo, COL_INFO, "PERF (PortCountersExtended)");
+
+    perf_item = proto_tree_add_item(parentTree, hf_infiniband_PortCountersExt, tvb, local_offset, 72, FALSE);
+    perf_tree = proto_item_add_subtree(perf_item, ett_perfclass);
+
+    local_offset += 40; /* skip reserved field */
+    local_offset += 1;  /* skip reserved field */
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortSelect,  tvb, local_offset, 1, FALSE); local_offset += 1;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_CounterSelect, tvb, local_offset, 2, FALSE); local_offset += 2;
+    local_offset += 4;  /* skip reserved field */
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortXmitData, tvb, local_offset, 8, FALSE); local_offset += 8;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortRcvData, tvb, local_offset, 8, FALSE); local_offset += 8;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortXmitPkts, tvb, local_offset, 8, FALSE); local_offset += 8;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortRcvPkts, tvb, local_offset, 8, FALSE); local_offset += 8;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortUnicastXmitPkts, tvb, local_offset, 8, FALSE); local_offset += 8;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortUnicastRcvPkts, tvb, local_offset, 8, FALSE); local_offset += 8;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortMulticastXmitPkts, tvb, local_offset, 8, FALSE); local_offset += 8;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortMulticastRcvPkts, tvb, local_offset, 8, FALSE); local_offset += 8;
+
+    *offset = local_offset; /* update caller's offset to point to end of the PortCountersExt payload */
+    return;
 }
 
 /* dissect_general_info
@@ -4890,6 +4981,161 @@ void proto_register_infiniband(void)
         { &hf_infiniband_Trap_SWLIDADDR, {
                 "SWLIDADDR", "infiniband.trap.swlidaddr",
                 FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        /* PortCounters in Performance class */
+        { &hf_infiniband_PortCounters, {
+                "Port Counters (Performance Management MAD)", "infiniband.portcounters",
+                FT_NONE, BASE_NONE, NULL, 0x0,
+                "Performance class PortCounters packet", HFILL}
+        },
+        { &hf_infiniband_PortCounters_PortSelect, {
+                "PortSelect", "infiniband.portcounters.portselect",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                "Selects the port that will be accessed", HFILL}
+        },
+        { &hf_infiniband_PortCounters_CounterSelect, {
+                "CounterSelect", "infiniband.portcounters.counterselect",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                "When writing, selects which counters are affected by the operation", HFILL}
+        },
+        { &hf_infiniband_PortCounters_SymbolErrorCounter, {
+                "SymbolErrorCounter", "infiniband.portcounters.symbolerrorcounter",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Total number of minor link errors", HFILL}
+        },
+        { &hf_infiniband_PortCounters_LinkErrorRecoveryCounter, {
+                "LinkErrorRecoveryCounter", "infiniband.portcounters.linkerrorrecoverycounter",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Total number of times successfully completed link error recovery process", HFILL}
+        },
+        { &hf_infiniband_PortCounters_LinkDownedCounter, {
+                "LinkDownedCounter", "infiniband.portcounters.linkdownedcounter",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Total number of times failed link error recovery process", HFILL}
+        },
+        { &hf_infiniband_PortCounters_PortRcvErrors, {
+                "PortRcvErrors", "infiniband.portcounters.portrcverrors",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Total number of packets containing an error received", HFILL}
+        },
+        { &hf_infiniband_PortCounters_PortRcvRemotePhysicalErrors, {
+                "PortRcvRemotePhysicalErrors", "infiniband.portcounters.portrcvremotephysicalerrors",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Total number of packets marked with EBP delimiter received", HFILL}
+        },
+        { &hf_infiniband_PortCounters_PortRcvSwitchRelayErrors, {
+                "PortRcvSwitchRelayErrors", "infiniband.portcounters.portrcvswitchrelayerrors",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Total number of packets number of packets discarded because they could not be forwarded by switch relay", 
+                HFILL}
+        },
+        { &hf_infiniband_PortCounters_PortXmitDiscards, {
+                "PortXmitDiscards", "infiniband.portcounters.portxmitdiscards",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Total number of outbound packets discarded", HFILL}
+        },
+        { &hf_infiniband_PortCounters_PortXmitConstraintErrors, {
+                "PortXmitConstraintErrors", "infiniband.portcounters.portxmitconstrainterrors",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Total number of packets not transmitted from the switch physical port", HFILL}
+        },
+        { &hf_infiniband_PortCounters_PortRcvConstraintErrors, {
+                "PortRcvConstraintErrors", "infiniband.portcounters.portrcvconstrainterrors",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Total number of packets received on the switch physical port that are discarded", HFILL}
+        },
+        { &hf_infiniband_PortCounters_LocalLinkIntegrityErrors, {
+                "LocalLinkIntegrityErrors", "infiniband.portcounters.locallinkintegrityerrors",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "The number of times the count of local physical errors exceeded the threshold specified by LocalPhyErrors",
+                HFILL}
+        },
+        { &hf_infiniband_PortCounters_ExcessiveBufferOverrunErrors, {
+                "ExcessiveBufferOverrunErrors", "infiniband.portcounters.excessivebufferoverrunerrors",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "The number of times that OverrunErrors consecutive flow control update periods occured",
+                HFILL}
+        },
+        { &hf_infiniband_PortCounters_VL15Dropped, {
+                "VL15Dropped", "infiniband.portcounters.vl15dropped",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Number of incoming VL15 packets dropped", HFILL}
+        },
+        { &hf_infiniband_PortCounters_PortXmitData, {
+                "PortXmitData", "infiniband.portcounters.portxmitdata",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                "Total number of data octets, divided by 4, transmitted on all VLs from the port", HFILL}
+        },
+        { &hf_infiniband_PortCounters_PortRcvData, {
+                "PortRcvData", "infiniband.portcounters.portrcvdata",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                "Total number of data octets, divided by 4, received on all VLs at the port", HFILL}
+        },
+        { &hf_infiniband_PortCounters_PortXmitPkts, {
+                "PortXmitPkts", "infiniband.portcounters.portxmitpkts",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                "Total number of packets transmitted on all VLs from the port", HFILL}
+        },
+        { &hf_infiniband_PortCounters_PortRcvPkts, {
+                "PortRcvPkts", "infiniband.portcounters.portrcvpkts",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                "Total number of packets received from all VLs on the port", HFILL}
+        },
+        /* PortCountersExtended in Performance class */
+        { &hf_infiniband_PortCountersExt, {
+                "Port Counters Extended (Performance Management MAD)", "infiniband.portcounters_ext",
+                FT_NONE, BASE_NONE, NULL, 0x0,
+                "Performance class PortCountersExtended packet", HFILL}
+        },
+        { &hf_infiniband_PortCountersExt_PortSelect, {
+                "PortSelect", "infiniband.portcounters_ext.portselect",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                "Selects the port that will be accessed", HFILL}
+        },
+        { &hf_infiniband_PortCountersExt_CounterSelect, {
+                "CounterSelect", "infiniband.portcounters_ext.counterselect",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                "When writing, selects which counters are affected by the operation", HFILL}
+        },
+        { &hf_infiniband_PortCountersExt_PortXmitData, {
+                "PortXmitData", "infiniband.portcounters_ext.portxmitdata",
+                FT_UINT64, BASE_DEC, NULL, 0x0,
+                "Total number of data octets, divided by 4, transmitted on all VLs from the port", HFILL}
+        },
+        { &hf_infiniband_PortCountersExt_PortRcvData, {
+                "PortRcvData", "infiniband.portcounters_ext.portrcvdata",
+                FT_UINT64, BASE_DEC, NULL, 0x0,
+                "Total number of data octets, divided by 4, received on all VLs at the port", HFILL}
+        },
+        { &hf_infiniband_PortCountersExt_PortXmitPkts, {
+                "PortXmitPkts", "infiniband.portcounters_ext.portxmitpkts",
+                FT_UINT64, BASE_DEC, NULL, 0x0,
+                "Total number of packets transmitted on all VLs from the port", HFILL}
+        },
+        { &hf_infiniband_PortCountersExt_PortRcvPkts, {
+                "PortRcvPkts", "infiniband.portcounters_ext.portrcvpkts",
+                FT_UINT64, BASE_DEC, NULL, 0x0,
+                "Total number of packets received from all VLs on the port", HFILL}
+        },
+        { &hf_infiniband_PortCountersExt_PortUnicastXmitPkts, {
+                "PortUnicastXmitPkts", "infiniband.portcounters_ext.portunicastxmitpkts",
+                FT_UINT64, BASE_DEC, NULL, 0x0,
+                "Total number of unicast packets transmitted on all VLs from the port", HFILL}
+        },
+        { &hf_infiniband_PortCountersExt_PortUnicastRcvPkts, {
+                "PortUnicastRcvPkts", "infiniband.portcounters_ext.portunicastrcvpkts",
+                FT_UINT64, BASE_DEC, NULL, 0x0,
+                "Total number of unicast packets received from all VLs on the port", HFILL}
+        },
+        { &hf_infiniband_PortCountersExt_PortMulticastXmitPkts, {
+                "PortMulticastXmitPkts", "infiniband.portcounters_ext.portmulticastxmitpkts",
+                FT_UINT64, BASE_DEC, NULL, 0x0,
+                "Total number of multicast packets transmitted on all VLs from the port", HFILL}
+        },
+        { &hf_infiniband_PortCountersExt_PortMulticastRcvPkts, {
+                "PortMulticastRcvPkts", "infiniband.portcounters_ext.portmulticastrcvpkts",
+                FT_UINT64, BASE_DEC, NULL, 0x0,
+                "Total number of multicast packets received from all VLs on the port", HFILL}
         }
     };
 
@@ -4945,6 +5191,7 @@ void proto_register_infiniband(void)
         &ett_tracerecord,
         &ett_multipathrecord,
         &ett_serviceassocrecord,
+        &ett_perfclass,
     };
 
     static hf_register_info hf_link[] = {    
