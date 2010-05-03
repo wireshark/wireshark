@@ -160,24 +160,26 @@ static gchar file_md5[HASH_STR_SIZE];
 #endif /* HAVE_LIBGCRYPT */
 
 typedef struct _capture_info {
-	const char		*filename;
-	guint16			file_type;
-	int			file_encap;
-	gint64			filesize;
+  const char    *filename;
+  guint16       file_type;
+  int           file_encap;
+  gint64        filesize;
 
-	guint64			packet_bytes;
-	double			start_time;
-	double			stop_time;
-	guint32			packet_count;
-	gboolean		snap_set;
-	guint32			snaplen;
-	gboolean		drops_known;
-	guint32			drop_count;
+  guint64       packet_bytes;
+  double        start_time;
+  double        stop_time;
+  guint32       packet_count;
+  gboolean      snap_set;                /* If set in capture file header      */
+  guint32       snaplen;                 /* value from the capture file header */
+  guint32       snaplen_min_inferred;    /* If caplen < len for 1 or more rcds */
+  guint32       snaplen_max_inferred;    /*  ...                               */
+  gboolean      drops_known;
+  guint32       drop_count;
 
-	double			duration;
-	double			packet_rate;
-	double			packet_size;
-	double			data_rate;		/* in bytes */
+  double        duration;
+  double        packet_rate;
+  double        packet_size;
+  double        data_rate;              /* in bytes */
 } capture_info;
 
 static void
@@ -209,23 +211,23 @@ enable_all_infos(void)
 static void
 disable_all_infos(void)
 {
-  report_all_infos = FALSE;
+  report_all_infos   = FALSE;
 
-  cap_file_type = FALSE;
-  cap_file_encap = FALSE;
-  cap_snaplen = FALSE;
-  cap_packet_count = FALSE;
-  cap_file_size = FALSE;
+  cap_file_type      = FALSE;
+  cap_file_encap     = FALSE;
+  cap_snaplen        = FALSE;
+  cap_packet_count   = FALSE;
+  cap_file_size      = FALSE;
 
-  cap_data_size = FALSE;
-  cap_duration = FALSE;
-  cap_start_time = FALSE;
-  cap_end_time = FALSE;
+  cap_data_size      = FALSE;
+  cap_duration       = FALSE;
+  cap_start_time     = FALSE;
+  cap_end_time       = FALSE;
 
   cap_data_rate_byte = FALSE;
-  cap_data_rate_bit = FALSE;
-  cap_packet_size = FALSE;
-  cap_packet_rate = FALSE;
+  cap_data_rate_bit  = FALSE;
+  cap_packet_size    = FALSE;
+  cap_packet_rate    = FALSE;
 
 #ifdef HAVE_LIBGCRYPT
   cap_file_hashes = FALSE;
@@ -291,9 +293,9 @@ static void print_value(const gchar *text_p1, gint width, const gchar *text_p2, 
 static void
 print_stats(const gchar *filename, capture_info *cf_info)
 {
-  const gchar		*file_type_string, *file_encap_string;
-  time_t		start_time_t;
-  time_t		stop_time_t;
+  const gchar           *file_type_string, *file_encap_string;
+  time_t                start_time_t;
+  time_t                stop_time_t;
 
   /* Build printable strings for various stats */
   file_type_string = wtap_file_type_string(cf_info->file_type);
@@ -305,9 +307,16 @@ print_stats(const gchar *filename, capture_info *cf_info)
   if (cap_file_type)      printf     ("File type:           %s\n", file_type_string);
   if (cap_file_encap)     printf     ("File encapsulation:  %s\n", file_encap_string);
   if (cap_snaplen && cf_info->snap_set)
-                          printf     ("Packet size limit:   %u bytes\n", cf_info->snaplen);
+                          printf     ("Packet size limit:   file hdr: %u bytes\n", cf_info->snaplen);
   else if(cap_snaplen && !cf_info->snap_set)
-                          printf     ("Packet size limit:   (not set)\n");
+                          printf     ("Packet size limit:   file hdr: (not set)\n");
+  if (cf_info->snaplen_max_inferred > 0) {
+    if (cf_info->snaplen_min_inferred == cf_info->snaplen_max_inferred)
+                          printf     ("Packet size limit:   inferred: %u bytes\n", cf_info->snaplen_min_inferred); 
+    else
+                          printf     ("Packet size limit:   inferred: %u bytes - %u bytes (range)\n",
+                                      cf_info->snaplen_min_inferred, cf_info->snaplen_max_inferred);
+  }
   if (cap_packet_count)   printf     ("Number of packets:   %u\n", cf_info->packet_count);
   if (cap_file_size)      printf     ("File size:           %" G_GINT64_MODIFIER "d bytes\n", cf_info->filesize);
   if (cap_data_size)      printf     ("Data size:           %" G_GINT64_MODIFIER "u bytes\n", cf_info->packet_bytes);
@@ -358,6 +367,8 @@ print_stats_table_header(void)
   if (cap_file_type)      print_stats_table_header_label("File type");
   if (cap_file_encap)     print_stats_table_header_label("File encapsulation");
   if (cap_snaplen)        print_stats_table_header_label("Packet size limit");
+  if (cap_snaplen)        print_stats_table_header_label("Packet size limit min (inferred)");
+  if (cap_snaplen)        print_stats_table_header_label("Packet size limit max (inferred)");
   if (cap_packet_count)   print_stats_table_header_label("Number of packets");
   if (cap_file_size)      print_stats_table_header_label("File size (bytes)");
   if (cap_data_size)      print_stats_table_header_label("Data size (bytes)");
@@ -382,9 +393,9 @@ print_stats_table_header(void)
 static void
 print_stats_table(const gchar *filename, capture_info *cf_info)
 {
-  const gchar		*file_type_string, *file_encap_string;
-  time_t		start_time_t;
-  time_t		stop_time_t;
+  const gchar           *file_type_string, *file_encap_string;
+  time_t                start_time_t;
+  time_t                stop_time_t;
 
   /* Build printable strings for various stats */
   file_type_string = wtap_file_type_string(cf_info->file_type);
@@ -419,6 +430,27 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
       printf("%u", cf_info->snaplen);
     else
       printf("(not set)");
+    putquote();
+    if (cf_info->snaplen_max_inferred > 0) {
+      putsep();
+      putquote();
+      printf("%u%", cf_info->snaplen_min_inferred);
+      putquote();
+      putsep();
+      putquote();
+      printf("%u%", cf_info->snaplen_max_inferred);
+      putquote();
+    }
+    else {
+      putsep();
+      putquote();
+      printf("n/a");
+      putquote();
+      putsep();
+      putquote();
+      printf("n/a");
+      putquote();
+    }      
   }
 
   if (cap_packet_count) {
@@ -516,18 +548,20 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
 static int
 process_cap_file(wtap *wth, const char *filename)
 {
-  int			err;
-  gchar			*err_info;
-  gint64		size;
-  gint64		data_offset;
+  int                   err;
+  gchar                 *err_info;
+  gint64                size;
+  gint64                data_offset;
 
-  guint32		packet = 0;
-  gint64		bytes = 0;
+  guint32               packet = 0;
+  gint64                bytes  = 0;
+  guint32               snaplen_min_inferred = 0xffffffff;
+  guint32               snaplen_max_inferred =          0;
   const struct wtap_pkthdr *phdr;
-  capture_info  	cf_info;
-  double		start_time = 0;
-  double		stop_time = 0;
-  double		cur_time = 0;
+  capture_info          cf_info;
+  double                start_time = 0;
+  double                stop_time  = 0;
+  double                cur_time   = 0;
 
   /* Tally up data that we need to parse through the file to find */
   while (wtap_read(wth, &err, &err_info, &data_offset))  {
@@ -543,14 +577,27 @@ process_cap_file(wtap *wth, const char *filename)
     if (cur_time > stop_time) {
       stop_time = cur_time;
     }
+
     bytes+=phdr->len;
     packet++;
+
+    /* If caplen < len for a rcd, then presumably           */
+    /* 'Limit packet capture length' was done for this rcd. */ 
+    /* Keep track as to the min/max actual snapshot lengths */
+    /*  seen for this file.                                 */
+    if (phdr->caplen < phdr->len) {
+      if (phdr->caplen < snaplen_min_inferred)
+        snaplen_min_inferred = phdr->caplen;
+      if (phdr->caplen > snaplen_max_inferred)
+        snaplen_max_inferred = phdr->caplen;
+    }
+
   }
 
   if (err != 0) {
     fprintf(stderr,
             "capinfos: An error occurred after reading %u packets from \"%s\": %s.\n",
-	    packet, filename, wtap_strerror(err));
+            packet, filename, wtap_strerror(err));
     switch (err) {
 
     case WTAP_ERR_UNSUPPORTED:
@@ -568,7 +615,7 @@ process_cap_file(wtap *wth, const char *filename)
   if (size == -1) {
     fprintf(stderr,
             "capinfos: Can't get size of \"%s\": %s.\n",
-	    filename, strerror(err));
+            filename, strerror(err));
     return 1;
   }
 
@@ -586,6 +633,9 @@ process_cap_file(wtap *wth, const char *filename)
     cf_info.snap_set = TRUE;
   else
     cf_info.snap_set = FALSE;
+
+  cf_info.snaplen_min_inferred = snaplen_min_inferred;
+  cf_info.snaplen_max_inferred = snaplen_max_inferred;
 
   /* # of packets */
   cf_info.packet_count = packet;
@@ -634,9 +684,9 @@ usage(gboolean is_error)
 
   fprintf(output, "Capinfos %s"
 #ifdef SVNVERSION
-	  " (" SVNVERSION " from " SVNPATH ")"
+          " (" SVNVERSION " from " SVNPATH ")"
 #endif
-	  "\n", VERSION);
+          "\n", VERSION);
   fprintf(output, "Prints various information (infos) about capture files.\n");
   fprintf(output, "See http://www.wireshark.org for more information.\n");
   fprintf(output, "\n");
@@ -707,7 +757,7 @@ usage(gboolean is_error)
 static void
 failure_message(const char *msg_format _U_, va_list ap _U_)
 {
-	return;
+  return;
 }
 #endif
 
@@ -748,13 +798,13 @@ main(int argc, char *argv[])
 #ifdef HAVE_PLUGINS
   /* Register wiretap plugins */
 
-    if ((init_progfile_dir_error = init_progfile_dir(argv[0], main))) {
-		g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);
-		g_free(init_progfile_dir_error);
-    } else {
-		init_report_err(failure_message,NULL,NULL,NULL);
-		init_plugins();
-    }
+  if ((init_progfile_dir_error = init_progfile_dir(argv[0], main))) {
+    g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);
+    g_free(init_progfile_dir_error);
+  } else {
+    init_report_err(failure_message,NULL,NULL,NULL);
+    init_plugins();
+  }
 #endif
 
   /* Process the options */
@@ -947,7 +997,7 @@ main(int argc, char *argv[])
 
     if (!wth) {
       fprintf(stderr, "capinfos: Can't open %s: %s\n", argv[opt],
-	wtap_strerror(err));
+        wtap_strerror(err));
       switch (err) {
 
       case WTAP_ERR_UNSUPPORTED:
