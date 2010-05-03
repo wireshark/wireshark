@@ -8,6 +8,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
+ * Modified 2010 by Mellanox Technologies Ltd.
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -119,14 +121,14 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo)
 /* Parsing Methods for specific IB headers. */
 
 static void parse_VENDOR(proto_tree *, tvbuff_t *, gint *);
-static void parse_PAYLOAD(proto_tree *, packet_info *, tvbuff_t *, gint *, gint length, guint8 virtualLane);
+static void parse_PAYLOAD(proto_tree *, packet_info *, tvbuff_t *, gint *, gint length, gint src_qp, gint dst_qp);
 static void parse_IETH(proto_tree *, tvbuff_t *, gint *);
 static void parse_IMMDT(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_ATOMICACKETH(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_AETH(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_ATOMICETH(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_RETH(proto_tree *, tvbuff_t *, gint *offset);
-static void parse_DETH(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_DETH(proto_tree *, tvbuff_t *, gint *offset, gint* src_qp);
 static void parse_RDETH(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_IPvSix(proto_tree *, tvbuff_t *, gint *offset, packet_info *);
 static void parse_RWH(proto_tree *, tvbuff_t *, gint *offset, packet_info *);

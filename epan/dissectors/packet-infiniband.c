@@ -8,6 +8,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
+ * Modified 2010 by Mellanox Technologies Ltd.
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -78,6 +80,8 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct e_in6_addr SRCgid;       /* Structures to hold GIDs should we need them */
     struct e_in6_addr DSTgid;
     gint crc_length = 0;
+    gint32 src_qp = -1, dst_qp = -1;    /* Tracks source and destination QPs. This is important
+                                           for deciding whether or not the packet is a MAD      */
 
     /* Mark the Packet type as Infiniband in the wireshark UI */
     /* Clear other columns */
@@ -278,38 +282,38 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
             case RDETH_DETH_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
-                parse_DETH(all_headers_tree, tvb, &offset);
+                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
 
                 packetLength -= 4; /* RDETH */
                 packetLength -= 8; /* DETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
                 break;
             case RDETH_DETH_RETH_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
-                parse_DETH(all_headers_tree, tvb, &offset);
+                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
                 parse_RETH(all_headers_tree, tvb, &offset);
 
                 packetLength -= 4; /* RDETH */
                 packetLength -= 8; /* DETH */
                 packetLength -= 16; /* RETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
                 break;
             case RDETH_DETH_IMMDT_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
-                parse_DETH(all_headers_tree, tvb, &offset);
+                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
                 parse_IMMDT(all_headers_tree, tvb, &offset);
 
                 packetLength -= 4; /* RDETH */
                 packetLength -= 8; /* DETH */
                 packetLength -= 4; /* IMMDT */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
                 break;
             case RDETH_DETH_RETH_IMMDT_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
-                parse_DETH(all_headers_tree, tvb, &offset);
+                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
                 parse_RETH(all_headers_tree, tvb, &offset);
                 parse_IMMDT(all_headers_tree, tvb, &offset);
 
@@ -318,11 +322,11 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 packetLength -= 16; /* RETH */
                 packetLength -= 4; /* IMMDT */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
                 break;
             case RDETH_DETH_RETH:
                 parse_RDETH(all_headers_tree, tvb, &offset);
-                parse_DETH(all_headers_tree, tvb, &offset);
+                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
                 parse_RETH(all_headers_tree, tvb, &offset);
 
                 packetLength -= 4; /* RDETH */
@@ -337,14 +341,14 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 packetLength -= 4; /* RDETH */
                 packetLength -= 4; /* AETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
                 break;
             case RDETH_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
 
                 packetLength -= 4; /* RDETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
                 break;
             case RDETH_AETH:
                 parse_AETH(all_headers_tree, tvb, &offset);
@@ -367,7 +371,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             case RDETH_DETH_ATOMICETH:
                 parse_RDETH(all_headers_tree, tvb, &offset);
-                parse_DETH(all_headers_tree, tvb, &offset);
+                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
                 parse_ATOMICETH(all_headers_tree, tvb, &offset);
 
                 packetLength -= 4; /* RDETH */
@@ -377,36 +381,36 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             case RDETH_DETH:
                 parse_RDETH(all_headers_tree, tvb, &offset);
-                parse_DETH(all_headers_tree, tvb, &offset);
+                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
 
                 packetLength -= 4; /* RDETH */
                 packetLength -= 8; /* DETH */
 
                 break;
             case DETH_PAYLD:
-                parse_DETH(all_headers_tree, tvb, &offset);
+                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
 
                 packetLength -= 8; /* DETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
                 break;
             case PAYLD:
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
                 break;
             case IMMDT_PAYLD:
                 parse_IMMDT(all_headers_tree, tvb, &offset);
 
                 packetLength -= 4; /* IMMDT */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
                 break;
             case RETH_PAYLD:
                 parse_RETH(all_headers_tree, tvb, &offset);
 
                 packetLength -= 16; /* RETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
                 break;
             case RETH:
                 parse_RETH(all_headers_tree, tvb, &offset);
@@ -419,7 +423,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 packetLength -= 4; /* AETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
                 break;
             case AETH:
                 parse_AETH(all_headers_tree, tvb, &offset);
@@ -446,16 +450,16 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 packetLength -= 4; /* IETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
                 break;
             case DETH_IMMDT_PAYLD:
-                parse_DETH(all_headers_tree, tvb, &offset);
+                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
                 parse_IMMDT(all_headers_tree, tvb, &offset);
 
                 packetLength -= 8; /* DETH */
                 packetLength -= 4; /* IMMDT */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
                 break;
             default:
                 parse_VENDOR(all_headers_tree, tvb, &offset);
@@ -678,9 +682,10 @@ parse_RDETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 /* Parse DETH - Datagram Extended Transport Header
 * IN: parentTree to add the dissection to - in this code the all_headers_tree
 * IN: tvb - the data buffer from wireshark
-* IN/OUT: The current and updated offset */
+* IN/OUT: The current and updated offset
+* OUT:	  src_qp - The source QP of this packet */
 static void
-parse_DETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
+parse_DETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset, gint *src_qp)
 {
     gint local_offset = *offset;
     /* DETH - Datagram Extended Transport Header */
@@ -693,7 +698,8 @@ parse_DETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 
     proto_tree_add_item(DETH_header_tree, hf_infiniband_queue_key,                  tvb, local_offset, 4, FALSE); local_offset+=4;
     proto_tree_add_item(DETH_header_tree, hf_infiniband_reserved8_DETH,             tvb, local_offset, 1, FALSE); local_offset+=1;
-    proto_tree_add_item(DETH_header_tree, hf_infiniband_source_qp,                  tvb, local_offset, 3, FALSE); local_offset+=3;
+    proto_tree_add_item(DETH_header_tree, hf_infiniband_source_qp,                  tvb, local_offset, 3, FALSE);
+    *src_qp = tvb_get_ntoh24(tvb, local_offset); local_offset+=3;
 
     *offset = local_offset;
 }
@@ -829,9 +835,11 @@ parse_IETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 * IN: parentTree to add the dissection to - in this code the all_headers_tree
 * IN: pinfo - packet info from wireshark
 * IN: tvb - the data buffer from wireshark
-* IN/OUT: The current and updated offset
-* IN: Length of Payload */
-static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, gint length, guint8 virtualLane)
+* IN/OUT: offset - The current and updated offset
+* IN: length - Length of Payload
+* IN: src_qp - Source QP of the packet
+* IN: dst_qp - Destination QP of the packet */
+static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, gint length, gint src_qp, gint dst_qp)
 {
     gint local_offset = *offset;
     /* Payload - Packet Payload */
@@ -853,7 +861,7 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
         }
         return;
     }
-    if(virtualLane == 0xF0)
+    if(src_qp == 0 || src_qp == 1 || dst_qp == 0 || dst_qp == 1)    /* management datagram */
     {
         management_class =  tvb_get_guint8(tvb, (*offset) + 1);
 
