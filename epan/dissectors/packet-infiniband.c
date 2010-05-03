@@ -32,7 +32,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
+#include <epan/emem.h>
 #include <epan/dissectors/packet-frame.h>
+#include <string.h>
 #include "packet-infiniband.h"
 
 /* Main Dissector */
@@ -83,6 +85,10 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint32 src_qp = -1, dst_qp = -1;    /* Tracks source and destination QPs. This is important
                                            for deciding whether or not the packet is a MAD      */
 
+    /* initialize source/destination address strings. we will fill them in later */
+    src_addr_str = ep_alloc(ADDR_STR_MAX_LEN+1);
+    dst_addr_str = ep_alloc(ADDR_STR_MAX_LEN+1);
+                                                                   
     /* Mark the Packet type as Infiniband in the wireshark UI */
     /* Clear other columns */
     if(pinfo->cinfo)
@@ -144,12 +150,10 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     /* Set destination in packet view. */
-    if (check_col(pinfo->cinfo, COL_DEF_DST))
-    {
-        col_add_fstr(pinfo->cinfo, COL_DEF_DST, "DLID: %s", tvb_bytes_to_str(tvb, offset, 2));
-    }
-    offset+=2;
+    g_snprintf(dst_addr_str, ADDR_STR_MAX_LEN, "DLID: %d", tvb_get_ntohs(tvb, offset));
+    SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr_str)+1, dst_addr_str);
 
+    offset+=2;
 
     proto_tree_add_item(local_route_header_tree, hf_infiniband_reserved5,               tvb, offset, 2, FALSE);
 
@@ -162,10 +166,8 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(local_route_header_tree, hf_infiniband_source_local_id,         tvb, offset, 2, FALSE);
 
     /* Set Source in packet view. */
-    if (check_col(pinfo->cinfo, COL_DEF_SRC))
-    {
-        col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "SLID: %s", tvb_bytes_to_str(tvb, offset, 2));
-    }
+    g_snprintf(src_addr_str, ADDR_STR_MAX_LEN, "SLID: %d", tvb_get_ntohs(tvb, offset));
+    SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(src_addr_str)+1, src_addr_str);
 
     offset+=2;
     packetLength -= 8; /* Shave 8 bytes for the LRH. */
@@ -193,19 +195,21 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(global_route_header_tree, hf_infiniband_source_gid,         tvb, offset, 16, FALSE);
 
             tvb_get_ipv6(tvb, offset, &SRCgid);
-            if (check_col(pinfo->cinfo, COL_DEF_SRC))
-            {
-                col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "SGID: %s", ip6_to_str(&SRCgid));
-            }
+
+            /* set source GID in packet view*/
+            g_snprintf(src_addr_str,  ADDR_STR_MAX_LEN, "SGID: %s", ip6_to_str(&SRCgid));
+            SET_ADDRESS(&pinfo->src,  AT_STRINGZ, (int)strlen(src_addr_str)+1, src_addr_str);
+
             offset += 16;
 
             proto_tree_add_item(global_route_header_tree, hf_infiniband_destination_gid,    tvb, offset, 16, FALSE);
 
             tvb_get_ipv6(tvb, offset, &DSTgid);
-            if (check_col(pinfo->cinfo, COL_DEF_DST))
-            {
-                col_add_fstr(pinfo->cinfo, COL_DEF_DST, "DGID: %s", ip6_to_str(&DSTgid));
-            }
+
+            /* set destination GID in packet view*/
+            g_snprintf(dst_addr_str,  ADDR_STR_MAX_LEN, "DGID: %s", ip6_to_str(&DSTgid));
+            SET_ADDRESS(&pinfo->dst,  AT_STRINGZ, (int)strlen(dst_addr_str)+1, dst_addr_str);
+
             offset += 16;
             packetLength -= 40; /* Shave 40 bytes for GRH */
 
@@ -247,11 +251,9 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
         case IP_NON_IBA:
             /* Raw IPv6 Packet */
-            if (check_col(pinfo->cinfo, COL_DEF_DST))
-            {
-                col_set_str(pinfo->cinfo, COL_DEF_DST, "IPv6 over IB Packet");
-                col_set_fence(pinfo->cinfo, COL_DEF_DST);
-            }
+            g_snprintf(dst_addr_str,  ADDR_STR_MAX_LEN, "IPv6 over IB Packet");
+            SET_ADDRESS(&pinfo->src,  AT_STRINGZ, (int)strlen(dst_addr_str)+1, dst_addr_str);
+
             parse_IPvSix(all_headers_tree, tvb, &offset, pinfo);
             break;
         case RAW:
@@ -3117,17 +3119,13 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo)
     offset+=1;
 
     /* Set destination in packet view. */
-    if (check_col(pinfo->cinfo, COL_DEF_DST))
-    {
-        col_add_fstr(pinfo->cinfo, COL_DEF_DST, "DLID: %s", tvb_bytes_to_str(tvb, offset, 2));
-    }
+    g_snprintf(dst_addr_str, ADDR_STR_MAX_LEN, "DLID: %d", tvb_get_ntohs(tvb, offset));
+    SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr_str)+1, dst_addr_str);
     offset+=4;
 
     /* Set Source in packet view. */
-    if (check_col(pinfo->cinfo, COL_DEF_SRC))
-    {
-        col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "SLID: %s", tvb_bytes_to_str(tvb, offset, 2));
-    }
+    g_snprintf(src_addr_str, ADDR_STR_MAX_LEN, "SLID: %d", tvb_get_ntohs(tvb, offset));
+    SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(src_addr_str)+1, src_addr_str);
     offset+=2;
 
     switch(lnh_val)
@@ -3138,17 +3136,19 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo)
             offset += 2;
 
             tvb_get_ipv6(tvb, offset, &SRCgid);
-            if (check_col(pinfo->cinfo, COL_DEF_SRC))
-            {
-                col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "SGID: %s", ip6_to_str(&SRCgid));
-            }
+
+            /* Set source GID in packet view. */
+            g_snprintf(src_addr_str, ADDR_STR_MAX_LEN, "SGID: %s", ip6_to_str(&SRCgid));
+            SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(src_addr_str)+1, src_addr_str);
+
             offset += 16;
 
             tvb_get_ipv6(tvb, offset, &DSTgid);
-            if (check_col(pinfo->cinfo, COL_DEF_DST))
-            {
-                col_add_fstr(pinfo->cinfo, COL_DEF_DST, "DGID: %s", ip6_to_str(&DSTgid));
-            }
+            
+            /* Set destination GID in packet view. */
+            g_snprintf(dst_addr_str, ADDR_STR_MAX_LEN, "DGID: %s", ip6_to_str(&DSTgid));
+            SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr_str)+1, dst_addr_str);
+
             offset += 16;
 
             if(nxtHdr != 0x1B)
@@ -3174,11 +3174,8 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo)
             break;
         case IP_NON_IBA:
             /* Raw IPv6 Packet */
-            if (check_col(pinfo->cinfo, COL_DEF_DST))
-            {
-                col_set_str(pinfo->cinfo, COL_DEF_DST, "IPv6 over IB Packet");
-                col_set_fence(pinfo->cinfo, COL_DEF_DST);
-            }
+            g_snprintf(dst_addr_str, ADDR_STR_MAX_LEN, "IPv6 over IB Packet");
+            SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr_str)+1, dst_addr_str);
             break;
         case RAW:
             break;

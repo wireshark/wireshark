@@ -1371,4 +1371,9 @@ static guint32 opCode_PAYLD[] = {
 
 #define MAD_DATA_SIZE     232     /* size of data field a MAD payload carries */
 
+static gchar *src_addr_str = NULL,     /* the string to be displayed in the source/destination columns */
+             *dst_addr_str = NULL;     /* will be stored here */
+
+#define ADDR_STR_MAX_LEN  33      /* maximum length of src_addr_str and dst_addr_str */
+
 #endif
