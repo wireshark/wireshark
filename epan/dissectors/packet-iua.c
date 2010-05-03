@@ -167,11 +167,13 @@ dissect_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 
 /* SAPI values taken from Q.921 */
 #define SAPI_VAL_CALL_CONTROL 0
+#define SAPI_VAL_Q931_PACKET  1
 #define SAPI_VAL_TELACTION    12
 #define SAPI_VAL_X25          16
 #define SAPI_VAL_LAYER_2      63
 static const value_string sapi_values[] = {
   { SAPI_VAL_CALL_CONTROL,    "Call control procedures" },
+  { SAPI_VAL_Q931_PACKET,     "Q.931 packet mode communication" },
   { SAPI_VAL_TELACTION,       "Teleaction communication" },
   { SAPI_VAL_X25,             "X.25 packet communication" },
   { SAPI_VAL_LAYER_2,         "Layer 2 management procedures" },
@@ -415,6 +417,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, proto_item *parameter_i
   switch(sapi_val)
   {
     case SAPI_VAL_CALL_CONTROL:
+    case SAPI_VAL_Q931_PACKET:
       call_dissector(q931_handle, protocol_data_tvb, pinfo, tree);
       break;
 
