@@ -18,6 +18,7 @@ S<[ B<-E> ]>
 S<[ B<-h> ]>
 S<[ B<-H> ]>
 S<[ B<-i> ]>
+S<[ B<-l> ]>
 S<[ B<-L> ]>
 S<[ B<-m> ]>
 S<[ B<-N> ]>
@@ -152,6 +153,12 @@ Displays the SHA1, RIPEMD160, and MD5 hashes for the file.
 =item -i
 
 Displays the average data rate, in bits/sec
+
+=item -l 
+
+Display the snaplen (if any) for a file.
+snaplen (if available) is determined from the capture file header
+and by looking for truncated records in the capture file.
 
 =item -L 
 
