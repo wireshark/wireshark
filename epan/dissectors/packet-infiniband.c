@@ -1321,7 +1321,7 @@ static void parse_BM(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
     }
     local_offset = *offset;
 
-    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 256, FALSE); local_offset += 256;
+    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, FALSE); local_offset += MAD_DATA_SIZE;
     proto_item_set_text(PERF_header_item, "%s", "BM - Baseboard Management MAD (Dissector Not Implemented)");
     *offset = local_offset;
 }
@@ -1343,7 +1343,7 @@ static void parse_DEV_MGT(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
         return;
     }
     local_offset = *offset;
-    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 256, FALSE); local_offset += 256;
+    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, FALSE); local_offset += MAD_DATA_SIZE;
     proto_item_set_text(PERF_header_item, "%s", "DEV_MGT - Device Management MAD (Dissector Not Implemented)");
     *offset = local_offset;
 }
@@ -1365,7 +1365,7 @@ static void parse_COM_MGT(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
         return;
     }
     local_offset = *offset;
-    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 256, FALSE); local_offset += 256;
+    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, FALSE); local_offset += MAD_DATA_SIZE;
     proto_item_set_text(PERF_header_item, "%s", "COMM - Communication Management MAD (Dissector Not Implemented)");
     *offset = local_offset;
 }
@@ -1388,7 +1388,7 @@ static void parse_SNMP(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
     }
     local_offset = *offset;
 
-    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 256, FALSE); local_offset += 256;
+    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, FALSE); local_offset += MAD_DATA_SIZE;
     proto_item_set_text(PERF_header_item, "%s", "SNMP - SNMP Tunneling MAD (Dissector Not Implemented)");
     *offset = local_offset;
 }
@@ -1411,7 +1411,7 @@ static void parse_VENDOR_MANAGEMENT(proto_tree *parentTree, tvbuff_t *tvb, gint 
     }
     local_offset = *offset;
 
-    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 256, FALSE); local_offset += 256;
+    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, FALSE); local_offset += MAD_DATA_SIZE;
     proto_item_set_text(PERF_header_item, "%s", "VENDOR - Vendor Specific Management MAD (Dissector Not Implemented)");
     *offset = local_offset;
 }
@@ -1433,7 +1433,7 @@ static void parse_APPLICATION_MANAGEMENT(proto_tree *parentTree, tvbuff_t *tvb, 
         return;
     }
     local_offset = *offset;
-    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 256, FALSE); local_offset += 256;
+    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, FALSE); local_offset += MAD_DATA_SIZE;
     proto_item_set_text(PERF_header_item, "%s", "APP - Application Specific MAD (Dissector Not Implemented)");
     *offset = local_offset;
 }
@@ -1490,7 +1490,7 @@ static gboolean parse_MAD_Common(proto_tree *parentTree, tvbuff_t *tvb, gint *of
     MadData->transactionID =        tvb_get_ntoh64(tvb, local_offset + 8);
     MadData->attributeID =          tvb_get_ntohs(tvb, local_offset + 16);
     MadData->attributeModifier =    tvb_get_ntohl(tvb, local_offset + 20);
-    tvb_memcpy(tvb, MadData->data, local_offset + 24, 232);
+    tvb_memcpy(tvb, MadData->data, local_offset + 24, MAD_DATA_SIZE);
 
     /* Populate the Dissector Tree */
 
@@ -1508,8 +1508,8 @@ static gboolean parse_MAD_Common(proto_tree *parentTree, tvbuff_t *tvb, gint *of
     proto_tree_add_item(MAD_header_tree, hf_infiniband_attribute_id,        tvb, local_offset, 2, FALSE); local_offset+=2;
     proto_tree_add_item(MAD_header_tree, hf_infiniband_reserved16,          tvb, local_offset, 2, FALSE); local_offset+=2;
     proto_tree_add_item(MAD_header_tree, hf_infiniband_attribute_modifier,  tvb, local_offset, 4, FALSE); local_offset+=4;
-    proto_tree_add_item(MAD_header_tree, hf_infiniband_data,                tvb, local_offset, 232, FALSE); local_offset+=232;
-    *offset = (local_offset - 232); /* Move the offset back to the start of the Data field - this will be where the other parsers start. */
+    proto_tree_add_item(MAD_header_tree, hf_infiniband_data,                tvb, local_offset, MAD_DATA_SIZE, FALSE);
+    *offset = local_offset; /* Move the offset to the start of the Data field - this will be where the other parsers start. */
 
     return TRUE;
 }
@@ -1537,8 +1537,8 @@ static gboolean parse_RMPP(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
     switch(RMPP_Type)
     {
         case RMPP_ILLEGAL:
-            proto_tree_add_item(RMPP_header_tree, hf_infiniband_rmpp_data1,     tvb, local_offset, 32, FALSE); local_offset+=32;
-            proto_tree_add_item(RMPP_header_tree, hf_infiniband_rmpp_data2,     tvb, local_offset, 32, FALSE); local_offset+=32;
+            proto_tree_add_item(RMPP_header_tree, hf_infiniband_rmpp_data1,     tvb, local_offset, 4, FALSE); local_offset+=4;
+            proto_tree_add_item(RMPP_header_tree, hf_infiniband_rmpp_data2,     tvb, local_offset, 4, FALSE); local_offset+=4;
             break;
         case RMPP_DATA:
             proto_tree_add_item(RMPP_header_tree, hf_infiniband_segment_number,     tvb, local_offset, 4, FALSE); local_offset+=4;

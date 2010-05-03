@@ -1320,4 +1320,6 @@ static guint32 opCode_PAYLD[] = {
 * RC_ACKNOWLEDGE
 * }; */
 
+#define MAD_DATA_SIZE     232     /* size of data field a MAD payload carries */
+
 #endif
