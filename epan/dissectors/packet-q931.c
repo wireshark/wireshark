@@ -2559,7 +2559,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8		message_type, segmented_message_type;
 	guint8		info_element;
 	guint16		info_element_len;
-	gboolean	more_frags; 
+	gboolean	first_frag, more_frags; 
 	guint32		frag_len;
 	fragment_data *fd_head;
 	tvbuff_t *next_tvb = NULL;
@@ -2641,6 +2641,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    val_to_str(info_element, q931_info_element_vals[0], "Unknown (0x%02X)"));
 	proto_tree_add_text(ie_tree, tvb, offset + 1, 1, "Length: %u", info_element_len);
 	dissect_q931_segmented_message_ie(tvb, offset + 2, info_element_len, ie_tree);
+	first_frag = (tvb_get_guint8(tvb, offset + 2) & 0x80) != 0;
 	more_frags = (tvb_get_guint8(tvb, offset + 2) & 0x7F) != 0;
 	segmented_message_type = tvb_get_guint8(tvb, offset + 3);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -2650,6 +2651,10 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 1 + 1 + info_element_len;
 	/* Reassembly */
 	frag_len = tvb_reported_length_remaining(tvb, offset);
+	if (first_frag && fragment_get(pinfo, call_ref_val,	q931_fragment_table)) {
+		/* there are some unreassembled segments, ignore them */
+		fragment_end_seq_next(pinfo, call_ref_val, q931_fragment_table, q931_reassembled_table);
+	}
 	fd_head = fragment_add_seq_next(tvb, offset, pinfo, call_ref_val,
 									q931_fragment_table, q931_reassembled_table,
 									frag_len, more_frags);
