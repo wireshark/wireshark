@@ -3233,6 +3233,19 @@ void proto_register_infiniband(void)
     /* XXX: ToDo: Verify against Infiniband 1.2.1 Specification                           */
     /*            Fields verified/corrected: Those after comment "XX: All following ..."  */
 
+    /* meanings for MAD method field */
+    static const value_string mad_method_str[] = {
+        { 0x01, "Get()" },
+        { 0x02, "Set()" },
+        { 0x81, "GetResp()" },
+        { 0x03, "Send()" },
+        { 0x05, "Trap()" },
+        { 0x06, "Report()" },
+        { 0x86, "ReportResp()" },
+        { 0x07, "TrapRepress()" },
+        { 0,    NULL }
+    };
+
     static hf_register_info hf[] = {    
         /* Local Route Header (LRH) */
         { &hf_infiniband_LRH, {
@@ -3536,7 +3549,7 @@ void proto_register_infiniband(void)
 #endif
         { &hf_infiniband_method, {
                 "Method", "infiniband.mad.method",
-                FT_UINT8, BASE_HEX, NULL, 0x7F, NULL, HFILL}
+                FT_UINT8, BASE_HEX, VALS(mad_method_str), 0x0, NULL, HFILL}
         },
         { &hf_infiniband_status, {
                 "Status", "infiniband.mad.status",
