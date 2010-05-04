@@ -6281,6 +6281,14 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
     case MGT_DISASS:
       fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
       add_fixed_field(fixed_tree, tvb, 0, FIELD_REASON_CODE);
+      offset = 2; /* Size of fixed fields */
+      tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
+      if (tagged_parameter_tree_len > 0) {
+        tagged_tree = get_tagged_parameter_tree(mgt_tree, tvb, offset,
+                                                tagged_parameter_tree_len);
+        ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
+                                         tagged_parameter_tree_len);
+      }
       break;
 
     case MGT_AUTHENTICATION:
@@ -6306,6 +6314,14 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
     case MGT_DEAUTHENTICATION:
       fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
       add_fixed_field(fixed_tree, tvb, 0, FIELD_REASON_CODE);
+      offset = 2; /* Size of fixed fields */
+      tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
+      if (tagged_parameter_tree_len > 0) {
+        tagged_tree = get_tagged_parameter_tree(mgt_tree, tvb, offset,
+                                                tagged_parameter_tree_len);
+        ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
+                                         tagged_parameter_tree_len);
+      }
       break;
 
     case MGT_ACTION:
