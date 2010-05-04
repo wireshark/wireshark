@@ -261,3 +261,96 @@ encapsulation.
 Update the release notes.
 
 ------------------------------------------------------------------------
+r32339 | gerald | 2010-03-31 09:27:16 -0700 (Wed, 31 Mar 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/ChangeLog
+   M /trunk-1.0/NEWS
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/version.conf
+
+Build 1.0.12.
+
+------------------------------------------------------------------------
+r32347 | gerald | 2010-03-31 16:20:05 -0700 (Wed, 31 Mar 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/config.nmake
+   M /trunk-1.0/configure.in
+   M /trunk-1.0/debian/changelog
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/version.conf
+
+1.0.12 -> 1.0.13.
+
+------------------------------------------------------------------------
+r32373 | gerald | 2010-04-04 08:04:06 -0700 (Sun, 04 Apr 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-04-04]
+------------------------------------------------------------------------
+r32445 | gerald | 2010-04-11 08:04:02 -0700 (Sun, 11 Apr 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-04-11]
+------------------------------------------------------------------------
+r32506 | gerald | 2010-04-18 08:04:01 -0700 (Sun, 18 Apr 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-04-18]
+------------------------------------------------------------------------
+r32555 | gerald | 2010-04-25 08:04:08 -0700 (Sun, 25 Apr 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-04-25]
+------------------------------------------------------------------------
+r32631 | gerald | 2010-05-02 08:04:07 -0700 (Sun, 02 May 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-05-02]
+------------------------------------------------------------------------
+r32662 | gerald | 2010-05-04 14:44:03 -0700 (Tue, 04 May 2010) | 19 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/plugins/docsis/packet-bpkmreq.c
+   M /trunk-1.0/plugins/docsis/packet-bpkmrsp.c
+   M /trunk-1.0/plugins/docsis/packet-dsaack.c
+   M /trunk-1.0/plugins/docsis/packet-dsarsp.c
+   M /trunk-1.0/plugins/docsis/packet-dscack.c
+   M /trunk-1.0/plugins/docsis/packet-dscrsp.c
+   M /trunk-1.0/plugins/docsis/packet-dsdrsp.c
+   M /trunk-1.0/plugins/docsis/packet-map.c
+   M /trunk-1.0/plugins/docsis/packet-regack.c
+   M /trunk-1.0/plugins/docsis/packet-regrsp.c
+   M /trunk-1.0/plugins/mate/mate.h
+   M /trunk-1.0/plugins/mate/mate_grammar.lemon
+   M /trunk-1.0/plugins/mate/mate_setup.c
+
+Copy over with manual intervention:
+------------------------------------------------------------------------
+r32396 | guy | 2010-04-05 19:49:18 -0700 (Mon, 05 Apr 2010) | 4 lines
+Changed paths:
+   M /trunk/plugins/docsis/packet-bpkmrsp.c
+
+The third argument to val_to_str() is a format string that gets passed
+the value that couldn't be mapped to a string - it's an integer and
+needs to be printed with an integer format.  Fixes bug 4644.
+------------------------------------------------------------------------
+r32398 | morriss | 2010-04-06 06:40:06 -0700 (Tue, 06 Apr 2010) | 1 line
+Changed paths:
+   M /trunk/plugins/docsis/packet-regrsp.c
+
+Don't use %s as the format string in val_to_str().  This fixes the fuzz failure in bug 4646.
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
