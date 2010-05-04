@@ -1331,6 +1331,7 @@ main_cf_cb_file_read_finished(capture_file *cf)
     set_menus_for_captured_packets(TRUE);
 }
 
+#ifdef HAVE_LIBPCAP
 GList *icon_list_create(
     const char **icon16_xpm,
     const char **icon32_xpm,
@@ -1371,22 +1372,27 @@ GList *icon_list_create(
   return icon_list;
 }
 
-#ifdef HAVE_LIBPCAP
+static void
+main_capture_set_main_window_title(capture_options *capture_opts)
+{
+    GString *title = g_string_new("");
+
+    g_string_append(title, "Capturing ");
+    if(capture_opts->iface) {
+        g_string_append_printf(title, "from %s ", cf_get_tempfile_source(capture_opts->cf));
+    }
+    g_string_append(title, "- Wireshark");
+
+    set_main_window_name(title->str);
+    g_string_free(title, TRUE);
+    }
+
 static void
 main_capture_cb_capture_prepared(capture_options *capture_opts)
 {
-    gchar *title;
     static GList *icon_list = NULL;
 
-
-    if(capture_opts->iface) {
-        title = g_strdup_printf("%s: Capturing - Wireshark",
-				get_iface_description(capture_opts));
-    } else {
-        title = g_strdup_printf("Capturing - Wireshark");
-    }
-    set_main_window_name(title);
-    g_free(title);
+    main_capture_set_main_window_title(capture_opts);
 
     if(icon_list == NULL) {
         icon_list = icon_list_create(wsiconcap16_xpm, wsiconcap32_xpm, wsiconcap48_xpm, NULL);
@@ -1405,18 +1411,9 @@ main_capture_cb_capture_prepared(capture_options *capture_opts)
 static void
 main_capture_cb_capture_update_started(capture_options *capture_opts)
 {
-    gchar *title;
-
     /* We've done this in "prepared" above, but it will be cleared while
        switching to the next multiple file. */
-    if(capture_opts->iface) {
-        title = g_strdup_printf("%s: Capturing - Wireshark",
-				get_iface_description(capture_opts));
-    } else {
-        title = g_strdup_printf("Capturing - Wireshark");
-    }
-    set_main_window_name(title);
-    g_free(title);
+    main_capture_set_main_window_title(capture_opts);
 
     set_menus_for_capture_in_progress(TRUE);
     set_capture_if_dialog_for_capture_in_progress(TRUE);

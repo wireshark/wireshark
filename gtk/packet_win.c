@@ -131,6 +131,11 @@ void new_window_cb(GtkWidget *w _U_)
   struct PacketWinData *DataPtr;
   int i;
 
+  if (!cfile.current_frame) {
+    /* nothing has been captured so far */
+    return;
+  }
+
   /* Allocate data structure to represent this window. */
   DataPtr = (struct PacketWinData *) g_malloc(sizeof(struct PacketWinData));
 

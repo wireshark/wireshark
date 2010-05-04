@@ -169,7 +169,7 @@ gboolean
 capture_start(capture_options *capture_opts)
 {
   gboolean ret;
-
+  GString *source = g_string_new("");
 
   /* close the currently loaded capture file */
   cf_close(capture_opts->cf);
@@ -178,6 +178,13 @@ capture_start(capture_options *capture_opts)
   capture_opts->state = CAPTURE_PREPARING;
 
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Start ...");
+
+  g_string_printf(source, "%s", get_iface_description(capture_opts));
+  if(capture_opts->cfilter && capture_opts->cfilter[0]) {
+    g_string_append_printf(source, " (%s)", capture_opts->cfilter);
+  }
+  cf_set_tempfile_source(capture_opts->cf, source->str);
+  g_string_free(source, TRUE);
 
   /* try to start the capture child process */
   ret = sync_pipe_start(capture_opts);
@@ -244,7 +251,6 @@ capture_input_read_all(capture_options *capture_opts, gboolean is_tempfile, gboo
 guint32 drops)
 {
   int err;
-
 
   /* Capture succeeded; attempt to open the capture file. */
   if (cf_open(capture_opts->cf, capture_opts->save_file, is_tempfile, &err) != CF_OK) {
@@ -336,7 +342,6 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
 {
   gboolean is_tempfile;
   int  err;
-
 
   if(capture_opts->state == CAPTURE_PREPARING) {
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture started!");

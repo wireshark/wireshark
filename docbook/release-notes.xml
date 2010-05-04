@@ -30,6 +30,37 @@ Wireshark Info
     <section id="BugFixes"><title>Bug Fixes</title>
 
     <para>
+
+      The following vulnerabilities have been fixed. See the
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2009-09.html">security advisory</ulink> for details and a workaround.
+
+      <itemizedlist>
+
+        <listitem>
+          <para>
+            The DOCSIS dissector could crash.
+            <!-- Fixed in trunk: r32396, r32398, r32400 -->
+            <!-- Fixed in trunk-1.2: ? -->
+            <!--
+              (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4644">Bug
+            4644</ulink>), 
+              (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4646">bug
+            4646</ulink>)
+            -->
+          </para>
+          <para>Versions affected: ???</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+          </para>
+          -->
+        </listitem>
+
+      </itemizedlist>
+
+    </para>
+
+    <para>
     The following bugs have been fixed:
 
       <itemizedlist>
@@ -43,99 +74,9 @@ Wireshark Info
 -->
 
         <listitem><para>
-          SNMPv3 Engine ID registration.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2426">Bug
-          2426</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Open file dialog always displayed when clicking anywhere on Wireshark.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2478">Bug
-          2478</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          tshark reports wrong number of bytes on big dumpfiles with -z io,stat.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3205">Bug
-          3205</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Negative INTEGER number displayed as positive number in SNMP dissector.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3230">Bug
-          3230</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Add support for FT_BOOLEAN fields to wslua FieldInfo.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4049">Bug
-          4049</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes w/ GLib error when trying to play RTP stream.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4119">Bug
-          4119</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Windows 2000 support has been restored.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4176">Bug
-          4176</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wrong dissection on be_cell_id_list for bssmap.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4437">Bug
-          4437</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-           I/O Graph dropdown boxes not working correctly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4487">Bug
-          4487</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Runtime Error when right-clicking field and selecting "Filter Field Reference".
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4522">Bug
-          4522</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          In GSM SMS PDU TPVPF showing wrong.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4524">Bug
-          4524</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Profinet: May be wrong defined byte meaning.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4525">Bug
-          4525</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          GLib-CRITICAL ** Message.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4547">Bug
-          4547</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Certain EDP display filters trigger Wireshark/tshark runtime error.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4563">Bug
-          4563</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Some NCP frames trigger "Dissector bug, protocol NCP".
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4565">Bug
-          4565</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The encapsulation abbreviation "bluetooth-h4" is ambiguous.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4613">Bug
-          4613</ulink>)
+          ERF file starting with record with timestamp=0,1 or 2 not recognized as ERF file.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4503">Bug
+          4503</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -163,15 +104,7 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
-BSSMAP,
-DMP,
-GSM SMS,
-LDSS,
-NCP,
-PN/IO,
-PPP,
-SIP,
-SNMP
+DOCSIS,
 
     </para>
     </section>
@@ -179,7 +112,7 @@ SNMP
     <section id="NewCapture"><title>Updated Capture File Support</title>
     <para>
 
-There are no updated capture file formats in this release.
+ERF, PacketLogger.
 
     </para>
     </section>

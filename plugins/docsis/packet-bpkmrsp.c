@@ -87,7 +87,7 @@ dissect_bpkmrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     {
       col_clear (pinfo->cinfo, COL_INFO);
       col_add_fstr (pinfo->cinfo, COL_INFO, "BPKM Response (%s)",
-		    val_to_str (code, code_field_vals, "%s"));
+		    val_to_str (code, code_field_vals, "Unknown code %u"));
     }
 
   if (tree)

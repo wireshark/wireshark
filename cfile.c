@@ -47,6 +47,7 @@ init_cap_file(capture_file *cf)
   cf->plist_end		= NULL;
   cf->wth		= NULL;
   cf->filename		= NULL;
+  cf->source        = NULL;
   cf->user_saved	= FALSE;
   cf->is_tempfile	= FALSE;
   cf->rfcode		= NULL;
