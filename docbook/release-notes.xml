@@ -32,7 +32,7 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed. See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2009-09.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2010-03.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
@@ -40,8 +40,8 @@ Wireshark Info
           <para>
             The DOCSIS dissector could crash.
             <!-- Fixed in trunk: r32396, r32398, r32400 -->
-            <!-- Fixed in trunk-1.2: ? -->
-            <!--
+            <!-- Fixed in trunk-1.2: r32655 -->
+            <!-- Fixed in trunk-1.0: r32662 -->
               (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4644">Bug
             4644</ulink>), 
               (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4646">bug
