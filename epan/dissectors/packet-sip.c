@@ -110,14 +110,16 @@ static gint hf_sip_tc_user                = -1;
 static gint hf_sip_tc_host                = -1;
 static gint hf_sip_tc_port                = -1;
 static gint hf_sip_tc_turi                = -1;
-static gint hf_sip_uri                    = -1;
-static gint hf_sip_contact_addr           = -1;
-static gint hf_sip_contact_item           = -1;
+static gint hf_sip_contact_param           = -1;
 static gint hf_sip_resend                 = -1;
 static gint hf_sip_original_frame         = -1;
 static gint hf_sip_matching_request_frame = -1;
 static gint hf_sip_response_time          = -1;
 static gint hf_sip_release_time           = -1;
+static gint hf_sip_curi                   = -1;
+static gint hf_sip_curi_user              = -1;
+static gint hf_sip_curi_host              = -1;
+static gint hf_sip_curi_port              = -1;
 
 static gint hf_sip_auth                   = -1;
 static gint hf_sip_auth_scheme            = -1;
@@ -175,6 +177,7 @@ static gint ett_sip_reason                = -1;
 static gint ett_sip_rack                  = -1;
 static gint ett_sip_ruri                  = -1;
 static gint ett_sip_to_uri                = -1;
+static gint ett_sip_curi                  = -1;
 static gint ett_sip_from_uri              = -1;
 static gint ett_sip_pai_uri               = -1;
 static gint ett_sip_pmiss_uri             = -1;
@@ -648,6 +651,15 @@ static hf_sip_uri_t sip_req_uri = {
 	&hf_sip_ruri_port,
 	&ett_sip_ruri
 };
+
+static hf_sip_uri_t sip_contact_uri = {
+	&hf_sip_curi,
+	&hf_sip_curi_user,
+	&hf_sip_curi_host,
+	&hf_sip_curi_port,
+	&ett_sip_curi
+};
+
 /*
  * Type of line.  It's either a SIP Request-Line, a SIP Status-Line, or
  * another type of line.
@@ -1224,19 +1236,20 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, uri_offset_info* u
 
 /* Code to parse a contact header item
  * Returns Offset end off parsing or -1 for unsuccessful parsing
+ * * contact-param  =  (name-addr / addr-spec) *(SEMI contact-params)
  */
 static gint
 dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint start_offset, gint line_end_offset)
 {
 	gchar c;
-	gint i;
+	//gint i;
 	proto_item *ti = NULL;
 	proto_tree *contact_item_tree = NULL, *uri_tree = NULL;
 
 	gint current_offset;
 	gint queried_offset;
 	gint contact_params_start_offset = -1;
-	gint contact_item_end_offset = -1;
+	gint contact_param_end_offset = -1;
 	uri_offset_info uri_offsets;
 
 	/* skip Spaces and Tabs */
@@ -1246,91 +1259,54 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 		/* Nothing to parse */
 		return -1;
 	}
-
+	queried_offset = tvb_find_guint8(tvb, start_offset , line_end_offset - start_offset, ';');
+	if(queried_offset == -1){
+		queried_offset = line_end_offset;
+	}else{
+		/* skip Spaces and Tabs */
+		contact_params_start_offset = tvb_skip_wsp(tvb, queried_offset+1, line_end_offset - queried_offset+1);
+	}
 	/* Initialize the uri_offsets */
 	sip_uri_offset_init(&uri_offsets);
 	/* contact-param  =  (name-addr / addr-spec) *(SEMI contact-params) */
 	current_offset = dissect_sip_name_addr_or_addr_spec(tvb, pinfo, start_offset, line_end_offset, &uri_offsets);
+	display_sip_uri(tvb, tree, &uri_offsets, &sip_contact_uri);
 	if(current_offset == -1)
 	{
 		/* Parsing failed */
 		return -1;
 	}
+	/* check if contact-params is present */
+	if(contact_params_start_offset == -1)
+		return line_end_offset;
 
-	/* Now look for the end of the contact item */
-	while (current_offset < line_end_offset)
-	{
-		c=tvb_get_guint8(tvb, current_offset);
+	/* Move current offset to the start of the first param */
+	current_offset = contact_params_start_offset;
 
-		if(c == ';' && contact_params_start_offset == -1)
-		{
-			/* here we start with contact parameters */
-			contact_params_start_offset = current_offset;
+	/* Put the contact parameters in the tree */
+
+	while(current_offset< line_end_offset){
+		queried_offset = tvb_pbrk_guint8(tvb, current_offset, line_end_offset - current_offset, ",;", &c);
+		if(queried_offset == -1){
+			/* Reached line end */
+			contact_param_end_offset = line_end_offset - 3;
+			current_offset = line_end_offset;
+		}else if(c==','){
+			/* More contacts, make this the line end for this contact */
+			line_end_offset = queried_offset;
+			contact_param_end_offset = queried_offset;
+			current_offset =  queried_offset;
+		}else if (c==';'){
+			/* More parameters */
+			contact_param_end_offset = queried_offset-1;
+			current_offset = tvb_skip_wsp(tvb, queried_offset+1, line_end_offset - queried_offset+1);
 		}
-
-		if(c == '"')
-		{
-			/* look for the next unescaped '"' */
-			do
-			{
-				queried_offset = tvb_find_guint8(tvb, current_offset + 1, line_end_offset - (current_offset + 1), '"');
-				if(queried_offset == -1)
-				{
-					/* malformed Contact header */
-					return -1;
-				}
-				current_offset = queried_offset;
-
-				/* Is it escaped?
-				 * Look for uneven number of backslashes before '"' */
-				for(i=0;tvb_get_guint8(tvb, queried_offset - (i+1) ) == '\\';i++);
-				i=i%2;
-			} while (i == 1);
-		}
-
-		if(c == ',')
-		{
-			/* end of contact item found. */
-			contact_item_end_offset = current_offset - 1; /* remove ',' */
-			break;
-		}
-
-		current_offset++;
+		proto_tree_add_item(tree, hf_sip_contact_param, tvb, contact_params_start_offset , 
+			contact_param_end_offset - contact_params_start_offset +1, FALSE);
+		/* In case there are more parameters, point to the start of it */
+		contact_params_start_offset = current_offset;
 	}
 
-	if(contact_item_end_offset == -1)
-		contact_item_end_offset = line_end_offset - 3;  /* remove '\r\n' */
-
-	/* Build the tree, now */
-	if(tree)
-	{
-		ti = proto_tree_add_item(tree, hf_sip_contact_item, tvb,
-		                  start_offset, contact_item_end_offset - start_offset + 1,
-		                  FALSE);
-		contact_item_tree = proto_item_add_subtree(ti, ett_sip_contact_item);
-
-		ti = proto_tree_add_item(contact_item_tree, hf_sip_uri, tvb,
-		                  uri_offsets.name_addr_start, uri_offsets.name_addr_end - uri_offsets.name_addr_start + 1,
-		                  FALSE);
-		uri_tree = proto_item_add_subtree(ti, ett_sip_uri);
-
-		if(uri_offsets.display_name_start != -1 && uri_offsets.display_name_end != -1)
-		{
-			proto_tree_add_item(uri_tree, hf_sip_display, tvb,
-					              uri_offsets.display_name_start, uri_offsets.display_name_end - uri_offsets.display_name_start + 1,
-						          FALSE);
-		}
-
-		if(uri_offsets.uri_start != -1 && uri_offsets.uri_end != -1)
-		{
-			proto_tree_add_item(uri_tree, hf_sip_contact_addr, tvb,
-					              uri_offsets.uri_start, uri_offsets.uri_end - uri_offsets.uri_start + 1,
-						          FALSE);
-		}
-
-		/* Parse URI and Contact header Parameters now */
-		/* TODO */
-	}
 
 	return current_offset;
 }
@@ -2532,6 +2508,11 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						break;
 
 					case POS_CONTACT :
+						/*
+						 * Contact        =  ("Contact" / "m" ) HCOLON
+						 *                   ( STAR / (contact-param *(COMMA contact-param)))
+						 * contact-param  =  (name-addr / addr-spec) *(SEMI contact-params)
+						 */
 						if(hdr_tree) {
 							sip_element_item = proto_tree_add_string_format(hdr_tree,
 							                   hf_header_array[hf_index], tvb,
@@ -2541,8 +2522,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							sip_element_tree = proto_item_add_subtree( sip_element_item,
 							                   ett_sip_element);
 						}
-						if (strcmp(value, "*") == 0)
-						{
+						/* value_offset points to the first non SWS character after ':' */
+						c = tvb_get_guint8(tvb, value_offset);
+						if (c =='*'){
 							contact_is_star = 1;
 							break;
 						}
@@ -3637,20 +3619,31 @@ void proto_register_sip(void)
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: From Address Port", HFILL }
 		},
-		{ &hf_sip_contact_addr,
-		       { "SIP contact address", 	"sip.contact.addr",
+//etxrab
+		{ &hf_sip_curi,
+				{ "Contact-URI", 		"sip.contact.uri",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"RFC 3261: contact addr", HFILL }
+			"RFC 3261: SIP C-URI", HFILL }
 		},
-		{ &hf_sip_uri,
-				{ "URI", 		"sip.uri",
+		{ &hf_sip_curi_user,
+				{ "Contactt-URI User Part", 		"sip.contact.user",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"RFC 3261: SIP Uri", HFILL }
+			"RFC 3261: SIP C-URI User", HFILL }
 		},
-		{ &hf_sip_contact_item,
-		       { "Contact Binding", 		"sip.contact.binding",
+		{ &hf_sip_curi_host,
+				{ "Contact-URI Host Part", 		"sip.contact.host",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"RFC 3261: one contact binding", HFILL }
+			"RFC 3261: SIP C-URI Host", HFILL }
+		},
+		{ &hf_sip_curi_port,
+				{ "Contact-URI Host Port", 		"sip.contact.port",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: SIP C-URI Port", HFILL }
+		},
+		{ &hf_sip_contact_param,
+		       { "Contact parameter", 		"sip.contact.parameter",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: one contact parameter", HFILL }
 		},
 		{ &hf_sip_tag,
 		       { "SIP tag", 		"sip.tag",
@@ -4490,7 +4483,8 @@ void proto_register_sip(void)
 		&ett_sip_ppi_uri,
 		&ett_sip_tc_uri,
 		&ett_sip_to_uri,
-		&ett_sip_from_uri
+		&ett_sip_from_uri,
+		&ett_sip_curi
 	};
 	static gint *ett_raw[] = {
 		&ett_raw_text,
