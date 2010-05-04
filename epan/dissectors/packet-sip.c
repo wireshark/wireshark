@@ -852,7 +852,7 @@ sip_init_protocol(void)
 
 	/* Now create them over */
 	sip_hash = g_hash_table_new(g_str_hash , sip_equal);
-	/* Create a hastable with the SIP headers it will be used to find the related hf entry (POS_x) 
+	/* Create a hastable with the SIP headers it will be used to find the related hf entry (POS_x)
 	 * this is faster than the previously used for loop
 	 * There is no g_hash_table_destroy as the liftime is the same as the lifetime of Wireshark
 	 */
@@ -1297,7 +1297,7 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 			contact_param_end_offset = queried_offset-1;
 			current_offset = tvb_skip_wsp(tvb, queried_offset+1, line_end_offset - queried_offset+1);
 		}
-		proto_tree_add_item(tree, hf_sip_contact_param, tvb, contact_params_start_offset , 
+		proto_tree_add_item(tree, hf_sip_contact_param, tvb, contact_params_start_offset ,
 			contact_param_end_offset - contact_params_start_offset +1, FALSE);
 		/* In case there are more parameters, point to the start of it */
 		contact_params_start_offset = current_offset;
@@ -2037,7 +2037,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
 							display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_to_uri);
 							if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
-								stat_info->tap_to_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start, 
+								stat_info->tap_to_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start,
 									uri_offsets.name_addr_end - uri_offsets.name_addr_start);
 							}
 							offset = uri_offsets.name_addr_end +1;
@@ -2095,7 +2095,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
 							display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_from_uri);
 							if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
-								stat_info->tap_from_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start, 
+								stat_info->tap_from_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start,
 									uri_offsets.name_addr_end - uri_offsets.name_addr_start);
 							}
 							offset = uri_offsets.name_addr_end +1;
@@ -2175,7 +2175,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							 * PPreferredID = "P-Preferred-Identity" HCOLON PPreferredID-value
 							 *                   *(COMMA PPreferredID-value)
 							 * PPreferredID-value = name-addr / addr-spec
-							 * 
+							 *
 							 * Initialize the uri_offsets
 							 */
 							sip_uri_offset_init(&uri_offsets);
@@ -2195,7 +2195,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 							sip_element_tree = proto_item_add_subtree( sip_element_item,
 														           ett_sip_element);
-							/* 
+							/*
 							 * Permission-Missing  =  "Permission-Missing" HCOLON per-miss-spec
 							 *                        *( COMMA per-miss-spec )
 							 * per-miss-spec       =  ( name-addr / addr-spec )
@@ -2221,7 +2221,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							sip_element_tree = proto_item_add_subtree( sip_element_item,
 																		ett_sip_element);
 						}
-						/* 
+						/*
 						 * Trigger-Consent     =  "Trigger-Consent" HCOLON trigger-cons-spec
 						 *                        *( COMMA trigger-cons-spec )
 						 * trigger-cons-spec   =  ( SIP-URI / SIPS-URI )
@@ -2559,7 +2559,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						 * other-challenge     =  auth-scheme LWS auth-param
 						 *                        *(COMMA auth-param)
 						 * auth-scheme         =  token
-						 */ 
+						 */
 					case POS_PROXY_AUTHENTICATE:
 						/* Proxy-Authenticate  =  "Proxy-Authenticate" HCOLON challenge
 						 */
@@ -2854,7 +2854,7 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gi
 		offset=offset + parameter_len+1;
 		sip_uri_offset_init(&uri_offsets);
 		/* calc R-URI len*/
-		uri_offsets.uri_end = tvb_find_guint8(tvb, offset, linelen, ' ')-1; 
+		uri_offsets.uri_end = tvb_find_guint8(tvb, offset, linelen, ' ')-1;
 		dissect_sip_uri(tvb, pinfo, offset, offset + linelen, &uri_offsets);
 		display_sip_uri(tvb, tree, &uri_offsets, &sip_req_uri);
 	}
@@ -3033,8 +3033,8 @@ static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
         return FALSE;
 }
 
-/* 
- * Returns index of method in sip_headers 
+/*
+ * Returns index of method in sip_headers
  * Header namne should be in lower case
  */
 static gint sip_is_known_sip_header(gchar *header_name, guint header_len)
@@ -3615,7 +3615,7 @@ void proto_register_sip(void)
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: From Address Port", HFILL }
 		},
-//etxrab
+/* etxrab */
 		{ &hf_sip_curi,
 				{ "Contact-URI", 		"sip.contact.uri",
 		       FT_STRING, BASE_NONE,NULL,0x0,
