@@ -1861,6 +1861,8 @@ static int hf_h245_withdrawChairToken = -1;       /* NULL */
 static int hf_h245_floorRequested = -1;           /* TerminalLabel */
 static int hf_h245_terminalYouAreSeeingInSubPictureNumber = -1;  /* TerminalYouAreSeeingInSubPictureNumber */
 static int hf_h245_videoIndicateCompose = -1;     /* VideoIndicateCompose */
+static int hf_h245_masterMCU = -1;                /* NULL */
+static int hf_h245_cancelMasterMCU = -1;          /* NULL */
 static int hf_h245_subPictureNumber = -1;         /* INTEGER_0_255 */
 static int hf_h245_compositionNumber = -1;        /* INTEGER_0_255 */
 static int hf_h245_mi_type = -1;                  /* Mi_type */
@@ -14120,6 +14122,8 @@ static const value_string h245_ConferenceIndication_vals[] = {
   {  11, "floorRequested" },
   {  12, "terminalYouAreSeeingInSubPictureNumber" },
   {  13, "videoIndicateCompose" },
+  {  14, "masterMCU" },
+  {  15, "cancelMasterMCU" },
   { 0, NULL }
 };
 
@@ -14138,6 +14142,8 @@ static const per_choice_t ConferenceIndication_choice[] = {
   {  11, &hf_h245_floorRequested , ASN1_NOT_EXTENSION_ROOT, dissect_h245_TerminalLabel },
   {  12, &hf_h245_terminalYouAreSeeingInSubPictureNumber, ASN1_NOT_EXTENSION_ROOT, dissect_h245_TerminalYouAreSeeingInSubPictureNumber },
   {  13, &hf_h245_videoIndicateCompose, ASN1_NOT_EXTENSION_ROOT, dissect_h245_VideoIndicateCompose },
+  {  14, &hf_h245_masterMCU      , ASN1_NOT_EXTENSION_ROOT, dissect_h245_NULL },
+  {  15, &hf_h245_cancelMasterMCU, ASN1_NOT_EXTENSION_ROOT, dissect_h245_NULL },
   { 0, NULL, 0, NULL }
 };
 
@@ -19926,6 +19932,14 @@ void proto_register_h245(void) {
       { "videoIndicateCompose", "h245.videoIndicateCompose",
         FT_NONE, BASE_NONE, NULL, 0,
         "h245.VideoIndicateCompose", HFILL }},
+    { &hf_h245_masterMCU,
+      { "masterMCU", "h245.masterMCU",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "h245.NULL", HFILL }},
+    { &hf_h245_cancelMasterMCU,
+      { "cancelMasterMCU", "h245.cancelMasterMCU",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "h245.NULL", HFILL }},
     { &hf_h245_subPictureNumber,
       { "subPictureNumber", "h245.subPictureNumber",
         FT_UINT32, BASE_DEC, NULL, 0,
