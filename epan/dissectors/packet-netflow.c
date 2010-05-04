@@ -520,6 +520,8 @@ static int	hf_cflow_information_element_semantics	 = -1;	/* ID: 344 */
 static int	hf_cflow_information_element_units	 = -1;	/* ID: 345 */
 static int	hf_cflow_private_enterprise_number	 = -1;	/* ID: 346 */
 
+/* pie = private information element */
+
 static int      hf_pie_cace_local_ipv4_address   = -1;
 static int      hf_pie_cace_remote_ipv4_address  = -1;
 static int      hf_pie_cace_local_ipv6_address   = -1;
@@ -1311,7 +1313,7 @@ dissect_v9_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int o
 
 			pdu_len = dissect_v9_pdu(tvb, pinfo, data_tree, offset, tplt, hdrinfo);
 
-			offset += tplt->length;
+			offset += pdu_len;
                         /* XXX - Throw an exception */
 			length -= pdu_len < length ? pdu_len : length;
 		}
@@ -1443,6 +1445,10 @@ dissect_v9_pdu_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, i
 	int             cmd_len;
 	gchar *         cmd_str = NULL;
 	guint16         got_flags = 0;
+	
+	gboolean        vstr_long;
+	int             vstr_len;
+
 	proto_item *    ti;
 	const guint8 *reftime;
 	guint16 count = ipfix_scope_flag ? tplt->count_scopes : tplt->count;
@@ -3224,10 +3230,18 @@ dissect_v9_pdu_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, i
 			break;
 
 		default:
-		  if ((type & 0x8000) && (pen != REVPEN))
-			ti = proto_tree_add_text(pdutree, tvb, offset, length,
-					    "(%s) Type %u ",
-					    match_strval(pen, sminmpec_values), type & 0x7fff);
+			if (!length) {
+				vstr_len = tvb_get_guint8(tvb, offset);
+				if (vstr_len == 255) {
+					vstr_long = TRUE;
+					vstr_len = tvb_get_ntohs(tvb, offset+1);
+				} else { vstr_long = FALSE; }
+				length = vstr_len + (vstr_long?1+2:1);
+			}
+			if ((type & 0x8000) && (pen != REVPEN))
+				ti = proto_tree_add_text(pdutree, tvb, offset, length,
+							 "(%s) Type %u ",
+							 match_strval(pen, sminmpec_values), type & 0x7fff);
 			break;
 		}
 		if (ti && pen == REVPEN) {
