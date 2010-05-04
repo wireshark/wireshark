@@ -74,9 +74,69 @@ Wireshark Info
 -->
 
         <listitem><para>
+          HTTP parser limits with Content-Length.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1958">Bug
+          1958</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          MATE dissector bug with GOGs.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3010">Bug
+          3010</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Changing fonts and deleting system time from preferences, results in wireshark crash.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3387">Bug
+          3387</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           ERF file starting with record with timestamp=0,1 or 2 not recognized as ERF file.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4503">Bug
           4503</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          The SSL dissector can not correctly resemple SSL records when the record header is spit between packets.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4535">Bug
+          4535</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          TCP reassembly can call subdissector with incorrect TCP sequence number.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4624">Bug
+          4624</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          PTP dissector displays big correction field values wrong.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4635">Bug
+          4635</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          MSF is at Anthorn, not Rugby.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4678">Bug
+          4678</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          ProtoField __tostring() description is missing in Wireshark's Lua API Reference Manual.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4695">Bug
+          4695</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          EVRC packet bundling not handled correctly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4718">Bug
+          4718</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Completely unresponsive when run very first time by root user.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4308">Bug
+          4308</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -105,6 +165,8 @@ There are no new protocols in this release.
     <para>
 
 DOCSIS,
+HTTP,
+SSL
 
     </para>
     </section>

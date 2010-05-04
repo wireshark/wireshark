@@ -244,7 +244,7 @@ typedef struct _mate_config {
 		
 		struct _gog_defaults {
 			float expiration;
-			
+			gboolean show_times;
 			gop_tree_mode_t gop_tree_mode;
 		} gog;
 	} defaults;

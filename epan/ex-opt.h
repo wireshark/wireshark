@@ -36,7 +36,7 @@ extern gboolean ex_opt_add(const gchar* optarg);
 extern gint ex_opt_count(const gchar* key);
 
 /* fetches the nth argument of a given key returns NULL if there isn't */
-extern const gchar* ex_opt_get_index(const gchar* key, guint index);
+extern const gchar* ex_opt_get_nth(const gchar* key, guint index);
 
 /* extracts the next value of a given key */
 extern const gchar* ex_opt_get_next(const gchar* key);
