@@ -1242,10 +1242,6 @@ static gint
 dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint start_offset, gint line_end_offset)
 {
 	gchar c;
-	//gint i;
-	proto_item *ti = NULL;
-	proto_tree *contact_item_tree = NULL, *uri_tree = NULL;
-
 	gint current_offset;
 	gint queried_offset;
 	gint contact_params_start_offset = -1;
