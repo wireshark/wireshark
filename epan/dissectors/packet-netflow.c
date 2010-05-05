@@ -1301,10 +1301,14 @@ dissect_v9_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int o
 	proto_item *data_item;
         guint       pdu_len;
 
-	tplt = v9_template_get(id, &hdrinfo->net_src, hdrinfo->src_id);
-	if (tplt != NULL && tplt->length != 0) {
-		int count = 1;
+	if (length == 0) {
+		expert_add_info_format(pinfo, pdutree, PI_MALFORMED,
+				       PI_WARN, "No flow information");
+	}
 
+	tplt = v9_template_get(id, &hdrinfo->net_src, hdrinfo->src_id);
+	if (tplt != NULL  && tplt->length != 0) {
+		int count = 1;
 		while (length >= tplt->length) {
 			data_item = proto_tree_add_text(pdutree, tvb,
 							offset, tplt->length, "Flow %d", count++);
@@ -1359,12 +1363,14 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
     struct v9_template * tplt, hdrinfo_t * hdrinfo)
 {
 	int             orig_offset = offset;
-	if (hdrinfo->vspec == 10) {
-		offset += dissect_v9_pdu_data(tvb, pinfo, pdutree, offset, tplt, hdrinfo, 1);
-	} else  {
+
+	if (tplt->option_template && (hdrinfo->vspec == 9)) {
 		offset += dissect_v9_pdu_scope(tvb, pinfo, pdutree, offset, tplt);
+
+	} else {
+		offset += dissect_v9_pdu_data(tvb, pinfo, pdutree, offset, tplt, hdrinfo, tplt->option_template);
 	}
-	offset += dissect_v9_pdu_data(tvb, pinfo, pdutree, offset, tplt, hdrinfo, 0);
+
 	return (guint) (offset - orig_offset);
 }
 
@@ -1455,6 +1461,10 @@ dissect_v9_pdu_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, i
 	struct v9_template_entry *entries = ipfix_scope_flag ? tplt->scopes : tplt->entries;
 	
 	if (entries == NULL) {
+		/* I don't think we can actually hit this condition.
+		   If we can, what would cause it?  Does this need a
+		   warn?  If so what?
+		*/
 		return 0;
 	}
 
@@ -3296,6 +3306,13 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 	int scopes_offset;
 	proto_item *ti;
 
+	/* *** CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION ***
+
+	   The names option_len and option_scope_len are used in
+	   reverse when this function is called for IPFIX.
+
+	   *** CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION *** */
+
 	id = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(pdutree, hf_cflow_template_id, tvb,
 			    offset, 2, FALSE);
@@ -3347,7 +3364,8 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 	/* Cache template */
 	memset(&tplt, 0, sizeof(tplt));
 	tplt.id = id;
-	tplt.count = flowset_id == 1 ? 0 : option_scope_len - option_len;
+	tplt.count = flowset_id == 1 ? 0 : option_scope_len;
+
 	SE_COPY_ADDRESS(&tplt.source_addr, &hdrinfo->net_src);
 	tplt.source_id = hdrinfo->src_id;
 	/* Option scopes */
@@ -3357,7 +3375,7 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 		tplt.scopes = se_alloc0(option_scope_len * sizeof(struct v9_template_entry));
 		tplt.entries = se_alloc0(option_len * sizeof(struct v9_template_entry));
 	}
-
+	
 	for(i=0, len = 0;
 	    flowset_id == 1 ? len < option_scope_len : i < tplt.count_scopes;
 	    i++) {
