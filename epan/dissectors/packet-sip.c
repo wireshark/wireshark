@@ -4,8 +4,6 @@
  *
  * TODO:
  *      hf_ display filters for headers of SIP extension RFCs (ongoing)
- *      Use hash table for list of headers
- *      Align SIP methods with recent Internet Drafts or RFCs
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
@@ -1422,6 +1420,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 	gboolean ipv6_address;
 	guchar c;
 	gchar *param_name = NULL;
+	return;
 
 	current_offset = start_offset;
 
@@ -2728,27 +2727,24 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 
 	/* Add to info column interesting things learned from header fields. */
-	if (check_col(pinfo->cinfo, COL_INFO))
+	/* Registration requests */
+	if (current_method_idx == SIP_METHOD_REGISTER)
 	{
-		/* Registration requests */
-		if (current_method_idx == SIP_METHOD_REGISTER)
+		if (contact_is_star && expires_is_0)
 		{
-			if (contact_is_star && expires_is_0)
-			{
-				col_append_str(pinfo->cinfo, COL_INFO, "    (remove all bindings)");
-			}
-			else
-			if (!contacts)
-			{
-				col_append_str(pinfo->cinfo, COL_INFO, "    (fetch bindings)");
-			}
+			col_append_str(pinfo->cinfo, COL_INFO, "    (remove all bindings)");
 		}
+		else
+		if (!contacts)
+		{
+			col_append_str(pinfo->cinfo, COL_INFO, "    (fetch bindings)");
+		}
+	}
 
-		/* Registration responses */
-		if (line_type == STATUS_LINE && (strcmp(cseq_method, "REGISTER") == 0))
-		{
-			col_append_fstr(pinfo->cinfo, COL_INFO, "    (%d bindings)", contacts);
-		}
+	/* Registration responses */
+	if (line_type == STATUS_LINE && (strcmp(cseq_method, "REGISTER") == 0))
+	{
+		col_append_fstr(pinfo->cinfo, COL_INFO, "    (%d bindings)", contacts);
 	}
 	/* Find the total setup time, Must be done before checking for resend
 	 * As that will overwrite the "Request packet no".
@@ -3020,10 +3016,13 @@ static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
     guint meth_len, guint *meth_idx)
 {
         guint i;
+		gchar *meth_name;
+
+		meth_name = tvb_get_ephemeral_string(tvb, meth_offset, meth_len);
 
         for (i = 1; i < array_length(sip_methods); i++) {
                 if (meth_len == strlen(sip_methods[i]) &&
-                    tvb_strneql(tvb, meth_offset, sip_methods[i], meth_len) == 0)
+                    strncmp(meth_name, sip_methods[i], meth_len) == 0)
                 {
                      *meth_idx = i;
                      return TRUE;
