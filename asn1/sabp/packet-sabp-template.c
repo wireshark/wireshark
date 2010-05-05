@@ -22,7 +22,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * Ref: 3GPP TS 25.419 version 7.7.0 (2006-03)
+ * Ref: 3GPP TS 25.419 version  V9.0.0 (2009-12)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -39,11 +39,6 @@
 #include "packet-e212.h"
 #include "packet-gsm_map.h"
 #include "packet-gsm_sms.h"
-
-#ifdef _MSC_VER
-/* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
-#pragma warning(disable:4146)
-#endif
 
 #define PNAME  "UTRAN IuBC interface SABP signaling"
 #define PSNAME "SABP"
@@ -129,7 +124,15 @@ get_sabp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	/* Get the length of the sabp packet. offset in bits  */
 	offset = dissect_per_length_determinant(tvb, bit_offset, &asn1_ctx, NULL, -1, &type_length);
 
-	/* return the remaining length of the PDU */
+	/* 
+	 * Return the length of the PDU
+	 * which is 3 + the length of the length, we only care about lenght up to 16K
+	 * ("n" less than 128) a single octet containing "n" with bit 8 set to zero;
+	 * ("n" less than 16K) two octets containing "n" with bit 8 of the first octet set to 1 and bit 7 set to zero;
+	 */
+	if (type_length < 128)
+		return type_length+4;
+
 	return type_length+5;
 }
 

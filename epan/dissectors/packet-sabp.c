@@ -30,7 +30,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * Ref: 3GPP TS 25.419 version 7.7.0 (2006-03)
+ * Ref: 3GPP TS 25.419 version  V9.0.0 (2009-12)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -47,11 +47,6 @@
 #include "packet-e212.h"
 #include "packet-gsm_map.h"
 #include "packet-gsm_sms.h"
-
-#ifdef _MSC_VER
-/* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
-#pragma warning(disable:4146)
-#endif
 
 #define PNAME  "UTRAN IuBC interface SABP signaling"
 #define PSNAME "SABP"
@@ -103,7 +98,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-sabp-val.h ---*/
-#line 53 "packet-sabp-template.c"
+#line 48 "packet-sabp-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_sabp = -1;
@@ -193,7 +188,7 @@ static int hf_sabp_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_sabp_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-sabp-hf.c ---*/
-#line 59 "packet-sabp-template.c"
+#line 54 "packet-sabp-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_sabp = -1;
@@ -245,7 +240,7 @@ static gint ett_sabp_SuccessfulOutcome = -1;
 static gint ett_sabp_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-sabp-ett.c ---*/
-#line 67 "packet-sabp-template.c"
+#line 62 "packet-sabp-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -1681,7 +1676,7 @@ static int dissect_SABP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-sabp-fn.c ---*/
-#line 91 "packet-sabp-template.c"
+#line 86 "packet-sabp-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1723,7 +1718,15 @@ get_sabp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	/* Get the length of the sabp packet. offset in bits  */
 	offset = dissect_per_length_determinant(tvb, bit_offset, &asn1_ctx, NULL, -1, &type_length);
 
-	/* return the remaining length of the PDU */
+	/* 
+	 * Return the length of the PDU
+	 * which is 3 + the length of the length, we only care about lenght up to 16K
+	 * ("n" less than 128) a single octet containing "n" with bit 8 set to zero;
+	 * ("n" less than 16K) two octets containing "n" with bit 8 of the first octet set to 1 and bit 7 set to zero;
+	 */
+	if (type_length < 128)
+		return type_length+4;
+
 	return type_length+5;
 }
 
@@ -1769,322 +1772,322 @@ void proto_register_sabp(void) {
     { &hf_sabp_Broadcast_Message_Content_PDU,
       { "Broadcast-Message-Content", "sabp.Broadcast_Message_Content",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "sabp.Broadcast_Message_Content", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Broadcast_Message_Content_Validity_Indicator_PDU,
       { "Broadcast-Message-Content-Validity-Indicator", "sabp.Broadcast_Message_Content_Validity_Indicator",
         FT_UINT32, BASE_DEC, VALS(sabp_Broadcast_Message_Content_Validity_Indicator_vals), 0,
-        "sabp.Broadcast_Message_Content_Validity_Indicator", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Category_PDU,
       { "Category", "sabp.Category",
         FT_UINT32, BASE_DEC, VALS(sabp_Category_vals), 0,
-        "sabp.Category", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Cause_PDU,
       { "Cause", "sabp.Cause",
         FT_UINT32, BASE_DEC, VALS(sabp_Cause_vals), 0,
-        "sabp.Cause", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Criticality_Diagnostics_PDU,
       { "Criticality-Diagnostics", "sabp.Criticality_Diagnostics",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Criticality_Diagnostics", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_MessageStructure_PDU,
       { "MessageStructure", "sabp.MessageStructure",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sabp.MessageStructure", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Data_Coding_Scheme_PDU,
       { "Data-Coding-Scheme", "sabp.Data_Coding_Scheme",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "sabp.Data_Coding_Scheme", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Failure_List_PDU,
       { "Failure-List", "sabp.Failure_List",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sabp.Failure_List", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Message_Identifier_PDU,
       { "Message-Identifier", "sabp.Message_Identifier",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "sabp.Message_Identifier", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_New_Serial_Number_PDU,
       { "New-Serial-Number", "sabp.New_Serial_Number",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "sabp.New_Serial_Number", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Number_of_Broadcasts_Completed_List_PDU,
       { "Number-of-Broadcasts-Completed-List", "sabp.Number_of_Broadcasts_Completed_List",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sabp.Number_of_Broadcasts_Completed_List", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Number_of_Broadcasts_Requested_PDU,
       { "Number-of-Broadcasts-Requested", "sabp.Number_of_Broadcasts_Requested",
         FT_UINT32, BASE_DEC, VALS(sabp_Number_of_Broadcasts_Requested_vals), 0,
-        "sabp.Number_of_Broadcasts_Requested", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Old_Serial_Number_PDU,
       { "Old-Serial-Number", "sabp.Old_Serial_Number",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "sabp.Old_Serial_Number", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Paging_ETWS_Indicator_PDU,
       { "Paging-ETWS-Indicator", "sabp.Paging_ETWS_Indicator",
         FT_UINT32, BASE_DEC, VALS(sabp_Paging_ETWS_Indicator_vals), 0,
-        "sabp.Paging_ETWS_Indicator", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Radio_Resource_Loading_List_PDU,
       { "Radio-Resource-Loading-List", "sabp.Radio_Resource_Loading_List",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sabp.Radio_Resource_Loading_List", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Recovery_Indication_PDU,
       { "Recovery-Indication", "sabp.Recovery_Indication",
         FT_UINT32, BASE_DEC, VALS(sabp_Recovery_Indication_vals), 0,
-        "sabp.Recovery_Indication", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Repetition_Period_PDU,
       { "Repetition-Period", "sabp.Repetition_Period",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sabp.Repetition_Period", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Serial_Number_PDU,
       { "Serial-Number", "sabp.Serial_Number",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "sabp.Serial_Number", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Service_Areas_List_PDU,
       { "Service-Areas-List", "sabp.Service_Areas_List",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sabp.Service_Areas_List", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_TypeOfError_PDU,
       { "TypeOfError", "sabp.TypeOfError",
         FT_UINT32, BASE_DEC, VALS(sabp_TypeOfError_vals), 0,
-        "sabp.TypeOfError", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_WarningSecurityInfo_PDU,
       { "WarningSecurityInfo", "sabp.WarningSecurityInfo",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "sabp.WarningSecurityInfo", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Warning_Type_PDU,
       { "Warning-Type", "sabp.Warning_Type",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "sabp.Warning_Type", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Write_Replace_PDU,
       { "Write-Replace", "sabp.Write_Replace",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Write_Replace", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Write_Replace_Complete_PDU,
       { "Write-Replace-Complete", "sabp.Write_Replace_Complete",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Write_Replace_Complete", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Write_Replace_Failure_PDU,
       { "Write-Replace-Failure", "sabp.Write_Replace_Failure",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Write_Replace_Failure", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Kill_PDU,
       { "Kill", "sabp.Kill",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Kill", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Kill_Complete_PDU,
       { "Kill-Complete", "sabp.Kill_Complete",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Kill_Complete", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Kill_Failure_PDU,
       { "Kill-Failure", "sabp.Kill_Failure",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Kill_Failure", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Load_Query_PDU,
       { "Load-Query", "sabp.Load_Query",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Load_Query", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Load_Query_Complete_PDU,
       { "Load-Query-Complete", "sabp.Load_Query_Complete",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Load_Query_Complete", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Load_Query_Failure_PDU,
       { "Load-Query-Failure", "sabp.Load_Query_Failure",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Load_Query_Failure", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Message_Status_Query_PDU,
       { "Message-Status-Query", "sabp.Message_Status_Query",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Message_Status_Query", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Message_Status_Query_Complete_PDU,
       { "Message-Status-Query-Complete", "sabp.Message_Status_Query_Complete",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Message_Status_Query_Complete", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Message_Status_Query_Failure_PDU,
       { "Message-Status-Query-Failure", "sabp.Message_Status_Query_Failure",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Message_Status_Query_Failure", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Reset_PDU,
       { "Reset", "sabp.Reset",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Reset", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Reset_Complete_PDU,
       { "Reset-Complete", "sabp.Reset_Complete",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Reset_Complete", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Reset_Failure_PDU,
       { "Reset-Failure", "sabp.Reset_Failure",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Reset_Failure", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Restart_PDU,
       { "Restart", "sabp.Restart",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Restart", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Failure_PDU,
       { "Failure", "sabp.Failure",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Failure", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Error_Indication_PDU,
       { "Error-Indication", "sabp.Error_Indication",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Error_Indication", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_SABP_PDU_PDU,
       { "SABP-PDU", "sabp.SABP_PDU",
         FT_UINT32, BASE_DEC, VALS(sabp_SABP_PDU_vals), 0,
-        "sabp.SABP_PDU", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_ProtocolIE_Container_item,
       { "ProtocolIE-Field", "sabp.ProtocolIE_Field",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.ProtocolIE_Field", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_id,
       { "id", "sabp.id",
         FT_UINT32, BASE_DEC, VALS(sabp_ProtocolIE_ID_vals), 0,
-        "sabp.ProtocolIE_ID", HFILL }},
+        "ProtocolIE_ID", HFILL }},
     { &hf_sabp_criticality,
       { "criticality", "sabp.criticality",
         FT_UINT32, BASE_DEC, VALS(sabp_Criticality_vals), 0,
-        "sabp.Criticality", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_protocolIE_Field_value,
       { "value", "sabp.value",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.ProtocolIE_Field_value", HFILL }},
+        "ProtocolIE_Field_value", HFILL }},
     { &hf_sabp_ProtocolExtensionContainer_item,
       { "ProtocolExtensionField", "sabp.ProtocolExtensionField",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.ProtocolExtensionField", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_ext_id,
       { "id", "sabp.id",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sabp.ProtocolExtensionID", HFILL }},
+        "ProtocolExtensionID", HFILL }},
     { &hf_sabp_extensionValue,
       { "extensionValue", "sabp.extensionValue",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.T_extensionValue", HFILL }},
+        "T_extensionValue", HFILL }},
     { &hf_sabp_procedureCode,
       { "procedureCode", "sabp.procedureCode",
         FT_UINT32, BASE_DEC, VALS(sabp_ProcedureCode_vals), 0,
-        "sabp.ProcedureCode", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_triggeringMessage,
       { "triggeringMessage", "sabp.triggeringMessage",
         FT_UINT32, BASE_DEC, VALS(sabp_TriggeringMessage_vals), 0,
-        "sabp.TriggeringMessage", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_procedureCriticality,
       { "procedureCriticality", "sabp.procedureCriticality",
         FT_UINT32, BASE_DEC, VALS(sabp_Criticality_vals), 0,
-        "sabp.Criticality", HFILL }},
+        "Criticality", HFILL }},
     { &hf_sabp_iEsCriticalityDiagnostics,
       { "iEsCriticalityDiagnostics", "sabp.iEsCriticalityDiagnostics",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sabp.CriticalityDiagnostics_IE_List", HFILL }},
+        "CriticalityDiagnostics_IE_List", HFILL }},
     { &hf_sabp_iE_Extensions,
       { "iE-Extensions", "sabp.iE_Extensions",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sabp.ProtocolExtensionContainer", HFILL }},
+        "ProtocolExtensionContainer", HFILL }},
     { &hf_sabp_CriticalityDiagnostics_IE_List_item,
       { "CriticalityDiagnostics-IE-List item", "sabp.CriticalityDiagnostics_IE_List_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.CriticalityDiagnostics_IE_List_item", HFILL }},
+        "CriticalityDiagnostics_IE_List_item", HFILL }},
     { &hf_sabp_iECriticality,
       { "iECriticality", "sabp.iECriticality",
         FT_UINT32, BASE_DEC, VALS(sabp_Criticality_vals), 0,
-        "sabp.Criticality", HFILL }},
+        "Criticality", HFILL }},
     { &hf_sabp_iE_ID,
       { "iE-ID", "sabp.iE_ID",
         FT_UINT32, BASE_DEC, VALS(sabp_ProtocolIE_ID_vals), 0,
-        "sabp.ProtocolIE_ID", HFILL }},
+        "ProtocolIE_ID", HFILL }},
     { &hf_sabp_repetitionNumber,
       { "repetitionNumber", "sabp.repetitionNumber",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sabp.RepetitionNumber0", HFILL }},
+        "RepetitionNumber0", HFILL }},
     { &hf_sabp_MessageStructure_item,
       { "MessageStructure item", "sabp.MessageStructure_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.MessageStructure_item", HFILL }},
+        "MessageStructure_item", HFILL }},
     { &hf_sabp_repetitionNumber1,
       { "repetitionNumber", "sabp.repetitionNumber",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sabp.RepetitionNumber1", HFILL }},
+        "RepetitionNumber1", HFILL }},
     { &hf_sabp_Failure_List_item,
       { "Failure-List-Item", "sabp.Failure_List_Item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Failure_List_Item", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_service_area_identifier,
       { "service-area-identifier", "sabp.service_area_identifier",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Service_Area_Identifier", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_cause,
       { "cause", "sabp.cause",
         FT_UINT32, BASE_DEC, VALS(sabp_Cause_vals), 0,
-        "sabp.Cause", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Number_of_Broadcasts_Completed_List_item,
       { "Number-of-Broadcasts-Completed-List-Item", "sabp.Number_of_Broadcasts_Completed_List_Item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Number_of_Broadcasts_Completed_List_Item", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_number_of_broadcasts_completed,
       { "number-of-broadcasts-completed", "sabp.number_of_broadcasts_completed",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sabp.INTEGER_0_65535", HFILL }},
+        "INTEGER_0_65535", HFILL }},
     { &hf_sabp_number_of_broadcasts_completed_info,
       { "number-of-broadcasts-completed-info", "sabp.number_of_broadcasts_completed_info",
         FT_UINT32, BASE_DEC, VALS(sabp_Number_Of_Broadcasts_Completed_Info_vals), 0,
-        "sabp.Number_Of_Broadcasts_Completed_Info", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_Radio_Resource_Loading_List_item,
       { "Radio-Resource-Loading-List-Item", "sabp.Radio_Resource_Loading_List_Item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Radio_Resource_Loading_List_Item", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_available_bandwidth,
       { "available-bandwidth", "sabp.available_bandwidth",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sabp.Available_Bandwidth", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_pLMNidentity,
       { "pLMNidentity", "sabp.pLMNidentity",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "sabp.T_pLMNidentity", HFILL }},
+        "T_pLMNidentity", HFILL }},
     { &hf_sabp_lac,
       { "lac", "sabp.lac",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "sabp.OCTET_STRING_SIZE_2", HFILL }},
+        "OCTET_STRING_SIZE_2", HFILL }},
     { &hf_sabp_sac,
       { "sac", "sabp.sac",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "sabp.OCTET_STRING_SIZE_2", HFILL }},
+        "OCTET_STRING_SIZE_2", HFILL }},
     { &hf_sabp_Service_Areas_List_item,
       { "Service-Area-Identifier", "sabp.Service_Area_Identifier",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.Service_Area_Identifier", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_protocolIEs,
       { "protocolIEs", "sabp.protocolIEs",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sabp.ProtocolIE_Container", HFILL }},
+        "ProtocolIE_Container", HFILL }},
     { &hf_sabp_protocolExtensions,
       { "protocolExtensions", "sabp.protocolExtensions",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sabp.ProtocolExtensionContainer", HFILL }},
+        "ProtocolExtensionContainer", HFILL }},
     { &hf_sabp_initiatingMessage,
       { "initiatingMessage", "sabp.initiatingMessage",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.InitiatingMessage", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_successfulOutcome,
       { "successfulOutcome", "sabp.successfulOutcome",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.SuccessfulOutcome", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_unsuccessfulOutcome,
       { "unsuccessfulOutcome", "sabp.unsuccessfulOutcome",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.UnsuccessfulOutcome", HFILL }},
+        NULL, HFILL }},
     { &hf_sabp_initiatingMessage_value,
       { "value", "sabp.value",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.InitiatingMessage_value", HFILL }},
+        "InitiatingMessage_value", HFILL }},
     { &hf_sabp_successfulOutcome_value,
       { "value", "sabp.value",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.SuccessfulOutcome_value", HFILL }},
+        "SuccessfulOutcome_value", HFILL }},
     { &hf_sabp_unsuccessfulOutcome_value,
       { "value", "sabp.value",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sabp.UnsuccessfulOutcome_value", HFILL }},
+        "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sabp-hfarr.c ---*/
-#line 173 "packet-sabp-template.c"
+#line 176 "packet-sabp-template.c"
   };
 
   /* List of subtrees */
@@ -2137,7 +2140,7 @@ void proto_register_sabp(void) {
     &ett_sabp_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sabp-ettarr.c ---*/
-#line 182 "packet-sabp-template.c"
+#line 185 "packet-sabp-template.c"
   };
 
 
@@ -2219,7 +2222,7 @@ proto_reg_handoff_sabp(void)
 
 
 /*--- End of included file: packet-sabp-dis-tab.c ---*/
-#line 218 "packet-sabp-template.c"
+#line 221 "packet-sabp-template.c"
 
 }
 
