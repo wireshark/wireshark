@@ -6,8 +6,6 @@
 -- $Id$
 --
 
--- Note: H262VideoCapability fixed based on H.245 v15 (2009-12) document. The ASN.1 file from database contains bugs.
-
 -- Module MULTIMEDIA-SYSTEM-CONTROL (H.245:12/2009)
 MULTIMEDIA-SYSTEM-CONTROL {itu-t(0) recommendation(0) h(8) h245(245) 
   version(0) 15 multimedia-system-control(0)} DEFINITIONS AUTOMATIC TAGS ::=
@@ -709,12 +707,12 @@ H262VideoCapability ::= SEQUENCE {
   profileAndLevel-HPatML         BOOLEAN,
   profileAndLevel-HPatH-14       BOOLEAN,
   profileAndLevel-HPatHL         BOOLEAN,
-  videoBitRate	INTEGER (0.. 1073741823) OPTIONAL, -- units 400 bit/s
-  vbvBufferSize	INTEGER (0.. 262143) OPTIONAL,      -- units 16 384 bits
-  samplesPerLine	INTEGER (0..16383) OPTIONAL,       -- units samples/line
-  linesPerFrame	INTEGER (0..16383) OPTIONAL,       -- units lines/frame
-  framesPerSecond	INTEGER (0..15) OPTIONAL,           -- frame_rate_code
-  luminanceSampleRate	INTEGER (0..4294967295) OPTIONAL,  -- units samples/s
+  videoBitRate                   INTEGER(0..1073741823) OPTIONAL, -- units 400 bit/s
+  vbvBufferSize                  INTEGER(0..262143) OPTIONAL, -- units 16 384 bits
+  samplesPerLine                 INTEGER(0..16383) OPTIONAL, -- units samples/line
+  linesPerFrame                  INTEGER(0..16383) OPTIONAL, -- units lines/frame
+  framesPerSecond                INTEGER(0..15) OPTIONAL, -- frame_rate_code
+  luminanceSampleRate            INTEGER(0..4294967295) OPTIONAL, -- units samples/s	
   ...,
   videoBadMBsCap                 BOOLEAN
 }
