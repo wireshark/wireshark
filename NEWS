@@ -1,4 +1,4 @@
-Wireshark 1.2.7 Release Notes
+Wireshark 1.2.8 Release Notes
 
    ------------------------------------------------------------------
 
@@ -12,48 +12,43 @@ What's New
 
   Bug Fixes
 
+   The following vulnerabilities have been fixed. See the security
+   advisory for details and a workaround.
+
+     o The DOCSIS dissector could crash. (Bug 4644), (bug 4646) -->
+
+       Versions affected: 0.9.6 to 1.0.12, 1.2.0 to 1.2.7
+
    The following bugs have been fixed:
 
-     o SNMPv3 Engine ID registration. (Bug 2426)
+     o HTTP parser limits with Content-Length. (Bug 1958)
 
-     o Open file dialog always displayed when clicking anywhere on
-       Wireshark. (Bug 2478)
+     o MATE dissector bug with GOGs. (Bug 3010)
 
-     o tshark reports wrong number of bytes on big dumpfiles with -z
-       io,stat. (Bug 3205)
+     o Changing fonts and deleting system time from preferences,
+       results in wireshark crash. (Bug 3387)
 
-     o Negative INTEGER number displayed as positive number in SNMP
-       dissector. (Bug 3230)
+     o ERF file starting with record with timestamp=0,1 or 2 not
+       recognized as ERF file. (Bug 4503)
 
-     o Add support for FT_BOOLEAN fields to wslua FieldInfo. (Bug
-       4049)
+     o The SSL dissector can not correctly resemple SSL records when
+       the record header is spit between packets. (Bug 4535)
 
-     o Wireshark crashes w/ GLib error when trying to play RTP
-       stream. (Bug 4119)
+     o TCP reassembly can call subdissector with incorrect TCP
+       sequence number. (Bug 4624)
 
-     o Windows 2000 support has been restored. (Bug 4176)
+     o PTP dissector displays big correction field values wrong. (Bug
+       4635)
 
-     o Wrong dissection on be_cell_id_list for bssmap. (Bug 4437)
+     o MSF is at Anthorn, not Rugby. (Bug 4678)
 
-     o I/O Graph dropdown boxes not working correctly. (Bug 4487)
+     o ProtoField __tostring() description is missing in Wireshark's
+       Lua API Reference Manual. (Bug 4695)
 
-     o Runtime Error when right-clicking field and selecting "Filter
-       Field Reference". (Bug 4522)
+     o EVRC packet bundling not handled correctly. (Bug 4718)
 
-     o In GSM SMS PDU TPVPF showing wrong. (Bug 4524)
-
-     o Profinet: May be wrong defined byte meaning. (Bug 4525)
-
-     o GLib-CRITICAL ** Message. (Bug 4547)
-
-     o Certain EDP display filters trigger Wireshark/tshark runtime
-       error. (Bug 4563)
-
-     o Some NCP frames trigger "Dissector bug, protocol NCP". (Bug
-       4565)
-
-     o The encapsulation abbreviation "bluetooth-h4" is ambiguous.
-       (Bug 4613)
+     o Completely unresponsive when run very first time by root user.
+       (Bug 4308)
 
   New and Updated Features
 
@@ -65,11 +60,11 @@ What's New
 
   Updated Protocol Support
 
-   BSSMAP, DMP, GSM SMS, LDSS, NCP, PN/IO, PPP, SIP, SNMP
+   DOCSIS, HTTP, SSL
 
   Updated Capture File Support
 
-   There are no updated capture file formats in this release.
+   ERF, PacketLogger.
 
 Getting Wireshark
 

@@ -1382,3 +1382,339 @@ Changed paths:
 Update the release notes.
 
 ------------------------------------------------------------------------
+r32341 | gerald | 2010-03-31 09:34:33 -0700 (Wed, 31 Mar 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/ChangeLog
+   M /trunk-1.2/NEWS
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/version.conf
+
+Build 1.2.7.
+
+------------------------------------------------------------------------
+r32344 | gerald | 2010-03-31 15:51:08 -0700 (Wed, 31 Mar 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/config.nmake
+   M /trunk-1.2/configure.in
+   M /trunk-1.2/debian/changelog
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/version.conf
+
+1.2.7 -> 1.2.8.
+
+------------------------------------------------------------------------
+r32374 | gerald | 2010-04-04 08:05:06 -0700 (Sun, 04 Apr 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-04-04]
+------------------------------------------------------------------------
+r32446 | gerald | 2010-04-11 08:04:36 -0700 (Sun, 11 Apr 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-04-11]
+------------------------------------------------------------------------
+r32507 | gerald | 2010-04-18 08:04:40 -0700 (Sun, 18 Apr 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-04-18]
+------------------------------------------------------------------------
+r32556 | gerald | 2010-04-25 08:04:47 -0700 (Sun, 25 Apr 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-04-25]
+------------------------------------------------------------------------
+r32632 | gerald | 2010-05-02 08:04:42 -0700 (Sun, 02 May 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-05-02]
+------------------------------------------------------------------------
+r32642 | etxrab | 2010-05-03 00:49:50 -0700 (Mon, 03 May 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/diameter/TGPPGmb.xml
+   M /trunk-1.2/diameter/TGPPSh.xml
+   M /trunk-1.2/diameter/dictionary.xml
+
+Update diameter xml files.
+------------------------------------------------------------------------
+r32655 | gerald | 2010-05-03 17:20:39 -0700 (Mon, 03 May 2010) | 92 lines
+Changed paths:
+   M /trunk-1.2/capture.c
+   M /trunk-1.2/capture_ui_utils.c
+   M /trunk-1.2/cfile.c
+   M /trunk-1.2/cfile.h
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/file.c
+   M /trunk-1.2/file.h
+   M /trunk-1.2/gtk/main.c
+   M /trunk-1.2/gtk/packet_win.c
+   M /trunk-1.2/plugins/docsis/packet-bpkmreq.c
+   M /trunk-1.2/plugins/docsis/packet-bpkmrsp.c
+   M /trunk-1.2/plugins/docsis/packet-dsaack.c
+   M /trunk-1.2/plugins/docsis/packet-dsarsp.c
+   M /trunk-1.2/plugins/docsis/packet-dscack.c
+   M /trunk-1.2/plugins/docsis/packet-dscrsp.c
+   M /trunk-1.2/plugins/docsis/packet-dsdrsp.c
+   M /trunk-1.2/plugins/docsis/packet-map.c
+   M /trunk-1.2/plugins/docsis/packet-regack.c
+   M /trunk-1.2/plugins/docsis/packet-regrsp.c
+   M /trunk-1.2/wiretap/packetlogger.c
+   M /trunk-1.2/wiretap/pcapng.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r28809 | tuexen | 2009-06-22 05:13:12 -0700 (Mon, 22 Jun 2009) | 2 lines
+Changed paths:
+   M /trunk/wiretap/packetlogger.c
+
+Improve heuristic for packetlogger file format detection.
+------------------------------------------------------------------------
+r31512 | stig | 2010-01-13 02:21:25 -0800 (Wed, 13 Jan 2010) | 2 lines
+Changed paths:
+   M /trunk/gtk/main.c
+
+Display the capture filter in the main window title when capturing.
+
+------------------------------------------------------------------------
+r32390 | gerald | 2010-04-05 14:13:00 -0700 (Mon, 05 Apr 2010) | 2 lines
+Changed paths:
+   M /trunk/capture_ui_utils.c
+
+Note that -X stdin_descr stretches the original intent of the -X option.
+------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+------------------------------------------------------------------------
+r32393 | guy | 2010-04-05 15:20:21 -0700 (Mon, 05 Apr 2010) | 11 lines
+Changed paths:
+   M /trunk/wiretap/pcapng.c
+
+Treat the first block we read, when opening, specially:
+
+	1) if it's not an SHB, just say "this is not a pcap-ng file",
+	   don't try to process it (we can't process it, as we haven't
+	   finished setting up all the state information yet);
+
+	2) if it has the right SHB type code, but isn't a valid SHB,
+	   just say "this is not a pcap-ng file".
+
+For all other SHB's, treat anything that renders it invalid as an error.
+------------------------------------------------------------------------
+r30363 | krj | 2009-10-06 06:51:56 -0700 (Tue, 06 Oct 2009) | 1 line
+Changed paths:
+   M /trunk/gtk/main.c
+
+Guard icon_list_create()
+------------------------------------------------------------------------
+r32357 | gerald | 2010-04-01 14:55:01 -0700 (Thu, 01 Apr 2010) | 4 lines
+Changed paths:
+   M /trunk/capture.c
+   M /trunk/capture_ui_utils.c
+   M /trunk/cfile.c
+   M /trunk/cfile.h
+   M /trunk/file.c
+   M /trunk/file.h
+   M /trunk/gtk/main.c
+
+Keep a copy of the interface description and capture filter around so that
+we can use it in the main window title during and after capture. Add a
+"-X" option for providing a description for stdin.
+------------------------------------------------------------------------
+r32362 | rbalint | 2010-04-02 13:40:20 -0700 (Fri, 02 Apr 2010) | 3 lines
+Changed paths:
+   M /trunk/gtk/packet_win.c
+
+Fix crash when double clicking in packet list area before capturing any packet.
+The crash does not happen when using the new packet list.
+------------------------------------------------------------------------
+r32396 | guy | 2010-04-05 19:49:18 -0700 (Mon, 05 Apr 2010) | 4 lines
+Changed paths:
+   M /trunk/plugins/docsis/packet-bpkmrsp.c
+
+The third argument to val_to_str() is a format string that gets passed
+the value that couldn't be mapped to a string - it's an integer and
+needs to be printed with an integer format.  Fixes bug 4644.
+------------------------------------------------------------------------
+r32400 | morriss | 2010-04-06 08:45:11 -0700 (Tue, 06 Apr 2010) | 1 line
+Changed paths:
+   M /trunk/plugins/docsis/packet-bpkmreq.c
+   M /trunk/plugins/docsis/packet-dsaack.c
+   M /trunk/plugins/docsis/packet-dsarsp.c
+   M /trunk/plugins/docsis/packet-dscack.c
+   M /trunk/plugins/docsis/packet-dscrsp.c
+   M /trunk/plugins/docsis/packet-dsdrsp.c
+   M /trunk/plugins/docsis/packet-map.c
+   M /trunk/plugins/docsis/packet-regack.c
+
+Don't use %s as the format string in val_to_str().
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r32661 | gerald | 2010-05-04 12:13:29 -0700 (Tue, 04 May 2010) | 125 lines
+Changed paths:
+   M /trunk-1.2/AUTHORS
+   M /trunk-1.2/configure.in
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/dissectors/packet-evrc.c
+   M /trunk-1.2/epan/dissectors/packet-http.c
+   M /trunk-1.2/epan/dissectors/packet-ntp.c
+   M /trunk-1.2/epan/dissectors/packet-ptp.c
+   M /trunk-1.2/epan/dissectors/packet-ssl.c
+   M /trunk-1.2/epan/dissectors/packet-tcp.c
+   M /trunk-1.2/epan/ex-opt.h
+   M /trunk-1.2/epan/wslua/wslua_proto.c
+   M /trunk-1.2/gtk/main.c
+   M /trunk-1.2/gtk/main_packet_list.c
+   M /trunk-1.2/gtk/main_packet_list.h
+   M /trunk-1.2/gtk/prefs_dlg.c
+   M /trunk-1.2/plugins/mate/mate.h
+   M /trunk-1.2/plugins/mate/mate_grammar.lemon
+   M /trunk-1.2/plugins/mate/mate_setup.c
+   M /trunk-1.2/version_info.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r30191 | stig | 2009-09-29 03:01:06 -0700 (Tue, 29 Sep 2009) | 2 lines
+Changed paths:
+   M /trunk/epan/ex-opt.h
+
+Corrected prototype for ex_opt_get_nth().
+------------------------------------------------------------------------
+r32433 | morriss | 2010-04-08 18:42:12 -0700 (Thu, 08 Apr 2010) | 5 lines
+Changed paths:
+   M /trunk/configure.in
+   M /trunk/epan/dissectors/packet-http.c
+
+Use a 64-bit number to store the content length.  This fixes:
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1958
+
+Of course this doesn't mean we can reassemble that much data.
+------------------------------------------------------------------------
+r32434 | guy | 2010-04-08 19:00:07 -0700 (Thu, 08 Apr 2010) | 4 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-http.c
+
+Squelch compiler warnings.  (We know that header.content_length is less
+than a value that fits into an int, so we know its value will fit into
+an int.)
+------------------------------------------------------------------------
+r32456 | sake | 2010-04-13 12:37:44 -0700 (Tue, 13 Apr 2010) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ssl.c
+
+Fix for bug 4535: The SSL dissector can not correctly resemple SSL records when the record header is spit between packets
+------------------------------------------------------------------------
+r32465 | morriss | 2010-04-14 11:39:00 -0700 (Wed, 14 Apr 2010) | 6 lines
+Changed paths:
+   M /trunk/plugins/mate/mate.h
+   M /trunk/plugins/mate/mate_grammar.lemon
+   M /trunk/plugins/mate/mate_setup.c
+
+Be sure we initialize the p_id in hf's.  This fixes
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3010 .
+
+Also finish the implementation of ShowTimes for GOGs so that the variable gets
+initialized (preventing another uninitialized variable warning from Valgrind).
+------------------------------------------------------------------------
+r32481 | jake | 2010-04-15 14:12:34 -0700 (Thu, 15 Apr 2010) | 7 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ntp.c
+
+From Dave Higton:
+When decoding NTP where the Reference Clock ID is "MSF/0", Wireshark textifies
+this as "Rugby (UK) Radio 60 kHz".  The MSF transmitter was moved several years
+ago from Rugby to Anthorn.
+
+Also updates from RFC 4330.
+------------------------------------------------------------------------
+r32500 | morriss | 2010-04-16 15:48:33 -0700 (Fri, 16 Apr 2010) | 9 lines
+Changed paths:
+   M /trunk/gtk/main_packet_list.c
+   M /trunk/gtk/main_packet_list.h
+   M /trunk/gtk/prefs_dlg.c
+
+Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3387 (crash
+when changing the font and deleting a column at the same time while using
+the old packet list):
+
+Don't calculate the default column widths until after both the font and column
+preferences have been applied.
+
+This isn't a problem in the new packet list.
+------------------------------------------------------------------------
+r32548 | morriss | 2010-04-23 19:04:14 -0700 (Fri, 23 Apr 2010) | 1 line
+Changed paths:
+   M /trunk/version_info.c
+
+Tell, in the version info, if we were compiled 32- or 64-bit.
+------------------------------------------------------------------------
+r32582 | etxrab | 2010-04-27 21:54:25 -0700 (Tue, 27 Apr 2010) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-evrc.c
+
+From Michael Lum:
+EVRC packet bundling not handled correctly.
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4718
+------------------------------------------------------------------------
+r32585 | jake | 2010-04-28 01:19:39 -0700 (Wed, 28 Apr 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-tcp.c
+
+From jmmikkel:
+Set the sequence number for the next PDU if the current frame contains both the finish of the previous and the complete next one.
+------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+------------------------------------------------------------------------
+r32499 | wmeier | 2010-04-16 12:27:56 -0700 (Fri, 16 Apr 2010) | 3 lines
+Changed paths:
+   M /trunk/AUTHORS
+   M /trunk/epan/dissectors/packet-ptp.c
+
+From Marcus Renz: Fix for "PTP dissector displays big correction field values wrong"
+See: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4635
+------------------------------------------------------------------------
+r32517 | jake | 2010-04-19 11:48:12 -0700 (Mon, 19 Apr 2010) | 4 lines
+Changed paths:
+   M /trunk/epan/wslua/wslua_proto.c
+
+Fix for bug 4695:
+Modify ProtoField_tostring() to ProtoField__tostring() 
+and clean up description.
+------------------------------------------------------------------------
+r32603 | morriss | 2010-04-29 12:30:54 -0700 (Thu, 29 Apr 2010) | 6 lines
+Changed paths:
+   M /trunk/gtk/main.c
+
+Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4308 :
+
+Make a function that checks if the user is running as root or if npf.sys isn't
+loaded (on Windows) and call it *after* showing the main window so that the
+popup (if any) shows up above the main window.
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r32663 | gerald | 2010-05-04 14:45:21 -0700 (Tue, 04 May 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+
+Update the DOCSIS fix revisions.
+
+------------------------------------------------------------------------
