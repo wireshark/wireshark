@@ -3,7 +3,7 @@
 #
 # asn2wrs.py
 # ASN.1 to Wireshark dissector compiler
-# 2004 Tomas Kukosa 
+# 2004 Tomas Kukosa
 #
 # $Id$
 #
@@ -19,21 +19,21 @@
 #
 # It requires Dave Beazley's PLY parsing package licensed under the LGPL (tested with version 2.3)
 # http://www.dabeaz.com/ply/
-# 
-# 
-# ITU-T Recommendation X.680 (07/2002), 
+#
+#
+# ITU-T Recommendation X.680 (07/2002),
 #   Information technology - Abstract Syntax Notation One (ASN.1): Specification of basic notation
 #
-# ITU-T Recommendation X.681 (07/2002), 
+# ITU-T Recommendation X.681 (07/2002),
 #   Information technology - Abstract Syntax Notation One (ASN.1): Information object specification
 #
-# ITU-T Recommendation X.682 (07/2002), 
+# ITU-T Recommendation X.682 (07/2002),
 #   Information technology - Abstract Syntax Notation One (ASN.1): Constraint specification
 #
-# ITU-T Recommendation X.683 (07/2002), 
+# ITU-T Recommendation X.683 (07/2002),
 #   Information technology - Abstract Syntax Notation One (ASN.1): Parameterization of ASN.1 specifications
 #
-# ITU-T Recommendation X.880 (07/1994), 
+# ITU-T Recommendation X.880 (07/1994),
 #   Information technology - Remote Operations: Concepts, model and notation
 #
 
@@ -49,6 +49,8 @@ import traceback
 
 import lex
 import yacc
+
+from string import maketrans
 
 # OID name -> number conversion table
 oid_names = {
@@ -340,7 +342,7 @@ def t_HSTRING (t):
 
 def t_QSTRING (t):
     r'"([^"]|"")*"'
-    return t 
+    return t
 
 def t_UCASE_IDENT (t):
     r"[A-Z](-[a-zA-Z0-9]|[a-zA-Z0-9])*" # can't end w/ '-'
@@ -389,9 +391,9 @@ def t_error(t):
 
 # state 'braceignore'
 
-def t_braceignore_lbrace(t):     
+def t_braceignore_lbrace(t):
   r'\{'
-  t.lexer.level +=1                
+  t.lexer.level +=1
 
 def t_braceignore_rbrace(t):
   r'\}'
@@ -481,7 +483,7 @@ class Ctx:
                     if ident not in already_output:
                         depend_list = [d for d in self.dependencies[ident] if d in assign_keys]
                         cycle_list.append ("%s(%s)" % (ident, ",".join (depend_list)))
-                        
+
                 text_list.append ("# Cycle XXX " + ",".join (cycle_list))
                 for (ident, val) in list(self.assignments.items ()):
                     if ident not in already_output:
@@ -512,7 +514,7 @@ EF_MODULE  = 0x1000
 # Input  : list of items
 #          dictionary with lists of dependency
 #
-#           
+#
 # Output : list of two outputs:
 #          [0] list of items in dependency
 #          [1] list of cycle dependency cycles
@@ -612,7 +614,7 @@ class EthCtx:
         return b
     except (ValueError, TypeError):
       pass
-    return "MAX((%s),(%s))" % (a, b) 
+    return "MAX((%s),(%s))" % (a, b)
 
   def value_min(self, a, b):
     if (a == 'MIN') or (b == 'MIN'): return 'MIN';
@@ -625,7 +627,7 @@ class EthCtx:
         return b
     except (ValueError, TypeError):
       pass
-    return "MIN((%s),(%s))" % (a, b) 
+    return "MIN((%s),(%s))" % (a, b)
 
   def value_get_eth(self, val):
     if isinstance(val, Value):
@@ -663,7 +665,7 @@ class EthCtx:
       ttype = type
       while (val.type == 'TaggedType'):
         val = val.val
-        ttype += '/_untag' 
+        ttype += '/_untag'
       if (val.type != 'Type_Ref'):
         if (type != ttype):
           types.append(ttype)
@@ -894,7 +896,7 @@ class EthCtx:
 
   #--- eth_dep_add ------------------------------------------------------------
   def eth_dep_add(self, type, dep):
-    if type not in self.type_dep: 
+    if type not in self.type_dep:
       self.type_dep[type] = []
     self.type_dep[type].append(dep)
 
@@ -1120,17 +1122,17 @@ class EthCtx:
     #--- types -------------------
     for t in self.type_imp:
       nm = asn2c(t)
-      self.eth_type[nm] = { 'import' : self.type[t]['import'], 
+      self.eth_type[nm] = { 'import' : self.type[t]['import'],
                             'proto' : asn2c(self.type[t]['proto']),
                             'attr' : {}, 'ref' : []}
       self.eth_type[nm]['attr'].update(self.conform.use_item('ETYPE_ATTR', nm))
       self.type[t]['ethname'] = nm
     for t in self.type_ord:
       nm = self.type[t]['tname']
-      if ((nm.find('#') >= 0) or 
-          ((len(t.split('/'))>1) and 
-           (self.conform.get_fn_presence(t) or self.conform.check_item('FN_PARS', t) or 
-            self.conform.get_fn_presence('/'.join((t,'_item'))) or self.conform.check_item('FN_PARS', '/'.join((t,'_item')))) and 
+      if ((nm.find('#') >= 0) or
+          ((len(t.split('/'))>1) and
+           (self.conform.get_fn_presence(t) or self.conform.check_item('FN_PARS', t) or
+            self.conform.get_fn_presence('/'.join((t,'_item'))) or self.conform.check_item('FN_PARS', '/'.join((t,'_item')))) and
            not self.conform.check_item('TYPE_RENAME', t))):
         if len(t.split('/')) == 2 and t.split('/')[1] == '_item':  # Sequence of type at the 1st level
           nm = t.split('/')[0] + t.split('/')[1]
@@ -1152,8 +1154,8 @@ class EthCtx:
       else:
         self.eth_type_ord.append(nm)
         self.eth_type[nm] = { 'import' : None, 'proto' : self.eproto, 'export' : 0, 'enum' : 0,
-                              'user_def' : EF_TYPE|EF_VALS, 'no_emit' : EF_TYPE|EF_VALS, 
-                              'val' : self.type[t]['val'], 
+                              'user_def' : EF_TYPE|EF_VALS, 'no_emit' : EF_TYPE|EF_VALS,
+                              'val' : self.type[t]['val'],
                               'attr' : {}, 'ref' : [t]}
       self.type[t]['ethname'] = nm
       if (not self.eth_type[nm]['export'] and self.type[t]['export']):  # new export
@@ -1192,7 +1194,7 @@ class EthCtx:
         dep = self.value[v]['value']
       if dep and dep in self.value:
         self.value_dep.setdefault(v, []).append(dep)
-    
+
     #--- exports all necessary values
     for v in self.value_ord:
       if not self.value[v]['export']: continue
@@ -1207,8 +1209,8 @@ class EthCtx:
     #--- values -------------------
     for v in self.value_imp:
       nm = asn2c(v)
-      self.eth_value[nm] = { 'import' : self.value[v]['import'], 
-                             'proto' : asn2c(self.value[v]['proto']), 
+      self.eth_value[nm] = { 'import' : self.value[v]['import'],
+                             'proto' : asn2c(self.value[v]['proto']),
                              'ref' : []}
       self.value[v]['ethname'] = nm
     for v in self.value_ord:
@@ -1217,7 +1219,7 @@ class EthCtx:
       if (self.value[v]['no_emit']):
         continue
       nm = asn2c(v)
-      self.eth_value[nm] = { 'import' : None, 
+      self.eth_value[nm] = { 'import' : None,
                              'proto' : asn2c(self.value[v]['proto']),
                              'export' : self.value[v]['export'], 'ref' : [v] }
       self.eth_value[nm]['value'] = self.value[v]['value']
@@ -1232,7 +1234,7 @@ class EthCtx:
         nm = f.split('/')[-1]
       nm = self.conform.use_item('FIELD_RENAME', f, val_dflt=nm)
       nm = asn2c(nm)
-      if (self.field[f]['pdu']): 
+      if (self.field[f]['pdu']):
         nm += '_PDU'
         if (not self.merge_modules or self.field[f]['pdu']['export']):
           nm = self.eproto + '_' + nm
@@ -1275,7 +1277,7 @@ class EthCtx:
       attr.update(self.conform.use_item('EFIELD_ATTR', nm))
       self.eth_hf[nm] = {'fullname' : fullname, 'pdu' : self.field[f]['pdu'],
                          'ethtype' : ethtype, 'modified' : self.field[f]['modified'],
-                         'attr' : attr.copy(), 
+                         'attr' : attr.copy(),
                          'ref' : [f]}
       self.field[f]['ethname'] = nm
     #--- type dependencies -------------------
@@ -1391,7 +1393,7 @@ class EthCtx:
         if (first_line == 1):
           first_line = 0
         else:
-          out += ",\n"  
+          out += ",\n"
         out += '  %-12s = %3s' % (self.eth_enum_item(tname, id), val)
       out += "\n} %s;\n" % (self.eth_enum_nm(tname))
     return out
@@ -1505,14 +1507,21 @@ class EthCtx:
     for nb in self.named_bit:
       fx.write("static int %s = -1;\n" % (nb['ethname']))
     self.output.file_close(fx)
-    
+
   #--- eth_output_hf_arr ------------------------------------------------------
   def eth_output_hf_arr (self):
     if not len(self.eth_hf_ord) and not len(self.eth_hfpdu_ord) and not len(self.named_bit): return
     fx = self.output.file_open('hfarr')
     for f in (self.eth_hfpdu_ord + self.eth_hf_ord):
       t = self.eth_hf[f]['ethtype']
-      blurb = '"%s.%s"' % (self.eth_type[t]['proto'], t)
+      name=self.eth_hf[f]['attr']['NAME']
+      trantab=maketrans("-", "_")
+      name=name.translate(trantab)
+      # Try to avoid giving blurbs that give no more info than the name
+      if '"' + t.lower() + '"' == name.lower():
+        blurb = 'NULL'
+      else:
+        blurb = '"%s"' % (t)
       attr = self.eth_hf[f]['attr'].copy()
       attr['ABBREV'] = '"%s.%s"' % (self.proto, attr['ABBREV'])
       if 'BLURB' not in attr:
@@ -1594,7 +1603,7 @@ class EthCtx:
         fx.write('#.CLASS %s\n' % (cnm))
         maxw = 2
         for fld in self.objectclass[cls]['val'].fields:
-          w = len(fld.fld_repr()[0])  
+          w = len(fld.fld_repr()[0])
           if (w > maxw): maxw = w
         for fld in self.objectclass[cls]['val'].fields:
           repr = fld.fld_repr()
@@ -1785,7 +1794,7 @@ class EthCtx:
       reg = self.conform.use_item('REGISTER', k)
       if reg['pdu'] not in self.field: continue
       f = self.field[reg['pdu']]['ethname']
-      pdu = self.eth_hf[f]['pdu'] 
+      pdu = self.eth_hf[f]['pdu']
       new_prefix = ''
       if (pdu['new']): new_prefix = 'new_'
       if (reg['rtype'] in ('NUM', 'STR')):
@@ -1980,7 +1989,7 @@ class EthCtx:
       print "%-30s " % (m),
       dep = self.module[m][:]
       for i in range(len(dep)):
-        if dep[i] not in self.module: 
+        if dep[i] not in self.module:
           dep[i] = '*' + dep[i]
       print ', '.join(dep)
     # end of print_mod()
@@ -2044,8 +2053,8 @@ class EthCnf:
 
   def add_item(self, table, key, fn, lineno, **kw):
     if self.tblcfg[table]['chk_dup'] and key in self.table[table]:
-      warnings.warn_explicit("Duplicated %s for %s. Previous one is at %s:%d" % 
-                             (table, key, self.table[table][key]['fn'], self.table[table][key]['lineno']), 
+      warnings.warn_explicit("Duplicated %s for %s. Previous one is at %s:%d" %
+                             (table, key, self.table[table][key]['fn'], self.table[table][key]['lineno']),
                              UserWarning, fn, lineno)
       return
     self.table[table][key] = {'fn' : fn, 'lineno' : lineno, 'used' : False}
@@ -2081,7 +2090,7 @@ class EthCnf:
     return self.table[table][key].get(vname, vdflt)
 
   def omit_assignment(self, type, ident, module):
-    if self.ectx.conform.use_item('OMIT_ASSIGNMENT', ident): 
+    if self.ectx.conform.use_item('OMIT_ASSIGNMENT', ident):
       return True
     if self.ectx.conform.use_item('OMIT_ASSIGNMENT', '*') or \
        self.ectx.conform.use_item('OMIT_ASSIGNMENT', '*'+type) or \
@@ -2111,7 +2120,7 @@ class EthCnf:
       return '';
     self.fn[name][ctx]['used'] = True
     out = self.fn[name][ctx]['text']
-    if (not self.suppress_line): 
+    if (not self.suppress_line):
       out = '#line %u "%s"\n%s\n' % (self.fn[name][ctx]['lineno'], os.path.basename(self.fn[name][ctx]['fn']), out);
     return out
 
@@ -2137,14 +2146,14 @@ class EthCnf:
     if ((len(par)-1) > pmax):
       warnings.warn_explicit("Too many parameters for %s registration type. Only %d parameters are allowed" % (rtype, pmax), UserWarning, fn, lineno)
     attr = {'pdu' : pdu, 'rtype' : rtype}
-    if (rtype in ('NUM', 'STR')): 
+    if (rtype in ('NUM', 'STR')):
       attr['rtable'] = par[1]
       attr['rport'] = par[2]
       rkey = '/'.join([rtype, attr['rtable'], attr['rport']])
-    elif (rtype in ('BER', 'PER')): 
+    elif (rtype in ('BER', 'PER')):
       attr['roid'] = par[1]
       attr['roidname'] = '""'
-      if (len(par)>=3): 
+      if (len(par)>=3):
         attr['roidname'] = par[2]
       elif attr['roid'][0] != '"':
         attr['roidname'] = '"' + attr['roid'] + '"'
@@ -2234,7 +2243,7 @@ class EthCnf:
           frec = stack.pop()
           fn, f, lineno, is_import = frec['fn'], frec['f'], frec['lineno'], frec['is_import']
           continue
-        else: 
+        else:
           break
       if comment.search(line): continue
       result = directive.search(line)
@@ -2248,9 +2257,9 @@ class EthCnf:
           if not par: continue
           self.set_opt(par[0], par[1:], fn, lineno)
           ctx = None
-        elif result.group('name') in ('PDU', 'PDU_NEW', 'REGISTER', 'REGISTER_NEW', 
-                                    'MODULE', 'MODULE_IMPORT', 
-                                    'OMIT_ASSIGNMENT', 'NO_OMIT_ASSGN', 
+        elif result.group('name') in ('PDU', 'PDU_NEW', 'REGISTER', 'REGISTER_NEW',
+                                    'MODULE', 'MODULE_IMPORT',
+                                    'OMIT_ASSIGNMENT', 'NO_OMIT_ASSGN',
                                     'VIRTUAL_ASSGN', 'SET_TYPE', 'ASSIGN_VALUE_TO_TYPE',
                                     'TYPE_RENAME', 'FIELD_RENAME', 'TF_RENAME', 'IMPORT_TAG',
                                     'TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR'):
@@ -2265,7 +2274,7 @@ class EthCnf:
           if ctx in ('OMIT_ALL_VALUE_ASSIGNMENTS', 'OMIT_VALUE_ASSIGNMENTS_EXCEPT'):
             key += 'V'
           par = get_par(line[result.end():], 0, 1, fn=fn, lineno=lineno)
-          if par: 
+          if par:
             key += '/' + par[0]
           self.add_item('OMIT_ASSIGNMENT', key, omit=True, fn=fn, lineno=lineno)
           if ctx in ('OMIT_ASSIGNMENTS_EXCEPT', 'OMIT_TYPE_ASSIGNMENTS_EXCEPT', 'OMIT_VALUE_ASSIGNMENTS_EXCEPT'):
@@ -2373,7 +2382,7 @@ class EthCnf:
         elif result.group('name') in ('INCLUDE', 'IMPORT') :
           is_imp = result.group('name') == 'IMPORT'
           par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
-          if not par: 
+          if not par:
             warnings.warn_explicit("%s requires parameter" % (result.group('name'),), UserWarning, fn, lineno)
             continue
           fname = par[0]
@@ -2696,7 +2705,7 @@ class EthOut:
   def output_fname(self, ftype, ext='c'):
     fn = ''
     if not ext in ('cnf',):
-      fn += 'packet-' 
+      fn += 'packet-'
     fn += self.outnm
     if (ftype):
       fn += '-' + ftype
@@ -2737,7 +2746,7 @@ class EthOut:
   #--- file_close -------------------------------------------------------
   def file_close(self, fx, discard=False, keep_anyway=False):
     fx.close()
-    if discard and not self.created_file_exists(fx.name): 
+    if discard and not self.created_file_exists(fx.name):
       os.unlink(fx.name)
     else:
       self.created_file_add(fx.name, keep_anyway)
@@ -3023,7 +3032,7 @@ class Type (Node):
   def sel_req(self, sel, ectx):
     print "#Selection '%s' required for non-CHOICE type %s" % (sel, self.type)
     print self.str_depth(1)
-    
+
   def fld_obj_eq(self, other):
     return isinstance(other, Type) and (self.eth_tname() == other.eth_tname())
 
@@ -3106,7 +3115,7 @@ class Type (Node):
       (minv, maxv, ext) = self.constr.GetValue(ectx)
     if minv == 'MIN': minv = 'NO_BOUND'
     if maxv == 'MAX': maxv = 'NO_BOUND'
-    if str(minv).isdigit(): 
+    if str(minv).isdigit():
       minv += 'U'
     elif (str(minv)[0] == "-") and str(minv)[1:].isdigit():
       if (long(minv) < -(2**31)):
@@ -3158,8 +3167,8 @@ class Type (Node):
       'TNAME' : tname,
       'ER' : ectx.encp(),
       'FN_VARIANT' : '',
-      'TREE' : 'tree', 
-      'TVB' : 'tvb', 
+      'TREE' : 'tree',
+      'TVB' : 'tvb',
       'OFFSET' : 'offset',
       'ACTX' : 'actx',
       'HF_INDEX' : 'hf_index',
@@ -3183,7 +3192,7 @@ class Type (Node):
       pars.update(ectx.conform.use_item('FN_PARS', ectx.eth_type[tname]['ref'][0]))
     pars['DEFAULT_BODY'] = body
     for i in range(4):
-      for k in list(pars.keys()): 
+      for k in list(pars.keys()):
         try:
           pars[k] = pars[k] % pars
         except (TypeError):
@@ -3269,7 +3278,7 @@ class Tag (Node):
     elif (self.cls == 'CONTEXT'): n = 'C'
     elif (self.cls == 'PRIVATE'): n = 'P'
     return n + str(self.num)
- 
+
 #--- Constraint ---------------------------------------------------------------
 class Constraint (Node):
   def to_python (self, ctx):
@@ -3501,8 +3510,8 @@ def calc_dependencies (node, dict, trace = 0):
         elif isinstance (val, type ([])):
             for v in val:
                 calc_dependencies (v, dict, trace)
-    
-                          
+
+
 class Type_Assign (Node):
     def __init__ (self, *args, **kw):
         Node.__init__ (self, *args, **kw)
@@ -3512,7 +3521,7 @@ class Type_Assign (Node):
             to_test = self.val
         if isinstance (to_test, SequenceType):
             to_test.sequence_name = self.name.name
-            
+
     def to_python (self, ctx):
         dep_dict = {}
         calc_dependencies (self.val, dep_dict, 0)
@@ -3743,7 +3752,7 @@ class SqType (Type):
             % ('&'+ectx.eth_hf[ef]['fullname'], ext, opt, ectx.eth_type[t]['proto'], t)
     else:
       out = ''
-    return out   
+    return out
 
 #--- SeqType -----------------------------------------------------------
 class SeqType (SqType):
@@ -3970,11 +3979,11 @@ class SequenceType (SeqType):
       else:
           seq_name = "'" + seq_name + "'"
       if 'ext_list' in self.__dict__:
-        return "%sasn1.SEQUENCE ([%s], ext=[%s], seq_name = %s)" % (ctx.spaces (), 
+        return "%sasn1.SEQUENCE ([%s], ext=[%s], seq_name = %s)" % (ctx.spaces (),
                                  self.elts_to_py (self.elt_list, ctx),
                                  self.elts_to_py (self.ext_list, ctx), seq_name)
       else:
-        return "%sasn1.SEQUENCE ([%s]), seq_name = %s" % (ctx.spaces (), 
+        return "%sasn1.SEQUENCE ([%s]), seq_name = %s" % (ctx.spaces (),
                                  self.elts_to_py (self.elt_list, ctx), seq_name)
   def elts_to_py (self, list, ctx):
       # we have elt_type, val= named_type, maybe default=, optional=
@@ -3992,7 +4001,7 @@ class SequenceType (SeqType):
           if hasattr (nt.typ, 'type') and nt.typ.type == 'tag': # ugh
               tagstr = mk_tag_str (ctx,nt.typ.tag.cls,
                                    nt.typ.tag.tag_typ,nt.typ.tag.num)
-      
+
 
               nt = nt.typ
           return "('%s',%s,%s,%d)" % (identstr, tagstr,
@@ -4088,7 +4097,7 @@ class ChoiceType (Type):
       # name, tag (None for no tag, EXPLICIT() for explicit), typ)
       # or '' + (1,) for optional
       if 'ext_list' in self.__dict__:
-        return "%sasn1.CHOICE ([%s], ext=[%s])" % (ctx.spaces (), 
+        return "%sasn1.CHOICE ([%s], ext=[%s])" % (ctx.spaces (),
                                self.elts_to_py (self.elt_list, ctx),
                                self.elts_to_py (self.ext_list, ctx))
       else:
@@ -4111,7 +4120,7 @@ class ChoiceType (Type):
           if hasattr (nt.typ, 'type') and nt.typ.type == 'tag': # ugh
               tagstr = mk_tag_str (ctx,nt.typ.tag.cls,
                                    nt.typ.tag.tag_typ,nt.typ.tag.num)
-      
+
 
               nt = nt.typ
           return "('%s',%s,%s)" % (identstr, tagstr,
@@ -4286,7 +4295,7 @@ class ChoiceType (Type):
               % (vval, '&'+ectx.eth_hf[ef]['fullname'], ext, ectx.eth_type[t]['proto'], t)
       else:
         out = ''
-      return out   
+      return out
     # end out_item()
     #print "eth_type_default_table(tname='%s')" % (tname)
     fname = ectx.eth_type[tname]['ref'][0]
@@ -4328,7 +4337,7 @@ class ChoiceType (Type):
     else:
       body = '#error Can not decode %s' % (tname)
     return body
-   
+
 #--- ChoiceValue ----------------------------------------------------
 class ChoiceValue (Value):
   def to_str(self, ectx):
@@ -4454,7 +4463,7 @@ class EnumeratedType (Type):
                                      ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
       else:
         body = ectx.eth_fn_call('dissect_%(ER)s_integer', ret='offset',
-                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'), 
+                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
                                      ('%(VAL_PTR)s',),))
     elif (ectx.Per()):
       body = ectx.eth_fn_call('dissect_%(ER)s_enumerated', ret='offset',
@@ -4484,7 +4493,7 @@ class EmbeddedPDVType (Type):
     return pars
 
   def eth_type_default_body(self, ectx, tname):
-    if (ectx.Ber()):  
+    if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_EmbeddedPDV_Type', ret='offset',
                               par=(('%(IMPLICIT_TAG)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
     elif (ectx.Per()):
@@ -4514,7 +4523,7 @@ class ExternalType (Type):
     return pars
 
   def eth_type_default_body(self, ectx, tname):
-    if (ectx.Ber()):  
+    if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_external_type', ret='offset',
                               par=(('%(IMPLICIT_TAG)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
     elif (ectx.Per()):
@@ -4530,8 +4539,8 @@ class OpenType (Type):
     return "asn1.ANY"
 
   def single_type(self):
-    if (self.HasConstraint() and 
-        self.constr.type == 'Type' and 
+    if (self.HasConstraint() and
+        self.constr.type == 'Type' and
         self.constr.subtype.type == 'Type_Ref'):
       return self.constr.subtype.val
     return None
@@ -4595,7 +4604,7 @@ class InstanceOfType (Type):
     return pars
 
   def eth_type_default_body(self, ectx, tname):
-    if (ectx.Ber()):  
+    if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_external_type', ret='offset',
                               par=(('%(IMPLICIT_TAG)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
     elif (ectx.Per()):
@@ -4758,7 +4767,7 @@ class OctetStringType (Type):
                                      ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
       else:
         body = ectx.eth_fn_call('dissect_%(ER)s_octet_string', ret='offset',
-                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'), 
+                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
                                      ('%(VAL_PTR)s',),))
     elif (ectx.Per()):
       if self.HasContentsConstraint():
@@ -5059,7 +5068,7 @@ class IntegerType (Type):
 
   def add_named_value(self, ident, val):
     e = NamedNumber(ident = ident, val = val)
-    if not self.named_list: 
+    if not self.named_list:
       self.named_list = []
     self.named_list.append(e)
 
@@ -5134,7 +5143,7 @@ class IntegerType (Type):
                                      ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
       else:
         body = ectx.eth_fn_call('dissect_%(ER)s_integer%(FN_VARIANT)s', ret='offset',
-                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'), 
+                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
                                      ('%(VAL_PTR)s',),))
     elif (ectx.Per() and not self.HasValueConstraint()):
       body = ectx.eth_fn_call('dissect_%(ER)s_integer%(FN_VARIANT)s', ret='offset',
@@ -5329,7 +5338,7 @@ class ObjectSetFieldSpec (FieldSpec):
     return ['ClassReference', self.cls.val]
 
 #==============================================================================
-    
+
 def p_module_list_1 (t):
     'module_list : module_list ModuleDefinition'
     t[0] = t[1] + [t[2]]
@@ -5387,7 +5396,7 @@ def p_TagDefault_1 (t):
 def p_TagDefault_2 (t):
   'TagDefault : '
   # 12.2 The "TagDefault" is taken as EXPLICIT TAGS if it is "empty".
-  t[0] = Default_Tags (dfl_tag = 'EXPLICIT') 
+  t[0] = Default_Tags (dfl_tag = 'EXPLICIT')
 
 def p_ModuleIdentifier_1 (t):
   'ModuleIdentifier : modulereference DefinitiveIdentifier' # name, oid
@@ -5440,7 +5449,7 @@ def p_exp_sym_list_1 (t):
 def p_exp_sym_list_2 (t):
     'exp_sym_list : exp_sym_list COMMA Symbol'
     t[0] = t[1] + [t[3]]
-    
+
 
 def p_Imports_1 (t):
   'Imports : importsbegin IMPORTS SymbolsImported SEMICOLON'
@@ -5478,7 +5487,7 @@ def p_SymbolsFromModuleList_2 (t):
 def p_SymbolsFromModule (t):
   'SymbolsFromModule : SymbolList FROM GlobalModuleReference'
   t[0] = Node ('SymbolList', symbol_list = t[1], module = t[3])
-  for s in (t[0].symbol_list): 
+  for s in (t[0].symbol_list):
     if (isinstance(s, Value_Ref)): lcase_ident_assigned[s.val] = t[3]
   import_symbols_from_module(t[0].module, t[0].symbol_list)
 
@@ -5564,7 +5573,7 @@ def p_Assignment (t):
 # 13 Referencing type and value definitions -----------------------------------
 
 # 13.1
-def p_DefinedType (t): 
+def p_DefinedType (t):
   '''DefinedType : ExternalTypeReference
                  | type_ref
                  | ParameterizedType'''
@@ -5668,7 +5677,7 @@ def p_ReferencedType (t):
 def p_NamedType (t):
   'NamedType : identifier Type'
   t[0] = t[2]
-  t[0].SetName (t[1]) 
+  t[0].SetName (t[1])
 
 # 16.7
 def p_Value (t):
@@ -5963,7 +5972,7 @@ def p_ComponentType_4 (t):
   t[0] = Node ('components_of', typ = t[3])
 
 def p_DefaultValue_1 (t):
-  '''DefaultValue : ReferencedValue 
+  '''DefaultValue : ReferencedValue
                   | BooleanValue
                   | ChoiceValue
                   | IntegerValue
@@ -5987,7 +5996,7 @@ def p_SequenceValue_1 (t):
 #def p_SequenceValue_2 (t):
 #  'SequenceValue : LBRACE ComponentValueList RBRACE'
 #  t[0] = t[2]
-    
+
 #def p_ComponentValueList_1 (t):
 #    'ComponentValueList : NamedValue'
 #    t[0] = [t[1]]
@@ -6170,7 +6179,7 @@ def p_NameAndNumberForm (t):
   '''NameAndNumberForm : LCASE_IDENT_ASSIGNED LPAREN NumberForm RPAREN
                        | LCASE_IDENT LPAREN NumberForm RPAREN'''
   t[0] = Node('name_and_number', ident = t[1], number = t[3])
-  
+
 # 32 Notation for the relative object identifier type -------------------------
 
 # 32.1
@@ -6409,16 +6418,16 @@ def p_SubtypeElements (t):
 # 47.2.1
 def p_SingleValue (t):
     'SingleValue : Value'
-    t[0] = Constraint(type = 'SingleValue', subtype = t[1]) 
+    t[0] = Constraint(type = 'SingleValue', subtype = t[1])
 
 # 47.3 Contained subtype
 # 47.3.1
 def p_ContainedSubtype (t):
   'ContainedSubtype : Includes Type'
-  t[0] = Constraint(type = 'ContainedSubtype', subtype = t[2]) 
+  t[0] = Constraint(type = 'ContainedSubtype', subtype = t[2])
 
 def p_Includes (t):
-  '''Includes : INCLUDES 
+  '''Includes : INCLUDES
               | '''
 
 # 47.4 Value range
@@ -6435,7 +6444,7 @@ def p_LowerEndpoint_1 (t):
 def p_LowerEndpoint_2 (t):
   'LowerEndpoint : LowerEndValue LT'
   t[0] = t[1] # but not inclusive range
-    
+
 def p_UpperEndpoint_1 (t):
   'UpperEndpoint : UpperEndValue'
   t[0] = t[1]
@@ -6532,7 +6541,7 @@ def p_presence_constraint_1 (t):
                  | ABSENT
                  | OPTIONAL'''
     t[0] = t[1]
-    
+
 def p_presence_constraint_2 (t):
     '''presence_constraint : '''
     pass
@@ -6650,7 +6659,7 @@ def p_DefinedObject (t):
 
 # 8.4
 def p_UsefulObjectClassReference (t):
-  '''UsefulObjectClassReference : TYPE_IDENTIFIER 
+  '''UsefulObjectClassReference : TYPE_IDENTIFIER
                                 | ABSTRACT_SYNTAX'''
   t[0] = Class_Ref(val=t[1])
 
@@ -6879,11 +6888,11 @@ def p_cls_syntax_2 (t):
 def p_cls_syntax_3 (t):
   '''cls_syntax : ERRORS ObjectSet
                  | LINKED ObjectSet
-                 | RETURN RESULT BooleanValue 
+                 | RETURN RESULT BooleanValue
                  | SYNCHRONOUS BooleanValue
-                 | INVOKE PRIORITY Value 
-                 | RESULT_PRIORITY Value 
-                 | PRIORITY Value 
+                 | INVOKE PRIORITY Value
+                 | RESULT_PRIORITY Value
+                 | PRIORITY Value
                  | ALWAYS RESPONDS BooleanValue
                  | IDEMPOTENT BooleanValue '''
   t[0] = { get_class_fieled(' '.join(t[1:-1])) : t[-1:][0] }
@@ -6989,21 +6998,21 @@ x681_syntaxes = {
   'TYPE-IDENTIFIER' : {
     ' '             : '&Type',
     'IDENTIFIED'    : 'IDENTIFIED',
-    #'BY'            : 'BY',         
-    'IDENTIFIED BY' : '&id',         
+    #'BY'            : 'BY',
+    'IDENTIFIED BY' : '&id',
   },
   'ABSTRACT-SYNTAX' : {
     ' '             : '&Type',
     'IDENTIFIED'    : 'IDENTIFIED',
-    #'BY'            : 'BY',         
-    'IDENTIFIED BY' : '&id',         
+    #'BY'            : 'BY',
+    'IDENTIFIED BY' : '&id',
     'HAS'           : 'HAS',
-    'PROPERTY'      : 'PROPERTY',         
-    'HAS PROPERTY'  : '&property',         
+    'PROPERTY'      : 'PROPERTY',
+    'HAS PROPERTY'  : '&property',
   },
 }
 
-class_syntaxes_enabled = { 
+class_syntaxes_enabled = {
   'TYPE-IDENTIFIER' : True,
   'ABSTRACT-SYNTAX' : True,
 }
@@ -7090,14 +7099,14 @@ def set_type_to_class(cls, fld, pars):
     typeref = pars[1]
 
   msg = None
-  if key in object_class_types: 
+  if key in object_class_types:
     msg = object_class_types[key]().type
   if key in object_class_typerefs:
     msg = "TypeReference " + object_class_typerefs[key]
   if key in object_class_classrefs:
     msg = "ClassReference " + object_class_classrefs[key]
 
-  if msg == ' '.join(pars): 
+  if msg == ' '.join(pars):
     msg = None
 
   if msg:
@@ -7154,7 +7163,7 @@ def p_GeneralConstraint (t):
 # 9.1
 def p_UserDefinedConstraint (t):
   'UserDefinedConstraint : CONSTRAINED BY LBRACE UserDefinedConstraintParameterList RBRACE'
-  t[0] = Constraint(type = 'UserDefined', subtype = t[4]) 
+  t[0] = Constraint(type = 'UserDefined', subtype = t[4])
 
 def p_UserDefinedConstraintParameterList_1 (t):
   'UserDefinedConstraintParameterList : '
@@ -7179,7 +7188,7 @@ def p_UserDefinedConstraintParameter (t):
 def p_TableConstraint (t):
   '''TableConstraint : SimpleTableConstraint
                      | ComponentRelationConstraint'''
-  t[0] = Constraint(type = 'Table', subtype = t[1]) 
+  t[0] = Constraint(type = 'Table', subtype = t[1])
 
 def p_SimpleTableConstraint (t):
   'SimpleTableConstraint : LBRACE UCASE_IDENT RBRACE'
@@ -7227,7 +7236,7 @@ def p_ComponentIdList_2 (t):
 # 11.1
 def p_ContentsConstraint (t):
   'ContentsConstraint : CONTAINING type_ref'
-  t[0] = Constraint(type = 'Contents', subtype = t[2]) 
+  t[0] = Constraint(type = 'Contents', subtype = t[2])
 
 
 #--- ITU-T Recommendation X.683 -----------------------------------------------
@@ -7342,10 +7351,10 @@ def p_ActualParameterList (t):
 
 x880_classes = {
   'OPERATION' : {
-    '&ArgumentType'         : [],      
+    '&ArgumentType'         : [],
     '&argumentTypeOptional' : [ 'BooleanType' ],
     '&returnResult'         : [ 'BooleanType' ],
-    '&ResultType'           : [],            
+    '&ResultType'           : [],
     '&resultTypeOptional'   : [ 'BooleanType' ],
     '&Errors'               : [ 'ClassReference', 'ERROR' ],
     '&Linked'               : [ 'ClassReference', 'OPERATION' ],
@@ -7357,7 +7366,7 @@ x880_classes = {
     '&operationCode'        : [ 'TypeReference', 'Code' ],
   },
   'ERROR' : {
-    '&ParameterType'         : [],                
+    '&ParameterType'         : [],
     '&parameterTypeOptional' : [ 'BooleanType' ],
     '&ErrorPriority'         : [ '_FixedTypeValueSetFieldSpec' ],
     '&errorCode'             : [ 'TypeReference', 'Code' ],
@@ -7395,28 +7404,28 @@ x880_syntaxes = {
   'OPERATION' : {
     'ARGUMENT'       : '&ArgumentType',
     'ARGUMENT OPTIONAL' : '&argumentTypeOptional',
-    'RESULT'         : '&ResultType',         
-    'RESULT OPTIONAL' : '&resultTypeOptional',         
+    'RESULT'         : '&ResultType',
+    'RESULT OPTIONAL' : '&resultTypeOptional',
     'RETURN'         : 'RETURN',
     'RETURN RESULT'  : '&returnResult',
-    'ERRORS'         : '&Errors',         
-    'LINKED'         : '&Linked',         
-    'SYNCHRONOUS'    : '&synchronous',    
-    'IDEMPOTENT'     : '&idempotent',     
-    'ALWAYS'         : 'ALWAYS',         
+    'ERRORS'         : '&Errors',
+    'LINKED'         : '&Linked',
+    'SYNCHRONOUS'    : '&synchronous',
+    'IDEMPOTENT'     : '&idempotent',
+    'ALWAYS'         : 'ALWAYS',
     'RESPONDS'       : 'RESPONDS',
-    'ALWAYS RESPONDS' : '&alwaysReturns',       
-    'INVOKE'         : 'INVOKE',         
+    'ALWAYS RESPONDS' : '&alwaysReturns',
+    'INVOKE'         : 'INVOKE',
     'PRIORITY'       : 'PRIORITY',
     'INVOKE PRIORITY' : '&InvokePriority',
     'RESULT-PRIORITY': '&ResultPriority',
-    'CODE'           : '&operationCode',           
+    'CODE'           : '&operationCode',
   },
   'ERROR' : {
-    'PARAMETER'      : '&ParameterType',       
-    'PARAMETER OPTIONAL' : '&parameterTypeOptional',       
-    'PRIORITY'       : '&ErrorPriority',       
-    'CODE'           : '&errorCode',           
+    'PARAMETER'      : '&ParameterType',
+    'PARAMETER OPTIONAL' : '&parameterTypeOptional',
+    'PRIORITY'       : '&ErrorPriority',
+    'CODE'           : '&errorCode',
   },
 #  'OPERATION-PACKAGE' : {
 #  },
@@ -7545,11 +7554,11 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c cnf_file] [-e] input_file(s) ...
   -L            : Suppress #line directive from .cnf file
   -D dir        : Directory for input_file(s) (default: '.')
   -C            : Add check for SIZE constraints
-  
+
   input_file(s) : Input ASN.1 file(s)
 
   -d dbg        : Debug output, dbg = [l][y][p][s][a][t][c][m][o]
-                  l - lex 
+                  l - lex
                   y - yacc
                   p - parsing
                   s - internal ASN.1 structure
@@ -7623,7 +7632,7 @@ def eth_main():
       if a: par.append(a)
       ectx.conform.set_opt(o, par, "commandline", 0)
 
-  (ld, yd, pd) = (0, 0, 0); 
+  (ld, yd, pd) = (0, 0, 0);
   if ectx.dbg('l'): ld = 1
   if ectx.dbg('y'): yd = 1
   if ectx.dbg('p'): pd = 2
@@ -7681,7 +7690,7 @@ def eth_main():
   if ectx.dbg('o'):
     ectx.output.dbg_print()
   ectx.output.make_single_file()
-    
+
 
 # Python compiler
 def main():
@@ -7699,7 +7708,7 @@ def main():
             testfn (f.read (), fn, defined_dict)
             f.close ()
             lexer.lineno = 1
-  
+
 
 #--- BODY ---------------------------------------------------------------------
 
