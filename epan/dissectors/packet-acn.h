@@ -35,6 +35,9 @@
 #define ACN_PDU_FLAG_H  	0x20
 #define ACN_PDU_FLAG_D		0x10
 
+#define ACN_DMX_OPTION_P    0x80
+#define ACN_DMX_OPTION_S    0x40
+
 #define ACN_DMP_ADT_FLAG_V	0x80	/* V = Specifies whether address is a virtual address or not. */
 #define ACN_DMP_ADT_FLAG_R	0x40	/* R = Specifies whether address is relative to last valid address in packet or not. */
 #define ACN_DMP_ADT_FLAG_D	0x30	/* D1, D0 = Specify non-range or range address, single data, equal size or mixed size data array */
@@ -62,6 +65,7 @@
 #define ACN_PROTOCOL_ID_SDT           1
 #define ACN_PROTOCOL_ID_DMP           2
 #define ACN_PROTOCOL_ID_DMX           3
+#define ACN_PROTOCOL_ID_DMX_2         4
 
 #define ACN_ADDR_NULL                 0
 #define ACN_ADDR_IPV4                 1

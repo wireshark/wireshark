@@ -49,6 +49,7 @@
 #include <epan/prefs.h>
 #include <epan/packet.h>
 #include <epan/ipv6-utils.h>
+#include <string.h>
 
 #include "packet-acn.h"
 
@@ -71,8 +72,8 @@ static guint32 acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 static guint32 dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets);
 static guint32 dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, int offset, acn_pdu_offsets *last_pdu_offsets);
 static guint32 dissect_acn_sdt_client_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets);
-static guint32 dissect_acn_dmx_data_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets);
-static guint32 dissect_acn_dmx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets);
+static guint32 dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets);
+static guint32 dissect_acn_dmx_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets);
 static guint32 dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets);
 static guint32 dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets);
 static int dissect_acn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -93,6 +94,7 @@ static gint ett_acn_sdt_client_pdu = -1;
 static gint ett_acn_sdt_base_pdu = -1;
 static gint ett_acn_root_pdu = -1;
 static gint ett_acn_dmx_address = -1;
+static gint ett_acn_dmx_2_options = -1;
 static gint ett_acn_dmx_data_pdu = -1;
 static gint ett_acn_dmx_pdu = -1;
 
@@ -153,12 +155,18 @@ static int hf_acn_session_count = -1;
 static int hf_acn_total_sequence_number = -1;
 static int hf_acn_dmx_source_name = -1;
 static int hf_acn_dmx_priority = -1;
+static int hf_acn_dmx_2_reserved = -1;
 static int hf_acn_dmx_sequence_number = -1;
+static int hf_acn_dmx_2_options = -1;
+static int hf_acn_dmx_2_option_p = -1;
+static int hf_acn_dmx_2_option_s = -1;
 static int hf_acn_dmx_universe = -1;
 
 static int hf_acn_dmx_start_code = -1;
+static int hf_acn_dmx_2_first_property_address = -1;
 static int hf_acn_dmx_increment = -1;
 static int hf_acn_dmx_count = -1;
+static int hf_acn_dmx_2_start_code = -1;
 
 /* static int hf_acn_dmx_dmp_vector = -1; */
 
@@ -175,6 +183,7 @@ static const value_string acn_protocol_id_vals[] = {
   { ACN_PROTOCOL_ID_SDT, "SDT Protocol" },
   { ACN_PROTOCOL_ID_DMP, "DMP Protocol" },
   { ACN_PROTOCOL_ID_DMX, "DMX Protocol" },
+  { ACN_PROTOCOL_ID_DMX_2, "Ratified DMX Protocol" },
   { 0,       NULL },
 };
 
@@ -318,13 +327,19 @@ static const enum_val_t dmx_display_line_format[] = {
 static gboolean is_acn(tvbuff_t *tvb)
 {
   static char acn_packet_id[] = "ASC-E1.17\0\0\0";  /* must be 12 bytes */
+  guint8      *packet_id;
 
   if (tvb_length(tvb) < (4+sizeof(acn_packet_id)))
     return FALSE;
 
   /* Check the bytes in octets 4 - 16 */
-  if (tvb_memeql(tvb, 4, acn_packet_id, sizeof(acn_packet_id)) != 0)
+  if (tvb_memeql(tvb, 4, acn_packet_id, sizeof(acn_packet_id)) != 0){
+    packet_id = tvb_get_ephemeral_string(tvb, 4, 12);
+    if (memcmp(packet_id, &acn_packet_id, 12) == 0) {
+      return TRUE;
+    }
     return FALSE;
+  }
 
   return TRUE;
 }
@@ -1739,7 +1754,7 @@ ltos(guint8 level, gchar *string, guint8 base, gchar leading_char, guint8 min_ch
 /* Dissect DMX data PDU                                                       */
 #define BUFFER_SIZE 128
 static guint32
-dissect_acn_dmx_data_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
+dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
 {
   /* common to all pdu */
   guint8 pdu_flags;
@@ -1876,13 +1891,23 @@ dissect_acn_dmx_data_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   switch (vector) {
     case ACN_DMP_VECTOR_SET_PROPERTY:
       dmx_start_code = tvb_get_ntohs(tvb, data_offset);
-      proto_tree_add_item(pdu_tree, hf_acn_dmx_start_code, tvb, data_offset, 2, FALSE);
+	  if(protocol_id==ACN_PROTOCOL_ID_DMX_2){
+        proto_tree_add_item(pdu_tree, hf_acn_dmx_2_first_property_address, tvb, data_offset, 2, FALSE);
+	  } else{
+        proto_tree_add_item(pdu_tree, hf_acn_dmx_start_code, tvb, data_offset, 2, FALSE);
+	  }
       data_offset += 2;
       proto_tree_add_item(pdu_tree, hf_acn_dmx_increment, tvb, data_offset, 2, FALSE);
       data_offset += 2;
       dmx_count = tvb_get_ntohs(tvb, data_offset);
       proto_tree_add_item(pdu_tree, hf_acn_dmx_count, tvb, data_offset, 2, FALSE);
       data_offset += 2;
+
+      if(protocol_id==ACN_PROTOCOL_ID_DMX_2){
+        proto_tree_add_item(pdu_tree, hf_acn_dmx_2_start_code, tvb, data_offset, 1, FALSE);
+        data_offset += 1;
+        dmx_count -= 1;
+      }
 
       buf_ptr = buffer;
 
@@ -1994,7 +2019,7 @@ dissect_acn_dmx_data_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 /******************************************************************************/
 /* Dissect DMX Base PDU                                                       */
 static guint32
-dissect_acn_dmx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
+dissect_acn_dmx_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
 {
   /* common to all pdu */
   guint8 pdu_flags;
@@ -2003,6 +2028,7 @@ dissect_acn_dmx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   guint32 pdu_flvh_length; /* flags, length, vector, header */
   acn_pdu_offsets pdu_offsets = {0,0,0,0,0};
   guint8 octet;
+  guint8 option_flags;
   guint32 length1;
   guint32 length2;
   guint32 length3;
@@ -2104,16 +2130,35 @@ dissect_acn_dmx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   /* process based on vector */
   switch (vector) {
   case 0x02:
-    proto_tree_add_item(pdu_tree, hf_acn_dmx_source_name, tvb, data_offset, 32, FALSE);
-    data_offset += 32;
+    if(protocol_id==ACN_PROTOCOL_ID_DMX_2){
+      proto_tree_add_item(pdu_tree, hf_acn_dmx_source_name, tvb, data_offset, 64, FALSE);
+      data_offset += 64;
+	} else{
+      proto_tree_add_item(pdu_tree, hf_acn_dmx_source_name, tvb, data_offset, 32, FALSE);
+      data_offset += 32;
+    }
 
     priority = tvb_get_guint8(tvb, data_offset);
     proto_tree_add_item(pdu_tree, hf_acn_dmx_priority, tvb, data_offset, 1, FALSE);
     data_offset += 1;
 
+	if(protocol_id==ACN_PROTOCOL_ID_DMX_2){
+      proto_tree_add_item(pdu_tree, hf_acn_dmx_2_reserved, tvb, data_offset, 2, FALSE);
+      data_offset += 2;
+    }
+
     sequence = tvb_get_guint8(tvb, data_offset);
     proto_tree_add_item(pdu_tree, hf_acn_dmx_sequence_number, tvb, data_offset, 1, FALSE);
     data_offset += 1;
+
+    if(protocol_id==ACN_PROTOCOL_ID_DMX_2){
+      option_flags = tvb_get_guint8(tvb, data_offset);
+      pi = proto_tree_add_uint(pdu_tree, hf_acn_dmx_2_options, tvb, data_offset, 1, option_flags);
+      flag_tree = proto_item_add_subtree(pi, ett_acn_dmx_2_options);
+      proto_tree_add_item(flag_tree, hf_acn_dmx_2_option_p, tvb, data_offset, 1, FALSE);
+      proto_tree_add_item(flag_tree, hf_acn_dmx_2_option_s, tvb, data_offset, 1, FALSE);
+      data_offset += 1;
+    }
 
     universe = tvb_get_ntohs(tvb, data_offset);
     proto_tree_add_item(pdu_tree, hf_acn_dmx_universe       , tvb, data_offset, 2, FALSE);
@@ -2123,7 +2168,7 @@ dissect_acn_dmx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     col_append_fstr(pinfo->cinfo,COL_INFO, ", Universe %d, Seq %3d", universe, sequence );
     proto_item_append_text(ti, ", Universe: %d, Priority: %d", universe, priority);
 
-    data_offset = dissect_acn_dmx_data_pdu(tvb, pinfo, pdu_tree, data_offset, &pdu_offsets);
+    data_offset = dissect_acn_dmx_data_pdu(protocol_id, tvb, pinfo, pdu_tree, data_offset, &pdu_offsets);
 
     break;
   }
@@ -2460,6 +2505,7 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
   /* process based on protocol_id */
   switch (protocol_id) {
   case ACN_PROTOCOL_ID_DMX:
+  case ACN_PROTOCOL_ID_DMX_2:
     if (global_acn_dmx_enable) {
       proto_item_append_text(ti,": Root DMX");
 
@@ -2503,7 +2549,7 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
       /* adjust for what we used */
       while (data_offset < end_offset) {
         old_offset = data_offset;
-        data_offset = dissect_acn_dmx_pdu(tvb, pinfo, pdu_tree, data_offset, &pdu_offsets);
+        data_offset = dissect_acn_dmx_pdu(protocol_id, tvb, pinfo, pdu_tree, data_offset, &pdu_offsets);
         if (data_offset == old_offset) break;
       }
     }
@@ -2916,12 +2962,40 @@ void proto_register_acn(void)
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "DMX Priority", HFILL }
     },
+
+    /* DMX 2 reserved */
+    { &hf_acn_dmx_2_reserved,
+      { "Reserved", "acn.dmx.reserved",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "DMX Reserved", HFILL }
+    },
+
     /* DMX Sequence number */
     { &hf_acn_dmx_sequence_number,
       { "Seq No", "acn.dmx.seq_number",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "DMX Sequence Number", HFILL }
     },
+
+    /* DMX 2 options */
+    { &hf_acn_dmx_2_options,
+      { "Options", "acn.dmx.options",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "DMX Options", HFILL }
+    },
+	
+    { &hf_acn_dmx_2_option_p,
+      { "Preview Data", "acn.dmx.option_p",
+        FT_BOOLEAN, 8, NULL, ACN_DMX_OPTION_P,
+        "Preview Data flag", HFILL }
+    },
+	
+    { &hf_acn_dmx_2_option_s,
+      { "Stream Terminated", "acn.dmx.option_s",
+        FT_BOOLEAN, 8, NULL, ACN_DMX_OPTION_S,
+        "Stream Terminated flag", HFILL }
+    },
+
     /* DMX Universe */
     { &hf_acn_dmx_universe,
       { "Universe", "acn.dmx.universe",
@@ -2936,6 +3010,13 @@ void proto_register_acn(void)
         "DMX Start Code", HFILL }
     },
 
+    /* DMX 2 First Property Address */
+    { &hf_acn_dmx_2_first_property_address,
+      { "First Property Address", "acn.dmx.start_code",
+        FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+        "DMX First Property Address", HFILL }
+    },
+
     /* DMX Address Increment */
     { &hf_acn_dmx_increment,
       { "Increment", "acn.dmx.increment",
@@ -2948,6 +3029,13 @@ void proto_register_acn(void)
       { "Count", "acn.dmx.count",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "DMX Count", HFILL }
+    },
+
+    /* DMX 2 Start Code */
+    { &hf_acn_dmx_2_start_code,
+      { "Start Code", "acn.dmx.start_code2",
+        FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+        "DMX Start Code", HFILL }
     },
 
     /* Session Count */
@@ -2979,6 +3067,7 @@ void proto_register_acn(void)
     &ett_acn_sdt_base_pdu,
     &ett_acn_root_pdu,
     &ett_acn_dmx_address,
+    &ett_acn_dmx_2_options,
     &ett_acn_dmx_data_pdu,
     &ett_acn_dmx_pdu
   };
