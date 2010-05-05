@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.2.8">
+  <!ENTITY WiresharkCurrentVersion "1.2.9">
 
 ]>
 
@@ -43,7 +43,7 @@ Wireshark Info
             <!-- Fixed in trunk-1.2: r32655 -->
             <!-- Fixed in trunk-1.0: r32662 -->
               (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4644">Bug
-            4644</ulink>), 
+            4644</ulink>),
               (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4646">bug
             4646</ulink>)
             -->
