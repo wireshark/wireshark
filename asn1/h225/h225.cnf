@@ -90,7 +90,7 @@ Progress-UUIE/fastStart        FastStart
 #.VIRTUAL_ASSGN
 H245Control  H323-UU-PDU/h245Control
 ParallelH245Control  Setup-UUIE/parallelH245Control
-DialedDigits  AliasAddress/dialedDigits
+DialedDigits  AliasAddress/dialledDigits
 
 #.VIRTUAL_ASSGN
 DestinationInfo  AdmissionRequest/destinationInfo 
@@ -376,7 +376,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS H323-UU-PDU/h245Tunneling  VAL_PTR = &(h225_pi->is_h245Tunneling)
+#.FN_PARS H323-UU-PDU/h245Tunnelling  VAL_PTR = &(h225_pi->is_h245Tunneling)
 #----------------------------------------------------------------------------------------
 #.FN_HDR Setup-UUIE
   contains_faststart = FALSE;

@@ -1,13 +1,14 @@
 -- H323-MESSAGES.asn
 --
 -- Taken from ITU ASN.1 database
--- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h225-0/2006-amd1/H323-MESSAGES.asn
+-- http://www.itu.int/ITU-T/formal-language/itu-t/h/h225-0/2009/H323-MESSAGES.asn
 --
 -- $Id$
 --
 
--- Module H323-MESSAGES (H.225.0:05/2006, Amendment 1:01/2007)
-H323-MESSAGES DEFINITIONS AUTOMATIC TAGS ::=
+-- Module H323-MESSAGES (H.225.0:12/2009)
+H323-MESSAGES {itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 
+  7 h323-messages(0)} DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
@@ -16,7 +17,8 @@ IMPORTS
     AuthenticationMechanism
     FROM H235-SECURITY-MESSAGES
   DataProtocolCapability, T38FaxProfile, QOSCapability
-    FROM MULTIMEDIA-SYSTEM-CONTROL;
+    FROM MULTIMEDIA-SYSTEM-CONTROL {itu-t(0) recommendation(0) h(8) h245(245)
+      version(0) 15 multimedia-system-control(0)};
 
 H323-UserInformation ::=
   SEQUENCE -- root for all H.225.0 call signalling messages 
@@ -49,27 +51,28 @@ H323-UU-PDU ::= SEQUENCE {
             statusInquiry     StatusInquiry-UUIE,
             setupAcknowledge  SetupAcknowledge-UUIE,
             notify            Notify-UUIE},
-  nonStandardData                    NonStandardParameter OPTIONAL,
+  nonStandardData                     NonStandardParameter OPTIONAL,
   ...,
-  h4501SupplementaryService          SEQUENCE OF OCTET STRING OPTIONAL,
+  h4501SupplementaryService           SEQUENCE OF OCTET STRING OPTIONAL,
   -- each sequence of octet string is defined as one
   -- H4501SupplementaryService APDU as defined in
   -- Table 3/H.450.1
-  h245Tunneling                      BOOLEAN,
-  -- if TRUE, tunneling of H.245 messages is enabled
-  h245Control                        SEQUENCE OF OCTET STRING OPTIONAL,
-  nonStandardControl                 SEQUENCE OF NonStandardParameter OPTIONAL,
-  callLinkage                        CallLinkage OPTIONAL,
+  h245Tunnelling                      BOOLEAN,
+  -- if TRUE, tunnelling of H.245 messages is enabled
+  h245Control                         SEQUENCE OF OCTET STRING OPTIONAL,
+  nonStandardControl                  SEQUENCE OF NonStandardParameter OPTIONAL,
+  callLinkage                         CallLinkage OPTIONAL,
   tunnelledSignallingMessage
-    SEQUENCE {tunnelledProtocolID  TunnelledProtocol, -- tunnelled signalling protocol ID--
+    SEQUENCE {tunnelledProtocolID  TunnelledProtocol, -- tunnelled signalling--
+              -- protocol ID
               messageContent       SEQUENCE OF OCTET STRING, -- sequence of entire --
               -- message(s)
               tunnellingRequired   NULL OPTIONAL,
               nonStandardData      NonStandardParameter OPTIONAL,
               ...} OPTIONAL,
-  provisionalRespToH245Tunneling     NULL OPTIONAL,
-  stimulusControl                    StimulusControl OPTIONAL,
-  genericData                        SEQUENCE OF GenericData OPTIONAL
+  provisionalRespToH245Tunnelling     NULL OPTIONAL,
+  stimulusControl                     StimulusControl OPTIONAL,
+  genericData                         SEQUENCE OF GenericData OPTIONAL
 }
 
 StimulusControl ::= SEQUENCE {
@@ -97,7 +100,8 @@ Alerting-UUIE ::= SEQUENCE {
   fastConnectRefused        NULL OPTIONAL,
   serviceControl            SEQUENCE OF ServiceControlSession OPTIONAL,
   capacity                  CallCapacity OPTIONAL,
-  featureSet                FeatureSet OPTIONAL
+  featureSet                FeatureSet OPTIONAL,
+  displayName               SEQUENCE OF DisplayName OPTIONAL
 }
 
 CallProceeding-UUIE ::= SEQUENCE {
@@ -129,14 +133,15 @@ Connect-UUIE ::= SEQUENCE {
   fastStart                 SEQUENCE OF OCTET STRING OPTIONAL,
   multipleCalls             BOOLEAN,
   maintainConnection        BOOLEAN,
-  language                  SEQUENCE OF IA5String(SIZE (1..32)) OPTIONAL, -- RFC1766 language tag
+  language                  SEQUENCE OF IA5String(SIZE (1..32)) OPTIONAL, -- RFC 1766 language tag
   connectedAddress          SEQUENCE OF AliasAddress OPTIONAL,
   presentationIndicator     PresentationIndicator OPTIONAL,
   screeningIndicator        ScreeningIndicator OPTIONAL,
   fastConnectRefused        NULL OPTIONAL,
   serviceControl            SEQUENCE OF ServiceControlSession OPTIONAL,
   capacity                  CallCapacity OPTIONAL,
-  featureSet                FeatureSet OPTIONAL
+  featureSet                FeatureSet OPTIONAL,
+  displayName               SEQUENCE OF DisplayName OPTIONAL
 }
 
 Information-UUIE ::= SEQUENCE {
@@ -162,7 +167,9 @@ ReleaseComplete-UUIE ::= SEQUENCE {
   screeningIndicator        ScreeningIndicator OPTIONAL,
   capacity                  CallCapacity OPTIONAL,
   serviceControl            SEQUENCE OF ServiceControlSession OPTIONAL,
-  featureSet                FeatureSet OPTIONAL
+  featureSet                FeatureSet OPTIONAL,
+  destinationInfo           EndpointType OPTIONAL,
+  displayName               SEQUENCE OF DisplayName OPTIONAL
 }
 
 ReleaseCompleteReason ::= CHOICE {
@@ -197,10 +204,11 @@ ReleaseCompleteReason ::= CHOICE {
   -- the Setup may be accepted on
   -- a new connection
   nonStandardReason            NonStandardParameter,
-  replaceWithConferenceInvite  ConferenceIdentifier, -- call dropped due to subsequent invitation 
+  replaceWithConferenceInvite  ConferenceIdentifier, -- call dropped due to 
   
+  -- subsequent invitation
   -- to a conference 
-  -- (see H.323 8.4.3.8)
+  -- (see 8.4.3.8/H.323)
   genericDataReason            NULL,
   neededFeatureNotSupported    NULL,
   tunnelledSignallingRejected  NULL,
@@ -251,7 +259,7 @@ Setup-UUIE ::= SEQUENCE {
                                                   ScnConnectionAggregation,
                                                 ...} OPTIONAL,
   language                       SEQUENCE OF IA5String(SIZE (1..32)) OPTIONAL,
-  -- RFC1766 language tag
+  -- RFC 1766 language tag
   presentationIndicator          PresentationIndicator OPTIONAL,
   screeningIndicator             ScreeningIndicator OPTIONAL,
   serviceControl                 SEQUENCE OF ServiceControlSession OPTIONAL,
@@ -264,25 +272,27 @@ Setup-UUIE ::= SEQUENCE {
   supportedFeatures              SEQUENCE OF FeatureDescriptor OPTIONAL,
   parallelH245Control            SEQUENCE OF OCTET STRING OPTIONAL,
   additionalSourceAddresses      SEQUENCE OF ExtendedAliasAddress OPTIONAL,
-  hopCount                       INTEGER(1..31) OPTIONAL
+  hopCount                       INTEGER(1..31) OPTIONAL,
+  displayName                    SEQUENCE OF DisplayName OPTIONAL
 }
 
 ScnConnectionType ::= CHOICE {
-  unknown     NULL, -- should be seleceted when connection type is unknown
-  bChannel    NULL, -- each individual connection on the SCN is 64kbps.
+  unknown     NULL, -- should be selected when connection type is unknown
+  bChannel    NULL, -- each individual connection on the SCN is 64 kbit/s.
   
-  -- Note that where SCN delivers 56kbps usable data, the
-  -- actual bandwidth allocated on SCN is still 64kbps.
-  hybrid2x64  NULL, -- each connection is a 128kbps hybrid call
-  hybrid384   NULL, -- each connection is an H0 (384kbps) hybrid call
-  hybrid1536  NULL, -- each connection is an H11 (1536kbps) hybrid call
-  hybrid1920  NULL, -- each connection is an H12 (1920kbps) hybrid call
+  -- Note that where SCN delivers 56 kbit/s usable data, 
+  -- the actual bandwidth allocated on SCN is still
+  -- 64 kbit/s.
+  hybrid2x64  NULL, -- each connection is a 128 kbit/s hybrid call
+  hybrid384   NULL, -- each connection is an H0 (384 kbit/s) hybrid call
+  hybrid1536  NULL, -- each connection is an H11 (1536 kbit/s) hybrid call
+  hybrid1920  NULL, -- each connection is an H12 (1920 kbit/s) hybrid call
   multirate   NULL, -- bandwidth supplied by SCN using multirate.
   
-  -- In this case, the information transfer rate octet in
-  -- the bearer capability shall be set to multirate and 
-  -- the rate multiplier octet shall denote the number
-  -- of B channels.
+  -- In this case, the information transfer rate octet
+  -- in the bearer capability shall be set to multirate 
+  -- and the rate multiplier octet shall denote the 
+  -- number of B channels.
   ...
 }
 
@@ -446,7 +456,9 @@ Notify-UUIE ::= SEQUENCE {
   ...,
   connectedAddress          SEQUENCE OF AliasAddress OPTIONAL,
   presentationIndicator     PresentationIndicator OPTIONAL,
-  screeningIndicator        ScreeningIndicator OPTIONAL
+  screeningIndicator        ScreeningIndicator OPTIONAL,
+  destinationInfo           EndpointType OPTIONAL,
+  displayName               SEQUENCE OF DisplayName OPTIONAL
 }
 
 -- Beginning of common message elements section
@@ -626,15 +638,15 @@ NonStandardIdentifier ::= CHOICE {
 }
 
 AliasAddress ::= CHOICE {
-  dialedDigits  IA5String(SIZE (1..128))(FROM ("0123456789#*,")),
-  h323-ID       BMPString(SIZE (1..256)), -- Basic ISO/IEC 10646-1 (Unicode)
+  dialledDigits  IA5String(SIZE (1..128))(FROM ("0123456789#*,")),
+  h323-ID        BMPString(SIZE (1..256)), -- Basic ISO/IEC 10646 (Unicode)
   ...,
-  url-ID        IA5String(SIZE (1..512)), -- URL style address
-  transportID   TransportAddress,
-  email-ID      IA5String(SIZE (1..512)), -- rfc822-compliant email address
-  partyNumber   PartyNumber,
-  mobileUIM     MobileUIM,
-  isupNumber    IsupNumber
+  url-ID         IA5String(SIZE (1..512)), -- URL style address
+  transportID    TransportAddress,
+  email-ID       IA5String(SIZE (1..512)), -- rfc822-compliant email address
+  partyNumber    PartyNumber,
+  mobileUIM      MobileUIM,
+  isupNumber     IsupNumber
 }
 
 AddressPattern ::= CHOICE {
@@ -647,7 +659,7 @@ AddressPattern ::= CHOICE {
 PartyNumber ::= CHOICE {
   e164Number                   PublicPartyNumber,
   -- the numbering plan is according to
-  -- Recommendations E.163 and E.164.
+  -- ITUT Recs E.163 and E.164.
   dataPartyNumber              NumberDigits,
   -- not used, value reserved.
   telexPartyNumber             NumberDigits,
@@ -672,6 +684,11 @@ PrivatePartyNumber ::= SEQUENCE {
 
 NumberDigits ::= IA5String(SIZE (1..128))(FROM ("0123456789#*,"))
 
+DisplayName ::= SEQUENCE {
+  language  IA5String OPTIONAL, -- RFC4646 language tag
+  name      BMPString(SIZE (1..80))
+}
+
 PublicTypeOfNumber ::= CHOICE {
   unknown                NULL,
   -- if used number digits carry prefix 
@@ -685,7 +702,8 @@ PublicTypeOfNumber ::= CHOICE {
   subscriberNumber       NULL,
   abbreviatedNumber      NULL,
   -- valid only for called party number at 
-  -- the outgoing access, network substitutes
+  -- the outgoing access, network 
+  -- substitutes
   -- appropriate number.
   ...
 }
@@ -738,8 +756,8 @@ ANSI-41-UIM ::= SEQUENCE {
   -- registration or call
   -- origination or Short Message response etc.
   -- Qualification Information Code refers to the validity
-  -- SESN Refers to SIM Electronic Serial Number for Security purposes of User 
-  -- Identification 
+  -- SESN Refers to SIM Electronic Serial Number for Security purposes of
+  -- User Identification 
   -- SOC refers to System Operator Code
 }
 
@@ -761,7 +779,7 @@ GSM-UIM ::= SEQUENCE {
 IsupNumber ::= CHOICE {
   e164Number                   IsupPublicPartyNumber,
   -- the numbering plan is according to
-  -- Recommendations E.163 and E.164.
+  -- ITUT Recs E.163 and E.164.
   dataPartyNumber              IsupDigits, -- not used, value reserved.
   telexPartyNumber             IsupDigits, -- not used, value reserved.
   privateNumber                IsupPrivatePartyNumber,
@@ -870,7 +888,9 @@ SecurityErrors ::= CHOICE {
   securityWrongGeneralID                NULL, -- wrong general ID
   securityWrongSendersID                NULL, -- wrong senders ID
   securityIntegrityFailed               NULL, -- integrity check failed
-  securityWrongOID                      NULL, -- wrong token OIDs or crypto alg OIDs
+  securityWrongOID                      NULL, -- wrong token OIDs or crypto alg
+  
+  -- OIDs
   securityDHmismatch                    NULL, -- mismatch of DH parameters
   securityCertificateExpired            NULL, -- certificate has expired
   securityCertificateDateInvalid        NULL, -- certificate is not yet valid
@@ -891,7 +911,9 @@ SecurityErrors ::= CHOICE {
 }
 
 SecurityErrors2 ::= CHOICE {
-  securityWrongSyncTime    NULL, -- either time server problem or network delay
+  securityWrongSyncTime    NULL, -- either time server problem or network
+  
+  -- delay
   securityReplay           NULL, -- replay attack encountered
   securityWrongGeneralID   NULL, -- wrong general ID
   securityWrongSendersID   NULL, -- wrong senders ID
@@ -981,7 +1003,8 @@ NonIsoIntegrityMechanism ::=
   -- encryption algorithm (long MAC)
   hMAC-iso10118-3    OBJECT IDENTIFIER, -- according to ISO/IEC 10118-3 using
   
-  -- OID as hash function (OID is SHA-1,
+  -- OID as hash function (OID is 
+  -- SHA-1,
   -- RIPE-MD160,
   -- RIPE-MD128)
   ...
@@ -1140,7 +1163,8 @@ CarrierInfo ::= SEQUENCE {
 ServiceControlDescriptor ::= CHOICE {
   url                       IA5String(SIZE (0..512)), -- indicates a URL- 
   
-  -- referenced  protocol/resource
+  -- referenced 
+  -- protocol/resource
   signal                    H248SignalsDescriptor,
   nonStandard               NonStandardParameter,
   callCreditServiceControl  CallCreditServiceControl,
@@ -1468,7 +1492,8 @@ RegistrationConfirm ::= SEQUENCE --(RCF)
               -- not want IRRs
               totalBandwidthRestriction         BandWidth OPTIONAL, -- total limit --
               -- for all 
-              -- concurrent calls
+              -- concurrent
+              -- calls
               alternateTransportAddresses
                 AlternateTransportAddresses OPTIONAL,
               useSpecifiedTransport             UseSpecifiedTransport OPTIONAL
@@ -1517,13 +1542,15 @@ RegistrationRejectReason ::= CHOICE {
   undefinedReason                   NULL,
   transportNotSupported             NULL, -- one or more of the transports
   ...,
-  transportQOSNotSupported          NULL, -- endpoint QOS not supported
+  transportQOSNotSupported          NULL, -- endpoint QoS not supported
   resourceUnavailable               NULL, -- gatekeeper resources exhausted
   invalidAlias                      NULL, -- alias not consistent with 
   
   -- gatekeeper rules
   securityDenial                    NULL,
-  fullRegistrationRequired          NULL, -- registration permission has expired
+  fullRegistrationRequired          NULL, -- registration permission has
+  
+  -- expired
   additiveRegistrationNotSupported  NULL,
   invalidTerminalAliases
     SEQUENCE {terminalAlias         SEQUENCE OF AliasAddress OPTIONAL,
@@ -1916,7 +1943,7 @@ LocationRejectReason ::= CHOICE {
   securityError              SecurityErrors2,
   securityDHmismatch         NULL, -- mismatch of DH parameters
   noRouteToDestination       NULL, -- destination unreachable
-  unallocatedNumber          NULL -- detination number unassigned
+  unallocatedNumber          NULL -- destination number unassigned
 }
 
 DisengageRequest ::= SEQUENCE --(DRQ)
@@ -2026,7 +2053,7 @@ InfoRequestResponse ::= SEQUENCE --(IRR)
                 video                 SEQUENCE OF RTPSession OPTIONAL,
                 data                  SEQUENCE OF TransportChannelInfo OPTIONAL,
                 h245                  TransportChannelInfo,
-                callSignaling         TransportChannelInfo,
+                callSignalling        TransportChannelInfo,
                 callType              CallType,
                 bandWidth             BandWidth,
                 callModel             CallModel,
