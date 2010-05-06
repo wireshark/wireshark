@@ -58,5 +58,6 @@
 #define NBAP_PAYLOAD_PROTOCOL_ID		25
 /* Unassigned 26 */
 #define X2AP_PAYLOAD_PROTOCOL_ID        27
+#define IRCP_PAYLOAD_PROTOCOL_ID        28
 #define M2TP_PAYLOAD_PROTOCOL_ID        99    /* s-link */
 #endif /* sctpppids.h */

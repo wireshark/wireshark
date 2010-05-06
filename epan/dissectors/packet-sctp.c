@@ -354,6 +354,7 @@ static const value_string sctp_payload_proto_id_values[] = {
   { NBAP_PAYLOAD_PROTOCOL_ID,            "NBAP" },
 /* Unassigned 26 */
   { X2AP_PAYLOAD_PROTOCOL_ID,            "X2AP" },
+  { IRCP_PAYLOAD_PROTOCOL_ID,            "IRCP" },
   { 0,                                   NULL } };
 
 
