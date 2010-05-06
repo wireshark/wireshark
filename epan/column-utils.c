@@ -750,7 +750,7 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
 		 (gint32) ts->secs % 60);
     } else if (ts->secs >= 60) {
       g_snprintf(buf, COL_MAX_LEN,"%dh %ds",
-		 (gint32) (ts->secs / 60),
+		 (gint32) ts->secs / 60,
 		 (gint32) ts->secs % 60);
     } else {
       g_snprintf(buf, COL_MAX_LEN,"%ds",
@@ -767,12 +767,12 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
 		 (long)ts->nsecs / 100000000);
     } else if (ts->secs >= 60) {
       g_snprintf(buf, COL_MAX_LEN,"%dm %d.%01lds",
-		 (gint32) (ts->secs / 60) % 60,
+		 (gint32) ts->secs / 60,
 		 (gint32) ts->secs % 60,
 		 (long)ts->nsecs / 100000000);
     } else {
       g_snprintf(buf, COL_MAX_LEN,"%d.%01lds",
-		 (gint32) ts->secs % 60,
+		 (gint32) ts->secs,
 		 (long)ts->nsecs / 100000000);
     }
     break;
@@ -786,12 +786,12 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
 		 (long)ts->nsecs / 10000000);
     } else if (ts->secs >= 60) {
       g_snprintf(buf, COL_MAX_LEN,"%dm %d.%02lds",
-		 (gint32) (ts->secs / 60) % 60,
+		 (gint32) ts->secs / 60,
 		 (gint32) ts->secs % 60,
 		 (long)ts->nsecs / 10000000);
     } else {
       g_snprintf(buf, COL_MAX_LEN,"%d.%02lds",
-		 (gint32) ts->secs % 60,
+		 (gint32) ts->secs,
 		 (long)ts->nsecs / 10000000);
     }
     break;
@@ -805,12 +805,12 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
 		 (long)ts->nsecs / 1000000);
     } else if (ts->secs >= 60) {
       g_snprintf(buf, COL_MAX_LEN,"%dm %d.%03lds",
-		 (gint32) (ts->secs / 60) % 60,
+		 (gint32) ts->secs / 60,
 		 (gint32) ts->secs % 60,
 		 (long)ts->nsecs / 1000000);
     } else {
       g_snprintf(buf, COL_MAX_LEN,"%d.%03lds",
-		 (gint32) ts->secs % 60,
+		 (gint32) ts->secs,
 		 (long)ts->nsecs / 1000000);
     }
     break;
@@ -824,12 +824,12 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
 		 (long)ts->nsecs / 1000);
     } else if (ts->secs >= 60) {
       g_snprintf(buf, COL_MAX_LEN,"%dm %d.%06lds",
-		 (gint32) (ts->secs / 60) % 60,
+		 (gint32) ts->secs / 60,
 		 (gint32) ts->secs % 60,
 		 (long)ts->nsecs / 1000);
     } else {
       g_snprintf(buf, COL_MAX_LEN,"%d.%06lds",
-		 (gint32) ts->secs % 60,
+		 (gint32) ts->secs,
 		 (long)ts->nsecs / 1000);
     }
     break;
@@ -843,12 +843,12 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
 		 (long)ts->nsecs);
     } else if (ts->secs >= 60) {
       g_snprintf(buf, COL_MAX_LEN,"%dm %d.%09lds",
-		 (gint32) (ts->secs / 60) % 60,
+		 (gint32) ts->secs / 60,
 		 (gint32) ts->secs % 60,
 		 (long)ts->nsecs);
     } else {
       g_snprintf(buf, COL_MAX_LEN,"%d.%09lds",
-		 (gint32) ts->secs % 60,
+		 (gint32) ts->secs,
 		 (long)ts->nsecs);
     }
     break;
