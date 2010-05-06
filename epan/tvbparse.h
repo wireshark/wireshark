@@ -1,4 +1,3 @@
-
 /* tvbparse.h
 *
 * an API for text tvb parsers
@@ -103,34 +102,34 @@ typedef enum  {
 
 struct _tvbparse_wanted_t {
 	int id;
-    tvbparse_condition_t condition;
+	tvbparse_condition_t condition;
 
 	union {
-        const gchar* str;
-        struct _tvbparse_wanted_t** handle;
-        struct {
-            union {
-                gint64 i;
-                guint64 u;
-                gdouble f;
-            } value;
-            gboolean (*comp)(void*,const void*);
-            void* (*extract)(tvbuff_t*,guint);
-        } number;
-        enum ftenum ftenum;
-        struct {
-            until_mode_t mode;
-            const tvbparse_wanted_t* subelem;
-        } until;
-        struct {
-            GHashTable* table;
-            struct _tvbparse_wanted_t* key;
-            struct _tvbparse_wanted_t* other;
-        } hash;
-        GPtrArray* elems;
-        const tvbparse_wanted_t* subelem;
-        void* p;
-    } control;
+		const gchar* str;
+		struct _tvbparse_wanted_t** handle;
+		struct {
+			union {
+				gint64 i;
+				guint64 u;
+				gdouble f;
+			} value;
+			gboolean (*comp)(void*,const void*);
+			void* (*extract)(tvbuff_t*,guint);
+		} number;
+		enum ftenum ftenum;
+		struct {
+			until_mode_t mode;
+			const tvbparse_wanted_t* subelem;
+		} until;
+		struct {
+			GHashTable* table;
+			struct _tvbparse_wanted_t* key;
+			struct _tvbparse_wanted_t* other;
+		} hash;
+		GPtrArray* elems;
+		const tvbparse_wanted_t* subelem;
+		void* p;
+	} control;
 
 	int len;
 
@@ -141,14 +140,13 @@ struct _tvbparse_wanted_t {
 
 	tvbparse_action_t before;
 	tvbparse_action_t after;
-
 };
 
 /* an instance of a per packet parser */
 struct _tvbparse_t {
 	tvbuff_t* tvb;
 	int offset;
-    int end_offset;
+	int end_offset;
 	void* data;
 	const tvbparse_wanted_t* ignore;
 };
@@ -308,14 +306,13 @@ tvbparse_wanted_t* tvbparse_set_oneof(const int id,
 /*
  * hashed
  */
-
 tvbparse_wanted_t* tvbparse_hashed(const int id,
-                                   const void* data,
-                                   tvbparse_action_t before_cb,
-                                   tvbparse_action_t after_cb,
-                                   tvbparse_wanted_t* key,
-                                   tvbparse_wanted_t* other,
-                                   ...);
+								   const void* data,
+								   tvbparse_action_t before_cb,
+								   tvbparse_action_t after_cb,
+								   tvbparse_wanted_t* key,
+								   tvbparse_wanted_t* other,
+								   ...);
 
 void tvbparse_hashed_add(tvbparse_wanted_t* w, ...);
 
@@ -334,6 +331,7 @@ tvbparse_wanted_t* tvbparse_set_seq(const int id,
 									tvbparse_action_t before_cb,
 									tvbparse_action_t after_cb,
 									...);
+
 /*
  * some
  *
@@ -422,12 +420,12 @@ void tvbparse_shrink_token_cb(void* tvbparse_data,
 
 
 /* initialize the parser (at every packet)
-* tvb: what are we parsing?
-* offset: from where
-* len: for how many bytes
-* private_data: will be passed to the action callbacks
-* ignore: a wanted token type to be ignored (the associated cb WILL be called when it matches)
-*/
+ * tvb: what are we parsing?
+ * offset: from where
+ * len: for how many bytes
+ * private_data: will be passed to the action callbacks
+ * ignore: a wanted token type to be ignored (the associated cb WILL be called when it matches)
+ */
 tvbparse_t* tvbparse_init(tvbuff_t* tvb,
 						  const int offset,
 						  int len,
@@ -449,7 +447,7 @@ guint tvbparse_len_left(tvbparse_t* tt);
  * The parser will be left in its original state and no callbacks will be called.
  */
 gboolean tvbparse_peek(tvbparse_t* tt,
-                        const tvbparse_wanted_t* wanted);
+					   const tvbparse_wanted_t* wanted);
 
 /*
  * This will look for the wanted token at the current offset or after any given
@@ -465,7 +463,6 @@ tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
  * current offset.
  * This function is slow.
  */
-
 tvbparse_elem_t* tvbparse_find(tvbparse_t* tt,
 							   const tvbparse_wanted_t* wanted);
 
