@@ -402,6 +402,7 @@ static const true_false_string flag_set_broadcast = {
 #define PACKETCABLE_MTA_CAP20 "pktc2.0:"
 #define PACKETCABLE_CM_CAP11  "docsis1.1:"
 #define PACKETCABLE_CM_CAP20  "docsis2.0:"
+#define PACKETCABLE_CM_CAP30  "docsis3.0:"
 
 #define PACKETCABLE_CCC_I05      1
 #define PACKETCABLE_CCC_DRAFT5   2
@@ -1209,16 +1210,20 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				      (int)strlen(PACKETCABLE_MTA_CAP20)) == 0))
 		{
 			dissect_packetcable_mta_cap(v_tree, tvb, optoff, optlen);
-		}
-		else {
-		  if (tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP11,
-				      (int)strlen(PACKETCABLE_CM_CAP11)) == 0
-		      ||
-		      tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP20,
-				      (int)strlen(PACKETCABLE_CM_CAP20)) == 0 )
-		  {
+		} else 
+			if ((tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP11,
+				(int)strlen(PACKETCABLE_CM_CAP11)) == 0)
+			||
+			(tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP20,
+				(int)strlen(PACKETCABLE_CM_CAP20)) == 0 ))
+		{
 			dissect_docsis_cm_cap(v_tree, tvb, optoff, optlen);
-		  }
+		} else
+			if (tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP30,
+				(int)strlen(PACKETCABLE_CM_CAP30)) == 0 )
+		{
+			proto_tree_add_text(v_tree, tvb, optoff, optlen,
+				"vendor-class-data: \"%s\"", tvb_format_stringzpad(tvb, optoff, optlen));
 		}
 		break;
 
@@ -1737,11 +1742,11 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			s_option = tvb_get_guint8(tvb, optoff);
 			s_len = tvb_get_guint8(tvb, optoff+1);
 			if (s_option == 1) {
-				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Suboption 1: Primary DSS_ID = %s",
-					arphrdaddr_to_str(tvb_get_ptr(tvb, optoff+2, s_len+1), s_len+1, s_option));
+				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Suboption 1: Primary DSS_ID = \"%s\"",
+					tvb_format_stringzpad(tvb, optoff+2, s_len));
 			} else if (s_option == 2) {
-				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Suboption 2: Secondary DSS_ID = %s", 
-					arphrdaddr_to_str(tvb_get_ptr(tvb, optoff+2, s_len+1), s_len+1, s_option));
+				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Suboption 2: Secondary DSS_ID = \"%s\"", 
+					tvb_format_stringzpad(tvb, optoff+2, s_len));
 			} else {
 				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Unknown");
 			}
@@ -1856,10 +1861,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		      break;
 		    }
 
-
 		    e_tree = proto_item_add_subtree(vti, ett_bootp_option);
 		    while (optoff < s_end) {
-
 		      optoff = dissect_vendor_cl_suboption(e_tree,
 								 tvb, optoff, s_end);
 		    }
@@ -2627,11 +2630,11 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				 * as either binary (3b) or string (6b) */
 				if (subopt_len == 3) {
 					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-						"Suboption %d: OUI = %s", subopt,
+						"Suboption %d: Organization Unique Identifier = %s", subopt,
 						bytes_to_str_punct(tvb_get_ptr(tvb, suboptoff, 3), 3, ':'));
 				} else if (subopt_len == 6) {
 					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-						"Suboption %d: OUI = \"%s\"", subopt,
+						"Suboption %d: Organization Unique Identifier =  \"%s\"", subopt,
 						tvb_format_stringzpad(tvb, suboptoff, subopt_len));
 				} else {
 					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
