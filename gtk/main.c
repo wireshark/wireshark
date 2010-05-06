@@ -1161,7 +1161,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -Q                       quit Wireshark after capturing\n");
   fprintf(output, "  -S                       update packet display when new packets are captured\n");
   fprintf(output, "  -l                       turn on automatic scrolling while -S is in use\n");
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
   fprintf(output, "  -B <buffer size>         size of kernel buffer (def: 1MB)\n");
 #endif
   fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
@@ -2021,14 +2021,14 @@ main(int argc, char *argv[])
 
 #define OPTSTRING_INIT "a:b:c:C:Df:g:Hhi:jJ:kK:lLm:nN:o:P:pQr:R:Ss:t:u:vw:X:y:z:"
 
-#if defined HAVE_LIBPCAP && defined _WIN32
-#define OPTSTRING_WIN32 "B:"
+#if defined HAVE_LIBPCAP && defined HAVE_PCAP_SET_BUFFER_SIZE
+#define OPTSTRING_EXTRA "B:"
 #else
-#define OPTSTRING_WIN32 ""
+#define OPTSTRING_EXTRA ""
 #endif
 
-  char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_WIN32) - 1] =
-    OPTSTRING_INIT OPTSTRING_WIN32;
+  char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_EXTRA) - 1] =
+    OPTSTRING_INIT OPTSTRING_EXTRA;
 
   /*
    * Get credential information for later use, and drop privileges
@@ -2393,9 +2393,9 @@ main(int argc, char *argv[])
       case 'S':        /* "Sync" mode: used for following file ala tail -f */
       case 'w':        /* Write to capture file xxx */
       case 'y':        /* Set the pcap data link type */
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
       case 'B':        /* Buffer size */
-#endif /* _WIN32 */
+#endif /* _WIN32 or HAVE_PCAP_SET_BUFFER_SIZE */
 #ifdef HAVE_LIBPCAP
         status = capture_opts_add_opt(&global_capture_opts, opt, optarg,
                                       &start_capture);

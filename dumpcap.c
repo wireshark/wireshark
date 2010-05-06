@@ -322,7 +322,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
   fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
   fprintf(output, "  -p                       don't capture in promiscuous mode\n");
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
   fprintf(output, "  -B <buffer size>         size of kernel buffer (def: 1MB)\n");
 #endif
   fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
@@ -1460,19 +1460,39 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
      the error buffer, and check if it's still a null string.  */
   open_err_str[0] = '\0';
 #ifdef HAVE_PCAP_OPEN
-  auth.type = capture_opts->auth_type == CAPTURE_AUTH_PWD ?
-                    RPCAP_RMTAUTH_PWD : RPCAP_RMTAUTH_NULL;
-  auth.username = capture_opts->auth_username;
-  auth.password = capture_opts->auth_password;
+  if (strncmp (capture_opts->iface, "rpcap://", 8) == 0) {
+    auth.type = capture_opts->auth_type == CAPTURE_AUTH_PWD ?
+      RPCAP_RMTAUTH_PWD : RPCAP_RMTAUTH_NULL;
+    auth.username = capture_opts->auth_username;
+    auth.password = capture_opts->auth_password;
 
-  ld->pcap_h = pcap_open(capture_opts->iface,
-               capture_opts->has_snaplen ? capture_opts->snaplen :
-                          WTAP_MAX_PACKET_SIZE,
-               /* flags */
-               (capture_opts->promisc_mode ? PCAP_OPENFLAG_PROMISCUOUS : 0) |
-               (capture_opts->datatx_udp ? PCAP_OPENFLAG_DATATX_UDP : 0) |
-               (capture_opts->nocap_rpcap ? PCAP_OPENFLAG_NOCAPTURE_RPCAP : 0),
-               CAP_READ_TIMEOUT, &auth, open_err_str);
+    ld->pcap_h = pcap_open(capture_opts->iface,
+                 capture_opts->has_snaplen ? capture_opts->snaplen :
+                            WTAP_MAX_PACKET_SIZE,
+                 /* flags */
+                 (capture_opts->promisc_mode ? PCAP_OPENFLAG_PROMISCUOUS : 0) |
+                 (capture_opts->datatx_udp ? PCAP_OPENFLAG_DATATX_UDP : 0) |
+                 (capture_opts->nocap_rpcap ? PCAP_OPENFLAG_NOCAPTURE_RPCAP : 0),
+                 CAP_READ_TIMEOUT, &auth, open_err_str);
+  } else
+#elif defined(HAVE_PCAP_CREATE)
+  {
+    ld->pcap_h = pcap_create(capture_opts->iface, open_err_str);
+    if (ld->pcap_h != NULL) {
+      pcap_set_snaplen(ld->pcap_h, capture_opts->has_snaplen ? capture_opts->snaplen : WTAP_MAX_PACKET_SIZE);
+      pcap_set_promisc(ld->pcap_h, capture_opts->promisc_mode);
+      pcap_set_timeout(ld->pcap_h, CAP_READ_TIMEOUT);
+
+      if (capture_opts->buffer_size > 1) {
+        pcap_set_buffer_size(ld->pcap_h, capture_opts->buffer_size * 1024 * 1024);
+      }
+      if (pcap_activate(ld->pcap_h) != 0) {
+        /* Failed to activate, set to NULL */
+        pcap_close(ld->pcap_h);
+        ld->pcap_h = NULL;
+      }
+    }
+  }
 #else
   ld->pcap_h = pcap_open_live(capture_opts->iface,
                               capture_opts->has_snaplen ? capture_opts->snaplen :
@@ -1499,7 +1519,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
     if (capture_opts->buffer_size > 1 &&
         pcap_setbuff(ld->pcap_h, capture_opts->buffer_size * 1024 * 1024) != 0) {
         sync_secondary_msg_str = g_strdup_printf(
-          "The capture buffer size of %luMB seems to be too high for your machine,\n"
+          "The capture buffer size of %dMB seems to be too high for your machine,\n"
           "the default of 1MB will be used.\n"
           "\n"
           "Nonetheless, the capture is started.\n",
@@ -1511,7 +1531,8 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 #endif
 
 #if defined(HAVE_PCAP_REMOTE) && defined(HAVE_PCAP_SETSAMPLING)
-    if (capture_opts->sampling_method != CAPTURE_SAMP_NONE)
+    if ((capture_opts->sampling_method != CAPTURE_SAMP_NONE) &&
+        (strncmp (capture_opts->iface, "rpcap://", 8) == 0))
     {
         struct pcap_samp *samp;
 
@@ -2682,14 +2703,14 @@ main(int argc, char *argv[])
 #define OPTSTRING_INIT "a:b:c:Df:hi:LMnpSs:vw:y:Z:"
 #endif
 
-#ifdef _WIN32
-#define OPTSTRING_WIN32 "B:"
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
+#define OPTSTRING_EXTRA "B:"
 #else
-#define OPTSTRING_WIN32 ""
-#endif  /* _WIN32 */
+#define OPTSTRING_EXTRA ""
+#endif  /* _WIN32 or HAVE_PCAP_SET_BUFFER_SIZE */
 
-  char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_WIN32) - 1] =
-    OPTSTRING_INIT OPTSTRING_WIN32;
+  char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_EXTRA) - 1] =
+    OPTSTRING_INIT OPTSTRING_EXTRA;
 
 #ifdef DEBUG_CHILD_DUMPCAP
   if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
@@ -2956,9 +2977,9 @@ main(int argc, char *argv[])
 #ifdef HAVE_PCAP_SETSAMPLING
       case 'm':        /* Sampling */
 #endif
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
       case 'B':        /* Buffer size */
-#endif /* _WIN32 */
+#endif /* _WIN32 or HAVE_PCAP_SET_BUFFER_SIZE */
         status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
         if(status != 0) {
           exit_main(status);

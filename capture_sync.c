@@ -257,8 +257,10 @@ sync_pipe_start(capture_options *capture_opts) {
 #ifdef HAVE_PCAP_SETSAMPLING
     char ssampling[ARGV_NUMBER_LEN];
 #endif
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
     char buffer_size[ARGV_NUMBER_LEN];
+#endif
+#ifdef _WIN32
     HANDLE sync_pipe_read;                  /* pipe used to send messages from child to parent */
     HANDLE sync_pipe_write;                 /* pipe used to send messages from child to parent */
     HANDLE signal_pipe;                     /* named pipe used to send messages from parent to child (currently only stop) */
@@ -396,7 +398,7 @@ sync_pipe_start(capture_options *capture_opts) {
 #endif
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
     argv = sync_pipe_add_arg(argv, &argc, "-B");
 #ifdef HAVE_PCAP_REMOTE
     if (capture_opts->src_type == CAPTURE_IFREMOTE)

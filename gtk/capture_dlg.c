@@ -85,7 +85,7 @@
 #define E_CAP_SNAP_CB_KEY               "cap_snap_cb"
 #define E_CAP_LT_OM_KEY                 "cap_lt_om"
 #define E_CAP_LT_OM_LABEL_KEY           "cap_lt_om_label"
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
 #define E_CAP_BUFFER_SIZE_SB_KEY        "cap_buffer_size_sb"
 #endif
 #define E_CAP_SNAP_SB_KEY               "cap_snap_sb"
@@ -1471,7 +1471,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   int           row;
   int           err;
   gchar         *err_str;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
   GtkAdjustment *buffer_size_adj;
   GtkWidget     *buffer_size_lb, *buffer_size_sb, *buffer_size_hb;
 #endif
@@ -1658,7 +1658,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_set_border_width(GTK_CONTAINER(left_vb), 0);
   gtk_box_pack_start(GTK_BOX(main_hb), left_vb, TRUE, TRUE, 0);
 
-#if defined (HAVE_AIRPCAP) || defined (HAVE_PCAP_REMOTE) || defined (_WIN32)
+#if defined (HAVE_AIRPCAP) || defined (HAVE_PCAP_REMOTE) || defined (HAVE_PCAP_SET_BUFFER_SIZE)
   /* Avoid adding the right vbox if not needed, because it steals 3 pixels */
   right_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_set_border_width(GTK_CONTAINER(right_vb), 0);
@@ -1820,7 +1820,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(remote_bt);
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
   buffer_size_hb = gtk_hbox_new(FALSE, 3);
   buffer_size_lb = gtk_label_new("Buffer size:");
   gtk_box_pack_start (GTK_BOX(buffer_size_hb), buffer_size_lb, FALSE, FALSE, 0);
@@ -2179,7 +2179,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_SNAP_CB_KEY, snap_cb);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_SNAP_SB_KEY, snap_sb);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_LT_OM_KEY, linktype_om);
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_BUFFER_SIZE_SB_KEY, buffer_size_sb);
 #endif
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_PROMISC_KEY, promisc_cb);
@@ -2547,7 +2547,7 @@ capture_dlg_prep(gpointer parent_w) {
 #ifdef HAVE_PCAP_REMOTE
   GtkWidget *iftype_cbx;
 #endif
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
   GtkWidget *buffer_size_sb;
 #endif
   gchar *entry_text;
@@ -2566,7 +2566,7 @@ capture_dlg_prep(gpointer parent_w) {
   snap_cb    = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SNAP_CB_KEY);
   snap_sb    = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SNAP_SB_KEY);
   linktype_om  = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_LT_OM_KEY);
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
   buffer_size_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_BUFFER_SIZE_SB_KEY);
 #endif
   promisc_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_PROMISC_KEY);
@@ -2627,7 +2627,7 @@ capture_dlg_prep(gpointer parent_w) {
     global_capture_opts.src_type = CAPTURE_IFREMOTE;
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
   global_capture_opts.buffer_size =
     gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(buffer_size_sb));
 #endif

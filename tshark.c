@@ -232,7 +232,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
   fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
   fprintf(output, "  -p                       don't capture in promiscuous mode\n");
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
   fprintf(output, "  -B <buffer size>         size of kernel buffer (def: 1MB)\n");
 #endif
   fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
@@ -769,16 +769,16 @@ main(int argc, char *argv[])
 
 #define OPTSTRING_INIT "a:b:c:C:d:De:E:f:F:G:hi:K:lLnN:o:pPqr:R:s:St:T:u:vVw:xX:y:z:"
 #ifdef HAVE_LIBPCAP
-#ifdef _WIN32
-#define OPTSTRING_WIN32 "B:"
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
+#define OPTSTRING_EXTRA "B:"
 #else
-#define OPTSTRING_WIN32 ""
-#endif  /* _WIN32 */
+#define OPTSTRING_EXTRA ""
+#endif  /* _WIN32 or HAVE_PCAP_SET_BUFFER_SIZE */
 #else
-#define OPTSTRING_WIN32 ""
+#define OPTSTRING_EXTRA ""
 #endif  /* HAVE_LIBPCAP */
 
-  static const char    optstring[] = OPTSTRING_INIT OPTSTRING_WIN32;
+  static const char    optstring[] = OPTSTRING_INIT OPTSTRING_EXTRA;
 
   /*
    * Get credential information for later use.
@@ -1003,9 +1003,9 @@ main(int argc, char *argv[])
       case 's':        /* Set the snapshot (capture) length */
       case 'w':        /* Write to capture file x */
       case 'y':        /* Set the pcap data link type */
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
       case 'B':        /* Buffer size */
-#endif /* _WIN32 */
+#endif /* _WIN32 or HAVE_PCAP_SET_BUFFER_SIZE */
 #ifdef HAVE_LIBPCAP
         status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
         if(status != 0) {

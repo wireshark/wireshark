@@ -97,7 +97,7 @@ capture_opts_init(capture_options *capture_opts, void *cf)
   capture_opts->sampling_param          = 0;
 #endif
 #endif
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
   capture_opts->buffer_size             = 1;                /* 1 MB */
 #endif
   capture_opts->has_snaplen             = FALSE;
@@ -173,7 +173,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "No capture RPCAP   : %u", capture_opts->nocap_rpcap);
     g_log(log_domain, log_level, "No capture local   : %u", capture_opts->nocap_local);
 #endif
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
     g_log(log_domain, log_level, "BufferSize         : %u (MB)", capture_opts->buffer_size);
 #endif
     g_log(log_domain, log_level, "SnapLen         (%u): %u", capture_opts->has_snaplen, capture_opts->snaplen);
@@ -464,7 +464,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
           return 1;
         }
         break;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
     case 'B':        /* Buffer size */
         capture_opts->buffer_size = get_positive_int(optarg_str_p, "buffer size");
         break;
