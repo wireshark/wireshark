@@ -1066,7 +1066,6 @@ tvbparse_handle
 tvbparse_hashed
 tvbparse_hashed_add
 tvbparse_init
-tvbparse_len_left
 tvbparse_not_char
 tvbparse_not_chars
 tvbparse_peek
