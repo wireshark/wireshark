@@ -283,6 +283,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "     separator=/t|/s|<char> select tab, space, printable character as separator\n");
   fprintf(output, "     quote=d|s|n           select double, single, no quotes for values\n");
   fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
+  fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
   fprintf(output, "  -l                       flush standard output after each packet\n");
   fprintf(output, "  -q                       be more quiet on stdout (e.g. when using statistics)\n");
   fprintf(output, "  -X <key>:<value>         eXtension options, see the man page for details\n");
@@ -766,7 +767,7 @@ main(int argc, char *argv[])
   GLogLevelFlags       log_flags;
   int                  optind_initial;
 
-#define OPTSTRING_INIT "a:b:c:C:d:De:E:f:F:G:hi:K:lLnN:o:pPqr:R:s:St:T:vVw:xX:y:z:"
+#define OPTSTRING_INIT "a:b:c:C:d:De:E:f:F:G:hi:K:lLnN:o:pPqr:R:s:St:T:u:vVw:xX:y:z:"
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -1172,6 +1173,17 @@ main(int argc, char *argv[])
         } else {
           cmdarg_err("Invalid -T parameter.");
           cmdarg_err_cont("It must be \"ps\", \"text\", \"pdml\", \"psml\" or \"fields\".");
+          exit(1);
+        }
+        break;
+      case 'u':        /* Seconds type */
+        if (strcmp(optarg, "s") == 0)
+          timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
+        else if (strcmp(optarg, "hms") == 0)
+          timestamp_set_seconds_type(TS_SECONDS_HOUR_MIN_SEC);
+        else {
+          cmdarg_err("Invalid seconds type \"%s\"", optarg);
+          cmdarg_err_cont("It must be \"s\" for seconds or \"hms\" for hours, minutes and seconds.");
           exit(1);
         }
         break;

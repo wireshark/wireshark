@@ -1198,6 +1198,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -j                       search backwards for a matching packet after \"-J\"\n");
   fprintf(output, "  -m <font>                set the font name used for most text\n");
   fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
+  fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
   fprintf(output, "  -X <key>:<value>         eXtension options, see man page for details\n");
   fprintf(output, "  -z <statistics>          show various statistics, see man page for details\n");
 
@@ -2018,7 +2019,7 @@ main(int argc, char *argv[])
 #endif
 #endif
 
-#define OPTSTRING_INIT "a:b:c:C:Df:g:Hhi:jJ:kK:lLm:nN:o:P:pQr:R:Ss:t:T:vw:X:y:z:"
+#define OPTSTRING_INIT "a:b:c:C:Df:g:Hhi:jJ:kK:lLm:nN:o:P:pQr:R:Ss:t:u:vw:X:y:z:"
 
 #if defined HAVE_LIBPCAP && defined _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -2542,7 +2543,7 @@ main(int argc, char *argv[])
           exit(1);
         }
         break;
-      case 'T':        /* Seconds type */
+      case 'u':        /* Seconds type */
         if (strcmp(optarg, "s") == 0)
           timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
         else if (strcmp(optarg, "hms") == 0)
