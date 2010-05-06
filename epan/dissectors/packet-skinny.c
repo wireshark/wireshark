@@ -677,6 +677,11 @@ static const value_string skinny_ringTypes[] = {
   {0x6  , "PrecedenceRing"},
   {0   , NULL}
 };
+static const value_string skinny_ringModes[] = {
+  {0x1  , "RingForever"},
+  {0x2  , "RingOnce"},
+  {0   , NULL}
+};
 
 static const value_string skinny_speakerModes[] = {
   {1   , "SpeakerOn"},
@@ -883,6 +888,7 @@ static const value_string cast_callSecurityStatusTypes[] = {
 
 #define StationMaxDirnumSize 24         /* max size of calling or called party dirnum  */
 #define StationMaxNameSize 40           /* max size of calling party's name  */
+#define StationMaxDisplayNameSize 44    /* max size of display name  */
 #define StationMaxDeviceNameSize 16     /* max size of station's IP name  */
 #define StationMaxSpeedDials 10         /* max number of speed dial numbers allowed on a station */
 #define StationMaxVersionSize 16        /* max chars in version string  */
@@ -999,6 +1005,7 @@ static int hf_skinny_messageTimeOutValue = -1;
 static int hf_skinny_displayMessage = -1;
 static int hf_skinny_lineDirNumber = -1;
 static int hf_skinny_lineFullyQualifiedDisplayName = -1;
+static int hf_skinny_lineDisplayName = -1;
 static int hf_skinny_speedDialDirNumber = -1;
 static int hf_skinny_speedDialDisplayName = -1;
 static int hf_skinny_dateYear = -1;
@@ -1019,6 +1026,7 @@ static int hf_skinny_callType = -1;
 static int hf_skinny_originalCalledPartyName = -1;
 static int hf_skinny_originalCalledParty = -1;
 static int hf_skinny_ringType = -1;
+static int hf_skinny_ringMode = -1;
 static int hf_skinny_speakerMode = -1;
 static int hf_skinny_remoteIpAddr = -1;
 static int hf_skinny_remotePortNumber = -1;
@@ -1276,12 +1284,6 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 0x0 :    /* keepAlive */
       break;
 
-    case 0x6 :    /* offHook */
-      break;
-
-    case 0x7 :    /* onHook    */
-      break;
-
     case 0x8 :    /* hookFlash */
       break;
 
@@ -1307,9 +1309,6 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case 0x28 :   /* softKeyTemplateRequest */
-      break;
-
-    case 0x83 :   /* stopTone */
       break;
 
     case 0x9a :   /* clearDisplay */
@@ -1353,6 +1352,12 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 0x3 :  /* keyPadButtonMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_stationKeypadButton, tvb, offset+12, 4, TRUE);
+      if (hdr_data_length > 8) {
+		  proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+16, 4, TRUE);
+		  proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, TRUE);
+		  si->lineId = tvb_get_letohl(tvb, offset+16);
+		  si->callId = tvb_get_letohl(tvb, offset+20);
+      }
       break;
 
     case 0x4 :  /* stationEnblocCallMessage -- This decode NOT verified*/
@@ -1362,6 +1367,28 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 0x5 : /* stationStimulusMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_stimulus, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_stimulusInstance, tvb, offset+16, 4, TRUE);
+      if (hdr_data_length > 12) {
+		  proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, TRUE);
+	      si->callId = tvb_get_letohl(tvb, offset+20);
+      }
+      break;
+
+    case 0x6 :    /* offHook */
+      if (hdr_data_length > 4) {
+		  proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+12, 4, TRUE);
+		  proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
+		  si->lineId = tvb_get_letohl(tvb, offset+12);
+		  si->callId = tvb_get_letohl(tvb, offset+16);
+      }
+      break;
+
+    case 0x7 :    /* onHook    */
+      if (hdr_data_length > 4) {
+		  proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+12, 4, TRUE);
+		  proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
+		  si->lineId = tvb_get_letohl(tvb, offset+12);
+		  si->callId = tvb_get_letohl(tvb, offset+16);
+      }
       break;
 
     case 0x9  : /* stationForwardStatReqMessage */
@@ -1775,10 +1802,33 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 0x82 :  /* startTone */
       proto_tree_add_item(skinny_tree, hf_skinny_deviceTone, tvb, offset+12, 4, TRUE);
+      /* offset 16 to 19: reserved */
+      if (hdr_data_length > 12) {
+		  proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+20, 4, TRUE);
+		  proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+24, 4, TRUE);
+		  si->lineId = tvb_get_letohl(tvb, offset+20);
+		  si->callId = tvb_get_letohl(tvb, offset+24);
+      }
+      break;
+
+    case 0x83 :   /* stopTone */
+      if (hdr_data_length > 4) {
+		  proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+12, 4, TRUE);
+		  proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
+		  si->lineId = tvb_get_letohl(tvb, offset+12);
+		  si->callId = tvb_get_letohl(tvb, offset+16);
+      }
       break;
 
     case 0x85 : /* setRingerMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_ringType, tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_ringMode, tvb, offset+16, 4, TRUE);
+      if (hdr_data_length > 12) {
+		  proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+20, 4, TRUE);
+		  proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+24, 4, TRUE);
+		  si->lineId = tvb_get_letohl(tvb, offset+20);
+		  si->callId = tvb_get_letohl(tvb, offset+24);
+      }
       break;
 
     case 0x86 : /* setLampMessage */
@@ -1931,6 +1981,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_lineNumber, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_lineDirNumber, tvb, offset+16, StationMaxDirnumSize, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_lineFullyQualifiedDisplayName, tvb, offset+16+StationMaxDirnumSize, StationMaxNameSize, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_lineDisplayName, tvb, offset+16+StationMaxDirnumSize+StationMaxNameSize, StationMaxDisplayNameSize, TRUE);
       break;
 
     case 0x93 : /* configStat */
@@ -3231,9 +3282,16 @@ proto_register_skinny(void)
     },
 
     { &hf_skinny_lineFullyQualifiedDisplayName,
-      { "DisplayName", "skinny.fqdn",
+      { "FullyQualifiedDisplayName", "skinny.fqdn",
 	FT_STRING, BASE_NONE, NULL, 0x0,
 	"The full display name for this line.",
+	HFILL }
+    },
+
+    { &hf_skinny_lineDisplayName,
+      { "DisplayName", "skinny.displayName",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"The display name for this line.",
 	HFILL }
     },
 
@@ -3373,6 +3431,13 @@ proto_register_skinny(void)
       { "Ring Type", "skinny.ringType",
 	FT_UINT32, BASE_HEX, VALS(skinny_ringTypes), 0x0,
 	"What type of ring to play",
+	HFILL }
+    },
+
+    { &hf_skinny_ringMode,
+      { "Ring Mode", "skinny.ringMode",
+	FT_UINT32, BASE_HEX, VALS(skinny_ringModes), 0x0,
+	"What mode of ring to play",
 	HFILL }
     },
 
@@ -4382,9 +4447,9 @@ proto_reg_handoff_skinny(void)
  *  0x2    ipPort                          Y        Y
  *  0x3    keypadButton                    Y        Y
  *  0x4    enblocCall                      Y        N
- *  0x5    stimulus                        Y        N
- *  0x6    offHook                         Y        N/A
- *  0x7    onHook                          Y        N/A
+ *  0x5    stimulus                        Y        Y
+ *  0x6    offHook                         Y        Y
+ *  0x7    onHook                          Y        Y
  *  0x8    hookFlash                       Y        N/A
  *  0x9    forwardStatReq                  Y        N
  *  0xa    speedDialStatReq                Y        Y
@@ -4427,7 +4492,7 @@ proto_reg_handoff_skinny(void)
  *  0x42   deviceToUserDataResponseVersion1
  *  0x81   registerAck                     Y        Y
  *  0x82   startTone                       Y        Y
- *  0x83   stopTone                        Y        N/A
+ *  0x83   stopTone                        Y        Y
  *  0x85   setRinger                       Y        Y
  *  0x86   setLamp                         Y        Y
  *  0x87   setHkFDetect                    Y        N
