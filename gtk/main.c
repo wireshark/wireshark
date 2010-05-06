@@ -2018,7 +2018,7 @@ main(int argc, char *argv[])
 #endif
 #endif
 
-#define OPTSTRING_INIT "a:b:c:C:Df:g:Hhi:jJ:kK:lLm:nN:o:P:pQr:R:Ss:t:vw:X:y:z:"
+#define OPTSTRING_INIT "a:b:c:C:Df:g:Hhi:jJ:kK:lLm:nN:o:P:pQr:R:Ss:t:T:vw:X:y:z:"
 
 #if defined HAVE_LIBPCAP && defined _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -2539,6 +2539,17 @@ main(int argc, char *argv[])
           cmdarg_err("Invalid time stamp type \"%s\"", optarg);
           cmdarg_err_cont("It must be \"r\" for relative, \"a\" for absolute,");
           cmdarg_err_cont("\"ad\" for absolute with date, or \"d\" for delta.");
+          exit(1);
+        }
+        break;
+      case 'T':        /* Seconds type */
+        if (strcmp(optarg, "s") == 0)
+          timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
+        else if (strcmp(optarg, "hms") == 0)
+          timestamp_set_seconds_type(TS_SECONDS_HOUR_MIN_SEC);
+        else {
+          cmdarg_err("Invalid seconds type \"%s\"", optarg);
+          cmdarg_err_cont("It must be \"s\" for seconds or \"hms\" for hours, minutes and seconds.");
           exit(1);
         }
         break;
@@ -3615,6 +3626,7 @@ void change_configuration_profile (const gchar *profile_name)
 		  rf_path, strerror(rf_open_errno));
    }
    timestamp_set_type (recent.gui_time_format);
+   timestamp_set_seconds_type (recent.gui_seconds_format);
    color_filters_enable(recent.packet_list_colorize);
 
    prefs_to_capture_opts();

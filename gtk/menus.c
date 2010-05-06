@@ -132,6 +132,7 @@ static void set_menu_sensitivity (GtkItemFactory *, const gchar *, gint);
 static void show_hide_cb(GtkWidget *w, gpointer data, gint action);
 static void timestamp_format_cb(GtkWidget *w, gpointer d, gint action);
 static void timestamp_precision_cb(GtkWidget *w, gpointer d, gint action);
+static void timestamp_seconds_time_cb(GtkWidget *w, gpointer d, gint action);
 static void name_resolution_cb(GtkWidget *w, gpointer d, gint action);
 #ifdef HAVE_LIBPCAP
 static void auto_scroll_live_cb(GtkWidget *w, gpointer d);
@@ -590,6 +591,8 @@ static GtkItemFactoryEntry menu_items[] =
                         TS_PREC_FIXED_USEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
     {"/View/Time Display Format/Nanoseconds:   0.123456789", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
                         TS_PREC_FIXED_NSEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
+    {"/View/Time Display Format/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/View/Time Display Format/Display Seconds with hours and minutes", "<alt><control>0", GTK_MENU_FUNC(timestamp_seconds_time_cb), 0, "<CheckItem>", NULL,},
     {"/View/Name Resol_ution", NULL, NULL, 0, "<Branch>", NULL,},
     {"/View/Name Resolution/_Resolve Name", NULL, GTK_MENU_FUNC(resolve_name_cb), 0, NULL, NULL,},
     {"/View/Name Resolution/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
@@ -2164,6 +2167,24 @@ timestamp_precision_cb(GtkWidget *w _U_, gpointer d _U_, gint action)
     }
 }
 
+static void
+timestamp_seconds_time_cb(GtkWidget *w, gpointer d _U_, gint action _U_)
+{
+    if (GTK_CHECK_MENU_ITEM(w)->active) {
+        recent.gui_seconds_format = TS_SECONDS_HOUR_MIN_SEC;
+    } else {
+        recent.gui_seconds_format = TS_SECONDS_DEFAULT;
+    }
+    timestamp_set_seconds_type (recent.gui_seconds_format);
+
+#ifdef NEW_PACKET_LIST
+    /* This call adjusts column width */
+    cf_timestamp_auto_precision(&cfile);
+    new_packet_list_queue_draw();
+#else
+    cf_change_time_formats(&cfile);
+#endif
+}
 
 void
 menu_name_resolution_changed(void)
@@ -2368,6 +2389,30 @@ menu_recent_read_finished(void) {
     recent.gui_time_precision = -1;
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), FALSE);
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
+
+    /* don't change the seconds format, if we had a command line value */
+    if (timestamp_get_seconds_type() != TS_SECONDS_NOT_SET) {
+        recent.gui_seconds_format = timestamp_get_seconds_type();
+    }
+
+    menu = gtk_item_factory_get_widget(main_menu_factory,
+            "/View/Time Display Format/Display Seconds with hours and minutes");
+    switch (recent.gui_seconds_format) {
+    case TS_SECONDS_DEFAULT:
+        recent.gui_seconds_format = -1;
+        /* set_active will not trigger the callback when deactivating an inactive item! */
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), FALSE);
+        break;
+    case TS_SECONDS_HOUR_MIN_SEC:
+        recent.gui_seconds_format = -1;
+        /* set_active will not trigger the callback when activating an active item! */
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), FALSE);
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
+        break;
+    default:
+        g_assert_not_reached();
+    }
 
     menu_colorize_changed(recent.packet_list_colorize);
 

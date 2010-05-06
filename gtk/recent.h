@@ -65,6 +65,7 @@ typedef struct recent_settings_tag {
     gboolean    packet_list_colorize;
     gint        gui_time_format;
     gint        gui_time_precision;
+    gint        gui_seconds_format;
     gint        gui_zoom_level;
     gint        gui_bytes_view;
 

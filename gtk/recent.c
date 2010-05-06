@@ -70,6 +70,7 @@
 #define RECENT_KEY_PACKET_LIST_COLORIZE     "gui.packet_list_colorize"
 #define RECENT_GUI_TIME_FORMAT              "gui.time_format"
 #define RECENT_GUI_TIME_PRECISION           "gui.time_precision"
+#define RECENT_GUI_SECONDS_FORMAT           "gui.seconds_format"
 #define RECENT_GUI_ZOOM_LEVEL               "gui.zoom_level"
 #define RECENT_GUI_BYTES_VIEW               "gui.bytes_view"
 #define RECENT_GUI_GEOMETRY_MAIN_X          "gui.geometry_main_x"
@@ -98,6 +99,9 @@ static const char *ts_type_text[] =
 
 static const char *ts_precision_text[] =
 	{ "AUTO", "SEC", "DSEC", "CSEC", "MSEC", "USEC", "NSEC", NULL };
+
+static const char *ts_seconds_text[] =
+  { "SECONDS", "HOUR_MIN_SEC", NULL };
 
 /* Takes an string and a pointer to an array of strings, and a default int value.
  * The array must be terminated by a NULL string. If the string is found in the array
@@ -358,6 +362,11 @@ write_profile_recent(void)
   fprintf(rf, RECENT_GUI_TIME_PRECISION ": %s\n",
           ts_precision_text[recent.gui_time_precision]);
 
+  fprintf(rf, "\n# Seconds display format.\n");
+  fprintf(rf, "# One of: SECONDS, HOUR_MIN_SEC\n");
+  fprintf(rf, RECENT_GUI_SECONDS_FORMAT ": %s\n",
+          ts_seconds_text[recent.gui_seconds_format]);
+
   fprintf(rf, "\n# Zoom level.\n");
   fprintf(rf, "# A decimal number.\n");
   fprintf(rf, RECENT_GUI_ZOOM_LEVEL ": %d\n",
@@ -603,6 +612,9 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
   } else if (strcmp(key, RECENT_GUI_TIME_PRECISION) == 0) {
     recent.gui_time_precision =
 	find_index_from_string_array(value, ts_precision_text, TS_PREC_AUTO);
+  } else if (strcmp(key, RECENT_GUI_SECONDS_FORMAT) == 0) {
+    recent.gui_seconds_format =
+	find_index_from_string_array(value, ts_seconds_text, TS_SECONDS_DEFAULT);
   } else if (strcmp(key, RECENT_GUI_ZOOM_LEVEL) == 0) {
     num = strtol(value, &p, 0);
     if (p == value || *p != '\0')
@@ -848,6 +860,7 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
   recent.packet_list_colorize   = TRUE;
   recent.gui_time_format        = TS_RELATIVE;
   recent.gui_time_precision     = TS_PREC_AUTO;
+  recent.gui_seconds_format     = TS_SECONDS_DEFAULT;
   recent.gui_zoom_level         = 0;
   recent.gui_bytes_view         = 0;
 

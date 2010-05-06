@@ -984,8 +984,10 @@ time_msecs_to_str
 time_secs_to_str
 timestamp_get_precision
 timestamp_get_type
+timestamp_get_seconds_type
 timestamp_set_precision
 timestamp_set_type
+timestamp_set_seconds_type
 trans2_cmd_vals                 DATA
 tree_is_expanded                DATA
 tvb_bytes_exist

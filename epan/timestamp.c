@@ -34,6 +34,8 @@ static ts_type timestamp_type = TS_NOT_SET;
 
 static int timestamp_precision = TS_PREC_AUTO_USEC;
 
+static ts_seconds_type timestamp_seconds_type = TS_SECONDS_NOT_SET;
+
 ts_type timestamp_get_type(void)
 {
 	return timestamp_type;
@@ -55,3 +57,13 @@ void timestamp_set_precision(int tsp)
 	timestamp_precision = tsp;
 }
 
+
+ts_seconds_type timestamp_get_seconds_type(void)
+{
+	return timestamp_seconds_type;
+}
+
+void timestamp_set_seconds_type(ts_seconds_type ts_t)
+{
+	timestamp_seconds_type = ts_t;
+}

@@ -48,7 +48,7 @@ typedef enum {
 	TS_PREC_FIXED_SEC,	/* recent and internal */
 	TS_PREC_FIXED_DSEC,	/* recent and internal */
 	TS_PREC_FIXED_CSEC,	/* recent and internal */
-	TS_PREC_FIXED_MSEC, /* recent and internal */
+	TS_PREC_FIXED_MSEC,	/* recent and internal */
 	TS_PREC_FIXED_USEC,	/* recent and internal */
 	TS_PREC_FIXED_NSEC,	/* recent and internal */
 	TS_PREC_AUTO_SEC,	/* internal */
@@ -59,10 +59,24 @@ typedef enum {
 	TS_PREC_AUTO_NSEC	/* internal */
 } ts_precision;
 
+typedef enum {
+	TS_SECONDS_DEFAULT,	/* recent */
+	TS_SECONDS_HOUR_MIN_SEC,/* recent */
+
+/*
+ * Special value used for the command-line setting in Wireshark, to indicate
+ * that no value has been set from the command line.
+ */
+	TS_SECONDS_NOT_SET
+} ts_seconds_type;
+
 extern ts_type timestamp_get_type(void);
 extern void timestamp_set_type(ts_type);
 
 extern int timestamp_get_precision(void);
 extern void timestamp_set_precision(int tsp);
+
+extern ts_seconds_type timestamp_get_seconds_type(void);
+extern void timestamp_set_seconds_type(ts_seconds_type);
 
 #endif /* timestamp.h */
