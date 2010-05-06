@@ -322,7 +322,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
   fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
   fprintf(output, "  -p                       don't capture in promiscuous mode\n");
-#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   fprintf(output, "  -B <buffer size>         size of kernel buffer (def: 1MB)\n");
 #endif
   fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
@@ -1483,11 +1483,9 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
       pcap_set_promisc(ld->pcap_h, capture_opts->promisc_mode);
       pcap_set_timeout(ld->pcap_h, CAP_READ_TIMEOUT);
 
-#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
       if (capture_opts->buffer_size > 1) {
         pcap_set_buffer_size(ld->pcap_h, capture_opts->buffer_size * 1024 * 1024);
       }
-#endif
       if (pcap_activate(ld->pcap_h) != 0) {
         /* Failed to activate, set to NULL */
         pcap_close(ld->pcap_h);
@@ -2705,11 +2703,11 @@ main(int argc, char *argv[])
 #define OPTSTRING_INIT "a:b:c:Df:hi:LMnpSs:vw:y:Z:"
 #endif
 
-#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
 #define OPTSTRING_EXTRA "B:"
 #else
 #define OPTSTRING_EXTRA ""
-#endif  /* _WIN32 or HAVE_PCAP_SET_BUFFER_SIZE */
+#endif  /* _WIN32 or HAVE_PCAP_CREATE */
 
   char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_EXTRA) - 1] =
     OPTSTRING_INIT OPTSTRING_EXTRA;
@@ -2979,9 +2977,9 @@ main(int argc, char *argv[])
 #ifdef HAVE_PCAP_SETSAMPLING
       case 'm':        /* Sampling */
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
       case 'B':        /* Buffer size */
-#endif /* _WIN32 or HAVE_PCAP_SET_BUFFER_SIZE */
+#endif /* _WIN32 or HAVE_PCAP_CREATE */
         status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
         if(status != 0) {
           exit_main(status);

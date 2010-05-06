@@ -513,9 +513,6 @@ and did you also install that package?]]))
 		AC_MSG_RESULT(no)
 	fi
 	AC_CHECK_FUNCS(pcap_open_dead pcap_freecode)
-# Don't activate this check yet 
-# https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=475	
-#	AC_CHECK_FUNCS(pcap_create pcap_set_buffer_size)
 	#
 	# pcap_breakloop may be present in the library but not declared
 	# in the pcap.h header file.  If it's not declared in the header

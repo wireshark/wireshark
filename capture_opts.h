@@ -105,7 +105,7 @@ typedef struct capture_options_tag {
     int sampling_param;             /**< PCAP packet sampling parameter */
 #endif
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     int      buffer_size;           /**< the capture buffer size (MB) */
 #endif
     gboolean has_snaplen;           /**< TRUE if maximum capture packet length

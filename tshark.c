@@ -232,7 +232,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
   fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
   fprintf(output, "  -p                       don't capture in promiscuous mode\n");
-#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   fprintf(output, "  -B <buffer size>         size of kernel buffer (def: 1MB)\n");
 #endif
   fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
@@ -769,11 +769,11 @@ main(int argc, char *argv[])
 
 #define OPTSTRING_INIT "a:b:c:C:d:De:E:f:F:G:hi:K:lLnN:o:pPqr:R:s:St:T:u:vVw:xX:y:z:"
 #ifdef HAVE_LIBPCAP
-#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
 #define OPTSTRING_EXTRA "B:"
 #else
 #define OPTSTRING_EXTRA ""
-#endif  /* _WIN32 or HAVE_PCAP_SET_BUFFER_SIZE */
+#endif  /* _WIN32 or HAVE_PCAP_CREATE */
 #else
 #define OPTSTRING_EXTRA ""
 #endif  /* HAVE_LIBPCAP */
@@ -1003,9 +1003,9 @@ main(int argc, char *argv[])
       case 's':        /* Set the snapshot (capture) length */
       case 'w':        /* Write to capture file x */
       case 'y':        /* Set the pcap data link type */
-#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
       case 'B':        /* Buffer size */
-#endif /* _WIN32 or HAVE_PCAP_SET_BUFFER_SIZE */
+#endif /* _WIN32 or HAVE_PCAP_CREATE */
 #ifdef HAVE_LIBPCAP
         status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
         if(status != 0) {
