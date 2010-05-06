@@ -951,7 +951,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
        *   The <sys/un.h> header shall define the sockaddr_un structure,
        *   which shall include at least the following members:
        *
-       *   sa_family_t  sun_family  Address family. 
+       *   sa_family_t  sun_family  Address family.
        *   char         sun_path[]  Socket pathname.
        *
        * so we assume that it's an array, with a specified size,
@@ -1087,7 +1087,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
                  strerror(errno));
     goto error;
   }
-  
+
 #endif /* USE_THREADS */
 
   switch (magic) {
@@ -1483,9 +1483,11 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
       pcap_set_promisc(ld->pcap_h, capture_opts->promisc_mode);
       pcap_set_timeout(ld->pcap_h, CAP_READ_TIMEOUT);
 
+#if defined(_WIN32) || defined(HAVE_PCAP_SET_BUFFER_SIZE)
       if (capture_opts->buffer_size > 1) {
         pcap_set_buffer_size(ld->pcap_h, capture_opts->buffer_size * 1024 * 1024);
       }
+#endif
       if (pcap_activate(ld->pcap_h) != 0) {
         /* Failed to activate, set to NULL */
         pcap_close(ld->pcap_h);
