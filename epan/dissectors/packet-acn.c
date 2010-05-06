@@ -49,7 +49,6 @@
 #include <epan/prefs.h>
 #include <epan/packet.h>
 #include <epan/ipv6-utils.h>
-#include <string.h>
 
 #include "packet-acn.h"
 
@@ -327,19 +326,13 @@ static const enum_val_t dmx_display_line_format[] = {
 static gboolean is_acn(tvbuff_t *tvb)
 {
   static char acn_packet_id[] = "ASC-E1.17\0\0\0";  /* must be 12 bytes */
-  guint8      *packet_id;
 
   if (tvb_length(tvb) < (4+sizeof(acn_packet_id)))
     return FALSE;
 
   /* Check the bytes in octets 4 - 16 */
-  if (tvb_memeql(tvb, 4, acn_packet_id, sizeof(acn_packet_id)) != 0){
-    packet_id = tvb_get_ephemeral_string(tvb, 4, 12);
-    if (memcmp(packet_id, &acn_packet_id, 12) == 0) {
-      return TRUE;
-    }
+  if (tvb_memeql(tvb, 4, acn_packet_id, sizeof(acn_packet_id)-1) != 0)
     return FALSE;
-  }
 
   return TRUE;
 }
