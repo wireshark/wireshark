@@ -7,7 +7,7 @@
 # Only "win32" and "win64" are valid (for now).
 # This can be defined in the system environment.
 !IFNDEF WIRESHARK_TARGET_PLATFORM
-WIRESHARK_TARGET_PLATFORM=win64
+WIRESHARK_TARGET_PLATFORM=win32
 !ENDIF
 
 ##### Versions #####
