@@ -8,7 +8,7 @@ tshark - Dump and analyze network traffic
 B<tshark>
 S<[ B<-a> E<lt>capture autostop conditionE<gt> ] ...>
 S<[ B<-b> E<lt>capture ring buffer optionE<gt>] ...>
-S<[ B<-B> E<lt>capture buffer size (Win32 only)E<gt> ] >
+S<[ B<-B> E<lt>capture buffer sizeE<gt> ] >
 S<[ B<-c> E<lt>capture packet countE<gt> ]>
 S<[ B<-C> E<lt>configuration profileE<gt> ]>
 S<[ B<-d> E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt> ]>
@@ -179,11 +179,16 @@ B<duration> or B<filesize> to be specified to control when to go to the next
 file.  It should be noted that each B<-b> parameter takes exactly one criterion;
 to specify two criterion, each must be preceded by the B<-b> option.
 
-=item -B  E<lt>capture buffer sizeE<gt> (Win32 only)
+=item -B  E<lt>capture buffer sizeE<gt>
 
-Win32 only: set capture buffer size (in MB, default is 1MB). This is used by the
-the capture driver to buffer packet data until that data can be written to
-disk. If you encounter packet drops while capturing, try to increase this size.
+Set capture buffer size (in MB; default is platform-dependent).  This is
+used by the the capture driver to buffer packet data until that data can
+be written to disk.  If you encounter packet drops while capturing, try
+to increase this size.
+
+This is available on on UNIX systems with libpcap 1.0.0 or later and on
+Windows.  It is not available on UNIX systems with earlier versions of
+libpcap.
 
 =item -c  E<lt>capture packet countE<gt>
 
