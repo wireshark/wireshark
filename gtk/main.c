@@ -2015,6 +2015,8 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   gboolean             start_capture = FALSE;
   gboolean             list_link_layer_types = FALSE;
+  GList               *if_list;
+  gchar               *err_str;
 #else
   gboolean             capture_option_specified = FALSE;
 #endif
@@ -2451,7 +2453,22 @@ main(int argc, char *argv[])
 	break;
       case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
-        capture_opts_list_interfaces(FALSE);
+        if_list = capture_interface_list(&err, &err_str);
+        if (if_list == NULL) {
+          switch (err) {
+          case CANT_GET_INTERFACE_LIST:
+            cmdarg_err("%s", err_str);
+            g_free(err_str);
+            break;
+
+          case NO_INTERFACES_FOUND:
+            cmdarg_err("There are no interfaces on which a capture can be done");
+            break;
+          }
+          exit(2);
+        }
+        capture_opts_print_interfaces(if_list);
+        free_interface_list(if_list);
         exit(0);
 #else
         capture_option_specified = TRUE;

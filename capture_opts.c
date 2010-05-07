@@ -591,35 +591,13 @@ capture_opts_print_link_layer_types(GList *lt_list)
     }
 }
 
-/* Return an ASCII-formatted list of interfaces. */
-#define ADDRSTRLEN 46 /* Covers IPv4 & IPv6 */
-int
-capture_opts_list_interfaces(gboolean machine_readable)
+/* Print an ASCII-formatted list of interfaces. */
+void
+capture_opts_print_interfaces(GList *if_list)
 {
-    GList       *if_list;
+    int         i;
     GList       *if_entry;
     if_info_t   *if_info;
-    int         err;
-    gchar       *err_str;
-    int         i;
-    GSList      *addr;
-    if_addr_t   *if_addr;
-    char        addr_str[ADDRSTRLEN];
-
-    if_list = capture_interface_list(&err, &err_str);
-    if (if_list == NULL) {
-        switch (err) {
-        case CANT_GET_INTERFACE_LIST:
-            cmdarg_err("%s", err_str);
-            g_free(err_str);
-        break;
-
-        case NO_INTERFACES_FOUND:
-            cmdarg_err("There are no interfaces on which a capture can be done");
-        break;
-        }
-        return err;
-    }
 
     i = 1;  /* Interface id number */
     for (if_entry = g_list_first(if_list); if_entry != NULL;
@@ -627,61 +605,11 @@ capture_opts_list_interfaces(gboolean machine_readable)
         if_info = (if_info_t *)if_entry->data;
         printf("%d. %s", i++, if_info->name);
 
-        if (!machine_readable) {
-            /* Add the description if it exists */
-            if (if_info->description != NULL)
-                printf(" (%s)", if_info->description);
-        } else {
-            /*
-             * Add the contents of the if_entry struct in a parseable format.
-             * Each if_entry element is tab-separated.  Addresses are comma-
-             * separated.
-             */
-            /* XXX - Make sure our description doesn't contain a tab */
-            if (if_info->description != NULL)
-                printf("\t%s\t", if_info->description);
-            else
-                printf("\t\t");
-
-            for(addr = g_slist_nth(if_info->addrs, 0); addr != NULL;
-                        addr = g_slist_next(addr)) {
-                if (addr != g_slist_nth(if_info->addrs, 0))
-                    printf(",");
-
-                if_addr = (if_addr_t *)addr->data;
-                switch(if_addr->ifat_type) {
-                case IF_AT_IPv4:
-                    if (inet_ntop(AF_INET, &if_addr->addr.ip4_addr, addr_str,
-                                ADDRSTRLEN)) {
-                        printf("%s", addr_str);
-                    } else {
-                        printf("<unknown IPv4>");
-                    }
-                    break;
-                case IF_AT_IPv6:
-                    if (inet_ntop(AF_INET6, &if_addr->addr.ip6_addr,
-                                addr_str, ADDRSTRLEN)) {
-                        printf("%s", addr_str);
-                    } else {
-                        printf("<unknown IPv6>");
-                    }
-                    break;
-                default:
-                    printf("<type unknown %u>", if_addr->ifat_type);
-                }
-            }
-
-            if (if_info->loopback)
-                printf("\tloopback");
-            else
-                printf("\tnetwork");
-
-        }
-	printf("\n");
+        /* Print the description if it exists */
+        if (if_info->description != NULL)
+            printf(" (%s)", if_info->description);
+        printf("\n");
     }
-    free_interface_list(if_list);
-
-    return 0;
 }
 
 

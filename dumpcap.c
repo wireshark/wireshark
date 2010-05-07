@@ -48,6 +48,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+
 #if defined(__APPLE__) && defined(__LP64__)
 #include <sys/utsname.h>
 #endif
@@ -575,6 +579,71 @@ get_pcap_linktype_list(const char *devname, char **err_str)
     if (err_str != NULL)
         *err_str = NULL;
     return linktype_list;
+}
+
+#define ADDRSTRLEN 46 /* Covers IPv4 & IPv6 */
+static void
+print_machine_readable_interfaces(GList *if_list)
+{
+    int         i;
+    GList       *if_entry;
+    if_info_t   *if_info;
+    GSList      *addr;
+    if_addr_t   *if_addr;
+    char        addr_str[ADDRSTRLEN];
+
+    i = 1;  /* Interface id number */
+    for (if_entry = g_list_first(if_list); if_entry != NULL;
+         if_entry = g_list_next(if_entry)) {
+        if_info = (if_info_t *)if_entry->data;
+        printf("%d. %s", i++, if_info->name);
+
+        /*
+         * Print the contents of the if_entry struct in a parseable format.
+         * Each if_entry element is tab-separated.  Addresses are comma-
+         * separated.
+         */
+        /* XXX - Make sure our description doesn't contain a tab */
+        if (if_info->description != NULL)
+            printf("\t%s\t", if_info->description);
+        else
+            printf("\t\t");
+
+        for(addr = g_slist_nth(if_info->addrs, 0); addr != NULL;
+                    addr = g_slist_next(addr)) {
+            if (addr != g_slist_nth(if_info->addrs, 0))
+                printf(",");
+
+            if_addr = (if_addr_t *)addr->data;
+            switch(if_addr->ifat_type) {
+            case IF_AT_IPv4:
+                if (inet_ntop(AF_INET, &if_addr->addr.ip4_addr, addr_str,
+                              ADDRSTRLEN)) {
+                    printf("%s", addr_str);
+                } else {
+                    printf("<unknown IPv4>");
+                }
+                break;
+            case IF_AT_IPv6:
+                if (inet_ntop(AF_INET6, &if_addr->addr.ip6_addr,
+                              addr_str, ADDRSTRLEN)) {
+                    printf("%s", addr_str);
+                } else {
+                    printf("<unknown IPv6>");
+                }
+                break;
+            default:
+                printf("<type unknown %u>", if_addr->ifat_type);
+            }
+        }
+
+        if (if_info->loopback)
+            printf("\tloopback");
+        else
+            printf("\tnetwork");
+
+        printf("\n");
+    }
 }
 
 /*
@@ -3270,8 +3339,32 @@ main(int argc, char *argv[])
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Interface: %s\n", global_capture_opts.iface);
 
   if (list_interfaces) {
-    status = capture_opts_list_interfaces(machine_readable);
-    exit_main(status);
+    /* Get the list of interfaces */
+    GList       *if_list;
+    int         err;
+    gchar       *err_str;
+
+    if_list = capture_interface_list(&err, &err_str);
+    if (if_list == NULL) {
+        switch (err) {
+        case CANT_GET_INTERFACE_LIST:
+            cmdarg_err("%s", err_str);
+            g_free(err_str);
+            break;
+
+        case NO_INTERFACES_FOUND:
+            cmdarg_err("There are no interfaces on which a capture can be done");
+            break;
+        }
+        exit_main(2);
+    }
+
+    if (machine_readable)      /* tab-separated values to stdout */
+      print_machine_readable_interfaces(if_list);
+    else
+      capture_opts_print_interfaces(if_list);
+    free_interface_list(if_list);
+    exit_main(0);
   } else if (list_link_layer_types) {
     /* Get the list of link-layer types for the capture device. */
     GList *lt_list;

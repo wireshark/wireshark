@@ -179,9 +179,9 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
 extern void
 capture_opts_print_link_layer_types(GList *lt_list);
 
-/* list interfaces */
-extern int
-capture_opts_list_interfaces(gboolean machine_readable);
+/* print list of interfaces */
+extern void
+capture_opts_print_interfaces(GList *if_list);
 
 /* trim the snaplen entry */
 extern void
