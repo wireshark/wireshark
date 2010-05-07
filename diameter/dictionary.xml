@@ -3564,7 +3564,7 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
 					<gavp name="Max-Requested-Bandwidth-DL"/>
 			</grouped>
 		</avp>
-		<avp name="AMBR" code="1436" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<avp name="CSG-Subscription-Data" code="1436" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
 					<gavp name="CSG-Id"/>
 					<gavp name="Expiration-Date"/>
@@ -3805,6 +3805,50 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
 			<enum name="FALSE" code="0"/>
 			<enum name="TRUE" code="1"/>
 		</avp>
+    <avp name="IMS-Voice-Over-PSSessions-Supported" code="1492"  vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="NOT_SUPPORTED" code="0"/>
+      <enum name="SUPPORTED" code="1"/>
+    </avp>
+    <avp name="Homogeneous-Support-of-IMS-Voice-Over-PS-Sessions" code="1493" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="NOT_SUPPORTED" code="0"/>
+      <enum name="SUPPORTED" code="1"/>
+    </avp>
+    <avp name="Last-UE-Activity-Time" code="1494" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="Time"/>
+    </avp>
+    <avp name="EPS-User-State" code="1495" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <grouped>
+        <gavp name="MME-User-State"/>
+        <gavp name="SGSN-User-State"/>
+      </grouped>
+    </avp>
+    <avp name="EPS-Location-Information" code="1496" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <grouped>
+        <gavp name="MME-Location-Information"/>
+        <gavp name="SGSN-Location-Information"/>
+      </grouped>
+    </avp>
+    <avp name="MME-User-State" code="1497" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <grouped>
+        <gavp name="User-State"/>
+      </grouped>
+    </avp>
+    <avp name="SGSN-User-State" code="1498" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <grouped>
+        <gavp name="User-State"/>
+      </grouped>
+    </avp>
+    <avp name="User-State" code="1499" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+       <enum name="DETACHED" code="0"/>
+       <enum name="ATTACHED_NOT_REACHABLE_FOR_PAGING" code="1"/>
+       <enum name="ATTACHED_REACHABLE_FOR_PAGING" code="2"/>
+       <enum name="CONNECTED_NOT_REACHABLE_FOR_PAGING" code="3"/>
+       <enum name="CONNECTED_REACHABLE_FOR_PAGING" code="4"/>
+       <enum name="NETWORK_DETERMINED_NOT_REACHABLE" code="5"/>
+    </avp>
     <avp name="Non-3GPP-User-Data" code="1500" vendor-bit="must" vendor-id="TGPP">
       <grouped>
         <gavp name="Subscription-ID"/>
@@ -3846,9 +3890,44 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
     </avp>
     <!--    
 Note: The AVP codes from 1485 to 1499 are reserved for TS 29.272.
-1505 Trace-Info Grouped
 Note: The AVP codes from 1506 to 1599 are reserved for TS 29.273
 -->
+    <avp name="MME-Location-Information" code="1600" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="E-UTRAN-Cell-Global-Identity"/>
+        <gavp name="Tracking-Area-Identity"/>
+        <gavp name="Geographical-Information"/>
+        <gavp name="Geodetic-Information"/>
+        <gavp name="Current-Location-Retrieved"/>
+        <gavp name="Age-Of-Location-Information"/>
+      </grouped>
+    </avp>
+    <avp name="SGSN-Location-Information" code="1601" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="Cell-Global-Identity"/>
+        <gavp name="Location-Area-Identity"/>
+        <gavp name="Service-Area-Identity"/>
+        <gavp name="Routing-Area-Identity"/>
+        <gavp name="Geographical-Information"/>
+        <gavp name="Geodetic-Information"/>
+        <gavp name="Current-Location-Retrieved"/>
+        <gavp name="Age-Of-Location-Information"/>
+      </grouped>
+    </avp>
+    <avp name="E-UTRAN-Cell-Global-Identity" code="1602" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Tracking-Area-Identity" code="1603" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Cell-Global-Identity" code="1604" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Routing-Area-Identity" code="1605" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+
+    <!-- -->    
 		<avp name="SMS-Information" code="2000" vendor-bit="must" vendor-id="TGPP"> 
      <grouped>
       <gavp name="SMS-Node"/>
