@@ -14,6 +14,7 @@ S<[ B<-D> ]>
 S<[ B<-f> E<lt>capture filterE<gt> ]>
 S<[ B<-h> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
+S<[ B<-I> ]>
 S<[ B<-L> ]>
 S<[ B<-n> ]>
 S<[ B<-M> ]>
@@ -162,6 +163,18 @@ standard libpcap format.
 
 Note: the Win32 version of B<Dumpcap> doesn't support capturing from
 pipes or stdin!
+
+=item -I
+
+Put the interface in "monitor mode"; this is supported only on IEEE
+802.11 Wi-Fi interfaces, and supported only on some operating systems.
+
+Note that in monitor mode the adapter might disassociate from the
+network with which it's associated, so that you will not be able to use
+any wireless networks with that adapter.  This could prevent accessing
+files on a network server, or resolving host names or network addresses,
+if you are capturing in monitor mode and are not connected to another
+network with another adapter.
 
 =item -L
 

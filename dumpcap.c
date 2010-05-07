@@ -322,6 +322,9 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
   fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
   fprintf(output, "  -p                       don't capture in promiscuous mode\n");
+#ifdef HAVE_PCAP_CREATE
+  fprintf(output, "  -I                       capture in monitor mode, if available\n");
+#endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   fprintf(output, "  -B <buffer size>         size of kernel buffer (def: platform-dependent)\n");
 #endif
@@ -1486,6 +1489,8 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
       if (capture_opts->buffer_size > 1) {
         pcap_set_buffer_size(ld->pcap_h, capture_opts->buffer_size * 1024 * 1024);
       }
+      if (capture_opts->monitor_mode)
+        pcap_set_rfmon(ld->pcap_h, 1);
       if (pcap_activate(ld->pcap_h) != 0) {
         /* Failed to activate, set to NULL */
         pcap_close(ld->pcap_h);
@@ -2698,19 +2703,34 @@ main(int argc, char *argv[])
 #endif
 
 #ifdef HAVE_PCAP_REMOTE
-#define OPTSTRING_INIT "a:A:b:c:Df:hi:Lm:MnprSs:uvw:y:Z:"
+#define OPTSTRING_A "A:"
+#define OPTSTRING_r "r"
+#define OPTSTRING_u "u"
 #else
-#define OPTSTRING_INIT "a:b:c:Df:hi:LMnpSs:vw:y:Z:"
+#define OPTSTRING_A ""
+#define OPTSTRING_r ""
+#define OPTSTRING_u ""
+#endif
+
+#ifdef HAVE_PCAP_SETSAMPLING
+#define OPTSTRING_m "m:"
+#else
+#define OPTSTRING_m ""
 #endif
 
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-#define OPTSTRING_EXTRA "B:"
+#define OPTSTRING_B "B:"
 #else
-#define OPTSTRING_EXTRA ""
+#define OPTSTRING_B ""
 #endif  /* _WIN32 or HAVE_PCAP_CREATE */
 
-  char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_EXTRA) - 1] =
-    OPTSTRING_INIT OPTSTRING_EXTRA;
+#ifdef HAVE_PCAP_CREATE
+#define OPTSTRING_I "I"
+#else
+#define OPTSTRING_I ""
+#endif
+
+#define OPTSTRING "a:" OPTSTRING_A "b:c:Df:hi:" OPTSTRING_I "L" OPTSTRING_m "Mnp" OPTSTRING_r "Ss:" OPTSTRING_u "vw:y:Z:"
 
 #ifdef DEBUG_CHILD_DUMPCAP
   if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
@@ -2935,7 +2955,7 @@ main(int argc, char *argv[])
   global_capture_opts.has_ring_num_files  = TRUE;
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, optstring)) != -1) {
+  while ((opt = getopt(argc, argv, OPTSTRING)) != -1) {
     switch (opt) {
       case 'h':        /* Print help and exit */
         print_usage(TRUE);
@@ -2980,6 +3000,9 @@ main(int argc, char *argv[])
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
       case 'B':        /* Buffer size */
 #endif /* _WIN32 or HAVE_PCAP_CREATE */
+#ifdef HAVE_PCAP_CREATE
+      case 'I':        /* Monitor mode */
+#endif
         status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
         if(status != 0) {
           exit_main(status);

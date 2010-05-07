@@ -114,6 +114,9 @@ typedef struct capture_options_tag {
     gboolean promisc_mode;          /**< Capture in promiscuous mode */
     int      linktype;              /**< Data link type to use, or -1 for
                                          "use default" */
+#ifdef HAVE_PCAP_CREATE
+    gboolean monitor_mode;          /**< Capture in monitor mode, if available */
+#endif
     gboolean saving_to_file;        /**< TRUE if capture is writing to a file */
     gchar    *save_file;            /**< the capture file name */
     gboolean use_pcapng;            /**< TRUE if file format is pcapng */
