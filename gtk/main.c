@@ -2019,16 +2019,25 @@ main(int argc, char *argv[])
 #endif
 #endif
 
-#define OPTSTRING_INIT "a:b:c:C:Df:g:Hhi:jJ:kK:lLm:nN:o:P:pQr:R:Ss:t:u:vw:X:y:z:"
-
-#if defined HAVE_LIBPCAP && defined HAVE_PCAP_CREATE
-#define OPTSTRING_EXTRA "B:"
+#ifdef HAVE_LIBPCAP
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#define OPTSTRING_B "B:"
 #else
-#define OPTSTRING_EXTRA ""
+#define OPTSTRING_B ""
+#endif  /* _WIN32 or HAVE_PCAP_CREATE */
+#else /* HAVE_LIBPCAP */
+#define OPTSTRING_B ""
+#endif  /* HAVE_LIBPCAP */
+
+#ifdef HAVE_PCAP_CREATE
+#define OPTSTRING_I "I"
+#else
+#define OPTSTRING_I ""
 #endif
 
-  char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_EXTRA) - 1] =
-    OPTSTRING_INIT OPTSTRING_EXTRA;
+#define OPTSTRING "a:b:" OPTSTRING_B "c:C:Df:g:Hhi:" OPTSTRING_I "jJ:kK:lLm:nN:o:P:pQr:R:Ss:t:u:vw:X:y:z:"
+
+  static const char optstring[] = OPTSTRING;
 
   /*
    * Get credential information for later use, and drop privileges
@@ -2388,6 +2397,9 @@ main(int argc, char *argv[])
       case 'H':        /* Hide capture info dialog box */
       case 'i':        /* Use interface xxx */
       case 'p':        /* Don't capture in promiscuous mode */
+#ifdef HAVE_PCAP_CREATE
+      case 'I':        /* Capture in monitor mode, if available */
+#endif
       case 'Q':        /* Quit after capture (just capture to file) */
       case 's':        /* Set the snapshot (capture) length */
       case 'S':        /* "Sync" mode: used for following file ala tail -f */
