@@ -3036,7 +3036,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         action_item = proto_tree_add_item(tree, hf_action, tvb, offset, 1, TRUE);
         action_tree = proto_item_add_subtree(action_item, ett_sched_tree);
 
-        switch (tvb_get_guint8(tvb, offset))
+        switch (tvb_get_guint8(tvb, offset) & 0x7f)
           {
             case CAT_SPECTRUM_MGMT:
               {
@@ -9141,18 +9141,31 @@ proto_register_ieee80211 (void)
 
   static const value_string category_codes[] = {
     {CAT_SPECTRUM_MGMT, "Spectrum Management (SM)"},
+    {0x80 | CAT_SPECTRUM_MGMT, "Spectrum Management (SM) (error)"},
     {CAT_QOS, "Quality of Service (QoS)"},
+    {0x80 | CAT_QOS, "Quality of Service (QoS (error))"},
     {CAT_DLS, "Direct-Link Setup (DLS)"},
+    {0x80 | CAT_DLS, "Direct-Link Setup (DLS) (error)"},
     {CAT_BLOCK_ACK, "Block Ack"},
+    {0x80 | CAT_BLOCK_ACK, "Block Ack (error)"},
     {CAT_PUBLIC, "Public Action"},
+    {0x80 | CAT_PUBLIC, "Public Action (error)"},
     {CAT_RADIO_MEASUREMENT, "Radio Measurement"},
+    {0x80 | CAT_RADIO_MEASUREMENT, "Radio Measurement (error)"},
     {CAT_FAST_BSS_TRANSITION, "Fast BSS Transition"},
+    {0x80 | CAT_FAST_BSS_TRANSITION, "Fast BSS Transition (error)"},
     {CAT_HT, "High Throughput"},
+    {0x80 | CAT_HT, "High Throughput (error)"},
     {CAT_SA_QUERY, "SA Query"},
+    {0x80 | CAT_SA_QUERY, "SA Query (error)"},
     {CAT_PUBLIC_PROTECTED, "Protected Dual of Public Action"},
+    {0x80 | CAT_PUBLIC_PROTECTED, "Protected Dual of Public Action (error)"},
     {CAT_MGMT_NOTIFICATION, "Management Notification"},
+    {0x80 | CAT_MGMT_NOTIFICATION, "Management Notification (error)"},
     {CAT_VENDOR_SPECIFIC_PROTECTED, "Vendor-specific Protected"},
+    {0x80 | CAT_VENDOR_SPECIFIC_PROTECTED, "Vendor-specific Protected (error)"},
     {CAT_VENDOR_SPECIFIC, "Vendor Specific"},
+    {0x80 | CAT_VENDOR_SPECIFIC, "Vendor Specific (error)"},
     {0, NULL}
   };
 
