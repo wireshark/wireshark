@@ -1162,7 +1162,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -S                       update packet display when new packets are captured\n");
   fprintf(output, "  -l                       turn on automatic scrolling while -S is in use\n");
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-  fprintf(output, "  -B <buffer size>         size of kernel buffer (def: 1MB)\n");
+  fprintf(output, "  -B <buffer size>         size of kernel buffer\n");
 #endif
   fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
   fprintf(output, "  -D                       print list of interfaces and exit\n");

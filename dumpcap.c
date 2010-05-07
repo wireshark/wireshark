@@ -323,7 +323,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
   fprintf(output, "  -p                       don't capture in promiscuous mode\n");
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-  fprintf(output, "  -B <buffer size>         size of kernel buffer (def: 1MB)\n");
+  fprintf(output, "  -B <buffer size>         size of kernel buffer\n");
 #endif
   fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
   fprintf(output, "  -D                       print list of interfaces and exit\n");
