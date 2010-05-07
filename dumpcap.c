@@ -2730,7 +2730,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_I ""
 #endif
 
-#define OPTSTRING "a:" OPTSTRING_A "b:c:Df:hi:" OPTSTRING_I "L" OPTSTRING_m "Mnp" OPTSTRING_r "Ss:" OPTSTRING_u "vw:y:Z:"
+#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:hi:" OPTSTRING_I "L" OPTSTRING_m "Mnp" OPTSTRING_r "Ss:" OPTSTRING_u "vw:y:Z:"
 
 #ifdef DEBUG_CHILD_DUMPCAP
   if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
