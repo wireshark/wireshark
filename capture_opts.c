@@ -104,6 +104,9 @@ capture_opts_init(capture_options *capture_opts, void *cf)
   capture_opts->snaplen                 = WTAP_MAX_PACKET_SIZE; /* snapshot length - default is
                                                                    infinite, in effect */
   capture_opts->promisc_mode            = TRUE;             /* promiscuous mode is the default */
+#ifdef HAVE_PCAP_CREATE
+  capture_opts->monitor_mode            = FALSE;
+#endif
   capture_opts->linktype                = -1;               /* the default linktype */
   capture_opts->saving_to_file          = FALSE;
   capture_opts->save_file               = NULL;
@@ -491,6 +494,11 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
             return status;
         }
         break;
+#ifdef HAVE_PCAP_CREATE
+    case 'I':        /* Capture in monitor mode */
+        capture_opts->monitor_mode = TRUE;
+        break;
+#endif
     case 'k':        /* Start capture immediately */
         *start_capture = TRUE;
         break;
