@@ -35,6 +35,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_LIBZ
+#include <zlib.h>
+#endif
+
 #include "wtap-int.h"
 #include "wtap.h"
 
@@ -645,6 +649,14 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	 * anyway.
 	 */
 	wth->phdr.pkt_encap = wth->file_encap;
+
+#if defined(ZLIB_VERNUM) && ZLIB_VERNUM == 0x1250
+	/* Reset EOF */
+	/* g_log(NULL, G_LOG_LEVEL_DEBUG, "wtap_read: eof before seek: %d", gzeof(wth->fh)); */
+	if (gzeof(wth->fh))
+		gzseek(wth->fh, 0, SEEK_CUR);
+	/* g_log(NULL, G_LOG_LEVEL_DEBUG, "wtap_read: eof after seek: %d", gzeof(wth->fh)); */
+#endif
 
 	if (!wth->subtype_read(wth, err, err_info, data_offset))
 		return FALSE;	/* failure */
