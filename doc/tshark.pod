@@ -19,6 +19,7 @@ S<[ B<-f> E<lt>capture filterE<gt> ]>
 S<[ B<-F> E<lt>file formatE<gt> ]>
 S<[ B<-h> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
+S<[ B<-I> ]>
 S<[ B<-K> E<lt>keytabE<gt> ]>
 S<[ B<-l> ]>
 S<[ B<-L> ]>
@@ -301,6 +302,18 @@ standard libpcap format.
 
 Note: the Win32 version of B<TShark> doesn't support capturing from
 pipes!
+
+=item -I
+
+Put the interface in "monitor mode"; this is supported only on IEEE
+802.11 Wi-Fi interfaces, and supported only on some operating systems.
+
+Note that in monitor mode the adapter might disassociate from the
+network with which it's associated, so that you will not be able to use
+any wireless networks with that adapter.  This could prevent accessing
+files on a network server, or resolving host names or network addresses,
+if you are capturing in monitor mode and are not connected to another
+network with another adapter.
 
 =item -K  E<lt>keytabE<gt>
 

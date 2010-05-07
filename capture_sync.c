@@ -357,6 +357,10 @@ sync_pipe_start(capture_options *capture_opts) {
 
     if (!capture_opts->promisc_mode)
       argv = sync_pipe_add_arg(argv, &argc, "-p");
+#ifdef HAVE_PCAP_CREATE
+    if (capture_opts->monitor_mode)
+      argv = sync_pipe_add_arg(argv, &argc, "-I");
+#endif
     if (capture_opts->use_pcapng)
       argv = sync_pipe_add_arg(argv, &argc, "-n");
 #ifdef HAVE_PCAP_REMOTE

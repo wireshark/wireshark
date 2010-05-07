@@ -232,6 +232,9 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
   fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
   fprintf(output, "  -p                       don't capture in promiscuous mode\n");
+#ifdef HAVE_PCAP_CREATE
+  fprintf(output, "  -I                       capture in monitor mode, if available\n");
+#endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   fprintf(output, "  -B <buffer size>         size of kernel buffer (def: platform-dependent)\n");
 #endif
@@ -767,18 +770,25 @@ main(int argc, char *argv[])
   GLogLevelFlags       log_flags;
   int                  optind_initial;
 
-#define OPTSTRING_INIT "a:b:c:C:d:De:E:f:F:G:hi:K:lLnN:o:pPqr:R:s:St:T:u:vVw:xX:y:z:"
 #ifdef HAVE_LIBPCAP
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-#define OPTSTRING_EXTRA "B:"
+#define OPTSTRING_B "B:"
 #else
-#define OPTSTRING_EXTRA ""
+#define OPTSTRING_B ""
 #endif  /* _WIN32 or HAVE_PCAP_CREATE */
-#else
-#define OPTSTRING_EXTRA ""
+#else /* HAVE_LIBPCAP */
+#define OPTSTRING_B ""
 #endif  /* HAVE_LIBPCAP */
 
-  static const char    optstring[] = OPTSTRING_INIT OPTSTRING_EXTRA;
+#ifdef HAVE_PCAP_CREATE
+#define OPTSTRING_I "I"
+#else
+#define OPTSTRING_I ""
+#endif
+
+#define OPTSTRING "a:b:" OPTSTRING_B "c:C:d:De:E:f:F:G:hi:" OPTSTRING_I "K:lLnN:o:pPqr:R:s:St:T:u:vVw:xX:y:z:"
+
+  static const char    optstring[] = OPTSTRING;
 
   /*
    * Get credential information for later use.
@@ -1001,6 +1011,9 @@ main(int argc, char *argv[])
       case 'f':        /* capture filter */
       case 'i':        /* Use interface x */
       case 'p':        /* Don't capture in promiscuous mode */
+#ifdef HAVE_PCAP_CREATE
+      case 'I':        /* Capture in monitor mode, if available */
+#endif
       case 's':        /* Set the snapshot (capture) length */
       case 'w':        /* Write to capture file x */
       case 'y':        /* Set the pcap data link type */
