@@ -801,6 +801,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 
   /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: %u new: %u", cf->count, to_read);*/
 
+  wtap_cleareof(cf->wth);
   while (to_read != 0 && (wtap_read(cf->wth, err, &err_info, &data_offset))) {
     if (cf->state == FILE_READ_ABORTED) {
       /* Well, the user decided to exit Wireshark.  Break out of the
