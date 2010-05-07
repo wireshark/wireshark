@@ -504,6 +504,7 @@ main(int argc, char *argv[])
 
     timestamp_set_type(TS_RELATIVE);
     timestamp_set_precision(TS_PREC_AUTO);
+    timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
 
     /* Register all dissectors; we must do this before checking for the
        "-G" flag, as the "-G" flag dumps information registered by the

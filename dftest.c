@@ -80,6 +80,7 @@ main(int argc, char **argv)
 	}
 
 	timestamp_set_type(TS_RELATIVE);
+	timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
 
 	/* Register all dissectors; we must do this before checking for the
 	   "-g" flag, as the "-g" flag dumps a list of fields registered
