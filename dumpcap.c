@@ -72,6 +72,7 @@
 
 #include "ringbuffer.h"
 #include "clopts_common.h"
+#include "console_io.h"
 #include "cmdarg_err.h"
 #include "version_info.h"
 
@@ -380,6 +381,26 @@ show_version(GString *comp_info_str, GString *runtime_info_str)
         "%s\n"
         "See http://www.wireshark.org for more information.\n",
         wireshark_svnversion, get_copyright_info() ,comp_info_str->str, runtime_info_str->str);
+}
+
+/*
+ * Print to the standard error.  This is a command-line tool, so there's
+ * no need to pop up a console.
+ */
+void
+vfprintf_stderr(const char *fmt, va_list ap)
+{
+  vfprintf(stderr, fmt, ap);
+}
+
+void
+fprintf_stderr(const char *fmt, ...)
+{
+  va_list ap;
+
+  va_start(ap, fmt);
+  vfprintf_stderr(fmt, ap);
+  va_end(ap);
 }
 
 /*

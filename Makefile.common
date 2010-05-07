@@ -69,6 +69,7 @@ WIRESHARK_COMMON_INCLUDES =	\
 	cfile.h	\
 	clopts_common.h	\
 	cmdarg_err.h	\
+	console_io.h	\
 	color.h	\
 	disabled_protos.h	\
 	file.h	\

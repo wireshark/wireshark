@@ -66,6 +66,7 @@
 #include "capture_opts.h"
 #include "ringbuffer.h"
 #include "clopts_common.h"
+#include "console_io.h"
 #include "cmdarg_err.h"
 
 #include "capture_ifinfo.h"
@@ -577,16 +578,16 @@ capture_opts_print_link_layer_types(GList *lt_list)
     GList *lt_entry;
     data_link_info_t *data_link_info;
 
-    cmdarg_err_cont("Data link types (use option -y to set):");
+    fprintf_stderr("Data link types (use option -y to set):\n");
     for (lt_entry = lt_list; lt_entry != NULL;
          lt_entry = g_list_next(lt_entry)) {
         data_link_info = (data_link_info_t *)lt_entry->data;
-        cmdarg_err_cont("  %s", data_link_info->name);
+        fprintf_stderr("  %s", data_link_info->name);
         if (data_link_info->description != NULL)
-            cmdarg_err_cont(" (%s)", data_link_info->description);
+            fprintf_stderr(" (%s)", data_link_info->description);
         else
-            cmdarg_err_cont(" (not supported)");
-        putchar('\n');
+            fprintf_stderr(" (not supported)");
+        fprintf_stderr("\n");
     }
 }
 

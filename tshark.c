@@ -77,6 +77,7 @@
 #include <epan/addr_resolv.h>
 #include "util.h"
 #include "clopts_common.h"
+#include "console_io.h"
 #include "cmdarg_err.h"
 #include "version_info.h"
 #include <epan/plugins.h>
@@ -3395,6 +3396,26 @@ write_failure_message(const char *filename, int err)
 {
   cmdarg_err("An error occurred while writing to the file \"%s\": %s.",
           filename, strerror(err));
+}
+
+/*
+ * Print to the standard error.  This is a command-line tool, so there's
+ * no need to pop up a console.
+ */
+void
+vfprintf_stderr(const char *fmt, va_list ap)
+{
+  vfprintf(stderr, fmt, ap);
+}
+
+void
+fprintf_stderr(const char *fmt, ...)
+{
+  va_list ap;
+
+  va_start(ap, fmt);
+  vfprintf_stderr(fmt, ap);
+  va_end(ap);
 }
 
 /*

@@ -97,6 +97,7 @@
 #include "../ui_util.h"
 #include "../util.h"
 #include "../clopts_common.h"
+#include "../console_io.h"
 #include "../cmdarg_err.h"
 #include "../version_info.h"
 #include "../merge.h"
@@ -1247,24 +1248,44 @@ show_version(void)
 }
 
 /*
- * Report an error in command-line arguments.
- * Creates a console on Windows.
+ * Print to the standard error.  On Windows, create a console for the
+ * standard error to show up on, if necessary.
  * XXX - pop this up in a window of some sort on UNIX+X11 if the controlling
  * terminal isn't the standard error?
+ */
+void
+vfprintf_stderr(const char *fmt, va_list ap)
+{
+#ifdef _WIN32
+  create_console();
+#endif
+  vfprintf(stderr, fmt, ap);
+}
+
+void
+fprintf_stderr(const char *fmt, ...)
+{
+  va_list ap;
+
+  va_start(ap, fmt);
+  vfprintf_stderr(fmt, ap);
+  va_end(ap);
+}
+
+/*
+ * Report an error in command-line arguments.
+ * Creates a console on Windows.
  */
 void
 cmdarg_err(const char *fmt, ...)
 {
   va_list ap;
 
-#ifdef _WIN32
-  create_console();
-#endif
+  fprintf_stderr("wireshark: ");
   va_start(ap, fmt);
-  fprintf(stderr, "wireshark: ");
-  vfprintf(stderr, fmt, ap);
-  fprintf(stderr, "\n");
+  vfprintf_stderr(fmt, ap);
   va_end(ap);
+  fprintf_stderr("\n");
 }
 
 /*
@@ -1278,12 +1299,9 @@ cmdarg_err_cont(const char *fmt, ...)
 {
   va_list ap;
 
-#ifdef _WIN32
-  create_console();
-#endif
   va_start(ap, fmt);
-  vfprintf(stderr, fmt, ap);
-  fprintf(stderr, "\n");
+  vfprintf_stderr(fmt, ap);
+  fprintf_stderr("\n");
   va_end(ap);
 }
 
