@@ -175,9 +175,9 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
 extern void
 capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_options *capture_opts);
 
-/* list link layer types */
-extern int
-capture_opts_list_link_layer_types(capture_options *capture_opts, gboolean machine_readable);
+/* print list of link layer types */
+extern void
+capture_opts_print_link_layer_types(GList *lt_list);
 
 /* list interfaces */
 extern int

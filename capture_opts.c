@@ -571,56 +571,23 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
     return 0;
 }
 
-/*
- * If you change the output format of this function, you MUST update
- * capture_sync.c:sync_linktype_list_open() accordingly!
- */
-int
-capture_opts_list_link_layer_types(capture_options *capture_opts, gboolean machine_readable)
+void
+capture_opts_print_link_layer_types(GList *lt_list)
 {
-    gchar *err_str;
-    const gchar *desc_str;
-    GList *lt_list, *lt_entry;
+    GList *lt_entry;
     data_link_info_t *data_link_info;
 
-    /* Get the list of link-layer types for the capture device. */
-    lt_list = get_pcap_linktype_list(capture_opts->iface, &err_str);
-    if (lt_list == NULL) {
-      if (err_str != NULL) {
-        cmdarg_err("The list of data link types for the capture device \"%s\" could not be obtained (%s)."
-         "Please check to make sure you have sufficient permissions, and that\n"
-         "you have the proper interface or pipe specified.\n", capture_opts->iface, err_str);
-        g_free(err_str);
-      } else
-        cmdarg_err("The capture device \"%s\" has no data link types.", capture_opts->iface);
-      return 2;
-    }
-    if (machine_readable) {    /* tab-separated values to stdout */
-        for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-          data_link_info = (data_link_info_t *)lt_entry->data;
-          if (data_link_info->description != NULL)
-              desc_str = data_link_info->description;
-          else
-              desc_str = "(not supported)";
-          printf("%d\t%s\t%s\n", data_link_info->dlt, data_link_info->name,
-              desc_str);
-        }
-    } else {
-        cmdarg_err_cont("Data link types (use option -y to set):");
-        for (lt_entry = lt_list; lt_entry != NULL;
-             lt_entry = g_list_next(lt_entry)) {
-          data_link_info = (data_link_info_t *)lt_entry->data;
-          cmdarg_err_cont("  %s", data_link_info->name);
-          if (data_link_info->description != NULL)
+    cmdarg_err_cont("Data link types (use option -y to set):");
+    for (lt_entry = lt_list; lt_entry != NULL;
+         lt_entry = g_list_next(lt_entry)) {
+        data_link_info = (data_link_info_t *)lt_entry->data;
+        cmdarg_err_cont("  %s", data_link_info->name);
+        if (data_link_info->description != NULL)
             cmdarg_err_cont(" (%s)", data_link_info->description);
-          else
+        else
             cmdarg_err_cont(" (not supported)");
-          putchar('\n');
-        }
+        putchar('\n');
     }
-    free_pcap_linktype_list(lt_list);
-
-    return 0;
 }
 
 /* Return an ASCII-formatted list of interfaces. */

@@ -89,6 +89,7 @@
 
 #ifdef HAVE_LIBPCAP
 #include "capture_ui_utils.h"
+#include "capture_ifinfo.h"
 #include "capture-pcap-util.h"
 #ifdef _WIN32
 #include "capture-wpcap.h"
@@ -1620,8 +1621,24 @@ main(int argc, char *argv[])
 
     /* if requested, list the link layer types and exit */
     if (list_link_layer_types) {
-        status = capture_opts_list_link_layer_types(&global_capture_opts, FALSE);
-        exit(status);
+        /* Get the list of link-layer types for the capture device. */
+        GList *lt_list;
+        gchar *err_str;
+
+        lt_list = capture_pcap_linktype_list(global_capture_opts.iface, &err_str);
+        if (lt_list == NULL) {
+            if (err_str != NULL) {
+                cmdarg_err("The list of data link types for the capture device \"%s\" could not be obtained (%s)."
+                 "Please check to make sure you have sufficient permissions, and that\n"
+                 "you have the proper interface or pipe specified.\n", global_capture_opts.iface, err_str);
+                g_free(err_str);
+            } else
+                cmdarg_err("The capture device \"%s\" has no data link types.", global_capture_opts.iface);
+            exit(2);
+        }
+        capture_opts_print_link_layer_types(lt_list);
+        free_pcap_linktype_list(lt_list);
+        exit(0);
     }
 
     if (print_packet_info) {

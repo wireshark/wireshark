@@ -49,8 +49,6 @@ GList *get_remote_interface_list(const char *hostname, const char *port,
                                  const char *passwd, int *err, char **err_str);
 #endif
 
-GList *get_pcap_linktype_list(const char *devname, char **err_str);
-
 /* get/set the link type of an interface */
 /* (only used in capture_loop.c / capture-pcap-util.c) */
 int get_pcap_linktype(pcap_t *pch, const char *devname);

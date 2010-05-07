@@ -449,6 +449,135 @@ capture_interface_list(int *err, char **err_str)
   return get_interface_list(err, err_str);
 }
 
+/*
+ * Get the data-link types available for a libpcap device.
+ */
+static data_link_info_t *
+create_data_link_info(int dlt)
+{
+    data_link_info_t *data_link_info;
+    const char *text;
+
+    data_link_info = (data_link_info_t *)g_malloc(sizeof (data_link_info_t));
+    data_link_info->dlt = dlt;
+    text = pcap_datalink_val_to_name(dlt);
+    if (text != NULL)
+        data_link_info->name = g_strdup(text);
+    else
+        data_link_info->name = g_strdup_printf("DLT %d", dlt);
+    text = pcap_datalink_val_to_description(dlt);
+    if (text != NULL)
+        data_link_info->description = g_strdup(text);
+    else
+        data_link_info->description = NULL;
+    return data_link_info;
+}
+
+static GList *
+get_pcap_linktype_list(const char *devname, char **err_str)
+{
+    GList *linktype_list = NULL;
+    pcap_t *pch;
+    int deflt;
+    char errbuf[PCAP_ERRBUF_SIZE];
+#ifdef HAVE_PCAP_LIST_DATALINKS
+    int *linktypes;
+    int i, nlt;
+#endif
+    data_link_info_t *data_link_info;
+
+#ifdef HAVE_PCAP_OPEN
+    pch = pcap_open(devname, MIN_PACKET_SIZE, 0, 0, NULL, errbuf);
+#else
+    pch = pcap_open_live(devname, MIN_PACKET_SIZE, 0, 0, errbuf);
+#endif
+    if (pch == NULL) {
+        if (err_str != NULL)
+            *err_str = g_strdup(errbuf);
+            return NULL;
+    }
+    deflt = get_pcap_linktype(pch, devname);
+#ifdef HAVE_PCAP_LIST_DATALINKS
+    nlt = pcap_list_datalinks(pch, &linktypes);
+    if (nlt == 0 || linktypes == NULL) {
+        pcap_close(pch);
+        if (err_str != NULL)
+            *err_str = NULL; /* an empty list doesn't mean an error */
+        return NULL;
+    }
+    for (i = 0; i < nlt; i++) {
+        data_link_info = create_data_link_info(linktypes[i]);
+
+        /*
+         * XXX - for 802.11, make the most detailed 802.11
+         * version the default, rather than the one the
+         * device has as the default?
+         */
+        if (linktypes[i] == deflt)
+            linktype_list = g_list_prepend(linktype_list, data_link_info);
+        else
+            linktype_list = g_list_append(linktype_list, data_link_info);
+    }
+#ifdef HAVE_PCAP_FREE_DATALINKS
+    pcap_free_datalinks(linktypes);
+#else
+    /*
+     * In Windows, there's no guarantee that if you have a library
+     * built with one version of the MSVC++ run-time library, and
+     * it returns a pointer to allocated data, you can free that
+     * data from a program linked with another version of the
+     * MSVC++ run-time library.
+     *
+     * This is not an issue on UN*X.
+     *
+     * See the mail threads starting at
+     *
+     *    http://www.winpcap.org/pipermail/winpcap-users/2006-September/001421.html
+     *
+     * and
+     *
+     *    http://www.winpcap.org/pipermail/winpcap-users/2008-May/002498.html
+     */
+#ifndef _WIN32
+#define xx_free free  /* hack so checkAPIs doesn't complain */
+    xx_free(linktypes);
+#endif /* _WIN32 */
+#endif /* HAVE_PCAP_FREE_DATALINKS */
+#else /* HAVE_PCAP_LIST_DATALINKS */
+
+    data_link_info = create_data_link_info(deflt);
+    linktype_list = g_list_append(linktype_list, data_link_info);
+#endif /* HAVE_PCAP_LIST_DATALINKS */
+
+    pcap_close(pch);
+
+    if (err_str != NULL)
+        *err_str = NULL;
+    return linktype_list;
+}
+
+/*
+ * If you change the machine-readable output format of this function,
+ * you MUST update capture_sync.c:sync_linktype_list_open() accordingly!
+ */
+static void
+print_machine_readable_link_layer_types(GList *lt_list)
+{
+    GList *lt_entry;
+    data_link_info_t *data_link_info;
+    const gchar *desc_str;
+
+    for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
+      data_link_info = (data_link_info_t *)lt_entry->data;
+      if (data_link_info->description != NULL)
+        desc_str = data_link_info->description;
+      else
+        desc_str = "(not supported)";
+      printf("%d\t%s\t%s\n", data_link_info->dlt, data_link_info->name,
+             desc_str);
+    }
+}
+
 typedef struct {
     char *name;
     pcap_t *pch;
@@ -3123,8 +3252,27 @@ main(int argc, char *argv[])
     status = capture_opts_list_interfaces(machine_readable);
     exit_main(status);
   } else if (list_link_layer_types) {
-    status = capture_opts_list_link_layer_types(&global_capture_opts, machine_readable);
-    exit_main(status);
+    /* Get the list of link-layer types for the capture device. */
+    GList *lt_list;
+    gchar *err_str;
+
+    lt_list = get_pcap_linktype_list(global_capture_opts.iface, &err_str);
+    if (lt_list == NULL) {
+      if (err_str != NULL) {
+        cmdarg_err("The list of data link types for the capture device \"%s\" could not be obtained (%s)."
+         "Please check to make sure you have sufficient permissions, and that\n"
+         "you have the proper interface or pipe specified.\n", global_capture_opts.iface, err_str);
+        g_free(err_str);
+      } else
+        cmdarg_err("The capture device \"%s\" has no data link types.", global_capture_opts.iface);
+      exit_main(2);
+    }
+    if (machine_readable)      /* tab-separated values to stdout */
+      print_machine_readable_link_layer_types(lt_list);
+    else
+      capture_opts_print_link_layer_types(lt_list);
+    free_pcap_linktype_list(lt_list);
+    exit_main(0);
   } else if (print_statistics) {
     status = print_statistics_loop(machine_readable);
     exit_main(status);
