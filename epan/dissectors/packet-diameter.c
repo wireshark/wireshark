@@ -280,9 +280,9 @@ static range_t *global_diameter_tcp_port_range;
 static gboolean gbl_diameter_desegment = TRUE;
 
 /* Dissector tables */
-#define VND_3GPP		10415
 static dissector_table_t diameter_dissector_table;
 static dissector_table_t diameter_3gpp_avp_dissector_table;
+static dissector_table_t diameter_ericsson_avp_dissector_table;
 
 static const char* avpflags_str[] = {
 	"---",
@@ -453,7 +453,10 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 	case 0:
 		dissector_try_port(diameter_dissector_table, code, subtvb, c->pinfo, avp_tree);
 		break;
-	case VND_3GPP:
+	case VENDOR_ERICSSON:
+		dissector_try_port(diameter_ericsson_avp_dissector_table, code, subtvb, c->pinfo, avp_tree);
+		break;
+	case VENDOR_THE3GPP:
 		dissector_try_port(diameter_3gpp_avp_dissector_table, code, subtvb, c->pinfo, avp_tree);
 		break;
 	default:
@@ -1515,6 +1518,7 @@ proto_register_diameter(void)
 	/* Register dissector table(s) to do sub dissection of AVP:s ( OctetStrings) */
 	diameter_dissector_table = register_dissector_table("diameter.base", "DIAMETER_3GPP_AVPS", FT_UINT32, BASE_DEC);
 	diameter_3gpp_avp_dissector_table = register_dissector_table("diameter.3gpp", "DIAMETER_3GPP_AVPS", FT_UINT32, BASE_DEC);
+	diameter_ericsson_avp_dissector_table = register_dissector_table("diameter.ericsson", "DIAMETER_ERICSSON_AVPS", FT_UINT32, BASE_DEC);
 
 	/* Set default TCP ports */
 	range_convert_str(&global_diameter_tcp_port_range, DEFAULT_DIAMETER_PORT_RANGE, MAX_UDP_PORT);
