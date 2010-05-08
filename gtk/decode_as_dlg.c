@@ -1608,7 +1608,7 @@ decode_add_sctp_page (const gchar *prompt, const gchar *table_name)
 gboolean
 decode_as_ok(void)
 {
-    return cfile.edt->pi.ethertype || cfile.edt->pi.ipproto ||
+    return (cfile.edt->pi.ethertype != G_MAXINT) || cfile.edt->pi.ipproto ||
 	cfile.edt->pi.ptype == PT_TCP || cfile.edt->pi.ptype == PT_UDP || 
         cfile.edt->pi.mpls_label || 
         cfile.cd_t == WTAP_FILE_BER;
@@ -1635,7 +1635,7 @@ decode_add_notebook (GtkWidget *format_hb)
     g_object_set_data(G_OBJECT(decode_w), E_NOTEBOOK, notebook);
 
     /* Add link level selection page */
-    if (cfile.edt->pi.ethertype) {
+    if (cfile.edt->pi.ethertype != G_MAXINT) {
 	g_snprintf(buffer, sizeof(buffer), "Ethertype 0x%04x", cfile.edt->pi.ethertype);
 	page = decode_add_simple_page(buffer, "Link", "ethertype", cfile.edt->pi.ethertype);
 	label = gtk_label_new("Link");
