@@ -238,7 +238,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -I                       capture in monitor mode, if available\n");
 #endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-  fprintf(output, "  -B <buffer size>         size of kernel buffer (def: platform-dependent)\n");
+  fprintf(output, "  -B <buffer size>         size of kernel buffer (def: 1MB)\n");
 #endif
   fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
   fprintf(output, "  -D                       print list of interfaces and exit\n");

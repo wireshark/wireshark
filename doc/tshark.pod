@@ -181,10 +181,13 @@ to specify two criterion, each must be preceded by the B<-b> option.
 
 =item -B  E<lt>capture buffer sizeE<gt>
 
-Set capture buffer size (in MB; default is platform-dependent).  This is
-used by the the capture driver to buffer packet data until that data can
-be written to disk.  If you encounter packet drops while capturing, try
-to increase this size.
+Set capture buffer size (in MB, default is 1MB).  This is used by the
+the capture driver to buffer packet data until that data can be written
+to disk.  If you encounter packet drops while capturing, try to increase
+this size.  Note that, while B<Tshark> attempts to set the buffer size
+to 1MB by default, and can be told to set it to a larger value, the
+system or interface on which you're capturing might silently limit the
+capture buffer size to a lower value or raise it to a higher value.
 
 This is available on on UNIX systems with libpcap 1.0.0 or later and on
 Windows.  It is not available on UNIX systems with earlier versions of
