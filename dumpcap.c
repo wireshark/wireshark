@@ -52,10 +52,6 @@
 #include <arpa/inet.h>
 #endif
 
-#ifdef NEED_INET_V6DEFS_H
-# include "inet_v6defs.h"
-#endif
-
 #if defined(__APPLE__) && defined(__LP64__)
 #include <sys/utsname.h>
 #endif
@@ -96,6 +92,10 @@
 #ifndef _WIN32
 #include <sys/socket.h>
 #include <sys/un.h>
+#endif
+
+#ifdef NEED_INET_V6DEFS_H
+# include "inet_v6defs.h"
 #endif
 
 #include <wsutil/privileges.h>
