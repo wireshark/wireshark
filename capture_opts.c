@@ -35,30 +35,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>         /* needed to define AF_ values on UNIX */
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>           /* needed to define AF_ values on Windows */
-#endif
-
-#ifdef NEED_INET_V6DEFS_H
-# include "inet_v6defs.h"
-#endif
-
 #include <glib.h>
 
 #include <epan/packet.h>
