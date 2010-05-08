@@ -20,6 +20,7 @@ file_tell
 file_error
 
 wtap_buf_ptr
+wtap_cleareof
 wtap_close
 wtap_dump
 wtap_dump_can_open
