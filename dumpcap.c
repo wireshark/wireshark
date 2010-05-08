@@ -52,6 +52,10 @@
 #include <arpa/inet.h>
 #endif
 
+#ifdef NEED_INET_V6DEFS_H
+# include "inet_v6defs.h"
+#endif
+
 #if defined(__APPLE__) && defined(__LP64__)
 #include <sys/utsname.h>
 #endif
