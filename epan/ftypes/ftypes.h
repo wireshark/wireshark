@@ -59,10 +59,10 @@ enum ftenum {
 	FT_IPv4,
 	FT_IPv6,
 	FT_IPXNET,
-	FT_FRAMENUM,	/* a UINT32, but if selected lets you go to frame with that numbe */
-	FT_PCRE,		/* a compiled Perl-Compatible Regular Expression object */
-	FT_GUID,		/* GUID, UUID */
-	FT_OID,			/* OBJECT IDENTIFIER */
+	FT_FRAMENUM,	/* a UINT32, but if selected lets you go to frame with that number */
+	FT_PCRE,	/* a compiled Perl-Compatible Regular Expression object */
+	FT_GUID,	/* GUID, UUID */
+	FT_OID,		/* OBJECT IDENTIFIER */
 	FT_NUM_TYPES /* last item number plus one */
 };
 
@@ -83,8 +83,8 @@ typedef struct _ftype_t ftype_t;
 
 /* String representation types. */
 enum ftrepr {
-    FTREPR_DISPLAY,
-    FTREPR_DFILTER
+	FTREPR_DISPLAY,
+	FTREPR_DFILTER
 };
 
 typedef enum ftrepr ftrepr_t;
@@ -207,7 +207,7 @@ typedef guint (*FvalueLen)(fvalue_t*);
 typedef void (*FvalueSlice)(fvalue_t*, GByteArray *, guint offset, guint length);
 
 struct _ftype_t {
-    ftenum_t        ftype;
+	ftenum_t		ftype;
 	const char		*name;
 	const char		*pretty_name;
 	int			wire_size;
