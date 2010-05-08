@@ -2019,6 +2019,11 @@ main(int argc, char *argv[])
   gchar               *err_str;
 #else
   gboolean             capture_option_specified = FALSE;
+#ifdef _WIN32
+#ifdef HAVE_AIRPCAP
+  gchar               *err_str;
+#endif
+#endif
 #endif
   gint                 pl_size = 280, tv_size = 95, bv_size = 75;
   gchar               *rc_file, *cf_name = NULL, *rfilter = NULL, *jfilter = NULL;
@@ -2033,12 +2038,6 @@ main(int argc, char *argv[])
   dfilter_t           *jump_to_filter = NULL;
   int                  optind_initial;
   int                  status;
-
-#ifdef _WIN32
-#ifdef HAVE_AIRPCAP
-  char			*err_str;
-#endif
-#endif
 
 #ifdef HAVE_LIBPCAP
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
