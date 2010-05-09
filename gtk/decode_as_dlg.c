@@ -561,7 +561,7 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
     g_object_unref(G_OBJECT(store));
     decode_dcerpc_add_show_list(store);
 
-    /* Put clist into a scrolled window */
+    /* Put list into a scrolled window */
     scrolled_window = scrolled_window_new(NULL, NULL);
     /* this will result to set the width of the dialog to the required size */
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
@@ -665,11 +665,11 @@ decode_change_one_dissector(gchar *table_name, guint selector, GtkWidget *list)
 
 #ifdef DEBUG
 /*
- * Print debugging information about clist selection.  Extract all
- * information from the clist entry that was selected and print it to
+ * Print debugging information about tree view selection.  Extract all
+ * information from the tree view entry that was selected and print it to
  * a dialog window.
  *
- * @param clist The clist to dump.
+ * @param tree_view The tree view to dump.
  *
  * @param leadin A string to print at the start of each line.
  */
@@ -679,8 +679,8 @@ decode_debug (GtkTreeView *tree_view, gchar *leadin)
 	GtkListStore *store;
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
-    gchar *string, *text[E_LIST_S_COLUMNS];
-    dissector_handle_t handle;
+	char *string, *text[E_LIST_S_COLUMNS];
+	dissector_handle_t handle;
 
 	selection = gtk_tree_view_get_selection(tree_view);
 
@@ -694,11 +694,11 @@ decode_debug (GtkTreeView *tree_view, gchar *leadin)
 		string = g_strdup_printf("%s list: <put handle here>, name %s, table %s",
 			leadin, text[E_LIST_S_PROTO_NAME],
 			text[E_LIST_S_TABLE]);
-    } else {
+	} else {
 		string = g_strdup_printf("%s list row (none), aka do not decode", leadin);
-    }
-    simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, string);
-    g_free(string);
+	}
+	simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, string);
+	g_free(string);
 }
 #endif
 
