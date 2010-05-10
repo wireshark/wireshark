@@ -1362,18 +1362,18 @@ static void dissect_backup_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
 static gint
 afs_equal(gconstpointer v, gconstpointer w)
 {
-  const struct afs_request_key *v1 = (const struct afs_request_key *)v;
-  const struct afs_request_key *v2 = (const struct afs_request_key *)w;
+	const struct afs_request_key *v1 = (const struct afs_request_key *)v;
+	const struct afs_request_key *v2 = (const struct afs_request_key *)w;
 
-  if (v1 -> conversation == v2 -> conversation &&
-      v1 -> epoch == v2 -> epoch &&
-      v1 -> cid == v2 -> cid &&
-      v1 -> callnumber == v2 -> callnumber ) {
+	if (v1 -> conversation == v2 -> conversation &&
+	    v1 -> epoch == v2 -> epoch &&
+	    v1 -> cid == v2 -> cid &&
+	    v1 -> callnumber == v2 -> callnumber ) {
 
-    return 1;
-  }
+		return 1;
+	}
 
-  return 0;
+	return 0;
 }
 
 static guint

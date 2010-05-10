@@ -203,7 +203,7 @@ static gint ett_bfd_auth = -1;
  *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *    |                              ...                              |
  *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *      
+ *
  *    The format for Keyed MD5 and Meticulous Keyed MD5 authentication is:
  *     0                   1                   2                   3
  *     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -230,27 +230,28 @@ static gint ett_bfd_auth = -1;
  *    |                              ...                              |
  *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *
- *                          
+ *
  */
 
 
 /* Given the type of authentication being used, return the required length of
  * the authentication header
  */
-static guint8 get_bfd_required_auth_len(guint8 auth_type) 
+static guint8 get_bfd_required_auth_len(guint8 auth_type)
 {
     guint8 auth_len = 0;
+
     switch (auth_type) {
-	case BFD_AUTH_MD5:
-	case BFD_AUTH_MET_MD5:
-	    auth_len = MD5_AUTH_LEN;
-	    break;
-	case BFD_AUTH_SHA1:
-	case BFD_AUTH_MET_SHA1:
-	    auth_len = SHA1_AUTH_LEN;
-	    break;
-	default:
-	    break;
+        case BFD_AUTH_MD5:
+        case BFD_AUTH_MET_MD5:
+            auth_len = MD5_AUTH_LEN;
+            break;
+        case BFD_AUTH_SHA1:
+        case BFD_AUTH_MET_SHA1:
+            auth_len = SHA1_AUTH_LEN;
+            break;
+        default:
+            break;
     }
     return auth_len;
 }
@@ -258,20 +259,20 @@ static guint8 get_bfd_required_auth_len(guint8 auth_type)
 /* Given the type of authentication being used, return the length of
  * checksum field
  */
-static guint8 get_bfd_checksum_len(guint8 auth_type) 
+static guint8 get_bfd_checksum_len(guint8 auth_type)
 {
     guint8 checksum_len = 0;
     switch (auth_type) {
-	case BFD_AUTH_MD5:
-	case BFD_AUTH_MET_MD5:
-	    checksum_len = MD5_CHECKSUM_LEN;
-	    break;
-	case BFD_AUTH_SHA1:
-	case BFD_AUTH_MET_SHA1:
-	    checksum_len = SHA1_CHECKSUM_LEN;
-	    break;
-	default:
-	    break;
+        case BFD_AUTH_MD5:
+        case BFD_AUTH_MET_MD5:
+            checksum_len = MD5_CHECKSUM_LEN;
+            break;
+        case BFD_AUTH_SHA1:
+        case BFD_AUTH_MET_SHA1:
+            checksum_len = SHA1_CHECKSUM_LEN;
+            break;
+        default:
+            break;
     }
     return checksum_len;
 }
@@ -301,7 +302,7 @@ static void dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_
     proto_tree_add_item(auth_tree, hf_bfd_auth_key, tvb, offset + 2, 1, FALSE);
 
     switch (auth_type) {
-	case BFD_AUTH_SIMPLE: 
+	case BFD_AUTH_SIMPLE:
 	    password = tvb_get_ephemeral_string(tvb, offset+3, auth_len-3);
 	    proto_tree_add_string(auth_tree, hf_bfd_auth_password, tvb, offset+3,
 		    auth_len-3, password);
@@ -360,31 +361,31 @@ static void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree *bfd_flags_tree;
 
     const char *sep;
-    
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BFD Control");
     col_clear(pinfo->cinfo, COL_INFO);
 
     bfd_version = ((tvb_get_guint8(tvb, 0) & 0xe0) >> 5);
     bfd_diag = (tvb_get_guint8(tvb, 0) & 0x1f);
     switch (bfd_version) {
-    case 0:
-	bfd_flags = tvb_get_guint8(tvb, 1 );
-        bfd_flags_h = (tvb_get_guint8(tvb, 1) & 0x80);
-        bfd_flags_d_v0 = (tvb_get_guint8(tvb, 1) & 0x40);
-        bfd_flags_p_v0 = (tvb_get_guint8(tvb, 1) & 0x20);
-        bfd_flags_f_v0 = (tvb_get_guint8(tvb, 1) & 0x10);
-	break;
-    case 1:
-    default:
-	bfd_sta = (tvb_get_guint8(tvb, 1) & 0xc0);
-        bfd_flags = (tvb_get_guint8(tvb, 1) & 0x3e);
-        bfd_flags_p = (tvb_get_guint8(tvb, 1) & 0x20);
-        bfd_flags_f = (tvb_get_guint8(tvb, 1) & 0x10);
-        bfd_flags_c = (tvb_get_guint8(tvb, 1) & 0x08);
-        bfd_flags_a = (tvb_get_guint8(tvb, 1) & 0x04);
-        bfd_flags_d = (tvb_get_guint8(tvb, 1) & 0x02);
-        bfd_flags_m = (tvb_get_guint8(tvb, 1) & 0x01);
-	break;
+        case 0:
+            bfd_flags = tvb_get_guint8(tvb, 1 );
+            bfd_flags_h = (tvb_get_guint8(tvb, 1) & 0x80);
+            bfd_flags_d_v0 = (tvb_get_guint8(tvb, 1) & 0x40);
+            bfd_flags_p_v0 = (tvb_get_guint8(tvb, 1) & 0x20);
+            bfd_flags_f_v0 = (tvb_get_guint8(tvb, 1) & 0x10);
+            break;
+        case 1:
+        default:
+            bfd_sta = (tvb_get_guint8(tvb, 1) & 0xc0);
+            bfd_flags = (tvb_get_guint8(tvb, 1) & 0x3e);
+            bfd_flags_p = (tvb_get_guint8(tvb, 1) & 0x20);
+            bfd_flags_f = (tvb_get_guint8(tvb, 1) & 0x10);
+            bfd_flags_c = (tvb_get_guint8(tvb, 1) & 0x08);
+            bfd_flags_a = (tvb_get_guint8(tvb, 1) & 0x04);
+            bfd_flags_d = (tvb_get_guint8(tvb, 1) & 0x02);
+            bfd_flags_m = (tvb_get_guint8(tvb, 1) & 0x01);
+            break;
     }
     bfd_detect_time_multiplier = tvb_get_guint8(tvb, 2);
     bfd_length = tvb_get_guint8(tvb, 3);
@@ -397,18 +398,18 @@ static void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	switch (bfd_version) {
-	case 0:
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Diag: %s, Flags: 0x%02x",
-                     val_to_str(bfd_diag, bfd_control_v0_diag_values, "UNKNOWN"),
-                     bfd_flags);
-	    break;
-	case 1:
-	default:
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Diag: %s, State: %s, Flags: 0x%02x",
-                     val_to_str(bfd_diag, bfd_control_v1_diag_values, "UNKNOWN"),
-                     val_to_str(bfd_sta >> 6 , bfd_control_sta_values, "UNKNOWN"),
-                     bfd_flags);
-	    break;
+            case 0:
+                col_add_fstr(pinfo->cinfo, COL_INFO, "Diag: %s, Flags: 0x%02x",
+                             val_to_str(bfd_diag, bfd_control_v0_diag_values, "UNKNOWN"),
+                             bfd_flags);
+                break;
+            case 1:
+            default:
+                col_add_fstr(pinfo->cinfo, COL_INFO, "Diag: %s, State: %s, Flags: 0x%02x",
+                             val_to_str(bfd_diag, bfd_control_v1_diag_values, "UNKNOWN"),
+                             val_to_str(bfd_sta >> 6 , bfd_control_sta_values, "UNKNOWN"),
+                             bfd_flags);
+                break;
 	}
     }
 
@@ -425,57 +426,57 @@ static void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                                  1, bfd_diag);
 
 	switch (bfd_version) {
-	case 0:
-	    break;
-	case 1:
-	default:
-            proto_tree_add_uint(bfd_tree, hf_bfd_sta, tvb, 1,
-                                1, bfd_sta);
-	    
-	    break;
+            case 0:
+                break;
+            case 1:
+            default:
+                proto_tree_add_uint(bfd_tree, hf_bfd_sta, tvb, 1,
+                                    1, bfd_sta);
+
+                break;
 	}
 	switch (bfd_version) {
-	case 0:
-            ti = proto_tree_add_text ( bfd_tree, tvb, 1, 1, "Message Flags: 0x%02x",
-			               bfd_flags);
-	    bfd_flags_tree = proto_item_add_subtree(ti, ett_bfd_flags);
-	    proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_h, tvb, 1, 1, bfd_flags_h);
-	    proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_d_v0, tvb, 1, 1, bfd_flags_d_v0);
-	    proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_p_v0, tvb, 1, 1, bfd_flags_p_v0);
-	    proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_f_v0, tvb, 1, 1, bfd_flags_f_v0);
+            case 0:
+                ti = proto_tree_add_text ( bfd_tree, tvb, 1, 1, "Message Flags: 0x%02x",
+                                           bfd_flags);
+                bfd_flags_tree = proto_item_add_subtree(ti, ett_bfd_flags);
+                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_h, tvb, 1, 1, bfd_flags_h);
+                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_d_v0, tvb, 1, 1, bfd_flags_d_v0);
+                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_p_v0, tvb, 1, 1, bfd_flags_p_v0);
+                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_f_v0, tvb, 1, 1, bfd_flags_f_v0);
 
-	    sep = initial_sep;
-	    APPEND_BOOLEAN_FLAG(bfd_flags_h, ti, "%sH");
-	    APPEND_BOOLEAN_FLAG(bfd_flags_d_v0, ti, "%sD");
-	    APPEND_BOOLEAN_FLAG(bfd_flags_p_v0, ti, "%sP");
-	    APPEND_BOOLEAN_FLAG(bfd_flags_f_v0, ti, "%sF");
-	    if (sep != initial_sep) {
-		proto_item_append_text (ti, ")");
-	    }
-	    break;
-	case 1:
-	default:
-            ti = proto_tree_add_text ( bfd_tree, tvb, 1, 1, "Message Flags: 0x%02x",
-			               bfd_flags);
-	    bfd_flags_tree = proto_item_add_subtree(ti, ett_bfd_flags);
-	    proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_p, tvb, 1, 1, bfd_flags_p);
-	    proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_f, tvb, 1, 1, bfd_flags_f);
-	    proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_c, tvb, 1, 1, bfd_flags_c);
-	    proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_a, tvb, 1, 1, bfd_flags_a);
-	    proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_d, tvb, 1, 1, bfd_flags_d);
-	    proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_m, tvb, 1, 1, bfd_flags_m);
+                sep = initial_sep;
+                APPEND_BOOLEAN_FLAG(bfd_flags_h, ti, "%sH");
+                APPEND_BOOLEAN_FLAG(bfd_flags_d_v0, ti, "%sD");
+                APPEND_BOOLEAN_FLAG(bfd_flags_p_v0, ti, "%sP");
+                APPEND_BOOLEAN_FLAG(bfd_flags_f_v0, ti, "%sF");
+                if (sep != initial_sep) {
+                    proto_item_append_text (ti, ")");
+                }
+                break;
+            case 1:
+            default:
+                ti = proto_tree_add_text ( bfd_tree, tvb, 1, 1, "Message Flags: 0x%02x",
+                                           bfd_flags);
+                bfd_flags_tree = proto_item_add_subtree(ti, ett_bfd_flags);
+                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_p, tvb, 1, 1, bfd_flags_p);
+                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_f, tvb, 1, 1, bfd_flags_f);
+                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_c, tvb, 1, 1, bfd_flags_c);
+                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_a, tvb, 1, 1, bfd_flags_a);
+                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_d, tvb, 1, 1, bfd_flags_d);
+                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_m, tvb, 1, 1, bfd_flags_m);
 
-	    sep = initial_sep;
-	    APPEND_BOOLEAN_FLAG(bfd_flags_p, ti, "%sP");
-	    APPEND_BOOLEAN_FLAG(bfd_flags_f, ti, "%sF");
-	    APPEND_BOOLEAN_FLAG(bfd_flags_c, ti, "%sC");
-	    APPEND_BOOLEAN_FLAG(bfd_flags_a, ti, "%sA");
-	    APPEND_BOOLEAN_FLAG(bfd_flags_d, ti, "%sD");
-	    APPEND_BOOLEAN_FLAG(bfd_flags_m, ti, "%sM");
-	    if (sep != initial_sep) {
-		proto_item_append_text (ti, ")");
-	    }
-	    break;
+                sep = initial_sep;
+                APPEND_BOOLEAN_FLAG(bfd_flags_p, ti, "%sP");
+                APPEND_BOOLEAN_FLAG(bfd_flags_f, ti, "%sF");
+                APPEND_BOOLEAN_FLAG(bfd_flags_c, ti, "%sC");
+                APPEND_BOOLEAN_FLAG(bfd_flags_a, ti, "%sA");
+                APPEND_BOOLEAN_FLAG(bfd_flags_d, ti, "%sD");
+                APPEND_BOOLEAN_FLAG(bfd_flags_m, ti, "%sM");
+                if (sep != initial_sep) {
+                    proto_item_append_text (ti, ")");
+                }
+                break;
 	}
 
         proto_tree_add_uint_format_value(bfd_tree, hf_bfd_detect_time_multiplier, tvb, 2,
@@ -486,7 +487,7 @@ static void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	proto_tree_add_uint_format_value(bfd_tree, hf_bfd_message_length, tvb, 3, 1, bfd_length,
 		"%u bytes", bfd_length);
-        
+
         proto_tree_add_uint(bfd_tree, hf_bfd_my_discriminator, tvb, 4,
                                  4, bfd_my_discriminator);
 
@@ -577,13 +578,13 @@ void proto_register_bfd(void)
         { &hf_bfd_flags_p,
           { "Poll", "bfd.flags.p",
             FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x20,
-            "If set, the transmitting system is expecting a packet with the Final (F) bit in reply", 
+            "If set, the transmitting system is expecting a packet with the Final (F) bit in reply",
 	    HFILL }
         },
         { &hf_bfd_flags_f,
           { "Final", "bfd.flags.f",
             FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x10,
-            "If set, the transmitting system is replying to a packet with the Poll (P) bit set", 
+            "If set, the transmitting system is replying to a packet with the Poll (P) bit set",
 	    HFILL }
         },
         { &hf_bfd_flags_c,

@@ -18,12 +18,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -276,7 +276,7 @@ static const value_string isns_function_ids[] = {
 static const value_string isns_entity_protocol[] = {
     {ISNS_ENTITY_PROTOCOL_NO_PROTOCOL, "No Protocol"},
     {ISNS_ENTITY_PROTOCOL_ISCSI,       "iSCSI"},
-    {ISNS_ENTITY_PROTOCOL_IFCP,        "iFCP"}, 
+    {ISNS_ENTITY_PROTOCOL_IFCP,        "iFCP"},
 
     {0x0,NULL},
 };
@@ -306,7 +306,7 @@ static const value_string isns_errorcode[] = {
     {21,"ESI Not Available"},
     {22,"Invalid Deregistration"},
     {23,"Registration Feature Not Supported"},
-	
+
     {0x0,NULL}
 };
 
@@ -562,29 +562,29 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti = NULL;
     proto_tree *isns_tree = NULL;
-    
+
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "iSNS");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    /* Get the protocol version - only version one at the moment*/ 
+    /* Get the protocol version - only version one at the moment*/
     isns_protocol_version = tvb_get_ntohs(tvb, offset + 0);
-    
+
     /* Get the function id from the packet */
     function_id =  tvb_get_ntohs(tvb, offset + 2);
-    
+
     /* Add the function name in the info col */
-    if (check_col(pinfo->cinfo, COL_INFO)) 
+    if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_str(pinfo->cinfo, COL_INFO,
 	            val_to_str(function_id, isns_function_ids,
 	                       "Unknown function ID 0x%04x"));
-    
+
     /* In the interest of speed, if "tree" is NULL, don't do any work not
-     * necessary to generate protocol tree items. 
+     * necessary to generate protocol tree items.
      */
     if (tree) {
-	guint16 b;	
-	guint16 flags;	
+	guint16 b;
+	guint16 flags;
 	proto_tree *tt;
 	proto_item *tflags;
 	proto_item *tpayload;
@@ -594,7 +594,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * display window when the line in the protocol tree display
 	 * corresponding to that item is selected.
 	 *  tvb_length(tvb) is a handy way to highlight all data from the offset to
-	 *  the end of the packet. 
+	 *  the end of the packet.
 	 */
 
 	/* create display subtree for the protocol */
@@ -690,7 +690,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	case ISNS_FUNC_DEVATTRREG:
 	case ISNS_FUNC_DEVATTRQRY:
-	case ISNS_FUNC_DEVGETNEXT: 
+	case ISNS_FUNC_DEVGETNEXT:
 	case ISNS_FUNC_DEREGDEV:
 	case ISNS_FUNC_SCNREG:
 	case ISNS_FUNC_SCNDEREG:
@@ -732,247 +732,247 @@ get_isns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 static int
 dissect_isns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{	
-	gint length = tvb_length(tvb);
-	guint16 isns_protocol_version;
-	guint16 function_id;
+{
+    gint length = tvb_length(tvb);
+    guint16 isns_protocol_version;
+    guint16 function_id;
 
-	if (length < ISNS_HEADER_SIZE) {
-		/*
-		 * Not enough room to see if this is valid iSNS.
-		 */
-		return 0;
-	}
+    if (length < ISNS_HEADER_SIZE) {
+        /*
+         * Not enough room to see if this is valid iSNS.
+         */
+        return 0;
+    }
 
-	/* Get the protocol version - only version one at the moment*/ 
-	isns_protocol_version = tvb_get_ntohs(tvb, 0);
-	if (isns_protocol_version != ISNS_PROTO_VER)
-		return 0;
+    /* Get the protocol version - only version one at the moment*/
+    isns_protocol_version = tvb_get_ntohs(tvb, 0);
+    if (isns_protocol_version != ISNS_PROTO_VER)
+        return 0;
 
-	/* Get the function id from the packet */
-	function_id =  tvb_get_ntohs(tvb, 2);
-	if (match_strval(function_id, isns_function_ids) == NULL) {
-		/* Unknown function ID */
-		return 0;
-	}
+    /* Get the function id from the packet */
+    function_id =  tvb_get_ntohs(tvb, 2);
+    if (match_strval(function_id, isns_function_ids) == NULL) {
+        /* Unknown function ID */
+        return 0;
+    }
 
-	tcp_dissect_pdus(tvb, pinfo, tree, isns_desegment, 12, get_isns_pdu_len,
-		dissect_isns_pdu);
-	return length;
+    tcp_dissect_pdus(tvb, pinfo, tree, isns_desegment, 12, get_isns_pdu_len,
+                     dissect_isns_pdu);
+    return length;
 }
 
 static int
 dissect_isns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{	
-	gint length = tvb_length(tvb);
-	guint16 isns_protocol_version;
-	guint16 function_id;
+{
+    gint length = tvb_length(tvb);
+    guint16 isns_protocol_version;
+    guint16 function_id;
 
-	if (length < ISNS_HEADER_SIZE) {
-		/*
-		 * Not enough room to see if this is valid iSNS.
-		 */
-		return 0;
-	}
+    if (length < ISNS_HEADER_SIZE) {
+        /*
+         * Not enough room to see if this is valid iSNS.
+         */
+        return 0;
+    }
 
-	/* Get the protocol version - only version one at the moment*/ 
-	isns_protocol_version = tvb_get_ntohs(tvb, 0);
-	if (isns_protocol_version != ISNS_PROTO_VER)
-		return 0;
+    /* Get the protocol version - only version one at the moment*/
+    isns_protocol_version = tvb_get_ntohs(tvb, 0);
+    if (isns_protocol_version != ISNS_PROTO_VER)
+        return 0;
 
-	/* Get the function id from the packet */
-	function_id =  tvb_get_ntohs(tvb, 2);
-	if (match_strval(function_id, isns_function_ids) == NULL) {
-		/* Unknown function ID */
-		return 0;
-	}
+    /* Get the function id from the packet */
+    function_id =  tvb_get_ntohs(tvb, 2);
+    if (match_strval(function_id, isns_function_ids) == NULL) {
+        /* Unknown function ID */
+        return 0;
+    }
 
-	dissect_isns_pdu(tvb, pinfo, tree);
-	return length;
+    dissect_isns_pdu(tvb, pinfo, tree);
+    return length;
 }
 
 
 static guint
 dissect_isns_attr_ip_address(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
 
-	if(parent_tree){
-		item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
-		tree = proto_item_add_subtree(item, ett_isns_attribute);
-	}
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
+        tree = proto_item_add_subtree(item, ett_isns_attribute);
+    }
 
-	proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-	proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
+    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
 
-	return offset+8+len;
+    return offset+8+len;
 }
 
 static guint
 dissect_isns_attr_string(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
 
-	if(parent_tree){
-		item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
-		tree = proto_item_add_subtree(item, ett_isns_attribute);
-	}
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
+        tree = proto_item_add_subtree(item, ett_isns_attribute);
+    }
 
-	proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-	proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
+    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
 
-	return offset+8+len;
+    return offset+8+len;
 }
 
 static guint
 dissect_isns_attr_integer(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len, guint16 function_id)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
 
-	/*
-	 * 5.6.5.1
-	 * in a DevAttrReg , the PGT (tag 51) may be sent as 0 length
-	 * which then means that we wish to register the portal group tag
-	 * as NULL.
-	 * (At least) some servers will respond with PGT as a 0 length 
-	 * value in these instances in the DevAttrRegRsp (eventhough I can
-	 * not find this mentioned in the standard) so allow it for the 
-	 * response as well.
-	 */
-	if(len){
-		if(parent_tree){
-			item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
-			tree = proto_item_add_subtree(item, ett_isns_attribute);
-		}
-	} else if((tag==ISNS_ATTR_TAG_PORTAL_GROUP_TAG)&&((function_id==ISNS_FUNC_DEVATTRREG)||(function_id==ISNS_FUNC_RSP_DEVATTRREG))){
-		/* 5.6.5.1 */
-		if(parent_tree){
-			item=proto_tree_add_uint_format(parent_tree, hf_isns_portal_group_tag, tvb, offset, 8, 0, "PG Tag: <NULL>");
-			tree = proto_item_add_subtree(item, ett_isns_attribute);
-		}
-	} else {
-		if(parent_tree){
-			item=proto_tree_add_text(parent_tree, tvb, offset, 8, "Oops, you surprised me here. a 0 byte integer.");
-			tree = proto_item_add_subtree(item, ett_isns_attribute);
-		}
-	}
+    /*
+     * 5.6.5.1
+     * in a DevAttrReg , the PGT (tag 51) may be sent as 0 length
+     * which then means that we wish to register the portal group tag
+     * as NULL.
+     * (At least) some servers will respond with PGT as a 0 length
+     * value in these instances in the DevAttrRegRsp (eventhough I can
+     * not find this mentioned in the standard) so allow it for the
+     * response as well.
+     */
+    if(len){
+        if(parent_tree){
+            item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
+            tree = proto_item_add_subtree(item, ett_isns_attribute);
+        }
+    } else if((tag==ISNS_ATTR_TAG_PORTAL_GROUP_TAG)&&((function_id==ISNS_FUNC_DEVATTRREG)||(function_id==ISNS_FUNC_RSP_DEVATTRREG))){
+        /* 5.6.5.1 */
+        if(parent_tree){
+            item=proto_tree_add_uint_format(parent_tree, hf_isns_portal_group_tag, tvb, offset, 8, 0, "PG Tag: <NULL>");
+            tree = proto_item_add_subtree(item, ett_isns_attribute);
+        }
+    } else {
+        if(parent_tree){
+            item=proto_tree_add_text(parent_tree, tvb, offset, 8, "Oops, you surprised me here. a 0 byte integer.");
+            tree = proto_item_add_subtree(item, ett_isns_attribute);
+        }
+    }
 
-	proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-	proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
+    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
 
-	return offset+8+len;
+    return offset+8+len;
 }
 
 static guint
 dissect_isns_attr_port(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len,
                        guint16 isns_port_type, packet_info *pinfo)
 {
-	proto_item *tree=NULL;
-	proto_item *item=NULL;
-	guint16 port = tvb_get_ntohs(tvb, offset + 10);
-	guint16 isudp = tvb_get_ntohs(tvb, offset + 8)&0x01;
-        conversation_t *conversation;
+    proto_item *tree=NULL;
+    proto_item *item=NULL;
+    guint16 port = tvb_get_ntohs(tvb, offset + 10);
+    guint16 isudp = tvb_get_ntohs(tvb, offset + 8)&0x01;
+    conversation_t *conversation;
 
-	if(parent_tree){
-            item = proto_tree_add_uint(parent_tree, hf_index, tvb, offset+8, 4, port);
-            tree = proto_item_add_subtree(item, ett_isns_port);
-	}
+    if(parent_tree){
+        item = proto_tree_add_uint(parent_tree, hf_index, tvb, offset+8, 4, port);
+        tree = proto_item_add_subtree(item, ett_isns_port);
+    }
 
-	proto_tree_add_boolean(tree, hf_isns_port_type, tvb, offset+8, 2, isudp);
+    proto_tree_add_boolean(tree, hf_isns_port_type, tvb, offset+8, 2, isudp);
 
-	proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-	proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
+    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
 
-        if ((isns_port_type == ISNS_ESI_PORT) || (isns_port_type == ISNS_SCN_PORT)) {
-            if (isudp) {
-                conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
-                                                  port, 0, NO_PORT_B);
-                if (conversation == NULL) {
-                    conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                                     PT_UDP, port, 0, NO_PORT2_FORCE);
-                    conversation_set_dissector (conversation, isns_udp_handle);
-                }
-            }
-            else {
-                conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_TCP,
-                                                  port, 0, NO_PORT_B);
-                if (conversation == NULL) {
-                    conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                                     PT_TCP, port, 0, NO_PORT2_FORCE);
-                    conversation_set_dissector (conversation, isns_tcp_handle);
-                }
+    if ((isns_port_type == ISNS_ESI_PORT) || (isns_port_type == ISNS_SCN_PORT)) {
+        if (isudp) {
+            conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
+                                              port, 0, NO_PORT_B);
+            if (conversation == NULL) {
+                conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                                 PT_UDP, port, 0, NO_PORT2_FORCE);
+                conversation_set_dissector (conversation, isns_udp_handle);
             }
         }
+        else {
+            conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_TCP,
+                                              port, 0, NO_PORT_B);
+            if (conversation == NULL) {
+                conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                                 PT_TCP, port, 0, NO_PORT2_FORCE);
+                conversation_set_dissector (conversation, isns_tcp_handle);
+            }
+        }
+    }
 
-	return offset+8+len;
+    return offset+8+len;
 }
 
 static guint
 dissect_isns_attr_none(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len)
 {
-	proto_item *tree=NULL;
-	proto_item *item=NULL;
+    proto_item *tree=NULL;
+    proto_item *item=NULL;
 
-	if(parent_tree){
-		item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, 8, FALSE);
-		tree = proto_item_add_subtree(item, ett_isns_port);
-	}
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, 8, FALSE);
+        tree = proto_item_add_subtree(item, ett_isns_port);
+    }
 
-	proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-	proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
+    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
 
-	return offset+8+len;
+    return offset+8+len;
 }
 
 static guint
 dissect_isns_attr_not_decoded_yet(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len)
 {
-	proto_item *tree=NULL;
-	proto_item *item=NULL;
+    proto_item *tree=NULL;
+    proto_item *item=NULL;
 
-	if(parent_tree){
-		item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
-		tree = proto_item_add_subtree(item, ett_isns_port);
-	}
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
+        tree = proto_item_add_subtree(item, ett_isns_port);
+    }
 
-	proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-	proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
+    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
 
-	return offset+8+len;
+    return offset+8+len;
 }
 
 static guint
 dissect_isns_attr_iscsi_node_type(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-	guint32 node_type=tvb_get_ntohl(tvb, offset + 8);
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    guint32 node_type=tvb_get_ntohl(tvb, offset + 8);
 
-	if(parent_tree){
-		item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
-		tree = proto_item_add_subtree(item, ett_isns_attribute);
-	}
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
+        tree = proto_item_add_subtree(item, ett_isns_attribute);
+    }
 
-	proto_tree_add_boolean(tree, hf_isns_isnt_control,   tvb, offset+8, 4, node_type);
-	if(node_type&0x00000004){
-		proto_item_append_text(item, " Control");
-	}
-	proto_tree_add_boolean(tree, hf_isns_isnt_initiator, tvb, offset+8, 4, node_type);
-	if(node_type&0x00000002){
-		proto_item_append_text(item, " Initiator");
-	}
-	proto_tree_add_boolean(tree, hf_isns_isnt_target,    tvb, offset+8, 4, node_type);
-	if(node_type&0x00000001){
-		proto_item_append_text(item, " Target");
-	}
+    proto_tree_add_boolean(tree, hf_isns_isnt_control,   tvb, offset+8, 4, node_type);
+    if(node_type&0x00000004){
+        proto_item_append_text(item, " Control");
+    }
+    proto_tree_add_boolean(tree, hf_isns_isnt_initiator, tvb, offset+8, 4, node_type);
+    if(node_type&0x00000002){
+        proto_item_append_text(item, " Initiator");
+    }
+    proto_tree_add_boolean(tree, hf_isns_isnt_target,    tvb, offset+8, 4, node_type);
+    if(node_type&0x00000001){
+        proto_item_append_text(item, " Target");
+    }
 
-	proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-	proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
+    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
 
-	return offset+8+len;
+    return offset+8+len;
 }
 
 
@@ -980,27 +980,27 @@ dissect_isns_attr_iscsi_node_type(tvbuff_t *tvb, guint offset, proto_tree *paren
 static guint
 dissect_isns_attr_portal_security_bitmap(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-	guint32 psb=tvb_get_ntohl(tvb, offset + 8);
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    guint32 psb=tvb_get_ntohl(tvb, offset + 8);
 
-	if(parent_tree){
-		item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
-		tree = proto_item_add_subtree(item, ett_isns_attribute);
-	}
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
+        tree = proto_item_add_subtree(item, ett_isns_attribute);
+    }
 
-	proto_tree_add_boolean(tree, hf_isns_psb_tunnel_mode,     tvb, offset+8, 4, psb);
-	proto_tree_add_boolean(tree, hf_isns_psb_transport_mode,  tvb, offset+8, 4, psb);
-	proto_tree_add_boolean(tree, hf_isns_psb_pfs,             tvb, offset+8, 4, psb);
-	proto_tree_add_boolean(tree, hf_isns_psb_aggressive_mode, tvb, offset+8, 4, psb);
-	proto_tree_add_boolean(tree, hf_isns_psb_main_mode,       tvb, offset+8, 4, psb);
-	proto_tree_add_boolean(tree, hf_isns_psb_ike_ipsec,       tvb, offset+8, 4, psb);
-	proto_tree_add_boolean(tree, hf_isns_psb_bitmap,          tvb, offset+8, 4, psb);
+    proto_tree_add_boolean(tree, hf_isns_psb_tunnel_mode,     tvb, offset+8, 4, psb);
+    proto_tree_add_boolean(tree, hf_isns_psb_transport_mode,  tvb, offset+8, 4, psb);
+    proto_tree_add_boolean(tree, hf_isns_psb_pfs,             tvb, offset+8, 4, psb);
+    proto_tree_add_boolean(tree, hf_isns_psb_aggressive_mode, tvb, offset+8, 4, psb);
+    proto_tree_add_boolean(tree, hf_isns_psb_main_mode,       tvb, offset+8, 4, psb);
+    proto_tree_add_boolean(tree, hf_isns_psb_ike_ipsec,       tvb, offset+8, 4, psb);
+    proto_tree_add_boolean(tree, hf_isns_psb_bitmap,          tvb, offset+8, 4, psb);
 
-	proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-	proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
+    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
 
-	return offset+8+len;
+    return offset+8+len;
 }
 
 
@@ -1008,39 +1008,39 @@ dissect_isns_attr_portal_security_bitmap(tvbuff_t *tvb, guint offset, proto_tree
 static guint
 dissect_isns_attr_scn_bitmap(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-	guint32 scn_bitmap=tvb_get_ntohl(tvb, offset + 8);
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    guint32 scn_bitmap=tvb_get_ntohl(tvb, offset + 8);
 
-	if(parent_tree){
-		item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
-		tree = proto_item_add_subtree(item, ett_isns_attribute);
-	}
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
+        tree = proto_item_add_subtree(item, ett_isns_attribute);
+    }
 
 
-	/*
-	 24              INITIATOR AND SELF INFORMATION ONLY 
-	 25              TARGET AND SELF INFORMATION ONLY  
-	 26              MANAGEMENT REGISTRATION/SCN 
-	 27              OBJECT REMOVED 
-	 28              OBJECT ADDED 
-	 29              OBJECT UPDATED 
-	 30              DD/DDS MEMBER REMOVED (Mgmt Reg/SCN only) 
-	 31 (Lsb)        DD/DDS MEMBER ADDED (Mgmt Reg/SCN only) 
-	*/
-	proto_tree_add_boolean(tree, hf_isns_scn_bitmap_initiator_and_self_information_only, tvb, offset+8, 4, scn_bitmap);
-	proto_tree_add_boolean(tree, hf_isns_scn_bitmap_target_and_self_information_only,    tvb, offset+8, 4, scn_bitmap);
-	proto_tree_add_boolean(tree, hf_isns_scn_bitmap_management_registration_scn,         tvb, offset+8, 4, scn_bitmap);
-	proto_tree_add_boolean(tree, hf_isns_scn_bitmap_object_removed,                      tvb, offset+8, 4, scn_bitmap);
-	proto_tree_add_boolean(tree, hf_isns_scn_bitmap_object_added,                        tvb, offset+8, 4, scn_bitmap);
-	proto_tree_add_boolean(tree, hf_isns_scn_bitmap_object_updated,                      tvb, offset+8, 4, scn_bitmap);
-	proto_tree_add_boolean(tree, hf_isns_scn_bitmap_dd_dds_member_removed,               tvb, offset+8, 4, scn_bitmap);
-	proto_tree_add_boolean(tree, hf_isns_scn_bitmap_dd_dds_member_added,                 tvb, offset+8, 4, scn_bitmap);
+    /*
+      24              INITIATOR AND SELF INFORMATION ONLY
+      25              TARGET AND SELF INFORMATION ONLY
+      26              MANAGEMENT REGISTRATION/SCN
+      27              OBJECT REMOVED
+      28              OBJECT ADDED
+      29              OBJECT UPDATED
+      30              DD/DDS MEMBER REMOVED (Mgmt Reg/SCN only)
+      31 (Lsb)        DD/DDS MEMBER ADDED (Mgmt Reg/SCN only)
+    */
+    proto_tree_add_boolean(tree, hf_isns_scn_bitmap_initiator_and_self_information_only, tvb, offset+8, 4, scn_bitmap);
+    proto_tree_add_boolean(tree, hf_isns_scn_bitmap_target_and_self_information_only,    tvb, offset+8, 4, scn_bitmap);
+    proto_tree_add_boolean(tree, hf_isns_scn_bitmap_management_registration_scn,         tvb, offset+8, 4, scn_bitmap);
+    proto_tree_add_boolean(tree, hf_isns_scn_bitmap_object_removed,                      tvb, offset+8, 4, scn_bitmap);
+    proto_tree_add_boolean(tree, hf_isns_scn_bitmap_object_added,                        tvb, offset+8, 4, scn_bitmap);
+    proto_tree_add_boolean(tree, hf_isns_scn_bitmap_object_updated,                      tvb, offset+8, 4, scn_bitmap);
+    proto_tree_add_boolean(tree, hf_isns_scn_bitmap_dd_dds_member_removed,               tvb, offset+8, 4, scn_bitmap);
+    proto_tree_add_boolean(tree, hf_isns_scn_bitmap_dd_dds_member_added,                 tvb, offset+8, 4, scn_bitmap);
 
-	proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-	proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
+    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
 
-	return offset+8+len;
+    return offset+8+len;
 }
 
 
@@ -1066,7 +1066,7 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
         }
         return (offset+8);
     }
-    
+
     tvb_ensure_bytes_exist(tvb, offset, len+8);
 
     switch( tag )
@@ -1078,30 +1078,30 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
 	dissect_isns_attr_string(tvb, offset, tree, hf_isns_entity_identifier, tag, len);
 	break;
     case ISNS_ATTR_TAG_ENTITY_PROTOCOL:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_entity_protocol, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_MGMT_IP_ADDRESS:
-    if(len != 16) THROW(ReportedBoundsError);
+        if(len != 16) THROW(ReportedBoundsError);
 	dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_mgmt_ip_addr, tag, len);
 	break;
     case ISNS_ATTR_TAG_TIMESTAMP:
-    if(len != 8) THROW(ReportedBoundsError);
+        if(len != 8) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_timestamp, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_PROTOCOL_VERSION_RANGE:
 	dissect_isns_attr_not_decoded_yet(tvb, offset, tree, hf_isns_not_decoded_yet, tag, len);
 	break;
     case ISNS_ATTR_TAG_REGISTRATION_PERIOD:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_registration_period, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_ENTITY_INDEX:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_entity_index, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_ENTITY_NEXT_INDEX:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_entity_next_index, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_ENTITY_ISAKMP_PHASE_1:
@@ -1113,43 +1113,43 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
     case ISNS_ATTR_TAG_PORTAL_IP_ADDRESS:
 	switch(len){
 	case 64:
-		proto_tree_add_text(tree, tvb, offset, -1, "Broken iSNS implementation. The PORTAL_IP_ADDRESS tag should be 16 bytes in length");
+            proto_tree_add_text(tree, tvb, offset, -1, "Broken iSNS implementation. The PORTAL_IP_ADDRESS tag should be 16 bytes in length");
 	case 16:
-		dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_portal_ip_addr, tag, 16);
-		break;
+            dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_portal_ip_addr, tag, 16);
+            break;
 	default:
-    		THROW(ReportedBoundsError);
+            THROW(ReportedBoundsError);
 	}
 	break;
     case ISNS_ATTR_TAG_PORTAL_PORT:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_port(tvb, offset, tree, hf_isns_portal_port, tag, len, ISNS_OTHER_PORT, pinfo);
 	break;
     case ISNS_ATTR_TAG_PORTAL_SYMBOLIC_NAME:
 	dissect_isns_attr_string(tvb, offset, tree, hf_isns_portal_symbolic_name, tag, len);
 	break;
     case ISNS_ATTR_TAG_ESI_INTERVAL:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_esi_interval, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_ESI_PORT:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_port(tvb, offset, tree, hf_isns_esi_port, tag, len, ISNS_ESI_PORT, pinfo);
 	break;
     case ISNS_ATTR_TAG_PORTAL_INDEX:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_portal_index, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_SCN_PORT:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_port(tvb, offset, tree, hf_isns_scn_port, tag, len, ISNS_SCN_PORT, pinfo);
 	break;
     case ISNS_ATTR_TAG_PORTAL_NEXT_INDEX:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_portal_next_index, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_PORTAL_SECURITY_BITMAP:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_portal_security_bitmap(tvb, offset, tree, hf_isns_psb, tag, len);
 	break;
     case ISNS_ATTR_TAG_PORTAL_ISAKMP_PHASE_1:
@@ -1165,26 +1165,26 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
 	dissect_isns_attr_string(tvb, offset, tree, hf_isns_iscsi_name, tag, len);
 	break;
     case ISNS_ATTR_TAG_ISCSI_NODE_TYPE:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_iscsi_node_type(tvb, offset, tree, hf_isns_iscsi_node_type, tag, len);
 	break;
     case ISNS_ATTR_TAG_ISCSI_ALIAS:
 	dissect_isns_attr_string(tvb, offset, tree, hf_isns_iscsi_alias, tag, len);
 	break;
     case ISNS_ATTR_TAG_ISCSI_SCN_BITMAP:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_scn_bitmap(tvb, offset, tree, hf_isns_scn_bitmap, tag, len);
 	break;
     case ISNS_ATTR_TAG_ISCSI_NODE_INDEX:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_node_index, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_WWNN_TOKEN:
-    if(len != 8) THROW(ReportedBoundsError);
+        if(len != 8) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_wwnn_token, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_ISCSI_NODE_NEXT_INDEX:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_node_next_index, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_ISCSI_AUTH_METHOD:
@@ -1196,64 +1196,64 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
     case ISNS_ATTR_TAG_PG_PORTAL_IP_ADDR:
 	switch(len){
 	case 64:
-		proto_tree_add_text(tree, tvb, offset, -1, "Broken iSNS implementation. The PG_PORTAL_IP_ADDRESS tag should be 16 bytes in length");
+            proto_tree_add_text(tree, tvb, offset, -1, "Broken iSNS implementation. The PG_PORTAL_IP_ADDRESS tag should be 16 bytes in length");
 	case 16:
-		dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_pg_portal_ip_addr, tag, 16);
-		break;
+            dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_pg_portal_ip_addr, tag, 16);
+            break;
 	default:
-		THROW(ReportedBoundsError);
+            THROW(ReportedBoundsError);
 	}
 	break;
     case ISNS_ATTR_TAG_PG_PORTAL_PORT:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_port(tvb, offset, tree, hf_isns_pg_portal_port, tag, len, ISNS_OTHER_PORT, pinfo);
 	break;
     case ISNS_ATTR_TAG_PORTAL_GROUP_TAG:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_portal_group_tag, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_PORTAL_GROUP_INDEX:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_pg_index, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_PORTAL_GROUP_NEXT_INDEX:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_pg_next_index, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_FC_PORT_NAME_WWPN:
-    if(len != 8) THROW(ReportedBoundsError);
+        if(len != 8) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_fc_port_name_wwpn, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_PORT_ID:
-    if(len != 3) THROW(ReportedBoundsError);
+        if(len != 3) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_port_id, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_FC_PORT_TYPE:
 	dissect_isns_attr_not_decoded_yet(tvb, offset, tree, hf_isns_not_decoded_yet, tag, len);
 	break;
 	/*
-	  0x0000           Unidentified/Null Entry 
-	  0x0001           Fibre Channel N_Port 
-	  0x0002           Fibre Channel NL_Port 
-	  0x0003           Fibre Channel F/NL_Port 
-	  0x0081           Fibre Channel F_Port 
-	  0x0082           Fibre Channel FL_Port 
-	  0x0084           Fibre Channel E_Port 
-	  0xFF12           iFCP Port 
+	  0x0000           Unidentified/Null Entry
+	  0x0001           Fibre Channel N_Port
+	  0x0002           Fibre Channel NL_Port
+	  0x0003           Fibre Channel F/NL_Port
+	  0x0081           Fibre Channel F_Port
+	  0x0082           Fibre Channel FL_Port
+	  0x0084           Fibre Channel E_Port
+	  0xFF12           iFCP Port
 	*/
     case ISNS_ATTR_TAG_SYMBOLIC_PORT_NAME:
 	dissect_isns_attr_string(tvb, offset, tree, hf_isns_symbolic_port_name, tag, len);
 	break;
     case ISNS_ATTR_TAG_FABRIC_PORT_NAME:
-    if(len != 8) THROW(ReportedBoundsError);
+        if(len != 8) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_fabric_port_name, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_HARD_ADDRESS:
-    if(len != 3) THROW(ReportedBoundsError);
+        if(len != 3) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_hard_address, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_PORT_IP_ADDRESS:
-    if(len != 16) THROW(ReportedBoundsError);
+        if(len != 16) THROW(ReportedBoundsError);
 	dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_port_ip_addr, tag, len);
 	break;
     case ISNS_ATTR_TAG_CLASS_OF_SERVICE:
@@ -1289,12 +1289,12 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
 	dissect_isns_attr_not_decoded_yet(tvb, offset, tree, hf_isns_not_decoded_yet, tag, len);
 	break;
 	/*
-	  bit 29              Control 
-	  bit 30              FCP Initiator 
-	  bit 31 (Lsb)        FCP Target 
+	  bit 29              Control
+	  bit 30              FCP Initiator
+	  bit 31 (Lsb)        FCP Target
 	*/
     case ISNS_ATTR_TAG_PERMANENT_PORT_NAME:
-    if(len != 8) THROW(ReportedBoundsError);
+        if(len != 8) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_permanent_port_name, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_FC4_TYPE_CODE:
@@ -1302,44 +1302,44 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
 	break;
 	/* 8bit type code in byte0 */
     case ISNS_ATTR_TAG_FC_NODE_NAME_WWNN:
-    if(len != 8) THROW(ReportedBoundsError);
+        if(len != 8) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_fc_node_name_wwnn, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_SYMBOLIC_NODE_NAME:
 	dissect_isns_attr_string(tvb, offset, tree, hf_isns_symbolic_node_name, tag, len);
 	break;
     case ISNS_ATTR_TAG_NODE_IP_ADDRESS:
-    if(len != 16) THROW(ReportedBoundsError);
+        if(len != 16) THROW(ReportedBoundsError);
 	dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_node_ip_addr, tag, len);
 	break;
     case ISNS_ATTR_TAG_NODE_IPA:
-    if(len != 8) THROW(ReportedBoundsError);
+        if(len != 8) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_node_ipa, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_PROXY_ISCSI_NAME:
 	dissect_isns_attr_string(tvb, offset, tree, hf_isns_proxy_iscsi_name, tag, len);
 	break;
     case ISNS_ATTR_TAG_SWITCH_NAME:
-    if(len != 8) THROW(ReportedBoundsError);
+        if(len != 8) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_switch_name, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_PREFERRED_ID:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_preferred_id, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_ASSIGNED_ID:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_assigned_id, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_VIRTUAL_FABRIC_ID:
 	dissect_isns_attr_string(tvb, offset, tree, hf_isns_virtual_fabric_id, tag, len);
 	break;
     case ISNS_ATTR_TAG_VENDOR_OUI:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_vendor_oui, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_DD_SET_ID:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_dd_set_id, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_DD_SET_SYMBOLIC_NAME:
@@ -1349,52 +1349,52 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
 	dissect_isns_attr_not_decoded_yet(tvb, offset, tree, hf_isns_not_decoded_yet, tag, len);
 	break;
     case ISNS_ATTR_TAG_DD_SET_NEXT_ID:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_dd_set_next_id, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_DD_ID:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_dd_id, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_DD_SYMBOLIC_NAME:
 	dissect_isns_attr_string(tvb, offset, tree, hf_isns_dd_symbolic_name, tag, len);
 	break;
     case ISNS_ATTR_TAG_DD_MEMBER_ISCSI_INDEX:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_member_iscsi_index, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_DD_MEMBER_ISCSI_NAME:
 	dissect_isns_attr_string(tvb, offset, tree, hf_isns_dd_member_iscsi_name, tag, len);
 	break;
     case ISNS_ATTR_TAG_DD_MEMBER_FC_PORT_NAME:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_member_fc_port_name, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_DD_MEMBER_PORTAL_INDEX:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_member_portal_index, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_DD_MEMBER_PORTAL_IP_ADDRESS:
-    if(len != 16) THROW(ReportedBoundsError);
+        if(len != 16) THROW(ReportedBoundsError);
 	dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_dd_member_portal_ip_addr, tag, len);
 	break;
     case ISNS_ATTR_TAG_DD_MEMBER_PORTAL_PORT:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_port(tvb, offset, tree, hf_isns_dd_member_portal_port,
-                                        tag, len, ISNS_OTHER_PORT, pinfo);
+                               tag, len, ISNS_OTHER_PORT, pinfo);
 	break;
     case ISNS_ATTR_TAG_DD_FEATURES:
 	dissect_isns_attr_not_decoded_yet(tvb, offset, tree, hf_isns_not_decoded_yet, tag, len);
 	break;
     case ISNS_ATTR_TAG_DD_ID_NEXT_ID:
-    if(len != 4) THROW(ReportedBoundsError);
+        if(len != 4) THROW(ReportedBoundsError);
 	dissect_isns_attr_integer(tvb, offset, tree, hf_isns_dd_id_next_id, tag, len, function_id);
 	break;
     default:
 	dissect_isns_attr_not_decoded_yet(tvb, offset, tree, hf_isns_not_decoded_yet, tag, len);
     }
 
-    
+
     /* move on the offset to next attribute */
 
     return offset+len+8;
@@ -1415,12 +1415,12 @@ void proto_register_isns(void)
 	/* The Header Stuff */
 	{ &hf_isns_version,
 	  { "iSNSP Version","isns.PVer",
-	    FT_UINT16, BASE_DEC, NULL, 0,          
+	    FT_UINT16, BASE_DEC, NULL, 0,
 	    "iSNS Protocol Version" ,HFILL}
 	},
 	{ &hf_isns_function_id,
-	  { "Function ID","isns.functionid",	    
-	    FT_UINT16, BASE_DEC,VALS(isns_function_ids),0,          
+	  { "Function ID","isns.functionid",
+	    FT_UINT16, BASE_DEC,VALS(isns_function_ids),0,
 	    "iSNS Function ID" ,HFILL}
 	},
 	{ &hf_isns_pdu_length,

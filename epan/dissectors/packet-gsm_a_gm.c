@@ -604,7 +604,7 @@ de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 	proto_tree_add_text(tf_tree,
 		tvb, curr_offset, 1,
 		"Split PG Cycle Code: %s (%u)",
-		str, 
+		str,
 		oct);
 
 	curr_offset++;
@@ -670,7 +670,7 @@ de_gmm_ptmsi_sig(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 	proto_item   *curr_item;
 
 	curr_offset = offset;
-	
+
 	curr_item= proto_tree_add_item(tree,hf_gsm_a_ptmsi_sig,tvb,curr_offset,3,FALSE);
 	proto_item_append_text(curr_item,"%s",add_string ? add_string : "");
 
@@ -888,7 +888,7 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	proto_item	*item;
 
 	curr_offset = offset;
-	
+
 	/* bit 8: GEA1 */
 	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_gea1, tvb, curr_offset, 1, FALSE);
 
@@ -926,7 +926,7 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea6, tvb, curr_offset, 1, FALSE);
 	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea7, tvb, curr_offset, 1, FALSE);
 
-	/* bit 1: LCS VA capability */	
+	/* bit 1: LCS VA capability */
 	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_lcs, tvb, curr_offset, 1, FALSE);
 
 	curr_offset++;
@@ -954,7 +954,7 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+6, 2, FALSE);
 
 	curr_offset++;
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(curr_offset - offset);
 }
@@ -1047,7 +1047,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:6 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:a) Tra:2 Trb:a) Type:2 (a: 1 with frequency hopping, 0 otherwise)", /* 16 */
 		"Max Rx-Slot/TDMA:7 Max Tx-Slot/TDMA:7 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:a) Tra:1 Trb:0 Type:2 (a: 1 with frequency hopping, 0 otherwise)", /* 17 */
 		"Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:8 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:0 Tra:0 Trb:0 Type:2", /* 18 */
-		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 19 */   
+		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 19 */
 		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 20 */
 		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 21 */
 		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 22 */
@@ -1127,7 +1127,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
 				bits_in_oct -= bits_needed;
-			
+
 				if (( curr_len*8 + bits_in_oct ) < 11 )
 					break;
 				curr_bits_length = 11;
@@ -1281,7 +1281,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				{
 					/* 0 GSM P
 					 * 1 GSM E
-					 * 2 GSM R 
+					 * 2 GSM R
 					 * 5 GSM 450
 					 * 6 GSM 480
 					 * 7 GSM 850
@@ -1418,7 +1418,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			curr_bits_length -= bits_needed;
 			oct <<= bits_needed;
 			bits_in_oct -= bits_needed;
-		
+
 			for (i=1; i<= 7 ; i++ )
 			{
 				/*
@@ -1855,7 +1855,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 					case 3:  str="Multislot class 11 supported"; break;
 					default: str="This should not happen";
 				}
-		
+
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
 					"DTM GPRS Multi Slot Class: %s (%u)",str,oct>>(32-bits_needed));
@@ -2368,7 +2368,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				case 0x03: str="GMSK_MULTISLOT_POWER_PROFILE 3"; break;
 				default:   str="This should not happen";
 			}
-	
+
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
 				"GMSK Multislot Power Profile: %s (%u)",str,oct>>(32-bits_needed));
@@ -2392,7 +2392,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				case 0x03: str="8-PSK_MULTISLOT_POWER_PROFILE 3"; break;
 				default:   str="This should not happen";
 			}
-	
+
 			proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
 			"8-PSK Multislot Power Profile: %s (%u)",str,oct>>(32-bits_needed));
@@ -2421,7 +2421,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	} while ( 1 );
 
 	curr_offset+= curr_len;
-	   
+
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(curr_offset - offset);
@@ -2483,7 +2483,7 @@ static const range_string gmm_cause_vals[] = {
 	{ 0x70, 0xff, "Protocol error, unspecified(Not def in v8.6.0)"},
 	{ 0, 0, NULL }
 };
-/* NOTE 1 TS 124 008 V8.6.0 (2009-07) 
+/* NOTE 1 TS 124 008 V8.6.0 (2009-07)
 	"Any other value received by the mobile station shall be treated as 0110 1111, "Protocol
 	error, unspecified". Any other value received by the network shall be treated as
 	0110 1111, "Protocol error, unspecified".
@@ -3297,7 +3297,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	else if ((pdp_type_num == 0) && (pdp_type_org == 0x0f))
 		str="Empty";
 	else
-		str="Not specified";	
+		str="Not specified";
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
@@ -3321,7 +3321,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	}
 
 	curr_offset += 1;
-	if (pdp_type_org == 1)	
+	if (pdp_type_org == 1)
 	switch (pdp_type_num)
 	{
 		case 0x57:
@@ -3340,7 +3340,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 			proto_tree_add_item(tree,hf_gsm_a_sm_ip4_address,tvb,curr_offset,4,FALSE);
 			curr_offset+=4;
 	}
-	
+
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(curr_offset - offset);
@@ -3592,7 +3592,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		default: str = ep_strdup_printf("%u kbps", qos_calc_bitrate(oct));
 	}
 
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_upl, tvb, 
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_upl, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 	curr_offset+= 1;
 
@@ -3608,7 +3608,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		default: str = ep_strdup_printf("%u kbps", qos_calc_bitrate(oct));
 	}
 
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_downl, tvb, 
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_downl, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 	curr_offset+= 1;
 
@@ -3639,7 +3639,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 			str = ep_strdup_printf("%u ms", temp32);
 	}
 
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_trans_delay, tvb, 
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_trans_delay, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, tmp_oct);
 
 	tmp_oct = oct & 0x03;
@@ -3648,7 +3648,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	else
 		str = ep_strdup_printf("Priority level %u", tmp_oct);
 
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_traf_handl_prio, tvb, 
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_traf_handl_prio, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, tmp_oct);
 
 	curr_offset+= 1;
@@ -3664,7 +3664,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		default: str = ep_strdup_printf("%u kbps", qos_calc_bitrate(oct));
 	}
 
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_guar_bitrate_upl, tvb, 
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_guar_bitrate_upl, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset+= 1;
@@ -3680,7 +3680,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		default: str = ep_strdup_printf("%u kbps", qos_calc_bitrate(oct));
 	}
 
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_guar_bitrate_downl, tvb, 
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_guar_bitrate_downl, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset+= 1;
@@ -3697,7 +3697,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	else
 		str = "unknown";
 
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_source_stat_desc, tvb, 
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_source_stat_desc, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, tmp_oct);
 
 	curr_offset+= 1;
@@ -3716,7 +3716,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		else
 			str = ep_strdup_printf("%u kbps", temp32);
 	}
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_downl_ext, tvb, 
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_downl_ext, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset+= 1;
@@ -3735,7 +3735,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		else
 			str = ep_strdup_printf("%u kbps", temp32);
 	}
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_guar_bitrate_downl_ext, tvb, 
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_guar_bitrate_downl_ext, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset+= 1;
@@ -3754,7 +3754,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		else
 			str = ep_strdup_printf("%u kbps", temp32);
 	}
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_upl_ext, tvb, 
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_upl_ext, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset+= 1;
@@ -3773,7 +3773,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		else
 			str = ep_strdup_printf("%u kbps", temp32);
 	}
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_guar_bitrate_upl_ext, tvb, 
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_guar_bitrate_upl_ext, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset+= 1;
@@ -3917,7 +3917,7 @@ de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	}
 
 	curr_offset+= curr_len;
-	   
+
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(curr_offset - offset);
@@ -3980,11 +3980,11 @@ guint16
 de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
-	
+
 	curr_offset = offset;
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, offset << 3, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_sm_packet_flow_id, tvb, offset, 1, FALSE);
-	   
+
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(curr_offset - offset);
@@ -4111,7 +4111,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset-1, 1,
-				"Packet evaluation precedence: 0x%02x (%u)",oct,oct );	
+				"Packet evaluation precedence: 0x%02x (%u)",oct,oct );
 
 			if ((curr_offset-offset)<1) { proto_tree_add_text(tf_tree,tvb, curr_offset, 1,"Not enough data"); return(len);}
 			pf_length = tvb_get_guint8(tvb, curr_offset);
@@ -4120,7 +4120,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset-1, 1,
-				"Packet filter length: 0x%02x (%u)",pf_length,pf_length );	
+				"Packet filter length: 0x%02x (%u)",pf_length,pf_length );
 			/* New tree for component */
 
 			/* Dissect Packet filter Component */
@@ -4140,7 +4140,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 				comp_tree = proto_item_add_subtree(tf, ett_sm_tft );
 
 				switch ( pack_component_type ){
-			
+
 				case 0x10:
 					str="IPv4 remote address type";
 					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip4_address,tvb,curr_offset,4,FALSE);
@@ -4248,7 +4248,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 				proto_tree_add_text(tf_tree, tvb, curr_offset, pf_length, "Authorization token value: 0x%s",
 			                        tvb_bytes_to_str(tvb, curr_offset, pf_length));
 				break;
-				
+
 			case 0x02:
 				proto_tree_add_text(tf_tree, tvb, curr_offset, 2, "Media Component number value: 0x%x",
 			                        tvb_get_bits16(tvb, curr_offset<<3, 16, FALSE));
@@ -4285,7 +4285,7 @@ de_sm_tmgi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 {
 	guint32	curr_offset;
 
-    curr_offset = offset;
+	curr_offset = offset;
 
 	proto_tree_add_item(tree, hf_gsm_a_sm_tmgi, tvb, curr_offset, 3, FALSE);
 	curr_offset += 3;
@@ -4319,7 +4319,7 @@ de_sm_mbms_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 		default: str = ep_strdup_printf("%u kbps", qos_calc_bitrate(oct));
 	}
 
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_downl, tvb, 
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_downl, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 	curr_offset+= 1;
 
@@ -4337,7 +4337,7 @@ de_sm_mbms_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 		else
 			str = ep_strdup_printf("%u kbps", temp32);
 	}
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_downl_ext, tvb, 
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_downl_ext, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset+= 1;
@@ -4383,7 +4383,7 @@ de_sm_enh_nsapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 			str = "Reserved for use by lower layers in the p2p radio bearer allocation message for MBMS Broadcast mode";
 
 
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_enh_nsapi, tvb, 
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_enh_nsapi, tvb,
 		offset, 1, oct, "%s (%u)", str, oct);
 
 	/* no length check possible */
@@ -4454,7 +4454,7 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	de_sm_tmgi,		/* Temporary Mobile Group Identity (TMGI) */
 	de_sm_mbms_bearer_cap,	/* MBMS bearer capabilities */
 	de_sm_mbms_prot_conf_opt,	/* MBMS protocol configuration options */
-	de_sm_enh_nsapi,	/* Enhanced network service access point identifier */	
+	de_sm_enh_nsapi,	/* Enhanced network service access point identifier */
 	de_sm_req_type,		/* Request type */
 	/* GPRS Common Information Elements 10.5.7 */
 	de_gc_context_stat,	/* PDP Context Status */
@@ -4659,7 +4659,7 @@ dtap_gmm_detach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 		ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE );
 		curr_len++;
 		curr_offset--;
-	
+
 		ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND );
 	}
 
@@ -4769,7 +4769,7 @@ dtap_gmm_auth_ciph_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 		EXTRANEOUS_DATA_CHECK(curr_len, 0);
 	return;
 	}
-	
+
 	ELEM_OPT_TLV( 0x28 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_AUTN , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -5679,7 +5679,7 @@ dtap_sm_act_mbms_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
-	
+
 /*
  * [9] 9.5.25 Request MBMS Context Activation
  */
@@ -5945,7 +5945,7 @@ proto_register_gsm_a_gm(void)
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_port,
-		{ "Port", "gsm_a.tft.port", 
+		{ "Port", "gsm_a.tft.port",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},

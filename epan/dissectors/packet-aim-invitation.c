@@ -64,19 +64,19 @@ proto_register_aim_invitation(void)
 {
 
 /* Setup protocol subtree array */
-  static gint *ett[] = {
-    &ett_aim_invitation,
-  };
+	static gint *ett[] = {
+		&ett_aim_invitation,
+	};
 
 /* Register the protocol name and description */
-  proto_aim_invitation = proto_register_protocol("AIM Invitation Service", "AIM Invitation", "aim_invitation");
+	proto_aim_invitation = proto_register_protocol("AIM Invitation Service", "AIM Invitation", "aim_invitation");
 
 /* Required function calls to register the header fields and subtrees used */
-  proto_register_subtree_array(ett, array_length(ett));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_aim_invitation(void)
 {
-  aim_init_family(proto_aim_invitation, ett_aim_invitation, FAMILY_INVITATION, aim_fnac_family_invitation);
+	aim_init_family(proto_aim_invitation, ett_aim_invitation, FAMILY_INVITATION, aim_fnac_family_invitation);
 }

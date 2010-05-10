@@ -80,11 +80,11 @@ static guint16  ver_epm4 = 4;
 
 
 static const value_string ep_service[] = {
-	{ 0, "rpc_c_ep_all_elts" },
-	{ 1, "rpc_c_ep_match_by_if" },
-	{ 2, "rpc_c_ep_match_by_obj" },
-	{ 3, "rpc_c_ep_match_by_both" },
-	{ 0, NULL },
+    { 0, "rpc_c_ep_all_elts" },
+    { 1, "rpc_c_ep_match_by_if" },
+    { 2, "rpc_c_ep_match_by_obj" },
+    { 3, "rpc_c_ep_match_by_both" },
+    { 0, NULL },
 };
 
 /* typedef struct {
@@ -97,19 +97,19 @@ static int epm_dissect_tower (tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 static int
 epm_dissect_pointer_IF_ID(tvbuff_t *tvb, int offset,
-                             packet_info *pinfo, proto_tree *tree,
-                             guint8 *drep)
+                          packet_info *pinfo, proto_tree *tree,
+                          guint8 *drep)
 {
-	dcerpc_info *di;
+    dcerpc_info *di;
 
-	di=pinfo->private_data;
-        offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
-                                     di->hf_index, NULL);
-        offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
-                                     hf_epm_ver_maj, NULL);
-        offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
-                                     hf_epm_ver_min, NULL);
-	return offset;
+    di=pinfo->private_data;
+    offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
+                                 di->hf_index, NULL);
+    offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+                                 hf_epm_ver_maj, NULL);
+    offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+                                 hf_epm_ver_min, NULL);
+    return offset;
 }
 
 static int
@@ -117,12 +117,12 @@ epm_dissect_pointer_UUID(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              guint8 *drep)
 {
-	dcerpc_info *di;
+    dcerpc_info *di;
 
-	di=pinfo->private_data;
-        offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
-                                     di->hf_index, NULL);
-	return offset;
+    di=pinfo->private_data;
+    offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
+                                 di->hf_index, NULL);
+    return offset;
 }
 
 static int
@@ -165,7 +165,7 @@ epm_dissect_ept_entry_t(tvbuff_t *tvb, int offset,
     gint slen;
     dcerpc_info *di;
     const char *str;
-    
+
     di=pinfo->private_data;
     if(di->conformant_run){
         return offset;
@@ -250,71 +250,71 @@ epm_dissect_uuid (tvbuff_t *tvb, int offset,
     return offset;
 }
 
-#define PROTO_ID_OSI_OID	0x00
-#define PROTO_ID_DNA_SESSCTL	0x02
-#define PROTO_ID_DNA_SESSCTL_V3	0x03
-#define PROTO_ID_DNA_NSP	0x04
-#define PROTO_ID_OSI_TP4	0x05
-#define PROTO_ID_OSI_CLNS	0x06
-#define PROTO_ID_TCP		0x07
-#define PROTO_ID_UDP		0x08
-#define PROTO_ID_IP		0x09
-#define PROTO_ID_RPC_CL		0x0a
-#define PROTO_ID_RPC_CO		0x0b
-#define PROTO_ID_SPX		0x0c    /* from DCOM spec (is this correct?) */
-#define PROTO_ID_UUID		0x0d
-#define PROTO_ID_IPX		0x0e    /* from DCOM spec (is this correct?) */
-#define PROTO_ID_NAMED_PIPES	0x0f
-#define PROTO_ID_NAMED_PIPES_2	0x10
-#define PROTO_ID_NETBIOS	0x11
-#define PROTO_ID_NETBEUI	0x12
-#define PROTO_ID_NETWARE_SPX	0x13
-#define PROTO_ID_NETWARE_IPX	0x14
-#define PROTO_ID_ATALK_STREAM	0x16
-#define PROTO_ID_ATALK_DATAGRAM	0x17
-#define PROTO_ID_ATALK		0x18
-#define PROTO_ID_NETBIOS_2	0x19
-#define PROTO_ID_VINES_SPP	0x1a
-#define PROTO_ID_VINES_IPC	0x1b
-#define PROTO_ID_STREETTALK	0x1c
-#define PROTO_ID_HTTP		0x1f
-#define PROTO_ID_UNIX_DOMAIN	0x20
-#define PROTO_ID_NULL		0x21
-#define PROTO_ID_NETBIOS_3	0x22
+#define PROTO_ID_OSI_OID        0x00
+#define PROTO_ID_DNA_SESSCTL    0x02
+#define PROTO_ID_DNA_SESSCTL_V3 0x03
+#define PROTO_ID_DNA_NSP        0x04
+#define PROTO_ID_OSI_TP4        0x05
+#define PROTO_ID_OSI_CLNS       0x06
+#define PROTO_ID_TCP            0x07
+#define PROTO_ID_UDP            0x08
+#define PROTO_ID_IP             0x09
+#define PROTO_ID_RPC_CL         0x0a
+#define PROTO_ID_RPC_CO         0x0b
+#define PROTO_ID_SPX            0x0c    /* from DCOM spec (is this correct?) */
+#define PROTO_ID_UUID           0x0d
+#define PROTO_ID_IPX            0x0e    /* from DCOM spec (is this correct?) */
+#define PROTO_ID_NAMED_PIPES    0x0f
+#define PROTO_ID_NAMED_PIPES_2  0x10
+#define PROTO_ID_NETBIOS        0x11
+#define PROTO_ID_NETBEUI        0x12
+#define PROTO_ID_NETWARE_SPX    0x13
+#define PROTO_ID_NETWARE_IPX    0x14
+#define PROTO_ID_ATALK_STREAM   0x16
+#define PROTO_ID_ATALK_DATAGRAM 0x17
+#define PROTO_ID_ATALK          0x18
+#define PROTO_ID_NETBIOS_2      0x19
+#define PROTO_ID_VINES_SPP      0x1a
+#define PROTO_ID_VINES_IPC      0x1b
+#define PROTO_ID_STREETTALK     0x1c
+#define PROTO_ID_HTTP           0x1f
+#define PROTO_ID_UNIX_DOMAIN    0x20
+#define PROTO_ID_NULL           0x21
+#define PROTO_ID_NETBIOS_3      0x22
 
 static const value_string proto_id_vals[] = {
-	{ PROTO_ID_OSI_OID,		"OSI OID"},
-	{ PROTO_ID_DNA_SESSCTL,		"DNA Session Control"},
-	{ PROTO_ID_DNA_SESSCTL_V3,	"DNA Session Control V3"},
-	{ PROTO_ID_DNA_NSP,		"DNA NSP Transport"},
-	{ PROTO_ID_OSI_TP4,		"OSI TP4"},
-	{ PROTO_ID_OSI_CLNS,		"OSI CLNS or DNA Routing"},
-	{ PROTO_ID_TCP,			"DOD TCP"},
-	{ PROTO_ID_UDP,			"DOD UDP"},
-	{ PROTO_ID_IP,			"DOD IP"},
-	{ PROTO_ID_RPC_CL,		"RPC connectionless protocol"},
-	{ PROTO_ID_RPC_CO,		"RPC connection-oriented protocol"},
-	{ PROTO_ID_SPX,		        "SPX?"},
-	{ PROTO_ID_UUID,		"UUID"},
-	{ PROTO_ID_IPX,		        "IPX?"},
-	{ PROTO_ID_NAMED_PIPES,		"Named Pipes"}, 
-	{ PROTO_ID_NAMED_PIPES_2,	"Named Pipes"},
-	{ PROTO_ID_NETBIOS,		"NetBIOS"},
-	{ PROTO_ID_NETBEUI,		"NetBEUI"},
-	{ PROTO_ID_NETWARE_SPX,		"Netware SPX"},
-	{ PROTO_ID_NETWARE_IPX,		"Netware IPX"},
-	{ PROTO_ID_ATALK_STREAM,	"Appletalk Stream"},
-	{ PROTO_ID_ATALK_DATAGRAM,	"Appletalk Datagram"},
-	{ PROTO_ID_ATALK,		"Appletalk"},
-	{ PROTO_ID_NETBIOS_2,		"NetBIOS"},
-	{ PROTO_ID_VINES_SPP,		"Vines SPP"},
-	{ PROTO_ID_VINES_IPC,		"Vines IPC"},
-	{ PROTO_ID_STREETTALK,		"StreetTalk"},
-	{ PROTO_ID_HTTP, 		"RPC over HTTP"},
-	{ PROTO_ID_UNIX_DOMAIN,		"Unix Domain Socket"},
-	{ PROTO_ID_NULL,		"null"},
-	{ PROTO_ID_NETBIOS_3,		"NetBIOS"},
-	{ 0, NULL},
+    { PROTO_ID_OSI_OID,         "OSI OID"},
+    { PROTO_ID_DNA_SESSCTL,     "DNA Session Control"},
+    { PROTO_ID_DNA_SESSCTL_V3,  "DNA Session Control V3"},
+    { PROTO_ID_DNA_NSP,         "DNA NSP Transport"},
+    { PROTO_ID_OSI_TP4,         "OSI TP4"},
+    { PROTO_ID_OSI_CLNS,        "OSI CLNS or DNA Routing"},
+    { PROTO_ID_TCP,             "DOD TCP"},
+    { PROTO_ID_UDP,             "DOD UDP"},
+    { PROTO_ID_IP,              "DOD IP"},
+    { PROTO_ID_RPC_CL,          "RPC connectionless protocol"},
+    { PROTO_ID_RPC_CO,          "RPC connection-oriented protocol"},
+    { PROTO_ID_SPX,             "SPX?"},
+    { PROTO_ID_UUID,            "UUID"},
+    { PROTO_ID_IPX,             "IPX?"},
+    { PROTO_ID_NAMED_PIPES,     "Named Pipes"},
+    { PROTO_ID_NAMED_PIPES_2,   "Named Pipes"},
+    { PROTO_ID_NETBIOS,         "NetBIOS"},
+    { PROTO_ID_NETBEUI,         "NetBEUI"},
+    { PROTO_ID_NETWARE_SPX,     "Netware SPX"},
+    { PROTO_ID_NETWARE_IPX,     "Netware IPX"},
+    { PROTO_ID_ATALK_STREAM,    "Appletalk Stream"},
+    { PROTO_ID_ATALK_DATAGRAM,  "Appletalk Datagram"},
+    { PROTO_ID_ATALK,           "Appletalk"},
+    { PROTO_ID_NETBIOS_2,       "NetBIOS"},
+    { PROTO_ID_VINES_SPP,       "Vines SPP"},
+    { PROTO_ID_VINES_IPC,       "Vines IPC"},
+    { PROTO_ID_STREETTALK,      "StreetTalk"},
+    { PROTO_ID_HTTP,            "RPC over HTTP"},
+    { PROTO_ID_UNIX_DOMAIN,     "Unix Domain Socket"},
+    { PROTO_ID_NULL,            "null"},
+    { PROTO_ID_NETBIOS_3,       "NetBIOS"},
+    { 0, NULL},
 };
 
 
@@ -342,9 +342,9 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
     for(i=1;i<=num_floors;i++){
         proto_item *it = NULL;
         proto_tree *tr = NULL;
-	int old_offset = offset;
+        int old_offset = offset;
         guint16 len;
-	guint8 proto_id;
+        guint8 proto_id;
         e_uuid_t uuid;
         proto_item *pi;
 
@@ -384,22 +384,22 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
             }
             proto_tree_add_text(tr, tvb, offset+17, 2, "Version %d.%d", tvb_get_guint8(tvb, offset+17), tvb_get_guint8(tvb, offset+18));
 
-	    {
-		guint16 version = tvb_get_ntohs(tvb, offset+17); 
-		const char *service = dcerpc_get_proto_name(&uuid, version);
-		if (service || uuid_name)
-            proto_item_append_text(tr, "UUID: %s", service ? service : uuid_name);
-		else
-		    proto_item_append_text(tr, "UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x Version %d.%d", uuid.Data1, uuid.Data2, uuid.Data3,
-					   uuid.Data4[0], uuid.Data4[1],
-					   uuid.Data4[2], uuid.Data4[3],
-					   uuid.Data4[4], uuid.Data4[5],
-					   uuid.Data4[6], uuid.Data4[7],
-					   tvb_get_guint8(tvb, offset+17), 
-					   tvb_get_guint8(tvb, offset+18));
-	    }
-	    break;
-	}
+            {
+                guint16 version = tvb_get_ntohs(tvb, offset+17);
+                const char *service = dcerpc_get_proto_name(&uuid, version);
+                if (service || uuid_name)
+                    proto_item_append_text(tr, "UUID: %s", service ? service : uuid_name);
+                else
+                    proto_item_append_text(tr, "UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x Version %d.%d", uuid.Data1, uuid.Data2, uuid.Data3,
+                                           uuid.Data4[0], uuid.Data4[1],
+                                           uuid.Data4[2], uuid.Data4[3],
+                                           uuid.Data4[4], uuid.Data4[5],
+                                           uuid.Data4[6], uuid.Data4[7],
+                                           tvb_get_guint8(tvb, offset+17),
+                                           tvb_get_guint8(tvb, offset+18));
+            }
+            break;
+        }
         offset += len;
 
         len = tvb_get_letohs(tvb, offset);
@@ -427,43 +427,43 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
             proto_item_append_text(tr, "IP:%s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
             break;
 
-	case PROTO_ID_RPC_CO:
-	    proto_item_append_text(tr, "RPC connection-oriented protocol");
-	    break;
+        case PROTO_ID_RPC_CO:
+            proto_item_append_text(tr, "RPC connection-oriented protocol");
+            break;
 
-	case PROTO_ID_RPC_CL:
-	    proto_item_append_text(tr, "RPC connectionless protocol");
+        case PROTO_ID_RPC_CL:
+            proto_item_append_text(tr, "RPC connectionless protocol");
             /* XXX - is this big or little endian? */
             proto_tree_add_item(tr, hf_epm_ver_min, tvb, offset, 2, FALSE);
-	    break;
+            break;
 
         case PROTO_ID_NAMED_PIPES: /* \\PIPE\xxx   named pipe */
-	    tvb_ensure_bytes_exist(tvb, offset, len);
+            tvb_ensure_bytes_exist(tvb, offset, len);
             proto_tree_add_item(tr, hf_epm_proto_named_pipes, tvb, offset, len, TRUE);
-            proto_item_append_text(tr, "NamedPipe:%*s",MIN(len,tvb_length_remaining(tvb, offset)), tvb_get_ptr(tvb, offset, -1)); 
+            proto_item_append_text(tr, "NamedPipe:%*s",MIN(len,tvb_length_remaining(tvb, offset)), tvb_get_ptr(tvb, offset, -1));
             break;
 
         case PROTO_ID_NAMED_PIPES_2: /* PIPENAME  named pipe */
-	    tvb_ensure_bytes_exist(tvb, offset, len);
+            tvb_ensure_bytes_exist(tvb, offset, len);
             proto_tree_add_item(tr, hf_epm_proto_named_pipes, tvb, offset, len, TRUE);
-            proto_item_append_text(tr, "PIPE:%*s",MIN(len,tvb_length_remaining(tvb, offset)), tvb_get_ptr(tvb, offset, -1)); 
+            proto_item_append_text(tr, "PIPE:%*s",MIN(len,tvb_length_remaining(tvb, offset)), tvb_get_ptr(tvb, offset, -1));
             break;
 
         case PROTO_ID_NETBIOS: /* \\NETBIOS   netbios name */
-	    tvb_ensure_bytes_exist(tvb, offset, len);
+            tvb_ensure_bytes_exist(tvb, offset, len);
             proto_tree_add_item(tr, hf_epm_proto_netbios_name, tvb, offset, len, TRUE);
-            proto_item_append_text(tr, "NetBIOS:%*s",MIN(len,tvb_length_remaining(tvb, offset)), tvb_get_ptr(tvb, offset, -1)); 
+            proto_item_append_text(tr, "NetBIOS:%*s",MIN(len,tvb_length_remaining(tvb, offset)), tvb_get_ptr(tvb, offset, -1));
             break;
         case PROTO_ID_HTTP: /* RPC over HTTP */
             proto_tree_add_item(tr, hf_epm_proto_http_port, tvb, offset, 2, FALSE);
             proto_item_append_text(tr, "RPC over HTTP Port:%d", tvb_get_ntohs(tvb, offset));
             break;
-			
+
         default:
             if(len){
-    	        expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_WARN, "RightHandSide not decoded yet for proto_id 0x%x", 
+                expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_WARN, "RightHandSide not decoded yet for proto_id 0x%x",
                     proto_id);
-		tvb_ensure_bytes_exist(tvb, offset, len);
+                tvb_ensure_bytes_exist(tvb, offset, len);
                 proto_tree_add_text(tr, tvb, offset, len, "RightHandSide not decoded yet for proto_id 0x%x", proto_id);
             }
         }
@@ -678,21 +678,21 @@ epm_dissect_ept_lookup_handle_free_resp (tvbuff_t *tvb, int offset,
 
 
 static dcerpc_sub_dissector epm_dissectors[] = {
-    { 0, "Insert", 
-	epm_dissect_ept_insert_rqst,
-	epm_dissect_ept_insert_resp },
+    { 0, "Insert",
+        epm_dissect_ept_insert_rqst,
+        epm_dissect_ept_insert_resp },
     { 1, "Delete",
-	epm_dissect_ept_delete_rqst,
-	epm_dissect_ept_delete_resp },
+        epm_dissect_ept_delete_rqst,
+        epm_dissect_ept_delete_resp },
     { 2, "Lookup",
-	epm_dissect_ept_lookup_rqst,
-	epm_dissect_ept_lookup_resp },
+        epm_dissect_ept_lookup_rqst,
+        epm_dissect_ept_lookup_resp },
     { 3, "Map",
-	epm_dissect_ept_map_rqst,
-	epm_dissect_ept_map_resp },
+        epm_dissect_ept_map_rqst,
+        epm_dissect_ept_map_resp },
     { 4, "LookupHandleFree",
-	epm_dissect_ept_lookup_handle_free_rqst,
-	epm_dissect_ept_lookup_handle_free_resp },
+        epm_dissect_ept_lookup_handle_free_rqst,
+        epm_dissect_ept_lookup_handle_free_resp },
     { 5, "InqObject", NULL, NULL },
     { 6, "MgmtDelete", NULL, NULL },
     { 0, NULL, NULL, NULL }
@@ -703,8 +703,8 @@ proto_register_epm (void)
 {
     static hf_register_info hf[] = {
         { &hf_epm_opnum,
-	  { "Operation", "epm.opnum", FT_UINT16, BASE_DEC,
-	    NULL, 0x0, NULL, HFILL }},
+          { "Operation", "epm.opnum", FT_UINT16, BASE_DEC,
+            NULL, 0x0, NULL, HFILL }},
         { &hf_epm_inquiry_type,
           { "Inquiry type", "epm.inq_type", FT_UINT32, BASE_DEC, VALS(ep_service), 0x0, NULL, HFILL }},
         { &hf_epm_object,
@@ -754,7 +754,7 @@ proto_register_epm (void)
         { &hf_epm_proto_tcp_port,
           { "TCP Port", "epm.proto.tcp_port", FT_UINT16, BASE_DEC, NULL, 0x0, "TCP Port where this service can be found", HFILL }},
         { &hf_epm_proto_http_port,
-          { "TCP Port", "epm.proto.http_port", FT_UINT16, BASE_DEC, NULL, 0x0, "TCP Port where this service can be found", HFILL }},      
+          { "TCP Port", "epm.proto.http_port", FT_UINT16, BASE_DEC, NULL, 0x0, "TCP Port where this service can be found", HFILL }},
         { &hf_epm_tower_rhs_len,
           { "RHS Length", "epm.tower.rhs.len", FT_UINT16, BASE_DEC, NULL, 0x0, "Length of RHS data", HFILL }},
         { &hf_epm_tower_lhs_len,
@@ -769,14 +769,14 @@ proto_register_epm (void)
         &ett_epm_tower_floor,
         &ett_epm_entry
     };
-    
+
     /* interface version 3 */
     proto_epm3 = proto_register_protocol ("DCE/RPC Endpoint Mapper", "EPM", "epm");
     proto_register_field_array (proto_epm3, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
 
     /* interface version 4 */
-	proto_epm4 = proto_register_protocol ("DCE/RPC Endpoint Mapper v4", "EPMv4", "epm4");
+    proto_epm4 = proto_register_protocol ("DCE/RPC Endpoint Mapper v4", "EPMv4", "epm4");
 }
 
 void

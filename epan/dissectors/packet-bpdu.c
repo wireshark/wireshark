@@ -160,8 +160,8 @@ static dissector_handle_t gmrp_handle;
 static dissector_handle_t data_handle;
 
 static const value_string protocol_id_vals[] = {
-	{ 0, "Spanning Tree Protocol" },
-	{ 0, NULL }
+  { 0, "Spanning Tree Protocol" },
+  { 0, NULL }
 };
 
 #define BPDU_TYPE_CONF			0x00	/* STP Configuration BPDU */
@@ -169,10 +169,10 @@ static const value_string protocol_id_vals[] = {
 #define BPDU_TYPE_TOPOLOGY_CHANGE	0x80	/* STP TCN (Topology change notify) BPDU */
 
 static const value_string bpdu_type_vals[] = {
-	{ BPDU_TYPE_CONF,            "Configuration" },
-	{ BPDU_TYPE_RST,             "Rapid/Multiple Spanning Tree" },
-	{ BPDU_TYPE_TOPOLOGY_CHANGE, "Topology Change Notification" },
-	{ 0,                         NULL }
+  { BPDU_TYPE_CONF,            "Configuration" },
+  { BPDU_TYPE_RST,             "Rapid/Multiple Spanning Tree" },
+  { BPDU_TYPE_TOPOLOGY_CHANGE, "Topology Change Notification" },
+  { 0,                         NULL }
 };
 
 #define PROTO_VERSION_STP	0
@@ -184,27 +184,27 @@ static const value_string bpdu_type_vals[] = {
 #define MSTI_FORMAT_ALTERNATIVE	2
 
 static const value_string version_id_vals[] = {
-	{ PROTO_VERSION_STP,	"Spanning Tree" },
-	{ PROTO_VERSION_RSTP,	"Rapid Spanning Tree" },
-	{ PROTO_VERSION_MSTP,	"Multiple Spanning Tree" },
-	{ 0,			NULL}
+  { PROTO_VERSION_STP,	"Spanning Tree" },
+  { PROTO_VERSION_RSTP,	"Rapid Spanning Tree" },
+  { PROTO_VERSION_MSTP,	"Multiple Spanning Tree" },
+  { 0,			NULL}
 };
 static const value_string role_vals[] = {
-	{ 1, "Alternate or Backup" },
-	{ 2, "Root" },
-	{ 3, "Designated" },
-	{ 0, NULL }
+  { 1, "Alternate or Backup" },
+  { 2, "Root" },
+  { 3, "Designated" },
+  { 0, NULL }
 };
 
 static const char initial_sep[] = " (";
 static const char cont_sep[] = ", ";
 
-#define APPEND_BOOLEAN_FLAG(flag, item, string) \
-	if(flag){							\
-		if(item)						\
-			proto_item_append_text(item, string, sep);	\
-		sep = cont_sep;						\
-	}
+#define APPEND_BOOLEAN_FLAG(flag, item, string)         \
+  if(flag){                                             \
+    if(item)						\
+      proto_item_append_text(item, string, sep);	\
+    sep = cont_sep;                                     \
+  }
 
 static void
 dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -241,7 +241,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16 msti_bridge_identifier_priority, msti_port_identifier_priority;
   const guint8  *msti_bridge_identifier_mac;
   gchar   *msti_bridge_identifier_mac_str;
-  int	total_msti_length, offset, msti, msti_format;
+  int   total_msti_length, offset, msti, msti_format;
 
   proto_tree *bpdu_tree;
   proto_tree *mstp_tree, *msti_tree;
@@ -655,14 +655,14 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  msti_format = MSTI_FORMAT_UNKNOWN;
 	  total_msti_length = 0;
 	}
-	  
+
       }
       set_actual_length(tvb, BPDU_MSTI + total_msti_length);
 
       mstp_item = proto_tree_add_text(bpdu_tree, tvb, BPDU_VERSION_3_LENGTH,
                                       -1, "MST Extension");
       mstp_tree = proto_item_add_subtree(mstp_item, ett_mstp);
-                                      
+
       proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_format_selector, tvb,
                           BPDU_MST_CONFIG_FORMAT_SELECTOR, 1, FALSE);
       proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_name, tvb,
@@ -864,7 +864,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_uint(msti_tree, hf_bpdu_msti_port_identifier_priority, tvb,
 			      offset+MSTI_PORT_IDENTIFIER_PRIORITY, 1,
 			      msti_port_identifier_priority);
-		      
+
 	  proto_tree_add_item(msti_tree, hf_bpdu_msti_remaining_hops, tvb,
 			      offset + MSTI_REMAINING_HOPS, 1, FALSE);
 
@@ -957,7 +957,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  msti_port_identifier_priority = tvb_get_ntohs(tvb, offset+ALT_MSTI_PORT_IDENTIFIER);
 	  proto_tree_add_uint(msti_tree, hf_bpdu_msti_port_id, tvb, 
 			      offset+ALT_MSTI_PORT_IDENTIFIER, 2, msti_port_identifier_priority);
- 
+
 	  proto_tree_add_item(msti_tree, hf_bpdu_msti_remaining_hops, tvb,
 			      offset + ALT_MSTI_REMAINING_HOPS, 1, FALSE);
 

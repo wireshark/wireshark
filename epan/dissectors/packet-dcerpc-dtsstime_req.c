@@ -51,9 +51,9 @@ static guint16  ver_dtsstime_req = 1;
 
 
 static dcerpc_sub_dissector dtsstime_req_dissectors[] = {
-    { 0, "ClerkRequestTime", NULL, NULL},
-    { 1, "ServerRequestTime", NULL, NULL},
-    { 0, NULL, NULL, NULL }
+	{ 0, "ClerkRequestTime", NULL, NULL},
+	{ 1, "ServerRequestTime", NULL, NULL},
+	{ 0, NULL, NULL, NULL }
 };
 
 void

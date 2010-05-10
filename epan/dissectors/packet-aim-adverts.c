@@ -40,14 +40,14 @@
 #define FAMILY_ADVERTS    0x0005
 
 static const aim_subtype aim_fnac_family_adverts[] = {
-  { 0x0001, "Error", dissect_aim_snac_error },
-  { 0x0002, "Request", NULL },
+	{ 0x0001, "Error", dissect_aim_snac_error },
+	{ 0x0002, "Request", NULL },
 	/* FIXME: */
-	/* From other sources, I understand this response contains 
+	/* From other sources, I understand this response contains
 	 * a GIF file, haven't actually seen one though. And this
 	 * family appears to be deprecated, so we might never find out.. */
-  { 0x0003, "Data (GIF)", NULL },
-  { 0, NULL, NULL }
+	{ 0x0003, "Data (GIF)", NULL },
+	{ 0, NULL, NULL }
 };
 
 /* Initialize the protocol and registered fields */
@@ -62,26 +62,27 @@ proto_register_aim_adverts(void)
 {
 
 /* Setup list of header fields */
-/*FIXME
-  static hf_register_info hf[] = {
-  };*/
+#if 0 /*FIXME*/
+	static hf_register_info hf[] = {
+	};
+#endif
 
 /* Setup protocol subtree array */
-  static gint *ett[] = {
-    &ett_aim_adverts,
-  };
+	static gint *ett[] = {
+		&ett_aim_adverts,
+	};
 
 /* Register the protocol name and description */
-  proto_aim_adverts = proto_register_protocol("AIM Advertisements", "AIM Advertisements", "aim_adverts");
+	proto_aim_adverts = proto_register_protocol("AIM Advertisements", "AIM Advertisements", "aim_adverts");
 
 /* Required function calls to register the header fields and subtrees used */
 /*FIXME
   proto_register_field_array(proto_aim_adverts, hf, array_length(hf));*/
-  proto_register_subtree_array(ett, array_length(ett));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_aim_adverts(void)
 {
-  aim_init_family(proto_aim_adverts, ett_aim_adverts, FAMILY_ADVERTS, aim_fnac_family_adverts);
+	aim_init_family(proto_aim_adverts, ett_aim_adverts, FAMILY_ADVERTS, aim_fnac_family_adverts);
 }

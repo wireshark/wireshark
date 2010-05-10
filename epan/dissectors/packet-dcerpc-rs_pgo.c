@@ -39,7 +39,7 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-dce122.h"
-/* 
+/*
 delete
 dissect_rgy_acct_user_flags_t
 */
@@ -331,9 +331,9 @@ dissect_sec_rgy_pgo_flags_t (tvbuff_t * tvb, int offset,
         const unsigned32 sec_rgy_pgo_flags_none = 0;
 */
 #define sec_rgy_pgo_is_an_alias   0x1
-#define sec_rgy_pgo_is_required    0x2
-#define sec_rgy_pgo_projlist_ok 0x4
-#define sec_rgy_pgo_flags_none  0
+#define sec_rgy_pgo_is_required   0x2
+#define sec_rgy_pgo_projlist_ok   0x4
+#define sec_rgy_pgo_flags_none      0
 
 
   col_append_str (pinfo->cinfo, COL_INFO, " PgoFlags=");
@@ -618,7 +618,7 @@ dissect_sec_rgy_cursor_t (tvbuff_t * tvb, int offset,
         boolean32       valid;
     }               sec_rgy_cursor_t;
 
- 
+
 */
 
   proto_item *item = NULL;
@@ -1142,7 +1142,7 @@ rs_pgo_dissect_delete_resp (tvbuff_t * tvb, int offset,
  buff_remain = tvb_length_remaining(tvb, offset);
 
 /* found several add_member responses that had 8 bytes of data. first was 4 0's and last was 3 zeros and a 1 */
- 
+
   if (buff_remain > 8) {
   offset =
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
@@ -1202,7 +1202,7 @@ rs_pgo_dissect_replace_resp (tvbuff_t * tvb, int offset,
 /*
         [out]       rs_cache_data_t     *cache_info,
         [out]       error_status_t      *status
-  
+
 */
 
   offset =
@@ -1636,7 +1636,7 @@ rs_pgo_dissect_delete_member_resp (tvbuff_t * tvb, int offset,
 /*
         [out]       rs_cache_data_t     *cache_info,
         [out]       error_status_t      *status
- 
+
 */
 
   offset =
@@ -1662,7 +1662,7 @@ static dcerpc_sub_dissector rs_pgo_dissectors[] = {
   {5, "key_transfer", rs_pgo_dissect_key_transfer_rqst,
    rs_pgo_dissect_key_transfer_resp},
   {6, "add_member", rs_pgo_dissect_add_member_rqst,
-   rs_pgo_dissect_add_member_resp}, 
+   rs_pgo_dissect_add_member_resp},
   {7, "delete_member", rs_pgo_dissect_delete_member_rqst,
    rs_pgo_dissect_delete_member_resp},
   {8, "is_member", rs_pgo_dissect_is_member_rqst,

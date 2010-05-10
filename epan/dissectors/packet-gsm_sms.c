@@ -157,7 +157,7 @@ static gint hf_gsm_sms_tp_cdl = -1;
 static gint hf_gsm_sms_tp_cd = -1;
 static gint hf_gsm_sms_tp_ud = -1;
 #endif
- 
+
 static gboolean msg_udh_frag = FALSE;
 static char bigbuf[1024];
 static packet_info *g_pinfo;
@@ -173,22 +173,22 @@ static proto_tree *g_tree;
 
 /* Coding Group Bits */
 static const value_string gsm_sms_coding_group_bits_vals[] = {
-	{ 0,	"General Data Coding indication" }, /* 00xx */
-	{ 1,	"General Data Coding indication" }, /* 00xx */
-	{ 2,	"General Data Coding indication" }, /* 00xx */
-	{ 3,	"General Data Coding indication" }, /* 00xx */
-	{ 4,	"Message Marked for Automatic Deletion Group" }, /* 01xx */
-	{ 5,	"Message Marked for Automatic Deletion Group" }, /* 01xx */
-	{ 6,	"Message Marked for Automatic Deletion Group" }, /* 01xx */
-	{ 7,	"Message Marked for Automatic Deletion Group" }, /* 01xx */
-	{ 8,	"Reserved coding groups" },			/* 1000..1011  */
-	{ 9,	"Reserved coding groups" },			/* 1000..1011  */
-	{ 10,	"Reserved coding groups" },			/* 1000..1011  */
-	{ 11,	"Reserved coding groups" },			/* 1000..1011  */
-	{ 12,	"Message Waiting Indication Group: Discard Message" },/* 1100  */
-	{ 13,	"Message Waiting Indication Group: Store Message" },  /* 1101  */
-	{ 14,	"Message Waiting Indication Group: Store Message" },  /* 1110  */
-	{ 15,	"Data coding/message class" },  /* 1111  */
+    { 0,	"General Data Coding indication" },			/* 00xx */
+    { 1,	"General Data Coding indication" },			/* 00xx */
+    { 2,	"General Data Coding indication" },			/* 00xx */
+    { 3,	"General Data Coding indication" },			/* 00xx */
+    { 4,	"Message Marked for Automatic Deletion Group" },	/* 01xx */
+    { 5,	"Message Marked for Automatic Deletion Group" },	/* 01xx */
+    { 6,	"Message Marked for Automatic Deletion Group" },	/* 01xx */
+    { 7,	"Message Marked for Automatic Deletion Group" },	/* 01xx */
+    { 8,	"Reserved coding groups" },				/* 1000..1011  */
+    { 9,	"Reserved coding groups" },				/* 1000..1011  */
+    { 10,	"Reserved coding groups" },				/* 1000..1011  */
+    { 11,	"Reserved coding groups" },				/* 1000..1011  */
+    { 12,	"Message Waiting Indication Group: Discard Message" },	/* 1100  */
+    { 13,	"Message Waiting Indication Group: Store Message" },	/* 1101  */
+    { 14,	"Message Waiting Indication Group: Store Message" },	/* 1110  */
+    { 15,	"Data coding/message class" },  /* 1111  */
     { 0, NULL },
 };
 
@@ -220,31 +220,31 @@ static int hf_gsm_sms_ud_reassembled_in = -1;
 static int hf_gsm_sms_ud_reassembled_length = -1;
 
 static const fragment_items sm_frag_items = {
-	/* Fragment subtrees */
-	&ett_gsm_sms_ud_fragment,
-	&ett_gsm_sms_ud_fragments,
-	/* Fragment fields */
-	&hf_gsm_sms_ud_fragments,
-	&hf_gsm_sms_ud_fragment,
-	&hf_gsm_sms_ud_fragment_overlap,
-	&hf_gsm_sms_ud_fragment_overlap_conflicts,
-	&hf_gsm_sms_ud_fragment_multiple_tails,
-	&hf_gsm_sms_ud_fragment_too_long_fragment,
-	&hf_gsm_sms_ud_fragment_error,
-	/* Reassembled in field */
-	&hf_gsm_sms_ud_reassembled_in,
-	/* Reassembled length field */
-	&hf_gsm_sms_ud_reassembled_length,
-	/* Tag */
-	"Short Message fragments"
+    /* Fragment subtrees */
+    &ett_gsm_sms_ud_fragment,
+    &ett_gsm_sms_ud_fragments,
+    /* Fragment fields */
+    &hf_gsm_sms_ud_fragments,
+    &hf_gsm_sms_ud_fragment,
+    &hf_gsm_sms_ud_fragment_overlap,
+    &hf_gsm_sms_ud_fragment_overlap_conflicts,
+    &hf_gsm_sms_ud_fragment_multiple_tails,
+    &hf_gsm_sms_ud_fragment_too_long_fragment,
+    &hf_gsm_sms_ud_fragment_error,
+    /* Reassembled in field */
+    &hf_gsm_sms_ud_reassembled_in,
+    /* Reassembled length field */
+    &hf_gsm_sms_ud_reassembled_length,
+    /* Tag */
+    "Short Message fragments"
 };
 
 
 static void
 gsm_sms_defragment_init (void)
 {
-	fragment_table_init (&g_sm_fragment_table);
-	reassembled_table_init(&g_sm_reassembled_table);
+    fragment_table_init (&g_sm_fragment_table);
+    reassembled_table_init(&g_sm_reassembled_table);
 }
 
 /*
@@ -289,38 +289,38 @@ static const value_string vp_type_strings[] = {
 };
 
 static const true_false_string mms_bool_strings = {
-	"No more messages are waiting for the MS in this SC",
-	"More messages are waiting for the MS in this SC"
+    "No more messages are waiting for the MS in this SC",
+    "More messages are waiting for the MS in this SC"
 };
 
 static const true_false_string sri_bool_strings = {
-	"A status report shall be returned to the SME",
-	"A status report shall not be returned to the SME"
+    "A status report shall be returned to the SME",
+    "A status report shall not be returned to the SME"
 };
 
 static const true_false_string srr_bool_strings = {
-	"A status report is requested",
-	"A status report is not requested"
+    "A status report is requested",
+    "A status report is not requested"
 };
 
 static const true_false_string udhi_bool_strings = {
-	"The beginning of the TP UD field contains a Header in addition to the short message",
-	"The TP UD field contains only the short message"
+    "The beginning of the TP UD field contains a Header in addition to the short message",
+    "The TP UD field contains only the short message"
 };
 
 static const true_false_string rp_bool_strings = {
-	"TP Reply Path parameter is set in this SMS SUBMIT/DELIVER",
-	"TP Reply Path parameter is not set in this SMS SUBMIT/DELIVER"
+    "TP Reply Path parameter is set in this SMS SUBMIT/DELIVER",
+    "TP Reply Path parameter is not set in this SMS SUBMIT/DELIVER"
 };
 
 static const true_false_string rd_bool_strings = {
-	"Instruct SC to reject duplicates",
-	"Instruct SC to accept duplicates"
+    "Instruct SC to reject duplicates",
+    "Instruct SC to accept duplicates"
 };
 
 static const true_false_string srq_bool_strings = {
-	"The SMS STATUS REPORT is the result of an SMS COMMAND e.g. an Enquiry.",
-	"SMS STATUS REPORT is the result of a SMS SUBMIT."
+    "The SMS STATUS REPORT is the result of an SMS COMMAND e.g. an Enquiry.",
+    "SMS STATUS REPORT is the result of a SMS SUBMIT."
 };
 
 #define	NUM_UDH_IEIS	256
@@ -653,16 +653,14 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
     *ucs2 = FALSE;
     *compressed = FALSE;
 
-    item =
-	proto_tree_add_item(tree, hf_gsm_sms_tp_dcs, tvb,
-	    offset, 1, FALSE);
+    item = proto_tree_add_item(tree, hf_gsm_sms_tp_dcs, tvb, offset, 1, FALSE);
 
     subtree = proto_item_add_subtree(item, ett_dcs);
-	if(oct&0x80){
-		proto_tree_add_item(subtree, hf_gsm_sms_coding_group_bits4, tvb, offset, 1, FALSE);
-	}else{
-		proto_tree_add_item(subtree, hf_gsm_sms_coding_group_bits2, tvb, offset, 1, FALSE);
-	}
+    if (oct&0x80) {
+        proto_tree_add_item(subtree, hf_gsm_sms_coding_group_bits4, tvb, offset, 1, FALSE);
+    } else {
+        proto_tree_add_item(subtree, hf_gsm_sms_coding_group_bits2, tvb, offset, 1, FALSE);
+    }
 
     if (oct == 0x00)
     {
@@ -1695,23 +1693,23 @@ dis_iei_csm8(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
     EXACT_DATA_CHECK(length, 3);
     oct = tvb_get_guint8(tvb, offset);
-	g_sm_id = oct;	
-	proto_tree_add_uint (tree,
-							hf_gsm_sms_ud_multiple_messages_msg_id,
-							tvb, offset, 1, g_sm_id);
-	offset++;
+    g_sm_id = oct;
+    proto_tree_add_uint (tree,
+                         hf_gsm_sms_ud_multiple_messages_msg_id,
+                         tvb, offset, 1, g_sm_id);
+    offset++;
 
-	oct = tvb_get_guint8(tvb, offset);
-	g_frags = oct;
-	proto_tree_add_uint (tree,
-							hf_gsm_sms_ud_multiple_messages_msg_parts,
-							tvb , offset , 1, g_frags);
-	offset++;
-	oct = tvb_get_guint8(tvb, offset);
-	g_frag = oct;
-	proto_tree_add_uint (tree,
-							hf_gsm_sms_ud_multiple_messages_msg_part,
-							tvb, offset, 1, g_frag);
+    oct = tvb_get_guint8(tvb, offset);
+    g_frags = oct;
+    proto_tree_add_uint (tree,
+                         hf_gsm_sms_ud_multiple_messages_msg_parts,
+                         tvb , offset , 1, g_frags);
+    offset++;
+    oct = tvb_get_guint8(tvb, offset);
+    g_frag = oct;
+    proto_tree_add_uint (tree,
+                         hf_gsm_sms_ud_multiple_messages_msg_part,
+                         tvb, offset, 1, g_frag);
 
 }
 
@@ -1728,7 +1726,7 @@ dis_iei_apa_8bit(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
     EXACT_DATA_CHECK(length, 2);
 
     oct = tvb_get_guint8(tvb, offset);
-	g_port_dst = oct;
+    g_port_dst = oct;
     if (oct < 240)
     {
 	str = "Reserved";
@@ -1746,7 +1744,7 @@ dis_iei_apa_8bit(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);
-	g_port_src = oct;
+    g_port_src = oct;
     if (oct < 240)
     {
 	str = "Reserved";
@@ -1774,7 +1772,7 @@ dis_iei_apa_16bit(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length
     EXACT_DATA_CHECK(length, 4);
 
     value = tvb_get_ntohs(tvb, offset);
-	g_port_dst = value;
+    g_port_dst = value;
     if (value < 16000)
     {
 	str = "As allocated by IANA (http://www.IANA.com/)";
@@ -1796,7 +1794,7 @@ dis_iei_apa_16bit(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length
 
     offset += 2;
     value = tvb_get_ntohs(tvb, offset);
-	g_port_src = value;
+    g_port_src = value;
     if (value < 16000)
     {
 	str = "As allocated by IANA (http://www.IANA.com/)";
@@ -1827,88 +1825,88 @@ dis_iei_scp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
     EXACT_DATA_CHECK(length, 1);
 
-	oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_guint8(tvb, offset);
 
-	if (oct & 0x01)
-	{
-		proto_tree_add_text(tree,
-		tvb, offset, 1,
-		"Status Report for short message transaction completed");
-	}
-	else
-	{
-		proto_tree_add_text(tree,
-		tvb, offset, 1,
-		"No Status Report for short message transaction completed");
-	}
+    if (oct & 0x01)
+    {
+        proto_tree_add_text(tree,
+                            tvb, offset, 1,
+                            "Status Report for short message transaction completed");
+    }
+    else
+    {
+        proto_tree_add_text(tree,
+                            tvb, offset, 1,
+                            "No Status Report for short message transaction completed");
+    }
 
-	if (oct & 0x02)
-	{
-		proto_tree_add_text(tree,
-		tvb, offset, 1,
-		"Status Report for permanent error when SC is not making any more transfer attempts");
-	}
-	else
-	{
-		proto_tree_add_text(tree,
-		tvb, offset, 1,
-		"No Status Report for permanent error when SC is not making any more transfer attempts");
-	}
+    if (oct & 0x02)
+    {
+        proto_tree_add_text(tree,
+                            tvb, offset, 1,
+                            "Status Report for permanent error when SC is not making any more transfer attempts");
+    }
+    else
+    {
+        proto_tree_add_text(tree,
+                            tvb, offset, 1,
+                            "No Status Report for permanent error when SC is not making any more transfer attempts");
+    }
 
-	if (oct & 0x04)
-	{
-		proto_tree_add_text(tree,
-		tvb, offset, 1,
-		"Status Report for temporary error when SC is not making any more transfer attempts");
-	}
-	else
-	{
-		proto_tree_add_text(tree,
-		tvb, offset, 1,
-		"No Status Report for temporary error when SC is not making any more transfer attempts");
-	}
+    if (oct & 0x04)
+    {
+        proto_tree_add_text(tree,
+                            tvb, offset, 1,
+                            "Status Report for temporary error when SC is not making any more transfer attempts");
+    }
+    else
+    {
+        proto_tree_add_text(tree,
+                            tvb, offset, 1,
+                            "No Status Report for temporary error when SC is not making any more transfer attempts");
+    }
 
-	if (oct & 0x08)
-	{
+    if (oct & 0x08)
+    {
 
-		proto_tree_add_text(tree,
-		tvb, offset, 1,
-		"Status Report for temporary error when SC is still trying to transfer SM");
-	}
-	else
-	{
-		proto_tree_add_text(tree,
-		tvb, offset, 1,
-		"No Status Report for temporary error when SC is still trying to transfer SM");
-	}
+        proto_tree_add_text(tree,
+                            tvb, offset, 1,
+                            "Status Report for temporary error when SC is still trying to transfer SM");
+    }
+    else
+    {
+        proto_tree_add_text(tree,
+                            tvb, offset, 1,
+                            "No Status Report for temporary error when SC is still trying to transfer SM");
+    }
 
-	if (oct & 0x40)
-	{
+    if (oct & 0x40)
+    {
 
-		proto_tree_add_text(tree,
-		tvb, offset, 1,
-		"A Status Report generated by this Short Message, due to a permanent error or last temporary error, cancels the SRR of the rest of the Short Messages in a concatenated message");
-	}
-	else
-	{
-		proto_tree_add_text(tree,
-		tvb, offset, 1,
-		"No activation");
-	}
+        proto_tree_add_text(tree,
+                            tvb, offset, 1,
+                            "A Status Report generated by this Short Message, due to a permanent error or last temporary error, cancels the SRR of the rest of the Short Messages in a concatenated message");
+    }
+    else
+    {
+        proto_tree_add_text(tree,
+                            tvb, offset, 1,
+                            "No activation");
+    }
 
-	if (oct & 0x80)
-	{
+    if (oct & 0x80)
+    {
 
-		proto_tree_add_text(tree,
-		tvb, offset, 1,
-		"Include original UDH into the Status Report");
-	}
-	else
-	{
-		proto_tree_add_text(tree,
-		tvb, offset, 1,
-		"Do not include original UDH into the Status Report");
-	}
+        proto_tree_add_text(tree,
+                            tvb, offset, 1,
+                            "Include original UDH into the Status Report");
+    }
+    else
+    {
+        proto_tree_add_text(tree,
+                            tvb, offset, 1,
+                            "Do not include original UDH into the Status Report");
+    }
 
 }
 
@@ -1920,264 +1918,264 @@ dis_iei_udh_si(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
     EXACT_DATA_CHECK(length, 1);
 
-	oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_guint8(tvb, offset);
 
-	switch (oct)
-	{
-		case 1:
-			proto_tree_add_text(tree,
-			tvb, offset, 1,
-			"The following part of the UDH is created by the original sender (valid in case of Status Report)");
-		break;
-		case 2:
-			proto_tree_add_text(tree,
-			tvb, offset, 1,
-			"The following part of the UDH is created by the original receiver (valid in case of Status Report)");
-		break;
-		case 3:
-			proto_tree_add_text(tree,
-			tvb, offset, 1,
-			"The following part of the UDH is created by the SMSC (can occur in any message or report)");
-		break;
-		default:
-			proto_tree_add_text(tree,
-			tvb, offset, 1,
-			"The following part of the UDH is created by %d" , oct);
-		break;
-	}	
+    switch (oct)
+    {
+        case 1:
+            proto_tree_add_text(tree,
+                                tvb, offset, 1,
+                                "The following part of the UDH is created by the original sender (valid in case of Status Report)");
+            break;
+        case 2:
+            proto_tree_add_text(tree,
+                                tvb, offset, 1,
+                                "The following part of the UDH is created by the original receiver (valid in case of Status Report)");
+            break;
+        case 3:
+            proto_tree_add_text(tree,
+                                tvb, offset, 1,
+                                "The following part of the UDH is created by the SMSC (can occur in any message or report)");
+            break;
+        default:
+            proto_tree_add_text(tree,
+                                tvb, offset, 1,
+                                "The following part of the UDH is created by %d" , oct);
+            break;
+    }
 }
 /* 9.2.3.24.8 */
 static void
 dis_iei_csm16(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
     guint8	oct;
-	guint16	oct_ref;
+    guint16	oct_ref;
 
     EXACT_DATA_CHECK(length, 4);
     oct_ref = tvb_get_ntohs(tvb, offset);
-	g_sm_id = oct_ref;
-	proto_tree_add_uint (tree,
-							hf_gsm_sms_ud_multiple_messages_msg_id,
-							tvb, offset, 2, g_sm_id);
-	offset+=2;
-	oct = tvb_get_guint8(tvb, offset);
-	g_frags = oct;
-	proto_tree_add_uint (tree,
-							hf_gsm_sms_ud_multiple_messages_msg_parts,
-							tvb , offset , 1, g_frags);
+    g_sm_id = oct_ref;
+    proto_tree_add_uint (tree,
+                         hf_gsm_sms_ud_multiple_messages_msg_id,
+                         tvb, offset, 2, g_sm_id);
+    offset+=2;
+    oct = tvb_get_guint8(tvb, offset);
+    g_frags = oct;
+    proto_tree_add_uint (tree,
+                         hf_gsm_sms_ud_multiple_messages_msg_parts,
+                         tvb , offset , 1, g_frags);
 
-	offset++;
-	oct = tvb_get_guint8(tvb, offset);
-	g_frag = oct;
-	proto_tree_add_uint (tree,
-							hf_gsm_sms_ud_multiple_messages_msg_part,
-							tvb, offset, 1, g_frag);
+    offset++;
+    oct = tvb_get_guint8(tvb, offset);
+    g_frag = oct;
+    proto_tree_add_uint (tree,
+                         hf_gsm_sms_ud_multiple_messages_msg_part,
+                         tvb, offset, 1, g_frag);
 }
 
 /* 9.2.3.24.10.1.1 */
 static void
 dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-	const gchar *str = NULL;
+    const gchar *str = NULL;
     guint8	oct;
-	proto_item	*item;
-	proto_item	*item_colour;
-    proto_tree	*subtree = NULL; 
-	proto_tree	*subtree_colour = NULL;
-	
+    proto_item	*item;
+    proto_item	*item_colour;
+    proto_tree	*subtree = NULL;
+    proto_tree	*subtree_colour = NULL;
+
 
     EXACT_DATA_CHECK(length, 4);
     oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, 1,
-	"Start position of the text formatting: %d",
-	oct);
-	offset++;
 
-	oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, 1,
-	"Text formatting length: %d",
-	oct);
-	offset++;
+    proto_tree_add_text(tree,
+                        tvb, offset, 1,
+                        "Start position of the text formatting: %d",
+                        oct);
+    offset++;
 
-	oct = tvb_get_guint8(tvb, offset);
-	
-	item =
-	    proto_tree_add_text(tree,
-		tvb, offset, 1,
-		"formatting mode");
+    oct = tvb_get_guint8(tvb, offset);
 
-	subtree = proto_item_add_subtree(item, ett_udh_tfm);
-	switch(oct & 0x03)
-	{
-		case 0x00:
-			str = "Left";
-		break;
-		case 0x01:
-			str = "Center";
-		break;
-		case 0x02:
-			str = "Right";
-		break;
-		case 0x03:
-			str = "Language dependent";
-		break;
-	}
+    proto_tree_add_text(tree,
+                        tvb, offset, 1,
+                        "Text formatting length: %d",
+                        oct);
+    offset++;
 
-	proto_tree_add_text(subtree,
-	tvb, offset, 1,
-	"Alignment : %d %s",
-	 oct & 0x03 , str);
+    oct = tvb_get_guint8(tvb, offset);
 
-	switch((oct >> 2) & 0x03)
-	{
-		case 0x00:
-			str = "Normal";
-		break;
-		case 0x01:
-			str = "Large";
-		break;
-		case 0x02:
-			str = "Small";
-		break;
-		case 0x03:
-			str = "reserved";
-		break;
-	}
+    item =
+        proto_tree_add_text(tree,
+                            tvb, offset, 1,
+                            "formatting mode");
 
-	proto_tree_add_text(subtree,
-	tvb, offset, 1,
-	"Font Size : %d %s",
-	 (oct >> 2) & 0x03 , str);
-	
-	if(oct & 0x10)
-		str = "on";
-	else
-		str = "off";
-	proto_tree_add_text(subtree,
-	tvb, offset, 1,
-	"Style bold : %d %s",
-	 oct & 0x10 , str);
-	
-	if(oct & 0x20)
-		str = "on";
-	else
-		str = "off";
-	proto_tree_add_text(subtree,
-	tvb, offset, 1,
-	"Style Italic : %d %s",
-	 oct & 0x20 , str);
+    subtree = proto_item_add_subtree(item, ett_udh_tfm);
+    switch(oct & 0x03)
+    {
+        case 0x00:
+            str = "Left";
+            break;
+        case 0x01:
+            str = "Center";
+            break;
+        case 0x02:
+            str = "Right";
+            break;
+        case 0x03:
+            str = "Language dependent";
+            break;
+    }
 
-	if(oct & 0x40)
-		str = "on";
-	else
-		str = "off";
-	proto_tree_add_text(subtree,
-	tvb, offset, 1,
-	"Style Underlined : %d %s",
-	 oct & 0x40 , str);
+    proto_tree_add_text(subtree,
+                        tvb, offset, 1,
+                        "Alignment : %d %s",
+                        oct & 0x03 , str);
 
-	if(oct & 0x80)
-		str = "on";
-	else
-		str = "off";
-	proto_tree_add_text(subtree,
-	tvb, offset, 1,
-	"Style Strikethrough : %d %s",
-	 oct & 0x80 , str);
+    switch((oct >> 2) & 0x03)
+    {
+        case 0x00:
+            str = "Normal";
+            break;
+        case 0x01:
+            str = "Large";
+            break;
+        case 0x02:
+            str = "Small";
+            break;
+        case 0x03:
+            str = "reserved";
+            break;
+    }
 
-	offset++;
-	oct = tvb_get_guint8(tvb, offset);
-	item_colour =
-	    proto_tree_add_text(tree,
-		tvb, offset, 1,
-		"Text Colour");
+    proto_tree_add_text(subtree,
+                        tvb, offset, 1,
+                        "Font Size : %d %s",
+                        (oct >> 2) & 0x03 , str);
 
-	subtree_colour = proto_item_add_subtree(item_colour, ett_udh_tfc);
-	switch(oct & 0x0f)
-	{
-		case 0x00:
-			str = "Dark Grey";
-		break;
-		case 0x01:
-			str = "Dark Red";
-		break;
-			str = "Dark Yellow";
-		break;
-			str = "Dark Green";
-		break;
-			str = "Dark Cyan";
-		break;
-			str = "Dark Blue";
-		break;
-			str = "Dark Magenta";
-		break;
-			str = "Grey";
-		break;
-			str = "White";
-		break;
-			str = "Bright Red";
-		break;
-			str = "Bright Yellow";
-		break;
-			str = "Bright Green";
-		break;
-			str = "Bright Cyan";
-		break;
-			str = "Bright Blue";
-		break;
-			str = "Bright Magenta";
-		break;
-	}
+    if(oct & 0x10)
+        str = "on";
+    else
+        str = "off";
+    proto_tree_add_text(subtree,
+                        tvb, offset, 1,
+                        "Style bold : %d %s",
+                        oct & 0x10 , str);
 
-	proto_tree_add_text(subtree_colour,
-	tvb, offset, 1,
-	"Foreground Colour : %d %s",
-	 oct & 0x0f , str);
-	
-	switch((oct >> 4) & 0x0f)
-	{
-		case 0x00:
-			str = "Dark Grey";
-		break;
-		case 0x01:
-			str = "Dark Red";
-		break;
-			str = "Dark Yellow";
-		break;
-			str = "Dark Green";
-		break;
-			str = "Dark Cyan";
-		break;
-			str = "Dark Blue";
-		break;
-			str = "Dark Magenta";
-		break;
-			str = "Grey";
-		break;
-			str = "White";
-		break;
-			str = "Bright Red";
-		break;
-			str = "Bright Yellow";
-		break;
-			str = "Bright Green";
-		break;
-			str = "Bright Cyan";
-		break;
-			str = "Bright Blue";
-		break;
-			str = "Bright Magenta";
-		break;
-	}
+    if(oct & 0x20)
+        str = "on";
+    else
+        str = "off";
+    proto_tree_add_text(subtree,
+                        tvb, offset, 1,
+                        "Style Italic : %d %s",
+                        oct & 0x20 , str);
 
-	proto_tree_add_text(subtree_colour,
-	tvb, offset, 1,
-	"Background Colour : %d %s",
-	 (oct >> 4) & 0x0f , str);
+    if(oct & 0x40)
+        str = "on";
+    else
+        str = "off";
+    proto_tree_add_text(subtree,
+                        tvb, offset, 1,
+                        "Style Underlined : %d %s",
+                        oct & 0x40 , str);
+
+    if(oct & 0x80)
+        str = "on";
+    else
+        str = "off";
+    proto_tree_add_text(subtree,
+                        tvb, offset, 1,
+                        "Style Strikethrough : %d %s",
+                        oct & 0x80 , str);
+
+    offset++;
+    oct = tvb_get_guint8(tvb, offset);
+    item_colour =
+        proto_tree_add_text(tree,
+                            tvb, offset, 1,
+                            "Text Colour");
+
+    subtree_colour = proto_item_add_subtree(item_colour, ett_udh_tfc);
+    switch(oct & 0x0f)
+    {
+        case 0x00:
+            str = "Dark Grey";
+            break;
+        case 0x01:
+            str = "Dark Red";
+            break;
+            str = "Dark Yellow";
+            break;
+            str = "Dark Green";
+            break;
+            str = "Dark Cyan";
+            break;
+            str = "Dark Blue";
+            break;
+            str = "Dark Magenta";
+            break;
+            str = "Grey";
+            break;
+            str = "White";
+            break;
+            str = "Bright Red";
+            break;
+            str = "Bright Yellow";
+            break;
+            str = "Bright Green";
+            break;
+            str = "Bright Cyan";
+            break;
+            str = "Bright Blue";
+            break;
+            str = "Bright Magenta";
+            break;
+    }
+
+    proto_tree_add_text(subtree_colour,
+                        tvb, offset, 1,
+                        "Foreground Colour : %d %s",
+                        oct & 0x0f , str);
+
+    switch((oct >> 4) & 0x0f)
+    {
+        case 0x00:
+            str = "Dark Grey";
+            break;
+        case 0x01:
+            str = "Dark Red";
+            break;
+            str = "Dark Yellow";
+            break;
+            str = "Dark Green";
+            break;
+            str = "Dark Cyan";
+            break;
+            str = "Dark Blue";
+            break;
+            str = "Dark Magenta";
+            break;
+            str = "Grey";
+            break;
+            str = "White";
+            break;
+            str = "Bright Red";
+            break;
+            str = "Bright Yellow";
+            break;
+            str = "Bright Green";
+            break;
+            str = "Bright Cyan";
+            break;
+            str = "Bright Blue";
+            break;
+            str = "Bright Magenta";
+            break;
+    }
+
+    proto_tree_add_text(subtree_colour,
+                        tvb, offset, 1,
+                        "Background Colour : %d %s",
+                        (oct >> 4) & 0x0f , str);
 
 }
 
@@ -2190,19 +2188,19 @@ dis_iei_ps(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
     EXACT_DATA_CHECK(length, 2);
     oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, 1,
-	"position: %d",
-	oct);
-	offset++;
 
-	oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, 1,
-	"sound number: %d",
-	oct);
+    proto_tree_add_text(tree,
+                        tvb, offset, 1,
+                        "position: %d",
+                        oct);
+    offset++;
+
+    oct = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_text(tree,
+                        tvb, offset, 1,
+                        "sound number: %d",
+                        oct);
 }
 
 /* 9.2.3.24.10.1.3 */
@@ -2213,18 +2211,18 @@ dis_iei_uds(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
     SHORT_DATA_CHECK(length, 2);
     oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, 1,
-	"position: %d",
-	oct);
-	offset++;
 
-	oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, length - 1,
-	"User Defined Sound ");
+    proto_tree_add_text(tree,
+                        tvb, offset, 1,
+                        "position: %d",
+                        oct);
+    offset++;
+
+    oct = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_text(tree,
+                        tvb, offset, length - 1,
+                        "User Defined Sound ");
 }
 
 
@@ -2236,19 +2234,19 @@ dis_iei_pa(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
     EXACT_DATA_CHECK(length, 2);
     oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, 1,
-	"position: %d",
-	oct);
-	offset++;
 
-	oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, 1,
-	"animation number: %d",
-	oct);
+    proto_tree_add_text(tree,
+                        tvb, offset, 1,
+                        "position: %d",
+                        oct);
+    offset++;
+
+    oct = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_text(tree,
+                        tvb, offset, 1,
+                        "animation number: %d",
+                        oct);
 }
 
 
@@ -2260,18 +2258,18 @@ dis_iei_la(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
     SHORT_DATA_CHECK(length, 2);
     oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, 1,
-	"position: %d",
-	oct);
-	offset++;
 
-	oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, length - 1,
-	"Large Animation ");
+    proto_tree_add_text(tree,
+                        tvb, offset, 1,
+                        "position: %d",
+                        oct);
+    offset++;
+
+    oct = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_text(tree,
+                        tvb, offset, length - 1,
+                        "Large Animation ");
 }
 
 /* 9.2.3.24.10.1.6 */
@@ -2282,18 +2280,18 @@ dis_iei_sa(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
     SHORT_DATA_CHECK(length, 2);
     oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, 1,
-	"position: %d",
-	oct);
-	offset++;
 
-	oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, length - 1,
-	"Small Animation ");
+    proto_tree_add_text(tree,
+                        tvb, offset, 1,
+                        "position: %d",
+                        oct);
+    offset++;
+
+    oct = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_text(tree,
+                        tvb, offset, length - 1,
+                        "Small Animation ");
 }
 
 
@@ -2305,18 +2303,18 @@ dis_iei_lp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
     SHORT_DATA_CHECK(length, 2);
     oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, 1,
-	"position: %d",
-	oct);
-	offset++;
 
-	oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, length - 1,
-	"Large Picture ");
+    proto_tree_add_text(tree,
+                        tvb, offset, 1,
+                        "position: %d",
+                        oct);
+    offset++;
+
+    oct = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_text(tree,
+                        tvb, offset, length - 1,
+                        "Large Picture ");
 }
 
 /* 9.2.3.24.10.1.8 */
@@ -2327,18 +2325,18 @@ dis_iei_sp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
     SHORT_DATA_CHECK(length, 2);
     oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, 1,
-	"position: %d",
-	oct);
-	offset++;
 
-	oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, length - 1,
-	"Small Picture ");
+    proto_tree_add_text(tree,
+                        tvb, offset, 1,
+                        "position: %d",
+                        oct);
+    offset++;
+
+    oct = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_text(tree,
+                        tvb, offset, length - 1,
+                        "Small Picture ");
 }
 
 
@@ -2350,32 +2348,32 @@ dis_iei_vp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
     SHORT_DATA_CHECK(length, 4);
     oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, 1,
-	"position: %d",
-	oct);
-	offset++;
 
-	oct = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(tree,
-	tvb, offset, 1,
-	"Horizontal dimension: %d",
-	oct);
-	offset++;
+    proto_tree_add_text(tree,
+                        tvb, offset, 1,
+                        "position: %d",
+                        oct);
+    offset++;
 
-	oct = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(tree,
-	tvb, offset, 1,
-	"Vertical dimension: %d",
-	oct);
-	offset++;
+    oct = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(tree,
+                        tvb, offset, 1,
+                        "Horizontal dimension: %d",
+                        oct);
+    offset++;
+
+    oct = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(tree,
+                        tvb, offset, 1,
+                        "Vertical dimension: %d",
+                        oct);
+    offset++;
 
 
-	oct = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(tree,
-	tvb, offset, length - 3,
-	"Variable Picture ");
+    oct = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(tree,
+                        tvb, offset, length - 3,
+                        "Variable Picture ");
 }
 
 /* 9.2.3.24.10.1.10 */
@@ -2386,12 +2384,12 @@ dis_iei_upi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
     EXACT_DATA_CHECK(length, 1);
     oct = tvb_get_guint8(tvb, offset);
-	
-	proto_tree_add_text(tree,
-	tvb, offset, 1,
-	"Number of corresponding objects: %d",
-	oct);
-	offset++;
+
+    proto_tree_add_text(tree,
+                        tvb, offset, 1,
+                        "Number of corresponding objects: %d",
+                        oct);
+    offset++;
 }
 
 
@@ -2417,94 +2415,94 @@ dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
 	switch (oct)
 	{
-	case 0x00: str = "Concatenated short messages, 8-bit reference number (SMS Control)"; iei_fcn = dis_iei_csm8; break;
-	case 0x01: str = "Special SMS Message Indication (SMS Control)"; break;
-	case 0x02: str = "Reserved N/A"; break;
-	case 0x03: str = "Value not used to avoid misinterpretation as <LF> character N/A"; break;
-	case 0x04: str = "Application port addressing scheme, 8 bit address (SMS Control)"; iei_fcn = dis_iei_apa_8bit; break;
-	case 0x05: str = "Application port addressing scheme, 16 bit address (SMS Control)"; iei_fcn = dis_iei_apa_16bit; break;
-	case 0x06: str = "SMSC Control Parameters (SMS Control)"; iei_fcn = dis_iei_scp; break;
-	case 0x07: str = "UDH Source Indicator (SMS Control)"; iei_fcn  = dis_iei_udh_si; break;
-	case 0x08: str = "Concatenated short message, 16-bit reference number (SMS Control)"; iei_fcn = dis_iei_csm16; break;
-	case 0x09: str = "Wireless Control Message Protocol (SMS Control)"; break;
-	case 0x0A: str = "Text Formatting (EMS Control)"; iei_fcn = dis_iei_tf;
-	case 0x0B: str = "Predefined Sound (EMS Content)"; iei_fcn = dis_iei_ps;break;
-	case 0x0C: str = "User Defined Sound (iMelody max 128 bytes) (EMS Content)"; iei_fcn = dis_iei_uds;break;
-	case 0x0D: str = "Predefined Animation (EMS Content)"; iei_fcn = dis_iei_pa;break;
-	case 0x0E: str = "Large Animation (16*16 times 4 = 32*4 =128 bytes) (EMS Content)"; iei_fcn = dis_iei_la;break;
-	case 0x0F: str = "Small Animation (8*8 times 4 = 8*4 =32 bytes) (EMS Content)"; iei_fcn = dis_iei_sa;break;
-	case 0x10: str = "Large Picture (32*32 = 128 bytes) (EMS Content)"; iei_fcn = dis_iei_lp;break;
-	case 0x11: str = "Small Picture (16*16 = 32 bytes) (EMS Content)"; iei_fcn = dis_iei_sp;break;
-	case 0x12: str = "Variable Picture (EMS Content)"; iei_fcn = dis_iei_vp;break;
-	case 0x13: str = "User prompt indicator (EMS Control)"; iei_fcn = dis_iei_upi;break;
-	case 0x14: str = "Extended Object (EMS Content)"; break;
-	case 0x15: str = "Reused Extended Object (EMS Control)"; break;
-	case 0x16: str = "Compression Control (EMS Control)"; break;
-	case 0x17: str = "Object Distribution Indicator (EMS Control)"; break;
-	case 0x18: str = "Standard WVG object (EMS Content)"; break;
-	case 0x19: str = "Character Size WVG object (EMS Content)"; break;
-	case 0x1A: str = "Extended Object Data Request Command (EMS Control)"; break;
-	case 0x20: str = "RFC 822 E-Mail Header (SMS Control)"; break;
-	case 0x21: str = "Hyperlink format element (SMS Control)"; break;
-	case 0x22: str = "Reply Address Element (SMS Control)"; break;
-	default:
-	    if ((oct >= 0x1b) &&
-		(oct <= 0x1f))
-	    {
-		str = "Reserved for future EMS features (see subclause 3.10) N/A"; break;
-	    }
-	    else if ((oct >= 0x23) &&
-		(oct <= 0x6f))
-	    {
-		str = "Reserved for future use N/A"; break;
-	    }
-	    else if ((oct >= 0x70) &&
-		(oct <= 0x7f))
-	    {
-		str = "(U)SIM Toolkit Security Headers (SMS Control)"; break;
-	    }
-	    else if ((oct >= 0x80) &&
-		(oct <= 0x9f))
-	    {
-		str = "SME to SME specific use (SMS Control)"; break;
-	    }
-	    else if ((oct >= 0xa0) &&
-		(oct <= 0xbf))
-	    {
-		str = "Reserved for future use N/A"; break;
-	    }
-	    else if ((oct >= 0xc0) &&
-		(oct <= 0xdf))
-	    {
-		str = "SC specific use (SMS Control)"; break;
-	    }
-	    else
-	    {
-		str = "Reserved for future use N/A"; break;
-	    }
+            case 0x00: str = "Concatenated short messages, 8-bit reference number (SMS Control)"; iei_fcn = dis_iei_csm8; break;
+            case 0x01: str = "Special SMS Message Indication (SMS Control)"; break;
+            case 0x02: str = "Reserved N/A"; break;
+            case 0x03: str = "Value not used to avoid misinterpretation as <LF> character N/A"; break;
+            case 0x04: str = "Application port addressing scheme, 8 bit address (SMS Control)"; iei_fcn = dis_iei_apa_8bit; break;
+            case 0x05: str = "Application port addressing scheme, 16 bit address (SMS Control)"; iei_fcn = dis_iei_apa_16bit; break;
+            case 0x06: str = "SMSC Control Parameters (SMS Control)"; iei_fcn = dis_iei_scp; break;
+            case 0x07: str = "UDH Source Indicator (SMS Control)"; iei_fcn  = dis_iei_udh_si; break;
+            case 0x08: str = "Concatenated short message, 16-bit reference number (SMS Control)"; iei_fcn = dis_iei_csm16; break;
+            case 0x09: str = "Wireless Control Message Protocol (SMS Control)"; break;
+            case 0x0A: str = "Text Formatting (EMS Control)"; iei_fcn = dis_iei_tf;
+            case 0x0B: str = "Predefined Sound (EMS Content)"; iei_fcn = dis_iei_ps;break;
+            case 0x0C: str = "User Defined Sound (iMelody max 128 bytes) (EMS Content)"; iei_fcn = dis_iei_uds;break;
+            case 0x0D: str = "Predefined Animation (EMS Content)"; iei_fcn = dis_iei_pa;break;
+            case 0x0E: str = "Large Animation (16*16 times 4 = 32*4 =128 bytes) (EMS Content)"; iei_fcn = dis_iei_la;break;
+            case 0x0F: str = "Small Animation (8*8 times 4 = 8*4 =32 bytes) (EMS Content)"; iei_fcn = dis_iei_sa;break;
+            case 0x10: str = "Large Picture (32*32 = 128 bytes) (EMS Content)"; iei_fcn = dis_iei_lp;break;
+            case 0x11: str = "Small Picture (16*16 = 32 bytes) (EMS Content)"; iei_fcn = dis_iei_sp;break;
+            case 0x12: str = "Variable Picture (EMS Content)"; iei_fcn = dis_iei_vp;break;
+            case 0x13: str = "User prompt indicator (EMS Control)"; iei_fcn = dis_iei_upi;break;
+            case 0x14: str = "Extended Object (EMS Content)"; break;
+            case 0x15: str = "Reused Extended Object (EMS Control)"; break;
+            case 0x16: str = "Compression Control (EMS Control)"; break;
+            case 0x17: str = "Object Distribution Indicator (EMS Control)"; break;
+            case 0x18: str = "Standard WVG object (EMS Content)"; break;
+            case 0x19: str = "Character Size WVG object (EMS Content)"; break;
+            case 0x1A: str = "Extended Object Data Request Command (EMS Control)"; break;
+            case 0x20: str = "RFC 822 E-Mail Header (SMS Control)"; break;
+            case 0x21: str = "Hyperlink format element (SMS Control)"; break;
+            case 0x22: str = "Reply Address Element (SMS Control)"; break;
+            default:
+                if ((oct >= 0x1b) &&
+                    (oct <= 0x1f))
+                {
+                    str = "Reserved for future EMS features (see subclause 3.10) N/A"; break;
+                }
+                else if ((oct >= 0x23) &&
+                         (oct <= 0x6f))
+                {
+                    str = "Reserved for future use N/A"; break;
+                }
+                else if ((oct >= 0x70) &&
+                         (oct <= 0x7f))
+                {
+                    str = "(U)SIM Toolkit Security Headers (SMS Control)"; break;
+                }
+                else if ((oct >= 0x80) &&
+                         (oct <= 0x9f))
+                {
+                    str = "SME to SME specific use (SMS Control)"; break;
+                }
+                else if ((oct >= 0xa0) &&
+                         (oct <= 0xbf))
+                {
+                    str = "Reserved for future use N/A"; break;
+                }
+                else if ((oct >= 0xc0) &&
+                         (oct <= 0xdf))
+                {
+                    str = "SC specific use (SMS Control)"; break;
+                }
+                else
+                {
+                    str = "Reserved for future use N/A"; break;
+                }
 	}
 
 	iei_len = tvb_get_guint8(tvb, offset + 1);
 
 	item =
 	    proto_tree_add_text(tree,
-		tvb, offset, iei_len + 2,
-		"IE: %s",
-		str);
+                                tvb, offset, iei_len + 2,
+                                "IE: %s",
+                                str);
 
 	subtree = proto_item_add_subtree(item, ett_udh_ieis[oct]);
 
 	proto_tree_add_text(subtree,
-	    tvb, offset, 1,
-	    "Information Element Identifier: %d",
-	    oct);
+                            tvb, offset, 1,
+                            "Information Element Identifier: %d",
+                            oct);
 
 	offset++;
 
 	proto_tree_add_text(subtree,
-	    tvb, offset, 1,
-	    "Length: %d",
-	    iei_len);
+                            tvb, offset, 1,
+                            "Length: %d",
+                            iei_len);
 
 	offset++;
 
@@ -2513,8 +2511,8 @@ dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 	    if (iei_fcn == NULL)
 	    {
 		proto_tree_add_text(subtree,
-		    tvb, offset, iei_len,
-		    "IE Data");
+                                    tvb, offset, iei_len,
+                                    "IE Data");
 	    }
 	    else
 	    {
@@ -2541,30 +2539,31 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     proto_item	*udh_item;
     proto_tree	*subtree = NULL;
     proto_tree	*udh_subtree = NULL;
-	tvbuff_t *sm_tvb = NULL;
-	fragment_data *fd_sm = NULL;
+    tvbuff_t    *sm_tvb = NULL;
+    fragment_data *fd_sm = NULL;
     guint8	oct;
     guint	fill_bits;
     guint32	out_len , total_sms_len , len_sms , length_ucs2 , i;
     char	*ustr;
-    proto_item *ucs2_item;
-    gchar *utf8_text = NULL;
-	gchar save_byte = 0 , save_byte2 = 0;
+    proto_item  *ucs2_item;
+    gchar       *utf8_text = NULL;
+    gchar save_byte = 0 , save_byte2 = 0;
     GIConv cd;
     GError *l_conv_error = NULL;
 
-	gboolean    reassembled = FALSE;
-	guint32     reassembled_in = 0;
-	gboolean is_fragmented = FALSE;
-	gboolean save_fragmented = FALSE, try_gsm_sms_ud_reassemble = FALSE;
-	guint32 num_labels , save_offset;
+    gboolean    reassembled = FALSE;
+    guint32     reassembled_in = 0;
+    gboolean    is_fragmented = FALSE;
+    gboolean    save_fragmented = FALSE, try_gsm_sms_ud_reassemble = FALSE;
+    guint32     num_labels , save_offset;
+
     fill_bits = 0;
 
     item =
 	proto_tree_add_text(tree, tvb,
-	    offset, length,
-	    "TP-User-Data");
-	save_offset = offset;
+                            offset, length,
+                            "TP-User-Data");
+    save_offset = offset;
     subtree = proto_item_add_subtree(item, ett_ud);
 
     oct = tvb_get_guint8(tvb, offset);
@@ -2572,218 +2571,218 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     if (udhi)
     {
 
-		/* step over header */
+        /* step over header */
 
-		udh_item =
-		    proto_tree_add_text(subtree, tvb,
-			offset, oct + 1,
-			"User-Data Header");
+        udh_item =
+            proto_tree_add_text(subtree, tvb,
+                                offset, oct + 1,
+                                "User-Data Header");
 
-		udh_subtree = proto_item_add_subtree(udh_item, ett_udh);
+        udh_subtree = proto_item_add_subtree(udh_item, ett_udh);
 
-		proto_tree_add_text(udh_subtree,
-		    tvb, offset, 1,
-		    "User Data Header Length (%u)",
-		    oct);
+        proto_tree_add_text(udh_subtree,
+                            tvb, offset, 1,
+                            "User Data Header Length (%u)",
+                            oct);
 
-		offset++;
-		udl--;
-		length--;
+        offset++;
+        udl--;
+        length--;
 
-		dis_field_ud_iei(tvb, udh_subtree, offset, oct);
+        dis_field_ud_iei(tvb, udh_subtree, offset, oct);
 
-		offset += oct;
-		udl -= oct;
-		length -= oct;
+        offset += oct;
+        udl -= oct;
+        length -= oct;
 
-		if (seven_bit)
-			{
-		    /* step over fill bits ? */
+        if (seven_bit)
+        {
+            /* step over fill bits ? */
 
-		    fill_bits = 7 - (((oct + 1) * 8) % 7);
-		    if (fill_bits < NUM_FILL_BITS_MASKS)
-			    {
-				oct = tvb_get_guint8(tvb, offset);
+            fill_bits = 7 - (((oct + 1) * 8) % 7);
+            if (fill_bits < NUM_FILL_BITS_MASKS)
+            {
+                oct = tvb_get_guint8(tvb, offset);
 
-				other_decode_bitfield_value(bigbuf, oct, fill_bits_mask[fill_bits], 8);
-				proto_tree_add_text(udh_subtree,
-					tvb, offset, 1,
-					"%s :  Fill bits",
-					bigbuf);
-			}
-		}
+                other_decode_bitfield_value(bigbuf, oct, fill_bits_mask[fill_bits], 8);
+                proto_tree_add_text(udh_subtree,
+                                    tvb, offset, 1,
+                                    "%s :  Fill bits",
+                                    bigbuf);
+            }
+        }
     }
 
-	if (g_frags > 1)
-		is_fragmented = TRUE;
+    if (g_frags > 1)
+        is_fragmented = TRUE;
 
-	if ( is_fragmented ) 
-	{
-		try_gsm_sms_ud_reassemble = TRUE;
-		save_fragmented = g_pinfo->fragmented;
-		g_pinfo->fragmented = TRUE;
-		fd_sm = fragment_add_seq_check (tvb, offset, g_pinfo,
-				g_sm_id, /* guint32 ID for fragments belonging together */
-				g_sm_fragment_table, /* list of message fragments */
-				g_sm_reassembled_table, /* list of reassembled messages */
-				g_frag-1, /* guint32 fragment sequence number */
-				length, /* guint32 fragment length */
-				(g_frag != g_frags)); /* More fragments? */
-		if (fd_sm) 
-		{
-			reassembled = TRUE;
-			reassembled_in = fd_sm->reassembled_in;
-		}
-				
-		sm_tvb = process_reassembled_data(tvb, offset, g_pinfo,
-			"Reassembled Short Message", fd_sm, &sm_frag_items,
-			NULL, tree);
-		if (reassembled) 
-		{ 
-			/* Reassembled */
-			col_append_str (g_pinfo->cinfo, COL_INFO,
-						" (Short Message Reassembled)");
-		} 
-		else 
-		{
-			/* Not last packet of reassembled Short Message */
-			col_append_fstr (g_pinfo->cinfo, COL_INFO,
-					" (Short Message fragment %u of %u)", g_frag, g_frags);
-		}
-	} /* Else: not fragmented */
-	if (! sm_tvb) /* One single Short Message, or not reassembled */
-		sm_tvb = tvb_new_subset_remaining (tvb, offset);
-	
+    if ( is_fragmented )
+    {
+        try_gsm_sms_ud_reassemble = TRUE;
+        save_fragmented = g_pinfo->fragmented;
+        g_pinfo->fragmented = TRUE;
+        fd_sm = fragment_add_seq_check (tvb, offset, g_pinfo,
+                                        g_sm_id, /* guint32 ID for fragments belonging together */
+                                        g_sm_fragment_table, /* list of message fragments */
+                                        g_sm_reassembled_table, /* list of reassembled messages */
+                                        g_frag-1, /* guint32 fragment sequence number */
+                                        length, /* guint32 fragment length */
+                                        (g_frag != g_frags)); /* More fragments? */
+        if (fd_sm)
+        {
+            reassembled = TRUE;
+            reassembled_in = fd_sm->reassembled_in;
+        }
+
+        sm_tvb = process_reassembled_data(tvb, offset, g_pinfo,
+                                          "Reassembled Short Message", fd_sm, &sm_frag_items,
+                                          NULL, tree);
+        if (reassembled)
+        {
+            /* Reassembled */
+            col_append_str (g_pinfo->cinfo, COL_INFO,
+                            " (Short Message Reassembled)");
+        }
+        else
+        {
+            /* Not last packet of reassembled Short Message */
+            col_append_fstr (g_pinfo->cinfo, COL_INFO,
+                             " (Short Message fragment %u of %u)", g_frag, g_frags);
+        }
+    } /* Else: not fragmented */
+    if (! sm_tvb) /* One single Short Message, or not reassembled */
+        sm_tvb = tvb_new_subset_remaining (tvb, offset);
+
     if (compressed)
     {
-		proto_tree_add_text(subtree, tvb,
-		    offset, length,
-		    "Compressed data");
+        proto_tree_add_text(subtree, tvb,
+                            offset, length,
+                            "Compressed data");
     }
     else
     {
-		if ((reassembled && g_pinfo->fd->num == reassembled_in) || g_frag==0 || ((g_frag != 0 && msg_udh_frag)))
-		{
-			if (seven_bit)
-			{
-				if(msg_udh_frag || g_frag == 0 )
-				{
-					out_len =
-					gsm_sms_char_7bit_unpack(fill_bits, length , SMS_MAX_MESSAGE_SIZE,
-					tvb_get_ptr(tvb , offset , length) , messagebuf);
-					messagebuf[out_len] = '\0';
-					proto_tree_add_text(subtree, tvb , offset , length , "%s",
-					    gsm_sms_chars_to_utf8(messagebuf, out_len));
-				}
-				else
-				{
-					out_len = 0;
-					
-					total_sms_len = sm_tvb->length;
-					for(i = 0 ; i<g_frags; i++)
-					{
-						/* maximum len msg in 7 bit with csm8 header*/
-						if(total_sms_len > MAX_SMS_FRAG_LEN)
-						{
-							total_sms_len -= MAX_SMS_FRAG_LEN;
-							len_sms = MAX_SMS_FRAG_LEN;
-						}
-						else
-							len_sms = total_sms_len;	
-						out_len =
-						gsm_sms_char_7bit_unpack(fill_bits, len_sms , SMS_MAX_MESSAGE_SIZE,
-						tvb_get_ptr(sm_tvb , i * MAX_SMS_FRAG_LEN  , len_sms) , messagebuf);
-						
-						messagebuf[out_len] = '\0';
-						proto_tree_add_text(subtree, sm_tvb , i * MAX_SMS_FRAG_LEN , len_sms , "%s",
-						    gsm_sms_chars_to_utf8(messagebuf, out_len));
-					}
-				}
-			}
-			else if (eight_bit)
-			{
-				/*proto_tree_add_text(subtree, tvb , offset , length, "%s",
-				tvb_format_text(tvb, offset, length));				*/
-				if (! dissector_try_port(gsm_sms_dissector_tbl, g_port_src, sm_tvb, g_pinfo, subtree)) 
-				{
-					if (! dissector_try_port(gsm_sms_dissector_tbl, g_port_dst,sm_tvb, g_pinfo, subtree)) 
-					{
-							if (subtree) 
-							{ /* Only display if needed */
-								proto_tree_add_text (subtree, sm_tvb, 0, -1,
-										"Short Message body");
-							}
-					}
-				}
-			}
-			else if (ucs2)
-			{
-				if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1)
-				{
-					if(msg_udh_frag || g_frag == 0 )
-					{
-						utf8_text = g_convert_with_iconv(sm_tvb->real_data, sm_tvb->reported_length , cd , NULL , NULL , &l_conv_error);
-						if(!l_conv_error){
-							ucs2_item = proto_tree_add_text(subtree, tvb, offset, length, "%s", utf8_text);
-						}else{
-							ucs2_item = proto_tree_add_text(subtree, tvb, offset, length, "%s", "Failed on UCS2 contact wireshark developers");
-						}
-						PROTO_ITEM_SET_GENERATED(ucs2_item);
-					}
-					else
-					{
-						utf8_text = g_convert_with_iconv(sm_tvb->real_data, sm_tvb->reported_length , cd , NULL , NULL , &l_conv_error);
-						if(!l_conv_error)
-						{
-							len_sms = (int)strlen(utf8_text);
-							num_labels = len_sms / MAX_SMS_FRAG_LEN;
-							num_labels += len_sms % MAX_SMS_FRAG_LEN ? 1 : 0;
-							for(i = 0; i < num_labels;i++)
-							{
-								if(i * MAX_SMS_FRAG_LEN < len_sms)
-								{
-									/* set '\0' to byte number 134 text_node MAX size*/
-									save_byte =  utf8_text[i * MAX_SMS_FRAG_LEN];
-									save_byte2 =  utf8_text[i * MAX_SMS_FRAG_LEN + 1];
-									if(i > 0)
-									{
-										utf8_text[i * MAX_SMS_FRAG_LEN] = '\0';
-										utf8_text[i * MAX_SMS_FRAG_LEN + 1] = '\0';
-									}
+        if ((reassembled && g_pinfo->fd->num == reassembled_in) || g_frag==0 || ((g_frag != 0 && msg_udh_frag)))
+        {
+            if (seven_bit)
+            {
+                if(msg_udh_frag || g_frag == 0 )
+                {
+                    out_len =
+                        gsm_sms_char_7bit_unpack(fill_bits, length , SMS_MAX_MESSAGE_SIZE,
+                                                 tvb_get_ptr(tvb , offset , length) , messagebuf);
+                    messagebuf[out_len] = '\0';
+                    proto_tree_add_text(subtree, tvb , offset , length , "%s",
+                                        gsm_sms_chars_to_utf8(messagebuf, out_len));
+                }
+                else
+                {
+                    out_len = 0;
 
-									length_ucs2 = MAX_SMS_FRAG_LEN;
-								}
-								else
-									length_ucs2 = len_sms % MAX_SMS_FRAG_LEN;
+                    total_sms_len = sm_tvb->length;
+                    for(i = 0 ; i<g_frags; i++)
+                    {
+                        /* maximum len msg in 7 bit with csm8 header*/
+                        if(total_sms_len > MAX_SMS_FRAG_LEN)
+                        {
+                            total_sms_len -= MAX_SMS_FRAG_LEN;
+                            len_sms = MAX_SMS_FRAG_LEN;
+                        }
+                        else
+                            len_sms = total_sms_len;
+                        out_len =
+                            gsm_sms_char_7bit_unpack(fill_bits, len_sms , SMS_MAX_MESSAGE_SIZE,
+                                                     tvb_get_ptr(sm_tvb , i * MAX_SMS_FRAG_LEN  , len_sms) , messagebuf);
 
-								ucs2_item = proto_tree_add_text(subtree, sm_tvb , i * MAX_SMS_FRAG_LEN , length_ucs2 , "%s", &utf8_text[i * MAX_SMS_FRAG_LEN]);
-								/* return the save byte to utf8 buffer*/
-								if(i * MAX_SMS_FRAG_LEN < len_sms)
-								{
-									utf8_text[i * MAX_SMS_FRAG_LEN] = save_byte;
-									utf8_text[i * MAX_SMS_FRAG_LEN + 1] = save_byte2;
-								}
-							}
-						}else{
-							ucs2_item = proto_tree_add_text(subtree, tvb, offset, length, "%s", "Failed on UCS2 contact wireshark developers");
-						}
-					}
+                        messagebuf[out_len] = '\0';
+                        proto_tree_add_text(subtree, sm_tvb , i * MAX_SMS_FRAG_LEN , len_sms , "%s",
+                                            gsm_sms_chars_to_utf8(messagebuf, out_len));
+                    }
+                }
+            }
+            else if (eight_bit)
+            {
+                /*proto_tree_add_text(subtree, tvb , offset , length, "%s",
+                  tvb_format_text(tvb, offset, length));				*/
+                if (! dissector_try_port(gsm_sms_dissector_tbl, g_port_src, sm_tvb, g_pinfo, subtree))
+                {
+                    if (! dissector_try_port(gsm_sms_dissector_tbl, g_port_dst,sm_tvb, g_pinfo, subtree))
+                    {
+                        if (subtree)
+                        { /* Only display if needed */
+                            proto_tree_add_text (subtree, sm_tvb, 0, -1,
+                                                 "Short Message body");
+                        }
+                    }
+                }
+            }
+            else if (ucs2)
+            {
+                if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1)
+                {
+                    if(msg_udh_frag || g_frag == 0 )
+                    {
+                        utf8_text = g_convert_with_iconv(sm_tvb->real_data, sm_tvb->reported_length , cd , NULL , NULL , &l_conv_error);
+                        if(!l_conv_error){
+                            ucs2_item = proto_tree_add_text(subtree, tvb, offset, length, "%s", utf8_text);
+                        }else{
+                            ucs2_item = proto_tree_add_text(subtree, tvb, offset, length, "%s", "Failed on UCS2 contact wireshark developers");
+                        }
+                        PROTO_ITEM_SET_GENERATED(ucs2_item);
+                    }
+                    else
+                    {
+                        utf8_text = g_convert_with_iconv(sm_tvb->real_data, sm_tvb->reported_length , cd , NULL , NULL , &l_conv_error);
+                        if(!l_conv_error)
+                        {
+                            len_sms = (int)strlen(utf8_text);
+                            num_labels = len_sms / MAX_SMS_FRAG_LEN;
+                            num_labels += len_sms % MAX_SMS_FRAG_LEN ? 1 : 0;
+                            for(i = 0; i < num_labels;i++)
+                            {
+                                if(i * MAX_SMS_FRAG_LEN < len_sms)
+                                {
+                                    /* set '\0' to byte number 134 text_node MAX size*/
+                                    save_byte =  utf8_text[i * MAX_SMS_FRAG_LEN];
+                                    save_byte2 =  utf8_text[i * MAX_SMS_FRAG_LEN + 1];
+                                    if(i > 0)
+                                    {
+                                        utf8_text[i * MAX_SMS_FRAG_LEN] = '\0';
+                                        utf8_text[i * MAX_SMS_FRAG_LEN + 1] = '\0';
+                                    }
 
-					g_free(utf8_text);
-					g_iconv_close(cd);
-				}
-				else
-				{
-					/* tvb_get_ephemeral_faked_unicode takes the lengt in number of guint16's */
-					ustr = tvb_get_ephemeral_faked_unicode(tvb, offset, (length>>1), FALSE);
-					proto_tree_add_text(subtree, tvb, offset, length, "%s", ustr);
-				}
-			}
-		}
+                                    length_ucs2 = MAX_SMS_FRAG_LEN;
+                                }
+                                else
+                                    length_ucs2 = len_sms % MAX_SMS_FRAG_LEN;
+
+                                ucs2_item = proto_tree_add_text(subtree, sm_tvb , i * MAX_SMS_FRAG_LEN , length_ucs2 , "%s", &utf8_text[i * MAX_SMS_FRAG_LEN]);
+                                /* return the save byte to utf8 buffer*/
+                                if(i * MAX_SMS_FRAG_LEN < len_sms)
+                                {
+                                    utf8_text[i * MAX_SMS_FRAG_LEN] = save_byte;
+                                    utf8_text[i * MAX_SMS_FRAG_LEN + 1] = save_byte2;
+                                }
+                            }
+                        }else{
+                            ucs2_item = proto_tree_add_text(subtree, tvb, offset, length, "%s", "Failed on UCS2 contact wireshark developers");
+                        }
+                    }
+
+                    g_free(utf8_text);
+                    g_iconv_close(cd);
+                }
+                else
+                {
+                    /* tvb_get_ephemeral_faked_unicode takes the lengt in number of guint16's */
+                    ustr = tvb_get_ephemeral_faked_unicode(tvb, offset, (length>>1), FALSE);
+                    proto_tree_add_text(subtree, tvb, offset, length, "%s", ustr);
+                }
+            }
+        }
     }
 
-	if (try_gsm_sms_ud_reassemble) /* Clean up defragmentation */
-		g_pinfo->fragmented = save_fragmented;
+    if (try_gsm_sms_ud_reassemble) /* Clean up defragmentation */
+        g_pinfo->fragmented = save_fragmented;
 }
 
 /* 9.2.3.27 */
@@ -3109,7 +3108,7 @@ dis_msg_submit_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
     udhi = oct & 0x40;
-    
+
     proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, FALSE);
     proto_tree_add_item(tree, hf_gsm_sms_tp_mti_down, tvb, offset, 1, FALSE);
 
@@ -3210,7 +3209,7 @@ dis_msg_status_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     gboolean	eight_bit = FALSE;
     gboolean	ucs2 = FALSE;
     gboolean	compressed = FALSE;
-    gboolean	udhi; 
+    gboolean	udhi;
 
 
     udl = 0;
@@ -3407,15 +3406,15 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint	idx;
     const gchar	*str = NULL;
     gint	ett_msg_idx;
-	
+
 
     g_pinfo = pinfo;
-	g_is_wsp = 0;
-	g_sm_id = 0;
-	g_frags = 0;
-	g_frag = 0;	
-	g_port_src = 0;
-	g_port_dst = 0;
+    g_is_wsp = 0;
+    g_sm_id = 0;
+    g_frags = 0;
+    g_frag = 0;
+    g_port_src = 0;
+    g_port_dst = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, gsm_sms_proto_name_short);
 
@@ -3493,196 +3492,196 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_gsm_sms(void)
 {
-    guint		i;
-    guint		last_offset;
-	module_t *gsm_sms_module; /* Preferences for GSM SMS UD */
+    guint     i;
+    guint     last_offset;
+    module_t *gsm_sms_module; /* Preferences for GSM SMS UD */
 
     /* Setup list of header fields */
     static hf_register_info hf[] =
-    {
-	    { &hf_gsm_sms_coding_group_bits2,
-	      { "Coding Group Bits", "gsm_sms.coding_group_bits2",
-	        FT_UINT8, BASE_DEC, VALS(gsm_sms_coding_group_bits_vals), 0xc0,
-	        NULL, HFILL }
-		},
-	    { &hf_gsm_sms_coding_group_bits4,
-	      { "Coding Group Bits", "gsm_sms.coding_group_bits4",
-	        FT_UINT8, BASE_DEC, VALS(gsm_sms_coding_group_bits_vals), 0xf0,
-	        NULL, HFILL }
-		},
+        {
+            { &hf_gsm_sms_coding_group_bits2,
+              { "Coding Group Bits", "gsm_sms.coding_group_bits2",
+                FT_UINT8, BASE_DEC, VALS(gsm_sms_coding_group_bits_vals), 0xc0,
+                NULL, HFILL }
+            },
+            { &hf_gsm_sms_coding_group_bits4,
+              { "Coding Group Bits", "gsm_sms.coding_group_bits4",
+                FT_UINT8, BASE_DEC, VALS(gsm_sms_coding_group_bits_vals), 0xf0,
+                NULL, HFILL }
+            },
 
-		/*
-		 * Short Message fragment reassembly
-		 */
-		{	&hf_gsm_sms_ud_fragments,
-			{	"Short Message fragments", "gsm-sms-ud.fragments",
-				FT_NONE, BASE_NONE, NULL, 0x00,
-				"GSM Short Message fragments",
-				HFILL
-			}
-		},
-		{	&hf_gsm_sms_ud_fragment,
-			{	"Short Message fragment", "gsm-sms-ud.fragment",
-				FT_FRAMENUM, BASE_NONE, NULL, 0x00,
-				"GSM Short Message fragment",
-				HFILL
-			}
-		},
-		{	&hf_gsm_sms_ud_fragment_overlap,
-			{	"Short Message fragment overlap", "gsm-sms-ud.fragment.overlap",
-				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-				"GSM Short Message fragment overlaps with other fragment(s)",
-				HFILL
-			}
-		},
-		{	&hf_gsm_sms_ud_fragment_overlap_conflicts,
-			{	"Short Message fragment overlapping with conflicting data",
-				"gsm-sms-ud.fragment.overlap.conflicts",
-				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-				"GSM Short Message fragment overlaps with conflicting data",
-				HFILL
-			}
-		},
-		{	&hf_gsm_sms_ud_fragment_multiple_tails,
-			{	"Short Message has multiple tail fragments",
-				"gsm-sms-ud.fragment.multiple_tails",
-				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-				"GSM Short Message fragment has multiple tail fragments",
-				HFILL
-			}
-		},
-		{	&hf_gsm_sms_ud_fragment_too_long_fragment,
-			{	"Short Message fragment too long",
-				"gsm-sms-ud.fragment.too_long_fragment",
-				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-				"GSM Short Message fragment data goes beyond the packet end",
-				HFILL
-			}
-		},
-		{	&hf_gsm_sms_ud_fragment_error,
-			{	"Short Message defragmentation error", "gsm-sms-ud.fragment.error",
-				FT_FRAMENUM, BASE_NONE, NULL, 0x00,
-				"GSM Short Message defragmentation error due to illegal fragments",
-				HFILL
-			}
-		},
-		{	&hf_gsm_sms_ud_reassembled_in,
-			{	"Reassembled in",
-				"gsm-sms-ud.reassembled.in",
-				FT_FRAMENUM, BASE_NONE, NULL, 0x00,
-				"GSM Short Message has been reassembled in this packet.", HFILL
-			}
-		},
-		{	&hf_gsm_sms_ud_reassembled_length,
-			{	"Reassembled Short Message length",
-				"gsm-sms-ud.reassembled.length",
-				FT_UINT32, BASE_DEC, NULL, 0x00,
-				"The total length of the reassembled payload", HFILL
-			}
-		},
-		{   &hf_gsm_sms_ud_multiple_messages_msg_id,
-	    {	"Message identifier", "gsm-sms.udh.mm.msg_id",
-		FT_UINT16, BASE_DEC, NULL, 0x00,
-		"Identification of the message",
-		HFILL
-	    }
-	},
-	{   &hf_gsm_sms_ud_multiple_messages_msg_parts,
-	    {	"Message parts", "gsm-sms.udh.mm.msg_parts",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		"Total number of message parts (fragments)",
-		HFILL
-	    }
-	},
-	{   &hf_gsm_sms_ud_multiple_messages_msg_part,
-	    {	"Message part number", "gsm-sms.udh.mm.msg_part",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		"Message part (fragment) sequence number",
-		HFILL
-	    }
-	},
-	/* TPDU parameters */
-        { &hf_gsm_sms_tp_mti_up,
+            /*
+             * Short Message fragment reassembly
+             */
+            {	&hf_gsm_sms_ud_fragments,
+                {	"Short Message fragments", "gsm-sms-ud.fragments",
+                        FT_NONE, BASE_NONE, NULL, 0x00,
+                        "GSM Short Message fragments",
+                        HFILL
+                }
+            },
+            {	&hf_gsm_sms_ud_fragment,
+                {	"Short Message fragment", "gsm-sms-ud.fragment",
+                        FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+                        "GSM Short Message fragment",
+                        HFILL
+                }
+            },
+            {	&hf_gsm_sms_ud_fragment_overlap,
+                {	"Short Message fragment overlap", "gsm-sms-ud.fragment.overlap",
+                        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                        "GSM Short Message fragment overlaps with other fragment(s)",
+                        HFILL
+                }
+            },
+            {	&hf_gsm_sms_ud_fragment_overlap_conflicts,
+                {	"Short Message fragment overlapping with conflicting data",
+                        "gsm-sms-ud.fragment.overlap.conflicts",
+                        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                        "GSM Short Message fragment overlaps with conflicting data",
+                        HFILL
+                }
+            },
+            {	&hf_gsm_sms_ud_fragment_multiple_tails,
+                {	"Short Message has multiple tail fragments",
+                        "gsm-sms-ud.fragment.multiple_tails",
+                        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                        "GSM Short Message fragment has multiple tail fragments",
+                        HFILL
+                }
+            },
+            {	&hf_gsm_sms_ud_fragment_too_long_fragment,
+                {	"Short Message fragment too long",
+                        "gsm-sms-ud.fragment.too_long_fragment",
+                        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                        "GSM Short Message fragment data goes beyond the packet end",
+                        HFILL
+                }
+            },
+            {	&hf_gsm_sms_ud_fragment_error,
+                {	"Short Message defragmentation error", "gsm-sms-ud.fragment.error",
+                        FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+                        "GSM Short Message defragmentation error due to illegal fragments",
+                        HFILL
+                }
+            },
+            {	&hf_gsm_sms_ud_reassembled_in,
+                {	"Reassembled in",
+                        "gsm-sms-ud.reassembled.in",
+                        FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+                        "GSM Short Message has been reassembled in this packet.", HFILL
+                }
+            },
+            {	&hf_gsm_sms_ud_reassembled_length,
+                {	"Reassembled Short Message length",
+                        "gsm-sms-ud.reassembled.length",
+                        FT_UINT32, BASE_DEC, NULL, 0x00,
+                        "The total length of the reassembled payload", HFILL
+                }
+            },
+            {   &hf_gsm_sms_ud_multiple_messages_msg_id,
+                {	"Message identifier", "gsm-sms.udh.mm.msg_id",
+                        FT_UINT16, BASE_DEC, NULL, 0x00,
+                        "Identification of the message",
+                        HFILL
+                }
+            },
+            {   &hf_gsm_sms_ud_multiple_messages_msg_parts,
+                {	"Message parts", "gsm-sms.udh.mm.msg_parts",
+                        FT_UINT8, BASE_DEC, NULL, 0x00,
+                        "Total number of message parts (fragments)",
+                        HFILL
+                }
+            },
+            {   &hf_gsm_sms_ud_multiple_messages_msg_part,
+                {	"Message part number", "gsm-sms.udh.mm.msg_part",
+                        FT_UINT8, BASE_DEC, NULL, 0x00,
+                        "Message part (fragment) sequence number",
+                        HFILL
+                }
+            },
+            /* TPDU parameters */
+            { &hf_gsm_sms_tp_mti_up,
 	      { "TP-MTI", "gsm_sms.tp-mti",
 	        FT_UINT8, BASE_DEC, VALS(msg_type_strings_ms_to_sc), 0x03,
 	        "TP-Message-Type-Indicator (in the direction MS to SC)", HFILL }
-	},	
-        { &hf_gsm_sms_tp_mti_down,
+            },
+            { &hf_gsm_sms_tp_mti_down,
 	      { "TP-MTI", "gsm_sms.tp-mti",
 	        FT_UINT8, BASE_DEC, VALS(msg_type_strings_sc_to_ms), 0x03,
 	        "TP-Message-Type-Indicator (in the direction SC to MS)", HFILL }
-	},	
-        { &hf_gsm_sms_tp_oa,
+            },
+            { &hf_gsm_sms_tp_oa,
 	      { "TP-OA Digits", "gsm_sms.tp-oa",
 	        FT_STRING, BASE_NONE, NULL, 0x00,
 	        "TP-Originating-Address Digits", HFILL }
-	},
-        { &hf_gsm_sms_tp_da,
+            },
+            { &hf_gsm_sms_tp_da,
 	      { "TP-DA Digits", "gsm_sms.tp-da",
 	        FT_STRING, BASE_NONE, NULL, 0x00,
 	        "TP-Destination-Address Digits", HFILL }
-	},
-        { &hf_gsm_sms_tp_ra,
+            },
+            { &hf_gsm_sms_tp_ra,
 	      { "TP-RA Digits", "gsm_sms.tp-ra",
 	        FT_STRING, BASE_NONE, NULL, 0x00,
 	        "TP-Recipient-Address Digits", HFILL }
-	},
-        { &hf_gsm_sms_tp_pid,
+            },
+            { &hf_gsm_sms_tp_pid,
 	      { "TP-PID", "gsm_sms.tp-pid",
 	        FT_UINT8, BASE_DEC, NULL, 0x00,
 	        "TP-Protocol-Identifier", HFILL }
-	},
-        { &hf_gsm_sms_tp_dcs,
+            },
+            { &hf_gsm_sms_tp_dcs,
 	      { "TP-DCS", "gsm_sms.tp-dcs",
 	        FT_UINT8, BASE_DEC, NULL, 0x00,
 	        "TP-Data-Coding-Scheme", HFILL }
-	},
-        { &hf_gsm_sms_tp_mr,
+            },
+            { &hf_gsm_sms_tp_mr,
 	      { "TP-MR", "gsm_sms.tp-mr",
 	        FT_UINT8, BASE_DEC, NULL, 0x00,
 	        "TP-Message-Reference", HFILL }
-	},
-        { &hf_gsm_sms_tp_mms,
+            },
+            { &hf_gsm_sms_tp_mms,
 	      { "TP-MMS", "gsm_sms.tp-mms",
 	        FT_BOOLEAN, 8, TFS(&mms_bool_strings), 0x04,
 	        "TP-More-Messages-to-Send", HFILL }
-	},
-        { &hf_gsm_sms_tp_sri,
+            },
+            { &hf_gsm_sms_tp_sri,
 	      { "TP-SRI", "gsm_sms.tp-sri",
 	        FT_BOOLEAN, 8, TFS(&sri_bool_strings), 0x20,
 	        "TP-Status-Report-Indication", HFILL }
-	},
-        { &hf_gsm_sms_tp_srr,
+            },
+            { &hf_gsm_sms_tp_srr,
 	      { "TP-SRR", "gsm_sms.tp-srr",
 	        FT_BOOLEAN, 8, TFS(&srr_bool_strings), 0x20,
 	        "TP-Status-Report-Request", HFILL }
-	},
-        { &hf_gsm_sms_tp_udhi,
+            },
+            { &hf_gsm_sms_tp_udhi,
 	      { "TP-UDHI", "gsm_sms.tp-udhi",
 	        FT_BOOLEAN, 8, TFS(&udhi_bool_strings), 0x40,
 	        "TP-User-Data-Header-Indicator", HFILL }
-	},
-        { &hf_gsm_sms_tp_rp,
+            },
+            { &hf_gsm_sms_tp_rp,
 	      { "TP-RP", "gsm_sms.tp-rp",
 	        FT_BOOLEAN, 8, TFS(&rp_bool_strings), 0x80,
 	        "TP-Reply-Path", HFILL }
-	},	
-        { &hf_gsm_sms_tp_vpf,
+            },
+            { &hf_gsm_sms_tp_vpf,
 	      { "TP-VPF", "gsm_sms.tp-vpf",
 	        FT_UINT8, BASE_DEC, VALS(vp_type_strings), 0x18,
 	        "TP-Validity-Period-Format", HFILL }
-	},	
-        { &hf_gsm_sms_tp_rd,
+            },
+            { &hf_gsm_sms_tp_rd,
 	      { "TP-RD", "gsm_sms.tp-rd",
 	        FT_BOOLEAN, 8, TFS(&rd_bool_strings), 0x04,
 	        "TP-Reject-Duplicates", HFILL }
-	},	
-        { &hf_gsm_sms_tp_srq,
+            },
+            { &hf_gsm_sms_tp_srq,
 	      { "TP-SRQ", "gsm_sms.tp-srq",
 	        FT_BOOLEAN, 8, TFS(&srq_bool_strings), 0x20,
 	        "TP-Status-Report-Qualifier", HFILL }
-	},	
-    };
+            },
+        };
 
     /* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_PARMS	12

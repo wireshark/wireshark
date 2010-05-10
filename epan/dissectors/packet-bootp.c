@@ -1342,7 +1342,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			/* otherwise, it's opaque data */
 		}
 		break;
-		
+
 	case 97:        /* Client Identifier (UUID) */
 		if (optlen > 0)
 			byte = tvb_get_guint8(tvb, optoff);
@@ -2074,7 +2074,7 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	proto_item *vti;
 	proto_tree *subtree = 0;
 	guint8 tag, tag_len;
-	
+
 	subopt = tvb_get_guint8(tvb, optoff);
 	suboptoff++;
 
@@ -2395,7 +2395,7 @@ rfc3825_lci_to_fixpoint(const unsigned char lci[16], struct rfc3825_location_fix
 		fixpoint->latitude = (((gint64)lci[0] & 3)<<32) | ((gint64)lci[1]<<24) | 
 		                           ((gint64)lci[2]<<16) | ((gint64)lci[3]<<8)  | 
 		                            (gint64)lci[4]      | ((gint64)0x3FFFFFFF<<34);
-		
+
 	} else {
 		/* Latitude is positive */
 		fixpoint->latitude = (((gint64)lci[0] & 3)<<32) | ((gint64)lci[1]<<24) | 
@@ -2408,7 +2408,7 @@ rfc3825_lci_to_fixpoint(const unsigned char lci[16], struct rfc3825_location_fix
 		fixpoint->longitude = (((gint64)lci[5] & 3)<<32) | ((gint64)lci[6]<<24) | 
 		                            ((gint64)lci[7]<<16) | ((gint64)lci[8]<<8)  | 
 		                             (gint64)lci[9]      | ((gint64)0x3FFFFFFF<<34);
-		
+
 	} else {
 		/* Longitude is positive */
 		fixpoint->longitude = (((gint64)lci[5] & 3)<<32) | ((gint64)lci[6]<<24) | 
@@ -2422,7 +2422,7 @@ rfc3825_lci_to_fixpoint(const unsigned char lci[16], struct rfc3825_location_fix
 		fixpoint->altitude = (((gint32)lci[11] & 0x3F)<<24) | ((gint32)lci[12]<<16) | 
 		                     ((gint32)lci[13]<<8) | ((gint32)lci[14]) | 
 		                      ((gint32)0x03<<30);
-		
+
 	} else {
 		/* Altitudee is positive */
 		fixpoint->altitude = (((gint32)lci[11] & 0x3F)<<24) | ((gint32)lci[12]<<16) | 
@@ -2994,7 +2994,7 @@ dissect_vendor_cl_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				tvb_bytes_to_str(tvb, suboptoff, subopt_len),
 				subopt_len, plurality(subopt_len, "", "s"));
 			break;
-		
+
 		case ipv4_list: 
 			ti = proto_tree_add_text(v_tree, tvb, optoff, 2,
 					"Suboption %d %s", subopt, o125_cl_opt[subopt].text);
@@ -4581,7 +4581,7 @@ proto_register_bootp(void)
 
 	/* register init routine to setup the custom bootp options */
 	register_init_routine(&bootp_init_protocol);
-  
+
 	/* Allow dissector to find be found by name. */
 	register_dissector("bootp", dissect_bootp, proto_bootp);
 

@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -213,7 +213,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
          after it are padding. */
 	  proto_tree_add_uint (arcnet_tree, hf_arcnet_exception_flag, tvb, offset, 1,
 			     split_flag);
-      offset++;  
+      offset++;
 
       proto_tree_add_text (arcnet_tree, tvb, offset, 2, "Padding");
       offset += 2;
@@ -224,12 +224,12 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
       /* And after that comes the real split flag. */
       split_flag = tvb_get_guint8 (tvb, offset);
-    } 
+    }
 
     proto_tree_add_uint (arcnet_tree, hf_arcnet_split_flag, tvb, offset, 1,
 			   split_flag);
     offset++;
-			  
+
     proto_tree_add_item (arcnet_tree, hf_arcnet_sequence, tvb, offset, 2, FALSE);
     offset += 2;
 
@@ -238,7 +238,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
   /* Set the length of the ARCNET header protocol tree item. */
   proto_item_set_len(ti, offset);
-  
+
   next_tvb = tvb_new_subset_remaining (tvb, offset);
 
   if (!dissector_try_port (arcnet_dissector_table, protID,
@@ -260,7 +260,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 static void
 dissect_arcnet (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-	dissect_arcnet_common (tvb, pinfo, tree, FALSE, TRUE);
+  dissect_arcnet_common (tvb, pinfo, tree, FALSE, TRUE);
 }
 
 /*
@@ -271,7 +271,7 @@ dissect_arcnet (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_arcnet_linux (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-	dissect_arcnet_common (tvb, pinfo, tree, TRUE, FALSE);
+  dissect_arcnet_common (tvb, pinfo, tree, TRUE, FALSE);
 }
 
 static const value_string arcnet_prot_id_vals[] = {

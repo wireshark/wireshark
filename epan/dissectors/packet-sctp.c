@@ -321,7 +321,7 @@ static const value_string chunk_type_values[] = {
   { SCTP_IETF_EXT,                   "IETF_EXTENSION" },
   { 0,                               NULL } };
 
-/* 
+/*
  * Based on http://www.iana.org/assignments/sctp-parameters
  * as of August 23rd, 2009
  */
@@ -430,40 +430,40 @@ static struct _sctp_info sctp_info;
 static unsigned int
 sctp_adler32(const unsigned char* buf, unsigned int len)
 {
-    unsigned int s1 = 1L;
-    unsigned int s2 = 0L;
-    int k;
+  unsigned int s1 = 1L;
+  unsigned int s2 = 0L;
+  int k;
 
-    /* handle the first 8 bytes of the datagram */
-    DO8(buf,0);
-    buf += SOURCE_PORT_LENGTH +
-           DESTINATION_PORT_LENGTH +
-           VERIFICATION_TAG_LENGTH;
+  /* handle the first 8 bytes of the datagram */
+  DO8(buf,0);
+  buf += SOURCE_PORT_LENGTH +
+    DESTINATION_PORT_LENGTH +
+    VERIFICATION_TAG_LENGTH;
 
-    /* handle four 0 bytes as checksum */
-    s2  += CHECKSUM_LENGTH * s1;
-    buf += CHECKSUM_LENGTH;
+  /* handle four 0 bytes as checksum */
+  s2  += CHECKSUM_LENGTH * s1;
+  buf += CHECKSUM_LENGTH;
 
-    /* now we have 12 bytes handled */
-    len -= COMMON_HEADER_LENGTH;
+  /* now we have 12 bytes handled */
+  len -= COMMON_HEADER_LENGTH;
 
-    /* handle the rest of the datagram */
-    while (len > 0) {
-        k = len < NMAX ? len : NMAX;
-        len -= k;
-        while (k >= 16) {
-            DO16(buf);
-            buf += 16;
-            k -= 16;
-        }
-        if (k != 0) do {
-            s1 += *buf++;
-            s2 += s1;
-        } while (--k);
-        s1 %= BASE;
-        s2 %= BASE;
+  /* handle the rest of the datagram */
+  while (len > 0) {
+    k = len < NMAX ? len : NMAX;
+    len -= k;
+    while (k >= 16) {
+      DO16(buf);
+      buf += 16;
+      k -= 16;
     }
-    return (s2 << 16) | s1;
+    if (k != 0) do {
+        s1 += *buf++;
+        s2 += s1;
+      } while (--k);
+    s1 %= BASE;
+    s2 %= BASE;
+  }
+  return (s2 << 16) | s1;
 }
 
 
@@ -519,72 +519,72 @@ static void dissect_sctp_packet(tvbuff_t *, packet_info *, proto_tree *, gboolea
 /* TSN ANALYSIS CODE */
 
 struct _sctp_half_assoc_t {
-	guint32 spt;
-	guint32 dpt;
-	guint32 vtag;
+  guint32 spt;
+  guint32 dpt;
+  guint32 vtag;
 
-	gboolean started;
+  gboolean started;
 
-	guint32 first_tsn; /* start */
-	guint32 cumm_ack; /* rel */
-	emem_tree_t *tsns; /* sctp_tsn_t* by rel_tsn */
-	emem_tree_t *tsn_acks; /* sctp_tsn_t* by ctsn_frame */
+  guint32 first_tsn; /* start */
+  guint32 cumm_ack; /* rel */
+  emem_tree_t *tsns; /* sctp_tsn_t* by rel_tsn */
+  emem_tree_t *tsn_acks; /* sctp_tsn_t* by ctsn_frame */
 
-	struct _sctp_half_assoc_t *peer;
+  struct _sctp_half_assoc_t *peer;
 };
 
 
 
 typedef struct _sctp_tsn_t {
-	guint32 tsn;
-	struct {
-		guint32 framenum;
-		nstime_t ts;
-	} first_transmit;
-	struct {
-		guint32 framenum;
-		nstime_t ts;
-	} ack;
-	struct _retransmit_t {
-		guint32 framenum;
-		nstime_t ts;
-		struct _retransmit_t *next;
-	} *retransmit;
-	guint32 retransmit_count;
-	struct _sctp_tsn_t *next;
+  guint32 tsn;
+  struct {
+    guint32 framenum;
+    nstime_t ts;
+  } first_transmit;
+  struct {
+    guint32 framenum;
+    nstime_t ts;
+  } ack;
+  struct _retransmit_t {
+    guint32 framenum;
+    nstime_t ts;
+    struct _retransmit_t *next;
+  } *retransmit;
+  guint32 retransmit_count;
+  struct _sctp_tsn_t *next;
 } sctp_tsn_t;
 
 
 static emem_tree_key_t*
 make_address_key(guint32 spt, guint32 dpt, address *addr)
 {
-	emem_tree_key_t *k = ep_alloc(sizeof(emem_tree_key_t)*6);
+  emem_tree_key_t *k = ep_alloc(sizeof(emem_tree_key_t)*6);
 
-	k[0].length = 1;    k[0].key = ep_memdup(&spt,sizeof(spt));
-	k[1].length = 1;    k[1].key = ep_memdup(&dpt,sizeof(dpt));
-	k[2].length = 1;    k[2].key = (guint32*)(void *)&(addr->type);
-	k[3].length = 1;    k[3].key = (guint32*)(void *)&(addr->len);
+  k[0].length = 1;    k[0].key = ep_memdup(&spt,sizeof(spt));
+  k[1].length = 1;    k[1].key = ep_memdup(&dpt,sizeof(dpt));
+  k[2].length = 1;    k[2].key = (guint32*)(void *)&(addr->type);
+  k[3].length = 1;    k[3].key = (guint32*)(void *)&(addr->len);
 
-	k[4].length = ((addr->len/4)+1);
-	k[4].key = ep_alloc0(((addr->len/4)+1)*4);
-	if (addr->len) memcpy(k[4].key, addr->data, addr->len);
+  k[4].length = ((addr->len/4)+1);
+  k[4].key = ep_alloc0(((addr->len/4)+1)*4);
+  if (addr->len) memcpy(k[4].key, addr->data, addr->len);
 
-	k[5].length = 0;    k[5].key = NULL;
+  k[5].length = 0;    k[5].key = NULL;
 
-	return k;
+  return k;
 }
 
 static emem_tree_key_t *
 make_dir_key(guint32 spt, guint32 dpt, guint32 vtag)
 {
-	emem_tree_key_t *k =  ep_alloc(sizeof(emem_tree_key_t)*4);
+  emem_tree_key_t *k =  ep_alloc(sizeof(emem_tree_key_t)*4);
 
-	k[0].length = 1;    k[0].key = ep_memdup(&spt,sizeof(spt));
-	k[1].length = 1;    k[1].key = ep_memdup(&dpt,sizeof(dpt));
-	k[2].length = 1;    k[2].key = ep_memdup(&vtag,sizeof(vtag));
-	k[3].length = 0;    k[3].key = NULL;
+  k[0].length = 1;    k[0].key = ep_memdup(&spt,sizeof(spt));
+  k[1].length = 1;    k[1].key = ep_memdup(&dpt,sizeof(dpt));
+  k[2].length = 1;    k[2].key = ep_memdup(&vtag,sizeof(vtag));
+  k[3].length = 0;    k[3].key = NULL;
 
-	return k;
+  return k;
 }
 
 
@@ -595,56 +595,56 @@ static emem_tree_t *dirs_by_ptaddr; /* sctp_half_assoc_t**, it may contain a nul
 static sctp_half_assoc_t *
 get_half_assoc(packet_info *pinfo, guint32 spt, guint32 dpt, guint32 vtag)
 {
-	sctp_half_assoc_t *ha;
-	sctp_half_assoc_t **hb;
-	emem_tree_key_t *k;
+  sctp_half_assoc_t *ha;
+  sctp_half_assoc_t **hb;
+  emem_tree_key_t *k;
 
-	if (!enable_tsn_analysis || !vtag) return NULL;
+  if (!enable_tsn_analysis || !vtag) return NULL;
 
-	/* look for the current half_assoc by spt, dpt and vtag */
+  /* look for the current half_assoc by spt, dpt and vtag */
 
-	k = make_dir_key(spt, dpt, vtag);
-	if (( ha = emem_tree_lookup32_array(dirs_by_ptvtag, k)  )) {
-		/* found, if it has been already matched we're done */
-		if (ha->peer) return ha;
-	} else {
-		/* not found, make a new one and add it to the table */
-		ha = se_alloc0(sizeof(sctp_half_assoc_t));
-		ha->spt = spt;
-		ha->dpt = dpt;
-		ha->vtag = vtag;
-		ha->tsns = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,"");
-		ha->tsn_acks = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,"");
-		ha->started = FALSE;
-		ha->first_tsn= 0;
-		ha->cumm_ack= 0;
+  k = make_dir_key(spt, dpt, vtag);
+  if (( ha = emem_tree_lookup32_array(dirs_by_ptvtag, k)  )) {
+    /* found, if it has been already matched we're done */
+    if (ha->peer) return ha;
+  } else {
+    /* not found, make a new one and add it to the table */
+    ha = se_alloc0(sizeof(sctp_half_assoc_t));
+    ha->spt = spt;
+    ha->dpt = dpt;
+    ha->vtag = vtag;
+    ha->tsns = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,"");
+    ha->tsn_acks = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,"");
+    ha->started = FALSE;
+    ha->first_tsn= 0;
+    ha->cumm_ack= 0;
 
-		/* add this half to the table indexed by ports and vtag */
-		emem_tree_insert32_array(dirs_by_ptvtag, k, ha);
-	}
+    /* add this half to the table indexed by ports and vtag */
+    emem_tree_insert32_array(dirs_by_ptvtag, k, ha);
+  }
 
-	/* at this point we have an unmatched half, look for its other half using the ports and IP address */
-	k = make_address_key(dpt, spt, &(pinfo->dst));
+  /* at this point we have an unmatched half, look for its other half using the ports and IP address */
+  k = make_address_key(dpt, spt, &(pinfo->dst));
 
-	if (( hb = emem_tree_lookup32_array(dirs_by_ptaddr, k) )) {
-		/*the table contains a pointer to a pointer to a half */
-		if (! *hb) {
-			/* if there is no half pointed by this, add the current half to the table */
-			*hb = ha;
-		} else {
-			/* there's a half pointed by this, assume it's our peer and clear the table's pointer */
-			ha->peer = *hb;
-			(*hb)->peer = ha;
-			*hb = NULL;
-		}
-	} else {
-		/* we found no entry in the table: add one (using reversed ports and src addresss) so that it can be matched later */
-		*(hb = se_alloc(sizeof(void*))) = ha;
-		k = make_address_key(spt, dpt, &(pinfo->src));
-		emem_tree_insert32_array(dirs_by_ptaddr, k, hb);
-	}
+  if (( hb = emem_tree_lookup32_array(dirs_by_ptaddr, k) )) {
+    /*the table contains a pointer to a pointer to a half */
+    if (! *hb) {
+      /* if there is no half pointed by this, add the current half to the table */
+      *hb = ha;
+    } else {
+      /* there's a half pointed by this, assume it's our peer and clear the table's pointer */
+      ha->peer = *hb;
+      (*hb)->peer = ha;
+      *hb = NULL;
+    }
+  } else {
+    /* we found no entry in the table: add one (using reversed ports and src addresss) so that it can be matched later */
+    *(hb = se_alloc(sizeof(void*))) = ha;
+    k = make_address_key(spt, dpt, &(pinfo->src));
+    emem_tree_insert32_array(dirs_by_ptaddr, k, hb);
+  }
 
-	return ha;
+  return ha;
 }
 
 /*  Limit the number of retransmissions we track (to limit memory usage--and
@@ -654,295 +654,295 @@ get_half_assoc(packet_info *pinfo, guint32 spt, guint32 dpt, guint32 vtag)
 
 static void
 tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
-	 tvbuff_t *tvb, guint32 framenum)
+         tvbuff_t *tvb, guint32 framenum)
 {
-	proto_item *pi;
-	proto_tree *pt;
-	proto_tree *tsn_tree_pt = proto_item_add_subtree(tsn_item, ett_sctp_tsn);
+  proto_item *pi;
+  proto_tree *pt;
+  proto_tree *tsn_tree_pt = proto_item_add_subtree(tsn_item, ett_sctp_tsn);
 
-	if (t->first_transmit.framenum != framenum) {
-		nstime_t rto;
+  if (t->first_transmit.framenum != framenum) {
+    nstime_t rto;
 
-		pi = proto_tree_add_uint(tsn_tree_pt, hf_sctp_retransmission, tvb, 0, 0, t->first_transmit.framenum);
-		pt = proto_item_add_subtree(pi, ett_sctp_tsn_retransmission);
-		PROTO_ITEM_SET_GENERATED(pi);
-		expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE, "Retransmitted TSN");
+    pi = proto_tree_add_uint(tsn_tree_pt, hf_sctp_retransmission, tvb, 0, 0, t->first_transmit.framenum);
+    pt = proto_item_add_subtree(pi, ett_sctp_tsn_retransmission);
+    PROTO_ITEM_SET_GENERATED(pi);
+    expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE, "Retransmitted TSN");
 
-		nstime_delta( &rto, &pinfo->fd->abs_ts, &(t->first_transmit.ts) );
-		pi = proto_tree_add_time(pt, hf_sctp_rto, tvb, 0, 0, &rto);
-		PROTO_ITEM_SET_GENERATED(pi);
+    nstime_delta( &rto, &pinfo->fd->abs_ts, &(t->first_transmit.ts) );
+    pi = proto_tree_add_time(pt, hf_sctp_rto, tvb, 0, 0, &rto);
+    PROTO_ITEM_SET_GENERATED(pi);
 
-		/* Detect reneged acks */
-		/* XXX what if the frames aren't sorted by time? */
-		if (t->ack.framenum && t->ack.framenum < framenum)
-		{
-			pi = proto_tree_add_uint_format(pt, hf_sctp_retransmitted_after_ack, tvb, 0, 0, t->ack.framenum,
-							   "This TSN was acked (in frame %u) prior to this retransmission (reneged ack?)",
-							   t->ack.framenum);
-			PROTO_ITEM_SET_GENERATED(pi);
-			expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN,
-					       "This TSN was acked prior to this retransmission (reneged ack?)");
-		}
-	} else if (t->retransmit) {
-		struct _retransmit_t **r;
-		nstime_t rto;
-		char ds[64];
+    /* Detect reneged acks */
+    /* XXX what if the frames aren't sorted by time? */
+    if (t->ack.framenum && t->ack.framenum < framenum)
+    {
+      pi = proto_tree_add_uint_format(pt, hf_sctp_retransmitted_after_ack, tvb, 0, 0, t->ack.framenum,
+                                      "This TSN was acked (in frame %u) prior to this retransmission (reneged ack?)",
+                                      t->ack.framenum);
+      PROTO_ITEM_SET_GENERATED(pi);
+      expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN,
+                             "This TSN was acked prior to this retransmission (reneged ack?)");
+    }
+  } else if (t->retransmit) {
+    struct _retransmit_t **r;
+    nstime_t rto;
+    char ds[64];
 
-		if (t->retransmit_count > MAX_RETRANS_TRACKED_PER_TSN)
-			g_snprintf(ds, sizeof(ds), " (only %d displayed)", MAX_RETRANS_TRACKED_PER_TSN);
-		else
-			ds[0] = 0;
+    if (t->retransmit_count > MAX_RETRANS_TRACKED_PER_TSN)
+      g_snprintf(ds, sizeof(ds), " (only %d displayed)", MAX_RETRANS_TRACKED_PER_TSN);
+    else
+      ds[0] = 0;
 
-		pi = proto_tree_add_uint_format(tsn_tree_pt,
-						hf_sctp_retransmitted_count,
-						tvb, 0, 0, t->retransmit_count,
-						"This TSN was retransmitted %u time%s%s",
-						t->retransmit_count,
-						plurality(t->retransmit_count, "", "s"),
-						ds);
-		PROTO_ITEM_SET_GENERATED(pi);
+    pi = proto_tree_add_uint_format(tsn_tree_pt,
+                                    hf_sctp_retransmitted_count,
+                                    tvb, 0, 0, t->retransmit_count,
+                                    "This TSN was retransmitted %u time%s%s",
+                                    t->retransmit_count,
+                                    plurality(t->retransmit_count, "", "s"),
+                                    ds);
+    PROTO_ITEM_SET_GENERATED(pi);
 
-		if (t->retransmit_count > 2)
-			expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN,
-					       "This TSN was retransmitted more than 2 times");
+    if (t->retransmit_count > 2)
+      expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN,
+                             "This TSN was retransmitted more than 2 times");
 
-		pt = proto_item_add_subtree(pi, ett_sctp_tsn_retransmitted_count);
+    pt = proto_item_add_subtree(pi, ett_sctp_tsn_retransmitted_count);
 
-		r = &t->retransmit;
-		while (*r) {
-			nstime_delta(&rto, &((*r)->ts), &pinfo->fd->abs_ts);
-			pi = proto_tree_add_uint_format(pt,
-							hf_sctp_retransmitted,
-							tvb, 0, 0,
-							(*r)->framenum,
-							"This TSN was retransmitted in frame %u (%s seconds after this frame)",
-							(*r)->framenum,
-							rel_time_to_secs_str(&rto));
-			PROTO_ITEM_SET_GENERATED(pi);
-			r = &(*r)->next;
-		}
-	}
+    r = &t->retransmit;
+    while (*r) {
+      nstime_delta(&rto, &((*r)->ts), &pinfo->fd->abs_ts);
+      pi = proto_tree_add_uint_format(pt,
+                                      hf_sctp_retransmitted,
+                                      tvb, 0, 0,
+                                      (*r)->framenum,
+                                      "This TSN was retransmitted in frame %u (%s seconds after this frame)",
+                                      (*r)->framenum,
+                                      rel_time_to_secs_str(&rto));
+      PROTO_ITEM_SET_GENERATED(pi);
+      r = &(*r)->next;
+    }
+  }
 
-	if (t->ack.framenum) {
-		nstime_t rtt;
+  if (t->ack.framenum) {
+    nstime_t rtt;
 
-		pi = proto_tree_add_uint(tsn_tree_pt, hf_sctp_acked, tvb, 0 , 0, t->ack.framenum);
-		PROTO_ITEM_SET_GENERATED(pi);
-		pt = proto_item_add_subtree(pi, ett_sctp_ack);
+    pi = proto_tree_add_uint(tsn_tree_pt, hf_sctp_acked, tvb, 0 , 0, t->ack.framenum);
+    PROTO_ITEM_SET_GENERATED(pi);
+    pt = proto_item_add_subtree(pi, ett_sctp_ack);
 
-		nstime_delta( &rtt, &(t->ack.ts), &(t->first_transmit.ts) );
-		pi = proto_tree_add_time(pt, hf_sctp_rtt, tvb, 0, 0, &rtt);
-		PROTO_ITEM_SET_GENERATED(pi);
-	}
+    nstime_delta( &rtt, &(t->ack.ts), &(t->first_transmit.ts) );
+    pi = proto_tree_add_time(pt, hf_sctp_rtt, tvb, 0, 0, &rtt);
+    PROTO_ITEM_SET_GENERATED(pi);
+  }
 }
 
 #define RELTSN(tsn) (((tsn) < h->first_tsn) ? (tsn + (0xffffffff - (h->first_tsn)) + 1) : (tsn - h->first_tsn))
 
 static void
 sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
-	 sctp_half_assoc_t *h, guint32 tsn)
+         sctp_half_assoc_t *h, guint32 tsn)
 {
-	sctp_tsn_t *t;
-	guint32 framenum;
-	guint32 reltsn;
+  sctp_tsn_t *t;
+  guint32 framenum;
+  guint32 reltsn;
 
-	/* no half assoc? nothing to do!*/
-	if (!h)
-		return;
-
-
-	framenum = pinfo->fd->num;
-
-	/*  If we're dissecting for a read filter in the GUI [tshark assigns
-	 *  frame numbers before running the read filter], don't do the TSN
-	 *  analysis.  (We can't anyway because we don't have a valid frame
-	 *  number...)
-	 *
-	 *  Without this check if you load a capture file in the
-	 *  GUI while using a read filter, every SCTP TSN is marked as a
-	 *  retransmission of that in frame 0.
-	 */
-	if (framenum == 0)
-		return;
-
-	/* we have not seen any tsn yet in this half assoc set the ground */
-	if (! h->started) {
-		h->first_tsn = tsn;
-		h->started = TRUE;
-	}
+  /* no half assoc? nothing to do!*/
+  if (!h)
+    return;
 
 
-	reltsn = RELTSN(tsn);
+  framenum = pinfo->fd->num;
 
-	/* printf("%.3d REL TSN: %p->%p [%u] %u \n",framenum,h,h->peer,tsn,reltsn); */
+  /*  If we're dissecting for a read filter in the GUI [tshark assigns
+   *  frame numbers before running the read filter], don't do the TSN
+   *  analysis.  (We can't anyway because we don't have a valid frame
+   *  number...)
+   *
+   *  Without this check if you load a capture file in the
+   *  GUI while using a read filter, every SCTP TSN is marked as a
+   *  retransmission of that in frame 0.
+   */
+  if (framenum == 0)
+    return;
 
-	/* look for this tsn in this half's tsn table */
-	if (! (t = emem_tree_lookup32(h->tsns,reltsn) )) {
-		/* no tsn found, create a new one */
-		t = se_alloc0(sizeof(sctp_tsn_t));
-		t->tsn = tsn;
+  /* we have not seen any tsn yet in this half assoc set the ground */
+  if (! h->started) {
+    h->first_tsn = tsn;
+    h->started = TRUE;
+  }
 
-		t->first_transmit.framenum = framenum;
-		t->first_transmit.ts.secs = pinfo->fd->abs_ts.secs;
-		t->first_transmit.ts.nsecs = pinfo->fd->abs_ts.nsecs;
 
-		emem_tree_insert32(h->tsns,reltsn,t);
-	}
+  reltsn = RELTSN(tsn);
 
-	if ( (! pinfo->fd->flags.visited ) && t->first_transmit.framenum != framenum  ) {
-		struct _retransmit_t **r;
-		int i;
+  /* printf("%.3d REL TSN: %p->%p [%u] %u \n",framenum,h,h->peer,tsn,reltsn); */
 
-		t->retransmit_count++;
-		r = &t->retransmit;
-		i = 0;
-		while (*r && i < MAX_RETRANS_TRACKED_PER_TSN) {
-			r = &(*r)->next;
-			i++;
-		}
+  /* look for this tsn in this half's tsn table */
+  if (! (t = emem_tree_lookup32(h->tsns,reltsn) )) {
+    /* no tsn found, create a new one */
+    t = se_alloc0(sizeof(sctp_tsn_t));
+    t->tsn = tsn;
 
-		if (i <= MAX_RETRANS_TRACKED_PER_TSN) {
-			/*  TODO: we're allocating 16 bytes here.  The se_
-			 *  allocator adds 8 bytes of canary to that at each
-			 *  allocation.  Should these allocations be batched
-			 *  or does it not matter for the rare cases when there's
-			 *  more than 1 or 2 retransmissions of a TSN?
-			 *  For now, go with simplicity (of code here).
-			 */
-			*r = se_alloc0(sizeof(struct _retransmit_t));
-			(*r)->framenum = framenum;
-			(*r)->ts.secs = pinfo->fd->abs_ts.secs;
-			(*r)->ts.nsecs = pinfo->fd->abs_ts.nsecs;
-		}
-	}
+    t->first_transmit.framenum = framenum;
+    t->first_transmit.ts.secs = pinfo->fd->abs_ts.secs;
+    t->first_transmit.ts.nsecs = pinfo->fd->abs_ts.nsecs;
 
-	tsn_tree(t, tsn_item, pinfo, tvb, framenum);
+    emem_tree_insert32(h->tsns,reltsn,t);
+  }
+
+  if ( (! pinfo->fd->flags.visited ) && t->first_transmit.framenum != framenum  ) {
+    struct _retransmit_t **r;
+    int i;
+
+    t->retransmit_count++;
+    r = &t->retransmit;
+    i = 0;
+    while (*r && i < MAX_RETRANS_TRACKED_PER_TSN) {
+      r = &(*r)->next;
+      i++;
+    }
+
+    if (i <= MAX_RETRANS_TRACKED_PER_TSN) {
+      /*  TODO: we're allocating 16 bytes here.  The se_
+       *  allocator adds 8 bytes of canary to that at each
+       *  allocation.  Should these allocations be batched
+       *  or does it not matter for the rare cases when there's
+       *  more than 1 or 2 retransmissions of a TSN?
+       *  For now, go with simplicity (of code here).
+       */
+      *r = se_alloc0(sizeof(struct _retransmit_t));
+      (*r)->framenum = framenum;
+      (*r)->ts.secs = pinfo->fd->abs_ts.secs;
+      (*r)->ts.nsecs = pinfo->fd->abs_ts.nsecs;
+    }
+  }
+
+  tsn_tree(t, tsn_item, pinfo, tvb, framenum);
 }
 
 static void
 ack_tree(sctp_tsn_t *t, proto_tree *acks_tree,
-	 tvbuff_t *tvb, packet_info *pinfo)
+         tvbuff_t *tvb, packet_info *pinfo)
 {
-	proto_item *pi;
-	proto_tree *pt;
-	nstime_t rtt;
-	guint framenum =  pinfo->fd->num;
+  proto_item *pi;
+  proto_tree *pt;
+  nstime_t rtt;
+  guint framenum =  pinfo->fd->num;
 
-	if ( t->ack.framenum == framenum ) {
-		nstime_delta( &rtt, &(t->ack.ts), &(t->first_transmit.ts) );
+  if ( t->ack.framenum == framenum ) {
+    nstime_delta( &rtt, &(t->ack.ts), &(t->first_transmit.ts) );
 
-		pi = proto_tree_add_uint(acks_tree, hf_sctp_ack_tsn, tvb, 0 , 0, t->tsn);
-		PROTO_ITEM_SET_GENERATED(pi);
+    pi = proto_tree_add_uint(acks_tree, hf_sctp_ack_tsn, tvb, 0 , 0, t->tsn);
+    PROTO_ITEM_SET_GENERATED(pi);
 
-		pt = proto_item_add_subtree(pi, ett_sctp_acked);
+    pt = proto_item_add_subtree(pi, ett_sctp_acked);
 
-		pi = proto_tree_add_uint(pt, hf_sctp_ack_frame, tvb, 0 , 0, t->first_transmit.framenum);
-		PROTO_ITEM_SET_GENERATED(pi);
+    pi = proto_tree_add_uint(pt, hf_sctp_ack_frame, tvb, 0 , 0, t->first_transmit.framenum);
+    PROTO_ITEM_SET_GENERATED(pi);
 
-		pi = proto_tree_add_time(pt, hf_sctp_rtt, tvb, 0, 0, &rtt);
-		PROTO_ITEM_SET_GENERATED(pi);
-	}
+    pi = proto_tree_add_time(pt, hf_sctp_rtt, tvb, 0, 0, &rtt);
+    PROTO_ITEM_SET_GENERATED(pi);
+  }
 }
 
 static void
 sctp_ack(packet_info *pinfo, tvbuff_t *tvb,  proto_tree *acks_tree,
-	 sctp_half_assoc_t *h, guint32 reltsn)
+         sctp_half_assoc_t *h, guint32 reltsn)
 {
-	sctp_tsn_t *t;
-	guint32 framenum;
+  sctp_tsn_t *t;
+  guint32 framenum;
 
 
-	if (!h || !h->peer)
-		return;
+  if (!h || !h->peer)
+    return;
 
-	framenum =  pinfo->fd->num;
+  framenum =  pinfo->fd->num;
 
-	/* printf("%.6d ACK: %p->%p [%u] \n",framenum,h,h->peer,reltsn); */
+  /* printf("%.6d ACK: %p->%p [%u] \n",framenum,h,h->peer,reltsn); */
 
-	t = se_tree_lookup32(h->peer->tsns,reltsn);
+  t = se_tree_lookup32(h->peer->tsns,reltsn);
 
-	if (t) {
-		if (! t->ack.framenum) {
-			sctp_tsn_t *t2;
+  if (t) {
+    if (! t->ack.framenum) {
+      sctp_tsn_t *t2;
 
-			t->ack.framenum = framenum;
-			t->ack.ts.secs = pinfo->fd->abs_ts.secs;
-			t->ack.ts.nsecs = pinfo->fd->abs_ts.nsecs;
+      t->ack.framenum = framenum;
+      t->ack.ts.secs = pinfo->fd->abs_ts.secs;
+      t->ack.ts.nsecs = pinfo->fd->abs_ts.nsecs;
 
-			if (( t2 = emem_tree_lookup32(h->peer->tsn_acks, framenum) )) {
-				for(;t2->next;t2 = t2->next)
-					;
+      if (( t2 = emem_tree_lookup32(h->peer->tsn_acks, framenum) )) {
+        for(;t2->next;t2 = t2->next)
+          ;
 
-				t2->next = t;
-			} else {
-				emem_tree_insert32(h->peer->tsn_acks, framenum,t);
-			}
-		}
+        t2->next = t;
+      } else {
+        emem_tree_insert32(h->peer->tsn_acks, framenum,t);
+      }
+    }
 
-		if ( t->ack.framenum == framenum)
-			ack_tree(t, acks_tree, tvb, pinfo);
+    if ( t->ack.framenum == framenum)
+      ack_tree(t, acks_tree, tvb, pinfo);
 
-	} /* else {
-		proto_tree_add_text(acks_tree, tvb, 0 , 0, "Assoc: %p vs %p ?? %ld",h,h->peer,tsn);
-	} */
+  } /* else {
+       proto_tree_add_text(acks_tree, tvb, 0 , 0, "Assoc: %p vs %p ?? %ld",h,h->peer,tsn);
+       } */
 }
 
 #define RELTSNACK(tsn) (((tsn) < h->peer->first_tsn) ? ((tsn) + (0xffffffff - (h->peer->first_tsn)) + 1) : ((tsn) - h->peer->first_tsn))
 static void
 sctp_ack_block(packet_info *pinfo, sctp_half_assoc_t *h, tvbuff_t *tvb,
-	       proto_item *acks_tree, const guint32 *tsn_start_ptr,
-	       guint32 tsn_end)
+               proto_item *acks_tree, const guint32 *tsn_start_ptr,
+               guint32 tsn_end)
 {
-	sctp_tsn_t *t;
-	guint32 framenum;
-	guint32 rel_start;
-	guint32 rel_end;
+  sctp_tsn_t *t;
+  guint32 framenum;
+  guint32 rel_start;
+  guint32 rel_end;
 
 
-	if ( !h || !h->peer || ! h->peer->started )
-		return;
+  if ( !h || !h->peer || ! h->peer->started )
+    return;
 
-	framenum =  pinfo->fd->num;
-	rel_end = RELTSNACK(tsn_end);
+  framenum =  pinfo->fd->num;
+  rel_end = RELTSNACK(tsn_end);
 
-	if (tsn_start_ptr) {
-		rel_start = RELTSNACK(*tsn_start_ptr);
-		/* printf("%.3d BACK: %p->%p [%u-%u]\n",framenum,h,h->peer,rel_start,rel_end); */
-	}  else {
-		rel_start = h->peer->cumm_ack;
-		/* printf("%.3d CACK: %p->%p  [%u-%u]\n",framenum,h,h->peer,rel_start,rel_end); */
-	}
+  if (tsn_start_ptr) {
+    rel_start = RELTSNACK(*tsn_start_ptr);
+    /* printf("%.3d BACK: %p->%p [%u-%u]\n",framenum,h,h->peer,rel_start,rel_end); */
+  }  else {
+    rel_start = h->peer->cumm_ack;
+    /* printf("%.3d CACK: %p->%p  [%u-%u]\n",framenum,h,h->peer,rel_start,rel_end); */
+  }
 
 
-	if ((t = emem_tree_lookup32(h->peer->tsn_acks, framenum))) {
-		for(;t;t = t->next) {
-			guint32 tsn = t->tsn;
+  if ((t = emem_tree_lookup32(h->peer->tsn_acks, framenum))) {
+    for(;t;t = t->next) {
+      guint32 tsn = t->tsn;
 
-			if ( tsn  < h->peer->first_tsn ) {
-				tsn += (0xffffffff - (h->peer->first_tsn)) + 1;
-			} else {
-				tsn -= h->peer->first_tsn;
-			}
+      if ( tsn  < h->peer->first_tsn ) {
+        tsn += (0xffffffff - (h->peer->first_tsn)) + 1;
+      } else {
+        tsn -= h->peer->first_tsn;
+      }
 
-			if (t->ack.framenum == framenum && ( (!tsn_start_ptr) || rel_start <= tsn) && tsn <= rel_end)
-				ack_tree(t, acks_tree, tvb, pinfo);
-		}
+      if (t->ack.framenum == framenum && ( (!tsn_start_ptr) || rel_start <= tsn) && tsn <= rel_end)
+        ack_tree(t, acks_tree, tvb, pinfo);
+    }
 
-		return;
-	}
+    return;
+  }
 
-	if (pinfo->fd->flags.visited || rel_end < rel_start || rel_end - rel_start > 0xffff0000 ) return;
+  if (pinfo->fd->flags.visited || rel_end < rel_start || rel_end - rel_start > 0xffff0000 ) return;
 
-	if (! tsn_start_ptr )
-		h->peer->cumm_ack = rel_end + 1;
+  if (! tsn_start_ptr )
+    h->peer->cumm_ack = rel_end + 1;
 
-	if (rel_start <= rel_end && rel_end - rel_start < 5000 ) {
-		guint32 rel_tsn, i;
-		for (i=0; i <= rel_end-rel_start; i++) {
-			rel_tsn = (guint32) (i+rel_start);
-			sctp_ack(pinfo, tvb,  acks_tree, h, rel_tsn);
-		}
-	}
+  if (rel_start <= rel_end && rel_end - rel_start < 5000 ) {
+    guint32 rel_tsn, i;
+    for (i=0; i <= rel_end-rel_start; i++) {
+      rel_tsn = (guint32) (i+rel_start);
+      sctp_ack(pinfo, tvb,  acks_tree, h, rel_tsn);
+    }
+  }
 }
 
 /* END TSN ANALYSIS CODE */
@@ -1074,17 +1074,17 @@ dissect_supported_address_types_parameter(tvbuff_t *parameter_tvb, proto_tree *p
     proto_tree_add_item(parameter_tree, hf_supported_address_type, parameter_tvb, offset, SUPPORTED_ADDRESS_TYPE_PARAMETER_ADDRESS_TYPE_LENGTH, NETWORK_BYTE_ORDER);
     addr_type = tvb_get_ntohs(parameter_tvb, offset);
     switch (addr_type) {
-      case IPv4_ADDRESS_TYPE:
-        proto_item_append_text(parameter_item, "IPv4");
-        break;
-      case IPv6_ADDRESS_TYPE:
-        proto_item_append_text(parameter_item, "IPv6");
-        break;
-      case HOSTNAME_ADDRESS_TYPE:
-        proto_item_append_text(parameter_item, "hostname");
-        break;
-      default:
-        proto_item_append_text(parameter_item, "%u", addr_type);
+    case IPv4_ADDRESS_TYPE:
+      proto_item_append_text(parameter_item, "IPv4");
+      break;
+    case IPv6_ADDRESS_TYPE:
+      proto_item_append_text(parameter_item, "IPv6");
+      break;
+    case HOSTNAME_ADDRESS_TYPE:
+      proto_item_append_text(parameter_item, "hostname");
+      break;
+    default:
+      proto_item_append_text(parameter_item, "%u", addr_type);
     }
     if (addr_type_number < number_of_addr_types)
       proto_item_append_text(parameter_item, ", ");
@@ -1639,11 +1639,11 @@ dissect_unresolvable_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, prot
 
 static gboolean
 dissect_sctp_chunk(tvbuff_t *chunk_tvb,
-				   packet_info *pinfo,
-				   proto_tree *tree,
-				   proto_tree *sctp_tree,
-				   sctp_half_assoc_t* assoc,
-				   gboolean useinfo);
+                   packet_info *pinfo,
+                   proto_tree *tree,
+                   proto_tree *sctp_tree,
+                   sctp_half_assoc_t* assoc,
+                   gboolean useinfo);
 
 static void
 dissect_unrecognized_chunk_type_cause(tvbuff_t *cause_tvb,  packet_info *pinfo, proto_tree *cause_tree, proto_item *cause_item)
@@ -2652,13 +2652,13 @@ static const true_false_string sctp_data_chunk_i_bit_value = {
 
 static gboolean
 dissect_data_chunk(tvbuff_t *chunk_tvb,
-				   guint16 chunk_length,
-				   packet_info *pinfo,
-				   proto_tree *tree,
-				   proto_tree *chunk_tree,
-				   proto_item *chunk_item,
-				   proto_item *flags_item,
-				   sctp_half_assoc_t* ha)
+                   guint16 chunk_length,
+                   packet_info *pinfo,
+                   proto_tree *tree,
+                   proto_tree *chunk_tree,
+                   proto_item *chunk_item,
+                   proto_item *flags_item,
+                   sctp_half_assoc_t* ha)
 {
   guint number_of_ppid;
   guint32 payload_proto_id;
@@ -2746,28 +2746,28 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
        */
       if (b_bit)
       {
-	volatile gboolean retval = FALSE;
+        volatile gboolean retval = FALSE;
 
-	/*
-	 * If this particular fragment happens to get a ReportedBoundsError
-	 * exception (which in fact we expect it to since it's a fragment),
-	 * don't stop dissecting chunks within this frame.
-	 *
-	 * If it gets a BoundsError, we can stop, as there's nothing more to
-	 * see, so we just re-throw it.
-	 */
-	TRY {
-	  retval = dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
-	}
-	CATCH(BoundsError) {
-	  RETHROW;
-	}
-	CATCH(ReportedBoundsError) {
-	  show_reported_bounds_error(payload_tvb, pinfo, tree);
-	}
-	ENDTRY;
+        /*
+         * If this particular fragment happens to get a ReportedBoundsError
+         * exception (which in fact we expect it to since it's a fragment),
+         * don't stop dissecting chunks within this frame.
+         *
+         * If it gets a BoundsError, we can stop, as there's nothing more to
+         * see, so we just re-throw it.
+         */
+        TRY {
+          retval = dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
+        }
+        CATCH(BoundsError) {
+          RETHROW;
+        }
+        CATCH(ReportedBoundsError) {
+          show_reported_bounds_error(payload_tvb, pinfo, tree);
+        }
+        ENDTRY;
 
-	return retval;
+        return retval;
       }
 
       /* else */
@@ -2823,7 +2823,7 @@ dissect_init_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo
     /* handle fixed parameters */
     proto_tree_add_item(chunk_tree, hf_init_chunk_initiate_tag,               chunk_tvb, INIT_CHUNK_INITIATE_TAG_OFFSET,               INIT_CHUNK_INITIATE_TAG_LENGTH,               NETWORK_BYTE_ORDER);
     hidden_item = proto_tree_add_item(chunk_tree, hf_initiate_tag,                   chunk_tvb, INIT_CHUNK_INITIATE_TAG_OFFSET,               INIT_CHUNK_INITIATE_TAG_LENGTH,               NETWORK_BYTE_ORDER);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_item(chunk_tree, hf_init_chunk_adv_rec_window_credit,      chunk_tvb, INIT_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET,      INIT_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH,      NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_init_chunk_number_of_outbound_streams, chunk_tvb, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_LENGTH, NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_init_chunk_number_of_inbound_streams,  chunk_tvb, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET,  INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_LENGTH,  NETWORK_BYTE_ORDER);
@@ -2855,7 +2855,7 @@ dissect_init_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *p
     /* handle fixed parameters */
     proto_tree_add_item(chunk_tree, hf_initack_chunk_initiate_tag,               chunk_tvb, INIT_CHUNK_INITIATE_TAG_OFFSET,               INIT_CHUNK_INITIATE_TAG_LENGTH,               NETWORK_BYTE_ORDER);
     hidden_item = proto_tree_add_item(chunk_tree, hf_initiate_tag,                      chunk_tvb, INIT_CHUNK_INITIATE_TAG_OFFSET,               INIT_CHUNK_INITIATE_TAG_LENGTH,               NETWORK_BYTE_ORDER);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_item(chunk_tree, hf_initack_chunk_adv_rec_window_credit,      chunk_tvb, INIT_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET,      INIT_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH,      NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_initack_chunk_number_of_outbound_streams, chunk_tvb, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_LENGTH, NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_initack_chunk_number_of_inbound_streams,  chunk_tvb, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET,  INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_LENGTH,  NETWORK_BYTE_ORDER);
@@ -2943,13 +2943,13 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
     pi = proto_tree_add_item(block_tree, hf_sack_chunk_gap_block_start, chunk_tvb, gap_block_offset, SACK_CHUNK_GAP_BLOCK_START_LENGTH, NETWORK_BYTE_ORDER);
     pt = proto_item_add_subtree(pi, ett_sctp_sack_chunk_gap_block_start);
     pi = proto_tree_add_uint(pt, hf_sack_chunk_gap_block_start_tsn,
-			     chunk_tvb, gap_block_offset,SACK_CHUNK_GAP_BLOCK_START_LENGTH, cum_tsn_ack + start);
+                             chunk_tvb, gap_block_offset,SACK_CHUNK_GAP_BLOCK_START_LENGTH, cum_tsn_ack + start);
     PROTO_ITEM_SET_GENERATED(pi);
 
     pi = proto_tree_add_item(block_tree, hf_sack_chunk_gap_block_end, chunk_tvb, gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH, SACK_CHUNK_GAP_BLOCK_END_LENGTH,   NETWORK_BYTE_ORDER);
     pt = proto_item_add_subtree(pi, ett_sctp_sack_chunk_gap_block_end);
     pi = proto_tree_add_uint(pt, hf_sack_chunk_gap_block_end_tsn, chunk_tvb,
-			     gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH, SACK_CHUNK_GAP_BLOCK_END_LENGTH, cum_tsn_ack + end);
+                             gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH, SACK_CHUNK_GAP_BLOCK_END_LENGTH, cum_tsn_ack + end);
     PROTO_ITEM_SET_GENERATED(pi);
 
     sctp_ack_block(pinfo, ha, chunk_tvb, block_tree, &tsn_start, cum_tsn_ack + end);
@@ -2982,9 +2982,9 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
   }
 
   proto_item_append_text(chunk_item, " (Cumulative TSN: %u, a_rwnd: %u, gaps: %u, duplicate TSNs: %u)",
-			 tvb_get_ntohl(chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET),
-			 a_rwnd,
-			 number_of_gap_blocks, number_of_dup_tsns);
+                         tvb_get_ntohl(chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET),
+                         a_rwnd,
+                         number_of_gap_blocks, number_of_dup_tsns);
 }
 
 /* NE: Dissect nr-sack chunk */
@@ -3013,7 +3013,7 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
 #define NR_SACK_CHUNK_NUMBER_OF_DUP_TSNS_OFFSET        (NR_SACK_CHUNK_NUMBER_OF_NR_GAP_BLOCKS_OFFSET + \
                                                         NR_SACK_CHUNK_NUMBER_OF_NR_GAP_BLOCKS_LENGTH)
 #define NR_SACK_CHUNK_RESERVED_OFFSET                  (NR_SACK_CHUNK_NUMBER_OF_DUP_TSNS_OFFSET + \
-                                                        NR_SACK_CHUNK_NUMBER_OF_DUP_TSNS_LENGTH)  
+                                                        NR_SACK_CHUNK_NUMBER_OF_DUP_TSNS_LENGTH)
 #define NR_SACK_CHUNK_GAP_BLOCK_OFFSET                 (NR_SACK_CHUNK_RESERVED_OFFSET + \
                                                         NR_SACK_CHUNK_RESERVED_LENGTH)
 
@@ -3039,9 +3039,9 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
 
   ctsa_item = proto_tree_add_item(chunk_tree, hf_nr_sack_chunk_cumulative_tsn_ack, chunk_tvb, NR_SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET, NR_SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH, NETWORK_BYTE_ORDER);
   proto_tree_add_item(chunk_tree, hf_nr_sack_chunk_adv_rec_window_credit, chunk_tvb, NR_SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET, NR_SACK_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH, NETWORK_BYTE_ORDER);
-  
+
   num_of_gap_blocks = proto_tree_add_item(chunk_tree, hf_nr_sack_chunk_number_of_gap_blocks, chunk_tvb, NR_SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_OFFSET,  NR_SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_LENGTH, NETWORK_BYTE_ORDER);
-  
+
   proto_tree_add_item(chunk_tree, hf_nr_sack_chunk_number_of_nr_gap_blocks,  chunk_tvb, NR_SACK_CHUNK_NUMBER_OF_NR_GAP_BLOCKS_OFFSET, NR_SACK_CHUNK_NUMBER_OF_NR_GAP_BLOCKS_LENGTH, NETWORK_BYTE_ORDER);
   proto_tree_add_item(chunk_tree, hf_nr_sack_chunk_number_of_dup_tsns, chunk_tvb, NR_SACK_CHUNK_NUMBER_OF_DUP_TSNS_OFFSET, NR_SACK_CHUNK_NUMBER_OF_DUP_TSNS_LENGTH, NETWORK_BYTE_ORDER);
   proto_tree_add_item(chunk_tree, hf_nr_sack_chunk_reserved, chunk_tvb, NR_SACK_CHUNK_RESERVED_OFFSET, NR_SACK_CHUNK_RESERVED_LENGTH, NETWORK_BYTE_ORDER);
@@ -3053,31 +3053,31 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
 
   acks_tree = proto_item_add_subtree(ctsa_item,ett_sctp_ack);
   sctp_ack_block(pinfo, ha, chunk_tvb, acks_tree, NULL, cum_tsn_ack);
-  
+
   for(gap_block_number = 1; gap_block_number <= number_of_gap_blocks; gap_block_number++) {
     proto_item *pi;
     proto_tree *pt;
     guint32 tsn_start;
-    
+
     start = tvb_get_ntohs(chunk_tvb, gap_block_offset);
     end   = tvb_get_ntohs(chunk_tvb, gap_block_offset + NR_SACK_CHUNK_GAP_BLOCK_START_LENGTH);
     tsn_start = cum_tsn_ack + start;
-    
+
     block_item = proto_tree_add_text(chunk_tree, chunk_tvb, gap_block_offset, NR_SACK_CHUNK_GAP_BLOCK_LENGTH, "Gap Acknowledgement for TSN %u to %u", cum_tsn_ack + start, cum_tsn_ack + end);
     block_tree = proto_item_add_subtree(block_item, ett_sctp_nr_sack_chunk_gap_block);
-      
+
     pi = proto_tree_add_item(block_tree, hf_nr_sack_chunk_gap_block_start, chunk_tvb, gap_block_offset, NR_SACK_CHUNK_GAP_BLOCK_START_LENGTH, NETWORK_BYTE_ORDER);
     pt = proto_item_add_subtree(pi, ett_sctp_nr_sack_chunk_gap_block_start);
     pi = proto_tree_add_uint(pt, hf_nr_sack_chunk_gap_block_start_tsn,
-			     chunk_tvb, gap_block_offset,NR_SACK_CHUNK_GAP_BLOCK_START_LENGTH, cum_tsn_ack + start);
+                             chunk_tvb, gap_block_offset,NR_SACK_CHUNK_GAP_BLOCK_START_LENGTH, cum_tsn_ack + start);
     PROTO_ITEM_SET_GENERATED(pi);
 
     pi = proto_tree_add_item(block_tree, hf_nr_sack_chunk_gap_block_end, chunk_tvb, gap_block_offset + NR_SACK_CHUNK_GAP_BLOCK_START_LENGTH, NR_SACK_CHUNK_GAP_BLOCK_END_LENGTH,   NETWORK_BYTE_ORDER);
     pt = proto_item_add_subtree(pi, ett_sctp_nr_sack_chunk_gap_block_end);
     pi = proto_tree_add_uint(pt, hf_nr_sack_chunk_gap_block_end_tsn, chunk_tvb,
-			       gap_block_offset + NR_SACK_CHUNK_GAP_BLOCK_START_LENGTH, NR_SACK_CHUNK_GAP_BLOCK_END_LENGTH, cum_tsn_ack + end);
+                               gap_block_offset + NR_SACK_CHUNK_GAP_BLOCK_START_LENGTH, NR_SACK_CHUNK_GAP_BLOCK_END_LENGTH, cum_tsn_ack + end);
     PROTO_ITEM_SET_GENERATED(pi);
-      
+
     sctp_ack_block(pinfo, ha, chunk_tvb, block_tree, &tsn_start, cum_tsn_ack + end);
     gap_block_offset += NR_SACK_CHUNK_GAP_BLOCK_LENGTH;
     tsns_gap_acked += (end - start) + 1;
@@ -3085,7 +3085,7 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
 
   if (tsns_gap_acked) {
     proto_item *pi;
-      
+
     pi = proto_tree_add_uint(chunk_tree, hf_nr_sack_chunk_number_tsns_gap_acked, chunk_tvb, 0, 0, tsns_gap_acked);
     PROTO_ITEM_SET_GENERATED(pi);
 
@@ -3094,7 +3094,7 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
      */
     if (tsns_gap_acked > 100)
       expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "More than 100 TSNs were gap-acknowledged in this NR-SACK");
-    
+
   }
 
   /* NE: handle the nr-sack chunk's nr-gap blocks */
@@ -3116,18 +3116,18 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
     pi = proto_tree_add_item(block_tree, hf_nr_sack_chunk_nr_gap_block_start, chunk_tvb, nr_gap_block_offset, NR_SACK_CHUNK_NR_GAP_BLOCK_START_LENGTH, NETWORK_BYTE_ORDER);
     pt = proto_item_add_subtree(pi, ett_sctp_nr_sack_chunk_nr_gap_block_start);
     pi = proto_tree_add_uint(pt, hf_nr_sack_chunk_nr_gap_block_start_tsn,
-   			     chunk_tvb, nr_gap_block_offset, NR_SACK_CHUNK_NR_GAP_BLOCK_START_LENGTH, cum_tsn_ack + start);
+                             chunk_tvb, nr_gap_block_offset, NR_SACK_CHUNK_NR_GAP_BLOCK_START_LENGTH, cum_tsn_ack + start);
     PROTO_ITEM_SET_GENERATED(pi);
 
     pi = proto_tree_add_item(block_tree, hf_nr_sack_chunk_nr_gap_block_end, chunk_tvb, nr_gap_block_offset + NR_SACK_CHUNK_NR_GAP_BLOCK_START_LENGTH, NR_SACK_CHUNK_NR_GAP_BLOCK_END_LENGTH,   NETWORK_BYTE_ORDER);
     pt = proto_item_add_subtree(pi, ett_sctp_nr_sack_chunk_nr_gap_block_end);
     pi = proto_tree_add_uint(pt, hf_nr_sack_chunk_nr_gap_block_end_tsn, chunk_tvb,
-			     nr_gap_block_offset + NR_SACK_CHUNK_NR_GAP_BLOCK_START_LENGTH, NR_SACK_CHUNK_NR_GAP_BLOCK_END_LENGTH, cum_tsn_ack + end);
+                             nr_gap_block_offset + NR_SACK_CHUNK_NR_GAP_BLOCK_START_LENGTH, NR_SACK_CHUNK_NR_GAP_BLOCK_END_LENGTH, cum_tsn_ack + end);
     PROTO_ITEM_SET_GENERATED(pi);
 
     /* sctp_ack_block(pinfo, ha, chunk_tvb, block_tree, &tsn_start, cum_tsn_ack + end); */
     nr_gap_block_offset += NR_SACK_CHUNK_NR_GAP_BLOCK_LENGTH;
-    tsns_nr_gap_acked += (end - start) + 1; 
+    tsns_nr_gap_acked += (end - start) + 1;
   }
 
   if (tsns_nr_gap_acked) {
@@ -3145,19 +3145,19 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
 
   /* handle the duplicate TSNs */
   number_of_dup_tsns = tvb_get_ntohs(chunk_tvb, NR_SACK_CHUNK_NUMBER_OF_DUP_TSNS_OFFSET);
-  dup_tsn_offset     = NR_SACK_CHUNK_GAP_BLOCK_OFFSET + number_of_gap_blocks * NR_SACK_CHUNK_GAP_BLOCK_LENGTH 
+  dup_tsn_offset     = NR_SACK_CHUNK_GAP_BLOCK_OFFSET + number_of_gap_blocks * NR_SACK_CHUNK_GAP_BLOCK_LENGTH
     + number_of_nr_gap_blocks * NR_SACK_CHUNK_NR_GAP_BLOCK_LENGTH;
 
-  
+
   for(dup_tsn_number = 1; dup_tsn_number <= number_of_dup_tsns; dup_tsn_number++) {
     proto_tree_add_item(chunk_tree, hf_sack_chunk_duplicate_tsn, chunk_tvb, dup_tsn_offset, NR_SACK_CHUNK_DUP_TSN_LENGTH, NETWORK_BYTE_ORDER);
     dup_tsn_offset += NR_SACK_CHUNK_DUP_TSN_LENGTH;
   }
-  
+
   proto_item_append_text(chunk_item, " (Cumulative TSN: %u, a_rwnd: %u, gaps: %u, nr-gaps: %u, duplicate TSNs: %u)",
-			   tvb_get_ntohl(chunk_tvb, NR_SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET),
-			   tvb_get_ntohl(chunk_tvb, NR_SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET),
-			   number_of_gap_blocks, number_of_nr_gap_blocks, number_of_dup_tsns);
+                         tvb_get_ntohl(chunk_tvb, NR_SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET),
+                         tvb_get_ntohl(chunk_tvb, NR_SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET),
+                         number_of_gap_blocks, number_of_nr_gap_blocks, number_of_dup_tsns);
 }
 
 #define HEARTBEAT_CHUNK_INFO_OFFSET CHUNK_VALUE_OFFSET
@@ -3506,11 +3506,11 @@ static const true_false_string sctp_chunk_bit_2_value = {
 
 static gboolean
 dissect_sctp_chunk(tvbuff_t *chunk_tvb,
-				   packet_info *pinfo,
-				   proto_tree *tree,
-				   proto_tree *sctp_tree,
-				   sctp_half_assoc_t* ha,
-				   gboolean useinfo)
+                   packet_info *pinfo,
+                   proto_tree *tree,
+                   proto_tree *sctp_tree,
+                   sctp_half_assoc_t* ha,
+                   gboolean useinfo)
 {
   guint8 type, flags;
   guint16 length, padding_length;
@@ -3655,12 +3655,12 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
 
 static void
 dissect_sctp_chunks(tvbuff_t *tvb,
-					packet_info *pinfo,
-					proto_tree *tree,
-					proto_item *sctp_item,
-					proto_tree *sctp_tree,
-					sctp_half_assoc_t* ha,
-					gboolean encapsulated)
+                    packet_info *pinfo,
+                    proto_tree *tree,
+                    proto_item *sctp_item,
+                    proto_tree *sctp_tree,
+                    sctp_half_assoc_t* ha,
+                    gboolean encapsulated)
 {
   tvbuff_t *chunk_tvb;
   guint16 length, total_length, remaining_length;
@@ -3783,59 +3783,59 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     proto_tree_add_item(sctp_tree, hf_destination_port, tvb, DESTINATION_PORT_OFFSET, DESTINATION_PORT_LENGTH, NETWORK_BYTE_ORDER);
     proto_tree_add_item(sctp_tree, hf_verification_tag, tvb, VERIFICATION_TAG_OFFSET, VERIFICATION_TAG_LENGTH, NETWORK_BYTE_ORDER);
     hidden_item = proto_tree_add_item(sctp_tree, hf_port, tvb, SOURCE_PORT_OFFSET,      SOURCE_PORT_LENGTH,      NETWORK_BYTE_ORDER);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
     hidden_item = proto_tree_add_item(sctp_tree, hf_port, tvb, DESTINATION_PORT_OFFSET, DESTINATION_PORT_LENGTH, NETWORK_BYTE_ORDER);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     if (tvb_bytes_exist(tvb, 0, reported_length)) {
       /* We have the whole packet */
 
       switch(sctp_checksum) {
       case SCTP_CHECKSUM_NONE:
-	proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum, "Checksum: 0x%08x (not verified)", checksum);
-	break;
+        proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum, "Checksum: 0x%08x (not verified)", checksum);
+        break;
       case SCTP_CHECKSUM_ADLER32:
-	if (adler32_correct)
-	  proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-				     checksum, "Checksum: 0x%08x [correct Adler32]", checksum);
-	else
-	  proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-				     checksum, "Checksum: 0x%08x [incorrect Adler32, should be 0x%08x]", checksum, calculated_adler32);
-	hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(adler32_correct));
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
-       break;
+        if (adler32_correct)
+          proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                     checksum, "Checksum: 0x%08x [correct Adler32]", checksum);
+        else
+          proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                     checksum, "Checksum: 0x%08x [incorrect Adler32, should be 0x%08x]", checksum, calculated_adler32);
+        hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(adler32_correct));
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        break;
       case SCTP_CHECKSUM_CRC32C:
-	if (crc32c_correct)
-	  proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-				     checksum, "Checksum: 0x%08x [correct CRC32C]", checksum);
-	else
-	  proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-				     checksum, "Checksum: 0x%08x [incorrect CRC32C, should be 0x%08x]", checksum, calculated_crc32c);
-	hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct));
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
-	break;
+        if (crc32c_correct)
+          proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                     checksum, "Checksum: 0x%08x [correct CRC32C]", checksum);
+        else
+          proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                     checksum, "Checksum: 0x%08x [incorrect CRC32C, should be 0x%08x]", checksum, calculated_crc32c);
+        hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct));
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        break;
       case SCTP_CHECKSUM_AUTOMATIC:
-	if ((adler32_correct) && !(crc32c_correct))
-	  proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-				     checksum, "Checksum: 0x%08x [correct Adler32]", checksum);
-	else if ((!adler32_correct) && (crc32c_correct))
-	  proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-				     checksum, "Checksum: 0x%08x [correct CRC32C]", checksum);
-	else if ((adler32_correct) && (crc32c_correct))
-	  proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-				     checksum, "Checksum: 0x%08x [correct Adler32 and CRC32C]", checksum);
-	else
-	  proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-				     checksum, "Checksum: 0x%08x [incorrect, should be 0x%08x (Adler32) or 0x%08x (CRC32C)]",
-				     checksum, calculated_adler32, calculated_crc32c);
-	hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct || adler32_correct));
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
-	break;
+        if ((adler32_correct) && !(crc32c_correct))
+          proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                     checksum, "Checksum: 0x%08x [correct Adler32]", checksum);
+        else if ((!adler32_correct) && (crc32c_correct))
+          proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                     checksum, "Checksum: 0x%08x [correct CRC32C]", checksum);
+        else if ((adler32_correct) && (crc32c_correct))
+          proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                     checksum, "Checksum: 0x%08x [correct Adler32 and CRC32C]", checksum);
+        else
+          proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                     checksum, "Checksum: 0x%08x [incorrect, should be 0x%08x (Adler32) or 0x%08x (CRC32C)]",
+                                     checksum, calculated_adler32, calculated_crc32c);
+        hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct || adler32_correct));
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        break;
       }
     } else {
       /* We don't have the whole packet so we can't verify the checksum */
       proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-				 checksum, "Checksum: 0x%08x [unchecked, not all data available]", checksum);
+                                 checksum, "Checksum: 0x%08x [unchecked, not all data available]", checksum);
     }
   } else {
     sctp_tree = NULL;
@@ -4057,7 +4057,7 @@ proto_register_sctp(void)
     &ett_sctp_nr_sack_chunk_gap_block,
     &ett_sctp_nr_sack_chunk_gap_block_start,
     &ett_sctp_nr_sack_chunk_gap_block_end,
-    &ett_sctp_nr_sack_chunk_nr_gap_block,    
+    &ett_sctp_nr_sack_chunk_nr_gap_block,
     &ett_sctp_nr_sack_chunk_nr_gap_block_start,
     &ett_sctp_nr_sack_chunk_nr_gap_block_end,
     &ett_sctp_unrecognized_parameter_parameter,

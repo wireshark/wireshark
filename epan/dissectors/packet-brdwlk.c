@@ -47,21 +47,21 @@
 #define BRDWLK_HAS_PLEN        0x1
 
 #define FCM_DELIM_SOFC1         0x01
-#define FCM_DELIM_SOFI1		0x02
-#define FCM_DELIM_SOFI2		0x04
-#define FCM_DELIM_SOFI3		0x06
-#define FCM_DELIM_SOFN1		0x03
-#define FCM_DELIM_SOFN2		0x05
-#define FCM_DELIM_SOFN3		0x07
-#define FCM_DELIM_SOFF		0x08
+#define FCM_DELIM_SOFI1         0x02
+#define FCM_DELIM_SOFI2         0x04
+#define FCM_DELIM_SOFI3         0x06
+#define FCM_DELIM_SOFN1         0x03
+#define FCM_DELIM_SOFN2         0x05
+#define FCM_DELIM_SOFN3         0x07
+#define FCM_DELIM_SOFF          0x08
 #define FCM_DELIM_SOFC4         0x09
 #define FCM_DELIM_SOFI4         0x0A
 #define FCM_DELIM_SOFN4         0x0B
 
-#define FCM_DELIM_EOFT		0x01
-#define FCM_DELIM_EOFDT		0x02
-#define FCM_DELIM_EOFN		0x03
-#define FCM_DELIM_EOFA		0x04
+#define FCM_DELIM_EOFT          0x01
+#define FCM_DELIM_EOFDT         0x02
+#define FCM_DELIM_EOFN          0x03
+#define FCM_DELIM_EOFA          0x04
 #define FCM_DELIM_EOFNI         0x07
 #define FCM_DELIM_EOFDTI        0x06
 #define FCM_DELIM_EOFRT         0x0A
@@ -118,100 +118,100 @@ static dissector_handle_t fc_dissector_handle;
 
 
 static const true_false_string tfs_error_plp = {
-	"Packet Length is PRESENT",
-	"Packet length is NOT present"
+    "Packet Length is PRESENT",
+    "Packet length is NOT present"
 };
 static const true_false_string tfs_error_ef = {
-	"This is an Empty Frame",
-	"Frame is NOT empty"
+    "This is an Empty Frame",
+    "Frame is NOT empty"
 };
 static const true_false_string tfs_error_nd = {
-	"This Frame has NO Data",
-	"This frame carries data"
+    "This Frame has NO Data",
+    "This frame carries data"
 };
 static const true_false_string tfs_error_tr = {
-	"This frame is TRUNCATED",
-	"This frame is NOT truncated"
+    "This frame is TRUNCATED",
+    "This frame is NOT truncated"
 };
 static const true_false_string tfs_error_crc = {
-	"This Frame has a BAD FC CRC",
-	"This frame has a valid crc"
+    "This Frame has a BAD FC CRC",
+    "This frame has a valid crc"
 };
 static const true_false_string tfs_error_ff = {
-	"Fifo is Full",
-	"Fifo is NOT full"
+    "Fifo is Full",
+    "Fifo is NOT full"
 };
 static const true_false_string tfs_error_jumbo = {
-	"This is a JUMBO FC Frame",
-	"This is a NORMAL FC Frame"
+    "This is a JUMBO FC Frame",
+    "This is a NORMAL FC Frame"
 };
 static const true_false_string tfs_error_ctrl = {
-	"Ctrl Characters inside the frame",
-	"No ctrl chars inside the frame"
+    "Ctrl Characters inside the frame",
+    "No ctrl chars inside the frame"
 };
 
 static void
 dissect_brdwlk_err(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-	guint8 flags;
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    guint8 flags;
 
-	flags = tvb_get_guint8 (tvb, offset);
-	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_brdwlk_error, 
-				tvb, offset, 1, flags);
-		tree=proto_item_add_subtree(item, ett_brdwlk_error);
-	}
+    flags = tvb_get_guint8 (tvb, offset);
+    if(parent_tree){
+        item=proto_tree_add_uint(parent_tree, hf_brdwlk_error, 
+                                 tvb, offset, 1, flags);
+        tree=proto_item_add_subtree(item, ett_brdwlk_error);
+    }
 
 
-	proto_tree_add_boolean(tree, hf_brdwlk_error_plp, tvb, offset, 1, flags);
-	if (flags&0x01){
-		proto_item_append_text(item, "  Packet Length Present");
-	}
-	flags&=(~( 0x01 ));
+    proto_tree_add_boolean(tree, hf_brdwlk_error_plp, tvb, offset, 1, flags);
+    if (flags&0x01){
+        proto_item_append_text(item, "  Packet Length Present");
+    }
+    flags&=(~( 0x01 ));
 
-	proto_tree_add_boolean(tree, hf_brdwlk_error_ef, tvb, offset, 1, flags);
-	if (flags&0x02){
-		proto_item_append_text(item, "  Empty Frame");
-	}
-	flags&=(~( 0x02 ));
+    proto_tree_add_boolean(tree, hf_brdwlk_error_ef, tvb, offset, 1, flags);
+    if (flags&0x02){
+        proto_item_append_text(item, "  Empty Frame");
+    }
+    flags&=(~( 0x02 ));
 
-	proto_tree_add_boolean(tree, hf_brdwlk_error_nd, tvb, offset, 1, flags);
-	if (flags&0x04){
-		proto_item_append_text(item, "  No Data");
-	}
-	flags&=(~( 0x04 ));
+    proto_tree_add_boolean(tree, hf_brdwlk_error_nd, tvb, offset, 1, flags);
+    if (flags&0x04){
+        proto_item_append_text(item, "  No Data");
+    }
+    flags&=(~( 0x04 ));
 
-	proto_tree_add_boolean(tree, hf_brdwlk_error_tr, tvb, offset, 1, flags);
-	if (flags&0x08){
-		proto_item_append_text(item, "  Truncated");
-	}
-	flags&=(~( 0x08 ));
+    proto_tree_add_boolean(tree, hf_brdwlk_error_tr, tvb, offset, 1, flags);
+    if (flags&0x08){
+        proto_item_append_text(item, "  Truncated");
+    }
+    flags&=(~( 0x08 ));
 
-	proto_tree_add_boolean(tree, hf_brdwlk_error_badcrc, tvb, offset, 1, flags);
-	if (flags&0x10){
-		proto_item_append_text(item, "  Bad FC CRC");
-	}
-	flags&=(~( 0x10 ));
+    proto_tree_add_boolean(tree, hf_brdwlk_error_badcrc, tvb, offset, 1, flags);
+    if (flags&0x10){
+        proto_item_append_text(item, "  Bad FC CRC");
+    }
+    flags&=(~( 0x10 ));
 
-	proto_tree_add_boolean(tree, hf_brdwlk_error_ff, tvb, offset, 1, flags);
-	if (flags&0x20){
-		proto_item_append_text(item, "  Fifo Full");
-	}
-	flags&=(~( 0x20 ));
+    proto_tree_add_boolean(tree, hf_brdwlk_error_ff, tvb, offset, 1, flags);
+    if (flags&0x20){
+        proto_item_append_text(item, "  Fifo Full");
+    }
+    flags&=(~( 0x20 ));
 
-	proto_tree_add_boolean(tree, hf_brdwlk_error_jumbo, tvb, offset, 1, flags);
-	if (flags&0x40){
-		proto_item_append_text(item, "  Jumbo FC Frame");
-	}
-	flags&=(~( 0x40 ));
+    proto_tree_add_boolean(tree, hf_brdwlk_error_jumbo, tvb, offset, 1, flags);
+    if (flags&0x40){
+        proto_item_append_text(item, "  Jumbo FC Frame");
+    }
+    flags&=(~( 0x40 ));
 
-	proto_tree_add_boolean(tree, hf_brdwlk_error_ctrl, tvb, offset, 1, flags);
-	if (flags&0x80){
-		proto_item_append_text(item, "  Ctrl Char Inside Frame");
-	}
-	flags&=(~( 0x80 ));
+    proto_tree_add_boolean(tree, hf_brdwlk_error_ctrl, tvb, offset, 1, flags);
+    if (flags&0x80){
+        proto_item_append_text(item, "  Ctrl Char Inside Frame");
+    }
+    flags&=(~( 0x80 ));
 }
 
 /* Code to actually dissect the packets */
@@ -337,8 +337,8 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         packet_count = pkt_cnt;
 
-	error=tvb_get_guint8(tvb, offset+2);           
-	dissect_brdwlk_err(brdwlk_tree, tvb, offset+2);
+        error=tvb_get_guint8(tvb, offset+2);           
+        dissect_brdwlk_err(brdwlk_tree, tvb, offset+2);
 
         eof = tvb_get_guint8 (tvb, offset+3);
         if (eof != FCM_DELIM_EOFN) {

@@ -273,7 +273,7 @@ char_def_alphabet_ext_decode(unsigned char value)
     }
 }
 
-static gunichar 
+static gunichar
 char_def_alphabet_decode(unsigned char value)
 {
     if (value < GN_CHAR_ALPHABET_SIZE)
@@ -322,7 +322,7 @@ decode_7_bits(tvbuff_t *tvb, guint32 *offset, guint8 num_fields, guint8 *last_oc
 
     if (num_fields == 0)
     {
-		return 0;
+        return 0;
     }
 
     /* saved_offset = *offset; */
@@ -395,7 +395,7 @@ decode_7_bits(tvbuff_t *tvb, guint32 *offset, guint8 num_fields, guint8 *last_oc
     buf[i] = '\0';
     *last_bit = bit;
     *last_oct = (bit == 1) ? oct : oct2;
-	return i;
+    return i;
 }
 
 /* PARAM FUNCTIONS */
@@ -453,13 +453,13 @@ tele_param_msg_status(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
     guint8	msg_status_code;
     const gchar *str = NULL;
 
-    /* Chceck if the exact length */  
+    /* Chceck if the exact length */
     EXACT_DATA_CHECK(len, 1);
-   
+
     /* get the status octet? */
 
     oct = tvb_get_guint8(tvb, offset);
-   
+
 
     /* error class filter */
     proto_tree_add_item(tree, hf_ansi_637_tele_msg_status,tvb, offset, 1, FALSE);
@@ -483,9 +483,9 @@ tele_param_msg_status(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
                         "%s :  Erorr Class: %s",
                         ansi_637_bigbuf,
                         str);
-	
 
-	 
+
+
     msg_status_code = (oct & 0x3f);
 
     if (error_class == 0x00){
@@ -517,9 +517,9 @@ tele_param_msg_status(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
         proto_tree_add_text(tree, tvb, offset, 1,
                             "%s :  Message status code: %s",
                             ansi_637_bigbuf,
-                            str);   
+                            str);
     }
-  
+
     if (error_class == 0x03){
         switch (msg_status_code)
         {
@@ -557,7 +557,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
     guint32	i , out_len;
     const gchar	*str = NULL;
 
-    /*add more translation UCS  , IA5 , latin ,  latin \ hebrew ,gsm 7BIT*/ 
+    /*add more translation UCS  , IA5 , latin ,  latin \ hebrew ,gsm 7BIT*/
     proto_item *ucs2_item;
     gchar *utf8_text = NULL;
     GIConv cd;
@@ -700,32 +700,32 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 		ansi_637_bigbuf);
 	}
     }
-	else if (encoding == 0x03)/* IA5 */
-	{
-            i = (num_fields * 7) - 3;
-            required_octs = (i / 8) + ((i % 8) ? 1 : 0);
+    else if (encoding == 0x03)/* IA5 */
+    {
+        i = (num_fields * 7) - 3;
+        required_octs = (i / 8) + ((i % 8) ? 1 : 0);
 
-            if (required_octs + used > len)
-            {
-                proto_tree_add_text(tree, tvb, offset, 1,
-                                    "Missing %d octet(s) for number of fields",
-                                    (required_octs + used) - len);
+        if (required_octs + used > len)
+        {
+            proto_tree_add_text(tree, tvb, offset, 1,
+                                "Missing %d octet(s) for number of fields",
+                                (required_octs + used) - len);
 
-                return;
-            }
+            return;
+        }
 
-            bit = 3;
-            saved_offset = offset;
-            out_len = decode_7_bits(tvb, &offset, num_fields, &oct, &bit, ansi_637_bigbuf);
-            IA5_7BIT_decode(ia5_637_bigbuf, ansi_637_bigbuf, out_len);
+        bit = 3;
+        saved_offset = offset;
+        out_len = decode_7_bits(tvb, &offset, num_fields, &oct, &bit, ansi_637_bigbuf);
+        IA5_7BIT_decode(ia5_637_bigbuf, ansi_637_bigbuf, out_len);
 
-            proto_tree_add_text(tree, tvb, saved_offset, offset - saved_offset,
-                                "Encoded user data: %s",
-                                ia5_637_bigbuf);
-	}
-	/*TODO UCS else if (encoding == 0x04)
-	{
-	}*/
+        proto_tree_add_text(tree, tvb, saved_offset, offset - saved_offset,
+                            "Encoded user data: %s",
+                            ia5_637_bigbuf);
+    }
+    /*TODO UCS else if (encoding == 0x04)
+      {
+      }*/
     else if (encoding == 0x07)/* Latin/Hebrew */
     {
         saved_offset = offset - 1;
@@ -733,7 +733,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
         {
             oct = tvb_get_guint8(tvb, saved_offset);
             oct2 = tvb_get_guint8(tvb, saved_offset + 1);;
-            ansi_637_bigbuf[i] = ((oct & 0x07) << 5) | ((oct2 & 0xf8) >> 3);			
+            ansi_637_bigbuf[i] = ((oct & 0x07) << 5) | ((oct2 & 0xf8) >> 3);
             saved_offset++;
         }
 
@@ -774,7 +774,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
             else
             {
                 ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "%s", "Failed on iso-8859-1 contact Wireshark developers");
-            }			
+            }
             if(utf8_text)
                 g_free(utf8_text);
             g_iconv_close(cd);
@@ -2336,10 +2336,10 @@ proto_reg_handoff_ansi_637(void)
 
     ansi_637_tele_handle = create_dissector_handle(dissect_ansi_637_tele, proto_ansi_637_tele);
     ansi_637_trans_handle = create_dissector_handle(dissect_ansi_637_trans, proto_ansi_637_trans);
-	ansi_637_trans_app_handle = create_dissector_handle(dissect_ansi_637_trans_app, proto_ansi_637_trans);
+    ansi_637_trans_app_handle = create_dissector_handle(dissect_ansi_637_trans_app, proto_ansi_637_trans);
 
-	/* Dissect messages embedded in SIP */
-	dissector_add_string("media_type","application/vnd.3gpp2.sms", ansi_637_trans_handle);
+    /* Dissect messages embedded in SIP */
+    dissector_add_string("media_type","application/vnd.3gpp2.sms", ansi_637_trans_handle);
     /*
      * register for all known teleservices
      * '-1' is to stop before trailing '0' entry

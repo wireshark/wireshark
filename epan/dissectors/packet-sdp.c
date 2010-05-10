@@ -46,7 +46,7 @@
 #endif
 
 #ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>		/* needed to define AF_ values on Windows */
+#include <winsock2.h>           /* needed to define AF_ values on Windows */
 #endif
 
 #ifdef NEED_INET_V6DEFS_H
@@ -77,11 +77,11 @@
 #include "packet-h264.h"
 #include "packet-mp4ves.h"
 
-static dissector_handle_t rtp_handle=NULL;
-static dissector_handle_t rtcp_handle=NULL;
-static dissector_handle_t t38_handle=NULL;
-static dissector_handle_t msrp_handle=NULL;
-static dissector_handle_t h264_handle = NULL;
+static dissector_handle_t rtp_handle    = NULL;
+static dissector_handle_t rtcp_handle   = NULL;
+static dissector_handle_t t38_handle    = NULL;
+static dissector_handle_t msrp_handle   = NULL;
+static dissector_handle_t h264_handle   = NULL;
 static dissector_handle_t mp4ves_handle = NULL;
 
 static int sdp_tap = -1;
@@ -306,7 +306,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   transport_info.media_type=NULL;
   for (n=0; n < SDP_NO_OF_PT; n++){
     transport_info.encoding_name[n]=unknown_encoding;
-	transport_info.sample_rate[n] = 0;
+    transport_info.sample_rate[n] = 0;
   }
   for (n=0; n < SDP_MAX_RTP_CHANNELS; n++)
   {
@@ -955,9 +955,9 @@ static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti
 
   if ( prtcl_id != NULL && key_mgmt_dissector_table != NULL ) {
     found_match = dissector_try_string(key_mgmt_dissector_table,
-				       prtcl_id,
-				       keymgmt_tvb, pinfo,
-				       key_tree);
+                                       prtcl_id,
+                                       keymgmt_tvb, pinfo,
+                                       key_tree);
   }
 
   if (found_match) {
@@ -1294,8 +1294,8 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
 
   /*
   proto_tree_add_text(tree, tvb, offset, tokenlen, "Debug; Analysed string: '%s'",
-	  tvb_get_ephemeral_string(tvb, offset, tokenlen));
-	  */
+  tvb_get_ephemeral_string(tvb, offset, tokenlen));
+  */
 
   /* Look for an '=' within this value - this may indicate that there is a
      profile-level-id parameter to find if the MPEG4 media type is in use */
@@ -1343,7 +1343,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
       item = proto_tree_add_uint(tree, hf_sdp_fmtp_h263_profile, tvb, offset, tokenlen,
                                  atol((char*)format_specific_parameter));
       PROTO_ITEM_SET_GENERATED(item);
-	}else if(strcmp((char*)field_name, "level") == 0) {
+    } else if(strcmp((char*)field_name, "level") == 0) {
       offset++;
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
@@ -1443,17 +1443,17 @@ typedef struct {
         const char *name;
 } sdp_names_t;
 
-#define SDP_RTPMAP		1
-#define SDP_FMTP		2
-#define SDP_PATH		3
-#define SDP_H248_ITEM	4
+#define SDP_RTPMAP              1
+#define SDP_FMTP                2
+#define SDP_PATH                3
+#define SDP_H248_ITEM   4
 
 static const sdp_names_t sdp_media_attribute_names[] = {
-  { "Unknown-name"},	/* 0 Pad so that the real headers start at index 1 */
-  { "rtpmap"},		/* 1 */
-  { "fmtp"},		/* 2 */
-  { "path"},		/* 3 */
-  { "h248item"},	/* 4 */
+  { "Unknown-name"},    /* 0 Pad so that the real headers start at index 1 */
+  { "rtpmap"},          /* 1 */
+  { "fmtp"},            /* 2 */
+  { "path"},            /* 3 */
+  { "h248item"},        /* 4 */
 };
 
 static gint find_sdp_media_attribute_names(tvbuff_t *tvb, int offset, guint len)
@@ -1480,7 +1480,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   guint8 *attribute_value;
   gint   *key;
   guint8 pt;
-  gint	sdp_media_attrbute_code;
+  gint  sdp_media_attrbute_code;
   const char *msrp_res = "msrp://";
   const char *h324ext_h223lcparm = "h324ext/h223lcparm";
   gboolean has_more_pars = TRUE;
@@ -1546,7 +1546,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
     tokenlen = next_offset - offset;
 
-	start_offset = offset;
+    start_offset = offset;
     proto_tree_add_item(sdp_media_attribute_tree, hf_media_encoding_name, tvb,
                         offset, tokenlen, FALSE);
 
@@ -1560,15 +1560,15 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
     next_offset =  next_offset + 1;
     offset = next_offset;
-	while (length-1 >= next_offset){
-		if(!isdigit(tvb_get_guint8(tvb, next_offset)))
-			break;
-		next_offset++;
-	}
+    while (length-1 >= next_offset){
+      if(!isdigit(tvb_get_guint8(tvb, next_offset)))
+        break;
+      next_offset++;
+    }
     tokenlen = next_offset - offset;
     proto_tree_add_item(sdp_media_attribute_tree, hf_media_sample_rate, tvb,
                         offset, tokenlen, FALSE);
-	transport_info->sample_rate[pt] = atoi(tvb_get_ephemeral_string(tvb, offset, tokenlen));
+    transport_info->sample_rate[pt] = atoi(tvb_get_ephemeral_string(tvb, offset, tokenlen));
     /* As per RFC2327 it is possible to have multiple Media Descriptions ("m=").
        For example:
 
@@ -1589,12 +1589,12 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     if (transport_info->media_count == 0) {
       for (n=0; n < SDP_MAX_RTP_CHANNELS; n++) {
         encoding_name_and_rate = g_malloc( sizeof(encoding_name_and_rate_t));
-		encoding_name_and_rate->encoding_name = g_strdup(transport_info->encoding_name[pt]);
-		encoding_name_and_rate->sample_rate = transport_info->sample_rate[pt];
-	    if (n==0){
+        encoding_name_and_rate->encoding_name = g_strdup(transport_info->encoding_name[pt]);
+        encoding_name_and_rate->sample_rate = transport_info->sample_rate[pt];
+        if (n==0){
           g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
                               key, encoding_name_and_rate);
-		  }
+        }
         else {    /* we create a new key and encoding_name to assign to the other hash tables */
           gint *key2;
           key2=g_malloc( sizeof(gint) );
@@ -1608,13 +1608,14 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     }else
       /* in case there is an overflow in SDP_MAX_RTP_CHANNELS, we keep always the last "m=" */
       encoding_name_and_rate = g_malloc( sizeof(encoding_name_and_rate_t));
-	  encoding_name_and_rate->encoding_name = g_strdup(transport_info->encoding_name[pt]);
-	  encoding_name_and_rate->sample_rate = transport_info->sample_rate[pt];
-      if (transport_info->media_count == SDP_MAX_RTP_CHANNELS-1)
-        g_hash_table_insert(transport_info->media[ transport_info->media_count ].rtp_dyn_payload,
-                            key, encoding_name_and_rate);
-      else
-        g_hash_table_insert(transport_info->media[ transport_info->media_count-1 ].rtp_dyn_payload,
+
+    encoding_name_and_rate->encoding_name = g_strdup(transport_info->encoding_name[pt]);
+    encoding_name_and_rate->sample_rate = transport_info->sample_rate[pt];
+    if (transport_info->media_count == SDP_MAX_RTP_CHANNELS-1)
+      g_hash_table_insert(transport_info->media[ transport_info->media_count ].rtp_dyn_payload,
+                          key, encoding_name_and_rate);
+    else
+      g_hash_table_insert(transport_info->media[ transport_info->media_count-1 ].rtp_dyn_payload,
                             key, encoding_name_and_rate);
     break;
   case SDP_FMTP:
@@ -1938,7 +1939,7 @@ proto_register_sdp(void)
       { "MIME Type",
         "sdp.mime.type",FT_STRING, BASE_NONE, NULL, 0x0,
         "SDP MIME Type", HFILL }},
-	{ &hf_media_sample_rate,
+    { &hf_media_sample_rate,
       { "Sample Rate",
         "sdp.sample_rate",FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
@@ -1954,23 +1955,23 @@ proto_register_sdp(void)
       { "IPBCP Command Type",
         "ipbcp.command",FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
-	{&hf_sdp_fmtp_mpeg4_profile_level_id,
+    {&hf_sdp_fmtp_mpeg4_profile_level_id,
       { "Level Code",
         "sdp.fmtp.profile_level_id",FT_UINT32, BASE_DEC,VALS(mp4ves_level_indication_vals), 0x0,
         NULL, HFILL }},
-	{ &hf_sdp_fmtp_h263_profile,
+    { &hf_sdp_fmtp_h263_profile,
       { "Profile",
         "sdp.fmtp.h263profile",FT_UINT32, BASE_DEC,VALS(h263_profile_vals), 0x0,
         NULL, HFILL }},
-	{ &hf_sdp_fmtp_h263_level,
+    { &hf_sdp_fmtp_h263_level,
       { "Level",
         "sdp.fmtp.h263level",FT_UINT32, BASE_DEC,VALS(h263_level_vals), 0x0,
         NULL, HFILL }},
-	{ &hf_sdp_h264_packetization_mode,
+    { &hf_sdp_h264_packetization_mode,
       { "Packetization mode",
         "sdp.fmtp.h264_packetization_mode",FT_UINT32, BASE_DEC,VALS(h264_packetization_mode_vals), 0x0,
         NULL, HFILL }},
-	{ &hf_sdp_h264_sprop_parameter_sets,
+    { &hf_sdp_h264_sprop_parameter_sets,
       { "Sprop_parameter_sets",
         "sdp.h264.sprop_parameter_sets", FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
@@ -2015,7 +2016,7 @@ proto_register_sdp(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   key_mgmt_dissector_table = register_dissector_table("key_mgmt",
-	    "Key Management", FT_STRING, BASE_NONE);
+                                                      "Key Management", FT_STRING, BASE_NONE);
 
   /*
    * Preferences registration

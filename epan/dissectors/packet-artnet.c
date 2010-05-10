@@ -790,7 +790,7 @@ dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree)
                            offset,
                            length,
                            FALSE);
-                                                                                                                
+
   si = proto_item_add_subtree(hi, ett_artnet);
 
   row_count = (length/global_disp_col_count) + ((length%global_disp_col_count) == 0 ? 0 : 1);
@@ -820,9 +820,9 @@ dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree)
         ptr += g_snprintf(ptr, (gulong)(sizeof string - strlen(string)), chan_format[global_disp_chan_val_type], v);
       }
     }
-    
+
     proto_tree_add_none_format(si,hf_artnet_output_dmx_data, tvb,
-                               offset+(r*global_disp_col_count), c, 
+                               offset+(r*global_disp_col_count), c,
                                string_format[global_disp_chan_nr_type], (r*global_disp_col_count)+1, string);
     ptr = string;
   }
@@ -1256,16 +1256,16 @@ dissect_artnet_rdm(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_info *
 
   size = tvb_reported_length_remaining(tvb, offset);
 
-  save_info=col_get_writable(pinfo->cinfo); 
+  save_info=col_get_writable(pinfo->cinfo);
   col_set_writable(pinfo->cinfo, FALSE);
 
   if (!next_tvb)
     next_tvb = tvb_new_subset_remaining(tvb, offset);
- 
+
   call_dissector(rdm_handle, next_tvb, pinfo, tree);
 
   col_set_writable(pinfo->cinfo, save_info);
-  
+
   size = tvb_reported_length_remaining(tvb, offset) - size;
 
   return offset + size;
@@ -1484,8 +1484,8 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         size = dissect_artnet_address( tvb, offset, si );
         size -= offset;
 
-        proto_item_set_len(si, size); 
-      }	
+        proto_item_set_len(si, size);
+      }
       break;
 
     case ARTNET_OP_INPUT:
@@ -1498,7 +1498,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                  FALSE);
 
         si = proto_item_add_subtree(hi, ett_artnet);
-        
+
         size = dissect_artnet_input( tvb, offset, si );
         size -= offset;
 
@@ -1516,11 +1516,11 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                  FALSE);
 
         si = proto_item_add_subtree(hi, ett_artnet);
-        
+
         size = dissect_artnet_video_setup( tvb, offset, si );
         size -= offset;
 
-        proto_item_set_len(si, size); 
+        proto_item_set_len(si, size);
       }
       break;
 
@@ -1595,7 +1595,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_item_set_len(si, size);
       }
       break;
-    
+
     case ARTNET_OP_TOD_REQUEST:
       if (tree) {
         hi = proto_tree_add_item(artnet_tree,
@@ -2665,8 +2665,8 @@ proto_register_artnet(void) {
 				 10,&global_udp_port_artnet);
 
   prefs_register_enum_preference(artnet_module, "dmx_disp_chan_val_type",
-            "DMX Display channel value type", 
-            "The way DMX values are displayed", 
+            "DMX Display channel value type",
+            "The way DMX values are displayed",
 				 &global_disp_chan_val_type,
             			 disp_chan_val_types, FALSE);
 
@@ -2700,6 +2700,6 @@ proto_reg_handoff_artnet(void) {
   }
 
   udp_port_artnet = global_udp_port_artnet;
-  
+
   dissector_add("udp.port",global_udp_port_artnet,artnet_handle);
 }

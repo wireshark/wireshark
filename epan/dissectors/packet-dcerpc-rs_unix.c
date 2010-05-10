@@ -51,17 +51,17 @@ static guint16  ver_rs_unix = 1;
 
 
 static dcerpc_sub_dissector rs_unix_dissectors[] = {
-    { 0, "getpwents", NULL, NULL },
-    { 0, NULL, NULL, NULL },
+	{ 0, "getpwents", NULL, NULL },
+	{ 0, NULL, NULL, NULL },
 };
 
 void
 proto_register_rs_unix (void)
 {
 	static hf_register_info hf[] = {
-	  { &hf_rs_unix_opnum,
-	    { "Operation", "rs_unix.opnum", FT_UINT16, BASE_DEC,
-	      NULL, 0x0, NULL, HFILL }}
+		{ &hf_rs_unix_opnum,
+		  { "Operation", "rs_unix.opnum", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

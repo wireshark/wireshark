@@ -46,9 +46,9 @@ static gint ett_acap_reqresp = -1;
 static void
 dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gboolean        is_request;
-    proto_tree      *acap_tree, *reqresp_tree;
-    proto_item      *ti, *hidden_item;
+	gboolean        is_request;
+	proto_tree      *acap_tree, *reqresp_tree;
+	proto_item      *ti, *hidden_item;
 	gint			offset = 0;
 	const guchar	*line;
 	gint			next_offset;
@@ -159,33 +159,33 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_acap(void)
 {
-  static hf_register_info hf[] = {
-    { &hf_acap_response,
-      { "Response",           "acap.response",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if ACAP response", HFILL }},
+	static hf_register_info hf[] = {
+		{ &hf_acap_response,
+		  { "Response",           "acap.response",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "TRUE if ACAP response", HFILL }},
 
-    { &hf_acap_request,
-      { "Request",            "acap.request",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if ACAP request", HFILL }}
-  };
-  static gint *ett[] = {
-    &ett_acap,
-    &ett_acap_reqresp,
-  };
+		{ &hf_acap_request,
+		  { "Request",            "acap.request",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "TRUE if ACAP request", HFILL }}
+	};
+	static gint *ett[] = {
+		&ett_acap,
+		&ett_acap_reqresp,
+	};
 
-  proto_acap = proto_register_protocol("Application Configuration Access Protocol",
-				       "ACAP", "acap");
-  proto_register_field_array(proto_acap, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	proto_acap = proto_register_protocol("Application Configuration Access Protocol",
+					     "ACAP", "acap");
+	proto_register_field_array(proto_acap, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_acap(void)
 {
-  dissector_handle_t acap_handle;
+	dissector_handle_t acap_handle;
 
-  acap_handle = create_dissector_handle(dissect_acap, proto_acap);
-  dissector_add("tcp.port", TCP_PORT_ACAP, acap_handle);
+	acap_handle = create_dissector_handle(dissect_acap, proto_acap);
+	dissector_add("tcp.port", TCP_PORT_ACAP, acap_handle);
 }

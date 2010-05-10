@@ -149,7 +149,7 @@ proto_reg_handoff_aruba_erm(void)
         initialized = TRUE;
     } else {
         range_foreach(aruba_erm_port_range, range_delete_callback);
-	g_free(aruba_erm_port_range);
+        g_free(aruba_erm_port_range);
     }
 
     aruba_erm_port_range = range_copy(global_aruba_erm_port_range);

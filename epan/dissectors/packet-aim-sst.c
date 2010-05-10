@@ -141,12 +141,12 @@ static int dissect_aim_sst_buddy_up_req (tvbuff_t *tvb, packet_info *pinfo _U_, 
 }
 
 static const aim_subtype aim_fnac_family_sst[] = {
-  { 0x0001, "Error", dissect_aim_snac_error },
-  { 0x0002, "Upload Buddy Icon Request", dissect_aim_sst_buddy_up_req },
-  { 0x0003, "Upload Buddy Icon Reply", dissect_aim_sst_buddy_up_repl },
-  { 0x0004, "Download Buddy Icon Request", dissect_aim_sst_buddy_down_req },
-  { 0x0005, "Download Buddy Icon Reply", dissect_aim_sst_buddy_down_repl },
-  { 0, NULL, NULL }
+	{ 0x0001, "Error", dissect_aim_snac_error },
+	{ 0x0002, "Upload Buddy Icon Request", dissect_aim_sst_buddy_up_req },
+	{ 0x0003, "Upload Buddy Icon Reply", dissect_aim_sst_buddy_up_repl },
+	{ 0x0004, "Download Buddy Icon Request", dissect_aim_sst_buddy_down_req },
+	{ 0x0005, "Download Buddy Icon Reply", dissect_aim_sst_buddy_down_repl },
+	{ 0, NULL, NULL }
 };
 
 
@@ -156,42 +156,42 @@ proto_register_aim_sst(void)
 {
 
 /* Setup list of header fields */
-  static hf_register_info hf[] = {
-	  { &hf_aim_sst_md5_hash,
+	static hf_register_info hf[] = {
+		{ &hf_aim_sst_md5_hash,
 		  { "MD5 Hash", "aim_sst.md5", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL },
-	  }, 
-	  { &hf_aim_sst_md5_hash_size,
+		},
+		{ &hf_aim_sst_md5_hash_size,
 		  { "MD5 Hash Size", "aim_sst.md5.size", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL },
-	  },
-	  { &hf_aim_sst_unknown,
+		},
+		{ &hf_aim_sst_unknown,
 		  { "Unknown Data", "aim_sst.unknown", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL },
-	  },
-	  { &hf_aim_sst_ref_num,
+		},
+		{ &hf_aim_sst_ref_num,
 		  { "Reference Number", "aim_sst.ref_num", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL },
-	  },
-	  { &hf_aim_sst_icon_size,
+		},
+		{ &hf_aim_sst_icon_size,
 		  { "Icon Size", "aim_sst.icon_size", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
-	  },
-	  { &hf_aim_sst_icon,
+		},
+		{ &hf_aim_sst_icon,
 		  { "Icon", "aim_sst.icon", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL },
-	  },
-  };
+		},
+	};
 
 /* Setup protocol subtree array */
-  static gint *ett[] = {
-    &ett_aim_sst,
-  };
+	static gint *ett[] = {
+		&ett_aim_sst,
+	};
 
 /* Register the protocol name and description */
-  proto_aim_sst = proto_register_protocol("AIM Server Side Themes", "AIM SST", "aim_sst");
+	proto_aim_sst = proto_register_protocol("AIM Server Side Themes", "AIM SST", "aim_sst");
 
 /* Required function calls to register the header fields and subtrees used */
-  proto_register_field_array(proto_aim_sst, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array(proto_aim_sst, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_aim_sst(void)
 {
-  aim_init_family(proto_aim_sst, ett_aim_sst, FAMILY_SST, aim_fnac_family_sst);
+	aim_init_family(proto_aim_sst, ett_aim_sst, FAMILY_SST, aim_fnac_family_sst);
 }

@@ -52,9 +52,9 @@ static guint16  ver_dtsprovider = 1;
 
 
 static dcerpc_sub_dissector dtsprovider_dissectors[] = {
-    { 0, "ContactProvider", NULL, NULL},
-    { 1, "ServerRequestProviderTime", NULL, NULL},
-    { 0, NULL, NULL, NULL }
+	{ 0, "ContactProvider", NULL, NULL},
+	{ 1, "ServerRequestProviderTime", NULL, NULL},
+	{ 0, NULL, NULL, NULL }
 };
 
 void

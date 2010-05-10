@@ -119,8 +119,8 @@ dissect_ayiya(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_bits_item(ayiya_tree, hf_auth_method, tvb, 16, 4, FALSE);
 		proto_tree_add_bits_item(ayiya_tree, hf_opcode, tvb, 20, 4, FALSE);
 		proto_tree_add_uint_format(ayiya_tree, hf_next_header, tvb,
-								   3, 1, next_header, 
-								   "Next header: %s (0x%02x)", 
+								   3, 1, next_header,
+								   "Next header: %s (0x%02x)",
 								   ipprotostr(next_header), next_header);
 		tv.secs = tvb_get_ntohl(tvb, 4);
 		tv.nsecs = 0;
@@ -140,76 +140,76 @@ dissect_ayiya(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_ayiya(void)
 {
-  static hf_register_info hf[] = {
-  	{ &hf_id_len,
-		{ "Identity field length", "ayiya.idlen", FT_UINT8, 
-			BASE_HEX, NULL, 0x0, NULL, HFILL
-		}
-	},
-  	{ &hf_id_type,
-		{ "Identity field type", "ayiya.idtype", FT_UINT8, 
-			BASE_HEX, VALS(identity_types), 0x0, NULL, HFILL
-		}
-	},
-  	{ &hf_sig_len,
-		{ "Signature Length", "ayiya.siglen", FT_UINT8, 
-			BASE_HEX, NULL, 0x0, NULL, HFILL
-		}
-	},
-  	{ &hf_hash_method,
-		{ "Hash method", "ayiya.hashmethod", FT_UINT8, 
-			BASE_HEX, VALS(hash_methods), 0x0, NULL, HFILL
-		}
-	},
-  	{ &hf_auth_method,
-		{ "Authentication method", "ayiya.authmethod", FT_UINT8, 
-			BASE_HEX, VALS(auth_methods), 0x0, NULL, HFILL
-		}
-	},
-  	{ &hf_opcode,
-		{ "Operation Code", "ayiya.opcode", FT_UINT8, 
-			BASE_HEX, VALS(opcodes), 0x0, NULL, HFILL
-		}
-	},
-  	{ &hf_next_header,
-		{ "Next Header", "ayiya.nextheader", FT_UINT8, 
-			BASE_HEX, NULL, 0x0, NULL, HFILL
-		}
-	},
-  	{ &hf_epoch,
-		{ "Epoch", "ayiya.epoch", FT_ABSOLUTE_TIME, 
-			ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL
-		}
-	},
-  	{ &hf_identity,
-		{ "Identity", "ayiya.identity", FT_BYTES, 
-			BASE_NONE, NULL, 0x0, NULL, HFILL
-		}
-	},
-	{ &hf_signature,
-		{ "Signature", "ayiya.signature", FT_BYTES, 
-			BASE_NONE, NULL, 0x0, NULL, HFILL
-		}
-	},
-  };
-  static gint *ett[] = {
-    &ett_ayiya,
-  };
+	static hf_register_info hf[] = {
+		{ &hf_id_len,
+		  { "Identity field length", "ayiya.idlen", FT_UINT8,
+		    BASE_HEX, NULL, 0x0, NULL, HFILL
+		  }
+		},
+		{ &hf_id_type,
+		  { "Identity field type", "ayiya.idtype", FT_UINT8,
+		    BASE_HEX, VALS(identity_types), 0x0, NULL, HFILL
+		  }
+		},
+		{ &hf_sig_len,
+		  { "Signature Length", "ayiya.siglen", FT_UINT8,
+		    BASE_HEX, NULL, 0x0, NULL, HFILL
+		  }
+		},
+		{ &hf_hash_method,
+		  { "Hash method", "ayiya.hashmethod", FT_UINT8,
+		    BASE_HEX, VALS(hash_methods), 0x0, NULL, HFILL
+		  }
+		},
+		{ &hf_auth_method,
+		  { "Authentication method", "ayiya.authmethod", FT_UINT8,
+		    BASE_HEX, VALS(auth_methods), 0x0, NULL, HFILL
+		  }
+		},
+		{ &hf_opcode,
+		  { "Operation Code", "ayiya.opcode", FT_UINT8,
+		    BASE_HEX, VALS(opcodes), 0x0, NULL, HFILL
+		  }
+		},
+		{ &hf_next_header,
+		  { "Next Header", "ayiya.nextheader", FT_UINT8,
+		    BASE_HEX, NULL, 0x0, NULL, HFILL
+		  }
+		},
+		{ &hf_epoch,
+		  { "Epoch", "ayiya.epoch", FT_ABSOLUTE_TIME,
+		    ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL
+		  }
+		},
+		{ &hf_identity,
+		  { "Identity", "ayiya.identity", FT_BYTES,
+		    BASE_NONE, NULL, 0x0, NULL, HFILL
+		  }
+		},
+		{ &hf_signature,
+		  { "Signature", "ayiya.signature", FT_BYTES,
+		    BASE_NONE, NULL, 0x0, NULL, HFILL
+		  }
+		},
+	};
+	static gint *ett[] = {
+		&ett_ayiya,
+	};
 
-  proto_ayiya = proto_register_protocol("Anything in Anything Protocol",
-				       "AYIYA", "ayiya");
-  register_dissector("ayiya", dissect_ayiya, proto_ayiya);
-  proto_register_field_array(proto_ayiya, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	proto_ayiya = proto_register_protocol("Anything in Anything Protocol",
+					      "AYIYA", "ayiya");
+	register_dissector("ayiya", dissect_ayiya, proto_ayiya);
+	proto_register_field_array(proto_ayiya, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_ayiya(void)
 {
-  dissector_handle_t ayiya_handle;
+	dissector_handle_t ayiya_handle;
 
-  ayiya_handle = find_dissector("ayiya");
-  dissector_add("udp.port", UDP_PORT_AYIYA, ayiya_handle);
-  
-  ip_dissector_table = find_dissector_table("ip.proto");
+	ayiya_handle = find_dissector("ayiya");
+	dissector_add("udp.port", UDP_PORT_AYIYA, ayiya_handle);
+
+	ip_dissector_table = find_dissector_table("ip.proto");
 }

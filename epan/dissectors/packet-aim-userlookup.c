@@ -48,8 +48,8 @@ static gint ett_aim_userlookup = -1;
 
 static int dissect_aim_userlookup_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *lookup_tree)
 {
-	  proto_tree_add_item(lookup_tree, hf_aim_userlookup_email, tvb, 0, tvb_length(tvb), FALSE);
-	  return tvb_length(tvb);
+	proto_tree_add_item(lookup_tree, hf_aim_userlookup_email, tvb, 0, tvb_length(tvb), FALSE);
+	return tvb_length(tvb);
 }
 
 
@@ -59,10 +59,10 @@ static int dissect_aim_userlookup_result(tvbuff_t *tvb, packet_info *pinfo, prot
 }
 
 static const aim_subtype aim_fnac_family_userlookup[] = {
-  { 0x0001, "Error", dissect_aim_snac_error },
-  { 0x0002, "Search for user by email address", dissect_aim_userlookup_search },
-  { 0x0003, "Search results", dissect_aim_userlookup_result },
-  { 0, NULL, NULL }
+	{ 0x0001, "Error", dissect_aim_snac_error },
+	{ 0x0002, "Search for user by email address", dissect_aim_userlookup_search },
+	{ 0x0003, "Search results", dissect_aim_userlookup_result },
+	{ 0, NULL, NULL }
 };
 
 /* Register the protocol with Wireshark */
@@ -71,26 +71,26 @@ proto_register_aim_userlookup(void)
 {
 
 /* Setup list of header fields */
-  static hf_register_info hf[] = {
-	  { &hf_aim_userlookup_email,
+	static hf_register_info hf[] = {
+		{ &hf_aim_userlookup_email,
 		  { "Email address looked for", "aim_lookup.email", FT_STRING, BASE_NONE, NULL, 0, "Email address", HFILL }
-	  },
-  };
+		},
+	};
 
 /* Setup protocol subtree array */
-  static gint *ett[] = {
-    &ett_aim_userlookup,
-  };
+	static gint *ett[] = {
+		&ett_aim_userlookup,
+	};
 /* Register the protocol name and description */
-  proto_aim_userlookup = proto_register_protocol("AIM User Lookup", "AIM User Lookup", "aim_lookup");
+	proto_aim_userlookup = proto_register_protocol("AIM User Lookup", "AIM User Lookup", "aim_lookup");
 
 /* Required function calls to register the header fields and subtrees used */
-  proto_register_field_array(proto_aim_userlookup, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array(proto_aim_userlookup, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_aim_userlookup(void)
 {
-  aim_init_family(proto_aim_userlookup, ett_aim_userlookup, FAMILY_USERLOOKUP, aim_fnac_family_userlookup);
+	aim_init_family(proto_aim_userlookup, ett_aim_userlookup, FAMILY_USERLOOKUP, aim_fnac_family_userlookup);
 }

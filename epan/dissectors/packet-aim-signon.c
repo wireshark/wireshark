@@ -51,7 +51,7 @@ static int hf_aim_signon_challenge = -1;
 /* Initialize the subtree pointers */
 static gint ett_aim_signon   = -1;
 
-static int dissect_aim_snac_signon_logon(tvbuff_t *tvb, packet_info *pinfo, 
+static int dissect_aim_snac_signon_logon(tvbuff_t *tvb, packet_info *pinfo,
 					  proto_tree *tree)
 {
 	int offset = 0;
@@ -61,19 +61,19 @@ static int dissect_aim_snac_signon_logon(tvbuff_t *tvb, packet_info *pinfo,
 	return offset;
 }
 
-static int dissect_aim_snac_signon_logon_reply(tvbuff_t *tvb, 
-						packet_info *pinfo, 
-						proto_tree *tree)
+static int dissect_aim_snac_signon_logon_reply(tvbuff_t *tvb,
+					       packet_info *pinfo,
+					       proto_tree *tree)
 {
 	int offset = 0;
-    while (tvb_length_remaining(tvb, offset) > 0) {
-      offset = dissect_aim_tlv(tvb, pinfo, offset, tree, client_tlvs);
-    }
+	while (tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, client_tlvs);
+	}
 	return offset;
 }
 
-static int dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo, 
-					   proto_tree *tree)
+static int dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo,
+					  proto_tree *tree)
 {
 	guint8 buddyname_length = 0;
 	int offset = 0;
@@ -90,7 +90,7 @@ static int dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo,
 	buddyname_length = aim_get_buddyname( buddyname, tvb, offset, offset + 1 );
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " Username: %s",
-					format_text(buddyname, buddyname_length));
+			format_text(buddyname, buddyname_length));
 
 	if(tree) {
 		offset+=dissect_aim_buddyname(tvb, pinfo, offset, tree);
@@ -99,9 +99,9 @@ static int dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo,
 	return offset;
 }
 
-static int dissect_aim_snac_signon_signon_reply(tvbuff_t *tvb, 
-												packet_info *pinfo _U_, 
-												proto_tree *tree)
+static int dissect_aim_snac_signon_signon_reply(tvbuff_t *tvb,
+						packet_info *pinfo _U_,
+						proto_tree *tree)
 {
 	int offset = 0;
 	guint16 challenge_length = 0;
@@ -157,13 +157,13 @@ proto_register_aim_signon(void)
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_aim_infotype,
-			{ "Infotype", "aim_signon.infotype", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		  { "Infotype", "aim_signon.infotype", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_signon_challenge_len,
-			{ "Signon challenge length", "aim_signon.challengelen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Signon challenge length", "aim_signon.challengelen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_signon_challenge,
-			{ "Signon challenge", "aim_signon.challenge", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		  { "Signon challenge", "aim_signon.challenge", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 	};
 

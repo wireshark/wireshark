@@ -51,8 +51,8 @@ static guint16  ver_cprpc_server = 1;
 
 
 static dcerpc_sub_dissector cprpc_server_dissectors[] = {
-    { 0, "dnscp_server", NULL, NULL},
-    { 0, NULL, NULL, NULL }
+	{ 0, "dnscp_server", NULL, NULL},
+	{ 0, NULL, NULL, NULL }
 };
 
 void

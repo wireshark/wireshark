@@ -71,10 +71,10 @@
  * (FF) <francesco.fondelli[AT]gmail.com>
  *
  * Feb 12, 2010: add support for generalized label interpretation: SUKLM
- * format for SONET/SDH label (RFC 4606), t3t2t1 format for G.709 ODUk label 
+ * format for SONET/SDH label (RFC 4606), t3t2t1 format for G.709 ODUk label
  * (RFC 4328), G.694 format for lambda label (draft-ietf-ccamp-gmpls-g-694-lamb
- * da-labels-05).  Add related user preference option. 
- * (FF) <francesco.fondelli[AT]gmail.com> 
+ * da-labels-05).  Add related user preference option.
+ * (FF) <francesco.fondelli[AT]gmail.com>
  */
 
 
@@ -787,10 +787,10 @@ static const value_string adspec_params[] = {
     { 0, NULL }
 };
 
-/* 
- * FF: please keep this list in sync with 
+/*
+ * FF: please keep this list in sync with
  * http://www.iana.org/assignments/gmpls-sig-parameters
- * Registry Name: 'LSP Encoding Types' 
+ * Registry Name: 'LSP Encoding Types'
  */
 const range_string gmpls_lsp_enc_rvals[] = {
     {   1,   1, "Packet" },
@@ -811,8 +811,8 @@ const range_string gmpls_lsp_enc_rvals[] = {
     {   0,   0, NULL }
 };
 
-/* 
- * FF: please keep this list in sync with 
+/*
+ * FF: please keep this list in sync with
  * http://www.iana.org/assignments/gmpls-sig-parameters
  * Registry Name: 'Switching Types'
  */
@@ -833,8 +833,8 @@ const range_string gmpls_switching_type_rvals[] = {
     {   0,   0, NULL }
 };
 
-/* 
- * FF: please keep this list in sync with 
+/*
+ * FF: please keep this list in sync with
  * http://www.iana.org/assignments/gmpls-sig-parameters
  * Registry Name: 'Generalized PID (G-PID)'
  */
@@ -1766,9 +1766,9 @@ dissect_rsvp_ifid_tlv (proto_tree *ti, proto_tree *rsvp_object_tree,
 
         case 516:
             /* FF: ERROR_STRING TLV, RFC 4783 */
-            ti2 = 
-              proto_tree_add_text(rsvp_object_tree, 
-                                  tvb, offset + tlv_off, 
+            ti2 =
+              proto_tree_add_text(rsvp_object_tree,
+                                  tvb, offset + tlv_off,
                                   tlv_len,
                                   "ERROR_STRING TLV - %s",
                                   tvb_format_text(tvb, offset + tlv_off + 4,
@@ -1776,11 +1776,11 @@ dissect_rsvp_ifid_tlv (proto_tree *ti, proto_tree *rsvp_object_tree,
             rsvp_ifid_subtree = proto_item_add_subtree(ti2, subtree_type);
             proto_tree_add_text(rsvp_ifid_subtree, tvb, offset + tlv_off, 2,
                                 "Type: 516 (ERROR_STRING)");
-            proto_tree_add_text(rsvp_ifid_subtree, 
+            proto_tree_add_text(rsvp_ifid_subtree,
                                 tvb, offset + tlv_off + 2, 2,
                                 "Length: %u",
                                 tvb_get_ntohs(tvb, offset + tlv_off + 2));
-            proto_tree_add_text(rsvp_ifid_subtree, tvb, offset + tlv_off + 4, 
+            proto_tree_add_text(rsvp_ifid_subtree, tvb, offset + tlv_off + 4,
                                 tlv_len - 4,
                                 "Error String: %s",
                                 tvb_format_text(tvb, offset + tlv_off + 4,
@@ -1789,18 +1789,18 @@ dissect_rsvp_ifid_tlv (proto_tree *ti, proto_tree *rsvp_object_tree,
 
         default:
             /* FF: not yet known TLVs are displayed as raw data */
-            ti2 = proto_tree_add_text(rsvp_object_tree, 
-                                      tvb, offset + tlv_off, 
+            ti2 = proto_tree_add_text(rsvp_object_tree,
+                                      tvb, offset + tlv_off,
                                       tlv_len,
                                       "Unknown TLV (%u)", tlv_type);
             rsvp_ifid_subtree = proto_item_add_subtree(ti2, subtree_type);
             proto_tree_add_text(rsvp_ifid_subtree, tvb, offset + tlv_off, 2,
                                 "Type: %u (Unknown)", tlv_type);
-            proto_tree_add_text(rsvp_ifid_subtree, 
+            proto_tree_add_text(rsvp_ifid_subtree,
                                 tvb, offset + tlv_off + 2, 2,
                                 "Length: %u",
                                 tvb_get_ntohs(tvb, offset + tlv_off + 2));
-            proto_tree_add_text(rsvp_ifid_subtree, tvb, offset + tlv_off + 4, 
+            proto_tree_add_text(rsvp_ifid_subtree, tvb, offset + tlv_off + 4,
                                 tlv_len - 4,
                                 "Data (%d bytes)", tlv_len - 4);
             break;
@@ -2016,7 +2016,7 @@ dissect_rsvp_error (proto_item *ti, proto_tree *rsvp_object_tree,
     ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset3, 1,
 			      "Flags: 0x%02x", error_flags);
     rsvp_error_subtree = proto_item_add_subtree(ti2, TREE(TT_ERROR_FLAGS));
-    proto_tree_add_text(rsvp_error_subtree, tvb, offset3, 1, "%s", 
+    proto_tree_add_text(rsvp_error_subtree, tvb, offset3, 1, "%s",
 		    decode_boolean_bitfield(error_flags, 0x04, 8,
 					    "Path State Removed",
 					    ""));
@@ -2300,7 +2300,7 @@ dissect_rsvp_eth_tspec_tlv(proto_item *ti, proto_tree *rsvp_object_tree,
 	    proto_tree_add_text(rsvp_ethspec_subtree, tvb, offset+tlv_off+2, 2,
 				"Length: %u", tlv_len);
 	    break;
-	    
+
 	case 129:
 	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
 				      offset+tlv_off, tlv_len,
@@ -2350,7 +2350,7 @@ dissect_rsvp_eth_tspec_tlv(proto_item *ti, proto_tree *rsvp_object_tree,
 				   tvb_get_ntohieee_float(tvb, offset+tlv_off+16),
 				   tvb_get_ntohieee_float(tvb, offset+tlv_off+20));
 	    break;
-	    
+
 	default:
 	    proto_tree_add_text(rsvp_object_tree, tvb, offset+tlv_off, 2,
 				"Unknown TLV: %u", tlv_type);
@@ -2647,24 +2647,24 @@ dissect_rsvp_tspec (proto_item *ti, proto_tree *rsvp_object_tree,
         proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
                             "Signal Type: %d - %s", signal_type,
                             rval_to_str(signal_type,
-                                        gmpls_g709_signal_type_rvals, 
+                                        gmpls_g709_signal_type_rvals,
                                         "Unknown"));
         proto_tree_add_text(rsvp_object_tree, tvb, offset2 + 2, 2,
-                            "Number of Multiplexed Components (NMC): %d", 
+                            "Number of Multiplexed Components (NMC): %d",
                             tvb_get_ntohs(tvb, offset2 + 2));
         proto_tree_add_text(rsvp_object_tree, tvb, offset2 + 4, 2,
-                            "Number of Virtual Components (NVC): %d", 
+                            "Number of Virtual Components (NVC): %d",
                             tvb_get_ntohs(tvb, offset2 + 4));
 
         proto_tree_add_text(rsvp_object_tree, tvb, offset2 + 6, 2,
-                            "Multiplier (MT): %d", 
+                            "Multiplier (MT): %d",
                             tvb_get_ntohs(tvb, offset2 + 6));
         proto_item_append_text(ti, "Signal [%s], NMC %d, NVC %d, MT %d",
-                               rval_to_str(signal_type, 
-                                           gmpls_g709_signal_type_rvals, 
+                               rval_to_str(signal_type,
+                                           gmpls_g709_signal_type_rvals,
                                            "Unknown"),
                                tvb_get_ntohs(tvb, offset2 + 2),
-                               tvb_get_ntohs(tvb, offset2 + 4), 
+                               tvb_get_ntohs(tvb, offset2 + 4),
                                tvb_get_ntohs(tvb, offset2 + 6));
         break;
 
@@ -3008,24 +3008,24 @@ dissect_rsvp_flowspec (proto_item *ti, proto_tree *rsvp_object_tree,
         proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
                             "Signal Type: %d - %s", signal_type,
                             rval_to_str(signal_type,
-                                        gmpls_g709_signal_type_rvals, 
+                                        gmpls_g709_signal_type_rvals,
                                         "Unknown"));
         proto_tree_add_text(rsvp_object_tree, tvb, offset2 + 2, 2,
-                            "Number of Multiplexed Components (NMC): %d", 
+                            "Number of Multiplexed Components (NMC): %d",
                             tvb_get_ntohs(tvb, offset2 + 2));
         proto_tree_add_text(rsvp_object_tree, tvb, offset2 + 4, 2,
-                            "Number of Virtual Components (NVC): %d", 
+                            "Number of Virtual Components (NVC): %d",
                             tvb_get_ntohs(tvb, offset2 + 4));
 
         proto_tree_add_text(rsvp_object_tree, tvb, offset2 + 6, 2,
-                            "Multiplier (MT): %d", 
+                            "Multiplier (MT): %d",
                             tvb_get_ntohs(tvb, offset2 + 6));
         proto_item_append_text(ti, "Signal [%s], NMC %d, NVC %d, MT %d",
-                               rval_to_str(signal_type, 
-                                           gmpls_g709_signal_type_rvals, 
+                               rval_to_str(signal_type,
+                                           gmpls_g709_signal_type_rvals,
                                            "Unknown"),
                                tvb_get_ntohs(tvb, offset2 + 2),
-                               tvb_get_ntohs(tvb, offset2 + 4), 
+                               tvb_get_ntohs(tvb, offset2 + 4),
                                tvb_get_ntohs(tvb, offset2 + 6));
         break;
 
@@ -3353,7 +3353,7 @@ dissect_rsvp_label_request (proto_item *ti, proto_tree *rsvp_object_tree,
  * LABEL
  *---------------------------------------------------------------------------*/
 
-/* 
+/*
    FF: G.694 lambda label, see draft-ietf-ccamp-gmpls-g-694-lambda-labels-05
 
     0                   1                   2                   3
@@ -3377,11 +3377,11 @@ dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
 
     if (grid == 1) {
       /* DWDM grid: Frequency (THz) = 193.1 THz + n * channel spacing (THz) */
-      cs_thz = 
-        cs == 1 ? 0.1f : 
+      cs_thz =
+        cs == 1 ? 0.1f :
         cs == 2 ? 0.05f :
         cs == 3 ? 0.025f :
-        cs == 4 ? 0.0125f : 
+        cs == 4 ? 0.0125f :
         0.0f;
       freq = 193.1f + (n * cs_thz);
       proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
@@ -3391,14 +3391,14 @@ dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                           "n=%d, "
                           "freq=%.2fTHz",
                           /* grid */
-                          grid == 1 ? "DWDM" : 
-                          grid == 2 ? "CWDM" : 
+                          grid == 1 ? "DWDM" :
+                          grid == 2 ? "CWDM" :
                           "unknown",
                           /* channel spacing */
-                          cs == 1 ? "100GHz" : 
+                          cs == 1 ? "100GHz" :
                           cs == 2 ? "50GHz" :
                           cs == 3 ? "25GHz" :
-                          cs == 4 ? "12.5GHz" : 
+                          cs == 4 ? "12.5GHz" :
                           "unknown",
                           /* n */
                           n,
@@ -3414,11 +3414,11 @@ dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                           "n=%d, "
                           "wavelength=%unm",
                           /* grid */
-                          grid == 1 ? "DWDM" : 
-                          grid == 2 ? "CWDM" : 
+                          grid == 1 ? "DWDM" :
+                          grid == 2 ? "CWDM" :
                           "unknown",
                           /* channel spacing */
-                          cs == 1 ? "20nm" : 
+                          cs == 1 ? "20nm" :
                           "unknown",
                           /* n */
                           n,
@@ -3436,7 +3436,7 @@ dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
     return;
 }
 
-/* 
+/*
    FF: SONET/SDH label, see RFC 4606
 
     0                   1                   2                   3
@@ -3466,14 +3466,14 @@ dissect_glabel_sdh(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                         s, u, k, l, m);
 }
 
-/* 
+/*
     FF: G.709 label (aka ODUk label), see RFC 4328
 
      0                   1                   2                   3
      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     |                   Reserved                |     t3    | t2  |t1
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+     
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
 static void
 dissect_glabel_g709(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
@@ -4455,7 +4455,7 @@ dissect_rsvp_lsp_tunnel_if_id_tlv(proto_tree *rsvp_object_tree,
 			        "Component link identifier: %u",
 				tvb_get_ntohl(tvb, offset+tlv_off+4));
 	    break;
-	    
+
 	case 2:
 	    ti = proto_tree_add_text(rsvp_object_tree, tvb,
 				     offset+tlv_off, tlv_len,
@@ -4470,7 +4470,7 @@ dissect_rsvp_lsp_tunnel_if_id_tlv(proto_tree *rsvp_object_tree,
 			        "Component link identifier: %s",
 		 		ip_to_str(tvb_get_ptr(tvb, offset+tlv_off+4, 4)));
 	    break;
-	    
+
 	case 32769:  /* oif-p0040.002.09 demo spec */
 	    ti = proto_tree_add_text(rsvp_object_tree, tvb,
 				     offset+tlv_off, tlv_len,
@@ -5769,8 +5769,8 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct rsvp_request_key request_key, *new_request_key;
     struct rsvp_request_val *request_val = NULL;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL,
-		    (pinfo->ipproto == IP_PROTO_RSVPE2EI) ? "RSVP-E2EI" : "RSVP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL,
+                (pinfo->ipproto == IP_PROTO_RSVPE2EI) ? "RSVP-E2EI" : "RSVP");
     col_clear(pinfo->cinfo, COL_INFO);
 
     ver_flags = tvb_get_guint8(tvb, 0);
@@ -5784,13 +5784,13 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     SET_ADDRESS(&rsvph->destination, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 
     col_add_str(pinfo->cinfo, COL_INFO,
-          val_to_str(message_type, message_type_vals, "Unknown (%u). "));
+                val_to_str(message_type, message_type_vals, "Unknown (%u). "));
 	find_rsvp_session_tempfilt(tvb, 0, &session_off, &tempfilt_off);
 	if (session_off)
 	    col_append_str(pinfo->cinfo, COL_INFO, summary_session(tvb, session_off));
 	if (tempfilt_off)
 	    col_append_str(pinfo->cinfo, COL_INFO, summary_template(tvb, tempfilt_off));
-    
+
 
 	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(message_type, message_type_vals, "Unknown (%u). "));
@@ -5808,7 +5808,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
     if (tree) {
-		dissect_rsvp_msg_tree(tvb, pinfo, tree, TREE(TT_RSVP), rsvph);
+        dissect_rsvp_msg_tree(tvb, pinfo, tree, TREE(TT_RSVP), rsvph);
     }
 
     /* Find out what conversation this packet is part of. */
@@ -5890,12 +5890,12 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* If not, insert the new request key into the hash table */
     if (!request_val) {
-		new_request_key = se_memdup(&request_key, sizeof(struct rsvp_request_key));
+        new_request_key = se_memdup(&request_key, sizeof(struct rsvp_request_key));
 
-		request_val = se_alloc(sizeof(struct rsvp_request_val));
-		request_val->value = conversation->index;
+        request_val = se_alloc(sizeof(struct rsvp_request_val));
+        request_val->value = conversation->index;
 
-		g_hash_table_insert(rsvp_request_hash, new_request_key, request_val);
+        g_hash_table_insert(rsvp_request_hash, new_request_key, request_val);
     }
 
     tap_queue_packet(rsvp_tap, pinfo, rsvph);
@@ -5926,330 +5926,330 @@ proto_register_rsvp(void)
 {
     gint i;
 
-	static hf_register_info rsvpf_info[] = {
-
-		/* Message type number */
-		{&hf_rsvp_filter[RSVPF_MSG],
-		 { "Message Type", "rsvp.msg", FT_UINT8, BASE_DEC, VALS(message_type_vals), 0x0,
-			NULL, HFILL }},
-
-		/* Message type shorthands */
-		{&hf_rsvp_filter[RSVPF_PATH],
-		 { "Path Message", "rsvp.path", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_RESV],
-		 { "Resv Message", "rsvp.resv", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_PATHERR],
-		 { "Path Error Message", "rsvp.perr", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_RESVERR],
-		 { "Resv Error Message", "rsvp.rerr", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_PATHTEAR],
-		 { "Path Tear Message", "rsvp.ptear", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_RESVTEAR],
-		 { "Resv Tear Message", "rsvp.rtear", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_RCONFIRM],
-		 { "Resv Confirm Message", "rsvp.resvconf", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_RTEARCONFIRM],
-		 { "Resv Tear Confirm Message", "rsvp.rtearconf", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_BUNDLE],
-		 { "Bundle Message", "rsvp.bundle", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_ACK],
-		 { "Ack Message", "rsvp.ack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_SREFRESH],
-		 { "Srefresh Message", "rsvp.srefresh", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_HELLO],
-		 { "HELLO Message", "rsvp.hello", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		/* Object class */
-		{&hf_rsvp_filter[RSVPF_OBJECT],
-		 { "Object class", "rsvp.object", FT_UINT8, BASE_DEC, VALS(rsvp_class_vals), 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_NOTIFY],
-		 { "Notify Message", "rsvp.notify", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		   NULL, HFILL }},
-
-		/* Object present shorthands */
-		{&hf_rsvp_filter[RSVPF_SESSION],
-		 { "SESSION", "rsvp.session", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_HOP],
-		 { "HOP", "rsvp.hop", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_HELLO_OBJ],
-		 { "HELLO Request/Ack", "rsvp.hello_obj", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_INTEGRITY],
-		 { "INTEGRITY", "rsvp.integrity", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_TIME_VALUES],
-		 { "TIME VALUES", "rsvp.time", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_ERROR],
-		 { "ERROR", "rsvp.error", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_SCOPE],
-		 { "SCOPE", "rsvp.scope", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_STYLE],
-		 { "STYLE", "rsvp.style", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_FLOWSPEC],
-		 { "FLOWSPEC", "rsvp.flowspec", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_FILTER_SPEC],
-		 { "FILTERSPEC", "rsvp.filter", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_SENDER],
-		 { "SENDER TEMPLATE", "rsvp.sender", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_TSPEC],
-		 { "SENDER TSPEC", "rsvp.tspec", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_ADSPEC],
-		 { "ADSPEC", "rsvp.adspec", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_POLICY],
-		 { "POLICY", "rsvp.policy", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_CONFIRM],
-		 { "CONFIRM", "rsvp.confirm", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_LABEL],
-		 { "LABEL", "rsvp.label", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_RECOVERY_LABEL],
-		 { "RECOVERY LABEL", "rsvp.recovery_label", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_UPSTREAM_LABEL],
-		 { "UPSTREAM LABEL", "rsvp.upstream_label", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_SUGGESTED_LABEL],
-		 { "SUGGESTED LABEL", "rsvp.suggested_label", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_LABEL_SET],
-		 { "LABEL SET", "rsvp.label_set", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_ACCEPTABLE_LABEL_SET],
-		 { "ACCEPTABLE LABEL SET", "rsvp.acceptable_label_set", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_PROTECTION],
-		 { "PROTECTION", "rsvp.protection", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_DIFFSERV],
-		 { "DIFFSERV", "rsvp.diffserv", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_DSTE],
-		 { "CLASSTYPE", "rsvp.dste", FT_NONE, BASE_NONE, NULL, 0x0,
-		   NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_RESTART_CAP],
-		 { "RESTART CAPABILITY", "rsvp.restart", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_LABEL_REQUEST],
-		 { "LABEL REQUEST", "rsvp.label_request", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_SESSION_ATTRIBUTE],
-		 { "SESSION ATTRIBUTE", "rsvp.session_attribute", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_EXPLICIT_ROUTE],
-		 { "EXPLICIT ROUTE", "rsvp.explicit_route", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_RECORD_ROUTE],
-		 { "RECORD ROUTE", "rsvp.record_route", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_MESSAGE_ID],
-		 { "MESSAGE-ID", "rsvp.msgid", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_MESSAGE_ID_ACK],
-		 { "MESSAGE-ID ACK", "rsvp.msgid_ack", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_MESSAGE_ID_LIST],
-		 { "MESSAGE-ID LIST", "rsvp.msgid_list", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_DCLASS],
-		 { "DCLASS", "rsvp.dclass", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_LSP_TUNNEL_IF_ID],
-		 { "LSP INTERFACE-ID", "rsvp.lsp_tunnel_if_id", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_ADMIN_STATUS],
-		 { "ADMIN STATUS", "rsvp.admin_status", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_ASSOCIATION],
-		 { "ASSOCIATION", "rsvp.association", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_NOTIFY_REQUEST],
-		 { "NOTIFY REQUEST", "rsvp.notify_request", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_GENERALIZED_UNI],
-		 { "GENERALIZED UNI", "rsvp.generalized_uni", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_CALL_ID],
-		 { "CALL ID", "rsvp.call_id", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_UNKNOWN_OBJ],
-		 { "Unknown object", "rsvp.obj_unknown", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		/* Session fields */
-		{&hf_rsvp_filter[RSVPF_SESSION_IP],
-		 { "Destination address", "rsvp.session.ip", FT_IPv4, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_SESSION_PORT],
-		 { "Port number", "rsvp.session.port", FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_SESSION_PROTO],
-		 { "Protocol", "rsvp.session.proto", FT_UINT8, BASE_DEC, VALS(proto_vals), 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
-		 { "Tunnel ID", "rsvp.session.tunnel_id", FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
-		 { "Extended tunnel ID", "rsvp.session.ext_tunnel_id", FT_UINT32, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
-
-		/* Sender template/Filterspec fields */
-		{&hf_rsvp_filter[RSVPF_SENDER_IP],
-		 { "Sender IPv4 address", "rsvp.sender.ip", FT_IPv4, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_SENDER_PORT],
-		 { "Sender port number", "rsvp.sender.port", FT_UINT16, BASE_DEC, NULL, 0x0,
-		   NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_SENDER_LSP_ID],
-		 { "Sender LSP ID", "rsvp.sender.lsp_id", FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
-
-		/* Diffserv object fields */
-		{&hf_rsvp_filter[RSVPF_DIFFSERV_MAPNB],
-		 { "MAPnb", "rsvp.diffserv.mapnb", FT_UINT8, BASE_DEC, NULL, 0x0,
-		   MAPNB_DESCRIPTION, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_DIFFSERV_MAP],
-		 { "MAP", "rsvp.diffserv.map", FT_NONE, BASE_NONE, NULL, 0x0,
-		   MAP_DESCRIPTION, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_DIFFSERV_MAP_EXP],
-		 { "EXP", "rsvp.diffserv.map.exp", FT_UINT8, BASE_DEC, NULL, 0x0,
-		   EXP_DESCRIPTION, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID],
-		 { PHBID_DESCRIPTION, "rsvp.diffserv.phbid", FT_NONE, BASE_NONE, NULL, 0x0,
-		   NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID_DSCP],
-		 { PHBID_DSCP_DESCRIPTION, "rsvp.diffserv.phbid.dscp", FT_UINT16,
-		   BASE_DEC, NULL, PHBID_DSCP_MASK, NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID_CODE],
-		 { PHBID_CODE_DESCRIPTION, "rsvp.diffserv.phbid.code", FT_UINT16,
-		   BASE_DEC, NULL, PHBID_CODE_MASK, NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID_BIT14],
-		 { PHBID_BIT14_DESCRIPTION, "rsvp.diffserv.phbid.bit14", FT_UINT16,
-		   BASE_DEC, VALS(phbid_bit14_vals), PHBID_BIT14_MASK, NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID_BIT15],
-		 { PHBID_BIT15_DESCRIPTION, "rsvp.diffserv.phbid.bit15", FT_UINT16,
-		   BASE_DEC, VALS(phbid_bit15_vals), PHBID_BIT15_MASK, NULL, HFILL }},
-
-		/* Diffserv-aware TE object field */
-		{&hf_rsvp_filter[RSVPF_DSTE_CLASSTYPE],
-		 { "CT", "rsvp.dste.classtype", FT_UINT8, BASE_DEC, NULL, 0x0,
-		   NULL, HFILL }},
-
-		/* Generalized UNI object field */
-		{&hf_rsvp_filter[RSVPF_GUNI_SRC_IPV4],
-		 { "Source TNA", "rsvp.guni.srctna.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_GUNI_DST_IPV4],
-		 { "Destination TNA", "rsvp.guni.dsttna.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_GUNI_SRC_IPV6],
-		 { "Source TNA", "rsvp.guni.srctna.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_GUNI_DST_IPV6],
-		 { "Destination TNA", "rsvp.guni.dsttna.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		/* Generalized UNI object field */
-		{&hf_rsvp_filter[RSVPF_CALL_ID_SRC_ADDR_IPV4],
-		 { "Source Transport Network Address", "rsvp.callid.srcaddr.ipv4", FT_IPv4,
-			BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-		{&hf_rsvp_filter[RSVPF_CALL_ID_SRC_ADDR_IPV6],
-		 { "Source Transport Network Address", "rsvp.callid.srcaddr.ipv6", FT_IPv6,
-			BASE_NONE, NULL, 0x0, NULL, HFILL }}
-	};
+    static hf_register_info rsvpf_info[] = {
+
+        /* Message type number */
+        {&hf_rsvp_filter[RSVPF_MSG],
+         { "Message Type", "rsvp.msg", FT_UINT8, BASE_DEC, VALS(message_type_vals), 0x0,
+           NULL, HFILL }},
+
+        /* Message type shorthands */
+        {&hf_rsvp_filter[RSVPF_PATH],
+         { "Path Message", "rsvp.path", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_RESV],
+         { "Resv Message", "rsvp.resv", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_PATHERR],
+         { "Path Error Message", "rsvp.perr", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_RESVERR],
+         { "Resv Error Message", "rsvp.rerr", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_PATHTEAR],
+         { "Path Tear Message", "rsvp.ptear", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_RESVTEAR],
+         { "Resv Tear Message", "rsvp.rtear", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_RCONFIRM],
+         { "Resv Confirm Message", "rsvp.resvconf", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_RTEARCONFIRM],
+         { "Resv Tear Confirm Message", "rsvp.rtearconf", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_BUNDLE],
+         { "Bundle Message", "rsvp.bundle", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_ACK],
+         { "Ack Message", "rsvp.ack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_SREFRESH],
+         { "Srefresh Message", "rsvp.srefresh", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_HELLO],
+         { "HELLO Message", "rsvp.hello", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        /* Object class */
+        {&hf_rsvp_filter[RSVPF_OBJECT],
+         { "Object class", "rsvp.object", FT_UINT8, BASE_DEC, VALS(rsvp_class_vals), 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_NOTIFY],
+         { "Notify Message", "rsvp.notify", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        /* Object present shorthands */
+        {&hf_rsvp_filter[RSVPF_SESSION],
+         { "SESSION", "rsvp.session", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_HOP],
+         { "HOP", "rsvp.hop", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_HELLO_OBJ],
+         { "HELLO Request/Ack", "rsvp.hello_obj", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_INTEGRITY],
+         { "INTEGRITY", "rsvp.integrity", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_TIME_VALUES],
+         { "TIME VALUES", "rsvp.time", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_ERROR],
+         { "ERROR", "rsvp.error", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_SCOPE],
+         { "SCOPE", "rsvp.scope", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_STYLE],
+         { "STYLE", "rsvp.style", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_FLOWSPEC],
+         { "FLOWSPEC", "rsvp.flowspec", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_FILTER_SPEC],
+         { "FILTERSPEC", "rsvp.filter", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_SENDER],
+         { "SENDER TEMPLATE", "rsvp.sender", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_TSPEC],
+         { "SENDER TSPEC", "rsvp.tspec", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_ADSPEC],
+         { "ADSPEC", "rsvp.adspec", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_POLICY],
+         { "POLICY", "rsvp.policy", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_CONFIRM],
+         { "CONFIRM", "rsvp.confirm", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_LABEL],
+         { "LABEL", "rsvp.label", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_RECOVERY_LABEL],
+         { "RECOVERY LABEL", "rsvp.recovery_label", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_UPSTREAM_LABEL],
+         { "UPSTREAM LABEL", "rsvp.upstream_label", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_SUGGESTED_LABEL],
+         { "SUGGESTED LABEL", "rsvp.suggested_label", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_LABEL_SET],
+         { "LABEL SET", "rsvp.label_set", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_ACCEPTABLE_LABEL_SET],
+         { "ACCEPTABLE LABEL SET", "rsvp.acceptable_label_set", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_PROTECTION],
+         { "PROTECTION", "rsvp.protection", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_DIFFSERV],
+         { "DIFFSERV", "rsvp.diffserv", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_DSTE],
+         { "CLASSTYPE", "rsvp.dste", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_RESTART_CAP],
+         { "RESTART CAPABILITY", "rsvp.restart", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_LABEL_REQUEST],
+         { "LABEL REQUEST", "rsvp.label_request", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_SESSION_ATTRIBUTE],
+         { "SESSION ATTRIBUTE", "rsvp.session_attribute", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_EXPLICIT_ROUTE],
+         { "EXPLICIT ROUTE", "rsvp.explicit_route", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_RECORD_ROUTE],
+         { "RECORD ROUTE", "rsvp.record_route", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_MESSAGE_ID],
+         { "MESSAGE-ID", "rsvp.msgid", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_MESSAGE_ID_ACK],
+         { "MESSAGE-ID ACK", "rsvp.msgid_ack", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_MESSAGE_ID_LIST],
+         { "MESSAGE-ID LIST", "rsvp.msgid_list", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_DCLASS],
+         { "DCLASS", "rsvp.dclass", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_LSP_TUNNEL_IF_ID],
+         { "LSP INTERFACE-ID", "rsvp.lsp_tunnel_if_id", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_ADMIN_STATUS],
+         { "ADMIN STATUS", "rsvp.admin_status", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_ASSOCIATION],
+         { "ASSOCIATION", "rsvp.association", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_NOTIFY_REQUEST],
+         { "NOTIFY REQUEST", "rsvp.notify_request", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_GENERALIZED_UNI],
+         { "GENERALIZED UNI", "rsvp.generalized_uni", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_CALL_ID],
+         { "CALL ID", "rsvp.call_id", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_UNKNOWN_OBJ],
+         { "Unknown object", "rsvp.obj_unknown", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        /* Session fields */
+        {&hf_rsvp_filter[RSVPF_SESSION_IP],
+         { "Destination address", "rsvp.session.ip", FT_IPv4, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_SESSION_PORT],
+         { "Port number", "rsvp.session.port", FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_SESSION_PROTO],
+         { "Protocol", "rsvp.session.proto", FT_UINT8, BASE_DEC, VALS(proto_vals), 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
+         { "Tunnel ID", "rsvp.session.tunnel_id", FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
+         { "Extended tunnel ID", "rsvp.session.ext_tunnel_id", FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
+
+        /* Sender template/Filterspec fields */
+        {&hf_rsvp_filter[RSVPF_SENDER_IP],
+         { "Sender IPv4 address", "rsvp.sender.ip", FT_IPv4, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_SENDER_PORT],
+         { "Sender port number", "rsvp.sender.port", FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_SENDER_LSP_ID],
+         { "Sender LSP ID", "rsvp.sender.lsp_id", FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
+
+        /* Diffserv object fields */
+        {&hf_rsvp_filter[RSVPF_DIFFSERV_MAPNB],
+         { "MAPnb", "rsvp.diffserv.mapnb", FT_UINT8, BASE_DEC, NULL, 0x0,
+           MAPNB_DESCRIPTION, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_DIFFSERV_MAP],
+         { "MAP", "rsvp.diffserv.map", FT_NONE, BASE_NONE, NULL, 0x0,
+           MAP_DESCRIPTION, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_DIFFSERV_MAP_EXP],
+         { "EXP", "rsvp.diffserv.map.exp", FT_UINT8, BASE_DEC, NULL, 0x0,
+           EXP_DESCRIPTION, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID],
+         { PHBID_DESCRIPTION, "rsvp.diffserv.phbid", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID_DSCP],
+         { PHBID_DSCP_DESCRIPTION, "rsvp.diffserv.phbid.dscp", FT_UINT16,
+           BASE_DEC, NULL, PHBID_DSCP_MASK, NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID_CODE],
+         { PHBID_CODE_DESCRIPTION, "rsvp.diffserv.phbid.code", FT_UINT16,
+           BASE_DEC, NULL, PHBID_CODE_MASK, NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID_BIT14],
+         { PHBID_BIT14_DESCRIPTION, "rsvp.diffserv.phbid.bit14", FT_UINT16,
+           BASE_DEC, VALS(phbid_bit14_vals), PHBID_BIT14_MASK, NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID_BIT15],
+         { PHBID_BIT15_DESCRIPTION, "rsvp.diffserv.phbid.bit15", FT_UINT16,
+           BASE_DEC, VALS(phbid_bit15_vals), PHBID_BIT15_MASK, NULL, HFILL }},
+
+        /* Diffserv-aware TE object field */
+        {&hf_rsvp_filter[RSVPF_DSTE_CLASSTYPE],
+         { "CT", "rsvp.dste.classtype", FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
+
+        /* Generalized UNI object field */
+        {&hf_rsvp_filter[RSVPF_GUNI_SRC_IPV4],
+         { "Source TNA", "rsvp.guni.srctna.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_GUNI_DST_IPV4],
+         { "Destination TNA", "rsvp.guni.dsttna.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_GUNI_SRC_IPV6],
+         { "Source TNA", "rsvp.guni.srctna.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_GUNI_DST_IPV6],
+         { "Destination TNA", "rsvp.guni.dsttna.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        /* Generalized UNI object field */
+        {&hf_rsvp_filter[RSVPF_CALL_ID_SRC_ADDR_IPV4],
+         { "Source Transport Network Address", "rsvp.callid.srcaddr.ipv4", FT_IPv4,
+           BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_CALL_ID_SRC_ADDR_IPV6],
+         { "Source Transport Network Address", "rsvp.callid.srcaddr.ipv6", FT_IPv6,
+           BASE_NONE, NULL, 0x0, NULL, HFILL }}
+    };
 
     gint *ett_tree[TT_MAX];
 

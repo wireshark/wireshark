@@ -68,9 +68,9 @@ static int dissect_aim_popup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *popu
 }
 
 static const aim_subtype aim_fnac_family_popup[] = {
-  { 0x0001, "Error", dissect_aim_snac_error },
-  { 0x0002, "Display Popup Message Server Command" , dissect_aim_popup },
-  { 0, NULL, NULL }
+	{ 0x0001, "Error", dissect_aim_snac_error },
+	{ 0x0002, "Display Popup Message Server Command" , dissect_aim_popup },
+	{ 0, NULL, NULL }
 };
 
 
@@ -80,19 +80,19 @@ proto_register_aim_popup(void)
 {
 
 /* Setup protocol subtree array */
-  static gint *ett[] = {
-    &ett_aim_popup,
-  };
+	static gint *ett[] = {
+		&ett_aim_popup,
+	};
 
 /* Register the protocol name and description */
-  proto_aim_popup = proto_register_protocol("AIM Popup", "AIM Popup", "aim_popup");
+	proto_aim_popup = proto_register_protocol("AIM Popup", "AIM Popup", "aim_popup");
 
 /* Required function calls to register the header fields and subtrees used */
-  proto_register_subtree_array(ett, array_length(ett));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_aim_popup(void)
 {
-  aim_init_family(proto_aim_popup, ett_aim_popup, FAMILY_POPUP, aim_fnac_family_popup);
+	aim_init_family(proto_aim_popup, ett_aim_popup, FAMILY_POPUP, aim_fnac_family_popup);
 }

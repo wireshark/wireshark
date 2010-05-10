@@ -225,7 +225,7 @@ static gint ett_ajp13 = -1;
 
 typedef struct ajp13_conv_data {
   int content_length;
-  gboolean was_get_body_chunk;	/* XXX - not used */
+  gboolean was_get_body_chunk;  /* XXX - not used */
 } ajp13_conv_data;
 
 typedef struct ajp13_frame_data {
@@ -388,13 +388,12 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
     }
 
   } else if (mcode == 6) {
-	guint16 rlen;
-	rlen = tvb_get_ntohs(tvb, pos);
-	cd->content_length = rlen;
+    guint16 rlen;
+    rlen = tvb_get_ntohs(tvb, pos);
+    cd->content_length = rlen;
     if (ajp13_tree)
       proto_tree_add_item(ajp13_tree, hf_ajp13_rlen, tvb, pos, 2, 0);
     pos+=2;
-	
 
   } else if ( mcode == 9 ) {
 

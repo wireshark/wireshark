@@ -52,24 +52,24 @@ static guint16  ver_rs_replist = 2;
 
 
 static dcerpc_sub_dissector rs_replist_dissectors[] = {
-    { 0, "rs_replist_add_replica", NULL, NULL},
-    { 1, "rs_replist_replace_replica", NULL, NULL},
-    { 2, "rs_replist_delete_replica", NULL, NULL},
-    { 3, "rs_replist_read", NULL, NULL},
-    { 4, "rs_replist_read_full", NULL, NULL},
-    { 5, "rs_replist_add_replica", NULL, NULL},
-    { 6, "rs_replist_replace_replica", NULL, NULL},
-    { 7, "rs_replist_delete_replica", NULL, NULL},
-    { 8, "rs_replist_read", NULL, NULL},
-    { 9, "rs_replist_read_full", NULL, NULL},
-    { 0, NULL, NULL, NULL }
+	{ 0, "rs_replist_add_replica", NULL, NULL},
+	{ 1, "rs_replist_replace_replica", NULL, NULL},
+	{ 2, "rs_replist_delete_replica", NULL, NULL},
+	{ 3, "rs_replist_read", NULL, NULL},
+	{ 4, "rs_replist_read_full", NULL, NULL},
+	{ 5, "rs_replist_add_replica", NULL, NULL},
+	{ 6, "rs_replist_replace_replica", NULL, NULL},
+	{ 7, "rs_replist_delete_replica", NULL, NULL},
+	{ 8, "rs_replist_read", NULL, NULL},
+	{ 9, "rs_replist_read_full", NULL, NULL},
+	{ 0, NULL, NULL, NULL }
 };
 
 void
 proto_register_rs_replist (void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_rs_replist_opnum,
+		{ &hf_rs_replist_opnum,
 		{ "Operation", "rs_replist.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 

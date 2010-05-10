@@ -52,17 +52,17 @@ static guint16  ver_rep_proc = 4;
 
 
 static dcerpc_sub_dissector rep_proc_dissectors[] = {
-    { 0, "CheckReplicationConfig", NULL, NULL },
-    { 1, "AllCheckReplicationConfig", NULL, NULL },
-    { 2, "KeepFilesAlive", NULL , NULL},
-    { 3, "GetVolChangedFiles", NULL, NULL },
-    { 4, "GetRepStatus", NULL, NULL},
-    { 5, "GetRepServerStatus", NULL, NULL},
-    { 6, "UpdateSelf", NULL, NULL},
-    { 7, "Probe", NULL, NULL},
-    { 8, "GetOneRepStatus", NULL, NULL },
-    { 9, "GetServerInterfaces", NULL, NULL},
-    { 0, NULL, NULL, NULL }
+	{ 0, "CheckReplicationConfig", NULL, NULL },
+	{ 1, "AllCheckReplicationConfig", NULL, NULL },
+	{ 2, "KeepFilesAlive", NULL , NULL},
+	{ 3, "GetVolChangedFiles", NULL, NULL },
+	{ 4, "GetRepStatus", NULL, NULL},
+	{ 5, "GetRepServerStatus", NULL, NULL},
+	{ 6, "UpdateSelf", NULL, NULL},
+	{ 7, "Probe", NULL, NULL},
+	{ 8, "GetOneRepStatus", NULL, NULL },
+	{ 9, "GetServerInterfaces", NULL, NULL},
+	{ 0, NULL, NULL, NULL }
 };
 
 

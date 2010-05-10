@@ -43,12 +43,12 @@ static guint16  ver_mgmt = 1;
 
 
 static dcerpc_sub_dissector mgmt_dissectors[] = {
-    { 0, "rpc__mgmt_inq_if_ids", NULL, NULL },
-    { 1, "rpc__mgmt_inq_stats", NULL, NULL },
-    { 2, "rpc__mgmt_is_server_listening", NULL, NULL },
-    { 3, "rpc__mgmt_stop_server_listening", NULL, NULL },
-    { 4, "rpc__mgmt_inq_princ_name", NULL, NULL },
-    { 0, NULL, NULL, NULL }
+	{ 0, "rpc__mgmt_inq_if_ids", NULL, NULL },
+	{ 1, "rpc__mgmt_inq_stats", NULL, NULL },
+	{ 2, "rpc__mgmt_is_server_listening", NULL, NULL },
+	{ 3, "rpc__mgmt_stop_server_listening", NULL, NULL },
+	{ 4, "rpc__mgmt_inq_princ_name", NULL, NULL },
+	{ 0, NULL, NULL, NULL }
 };
 
 

@@ -52,50 +52,50 @@ static guint16  ver_bossvr = 0;
 
 
 static dcerpc_sub_dissector bossvr_dissectors[] = {
-    {  0, "GetServerStatus", NULL, NULL},
-    {  1, "CreateBnode", NULL, NULL},
-    {  2, "DeleteBnode", NULL, NULL},
-    {  3, "SetStatus", NULL, NULL},
-    {  4, "GetStatus", NULL, NULL},
-    {  5, "EnumerateInstance", NULL, NULL},
-    {  6, "GetInstanceInfo", NULL, NULL},
-    {  7, "GetInstanceParm", NULL, NULL},
-    {  8, "AddSUser", NULL, NULL},
-    {  9, "DeleteSUser", NULL, NULL},
-    { 10, "ListSUsers", NULL, NULL},
-    { 11, "ListKeys", NULL, NULL},
-    { 12, "AddKey", NULL, NULL},
-    { 13, "DeleteKey", NULL, NULL},
-    { 14, "GenerateKey", NULL, NULL},
-    { 15, "GarbageCollectKeys", NULL, NULL},
-    { 16, "GetCellName", NULL, NULL},
-    { 17, "SetTStatus", NULL, NULL},
-    { 18, "ShutdownAll", NULL, NULL},
-    { 19, "RestartAll", NULL, NULL},
-    { 20, "StartupAll", NULL, NULL},
-    { 21, "SetNoAuthFlag", NULL, NULL},
-    { 22, "ReBossvr", NULL, NULL},
-    { 23, "Restart", NULL, NULL},
-    { 24, "Install", NULL, NULL},
-    { 25, "UnInstall", NULL, NULL},
-    { 26, "GetDates", NULL, NULL},
-    { 27, "Prune", NULL, NULL},
-    { 28, "SetRestartTime", NULL, NULL},
-    { 29, "GetRestartTime", NULL, NULL},
-    { 30, "GetLog", NULL, NULL},
-    { 31, "WaitAll", NULL, NULL},
-    { 32, "SetDebug", NULL, NULL},
-    { 33, "GetServerInterfaces", NULL, NULL},
-    { 0, NULL, NULL, NULL }
+	{  0, "GetServerStatus", NULL, NULL},
+	{  1, "CreateBnode", NULL, NULL},
+	{  2, "DeleteBnode", NULL, NULL},
+	{  3, "SetStatus", NULL, NULL},
+	{  4, "GetStatus", NULL, NULL},
+	{  5, "EnumerateInstance", NULL, NULL},
+	{  6, "GetInstanceInfo", NULL, NULL},
+	{  7, "GetInstanceParm", NULL, NULL},
+	{  8, "AddSUser", NULL, NULL},
+	{  9, "DeleteSUser", NULL, NULL},
+	{ 10, "ListSUsers", NULL, NULL},
+	{ 11, "ListKeys", NULL, NULL},
+	{ 12, "AddKey", NULL, NULL},
+	{ 13, "DeleteKey", NULL, NULL},
+	{ 14, "GenerateKey", NULL, NULL},
+	{ 15, "GarbageCollectKeys", NULL, NULL},
+	{ 16, "GetCellName", NULL, NULL},
+	{ 17, "SetTStatus", NULL, NULL},
+	{ 18, "ShutdownAll", NULL, NULL},
+	{ 19, "RestartAll", NULL, NULL},
+	{ 20, "StartupAll", NULL, NULL},
+	{ 21, "SetNoAuthFlag", NULL, NULL},
+	{ 22, "ReBossvr", NULL, NULL},
+	{ 23, "Restart", NULL, NULL},
+	{ 24, "Install", NULL, NULL},
+	{ 25, "UnInstall", NULL, NULL},
+	{ 26, "GetDates", NULL, NULL},
+	{ 27, "Prune", NULL, NULL},
+	{ 28, "SetRestartTime", NULL, NULL},
+	{ 29, "GetRestartTime", NULL, NULL},
+	{ 30, "GetLog", NULL, NULL},
+	{ 31, "WaitAll", NULL, NULL},
+	{ 32, "SetDebug", NULL, NULL},
+	{ 33, "GetServerInterfaces", NULL, NULL},
+	{ 0, NULL, NULL, NULL }
 };
 
 void
 proto_register_bossvr (void)
 {
 	static hf_register_info hf[] = {
-	  { &hf_bossvr_opnum,
-	    { "Operation", "bossvr.opnum", FT_UINT16, BASE_DEC,
-	      NULL, 0x0, NULL, HFILL }}
+		{ &hf_bossvr_opnum,
+		  { "Operation", "bossvr.opnum", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

@@ -51,15 +51,15 @@ static guint16  ver_rsec_login = 2;
 
 
 static dcerpc_sub_dissector rsec_login_dissectors[] = {
-    { 0, "rsec_login_get_trusted_preauth", NULL, NULL},
-    { 0, NULL, NULL, NULL }
+	{ 0, "rsec_login_get_trusted_preauth", NULL, NULL},
+	{ 0, NULL, NULL, NULL }
 };
 
 void
 proto_register_rsec_login (void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_rsec_login_opnum,
+		{ &hf_rsec_login_opnum,
 		{ "Operation", "rsec_login.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }}
 	};
 

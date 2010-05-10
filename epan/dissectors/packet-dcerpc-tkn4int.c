@@ -4,7 +4,7 @@
  * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/fsint/tkn4int.idl
- *     
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -52,16 +52,16 @@ static guint16  ver_tkn4int = 4;
 
 
 static dcerpc_sub_dissector tkn4int_dissectors[] = {
-    { 0, "Probe", NULL, NULL},
-    { 1, "InitTokenState", NULL, NULL},
-    { 2, "TokenRevoke", NULL, NULL},
-    { 3, "GetCellName", NULL, NULL},
-    { 4, "GetLock", NULL, NULL},
-    { 5, "GetCE", NULL, NULL},
-    { 6, "GetServerInterfaces", NULL, NULL},
-    { 7, "SetParams", NULL, NULL},
-    { 8, "AsyncGrant", NULL, NULL},
-    { 0, NULL, NULL, NULL }
+	{ 0, "Probe", NULL, NULL},
+	{ 1, "InitTokenState", NULL, NULL},
+	{ 2, "TokenRevoke", NULL, NULL},
+	{ 3, "GetCellName", NULL, NULL},
+	{ 4, "GetLock", NULL, NULL},
+	{ 5, "GetCE", NULL, NULL},
+	{ 6, "GetServerInterfaces", NULL, NULL},
+	{ 7, "SetParams", NULL, NULL},
+	{ 8, "AsyncGrant", NULL, NULL},
+	{ 0, NULL, NULL, NULL }
 
 };
 

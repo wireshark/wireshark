@@ -41,20 +41,20 @@
 
 
 #define ICQ_CLI_OFFLINE_MESSAGE_REQ 	0x003c
-#define ICQ_CLI_DELETE_OFFLINE_MSGS		0x003e
-#define ICQ_SRV_OFFLINE_MSGS			0x0041
-#define ICQ_SRV_END_OF_OFFLINE_MSGS		0x0042
-#define ICQ_CLI_META_INFO_REQ			0x07d0
-#define ICQ_SRV_META_INFO_REPL			0x07da
+#define ICQ_CLI_DELETE_OFFLINE_MSGS	0x003e
+#define ICQ_SRV_OFFLINE_MSGS		0x0041
+#define ICQ_SRV_END_OF_OFFLINE_MSGS	0x0042
+#define ICQ_CLI_META_INFO_REQ		0x07d0
+#define ICQ_SRV_META_INFO_REPL		0x07da
 
 static const value_string aim_icq_data_types[] = {
-  { ICQ_CLI_OFFLINE_MESSAGE_REQ, "Offline Message Request" },
-  { ICQ_SRV_OFFLINE_MSGS, "Offline Messages Reply" },
-  { ICQ_SRV_END_OF_OFFLINE_MSGS, "End Of Offline Messages Reply" },
-  { ICQ_CLI_DELETE_OFFLINE_MSGS, "Delete Offline Messages Request" },
-  { ICQ_CLI_META_INFO_REQ, "Metainfo Request" },
-  { ICQ_SRV_META_INFO_REPL, "Metainfo Reply" },
-  { 0, NULL }
+	{ ICQ_CLI_OFFLINE_MESSAGE_REQ, "Offline Message Request" },
+	{ ICQ_SRV_OFFLINE_MSGS, "Offline Messages Reply" },
+	{ ICQ_SRV_END_OF_OFFLINE_MSGS, "End Of Offline Messages Reply" },
+	{ ICQ_CLI_DELETE_OFFLINE_MSGS, "Delete Offline Messages Request" },
+	{ ICQ_CLI_META_INFO_REQ, "Metainfo Request" },
+	{ ICQ_SRV_META_INFO_REPL, "Metainfo Reply" },
+	{ 0, NULL }
 };
 
 
@@ -63,8 +63,8 @@ static int dissect_aim_tlv_value_icq(proto_item *ti, guint16 subtype, tvbuff_t *
 #define TLV_ICQ_META_DATA 			  0x0001
 
 static const aim_tlv icq_tlv[] = {
-   { TLV_ICQ_META_DATA, "Encapsulated ICQ Meta Data", dissect_aim_tlv_value_icq },
-   { 0, NULL, NULL },
+	{ TLV_ICQ_META_DATA, "Encapsulated ICQ Meta Data", dissect_aim_tlv_value_icq },
+	{ 0, NULL, NULL },
 };
 
 /* Initialize the protocol and registered fields */
@@ -202,12 +202,12 @@ static int dissect_aim_icq_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 static const aim_subtype aim_fnac_family_icq[] = {
-  { 0x0001, "Error", dissect_aim_snac_error },
-  { 0x0002, "ICQ Request", dissect_aim_icq_tlv },
-  { 0x0003, "ICQ Response", dissect_aim_icq_tlv },
-  { 0x0006, "Auth Request", NULL },
-  { 0x0007, "Auth Response", NULL },
-  { 0, NULL, NULL }
+	{ 0x0001, "Error", dissect_aim_snac_error },
+	{ 0x0002, "ICQ Request", dissect_aim_icq_tlv },
+	{ 0x0003, "ICQ Response", dissect_aim_icq_tlv },
+	{ 0x0006, "Auth Request", NULL },
+	{ 0x0007, "Auth Response", NULL },
+	{ 0, NULL, NULL }
 };
 
 
@@ -217,43 +217,43 @@ proto_register_aim_icq(void)
 {
 
 /* Setup list of header fields */
-  static hf_register_info hf[] = {
-	  { &hf_icq_tlv_data_chunk_size,
-	    { "Data chunk size", "aim_icq.chunk_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL },
-	  },
-	  { &hf_icq_tlv_request_owner_uid,
-	    { "Owner UID", "aim_icq.owner_uid", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL},
-	  },
-	  { &hf_icq_tlv_request_type,
-	    {"Request Type", "aim_icq.request_type", FT_UINT16, BASE_DEC, VALS(aim_icq_data_types), 0x0, NULL, HFILL},
-	  },
-	  { &hf_icq_tlv_request_seq_num,
-	    {"Request Sequence Number", "aim_icq.request_seq_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL},
-	  },
-	  { &hf_icq_dropped_msg_flag,
-		{"Dropped messages flag", "aim_icq.offline_msgs.dropped_flag", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL },
-	  },
-	  { &hf_icq_meta_subtype,
-		{"Meta Request Subtype", "aim_icq.subtype", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
-	  },
-  };
+	static hf_register_info hf[] = {
+		{ &hf_icq_tlv_data_chunk_size,
+		  { "Data chunk size", "aim_icq.chunk_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL },
+		},
+		{ &hf_icq_tlv_request_owner_uid,
+		  { "Owner UID", "aim_icq.owner_uid", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL},
+		},
+		{ &hf_icq_tlv_request_type,
+		  {"Request Type", "aim_icq.request_type", FT_UINT16, BASE_DEC, VALS(aim_icq_data_types), 0x0, NULL, HFILL},
+		},
+		{ &hf_icq_tlv_request_seq_num,
+		  {"Request Sequence Number", "aim_icq.request_seq_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL},
+		},
+		{ &hf_icq_dropped_msg_flag,
+		  {"Dropped messages flag", "aim_icq.offline_msgs.dropped_flag", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL },
+		},
+		{ &hf_icq_meta_subtype,
+		  {"Meta Request Subtype", "aim_icq.subtype", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
+		},
+	};
 
 /* Setup protocol subtree array */
-  static gint *ett[] = {
-    &ett_aim_icq,
-	&ett_aim_icq_tlv
-  };
+	static gint *ett[] = {
+		&ett_aim_icq,
+		&ett_aim_icq_tlv
+	};
 
 /* Register the protocol name and description */
-  proto_aim_icq = proto_register_protocol("AIM ICQ", "AIM ICQ", "aim_icq");
+	proto_aim_icq = proto_register_protocol("AIM ICQ", "AIM ICQ", "aim_icq");
 
 /* Required function calls to register the header fields and subtrees used */
-  proto_register_field_array(proto_aim_icq, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array(proto_aim_icq, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_aim_icq(void)
 {
-  aim_init_family(proto_aim_icq, ett_aim_icq, FAMILY_ICQ, aim_fnac_family_icq);
+	aim_init_family(proto_aim_icq, ett_aim_icq, FAMILY_ICQ, aim_fnac_family_icq);
 }

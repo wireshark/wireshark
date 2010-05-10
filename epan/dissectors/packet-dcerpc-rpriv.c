@@ -59,8 +59,8 @@ static guint16  ver_rpriv = 1;
 
 static int
 rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
-                         packet_info *pinfo, proto_tree *tree,
-                         guint8 *drep)
+			      packet_info *pinfo, proto_tree *tree,
+			      guint8 *drep)
 {
 	/*        [in]        handle_t         handle,
 	 *        [in]        unsigned32       authn_svc,
@@ -71,66 +71,66 @@ rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
 	 *                    byte            bytes[];
 	 */                                 
 
-   guint32 authn_svc, authz_svc, key_size, key_size2, var1;
-   const char *key_t1 = NULL;
-   const char *key_t2 = NULL;
+	guint32 authn_svc, authz_svc, key_size, key_size2, var1;
+	const char *key_t1 = NULL;
+	const char *key_t2 = NULL;
 
-   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_authn_svc, &authn_svc);
-   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_authz_svc, &authz_svc);
-   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_var1, &var1);
-   offset += 276;
-   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_key_size2, &key_size);
-   /* advance to get size of cell, and princ */
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_authn_svc, &authn_svc);
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_authz_svc, &authz_svc);
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_var1, &var1);
+	offset += 276;
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_key_size2, &key_size);
+	/* advance to get size of cell, and princ */
 
-   proto_tree_add_string (tree, hf_rpriv_get_eptgt_rqst_key_t, tvb, offset, hf_rpriv_get_eptgt_rqst_key_size, tvb_get_ptr (tvb, offset, key_size));
-   key_t1 = (const char *)tvb_get_ptr(tvb,offset,key_size);
-   offset += key_size;
+	proto_tree_add_string (tree, hf_rpriv_get_eptgt_rqst_key_t, tvb, offset, hf_rpriv_get_eptgt_rqst_key_size, tvb_get_ptr (tvb, offset, key_size));
+	key_t1 = (const char *)tvb_get_ptr(tvb,offset,key_size);
+	offset += key_size;
 
-   offset += 8;
-   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_key_size2, &key_size2);
-   proto_tree_add_string (tree, hf_rpriv_get_eptgt_rqst_key_t2, tvb, offset, hf_rpriv_get_eptgt_rqst_key_size2, tvb_get_ptr (tvb, offset, key_size2));
-   key_t2 = (const char *)tvb_get_ptr(tvb,offset,key_size2);
-   offset += key_size2;
+	offset += 8;
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_key_size2, &key_size2);
+	proto_tree_add_string (tree, hf_rpriv_get_eptgt_rqst_key_t2, tvb, offset, hf_rpriv_get_eptgt_rqst_key_size2, tvb_get_ptr (tvb, offset, key_size2));
+	key_t2 = (const char *)tvb_get_ptr(tvb,offset,key_size2);
+	offset += key_size2;
 
 
-   if (check_col(pinfo->cinfo, COL_INFO)) {
-               col_append_fstr(pinfo->cinfo, COL_INFO,
-                   " Request for: %s in %s ", key_t2, key_t1);
-   }
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+				" Request for: %s in %s ", key_t2, key_t1);
+	}
 
-   return offset;
+	return offset;
 
 }
 
 
 static dcerpc_sub_dissector rpriv_dissectors[] = {
-    { 0, "get_ptgt", NULL,NULL},
-    { 1, "become_delegate", NULL, NULL},
-    { 2, "become_impersonator", NULL, NULL},
-    { 3, "get_eptgt", rpriv_dissect_get_eptgt_rqst , NULL},
-    { 0, NULL, NULL, NULL }
+	{ 0, "get_ptgt", NULL,NULL},
+	{ 1, "become_delegate", NULL, NULL},
+	{ 2, "become_impersonator", NULL, NULL},
+	{ 3, "get_eptgt", rpriv_dissect_get_eptgt_rqst , NULL},
+	{ 0, NULL, NULL, NULL }
 };
 
 void
 proto_register_rpriv (void)
 {
 	static hf_register_info hf[] = {
-      { &hf_rpriv_opnum,
-         { "Operation", "rpriv.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_rpriv_get_eptgt_rqst_authn_svc,
-         { "Authn_Svc", "rpriv.get_eptgt_rqst_authn_svc", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_rpriv_get_eptgt_rqst_authz_svc,
-         { "Authz_Svc", "rpriv.get_eptgt_rqst_authz_svc", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_rpriv_get_eptgt_rqst_key_size,
-         { "Key_Size", "rpriv.get_eptgt_rqst_key_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_rpriv_get_eptgt_rqst_var1,
-         { "Var1", "rpriv.get_eptgt_rqst_var1", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_rpriv_get_eptgt_rqst_key_size2,
-         { "Key_Size", "rpriv.get_eptgt_rqst_key_size2", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_rpriv_get_eptgt_rqst_key_t,
-         { "Key_t", "rpriv.get_eptgt_rqst_key_t", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_rpriv_get_eptgt_rqst_key_t2,
-         { "Key_t2", "rpriv.get_eptgt_rqst_key_t2", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_rpriv_opnum,
+		  { "Operation", "rpriv.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_rpriv_get_eptgt_rqst_authn_svc,
+		  { "Authn_Svc", "rpriv.get_eptgt_rqst_authn_svc", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_rpriv_get_eptgt_rqst_authz_svc,
+		  { "Authz_Svc", "rpriv.get_eptgt_rqst_authz_svc", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_rpriv_get_eptgt_rqst_key_size,
+		  { "Key_Size", "rpriv.get_eptgt_rqst_key_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_rpriv_get_eptgt_rqst_var1,
+		  { "Var1", "rpriv.get_eptgt_rqst_var1", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_rpriv_get_eptgt_rqst_key_size2,
+		  { "Key_Size", "rpriv.get_eptgt_rqst_key_size2", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_rpriv_get_eptgt_rqst_key_t,
+		  { "Key_t", "rpriv.get_eptgt_rqst_key_t", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_rpriv_get_eptgt_rqst_key_t2,
+		  { "Key_t2", "rpriv.get_eptgt_rqst_key_t2", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 					 
 	};
 
