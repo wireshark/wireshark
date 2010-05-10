@@ -225,6 +225,48 @@ Wireshark Info
       3610</ulink>)
     </para>
 
+    <para>
+      Application crash when changing real-time option.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035">Bug
+      4035</ulink>)
+    </para>
+
+    <para>
+      Hex pane display issue after startup.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056">Bug
+      4056</ulink>)
+    </para>
+
+    <para>
+      Crash when marking a packet while a capture is running.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4260">Bug
+      4260</ulink>)
+    </para>
+
+    <para>
+      Crash when sorting column while capturing.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4273">Bug
+      4273</ulink>)
+    </para>
+
+    <para>
+      Packet list rows are oversized.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357">Bug
+      4357</ulink>)
+    </para>
+
+    <para>
+      Summary pane selected frame highlighting not maintained.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4445">Bug
+      4445</ulink>)
+    </para>
+
+    <para>
+      Delta times are wrong when "Set time reference (toggle)" is applied.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4669">Bug
+      4669</ulink>)
+    </para>
+
   </section>
 
   <section id="GettingHelp"><title>Getting Help</title>
