@@ -638,7 +638,7 @@ wtap_close(wtap *wth)
 }
 
 void
-wtap_cleareof(wtap *wth) {
+wtap_cleareof(wtap *wth _U_) {
 #ifdef HAVE_LIBZ
 	/* Reset EOF */
 	if (gzeof(wth->fh))
