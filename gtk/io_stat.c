@@ -1575,7 +1575,9 @@ create_tick_interval_menu_items(io_stat_t *io)
 	combo_box = gtk_combo_box_new_text ();
 
 	for(i=0;i<MAX_TICK_VALUES;i++){
-            if(tick_interval_values[i]>=1000){
+           if(tick_interval_values[i]>=60000){
+                    g_snprintf(str, sizeof(str), "%u min", tick_interval_values[i]/60000);
+            } else if(tick_interval_values[i]>=1000){
                     g_snprintf(str, sizeof(str), "%u sec", tick_interval_values[i]/1000);
             } else if(tick_interval_values[i]>=100){
                     g_snprintf(str, sizeof(str), "0.%1u sec", (tick_interval_values[i]/100)%10);
