@@ -117,9 +117,9 @@ static void dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     ti = proto_tree_add_item(tree, proto_egd, tvb, 0, -1, FALSE);
     egd_tree = proto_item_add_subtree(ti, ett_egd);
-    proto_tree_add_item(egd_tree, hf_egd_type, tvb, offset, 1, FALSE);
+    proto_tree_add_item(egd_tree, hf_egd_type, tvb, offset, 1, TRUE);
     offset++;
-    proto_tree_add_item(egd_tree, hf_egd_ver, tvb, offset, 1, FALSE);
+    proto_tree_add_item(egd_tree, hf_egd_ver, tvb, offset, 1, TRUE);
     offset++;
     proto_tree_add_item(egd_tree, hf_egd_rid, tvb, offset, 2, TRUE);
     offset += 2;
@@ -129,25 +129,25 @@ static void dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 4;
 
     /* time */
-    sectime = tvb_get_ntohl(tvb, offset);
+    sectime = tvb_get_letohl(tvb, offset);
     if (0 == sectime)
     {
-      notime = proto_tree_add_item(egd_tree, hf_egd_notime, tvb, offset, 8, FALSE);
+      notime = proto_tree_add_item(egd_tree, hf_egd_notime, tvb, offset, 8, TRUE);
       proto_item_append_text(notime, "--No TimeStamp");
     }
     else
     {
-      egd_time.secs  = tvb_get_ntohl(tvb, offset);
-      egd_time.nsecs = tvb_get_ntohl(tvb, offset+4);
+      egd_time.secs  = tvb_get_letohl(tvb, offset);
+      egd_time.nsecs = tvb_get_letohl(tvb, offset+4);
       proto_tree_add_time(egd_tree, hf_egd_time, tvb, offset, 8, &egd_time);
     }
     offset += 8;
 
-    proto_tree_add_item(egd_tree, hf_egd_stat, tvb, offset, 4, FALSE);
+    proto_tree_add_item(egd_tree, hf_egd_stat, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item(egd_tree, hf_egd_csig, tvb, offset, 4, FALSE);
+    proto_tree_add_item(egd_tree, hf_egd_csig, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item(egd_tree, hf_egd_resv, tvb, offset, 4, FALSE);
+    proto_tree_add_item(egd_tree, hf_egd_resv, tvb, offset, 4, TRUE);
     offset += 4;
 
     data_length = tvb_length_remaining(tvb, offset);
