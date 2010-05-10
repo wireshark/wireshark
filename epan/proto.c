@@ -1204,6 +1204,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	float		floatval;
 	double		doubleval;
 	char		*string;
+	nstime_t	time_stamp;
 	GPtrArray	*ptrs;
 
 	/* there is a possibility here that we might raise an exception
@@ -1410,6 +1411,19 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 * we're putting this item.
 			 */
 			new_fi->length = n + length;
+			break;
+
+		case FT_ABSOLUTE_TIME:
+		case FT_RELATIVE_TIME:
+			DISSECTOR_ASSERT(length == 8);
+			if (little_endian) {
+				time_stamp.secs  = tvb_get_letohl(tvb, start);
+				time_stamp.nsecs = tvb_get_letohl(tvb, start+4);
+			} else {
+				time_stamp.secs  = tvb_get_ntohl(tvb, start);
+				time_stamp.nsecs = tvb_get_ntohl(tvb, start+4);
+			}
+			proto_tree_set_time(new_fi, &time_stamp);
 			break;
 
 		default:
