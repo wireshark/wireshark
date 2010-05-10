@@ -28,29 +28,6 @@ Wireshark Info
 
   <section id="WhatsNew"><title>What's New</title>
     <section id="BugFixes"><title>Bug Fixes</title>
-    <para>
-
-      The following vulnerabilities have been fixed.  See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2007-02.html">security advisory</ulink> for details and a workaround.
-
-      <itemizedlist>
-
-        <listitem>
-          <para>
-            The NetFlow dissector could run off with your dog, crash your truck,
-            and write a country music song about the experience.
-            <!-- Fixed in r????? -->
-            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">????</ulink>) -->
-          </para>
-          <para>Versions affected: 0.99.5 to 1.0.8</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-      </itemizedlist>
-
-    </para>
 
     <para>
 
@@ -59,7 +36,9 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-            Wireshark could crash without warning.
+          Wireshark is unresponsive when capturing from named pipes on Windows.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1759">Bug
+          1759</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -84,13 +63,14 @@ Wireshark Info
 
         <listitem>
           <para>
-            Python scripting support has been added.
+            Columns are easier to use. You can add a protocol field as a column
+            by right-clicking on its packet detail item.
           </para>
         </listitem>
 
         <listitem>
           <para>
-            Capturing from pipes on Windows has been improved.
+            Preliminary Python scripting support has been added.
           </para>
         </listitem>
 
@@ -111,6 +91,33 @@ Wireshark Info
           <para>
             Packtets can now be ignored (excluded from dissection), similar to
             the way they can be marked.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Manual IP address resolution is now supported.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            You can now set the capture buffer size on UNIX and Linux if you have
+            libpcap 1.0.0 or greater.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            TShark no longer needs elevated privileges on UNIX or Linux to list
+            interfaces. Only dumpcap requires privileges now.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Wireshark and TShark can enable 802.11 monitor mode directly if you
+            have libpcap 1.0.0 or greater.
           </para>
         </listitem>
 
@@ -150,7 +157,7 @@ Wireshark Info
 	You can usually install or upgrade Wireshark using the package management
 	system specific to that platform.  A list of third-party packages
 	can be found on the
-	<ulink url="http://www.wireshark.org/download.html#otherplat">download page</ulink> on the Wireshark web site.
+	<ulink url="http://www.wireshark.org/download.html#thirdparty">download page</ulink> on the Wireshark web site.
       </para>
     </section>
 
@@ -182,7 +189,7 @@ Wireshark Info
 
     <para>
       Wireshark might make your system disassociate from a wireless network
-      on OS X.
+      on OS X 10.4.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1315">Bug
       1315</ulink>)
     </para>
@@ -194,41 +201,15 @@ Wireshark Info
     </para>
 
     <para>
-      Wireshark is unable to decrypt WPA group keys.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1420">Bug
-      1420</ulink>)
-    </para>
-
-    <para>
       The BER dissector might infinitely loop.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516">Bug
       1516</ulink>)
     </para>
 
     <para>
-      Wireshark can't dynamically update the packet list. This means that host
-      name resolutions above a certain response time threshold won't show up in
-      the packet list.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1605">Bug
-      1605</ulink>)
-    </para>
-
-    <para>
       Capture filters aren't applied when capturing from named pipes.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814">Bug
       1814</ulink>)
-    </para>
-
-    <para>
-      Wireshark might freeze when reading from a pipe.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2082">Bug
-      2082</ulink>)
-    </para>
-
-    <para>
-      Capturing from named pipes might be delayed on Windows.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2200">Bug
-      2200</ulink>)
     </para>
 
     <para>
@@ -254,8 +235,12 @@ Wireshark Info
     web site</ulink>.
     </para>
     <para>
-    Commercial support, training, and development services are available
-    from <ulink url="http://www.cacetech.com/">CACE Technologies</ulink>.
+    Commercial support is available from
+    <ulink url="http://www.cacetech.com/products/sharknet.html">CACE Technologies</ulink>.
+    </para>
+    <para>
+    Training is available from
+    <ulink url="http://www.wiresharktraining.com/">Wireshark University</ulink>.
     </para>
   </section>
 
