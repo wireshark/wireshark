@@ -1641,15 +1641,15 @@ main(int argc, char *argv[])
     if (list_link_layer_types) {
         /* Get the list of link-layer types for the capture device. */
         GList *lt_list;
-        gchar *err_str;
+        gchar *error_string;
 
-        lt_list = capture_pcap_linktype_list(global_capture_opts.iface, &err_str);
+        lt_list = capture_pcap_linktype_list(global_capture_opts.iface, &error_string);
         if (lt_list == NULL) {
-            if (err_str != NULL) {
+            if (error_string != NULL) {
                 cmdarg_err("The list of data link types for the capture device \"%s\" could not be obtained (%s)."
                  "Please check to make sure you have sufficient permissions, and that\n"
-                 "you have the proper interface or pipe specified.\n", global_capture_opts.iface, err_str);
-                g_free(err_str);
+                 "you have the proper interface or pipe specified.\n", global_capture_opts.iface, error_string);
+                g_free(error_string);
             } else
                 cmdarg_err("The capture device \"%s\" has no data link types.", global_capture_opts.iface);
             exit(2);
