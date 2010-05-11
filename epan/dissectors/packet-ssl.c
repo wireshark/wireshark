@@ -379,13 +379,13 @@ static gint dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                                guint *conv_version,
                                gboolean *need_desegmentation,
                                SslDecryptSession *conv_data,
-                               gboolean first_record_in_frame);
+                               const gboolean first_record_in_frame);
 
 /* change cipher spec dissector */
 static void dissect_ssl3_change_cipher_spec(tvbuff_t *tvb,
                                             proto_tree *tree,
                                             guint32 offset,
-                                            guint *conv_version, guint8 content_type);
+                                            guint *conv_version, const guint8 content_type);
 
 /* alert message dissector */
 static void dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
@@ -397,7 +397,7 @@ static void dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, guint32 offset,
                                    guint32 record_length,
                                    guint *conv_version,
-                                   SslDecryptSession *conv_data, guint8 content_type);
+                                   SslDecryptSession *conv_data, const guint8 content_type);
 
 /* hello extension dissector */
 static gint dissect_ssl3_hnd_hello_ext_elliptic_curves(tvbuff_t *tvb,
@@ -425,8 +425,8 @@ static void dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
 
 static void dissect_ssl3_hnd_finished(tvbuff_t *tvb,
                                       proto_tree *tree,
-                                      guint32 offset,
-                                      guint* conv_version);
+                                      const guint32 offset,
+                                      const guint* conv_version);
 
 
 /*
@@ -481,19 +481,19 @@ static void dissect_pct_msg_error(tvbuff_t *tvb,
  *
  */
 /*static void ssl_set_conv_version(packet_info *pinfo, guint version);*/
-static gint  ssl_is_valid_handshake_type(guint8 type);
-static gint  ssl_is_valid_ssl_version(guint16 version);
-static gint  ssl_is_authoritative_version_message(guint8 content_type,
-                                                guint8 next_byte);
-static gint  ssl_is_v2_client_hello(tvbuff_t *tvb, guint32 offset);
-static gint  ssl_looks_like_sslv2(tvbuff_t *tvb, guint32 offset);
-static gint  ssl_looks_like_sslv3(tvbuff_t *tvb, guint32 offset);
+static gint  ssl_is_valid_handshake_type(const guint8 type);
+static gint  ssl_is_valid_ssl_version(const guint16 version);
+static gint  ssl_is_authoritative_version_message(const guint8 content_type,
+                                                  const guint8 next_byte);
+static gint  ssl_is_v2_client_hello(tvbuff_t *tvb, const guint32 offset);
+static gint  ssl_looks_like_sslv2(tvbuff_t *tvb, const guint32 offset);
+static gint  ssl_looks_like_sslv3(tvbuff_t *tvb, const guint32 offset);
 static gint  ssl_looks_like_valid_v2_handshake(tvbuff_t *tvb,
-                                              guint32 offset,
-                                              guint32 record_length);
+                                               const guint32 offset,
+                                               const guint32 record_length);
 static gint  ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb,
-                                               guint32 offset,
-                                               guint32 record_length);
+                                                const guint32 offset,
+                                                const guint32 record_length);
 /*********************************************************************
  *
  * Main dissector
@@ -1230,7 +1230,7 @@ static gint
 dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                     proto_tree *tree, guint32 offset,
                     guint *conv_version, gboolean *need_desegmentation,
-                    SslDecryptSession* ssl, gboolean first_record_in_frame)
+                    SslDecryptSession* ssl, const gboolean first_record_in_frame)
 {
 
     /*
@@ -1261,7 +1261,6 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     guint32 available_bytes;
     ti = NULL;
     ssl_record_tree = NULL;
-    available_bytes = 0;
 
     available_bytes = tvb_length_remaining(tvb, offset);
 
@@ -1566,7 +1565,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_ssl3_change_cipher_spec(tvbuff_t *tvb,
                                 proto_tree *tree, guint32 offset,
-                                guint* conv_version, guint8 content_type)
+                                guint* conv_version, const guint8 content_type)
 {
     /*
      * struct {
@@ -1663,7 +1662,7 @@ static void
 dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                        proto_tree *tree, guint32 offset,
                        guint32 record_length, guint *conv_version,
-                       SslDecryptSession* ssl, guint8 content_type)
+                       SslDecryptSession* ssl, const guint8 content_type)
 {
     /*     struct {
      *         HandshakeType msg_type;
@@ -1963,7 +1962,6 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
             proto_tree_add_bytes(tree, hf_ssl_handshake_session_id,
                                          tvb, offset, session_id_length,
                                          tvb_get_ptr(tvb, offset, session_id_length));
-            offset += session_id_length;
         }
 
     }
@@ -2127,8 +2125,6 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
     guint8  compression_method;
     guint16 start_offset;
 
-    cipher_suite_length = 0;
-    compression_methods_length = 0;
     start_offset = offset;
 
     if (ssl) {
@@ -2234,7 +2230,7 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
 
         if (length > offset - start_offset)
         {
-            offset = dissect_ssl3_hnd_hello_ext(tvb, tree, offset,
+            dissect_ssl3_hnd_hello_ext(tvb, tree, offset,
                 length -
                 (offset - start_offset));
         }
@@ -2309,7 +2305,7 @@ no_cipher:
 
         if (length > offset - start_offset)
         {
-            offset = dissect_ssl3_hnd_hello_ext(tvb, tree, offset,
+            dissect_ssl3_hnd_hello_ext(tvb, tree, offset,
                 length -
                 (offset - start_offset));
         }
@@ -2401,8 +2397,6 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
     guint8      cert_types_count;
     gint        dnames_length;
     asn1_ctx_t  asn1_ctx;
-    cert_types_count = 0;
-    dnames_length = 0;
 
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -2480,8 +2474,8 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
 
 static void
 dissect_ssl3_hnd_finished(tvbuff_t *tvb,
-                          proto_tree *tree, guint32 offset,
-                          guint* conv_version)
+                          proto_tree *tree, const guint32 offset,
+                          const guint* conv_version)
 {
     /* For TLS:
      *     struct {
@@ -2512,10 +2506,8 @@ dissect_ssl3_hnd_finished(tvbuff_t *tvb,
     case SSL_VER_SSLv3:
         proto_tree_add_item(tree, hf_ssl_handshake_md5_hash,
                             tvb, offset, 16, FALSE);
-        offset += 16;
         proto_tree_add_item(tree, hf_ssl_handshake_sha_hash,
-                            tvb, offset, 20, FALSE);
-        offset += 20;
+                            tvb, offset + 16, 20, FALSE);
         break;
     }
 }
@@ -2547,14 +2539,10 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *ssl_record_tree;
 
     initial_offset       = offset;
-    byte                 = 0;
-    record_length_length = 0;
     record_length        = 0;
     is_escape            = -1;
     padding_length       = -1;
-    msg_type             = 0;
     msg_type_str         = NULL;
-    available_bytes      = 0;
     ssl_record_tree      = NULL;
 
     /* pull first byte; if high bit is unset, then record
@@ -2733,7 +2721,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* add the record length */
         tvb_ensure_bytes_exist(tvb, offset, record_length_length);
-        ti = proto_tree_add_uint (ssl_record_tree,
+        proto_tree_add_uint (ssl_record_tree,
                                   hf_ssl_record_length, tvb,
                                   initial_offset, record_length_length,
                                   record_length);
@@ -2888,7 +2876,6 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
                 expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR,
                     "Session ID length (%u) must be less than %u.",
                     session_id_length, SSLV2_MAX_SESSION_ID_LENGTH_IN_BYTES);
-                offset = tvb_length(tvb);
                 return;
         }
         offset += 2;
@@ -2977,7 +2964,6 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
                 ssl->state |= SSL_CLIENT_RANDOM;
                 ssl_debug_printf("dissect_ssl2_hnd_client_hello found CLIENT RANDOM -> state 0x%02X\n", ssl->state);
             }
-            offset += challenge_length;
         }
     }
 }
@@ -3085,7 +3071,6 @@ dissect_pct_msg_client_hello(tvbuff_t *tvb,
 	if(CH_KEY_ARG_LENGTH) {
                 tvb_ensure_bytes_exist(tvb, offset, CH_KEY_ARG_LENGTH);
 		proto_tree_add_text(tree, tvb, offset, CH_KEY_ARG_LENGTH, "IV data (%d bytes)", CH_KEY_ARG_LENGTH);
-		offset += CH_KEY_ARG_LENGTH;
 	}
 }
 
@@ -3194,7 +3179,6 @@ char SH_RESPONSE_DATA[MSB<<8|LSB]
 	if(SH_RESPONSE_LENGTH) {
                 tvb_ensure_bytes_exist(tvb, offset, SH_RESPONSE_LENGTH);
 		proto_tree_add_text(tree, tvb, offset, SH_RESPONSE_LENGTH, "Server Response (%d bytes)", SH_RESPONSE_LENGTH);
-		offset += SH_RESPONSE_LENGTH;
 	}
 
 }
@@ -3265,7 +3249,6 @@ dissect_pct_msg_client_master_key(tvbuff_t *tvb, proto_tree *tree, guint32 offse
 	if(CMK_RESPONSE_LENGTH) {
                 tvb_ensure_bytes_exist(tvb, offset, CMK_RESPONSE_LENGTH);
 		proto_tree_add_text(tree, tvb, offset, CMK_RESPONSE_LENGTH, "Response data (%d bytes)", CMK_RESPONSE_LENGTH);
-		offset += CMK_RESPONSE_LENGTH;
 	}
 }
 
@@ -3288,7 +3271,6 @@ dissect_pct_msg_server_verify(tvbuff_t *tvb,
 	if(SV_RESPONSE_LENGTH) {
                 tvb_ensure_bytes_exist(tvb, offset, SV_RESPONSE_LENGTH);
 		proto_tree_add_text(tree, tvb, offset, SV_RESPONSE_LENGTH, "Server Response (%d bytes)", SV_RESPONSE_LENGTH);
-		offset += SV_RESPONSE_LENGTH;
 	}
 }
 
@@ -3318,11 +3300,9 @@ dissect_pct_msg_error(tvbuff_t *tvb,
 		proto_tree_add_text(tree, tvb, offset, 1, "SPECS_MISMATCH_CLIENT_CERT");
 		offset += 1;
 		proto_tree_add_text(tree, tvb, offset, 1, "SPECS_MISMATCH_CLIENT_SIG");
-		offset += 1;
 	}
 	else if(INFO_LEN) {
 		proto_tree_add_text(tree, tvb, offset, INFO_LEN, "Error Information data (%d bytes)", INFO_LEN);
-		offset += INFO_LEN;
 	}
 }
 
@@ -3398,7 +3378,6 @@ dissect_ssl2_hnd_client_master_key(tvbuff_t *tvb,
         tvb_ensure_bytes_exist(tvb, offset, key_arg_length);
         proto_tree_add_item(tree, hf_ssl2_handshake_key_arg,
                             tvb, offset, key_arg_length, FALSE);
-        offset += key_arg_length;
     }
 
 }
@@ -3516,7 +3495,6 @@ dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
         tvb_ensure_bytes_exist(tvb, offset, connection_id_length);
         proto_tree_add_item(tree, hf_ssl2_handshake_connection_id,
                             tvb, offset, connection_id_length, FALSE);
-        offset += connection_id_length;
     }
 
 }
@@ -3694,7 +3672,7 @@ ssl_set_conv_version(packet_info *pinfo, guint version)
 #endif
 
 static gint
-ssl_is_valid_handshake_type(guint8 type)
+ssl_is_valid_handshake_type(const guint8 type)
 {
 
     switch (type) {
@@ -3714,7 +3692,7 @@ ssl_is_valid_handshake_type(guint8 type)
 }
 
 static gint
-ssl_is_valid_ssl_version(guint16 version)
+ssl_is_valid_ssl_version(const guint16 version)
 {
     const gchar *version_str;
     version_str = match_strval(version, ssl_versions);
@@ -3722,8 +3700,8 @@ ssl_is_valid_ssl_version(guint16 version)
 }
 
 static gint
-ssl_is_authoritative_version_message(guint8 content_type,
-                                     guint8 next_byte)
+ssl_is_authoritative_version_message(const guint8 content_type,
+                                     const guint8 next_byte)
 {
     if (content_type == SSL_ID_HANDSHAKE
         && ssl_is_valid_handshake_type(next_byte))
@@ -3739,7 +3717,7 @@ ssl_is_authoritative_version_message(guint8 content_type,
 }
 
 static gint
-ssl_is_v2_client_hello(tvbuff_t *tvb, guint32 offset)
+ssl_is_v2_client_hello(tvbuff_t *tvb, const guint32 offset)
 {
     guint8 byte;
 
@@ -3765,7 +3743,7 @@ ssl_is_v2_client_hello(tvbuff_t *tvb, guint32 offset)
  * but we'll try to do a reasonable job anyway.
  */
 static gint
-ssl_looks_like_sslv2(tvbuff_t *tvb, guint32 offset)
+ssl_looks_like_sslv2(tvbuff_t *tvb, const guint32 offset)
 {
     /* here's the current approach:
      *
@@ -3807,7 +3785,7 @@ ssl_looks_like_sslv2(tvbuff_t *tvb, guint32 offset)
  * than sslv2 due to the structure of the v3 protocol
  */
 static gint
-ssl_looks_like_sslv3(tvbuff_t *tvb, guint32 offset)
+ssl_looks_like_sslv3(tvbuff_t *tvb, const guint32 offset)
 {
     /* have to have a valid content type followed by a valid
      * protocol version
@@ -3842,8 +3820,8 @@ ssl_looks_like_sslv3(tvbuff_t *tvb, guint32 offset)
  * we try to help the odds.
  */
 static gint
-ssl_looks_like_valid_v2_handshake(tvbuff_t *tvb, guint32 offset,
-                                  guint32 record_length)
+ssl_looks_like_valid_v2_handshake(tvbuff_t *tvb, const guint32 offset,
+                                  const guint32 record_length)
 {
     /* first byte should be a msg_type.
      *
@@ -3903,8 +3881,8 @@ ssl_looks_like_valid_v2_handshake(tvbuff_t *tvb, guint32 offset,
  * we try to help the odds.
  */
 static gint
-ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, guint32 offset,
-                   guint32 record_length)
+ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, const guint32 offset,
+                   const guint32 record_length)
 {
     /* first byte should be a msg_type.
      *
