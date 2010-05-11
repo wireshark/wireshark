@@ -95,6 +95,8 @@ static gboolean pref_heuristic_udp_save = FALSE;
 static range_t *global_xml_tcp_range = NULL;
 static range_t *xml_tcp_range = NULL;
 
+static gboolean pref_heuristic_unicode = FALSE;
+
 #define XML_CDATA -1000
 #define XML_SCOPED_NAME -1001
 
@@ -226,13 +228,20 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-	if ( (pref_heuristic_media || pref_heuristic_tcp || pref_heuristic_udp)
-	     && tvbparse_peek(tvbparse_init(tvb,0,-1,NULL,want_ignore), want_heur)) {
-		dissect_xml(tvb, pinfo, tree);
-		return TRUE;
-	} else {
-		return FALSE;
+	if (pref_heuristic_media || pref_heuristic_tcp || pref_heuristic_udp) {
+		if (tvbparse_peek(tvbparse_init(tvb,0,-1,NULL,want_ignore), want_heur)) {
+			dissect_xml(tvb, pinfo, tree);
+			return TRUE;
+		} else if (pref_heuristic_unicode) {
+			const guint8 *data = tvb_get_ephemeral_faked_unicode(tvb, 0, tvb_length(tvb)/2, TRUE);
+			tvbuff_t *unicode_tvb = tvb_new_real_data(data, tvb_length(tvb)/2, tvb_length(tvb)/2);
+			if (tvbparse_peek(tvbparse_init(unicode_tvb,0,-1,NULL,want_ignore), want_heur)) {
+				dissect_xml(unicode_tvb, pinfo, tree);
+				return TRUE;
+			}
+		}
 	}
+	return FALSE;
 }
 
 xml_frame_t *xml_get_tag(xml_frame_t *frame, const gchar *name) {
@@ -1375,7 +1384,7 @@ proto_register_xml(void) {
 	prefs_register_bool_preference(xml_module, "heuristic", "Use Heuristics for media types",
                                    "Try to recognize XML for unknown media types",
                                    &pref_heuristic_media);
-	prefs_register_bool_preference(xml_module, "heuristic_tcp", "Use Heuristics for tcp",
+	prefs_register_bool_preference(xml_module, "heuristic_tcp", "Use Heuristics for TCP",
                                    "Try to recognize XML for unknown TCP ports",
                                    &pref_heuristic_tcp);
 	prefs_register_range_preference(xml_module, "tcp.port", "TCP Ports",
@@ -1384,7 +1393,10 @@ proto_register_xml(void) {
 	prefs_register_bool_preference(xml_module, "heuristic_udp", "Use Heuristics for UDP",
                                    "Try to recognize XML for unknown UDP ports",
                                    &pref_heuristic_udp);
-	
+	prefs_register_bool_preference(xml_module, "heuristic_unicode", "Use Unicode in heuristics",
+                                   "Try to recognize XML encoded in Unicode (UCS-2)",
+                                   &pref_heuristic_unicode);
+
 	g_array_free(hf_arr,FALSE);
 	g_array_free(ett_arr,TRUE);
 
