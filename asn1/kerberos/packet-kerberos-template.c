@@ -843,11 +843,15 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 /* preauthentication types >127 (i.e. negative ones) are app specific.
    Hopefully there will be no collisions here or we will have to
    come up with something better.
-   Note: These values are compared against 32-bit values in the code.
+   XXX: Although KRB5_PA_PAC_REQUEST is " >127 " and thus presumably
+         would be encoded as a negative number, various captures seen all
+         have this pa-data-type encoded as a positive number (0x0080).
+         We'll assume that KRB5_PA_S4U2SELF is also encoded as a positive number.
 */
-#define KRB5_PA_PAC_REQUEST         -128  /* = 0xFFFFFF80 = (gint32)((gint8)0x80) MS extension */
-#define KRB5_PA_S4U2SELF            -127  /* = 0xFFFFFF81 = (gint32)((gint8)0x81) Impersonation (Microsoft extension) */
-#define KRB5_PA_PROV_SRV_LOCATION   -1    /* = 0xFFFFFFFF = (gint32)((gint8)0xFF) packetcable stuff */
+#define KRB5_PA_PAC_REQUEST              128    /* (Microsoft extension) */
+#define KRB5_PA_S4U2SELF                 129    /* Impersonation (Microsoft extension) */
+
+#define KRB5_PA_PROV_SRV_LOCATION 0xffffffff    /* (gint32)0xFF) packetcable stuff */
 
 /* Principal name-type */
 #define KRB5_NT_UNKNOWN        0
