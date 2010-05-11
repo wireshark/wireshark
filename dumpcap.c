@@ -1686,6 +1686,10 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
      the error buffer, and check if it's still a null string.  */
   open_err_str[0] = '\0';
 #ifdef HAVE_PCAP_OPEN
+  /*
+   * If we're opening a remote device, use pcap_open(); that's currently
+   * the only open routine that supports remote devices.
+   */
   if (strncmp (capture_opts->iface, "rpcap://", 8) == 0) {
     auth.type = capture_opts->auth_type == CAPTURE_AUTH_PWD ?
       RPCAP_RMTAUTH_PWD : RPCAP_RMTAUTH_NULL;
@@ -1701,8 +1705,14 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                  (capture_opts->nocap_rpcap ? PCAP_OPENFLAG_NOCAPTURE_RPCAP : 0),
                  CAP_READ_TIMEOUT, &auth, open_err_str);
   } else
-#elif defined(HAVE_PCAP_CREATE)
+#endif /* HAVE_PCAP_OPEN */
   {
+    /*
+     * If we're not opening a remote device, use pcap_create() and
+     * pcap_activate() if we have them, so that we can set the buffer
+     * size, otherwise use pcap_open_live().
+     */
+#ifdef HAVE_PCAP_CREATE
     ld->pcap_h = pcap_create(capture_opts->iface, open_err_str);
     if (ld->pcap_h != NULL) {
       pcap_set_snaplen(ld->pcap_h, capture_opts->has_snaplen ? capture_opts->snaplen : WTAP_MAX_PACKET_SIZE);
@@ -1720,20 +1730,20 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
         ld->pcap_h = NULL;
       }
     }
-  }
 #else
-  ld->pcap_h = pcap_open_live(capture_opts->iface,
-                              capture_opts->has_snaplen ? capture_opts->snaplen :
-                                                          WTAP_MAX_PACKET_SIZE,
-                              capture_opts->promisc_mode, CAP_READ_TIMEOUT,
-                              open_err_str);
+    ld->pcap_h = pcap_open_live(capture_opts->iface,
+                                capture_opts->has_snaplen ? capture_opts->snaplen :
+                                                            WTAP_MAX_PACKET_SIZE,
+                                capture_opts->promisc_mode, CAP_READ_TIMEOUT,
+                                open_err_str);
 #endif
+  }
 
-/* If not using libcap: we now can now set euid/egid to ruid/rgid         */
-/*  to remove any suid privileges.                                        */
-/* If using libcap: we can now remove NET_RAW and NET_ADMIN capabilities  */
-/*  (euid/egid have already previously been set to ruid/rgid.             */
-/* (See comment in main() for details)                                    */
+  /* If not using libcap: we now can now set euid/egid to ruid/rgid         */
+  /*  to remove any suid privileges.                                        */
+  /* If using libcap: we can now remove NET_RAW and NET_ADMIN capabilities  */
+  /*  (euid/egid have already previously been set to ruid/rgid.             */
+  /* (See comment in main() for details)                                    */
 #ifndef HAVE_LIBCAP
   relinquish_special_privs_perm();
 #else
