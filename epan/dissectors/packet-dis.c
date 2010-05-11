@@ -65,6 +65,18 @@ int hf_dis_entity_id_site = -1;
 int hf_dis_entity_id_application = -1;
 int hf_dis_entity_id_entity = -1;
 int hf_dis_num_art_params = -1;
+int hf_dis_entityKind = -1;
+int hf_dis_entityDomain = -1;
+int hf_dis_category_land = -1;
+int hf_dis_category_air = -1;
+int hf_dis_category_surface = -1;
+int hf_dis_category_subsurface = -1;
+int hf_dis_category_space = -1;
+int hf_dis_category_radio = -1;
+int hf_dis_num_electromagnetic_emission_systems = -1;
+int hf_dis_emitter_name = -1;
+int hf_dis_emission_function = -1;
+int hf_dis_beam_function = -1;
 int hf_dis_radio_id = -1;
 int hf_dis_ens = -1;
 int hf_dis_ens_class = -1;
@@ -277,6 +289,11 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             pduParser = DIS_PARSER_ENTITY_STATE_PDU;
             break;
 
+        /* DIS Distributed Emission Regeneration PDUs */
+        case DIS_PDUTYPE_ELECTROMAGNETIC_EMISSION:
+            pduParser = DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU;
+            break;
+
         /* DIS Radio Communications protocol (RCP) family PDUs */
         case DIS_PDUTYPE_TRANSMITTER:
             pduParser = DIS_PARSER_TRANSMITTER_PDU;
@@ -484,6 +501,66 @@ void proto_register_dis(void)
             },
             { &hf_dis_num_art_params,
               { "Number of Articulation Parameters",  "dis.num_articulation_params",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_entityKind,
+              { "Kind",       "dis.entityKind",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_EntityKind_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_entityDomain,
+              { "Domain",       "dis.entityDomain",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_Domain_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_category_land,
+              { "Category / Land",       "dis.category.land",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_Category_LandPlatform_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_category_air,
+              { "Category / Air",       "dis.category.air",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_Category_AirPlatform_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_category_surface,
+              { "Category / Surface",       "dis.category.surface",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_Category_SurfacePlatform_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_category_subsurface,
+              { "Category / Subsurface",       "dis.category.subsurface",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_Category_SubsurfacePlatform_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_category_space,
+              { "Category / Space",       "dis.category.space",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_Category_SpacePlatform_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_category_radio,
+              { "Category / Radio",       "dis.category.radio",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_RadioCategory_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_emitter_name,
+              { "Emitter Name", "dis.electromagnetic.emitter.name",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_EmitterName_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_emission_function,
+              { "Emission Function", "dis.electromagnetic.emission.function",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_EmissionFunction_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_beam_function,
+              { "Beam Function", "dis.electromagnetic.emission.beam.function",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_BeamFunction_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_num_electromagnetic_emission_systems,
+              { "Number of Electromagnetic Emission Systems",  "dis.electromagnetic.num_emission_systems",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },

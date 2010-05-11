@@ -37,6 +37,9 @@ extern DIS_ParserNode DIS_PARSER_ENTITY_STATE_PDU[];
 extern DIS_ParserNode DIS_PARSER_FIRE_PDU[];
 extern DIS_ParserNode DIS_PARSER_DETONATION_PDU[];
 
+/* DIS Distributed Emission Regeneration PDUs */
+extern DIS_ParserNode DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU[];
+
 /* DIS Radio Communications protocol (RCP) family PDUs */
 extern DIS_ParserNode DIS_PARSER_TRANSMITTER_PDU[];
 extern DIS_ParserNode DIS_PARSER_SIGNAL_PDU[];

@@ -35,6 +35,7 @@
 
 #define DIS_PDU_MAX_VARIABLE_PARAMETERS 16
 #define DIS_PDU_MAX_VARIABLE_RECORDS 16
+#define DIS_PDU_MAX_ELECTROMAGNETIC_EMISSION_SYSTEMS 16
 
 
 gint ettVariableParameters[DIS_PDU_MAX_VARIABLE_PARAMETERS];
@@ -60,6 +61,19 @@ DIS_ParserNode DIS_PARSER_ENTITY_STATE_PDU[] =
     { DIS_FIELDTYPE_ENTITY_MARKING,          "Entity Marking",0,0,0,0 },
     { DIS_FIELDTYPE_CAPABILITIES,            "Capabilities",0,0,0,0 },
     { DIS_FIELDTYPE_VARIABLE_PARAMETERS,     "Variable Parameter",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
+};
+
+/* DIS Distributed Emission Regeneration PDUs
+ */
+DIS_ParserNode DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU[] =
+{
+    { DIS_FIELDTYPE_ENTITY_ID,               "Emitting Entity ID",0,0,0,0 },
+    { DIS_FIELDTYPE_ENTITY_ID,               "Event ID",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT8,                   "State Update Indicator",0,0,0,0 },
+    { DIS_FIELDTYPE_NUM_ELECTROMAGNETIC_EMISSION_SYSTEMS, "Number of Systems (N)",0,0,0,&numVariable },
+    { DIS_FIELDTYPE_PAD16,                   "Padding",0,0,0,0 },
+    { DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM, "Emission System",0,0,0,0 },
     { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
 };
 
@@ -427,6 +441,9 @@ void initializeParsers(void)
     /* DIS Entity Information / Interaction PDUs */
     initializeParser(DIS_PARSER_ENTITY_STATE_PDU);
 
+    /* DIS Distributed Emission Regeneration PDUs */
+    initializeParser(DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU);
+
     /* DIS Radio Communications protocol (RCP) family PDUs */
     initializeParser(DIS_PARSER_TRANSMITTER_PDU);
     initializeParser(DIS_PARSER_SIGNAL_PDU);
@@ -604,7 +621,31 @@ void initializeParser(DIS_ParserNode parserNodes[])
                 DIS_FIELDS_MODULATION_TYPE,
                 &parserNodes[parserIndex].ettVar);
             break;
-
+        case DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM:
+            parserNodes[parserIndex].children = createSubtree(
+                DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM,
+                &parserNodes[parserIndex].ettVar);
+            break;
+        case DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM:
+            parserNodes[parserIndex].children = createSubtree(
+                DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM,
+                &parserNodes[parserIndex].ettVar);
+            break;
+        case DIS_FIELDTYPE_EMITTER_SYSTEM:
+            parserNodes[parserIndex].children = createSubtree(
+                DIS_FIELDS_EMITTER_SYSTEM,
+                &parserNodes[parserIndex].ettVar);
+            break;
+        case DIS_FIELDTYPE_FUNDAMENTAL_PARAMETER_DATA:
+            parserNodes[parserIndex].children = createSubtree(
+                DIS_FIELDS_FUNDAMENTAL_PARAMETER_DATA,
+                &parserNodes[parserIndex].ettVar);
+            break;
+        case DIS_FIELDTYPE_TRACK_JAM:
+            parserNodes[parserIndex].children = createSubtree(
+                DIS_FIELDS_TRACK_JAM,
+                &parserNodes[parserIndex].ettVar);
+            break;
         /* Array records */
         case DIS_FIELDTYPE_FIXED_DATUMS:
             parserNodes[parserIndex].children = createSubtree(
@@ -978,6 +1019,8 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
         case DIS_FIELDTYPE_REQUIRED_RELIABILITY_SERVICE:
         case DIS_FIELDTYPE_PERSISTENT_OBJECT_CLASS:
         case DIS_FIELDTYPE_PERSISTENT_OBJECT_TYPE:
+        case DIS_FIELDTYPE_EMISSION_FUNCTION:
+        case DIS_FIELDTYPE_BEAM_FUNCTION:
             offset = parseField_Enum(tvb, tree, offset,
                 parserNodes[fieldIndex], 1);
             break;
@@ -988,6 +1031,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
         case DIS_FIELDTYPE_APPLICATION_TYPE:
         case DIS_FIELDTYPE_RESPONSE_FLAG:
         case DIS_FIELDTYPE_MODULATION_DETAIL:
+        case DIS_FIELDTYPE_EMITTER_NAME:
             offset = parseField_Enum(tvb, tree, offset,
                 parserNodes[fieldIndex], 2);
             break;
@@ -1110,6 +1154,8 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
         case DIS_FIELDTYPE_VECTOR_32:
         case DIS_FIELDTYPE_VECTOR_64:
         case DIS_FIELDTYPE_MODULATION_TYPE:
+        case DIS_FIELDTYPE_EMITTER_SYSTEM:
+        case DIS_FIELDTYPE_FUNDAMENTAL_PARAMETER_DATA:
             newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
                 parserNodes[fieldIndex].fieldLabel);
             if (parserNodes[fieldIndex].children != 0)
@@ -1300,6 +1346,77 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                         THROW(ReportedBoundsError);
                         break;
                     }
+                }
+            }
+            break;
+        case DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM:
+            {
+                guint i;
+
+                for (i = 0; i < numBeams; ++i)
+                {
+                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+                        parserNodes[fieldIndex].fieldLabel);
+                    if (parserNodes[fieldIndex].children != 0)
+                    {
+                        proto_item *newSubtree =
+                            proto_item_add_subtree(newField,
+                            parserNodes[fieldIndex].ettVar);
+                        offset = parseFields(tvb, newSubtree, offset,
+                            parserNodes[fieldIndex].children);
+                    }
+                    proto_item_set_end(newField, tvb, offset);
+                }
+            }
+            break;
+        case DIS_FIELDTYPE_TRACK_JAM:
+            {
+                guint i;
+
+                for (i = 0; i < numTrackJamTargets; ++i)
+                {
+                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+                        parserNodes[fieldIndex].fieldLabel);
+                    if (parserNodes[fieldIndex].children != 0)
+                    {
+                        proto_item *newSubtree =
+                            proto_item_add_subtree(newField,
+                            parserNodes[fieldIndex].ettVar);
+                        offset = parseFields(tvb, newSubtree, offset,
+                            parserNodes[fieldIndex].children);
+                    }
+                    proto_item_set_end(newField, tvb, offset);
+                }
+            }
+            break;
+        case DIS_FIELDTYPE_NUM_ELECTROMAGNETIC_EMISSION_SYSTEMS:
+            uintVal = tvb_get_guint8(tvb, offset);
+            pi = proto_tree_add_item(tree, hf_dis_num_electromagnetic_emission_systems, tvb, offset, 1, FALSE);
+            offset += 1;
+            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
+            break;
+        case DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM:
+            {
+                guint i;
+
+                if (numVariable > DIS_PDU_MAX_ELECTROMAGNETIC_EMISSION_SYSTEMS)
+                {
+                    numVariable = DIS_PDU_MAX_ELECTROMAGNETIC_EMISSION_SYSTEMS;
+                }
+
+                for (i = 0; i < numVariable; ++i)
+                {
+                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+                        parserNodes[fieldIndex].fieldLabel);
+                    if (parserNodes[fieldIndex].children != 0)
+                    {
+                        proto_item *newSubtree =
+                            proto_item_add_subtree(newField,
+                            parserNodes[fieldIndex].ettVar);
+                        offset = parseFields(tvb, newSubtree, offset,
+                            parserNodes[fieldIndex].children);
+                    }
+                    proto_item_set_end(newField, tvb, offset);
                 }
             }
             break;

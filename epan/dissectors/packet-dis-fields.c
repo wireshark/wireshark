@@ -41,12 +41,15 @@ guint32 protocolFamily;
 guint32 persistentObjectPduType;
 guint32 entityKind;
 guint32 entityDomain;
+guint32 category;
 guint32 radioID;
 guint32 disRadioTransmitState;
 guint32 encodingScheme;
 guint32 numSamples;
 guint32 numFixed;
 guint32 numVariable;
+guint32 numBeams;
+guint32 numTrackJamTargets;
 guint32 variableDatumLength;
 guint32 variableParameterType;
 guint32 variableRecordLength;
@@ -114,7 +117,7 @@ DIS_ParserNode DIS_FIELDS_ENTITY_TYPE[] =
     { DIS_FIELDTYPE_ENTITY_KIND, "Entity Kind",0,0,0,&entityKind },
     { DIS_FIELDTYPE_DOMAIN,      "Domain",0,0,0,&entityDomain },
     { DIS_FIELDTYPE_COUNTRY,     "Country",0,0,0,0 },
-    { DIS_FIELDTYPE_CATEGORY,    "Category",0,0,0,0 },
+    { DIS_FIELDTYPE_CATEGORY,    "Category",0,0,0,&category },
     { DIS_FIELDTYPE_SUBCATEGORY, "Subcategory",0,0,0,0 },
     { DIS_FIELDTYPE_SPECIFIC,    "Specific",0,0,0,0 },
     { DIS_FIELDTYPE_EXTRA,       "Extra",0,0,0,0 },
@@ -126,7 +129,7 @@ DIS_ParserNode DIS_FIELDS_RADIO_ENTITY_TYPE[] =
     { DIS_FIELDTYPE_ENTITY_KIND,          "Entity Kind",0,0,0,&entityKind },
     { DIS_FIELDTYPE_DOMAIN,               "Domain",0,0,0,&entityDomain },
     { DIS_FIELDTYPE_COUNTRY,              "Country",0,0,0,0 },
-    { DIS_FIELDTYPE_RADIO_CATEGORY,       "Radio Category",0,0,0,0 },
+    { DIS_FIELDTYPE_RADIO_CATEGORY,       "Radio Category",0,0,0,&category },
     { DIS_FIELDTYPE_NOMENCLATURE_VERSION, "Nomenclature Version",0,0,0,0 },
     { DIS_FIELDTYPE_NOMENCLATURE,         "Nomenclature",0,0,0,0 },
     { DIS_FIELDTYPE_END,                  NULL,0,0,0,0 }
@@ -227,6 +230,39 @@ DIS_ParserNode DIS_FIELDS_DATUM_IDS[] =
     { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
 };
 
+DIS_ParserNode DIS_FIELDS_EMITTER_SYSTEM[] =
+{
+    { DIS_FIELDTYPE_EMITTER_NAME,            "Emitter Name",0,0,0,0 },
+    { DIS_FIELDTYPE_EMISSION_FUNCTION,       "Function",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT8,                   "Emitter ID Number",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_FUNDAMENTAL_PARAMETER_DATA[] =
+{
+    { DIS_FIELDTYPE_FLOAT32,            "Frequency",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT32,            "Frequency Range",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT32,            "Effective Radiated Power",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT32,            "Pulse Repetition Frequency",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT32,            "Pulse Width",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT32,            "Beam Azimuth Center",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT32,            "Beam Azimuth Sweep",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT32,            "Beam Elevation Center",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT32,            "Beam Elevation Sweep",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT32,            "Beam Sweep Sync",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_TRACK_JAM[] =
+{
+    { DIS_FIELDTYPE_SITE,               "Site",0,0,0,0 },
+    { DIS_FIELDTYPE_APPLICATION,        "Application",0,0,0,0 },
+    { DIS_FIELDTYPE_ENTITY,             "Entity",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT8,              "Emitter ID",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT8,              "Beam ID",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                NULL,0,0,0,0 }
+};
+
 /* Variable Parameters
  */
 DIS_ParserNode DIS_FIELDS_VP_TYPE[] =
@@ -307,6 +343,33 @@ DIS_ParserNode DIS_FIELDS_VR_DATA_QUERY[] =
     { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
 };
 
+DIS_ParserNode DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM[] =
+{
+    { DIS_FIELDTYPE_UINT8,                  "Beam Data Length",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT8,                  "Beam ID Number",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT16,                 "Beam Parameter Index",0,0,0,0 },
+    { DIS_FIELDTYPE_FUNDAMENTAL_PARAMETER_DATA,
+                                       "Fundamental Parameter Data",0,0,0,0 },
+    { DIS_FIELDTYPE_BEAM_FUNCTION,          "Beam Function",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT8,   "Number of Targets in Track/Jam Field",0,0,0,&numTrackJamTargets },
+    { DIS_FIELDTYPE_UINT8,                  "High Density Track/Jam",0,0,0,0 },
+    { DIS_FIELDTYPE_PAD8,                   "Padding",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT32,                 "Jamming Mode Sequence",0,0,0,0 },
+    { DIS_FIELDTYPE_TRACK_JAM,              "Track/Jam Entity",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM[] =
+{
+    { DIS_FIELDTYPE_UINT8,                  "System Data Length",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT8,                  "Number of Beams (M)",0,0,0,&numBeams },
+    { DIS_FIELDTYPE_PAD16,                  "Padding",0,0,0,0 },
+    { DIS_FIELDTYPE_EMITTER_SYSTEM,         "Emitter System",0,0,0,0 },
+    { DIS_FIELDTYPE_VECTOR_32,              "Location",0,0,0,0 },
+    { DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM, "Beam",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                    NULL,0,0,0,0 }
+};
+
 /* Bit fields
  */
 DIS_ParserNode DIS_FIELDS_NONE[] =
@@ -376,6 +439,8 @@ void initializeFieldParsers()
     initializeParser(DIS_FIELDS_VR_APPLICATION_HEALTH_STATUS);
     initializeParser(DIS_FIELDS_VR_APPLICATION_INITIALIZATION);
     initializeParser(DIS_FIELDS_VR_DATA_QUERY);
+    initializeParser(DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM);
+    initializeParser(DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM);
     initializeParser(DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS);
     initializeParser(DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS);
 
@@ -618,9 +683,11 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
         break;
     case DIS_FIELDTYPE_ENTITY_KIND:
         enumStrings = DIS_PDU_EntityKind_Strings;
+        dis_hf_id = hf_dis_entityKind;
         break;
     case DIS_FIELDTYPE_DOMAIN:
         enumStrings = DIS_PDU_Domain_Strings;
+        dis_hf_id = hf_dis_entityDomain;
         break;
     case DIS_FIELDTYPE_DETONATION_RESULT:
         enumStrings = DIS_PDU_DetonationResult_Strings;
@@ -630,6 +697,7 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
         break;
     case DIS_FIELDTYPE_RADIO_CATEGORY:
         enumStrings = DIS_PDU_RadioCategory_Strings;
+        dis_hf_id = hf_dis_category_radio;
         break;
     case DIS_FIELDTYPE_NOMENCLATURE_VERSION:
         enumStrings = DIS_PDU_NomenclatureVersion_Strings;
@@ -644,24 +712,41 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
             {
             case DIS_DOMAIN_LAND:
                 enumStrings = DIS_PDU_Category_LandPlatform_Strings;
+                dis_hf_id = hf_dis_category_land;
                 break;
             case DIS_DOMAIN_AIR:
                 enumStrings = DIS_PDU_Category_AirPlatform_Strings;
+                dis_hf_id = hf_dis_category_air;
                 break;
             case DIS_DOMAIN_SURFACE:
                 enumStrings = DIS_PDU_Category_SurfacePlatform_Strings;
+                dis_hf_id = hf_dis_category_surface;
                 break;
             case DIS_DOMAIN_SUBSURFACE:
                 enumStrings = DIS_PDU_Category_SubsurfacePlatform_Strings;
+                dis_hf_id = hf_dis_category_subsurface;
                 break;
             case DIS_DOMAIN_SPACE:
                 enumStrings = DIS_PDU_Category_SpacePlatform_Strings;
+                dis_hf_id = hf_dis_category_space;
                 break;
             default:
                 enumStrings = 0;
                 break;
             }
         }
+        break;
+    case DIS_FIELDTYPE_EMITTER_NAME:
+        enumStrings = DIS_PDU_EmitterName_Strings;
+        dis_hf_id = hf_dis_emitter_name;
+        break;
+    case DIS_FIELDTYPE_EMISSION_FUNCTION:
+        enumStrings = DIS_PDU_EmissionFunction_Strings;
+        dis_hf_id = hf_dis_emission_function;
+        break;
+    case DIS_FIELDTYPE_BEAM_FUNCTION:
+        enumStrings = DIS_PDU_BeamFunction_Strings;
+        dis_hf_id = hf_dis_beam_function;
         break;
     case DIS_FIELDTYPE_PARAMETER_TYPE_DESIGNATOR:
         enumStrings = DIS_PDU_ParameterTypeDesignator_Strings;
@@ -732,17 +817,10 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
         break;
     }
 
-    if (enumStrings != 0)
-    {
-        enumStr = val_to_str(enumVal, enumStrings, "Unknown Enum Value (%d)");
-    }
-    else
-    {
-        enumStr = "Unknown Enum Type";
-    }
+    enumStr = val_to_str(enumVal, enumStrings, "Unknown Enumeration (%d)");
 
     if (dis_hf_id != -1) {
-       pi = proto_tree_add_item(tree, dis_hf_id, tvb, offset, 1, FALSE);
+       pi = proto_tree_add_item(tree, dis_hf_id, tvb, offset, numBytes, FALSE);
 /*       proto_item_set_text(pi, "%s = %s", parserNode.fieldLabel, enumStr); */
     }
     else
@@ -912,6 +990,7 @@ gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offset)
         break;
     default:
         {
+
             guint32 dataLength = variableRecordLength - 6;
 
             if (dataLength > 0)
@@ -942,3 +1021,24 @@ gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
     return offset;
 }
+
+/* Parse a variable electromagnetic emission system beam.
+ */
+gint parseField_ElectromagneticEmissionSystemBeam(
+    tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    DIS_ParserNode *paramParser = 0;
+
+    /* Determine the parser to use based on the PDU type */
+    if (pduType == DIS_PDUTYPE_ELECTROMAGNETIC_EMISSION)
+        paramParser = DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM;
+
+    /* Parse the variable parameter fields */
+    if (paramParser)
+    {
+        offset = parseFields(tvb, tree, offset, paramParser);
+    }
+
+    return offset;
+}
+

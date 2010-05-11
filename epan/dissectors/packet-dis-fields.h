@@ -38,6 +38,18 @@ extern int hf_dis_entity_id_site;
 extern int hf_dis_entity_id_application;
 extern int hf_dis_entity_id_entity;
 extern int hf_dis_num_art_params;
+extern int hf_dis_entityKind;
+extern int hf_dis_entityDomain;
+extern int hf_dis_category_land;
+extern int hf_dis_category_air;
+extern int hf_dis_category_surface;
+extern int hf_dis_category_subsurface;
+extern int hf_dis_category_space;
+extern int hf_dis_category_radio;
+extern int hf_dis_num_electromagnetic_emission_systems;
+extern int hf_dis_emitter_name;
+extern int hf_dis_emission_function;
+extern int hf_dis_beam_function;
 extern int hf_dis_radio_id;
 extern int hf_dis_ens;
 extern int hf_dis_ens_class;
@@ -145,6 +157,9 @@ typedef enum
     DIS_FIELDTYPE_MODULATION_DETAIL,
     DIS_FIELDTYPE_MODULATION_SYSTEM,
     DIS_FIELDTYPE_CRYPTO_SYSTEM,
+    DIS_FIELDTYPE_EMITTER_NAME,
+    DIS_FIELDTYPE_EMISSION_FUNCTION,
+    DIS_FIELDTYPE_BEAM_FUNCTION,
     
     /* other atomic types */
     DIS_FIELDTYPE_PDU_LENGTH,
@@ -196,6 +211,7 @@ typedef enum
     DIS_FIELDTYPE_TRANSMITTER_SECONDARY_MODE,
     DIS_FIELDTYPE_JTIDS_SYNC_STATE,
     DIS_FIELDTYPE_NETWORK_SYNC_ID,
+    DIS_FIELDTYPE_NUM_ELECTROMAGNETIC_EMISSION_SYSTEMS,
 
         /* composite types */
     DIS_FIELDTYPE_BURST_DESCRIPTOR,
@@ -221,6 +237,11 @@ typedef enum
     DIS_FIELDTYPE_ANTENNA_PATTERN_PARAMETERS,
     DIS_FIELDTYPE_MOD_PARAMS_CCTT_SINCGARS,
     DIS_FIELDTYPE_MOD_PARAMS_JTIDS_MIDS,
+    DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM,
+    DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM,
+    DIS_FIELDTYPE_EMITTER_SYSTEM,
+    DIS_FIELDTYPE_FUNDAMENTAL_PARAMETER_DATA,
+    DIS_FIELDTYPE_TRACK_JAM,
     
     /* arrays */
     DIS_FIELDTYPE_FIXED_DATUMS,
@@ -282,6 +303,9 @@ extern DIS_ParserNode DIS_FIELDS_VECTOR_FLOAT_32[];
 extern DIS_ParserNode DIS_FIELDS_VECTOR_FLOAT_64[];
 extern DIS_ParserNode DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS[];
 extern DIS_ParserNode DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS[];
+extern DIS_ParserNode DIS_FIELDS_EMITTER_SYSTEM[];
+extern DIS_ParserNode DIS_FIELDS_FUNDAMENTAL_PARAMETER_DATA[];
+extern DIS_ParserNode DIS_FIELDS_TRACK_JAM[];
 
 /* Array records */
 extern DIS_ParserNode DIS_FIELDS_FIXED_DATUM[];
@@ -289,6 +313,8 @@ extern DIS_ParserNode DIS_FIELDS_VARIABLE_DATUM[];
 extern DIS_ParserNode DIS_FIELDS_DATUM_IDS[];
 extern DIS_ParserNode DIS_FIELDS_VP_TYPE[];
 extern DIS_ParserNode DIS_FIELDS_VR_TYPE[];
+extern DIS_ParserNode DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM[];
+extern DIS_ParserNode DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM[];
 
 /* Bit fields */
 extern DIS_ParserNode DIS_FIELDS_NONE[];
@@ -319,6 +345,8 @@ extern gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint o
 
 extern gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offset);
 
+extern gint parseField_ElectromagneticEmissionSystemBeam(tvbuff_t *tvb, proto_tree *tree, gint offset);
+
 extern guint32 disProtocolVersion;
 extern guint32 pduType;
 extern guint32 protocolFamily;
@@ -331,6 +359,8 @@ extern guint32 encodingScheme;
 extern guint32 numSamples;
 extern guint32 numFixed;
 extern guint32 numVariable;
+extern guint32 numBeams;
+extern guint32 numTrackJamTargets;
 extern guint32 variableDatumLength;
 extern guint32 variableRecordLength;
 extern guint32 majorModulation;

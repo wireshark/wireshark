@@ -3026,6 +3026,10 @@ David Bond		<mokon [AT] mokon.net> {
 	TRILL (TRansparent Interconnection of Lots of Links) dissector
 }
 
+Paul J. Metzger		<pjm [AT] ll.mit.edu> {
+	Add support for decoding DIS Electromagnetic Emission packets
+}
+
 
 and by:
 
