@@ -607,6 +607,10 @@ typedef struct pipe_input_tag {
     int                 *child_process;
     pipe_input_cb_t     input_cb;
     guint               pipe_input_id;
+#ifdef _WIN32
+#else
+    GIOChannel          *channel;
+#endif    
 } pipe_input_t;
 
 
@@ -687,25 +691,26 @@ pipe_timer_cb(gpointer data)
 /* There's stuff to read from the sync pipe, meaning the child has sent
    us a message, or the sync pipe has closed, meaning the child has
    closed it (perhaps because it exited). */
-static void
-pipe_input_cb(gpointer data, gint source _U_,
-  GdkInputCondition condition _U_)
+static gboolean
+pipe_input_cb(GIOChannel *source _U_, GIOCondition condition _U_,
+               gpointer data)
 {
   pipe_input_t *pipe_input = data;
 
 
   /* avoid reentrancy problems and stack overflow */
-  gtk_input_remove(pipe_input->pipe_input_id);
+  g_source_remove(pipe_input->pipe_input_id);
 
-  if (pipe_input->input_cb(source, pipe_input->user_data)) {
+  if (pipe_input->input_cb(pipe_input->source, pipe_input->user_data)) {
     /* restore pipe handler */
-    pipe_input->pipe_input_id = gtk_input_add_full (source,
-				     GDK_INPUT_READ|GDK_INPUT_EXCEPTION,
+    pipe_input->pipe_input_id = g_io_add_watch_full (pipe_input->channel,
+				     G_PRIORITY_HIGH,
+				     G_IO_IN|G_IO_ERR|G_IO_HUP,
 				     pipe_input_cb,
-				     NULL,
-				     data,
+				     pipe_input,
 				     NULL);
   }
+  return TRUE;
 }
 #endif
 
@@ -727,10 +732,12 @@ void pipe_input_set_handler(gint source, gpointer user_data, int *child_process,
 	/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_input_set_handler: new");*/
     pipe_input.pipe_input_id = g_timeout_add(200, pipe_timer_cb, &pipe_input);
 #else
-    pipe_input.pipe_input_id = gtk_input_add_full(source,
-				      GDK_INPUT_READ|GDK_INPUT_EXCEPTION,
+    pipe_input.channel = g_io_channel_unix_new(source);
+    g_io_channel_set_encoding(pipe_input.channel, NULL, NULL);
+    pipe_input.pipe_input_id = g_io_add_watch_full(pipe_input.channel,
+                                      G_PRIORITY_HIGH,
+				      G_IO_IN|G_IO_ERR|G_IO_HUP,
 				      pipe_input_cb,
-				      NULL,
 				      &pipe_input,
 				      NULL);
 #endif
