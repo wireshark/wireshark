@@ -91,14 +91,17 @@ filter_reset_cb(GtkWidget *w, gpointer data _U_)
   main_filter_packets(&cfile, NULL, FALSE);
 }
 
-/*#define NEW_FILTER_COMBO_BOX 1*/
+/* #define NEW_FILTER_COMBO_BOX 1 */
 
 GtkWidget *filter_toolbar_new()
 {
     GtkWidget     *filter_cm;
 	GtkWidget     *filter_te;
     GtkWidget     *filter_tb;
+#ifdef NEW_FILTER_COMBO_BOX
+#else
     GList         *dfilter_list = NULL;
+#endif
     GtkTooltips   *tooltips;
     GtkToolItem   *filter_bt, *filter_add_expr_bt, *filter_reset;
     GtkToolItem   *filter_apply, *item;
@@ -291,12 +294,14 @@ dfilter_entry_match(gconstpointer a, gconstpointer b)
 
     return strcmp(s1, s2);
 }
+
+#ifdef NEW_FILTER_COMBO_BOX
 static gboolean
 dfilter_entry_match_new(GtkWidget *filter_cm, char *s)
 {
 	GtkTreeModel *model = gtk_combo_box_get_model (GTK_COMBO_BOX(filter_cm));
 	GtkTreeIter   iter;
-	GValue value = { 0, };
+	GValue value;
 	const char *filter_str;
 
 	if (!gtk_tree_model_get_iter_first (model, &iter))
@@ -314,6 +319,7 @@ dfilter_entry_match_new(GtkWidget *filter_cm, char *s)
 
 	return FALSE;
 }
+#endif
 
 /* add a display filter to the combo box */
 /* Note: a new filter string will not replace an old identical one */
@@ -353,7 +359,7 @@ dfilter_recent_combo_write_all(FILE *rf) {
 #ifdef NEW_FILTER_COMBO_BOX
 	GtkTreeModel *model = gtk_combo_box_get_model (GTK_COMBO_BOX(filter_cm));
 	GtkTreeIter   iter;
-	GValue value = { 0, };
+	GValue value;
 	const char *filter_str;
 	guint      max_count = 0;
 
