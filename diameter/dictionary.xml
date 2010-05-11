@@ -104,7 +104,7 @@
     <!-- 313 (Not used yet) -->
     <command name="Policy-Data"                    code="314" vendor-id="None"/>         <!-- PDR / PDA [RFC5224] -->
     <command name="Policy-Install"                 code="315" vendor-id="None"/>         <!--  (PIA) [ITU-T Rec. Q.3303.3][RFC5431] -->
-    -->
+
     <!-- http://www.3gpp.org/ftp/Specs/html-info/29272.htm -->
     <command name="3GPP-Update-Location"            code="316" vendor-id="None"/>
     <command name="3GPP-Cancel-Location"            code="317" vendor-id="None"/>         <!--[3GPP TS 29.272][RFC5516] -->
@@ -2625,9 +2625,13 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
     <avp name="AN-GW-Address" code="1050" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="IPAddress"/>
     </avp>
-    <avp name="Resource-Allocation-Notification" code="1051" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated"/>
-      <enum name="ENABLE_NOTIFICATION" 			code="0"/>
+    <avp name="QoS-Rule-Install" code="1051" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="QoS-Rule-Definition"/>
+        <gavp name="Tunnel-Information"/>
+        <gavp name="Access-Network-Charging-Identifier-Value"/>
+        <gavp name="Resource-Allocation-Notification"/>
+      </grouped>
     </avp>
     <avp name="QoS-Rule-Remove" code="1052" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <grouped>
@@ -2643,7 +2647,7 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
       </grouped>
     </avp>
     <avp name="QoS-Rule-Name" code="1054" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctetString,"/>
+      <type type-name="OctetString"/>
     </avp>
     <avp name="QoS-Rule-Report" code="1055" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <grouped>
@@ -3399,7 +3403,7 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="QoS-Subscribed" code="1404" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctetString"/>
+			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="ULR-Flags" code="1405" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
@@ -4133,25 +4137,25 @@ Note: The AVP codes from 1506 to 1599 are reserved for TS 29.273
 		</avp>
 		<avp name="Service-Data-Container" code="2040" vendor-bit="must" vendor-id="TGPP"> 
      <grouped>
-      <gavp name="QoS-Information"/>
       <gavp name="AF-Correlation-Information"/>
-      <gavp name="Charging-Rule-Base-Name "/>
-      <gavp name="Accounting-Input-Octets "/>
-      <gavp name="Accounting-Output-Octets "/>
-      <gavp name="Accounting-Input-Packets "/>
-      <gavp name="Accounting-Output-Packets "/>
-      <gavp name="Local-Sequence-Number "/>
-      <gavp name="QoS-Information "/>
-      <gavp name="Rating-Group "/>
-      <gavp name="Change-Time "/>
-      <gavp name="Service-Identifier "/>
-      <gavp name="Service-Specific-Info "/>
-      <gavp name="SGSN-Address "/>
-      <gavp name="Time-First-Usage "/>
-      <gavp name="Time-Last-Usage "/>
-      <gavp name="Time-Usage "/>
+      <gavp name="Charging-Rule-Base-Name"/>
+      <gavp name="Accounting-Input-Octets"/>
+      <gavp name="Accounting-Output-Octets"/>
+      <gavp name="Accounting-Input-Packets"/>
+      <gavp name="Accounting-Output-Packets"/>
+      <gavp name="Local-Sequence-Number"/>
+      <gavp name="QoS-Information"/>
+      <gavp name="Rating-Group"/>
+      <gavp name="Change-Time"/>
+      <gavp name="Service-Identifier"/>
+      <gavp name="Service-Specific-Info"/>
+      <gavp name="SGSN-Address"/>
+      <gavp name="Time-First-Usage"/>
+      <gavp name="Time-Last-Usage"/>
+      <gavp name="Time-Usage"/>
       <gavp name="Change-Condition"/>
-      <gavp name="3GPP-User-Location-Info "/>
+      <gavp name="3GPP-User-Location-Info"/>
+      <gavp name="3GPP2-BSID"/>
     </grouped>
     </avp>
 		<avp name="Start-Time" code="2041" vendor-bit="must" vendor-id="TGPP"> 
@@ -4296,9 +4300,21 @@ Note: The AVP codes from 1506 to 1599 are reserved for TS 29.273
     <avp name="Node-Id" code="2064" vendor-bit="must" vendor-id="TGPP">
       <type type-name="UTF8String"/>
     </avp>
+		<avp name="SGW-Change" code="2065" mandatory="must" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="ARC_Start_NOT_due_to_SGW_Change" code="0"/>
+			<enum name="ARC_Start_due_to_SGW_Change" code="1"/>
+		</avp>
+		<avp name="Charging-Characteristic-Selection-Mode" code="2066" mandatory="must" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Serving-Node-Supplied" code="0"/>
+			<enum name="Subscription-specific" code="1"/>
+			<enum name="APN-specific" code="2"/>
+			<enum name="Home-Default" code="3"/>
+			<enum name="Roaming-Default" code="4"/>
+			<enum name="Visiting-Default" code="5"/>
+		</avp>
     <!--  
-2065	SGW-Change	 Enumerated
-2066	Charging-Characteristic-Selection-Mode	Enumerated
       Note: The AVP codes from 2067 to 2099 are reserved for TS 32.299
       -->
     <!--
