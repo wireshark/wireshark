@@ -694,7 +694,7 @@ ftype_register_bytes(void)
 
 	static ftype_t oid_type = {
 		FT_OID,			/* ftype */
-		"OID",			/* name */
+		"FT_OID",			/* name */
 		"OBJECT IDENTIFIER",			/* pretty_name */
 		0,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
