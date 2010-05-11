@@ -313,16 +313,20 @@ static const value_string mtrace_fwd_code_vals[] = {
 };
 
 #define PRINT_IGMP_VERSION(version) 					\
-	if (check_col(pinfo->cinfo, COL_INFO)) {			\
-		col_add_fstr(pinfo->cinfo, COL_INFO,			\
-			"V%d %s",version,val_to_str(type, commands, 	\
-				"Unknown Type:0x%02x"));		\
-	}								\
-	/* version of IGMP protocol */					\
-	proto_tree_add_uint(tree, hf_version, tvb, 0, 0, version);	\
-	/* type of command */						\
-	proto_tree_add_uint(tree, hf_type, tvb, offset, 1, type);	\
-	offset += 1;
+	do {								\
+		proto_item *ti;						\
+		if (check_col(pinfo->cinfo, COL_INFO)) {		\
+			col_add_fstr(pinfo->cinfo, COL_INFO,		\
+				"V%d %s",version,val_to_str(type, commands,	\
+					"Unknown Type:0x%02x"));	\
+		}							\
+		/* version of IGMP protocol */				\
+		ti = proto_tree_add_uint(tree, hf_version, tvb, 0, 0, version);	\
+		PROTO_ITEM_SET_GENERATED(ti);				\
+		/* type of command */					\
+		proto_tree_add_uint(tree, hf_type, tvb, offset, 1, type);\
+		offset += 1;						\
+	} while (0);
 
 void igmp_checksum(proto_tree *tree, tvbuff_t *tvb, int hf_index,
     int hf_index_bad, packet_info *pinfo, guint len)
