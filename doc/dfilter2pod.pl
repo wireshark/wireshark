@@ -1,12 +1,12 @@
 #!/usr/bin/perl
 #
-# Reads the display filter keyword dump produced by 'wireshark -G' and
+# Reads the display filter keyword dump produced by 'tshark -G' and
 # formats it for a pod document. The pod document is then used to
 # make a manpage
 #
 # STDIN is the wireshark glossary
 # arg1 is the pod template file. The =insert_dfilter_table token
-#	will be replaced by the pod-formatted glossary
+#      will be replaced by the pod-formatted glossary
 # STDOUT is the output
 #
 # $Id$
@@ -27,18 +27,24 @@ use Getopt::Std;
 	'FT_INT24',		'Signed 24-bit integer',
 	'FT_INT32',		'Signed 32-bit integer',
 	'FT_INT64',		'Signed 64-bit integer',
+	'FT_FLOAT',		'Single-precision floating point',
 	'FT_DOUBLE',		'Double-precision floating point',
 	'FT_ABSOLUTE_TIME',	'Date/Time stamp',
 	'FT_RELATIVE_TIME',	'Time duration',
 	'FT_STRING',		'String',
-	'FT_STRINGZ',		'String',
-	'FT_UINT_STRING',	'String',
+	'FT_STRINGZ',		'NULL terminated string',
+	'FT_EBCDIC',		'EBCDIC string',
+	'FT_UINT_STRING',	'Length string pair',
 	'FT_ETHER',		'6-byte Hardware (MAC) Address',
 	'FT_BYTES',		'Byte array',
+	'FT_UINT_BYTES',	'Length byte array pair',
 	'FT_IPv4',		'IPv4 address',
 	'FT_IPv6',		'IPv6 address',
 	'FT_IPXNET',		'IPX network or server name',
 	'FT_FRAMENUM',		'Frame number',
+	'FT_PCRE',		'Perl Compatible Regular Expression',
+	'FT_GUID',		'Globally Unique Identifier',
+	'FT_OID',		'Object Identifier',
 );
 
 getopts('e');

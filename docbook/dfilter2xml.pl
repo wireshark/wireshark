@@ -6,7 +6,7 @@
 #
 # STDIN is the wireshark glossary
 # arg1 is the pod template file. The =insert_dfilter_table token
-#	will be replaced by the pod-formatted glossary
+#      will be replaced by the pod-formatted glossary
 # STDOUT is the output
 #
 # $Id$
@@ -25,17 +25,24 @@
 	'FT_INT24',		'Signed 24-bit integer',
 	'FT_INT32',		'Signed 32-bit integer',
 	'FT_INT64',		'Signed 64-bit integer',
+	'FT_FLOAT',		'Single-precision floating point',
 	'FT_DOUBLE',		'Double-precision floating point',
 	'FT_ABSOLUTE_TIME',	'Date/Time stamp',
 	'FT_RELATIVE_TIME',	'Time duration',
 	'FT_STRING',		'String',
-	'FT_STRINGZ',		'String',
-	'FT_UINT_STRING',	'String',
+	'FT_STRINGZ',		'NULL terminated string',
+	'FT_EBCDIC',		'EBCDIC string',
+	'FT_UINT_STRING',	'Length string pair',
 	'FT_ETHER',		'6-byte Hardware (MAC) Address',
 	'FT_BYTES',		'Byte array',
+	'FT_UINT_BYTES',	'Length byte array pair',
 	'FT_IPv4',		'IPv4 address',
 	'FT_IPv6',		'IPv6 address',
 	'FT_IPXNET',		'IPX network or server name',
+	'FT_FRAMENUM',		'Frame number',
+	'FT_PCRE',		'Perl Compatible Regular Expression',
+	'FT_GUID',		'Globally Unique Identifier',
+	'FT_OID',		'Object Identifier',
 );
 
 # Read all the data into memory
@@ -43,7 +50,9 @@ while (<STDIN>) {
 	next unless (/^([PF])/);
 
 	$record_type = $1;
-	chomp($_);
+	# Strip the line from its line-end sequence
+	# chomp($_) won't work on Win32/CygWin as it leaves the '\r' character.
+	$_ =~ s/[\r\n]//g;
 	$_ =~ s/\&/\&amp\;/g;
 	$_ =~ s/\>/\&gt;/g;
 	$_ =~ s/\</\&lt\;/g;
@@ -84,7 +93,7 @@ close(TEMPLATE) || die "Can't close $template: $!\n";
 
 sub create_dfilter_table {
 
-        print "<appendix id=\"AppFiltFields\"><title>Wireshark Display Filter Fields</title>\n";
+	print "<appendix id=\"AppFiltFields\"><title>Wireshark Display Filter Fields</title>\n";
 	$pn_counter = 1;
 
 	# Print each protocol
@@ -109,7 +118,7 @@ sub create_dfilter_table {
 				37), $pn_counter);
 			$pn_counter++;
 		}
-			
+
 		print "<section id=\"SID$ns_proto_name\"><title>$proto_name ($proto_abbrev{$proto_name})</title>\n\n";
 
 		print "<table id=\"TID$ns_proto_name\"><title>$proto_name ($proto_abbrev{$proto_name})</title>\n";
@@ -117,7 +126,7 @@ sub create_dfilter_table {
 #		print "<colspec colnum=\"1\" colwidth=\"80pt\">\n";
 #		print "<colspec colnum=\"2\" colwidth=\"80pt\"\n>";
 		print "<thead>\n  <row>\n    ";
- 		print "<entry>Field</>\n    <entry>Field Name</>\n    <entry>Type</>\n    <entry>Description</>\n\n";
+		print "<entry>Field</>\n    <entry>Field Name</>\n    <entry>Type</>\n    <entry>Description</>\n\n";
 
 		print "  </row>\n</thead>\n<tbody>\n";
 
@@ -126,20 +135,20 @@ sub create_dfilter_table {
 
 			for $field_abbrev (sort @{$field_abbrev{$proto_abbrev{$proto_name}}}) {
 
-			    print "  <row>\n";
-			    print "    <entry>$field_abbrev</entry>\n";
-			    print "    <entry>", $field_info{$field_abbrev}[0], "</entry>\n";
-			    print "    <entry>", $ftenum_names{$field_info{$field_abbrev}[1]}, "</entry>\n";
- 				print "    <entry>", $field_info{$field_abbrev}[2], "</>\n";
-			    print "  </row>\n\n";
+				print "  <row>\n";
+				print "    <entry>$field_abbrev</entry>\n";
+				print "    <entry>", $field_info{$field_abbrev}[0], "</entry>\n";
+				print "    <entry>", $ftenum_names{$field_info{$field_abbrev}[1]}, "</entry>\n";
+				print "    <entry>", $field_info{$field_abbrev}[2], "</>\n";
+				print "  </row>\n\n";
 
 			}
 
 		}
 		else {
 
-		    print "  <row>\n    <entry></entry>\n    <entry></entry>\n    <entry></entry><entry></entry>\n";
-		    print "  </row>\n";
+			print "  <row>\n    <entry></entry>\n    <entry></entry>\n    <entry></entry><entry></entry>\n";
+			print "  </row>\n";
 
 		}
 
