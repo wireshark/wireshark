@@ -58,9 +58,24 @@ static void
 filter_activate_cb(GtkWidget *w _U_, gpointer data)
 {
   const char *s;
+#ifdef NEW_FILTER_COMBO_BOX
+#if GTK_CHECK_VERSION(2,6,0)
+#else
+	GtkTreeIter   iter;
+	GtkTreeModel *model;
+#endif
+  /* Since 2.6 */
+  #if GTK_CHECK_VERSION(2,6,0)
+  s = gtk_combo_box_get_active_text(GTK_COMBO_BOX(filter_cm))
+  #else
+  gtk_combo_box_get_active_iter(GTK_COMBO_BOX(filter_cm), &iter);
+  model = gtk_combo_box_get_model(GTK_COMBO_BOX(filter_cm));
+  gtk_tree_model_get(model, &iter, 0, &s, -1);
+  #endif
 
+#else
   s = gtk_entry_get_text(GTK_ENTRY(data));
-
+#endif
   main_filter_packets(&cfile, s, FALSE);
 }
 
@@ -76,10 +91,12 @@ filter_reset_cb(GtkWidget *w, gpointer data _U_)
   main_filter_packets(&cfile, NULL, FALSE);
 }
 
+/*#define NEW_FILTER_COMBO_BOX 1*/
 
 GtkWidget *filter_toolbar_new()
 {
-    GtkWidget     *filter_cm, *filter_te;
+    GtkWidget     *filter_cm;
+	GtkWidget     *filter_te;
     GtkWidget     *filter_tb;
     GList         *dfilter_list = NULL;
     GtkTooltips   *tooltips;
@@ -121,12 +138,17 @@ GtkWidget *filter_toolbar_new()
                          "Private");
 
     /* Create the filter combobox */
+#ifdef NEW_FILTER_COMBO_BOX
+	filter_cm = gtk_combo_box_entry_new_text ();
+	filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
+#else
     filter_cm = gtk_combo_new();
     dfilter_list = NULL;
     gtk_combo_disable_activate(GTK_COMBO(filter_cm));
     gtk_combo_set_case_sensitive(GTK_COMBO(filter_cm), TRUE);
     g_object_set_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY, dfilter_list);
     filter_te = GTK_COMBO(filter_cm)->entry;
+#endif
     main_display_filter_widget=filter_te;
     g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
     g_object_set_data(G_OBJECT(filter_te), E_DFILTER_CM_KEY, filter_cm);
@@ -137,9 +159,9 @@ GtkWidget *filter_toolbar_new()
     g_object_set_data(G_OBJECT(filter_te), E_FILT_FIELD_USE_STATUSBAR_KEY, "");
     g_signal_connect(filter_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
     g_signal_connect(filter_tb, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
-    gtk_widget_set_size_request(filter_cm, 400, -1);
-    gtk_widget_show(filter_cm);
 
+	gtk_widget_set_size_request(filter_cm, 400, -1);
+    gtk_widget_show(filter_cm);
     item = gtk_tool_item_new ();
     gtk_container_add (GTK_CONTAINER (item), filter_cm);
     gtk_widget_show (GTK_WIDGET (item));
@@ -149,7 +171,11 @@ GtkWidget *filter_toolbar_new()
                        -1);
 
     /* setting a tooltip for a combobox will do nothing, so add it to the corresponding text entry */
+#ifdef NEW_FILTER_COMBO_BOX
+    gtk_tooltips_set_tip(tooltips, filter_cm,
+#else
     gtk_tooltips_set_tip(tooltips, filter_te,
+#endif
         "Enter a display filter, or choose one of your recently used filters. "
         "The background color of this field is changed by a continuous syntax check "
         "(green is valid, red is invalid, yellow may have unexpected results).",
@@ -158,8 +184,11 @@ GtkWidget *filter_toolbar_new()
     /* Create the "Add Expression..." button, to pop up a dialog
        for constructing filter comparison expressions. */
     filter_add_expr_bt = gtk_tool_button_new_from_stock(WIRESHARK_STOCK_ADD_EXPRESSION);
+#ifdef NEW_FILTER_COMBO_BOX
+#else
     g_object_set_data(G_OBJECT(filter_tb), E_FILT_FILTER_TE_KEY, filter_te);
     g_signal_connect(filter_add_expr_bt, "clicked", G_CALLBACK(filter_add_expr_bt_cb), filter_tb);
+#endif
     gtk_widget_show(GTK_WIDGET(filter_add_expr_bt));
 
     gtk_toolbar_insert(GTK_TOOLBAR(filter_tb),
@@ -262,11 +291,38 @@ dfilter_entry_match(gconstpointer a, gconstpointer b)
 
     return strcmp(s1, s2);
 }
+static gboolean
+dfilter_entry_match_new(GtkWidget *filter_cm, char *s)
+{
+	GtkTreeModel *model = gtk_combo_box_get_model (GTK_COMBO_BOX(filter_cm));
+	GtkTreeIter   iter;
+	GValue value = { 0, };
+	const char *filter_str;
+
+	if (!gtk_tree_model_get_iter_first (model, &iter))
+		return FALSE;
+	do{
+		gtk_tree_model_get_value (model, &iter, 0, &value);
+		filter_str = g_value_get_string (&value);
+		if(filter_str){
+			if(strcmp(s, filter_str) == 0){
+				g_value_unset (&value);
+				return TRUE;
+			}
+		}
+	}while (gtk_tree_model_iter_next (model, &iter));
+
+	return FALSE;
+}
 
 /* add a display filter to the combo box */
 /* Note: a new filter string will not replace an old identical one */
 static gboolean
 dfilter_combo_add(GtkWidget *filter_cm, char *s) {
+#ifdef NEW_FILTER_COMBO_BOX
+	if(!dfilter_entry_match_new(filter_cm,s))
+		gtk_combo_box_append_text(GTK_COMBO_BOX(filter_cm), s);
+#else
     GList     *dfilter_list = g_object_get_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY);
 
     /* GtkCombos don't let us get at their list contents easily, so we maintain
@@ -282,7 +338,7 @@ dfilter_combo_add(GtkWidget *filter_cm, char *s) {
         gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), dfilter_list);
         gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(filter_cm)->entry), g_list_first(dfilter_list)->data);
     }
-
+#endif
     g_free(s);
 
     return TRUE;
@@ -294,10 +350,28 @@ dfilter_combo_add(GtkWidget *filter_cm, char *s) {
 void
 dfilter_recent_combo_write_all(FILE *rf) {
     GtkWidget *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
+#ifdef NEW_FILTER_COMBO_BOX
+	GtkTreeModel *model = gtk_combo_box_get_model (GTK_COMBO_BOX(filter_cm));
+	GtkTreeIter   iter;
+	GValue value = { 0, };
+	const char *filter_str;
+	guint      max_count = 0;
+
+	if (!gtk_tree_model_get_iter_first (model, &iter))
+		return;
+	do{
+		gtk_tree_model_get_value (model, &iter, 0, &value);
+		filter_str = g_value_get_string (&value);
+		if(filter_str)
+			fprintf (rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", filter_str);
+		g_value_unset (&value);
+
+	}while (gtk_tree_model_iter_next (model, &iter)&& (max_count++ < prefs.gui_recent_df_entries_max));
+
+#else
     GList     *dfilter_list = g_object_get_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY);
     GList     *li;
     guint      max_count = 0;
-
 
     /* write all non empty display filter strings to the recent file (until max count) */
     li = g_list_first(dfilter_list);
@@ -307,6 +381,7 @@ dfilter_recent_combo_write_all(FILE *rf) {
         }
         li = li->next;
     }
+#endif
 }
 
 /* empty the combobox entry field */
