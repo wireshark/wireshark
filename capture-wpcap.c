@@ -137,9 +137,8 @@ load_wpcap(void)
 		SYM(pcap_open, FALSE),
 		SYM(pcap_findalldevs_ex, FALSE),
 		SYM(pcap_createsrcstr, FALSE),
-#else
-		SYM(pcap_open_live, FALSE),
 #endif
+		SYM(pcap_open_live, FALSE),
 #ifdef HAVE_PCAP_SETSAMPLING
 		SYM(pcap_setsampling, TRUE),
 #endif
