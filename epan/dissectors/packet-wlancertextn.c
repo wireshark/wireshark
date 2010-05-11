@@ -120,11 +120,11 @@ void proto_register_wlancertextn(void) {
     { &hf_wlancertextn_SSIDList_PDU,
       { "SSIDList", "wlancertextn.SSIDList",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "wlancertextn.SSIDList", HFILL }},
+        NULL, HFILL }},
     { &hf_wlancertextn_SSIDList_item,
       { "SSID", "wlancertextn.SSID",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "wlancertextn.SSID", HFILL }},
+        NULL, HFILL }},
 
 /*--- End of included file: packet-wlancertextn-hfarr.c ---*/
 #line 61 "packet-wlancertextn-template.c"
