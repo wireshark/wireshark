@@ -70,7 +70,7 @@ if [ "$APPNAME" == "wireshark" ] ; then # Apply GUI settings
 	ESCAPEDTOP=`echo $TOP | sed 's/#/\\\\\\\\#/'`
 
 	mkdir -p "${HOME}/.wireshark-etc"
-	sed 's|\\${HOME}|'"\"$HOME\"|g" "$TOP/etc/pango/pangorc" > "${HOME}/.wireshark-etc/pangorc"
+	sed 's|${HOME}|'"$HOME|g" "$TOP/etc/pango/pangorc" > "${HOME}/.wireshark-etc/pangorc"
 	sed 's|${CWD}|'"$ESCAPEDTOP|g" "$TOP/etc/pango/pango.modules" \
 		> "${HOME}/.wireshark-etc/pango.modules"
 	cp -f "$TOP/etc/pango/pangox.aliases" "${HOME}/.wireshark-etc/"
