@@ -1385,8 +1385,10 @@ resolv_update_cb(gpointer data _U_)
 {
   /* Anything new show up? */
   if (host_name_lookup_process(NULL)) {
-    gdk_window_invalidate_rect(pkt_scrollw->window, NULL, TRUE);
-    gdk_window_invalidate_rect(tv_scrollw->window, NULL, TRUE);
+    if (pkt_scrollw->window)
+	gdk_window_invalidate_rect(pkt_scrollw->window, NULL, TRUE);
+    if (tv_scrollw->window)
+	gdk_window_invalidate_rect(tv_scrollw->window, NULL, TRUE);
   }
 
   /* Always check. Even if we don't do async lookups we could still get
