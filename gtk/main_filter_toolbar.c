@@ -301,7 +301,7 @@ dfilter_entry_match_new(GtkWidget *filter_cm, char *s)
 {
 	GtkTreeModel *model = gtk_combo_box_get_model (GTK_COMBO_BOX(filter_cm));
 	GtkTreeIter   iter;
-	GValue value;
+	GValue value = { 0, {{0}}};
 	const char *filter_str;
 
 	if (!gtk_tree_model_get_iter_first (model, &iter))
@@ -359,7 +359,7 @@ dfilter_recent_combo_write_all(FILE *rf) {
 #ifdef NEW_FILTER_COMBO_BOX
 	GtkTreeModel *model = gtk_combo_box_get_model (GTK_COMBO_BOX(filter_cm));
 	GtkTreeIter   iter;
-	GValue value;
+	GValue value = { 0, {{0}}};
 	const char *filter_str;
 	guint      max_count = 0;
 
