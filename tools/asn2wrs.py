@@ -1515,10 +1515,14 @@ class EthCtx:
     for f in (self.eth_hfpdu_ord + self.eth_hf_ord):
       t = self.eth_hf[f]['ethtype']
       name=self.eth_hf[f]['attr']['NAME']
-      trantab=maketrans("-", "_")
+      trantab=maketrans("- ", "__")
       name=name.translate(trantab)
+      namelower=name.lower()
+      tquoted_lower = '"' + t.lower() + '"'
       # Try to avoid giving blurbs that give no more info than the name
-      if '"' + t.lower() + '"' == name.lower():
+      if tquoted_lower == namelower or \
+	 t == "NULL" or \
+	 tquoted_lower.replace("t_", "") == namelower:
         blurb = 'NULL'
       else:
         blurb = '"%s"' % (t)

@@ -337,7 +337,7 @@ void proto_register_pkix1implicit(void) {
     { &hf_pkix1implicit_noticeNumbers,
       { "noticeNumbers", "pkix1implicit.noticeNumbers",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "T_noticeNumbers", HFILL }},
+        NULL, HFILL }},
     { &hf_pkix1implicit_noticeNumbers_item,
       { "noticeNumbers item", "pkix1implicit.noticeNumbers_item",
         FT_INT32, BASE_DEC, NULL, 0,

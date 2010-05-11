@@ -422,7 +422,7 @@ void proto_register_pkixtsp(void) {
     { &hf_pkixtsp_version,
       { "version", "pkixtsp.version",
         FT_INT32, BASE_DEC, VALS(pkixtsp_T_version_vals), 0,
-        "T_version", HFILL }},
+        NULL, HFILL }},
     { &hf_pkixtsp_messageImprint,
       { "messageImprint", "pkixtsp.messageImprint",
         FT_NONE, BASE_NONE, NULL, 0,

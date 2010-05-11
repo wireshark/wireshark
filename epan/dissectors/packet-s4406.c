@@ -1561,7 +1561,7 @@ void proto_register_s4406(void) {
     { &hf_s4406_setOriented,
       { "setOriented", "s4406.setOriented",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "T_setOriented", HFILL }},
+        NULL, HFILL }},
     { &hf_s4406_setOriented_item,
       { "setOriented item", "s4406.setOriented_item",
         FT_STRING, BASE_NONE, NULL, 0,
