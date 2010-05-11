@@ -1029,7 +1029,7 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 #define KRB5_CHKSUM_KRB_DES_MAC_K       5
 #define KRB5_CHKSUM_MD5                 7
 #define KRB5_CHKSUM_MD5_DES             8
-/* the following four comes from packetcable */
+/* the following four come from packetcable */
 #define KRB5_CHKSUM_MD5_DES3            9
 #define KRB5_CHKSUM_HMAC_SHA1_DES3_KD   12
 #define KRB5_CHKSUM_HMAC_SHA1_DES3      13
@@ -1089,11 +1089,15 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 /* preauthentication types >127 (i.e. negative ones) are app specific.
    Hopefully there will be no collisions here or we will have to
    come up with something better.
-   Note: These values are compared against 32-bit values in the code.
+   XXX: Although KRB5_PA_PAC_REQUEST is " >127 " and thus presumably
+         would be encoded as a negative number, various captures seen all
+         have this pa-data-type encoded as a positive number (0x0080).
+         We'll assume that KRB5_PA_S4U2SELF is also encoded as a positive number.
 */
-#define KRB5_PA_PAC_REQUEST         -128  /* = 0xFFFFFF80 = (gint32)((gint8)0x80) MS extension */
-#define KRB5_PA_S4U2SELF            -127  /* = 0xFFFFFF81 = (gint32)((gint8)0x81) Impersonation (Microsoft extension) */
-#define KRB5_PA_PROV_SRV_LOCATION   -1    /* = 0xFFFFFFFF = (gint32)((gint8)0xFF) packetcable stuff */
+#define KRB5_PA_PAC_REQUEST              128    /* (Microsoft extension) */
+#define KRB5_PA_S4U2SELF                 129    /* Impersonation (Microsoft extension) */
+
+#define KRB5_PA_PROV_SRV_LOCATION 0xffffffff    /* (gint32)0xFF) packetcable stuff */
 
 /* Principal name-type */
 #define KRB5_NT_UNKNOWN        0
@@ -5140,7 +5144,7 @@ proto_register_kerberos(void)
 	    "Signature", "kerberos.pac.signature.signature", FT_BYTES, BASE_NONE,
 	    NULL, 0, "A PAC signature blob", HFILL }},
 	{ &hf_krb_PA_DATA_type, {
-	    "Type", "kerberos.padata.type", FT_INT8, BASE_DEC,
+                "Type", "kerberos.padata.type", FT_INT32, BASE_DEC,
 	    VALS(krb5_preauthentication_types), 0, "Type of preauthentication data", HFILL }},
 	{ &hf_krb_nonce, {
 	    "Nonce", "kerberos.nonce", FT_UINT32, BASE_DEC,
@@ -5251,7 +5255,7 @@ proto_register_kerberos(void)
 	    "TransitedEncoding", "kerberos.TransitedEncoding", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a Kerberos TransitedEncoding sequence", HFILL }},
 	{ &hf_krb_PA_PAC_REQUEST_flag, {
-	    "PAC Request", "kerberos.pac_request.flag", FT_UINT32, BASE_DEC,
+                "PAC Request", "kerberos.pac_request.flag", FT_BOOLEAN, 32,
 	    NULL, 0, "This is a MS PAC Request Flag", HFILL }},
 	{ &hf_krb_w2k_pac_entries, {
 	    "Num Entries", "kerberos.pac.entries", FT_UINT32, BASE_DEC,
