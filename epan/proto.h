@@ -140,6 +140,57 @@ typedef struct _protocol protocol_t;
     ep_strdup_printf("%s:%u: failed assertion \"%s\"", \
      file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression))))
 
+/*
+ * The representation of a field of a particular type may involve more
+ * than just whether it's big-endian or little-endian and its size.
+ *
+ * For integral values, that's it, as 99.9999999999999% of the machines
+ * out there are 2's complement binary machines with 8-bit bytes,
+ * so the protocols out there expect that and, for example, any Unisys
+ * 2200 series machines out there just have to translate between 2's
+ * complement and 1's complement (and nobody's put any IBM 709x's on
+ * any networks lately :-)).
+ *
+ * However:
+ *
+ *	for floating-point numbers, in addition to IEEE decimal
+ *	floating-point, there's also IBM System/3x0 and PDP-11/VAX
+ *	floating-point - most protocols use IEEE binary, but DCE RPC
+ *	can use other formats if that's what the sending host uses;
+ *
+ *	for character strings, there are various character encodings
+ *	(various ISO 646 sets, ISO 8859/x, various other national
+ *	standards, various DOS and Windows encodings, various Mac
+ *	encodings, UTF-8, UTF-16, other extensions to ASCII, EBCDIC,
+ *	etc.);
+ *
+ *	for absolute times, there's UNIX time_t, UNIX time_t followed
+ *	by 32-bit microseconds, UNIX time_t followed by 32-bit
+ *	nanoseconds, DOS date/time, Windows FILETIME, NTP time, etc..
+ *
+ * We might also, in the future, want to allow a field specifier to
+ * indicate the representation of the field, or at least its default
+ * representation, as most fields in most protocols always use the
+ * same representation (although that's not true of all fields, so we
+ * still need to be able to specify that at run time).
+ *
+ * So, for now, we define REP_BIG_ENDIAN and REP_LITTLE_ENDIAN as
+ * bit flags, to be combined, in the future, with other information
+ * to specify the representation in the last argument to
+ * proto_tree_add_item(), and possibly to specify in a field
+ * definition (e.g., ORed in with the type value).
+ *
+ * Currently, proto_tree_add_item() treats its last argument as a
+ * Boolean - if it's zero, the field is big-endian, and if it's non-zero,
+ * the field is little-endian - and other code in epan/proto.c does
+ * the same.  We therefore define REP_BIG_ENDIAN as 0x00000000 and
+ * REP_LITTLE_ENDIAN as 0x80000000 - we're using the high-order bit
+ * so that we could put a field type and/or a value such as a character
+ * encoding in the lower bits.
+ */
+#define REP_BIG_ENDIAN		0x00000000
+#define REP_LITTLE_ENDIAN	0x80000000
+
 /* Values for header_field_info.display */
 
 /* For integral types, the display format is a base_display_e value
