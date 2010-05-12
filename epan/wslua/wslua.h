@@ -90,7 +90,7 @@ typedef struct _wslua_field_t {
     char* blob;
     enum ftenum type;
     base_display_e base;
-    value_string* vs;
+    const void* vs;
     guint32 mask;
 } wslua_field_t;
 
@@ -118,8 +118,8 @@ typedef struct _wslua_pref_t {
         guint u;
         const gchar* s;
         gint e;
-    range_t *r;
-    void* p;
+        range_t *r;
+        void* p;
     } value;
     union {
       guint32 max_value;		/* maximum value of a range */
