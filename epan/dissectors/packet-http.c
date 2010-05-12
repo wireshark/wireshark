@@ -37,6 +37,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include <glib.h>
 #include <epan/conversation.h>
@@ -1264,7 +1265,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (tokenlen == 0)
 		return;
 	proto_tree_add_item(tree, hf_http_request_method, tvb, offset, tokenlen,
-	    FALSE);
+			    FALSE);
 	offset += (int) (next_token - line);
 	line = next_token;
 
@@ -1305,7 +1306,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (tokenlen == 0)
 		return;
 	proto_tree_add_item(tree, hf_http_version, tvb, offset, tokenlen,
-	    FALSE);
+		            FALSE);
 	offset += (int) (next_token - line);
 	line = next_token;
 
@@ -1320,7 +1321,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 		strtoul(response_chars, NULL, 10);
 
 	proto_tree_add_uint(tree, hf_http_response_code, tvb, offset, 3,
-	    stat_info->response_code);
+			    stat_info->response_code);
 }
 
 /*
@@ -1352,7 +1353,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 	if (tree) {
 		ti = proto_tree_add_text(tree, tvb, offset, datalen,
-		    "HTTP chunked response");
+				         "HTTP chunked response");
 		subtree = proto_item_add_subtree(ti, ett_http_chunked_response);
 	}
 
@@ -1535,11 +1536,11 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 			proxy_tree = proto_item_add_subtree(item, ett_http);
 
 			item = proto_tree_add_string(proxy_tree, hf_http_proxy_connect_host,
-		    	    tvb, 0, 0, strings[0]);
+						     tvb, 0, 0, strings[0]);
 			PROTO_ITEM_SET_GENERATED(item);
 
 			item = proto_tree_add_uint(proxy_tree, hf_http_proxy_connect_port,
-			    tvb, 0, 0, strtol(strings[1], NULL, 10) );
+					           tvb, 0, 0, strtol(strings[1], NULL, 10) );
 			PROTO_ITEM_SET_GENERATED(item);
 		}
 
@@ -2053,6 +2054,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 
 		case HDR_CONTENT_LENGTH:
+			errno = 0;
 #if GLIB_CHECK_VERSION(2,12,0)
 			eh_ptr->content_length = g_ascii_strtoll(value, &p, 10);
 #elif defined(HAVE_STRTOLL)
@@ -2063,7 +2065,9 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 #endif
 
 			up = (guchar *)p;
-			if (eh_ptr->content_length < 0 || p == value ||
+			if (eh_ptr->content_length < 0 ||
+			    p == value ||
+			    errno == ERANGE ||
 			    (*up != '\0' && !isspace(*up))) {
 				/*
 				 * Content length not valid; pretend
