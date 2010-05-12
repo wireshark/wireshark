@@ -41,7 +41,6 @@
 #include <epan/sctpppids.h>
 #include <epan/expert.h>
 
-#define NETWORK_BYTE_ORDER          FALSE
 #define SCTP_PORT_M2PA              3565
 
 static guint global_sctp_port       = SCTP_PORT_M2PA;
@@ -165,10 +164,10 @@ dissect_v2_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tre
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, v2_message_type_values, "reserved"));
 
   if (m2pa_tree) {
-    proto_tree_add_item(m2pa_tree, hf_version, header_tvb, VERSION_OFFSET,       VERSION_LENGTH, NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_spare,   header_tvb, SPARE_OFFSET,         SPARE_LENGTH,   NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_v2_type, header_tvb, V2_TYPE_OFFSET,       V2_TYPE_LENGTH, NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_length,  header_tvb, V2_LENGTH_OFFSET,     LENGTH_LENGTH,  NETWORK_BYTE_ORDER);
+    proto_tree_add_item(m2pa_tree, hf_version, header_tvb, VERSION_OFFSET,       VERSION_LENGTH, REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_spare,   header_tvb, SPARE_OFFSET,         SPARE_LENGTH,   REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_v2_type, header_tvb, V2_TYPE_OFFSET,       V2_TYPE_LENGTH, REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_length,  header_tvb, V2_LENGTH_OFFSET,     LENGTH_LENGTH,  REP_BIG_ENDIAN);
   }
 }
 
@@ -183,15 +182,15 @@ dissect_v8_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tre
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, v8_message_type_values, "Unknown"));
 
   if (m2pa_tree) {
-    proto_tree_add_item(m2pa_tree, hf_version, header_tvb, VERSION_OFFSET,       VERSION_LENGTH, NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_spare,   header_tvb, SPARE_OFFSET,         SPARE_LENGTH,   NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_class,   header_tvb, CLASS_OFFSET,         CLASS_LENGTH,   NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_v8_type, header_tvb, V8_TYPE_OFFSET,       V8_TYPE_LENGTH, NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_length,  header_tvb, V8_LENGTH_OFFSET,     LENGTH_LENGTH,  NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_unused,  header_tvb, FIRST_UNUSED_OFFSET,  UNUSED_LENGTH,  NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_bsn,     header_tvb, BSN_OFFSET,           BSN_LENGTH,     NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_unused,  header_tvb, SECOND_UNUSED_OFFSET, UNUSED_LENGTH,  NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_fsn,     header_tvb, FSN_OFFSET,           FSN_LENGTH,     NETWORK_BYTE_ORDER);
+    proto_tree_add_item(m2pa_tree, hf_version, header_tvb, VERSION_OFFSET,       VERSION_LENGTH, REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_spare,   header_tvb, SPARE_OFFSET,         SPARE_LENGTH,   REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_class,   header_tvb, CLASS_OFFSET,         CLASS_LENGTH,   REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_v8_type, header_tvb, V8_TYPE_OFFSET,       V8_TYPE_LENGTH, REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_length,  header_tvb, V8_LENGTH_OFFSET,     LENGTH_LENGTH,  REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_unused,  header_tvb, FIRST_UNUSED_OFFSET,  UNUSED_LENGTH,  REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_bsn,     header_tvb, BSN_OFFSET,           BSN_LENGTH,     REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_unused,  header_tvb, SECOND_UNUSED_OFFSET, UNUSED_LENGTH,  REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_fsn,     header_tvb, FSN_OFFSET,           FSN_LENGTH,     REP_BIG_ENDIAN);
   }
 }
 
@@ -206,15 +205,15 @@ dissect_v12_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tr
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, v8_message_type_values, "Unknown"));
 
   if (m2pa_tree) {
-    proto_tree_add_item(m2pa_tree, hf_version,  header_tvb, VERSION_OFFSET,       VERSION_LENGTH,  NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_spare,    header_tvb, SPARE_OFFSET,         SPARE_LENGTH,    NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_class,    header_tvb, CLASS_OFFSET,         CLASS_LENGTH,    NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_v12_type, header_tvb, V12_TYPE_OFFSET,      V12_TYPE_LENGTH, NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_length,   header_tvb, V12_LENGTH_OFFSET,    LENGTH_LENGTH,   NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_unused,   header_tvb, FIRST_UNUSED_OFFSET,  UNUSED_LENGTH,   NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_bsn,      header_tvb, BSN_OFFSET,           BSN_LENGTH,      NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_unused,   header_tvb, SECOND_UNUSED_OFFSET, UNUSED_LENGTH,   NETWORK_BYTE_ORDER);
-    proto_tree_add_item(m2pa_tree, hf_fsn,      header_tvb, FSN_OFFSET,           FSN_LENGTH,      NETWORK_BYTE_ORDER);
+    proto_tree_add_item(m2pa_tree, hf_version,  header_tvb, VERSION_OFFSET,       VERSION_LENGTH,  REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_spare,    header_tvb, SPARE_OFFSET,         SPARE_LENGTH,    REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_class,    header_tvb, CLASS_OFFSET,         CLASS_LENGTH,    REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_v12_type, header_tvb, V12_TYPE_OFFSET,      V12_TYPE_LENGTH, REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_length,   header_tvb, V12_LENGTH_OFFSET,    LENGTH_LENGTH,   REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_unused,   header_tvb, FIRST_UNUSED_OFFSET,  UNUSED_LENGTH,   REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_bsn,      header_tvb, BSN_OFFSET,           BSN_LENGTH,      REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_unused,   header_tvb, SECOND_UNUSED_OFFSET, UNUSED_LENGTH,   REP_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_fsn,      header_tvb, FSN_OFFSET,           FSN_LENGTH,      REP_BIG_ENDIAN);
   }
 }
 
@@ -237,8 +236,8 @@ dissect_v2_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, pro
       m2pa_li_item = proto_tree_add_text(m2pa_tree, message_data_tvb, LI_OFFSET, LI_LENGTH, "Length Indicator");
       m2pa_li_tree = proto_item_add_subtree(m2pa_li_item, ett_m2pa_li);
 
-      proto_tree_add_item(m2pa_li_tree, hf_v2_li_spare, message_data_tvb, LI_OFFSET, LI_LENGTH, NETWORK_BYTE_ORDER);
-      proto_tree_add_item(m2pa_li_tree, hf_v2_li_prio,  message_data_tvb, LI_OFFSET, LI_LENGTH, NETWORK_BYTE_ORDER);
+      proto_tree_add_item(m2pa_li_tree, hf_v2_li_spare, message_data_tvb, LI_OFFSET, LI_LENGTH, REP_BIG_ENDIAN);
+      proto_tree_add_item(m2pa_li_tree, hf_v2_li_prio,  message_data_tvb, LI_OFFSET, LI_LENGTH, REP_BIG_ENDIAN);
 
       /* Re-adjust length of M2PA item since it will be dissected as MTP3 */
       proto_item_set_len(m2pa_item, V2_HEADER_LENGTH + LI_LENGTH);
@@ -263,8 +262,8 @@ dissect_v8_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, pro
     if (m2pa_tree) {
       m2pa_li_item = proto_tree_add_text(m2pa_tree, message_data_tvb, LI_OFFSET, LI_LENGTH, "Length Indicator");
       m2pa_li_tree = proto_item_add_subtree(m2pa_li_item, ett_m2pa_li);
-      proto_tree_add_item(m2pa_li_tree, hf_v8_li_prio,  message_data_tvb, LI_OFFSET, LI_LENGTH, NETWORK_BYTE_ORDER);
-      proto_tree_add_item(m2pa_li_tree, hf_v8_li_spare, message_data_tvb, LI_OFFSET, LI_LENGTH, NETWORK_BYTE_ORDER);
+      proto_tree_add_item(m2pa_li_tree, hf_v8_li_prio,  message_data_tvb, LI_OFFSET, LI_LENGTH, REP_BIG_ENDIAN);
+      proto_tree_add_item(m2pa_li_tree, hf_v8_li_spare, message_data_tvb, LI_OFFSET, LI_LENGTH, REP_BIG_ENDIAN);
 
         /* Re-adjust length of M2PA item since it will be dissected as MTP3 */
       proto_item_set_len(m2pa_item, V8_HEADER_LENGTH + LI_LENGTH);
@@ -292,8 +291,8 @@ dissect_v12_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, pr
     if (m2pa_tree) {
       m2pa_li_item = proto_tree_add_text(m2pa_tree, message_data_tvb, PRI_OFFSET, PRI_LENGTH, "Priority");
       m2pa_li_tree = proto_item_add_subtree(m2pa_li_item, ett_m2pa_li);
-      proto_tree_add_item(m2pa_li_tree, hf_pri_prio,  message_data_tvb, PRI_OFFSET, PRI_LENGTH, NETWORK_BYTE_ORDER);
-      proto_tree_add_item(m2pa_li_tree, hf_pri_spare, message_data_tvb, PRI_OFFSET, PRI_LENGTH, NETWORK_BYTE_ORDER);
+      proto_tree_add_item(m2pa_li_tree, hf_pri_prio,  message_data_tvb, PRI_OFFSET, PRI_LENGTH, REP_BIG_ENDIAN);
+      proto_tree_add_item(m2pa_li_tree, hf_pri_spare, message_data_tvb, PRI_OFFSET, PRI_LENGTH, REP_BIG_ENDIAN);
 
         /* Re-adjust length of M2PA item since it will be dissected as MTP3 */
       proto_item_set_len(m2pa_item, V12_HEADER_LENGTH + PRI_LENGTH);
@@ -322,7 +321,7 @@ dissect_v2_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, p
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str(tvb_get_ntohl(message_data_tvb, STATUS_OFFSET), v2_link_status_values, "Unknown"));
   if (m2pa_tree)
-    proto_tree_add_item(m2pa_tree, hf_v2_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(m2pa_tree, hf_v2_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, REP_BIG_ENDIAN);
 }
 
 static const value_string v8_link_status_values[] = {
@@ -347,9 +346,9 @@ dissect_v8_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, p
 
   filler_length = tvb_length(message_data_tvb) - STATUS_LENGTH;
 
-  proto_tree_add_item(m2pa_tree, hf_v8_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, NETWORK_BYTE_ORDER);
+  proto_tree_add_item(m2pa_tree, hf_v8_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, REP_BIG_ENDIAN);
   if (filler_length > 0)
-      proto_tree_add_item(m2pa_tree, hf_filler, message_data_tvb, FILLER_OFFSET, filler_length, NETWORK_BYTE_ORDER);
+      proto_tree_add_item(m2pa_tree, hf_filler, message_data_tvb, FILLER_OFFSET, filler_length, REP_BIG_ENDIAN);
 }
 
 static const value_string v12_link_status_values[] = {
@@ -374,9 +373,9 @@ dissect_v12_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, 
 
   filler_length = tvb_length(message_data_tvb) - STATUS_LENGTH;
 
-  proto_tree_add_item(m2pa_tree, hf_v12_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, NETWORK_BYTE_ORDER);
+  proto_tree_add_item(m2pa_tree, hf_v12_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, REP_BIG_ENDIAN);
   if (filler_length > 0)
-      proto_tree_add_item(m2pa_tree, hf_filler, message_data_tvb, FILLER_OFFSET, filler_length, NETWORK_BYTE_ORDER);
+      proto_tree_add_item(m2pa_tree, hf_filler, message_data_tvb, FILLER_OFFSET, filler_length, REP_BIG_ENDIAN);
 }
 
 static void
@@ -386,7 +385,7 @@ dissect_unknown_message(tvbuff_t *message_data_tvb, proto_tree *m2pa_tree)
 
   length = tvb_length(message_data_tvb);
   if ((m2pa_tree) && (length > 0))
-    proto_tree_add_item(m2pa_tree, hf_unknown_data, message_data_tvb, 0, length, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(m2pa_tree, hf_unknown_data, message_data_tvb, 0, length, REP_BIG_ENDIAN);
 }
 
 #define V2_MESSAGE_DATA_OFFSET (HEADER_OFFSET + V2_HEADER_LENGTH)
@@ -485,7 +484,7 @@ dissect_v12_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *
   {
     proto_item *pi;
 
-    pi = proto_tree_add_item(m2pa_tree, hf_undecode_data, message_tvb, length, (actual_length - length), NETWORK_BYTE_ORDER);
+    pi = proto_tree_add_item(m2pa_tree, hf_undecode_data, message_tvb, length, (actual_length - length), REP_BIG_ENDIAN);
     expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_WARN,
 			   "There are %d bytes of data which is greater than M2PA's length parameter (%d)",
 			   actual_length, length);
