@@ -99,13 +99,13 @@ typedef struct _wslua_field_t {
  * but no longer supports; we give different error messages for them.
  */
 typedef enum {
-	PREF_UINT,
-	PREF_BOOL,
-	PREF_ENUM,
-	PREF_STRING,
-	PREF_RANGE,
-	PREF_STATIC_TEXT,
-	PREF_OBSOLETE
+    PREF_UINT,
+    PREF_BOOL,
+    PREF_ENUM,
+    PREF_STRING,
+    PREF_RANGE,
+    PREF_STATIC_TEXT,
+    PREF_OBSOLETE
 } pref_type_t;
 
 typedef struct _wslua_pref_t {
@@ -118,34 +118,34 @@ typedef struct _wslua_pref_t {
         guint u;
         const gchar* s;
         gint e;
-	range_t *r;
-	void* p;
+    range_t *r;
+    void* p;
     } value;
     union {
-  	guint32 max_value;		/* maximum value of a range */
-  	struct {
-  	    const enum_val_t *enumvals;	/* list of name & values */
-  	    gboolean radio_buttons;	/* TRUE if it should be shown as
-  					   radio buttons rather than as an
-  					   option menu or combo box in
-  					   the preferences tab */
-  	} enum_info;			/* for PREF_ENUM */
-    } info;			        /* display/text file information */
-    
+      guint32 max_value;		/* maximum value of a range */
+      struct {
+          const enum_val_t *enumvals;    /* list of name & values */
+          gboolean radio_buttons;    /* TRUE if it should be shown as
+                         radio buttons rather than as an
+                         option menu or combo box in
+                         the preferences tab */
+      } enum_info;            /* for PREF_ENUM */
+    } info;                    /* display/text file information */
+
     struct _wslua_pref_t* next;
     struct _wslua_proto_t* proto;
 } wslua_pref_t;
 
 typedef struct _wslua_proto_t {
-	gchar* name;
-	gchar* desc;
-	int hfid;
-	int ett;
+    gchar* name;
+    gchar* desc;
+    int hfid;
+    int ett;
     wslua_pref_t prefs;
-	int fields;
+    int fields;
     module_t *prefs_module;
     dissector_handle_t handle;
-	gboolean is_postdissector;
+    gboolean is_postdissector;
 } wslua_proto_t;
 
 struct _wslua_distbl_t {
@@ -165,8 +165,8 @@ struct _wslua_cols {
 };
 
 struct _wslua_treeitem {
-	proto_item* item;
-	proto_tree* tree;
+    proto_item* item;
+    proto_tree* tree;
     gboolean expired;
 };
 
@@ -190,9 +190,9 @@ struct _wslua_tap {
 #  define CLOSEDIR_OP(dir) g_dir_close(dir)
 
 struct _wslua_dir {
-	DIRECTORY_T* dir;
-	char* ext;
-	GError** dummy;
+    DIRECTORY_T* dir;
+    char* ext;
+    GError** dummy;
 };
 
 struct _wslua_progdlg {
@@ -263,56 +263,55 @@ C* push##C(lua_State* L, C v) { \
     luaL_checkstack(L,2,"Unable to grow stack\n"); \
     p = lua_newuserdata(L,sizeof(C)); *p = v; \
     luaL_getmetatable(L, #C); lua_setmetatable(L, -2); \
-	push_code; \
+    push_code; \
     return p; \
 }\
 gboolean is##C(lua_State* L,int i) { \
-	void *p; \
-	if(!lua_isuserdata(L,i)) return FALSE; \
-	p = lua_touserdata(L, i); \
-	lua_getfield(L, LUA_REGISTRYINDEX, #C); \
-	if (p == NULL || !lua_getmetatable(L, i) || !lua_rawequal(L, -1, -2)) p=NULL; \
-	lua_pop(L, 2); \
-	return p ? TRUE : FALSE; \
+    void *p; \
+    if(!lua_isuserdata(L,i)) return FALSE; \
+    p = lua_touserdata(L, i); \
+    lua_getfield(L, LUA_REGISTRYINDEX, #C); \
+    if (p == NULL || !lua_getmetatable(L, i) || !lua_rawequal(L, -1, -2)) p=NULL; \
+    lua_pop(L, 2); \
+    return p ? TRUE : FALSE; \
 } \
 C shift##C(lua_State* L,int i) { \
     C* p; \
-	if(!lua_isuserdata(L,i)) return NULL; \
-	p = lua_touserdata(L, i); \
-	lua_getfield(L, LUA_REGISTRYINDEX, #C); \
-	if (p == NULL || !lua_getmetatable(L, i) || !lua_rawequal(L, -1, -2)) p=NULL; \
-	lua_pop(L, 2); \
-	if (p) { lua_remove(L,i); return *p; }\
-	else return NULL;\
+    if(!lua_isuserdata(L,i)) return NULL; \
+    p = lua_touserdata(L, i); \
+    lua_getfield(L, LUA_REGISTRYINDEX, #C); \
+    if (p == NULL || !lua_getmetatable(L, i) || !lua_rawequal(L, -1, -2)) p=NULL; \
+    lua_pop(L, 2); \
+    if (p) { lua_remove(L,i); return *p; }\
+    else return NULL;\
 } \
 typedef int dummy##C
 
 #ifdef HAVE_LUA_5_1
 
 #define WSLUA_REGISTER_CLASS(C) { \
-	luaL_register (L, #C, C ## _methods); \
-	luaL_newmetatable (L, #C); \
-	luaL_register (L, NULL, C ## _meta); \
-	lua_pushliteral(L, "__index"); \
-	lua_pushvalue(L, -3); \
-	lua_rawset(L, -3); \
-	lua_pushliteral(L, "__metatable"); \
-	lua_pushvalue(L, -3); \
-	lua_rawset(L, -3); \
-       lua_pop(L, 2); \
+    luaL_register (L, #C, C ## _methods); \
+    luaL_newmetatable (L, #C); \
+    luaL_register (L, NULL, C ## _meta); \
+    lua_pushliteral(L, "__index"); \
+    lua_pushvalue(L, -3); \
+    lua_rawset(L, -3); \
+    lua_pushliteral(L, "__metatable"); \
+    lua_pushvalue(L, -3); \
+    lua_rawset(L, -3); \
+    lua_pop(L, 2); \
 }
 
 #define WSLUA_REGISTER_META(C) { \
-       luaL_newmetatable (L, #C); \
-       luaL_register (L, NULL, C ## _meta); \
-       lua_pop(L,1); \
+    luaL_newmetatable (L, #C); \
+    luaL_register (L, NULL, C ## _meta); \
+    lua_pop(L,1); \
 }
 
 #define WSLUA_INIT(L) \
-	luaL_openlibs(L); \
-	wslua_register_classes(L); \
-	wslua_register_functions(L);
-
+    luaL_openlibs(L); \
+    wslua_register_classes(L); \
+    wslua_register_functions(L);
 
 #endif
 
@@ -358,7 +357,6 @@ typedef int dummy##C
     } \
 } 
 
-
 #define WSLUA_CLASS_DECLARE(C) \
 extern C to##C(lua_State* L, int idx); \
 extern C check##C(lua_State* L, int idx); \
@@ -366,7 +364,6 @@ extern C* push##C(lua_State* L, C v); \
 extern int C##_register(lua_State* L); \
 extern gboolean is##C(lua_State* L,int i); \
 extern C shift##C(lua_State* L,int i)
-
 
 extern packet_info* lua_pinfo;
 extern TreeItem lua_tree;
