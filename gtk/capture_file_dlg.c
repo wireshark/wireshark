@@ -342,9 +342,32 @@ file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
     /* make the preview widget sensitive */
     gtk_widget_set_sensitive(prev, have_preview);
 
+    /*
+     * XXX - if the Open button isn't sensitive, you can't type into
+     * the location bar and select the file or directory you've typed.
+     * See
+     *
+     *	https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1791
+     *
+     * It's not as if allowing users to click Open when they've
+     * selected a file that's not a valid capture file will cause
+     * anything worse than an error dialog, so we'll leave the Open
+     * button sensitive for now.  Perhaps making it sensitive if
+     * cf_name is NULL would also work, although I don't know whether
+     * there are any cases where it would be non-null when you've
+     * typed in the location bar.
+     *
+     * XXX - Bug 1791 also notes that, with the line removed, Bill
+     * Meier "somehow managed to get the file chooser window somewhat
+     * wedged in that neither the cancel or open buttons were responsive".
+     * That seems a bit odd, given that, without this line, we're not
+     * monkeying with the Open button's sensitivity, but...
+     */
+#if 0
     /* make the open/save/... dialog button sensitive */
 
     gtk_dialog_set_response_sensitive(file_sel, GTK_RESPONSE_ACCEPT, have_preview);
+#endif
 
     /* do the actual preview */
     if(have_preview)
