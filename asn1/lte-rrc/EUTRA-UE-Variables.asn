@@ -1,6 +1,7 @@
--- 3GPP TS 36.331 V9.1.0 (2009-12)
+-- 3GPP TS 36.331 V9.2.0 (2010-03)
 -- $Id$
 --
+
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
  
 BEGIN
@@ -57,3 +58,4 @@ VarShortMAC-Input ::=					SEQUENCE {
 
 
 END
+

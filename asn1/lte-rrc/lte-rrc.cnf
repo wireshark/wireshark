@@ -16,6 +16,7 @@ HandoverCommand
 HandoverCommand_PDU
 HandoverPreparationInformation
 HandoverPreparationInformation_PDU
+#UEInformationResponse
 
 #.PDU_NEW
 HandoverCommand
@@ -35,10 +36,10 @@ UE-EUTRA-Capability          @ue_eutra_cap
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
-VarMeasReport
 VarShortMAC-Input
 VarMeasConfig
 VarMeasReportList
+VarMeasReport
 
 #.FN_HDR UL-DCCH-Message
   actx->pinfo->link_dir = P2P_DIR_UL;

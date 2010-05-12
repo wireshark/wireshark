@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V9.1.0 (2009-12)
+-- 3GPP TS 36.331 V9.2.0 (2010-03)
 -- $Id$
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
@@ -41,7 +41,14 @@ HandoverPreparationInformation-r8-IEs ::= SEQUENCE {
 	as-Config							AS-Config					OPTIONAL, 		-- Cond HO
 	rrm-Config							RRM-Config					OPTIONAL,
 	as-Context							AS-Context				OPTIONAL, 		-- Cond HO
-	nonCriticalExtension				SEQUENCE {}					OPTIONAL
+	nonCriticalExtension				HandoverPreparationInformation-v920-IEs		OPTIONAL
+}
+
+HandoverPreparationInformation-v920-IEs	::= SEQUENCE {
+	ue-ConfigRelease-r9					ENUMERATED {
+										rel9, spare7, spare6, spare5, spare4, spare3,
+										spare2, spare1, ...} 			OPTIONAL, 	-- Cond HO2
+	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
 
@@ -70,11 +77,18 @@ AS-Config ::=				SEQUENCE {
 	sourceSecurityAlgorithmConfig		SecurityAlgorithmConfig,
 	sourceUE-Identity					C-RNTI,
 	sourceMasterInformationBlock		MasterInformationBlock,
-	sourceSystemInformationBlockType1	SystemInformationBlockType1,
+	sourceSystemInformationBlockType1	SystemInformationBlockType1(WITH COMPONENTS
+											{..., nonCriticalExtension ABSENT}),
 	sourceSystemInformationBlockType2	SystemInformationBlockType2,
 	antennaInfoCommon					AntennaInfoCommon,
-	sourceDl-CarrierFreq                ARFCN-ValueEUTRA,
-	...
+	sourceDl-CarrierFreq				ARFCN-ValueEUTRA,
+	...,
+--	[[	sourceSystemInformationBlockType1Ext	OCTET STRING (CONTAINING
+		sourceSystemInformationBlockType1Ext	OCTET STRING (CONTAINING
+												SystemInformationBlockType1-v890-IEs)	OPTIONAL,
+		sourceOtherConfig-r9				OtherConfig-r9
+--	]]
+
 }
 
 
@@ -121,3 +135,4 @@ maxReestabInfo				INTEGER ::= 32	-- Maximum number of KeNB* and shortMAC-I forwa
 
 
 END
+
