@@ -46,10 +46,10 @@ typedef enum {
   AT_ATALK,		/* Appletalk DDP */
   AT_VINES,		/* Banyan Vines */
   AT_OSI,		/* OSI NSAP */
-  AT_ARCNET,	/* ARCNET */
+  AT_ARCNET,		/* ARCNET */
   AT_FC,		/* Fibre Channel */
   AT_SS7PC,		/* SS7 Point Code */
-  AT_STRINGZ,	/* null-terminated string */
+  AT_STRINGZ,		/* null-terminated string */
   AT_EUI64,		/* IEEE EUI-64 */
   AT_URI,		/* URI/URL/URN */
   AT_TIPC,		/* TIPC Address Zone,Subnetwork,Processor */
@@ -132,7 +132,7 @@ typedef struct _address {
 	for (ADD_ADDRESS_TO_HASH_index = 0; \
 	     ADD_ADDRESS_TO_HASH_index < (addr)->len; \
 	     ADD_ADDRESS_TO_HASH_index++) \
-		hash_val += ADD_ADDRESS_TO_HASH_data[ADD_ADDRESS_TO_HASH_index]; \
+	     hash_val += ADD_ADDRESS_TO_HASH_data[ADD_ADDRESS_TO_HASH_index]; \
 	}
 
 /* Types of port numbers Wireshark knows about. */
