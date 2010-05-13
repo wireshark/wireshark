@@ -2970,7 +2970,25 @@ any "wildcarded" address and the "port_b" port will be treated as
 matching any "wildcarded" port.
 
 
-2.2.4 The conversation_add_proto_data function.
+2.2.4 The find_or_create_conversation function.
+
+This convenience function will create find an existing conversation (by calling
+find_conversation()) and, if a conversation does not already exist, create a
+new conversation by calling conversation_new().
+
+The find_or_create_conversation prototype:
+
+	extern conversation_t *find_or_create_conversation(packet_info *pinfo);
+
+Where:
+	packet_info *pinfo = the packet_info structure
+
+The frame number and the addresses necessary for find_conversation() and
+conversation_new() are taken from the pinfo structure (as is commonly done)
+and no 'options' are used.
+
+
+2.2.5 The conversation_add_proto_data function.
 
 Once you have created a conversation with conversation_new, you can
 associate data with it using this function.
@@ -2993,7 +3011,7 @@ conversation.  Using the protocol number allows several dissectors to
 associate data with a given conversation.
 
 
-2.2.5 The conversation_get_proto_data function.
+2.2.6 The conversation_get_proto_data function.
 
 After you have located a conversation with find_conversation, you can use
 this function to retrieve any data associated with it.
@@ -3012,7 +3030,7 @@ typically in the proto_register_XXXX portion of a dissector.  The function
 returns a pointer to the data requested, or NULL if no data was found.
 
 
-2.2.6 The conversation_delete_proto_data function.
+2.2.7 The conversation_delete_proto_data function.
 
 After you are finished with a conversation, you can remove your association
 with this function.  Please note that ONLY the conversation entry is
@@ -3032,7 +3050,7 @@ is a unique protocol number created with proto_register_protocol,
 typically in the proto_register_XXXX portion of a dissector.
 
 
-2.2.7 Using timestamps relative to the conversation
+2.2.8 Using timestamps relative to the conversation
 
 There is a framework to calculate timestamps relative to the start of the
 conversation. First of all the timestamp of the first packet that has been
@@ -3079,7 +3097,7 @@ SVN 23058 to see the implementation of conversation timestamps for
 the tcp-dissector.
 
 
-2.2.8 The example conversation code with GMemChunk's.
+2.2.9 The example conversation code with GMemChunk's.
 
 For a conversation between two IP addresses and ports you can use this as an
 example.  This example uses the GMemChunk to allocate memory and stores the data
@@ -3170,7 +3188,7 @@ register_init_routine(&my_dissector_init);
 my_proto = proto_register_protocol("My Protocol", "My Protocol", "my_proto");
 
 
-2.2.9 An example conversation code that starts at a specific frame number.
+2.2.10 An example conversation code that starts at a specific frame number.
 
 Sometimes a dissector has determined that a new conversation is needed that
 starts at a specific frame number, when a capture session encompasses multiple
@@ -3194,7 +3212,7 @@ that starts at the specific frame number.
 	}
 
 
-2.2.10 The example conversation code using conversation index field.
+2.2.11 The example conversation code using conversation index field.
 
 Sometimes the conversation isn't enough to define a unique data storage
 value for the network traffic.  For example if you are storing information
@@ -3216,14 +3234,7 @@ upon the conversation index and values inside the request packets.
         /* then used the conversation index, and request data to find data */
         /* in the local hash table */
 
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-	    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	if (conversation == NULL) {
-		/* It's not part of any conversation - create a new one. */
-		conversation = conversation_new(pinfo->fd->num, &pinfo->src,
-		    &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport,
-		    NULL, 0);
-	}
+	conversation = find_or_create_conversation(pinfo);
 
 	request_key.conversation = conversation->index;
 	request_key.service = pntohs(&rxh->serviceId);
