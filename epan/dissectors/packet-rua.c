@@ -65,7 +65,6 @@
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
 #define maxNrOfErrors                  256
-#define maxUEs                         64
 
 typedef enum _ProcedureCode_enum {
   id_Connect   =   1,

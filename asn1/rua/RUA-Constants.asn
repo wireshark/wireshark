@@ -1,6 +1,6 @@
 -- RUA-Constants.asn
 --
--- 3GPP TS 25.468 V9.0.0 (2009-12)
+-- 3GPP TS 25.468 V9.1.0 (2010-03)
 -- http://www.3gpp.org/ftp/Specs/html-info/25468.htm
 --
 -- 9.3.6	Constant definitions
@@ -45,7 +45,6 @@ id-privateMessage					ProcedureCode ::= 6
 --
 -- **************************************************************
 maxNrOfErrors						INTEGER ::= 256
-maxUEs								INTEGER ::= 64
 
 -- **************************************************************
 --
