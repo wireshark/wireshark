@@ -19,6 +19,7 @@
  * RFC5417.txt (CAPWAP Access Controller DHCP Option)
  * draft-ietf-dhc-dhcpv6-opt-timeconfig-03.txt
  * draft-ietf-dhc-dhcpv6-opt-lifetime-00.txt
+ * CL-SP-CANN-DHCP-Reg-I03-090811.doc
  *
  * Note that protocol constants are still subject to change, based on IANA
  * assignment decisions.
@@ -291,6 +292,7 @@ static const true_false_string fqdn_s = {
 #define CL_OPTION_DEVICE_ID               0x0024 /* 36 */
 #define CL_OPTION_RFC868_SERVERS          0x0025 /* 37 */
 #define CL_OPTION_TIME_OFFSET             0x0026 /* 38 */
+#define CL_OPTION_IP_PREF                 0x0027 /* 39 */
 
 /** CableLabs DOCSIS Project Vendor Specific Options */
 #define CL_OPTION_DOCS_CMTS_CAP 0x0401  /* 1025 */
@@ -299,6 +301,7 @@ static const true_false_string fqdn_s = {
 
 /** CableLabs PacketCable Project Vendor Specific Options **/
 #define CL_OPTION_CCC 0x087a  /* 2170 */
+#define CL_OPTION_CCCV6 0x087b  /* 2171 */
 
 /** CableLabs TLVs for DOCS_CMTS_CAP Vendor Option **/
 #define CL_OPTION_DOCS_CMTS_TLV_VERS_NUM 0x01 /* 1 */
@@ -321,12 +324,14 @@ static const value_string cl_vendor_subopt_values[] = {
     /*   36 */ { CL_OPTION_DEVICE_ID, "Device Identifier = " },
     /*   37 */ { CL_OPTION_RFC868_SERVERS, "Time Protocol Servers : " },
     /*   38 */ { CL_OPTION_TIME_OFFSET, "Time Offset = " },
+    /*   39 */ { CL_OPTION_IP_PREF, "IP preference : " },
     /* 1025 */ { CL_OPTION_DOCS_CMTS_CAP, "CMTS Capabilities Option : " },
     /* 1026 */ { CL_CM_MAC_ADDR, "CM MAC Address Option = " },
     /* 1027 */ { CL_EROUTER_CONTAINER_OPTION, "eRouter Container Option : " },
     /* 2170 */ { CL_OPTION_CCC, "CableLabs Client Configuration : " },
-    { 0, NULL}
-    /* 1 */ };
+    /* 2171 */ { CL_OPTION_CCCV6, "CableLabs Client Configuration IPv6 : " },
+    { 0, NULL }
+};
 
 #define PKT_CCC_PRI_DHCP       0x0001
 #define PKT_CCC_SEC_DHCP       0x0002
@@ -337,7 +342,18 @@ static const value_string cl_vendor_subopt_values[] = {
 #define PKT_CCC_TGT_FLAG       0x0007
 #define PKT_CCC_PROV_TIMER     0x0008
 #define PKT_CCC_IETF_SEC_TKT   0x0009
-/** 10 -255 Reservered for future extensions **/
+/** 10 -255 Reserved for future extensions **/
+
+#define PKT_CCCV6_PRI_DSS       0x0001
+#define PKT_CCCV6_SEC_DSS       0x0002
+#define PKT_CCCV6_IETF_PROV_SRV 0x0003
+#define PKT_CCCV6_IETF_AS_KRB   0x0004
+#define PKT_CCCV6_IETF_AP_KRB   0x0005
+#define PKT_CCCV6_KRB_REALM     0x0006
+#define PKT_CCCV6_TGT_FLAG      0x0007
+#define PKT_CCCV6_PROV_TIMER    0x0008
+#define PKT_CCCV6_IETF_SEC_TKT  0x0009
+/** 10 -255 Reserved for future extensions **/
 
 static const value_string pkt_ccc_opt_vals[] = {
     { PKT_CCC_PRI_DHCP,      "TSP's Primary DHCP Server" },
@@ -351,6 +367,19 @@ static const value_string pkt_ccc_opt_vals[] = {
     { PKT_CCC_IETF_SEC_TKT,  "PacketCable Security Ticket Control" },
     { 0, NULL },
 };
+
+static const value_string pkt_cccV6_opt_vals[] = {
+    { PKT_CCCV6_PRI_DSS,        "TSP's Primary DHCPv6 Server Selector ID" },
+    { PKT_CCCV6_SEC_DSS,        "TSP's Secondary DHCPv6 Server Selector ID " },
+    { PKT_CCCV6_IETF_PROV_SRV,  "TSP's Provisioning Server" },
+    { PKT_CCCV6_IETF_AS_KRB,    "TSP's AS-REQ/AS-REP Backoff and Retry" },
+    { PKT_CCCV6_IETF_AP_KRB,    "TSP's AP-REQ/AP-REP Backoff and Retry" },
+    { PKT_CCCV6_KRB_REALM,      "TSP's Kerberos Realm Name" },
+    { PKT_CCCV6_TGT_FLAG,       "TSP's Ticket Granting Server Utilization" },
+    { PKT_CCCV6_PROV_TIMER,     "TSP's Provisioning Timer Value" },
+    { PKT_CCCV6_IETF_SEC_TKT,   "PacketCable Security Ticket Control" },
+    { 0, NULL }
+}; 
 
 static const value_string sec_tcm_vals[] = {
     { 1 << 0, "PacketCable Provisioning Server" },
@@ -567,6 +596,179 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
     return (suboptoff - optoff);
 }
 
+static int
+dissect_packetcable_cccV6_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
+    int optend)
+{
+    int suboptoff = optoff;
+    guint16 subopt, subopt_len, sec_tcm;
+    guint8 fetch_tgt, timer_val, type;
+    proto_item *vti;
+    proto_tree *pkt_s_tree;
+    guchar kr_name;         /* A character in the kerberos realm name option */
+    guint8 kr_value;        /* The integer value of the character currently being tested */
+    int kr_fail_flag = 0;   /* Flag indicating an invalid character was found */
+    int kr_pos = 0;         /* The position of the first invalid character */
+    int i = 0;
+    char bit_fld[24];
+    struct e_in6_addr in6;
+
+    subopt = tvb_get_ntohs(tvb, optoff);
+    suboptoff += 2;
+
+    subopt_len = tvb_get_ntohs(tvb, suboptoff);
+    suboptoff += 2;
+
+    /* There must be at least five octets left to be a valid sub element */
+    if (optend <= 0) {
+        proto_tree_add_text(v_tree, tvb, optoff, 1,
+            "Sub element %d: no room left in option for suboption length",
+            subopt);
+        return (optend);
+    } 
+
+    vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 4,
+        "Sub element %u: %s: ", subopt,
+        val_to_str(subopt, pkt_cccV6_opt_vals, "unknown/reserved") );
+
+    switch (subopt) {
+        case PKT_CCCV6_PRI_DSS:
+        case PKT_CCCV6_SEC_DSS:
+            if (subopt_len < 35) {
+                proto_item_append_text(vti, "%s (%u byte%s)",
+                    tvb_format_stringzpad(tvb, suboptoff, subopt_len),
+                    subopt_len,
+                    plurality(subopt_len-1, "", "s") );
+            } else {
+                proto_item_append_text(vti, "Bogus length: %d", subopt_len);
+            }
+            suboptoff += subopt_len;
+            break;
+
+        case PKT_CCCV6_IETF_PROV_SRV:
+            type = tvb_get_guint8(tvb, suboptoff);
+            /** Type 0 is FQDN **/
+            if (type == 0) {
+                proto_item_append_text(vti, "%s (%u byte%s)",
+                    tvb_format_stringzpad(tvb, suboptoff+1, subopt_len-1),
+                    subopt_len,
+                    plurality(subopt_len-1, "", "s") );
+            /** Type 1 is IPv6 **/
+            } else if (type == 1) {
+                if ((subopt_len % 16) == 0) {
+                    for (i = 0; i < subopt_len/16; i++) {
+                        tvb_get_ipv6(tvb, suboptoff, &in6);
+                        proto_item_append_text(vti, "IPv6 address %d: %s",
+                            i+1, ip6_to_str(&in6));
+                        suboptoff += 16;
+                    }
+                }
+            } else {
+                proto_item_append_text(vti, "Invalid type: %u (%u byte%s)",
+                    type, subopt_len, plurality(subopt_len, "", "s")); 
+            }
+            suboptoff += subopt_len;
+            break;
+
+        case PKT_CCCV6_IETF_AS_KRB:
+        case PKT_CCCV6_IETF_AP_KRB:
+            if (subopt_len == 12) {
+                pkt_s_tree = proto_item_add_subtree(vti, ett_dhcpv6_pkt_option);
+                proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4, 
+                    "Nominal Timeout : %u", tvb_get_ntohl(tvb, suboptoff));
+                proto_tree_add_text(pkt_s_tree, tvb, suboptoff+4, 4, 
+                    "Maximum Timeout : %u", tvb_get_ntohl(tvb, suboptoff+4));
+                proto_tree_add_text(pkt_s_tree, tvb, suboptoff+8, 4, 
+                    "Maximum Retry Count : %u", tvb_get_ntohl(tvb, suboptoff+8));
+            } else {
+                proto_item_append_text(vti, "Bogus length: %d", subopt_len);
+            }
+            suboptoff += subopt_len;
+            break;
+
+        case PKT_CCCV6_KRB_REALM:
+            if (subopt_len > 0) {
+                for (i=0; i < subopt_len; i++) {
+                    kr_name = tvb_get_guint8(tvb, suboptoff + i);
+                    kr_value = (int)kr_name;
+                    if ((kr_value >= 65 && kr_value <= 90) || 
+                        kr_value == 34 || 
+                        kr_value == 44 || 
+                        kr_value == 46 || 
+                        kr_value == 47 || 
+                        kr_value == 58 || 
+                        kr_value == 61 || 
+                        kr_value == 92) {
+                    } else if (!kr_fail_flag) {
+                        kr_pos = i;
+                        kr_fail_flag = 1;
+                    }
+                    proto_item_append_text(vti, "%c", kr_name);
+                }
+
+                if (kr_fail_flag) {
+                    proto_item_append_text(vti, " (%u byte%s [Invalid at byte=%d]) ",
+                        subopt_len,
+                        plurality(subopt_len, "", "s"),  
+                        kr_pos);
+                } else {
+                    proto_item_append_text(vti, " (%u byte%s%s) ",
+                        subopt_len,
+                        plurality(subopt_len, "", "s"),  
+                        kr_fail_flag != 0 ? " [Invalid]" : "");
+                }
+            } 
+            suboptoff += subopt_len;
+            break;
+
+        case PKT_CCCV6_TGT_FLAG:
+            fetch_tgt = tvb_get_guint8(tvb, suboptoff);
+            proto_item_append_text(vti, "%s (%u byte%s%s)",
+                fetch_tgt == 1 ? "True" : "False",
+                subopt_len,
+                plurality(subopt_len, "", "s"),
+                subopt_len != 1 ? " [Invalid]" : "");
+            suboptoff += subopt_len;
+            break;
+
+        case PKT_CCCV6_PROV_TIMER:
+            timer_val = tvb_get_guint8(tvb, suboptoff);
+            proto_item_append_text(vti, "%u (%u byte%s%s)", timer_val,
+                subopt_len,
+                plurality(subopt_len, "", "s"),
+            subopt_len != 1 ? " [Invalid]" : "");
+            suboptoff += subopt_len;
+            break;
+
+        case PKT_CCCV6_IETF_SEC_TKT:
+            sec_tcm = tvb_get_ntohs(tvb, suboptoff);
+            proto_item_append_text(vti, "0x%04x (%u byte%s%s)",
+                sec_tcm, subopt_len, plurality(subopt_len, "", "s"),
+            subopt_len != 2 ? " [Invalid]" : "");     
+
+            if (subopt_len == 2) {
+                pkt_s_tree = proto_item_add_subtree(vti, ett_dhcpv6_pkt_option);
+                for (i=0; i< 2; i++) {
+                    if (sec_tcm & sec_tcm_vals[i].value) {
+                        decode_bitfield_value(bit_fld, sec_tcm, sec_tcm_vals[i].value, 16);
+                        proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 2, "%s %s",
+                        bit_fld, sec_tcm_vals[i].strptr);
+                    }
+                }
+            }
+
+            suboptoff += subopt_len;
+            break;
+
+        default:
+            suboptoff += subopt_len;
+            break;
+    }
+    
+    /** Return the number of bytes processed **/
+    return (suboptoff - optoff);
+}
+
 static void
 dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 {
@@ -579,6 +781,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
     proto_item *ti;
     int i;
     int field_len; /* holds the lenght of one occurrence of a field */
+    int field_value;
     proto_tree *subtree;
     struct e_in6_addr in6;
 
@@ -607,6 +810,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
             case CL_OPTION_VENDOR_NAME :
             case CL_OPTION_CONFIG_FILE_NAME :
             case CL_OPTION_EMBEDDED_COMPONENT_LIST :
+            case CL_OPTION_VENDOR_OUI :
                 opt_len = tlv_len;
                 field_len = tlv_len;
                 proto_item_append_text(ti, "\"%s\"",
@@ -643,7 +847,6 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
                 }
                 break;
 
-            case CL_OPTION_VENDOR_OUI :
             case CL_OPTION_DEVICE_ID :
                 opt_len = tlv_len;
                 field_len = tlv_len;
@@ -669,6 +872,18 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
                 proto_item_append_text(ti, "%d", tvb_get_ntohl(tvb, sub_off));
                 break;
 
+            case CL_OPTION_IP_PREF :
+                opt_len = tlv_len;
+                field_value = tvb_get_guint8(tvb, sub_off);
+                if (field_value == 1) {
+                    proto_item_append_text(ti, "%s", "IPv4");
+                } else if (field_value == 2) {
+                    proto_item_append_text(ti, "%s", "IPv6");
+                } else {
+                    proto_item_append_text(ti, "%s", "Unknown");
+                }
+                break;
+
             case CL_OPTION_DOCS_CMTS_CAP :
                 opt_len = tlv_len;
                 field_len = 0;
@@ -692,8 +907,8 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
                             sub_off++;
                             minor = tvb_get_guint8(tvb, sub_off);
                             sub_off++;
-                            proto_tree_add_text(subtree, tvb, sub_off,
-                                                sizeof(4), "DOCSIS Version Number %d.%d",
+                            proto_tree_add_text(subtree, tvb, sub_off-2,
+                                2, "DOCSIS Version Number %d.%d",
                                                 major, minor);
                         }
                         else
@@ -743,6 +958,21 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
                     field_len += sub_value;
                 }
                 sub_off += field_len;
+                break;
+
+            case CL_OPTION_CCCV6 :
+                opt_len = tlv_len;
+                field_len = 0;
+                subtree = proto_item_add_subtree(ti, ett_dhcpv6_vendor_option);
+                proto_item_append_text(ti, " (%d bytes)", opt_len);
+                while (field_len < opt_len) {
+                    sub_value = dissect_packetcable_cccV6_option(subtree, tvb, 
+                        sub_off, (opt_len - field_len));
+                    sub_off += sub_value;
+                    field_len += sub_value;
+                }
+                sub_off += field_len;
+                break;
 
             default:
                 opt_len = tlv_len;
@@ -896,7 +1126,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                                 hwtype);
             /* XXX seconds since Jan 1 2000 */
             proto_tree_add_text(subtree, tvb, off + 4, 4,
-                                "Time: %u", tvb_get_ntohl(tvb, off + 4));
+                "Time: %s",
+                abs_time_secs_to_str(tvb_get_ntohl(tvb, off + 4)+630822816U, ABSOLUTE_TIME_LOCAL));
             if (optlen > 8) {
                 proto_tree_add_text(subtree, tvb, off + 8,
                                     optlen - 8, "Link-layer address: %s",
@@ -948,8 +1179,9 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
         proto_tree_add_text(subtree, tvb, off, 4,
-                            "IAID: %u",
-                            tvb_get_ntohl(tvb, off));
+            "IAID: %s",
+            arphrdaddr_to_str(tvb_get_ptr(tvb, off, 4),
+            4, opttype));
         if (tvb_get_ntohl(tvb, off+4) == DHCPV6_LEASEDURATION_INFINITY) {
             proto_tree_add_text(subtree, tvb, off+4, 4,
                                 "T1: infinity");
@@ -983,8 +1215,9 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
         proto_tree_add_text(subtree, tvb, off, 4,
-                            "IAID: %u",
-                            tvb_get_ntohl(tvb, off));
+            "IAID: %s",
+            arphrdaddr_to_str(tvb_get_ptr(tvb, off, 4),
+            4, opttype));
         temp_optlen = 4;
         while ((optlen - temp_optlen) > 0) {
             temp_optlen += dhcpv6_option(tvb, pinfo, subtree, downstream,
@@ -1141,9 +1374,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
         proto_tree_add_item(subtree, hf_vendorclass_enterprise, tvb, off, 4, FALSE);
         if (optlen > 4) {
-            buf = tvb_bytes_to_str(tvb, off + 4, optlen - 4);
-            proto_tree_add_text(subtree, tvb, off+4, optlen-4,
-                                "vendor-class-data: %s", buf);
+            proto_tree_add_text(subtree, tvb, off+6, optlen-6,
+                "vendor-class-data: \"%s\"", tvb_format_stringzpad(tvb, off + 6, optlen - 6));
         }
         break;
     case OPTION_VENDOR_OPTS:
@@ -1360,7 +1592,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                                 "flags: %d",
                                 (guint32)tvb_get_guint8(tvb, off));
 #endif
-            dhcpv6_domain(subtree, tvb, off + 1, optlen - 1);
+            dhcpv6_domain(subtree, tvb, off-1, optlen+1);
         }
         break;
     case OPTION_PANA_AGENT:
