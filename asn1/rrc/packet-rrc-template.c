@@ -1,7 +1,7 @@
 /* packet-rrc.c
  * Routines for Universal Mobile Telecommunications System (UMTS);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 25.331 version 6.7.0 Release 6) packet dissection
+ * (3GPP TS 25.331  packet dissection
  * Copyright 2006-2010, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$

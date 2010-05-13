@@ -1,7 +1,7 @@
 -- $Id$
 -- Constant-definitions.asn
 --
--- 3GPP TS 25.331 V9.1.0 (2009-12)
+-- 3GPP TS 25.331 V9.2.1 (2010-04)
 -- http://www.3gpp.org/ftp/Specs/html-info/25331.htm
 --
 -- 11.4	Constant definitions
@@ -23,6 +23,7 @@ maxCCTrCH					INTEGER ::= 8
 maxCellMeas 				INTEGER ::= 32
 maxCellMeasOnSecULFreq 		INTEGER ::= 32
 maxCellMeas-1				INTEGER ::= 31
+maxCellMeasOnSecULFreq-1	INTEGER ::= 31
 maxCNdomains				INTEGER ::= 4
 maxCommonHRNTI				INTEGER ::= 4
 maxCommonQueueID			INTEGER ::= 2
@@ -86,6 +87,8 @@ maxMeasCSGRange				INTEGER ::= 4
 maxMeasEvent				INTEGER ::= 8
 maxMeasEventOnSecULFreq		INTEGER ::= 8
 maxMeasIntervals			INTEGER ::= 3
+maxMeasOccasionPattern		INTEGER ::= 5
+maxMeasOccasionPattern-1	INTEGER ::= 4
 maxMeasParEvent				INTEGER ::= 2
 maxNumCDMA2000Freqs			INTEGER ::=  8
 maxNumE-AGCH				INTEGER ::= 4
@@ -113,7 +116,6 @@ maxPRACH-FPACH				INTEGER ::= 8
 maxPredefConfig				INTEGER ::= 16
 maxPrio						INTEGER ::= 8
 maxPrio-1					INTEGER ::= 7
-maxCSGProximityIndications	INTEGER ::= 4
 maxPUSCH					INTEGER ::= 8
 maxQueueIDs					INTEGER ::= 8
 maxRABsetup					INTEGER ::= 16

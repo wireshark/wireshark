@@ -1,7 +1,7 @@
 -- $Id$
 -- Internode-definitions.asn
 --
--- 3GPP TS 25.331 V9.1.0 (2009-12)
+-- 3GPP TS 25.331 V9.2.1 (2010-04)
 -- http://www.3gpp.org/ftp/Specs/html-info/25331.htm
 --
 -- 11.5	RRC information between network nodes
@@ -164,7 +164,6 @@ FROM PDU-definitions
 	MBMS-JoinedInformation-r6,
 	MBMS-SelectedServiceInfo,
 -- Other IEs :
-	CSGProximityIndication,
 	GERANIu-RadioAccessCapability,
 	GSM-MS-RadioAccessCapability,
 	InterRAT-UE-RadioAccessCapabilityList,
@@ -173,11 +172,10 @@ FROM PDU-definitions
 	InterRAT-UE-RadioAccessCapability-v860ext,
 	UE-HistoryInformation,
 	UESpecificBehaviourInformation1idle,
-	-- WS fix
-	CSGProximityIndicationList,
 	UESpecificBehaviourInformation1interRAT
 
 FROM InformationElements
+
 
 	maxCNdomains,
 	maxEDCHRL,
@@ -252,9 +250,9 @@ InterRATHandoverInfoWithInterRATCapabilities-r3 ::= CHOICE {
 				v860NonCriticalExtensions		SEQUENCE {
 					interRATHandoverInfoWithInterRATCapabilities-v860ext
 										InterRATHandoverInfoWithInterRATCapabilities-v860ext-IEs,
-					v9xyNonCriticalExtensions		SEQUENCE {
-						interRATHandoverInfoWithInterRATCapabilities-v9xyext
-										InterRATHandoverInfoWithInterRATCapabilities-v9xyext-IEs,
+					v920NonCriticalExtensions		SEQUENCE {
+						interRATHandoverInfoWithInterRATCapabilities-v920ext
+										InterRATHandoverInfoWithInterRATCapabilities-v920ext-IEs,
 						nonCriticalExtensions			SEQUENCE {}	OPTIONAL
 					}		OPTIONAL
 				}		OPTIONAL
@@ -292,7 +290,7 @@ InterRATHandoverInfoWithInterRATCapabilities-v860ext-IEs ::= SEQUENCE {
 		ue-RATSpecificCapability			InterRAT-UE-RadioAccessCapability-v860ext	OPTIONAL
 }
 
-InterRATHandoverInfoWithInterRATCapabilities-v9xyext-IEs ::= SEQUENCE {
+InterRATHandoverInfoWithInterRATCapabilities-v920ext-IEs ::= SEQUENCE {
 	-- Other IEs
 		ue-Inactivity-Period				INTEGER (1..120)	OPTIONAL
 }
@@ -1244,7 +1242,6 @@ SRNC-RelocationInfo-r9-IEs ::=			SEQUENCE {
 		measurementReport				BIT STRING
 							(CONTAINING MeasurementReport)					OPTIONAL,
 	-- Other IEs
-		cSGproximityIndicationList		CSGProximityIndicationList			OPTIONAL,
 		failureCause					FailureCauseWithProtErr				OPTIONAL,
 		ue-HistoryInformation			UE-HistoryInformation				OPTIONAL,
 	-- MBMS IEs
@@ -1553,9 +1550,6 @@ OngoingMeasRepList-r8 ::=			SEQUENCE (SIZE (1..maxNoOfMeas)) OF
 
 OngoingMeasRepList-r9 ::=			SEQUENCE (SIZE (1..maxNoOfMeas)) OF
 										OngoingMeasRep-r9
--- WS fix: Imported from InformationElements
---CSGProximityIndicationList ::=		SEQUENCE (SIZE (1..maxNoOfMeas)) OF
---										CSGProximityIndication
 
 PDCP-Capability-r4 ::=				SEQUENCE {
 	losslessSRNS-RelocationSupport		BOOLEAN,

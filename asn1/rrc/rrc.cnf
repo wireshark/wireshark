@@ -14,16 +14,19 @@ InterRATHandoverInfo_PDU
 ToTargetRNC-Container_PDU
 TargetRNC-ToSourceRNC-Container_PDU
 HandoverToUTRANCommand_PDU
+
 #.OMIT_ASSIGNMENT
+# Omit System-Information-Container for now it messes up the
+# MasterInformationBlock       @si.mib
+# :
+# for some reason
+System-Information-Container
 UE-RadioAccessCapability-v890ext
 UL-PhysChCapabilityFDD-r6
 GSMCellGroupingList
-MeasuredResultOnSecULFreq
-TriggeringCondition3
 UE-Positioning-GANSS-Data
 GANSSDecipheringKeys
 GSM-CellID
-IntraFrequencyMeasuredResultsListOnSecULFreq
 CellMeasuredResultsListOnSecULFreq
 #.END
 
