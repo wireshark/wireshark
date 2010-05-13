@@ -1143,7 +1143,7 @@ typedef struct tn3270_conv_info_t {
   gint extended;
 } tn3270_conv_info_t;
 
-void add_tn3270_conversation(packet_info *pinfo, int tn3270e);
+void add_tn3270_conversation(packet_info *pinfo, int tn3270e, int model);
 int find_tn3270_conversation(packet_info *pinfo);
 
 #endif

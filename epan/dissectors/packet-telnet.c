@@ -138,21 +138,30 @@ typedef struct tn_opt {
 } tn_opt;
 
 static void
-check_for_tn3270(packet_info *pinfo _U_, const char *optname, const char *terminaltype)
+check_tn3270_model(packet_info *pinfo _U_, const char *terminaltype)
 {
-
-  if (strcmp(optname,"Terminal Type") != 0) {
-      return;
-  }
-
+  int model;
+  char str_model[2];
   if ((strcmp(terminaltype,"IBM-3278-2-E") == 0) || (strcmp(terminaltype,"IBM-3278-2") == 0) ||
       (strcmp(terminaltype,"IBM-3278-3") == 0) || (strcmp(terminaltype,"IBM-3278-4") == 0) ||
       (strcmp(terminaltype,"IBM-3278-5") == 0) || (strcmp(terminaltype,"IBM-3277-2") == 0) ||
       (strcmp(terminaltype,"IBM-3279-3") == 0) || (strcmp(terminaltype,"IBM-3279-4") == 0) ||
       (strcmp(terminaltype,"IBM-3279-2-E") == 0) || (strcmp(terminaltype,"IBM-3279-2") == 0) ||
-      (strcmp(terminaltype,"IBM-3279-4-E") == 0))
-      add_tn3270_conversation(pinfo, 0);
+      (strcmp(terminaltype,"IBM-3279-4-E") == 0)) {
+      str_model[0] = terminaltype[9];
+      str_model[1] = '\0';
+      model = atoi(str_model);
+      add_tn3270_conversation(pinfo, 0, model);
+  }
+}
 
+static void
+check_for_tn3270(packet_info *pinfo _U_, const char *optname, const char *terminaltype)
+{
+  if (strcmp(optname,"Terminal Type") != 0) {
+      return;
+  }
+  check_tn3270_model(pinfo, terminaltype);
 }
 
 static void
@@ -210,7 +219,7 @@ dissect_tn3270_regime_subopt(packet_info *pinfo _U_, const char *optname _U_, tv
       case TN3270_REGIME_IS:
         if (cmd == TN3270_REGIME_ARE) {
             proto_tree_add_text(tree, tvb, offset, 1, "ARE");
-            add_tn3270_conversation(pinfo, 0);
+            add_tn3270_conversation(pinfo, 0, 0);
         } else {
             proto_tree_add_text(tree, tvb, offset, 1, "IS");
         }
@@ -294,6 +303,7 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
                   if (datalen > 0) {
                     proto_tree_add_text(tree, tvb, offset + 1, datalen, "%s",
                                         tvb_format_text(tvb, offset + 1, datalen));
+                    check_tn3270_model(pinfo, tvb_format_text(tvb, offset + 1, datalen));
                     offset += datalen;
                     len -= datalen;
                   }
@@ -339,7 +349,7 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
             proto_tree_add_text(tree, tvb, offset, 1, "REJECT");
             break;
       case TN3270_REQUEST:
-            add_tn3270_conversation(pinfo, 1);
+            add_tn3270_conversation(pinfo, 1, 0);
             proto_tree_add_text(tree, tvb, offset, 1, "REQUEST");
             device_type = tvb_get_guint8(tvb, offset-1);
             if (device_type == TN3270_DEVICE_TYPE) {

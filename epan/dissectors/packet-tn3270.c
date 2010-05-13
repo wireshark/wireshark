@@ -30,6 +30,43 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
+/*
+ * The DECODE_BADDR macro comes from ctlr.c in X3270 and has the following licence:
+ *
+ * Copyright (c) 1993-2009, Paul Mattes.
+ * Copyright (c) 1990, Jeff Sparkes.
+ * Copyright (c) 1989, Georgia Tech Research Corporation (GTRC), Atlanta, GA
+ *  30332.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the names of Paul Mattes, Jeff Sparkes, GTRC nor the names of
+ *       their contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY PAUL MATTES, JEFF SPARKES AND GTRC "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL PAUL MATTES, JEFF SPARKES OR GTRC BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#define DECODE_BADDR(c1, c2) \
+    ((((c1) & 0xC0) == 0x00) ? \
+    (((c1) & 0x3F) << 8) | (c2) : \
+    (((c1) & 0x3F) << 6) | ((c2) & 0x3F))
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -60,8 +97,7 @@ static int hf_tn3270_attribute_type=-1;
 static int hf_tn3270_begin_end_flags1=-1;
 static int hf_tn3270_begin_end_flags2=-1;
 static int hf_tn3270_bsc=-1;
-static int hf_tn3270_buffer_x=-1;
-static int hf_tn3270_buffer_y=-1;
+static int hf_tn3270_buffer_address=-1;
 static int hf_tn3270_c_cav=-1;
 static int hf_tn3270_cc=-1;
 static int hf_tn3270_character_code=-1;
@@ -416,6 +452,8 @@ static gint ett_tn3270_ccc=-1;
 static gint ett_tn3270_msr_state_mask=-1;
 
 tn3270_conv_info_t *tn3270_info_items;
+
+guint8 ROWS, COLS, MAXROWS, MAXCOLS;
 
 gint dissect_orders_and_data(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset);
 
@@ -842,7 +880,7 @@ static gint
 dissect_outbound_3270ds(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                              gint sf_length)
 {
-  int start=offset; 
+  int start=offset;
   int cmd;
 
   proto_tree_add_item(tn3270_tree,
@@ -1050,7 +1088,7 @@ dissect_restart(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                           (sf_length - 9),
                           FALSE);
   offset+=(sf_length - 9);
-  
+
   return (offset - start);
 }
 
@@ -3450,18 +3488,22 @@ static gint
 dissect_sba(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
 {
   int start = offset;
-  proto_tree_add_item(tn3270_tree,
-                          hf_tn3270_buffer_x,
+  guint8 x, y;
+  int buffer_addr=0;
+  proto_item *ti;
+
+  x = tvb_get_guint8(tvb, offset);
+  y = tvb_get_guint8(tvb, offset+1);
+  buffer_addr = DECODE_BADDR(x,y);
+
+  ti = proto_tree_add_item(tn3270_tree,
+                          hf_tn3270_buffer_address,
                           tvb, offset,
-                          1,
+                          2,
                           FALSE);
-  offset++;
-  proto_tree_add_item(tn3270_tree,
-                          hf_tn3270_buffer_y,
-                          tvb, offset,
-                          1,
-                          FALSE);
-  offset++;
+  proto_item_append_text(ti, " (Row %u, Column %u for %ux%u Display)",
+                         (buffer_addr / COLS) + 1, (buffer_addr % COLS) + 1, ROWS, COLS);
+  offset+=2;
 
   return (offset - start);
 }
@@ -3605,10 +3647,15 @@ dissect_orders_and_data(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
             break;
 /*          case PT:*/
           case IC:
-          case EW:
-          case EWA:
             break;
-/*            return (offset - start);*/
+          case EW:
+            ROWS=24;
+            COLS=80;
+            break;
+          case EWA:
+            ROWS=MAXROWS;
+            COLS=MAXCOLS;
+            break;
           default:
             proto_tree_add_text(tn3270_tree, tvb, offset, 1, "Bogus value: %u", order_code);
             offset ++;
@@ -3838,7 +3885,7 @@ dissect_tn3270(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 void
-add_tn3270_conversation(packet_info *pinfo, int tn3270e)
+add_tn3270_conversation(packet_info *pinfo, int tn3270e, int model)
 {
   conversation_t *conversation;
   tn3270_conv_info_t *tn3270_info = NULL;
@@ -3873,6 +3920,24 @@ add_tn3270_conversation(packet_info *pinfo, int tn3270e)
       tn3270_info->next = tn3270_info_items;
       tn3270_info_items = tn3270_info;
     }
+
+    /* The maximum rows/cols is tied to the 3270 model number */
+    switch (model) {
+        case 4:
+          MAXROWS = 32;
+          MAXCOLS = 80;
+          break;
+        case 5:
+          MAXROWS = 27;
+          MAXCOLS = 132;
+          break;
+        case 2:
+        default:
+          MAXROWS = 24;
+          MAXCOLS = 80;
+      }
+    ROWS = 24;
+    COLS = 80;
 
     tn3270_info->extended = tn3270e;
 
@@ -4048,13 +4113,9 @@ proto_register_tn3270(void)
         FT_UINT8, BASE_HEX, VALS(vals_attention_identification_bytes), 0x0,
         NULL, HFILL }},
 
-    { &hf_tn3270_buffer_x,
-      { "Buffer X", "tn3270.buffer_x",
-        FT_UINT8, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }},
-    { &hf_tn3270_buffer_y,
-      { "Buffer Y", "tn3270.buffer_y",
-        FT_UINT8, BASE_HEX, NULL, 0x0,
+    { &hf_tn3270_buffer_address,
+      { "Buffer Address", "tn3270.buffer_address",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
 
     /* Self Defining Parameters */
@@ -4193,7 +4254,7 @@ proto_register_tn3270(void)
     /* END - 5.11 - Load Format Storage */
 
     /* 5.12 - Load Line Type */
-    { &hf_tn3270_load_line_type_command, 
+    { &hf_tn3270_load_line_type_command,
         {  "Line Type Command", "tn3270.load_line_type_command",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
