@@ -758,7 +758,7 @@ static const value_string sccp_users_vals[] = {
 	{ SCCP_USER_TCAP,	"TCAP"},
 	{ SCCP_USER_RANAP,	"RANAP"},
 	{ SCCP_USER_BSSAP,	"BSSAP"},
-	{ SCCP_USER_GSMMAP, "GSM MAP"},
+	{ SCCP_USER_GSMMAP,	"GSM MAP"},
 	{ SCCP_USER_CAMEL,	"CAMEL"},
 	{ SCCP_USER_INAP,	"INAP"},
 	{ 0, NULL }
@@ -798,7 +798,9 @@ static const value_string assoc_protos[] = {
 	{ 0 , NULL }
 };
 
-static sccp_assoc_info_t* new_assoc(guint32 calling, guint32 called){
+static sccp_assoc_info_t *
+new_assoc(guint32 calling, guint32 called)
+{
 	sccp_assoc_info_t* a = se_alloc0(sizeof(sccp_assoc_info_t));
 
 	a->id = next_assoc_id++;
@@ -816,11 +818,15 @@ static sccp_assoc_info_t* new_assoc(guint32 calling, guint32 called){
 	return a;
 }
 
-void reset_sccp_assoc(void) {
+void
+reset_sccp_assoc(void)
+{
 	assoc = NULL;
 }
 
-sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_lr, guint32 dst_lr, guint msg_type) {
+sccp_assoc_info_t *
+get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_lr, guint32 dst_lr, guint msg_type)
+{
     guint32 opck, dpck;
     address* opc = &(pinfo->src);
     address* dpc = &(pinfo->dst);
@@ -842,8 +848,8 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
             };
 
             if (! ( assoc = se_tree_lookup32_array(assocs,bw_key) ) && ! pinfo->fd->flags.visited ) {
-                assoc = new_assoc(opck,dpck);
-                se_tree_insert32_array(assocs,bw_key,assoc);
+                assoc = new_assoc(opck, dpck);
+                se_tree_insert32_array(assocs, bw_key, assoc);
                 assoc->has_bw_key = TRUE;
             }
 
@@ -860,11 +866,11 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
                 {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
             };
 
-            if ( ( assoc = se_tree_lookup32_array(assocs,bw_key) ) ) {
+            if ( ( assoc = se_tree_lookup32_array(assocs, bw_key) ) ) {
                 goto got_assoc;
             }
 
-            if ( (assoc = se_tree_lookup32_array(assocs,fw_key) ) ) {
+            if ( (assoc = se_tree_lookup32_array(assocs, fw_key) ) ) {
                 goto got_assoc;
             }
 
@@ -875,12 +881,12 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
             pinfo->p2p_dir = P2P_DIR_RECV;
 
             if ( ! pinfo->fd->flags.visited && ! assoc->has_bw_key ) {
-                se_tree_insert32_array(assocs,bw_key,assoc);
+                se_tree_insert32_array(assocs, bw_key, assoc);
                 assoc->has_bw_key = TRUE;
             }
 
             if ( ! pinfo->fd->flags.visited && ! assoc->has_fw_key ) {
-                se_tree_insert32_array(assocs,fw_key,assoc);
+                se_tree_insert32_array(assocs, fw_key, assoc);
                 assoc->has_fw_key = TRUE;
             }
 
@@ -894,27 +900,27 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
             emem_tree_key_t fw_key[] = {
                 {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
             };
-            if ( ( assoc = se_tree_lookup32_array(assocs,bw_key) ) ) {
+            if ( ( assoc = se_tree_lookup32_array(assocs, bw_key) ) ) {
                 goto got_assoc_rlc;
             }
 
-            if ( (assoc = se_tree_lookup32_array(assocs,fw_key) ) ) {
+            if ( (assoc = se_tree_lookup32_array(assocs, fw_key) ) ) {
                 goto got_assoc_rlc;
             }
 
-            assoc = new_assoc(dpck,opck);
+            assoc = new_assoc(dpck, opck);
 
      got_assoc_rlc:
 
             pinfo->p2p_dir = P2P_DIR_SENT;
 
             if ( ! pinfo->fd->flags.visited && ! assoc->has_bw_key ) {
-                se_tree_insert32_array(assocs,bw_key,assoc);
+                se_tree_insert32_array(assocs, bw_key, assoc);
                 assoc->has_bw_key = TRUE;
             }
 
             if ( ! pinfo->fd->flags.visited && ! assoc->has_fw_key ) {
-                se_tree_insert32_array(assocs,fw_key,assoc);
+                se_tree_insert32_array(assocs, fw_key, assoc);
                 assoc->has_fw_key = TRUE;
             }
             break;
@@ -925,7 +931,7 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
                 {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
             };
 
-            assoc = se_tree_lookup32_array(assocs,key);
+            assoc = se_tree_lookup32_array(assocs, key);
 
             if (assoc) {
                 if (assoc->calling_dpc == dpck) {
