@@ -345,7 +345,7 @@ dissect_mtp2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
   
   if (tree) {
-    mtp2_item = proto_tree_add_item(tree, proto_mtp2, tvb, 0, -1, FALSE);
+    mtp2_item = proto_tree_add_item(tree, proto_mtp2, tvb, 0, -1, REP_NA);
     mtp2_tree = proto_item_add_subtree(mtp2_item, ett_mtp2);
   };
 

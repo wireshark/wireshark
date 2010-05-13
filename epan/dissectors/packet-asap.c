@@ -845,7 +845,7 @@ dissect_asap(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the asap protocol tree */
-    asap_item = proto_tree_add_item(tree, proto_asap, message_tvb, 0, -1, FALSE);
+    asap_item = proto_tree_add_item(tree, proto_asap, message_tvb, 0, -1, REP_NA);
     asap_tree = proto_item_add_subtree(asap_item, ett_asap);
   } else {
     asap_tree = NULL;

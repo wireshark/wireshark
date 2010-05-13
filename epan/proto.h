@@ -187,9 +187,17 @@ typedef struct _protocol protocol_t;
  * REP_LITTLE_ENDIAN as 0x80000000 - we're using the high-order bit
  * so that we could put a field type and/or a value such as a character
  * encoding in the lower bits.
+ *
+ * For protocols (FT_PROTOCOL), aggregate items with subtrees (FT_NONE),
+ * opaque byte-array fields (FT_BYTES), and other fields where there
+ * is no choice of representation (either because it's "just a bucket
+ * of bytes" or because the representation is completely fixed), we
+ * have REP_NA (for "Not Applicable").
  */
 #define REP_BIG_ENDIAN		0x00000000
 #define REP_LITTLE_ENDIAN	0x80000000
+
+#define REP_NA			0x00000000
 
 /* Values for header_field_info.display */
 

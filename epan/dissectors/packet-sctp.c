@@ -3695,7 +3695,7 @@ dissect_sctp_chunks(tvbuff_t *tvb,
       offset += total_length;
       last_offset = offset;
       if (tvb_reported_length_remaining(tvb, offset) > 0) {
-        sctp_item = proto_tree_add_item(tree, proto_sctp, tvb, offset, -1, FALSE);
+        sctp_item = proto_tree_add_item(tree, proto_sctp, tvb, offset, -1, REP_NA);
         sctp_tree = proto_item_add_subtree(sctp_item, ett_sctp);
         sctp_item_length_set = FALSE;
       }
@@ -3774,7 +3774,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
                                                  get_sctp_port(source_port), source_port,
                                                  get_sctp_port(destination_port), destination_port);
     else
-      sctp_item = proto_tree_add_item(tree, proto_sctp, tvb, 0, -1, FALSE);
+      sctp_item = proto_tree_add_item(tree, proto_sctp, tvb, 0, -1, REP_NA);
     sctp_tree = proto_item_add_subtree(sctp_item, ett_sctp);
 
     /* add the components of the common header to the protocol tree */

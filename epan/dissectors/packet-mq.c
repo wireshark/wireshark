@@ -1276,7 +1276,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			if (tree)
 			{
-				ti = proto_tree_add_item(tree, proto_mq, tvb, offset, -1, FALSE);
+				ti = proto_tree_add_item(tree, proto_mq, tvb, offset, -1, REP_NA);
 				proto_item_append_text(ti, " (%s)", val_to_str(opcode, mq_opcode_vals, "Unknown (0x%02x)"));
 				if (bEBCDIC == TRUE) proto_item_append_text(ti, " (EBCDIC)");
 				mqroot_tree = proto_item_add_subtree(ti, ett_mq);
@@ -2300,7 +2300,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_append_str(pinfo->cinfo, COL_INFO, " [Undesegmented]");
 			if (tree)
 			{
-				proto_tree_add_item(tree, proto_mq, tvb, offset, -1, FALSE);
+				proto_tree_add_item(tree, proto_mq, tvb, offset, -1, REP_NA);
 			}
 			call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 		}
@@ -2367,7 +2367,7 @@ reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						if (tree)
 						{
 							proto_item* ti = NULL;
-							ti = proto_tree_add_item(tree, proto_mq, tvb, 0, -1, FALSE);
+							ti = proto_tree_add_item(tree, proto_mq, tvb, 0, -1, REP_NA);
 							proto_item_append_text(ti, " (%s) [Reassembled MQ]", val_to_str(opcode, mq_opcode_vals, "Unknown (0x%02x)"));
 						}
 						return;

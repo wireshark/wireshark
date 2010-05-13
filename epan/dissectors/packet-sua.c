@@ -1965,7 +1965,7 @@ dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the sua protocol tree */
-    sua_item = proto_tree_add_item(tree, proto_sua, message_tvb, 0, -1, FALSE);
+    sua_item = proto_tree_add_item(tree, proto_sua, message_tvb, 0, -1, REP_NA);
     sua_tree = proto_item_add_subtree(sua_item, ett_sua);
   } else {
     sua_tree = NULL;

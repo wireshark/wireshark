@@ -1003,7 +1003,7 @@ dissect_enrp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the enrp protocol tree */
-    enrp_item = proto_tree_add_item(tree, proto_enrp, message_tvb, 0, -1, FALSE);
+    enrp_item = proto_tree_add_item(tree, proto_enrp, message_tvb, 0, -1, REP_NA);
     enrp_tree = proto_item_add_subtree(enrp_item, ett_enrp);
   } else {
     enrp_tree = NULL;

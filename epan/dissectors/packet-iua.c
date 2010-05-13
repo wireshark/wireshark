@@ -888,7 +888,7 @@ dissect_iua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the m3ua protocol tree */
-    iua_item = proto_tree_add_item(tree, proto_iua, message_tvb, 0, -1, FALSE);
+    iua_item = proto_tree_add_item(tree, proto_iua, message_tvb, 0, -1, REP_NA);
     iua_tree = proto_item_add_subtree(iua_item, ett_iua);
   } else {
     iua_tree = NULL;

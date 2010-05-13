@@ -1963,7 +1963,7 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the m3ua protocol tree */
-    m3ua_item = proto_tree_add_item(tree, proto_m3ua, message_tvb, 0, -1, FALSE);
+    m3ua_item = proto_tree_add_item(tree, proto_m3ua, message_tvb, 0, -1, REP_NA);
     m3ua_tree = proto_item_add_subtree(m3ua_item, ett_m3ua);
   } else {
     m3ua_tree = NULL;

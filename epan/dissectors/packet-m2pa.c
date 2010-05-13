@@ -532,7 +532,7 @@ dissect_m2pa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     };
 
   if (tree) {
-    m2pa_item = proto_tree_add_item(tree, proto_m2pa, tvb, 0, -1, FALSE);
+    m2pa_item = proto_tree_add_item(tree, proto_m2pa, tvb, 0, -1, REP_NA);
     m2pa_tree = proto_item_add_subtree(m2pa_item, ett_m2pa);
   } else {
     m2pa_item = NULL;

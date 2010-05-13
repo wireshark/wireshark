@@ -2145,7 +2145,7 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
      */
 
     if (ptree) {
-        ti = proto_tree_add_item(ptree, proto_@dissname@, tvb, *offset, -1, FALSE);
+        ti = proto_tree_add_item(ptree, proto_@dissname@, tvb, *offset, -1, REP_NA);
         tree = proto_item_add_subtree(ti, ett_@dissname@);
     }
     return tree;
