@@ -5,6 +5,8 @@
  * Copyright 2004, Markus Seehofer <mseehofe@nt.hirschmann.de>
  * Copyright 2006, Christian Schaer <scc@zhwin.ch>
  * Copyright 2007, Markus Renz <Markus.Renz@hirschmann.de>
+ * Copyright 2010, Torrey Atcitty <torrey.atcitty@harman.com>
+ *                 Dave Olsen <dave.olsen@harman.com>
  *
  * Revisions:
  * - Markus Seehofer 09.08.2005 <mseehofe@nt.hirschmann.de>
@@ -13,8 +15,10 @@
  * - Christian Schaer 07.07.2006 <scc@zhwin.ch>
  *   - Added support for PTP version 2
  * - Markus Renz 2007-06-01
- *   updated support for PTPv2
- *  - Markus Renz added Management for PTPv2, update to Draft 2.2
+ *   - updated support for PTPv2
+ * - Markus Renz added Management for PTPv2, update to Draft 2.2
+ * - Torrey Atcitty & Dave Olsen 05.14.2010
+ *   - Added support for 802.1AS D7.0
  *
  * $Id$
  *
@@ -712,28 +716,46 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_AN_LOCALSTEPSREMOVED_OFFSET                          61
 #define PTP_V2_AN_TIMESOURCE_OFFSET                                 63
 #define PTP_V2_AN_TLV_OFFSET                                        64
+
 /* Announce TLV field offsets */
 #define PTP_V2_AN_TLV_TYPE_OFFSET                                    0
 #define PTP_V2_AN_TLV_LENGTHFIELD_OFFSET                             2
+
 /* PTP_V2_TLV_TYPE_ALTERNATE_TIME_OFFSET_INDICATOR field offsets */
 #define PTP_V2_AN_TLV_ATOI_KEYFIELD_OFFSET                           4
 #define PTP_V2_AN_TLV_ATOI_CURRENTOFFSET_OFFSET                      5
 #define PTP_V2_AN_TLV_ATOI_JUMPSECONDS_OFFSET                        9
 #define PTP_V2_AN_TLV_ATOI_TIMEOFNEXTJUMP_OFFSET                    13
 #define PTP_V2_AN_TLV_ATOI_DISPLAYNAME_OFFSET                       19
+
 /* Undissected TLV field offset */
 #define PTP_V2_AN_TLV_DATA_OFFSET                                    4
+
+/* 802.1AS Path Sequence Offset */
+#define PTP_AS_AN_TLV_PATH_TRACE_OFFSET                              4
 
 /*Offsets for PTP_Sync AND PTP_DelayRequest (=SDR) messages*/
 #define PTP_V2_SDR_ORIGINTIMESTAMP_OFFSET                           34
 #define PTP_V2_SDR_ORIGINTIMESTAMPSECONDS_OFFSET                    34
 #define PTP_V2_SDR_ORIGINTIMESTAMPNANOSECONDS_OFFSET                40
 
-
 /*Offsets for PTP_Follow_Up (=FU) messages*/
 #define PTP_V2_FU_PRECISEORIGINTIMESTAMP_OFFSET                     34
 #define PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET              34
 #define PTP_V2_FU_PRECISEORIGINTIMESTAMPNANOSECONDS_OFFSET          40
+
+/* 802.1AS Follow_Up information TLV */
+#define PTP_AS_FU_TLV_INFORMATION_OFFSET                            44
+
+/* 802.1AS Follow_Up TLV field offsets */
+#define PTP_AS_FU_TLV_TYPE_OFFSET                                    0
+#define PTP_AS_FU_TLV_LENGTHFIELD_OFFSET                             2
+#define PTP_AS_FU_TLV_ORGANIZATIONID_OFFSET                          4
+#define PTP_AS_FU_TLV_ORGANIZATIONSUBTYPE_OFFSET                     7
+#define PTP_AS_FU_TLV_CUMULATIVESCALEDRATEOFFSET_OFFSET             10
+#define PTP_AS_FU_TLV_GMTIMEBASEINDICATOR_OFFSET                    14
+#define PTP_AS_FU_TLV_LASTGMPHASECHANGE_OFFSET                      16
+#define PTP_AS_FU_TLV_SCALEDLASTGMFREQCHANGE_OFFSET                 28
 
 /*Offsets for PTP_DelayResponse (=DR) messages*/
 #define PTP_V2_DR_RECEIVETIMESTAMP_OFFSET                           34
@@ -742,13 +764,11 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_DR_REQUESTINGPORTIDENTITY_OFFSET                     44
 #define PTP_V2_DR_REQUESTINGSOURCEPORTID_OFFSET                     52
 
-
 /*Offsets for PTP_PDelayRequest (=PDRQ) messages*/
 #define PTP_V2_PDRQ_ORIGINTIMESTAMP_OFFSET                          34
 #define PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET                   34
 #define PTP_V2_PDRQ_ORIGINTIMESTAMPNANOSECONDS_OFFSET               40
 #define PTP_V2_PDRQ_RESERVED_OFFSET                                 44
-
 
 /*Offsets for PTP_PDelayResponse (=PDRS) messages*/
 #define PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMP_OFFSET                  34
@@ -770,6 +790,24 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_SIG_TARGETPORTIDENTITY_OFFSET                        34
 #define PTP_V2_SIG_TARGETPORTID_OFFSET                              42
 
+/* 802.1AS Signalling Message Interval Request TLV */
+#define PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET                44
+
+/* 802.1AS Signalling TLV field offsets */
+#define PTP_AS_SIG_TLV_TYPE_OFFSET                                   0
+#define PTP_AS_SIG_TLV_LENGTHFIELD_OFFSET                            2
+#define PTP_AS_SIG_TLV_ORGANIZATIONID_OFFSET                         4
+#define PTP_AS_SIG_TLV_ORGANIZATIONSUBTYPE_OFFSET                    7
+#define PTP_AS_SIG_TLV_LINKDELAYINTERVAL_OFFSET                     10
+#define PTP_AS_SIG_TLV_TIMESYNCINTERVAL_OFFSET                      11
+#define PTP_AS_SIG_TLV_ANNOUNCEINTERVAL_OFFSET                      12
+#define PTP_AS_SIG_TLV_FLAGS_OFFSET                                 13
+
+/**********************************************************/
+/* Message Interval Request flag-field-mask-definitions   */
+/**********************************************************/
+#define PTP_AS_FLAGS_COMP_NEIGHBOR_RATE_RATIO_BITMASK           0x0002
+#define PTP_AS_FLAGS_COMP_NEIGHBOR_PROP_DELAY_BITMASK           0x0004
 
 /*Offsets for PTP_V2_Management (=MM) messages*/
 #define PTP_V2_MM_TARGETPORTIDENTITY_OFFSET             34
@@ -802,6 +840,9 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_TLV_TYPE_AUTHENTICATION_CHALLENGE                0x2001
 #define PTP_V2_TLV_TYPE_SECURITY_ASSOCIATION_UPDATE             0x2002
 #define PTP_V2_TLV_TYPE_CUM_FREQ_SCALE_FACTOR_OFFSET            0x2003
+
+/* Signalling TLV Object IDs */
+#define PTP_AS_TLV_OID_TYPE_802                               0x0080C2
 
 /* PTPv2 Management clockType Boolean[16] Bits mask */
 #define CLOCKTYPE_ORDINARY_CLOCK                                0x8000
@@ -872,6 +913,7 @@ static gint ett_ptp_time2 = -1;
 
 #define PTP_V2_TRANSPORTSPECIFIC_V1COMPATIBILITY_BITMASK              0x10
 
+#define PTP_V2_TRANSPORTSPECIFIC_ASPACKET_BITMASK                     0x10
 
 
 /**********************************************************/
@@ -1025,6 +1067,9 @@ static const value_string ptp_v2_TLV_type_vals[] = {
     {PTP_V2_TLV_TYPE_CUM_FREQ_SCALE_FACTOR_OFFSET   ,"Cum. freq. scale factor offset"},
     {0                                              , NULL} };
 
+static const value_string ptp_as_TLV_oid_vals[] = {
+    {PTP_AS_TLV_OID_TYPE_802                        ,"IEEE 802"},
+    {0                                              , NULL} }; 
 
 static const value_string ptp2_networkProtocol_vals[] = {
     {0x0000,  "Reserved"},
@@ -1207,6 +1252,8 @@ static int hf_ptp_v2_atoi_tlv_jumpseconds = -1;
 static int hf_ptp_v2_atoi_tlv_timeofnextjump = -1;
 static int hf_ptp_v2_atoi_tlv_displayname = -1;
 static int hf_ptp_v2_atoi_tlv_displayname_length = -1;
+/* Field for the PATH TRACE TLV */
+static int hf_ptp_v2_an_tlv_pathsequence = -1;
 
 /* Fields for an undissected TLV */
 static int hf_ptp_v2_an_tlv_data = -1;
@@ -1221,7 +1268,15 @@ static int hf_ptp_v2_sdr_origintimestamp_nanoseconds = -1;
 static int hf_ptp_v2_fu_preciseorigintimestamp = -1;    /*Field for seconds & nanoseconds*/
 static int hf_ptp_v2_fu_preciseorigintimestamp_seconds = -1;
 static int hf_ptp_v2_fu_preciseorigintimestamp_nanoseconds = -1;
-
+/* Fields for the Follow_Up Information TLV */
+static int hf_ptp_as_fu_tlv_tlvtype = -1;
+static int hf_ptp_as_fu_tlv_lengthfield = -1;
+static int hf_ptp_as_fu_tlv_organization_id = -1;
+static int hf_ptp_as_fu_tlv_organization_subtype = -1;
+static int hf_ptp_as_fu_tlv_cumulative_offset = -1;
+static int hf_ptp_as_fu_tlv_gm_base_indicator = -1;
+static int hf_ptp_as_fu_tlv_last_gm_phase_change = -1;
+static int hf_ptp_as_fu_tlv_scaled_last_gm_phase_change = -1;
 
 /*Fields for PTP_DelayResponse (=dr) messages*/
 static int hf_ptp_v2_dr_receivetimestamp = -1;  /*Field for seconds & nanoseconds*/
@@ -1256,7 +1311,17 @@ static int hf_ptp_v2_pdfu_requestingsourceportid = -1;
 /*Fields for PTP_Signalling (=sig) messages*/
 static int hf_ptp_v2_sig_targetportidentity = -1;
 static int hf_ptp_v2_sig_targetportid = -1;
-
+/* Fields for the Message Interval Request TLV */
+static int hf_ptp_as_sig_tlv_tlvtype = -1;
+static int hf_ptp_as_sig_tlv_lengthfield = -1;
+static int hf_ptp_as_sig_tlv_organization_id = -1;
+static int hf_ptp_as_sig_tlv_organization_subtype = -1;
+static int hf_ptp_as_sig_tlv_link_delay_interval = -1;
+static int hf_ptp_as_sig_tlv_time_sync_interval = -1;
+static int hf_ptp_as_sig_tlv_announce_interval = -1;
+static int hf_ptp_as_sig_tlv_flags = -1;
+static int hf_ptp_as_sig_tlv_flags_comp_rate_ratio = -1;
+static int hf_ptp_as_sig_tlv_flags_comp_prop_delay = -1;
 
 /*Fields for PTP_Management (=mm) messages*/
 static int hf_ptp_v2_mm_targetportidentity = -1;
@@ -1394,12 +1459,13 @@ static gint ett_ptp_v2_faultRecord = -1;
 static gint ett_ptp_v2_ptptext = -1;
 static gint ett_ptp_v2_timeInterval = -1;
 static gint ett_ptp_v2_tlv = -1;
+static gint ett_ptp_as_sig_tlv_flags = -1;
 
 /* static gint ett_ptp_v2_timesource = -1;
 static gint ett_ptp_v2_priority = -1; */
 static gint ett_ptp_v2_transportspecific = -1;
 
-/* For tronsport specific field  Ethernet or UDP */
+/* For transport specific field  Ethernet or UDP */
 static gboolean ptpv2_oE = FALSE;
 /* END Definitions and fields for PTPv2 dissection. */
 
@@ -2200,6 +2266,7 @@ dissect_ptp_v2_timeInterval(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree
 static void
 dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+    guint8 ptp_v2_transport_specific = 0;
     guint8 ptp_v2_messageid = 0;
     guint16 ptp_v2_mm_managementId = 0;
     guint8 ptp_v2_management_action = 0;
@@ -2215,8 +2282,10 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PTPv2");
 
-    /* Get control field (what kind of message is this? (Sync, DelayReq, ...) */
+    /* Get transport specific bit to determine whether this is an AS packet or not */
+    ptp_v2_transport_specific = 0xF0 & tvb_get_guint8 (tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET);
 
+    /* Get control field (what kind of message is this? (Sync, DelayReq, ...) */
     ptp_v2_messageid = 0x0F & tvb_get_guint8 (tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET);
 
     /* Extend  Info column with managementId */
@@ -2360,15 +2429,19 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_item *tlv_ti;
                 proto_tree *ptp_tlv_tree;
 
-                timeStamp = tvb_get_ntohl(tvb, PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET);
-                timeStamp = timeStamp << 16;
-                timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET+4);
+                /* In 802.1AS there is no origin timestamp in an Announce Message */
+                if(!(ptp_v2_transport_specific & PTP_V2_TRANSPORTSPECIFIC_ASPACKET_BITMASK)){
 
-                proto_tree_add_item(ptp_tree, hf_ptp_v2_an_origintimestamp_seconds, tvb,
-                            PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET, 6, FALSE);
-                    
-                proto_tree_add_item(ptp_tree, hf_ptp_v2_an_origintimestamp_nanoseconds, tvb,
-                            PTP_V2_AN_ORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+                    timeStamp = tvb_get_ntohl(tvb, PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET);
+                    timeStamp = timeStamp << 16;
+                    timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET+4);
+
+                    proto_tree_add_item(ptp_tree, hf_ptp_v2_an_origintimestamp_seconds, tvb,
+                        PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET, 6, FALSE);
+
+                    proto_tree_add_item(ptp_tree, hf_ptp_v2_an_origintimestamp_nanoseconds, tvb,
+                        PTP_V2_AN_ORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+                }
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_an_origincurrentutcoffset, tvb,
                     PTP_V2_AN_ORIGINCURRENTUTCOFFSET_OFFSET, 2, FALSE);
@@ -2471,6 +2544,19 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                             break;
                         }
+                        case PTP_V2_TLV_TYPE_PATH_TRACE:
+                        {
+                            guint16 path_seq_total_length;
+   
+                            for(path_seq_total_length = 0; path_seq_total_length < tlv_length; path_seq_total_length+=8)
+                            {
+                                proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_an_tlv_pathsequence, tvb,
+                                                    PTP_V2_AN_TLV_OFFSET + PTP_AS_AN_TLV_PATH_TRACE_OFFSET + path_seq_total_length,
+                                                    8, FALSE);
+                            }
+
+                            break;
+                        }
                         default:
                         {
                             proto_tree_add_item(ptp_tlv_tree,
@@ -2505,6 +2591,11 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             case PTP_V2_FOLLOWUP_MESSAGE:{
+                guint16     tlv_type;
+                guint16     tlv_length;
+                proto_item *tlv_ti;
+                proto_tree *ptp_tlv_tree;
+
                 timeStamp = tvb_get_ntohl(tvb, PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET);
                 timeStamp = timeStamp << 16;
                 timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET+4);
@@ -2514,6 +2605,81 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_fu_preciseorigintimestamp_nanoseconds, tvb,
                     PTP_V2_FU_PRECISEORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+
+                /* In 802.1AS there is a Follow_UP information TLV in the Follow Up Message */
+                if(ptp_v2_transport_specific & PTP_V2_TRANSPORTSPECIFIC_ASPACKET_BITMASK){
+
+                    /* There are TLV's to be processed */
+                    tlv_type = tvb_get_ntohs (tvb, PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_TYPE_OFFSET);
+                    tlv_length = tvb_get_ntohs (tvb, PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_LENGTHFIELD_OFFSET);
+
+                    tlv_ti = proto_tree_add_text(
+                        ptp_tree,
+                        tvb,
+                        PTP_AS_FU_TLV_INFORMATION_OFFSET,
+                        tlv_length + PTP_AS_FU_TLV_ORGANIZATIONID_OFFSET,
+                        "%s TLV",
+                        "Follow Up information");
+
+                    ptp_tlv_tree = proto_item_add_subtree(tlv_ti, ett_ptp_v2_tlv);
+
+                    proto_tree_add_item(ptp_tlv_tree,
+                                        hf_ptp_as_fu_tlv_tlvtype,
+                                        tvb,
+                                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_TYPE_OFFSET,
+                                        2,
+                                        FALSE);
+
+                    proto_tree_add_item(ptp_tlv_tree,
+                                        hf_ptp_as_fu_tlv_lengthfield,
+                                        tvb,
+                                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_LENGTHFIELD_OFFSET,
+                                        2,
+                                        FALSE);
+
+                    proto_tree_add_item(ptp_tlv_tree,
+                                        hf_ptp_as_fu_tlv_organization_id,
+                                        tvb,
+                                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_ORGANIZATIONID_OFFSET,
+                                        3,
+                                        FALSE);
+
+                    proto_tree_add_item(ptp_tlv_tree,
+                                        hf_ptp_as_fu_tlv_organization_subtype,
+                                        tvb,
+                                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_ORGANIZATIONSUBTYPE_OFFSET,
+                                        3,
+                                        FALSE);
+
+                    proto_tree_add_item(ptp_tlv_tree,
+                                        hf_ptp_as_fu_tlv_cumulative_offset,
+                                        tvb,
+                                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_CUMULATIVESCALEDRATEOFFSET_OFFSET,
+                                        4,
+                                        FALSE);
+
+                    proto_tree_add_item(ptp_tlv_tree,
+                                        hf_ptp_as_fu_tlv_gm_base_indicator,
+                                        tvb,
+                                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_GMTIMEBASEINDICATOR_OFFSET,
+                                        2,
+                                        FALSE);
+
+                    proto_tree_add_item(ptp_tlv_tree,
+                                        hf_ptp_as_fu_tlv_last_gm_phase_change,
+                                        tvb,
+                                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_LASTGMPHASECHANGE_OFFSET,
+                                        12,
+                                        FALSE);
+
+                    proto_tree_add_item(ptp_tlv_tree,
+                                        hf_ptp_as_fu_tlv_scaled_last_gm_phase_change,
+                                        tvb,
+                                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_SCALEDLASTGMFREQCHANGE_OFFSET,
+                                        4,
+                                        FALSE);
+
+                }
 
                 break;
             }
@@ -2539,15 +2705,19 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             case PTP_V2_PATH_DELAY_REQ_MESSAGE:{
-                timeStamp = tvb_get_ntohl(tvb, PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET);
-                timeStamp = timeStamp << 16;
-                timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET+4);
+                /* In 802.1AS there is no origin timestamp in a Pdelay_Req Message */
+                if(!(ptp_v2_transport_specific & PTP_V2_TRANSPORTSPECIFIC_ASPACKET_BITMASK)){
 
-                proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrq_origintimestamp_seconds, tvb,
-                    PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET, 6, FALSE);
+                    timeStamp = tvb_get_ntohl(tvb, PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET);
+                    timeStamp = timeStamp << 16;
+                    timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET+4);
 
-                proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrq_origintimestamp_nanoseconds, tvb,
-                    PTP_V2_PDRQ_ORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+                    proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrq_origintimestamp_seconds, tvb,
+                        PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET, 6, FALSE);
+
+                    proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrq_origintimestamp_nanoseconds, tvb,
+                        PTP_V2_PDRQ_ORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+                }
 
                 break;
             }
@@ -2594,8 +2764,9 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             case PTP_V2_SIGNALLING_MESSAGE:{
-
                 guint16 tlv_type, tlv_length;
+                proto_item *tlv_ti, *sig_tlv_flags_ti;
+                proto_tree *ptp_tlv_tree, *sig_tlv_flags_tree;
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_sig_targetportidentity, tvb,
                     PTP_V2_SIG_TARGETPORTIDENTITY_OFFSET, 8, FALSE);
@@ -2603,22 +2774,115 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_sig_targetportid, tvb,
                     PTP_V2_SIG_TARGETPORTID_OFFSET, 2, FALSE);
 
-                proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_tlvType, tvb,
-                    PTP_V2_SIG_TARGETPORTID_OFFSET+2, 2, FALSE);
+                /* In 802.1AS there is a Message Interval Request TLV in the Signalling Message */
+                if(ptp_v2_transport_specific & PTP_V2_TRANSPORTSPECIFIC_ASPACKET_BITMASK){
+                   
+                    /* There are TLV's to be processed */
+                    tlv_type = tvb_get_ntohs (tvb, PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET + PTP_AS_SIG_TLV_TYPE_OFFSET);
+                    tlv_length = tvb_get_ntohs (tvb, PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET + PTP_AS_SIG_TLV_LENGTHFIELD_OFFSET);
 
-                proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_lengthField, tvb,
-                    PTP_V2_SIG_TARGETPORTID_OFFSET+4, 2, FALSE);
+                    tlv_ti = proto_tree_add_text(
+                        ptp_tree,
+                        tvb,
+                        PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET,
+                        tlv_length + PTP_AS_SIG_TLV_ORGANIZATIONID_OFFSET,
+                        "%s TLV",
+                        "Message Interval Request");
 
-                tlv_type = tvb_get_ntohs (tvb, PTP_V2_MM_TLV_TYPE_OFFSET);
-                tlv_length = tvb_get_ntohs (tvb, PTP_V2_MM_TLV_LENGTHFIELD_OFFSET);
+                    ptp_tlv_tree = proto_item_add_subtree(tlv_ti, ett_ptp_v2_tlv);
 
-                if (tlv_length <= 2)
-                {
-                    /* no data */
-                    break;
+                    proto_tree_add_item(ptp_tlv_tree,
+                                        hf_ptp_as_sig_tlv_tlvtype,
+                                        tvb,
+                                        PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET + PTP_AS_SIG_TLV_TYPE_OFFSET,
+                                        2,
+                                        FALSE);
+
+                    proto_tree_add_item(ptp_tlv_tree,
+                                        hf_ptp_as_sig_tlv_lengthfield,
+                                        tvb,
+                                        PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET + PTP_AS_SIG_TLV_LENGTHFIELD_OFFSET,
+                                        2,
+                                        FALSE);
+
+                    proto_tree_add_item(ptp_tlv_tree,
+                                        hf_ptp_as_sig_tlv_organization_id,
+                                        tvb,
+                                        PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET + PTP_AS_SIG_TLV_ORGANIZATIONID_OFFSET,
+                                        3,
+                                        FALSE);
+
+                    proto_tree_add_item(ptp_tlv_tree,
+                                        hf_ptp_as_sig_tlv_organization_subtype,
+                                        tvb,
+                                        PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET + PTP_AS_SIG_TLV_ORGANIZATIONSUBTYPE_OFFSET,
+                                        3,
+                                        FALSE);
+
+                    proto_tree_add_item(ptp_tlv_tree,
+                                        hf_ptp_as_sig_tlv_link_delay_interval,
+                                        tvb,
+                                        PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET + PTP_AS_SIG_TLV_LINKDELAYINTERVAL_OFFSET,
+                                        1,
+                                        FALSE);
+
+                    proto_tree_add_item(ptp_tlv_tree,
+                                        hf_ptp_as_sig_tlv_time_sync_interval,
+                                        tvb,
+                                        PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET + PTP_AS_SIG_TLV_TIMESYNCINTERVAL_OFFSET,
+                                        1,
+                                        FALSE);
+
+                    proto_tree_add_item(ptp_tlv_tree,
+                                        hf_ptp_as_sig_tlv_announce_interval,
+                                        tvb,
+                                        PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET + PTP_AS_SIG_TLV_ANNOUNCEINTERVAL_OFFSET,
+                                        1,
+                                        FALSE);
+
+                    sig_tlv_flags_ti = proto_tree_add_item(ptp_tlv_tree,
+                                                           hf_ptp_as_sig_tlv_flags,
+                                                          tvb,
+                                                          PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET + PTP_AS_SIG_TLV_FLAGS_OFFSET,
+                                                          1, 
+                                                          FALSE);
+
+                    sig_tlv_flags_tree = proto_item_add_subtree(sig_tlv_flags_ti, ett_ptp_as_sig_tlv_flags);
+
+                    proto_tree_add_item(sig_tlv_flags_tree,
+                                        hf_ptp_as_sig_tlv_flags_comp_rate_ratio, 
+                                        tvb, 
+                                        PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET + PTP_AS_SIG_TLV_FLAGS_OFFSET,
+                                        1, 
+                                        FALSE);
+
+                    proto_tree_add_item(sig_tlv_flags_tree,
+                                        hf_ptp_as_sig_tlv_flags_comp_prop_delay, 
+                                        tvb, 
+                                        PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET + PTP_AS_SIG_TLV_FLAGS_OFFSET, 
+                                        1, 
+                                        FALSE);
+
                 }
-                /* ToDO: Add dissector for TLVs and allow multiple TLVs */
-                proto_tree_add_text(ptp_tree, tvb, PTP_V2_SIG_TARGETPORTID_OFFSET+6, tlv_length, "Data");
+                else {
+
+                    proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_tlvType, tvb,
+                        PTP_V2_SIG_TARGETPORTID_OFFSET+2, 2, FALSE);
+
+                    proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_lengthField, tvb,
+                        PTP_V2_SIG_TARGETPORTID_OFFSET+4, 2, FALSE);
+
+                    tlv_type = tvb_get_ntohs (tvb, PTP_V2_MM_TLV_TYPE_OFFSET);
+                    tlv_length = tvb_get_ntohs (tvb, PTP_V2_MM_TLV_LENGTHFIELD_OFFSET);
+
+                    if (tlv_length <= 2)
+                    {
+                        /* no data */
+                        break;
+                    }
+                    /* ToDO: Add dissector for TLVs and allow multiple TLVs */
+                    proto_tree_add_text(ptp_tree, tvb, PTP_V2_SIG_TARGETPORTID_OFFSET+6, tlv_length, "Data");
+                }
                 break;
             }
 
@@ -4469,6 +4733,12 @@ proto_register_ptp(void)
             FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
+        /* Field for Path Trace TLV */
+        { &hf_ptp_v2_an_tlv_pathsequence,
+          { "PathSequence", "ptp.v2.an.pathsequence",
+            FT_UINT64, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
 
         /* Fields for undissected TLV */
         { &hf_ptp_v2_an_tlv_data,
@@ -4507,6 +4777,47 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_fu_preciseorigintimestamp_nanoseconds,
           { "preciseOriginTimestamp (nanoseconds)",           "ptp.v2.fu.preciseorigintimestamp.nanoseconds",
+            FT_INT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        /*Fields for PTP_Follow_up TLVs */
+        { &hf_ptp_as_fu_tlv_tlvtype,
+          { "tlvType", "ptp.as.fu.tlvType",
+            FT_UINT16, BASE_DEC, VALS(ptp_v2_TLV_type_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_fu_tlv_lengthfield,
+          { "lengthField", "ptp.as.fu.lengthField",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_fu_tlv_organization_id,
+          { "organizationId", "ptp.as.fu.organizationId",
+            FT_UINT24, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_fu_tlv_organization_subtype,
+          { "OrganizationSubType", "ptp.as.fu.organizationSubType",
+            FT_INT24, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        }, 
+        { &hf_ptp_as_fu_tlv_cumulative_offset,
+          { "cumulativeScaledRateOffset", "ptp.as.fu.cumulativeScaledRateOffset",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        }, 
+        { &hf_ptp_as_fu_tlv_gm_base_indicator,
+          { "gmTimeBaseIndicator", "ptp.as.fu.gmTimeBaseIndicator",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_fu_tlv_last_gm_phase_change,
+          { "lastGMPhaseChange", "ptp.as.fu.lastGmPhaseChange",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_fu_tlv_scaled_last_gm_phase_change,
+          { "scaledLastGMPhaseChange", "ptp.as.fu.scaledLastGmPhaseChange",
             FT_INT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
@@ -4620,7 +4931,58 @@ proto_register_ptp(void)
             FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
-
+        /*Fields for PTP_Signalling (=sig) TLVs */
+        { &hf_ptp_as_sig_tlv_tlvtype,
+          { "tlvType", "ptp.as.sig.tlvType",
+            FT_UINT16, BASE_DEC, VALS(ptp_v2_TLV_type_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_sig_tlv_lengthfield,
+          { "lengthField", "ptp.as.sig.lengthField",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },     
+        { &hf_ptp_as_sig_tlv_organization_id,
+          { "organizationId", "ptp.as.sig.tlv.organizationId",
+            FT_UINT24, BASE_HEX, VALS(ptp_as_TLV_oid_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_sig_tlv_organization_subtype,
+          { "OrganizationSubType", "ptp.as.sig.tlv.organizationSubType",
+            FT_INT24, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_sig_tlv_link_delay_interval,
+          { "linkDelayInterval", "ptp.as.sig.tlv.linkdelayinterval",
+            FT_INT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_sig_tlv_time_sync_interval,
+          { "timeSyncInterval", "ptp.as.sig.tlv.timesyncinterval",
+            FT_INT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_sig_tlv_announce_interval,
+          { "announceInterval", "ptp.as.sig.tlv.announceinterval",
+            FT_INT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_sig_tlv_flags,
+          { "flags",           "ptp.as.sig.tvl.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_sig_tlv_flags_comp_rate_ratio,
+          { "computeNeighborRateRatio", "ptp.as.sig.tlv.flags.rateratio",
+            FT_BOOLEAN, 8, NULL, PTP_AS_FLAGS_COMP_NEIGHBOR_RATE_RATIO_BITMASK,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_sig_tlv_flags_comp_prop_delay,
+          { "computeNeighborPropDelay", "ptp.as.sig.tlv.flags.propdelay",
+            FT_BOOLEAN, 8, NULL, PTP_AS_FLAGS_COMP_NEIGHBOR_PROP_DELAY_BITMASK,
+            NULL, HFILL }
+        },
+       
         /*Fields for PTP_Management (=mm) messages*/
         { &hf_ptp_v2_mm_targetportidentity,
           { "targetPortIdentity",           "ptp.v2.mm.targetportidentity",
@@ -5215,6 +5577,7 @@ proto_register_ptp(void)
         &ett_ptp_v2_faultRecord,
         &ett_ptp_v2_timeInterval,
         &ett_ptp_v2_tlv,
+        &ett_ptp_as_sig_tlv_flags,
     };
 
 /* Register the protocol name and description */

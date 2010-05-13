@@ -3033,6 +3033,15 @@ Robert Hogan		<robert [AT] roberthogan.net> {
 	TN3270 fixes
 }
 
+Torrey Atcitty		<torrey.atcitty [AT] harman.com> {
+	PTP dissector: Added support for 802.1AS D7.0
+}
+
+Dave Olsen		<dave.olsen [AT] harman.com> {
+	PTP dissector: Added support for 802.1AS D7.0
+}
+
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
