@@ -598,28 +598,32 @@ ifopts_edit_destroy_cb(GtkWidget *win, gpointer data _U_)
 static gint
 ifopts_description_to_val (const char *if_name, const char *descr) 
 {
-	GList *lt_list;
+	if_capabilities_t *caps;
 	int dlt = -1;
 
-	lt_list = capture_pcap_linktype_list(if_name, NULL);
-	if (lt_list != NULL) {
-		GList  *lt_entry;
-		/* XXX: Code skips first entry because that's the default ??? */
-		for (lt_entry = g_list_next(lt_list); lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-			data_link_info_t *dli_p = lt_entry->data;
-			if (dli_p->description) {
-				if (strcmp(dli_p->description, descr) == 0) {
-					dlt = dli_p->dlt;
-					break;
-				}
-			} else {
-				if (strcmp(dli_p->name, descr) == 0) {
-					dlt = dli_p->dlt;
-					break;
+	caps = capture_get_if_capabilities(if_name, FALSE, NULL);
+	if (caps != NULL) {
+		if (caps->data_link_types != NULL) {
+			GList  *lt_entry;
+			/* XXX: Code skips first entry because that's the default ??? */
+			for (lt_entry = g_list_next(caps->data_link_types);
+			    lt_entry != NULL;
+			    lt_entry = g_list_next(lt_entry)) {
+				data_link_info_t *dli_p = lt_entry->data;
+				if (dli_p->description) {
+					if (strcmp(dli_p->description, descr) == 0) {
+						dlt = dli_p->dlt;
+						break;
+					}
+				} else {
+					if (strcmp(dli_p->name, descr) == 0) {
+						dlt = dli_p->dlt;
+						break;
+					}
 				}
 			}
 		}
-		free_pcap_linktype_list(lt_list);
+		free_if_capabilities(caps);
 	}
 	return dlt;
 }
@@ -631,13 +635,13 @@ static void
 ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 		     gpointer		 data _U_)
 {
-	GtkTreeIter       iter;
-	GtkTreeModel	 *model;
-	gchar            *desc, *comment, *text;
-	gchar            *if_name, *linktype;
-	gboolean          hide;
-	GList 		 *lt_list;
-	gint              selected = 0;
+	GtkTreeIter         iter;
+	GtkTreeModel       *model;
+	gchar              *desc, *comment, *text;
+	gchar              *if_name, *linktype;
+	gboolean            hide;
+	if_capabilities_t *caps;
+	gint                selected = 0;
 
 	/* Get list_store data for currently selected interface */
 	if (!gtk_tree_selection_get_selected (if_selection, &model, &iter)){
@@ -668,21 +672,24 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 	}
 
         /*  -- build and add to the ComboBox a linktype list for the current interfaces selection */
-	lt_list = capture_pcap_linktype_list(if_name, NULL);
-	if (lt_list != NULL) {
-		GList *lt_entry;
-		for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-			data_link_info_t *dli_p = lt_entry->data;
-			text = (dli_p->description != NULL) ? dli_p->description : dli_p->name;
-			if (strcmp(linktype, text) == 0) {
-				selected = num_linktypes;
+	caps = capture_get_if_capabilities(if_name, FALSE, NULL);
+	if (caps != NULL) {
+		if (caps->data_link_types != NULL) {
+			GList *lt_entry;
+			for (lt_entry = caps->data_link_types; lt_entry != NULL;
+			    lt_entry = g_list_next(lt_entry)) {
+				data_link_info_t *dli_p = lt_entry->data;
+				text = (dli_p->description != NULL) ? dli_p->description : dli_p->name;
+				if (strcmp(linktype, text) == 0) {
+					selected = num_linktypes;
+				}
+				gtk_combo_box_append_text(GTK_COMBO_BOX(if_linktype_cb), text);
+				num_linktypes++;
 			}
-			gtk_combo_box_append_text(GTK_COMBO_BOX(if_linktype_cb), text);
-			num_linktypes++;
+			gtk_widget_set_sensitive(if_linktype_cb, num_linktypes >= 2);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(if_linktype_cb), selected);
 		}
-		gtk_widget_set_sensitive(if_linktype_cb, num_linktypes >= 2);
-		gtk_combo_box_set_active(GTK_COMBO_BOX(if_linktype_cb), selected);
-		free_pcap_linktype_list(lt_list);
+		free_if_capabilities(caps);
 	}
 
 	/* display the interface description from current interfaces selection */
@@ -834,7 +841,7 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 	gchar	*desc;
 	gchar	*pr_descr;
 	gchar	*text[] = { NULL, NULL, NULL, NULL };
-	GList   *lt_list;
+	if_capabilities_t *caps;
 	gint     linktype;
 	gboolean hide;
 	GtkTreeIter  iter;
@@ -850,22 +857,25 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 
 	/* set default link-layer header type */
 	linktype = capture_dev_user_linktype_find(if_info->name);
-	lt_list = capture_pcap_linktype_list(if_info->name, NULL);
-	if (lt_list != NULL) {
-		GList  *lt_entry;
-		for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-			data_link_info_t *dli_p = lt_entry->data;
-			/* If we have no previous link-layer header type we use the first one */
-			if (linktype == -1 || linktype == dli_p->dlt) {
-				if (dli_p->description) {
-					text[2] = g_strdup(dli_p->description);
-				} else {
-					text[2] = g_strdup(dli_p->name);
+	caps = capture_get_if_capabilities(if_info->name, FALSE, NULL);
+	if (caps != NULL) {
+		if (caps->data_link_types != NULL) {
+			GList  *lt_entry;
+			for (lt_entry = caps->data_link_types; lt_entry != NULL;
+			    lt_entry = g_list_next(lt_entry)) {
+				data_link_info_t *dli_p = lt_entry->data;
+				/* If we have no previous link-layer header type we use the first one */
+				if (linktype == -1 || linktype == dli_p->dlt) {
+					if (dli_p->description) {
+						text[2] = g_strdup(dli_p->description);
+					} else {
+						text[2] = g_strdup(dli_p->name);
+					}
+					break;
 				}
-				break;
 			}
 		}
-		free_pcap_linktype_list(lt_list);
+		free_if_capabilities(caps);
 	}
 	/* if we have no link-layer */
 	if (text[2] == NULL)

@@ -889,13 +889,15 @@ sync_interface_list_open(gchar **msg) {
 }
 
 /*
- * Get an linktype list using dumpcap.  On success, *msg points to
+ * Get interface capabilities using dumpcap.  On success, *msg points to
  * a buffer containing the dumpcap output, and 0 is returned.  On failure,
  * *msg points to an error message, and -1 is returned.  In either case,
  * *msg must be freed with g_free().
  */
 int
-sync_linktype_list_open(const gchar *ifname, gchar **msg) {
+sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
+                          gchar **msg)
+{
     int argc;
     const char **argv;
 
@@ -913,10 +915,12 @@ sync_linktype_list_open(const gchar *ifname, gchar **msg) {
         return -1;
     }
 
-    /* Ask for the linktype list */
+    /* Ask for the interface capabilities */
     argv = sync_pipe_add_arg(argv, &argc, "-i");
     argv = sync_pipe_add_arg(argv, &argc, ifname);
     argv = sync_pipe_add_arg(argv, &argc, "-L");
+    if (monitor_mode)
+        argv = sync_pipe_add_arg(argv, &argc, "-I");
     argv = sync_pipe_add_arg(argv, &argc, "-M");
 
 #if 0

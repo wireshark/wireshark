@@ -155,21 +155,23 @@ capture_interface_list(int *err, char **err_str)
 
 /* XXX - We parse simple text output to get our interface list.  Should
  * we use "real" data serialization instead, e.g. via XML? */
-GList *
-capture_pcap_linktype_list(const gchar *ifname, char **err_str)
+if_capabilities_t *
+capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
+                            char **err_str)
 {
-    GList     *linktype_list = NULL;
-    int        err, i;
-    gchar     *msg;
-    gchar    **raw_list, **lt_parts;
-    data_link_info_t *data_link_info;
+    if_capabilities_t *caps;
+    GList              *linktype_list = NULL;
+    int                 err, i;
+    gchar              *msg;
+    gchar             **raw_list, **lt_parts;
+    data_link_info_t   *data_link_info;
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Linktype List ...");
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities ...");
 
     /* Try to get our interface list */
-    err = sync_linktype_list_open(ifname, &msg);
+    err = sync_if_capabilities_open(ifname, monitor_mode, &msg);
     if (err != 0) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Linktype List failed!");
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities failed!");
         if (err_str) {
             *err_str = msg;
         } else {
@@ -186,7 +188,45 @@ capture_pcap_linktype_list(const gchar *ifname, char **err_str)
 #endif
     g_free(msg);
 
-    for (i = 0; raw_list[i] != NULL; i++) {
+    /*
+     * First line is 0 if monitor mode isn't supported, 1 if it is.
+     */
+    if (raw_list[0] == NULL || *raw_list[0] == '\0') {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities returned no information!");
+        if (err_str) {
+            *err_str = g_strdup("Dumpcap returned no interface capability information");
+        }
+        return NULL;
+    }
+
+    /*
+     * Allocate the interface capabilities structure.
+     */
+    caps = g_malloc(sizeof *caps);
+    switch (*raw_list[0]) {
+
+    case '0':
+        caps->can_set_rfmon = FALSE;
+        break;
+
+    case '1':
+        caps->can_set_rfmon = TRUE;
+        break;
+
+    default:
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities returned bad information!");
+        if (err_str) {
+            *err_str = g_strdup_printf("Dumpcap returned \"%s\" for monitor-mode capability",
+                                       raw_list[0]);
+        }
+        g_free(caps);
+        return NULL;
+    }
+
+    /*
+     * The rest are link-layer types.
+     */
+    for (i = 1; raw_list[i] != NULL; i++) {
         /* ...and what if the interface name has a tab in it, Mr. Clever Programmer? */
         lt_parts = g_strsplit(raw_list[i], "\t", 3);
         if (lt_parts[0] == NULL || lt_parts[1] == NULL || lt_parts[2] == NULL) {
@@ -208,10 +248,14 @@ capture_pcap_linktype_list(const gchar *ifname, char **err_str)
 
     /* Check to see if we built a list */
     if (linktype_list == NULL) {
+        /* No. */
         if (err_str)
-            *err_str = NULL;
+            *err_str = g_strdup("Dumpcap returned no link-layer types");
+        g_free(caps);
+        return NULL;
     }
-    return linktype_list;
+    caps->data_link_types = linktype_list;
+    return caps;
 }
 
 #endif /* HAVE_LIBPCAP */

@@ -502,29 +502,111 @@ create_data_link_info(int dlt)
     return data_link_info;
 }
 
-static GList *
-get_pcap_linktype_list(const char *devname, char **err_str)
+static if_capabilities_t *
+get_if_capabilities(const char *devname, gboolean monitor_mode
+#ifndef HAVE_PCAP_CREATE
+	_U_
+#endif
+, char **err_str)
 {
-    GList *linktype_list = NULL;
-    pcap_t *pch;
-    int deflt;
+    if_capabilities_t *caps;
     char errbuf[PCAP_ERRBUF_SIZE];
+    pcap_t *pch;
+#ifdef HAVE_PCAP_CREATE
+    int status;
+#endif
+    int deflt;
 #ifdef HAVE_PCAP_LIST_DATALINKS
     int *linktypes;
     int i, nlt;
 #endif
     data_link_info_t *data_link_info;
 
+    /*
+     * Allocate the interface capabilities structure.
+     */
+    caps = g_malloc(sizeof *caps);
+
 #ifdef HAVE_PCAP_OPEN
     pch = pcap_open(devname, MIN_PACKET_SIZE, 0, 0, NULL, errbuf);
-#else
-    pch = pcap_open_live(devname, MIN_PACKET_SIZE, 0, 0, errbuf);
-#endif
+    caps->can_set_rfmon = FALSE;
     if (pch == NULL) {
         if (err_str != NULL)
             *err_str = g_strdup(errbuf);
-            return NULL;
+        g_free(caps);
+        return NULL;
     }
+#elif defined(HAVE_PCAP_CREATE)
+    pch = pcap_create(devname, errbuf);
+    if (pch == NULL) {
+        if (err_str != NULL)
+            *err_str = g_strdup(errbuf);
+        g_free(caps);
+        return NULL;
+    }
+    status = pcap_can_set_rfmon(pch); 
+    switch (status) {
+
+    case 0:
+        caps->can_set_rfmon = FALSE;
+        break;
+
+    case 1:
+        caps->can_set_rfmon = TRUE;
+        if (monitor_mode)
+        	pcap_set_rfmon(pch, 1);
+        break;
+
+    case PCAP_ERROR_NO_SUCH_DEVICE:
+        if (err_str != NULL)
+            *err_str = g_strdup_printf("There is no capture device named \"%s\"", devname);
+        pcap_close(pch);
+        g_free(caps);
+        return NULL;
+
+    case PCAP_ERROR:
+        if (err_str != NULL)
+            *err_str = g_strdup_printf("pcap_can_set_rfmon on \"%s\" failed: %s",
+                                       devname, pcap_geterr(pch));
+        pcap_close(pch);
+        g_free(caps);
+        return NULL;
+
+    default:
+        if (err_str != NULL)
+            *err_str = g_strdup_printf("pcap_can_set_rfmon on \"%s\" failed: %s",
+                                       devname, pcap_statustostr(status));
+        pcap_close(pch);
+        g_free(caps);
+        return NULL;
+    }
+
+    status = pcap_activate(pch);
+    if (status < 0) {
+        /* Error.  We ignore warnings (status > 0). */
+        if (err_str != NULL) {
+            if (status == PCAP_ERROR) {
+                *err_str = g_strdup_printf("pcap_activate on %s failed: %s",
+                                           devname, pcap_geterr(pch));
+            } else {
+                *err_str = g_strdup_printf("pcap_activate on %s failed: %s",
+                                           devname, pcap_statustostr(status));
+            }
+        }
+        pcap_close(pch);
+        g_free(caps);
+        return NULL;
+    }
+#else
+    pch = pcap_open_live(devname, MIN_PACKET_SIZE, 0, 0, errbuf);
+    caps->can_set_rfmon = FALSE;
+    if (pch == NULL) {
+        if (err_str != NULL)
+            *err_str = g_strdup(errbuf);
+        g_free(caps);
+        return NULL;
+    }
+#endif
     deflt = get_pcap_linktype(pch, devname);
 #ifdef HAVE_PCAP_LIST_DATALINKS
     nlt = pcap_list_datalinks(pch, &linktypes);
@@ -534,6 +616,7 @@ get_pcap_linktype_list(const char *devname, char **err_str)
             *err_str = NULL; /* an empty list doesn't mean an error */
         return NULL;
     }
+    caps->data_link_types = NULL;
     for (i = 0; i < nlt; i++) {
         data_link_info = create_data_link_info(linktypes[i]);
 
@@ -543,9 +626,11 @@ get_pcap_linktype_list(const char *devname, char **err_str)
          * device has as the default?
          */
         if (linktypes[i] == deflt)
-            linktype_list = g_list_prepend(linktype_list, data_link_info);
+            caps->data_link_types = g_list_prepend(caps->data_link_types,
+                                                   data_link_info);
         else
-            linktype_list = g_list_append(linktype_list, data_link_info);
+            caps->data_link_types = g_list_append(caps->data_link_types,
+                                                  data_link_info);
     }
 #ifdef HAVE_PCAP_FREE_DATALINKS
     pcap_free_datalinks(linktypes);
@@ -575,14 +660,15 @@ get_pcap_linktype_list(const char *devname, char **err_str)
 #else /* HAVE_PCAP_LIST_DATALINKS */
 
     data_link_info = create_data_link_info(deflt);
-    linktype_list = g_list_append(linktype_list, data_link_info);
+    caps->data_link_types = g_list_append(caps->data_link_types,
+                                          data_link_info);
 #endif /* HAVE_PCAP_LIST_DATALINKS */
 
     pcap_close(pch);
 
     if (err_str != NULL)
         *err_str = NULL;
-    return linktype_list;
+    return caps;
 }
 
 #define ADDRSTRLEN 46 /* Covers IPv4 & IPv6 */
@@ -652,16 +738,21 @@ print_machine_readable_interfaces(GList *if_list)
 
 /*
  * If you change the machine-readable output format of this function,
- * you MUST update capture_sync.c:sync_linktype_list_open() accordingly!
+ * you MUST update capture_ifinfo.c:capture_get_if_capabilities() accordingly!
  */
 static void
-print_machine_readable_link_layer_types(GList *lt_list)
+print_machine_readable_if_capabilities(if_capabilities_t *caps)
 {
     GList *lt_entry;
     data_link_info_t *data_link_info;
     const gchar *desc_str;
 
-    for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
+    if (caps->can_set_rfmon)
+        printf("1\n");
+    else
+        printf("0\n");
+    for (lt_entry = caps->data_link_types; lt_entry != NULL;
+         lt_entry = g_list_next(lt_entry)) {
       data_link_info = (data_link_info_t *)lt_entry->data;
       if (data_link_info->description != NULL)
         desc_str = data_link_info->description;
@@ -3381,25 +3472,28 @@ main(int argc, char *argv[])
     exit_main(0);
   } else if (list_link_layer_types) {
     /* Get the list of link-layer types for the capture device. */
-    GList *lt_list;
+    if_capabilities_t *caps;
     gchar *err_str;
 
-    lt_list = get_pcap_linktype_list(global_capture_opts.iface, &err_str);
-    if (lt_list == NULL) {
-      if (err_str != NULL) {
-        cmdarg_err("The list of data link types for the capture device \"%s\" could not be obtained (%s)."
-         "Please check to make sure you have sufficient permissions, and that\n"
-         "you have the proper interface or pipe specified.\n", global_capture_opts.iface, err_str);
-        g_free(err_str);
-      } else
-        cmdarg_err("The capture device \"%s\" has no data link types.", global_capture_opts.iface);
+    caps = get_if_capabilities(global_capture_opts.iface,
+                               global_capture_opts.monitor_mode, &err_str);
+    if (caps == NULL) {
+      cmdarg_err("The capabilities of the capture device \"%s\" could not be obtained (%s)."
+       "Please check to make sure you have sufficient permissions, and that\n"
+       "you have the proper interface or pipe specified.\n", global_capture_opts.iface, err_str);
+      g_free(err_str);
+      exit_main(2);
+    }
+    if (caps->data_link_types == NULL) {
+      cmdarg_err("The capture device \"%s\" has no data link types.", global_capture_opts.iface);
       exit_main(2);
     }
     if (machine_readable)      /* tab-separated values to stdout */
-      print_machine_readable_link_layer_types(lt_list);
+      print_machine_readable_if_capabilities(caps);
     else
-      capture_opts_print_link_layer_types(lt_list);
-    free_pcap_linktype_list(lt_list);
+      capture_opts_print_if_capabilities(caps,
+                                         global_capture_opts.monitor_mode);
+    free_if_capabilities(caps);
     exit_main(0);
   } else if (print_statistics) {
     status = print_statistics_loop(machine_readable);

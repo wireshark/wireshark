@@ -252,7 +252,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   GList *if_list;
   GList *if_entry;
   if_info_t *if_info;
-  GList *lt_list;
+  if_capabilities_t *caps;
   int err;
   GtkWidget *lt_menu, *lt_menu_item;
   GList *lt_entry;
@@ -310,7 +310,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
    * does the code we use if "pcap_findalldevs()" isn't available), but
    * should contain all the local devices on which you can capture.
    */
-  lt_list = NULL;
+  caps = NULL;
   if (*if_name != '\0') {
     /*
      * Try to get the list of known interfaces.
@@ -342,7 +342,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
           if (iftype == CAPTURE_IFLOCAL)
             /* Not able to get link-layer for remote interfaces */
 #endif
-	  lt_list = capture_pcap_linktype_list(if_name, NULL);
+	  caps = capture_get_if_capabilities(if_name, FALSE, NULL);
 
 	  /* create string of list of IP addresses of this interface */
 	  for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
@@ -385,35 +385,37 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   num_supported_link_types = 0;
   linktype_select = 0;
   linktype_count = 0;
-  for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-    data_link_info = lt_entry->data;
-    if (data_link_info->description != NULL) {
-      lt_menu_item = gtk_menu_item_new_with_label(data_link_info->description);
-      g_object_set_data(G_OBJECT(lt_menu_item), E_CAP_LT_OM_KEY, linktype_om);
-      g_signal_connect(lt_menu_item, "activate", G_CALLBACK(select_link_type_cb),
-                     GINT_TO_POINTER(data_link_info->dlt));
-      num_supported_link_types++;
-    } else {
-      /* Not supported - tell them about it but don't let them select it. */
-      linktype_menu_label = g_strdup_printf("%s (not supported)",
-					    data_link_info->name);
-      lt_menu_item = gtk_menu_item_new_with_label(linktype_menu_label);
-      g_free(linktype_menu_label);
+  if (caps != NULL) {
+    for (lt_entry = caps->data_link_types; lt_entry != NULL;
+         lt_entry = g_list_next(lt_entry)) {
+      data_link_info = lt_entry->data;
+      if (data_link_info->description != NULL) {
+        lt_menu_item = gtk_menu_item_new_with_label(data_link_info->description);
+        g_object_set_data(G_OBJECT(lt_menu_item), E_CAP_LT_OM_KEY, linktype_om);
+        g_signal_connect(lt_menu_item, "activate", G_CALLBACK(select_link_type_cb),
+                         GINT_TO_POINTER(data_link_info->dlt));
+        num_supported_link_types++;
+      } else {
+        /* Not supported - tell them about it but don't let them select it. */
+        linktype_menu_label = g_strdup_printf("%s (not supported)",
+                                              data_link_info->name);
+        lt_menu_item = gtk_menu_item_new_with_label(linktype_menu_label);
+        g_free(linktype_menu_label);
+      }
+      if (data_link_info->dlt == linktype) {
+        /* Found a matching dlt, selecth this */
+        linktype_select = linktype_count;
+      }
+      gtk_menu_shell_append(GTK_MENU_SHELL(lt_menu), lt_menu_item);
+      gtk_widget_show(lt_menu_item);
+      linktype_count++;
     }
-    if (data_link_info->dlt == linktype) {
-      /* Found a matching dlt, selecth this */
-      linktype_select = linktype_count;
-    }
-    gtk_menu_shell_append(GTK_MENU_SHELL(lt_menu), lt_menu_item);
-    gtk_widget_show(lt_menu_item);
-    linktype_count++;
+    free_if_capabilities(caps);
   }
-  if (lt_list == NULL) {
+  if (linktype_count == 0) {
     lt_menu_item = gtk_menu_item_new_with_label("(not supported)");
     gtk_menu_shell_append(GTK_MENU_SHELL(lt_menu), lt_menu_item);
     gtk_widget_show(lt_menu_item);
-  } else {
-    free_pcap_linktype_list(lt_list);
   }
   gtk_option_menu_set_menu(GTK_OPTION_MENU(linktype_om), lt_menu);
   gtk_widget_set_sensitive(linktype_lb, num_supported_link_types >= 2);

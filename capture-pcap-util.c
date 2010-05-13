@@ -448,10 +448,11 @@ free_linktype_cb(gpointer data, gpointer user_data _U_)
 }
 
 void
-free_pcap_linktype_list(GList *linktype_list)
+free_if_capabilities(if_capabilities_t *caps)
 {
-	g_list_foreach(linktype_list, free_linktype_cb, NULL);
-	g_list_free(linktype_list);
+	g_list_foreach(caps->data_link_types, free_linktype_cb, NULL);
+	g_list_free(caps->data_link_types);
+	g_free(caps);
 }
 
 const char *

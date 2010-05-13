@@ -36,6 +36,7 @@
 # include <sys/types.h>	    /* for gid_t */
 #endif
 
+#include "capture_ifinfo.h"
 
 /* Current state of capture engine. XXX - differentiate states */
 typedef enum {
@@ -114,9 +115,7 @@ typedef struct capture_options_tag {
     gboolean promisc_mode;          /**< Capture in promiscuous mode */
     int      linktype;              /**< Data link type to use, or -1 for
                                          "use default" */
-#ifdef HAVE_PCAP_CREATE
     gboolean monitor_mode;          /**< Capture in monitor mode, if available */
-#endif
     gboolean saving_to_file;        /**< TRUE if capture is writing to a file */
     gchar    *save_file;            /**< the capture file name */
     gboolean use_pcapng;            /**< TRUE if file format is pcapng */
@@ -175,9 +174,10 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
 extern void
 capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_options *capture_opts);
 
-/* print list of link layer types */
+/* print interface capabilities, including link layer types */
 extern void
-capture_opts_print_link_layer_types(GList *lt_list);
+capture_opts_print_if_capabilities(if_capabilities_t *caps,
+                                   gboolean monitor_mode);
 
 /* print list of interfaces */
 extern void

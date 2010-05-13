@@ -2741,22 +2741,24 @@ main(int argc, char *argv[])
 
   if (list_link_layer_types) {
     /* Get the list of link-layer types for the capture device. */
-    GList *lt_list;
-    gchar *error_string;
+    if_capabilities_t *caps;
 
-    lt_list = capture_pcap_linktype_list(global_capture_opts.iface, &error_string);
-    if (lt_list == NULL) {
-      if (error_string != NULL) {
-        cmdarg_err("The list of data link types for the capture device \"%s\" could not be obtained (%s)."
-         "Please check to make sure you have sufficient permissions, and that\n"
-         "you have the proper interface or pipe specified.\n", global_capture_opts.iface, error_string);
-        g_free(error_string);
-      } else
-        cmdarg_err("The capture device \"%s\" has no data link types.", global_capture_opts.iface);
+    caps = capture_get_if_capabilities(global_capture_opts.iface,
+                                       global_capture_opts.monitor_mode,
+                                       &err_str);
+    if (caps == NULL) {
+      cmdarg_err("The capabilities of the capture device \"%s\" could not be obtained (%s)."
+       "Please check to make sure you have sufficient permissions, and that\n"
+       "you have the proper interface or pipe specified.\n", global_capture_opts.iface, err_str);
+      g_free(err_str);
       exit(2);
     }
-    capture_opts_print_link_layer_types(lt_list);
-    free_pcap_linktype_list(lt_list);
+    if (caps->data_link_types == NULL) {
+      cmdarg_err("The capture device \"%s\" has no data link types.", global_capture_opts.iface);
+      exit(2);
+    }
+    capture_opts_print_if_capabilities(caps, global_capture_opts.monitor_mode);
+    free_if_capabilities(caps);
     exit(0);
   }
 

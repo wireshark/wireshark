@@ -81,9 +81,7 @@ capture_opts_init(capture_options *capture_opts, void *cf)
   capture_opts->snaplen                 = WTAP_MAX_PACKET_SIZE; /* snapshot length - default is
                                                                    infinite, in effect */
   capture_opts->promisc_mode            = TRUE;             /* promiscuous mode is the default */
-#ifdef HAVE_PCAP_CREATE
   capture_opts->monitor_mode            = FALSE;
-#endif
   capture_opts->linktype                = -1;               /* the default linktype */
   capture_opts->saving_to_file          = FALSE;
   capture_opts->save_file               = NULL;
@@ -549,13 +547,18 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 }
 
 void
-capture_opts_print_link_layer_types(GList *lt_list)
+capture_opts_print_if_capabilities(if_capabilities_t *caps,
+                                   gboolean monitor_mode)
 {
     GList *lt_entry;
     data_link_info_t *data_link_info;
 
-    fprintf_stderr("Data link types (use option -y to set):\n");
-    for (lt_entry = lt_list; lt_entry != NULL;
+    if (caps->can_set_rfmon)
+        fprintf_stderr("Data link types when %sin monitor mode (use option -y to set):\n",
+                       monitor_mode ? "" : "not ");
+    else
+        fprintf_stderr("Data link types (use option -y to set):\n");
+    for (lt_entry = caps->data_link_types; lt_entry != NULL;
          lt_entry = g_list_next(lt_entry)) {
         data_link_info = (data_link_info_t *)lt_entry->data;
         fprintf_stderr("  %s", data_link_info->name);

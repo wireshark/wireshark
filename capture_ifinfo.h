@@ -67,8 +67,17 @@ extern GList *capture_interface_list(int *err, char **err_str);
 void free_interface_list(GList *if_list);
 
 /*
- * The list of data link types returned by "get_pcap_linktype_list()" and
- * "capture_pcap_linktype_list()" is a list of these structures.
+ * "get_if_capabilities()" and "capture_if_capabilities()" return a pointer
+ * to an allocated instance of this structure.  "free_if_capabilities()"
+ * frees the returned instance.
+ */
+typedef struct {
+	gboolean	can_set_rfmon;	/* TRUE if can be put into monitor mode */
+	GList		*data_link_types;	/* GList of data_link_info_t's */
+} if_capabilities_t;
+
+/*
+ * Information about data link types.
  */
 typedef struct {
 	int	dlt;            /* e.g. DLT_EN10MB (which is 1) */
@@ -79,9 +88,11 @@ typedef struct {
 /**
  * Fetch the linktype list for the specified interface from a child process.
  */
-extern GList *capture_pcap_linktype_list(const char *devname, char **err_str);
+extern if_capabilities_t *
+capture_get_if_capabilities(const char *devname, gboolean monitor_mode,
+                            char **err_str);
 
-void free_pcap_linktype_list(GList *linktype_list);
+void free_if_capabilities(if_capabilities_t *caps);
 
 #endif /* HAVE_LIBPCAP */
 

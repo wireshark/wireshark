@@ -67,9 +67,10 @@ sync_pipe_kill(int fork_child);
 extern int
 sync_interface_list_open(gchar **msg);
 
-/** Get a linktype list using dumpcap */
+/** Get interface capabilities using dumpcap */
 extern int
-sync_linktype_list_open(const gchar *ifname, gchar **msg);
+sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
+                          gchar **msg);
 
 /** Start getting interface statistics using dumpcap. */
 extern int
