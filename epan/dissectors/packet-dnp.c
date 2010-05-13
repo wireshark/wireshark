@@ -65,12 +65,12 @@
  *
  * Several command codes were missing, causing the dissector to abort decoding
  * on valid packets.  Those commands have been added.
- * 
- * The semantics of Variation 0 have been cleaned up.  Variation 0 is the 
+ *
+ * The semantics of Variation 0 have been cleaned up.  Variation 0 is the
  * "Default Variation".  It is used only in Master -> Slave read commands
- * to request the data in whatever variation the Slave is configured to use by 
- * default. Decoder strings have been added to the Binary Output and 
- * Analog Output objects (10 and 40) so that group read commands will 
+ * to request the data in whatever variation the Slave is configured to use by
+ * default. Decoder strings have been added to the Binary Output and
+ * Analog Output objects (10 and 40) so that group read commands will
  * decode properly.
  *
  * Roy M. Silvernail <roy@rant-central.com> 01/05/2009
@@ -2523,14 +2523,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pinfo->fragmented = TRUE;
 
         /* Look up the conversation to get the fragment reassembly id */
-        conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-          pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-
-        if (conversation == NULL) {
-          /* No conversation yet, so make one */
-          conversation = conversation_new(pinfo->fd->num,  &pinfo->src, &pinfo->dst, pinfo->ptype,
-            pinfo->srcport, pinfo->destport, 0);
-        }
+        conversation = find_or_create_conversation(pinfo);
 
         conv_data_ptr = (dnp3_conv_t*)conversation_get_proto_data(conversation, proto_dnp3);
 

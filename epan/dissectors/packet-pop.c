@@ -160,16 +160,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (!frame_data_p) {
 
-    conversation = find_conversation(pinfo->fd->num, 
-             &pinfo->src, &pinfo->dst, 
-             pinfo->ptype,
-             pinfo->srcport, pinfo->destport, 0);
-
-    if (conversation == NULL) { /* No conversation, create one */
-      conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                      pinfo->ptype, pinfo->srcport,
-                                      pinfo->destport, 0);
-    }
+    conversation = find_or_create_conversation(pinfo);
 
     data_val = conversation_get_proto_data(conversation, proto_pop);
 
@@ -179,7 +170,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * No - create one and attach it.
        */
       data_val = se_alloc0(sizeof(struct pop_data_val));
-      
+
       conversation_add_proto_data(conversation, proto_pop, data_val);
     }
   }
@@ -193,7 +184,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (is_continuation) {
       length_remaining = tvb_length_remaining(tvb, offset);
-      col_add_fstr(pinfo->cinfo, COL_INFO, "S: DATA fragment, %d byte%s", 
+      col_add_fstr(pinfo->cinfo, COL_INFO, "S: DATA fragment, %d byte%s",
                    length_remaining, plurality (length_remaining, "", "s"));
     }
     else
@@ -217,19 +208,19 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         frame_data_p->conversation_id = conversation->index;
         frame_data_p->more_frags = data_val->msg_read_len < data_val->msg_tot_len;
 
-        p_add_proto_data(pinfo->fd, proto_pop, frame_data_p);  
+        p_add_proto_data(pinfo->fd, proto_pop, frame_data_p);
       }
 
-      frag_msg = fragment_add_seq_next(tvb, 0, pinfo, 
-                                       frame_data_p->conversation_id, 
-                                       pop_data_segment_table, 
-                                       pop_data_reassembled_table, 
-                                       tvb_length(tvb), 
+      frag_msg = fragment_add_seq_next(tvb, 0, pinfo,
+                                       frame_data_p->conversation_id,
+                                       pop_data_segment_table,
+                                       pop_data_reassembled_table,
+                                       tvb_length(tvb),
                                        frame_data_p->more_frags);
 
-      next_tvb = process_reassembled_data(tvb, offset, pinfo, 
+      next_tvb = process_reassembled_data(tvb, offset, pinfo,
                                           "Reassembled DATA",
-                                          frag_msg, &pop_data_frag_items, 
+                                          frag_msg, &pop_data_frag_items,
                                           NULL, pop_tree);
 
       if (next_tvb) {
@@ -239,9 +230,9 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (data_val) {
           /* we have read everything - reset */
-          
+
           data_val->msg_read_len = 0;
-          data_val->msg_tot_len = 0; 
+          data_val->msg_tot_len = 0;
         }
         pinfo->fragmented = FALSE;
       } else {
@@ -254,7 +245,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * Put the whole packet into the tree as data.
        */
       call_dissector(data_handle,tvb, pinfo, pop_tree);
-    
+
     }
     return;
   }
@@ -310,7 +301,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
 
-  if (tree) { 
+  if (tree) {
     /*
      * Add the rest of the first line as request or
      * reply param/description.
@@ -347,7 +338,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    tvb_format_text(tvb, offset, next_offset - offset));
       offset = next_offset;
     }
-  } 
+  }
 }
 
 static gboolean response_is_continuation(const guchar *data)

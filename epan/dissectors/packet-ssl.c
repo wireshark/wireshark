@@ -537,16 +537,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      *       the conv_version, must set the copy in the conversation
      *       in addition to conv_version
      */
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                     pinfo->srcport, pinfo->destport, 0);
+    conversation = find_or_create_conversation(pinfo);
 
-    if (!conversation)
-    {
-        /* create a new conversation */
-        conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                        pinfo->srcport, pinfo->destport, 0);
-        ssl_debug_printf("  new conversation = %p created\n", (void *)conversation);
-    }
     conv_data = conversation_get_proto_data(conversation, proto_ssl);
 
     /* PAOLO: manage ssl decryption data */
@@ -1292,7 +1284,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
              * message starts in the data it handed us, and how many
              * more bytes we need, and return.
              * Fix for bug 4535: Don't get just the data we need, get
-             * one more segment. Otherwise when the next segment does 
+             * one more segment. Otherwise when the next segment does
              * not contain all the rest of the SSL PDU, reassembly will
              * break.
              */
@@ -1329,7 +1321,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
                 /* Don't use:
                  * pinfo->desegment_len = (record_length + 5) - available_bytes;
-                 * as it will display two SSL subtrees when a frame contains 
+                 * as it will display two SSL subtrees when a frame contains
                  * the continuation of a previous PDU together with a full new
                  * PDU (and the info column would not show the message type
                  * of the second PDU)
@@ -3652,15 +3644,7 @@ ssl_set_conv_version(packet_info *pinfo, guint version)
         return;
     }
 
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                     pinfo->srcport, pinfo->destport, 0);
-
-    if (conversation == NULL)
-    {
-        /* create a new conversation */
-        conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                        pinfo->srcport, pinfo->destport, 0);
-    }
+    conversation = find_or_create_conversation(pinfo);
 
     if (conversation_get_proto_data(conversation, proto_ssl) != NULL)
     {

@@ -280,19 +280,6 @@ init_tcp_conversation_data(packet_info *pinfo)
     return tcpd;
 }
 
-conversation_t *
-get_tcp_conversation(packet_info *pinfo)
-{
-    conversation_t *conv=NULL;
-
-    /* Have we seen this conversation before? */
-    if( (conv=find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0)) == NULL){
-        /* No this is a new conversation. */
-        conv=conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-    }
-    return conv;
-}
-
 struct tcp_analysis *
 get_tcp_conversation_data(conversation_t *conv, packet_info *pinfo)
 {
@@ -301,7 +288,7 @@ get_tcp_conversation_data(conversation_t *conv, packet_info *pinfo)
 
     /* Did the caller supply the conversation pointer? */
     if( conv==NULL )
-            conv = get_tcp_conversation(pinfo);
+            conv = find_or_create_conversation(pinfo);
 
     /* Get the data for this conversation */
     tcpd=conversation_get_proto_data(conv, proto_tcp);
@@ -3106,7 +3093,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tcph->th_hlen = hi_nibble(th_off_x2) * 4;  /* TCP header length, in bytes */
 
     /* find(or create if needed) the conversation for this tcp session */
-    conv=get_tcp_conversation(pinfo);
+    conv=find_or_create_conversation(pinfo);
     tcpd=get_tcp_conversation_data(conv,pinfo);
 
     item = proto_tree_add_uint(tcp_tree, hf_tcp_stream, tvb, offset, 0, conv->index);

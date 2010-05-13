@@ -1414,7 +1414,7 @@ static void giop_init(void) {
 
   /*
    * Free giop_complete_request_list (if necessary)
-   * Note: The data elements are se_alloc'd so only the 
+   * Note: The data elements are se_alloc'd so only the
    *       actual list elements need to be freed.
    */
 
@@ -1756,7 +1756,7 @@ static gboolean try_heuristic_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, 
 
   if (len == 0)
     return FALSE;
-  
+
   {
     guint32 message_size;
     gboolean stream_is_big_endian = is_big_endian (header);
@@ -3402,7 +3402,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
       if(tree)
       {
-        proto_tree_add_item (request_tree, hf_giop_objekt_key, tvb, 
+        proto_tree_add_item (request_tree, hf_giop_objekt_key, tvb,
                              offset - objkey_len, objkey_len, FALSE);
       }
     }
@@ -3417,7 +3417,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
   {
     /* XXX: Get operation string, create a copy in ep memory and then g_free
        the string returned from get_CDR_string(). This is a hack so that
-       a lexically nested CLEANUP_PUSH & etc is not req'd below. 
+       a lexically nested CLEANUP_PUSH & etc is not req'd below.
        [The nested CLEANUP_PUSH causes a gcc -Wshadow warning :( ] */
     gchar *tmp;
     /* length of operation string and string */
@@ -3992,7 +3992,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
     {
     case 2:
     case 1:
-      ti = proto_tree_add_bitmask(clnp_tree, giop_header_tvb, 6, 
+      ti = proto_tree_add_bitmask(clnp_tree, giop_header_tvb, 6,
                                   hf_giop_message_flags, ett_giop_message_flags,
                                   giop_message_flags, FALSE);
       if ((header.flags & GIOP_MESSAGE_FLAGS_ENDIANNESS) == 0)
@@ -4046,7 +4046,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
 
   switch (header.message_type)
   {
-    
+
   case Request:
     if(header.GIOP_version.minor < 2)
     {
@@ -4058,10 +4058,10 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
       dissect_giop_request_1_2 (payload_tvb, pinfo, tree,
                                 &header, stream_is_big_endian);
     }
-    
+
     break;
-    
-    
+
+
   case Reply:
     if(header.GIOP_version.minor < 2)
     {
@@ -4092,7 +4092,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
     break;
   default:
     break;
-    
+
   }                               /* switch message_type */
 
 
@@ -4186,13 +4186,8 @@ dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
      */
     if (!pinfo->fd->flags.visited)
     {
-      conversation = find_conversation(pinfo->fd->num, &pinfo->src,
-                                       &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-      if (conversation == NULL)
-      {
-        conversation = conversation_new(pinfo->fd->num, &pinfo->src,
-                                        &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-      }
+      conversation = find_or_create_conversation(pinfo);
+
       /* Set dissector */
       conversation_set_dissector(conversation, giop_tcp_handle);
     }

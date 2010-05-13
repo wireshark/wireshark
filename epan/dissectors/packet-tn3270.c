@@ -3882,21 +3882,10 @@ dissect_tn3270(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 add_tn3270_conversation(packet_info *pinfo, int tn3270e, int model)
 {
-  conversation_t *conversation;
-  tn3270_conv_info_t *tn3270_info = NULL;
+    conversation_t *conversation;
+    tn3270_conv_info_t *tn3270_info = NULL;
 
-    /*
-    * Do we have a conversation for this connection?
-    */
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                    pinfo->ptype, pinfo->srcport,
-                                    pinfo->destport, 0);
-    if (conversation == NULL) {
-      /* We don't yet have a conversation, so create one. */
-      conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                      pinfo->ptype, pinfo->srcport,
-                                      pinfo->destport, 0);
-    }
+    conversation = find_or_create_conversation(pinfo);
 
     /*
     * Do we already have a type and mechanism?

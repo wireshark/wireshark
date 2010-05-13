@@ -863,13 +863,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (!beep_frame_data) {
 
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                       pinfo->srcport, pinfo->destport, 0);
-    if (conversation == NULL) { /* No conversation, create one */
-        conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                        pinfo->srcport, pinfo->destport, 0);
-
-      }
+      conversation = find_or_create_conversation(pinfo);
 
       /*
        * Check for and insert an entry in the request table if does not exist

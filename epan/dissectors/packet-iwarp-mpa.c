@@ -346,15 +346,7 @@ is_mpa_req(tvbuff_t *tvb, packet_info *pinfo)
 			|| tvb_get_ntoh64(tvb, 8) != MPA_ID_REQ_FRAME)
 		return FALSE;
 
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src,
-			&pinfo->dst, pinfo->ptype, pinfo->srcport,
-			pinfo->destport, 0);
-
-	if (!conversation) {
-		conversation = conversation_new(pinfo->fd->num, &pinfo->src,
-				&pinfo->dst, pinfo->ptype, pinfo->srcport,
-				pinfo->destport, 0);
-	}
+	conversation = find_or_create_conversation(pinfo);
 
 	if (!get_mpa_state(conversation)) {
 

@@ -53,7 +53,7 @@ static gint ett_mp2t = -1;
 static gint ett_mp2t_header = -1;
 static gint ett_mp2t_af = -1;
 static gint ett_mp2t_analysis = -1;
-static gint ett_dmpt = -1; 
+static gint ett_dmpt = -1;
 
 static int hf_mp2t_header = -1;
 static int hf_mp2t_sync_byte = -1;
@@ -131,7 +131,7 @@ static int hf_mp2t_af_e_pr_flag = -1;
 static int hf_mp2t_af_e_ss_flag = -1;
 static int hf_mp2t_af_e_reserved = -1;
 
-#define MP2T_AF_E_LTW_FLAG_MASK	0x80 
+#define MP2T_AF_E_LTW_FLAG_MASK	0x80
 #define MP2T_AF_E_PR_FLAG_MASK	0x40
 #define MP2T_AF_E_SS_FLAG_MASK	0x20
 
@@ -527,23 +527,6 @@ typedef struct frame_analysis_data {
 
 } frame_analysis_data_t;
 
-static conversation_t *
-get_the_conversation(packet_info *pinfo)
-{
-	conversation_t *conv = NULL;
-
-	conv = find_conversation(pinfo->fd->num, &pinfo->src,
-				 &pinfo->dst, pinfo->ptype,
-				 pinfo->srcport, pinfo->destport, 0);
-
-	if (conv == NULL) { /* Create a new conversation */
-		conv = conversation_new(pinfo->fd->num, &pinfo->src,
-					&pinfo->dst, pinfo->ptype,
-					pinfo->srcport, pinfo->destport, 0);
-	}
-	return conv;
-}
-
 static mp2t_analysis_data_t *
 init_mp2t_conversation_data(void)
 {
@@ -831,10 +814,10 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 
 	afc = (header & MP2T_AFC_MASK) >> MP2T_AFC_SHIFT;
 
-	if (afc == 2 || afc == 3) 
+	if (afc == 2 || afc == 3)
 	{
 		gint af_start_offset = offset;
-	
+
 		guint8 af_length;
 		guint8 af_flags;
 		gint stuffing_len;
@@ -844,17 +827,17 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 
 		proto_tree_add_item( mp2t_tree, hf_mp2t_af_length, tvb, offset, 1, FALSE);
 		offset += 1;
-		/* fix issues where afc==3 but af_length==0 
-		 *  Adaptaion field...spec section 2.4.3.5: The value 0 is for inserting a single 
-		 *  stuffing byte in a Transport Stream packet. When the adaptation_field_control 
+		/* fix issues where afc==3 but af_length==0
+		 *  Adaptaion field...spec section 2.4.3.5: The value 0 is for inserting a single
+		 *  stuffing byte in a Transport Stream packet. When the adaptation_field_control
 		 *  value is '11', the value of the adaptation_field_length shall be in the range 0 to 182.
 		 */
 		if (af_length > 0 ) {
 			hi = proto_tree_add_item( mp2t_tree, hf_mp2t_af, tvb, offset, af_length, FALSE);
 			mp2t_af_tree = proto_item_add_subtree( hi, ett_mp2t_af );
-	
+
 			af_flags = tvb_get_guint8(tvb, offset);
-	
+
 			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_di, tvb, offset, 1, FALSE);
 			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_rai, tvb, offset, 1, FALSE);
 			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_espi, tvb, offset, 1, FALSE);
@@ -863,9 +846,9 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_sp_flag, tvb, offset, 1, FALSE);
 			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_tpd_flag, tvb, offset, 1, FALSE);
 			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_afe_flag, tvb, offset, 1, FALSE);
-	
+
 			offset += 1;
-	
+
 			if (af_flags &  MP2T_AF_PCR_MASK) {
 				guint64 pcr_base = 0;
 				guint32 pcr_ext = 0;
@@ -874,15 +857,15 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 				tmp = tvb_get_guint8(tvb, offset);
 				pcr_base = (pcr_base << 8) | tmp;
 				offset += 1;
-			
+
 				tmp = tvb_get_guint8(tvb, offset);
 				pcr_base = (pcr_base << 8) | tmp;
 				offset += 1;
-				
+
 				tmp = tvb_get_guint8(tvb, offset);
 				pcr_base = (pcr_base << 8) | tmp;
 				offset += 1;
-	
+
 				tmp = tvb_get_guint8(tvb, offset);
 				pcr_base = (pcr_base << 8) | tmp;
 				offset += 1;
@@ -896,8 +879,8 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 				pcr_ext = (pcr_ext << 8) | tmp;
 				offset += 1;
 
-				proto_tree_add_none_format(mp2t_af_tree, hf_mp2t_af_pcr, tvb, offset - 6, 6, 
-						"Program Clock Reference: base(%" G_GINT64_MODIFIER "u) * 300 + ext(%u) = %" G_GINT64_MODIFIER "u", 
+				proto_tree_add_none_format(mp2t_af_tree, hf_mp2t_af_pcr, tvb, offset - 6, 6,
+						"Program Clock Reference: base(%" G_GINT64_MODIFIER "u) * 300 + ext(%u) = %" G_GINT64_MODIFIER "u",
 						pcr_base, pcr_ext, pcr_base * 300 + pcr_ext);
 			}
 
@@ -909,15 +892,15 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 				tmp = tvb_get_guint8(tvb, offset);
 				opcr_base = (opcr_base << 8) | tmp;
 				offset += 1;
-			
+
 				tmp = tvb_get_guint8(tvb, offset);
 				opcr_base = (opcr_base << 8) | tmp;
 				offset += 1;
-			
+
 				tmp = tvb_get_guint8(tvb, offset);
 				opcr_base = (opcr_base << 8) | tmp;
 				offset += 1;
-	
+
 				tmp = tvb_get_guint8(tvb, offset);
 				opcr_base = (opcr_base << 8) | tmp;
 				offset += 1;
@@ -931,13 +914,13 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 				opcr_ext = (opcr_ext << 8) | tmp;
 				offset += 1;
 
-				proto_tree_add_none_format(mp2t_af_tree, hf_mp2t_af_opcr, tvb, offset - 6, 6, 
-						"Original Program Clock Reference: base(%" G_GINT64_MODIFIER "u) * 300 + ext(%u) = %" G_GINT64_MODIFIER "u", 
+				proto_tree_add_none_format(mp2t_af_tree, hf_mp2t_af_opcr, tvb, offset - 6, 6,
+						"Original Program Clock Reference: base(%" G_GINT64_MODIFIER "u) * 300 + ext(%u) = %" G_GINT64_MODIFIER "u",
 						opcr_base, opcr_ext, opcr_base * 300 + opcr_ext);
-	
+
 				offset += 6;
 			}
-	
+
 			if (af_flags &  MP2T_AF_SP_MASK) {
 				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_sc, tvb, offset, 1, FALSE);
 				offset += 1;
@@ -945,7 +928,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 
 			if (af_flags &  MP2T_AF_TPD_MASK) {
 				guint8 tpd_len;
-			
+
 				tpd_len = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_tpd_length, tvb, offset, 1, FALSE);
 				offset += 1;
@@ -968,9 +951,9 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ltw_flag, tvb, offset, 1, FALSE);
 				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_pr_flag, tvb, offset, 1, FALSE);
 				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ss_flag, tvb, offset, 1, FALSE);
-				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_reserved, tvb, offset, 1, FALSE);			
+				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_reserved, tvb, offset, 1, FALSE);
 				offset += 1;
-			
+
 				if (e_flags & MP2T_AF_E_LTW_FLAG_MASK) {
 					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ltwv_flag, tvb, offset, 2, FALSE);
 					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ltwo, tvb, offset, 2, FALSE);
@@ -1060,7 +1043,7 @@ dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
 	guint offset = 0;
 	conversation_t *conv;
-	conv = get_the_conversation(pinfo);
+	conv = find_or_create_conversation(pinfo);
 
 	while ( tvb_reported_length_remaining(tvb, offset) >= MP2T_PACKET_SIZE ) {
 		offset = dissect_tsp(tvb, offset, pinfo, tree, conv);
@@ -1089,7 +1072,7 @@ heur_dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 void
 proto_register_mp2t(void)
 {
-	static hf_register_info hf[] = { 
+	static hf_register_info hf[] = {
 		{ &hf_mp2t_header, {
 			"Header", "mp2t.header",
 			FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL
@@ -1098,7 +1081,7 @@ proto_register_mp2t(void)
 			"Sync Byte", "mp2t.sync_byte",
 			FT_UINT32, BASE_HEX, VALS(mp2t_sync_byte_vals), MP2T_SYNC_BYTE_MASK, NULL, HFILL
 		} } ,
-		{ &hf_mp2t_tei, { 
+		{ &hf_mp2t_tei, {
 			"Transport Error Indicator", "mp2t.tei",
 			FT_UINT32, BASE_DEC, NULL, MP2T_TEI_MASK, NULL, HFILL
 		} } ,
@@ -1324,7 +1307,7 @@ proto_register_mp2t(void)
 			FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL
 		} }
 	};
-	
+
 	static gint *ett[] =
 	{
 		&ett_mp2t,

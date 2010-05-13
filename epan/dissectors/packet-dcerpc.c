@@ -1,7 +1,7 @@
 /* packet-dcerpc.c
  * Routines for DCERPC packet disassembly
- * Copyright 2001, Todd Sabin <tas@webspan.net>
- * Copyright 2003, Tim Potter <tpot@samba.org>
+ * Copyright 2001, Todd Sabin <tas[AT]webspan.net>
+ * Copyright 2003, Tim Potter <tpot[AT]samba.org>
  *
  * $Id$
  *
@@ -2803,12 +2803,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         }
 
         if (!saw_ctx_item) {
-            conv = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                      pinfo->srcport, pinfo->destport, 0);
-            if (conv == NULL) {
-                conv = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                         pinfo->srcport, pinfo->destport, 0);
-            }
+            conv = find_or_create_conversation(pinfo);
         }
 
         /* if this is the first time we see this packet, we need to
@@ -3083,8 +3078,8 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         /* Start out assuming we won't succeed in decrypting. */
         decrypted_tvb = NULL;
-        /* Schannel needs informations into the footer (verifier) in order to setup decryptions keys 
-         * so we call it in order to have a chance to decypher the data 
+        /* Schannel needs informations into the footer (verifier) in order to setup decryptions keys
+         * so we call it in order to have a chance to decypher the data
          */
         if (DCE_C_RPC_AUTHN_PROTOCOL_SEC_CHAN == auth_info->auth_type) {
             dissect_dcerpc_cn_auth (tvb, offset, pinfo, dcerpc_tree, hdr, TRUE, auth_info);
@@ -5082,12 +5077,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * activity_id and seqnum.  I haven't seen anywhere that it would
      * make a difference, but for future reference...
      */
-    conv = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                              pinfo->srcport, pinfo->destport, 0);
-    if (!conv) {
-        conv = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                 pinfo->srcport, pinfo->destport, 0);
-    }
+    conv = find_or_create_conversation(pinfo);
 
     /*
      * Packet type specific stuff is next.

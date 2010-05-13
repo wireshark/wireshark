@@ -1086,13 +1086,8 @@ static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSproxy");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	conversation = find_conversation( pinfo->fd->num, &pinfo->src, &pinfo->dst,
-		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	conversation = find_or_create_conversation(pinfo);
 
-	if ( !conversation) {
-		conversation = conversation_new( pinfo->fd->num, &pinfo->src, &pinfo->dst,
-			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
 	hash_info = conversation_get_proto_data(conversation, proto_msproxy);
 	if ( !hash_info) {
     		hash_info = se_alloc(sizeof(hash_entry_t));

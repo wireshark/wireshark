@@ -248,12 +248,7 @@ dissect_applemidi_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 	}
 
 	/* call dissect_applemidi() from now on for UDP packets on this "connection" */
-	p_conv=find_conversation( pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-				  pinfo->srcport, pinfo->destport, 0 );
-	if( !p_conv ) {
-		p_conv = conversation_new( pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-					   pinfo->srcport, pinfo->destport, 0 );
-	}
+	p_conv = find_or_create_conversation(pinfo);
 	conversation_set_dissector( p_conv, applemidi_handle );
 
 	dissect_applemidi_common( tvb, pinfo, tree, command );

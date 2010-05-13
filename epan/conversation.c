@@ -1108,3 +1108,27 @@ try_conversation_dissector(const address *addr_a, const address *addr_b, const p
 	}
 	return FALSE;
 }
+
+/*  A helper function that calls find_conversation() and, if a conversation is
+ *  not found, calls conversation_new().
+ *  The frame number and addresses are taken from pinfo.
+ *  No options are used, though we could extend this API to include an options
+ *  parameter.
+ */
+conversation_t *
+find_or_create_conversation(packet_info *pinfo)
+{
+	conversation_t *conv=NULL;
+
+	/* Have we seen this conversation before? */
+	if((conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+				     pinfo->ptype, pinfo->srcport,
+				     pinfo->destport, 0)) == NULL) {
+		/* No, this is a new conversation. */
+		conv = conversation_new(pinfo->fd->num, &pinfo->src,
+					&pinfo->dst, pinfo->ptype,
+					pinfo->srcport, pinfo->destport, 0);
+	}
+
+	return conv;
+}

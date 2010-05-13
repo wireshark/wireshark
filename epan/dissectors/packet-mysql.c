@@ -1144,15 +1144,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         struct mysql_frame_data  *mysql_frame_data_p;
 
 	/* get conversation, create if neccessary*/
-	conversation= find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-					pinfo->ptype, pinfo->srcport,
-					pinfo->destport, 0);
-
-	if (!conversation) {
-		conversation= conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-					       pinfo->ptype, pinfo->srcport,
-					       pinfo->destport, 0);
-	}
+	conversation= find_or_create_conversation(pinfo);
 
 	/* get associated state information, create if neccessary */
 	conn_data= conversation_get_proto_data(conversation, proto_mysql);

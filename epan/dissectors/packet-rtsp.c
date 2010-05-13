@@ -356,7 +356,7 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	memcpy(buf, line_begin, line_len);
 	buf[line_len] = '\0';
 
-	/* Get past "Transport:" and spaces */ 
+	/* Get past "Transport:" and spaces */
 	tmp = buf + STRLEN_CONST(rtsp_transport);
 	while (*tmp && isspace(*tmp))
 		tmp++;
@@ -373,10 +373,10 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 		/* Give up on unknown transport types */
 		return;
 	}
-	
+
 	c_data_port = c_mon_port = 0;
 	s_data_port = s_mon_port = 0;
-	
+
 	/* Look for server port */
 	if ((tmp = strstr(buf, rtsp_sps))) {
 		tmp += strlen(rtsp_sps);
@@ -395,8 +395,8 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 			return;
 		}
 	}
-	
-	
+
+
 	/* Deal with RTSP TCP-interleaved conversations. */
 	if (!c_data_port) {
 		rtsp_conversation_data_t	*data;
@@ -411,7 +411,7 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 			 */
 			return;
 		}
-		
+
 		/* Move tmp to beyone interleaved string */
 		tmp += strlen(rtsp_inter);
 		/* Look for channel number(s) */
@@ -421,19 +421,10 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 			g_warning("Frame %u: rtsp: bad interleaved", pinfo->fd->num);
 			return;
 		}
-		
-		/* At least data channel present, look for conversation (presumably TCP) */
-		conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-		                         pinfo->srcport, pinfo->destport, 0);
 
-		/* Create new conversation if necessary */
-		if (!conv)
-		{
-			conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-			                        pinfo->ptype, pinfo->srcport, pinfo->destport,
-			                        0);
-		}
-		
+		/* At least data channel present, look for conversation (presumably TCP) */
+		conv = find_or_create_conversation(pinfo);
+
 		/* Look for previous data */
 		data = conversation_get_proto_data(conv, proto_rtsp);
 
@@ -479,7 +470,7 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 		/* There is always data for RTP */
 		rtp_add_address(pinfo, &pinfo->dst, c_data_port, s_data_port,
 		                "RTSP", pinfo->fd->num, is_video, NULL);
-	
+
 		/* RTCP only if indicated */
 		if (c_mon_port)
 		{
@@ -846,11 +837,11 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				case RTSP_REQUEST:
 					process_rtsp_request(tvb, offset, line, linelen, next_offset, rtsp_tree);
 					break;
-	
+
 				case RTSP_REPLY:
 					process_rtsp_reply(tvb, offset, line, linelen, next_offset, rtsp_tree);
 					break;
-	
+
 				case RTSP_NOT_FIRST_LINE:
 					/* Drop through, it may well be a header line */
 					break;
@@ -860,7 +851,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (is_header)
 		{
 			/* We know that colon_offset must be set */
-			
+
 			/* Skip whitespace after the colon. */
 			value_offset = colon_offset + 1;
 			while ((value_offset < line_end_offset) &&
@@ -979,7 +970,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			                    next_offset - offset, "%s",
 			                    tvb_format_text(tvb, offset, next_offset - offset));
 		}
-		
+
 		offset = next_offset;
 	}
 
@@ -1065,11 +1056,11 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		new_tvb = tvb_new_subset(tvb, offset, datalen,
 			    reported_datalen);
 
-		if (media_type_str_lower_case && 
+		if (media_type_str_lower_case &&
 			dissector_try_string(media_type_dissector_table,
 				media_type_str_lower_case,
 				new_tvb, pinfo, rtsp_tree)){
-			
+
 		}else {
 			/*
 			 * Fix up the top-level item so that it doesn't
@@ -1139,7 +1130,7 @@ process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
 	                          tvb_format_text(tvb, offset, (gint) (next_line_offset - offset)));
 	sub_tree = proto_item_add_subtree(ti, ett_rtsp_method);
 
-	
+
 	/* Add method name to tree */
 	proto_tree_add_string(sub_tree, hf_rtsp_method, tvb, offset,
 	                      (gint) strlen(rtsp_methods[ii]), rtsp_methods[ii]);
@@ -1159,7 +1150,7 @@ process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
 		url++;
 	/* Create a URL-sized buffer and copy contents */
 	tmp_url = ep_strndup(url_start, url - url_start);
-	
+
 	/* Add URL to tree */
 	proto_tree_add_string(sub_tree, hf_rtsp_url, tvb,
 	                      offset + (gint) (url_start - data), (gint) (url - url_start), tmp_url);
@@ -1185,7 +1176,7 @@ process_rtsp_reply(tvbuff_t *tvb, int offset, const guchar *data,
 
 
 	/* status code */
-	
+
 	/* Skip protocol/version */
 	while (status < lineend && !isspace(*status))
 		status++;
@@ -1198,7 +1189,7 @@ process_rtsp_reply(tvbuff_t *tvb, int offset, const guchar *data,
 	status_i = 0;
 	while (status < lineend && isdigit(*status))
 		status_i = status_i * 10 + *status++ - '0';
-	
+
 	/* Add field to tree */
 	proto_tree_add_uint(sub_tree, hf_rtsp_status, tvb,
 	                    offset + (gint) (status_start - data),

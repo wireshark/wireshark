@@ -111,9 +111,9 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 		/*
 		 * Do we have a conversation for this connection?
 		 */
-		conversation = find_conversation(pinfo->fd->num, 
+		conversation = find_conversation(pinfo->fd->num,
 				&pinfo->src, &pinfo->dst,
-				pinfo->ptype, 
+				pinfo->ptype,
 				pinfo->srcport, pinfo->destport, 0);
 		if (conversation == NULL) {
 			/* No, so just return the rest of the current packet */
@@ -160,7 +160,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 			}
 		}
 		/* If this is a read response we must add the datalen to
-		 * the pdu size 
+		 * the pdu size
 		 */
 		if(nbd_trans->type==NBD_CMD_READ){
 			return 16+nbd_trans->datalen;
@@ -213,20 +213,8 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		return;
 	}
 
-	/*
-	 * Do we have a conversation for this connection?
-	 */
-	conversation = find_conversation(pinfo->fd->num, 
-				&pinfo->src, &pinfo->dst,
-				pinfo->ptype, 
-				pinfo->srcport, pinfo->destport, 0);
-	if (conversation == NULL) {
-		/* We don't yet have a conversation, so create one. */
-		conversation = conversation_new(pinfo->fd->num, 
-					&pinfo->src, &pinfo->dst,
-					pinfo->ptype,
-					pinfo->srcport, pinfo->destport, 0);
-	}
+	conversation = find_or_create_conversation(pinfo);
+
 	/*
 	 * Do we already have a state structure for this conv
 	 */
@@ -331,7 +319,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			it=proto_tree_add_time(tree, hf_nbd_time, tvb, 0, 0, &ns);
 			PROTO_ITEM_SET_GENERATED(it);
 		}
-	}              
+	}
 
 
 	switch(magic){
@@ -440,35 +428,35 @@ void proto_register_nbd(void)
 {
         static hf_register_info hf[] = {
 	{ &hf_nbd_magic,
-	{ "Magic", "nbd.magic", FT_UINT32, BASE_HEX, 
+	{ "Magic", "nbd.magic", FT_UINT32, BASE_HEX,
 		NULL, 0x0, NULL, HFILL }},
 	{ &hf_nbd_type,
-	{ "Type", "nbd.type", FT_UINT32, BASE_DEC, 
+	{ "Type", "nbd.type", FT_UINT32, BASE_DEC,
 		VALS(nbd_type_vals), 0x0, NULL, HFILL }},
 	{ &hf_nbd_error,
-	{ "Error", "nbd.error", FT_UINT32, BASE_DEC, 
+	{ "Error", "nbd.error", FT_UINT32, BASE_DEC,
 		NULL, 0x0, NULL, HFILL }},
 	{ &hf_nbd_len,
-	{ "Length", "nbd.len", FT_UINT32, BASE_DEC, 
+	{ "Length", "nbd.len", FT_UINT32, BASE_DEC,
 		NULL, 0x0, NULL, HFILL }},
 	{ &hf_nbd_handle,
-	{ "Handle", "nbd.handle", FT_UINT64, BASE_HEX, 
+	{ "Handle", "nbd.handle", FT_UINT64, BASE_HEX,
 		NULL, 0x0, NULL, HFILL }},
 	{ &hf_nbd_from,
-	{ "From", "nbd.from", FT_UINT64, BASE_HEX, 
+	{ "From", "nbd.from", FT_UINT64, BASE_HEX,
 		NULL, 0x0, NULL, HFILL }},
 	{ &hf_nbd_response_in,
-	{ "Response In", "nbd.response_in", FT_FRAMENUM, BASE_NONE, 
+	{ "Response In", "nbd.response_in", FT_FRAMENUM, BASE_NONE,
 		NULL, 0x0, "The response to this NBD request is in this frame", HFILL }},
 	{ &hf_nbd_response_to,
-	{ "Request In", "nbd.response_to", FT_FRAMENUM, BASE_NONE, 
+	{ "Request In", "nbd.response_to", FT_FRAMENUM, BASE_NONE,
 		NULL, 0x0, "This is a response to the NBD request in this frame", HFILL }},
 	{ &hf_nbd_time,
-	{ "Time", "nbd.time", FT_RELATIVE_TIME, BASE_NONE, 
+	{ "Time", "nbd.time", FT_RELATIVE_TIME, BASE_NONE,
 		NULL, 0x0, "The time between the Call and the Reply", HFILL }},
 
 	{ &hf_nbd_data,
-	{ "Data", "nbd.data", FT_BYTES, BASE_NONE, 
+	{ "Data", "nbd.data", FT_BYTES, BASE_NONE,
 		NULL, 0x0, NULL, HFILL }},
 
 	};

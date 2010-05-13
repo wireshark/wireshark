@@ -164,7 +164,7 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
 }
 
 static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
-				 tvbuff_t *tvb, packet_info *pinfo, 
+				 tvbuff_t *tvb, packet_info *pinfo,
 				 proto_tree *tree)
 {
 	proto_tree	 *tftp_tree = NULL;
@@ -369,13 +369,7 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16		 opcode;
   tftp_conv_info_t *tftp_info;
 
-  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-				   pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-  if(conversation == NULL) {
-    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, 
-				    pinfo->ptype,
-				    pinfo->srcport,pinfo->destport, 0);
-  }
+  conversation = find_or_create_conversation(pinfo);
 
   tftp_info = conversation_get_proto_data(conversation, proto_tftp);
   if (!tftp_info) {

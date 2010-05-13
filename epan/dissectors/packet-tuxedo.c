@@ -107,9 +107,9 @@ dissect_tuxedo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti;
 	guint32 magic;
 	guint32 opcode;
-	
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TUXEDO");	  	
-	
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TUXEDO");
+
 	if (tvb_length(tvb) >= 8)
 	{
 		magic = tvb_get_ntohl(tvb, 0);
@@ -117,9 +117,9 @@ dissect_tuxedo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		{
 			opcode = tvb_get_ntohl(tvb, 4);
 
-			if (check_col(pinfo->cinfo, COL_INFO)) 
-			{					
-				col_add_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, tuxedo_opcode_vals, "Unknown (0x%02x)"));		
+			if (check_col(pinfo->cinfo, COL_INFO))
+			{
+				col_add_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, tuxedo_opcode_vals, "Unknown (0x%02x)"));
 			}
 
 			if (tree)
@@ -127,14 +127,14 @@ dissect_tuxedo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				ti = proto_tree_add_item(tree, proto_tuxedo, tvb, 0, -1, FALSE);
 				tuxedoroot_tree = proto_item_add_subtree(ti, ett_tuxedo);
 
-				proto_tree_add_item(tuxedoroot_tree, hf_tuxedo_magic, tvb, 0, 4, FALSE);		
+				proto_tree_add_item(tuxedoroot_tree, hf_tuxedo_magic, tvb, 0, 4, FALSE);
 				proto_tree_add_item(tuxedoroot_tree, hf_tuxedo_opcode, tvb, 4, 4, FALSE);
 			}
 		}
 		else
 		{
 			/* This packet is a continuation */
-			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");		
+			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 			if (tree)
 			{
 				proto_tree_add_item(tree, proto_tuxedo, tvb, 0, -1, FALSE);
@@ -150,15 +150,11 @@ dissect_tuxedo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		guint32 magic;
 		magic = tvb_get_ntohl(tvb, 0);
-		if (magic == TUXEDO_MAGIC || magic == TUXEDO_SMAGIC) 
+		if (magic == TUXEDO_MAGIC || magic == TUXEDO_SMAGIC)
 		{
 			/* Register this dissector for this conversation */
 			conversation_t  *conversation = NULL;
-			conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-			if (conversation == NULL) 
-			{
-				conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-			}
+			conversation = find_or_create_conversation(pinfo);
 			conversation_set_dissector(conversation, tuxedo_handle);
 
 			dissect_tuxedo(tvb, pinfo, tree);

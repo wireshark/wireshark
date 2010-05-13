@@ -1,6 +1,6 @@
 /* packet-rlogin.c
  * Routines for unix rlogin packet dissection
- * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
+ * Copyright 2000, Jeffrey C. Foster <jfoste[AT]woodward.com>
  *
  * $Id$
  *
@@ -115,7 +115,7 @@ rlogin_state_machine(rlogin_hash_entry_t *hash_info, tvbuff_t *tvb, packet_info 
 	{
 		return;
 	}
-	
+
 	/* exit if already passed username in conversation */
 	if (hash_info->state == DONE)
 	{
@@ -138,7 +138,7 @@ rlogin_state_machine(rlogin_hash_entry_t *hash_info, tvbuff_t *tvb, packet_info 
 			hash_info->state = DONE;
 			return;
 		}
-		else 
+		else
 		{
 			if (length <= 1)
 			{
@@ -264,7 +264,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		gint slash_offset;
 
 		/* First frame of conversation, assume user info... */
-		
+
 		info_len = tvb_length_remaining(tvb, offset);
 
 		/* User info tree */
@@ -295,7 +295,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 			proto_tree_add_item(user_info_tree, hf_user_info_terminal_type,
 			                    tvb, offset, slash_offset-offset, FALSE);
 			offset = slash_offset + 1;
-			
+
 			/* Terminal speed */
 			str_len = tvb_strsize(tvb, offset);
 			proto_tree_add_uint(user_info_tree, hf_user_info_terminal_speed,
@@ -321,7 +321,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 	    tvb_get_guint8(tvb, ti_offset + 1) == 0xff)
 	{
 		guint16 rows, columns;
-		
+
 		/* Have found terminal info. */
 		if (ti_offset > offset)
 		{
@@ -364,7 +364,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		proto_tree_add_item(window_tree, hf_window_info_y_pixels, tvb,
 		                    offset, 2, FALSE);
 		offset += 2;
-		
+
 		/* Show setting highlights in info column */
 		if (check_col(pinfo->cinfo, COL_INFO))
 		{
@@ -393,18 +393,8 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint length;
 	gint ti_offset;
 
-	/* Get conversation */
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-	                                 pinfo->ptype, pinfo->srcport, pinfo->destport,
-                                     0);
-
-	/* Create if didn't previously exist */
-	if (!conversation)
-	{
-		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-		                                pinfo->ptype, pinfo->srcport, pinfo->destport,
-		                                0);
-	}
+	/* Get or create conversation */
+	conversation = find_or_create_conversation(pinfo);
 
 	/* Get or create data associated with this conversation */
 	hash_info = conversation_get_proto_data(conversation, proto_rlogin);
@@ -475,7 +465,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						/* Truncate to 128 bytes for display */
 						bytes_to_copy = 128;
 					}
-	
+
 					/* Add data into info column */
 					col_append_fstr(pinfo->cinfo, COL_INFO,
 					                "Data: %s",
@@ -546,7 +536,7 @@ void proto_register_rlogin(void)
 			{ "Control message", "rlogin.control_message", FT_UINT8, BASE_HEX,
 				 VALS(control_message_vals), 0x0, NULL, HFILL
 			}
-		},		
+		},
 		{ &hf_window_info,
 			{ "Window Info", "rlogin.window_size", FT_NONE, BASE_NONE,
 				 NULL, 0x0, NULL, HFILL
@@ -556,7 +546,7 @@ void proto_register_rlogin(void)
 			{ "Window size marker", "rlogin.window_size.ss", FT_STRING, BASE_NONE,
 				 NULL, 0x0, NULL, HFILL
 			}
-		},		
+		},
 		{ &hf_window_info_rows,
 			{ "Rows", "rlogin.window_size.rows", FT_UINT16, BASE_DEC,
 				 NULL, 0x0, NULL, HFILL

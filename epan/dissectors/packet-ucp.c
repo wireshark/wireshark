@@ -1730,13 +1730,7 @@ dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      *  won't be called any more for this TCP connection.
      */
 
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, 
-                                     pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-    if (conversation == NULL)
-    {
-        conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                        pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-    }
+    conversation = find_or_create_conversation(pinfo);
     conversation_set_dissector(conversation, ucp_handle);
 
     dissect_ucp_tcp(tvb, pinfo, tree);
@@ -1863,7 +1857,7 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += UCP_OT_LEN;
 
         /*
-         * Variable part starts here. 
+         * Variable part starts here.
          */
 
         tmp_tvb = tvb_new_subset_remaining(tvb, offset);

@@ -4352,16 +4352,7 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
 	     * if we don't have one, and create the state if we don't have
 	     * any.
 	     */
-	    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	    if (conversation == NULL) {
-		  /*
-		   * No - create one.
-		   */
-		  conversation = conversation_new(pinfo->fd->num, &pinfo->src,
-			&pinfo->dst, pinfo->ptype, pinfo->srcport,
-			pinfo->destport, 0);
-	    }
+	    conversation = find_or_create_conversation(pinfo);
 
 	    /*
 	     * Is there state attached to this conversation?
@@ -4668,15 +4659,7 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	* if we don't have one, and create the state if we don't have
 	* any.
 	*/
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-	pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	if (conversation == NULL) {
-		/*
-	   	 * No - create one.
-	   	*/
-		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
+	conversation = find_or_create_conversation(pinfo);
 
 	/*
 	 * Is there state attached to this conversation?

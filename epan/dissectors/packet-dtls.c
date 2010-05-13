@@ -343,14 +343,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    *       the conv_version, must set the copy in the conversation
    *       in addition to conv_version
    */
-  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                   pinfo->srcport, pinfo->destport, 0);
-  if (!conversation)
-    {
-      /* create a new conversation */
-      conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                      pinfo->srcport, pinfo->destport, 0);
-    }
+  conversation = find_or_create_conversation(pinfo);
   conv_data = conversation_get_proto_data(conversation, proto_dtls);
 
   /* manage dtls decryption data */
@@ -1837,15 +1830,7 @@ ssl_set_conv_version(packet_info *pinfo, guint version)
       return;
     }
 
-  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                   pinfo->srcport, pinfo->destport, 0);
-
-  if (conversation == NULL)
-    {
-      /* create a new conversation */
-      conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                      pinfo->srcport, pinfo->destport, 0);
-    }
+  conversation = find_or_create_conversation(pinfo);
 
   if (conversation_get_proto_data(conversation, proto_dtls) != NULL)
     {

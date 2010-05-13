@@ -564,14 +564,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            return 0;
        }
 
-       conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-              pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-
-       if (!conversation) {
-              /* create new conversation*/
-              conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-       }
+       conversation = find_or_create_conversation(pinfo);
 
        request_key.conversation = conversation->index;
        request_key.sequence = tvb_get_ntohs(tvb,6);

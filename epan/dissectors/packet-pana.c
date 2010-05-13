@@ -551,20 +551,8 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         * We need to track some state for this protocol on a per conversation
         * basis so we can do neat things like request/response tracking
         */
-       /*
-        * Do we have a conversation for this connection?
-        */
-       conversation = find_conversation(pinfo->fd->num,
-                                   &pinfo->src, &pinfo->dst,
-                                   pinfo->ptype,
-                                   pinfo->srcport, pinfo->destport, 0);
-       if (conversation == NULL) {
-             /* We don't yet have a conversation, so create one. */
-             conversation = conversation_new(pinfo->fd->num,
-                                   &pinfo->src, &pinfo->dst,
-    	                    	   pinfo->ptype,
-                                   pinfo->srcport, pinfo->destport, 0);
-       }
+       conversation = find_or_create_conversation(pinfo);
+
        /*
         * Do we already have a state structure for this conv
         */

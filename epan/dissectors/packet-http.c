@@ -536,11 +536,7 @@ get_http_conversation_data(packet_info *pinfo)
 	conversation_t  *conversation;
 	http_conv_t	*conv_data;
 
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-
-	if(!conversation) {  /* Conversation does not exist yet - create it */
-		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
+	conversation = find_or_create_conversation(pinfo);
 
 	/* Retrieve information from conversation
 	 * or add it if it isn't there yet

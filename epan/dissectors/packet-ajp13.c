@@ -667,12 +667,8 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* conversational state really only does us good during the first
    * in-order traversal
    */
-  conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                           pinfo->srcport, pinfo->destport, 0);
-  if (!conv) {
-    conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                            pinfo->srcport, pinfo->destport, 0);
-  }
+  conv = find_or_create_conversation(pinfo);
+
   cd = (ajp13_conv_data*)conversation_get_proto_data(conv, proto_ajp13);
   if (!cd) {
     cd = se_alloc(sizeof(ajp13_conv_data));

@@ -407,16 +407,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
     guint available;
     gint needed = 0;
 
-    conversation_t *conversation =
-        find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-
-    if (conversation == NULL) {
-        /*
-         * No conversation exists yet - create one.
-         */
-        conversation =
-            conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-    }
+    conversation_t *conversation = find_or_create_conversation(pinfo);
 
     DISSECTOR_ASSERT(find_dissector("jxta.udp"));
 

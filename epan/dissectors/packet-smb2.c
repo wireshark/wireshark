@@ -951,7 +951,7 @@ dissect_smb2_ioctl_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *paren
 	}
 
 	ioctl_function=tvb_get_letohl(tvb, offset);
-	if (ioctlfunc) 
+	if (ioctlfunc)
 		*ioctlfunc=ioctl_function;
 	if(ioctl_function){
 		/* device */
@@ -2068,11 +2068,11 @@ dissect_smb2_error_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	proto_tree_add_item(tree, hf_smb2_error_byte_count, tvb, offset, 4, TRUE);
 	offset += 4;
 
-	/* If the ByteCount field is zero then the server MUST supply an ErrorData field 
+	/* If the ByteCount field is zero then the server MUST supply an ErrorData field
 	   that is one byte in length */
 	if (byte_count == 0) byte_count = 1;
 
-	/* ErrorData (variable): A variable-length data field that contains extended 
+	/* ErrorData (variable): A variable-length data field that contains extended
 	   error information.*/
 	proto_tree_add_item(tree, hf_smb2_error_data, tvb, offset, byte_count, TRUE);
 	offset += byte_count;
@@ -2428,7 +2428,7 @@ static void dissect_smb2_file_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 			tree = proto_item_add_subtree(item, ett_smb2_file_directory_info);
 		}
 
-		/* next offset */	
+		/* next offset */
 		next_offset = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(tree, hf_smb2_next_offset, tvb, offset, 4, TRUE);
 		offset += 4;
@@ -2512,7 +2512,7 @@ static void dissect_smb2_full_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 			tree = proto_item_add_subtree(item, ett_smb2_full_directory_info);
 		}
 
-		/* next offset */	
+		/* next offset */
 		next_offset = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(tree, hf_smb2_next_offset, tvb, offset, 4, TRUE);
 		offset += 4;
@@ -2602,7 +2602,7 @@ static void dissect_smb2_both_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 			tree = proto_item_add_subtree(item, ett_smb2_both_directory_info);
 		}
 
-		/* next offset */	
+		/* next offset */
 		next_offset = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(tree, hf_smb2_next_offset, tvb, offset, 4, TRUE);
 		offset += 4;
@@ -2711,7 +2711,7 @@ static void dissect_smb2_file_name_info(tvbuff_t *tvb, packet_info *pinfo _U_, p
 			tree = proto_item_add_subtree(item, ett_smb2_both_directory_info);
 		}
 
-		/* next offset */	
+		/* next offset */
 		next_offset = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(tree, hf_smb2_next_offset, tvb, offset, 4, TRUE);
 		offset += 4;
@@ -2774,7 +2774,7 @@ static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinf
 			tree = proto_item_add_subtree(item, ett_smb2_id_both_directory_info);
 		}
 
-		/* next offset */	
+		/* next offset */
 		next_offset = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(tree, hf_smb2_next_offset, tvb, offset, 4, TRUE);
 		offset += 4;
@@ -2929,7 +2929,7 @@ dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 		si->saved->extra_info_type=SMB2_EI_NONE;
 		si->saved->extra_info=NULL;
 	}
-	
+
 	switch (si->status) {
 	case 0x00000000: break;
 	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
@@ -3505,7 +3505,7 @@ dissect_smb2_lock_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	while (lock_count--) {
 		proto_item *lock_item=NULL;
 		proto_tree *lock_tree=NULL;
-		static const int *lf_fields[] = {	
+		static const int *lf_fields[] = {
 			&hf_smb2_lock_flags_shared,
 			&hf_smb2_lock_flags_exclusive,
 			&hf_smb2_lock_flags_unlock,
@@ -5203,7 +5203,7 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 
 		item=proto_tree_add_uint(tid_tree, hf_smb2_share_type, tvb, tid_offset, 0, si->tree->share_type);
 		PROTO_ITEM_SET_GENERATED(item);
-	
+
 		item=proto_tree_add_uint(tid_tree, hf_smb2_tcon_frame, tvb, tid_offset, 0, si->tree->connect_frame);
 		PROTO_ITEM_SET_GENERATED(item);
 	}
@@ -5237,12 +5237,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	/* find which conversation we are part of and get the data for that
 	 * conversation
 	 */
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
-	if(!conversation){
-		/* OK this is a new conversation so lets create it */
-		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
+	conversation = find_or_create_conversation(pinfo);
 	si->conv=conversation_get_proto_data(conversation, proto_smb2);
 	if(!si->conv){
 		/* no smb2_into_t structure for this conversation yet,
@@ -6216,7 +6211,7 @@ proto_register_smb2(void)
 	{ &hf_smb2_short_name_len,
 		{ "Short Name Length", "smb2.short_name_len", FT_UINT8, BASE_DEC,
 		NULL, 0, NULL, HFILL }},
- 
+
 	{ &hf_smb2_short_name,
 		{ "Short Name", "smb2.shortname", FT_STRING, BASE_NONE,
 		NULL, 0, NULL, HFILL }},

@@ -794,14 +794,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   aspinfo.code = 0;
   query = (!aspinfo.reply && !aspinfo.release);
 
-  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                   pinfo->srcport, pinfo->destport, 0);
-
-  if (conversation == NULL)
-  {
-    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-  }
+  conversation = find_or_create_conversation(pinfo);
 
   if (atp_defragment) {
     asp_request_key request_key;

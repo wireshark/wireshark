@@ -437,7 +437,7 @@ get_keyexchange_key(unsigned char keyexchangekey[NTLMSSP_KEY_LEN],const unsigned
 static guint32
 get_md4pass_list(md4_pass** p_pass_list,const char* nt_password)
 {
-	
+
 	guint32 nb_pass = 0;
 	enc_key_t *ek;
 	unsigned char nt_password_hash[NTLMSSP_KEY_LEN];
@@ -1438,13 +1438,8 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
    * Store the flags and the RC4 state information with the conversation,
    * as they're needed in order to dissect subsequent messages.
    */
-  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-				   pinfo->ptype, pinfo->srcport,
-				   pinfo->destport, 0);
-  if (!conversation) { /* Create one */
-    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-				    pinfo->srcport, pinfo->destport, 0);
-  }
+  conversation = find_or_create_conversation(pinfo);
+
   tvb_memcpy(tvb, tmp, offset, 8);
   /* We can face more than one NTLM exchange over the same couple of IP and ports ...*/
   conv_ntlmssp_info = conversation_get_proto_data(conversation, proto_ntlmssp);

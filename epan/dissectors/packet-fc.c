@@ -1,7 +1,7 @@
 /* packet-fc.c
- * Routines for Fibre Channel Decoding (FC Header, Link Ctl & Basic Link Svc) 
+ * Routines for Fibre Channel Decoding (FC Header, Link Ctl & Basic Link Svc)
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
- *   Copyright 2003  Ronnie Sahlberg, exchange first/last matching and 
+ *   Copyright 2003  Ronnie Sahlberg, exchange first/last matching and
  *                                    tap listener and misc updates
  *
  * $Id$
@@ -9,17 +9,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -58,7 +58,7 @@
 
 #define FC_HEADER_SIZE         24
 #define FC_RCTL_VFT            0x50
-#define MDSHDR_TRAILER_SIZE    6 
+#define MDSHDR_TRAILER_SIZE    6
 
 /* Size of various fields in FC header in bytes */
 #define FC_RCTL_SIZE           1
@@ -193,9 +193,9 @@ fcseq_hash (gconstpointer v)
 {
     const fcseq_conv_key_t *key = v;
     guint val;
-    
+
     val = key->conv_idx;
-    
+
     return val;
 }
 
@@ -206,7 +206,7 @@ fc_exchange_init_protocol(void)
 
     if (fcseq_req_hash)
         g_hash_table_destroy(fcseq_req_hash);
-    
+
     fcseq_req_hash = g_hash_table_new(fcseq_hash, fcseq_equal);
 }
 
@@ -291,7 +291,7 @@ static const value_string fc_iu_val[] = {
 #define    FC_SOFC4  0xBCB51919
 #define    FC_SOFI4  0xBCB55959
 #define    FC_SOFN4  0xBCB53939
-#define    FC_SOFF   0xBCB55858    
+#define    FC_SOFF   0xBCB55858
 
 #define    EOFT_NEG    0xBC957575
 #define    EOFT_POS    0xBCB57575
@@ -431,7 +431,7 @@ fc_get_ftype (guint8 r_ctl, guint8 type)
     case FC_RCTL_ELS:
         if (((r_ctl & 0x0F) == 0x2) || ((r_ctl & 0x0F) == 0x3))
             return FC_FTYPE_ELS;
-        else if (type == FC_TYPE_ELS) 
+        else if (type == FC_TYPE_ELS)
             return FC_FTYPE_OHMS;
         else
              return FC_FTYPE_UNDEF;
@@ -548,7 +548,7 @@ dissect_fc_vft(proto_tree *parent_tree,
 
     if (parent_tree) {
         item = proto_tree_add_uint_format(parent_tree, hf_fc_vft, tvb, offset,
-                                    8, vf_id, "VFT Header: " 
+                                    8, vf_id, "VFT Header: "
                                     "VF_ID %d Pri %d Hop Count %d",
                                     vf_id, pri, hop_ct);
         tree = proto_item_add_subtree(item, ett_fc_vft);
@@ -704,7 +704,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     guint32 frag_size;
     guint8 df_ctl, seq_id;
     guint32 f_ctl;
-    
+
     guint32 param;
     guint16 real_seqcnt;
     guint8 ftype;
@@ -743,11 +743,11 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
      * the src/dst ids are undefined(==semi-random) in the FC header.
      * This means we can no track conversations for FC over iFCP by using
      * the FC src/dst addresses.
-     * For iFCP: Do not update the pinfo src/dst struct and let it remain 
+     * For iFCP: Do not update the pinfo src/dst struct and let it remain
      * being tcpip src/dst so that request/response matching in the FCP layer
      * will use ip addresses instead and still work.
      */
-    if(!is_ifcp){    
+    if(!is_ifcp){
 	SET_ADDRESS (&pinfo->dst, AT_FC, 3, tvb_get_ptr(tvb,offset+1,3));
 	SET_ADDRESS (&pinfo->src, AT_FC, 3, tvb_get_ptr(tvb,offset+5,3));
 	pinfo->srcport=0;
@@ -773,14 +773,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     /* set up a conversation and conversation data */
     /* TODO treat the fc address  s_id==00.00.00 as a wildcard matching anything */
-    conversation=find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                   pinfo->ptype, pinfo->srcport,
-                                   pinfo->destport, 0);
-    if(!conversation){
-        conversation=conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                      pinfo->ptype, pinfo->srcport,
-                                      pinfo->destport, 0);
-    }        
+    conversation=find_or_create_conversation(pinfo);
     fchdr.conversation=conversation;
     fc_conv_data=conversation_get_proto_data(conversation, proto_fc);
     if(!fc_conv_data){
@@ -859,7 +852,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     is_1frame_inseq = (((pinfo->sof_eof & PINFO_SOF_FIRST_FRAME) == PINFO_SOF_FIRST_FRAME) ||
                        (((pinfo->sof_eof & PINFO_SOF_SOFF) == PINFO_SOF_SOFF) &&
                         (fchdr.seqcnt == 0)));
-    
+
     is_lastframe_inseq = ((pinfo->sof_eof & PINFO_EOF_LAST_FRAME) == PINFO_EOF_LAST_FRAME);
 
     is_lastframe_inseq |= fchdr.fctl & FC_FCTL_SEQ_LAST;
@@ -894,7 +887,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                                     val_to_str ((fchdr.r_ctl & 0xF0),
                                                 fc_routing_val, "0x%x"),
                                     val_to_str ((fchdr.r_ctl & 0x0F),
-                                                fc_iu_val, "0x%x")); 
+                                                fc_iu_val, "0x%x"));
         break;
 
     case FC_RCTL_LINK_CTL:
@@ -906,7 +899,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                                     val_to_str ((fchdr.r_ctl & 0xF0),
                                                 fc_routing_val, "0x%x"),
                                     val_to_str ((fchdr.r_ctl & 0x0F),
-                                                fc_lctl_proto_val, "0x%x")); 
+                                                fc_lctl_proto_val, "0x%x"));
         break;
 
     case FC_RCTL_BLS:
@@ -921,7 +914,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                                         val_to_str ((fchdr.r_ctl & 0xF0),
                                                     fc_routing_val, "0x%x"),
                                         val_to_str ((fchdr.r_ctl & 0x0F),
-                                                    fc_bls_proto_val, "0x%x")); 
+                                                    fc_bls_proto_val, "0x%x"));
             break;
 
         default:
@@ -948,7 +941,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                                         val_to_str ((fchdr.r_ctl & 0xF0),
                                                     fc_routing_val, "0x%x"),
                                         val_to_str ((fchdr.r_ctl & 0x0F),
-                                                    fc_els_proto_val, "0x%x")); 
+                                                    fc_els_proto_val, "0x%x"));
             break;
 
         default:
@@ -975,7 +968,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     }
 
     hidden_item = proto_tree_add_uint (fc_tree, hf_fc_ftype, tvb, offset, 1,
-                                       ftype); 
+                                       ftype);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     /* XXX - use "fc_wka_vals[]" on this? */
@@ -1002,7 +995,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
              */
             proto_tree_add_uint_format (fc_tree, hf_fc_type, tvb,
                                         offset+8, FC_TYPE_SIZE,
-                                        fchdr.type,"Type: 0x%x(%s)", fchdr.type, 
+                                        fchdr.type,"Type: 0x%x(%s)", fchdr.type,
                                         fclctl_get_typestr ((guint8) (fchdr.r_ctl & 0x0F),
                                                             fchdr.type));
         } else {
@@ -1044,7 +1037,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     } else if (ftype == FC_FTYPE_BLS) {
         if ((fchdr.r_ctl & 0x0F) == FC_BLS_ABTS) {
             proto_tree_add_uint_format (fc_tree, hf_fc_param, tvb,
-                                        offset+20, 4, param, 
+                                        offset+20, 4, param,
                                         "Parameter: 0x%x(%s)", param,
                                         ((param & 0x0F) == 1 ? "Abort Sequence" :
                                          "Abort Exchange"));
@@ -1137,7 +1130,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
          * determine the actual offset into a frame.
          */
         ckey.conv_idx = conversation->index;
-        
+
         cdata = (fcseq_conv_data_t *)g_hash_table_lookup (fcseq_req_hash,
                                                           &ckey);
 
@@ -1145,17 +1138,17 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
             if (cdata) {
                 /* Since we never free the memory used by an exchange, this maybe a
                  * case of another request using the same exchange as a previous
-                 * req. 
+                 * req.
                  */
                 cdata->seq_cnt = fchdr.seqcnt;
             }
             else {
                 req_key = se_alloc (sizeof(fcseq_conv_key_t));
                 req_key->conv_idx = conversation->index;
-                
+
                 cdata = se_alloc (sizeof(fcseq_conv_data_t));
                 cdata->seq_cnt = fchdr.seqcnt;
-                
+
                 g_hash_table_insert (fcseq_req_hash, req_key, cdata);
             }
             real_seqcnt = 0;
@@ -1176,7 +1169,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
              next_tvb = tvb_new_subset_remaining (tvb, next_offset);
              col_append_str (pinfo->cinfo, COL_INFO, " (Bogus Fragment)");
         } else {
-        
+
              frag_id = ((pinfo->oxid << 16) ^ seq_id) | is_exchg_resp ;
 
              /* We assume that all frames are of the same max size */
@@ -1185,15 +1178,15 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                                          real_seqcnt * fc_max_frame_size,
                                          frag_size,
                                          !is_lastframe_inseq);
-             
+
              if (fcfrag_head) {
                   next_tvb = tvb_new_child_real_data(tvb, fcfrag_head->data,
                                                 fcfrag_head->datalen,
                                                 fcfrag_head->datalen);
-                  
+
                   /* Add the defragmented data to the data source list. */
                   add_new_data_source(pinfo, next_tvb, "Reassembled FC");
-            
+
                   if (tree) {
                       hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
                                                             tvb, offset+9, 1, 1);
@@ -1229,7 +1222,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 	    void *saved_private_data;
 	    saved_private_data = pinfo->private_data;
 	    pinfo->private_data = &fchdr;
-	    if (!dissector_try_port (fcftype_dissector_table, ftype, 
+	    if (!dissector_try_port (fcftype_dissector_table, ftype,
 				next_tvb, pinfo, tree)) {
 	        call_dissector (data_handle, next_tvb, pinfo, tree);
             }
@@ -1352,7 +1345,7 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 void
 proto_register_fc(void)
-{                 
+{
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
@@ -1567,7 +1560,7 @@ proto_register_fc(void)
                                     "This is the size of non-last frames in a "
                                     "multi-frame sequence", 10,
                                     &fc_max_frame_size);
-    
+
     register_init_routine (fc_exchange_init_protocol);
 
 

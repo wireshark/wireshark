@@ -120,19 +120,6 @@ init_udp_conversation_data(void)
   return udpd;
 }
 
-static conversation_t *
-get_udp_conversation(packet_info *pinfo)
-{
-  conversation_t *conv=NULL;
-
-  /* Have we seen this conversation before? */
-  if( (conv=find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0)) == NULL){
-    /* No this is a new conversation. */
-    conv=conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-  }
-  return conv;
-}
-
 static struct udp_analysis *
 get_udp_conversation_data(conversation_t *conv, packet_info *pinfo)
 {
@@ -141,7 +128,7 @@ get_udp_conversation_data(conversation_t *conv, packet_info *pinfo)
 
   /* Did the caller supply the conversation pointer? */
   if( conv==NULL )
-	  conv = get_udp_conversation(pinfo);
+	  conv = find_or_create_conversation(pinfo);
 
   /* Get the data for this conversation */
   udpd=conversation_get_proto_data(conv, proto_udp);
@@ -244,7 +231,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
    * to the payload tvb through the tap system. */
   if(have_tap_listener(udp_follow_tap))
 	  tap_queue_packet(udp_follow_tap, pinfo, next_tvb);
-  
+
 /* determine if this packet is part of a conversation and call dissector */
 /* for the conversation if available */
 
@@ -540,10 +527,10 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   pinfo->destport = udph->uh_dport;
 
   tap_queue_packet(udp_tap, pinfo, udph);
-  
+
   /* find(or create if needed) the conversation for this udp session */
   if (udp_process_info) {
-    conv=get_udp_conversation(pinfo);
+    conv=find_or_create_conversation(pinfo);
     udpd=get_udp_conversation_data(conv,pinfo);
   }
 

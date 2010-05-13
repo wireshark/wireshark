@@ -772,17 +772,7 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 	 * multi-homed SCTP connections. This will probably need to be fixed at some point.
 	 */
 
-	conversation = find_conversation(pinfo->fd->num,
-				&pinfo->src, &pinfo->dst,
-				pinfo->ptype,
-				pinfo->srcport, pinfo->destport, 0);
-	if (conversation == NULL) {
-		/* We don't yet have a conversation, so create one. */
-		conversation = conversation_new(pinfo->fd->num,
-					&pinfo->src, &pinfo->dst,
-					pinfo->ptype,
-					pinfo->srcport, pinfo->destport, 0);
-	}
+	conversation = find_or_create_conversation(pinfo);
 
 	diameter_conv_info = conversation_get_proto_data(conversation, proto_diameter);
 	if (!diameter_conv_info) {

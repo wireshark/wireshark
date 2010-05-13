@@ -1,7 +1,7 @@
 /* packet-starteam.c
  * Routines for Borland StarTeam packet dissection
  *
- * metatech <metatech@flashmail.com>
+ * metatech <metatech[AT]flashmail.com>
  *
  * $Id$
  *
@@ -26,7 +26,7 @@
 
 /*  StarTeam in a nutshell
 *
-*   StarTeam is a Software Change & Configuration Management Tool (like CVS) 
+*   StarTeam is a Software Change & Configuration Management Tool (like CVS)
 */
 
 #ifdef HAVE_CONFIG_H
@@ -498,15 +498,15 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(tvb_length(tvb) >= 16){
 		guint32 iCommand = 0;
 		gboolean bRequest = FALSE;
-		if(tvb_get_ntohl(tvb, offset + 0) == STARTEAM_MAGIC){ 
+		if(tvb_get_ntohl(tvb, offset + 0) == STARTEAM_MAGIC){
 			/* This packet is a response */
-			bRequest = FALSE; 
+			bRequest = FALSE;
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_append_fstr(pinfo->cinfo, COL_INFO, "Reply: %d bytes", tvb_length(tvb));
 			}
 		} else if(tvb_length_remaining(tvb, offset) >= 28 && tvb_get_ntohl(tvb, offset + 20) == STARTEAM_MAGIC){
 			/* This packet is a request */
-			bRequest = TRUE; 
+			bRequest = TRUE;
 			if(tvb_length_remaining(tvb, offset) >= 66){
 				iCommand = tvb_get_letohl(tvb, offset + 62);
 			}
@@ -524,7 +524,7 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				if(tvb_length_remaining(tvb, offset) >= 20){
 					ti = proto_tree_add_text(starteamroot_tree, tvb, offset, 20, STARTEAM_TEXT_MDH);
 					starteam_tree = proto_item_add_subtree(ti, ett_starteam_mdh);
-	
+
 					proto_tree_add_item(starteam_tree, hf_starteam_mdh_session_tag, tvb, offset + 0, 4, TRUE);
 					proto_tree_add_item(starteam_tree, hf_starteam_mdh_ctimestamp, tvb, offset + 4, 4, TRUE);
 					proto_tree_add_item(starteam_tree, hf_starteam_mdh_flags, tvb, offset + 8, 4, TRUE);
@@ -537,18 +537,18 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if(tvb_length_remaining(tvb, offset) >= 16){
 				ti = proto_tree_add_text(starteamroot_tree, tvb, offset, 16, STARTEAM_TEXT_PH);
 				starteam_tree = proto_item_add_subtree(ti, ett_starteam_ph);
-	
+
 				proto_tree_add_item(starteam_tree, hf_starteam_ph_signature, tvb, offset + 0, 4, FALSE);
 				proto_tree_add_item(starteam_tree, hf_starteam_ph_packet_size, tvb, offset + 4, 4, TRUE);
 				proto_tree_add_item(starteam_tree, hf_starteam_ph_data_size, tvb, offset + 8, 4, TRUE);
 				proto_tree_add_item(starteam_tree, hf_starteam_ph_data_flags, tvb, offset + 12, 4, TRUE);
 				offset += 16;
-	
+
 				if(bRequest){
 					if(tvb_length_remaining(tvb, offset) >= 38){
 						ti = proto_tree_add_text(starteamroot_tree, tvb, offset, 38, STARTEAM_TEXT_ID);
 						starteam_tree = proto_item_add_subtree(ti, ett_starteam_id);
-			
+
 						proto_tree_add_item(starteam_tree, hf_starteam_id_revision_level, tvb, offset + 0, 2, TRUE);
 						proto_tree_add_item(starteam_tree, hf_starteam_id_client, tvb, offset + 2, 16, TRUE);
 						proto_tree_add_item(starteam_tree, hf_starteam_id_connect, tvb, offset + 18, 4, TRUE);
@@ -562,7 +562,7 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				if(tvb_length_remaining(tvb, offset) > 0){
 					ti = proto_tree_add_text(starteamroot_tree, tvb, offset, -1, STARTEAM_TEXT_DATA);
 					starteam_tree = proto_item_add_subtree(ti, ett_starteam_data);
-					proto_tree_add_item(starteam_tree, hf_starteam_data_data, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);	
+					proto_tree_add_item(starteam_tree, hf_starteam_data_data, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
 				}
 			}
 		}
@@ -573,13 +573,13 @@ static guint
 get_starteam_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	guint32 iPDULength = 0;
-	if(tvb_length_remaining(tvb, offset) >= 8 && tvb_get_ntohl(tvb, offset + 0) == STARTEAM_MAGIC){ 
+	if(tvb_length_remaining(tvb, offset) >= 8 && tvb_get_ntohl(tvb, offset + 0) == STARTEAM_MAGIC){
 		/* Response */
 		iPDULength = tvb_get_letohl(tvb, offset + 4) + 16;
 	} else if(tvb_length_remaining(tvb, offset) >= 28 && tvb_get_ntohl(tvb, offset + 20) == STARTEAM_MAGIC){
 		/* Request */
-		iPDULength = tvb_get_letohl(tvb, offset + 24) + 36;					
-	}		
+		iPDULength = tvb_get_letohl(tvb, offset + 24) + 36;
+	}
 	return iPDULength;
 }
 
@@ -599,22 +599,19 @@ dissect_starteam_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			iOffsetLengths = 4;
 		} else if(tvb_get_ntohl(tvb, 20) == STARTEAM_MAGIC){
 			iOffsetLengths = 24;
-		} 
+		}
 		if(iOffsetLengths != -1){
 			guint32 iLengthPacket;
 			guint32 iLengthData;
 			iLengthPacket = tvb_get_letohl(tvb, iOffsetLengths);
 			iLengthData = tvb_get_letohl(tvb, iOffsetLengths + 4);
-			
+
 			if(iLengthPacket == iLengthData){
 				/* Register this dissector for this conversation */
 				conversation_t  *conversation = NULL;
-				conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-				if(conversation == NULL){
-					conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-				}
+				conversation = find_or_create_conversation(pinfo);
 				conversation_set_dissector(conversation, starteam_tcp_handle);
-	
+
 				/* Dissect the packet */
 				dissect_starteam(tvb, pinfo, tree);
 				return TRUE;
@@ -681,7 +678,7 @@ proto_register_starteam(void)
   };
   static gint *ett[] = {
     &ett_starteam,
-    &ett_starteam_mdh,    
+    &ett_starteam_mdh,
     &ett_starteam_ph,
     &ett_starteam_id,
     &ett_starteam_data
@@ -692,14 +689,14 @@ proto_register_starteam(void)
   proto_starteam = proto_register_protocol("StarTeam", "StarTeam", "starteam");
   proto_register_field_array(proto_starteam, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  
+
   starteam_module = prefs_register_protocol(proto_starteam, NULL);
   prefs_register_bool_preference(starteam_module, "desegment",
     "Reassemble StarTeam messages spanning multiple TCP segments",
     "Whether the StarTeam dissector should reassemble messages spanning multiple TCP segments."
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &starteam_desegment);
-  
+
 }
 
 void

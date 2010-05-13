@@ -2321,14 +2321,8 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 	}
 
 	/* make sure we have a conversation for this session */
-        conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                          pinfo->ptype, pinfo->srcport,
-                                          pinfo->destport, 0);
-        if (!conversation) {
-            conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                             pinfo->ptype, pinfo->srcport,
-                                             pinfo->destport, 0);
-        }
+        conversation = find_or_create_conversation(pinfo);
+
         iscsi_session=conversation_get_proto_data(conversation, proto_iscsi);
         if(!iscsi_session){
             iscsi_session=se_alloc(sizeof(iscsi_session_t));

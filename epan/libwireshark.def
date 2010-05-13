@@ -419,6 +419,7 @@ filesystem_opt
 find_circuit
 find_codec
 find_conversation
+find_or_create_conversation
 find_dissector
 find_dissector_table
 find_protocol_by_id

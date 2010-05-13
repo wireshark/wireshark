@@ -641,7 +641,7 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree_add_item( tree, hf_gssapi_command, tvb, offset, 1, FALSE);
 		proto_tree_add_item( tree, hf_gssapi_length, tvb, offset+1, 2, FALSE);
 		len = tvb_get_ntohs(tvb, offset+1);
-		if (len > 0) 
+		if (len > 0)
 			proto_tree_add_item( tree, hf_gssapi_payload, tvb, offset+3, len, FALSE);
 	}
 	else if ((compare_packet( hash_info->command_row)) ||
@@ -902,7 +902,7 @@ state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 							   " GSSAPI Authentication reply");
 			if (tvb_get_ntohs(tvb, offset+2) == 0)
 				hash_info->state = V5Command;
-			else 
+			else
 				hash_info->state = GssApiAuth;
 			hash_info->gssapi_auth_reply_row = get_packet_ptr;
 		}
@@ -1041,13 +1041,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		return;
 	}
 
-	conversation = find_conversation( pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-		pinfo->srcport, pinfo->destport, 0);
-
-	if ( !conversation){
-		conversation = conversation_new( pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-			pinfo->srcport, pinfo->destport, 0);
-	}
+	conversation = find_or_create_conversation(pinfo);
 	hash_info = conversation_get_proto_data(conversation,proto_socks);
 	if ( !hash_info){
     		hash_info = se_alloc(sizeof(socks_hash_entry_t));

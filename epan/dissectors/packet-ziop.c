@@ -81,7 +81,7 @@ static dissector_handle_t data_handle;
 static dissector_handle_t ziop_tcp_handle;
 
 
-static const value_string ziop_compressor_ids[] = {                              
+static const value_string ziop_compressor_ids[] = {
   { 0, "None" },
   { 1, "GZIP"},
   { 2, "PKZIP"},
@@ -124,21 +124,21 @@ get_ziop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return 0;
 
   flags = tvb_get_guint8(tvb, offset + 6);
-  
+
   stream_is_big_endian =  ((flags & 0x1) == 0);
-  
+
   if (stream_is_big_endian)
     message_size = tvb_get_ntohl(tvb, offset + 8);
   else
     message_size = tvb_get_letohl(tvb, offset + 8);
-  
+
   return message_size + ZIOP_HEADER_SIZE;
 }
 
 
 static void
 dissect_ziop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
-  
+
   if ( tvb_memeql(tvb, 0, ZIOP_MAGIC ,4) != 0) {
 
     if ( tvb_memeql(tvb, 0, GIOP_MAGIC ,4) == 0)
@@ -185,13 +185,8 @@ dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
        */
       if (!pinfo->fd->flags.visited)
         {
-          conversation = find_conversation(pinfo->fd->num, &pinfo->src,
-              &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-          if (conversation == NULL)
-            {
-              conversation = conversation_new(pinfo->fd->num, &pinfo->src,
-                  &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-            }
+          conversation = find_or_create_conversation(pinfo);
+
           /* Set dissector */
           conversation_set_dissector(conversation, ziop_tcp_handle);
 	}
@@ -207,11 +202,11 @@ dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 
 
 /* Main entry point */
-static void 
+static void
 dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
   guint offset = 0;
   guint8 giop_version_major, giop_version_minor, message_type;
-  
+
   proto_tree *ziop_tree = NULL;
   proto_item *ti;
 
@@ -224,7 +219,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
   giop_version_minor = tvb_get_guint8(tvb, 5);
   message_type = tvb_get_guint8(tvb, 7);
 
-  if ( (giop_version_major < 1) || 
+  if ( (giop_version_major < 1) ||
        (giop_version_minor < 2) )  /* earlier than GIOP 1.2 */
     {
       col_add_fstr (pinfo->cinfo, COL_INFO, "Version %u.%u",
@@ -242,8 +237,8 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
       return;
     }
 
-  col_add_fstr (pinfo->cinfo, COL_INFO, "ZIOP %u.%u %s", 
-		giop_version_major, 
+  col_add_fstr (pinfo->cinfo, COL_INFO, "ZIOP %u.%u %s",
+		giop_version_major,
 		giop_version_minor,
 		val_to_str(message_type, giop_message_types,
 			   "Unknown message type (0x%02x)")
@@ -291,7 +286,7 @@ void proto_register_ziop (void) {
 
 
   /* A header field is something you can search/filter on.
-   * 
+   *
    * We create a structure to register our fields. It consists of an
    * array of hf_register_info structures, each of which are of the format
    * {&(field id), {name, abbrev, type, display, strings, bitmask, blurb, HFILL}}.
@@ -342,7 +337,7 @@ void proto_reg_handoff_ziop (void) {
 
   ziop_tcp_handle = create_dissector_handle(dissect_ziop_tcp, proto_ziop);
   dissector_add_handle("udp.port", ziop_tcp_handle);  /* For 'Decode As' */
-  
+
   heur_dissector_add("tcp", dissect_ziop_heur, proto_ziop);
 
   data_handle = find_dissector("data");

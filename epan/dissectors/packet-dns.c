@@ -108,7 +108,7 @@ static int hf_dns_time = -1;
 static int hf_dns_sshfp_fingerprint = -1;
 static int hf_dns_hip_hit = -1;
 static int hf_dns_hip_pk = -1;
-static int hf_dns_dhcid_rdata = -1; 
+static int hf_dns_dhcid_rdata = -1;
 static int hf_dns_apl_coded_prefix = -1;
 static int hf_dns_apl_negation = -1;
 static int hf_dns_apl_afdlength = -1;
@@ -490,7 +490,7 @@ static const value_string dns_types[] = {
 
 
 
-	{ T_SPF,	"SPF" }, /* SPF RR (RFC 4408) section 3 */ 
+	{ T_SPF,	"SPF" }, /* SPF RR (RFC 4408) section 3 */
 	{ 100,		"UINFO" },
 	{ 101,		"UID" },
 	{ 102,		"GID" },
@@ -2713,7 +2713,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	if (data_len < 1)
            goto bad_rr;
 	proto_tree_add_item(rr_tree, hf_dns_dhcid_rdata, tvb, cur_offset, data_len, FALSE);
-        
+
 
     }
     break;
@@ -2750,7 +2750,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       	     if (rr_len < 1)
                 goto bad_rr;
-      	     afdpart_len = tvb_get_guint8(tvb, cur_offset) & DNS_APL_AFDLENGTH;	
+      	     afdpart_len = tvb_get_guint8(tvb, cur_offset) & DNS_APL_AFDLENGTH;
       	     proto_tree_add_item(rr_tree, hf_dns_apl_negation, tvb, cur_offset, 1, FALSE);
       	     proto_tree_add_item(rr_tree, hf_dns_apl_afdlength, tvb, cur_offset, 1, FALSE);
       	     cur_offset += 1;
@@ -2772,7 +2772,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       	     cur_offset += afdpart_len;
       	     rr_len -= afdpart_len;
            }
-      } 
+      }
     break;
 
     case T_GPOS:
@@ -2852,7 +2852,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       {
         guint8 isdn_address_len, isdn_sa_len;
         int rr_len = data_len;
-     
+
         if (cinfo != NULL)
            col_append_fstr(cinfo, COL_INFO, " %s", name);
         if (rr_len < 1)
@@ -3106,17 +3106,8 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   /*
    * Do we have a conversation for this connection?
    */
-  conversation = find_conversation(pinfo->fd->num,
-			&pinfo->src, &pinfo->dst,
-			pinfo->ptype,
-			pinfo->srcport, pinfo->destport, 0);
-  if (conversation == NULL) {
-    /* We don't yet have a conversation, so create one. */
-    conversation = conversation_new(pinfo->fd->num,
-			&pinfo->src, &pinfo->dst,
-			pinfo->ptype,
-			pinfo->srcport, pinfo->destport, 0);
-  }
+  conversation = find_or_create_conversation(pinfo);
+
   /*
    * Do we already have a state structure for this conv
    */
@@ -3245,7 +3236,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (flags & F_RESPONSE) {
       proto_tree_add_item(field_tree, hf_dns_flags_rcode,
 		tvb, offset + DNS_FLAGS, 2, FALSE);
-    } 
+    }
   }
 
   quest = tvb_get_ntohs(tvb, offset + DNS_QUEST);

@@ -1944,15 +1944,7 @@ dissect_tds_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * OK, it passes the test; assume the rest of this conversation
      * is TDS.
      */
-    conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                             pinfo->srcport, pinfo->destport, 0);
-    if (conv == NULL) {
-        /*
-         * No conversation exists yet - create one.
-         */
-        conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-    }
+    conv = find_or_create_conversation(pinfo);
     conversation_set_dissector(conv, tds_tcp_handle);
 
     /*

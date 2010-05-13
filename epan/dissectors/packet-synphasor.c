@@ -3,7 +3,7 @@
  *
  * Copyright 2008, Jens Steinhauser <jens.steinhauser@omicron.at>
  *
- * $Id$ 
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -38,7 +38,7 @@
 #include <math.h>
 
 #define PROTOCOL_NAME	    "IEEE C37.118 Synchrophasor Protocol"
-#define PROTOCOL_SHORT_NAME "SYNCHROPHASOR" 
+#define PROTOCOL_SHORT_NAME "SYNCHROPHASOR"
 #define PROTOCOL_ABBREV	    "synphasor"
 
 /* forward references */
@@ -130,7 +130,7 @@ enum FrameType {
 /* type to indicate the format for (D)FREQ/PHASORS/ANALOG in data frame	 */
 typedef enum { integer,		/* 16 bit signed integer */
 	       floating_point	/* single precision floating point */
-} data_format; 
+} data_format;
 
 typedef enum { rect, polar } phasor_notation;
 
@@ -172,7 +172,7 @@ typedef struct {
 } config_frame;
 
 /* strings for type bits in SYNC */
-static const value_string typenames[] = { 
+static const value_string typenames[] = {
 	{ 0, "Data Frame"	     },
 	{ 1, "Header Frame"	     },
 	{ 2, "Configuration Frame 1" },
@@ -182,13 +182,13 @@ static const value_string typenames[] = {
 };
 
 /* strings for version bits in SYNC */
-static const value_string versionnames[] = { 
+static const value_string versionnames[] = {
 	{ 1, "IEEE C37.118-2005 initial publication" },
 	{ 0, NULL				     }
 };
 
 /* strings for the time quality flags in FRACSEC */
-static const value_string timequalcodes[] = { 
+static const value_string timequalcodes[] = {
 	{ 0xF, "Clock failure, time not reliable"    },
 	{ 0xB, "Clock unlocked, time within 10 s"    },
 	{ 0xA, "Clock unlocked, time within 1 s"     },
@@ -373,11 +373,11 @@ static config_frame* config_frame_fast(tvbuff_t *tvb)
 		for (i = 0; i != num_ph; i++) {
 			phasor_info  pi;
 			guint32	     conv;
-			
+
 			/* copy the phasor name from the tvb, and add NULL byte */
 			tvb_memcpy(tvb, pi.name, offset, CHNAM_LEN); offset += CHNAM_LEN;
 			pi.name[CHNAM_LEN] = '\0';
-			
+
 			conv = tvb_get_ntohl(tvb, phunit + 4 * i);
 			pi.unit = conv & 0xFF000000 ? A : V;
 			pi.conv = conv & 0x00FFFFFF;
@@ -460,7 +460,7 @@ static void synphasor_init(void)
         if (frame_chunks != NULL) {
             g_mem_chunk_destroy(frame_chunks);
         }
-        frame_chunks = g_mem_chunk_new("Frame_Chunks", 
+        frame_chunks = g_mem_chunk_new("Frame_Chunks",
                                        sizeof(config_frame),
                                        10*(sizeof(config_frame)),
                                        G_ALLOC_AND_FREE);
@@ -495,7 +495,7 @@ static gboolean check_crc(tvbuff_t *tvb, guint16 *computedcrc)
 	guint16 crc;
 	guint	len = tvb_get_ntohs(tvb, 2);
 
-	crc = tvb_get_ntohs(tvb, len - 2); 
+	crc = tvb_get_ntohs(tvb, len - 2);
 	*computedcrc = crc16_x25_ccitt_tvb(tvb, len - 2);
 
 	if (crc == *computedcrc)
@@ -557,18 +557,7 @@ static void dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			config_frame_list = g_slist_append(config_frame_list, frame);
 
 			/* find a conversation, create a new if no one exists */
-			conversation = find_conversation(pinfo->fd->num,
-							 &pinfo->src, &pinfo->dst,
-							 pinfo->ptype,
-							 pinfo->srcport, pinfo->destport,
-							 0);
-
-			if (!conversation)
-				conversation = conversation_new(pinfo->fd->num,
-								&pinfo->src, &pinfo->dst,
-								pinfo->ptype,
-								pinfo->srcport, pinfo->destport,
-								0);
+			conversation = find_or_create_conversation(pinfo);
 
 			/* remove data from a previous CFG-2 frame, only
 			 * the most recent configuration frame is relevant */
@@ -726,7 +715,7 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 	/* TIME_BASE and NUM_PMU */
 	offset += 1; /* skip the reserved byte */
 	proto_tree_add_item(config_tree, hf_conf_timebase, tvb, offset, 3, FALSE); offset += 3;
-	proto_tree_add_item(config_tree, hf_conf_numpmu,   tvb, offset, 2, FALSE); 
+	proto_tree_add_item(config_tree, hf_conf_numpmu,   tvb, offset, 2, FALSE);
 	/* add number of included PMUs to the text in the list view  */
 	num_pmu = tvb_get_ntohs(tvb, offset); offset += 2;
 	proto_item_append_text(config_item, ", %"G_GUINT16_FORMAT" PMU(s) included", num_pmu);
@@ -991,7 +980,7 @@ static gint dissect_PHASORS(tvbuff_t *tvb, proto_tree *tree, config_block *block
 						"Phasor #%u: \"%s\"", j + 1, pi->name);
 
 		offset += dissect_single_phasor(tvb, offset,
-						&mag, &phase, 
+						&mag, &phase,
 						block->format_ph,
 						block->phasor_notation);
 
@@ -1097,7 +1086,7 @@ static gint dissect_DIGITAL(tvbuff_t *tvb, proto_tree *tree, config_block *block
 	tree	     = proto_item_add_subtree(digital_item, ett_data_digital);
 
 	for (j = 0; j < cnt; j++) {
-		guint16 tmp = tvb_get_ntohs(tvb, offset); 
+		guint16 tmp = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_text(tree, tvb, offset, 2, "Digital status word #%u: 0x%04x", j + 1, tmp);
 		offset += 2;
 	}
@@ -1276,7 +1265,7 @@ void proto_register_synphasor(void)
 
 		/* Fraction of second */
 		{ &hf_fracsec,
-		{ "Fraction of second (raw)", PROTOCOL_ABBREV ".fracsec", FT_UINT24, BASE_DEC, 
+		{ "Fraction of second (raw)", PROTOCOL_ABBREV ".fracsec", FT_UINT24, BASE_DEC,
 		  NULL, 0x0, NULL, HFILL }},
 
 	/* Data types for configuration frames */
@@ -1292,7 +1281,7 @@ void proto_register_synphasor(void)
 		{ &hf_conf_formatb3,
 		{ "FREQ/DFREQ format", PROTOCOL_ABBREV ".conf.dfreq_format", FT_BOOLEAN, 16,
 		  TFS(&conf_formatb123names), 0x8, NULL, HFILL }},
-		
+
 		{ &hf_conf_formatb2,
 		{ "Analog values format", PROTOCOL_ABBREV ".conf.analog_format", FT_BOOLEAN, 16,
 		  TFS(&conf_formatb123names), 0x4, NULL, HFILL }},

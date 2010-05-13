@@ -5812,17 +5812,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Find out what conversation this packet is part of. */
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-				     pinfo->ptype, pinfo->srcport,
-				     pinfo->destport, 0);
-
-    if (conversation == NULL) {
-	/* Not part of any conversation; create a new one. */
-	conversation =
-	    conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-			     pinfo->ptype, pinfo->srcport,
-			     pinfo->destport, 0);
-    }
+    conversation = find_or_create_conversation(pinfo);
 
     /* Now build the request key */
     memset(&request_key, 0, sizeof(request_key));

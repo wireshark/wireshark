@@ -197,9 +197,9 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
      */
     if(is_conv_dissector && (tvb_reported_length(tvb)==1)){
         /*
-          Perform a check to see if the message is a single byte acknowledgement 
-          message - Note that in this instance there is no information in the packet 
-          with regard to source or destination RTU address which can be used in the 
+          Perform a check to see if the message is a single byte acknowledgement
+          message - Note that in this instance there is no information in the packet
+          with regard to source or destination RTU address which can be used in the
           population of dissector fields.
          */
         switch(tvb_get_guint8(tvb, 0)){
@@ -334,20 +334,8 @@ dissect_kingfisher_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            dissector for this tcp/udp socket and attach a conversation
            dissector to it.
          */
-        /*
-         * Do we have a conversation for this connection?
-         */
-        conversation = find_conversation(pinfo->fd->num,
-                                   &pinfo->src, &pinfo->dst,
-                                   pinfo->ptype,
-                                   pinfo->srcport, pinfo->destport, 0);
-        if (conversation == NULL) {
-            /* We don't yet have a conversation, so create one. */
-            conversation = conversation_new(pinfo->fd->num,
-                                   &pinfo->src, &pinfo->dst,
-                                   pinfo->ptype,
-                                   pinfo->srcport, pinfo->destport, 0);
-        }
+        conversation = find_or_create_conversation(pinfo);
+
         conversation_set_dissector(conversation, kingfisher_conv_handle);
     }
 
@@ -376,7 +364,7 @@ proto_register_kingfisher( void )
             { &hf_kingfisher_checksum,      { "Checksum", "kingfisher.checksum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     };
 
-    static gint *ett[] = { 
+    static gint *ett[] = {
         &ett_kingfisher
     };
 

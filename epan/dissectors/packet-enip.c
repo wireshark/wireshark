@@ -512,21 +512,8 @@ enip_conv_info_t *enip_info;
 
       g_hash_table_insert(enip_conn_hashtable, conn_key, conn_val );
 
-      /*
-       * Do we have a conversation for this connection?
-       */
-      conversation = find_conversation(pinfo->fd->num,
-               &pinfo->src, &pinfo->dst,
-               pinfo->ptype,
-               pinfo->srcport, pinfo->destport, 0);
-      if (conversation == NULL)
-      {
-         /* We don't yet have a conversation, so create one. */
-         conversation = conversation_new(pinfo->fd->num,
-                  &pinfo->src, &pinfo->dst,
-                  pinfo->ptype,
-                  pinfo->srcport, pinfo->destport, 0);
-      }
+      conversation = find_or_create_conversation(pinfo);
+
       /*
        * Do we already have a state structure for this conv
        */
@@ -1060,22 +1047,10 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     * We need to track some state for this protocol on a per conversation
     * basis so we can do neat things like request/response tracking
     */
+   conversation = find_or_create_conversation(pinfo);
+
    /*
-    * Do we have a conversation for this connection?
-    */
-   conversation = find_conversation(pinfo->fd->num,
-            &pinfo->src, &pinfo->dst,
-            pinfo->ptype,
-            pinfo->srcport, pinfo->destport, 0);
-   if (conversation == NULL) {
-      /* We don't yet have a conversation, so create one. */
-      conversation = conversation_new(pinfo->fd->num,
-               &pinfo->src, &pinfo->dst,
-               pinfo->ptype,
-               pinfo->srcport, pinfo->destport, 0);
-   }
-   /*
-    * No.  Attach that information to the conversation, and add
+    * Attach that information to the conversation, and add
     * it to the list of information structures later before dissection.
     */
    memset( &request_key, 0, sizeof(enip_request_key_t) );

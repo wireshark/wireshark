@@ -1442,13 +1442,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * packets from A:X to B:Y as being part of the same conversation as
 	 * packets from B:Y to A:X.
 	 */
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-	    pinfo->srcport, pinfo->destport, 0);
-	if (conversation == NULL) {
-		/* It's not part of any conversation - create a new one. */
-		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
+	conversation = find_or_create_conversation(pinfo);
 
 	request_key.conversation = conversation->index;
 	request_key.service = rxinfo->serviceid;

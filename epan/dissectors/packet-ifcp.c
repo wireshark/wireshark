@@ -44,7 +44,7 @@
 #include "packet-tcp.h"
 
 #define iFCP_ENCAP_HEADER_LEN                    28
-#define iFCP_MIN_HEADER_LEN                      16 /* upto frame len field */ 
+#define iFCP_MIN_HEADER_LEN                      16 /* upto frame len field */
 
 typedef enum {
     iFCP_EOFn    = 0x41,
@@ -103,9 +103,9 @@ static const value_string fcencap_proto_vals[] = {
     {0, NULL},
 };
 
-/* RFC 4172 section 5.3.1 shows a chart of the iFCP encapsulated Header Format. 
- * It says that bytes 4-7 MUST be zeros.  In reality most vendors are putting 
- * some information in these 4 bytes, particularly Nishon. 
+/* RFC 4172 section 5.3.1 shows a chart of the iFCP encapsulated Header Format.
+ * It says that bytes 4-7 MUST be zeros.  In reality most vendors are putting
+ * some information in these 4 bytes, particularly Nishon.
  */
 static const guint8 ifcp_header_4_bytes[4] = {
     0x02, 0x01, 0xFD, 0xFE
@@ -179,7 +179,7 @@ ifcp_header_test(tvbuff_t *tvb, int offset)
 	*
 	* As per the iFCP standard, in addition, at least 3 of the following
 	* set of tests must be performed to identify that we've located the
-	* start of an iFCP frame. 
+	* start of an iFCP frame.
 	* a)  Protocol# ones complement field (1 test);
 	* b)  Version ones complement field (1 test);
 	* c)  Replication of encapsulation word 0 in word 1 (1 test);
@@ -322,11 +322,11 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree *tree = NULL;
 	tvbuff_t *next_tvb;
 	guint8 protocol;
-	proto_tree *protocol_tree=NULL;    
-	proto_tree *version_tree=NULL;    
-	proto_tree *frame_len_tree=NULL;    
-	proto_tree *sof_tree=NULL;    
-	proto_tree *eof_tree=NULL;    
+	proto_tree *protocol_tree=NULL;
+	proto_tree *version_tree=NULL;
+	proto_tree *frame_len_tree=NULL;
+	proto_tree *sof_tree=NULL;
+	proto_tree *eof_tree=NULL;
 
 	/* verify we have a full header  (do we need to do this? */
 	if(tvb_length(tvb)<iFCP_ENCAP_HEADER_LEN){
@@ -352,7 +352,7 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                                                                  "0x%x"));
             } else {
                 sof = tvb_get_guint8 (tvb, offset+iFCP_ENCAP_HEADER_LEN);
-                
+
                 ti = proto_tree_add_protocol_format (parent_tree, proto_ifcp, tvb, offset,
                                                      iFCP_ENCAP_HEADER_LEN,
                                                      "iFCP (%s/%s)",
@@ -489,7 +489,7 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			}
 		}
 	}
-            
+
 	next_tvb=tvb_new_subset(tvb, offset, frame_len-offset-4, frame_len-offset-4);
 
 	if(fc_handle){
@@ -505,7 +505,7 @@ static guint
 get_ifcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	guint pdu_len;
- 
+
 	if(!ifcp_header_test(tvb, offset)){
 		return 0;
 	}
@@ -548,12 +548,7 @@ dissect_ifcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(ifcp_handle){
 		conversation_t* ifcp_conv;
 
-		ifcp_conv=find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-		if(!ifcp_conv){
-			ifcp_conv=conversation_new(pinfo->fd->num, &pinfo->src,
-				&pinfo->dst, pinfo->ptype, pinfo->srcport,
-				pinfo->destport, 0);
-		}
+		ifcp_conv=find_or_create_conversation(pinfo);
 		/* XXX why does this not work? it doesnt result in dissect_ifcp_handle being called    look into later*/
 		conversation_set_dissector(ifcp_conv, ifcp_handle);
 	}
@@ -611,17 +606,17 @@ proto_register_ifcp (void)
         { &hf_ifcp_ls_command_acc,
           {"Ls Command Acc", "ifcp.ls_command_acc", FT_UINT8, BASE_HEX, NULL, 0,
            NULL, HFILL}},
-        { &hf_ifcp_common_flags, 
+        { &hf_ifcp_common_flags,
 	  {"Flags", "ifcp.common_flags", FT_UINT8, BASE_HEX , NULL, 0xfc, NULL, HFILL }},
-        { &hf_ifcp_common_flags_crcv, 
+        { &hf_ifcp_common_flags_crcv,
 	  {"CRCV", "ifcp.common_flags.crcv", FT_BOOLEAN, 8, TFS(&ifcp_common_flags_crcv_tfs), IFCP_COMMON_FLAGS_CRCV, "Is the CRC field valid?", HFILL }},
-        { &hf_ifcp_flags, 
+        { &hf_ifcp_flags,
 	  {"iFCP Flags", "ifcp.flags", FT_UINT8, BASE_HEX , NULL, 0, NULL, HFILL }},
-        { &hf_ifcp_flags_ses, 
+        { &hf_ifcp_flags_ses,
 	  {"SES", "ifcp.flags.ses", FT_BOOLEAN, 8, TFS(&ifcp_flags_ses_tfs), IFCP_FLAGS_SES, "Is this a Session control frame", HFILL }},
-        { &hf_ifcp_flags_trp, 
+        { &hf_ifcp_flags_trp,
 	  {"TRP", "ifcp.flags.trp", FT_BOOLEAN, 8, TFS(&ifcp_flags_trp_tfs), IFCP_FLAGS_TRP, "Is address transparent mode enabled", HFILL }},
-        { &hf_ifcp_flags_spc, 
+        { &hf_ifcp_flags_spc,
 	  {"SPC", "ifcp.flags.spc", FT_BOOLEAN, 8, TFS(&ifcp_flags_spc_tfs), IFCP_FLAGS_SPC, "Is frame part of link service", HFILL }},
     };
 
@@ -635,7 +630,7 @@ proto_register_ifcp (void)
         &ett_ifcp_flags,
         &ett_ifcp_common_flags,
     };
-    
+
     module_t *ifcp_module;
 
     /* Register the protocol name and description */

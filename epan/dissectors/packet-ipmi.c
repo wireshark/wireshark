@@ -61,7 +61,7 @@ struct ipmi_netfn_root {
 
 #define NSAVED_DATA 2
 
-/* We need more than a conversation. Over the same RMCP session 
+/* We need more than a conversation. Over the same RMCP session
    (or IPMB), there may be several addresses/SWIDs. Thus, in a single
    Wireshark-maintained conversation we might need to find our own... */
 struct ipmi_saved_data {
@@ -123,9 +123,9 @@ static guint selected_oem = IPMI_OEM_NONE;
 static gint hf_ipmi_message = -1;
 static gint hf_ipmi_session_handle = -1;
 static gint hf_ipmi_header_broadcast = -1;
-static gint hf_ipmi_header_trg = -1; 
+static gint hf_ipmi_header_trg = -1;
 static gint hf_ipmi_header_trg_lun = -1;
-static gint hf_ipmi_header_netfn = -1; 
+static gint hf_ipmi_header_netfn = -1;
 static gint hf_ipmi_header_crc = -1;
 static gint hf_ipmi_header_src = -1;
 static gint hf_ipmi_header_src_lun = -1;
@@ -351,14 +351,7 @@ maybe_insert_reqresp(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr)
 	struct ipmi_reqresp *rr;
 	guint32 key, i;
 
-	cnv = find_conversation(current_pinfo->fd->num, &current_pinfo->src,
-			&current_pinfo->dst, current_pinfo->ptype,
-			current_pinfo->srcport, current_pinfo->destport, 0);
-	if (!cnv) {
-		cnv = conversation_new(current_pinfo->fd->num, &current_pinfo->src,
-				&current_pinfo->dst, current_pinfo->ptype,
-				current_pinfo->srcport, current_pinfo->destport, 0);
-	}
+	cnv = find_or_create_conversation(current_pinfo);
 
 	kt = conversation_get_proto_data(cnv, proto_ipmi);
 	if (!kt) {
@@ -880,7 +873,7 @@ ipmi_getnetfn(guint32 netfn, const guint8 *sig)
 
 	inr = &ipmi_cmd_tab[netfn >> 1];
 	for (inh = inr->list; inh; inh = inh->next) {
-		if ((inh->oem_selector == selected_oem || inh->oem_selector == IPMI_OEM_NONE) 
+		if ((inh->oem_selector == selected_oem || inh->oem_selector == IPMI_OEM_NONE)
 				&& (!inr->siglen || !memcmp(sig, inh->sig, inr->siglen))) {
 			return inh;
 		}
@@ -1196,7 +1189,7 @@ ipmi_do_dissect(tvbuff_t *tvb, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfm
 		bcast = " (BROADCAST)";
 	}
 
-	
+
 	/* Save globals - we may be called recursively */
 	saved_hdr = ipmi_current_hdr;
 	ipmi_current_hdr = &hdr;
@@ -1259,7 +1252,7 @@ ipmi_do_dissect(tvbuff_t *tvb, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfm
 				"Target LUN: 0x%02x, NetFN: %s %s (0x%02x)", hdr.trg_lun,
 				ndesc, is_resp ? "Response" : "Request", hdr.netfn);
 		s_tree = proto_item_add_subtree(ti, ett_header_byte_1);
-				
+
 		proto_tree_add_item(s_tree, hf_ipmi_header_trg_lun, tvb, offs, 1, TRUE);
 		proto_tree_add_uint_format(s_tree, hf_ipmi_header_netfn, tvb, offs, 1,
 				hdr.netfn << 2, "%sNetFn: %s %s (0x%02x)",
@@ -1328,7 +1321,7 @@ ipmi_do_dissect(tvbuff_t *tvb, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfm
 			data_exp_crc += tvb_get_guint8(tvb, i);
 		}
 		data_exp_crc = (0 - data_exp_crc) & 0xff;
-		
+
 		if (data_crc == data_exp_crc) {
 			proto_tree_add_uint_format(ipmi_tree, hf_ipmi_data_crc, tvb, len, 1,
 					data_crc, "Data checksum: 0x%02x (correct)", data_crc);

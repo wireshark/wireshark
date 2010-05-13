@@ -86,6 +86,8 @@ extern conversation_t *conversation_new(const guint32 setup_frame, const address
 extern conversation_t *find_conversation(const guint32 frame_num, const address *addr_a, const address *addr_b,
     const port_type ptype, const guint32 port_a, const guint32 port_b, const guint options);
 
+extern conversation_t *find_or_create_conversation(packet_info *pinfo);
+
 extern void conversation_add_proto_data(conversation_t *conv, const int proto,
     void *proto_data);
 extern void *conversation_get_proto_data(const conversation_t *conv, const int proto);

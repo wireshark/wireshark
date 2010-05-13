@@ -24,7 +24,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/*  This dissector is called RTMPT to avoid a conflict with 
+/*  This dissector is called RTMPT to avoid a conflict with
 *   the other RTMP protocol (Routing Table Maintenance Protocol) implemented in packet-atalk.c
 *   (RTMPT normally stands for RTMP-Tunnel via http)
 *
@@ -197,7 +197,7 @@ static const value_string rtmpt_type_vals[] = {
   { 0,          NULL }
 };
 
-static gint rtmpt_header_length_from_type(gint iHeaderType) 
+static gint rtmpt_header_length_from_type(gint iHeaderType)
 {
 	gint iHeaderLength = 0;
 	switch (iHeaderType) {
@@ -208,8 +208,8 @@ static gint rtmpt_header_length_from_type(gint iHeaderType)
 		case 4: iHeaderLength = 1;  break; /* Handshake */
 	}
 	return iHeaderLength;
-}	
-	
+}
+
 
 static void
 dissect_rtmpt_amf(tvbuff_t *tvb, proto_tree *rtmpt_tree)
@@ -743,11 +743,7 @@ dissect_rtmpt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #if 0
 	conversation_t * conversation;
 
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	if (conversation == NULL)
-	{
-		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
+	conversation = find_or_create_conversation(pinfo);
 #endif
 
 	tcp_dissect_pdus(tvb, pinfo, tree, 1, 1, get_rtmpt_pdu_len, dissect_rtmpt);
@@ -792,10 +788,10 @@ proto_register_rtmpt(void)
   };
   static gint *ett[] = {
     &ett_rtmpt,
-    &ett_rtmpt_header,    
-    &ett_rtmpt_body,    
-    &ett_rtmpt_object,    
-    &ett_rtmpt_property    
+    &ett_rtmpt_header,
+    &ett_rtmpt_body,
+    &ett_rtmpt_object,
+    &ett_rtmpt_property
   };
 
   module_t *rtmpt_module;
@@ -810,7 +806,7 @@ proto_register_rtmpt(void)
     "Whether the RTMPT dissector should reassemble messages spanning multiple TCP segments."
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &rtmpt_desegment);
-  
+
 }
 
 void

@@ -395,7 +395,7 @@ static const value_string msg_type_vals[] = {
 #define NDMP_XDR_ENCODE_ERR		0x15
 #define NDMP_NO_MEM_ERR			0x16
 #define NDMP_CONNECT_ERR		0x17
-#define NDMP_SEQUENCE_NUM_ERR           0x18  
+#define NDMP_SEQUENCE_NUM_ERR           0x18
 #define NDMP_READ_IN_PROGRESS_ERR       0x19
 #define NDMP_PRECONDITION_ERR           0x1a
 #define NDMP_CLASS_NOT_SUPPORTED_ERR    0x1b
@@ -429,7 +429,7 @@ static const value_string error_vals[] = {
 	{NDMP_NO_MEM_ERR,		"NO_MEM_ERR"},
 	{NDMP_CONNECT_ERR,		"CONNECT_ERR"},
         {NDMP_SEQUENCE_NUM_ERR,         "NDMP_SEQUENCE_NUM_ERR"},
-        {NDMP_READ_IN_PROGRESS_ERR,     "NDMP_READ_IN_PROGRESS_ERR"}, 
+        {NDMP_READ_IN_PROGRESS_ERR,     "NDMP_READ_IN_PROGRESS_ERR"},
         {NDMP_PRECONDITION_ERR,         "NDMP_PRECONDITION_ERR"},
         {NDMP_CLASS_NOT_SUPPORTED_ERR,  "NDMP_CLASS_NOT_SUPPORTED_ERR"},
         {NDMP_VERSION_NOT_SUPPORTED_ERR,"NDMP_VERSION_NOT_SUPPORTED_ERR"},
@@ -1262,7 +1262,7 @@ dissect_class_version(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	return offset;
 }
 
-static int 
+static int
 dissect_set_ext_list_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *tree, guint32 seq _U_)
 {
@@ -1274,7 +1274,7 @@ dissect_set_ext_list_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-static int 
+static int
 dissect_set_ext_list_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *tree, guint32 seq _U_)
 {
@@ -3107,7 +3107,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	emem_tree_t *frags;
 	conversation_t *conversation;
 	proto_item *vers_item;
-	gboolean save_fragmented, save_writable; 
+	gboolean save_fragmented, save_writable;
 	gboolean do_frag = TRUE;
 	tvbuff_t* new_tvb = NULL;
 	fragment_data *frag_msg = NULL;
@@ -3118,12 +3118,8 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * We need to keep track of conversations so that we can track NDMP
 	 * versions.
 	 */
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-	    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	if (conversation == NULL) {
-		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
+	conversation = find_or_create_conversation(pinfo);
+
 	ndmp_conv_data=conversation_get_proto_data(conversation, proto_ndmp);
 	if(!ndmp_conv_data){
 		ndmp_conv_data=se_alloc(sizeof(ndmp_conv_data_t));
@@ -3160,7 +3156,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (ndmp_defragment && ndmp_desegment)
 	{
 
-		/* 
+		/*
 		 * Determine the direction of the flow, so we can use the correct fragment tree
 		 */
 		direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
@@ -3184,9 +3180,9 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		len = (ndmp_rm & RPC_RM_FRAGLEN) + 4;
 		nxt = seq + len;
 
-		/* 
+		/*
 		 * In case there are multiple PDUs in the same frame, advance the tcp seq
-		 * so that they can be distinguished from one another 
+		 * so that they can be distinguished from one another
 		 */
 		tcpinfo->seq = nxt;
 
@@ -3198,7 +3194,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			/*
 			 * If nfi doesn't exist, then there are no fragments before this one.
-			 * If there are fragments after this one, create the entry in the frag 
+			 * If there are fragments after this one, create the entry in the frag
 			 * tree so the next fragment can find it.
 			 * If we've already seen this frame, no need to create the entry again.
 			 */
@@ -3212,10 +3208,10 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					se_tree_insert32(frags, nxt, (void *)nfi);
 				}
 			}
-			/* 
+			/*
 			 * If this is both the first and the last fragment, then there
 			 * is no reason to even engage the reassembly routines.  Just
-			 * create the new_tvb directly from tvb. 
+			 * create the new_tvb directly from tvb.
 			 */
 			else
 			{
@@ -3225,7 +3221,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		else
 		{
-			/* 
+			/*
 			 * An entry was found, so we know the offset of this fragment
 			 */
 			frag_num = nfi->offset;
@@ -3246,7 +3242,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 			}
 		}
-	
+
 		/* If fragmentation is neccessary */
 		if (do_frag)
 		{
@@ -3271,14 +3267,14 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 *  Update the column info.
 			 */
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
-			
+
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_clear(pinfo->cinfo, COL_INFO);
 				col_append_fstr(pinfo->cinfo, COL_INFO, "[NDMP fragment] ");
 			}
 
-			/* 
-			 * Add the record marker information to the tree 
+			/*
+			 * Add the record marker information to the tree
 			 */
 			if (tree) {
 				ndmp_item = proto_tree_add_item(tree, proto_ndmp, tvb, 0, -1, FALSE);
@@ -3292,8 +3288,8 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_boolean(hdr_tree, hf_ndmp_lastfrag, tvb, 0, 4, ndmp_rm);
 			proto_tree_add_uint(hdr_tree, hf_ndmp_fraglen, tvb, 0, 4, ndmp_rm);
 
-			/* 
-			 * Decode the remaining bytes as generic NDMP fragment data 
+			/*
+			 * Decode the remaining bytes as generic NDMP fragment data
 			 */
 			nbytes = tvb_reported_length_remaining(tvb, 4);
 			proto_tree_add_text(ndmp_tree, tvb, 4, nbytes, "NDMP fragment data (%u byte%s)", nbytes, plurality(nbytes, "", "s"));
@@ -3316,9 +3312,9 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 	}
 
-	/* 
+	/*
 	 * If it doesn't look like a valid NDMP header at this point, there is
-	 * no reason to move forward 
+	 * no reason to move forward
 	 */
 	if (!check_ndmp_hdr(new_tvb))
 	{
@@ -3335,7 +3331,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* When the last fragment is small and the final frame contains
 	 * multiple fragments, the column becomes unwritable.
-	 * Temporarily change that so that the correct header can be 
+	 * Temporarily change that so that the correct header can be
 	 * applied */
 	save_writable = col_get_writable(pinfo->cinfo);
 	col_set_writable(pinfo->cinfo, TRUE);
@@ -3495,7 +3491,7 @@ check_if_ndmp(tvbuff_t *tvb, packet_info *pinfo)
 	return TRUE;
 }
 
-/* Called because the frame has been identified as part of a conversation 
+/* Called because the frame has been identified as part of a conversation
  *  assigned to the NDMP protocol.
  *  At this point we may have either an NDMP PDU or an NDMP PDU fragment.
  */
@@ -3503,7 +3499,7 @@ static int
 dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	/* If we are doing defragmentation, don't check more than the record mark here,
-	 * because if this is a continuation of a fragmented NDMP PDU there won't be a 
+	 * because if this is a continuation of a fragmented NDMP PDU there won't be a
 	 * NDMP header after the RM */
 	if(ndmp_defragment && !check_ndmp_rm(tvb, pinfo)) {
 		return 0;
@@ -3520,10 +3516,10 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return tvb_length(tvb);
 }
 
-/* Called when doing a heuristic check; 
+/* Called when doing a heuristic check;
  * Accept as NDMP only if the full header seems reasonable.
  * Note that once the first PDU (or PDU fragment) has been found
- *  dissect_ndmp_message will register a dissect_ndmp NDMP handle 
+ *  dissect_ndmp_message will register a dissect_ndmp NDMP handle
  *  as the protocol dissector for this conversation.
  */
 static int
@@ -3539,7 +3535,7 @@ dissect_ndmp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-ndmp_init(void) 
+ndmp_init(void)
 {
 	fragment_table_init(&ndmp_fragment_table);
 	reassembled_table_init(&ndmp_reassembled_table);
@@ -4247,7 +4243,7 @@ proto_register_ndmp(void)
 		"Class Version", "ndmp.class.version", FT_UINT32, BASE_HEX,
 		NULL, 0, NULL, HFILL }},
 	{&hf_ndmp_fragments, {
-		"NDMP fragments", "ndmp.fragments", FT_NONE, BASE_NONE, 
+		"NDMP fragments", "ndmp.fragments", FT_NONE, BASE_NONE,
 		NULL, 0x00, NULL, HFILL } },
 	{&hf_ndmp_fragment,
 		{"NDMP fragment", "ndmp.fragment",

@@ -16715,13 +16715,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* find which conversation we are part of and get the tables for that
 	   conversation*/
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-		 pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
-	if(!conversation){
-		/* OK this is a new conversation so lets create it */
-		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
+	conversation = find_or_create_conversation(pinfo);
 	/* see if we already have the smb data for this conversation */
 	si->ct=conversation_get_proto_data(conversation, proto_smb);
 	if(!si->ct){

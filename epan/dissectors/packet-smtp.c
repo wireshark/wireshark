@@ -285,14 +285,9 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    */
 
   /*
-   * Find the conversation for this.
+   * Find or create the conversation for this.
    */
-  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                   pinfo->srcport, pinfo->destport, 0);
-  if (conversation == NULL) { /* No conversation, create one */
-    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                    pinfo->srcport, pinfo->destport, 0);
-  }
+  conversation = find_or_create_conversation(pinfo);
 
   /*
    * Is there a request structure attached to this conversation?
@@ -315,7 +310,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Are we doing TLS?
-   * FIXME In my understanding of RFC 2487 client and server can send SMTP cmds 
+   * FIXME In my understanding of RFC 2487 client and server can send SMTP cmds
    * after a rejected TLS negotiation
    */
   if (session_state->last_nontls_frame != 0 && pinfo->fd->num > session_state->last_nontls_frame) {
@@ -351,7 +346,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       spd_frame_data->conversation_id = conversation->index;
       spd_frame_data->more_frags = TRUE;
 
-      p_add_proto_data(pinfo->fd, proto_smtp, spd_frame_data);        
+      p_add_proto_data(pinfo->fd, proto_smtp, spd_frame_data);
 
     }
 
@@ -433,27 +428,27 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             spd_frame_data->pdu_type = SMTP_PDU_MESSAGE;
 
             if (session_state->msg_tot_len > 0) {
-              /* 
+              /*
                * We are handling a BDAT message.
                * Check if we have reached end of the data chunk.
                */
               session_state->msg_read_len += tvb_length_remaining(tvb, loffset);
 
               if (session_state->msg_read_len == session_state->msg_tot_len) {
-                /* 
+                /*
                  * We have reached end of BDAT data chunk.
                  * Everything that comes after this is commands.
                  */
                 session_state->smtp_state = SMTP_STATE_READING_CMDS;
 
                 if (session_state->msg_last) {
-                  /* 
+                  /*
                    * We have found the LAST data chunk.
                    * The message can now be reassembled.
                    */
                   spd_frame_data->more_frags = FALSE;
                 }
-                
+
                 break; /* no need to go through the remaining lines */
               }
             }
@@ -510,7 +505,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 session_state->msg_last = TRUE;
 
                 if (msg_len == 0) {
-                  /* 
+                  /*
                    * No more data to expect.
                    * The message can now be reassembled.
                    */
@@ -589,7 +584,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           linelen = tvb_find_line_end(tvb, loffset, -1, &next_offset, FALSE);
           line = tvb_get_ptr(tvb, loffset, linelen);
 
-          if(loffset == offset) 
+          if(loffset == offset)
             col_append_fstr(pinfo->cinfo, COL_INFO, "C: %s",
                             format_text(line, linelen));
           else {
@@ -610,7 +605,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         linelen = tvb_find_line_end(tvb, loffset, -1, &next_offset, FALSE);
         line = tvb_get_ptr(tvb, loffset, linelen);
 
-        if (loffset == offset) 
+        if (loffset == offset)
           col_append_fstr(pinfo->cinfo, COL_INFO, "S: %s",
                           format_text(line, linelen));
         else {
@@ -645,8 +640,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case SMTP_PDU_MESSAGE:
       if (smtp_data_desegment) {
-        frag_msg = fragment_add_seq_next(tvb, 0, pinfo, spd_frame_data->conversation_id, 
-                                         smtp_data_segment_table, smtp_data_reassembled_table, 
+        frag_msg = fragment_add_seq_next(tvb, 0, pinfo, spd_frame_data->conversation_id,
+                                         smtp_data_segment_table, smtp_data_reassembled_table,
                                          tvb_length(tvb), spd_frame_data->more_frags);
       } else {
         /*
@@ -748,7 +743,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            */
           dissect_smtp_data(tvb, offset, smtp_tree);
         }
-            
+
         pinfo->fragmented = FALSE;
       } else {
         pinfo->fragmented = TRUE;
@@ -853,15 +848,15 @@ proto_register_smtp(void)
 {
   static hf_register_info hf[] = {
     { &hf_smtp_req,
-      { "Request", "smtp.req", 
+      { "Request", "smtp.req",
         FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_smtp_rsp,
-      { "Response", "smtp.rsp", 
+      { "Response", "smtp.rsp",
         FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_smtp_req_command,
-      { "Command", "smtp.req.command", 
+      { "Command", "smtp.req.command",
         FT_STRING,  BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_smtp_req_parameter,
@@ -903,7 +898,7 @@ proto_register_smtp(void)
         FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Message fragment too long", HFILL } },
 
     { &hf_smtp_data_fragment_error,
-      { "DATA defragmentation error", "smtp.data.fragment.error", 
+      { "DATA defragmentation error", "smtp.data.fragment.error",
         FT_FRAMENUM, BASE_NONE, NULL, 0x00, "Message defragmentation error", HFILL } },
 
     { &hf_smtp_data_reassembled_in,

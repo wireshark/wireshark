@@ -9,17 +9,17 @@
  * Copyright 1998 Gerald Combs
  *
  * Based on BSD rexecd code/man page and parts of packet-rlogin.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -79,7 +79,7 @@ typedef enum {
 	WAIT_FOR_COMMAND     = 4,
 	WAIT_FOR_DATA        = 5
 } exec_session_state_t;
-    
+
 
 typedef struct {
 	/* Packet number within the conversation */
@@ -118,20 +118,15 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation_t *conversation;
 	exec_hash_entry_t *hash_info;
 
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	conversation = find_or_create_conversation(pinfo);
 
-	if(!conversation){  /* Conversation does not exist yet - create it */
-		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
-
-
-	/* Retrieve information from conversation 
+	/* Retrieve information from conversation
 	 * or add it if it isn't there yet
 	 */
 	hash_info = conversation_get_proto_data(conversation, proto_exec);
 	if(!hash_info){
 		hash_info = se_alloc(sizeof(exec_hash_entry_t));
-      
+
 		hash_info->first_packet_number = pinfo->fd->num;
 		hash_info->second_packet_number = 0;
 		hash_info->third_packet_number  = 0;
@@ -143,7 +138,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		hash_info->username=NULL;
 		hash_info->command=NULL;
 
-		/* These will be set on the first pass by the first 
+		/* These will be set on the first pass by the first
 		 * four packets of the conversation
 		 */
 		hash_info->first_packet_state  = NONE;
@@ -183,7 +178,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			hash_info->state = hash_info->first_packet_state;
 		}
 	}
-      
+
 	if(pinfo->fd->num == hash_info->second_packet_number){
 		if(hash_info->second_packet_state == NONE){
 			hash_info->second_packet_state = hash_info->state;
@@ -191,7 +186,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			hash_info->state = hash_info->second_packet_state;
 		}
 	}
-      
+
 	if(pinfo->fd->num == hash_info->third_packet_number){
 		if(hash_info->third_packet_state == NONE){
 			hash_info->third_packet_state = hash_info->state;
@@ -199,7 +194,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			hash_info->state = hash_info->third_packet_state;
 		}
 	}
-      
+
 	if(pinfo->fd->num == hash_info->fourth_packet_number){
 		if(hash_info->fourth_packet_state == NONE){
 			hash_info->fourth_packet_state = hash_info->state;
@@ -218,13 +213,13 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(hash_info->username && preference_info_show_username == TRUE){
 			col_append_fstr(pinfo->cinfo, COL_INFO, "Username:%s ", hash_info->username);
 		}
-      
+
 		/* Command */
 		if(hash_info->command && preference_info_show_command == TRUE){
 			col_append_fstr(pinfo->cinfo, COL_INFO, "Command:%s ", hash_info->command);
 		}
 	}
-  
+
 	/* create display subtree for the protocol */
 	ti = proto_tree_add_item(tree, proto_exec, tvb, 0, -1, FALSE);
 	exec_tree = proto_item_add_subtree(ti, ett_exec);
@@ -250,26 +245,26 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_string(exec_tree, hf_exec_stderr_port, tvb, offset, length, (gchar*)field_stringz);
 			 /* Next field we need */
 			hash_info->state = WAIT_FOR_USERNAME;
-		} else { 
+		} else {
 			/* Since the data doesn't match this field, it must be data only */
 			hash_info->state = WAIT_FOR_DATA;
 		}
-       
+
 		/* Used if the next field is in the same packet */
 		offset += length;
 	}
-  
- 
+
+
 	if(hash_info->state == WAIT_FOR_USERNAME
 	&& tvb_length_remaining(tvb, offset)){
 		field_stringz = tvb_get_ephemeral_stringz(tvb, offset, &length);
-	  
+
 		/* Check if this looks like the username field */
 		if(length != 1 && length <= EXEC_USERNAME_LEN
 		&& exec_isprint_string(field_stringz)){
 			proto_tree_add_string(exec_tree, hf_exec_username, tvb, offset, length, (gchar*)field_stringz);
 
-			/* Store the username so we can display it in the 
+			/* Store the username so we can display it in the
 			 * info column of the entire conversation
 			 */
 			if(!hash_info->username){
@@ -278,20 +273,20 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			 /* Next field we need */
 			hash_info->state = WAIT_FOR_PASSWORD;
-		} else { 
+		} else {
 			/* Since the data doesn't match this field, it must be data only */
 			hash_info->state = WAIT_FOR_DATA;
 		}
- 
+
 		/* Used if the next field is in the same packet */
 		offset += length;
 	}
-      
+
 
 	if(hash_info->state == WAIT_FOR_PASSWORD
 	&& tvb_length_remaining(tvb, offset)){
 		field_stringz = tvb_get_ephemeral_stringz(tvb, offset, &length);
-	  
+
 		/* Check if this looks like the password field */
 		if(length != 1 && length <= EXEC_PASSWORD_LEN
 		&& exec_isprint_string(field_stringz)){
@@ -303,24 +298,24 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Since the data doesn't match this field, it must be data only */
 			hash_info->state = WAIT_FOR_DATA;
 		}
-	  
+
 		/* Used if the next field is in the same packet */
 		offset += length;
 		 /* Next field we are looking for */
 		hash_info->state = WAIT_FOR_COMMAND;
 	}
-      
+
 
 	if(hash_info->state == WAIT_FOR_COMMAND
 	&& tvb_length_remaining(tvb, offset)){
 		field_stringz = tvb_get_ephemeral_stringz(tvb, offset, &length);
-	  
+
 		/* Check if this looks like the command field */
 		if(length != 1 && length <= EXEC_COMMAND_LEN
 		&& exec_isprint_string(field_stringz)){
 			proto_tree_add_string(exec_tree, hf_exec_command, tvb, offset, length, (gchar*)field_stringz);
-	      
-			/* Store the username so we can display it in the 
+
+			/* Store the username so we can display it in the
 			 * info column of the entire conversation
 			 */
 			if(!hash_info->command){
@@ -333,20 +328,20 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-  
+
 	if(hash_info->state == WAIT_FOR_DATA
 	&& tvb_length_remaining(tvb, offset)){
 		if(pinfo->destport == EXEC_PORT){
 			/* Packet going to the server */
 			/* offset = 0 since the whole packet is data */
 			proto_tree_add_text(exec_tree, tvb, 0, -1, "Client -> Server Data");
-	  
+
 			col_append_str(pinfo->cinfo, COL_INFO, "Client -> Server data");
 		} else {
 			/* This packet must be going back to the client */
 			/* offset = 0 since the whole packet is data */
 			proto_tree_add_text(exec_tree, tvb, 0, -1, "Server -> Client Data");
-	  
+
 			col_append_str(pinfo->cinfo, COL_INFO, "Server -> Client Data");
 		}
 	}
@@ -365,31 +360,31 @@ proto_register_exec(void)
 	{ &hf_exec_stderr_port, { "Stderr port (optional)", "exec.stderr_port",
 		FT_STRINGZ, BASE_NONE, NULL, 0,
 		"Client port that is listening for stderr stream from server", HFILL } },
-      
+
 	{ &hf_exec_username, { "Client username", "exec.username",
 		FT_STRINGZ, BASE_NONE, NULL, 0,
 		"Username client uses to log in to the server.", HFILL } },
-      
+
 	{ &hf_exec_password, { "Client password", "exec.password",
 		FT_STRINGZ, BASE_NONE, NULL, 0,
 		"Password client uses to log in to the server.", HFILL } },
-      
+
 	{ &hf_exec_command, { "Command to execute", "exec.command",
 		FT_STRINGZ, BASE_NONE, NULL, 0,
 		"Command client is requesting the server to run.", HFILL } }
 
 	};
 
-	static gint *ett[] = 
-	{ 
-		&ett_exec 
+	static gint *ett[] =
+	{
+		&ett_exec
 	};
 
 	module_t *exec_module;
 
 	/* Register the protocol name and description */
 	proto_exec = proto_register_protocol("Remote Process Execution", "EXEC", "exec");
-  
+
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_exec, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

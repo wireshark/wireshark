@@ -1,7 +1,7 @@
 /* packet-gssapi.c
  * Dissector for GSS-API tokens as described in rfc2078, section 3.1
  * Copyright 2002, Tim Potter <tpot@samba.org>
- * Copyright 2002, Richard Sharpe <rsharpe@samba.org> Added a few 
+ * Copyright 2002, Richard Sharpe <rsharpe@samba.org> Added a few
  *		   bits and pieces ...
  *
  * $Id$
@@ -75,7 +75,7 @@ typedef struct _gssapi_conv_info_t {
 
 	gboolean do_reassembly;  /* this field is used on first sequential scan of packets to help indicate when the next blob is a fragment continuing a previous one */
 	int first_frame;
-	int frag_offset;	
+	int frag_offset;
 } gssapi_conv_info_t;
 
 typedef struct _gssapi_frag_info_t {
@@ -210,16 +210,8 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/*
 	 * We need a conversation for later
 	 */
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-					 pinfo->ptype, pinfo->srcport,
-					 pinfo->destport, 0);
-	if(!conversation){
-		conversation = conversation_new(pinfo->fd->num, &pinfo->src,
-					  &pinfo->dst, 
-					  pinfo->ptype, 
-					  pinfo->srcport, 
-					  pinfo->destport, 0);
-	}
+	conversation = find_or_create_conversation(pinfo);
+
 	gss_info = conversation_get_proto_data(conversation, proto_gssapi);
 	if (!gss_info) {
 		gss_info = se_alloc(sizeof(gssapi_conv_info_t));
@@ -283,7 +275,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * Is this blob part of reassembly or a normal blob ?
 		 */
 		if( (pinfo->fd->flags.visited)
-		&&  (gssapi_reassembly) ){	
+		&&  (gssapi_reassembly) ){
 			fi=se_tree_lookup32(gss_info->frags, pinfo->fd->num);
 			if(fi){
 				fd_head=fragment_get(pinfo, fi->first_frame, gssapi_fragment_table);
@@ -309,7 +301,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 		if (!(class == BER_CLASS_APP && pc && tag == 0)) {
-		  /* It could be NTLMSSP, with no OID.  This can happen 
+		  /* It could be NTLMSSP, with no OID.  This can happen
 		     for anything that microsoft calls 'Negotiate' or GSS-SPNEGO */
 			if ((tvb_length_remaining(gss_tvb, start_offset)>7) && (tvb_strneql(gss_tvb, start_offset, "NTLMSSP", 7) == 0)) {
 				return_offset = call_dissector(ntlmssp_handle,
@@ -329,8 +321,8 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if ((tvb_length_remaining(gss_tvb, start_offset)==16) &&
 			   ((tvb_memeql(gss_tvb, start_offset, "\x01\x00\x00\x00", 4) == 0))) {
 				if( is_verifier ) {
-					return_offset = call_dissector(ntlmssp_verf_handle, 
-									tvb_new_subset(gss_tvb, start_offset, -1, -1), 
+					return_offset = call_dissector(ntlmssp_verf_handle,
+									tvb_new_subset(gss_tvb, start_offset, -1, -1),
 									pinfo, subtree);
 				}
 				else if( pinfo->gssapi_encrypted_tvb ) {
@@ -352,7 +344,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    goto done;
 		  }
 
-		  /* 
+		  /*
 		   * If we do not recognise an Application class,
 		   * then we are probably dealing with an inner context
 		   * token or a wrap token, and we should retrieve the
@@ -425,7 +417,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		&&  (oidvalue)
 		&&  (tvb_length(gss_tvb)==tvb_reported_length(gss_tvb))
 		&&  (len1>(guint32)tvb_length_remaining(gss_tvb, oid_start_offset))
-		&&  (gssapi_reassembly) ){	
+		&&  (gssapi_reassembly) ){
 			fi=se_alloc(sizeof(gssapi_frag_info_t));
 			fi->first_frame=pinfo->fd->num;
 			fi->reassembled_in=0;
@@ -462,7 +454,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 
 		/*
-		 * Now add the proto data ... 
+		 * Now add the proto data ...
 		 * but only if it is not already there.
 		 */
 		if(!gss_info->oid){
@@ -529,35 +521,35 @@ void
 proto_register_gssapi(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_gssapi_oid, 
+	{ &hf_gssapi_oid,
 	    	{ "OID", "gss-api.OID", FT_STRING, BASE_NONE,
 		  NULL, 0, "This is a GSS-API Object Identifier", HFILL }},
 	{ &hf_gssapi_segment,
-		{ "GSSAPI Segment", "gss-api.segment", FT_FRAMENUM, BASE_NONE, 
+		{ "GSSAPI Segment", "gss-api.segment", FT_FRAMENUM, BASE_NONE,
 		  NULL, 0x0, NULL, HFILL }},
 	{ &hf_gssapi_segments,
-		{ "GSSAPI Segments", "gss-api.segment.segments", FT_NONE, BASE_NONE, 
+		{ "GSSAPI Segments", "gss-api.segment.segments", FT_NONE, BASE_NONE,
 		  NULL, 0x0, NULL, HFILL }},
 	{ &hf_gssapi_segment_overlap,
-		{ "Fragment overlap",	"gss-api.segment.overlap", FT_BOOLEAN, BASE_NONE, 
+		{ "Fragment overlap",	"gss-api.segment.overlap", FT_BOOLEAN, BASE_NONE,
 		   NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
 	{ &hf_gssapi_segment_overlap_conflict,
-		{ "Conflicting data in fragment overlap",	"gss-api.segment.overlap.conflict", FT_BOOLEAN, BASE_NONE, 
+		{ "Conflicting data in fragment overlap",	"gss-api.segment.overlap.conflict", FT_BOOLEAN, BASE_NONE,
 		  NULL, 0x0, "Overlapping fragments contained conflicting data", HFILL }},
 	{ &hf_gssapi_segment_multiple_tails,
-		{ "Multiple tail fragments found",	"gss-api.segment.multipletails", FT_BOOLEAN, BASE_NONE, 
+		{ "Multiple tail fragments found",	"gss-api.segment.multipletails", FT_BOOLEAN, BASE_NONE,
 		  NULL, 0x0, "Several tails were found when defragmenting the packet", HFILL }},
 	{ &hf_gssapi_segment_too_long_fragment,
-		{ "Fragment too long",	"gss-api.segment.toolongfragment", FT_BOOLEAN, BASE_NONE, 
+		{ "Fragment too long",	"gss-api.segment.toolongfragment", FT_BOOLEAN, BASE_NONE,
 		  NULL, 0x0, "Fragment contained data past end of packet", HFILL }},
 	{ &hf_gssapi_segment_error,
-		{ "Defragmentation error", "gss-api.segment.error", FT_FRAMENUM, BASE_NONE, 
+		{ "Defragmentation error", "gss-api.segment.error", FT_FRAMENUM, BASE_NONE,
 		  NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
 	{ &hf_gssapi_reassembled_in,
-		{ "Reassembled In", "gss-api.reassembled_in", FT_FRAMENUM, BASE_NONE, 
+		{ "Reassembled In", "gss-api.reassembled_in", FT_FRAMENUM, BASE_NONE,
 		  NULL, 0x0, "The frame where this pdu is reassembled", HFILL }},
 	{ &hf_gssapi_reassembled_length,
-		{ "Reassembled GSSAPI length", "gss-api.reassembled.length", FT_UINT32, BASE_DEC, 
+		{ "Reassembled GSSAPI length", "gss-api.reassembled.length", FT_UINT32, BASE_DEC,
 		  NULL, 0x0, "The total length of the reassembled payload", HFILL }},
 	};
 
@@ -587,8 +579,8 @@ proto_register_gssapi(void)
 	register_init_routine(gssapi_reassembly_init);
 }
 
-static int wrap_dissect_gssapi(tvbuff_t *tvb, int offset, 
-			       packet_info *pinfo, 
+static int wrap_dissect_gssapi(tvbuff_t *tvb, int offset,
+			       packet_info *pinfo,
 			       proto_tree *tree, guint8 *drep _U_)
 {
 	tvbuff_t *auth_tvb;
@@ -600,8 +592,8 @@ static int wrap_dissect_gssapi(tvbuff_t *tvb, int offset,
 	return tvb_length_remaining(tvb, offset);
 }
 
-int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset, 
-				    packet_info *pinfo, 
+int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset,
+				    packet_info *pinfo,
 				    proto_tree *tree, guint8 *drep _U_)
 {
 	tvbuff_t *auth_tvb;
@@ -612,16 +604,16 @@ int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset,
 }
 
 tvbuff_t *
-wrap_dissect_gssapi_payload(tvbuff_t *data_tvb, 
+wrap_dissect_gssapi_payload(tvbuff_t *data_tvb,
 			tvbuff_t *auth_tvb,
 			int offset _U_,
-			packet_info *pinfo, 
+			packet_info *pinfo,
 			dcerpc_auth_info *auth_info _U_)
 {
 	tvbuff_t *result;
 
 	/* we need a full auth and a full data tvb or else we cant
-	   decrypt anything 
+	   decrypt anything
 	*/
 	if((!auth_tvb)||(!data_tvb)){
 		return NULL;

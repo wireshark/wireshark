@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -104,13 +104,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-				     pinfo->srcport, pinfo->destport, 0);
-    if (conversation == NULL) {
-	conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-					pinfo->ptype, pinfo->srcport,
-					pinfo->destport, 0);
-    }
+    conversation = find_or_create_conversation(pinfo);
 
     conversation_data = conversation_get_proto_data(conversation, proto_rsync);
 
@@ -121,7 +115,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     conversation_set_dissector(conversation, rsync_handle);
-   
+
     ti = proto_tree_add_item(tree, proto_rsync, tvb, 0, -1, FALSE);
 
     rsync_tree = proto_item_add_subtree(ti, ett_rsync);
@@ -328,7 +322,7 @@ proto_reg_handoff_rsync(void)
     } else {
         dissector_delete("tcp.port", saved_rsync_tcp_port, rsync_handle);
     }
-        
+
     dissector_add("tcp.port", glb_rsync_tcp_port, rsync_handle);
     saved_rsync_tcp_port = glb_rsync_tcp_port;
 }

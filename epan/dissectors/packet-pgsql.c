@@ -170,12 +170,7 @@ dissect_pgsql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     first_message = TRUE;
 
     /* We don't use conversation data yet, but... */
-    cv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                           pinfo->srcport, pinfo->destport, 0);
-    if (!cv) {
-        cv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                              pinfo->srcport, pinfo->destport, 0);
-    }
+    cv = find_or_create_conversation(pinfo);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGSQL");
     if (check_col(pinfo->cinfo, COL_INFO))

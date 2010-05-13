@@ -177,7 +177,7 @@ typedef struct _stun_conv_info_t {
 #define ICE_CONTROLLING		0x802a	/* draft-ietf-mmusic-ice-19 */
 #define RESPONSE_ORIGIN		0x802b	/* draft-ietf-behave-nat-behavior-discovery-03 */
 #define OTHER_ADDRESS		0x802c	/* draft-ietf-behave-nat-behavior-discovery-03 */
- 
+
 /* divers */
 #define PROTO_NUM_UDP	17
 #define PROTO_NUM_TCP	6
@@ -396,7 +396,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* two first bits not NULL => should be a channel-data message */
 		if (msg_type == 0xFFFF)
 			return 0;
-		/* note that padding is only mandatory over streaming 
+		/* note that padding is only mandatory over streaming
 		   protocols */
 		msg_total_len = (guint) ((msg_length + CHANNEL_DATA_HDR_LEN +3) & -4) ;
 
@@ -407,11 +407,11 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			/* recalculate the total length without padding */
 			msg_total_len = (guint) msg_length + CHANNEL_DATA_HDR_LEN;
-			if (len != msg_total_len) 
+			if (len != msg_total_len)
 				return 0;
 		}
 	}
-	else 
+	else
 	{
 		/* Normal STUN message */
 		msg_total_len = (guint) msg_length + STUN_HDR_LEN;
@@ -444,8 +444,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (!tree)
 			return tvb_length(tvb);
 		ti = proto_tree_add_item(
-			tree, proto_stun, tvb, 0, 
-			CHANNEL_DATA_HDR_LEN, 
+			tree, proto_stun, tvb, 0,
+			CHANNEL_DATA_HDR_LEN,
 			FALSE);
 		proto_item_append_text(ti, ", TURN ChannelData Message");
 		stun_tree = proto_item_add_subtree(ti, ett_stun);
@@ -455,16 +455,16 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 		new_len = tvb_length_remaining(tvb, CHANNEL_DATA_HDR_LEN);
-		reported_len = tvb_reported_length_remaining(tvb, 
+		reported_len = tvb_reported_length_remaining(tvb,
 							     CHANNEL_DATA_HDR_LEN);
 		if (data_length < reported_len) {
 			reported_len = data_length;
 		}
-		next_tvb = tvb_new_subset(tvb, CHANNEL_DATA_HDR_LEN, new_len, 
+		next_tvb = tvb_new_subset(tvb, CHANNEL_DATA_HDR_LEN, new_len,
 					  reported_len);
 
 
-		if (!dissector_try_heuristic(heur_subdissector_list, 
+		if (!dissector_try_heuristic(heur_subdissector_list,
 					     next_tvb, pinfo, tree)) {
 			call_dissector_only(data_handle,next_tvb, pinfo, tree);
 		}
@@ -489,19 +489,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	msg_type_class = ((msg_type & 0x0010) >> 4) | ((msg_type & 0x0100) >> 7) ;
 	msg_type_method = (msg_type & 0x000F) | ((msg_type & 0x00E0) >> 1) | ((msg_type & 0x3E00) >> 2);
 
-	/* Do we already have a conversation ? */
-	conversation = 
-		find_conversation(pinfo->fd->num, 
-				  &pinfo->src, &pinfo->dst,
-				  pinfo->ptype, 
-				  pinfo->srcport, pinfo->destport, 0);
-	if (conversation == NULL) {
-	  /* We don't yet have a conversation, so create one. */
-		conversation = conversation_new(pinfo->fd->num, 
-						&pinfo->src, &pinfo->dst,
-						pinfo->ptype,
-						pinfo->srcport, pinfo->destport, 0);
-	}
+	conversation = find_or_create_conversation(pinfo);
+
 	/*
 	 * Do we already have a state structure for this conv
 	 */
@@ -517,35 +506,35 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (!pinfo->fd->flags.visited) {
 		if ((stun_trans =
-		     se_tree_lookup32_array(stun_info->transaction_pdus, 
+		     se_tree_lookup32_array(stun_info->transaction_pdus,
 					    transaction_id_key)) == NULL) {
 			stun_trans=se_alloc(sizeof(stun_transaction_t));
 			stun_trans->req_frame=0;
 			stun_trans->rep_frame=0;
 			stun_trans->req_time=pinfo->fd->abs_ts;
-			se_tree_insert32_array(stun_info->transaction_pdus, 
-					       transaction_id_key, 
+			se_tree_insert32_array(stun_info->transaction_pdus,
+					       transaction_id_key,
 					       (void *)stun_trans);
 		}
-	  
+
 		if (msg_type_class == REQUEST) {
 			/* This is a request */
 			if (stun_trans->req_frame == 0) {
 				stun_trans->req_frame=pinfo->fd->num;
 			}
-  
+
 		} else {
 			/* This is a catch-all for all non-request messages */
 			if (stun_trans->rep_frame == 0) {
 				stun_trans->rep_frame=pinfo->fd->num;
 			}
-	 
+
 		}
 	} else {
-		stun_trans=se_tree_lookup32_array(stun_info->transaction_pdus, 
+		stun_trans=se_tree_lookup32_array(stun_info->transaction_pdus,
 						  transaction_id_key);
 	}
-	
+
 	if (!stun_trans) {
 		/* create a "fake" pana_trans structure */
 		stun_trans=ep_alloc(sizeof(stun_transaction_t));
@@ -574,15 +563,15 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (msg_type_class == REQUEST) {
 		if (stun_trans->req_frame != pinfo->fd->num) {
 			proto_item *it;
-			it=proto_tree_add_uint(stun_tree, hf_stun_duplicate, 
-					       tvb, 0, 0, 
+			it=proto_tree_add_uint(stun_tree, hf_stun_duplicate,
+					       tvb, 0, 0,
 					       stun_trans->req_frame);
 			PROTO_ITEM_SET_GENERATED(it);
 		}
 		if (stun_trans->rep_frame) {
 			proto_item *it;
-			it=proto_tree_add_uint(stun_tree, hf_stun_response_in, 
-					       tvb, 0, 0, 
+			it=proto_tree_add_uint(stun_tree, hf_stun_response_in,
+					       tvb, 0, 0,
 					       stun_trans->rep_frame);
 			PROTO_ITEM_SET_GENERATED(it);
 		}
@@ -591,8 +580,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Retransmission control */
 		if (stun_trans->rep_frame != pinfo->fd->num) {
 			proto_item *it;
-			it=proto_tree_add_uint(stun_tree, hf_stun_duplicate, 
-					       tvb, 0, 0, 
+			it=proto_tree_add_uint(stun_tree, hf_stun_duplicate,
+					       tvb, 0, 0,
 					       stun_trans->rep_frame);
 			PROTO_ITEM_SET_GENERATED(it);
 		}
@@ -610,7 +599,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				it=proto_tree_add_time(stun_tree, hf_stun_time, tvb, 0, 0, &ns);
 				PROTO_ITEM_SET_GENERATED(it);
 			}
-    
+
 		}
 	}
 
@@ -646,7 +635,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			att_type_str = match_strval(att_type, attributes);
 			if (att_type_str == NULL)
 				att_type_str = "Unknown";
-			ti = proto_tree_add_uint_format(att_all_tree, hf_stun_attr, 
+			ti = proto_tree_add_uint_format(att_all_tree, hf_stun_attr,
 							tvb, offset, ATTR_HDR_LEN+att_length,
 							att_type, "%s", att_type_str);
 			att_tree = proto_item_add_subtree(ti, ett_stun_att);
@@ -741,7 +730,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						);
 				}
 				if (att_length % 4 != 0)
-					proto_tree_add_uint(att_tree, stun_att_padding, 
+					proto_tree_add_uint(att_tree, stun_att_padding,
 							    tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
 				break;
 
@@ -900,13 +889,13 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						IPv6[3] = g_htonl(tvb_get_ntohl(tvb, offset+16) ^ transaction_id[2]);
 						ti = proto_tree_add_ipv6(att_tree, stun_att_ipv6, tvb, offset+4, 16,
 									 (const guint8 *)IPv6);
-						PROTO_ITEM_SET_GENERATED(ti); 
+						PROTO_ITEM_SET_GENERATED(ti);
 					}
 
 					break;
 				}
 				break;
-				
+
 			case REQUESTED_ADDRESS_TYPE:
 				if (att_length < 1)
 					break;
@@ -978,15 +967,15 @@ case EVEN_PORT:
 						pad = 4-(att_length % 4);
 						proto_tree_add_uint(att_tree, stun_att_padding, tvb, offset+att_length, pad, pad);
 					}
-					reported_len = att_length; 
-				 
-				  
-					next_tvb = 
-						tvb_new_subset(tvb, offset, 
-							       reported_len, 
+					reported_len = att_length;
+
+
+					next_tvb =
+						tvb_new_subset(tvb, offset,
+							       reported_len,
 							       reported_len);
 
-					if (!dissector_try_heuristic(heur_subdissector_list, 
+					if (!dissector_try_heuristic(heur_subdissector_list,
 								     next_tvb, pinfo, att_tree)) {
 						call_dissector_only(data_handle,next_tvb, pinfo, att_tree);
 					}
@@ -1000,7 +989,7 @@ case EVEN_PORT:
 				proto_tree_add_item(att_tree, stun_att_transp, tvb, offset, 1, FALSE);
 				if (att_length < 4)
 					break;
-				
+
 				{
 					guint8  protoCode = tvb_get_guint8(tvb, offset);
 					proto_item_append_text(att_tree, ": %s", val_to_str(protoCode, transportnames, "Unknown (0x%8x)"));
@@ -1155,19 +1144,19 @@ proto_register_stun(void)
 		    BASE_HEX, 	NULL,	0, 	NULL, 	HFILL }
 		},
 		{ &hf_stun_response_in,
-		  { "Response In",	"stun.response-in", FT_FRAMENUM, 
+		  { "Response In",	"stun.response-in", FT_FRAMENUM,
 		    BASE_NONE, NULL, 0x0, "The response to this STUN query is in this frame", HFILL }
 		},
 		{ &hf_stun_response_to,
-		  { "Request In", "stun.response-to", FT_FRAMENUM, 
+		  { "Request In", "stun.response-to", FT_FRAMENUM,
 		    BASE_NONE, NULL, 0x0, "This is a response to the STUN Request in this frame", HFILL }
 		},
 		{ &hf_stun_time,
-		  { "Time", "stun.time", FT_RELATIVE_TIME, 
+		  { "Time", "stun.time", FT_RELATIVE_TIME,
 		    BASE_NONE, NULL, 0x0, "The time between the Request and the Response", HFILL }
 		},
 		{ &hf_stun_duplicate,
-		  { "Duplicated original message in", "stun.reqduplicate", FT_FRAMENUM, 
+		  { "Duplicated original message in", "stun.reqduplicate", FT_FRAMENUM,
 		    BASE_NONE, NULL, 0x0, "This is a duplicate of STUN message in this frame", HFILL }
 		},
 		/* ////////////////////////////////////// */
@@ -1286,11 +1275,11 @@ proto_register_stun(void)
 		{ &stun_att_change_port,
 		  { "Change Port","stun.att.change-port",	FT_BOOLEAN,
 		    16, 	TFS(&tfs_set_notset),	0x0002,	NULL,	HFILL}
-		},		
+		},
 		{ &stun_att_reserve_next,
 		  { "Reserve next","stun.att.even-port.reserve-next",	FT_UINT8,
 		    BASE_DEC, 	VALS(attributes_reserve_next),	0x80,	NULL,	HFILL}
-		},		
+		},
 		{ &stun_att_cache_timeout,
 		  { "Cache timeout",		"stun.att.cache-timeout",	FT_UINT32,
 		    BASE_DEC, 	NULL,	0x0,	NULL,	HFILL}

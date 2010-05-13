@@ -164,7 +164,7 @@ dissect_x224_dt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 
 	item = proto_tree_add_uint(tree, hf_x224_class, tvb, 0, 0, x224_info->class);
 	PROTO_ITEM_SET_GENERATED(item);
-	
+
 
 	/* EOT / NR */
 	proto_tree_add_item(tree, hf_x224_eot, tvb, offset, 1, FALSE);
@@ -219,20 +219,8 @@ dissect_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 * We need to track some state for this protocol on a per conversation
 	 * basis so we can do neat things like request/response tracking
 	 */
-	/*
-	 * Do we have a conversation for this connection?
-	 */
-	conversation = find_conversation(pinfo->fd->num,
-				&pinfo->src, &pinfo->dst,
-				pinfo->ptype,
-				pinfo->srcport, pinfo->destport, 0);
-	if (conversation == NULL) {
-		/* We don't yet have a conversation, so create one. */
-		conversation = conversation_new(pinfo->fd->num,
-				&pinfo->src, &pinfo->dst,
-				pinfo->ptype,
-				pinfo->srcport, pinfo->destport, 0);
-	}
+	conversation = find_or_create_conversation(pinfo);
+
 	/*
 	 * Do we already have a state structure for this conv
 	 */
