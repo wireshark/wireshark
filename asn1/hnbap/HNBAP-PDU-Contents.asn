@@ -1,6 +1,6 @@
 -- HNBAP-PDU-Contents.asn
 --
--- 3GPP TS 25.469 V9.0.0 (2009-12)
+-- 3GPP TS 25.469 V9.1.0 (2010-03)
 -- http://www.3gpp.org/ftp/Specs/html-info/25469.htm
 --
 -- 9.3.3	PDU Definitions
@@ -232,7 +232,7 @@ UERegisterAccept ::= SEQUENCE {
 
 UERegisterAcceptIEs HNBAP-PROTOCOL-IES ::= {
 	{ ID id-UE-Identity				CRITICALITY reject	TYPE UE-Identity		PRESENCE mandatory } |
-	{ ID id-Context-ID				CRITICALITY ignore	TYPE Context-ID			PRESENCE mandatory },
+	{ ID id-Context-ID				CRITICALITY reject	TYPE Context-ID			PRESENCE mandatory },
 	...
 }
 
@@ -285,6 +285,28 @@ UEDe-RegisterIEs HNBAP-PROTOCOL-IES ::= {
 }
 
 UEDe-RegisterExtensions HNBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- CSG Membership Update
+--
+-- **************************************************************
+
+CSGMembershipUpdate ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container		{ {CSGMembershipUpdateIEs} },
+	protocolExtensions	ProtocolExtensionContainer	{ {CSGMembershipUpdateExtensions} } 	OPTIONAL,
+	...
+}
+
+CSGMembershipUpdateIEs HNBAP-PROTOCOL-IES ::= {
+	{ ID id-Context-ID					CRITICALITY reject	TYPE Context-ID					PRESENCE mandatory } |
+	{ ID id-CSGMembershipStatus			CRITICALITY	reject	TYPE CSGMembershipStatus		PRESENCE mandatory },
+	...
+}
+
+CSGMembershipUpdateExtensions HNBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 

@@ -114,6 +114,11 @@ CN-DomainIndicator
     col_set_fence(actx->pinfo->cinfo, COL_INFO); /* Protect info from CriticalityDiagnostics decodes */
 %(DEFAULT_BODY)s
 
+#.FN_BODY CSGMembershipUpdate
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "CSG_MEMBERSHIP_UPDATE_MESSAGE ");
+%(DEFAULT_BODY)s
+
 #.FN_BODY PrivateMessage
     col_set_str(actx->pinfo->cinfo, COL_INFO,
                "PRIVATE_MESSAGE ");
@@ -170,6 +175,7 @@ UE-Capabilities						N hnbap.ies id-UE-Capabilities
 RNC-ID								N hnbap.ies id-RNC-ID
 CSG-ID								N hnbap.ies id-CSG-ID
 BackoffTimer						N hnbap.ies id-BackoffTimer
+CSGMembershipStatus					N hnbap.ies id-CSGMembershipStatus
 
 #HNBAP-PROTOCOL-EXTENSION
 IP-Address							N hnbap.extension id-HNB-Internet-Information
@@ -190,5 +196,6 @@ UERegisterReject					N hnbap.proc.uout id-UERegister
 UEDe-Register						N hnbap.proc.imsg id-UEDe-Register
 HNBDe-Register						N hnbap.proc.imsg id-HNBDe-Register
 ErrorIndication						N hnbap.proc.imsg id-ErrorIndication
+CSGMembershipUpdate					N hnbap.proc.imsg id-CSGMembershipUpdate
 PrivateMessage						N hnbap.proc.imsg id-privateMessage
 #.END

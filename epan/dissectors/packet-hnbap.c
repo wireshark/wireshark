@@ -65,7 +65,6 @@
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
 #define maxNrOfErrors                  256
-#define maxUEs                         64
 
 typedef enum _ProcedureCode_enum {
   id_HNBRegister =   1,
@@ -73,7 +72,8 @@ typedef enum _ProcedureCode_enum {
   id_UERegister =   3,
   id_UEDe_Register =   4,
   id_ErrorIndication =   5,
-  id_privateMessage =   6
+  id_privateMessage =   6,
+  id_CSGMembershipUpdate =   7
 } ProcedureCode_enum;
 
 typedef enum _ProtocolIE_ID_enum {
@@ -137,6 +137,7 @@ static int hf_hnbap_UERegisterRequest_PDU = -1;   /* UERegisterRequest */
 static int hf_hnbap_UERegisterAccept_PDU = -1;    /* UERegisterAccept */
 static int hf_hnbap_UERegisterReject_PDU = -1;    /* UERegisterReject */
 static int hf_hnbap_UEDe_Register_PDU = -1;       /* UEDe_Register */
+static int hf_hnbap_CSGMembershipUpdate_PDU = -1;  /* CSGMembershipUpdate */
 static int hf_hnbap_ErrorIndication_PDU = -1;     /* ErrorIndication */
 static int hf_hnbap_PrivateMessage_PDU = -1;      /* PrivateMessage */
 static int hf_hnbap_HNBAP_PDU_PDU = -1;           /* HNBAP_PDU */
@@ -200,7 +201,7 @@ static int hf_hnbap_tMSILAI = -1;                 /* TMSILAI */
 static int hf_hnbap_pTMSIRAI = -1;                /* PTMSIRAI */
 static int hf_hnbap_iMEI = -1;                    /* IMEI */
 static int hf_hnbap_iMSIESN = -1;                 /* IMSIESN */
-static int hf_hnbap_tMSIDS1 = -1;                 /* TMSIDS41 */
+static int hf_hnbap_tMSIDS41 = -1;                /* TMSIDS41 */
 static int hf_hnbap_protocolIEs = -1;             /* ProtocolIE_Container */
 static int hf_hnbap_protocolExtensions = -1;      /* ProtocolExtensionContainer */
 static int hf_hnbap_privateIEs = -1;              /* PrivateIE_Container */
@@ -257,6 +258,7 @@ static gint ett_hnbap_UERegisterRequest = -1;
 static gint ett_hnbap_UERegisterAccept = -1;
 static gint ett_hnbap_UERegisterReject = -1;
 static gint ett_hnbap_UEDe_Register = -1;
+static gint ett_hnbap_CSGMembershipUpdate = -1;
 static gint ett_hnbap_ErrorIndication = -1;
 static gint ett_hnbap_PrivateMessage = -1;
 static gint ett_hnbap_HNBAP_PDU = -1;
@@ -355,6 +357,7 @@ static const value_string hnbap_ProcedureCode_vals[] = {
   { id_UEDe_Register, "id-UEDe-Register" },
   { id_ErrorIndication, "id-ErrorIndication" },
   { id_privateMessage, "id-privateMessage" },
+  { id_CSGMembershipUpdate, "id-CSGMembershipUpdate" },
   { 0, NULL }
 };
 
@@ -555,7 +558,7 @@ static const value_string hnbap_Access_stratum_release_indicator_vals[] = {
   {   2, "rel-5" },
   {   3, "rel-6" },
   {   4, "rel-7" },
-  {   5, "rel-8" },
+  {   5, "rel-8-and-beyond" },
   { 0, NULL }
 };
 
@@ -1367,7 +1370,7 @@ static const value_string hnbap_UE_Identity_vals[] = {
   {   4, "eSN" },
   {   5, "iMSIDS41" },
   {   6, "iMSIESN" },
-  {   7, "tMSIDS1" },
+  {   7, "tMSIDS41" },
   { 0, NULL }
 };
 
@@ -1379,7 +1382,7 @@ static const per_choice_t UE_Identity_choice[] = {
   {   4, &hf_hnbap_eSN           , ASN1_EXTENSION_ROOT    , dissect_hnbap_ESN },
   {   5, &hf_hnbap_iMSIDS41      , ASN1_EXTENSION_ROOT    , dissect_hnbap_IMSIDS41 },
   {   6, &hf_hnbap_iMSIESN       , ASN1_EXTENSION_ROOT    , dissect_hnbap_IMSIESN },
-  {   7, &hf_hnbap_tMSIDS1       , ASN1_EXTENSION_ROOT    , dissect_hnbap_TMSIDS41 },
+  {   7, &hf_hnbap_tMSIDS41      , ASN1_EXTENSION_ROOT    , dissect_hnbap_TMSIDS41 },
   { 0, NULL, 0, NULL }
 };
 
@@ -1561,6 +1564,27 @@ dissect_hnbap_UEDe_Register(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
+static const per_sequence_t CSGMembershipUpdate_sequence[] = {
+  { &hf_hnbap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_hnbap_ProtocolIE_Container },
+  { &hf_hnbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_hnbap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_hnbap_CSGMembershipUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 118 "hnbap.cnf"
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "CSG_MEMBERSHIP_UPDATE_MESSAGE ");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_hnbap_CSGMembershipUpdate, CSGMembershipUpdate_sequence);
+
+
+
+
+  return offset;
+}
+
+
 static const per_sequence_t ErrorIndication_sequence[] = {
   { &hf_hnbap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_hnbap_ProtocolIE_Container },
   { &hf_hnbap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_hnbap_ProtocolExtensionContainer },
@@ -1590,7 +1614,7 @@ static const per_sequence_t PrivateMessage_sequence[] = {
 
 static int
 dissect_hnbap_PrivateMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 118 "hnbap.cnf"
+#line 123 "hnbap.cnf"
     col_set_str(actx->pinfo->cinfo, COL_INFO,
                "PRIVATE_MESSAGE ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -1926,6 +1950,14 @@ static int dissect_UEDe_Register_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_CSGMembershipUpdate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_hnbap_CSGMembershipUpdate(tvb, offset, &asn1_ctx, tree, hf_hnbap_CSGMembershipUpdate_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_ErrorIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -2133,6 +2165,10 @@ module_t *hnbap_module;
         NULL, HFILL }},
     { &hf_hnbap_UEDe_Register_PDU,
       { "UEDe-Register", "hnbap.UEDe_Register",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_hnbap_CSGMembershipUpdate_PDU,
+      { "CSGMembershipUpdate", "hnbap.CSGMembershipUpdate",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_hnbap_ErrorIndication_PDU,
@@ -2387,10 +2423,10 @@ module_t *hnbap_module;
       { "iMSIESN", "hnbap.iMSIESN",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_hnbap_tMSIDS1,
-      { "tMSIDS1", "hnbap.tMSIDS1",
+    { &hf_hnbap_tMSIDS41,
+      { "tMSIDS41", "hnbap.tMSIDS41",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "TMSIDS41", HFILL }},
+        NULL, HFILL }},
     { &hf_hnbap_protocolIEs,
       { "protocolIEs", "hnbap.protocolIEs",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2475,6 +2511,7 @@ module_t *hnbap_module;
     &ett_hnbap_UERegisterAccept,
     &ett_hnbap_UERegisterReject,
     &ett_hnbap_UEDe_Register,
+    &ett_hnbap_CSGMembershipUpdate,
     &ett_hnbap_ErrorIndication,
     &ett_hnbap_PrivateMessage,
     &ett_hnbap_HNBAP_PDU,
@@ -2539,6 +2576,7 @@ proto_reg_handoff_hnbap(void)
   dissector_add("hnbap.ies", id_RNC_ID, new_create_dissector_handle(dissect_RNC_ID_PDU, proto_hnbap));
   dissector_add("hnbap.ies", id_CSG_ID, new_create_dissector_handle(dissect_CSG_ID_PDU, proto_hnbap));
   dissector_add("hnbap.ies", id_BackoffTimer, new_create_dissector_handle(dissect_BackoffTimer_PDU, proto_hnbap));
+  dissector_add("hnbap.ies", id_CSGMembershipStatus, new_create_dissector_handle(dissect_CSGMembershipStatus_PDU, proto_hnbap));
   dissector_add("hnbap.extension", id_HNB_Internet_Information, new_create_dissector_handle(dissect_IP_Address_PDU, proto_hnbap));
   dissector_add("hnbap.extension", id_HNB_Cell_Access_Mode, new_create_dissector_handle(dissect_HNB_Cell_Access_Mode_PDU, proto_hnbap));
   dissector_add("hnbap.extension", id_MuxPortNumber, new_create_dissector_handle(dissect_MuxPortNumber_PDU, proto_hnbap));
@@ -2552,6 +2590,7 @@ proto_reg_handoff_hnbap(void)
   dissector_add("hnbap.proc.imsg", id_UEDe_Register, new_create_dissector_handle(dissect_UEDe_Register_PDU, proto_hnbap));
   dissector_add("hnbap.proc.imsg", id_HNBDe_Register, new_create_dissector_handle(dissect_HNBDe_Register_PDU, proto_hnbap));
   dissector_add("hnbap.proc.imsg", id_ErrorIndication, new_create_dissector_handle(dissect_ErrorIndication_PDU, proto_hnbap));
+  dissector_add("hnbap.proc.imsg", id_CSGMembershipUpdate, new_create_dissector_handle(dissect_CSGMembershipUpdate_PDU, proto_hnbap));
   dissector_add("hnbap.proc.imsg", id_privateMessage, new_create_dissector_handle(dissect_PrivateMessage_PDU, proto_hnbap));
 
 

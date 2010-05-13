@@ -1,6 +1,6 @@
 -- HNBAP-Constants.asn
 --
--- 3GPP TS 25.469 V9.0.0 (2009-12)
+-- 3GPP TS 25.469 V9.1.0 (2010-03)
 -- http://www.3gpp.org/ftp/Specs/html-info/25469.htm
 --
 -- 9.3.6	Constant Definitions
@@ -36,7 +36,8 @@ id-HNBDe-Register					ProcedureCode ::= 2
 id-UERegister						ProcedureCode ::= 3
 id-UEDe-Register					ProcedureCode ::= 4
 id-ErrorIndication					ProcedureCode ::= 5
-id-privateMessage					ProcedureCode ::= 6
+id-privateMessage					ProcedureCode ::= 6 
+id-CSGMembershipUpdate				ProcedureCode ::= 7
  
 
 
@@ -46,7 +47,6 @@ id-privateMessage					ProcedureCode ::= 6
 --
 -- **************************************************************
 maxNrOfErrors						INTEGER ::= 256
-maxUEs								INTEGER ::= 64
 
 
 -- **************************************************************

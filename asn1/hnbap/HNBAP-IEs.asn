@@ -1,6 +1,6 @@
 -- HNBAP-IEs.asn
 --
--- 3GPP TS 25.469 V9.0.0 (2009-12)
+-- 3GPP TS 25.469 V9.1.0 (2010-03)
 -- http://www.3gpp.org/ftp/Specs/html-info/25469.htm
 --
 -- 9.3.4	Information Element Definitions
@@ -24,7 +24,6 @@ BEGIN
 
 IMPORTS
 	maxNrOfErrors,
-	maxUEs,
 	id-HNB-Internet-Information
 	
 FROM HNBAP-Constants
@@ -42,7 +41,7 @@ FROM HNBAP-Containers;
 
 --A
 Access-stratum-release-indicator ::=	ENUMERATED {r99,
-										rel-4, rel-5, rel-6, rel-7, rel-8,
+										rel-4, rel-5, rel-6, rel-7, rel-8-and-beyond,
 										...}
 
 AltitudeAndDirection ::= SEQUENCE {
@@ -382,7 +381,7 @@ UE-Identity	::=	CHOICE {
 	eSN			ESN,
 	iMSIDS41	IMSIDS41,
 	iMSIESN		IMSIESN,
-	tMSIDS1		TMSIDS41,
+	tMSIDS41	TMSIDS41,
 	...
 }
 
