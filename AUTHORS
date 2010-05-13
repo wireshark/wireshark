@@ -883,10 +883,9 @@ Jeff Morriss            <jeff.morriss[AT]ulticom.com> {
 	SCCP support
 	SCCP Management support
 	MTP3 Management support
-	M3UA fixes
 	Support for China and Japan ITU SS7 variants
-	ISUP tweaks
 	SSCOP over UDP and SSCF-NNI support
+	Various bug fixes and enhancements
 }
 
 Aamer Akhter            <aakhter[AT]cisco.com> {
@@ -3030,6 +3029,9 @@ Paul J. Metzger		<pjm [AT] ll.mit.edu> {
 	Add support for decoding DIS Electromagnetic Emission packets
 }
 
+Robert Hogan		<robert [AT] roberthogan.net> {
+	TN3270 fixes
+}
 
 and by:
 
