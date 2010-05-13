@@ -588,7 +588,7 @@ class EthCtx:
   def Ber(self): return self.encoding == 'ber'
   def Aligned(self): return self.aligned
   def Unaligned(self): return not self.aligned
-  def Tag(self): return self.tag_opt or self.Ber()
+  def NeedTags(self): return self.tag_opt or self.Ber()
   def NAPI(self): return False  # disable planned features
 
   def Module(self):  # current module name
@@ -2877,6 +2877,7 @@ class Node:
     def fld_obj_repr(self, ectx):
         return "/* TO DO %s */" % (str(self))
 
+
 #--- ValueAssignment -------------------------------------------------------------
 class ValueAssignment (Node):
   def __init__(self,*args, **kw) :
@@ -3043,7 +3044,7 @@ class Type (Node):
   def eth_reg(self, ident, ectx, tstrip=0, tagflag=False, selflag=False, idx='', parent=None):
     #print "eth_reg(): %s, ident=%s, tstrip=%d, tagflag=%s, selflag=%s, parent=%s" %(self.type, ident, tstrip, str(tagflag), str(selflag), str(parent))
     #print " ", self
-    if (ectx.Tag() and (len(self.tags) > tstrip)):
+    if (ectx.NeedTags() and (len(self.tags) > tstrip)):
       tagged_type = self
       for i in range(len(self.tags)-1, tstrip-1, -1):
         tagged_type = TaggedType(val=tagged_type, tstrip=i)
@@ -3265,7 +3266,7 @@ class Tag (Node):
                                                 self.tag.num),
                                     self.typ.to_python (ctx))
   def IsImplicit(self, ectx):
-    return ((self.mode == 'IMPLICIT') or ((self.mode == 'default') and (ectx.tag_def == 'IMPLICIT')))
+    return ((self.mode == 'IMPLICIT') or ((self.mode == 'default') and (ectx.tag_def != 'EXPLICIT')))
 
   def GetTag(self, ectx):
     tc = ''
@@ -3284,6 +3285,7 @@ class Tag (Node):
     return n + str(self.num)
 
 #--- Constraint ---------------------------------------------------------------
+constr_cnt = 0
 class Constraint (Node):
   def to_python (self, ctx):
     print "Ignoring constraint:", self.type
@@ -3437,7 +3439,11 @@ class Constraint (Node):
     elif self.type == 'Size':
       return 'SIZE_' + self.subtype.eth_constrname() + ext
     else:
-      return 'CONSTR' + str(id(self)) + ext
+      if (not hasattr(self, 'constr_num')):
+        global constr_cnt
+        constr_cnt += 1
+        self.constr_num = constr_cnt
+      return 'CONSTR%03d%s' % (self.constr_num, ext)
 
 
 class Module (Node):
@@ -3761,12 +3767,16 @@ class SqType (Type):
 #--- SeqType -----------------------------------------------------------
 class SeqType (SqType):
 
-  def need_components(self):
+  def all_components(self):
     lst = self.elt_list[:]
     if hasattr(self, 'ext_list'):
       lst.extend(self.ext_list)
     if hasattr(self, 'elt_list2'):
       lst.extend(self.elt_list2)
+    return lst
+
+  def need_components(self):
+    lst = self.all_components()
     for e in (lst):
       if e.type == 'components_of':
         return True
@@ -3797,6 +3807,44 @@ class SeqType (SqType):
     if hasattr(self, 'elt_list2'):
       lst.extend(self.elt_list2)
     return lst
+
+  def eth_reg_sub(self, ident, ectx, components_available=False):
+    # check if autotag is required
+    autotag = False
+    if (ectx.NeedTags() and (ectx.tag_def == 'AUTOMATIC')):
+      autotag = True
+      lst = self.all_components()
+      for e in (self.elt_list):
+        if e.val.HasOwnTag(): autotag = False; break;
+    # expand COMPONENTS OF
+    if self.need_components():
+      if components_available:
+        self.expand_components(ectx)
+      else:
+        ectx.eth_comp_req(ident)
+        return
+    # do autotag
+    if autotag:
+      atag = 0
+      for e in (self.elt_list):
+        e.val.AddTag(Tag(cls = 'CONTEXT', num = str(atag), mode = 'IMPLICIT'))
+        atag += 1
+      if autotag and hasattr(self, 'elt_list2'):
+        for e in (self.elt_list2):
+          e.val.AddTag(Tag(cls = 'CONTEXT', num = str(atag), mode = 'IMPLICIT'))
+          atag += 1
+      if autotag and hasattr(self, 'ext_list'):
+        for e in (self.ext_list):
+          e.val.AddTag(Tag(cls = 'CONTEXT', num = str(atag), mode = 'IMPLICIT'))
+          atag += 1
+    for e in (self.elt_list):
+        e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
+    if hasattr(self, 'ext_list'):
+        for e in (self.ext_list):
+            e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
+    if hasattr(self, 'elt_list2'):
+        for e in (self.elt_list2):
+            e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
 
   def eth_type_default_table(self, ectx, tname):
     #print "eth_type_default_table(tname='%s')" % (tname)
@@ -4015,22 +4063,6 @@ class SequenceType (SeqType):
       ctx.outdent ()
       return rv
 
-  def eth_reg_sub(self, ident, ectx, components_available=False):
-    if self.need_components():
-      if components_available:
-        self.expand_components(ectx)
-      else:
-        ectx.eth_comp_req(ident)
-        return
-    for e in (self.elt_list):
-        e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
-    if hasattr(self, 'ext_list'):
-        for e in (self.ext_list):
-            e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
-    if hasattr(self, 'elt_list2'):
-        for e in (self.elt_list2):
-            e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
-
   def eth_need_tree(self):
     return True
 
@@ -4057,19 +4089,6 @@ class SequenceType (SeqType):
 
 #--- SetType ------------------------------------------------------------------
 class SetType(SeqType):
-
-  def eth_reg_sub(self, ident, ectx, components_available=False):
-    if self.need_components():
-      if components_available:
-        self.expand_components(ectx)
-      else:
-        ectx.eth_comp_req(ident)
-        return
-    for e in (self.elt_list):
-      e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
-    if hasattr(self, 'ext_list'):
-      for e in (self.ext_list):
-        e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
 
   def eth_need_tree(self):
     return True
@@ -4136,6 +4155,25 @@ class ChoiceType (Type):
 
   def eth_reg_sub(self, ident, ectx):
     #print "eth_reg_sub(ident='%s')" % (ident)
+    # check if autotag is required
+    autotag = False
+    if (ectx.NeedTags() and (ectx.tag_def == 'AUTOMATIC')):
+      autotag = True
+      for e in (self.elt_list):
+        if e.HasOwnTag(): autotag = False; break;
+      if autotag and hasattr(self, 'ext_list'):
+        for e in (self.ext_list):
+          if e.HasOwnTag(): autotag = False; break;
+    # do autotag
+    if autotag:
+      atag = 0
+      for e in (self.elt_list):
+        e.AddTag(Tag(cls = 'CONTEXT', num = str(atag), mode = 'IMPLICIT'))
+        atag += 1
+      if autotag and hasattr(self, 'ext_list'):
+        for e in (self.ext_list):
+          e.AddTag(Tag(cls = 'CONTEXT', num = str(atag), mode = 'IMPLICIT'))
+          atag += 1
     for e in (self.elt_list):
         e.eth_reg(ident, ectx, tstrip=1, parent=ident)
         if ectx.conform.check_item('EXPORTS', ident + '.' + e.name):
@@ -5393,8 +5431,8 @@ def p_ModuleBegin (t):
 
 def p_TagDefault_1 (t):
   '''TagDefault : EXPLICIT TAGS
-  | IMPLICIT TAGS
-  | AUTOMATIC TAGS'''
+                | IMPLICIT TAGS
+                | AUTOMATIC TAGS '''
   t[0] = Default_Tags (dfl_tag = t[1])
 
 def p_TagDefault_2 (t):
@@ -6030,10 +6068,11 @@ def p_SetType_1 (t):
 
 def p_SetType_2 (t):
   'SetType : SET LBRACE ComponentTypeLists RBRACE'
+  t[0] = SetType (elt_list = t[3]['elt_list'])
   if 'ext_list' in t[3]:
-    t[0] = SetType (elt_list = t[3]['elt_list'], ext_list = t[3]['ext_list'])
-  else:
-    t[0] = SetType (elt_list = t[3]['elt_list'])
+    t[0].ext_list = t[3]['ext_list']
+  if 'elt_list2' in t[3]:
+    t[0].elt_list2 = t[3]['elt_list2']
 
 
 # 27 Notation for set-of types ------------------------------------------------
