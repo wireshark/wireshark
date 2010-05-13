@@ -236,7 +236,6 @@ static int hf_tn3270_vertical=-1;
 static int hf_tn3270_v_length=-1;
 static int hf_tn3270_v_offset=-1;
 static int hf_tn3270_v_sequence=-1;
-static int hf_tn3270_wcc=-1;
 static int hf_tn3270_wcc_nop=-1;
 static int hf_tn3270_wcc_reset=-1;
 static int hf_tn3270_wcc_printer1=-1;
@@ -249,7 +248,6 @@ static int hf_tn3270_ww=-1;
 static int hf_tn3270_tn3270e_data_type=-1;
 static int hf_tn3270_tn3270e_request_flag=-1;
 static int hf_tn3270_tn3270e_response_flag_3270_SCS=-1;
-static int hf_tn3270_tn3270e_response_flag_response=-1;
 static int hf_tn3270_tn3270e_seq_number=-1;
 static int hf_tn3270_tn3270e_header_data=-1;
 static int hf_tn3270_ua_cell_units=-1;
@@ -303,7 +301,6 @@ static int hf_tn3270_sdw=-1;
 static int hf_tn3270_sdh=-1;
 static int hf_tn3270_form=-1;
 static int hf_tn3270_formres=-1;
-static int hf_tn3270_formres2=-1;
 static int hf_tn3270_cs_dl=-1;
 static int hf_tn3270_cs_descriptor_set=-1;
 static int hf_tn3270_cs_descriptor_flags=-1;
@@ -328,8 +325,6 @@ static int hf_tn3270_rpq_mid=-1;
 static int hf_tn3270_rpq_rpql=-1;
 static int hf_tn3270_rpq_name=-1;
 static int hf_tn3270_ip_flags=-1;
-static int hf_tn3270_ipdd_length=-1;
-static int hf_tn3270_ip_id=-1;
 static int hf_tn3270_ipdd_wd=-1;
 static int hf_tn3270_ipdd_hd=-1;
 static int hf_tn3270_ipdd_wa=-1;
@@ -3980,10 +3975,6 @@ proto_register_tn3270(void)
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Structured Field Length", HFILL }},
     /* Write Control Characters */
-    { &hf_tn3270_wcc,
-      { "Write Control Character", "tn3270.wcc",
-        FT_UINT8, BASE_HEX, NULL, 0,
-        NULL, HFILL }},
     { &hf_tn3270_wcc_nop,
         { "WCC NOP",
             "tn3270.wcc.nop", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
@@ -4799,10 +4790,6 @@ proto_register_tn3270(void)
         {  "Form Types (Reserved)", "tn3270.formres",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
-    { &hf_tn3270_formres2,
-        {  "Form Types (Reserved)", "tn3270.formres2",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
     { &hf_tn3270_cs_form_type1,
         { "18-byte form; the first 2 bytes contain a 16-bit vertical slice, "
            "the following 16 bytes contain 8-bit horizontal slices. For a 9 "
@@ -5100,14 +5087,6 @@ proto_register_tn3270(void)
     { &hf_tn3270_ip_flags,
         {  "Flags (Reserved)", "tn3270.ip_flags",
             FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-    { &hf_tn3270_ipdd_length,
-        {  "Length of this self-defining parameter", "tn3270.ipdd_length",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-    { &hf_tn3270_ip_id,
-        {  "Identifies this self-defining parameter as Implicit Partition Sizes", "tn3270.ip_id",
-            FT_UINT8, BASE_HEX, VALS(vals_ip), 0x0,
             NULL, HFILL }},
     { &hf_tn3270_ipdd_wd,
         {  "Width of the Implicit Partition default screen siz (in character cells)", "tn3270.ipdd_wd",
@@ -5475,10 +5454,6 @@ proto_register_tn3270(void)
     { &hf_tn3270_tn3270e_request_flag,
         {  "TN3270E Request Flag", "tn3270.tn3270e_request_flag",
             FT_UINT8, BASE_HEX, VALS(vals_tn3270_header_request_flags), 0x0,
-            NULL, HFILL }},
-    { &hf_tn3270_tn3270e_response_flag_response,
-        {  "TN3270E Response Flag", "tn3270.tn3270e_response_flag",
-            FT_UINT8, BASE_HEX, VALS(vals_tn3270_header_response_flags_response), 0x0,
             NULL, HFILL }},
     { &hf_tn3270_tn3270e_response_flag_3270_SCS,
         {  "TN3270E Response Flag", "tn3270.tn3270e_response_flag",
