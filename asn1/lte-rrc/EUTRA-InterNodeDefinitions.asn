@@ -83,11 +83,10 @@ AS-Config ::=				SEQUENCE {
 	antennaInfoCommon					AntennaInfoCommon,
 	sourceDl-CarrierFreq				ARFCN-ValueEUTRA,
 	...,
---	[[	sourceSystemInformationBlockType1Ext	OCTET STRING (CONTAINING
-		sourceSystemInformationBlockType1Ext	OCTET STRING (CONTAINING
+	[[	sourceSystemInformationBlockType1Ext	OCTET STRING (CONTAINING
 												SystemInformationBlockType1-v890-IEs)	OPTIONAL,
 		sourceOtherConfig-r9				OtherConfig-r9
---	]]
+	]]
 
 }
 

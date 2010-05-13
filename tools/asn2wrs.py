@@ -205,8 +205,8 @@ static_tokens = {
   r'::='    : 'ASSIGNMENT',  # 11.16 Assignment lexical item
   r'\.\.'   : 'RANGE',       # 11.17 Range separator
   r'\.\.\.' : 'ELLIPSIS',    # 11.18 Ellipsis
-  #r'\[\['   : 'LVERBRACK',   # 11.19 Left version brackets
-  #r'\]\]'   : 'RVERBRACK',   # 11.20 Right version brackets
+  r'\[\['   : 'LVERBRACK',   # 11.19 Left version brackets
+  r'\]\]'   : 'RVERBRACK',   # 11.20 Right version brackets
   # 11.26 Single character lexical items
   r'\{' : 'LBRACE',
   r'\}' : 'RBRACE',
@@ -5881,7 +5881,7 @@ def p_SequenceType_2 (t):
   if 'ext_list' in t[3]:
     t[0].ext_list = t[3]['ext_list']
   if 'elt_list2' in t[3]:
-    t[0].ext_list = t[3]['elt_list2']
+    t[0].elt_list2 = t[3]['elt_list2']
 
 def p_ExtensionAndException_1 (t):
   'ExtensionAndException : ELLIPSIS'
@@ -5923,33 +5923,35 @@ def p_ComponentTypeLists_7 (t):
     'ComponentTypeLists : ExtensionAndException ExtensionAdditionList OptionalExtensionMarker'
     t[0] = {'elt_list' : [], 'ext_list' : t[2]}
 
-#def p_RootComponentTypeList (t):
-#    'RootComponentTypeList : ComponentTypeList'
-#    t[0] = t[1]
-
 def p_ExtensionEndMarker (t):
   'ExtensionEndMarker : COMMA ELLIPSIS'
   pass
 
-#def p_extension_additions_1 (t):
-#    'extension_additions : extension_addition_list'
-#    t[0] = t[1]
-
-#def p_extension_additions_2 (t):
-#    'extension_additions : '
-#    t[0] = []
-
 def p_ExtensionAdditionList_1 (t):
-  'ExtensionAdditionList : COMMA extension_addition'
-  t[0] = [t[2]]
+  'ExtensionAdditionList : COMMA ExtensionAddition'
+  t[0] = t[2]
 
 def p_ExtensionAdditionList_2 (t):
-  'ExtensionAdditionList : ExtensionAdditionList COMMA extension_addition'
-  t[0] = t[1] + [t[3]]
+  'ExtensionAdditionList : ExtensionAdditionList COMMA ExtensionAddition'
+  t[0] = t[1] + t[3]
 
-def p_extension_addition_1 (t):
-    'extension_addition : ComponentType'
-    t[0] = t[1]
+def p_ExtensionAddition_1 (t):
+  'ExtensionAddition : ExtensionAdditionGroup'
+  t[0] = t[1]
+
+def p_ExtensionAddition_2 (t):
+  'ExtensionAddition : ComponentType'
+  t[0] = [t[1]]
+
+def p_ExtensionAdditionGroup (t):
+  'ExtensionAdditionGroup : LVERBRACK VersionNumber ComponentTypeList RVERBRACK'
+  t[0] = t[3]
+
+def p_VersionNumber_1 (t):
+  'VersionNumber : '
+
+def p_VersionNumber_2 (t):
+  'VersionNumber : NUMBER COLON'
 
 def p_ComponentTypeList_1 (t):
   'ComponentTypeList : ComponentType'
@@ -6046,46 +6048,54 @@ def p_SetOfType (t):
 
 # 28.1
 def p_ChoiceType (t):
-    'ChoiceType : CHOICE LBRACE alternative_type_lists RBRACE'
+    'ChoiceType : CHOICE LBRACE AlternativeTypeLists RBRACE'
     if 'ext_list' in t[3]:
         t[0] = ChoiceType (elt_list = t[3]['elt_list'], ext_list = t[3]['ext_list'])
     else:
         t[0] = ChoiceType (elt_list = t[3]['elt_list'])
 
-def p_alternative_type_lists_1 (t):
-    'alternative_type_lists : alternative_type_list'
+def p_AlternativeTypeLists_1 (t):
+    'AlternativeTypeLists : AlternativeTypeList'
     t[0] = {'elt_list' : t[1]}
 
-def p_alternative_type_lists_2 (t):
-    '''alternative_type_lists : alternative_type_list COMMA ExtensionAndException extension_addition_alternatives OptionalExtensionMarker'''
+def p_AlternativeTypeLists_2 (t):
+    'AlternativeTypeLists : AlternativeTypeList COMMA ExtensionAndException ExtensionAdditionAlternatives OptionalExtensionMarker'
     t[0] = {'elt_list' : t[1], 'ext_list' : t[4]}
 
-def p_extension_addition_alternatives_1 (t):
-    'extension_addition_alternatives : extension_addition_alternatives_list'
+def p_ExtensionAdditionAlternatives_1 (t):
+    'ExtensionAdditionAlternatives : ExtensionAdditionAlternativesList'
     t[0] = t[1]
 
-def p_extension_addition_alternatives_2 (t):
-    'extension_addition_alternatives : '
+def p_ExtensionAdditionAlternatives_2 (t):
+    'ExtensionAdditionAlternatives : '
     t[0] = []
 
-def p_extension_addition_alternatives_list_1 (t):
-    'extension_addition_alternatives_list : COMMA extension_addition_alternative'
-    t[0] = [t[2]]
+def p_ExtensionAdditionAlternativesList_1 (t):
+    'ExtensionAdditionAlternativesList : COMMA ExtensionAdditionAlternative'
+    t[0] = t[2]
 
-def p_extension_addition_alternatives_list_2 (t):
-    'extension_addition_alternatives_list : extension_addition_alternatives_list COMMA extension_addition_alternative'
-    t[0] = t[1] + [t[3]]
+def p_ExtensionAdditionAlternativesList_2 (t):
+    'ExtensionAdditionAlternativesList : ExtensionAdditionAlternativesList COMMA ExtensionAdditionAlternative'
+    t[0] = t[1] + t[3]
 
-def p_extension_addition_alternative_1 (t):
-    'extension_addition_alternative : NamedType'
-    t[0] = t[1]
-
-def p_alternative_type_list_1 (t):
-    'alternative_type_list : NamedType'
+def p_ExtensionAdditionAlternative_1 (t):
+    'ExtensionAdditionAlternative : NamedType'
     t[0] = [t[1]]
 
-def p_alternative_type_list_2 (t):
-    'alternative_type_list : alternative_type_list COMMA NamedType'
+def p_ExtensionAdditionAlternative_2 (t):
+    'ExtensionAdditionAlternative : ExtensionAdditionAlternativesGroup'
+    t[0] = t[1]
+
+def p_ExtensionAdditionAlternativesGroup (t):
+  'ExtensionAdditionAlternativesGroup : LVERBRACK VersionNumber AlternativeTypeList RVERBRACK'
+  t[0] = t[3]
+
+def p_AlternativeTypeList_1 (t):
+    'AlternativeTypeList : NamedType'
+    t[0] = [t[1]]
+
+def p_AlternativeTypeList_2 (t):
+    'AlternativeTypeList : AlternativeTypeList COMMA NamedType'
     t[0] = t[1] + [t[3]]
 
 # 28.10
