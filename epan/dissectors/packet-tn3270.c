@@ -30,43 +30,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
-/*
- * The DECODE_BADDR macro comes from ctlr.c in X3270 and has the following licence:
- *
- * Copyright (c) 1993-2009, Paul Mattes.
- * Copyright (c) 1990, Jeff Sparkes.
- * Copyright (c) 1989, Georgia Tech Research Corporation (GTRC), Atlanta, GA
- *  30332.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the names of Paul Mattes, Jeff Sparkes, GTRC nor the names of
- *       their contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY PAUL MATTES, JEFF SPARKES AND GTRC "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL PAUL MATTES, JEFF SPARKES OR GTRC BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
-
-#define DECODE_BADDR(c1, c2) \
-    ((((c1) & 0xC0) == 0x00) ? \
-    (((c1) & 0x3F) << 8) | (c2) : \
-    (((c1) & 0x3F) << 6) | ((c2) & 0x3F))
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -3479,25 +3442,95 @@ dissect_stop_address(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
   return (offset - start);
 }
 
+/*
+ * From section "4.3.3 Set Buffer Address (SBA)" in "3270 Information
+ * Display System Data Stream Programmer's Reference", GA23-0059-07,
+ * at
+ *
+ *	http://www.ruelgnoj.co.uk/3270/3270.pdf
+ */
+
+/*
+ * Address format.
+ *
+ * XXX - what about 16-bit addressing?
+ */
+#define SBA_ADDRESS_FORMAT_MASK	0xC000
+#define SBA_ADDRESS_MASK_SHIFT	14
+#define SBA_ADDRESS_FORMAT(address)	(((address) & SBA_ADDRESS_FORMAT_MASK) >> SBA_ADDRESS_MASK_SHIFT)
+#define SBA_ADDRESS_VALUE_MASK	0x3FFF
+#define SBA_ADDRESS_VALUE(address)	((address) & SBA_ADDRESS_VALUE_MASK)
+
+#define SBA_14_BIT_BINARY	0x0
+#define SBA_12_BIT_CODED_1	0x1
+#define SBA_RESERVED		0x2
+#define SBA_12_BIT_CODED_2	0x3
+
 static gint
 dissect_sba(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
 {
   int start = offset;
-  guint8 x, y;
-  int buffer_addr=0;
-  proto_item *ti;
+  guint16 buffer_addr;
+  guint16 address_format, address_value;
+  guint8 b1, b2;
 
-  x = tvb_get_guint8(tvb, offset);
-  y = tvb_get_guint8(tvb, offset+1);
-  buffer_addr = DECODE_BADDR(x,y);
+  buffer_addr = tvb_get_ntohs(tvb, offset);
+  address_format = SBA_ADDRESS_FORMAT(buffer_addr);
+  address_value = SBA_ADDRESS_VALUE(buffer_addr);
 
-  ti = proto_tree_add_item(tn3270_tree,
-                          hf_tn3270_buffer_address,
-                          tvb, offset,
-                          2,
-                          FALSE);
-  proto_item_append_text(ti, " (Row %u, Column %u for %ux%u Display)",
-                         (buffer_addr / COLS) + 1, (buffer_addr % COLS) + 1, ROWS, COLS);
+  /*
+   * XXX - put the address format and address value into the protocol
+   * tree as bitfields under these items?
+   */
+  switch (address_format) {
+
+  case SBA_14_BIT_BINARY:
+    proto_tree_add_uint_format_value(tn3270_tree,
+                                     hf_tn3270_buffer_address,
+                                     tvb, offset, 2,
+                                     buffer_addr,
+           "14-bit binary, %u = row %u, column %u, for %ux%u display (0x%04x)",
+                                     address_value,
+                                     (address_value / COLS) + 1,
+                                     (address_value % COLS) + 1,
+                                     ROWS, COLS,
+                                     buffer_addr);
+    break;
+
+  case SBA_12_BIT_CODED_1:
+  case SBA_12_BIT_CODED_2:
+    /*
+     * This is a wacky encoding.  At least as I read the IBM document
+     * in question, the lower 6 bits of the first byte of the SBA
+     * address, and the lower 6 bits of the second byte of the SBA
+     * address, are combined into a 12-bit binary address.  The upper
+     * 2 bits of the first byte are the address format; the upper 2
+     * bits of the second byte are ignored.
+     */
+    b1 = (address_value >> 8) & 0x3F;
+    b2 = (address_value >> 0) & 0x3F;
+    address_value = (b1 << 6) | b2;
+    proto_tree_add_uint_format_value(tn3270_tree,
+                                     hf_tn3270_buffer_address,
+                                     tvb, offset, 2,
+                                     buffer_addr,
+            "12-bit coded, %u = row %u, column %u, for %ux%u display (0x%04x)",
+                                     address_value,
+                                     (address_value / COLS) + 1,
+                                     (address_value % COLS) + 1,
+                                     ROWS, COLS,
+                                     buffer_addr);
+    break;
+
+  case SBA_RESERVED:
+    proto_tree_add_uint_format_value(tn3270_tree,
+                                     hf_tn3270_buffer_address,
+                                     tvb, offset, 2,
+                                     buffer_addr,
+                                     "Reserved (0x%04x)",
+                                     buffer_addr);
+    break;
+  }
   offset+=2;
 
   return (offset - start);
