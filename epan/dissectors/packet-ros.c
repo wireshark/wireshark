@@ -1028,19 +1028,7 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	}
 
-	/*
-	 * Do we have a conversation for this connection?
-	 */
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-					 pinfo->ptype, pinfo->srcport,
-					 pinfo->destport, 0);
-	if (conversation == NULL) {
-	  /* We don't yet have a conversation, so create one. */
-	  conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-					  pinfo->ptype, pinfo->srcport,
-					  pinfo->destport, 0);
-
-	}
+	conversation = find_or_create_conversation(pinfo);
 
 	/*
 	 * Do we already have our info
@@ -1242,7 +1230,7 @@ void proto_register_ros(void) {
         "OBJECT_IDENTIFIER", HFILL }},
 
 /*--- End of included file: packet-ros-hfarr.c ---*/
-#line 505 "packet-ros-template.c"
+#line 493 "packet-ros-template.c"
   };
 
   /* List of subtrees */
@@ -1263,7 +1251,7 @@ void proto_register_ros(void) {
     &ett_ros_Code,
 
 /*--- End of included file: packet-ros-ettarr.c ---*/
-#line 512 "packet-ros-template.c"
+#line 500 "packet-ros-template.c"
   };
 
   /* Register protocol */

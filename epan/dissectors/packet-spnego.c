@@ -205,21 +205,12 @@ dissect_spnego_MechTypeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
                                       MechTypeList_sequence_of, hf_index, ett_spnego_MechTypeList);
 
 
-  /* 
+  /*
    * If we saw a mechType we need to store it in case the negTokenTarg
    * does not provide a supportedMech.
    */
   if(saw_mechanism){
-    conversation = find_conversation(actx->pinfo->fd->num, 
-                                        &actx->pinfo->src, &actx->pinfo->dst,
-					actx->pinfo->ptype, 
-					actx->pinfo->srcport, actx->pinfo->destport, 0);
-    if(!conversation){
-      conversation = conversation_new(actx->pinfo->fd->num, 
-                                        &actx->pinfo->src, &actx->pinfo->dst,
-    	                                actx->pinfo->ptype,
-                                        actx->pinfo->srcport, actx->pinfo->destport, 0);
-    }
+    conversation = find_or_create_conversation(actx->pinfo);
     conversation_add_proto_data(conversation, proto_spnego, next_level_value);
   }
 
@@ -253,7 +244,7 @@ dissect_spnego_ContextFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_spnego_T_mechToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 121 "spnego.cnf"
+#line 112 "spnego.cnf"
 
   tvbuff_t *mechToken_tvb = NULL;
 
@@ -278,7 +269,7 @@ dissect_spnego_T_mechToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_spnego_T_NegTokenInit_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 135 "spnego.cnf"
+#line 126 "spnego.cnf"
 
   gint8 class;
   gboolean pc;
@@ -287,7 +278,7 @@ dissect_spnego_T_NegTokenInit_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *t
 
   /*
    * There seems to be two different forms this can take,
-   * one as an octet string, and one as a general string in a 
+   * one as an octet string, and one as a general string in a
    * sequence.
    *
    * Peek at the header, and then decide which it is we're seeing.
@@ -359,7 +350,7 @@ dissect_spnego_T_negResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_spnego_T_supportedMech(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 173 "spnego.cnf"
+#line 164 "spnego.cnf"
 
   conversation_t *conversation;
 
@@ -370,20 +361,11 @@ dissect_spnego_T_supportedMech(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   /*
    * If we saw an explicit mechType we store this in the conversation so that
-   * it will override any mechType we might have picked up from the 
+   * it will override any mechType we might have picked up from the
    * negTokenInit.
    */
   if(saw_mechanism){
-    conversation = find_conversation(actx->pinfo->fd->num, 
-                                        &actx->pinfo->src, &actx->pinfo->dst,
-					actx->pinfo->ptype, 
-					actx->pinfo->srcport, actx->pinfo->destport, 0);
-    if(!conversation){
-      conversation = conversation_new(actx->pinfo->fd->num, 
-                                        &actx->pinfo->src, &actx->pinfo->dst,
-    	                                actx->pinfo->ptype,
-                                        actx->pinfo->srcport, actx->pinfo->destport, 0);
-    }
+    conversation = find_or_create_conversation(actx->pinfo);
     conversation_add_proto_data(conversation, proto_spnego, next_level_value);
   }
 
@@ -397,7 +379,7 @@ dissect_spnego_T_supportedMech(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 205 "spnego.cnf"
+#line 187 "spnego.cnf"
 
   tvbuff_t *responseToken_tvb;
 
@@ -410,7 +392,7 @@ dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   /*
    * Now, we should be able to dispatch, if we've gotten a tvbuff for
    * the token and we have information on how to dissect its contents.
-   * However, we should make sure that there is something in the 
+   * However, we should make sure that there is something in the
    * response token ...
    */
   if (responseToken_tvb && (tvb_reported_length(responseToken_tvb) > 0) ){
@@ -431,7 +413,7 @@ dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_spnego_T_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 232 "spnego.cnf"
+#line 214 "spnego.cnf"
 
   tvbuff_t *mechListMIC_tvb;
 
@@ -549,7 +531,7 @@ dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
    * Now dissect the GSS_Wrap token; it's assumed to be in the
    * rest of the tvbuff.
    */
-  item = proto_tree_add_item(tree, hf_spnego_wraptoken, tvb, offset, -1, FALSE); 
+  item = proto_tree_add_item(tree, hf_spnego_wraptoken, tvb, offset, -1, FALSE);
 
   subtree = proto_item_add_subtree(item, ett_spnego_wraptoken);
 
