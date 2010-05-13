@@ -153,7 +153,7 @@ dictionary_end <\/dictionary>
 base_start <base[^>*]*>
 base_end <\/base>
 
-applictation_start <application
+application_start <application
 application_end<\/application>
 
 command_start <command
@@ -351,8 +351,8 @@ description_attr description=\042
 	BEGIN IN_APPL;
 }
 
-<IN_DICT>{applictation_start} {
-	D(("applictation_start\n"));
+<IN_DICT>{application_start} {
+	D(("application_start\n"));
 
 	appl = g_malloc(sizeof(ddict_application_t));
 	appl->name = NULL;
