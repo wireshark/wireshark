@@ -3443,11 +3443,8 @@ dissect_stop_address(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
 }
 
 /*
- * From section "4.3.3 Set Buffer Address (SBA)" in "3270 Information
- * Display System Data Stream Programmer's Reference", GA23-0059-07,
- * at
- *
- *	http://www.ruelgnoj.co.uk/3270/3270.pdf
+ * From section "4.3.3 Set Buffer Address (SBA)" of the IBM document
+ * cited above.
  */
 
 /*
