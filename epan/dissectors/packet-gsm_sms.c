@@ -145,6 +145,7 @@ static gint hf_gsm_sms_tp_rp = -1;
 static gint hf_gsm_sms_tp_udhi = -1;
 static gint hf_gsm_sms_tp_rd = -1;
 static gint hf_gsm_sms_tp_srq = -1;
+static gint hf_gsm_sms_text = -1;
 #if 0
 static gint hf_gsm_sms_tp_scts = -1;
 static gint hf_gsm_sms_tp_vp = -1;
@@ -158,7 +159,7 @@ static gint hf_gsm_sms_tp_cd = -1;
 static gint hf_gsm_sms_tp_ud = -1;
 #endif
 
-static gboolean msg_udh_frag = FALSE;
+static gboolean reassemble_sms = TRUE;
 static char bigbuf[1024];
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
@@ -1532,7 +1533,7 @@ dis_field_fcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 
 int
 gsm_sms_char_7bit_unpack(unsigned int offset, unsigned int in_length, unsigned int out_length,
-		     const guint8 *input, unsigned char *output)
+			 const guint8 *input, unsigned char *output)
 {
     unsigned char *out_num = output; /* Current pointer to the output buffer */
     const guint8 *in_num = input;    /* Current pointer to the input buffer */
@@ -2616,7 +2617,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     if (g_frags > 1)
         is_fragmented = TRUE;
 
-    if ( is_fragmented )
+    if ( is_fragmented && reassemble_sms)
     {
         try_gsm_sms_ud_reassemble = TRUE;
         save_fragmented = g_pinfo->fragmented;
@@ -2637,7 +2638,8 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
         sm_tvb = process_reassembled_data(tvb, offset, g_pinfo,
                                           "Reassembled Short Message", fd_sm, &sm_frag_items,
                                           NULL, tree);
-        if (reassembled)
+
+	if(reassembled && g_pinfo->fd->num == reassembled_in)
         {
             /* Reassembled */
             col_append_str (g_pinfo->cinfo, COL_INFO,
@@ -2655,130 +2657,137 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 
     if (compressed)
     {
-        proto_tree_add_text(subtree, tvb,
-                            offset, length,
-                            "Compressed data");
+        proto_tree_add_text(subtree, tvb, offset, length, "Compressed data");
     }
     else
     {
-        if ((reassembled && g_pinfo->fd->num == reassembled_in) || g_frag==0 || ((g_frag != 0 && msg_udh_frag)))
-        {
-            if (seven_bit)
-            {
-                if(msg_udh_frag || g_frag == 0 )
-                {
-                    out_len =
-                        gsm_sms_char_7bit_unpack(fill_bits, length , SMS_MAX_MESSAGE_SIZE,
-                                                 tvb_get_ptr(tvb , offset , length) , messagebuf);
-                    messagebuf[out_len] = '\0';
-                    proto_tree_add_text(subtree, tvb , offset , length , "%s",
-                                        gsm_sms_chars_to_utf8(messagebuf, out_len));
-                }
-                else
-                {
-                    out_len = 0;
+	if (seven_bit)
+	{
+	    if(!(reassembled && g_pinfo->fd->num == reassembled_in))
+	    {
+		/* Show unassembled SMS */
+		out_len =
+		    gsm_sms_char_7bit_unpack(fill_bits, length , SMS_MAX_MESSAGE_SIZE,
+					     tvb_get_ptr(tvb , offset , length) , messagebuf);
+		messagebuf[out_len] = '\0';
+		proto_tree_add_string(subtree, hf_gsm_sms_text, tvb, offset,
+				      length,
+				      gsm_sms_chars_to_utf8(messagebuf, out_len));
+	    }
+	    else
+	    {
+		/*  Show reassembled SMS.  We show each fragment separately
+		 *  so that the text doesn't get truncated when we add it to
+		 *  the tree.
+		 */
+		out_len = 0;
 
-                    total_sms_len = sm_tvb->length;
-                    for(i = 0 ; i<g_frags; i++)
-                    {
-                        /* maximum len msg in 7 bit with csm8 header*/
-                        if(total_sms_len > MAX_SMS_FRAG_LEN)
-                        {
-                            total_sms_len -= MAX_SMS_FRAG_LEN;
-                            len_sms = MAX_SMS_FRAG_LEN;
-                        }
-                        else
-                            len_sms = total_sms_len;
-                        out_len =
-                            gsm_sms_char_7bit_unpack(fill_bits, len_sms , SMS_MAX_MESSAGE_SIZE,
-                                                     tvb_get_ptr(sm_tvb , i * MAX_SMS_FRAG_LEN  , len_sms) , messagebuf);
+		total_sms_len = sm_tvb->length;
+		for(i = 0 ; i < g_frags; i++)
+		{
+		    /* maximum len msg in 7 bit with csm8 header*/
+		    if(total_sms_len > MAX_SMS_FRAG_LEN)
+		    {
+			total_sms_len -= MAX_SMS_FRAG_LEN;
+			len_sms = MAX_SMS_FRAG_LEN;
+		    }
+		    else
+			len_sms = total_sms_len;
 
-                        messagebuf[out_len] = '\0';
-                        proto_tree_add_text(subtree, sm_tvb , i * MAX_SMS_FRAG_LEN , len_sms , "%s",
-                                            gsm_sms_chars_to_utf8(messagebuf, out_len));
-                    }
-                }
-            }
-            else if (eight_bit)
-            {
-                /*proto_tree_add_text(subtree, tvb , offset , length, "%s",
-                  tvb_format_text(tvb, offset, length));				*/
-                if (! dissector_try_port(gsm_sms_dissector_tbl, g_port_src, sm_tvb, g_pinfo, subtree))
-                {
-                    if (! dissector_try_port(gsm_sms_dissector_tbl, g_port_dst,sm_tvb, g_pinfo, subtree))
-                    {
-                        if (subtree)
-                        { /* Only display if needed */
-                            proto_tree_add_text (subtree, sm_tvb, 0, -1,
-                                                 "Short Message body");
-                        }
-                    }
-                }
-            }
-            else if (ucs2)
-            {
-                if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1)
-                {
-                    if(msg_udh_frag || g_frag == 0 )
-                    {
-                        utf8_text = g_convert_with_iconv(sm_tvb->real_data, sm_tvb->reported_length , cd , NULL , NULL , &l_conv_error);
-                        if(!l_conv_error){
-                            ucs2_item = proto_tree_add_text(subtree, tvb, offset, length, "%s", utf8_text);
-                        }else{
-                            ucs2_item = proto_tree_add_text(subtree, tvb, offset, length, "%s", "Failed on UCS2 contact wireshark developers");
-                        }
-                        PROTO_ITEM_SET_GENERATED(ucs2_item);
-                    }
-                    else
-                    {
-                        utf8_text = g_convert_with_iconv(sm_tvb->real_data, sm_tvb->reported_length , cd , NULL , NULL , &l_conv_error);
-                        if(!l_conv_error)
-                        {
-                            len_sms = (int)strlen(utf8_text);
-                            num_labels = len_sms / MAX_SMS_FRAG_LEN;
-                            num_labels += len_sms % MAX_SMS_FRAG_LEN ? 1 : 0;
-                            for(i = 0; i < num_labels;i++)
-                            {
-                                if(i * MAX_SMS_FRAG_LEN < len_sms)
-                                {
-                                    /* set '\0' to byte number 134 text_node MAX size*/
-                                    save_byte =  utf8_text[i * MAX_SMS_FRAG_LEN];
-                                    save_byte2 =  utf8_text[i * MAX_SMS_FRAG_LEN + 1];
-                                    if(i > 0)
-                                    {
-                                        utf8_text[i * MAX_SMS_FRAG_LEN] = '\0';
-                                        utf8_text[i * MAX_SMS_FRAG_LEN + 1] = '\0';
-                                    }
+		    out_len =
+			gsm_sms_char_7bit_unpack(fill_bits, len_sms, SMS_MAX_MESSAGE_SIZE,
+						 tvb_get_ptr(sm_tvb, i * MAX_SMS_FRAG_LEN, len_sms),
+						 messagebuf);
 
-                                    length_ucs2 = MAX_SMS_FRAG_LEN;
-                                }
-                                else
-                                    length_ucs2 = len_sms % MAX_SMS_FRAG_LEN;
+		    messagebuf[out_len] = '\0';
+		    proto_tree_add_string(subtree, hf_gsm_sms_text, sm_tvb,
+					  i * MAX_SMS_FRAG_LEN, len_sms,
+					  gsm_sms_chars_to_utf8(messagebuf, out_len));
+		}
+	    }
+	}
+	else if (eight_bit)
+	{
+	    /*proto_tree_add_text(subtree, tvb , offset , length, "%s",
+	      tvb_format_text(tvb, offset, length));				*/
+	    if (! dissector_try_port(gsm_sms_dissector_tbl, g_port_src, sm_tvb, g_pinfo, subtree))
+	    {
+		if (! dissector_try_port(gsm_sms_dissector_tbl, g_port_dst,sm_tvb, g_pinfo, subtree))
+		{
+		    if (subtree)
+		    { /* Only display if needed */
+			proto_tree_add_text (subtree, sm_tvb, 0, -1,
+					     "Short Message body");
+		    }
+		}
+	    }
+	}
+	else if (ucs2)
+	{
+	    if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1)
+	    {
+		if(!(reassembled && g_pinfo->fd->num == reassembled_in))
+		{
+		    /* Show unreassembled SMS */
+		    utf8_text = g_convert_with_iconv(sm_tvb->real_data, sm_tvb->reported_length , cd , NULL , NULL , &l_conv_error);
+		    if(!l_conv_error) {
+			/* XXX - using proto_tree_add_string() doesn't work */
+			ucs2_item = proto_tree_add_string_format_value(subtree, hf_gsm_sms_text, tvb,
+								       offset, length, utf8_text, "%s", utf8_text);
+		    } else {
+			ucs2_item = proto_tree_add_text(subtree, tvb, offset, length, "Failed to decode UCS2!");
+		    }
+		    PROTO_ITEM_SET_GENERATED(ucs2_item);
+		} else {
+		    /*  Show reassembled SMS.  We show each fragment separately
+		     *  so that the text doesn't get truncated when we add it to
+		     *  the tree.
+		     */
+		    utf8_text = g_convert_with_iconv(sm_tvb->real_data, sm_tvb->reported_length , cd , NULL , NULL , &l_conv_error);
+		    if(!l_conv_error)
+		    {
+			len_sms = (int)strlen(utf8_text);
+			num_labels = len_sms / MAX_SMS_FRAG_LEN;
+			num_labels += len_sms % MAX_SMS_FRAG_LEN ? 1 : 0;
+			for(i = 0; i < num_labels;i++) {
+			    if(i * MAX_SMS_FRAG_LEN < len_sms) {
+				/* set '\0' to byte number 134 text_node MAX size*/
+				save_byte =  utf8_text[i * MAX_SMS_FRAG_LEN];
+				save_byte2 =  utf8_text[i * MAX_SMS_FRAG_LEN + 1];
+				if(i > 0)
+				{
+				    utf8_text[i * MAX_SMS_FRAG_LEN] = '\0';
+				    utf8_text[i * MAX_SMS_FRAG_LEN + 1] = '\0';
+				}
 
-                                ucs2_item = proto_tree_add_text(subtree, sm_tvb , i * MAX_SMS_FRAG_LEN , length_ucs2 , "%s", &utf8_text[i * MAX_SMS_FRAG_LEN]);
-                                /* return the save byte to utf8 buffer*/
-                                if(i * MAX_SMS_FRAG_LEN < len_sms)
-                                {
-                                    utf8_text[i * MAX_SMS_FRAG_LEN] = save_byte;
-                                    utf8_text[i * MAX_SMS_FRAG_LEN + 1] = save_byte2;
-                                }
-                            }
-                        }else{
-                            ucs2_item = proto_tree_add_text(subtree, tvb, offset, length, "%s", "Failed on UCS2 contact wireshark developers");
-                        }
-                    }
+				length_ucs2 = MAX_SMS_FRAG_LEN;
+			    } else
+				length_ucs2 = len_sms % MAX_SMS_FRAG_LEN;
 
-                    g_free(utf8_text);
-                    g_iconv_close(cd);
-                }
-                else
-                {
-                    /* tvb_get_ephemeral_faked_unicode takes the lengt in number of guint16's */
-                    ustr = tvb_get_ephemeral_faked_unicode(tvb, offset, (length>>1), FALSE);
-                    proto_tree_add_text(subtree, tvb, offset, length, "%s", ustr);
-                }
-            }
-        }
+				/* XXX - using proto_tree_add_string() doesn't work */
+				ucs2_item = proto_tree_add_string_format_value(subtree, hf_gsm_sms_text, sm_tvb,
+									       i * MAX_SMS_FRAG_LEN, length_ucs2,
+									       &utf8_text[i * MAX_SMS_FRAG_LEN],
+									       "%s", &utf8_text[i * MAX_SMS_FRAG_LEN]);
+			    /* return the save byte to utf8 buffer*/
+			    if(i * MAX_SMS_FRAG_LEN < len_sms) {
+				utf8_text[i * MAX_SMS_FRAG_LEN] = save_byte;
+				utf8_text[i * MAX_SMS_FRAG_LEN + 1] = save_byte2;
+			    }
+			}
+		    } else {
+			ucs2_item = proto_tree_add_text(subtree, tvb, offset, length, "Failed to decode UCS2!");
+		    }
+		}
+
+		g_free(utf8_text);
+		g_iconv_close(cd);
+	    } else {
+		/* tvb_get_ephemeral_faked_unicode takes the length in number of guint16's */
+		ustr = tvb_get_ephemeral_faked_unicode(tvb, offset, (length>>1), FALSE);
+		proto_tree_add_text(subtree, tvb, offset, length, "%s", ustr);
+	    }
+	}
     }
 
     if (try_gsm_sms_ud_reassemble) /* Clean up defragmentation */
@@ -3421,7 +3430,7 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* In the interest of speed, if "tree" is NULL, don't do any work not
      * necessary to generate protocol tree items.
      */
-    if (tree)
+    if (tree || reassemble_sms)
     {
 	g_tree = tree;
 
@@ -3681,6 +3690,11 @@ proto_register_gsm_sms(void)
 	        FT_BOOLEAN, 8, TFS(&srq_bool_strings), 0x20,
 	        "TP-Status-Report-Qualifier", HFILL }
             },
+            { &hf_gsm_sms_text,
+	      { "SMS text", "gsm_sms.sms_text",
+	        FT_STRING, BASE_NONE, NULL, 0x00,
+	        "The text of the SMS", HFILL }
+            }
         };
 
     /* Setup protocol subtree array */
@@ -3731,12 +3745,13 @@ proto_register_gsm_sms(void)
         "GSM SMS port IE in UDH", FT_UINT16, BASE_DEC);
 
     gsm_sms_module = prefs_register_protocol (proto_gsm_sms, NULL);
-    prefs_register_bool_preference (gsm_sms_module,
-        "try_dissect_message_fragment",
-        "Always try subdissection of the fragment of a fragmented",
-        "Always try subdissection of 7bit, UCS2 Short Message fragment."
-        "If checked, every msg decode will shown in its fragment",
-        &msg_udh_frag);
+
+    prefs_register_obsolete_preference(gsm_sms_module,
+				       "try_dissect_message_fragment");
+    prefs_register_bool_preference (gsm_sms_module, "reassemble",
+				    "Reassemble fragmented SMS",
+				    "Whether the dissector should reassemble SMS spanning multiple packets",
+				    &reassemble_sms);
 
     /* register_dissector("gsm-sms", dissect_gsm_sms, proto_gsm_sms); */
 
