@@ -1,6 +1,6 @@
 -- RNSAP-Constants.asn
 --
--- Taken from 3GPP TS 25.423 V9.1.0 (2009-12)
+-- Taken from 3GPP TS 25.423 V9.2.3 (2010-03)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-790.zip/25423-790.DOC
 --
 -- 9.3.6	Constant Definitions
@@ -122,7 +122,7 @@ maxNrOfActiveMBMSServices				INTEGER ::= 256
 maxNrOfPoints							INTEGER ::= 15
 maxNrOfRLs								INTEGER ::= 16
 maxNrOfRLSets							INTEGER ::= maxNrOfRLs
-maxNrOfRLSets-1						INTEGER ::= 15	-- maxNrOfRLSets - 1
+maxNrOfRLSets-1						INTEGER ::= 15	-- maxNrOfRLSets – 1
 maxNrOfRLs-1							INTEGER ::= 15	-- maxNrOfRLs – 1
 maxNrOfRLs-2							INTEGER ::= 14	-- maxNrOfRLs – 2
 maxNrOfUEs								INTEGER ::= 4096
@@ -160,9 +160,9 @@ maxNrOfMACdFlows						INTEGER ::= 8
 maxNrOfMACdFlows-1						INTEGER ::= 7	-- maxNrOfMACdFlows – 1
 maxNrOfMACdPDUSize						INTEGER ::= 32
 maxNrOfPDUIndexes						INTEGER ::= 8
-maxNrOfPDUIndexes-1						INTEGER ::= 7	-- maxNrOfPDUIndexes - 1
+maxNrOfPDUIndexes-1						INTEGER ::= 7	-- maxNrOfPDUIndexes – 1
 maxNrOfPrioQueues						INTEGER ::= 8
-maxNrOfPrioQueues-1						INTEGER ::= 7	-- maxNrOfPrioQueues - 1
+maxNrOfPrioQueues-1						INTEGER ::= 7	-- maxNrOfPrioQueues – 1
 maxNrOfSNAs								INTEGER ::= 65536
 maxNrOfSatAlmanac-maxNoSat				INTEGER ::= 16
 maxNrOfGERANSI 							INTEGER ::= 8
@@ -217,7 +217,7 @@ maxNoOf-HS-SICH-SPS						INTEGER ::= 4
 maxNoOf-HS-SICH-SPS-1					INTEGER ::= 3
 maxNoOfNon-HS-SCCH-Assosiated-HS-SICH	INTEGER ::= 4
 maxNrOfEDCH-1							INTEGER ::= 32
-
+maxNrOfDCHMeasurementOccasionPatternSequence	INTEGER ::= 6
 
 
 
@@ -811,7 +811,7 @@ id-MaximumNumber-Of-Retransmission-For-SchedulingInfo-LCRTDD				ProtocolIE-ID ::
 id-E-DCH-RetransmissionTimer-For-SchedulingInfo-LCRTDD						ProtocolIE-ID ::= 744
 id-E-PUCH-PowerControlGAP													ProtocolIE-ID ::= 745
 id-HSDSCH-TBSizeTableIndicator												ProtocolIE-ID ::= 746
-id-UE-with-enhanced-HS-SCCH-support-indicator									ProtocolIE-ID ::= 747
+id-UE-with-enhanced-HS-SCCH-support-indicator								ProtocolIE-ID ::= 747
 id-DGANSS-Corrections-Req													ProtocolIE-ID ::= 748
 id-E-AGCH-Table-Choice														ProtocolIE-ID ::= 749
 id-RANAP-EnhancedRelocationInformationRequest								ProtocolIE-ID ::= 750
@@ -895,8 +895,6 @@ id-UE-AggregateMaximumBitRate												ProtocolIE-ID ::= 828
 id-power-offset-for-S-CPICH-for-MIMO										ProtocolIE-ID ::= 829
 id-power-offset-for-S-CPICH-for-MIMO-Request-Indicator						ProtocolIE-ID ::= 830
 id-UE-SupportIndicatorExtension												ProtocolIE-ID ::= 831
-id-CellSpecificHARQMemoryPartitioning										ProtocolIE-ID ::= 833
-id-HARQ-MemoryPartitioning													ProtocolIE-ID ::= 834
 id-ActivationInformation													ProtocolIE-ID ::= 835
 id-CellPortionLCRID															ProtocolIE-ID ::= 836
 id-Additional-EDCH-Cell-Information-RL-Setup-Req							ProtocolIE-ID ::= 837
@@ -908,21 +906,23 @@ id-Additional-EDCH-Cell-Information-RL-Reconf-Req							ProtocolIE-ID ::= 842
 id-Additional-EDCH-Cell-Information-RL-Param-Upd							ProtocolIE-ID ::= 843
 id-Additional-EDCH-Preconfiguration-Information								ProtocolIE-ID ::= 844
 id-MulticellEDCH-Information												ProtocolIE-ID ::= 845
-id-Additional-EDCH-FDD-Setup-Cell-Information								ProtocolIE-ID ::= 846
-id-Additional-EDCH-RL-Specific-Information-Setup-Item1IEs					ProtocolIE-ID ::= 847
-id-Additional-EDCH-RL-Specific-Information-Setup-Item2IEs					ProtocolIE-ID ::= 848
-id-Additional-EDCH-RL-Specific-Information-To-Add-Item1IEs					ProtocolIE-ID ::= 849
-id-Additional-EDCH-RL-Specific-Information-To-Add-Item2IEs					ProtocolIE-ID ::= 850
-id-Additional-EDCH-RL-Specific-Information-To-Modify-Item1IEs				ProtocolIE-ID ::= 851
-id-Additional-EDCH-RL-Specific-Information-To-Modify-Item2IEs				ProtocolIE-ID ::= 852
-id-Additional-EDCH-ConfigurationChange-Info-ItemIEs							ProtocolIE-ID ::= 853
 id-Additional-EDCH-Cell-Information-ResponseRLReconf						ProtocolIE-ID ::= 854
 id-EDCH-Indicator															ProtocolIE-ID ::= 855
 id-DiversityMode															ProtocolIE-ID ::= 856
 id-TransmitDiversityIndicator												ProtocolIE-ID ::= 857
 id-NonCellSpecificTxDiversity												ProtocolIE-ID ::= 858
 id-CellCapabilityContainerExtension-FDD										ProtocolIE-ID ::= 859
-
+id-HSDSCH-Physical-Layer-Category											ProtocolIE-ID ::= 860
+id-E-RNTI-For-FACH															ProtocolIE-ID ::= 861
+id-H-RNTI-For-FACH															ProtocolIE-ID ::= 862
+id-RNTI-Allocation-Indicator												ProtocolIE-ID ::= 863
+id-UE-AggregateMaximumBitRate-Enforcement-Indicator							ProtocolIE-ID ::= 864
+id-DCH-MeasurementOccasion-Information										ProtocolIE-ID ::= 865
+id-DCH-MeasurementType-Indicator											ProtocolIE-ID ::= 866
+id-Out-of-Sychronization-Window												ProtocolIE-ID ::= 867
+id-MulticellEDCH-RL-SpecificInformation										ProtocolIE-ID ::= 868
+id-DGNSS-ValidityPeriod														ProtocolIE-ID ::= 869
+id-TS0-HS-PDSCH-Indication-LCR 												ProtocolIE-ID ::= 870 
+id-UE-TS0-CapabilityLCR														ProtocolIE-ID ::= 871
 
 END
-

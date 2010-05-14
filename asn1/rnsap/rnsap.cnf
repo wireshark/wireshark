@@ -48,7 +48,6 @@ UEMeasurementTimeslotInfoLCR-IEs/timeSlot timeSlotLCR
 
 #.OMIT_ASSIGNMENT
 Presence
-Multi-Cell-EDCH-Transport-Bearer-Mode
 ProtocolIE-FieldPair
 ProtocolIE-ContainerList
 ProtocolIE-ContainerPair
@@ -780,13 +779,11 @@ DL-RLC-PDU-Size-Format									N rnsap.extension id-DL-RLC-PDU-Size-Format
 MACes-Maximum-Bitrate-LCR								N rnsap.extension id-MACes-Maximum-Bitrate-LCR
 Single-Stream-MIMO-ActivationIndicator					N rnsap.extension id-Single-Stream-MIMO-ActivationIndicator
 Single-Stream-MIMO-Mode-Indicator						N rnsap.extension id-Single-Stream-MIMO-Mode-Indicator
-Secondary-Serving-Cell-Lis								N rnsap.extension id-Dual-Band-Secondary-Serving-Cell-List
+Secondary-Serving-Cell-List								N rnsap.extension id-Dual-Band-Secondary-Serving-Cell-List
 UE-AggregateMaximumBitRate								N rnsap.extension id-UE-AggregateMaximumBitRate
 PowerOffsetForSecondaryCPICHforMIMO						N rnsap.extension id-power-offset-for-S-CPICH-for-MIMO
 PowerOffsetForSecondaryCPICHforMIMORequestIndicator		N rnsap.extension id-power-offset-for-S-CPICH-for-MIMO-Request-Indicator
 UE-SupportIndicatorExtension							N rnsap.extension id-UE-SupportIndicatorExtension
-CellSpecificHARQMemoryPartitioning						N rnsap.extension id-CellSpecificHARQMemoryPartitioning
-HARQ-MemoryPartitioning									N rnsap.extension id-HARQ-MemoryPartitioning
 ActivationInformation									N rnsap.ies id-ActivationInformation
 CellPortionLCRID										N rnsap.extension id-CellPortionLCRID
 Additional-EDCH-Setup-Info								N rnsap.extension id-Additional-EDCH-Cell-Information-RL-Setup-Req
@@ -798,20 +795,24 @@ Additional-EDCH-Cell-Information-RL-Reconf-Req			N rnsap.extension id-Additional
 Additional-EDCH-Cell-Information-RL-Param-Upd			N rnsap.extension id-Additional-EDCH-Cell-Information-RL-Param-Upd
 Additional-EDCH-Preconfiguration-Information			N rnsap.extension id-Additional-EDCH-Preconfiguration-Information
 MulticellEDCH-Information								N rnsap.ies id-MulticellEDCH-Information
-Additional-EDCH-FDD-Setup-Cell-Information				N rnsap.ies id-Additional-EDCH-FDD-Setup-Cell-Information
-Additional-EDCH-RL-Specific-Information-To-Setup-ItemIEs	N rnsap.ies id-Additional-EDCH-RL-Specific-Information-Setup-Item1IEs
-MulticellEDCH-RL-SpecificInformation					N rnsap.ies id-Additional-EDCH-RL-Specific-Information-Setup-Item2IEs
-Additional-EDCH-RL-Specific-Information-To-Add-ItemIEs	N rnsap.ies id-Additional-EDCH-RL-Specific-Information-To-Add-Item1IEs
-MulticellEDCH-RL-SpecificInformation					N rnsap.ies id-Additional-EDCH-RL-Specific-Information-To-Add-Item2IEs
-Additional-EDCH-RL-Specific-Information-To-Modify-ItemIEs	N rnsap.ies id-Additional-EDCH-RL-Specific-Information-To-Modify-Item1IEs
-MulticellEDCH-RL-SpecificInformation					N rnsap.ies id-Additional-EDCH-RL-Specific-Information-To-Modify-Item2IEs
-Additional-EDCH-ConfigurationChange-Info-ItemIEs		N rnsap.ies id-Additional-EDCH-ConfigurationChange-Info-ItemIEs
 Additional-EDCH-Cell-Information-Response-RLReconf-List	N rnsap.extension id-Additional-EDCH-Cell-Information-ResponseRLReconf
 NULL													N rnsap.extension id-EDCH-Indicator
 DiversityMode											N rnsap.extension id-DiversityMode
 TransmitDiversityIndicator								N rnsap.extension id-TransmitDiversityIndicator
 NonCellSpecificTxDiversity								N rnsap.extension id-NonCellSpecificTxDiversity
 CellCapabilityContainerExtension-FDD					N rnsap.extension id-CellCapabilityContainerExtension-FDD
+HSDSCH-Physical-Layer-Category							N rnsap.extension id-HSDSCH-Physical-Layer-Category
+E-RNTI													N rnsap.extension id-E-RNTI-For-FACH
+HSDSCH-RNTI												N rnsap.extension id-H-RNTI-For-FACH
+RNTI-Allocation-Indicator								N rnsap.extension id-RNTI-Allocation-Indicator
+UE-AggregateMaximumBitRate-Enforcement-Indicator		N rnsap.extension id-UE-AggregateMaximumBitRate-Enforcement-Indicator
+DCH-MeasurementOccasion-Information						N rnsap.extension id-DCH-MeasurementOccasion-Information
+DCH-MeasurementType-Indicator							N rnsap.extension id-DCH-MeasurementType-Indicator
+Out-of-Sychronization-Window							N rnsap.extension id-Out-of-Sychronization-Window
+MulticellEDCH-RL-SpecificInformationItemIEs				N rnsap.ies id-MulticellEDCH-RL-SpecificInformation
+DGNSS-ValidityPeriod									N rnsap.extension id-DGNSS-ValidityPeriod
+TS0-HS-PDSCH-Indication-LCR								N rnsap.extension id-TS0-HS-PDSCH-Indication-LCR 
+UE-TS0-CapabilityLCR									N rnsap.extension id-UE-TS0-CapabilityLCR
 
 #RNSAP-ELEMENTARY-PROCEDURE
 RadioLinkSetupRequestFDD               S rnsap.proc.imsg "id-radioLinkSetup/fdd"

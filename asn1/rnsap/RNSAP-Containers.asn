@@ -1,6 +1,6 @@
 -- RNSAP-Containers.asn
 --
--- Taken from 3GPP TS 25.423 V9.1.0 (2009-12)
+-- Taken from 3GPP TS 25.423 V9.2.3 (2010-03)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-790.zip/25423-790.DOC
 --
 -- 9.3.7	Container Definitions
@@ -124,17 +124,17 @@ WITH SYNTAX {
 --
 -- **************************************************************
 
-ProtocolIE-Container {RNSAP-PROTOCOL-IES : IEsSetParam} ::= 
+ProtocolIE-Container {RNSAP-PROTOCOL-IES : IesSetParam} ::= 
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
-	ProtocolIE-Field {{IEsSetParam}}
+	ProtocolIE-Field {{IesSetParam}}
 
-ProtocolIE-Single-Container {RNSAP-PROTOCOL-IES : IEsSetParam} ::= 
-	ProtocolIE-Field {{IEsSetParam}}
+ProtocolIE-Single-Container {RNSAP-PROTOCOL-IES : IesSetParam} ::= 
+	ProtocolIE-Field {{IesSetParam}}
 
-ProtocolIE-Field {RNSAP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
-	id				RNSAP-PROTOCOL-IES.&id				({IEsSetParam}),
-	criticality			RNSAP-PROTOCOL-IES.&criticality			({IEsSetParam}{@id}),
-	value				RNSAP-PROTOCOL-IES.&Value	        	({IEsSetParam}{@id})
+ProtocolIE-Field {RNSAP-PROTOCOL-IES : IesSetParam} ::= SEQUENCE {
+	id				RNSAP-PROTOCOL-IES.&id				({IesSetParam}),
+	criticality			RNSAP-PROTOCOL-IES.&criticality			({IesSetParam}{@id}),
+	value				RNSAP-PROTOCOL-IES.&Value	        	({IesSetParam}{@id})
 }
 
 -- **************************************************************
@@ -143,16 +143,16 @@ ProtocolIE-Field {RNSAP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
 --
 -- **************************************************************
 
-ProtocolIE-ContainerPair {RNSAP-PROTOCOL-IES-PAIR : IEsSetParam} ::= 
+ProtocolIE-ContainerPair {RNSAP-PROTOCOL-IES-PAIR : IesSetParam} ::= 
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
-	ProtocolIE-FieldPair {{IEsSetParam}}
+	ProtocolIE-FieldPair {{IesSetParam}}
 
-ProtocolIE-FieldPair {RNSAP-PROTOCOL-IES-PAIR : IEsSetParam} ::= SEQUENCE {
-	id				RNSAP-PROTOCOL-IES-PAIR.&id			({IEsSetParam}),
-	firstCriticality		RNSAP-PROTOCOL-IES-PAIR.&firstCriticality	({IEsSetParam}{@id}),
-	firstValue			RNSAP-PROTOCOL-IES-PAIR.&FirstValue	        ({IEsSetParam}{@id}),
-	secondCriticality		RNSAP-PROTOCOL-IES-PAIR.&secondCriticality	({IEsSetParam}{@id}),
-	secondValue			RNSAP-PROTOCOL-IES-PAIR.&SecondValue	        ({IEsSetParam}{@id})
+ProtocolIE-FieldPair {RNSAP-PROTOCOL-IES-PAIR : IesSetParam} ::= SEQUENCE {
+	id				RNSAP-PROTOCOL-IES-PAIR.&id			({IesSetParam}),
+	firstCriticality		RNSAP-PROTOCOL-IES-PAIR.&firstCriticality	({IesSetParam}{@id}),
+	firstValue			RNSAP-PROTOCOL-IES-PAIR.&FirstValue	        ({IesSetParam}{@id}),
+	secondCriticality		RNSAP-PROTOCOL-IES-PAIR.&secondCriticality	({IesSetParam}{@id}),
+	secondValue			RNSAP-PROTOCOL-IES-PAIR.&SecondValue	        ({IesSetParam}{@id})
 }
 
 -- **************************************************************
@@ -161,13 +161,13 @@ ProtocolIE-FieldPair {RNSAP-PROTOCOL-IES-PAIR : IEsSetParam} ::= SEQUENCE {
 --
 -- **************************************************************
 
-ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, RNSAP-PROTOCOL-IES : IEsSetParam} ::=
+ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, RNSAP-PROTOCOL-IES : IesSetParam} ::=
 	SEQUENCE (SIZE (lowerBound..upperBound)) OF
-	ProtocolIE-Container {{IEsSetParam}}
+	ProtocolIE-Container {{IesSetParam}}
 
-ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, RNSAP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
+ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, RNSAP-PROTOCOL-IES-PAIR : IesSetParam} ::=
 	SEQUENCE (SIZE (lowerBound..upperBound)) OF
-	ProtocolIE-ContainerPair {{IEsSetParam}}
+	ProtocolIE-ContainerPair {{IesSetParam}}
 
 -- **************************************************************
 --
@@ -191,14 +191,14 @@ ProtocolExtensionField {RNSAP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUEN
 --
 -- **************************************************************
 
-PrivateIE-Container {RNSAP-PRIVATE-IES : IEsSetParam} ::= 
+PrivateIE-Container {RNSAP-PRIVATE-IES : IesSetParam} ::= 
 	SEQUENCE (SIZE (1..maxPrivateIEs)) OF
-	PrivateIE-Field {{IEsSetParam}}
+	PrivateIE-Field {{IesSetParam}}
 
-PrivateIE-Field {RNSAP-PRIVATE-IES : IEsSetParam} ::= SEQUENCE {
-	id				RNSAP-PRIVATE-IES.&id			({IEsSetParam}),
-	criticality			RNSAP-PRIVATE-IES.&criticality		({IEsSetParam}{@id}),
-	value			RNSAP-PRIVATE-IES.&Value		({IEsSetParam}{@id})
+PrivateIE-Field {RNSAP-PRIVATE-IES : IesSetParam} ::= SEQUENCE {
+	id				RNSAP-PRIVATE-IES.&id			({IesSetParam}),
+	criticality			RNSAP-PRIVATE-IES.&criticality		({IesSetParam}{@id}),
+	value			RNSAP-PRIVATE-IES.&Value		({IesSetParam}{@id})
 }
 
 END
