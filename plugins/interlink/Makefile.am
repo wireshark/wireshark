@@ -39,6 +39,7 @@ interlink_la_SOURCES = \
 	plugin.c \
 	moduleinfo.h \
 	$(DISSECTOR_SRC) \
+	$(DISSECTOR_SUPPORT_SRC) \
 	$(DISSECTOR_INCLUDES)
 interlink_la_LDFLAGS = -module -avoid-version
 interlink_la_LIBADD = @PLUGIN_LIBS@

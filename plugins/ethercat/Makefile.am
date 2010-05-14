@@ -37,6 +37,7 @@ ethercat_la_SOURCES = \
 	plugin.c \
 	moduleinfo.h \
 	$(DISSECTOR_SRC) \
+	$(DISSECTOR_SUPPORT_SRC) \
 	$(DISSECTOR_INCLUDES)
 ethercat_la_LDFLAGS = -module -avoid-version
 ethercat_la_LIBADD = @PLUGIN_LIBS@

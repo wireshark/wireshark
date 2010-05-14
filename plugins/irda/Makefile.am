@@ -37,6 +37,7 @@ irda_la_SOURCES = \
 	plugin.c \
 	moduleinfo.h \
 	$(DISSECTOR_SRC) \
+	$(DISSECTOR_SUPPORT_SRC) \
 	$(DISSECTOR_INCLUDES)
 irda_la_LDFLAGS = -module -avoid-version
 irda_la_LIBADD = @PLUGIN_LIBS@

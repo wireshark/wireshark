@@ -39,6 +39,7 @@ gryphon_la_SOURCES = \
 	plugin.c \
 	moduleinfo.h \
 	$(DISSECTOR_SRC) \
+	$(DISSECTOR_SUPPORT_SRC) \
 	$(DISSECTOR_INCLUDES)
 gryphon_la_LDFLAGS = -module -avoid-version
 gryphon_la_LIBADD = @PLUGIN_LIBS@

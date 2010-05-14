@@ -37,6 +37,7 @@ docsis_la_SOURCES = \
 	plugin.c \
 	moduleinfo.h \
 	$(DISSECTOR_SRC) \
+	$(DISSECTOR_SUPPORT_SRC) \
 	$(DISSECTOR_INCLUDES)
 docsis_la_LDFLAGS = -module -avoid-version
 docsis_la_LIBADD = @PLUGIN_LIBS@
