@@ -252,7 +252,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   GList *if_list;
   GList *if_entry;
   if_info_t *if_info;
-  if_caps_t *caps;
+  if_capabilities_t *caps;
   int err;
   GtkWidget *lt_menu, *lt_menu_item;
   GList *lt_entry;

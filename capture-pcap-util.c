@@ -448,7 +448,7 @@ free_linktype_cb(gpointer data, gpointer user_data _U_)
 }
 
 void
-free_if_capabilities(if_caps_t *caps)
+free_if_capabilities(if_capabilities_t *caps)
 {
 	g_list_foreach(caps->data_link_types, free_linktype_cb, NULL);
 	g_list_free(caps->data_link_types);

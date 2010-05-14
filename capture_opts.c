@@ -547,7 +547,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 }
 
 void
-capture_opts_print_if_capabilities(if_caps_t *caps,
+capture_opts_print_if_capabilities(if_capabilities_t *caps,
                                    gboolean monitor_mode)
 {
     GList *lt_entry;

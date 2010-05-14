@@ -502,14 +502,14 @@ create_data_link_info(int dlt)
     return data_link_info;
 }
 
-static if_caps_t *
+static if_capabilities_t *
 get_if_capabilities(const char *devname, gboolean monitor_mode
 #ifndef HAVE_PCAP_CREATE
 	_U_
 #endif
 , char **err_str)
 {
-    if_caps_t *caps;
+    if_capabilities_t *caps;
     char errbuf[PCAP_ERRBUF_SIZE];
     pcap_t *pch;
 #ifdef HAVE_PCAP_CREATE
@@ -741,7 +741,7 @@ print_machine_readable_interfaces(GList *if_list)
  * you MUST update capture_ifinfo.c:capture_get_if_capabilities() accordingly!
  */
 static void
-print_machine_readable_if_capabilities(if_caps_t *caps)
+print_machine_readable_if_capabilities(if_capabilities_t *caps)
 {
     GList *lt_entry;
     data_link_info_t *data_link_info;
@@ -3472,7 +3472,7 @@ main(int argc, char *argv[])
     exit_main(0);
   } else if (list_link_layer_types) {
     /* Get the list of link-layer types for the capture device. */
-    if_caps_t *caps;
+    if_capabilities_t *caps;
     gchar *err_str;
 
     caps = get_if_capabilities(global_capture_opts.iface,

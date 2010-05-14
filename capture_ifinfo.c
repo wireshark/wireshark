@@ -155,11 +155,11 @@ capture_interface_list(int *err, char **err_str)
 
 /* XXX - We parse simple text output to get our interface list.  Should
  * we use "real" data serialization instead, e.g. via XML? */
-if_caps_t *
+if_capabilities_t *
 capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
                             char **err_str)
 {
-    if_caps_t *caps;
+    if_capabilities_t *caps;
     GList              *linktype_list = NULL;
     int                 err, i;
     gchar              *msg;

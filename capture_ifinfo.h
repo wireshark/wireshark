@@ -74,7 +74,7 @@ void free_interface_list(GList *if_list);
 typedef struct {
 	gboolean	can_set_rfmon;	/* TRUE if can be put into monitor mode */
 	GList		*data_link_types;	/* GList of data_link_info_t's */
-} if_caps_t;
+} if_capabilities_t;
 
 /*
  * Information about data link types.
@@ -88,11 +88,11 @@ typedef struct {
 /**
  * Fetch the linktype list for the specified interface from a child process.
  */
-extern if_caps_t *
+extern if_capabilities_t *
 capture_get_if_capabilities(const char *devname, gboolean monitor_mode,
                             char **err_str);
 
-void free_if_capabilities(if_caps_t *caps);
+void free_if_capabilities(if_capabilities_t *caps);
 
 #endif /* HAVE_LIBPCAP */
 
