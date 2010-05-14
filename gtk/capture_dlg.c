@@ -1666,7 +1666,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
   free_interface_list(if_list);
   gtk_tooltips_set_tip(tooltips, GTK_COMBO(if_cb)->entry,
-    "Choose which interface (network card) will be used to capture packets from. "
+    "Choose which interface (network adapter) will be used to capture packets from. "
     "Be sure to select the correct one, as it's a common mistake to select the wrong interface.", NULL);
   gtk_box_pack_start(GTK_BOX(if_hb), if_cb, TRUE, TRUE, 3);
 
@@ -1747,8 +1747,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_cb),
 		global_capture_opts.promisc_mode);
   gtk_tooltips_set_tip(tooltips, promisc_cb,
-    "Usually a network card will only capture the traffic sent to its own network address. "
-    "If you want to capture all traffic that the network card can \"see\", mark this option. "
+    "Usually a network adapter will only capture the traffic sent to its own network address. "
+    "If you want to capture all traffic that the network adapter can \"see\", mark this option. "
     "See the FAQ for some more details of capturing packets from a switched network.", NULL);
   gtk_container_add(GTK_CONTAINER(left_vb), promisc_cb);
 
@@ -1761,9 +1761,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect(monitor_cb, "toggled",
                    G_CALLBACK(capture_prep_monitor_changed_cb), NULL);
   gtk_tooltips_set_tip(tooltips, monitor_cb,
-    "Usually a network card will only capture the traffic sent to its own network address. "
-    "If you want to capture all traffic that the network card can \"see\", mark this option. "
-    "See the FAQ for some more details of capturing packets from a switched network.", NULL);
+    "Usually a Wi-Fi adapter will, even in promiscuous mode, only capture the traffic on the BSS to which it's associated. "
+    "If you want to capture all traffic that the Wi-Fi adapter can \"receive\", mark this option. "
+    "In order to see IEEE 802.11 headers or to see radio information for captured packets,"
+    "it might be necessary to turn this option on.\n\n"
+    "Note that, in monitor mode, the adapter might disassociate from the network to which it's associated.", NULL);
   gtk_container_add(GTK_CONTAINER(left_vb), monitor_cb);
 
   /*
