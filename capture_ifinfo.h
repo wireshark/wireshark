@@ -25,8 +25,6 @@
 #ifndef __CAPTURE_IFINFO_H__
 #define __CAPTURE_IFINFO_H__
 
-#ifdef HAVE_LIBPCAP
-
 /*
  * The list of interfaces returned by "get_interface_list()" is
  * a list of these structures.
@@ -93,7 +91,5 @@ capture_get_if_capabilities(const char *devname, gboolean monitor_mode,
                             char **err_str);
 
 void free_if_capabilities(if_capabilities_t *caps);
-
-#endif /* HAVE_LIBPCAP */
 
 #endif /* __CAPTURE_IFINFO_H__ */

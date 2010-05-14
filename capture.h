@@ -101,8 +101,6 @@ extern void capture_input_cfilter_error_message(capture_options *capture_opts, c
  */
 extern void capture_input_closed(capture_options *capture_opts);
 
-#ifdef HAVE_LIBPCAP
-
 struct if_stat_cache_s;
 typedef struct if_stat_cache_s if_stat_cache_t;
 
@@ -123,6 +121,5 @@ extern gboolean capture_stats(if_stat_cache_t *sc, char *ifname, struct pcap_sta
  * Stop gathering capture statistics.
  */
 void capture_stat_stop(if_stat_cache_t *sc);
-#endif /* HAVE_LIBPCAP */
 
 #endif /* capture.h */

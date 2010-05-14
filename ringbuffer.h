@@ -25,8 +25,6 @@
 #ifndef __RINGBUFFER_H__
 #define __RINGBUFFER_H__
 
-#ifdef HAVE_LIBPCAP
-
 #include <stdio.h>
 #include "file.h"
 #include "wiretap/wtap.h"
@@ -46,7 +44,5 @@ gboolean ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd,
 gboolean ringbuf_libpcap_dump_close(gchar **save_file, int *err);
 void ringbuf_free(void);
 void ringbuf_error_cleanup(void);
-
-#endif /* HAVE_LIBPCAP */
 
 #endif /* ringbuffer.h */

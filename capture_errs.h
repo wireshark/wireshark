@@ -23,7 +23,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifdef HAVE_LIBPCAP
+#ifndef __CAPTURE_ERRS_H__
+#define __CAPTURE_ERRS_H__
 
 #ifdef _WIN32
 /* error message, if WinPcap couldn't be loaded */
@@ -31,4 +32,4 @@
 extern char *cant_load_winpcap_err(const char *app_name);
 #endif /* _WIN32 */
 
-#endif /* HAVE_LIBPCAP */
+#endif /* __CAPTURE_ERRS_H__ */
