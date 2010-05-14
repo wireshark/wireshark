@@ -1640,7 +1640,7 @@ main(int argc, char *argv[])
     /* if requested, list the link layer types and exit */
     if (list_link_layer_types) {
         /* Get the list of link-layer types for the capture device. */
-        if_capabilities_t *caps;
+        if_caps_t *caps;
 
         caps = capture_get_if_capabilities(global_capture_opts.iface,
                                            global_capture_opts.monitor_mode,

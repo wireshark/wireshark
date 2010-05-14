@@ -598,7 +598,7 @@ ifopts_edit_destroy_cb(GtkWidget *win, gpointer data _U_)
 static gint
 ifopts_description_to_val (const char *if_name, const char *descr) 
 {
-	if_capabilities_t *caps;
+	if_caps_t *caps;
 	int dlt = -1;
 
 	caps = capture_get_if_capabilities(if_name, FALSE, NULL);
@@ -640,7 +640,7 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 	gchar              *desc, *comment, *text;
 	gchar              *if_name, *linktype;
 	gboolean            hide;
-	if_capabilities_t *caps;
+	if_caps_t *caps;
 	gint                selected = 0;
 
 	/* Get list_store data for currently selected interface */
@@ -841,7 +841,7 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 	gchar	*desc;
 	gchar	*pr_descr;
 	gchar	*text[] = { NULL, NULL, NULL, NULL };
-	if_capabilities_t *caps;
+	if_caps_t *caps;
 	gint     linktype;
 	gboolean hide;
 	GtkTreeIter  iter;

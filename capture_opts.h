@@ -176,7 +176,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
 
 /* print interface capabilities, including link layer types */
 extern void
-capture_opts_print_if_capabilities(if_capabilities_t *caps,
+capture_opts_print_if_capabilities(if_caps_t *caps,
                                    gboolean monitor_mode);
 
 /* print list of interfaces */
