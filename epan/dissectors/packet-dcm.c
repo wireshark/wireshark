@@ -1,7 +1,7 @@
 /* packet-dcm.c
  * Routines for DICOM dissection
  * Copyright 2003, Rich Coe <Richard.Coe@med.ge.com>
- * Copyright 2008, 2009, David Aggeler <david_aggeler@hispeed.ch>
+ * Copyright 2008-2010, David Aggeler <david_aggeler@hispeed.ch>
  *
  * DICOM communication protocol
  * http://medical.nema.org/dicom/2008
@@ -30,20 +30,27 @@
 
 
 /* History:
- * This dissector was originally coded by Rich Coe and then modifed by David Aggeler
- * *********************************************************************************
+ * This dissector was originally coded by Rich Coe and then modified by David Aggeler
+ * **********************************************************************************
  * ToDo
  *
+ * - Better reassembly (Bug 4642)
  * - Syntax detection, in case an association request is missing in capture
  * - Read private tags from configuration and parse in capture
  * - Show Association Headers as individual items
- * - Support item 56-59 in Accociation Request
+ * - Support item 56-59 in Association Request
  *
- * May 27, 2009 - David Aggeler 
+ * May 13, 2010 - David Aggeler
+ *
+ * - Fixed HF to separate signed & unsigned values and to have BASE_DEC all signed ones
+ * - Fixed private sequences with undefined length in ILE
+ * - Fixed some spellings in comments
+ *
+ * May 27, 2009 - David Aggeler (SVN 29060)
  *
  * - Fixed corrupt files on DICOM Export
  * - Fixed memory limitation on DICOM Export
- * - Removed minimum packet lenght for static port mode
+ * - Removed minimum packet length for static port mode
  * - Simplified checks for heuristic mode
  * - Removed unused functions
  *
@@ -53,7 +60,7 @@
  * - Added expert_add_info() for status responses with warning & error level
  * - Added command details in info column (optionally)
  *
- * Dec 19, 2008 to Mar 29, 2009 - Misc (SVN 27880) 
+ * Dec 19, 2008 to Mar 29, 2009 - Misc (SVN 27880)
  *
  * - Spellings, see SVN
  *
@@ -84,10 +91,10 @@
  * - Replaced g_strdup with ep_strdup() or se_strdup()
  * - Show multiple PDU description in COL_INFO, not just last one. Still not all, but more
  *   sophisticated logic for this column is probably overkill
- * - Since DICOM is a 32 bit protocl with all length items sepcified unsigned
+ * - Since DICOM is a 32 bit protocol with all length items specified unsigned
  *   all offset & position variables are now declared as guint32 for dissect_dcm_pdu and
  *   its nested functions. dissect_dcm_main() remained by purpose on int,
- *   since we request data consolidation, requireing a TRUE as return value
+ *   since we request data consolidation, requiring a TRUE as return value
  * - Decode DVTk streams when using defined ports (not in heuristic mode)
  * - Changed to warning level 4 (for MSVC) and fixed the warnings
  * - Code cleanup & removed last DISSECTOR_ASSERT()
@@ -99,7 +106,7 @@
  *
  * Jul 17, 2008 - David Aggeler
  *
- * - Export objects as part 10 compliant DICOM file. Finally, this major milestone has beed reached.
+ * - Export objects as part 10 compliant DICOM file. Finally, this major milestone has been reached.
  * - PDVs are now a child of the PCTX rather than the ASSOC object.
  * - Fixed PDV continuation for unknown tags (e.g. RT Structure Set)
  * - Replaced proprietary trim() with g_strstrip()
@@ -114,7 +121,7 @@
  * - Fixed PDV Continuation with very small packets. Reduced minimum packet length
  *   from 10 to 2 Bytes for PDU Type 4
  * - Fixed PDV Continuation. Last packet was not found correctly.
- * - Fixed complilation warning (build 56 on solaris)
+ * - Fixed compilation warning (build 56 on solaris)
  * - Fixed tree expansion (hf_dcm_xxx)
  * - Added expert_add_info() for Association Reject
  * - Added expert_add_info() for Association Abort
@@ -134,7 +141,7 @@
  *   of a presentation context and therefore grouped. User Info is now grouped.
  * - Re-assemble PDVs that span multiple PDUs, i.e fix continuation packets
  *   This caused significant changes to the data structures
- * - Added preference with dicom tcp ports, to prevent 'stealing' the converstation
+ * - Added preference with dicom tcp ports, to prevent 'stealing' the conversation
  *   i.e. don't just rely on heuristic
  * - Use pinfo->desegment_len instead of tcp_dissect_pdus()
  * - Returns number of bytes parsed
@@ -173,7 +180,7 @@
  * - Fixed the heuristic code -- sometimes a conversation already exists
  * - Fixed the dissect code to display all the tags in the pdu
  *
- * Inital - Rich Coe
+ * Initial - Rich Coe
  *
  * - It currently displays most of the DICOM packets.
  * - I've used it to debug Query/Retrieve, Storage, and Echo protocols.
@@ -259,8 +266,10 @@ static int hf_dcm_pdu = -1,
     hf_dcm_tag_vr = -1,
     hf_dcm_tag_vl = -1,
     hf_dcm_tag_value_str = -1,
-    hf_dcm_tag_value_16 = -1,
-    hf_dcm_tag_value_32 = -1,
+    hf_dcm_tag_value_16u = -1,
+    hf_dcm_tag_value_16s = -1,
+    hf_dcm_tag_value_32s = -1,
+    hf_dcm_tag_value_32u = -1,
     hf_dcm_tag_value_byte = -1;
 
 
@@ -4396,7 +4405,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
     if (dcm_header_len + pdv_combined_len >= global_dcm_export_minsize) {
 	/* Allocate the final size */
 
-	/* The complete eo_info structure and its elements will be freed in 
+	/* The complete eo_info structure and its elements will be freed in
 	   export_object.c -> eo_win_destroy_cb() using g_free()
 	*/
 
@@ -4497,7 +4506,7 @@ dissect_dcm_assoc_item(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 	break;
 
     case DCM_ITEM_VALUE_TYPE_STRING:
-	*item_value = tvb_get_ephemeral_string(tvb, offset+4, item_len);
+	*item_value = (gchar *)tvb_get_ephemeral_string(tvb, offset+4, item_len);
         proto_item_append_text(assoc_item_pitem, "%s", *item_value);
 	proto_tree_add_string(assoc_item_ptree, *hf_value, tvb, offset+4, item_len, *item_value);
 
@@ -4901,11 +4910,15 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	expert_add_info_format(pinfo, pdv_ctx_pitem, PI_MALFORMED, PI_ERROR, "Invalid Presentation Context ID");
 
-	/* Create fake PCTX and guess Syntax ILE, ELE, EBE */
-        pctx = dcm_state_pctx_new(assoc, pctx_id);
+	if (pctx == NULL) {
+	    /* only create presentation context, if it does not yet exist */
 
-	/* To be done: Guess Syntax */
-	pctx->syntax = DCM_UNK;
+	    /* Create fake PCTX and guess Syntax ILE, ELE, EBE */
+	    pctx = dcm_state_pctx_new(assoc, pctx_id);
+
+	    /* To be done: Guess Syntax */
+	    pctx->syntax = DCM_UNK;
+	}
     }
     offset +=1;
 
@@ -5082,7 +5095,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 
 	if (grp == 0x0000 && elm == 0x0902) {
 	    /* The error comment */
-	    pdv->comment = se_strdup(g_strstrip(vals)); 
+	    pdv->comment = se_strdup(g_strstrip(vals));
 	}
     }
     else if ((strncmp(vr, "OB", 2) == 0) || (strncmp(vr, "OF", 2) == 0) ||
@@ -5157,7 +5170,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 	if (is_little_endian)	at_elm = tvb_get_letohs(tvb, offset);
 	else			at_elm = tvb_get_ntohs(tvb, offset);
 
-	proto_tree_add_uint_format(tree, hf_dcm_tag_value_32, tvb, offset, 4,
+	proto_tree_add_uint_format(tree, hf_dcm_tag_value_32u, tvb, offset, 4,
 	    (at_grp << 16) | at_elm, "%-8.8s%04x,%04x", "Value:", at_grp, at_elm);
 
 	g_snprintf(*tag_value, MAX_BUF_LEN, "(%04x,%04x)", at_grp, at_elm);
@@ -5187,10 +5200,9 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 	if (is_little_endian) vald = tvb_get_letohieee_double(tvb, offset);
 	else		      vald = tvb_get_ntohieee_double(tvb, offset);
 
-	if (global_dcm_tag_subtree) {
-	    proto_tree_add_bytes_format(tree, hf_dcm_tag_value_byte, tvb, offset, 8,
-		valb, "%-8.8s%f", "Value:", vald);
-	}
+        proto_tree_add_bytes_format(tree, hf_dcm_tag_value_byte, tvb, offset, 8,
+	    valb, "%-8.8s%f", "Value:", vald);
+
 	g_snprintf(*tag_value, MAX_BUF_LEN, "%f", vald);
     }
     else if (strncmp(vr, "SL", 2) == 0)  {	    /* Signed Long */
@@ -5199,7 +5211,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 	if (is_little_endian)	val32 = tvb_get_letohl(tvb, offset);
 	else			val32 = tvb_get_ntohl(tvb, offset);
 
-	proto_tree_add_int_format(tree, hf_dcm_tag_value_32, tvb, offset, 4,
+	proto_tree_add_int_format(tree, hf_dcm_tag_value_32s, tvb, offset, 4,
 	    val32, "%-8.8s%d", "Value:", val32);
 
 	g_snprintf(*tag_value, MAX_BUF_LEN, "%d", val32);
@@ -5210,18 +5222,18 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 	if (is_little_endian)	val16 = tvb_get_letohs(tvb, offset);
 	else			val16 = tvb_get_ntohs(tvb, offset);
 
-	proto_tree_add_int_format(tree, hf_dcm_tag_value_16, tvb, offset, 2,
+	proto_tree_add_int_format(tree, hf_dcm_tag_value_16s, tvb, offset, 2,
 	    val16, "%-8.8s%d", "Value:", val16);
 
 	g_snprintf(*tag_value, MAX_BUF_LEN, "%d", val16);
     }
-    else if (strncmp(vr, "UL", 2) == 0)  {	    /* Unigned Long */
+    else if (strncmp(vr, "UL", 2) == 0)  {	    /* Unsigned Long */
 	guint32  val32;
 
 	if (is_little_endian)	val32 = tvb_get_letohl(tvb, offset);
 	else			val32 = tvb_get_ntohl(tvb, offset);
 
-	proto_tree_add_uint_format(tree, hf_dcm_tag_value_32, tvb, offset, 4,
+	proto_tree_add_uint_format(tree, hf_dcm_tag_value_32u, tvb, offset, 4,
 	    val32, "%-8.8s%u", "Value:", val32);
 
 	g_snprintf(*tag_value, MAX_BUF_LEN, "%u", val32);
@@ -5237,7 +5249,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 	    /* This is a command */
 	    g_snprintf(*tag_value, MAX_BUF_LEN, "%s", dcm_cmd2str(val16));
 
-	    pdv->command = se_strdup(*tag_value); 
+	    pdv->command = se_strdup(*tag_value);
 	}
 	else if (grp == 0x0000 && elm == 0x0900) {
 	    /* This is a status message. If value is not 0x0000, add an expert info */
@@ -5250,7 +5262,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 		pdv->is_warning = TRUE;
 	    }
 
-	    pdv->status = se_strdup(status_message); 
+	    pdv->status = se_strdup(status_message);
 
 	}
 	else {
@@ -5278,7 +5290,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 	    }
 	}
 
-	pitem = proto_tree_add_uint_format(tree, hf_dcm_tag_value_16, tvb, offset, 2,
+	pitem = proto_tree_add_uint_format(tree, hf_dcm_tag_value_16u, tvb, offset, 2,
 		    val16, "%-8.8s%s", "Value:", *tag_value);
 
 	if (pdv->is_warning && status_message) {
@@ -5612,8 +5624,8 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	vl = vl_1;
     }
 
-    /* Now we have most of the information, excpet for sequences and items with undefined 
-       length :-/. But, whether we know the length or not, we now need to create the tree 
+    /* Now we have most of the information, excpet for sequences and items with undefined
+       length :-/. But, whether we know the length or not, we now need to create the tree
        item and subtree, before we can loop into sequences and items
 
        Display the information we collected so far. Don't wait until the value is parsed,
@@ -5639,7 +5651,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	vl_max = endpos - offset;
     }
 
-    is_sequence = (strcmp(vr, "SQ") == 0);
+    is_sequence = (strcmp(vr, "SQ") == 0) || (vl == 0xFFFFFFFF);
     is_item = ((grp == 0xFFFE) && (elm == 0xE000));
 
 
@@ -6132,9 +6144,9 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 
     if (is_port_static) {
 	/* Port is defined explicitly, or association request was previously found succesfully.
-	   Be more tolerant on minimum packet size. Also accept < 6 
+	   Be more tolerant on minimum packet size. Also accept < 6
 	*/
- 
+
 	if (tlen < 6) {
 	    /* we need 6 bytes at least to get PDU length */
 	    pinfo->desegment_offset = offset;
@@ -6150,12 +6162,12 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 	   - Reasonable PDU size
 
 	   Tried find_conversation() and dcm_state_get() with no benefit
-	
-	   But since we are called in static mode, once we decoded the associtaion reqest and 
+
+	   But since we are called in static mode, once we decoded the associtaion reqest and
 	   called conversation_set_dissector(), we really only need to filter for an associtaion reqest
-	
-	*/ 
- 
+
+	*/
+
         if (tlen < 10) {
 	    /* For all association handling ones, 10 bytes would be needed. Be happy with 6 */
 	    return 0;
@@ -6177,7 +6189,7 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 	}
     }
 
- 
+
     /* Passing this point, we should always have tlen >= 6 */
 
     pdu_len = tvb_get_ntohl(tvb, 2);
@@ -6496,7 +6508,7 @@ proto_register_dcm(void)
     { &hf_dcm_pdv_len, { "PDV Length", "dicom.pdv.len",
 	FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pdv_ctx, { "PDV Context", "dicom.pdv.ctx",
-	FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+	FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pdv_flags, { "PDV Flags", "dicom.pdv.flags",
 	FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
     { &hf_dcm_data_tag, { "Tag", "dicom.data.tag",
@@ -6507,14 +6519,18 @@ proto_register_dcm(void)
     { &hf_dcm_tag_vr, { "VR", "dicom.tag.vr",
 	FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_dcm_tag_vl, { "Length", "dicom.tag.vl",
-	FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+	FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
 
     { &hf_dcm_tag_value_str, { "Value", "dicom.tag.value.str",
 	FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
-    { &hf_dcm_tag_value_16, { "Value", "dicom.tag.value.16",
-	FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
-    { &hf_dcm_tag_value_32, { "Value", "dicom.tag.value.32",
-	FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+    { &hf_dcm_tag_value_16s, { "Value", "dicom.tag.value.16s",
+	FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+    { &hf_dcm_tag_value_16u, { "Value", "dicom.tag.value.16u",
+	FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+    { &hf_dcm_tag_value_32s, { "Value", "dicom.tag.value.32s",
+	FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+    { &hf_dcm_tag_value_32u, { "Value", "dicom.tag.value.32u",
+	FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_dcm_tag_value_byte, { "Value", "dicom.tag.value.byte",
 	FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } }
 
