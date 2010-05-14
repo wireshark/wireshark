@@ -3035,10 +3035,15 @@ Robert Hogan		<robert [AT] roberthogan.net> {
 
 Torrey Atcitty		<torrey.atcitty [AT] harman.com> {
 	PTP dissector: Added support for 802.1AS D7.0
+	IEEE 802.1Qat (Multiple Stream Reservation Protocol) dissector
 }
 
 Dave Olsen		<dave.olsen [AT] harman.com> {
 	PTP dissector: Added support for 802.1AS D7.0
+}
+
+Craig Gunther		<craig.gunther [AT] harman.com> {
+	IEEE 802.1Qat (Multiple Stream Reservation Protocol) dissector
 }
 
 

@@ -95,6 +95,10 @@
 #define ETHERTYPE_CGMP			0x2001
 #endif
 
+#ifndef ETHERTYPE_MSRP
+#define ETHERTYPE_MSRP			0x22EA
+#endif
+
 #ifndef ETHERTYPE_CENTRINO_PROMISC
 #define ETHERTYPE_CENTRINO_PROMISC	0x2452	/* Intel Centrino promiscuous packets */
 #endif

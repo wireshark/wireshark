@@ -650,6 +650,7 @@ DISSECTOR_SRC = \
 	packet-mq.c		\
 	packet-mq-pcf.c		\
 	packet-mrdisc.c		\
+	packet-mrp-msrp.c	\
 	packet-msdp.c		\
 	packet-msnlb.c		\
 	packet-msn-messenger.c	\
