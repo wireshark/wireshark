@@ -286,8 +286,8 @@ set_if_capabilities(void)
 #endif
 #ifdef HAVE_PCAP_CREATE
   GtkWidget *monitor_cb = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_MONITOR_KEY);
-  gboolean monitor_mode;
 #endif
+  gboolean monitor_mode;
 #ifdef HAVE_AIRPCAP
   GtkWidget *advanced_bt;
 #endif
@@ -409,7 +409,9 @@ set_if_capabilities(void)
   linktype_select = 0;
   linktype_count = 0;
   if (caps != NULL) {
+#ifdef HAVE_PCAP_CREATE
     gtk_widget_set_sensitive(monitor_cb, caps->can_set_rfmon);
+#endif
     for (lt_entry = caps->data_link_types; lt_entry != NULL;
          lt_entry = g_list_next(lt_entry)) {
       data_link_info = lt_entry->data;
@@ -435,8 +437,11 @@ set_if_capabilities(void)
       linktype_count++;
     }
     free_if_capabilities(caps);
-  } else
+  }
+#ifdef HAVE_PCAP_CREATE
+  else
     gtk_widget_set_sensitive(monitor_cb, FALSE);
+#endif
   if (linktype_count == 0) {
     lt_menu_item = gtk_menu_item_new_with_label("(not supported)");
     gtk_menu_shell_append(GTK_MENU_SHELL(lt_menu), lt_menu_item);
