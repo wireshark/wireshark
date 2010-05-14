@@ -38,7 +38,7 @@
 /*
  * Annex to ITU Operational Bulletin
  * No. 953 - 1.IV.2010
- * including amendments up to ITU Operational Bulletin No. 954 - 15.IV.2010
+ * including amendments up to ITU Operational Bulletin No. 955 - 1.V.2010
  *
  * COMPLEMENT TO ITU-T RECOMMENDATION E.212 (05/2008)
  */
@@ -282,7 +282,7 @@ const value_string E212_codes[] = {
 
 /*
  * Annex to ITU Operational Bulletin No. 932 - 15.V.2009
- * including amendments up to ITU Operational Bulletin No. 954 - 15.IV.2010
+ * including amendments up to ITU Operational Bulletin No. 955 - 1.V.2010
  * 
  * According to Recommendation ITU-T E.212 (05/2008)
  *
@@ -1606,6 +1606,7 @@ const value_string mcc_mnc_codes[] = {
 	{  748030, "Ancel" },
 	{  748070, "Movistar" },
 	{  748100, "CTI Movil" },
+	{  750001, "Touch" },
 	{  901010, "ICO Global Communications" },
 	{  901020, "Sense Communications International AS" },
 	{  901030, "Iridium Satellite, LLC (GMSS)" },
