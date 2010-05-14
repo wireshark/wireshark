@@ -90,6 +90,7 @@
 #endif
 #define E_CAP_SNAP_SB_KEY               "cap_snap_sb"
 #define E_CAP_PROMISC_KEY               "cap_promisc"
+#define E_CAP_MONITOR_KEY               "cap_monitor"
 #define E_CAP_PCAP_NG_KEY               "cap_pcap_ng"
 #define E_CAP_FILT_KEY                  "cap_filter_te"
 #define E_CAP_FILE_TE_KEY               "cap_file_te"
@@ -193,7 +194,12 @@ static void
 capture_prep_destroy_cb(GtkWidget *win, gpointer user_data);
 
 static void
-capture_prep_interface_changed_cb(GtkWidget *entry, gpointer parent_w);
+capture_prep_interface_changed_cb(GtkWidget *entry, gpointer argp);
+
+#ifdef HAVE_PCAP_CREATE
+static void
+capture_prep_monitor_changed_cb(GtkWidget *monitor_cb, gpointer argp);
+#endif
 
 static gboolean
 capture_dlg_prep(gpointer parent_w);
@@ -241,10 +247,15 @@ capture_get_linktype (gchar *if_name)
   return linktype;
 }
 
-/* init the link type list */
-/* (often this list has only one entry and will therefore be disabled) */
+/*
+ * Set the sensitivity of the monitor mode button, and set the
+ * link-layer header type list, based on the interface's capabilities.
+ *
+ * The link-layer header type list often has only one entry; in that case,
+ * it will be disabled.
+ */
 static void
-set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
+set_if_capabilities(void)
 {
   gchar *entry_text;
   gchar *if_text;
@@ -260,15 +271,22 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   data_link_info_t *data_link_info;
   gchar *linktype_menu_label;
   guint num_supported_link_types;
+  GtkWidget *linktype_om = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_LT_OM_KEY);
   GtkWidget *linktype_lb = g_object_get_data(G_OBJECT(linktype_om), E_CAP_LT_OM_LABEL_KEY);
   GtkWidget *if_ip_lb;
   GString *ip_str = g_string_new("IP address: ");
   int ips = 0;
   GSList *curr_addr;
   if_addr_t *addr;
+  GtkWidget *if_cb = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+  GtkWidget *entry = GTK_COMBO(if_cb)->entry;
 #ifdef HAVE_PCAP_REMOTE
   GtkWidget *iftype_cbx;
   int iftype;
+#endif
+#ifdef HAVE_PCAP_CREATE
+  GtkWidget *monitor_cb = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_MONITOR_KEY);
+  gboolean monitor_mode;
 #endif
 #ifdef HAVE_AIRPCAP
   GtkWidget *advanced_bt;
@@ -342,7 +360,12 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
           if (iftype == CAPTURE_IFLOCAL)
             /* Not able to get link-layer for remote interfaces */
 #endif
-	  caps = capture_get_if_capabilities(if_name, FALSE, NULL);
+#ifdef HAVE_PCAP_CREATE
+          monitor_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor_cb));
+#else
+          monitor_mode = FALSE;
+#endif
+	  caps = capture_get_if_capabilities(if_name, monitor_mode, NULL);
 
 	  /* create string of list of IP addresses of this interface */
 	  for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
@@ -386,6 +409,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   linktype_select = 0;
   linktype_count = 0;
   if (caps != NULL) {
+    gtk_widget_set_sensitive(monitor_cb, caps->can_set_rfmon);
     for (lt_entry = caps->data_link_types; lt_entry != NULL;
          lt_entry = g_list_next(lt_entry)) {
       data_link_info = lt_entry->data;
@@ -411,7 +435,8 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
       linktype_count++;
     }
     free_if_capabilities(caps);
-  }
+  } else
+    gtk_widget_set_sensitive(monitor_cb, FALSE);
   if (linktype_count == 0) {
     lt_menu_item = gtk_menu_item_new_with_label("(not supported)");
     gtk_menu_shell_append(GTK_MENU_SHELL(lt_menu), lt_menu_item);
@@ -1435,7 +1460,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *if_ip_hb, *if_ip_lb, *if_ip_eb,
                 *linktype_hb, *linktype_lb, *linktype_om,
                 *snap_hb, *snap_cb, *snap_sb, *snap_lb,
-                *promisc_cb, *pcap_ng_cb,
+                *promisc_cb,
+#ifdef HAVE_PCAP_CREATE
+                *monitor_cb,
+#endif
+                *pcap_ng_cb,
                 *filter_hb, *filter_bt, *filter_te, *filter_cm,
 
                 *file_fr, *file_vb,
@@ -1609,6 +1638,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     global_capture_opts.iface_descr = get_interface_descriptive_name(global_capture_opts.iface);
     g_free(if_device);
   }
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY, if_cb);
 
 #ifdef HAVE_AIRPCAP
   /* get the airpcap interface (if it IS an airpcap interface, and update the
@@ -1679,13 +1709,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Default to "use the default" */
   /* Datalink menu index is not resetted, it will be restored with last used value */
   /* g_object_set_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1)); */
-
   g_object_set_data(G_OBJECT(linktype_om), E_CAP_IFACE_KEY, if_ip_lb);
   dl_hdr_menu=NULL;
   if (linktype_history == NULL) {
     linktype_history = g_hash_table_new(g_str_hash, g_str_equal);
   }
-  set_link_type_list(linktype_om, GTK_COMBO(if_cb)->entry);
   /*
    * XXX - in some cases, this is "multiple link-layer header types", e.g.
    * some 802.11 interfaces on FreeBSD 5.2 and later, where you can request
@@ -1704,8 +1732,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_tooltips_set_tip(tooltips, linktype_om,
     "The selected interface supports multiple link-layer types; select the desired one.", NULL);
   gtk_box_pack_start (GTK_BOX(linktype_hb), linktype_om, FALSE, FALSE, 0);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_LT_OM_KEY, linktype_om);
   g_signal_connect(GTK_ENTRY(GTK_COMBO(if_cb)->entry), "changed",
-                 G_CALLBACK(capture_prep_interface_changed_cb), linktype_om);
+                 G_CALLBACK(capture_prep_interface_changed_cb), NULL);
 
   /* Promiscuous mode row */
   promisc_cb = gtk_check_button_new_with_mnemonic(
@@ -1717,6 +1746,34 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     "If you want to capture all traffic that the network card can \"see\", mark this option. "
     "See the FAQ for some more details of capturing packets from a switched network.", NULL);
   gtk_container_add(GTK_CONTAINER(left_vb), promisc_cb);
+
+#ifdef HAVE_PCAP_CREATE
+  /* Monitor mode row */
+  monitor_cb = gtk_check_button_new_with_mnemonic(
+      "Capture packets in monitor mode");
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(monitor_cb),
+		global_capture_opts.monitor_mode);
+  g_signal_connect(monitor_cb, "toggled",
+                   G_CALLBACK(capture_prep_monitor_changed_cb), NULL);
+  gtk_tooltips_set_tip(tooltips, monitor_cb,
+    "Usually a network card will only capture the traffic sent to its own network address. "
+    "If you want to capture all traffic that the network card can \"see\", mark this option. "
+    "See the FAQ for some more details of capturing packets from a switched network.", NULL);
+  gtk_container_add(GTK_CONTAINER(left_vb), monitor_cb);
+
+  /*
+   * Attach this now, so that set_if_capabilities() can change its
+   * sensitivity.
+   */
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_MONITOR_KEY, monitor_cb);
+#endif
+
+  /*
+   * This controls the sensitivity of both the link-type list and, if
+   * you have it, the monitor mode checkbox.  That's why we do this
+   * now.
+   */
+  set_if_capabilities();
 
   /* Pcap-NG row */
   pcap_ng_cb = gtk_check_button_new_with_mnemonic("Capture packets in pcap-ng format (experimental)");
@@ -2174,13 +2231,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_grab_default(ok_bt);
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
-  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY, if_cb);
 #ifdef HAVE_PCAP_REMOTE
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_REMOTE_DIALOG_PTR_KEY, NULL);
 #endif
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_SNAP_CB_KEY, snap_cb);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_SNAP_SB_KEY, snap_sb);
-  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_LT_OM_KEY, linktype_om);
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_BUFFER_SIZE_SB_KEY, buffer_size_sb);
 #endif
@@ -2536,7 +2591,11 @@ capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 /* convert dialog settings into capture_opts values */
 static gboolean
 capture_dlg_prep(gpointer parent_w) {
-  GtkWidget *if_cb, *snap_cb, *snap_sb, *promisc_cb, *pcap_ng_cb, *filter_te, *filter_cm,
+  GtkWidget *if_cb, *snap_cb, *snap_sb, *promisc_cb,
+#ifdef HAVE_PCAP_CREATE
+            *monitor_cb,
+#endif
+            *pcap_ng_cb, *filter_te, *filter_cm,
             *file_te, *multi_files_on_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_cb,
             *linktype_om, *sync_cb, *auto_scroll_cb, *hide_info_cb,
             *stop_packets_cb, *stop_packets_sb,
@@ -2572,6 +2631,9 @@ capture_dlg_prep(gpointer parent_w) {
   buffer_size_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_BUFFER_SIZE_SB_KEY);
 #endif
   promisc_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_PROMISC_KEY);
+#ifdef HAVE_PCAP_CREATE
+  monitor_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_MONITOR_KEY);
+#endif
   pcap_ng_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_PCAP_NG_KEY);
   filter_cm  = g_object_get_data(G_OBJECT(top_level), E_CFILTER_CM_KEY);
   filter_te  = GTK_COMBO(filter_cm)->entry;
@@ -2647,6 +2709,10 @@ capture_dlg_prep(gpointer parent_w) {
 
   global_capture_opts.promisc_mode =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(promisc_cb));
+#ifdef HAVE_PCAP_CREATE
+  global_capture_opts.monitor_mode =
+    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor_cb));
+#endif
   global_capture_opts.use_pcapng =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(pcap_ng_cb));
 
@@ -2844,12 +2910,19 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 
 /* user changed the interface entry */
 static void
-capture_prep_interface_changed_cb(GtkWidget *entry, gpointer argp)
+capture_prep_interface_changed_cb(GtkWidget *entry _U_, gpointer argp _U_)
 {
-  GtkWidget *linktype_om = argp;
-
-  set_link_type_list(linktype_om, entry);
+  set_if_capabilities();
 }
+
+#ifdef HAVE_PCAP_CREATE
+/* user changed the setting of the monitor-mode checkbox */
+static void
+capture_prep_monitor_changed_cb(GtkWidget *monitor _U_, gpointer argp _U_)
+{
+  set_if_capabilities();
+}
+#endif
 
 /*
  * Adjust the sensitivity of various widgets as per the current setting
