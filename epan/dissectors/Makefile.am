@@ -43,6 +43,7 @@ libdissectors_la_SOURCES = \
 libdissectors_la_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 
+# XXX - what about the contents of the dcerpc and pidl directories?
 EXTRA_DIST = \
 	Custom.nmake		\
 	Makefile.common		\

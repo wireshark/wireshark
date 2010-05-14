@@ -815,7 +815,49 @@ EXTRA_DIST = \
 	text2pcap.h		\
 	services		\
 	wireshark.desktop	\
-	wka.tmpl
+	wka.tmpl		\
+	CMakeLists.txt		\
+	cmakeconfig.h.in	\
+	wsutil/CMakeLists.txt	\
+	wiretap/CMakeLists.txt	\
+	README.cmake		\
+	ConfigureChecks.cmake	\
+	cmake/modules/readme.txt		\
+	cmake/modules/FindLYNX.cmake		\
+	cmake/modules/FindYACC.cmake		\
+	cmake/modules/FeatureSummary.cmake	\
+	cmake/modules/FindADNS.cmake		\
+	cmake/modules/FindCAP.cmake		\
+	cmake/modules/UseLemon.cmake		\
+	cmake/modules/FindPCRE.cmake		\
+	cmake/modules/FindZLIB.cmake		\
+	cmake/modules/FindPORTAUDIO.cmake	\
+	cmake/modules/FindPCAP.cmake		\
+	cmake/modules/FindSMI.cmake		\
+	cmake/modules/FindCARES.cmake		\
+	cmake/modules/FindXSLTPROC.cmake	\
+	cmake/modules/FindSH.cmake		\
+	cmake/modules/FindGNUTLS.cmake		\
+	cmake/modules/FindGCRYPT.cmake		\
+	cmake/modules/UseMakeDissectorReg.cmake	\
+	cmake/modules/FindLEX.cmake		\
+	cmake/modules/FindPYTHON.cmake		\
+	cmake/modules/FindLUA.cmake		\
+	cmake/modules/FindYAPP.cmake		\
+	cmake/modules/FindGEOIP.cmake		\
+	cmake/modules/FindXMLLINT.cmake		\
+	cmake/modules/FindSED.cmake		\
+	cmake/modules/FindGLIB2.cmake		\
+	cmake/modules/FindHtmlViewer.cmake	\
+	cmake/modules/FindGTK2.cmake		\
+	cmake/modules/FindFOP.cmake		\
+	cmake/modules/LICENSE.txt		\
+	cmake/modules/CMakeInstallDirs.cmake	\
+	cmake/modules/CheckCLinkerFlag.cmake	\
+	cmake/modules/UseMakeTapReg.cmake	\
+	cmake/modules/FindM.cmake		\
+	cmake/modules/FindKERBEROS.cmake	\
+	cmake/modules/FindPOD.cmake
 
 install-exec-hook:
 if HAVE_DUMPCAP_GROUP

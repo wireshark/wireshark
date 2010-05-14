@@ -79,3 +79,18 @@ network_icons.h:
 	for icon in bluetooth usb wired wireless ; do \
 		gdk-pixbuf-csource --raw --name=network_$${icon}_pb_data ../image/toolbar/network_$${icon}_16.png >> $@ ;\
 	done
+
+EXTRA_DIST = \
+	airpcap_dlg.c			\
+	airpcap_gui_utils.c		\
+	capture_if_details_dlg_win32.c	\
+	capture_if_details_dlg_win32.h	\
+	doxygen.cfg.in			\
+	file_dlg_win32.c		\
+	file_dlg_win32.h		\
+	main_airpcap_toolbar.c		\
+	Makefile.common			\
+	Makefile.nmake			\
+	print_win32.c			\
+	print_win32.h			\
+	CMakeLists.txt

@@ -47,5 +47,6 @@ EXTRA_DIST = \
 	lemonflex-tail.inc	\
 	lempar.c		\
 	Makefile.nmake		\
-	README
+	README			\
+	CMakeLists.txt
 

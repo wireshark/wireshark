@@ -106,7 +106,8 @@ EXTRA_DIST = \
 	reassemble_test.c 	\
 	uat_load.l		\
 	exntest.c		\
-	doxygen.cfg.in
+	doxygen.cfg.in		\
+	CMakeLists.txt
 
 CLEANFILES = \
 	libwireshark.a			\

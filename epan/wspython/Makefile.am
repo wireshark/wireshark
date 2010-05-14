@@ -56,4 +56,6 @@ EXTRA_DIST = \
 	Makefile.nmake		\
 	register-dissector.py	\
 	wspy_dissector.py	\
-	wspy_libws.py
+	wspy_libws.py		\
+	CMakeLists.txt
+

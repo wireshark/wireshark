@@ -77,15 +77,16 @@ MAINTAINERCLEANFILES = \
 	declare_wslua.h
 
 EXTRA_DIST = \
-	declare_wslua.h \
-	init_wslua.h \
-	register_wslua.c \
-	taps \
-	make-reg.pl \
-	template-init.lua \
-	make-init-lua.pl \
-	make-taps.pl \
-	Makefile.nmake
+	declare_wslua.h		\
+	init_wslua.h		\
+	register_wslua.c	\
+	taps			\
+	make-reg.pl		\
+	template-init.lua	\
+	make-init-lua.pl	\
+	make-taps.pl		\
+	Makefile.nmake		\
+	CMakeLists.txt
 
 taps_used = \
 	../dissectors/packet-http.h \

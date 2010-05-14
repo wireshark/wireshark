@@ -41,7 +41,8 @@ libcodec_a_SOURCES = \
 libcodec_a_DEPENDENCIES = 
 
 EXTRA_DIST = \
-       Makefile.nmake 
+       Makefile.nmake 	\
+       CMakeLists.txt
 
 checkapi: 
 	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput \

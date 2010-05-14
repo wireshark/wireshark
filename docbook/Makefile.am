@@ -246,10 +246,14 @@ release-notes-a4.fo: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 clean-local:
 	-rm -rf $(CLEANDIRS)
 
-# XXX if we actually use automake to build this stuff, most of this shouldn't
-# be necessary
-EXTRA_DIST=$(WSUG_SOURCE) $(WSDG_SOURCE) $(RELEASE_NOTES_SOURCE) \
-	    check_svn_version.sh make-wsluarm.pl Makefile.nmake
+EXTRA_DIST = \
+	$(WSUG_SOURCE)		\
+	$(WSDG_SOURCE)		\
+	$(RELEASE_NOTES_SOURCE)	\
+	check_svn_version.sh	\
+	make-wsluarm.pl		\
+	Makefile.nmake		\
+	CMakeLists.txt
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
