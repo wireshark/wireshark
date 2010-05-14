@@ -40,9 +40,9 @@
 
 #include "../cfile.h"
 #include "../file.h"
+#ifdef HAVE_LIBPCAP
 #include "../capture_opts.h"
 #include "../capture_ui_utils.h"
-#ifdef HAVE_LIBPCAP
 #include "../capture.h"
 #endif
 

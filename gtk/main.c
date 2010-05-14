@@ -102,12 +102,11 @@
 #include "../version_info.h"
 #include "../merge.h"
 #include "../alert_box.h"
-#include "../capture_ui_utils.h"
 #include "../log.h"
 #include <wsutil/file_util.h>
 
-
 #ifdef HAVE_LIBPCAP
+#include "../capture_ui_utils.h"
 #include "../capture-pcap-util.h"
 #include "../capture_ifinfo.h"
 #include "../capture.h"

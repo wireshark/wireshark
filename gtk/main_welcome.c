@@ -35,10 +35,12 @@
 #include <epan/prefs.h>
 
 #include "../color.h"
+#ifdef HAVE_LIBPCAP
 #include "capture.h"
 #include "capture-pcap-util.h"
 #include "capture_opts.h"
 #include "capture_ui_utils.h"
+#endif
 #include "simple_dialog.h"
 #include <wsutil/file_util.h>
 
@@ -49,12 +51,14 @@
 #include "gtk/main.h"
 #include "gtk/menus.h"
 #include "gtk/main_welcome.h"
+#include "gtk/help_dlg.h"
+#include "gtk/capture_file_dlg.h"
+#include "gtk/stock_icons.h"
+#ifdef HAVE_LIBPCAP
 #include "gtk/capture_dlg.h"
 #include "gtk/capture_if_dlg.h"
-#include "gtk/capture_file_dlg.h"
-#include "gtk/help_dlg.h"
-#include "gtk/stock_icons.h"
 #include "gtk/capture_globals.h"
+#endif
 #include "../image/wssplash-dev.xpm"
 #include "../version_info.h"
 
