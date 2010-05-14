@@ -1,3 +1,4 @@
+
 /* packet-ospf.c
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
@@ -3180,7 +3181,7 @@ proto_register_ospf(void)
 		   NULL, 0x0, NULL, HFILL }},
 		{&hf_ospf_filter[OSPFF_V2_OPTIONS_MT],
 		 { "MT", "ospf.v2.options.mt", FT_BOOLEAN, 8,
-		   TFS(&tfs_v2_options_mt), OSPF_V2_OPTIONS_MT, "", HFILL }},
+		   TFS(&tfs_v2_options_mt), OSPF_V2_OPTIONS_MT, NULL, HFILL }},
 		{&hf_ospf_filter[OSPFF_V2_OPTIONS_E],
 		 { "E", "ospf.v2.options.e", FT_BOOLEAN, 8,
 		   TFS(&tfs_v2_options_e), OSPF_V2_OPTIONS_E, NULL, HFILL }},
@@ -3273,10 +3274,10 @@ proto_register_ospf(void)
 		   TFS(&tfs_v2_router_lsa_flags_v), OSPF_V2_ROUTER_LSA_FLAG_V, NULL, HFILL }},
 		{&hf_ospf_filter[OSPFF_V2_ROUTER_LSA_FLAG_W],
 		 { "W", "ospf.v2.router.lsa.flags.w", FT_BOOLEAN, 8,
-		   TFS(&tfs_v2_router_lsa_flags_w), OSPF_V2_ROUTER_LSA_FLAG_W, "", HFILL }},
+		   TFS(&tfs_v2_router_lsa_flags_w), OSPF_V2_ROUTER_LSA_FLAG_W, NULL, HFILL }},
 		{&hf_ospf_filter[OSPFF_V2_ROUTER_LSA_FLAG_N],
 		 { "N", "ospf.v2.router.lsa.flags.n", FT_BOOLEAN, 8,
-		   TFS(&tfs_v2_router_lsa_flags_n), OSPF_V2_ROUTER_LSA_FLAG_N, "", HFILL }},
+		   TFS(&tfs_v2_router_lsa_flags_n), OSPF_V2_ROUTER_LSA_FLAG_N, NULL, HFILL }},
 		{&hf_ospf_filter[OSPFF_V3_ROUTER_LSA_FLAG],
 		 { "Flags", "ospf.v3.router.lsa.flags", FT_UINT8, BASE_HEX,
 		   NULL, 0x0, NULL, HFILL }},

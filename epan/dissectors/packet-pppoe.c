@@ -749,7 +749,7 @@ void proto_register_pppoed(void)
 		},
 		{ &hf_pppoed_tag_length_8,
 			{ "Tag Length", "pppoed.tag_length_8", FT_UINT8, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_unknown_data,
@@ -789,97 +789,97 @@ void proto_register_pppoed(void)
 		},
 		{ &hf_pppoed_tag_vspec_tags,
 			{ "Vendor Specific PPPoE Tags", "pppoed.tags.vendorspecific.tags", FT_NONE, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_vspec_tag,
 			{ "Tag", "pppoed.tags.vendorspecific.tag", FT_UINT8, BASE_HEX,
-				 VALS(vspec_tag_vals), 0x0, "", HFILL
+				 VALS(vspec_tag_vals), 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_vspec_circuit_id,
 		        { "Circuit ID", "pppoed.tags.circuit_id", FT_STRING, BASE_NONE,
-		                 NULL, 0x0, "", HFILL
+		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_remote_id,
 		        { "Remote ID", "pppoed.tags.remote_id", FT_STRING, BASE_NONE,
-		                 NULL, 0x0, "", HFILL
+		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_act_data_rate_up,
 		        { "Actual Data Rate Upstream", "pppoed.tags.act_data_rate_up", FT_UINT32, BASE_DEC,
-		                 NULL, 0x0, "", HFILL
+		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_act_data_rate_down,
 		        { "Actual Data Rate Downstream", "pppoed.tags.act_data_rate_down", FT_UINT32, BASE_DEC,
-		                 NULL, 0x0, "", HFILL
+		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_min_data_rate_up,
 		        { "Minimum Data Rate Upstream", "pppoed.tags.min_data_rate_up", FT_UINT32, BASE_DEC,
-		                 NULL, 0x0, "", HFILL
+		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_min_data_rate_down,
 		        { "Minimum Data Rate Downstream", "pppoed.tags.min_data_rate_down", FT_UINT32, BASE_DEC,
-		                 NULL, 0x0, "", HFILL
+		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_attainable_data_rate_up,
 		        { "Attainable DataRate Upstream", "pppoed.tags.attainable_data_rate_up", FT_UINT32, BASE_DEC,
-		                 NULL, 0x0, "", HFILL
+		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_attainable_data_rate_down,
 		        { "Attainable DataRate Downstream", "pppoed.tags.attainable_data_rate_down", FT_UINT32, BASE_DEC,
-		                 NULL, 0x0, "", HFILL
+		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_max_data_rate_up,
 		        { "Maximum Data Rate Upstream", "pppoed.tags.max_data_rate_up", FT_UINT32, BASE_DEC,
-		                 NULL, 0x0, "", HFILL
+		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_max_data_rate_down,
 		        { "Maximum Data Rate Downstream", "pppoed.tags.max_data_rate_down", FT_UINT32, BASE_DEC,
-		                 NULL, 0x0, "", HFILL
+		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_min_data_rate_up_lp,
 		        { "Min DataRate Upstream in low power state", "pppoed.tags.min_data_rate_up_lp", FT_UINT32, BASE_DEC,
-		                 NULL, 0x0, "", HFILL
+		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_min_data_rate_down_lp,
 		        { "Minimum Data Rate Downstream in low power state", "pppoed.tags.min_data_rate_down_lp", FT_UINT32, BASE_DEC,
-		                 NULL, 0x0, "", HFILL
+		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_max_int_delay_up,
 		        { "Max Interleaving Delay Upstream", "pppoed.tags.max_int_delay_up", FT_UINT32, BASE_DEC,
-		                 NULL, 0x0, "", HFILL
+		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_act_int_delay_up,
 		        { "Actual Interleaving Delay Upstream", "pppoed.tags.act_int_delay_up", FT_UINT32, BASE_DEC,
-		                 NULL, 0x0, "", HFILL
+		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_max_int_delay_down,
 		        { "Maximum Interleaving Delay Downstream", "pppoed.tags.max_int_delay_down", FT_UINT32, BASE_DEC,
-		                 NULL, 0x0, "", HFILL
+		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_act_int_delay_down,
 		        { "Actual Interleaving Delay Downstream", "pppoed.tags.act_int_delay_down", FT_UINT32, BASE_DEC,
-		                 NULL, 0x0, "", HFILL
+		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_access_loop_encapsulation,
 		        { "Access-Loop-Encapsulation", "pppoed.tags.access_loop_encap", FT_NONE, BASE_NONE,
-		                 NULL, 0x0, "", HFILL
+		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_access_loop_encap_data_link,

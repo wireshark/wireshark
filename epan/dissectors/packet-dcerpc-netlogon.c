@@ -8686,7 +8686,7 @@ proto_register_dcerpc_netlogon(void)
 
         { &hf_netlogon_num_sid,
           { "Num Extra SID", "netlogon.num_sid", FT_UINT32, BASE_DEC,
-            NULL, 0x0, "", HFILL }},
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_netlogon_flags,
           { "Flags", "netlogon.flags", FT_UINT32, BASE_HEX,
@@ -9191,23 +9191,23 @@ proto_register_dcerpc_netlogon(void)
 
         { &hf_client_credential,
           { "Client Credential", "netlogon.clientcred", FT_BYTES, BASE_NONE,
-            NULL, 0x0, "", HFILL }},
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_server_credential,
           { "Server Credential", "netlogon.servercred", FT_BYTES, BASE_NONE,
-            NULL, 0x0, "", HFILL }},
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_server_rid,
           { "Account RID", "netlogon.serverrid", FT_UINT32, BASE_DEC,
-            NULL, 0x0, "", HFILL }},
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_client_challenge,
           { "Client Challenge", "netlogon.clientchallenge", FT_BYTES, BASE_NONE,
-            NULL, 0x0, "", HFILL }},
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_server_challenge,
           { "Server Challenge", "netlogon.serverchallenge", FT_BYTES, BASE_NONE,
-            NULL, 0x0, "", HFILL }},
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_netlogon_secchan_nl_message_type,
           { "Message Type", "netlogon.secchan.nl_auth_message.message_type", FT_UINT32, BASE_HEX,
@@ -9259,11 +9259,11 @@ proto_register_dcerpc_netlogon(void)
 
         { &hf_netlogon_data_length,
           { "Length of Data", "netlogon.data.length", FT_UINT32, BASE_DEC,
-            NULL, 0, "", HFILL }},
+            NULL, 0, NULL, HFILL }},
 
         { &hf_netlogon_package_name,
           { "SSP Package Name", "netlogon.data.package_name", FT_STRING, BASE_NONE,
-            NULL, 0, "", HFILL }},
+            NULL, 0, NULL, HFILL }},
 
         { &hf_netlogon_secchan_verf,
           { "Secure Channel Verifier", "netlogon.secchan.verifier", FT_NONE, BASE_NONE,
