@@ -253,6 +253,8 @@ id-ganssAddNavigationModel-req					ProtocolIE-ID
 id-ganssAddUTCModel-req							ProtocolIE-ID
 id-ganssAuxInfo-req								ProtocolIE-ID
 id-GANSS-AlmanacModelChoice						ProtocolIE-ID
+id-OTDOA-ReferenceCellInfo						ProtocolIE-ID
+id-DGNSS-ValidityPeriod							ProtocolIE-ID
 #.END
 
 #.REGISTER_NEW
@@ -356,6 +358,9 @@ GANSS-AddNavigationModel-Req					N pcap.extension id-ganssAddNavigationModel-req
 GANSS-AddUTCModel-Req							N pcap.extension id-ganssAddUTCModel-req
 GANSS-AuxInfo-req								N pcap.extension id-ganssAuxInfo-req
 #N pcap.extension id-GANSS-AlmanacModelChoice Not used?
+OTDOA-ReferenceCellInfoSAS-centric				N pcap.extension id-OTDOA-ReferenceCellInfo
+DGNSS-ValidityPeriod							N pcap.extension id-DGNSS-ValidityPeriod
+
 #PCAP-ELEMENTARY-PROCEDURE
 
 PositionCalculationRequest						N pcap.proc.imsg id-PositionCalculation

@@ -1,6 +1,6 @@
 -- $Id$
 --
--- 3GPP TS 25.453 V9.0.0 (2009-12)
+-- 3GPP TS 25.453 V9.1.0 (2010-03)
 --
 -- 9.3.6	Constant Definitions
 -- **************************************************************
@@ -197,7 +197,9 @@ id-GANSS-alm-keplerianGLONASS					ProtocolIE-ID ::= 112
 id-GANSS-alm-ecefSBASAlmanac					ProtocolIE-ID ::= 113
 id-UTRAN-GANSSReferenceTimeResult				ProtocolIE-ID ::= 114
 id-GANSS-Reference-Time-Only					ProtocolIE-ID ::= 115
-id-GANSS-AddADchoices							ProtocolIE-ID ::= 116
+id-GANSS-AddADchoices							ProtocolIE-ID ::= 116 
+id-OTDOA-ReferenceCellInfo						ProtocolIE-ID ::= 117 
+id-DGNSS-ValidityPeriod							ProtocolIE-ID ::= 118
 
 
 END

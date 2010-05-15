@@ -232,7 +232,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_GANSS_alm_ecefSBASAlmanac = 113,
   id_UTRAN_GANSSReferenceTimeResult = 114,
   id_GANSS_Reference_Time_Only = 115,
-  id_GANSS_AddADchoices = 116
+  id_GANSS_AddADchoices = 116,
+  id_OTDOA_ReferenceCellInfo = 117,
+  id_DGNSS_ValidityPeriod = 118
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-pcap-val.h ---*/
@@ -258,6 +260,7 @@ static int hf_pcap_AngleOfArrivalLCR_PDU = -1;    /* AngleOfArrivalLCR */
 static int hf_pcap_CellIDPositioning_PDU = -1;    /* CellIDPositioning */
 static int hf_pcap_ClientType_PDU = -1;           /* ClientType */
 static int hf_pcap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
+static int hf_pcap_DGNSS_ValidityPeriod_PDU = -1;  /* DGNSS_ValidityPeriod */
 static int hf_pcap_UE_PositionEstimate_PDU = -1;  /* UE_PositionEstimate */
 static int hf_pcap_UE_PositionEstimateInfo_PDU = -1;  /* UE_PositionEstimateInfo */
 static int hf_pcap_GANSS_Reference_Time_Only_PDU = -1;  /* GANSS_Reference_Time_Only */
@@ -302,6 +305,7 @@ static int hf_pcap_GANSS_EarthOrientParaReq_PDU = -1;  /* GANSS_EarthOrientParaR
 static int hf_pcap_GANSS_SBAS_ID_PDU = -1;        /* GANSS_SBAS_ID */
 static int hf_pcap_MeasInstructionsUsed_PDU = -1;  /* MeasInstructionsUsed */
 static int hf_pcap_OTDOA_MeasurementGroup_PDU = -1;  /* OTDOA_MeasurementGroup */
+static int hf_pcap_OTDOA_ReferenceCellInfoSAS_centric_PDU = -1;  /* OTDOA_ReferenceCellInfoSAS_centric */
 static int hf_pcap_OTDOA_MeasuredResultsSets_PDU = -1;  /* OTDOA_MeasuredResultsSets */
 static int hf_pcap_OTDOA_AddMeasuredResultsInfo_PDU = -1;  /* OTDOA_AddMeasuredResultsInfo */
 static int hf_pcap_UC_ID_PDU = -1;                /* UC_ID */
@@ -451,6 +455,8 @@ static int hf_pcap_iode = -1;                     /* INTEGER_0_255 */
 static int hf_pcap_udre = -1;                     /* UDRE */
 static int hf_pcap_prc = -1;                      /* PRC */
 static int hf_pcap_rrc = -1;                      /* RRC */
+static int hf_pcap_udreGrowthRate = -1;           /* UDREGrowthRate */
+static int hf_pcap_udreValidityTime = -1;         /* UDREValidityTime */
 static int hf_pcap_point = -1;                    /* GA_Point */
 static int hf_pcap_pointWithUnCertainty = -1;     /* GA_PointWithUnCertainty */
 static int hf_pcap_polygon = -1;                  /* GA_Polygon */
@@ -1400,6 +1406,7 @@ static gint ett_pcap_CriticalityDiagnostics_IE_List_item = -1;
 static gint ett_pcap_DGPSCorrections = -1;
 static gint ett_pcap_DGPS_CorrectionSatInfoList = -1;
 static gint ett_pcap_DGPS_CorrectionSatInfo = -1;
+static gint ett_pcap_DGNSS_ValidityPeriod = -1;
 static gint ett_pcap_UE_PositionEstimate = -1;
 static gint ett_pcap_GeographicalCoordinates = -1;
 static gint ett_pcap_GA_AltitudeAndDirection = -1;
@@ -1587,6 +1594,7 @@ static gint ett_pcap_MeasInstructionsUsed = -1;
 static gint ett_pcap_MeasurementValidity = -1;
 static gint ett_pcap_OTDOA_MeasurementGroup = -1;
 static gint ett_pcap_OTDOA_ReferenceCellInfo = -1;
+static gint ett_pcap_OTDOA_ReferenceCellInfoSAS_centric = -1;
 static gint ett_pcap_OTDOA_NeighbourCellInfoList = -1;
 static gint ett_pcap_OTDOA_NeighbourCellInfo = -1;
 static gint ett_pcap_OTDOA_MeasuredResultsSets = -1;
@@ -1979,6 +1987,8 @@ static const value_string pcap_ProtocolIE_ID_vals[] = {
   { id_UTRAN_GANSSReferenceTimeResult, "id-UTRAN-GANSSReferenceTimeResult" },
   { id_GANSS_Reference_Time_Only, "id-GANSS-Reference-Time-Only" },
   { id_GANSS_AddADchoices, "id-GANSS-AddADchoices" },
+  { id_OTDOA_ReferenceCellInfo, "id-OTDOA-ReferenceCellInfo" },
+  { id_DGNSS_ValidityPeriod, "id-DGNSS-ValidityPeriod" },
   { 0, NULL }
 };
 
@@ -3592,6 +3602,66 @@ static int
 dissect_pcap_DGPSCorrections(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_pcap_DGPSCorrections, DGPSCorrections_sequence);
+
+  return offset;
+}
+
+
+static const value_string pcap_UDREGrowthRate_vals[] = {
+  {   0, "growth-1-point-5" },
+  {   1, "growth-2" },
+  {   2, "growth-4" },
+  {   3, "growth-6" },
+  {   4, "growth-8" },
+  {   5, "growth-10" },
+  {   6, "growth-12" },
+  {   7, "growth-16" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_pcap_UDREGrowthRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     8, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string pcap_UDREValidityTime_vals[] = {
+  {   0, "val-20sec" },
+  {   1, "val-40sec" },
+  {   2, "val-80sec" },
+  {   3, "val-160sec" },
+  {   4, "val-320sec" },
+  {   5, "val-640sec" },
+  {   6, "val-1280sec" },
+  {   7, "val-2560sec" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_pcap_UDREValidityTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     8, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t DGNSS_ValidityPeriod_sequence[] = {
+  { &hf_pcap_udreGrowthRate , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_UDREGrowthRate },
+  { &hf_pcap_udreValidityTime, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_UDREValidityTime },
+  { &hf_pcap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_pcap_DGNSS_ValidityPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pcap_DGNSS_ValidityPeriod, DGNSS_ValidityPeriod_sequence);
 
   return offset;
 }
@@ -8252,6 +8322,21 @@ dissect_pcap_OTDOA_MeasurementGroup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
+static const per_sequence_t OTDOA_ReferenceCellInfoSAS_centric_sequence[] = {
+  { &hf_pcap_uC_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_UC_ID },
+  { &hf_pcap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_pcap_OTDOA_ReferenceCellInfoSAS_centric(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pcap_OTDOA_ReferenceCellInfoSAS_centric, OTDOA_ReferenceCellInfoSAS_centric_sequence);
+
+  return offset;
+}
+
+
 
 static int
 dissect_pcap_PrimaryScramblingCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -12190,6 +12275,14 @@ static int dissect_CriticalityDiagnostics_PDU(tvbuff_t *tvb _U_, packet_info *pi
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_DGNSS_ValidityPeriod_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_DGNSS_ValidityPeriod(tvb, offset, &asn1_ctx, tree, hf_pcap_DGNSS_ValidityPeriod_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_UE_PositionEstimate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -12539,6 +12632,14 @@ static int dissect_OTDOA_MeasurementGroup_PDU(tvbuff_t *tvb _U_, packet_info *pi
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_pcap_OTDOA_MeasurementGroup(tvb, offset, &asn1_ctx, tree, hf_pcap_OTDOA_MeasurementGroup_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_OTDOA_ReferenceCellInfoSAS_centric_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_OTDOA_ReferenceCellInfoSAS_centric(tvb, offset, &asn1_ctx, tree, hf_pcap_OTDOA_ReferenceCellInfoSAS_centric_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -13213,6 +13314,8 @@ proto_reg_handoff_pcap(void)
   dissector_add("pcap.extension", id_ganssAddNavigationModel_req, new_create_dissector_handle(dissect_GANSS_AddNavigationModel_Req_PDU, proto_pcap));
   dissector_add("pcap.extension", id_ganssAddUTCModel_req, new_create_dissector_handle(dissect_GANSS_AddUTCModel_Req_PDU, proto_pcap));
   dissector_add("pcap.extension", id_ganssAuxInfo_req, new_create_dissector_handle(dissect_GANSS_AuxInfo_req_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_OTDOA_ReferenceCellInfo, new_create_dissector_handle(dissect_OTDOA_ReferenceCellInfoSAS_centric_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_DGNSS_ValidityPeriod, new_create_dissector_handle(dissect_DGNSS_ValidityPeriod_PDU, proto_pcap));
   dissector_add("pcap.proc.imsg", id_PositionCalculation, new_create_dissector_handle(dissect_PositionCalculationRequest_PDU, proto_pcap));
   dissector_add("pcap.proc.sout", id_PositionCalculation, new_create_dissector_handle(dissect_PositionCalculationResponse_PDU, proto_pcap));
   dissector_add("pcap.proc.uout", id_PositionCalculation, new_create_dissector_handle(dissect_PositionCalculationFailure_PDU, proto_pcap));
@@ -13303,6 +13406,10 @@ void proto_register_pcap(void) {
         NULL, HFILL }},
     { &hf_pcap_CriticalityDiagnostics_PDU,
       { "CriticalityDiagnostics", "pcap.CriticalityDiagnostics",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pcap_DGNSS_ValidityPeriod_PDU,
+      { "DGNSS-ValidityPeriod", "pcap.DGNSS_ValidityPeriod",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_pcap_UE_PositionEstimate_PDU,
@@ -13479,6 +13586,10 @@ void proto_register_pcap(void) {
         NULL, HFILL }},
     { &hf_pcap_OTDOA_MeasurementGroup_PDU,
       { "OTDOA-MeasurementGroup", "pcap.OTDOA_MeasurementGroup",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pcap_OTDOA_ReferenceCellInfoSAS_centric_PDU,
+      { "OTDOA-ReferenceCellInfoSAS-centric", "pcap.OTDOA_ReferenceCellInfoSAS_centric",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_pcap_OTDOA_MeasuredResultsSets_PDU,
@@ -14076,6 +14187,14 @@ void proto_register_pcap(void) {
     { &hf_pcap_rrc,
       { "rrc", "pcap.rrc",
         FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pcap_udreGrowthRate,
+      { "udreGrowthRate", "pcap.udreGrowthRate",
+        FT_UINT32, BASE_DEC, VALS(pcap_UDREGrowthRate_vals), 0,
+        NULL, HFILL }},
+    { &hf_pcap_udreValidityTime,
+      { "udreValidityTime", "pcap.udreValidityTime",
+        FT_UINT32, BASE_DEC, VALS(pcap_UDREValidityTime_vals), 0,
         NULL, HFILL }},
     { &hf_pcap_point,
       { "point", "pcap.point",
@@ -17741,6 +17860,7 @@ void proto_register_pcap(void) {
     &ett_pcap_DGPSCorrections,
     &ett_pcap_DGPS_CorrectionSatInfoList,
     &ett_pcap_DGPS_CorrectionSatInfo,
+    &ett_pcap_DGNSS_ValidityPeriod,
     &ett_pcap_UE_PositionEstimate,
     &ett_pcap_GeographicalCoordinates,
     &ett_pcap_GA_AltitudeAndDirection,
@@ -17928,6 +18048,7 @@ void proto_register_pcap(void) {
     &ett_pcap_MeasurementValidity,
     &ett_pcap_OTDOA_MeasurementGroup,
     &ett_pcap_OTDOA_ReferenceCellInfo,
+    &ett_pcap_OTDOA_ReferenceCellInfoSAS_centric,
     &ett_pcap_OTDOA_NeighbourCellInfoList,
     &ett_pcap_OTDOA_NeighbourCellInfo,
     &ett_pcap_OTDOA_MeasuredResultsSets,

@@ -1,6 +1,6 @@
 -- $Id$
 --
--- 3GPP TS 25.453 V9.0.0 (2009-12)
+-- 3GPP TS 25.453 V9.1.0 (2010-03)
 --
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
@@ -108,7 +108,8 @@ IMPORTS
 	id-ganssAddNavigationModel-req,
 	id-ganssAddUTCModel-req,
 	id-ganssAuxInfo-req,
-	id-GANSS-AlmanacModelChoice
+	id-GANSS-AlmanacModelChoice,
+	id-DGNSS-ValidityPeriod
 
 
 
@@ -596,6 +597,18 @@ DGPS-CorrectionSatInfo ::=			SEQUENCE {
 }
 
 DGPS-CorrectionSatInfo-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	{ID id-DGNSS-ValidityPeriod	CRITICALITY	ignore	EXTENSION	DGNSS-ValidityPeriod	PRESENCE	optional},
+	...
+}
+
+DGNSS-ValidityPeriod ::= 			SEQUENCE {
+	udreGrowthRate						UDREGrowthRate,
+	udreValidityTime					UDREValidityTime,
+	iE-Extensions						ProtocolExtensionContainer { { DGNSS-ValidityPeriod-ExtIEs } }		OPTIONAL,
+	...
+}
+
+DGNSS-ValidityPeriod-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -604,6 +617,26 @@ UDRE ::=							ENUMERATED {
 										between1-and-4,
 										between4-and-8,
 										over8 }
+
+UDREGrowthRate ::=					ENUMERATED { 	
+										growth-1-point-5, 
+										growth-2,
+										growth-4,
+										growth-6,
+										growth-8,
+										growth-10,
+										growth-12,
+										growth-16	}
+
+UDREValidityTime	::=					ENUMERATED {
+											val-20sec,
+											val-40sec,
+											val-80sec,
+											val-160sec,
+											val-320sec,
+											val-640sec,
+											val-1280sec,
+											val-2560sec	}
 
 PRC ::=								INTEGER (-2047..2047)
 
@@ -1014,7 +1047,7 @@ DGANSS-SignalInformationItem ::= SEQUENCE {
 	...
 }
 
-DGANSS-SignalInformationItem-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+DGANSS-SignalInformationItem-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {	{ID id-DGNSS-ValidityPeriod	CRITICALITY	ignore	EXTENSION	DGNSS-ValidityPeriod	PRESENCE	OPTIONAL},
 	...
 }
 
@@ -2939,6 +2972,16 @@ OTDOA-ReferenceCellInfo-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-TUTRANGANSSMeasurementValueInfo		CRITICALITY ignore	EXTENSION TUTRANGANSSMeasurementValueInfo				PRESENCE optional }|
 	{ ID id-additionalMeasurementInforLCR		CRITICALITY ignore	EXTENSION AdditionalMeasurementInforLCR				PRESENCE optional },
 	 -- 1.28Mcps TDD only
+	...
+}
+
+OTDOA-ReferenceCellInfoSAS-centric ::=			SEQUENCE {
+	uC-ID								UC-ID,
+	iE-Extensions						ProtocolExtensionContainer { { OTDOA-ReferenceCellInfoSAS-centric-ExtIEs } }		OPTIONAL,
+	...
+}
+
+OTDOA-ReferenceCellInfoSAS-centric-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 

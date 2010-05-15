@@ -1,6 +1,6 @@
 -- $Id$
 --
--- 3GPP TS 25.453 V9.0.0 (2009-12)
+-- 3GPP TS 25.453  V9.1.0 (2010-03)
 --
 --9.3.3	PDU Definitions
 -- **************************************************************
@@ -68,7 +68,8 @@ IMPORTS
 	GANSSPositioning,
 	GANSS-UTRAN-TRU,
 	AdditionalGPSAssistDataRequired,
-	AdditionalGanssAssistDataRequired
+	AdditionalGanssAssistDataRequired,
+	OTDOA-ReferenceCellInfoSAS-centric
 
 FROM PCAP-IEs
 
@@ -136,7 +137,8 @@ FROM PCAP-Containers
 	id-GANSSPositioning,
 	id-GANSS-UTRAN-TRU,
 	id-AdditionalGPSAssistDataRequired,
-	id-AdditionalGanssAssistDataRequired
+	id-AdditionalGanssAssistDataRequired,
+	id-OTDOA-ReferenceCellInfo
 
 FROM PCAP-Constants;
 
@@ -480,7 +482,8 @@ PositionActivationResponseExtensions PCAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-MeasInstructionsUsed					CRITICALITY ignore	EXTENSION MeasInstructionsUsed						PRESENCE optional} |
 	{ ID id-GANSS-MeasuredResultsList				CRITICALITY reject	EXTENSION GANSS-MeasuredResultsList				PRESENCE optional } |
 	{ ID id-AdditionalGPSAssistDataRequired			CRITICALITY ignore	EXTENSION AdditionalGPSAssistDataRequired		PRESENCE optional } |
-	{ ID id-AdditionalGanssAssistDataRequired		CRITICALITY ignore	EXTENSION AdditionalGanssAssistDataRequired		PRESENCE optional },
+	{ ID id-AdditionalGanssAssistDataRequired		CRITICALITY ignore	EXTENSION AdditionalGanssAssistDataRequired		PRESENCE optional } |
+	{ ID id-OTDOA-ReferenceCellInfo					CRITICALITY reject	EXTENSION OTDOA-ReferenceCellInfoSAS-centric	PRESENCE optional },
 	...
 }
 
@@ -700,7 +703,8 @@ PositionPeriodicReport-IEs PCAP-PROTOCOL-IES ::= {
 PositionPeriodicReport-Extensions PCAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-GANSS-MeasuredResultsList				CRITICALITY ignore	EXTENSION GANSS-MeasuredResultsList				PRESENCE optional } |
 	{ ID id-AdditionalGPSAssistDataRequired			CRITICALITY ignore	EXTENSION AdditionalGPSAssistDataRequired		PRESENCE optional } |
-	{ ID id-AdditionalGanssAssistDataRequired		CRITICALITY ignore	EXTENSION AdditionalGanssAssistDataRequired		PRESENCE optional },
+	{ ID id-AdditionalGanssAssistDataRequired		CRITICALITY ignore	EXTENSION AdditionalGanssAssistDataRequired		PRESENCE optional } |
+	{ ID id-OTDOA-ReferenceCellInfo					CRITICALITY reject	EXTENSION OTDOA-ReferenceCellInfoSAS-centric	PRESENCE optional },
 	...
 }
 
@@ -750,4 +754,3 @@ PositionPeriodicTermination-Extensions PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 END
-
