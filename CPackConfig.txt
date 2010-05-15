@@ -22,14 +22,19 @@
 #
 
 set(CPACK_PACKAGE_NAME wireshark)
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "capture packet")
-set(CPACK_PACKAGE_VENDOR "wireshark")
+set(CPACK_PACKAGE_DESCRIPTION "A set of command line and gui tools to capture and decode traffic")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Packet capturing and decoding")
+set(CPACK_PACKAGE_VENDOR "Wireshark developers")
+set(CPACK_PACKAGE_NAME "wireshark")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_MAJOR_VERSION}")
 set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_MINOR_VERSION}")
 set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_PATCH_VERSION}${PROJECT_VERSION_EXTENSION}")
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_CONTACT "wireshark-users@wireshark.org")
+# set(CPACK_PACKAGE_EXECUTABLES "wireshark")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
+set(CPACK_STRIP_FILES true)
 
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "/usr")
@@ -39,4 +44,42 @@ set(CPACK_PACKAGE_INSTALL_DIRECTORY "/usr")
 # Syntax: "Type1;Type2;Type3"
 set(CPACK_GENERATOR "TGZ")
 #set(CPACK_SOURCE_GENERATOR "TGZ")
+
+#===============================================
+# IF(APPLE)
+#         SET(CPACK_GENERATOR "${CPACK_GENERATOR};Bundle")
+#         SET(CPACK_BUNDLE_ICON "${OBDGPSLogger_SOURCE_DIR}/osx/BundleIcon.icns")
+#         SET(CPACK_BUNDLE_NAME "OBD GPS Logger")
+#         SET(CPACK_BUNDLE_PLIST "${OBDGPSLogger_SOURCE_DIR}/osx/Info.plist")
+#         SET(CPACK_BUNDLE_STARTUP_COMMAND "${OBDGPSLogger_SOURCE_DIR}/osx/StartupCommand")
+#
+#         IF(GPSD_DAEMON)
+#                 INSTALL(PROGRAMS ${GPSD_DAEMON}
+#                                 DESTINATION sbin/)
+#         ENDIF(GPSD_DAEMON)
+# ELSE(APPLE)
+#
+#         # If we can find rpmbuild, then go for it
+#         FIND_PROGRAM(RPMBUILD_TEST rpmbuild INTERNAL)
+#         IF(RPMBUILD_TEST)
+#                 SET(CPACK_GENERATOR "${CPACK_GENERATOR};RPM")
+#                 SET(CPACK_RPM_PACKAGE_REQUIRES "gpsd >= 2.0")
+#                 SET(CPACK_RPM_PACKAGE_LICENSE "GPLv2+")
+#         ENDIF(RPMBUILD_TEST)
+#
+#         # If we can find dpkg, build a .deb
+#         #FIND_PROGRAM(DPKG_TEST dpkg INTERNAL)
+#         #IF(DPKG_TEST)
+#                 SET(CPACK_GENERATOR "${CPACK_GENERATOR};DEB")
+#                 SET(CPACK_DEBIAN_PACKAGE_DEPENDS "gpsd (>=2.0)")
+#                 SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION ${CPACK_PACKAGE_DESCRIPTION})
+#         #ENDIF(DPKG_TEST)
+#
+# ENDIF(APPLE)
+#
+#
+#
+#===============================================
+
+include(CPack)
 

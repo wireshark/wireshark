@@ -302,6 +302,8 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-pointer-sign)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wformat-security)
+# Use the faster pre gcc 4.5 floating point precision
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-fexcess-precision=fast)
 
 AC_WIRESHARK_GCC_LDFLAGS_CHECK([-Wl,--as-needed])
 # AC_WIRESHARK_GCC_LDFLAGS_CHECK([-flto])

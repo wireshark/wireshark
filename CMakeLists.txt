@@ -92,42 +92,8 @@ if(NOT LIBRARY_OUTPUT_PATH)
 		   "Single output directory for building all libraries.")
 endif()
 
-option(BUILD_wireshark   "Build the GUI version of Wireshark" ON)
-option(BUILD_tshark      "Build tshark" ON)
-option(BUILD_rawshark    "Build rawshark" ON)
-option(BUILD_dumpcap     "Build dumpcap" ON)
-option(BUILD_text2pcap   "Build text2pcap" ON)
-option(BUILD_mergecap    "Build mergecap" ON)
-option(BUILD_editcap     "Build editcap" ON)
-option(BUILD_capinfos    "Build capinfos" ON)
-option(BUILD_randpkt     "Build randpkt" ON)
-option(BUILD_dftest      "Build dftest" ON)
-option(AUTOGEN_dcerpc    "Autogenerate dcerpc dissectors" OFF)
-option(AUTOGEN_pidl      "Autogenerate pidl dissectors" OFF)
 
-option(DISABLE_WERROR	 "Do not treat Warnings as errors" OFF)
-option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC (disables -Werror)" OFF)
-option(ENABLE_AIRPCAP	 "Enable Airpcap support" ON)
-# todo
-option(ENABLE_STATIC     "Build a static version of Wireshark (not yet working)" OFF)
-option(ENABLE_PLUGINS    "Build with plugins" ON)
-# todo
-option(ENABLE_GUIDES     "Build Guides" ON)
-
-option(ENABLE_ADNS       "Build with adns support" ON)
-option(ENABLE_PCRE       "Build with pcre support" ON)
-option(ENABLE_PORTAUDIO  "Build with portaudio support" ON)
-option(ENABLE_ZLIB       "Build with zlib compression support" ON)
-option(ENABLE_LUA	 "Build with lua dissector support" ON)
-option(ENABLE_PYTHON	 "Build with python dissector support" ON)
-option(ENABLE_SMI	 "Build with smi snmp support" ON)
-option(ENABLE_GNUTLS	 "Build with GNU TLS support" ON)
-option(ENABLE_GCRYPT	 "Build with GNU crypto support" ON)
-option(ENABLE_GEOIP	 "Build with GeoIP support" ON)
-option(ENABLE_CAP	 "Build with posix capabilities support" ON)
-option(ENABLE_CARES      "Build with c_ares support" ON)
-# todo Mostly hardcoded
-option(ENABLE_KERBEROS	 "Build with Kerberos support" ON)
+include(CMakeOptions.txt)
 
 
 set(WIRESHARK_C_FLAGS
@@ -142,6 +108,7 @@ set(WIRESHARK_C_FLAGS
 	-Warray-bounds
 	-Wcast-align
 	-Wformat-security
+	-fexcess-precision=fast
 )
 
 set(WIRESHARK_EXTRA_C_FLAGS
