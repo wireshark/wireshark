@@ -164,7 +164,7 @@
  */
 static GtkWidget *cap_open_w;
 static GtkWidget * dl_hdr_menu=NULL;
-static GHashTable *linktype_history=NULL;
+static GHashTable *cap_settings_history=NULL;
 
 #ifdef HAVE_PCAP_REMOTE
 static GHashTable *remote_host_list=NULL;
@@ -227,24 +227,25 @@ capture_restart_cb(GtkWidget *w _U_, gpointer d _U_)
     capture_restart(&global_capture_opts);
 }
 
-gint
-capture_get_linktype (gchar *if_name)
+cap_settings_t
+capture_get_cap_settings (gchar *if_name)
 {
-  gint linktype, *linktype_p;
+  cap_settings_t cap_settings, *cap_settings_p;
 
-  if (linktype_history) {
-    linktype_p = g_hash_table_lookup(linktype_history, if_name);
+  if (cap_settings_history) {
+    cap_settings_p = g_hash_table_lookup(cap_settings_history, if_name);
   } else {
-    linktype_p = NULL;
+    cap_settings_p = NULL;
   }
 
-  if (linktype_p) {
-    linktype = *linktype_p;
+  if (cap_settings_p) {
+    cap_settings = *cap_settings_p;
   } else {
-    linktype = capture_dev_user_linktype_find(if_name);
+    cap_settings.monitor_mode = prefs_capture_device_monitor_mode(if_name);
+    cap_settings.linktype = capture_dev_user_linktype_find(if_name);;
   }
 
-  return linktype;
+  return cap_settings;
 }
 
 /*
@@ -255,7 +256,7 @@ capture_get_linktype (gchar *if_name)
  * it will be disabled.
  */
 static void
-set_if_capabilities(void)
+set_if_capabilities(gboolean monitor_mode_changed)
 {
   gchar *entry_text;
   gchar *if_text;
@@ -267,7 +268,8 @@ set_if_capabilities(void)
   int err;
   GtkWidget *lt_menu, *lt_menu_item;
   GList *lt_entry;
-  gint linktype, linktype_select, linktype_count;
+  cap_settings_t cap_settings;
+  gint linktype_select, linktype_count;
   data_link_info_t *data_link_info;
   gchar *linktype_menu_label;
   guint num_supported_link_types;
@@ -287,7 +289,6 @@ set_if_capabilities(void)
 #ifdef HAVE_PCAP_CREATE
   GtkWidget *monitor_cb = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_MONITOR_KEY);
 #endif
-  gboolean monitor_mode;
 #ifdef HAVE_AIRPCAP
   GtkWidget *advanced_bt;
 #endif
@@ -301,7 +302,16 @@ set_if_capabilities(void)
   entry_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
   if_text = g_strstrip(entry_text);
   if_name = g_strdup(get_if_name(if_text));
-  linktype = capture_get_linktype(if_name);
+  cap_settings = capture_get_cap_settings(if_name);
+  if (monitor_mode_changed) {
+#ifdef HAVE_PCAP_CREATE
+    /* Get the new setting of the monitor mode button. */
+    cap_settings.monitor_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor_cb));
+#else
+    /* No monitor-mode support. */
+    cap_settings.monitor_mode = FALSE;
+#endif
+  }
 
 #ifdef HAVE_AIRPCAP
   /* is it an airpcap interface??? */
@@ -354,18 +364,16 @@ set_if_capabilities(void)
 	if (strcmp(if_info->name, if_name) == 0) {
 	  /*
 	   * It's in the list.
-	   * Get the list of link-layer types for it.
+	   * Get the interface capabilities for it.
 	   */
 #ifdef HAVE_PCAP_REMOTE
-          if (iftype == CAPTURE_IFLOCAL)
-            /* Not able to get link-layer for remote interfaces */
+          if (iftype == CAPTURE_IFREMOTE) {
+            /* Not able to get interface capabilities for remote interfaces */
+            caps = NULL;
+          } else
 #endif
-#ifdef HAVE_PCAP_CREATE
-          monitor_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor_cb));
-#else
-          monitor_mode = FALSE;
-#endif
-	  caps = capture_get_if_capabilities(if_name, monitor_mode, NULL);
+          caps = capture_get_if_capabilities(if_name, cap_settings.monitor_mode,
+                                             NULL);
 
 	  /* create string of list of IP addresses of this interface */
 	  for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
@@ -428,8 +436,8 @@ set_if_capabilities(void)
         lt_menu_item = gtk_menu_item_new_with_label(linktype_menu_label);
         g_free(linktype_menu_label);
       }
-      if (data_link_info->dlt == linktype) {
-        /* Found a matching dlt, selecth this */
+      if (data_link_info->dlt == cap_settings.linktype) {
+        /* Found a matching dlt, select this */
         linktype_select = linktype_count;
       }
       gtk_menu_shell_append(GTK_MENU_SHELL(lt_menu), lt_menu_item);
@@ -451,8 +459,14 @@ set_if_capabilities(void)
   gtk_widget_set_sensitive(linktype_lb, num_supported_link_types >= 2);
   gtk_widget_set_sensitive(linktype_om, num_supported_link_types >= 2);
 
-  g_object_set_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(linktype));
+  g_object_set_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(cap_settings.linktype));
   global_capture_opts.linktype = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY));
+
+#ifdef HAVE_PCAP_CREATE
+  /* Set the monitor-mode checkbox to the appropriate value */
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(monitor_cb),
+                               cap_settings.monitor_mode);
+#endif
 
   /* Restore the menu to the last index used */
   gtk_option_menu_set_history(GTK_OPTION_MENU(linktype_om),linktype_select);
@@ -486,31 +500,31 @@ static GtkWidget *time_unit_combo_box_new(guint32 value) {
     GtkWidget *unit_combo_box;
     int i;
 
-	unit_combo_box = gtk_combo_box_new_text ();
-	for(i=0;i<MAX_TIME_UNITS;i++){
-		gtk_combo_box_append_text (GTK_COMBO_BOX (unit_combo_box), time_unit_name[i]);
-	}
+    unit_combo_box = gtk_combo_box_new_text ();
+    for(i = 0; i < MAX_TIME_UNITS; i++) {
+        gtk_combo_box_append_text (GTK_COMBO_BOX (unit_combo_box), time_unit_name[i]);
+    }
     /* the selected combo_box item can't be changed, once the combo_box
        is created, so set the matching combo_box item now */
     /* days */
     if(value >= 60 * 60 * 24) {
-		 gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), TIME_UNIT_DAY);
+         gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), TIME_UNIT_DAY);
     } else {
         /* hours */
         if(value >= 60 * 60) {
-			gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), TIME_UNIT_HOUR);
+            gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), TIME_UNIT_HOUR);
         } else {
             /* minutes */
             if(value >= 60) {
-				gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), TIME_UNIT_MINUTE);
+                gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), TIME_UNIT_MINUTE);
             } else {
                 /* seconds */
-				gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), TIME_UNIT_SECOND);
+                gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), TIME_UNIT_SECOND);
             }
         }
     }
 
-	return unit_combo_box;
+    return unit_combo_box;
 }
 
 /* convert time value from raw to displayed (e.g. 60s -> 1min) */
@@ -1716,8 +1730,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* g_object_set_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1)); */
   g_object_set_data(G_OBJECT(linktype_om), E_CAP_IFACE_KEY, if_ip_lb);
   dl_hdr_menu=NULL;
-  if (linktype_history == NULL) {
-    linktype_history = g_hash_table_new(g_str_hash, g_str_equal);
+  if (cap_settings_history == NULL) {
+    cap_settings_history = g_hash_table_new(g_str_hash, g_str_equal);
   }
   /*
    * XXX - in some cases, this is "multiple link-layer header types", e.g.
@@ -1780,7 +1794,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
    * you have it, the monitor mode checkbox.  That's why we do this
    * now.
    */
-  set_if_capabilities();
+  set_if_capabilities(FALSE);
 
   /* Pcap-NG row */
   pcap_ng_cb = gtk_check_button_new_with_mnemonic("Capture packets in pcap-ng format (experimental)");
@@ -2392,7 +2406,7 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   gpointer  dialog;
   gchar *if_name;
-  gint *linktype_p = NULL;
+  cap_settings_t *cap_settings_p = NULL;
 
 #ifdef HAVE_AIRPCAP
   airpcap_if_active = airpcap_if_selected;
@@ -2433,16 +2447,18 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
     if_name = g_strdup(global_capture_opts.iface);
   }
 
-  if (linktype_history != NULL) {
-    linktype_p = g_hash_table_lookup(linktype_history, if_name);
-    if (linktype_p == NULL) {
-      linktype_p = g_malloc(sizeof (int));
-      g_hash_table_insert(linktype_history, if_name, linktype_p);
+  if (cap_settings_history != NULL) {
+    cap_settings_p = g_hash_table_lookup(cap_settings_history, if_name);
+    if (cap_settings_p == NULL) {
+      cap_settings_p = g_malloc(sizeof (cap_settings_t));
+      g_hash_table_insert(cap_settings_history, if_name, cap_settings_p);
     } else {
       g_free(if_name);
     }
-    *linktype_p = global_capture_opts.linktype;
+    cap_settings_p->monitor_mode = global_capture_opts.monitor_mode;
+    cap_settings_p->linktype = global_capture_opts.linktype;
   } else {
+    global_capture_opts.monitor_mode = prefs_capture_device_monitor_mode(if_name);
     global_capture_opts.linktype = capture_dev_user_linktype_find(if_name);
     g_free(if_name);
   }
@@ -2919,7 +2935,7 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 static void
 capture_prep_interface_changed_cb(GtkWidget *entry _U_, gpointer argp _U_)
 {
-  set_if_capabilities();
+  set_if_capabilities(FALSE);
 }
 
 #ifdef HAVE_PCAP_CREATE
@@ -2927,7 +2943,7 @@ capture_prep_interface_changed_cb(GtkWidget *entry _U_, gpointer argp _U_)
 static void
 capture_prep_monitor_changed_cb(GtkWidget *monitor _U_, gpointer argp _U_)
 {
-  set_if_capabilities();
+  set_if_capabilities(TRUE);
 }
 #endif
 

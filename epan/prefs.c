@@ -1194,24 +1194,25 @@ init_prefs(void) {
       G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_ERROR;
 
 /* set the default values for the capture dialog box */
-  prefs.capture_device           = NULL;
-  prefs.capture_devices_linktypes= NULL;
-  prefs.capture_devices_descr    = NULL;
-  prefs.capture_devices_hide     = NULL;
-  prefs.capture_prom_mode        = TRUE;
-  prefs.capture_pcap_ng          = FALSE;
-  prefs.capture_real_time        = TRUE;
-  prefs.capture_auto_scroll      = TRUE;
-  prefs.capture_show_info        = FALSE;
+  prefs.capture_device                = NULL;
+  prefs.capture_devices_linktypes     = NULL;
+  prefs.capture_devices_descr         = NULL;
+  prefs.capture_devices_hide          = NULL;
+  prefs.capture_devices_monitor_mode  = NULL;
+  prefs.capture_prom_mode             = TRUE;
+  prefs.capture_pcap_ng               = FALSE;
+  prefs.capture_real_time             = TRUE;
+  prefs.capture_auto_scroll           = TRUE;
+  prefs.capture_show_info             = FALSE;
 
 /* set the default values for the name resolution dialog box */
   prefs.name_resolve             = RESOLV_ALL ^ RESOLV_NETWORK;
   prefs.name_resolve_concurrency = 500;
   prefs.load_smi_modules         = FALSE;
-  prefs.suppress_smi_errors	     = FALSE;
+  prefs.suppress_smi_errors	 = FALSE;
 
 /* set the default values for the tap/statistics dialog box */
-  prefs.tap_update_interval = TAP_UPDATE_DEFAULT_INTERVAL;
+  prefs.tap_update_interval    = TAP_UPDATE_DEFAULT_INTERVAL;
   prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
 
   prefs.display_hidden_proto_items = FALSE;
@@ -1239,6 +1240,7 @@ prefs_reset(void)
   g_free(prefs.capture_devices_linktypes);
   g_free(prefs.capture_devices_descr);
   g_free(prefs.capture_devices_hide);
+  g_free(prefs.capture_devices_monitor_mode);
 
   uat_unload_all();
   oids_cleanup();
@@ -1622,6 +1624,30 @@ prefs_is_capture_device_hidden(const char *name)
 	return FALSE;
 }
 
+/*
+ * Returns TRUE if the given device should capture in monitor mode by default
+ */
+gboolean
+prefs_capture_device_monitor_mode(const char *name)
+{
+	gchar *tok, *devices;
+	size_t len;
+
+	if (prefs.capture_devices_monitor_mode && name) {
+		devices = g_strdup (prefs.capture_devices_monitor_mode);
+		len = strlen (name);
+		for (tok = strtok (devices, ","); tok; tok = strtok(NULL, ",")) {
+			if (strlen (tok) == len && strcmp (name, tok) == 0) {
+				g_free (devices);
+				return TRUE;
+			}
+		}
+		g_free (devices);
+	}
+
+	return FALSE;
+}
+
 #define PRS_PRINT_FMT                    "print.format"
 #define PRS_PRINT_DEST                   "print.destination"
 #define PRS_PRINT_FILE                   "print.file"
@@ -1692,15 +1718,16 @@ prefs_is_capture_device_hidden(const char *name)
 #define PRS_CAP_NAME_RESOLVE "capture.name_resolve"
 
 /*  values for the capture dialog box */
-#define PRS_CAP_DEVICE        "capture.device"
-#define PRS_CAP_DEVICES_LINKTYPES "capture.devices_linktypes"
-#define PRS_CAP_DEVICES_DESCR "capture.devices_descr"
-#define PRS_CAP_DEVICES_HIDE  "capture.devices_hide"
-#define PRS_CAP_PROM_MODE     "capture.prom_mode"
-#define PRS_CAP_PCAP_NG       "capture.pcap_ng"
-#define PRS_CAP_REAL_TIME     "capture.real_time_update"
-#define PRS_CAP_AUTO_SCROLL   "capture.auto_scroll"
-#define PRS_CAP_SHOW_INFO     "capture.show_info"
+#define PRS_CAP_DEVICE               "capture.device"
+#define PRS_CAP_DEVICES_LINKTYPES    "capture.devices_linktypes"
+#define PRS_CAP_DEVICES_DESCR        "capture.devices_descr"
+#define PRS_CAP_DEVICES_HIDE         "capture.devices_hide"
+#define PRS_CAP_DEVICES_MONITOR_MODE "capture.devices_monitor_mode"
+#define PRS_CAP_PROM_MODE            "capture.prom_mode"
+#define PRS_CAP_PCAP_NG              "capture.pcap_ng"
+#define PRS_CAP_REAL_TIME            "capture.real_time_update"
+#define PRS_CAP_AUTO_SCROLL          "capture.auto_scroll"
+#define PRS_CAP_SHOW_INFO            "capture.show_info"
 
 #define RED_COMPONENT(x)   (guint16) (((((x) >> 16) & 0xff) * 65535 / 255))
 #define GREEN_COMPONENT(x) (guint16) (((((x) >>  8) & 0xff) * 65535 / 255))
@@ -2162,11 +2189,14 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
   } else if (strcmp(pref_name, PRS_CAP_DEVICES_HIDE) == 0) {
     g_free(prefs.capture_devices_hide);
     prefs.capture_devices_hide = g_strdup(value);
+  } else if (strcmp(pref_name, PRS_CAP_DEVICES_MONITOR_MODE) == 0) {
+    g_free(prefs.capture_devices_monitor_mode);
+    prefs.capture_devices_monitor_mode = g_strdup(value);
   } else if (strcmp(pref_name, PRS_CAP_PROM_MODE) == 0) {
     prefs.capture_prom_mode = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
-   } else if (strcmp(pref_name, PRS_CAP_PCAP_NG) == 0) {
+  } else if (strcmp(pref_name, PRS_CAP_PCAP_NG) == 0) {
     prefs.capture_pcap_ng = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
- } else if (strcmp(pref_name, PRS_CAP_REAL_TIME) == 0) {
+  } else if (strcmp(pref_name, PRS_CAP_REAL_TIME) == 0) {
     prefs.capture_real_time = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else if (strcmp(pref_name, PRS_CAP_AUTO_SCROLL) == 0) {
     prefs.capture_auto_scroll = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
@@ -3023,6 +3053,12 @@ write_prefs(char **pf_path_return)
     fprintf(pf, PRS_CAP_DEVICES_HIDE ": %s\n", prefs.capture_devices_hide);
   }
 
+  if (prefs.capture_devices_monitor_mode != NULL) {
+    fprintf(pf, "\n# By default, capture in monitor mode on interface?\n");
+    fprintf(pf, "# Ex: eth0,eth3,...\n");
+    fprintf(pf, PRS_CAP_DEVICES_MONITOR_MODE ": %s\n", prefs.capture_devices_monitor_mode);
+  }
+
   fprintf(pf, "\n# Capture in promiscuous mode?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_CAP_PROM_MODE ": %s\n",
@@ -3183,6 +3219,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->capture_devices_linktypes = g_strdup(src->capture_devices_linktypes);
   dest->capture_devices_descr = g_strdup(src->capture_devices_descr);
   dest->capture_devices_hide = g_strdup(src->capture_devices_hide);
+  dest->capture_devices_monitor_mode = g_strdup(src->capture_devices_monitor_mode);
   dest->capture_prom_mode = src->capture_prom_mode;
   dest->capture_pcap_ng = src->capture_pcap_ng;
   dest->capture_real_time = src->capture_real_time;
@@ -3241,6 +3278,10 @@ free_prefs(e_prefs *pr)
     g_free(pr->capture_devices_hide);
     pr->capture_devices_hide = NULL;
   }
+  if (pr->capture_devices_monitor_mode != NULL) {
+    g_free(pr->capture_devices_monitor_mode);
+    pr->capture_devices_monitor_mode = NULL;
+  }
 }
 
 static void
@@ -3260,5 +3301,3 @@ free_col_info(e_prefs *pr)
   g_list_free(pr->col_list);
   pr->col_list = NULL;
 }
-
-

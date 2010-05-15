@@ -71,12 +71,26 @@ void capture_start_confirmed(void);
 void
 capture_air_cb(GtkWidget *widget, gpointer data);
 
-/** Get linktype for interface
+/*
+ * We remember the capture settings for each interface when a capture
+ * is started on it; the next time we select that interface we start
+ * out with those settings.
+ *
+ * XXX - we currently only do that for monitor mode and the link-layer
+ * type; arguably we should do it for the snapshot length, and perhaps
+ * promiscuous mode.
+ */
+typedef struct {
+	gboolean	monitor_mode;
+	int		linktype;
+} cap_settings_t;
+
+/** Get capture settings for interface
  *
  * @param if_name interface name
  */
-gint
-capture_get_linktype (gchar *if_name);
+cap_settings_t
+capture_get_cap_settings (gchar *if_name);
 
 
 #ifdef HAVE_PCAP_REMOTE

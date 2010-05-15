@@ -540,6 +540,8 @@ main_welcome_add_recent_capture_files(const char *widget_cf_name)
 static gboolean
 welcome_if_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data)
 {
+    cap_settings_t cap_settings;
+
     g_free(global_capture_opts.iface);
     g_free(global_capture_opts.iface_descr);
 
@@ -547,7 +549,9 @@ welcome_if_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data)
     global_capture_opts.iface_descr = NULL;
     /* XXX - fix this */
     /*global_capture_opts.iface_descr = get_interface_descriptive_name(global_capture_opts.iface);*/
-    global_capture_opts.linktype = capture_get_linktype (global_capture_opts.iface);
+    cap_settings = capture_get_cap_settings (global_capture_opts.iface);;
+    global_capture_opts.monitor_mode = cap_settings.monitor_mode;
+    global_capture_opts.linktype = cap_settings.linktype;
 
     /* XXX - remove this? */
     if (global_capture_opts.save_file) {

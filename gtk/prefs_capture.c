@@ -67,6 +67,9 @@
 
 /* interface options dialog */
 static GtkWidget *cur_list, *if_dev_lb, *if_name_lb, *if_linktype_cb, *if_descr_te, *if_hide_cb;
+#ifdef HAVE_PCAP_CREATE
+static GtkWidget *if_monitor_cb;
+#endif
 static GtkTreeSelection *if_selection;	/* current interface row selected */
 static int num_linktypes;
 static gboolean interfaces_info_nochange;  /* TRUE to ignore Interface Options Properties */
@@ -76,12 +79,18 @@ static void ifopts_edit_cb(GtkWidget *w, gpointer data);
 static void ifopts_edit_ok_cb(GtkWidget *w, gpointer parent_w);
 static void ifopts_edit_destroy_cb(GtkWidget *win, gpointer data);
 static void ifopts_edit_ifsel_cb(GtkTreeSelection *selection, gpointer data);
+#ifdef HAVE_PCAP_CREATE
+static void ifopts_edit_monitor_changed_cb(GtkToggleButton *tbt, gpointer udata);
+#endif
 static void ifopts_edit_linktype_changed_cb(GtkComboBox *ed, gpointer udata);
 static void ifopts_edit_descr_changed_cb(GtkEditable *ed, gpointer udata);
 static void ifopts_edit_hide_changed_cb(GtkToggleButton *tbt, gpointer udata);
 static void ifopts_options_add(GtkListStore *list_store, if_info_t *if_info);
 static void ifopts_options_free(gchar *text[]);
 static void ifopts_if_liststore_add(void);
+#ifdef HAVE_PCAP_CREATE
+static void ifopts_write_new_monitor_mode(void);
+#endif
 static void ifopts_write_new_linklayer(void);
 static void ifopts_write_new_descr(void);
 static void ifopts_write_new_hide(void);
@@ -273,6 +282,9 @@ enum
 {
 	DEVICE_COLUMN,
 	DESC_COLUMN,
+#ifdef HAVE_PCAP_CREATE
+	DEF_MONITOR_MODE_COLUMN,
+#endif
 	DEF_LINK_LAYER_COLUMN,
 	COMMENT_COLUMN,
 	HIDE_COLUMN,
@@ -285,7 +297,11 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 {
 	GtkWidget	  *ifopts_edit_dlg, *cur_scr_win, *main_hb, *main_tb,
 			  *cur_opts_fr, *ed_opts_fr, *main_vb,
-			  *if_linktype_lb, *if_descr_lb, *if_hide_lb,
+			  *if_linktype_lb, *if_descr_lb,
+#ifdef HAVE_PCAP_CREATE
+			  *if_monitor_lb,
+#endif
+			  *if_hide_lb,
 			  *bbox, *ok_bt, *cancel_bt, *help_bt;
 
 	GtkListStore	  *list_store;
@@ -311,7 +327,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 
 	/* create a new dialog */
 	ifopts_edit_dlg = dlg_conf_window_new("Wireshark: Preferences: Interface Options");
-	gtk_window_set_default_size(GTK_WINDOW(ifopts_edit_dlg), DEF_WIDTH, 440);
+	gtk_window_set_default_size(GTK_WINDOW(ifopts_edit_dlg), 1000, 440);
 
 	main_vb = gtk_vbox_new(FALSE, 1);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
@@ -335,6 +351,9 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	list_store = gtk_list_store_new(N_COLUMN,	/* Total number of columns XXX	*/
 					G_TYPE_STRING,	/* Device			*/
 					G_TYPE_STRING,	/* Description			*/
+#ifdef HAVE_PCAP_CREATE
+					G_TYPE_BOOLEAN,	/* Monitor mode		*/
+#endif
 					G_TYPE_STRING,	/* Default link-layer		*/
 					G_TYPE_STRING,	/* Comment			*/
 					G_TYPE_BOOLEAN,	/* Hide?			*/
@@ -366,6 +385,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	/* Add the column to the view. */
 	gtk_tree_view_append_column (list_view, column);
 
+	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Description", renderer, 
 							   "text", DESC_COLUMN, 
 							   NULL);
@@ -376,6 +396,22 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	/* Add the column to the view. */
 	gtk_tree_view_append_column (list_view, column);
 
+#ifdef HAVE_PCAP_CREATE
+	/*
+	 * XXX - for some reason, this doesn't show up.
+	 */
+	renderer = gtk_cell_renderer_toggle_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Default to monitor mode", renderer, 
+							   "active", DEF_MONITOR_MODE_COLUMN,
+							   NULL);
+
+	gtk_tree_view_column_set_resizable(column, FALSE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	/* Add the column to the view. */
+	gtk_tree_view_append_column (list_view, column);
+#endif
+
+	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Default link-layer", renderer, 
 							   "text", DEF_LINK_LAYER_COLUMN, 
 							   NULL);
@@ -386,6 +422,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	/* Add the column to the view. */
 	gtk_tree_view_append_column (list_view, column);
 
+	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Comment", renderer, 
 							   "text", COMMENT_COLUMN, 
 							   NULL);
@@ -408,6 +445,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 
 #if 0
 	/* Don't show the DLT column */
+	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("DLT", renderer, 
 							   "text", DLT_COLUMN, 
 							   NULL);
@@ -474,6 +512,21 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_misc_set_alignment(GTK_MISC(if_name_lb), 0.0f, 0.5f);
 	gtk_widget_show(if_name_lb);
 	row++;
+
+#ifdef HAVE_PCAP_CREATE
+	/* create "monitor mode" label and button */
+	if_monitor_lb = gtk_label_new("Monitor mode:");
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_monitor_lb, 0, 1, row, row+1);
+	gtk_misc_set_alignment(GTK_MISC(if_monitor_lb), 1.0f, 0.5f);
+	gtk_widget_show(if_monitor_lb);
+
+	if_monitor_cb = gtk_check_button_new();
+	g_signal_connect(if_monitor_cb, "toggled", G_CALLBACK(ifopts_edit_monitor_changed_cb),
+			cur_list);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_monitor_cb, 1, 2, row, row+1);
+	gtk_widget_show(if_monitor_cb);
+        row++;
+#endif
 
 	if_linktype_lb = gtk_label_new("Default link-layer header type:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_linktype_lb, 0, 1, row, row+1);
@@ -561,6 +614,11 @@ static void
 ifopts_edit_ok_cb(GtkWidget *w _U_, gpointer parent_w)
 {
 	if (if_selection){ /* XXX: Cannot be NULL ?? */
+#ifdef HAVE_PCAP_CREATE
+		/* create/write new monitor-mode interfaces string */
+		ifopts_write_new_monitor_mode();
+#endif
+
 		/* create/write new interfaces link-layer string */
 		ifopts_write_new_linklayer();
 
@@ -596,12 +654,13 @@ ifopts_edit_destroy_cb(GtkWidget *win, gpointer data _U_)
 }
 
 static gint
-ifopts_description_to_val (const char *if_name, const char *descr) 
+ifopts_description_to_val (const char *if_name, gboolean monitor_mode,
+    const char *descr) 
 {
 	if_capabilities_t *caps;
 	int dlt = -1;
 
-	caps = capture_get_if_capabilities(if_name, FALSE, NULL);
+	caps = capture_get_if_capabilities(if_name, monitor_mode, NULL);
 	if (caps != NULL) {
 		if (caps->data_link_types != NULL) {
 			GList  *lt_entry;
@@ -639,8 +698,11 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 	GtkTreeModel       *model;
 	gchar              *desc, *comment, *text;
 	gchar              *if_name, *linktype;
+#ifdef HAVE_PCAP_CREATE
+	gboolean            monitor_mode;
+#endif
 	gboolean            hide;
-	if_capabilities_t *caps;
+	if_capabilities_t  *caps;
 	gint                selected = 0;
 
 	/* Get list_store data for currently selected interface */
@@ -648,11 +710,14 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 		return;
 	}
 	gtk_tree_model_get(model, &iter, 
-			   DEVICE_COLUMN,  &if_name,
-			   DESC_COLUMN,    &desc,
-			   DEF_LINK_LAYER_COLUMN, &linktype,
-			   COMMENT_COLUMN, &comment,
-			   HIDE_COLUMN,    &hide,
+			   DEVICE_COLUMN,             &if_name,
+			   DESC_COLUMN,               &desc,
+#ifdef HAVE_PCAP_CREATE
+			   DEF_MONITOR_MODE_COLUMN,   &monitor_mode,
+#endif
+			   DEF_LINK_LAYER_COLUMN,     &linktype,
+			   COMMENT_COLUMN,            &comment,
+			   HIDE_COLUMN,               &hide,
 			   -1);
 
 	/* display  the interface device from current interfaces selection */
@@ -671,9 +736,20 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 		gtk_combo_box_remove_text (GTK_COMBO_BOX(if_linktype_cb), num_linktypes);
 	}
 
-        /*  -- build and add to the ComboBox a linktype list for the current interfaces selection */
+        /*
+	 * -- set the sensitivity of the monitor-mode checkbox, and
+	 * build and add to the ComboBox a linktype list for the current
+	 * interfaces selection, based on the interface capabilities
+	 */
+#ifdef HAVE_PCAP_CREATE
+	caps = capture_get_if_capabilities(if_name, monitor_mode, NULL);
+#else
 	caps = capture_get_if_capabilities(if_name, FALSE, NULL);
+#endif
 	if (caps != NULL) {
+#ifdef HAVE_PCAP_CREATE
+		gtk_widget_set_sensitive(if_monitor_cb, caps->can_set_rfmon);
+#endif
 		if (caps->data_link_types != NULL) {
 			GList *lt_entry;
 			for (lt_entry = caps->data_link_types; lt_entry != NULL;
@@ -691,6 +767,10 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 		}
 		free_if_capabilities(caps);
 	}
+#ifdef HAVE_PCAP_CREATE
+	else
+		gtk_widget_set_sensitive(if_monitor_cb, FALSE);
+#endif
 
 	/* display the interface description from current interfaces selection */
 	gtk_entry_set_text(GTK_ENTRY(if_descr_te), comment);
@@ -709,6 +789,93 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 	g_free(comment);
 }
 
+#ifdef HAVE_PCAP_CREATE
+/*
+ * Monitor-mode toggle button changed callback; update displayed widgets
+ * (the list of link-layer types might change) and list_store for currently
+ * selected interface.
+ */
+static void
+ifopts_edit_monitor_changed_cb(GtkToggleButton *tbt, gpointer udata)
+{
+	GtkTreeModel      *list_model;
+	GtkTreeIter        list_iter;
+	GtkListStore      *list_store;
+	gchar             *if_name, *text;
+	gboolean           monitor_mode;
+	if_capabilities_t *caps;
+
+	if (interfaces_info_nochange)
+		return;
+
+	if (if_selection == NULL) /* XXX: Cannot be NULL ?? */
+		return;
+
+	if (!gtk_tree_selection_get_selected (if_selection, &list_model, &list_iter)){
+		return;
+	}
+	gtk_tree_model_get(list_model, &list_iter, 
+			   DEVICE_COLUMN,  &if_name,
+			   -1);
+
+	/* Ignore "changed" callbacks while we update the Properties widgets */
+	interfaces_info_nochange = TRUE;
+
+	/* display the link-layer header type from current interfaces selection */
+        /*  -- remove old linktype list (if any) from the ComboBox */
+	while (num_linktypes > 0) {
+		num_linktypes--;
+		gtk_combo_box_remove_text (GTK_COMBO_BOX(if_linktype_cb), num_linktypes);
+	}
+
+	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (udata))); /* Get store */
+
+#ifdef HAVE_PCAP_CREATE
+	/* get "monitor mode" button state and set status in list_store for currently selected interface */
+	monitor_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(tbt));
+	gtk_list_store_set  (list_store, &list_iter,
+			     DEF_MONITOR_MODE_COLUMN, monitor_mode,
+			     -1);
+	caps = capture_get_if_capabilities(if_name, monitor_mode, NULL);
+#else
+	/* no monitor-mode support */
+	caps = capture_get_if_capabilities(if_name, FALSE, NULL);
+#endif
+
+        /*
+	 * -- set the sensitivity of the monitor-mode checkbox, and
+	 * build and add to the ComboBox a linktype list for the current
+	 * interfaces selection, based on the interface capabilities
+	 */
+	if (caps != NULL) {
+#ifdef HAVE_PCAP_CREATE
+		gtk_widget_set_sensitive(if_monitor_cb, caps->can_set_rfmon);
+#endif
+		if (caps->data_link_types != NULL) {
+			GList *lt_entry;
+			for (lt_entry = caps->data_link_types; lt_entry != NULL;
+			    lt_entry = g_list_next(lt_entry)) {
+				data_link_info_t *dli_p = lt_entry->data;
+				text = (dli_p->description != NULL) ? dli_p->description : dli_p->name;
+				gtk_combo_box_append_text(GTK_COMBO_BOX(if_linktype_cb), text);
+				num_linktypes++;
+			}
+			gtk_widget_set_sensitive(if_linktype_cb, num_linktypes >= 2);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(if_linktype_cb), 0);
+		}
+		free_if_capabilities(caps);
+	}
+#ifdef HAVE_PCAP_CREATE
+	else
+		gtk_widget_set_sensitive(if_monitor_cb, FALSE);
+#endif
+
+	interfaces_info_nochange = FALSE;
+
+	g_free(if_name);
+}
+#endif
+
 /*
  * Link-layer entry changed callback; update list_store for currently selected interface.
  */
@@ -716,6 +883,9 @@ static void
 ifopts_edit_linktype_changed_cb(GtkComboBox *cb, gpointer udata)
 {
 	gchar        *ifnm, *text;
+#ifdef HAVE_PCAP_CREATE
+	gboolean      monitor_mode;
+#endif
 	gint          linktype;
 	GtkTreeModel *list_model;
 #if ! GTK_CHECK_VERSION(2,6,0)
@@ -736,7 +906,10 @@ ifopts_edit_linktype_changed_cb(GtkComboBox *cb, gpointer udata)
 	}
 	
 	gtk_tree_model_get(list_model, &list_iter, 
-		DEVICE_COLUMN, &ifnm,
+		DEVICE_COLUMN,           &ifnm,
+#ifdef HAVE_PCAP_CREATE
+		DEF_MONITOR_MODE_COLUMN, &monitor_mode,
+#endif
 		-1);
 
 	/* get current description text and set value in list_store for currently selected interface */
@@ -748,7 +921,11 @@ ifopts_edit_linktype_changed_cb(GtkComboBox *cb, gpointer udata)
 		model = gtk_combo_box_get_model(GTK_COMBO_BOX(cb));
 		gtk_tree_model_get(model, &iter, 0, &text, -1);
 #endif
-		linktype = ifopts_description_to_val(ifnm, text);
+#ifdef HAVE_PCAP_CREATE
+		linktype = ifopts_description_to_val(ifnm, monitor_mode, text);
+#else
+		linktype = ifopts_description_to_val(ifnm, FALSE, text);
+#endif
 		list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (udata))); /* Get store */
 		gtk_list_store_set  (list_store, &list_iter,
 				     DEF_LINK_LAYER_COLUMN, text,
@@ -842,6 +1019,9 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 	gchar	*pr_descr;
 	gchar	*text[] = { NULL, NULL, NULL, NULL };
 	if_capabilities_t *caps;
+#ifdef HAVE_PCAP_CREATE
+	gboolean monitor_mode;
+#endif
 	gint     linktype;
 	gboolean hide;
 	GtkTreeIter  iter;
@@ -855,9 +1035,17 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 	else
 		text[1] = g_strdup("");
 
+#ifdef HAVE_PCAP_CREATE
+	/* get default monitor mode setting */
+	monitor_mode = prefs_capture_device_monitor_mode(if_info->name);
+	caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL);
+#else
+	/* no monitor-mode support */
+	caps = capture_get_if_capabilities(if_info->name, FALSE, NULL);
+#endif
+
 	/* set default link-layer header type */
 	linktype = capture_dev_user_linktype_find(if_info->name);
-	caps = capture_get_if_capabilities(if_info->name, FALSE, NULL);
 	if (caps != NULL) {
 		if (caps->data_link_types != NULL) {
 			GList  *lt_entry;
@@ -930,11 +1118,7 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 		text[3] = g_strdup("");
 
 	/* check if interface is "hidden" */
-	if ((prefs.capture_devices_hide != NULL) &&
-	    (strstr(prefs.capture_devices_hide, if_info->name) != NULL))
-		hide = TRUE;
-	else
-		hide = FALSE;
+	hide = prefs_is_capture_device_hidden(if_info->name);
 
 	/* add row to ListStore */
 
@@ -944,12 +1128,15 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 	gtk_list_store_append  (list_store, &iter);
 	gtk_list_store_set  (list_store, &iter,
 #endif
-			     DEVICE_COLUMN,  text[0],
-			     DESC_COLUMN,    text[1],
-			     DEF_LINK_LAYER_COLUMN, text[2],
-			     COMMENT_COLUMN, text[3],
-			     HIDE_COLUMN,    hide,
-			     DLT_COLUMN,     linktype,
+			     DEVICE_COLUMN,           text[0],
+			     DESC_COLUMN,             text[1],
+#ifdef HAVE_PCAP_CREATE
+			     DEF_MONITOR_MODE_COLUMN, monitor_mode,
+#endif
+			     DEF_LINK_LAYER_COLUMN,   text[2],
+			     COMMENT_COLUMN,          text[3],
+			     HIDE_COLUMN,             hide,
+			     DLT_COLUMN,              linktype,
 			     -1);
 
 	ifopts_options_free(text);
@@ -999,6 +1186,69 @@ ifopts_if_liststore_add(void)
 	}
 	free_interface_list(if_list);
 }
+
+#ifdef HAVE_PCAP_CREATE
+/*
+ * Create/write new "monitor mode" interfaces string based on current CList.
+ * Put it into the preferences value.
+ */
+static void
+ifopts_write_new_monitor_mode(void)
+{
+	GtkListStore 	*store;
+	GtkTreeIter 	 iter;
+	GtkTreeModel 	*model;
+	gboolean	 more_items = TRUE;
+	gint		 first_if = TRUE;	/* flag to check if first in list */
+	gchar		*ifnm;
+	gboolean	 monitor_mode;
+	gchar		*new_monitor_mode;
+
+	/* new preferences "monitor mode" interfaces string */
+	new_monitor_mode = g_malloc0(MAX_VAL_LEN);
+
+	/* get "monitor mode" flag text for each row (interface) */
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
+	store = GTK_LIST_STORE(model);
+	if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
+		while (more_items) {
+			gtk_tree_model_get(GTK_TREE_MODEL(store), &iter,
+					   DEVICE_COLUMN,           &ifnm,
+					   DEF_MONITOR_MODE_COLUMN, &monitor_mode,
+					   -1);
+
+			/* if flag text is "No", skip this interface */
+			if (!monitor_mode){
+				more_items = gtk_tree_model_iter_next (model,&iter);
+				continue;
+			}
+
+			/*
+			 * create/cat interface to new string
+			 */
+			if (first_if != TRUE)
+				g_strlcat (new_monitor_mode, ",", MAX_VAL_LEN);
+			g_strlcat (new_monitor_mode, ifnm, MAX_VAL_LEN);
+
+			/* set first-in-list flag to false */
+			first_if = FALSE;
+			more_items = gtk_tree_model_iter_next (model,&iter);
+		}
+
+		/* write new "hidden" string to preferences */
+		if (strlen(new_monitor_mode) > 0) {
+			g_free(prefs.capture_devices_monitor_mode);
+			prefs.capture_devices_monitor_mode = new_monitor_mode;
+		}
+		/* no "hidden" interfaces */
+		else {
+			g_free(prefs.capture_devices_monitor_mode);
+			g_free(new_monitor_mode);
+			prefs.capture_devices_monitor_mode = NULL;
+		}
+	}
+}
+#endif
 
 /*
  * Create/write new interfaces link-layer string based on current CList.

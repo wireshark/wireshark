@@ -153,6 +153,7 @@ typedef struct _e_prefs {
   gchar   *capture_devices_linktypes;
   gchar   *capture_devices_descr;
   gchar   *capture_devices_hide;
+  gchar   *capture_devices_monitor_mode;
   gboolean capture_prom_mode;
   gboolean capture_pcap_ng;
   gboolean capture_real_time;
@@ -446,5 +447,10 @@ extern prefs_set_pref_e prefs_set_pref(char *prefarg);
  * Returns TRUE if the given device is hidden
  */
 extern gboolean prefs_is_capture_device_hidden(const char *name);
+
+/*
+ * Returns TRUE if the given device should capture in monitor mode by default
+ */
+extern gboolean prefs_capture_device_monitor_mode(const char *name);
 
 #endif /* prefs.h */
