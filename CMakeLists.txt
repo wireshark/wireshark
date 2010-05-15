@@ -383,8 +383,7 @@ add_subdirectory( wiretap )
 add_subdirectory( wsutil )
 
 if(ENABLE_GUIDES)
-#	FIXME: Disabling the build via option currently doesn't work
-#	add_subdirectory( docbook )
+	add_subdirectory( docbook )
 endif()
 
 find_package(POD)
@@ -707,8 +706,11 @@ if(BUILD_text2pcap)
 		${M_LIBRARIES}
 		${Z_LIBRARIES}
 	)
-	set(text2pcap_FILES
+	set(text2pcap_CLEAN_FILES
 		text2pcap.c
+	)
+	set(text2pcap_FILES
+		${text2pcap_CLEAN_FILES}
 	)
 	add_lex_files(text2pcap_FILES
 		text2pcap-scanner.l
@@ -902,7 +904,7 @@ set(CLEAN_FILES
 	${rawshark_FILES}
 	${dftest_FILES}
 	${randpkt_FILES}
-	${text2pcap_FILES}
+	${text2pcap_CLEAN_FILES}
 	${mergecap_FILES}
 	${capinfos_FILES}
 	${editcap_FILES}

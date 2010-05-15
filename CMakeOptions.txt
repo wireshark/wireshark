@@ -21,8 +21,7 @@ option(ENABLE_AIRPCAP	 "Enable Airpcap support" ON)
 # todo
 option(ENABLE_STATIC     "Build a static version of Wireshark (not yet working)" OFF)
 option(ENABLE_PLUGINS    "Build with plugins" ON)
-# todo
-option(ENABLE_GUIDES     "Build Guides" ON)
+option(ENABLE_GUIDES     "Build Guides" OFF)
 
 option(ENABLE_ADNS       "Build with adns support" ON)
 option(ENABLE_PCRE       "Build with pcre support" ON)
