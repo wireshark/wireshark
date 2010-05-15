@@ -1,6 +1,6 @@
 -- NBAP-PDU-Contents.asn
 --
--- Taken from 3GPP TS 25.433 V9.1.0 (2009-12)
+-- Taken from 3GPP TS 25.433 V9.2.0 (2010-03)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.433
 --
 -- 9.3.3	PDU Definitions
@@ -469,7 +469,8 @@ IMPORTS
 	HS-DSCH-Semi-PersistentScheduling-Information-LCR,
 	Add-To-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst,
 	Modify-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst,
-	Delete-From-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst,
+	Delete-From-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst, 
+	Delete-From-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst-Ext,
 	HS-DSCH-Semi-PersistentScheduling-Information-ResponseLCR,
 	E-DCH-Semi-PersistentScheduling-Information-ResponseLCR,
 	HSSICH-ReferenceSignal-InformationLCR,
@@ -480,18 +481,22 @@ IMPORTS
 	MIMO-PowerOffsetForS-CPICHCapability,
 	MIMO-PilotConfigurationExtension,
 	TxDiversityOnDLControlChannelsByMIMOUECapability,
-	Single-Stream-MIMO-Capability,
-	
+	Single-Stream-MIMO-Capability,	
 	ActivationInformation,
 	Cell-Capability-Container,
 	DormantModeIndicator,
 	Additional-EDCH-Setup-Info,
 	Additional-EDCH-Cell-Information-Response-List,
 	Additional-EDCH-Cell-Information-To-Add-List,
-	Additional-EDCH-FDD-Information-Response-ItemIEs,
-	Additional-EDCH-Cell-Information-ConfigurationChange-List,
-	Additional-EDCH-Cell-Information-Removal-List,
-	Additional-EDCH-FDD-Update-Information
+	Additional-EDCH-FDD-Update-Information,
+	TS0-CapabilityLCR,
+	Out-of-Sychronization-Window,
+	DCH-MeasurementOccasion-Information,
+	Additional-EDCH-Cell-Information-Response-RLReconf-List,
+	Setup-Or-ConfigurationChange-Or-Removal-Of-EDCH-On-secondary-UL-Frequency,
+	Additional-EDCH-Cell-Information-Response-RL-Add-List,
+	PrecodingWeightSetRestriction
+
 
 FROM NBAP-IEs
 
@@ -1230,6 +1235,7 @@ FROM NBAP-Containers
 	id-HS-SCCH-InformationExt-LCR-PSCH-ReconfRqst,
 	id-HS-SCCH-InformationModifyExt-LCR-PSCH-ReconfRqst,
 	id-PowerControlGAP,
+	id-PowerControlGAP-For-CellFACHLCR,
 	id-IdleIntervalInformation,
 	id-MBSFN-SpecialTimeSlot-LCR,
 	id-MultipleFreq-E-DCH-Resources-InformationList-AuditRsp,
@@ -1280,6 +1286,7 @@ FROM NBAP-Containers
 	id-Add-To-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst,
 	id-Modify-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst,
 	id-Delete-From-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst,
+ 	id-Delete-From-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst-Ext,
 	id-HS-DSCH-Semi-PersistentScheduling-Information-ResponseLCR,
 	id-E-DCH-Semi-PersistentScheduling-Information-ResponseLCR,
 	id-HSSICH-ReferenceSignal-InformationLCR,
@@ -1291,20 +1298,26 @@ FROM NBAP-Containers
 	id-TxDiversityOnDLControlChannelsByMIMOUECapability,
 	id-UE-AggregateMaximumBitRate,
 	id-Single-Stream-MIMO-Capability,
-
 	id-ActivationInformation, 
 	id-Cell-Capability-Container, 
 	id-DormantModeIndicator, 
 	id-Additional-EDCH-Cell-Information-RL-Setup-Req,
 	id-Additional-EDCH-Cell-Information-Response,
 	id-Additional-EDCH-Cell-Information-RL-Add-Req,
-	id-Additional-EDCH-Cell-Change-Information-Response,
+	id-Additional-EDCH-Cell-Information-Response-RL-Add,
 	id-Additional-EDCH-Cell-Information-RL-Reconf-Prep,
 	id-Additional-EDCH-Cell-Information-RL-Reconf-Req,
 	id-Additional-EDCH-Cell-Information-Bearer-Rearrangement,
 	id-Additional-EDCH-Cell-Information-RL-Param-Upd,
-
-
+	id-Max-RTWP-perUARFCN-Information-LCR-PSCH-ReconfRqst,
+	id-E-HICH-TimeOffset-ReconfFailureTDD,
+	id-Common-System-Information-ResponseLCR,
+	id-TS0-CapabilityLCR,
+	id-HSSCCH-TPC-StepSize,
+	id-Out-of-Sychronization-Window, 
+	id-DCH-MeasurementOccasion-Information,
+	id-Additional-EDCH-Cell-Information-ResponseRLReconf, 
+	id-PrecodingWeightSetRestriction,
 
 	maxNrOfCCTrCHs,
 	maxNrOfCellSyncBursts,
@@ -3055,7 +3068,6 @@ CCP-InformationItem-AuditRsp ::= SEQUENCE {
 	iE-Extensions						ProtocolExtensionContainer  {{ CCP-InformationItem-AuditRsp-ExtIEs }}		OPTIONAL,
 	...
 }
-
 CCP-InformationItem-AuditRsp-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
@@ -3115,7 +3127,7 @@ Local-Cell-InformationItem-AuditRsp-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-Enhanced-UE-DRX-Capability				CRITICALITY ignore			EXTENSION Enhanced-UE-DRX-Capability			PRESENCE	optional }|
 	{ ID id-Enhanced-UE-DRX-CapabilityLCR		CRITICALITY ignore			EXTENSION Enhanced-UE-DRX-Capability			PRESENCE	optional }|
 	{ ID id-E-DPCCH-Power-Boosting-Capability	CRITICALITY ignore			EXTENSION E-DPCCH-Power-Boosting-Capability	PRESENCE	optional }|
-	{ ID id-SixtyfourQAM-DL-MIMO-Combined-Capability	CRITICALITY ignore	EXTENSION SixtyfourQAM-DL-MIMO-Combined-Capability						PRESENCE	conditional }|
+	{ ID id-SixtyfourQAM-DL-MIMO-Combined-Capability	CRITICALITY ignore	EXTENSION SixtyfourQAM-DL-MIMO-Combined-Capability						PRESENCE	optional}|
 	{ ID id-Multi-Cell-Capability-Info			CRITICALITY ignore			EXTENSION Multi-Cell-Capability-Info			PRESENCE	optional }|
 	{ ID id-Semi-PersistentScheduling-CapabilityLCR		CRITICALITY ignore			EXTENSION Semi-PersistentScheduling-CapabilityLCR			PRESENCE	optional }|
 	{ ID id-ContinuousPacketConnectivity-DRX-CapabilityLCR		CRITICALITY ignore			EXTENSION ContinuousPacketConnectivity-DRX-CapabilityLCR			PRESENCE	optional }|
@@ -3126,7 +3138,9 @@ Local-Cell-InformationItem-AuditRsp-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-Single-Stream-MIMO-Capability		CRITICALITY ignore			EXTENSION Single-Stream-MIMO-Capability			PRESENCE	optional }|
 	{ ID id-Dual-Band-Capability-Info			CRITICALITY ignore			EXTENSION Dual-Band-Capability-Info			PRESENCE	optional }|
 	{ ID id-CellPortion-CapabilityLCR			CRITICALITY ignore			EXTENSION CellPortion-CapabilityLCR			PRESENCE	optional }|
-	{ ID id-Cell-Capability-Container	CRITICALITY ignore	EXTENSION Cell-Capability-Container		PRESENCE	optional },
+	{ ID id-Cell-Capability-Container			CRITICALITY ignore			EXTENSION Cell-Capability-Container			PRESENCE	optional }|
+	{ ID id-TS0-CapabilityLCR					CRITICALITY ignore			EXTENSION TS0-CapabilityLCR			PRESENCE	optional }|
+	{ ID id-PrecodingWeightSetRestriction		CRITICALITY ignore			EXTENSION PrecodingWeightSetRestriction			PRESENCE	optional },
 	...
 }
 
@@ -4485,12 +4499,12 @@ Local-Cell-InformationItem-ResourceStatusInd-ExtIEs NBAP-PROTOCOL-EXTENSION ::= 
 	-- The IE shall be present if E-DCH Capability IE is set to ”E-DCH Capable”.
 	{ ID	id-E-DCH-SF-Capability				CRITICALITY ignore		EXTENSION E-DCH-SF-Capability			PRESENCE	conditional }|
 	-- The IE shall be present if E-DCH Capability IE is set to ”E-DCH Capable”.
-	{ ID	id-E-DCH-HARQ-Combining-Capability				CRITICALITY ignore			EXTENSION E-DCH-HARQ-Combining-Capability			PRESENCE	conditional }|
+	{ ID	id-E-DCH-HARQ-Combining-Capability	CRITICALITY ignore		EXTENSION E-DCH-HARQ-Combining-Capability			PRESENCE	conditional }|
 	-- The IE shall be present if E-DCH Capability IE is set to ”E-DCH Capable”.
 	{ ID	id-E-DCH-CapacityConsumptionLaw		CRITICALITY ignore		EXTENSION E-DCHCapacityConsumptionLaw		PRESENCE	optional }|
 	{ ID	id-F-DPCH-Capability				CRITICALITY ignore		EXTENSION F-DPCH-Capability		PRESENCE	optional }|
 	{ ID	id-E-DCH-TDD-CapacityConsumptionLaw		CRITICALITY ignore		EXTENSION E-DCH-TDD-CapacityConsumptionLaw		PRESENCE	optional }|
-	{ ID	id-ContinuousPacketConnectivityDTX-DRX-Capability			CRITICALITY ignore			EXTENSION ContinuousPacketConnectivityDTX-DRX-Capability			PRESENCE	optional }|
+	{ ID	id-ContinuousPacketConnectivityDTX-DRX-Capability	CRITICALITY ignore		EXTENSION ContinuousPacketConnectivityDTX-DRX-Capability			PRESENCE	optional }|
 	{ ID	id-Max-UE-DTX-Cycle					CRITICALITY ignore		EXTENSION Max-UE-DTX-Cycle		PRESENCE	conditional }|
 	-- The IE shall be present if Continuous Packet Connectivity DTX-DRX Capability IE is present and set to ”Continuous Packet Connectivity DTX-DRX Capable”.
 	{ ID	id-ContinuousPacketConnectivityHS-SCCH-less-Capability		CRITICALITY ignore			EXTENSION ContinuousPacketConnectivityHS-SCCH-less-Capability			PRESENCE	optional }|
@@ -4506,24 +4520,26 @@ Local-Cell-InformationItem-ResourceStatusInd-ExtIEs NBAP-PROTOCOL-EXTENSION ::= 
 	{ ID	id-F-DPCH-SlotFormatCapability		CRITICALITY ignore		EXTENSION F-DPCH-SlotFormatCapability		PRESENCE	optional }|
 	{ ID	id-E-DCH-MACdPDU-SizeCapability		CRITICALITY ignore		EXTENSION E-DCH-MACdPDU-SizeCapability		PRESENCE	optional }|
 	{ ID 	id-Common-EDCH-Capability			CRITICALITY ignore		EXTENSION Common-EDCH-Capability		PRESENCE	optional }|
-	{ ID 	id-E-AI-Capability				CRITICALITY ignore		EXTENSION E-AI-Capability		PRESENCE	optional }|
+	{ ID 	id-E-AI-Capability					CRITICALITY ignore		EXTENSION E-AI-Capability		PRESENCE	optional }|
 	-- The IE shall be present if Common E-DCH Capability IE is present and set to ”Common E-DCH Capable”.
 	{ ID id-Enhanced-UE-DRX-Capability				CRITICALITY ignore		EXTENSION Enhanced-UE-DRX-Capability		PRESENCE	optional }|
 	{ ID id-Enhanced-UE-DRX-CapabilityLCR			CRITICALITY ignore		EXTENSION Enhanced-UE-DRX-Capability		PRESENCE	optional }|
 	{ ID id-E-DPCCH-Power-Boosting-Capability		CRITICALITY ignore		EXTENSION E-DPCCH-Power-Boosting-Capability		PRESENCE	optional }|
-	{ ID	id-SixtyfourQAM-DL-MIMO-Combined-Capability		CRITICALITY ignore		EXTENSION SixtyfourQAM-DL-MIMO-Combined-Capability			PRESENCE	conditional }|
+	{ ID	id-SixtyfourQAM-DL-MIMO-Combined-Capability		CRITICALITY ignore		EXTENSION SixtyfourQAM-DL-MIMO-Combined-Capability			PRESENCE	optional}|
 	{ ID id-Multi-Cell-Capability-Info				CRITICALITY ignore		EXTENSION Multi-Cell-Capability-Info		PRESENCE	optional }|
 	{ ID id-Semi-PersistentScheduling-CapabilityLCR		CRITICALITY ignore			EXTENSION Semi-PersistentScheduling-CapabilityLCR			PRESENCE	optional }|
-	{ ID id-ContinuousPacketConnectivity-DRX-CapabilityLCR		CRITICALITY ignore			EXTENSION ContinuousPacketConnectivity-DRX-CapabilityLCR			PRESENCE	optional }|
-	{ ID id-Common-E-DCH-HSDPCCH-Capability					CRITICALITY ignore			EXTENSION Common-E-DCH-HSDPCCH-Capability			PRESENCE	optional }|
+	{ ID id-ContinuousPacketConnectivity-DRX-CapabilityLCR	CRITICALITY ignore		EXTENSION ContinuousPacketConnectivity-DRX-CapabilityLCR			PRESENCE	optional }|
+	{ ID id-Common-E-DCH-HSDPCCH-Capability			CRITICALITY ignore		EXTENSION Common-E-DCH-HSDPCCH-Capability			PRESENCE	optional }|
 	-- The IE shall be present if Common E-DCH Capability IE is present and set to ”Common E-DCH Capable”.
-	{ ID id-MIMO-Power-Offset-For-S-CPICH-Capability	CRITICALITY ignore		EXTENSION MIMO-PowerOffsetForS-CPICHCapability		PRESENCE	optional } |
+	{ ID id-MIMO-Power-Offset-For-S-CPICH-Capability	CRITICALITY ignore	EXTENSION MIMO-PowerOffsetForS-CPICHCapability		PRESENCE	optional } |
 	{ ID id-TxDiversityOnDLControlChannelsByMIMOUECapability	CRITICALITY ignore	EXTENSION TxDiversityOnDLControlChannelsByMIMOUECapability 		PRESENCE	optional }|
 	{ ID id-Single-Stream-MIMO-Capability		CRITICALITY ignore		EXTENSION Single-Stream-MIMO-Capability		PRESENCE	optional }|
 	{ ID id-Dual-Band-Capability-Info			CRITICALITY ignore		EXTENSION Dual-Band-Capability-Info		PRESENCE	optional }|
 	{ ID id-CellPortion-CapabilityLCR			CRITICALITY ignore		EXTENSION CellPortion-CapabilityLCR		PRESENCE	optional }|
-	{ ID id-Cell-Capability-Container	CRITICALITY ignore	EXTENSION Cell-Capability-Container		PRESENCE	optional },
-...
+	{ ID id-Cell-Capability-Container			CRITICALITY ignore		EXTENSION Cell-Capability-Container		PRESENCE	optional }|
+	{ ID id-TS0-CapabilityLCR					CRITICALITY ignore		EXTENSION TS0-CapabilityLCR		PRESENCE	optional }|
+	{ ID id-PrecodingWeightSetRestriction		CRITICALITY ignore		EXTENSION PrecodingWeightSetRestriction		PRESENCE	optional },
+	...
 
 }
 
@@ -4600,22 +4616,22 @@ Local-Cell-InformationItem2-ResourceStatusInd ::= SEQUENCE {
 }
 
 Local-Cell-InformationItem2-ResourceStatusInd-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
-	{ ID	id-ReferenceClockAvailability		CRITICALITY ignore			EXTENSION ReferenceClockAvailability			PRESENCE	optional }|
-	{ ID	id-HSDPA-Capability					CRITICALITY ignore			EXTENSION HSDPA-Capability			PRESENCE	optional }|
-	{ ID	id-E-DCH-Capability					CRITICALITY ignore			EXTENSION E-DCH-Capability			PRESENCE	optional }|
-	{ ID	id-E-DCH-TTI2ms-Capability			CRITICALITY ignore			EXTENSION E-DCH-TTI2ms-Capability			PRESENCE	conditional }|
+	{ ID	id-ReferenceClockAvailability		CRITICALITY ignore		EXTENSION ReferenceClockAvailability			PRESENCE	optional }|
+	{ ID	id-HSDPA-Capability					CRITICALITY ignore		EXTENSION HSDPA-Capability			PRESENCE	optional }|
+	{ ID	id-E-DCH-Capability					CRITICALITY ignore		EXTENSION E-DCH-Capability			PRESENCE	optional }|
+	{ ID	id-E-DCH-TTI2ms-Capability			CRITICALITY ignore		EXTENSION E-DCH-TTI2ms-Capability			PRESENCE	conditional }|
 	-- The IE shall be present if E-DCH Capability IE is set to ”E-DCH Capable”.
-	{ ID	id-E-DCH-SF-Capability				CRITICALITY ignore			EXTENSION E-DCH-SF-Capability			PRESENCE	conditional }|
+	{ ID	id-E-DCH-SF-Capability				CRITICALITY ignore		EXTENSION E-DCH-SF-Capability			PRESENCE	conditional }|
 	-- The IE shall be present if E-DCH Capability IE is set to ”E-DCH Capable”.
-	{ ID	id-E-DCH-HARQ-Combining-Capability				CRITICALITY ignore			EXTENSION E-DCH-HARQ-Combining-Capability			PRESENCE	conditional }|
+	{ ID	id-E-DCH-HARQ-Combining-Capability	CRITICALITY ignore		EXTENSION E-DCH-HARQ-Combining-Capability			PRESENCE	conditional }|
 	-- The IE shall be present if E-DCH Capability IE is set to ”E-DCH Capable”.
-	{ ID	id-E-DCH-CapacityConsumptionLaw		CRITICALITY ignore			EXTENSION E-DCHCapacityConsumptionLaw			PRESENCE	optional }|
-	{ ID	id-F-DPCH-Capability				CRITICALITY ignore			EXTENSION F-DPCH-Capability			PRESENCE	optional }|
-	{ ID	id-E-DCH-TDD-CapacityConsumptionLaw		CRITICALITY ignore		EXTENSION E-DCH-TDD-CapacityConsumptionLaw		PRESENCE	optional }|
-	{ ID	id-ContinuousPacketConnectivityDTX-DRX-Capability			CRITICALITY ignore			EXTENSION ContinuousPacketConnectivityDTX-DRX-Capability			PRESENCE	optional }|
-	{ ID	id-Max-UE-DTX-Cycle					CRITICALITY ignore			EXTENSION Max-UE-DTX-Cycle			PRESENCE	conditional }|
+	{ ID	id-E-DCH-CapacityConsumptionLaw		CRITICALITY ignore		EXTENSION E-DCHCapacityConsumptionLaw			PRESENCE	optional }|
+	{ ID	id-F-DPCH-Capability				CRITICALITY ignore		EXTENSION F-DPCH-Capability			PRESENCE	optional }|
+	{ ID	id-E-DCH-TDD-CapacityConsumptionLaw		CRITICALITY ignore	EXTENSION E-DCH-TDD-CapacityConsumptionLaw			PRESENCE	optional }|
+	{ ID	id-ContinuousPacketConnectivityDTX-DRX-Capability	CRITICALITY ignore	EXTENSION ContinuousPacketConnectivityDTX-DRX-Capability			PRESENCE	optional }|
+	{ ID	id-Max-UE-DTX-Cycle					CRITICALITY ignore		EXTENSION Max-UE-DTX-Cycle			PRESENCE	conditional }|
 	-- The IE shall be present if Continuous Packet Connectivity DTX-DRX Capability IE is present and set to ”Continuous Packet Connectivity DTX-DRX Capable”.
-	{ ID	id-ContinuousPacketConnectivityHS-SCCH-less-Capability		CRITICALITY ignore			EXTENSION ContinuousPacketConnectivityHS-SCCH-less-Capability			PRESENCE	optional }|
+	{ ID	id-ContinuousPacketConnectivityHS-SCCH-less-Capability		CRITICALITY ignore	EXTENSION ContinuousPacketConnectivityHS-SCCH-less-Capability	PRESENCE	optional }|
 	{ ID	id-MIMO-Capability					CRITICALITY ignore		EXTENSION MIMO-Capability			PRESENCE	optional }|
 	{ ID	id-SixtyfourQAM-DL-Capability		CRITICALITY ignore		EXTENSION SixtyfourQAM-DL-Capability			PRESENCE	optional }|
 	{ ID	id-MBMS-Capability					CRITICALITY ignore		EXTENSION MBMS-Capability			PRESENCE	optional }|
@@ -4628,24 +4644,26 @@ Local-Cell-InformationItem2-ResourceStatusInd-ExtIEs NBAP-PROTOCOL-EXTENSION ::=
 	{ ID	id-F-DPCH-SlotFormatCapability		CRITICALITY ignore		EXTENSION F-DPCH-SlotFormatCapability			PRESENCE	optional }|
 	{ ID id-E-DCH-MACdPDU-SizeCapability		CRITICALITY ignore		EXTENSION E-DCH-MACdPDU-SizeCapability			PRESENCE	optional }|
 	{ ID 	id-Common-EDCH-Capability			CRITICALITY ignore		EXTENSION Common-EDCH-Capability			PRESENCE	optional }|
-	{ ID 	id-E-AI-Capability				CRITICALITY ignore		EXTENSION E-AI-Capability			PRESENCE	optional }|
+	{ ID 	id-E-AI-Capability					CRITICALITY ignore		EXTENSION E-AI-Capability			PRESENCE	optional }|
 	-- The IE shall be present if Common E-DCH Capability IE is present and set to ”Common E-DCH Capable”.
-	{ ID 	id-Enhanced-UE-DRX-Capability			CRITICALITY ignore		EXTENSION Enhanced-UE-DRX-Capability			PRESENCE	optional }|
+	{ ID 	id-Enhanced-UE-DRX-Capability		CRITICALITY ignore		EXTENSION Enhanced-UE-DRX-Capability			PRESENCE	optional }|
 	{ ID 	id-Enhanced-UE-DRX-CapabilityLCR	CRITICALITY ignore		EXTENSION Enhanced-UE-DRX-Capability			PRESENCE	optional }|
-	{ ID 	id-E-DPCCH-Power-Boosting-Capability		CRITICALITY ignore	EXTENSION E-DPCCH-Power-Boosting-Capability							PRESENCE	optional }|
-	{ ID	id-SixtyfourQAM-DL-MIMO-Combined-Capability		CRITICALITY ignore		EXTENSION SixtyfourQAM-DL-MIMO-Combined-Capability			PRESENCE	conditional }|
-	{ ID 	id-Multi-Cell-Capability-Info			CRITICALITY ignore		EXTENSION Multi-Cell-Capability-Info			PRESENCE	optional }|
-	{ ID id-Semi-PersistentScheduling-CapabilityLCR		CRITICALITY ignore			EXTENSION Semi-PersistentScheduling-CapabilityLCR			PRESENCE	optional }|
+	{ ID 	id-E-DPCCH-Power-Boosting-Capability	CRITICALITY ignore		EXTENSION E-DPCCH-Power-Boosting-Capability			PRESENCE	optional }|
+	{ ID	id-SixtyfourQAM-DL-MIMO-Combined-Capability		CRITICALITY ignore		EXTENSION SixtyfourQAM-DL-MIMO-Combined-Capability			PRESENCE	optional}|
+	{ ID 	id-Multi-Cell-Capability-Info		CRITICALITY ignore		EXTENSION Multi-Cell-Capability-Info			PRESENCE	optional }|
+	{ ID id-Semi-PersistentScheduling-CapabilityLCR		CRITICALITY ignore	EXTENSION Semi-PersistentScheduling-CapabilityLCR	PRESENCE	optional }|
 	{ ID id-ContinuousPacketConnectivity-DRX-CapabilityLCR		CRITICALITY ignore			EXTENSION ContinuousPacketConnectivity-DRX-CapabilityLCR			PRESENCE	optional }|
-	{ ID id-Common-E-DCH-HSDPCCH-Capability					CRITICALITY ignore			EXTENSION Common-E-DCH-HSDPCCH-Capability			PRESENCE	optional }|
+	{ ID id-Common-E-DCH-HSDPCCH-Capability			CRITICALITY ignore		EXTENSION Common-E-DCH-HSDPCCH-Capability			PRESENCE	optional }|
 	-- The IE shall be present if Common E-DCH Capability IE is present and set to ”Common E-DCH Capable”.
-	{ ID id-MIMO-Power-Offset-For-S-CPICH-Capability	CRITICALITY ignore		EXTENSION MIMO-PowerOffsetForS-CPICHCapability		PRESENCE	optional } |
+	{ ID id-MIMO-Power-Offset-For-S-CPICH-Capability	CRITICALITY ignore	EXTENSION MIMO-PowerOffsetForS-CPICHCapability	PRESENCE	optional } |
 	{ ID id-TxDiversityOnDLControlChannelsByMIMOUECapability	CRITICALITY ignore	EXTENSION TxDiversityOnDLControlChannelsByMIMOUECapability 		PRESENCE	optional }|
 	{ ID id-Single-Stream-MIMO-Capability		CRITICALITY ignore		EXTENSION Single-Stream-MIMO-Capability			PRESENCE	optional }|
 	{ ID id-Dual-Band-Capability-Info			CRITICALITY ignore		EXTENSION Dual-Band-Capability-Info			PRESENCE	optional }|
 	{ ID id-CellPortion-CapabilityLCR			CRITICALITY ignore		EXTENSION CellPortion-CapabilityLCR			PRESENCE	optional }|
-	{ ID id-Cell-Capability-Container	CRITICALITY ignore	EXTENSION Cell-Capability-Container		PRESENCE	optional },
-...
+	{ ID id-Cell-Capability-Container			CRITICALITY ignore		EXTENSION Cell-Capability-Container			PRESENCE	optional }|
+	{ ID id-TS0-CapabilityLCR					CRITICALITY ignore		EXTENSION TS0-CapabilityLCR			PRESENCE	optional }|
+	{ ID id-PrecodingWeightSetRestriction		CRITICALITY ignore		EXTENSION PrecodingWeightSetRestriction			PRESENCE	optional },
+	...
 }
 
 Local-Cell-Group-InformationList2-ResourceStatusInd ::= SEQUENCE(SIZE (1..maxLocalCellinNodeB)) OF ProtocolIE-Single-Container {{ Local-Cell-Group-InformationItemIE2-ResourceStatusInd }}
@@ -5332,11 +5350,13 @@ RadioLinkSetupRequestTDD-Extensions NBAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-E-DCH-LCR-Information			CRITICALITY reject		EXTENSION E-DCH-LCR-Information						PRESENCE optional	}|
 	{ ID id-PowerControlGAP					CRITICALITY ignore		EXTENSION ControlGAP									PRESENCE optional }|
 	 -- Applicable to 1.28Mcps TDD only
-	{ ID id-ContinuousPacketConnectivity-DRX-InformationLCR				CRITICALITY reject		EXTENSION ContinuousPacketConnectivity-DRX-InformationLCR			PRESENCE optional }|
-	{ ID id-HS-DSCH-Semi-PersistentScheduling-Information-LCR			CRITICALITY reject		EXTENSION	HS-DSCH-Semi-PersistentScheduling-Information-LCR		PRESENCE optional }|
-	{ ID id-E-DCH-Semi-PersistentScheduling-Information-LCR				CRITICALITY reject		EXTENSION	E-DCH-Semi-PersistentScheduling-Information-LCR		PRESENCE optional }|
-	{ ID id-IdleIntervalInformation			CRITICALITY ignore		EXTENSION		IdleIntervalInformation									PRESENCE optional }|
-	{ ID id-UE-Selected-MBMS-Service-Information			CRITICALITY ignore		EXTENSION UE-Selected-MBMS-Service-Information						PRESENCE optional	},
+	{ ID id-ContinuousPacketConnectivity-DRX-InformationLCR		CRITICALITY reject		EXTENSION ContinuousPacketConnectivity-DRX-InformationLCR			PRESENCE optional }|
+	{ ID id-HS-DSCH-Semi-PersistentScheduling-Information-LCR	CRITICALITY reject		EXTENSION	HS-DSCH-Semi-PersistentScheduling-Information-LCR		PRESENCE optional }|
+	{ ID id-E-DCH-Semi-PersistentScheduling-Information-LCR		CRITICALITY reject		EXTENSION	E-DCH-Semi-PersistentScheduling-Information-LCR		PRESENCE optional }|
+	{ ID id-IdleIntervalInformation			CRITICALITY ignore		EXTENSION IdleIntervalInformation					PRESENCE optional }|
+	{ ID id-UE-Selected-MBMS-Service-Information	CRITICALITY ignore	EXTENSION UE-Selected-MBMS-Service-Information		PRESENCE optional	}|
+	{ ID id-HSSCCH-TPC-StepSize				CRITICALITY	ignore		EXTENSION TDD-TPC-DownlinkStepSize					PRESENCE optional	}|
+	{ ID id-DCH-MeasurementOccasion-Information	CRITICALITY reject	EXTENSION DCH-MeasurementOccasion-Information	PRESENCE optional },
 	...
 }
 
@@ -6037,11 +6057,13 @@ RadioLinkAdditionRequestTDD-Extensions NBAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-E-DCH-LCR-Information			CRITICALITY reject		EXTENSION E-DCH-LCR-Information						PRESENCE optional	}|
 	{ ID id-PowerControlGAP					CRITICALITY ignore		EXTENSION ControlGAP									PRESENCE optional }|
 	 -- Applicable to 1.28Mcps TDD only
-	{ ID id-ContinuousPacketConnectivity-DRX-InformationLCR				CRITICALITY reject		EXTENSION ContinuousPacketConnectivity-DRX-InformationLCR			PRESENCE optional }|
-	{ ID id-HS-DSCH-Semi-PersistentScheduling-Information-LCR			CRITICALITY reject		EXTENSION	HS-DSCH-Semi-PersistentScheduling-Information-LCR		PRESENCE optional }|
-	{ ID id-E-DCH-Semi-PersistentScheduling-Information-LCR				CRITICALITY reject		EXTENSION	E-DCH-Semi-PersistentScheduling-Information-LCR		PRESENCE optional }|
-	{ ID id-IdleIntervalInformation			CRITICALITY ignore		EXTENSION		IdleIntervalInformation			PRESENCE optional }|
-	{ ID id-UE-Selected-MBMS-Service-Information			CRITICALITY ignore		EXTENSION UE-Selected-MBMS-Service-Information						PRESENCE optional	},
+	{ ID id-ContinuousPacketConnectivity-DRX-InformationLCR		CRITICALITY reject		EXTENSION ContinuousPacketConnectivity-DRX-InformationLCR			PRESENCE optional }|
+	{ ID id-HS-DSCH-Semi-PersistentScheduling-Information-LCR	CRITICALITY reject		EXTENSION	HS-DSCH-Semi-PersistentScheduling-Information-LCR		PRESENCE optional }|
+	{ ID id-E-DCH-Semi-PersistentScheduling-Information-LCR		CRITICALITY reject		EXTENSION	E-DCH-Semi-PersistentScheduling-Information-LCR		PRESENCE optional }|
+	{ ID id-IdleIntervalInformation			CRITICALITY ignore		EXTENSION IdleIntervalInformation					PRESENCE optional }|
+	{ ID id-UE-Selected-MBMS-Service-Information	CRITICALITY ignore	EXTENSION UE-Selected-MBMS-Service-Information		PRESENCE optional	}|
+	{ ID id-HSSCCH-TPC-StepSize				CRITICALITY	ignore		EXTENSION TDD-TPC-DownlinkStepSize					PRESENCE optional	}|
+	{ ID id-DCH-MeasurementOccasion-Information	CRITICALITY reject	EXTENSION DCH-MeasurementOccasion-Information	PRESENCE optional },
 	...
 }
 
@@ -6219,7 +6241,7 @@ RadioLinkAdditionResponseFDD-Extensions NBAP-PROTOCOL-EXTENSION ::= {
 { ID id-E-DCH-Serving-Cell-Change-Info-Response			CRITICALITY ignore	EXTENSION E-DCH-Serving-Cell-Change-Info-Response					PRESENCE optional }|
 { ID id-MAChs-ResetIndicator							CRITICALITY ignore	EXTENSION MAChs-ResetIndicator									PRESENCE optional }|
 { ID id-Additional-HS-Cell-Change-Information-Response	CRITICALITY ignore	EXTENSION Additional-HS-Cell-Change-Information-Response-List	PRESENCE optional }|
-{ ID id-Additional-EDCH-Cell-Change-Information-Response	CRITICALITY ignore	EXTENSION Additional-EDCH-Cell-Change-Information-Response-List	PRESENCE optional },
+{ ID id-Additional-EDCH-Cell-Information-Response-RL-Add	CRITICALITY ignore	EXTENSION Additional-EDCH-Cell-Information-Response-RL-Add-List	PRESENCE optional },
 	...
 }
 
@@ -6233,19 +6255,6 @@ Additional-HS-Cell-Change-Information-Response-ItemIEs	::=SEQUENCE{
 }
 
 Additional-HS-Cell-Change-Information-Response-ItemIEs-ExtIEs	NBAP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
-Additional-EDCH-Cell-Change-Information-Response-List	::= SEQUENCE (SIZE (1..maxNrOfEDCH-1)) OF Additional-EDCH-Cell-Change-Information-Response-ItemIEs
-
-Additional-EDCH-Cell-Change-Information-Response-ItemIEs	::=SEQUENCE{
-	additional-EDCH-FDD-Information-Response						Additional-EDCH-FDD-Information-Response-ItemIEs 			OPTIONAL,
-	additional-EDCH-Serving-Cell-Change-Information-Response		E-DCH-Serving-Cell-Change-Info-Response 			OPTIONAL,
-	iE-Extensions					ProtocolExtensionContainer { { Additional-EDCH-Cell-Change-Information-Response-ItemIEs-ExtIEs} } OPTIONAL,
-	...
-}
-
-Additional-EDCH-Cell-Change-Information-Response-ItemIEs-ExtIEs	NBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -6427,11 +6436,11 @@ RadioLinkAdditionFailureFDD-IEs NBAP-PROTOCOL-IES ::= {
 }
 
 RadioLinkAdditionFailureFDD-Extensions NBAP-PROTOCOL-EXTENSION ::= {
-{ ID id-HS-DSCH-Serving-Cell-Change-Info-Response		CRITICALITY ignore	EXTENSION HS-DSCH-Serving-Cell-Change-Info-Response				PRESENCE optional }|
+{ ID id-HS-DSCH-Serving-Cell-Change-Info-Response		CRITICALITY ignore	EXTENSION HS-DSCH-Serving-Cell-Change-Info-Response					PRESENCE optional }|
 { ID id-E-DCH-Serving-Cell-Change-Info-Response			CRITICALITY ignore	EXTENSION E-DCH-Serving-Cell-Change-Info-Response					PRESENCE optional }|
-{ ID id-Additional-HS-Cell-Change-Information-Response	CRITICALITY ignore	EXTENSION Additional-HS-Cell-Change-Information-Response-List			PRESENCE optional }|
-{ ID id-MAChs-ResetIndicator							CRITICALITY ignore	EXTENSION MAChs-ResetIndicator												PRESENCE optional }|
-{ ID id-Additional-EDCH-Cell-Change-Information-Response	CRITICALITY ignore	EXTENSION Additional-EDCH-Cell-Change-Information-Response-List	PRESENCE optional },
+{ ID id-Additional-HS-Cell-Change-Information-Response	CRITICALITY ignore	EXTENSION Additional-HS-Cell-Change-Information-Response-List	PRESENCE optional }|
+{ ID id-MAChs-ResetIndicator							CRITICALITY ignore	EXTENSION MAChs-ResetIndicator									PRESENCE optional }|
+{ ID id-Additional-EDCH-Cell-Information-Response-RL-Add	CRITICALITY ignore	EXTENSION Additional-EDCH-Cell-Information-Response-RL-Add-List	PRESENCE optional },
 	...
 }
 
@@ -6671,13 +6680,6 @@ Additional-EDCH-Cell-Information-RL-Reconf-Prep-ExtIEs	NBAP-PROTOCOL-EXTENSION :
 	...
 }
 
-Setup-Or-ConfigurationChange-Or-Removal-Of-EDCH-On-secondary-UL-Frequency::= CHOICE {
-	setup					Additional-EDCH-Setup-Info,
-	configurationChange		Additional-EDCH-Cell-Information-ConfigurationChange-List, 
-	removal					Additional-EDCH-Cell-Information-Removal-List,
-	...
-}
-
 
 UL-DPCH-Information-RL-ReconfPrepFDD ::= SEQUENCE {
 	ul-ScramblingCode								UL-ScramblingCode					OPTIONAL,
@@ -6879,11 +6881,13 @@ RadioLinkReconfigurationPrepareTDD-Extensions NBAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-E-DCH-Serving-RL-ID						CRITICALITY reject	EXTENSION RL-ID							PRESENCE optional }|
 	{ ID id-E-DCH-768-Information-Reconfig			CRITICALITY reject	EXTENSION E-DCH-768-Information-Reconfig				PRESENCE optional }|
 	{ ID id-E-DCH-LCR-Information-Reconfig			CRITICALITY reject	EXTENSION E-DCH-LCR-Information-Reconfig					PRESENCE optional }|
-	{ ID id-PowerControlGAP								CRITICALITY ignore	EXTENSION ControlGAP									PRESENCE optional }|
+	{ ID id-PowerControlGAP							CRITICALITY ignore	EXTENSION ControlGAP											PRESENCE optional }|
 	-- Applicable to 1.28Mcps TDD only
-	{ ID id-CPC-InformationLCR							CRITICALITY reject	EXTENSION CPC-InformationLCR					PRESENCE optional }|
-	{ ID id-IdleIntervalInformation			CRITICALITY ignore		EXTENSION		IdleIntervalInformation									PRESENCE optional }|
-	{ ID id-UE-Selected-MBMS-Service-Information			CRITICALITY ignore		EXTENSION UE-Selected-MBMS-Service-Information						PRESENCE optional	},
+	{ ID id-CPC-InformationLCR						CRITICALITY reject	EXTENSION CPC-InformationLCR									PRESENCE optional }|
+	{ ID id-IdleIntervalInformation					CRITICALITY ignore	EXTENSION IdleIntervalInformation							PRESENCE optional }|
+	{ ID id-UE-Selected-MBMS-Service-Information	CRITICALITY ignore	EXTENSION UE-Selected-MBMS-Service-Information			PRESENCE optional }|
+	{ ID id-HSSCCH-TPC-StepSize						CRITICALITY	ignore	EXTENSION TDD-TPC-DownlinkStepSize							PRESENCE optional	}|
+	{ ID id-DCH-MeasurementOccasion-Information		CRITICALITY reject	EXTENSION DCH-MeasurementOccasion-Information			PRESENCE optional},
 	...
 }
 
@@ -7720,12 +7724,12 @@ RadioLinkReconfigurationReady-Extensions NBAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-E-DCH-Information-Response			CRITICALITY ignore		EXTENSION E-DCH-Information-Response		PRESENCE optional }|
 	{ ID id-MAChs-ResetIndicator				CRITICALITY ignore		EXTENSION MAChs-ResetIndicator						PRESENCE optional }|
 	{ ID id-Fast-Reconfiguration-Permission		CRITICALITY ignore		EXTENSION Fast-Reconfiguration-Permission		PRESENCE optional }|
-	{ ID id-ContinuousPacketConnectivityHS-SCCH-less-Information-Response		CRITICALITY ignore		EXTENSION	ContinuousPacketConnectivityHS-SCCH-less-Information-Response			PRESENCE optional }|
-	{ ID id-Additional-HS-Cell-Information-Response		CRITICALITY ignore		EXTENSION	Additional-HS-Cell-Information-Response-List			PRESENCE optional }|
-	{ ID id-ContinuousPacketConnectivity-DRX-Information-ResponseLCR				CRITICALITY ignore		EXTENSION ContinuousPacketConnectivity-DRX-Information-ResponseLCR			PRESENCE optional	}|
-	{ ID id-HS-DSCH-Semi-PersistentScheduling-Information-ResponseLCR		CRITICALITY ignore		EXTENSION HS-DSCH-Semi-PersistentScheduling-Information-ResponseLCR			PRESENCE optional	}|
-	{ ID id-E-DCH-Semi-PersistentScheduling-Information-ResponseLCR		CRITICALITY ignore		EXTENSION E-DCH-Semi-PersistentScheduling-Information-ResponseLCR			PRESENCE optional}|
-	{ ID id-Additional-EDCH-Cell-Information-Response		CRITICALITY ignore	EXTENSION	Additional-EDCH-Cell-Information-Response-List			PRESENCE optional },
+	{ ID id-ContinuousPacketConnectivityHS-SCCH-less-Information-Response	CRITICALITY ignore	EXTENSION	ContinuousPacketConnectivityHS-SCCH-less-Information-Response		PRESENCE optional }|
+	{ ID id-Additional-HS-Cell-Information-Response	CRITICALITY ignore	EXTENSION	Additional-HS-Cell-Information-Response-List	PRESENCE optional }|
+	{ ID id-ContinuousPacketConnectivity-DRX-Information-ResponseLCR	CRITICALITY ignore	EXTENSION ContinuousPacketConnectivity-DRX-Information-ResponseLCR			PRESENCE optional	}|
+	{ ID id-HS-DSCH-Semi-PersistentScheduling-Information-ResponseLCR	CRITICALITY ignore	EXTENSION HS-DSCH-Semi-PersistentScheduling-Information-ResponseLCR			PRESENCE optional	}|
+	{ ID id-E-DCH-Semi-PersistentScheduling-Information-ResponseLCR		CRITICALITY ignore	EXTENSION E-DCH-Semi-PersistentScheduling-Information-ResponseLCR			PRESENCE optional}|
+	{ ID id-Additional-EDCH-Cell-Information-ResponseRLReconf	CRITICALITY ignore	EXTENSION	Additional-EDCH-Cell-Information-Response-RLReconf-List	PRESENCE optional },
 	...
 }
 
@@ -8065,7 +8069,7 @@ RadioLinkReconfigurationRequestTDD-IEs NBAP-PROTOCOL-IES ::= {
 
 RadioLinkReconfigurationRequestTDD-Extensions NBAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-SignallingBearerRequestIndicator			CRITICALITY reject	EXTENSION SignallingBearerRequestIndicator	PRESENCE optional }|
-	{ ID id-multiple-RL-Information-RL-ReconfRqstTDD				CRITICALITY reject	EXTENSION Multiple-RL-Information-RL-ReconfRqstTDD		PRESENCE optional }|
+	{ ID id-multiple-RL-Information-RL-ReconfRqstTDD	CRITICALITY reject	EXTENSION Multiple-RL-Information-RL-ReconfRqstTDD		PRESENCE optional }|
 --Includes the 2nd through the max number of radio link information repetitions.
 	{ ID id-HSDSCH-TDD-Information						CRITICALITY reject	EXTENSION HSDSCH-TDD-Information			PRESENCE optional }|
 	{ ID id-HSDSCH-Information-to-Modify-Unsynchronised	CRITICALITY reject	EXTENSION HSDSCH-Information-to-Modify-Unsynchronised		PRESENCE optional }|
@@ -8080,9 +8084,11 @@ RadioLinkReconfigurationRequestTDD-Extensions NBAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-E-DCH-LCR-Information-Reconfig				CRITICALITY reject	EXTENSION E-DCH-LCR-Information-Reconfig		PRESENCE optional }|
 	{ ID id-PowerControlGAP								CRITICALITY ignore	EXTENSION ControlGAP									PRESENCE optional }|
 	-- Applicable to 1.28Mcps TDD only
-	{ ID id-CPC-InformationLCR							CRITICALITY reject	EXTENSION CPC-InformationLCR					PRESENCE optional }|
-	{ ID id-IdleIntervalInformation			CRITICALITY ignore		EXTENSION		IdleIntervalInformation									PRESENCE optional }|
-	{ ID id-UE-Selected-MBMS-Service-Information			CRITICALITY ignore		EXTENSION UE-Selected-MBMS-Service-Information						PRESENCE optional	},
+	{ ID id-CPC-InformationLCR							CRITICALITY reject	EXTENSION CPC-InformationLCR						PRESENCE optional }|
+	{ ID id-IdleIntervalInformation						CRITICALITY ignore	EXTENSION IdleIntervalInformation					PRESENCE optional }|
+{ ID id-UE-Selected-MBMS-Service-Information		CRITICALITY ignore	EXTENSION UE-Selected-MBMS-Service-Information	PRESENCE optional }|
+	{ ID id-HSSCCH-TPC-StepSize							CRITICALITY	ignore	EXTENSION TDD-TPC-DownlinkStepSize				PRESENCE optional	}|
+{ ID id-DCH-MeasurementOccasion-Information			CRITICALITY reject	EXTENSION DCH-MeasurementOccasion-Information		PRESENCE optional},
 	...
 }
 
@@ -8260,10 +8266,10 @@ RadioLinkReconfigurationResponse-Extensions NBAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-MAChs-ResetIndicator				CRITICALITY ignore		EXTENSION MAChs-ResetIndicator		PRESENCE optional }|
 	{ ID id-ContinuousPacketConnectivityHS-SCCH-less-Information-Response		CRITICALITY ignore		EXTENSION	ContinuousPacketConnectivityHS-SCCH-less-Information-Response			PRESENCE optional }|
 	{ ID id-Additional-HS-Cell-Information-Response		CRITICALITY ignore		EXTENSION	Additional-HS-Cell-Information-Response-List			PRESENCE optional }|
-	{ ID id-ContinuousPacketConnectivity-DRX-Information-ResponseLCR				CRITICALITY ignore		EXTENSION ContinuousPacketConnectivity-DRX-Information-ResponseLCR			PRESENCE optional	}|
-	{ ID id-HS-DSCH-Semi-PersistentScheduling-Information-ResponseLCR		CRITICALITY ignore		EXTENSION HS-DSCH-Semi-PersistentScheduling-Information-ResponseLCR			PRESENCE optional	}|
-	{ ID id-E-DCH-Semi-PersistentScheduling-Information-ResponseLCR		CRITICALITY ignore		EXTENSION E-DCH-Semi-PersistentScheduling-Information-ResponseLCR			PRESENCE optional}|
-	{ ID id-Additional-EDCH-Cell-Information-Response		CRITICALITY ignore	EXTENSION	Additional-EDCH-Cell-Information-Response-List			PRESENCE optional },
+	{ ID id-ContinuousPacketConnectivity-DRX-Information-ResponseLCR	CRITICALITY ignore	EXTENSION ContinuousPacketConnectivity-DRX-Information-ResponseLCR			PRESENCE optional	}|
+	{ ID id-HS-DSCH-Semi-PersistentScheduling-Information-ResponseLCR	CRITICALITY ignore	EXTENSION HS-DSCH-Semi-PersistentScheduling-Information-ResponseLCR			PRESENCE optional	}|
+	{ ID id-E-DCH-Semi-PersistentScheduling-Information-ResponseLCR		CRITICALITY ignore	EXTENSION E-DCH-Semi-PersistentScheduling-Information-ResponseLCR			PRESENCE optional}|
+	{ ID id-Additional-EDCH-Cell-Information-ResponseRLReconf	CRITICALITY ignore	EXTENSION	Additional-EDCH-Cell-Information-Response-RLReconf-List			PRESENCE optional },
 	...
 }
 
@@ -9313,7 +9319,7 @@ PhysicalSharedChannelReconfigurationRequestTDD-Extensions NBAP-PROTOCOL-EXTENSIO
 	{ ID id-Add-To-HS-SCCH-Resource-Pool-PSCH-ReconfRqst		CRITICALITY reject	EXTENSION Add-To-HS-SCCH-Resource-Pool-PSCH-ReconfRqst			PRESENCE optional } |
 	{ ID id-Modify-HS-SCCH-Resource-Pool-PSCH-ReconfRqst		CRITICALITY reject	EXTENSION Modify-HS-SCCH-Resource-Pool-PSCH-ReconfRqst			PRESENCE optional } |
 	{ ID id-Delete-From-HS-SCCH-Resource-Pool-PSCH-ReconfRqst	CRITICALITY reject	EXTENSION Delete-From-HS-SCCH-Resource-Pool-PSCH-ReconfRqst		PRESENCE optional } |
-	{ ID id-ConfigurationGenerationID						CRITICALITY reject	EXTENSION ConfigurationGenerationID				PRESENCE optional }|
+	{ ID id-ConfigurationGenerationID							CRITICALITY reject	EXTENSION ConfigurationGenerationID				PRESENCE optional }|
 	{ ID id-E-PUCH-Information-PSCH-ReconfRqst								CRITICALITY reject	EXTENSION E-PUCH-Information-PSCH-ReconfRqst														PRESENCE optional }|
 	{ ID id-Add-To-E-AGCH-Resource-Pool-PSCH-ReconfRqst						CRITICALITY reject	EXTENSION Add-To-E-AGCH-Resource-Pool-PSCH-ReconfRqst					PRESENCE optional } |
 	{ ID id-Modify-E-AGCH-Resource-Pool-PSCH-ReconfRqst						CRITICALITY reject	EXTENSION Modify-E-AGCH-Resource-Pool-PSCH-ReconfRqst									PRESENCE optional } |
@@ -9322,31 +9328,35 @@ PhysicalSharedChannelReconfigurationRequestTDD-Extensions NBAP-PROTOCOL-EXTENSIO
 	{ ID id-Maximum-Generated-ReceivedTotalWideBandPowerInOtherCells		CRITICALITY reject	EXTENSION Maximum-Generated-ReceivedTotalWideBandPowerInOtherCells		PRESENCE optional }|-- Applicable to 3.84Mcps TDD or 7.68Mcps TDD.
 	{ ID id-E-PUCH-Information-768-PSCH-ReconfRqst							CRITICALITY reject	EXTENSION E-PUCH-Information-768-PSCH-ReconfRqst													PRESENCE optional }|
 	{ ID id-Add-To-E-AGCH-Resource-Pool-768-PSCH-ReconfRqst					CRITICALITY reject	EXTENSION Add-To-E-AGCH-Resource-Pool-768-PSCH-ReconfRqst			PRESENCE optional } |
-	{ ID id-Modify-E-AGCH-Resource-Pool-768-PSCH-ReconfRqst						CRITICALITY reject	EXTENSION Modify-E-AGCH-Resource-Pool-768-PSCH-ReconfRqst									PRESENCE optional } |
+	{ ID id-Modify-E-AGCH-Resource-Pool-768-PSCH-ReconfRqst					CRITICALITY reject	EXTENSION Modify-E-AGCH-Resource-Pool-768-PSCH-ReconfRqst		PRESENCE optional } |
 	{ ID id-E-HICH-Information-768-PSCH-ReconfRqst							CRITICALITY reject	EXTENSION E-HICH-Information-768-PSCH-ReconfRqst				PRESENCE optional }|
 	{ ID id-E-PUCH-Information-LCR-PSCH-ReconfRqst							CRITICALITY reject	EXTENSION E-PUCH-Information-LCR-PSCH-ReconfRqst													PRESENCE optional }|
 	{ ID id-Add-To-E-AGCH-Resource-Pool-LCR-PSCH-ReconfRqst					CRITICALITY reject	EXTENSION Add-To-E-AGCH-Resource-Pool-LCR-PSCH-ReconfRqst			PRESENCE optional }|
 	{ ID id-Modify-E-AGCH-Resource-Pool-LCR-PSCH-ReconfRqst					CRITICALITY reject	EXTENSION Modify-E-AGCH-Resource-Pool-LCR-PSCH-ReconfRqst									PRESENCE optional }|
-	{ ID id-Add-To-E-HICH-Resource-Pool-LCR-PSCH-ReconfRqst	    CRITICALITY reject	EXTENSION Add-To-E-HICH-Resource-Pool-LCR-PSCH-ReconfRqst				PRESENCE optional }|
+	{ ID id-Add-To-E-HICH-Resource-Pool-LCR-PSCH-ReconfRqst		CRITICALITY reject	EXTENSION Add-To-E-HICH-Resource-Pool-LCR-PSCH-ReconfRqst				PRESENCE optional }|
 	{ ID id-Modify-E-HICH-Resource-Pool-LCR-PSCH-ReconfRqst		CRITICALITY reject	EXTENSION Modify-E-HICH-Resource-Pool-LCR-PSCH-ReconfRqst				PRESENCE optional }|
-	{ ID id-Delete-From-E-HICH-Resource-Pool-PSCH-ReconfRqst		CRITICALITY reject	EXTENSION Delete-From-E-HICH-Resource-Pool-PSCH-ReconfRqst									PRESENCE optional }|
-	{ ID id-SYNC-UL-Partition-LCR											CRITICALITY reject	EXTENSION SYNC-UL-Partition-LCR															PRESENCE optional }|
+	{ ID id-Delete-From-E-HICH-Resource-Pool-PSCH-ReconfRqst	CRITICALITY reject	EXTENSION Delete-From-E-HICH-Resource-Pool-PSCH-ReconfRqst									PRESENCE optional }|
+	{ ID id-SYNC-UL-Partition-LCR								CRITICALITY reject	EXTENSION SYNC-UL-Partition-LCR															PRESENCE optional }|
 	 -- Applicable to 1.28Mcps TDD, Not Applicable to 3.84Mcps TDD or 7.68Mcps TDD.
-	{ ID id-Maximum-Target-ReceivedTotalWideBandPower-LCR					CRITICALITY reject	EXTENSION Maximum-Target-ReceivedTotalWideBandPower-LCR						PRESENCE optional }|
+	{ ID id-Maximum-Target-ReceivedTotalWideBandPower-LCR		CRITICALITY reject	EXTENSION Maximum-Target-ReceivedTotalWideBandPower-LCR						PRESENCE optional }|
 	-- Applicable to 1.28Mcps TDD only.
 	{ ID id-Delete-From-HS-SCCH-Resource-PoolExt-PSCH-ReconfRqst	CRITICALITY reject		EXTENSION Delete-From-HS-SCCH-Resource-PoolExt-PSCH-ReconfRqst		PRESENCE optional }|
 	-- Applicable to 1.28Mcps TDD only, used when there are more than maxNrOfHSSCCHs HS-SCCHs in the message.
-	{ ID id-HSDSCH-Common-System-InformationLCR						CRITICALITY reject	EXTENSION HSDSCH-Common-System-InformationLCR				PRESENCE optional }|
-	{ ID id-Common-MACFlows-to-DeleteLCR							CRITICALITY reject	EXTENSION Common-MACFlows-to-DeleteLCR									PRESENCE optional }|
-	{ ID id-HSDSCH-Paging-System-InformationLCR						CRITICALITY reject	EXTENSION HSDSCH-Paging-System-InformationLCR						PRESENCE optional }|
-	{ ID id-Paging-MACFlows-to-DeleteLCR							CRITICALITY reject	EXTENSION Paging-MACFlows-to-DeleteLCR									PRESENCE optional }|
-	{ ID id-Common-EDCH-System-InformationLCR						CRITICALITY reject	EXTENSION Common-EDCH-System-InformationLCR							PRESENCE optional }|
-	{ ID id-Common-UL-MACFlows-to-DeleteLCR							CRITICALITY reject	EXTENSION Common-MACFlows-to-DeleteLCR									PRESENCE optional }|
-	{ ID id-Common-EDCH-MACdFlows-to-DeleteLCR						CRITICALITY reject	EXTENSION E-DCH-MACdFlows-to-DeleteLCR									PRESENCE optional }|
-	{ ID id-Enhanced-UE-DRX-InformationLCR							CRITICALITY reject	EXTENSION Enhanced-UE-DRX-InformationLCR								PRESENCE optional }|
+	{ ID id-HSDSCH-Common-System-InformationLCR					CRITICALITY reject	EXTENSION HSDSCH-Common-System-InformationLCR	PRESENCE optional }|
+	{ ID id-Common-MACFlows-to-DeleteLCR						CRITICALITY reject	EXTENSION Common-MACFlows-to-DeleteLCR			PRESENCE optional }|
+	{ ID id-HSDSCH-Paging-System-InformationLCR					CRITICALITY reject	EXTENSION HSDSCH-Paging-System-InformationLCR	PRESENCE optional }|
+	{ ID id-Paging-MACFlows-to-DeleteLCR						CRITICALITY reject	EXTENSION Paging-MACFlows-to-DeleteLCR									PRESENCE optional }|
+	{ ID id-Common-EDCH-System-InformationLCR					CRITICALITY reject	EXTENSION Common-EDCH-System-InformationLCR							PRESENCE optional }|
+	{ ID id-Common-UL-MACFlows-to-DeleteLCR						CRITICALITY reject	EXTENSION Common-MACFlows-to-DeleteLCR									PRESENCE optional }|
+	{ ID id-Common-EDCH-MACdFlows-to-DeleteLCR					CRITICALITY reject	EXTENSION E-DCH-MACdFlows-to-DeleteLCR									PRESENCE optional }|
+	{ ID id-Enhanced-UE-DRX-InformationLCR						CRITICALITY reject	EXTENSION Enhanced-UE-DRX-InformationLCR								PRESENCE optional }|
 	{ ID id-Add-To-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst		CRITICALITY reject	EXTENSION Add-To-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst			PRESENCE optional }|
-	{ ID id-Modify-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst		CRITICALITY reject		EXTENSION Modify-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst		PRESENCE optional }|
-	{ ID	id-Delete-From-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst		CRITICALITY reject		EXTENSION Delete-From-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst		PRESENCE optional },
+	{ ID id-Modify-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst		CRITICALITY reject	EXTENSION Modify-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst		PRESENCE optional }|
+	{ ID	id-Delete-From-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst		CRITICALITY reject		EXTENSION Delete-From-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst		PRESENCE optional }|
+	{ ID id-PowerControlGAP-For-CellFACHLCR						CRITICALITY ignore	EXTENSION ControlGAP	PRESENCE optional }|
+	-- Applicable to 1.28Mcps TDD only	{ ID id-Max-RTWP-perUARFCN-Information-LCR-PSCH-ReconfRqst	CRITICALITY ignore	EXTENSION Max-RTWP-perUARFCN-Information-LCR-PSCH-ReconfRqst			PRESENCE optional }|
+	{ ID id-Delete-From-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst-Ext CRITICALITY reject	EXTENSION Delete-From-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst-Ext	PRESENCE optional }|
+	{ ID id-Out-of-Sychronization-Window						CRITICALITY reject		EXTENSION Out-of-Sychronization-Window	PRESENCE optional },
 	...
 }
 
@@ -10637,6 +10647,19 @@ MultipleFreq-E-PUCH-Timeslot-Information-LCRItem-PSCH-ReconfRqst-ExtIEs  NBAP-PR
 	...
 }
 
+Max-RTWP-perUARFCN-Information-LCR-PSCH-ReconfRqst ::= SEQUENCE (SIZE (1..maxFrequencyinCell)) OF Max-RTWP-perUARFCN-Information-LCR-PSCH-ReconfRqst-Item
+
+Max-RTWP-perUARFCN-Information-LCR-PSCH-ReconfRqst-Item ::= SEQUENCE {
+	uARFCN												UARFCN,
+	maximum-Target-ReceivedTotalWideBandPower-LCR		Maximum-Target-ReceivedTotalWideBandPower-LCR,
+	iE-Extensions					ProtocolExtensionContainer { { Max-RTWP-perUARFCN-Information-LCR-PSCH-ReconfRqst-Item-ExtIEs} }					OPTIONAL,
+	...
+}
+
+Max-RTWP-perUARFCN-Information-LCR-PSCH-ReconfRqst-Item-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 -- **************************************************************
 --
 -- PHYSICAL SHARED CHANNEL RECONFIGURATION RESPONSE
@@ -10705,6 +10728,8 @@ PhysicalSharedChannelReconfigurationFailure-IEs NBAP-PROTOCOL-IES ::= {
 }
 
 PhysicalSharedChannelReconfigurationFailure-Extensions NBAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-E-HICH-TimeOffset-ReconfFailureTDD		CRITICALITY ignore	EXTENSION E-HICH-TimeOffset-ReconfFailureTDD				PRESENCE optional }|
+	{ ID id-Common-System-Information-ResponseLCR	CRITICALITY ignore	EXTENSION Common-System-Information-ResponseLCR			PRESENCE optional },
 	...
 }
 
@@ -10796,6 +10821,20 @@ Unsuccessful-UARFCNItem-PSCH-ReconfFailureTDD-ExtIEs NBAP-PROTOCOL-EXTENSION ::=
 	-- Used to indicate the cause of HSDPA related configuration failure.
 	{ ID	id-E-Cause	CRITICALITY	ignore		EXTENSION	Cause		PRESENCE	optional},
 	-- Used to indicate the cause of E-DCH related configuration failure.
+	...
+}
+
+E-HICH-TimeOffset-ReconfFailureTDD ::= SEQUENCE (SIZE (1..maxFrequencyinCell)) OF ProtocolIE-Single-Container{{ Multiple-E-HICH-TimeOffsetLCR }}
+
+Common-System-Information-ResponseLCR::= SEQUENCE {
+	hSDSCH-Common-System-Information-ResponseLCR		HSDSCH-Common-System-Information-ResponseLCR,
+	hSDSCH-Paging-System-Information-ResponseLCR		HSDSCH-Paging-System-Information-ResponseLCR		OPTIONAL,
+	common-EDCH-System-Information-ResponseLCR		Common-EDCH-System-Information-ResponseLCR,
+	iE-Extensions										ProtocolExtensionContainer { { Common-System-Information-ResponseLCR-ExtIEs } }		OPTIONAL,
+	...
+}
+
+Common-System-Information-ResponseLCR-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 

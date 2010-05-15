@@ -1,6 +1,6 @@
 -- NBAP-Constants.asn
 --
--- Taken from 3GPP TS 25.433 V9.1.0 (2009-12)
+-- Taken from 3GPP TS 25.433 V9.2.0 (2010-03)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.433/
 ---
 -- 9.3.6	Constant Definitions
@@ -247,14 +247,16 @@ maxNoOfRepetitionPeriod-SPS-LCR-1	INTEGER ::= 3
 maxNoOf-HS-SICH-SPS					INTEGER ::= 4
 maxNoOf-HS-SICH-SPS-1				INTEGER ::= 3
 maxNoOfNon-HS-SCCH-Assosiated-HS-SICH	INTEGER ::= 4
-maxMBMSServiceSelect			INTEGER ::= 256 
+maxNoOfNon-HS-SCCH-Assosiated-HS-SICH-Ext	INTEGER ::= 44
+maxMBMSServiceSelect				INTEGER ::= 256 
 maxNrOfCellPortionsPerCellLCR		INTEGER ::= 256
 maxNrOfCellPortionsPerCellLCR-1		INTEGER ::= 255
 maxNrOfEDCH-1						INTEGER ::= 32
-maxNoOfCommonH-RNTI				INTEGER ::= 256
+maxNoOfCommonH-RNTI					INTEGER ::= 256
 maxNrOfCommonMACFlowsLCRExt			INTEGER ::= 248 
 -- maxNrOfCommonMACFlowsLCR-maxNrOfCommonMACFlows
-
+maxofERNTI							INTEGER ::= 256
+maxNrOfDCHMeasurementOccasionPatternSequence	INTEGER ::= 6
 
 -- **************************************************************
 --
@@ -1101,7 +1103,7 @@ id-HSDSCH-TBSizeTableIndicator										ProtocolIE-ID ::= 966
 id-E-DCH-DL-Control-Channel-Change-Information						ProtocolIE-ID ::= 967
 id-E-DCH-DL-Control-Channel-Grant-Information						ProtocolIE-ID ::= 968
 id-DGANSS-Corrections-Req											ProtocolIE-ID ::= 969
-id-UE-with-enhanced-HS-SCCH-support-indicator							ProtocolIE-ID ::= 970
+id-UE-with-enhanced-HS-SCCH-support-indicator						ProtocolIE-ID ::= 970
 id-AdditionalTimeSlotListLCR										ProtocolIE-ID ::= 971
 id-AdditionalMeasurementValueList									ProtocolIE-ID ::= 972
 id-E-AGCH-Table-Choice					 							ProtocolIE-ID ::= 978
@@ -1111,7 +1113,7 @@ id-E-RUCCH-768-parameters											ProtocolIE-ID ::= 983
 id-HS-Cause															ProtocolIE-ID ::= 984
 id-E-Cause															ProtocolIE-ID ::= 985
 id-Common-EDCH-Capability											ProtocolIE-ID ::= 987
-id-E-AI-Capability												ProtocolIE-ID ::= 988
+id-E-AI-Capability													ProtocolIE-ID ::= 988
 id-Common-EDCH-System-InformationFDD								ProtocolIE-ID ::= 989
 id-Common-UL-MACFlows-to-DeleteFDD									ProtocolIE-ID ::= 990
 id-Common-EDCH-MACdFlows-to-DeleteFDD								ProtocolIE-ID ::= 991
@@ -1206,9 +1208,7 @@ id-Single-Stream-MIMO-Capability									ProtocolIE-ID ::= 1089
 id-Single-Stream-MIMO-Mode-Indicator								ProtocolIE-ID ::= 1090
 id-Dual-Band-Capability-Info										ProtocolIE-ID ::= 1091
 id-UE-AggregateMaximumBitRate										ProtocolIE-ID ::= 1092
-id-SRB-Indicator													ProtocolIE-ID ::= 1093
-id-CellSpecificHARQMemoryPartitioning								ProtocolIE-ID ::= 1099
-id-HARQ-MemoryPartitioning											ProtocolIE-ID ::= 1100
+id-UE-AggregateMaximumBitRate-Enforcement-Indicator					ProtocolIE-ID ::= 1093
 id-MIMO-Power-Offset-For-S-CPICH-Capability							ProtocolIE-ID ::= 1101
 id-MIMO-PilotConfigurationExtension									ProtocolIE-ID ::= 1102
 id-TxDiversityOnDLControlChannelsByMIMOUECapability					ProtocolIE-ID ::= 1103 
@@ -1225,11 +1225,12 @@ id-UpPTSInterference-For-CellPortion-Value							ProtocolIE-ID ::= 1113
 id-NumberOfReportedCellPortionsLCR									ProtocolIE-ID ::= 1114
 id-CellPortion-CapabilityLCR										ProtocolIE-ID ::= 1115
 id-TransmittedCarrierPowerOfAllCodesNotUsedForHS-PDSCH-HS-SCCH-E-AGCHOrE-HICHTransmissionCellPortionValue	ProtocolIE-ID ::= 1116
-id-TransmittedCarrierPowerOfAllCodesNotUsedForHS-PDSCH-HS-SCCH-E-AGCHOrE-HICHTransmissionCellPortion	ProtocolIE-ID ::= 1117id-ActivationInformation											ProtocolIE-ID ::= 1119
+id-TransmittedCarrierPowerOfAllCodesNotUsedForHS-PDSCH-HS-SCCH-E-AGCHOrE-HICHTransmissionCellPortion	ProtocolIE-ID ::= 1117
+id-ActivationInformation											ProtocolIE-ID ::= 1119
 id-Additional-EDCH-Cell-Information-RL-Setup-Req					ProtocolIE-ID ::= 1120
 id-Additional-EDCH-Cell-Information-Response						ProtocolIE-ID ::= 1121
 id-Additional-EDCH-Cell-Information-RL-Add-Req						ProtocolIE-ID ::= 1122
-id-Additional-EDCH-Cell-Change-Information-Response					ProtocolIE-ID ::= 1123
+id-Additional-EDCH-Cell-Information-Response-RL-Add					ProtocolIE-ID ::= 1123
 id-Additional-EDCH-Cell-Information-RL-Reconf-Prep					ProtocolIE-ID ::= 1124
 id-Additional-EDCH-Cell-Information-RL-Reconf-Req					ProtocolIE-ID ::= 1125
 id-Additional-EDCH-Cell-Information-Bearer-Rearrangement			ProtocolIE-ID ::= 1126
@@ -1248,6 +1249,31 @@ id-DiversityMode													ProtocolIE-ID ::= 1139
 id-TransmitDiversityIndicator										ProtocolIE-ID ::= 1140
 id-NonCellSpecificTxDiversity										ProtocolIE-ID ::= 1141
 id-Cell-Capability-Container										ProtocolIE-ID ::= 1142
+id-E-RNTI-List-Request												ProtocolIE-ID ::= 1143
+id-E-RNTI-List														ProtocolIE-ID ::= 1144
+id-PowerControlGAP-For-CellFACHLCR									ProtocolIE-ID ::= 1145
+id-UL-Synchronisation-Parameters-For-FACHLCR						ProtocolIE-ID ::= 1147
+id-HS-DSCH-SPS-Operation-Indicator									ProtocolIE-ID ::= 1148
+id-Out-of-Sychronization-Window										ProtocolIE-ID ::= 1151
+id-Max-RTWP-perUARFCN-Information-LCR-PSCH-ReconfRqst				ProtocolIE-ID ::= 1152
+id-E-HICH-TimeOffset-ReconfFailureTDD								ProtocolIE-ID ::= 1153
+id-HSSCCH-TPC-StepSize												ProtocolIE-ID ::= 1154
+id-TS0-CapabilityLCR												ProtocolIE-ID ::= 1155
+id-UE-TS0-CapabilityLCR												ProtocolIE-ID ::= 1156
+id-Common-System-Information-ResponseLCR							ProtocolIE-ID ::= 1157
+id-Additional-EDCH-Cell-Information-ResponseRLReconf				ProtocolIE-ID ::= 1158
+id-Multicell-EDCH-InformationItemIEs								ProtocolIE-ID ::= 1159
+id-Multicell-EDCH-RL-Specific-InformationItemIEs					ProtocolIE-ID ::= 1160
+id-Add-To-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst-Ext 	ProtocolIE-ID ::= 1161
+id-Modify-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst-Ext	ProtocolIE-ID ::= 1162
+id-Delete-From-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst-Ext	ProtocolIE-ID ::= 1163
+id-Initial-DL-Transmission-Power									ProtocolIE-ID ::= 1164
+id-Maximum-DL-Power													ProtocolIE-ID ::= 1165
+id-Minimum-DL-Power													ProtocolIE-ID ::= 1166
+id-DCH-MeasurementOccasion-Information								ProtocolIE-ID ::= 1167
+id-AssociatedPhsicalChannelID										ProtocolIE-ID ::= 1168
+id-DGNSS-ValidityPeriod												ProtocolIE-ID ::= 1169
+id-PhysicalChannelID-for-CommonERNTI-RequestedIndicator				ProtocolIE-ID ::= 1170
+id-PrecodingWeightSetRestriction									ProtocolIE-ID ::= 1171
 
 END
-
