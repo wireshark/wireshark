@@ -26,16 +26,16 @@
 # include "config.h"
 #endif
 
+#ifdef HAVE_PYTHON
+#include <Python.h> /* to get the Python version number (PY_VERSION) */
+#endif
+
 #include <glib.h>
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-
-#ifdef HAVE_PYTHON
-#include <Python.h> /* to get the Python version number (PY_VERSION) */
-#endif
 
 #ifdef HAVE_LIBZ
 #include <zlib.h>	/* to get the libz version number */
