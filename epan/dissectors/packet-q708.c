@@ -2318,8 +2318,8 @@ const value_string q708_ispc_point_name[] = {
 	{  5700, "PMPSI" },
 	{  5701, "KTPSI" },
 	{  5702, "KTPSI" },
+	{  5703, "Cornet-AM" },
 	{  5704, "Telecom Italia - POP Nantes 1" },
-	{  5704, "Cornet-AM" },
 	{  5705, "SFR - XA08 - Aubervilliers" },
 	{  5706, "Colt 2" },
 	{  5707, "Colt 3" },
@@ -6184,7 +6184,6 @@ const value_string q708_ispc_point_name[] = {
 	{  16236, "London 4" },
 	{  16237, "London 5" },
 	{  16238, "London 6" },
-	{  16239, "..." },
 	{  16239, "Bristol AVN2042-M99" },
 	{  16240, "Transatel-Paris" },
 	{  16241, "SFR - Paris 2" },
@@ -7666,8 +7665,8 @@ const value_string q708_ispc_operator_name[] = {
 	{  5700, "PMF-SAL" },
 	{  5701, "K Telecom" },
 	{  5702, "K Telecom" },
+	{  5703, "Cornet-AM" },
 	{  5704, "Telecom Italia" },
-	{  5704, "Cornet-AM" },
 	{  5705, "SFR" },
 	{  5706, "Colt Telecommunications" },
 	{  5707, "Colt Telecommunications" },
@@ -11533,7 +11532,6 @@ const value_string q708_ispc_operator_name[] = {
 	{  16237, "Teleglobe International Ltd" },
 	{  16238, "Teleglobe International Ltd" },
 	{  16239, "Orange" },
-	{  16239, "Orange" },
 	{  16240, "Transatel" },
 	{  16241, "SFR" },
 	{  16243, "Bouygues Telecom" },
@@ -11655,6 +11653,10 @@ const value_string q708_ispc_operator_name[] = {
 	{  0, NULL }
 };
 
+static value_string_ext q708_ispc_point_name_ext = VALUE_STRING_EXT_INIT(q708_ispc_point_name);
+static value_string_ext q708_ispc_operator_name_ext = VALUE_STRING_EXT_INIT(q708_ispc_operator_name);
+static value_string_ext q708_sanc_areas_ext = VALUE_STRING_EXT_INIT(q708_sanc_areas);
+
 /*
  * International signalling point codes (i.e. PCs with ni = 0) are allocated by the ITU,
  * according to the processes described in Q.708. ITU keeps a database of all registered
@@ -11673,9 +11675,9 @@ analyze_q708_ispc(tvbuff_t *tvb, proto_tree *tree, int offset, int length, guint
 		val_to_str(sanc, q708_sanc_areas, "Unknown"),
 		sanc >> 8, sanc & 0xff);
 	proto_tree_add_string(tree, hf_q708_ispc_name, tvb, offset, length,
-		val_to_str(ispc, q708_ispc_point_name, "Unknown"));
+		val_to_str_ext(ispc, &q708_ispc_point_name_ext, "Unknown"));
 	proto_tree_add_string(tree, hf_q708_ispc_operator_name, tvb, offset, length,
-		val_to_str(ispc, q708_ispc_operator_name, "Unknown"));
+		val_to_str_ext(ispc, &q708_ispc_operator_name_ext, "Unknown"));
 }
 
 void
@@ -11684,7 +11686,7 @@ proto_register_q708(void)
 	static hf_register_info hf[] = {
 	{ &hf_q708_sanc,
 		{ "Signalling Area Network Code (SANC)","q708.sanc",
-		FT_UINT16, BASE_DEC, VALS(q708_sanc_areas), 0x0,
+		FT_UINT16, BASE_DEC | BASE_EXT_STRING, VALS(&q708_sanc_areas_ext), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_q708_ispc_name,
