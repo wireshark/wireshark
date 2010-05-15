@@ -1,6 +1,6 @@
 -- RANAP-IEs.asn
 --
--- 3GPP TS 25.413 V9.1.0 (2009-12)
+-- 3GPP TS 25.413 V9.2.0 (2010-03)
 -- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.4	Information Element Definitions
@@ -87,7 +87,9 @@ IMPORTS
 	id-Requested-RAB-Parameter-SupportedGuaranteedBitrateList,
 	id-PSRABtobeReplaced,
     id-SRVCC-Information,
-	id-CSG-Id
+	id-CSG-Id,
+	id-CSFB-Information
+
 
 
 FROM RANAP-Constants
@@ -334,7 +336,8 @@ CauseMisc ::= INTEGER {
 CauseNAS ::= INTEGER {
 	user-restriction-start-indication (81),
 	user-restriction-end-indication (82),
-	normal-release (83)
+	normal-release (83),
+	csg-subscription-expiry(84)
 } (81..96)
 
 CauseProtocol ::= INTEGER {
@@ -561,6 +564,12 @@ CN-DomainIndicator ::= ENUMERATED {
 
 CN-ID				::= INTEGER (0..4095)
 
+CSFB-Information ::= ENUMERATED {
+	csfb,
+	csfb-high-priority,
+	...
+}
+
 CSG-Id		::= BIT STRING (SIZE (27))
 
 CSG-Id-List ::= SEQUENCE (SIZE (1..maxNrOfCSGs)) OF
@@ -637,18 +646,6 @@ E-DCH-MAC-d-Flow-ID		::= INTEGER (0.. maxNrOfEDCHMACdFlows-1)
 ENB-ID ::= CHOICE {
 	macroENB-ID			BIT STRING (SIZE(20)),
 	homeENB-ID			BIT STRING (SIZE(28)),
-	...
-}
-
-Global-ENB-ID ::= SEQUENCE {
-	pLMNidentity			PLMNidentity,
-	eNB-ID					ENB-ID,
-	iE-Extensions			ProtocolExtensionContainer { {GlobalENB-ID-ExtIEs} } OPTIONAL,
-	selectedTAI		TAI,
-	...
-}
-
-GlobalENB-ID-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -1551,7 +1548,8 @@ RIM-Transfer-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 RIMRoutingAddress ::= CHOICE {
 	targetRNC-ID					TargetRNC-ID,
 	gERAN-Cell-ID					GERAN-Cell-ID,
-	...
+	... ,
+	targeteNB-ID					TargetENB-ID
 }
 
 
@@ -1740,8 +1738,8 @@ SourceRNC-ToTargetRNC-TransparentContainer-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 8 to transfer to the Target RNC parameters required for SRVCC operation --
 	{ID id-SRVCC-Information 					CRITICALITY reject		EXTENSION SRVCC-Information							PRESENCE optional}|
 	{ID id-PSRABtobeReplaced 					CRITICALITY reject		EXTENSION RAB-ID										PRESENCE optional}|
--- Extension for Release 9 to transfer to the Target RNC parameters required for CSG ID validation --
-	{ID id-CSG-Id 							CRITICALITY reject 			EXTENSION CSG-Id 										PRESENCE optional},
+-- Extension for Release 9 to transfer to the Target RNC parameters required for CSFB operation --
+	{ID id-CSFB-Information 				CRITICALITY ignore 			EXTENSION CSFB-Information 										PRESENCE optional},
 	...
 }
 
@@ -1841,10 +1839,20 @@ TargetID ::= CHOICE {
 	cGI				CGI,
 	
 	...,
-	targeteNB-ID	Global-ENB-ID
+	targeteNB-ID	TargetENB-ID
 }
 
+TargetENB-ID ::= SEQUENCE {
+	pLMNidentity			PLMNidentity,
+	eNB-ID					ENB-ID,
+	iE-Extensions			ProtocolExtensionContainer { {TargetENB-ID-ExtIEs} } OPTIONAL,
+	selectedTAI		TAI,
+	...
+}
 
+TargetENB-ID-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 
 TargetRNC-ID ::= SEQUENCE {
@@ -1856,9 +1864,7 @@ TargetRNC-ID ::= SEQUENCE {
 
 TargetRNC-ID-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 7 to indicate extended RNC-ID --
-	{ ID id-ExtendedRNC-ID				CRITICALITY reject	EXTENSION ExtendedRNC-ID		PRESENCE optional	}|
--- Extension for Release 9 to transfer to the Target RNC parameters required for access control during inbound CSG mobility --
-	{ID id-CSG-Id 							CRITICALITY reject 			EXTENSION CSG-Id 										PRESENCE optional},
+	{ ID id-ExtendedRNC-ID				CRITICALITY reject	EXTENSION ExtendedRNC-ID		PRESENCE optional	},
 	...
 }
 

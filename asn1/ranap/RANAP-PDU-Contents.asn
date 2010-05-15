@@ -1,6 +1,6 @@
 -- RANAP-PDU-Contents.asn
 --
--- 3GPP TS 25.413 V9.1.0 (2009-12)
+-- 3GPP TS 25.413 V9.2.0 (2010-03)
 -- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.3	PDU Definitions
@@ -61,7 +61,6 @@ IMPORTS
 	FrequenceLayerConvergenceFlag,
 	GERAN-BSC-Container,
 	GERAN-Classmark,
-	Global-ENB-ID,
 	GlobalCN-ID,
 	GlobalRNC-ID,
 	GTP-TEI,
@@ -217,7 +216,6 @@ FROM RANAP-Containers
 	id-GERAN-Classmark,
 	id-GERAN-Iumode-RAB-Failed-RABAssgntResponse-Item,
 	id-GERAN-Iumode-RAB-FailedList-RABAssgntResponse,
-	id-Global-ENB-ID,
 	id-GlobalCN-ID,
 	id-GlobalCN-IDCS,
 	id-GlobalCN-IDPS,
@@ -269,13 +267,6 @@ FROM RANAP-Containers
 	id-PDP-TypeInformation,
 	id-PermanentNAS-UE-ID,
 	id-PositionData,
-	id-PositionDataSpecificToGERANIuMode,
-	id-PositioningPriority,
-	id-ProvidedData,
-	id-RAB-ContextItem,
-	id-RAB-ContextList,
-	id-RAB-ContextFailedtoTransferItem,
-	id-RAB-ContextFailedtoTransferList,
 	id-PositionDataSpecificToGERANIuMode,
 	id-PositioningPriority,
 	id-ProvidedData,
@@ -383,7 +374,8 @@ FROM RANAP-Containers
 	id-PeriodicLocationInfo,
 	id-BroadcastGANSSAssistanceDataDecipheringKeys,
 	id-SubscriberProfileIDforRFP,
-	id-E-UTRAN-Service-Handover
+	id-E-UTRAN-Service-Handover,
+	id-IP-Source-Address
 
 FROM RANAP-Constants;
 
@@ -814,7 +806,8 @@ RAB-FailedItem-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 
 RelocationRequestAcknowledgeExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 5 to enable Inter RAN Load Information Exchange over Iu --
-	{ID id-NewBSS-To-OldBSS-Information		CRITICALITY ignore	EXTENSION NewBSS-To-OldBSS-Information		PRESENCE optional		},
+	{ID id-NewBSS-To-OldBSS-Information	CRITICALITY ignore	EXTENSION NewBSS-To-OldBSS-Information		PRESENCE optional	 }|
+	{ID id-CSG-Id						CRITICALITY	ignore	EXTENSION CSG-Id								PRESENCE optional	},
 	...
 }
 
@@ -2896,6 +2889,7 @@ MBMSSynchronisationInformation ::= SEQUENCE {
 }
 
 MBMSSynchronisationInformation-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-IP-Source-Address			CRITICALITY reject		EXTENSION IPMulticastAddress				PRESENCE optional	},
 	...
 }
 

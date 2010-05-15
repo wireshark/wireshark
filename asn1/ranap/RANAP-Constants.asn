@@ -1,6 +1,6 @@
 -- RANAP-Constants.asn
 --
--- 3GPP TS 25.413 V9.1.0 (2009-12)
+-- 3GPP TS 25.413 V9.2.0 (2010-03)
 -- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.6	Constant Definitions
@@ -355,6 +355,7 @@ id-E-UTRAN-Service-Handover								INTEGER ::= 231
 id-UE-AggregateMaximumBitRate							INTEGER ::= 233
 id-CSG-Membership-Status 								INTEGER ::= 234
 id-Cell-Access-Mode										INTEGER ::= 235
-
+id-IP-Source-Address									INTEGER ::= 236 
+id-CSFB-Information										INTEGER ::= 237
 
 END

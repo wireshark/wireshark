@@ -625,6 +625,8 @@ id-E-UTRAN-Service-Handover									ProtocolIE-ID
 id-UE-AggregateMaximumBitRate								ProtocolIE-ID
 id-CSG-Membership-Status 									ProtocolIE-ID
 id-Cell-Access-Mode											ProtocolIE-ID
+id-IP-Source-Address										ProtocolIE-ID 
+id-CSFB-Information											ProtocolIE-ID
 #.END
 
 #.REGISTER_NEW
@@ -869,6 +871,8 @@ E-UTRAN-Service-Handover								N ranap.extension id-E-UTRAN-Service-Handover
 UE-AggregateMaximumBitRate								N ranap.extension id-UE-AggregateMaximumBitRate
 CSG-Membership-Status									N ranap.extension id-CSG-Membership-Status
 Cell-Access-Mode										N ranap.extension id-Cell-Access-Mode
+IPMulticastAddress										N ranap.extension id-IP-Source-Address
+CSFB-Information										N ranap.extension id-CSFB-Information
 
 #RANAP-ELEMENTARY-PROCEDURE
 Iu-ReleaseCommand							N ranap.proc.imsg id-Iu-Release
