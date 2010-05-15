@@ -66,9 +66,9 @@
 #define IFOPTS_IF_NOSEL -1
 
 /* interface options dialog */
-static GtkWidget *cur_list, *if_dev_lb, *if_name_lb, *if_linktype_cb, *if_descr_te, *if_hide_cb;
+static GtkWidget *cur_list, *if_dev_lb, *if_name_lb, *if_linktype_lb, *if_linktype_cb, *if_descr_te, *if_hide_cb;
 #ifdef HAVE_PCAP_CREATE
-static GtkWidget *if_monitor_cb;
+static GtkWidget *if_monitor_lb, *if_monitor_cb;
 #endif
 static GtkTreeSelection *if_selection;	/* current interface row selected */
 static int num_linktypes;
@@ -297,10 +297,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 {
 	GtkWidget	  *ifopts_edit_dlg, *cur_scr_win, *main_hb, *main_tb,
 			  *cur_opts_fr, *ed_opts_fr, *main_vb,
-			  *if_linktype_lb, *if_descr_lb,
-#ifdef HAVE_PCAP_CREATE
-			  *if_monitor_lb,
-#endif
+			  *if_descr_lb,
 			  *if_hide_lb,
 			  *bbox, *ok_bt, *cancel_bt, *help_bt;
 
@@ -748,6 +745,7 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 #endif
 	if (caps != NULL) {
 #ifdef HAVE_PCAP_CREATE
+		gtk_widget_set_sensitive(if_monitor_lb, caps->can_set_rfmon);
 		gtk_widget_set_sensitive(if_monitor_cb, caps->can_set_rfmon);
 #endif
 		if (caps->data_link_types != NULL) {
@@ -762,31 +760,28 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 				gtk_combo_box_append_text(GTK_COMBO_BOX(if_linktype_cb), text);
 				num_linktypes++;
 			}
+			gtk_widget_set_sensitive(if_linktype_lb, num_linktypes >= 2);
 			gtk_widget_set_sensitive(if_linktype_cb, num_linktypes >= 2);
 			gtk_combo_box_set_active(GTK_COMBO_BOX(if_linktype_cb), selected);
 		}
 		free_if_capabilities(caps);
 #ifdef HAVE_PCAP_CREATE
 		/* display the "monitor mode" button state from current interfaces selection */
-		if (monitor_mode)
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_monitor_cb), TRUE);
-		else
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_monitor_cb), FALSE);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_monitor_cb), monitor_mode);
 #endif
 	}
 #ifdef HAVE_PCAP_CREATE
-	else
+	else {
+		gtk_widget_set_sensitive(if_monitor_lb, FALSE);
 		gtk_widget_set_sensitive(if_monitor_cb, FALSE);
+	}
 #endif
 
 	/* display the interface description from current interfaces selection */
 	gtk_entry_set_text(GTK_ENTRY(if_descr_te), comment);
 
 	/* display the "hide interface" button state from current interfaces selection */
-	if (hide)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_hide_cb), TRUE);
-	else
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_hide_cb), FALSE);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_hide_cb), hide);
 
 	interfaces_info_nochange = FALSE;
 
@@ -856,6 +851,7 @@ ifopts_edit_monitor_changed_cb(GtkToggleButton *tbt, gpointer udata)
 	 */
 	if (caps != NULL) {
 #ifdef HAVE_PCAP_CREATE
+		gtk_widget_set_sensitive(if_monitor_lb, caps->can_set_rfmon);
 		gtk_widget_set_sensitive(if_monitor_cb, caps->can_set_rfmon);
 #endif
 		if (caps->data_link_types != NULL) {
@@ -867,14 +863,17 @@ ifopts_edit_monitor_changed_cb(GtkToggleButton *tbt, gpointer udata)
 				gtk_combo_box_append_text(GTK_COMBO_BOX(if_linktype_cb), text);
 				num_linktypes++;
 			}
+			gtk_widget_set_sensitive(if_linktype_lb, num_linktypes >= 2);
 			gtk_widget_set_sensitive(if_linktype_cb, num_linktypes >= 2);
 			gtk_combo_box_set_active(GTK_COMBO_BOX(if_linktype_cb), 0);
 		}
 		free_if_capabilities(caps);
 	}
 #ifdef HAVE_PCAP_CREATE
-	else
+	else {
+		gtk_widget_set_sensitive(if_monitor_lb, FALSE);
 		gtk_widget_set_sensitive(if_monitor_cb, FALSE);
+	}
 #endif
 
 	interfaces_info_nochange = FALSE;
