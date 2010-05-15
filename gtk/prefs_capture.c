@@ -766,6 +766,13 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 			gtk_combo_box_set_active(GTK_COMBO_BOX(if_linktype_cb), selected);
 		}
 		free_if_capabilities(caps);
+#ifdef HAVE_PCAP_CREATE
+		/* display the "monitor mode" button state from current interfaces selection */
+		if (monitor_mode)
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_monitor_cb), TRUE);
+		else
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_monitor_cb), FALSE);
+#endif
 	}
 #ifdef HAVE_PCAP_CREATE
 	else
