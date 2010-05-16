@@ -190,9 +190,12 @@ static int ett_h264_par_profile = -1;
 static int ett_h264_par_AdditionalModesSupported = -1;
 static int ett_h264_par_ProfileIOP				 = -1;
 
-/* The dynamic payload type which will be dissected as H.264 */
+/* The dynamic payload type range which will be dissected as H.264 */
 
-static guint temp_dynamic_payload_type = 0;
+#define RTP_PT_DEFAULT_RANGE "0"
+static range_t *temp_dynamic_payload_type_range = NULL;
+
+static dissector_handle_t h264_handle;
 
 /* syntax tables in subclause 7.3 is equal to
  * ue(v), me(v), se(v), or te(v).
@@ -2051,6 +2054,18 @@ dissect_h264_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree)
 }
 
 
+static void range_delete_h264_rtp_pt_callback(guint32 rtp_pt) {
+  if (rtp_pt >= 96 && rtp_pt <= 127)
+     dissector_delete("rtp.pt", rtp_pt, h264_handle);
+}
+
+static void range_add_h264_rtp_pt_callback(guint32 rtp_pt) {
+  if (rtp_pt >= 96 && rtp_pt <= 127)
+     dissector_add("rtp.pt", rtp_pt, h264_handle);
+}
+
+
+
 /* Register the protocol with Wireshark */
 /* If this dissector uses sub-dissector registration add a registration routine.
    This format is required because a script is used to find these routines and
@@ -2059,8 +2074,8 @@ dissect_h264_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_h264(void)
 {
-	static dissector_handle_t h264_handle;
-	static guint dynamic_payload_type;
+
+	static range_t *dynamic_payload_type_range = NULL;
 	static gboolean h264_prefs_initialized = FALSE;
 
 	if (!h264_prefs_initialized) {
@@ -2079,14 +2094,12 @@ proto_reg_handoff_h264(void)
 		}
 		h264_prefs_initialized = TRUE;
 	} else {
-		if ( dynamic_payload_type > 95 )
-			dissector_delete("rtp.pt", dynamic_payload_type, h264_handle);
+		range_foreach(dynamic_payload_type_range, range_delete_h264_rtp_pt_callback);
+		g_free(dynamic_payload_type_range);
 	}
 
-	dynamic_payload_type = temp_dynamic_payload_type;
-	if ( dynamic_payload_type > 95 ){
-		dissector_add("rtp.pt", dynamic_payload_type, h264_handle);
-	}
+	dynamic_payload_type_range = range_copy(temp_dynamic_payload_type_range);
+	range_foreach(dynamic_payload_type_range, range_add_h264_rtp_pt_callback);
 }
 
 /* this format is required because a script is used to build the C function
@@ -2758,13 +2771,12 @@ proto_register_h264(void)
 
 	h264_module = prefs_register_protocol(proto_h264, proto_reg_handoff_h264);
 
-	prefs_register_uint_preference(h264_module, "dynamic.payload.type",
-				                    "H264 dynamic payload type",
-						    "The dynamic payload type which will be interpreted as H264"
-				                    "; The value must be greater than 95",
-						    10,
-						    &temp_dynamic_payload_type);
 
+	prefs_register_range_preference(h264_module, "dynamic.payload.type",
+						    "H264 dynamic payload types",
+						    "Dynamic payload types which will be interpreted as H264"
+						    "; Values must be in the range 96 - 127",
+						    &temp_dynamic_payload_type_range, 127);
 
 	register_dissector("h264", dissect_h264, proto_h264);
 }
