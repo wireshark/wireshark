@@ -875,6 +875,7 @@ ifopts_edit_monitor_changed_cb(GtkToggleButton *tbt, gpointer udata)
 #endif
 
 	interfaces_info_nochange = FALSE;
+	g_signal_emit_by_name(if_linktype_cb, "changed");
 
 	g_free(if_name);
 }
