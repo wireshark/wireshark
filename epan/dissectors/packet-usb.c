@@ -1734,10 +1734,11 @@ dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset,
 }
 
 /* Adds the Linux USB pseudo header fields to the tree.
- * NOTE: The multi-byte fields in this header (and only this header) are in
- *       host-endian format so we can't use proto_tree_add_item() nor the
- *       tvb_get_xyz() routines and is the reason for the tvb_memcpy() and
- *       proto_tree_add_uint[64]() pairs below. */
+ * NOTE: The multi-byte fields in this header, and the pseudo-header
+ *       extension, are in host-endian format so we can't
+ *       use proto_tree_add_item() nor the tvb_get_xyz() routines and is
+ *       the reason for the tvb_memcpy() and proto_tree_add_uint[64]()
+ *       pairs below. */
 static void
 dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1807,9 +1808,34 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_uint(tree, hf_usb_data_len, tvb, 36, 4, val32);
 }
 
+/*
+ * XXX - put these into the protocol tree as appropriate.
+ */
+static int
+dissect_linux_usb_pseudo_header_ext(tvbuff_t *tvb, int offset,
+                                    packet_info *pinfo _U_,
+                                    proto_tree *tree _U_)
+{
+    guint32 ndesc;
+
+    offset += 4;	/* interval */
+    offset += 4;	/* start_frame */
+    offset += 4;	/* copy of URB's transfer flags */
+
+    tvb_memcpy(tvb, (guint8 *)&ndesc, offset, 4);
+    offset += 4;
+
+    /*
+     * Isochronous descriptors.  Each one is 16 bytes long.
+     */
+    offset += ndesc*16;
+
+    return offset;
+}
+
 static void
 dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
-                         gboolean padded)
+                         gboolean header_len_64_bytes)
 {
     unsigned int offset = 0;
     int type, endpoint;
@@ -1830,7 +1856,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     if (parent) {
       proto_item *ti = NULL;
       ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0,
-          sizeof(struct linux_usb_phdr) + sizeof(struct usb_device_setup_hdr), "USB URB");
+          header_len_64_bytes ? 64 : 48, "USB URB");
       tree = proto_item_add_subtree(ti, usb_hdr);
     }
 
@@ -1840,7 +1866,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     endpoint = tvb_get_guint8(tvb, 10) & (~URB_TRANSFER_IN);
     tmp_addr = tvb_get_guint8(tvb, 11);
     setup_flag = tvb_get_guint8(tvb, 14);
-    offset += sizeof(struct linux_usb_phdr); /* skip pseudo header */
+    offset += 40; /* skip first part of the pseudo-header */
 
     /* Set up addresses and ports. */
     if (is_request) {
@@ -1932,16 +1958,15 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         item=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, 0, 0, usb_conv_info->interfaceClass);
         PROTO_ITEM_SET_GENERATED(item);
 
-        /* Skip setup header - it's not applicable */
-        offset += sizeof(struct usb_device_setup_hdr);
+        /* Skip setup/isochronous header - it's not applicable */
+        offset += 8;
 
         /*
-         * If this is padded (as is the case if the capture is done in
-         * memory-mapped mode), skip the padding; it's padded to a multiple
-         * of 64 bits *after* the pseudo-header and setup header.
+         * If this has a 64-byte header, process the extra 16 bytes of
+         * pseudo-header information.
          */
-        if (padded)
-            offset += (64 - ((sizeof(struct linux_usb_phdr) + sizeof(struct usb_device_setup_hdr)) % 64)) % 64;
+        if (header_len_64_bytes)
+            offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
 
         if(tvb_reported_length_remaining(tvb, offset)){
             tvbuff_t *next_tvb;
@@ -1974,7 +1999,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
                 /* Dissect the setup header - it's applicable */
 
-                ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, sizeof(struct usb_device_setup_hdr), "URB setup");
+                ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, 8, "URB setup");
                 setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
                 usb_trans_info->requesttype=tvb_get_guint8(tvb, offset);
                 offset=dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type_2);
@@ -2018,15 +2043,6 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                         proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 2, TRUE);
                         offset += 2;
                     }
-
-                    /*
-                     * If this is padded (as is the case if the capture
-                     * is done in memory-mapped mode), skip the padding;
-                     * it's padded to a multiple of 64 bits *after* the
-                     * pseudo-header and setup header.
-                     */
-                    if (padded)
-                        offset += (64 - ((sizeof(struct linux_usb_phdr) + sizeof(struct usb_device_setup_hdr)) % 64)) % 64;
                     break;
 
                 case RQT_SETUP_TYPE_CLASS:
@@ -2057,33 +2073,30 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     offset += 2;
                 }
             } else {
-                /* Skip setup header - it's not applicable */
-                offset += sizeof(struct usb_device_setup_hdr);
-
-                /*
-                 * If this is padded (as is the case if the capture is done
-                 * in memory-mapped mode), skip the padding; it's padded to
-                 * a multiple of 64 bits *after* the pseudo-header and setup
-                 * header.
-                 */
-                if (padded)
-                    offset += (64 - ((sizeof(struct linux_usb_phdr) + sizeof(struct usb_device_setup_hdr)) % 64)) % 64;
+                /* Skip setup/isochronous header - it's not applicable */
+                offset += 8;
             }
+
+            /*
+             * If this has a 64-byte header, process the extra 16 bytes of
+             * pseudo-header information.
+             */
+            if (header_len_64_bytes)
+                offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
         } else {
             tvbuff_t *next_tvb;
 
             /* this is a response */
 
             /* Skip setup header - it's never applicable for responses */
-            offset += sizeof(struct usb_device_setup_hdr);
+            offset += 8;
 
             /*
-             * If this is padded (as is the case if the capture is done in
-             * memory-mapped mode), skip the padding; it's padded to a multiple
-             * of 64 bits *after* the pseudo-header and setup header.
+             * If this has a 64-byte header, process the extra 16 bytes of
+             * pseudo-header information.
              */
-            if (padded)
-                offset += (64 - ((sizeof(struct linux_usb_phdr) + sizeof(struct usb_device_setup_hdr)) % 64)) % 64;
+            if (header_len_64_bytes)
+                offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
 
             if(usb_trans_info){
                 /* Try to find a class specific dissector */
@@ -2148,7 +2161,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
             /* Dissect the setup header - it's applicable */
 
-            ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, sizeof(struct usb_device_setup_hdr), "URB setup");
+            ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, 8, "URB setup");
             setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
 
             offset=dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type_2);
@@ -2161,17 +2174,17 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, TRUE);
             offset += 2;
         } else {
-            /* Skip setup header - it's not applicable */
-            offset += sizeof(struct usb_device_setup_hdr);
+            /* Skip setup/isochronous header - it's not applicable */
+            offset += 8;
         }
 
         /*
-         * If this is padded (as is the case if the capture is done in
-         * memory-mapped mode), skip the padding; it's padded to a multiple
-         * of 64 bits *after* the pseudo-header and setup header.
+         * If this has a 64-byte header, process the extra 16 bytes of
+         * pseudo-header information.
          */
-        if (padded)
-            offset += (64 - ((sizeof(struct linux_usb_phdr) + sizeof(struct usb_device_setup_hdr)) % 64)) % 64;
+        if (header_len_64_bytes)
+            offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
+
         break;
     }
 

@@ -925,6 +925,114 @@ pcap_read_sita_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
 }
 
 /*
+ * When not using the memory-mapped interface to capture USB events,
+ * code that reads those events can use the MON_IOCX_GET ioctl to
+ * read a 48-byte header consisting of a "struct linux_usb_phdr", as
+ * defined below, followed immediately by one of:
+ *
+ *	8 bytes of a "struct usb_device_setup_hdr", if "setup_flag"
+ *	in the preceding "struct linux_usb_phdr" is 0;
+ *
+ *	in Linux 2.6.30 or later, 8 bytes of a "struct iso_rec", if
+ *	this is an isochronous transfer;
+ *
+ *	8 bytes of junk, otherwise.
+ *
+ * In Linux 2.6.31 and later, it can also use the MON_IOCX_GETX ioctl
+ * to read a 64-byte header; that header consists of the 48 bytes
+ * above, followed immediately by 16 bytes of a "struct linux_usb_phdr_ext",
+ * as defined below.
+ *
+ * In Linux 2.6.21 and later, there's a memory-mapped interface to
+ * capture USB events.  In that interface, the events in the memory-mapped
+ * buffer have a 64-byte header, followed immediately by the data.
+ * In Linux 2.6.21 through 2.6.30.x, the 64-byte header is the 48-byte
+ * header described above, followed by 16 bytes of zeroes; in Linux
+ * 2.6.31 and later, the 64-byte header is the 64-byte header described
+ * above.
+ *
+ * See linux/Documentation/usb/usbmon.txt and libpcap/pcap/usb.h for details.
+ *
+ * With WTAP_ENCAP_USB_LINUX, packets have the 48-byte header; with
+ * WTAP_ENCAP_USB_LINUX_MMAPPED, they have the 64-byte header.  There
+ * is no indication of whether the header has the "struct iso_rec", or
+ * whether the last 16 bytes of a 64-byte header are all zeros or are
+ * a "struct linux_usb_phdr_ext".
+ */
+
+/*
+ * Header prepended by Linux kernel to each USB event.
+ *
+ * (Setup flag is '-', 'D', 'Z', or 0.  Data flag is '<', '>', 'Z', or 0.)
+ *
+ * The values are in *host* byte order.
+ */
+struct linux_usb_phdr {
+    guint64 id;             /* urb id, to link submission and completion events */
+    guint8 event_type;      /* Submit ('S'), Completed ('C'), Error ('E') */
+    guint8 transfer_type;   /* ISO (0), Intr, Control, Bulk (3) */
+    guint8 endpoint_number; /* Endpoint number (0-15) and transfer direction */
+    guint8 device_address;  /* 0-127 */
+    guint16 bus_id;
+    gint8 setup_flag;       /* 0, if the urb setup header is meaningful */
+    gint8 data_flag;        /* 0, if urb data is present */
+    gint64 ts_sec;
+    gint32 ts_usec;
+    gint32 status;
+    guint32 urb_len;        /* whole len of urb this event refers to */
+    guint32 data_len;       /* amount of urb data really present in this event */
+
+    /*
+     * Packet-type-dependent data.
+     * USB setup information of setup_flag is true.
+     * Otherwise, some isochronous transfer information.
+     */
+    guint8 data[8];
+
+    /*
+     * This data is provided by Linux 2.6.31 and later kernels.
+     *
+     * For WTAP_ENCAP_USB_LINUX, it's not in the pseudo-header, so
+     * the pseudo-header is always 48 bytes long, including the
+     * packet-type-dependent data.
+     *
+     * For WTAP_ENCAP_USB_LINUX_MMAPPED, the pseudo-header is always
+     * 64 bytes long, with the packet-type-dependent data preceding
+     * these last 16 bytes.  In pre-2.6.31 kernels, it's zero padding;
+     * in 2.6.31 and later, it's the following data.
+     */
+    gint32 interval;    /* only for Interrupt and Isochronous events */
+    gint32 start_frame; /* for Isochronous */
+    guint32 xfer_flags; /* copy of URB's transfer_flags */
+    guint32 ndesc;      /* actual number of isochronous descriptors */
+};
+
+/*
+ * USB setup header as defined in USB specification
+ * See usb_20.pdf, Chapter 9.3 'USB Device Requests' for details.
+ * http://www.usb.org/developers/docs/usb_20_122909-2.zip
+ *
+ * This structure is 8 bytes long.
+ */
+struct usb_device_setup_hdr {
+    gint8 bmRequestType;
+    guint8 bRequest;
+    guint16 wValue;
+    guint16 wIndex;
+    guint16 wLength;
+};
+
+/*
+ * Information from the URB for Isochronous transfers.
+ *
+ * This structure is 8 bytes long.
+ */
+struct iso_rec {
+    gint32 error_count;
+    gint32 numdesc;
+};
+
+/*
  * Offset of the *end* of a field within a particular structure.
  */
 #define END_OFFSETOF(basep, fieldp) \
@@ -933,7 +1041,7 @@ pcap_read_sita_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
 
 static void
 pcap_process_linux_usb_pseudoheader(guint packet_size, gboolean byte_swapped,
-    guint8 *pd)
+    gboolean header_len_64_bytes, guint8 *pd)
 {
 	struct linux_usb_phdr *phdr;
 
@@ -961,6 +1069,34 @@ pcap_process_linux_usb_pseudoheader(guint packet_size, gboolean byte_swapped,
 		if (packet_size < END_OFFSETOF(phdr, &phdr->data_len))
 			return;
 		PBSWAP32((guint8 *)&phdr->data_len);
+
+		if (header_len_64_bytes) {
+			/*
+			 * This is either the "version 1" header, with
+			 * 16 bytes of additional fields at the end, or
+			 * a "version 0" header from a memory-mapped
+			 * capture, with 16 bytes of zeroed-out padding
+			 * at the end.  Byte swap them as if this were
+			 * a "version 1" header.
+			 *
+			 * Yes, the first argument to END_OFFSETOF() should
+			 * be phdr, not phdr_ext; we want the offset of
+			 * the additional fields from the beginning of
+			 * the packet.
+			 */
+			if (packet_size < END_OFFSETOF(phdr, &phdr->interval))
+				return;
+			PBSWAP32((guint8 *)&phdr->interval);
+			if (packet_size < END_OFFSETOF(phdr, &phdr->start_frame))
+				return;
+			PBSWAP32((guint8 *)&phdr->start_frame);
+			if (packet_size < END_OFFSETOF(phdr, &phdr->xfer_flags))
+				return;
+			PBSWAP32((guint8 *)&phdr->xfer_flags);
+			if (packet_size < END_OFFSETOF(phdr, &phdr->ndesc))
+				return;
+			PBSWAP32((guint8 *)&phdr->ndesc);
+		}	
 	}
 }
 
@@ -1410,9 +1546,13 @@ pcap_read_post_process(int wtap_encap, guint packet_size,
 	switch (wtap_encap) {
 
 	case WTAP_ENCAP_USB_LINUX:
+		pcap_process_linux_usb_pseudoheader(packet_size,
+		    bytes_swapped, FALSE, pd);
+		break;
+
 	case WTAP_ENCAP_USB_LINUX_MMAPPED:
 		pcap_process_linux_usb_pseudoheader(packet_size,
-		    bytes_swapped, pd);
+		    bytes_swapped, TRUE, pd);
 		break;
 
 	default:

@@ -79,6 +79,26 @@ typedef struct _usb_tap_data_t {
  */
 #define NO_ENDPOINT 0xffff
 
+/*
+ * Values from the Linux USB pseudo-header.
+ */
+
+/*
+ * event_type values
+ */
+#define URB_SUBMIT        'S'
+#define URB_COMPLETE      'C'
+#define URB_ERROR         'E'
+
+/*
+ * transfer_type values
+ */
+#define URB_ISOCHRONOUS   0x0
+#define URB_INTERRUPT     0x1
+#define URB_CONTROL       0x2
+#define URB_BULK          0x3
+
+#define URB_TRANSFER_IN   0x80		/* to host */
 
 #define IF_CLASS_UNKNOWN		0xffff
 #define IF_CLASS_FROM_INTERFACE_DESC	0x00
