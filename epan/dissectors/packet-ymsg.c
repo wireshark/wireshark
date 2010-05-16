@@ -36,6 +36,7 @@
 
 static int proto_ymsg = -1;
 static int hf_ymsg_version = -1;
+static int hf_ymsg_vendor = -1;
 static int hf_ymsg_len = -1;
 static int hf_ymsg_service = -1;
 static int hf_ymsg_status = -1;
@@ -209,7 +210,8 @@ enum ypacket_status {
 struct yahoo_rawpacket
 {
 	char ymsg[4];			/* Packet identification string (YMSG) */
-	unsigned char version[4];	/* 4 bytes, little endian? */
+	unsigned char version[2];	/* 2 bytes, little endian */
+	unsigned char vendor[2];	/* 2 bytes, little endian */
 	unsigned char len[2];		/* length - little endian */
 	unsigned char service[2];	/* service - little endian */
 	unsigned char status[4];	/* Status - online, away etc.*/
@@ -405,7 +407,9 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(ymsg_tree, hf_ymsg_version, tvb, offset, 2, FALSE);
 		offset += 2;
 
-		offset += 2;	/* XXX - padding? */
+		/* Vendor ID */
+		proto_tree_add_item(ymsg_tree, hf_ymsg_vendor, tvb, offset, 2, FALSE);
+		offset += 2;
 
 		/* Length */
 		content_len = tvb_get_ntohs(tvb, offset);
@@ -493,6 +497,9 @@ proto_register_ymsg(void)
 			{ &hf_ymsg_version, {
 				"Version", "ymsg.version", FT_UINT16, BASE_DEC,
 				NULL, 0, "Packet version identifier", HFILL }},
+			{ &hf_ymsg_vendor, {
+				"Vendor ID", "ymsg.vendor", FT_UINT16, BASE_DEC,
+				NULL, 0, "Vendor identifier", HFILL }},
 			{ &hf_ymsg_len, {
 				"Packet Length", "ymsg.len", FT_UINT16, BASE_DEC,
 				NULL, 0, NULL, HFILL }},
