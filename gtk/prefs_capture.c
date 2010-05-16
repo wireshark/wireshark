@@ -734,9 +734,9 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 	}
 
         /*
-	 * -- set the sensitivity of the monitor-mode checkbox, and
-	 * build and add to the ComboBox a linktype list for the current
-	 * interfaces selection, based on the interface capabilities
+	 * -- set the state and sensitivity of the monitor-mode checkbox,
+	 * and build and add to the ComboBox a linktype list, corresponding
+	 * to the interface capabilities of the selected interface
 	 */
 #ifdef HAVE_PCAP_CREATE
 	caps = capture_get_if_capabilities(if_name, monitor_mode, NULL);
@@ -747,6 +747,7 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 #ifdef HAVE_PCAP_CREATE
 		gtk_widget_set_sensitive(if_monitor_lb, caps->can_set_rfmon);
 		gtk_widget_set_sensitive(if_monitor_cb, caps->can_set_rfmon);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_monitor_cb), monitor_mode);
 #endif
 		if (caps->data_link_types != NULL) {
 			GList *lt_entry;
@@ -765,15 +766,12 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 			gtk_combo_box_set_active(GTK_COMBO_BOX(if_linktype_cb), selected);
 		}
 		free_if_capabilities(caps);
-#ifdef HAVE_PCAP_CREATE
-		/* display the "monitor mode" button state from current interfaces selection */
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_monitor_cb), monitor_mode);
-#endif
 	}
 #ifdef HAVE_PCAP_CREATE
 	else {
 		gtk_widget_set_sensitive(if_monitor_lb, FALSE);
 		gtk_widget_set_sensitive(if_monitor_cb, FALSE);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_monitor_cb), FALSE);
 	}
 #endif
 

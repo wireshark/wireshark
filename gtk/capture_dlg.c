@@ -447,8 +447,12 @@ set_if_capabilities(gboolean monitor_mode_changed)
     free_if_capabilities(caps);
   }
 #ifdef HAVE_PCAP_CREATE
-  else
+  else {
+    /* We don't know whether this supports monitor mode or not;
+       don't ask for monitor mode. */
     gtk_widget_set_sensitive(monitor_cb, FALSE);
+    cap_settings.monitor_mode = FALSE;
+  }
 #endif
   if (linktype_count == 0) {
     lt_menu_item = gtk_menu_item_new_with_label("(not supported)");
