@@ -22,7 +22,7 @@ Wireshark Info
   <section id="WhatIs"><title>What is Wireshark?</title>
     <para>
       Wireshark is the world's most popular network protocol analyzer.  It
-      is used for troubleshooting, analysis, development, and education.
+      is used for troubleshooting, analysis, development and education.
     </para>
   </section>
 
@@ -82,14 +82,14 @@ Wireshark Info
 
         <listitem>
           <para>
-	    Wireshark no longer supports Windows 2000. Please use
-	    Wireshark 1.2 or 1.0 on those systems.
+            Wireshark no longer supports Windows 2000. Please use
+            Wireshark 1.2 or 1.0 on those systems.
           </para>
         </listitem>
 
         <listitem>
           <para>
-            Packtets can now be ignored (excluded from dissection), similar to
+            Packets can now be ignored (excluded from dissection), similar to
             the way they can be marked.
           </para>
         </listitem>
@@ -118,6 +118,12 @@ Wireshark Info
           <para>
             Wireshark and TShark can enable 802.11 monitor mode directly if you
             have libpcap 1.0.0 or greater.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Play the RTP stream directly from the RTP Analysis.
           </para>
         </listitem>
 
@@ -153,11 +159,12 @@ Wireshark Info
 
     <section id="VendorPackages"><title>Vendor-supplied Packages</title>
       <para>
-	Most Linux and Unix vendors supply their own Wireshark packages.
-	You can usually install or upgrade Wireshark using the package management
-	system specific to that platform.  A list of third-party packages
-	can be found on the
-	<ulink url="http://www.wireshark.org/download.html#thirdparty">download page</ulink> on the Wireshark web site.
+        Most Linux and Unix vendors supply their own Wireshark packages.
+        You can usually install or upgrade Wireshark using the package management
+        system specific to that platform.  A list of third-party packages
+        can be found on the
+        <ulink url="http://www.wireshark.org/download.html#thirdparty">download page</ulink>
+        on the Wireshark web site.
       </para>
     </section>
 
