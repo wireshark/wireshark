@@ -1007,7 +1007,6 @@ sync_interface_list_open(gchar **data, gchar **primary_msg,
 
     /* Ask for the interface list */
     argv = sync_pipe_add_arg(argv, &argc, "-D");
-    argv = sync_pipe_add_arg(argv, &argc, "-M");
 
 #ifndef DEBUG_CHILD
     /* Run dumpcap in capture child mode */
@@ -1054,7 +1053,6 @@ sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
     argv = sync_pipe_add_arg(argv, &argc, "-L");
     if (monitor_mode)
         argv = sync_pipe_add_arg(argv, &argc, "-I");
-    argv = sync_pipe_add_arg(argv, &argc, "-M");
 
 #ifndef DEBUG_CHILD
     /* Run dumpcap in capture child mode */
@@ -1095,7 +1093,6 @@ sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg)
 
   /* Ask for the interface statistics */
   argv = sync_pipe_add_arg(argv, &argc, "-S");
-  argv = sync_pipe_add_arg(argv, &argc, "-M");
 
 #ifndef DEBUG_CHILD
   argv = sync_pipe_add_arg(argv, &argc, "-Z");
