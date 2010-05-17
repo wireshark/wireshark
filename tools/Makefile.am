@@ -93,6 +93,8 @@ PIDL_FILES= \
 EXTRA_DIST = \
 	$(PIDL_FILES)					\
 	asn2wrs.py					\
+	checkhf.pl					\
+	checkAPIs.pl					\
 	cvsdiff-fix.py					\
 	dfilter-test.py 				\
 	extract_asn1_from_spec.pl			\
@@ -102,9 +104,10 @@ EXTRA_DIST = \
 	idl2wrs.sh.in					\
 	lex.py						\
 	Makefile.nmake					\
-	make-dissector-reg					\
+	make-dissector-reg				\
 	make-dissector-reg.py				\
-	make-tapreg-dotc			\
+	make-sminmpec.pl 				\
+	make-tapreg-dotc				\
 	make-tap-reg.py					\
 	msnchat						\
 	native-nmake.cmd				\
@@ -113,10 +116,11 @@ EXTRA_DIST = \
 	pkt-from-core.py				\
 	process-x11-fields.pl				\
 	process-x11-xcb.pl				\
+	randpkt-test.sh					\
 	rdps.py						\
 	runlex.sh					\
 	setuid-root.pl.in				\
-	make-sminmpec.pl 			\
+	test-fuzzed-cap.sh				\
 	textify.sh 					\
 	win32-setup.sh					\
 	win64-setup.sh					\
