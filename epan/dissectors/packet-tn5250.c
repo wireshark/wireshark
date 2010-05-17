@@ -3262,7 +3262,7 @@ dissect_start_of_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
       }
     }
   }
-  
+
   fa = tvb_get_guint8(tvb, offset);
 
   if (fa & FA_ID) {
@@ -3295,7 +3295,7 @@ dissect_create_window(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
      &hf_tn5250_wdsf_cw_flag1_reserved,
      NULL
   };
-  
+
   hf_items cw_fields[] = {
     { hf_tn5250_wdsf_cw_flag1, ett_tn5250_wdsf_cw_mask, 1, byte },
     { hf_tn5250_reserved, 0, 1, 0 },
@@ -3599,7 +3599,7 @@ dissect_define_scrollbar(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
      &hf_tn5250_wdsf_dsb_flag1_reserved, &hf_tn5250_wdsf_dsb_flag1_7,
      NULL
   };
-  
+
   hf_items dsb_fields[] = {
     { hf_tn5250_wdsf_dsb_flag1, ett_tn5250_wdsf_dsb_mask, 1, dsb_byte },
     { hf_tn5250_reserved, 0, 1, 0 },
@@ -3656,12 +3656,12 @@ dissect_draw_erase_gridlines(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset
      &hf_tn5250_wdsf_deg_flag1_0, &hf_tn5250_wdsf_deg_flag1_reserved,
      NULL
   };
-  
+
   static const int *deg_byte2[] = {
      &hf_tn5250_wdsf_deg_flag2_0, &hf_tn5250_wdsf_deg_flag2_reserved,
      NULL
   };
-  
+
   hf_items deg_fields[] = {
     { hf_tn5250_wdsf_deg_partition, 0, 1, 0 },
     { hf_tn5250_wdsf_deg_flag1, ett_tn5250_wdsf_deg_mask, 1, deg_byte },
@@ -3736,7 +3736,7 @@ dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offse
      &hf_tn5250_wdsf_rgw_reserved,
      NULL
   };
-  
+
   hf_items rgw_fields[] = {
     { hf_tn5250_wdsf_rgw_flag1, ett_tn5250_wdsf_rgw_mask, 1, rgw_byte },
     { hf_tn5250_reserved, 0, 1, 0 },
@@ -3749,7 +3749,7 @@ dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offse
      &hf_tn5250_wdsf_ragc_reserved,
      NULL
   };
-  
+
   hf_items ragc_fields[] = {
     { hf_tn5250_wdsf_ragc_flag1, ett_tn5250_wdsf_ragc_mask, 1, ragc_byte },
     { hf_tn5250_reserved, 0, 1, 0 },
@@ -5231,7 +5231,7 @@ proto_register_tn5250(void)
     /* 15.6 Write To Display Command Code */
     /* 15.6.1 WTD Control Code */
     { &hf_tn5250_wtd_ccc1,
-      {"Write To Display Command Control Character Byte 1", "tn5250.wtd_ccc1", 
+      {"Write To Display Command Control Character Byte 1", "tn5250.wtd_ccc1",
       FT_UINT8, BASE_HEX,
         VALS (vals_tn5250_wtd_cc_byteone), CCBITS, NULL, HFILL}},
     { &hf_tn5250_wtd_ccc2,
@@ -5280,73 +5280,73 @@ proto_register_tn5250(void)
       FT_UINT8, BASE_HEX, NULL, 0,
         NULL, HFILL }},
     { &hf_tn5250_soh_cursor_direction,
-        { "Right To Left Screen-Level Cursor Direction", "tn5250.soh_cursor_direction", 
+        { "Right To Left Screen-Level Cursor Direction", "tn5250.soh_cursor_direction",
         FT_BOOLEAN, 8, NULL, 0x80,
           NULL, HFILL }},
     { &hf_tn5250_soh_screen_reverse,
-        { "Automatic local screen reverse", "tn5250.soh_screen_reverse", 
+        { "Automatic local screen reverse", "tn5250.soh_screen_reverse",
         FT_BOOLEAN, 8, NULL, 0x20,
           NULL, HFILL }},
     { &hf_tn5250_soh_input_capable_only,
-        { "The cursor is allowed to move only to input-capable positions", "tn5250.soh_input_capable_only", 
+        { "The cursor is allowed to move only to input-capable positions", "tn5250.soh_input_capable_only",
         FT_BOOLEAN, 8, NULL, 0x10,
           NULL, HFILL }},
 
     { &hf_tn5250_soh_pf24to17, { "Command Key Switch 1", "tn5250.soh_pf24to17",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-    { &hf_tn5250_soh_pf24, { "PF24", "tn5250.soh_pf24", 
+    { &hf_tn5250_soh_pf24, { "PF24", "tn5250.soh_pf24",
         FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
-    { &hf_tn5250_soh_pf23, { "PF22", "tn5250.soh_pf23", 
+    { &hf_tn5250_soh_pf23, { "PF22", "tn5250.soh_pf23",
         FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
-    { &hf_tn5250_soh_pf22, { "PF22", "tn5250.soh_pf22", 
+    { &hf_tn5250_soh_pf22, { "PF22", "tn5250.soh_pf22",
         FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
-    { &hf_tn5250_soh_pf21, { "PF21", "tn5250.soh_pf21", 
+    { &hf_tn5250_soh_pf21, { "PF21", "tn5250.soh_pf21",
         FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
-    { &hf_tn5250_soh_pf20, { "PF20", "tn5250.soh_pf20", 
+    { &hf_tn5250_soh_pf20, { "PF20", "tn5250.soh_pf20",
         FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
-    { &hf_tn5250_soh_pf19, { "PF19", "tn5250.soh_pf19", 
+    { &hf_tn5250_soh_pf19, { "PF19", "tn5250.soh_pf19",
         FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
-    { &hf_tn5250_soh_pf18, { "PF18", "tn5250.soh_pf18", 
+    { &hf_tn5250_soh_pf18, { "PF18", "tn5250.soh_pf18",
         FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
-    { &hf_tn5250_soh_pf17, { "PF17", "tn5250.soh_pf17", 
+    { &hf_tn5250_soh_pf17, { "PF17", "tn5250.soh_pf17",
         FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
 
     { &hf_tn5250_soh_pf16to9, { "Command Key Switch 2", "tn5250.soh_pf16to9",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-    { &hf_tn5250_soh_pf16, { "PF16", "tn5250.soh_pf16", 
+    { &hf_tn5250_soh_pf16, { "PF16", "tn5250.soh_pf16",
         FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
-    { &hf_tn5250_soh_pf15, { "PF15", "tn5250.soh_pf15", 
+    { &hf_tn5250_soh_pf15, { "PF15", "tn5250.soh_pf15",
         FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
-    { &hf_tn5250_soh_pf14, { "PF14", "tn5250.soh_pf14", 
+    { &hf_tn5250_soh_pf14, { "PF14", "tn5250.soh_pf14",
         FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
-    { &hf_tn5250_soh_pf13, { "PF13", "tn5250.soh_pf13", 
+    { &hf_tn5250_soh_pf13, { "PF13", "tn5250.soh_pf13",
         FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
-    { &hf_tn5250_soh_pf12, { "PF12", "tn5250.soh_pf12", 
+    { &hf_tn5250_soh_pf12, { "PF12", "tn5250.soh_pf12",
         FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
-    { &hf_tn5250_soh_pf11, { "PF11", "tn5250.soh_pf11", 
+    { &hf_tn5250_soh_pf11, { "PF11", "tn5250.soh_pf11",
         FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
-    { &hf_tn5250_soh_pf10, { "PF10", "tn5250.soh_pf10", 
+    { &hf_tn5250_soh_pf10, { "PF10", "tn5250.soh_pf10",
         FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
-    { &hf_tn5250_soh_pf9, { "PF9", "tn5250.soh_pf9", 
+    { &hf_tn5250_soh_pf9, { "PF9", "tn5250.soh_pf9",
         FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
 
     { &hf_tn5250_soh_pf8to1, { "Command Key Switch 3", "tn5250.soh_pf8to1",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-    { &hf_tn5250_soh_pf8, { "PF8", "tn5250.soh_pf8", 
+    { &hf_tn5250_soh_pf8, { "PF8", "tn5250.soh_pf8",
         FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
-    { &hf_tn5250_soh_pf7, { "PF7", "tn5250.soh_pf7", 
+    { &hf_tn5250_soh_pf7, { "PF7", "tn5250.soh_pf7",
         FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
-    { &hf_tn5250_soh_pf6, { "PF6", "tn5250.soh_pf6", 
+    { &hf_tn5250_soh_pf6, { "PF6", "tn5250.soh_pf6",
         FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
-    { &hf_tn5250_soh_pf5, { "PF5", "tn5250.soh_pf5", 
+    { &hf_tn5250_soh_pf5, { "PF5", "tn5250.soh_pf5",
         FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
-    { &hf_tn5250_soh_pf4, { "PF4", "tn5250.soh_pf4", 
+    { &hf_tn5250_soh_pf4, { "PF4", "tn5250.soh_pf4",
         FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
-    { &hf_tn5250_soh_pf3, { "PF3", "tn5250.soh_pf3", 
+    { &hf_tn5250_soh_pf3, { "PF3", "tn5250.soh_pf3",
         FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
-    { &hf_tn5250_soh_pf2, { "PF2", "tn5250.soh_pf2", 
+    { &hf_tn5250_soh_pf2, { "PF2", "tn5250.soh_pf2",
         FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
-    { &hf_tn5250_soh_pf1, { "PF1", "tn5250.soh_pf1", 
+    { &hf_tn5250_soh_pf1, { "PF1", "tn5250.soh_pf1",
         FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
 
     { &hf_tn5250_soh_resq, { "Resequence to Field", "tn5250.soh_resq",
@@ -6050,7 +6050,7 @@ proto_register_tn5250(void)
       { "Color Shaft ScrollBar Highlighting", "tn5250.wdsf_ds_sbi_color_top_highlight_shaft",
       FT_UINT8, BASE_HEX, VALS(vals_tn5250_fa_color), 0,
         NULL, HFILL }},
- 
+
     { &hf_tn5250_wdsf_ds_sbi_top_character,
       { "Top Scroll Bar Character", "tn5250.wdsf_ds_sbi_top_character",
       FT_EBCDIC, BASE_NONE, NULL, 0,
