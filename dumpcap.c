@@ -3443,15 +3443,6 @@ main(int argc, char *argv[])
     }
   }
 
-  if (capture_opts_trim_iface(&global_capture_opts, NULL) == FALSE) {
-    /* cmdarg_err() already called .... */
-    exit_main(1);
-  }
-
-  /* Let the user know what interface was chosen. */
-  /* get_interface_descriptive_name() is not available! */
-  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Interface: %s\n", global_capture_opts.iface);
-
   if (list_interfaces) {
     /* Get the list of interfaces */
     GList       *if_list;
@@ -3464,13 +3455,22 @@ main(int argc, char *argv[])
         case CANT_GET_INTERFACE_LIST:
             cmdarg_err("%s", err_str);
             g_free(err_str);
+            exit_main(2);
             break;
 
         case NO_INTERFACES_FOUND:
-            cmdarg_err("There are no interfaces on which a capture can be done");
+            /*
+	     * If we're being run by another program, just give them
+	     * an empty list of interfaces, don't report this as
+	     * an error; that lets them decide whether to report
+	     * this as an error or not.
+	     */
+            if (!machine_readable) {
+                cmdarg_err("There are no interfaces on which a capture can be done");
+                exit_main(2);
+            }
             break;
         }
-        exit_main(2);
     }
 
     if (machine_readable)      /* tab-separated values to stdout */
@@ -3479,7 +3479,25 @@ main(int argc, char *argv[])
       capture_opts_print_interfaces(if_list);
     free_interface_list(if_list);
     exit_main(0);
-  } else if (list_link_layer_types) {
+  }
+
+  /*
+   * "-D" requires no interface to be selected; it's supposed to list
+   * all interfaces.
+   *
+   * If -D wasn't specified, we have to have an interface; if none
+   * was specified, pick a default.
+   */
+  if (capture_opts_trim_iface(&global_capture_opts, NULL) == FALSE) {
+    /* cmdarg_err() already called .... */
+    exit_main(1);
+  }
+
+  /* Let the user know what interface was chosen. */
+  /* get_interface_descriptive_name() is not available! */
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Interface: %s\n", global_capture_opts.iface);
+
+  if (list_link_layer_types) {
     /* Get the list of link-layer types for the capture device. */
     if_capabilities_t *caps;
     gchar *err_str;
