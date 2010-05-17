@@ -3031,6 +3031,7 @@ Paul J. Metzger		<pjm [AT] ll.mit.edu> {
 
 Robert Hogan		<robert [AT] roberthogan.net> {
 	TN3270 fixes
+	TN5250 dissector
 }
 
 Torrey Atcitty		<torrey.atcitty [AT] harman.com> {
