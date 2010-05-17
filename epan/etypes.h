@@ -99,6 +99,10 @@
 #define ETHERTYPE_MSRP			0x22EA
 #endif
 
+#ifndef ETHERTYPE_AVBTP
+#define ETHERTYPE_AVBTP			0x22F0
+#endif
+
 #ifndef ETHERTYPE_CENTRINO_PROMISC
 #define ETHERTYPE_CENTRINO_PROMISC	0x2452	/* Intel Centrino promiscuous packets */
 #endif
