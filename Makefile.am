@@ -819,6 +819,7 @@ EXTRA_DIST = \
 	CMakeLists.txt		\
 	cmakeconfig.h.in	\
 	wsutil/CMakeLists.txt	\
+	CMakeOptions.txt	\
 	wiretap/CMakeLists.txt	\
 	README.cmake		\
 	ConfigureChecks.cmake	\
