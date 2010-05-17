@@ -588,9 +588,6 @@ sync_pipe_start(capture_options *capture_opts) {
  *
  * On failure, *msg points to an error message for the failure, and -1 is
  * returned, in which case *msg must be freed with g_free().
- *
- * XXX - this doesn't check the exit status of dumpcap if it can be
- * started and its return status could be fetched.
  */
 /* XXX - This duplicates a lot of code in sync_pipe_start() */
 /* XXX - assumes PIPE_BUF_SIZE > SP_MAX_MSG_LEN */
