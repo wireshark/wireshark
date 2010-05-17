@@ -64,7 +64,8 @@ Wireshark Info
         <listitem>
           <para>
             Columns are easier to use. You can add a protocol field as a column
-            by right-clicking on its packet detail item.
+            by right-clicking on its packet detail item, and you can adjust
+            some column preferences by right-clicking the column header.
           </para>
         </listitem>
 
@@ -97,6 +98,13 @@ Wireshark Info
         <listitem>
           <para>
             Manual IP address resolution is now supported.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Columns with seconds can now be displayed as hours, minutes and
+            seconds.
           </para>
         </listitem>
 
