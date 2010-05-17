@@ -884,6 +884,7 @@ DISSECTOR_SRC = \
 	packet-tnef.c		\
 	packet-tns.c		\
 	packet-tn3270.c		\
+	packet-tn5250.c		\
 	packet-tpkt.c		\
 	packet-tpncp.c	\
 	packet-tr.c		\
@@ -1257,6 +1258,7 @@ DISSECTOR_INCLUDES =	\
 	packet-tcp.h	\
 	packet-tns.h	\
 	packet-tn3270.h	\
+	packet-tn5250.h	\
 	packet-tpkt.h	\
 	packet-tr.h	\
 	packet-tte.h \

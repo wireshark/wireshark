@@ -978,6 +978,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-tnef.c
 	dissectors/packet-tns.c
 	dissectors/packet-tn3270.c
+	dissectors/packet-tn5250.c
 	dissectors/packet-tpkt.c
 	dissectors/packet-tpncp.c
 	dissectors/packet-tr.c

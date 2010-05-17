@@ -39,6 +39,7 @@
 #include <epan/asn1.h>
 #include "packet-kerberos.h"
 #include "packet-tn3270.h"
+#include "packet-tn5250.h"
 
 static int proto_telnet = -1;
 static int hf_telnet_auth_cmd = -1;
@@ -93,6 +94,7 @@ static gint ett_rsp_subopt = -1;
 static gint ett_comport_subopt = -1;
 
 static dissector_handle_t tn3270_handle;
+static dissector_handle_t tn5250_handle;
 
 /* Some defines for Telnet */
 
@@ -162,6 +164,18 @@ check_for_tn3270(packet_info *pinfo _U_, const char *optname, const char *termin
       return;
   }
   check_tn3270_model(pinfo, terminaltype);
+
+  if ((strcmp(terminaltype,"IBM-5555-C01") == 0) || /* 24 x 80 Double-Byte Character Set color display */
+      (strcmp(terminaltype,"IBM-5555-B01") == 0) || /* 24 x 80 Double-Byte Character Set (DBCS)*/
+      (strcmp(terminaltype,"IBM-3477-FC") == 0) ||  /* 27 x 132 color display*/
+      (strcmp(terminaltype,"IBM-3477-FG") == 0) ||  /* 27 x 132 monochrome display*/
+      (strcmp(terminaltype,"IBM-3180-2") == 0) ||   /* 27 x 132 monochrome display*/
+      (strcmp(terminaltype,"IBM-3179-2") == 0) ||   /* 24 x 80 color display*/
+      (strcmp(terminaltype,"IBM-3196-A1") == 0) ||  /* 24 x 80 monochrome display*/
+      (strcmp(terminaltype,"IBM-5292-2") == 0) ||   /* 24 x 80 color display*/
+      (strcmp(terminaltype,"IBM-5291-1") == 0) ||   /* 24 x 80 monochrome display*/
+      (strcmp(terminaltype,"IBM-5251-11") == 0))  /* 24 x 80 monochrome display*/
+      add_tn5250_conversation(pinfo, 0);
 }
 
 static void
@@ -1852,6 +1866,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint offset = 0;
 	guint len = 0;
 	guint is_tn3270 = 0;
+	guint is_tn5250 = 0;
 	int data_len;
 	gint iac_offset;
 
@@ -1859,6 +1874,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_INFO, "Telnet Data ...");
 
 	is_tn3270 = find_tn3270_conversation(pinfo);
+	is_tn5250 = find_tn5250_conversation(pinfo);
 
 	ti = proto_tree_add_item(tree, proto_telnet, tvb, offset, -1, FALSE);
 	telnet_tree = proto_item_add_subtree(ti, ett_telnet);
@@ -1879,6 +1895,9 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  if (is_tn3270) {
 			next_tvb = tvb_new_subset(tvb, offset, data_len, data_len);
 			call_dissector(tn3270_handle, next_tvb, pinfo, telnet_tree);
+          } else if (is_tn5250) {
+              next_tvb = tvb_new_subset(tvb, offset, data_len, data_len);
+              call_dissector(tn5250_handle, next_tvb, pinfo, telnet_tree);
 		  } else
 			telnet_add_text(telnet_tree, tvb, offset, data_len);
 		}
@@ -1888,7 +1907,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset = telnet_command(pinfo, telnet_tree, tvb, iac_offset);
 	  } else {
 		/* get more data if tn3270 */
-		if (is_tn3270) {
+		if (is_tn3270 || is_tn5250) {
 		  pinfo->desegment_offset = offset;
 		  pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 		  return;
@@ -1993,4 +2012,5 @@ proto_reg_handoff_telnet(void)
 	telnet_handle = create_dissector_handle(dissect_telnet, proto_telnet);
 	dissector_add("tcp.port", TCP_PORT_TELNET, telnet_handle);
 	tn3270_handle = find_dissector("tn3270");
+    tn5250_handle = find_dissector("tn5250");
 }
