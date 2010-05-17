@@ -135,6 +135,8 @@ static int hf_bootp_docsis_cmcap_len = -1;
 static int hf_bootp_alu_vid = -1;
 static int hf_bootp_alu_tftp1 = -1;
 static int hf_bootp_alu_tftp2 = -1;
+static int hf_bootp_alu_app_type = -1;
+static int hf_bootp_alu_sip_url = -1;
 static int hf_bootp_client_identifier_uuid = -1;
 static int hf_bootp_client_network_id_major_ver = -1;
 static int hf_bootp_client_network_id_minor_ver = -1;
@@ -422,6 +424,8 @@ static guint pkt_ccc_option = 122;
 static int dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
     int optoff, int optend);
 static int dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
+    int optoff, int optend);
+static int dissect_vendor_alcatel_suboption(proto_tree *v_tree, tvbuff_t *tvb,
     int optoff, int optend);
 static int dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
     int optoff, int optend);
@@ -827,7 +831,6 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	gboolean		o52at_end;
 	guint8			s_option;
 	guint8			s_len;
-	int			ava_vid;
 	const guchar		*dns_name;
 
 
@@ -1030,66 +1033,6 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	case 43:	/* Vendor-Specific Info */
 		s_option = tvb_get_guint8(tvb, optoff);
 
-		/* Alcatel-Lucent AVA */
-		if (optlen == 5 && s_option == 58)
-		{
-				proto_item_append_text(vti, " (Alcatel-Lucent AVA)");
-				ava_vid =  tvb_get_ntohs(tvb, optoff + 2);
-				proto_tree_add_text (v_tree, tvb, optoff + 2,
-					2, "Opcode: 58");
-
-				proto_tree_add_uint (v_tree, hf_bootp_alu_vid, tvb, optoff + 2,
-					2, ava_vid);
-
-				if (ava_vid == 65535)
-				{
-					proto_tree_add_text (v_tree, tvb, optoff + 2,
-						2, "Type: Request from ALU IP Phone");
-				} else {
-					proto_tree_add_text (v_tree, tvb, optoff + 2,
-						2, "Type: Response from DHCP Server");
-				}
-
-				break;
-		}
-
-		/* Alcatel-Lucent DHCP Extensions for Spatial Redundancy */
-
-		if ((optlen == 12 && s_option == 64) ||
-			(optlen == 6  && s_option == 64) ||
-			(optlen == 6  && s_option == 65))
-		{
-			if (optlen == 6 && s_option == 64)
-			{
-				proto_item_append_text(vti, " (Alcatel-Lucent TFTP Options)");
-				proto_tree_add_text (v_tree, tvb, optoff + 2,
-					2, "Opcode: 64");
-				proto_tree_add_ipv4(v_tree,hf_bootp_alu_tftp1 ,tvb,optoff+2, 4,
-					tvb_get_ipv4(tvb,optoff+2));
-			}
-			if (optlen == 6 && s_option == 65)
-			{
-				proto_item_append_text(vti, " (Alcatel-Lucent TFTP Options)");
-					proto_tree_add_text (v_tree, tvb, optoff + 2,
-					2, "Opcode: 65");
-				proto_tree_add_ipv4(v_tree,hf_bootp_alu_tftp2 ,tvb,optoff+2 ,4,
-					tvb_get_ipv4(tvb,optoff+2));
-			}
-			if (optlen == 12 && s_option == 64)
-			{
-				proto_item_append_text(vti, " (Alcatel-Lucent TFTP Options)");
-				proto_tree_add_text (v_tree, tvb, optoff + 2,
-					2, "Opcode: 64 and 65");
-				proto_tree_add_ipv4(v_tree,hf_bootp_alu_tftp1 ,tvb,optoff+2 ,4,
-					tvb_get_ipv4(tvb,optoff+2));
-				proto_tree_add_ipv4(v_tree,hf_bootp_alu_tftp2 ,tvb,optoff+8 ,4,
-					tvb_get_ipv4(tvb,optoff+8));
-			}
-			break;
-		}
-
-
-
 		/* PXE protocol 2.1 as described in the intel specs */
 		if (*vendor_class_id_p != NULL &&
 		    strncmp((const gchar*)*vendor_class_id_p, "PXEClient", strlen("PXEClient")) == 0) {
@@ -1112,6 +1055,18 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			optend = optoff + optlen;
 			while (optoff < optend) {
 				optoff = dissect_vendor_cablelabs_suboption(v_tree,
+					tvb, optoff, optend);
+			}
+		} else if (s_option==58 || s_option==64 || s_option==65
+			|| s_option==66 || s_option==67) {
+			/* Note that this is a rather weak (permissive) heuristic, */
+			/* but since it comes last, i guess this is ok. */
+			/* Add any stronger (less permissive) heuristics before this! */
+			/* Alcatel-Lucent DHCP Extensions */
+			proto_item_append_text(vti, " (Alcatel-Lucent)");
+			optend = optoff + optlen;
+			while (optoff < optend) {
+				optoff = dissect_vendor_alcatel_suboption(v_tree,
 					tvb, optoff, optend);
 			}
 		}
@@ -2705,6 +2660,65 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	return optoff;
 }
 
+
+static int
+dissect_vendor_alcatel_suboption(proto_tree *v_tree, tvbuff_t *tvb,
+    int optoff, int optend)
+{
+	int suboptoff = optoff;
+	guint8 subopt;
+	guint8 subopt_len;
+
+	subopt = tvb_get_guint8(tvb, suboptoff);
+	suboptoff++;
+
+	if (subopt == 0) {
+		proto_tree_add_text(v_tree, tvb, optoff, 1, "Padding");
+		return (suboptoff);
+	} else if (subopt == 255) { /* End Option */
+		proto_tree_add_text(v_tree, tvb, optoff, 1, "End Alcatel-Lucent option");
+		/* Make sure we skip any junk left this option */
+		return (optend);
+	}
+
+	if (suboptoff >= optend) {
+		proto_tree_add_text(v_tree, tvb, optoff, 1,
+			"Suboption %d: no room left in option for suboption length",
+			subopt);
+		return (optend);
+	}
+	subopt_len = tvb_get_guint8(tvb, suboptoff);
+	suboptoff++;
+
+	if (suboptoff+subopt_len > optend) {
+		proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+			"Suboption %d: no room left in option for suboption value",
+			subopt);
+		return (optend);
+	}
+	if ( subopt == 58 ) { /* 0x3A - Alcatel-Lucent AVA VLAN Id */
+		proto_tree_add_uint(v_tree, hf_bootp_alu_vid, tvb, optoff+2, 2,
+			tvb_get_ntohs(tvb, optoff+2));
+	} else if ( subopt == 64 ) { /* 0x40 - Alcatel-Lucent TFTP1 */
+		proto_tree_add_ipv4(v_tree, hf_bootp_alu_tftp1, tvb, optoff+2, 4,
+			tvb_get_ipv4(tvb, optoff+2));
+	} else if ( subopt == 65 ) { /* 0x41 - Alcatel-Lucent TFTP2 */
+		proto_tree_add_ipv4(v_tree, hf_bootp_alu_tftp2, tvb, optoff+2, 4,
+			tvb_get_ipv4(tvb, optoff+2));
+	} else if ( subopt == 66 ) { /* 0x42 - Alcatel-Lucent APPLICATION TYPE */
+		proto_tree_add_uint(v_tree, hf_bootp_alu_app_type, tvb, optoff+2, 1,
+			tvb_get_guint8(tvb, optoff+2));
+	} else if ( subopt == 67 ) { /* 0x43 - Alcatel-Lucent SIP URL */
+		proto_tree_add_item(v_tree, hf_bootp_alu_sip_url, tvb, optoff+2, subopt_len,
+			0);
+	} else {
+		proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+			"ERROR, please report: Unknown subopt type handler %d", subopt);
+		return optend;
+	}
+	optoff += (subopt_len + 2);
+	return optoff;
+}
 
 
 static int
@@ -4518,17 +4532,27 @@ proto_register_bootp(void)
             "DOCSIS Cable Modem Device Capabilities Length", HFILL }},
 
         { &hf_bootp_alu_vid,
-          { "Voice VLAN ID",		"bootp.vendor.alu.vid", FT_UINT16,
+          { "AVA Voice VLAN ID",	"bootp.vendor.alu.vid", FT_UINT16,
             BASE_DEC, 			NULL,		 0x0,
-            "Alcatel-Lucent VLAN ID to define Voice VLAN", HFILL }},
+            NULL, HFILL }},
 
         { &hf_bootp_alu_tftp1,
-          { "Spatial Redundancy TFTP1",	"bootp.vendor.alu.tftp1" , FT_IPv4,
+          { "Spatial Redundancy TFTP1",	"bootp.vendor.alu.tftp1", FT_IPv4,
             BASE_NONE,			NULL,		 0x0,
             NULL, HFILL }},
 
         { &hf_bootp_alu_tftp2,
-          { "Spatial Redundancy TFTP2",	"bootp.vendor.alu.tftp2" ,FT_IPv4,
+          { "Spatial Redundancy TFTP2",	"bootp.vendor.alu.tftp2", FT_IPv4,
+            BASE_NONE,			NULL,		 0x0,
+            NULL, HFILL }},
+
+        { &hf_bootp_alu_app_type,
+          { "Application Type",	"bootp.vendor.alu.app_type", FT_UINT8,
+            BASE_DEC,			NULL,		 0x0,
+            NULL, HFILL }},
+
+        { &hf_bootp_alu_sip_url,
+          { "SIP URL",			"bootp.vendor.alu.sip_url", FT_STRING,
             BASE_NONE,			NULL,		 0x0,
             NULL, HFILL }},
 
