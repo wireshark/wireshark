@@ -2138,7 +2138,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				    (*items->hf_index == -1) ?
 				      "String Param" :
 				      proto_registrar_get_name(*items->hf_index),
-				    string);
+				    string ? string : "(null)");
 				items++;
 			} else {
 				offset = (*items->func)(tvb, offset, 0,
