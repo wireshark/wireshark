@@ -65,12 +65,14 @@ sync_pipe_kill(int fork_child);
 
 /** Get an interface list using dumpcap */
 extern int
-sync_interface_list_open(gchar **msg);
+sync_interface_list_open(gchar **data, gchar **primary_msg,
+                         gchar **secondary_msg);
 
 /** Get interface capabilities using dumpcap */
 extern int
 sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
-                          gchar **msg);
+                          gchar **data, gchar **primary_msg,
+                          gchar **secondary_msg);
 
 /** Start getting interface statistics using dumpcap. */
 extern int

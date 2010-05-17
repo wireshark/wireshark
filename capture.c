@@ -721,12 +721,17 @@ void
 capture_stat_stop(if_stat_cache_t *sc) {
     GList *sc_entry;
     if_stat_cache_item_t *sc_item;
+    int ret;
     gchar *msg;
 
     if (!sc)
         return;
 
-    sync_interface_stats_close(&sc->stat_fd, &sc->fork_child, &msg);
+    ret = sync_interface_stats_close(&sc->stat_fd, &sc->fork_child, &msg);
+    if (ret == -1) {
+    	/* XXX - report failure? */
+        g_free(msg);
+    }
 
     for (sc_entry = sc->cache_list; sc_entry != NULL; sc_entry = g_list_next(sc_entry)) {
         sc_item = sc_entry->data;

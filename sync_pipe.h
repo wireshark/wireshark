@@ -55,6 +55,7 @@
 #define SP_BAD_FILTER   'B'     /* error message for bad capture filter */
 #define SP_PACKET_COUNT 'P'     /* count of packets captured since last message */
 #define SP_DROPS        'D'     /* count of packets dropped in capture */
+#define SP_SUCCESS      'S'     /* success indication, no extra data */
 /*
  * Win32 only: Indications sent out on the signal pipe (from parent to child)
  * (UNIX-like sends signals for this)

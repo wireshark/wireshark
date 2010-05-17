@@ -113,7 +113,9 @@ static const char *sync_pipe_signame(int);
 
 
 static gboolean sync_pipe_input_cb(gint source, gpointer user_data);
-static void sync_pipe_wait_for_child(capture_options *capture_opts);
+static int sync_pipe_wait_for_child(int fork_child, gchar **msgp);
+static void pipe_convert_header(const guchar *header, int header_len, char *indicator, int *block_len);
+static int pipe_read_block(int pipe_fd, char *indicator, int len, char *msg);
 
 
 
@@ -576,19 +578,31 @@ sync_pipe_start(capture_options *capture_opts) {
 }
 
 /*
- * Open a pipe to dumpcap with the supplied arguments.  On success, *msg
- * is unchanged and 0 is returned; read_fd and fork_child point to the
- * pipe's file descriptor and child PID/handle, respectively.  On failure,
- * *msg points to an error message for the failure, and -1 is returned.
- * In the latter case, *msg must be freed with g_free().
+ * Open two pipes to dumpcap with the supplied arguments, one for its
+ * standard output and one for its standard error.
+ *
+ * On success, *msg is unchanged and 0 is returned; data_read_fd,
+ * messsage_read_fd, and fork_child point to the standard output pipe's
+ * file descriptor, the standard error pipe's file descriptor, and
+ * the child's PID/handle, respectively.
+ *
+ * On failure, *msg points to an error message for the failure, and -1 is
+ * returned, in which case *msg must be freed with g_free().
+ *
+ * XXX - this doesn't check the exit status of dumpcap if it can be
+ * started and its return status could be fetched.
  */
 /* XXX - This duplicates a lot of code in sync_pipe_start() */
+/* XXX - assumes PIPE_BUF_SIZE > SP_MAX_MSG_LEN */
 #define PIPE_BUF_SIZE 5120
 static int
-sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar **msg) {
+sync_pipe_open_command(const char** argv, int *data_read_fd,
+                       int *message_read_fd, int *fork_child, gchar **msg)
+{
+    enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
 #ifdef _WIN32
-    HANDLE sync_pipe_read;                  /* pipe used to send messages from child to parent */
-    HANDLE sync_pipe_write;                 /* pipe used to send messages from parent to child */
+    HANDLE sync_pipe[2];                    /* pipe used to send messages from child to parent */
+    HANDLE data_pipe[2];                    /* pipe used to send data from child to parent */
     GString *args = g_string_sized_new(200);
     gchar *quoted_arg;
     SECURITY_ATTRIBUTES sa;
@@ -598,12 +612,13 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
 #else
     char errmsg[1024+1];
     int sync_pipe[2];                       /* pipe used to send messages from child to parent */
-    enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
+    int data_pipe[2];                       /* pipe used to send data from child to parent */
 #endif
 
     *fork_child = -1;
-    *read_fd = -1;
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_run_command");
+    *data_read_fd = -1;
+    *message_read_fd = -1;
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_open_command");
 
     if (!msg) {
         /* We can't return anything */
@@ -619,11 +634,23 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
     sa.bInheritHandle = TRUE;
     sa.lpSecurityDescriptor = NULL;
 
-    /* Create a pipe for the child process */
+    /* Create a pipe for the child process to send us messages */
     /* (increase this value if you have trouble while fast capture file switches) */
-    if (! CreatePipe(&sync_pipe_read, &sync_pipe_write, &sa, 5120)) {
-        /* Couldn't create the pipe between parent and child. */
+    if (! CreatePipe(&sync_pipe[PIPE_READ], &sync_pipe[PIPE_WRITE], &sa, 5120)) {
+        /* Couldn't create the message pipe between parent and child. */
         *msg = g_strdup_printf("Couldn't create sync pipe: %s", strerror(errno));
+        g_free( (gpointer) argv[0]);
+        g_free( (gpointer) argv);
+        return -1;
+    }
+
+    /* Create a pipe for the child process to send us data */
+    /* (increase this value if you have trouble while fast capture file switches) */
+    if (! CreatePipe(&data_pipe[PIPE_READ], &data_pipe[PIPE_WRITE], &sa, 5120)) {
+        /* Couldn't create the message pipe between parent and child. */
+        *msg = g_strdup_printf("Couldn't create data pipe: %s", strerror(errno));
+        CloseHandle(sync_pipe[PIPE_READ]);
+        CloseHandle(sync_pipe[PIPE_WRITE]);
         g_free( (gpointer) argv[0]);
         g_free( (gpointer) argv);
         return -1;
@@ -639,9 +666,8 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
     si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
     si.wShowWindow  = SW_HIDE;  /* this hides the console window */
     si.hStdInput = NULL;
-    si.hStdOutput = sync_pipe_write;
-    si.hStdError = sync_pipe_write;
-    /*si.hStdError = (HANDLE) _get_osfhandle(2);*/
+    si.hStdOutput = data_pipe[PIPE_WRITE];
+    si.hStdError = sync_pipe[PIPE_WRITE];
 #endif
 
     /* convert args array into a single string */
@@ -658,9 +684,11 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
     if(!CreateProcess(NULL, utf_8to16(args->str), NULL, NULL, TRUE,
                       CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
         *msg = g_strdup_printf("Couldn't run %s in child process: error %u",
-                        args->str, GetLastError());
-        CloseHandle(sync_pipe_read);
-        CloseHandle(sync_pipe_write);
+                               args->str, GetLastError());
+        CloseHandle(data_pipe[PIPE_READ]);
+        CloseHandle(data_pipe[PIPE_WRITE]);
+        CloseHandle(sync_pipe[PIPE_READ]);
+        CloseHandle(sync_pipe[PIPE_WRITE]);
         g_free( (gpointer) argv[0]);
         g_free( (gpointer) argv);
         return -1;
@@ -668,14 +696,26 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
     *fork_child = (int) pi.hProcess;
     g_string_free(args, TRUE);
 
-    /* associate the operating system filehandle to a C run-time file handle */
+    /* associate the operating system filehandles to C run-time file handles */
     /* (good file handle infos at: http://www.flounder.com/handles.htm) */
-    *read_fd = _open_osfhandle( (long) sync_pipe_read, _O_BINARY);
-
+    *data_read_fd = _open_osfhandle( (long) data_pipe[PIPE_READ], _O_BINARY);
+    *message_read_fd = _open_osfhandle( (long) sync_pipe[PIPE_READ], _O_BINARY);
 #else /* _WIN32 */
+    /* Create a pipe for the child process to send us messages */
     if (pipe(sync_pipe) < 0) {
-        /* Couldn't create the pipe between parent and child. */
+        /* Couldn't create the message pipe between parent and child. */
         *msg = g_strdup_printf("Couldn't create sync pipe: %s", strerror(errno));
+        g_free( (gpointer) argv[0]);
+        g_free(argv);
+        return -1;
+    }
+
+    /* Create a pipe for the child process to send us data */
+    if (pipe(data_pipe) < 0) {
+        /* Couldn't create the data pipe between parent and child. */
+        *msg = g_strdup_printf("Couldn't create data pipe: %s", strerror(errno));
+        ws_close(sync_pipe[PIPE_READ]);
+        ws_close(sync_pipe[PIPE_WRITE]);
         g_free( (gpointer) argv[0]);
         g_free(argv);
         return -1;
@@ -686,12 +726,16 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
          * Child process - run dumpcap with the right arguments to make
          * it just capture with the specified capture parameters
          */
-        dup2(sync_pipe[PIPE_WRITE], 1);
+        dup2(data_pipe[PIPE_WRITE], 1);
+        ws_close(data_pipe[PIPE_READ]);
+        ws_close(data_pipe[PIPE_WRITE]);
+        dup2(sync_pipe[PIPE_WRITE], 2);
         ws_close(sync_pipe[PIPE_READ]);
+        ws_close(sync_pipe[PIPE_WRITE]);
         execv(argv[0], (gpointer)argv);
         g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
 		   argv[0], strerror(errno));
-        sync_pipe_errmsg_to_parent(1, errmsg, "");
+        sync_pipe_errmsg_to_parent(2, errmsg, "");
 
         /* Exit with "_exit()", so that we don't close the connection
            to the X server (and cause stuff buffered up by our parent but
@@ -703,7 +747,8 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
         _exit(1);
     }
 
-    *read_fd = sync_pipe[PIPE_READ];
+    *data_read_fd = data_pipe[PIPE_READ];
+    *message_read_fd = sync_pipe[PIPE_READ];
 #endif
 
     g_free( (gpointer) argv[0]);  /* exename */
@@ -712,20 +757,23 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
        sync pipe. */
     g_free( (gpointer) argv);	/* free up arg array */
 
-    /* Close the write side of the pipe, so that only the child has it
-       open, and thus it completely closes, and thus returns to us
-       an EOF indication, if the child closes it (either deliberately
+    /* Close the write sides of the pipes, so that only the child has them
+       open, and thus they completely close, and thus return to us
+       an EOF indication, if the child closes them (either deliberately
        or by exiting abnormally). */
 #ifdef _WIN32
-    CloseHandle(sync_pipe_write);
+    CloseHandle(data_pipe[PIPE_WRITE]);
+    CloseHandle(sync_pipe[PIPE_WRITE]);
 #else
+    ws_close(data_pipe[PIPE_WRITE]);
     ws_close(sync_pipe[PIPE_WRITE]);
 #endif
 
     if (*fork_child == -1) {
         /* We couldn't even create the child process. */
         *msg = g_strdup_printf("Couldn't create child process: %s", strerror(errno));
-        ws_close(*read_fd);
+        ws_close(*data_read_fd);
+        ws_close(*message_read_fd);
         return -1;
     }
 
@@ -741,125 +789,222 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
  * freed with g_free().
  */
 static int
-#ifdef _WIN32
-sync_pipe_close_command(int *read_fd, int *fork_child, gchar **msg) {
-#else
-sync_pipe_close_command(int *read_fd, gchar **msg) {
-#endif
-    int fork_child_status;
-
-    ws_close(*read_fd);
-
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_close_command: wait till child closed");
+sync_pipe_close_command(int *data_read_fd, int *message_read_fd,
+                        int *fork_child, gchar **msg)
+{
+    ws_close(*data_read_fd);
+    if (message_read_fd != NULL)
+        ws_close(*message_read_fd);
 
 #ifdef _WIN32
     /* XXX - Should we signal the child somehow? */
     sync_pipe_kill(*fork_child);
-    if (_cwait(&fork_child_status, *fork_child, _WAIT_CHILD) == -1) {
-        *msg = g_strdup_printf("Child capture process stopped unexpectedly "
-            "(errno:%u)", errno);
-        return -1;
-    }
-#else
-    if (wait(&fork_child_status) != -1) {
-        if (WIFEXITED(fork_child_status)) {
-            /* The child exited. */
-            fork_child_status = WEXITSTATUS(fork_child_status);
-        } else {
-            if (WIFSTOPPED(fork_child_status)) {
-                /* It stopped, rather than exiting.  "Should not happen." */
-                *msg = g_strdup_printf("Child capture process stopped: %s",
-                    sync_pipe_signame(WSTOPSIG(fork_child_status)));
-            } else if (WIFSIGNALED(fork_child_status)) {
-                /* It died with a signal. */
-                *msg = g_strdup_printf("Child capture process died: %s%s",
-		    sync_pipe_signame(WTERMSIG(fork_child_status)),
-		    WCOREDUMP(fork_child_status) ? " - core dumped" : "");
-            } else {
-                /* What?  It had to either have exited, or stopped, or died with
-                   a signal; what happened here? */
-                *msg = g_strdup_printf("Child capture process died: wait status %#o",
-                    fork_child_status);
-            }
-            return -1;
-        }
-    } else {
-      *msg = g_strdup_printf("Child capture process stopped unexpectedly "
-        "(errno:%u)", errno);
-      return -1;
-    }
 #endif
-    return 0;
+
+    return sync_pipe_wait_for_child(*fork_child, msg);
 }
 
 /*
- * Run dumpcap with the supplied arguments.  On success, *msg points to
- * a buffer containing the dumpcap output, and 0 is returned.  On failure,
- * *msg points to an error message, and -1 is returned.  In either case,
- * *msg must be freed with g_free().
+ * Run dumpcap with the supplied arguments.
  *
- * XXX - this doesn't check the exit status of dumpcap if it can be
- * started and its return status could be fetched.
+ * On success, *data points to a buffer containing the dumpcap output,
+ * *primary_msg and *secondary_message are NULL, and 0 is returned; *data
+ * must be freed with g_free().
+ *
+ * On failure, *data is NULL, *primary_msg points to an error message,
+ * *secondary_msg either points to an additional error message or is
+ * NULL, and -1 is returned; *primary_msg, and *secondary_msg if not NULL,
+ * must be freed with g_free().
  */
 /* XXX - This duplicates a lot of code in sync_pipe_start() */
+/* XXX - assumes PIPE_BUF_SIZE > SP_MAX_MSG_LEN */
 #define PIPE_BUF_SIZE 5120
 static int
-sync_pipe_run_command(const char** argv, gchar **msg) {
-    int sync_pipe_read_fd, fork_child, ret;
-    gchar buf[PIPE_BUF_SIZE+1];
-    GString *msg_buf = NULL;
-    int count;
+sync_pipe_run_command(const char** argv, gchar **data, gchar **primary_msg,
+                      gchar **secondary_msg)
+{
+  gchar *msg;
+  int data_pipe_read_fd, sync_pipe_read_fd, fork_child, ret;
+  gchar buffer[PIPE_BUF_SIZE+1];
+  int  nread;
+  char indicator;
+  int  primary_msg_len;
+  char *primary_msg_text;
+  int  secondary_msg_len;
+  char *secondary_msg_text;
+  GString *data_buf = NULL;
+  int count;
 
-    ret = sync_pipe_open_command(argv, &sync_pipe_read_fd, &fork_child, msg);
+  ret = sync_pipe_open_command(argv, &data_pipe_read_fd, &sync_pipe_read_fd,
+                               &fork_child, &msg);
+  if (ret == -1) {
+    *primary_msg = msg;
+    *secondary_msg = NULL;
+    *data = NULL;
+    return -1;
+  }
 
-    if (ret)
-	return ret;
+  /*
+   * We were able to set up to read dumpcap's output.  Do so.
+   *
+   * First, wait for an SP_ERROR_MESSAGE or SP_SUCCESS message.
+   */
+  nread = pipe_read_block(sync_pipe_read_fd, &indicator, SP_MAX_MSG_LEN,
+                          buffer);
+  if(nread <= 0) {
+    /* We got a read error from the sync pipe, or we got no data at
+       all from the sync pipe, so we're not going to be getting any
+       data or error message from the child process.  Pick up its
+       exit status, and complain.
 
-    /* We were able to set up to read dumpcap's output.  Do so. */
-    msg_buf = g_string_new("");
-    while ((count = ws_read(sync_pipe_read_fd, buf, PIPE_BUF_SIZE)) > 0) {
-        buf[count] = '\0';
-        g_string_append(msg_buf, buf);
+       We don't have to worry about killing the child, if the sync pipe
+       returned an error. Usually this error is caused as the child killed
+       itself while going down. Even in the rare cases that this isn't the
+       case, the child will get an error when writing to the broken pipe
+       the next time, cleaning itself up then. */
+    ret = sync_pipe_wait_for_child(fork_child, primary_msg);
+    if (ret == 0) {
+      /* No unusual exit status; just report the read problem. */
+      if (nread == 0)
+        *primary_msg = g_strdup("Child dumpcap closed sync pipe prematurely");
+      else
+        *primary_msg = g_strdup("Error reading from sync pipe");
+    }
+    *secondary_msg = NULL;
+
+    return -1;
+  }
+
+  /* we got a valid message block from the child, process it */
+  switch(indicator) {
+
+  case SP_ERROR_MSG:
+    /*
+     * Error from dumpcap; there will be a primary message and a
+     * secondary message.
+     */
+
+    /* convert primary message */
+    pipe_convert_header(buffer, 4, &indicator, &primary_msg_len);
+    primary_msg_text = buffer+4;
+    /* convert secondary message */
+    pipe_convert_header(primary_msg_text + primary_msg_len, 4, &indicator,
+                        &secondary_msg_len);
+    secondary_msg_text = primary_msg_text + primary_msg_len + 4;
+    /* the capture child will close the sync_pipe, nothing to do */
+
+    /*
+     * Pick up the child status.
+     */
+    ret = sync_pipe_close_command(&data_pipe_read_fd, &sync_pipe_read_fd,
+                                  &fork_child, &msg);
+    if (ret == -1) {
+      /*
+       * Child process failed unexpectedly, or wait failed; msg is the
+       * error message.
+       */
+      *primary_msg = msg;
+      *secondary_msg = NULL;
+    } else {
+      /*
+       * Child process failed, but returned the expected exit status.
+       * Return the messages it gave us, and indicate failure.
+       */
+      *primary_msg = g_strdup(primary_msg_text);
+      *secondary_msg = g_strdup(secondary_msg_text);
+      ret = -1;
+    }
+    *data = NULL;
+    break;
+
+  case SP_SUCCESS:
+    /* read the output from the command */
+    data_buf = g_string_new("");
+    while ((count = ws_read(data_pipe_read_fd, buffer, PIPE_BUF_SIZE)) > 0) {
+      buffer[count] = '\0';
+      g_string_append(data_buf, buffer);
     }
 
-#ifdef _WIN32
-    ret = sync_pipe_close_command(&sync_pipe_read_fd, &fork_child, msg);
-#else
-    ret = sync_pipe_close_command(&sync_pipe_read_fd, msg);
-#endif
-
-    if (ret) {
-	g_string_free(msg_buf, TRUE);
-	return ret;
+    /*
+     * Pick up the child status.
+     */
+    ret = sync_pipe_close_command(&data_pipe_read_fd, &sync_pipe_read_fd,
+                                  &fork_child, &msg);
+    if (ret == -1) {
+      /*
+       * Child process failed unexpectedly, or wait failed; msg is the
+       * error message.
+       */
+      *primary_msg = msg;
+      *secondary_msg = NULL;
+      g_string_free(data_buf, TRUE);
+      *data = NULL;
+    } else {
+      /*
+       * Child process succeeded.
+       */
+      *primary_msg = NULL;
+      *secondary_msg = NULL;
+      *data = data_buf->str;
+      g_string_free(data_buf, FALSE);
     }
+    break;
 
-    *msg = msg_buf->str;
-    g_string_free(msg_buf, FALSE);
-    return 0;
+  default:
+    /*
+     * Pick up the child status.
+     */
+    ret = sync_pipe_close_command(&data_pipe_read_fd, &sync_pipe_read_fd,
+                                  &fork_child, &msg);
+    if (ret == -1) {
+      /*
+       * Child process failed unexpectedly, or wait failed; msg is the
+       * error message.
+       */
+      *primary_msg = msg;
+      *secondary_msg = NULL;
+    } else {
+      /*
+       * Child process returned an unknown status.
+       */
+      *primary_msg = g_strdup_printf("dumpcap process gave an unexpected message type: 0x%02x",
+                                     indicator);
+      *secondary_msg = NULL;
+      ret = -1;
+    }
+    *data = NULL;
+    break;
+  }
+  return ret;
 }
 
 /*
- * Get an interface list using dumpcap.  On success, *msg points to
- * a buffer containing the dumpcap output, and 0 is returned.  On failure,
- * *msg points to an error message, and -1 is returned.  In either case,
- * msg must be freed with g_free().
+ * Get the list of interfaces using dumpcap.
+ *
+ * On success, *data points to a buffer containing the dumpcap output,
+ * *primary_msg and *secondary_msg are NULL, and 0 is returned.  *data
+ * must be freed with g_free().
+ *
+ * On failure, *data is NULL, *primary_msg points to an error message,
+ * *secondary_msg either points to an additional error message or is
+ * NULL, and -1 is returned; *primary_msg, and *secondary_msg if not NULL,
+ * must be freed with g_free().
  */
 int
-sync_interface_list_open(gchar **msg) {
+sync_interface_list_open(gchar **data, gchar **primary_msg,
+                         gchar **secondary_msg)
+{
     int argc;
     const char **argv;
-
-    if (!msg) {
-        /* We can't return anything */
-        return -1;
-    }
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_interface_list_open");
 
     argv = init_pipe_args(&argc);
 
     if (!argv) {
-        *msg = g_strdup_printf("We don't know where to find dumpcap.");
+        *primary_msg = g_strdup("We don't know where to find dumpcap.");
+        *secondary_msg = NULL;
+        *data = NULL;
         return -1;
     }
 
@@ -867,51 +1012,42 @@ sync_interface_list_open(gchar **msg) {
     argv = sync_pipe_add_arg(argv, &argc, "-D");
     argv = sync_pipe_add_arg(argv, &argc, "-M");
 
-#if 0
-    /* dumpcap should be running in capture child mode (hidden feature)                   */
-    /* XXX: Actually: don't run dumpcap in capture_child_mode.                            */
-    /*     Instead run dumpcap in 'normal' mode so that dumpcap err msgs are sent to      */
-    /*     stderr in normal format and are then sent to whereever our stderr goes.        */
-    /*     Note: Using 'dumpcap -D -M -Z' (capture_child mode) changes only the format of */
-    /*           dumpcap err msgs. That is: dumpcap in capture_child mode outputs err     */
-    /*           msgs to stderr in a special type/len/string format which would then      */
-    /*           currently be sent as is to stderr resulting in garbled output.           */
-    /*     ToDo: Revise this code to be similar to sync_pipe_start so that 'dumpcap -Z'   */
-    /*     special format error messages to stderr are captured and returned to caller    */
-    /*     (eg: so can be processed and displayed in a pop-up box).                       */
 #ifndef DEBUG_CHILD
+    /* Run dumpcap in capture child mode */
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
 #endif
-#endif
-
-    return sync_pipe_run_command(argv, msg);
+    return sync_pipe_run_command(argv, data, primary_msg, secondary_msg);
 }
 
 /*
- * Get interface capabilities using dumpcap.  On success, *msg points to
- * a buffer containing the dumpcap output, and 0 is returned.  On failure,
- * *msg points to an error message, and -1 is returned.  In either case,
- * *msg must be freed with g_free().
+ * Get the capabilities of an interface using dumpcap.
+ *
+ * On success, *data points to a buffer containing the dumpcap output,
+ * *primary_msg and *secondary_msg are NULL, and 0 is returned.  *data
+ * must be freed with g_free().
+ *
+ * On failure, *data is NULL, *primary_msg points to an error message,
+ * *secondary_msg either points to an additional error message or is
+ * NULL, and -1 is returned; *primary_msg, and *secondary_msg if not NULL,
+ * must be freed with g_free().
  */
 int
 sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
-                          gchar **msg)
+                          gchar **data, gchar **primary_msg,
+                          gchar **secondary_msg)
 {
     int argc;
     const char **argv;
-
-    if (!msg) {
-        /* We can't return anything */
-        return -1;
-    }
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_linktype_list_open");
 
     argv = init_pipe_args(&argc);
 
     if (!argv) {
-        *msg = g_strdup_printf("We don't know where to find dumpcap.");
+        *primary_msg = g_strdup("We don't know where to find dumpcap.");
+        *secondary_msg = NULL;
+        *data = NULL;
         return -1;
     }
 
@@ -923,24 +1059,12 @@ sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
         argv = sync_pipe_add_arg(argv, &argc, "-I");
     argv = sync_pipe_add_arg(argv, &argc, "-M");
 
-#if 0
-    /* dumpcap should be running in capture child mode (hidden feature)                   */
-    /* XXX: Actually: don't run dumpcap in capture_child_mode.                            */
-    /*     Instead run dumpcap in 'normal' mode so that dumpcap err msgs are sent to      */
-    /*     stderr in normal format and are then sent to whereever our stderr goes.        */
-    /*     Note: Using 'dumpcap -L -M -Z' (capture_child mode) changes only the format of */
-    /*           dumpcap err msgs. That is: dumpcap in capture_child mode outputs err     */
-    /*           msgs to stderr in a special type/len/string format which would then      */
-    /*           currently be sent as is to stderr resulting in garbled output.           */
-    /*     ToDo: Revise this code to be similar to sync_pipe_start so that 'dumpcap -Z'   */
-    /*     special format error messages to stderr are captured and returned to caller    */
-    /*     (eg: so can be processed and displayed in a pop-up box).                       */
 #ifndef DEBUG_CHILD
+    /* Run dumpcap in capture child mode */
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
 #endif
-#endif
-    return sync_pipe_run_command(argv, msg);
+    return sync_pipe_run_command(argv, data, primary_msg, secondary_msg);
 }
 
 /*
@@ -950,66 +1074,150 @@ sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
  * that must be g_free()d, and -1 will be returned.
  */
 int
-sync_interface_stats_open(int *read_fd, int *fork_child, gchar **msg) {
-    int argc;
-    const char **argv;
+sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg)
+{
+  int argc;
+  const char **argv;
+  int message_read_fd, ret;
+  gchar buffer[PIPE_BUF_SIZE+1];
+  int  nread;
+  char indicator;
+  int  primary_msg_len;
+  char *primary_msg_text;
+  int  secondary_msg_len;
+  char *secondary_msg_text;
 
-    if (!msg) {
-        /* We can't return anything */
-        return -1;
-    }
+  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_interface_stats_open");
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_interface_stats_open");
+  argv = init_pipe_args(&argc);
 
-    argv = init_pipe_args(&argc);
+  if (!argv) {
+    *msg = g_strdup("We don't know where to find dumpcap.");
+    return -1;
+  }
 
-    if (!argv) {
-        *msg = g_strdup_printf("We don't know where to find dumpcap.");
-        return -1;
-    }
+  /* Ask for the interface statistics */
+  argv = sync_pipe_add_arg(argv, &argc, "-S");
+  argv = sync_pipe_add_arg(argv, &argc, "-M");
 
-    /* Ask for the interface statistics */
-    argv = sync_pipe_add_arg(argv, &argc, "-S");
-    argv = sync_pipe_add_arg(argv, &argc, "-M");
-
-#if 0
-    /* dumpcap should be running in capture child mode (hidden feature)                   */
-    /* XXX: Actually: don't run dumpcap in capture_child_mode.                            */
-    /*     Instead run dumpcap in 'normal' mode so that dumpcap err msgs are sent to      */
-    /*     stderr in normal format and are then sent to whereever our stderr goes.        */
-    /*     Note: Using 'dumpcap -S -M -Z' (capture_child mode) changes only the format of */
-    /*           dumpcap err msgs. That is: dumpcap in capture_child mode outputs err     */
-    /*           msgs to stderr in a special type/len/string format which would then      */
-    /*           currently be sent as is to stderr resulting in garbled output.           */
-    /*     ToDo: Revise this code to be similar to sync_pipe_start so that 'dumpcap -Z'   */
-    /*     special format error messages to stderr are captured and returned to caller    */
-    /*     (eg: so can be processed and displayed in a pop-up box).                       */
 #ifndef DEBUG_CHILD
-    argv = sync_pipe_add_arg(argv, &argc, "-Z");
-    argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
+  argv = sync_pipe_add_arg(argv, &argc, "-Z");
+  argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
 #endif
-#endif
-    return sync_pipe_open_command(argv, read_fd, fork_child, msg);
+  ret = sync_pipe_open_command(argv, data_read_fd, &message_read_fd,
+                                 fork_child, msg);
+  if (ret == -1)
+    return -1;
+
+  /*
+   * We were able to set up to read dumpcap's output.  Do so.
+   *
+   * First, wait for an SP_ERROR_MESSAGE or SP_SUCCESS message.
+   */
+  nread = pipe_read_block(message_read_fd, &indicator, SP_MAX_MSG_LEN,
+                          buffer);
+  if(nread <= 0) {
+    /* We got a read error from the sync pipe, or we got no data at
+       all from the sync pipe, so we're not going to be getting any
+       data or error message from the child process.  Pick up its
+       exit status, and complain.
+
+       We don't have to worry about killing the child, if the sync pipe
+       returned an error. Usually this error is caused as the child killed
+       itself while going down. Even in the rare cases that this isn't the
+       case, the child will get an error when writing to the broken pipe
+       the next time, cleaning itself up then. */
+    ret = sync_pipe_wait_for_child(*fork_child, msg);
+    if (ret == 0) {
+      /* No unusual exit status; just report the read problem. */
+      if (nread == 0)
+        *msg = g_strdup("Child dumpcap closed sync pipe prematurely");
+      else
+        *msg = g_strdup("Error reading from sync pipe");
+    }
+
+    return -1;
+  }
+
+  /* we got a valid message block from the child, process it */
+  switch(indicator) {
+
+  case SP_ERROR_MSG:
+    /*
+     * Error from dumpcap; there will be a primary message and a
+     * secondary message.
+     */
+
+    /* convert primary message */
+    pipe_convert_header(buffer, 4, &indicator, &primary_msg_len);
+    primary_msg_text = buffer+4;
+    /* convert secondary message */
+    pipe_convert_header(primary_msg_text + primary_msg_len, 4, &indicator,
+                        &secondary_msg_len);
+    secondary_msg_text = primary_msg_text + primary_msg_len + 4;
+    /* the capture child will close the sync_pipe, nothing to do */
+
+    /*
+     * Pick up the child status.
+     */
+    ret = sync_pipe_close_command(data_read_fd, &message_read_fd,
+                                  fork_child, msg);
+    if (ret == -1) {
+      /*
+       * Child process failed unexpectedly, or wait failed; msg is the
+       * error message.
+       */
+    } else {
+      /*
+       * Child process failed, but returned the expected exit status.
+       * Return the messages it gave us, and indicate failure.
+       */
+      *msg = g_strdup(primary_msg_text);
+      ret = -1;
+    }
+    break;
+
+  case SP_SUCCESS:
+    /* Close the message pipe. */
+    ws_close(message_read_fd);
+    break;
+
+  default:
+    /*
+     * Pick up the child status.
+     */
+    ret = sync_pipe_close_command(data_read_fd, &message_read_fd,
+                                  fork_child, msg);
+    if (ret == -1) {
+      /*
+       * Child process failed unexpectedly, or wait failed; msg is the
+       * error message.
+       */
+    } else {
+      /*
+       * Child process returned an unknown status.
+       */
+      *msg = g_strdup_printf("dumpcap process gave an unexpected message type: 0x%02x",
+                             indicator);
+      ret = -1;
+    }
+    break;
+  }
+  return ret;
 }
 
 /* Close down the stats process */
 int
-sync_interface_stats_close(int *read_fd, int *fork_child
-#ifndef _WIN32
-_U_
-#endif
-, gchar **msg) {
-#ifdef _WIN32
-    return sync_pipe_close_command(read_fd, fork_child, msg);
-#else
-    return sync_pipe_close_command(read_fd, msg);
-#endif
+sync_interface_stats_close(int *read_fd, int *fork_child, gchar **msg)
+{
+    return sync_pipe_close_command(read_fd, NULL, fork_child, msg);
 }
 
 /* read a number of bytes from a pipe */
 /* (blocks until enough bytes read or an error occurs) */
 static int
-pipe_read_bytes(int pipe_fd, char *bytes, int required) {
+pipe_read_bytes(int pipe_fd, char *bytes, int required)
+{
     int newly;
     int offset = 0;
 
@@ -1096,7 +1304,7 @@ sync_pipe_gets_nonblock(int pipe_fd, char *bytes, int max) {
 }
 
 
-/* convert header values (indicator and 4-byte length) */
+/* convert header values (indicator and 3-byte length) */
 static void
 pipe_convert_header(const guchar *header, int header_len, char *indicator, int *block_len) {
 
@@ -1111,11 +1319,11 @@ pipe_convert_header(const guchar *header, int header_len, char *indicator, int *
    (1-byte message indicator, 3-byte message length (excluding length
    and indicator field), and the rest is the message) */
 static int
-pipe_read_block(int pipe_fd, char *indicator, int len, char *msg) {
+pipe_read_block(int pipe_fd, char *indicator, int len, char *msg)
+{
     int required;
     int newly;
     guchar header[4];
-
 
     /* read header (indicator and 3-byte length) */
     newly = pipe_read_bytes(pipe_fd, header, 4);
@@ -1171,6 +1379,7 @@ static gboolean
 sync_pipe_input_cb(gint source, gpointer user_data)
 {
   capture_options *capture_opts = (capture_options *)user_data;
+  int  ret;
   char buffer[SP_MAX_MSG_LEN+1];
   int  nread;
   char indicator;
@@ -1179,26 +1388,30 @@ sync_pipe_input_cb(gint source, gpointer user_data)
   int  secondary_len;
   char * secondary_msg;
 
-
   nread = pipe_read_block(source, &indicator, SP_MAX_MSG_LEN, buffer);
   if(nread <= 0) {
-    if (nread == 0)
-      g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-            "sync_pipe_input_cb: child has closed sync_pipe");
-    else
-      g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-            "sync_pipe_input_cb: error reading from sync pipe");
-
-    /* The child has closed the sync pipe, meaning it's not going to be
-       capturing any more packets.  Pick up its exit status, and
-       complain if it did anything other than exit with status 0.
+    /* We got a read error from the sync pipe, or we got no data at
+       all from the sync pipe, so we're not going to be getting any
+       data or error message from the child process.  Pick up its
+       exit status, and complain.
 
        We don't have to worry about killing the child, if the sync pipe
        returned an error. Usually this error is caused as the child killed itself
        while going down. Even in the rare cases that this isn't the case,
        the child will get an error when writing to the broken pipe the next time,
        cleaning itself up then. */
-    sync_pipe_wait_for_child(capture_opts);
+    ret = sync_pipe_wait_for_child(capture_opts->fork_child, &primary_msg);
+    if (ret == 0) {
+      /* No unusual exit status; just report the read problem. */
+      if (nread == 0)
+        primary_msg = g_strdup("Child dumpcap closed sync pipe prematurely");
+      else
+        primary_msg = g_strdup("Error reading from sync pipe");
+    }
+    g_free(primary_msg); /* XXX - display this */
+
+    /* No more child process. */
+    capture_opts->fork_child = -1;
 
 #ifdef _WIN32
     ws_close(capture_opts->signal_pipe_write_fd);
@@ -1259,54 +1472,69 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 
 
 /* the child process is going down, wait until it's completely terminated */
-static void
-sync_pipe_wait_for_child(capture_options *capture_opts)
+static int
+sync_pipe_wait_for_child(int fork_child, gchar **msgp)
 {
-  int  wstatus;
-
+  int fork_child_status;
+  int ret;
 
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_wait_for_child: wait till child closed");
-  g_assert(capture_opts->fork_child != -1);
+  g_assert(fork_child != -1);
 
+  *msgp = NULL; /* assume no error */
+  ret = 0;
 #ifdef _WIN32
-  if (_cwait(&wstatus, capture_opts->fork_child, _WAIT_CHILD) == -1) {
-    report_failure("Child capture process stopped unexpectedly (errno:%u)",
-                   errno);
+  if (_cwait(&fork_child_status, fork_child, _WAIT_CHILD) == -1) {
+    *msgp = g_strdup_printf("Error from cwait(): %u", errno);
+    ret = -1;
   }
 #else
-  if (wait(&wstatus) != -1) {
-    if (WIFEXITED(wstatus)) {
-      /* The child exited; display its exit status, if it seems uncommon (0=ok, 1=error) */
-      /* the child will inform us about errors through the sync_pipe, which will popup */
-      /* an error message, so don't popup another one */
-
-      /* If there are situations where the child won't send us such an error message, */
-      /* this should be fixed in the child and not here! */
-      if (WEXITSTATUS(wstatus) != 0 && WEXITSTATUS(wstatus) != 1) {
-        report_failure("Child capture process exited: exit status %d",
-		       WEXITSTATUS(wstatus));
+  if (waitpid(fork_child, &fork_child_status, 0) != -1) {
+    if (WIFEXITED(fork_child_status)) {
+      /*
+       * The child exited; return its exit status, if it seems uncommon
+       * (0=ok, 1=command syntax error, 2=other error).
+       *
+       * For an exit status of 0, there's no error to tell the user about.
+       * For an exit status of 1 or 2, the child will inform us about errors
+       * through the sync_pipe, so don't return an error.
+       * If there are situations where the child won't send us such an error
+       * message, this should be fixed in the child and not worked around
+       * here!
+       */
+      if (WEXITSTATUS(fork_child_status) != 0 &&
+          WEXITSTATUS(fork_child_status) != 1 &&
+          WEXITSTATUS(fork_child_status) != 2) {
+        *msgp = g_strdup_printf("Child dumpcap process exited: exit status %d",
+                                WEXITSTATUS(fork_child_status));
+        ret = -1;
       }
-    } else if (WIFSTOPPED(wstatus)) {
+    } else if (WIFSTOPPED(fork_child_status)) {
       /* It stopped, rather than exiting.  "Should not happen." */
-      report_failure("Child capture process stopped: %s",
-		     sync_pipe_signame(WSTOPSIG(wstatus)));
-    } else if (WIFSIGNALED(wstatus)) {
+      *msgp = g_strdup_printf("Child dumpcap process stopped: %s",
+                              sync_pipe_signame(WSTOPSIG(fork_child_status)));
+      ret = -1;
+    } else if (WIFSIGNALED(fork_child_status)) {
       /* It died with a signal. */
-      report_failure("Child capture process died: %s%s",
-		     sync_pipe_signame(WTERMSIG(wstatus)),
-		     WCOREDUMP(wstatus) ? " - core dumped" : "");
+      *msgp = g_strdup_printf("Child dumpcap process died: %s%s",
+                              sync_pipe_signame(WTERMSIG(fork_child_status)),
+                              WCOREDUMP(fork_child_status) ? " - core dumped" : "");
+      ret = -1;
     } else {
       /* What?  It had to either have exited, or stopped, or died with
          a signal; what happened here? */
-      report_failure("Child capture process died: wait status %#o", wstatus);
+      *msgp = g_strdup_printf("Bad status from wait(): %#o",
+                              fork_child_status);
+      ret = -1;
     }
+  } else {
+    *msgp = g_strdup_printf("Error from wait(): %s", strerror(errno));
+    ret = -1;
   }
 #endif
 
-  /* No more child process. */
-  capture_opts->fork_child = -1;
-
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_wait_for_child: capture child closed");
+  return ret;
 }
 
 

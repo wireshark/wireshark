@@ -2746,9 +2746,7 @@ main(int argc, char *argv[])
                                        global_capture_opts.monitor_mode,
                                        &err_str);
     if (caps == NULL) {
-      cmdarg_err("The capabilities of the capture device \"%s\" could not be obtained (%s)."
-       "Please check to make sure you have sufficient permissions, and that\n"
-       "you have the proper interface or pipe specified.\n", global_capture_opts.iface, err_str);
+      cmdarg_err("%s", err_str);
       g_free(err_str);
       exit(2);
     }

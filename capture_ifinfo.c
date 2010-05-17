@@ -70,7 +70,7 @@ capture_interface_list(int *err, char **err_str)
     int        ret;
     GList     *if_list = NULL;
     int        i, j;
-    gchar     *msg;
+    gchar     *data, *primary_msg, *secondary_msg;
     gchar    **raw_list, **if_parts, **addr_parts;
     gchar     *name;
     if_info_t *if_info;
@@ -79,25 +79,26 @@ capture_interface_list(int *err, char **err_str)
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List ...");
 
     /* Try to get our interface list */
-    ret = sync_interface_list_open(&msg);
+    ret = sync_interface_list_open(&data, &primary_msg, &secondary_msg);
     if (ret != 0) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List failed!");
         if (err_str) {
-            *err_str = msg;
+            *err_str = primary_msg;
         } else {
-            g_free(msg);
+            g_free(primary_msg);
         }
-        *err = CANT_RUN_DUMPCAP;
+        g_free(secondary_msg);
+        *err = CANT_GET_INTERFACE_LIST;
         return NULL;
     }
 
     /* Split our lines */
 #ifdef _WIN32
-    raw_list = g_strsplit(msg, "\r\n", 0);
+    raw_list = g_strsplit(data, "\r\n", 0);
 #else
-    raw_list = g_strsplit(msg, "\n", 0);
+    raw_list = g_strsplit(data, "\n", 0);
 #endif
-    g_free(msg);
+    g_free(data);
 
     for (i = 0; raw_list[i] != NULL; i++) {
         if_parts = g_strsplit(raw_list[i], "\t", 4);
@@ -162,31 +163,33 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
     if_capabilities_t *caps;
     GList              *linktype_list = NULL;
     int                 err, i;
-    gchar              *msg;
+    gchar              *data, *primary_msg, *secondary_msg;
     gchar             **raw_list, **lt_parts;
     data_link_info_t   *data_link_info;
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities ...");
 
     /* Try to get our interface list */
-    err = sync_if_capabilities_open(ifname, monitor_mode, &msg);
+    err = sync_if_capabilities_open(ifname, monitor_mode, &data,
+                                    &primary_msg, &secondary_msg);
     if (err != 0) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities failed!");
         if (err_str) {
-            *err_str = msg;
+            *err_str = primary_msg;
         } else {
-            g_free(msg);
+            g_free(primary_msg);
         }
+        g_free(secondary_msg);
         return NULL;
     }
 
     /* Split our lines */
 #ifdef _WIN32
-    raw_list = g_strsplit(msg, "\r\n", 0);
+    raw_list = g_strsplit(data, "\r\n", 0);
 #else
-    raw_list = g_strsplit(msg, "\n", 0);
+    raw_list = g_strsplit(data, "\n", 0);
 #endif
-    g_free(msg);
+    g_free(data);
 
     /*
      * First line is 0 if monitor mode isn't supported, 1 if it is.

@@ -682,6 +682,9 @@ print_machine_readable_interfaces(GList *if_list)
     if_addr_t   *if_addr;
     char        addr_str[ADDRSTRLEN];
 
+    /* Let our parent know we succeeded. */
+    pipe_write_block(2, SP_SUCCESS, NULL);
+
     i = 1;  /* Interface id number */
     for (if_entry = g_list_first(if_list); if_entry != NULL;
          if_entry = g_list_next(if_entry)) {
@@ -746,6 +749,9 @@ print_machine_readable_if_capabilities(if_capabilities_t *caps)
     GList *lt_entry;
     data_link_info_t *data_link_info;
     const gchar *desc_str;
+
+    /* Let our parent know we succeeded. */
+    pipe_write_block(2, SP_SUCCESS, NULL);
 
     if (caps->can_set_rfmon)
         printf("1\n");
@@ -816,6 +822,9 @@ print_statistics_loop(gboolean machine_readable)
         cmdarg_err("There are no interfaces on which a capture can be done");
         return 2;
     }
+
+    /* Let our parent know we succeeded. */
+    pipe_write_block(2, SP_SUCCESS, NULL);
 
     if (!machine_readable) {
         printf("%-15s  %10s  %10s\n", "Interface", "Received",
@@ -3478,9 +3487,9 @@ main(int argc, char *argv[])
     caps = get_if_capabilities(global_capture_opts.iface,
                                global_capture_opts.monitor_mode, &err_str);
     if (caps == NULL) {
-      cmdarg_err("The capabilities of the capture device \"%s\" could not be obtained (%s)."
+      cmdarg_err("The capabilities of the capture device \"%s\" could not be obtained (%s).\n"
        "Please check to make sure you have sufficient permissions, and that\n"
-       "you have the proper interface or pipe specified.\n", global_capture_opts.iface, err_str);
+       "you have the proper interface or pipe specified.", global_capture_opts.iface, err_str);
       g_free(err_str);
       exit_main(2);
     }
