@@ -67,7 +67,7 @@ DOCUMENT SECTION
   <!ENTITY DocumentCopyrightHolder1 "Ulf Lamping ">
   <!ENTITY DocumentCopyrightHolder2 "Richard Sharpe ">
   <!ENTITY DocumentCopyrightHolder3 "Ed Warnicke ">
-  <!ENTITY DocumentCopyrightYear "2004-2008">
+  <!ENTITY DocumentCopyrightYear "2004-2010">
 
   <!ENTITY DocumentEdition "Third ">
   <!ENTITY DocumentVersion "V3.0.2">
@@ -80,7 +80,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.2">
+  <!ENTITY WiresharkCurrentVersion "1.4">
   <!ENTITY WiresharkWebSite "http://www.wireshark.org">
   <!ENTITY WiresharkUsersGuidePage "&WiresharkWebSite;/docs/">
   <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download.html">
