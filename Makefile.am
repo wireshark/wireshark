@@ -858,7 +858,8 @@ EXTRA_DIST = \
 	cmake/modules/UseMakeTapReg.cmake	\
 	cmake/modules/FindM.cmake		\
 	cmake/modules/FindKERBEROS.cmake	\
-	cmake/modules/FindPOD.cmake
+	cmake/modules/FindPOD.cmake		\
+	CPackConfig.txt
 
 install-exec-hook:
 if HAVE_DUMPCAP_GROUP
