@@ -682,8 +682,10 @@ print_machine_readable_interfaces(GList *if_list)
     if_addr_t   *if_addr;
     char        addr_str[ADDRSTRLEN];
 
-    /* Let our parent know we succeeded. */
-    pipe_write_block(2, SP_SUCCESS, NULL);
+    if (capture_child) {
+        /* Let our parent know we succeeded. */
+        pipe_write_block(2, SP_SUCCESS, NULL);
+    }
 
     i = 1;  /* Interface id number */
     for (if_entry = g_list_first(if_list); if_entry != NULL;
@@ -750,8 +752,10 @@ print_machine_readable_if_capabilities(if_capabilities_t *caps)
     data_link_info_t *data_link_info;
     const gchar *desc_str;
 
-    /* Let our parent know we succeeded. */
-    pipe_write_block(2, SP_SUCCESS, NULL);
+    if (capture_child) {
+        /* Let our parent know we succeeded. */
+        pipe_write_block(2, SP_SUCCESS, NULL);
+    }
 
     if (caps->can_set_rfmon)
         printf("1\n");
@@ -823,8 +827,10 @@ print_statistics_loop(gboolean machine_readable)
         return 2;
     }
 
-    /* Let our parent know we succeeded. */
-    pipe_write_block(2, SP_SUCCESS, NULL);
+    if (capture_child) {
+        /* Let our parent know we succeeded. */
+        pipe_write_block(2, SP_SUCCESS, NULL);
+    }
 
     if (!machine_readable) {
         printf("%-15s  %10s  %10s\n", "Interface", "Received",
@@ -3025,6 +3031,7 @@ main(int argc, char *argv[])
   gboolean             stats_known;
   struct pcap_stat     stats;
   GLogLevelFlags       log_flags;
+  gboolean             print_version_info = FALSE;
   gboolean             list_interfaces = FALSE;
   gboolean             list_link_layer_types = FALSE;
   gboolean             machine_readable = FALSE;
@@ -3307,22 +3314,9 @@ main(int argc, char *argv[])
         exit_main(0);
         break;
       case 'v':        /* Show version and exit */
-      {
-        GString             *comp_info_str;
-        GString             *runtime_info_str;
-        /* Assemble the compile-time version information string */
-        comp_info_str = g_string_new("Compiled ");
-        get_compiled_version_info(comp_info_str, NULL);
-
-        /* Assemble the run-time version information string */
-        runtime_info_str = g_string_new("Running ");
-        get_runtime_version_info(runtime_info_str, NULL);
-        show_version(comp_info_str, runtime_info_str);
-        g_string_free(comp_info_str, TRUE);
-        g_string_free(runtime_info_str, TRUE);
-        exit_main(0);
+        print_version_info = TRUE;
+        run_once_args++;
         break;
-      }
       /*** capture option specific ***/
       case 'a':        /* autostop criteria */
       case 'b':        /* Ringbuffer option */
@@ -3425,19 +3419,18 @@ main(int argc, char *argv[])
   }
 
   if (run_once_args > 1) {
-    cmdarg_err("Only one of -D, -L, or -S may be supplied.");
+    cmdarg_err("Only one of -v, -D, -L, or -S may be supplied.");
     exit_main(1);
-  } else if (list_link_layer_types) {
-    /* We're supposed to list the link-layer types for an interface;
-       did the user also specify a capture file to be read? */
-    /* No - did they specify a ring buffer option? */
+  } else if (run_once_args == 1) {
+    /* We're supposed to print some information, rather than
+       to capture traffic; did they specify a ring buffer option? */
     if (global_capture_opts.multi_files_on) {
       cmdarg_err("Ring buffer requested, but a capture isn't being done.");
       exit_main(1);
     }
   } else {
-    /* No - was the ring buffer option specified and, if so, does it make
-       sense? */
+    /* We're supposed to capture traffic; was the ring buffer option
+       specified and, if so, does it make sense? */
     if (global_capture_opts.multi_files_on) {
       /* Ring buffer works only under certain conditions:
 	 a) ring buffer does not work with temporary files;
@@ -3453,6 +3446,41 @@ main(int argc, char *argv[])
 /*	global_capture_opts.multi_files_on = FALSE;*/
       }
     }
+  }
+
+  if (print_version_info) {
+    GString             *comp_info_str;
+    GString             *runtime_info_str;
+
+    if (machine_readable) {
+      /* Print only the *pcap version information. */
+      comp_info_str = g_string_new("");
+      get_compiled_pcap_version(comp_info_str);
+
+      runtime_info_str = g_string_new("");
+      get_runtime_pcap_version(runtime_info_str);
+
+      if (capture_child) {
+        /* Let our parent know we succeeded. */
+        pipe_write_block(2, SP_SUCCESS, NULL);
+      }
+
+      /* Print the two version strings on separate lines. */
+      printf("%s\n", comp_info_str->str);
+      printf("%s\n", runtime_info_str->str);
+    } else {
+      /* Assemble the compile-time version information string */
+      comp_info_str = g_string_new("Compiled ");
+      get_compiled_version_info(comp_info_str, NULL);
+
+      /* Assemble the run-time version information string */
+      runtime_info_str = g_string_new("Running ");
+      get_runtime_version_info(runtime_info_str, NULL);
+      show_version(comp_info_str, runtime_info_str);
+    }
+    g_string_free(comp_info_str, TRUE);
+    g_string_free(runtime_info_str, TRUE);
+    exit_main(0);
   }
 
   if (list_interfaces) {
@@ -3534,11 +3562,14 @@ main(int argc, char *argv[])
                                          global_capture_opts.monitor_mode);
     free_if_capabilities(caps);
     exit_main(0);
-  } else if (print_statistics) {
+  }
+
+  if (print_statistics) {
     status = print_statistics_loop(machine_readable);
     exit_main(status);
   }
 
+  /* We're supposed to do a capture.  Process the remaining arguments. */
   capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
   capture_opts_trim_ring_num_files(&global_capture_opts);
 
