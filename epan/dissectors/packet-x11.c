@@ -1185,11 +1185,10 @@ static const value_string zero_is_none_vals[] = {
 #define LISTofTEXTITEM8(name) { listOfTextItem(tvb, offsetp, t, hf_x11_##name, FALSE, next_offset, little_endian); }
 #define LISTofTEXTITEM16(name) { listOfTextItem(tvb, offsetp, t, hf_x11_##name, TRUE, next_offset, little_endian); }
 #define OPCODE() {						\
-    const gchar *enumValue = NULL;				\
     opcode = VALUE8(tvb, *offsetp);				\
-    enumValue = match_strval(opcode, state->opcode_vals);	\
-    proto_tree_add_uint_format(t, hf_x11_opcode, tvb, *offsetp, 1, opcode,	\
-            "opcode: %u (%s)", opcode, enumValue);		\
+    proto_tree_add_uint_format(t, hf_x11_opcode, tvb, *offsetp,	\
+	    1, opcode,	"opcode: %u (%s)", opcode,		\
+	    val_to_str(opcode, state->opcode_vals, "Unknown")); \
     *offsetp += 1;						\
   }
 
