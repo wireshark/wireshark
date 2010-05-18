@@ -89,7 +89,8 @@ static int dataDigestIsCRC32 = TRUE;
 
 static guint dataDigestSize = 4;
 
-static guint iscsi_port = 3260;
+static guint iscsi_port        = 3260;
+static guint iscsi_system_port = 860;
 
 /* Initialize the protocol and registered fields */
 static int proto_iscsi = -1;
@@ -2251,12 +2252,25 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 	if(opcode_str == NULL) {
 	    badPdu = TRUE;
 	}
-	else if(check_port && iscsi_port != 0 &&
-		(((opcode & TARGET_OPCODE_BIT) && pinfo->srcport != iscsi_port) ||
-		 (!(opcode & TARGET_OPCODE_BIT) && pinfo->destport != iscsi_port))) {
+
+
+	if(!badPdu && check_port) {
 	    badPdu = TRUE;
+	    if ((opcode & TARGET_OPCODE_BIT) && pinfo->srcport == iscsi_port) {
+	        badPdu = FALSE;
+	    }
+	    if (!(opcode & TARGET_OPCODE_BIT) && pinfo->destport == iscsi_port) {
+	        badPdu = FALSE;
+	    }
+	    if ((opcode & TARGET_OPCODE_BIT) && pinfo->srcport == iscsi_system_port) {
+	        badPdu = FALSE;
+	    }
+	    if (!(opcode & TARGET_OPCODE_BIT) && pinfo->destport == iscsi_system_port) {
+	        badPdu = FALSE;
+	    }
 	}
-	else if(enable_bogosity_filter) {
+
+	if(!badPdu && enable_bogosity_filter) {
 	    /* try and distinguish between data and real headers */
 	    if(data_segment_len > bogus_pdu_data_length_threshold) {
 		badPdu = TRUE;
@@ -3074,6 +3088,13 @@ proto_register_iscsi(void)
 				       "Port number of iSCSI target",
 				       10,
 				       &iscsi_port);
+
+	prefs_register_uint_preference(iscsi_module,
+				       "target_system_port",
+				       "Target system port",
+				       "System port number of iSCSI target",
+				       10,
+				       &iscsi_system_port);
 
 	prefs_register_bool_preference(iscsi_module,
 				       "enable_data_digests",
