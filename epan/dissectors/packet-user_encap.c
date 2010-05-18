@@ -84,6 +84,7 @@ static dissector_handle_t data_handle;
 static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 	user_encap_t* encap = NULL;
 	tvbuff_t* payload_tvb;
+	proto_item* item;
 	int offset = 0;
 	int len;
 	guint i;
@@ -95,17 +96,16 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 		}
 	}
 	
+	item = proto_tree_add_item(tree,proto_user_encap,tvb,0,0,FALSE);
 	if (!encap) {
 		char* msg = ep_strdup_printf("User encapsulation not handled: DLT=%d, check your Preferences->Protocols->DLT_USER",
 									 pinfo->match_port + 147 - WTAP_ENCAP_USER0);
-		proto_item* item = proto_tree_add_text(tree, tvb, 0, 0, "%s", msg);
-		
+		proto_item_set_text(item,"%s",msg);
 		expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "%s", msg);
 		
 		call_dissector(data_handle, tvb, pinfo, tree);
 		return;
 	} else {
-		proto_item* item = proto_tree_add_item(tree,proto_user_encap,tvb,0,0,FALSE);
 		proto_item_set_text(item,"DLT: %d",pinfo->match_port + 147 - WTAP_ENCAP_USER0);
 	}
 
