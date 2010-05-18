@@ -1847,7 +1847,9 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
   static const char ppamsg[] = "can't find PPA for ";
   const char *set_linktype_err_str;
   const char *libpcap_warn;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   int         err;
+#endif
 #ifdef _WIN32
   gchar      *sync_secondary_msg_str;
   WORD        wVersionRequested;
