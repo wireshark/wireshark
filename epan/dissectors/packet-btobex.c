@@ -222,11 +222,8 @@ static const value_string header_id_vals[] = {
 
 static void defragment_init(void)
 {
-    if( fragment_table == NULL)
-    {
-        fragment_table_init(&fragment_table);
-        reassembled_table_init(&reassembled_table);
-    }
+    fragment_table_init(&fragment_table);
+    reassembled_table_init(&reassembled_table);
 }
 
 static int is_ascii_str(const guint8 *str, int length)
