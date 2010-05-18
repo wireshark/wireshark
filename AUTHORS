@@ -3057,10 +3057,11 @@ Allan M. Madsen		<allan.m [AT] madsen.mail.dk> {
 	Bluetooth OBEX dissector
 }
 
-Slava		<slavak [AT] gmail.com> {
+Slava			<slavak [AT] gmail.com> {
 	Support for PortCounters and PortCounters Extended performance
 		management datagrams (Infiniband)
 }
+
 
 and by:
 
