@@ -95,6 +95,7 @@ static gint ett_btobex = -1;
 static gint ett_btobex_hdrs = -1;
 static gint ett_btobex_hdr = -1;
 
+/* FIXME: Using a static like this is far from safe */
 static guint8 last_opcode[2] = { 1, 1 };
 
 static dissector_handle_t xml_handle;
