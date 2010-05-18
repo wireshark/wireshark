@@ -219,13 +219,12 @@ protect_arg (const gchar *argv)
 static char *
 win32strerror(DWORD error)
 {
-    DWORD error;
     static char errbuf[ERRBUF_SIZE+1];
-    int errlen;
+    size_t errlen;
     char *p;
 
-    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, error, 0, errbuf,
-                  ERRBUF_SIZE, NULL);
+    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, error, 0, errbuf,
+                   ERRBUF_SIZE, NULL);
 
     /*
      * "FormatMessage()" "helpfully" sticks CR/LF at the end of the
@@ -237,7 +236,7 @@ win32strerror(DWORD error)
         errbuf[errlen - 2] = '\0';
     }
     p = strchr(errbuf, '\0');
-    g_snprintf(p, sizeof errbuf - (p-errbuf), " (%lu)", error);
+    g_snprintf(p, (gulong)(sizeof errbuf - (p-errbuf)), " (%lu)", error);
     return errbuf;
 }
 #endif
