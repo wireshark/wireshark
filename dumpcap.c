@@ -502,6 +502,129 @@ create_data_link_info(int dlt)
     return data_link_info;
 }
 
+/*
+ * Get the data-link type for a libpcap device.
+ * This works around AIX 5.x's non-standard and incompatible-with-the-
+ * rest-of-the-universe libpcap.
+ */
+static int
+get_pcap_linktype(pcap_t *pch, const char *devname
+#ifndef _AIX
+	_U_
+#endif
+)
+{
+	int linktype;
+#ifdef _AIX
+	const char *ifacename;
+#endif
+
+	linktype = pcap_datalink(pch);
+#ifdef _AIX
+
+	/*
+	 * The libpcap that comes with AIX 5.x uses RFC 1573 ifType values
+	 * rather than DLT_ values for link-layer types; the ifType values
+	 * for LAN devices are:
+	 *
+	 *	Ethernet	6
+	 *	802.3		7
+	 *	Token Ring	9
+	 *	FDDI		15
+	 *
+	 * and the ifType value for a loopback device is 24.
+	 *
+	 * The AIX names for LAN devices begin with:
+	 *
+	 *	Ethernet		en
+	 *	802.3			et
+	 *	Token Ring		tr
+	 *	FDDI			fi
+	 *
+	 * and the AIX names for loopback devices begin with "lo".
+	 *
+	 * (The difference between "Ethernet" and "802.3" is presumably
+	 * whether packets have an Ethernet header, with a packet type,
+	 * or an 802.3 header, with a packet length, followed by an 802.2
+	 * header and possibly a SNAP header.)
+	 *
+	 * If the device name matches "linktype" interpreted as an ifType
+	 * value, rather than as a DLT_ value, we will assume this is AIX's
+	 * non-standard, incompatible libpcap, rather than a standard libpcap,
+	 * and will map the link-layer type to the standard DLT_ value for
+	 * that link-layer type, as that's what the rest of Wireshark expects.
+	 *
+	 * (This means the capture files won't be readable by a tcpdump
+	 * linked with AIX's non-standard libpcap, but so it goes.  They
+	 * *will* be readable by standard versions of tcpdump, Wireshark,
+	 * and so on.)
+	 *
+	 * XXX - if we conclude we're using AIX libpcap, should we also
+	 * set a flag to cause us to assume the time stamps are in
+	 * seconds-and-nanoseconds form, and to convert them to
+	 * seconds-and-microseconds form before processing them and
+	 * writing them out?
+	 */
+
+	/*
+	 * Find the last component of the device name, which is the
+	 * interface name.
+	 */
+	ifacename = strchr(devname, '/');
+	if (ifacename == NULL)
+		ifacename = devname;
+
+	/* See if it matches any of the LAN device names. */
+	if (strncmp(ifacename, "en", 2) == 0) {
+		if (linktype == 6) {
+			/*
+			 * That's the RFC 1573 value for Ethernet; map it
+			 * to DLT_EN10MB.
+			 */
+			linktype = 1;
+		}
+	} else if (strncmp(ifacename, "et", 2) == 0) {
+		if (linktype == 7) {
+			/*
+			 * That's the RFC 1573 value for 802.3; map it to
+			 * DLT_EN10MB.
+			 * (libpcap, tcpdump, Wireshark, etc. don't care if
+			 * it's Ethernet or 802.3.)
+			 */
+			linktype = 1;
+		}
+	} else if (strncmp(ifacename, "tr", 2) == 0) {
+		if (linktype == 9) {
+			/*
+			 * That's the RFC 1573 value for 802.5 (Token Ring);
+			 * map it to DLT_IEEE802, which is what's used for
+			 * Token Ring.
+			 */
+			linktype = 6;
+		}
+	} else if (strncmp(ifacename, "fi", 2) == 0) {
+		if (linktype == 15) {
+			/*
+			 * That's the RFC 1573 value for FDDI; map it to
+			 * DLT_FDDI.
+			 */
+			linktype = 10;
+		}
+	} else if (strncmp(ifacename, "lo", 2) == 0) {
+		if (linktype == 24) {
+			/*
+			 * That's the RFC 1573 value for "software loopback"
+			 * devices; map it to DLT_NULL, which is what's used
+			 * for loopback devices on BSD.
+			 */
+			linktype = 0;
+		}
+	}
+#endif
+
+	return linktype;
+}
+
 static if_capabilities_t *
 get_if_capabilities(const char *devname, gboolean monitor_mode
 #ifndef HAVE_PCAP_CREATE
