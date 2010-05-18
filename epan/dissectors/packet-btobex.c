@@ -35,7 +35,7 @@
 #include <epan/value_string.h>
 #include <epan/emem.h>
 #include <epan/reassemble.h>
-#include <packet-btl2cap.h>
+#include "packet-btl2cap.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_btobex = -1;
