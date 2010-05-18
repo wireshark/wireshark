@@ -264,7 +264,7 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			arfcn & GSMTAP_ARFCN_MASK,
 			arfcn & GSMTAP_ARFCN_F_UPLINK ? "Uplink" : "Downlink",
 			tvb_get_guint8(tvb, offset+3),
-			match_strval(tvb_get_guint8(tvb, offset+12), gsmtap_channels),
+			val_to_str(tvb_get_guint8(tvb, offset+12), gsmtap_channels, "Unknown: %d"),
 			tvb_get_guint8(tvb, offset+14));
 		gsmtap_tree = proto_item_add_subtree(ti, ett_gsmtap);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_version,
