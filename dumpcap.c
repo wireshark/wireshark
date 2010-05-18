@@ -479,30 +479,6 @@ capture_interface_list(int *err, char **err_str)
 }
 
 /*
- * Get the data-link types available for a libpcap device.
- */
-static data_link_info_t *
-create_data_link_info(int dlt)
-{
-    data_link_info_t *data_link_info;
-    const char *text;
-
-    data_link_info = (data_link_info_t *)g_malloc(sizeof (data_link_info_t));
-    data_link_info->dlt = dlt;
-    text = pcap_datalink_val_to_name(dlt);
-    if (text != NULL)
-        data_link_info->name = g_strdup(text);
-    else
-        data_link_info->name = g_strdup_printf("DLT %d", dlt);
-    text = pcap_datalink_val_to_description(dlt);
-    if (text != NULL)
-        data_link_info->description = g_strdup(text);
-    else
-        data_link_info->description = NULL;
-    return data_link_info;
-}
-
-/*
  * Get the data-link type for a libpcap device.
  * This works around AIX 5.x's non-standard and incompatible-with-the-
  * rest-of-the-universe libpcap.
@@ -625,6 +601,30 @@ get_pcap_linktype(pcap_t *pch, const char *devname
 	return linktype;
 }
 
+static data_link_info_t *
+create_data_link_info(int dlt)
+{
+    data_link_info_t *data_link_info;
+    const char *text;
+
+    data_link_info = (data_link_info_t *)g_malloc(sizeof (data_link_info_t));
+    data_link_info->dlt = dlt;
+    text = pcap_datalink_val_to_name(dlt);
+    if (text != NULL)
+        data_link_info->name = g_strdup(text);
+    else
+        data_link_info->name = g_strdup_printf("DLT %d", dlt);
+    text = pcap_datalink_val_to_description(dlt);
+    if (text != NULL)
+        data_link_info->description = g_strdup(text);
+    else
+        data_link_info->description = NULL;
+    return data_link_info;
+}
+
+/*
+ * Get the capabilities of a network device.
+ */
 static if_capabilities_t *
 get_if_capabilities(const char *devname, gboolean monitor_mode
 #ifndef HAVE_PCAP_CREATE
