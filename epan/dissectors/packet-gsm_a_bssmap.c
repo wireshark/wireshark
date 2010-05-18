@@ -4103,6 +4103,9 @@ be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
         str = match_strval_idx((guint32) oct, bssmap_field_element_ids, &idx);
         ie_len = tvb_get_guint8(tvb, curr_offset++);
 
+	if (!str)
+	    str = "Unknown";
+
         /*
          * add Field Element name
          */
