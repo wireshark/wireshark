@@ -1146,7 +1146,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 			proto_tree_add_item(tree, hf_bthci_cmd_input_sample_size, tvb, offset, 2, TRUE);
 			proto_tree_add_item(tree, hf_bthci_cmd_linear_pcm_bit_pos, tvb, offset, 2, TRUE);
 			proto_tree_add_item(tree, hf_bthci_cmd_air_coding_format, tvb, offset, 2, TRUE);
-			offset++;
+			offset+=2;
 
 			proto_tree_add_item(tree, hf_bthci_cmd_retransmission_effort, tvb, offset, 1, TRUE);
 			offset++;
