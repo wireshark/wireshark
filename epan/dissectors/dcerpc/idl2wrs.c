@@ -3055,10 +3055,9 @@ readcnffile(FILE *fh)
 	FPRINTF(NULL, "Reading conformance file\n=======================\n");
 	while(!feof(fh)){
 		cnfline[0]=0;
-		fgets(cnfline, 1023, fh);
-		if(!cnfline[0]){
-			continue;
-		}
+                if(!fgets(cnfline, 1023, fh) || !cnfline[0]){
+                        continue;
+                }
 		if(cnfline[0]=='#'){
 			/* ignore all comments */
 		} else if(!strncmp(cnfline, "NOEMIT", 6)){
@@ -3345,7 +3344,9 @@ int main(int argc, char *argv[])
 	}
 	while(!feof(tfh)){
 		line[0]=0;
-		fgets(line, 1024, tfh);
+                if(!fgets(line, 1024, tfh) || !line[0]){
+                        continue;
+                }
 		if(!strncmp(line, "ETH_CODE", 8)){
 			mergefile("ETH_CODE",fh);
 		} else if(!strncmp(line, "ETH_HDR", 7)){
@@ -3378,8 +3379,10 @@ int main(int argc, char *argv[])
 		exit(10);
 	}
 	while(!feof(tfh)){
-		line[0]=0;
-		fgets(line, 1024, tfh);
+                line[0]=0;
+                if(!fgets(line, 1024, tfh) || !line[0]){
+                        continue;
+                }
 		if(!strncmp(line, "ETH_CODE", 8)){
 			mergefile("ETH_CODE",fh);
 		} else if(!strncmp(line, "ETH_HDR", 7)){
