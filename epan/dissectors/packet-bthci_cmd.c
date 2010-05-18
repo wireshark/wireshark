@@ -1887,7 +1887,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	opcode = tvb_get_letohs(tvb, offset);
 	ocf = opcode & 0x03ff;
-	ogf = tvb_get_guint8(tvb, 1) >> 2;
+    ogf = (guint8) (opcode >> 10);
 
 	proto_item_append_text(ti_cmd," - %s", val_to_str(opcode, bthci_cmd_opcode_vals, "Unknown 0x%04x"));
 
