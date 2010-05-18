@@ -1723,10 +1723,10 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
   gchar      *sync_msg_str;
   static const char ppamsg[] = "can't find PPA for ";
   const char *set_linktype_err_str;
-  const char  *libpcap_warn;
+  const char *libpcap_warn;
+  int         err;
 #ifdef _WIN32
   gchar      *sync_secondary_msg_str;
-  int         err;
   WORD        wVersionRequested;
   WSADATA     wsaData;
 #endif
@@ -1830,8 +1830,13 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
       }
       if (capture_opts->monitor_mode)
         pcap_set_rfmon(ld->pcap_h, 1);
-      if (pcap_activate(ld->pcap_h) != 0) {
+      err = pcap_activate(ld->pcap_h);
+      if (err < 0) {
         /* Failed to activate, set to NULL */
+        if (err == PCAP_ERROR)
+          g_strlcpy(open_err_str, pcap_geterr(ld->pcap_h), sizeof open_err_str);
+        else
+          g_strlcpy(open_err_str, pcap_statustostr(err), sizeof open_err_str);
         pcap_close(ld->pcap_h);
         ld->pcap_h = NULL;
       }
