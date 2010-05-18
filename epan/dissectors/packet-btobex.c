@@ -748,7 +748,7 @@ proto_register_btobex(void)
     proto_register_field_array(proto_btobex, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    defragment_init();
+    register_init_routine(&defragment_init);
 }
 
 void
