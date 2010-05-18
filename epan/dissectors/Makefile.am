@@ -42,8 +42,9 @@ libdissectors_la_SOURCES = \
 	$(DISSECTOR_SUPPORT_SRC)
 libdissectors_la_CFLAGS = $(AM_CLEAN_CFLAGS)
 
+# include dceprc and pidl in the source tarball.  But nothing to build...
+DIST_SUBDIRS = dcerpc pidl
 
-# XXX - what about the contents of the dcerpc and pidl directories?
 EXTRA_DIST = \
 	Custom.nmake		\
 	Makefile.common		\

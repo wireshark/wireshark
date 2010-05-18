@@ -1856,6 +1856,8 @@ AC_OUTPUT(
   epan/doxygen.cfg
   epan/dfilter/Makefile
   epan/dissectors/Makefile
+  epan/dissectors/dcerpc/Makefile
+  epan/dissectors/pidl/Makefile
   epan/ftypes/Makefile
   epan/wslua/Makefile
   epan/wspython/Makefile
