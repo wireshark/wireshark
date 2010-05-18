@@ -72,8 +72,8 @@ static int hf_btobex_reassembled_length = -1;
 static gint ett_btobex_fragment = -1;
 static gint ett_btobex_fragments = -1;
 
-static GHashTable *fragment_table = NULL;
-static GHashTable *reassembled_table = NULL;
+static GHashTable *fragment_table;
+static GHashTable *reassembled_table;
 
 static const fragment_items btobex_frag_items = {
     &ett_btobex_fragment,
@@ -95,9 +95,10 @@ static gint ett_btobex = -1;
 static gint ett_btobex_hdrs = -1;
 static gint ett_btobex_hdr = -1;
 
-static guint8 last_opcode[2] = {1,1};
-static dissector_handle_t xml_handle=NULL;
-static dissector_handle_t data_handle=NULL;
+static guint8 last_opcode[2] = { 1, 1 };
+
+static dissector_handle_t xml_handle;
+static dissector_handle_t data_handle;
 
 typedef struct _ext_value_string {
   guint8 value[16];
