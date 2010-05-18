@@ -114,8 +114,8 @@ typedef struct _dlci_state_t {
 	dlci_stream_t direction[2];
 } dlci_state_t;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t ppp_handle;
+static dissector_handle_t btobex_handle;
 
 static const value_string vs_ctl_pn_i[] = {
 	{0x0, "use UIH Frames"},
@@ -590,18 +590,11 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_set_len(mcc_ti, offset-start_offset);
 	}
 
-
-	/* dissect everything as "data" for now until we get examples of
-	 * ppp over rfcomm
-	 *
-	 * it might be sufficient to just check if the first byte is the 0x7e
-	 * delimiter and if so just unescape it all into an ep_alloc() buffer
-	 * and pass it to ppp.
-	 */
-	if(dlci&&frame_len){
+	/* dissect everything as OBEX for now */
+	if(dlci && frame_len && btobex_handle){
 		tvbuff_t *next_tvb;
 		next_tvb = tvb_new_subset(tvb, offset, frame_len, frame_len);
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_dissector(btobex_handle, next_tvb, pinfo, tree);
 	}
 
 	proto_tree_add_item(rfcomm_tree, hf_fcs, tvb, fcs_offset, 1, TRUE);
@@ -765,9 +758,11 @@ proto_reg_handoff_btrfcomm(void)
 {
 	dissector_handle_t btrfcomm_handle;
 
-	btrfcomm_handle = find_dissector("btrfcomm");
+	btobex_handle = find_dissector("btobex");
+
+    btrfcomm_handle = find_dissector("btrfcomm");
 	dissector_add("btl2cap.psm", BTL2CAP_PSM_RFCOMM, btrfcomm_handle);
 
-	data_handle = find_dissector("data");
 	ppp_handle = find_dissector("ppp_hdlc");
 }
+
