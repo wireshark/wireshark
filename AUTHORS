@@ -3053,6 +3053,9 @@ Levi Pearson		<levi.pearson [AT] harman.com> {
 	IEEE 1722(AVB Transport Protocol) dissector
 }
 
+Allan M. Madsen		<allan.m [AT] madsen.mail.dk> {
+	Bluetooth OBEX dissector
+}
 
 and by:
 
