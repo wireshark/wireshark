@@ -355,15 +355,11 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
 
                     proto_item_append_text(hdr_tree, " (\"%s\")", str);
 
-                    if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", str);
-                    }
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", str);
                 }
                 else
                 {
-                    if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " \"\"");
-                    }
+                    col_append_str(pinfo->cinfo, COL_INFO, " \"\"");
                 }
 
                 offset += item_length - 3;
@@ -386,9 +382,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
 
                         proto_item_append_text(hdr_tree, " (%s)", target_vals[i].strptr);
 
-                        if (check_col(pinfo->cinfo, COL_INFO)) {
-                            col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", target_vals[i].strptr);
-                        }
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", target_vals[i].strptr);
                     }
                 }
             }
@@ -403,9 +397,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
             {
                 proto_item_append_text(hdr_tree, " (\"%s\")", tvb_get_ptr(tvb, offset,item_length - 3));
 
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", tvb_get_ptr(tvb, offset,item_length - 3));
-                }
+                col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", tvb_get_ptr(tvb, offset,item_length - 3));
             }
 
             offset += item_length - 3;
@@ -497,9 +489,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if( complete )
     {
         /* fully dissectable packet ready */
-
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "OBEX");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "OBEX");
 
         ti = proto_tree_add_item(tree, proto_btobex, next_tvb, 0, -1, FALSE);
         st = proto_item_add_subtree(ti, ett_btobex);
@@ -507,11 +497,9 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* op/response code */
         code = tvb_get_guint8(next_tvb, offset) & 0x7f;
 
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-                            pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd",
-                            val_to_str(code, code_vals, "Unknown"));
-        }
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+                        pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd",
+                        val_to_str(code, code_vals, "Unknown"));
 
         if( (code < 0x10) || (code == 0x7f))
         {
@@ -544,10 +532,8 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         case 2: /* put */
         case 3: /* get */
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                    (tvb_get_guint8(next_tvb, offset) & 0x80)==0x80?"final":"continue");
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+                (tvb_get_guint8(next_tvb, offset) & 0x80)==0x80?"final":"continue");
             break;
 
         case 5: /* set path */
@@ -591,10 +577,8 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else
     {
         /* packet fragment */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s Obex fragment",
-                            pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd");
-        }
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s Obex fragment",
+                        pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd");
 
         call_dissector(data_handle, next_tvb, pinfo, tree);
     }
