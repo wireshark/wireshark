@@ -211,6 +211,35 @@ protect_arg (const gchar *argv)
 
     return new_arg;
 }
+
+/*
+ * Generate a string for a Win32 error.
+ */
+#define ERRBUF_SIZE	1024
+static char *
+win32strerror(DWORD error)
+{
+    DWORD error;
+    static char errbuf[ERRBUF_SIZE+1];
+    int errlen;
+    char *p;
+
+    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, error, 0, errbuf,
+                  ERRBUF_SIZE, NULL);
+
+    /*
+     * "FormatMessage()" "helpfully" sticks CR/LF at the end of the
+     * message.  Get rid of it.
+     */
+    errlen = strlen(errbuf);
+    if (errlen >= 2) {
+        errbuf[errlen - 1] = '\0';
+        errbuf[errlen - 2] = '\0';
+    }
+    p = strchr(errbuf, '\0');
+    g_snprintf(p, sizeof errbuf - (p-errbuf), " (%lu)", error);
+    return errbuf;
+}
 #endif
 
 /* Initialize an argument list and add dumpcap to it. */
@@ -436,7 +465,8 @@ sync_pipe_start(capture_options *capture_opts) {
     /* (increase this value if you have trouble while fast capture file switches) */
     if (! CreatePipe(&sync_pipe_read, &sync_pipe_write, &sa, 5120)) {
       /* Couldn't create the pipe between parent and child. */
-      report_failure("Couldn't create sync pipe: %s", strerror(errno));
+      report_failure("Couldn't create sync pipe: %s",
+                     win32strerror(GetLastError()));
       g_free( (gpointer) argv[0]);
       g_free( (gpointer) argv);
       return FALSE;
@@ -450,7 +480,8 @@ sync_pipe_start(capture_options *capture_opts) {
 
     if (signal_pipe == INVALID_HANDLE_VALUE) {
       /* Couldn't create the signal pipe between parent and child. */
-      report_failure("Couldn't create signal pipe: %s", strerror(errno));
+      report_failure("Couldn't create signal pipe: %s",
+                     win32strerror(GetLastError()));
       g_free( (gpointer) argv[0]);
       g_free( (gpointer) argv);
       return FALSE;
@@ -484,8 +515,8 @@ sync_pipe_start(capture_options *capture_opts) {
     /* call dumpcap */
     if(!CreateProcess(NULL, utf_8to16(args->str), NULL, NULL, TRUE,
                       CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
-      report_failure("Couldn't run %s in child process: error %u",
-                     args->str, GetLastError());
+      report_failure("Couldn't run %s in child process: %s",
+                     args->str, win32strerror(GetLastError()));
       CloseHandle(sync_pipe_read);
       CloseHandle(sync_pipe_write);
       g_free( (gpointer) argv[0]);
@@ -635,7 +666,8 @@ sync_pipe_open_command(const char** argv, int *data_read_fd,
     /* (increase this value if you have trouble while fast capture file switches) */
     if (! CreatePipe(&sync_pipe[PIPE_READ], &sync_pipe[PIPE_WRITE], &sa, 5120)) {
         /* Couldn't create the message pipe between parent and child. */
-        *msg = g_strdup_printf("Couldn't create sync pipe: %s", strerror(errno));
+        *msg = g_strdup_printf("Couldn't create sync pipe: %s",
+                               win32strerror(GetLastError()));
         g_free( (gpointer) argv[0]);
         g_free( (gpointer) argv);
         return -1;
@@ -645,7 +677,8 @@ sync_pipe_open_command(const char** argv, int *data_read_fd,
     /* (increase this value if you have trouble while fast capture file switches) */
     if (! CreatePipe(&data_pipe[PIPE_READ], &data_pipe[PIPE_WRITE], &sa, 5120)) {
         /* Couldn't create the message pipe between parent and child. */
-        *msg = g_strdup_printf("Couldn't create data pipe: %s", strerror(errno));
+        *msg = g_strdup_printf("Couldn't create data pipe: %s",
+                               win32strerror(GetLastError()));
         CloseHandle(sync_pipe[PIPE_READ]);
         CloseHandle(sync_pipe[PIPE_WRITE]);
         g_free( (gpointer) argv[0]);
@@ -680,8 +713,8 @@ sync_pipe_open_command(const char** argv, int *data_read_fd,
     /* call dumpcap */
     if(!CreateProcess(NULL, utf_8to16(args->str), NULL, NULL, TRUE,
                       CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
-        *msg = g_strdup_printf("Couldn't run %s in child process: error %u",
-                               args->str, GetLastError());
+        *msg = g_strdup_printf("Couldn't run %s in child process: %s",
+                               args->str, win32strerror(GetLastError()));
         CloseHandle(data_pipe[PIPE_READ]);
         CloseHandle(data_pipe[PIPE_WRITE]);
         CloseHandle(sync_pipe[PIPE_READ]);
@@ -1479,7 +1512,7 @@ sync_pipe_wait_for_child(int fork_child, gchar **msgp)
   ret = 0;
 #ifdef _WIN32
   if (_cwait(&fork_child_status, fork_child, _WAIT_CHILD) == -1) {
-    *msgp = g_strdup_printf("Error from cwait(): %u", errno);
+    *msgp = g_strdup_printf("Error from cwait(): %s", strerror(errno));
     ret = -1;
   }
 #else
@@ -1711,24 +1744,24 @@ sync_pipe_kill(int fork_child)
                   "Sending SIGTERM to child failed: %s\n", strerror(errno));
         }
 #else
-      /* Remark: This is not the preferred method of closing a process!
-       * the clean way would be getting the process id of the child process,
-       * then getting window handle hWnd of that process (using EnumChildWindows),
-       * and then do a SendMessage(hWnd, WM_CLOSE, 0, 0)
-       *
-       * Unfortunately, I don't know how to get the process id from the
-       * handle.  OpenProcess will get an handle (not a window handle)
-       * from the process ID; it will not get a window handle from the
-       * process ID.  (How could it?  A process can have more than one
-       * window.  For that matter, a process might have *no* windows,
-       * as a process running dumpcap, the normal child process program,
-       * probably does.)
-       *
-       * Hint: GenerateConsoleCtrlEvent() will only work if both processes are
-       * running in the same console; that's not necessarily the case for
-       * us, as we might not be running in a console.
-       * And this also will require to have the process id.
-       */
+        /* Remark: This is not the preferred method of closing a process!
+         * the clean way would be getting the process id of the child process,
+         * then getting window handle hWnd of that process (using EnumChildWindows),
+         * and then do a SendMessage(hWnd, WM_CLOSE, 0, 0)
+         *
+         * Unfortunately, I don't know how to get the process id from the
+         * handle.  OpenProcess will get an handle (not a window handle)
+         * from the process ID; it will not get a window handle from the
+         * process ID.  (How could it?  A process can have more than one
+         * window.  For that matter, a process might have *no* windows,
+         * as a process running dumpcap, the normal child process program,
+         * probably does.)
+         *
+         * Hint: GenerateConsoleCtrlEvent() will only work if both processes are
+         * running in the same console; that's not necessarily the case for
+         * us, as we might not be running in a console.
+         * And this also will require to have the process id.
+         */
         TerminateProcess((HANDLE) (fork_child), 0);
 #endif
     }
