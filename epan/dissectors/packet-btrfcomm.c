@@ -1,17 +1,3 @@
-/* old code to do unescaping of serial port data and reassembly of ppp frames
- * are left in but ifdeffed out.
- * This code should be rewritten when there are examples of ppp over rfcomm
- * captures made available to test with.
- * the old code is left in to show an example of what kind of operations need
- * to be done in the new (yet to be written) code.
- *
- * For now all this is decoded just as "data".
- * It might be enough to just check
- * If the first byte of payload is the 0x7e delimiter and if so just
- * de escape it into a ep_alloc() buffer and then pass it to the ppp
- * dissector.
- */
-
 /* packet-btrfcomm.c
  * Routines for Bluetooth RFCOMM protocol dissection
  * Copyright 2002, Wolfgang Hansmann <hansmann@cs.uni-bonn.de>
@@ -115,7 +101,6 @@ typedef struct _dlci_state_t {
 	dlci_stream_t direction[2];
 } dlci_state_t;
 
-static dissector_handle_t ppp_handle;
 static dissector_handle_t btobex_handle;
 
 static const value_string vs_ctl_pn_i[] = {
@@ -769,7 +754,5 @@ proto_reg_handoff_btrfcomm(void)
 
     btrfcomm_handle = find_dissector("btrfcomm");
 	dissector_add("btl2cap.psm", BTL2CAP_PSM_RFCOMM, btrfcomm_handle);
-
-	ppp_handle = find_dissector("ppp_hdlc");
 }
 
