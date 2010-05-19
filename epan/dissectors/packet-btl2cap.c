@@ -841,22 +841,20 @@ static void dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	control = tvb_get_letohs(tvb, offset);
 	segment = (control & 0xC000) >> 14;
-	if(check_col(pinfo->cinfo, COL_INFO)){
-		switch(segment)
-		{
-		case 0:
-			col_append_str(pinfo->cinfo, COL_INFO, "[I] Unsegmented SDU");
-			break;
-		case 1:
-			col_append_str(pinfo->cinfo, COL_INFO, "[I] Start SDU");
-			break;
-		case 2:
-			col_append_str(pinfo->cinfo, COL_INFO, "[I] End SDU");
-			break;
-		case 3:
-			col_append_str(pinfo->cinfo, COL_INFO, "[I] Continuation SDU");
-			break;
-		}
+	switch(segment)
+	{
+	case 0:
+		col_append_str(pinfo->cinfo, COL_INFO, "[I] Unsegmented SDU");
+		break;
+	case 1:
+		col_append_str(pinfo->cinfo, COL_INFO, "[I] Start SDU");
+		break;
+	case 2:
+		col_append_str(pinfo->cinfo, COL_INFO, "[I] End SDU");
+		break;
+	case 3:
+		col_append_str(pinfo->cinfo, COL_INFO, "[I] Continuation SDU");
+		break;
 	}
 	ti_control = proto_tree_add_none_format(btl2cap_tree, hf_btl2cap_control, tvb,
 		offset, 2, "Control: %s reqseq:%d r:%d txseq:%d",
@@ -903,9 +901,7 @@ static void dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			proto_item *item;
 			item=proto_tree_add_uint(btl2cap_tree, hf_btl2cap_reassembled_in, tvb, 0, 0, mfp->last_frame);
 			PROTO_ITEM_SET_GENERATED(item);
-			if (check_col(pinfo->cinfo, COL_INFO)){
-				col_append_fstr(pinfo->cinfo, COL_INFO, "[Reassembled in #%u] ", mfp->last_frame);
-			}
+			col_append_fstr(pinfo->cinfo, COL_INFO, "[Reassembled in #%u] ", mfp->last_frame);
 		}
 	} else {
 		length -= 4; /*Control, FCS*/
@@ -925,9 +921,7 @@ static void dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			proto_item *item;
 			item=proto_tree_add_uint(btl2cap_tree, hf_btl2cap_continuation_to, tvb, 0, 0, mfp->first_frame);
 			PROTO_ITEM_SET_GENERATED(item);
-			if (check_col(pinfo->cinfo, COL_INFO)){
-				col_append_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", mfp->first_frame);
-			}
+			col_append_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", mfp->first_frame);
 		}
 	}
 	if(segment == 0x02 && mfp && mfp->last_frame==pinfo->fd->num){
@@ -967,19 +961,17 @@ static void dissect_s_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 	guint16 control;
 
 	control = tvb_get_letohs(tvb, offset);
-	if(check_col(pinfo->cinfo, COL_INFO)){
-		switch((control & 0x000C) >> 2)
-		{
-		case 0:
-			col_append_str(pinfo->cinfo, COL_INFO, "[S] Receiver Ready");
-			break;
-		case 1:
-			col_append_str(pinfo->cinfo, COL_INFO, "[S] Reject");
-			break;
-		default:
-			col_append_str(pinfo->cinfo, COL_INFO, "[S] Unknown supervisory frame");
-			break;
-		}
+	switch((control & 0x000C) >> 2)
+	{
+	case 0:
+		col_append_str(pinfo->cinfo, COL_INFO, "[S] Receiver Ready");
+		break;
+	case 1:
+		col_append_str(pinfo->cinfo, COL_INFO, "[S] Reject");
+		break;
+	default:
+		col_append_str(pinfo->cinfo, COL_INFO, "[S] Unknown supervisory frame");
+		break;
 	}
 	ti_control = proto_tree_add_none_format(btl2cap_tree, hf_btl2cap_control, tvb,
 		offset, 2, "Control: %s reqseq:%d r:%d",
@@ -1017,9 +1009,7 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	void* pd_save;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2CAP");
-	if(check_col(pinfo->cinfo, COL_INFO)){
-		col_set_str(pinfo->cinfo, COL_INFO, pinfo->p2p_dir == P2P_DIR_SENT ? "Sent " : "Rcvd ");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, pinfo->p2p_dir == P2P_DIR_SENT ? "Sent " : "Rcvd ");
 
 	if(tree){
 		ti=proto_tree_add_item(tree, proto_btl2cap, tvb, offset, -1, FALSE);
