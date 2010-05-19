@@ -657,7 +657,7 @@ static int proto_a_dtap = -1;
 const ext_value_string_t *ansi_a_bsmap_strings = NULL;
 const ext_value_string_t *ansi_a_dtap_strings = NULL;
 const ext_value_string_t *ansi_a_elem_1_strings = NULL;
-static int ansi_a_elem_1_max = 0;
+static guint ansi_a_elem_1_max = 0;
 
 static int ansi_a_tap = -1;
 
@@ -8684,7 +8684,7 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
     curr_offset = offset;
     consumed = 0;
 
-    if ((unsigned)idx > ANSI_A_E_NONE)
+    if ((unsigned)idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -8698,30 +8698,25 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
 
         parm_len = tvb_get_guint8(tvb, curr_offset + 1);
 
-        item =
-            proto_tree_add_text(tree,
-                tvb, curr_offset, parm_len + 2,
-                "%s%s",
-                ansi_a_elem_1_strings[idx].strptr,
-                (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
+        item = proto_tree_add_text(tree, tvb, curr_offset, parm_len + 2, "%s%s",
+				   ansi_a_elem_1_strings[idx].strptr,
+				   (name_add == NULL) || (name_add[0] == '\0') ?
+				   "" : name_add);
 
         subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
 
         proto_tree_add_uint_format(subtree, hf_ansi_a_elem_id, tvb,
-            curr_offset, 1, oct,
-            "Element ID");
+				   curr_offset, 1, oct, "Element ID");
 
         proto_tree_add_uint(subtree, hf_ansi_a_length, tvb,
-            curr_offset + 1, 1, parm_len);
+			    curr_offset + 1, 1, parm_len);
 
         if (parm_len > 0)
         {
             if (elem_1_fcn[dec_idx] == NULL)
             {
-                proto_tree_add_text(subtree,
-                    tvb, curr_offset + 2, parm_len,
-                    "Element Value");
-
+                proto_tree_add_text(subtree, tvb, curr_offset + 2, parm_len,
+				    "Element Value");
                 consumed = parm_len;
             }
             else
@@ -8730,9 +8725,8 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
 
                 a_add_string=(gchar *)ep_alloc(1024);
                 a_add_string[0] = '\0';
-                consumed =
-                    (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 2,
-                        parm_len, a_add_string, 1024);
+                consumed = (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 2,
+			    parm_len, a_add_string, 1024);
 
                 if (a_add_string[0] != '\0')
                 {
@@ -8767,7 +8761,7 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const g
     curr_offset = offset;
     consumed = 0;
 
-    if ((unsigned)idx > ANSI_A_E_NONE)
+    if ((unsigned)idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -8779,27 +8773,22 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const g
     {
         dec_idx = ansi_a_elem_1_strings[idx].dec_index;
 
-        item =
-            proto_tree_add_text(tree,
-                tvb, curr_offset, -1,
-                "%s%s",
-                ansi_a_elem_1_strings[idx].strptr,
-                (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
+        item = proto_tree_add_text(tree, tvb, curr_offset, -1, "%s%s",
+				   ansi_a_elem_1_strings[idx].strptr,
+				   (name_add == NULL) || (name_add[0] == '\0') ?
+				   "" : name_add);
 
         subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
 
         proto_tree_add_uint_format(subtree, hf_ansi_a_elem_id, tvb,
-            curr_offset, 1, oct,
-            "Element ID");
+			           curr_offset, 1, oct, "Element ID");
 
         if (elem_1_fcn[dec_idx] == NULL)
         {
             /* BAD THING, CANNOT DETERMINE LENGTH */
 
-            proto_tree_add_text(subtree,
-                tvb, curr_offset + 1, 1,
-                "No element dissector, rest of dissection may be incorrect");
-
+            proto_tree_add_text(subtree, tvb, curr_offset + 1, 1,
+				"No element dissector, rest of dissection may be incorrect");
             consumed = 1;
         }
         else
@@ -8817,7 +8806,6 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const g
         }
 
         consumed++;
-
         proto_item_set_len(item, consumed);
     }
 
@@ -8841,7 +8829,7 @@ elem_t(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const gc
     curr_offset = offset;
     consumed = 0;
 
-    if ((unsigned)idx > ANSI_A_E_NONE)
+    if ((unsigned)idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -8851,10 +8839,10 @@ elem_t(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const gc
 
     if (oct == (guint8) ansi_a_elem_1_strings[idx].value)
     {
-        proto_tree_add_uint_format(tree, hf_ansi_a_elem_id, tvb, curr_offset, 1, oct,
-            "%s%s",
-            ansi_a_elem_1_strings[idx].strptr,
-            (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
+        proto_tree_add_uint_format(tree, hf_ansi_a_elem_id, tvb, curr_offset,
+				   1, oct, "%s%s",
+			           ansi_a_elem_1_strings[idx].strptr,
+			           (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
         consumed = 1;
     }
@@ -8879,7 +8867,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
     curr_offset = offset;
     consumed = 0;
 
-    if ((unsigned)idx > ANSI_A_E_NONE)
+    if ((unsigned)idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -8889,26 +8877,22 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
 
     parm_len = tvb_get_guint8(tvb, curr_offset);
 
-    item =
-        proto_tree_add_text(tree,
-            tvb, curr_offset, parm_len + 1,
-            "%s%s",
-            ansi_a_elem_1_strings[idx].strptr,
-            (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
+    item = proto_tree_add_text(tree, tvb, curr_offset, parm_len + 1, "%s%s",
+			       ansi_a_elem_1_strings[idx].strptr,
+			       (name_add == NULL) || (name_add[0] == '\0') ?
+			       "" : name_add);
 
     subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
 
-    proto_tree_add_uint(subtree, hf_ansi_a_length, tvb,
-        curr_offset, 1, parm_len);
+    proto_tree_add_uint(subtree, hf_ansi_a_length, tvb, curr_offset, 1,
+			parm_len);
 
     if (parm_len > 0)
     {
         if (elem_1_fcn[dec_idx] == NULL)
         {
-            proto_tree_add_text(subtree,
-                tvb, curr_offset + 1, parm_len,
-                "Element Value");
-
+            proto_tree_add_text(subtree, tvb, curr_offset + 1, parm_len,
+				"Element Value");
             consumed = parm_len;
         }
         else
@@ -8917,9 +8901,8 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
 
             a_add_string=(gchar *)ep_alloc(1024);
             a_add_string[0] = '\0';
-            consumed =
-                (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 1,
-                    parm_len, a_add_string, 1024);
+            consumed = (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 1,
+		        parm_len, a_add_string, 1024);
 
             if (a_add_string[0] != '\0')
             {
@@ -8947,7 +8930,7 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
     curr_offset = offset;
     consumed = 0;
 
-    if ((unsigned)idx > ANSI_A_E_NONE)
+    if ((unsigned)idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -8959,10 +8942,8 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
     {
         /* BAD THING, CANNOT DETERMINE LENGTH */
 
-        proto_tree_add_text(tree,
-            tvb, curr_offset, 1,
-            "No element dissector, rest of dissection may be incorrect");
-
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+			    "No element dissector, rest of dissection may be incorrect");
         consumed = 1;
     }
     else
@@ -9127,27 +9108,19 @@ dtap_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
         break;
     }
 
-    item =
-        proto_tree_add_text(tree,
-            tvb, curr_offset, 1,
-            "CM Service Type: %s",
-            str);
+    item = proto_tree_add_text(tree, tvb, curr_offset, 1,
+			       "CM Service Type: %s", str);
 
     subtree = proto_item_add_subtree(item, ett_cm_srvc_type);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-    proto_tree_add_text(subtree,
-        tvb, curr_offset, 1,
-        "%s :  Element ID",
-        a_bigbuf);
+    proto_tree_add_text(subtree, tvb, curr_offset, 1, "%s :  Element ID",
+			a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
-    proto_tree_add_text(subtree,
-        tvb, curr_offset, 1,
-        "%s :  Service Type: (%u) %s",
-        a_bigbuf,
-        oct & 0x0f,
-        str);
+    proto_tree_add_text(subtree, tvb, curr_offset, 1,
+			"%s :  Service Type: (%u) %s", a_bigbuf, oct & 0x0f,
+			str);
 
     curr_offset++;
     curr_len--;
@@ -11562,7 +11535,7 @@ dissect_cdma2000_a1_elements(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *
     guint32     curr_offset;
     guint32     consumed;
     guint       curr_len;
-    gint        idx;
+    guint       idx;
     guint8      oct;
 
     curr_offset = offset;
@@ -11652,33 +11625,29 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (msg_str == NULL)
     {
-        bsmap_item =
-            proto_tree_add_protocol_format(tree, proto_a_bsmap, tvb, 0, len,
-                "ANSI A-I/F BSMAP - Unknown BSMAP Message Type (%u)",
-                oct);
+        bsmap_item = proto_tree_add_protocol_format(tree, proto_a_bsmap, tvb, 0,
+						    len,
+						    "ANSI A-I/F BSMAP - Unknown BSMAP Message Type (%u)",
+						    oct);
 
         bsmap_tree = proto_item_add_subtree(bsmap_item, ett_bsmap);
     }
     else
     {
-        bsmap_item =
-            proto_tree_add_protocol_format(tree, proto_a_bsmap, tvb, 0, -1,
-                "ANSI A-I/F BSMAP - %s",
-                msg_str);
+        bsmap_item = proto_tree_add_protocol_format(tree, proto_a_bsmap, tvb, 0,
+						    -1, "ANSI A-I/F BSMAP - %s",
+						    msg_str);
 
         bsmap_tree = proto_item_add_subtree(bsmap_item, ett_bsmap_msg[dec_idx]);
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
-        }
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
     }
 
     /*
      * add BSMAP message name
      */
     proto_tree_add_uint_format(bsmap_tree, hf_ansi_a_bsmap_msgtype,
-        tvb, saved_offset, 1, oct, "Message Type");
+			       tvb, saved_offset, 1, oct, "Message Type");
 
     tap_p->pdu_type = BSSAP_PDU_TYPE_BSMAP;
     tap_p->message_type = oct;
@@ -11696,9 +11665,8 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (bsmap_msg_fcn[dec_idx] == NULL)
     {
-        proto_tree_add_text(bsmap_tree,
-            tvb, offset, len - offset,
-            "Message Elements");
+        proto_tree_add_text(bsmap_tree, tvb, offset, len - offset,
+			    "Message Elements");
     }
     else
     {
@@ -11774,26 +11742,22 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (msg_str == NULL)
     {
-        dtap_item =
-            proto_tree_add_protocol_format(tree, proto_a_dtap, tvb, 0, len,
-                "ANSI A-I/F DTAP - Unknown DTAP Message Type (%u)",
-                oct);
+        dtap_item = proto_tree_add_protocol_format(tree, proto_a_dtap, tvb, 0,
+						   len,
+						   "ANSI A-I/F DTAP - Unknown DTAP Message Type (%u)",
+						   oct);
 
         dtap_tree = proto_item_add_subtree(dtap_item, ett_dtap);
     }
     else
     {
-        dtap_item =
-            proto_tree_add_protocol_format(tree, proto_a_dtap, tvb, 0, -1,
-                "ANSI A-I/F DTAP - %s",
-                msg_str);
+        dtap_item = proto_tree_add_protocol_format(tree, proto_a_dtap, tvb, 0,
+						   -1, "ANSI A-I/F DTAP - %s",
+						   msg_str);
 
         dtap_tree = proto_item_add_subtree(dtap_item, ett_dtap_msg[dec_idx]);
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
-        }
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
     }
 
     /*
@@ -11812,26 +11776,18 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     }
 
-    oct_1_item =
-        proto_tree_add_text(dtap_tree,
-            tvb, 0, 1,
-            "Protocol Discriminator: %s",
-            str);
+    oct_1_item = proto_tree_add_text(dtap_tree, tvb, 0, 1,
+				     "Protocol Discriminator: %s", str);
 
     oct_1_tree = proto_item_add_subtree(oct_1_item, ett_dtap_oct_1);
 
     other_decode_bitfield_value(a_bigbuf, oct_1, 0xf0, 8);
-    proto_tree_add_text(oct_1_tree,
-        tvb, 0, 1,
-        "%s :  Reserved",
-        a_bigbuf);
+    proto_tree_add_text(oct_1_tree, tvb, 0, 1, "%s :  Reserved", a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct_1, 0x0f, 8);
-    proto_tree_add_text(oct_1_tree,
-        tvb, 0, 1,
-        "%s :  Protocol Discriminator: %u",
-        a_bigbuf,
-        oct_1 & 0x0f);
+    proto_tree_add_text(oct_1_tree, tvb, 0, 1,
+			"%s :  Protocol Discriminator: %u", a_bigbuf,
+			oct_1 & 0x0f);
 
     /*
      * octet 2
@@ -11840,39 +11796,31 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
     case A_VARIANT_IS634:
         other_decode_bitfield_value(a_bigbuf, oct_2, 0x80, 8);
-        proto_tree_add_text(dtap_tree,
-            tvb, 1, 1,
-            "%s :  Transaction Identifier (TI) Flag: %s",
-            a_bigbuf,
-            ((oct_2 & 0x80) ?  "allocated by receiver" : "allocated by sender"));
+        proto_tree_add_text(dtap_tree, tvb, 1, 1,
+			    "%s :  Transaction Identifier (TI) Flag: %s",
+			    a_bigbuf,
+			    ((oct_2 & 0x80) ?  "allocated by receiver" :
+			    "allocated by sender"));
 
         other_decode_bitfield_value(a_bigbuf, oct_2, 0x70, 8);
-        proto_tree_add_text(dtap_tree,
-            tvb, 1, 1,
-            "%s :  Transaction Identifier (TI): %u",
-            a_bigbuf,
-            (oct_2 & 0x70) >> 4);
+        proto_tree_add_text(dtap_tree, tvb, 1, 1,
+			    "%s :  Transaction Identifier (TI): %u",
+			    a_bigbuf, (oct_2 & 0x70) >> 4);
 
         other_decode_bitfield_value(a_bigbuf, oct_2, 0x0f, 8);
-        proto_tree_add_text(dtap_tree,
-            tvb, 1, 1,
-            "%s :  Reserved",
-            a_bigbuf);
+        proto_tree_add_text(dtap_tree, tvb, 1, 1, "%s :  Reserved", a_bigbuf);
         break;
 
     default:
-        proto_tree_add_text(dtap_tree,
-            tvb, 1, 1,
-            "Reserved Octet");
+        proto_tree_add_text(dtap_tree, tvb, 1, 1, "Reserved Octet");
         break;
     }
 
     /*
      * add DTAP message name
      */
-    proto_tree_add_uint_format(dtap_tree, hf_ansi_a_dtap_msgtype,
-        tvb, saved_offset, 1, oct,
-        "Message Type");
+    proto_tree_add_uint_format(dtap_tree, hf_ansi_a_dtap_msgtype, tvb,
+			       saved_offset, 1, oct, "Message Type");
 
     tap_p->pdu_type = BSSAP_PDU_TYPE_DTAP;
     tap_p->message_type = oct;
@@ -11890,9 +11838,8 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (dtap_msg_fcn[dec_idx] == NULL)
     {
-        proto_tree_add_text(dtap_tree,
-            tvb, offset, len - offset,
-            "Message Elements");
+        proto_tree_add_text(dtap_tree, tvb, offset, len - offset,
+			    "Message Elements");
     }
     else
     {
@@ -12162,13 +12109,10 @@ proto_register_ansi_a(void)
      */
     ansi_a_module = prefs_register_protocol(proto_a_bsmap, proto_reg_handoff_ansi_a);
 
-    prefs_register_enum_preference(ansi_a_module,
-        "global_variant",
-        "Dissect PDU as",
-        "(if other than the default of IOS 4.0.1)",
-        &global_a_variant,
-        a_variant_options,
-        FALSE);
+    prefs_register_enum_preference(ansi_a_module, "global_variant",
+				   "Dissect PDU as",
+				   "(if other than the default of IOS 4.0.1)",
+				   &global_a_variant, a_variant_options, FALSE);
 
     g_free(ett);
 }
