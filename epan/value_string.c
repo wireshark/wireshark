@@ -195,7 +195,6 @@ match_strval_ext_init(const guint32 val, value_string_ext *vse)
     break;
   }
 
-  printf("%p: %d\n", vse, type);
   return vse->match(val, vse);
 }
 
