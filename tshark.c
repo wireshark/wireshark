@@ -1904,23 +1904,23 @@ capture(void)
   if (!ret)
     return FALSE;
 
-    /* the actual capture loop
-     *
-     * XXX - glib doesn't seem to provide any event based loop handling.
-     *
-     * XXX - for whatever reason,
-     * calling g_main_loop_new() ends up in 100% cpu load.
-     *
-     * But that doesn't matter: in UNIX we can use select() to find an input
-     * source with something to do.
-     *
-     * But that doesn't matter because we're in a CLI (that doesn't need to
-     * update a GUI or something at the same time) so it's OK if we block
-     * trying to read from the pipe.
-     *
-     * So all the stuff in USE_TSHARK_SELECT could be removed unless I'm
-     * wrong (but I leave it there in case I am...).
-     */
+  /* the actual capture loop
+   *
+   * XXX - glib doesn't seem to provide any event based loop handling.
+   *
+   * XXX - for whatever reason,
+   * calling g_main_loop_new() ends up in 100% cpu load.
+   *
+   * But that doesn't matter: in UNIX we can use select() to find an input
+   * source with something to do.
+   *
+   * But that doesn't matter because we're in a CLI (that doesn't need to
+   * update a GUI or something at the same time) so it's OK if we block
+   * trying to read from the pipe.
+   *
+   * So all the stuff in USE_TSHARK_SELECT could be removed unless I'm
+   * wrong (but I leave it there in case I am...).
+   */
 
 #ifdef USE_TSHARK_SELECT
   FD_ZERO(&readfds);
