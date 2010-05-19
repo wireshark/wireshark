@@ -38,8 +38,11 @@
 int proto_data = -1;
 
 static int hf_data_data = -1;
+static int hf_data_text = -1;
 static int hf_data_len = -1;
-static gboolean hf_pref_data_new_pane = FALSE;
+
+static gboolean new_pane = FALSE;
+static gboolean show_as_text = FALSE;
 
 static gint ett_data = -1;
 
@@ -56,7 +59,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 			tvbuff_t *data_tvb;
 			proto_item *ti;
 			proto_tree *data_tree;
-			if (hf_pref_data_new_pane) {
+			if (new_pane) {
 				guint8 *real_data = tvb_memdup(tvb, 0, bytes);
 				data_tvb = tvb_new_child_real_data(tvb,real_data,bytes,bytes);
 				tvb_set_free_cb(data_tvb, g_free);
@@ -72,6 +75,10 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 
 			proto_tree_add_item(data_tree, hf_data_data, data_tvb, 0, bytes, FALSE);
 
+			if (show_as_text) {
+				proto_tree_add_item(data_tree, hf_data_text, data_tvb, 0, bytes, FALSE);
+			}
+
 			ti = proto_tree_add_int(data_tree, hf_data_len, data_tvb, 0, 0, bytes);
 			PROTO_ITEM_SET_GENERATED (ti);
 		}
@@ -84,6 +91,8 @@ proto_register_data(void)
 	static hf_register_info hf[] = {
 		{ &hf_data_data,
 		  { "Data", "data.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+		{ &hf_data_text,
+		  { "Text", "data.text", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 		{ &hf_data_len,
 		  { "Length", "data.len", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } }
 	};
@@ -110,7 +119,12 @@ proto_register_data(void)
 		"datapref.newpane",
 		"Show not dissected data on new Packet Bytes pane",
 		"Show not dissected data on new Packet Bytes pane",
-		&hf_pref_data_new_pane);
+		&new_pane);
+	prefs_register_bool_preference(module_data,
+		"show_as_text",
+		"Show data as text",
+		"Show data as text in the Packet Details pane",
+		&show_as_text);
 	/*
 	 * "Data" is used to dissect something whose normal dissector
 	 * is disabled, so it cannot itself be disabled.
