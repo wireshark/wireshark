@@ -876,7 +876,7 @@ sync_pipe_run_command(const char** argv, gchar **data, gchar **primary_msg,
   /*
    * We were able to set up to read dumpcap's output.  Do so.
    *
-   * First, wait for an SP_ERROR_MESSAGE or SP_SUCCESS message.
+   * First, wait for an SP_ERROR_MSG message or SP_SUCCESS message.
    */
   nread = pipe_read_block(sync_pipe_read_fd, &indicator, SP_MAX_MSG_LEN,
                           buffer);
@@ -1138,7 +1138,7 @@ sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg)
   /*
    * We were able to set up to read dumpcap's output.  Do so.
    *
-   * First, wait for an SP_ERROR_MESSAGE or SP_SUCCESS message.
+   * First, wait for an SP_ERROR_MSG message or SP_SUCCESS message.
    */
   nread = pipe_read_block(message_read_fd, &indicator, SP_MAX_MSG_LEN,
                           buffer);
