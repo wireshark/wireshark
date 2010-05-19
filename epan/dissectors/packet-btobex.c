@@ -563,10 +563,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                     proto_tree_add_item(st, hf_max_pkt_len, next_tvb, offset, 2, FALSE);
                     offset += 2;
-
-                    pinfo->private_data = &proto_btobex;
                 }
-
             }
             break;
         }
