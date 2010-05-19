@@ -490,136 +490,131 @@ get_pcap_linktype(pcap_t *pch, const char *devname
 #endif
 )
 {
-	int linktype;
+  int linktype;
 #ifdef _AIX
-	const char *ifacename;
+  const char *ifacename;
 #endif
 
-	linktype = pcap_datalink(pch);
+  linktype = pcap_datalink(pch);
 #ifdef _AIX
 
-	/*
-	 * The libpcap that comes with AIX 5.x uses RFC 1573 ifType values
-	 * rather than DLT_ values for link-layer types; the ifType values
-	 * for LAN devices are:
-	 *
-	 *	Ethernet	6
-	 *	802.3		7
-	 *	Token Ring	9
-	 *	FDDI		15
-	 *
-	 * and the ifType value for a loopback device is 24.
-	 *
-	 * The AIX names for LAN devices begin with:
-	 *
-	 *	Ethernet		en
-	 *	802.3			et
-	 *	Token Ring		tr
-	 *	FDDI			fi
-	 *
-	 * and the AIX names for loopback devices begin with "lo".
-	 *
-	 * (The difference between "Ethernet" and "802.3" is presumably
-	 * whether packets have an Ethernet header, with a packet type,
-	 * or an 802.3 header, with a packet length, followed by an 802.2
-	 * header and possibly a SNAP header.)
-	 *
-	 * If the device name matches "linktype" interpreted as an ifType
-	 * value, rather than as a DLT_ value, we will assume this is AIX's
-	 * non-standard, incompatible libpcap, rather than a standard libpcap,
-	 * and will map the link-layer type to the standard DLT_ value for
-	 * that link-layer type, as that's what the rest of Wireshark expects.
-	 *
-	 * (This means the capture files won't be readable by a tcpdump
-	 * linked with AIX's non-standard libpcap, but so it goes.  They
-	 * *will* be readable by standard versions of tcpdump, Wireshark,
-	 * and so on.)
-	 *
-	 * XXX - if we conclude we're using AIX libpcap, should we also
-	 * set a flag to cause us to assume the time stamps are in
-	 * seconds-and-nanoseconds form, and to convert them to
-	 * seconds-and-microseconds form before processing them and
-	 * writing them out?
-	 */
+  /*
+   * The libpcap that comes with AIX 5.x uses RFC 1573 ifType values
+   * rather than DLT_ values for link-layer types; the ifType values
+   * for LAN devices are:
+   *
+   *	Ethernet	6
+   *	802.3		7
+   *	Token Ring	9
+   *	FDDI		15
+   *
+   * and the ifType value for a loopback device is 24.
+   *
+   * The AIX names for LAN devices begin with:
+   *
+   *	Ethernet		en
+   *	802.3			et
+   *	Token Ring		tr
+   *	FDDI			fi
+   *
+   * and the AIX names for loopback devices begin with "lo".
+   *
+   * (The difference between "Ethernet" and "802.3" is presumably
+   * whether packets have an Ethernet header, with a packet type,
+   * or an 802.3 header, with a packet length, followed by an 802.2
+   * header and possibly a SNAP header.)
+   *
+   * If the device name matches "linktype" interpreted as an ifType
+   * value, rather than as a DLT_ value, we will assume this is AIX's
+   * non-standard, incompatible libpcap, rather than a standard libpcap,
+   * and will map the link-layer type to the standard DLT_ value for
+   * that link-layer type, as that's what the rest of Wireshark expects.
+   *
+   * (This means the capture files won't be readable by a tcpdump
+   * linked with AIX's non-standard libpcap, but so it goes.  They
+   * *will* be readable by standard versions of tcpdump, Wireshark,
+   * and so on.)
+   *
+   * XXX - if we conclude we're using AIX libpcap, should we also
+   * set a flag to cause us to assume the time stamps are in
+   * seconds-and-nanoseconds form, and to convert them to
+   * seconds-and-microseconds form before processing them and
+   * writing them out?
+   */
 
-	/*
-	 * Find the last component of the device name, which is the
-	 * interface name.
-	 */
-	ifacename = strchr(devname, '/');
-	if (ifacename == NULL)
-		ifacename = devname;
+  /*
+   * Find the last component of the device name, which is the
+   * interface name.
+   */
+  ifacename = strchr(devname, '/');
+  if (ifacename == NULL)
+    ifacename = devname;
 
-	/* See if it matches any of the LAN device names. */
-	if (strncmp(ifacename, "en", 2) == 0) {
-		if (linktype == 6) {
-			/*
-			 * That's the RFC 1573 value for Ethernet; map it
-			 * to DLT_EN10MB.
-			 */
-			linktype = 1;
-		}
-	} else if (strncmp(ifacename, "et", 2) == 0) {
-		if (linktype == 7) {
-			/*
-			 * That's the RFC 1573 value for 802.3; map it to
-			 * DLT_EN10MB.
-			 * (libpcap, tcpdump, Wireshark, etc. don't care if
-			 * it's Ethernet or 802.3.)
-			 */
-			linktype = 1;
-		}
-	} else if (strncmp(ifacename, "tr", 2) == 0) {
-		if (linktype == 9) {
-			/*
-			 * That's the RFC 1573 value for 802.5 (Token Ring);
-			 * map it to DLT_IEEE802, which is what's used for
-			 * Token Ring.
-			 */
-			linktype = 6;
-		}
-	} else if (strncmp(ifacename, "fi", 2) == 0) {
-		if (linktype == 15) {
-			/*
-			 * That's the RFC 1573 value for FDDI; map it to
-			 * DLT_FDDI.
-			 */
-			linktype = 10;
-		}
-	} else if (strncmp(ifacename, "lo", 2) == 0) {
-		if (linktype == 24) {
-			/*
-			 * That's the RFC 1573 value for "software loopback"
-			 * devices; map it to DLT_NULL, which is what's used
-			 * for loopback devices on BSD.
-			 */
-			linktype = 0;
-		}
-	}
+  /* See if it matches any of the LAN device names. */
+  if (strncmp(ifacename, "en", 2) == 0) {
+    if (linktype == 6) {
+      /*
+       * That's the RFC 1573 value for Ethernet; map it to DLT_EN10MB.
+       */
+      linktype = 1;
+    }
+  } else if (strncmp(ifacename, "et", 2) == 0) {
+    if (linktype == 7) {
+      /*
+       * That's the RFC 1573 value for 802.3; map it to DLT_EN10MB.
+       * (libpcap, tcpdump, Wireshark, etc. don't care if it's Ethernet
+       * or 802.3.)
+       */
+      linktype = 1;
+    }
+  } else if (strncmp(ifacename, "tr", 2) == 0) {
+    if (linktype == 9) {
+      /*
+       * That's the RFC 1573 value for 802.5 (Token Ring); map it to
+       * DLT_IEEE802, which is what's used for Token Ring.
+       */
+      linktype = 6;
+    }
+  } else if (strncmp(ifacename, "fi", 2) == 0) {
+    if (linktype == 15) {
+      /*
+       * That's the RFC 1573 value for FDDI; map it to DLT_FDDI.
+       */
+      linktype = 10;
+    }
+  } else if (strncmp(ifacename, "lo", 2) == 0) {
+    if (linktype == 24) {
+      /*
+       * That's the RFC 1573 value for "software loopback" devices; map it
+       * to DLT_NULL, which is what's used for loopback devices on BSD.
+       */
+      linktype = 0;
+    }
+  }
 #endif
 
-	return linktype;
+  return linktype;
 }
 
 static data_link_info_t *
 create_data_link_info(int dlt)
 {
-    data_link_info_t *data_link_info;
-    const char *text;
+  data_link_info_t *data_link_info;
+  const char *text;
 
-    data_link_info = (data_link_info_t *)g_malloc(sizeof (data_link_info_t));
-    data_link_info->dlt = dlt;
-    text = pcap_datalink_val_to_name(dlt);
-    if (text != NULL)
-        data_link_info->name = g_strdup(text);
-    else
-        data_link_info->name = g_strdup_printf("DLT %d", dlt);
-    text = pcap_datalink_val_to_description(dlt);
-    if (text != NULL)
-        data_link_info->description = g_strdup(text);
-    else
-        data_link_info->description = NULL;
-    return data_link_info;
+  data_link_info = (data_link_info_t *)g_malloc(sizeof (data_link_info_t));
+  data_link_info->dlt = dlt;
+  text = pcap_datalink_val_to_name(dlt);
+  if (text != NULL)
+    data_link_info->name = g_strdup(text);
+  else
+    data_link_info->name = g_strdup_printf("DLT %d", dlt);
+  text = pcap_datalink_val_to_description(dlt);
+  if (text != NULL)
+    data_link_info->description = g_strdup(text);
+  else
+    data_link_info->description = NULL;
+  return data_link_info;
 }
 
 /*
@@ -668,37 +663,28 @@ get_if_capabilities(const char *devname, gboolean monitor_mode
         return NULL;
     }
     status = pcap_can_set_rfmon(pch); 
-    switch (status) {
-
-    case 0:
+    if (status < 0) {
+        /* Error. */
+        if (status == PCAP_ERROR)
+            *err_str = g_strdup_printf("pcap_can_set_rfmon() failed: %s",
+                                       pcap_geterr(pch));
+        else
+            *err_str = g_strdup(pcap_statustostr(status));
+        pcap_close(pch);
+        g_free(caps);
+        return NULL;
+    }
+    if (status == 0)
         caps->can_set_rfmon = FALSE;
-        break;
-
-    case 1:
+    else if (status == 1) {
         caps->can_set_rfmon = TRUE;
         if (monitor_mode)
-        	pcap_set_rfmon(pch, 1);
-        break;
-
-    case PCAP_ERROR_NO_SUCH_DEVICE:
-        if (err_str != NULL)
-            *err_str = g_strdup_printf("There is no capture device named \"%s\"", devname);
-        pcap_close(pch);
-        g_free(caps);
-        return NULL;
-
-    case PCAP_ERROR:
-        if (err_str != NULL)
-            *err_str = g_strdup_printf("pcap_can_set_rfmon on \"%s\" failed: %s",
-                                       devname, pcap_geterr(pch));
-        pcap_close(pch);
-        g_free(caps);
-        return NULL;
-
-    default:
-        if (err_str != NULL)
-            *err_str = g_strdup_printf("pcap_can_set_rfmon on \"%s\" failed: %s",
-                                       devname, pcap_statustostr(status));
+            pcap_set_rfmon(pch, 1);
+    } else {
+        if (err_str != NULL) {
+            *err_str = g_strdup_printf("pcap_can_set_rfmon() returned %d",
+                                       status);
+        }
         pcap_close(pch);
         g_free(caps);
         return NULL;
@@ -708,13 +694,11 @@ get_if_capabilities(const char *devname, gboolean monitor_mode
     if (status < 0) {
         /* Error.  We ignore warnings (status > 0). */
         if (err_str != NULL) {
-            if (status == PCAP_ERROR) {
-                *err_str = g_strdup_printf("pcap_activate on %s failed: %s",
-                                           devname, pcap_geterr(pch));
-            } else {
-                *err_str = g_strdup_printf("pcap_activate on %s failed: %s",
-                                           devname, pcap_statustostr(status));
-            }
+            if (status == PCAP_ERROR)
+                *err_str = g_strdup_printf("pcap_activate() failed: %s",
+                                           pcap_geterr(pch));
+            else
+                *err_str = g_strdup(pcap_statustostr(status));
         }
         pcap_close(pch);
         g_free(caps);
@@ -1153,19 +1137,19 @@ relinquish_all_capabilities(void)
 static const char *
 set_pcap_linktype(pcap_t *pch, char *devname
 #ifdef HAVE_PCAP_SET_DATALINK
-	_U_
+                  _U_
 #endif
-	, int dlt)
+                , int dlt)
 {
 #ifdef HAVE_PCAP_SET_DATALINK
-	if (pcap_set_datalink(pch, dlt) == 0)
-		return NULL;	/* no error */
-	return pcap_geterr(pch);
+  if (pcap_set_datalink(pch, dlt) == 0)
+    return NULL;	/* no error */
+  return pcap_geterr(pch);
 #else
-	/* Let them set it to the type it is; reject any other request. */
-	if (get_pcap_linktype(pch, devname) == dlt)
-		return NULL;	/* no error */
-	return "That DLT isn't one of the DLTs supported by this device";
+  /* Let them set it to the type it is; reject any other request. */
+  if (get_pcap_linktype(pch, devname) == dlt)
+    return NULL;	/* no error */
+  return "That DLT isn't one of the DLTs supported by this device";
 #endif
 }
 
