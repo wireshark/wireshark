@@ -70,13 +70,11 @@ static int hf_msc_l = -1;
 
 static int hf_fcs = -1;
 
-
 /* Initialize the protocol and registered fields */
 static int proto_btrfcomm = -1;
 
 
 /* Initialize the subtree pointers */
-
 static gint ett_btrfcomm = -1;
 static gint ett_btrfcomm_ctrl = -1;
 static gint ett_addr = -1;
@@ -85,8 +83,7 @@ static gint ett_mcc = -1;
 static gint ett_ctrl_pn_ci = -1;
 static gint ett_ctrl_pn_v24 = -1;
 
-
-static emem_tree_t *dlci_table=NULL;
+static emem_tree_t *dlci_table;
 
 typedef struct _dlci_stream_t {
 	int len;
