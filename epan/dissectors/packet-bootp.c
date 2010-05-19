@@ -2668,6 +2668,8 @@ dissect_vendor_alcatel_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	int suboptoff = optoff;
 	guint8 subopt;
 	guint8 subopt_len;
+	proto_tree *subtree;
+	proto_item *vti;
 
 	subopt = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
@@ -2697,19 +2699,64 @@ dissect_vendor_alcatel_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 		return (optend);
 	}
 	if ( subopt == 58 ) { /* 0x3A - Alcatel-Lucent AVA VLAN Id */
-		proto_tree_add_uint(v_tree, hf_bootp_alu_vid, tvb, optoff+2, 2,
+		if (subopt_len != 2) {
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+				"Suboption %d: Bad suboption length!", subopt);
+			return (optend);
+		}
+		vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+		    "Alcatel-Lucent-Specific Suboption %d: %s = %u",
+		    subopt, "VLAN Id",
+		    tvb_get_ntohs(tvb, optoff+2));
+		subtree = proto_item_add_subtree(vti, ett_bootp_option);
+		proto_tree_add_uint(subtree, hf_bootp_alu_vid, tvb, optoff+2, 2,
 			tvb_get_ntohs(tvb, optoff+2));
 	} else if ( subopt == 64 ) { /* 0x40 - Alcatel-Lucent TFTP1 */
-		proto_tree_add_ipv4(v_tree, hf_bootp_alu_tftp1, tvb, optoff+2, 4,
+		if (subopt_len != 4) {
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+				"Suboption %d: Bad suboption length!", subopt);
+			return (optend);
+		}
+		vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+		    "Alcatel-Lucent-Specific Suboption %d: %s = %s",
+		    subopt, "Spatial Redundancy TFTP1",
+		    ip_to_str(tvb_get_ptr(tvb, optoff+2, 4)));
+		subtree = proto_item_add_subtree(vti, ett_bootp_option);
+		proto_tree_add_ipv4(subtree, hf_bootp_alu_tftp1, tvb, optoff+2, 4,
 			tvb_get_ipv4(tvb, optoff+2));
 	} else if ( subopt == 65 ) { /* 0x41 - Alcatel-Lucent TFTP2 */
-		proto_tree_add_ipv4(v_tree, hf_bootp_alu_tftp2, tvb, optoff+2, 4,
+		if (subopt_len != 4) {
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+				"Suboption %d: Bad suboption length!", subopt);
+			return (optend);
+		}
+		vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+		    "Alcatel-Lucent-Specific Suboption %d: %s = %s",
+		    subopt, "Spatial Redundancy TFTP2",
+		    ip_to_str(tvb_get_ptr(tvb, optoff+2, 4)));
+		subtree = proto_item_add_subtree(vti, ett_bootp_option);
+		proto_tree_add_ipv4(subtree, hf_bootp_alu_tftp2, tvb, optoff+2, 4,
 			tvb_get_ipv4(tvb, optoff+2));
 	} else if ( subopt == 66 ) { /* 0x42 - Alcatel-Lucent APPLICATION TYPE */
-		proto_tree_add_uint(v_tree, hf_bootp_alu_app_type, tvb, optoff+2, 1,
+		if (subopt_len != 1) {
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+				"Suboption %d: Bad suboption length!", subopt);
+			return (optend);
+		}
+		vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+			"Alcatel-Lucent-Specific Suboption %d: %s = %u",
+			subopt, "Application Type (0=NOE, 1=SIP)",
+			tvb_get_guint8(tvb, optoff+2));
+		subtree = proto_item_add_subtree(vti, ett_bootp_option);
+		proto_tree_add_uint(subtree, hf_bootp_alu_app_type, tvb, optoff+2, 1,
 			tvb_get_guint8(tvb, optoff+2));
 	} else if ( subopt == 67 ) { /* 0x43 - Alcatel-Lucent SIP URL */
-		proto_tree_add_item(v_tree, hf_bootp_alu_sip_url, tvb, optoff+2, subopt_len,
+		vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+			"Alcatel-Lucent-Specific Suboption %d: %s = \"%s\"",
+			subopt, "SIP URL",
+			tvb_format_stringzpad(tvb, optoff+2, subopt_len));
+		subtree = proto_item_add_subtree(vti, ett_bootp_option);
+		proto_tree_add_item(subtree, hf_bootp_alu_sip_url, tvb, optoff+2, subopt_len,
 			0);
 	} else {
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
@@ -4532,7 +4579,7 @@ proto_register_bootp(void)
             "DOCSIS Cable Modem Device Capabilities Length", HFILL }},
 
         { &hf_bootp_alu_vid,
-          { "AVA Voice VLAN ID",	"bootp.vendor.alu.vid", FT_UINT16,
+          { "Voice VLAN ID",	"bootp.vendor.alu.vid", FT_UINT16,
             BASE_DEC, 			NULL,		 0x0,
             NULL, HFILL }},
 
