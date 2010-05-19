@@ -562,7 +562,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 guint8 response_opcode = last_opcode[(pinfo->p2p_dir + 1) & 0x01];
 
-                if( response_opcode == 0 ) /* connect response */
+                if(response_opcode == BTOBEX_CODE_VALS_CONNECT)
                 {
                     proto_tree_add_item(st, hf_version, next_tvb, offset, 1, FALSE);
                     offset++;
