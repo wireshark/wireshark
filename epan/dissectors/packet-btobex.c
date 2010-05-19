@@ -425,7 +425,6 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *st;
-    guint8 code;
     fragment_data *frag_msg = NULL;
     gboolean   save_fragmented, complete;
     tvbuff_t* new_tvb = NULL;
@@ -487,6 +486,8 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if( complete )
     {
+        guint8 code;
+        
         /* fully dissectable packet ready */
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "OBEX");
 
