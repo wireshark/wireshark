@@ -143,6 +143,7 @@ static const true_false_string true_false = {
 #define BTOBEX_CODE_VALS_SET_PATH   0x05
 #define BTOBEX_CODE_VALS_CONTINUE   0x10
 #define BTOBEX_CODE_VALS_ABORT      0x7F
+#define BTOBEX_CODE_VALS_MASK       0x7F
 
 static const value_string code_vals[] = {
     { BTOBEX_CODE_VALS_CONNECT, "Connect" },
@@ -503,7 +504,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         st = proto_item_add_subtree(ti, ett_btobex);
 
         /* op/response code */
-        code = tvb_get_guint8(next_tvb, offset) & 0x7f;
+        code = tvb_get_guint8(next_tvb, offset) & BTOBEX_CODE_VALS_MASK;
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
                         pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd",
@@ -598,12 +599,12 @@ proto_register_btobex(void)
     static hf_register_info hf[] = {
         {&hf_opcode,
             {"Opcode", "btobex.opcode",
-            FT_UINT8, BASE_HEX, VALS(code_vals), 0x7F,
+            FT_UINT8, BASE_HEX, VALS(code_vals), BTOBEX_CODE_VALS_MASK,
             "Request Opcode", HFILL}
         },
         {&hf_response_code,
             {"Response Code", "btobex.resp_code",
-            FT_UINT8, BASE_HEX, VALS(code_vals), 0x7F,
+            FT_UINT8, BASE_HEX, VALS(code_vals), BTOBEX_CODE_VALS_MASK,
             "Response Code", HFILL}
         },
         {&hf_final_flag,
