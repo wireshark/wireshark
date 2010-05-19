@@ -53,6 +53,7 @@
 #include <epan/emem.h>
 #include <epan/expert.h>
 #include "packet-btl2cap.h"
+#include "packet-btrfcomm.h"
 
 static int hf_pf = -1;
 static int hf_ea = -1;
@@ -498,9 +499,6 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 frame_type, pf_flag;
 	guint16 frame_len;
 	dlci_state_t *dlci_state;
-	btl2cap_data_t *l2cap_data;
-
-	l2cap_data=pinfo->private_data;
 
 	ti = proto_tree_add_item(tree, proto_btrfcomm, tvb, offset, -1, TRUE);
 	rfcomm_tree = proto_item_add_subtree(ti, ett_btrfcomm);
@@ -593,7 +591,16 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* dissect everything as OBEX for now */
 	if(dlci && frame_len && btobex_handle){
 		tvbuff_t *next_tvb;
+		btl2cap_data_t *l2cap_data;
+		btrfcomm_data_t rfcomm_data;
+
 		next_tvb = tvb_new_subset(tvb, offset, frame_len, frame_len);
+
+		l2cap_data = pinfo->private_data;
+		pinfo->private_data = &rfcomm_data;
+		rfcomm_data.chandle = l2cap_data->chandle;
+		rfcomm_data.cid = l2cap_data->cid;
+		rfcomm_data.dlci = dlci;
 		call_dissector(btobex_handle, next_tvb, pinfo, tree);
 	}
 
