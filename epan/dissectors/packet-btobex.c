@@ -136,13 +136,21 @@ static const true_false_string true_false = {
     "False"
 };
 
+#define BTOBEX_CODE_VALS_CONNECT    0x00
+#define BTOBEX_CODE_VALS_DISCONNECT 0x01
+#define BTOBEX_CODE_VALS_PUT        0x02
+#define BTOBEX_CODE_VALS_GET        0x03
+#define BTOBEX_CODE_VALS_SET_PATH   0x05
+#define BTOBEX_CODE_VALS_CONTINUE   0x10
+#define BTOBEX_CODE_VALS_ABORT      0x7F
+
 static const value_string code_vals[] = {
-    { 0x00, "Connect" },
-    { 0x01, "Disconnect" },
-    { 0x02, "Put" },
-    { 0x03, "Get"},
-    { 0x05, "Set Path" },
-    { 0x10, "Continue" },
+    { BTOBEX_CODE_VALS_CONNECT, "Connect" },
+    { BTOBEX_CODE_VALS_DISCONNECT, "Disconnect" },
+    { BTOBEX_CODE_VALS_PUT, "Put" },
+    { BTOBEX_CODE_VALS_GET, "Get"},
+    { BTOBEX_CODE_VALS_SET_PATH, "Set Path" },
+    { BTOBEX_CODE_VALS_CONTINUE, "Continue" },
     { 0x20, "Success" },
     { 0x21, "Created" },
     { 0x22, "Accepted" },
@@ -180,7 +188,7 @@ static const value_string code_vals[] = {
     { 0x55, "HTTP Version Not Supported" },
     { 0x60, "Database Full" },
     { 0x61, "Database Locked" },
-    { 0x7F, "Abort" },
+    { BTOBEX_CODE_VALS_ABORT, "Abort" },
     { 0,      NULL }
 };
 
@@ -501,7 +509,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd",
                         val_to_str(code, code_vals, "Unknown"));
 
-        if( (code < 0x10) || (code == 0x7f))
+        if( (code < BTOBEX_CODE_VALS_CONTINUE) || (code == BTOBEX_CODE_VALS_ABORT))
         {
             proto_tree_add_item(st, hf_opcode, next_tvb, offset, 1, FALSE);
             last_opcode[pinfo->p2p_dir] = code;
@@ -519,7 +527,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         switch(code)
         {
-        case 0: /* connect */
+        case BTOBEX_CODE_VALS_CONNECT:
             proto_tree_add_item(st, hf_version, next_tvb, offset, 1, FALSE);
             offset++;
 
@@ -530,13 +538,13 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += 2;
             break;
 
-        case 2: /* put */
-        case 3: /* get */
+        case BTOBEX_CODE_VALS_PUT:
+        case BTOBEX_CODE_VALS_GET:
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
                 (tvb_get_guint8(next_tvb, offset) & 0x80)==0x80?"final":"continue");
             break;
 
-        case 5: /* set path */
+        case BTOBEX_CODE_VALS_SET_PATH:
             proto_tree_add_item(st, hf_flags, next_tvb, offset, 1, FALSE);
             proto_tree_add_item(st, hf_set_path_flags_0, next_tvb, offset, 1, FALSE);
             proto_tree_add_item(st, hf_set_path_flags_1, next_tvb, offset, 1, FALSE);
@@ -546,8 +554,8 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset++;
             break;
 
-        case 1: /* disconnect */
-        case 127: /* abort */
+        case BTOBEX_CODE_VALS_DISCONNECT:
+        case BTOBEX_CODE_VALS_ABORT:
             break;
 
         default:
