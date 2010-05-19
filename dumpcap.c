@@ -3145,7 +3145,6 @@ main(int argc, char *argv[])
   gboolean             stats_known;
   struct pcap_stat     stats;
   GLogLevelFlags       log_flags;
-  gboolean             print_version_info = FALSE;
   gboolean             list_interfaces = FALSE;
   gboolean             list_link_layer_types = FALSE;
   gboolean             machine_readable = FALSE;
@@ -3428,9 +3427,22 @@ main(int argc, char *argv[])
         exit_main(0);
         break;
       case 'v':        /* Show version and exit */
-        print_version_info = TRUE;
-        run_once_args++;
+      {
+        GString             *comp_info_str;
+        GString             *runtime_info_str;
+        /* Assemble the compile-time version information string */
+        comp_info_str = g_string_new("Compiled ");
+        get_compiled_version_info(comp_info_str, NULL);
+
+        /* Assemble the run-time version information string */
+        runtime_info_str = g_string_new("Running ");
+        get_runtime_version_info(runtime_info_str, NULL);
+        show_version(comp_info_str, runtime_info_str);
+        g_string_free(comp_info_str, TRUE);
+        g_string_free(runtime_info_str, TRUE);
+        exit_main(0);
         break;
+      }
       /*** capture option specific ***/
       case 'a':        /* autostop criteria */
       case 'b':        /* Ringbuffer option */
@@ -3499,7 +3511,7 @@ main(int argc, char *argv[])
         print_statistics = TRUE;
         run_once_args++;
         break;
-      case 'M':        /* For -D and -L, print machine-readable output */
+      case 'M':        /* For -D, -L, and -S, print machine-readable output */
         machine_readable = TRUE;
         break;
       default:
@@ -3533,7 +3545,7 @@ main(int argc, char *argv[])
   }
 
   if (run_once_args > 1) {
-    cmdarg_err("Only one of -v, -D, -L, or -S may be supplied.");
+    cmdarg_err("Only one of -D, -L, or -S may be supplied.");
     exit_main(1);
   } else if (run_once_args == 1) {
     /* We're supposed to print some information, rather than
@@ -3560,41 +3572,6 @@ main(int argc, char *argv[])
 /*	global_capture_opts.multi_files_on = FALSE;*/
       }
     }
-  }
-
-  if (print_version_info) {
-    GString             *comp_info_str;
-    GString             *runtime_info_str;
-
-    if (machine_readable) {
-      /* Print only the *pcap version information. */
-      comp_info_str = g_string_new("");
-      get_compiled_pcap_version(comp_info_str);
-
-      runtime_info_str = g_string_new("");
-      get_runtime_pcap_version(runtime_info_str);
-
-      if (capture_child) {
-        /* Let our parent know we succeeded. */
-        pipe_write_block(2, SP_SUCCESS, NULL);
-      }
-
-      /* Print the two version strings on separate lines. */
-      printf("%s\n", comp_info_str->str);
-      printf("%s\n", runtime_info_str->str);
-    } else {
-      /* Assemble the compile-time version information string */
-      comp_info_str = g_string_new("Compiled ");
-      get_compiled_version_info(comp_info_str, NULL);
-
-      /* Assemble the run-time version information string */
-      runtime_info_str = g_string_new("Running ");
-      get_runtime_version_info(runtime_info_str, NULL);
-      show_version(comp_info_str, runtime_info_str);
-    }
-    g_string_free(comp_info_str, TRUE);
-    g_string_free(runtime_info_str, TRUE);
-    exit_main(0);
   }
 
   /*

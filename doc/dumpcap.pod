@@ -191,15 +191,9 @@ link types can be used for the B<-y> option.
 
 =item -M
 
-When used with B<-v>, B<-D>, B<-L> and B<-S>, print machine-readable
-output.  The machine-readable output of B<-v> gives only the
-libpcap/WinPcap version information; the machine-readable output of
-B<-D> gives additional per-interface information; the machine-readable
-output of B<-L> gives additional interface capability information and
-additional per-link-layer-type information; the machine-readable output
-of B<-S> doesn't print the column headers.  The machine-readable output
-is intended to be read by B<Wireshark> and B<TShark>; its format is
-subject to change from release to release.
+When used with B<-D>, B<-L> and B<-S>, print machine-readable output. 
+The machine-readable output is intended to be read by B<Wireshark> and
+B<TShark>; its format is subject to change from release to release.
 
 =item -n
 
