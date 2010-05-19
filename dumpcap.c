@@ -3597,6 +3597,10 @@ main(int argc, char *argv[])
     exit_main(0);
   }
 
+  /*
+   * "-D" requires no interface to be selected; it's supposed to list
+   * all interfaces.
+   */
   if (list_interfaces) {
     /* Get the list of interfaces */
     GList       *if_list;
@@ -3636,11 +3640,17 @@ main(int argc, char *argv[])
   }
 
   /*
-   * "-D" requires no interface to be selected; it's supposed to list
-   * all interfaces.
-   *
-   * If -D wasn't specified, we have to have an interface; if none
-   * was specified, pick a default.
+   * "-S" requires no interface to be selected; it gives statistics
+   * for all interfaces.
+   */
+  if (print_statistics) {
+    status = print_statistics_loop(machine_readable);
+    exit_main(status);
+  }
+
+  /*
+   * "-L", and capturing, act on a particular interface, so we have to
+   * have an interface; if none was specified, pick a default.
    */
   if (capture_opts_trim_iface(&global_capture_opts, NULL) == FALSE) {
     /* cmdarg_err() already called .... */
@@ -3676,11 +3686,6 @@ main(int argc, char *argv[])
                                          global_capture_opts.monitor_mode);
     free_if_capabilities(caps);
     exit_main(0);
-  }
-
-  if (print_statistics) {
-    status = print_statistics_loop(machine_readable);
-    exit_main(status);
   }
 
   /* We're supposed to do a capture.  Process the remaining arguments. */
