@@ -330,6 +330,10 @@ endif()
 if(ENABLE_AIRPCAP)
 	set(HAVE_AIRPCAP 1)
 endif()
+# That's the name autofoo uses
+if(HAVE_LIBZLIB)
+	set(HAVE_LIBZ 1)
+endif()
 
 include(ConfigureChecks.cmake)
 
@@ -588,7 +592,7 @@ set(LIBEPAN_LIBS
 		${GCRYPT_LIBRARIES}
 		${GNUTLS_LIBRARIES}
 		${SMI_LIBRARIES}
-		${Z_LIBRARIES}
+		${ZLIB_LIBRARIES}
 		${M_LIBRARIES}
 )
 
@@ -689,7 +693,7 @@ if(BUILD_randpkt)
 #		@NSL_LIBS@
 		${CARES_LIBRARIES}
 		${ADNS_LIBRARIES}
-		${Z_LIBRARIES}
+		${ZLIB_LIBRARIES}
 	)
 	set(randpkt_FILES
 		randpkt.c
@@ -704,7 +708,7 @@ if(BUILD_text2pcap)
 	set(text2pcap_LIBS
 		wiretap
 		${M_LIBRARIES}
-		${Z_LIBRARIES}
+		${ZLIB_LIBRARIES}
 	)
 	set(text2pcap_CLEAN_FILES
 		text2pcap.c
@@ -725,7 +729,7 @@ endif()
 if(BUILD_mergecap)
 	set(mergecap_LIBS
 		wiretap
-		${Z_LIBRARIES}
+		${ZLIB_LIBRARIES}
 	)
 	set(mergecap_FILES
 		mergecap.c
@@ -742,7 +746,7 @@ endif()
 if(BUILD_capinfos)
 	set(capinfos_LIBS
 		wiretap
-		${Z_LIBRARIES}
+		${ZLIB_LIBRARIES}
 		${GCRYPT_LIBRARIES}
 		${APPLE_COCOA_LIBRARY}
 	)
@@ -759,7 +763,7 @@ endif()
 if(BUILD_editcap)
 	set(editcap_LIBS
 		wiretap
-		${Z_LIBRARIES}
+		${ZLIB_LIBRARIES}
 	)
 	set(editcap_FILES
 		editcap.c
@@ -784,7 +788,7 @@ if(BUILD_dumpcap)
 #		@NSL_LIBS@
 		${GCRYPT_LIBRARIES}
 		${GNUTLS_LIBRARIES}
-		${Z_LIBRARIES}
+		${ZLIB_LIBRARIES}
 		${APPLE_COCOA_LIBRARY}
 	)
 	set(dumpcap_FILES
