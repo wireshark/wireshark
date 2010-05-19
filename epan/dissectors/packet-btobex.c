@@ -3,7 +3,7 @@
  *
  * Allan M. Madsen 2010
  *
- * $Id: packet-btobex.c 32860 2010-05-18 06:09:52Z krj $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
