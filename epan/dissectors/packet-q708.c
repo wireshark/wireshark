@@ -11686,7 +11686,7 @@ proto_register_q708(void)
 	static hf_register_info hf[] = {
 	{ &hf_q708_sanc,
 		{ "Signalling Area Network Code (SANC)","q708.sanc",
-		FT_UINT16, BASE_DEC | BASE_EXT_STRING, VALS(&q708_sanc_areas_ext), 0x0,
+		FT_UINT16, BASE_DEC | BASE_EXT_STRING, &q708_sanc_areas_ext, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_q708_ispc_name,
