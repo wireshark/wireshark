@@ -570,7 +570,13 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	 * string, we should probably prettify the number somehow.
 	 */
 #if defined(__GNUC__) && defined(__VERSION__)
+#if defined(__clang__)
+	g_string_append_printf(str, "\n\nBuilt using clang %s.\n", __VERSION__);
+#elif defined(__llvm__)
+	g_string_append_printf(str, "\n\nBuilt using llvm-gcc %s.\n", __VERSION__);
+#else /* boring old GCC */
 	g_string_append_printf(str, "\n\nBuilt using gcc %s.\n", __VERSION__);
+#endif /* llvm */
 #elif defined(__HP_aCC)
 	g_string_append_printf(str, "\n\nBuilt using HP aCC %d.\n", __HP_aCC);
 #elif defined(__xlC__)
