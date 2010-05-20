@@ -2932,13 +2932,13 @@ save_reference(PDUinfo *p)
 }
 
 static void
-tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex);
+tbl_type(gint n, GNode *pdu, GNode *list, guint fullindex);
 
 
 
 	/* evaluate typeref, pointer to current pdu node and typedef */
 static void
-tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
+tbl_typeref(gint n, GNode *pdu, GNode *tree, guint fullindex)
 {
 	GNode *q;
 	PDUinfo *p = (PDUinfo *)pdu->data, *p1;
@@ -3108,7 +3108,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 }
 
 static void
-tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, source type node list */
+tbl_type(gint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, source type node list */
 {
 	GNode *q, *pdu1;
 	PDUinfo *p, *p1;
