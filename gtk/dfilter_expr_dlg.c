@@ -428,6 +428,7 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
                      GtkWidget *value_list_scrolled_win, GtkWidget *range_label,
                      GtkWidget *range_entry)
 {
+	/* Default values */
 	gboolean show_value_label = FALSE;
 	gboolean show_value_list = FALSE;
 	gboolean show_range = FALSE;
@@ -450,7 +451,7 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 	 *
 	 *	this isn't a Boolean variable, in which case you
 	 *	can test for its presence in the protocol tree,
-	 *	and the default relation is such a test, in
+	 *	and the relation is such a test, in
 	 *	which case you don't compare with a value
 	 *
 	 * so we hide the value entry.
@@ -459,12 +460,9 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 	switch (hfinfo->type) {
 
 	case FT_BOOLEAN:
-		show_value_list = is_comparison;
 		if (is_comparison) {
-			/*
-			 * If we're showing the value list; show the label as well.
-			 */
-			show_value_label = TRUE;
+			show_value_label = TRUE;  /* XXX: Allow value entry (contrary to the comment above) ?? */
+			show_value_list  = TRUE;
 		}
 		break;
 
@@ -476,33 +474,23 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 	case FT_INT16:
 	case FT_INT24:
 	case FT_INT32:
-		if ((hfinfo->strings != NULL) && !(hfinfo->display & BASE_RANGE_STRING)) {
+		if (is_comparison) {
+			show_value_label = TRUE;
+			if ((hfinfo->strings != NULL) && !(hfinfo->display & BASE_RANGE_STRING)) {
 			/*
 			 * We have a list of values to show.
 			 */
-
-			show_value_list = is_comparison;
-			if (is_comparison) {
-				/*
-				 * We're showing the entry; show the label
-				 * as well.
-				 */
-				show_value_label = TRUE;
+				show_value_list = TRUE;
 			}
-		} else {
-			/*
-			 * There is no list of names for values, so don't
-			 * show it.
-			 */
-			show_value_list = FALSE;
 		}
 		break;
 
 	default:
 		/*
-		 * There is no list of names for values; hide the list.
+		 * There is no list of names for values; only show the value_label if needed.
 		 */
-		show_value_list = FALSE;
+		if (is_comparison) 
+			show_value_label = TRUE;
 		break;
 	}
 
