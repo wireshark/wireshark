@@ -239,6 +239,7 @@ static gint hf_krb_KrbCredInfo = -1;
 static gint hf_krb_HostAddress = -1;
 static gint hf_krb_HostAddresses = -1;
 static gint hf_krb_APOptions = -1;
+static gint hf_krb_APOptions_reserved = -1;
 static gint hf_krb_APOptions_use_session_key = -1;
 static gint hf_krb_APOptions_mutual_required = -1;
 static gint hf_krb_TicketFlags = -1;
@@ -1529,7 +1530,10 @@ dissect_krb5_application_choice(proto_tree *tree, tvbuff_t *tvb, int offset, asn
     return offset;
 }
 
-
+static const true_false_string krb5_apoptions_reserved = {
+    "RESERVED bit on",
+    "RESERVED bit off"
+};
 static const true_false_string krb5_apoptions_use_session_key = {
     "USE SESSION KEY to encrypt the ticket",
     "Do NOT use the session key to encrypt the ticket"
@@ -1540,6 +1544,7 @@ static const true_false_string krb5_apoptions_mutual_required = {
 };
 
 static int *APOptions_bits[] = {
+    &hf_krb_APOptions_reserved,
     &hf_krb_APOptions_use_session_key,
     &hf_krb_APOptions_mutual_required,
     NULL
@@ -4953,6 +4958,9 @@ proto_register_kerberos(void)
         { &hf_krb_APOptions, {
                 "APOptions", "kerberos.apoptions", FT_BYTES, BASE_NONE,
                 NULL, 0, "Kerberos APOptions bitstring", HFILL }},
+        { &hf_krb_APOptions_reserved, {
+               "reserved", "kerberos.apoptions.reserved", FT_BOOLEAN, 32,
+                TFS(&krb5_apoptions_reserved), 0x80000000, NULL, HFILL }},
         { &hf_krb_APOptions_use_session_key, {
                 "Use Session Key", "kerberos.apoptions.use_session_key", FT_BOOLEAN, 32,
                 TFS(&krb5_apoptions_use_session_key), 0x40000000, NULL, HFILL }},
