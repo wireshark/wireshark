@@ -484,6 +484,9 @@ window_destroy(GtkWidget *win)
   window_geometry_t geom;
   const gchar *name;
 
+  if (!win)
+    return;
+
   /* get_geometry must be done *before* destroy is running, as the window geometry
    * cannot be retrieved at destroy time (so don't use event "destroy" for this) */
   /* ...and don't do this at all, if we currently have no GdkWindow (e.g. if the
