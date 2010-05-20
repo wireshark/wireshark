@@ -696,14 +696,19 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 * power of two.
 	 */
 	ppoll = tvb_get_guint8(tvb, 2);
-	proto_tree_add_uint_format(ntp_tree, hf_ntp_ppoll, tvb, 2, 1,
-				   ppoll,
-				   (((ppoll >= 4) && (ppoll <= 17)) ?
-				   "Peer Polling Interval: %u (%u sec)" :
-				   "Peer Polling Interval: invalid (%u)"),
+	if ((ppoll >= 4) && (ppoll <= 17)) {
+		proto_tree_add_uint_format(ntp_tree, hf_ntp_ppoll, tvb, 2, 1,
+				   ppoll, 
+				   "Peer Polling Interval: %u (%u sec)",
 				   ppoll,
 				   1 << ppoll);
-
+	} else {
+		proto_tree_add_uint_format(ntp_tree, hf_ntp_ppoll, tvb, 2, 1,
+				   ppoll,
+				   "Peer Polling Interval: invalid (%u)",
+				   ppoll);
+	}
+	
 	/* Precision, 1byte field indicating the precision of the
 	 * local clock, in seconds to the nearest power of two.
 	 */
