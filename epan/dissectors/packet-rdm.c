@@ -161,9 +161,11 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		checksum = tvb_get_ntohs(tvb, offset);
 		item = proto_tree_add_item(rdm_tree, hf_rdm_checksum, tvb,
 				offset, 2, FALSE);
-		proto_item_append_text(item, checksum == checksum_shouldbe
-				? " [correct]"
-				: " [incorrect, should be 0x%04x]", checksum_shouldbe);
+		if (checksum == checksum_shouldbe) {
+				proto_item_append_text(item, " [correct]");
+		} else {
+				proto_item_append_text(item, " [incorrect, should be 0x%04x]", checksum_shouldbe);
+		}
 		offset += 2;
 
 		if (offset < tvb_length(tvb))
