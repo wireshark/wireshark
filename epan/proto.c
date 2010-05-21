@@ -3392,7 +3392,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gchar *result,
 
 		case FT_ABSOLUTE_TIME:
 			g_strlcpy(result,
-				abs_time_to_str(fvalue_get(&finfo->value), hfinfo->display),
+				abs_time_to_str(fvalue_get(&finfo->value), hfinfo->display, TRUE),
 				size);
 			break;
 
@@ -4636,7 +4636,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_ABSOLUTE_TIME:
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				   "%s: %s", hfinfo->name,
-				   abs_time_to_str(fvalue_get(&fi->value), hfinfo->display));
+				   abs_time_to_str(fvalue_get(&fi->value), hfinfo->display, TRUE));
 			break;
 
 		case FT_RELATIVE_TIME:

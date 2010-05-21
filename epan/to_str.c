@@ -473,7 +473,8 @@ static const char *mon_names[12] = {
 };
 
 gchar *
-abs_time_to_str(const nstime_t *abs_time, const absolute_time_display_e fmt)
+abs_time_to_str(const nstime_t *abs_time, const absolute_time_display_e fmt,
+   gboolean show_zone)
 {
         struct tm *tmp = NULL;
         const char *zonename = "???";
@@ -514,27 +515,48 @@ abs_time_to_str(const nstime_t *abs_time, const absolute_time_display_e fmt)
                 switch (fmt) {
 
                 case ABSOLUTE_TIME_DOY_UTC:
-                        buf = ep_strdup_printf("%04d/%03d:%02d:%02d:%02d.%09ld %s",
-                            tmp->tm_year + 1900,
-                            tmp->tm_yday,
-                            tmp->tm_hour,
-                            tmp->tm_min,
-                            tmp->tm_sec,
-                            (long)abs_time->nsecs,
-                            zonename);
+                	if (show_zone) {
+	                        buf = ep_strdup_printf("%04d/%03d:%02d:%02d:%02d.%09ld %s",
+        	                    tmp->tm_year + 1900,
+                	            tmp->tm_yday,
+                        	    tmp->tm_hour,
+	                            tmp->tm_min,
+        	                    tmp->tm_sec,
+                	            (long)abs_time->nsecs,
+                        	    zonename);
+                        } else {
+	                        buf = ep_strdup_printf("%04d/%03d:%02d:%02d:%02d.%09ld",
+        	                    tmp->tm_year + 1900,
+                	            tmp->tm_yday,
+                        	    tmp->tm_hour,
+	                            tmp->tm_min,
+        	                    tmp->tm_sec,
+                	            (long)abs_time->nsecs);
+                        }
                         break;
 
                 case ABSOLUTE_TIME_UTC:
                 case ABSOLUTE_TIME_LOCAL:
-                        buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d.%09ld %s",
-                            mon_names[tmp->tm_mon],
-                            tmp->tm_mday,
-                            tmp->tm_year + 1900,
-                            tmp->tm_hour,
-                            tmp->tm_min,
-                            tmp->tm_sec,
-                            (long)abs_time->nsecs,
-                            zonename);
+                	if (show_zone) {
+	                        buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d.%09ld %s",
+        	                    mon_names[tmp->tm_mon],
+                	            tmp->tm_mday,
+                        	    tmp->tm_year + 1900,
+	                            tmp->tm_hour,
+        	                    tmp->tm_min,
+                	            tmp->tm_sec,
+                        	    (long)abs_time->nsecs,
+	                            zonename);
+	                } else {
+	                        buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d.%09ld",
+        	                    mon_names[tmp->tm_mon],
+                	            tmp->tm_mday,
+                        	    tmp->tm_year + 1900,
+	                            tmp->tm_hour,
+        	                    tmp->tm_min,
+                	            tmp->tm_sec,
+                        	    (long)abs_time->nsecs);
+	                }
                         break;
                 }
         } else
@@ -543,7 +565,8 @@ abs_time_to_str(const nstime_t *abs_time, const absolute_time_display_e fmt)
 }
 
 gchar *
-abs_time_secs_to_str(const time_t abs_time, const absolute_time_display_e fmt)
+abs_time_secs_to_str(const time_t abs_time, const absolute_time_display_e fmt,
+    gboolean show_zone)
 {
         struct tm *tmp = NULL;
         const char *zonename = "???";
@@ -584,25 +607,44 @@ abs_time_secs_to_str(const time_t abs_time, const absolute_time_display_e fmt)
                 switch (fmt) {
 
                 case ABSOLUTE_TIME_DOY_UTC:
-                        buf = ep_strdup_printf("%04d/%03d:%02d:%02d:%02d %s",
-                            tmp->tm_year + 1900,
-                            tmp->tm_yday,
-                            tmp->tm_hour,
-                            tmp->tm_min,
-                            tmp->tm_sec,
-                            zonename);
+                	if (show_zone) {
+	                        buf = ep_strdup_printf("%04d/%03d:%02d:%02d:%02d %s",
+        	                    tmp->tm_year + 1900,
+                	            tmp->tm_yday,
+                        	    tmp->tm_hour,
+	                            tmp->tm_min,
+        	                    tmp->tm_sec,
+                	            zonename);
+                	} else {
+	                        buf = ep_strdup_printf("%04d/%03d:%02d:%02d:%02d",
+        	                    tmp->tm_year + 1900,
+                	            tmp->tm_yday,
+                        	    tmp->tm_hour,
+	                            tmp->tm_min,
+        	                    tmp->tm_sec);
+                	}
                         break;
 
                 case ABSOLUTE_TIME_UTC:
                 case ABSOLUTE_TIME_LOCAL:
-                        buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d %s",
-                            mon_names[tmp->tm_mon],
-                            tmp->tm_mday,
-                            tmp->tm_year + 1900,
-                            tmp->tm_hour,
-                            tmp->tm_min,
-                            tmp->tm_sec,
-                            zonename);
+                	if (show_zone) {
+	                        buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d %s",
+        	                    mon_names[tmp->tm_mon],
+                	            tmp->tm_mday,
+                        	    tmp->tm_year + 1900,
+	                            tmp->tm_hour,
+        	                    tmp->tm_min,
+                	            tmp->tm_sec,
+                        	    zonename);
+                        } else {
+	                        buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d",
+        	                    mon_names[tmp->tm_mon],
+                	            tmp->tm_mday,
+                        	    tmp->tm_year + 1900,
+	                            tmp->tm_hour,
+        	                    tmp->tm_min,
+                	            tmp->tm_sec);
+                        }
                         break;
                 }
         } else

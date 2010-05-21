@@ -195,7 +195,7 @@ static const char* smex_time_to_string ( int pb5_days_since_midnight_9_10_oct_19
         t.secs = ( pb5_days_since_midnight_9_10_oct_1995 * 86400 ) + pb5_seconds + utcdiff;
 	t.nsecs = pb5_milliseconds*1000000;	/* msecs to nsecs */
 
-	return abs_time_to_str(&t, ABSOLUTE_TIME_DOY_UTC);
+	return abs_time_to_str(&t, ABSOLUTE_TIME_DOY_UTC, TRUE);
 }
 
 

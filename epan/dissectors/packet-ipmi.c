@@ -774,7 +774,7 @@ ipmi_add_timestamp(proto_tree *tree, gint hf, tvbuff_t *tvb, guint offset)
 				time_secs_to_str_unsigned(ts));
 	} else {
 		proto_tree_add_uint_format_value(tree, hf, tvb, offset, 4,
-				ts, "%s", abs_time_secs_to_str(ts, ABSOLUTE_TIME_UTC));
+				ts, "%s", abs_time_secs_to_str(ts, ABSOLUTE_TIME_UTC, TRUE));
 	}
 }
 

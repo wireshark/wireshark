@@ -70,7 +70,7 @@ WSLUA_FUNCTION wslua_format_date(lua_State* LS) { /* Formats an absolute timesta
 
 	then.secs = (guint32)floor(timestamp);
 	then.nsecs = (guint32) ( (timestamp-(double)(then.secs))*1000000000);
-	str = abs_time_to_str(&then, ABSOLUTE_TIME_LOCAL);
+	str = abs_time_to_str(&then, ABSOLUTE_TIME_LOCAL, TRUE);
 	lua_pushstring(LS,str);
 
 	WSLUA_RETURN(1); /* A string with the formated date */

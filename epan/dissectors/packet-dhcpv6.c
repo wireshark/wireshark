@@ -1127,7 +1127,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             /* XXX seconds since Jan 1 2000 */
             proto_tree_add_text(subtree, tvb, off + 4, 4,
                 "Time: %s",
-                abs_time_secs_to_str(tvb_get_ntohl(tvb, off + 4)+630822816U, ABSOLUTE_TIME_LOCAL));
+                abs_time_secs_to_str(tvb_get_ntohl(tvb, off + 4)+630822816U, ABSOLUTE_TIME_LOCAL, TRUE));
             if (optlen > 8) {
                 proto_tree_add_text(subtree, tvb, off + 8,
                                     optlen - 8, "Link-layer address: %s",

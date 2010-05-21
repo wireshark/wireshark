@@ -507,7 +507,7 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
 				    1 + 2 + name_length + 2 + value_length,
 				    "%s: %s",
 				    format_text(name_val, name_length),
-				    abs_time_secs_to_str(tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2), ABSOLUTE_TIME_LOCAL));
+				    abs_time_secs_to_str(tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2), ABSOLUTE_TIME_LOCAL, TRUE));
 
 			}
             else if((name_length > 5) && name_val && !tvb_memeql(tvb, offset + 1 + 2, "printer-state", 13)){
