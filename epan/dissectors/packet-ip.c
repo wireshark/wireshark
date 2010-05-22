@@ -1901,7 +1901,7 @@ proto_register_ip(void)
 			NULL, HFILL }},
 
 		{ &hf_ip_proto,
-		{ "Protocol",		"ip.proto", FT_UINT8, BASE_DEC, VALS(ipproto_val), 0x0,
+		{ "Protocol",		"ip.proto", FT_UINT8, BASE_DEC|BASE_EXT_STRING, (&ipproto_val_ext), 0x0,
 			NULL, HFILL }},
 
 		{ &hf_ip_checksum,
