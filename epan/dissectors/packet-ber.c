@@ -820,20 +820,21 @@ int dissect_ber_identifier(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *t
 	return offset;
 }
 
-/* this function gets the length octets of the BER TLV.
- * We only handle (TAGs and) LENGTHs that fit inside 32 bit integers.
+/** Try to get the length octets of the BER TLV.
+ * Only (TAGs and) LENGTHs that fit inside 32 bit integers are supported.
+ *
+ * @return TRUE if we have the entire length, FALSE if we're in the middle of
+ * an indefinite length and haven't reached EOC.
  */
 /* 8.1.3 Length octets */
-int
-get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind) {
+static gboolean
+try_get_ber_length(tvbuff_t *tvb, int *bl_offset, guint32 *length, gboolean *ind) {
+	int offset = *bl_offset;
 	guint8 oct, len;
-	guint32 tmp_len;
+	/* guint32 tmp_len; */
 	guint32 tmp_length;
 	gboolean tmp_ind;
-	int tmp_offset,s_offset;
-	gint8 tclass;
-	gboolean tpc;
-	gint32 ttag;
+	int tmp_offset;
 	tmp_length = 0;
 	tmp_ind = FALSE;
 
@@ -856,19 +857,15 @@ get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind) {
 			/* 8.1.3.6 */
 
 			tmp_offset = offset;
-			/* ok in here we can traverse the BER to find the length, this will fix most indefinite length issues */
-			/* Assumption here is that indefinite length is always used on constructed types*/
 			/* check for EOC */
-			while (tvb_get_guint8(tvb, offset) || tvb_get_guint8(tvb, offset+1)) {
-				/* not an EOC at offset */
-				s_offset=offset;
-				offset= get_ber_identifier(tvb, offset, &tclass, &tpc, &ttag);
-				offset= get_ber_length(tvb,offset, &tmp_len, NULL);
-				tmp_length += tmp_len+(offset-s_offset); /* length + tag and length */
-				offset += tmp_len;
-                                /* Make sure we've moved forward in the packet */
-				if (offset <= s_offset)
-					THROW(ReportedBoundsError);
+			if (tvb_get_guint8(tvb, offset) || tvb_get_guint8(tvb, offset+1)) {
+				if (length)
+					*length = 0;
+				if (ind)
+					*ind = tmp_ind;
+
+				*bl_offset = offset;
+				return FALSE;
 			}
 			tmp_length += 2;
 			tmp_ind = TRUE;
@@ -885,7 +882,44 @@ get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind) {
 printf("get BER length %d, offset %d (remaining %d)\n", tmp_length, offset, tvb_length_remaining(tvb, offset));
 #endif
 
-	return offset;
+	*bl_offset = offset;
+	return TRUE;
+}
+
+int
+get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind) {
+	int bl_offset = offset;
+	int s_offset;
+	guint32 bl_length;
+	guint32 tot_length = 0;
+	gint8 tclass;
+	gboolean tpc;
+	gint32 ttag;
+
+	while (1) {
+		/* Traverse the BER to find the length. This will fix most indefinite length issues. */
+		/* Assumption here is that indefinite length is always used on constructed types*/
+		s_offset = bl_offset;
+		if (try_get_ber_length(tvb, &bl_offset, &bl_length, ind)) {
+			/* No more lengths to fetch. */
+			tot_length += bl_length;
+			break;
+		}
+
+		/* We're in the middle of an indefinite length. */
+		bl_offset = get_ber_identifier(tvb, bl_offset, &tclass, &tpc, &ttag);
+
+		/* Make sure we've moved forward in the packet */
+		if (bl_offset <= s_offset)
+			THROW(ReportedBoundsError);
+
+		tot_length += (bl_offset - s_offset);  /* length + tag and length */
+	}
+
+	if (length)
+		*length = tot_length;
+
+	return bl_offset;
 }
 
 /* this function dissects the length octets of the BER TLV.
