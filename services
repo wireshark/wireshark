@@ -12,7 +12,7 @@
 
 PORT NUMBERS
 
-(last updated 2010-04-19)
+(last updated 2010-05-19)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -928,7 +928,8 @@ datex-asn	355/udp    DATEX-ASN
 #			   Kenneth Vaughn <kvaughn&mail.viggen.com>
 cloanto-net-1	356/tcp    Cloanto Net 1
 cloanto-net-1	356/udp    Cloanto Net 1
-#			   Michael Battilana <mcb-iana&cloanto.com>
+#			   Previous contact: Michael Battilana <mcb-iana&cloanto.com>
+#                          Current contact: Michael Battilana <mcb-iana&cloanto.net> 30 April 2010
 bhevent		357/tcp	   bhevent
 bhevent		357/udp    bhevent
 #			   John Kelly <johnk&bellhow.com>
@@ -8943,7 +8944,8 @@ printer_agent	3396/udp   Printer Agent
 #			   Devon Taylor <dtaylor&novell.com>
 cloanto-lm	3397/tcp   Cloanto License Manager
 cloanto-lm	3397/udp   Cloanto License Manager 
-#		    	   Takeo Sato <takeo_sato-iana&cloanto.com>
+#		    	   Previous contact: Takeo Sato <takeo_sato-iana&cloanto.com>
+#                          Current contact: Takeo Sato <ts-iana&cloanto.net> 30 April 2010
 mercantile	3398/tcp   Mercantile
 mercantile	3398/udp   Mercantile
 #			   Erik Kragh Jensen <kragh&inet.uni2.dk>
@@ -9172,7 +9174,10 @@ stun            3478/udp   Session Traversal Utilities for NAT (STUN) port
 #                          [RFC5389]
 turn            3478/tcp   TURN over TCP
 turn            3478/udp   TURN over UDP
-#                          [RFC-ietf-behave-turn-16.txt]
+#                          [RFC5766]
+stun-behavior   3478/tcp   STUN Behavior Discovery over TCP
+stun-behavior   3478/udp   STUN Behavior Discovery over UDP
+#                          [RFC5780]
 twrpc           3479/tcp   2Wire RPC
 twrpc           3479/udp   2Wire RPC
 #                          2Wire IANA Contact <iana&2wire.com> April 2002
@@ -12354,7 +12359,10 @@ targus-getdata2 5202/udp   TARGUS GetData 2
 targus-getdata3 5203/tcp   TARGUS GetData 3 
 targus-getdata3 5203/udp   TARGUS GetData 3
 #                          John Keaveney <johnkeaveney&targusinfo.com>
-#               5204-5221  Unassigned
+#               5204-5220  Unassigned
+3exmp           5221/tcp   3eTI Extensible Management Protocol for OAMP
+#                          Bill Rettig <WRettig&efji.com> 19 May 2010
+#               5221/udp   Reserved
 xmpp-client     5222/tcp   XMPP Client Connection
 xmpp-client     5222/udp   XMPP Client Connection
 #                          [RFC3920]
@@ -12514,7 +12522,10 @@ stuns           5349/udp   Reserved for a future enhancement of STUN
 #                          [RFC5389]
 turns           5349/tcp   TURN over TLS
 turns           5349/udp   Reserved for a future enhancement of TURN
-#                          [RFC-ietf-behave-turn-16.txt]
+#                          [RFC5766]
+stun-behaviors  5349/tcp   STUN Behavior Discovery over TLS
+stun-behaviors  5349/udp   Reserved for a future enhancement of STUN-BEHAVIOR
+#                          [RFC5780]
 nat-pmp-status	5350/tcp   NAT-PMP Status Announcements
 nat-pmp-status	5350/udp   NAT-PMP Status Announcements
 #			   Stuart Cheshire <cheshire&apple.com> 03 December 2007
@@ -12736,11 +12747,14 @@ personal-agent  5555/udp   Personal Agent
 freeciv         5556/tcp   Freeciv gameplay
 freeciv         5556/udp   Freeciv gameplay
 #			   Reinier Post, Paul Zastoupil <freeciv&freeciv.org> January 2006
-#		5557-5565  Unassigned
+farenet         5557/tcp   Sandlab FARENET
+#                          Kay T. Labinsky <Kay.Labinsky&Sandlab.de> 03 May 2010
+#               5557/udp   Reserved
+#		5558-5565  Unassigned
 westec-connect  5566/tcp   Westec Connect
 #                          Previous contact: Kaushlesh Chandel <kchandel&annetsite.com> 03 March 2009
 #                          Current contact: Jon Bolen <jon.bolen&westec.net> 18 March 2009
-#               5566/udp   Unassigned
+#               5566/udp   Reserved
 m-oap		5567/tcp   Multicast Object Access Protocol
 m-oap		5567/udp   Multicast Object Access Protocol
 #                          Bryant Eastham <protocols&pewla.us.pewg.panasonic.com> November 2004
@@ -12760,7 +12774,7 @@ ora-oap         5575/tcp   Oracle Access Protocol
 #               5576-5578  Unassigned
 fdtracks        5579/tcp   FleetDisplay Tracking Service
 #                          Henrik Woffinden <hw&nitramlexa.com> 22 September 2008
-#               5579/udp   Unassigned
+#               5579/udp   Reserved
 tmosms0		5580/tcp   T-Mobile SMS Protocol Message 0
 tmosms0		5580/udp   T-Mobile SMS Protocol Message 0
 tmosms1		5581/tcp   T-Mobile SMS Protocol Message 1
@@ -13166,7 +13180,10 @@ dayliteserver   6113/tcp   Daylite Server
 daylitetouch    6117/tcp   Daylite Touch Sync
 #                          Brent Gulanowski <bgulanowski&marketcircle.com> 26 August 2009
 #               6117/udp   Reserved
-#               6118-6121  Unassigned
+#               6118-6120  Unassigned
+spdy            6121/tcp   SPDY for a faster web
+#                          Matthew Lloyd <mlloyd&google.com> 26 April 2010
+#               6121/udp   Reserved
 bex-webadmin    6122/tcp   Backup Express Web Server
 bex-webadmin    6122/udp   Backup Express Web Server
 #                          Chi Shih Chang <cchang&syncsort.com> November 2005
@@ -14363,11 +14380,17 @@ patrol		8160/udp    Patrol
 patrol-snmp	8161/tcp    Patrol SNMP
 patrol-snmp	8161/udp    Patrol SNMP
 #			    Portnoy Boxman <portnoy_boxman&bmc.com>
-#               8162-8182   Unassigned
+#               8162-8181   Unassigned
+vmware-fdm      8182/tcp    VMware Fault Domain Manager
+vmware-fdm      8182/udp    VMware Fault Domain Manager
+#                           Ron Passerini <rpasserini&vmware.com> 27 April 2010 
 proremote       8183/tcp    ProRemote
 #                           Alex Lelievre <alex&folabs.com> 18 August 2009
 #               8183/udp    Reserved
-#               8184-8191   Unassigned
+itach           8184/tcp    Remote iTach Connection
+itach           8184/udp    Remote iTach Connection
+#                           Barend Jacobus van der Merwe <berneau.v&gmail.com> 27 April 2010
+#               8185-8191   Unassigned
 spytechphone	8192/tcp    SpyTech Phone Service
 spytechphone	8192/udp    SpyTech Phone Service
 #			    Bill Kay <bkay&spy-tec.com> April 2006
@@ -15047,7 +15070,11 @@ peocoll         9631/tcp    Peovica Collector
 #               9632/tcp    Reserved
 mc-comm         9632/udp    Mobile-C Communications
 #                           David Ko <david.dk.ko&gmail.com> 14 September 2009
-#               9633-9666   Unassigned
+#               9633-9639   Unassigned
+pqsflows        9640/tcp    ProQueSys Flows Service
+#                           Sarene Caiazza <scaiazza&proquesys.com> 27 April 2010
+#               9640/udp    Reserved 
+#               9641-9666   Unassigned
 xmms2           9667/tcp    Cross-platform Music Multiplexing System
 xmms2           9667/udp    Cross-platform Music Multiplexing System
 #                           Juho Vähä-Herttua <juhovh&iki.fi> 14 April 2009
@@ -15262,8 +15289,14 @@ bmc-gms         10129/tcp  BMC General Manager Server
 #               10130-10159 Unassigned
 qb-db-server    10160/tcp  QB Database Server
 qb-db-server    10160/udp  QB Database Server
-#			   Wei Wang <Wei_Wang&intuit.com> November 2005
-#               10161-10199 Unassigned
+#                          Wei Wang <Wei_Wang&intuit.com> November 2005
+snmptls         10161/tcp  SNMP-TLS
+snmpdtls        10161/udp  SNMP-DTLS
+#                          [RFC-ietf-isms-dtls-tm-14.txt]
+snmptls-trap    10162/tcp  SNMP-Trap-TLS
+snmpdtls-trap   10162/udp  SNMP-Trap-DTLS
+#                          [RFC-ietf-isms-dtls-tm-14.txt]
+#               10163-10199 Unassigned
 trisoap		10200/tcp  Trigence AE Soap Service
 trisoap		10200/udp  Trigence AE Soap Service
 #			   Brigitte Gagne <bgagne&trigence.com> August 2006
@@ -15283,14 +15316,14 @@ blocks		10288/tcp  Blocks
 blocks		10288/udp  Blocks 
 #		           Carl Malamud
 #		10289-10320 Unassigned
-cosir           10321/tcp   Computer Op System Information Report
-#                           Kevin C. Barber <kevin.c.barber&saic.com> 13 January 2009
-#               10321/udp   Reserved
+cosir           10321/tcp  Computer Op System Information Report
+#                          Kevin C. Barber <kevin.c.barber&saic.com> 13 January 2009
+#               10321/udp  Reserved
 #		10322-10499 Unassigned
 #               10500/tcp  Reserved
 hip-nat-t       10500/udp  HIP NAT-Traversal
-#                          [RFC-ietf-hip-nat-traversal-09.txt]
-#                          Ari Keränen <ari.keranen&ericsson.com>
+#                          [RFC5770]
+#                          Ari Keränen <ari.keranen&ericsson.com> 17 December 2009
 #		10501-10539 Unassigned
 MOS-lower	10540/tcp  MOS Media Object Metadata Port 
 MOS-lower	10540/udp  MOS Media Object Metadata Port
@@ -15607,7 +15640,14 @@ bex-xr          15660/udp  Backup Express Restore Server
 ptp             15740/tcp  Picture Transfer Protocol
 ptp             15740/udp  Picture Transfer Protocol
 #                          Petronel Bigioi <petronel&fotonation.com> November 2004
-#               15741-16160 Unassigned
+#               15741-16019 Unassigned
+jwpc            16020/tcp  Filemaker Java Web Publishing Core
+#                          Robert Parks <robert_parks&filemaker.com> 12 May 2010
+#               16020/udp  Reserved
+jwpc-bin        16021/tcp  Filemaker Java Web Publishing Core Binary
+#                          Robert Parks <robert_parks&filemaker.com> 12 May 2010
+#               16021/udp  Reserved
+#               16022-16160 Unassigned
 sun-sea-port    16161/tcp  Solaris SEA Port
 sun-sea-port    16161/udp  Solaris SEA Port
 #                          Dana Porter <dana.porter&sun.com> October 2003
@@ -16319,7 +16359,11 @@ p-net-local     34378/udp   P-Net on IP local
 p-net-remote    34379/tcp   P-Net on IP remote
 p-net-remote    34379/udp   P-Net on IP remote
 #                           Kurt Nissen <kn&proces-data.com> February 2004
-#               34380-34961 Unassigned
+#               34380-34566 Unassigned
+dhanalakshmi    34567/tcp   dhanalakshmi.org EDI Service
+#                           Girish Gopalakrishnan <girish&shankar-software.org> 20 April 2010
+#               34567/udp   Reserved 
+#               34568-34961 Unassigned
 profinet-rt     34962/tcp   PROFInet RT Unicast
 profinet-rt     34962/udp   PROFInet RT Unicast
 profinet-rtm    34963/tcp   PROFInet RT Multicast
@@ -16738,14 +16782,12 @@ References
 [RFC5734]  S. Hollenbeck, "Extensible Provisioning Protocol (EPP) Transport over TCP", 
            RFC 5734, August 2009.
 
-[RFC-ietf-behave-turn-16.txt]
-           J. Rosenberg, R. Mahy, P. Matthews, "Traversal Using Relays around NAT (TURN): 
-           Relay Extensions to Session Traversal Utilities for NAT (STUN)", RFC XXXX, 
-           Month Year. 
+[RFC5766]  J. Rosenberg, R. Mahy, P. Matthews, "Traversal Using Relays around NAT (TURN): 
+           Relay Extensions to Session Traversal Utilities for NAT (STUN)", RFC 5766, 
+           April 2010.
 
-[RFC-ietf-hip-nat-traversal-09.txt]
-           M. Komu, T. Henderson, H. Tschofenig, J. Melen, A. Keranen, Ed., "Basic HIP 
-           Extensions for Traversal of Network Address Translators", RFC XXXX, Month Year.
+[RFC5770]  M. Komu, T. Henderson, H. Tschofenig, J. Melen, A. Keranen, Ed., "Basic HIP 
+           Extensions for Traversal of Network Address Translators", RFC 5770, April 2010.
 
 [RFC5811]  J. Hadi Salim, K. Ogawa, "SCTP based TML (Transport Mapping Layer) for ForCES 
            protocol", RFC 5811, March 2010.
@@ -16761,6 +16803,13 @@ References
 [RFC-ietf-netlmm-pmip6-ipv4-support-18.txt]
            R. Wakikawa, S. Gundavelli, "IPv4 Support for Proxy Mobile IPv6", 
            RFC XXXX, Month Year.
+
+[RFC5780]  D. MacDonald, B. Lowekamp, "NAT Behavior Discovery Using STUN", RFC 5780,
+           May 2010.
+
+[RFC-ietf-isms-dtls-tm-14.txt]
+           W. Hardaker, "Transport Layer Security (TLS) Transport Model for the Simple 
+           Network Management Protocol (SNMP)", RFC XXXX, Month Year. 
 
 []
 
