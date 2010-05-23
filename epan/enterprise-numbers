@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2010-05-16)
+(last updated 2010-05-21)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -6314,9 +6314,9 @@ Decimal
     Tom Lorber
       ltomy&dialup.netvision.net.il
 1575
-  Technical University of Braunschweig
-    Detlef J. Schmidt
-      djs&tu-bs.de
+  TU Braunschweig
+    Jan-Marc Pilawa
+      noc&tu-bs.de
 1576
   Stac Inc.
     Laurence Church
@@ -47663,8 +47663,8 @@ Decimal
       flicker&anduin.net
 12027
   AccelaNET
-    Matthew J Backes
-      lucca&accela.net
+    Emily Backes
+      oid-contact&accela.net
 12028
   AirWave Wireless, Inc.
     Jason Luther
@@ -102713,8 +102713,8 @@ Association)
       hatto&salesianer.de
 25785
   Universitat Politècnica de Catalunya (UPC)
-    Manuel Caballero
-      Manuel.Caballero&upc.edu
+    Victor Huerta
+      hostmaster&upcnet.es
 25786
   AgileSoft BVBA
     Michiel Scharpé
@@ -142872,6 +142872,182 @@ Decentralization / Helenic Public Administra
   FBComputers s.r.l.
     Leonardo Centoventotto
       assistenza&fbcomputers.com
+35822
+  V-Internet Operations, Inc.
+    Shinji SATO
+      sato&vio.co.jp
+35823
+  HANGZHOU RICH INFO-TECH CO.,LTD
+    Wenbin Liao
+      archvile&sina.com
+35824
+  Boll und Partner Software GmbH
+    Tobias Roese
+      tobias.roese&boll-und-partner.com
+35825
+  INAX Corporation
+    Masami Uchida
+      domain-admin&isc.i2.inax.co.jp
+35826
+  THALES AIR OPERATION
+    Francois GIERSCH
+      francois.giersch&thalesgroup.com
+35827
+  Invengo Information Technology Co.,Ltd
+    johnson.guo
+      johnson.guo&invengo.com
+35828
+  Entropia e.V.
+    Eve Entropia
+      info&entropia.de
+35829
+  United Natural Foods, Inc.
+    Richard Levy
+      iana-pen&unfi.com
+35830
+  ROFFET.com
+    Nicolas Roffet
+      nicolas-w&roffet.com
+35831
+  ATECH MICROELECTRONIC SYSTEMS
+    Robert Went
+      r.went&amesystems.eu
+35832
+  Open Horizont.Ltd
+    Zoltan Markella
+      zoltan.markella&openhorizont.com
+35833
+  Deva Broadcast Ltd.
+    Todor Ivanov
+      office&devabroadcast.com
+35834
+  Gozaimass
+    Pascal VIVIEN
+      darwin&gozaimass.fr
+35835
+  iB Solution Corporation
+    Satoshi HOSHINO
+      info&ib-sol.co.jp
+35836
+  China BraveFly Technology Co., Ltd.
+    LiuZhiyong
+      liuzy57&hotmail.com
+35837
+  Mamat GmbH
+    Rolf Mamat
+      snmp&software-for-future.de
+35838
+  Matrixx Software Inc.
+    Luther Kitahata
+      Luther.Kitahata&MatrixxSw.com
+35839
+  Imagine One Technology & Management
+    Jeffrey Farmer
+      jeffrey.farmer&imagine-one.com
+35840
+  Gyrus ACMI, Inc.
+    Jonathon Oss
+      jonathon.oss&gyrusacmi.com
+35841
+  Agecodagis SARL
+    Sébastien Judenherc
+      sebastien.judenherc&agecodagis.com
+35842
+  RamVZ
+    Rouven Raudzus
+      Rouven.Raudzus&gmx.de
+35843
+  Sebastian Muszytowski
+    Sebastian Muszytowski
+      s.muszytowski&googlemail.com
+35844
+  Stormont-Vail HealthCare
+    Nathan Girard
+      ngirard&stormontvail.org
+35845
+  Heraklion Wireless
+    Damianos Mylonakis
+      danmylonakis&gmail.com
+35846
+  Parsons
+    Michael Pinkston
+      michael.pinkston&parsons.com
+35847
+  Greenbone Networks GmbH
+    Lukas Grunwald
+      info&greenbone.net
+35848
+  Multipolaris Ltd.
+    Andras Avar
+      andras.avar&mp-i.hu
+35849
+  Telefonica International Wholesale Services
+    Fernando Sastre
+      fernando.sastre&telefonica.com
+35850
+  Horns And Hooves
+    Deyev Vitaliy
+      holms_html&ukr.net
+35851
+  Abix Tecnologia
+    Tulio Munhoz
+      tulio&abix.com.br
+35852
+  Spire Sciences LLC
+    Peter Countryman
+      peter.countryman&spiresciences.com
+35853
+  Remote Enterprise Monitoring, Inc.
+    Jorge Ventura
+      jorge.araujo.ventura&gmail.com
+35854
+  American Modern
+    Richard Hartmann
+      richard_hartmann&amig.com
+35855
+  Dialog Semiconductor
+    Heiko Schumann
+      heiko.schumann&diasemi.com
+35856
+  Berchtold Holding GmbH
+    Joerg Friedrich
+      Joerg.Friedrich&BERCHTOLD.biz
+35857
+  AMARON BVBA
+    Nico Vannieuwenhuyze
+      nico&amaron.be
+35858
+  The Goodyear Tire & Rubber Co.
+    Shawn Leyden
+      spleyden&goodyear.com
+35859
+  Georgia-Pacific LLC.
+    JENNIFER MOORMAN
+      hostmaster&gapac.com
+35860
+  Kvadroteh Ltd.
+    George Kashperko
+      george&academy.zt.ua
+35861
+  CRAWFORD COMMUNICATIONS, INC
+    Guangbin Liu
+      gliu&mail.crawford.com
+35862
+  Mobile Integration Workgroup
+    Stephen Moody
+      iana&mobileintegration-group.com
+35863
+  WAMAJU LLC
+    Matthew Juszczak
+      group&wamaju.com
+35864
+  Ales Hakl
+    Ales Hakl
+      ales&hakl.net
+35865
+  Trivia Solutions B.V.
+    Marcel de Kock
+      marcel.dekock&trivia-solutions.com
 
 
 End of Document
