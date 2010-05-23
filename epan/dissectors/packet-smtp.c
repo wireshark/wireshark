@@ -315,11 +315,20 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    */
   if (session_state->last_nontls_frame != 0 && pinfo->fd->num > session_state->last_nontls_frame) {
     guint16 save_can_desegment;
+    guint32 save_last_nontls_frame;
+
     /* This is TLS, not raw SMTP. TLS can desegment */
     save_can_desegment = pinfo->can_desegment;
     pinfo->can_desegment = pinfo->saved_can_desegment;
+
+    /* Make sure the SSL dissector will not be called again after decryption */
+    save_last_nontls_frame = session_state->last_nontls_frame;
+    session_state->last_nontls_frame = 0;
+
     call_dissector(ssl_handle, tvb, pinfo, tree);
+
     pinfo->can_desegment = save_can_desegment;
+    session_state->last_nontls_frame = save_last_nontls_frame;
     return;
   }
 
@@ -801,9 +810,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           if (code == 220) {
             /* This is the last non-TLS frame. */
             session_state->last_nontls_frame = pinfo->fd->num;
-            session_state->smtp_state = SMTP_STATE_READING_DATA;
-          } else
-            session_state->smtp_state =  SMTP_STATE_READING_CMDS;
+          }
+          session_state->smtp_state =  SMTP_STATE_READING_CMDS;
         }
 
         if (tree) {

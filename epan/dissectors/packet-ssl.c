@@ -1529,6 +1529,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
          * info cached there*/
         association = ssl_association_find(ssl_associations, pinfo->srcport, pinfo->ptype == PT_TCP);
         association = association ? association: ssl_association_find(ssl_associations, pinfo->destport, pinfo->ptype == PT_TCP);
+        association = association ? association: ssl_association_find(ssl_associations, 0, pinfo->ptype == PT_TCP);
 
         proto_item_set_text(ssl_record_tree,
            "%s Record Layer: %s Protocol: %s",
