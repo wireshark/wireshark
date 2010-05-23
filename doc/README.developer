@@ -1803,6 +1803,23 @@ indicate the end of the array).  The 'strings' field would be set to
 If the field has a numeric rather than an enumerated type, the 'strings'
 field would be set to NULL.
 
+You can also use an extended version of the value_string for faster lookups.
+It requires a value_string as input.
+It will use the value as a pointer to the string if all values from 0 to max
+are present in the array, otherwise a binary search will be used this requires
+that the values are in assending order. The init macro will performe a check on the value string
+the first time it is used to determine which search algorithm fits an fall back to a linear search
+if the value_string does not meet the criteria above.
+
+Use this macro to initialise the extended value_string:
+
+static value_string_ext valstringname_ext = VALUE_STRING_EXT_INIT(valstringname);
+
+For FT_(U)INT* fields that need a 'valstringname_ext' struct, the 'strings' field
+would be set to '&valstringname_ext)'. Furthermore, 'display' field must be
+ORed with 'BASE_EXT_STRING' (e.g. BASE_DEC|BASE_EXT_STRING).
+
+
 If the field has a numeric type that might logically fit in ranges of values
 one can use a range_string struct.
 
