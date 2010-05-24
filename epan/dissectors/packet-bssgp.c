@@ -3993,7 +3993,7 @@ decode_iei_rim_application_identity(bssgp_ie_t *ie _U_, build_info_t *bi, int ie
   }
 
   ti = proto_tree_add_item(bi->bssgp_tree, hf_bssgp_appid,
-                           bi->tvb, bi->offset, 1, FALSE);
+                           bi->tvb, bi->offset, 1, REP_BIG_ENDIAN);
 
   appid = tvb_get_guint8(bi->tvb, bi->offset);
   switch (appid) {
@@ -4058,7 +4058,7 @@ decode_iei_rim_routing_information(bssgp_ie_t *ie, build_info_t *bi, int ie_star
     tf = proto_item_add_subtree(ti, ett_bssgp_rim_routing_information);
 
     proto_tree_add_item(tf, hf_bssgp_ra_discriminator,
-                        bi->tvb, bi->offset, 1, FALSE);
+                        bi->tvb, bi->offset, 1, REP_BIG_ENDIAN);
 
     data = tvb_get_guint8(bi->tvb, bi->offset);
 
@@ -4099,7 +4099,7 @@ decode_iei_application_error(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offs
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     tf = proto_item_add_subtree(ti, ett_bssgp_ran_information_container_unit);
 
-    proto_tree_add_item(tf, hf_bssgp_iei_nacc_cause, bi->tvb, bi->offset, 1, FALSE);
+    proto_tree_add_item(tf, hf_bssgp_iei_nacc_cause, bi->tvb, bi->offset, 1, REP_BIG_ENDIAN);
     proto_tree_add_text(tf, bi->tvb, bi->offset, tvb_length(bi->tvb) - bi->offset , "Erroneous Application Container including IEI and LI");
 
   } else {
@@ -4176,7 +4176,7 @@ decode_iei_ran_information_application_container(bssgp_ie_t *ie, build_info_t *b
       proto_tree_add_text(tf, bi->tvb, bi->offset, LEN_SI,
 			  " SI (%u), %u octets", i + 1, LEN_SI);
       /* XXX: Not decoded yet; which section in 3GPP TS 44.018? */
-      proto_tree_add_item(tf, hf_bssgp_rrc_si_msg_type, bi->tvb, bi->offset, 1, FALSE);
+      proto_tree_add_item(tf, hf_bssgp_rrc_si_msg_type, bi->tvb, bi->offset, 1, REP_BIG_ENDIAN);
       /* TODO:
        * Add decoding in packet-gsm_a.c ? Needs a new exported function "gsm_a_decode_rr_message?)
        *
@@ -4250,9 +4250,9 @@ decode_iei_rim_pdu_indications(bssgp_ie_t *ie, build_info_t *bi, int ie_start_of
   data = tvb_get_guint8(bi->tvb, bi->offset);
 
   if (bi->pdutype == BSSGP_IEI_RAN_INFORMATION_CONTAINER_UNIT) {
-    proto_tree_add_item(tf, hf_ran_inf_pdu_type_ext, bi->tvb, bi->offset, 1, FALSE);
+    proto_tree_add_item(tf, hf_ran_inf_pdu_type_ext, bi->tvb, bi->offset, 1, REP_BIG_ENDIAN);
   }else{
-    proto_tree_add_item(tf, hf_ran_inf_req_pdu_type_ext, bi->tvb, bi->offset, 1, FALSE);
+    proto_tree_add_item(tf, hf_ran_inf_req_pdu_type_ext, bi->tvb, bi->offset, 1, REP_BIG_ENDIAN);
   }
 
   value = get_masked_guint8(data, MASK_ACK);
@@ -5984,7 +5984,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   bi.offset++;
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_bssgp, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_bssgp, tvb, 0, -1, REP_NA);
     bssgp_tree = proto_item_add_subtree(ti, ett_bssgp);
     proto_tree_add_uint_format_value(bssgp_tree, hf_bssgp_pdu_type, tvb, 0, 1,
 				     bi.pdutype,
