@@ -2769,11 +2769,17 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if (!is_truncated && (offset < p_mac_lte_info->length)) {
             /* There is a problem if we haven't used all of the PDU */
             expert_add_info_format(pinfo, pdu_ti, PI_MALFORMED, PI_ERROR,
-                                   "DL PDU for UE %u is shorter than reported length (reported=%u, actual=%u)",
+                                   "PDU for UE %u is shorter than reported length (reported=%u, actual=%u)",
+                                   p_mac_lte_info->ueid, p_mac_lte_info->length, offset);
+        }
+
+        if (!is_truncated && (offset > p_mac_lte_info->length)) {
+            /* There is a problem if the PDU is longer than rpeported */
+            expert_add_info_format(pinfo, pdu_ti, PI_MALFORMED, PI_ERROR,
+                                   "PDU for UE %u is longer than reported length (reported=%u, actual=%u)",
                                    p_mac_lte_info->ueid, p_mac_lte_info->length, offset);
         }
     }
-
 }
 
 
