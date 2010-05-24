@@ -927,7 +927,7 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 		/* Nothing to parse */
 		return -1;
 	}
-	/* Set uri start offset in case this was caled directly */
+	/* Set uri start offset in case this was called directly */
 	uri_offsets->uri_start = current_offset;
 
 	/* Check if it's realy a sip uri ( it might be a tel uri, parse that?) */
