@@ -903,13 +903,13 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    offset to the end of the packet. */
 
 /* create display subtree for the protocol */
-		ti = proto_tree_add_item(tree, proto_PROTOABBREV, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_PROTOABBREV, tvb, 0, -1, REP_NA);
 
 		PROTOABBREV_tree = proto_item_add_subtree(ti, ett_PROTOABBREV);
 
 /* add an item to the subtree, see section 1.6 for more information */
 		proto_tree_add_item(PROTOABBREV_tree,
-		    hf_PROTOABBREV_FIELDABBREV, tvb, offset, len, FALSE);
+		    hf_PROTOABBREV_FIELDABBREV, tvb, offset, len, REP_xxx);
 
 
 /* Continue adding tree items to process the packet here */
@@ -2003,7 +2003,7 @@ There are several functions that the programmer can use to add either
 protocol or field labels to the proto_tree:
 
 	proto_item*
-	proto_tree_add_item(tree, id, tvb, start, length, little_endian);
+	proto_tree_add_item(tree, id, tvb, start, length, representation);
 
 	proto_item*
 	proto_tree_add_none_format(tree, id, tvb, start, length, format, ...);
@@ -2234,8 +2234,12 @@ The item added to the GUI tree will contain the name (as passed in the
 proto_register_*() function) and a value.  The value will be fetched
 from the tvbuff by proto_tree_add_item(), based on the type of the field
 and, for integral and Boolean fields, the byte order of the value; the
-byte order is specified by the 'little_endian' argument, which is TRUE
-if the value is little-endian and FALSE if it is big-endian.
+byte order, for items for which that's relevant, is specified by the
+'representation' argument, which is REP_LITTLE_ENDIAN if the value is
+little-endian and REP_BIG_ENDIAN if it is big-endian.  If the byte order
+is not relevant, use REP_NA (Not Applicable).  In the future, other
+elements of the representation, such as the character encoding for
+character strings, might be supported.
 
 Now that definitions of fields have detailed information about bitfield
 fields, you can use proto_tree_add_item() with no extra processing to
@@ -2256,7 +2260,8 @@ against the parent field, the first byte of the TH.
 
 The code to add the FID to the tree would be;
 
-	proto_tree_add_item(bf_tree, hf_sna_th_fid, tvb, offset, 1, TRUE);
+	proto_tree_add_item(bf_tree, hf_sna_th_fid, tvb, offset, 1,
+	    REP_BIG_ENDIAN);
 
 The definition of the field already has the information about bitmasking
 and bitshifting, so it does the work of masking and shifting for us!
@@ -2640,13 +2645,15 @@ skeleton of how the programmer might code this.
 	for(i = 0; i < num_rings; i++) {
 		proto_item *pi;
 
-		pi = proto_tree_add_item(tree, hf_tr_rif_ring, ..., FALSE);
+		pi = proto_tree_add_item(tree, hf_tr_rif_ring, ...,
+		    REP_BIG_ENDIAN);
 		PROTO_ITEM_SET_HIDDEN(pi);
 	}
 	for(i = 0; i < num_rings - 1; i++) {
 		proto_item *pi;
 
-		pi = proto_tree_add_item(tree, hf_tr_rif_bridge, ..., FALSE);
+		pi = proto_tree_add_item(tree, hf_tr_rif_bridge, ...,
+		    REP_BIG_ENDIAN);
 		PROTO_ITEM_SET_HIDDEN(pi);
 	}
 
@@ -3713,7 +3720,8 @@ static void dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         len += 1; /* Add one for the '\0' */
 
         if (tree) {
-            proto_tree_add_item(tree, hf_cstring, tvb, offset, len, FALSE);
+            proto_tree_add_item(tree, hf_cstring, tvb, offset, len,
+				REP_NA);
         }
         offset += (guint)len;
     }
