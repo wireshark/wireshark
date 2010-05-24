@@ -559,9 +559,9 @@ test_fragment_add_dcerpc_dg(void)
  * Adds a couple of out-of-order fragments and checks their reassembly.
  */
 static void
-test_fragment_add_seq_check_work(fragment_data *(*fn)(tvbuff_t *, int,
-				 packet_info *, guint32, GHashTable *,
-				 GHashTable *, guint32, guint32, gboolean))
+test_fragment_add_seq_check_work(fragment_data *(*fn)(tvbuff_t *, const int,
+				 const packet_info *, const guint32, GHashTable *,
+				 GHashTable *, const guint32, const guint32, const gboolean))
 {
     fragment_data *fd_head;
 
@@ -1103,7 +1103,7 @@ proto_item *proto_tree_add_boolean(proto_tree *tree _U_, int hfindex _U_,
 proto_item *proto_tree_add_item(proto_tree *tree _U_, const int hfindex _U_,
                                 tvbuff_t *tvb _U_, const gint start _U_,
                                 gint length _U_,
-                                const gboolean little_endian _U_)
+                                const guint little_endian _U_)
 { return NULL; }
 
 gint check_col(column_info *cinfo _U_, const gint col _U_)

@@ -214,21 +214,25 @@ fragment_add_dcerpc_dg(tvbuff_t *tvb, const int offset, const packet_info *pinfo
  * head of the fragment list.
  */
 extern fragment_data *
-fragment_add_seq_check(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
-	     const guint32 id, GHashTable *fragment_table,
-	     GHashTable *reassembled_table, const guint32 frag_number,
-	     const guint32 frag_data_len, const gboolean more_frags);
+fragment_add_seq_check(tvbuff_t *tvb, const int offset,
+		       const packet_info *pinfo, const guint32 id,
+		       GHashTable *fragment_table,
+		       GHashTable *reassembled_table, const guint32 frag_number,
+		       const guint32 frag_data_len, const gboolean more_frags);
 
 extern fragment_data *
-fragment_add_seq_802_11(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	     guint32 id, GHashTable *fragment_table,
-	     GHashTable *reassembled_table, guint32 frag_number,
-	     guint32 frag_data_len, gboolean more_frags);
+fragment_add_seq_802_11(tvbuff_t *tvb, const int offset,
+			const packet_info *pinfo, const guint32 id,
+			GHashTable *fragment_table,
+			GHashTable *reassembled_table,
+			const guint32 frag_number, const guint32 frag_data_len,
+			const gboolean more_frags);
 
 extern fragment_data *
-fragment_add_seq_next(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
-	     GHashTable *fragment_table, GHashTable *reassembled_table,
-	     guint32 frag_data_len, gboolean more_frags);
+fragment_add_seq_next(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
+		      const guint32 id, GHashTable *fragment_table,
+		      GHashTable *reassembled_table,
+		      const guint32 frag_data_len, const gboolean more_frags);
 
 extern void
 fragment_start_seq_check(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table,

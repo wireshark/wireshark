@@ -1645,11 +1645,13 @@ fragment_add_seq_key(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
  * XXX - Should we simply return NULL for zero-length fragments?
  */
 static fragment_data *
-fragment_add_seq_check_work(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
-		 const guint32 id, GHashTable *fragment_table,
-		 GHashTable *reassembled_table, const guint32 frag_number,
-		 const guint32 frag_data_len, const gboolean more_frags,
-		 const guint32 flags)
+fragment_add_seq_check_work(tvbuff_t *tvb, const int offset,
+			    const packet_info *pinfo, const guint32 id,
+			    GHashTable *fragment_table,
+			    GHashTable *reassembled_table,
+			    const guint32 frag_number,
+			    const guint32 frag_data_len,
+			    const gboolean more_frags, const guint32 flags)
 {
 	reassembled_key reass_key;
 	fragment_key key;
@@ -1713,36 +1715,43 @@ fragment_add_seq_check_work(tvbuff_t *tvb, const int offset, const packet_info *
 }
 
 fragment_data *
-fragment_add_seq_check(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
-		 const guint32 id, GHashTable *fragment_table,
-		 GHashTable *reassembled_table, const guint32 frag_number,
-		 const guint32 frag_data_len, const gboolean more_frags)
+fragment_add_seq_check(tvbuff_t *tvb, const int offset,
+		       const packet_info *pinfo, const guint32 id,
+		       GHashTable *fragment_table,
+		       GHashTable *reassembled_table, const guint32 frag_number,
+		       const guint32 frag_data_len, const gboolean more_frags)
 {
 	return fragment_add_seq_check_work(tvb, offset, pinfo, id,
-		fragment_table, reassembled_table, frag_number, frag_data_len,
-		more_frags, 0);
+					   fragment_table, reassembled_table,
+					   frag_number, frag_data_len,
+					   more_frags, 0);
 }
 
 fragment_data *
-fragment_add_seq_802_11(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		 guint32 id, GHashTable *fragment_table,
-		 GHashTable *reassembled_table, guint32 frag_number,
-		 guint32 frag_data_len, gboolean more_frags)
+fragment_add_seq_802_11(tvbuff_t *tvb, const int offset,
+			const packet_info *pinfo, const guint32 id,
+			GHashTable *fragment_table,
+			GHashTable *reassembled_table,
+			const guint32 frag_number, const guint32 frag_data_len,
+			const gboolean more_frags)
 {
 	return fragment_add_seq_check_work(tvb, offset, pinfo, id,
-		fragment_table, reassembled_table, frag_number, frag_data_len,
-		more_frags, REASSEMBLE_FLAGS_802_11_HACK);
+					   fragment_table, reassembled_table,
+					   frag_number, frag_data_len,
+					   more_frags,
+					   REASSEMBLE_FLAGS_802_11_HACK);
 }
 
 fragment_data *
-fragment_add_seq_next(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		 guint32 id, GHashTable *fragment_table,
-		 GHashTable *reassembled_table, guint32 frag_data_len,
-		 gboolean more_frags)
+fragment_add_seq_next(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
+		      const guint32 id, GHashTable *fragment_table,
+		      GHashTable *reassembled_table, const guint32 frag_data_len,
+		      const gboolean more_frags)
 {
 	return fragment_add_seq_check_work(tvb, offset, pinfo, id,
-		fragment_table, reassembled_table, 0, frag_data_len,
-		more_frags, REASSEMBLE_FLAGS_NO_FRAG_NUMBER);
+					   fragment_table, reassembled_table, 0,
+					   frag_data_len, more_frags,
+					   REASSEMBLE_FLAGS_NO_FRAG_NUMBER);
 }
 
 void
