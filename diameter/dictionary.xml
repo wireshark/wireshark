@@ -1561,11 +1561,11 @@ http://www.iana.org/assignments/radius-types
 502 Bandwidth [RFC5624] 
 503 PHB-Class [RFC5624] 
 504 - 507 in mobileipv6.xml
-503 PHB-Class [RFC5624] 
-504 PMIP6-DHCP-Server-Address [RFC5779] 
-505 PMIP6-IPv4-Home-Address [RFC5779] 
-506 Mobile-Node-Identifier [RFC5779] 
-507 Service-Configuration [RFC5779] 
+ 503 PHB-Class [RFC5624] 
+ 504 PMIP6-DHCP-Server-Address [RFC5779] 
+ 505 PMIP6-IPv4-Home-Address [RFC5779] 
+ 506 Mobile-Node-Identifier [RFC5779] 
+ 507 Service-Configuration [RFC5779] 
 508 QoS-Resources [RFC5777] 
 509 Filter-Rule [RFC5777] 
 510 Filter-Rule-Precedence [RFC5777] 
@@ -2236,7 +2236,7 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 		<avp name="WAG-Address" code="890" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP" >
 			<type type-name="IPAddress"/>
 		</avp>
-		<avp name="WAG-PLMN-Id" code="891">
+		<avp name="WAG-PLMN-Id" code="891" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP" >
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="WLAN-Radio-Container" code="892" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
@@ -3019,7 +3019,7 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 			<enum name="Informational" code="2"/>
 			<enum name="Auto" code="3"/>
 		</avp>
-		<avp name="Token-Text" code="1215">
+		<avp name="Token-Text" code="1215" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Delivery-Report-Requested" code="1216" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
@@ -3049,7 +3049,7 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 			<enum name="content-basic" code="6"/>
 			<enum name="content-rich" code="7"/>
 		</avp>
-		<avp name="DRM-Content" code="1221">
+		<avp name="DRM-Content" code="1221" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="No" code="0"/>
 			<enum name="Yes" code="1"/>
