@@ -115,6 +115,7 @@ typedef const char* (*diam_avp_dissector_t)(diam_ctx_t*, diam_avp_t*, tvbuff_t*)
 typedef struct _diam_vnd_t {
 	guint32 code;
 	GArray* vs_avps;
+	value_string_ext* vs_avps_ext;
 	GArray* vs_cmds;
 } diam_vnd_t;
 
@@ -182,8 +183,9 @@ static const char* simple_avp(diam_ctx_t*, diam_avp_t*, tvbuff_t*);
 
 static const value_string no_vs[] = {{0, NULL} };
 static GArray no_garr = { (void*)no_vs, 1 };
-static diam_vnd_t unknown_vendor = { 0xffffffff, &no_garr, &no_garr };
-static diam_vnd_t no_vnd = { 0, NULL, NULL };
+static value_string_ext no_vs_avps_ext = { NULL, 0, (void*)no_vs};
+static diam_vnd_t unknown_vendor = { 0xffffffff, &no_garr, &no_vs_avps_ext,  &no_garr };
+static diam_vnd_t no_vnd = { 0, NULL, NULL, NULL };
 static diam_avp_t unknown_avp = {0, &unknown_vendor, simple_avp, simple_avp, -1, -1, NULL };
 static GArray* all_cmds;
 static diam_dictionary_t dictionary = { NULL, NULL, NULL, NULL };
@@ -295,6 +297,20 @@ static const char* avpflags_str[] = {
 	"VMP",
 };
 
+static gint
+compare_avps (gconstpointer  a, gconstpointer  b)
+{
+	value_string* vsa = (value_string*)a;
+	value_string* vsb = (value_string*)b;
+
+	if(vsa->value > vsb->value)
+		return 1;
+	if(vsa->value < vsb->value)
+		return -1;
+
+	return 0;
+}
+
 /* Special decoding of some AVP:s */
 
 static int
@@ -347,7 +363,9 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 	value_string* vendor_avp_vs;
 	const char* code_str;
 	const char* avp_str;
-
+#if 0
+	gint i = 0;
+#endif
 	len &= 0x00ffffff;
 
 	if (!a) {
@@ -363,15 +381,29 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 		vendor = a->vendor;
 	}
 
-	/* Get dictionary of AVPs matching found vendor */
-	vendor_avp_vs = VND_AVP_VS(vendor);
+	if(vendor->vs_avps_ext->vals == NULL){
+		g_array_sort(vendor->vs_avps, compare_avps);
+		/* Get dictionary of AVPs matching found vendor */
+		vendor_avp_vs = VND_AVP_VS(vendor);
+		vendor->vs_avps_ext->vals = vendor_avp_vs;
+#if 0
+		Debug code
+		while(vendor_avp_vs[i].strptr!=NULL){
+			g_warning("%u %s",vendor_avp_vs[i].value,vendor_avp_vs[i].strptr);
+			i++;
+		}
+#endif
+	}else{
+		/* Get dictionary of AVPs matching found vendor */
+		vendor_avp_vs = VND_AVP_VS(vendor);
+	}
 
 	/* Add root of tree for this AVP */
 	avp_item = proto_tree_add_item(c->tree,hf_diameter_avp,tvb,offset,len,FALSE);
 	avp_tree = proto_item_add_subtree(avp_item,a->ett);
 
 	pi = proto_tree_add_item(avp_tree,hf_diameter_avp_code,tvb,offset,4,FALSE);
-	code_str = val_to_str(code, vendor_avp_vs, "Unknown");
+	code_str = val_to_str_ext(code, vendor->vs_avps_ext, "Unknown");
 	proto_item_append_text(pi," %s", code_str);
 
 	/* Code */
@@ -1169,6 +1201,7 @@ strcase_equal(gconstpointer ka, gconstpointer kb)
 	return g_ascii_strcasecmp(a,b) == 0;
 }
 
+
 static int
 dictionary_load(void)
 {
@@ -1198,6 +1231,9 @@ dictionary_load(void)
 
 	no_vnd.vs_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 	no_vnd.vs_avps = g_array_new(TRUE,TRUE,sizeof(value_string));
+	no_vnd.vs_avps_ext = g_malloc0(sizeof(value_string_ext));
+	no_vnd.vs_avps_ext->match = (value_string_match_t) match_strval_ext_init;
+	no_vnd.vs_avps_ext->length = 0;
 
 	all_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 
@@ -1261,6 +1297,9 @@ dictionary_load(void)
 			vnd->code = v->code;
 			vnd->vs_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 			vnd->vs_avps = g_array_new(TRUE,TRUE,sizeof(value_string));
+			vnd->vs_avps_ext = g_malloc0(sizeof(value_string_ext));
+			vnd->vs_avps_ext->match = (value_string_match_t) match_strval_ext_init;
+			vnd->vs_avps_ext->length= 0;
 			pe_tree_insert32(dictionary.vnds,vnd->code,vnd);
 			g_hash_table_insert(vendors,v->name,vnd);
 		}
@@ -1293,6 +1332,7 @@ dictionary_load(void)
 		if ((vnd = g_hash_table_lookup(vendors,vend))) {
 			value_string vndvs = {a->code,a->name};
 			g_array_append_val(vnd->vs_avps,vndvs);
+			vnd->vs_avps_ext->length++;
 		} else {
 			fprintf(stderr,"Diameter Dictionary: No Vendor: %s",vend);
 			vnd = &unknown_vendor;
@@ -1341,7 +1381,6 @@ dictionary_load(void)
 			}
 		}
 	}
-
 	g_hash_table_destroy(build_dict.types);
 	g_hash_table_destroy(build_dict.avps);
 	g_hash_table_destroy(vendors);
