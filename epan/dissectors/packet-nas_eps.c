@@ -509,6 +509,8 @@ guint16 (*nas_eps_common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 of
 
 const value_string nas_emm_elem_strings[] = {
 	/* 9.9.3	EPS Mobility Management (EMM) information elements */
+	{ 0x00,	"Additional update result" },			/* 9.9.3.0A Additional update result */
+	{ 0x00,	"Additional update type" },				/* 9.9.3.0B Additional update type */
 	{ 0x00,	"Authentication failure parameter" },	/* 9.9.3.1	Authentication failure parameter */
 	{ 0x00,	"Authentication parameter AUTN" },		/* 9.9.3.2	Authentication parameter AUTN */
 	{ 0x00,	"Authentication parameter RAND" },		/* 9.9.3.3	Authentication parameter RAND */
@@ -522,7 +524,7 @@ const value_string nas_emm_elem_strings[] = {
 	{ 0x00,	"EPS attach type" },					/* 9.9.3.11	EPS attach type */
 	{ 0x00,	"EPS mobile identity" },				/* 9.9.3.12	EPS mobile identity */
 	{ 0x00,	"EPS network feature support" },		/* 9.9.3.12	EPS mobile identity */
-	{ 0x00,	"EPS update resul" },					/* 9.9.3.13	EPS update result */
+	{ 0x00,	"EPS update result" },					/* 9.9.3.13	EPS update result */
 	{ 0x00,	"EPS update type" },					/* 9.9.3.14	EPS update type */
 	{ 0x00,	"ESM message container" },				/* 9.9.3.15	ESM message conta */
 	{ 0x00,	"GPRS timer" },							/* 9.9.3.16	GPRS timer ,See subclause 10.5.7.3 in 3GPP TS 24.008 [6]. */
@@ -2730,6 +2732,10 @@ nas_emm_detach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 		}
 	}
 	proto_tree_add_text(tree, tvb, curr_offset, len,"UL/DL not known, can't properly dissect");
+	proto_tree_add_text(tree, tvb, curr_offset, len,"Trying to dissect as UE terminated detach");
+	nas_emm_detach_req_DL(tvb, tree, offset, len);
+	proto_tree_add_text(tree, tvb, curr_offset, len,"Trying to dissect as UE originating detach");
+	nas_emm_detach_req_UL(tvb, tree, offset, len);
 
 	return;
 
