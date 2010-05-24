@@ -337,10 +337,6 @@ endif()
 if(ENABLE_AIRPCAP)
 	set(HAVE_AIRPCAP 1)
 endif()
-# Assume that if HAVE_PCAP_LIB_VERSION exists, then HAVE_PCAP_VERSION exists as well
-if(HAVE_PCAP_LIB_VERSION)
-	set(HAVE_PCAP_VERSION 1)
-endif()
 # That's the name autofoo uses
 if(HAVE_LIBZLIB)
 	set(HAVE_LIBZ 1)
