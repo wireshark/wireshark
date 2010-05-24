@@ -209,6 +209,13 @@ else()
   set(LINK_MODE_MODULE MODULE)
 endif()
 
+# The packagelist is doing some magic:  If we add XXX to the packagelist, we
+# - may optionally set XXX_OPTIONS to pass to the find_package command
+# - will call FindXXX.cmake
+# - return found libraries in XXX_LIBRARIES
+# - return found include in XXX_INCLUDE_DIRS
+# - set HAVE_XXX
+
 #The minimum package list
 set(PACKAGELIST GLIB2 PCAP M LEX YACC Perl SH PythonInterp HtmlViewer ${PACKAGELIST})
 
@@ -329,6 +336,10 @@ if(HAVE_LIBADNS)
 endif()
 if(ENABLE_AIRPCAP)
 	set(HAVE_AIRPCAP 1)
+endif()
+# Assume that if HAVE_PCAP_LIB_VERSION exists, then HAVE_PCAP_VERSION exists as well
+if(HAVE_PCAP_LIB_VERSION)
+	set(HAVE_PCAP_VERSION 1)
 endif()
 # That's the name autofoo uses
 if(HAVE_LIBZLIB)
