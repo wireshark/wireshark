@@ -1103,7 +1103,7 @@ proto_item *proto_tree_add_boolean(proto_tree *tree _U_, int hfindex _U_,
 proto_item *proto_tree_add_item(proto_tree *tree _U_, const int hfindex _U_,
                                 tvbuff_t *tvb _U_, const gint start _U_,
                                 gint length _U_,
-                                const guint little_endian _U_)
+                                const guint encoding _U_)
 { return NULL; }
 
 gint check_col(column_info *cinfo _U_, const gint col _U_)
