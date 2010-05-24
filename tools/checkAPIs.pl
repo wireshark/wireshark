@@ -115,15 +115,15 @@ my %APIs = (
                                                      #  fashion is appropriate for the code in question.
                 'ctime',                             # Use abs_time_secs_to_str()
                 ### Deprecated glib functions
-                # (The list is based upon the GLib 2.22.3 documentation; Some of 
-                #  the entries are are commented out since they are currently 
+                # (The list is based upon the GLib 2.22.3 documentation; Some of
+                #  the entries are are commented out since they are currently
                 #  being used in Wireshark and since the replacement functionality
                 #  is not available in all the GLib versions that Wireshark
                 #  currently supports (ie: versions starting with GLib 2.4).
                 'g_async_queue_ref_unlocked',        # g_async_queue_ref()   (OK since 2.8)
                 'g_async_queue_unref_and_unlock',    # g_async_queue_unref() (OK since 2.8)
                 'g_basename',
-                'g_cache_value_foreach',             # g_cache_key_foreach() 
+                'g_cache_value_foreach',             # g_cache_key_foreach()
                 'g_date_set_time',                   # g_date_set_time_t (avail since 2.10)
                 'g_dirname',
                 'g_hash_table_freeze',
@@ -159,7 +159,7 @@ my %APIs = (
                 'g_list_pop_allocator',              # "does nothing since 2.10"
                 'g_list_push_allocator',             # "does nothing since 2.10"
 ### GMemChunks should used *only* with GLib < 2.10.
-###  There's an issue wherein GLib >= 2.10 g_mem_chunk_destroy doesn't actually free memory thus 
+###  There's an issue wherein GLib >= 2.10 g_mem_chunk_destroy doesn't actually free memory thus
 ###   leading to memory leaks.
 ###  So: either replace GMemChunk use with something else altogether
 ###      or use GMemChunks for GLib < 2.10 and GSlice (or whatever) for newer GLibs.
@@ -199,7 +199,7 @@ my %APIs = (
 
         # APIs that print to the terminal. Dissectors shouldn't call these
         'termoutput' => { 'count_errors' => 0, 'functions' => [
-                'printf',  
+                'printf',
                 ] },
 
         # Deprecated GTK APIs
@@ -216,8 +216,8 @@ my %APIs = (
 );
 
 # Deprecated GTK functions with (E)rror or (W)arning flag:
-# (The list is based upon the GTK+ 2.18.5 documentation; Some of 
-#  the entries are are commented out since they are currently 
+# (The list is based upon the GTK+ 2.18.5 documentation; Some of
+#  the entries are are commented out since they are currently
 #  being used in Wireshark and since the replacement functionality
 #  is not available in all the GTK+ versions that Wireshark
 #  currently supports (ie: versions starting with GTK+ 2.4).
@@ -349,7 +349,7 @@ my %deprecatedGtkFunctions = (
                 'GTK_CLIST_UNSET_FLAG',                        'E',
                 'GTK_CLIST_USE_DRAG_ICONS',                    'E',
                 'gtk_color_selection_get_color',               'E',
-                'gtk_color_selection_set_change_palette_hook', 'E', 
+                'gtk_color_selection_set_change_palette_hook', 'E',
                 'gtk_color_selection_set_color',               'E',
                 'gtk_color_selection_set_update_policy',       'E',
                 'gtk_combo_disable_activate',                  'E', # GtkComboBox ... (avail since 2.4/2.6/2.10/2.14)
@@ -457,7 +457,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_draw_string',                             'E',
                 'gtk_draw_tab',                                'E',
                 'gtk_draw_vline',                              'E',
-                'gtk_drawing_area_size',                       'E', # >> g_object_set() [==] ? 
+                'gtk_drawing_area_size',                       'E', # >> g_object_set() [==] ?
                                                                     #    gtk_widget_set_size_request() [==?]
                 'gtk_entry_append_text',                       'E', # >> gtk_editable_insert_text() [==?]
                 'gtk_entry_new_with_max_length',               'E', # gtk_entry_new(); gtk_entry_set_max_length()
@@ -629,10 +629,10 @@ my %deprecatedGtkFunctions = (
                 'gtk_progress_bar_set_activity_step',          'E',
                 'gtk_progress_bar_set_bar_style',              'E',
                 'gtk_progress_bar_set_discrete_blocks',        'E',
-                'gtk_progress_bar_update',                     'E', # >>> "gtk_progress_set_value() or 
-                                                                    #    gtk_progress_set_percentage()" 
-                                                                    ##  Actually: GtkProgress is deprecated so the 
-                                                                    ##  right answer appears to be to use 
+                'gtk_progress_bar_update',                     'E', # >>> "gtk_progress_set_value() or
+                                                                    #    gtk_progress_set_percentage()"
+                                                                    ##  Actually: GtkProgress is deprecated so the
+                                                                    ##  right answer appears to be to use
                                                                     ##  gtk_progress_bar_set_fraction()
                 'gtk_progress_configure',                      'E',
                 'gtk_progress_get_current_percentage',         'E',
@@ -816,7 +816,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_vbutton_box_get_spacing_default',         'E',
                 'gtk_vbutton_box_set_layout_default',          'E',
                 'gtk_vbutton_box_set_spacing_default',         'E',
-                'gtk_widget_draw',                             'E', # gtk_widget_queue_draw_area(): 
+                'gtk_widget_draw',                             'E', # gtk_widget_queue_draw_area():
                                                                     #  "in general a better choice if you want
                                                                     #  to draw a region of a widget."
                 'gtk_widget_pop_visual',                       'E',
@@ -874,7 +874,7 @@ my %deprecatedGtkFunctions = (
 # Given a ref to a hash containing "functions" and "functions_count" entries:
 # Determine if the any of the list of APIs contained in the array referenced by "functions"
 # exists in the file.
-# For each API which appears in the file: 
+# For each API which appears in the file:
 #     Push the API onto the provided list;
 #     Add the number of times the API appears in the file to the total count
 #      for the API (stored as the value of the API key in the hash referenced by "function_counts").
@@ -908,7 +908,7 @@ my $CComment = qr{ / [*] [^*]* [*]+ (?: [^/*] [^*]* [*]+ )* / }x;
 #my $CppComment = qr{ // (.*?) \n }x;
 
 # 2. A regex which matches double-quoted strings.
-#    ?s added so that strings containing a 'line continuation' 
+#    ?s added so that strings containing a 'line continuation'
 #    ( \ followed by a new-line) will match.
 my $DoubleQuotedStr = qr{ (?: ["] (?s: \\. | [^\"\\])* ["]) }x;
 
@@ -931,7 +931,7 @@ my $commentAndStringRegex = qr{ (?: $DoubleQuotedStr | $SingleQuotedStr | $CComm
 my $StaticRegex             = qr/ static \s+                                                       /xs;
 my $ConstRegex              = qr/ const  \s+                                                       /xs;
 my $Static_andor_ConstRegex = qr/ (?: $StaticRegex $ConstRegex | $StaticRegex | $ConstRegex)       /xs;
-my $ValueStringRegex        = qr/ $Static_andor_ConstRegex value_string [^;*]+ = [^;]+ [{] [^;]+ ; /xs;
+my $ValueStringRegex        = qr/ $Static_andor_ConstRegex value_string \ + [^;*]+ = [^;]+ [{] [^;]+ ; /xs;
 
 #
 # MAIN
@@ -945,8 +945,8 @@ my $machine_readable_output = 0;                   # default: disabled
 my $debug_flag = 0;
 
 my $result = GetOptions(
-                        'group=s' => \@apiGroups, 
-                        'summary-group=s' => \@apiSummaryGroups, 
+                        'group=s' => \@apiGroups,
+                        'summary-group=s' => \@apiSummaryGroups,
                         'check-value-string-array-null-termination!' => \$check_value_string_array_null_termination,
                         'Machine-readable' => \$machine_readable_output,
                         'debug' => \$debug_flag
@@ -1019,7 +1019,7 @@ while ($_ = $ARGV[0])
         # Brute force check for value_string arrays which are missing {0, NULL} as the final (terminating) array entry
         if ($check_value_string_array_null_termination) {
                 #  Assumption: definition is of form (pseudo-Regex):
-                #    " (static const|static|const) value_string .+ = { .+ ;" (possibly over multiple lines) 
+                #    " (static const|static|const) value_string .+ = { .+ ;" (possibly over multiple lines)
                 while ($fileContents =~ / ( $ValueStringRegex ) /xsog) {
                         # value_string array definition found; check if NULL terminated
                         my $vs = my $vsx = $1;
@@ -1029,7 +1029,7 @@ while ($_ = $ARGV[0])
                                 printf STDERR "%s\n", $vs;
                         }
                         $vs =~ s{ \s } {}xg;
-                        # README.developer says 
+                        # README.developer says
                         #  "Don't put a comma after the last tuple of an initializer of an array"
                         # However: since this usage is present in some number of cases, we'll allow for now
                         if ($vs !~ / , NULL [}] ,? [}] ; $/xo) {
@@ -1063,7 +1063,7 @@ while ($_ = $ARGV[0])
                 }
                 if (@foundAPIs && $machine_readable_output) {
                         for my $api (@foundAPIs) {
-                                printf STDERR "%-8.8s %-20.20s %-30.30s %-45.45s\n", $pfx, $apiGroup, $filename, $api; 
+                                printf STDERR "%-8.8s %-20.20s %-30.30s %-45.45s\n", $pfx, $apiGroup, $filename, $api;
                         }
                 }
         }
