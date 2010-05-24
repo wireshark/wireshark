@@ -141,7 +141,7 @@ typedef struct _protocol protocol_t;
      file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression))))
 
 /*
- * The representation of a field of a particular type may involve more
+ * The encoding of a field of a particular type may involve more
  * than just whether it's big-endian or little-endian and its size.
  *
  * For integral values, that's it, as 99.9999999999999% of the machines
@@ -169,35 +169,35 @@ typedef struct _protocol protocol_t;
  *	nanoseconds, DOS date/time, Windows FILETIME, NTP time, etc..
  *
  * We might also, in the future, want to allow a field specifier to
- * indicate the representation of the field, or at least its default
- * representation, as most fields in most protocols always use the
- * same representation (although that's not true of all fields, so we
+ * indicate the encoding of the field, or at least its default
+ * encoding, as most fields in most protocols always use the
+ * same encoding (although that's not true of all fields, so we
  * still need to be able to specify that at run time).
  *
- * So, for now, we define REP_BIG_ENDIAN and REP_LITTLE_ENDIAN as
+ * So, for now, we define ENC_BIG_ENDIAN and ENC_LITTLE_ENDIAN as
  * bit flags, to be combined, in the future, with other information
- * to specify the representation in the last argument to
+ * to specify the encoding in the last argument to
  * proto_tree_add_item(), and possibly to specify in a field
  * definition (e.g., ORed in with the type value).
  *
  * Currently, proto_tree_add_item() treats its last argument as a
  * Boolean - if it's zero, the field is big-endian, and if it's non-zero,
  * the field is little-endian - and other code in epan/proto.c does
- * the same.  We therefore define REP_BIG_ENDIAN as 0x00000000 and
- * REP_LITTLE_ENDIAN as 0x80000000 - we're using the high-order bit
+ * the same.  We therefore define ENC_BIG_ENDIAN as 0x00000000 and
+ * ENC_LITTLE_ENDIAN as 0x80000000 - we're using the high-order bit
  * so that we could put a field type and/or a value such as a character
  * encoding in the lower bits.
  *
  * For protocols (FT_PROTOCOL), aggregate items with subtrees (FT_NONE),
  * opaque byte-array fields (FT_BYTES), and other fields where there
- * is no choice of representation (either because it's "just a bucket
- * of bytes" or because the representation is completely fixed), we
- * have REP_NA (for "Not Applicable").
+ * is no choice of encoding (either because it's "just a bucket
+ * of bytes" or because the encoding is completely fixed), we
+ * have ENC_NA (for "Not Applicable").
  */
-#define REP_BIG_ENDIAN		0x00000000
-#define REP_LITTLE_ENDIAN	0x80000000
+#define ENC_BIG_ENDIAN		0x00000000
+#define ENC_LITTLE_ENDIAN	0x80000000
 
-#define REP_NA			0x00000000
+#define ENC_NA			0x00000000
 
 /* Values for header_field_info.display */
 
@@ -616,11 +616,11 @@ extern void proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint start,
  @param tvb the tv buffer of the current data
  @param start start of data in tvb
  @param length length of data in tvb
- @param little_endian big or little endian byte representation
+ @param encoding data encoding
  @return the newly created item */
 extern proto_item *
 proto_tree_add_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
-    const gint start, gint length, const gboolean little_endian);
+    const gint start, gint length, const guint encoding);
 
 /** Add a text-only node to a proto_tree.
  @param tree the tree to append this item to

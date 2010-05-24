@@ -817,7 +817,7 @@ struct mq_msg_properties {
 static guint32 tvb_get_guint32_endian(tvbuff_t *a_tvb, gint a_iOffset, gint a_rep)
 {
 	guint32 iResult;
-	if (a_rep & REP_LITTLE_ENDIAN)
+	if (a_rep & ENC_LITTLE_ENDIAN)
 		iResult = tvb_get_letohl(a_tvb, a_iOffset);
 	else
 		iResult =  tvb_get_ntohl(a_tvb, a_iOffset);
@@ -1238,7 +1238,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 iSegmentLength = 0;
 	guint32 iSizePayload = 0;
 	gint iSizeMD_gbl = 0;
-	gint rep = REP_BIG_ENDIAN;
+	gint rep = ENC_BIG_ENDIAN;
 	gboolean bPayload = FALSE;
 	gboolean bEBCDIC = FALSE;
 	gint iDistributionListSize = 0;
@@ -1265,7 +1265,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			guint8 iControlFlags = 0;
 			if (structId == MQ_STRUCTID_TSH_EBCDIC) bEBCDIC = TRUE;
 			opcode = tvb_get_guint8(tvb, offset + 9);
-			rep = (tvb_get_guint8(tvb, offset + 8) == MQ_LITTLE_ENDIAN ? REP_LITTLE_ENDIAN : REP_BIG_ENDIAN);
+			rep = (tvb_get_guint8(tvb, offset + 8) == MQ_LITTLE_ENDIAN ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 			iSegmentLength = tvb_get_ntohl(tvb, offset + 4);
 			iControlFlags = tvb_get_guint8(tvb, offset + 10);
 
@@ -1276,7 +1276,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			if (tree)
 			{
-				ti = proto_tree_add_item(tree, proto_mq, tvb, offset, -1, REP_NA);
+				ti = proto_tree_add_item(tree, proto_mq, tvb, offset, -1, ENC_NA);
 				proto_item_append_text(ti, " (%s)", val_to_str(opcode, mq_opcode_vals, "Unknown (0x%02x)"));
 				if (bEBCDIC == TRUE) proto_item_append_text(ti, " (EBCDIC)");
 				mqroot_tree = proto_item_add_subtree(ti, ett_mq);
@@ -2300,7 +2300,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_append_str(pinfo->cinfo, COL_INFO, " [Undesegmented]");
 			if (tree)
 			{
-				proto_tree_add_item(tree, proto_mq, tvb, offset, -1, REP_NA);
+				proto_tree_add_item(tree, proto_mq, tvb, offset, -1, ENC_NA);
 			}
 			call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 		}
@@ -2367,7 +2367,7 @@ reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						if (tree)
 						{
 							proto_item* ti = NULL;
-							ti = proto_tree_add_item(tree, proto_mq, tvb, 0, -1, REP_NA);
+							ti = proto_tree_add_item(tree, proto_mq, tvb, 0, -1, ENC_NA);
 							proto_item_append_text(ti, " (%s) [Reassembled MQ]", val_to_str(opcode, mq_opcode_vals, "Unknown (0x%02x)"));
 						}
 						return;

@@ -343,12 +343,12 @@ dissect_v5_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_
 
   if (m3ua_tree) {
     /* add the components of the common header to the protocol tree */
-    proto_tree_add_item(m3ua_tree, hf_version, common_header_tvb, VERSION_OFFSET, VERSION_LENGTH, REP_BIG_ENDIAN);
-    proto_tree_add_item(m3ua_tree, hf_reserved, common_header_tvb, RESERVED_OFFSET, RESERVED_LENGTH, REP_BIG_ENDIAN);
-    proto_tree_add_item(m3ua_tree, hf_v5_message_class, common_header_tvb, MESSAGE_CLASS_OFFSET, MESSAGE_CLASS_LENGTH, REP_BIG_ENDIAN);
+    proto_tree_add_item(m3ua_tree, hf_version, common_header_tvb, VERSION_OFFSET, VERSION_LENGTH, ENC_BIG_ENDIAN);
+    proto_tree_add_item(m3ua_tree, hf_reserved, common_header_tvb, RESERVED_OFFSET, RESERVED_LENGTH, ENC_BIG_ENDIAN);
+    proto_tree_add_item(m3ua_tree, hf_v5_message_class, common_header_tvb, MESSAGE_CLASS_OFFSET, MESSAGE_CLASS_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_uint_format(m3ua_tree, hf_message_type, common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH, message_type,
                                "Message type: %s (%u)", val_to_str(message_class * 256 + message_type, v5_message_class_type_values, "reserved"), message_type);
-    proto_tree_add_item(m3ua_tree, hf_message_length, common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, REP_BIG_ENDIAN);
+    proto_tree_add_item(m3ua_tree, hf_message_length, common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, ENC_BIG_ENDIAN);
   }
 }
 
@@ -366,12 +366,12 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
 
   if (m3ua_tree) {
     /* add the components of the common header to the protocol tree */
-    proto_tree_add_item(m3ua_tree, hf_version, common_header_tvb, VERSION_OFFSET, VERSION_LENGTH, REP_BIG_ENDIAN);
-    proto_tree_add_item(m3ua_tree, hf_reserved, common_header_tvb, RESERVED_OFFSET, RESERVED_LENGTH, REP_BIG_ENDIAN);
-    proto_tree_add_item(m3ua_tree, hf_message_class, common_header_tvb, MESSAGE_CLASS_OFFSET, MESSAGE_CLASS_LENGTH, REP_BIG_ENDIAN);
+    proto_tree_add_item(m3ua_tree, hf_version, common_header_tvb, VERSION_OFFSET, VERSION_LENGTH, ENC_BIG_ENDIAN);
+    proto_tree_add_item(m3ua_tree, hf_reserved, common_header_tvb, RESERVED_OFFSET, RESERVED_LENGTH, ENC_BIG_ENDIAN);
+    proto_tree_add_item(m3ua_tree, hf_message_class, common_header_tvb, MESSAGE_CLASS_OFFSET, MESSAGE_CLASS_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_uint_format(m3ua_tree, hf_message_type, common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH, message_type,
                                "Message type: %s (%u)", val_to_str(message_class * 256 + message_type, message_class_type_values, "reserved"), message_type);
-    proto_tree_add_item(m3ua_tree, hf_message_length, common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, REP_BIG_ENDIAN);
+    proto_tree_add_item(m3ua_tree, hf_message_length, common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, ENC_BIG_ENDIAN);
   }
 }
 
@@ -381,7 +381,7 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
 static void
 dissect_network_appearance_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_network_appearance, parameter_tvb, NETWORK_APPEARANCE_OFFSET, NETWORK_APPEARANCE_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_network_appearance, parameter_tvb, NETWORK_APPEARANCE_OFFSET, NETWORK_APPEARANCE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%u)", tvb_get_ntohl(parameter_tvb, NETWORK_APPEARANCE_OFFSET));
 }
 
@@ -409,7 +409,7 @@ dissect_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
   guint16 info_string_length;
 
   info_string_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  proto_tree_add_item(parameter_tree, hf_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%.*s)", info_string_length,
                          (const char *)tvb_get_ptr(parameter_tvb, INFO_STRING_OFFSET, info_string_length));
 }
@@ -431,8 +431,8 @@ dissect_affected_destinations_parameter(tvbuff_t *parameter_tvb, proto_tree *par
   number_of_destinations = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) >> 2;
   destination_offset = PARAMETER_VALUE_OFFSET;
   for(destination_number=1; destination_number <= number_of_destinations; destination_number++) {
-    proto_tree_add_item(parameter_tree, hf_affected_point_code_mask, parameter_tvb, destination_offset + AFFECTED_MASK_OFFSET, AFFECTED_MASK_LENGTH, REP_BIG_ENDIAN);
-    item = proto_tree_add_item(parameter_tree, hf_affected_point_code_pc,   parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET,  AFFECTED_DPC_LENGTH,  REP_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_affected_point_code_mask, parameter_tvb, destination_offset + AFFECTED_MASK_OFFSET, AFFECTED_MASK_LENGTH, ENC_BIG_ENDIAN);
+    item = proto_tree_add_item(parameter_tree, hf_affected_point_code_pc,   parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET,  AFFECTED_DPC_LENGTH,  ENC_BIG_ENDIAN);
     if (mtp3_pc_structured())
       proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET)));
     destination_offset += AFFECTED_DESTINATION_LENGTH;
@@ -451,7 +451,7 @@ dissect_routing_context_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter
   number_of_contexts = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) >> 2;
   context_offset = PARAMETER_VALUE_OFFSET;
   for(context_number=1; context_number <= number_of_contexts; context_number++) {
-    proto_tree_add_item(parameter_tree, hf_routing_context, parameter_tvb, context_offset, ROUTING_CONTEXT_LENGTH, REP_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_routing_context, parameter_tvb, context_offset, ROUTING_CONTEXT_LENGTH, ENC_BIG_ENDIAN);
     context_offset += ROUTING_CONTEXT_LENGTH;
   };
   proto_item_append_text(parameter_item, " (%u context%s)", number_of_contexts, plurality(number_of_contexts, "", "s"));
@@ -465,7 +465,7 @@ dissect_diagnostic_information_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
   guint16 diag_info_length;
 
   diag_info_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  proto_tree_add_item(parameter_tree, hf_diagnostic_information, parameter_tvb, DIAGNOSTIC_INFO_OFFSET, diag_info_length, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_diagnostic_information, parameter_tvb, DIAGNOSTIC_INFO_OFFSET, diag_info_length, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%u byte%s)", diag_info_length, plurality(diag_info_length, "", "s"));
 }
 
@@ -477,7 +477,7 @@ dissect_heartbeat_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
   guint16 heartbeat_data_length;
 
   heartbeat_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  proto_tree_add_item(parameter_tree, hf_heartbeat_data, parameter_tvb, HEARTBEAT_DATA_OFFSET, heartbeat_data_length, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_heartbeat_data, parameter_tvb, HEARTBEAT_DATA_OFFSET, heartbeat_data_length, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%u byte%s)", heartbeat_data_length, plurality(heartbeat_data_length, "", "s"));
 }
 
@@ -537,8 +537,8 @@ static const value_string user_identity_values[] = {
 static void
 dissect_user_cause_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_cause, parameter_tvb, CAUSE_OFFSET, CAUSE_LENGTH, REP_BIG_ENDIAN);
-  proto_tree_add_item(parameter_tree, hf_user,  parameter_tvb, USER_OFFSET,  USER_LENGTH,  REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_cause, parameter_tvb, CAUSE_OFFSET, CAUSE_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_user,  parameter_tvb, USER_OFFSET,  USER_LENGTH,  ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s: %s)",
                          val_to_str(tvb_get_ntohs(parameter_tvb, USER_OFFSET),  user_identity_values,        "Unknown user"),
                          val_to_str(tvb_get_ntohs(parameter_tvb, CAUSE_OFFSET), unavailability_cause_values, "unknown cause"));
@@ -560,7 +560,7 @@ static const value_string reason_values[] = {
 static void
 dissect_reason_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_reason, parameter_tvb, REASON_OFFSET, REASON_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_reason, parameter_tvb, REASON_OFFSET, REASON_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, REASON_OFFSET), reason_values, "unknown"));
 }
 
@@ -577,7 +577,7 @@ static const value_string v5_traffic_mode_type_values[] = {
 static void
 dissect_v5_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_v5_traffic_mode_type, parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_v5_traffic_mode_type, parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET), v5_traffic_mode_type_values, "unknown"));
 }
 
@@ -591,7 +591,7 @@ static const value_string v6_traffic_mode_type_values[] = {
 static void
 dissect_v6_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_v6_traffic_mode_type, parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_v6_traffic_mode_type, parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET), v6_traffic_mode_type_values, "unknown"));
 }
 
@@ -603,7 +603,7 @@ static const value_string v7_traffic_mode_type_values[] = {
 static void
 dissect_v7_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_v7_traffic_mode_type, parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_v7_traffic_mode_type, parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET), v7_traffic_mode_type_values, "unknown"));
 }
 
@@ -616,7 +616,7 @@ static const value_string traffic_mode_type_values[] = {
 static void
 dissect_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_traffic_mode_type, parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_traffic_mode_type, parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET), traffic_mode_type_values, "unknown"));
 }
 
@@ -637,7 +637,7 @@ static const value_string v5_error_code_values[] = {
 static void
 dissect_v5_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_v5_error_code, parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_v5_error_code, parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET), v5_error_code_values, "unknown"));
 }
 
@@ -658,7 +658,7 @@ static const value_string v6_error_code_values[] = {
 static void
 dissect_v6_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_v6_error_code, parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_v6_error_code, parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET), v6_error_code_values, "unknown"));
 }
 
@@ -681,7 +681,7 @@ static const value_string v7_error_code_values[] = {
 static void
 dissect_v7_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_v7_error_code, parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_v7_error_code, parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET), v7_error_code_values, "unknown"));
 }
 
@@ -709,7 +709,7 @@ static const value_string error_code_values[] = {
 static void
 dissect_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_error_code, parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_error_code, parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET), error_code_values, "unknown"));
 }
 
@@ -754,7 +754,7 @@ dissect_v567_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
   status_type = tvb_get_ntohs(parameter_tvb, STATUS_TYPE_OFFSET);
   status_info = tvb_get_ntohs(parameter_tvb, STATUS_INFO_OFFSET);
 
-  proto_tree_add_item(parameter_tree, hf_status_type, parameter_tvb, STATUS_TYPE_OFFSET, STATUS_TYPE_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_status_type, parameter_tvb, STATUS_TYPE_OFFSET, STATUS_TYPE_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_uint_format(parameter_tree, hf_status_info, parameter_tvb, STATUS_INFO_OFFSET, STATUS_INFO_LENGTH, status_info,
                              "Status info: %s (%u)", val_to_str(status_type * 256 * 256 + status_info, v567_status_type_info_values, "unknown"), status_info);
 
@@ -779,7 +779,7 @@ dissect_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, pr
   status_type = tvb_get_ntohs(parameter_tvb, STATUS_TYPE_OFFSET);
   status_info = tvb_get_ntohs(parameter_tvb, STATUS_INFO_OFFSET);
 
-  proto_tree_add_item(parameter_tree, hf_status_type, parameter_tvb, STATUS_TYPE_OFFSET, STATUS_TYPE_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_status_type, parameter_tvb, STATUS_TYPE_OFFSET, STATUS_TYPE_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_uint_format(parameter_tree, hf_status_info, parameter_tvb, STATUS_INFO_OFFSET, STATUS_INFO_LENGTH, status_info,
                              "Status info: %s (%u)", val_to_str(status_type * 256 * 256 + status_info, status_type_info_values, "unknown"), status_info);
 
@@ -802,8 +802,8 @@ static const value_string congestion_level_values[] = {
 static void
 dissect_congestion_indication_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_congestion_reserved, parameter_tvb, CONG_IND_RESERVED_OFFSET, CONG_IND_RESERVED_LENGTH, REP_BIG_ENDIAN);
-  proto_tree_add_item(parameter_tree, hf_congestion_level,    parameter_tvb, CONG_IND_LEVEL_OFFSET,    CONG_IND_LEVEL_LENGTH,    REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_congestion_reserved, parameter_tvb, CONG_IND_RESERVED_OFFSET, CONG_IND_RESERVED_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_congestion_level,    parameter_tvb, CONG_IND_LEVEL_OFFSET,    CONG_IND_LEVEL_LENGTH,    ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_guint8(parameter_tvb, CONG_IND_LEVEL_OFFSET), congestion_level_values, "unknown"));
 }
 
@@ -813,7 +813,7 @@ dissect_congestion_indication_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 static void
 dissect_asp_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_asp_identifier, parameter_tvb, ASP_IDENTIFIER_OFFSET, ASP_IDENTIFIER_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_asp_identifier, parameter_tvb, ASP_IDENTIFIER_OFFSET, ASP_IDENTIFIER_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%u)", tvb_get_ntohl(parameter_tvb, ASP_IDENTIFIER_OFFSET));
 }
 
@@ -846,7 +846,7 @@ dissect_protocol_data_2_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, p
   li                   = tvb_get_guint8(parameter_tvb, LI_OCTETT_OFFSET);
   protocol_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH - LI_OCTETT_LENGTH;
   payload_tvb          = tvb_new_subset(parameter_tvb, PROTOCOL_DATA_2_OFFSET, protocol_data_length, protocol_data_length);
-  proto_tree_add_item(parameter_tree, hf_li, parameter_tvb, LI_OCTETT_OFFSET, LI_OCTETT_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_li, parameter_tvb, LI_OCTETT_OFFSET, LI_OCTETT_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
   proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH + LI_OCTETT_LENGTH);
   call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
@@ -865,8 +865,8 @@ dissect_concerned_destination_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 {
   proto_item *item;
 
-  proto_tree_add_item(parameter_tree, hf_concerned_dest_reserved, parameter_tvb, CON_DEST_RESERVED_OFFSET, CON_DEST_RESERVED_LENGTH, REP_BIG_ENDIAN);
-  item = proto_tree_add_item(parameter_tree, hf_concerned_dest_pc,       parameter_tvb, CON_DEST_PC_OFFSET,       CON_DEST_PC_LENGTH,       REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_concerned_dest_reserved, parameter_tvb, CON_DEST_RESERVED_OFFSET, CON_DEST_RESERVED_LENGTH, ENC_BIG_ENDIAN);
+  item = proto_tree_add_item(parameter_tree, hf_concerned_dest_pc,       parameter_tvb, CON_DEST_PC_OFFSET,       CON_DEST_PC_LENGTH,       ENC_BIG_ENDIAN);
   if (mtp3_pc_structured())
     proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, CON_DEST_PC_OFFSET)));
   proto_item_append_text(parameter_item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, CON_DEST_PC_OFFSET)));
@@ -907,9 +907,9 @@ static const value_string registration_result_status_values[] = {
 static void
 dissect_v67_registration_result_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
-  proto_tree_add_item(parameter_tree, hf_registration_result_identifier, parameter_tvb, REG_RES_IDENTIFIER_OFFSET, REG_RES_IDENTIFIER_LENGTH, REP_BIG_ENDIAN);
-  proto_tree_add_item(parameter_tree, hf_registration_result_status,     parameter_tvb, REG_RES_STATUS_OFFSET,     REG_RES_STATUS_LENGTH,     REP_BIG_ENDIAN);
-  proto_tree_add_item(parameter_tree, hf_registration_result_context,    parameter_tvb, REG_RES_CONTEXT_OFFSET,    REG_RES_CONTEXT_LENGTH,    REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_registration_result_identifier, parameter_tvb, REG_RES_IDENTIFIER_OFFSET, REG_RES_IDENTIFIER_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_registration_result_status,     parameter_tvb, REG_RES_STATUS_OFFSET,     REG_RES_STATUS_LENGTH,     ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_registration_result_context,    parameter_tvb, REG_RES_CONTEXT_OFFSET,    REG_RES_CONTEXT_LENGTH,    ENC_BIG_ENDIAN);
 }
 
 static void
@@ -941,8 +941,8 @@ static const value_string v6_deregistration_result_status_values[] = {
 static void
 dissect_v67_deregistration_result_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
-  proto_tree_add_item(parameter_tree, hf_v6_deregistration_result_context, parameter_tvb, DEREG_RES_CONTEXT_OFFSET, DEREG_RES_CONTEXT_LENGTH, REP_BIG_ENDIAN);
-  proto_tree_add_item(parameter_tree, hf_v6_deregistration_result_status,  parameter_tvb, DEREG_RES_STATUS_OFFSET,  DEREG_RES_STATUS_LENGTH,  REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_v6_deregistration_result_context, parameter_tvb, DEREG_RES_CONTEXT_OFFSET, DEREG_RES_CONTEXT_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_v6_deregistration_result_status,  parameter_tvb, DEREG_RES_STATUS_OFFSET,  DEREG_RES_STATUS_LENGTH,  ENC_BIG_ENDIAN);
 }
 
 static void
@@ -967,7 +967,7 @@ dissect_local_routing_key_identifier_parameter(tvbuff_t *parameter_tvb, proto_tr
   guint32 id;
 
   id = tvb_get_ntohl(parameter_tvb, LOCAL_RK_IDENTIFIER_OFFSET);
-  proto_tree_add_item(parameter_tree, hf_local_rk_identifier, parameter_tvb, LOCAL_RK_IDENTIFIER_OFFSET, LOCAL_RK_IDENTIFIER_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_local_rk_identifier, parameter_tvb, LOCAL_RK_IDENTIFIER_OFFSET, LOCAL_RK_IDENTIFIER_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%u)", tvb_get_ntohl(parameter_tvb, LOCAL_RK_IDENTIFIER_OFFSET));
 }
 
@@ -982,8 +982,8 @@ dissect_destination_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
 {
   proto_item *item;
 
-  proto_tree_add_item(parameter_tree, hf_dpc_mask, parameter_tvb, DPC_MASK_OFFSET, DPC_MASK_LENGTH, REP_BIG_ENDIAN);
-  item = proto_tree_add_item(parameter_tree, hf_dpc_pc,   parameter_tvb, DPC_PC_OFFSET,   DPC_PC_LENGTH,   REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_dpc_mask, parameter_tvb, DPC_MASK_OFFSET, DPC_MASK_LENGTH, ENC_BIG_ENDIAN);
+  item = proto_tree_add_item(parameter_tree, hf_dpc_pc,   parameter_tvb, DPC_PC_OFFSET,   DPC_PC_LENGTH,   ENC_BIG_ENDIAN);
   if (mtp3_pc_structured())
     proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, DPC_PC_OFFSET)));
   proto_item_append_text(parameter_item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, DPC_PC_OFFSET)));
@@ -1002,7 +1002,7 @@ dissect_service_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
 
   si_offset = PARAMETER_VALUE_OFFSET;
   for(si_number=1; si_number <= number_of_sis; si_number++) {
-    proto_tree_add_item(parameter_tree, hf_si, parameter_tvb, si_offset, SI_LENGTH, REP_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_si, parameter_tvb, si_offset, SI_LENGTH, ENC_BIG_ENDIAN);
     si_offset += SI_LENGTH;
   };
   proto_item_append_text(parameter_item, " (%u indicator%s)", number_of_sis, plurality(number_of_sis, "", "s"));
@@ -1021,7 +1021,7 @@ dissect_subsystem_numbers_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
 
   ssn_offset = PARAMETER_VALUE_OFFSET;
   for(ssn_number=1; ssn_number <= number_of_ssns; ssn_number++) {
-    proto_tree_add_item(parameter_tree, hf_ssn, parameter_tvb, ssn_offset, SSN_LENGTH, REP_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_ssn, parameter_tvb, ssn_offset, SSN_LENGTH, ENC_BIG_ENDIAN);
     ssn_offset += SSN_LENGTH;
   };
   proto_item_append_text(parameter_item, " (%u number%s)", number_of_ssns, plurality(number_of_ssns, "", "s"));
@@ -1046,8 +1046,8 @@ dissect_originating_point_code_list_parameter(tvbuff_t *parameter_tvb, proto_tre
 
   point_code_offset = PARAMETER_VALUE_OFFSET;
   for(point_code_number=1; point_code_number <= number_of_point_codes; point_code_number++) {
-    proto_tree_add_item(parameter_tree, hf_opc_list_mask, parameter_tvb, point_code_offset + OPC_MASK_OFFSET, OPC_MASK_LENGTH, REP_BIG_ENDIAN);
-    item = proto_tree_add_item(parameter_tree, hf_opc_list_pc,   parameter_tvb, point_code_offset + OPC_PC_OFFSET,   OPC_PC_LENGTH,   REP_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_opc_list_mask, parameter_tvb, point_code_offset + OPC_MASK_OFFSET, OPC_MASK_LENGTH, ENC_BIG_ENDIAN);
+    item = proto_tree_add_item(parameter_tree, hf_opc_list_pc,   parameter_tvb, point_code_offset + OPC_PC_OFFSET,   OPC_PC_LENGTH,   ENC_BIG_ENDIAN);
     if (mtp3_pc_structured())
       proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, point_code_offset + OPC_PC_OFFSET)));
     point_code_offset += OPC_LENGTH;
@@ -1083,18 +1083,18 @@ dissect_circuit_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
     cic_range_item = proto_tree_add_text(parameter_tree, parameter_tvb, point_code_offset + CIC_RANGE_MASK_OFFSET, CIC_RANGE_LENGTH, "CIC range");
     cic_range_tree = proto_item_add_subtree(cic_range_item, ett_parameter);
 
-    proto_tree_add_item(cic_range_tree, hf_cic_range_mask,  parameter_tvb, point_code_offset + CIC_RANGE_MASK_OFFSET,  CIC_RANGE_MASK_LENGTH,  REP_BIG_ENDIAN);
+    proto_tree_add_item(cic_range_tree, hf_cic_range_mask,  parameter_tvb, point_code_offset + CIC_RANGE_MASK_OFFSET,  CIC_RANGE_MASK_LENGTH,  ENC_BIG_ENDIAN);
 
     pc = tvb_get_ntoh24(parameter_tvb, point_code_offset + CIC_RANGE_PC_OFFSET);
     pc_string = mtp3_pc_to_str(pc);
-    pc_item = proto_tree_add_item(cic_range_tree, hf_cic_range_pc,    parameter_tvb, point_code_offset + CIC_RANGE_PC_OFFSET,    CIC_RANGE_PC_LENGTH,    REP_BIG_ENDIAN);
+    pc_item = proto_tree_add_item(cic_range_tree, hf_cic_range_pc,    parameter_tvb, point_code_offset + CIC_RANGE_PC_OFFSET,    CIC_RANGE_PC_LENGTH,    ENC_BIG_ENDIAN);
     if (mtp3_pc_structured())
       proto_item_append_text(pc_item, " (%s)", pc_string);
 
     cic_low = tvb_get_ntohs(parameter_tvb, point_code_offset + CIC_RANGE_LOWER_OFFSET);
-    proto_tree_add_item(cic_range_tree, hf_cic_range_lower, parameter_tvb, point_code_offset + CIC_RANGE_LOWER_OFFSET, CIC_RANGE_LOWER_LENGTH, REP_BIG_ENDIAN);
+    proto_tree_add_item(cic_range_tree, hf_cic_range_lower, parameter_tvb, point_code_offset + CIC_RANGE_LOWER_OFFSET, CIC_RANGE_LOWER_LENGTH, ENC_BIG_ENDIAN);
     cic_high = tvb_get_ntohs(parameter_tvb, point_code_offset + CIC_RANGE_UPPER_OFFSET);
-    proto_tree_add_item(cic_range_tree, hf_cic_range_upper, parameter_tvb, point_code_offset + CIC_RANGE_UPPER_OFFSET, CIC_RANGE_UPPER_LENGTH, REP_BIG_ENDIAN);
+    proto_tree_add_item(cic_range_tree, hf_cic_range_upper, parameter_tvb, point_code_offset + CIC_RANGE_UPPER_OFFSET, CIC_RANGE_UPPER_LENGTH, ENC_BIG_ENDIAN);
 
     proto_item_append_text(cic_range_item, " (%s: %d-%d)", pc_string, cic_low, cic_high);
     point_code_offset += CIC_RANGE_LENGTH;
@@ -1147,7 +1147,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   ulp_length  = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH - DATA_HDR_LENGTH;
 
   if (parameter_tree) {
-    item = proto_tree_add_item(parameter_tree, hf_protocol_data_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, REP_BIG_ENDIAN);
+    item = proto_tree_add_item(parameter_tree, hf_protocol_data_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, ENC_BIG_ENDIAN);
     if (mtp3_pc_structured())
       proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntohl(parameter_tvb, DATA_OPC_OFFSET)));
     if(mtp3_tap->addr_opc.ni == 0)
@@ -1155,7 +1155,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
         q708_tree = proto_item_add_subtree(item,ett_q708_opc);
         analyze_q708_ispc(parameter_tvb, q708_tree, DATA_OPC_OFFSET, DATA_OPC_LENGTH, mtp3_tap->addr_opc.pc);
     }
-    item = proto_tree_add_item(parameter_tree, hf_protocol_data_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_DPC_LENGTH, REP_BIG_ENDIAN);
+    item = proto_tree_add_item(parameter_tree, hf_protocol_data_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_DPC_LENGTH, ENC_BIG_ENDIAN);
     if (mtp3_pc_structured())
       proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntohl(parameter_tvb, DATA_DPC_OFFSET)));
     if(mtp3_tap->addr_dpc.ni == 0)
@@ -1164,10 +1164,10 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
         analyze_q708_ispc(parameter_tvb, q708_tree, DATA_DPC_OFFSET, DATA_DPC_LENGTH, mtp3_tap->addr_dpc.pc);
     }
 
-    proto_tree_add_item(parameter_tree, hf_protocol_data_si,  parameter_tvb, DATA_SI_OFFSET,  DATA_SI_LENGTH,  REP_BIG_ENDIAN);
-    proto_tree_add_item(parameter_tree, hf_protocol_data_ni,  parameter_tvb, DATA_NI_OFFSET,  DATA_NI_LENGTH,  REP_BIG_ENDIAN);
-    proto_tree_add_item(parameter_tree, hf_protocol_data_mp,  parameter_tvb, DATA_MP_OFFSET,  DATA_MP_LENGTH,  REP_BIG_ENDIAN);
-    proto_tree_add_item(parameter_tree, hf_protocol_data_sls, parameter_tvb, DATA_SLS_OFFSET, DATA_SLS_LENGTH, REP_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_protocol_data_si,  parameter_tvb, DATA_SI_OFFSET,  DATA_SI_LENGTH,  ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_protocol_data_ni,  parameter_tvb, DATA_NI_OFFSET,  DATA_NI_LENGTH,  ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_protocol_data_mp,  parameter_tvb, DATA_MP_OFFSET,  DATA_MP_LENGTH,  ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_protocol_data_sls, parameter_tvb, DATA_SLS_OFFSET, DATA_SLS_LENGTH, ENC_BIG_ENDIAN);
 
     proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", ulp_length, plurality(ulp_length, "", "s"));
     proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH + DATA_HDR_LENGTH);
@@ -1176,17 +1176,17 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
     PROTO_ITEM_SET_GENERATED(item);
     parameter_tree = proto_item_add_subtree(item,ett_mtp3_equiv);
 
-    item = proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, REP_BIG_ENDIAN);
+    item = proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_GENERATED(item);
-    item = proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_OPC_LENGTH, REP_BIG_ENDIAN);
+    item = proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_OPC_LENGTH, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_GENERATED(item);
-    item = proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_pc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, REP_BIG_ENDIAN);
+    item = proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_pc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_GENERATED(item);
-    item = proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_pc, parameter_tvb, DATA_DPC_OFFSET, DATA_OPC_LENGTH, REP_BIG_ENDIAN);
+    item = proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_pc, parameter_tvb, DATA_DPC_OFFSET, DATA_OPC_LENGTH, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_GENERATED(item);
-    item = proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_ni,  parameter_tvb, DATA_NI_OFFSET,  DATA_NI_LENGTH,  REP_BIG_ENDIAN);
+    item = proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_ni,  parameter_tvb, DATA_NI_OFFSET,  DATA_NI_LENGTH,  ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_GENERATED(item);
-    item = proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_sls, parameter_tvb, DATA_SLS_OFFSET, DATA_SLS_LENGTH, REP_BIG_ENDIAN);
+    item = proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_sls, parameter_tvb, DATA_SLS_OFFSET, DATA_SLS_LENGTH, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_GENERATED(item);
 
   }
@@ -1202,7 +1202,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
 static void
 dissect_correlation_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_correlation_identifier, parameter_tvb, CORR_ID_OFFSET, CORR_ID_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_correlation_identifier, parameter_tvb, CORR_ID_OFFSET, CORR_ID_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%u)", tvb_get_ntohl(parameter_tvb, CORR_ID_OFFSET));
 }
 
@@ -1228,7 +1228,7 @@ static const value_string registration_status_values[] = {
 static void
 dissect_registration_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_registration_status, parameter_tvb, REG_STATUS_OFFSET, REG_STATUS_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_registration_status, parameter_tvb, REG_STATUS_OFFSET, REG_STATUS_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, REG_STATUS_OFFSET), registration_status_values, "unknown"));
 }
 
@@ -1247,7 +1247,7 @@ static const value_string deregistration_status_values[] = {
 static void
 dissect_deregistration_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_deregistration_status, parameter_tvb, DEREG_STATUS_OFFSET, DEREG_STATUS_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_deregistration_status, parameter_tvb, DEREG_STATUS_OFFSET, DEREG_STATUS_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, DEREG_STATUS_OFFSET), deregistration_status_values, "unknown"));
 }
 
@@ -1280,7 +1280,7 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
 
   tag                    = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
   parameter_value_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  proto_tree_add_item(parameter_tree, hf_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (tag %u and %u byte%s value)", tag, parameter_value_length, plurality(parameter_value_length, "", "s"));
 }
 
@@ -1334,8 +1334,8 @@ dissect_v5_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_parameter);
 
   /* add tag and length to the parameter tree */
-  proto_tree_add_item(parameter_tree, hf_v5_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    REP_BIG_ENDIAN);
-  proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_v5_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
 
   switch(tag) {
   case V5_NETWORK_APPEARANCE_PARAMETER_TAG:
@@ -1382,7 +1382,7 @@ dissect_v5_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     break;
   };
   if (padding_length > 0)
-    proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, REP_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_BIG_ENDIAN);
 }
 
 #define V6_NETWORK_APPEARANCE_PARAMETER_TAG            1
@@ -1461,8 +1461,8 @@ dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_parameter);
 
   /* add tag and length to the parameter tree */
-  proto_tree_add_item(parameter_tree, hf_v6_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    REP_BIG_ENDIAN);
-  proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_v6_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
 
   switch(tag) {
   case V6_NETWORK_APPEARANCE_PARAMETER_TAG:
@@ -1549,7 +1549,7 @@ dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   };
 
   if (padding_length > 0)
-    proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, REP_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_BIG_ENDIAN);
 }
 
 #define V7_NETWORK_APPEARANCE_PARAMETER_TAG            0x80
@@ -1628,8 +1628,8 @@ dissect_v7_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_parameter);
 
   /* add tag and length to the parameter tree */
-  proto_tree_add_item(parameter_tree, hf_v7_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    REP_BIG_ENDIAN);
-  proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_v7_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
 
   switch(tag) {
   case V7_NETWORK_APPEARANCE_PARAMETER_TAG:
@@ -1716,7 +1716,7 @@ dissect_v7_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   };
 
   if (padding_length > 0)
-    proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, REP_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_BIG_ENDIAN);
 }
 
 #define INFO_STRING_PARAMETER_TAG                  0x0004
@@ -1795,8 +1795,8 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_parameter);
 
   /* add tag and length to the parameter tree */
-  proto_tree_add_item(parameter_tree, hf_parameter_tag,    parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    REP_BIG_ENDIAN);
-  proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, REP_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_parameter_tag,    parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
 
   switch(tag) {
   case INFO_STRING_PARAMETER_TAG:
@@ -1880,7 +1880,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
   };
 
   if (padding_length > 0)
-    proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, REP_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -1963,7 +1963,7 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the m3ua protocol tree */
-    m3ua_item = proto_tree_add_item(tree, proto_m3ua, message_tvb, 0, -1, REP_NA);
+    m3ua_item = proto_tree_add_item(tree, proto_m3ua, message_tvb, 0, -1, ENC_NA);
     m3ua_tree = proto_item_add_subtree(m3ua_item, ett_m3ua);
   } else {
     m3ua_tree = NULL;

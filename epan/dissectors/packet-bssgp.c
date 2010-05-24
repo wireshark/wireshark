@@ -58,7 +58,7 @@
  * was passed to proto_tree_add_item() as the byte-order argument, was
  * defined as FALSE - which meant big-endian.
  *
- * For now, we'll use REP_BIG_ENDIAN, now that we have REP_BIG_ENDIAN and
+ * For now, we'll use ENC_BIG_ENDIAN, now that we have ENC_BIG_ENDIAN and
  * REP_LITTLE_ENDIAN definitions.
  */
 #define BSSGP_TRANSLATION_MAX_LEN 50
@@ -1387,7 +1387,7 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 			  "TMSI/P-TMSI %0x04x", tmsi);
     if (bi->bssgp_tree) {
       proto_tree_add_item(tf, hf_bssgp_tmsi_ptmsi, bi->tvb, bi->offset, 4,
-			  REP_BIG_ENDIAN);
+			  ENC_BIG_ENDIAN);
       proto_item_append_text(ti, ": %#04x", tmsi);
     }
     decode_nri(tf, bi, tmsi);
@@ -1465,7 +1465,7 @@ decode_lai(build_info_t *bi, proto_tree *parent_tree) {
 
   lac = tvb_get_ntohs(bi->tvb, bi->offset);
   proto_tree_add_item(parent_tree, hf_bssgp_lac,
-		      bi->tvb, bi->offset, 2, REP_BIG_ENDIAN);
+		      bi->tvb, bi->offset, 2, ENC_BIG_ENDIAN);
   bi->offset += 2;
 
   g_snprintf(lai, RES_LEN, "%s-%u", mcc_mnc, lac);
@@ -1481,7 +1481,7 @@ decode_rai(build_info_t *bi, proto_tree *parent_tree) {
   char *lai = decode_lai(bi, parent_tree);
 
   rac = tvb_get_guint8(bi->tvb, bi->offset);
-  proto_tree_add_item(parent_tree, hf_bssgp_rac, bi->tvb, bi->offset, 1, REP_BIG_ENDIAN);
+  proto_tree_add_item(parent_tree, hf_bssgp_rac, bi->tvb, bi->offset, 1, ENC_BIG_ENDIAN);
   bi->offset++;
 
   g_snprintf(rai, RES_LEN, "%s-%u", lai, rac);
@@ -1500,7 +1500,7 @@ decode_rai_ci(build_info_t *bi, proto_tree *parent_tree) {
 
   ci = tvb_get_ntohs(bi->tvb, bi->offset);
   proto_tree_add_item(parent_tree, hf_bssgp_ci,
-		      bi->tvb, bi->offset, 2, REP_BIG_ENDIAN);
+		      bi->tvb, bi->offset, 2, ENC_BIG_ENDIAN);
   bi->offset += 2;
   g_snprintf(rai_ci, RES_LEN, "RAI %s, CI %u", rai, ci);
 #undef RES_LEN
@@ -1703,7 +1703,7 @@ decode_iei_bvci(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     proto_item_append_text(ti, ": %u", bvci);
     hidden_item = proto_tree_add_item(bi->bssgp_tree, hf_bssgp_bvci,
 			       bi->tvb, bi->offset, 2,
-			       REP_BIG_ENDIAN);
+			       ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
   }
   bi->offset += ie->value_length;
@@ -2879,7 +2879,7 @@ decode_iei_tlli(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 	tf = proto_item_add_subtree(ti, ett_bssgp_tlli);
 
 	proto_tree_add_item(tf, hf_bssgp_tlli,
-				   bi->tvb, bi->offset, 4, REP_BIG_ENDIAN);
+				   bi->tvb, bi->offset, 4, ENC_BIG_ENDIAN);
 
   bi->offset += 4;
 
@@ -2905,7 +2905,7 @@ decode_iei_tmsi(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     tf = proto_item_add_subtree(ti, ett_bssgp_tmsi_ptmsi);
 
     proto_tree_add_item(tf, hf_bssgp_tmsi_ptmsi,
-			       bi->tvb, bi->offset, 4, REP_BIG_ENDIAN);
+			       bi->tvb, bi->offset, 4, ENC_BIG_ENDIAN);
   }
   bi->offset += 4;
 
@@ -3406,7 +3406,7 @@ decode_iei_nsei(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     proto_item_append_text(ti, ": %u", nsei);
     hidden_item = proto_tree_add_item(bi->bssgp_tree, hf_bssgp_nsei,
-                                      bi->tvb, bi->offset, 2, REP_BIG_ENDIAN);
+                                      bi->tvb, bi->offset, 2, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
   }
   bi->offset += ie->value_length;
@@ -3993,7 +3993,7 @@ decode_iei_rim_application_identity(bssgp_ie_t *ie _U_, build_info_t *bi, int ie
   }
 
   ti = proto_tree_add_item(bi->bssgp_tree, hf_bssgp_appid,
-                           bi->tvb, bi->offset, 1, REP_BIG_ENDIAN);
+                           bi->tvb, bi->offset, 1, ENC_BIG_ENDIAN);
 
   appid = tvb_get_guint8(bi->tvb, bi->offset);
   switch (appid) {
@@ -4058,7 +4058,7 @@ decode_iei_rim_routing_information(bssgp_ie_t *ie, build_info_t *bi, int ie_star
     tf = proto_item_add_subtree(ti, ett_bssgp_rim_routing_information);
 
     proto_tree_add_item(tf, hf_bssgp_ra_discriminator,
-                        bi->tvb, bi->offset, 1, REP_BIG_ENDIAN);
+                        bi->tvb, bi->offset, 1, ENC_BIG_ENDIAN);
 
     data = tvb_get_guint8(bi->tvb, bi->offset);
 
@@ -4067,7 +4067,7 @@ decode_iei_rim_routing_information(bssgp_ie_t *ie, build_info_t *bi, int ie_star
     decode_rai(bi, tf);
 
     proto_tree_add_item(tf, hf_bssgp_ci,
-		      bi->tvb, bi->offset, 2, REP_BIG_ENDIAN);
+		      bi->tvb, bi->offset, 2, ENC_BIG_ENDIAN);
     bi->offset += 2;
 
   } else {
@@ -4099,7 +4099,7 @@ decode_iei_application_error(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offs
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     tf = proto_item_add_subtree(ti, ett_bssgp_ran_information_container_unit);
 
-    proto_tree_add_item(tf, hf_bssgp_iei_nacc_cause, bi->tvb, bi->offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tf, hf_bssgp_iei_nacc_cause, bi->tvb, bi->offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_text(tf, bi->tvb, bi->offset, tvb_length(bi->tvb) - bi->offset , "Erroneous Application Container including IEI and LI");
 
   } else {
@@ -4176,7 +4176,7 @@ decode_iei_ran_information_application_container(bssgp_ie_t *ie, build_info_t *b
       proto_tree_add_text(tf, bi->tvb, bi->offset, LEN_SI,
 			  " SI (%u), %u octets", i + 1, LEN_SI);
       /* XXX: Not decoded yet; which section in 3GPP TS 44.018? */
-      proto_tree_add_item(tf, hf_bssgp_rrc_si_msg_type, bi->tvb, bi->offset, 1, REP_BIG_ENDIAN);
+      proto_tree_add_item(tf, hf_bssgp_rrc_si_msg_type, bi->tvb, bi->offset, 1, ENC_BIG_ENDIAN);
       /* TODO:
        * Add decoding in packet-gsm_a.c ? Needs a new exported function "gsm_a_decode_rr_message?)
        *
@@ -4250,9 +4250,9 @@ decode_iei_rim_pdu_indications(bssgp_ie_t *ie, build_info_t *bi, int ie_start_of
   data = tvb_get_guint8(bi->tvb, bi->offset);
 
   if (bi->pdutype == BSSGP_IEI_RAN_INFORMATION_CONTAINER_UNIT) {
-    proto_tree_add_item(tf, hf_ran_inf_pdu_type_ext, bi->tvb, bi->offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tf, hf_ran_inf_pdu_type_ext, bi->tvb, bi->offset, 1, ENC_BIG_ENDIAN);
   }else{
-    proto_tree_add_item(tf, hf_ran_inf_req_pdu_type_ext, bi->tvb, bi->offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tf, hf_ran_inf_req_pdu_type_ext, bi->tvb, bi->offset, 1, ENC_BIG_ENDIAN);
   }
 
   value = get_masked_guint8(data, MASK_ACK);
@@ -5984,7 +5984,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   bi.offset++;
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_bssgp, tvb, 0, -1, REP_NA);
+    ti = proto_tree_add_item(tree, proto_bssgp, tvb, 0, -1, ENC_NA);
     bssgp_tree = proto_item_add_subtree(ti, ett_bssgp);
     proto_tree_add_uint_format_value(bssgp_tree, hf_bssgp_pdu_type, tvb, 0, 1,
 				     bi.pdutype,

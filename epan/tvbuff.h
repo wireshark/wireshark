@@ -341,7 +341,7 @@ extern void tvb_get_ipv6(tvbuff_t*, const gint offset, struct e_in6_addr *addr);
 /* Fetch a GUID. */
 extern void tvb_get_ntohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid);
 extern void tvb_get_letohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid);
-extern void tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const gboolean little_endian);
+extern void tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const guint representation);
 
 /* Fetch a specified number of bits from bit offset in a tvb */
 extern guint8 tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits);

@@ -2436,7 +2436,7 @@ static gint cigi_version = 0;
 static gint cigi_minor_version = 0;
 
 /* The byte order of cigi to use; our default is big-endian */
-static gint cigi_byte_order = REP_BIG_ENDIAN;
+static gint cigi_byte_order = ENC_BIG_ENDIAN;
 
 /*
  * Check whether this looks like a CIGI packet or not.
@@ -2905,10 +2905,10 @@ cigi2_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
         /* In all CIGI versions the first byte of a packet is the packet ID.
          * The second byte is the size of the packet (in bytes). */
         init_offset = offset;
-        proto_tree_add_item(cigi_packet_tree, hf_cigi2_packet_id, tvb, offset, 1, REP_BIG_ENDIAN);
+        proto_tree_add_item(cigi_packet_tree, hf_cigi2_packet_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
-        proto_tree_add_item(cigi_packet_tree, hf_cigi_packet_size, tvb, offset, 1, REP_BIG_ENDIAN);
+        proto_tree_add_item(cigi_packet_tree, hf_cigi_packet_size, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         if ( packet_id == CIGI2_PACKET_ID_IG_CONTROL ) {
@@ -3015,12 +3015,12 @@ cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
         /* If we have the SOF or IG Control packet set the byte order */
         if ( ( packet_id == CIGI3_PACKET_ID_IG_CONTROL || packet_id == CIGI3_PACKET_ID_START_OF_FRAME ) && global_cigi_byte_order == CIGI_BYTE_ORDER_FROM_PACKET ) {
             if ( byte_swap == CIGI3_BYTE_SWAP_BIG_ENDIAN ) {
-                cigi_byte_order = REP_BIG_ENDIAN;
+                cigi_byte_order = ENC_BIG_ENDIAN;
             } else if ( byte_swap == CIGI3_BYTE_SWAP_LITTLE_ENDIAN ) {
-                cigi_byte_order = REP_LITTLE_ENDIAN;
+                cigi_byte_order = ENC_LITTLE_ENDIAN;
             } else {
                 /* Assume we want Big-Endian byte order */
-                cigi_byte_order = REP_BIG_ENDIAN;
+                cigi_byte_order = ENC_BIG_ENDIAN;
             }
         }
 
@@ -3363,21 +3363,21 @@ cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
 static gint
 cigi2_add_ig_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi_version, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi_version, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_ig_control_db_number, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_ig_control_db_number, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_ig_control_ig_mode, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_ig_control_tracking_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_ig_control_boresight, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_ig_control_ig_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_ig_control_tracking_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_ig_control_boresight, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_ig_control_frame_ctr, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_ig_control_frame_ctr, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_ig_control_time_tag, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_ig_control_time_tag, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -3387,43 +3387,43 @@ cigi2_add_ig_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static gint
 cigi2_add_entity_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_entity_control_entity_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_entity_control_entity_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_entity_control_entity_state, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_entity_control_attach_state, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_entity_control_collision_detect, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_entity_control_effect_state, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_entity_control_entity_state, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_entity_control_attach_state, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_entity_control_collision_detect, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_entity_control_effect_state, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_entity_control_type, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_entity_control_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_entity_control_parent_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_entity_control_parent_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_entity_control_opacity, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_entity_control_opacity, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_entity_control_internal_temp, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_entity_control_internal_temp, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_entity_control_roll, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_entity_control_roll, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_entity_control_pitch, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_entity_control_pitch, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_entity_control_heading, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_entity_control_heading, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_entity_control_alt, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_entity_control_alt, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi2_entity_control_lat, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_entity_control_lat, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi2_entity_control_lon, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_entity_control_lon, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
     return offset;
@@ -3433,22 +3433,22 @@ cigi2_add_entity_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static gint
 cigi2_add_component_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_component_control_instance_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_component_control_instance_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_component_control_component_class, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_component_control_component_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_component_control_component_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_component_control_component_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_component_control_component_state, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_component_control_component_state, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_component_control_component_val1, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_component_control_component_val1, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_component_control_component_val2, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_component_control_component_val2, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -3458,37 +3458,37 @@ cigi2_add_component_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static gint
 cigi2_add_articulated_parts_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_entity_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_entity_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_part_id, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_part_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_part_state, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_xoff_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_yoff_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_zoff_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_roll_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_pitch_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_yaw_enable, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_part_state, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_xoff_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_yoff_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_zoff_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_roll_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_pitch_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_yaw_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 3;
 
-    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_x_offset, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_x_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_y_offset, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_y_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_z_offset, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_z_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_roll, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_roll, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_pitch, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_pitch, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_yaw, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_articulated_parts_control_yaw, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -3498,28 +3498,28 @@ cigi2_add_articulated_parts_control(tvbuff_t *tvb, proto_tree *tree, gint offset
 static gint
 cigi2_add_rate_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_rate_control_entity_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_rate_control_entity_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_rate_control_part_id, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_rate_control_part_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_rate_control_x_rate, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_rate_control_x_rate, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_rate_control_y_rate, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_rate_control_y_rate, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_rate_control_z_rate, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_rate_control_z_rate, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_rate_control_roll_rate, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_rate_control_roll_rate, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_rate_control_pitch_rate, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_rate_control_pitch_rate, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_rate_control_yaw_rate, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_rate_control_yaw_rate, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -3529,38 +3529,38 @@ cigi2_add_rate_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static gint
 cigi2_add_environment_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_environment_control_hour, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_environment_control_hour, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_environment_control_minute, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_environment_control_minute, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_environment_control_ephemeris_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_environment_control_humidity, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_environment_control_ephemeris_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_environment_control_humidity, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_environment_control_modtran_enable, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_environment_control_modtran_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 3;
 
-    proto_tree_add_item(tree, hf_cigi2_environment_control_date, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_environment_control_date, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_environment_control_air_temp, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_environment_control_air_temp, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_environment_control_global_visibility, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_environment_control_global_visibility, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_environment_control_wind_speed, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_environment_control_wind_speed, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_environment_control_wind_direction, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_environment_control_wind_direction, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_environment_control_pressure, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_environment_control_pressure, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_environment_control_aerosol, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_environment_control_aerosol, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -3570,43 +3570,43 @@ cigi2_add_environment_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static gint
 cigi2_add_weather_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_weather_control_entity_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_weather_control_entity_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_weather_control_weather_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_weather_control_scud_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_weather_control_random_winds, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_weather_control_severity, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_weather_control_weather_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_weather_control_scud_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_weather_control_random_winds, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_weather_control_severity, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_weather_control_phenomenon_type, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_weather_control_phenomenon_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_weather_control_air_temp, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_weather_control_air_temp, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_weather_control_opacity, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_weather_control_opacity, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_weather_control_scud_frequency, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_weather_control_scud_frequency, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_weather_control_coverage, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_weather_control_coverage, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_weather_control_elevation, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_weather_control_elevation, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_weather_control_thickness, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_weather_control_thickness, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_weather_control_transition_band, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_weather_control_transition_band, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_weather_control_wind_speed, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_weather_control_wind_speed, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_weather_control_wind_direction, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_weather_control_wind_direction, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -3616,37 +3616,37 @@ cigi2_add_weather_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static gint
 cigi2_add_view_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_view_control_entity_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_control_entity_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_view_control_view_id, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_view_control_view_group, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_control_view_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_control_view_group, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_view_control_xoff_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_view_control_yoff_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_view_control_zoff_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_view_control_roll_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_view_control_pitch_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_view_control_yaw_enable, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_control_xoff_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_control_yoff_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_control_zoff_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_control_roll_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_control_pitch_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_control_yaw_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 3;
 
-    proto_tree_add_item(tree, hf_cigi2_view_control_x_offset, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_control_x_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_view_control_y_offset, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_control_y_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_view_control_z_offset, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_control_z_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_view_control_roll, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_control_roll, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_view_control_pitch, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_control_pitch, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_view_control_yaw, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_control_yaw, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -3656,30 +3656,30 @@ cigi2_add_view_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static gint
 cigi2_add_sensor_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_sensor_control_view_id, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_sensor_control_sensor_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_sensor_control_polarity, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_sensor_control_line_dropout, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_control_view_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_control_sensor_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_control_polarity, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_control_line_dropout, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_sensor_control_sensor_id, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_control_sensor_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_sensor_control_track_mode, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_sensor_control_auto_gain, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_sensor_control_track_polarity, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_control_track_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_control_auto_gain, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_control_track_polarity, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_sensor_control_gain, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_control_gain, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_sensor_control_level, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_control_level, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_sensor_control_ac_coupling, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_control_ac_coupling, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_sensor_control_noise, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_control_noise, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -3689,16 +3689,16 @@ cigi2_add_sensor_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static gint
 cigi2_add_trajectory_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_trajectory_definition_entity_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_trajectory_definition_entity_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_trajectory_definition_acceleration, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_trajectory_definition_acceleration, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_trajectory_definition_retardation, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_trajectory_definition_retardation, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_trajectory_definition_terminal_velocity, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_trajectory_definition_terminal_velocity, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -3708,47 +3708,47 @@ cigi2_add_trajectory_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static gint
 cigi2_add_special_effect_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_entity_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_entity_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_seq_direction, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_color_enable, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_seq_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_color_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_red, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_red, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_green, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_green, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_blue, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_blue, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_x_scale, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, REP_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_x_scale, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_y_scale, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, REP_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_y_scale, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_z_scale, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, REP_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_z_scale, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_time_scale, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, REP_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_time_scale, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
     proto_tree_add_text(tree, tvb, offset, 2, "Spare");
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_effect_count, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_effect_count, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_separation, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_separation, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_burst_interval, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_burst_interval, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_duration, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_special_effect_definition_duration, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -3758,40 +3758,40 @@ cigi2_add_special_effect_definition(tvbuff_t *tvb, proto_tree *tree, gint offset
 static gint
 cigi2_add_view_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_view_definition_view_id, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_view_definition_view_group, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_view_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_view_group, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_view_definition_view_type, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_view_definition_pixel_rep, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_view_definition_mirror, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_view_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_pixel_rep, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_mirror, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_view_definition_tracker_assign, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_view_definition_near_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_view_definition_far_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_view_definition_left_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_view_definition_right_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_view_definition_top_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_view_definition_bottom_enable, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_tracker_assign, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_near_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_far_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_left_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_right_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_top_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_bottom_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_view_definition_fov_near, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_fov_near, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_view_definition_fov_far, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_fov_far, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_view_definition_fov_left, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_fov_left, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_view_definition_fov_right, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_fov_right, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_view_definition_fov_top, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_fov_top, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_view_definition_fov_bottom, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_view_definition_fov_bottom, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -3801,32 +3801,32 @@ cigi2_add_view_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static gint
 cigi2_add_collision_detection_segment_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_entity_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_entity_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_segment_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_segment_id, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_segment_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_segment_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_collision_mask, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_collision_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_x_start, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, REP_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_x_start, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_y_start, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, REP_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_y_start, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_z_start, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, REP_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_z_start, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_x_end, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, REP_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_x_end, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_y_end, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, REP_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_y_end, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_z_end, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, REP_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_z_end, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
     return offset;
@@ -3836,29 +3836,29 @@ cigi2_add_collision_detection_segment_definition(tvbuff_t *tvb, proto_tree *tree
 static gint
 cigi2_add_collision_detection_volume_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_definition_entity_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_definition_entity_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_definition_volume_enable, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_definition_volume_id, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_definition_volume_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_definition_volume_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_x_offset, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, REP_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_x_offset, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_y_offset, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, REP_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_y_offset, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_z_offset, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, REP_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_z_offset, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_height, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, REP_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_height, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_width, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, REP_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_width, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_depth, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, REP_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_depth, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
     return offset;
@@ -3868,16 +3868,16 @@ cigi2_add_collision_detection_volume_definition(tvbuff_t *tvb, proto_tree *tree,
 static gint
 cigi2_add_height_above_terrain_request(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_height_above_terrain_request_hat_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_height_above_terrain_request_hat_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 6;
 
-    proto_tree_add_item(tree, hf_cigi2_height_above_terrain_request_alt, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_height_above_terrain_request_alt, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi2_height_above_terrain_request_lat, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_height_above_terrain_request_lat, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi2_height_above_terrain_request_lon, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_height_above_terrain_request_lon, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
     return offset;
@@ -3887,25 +3887,25 @@ cigi2_add_height_above_terrain_request(tvbuff_t *tvb, proto_tree *tree, gint off
 static gint
 cigi2_add_line_of_sight_occult_request(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_occult_request_los_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_occult_request_los_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 6;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_occult_request_source_alt, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_occult_request_source_alt, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_occult_request_source_lat, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_occult_request_source_lat, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_occult_request_source_lon, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_occult_request_source_lon, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_occult_request_dest_alt, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_occult_request_dest_alt, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_occult_request_dest_lat, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_occult_request_dest_lat, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_occult_request_dest_lon, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_occult_request_dest_lon, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
     return offset;
@@ -3915,28 +3915,28 @@ cigi2_add_line_of_sight_occult_request(tvbuff_t *tvb, proto_tree *tree, gint off
 static gint
 cigi2_add_line_of_sight_range_request(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_range_request_los_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_range_request_los_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_range_request_azimuth, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_range_request_azimuth, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_range_request_elevation, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_range_request_elevation, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_range_request_min_range, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_range_request_min_range, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_range_request_max_range, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_range_request_max_range, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_range_request_source_alt, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_range_request_source_alt, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_range_request_source_lat, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_range_request_source_lat, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_range_request_source_lon, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_range_request_source_lon, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
     return offset;
@@ -3946,13 +3946,13 @@ cigi2_add_line_of_sight_range_request(tvbuff_t *tvb, proto_tree *tree, gint offs
 static gint
 cigi2_add_height_of_terrain_request(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_height_of_terrain_request_hot_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_height_of_terrain_request_hot_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 6;
 
-    proto_tree_add_item(tree, hf_cigi2_height_of_terrain_request_lat, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_height_of_terrain_request_lat, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi2_height_of_terrain_request_lon, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_height_of_terrain_request_lon, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
     return offset;
@@ -3962,22 +3962,22 @@ cigi2_add_height_of_terrain_request(tvbuff_t *tvb, proto_tree *tree, gint offset
 static gint
 cigi2_add_start_of_frame(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi_version, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi_version, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_start_of_frame_db_number, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_start_of_frame_db_number, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_start_of_frame_ig_status_code, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_start_of_frame_ig_status_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_start_of_frame_ig_mode, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_start_of_frame_ig_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 3;
 
-    proto_tree_add_item(tree, hf_cigi2_start_of_frame_frame_ctr, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_start_of_frame_frame_ctr, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_start_of_frame_time_tag, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_start_of_frame_time_tag, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -3987,16 +3987,16 @@ cigi2_add_start_of_frame(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static gint
 cigi2_add_height_above_terrain_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_height_above_terrain_response_hat_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_height_above_terrain_response_hat_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_height_above_terrain_response_valid, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_height_above_terrain_response_valid, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi2_height_above_terrain_response_material_type, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_height_above_terrain_response_material_type, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_height_above_terrain_response_alt, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_height_above_terrain_response_alt, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
     return offset;
@@ -4006,26 +4006,26 @@ cigi2_add_height_above_terrain_response(tvbuff_t *tvb, proto_tree *tree, gint of
 static gint
 cigi2_add_line_of_sight_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_response_los_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_response_los_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_response_valid, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_response_occult_response, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_response_valid, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_response_occult_response, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_response_material_type, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_response_material_type, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_response_range, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_response_range, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_response_alt, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_response_alt, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_response_lat, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_response_lat, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi2_line_of_sight_response_lon, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_line_of_sight_response_lon, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
     return offset;
@@ -4035,26 +4035,26 @@ cigi2_add_line_of_sight_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static gint
 cigi2_add_collision_detection_segment_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_response_entity_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_response_entity_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_response_segment_id, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_response_contact, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_response_segment_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_response_contact, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_response_contacted_entity, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_response_contacted_entity, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_response_material_type, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_response_material_type, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_response_collision_x, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_response_collision_x, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_response_collision_y, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_response_collision_y, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_response_collision_z, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_response_collision_z, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -4064,23 +4064,23 @@ cigi2_add_collision_detection_segment_response(tvbuff_t *tvb, proto_tree *tree, 
 static gint
 cigi2_add_sensor_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_sensor_response_view_id, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_sensor_response_status, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_response_view_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_response_status, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_sensor_response_sensor_id, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_response_sensor_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi2_sensor_response_x_offset, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_response_x_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_sensor_response_y_offset, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_response_y_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_sensor_response_x_size, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_response_x_size, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_sensor_response_y_size, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_sensor_response_y_size, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     return offset;
@@ -4090,16 +4090,16 @@ cigi2_add_sensor_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static gint
 cigi2_add_height_of_terrain_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_height_of_terrain_response_hot_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_height_of_terrain_response_hot_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_height_of_terrain_response_valid, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_height_of_terrain_response_valid, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi2_height_of_terrain_response_material_type, tvb, offset, 4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_height_of_terrain_response_material_type, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_height_of_terrain_response_alt, tvb, offset, 8, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_height_of_terrain_response_alt, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
     return offset;
@@ -4109,14 +4109,14 @@ cigi2_add_height_of_terrain_response(tvbuff_t *tvb, proto_tree *tree, gint offse
 static gint
 cigi2_add_collision_detection_volume_response(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_response_entity_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_response_entity_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_response_volume_id, tvb, offset, 1, REP_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_response_contact, tvb, offset, 1, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_response_volume_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_response_contact, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_response_contact_entity, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_response_contact_entity, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     return offset;
@@ -4136,10 +4136,10 @@ cigi2_add_image_generator_message(tvbuff_t *tvb, proto_tree *tree, gint offset)
         THROW(ReportedBoundsError);
     }
 
-    proto_tree_add_item(tree, hf_cigi2_image_generator_message_id, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_image_generator_message_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_image_generator_message_message, tvb, offset, packet_size-4, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_image_generator_message_message, tvb, offset, packet_size-4, ENC_BIG_ENDIAN);
     offset += packet_size-4;
 
     return offset;
@@ -4161,7 +4161,7 @@ cigi3_add_ig_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
     /* Get the Byte Swap in Big-Endian so that we can display whether the value
      * is big-endian or little-endian to the user */
-    proto_tree_add_item(tree, hf_cigi3_byte_swap, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi3_byte_swap, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(tree, hf_cigi3_ig_control_frame_ctr, tvb, offset, 4, cigi_byte_order);
@@ -4189,7 +4189,7 @@ cigi3_2_add_ig_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
     /* Get the Byte Swap in Big-Endian so that we can display whether the value
      * is big-endian or little-endian to the user */
-    proto_tree_add_item(tree, hf_cigi3_byte_swap, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi3_byte_swap, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(tree, hf_cigi3_2_ig_control_host_frame_number, tvb, offset, 4, cigi_byte_order);
@@ -4222,7 +4222,7 @@ cigi3_3_add_ig_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
     /* Get the Byte Swap in Big-Endian so that we can display whether the value
      * is big-endian or little-endian to the user */
-    proto_tree_add_item(tree, hf_cigi3_byte_swap, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi3_byte_swap, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(tree, hf_cigi3_2_ig_control_host_frame_number, tvb, offset, 4, cigi_byte_order);
@@ -5690,7 +5690,7 @@ cigi3_3_add_short_symbol_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
     offset++;
 
     if (select1 == 9) {
-        if (cigi_byte_order == REP_BIG_ENDIAN) {
+        if (cigi_byte_order == ENC_BIG_ENDIAN) {
             proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_red1, tvb, offset, 1, cigi_byte_order);
             offset++;
 
@@ -5725,7 +5725,7 @@ cigi3_3_add_short_symbol_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
     }
 
     if (select2 == 9) {
-        if (cigi_byte_order == REP_BIG_ENDIAN) {
+        if (cigi_byte_order == ENC_BIG_ENDIAN) {
             proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_red2, tvb, offset, 1, cigi_byte_order);
             offset++;
 
@@ -5783,7 +5783,7 @@ cigi3_add_start_of_frame(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
     /* Get the Byte Swap in Big-Endian so that we can display whether the value
      * is big-endian or little-endian to the user */
-    proto_tree_add_item(tree, hf_cigi3_byte_swap, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi3_byte_swap, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(tree, hf_cigi3_start_of_frame_frame_ctr, tvb, offset, 4, cigi_byte_order);
@@ -5815,7 +5815,7 @@ cigi3_2_add_start_of_frame(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
     /* Get the Byte Swap in Big-Endian so that we can display whether the value
      * is big-endian or little-endian to the user */
-    proto_tree_add_item(tree, hf_cigi3_byte_swap, tvb, offset, 2, REP_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi3_byte_swap, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(tree, hf_cigi3_2_start_of_frame_ig_frame_number, tvb, offset, 4, cigi_byte_order);
@@ -6379,7 +6379,7 @@ tvb_get_fixed_point(tvbuff_t *tvb, int offset, gint rep)
 {
     gint16 fixed;
 
-    if (rep & REP_LITTLE_ENDIAN)
+    if (rep & ENC_LITTLE_ENDIAN)
         fixed = tvb_get_letohs(tvb, offset);
     else
         fixed = tvb_get_ntohs(tvb, offset);
@@ -11945,11 +11945,11 @@ proto_reg_handoff_cigi(void)
     switch ( global_cigi_byte_order ) {
 
     case CIGI_BYTE_ORDER_BIG_ENDIAN:
-        cigi_byte_order = REP_BIG_ENDIAN;
+        cigi_byte_order = ENC_BIG_ENDIAN;
         break;
 
     case CIGI_BYTE_ORDER_LITTLE_ENDIAN:
-        cigi_byte_order = REP_LITTLE_ENDIAN;
+        cigi_byte_order = ENC_LITTLE_ENDIAN;
         break;
 
     default:	/* includes CIGI_BYTE_ORDER_FROM_PACKET */

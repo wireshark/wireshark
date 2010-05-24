@@ -2003,7 +2003,7 @@ There are several functions that the programmer can use to add either
 protocol or field labels to the proto_tree:
 
 	proto_item*
-	proto_tree_add_item(tree, id, tvb, start, length, representation);
+	proto_tree_add_item(tree, id, tvb, start, length, encoding);
 
 	proto_item*
 	proto_tree_add_none_format(tree, id, tvb, start, length, format, ...);
@@ -2235,10 +2235,10 @@ proto_register_*() function) and a value.  The value will be fetched
 from the tvbuff by proto_tree_add_item(), based on the type of the field
 and, for integral and Boolean fields, the byte order of the value; the
 byte order, for items for which that's relevant, is specified by the
-'representation' argument, which is REP_LITTLE_ENDIAN if the value is
+'encoding' argument, which is REP_LITTLE_ENDIAN if the value is
 little-endian and REP_BIG_ENDIAN if it is big-endian.  If the byte order
 is not relevant, use REP_NA (Not Applicable).  In the future, other
-elements of the representation, such as the character encoding for
+elements of the encoding, such as the character encoding for
 character strings, might be supported.
 
 Now that definitions of fields have detailed information about bitfield

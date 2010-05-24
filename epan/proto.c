@@ -211,7 +211,7 @@ proto_tree_set_ipv6_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length);
 static void
 proto_tree_set_guid(field_info *fi, const e_guid_t *value_ptr);
 static void
-proto_tree_set_guid_tvb(field_info *fi, tvbuff_t *tvb, gint start, gboolean little_endian);
+proto_tree_set_guid_tvb(field_info *fi, tvbuff_t *tvb, gint start, const guint encoding);
 static void
 proto_tree_set_oid(field_info *fi, const guint8* value_ptr, gint length);
 static void
@@ -229,7 +229,7 @@ proto_tree_set_int(field_info *fi, gint32 value);
 static void
 proto_tree_set_uint64(field_info *fi, guint64 value);
 static void
-proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, guint length, gboolean little_endian);
+proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, guint length, const guint encoding);
 static gboolean
 proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			    const int len, const gint ett, const gint **fields,
@@ -972,11 +972,11 @@ ptvcursor_add_subtree_item(ptvcursor_t * ptvc, proto_item * it, gint ett_subtree
  */
 proto_tree *
 ptvcursor_add_with_subtree(ptvcursor_t * ptvc, int hfindex, gint length,
-			   gboolean little_endian, gint ett_subtree)
+			   const guint encoding, gint ett_subtree)
 {
 	proto_item * it;
 
-	it = ptvcursor_add_no_advance(ptvc, hfindex, length, little_endian);
+	it = ptvcursor_add_no_advance(ptvc, hfindex, length, encoding);
 	return ptvcursor_add_subtree_item(ptvc, it, ett_subtree, length);
 }
 
@@ -1090,9 +1090,14 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 	return pi;
 }
 
-
+/*
+ * NOTE: to support code written when proto_tree_add_item() took a
+ * gboolean as its last argument, with FALSE meaning "big-endian"
+ * and TRUE meaning "little-endian", we treat any non-zero value of
+ * "encoding" as meaning "little-endian".
+ */
 static guint32
-get_uint_value(tvbuff_t *tvb, gint offset, gint length, gboolean little_endian)
+get_uint_value(tvbuff_t *tvb, gint offset, gint length, const guint encoding)
 {
 	guint32 value;
 
@@ -1103,18 +1108,18 @@ get_uint_value(tvbuff_t *tvb, gint offset, gint length, gboolean little_endian)
 		break;
 
 	case 2:
-		value = little_endian ? tvb_get_letohs(tvb, offset)
-				      : tvb_get_ntohs(tvb, offset);
+		value = encoding ? tvb_get_letohs(tvb, offset)
+				 : tvb_get_ntohs(tvb, offset);
 		break;
 
 	case 3:
-		value = little_endian ? tvb_get_letoh24(tvb, offset)
-				      : tvb_get_ntoh24(tvb, offset);
+		value = encoding ? tvb_get_letoh24(tvb, offset)
+				 : tvb_get_ntoh24(tvb, offset);
 		break;
 
 	case 4:
-		value = little_endian ? tvb_get_letohl(tvb, offset)
-				      : tvb_get_ntohl(tvb, offset);
+		value = encoding ? tvb_get_letohl(tvb, offset)
+				 : tvb_get_ntohl(tvb, offset);
 		break;
 
 	default:
@@ -1125,8 +1130,14 @@ get_uint_value(tvbuff_t *tvb, gint offset, gint length, gboolean little_endian)
 	return value;
 }
 
+/*
+ * NOTE: to support code written when proto_tree_add_item() took a
+ * gboolean as its last argument, with FALSE meaning "big-endian"
+ * and TRUE meaning "little-endian", we treat any non-zero value of
+ * "encoding" as meaning "little-endian".
+ */
 static gint32
-get_int_value(tvbuff_t *tvb, gint offset, gint length, gboolean little_endian)
+get_int_value(tvbuff_t *tvb, gint offset, gint length, const guint encoding)
 {
 	gint32 value;
 
@@ -1137,13 +1148,13 @@ get_int_value(tvbuff_t *tvb, gint offset, gint length, gboolean little_endian)
 		break;
 
 	case 2:
-		value = (gint16) (little_endian ? tvb_get_letohs(tvb, offset)
-						: tvb_get_ntohs(tvb, offset));
+		value = (gint16) (encoding ? tvb_get_letohs(tvb, offset)
+					   : tvb_get_ntohs(tvb, offset));
 		break;
 
 	case 3:
-		value = little_endian ? tvb_get_letoh24(tvb, offset)
-				      : tvb_get_ntoh24(tvb, offset);
+		value = encoding ? tvb_get_letoh24(tvb, offset)
+				 : tvb_get_ntoh24(tvb, offset);
 		if (value & 0x00800000) {
 			/* Sign bit is set; sign-extend it. */
 			value |= 0xFF000000;
@@ -1151,8 +1162,8 @@ get_int_value(tvbuff_t *tvb, gint offset, gint length, gboolean little_endian)
 		break;
 
 	case 4:
-		value = little_endian ? tvb_get_letohl(tvb, offset)
-				      : tvb_get_ntohl(tvb, offset);
+		value = encoding ? tvb_get_letohl(tvb, offset)
+				 : tvb_get_ntohl(tvb, offset);
 		break;
 
 	default:
@@ -1197,7 +1208,7 @@ proto_lookup_or_create_interesting_hfids(proto_tree *tree,
 static proto_item *
 proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		    tvbuff_t *tvb, gint start, gint length,
-		    gboolean little_endian)
+		    const guint encoding)
 {
 	proto_item	*pi;
 	guint32		value, n;
@@ -1243,7 +1254,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_UINT_BYTES:
-			n = get_uint_value(tvb, start, length, little_endian);
+			n = get_uint_value(tvb, start, length, encoding);
 			proto_tree_set_bytes_tvb(new_fi, tvb, start + length, n);
 
 			/* Instead of calling proto_item_set_len(), since we don't yet
@@ -1253,7 +1264,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 
 		case FT_BOOLEAN:
 			proto_tree_set_boolean(new_fi,
-				get_uint_value(tvb, start, length, little_endian));
+				get_uint_value(tvb, start, length, encoding));
 			break;
 
 		/* XXX - make these just FT_UINT? */
@@ -1262,13 +1273,13 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		case FT_UINT24:
 		case FT_UINT32:
 			proto_tree_set_uint(new_fi,
-				get_uint_value(tvb, start, length, little_endian));
+				get_uint_value(tvb, start, length, encoding));
 			break;
 
 		case FT_INT64:
 		case FT_UINT64:
 			DISSECTOR_ASSERT( length <= 8 && length >= 1);
-			proto_tree_set_uint64_tvb(new_fi, tvb, start, length, little_endian);
+			proto_tree_set_uint64_tvb(new_fi, tvb, start, length, encoding);
 			break;
 
 		/* XXX - make these just FT_INT? */
@@ -1277,13 +1288,21 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		case FT_INT24:
 		case FT_INT32:
 			proto_tree_set_int(new_fi,
-				get_int_value(tvb, start, length, little_endian));
+				get_int_value(tvb, start, length, encoding));
 			break;
 
 		case FT_IPv4:
 			DISSECTOR_ASSERT(length == FT_IPv4_LEN);
 			value = tvb_get_ipv4(tvb, start);
-			proto_tree_set_ipv4(new_fi, little_endian ? GUINT32_SWAP_LE_BE(value) : value);
+			/*
+			 * NOTE: to support code written when
+			 * proto_tree_add_item() took a gboolean as its
+			 * last argument, with FALSE meaning "big-endian"
+			 * and TRUE meaning "little-endian", we treat any
+			 * non-zero value of "encoding" as meaning
+			 * "little-endian".
+			 */
+			proto_tree_set_ipv4(new_fi, encoding ? GUINT32_SWAP_LE_BE(value) : value);
 			break;
 
 		case FT_IPXNET:
@@ -1304,7 +1323,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 
 		case FT_GUID:
 			DISSECTOR_ASSERT(length == FT_GUID_LEN);
-			proto_tree_set_guid_tvb(new_fi, tvb, start, little_endian);
+			proto_tree_set_guid_tvb(new_fi, tvb, start, encoding);
 			break;
 
 		case FT_OID:
@@ -1313,7 +1332,20 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 
 		case FT_FLOAT:
 			DISSECTOR_ASSERT(length == 4);
-			if (little_endian)
+			/*
+			 * NOTE: to support code written when
+			 * proto_tree_add_item() took a gboolean as its
+			 * last argument, with FALSE meaning "big-endian"
+			 * and TRUE meaning "little-endian", we treat any
+			 * non-zero value of "encoding" as meaning
+			 * "little-endian".
+			 *
+			 * At some point in the future, we might
+			 * support non-IEEE-binary floating-point
+			 * formats in the encoding as well
+			 * (IEEE decimal, System/3x0, VAX).
+			 */
+			if (encoding)
 				floatval = tvb_get_letohieee_float(tvb, start);
 			else
 				floatval = tvb_get_ntohieee_float(tvb, start);
@@ -1321,8 +1353,21 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_DOUBLE:
+			/*
+			 * NOTE: to support code written when
+			 * proto_tree_add_item() took a gboolean as its
+			 * last argument, with FALSE meaning "big-endian"
+			 * and TRUE meaning "little-endian", we treat any
+			 * non-zero value of "encoding" as meaning
+			 * "little-endian".
+			 *
+			 * At some point in the future, we might
+			 * support non-IEEE-binary floating-point
+			 * formats in the encoding as well
+			 * (IEEE decimal, System/3x0, VAX).
+			 */
 			DISSECTOR_ASSERT(length == 8);
-			if (little_endian)
+			if (encoding)
 				doubleval = tvb_get_letohieee_double(tvb, start);
 			else
 				doubleval = tvb_get_ntohieee_double(tvb, start);
@@ -1398,7 +1443,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_UINT_STRING:
-			n = get_uint_value(tvb, start, length, little_endian);
+			n = get_uint_value(tvb, start, length, encoding);
 			proto_tree_set_string_tvb(new_fi, tvb, start + length, n);
 
 			/* Instead of calling proto_item_set_len(), since we
@@ -1416,7 +1461,20 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		case FT_ABSOLUTE_TIME:
 		case FT_RELATIVE_TIME:
 			DISSECTOR_ASSERT(length == 8);
-			if (little_endian) {
+			/*
+			 * NOTE: to support code written when
+			 * proto_tree_add_item() took a gboolean as its
+			 * last argument, with FALSE meaning "big-endian"
+			 * and TRUE meaning "little-endian", we treat any
+			 * non-zero value of "encoding" as meaning
+			 * "little-endian".
+			 *
+			 * At some point in the future, we might
+			 * support non-struct timespec formats in
+			 * the encoding as well (struct timeval,
+			 * NTP time, Windows NT FILETIME, time_t, etc.).
+			 */
+			if (encoding) {
 				time_stamp.secs  = tvb_get_letohl(tvb, start);
 				time_stamp.nsecs = tvb_get_letohl(tvb, start+4);
 			} else {
@@ -1433,7 +1491,12 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			DISSECTOR_ASSERT_NOT_REACHED();
 			break;
 	}
-	FI_SET_FLAG(new_fi, (little_endian) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN);
+	/*
+	 * XXX - this should just check the REP_*_ENDIAN bit, with
+	 * those fields for which we treat any non-zero value of
+	 * "encoding" checking the rest of the bits.
+	 */
+	FI_SET_FLAG(new_fi, (encoding) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN);
 
 	/* Don't add new node to proto_tree until now so that any exceptions
 	 * raised by a tvbuff access method doesn't leave junk in the proto_tree. */
@@ -1457,7 +1520,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
    and returns proto_item* */
 proto_item *
 ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
-	      gboolean little_endian)
+	      const guint encoding)
 {
 	field_info		*new_fi;
 	header_field_info	*hfinfo;
@@ -1477,7 +1540,7 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
 		 * The length of the rest of the item is in the first N
 		 * bytes of the item.
 		 */
-		n = get_uint_value(ptvc->tvb, offset, length, little_endian);
+		n = get_uint_value(ptvc->tvb, offset, length, encoding);
 		ptvc->offset += n;
 	}
 
@@ -1489,14 +1552,14 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
 		return NULL;
 
 	return proto_tree_new_item(new_fi, ptvc->tree, ptvc->tvb,
-		offset, length, little_endian);
+		offset, length, encoding);
 }
 
 /* Add an item to a proto_tree, using the text label registered to that item;
    the item is extracted from the tvbuff handed to it. */
 proto_item *
 proto_tree_add_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
-		    const gint start, gint length, const gboolean little_endian)
+		    const gint start, gint length, const guint encoding)
 {
 	field_info	*new_fi;
 	header_field_info	*hfinfo;
@@ -1509,7 +1572,7 @@ proto_tree_add_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 		return(NULL);
 
 	return proto_tree_new_item(new_fi, tree, tvb, start,
-		length, little_endian);
+		length, encoding);
 }
 
 /* Add a FT_NONE to a proto_tree */
@@ -1542,12 +1605,12 @@ proto_tree_add_none_format(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
  * offset, and returns proto_item* */
 proto_item *
 ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, gint length,
-			 gboolean endianness)
+			 const guint encoding)
 {
 	proto_item	*item;
 
 	item = proto_tree_add_item(ptvc->tree, hf, ptvc->tvb, ptvc->offset,
-				   length, endianness);
+				   length, encoding);
 
 	return item;
 }
@@ -2067,11 +2130,11 @@ proto_tree_set_guid(field_info *fi, const e_guid_t *value_ptr)
 
 static void
 proto_tree_set_guid_tvb(field_info *fi, tvbuff_t *tvb, gint start,
-			gboolean little_endian)
+			const guint encoding)
 {
 	e_guid_t guid;
 
-	tvb_get_guid(tvb, start, &guid, little_endian);
+	tvb_get_guid(tvb, start, &guid, encoding);
 	proto_tree_set_guid(fi, &guid);
 }
 
@@ -2170,14 +2233,20 @@ proto_tree_set_uint64(field_info *fi, guint64 value)
 	fvalue_set_integer64(&fi->value, value);
 }
 
+/*
+ * NOTE: to support code written when proto_tree_add_item() took a
+ * gboolean as its last argument, with FALSE meaning "big-endian"
+ * and TRUE meaning "little-endian", we treat any non-zero value of
+ * "encoding" as meaning "little-endian".
+ */
 static void
 proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start,
-			  guint length, gboolean little_endian)
+			  guint length, const guint encoding)
 {
 	guint64 value = 0;
 	guint8* b = ep_tvb_memdup(tvb,start,length);
 
-	if(little_endian) {
+	if(encoding) {
 		b += length;
 		switch(length) {
 			default: DISSECTOR_ASSERT_NOT_REACHED();

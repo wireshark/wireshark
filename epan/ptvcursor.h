@@ -42,13 +42,13 @@ ptvcursor_new(proto_tree* tree, tvbuff_t* tvb, gint offset);
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
  * and returns proto_item* */
 proto_item*
-ptvcursor_add(ptvcursor_t* ptvc, int hf, gint length, gboolean endianness);
+ptvcursor_add(ptvcursor_t* ptvc, int hf, gint length, const guint encoding);
 
 
 /* Gets data from tvbuff, adds it to proto_tree, *DOES NOT* increment
  * offset, and returns proto_item* */
 proto_item*
-ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, gint length, gboolean endianness);
+ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, gint length, const guint encoding);
 
 /* Advance the ptvcursor's offset within its tvbuff without
  * adding anything to the proto_tree. */
@@ -90,7 +90,7 @@ ptvcursor_pop_subtree(ptvcursor_t* ptvc);
  */
 proto_tree*
 ptvcursor_add_with_subtree(ptvcursor_t* ptvc, int hfindex, gint length,
-    gboolean little_endian, gint ett_subtree);
+    const guint encoding, gint ett_subtree);
 
 /* Add a text node to the tree and create a subtree
  * If the length is unknown, length may be defined as SUBTREE_UNDEFINED_LENGTH.

@@ -103,21 +103,21 @@ dissect_mtp2_header(tvbuff_t *su_tvb, proto_item *mtp2_tree)
 {
   if (mtp2_tree) {
     if (use_extended_sequence_numbers) {
-      proto_tree_add_item(mtp2_tree, hf_mtp2_ext_bsn,   su_tvb, EXTENDED_BSN_BIB_OFFSET, EXTENDED_BSN_BIB_LENGTH, REP_LITTLE_ENDIAN);
-      proto_tree_add_item(mtp2_tree, hf_mtp2_ext_res,   su_tvb, EXTENDED_BSN_BIB_OFFSET, EXTENDED_BSN_BIB_LENGTH, REP_LITTLE_ENDIAN);
-      proto_tree_add_item(mtp2_tree, hf_mtp2_ext_bib,   su_tvb, EXTENDED_BSN_BIB_OFFSET, EXTENDED_BSN_BIB_LENGTH, REP_LITTLE_ENDIAN);
-      proto_tree_add_item(mtp2_tree, hf_mtp2_ext_fsn,   su_tvb, EXTENDED_FSN_FIB_OFFSET, EXTENDED_FSN_FIB_LENGTH, REP_LITTLE_ENDIAN);
-      proto_tree_add_item(mtp2_tree, hf_mtp2_ext_res,   su_tvb, EXTENDED_BSN_BIB_OFFSET, EXTENDED_BSN_BIB_LENGTH, REP_LITTLE_ENDIAN);
-      proto_tree_add_item(mtp2_tree, hf_mtp2_ext_fib,   su_tvb, EXTENDED_FSN_FIB_OFFSET, EXTENDED_FSN_FIB_LENGTH, REP_LITTLE_ENDIAN);
-      proto_tree_add_item(mtp2_tree, hf_mtp2_ext_li,    su_tvb, EXTENDED_LI_OFFSET,      EXTENDED_LI_LENGTH,      REP_LITTLE_ENDIAN);
-      proto_tree_add_item(mtp2_tree, hf_mtp2_ext_spare, su_tvb, EXTENDED_LI_OFFSET,      EXTENDED_LI_LENGTH,      REP_LITTLE_ENDIAN);
+      proto_tree_add_item(mtp2_tree, hf_mtp2_ext_bsn,   su_tvb, EXTENDED_BSN_BIB_OFFSET, EXTENDED_BSN_BIB_LENGTH, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(mtp2_tree, hf_mtp2_ext_res,   su_tvb, EXTENDED_BSN_BIB_OFFSET, EXTENDED_BSN_BIB_LENGTH, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(mtp2_tree, hf_mtp2_ext_bib,   su_tvb, EXTENDED_BSN_BIB_OFFSET, EXTENDED_BSN_BIB_LENGTH, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(mtp2_tree, hf_mtp2_ext_fsn,   su_tvb, EXTENDED_FSN_FIB_OFFSET, EXTENDED_FSN_FIB_LENGTH, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(mtp2_tree, hf_mtp2_ext_res,   su_tvb, EXTENDED_BSN_BIB_OFFSET, EXTENDED_BSN_BIB_LENGTH, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(mtp2_tree, hf_mtp2_ext_fib,   su_tvb, EXTENDED_FSN_FIB_OFFSET, EXTENDED_FSN_FIB_LENGTH, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(mtp2_tree, hf_mtp2_ext_li,    su_tvb, EXTENDED_LI_OFFSET,      EXTENDED_LI_LENGTH,      ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(mtp2_tree, hf_mtp2_ext_spare, su_tvb, EXTENDED_LI_OFFSET,      EXTENDED_LI_LENGTH,      ENC_LITTLE_ENDIAN);
     } else {
-      proto_tree_add_item(mtp2_tree, hf_mtp2_bsn,   su_tvb, BSN_BIB_OFFSET, BSN_BIB_LENGTH, REP_LITTLE_ENDIAN);
-      proto_tree_add_item(mtp2_tree, hf_mtp2_bib,   su_tvb, BSN_BIB_OFFSET, BSN_BIB_LENGTH, REP_LITTLE_ENDIAN);
-      proto_tree_add_item(mtp2_tree, hf_mtp2_fsn,   su_tvb, FSN_FIB_OFFSET, FSN_FIB_LENGTH, REP_LITTLE_ENDIAN);
-      proto_tree_add_item(mtp2_tree, hf_mtp2_fib,   su_tvb, FSN_FIB_OFFSET, FSN_FIB_LENGTH, REP_LITTLE_ENDIAN);
-      proto_tree_add_item(mtp2_tree, hf_mtp2_li,    su_tvb, LI_OFFSET,      LI_LENGTH,      REP_LITTLE_ENDIAN);
-      proto_tree_add_item(mtp2_tree, hf_mtp2_spare, su_tvb, LI_OFFSET,      LI_LENGTH,      REP_LITTLE_ENDIAN);
+      proto_tree_add_item(mtp2_tree, hf_mtp2_bsn,   su_tvb, BSN_BIB_OFFSET, BSN_BIB_LENGTH, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(mtp2_tree, hf_mtp2_bib,   su_tvb, BSN_BIB_OFFSET, BSN_BIB_LENGTH, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(mtp2_tree, hf_mtp2_fsn,   su_tvb, FSN_FIB_OFFSET, FSN_FIB_LENGTH, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(mtp2_tree, hf_mtp2_fib,   su_tvb, FSN_FIB_OFFSET, FSN_FIB_LENGTH, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(mtp2_tree, hf_mtp2_li,    su_tvb, LI_OFFSET,      LI_LENGTH,      ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(mtp2_tree, hf_mtp2_spare, su_tvb, LI_OFFSET,      LI_LENGTH,      ENC_LITTLE_ENDIAN);
     }
   }
 }
@@ -256,7 +256,7 @@ dissect_mtp2_lssu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree)
     sf_extra_offset = SF_EXTRA_OFFSET;
   }
 
-  proto_tree_add_item(mtp2_tree, hf_mtp2_sf, su_tvb, sf_offset, SF_LENGTH, REP_LITTLE_ENDIAN);
+  proto_tree_add_item(mtp2_tree, hf_mtp2_sf, su_tvb, sf_offset, SF_LENGTH, ENC_LITTLE_ENDIAN);
   sf = tvb_get_guint8(su_tvb, SF_OFFSET);
 
   /*  If the LI is 2 then there is an extra octet following the standard SF
@@ -264,7 +264,7 @@ dissect_mtp2_lssu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree)
    *  (In any case the first byte of the SF always has the same meaning.)
    */
   if ((tvb_get_guint8(su_tvb, LI_OFFSET) & LI_MASK) == 2)
-    proto_tree_add_item(mtp2_tree, hf_mtp2_sf_extra, su_tvb, sf_extra_offset, SF_EXTRA_LENGTH, REP_LITTLE_ENDIAN);
+    proto_tree_add_item(mtp2_tree, hf_mtp2_sf_extra, su_tvb, sf_extra_offset, SF_EXTRA_LENGTH, ENC_LITTLE_ENDIAN);
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(sf, status_field_acro_vals, "Unknown"));
@@ -345,7 +345,7 @@ dissect_mtp2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
   
   if (tree) {
-    mtp2_item = proto_tree_add_item(tree, proto_mtp2, tvb, 0, -1, REP_NA);
+    mtp2_item = proto_tree_add_item(tree, proto_mtp2, tvb, 0, -1, ENC_NA);
     mtp2_tree = proto_item_add_subtree(mtp2_item, ett_mtp2);
   };
 

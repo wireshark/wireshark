@@ -1530,10 +1530,16 @@ tvb_get_letohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid)
 	tvb_memcpy(tvb, guid->data4, offset + 8, sizeof guid->data4);
 }
 
+/*
+ * NOTE: to support code written when proto_tree_add_item() took a
+ * gboolean as its last argument, with FALSE meaning "big-endian"
+ * and TRUE meaning "little-endian", we treat any non-zero value of
+ * "representation" as meaning "little-endian".
+ */
 void
-tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const gboolean little_endian)
+tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const guint representation)
 {
-	if (little_endian) {
+	if (representation) {
 		tvb_get_letohguid(tvb, offset, guid);
 	} else {
 		tvb_get_ntohguid(tvb, offset, guid);
