@@ -134,9 +134,9 @@ struct bgp_attr {
 #define BGP_ORF_ADD		0x00
 #define BGP_ORF_REMOVE		0x40
 #define BGP_ORF_REMOVEALL	0x80
-#define BGP_ORF_MATCH		0x10
+#define BGP_ORF_MATCH		0x20
 #define BGP_ORF_PERMIT		0x00
-#define BGP_ORF_DENY		0x10
+#define BGP_ORF_DENY		0x20
 
 /* well-known communities, from RFC1997 */
 #define BGP_COMM_NO_EXPORT           0xFFFFFF01
