@@ -34,8 +34,7 @@ ports or packages system.
 2. Compiling Wireshark
 -----------------------
 To compile Wireshark with the default options, run configure, make and
-make install:
-
+make install (you may have to run "autogen.sh" first): 
      ./configure
      make
      make install
