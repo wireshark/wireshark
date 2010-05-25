@@ -182,6 +182,7 @@ typedef struct rlc_lte_stat_t {
     GtkWidget  *dl_filter_bt;
     GtkWidget  *uldl_filter_bt;
     GtkWidget  *show_only_control_pdus_cb;
+    GtkWidget  *show_dct_errors_cb;
     GtkWidget  *sn_filter_lb;
     GtkWidget  *sn_filter_te;
 
@@ -213,6 +214,7 @@ static void enable_filter_controls(guint8 enabled, guint8 rlcMode, rlc_lte_stat_
     gtk_widget_set_sensitive(hs->ul_filter_bt, enabled);
     gtk_widget_set_sensitive(hs->dl_filter_bt, enabled);
     gtk_widget_set_sensitive(hs->uldl_filter_bt, enabled);
+    gtk_widget_set_sensitive(hs->show_dct_errors_cb, enabled);
 
     switch (rlcMode) {
         case RLC_TM_MODE:
@@ -856,11 +858,18 @@ static void set_channel_filter_expression(guint16  ueid,
                                           ChannelDirection_t channelDirection,
                                           gint     filterOnSN,
                                           gint     statusOnlyPDUs,
+                                          gint     showDCTErrors,
                                           rlc_lte_stat_t *hs)
 {
     #define MAX_FILTER_LEN 1024
     static char buffer[MAX_FILTER_LEN];
     int offset = 0;
+
+    /* Show DCT errors */
+    if (showDCTErrors) {
+        offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                             "dct2000.error-comment or (");
+    }
 
     /* Include dialog filter */
     if (hs->filter) {
@@ -947,6 +956,12 @@ static void set_channel_filter_expression(guint16  ueid,
         }
     }
 
+    /* Close () if open */
+    if (showDCTErrors) {
+        offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, ")");
+    }
+
+
     /* Set its value to our new string */
     gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), buffer);
 
@@ -976,6 +991,7 @@ static void ul_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
 
     set_channel_filter_expression(ueid, rlcMode, channelType, channelId, UL_Only, sn,
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_only_control_pdus_cb)),
+                                  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb)),
                                   hs);
 }
 
@@ -1001,6 +1017,7 @@ static void dl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
 
     set_channel_filter_expression(ueid, rlcMode, channelType, channelId, DL_Only, sn,
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_only_control_pdus_cb)),
+                                  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb)),
                                   hs);
 }
 
@@ -1026,6 +1043,7 @@ static void uldl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
 
     set_channel_filter_expression(ueid, rlcMode, channelType, channelId, UL_and_DL, sn,
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_only_control_pdus_cb)),
+                                  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb)),
                                   hs);
 }
 
@@ -1303,6 +1321,12 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     gtk_container_add(GTK_CONTAINER(sn_filter_hb), hs->show_only_control_pdus_cb);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hs->show_only_control_pdus_cb), FALSE);
 
+    /* Allow DCT errors to be shown... */
+    hs->show_dct_errors_cb = gtk_check_button_new_with_mnemonic("Show DCT error strings");
+    gtk_container_add(GTK_CONTAINER(sn_filter_hb), hs->show_dct_errors_cb);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb), FALSE);
+
+    /* Allow filtering of a particular sequence number */
     hs->sn_filter_te = gtk_entry_new();
     gtk_box_pack_end(GTK_BOX(sn_filter_hb), hs->sn_filter_te, FALSE, FALSE, 0);
     gtk_widget_show(hs->sn_filter_te);

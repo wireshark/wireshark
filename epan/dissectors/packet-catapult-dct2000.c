@@ -61,6 +61,7 @@ static int hf_catapult_dct2000_direction = -1;
 static int hf_catapult_dct2000_encap = -1;
 static int hf_catapult_dct2000_unparsed_data = -1;
 static int hf_catapult_dct2000_comment = -1;
+static int hf_catapult_dct2000_error_comment = -1;
 static int hf_catapult_dct2000_tty = -1;
 static int hf_catapult_dct2000_tty_line = -1;
 static int hf_catapult_dct2000_dissected_length = -1;
@@ -1897,6 +1898,9 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* Look for and flag generic error messages */
                 if (strncmp(string, ">> ERR", 6) == 0) {
+                    proto_item *error_ti = proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_error_comment, tvb,
+                                                               offset, -1, FALSE);
+                    PROTO_ITEM_SET_GENERATED(error_ti);
                     expert_add_info_format(pinfo, string_ti, PI_SEQUENCE, PI_ERROR,
                                           "%s", string);
                 }
@@ -2327,6 +2331,12 @@ void proto_register_catapult_dct2000(void)
             { "Comment",
               "dct2000.comment", FT_STRING, BASE_NONE, NULL, 0x0,
               "Comment", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_error_comment,
+            { "Error comment",
+              "dct2000.error-comment", FT_NONE, BASE_NONE, NULL, 0x0,
+              "Error Comment", HFILL
             }
         },
         { &hf_catapult_dct2000_dissected_length,
