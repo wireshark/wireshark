@@ -42,7 +42,7 @@ struct pref_module {
 };
 
 /*
- * Module used for protocol preferences. 
+ * Module used for protocol preferences.
  * With MSVC and a libwireshark.dll, we need a special declaration.
  */
 WS_VAR_IMPORT module_t *protocols_module;
@@ -96,10 +96,6 @@ struct preference {
 	} info;			/* display/text file information */
 	void	*control;	/* handle for GUI control for this preference */
 };
-
-gint find_val_for_string(const char *needle, const enum_val_t *haystack,
-    gint default_value);
-
 
 /* read_prefs_file: read in a generic config file and do a callback to */
 /* pref_set_pair_fct() for every key/value pair found */

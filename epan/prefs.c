@@ -988,9 +988,9 @@ prefs_clear_string_list(GList *sl)
  * Otherwise, the default value that was passed as the third argument is
  * returned.
  */
-gint
+static gint
 find_val_for_string(const char *needle, const enum_val_t *haystack,
-    gint default_value)
+		    gint default_value)
 {
 	int i;
 
@@ -2551,8 +2551,8 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
 
     case PREF_ENUM:
       /* XXX - give an error if it doesn't match? */
-      enum_val = find_val_for_string(value,
-					pref->info.enum_info.enumvals, 1);
+      enum_val = find_val_for_string(value, pref->info.enum_info.enumvals,
+				     *pref->varp.enump);
       if (*pref->varp.enump != enum_val) {
 	module->prefs_changed = TRUE;
 	*pref->varp.enump = enum_val;
