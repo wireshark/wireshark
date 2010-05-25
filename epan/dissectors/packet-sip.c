@@ -1815,7 +1815,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		/*
 		 * Just dissect it as a continuation.
 		 */
-	} else if (use_reassembly) {
+	} else if ((use_reassembly)&&( pinfo->ptype == PT_TCP)) {
 		/*
 		 * Yes, it's a request or response.
 		 * Do header desegmentation if we've been told to,
