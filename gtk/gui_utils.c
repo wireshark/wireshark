@@ -1185,7 +1185,7 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
     GtkTreeIter parent;
     GtkTreeModel* model;
     GtkTreePath* path;
-    gboolean    expanded;
+    gboolean    expanded, expandable;
     int rc = FALSE;
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
@@ -1201,14 +1201,18 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
     if(!path) {
         return FALSE;
     }
+    
+    /* Always FALSE when we're in the packet list (at least until we add sub-packets) */
     expanded = gtk_tree_view_row_expanded(GTK_TREE_VIEW(tree), path);
+    expandable = gtk_tree_model_iter_has_child(model, &iter);
 
     switch (event->keyval) {
         case GDK_Left:
             if(expanded) {
-                /* subtree is expanded, collapse it by letting default callback handle it. */
-                rc = FALSE;
-                break; 
+                /* Subtree is expanded. Collapse it. */
+                gtk_tree_view_collapse_row(GTK_TREE_VIEW(tree), path);
+                rc = TRUE;
+		break;
             }
             /* No break - fall through to jumping to the parent */
         case GDK_BackSpace:
@@ -1230,6 +1234,16 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
                 break; 
             }
             break;
+        case GDK_Right:
+	    if (expandable) {
+		/* We have a subtree. Try to expand it. */
+		gtk_tree_view_expand_row(GTK_TREE_VIEW(tree), path, FALSE /* !open_all */);
+		rc = TRUE;
+		break;
+	    } else {
+	        rc = FALSE;
+		break;
+	    }
         case GDK_Return:
         case GDK_KP_Enter:
             /* Reverse the current state. */
