@@ -16,6 +16,36 @@
 		<avp name="Accounting-Output-Packets" code="366" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="Unsigned64"/>
 		</avp>
+<!--
+368 - 393 is in sip.xml
+368 SIP-Accounting-Information [RFC4740] 
+369 SIP-Accounting-Server-URI [RFC4740] 
+370 SIP-Credit-Control-Server-URI [RFC4740] 
+371 SIP-Server-URI [RFC4740] 
+372 SIP-Server-Capabilities [RFC4740] 
+373 SIP-Mandatory-Capability [RFC4740] 
+374 SIP-Optional-Capability [RFC4740] 
+375 SIP-Server-Assignment-Type [RFC4740] 
+376 SIP-Auth-Data-Item [RFC4740] 
+377 SIP-Authentication-Scheme [RFC4740] 
+378 SIP-Item-Number [RFC4740] 
+379 SIP-Authenticate [RFC4740] 
+380 SIP-Authorization [RFC4740] 
+381 SIP-Authentication-Info [RFC4740] 
+382 SIP-Number-Auth-Items [RFC4740] 
+383 SIP-Deregistration-Reason [RFC4740] 
+384 SIP-Reason-Code [RFC4740] 
+385 SIP-Reason-Info [RFC4740] 
+386 SIP-Visited-Network-Id [RFC4740] 
+387 SIP-User-Authorization-Type [RFC4740] 
+388 SIP-Supported-User-Data-Type [RFC4740] 
+389 SIP-User-Data [RFC4740] 
+390 SIP-User-Data-Type [RFC4740] 
+391 SIP-User-Data-Contents [RFC4740] 
+392 SIP-User-Data-Already-Available [RFC4740] 
+393 SIP-Method [RFC4740] 
+394-399 Unassigned 
+-->    
 		<avp name="NAS-Filter-Rule" code="400" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="IPFilterRule"/>
 		</avp>

@@ -19,13 +19,13 @@
 				<gavp name="SIP-Credit-Control-Server-URI"/>
 			</grouped>
 		</avp>
-		<avp name="SIP-Accounting-Server-URI" code="369" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="SIP-Accounting-Server-URI" code="369" mandatory="may" may-encrypt="no" protected="may" vendor-bit="mustnot">
 			<type type-name="DiameterURI"/>
 		</avp>
-		<avp name="SIP-Credit-Control-Server-URI" code="370" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="SIP-Credit-Control-Server-URI" code="370" mandatory="may" may-encrypt="no" protected="may" vendor-bit="mustnot">
 			<type type-name="DiameterURI"/>
 		</avp>
-		<avp name="SIP-Server-URI" code="371" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="SIP-Server-URI" code="371" mandatory="may" may-encrypt="no" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="SIP-Server-Capabilities" code="372" mandatory="may" may-encrypt="no" protected="may" vendor-bit="mustnot">
@@ -127,19 +127,19 @@
 			<enum name="SIP_SERVER_CHANGE" code="2"/>
 			<enum name="REMOVE_SIP_SERVER" code="3"/>
 		</avp>
-		<avp name="SIP-Reason-Info" code="385" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="SIP-Reason-Info" code="385" mandatory="may" may-encrypt="no" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
-		<avp name="SIP-Visited-Network-Id" code="386" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="SIP-Visited-Network-Id" code="386" mandatory="may" may-encrypt="no" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
-		<avp name="SIP-User-Authorization-Type" code="387" mandatory="must" may-encrypt="yes">
+		<avp name="SIP-User-Authorization-Type" code="387" mandatory="may" may-encrypt="no" protected="may" vendor-bit="mustnot">
 			<type type-name="Enumerated"/>
 			<enum name="REGISTRATION" code="0"/>
 			<enum name="DEREGISTRATION" code="1"/>
 			<enum name="REGISTRATION_AND_CAPABILITIES" code="2"/>
 		</avp>
-		<avp name="SIP-Supported-User-Data-Type" code="388" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="yes">
+    <avp name="SIP-Supported-User-Data-Type" code="388" mandatory="may" may-encrypt="no" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="SIP-User-Data" code="389" mandatory="may" may-encrypt="no" protected="may" vendor-bit="mustnot">
@@ -148,18 +148,18 @@
 				<gavp name="SIP-User-Data-Contents"/>
 			</grouped>
 		</avp>
-		<avp name="SIP-User-Data-Type" code="390" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="SIP-User-Data-Type" code="390" mandatory="may" may-encrypt="no" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
-		<avp name="SIP-User-Data-Contents" code="391" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="SIP-User-Data-Contents" code="391" mandatory="may" may-encrypt="no" protected="may" vendor-bit="mustnot">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="SIP-User-Data-Already-Available" code="392" mandatory="must" may-encrypt="yes">
+		<avp name="SIP-User-Data-Already-Available" code="392" mandatory="may" may-encrypt="no" protected="may" vendor-bit="mustnot">
 			<type type-name="Enumerated"/>
 			<enum name="USER_DATA_NOT_AVAILABLE" code="0"/>
 			<enum name="USER_DATA_ALREADY_AVAILABLE" code="1"/>
 		</avp>
-		<avp name="SIP-Method" code="393" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="SIP-Method" code="393" mandatory="may" may-encrypt="no" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
 	</application>

@@ -823,10 +823,16 @@
 		<avp name="Acct-Output-Gigawords" code="53" mandatory="may">
 			<type type-name="Integer32"/>
 		</avp>
+<!-- 54        Unassigned -->
 		<avp name="Event-Timestamp" code="55" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="Time"/>
 		</avp>
-<!--  56-59	(unassigned) -->
+<!--  
+56        Egress-VLANID                            [RFC4675]
+57        Ingress-Filters                          [RFC4675]
+58        Egress-VLAN-Name                         [RFC4675]
+59        User-Priority-Table                      [RFC4675]
+-->
 		<avp name="CHAP-Challenge" code="60" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="OctetString"/>
 		</avp>
@@ -998,7 +1004,7 @@ http://www.iana.org/assignments/radius-types
 http://www.iana.org/assignments/radius-types
    92        NAS-Filter-Rule                          [RFC4849]
 -->
-<!--  83	(unassigned) -->
+<!--  93	(unassigned) -->
 		<avp name="Originating-Line-Info" code="94" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="OctetString"/>
 		</avp>
@@ -1476,10 +1482,11 @@ http://www.iana.org/assignments/radius-types
 			<enum name="AUTHORIZE_ONLY" code="0"/>
 			<enum name="AUTHORIZE_AUTHENTICATE" code="1"/>
 		</avp>
+<!-- 286 Unassigned -->
 		<avp name="Accounting-Sub-Session-Id" code="287" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned64"/>
 		</avp>
-<!-- 288-290    Unallocated http://www.iana.org/assignments/aaa-parameters (last updated 20 September 2005)?? -->
+<!-- 288-290    Unallocated http://www.iana.org/assignments/aaa-parameters  -->
 		<avp name="Authorization-Lifetime" code="291" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="Integer32"/>
 		</avp>
@@ -1570,11 +1577,142 @@ http://www.iana.org/assignments/radius-types
 			</grouped>
 		</avp>
 		<!-- 301-317    Unallocated -->
-<!-- AVP:s 318 - 348 Belongs to Diameter Mobile IPv4 Application and is defined in mobileipv4.xml --> 
+<!-- AVP:s 318 - 348 Belongs to Diameter Mobile IPv4 Application and is defined in mobileipv4.xml
+318 MIP-FA-to-HA-SPI [RFC4004] 
+319 MIP-FA-to-MN-SPI [RFC4004] 
+320 MIP-Reg-Request [RFC4004] 
+321 MIP-Reg-Reply [RFC4004] 
+322 MIP-MN-AAA-Auth [RFC4004] 
+323 MIP-HA-to-FA-SPI [RFC4004] 
+324 Unassigned  
+325 MIP-MN-to-FA-MSA [RFC4004] 
+326 MIP-FA-to-MN-MSA [RFC4004] 
+327 Unassigned  
+328 MIP-FA-to-HA-MSA [RFC4004] 
+329 MIP-HA-to-FA-MSA [RFC4004] 
+331 MIP-MN-to-HA-MSA [RFC4004] 
+332 MIP-HA-to-MN-MSA [RFC4004] 
+333 MIP-Mobile-Node-Address [RFC4004] 
+334 MIP-Home-Agent-Address [RFC4004] 
+335 MIP-Nonce [RFC4004] 
+336 MIP-Candidate-Home-Agent-Host [RFC4004] 
+337 MIP-Feature-Vector [RFC4004] 
+338 MIP-Auth-Input-Data-Length [RFC4004] 
+339 MIP-Authenticator-Length [RFC4004] 
+340 MIP-Authenticator-Offset [RFC4004] 
+341 MIP-MN-AAA-SPI [RFC4004] 
+342 MIP-Filter-Rule [RFC4004] 
+343 MIP-Session-Key [RFC4004] 
+344 MIP-FA-Challenge [RFC4004] 
+345 MIP-Algorithm-Type [RFC4004] 
+346 MIP-Replay-Mode [RFC4004] 
+347 MIP-Originating-Foreign-AAA [RFC4004] 
+348 MIP-Home-Agent-Host [RFC4004] 
+--> 
 <!-- AVP:s 349-362        Unassigned -->
-<!-- AVP:s 363 - 408 Belongs to Diameter Network Access Server Application and is defined in nasreq.xml -->
-<!-- AVP:s 411 - 461 Belongs to Carge Control and is defined in chargecontrol.xml --> 
-<!-- 462 EAP-Payload [RFC4072] 
+<!-- AVP:s 368 - 393 is in sip.xml 
+363 Accounting-Input-Octets [RFC4005][RFC4004] 
+364 Accounting-Output-Octets [RFC4005][RFC4004] 
+365 Accounting-Input-Packets [RFC4005][RFC4004] 
+366 Accounting-Output-Packets [RFC4005][RFC4004] 
+367 MIP-MSA-Lifetime [RFC4004] 
+368 SIP-Accounting-Information [RFC4740] 
+369 SIP-Accounting-Server-URI [RFC4740] 
+370 SIP-Credit-Control-Server-URI [RFC4740] 
+371 SIP-Server-URI [RFC4740] 
+372 SIP-Server-Capabilities [RFC4740] 
+373 SIP-Mandatory-Capability [RFC4740] 
+374 SIP-Optional-Capability [RFC4740] 
+375 SIP-Server-Assignment-Type [RFC4740] 
+376 SIP-Auth-Data-Item [RFC4740] 
+377 SIP-Authentication-Scheme [RFC4740] 
+378 SIP-Item-Number [RFC4740] 
+379 SIP-Authenticate [RFC4740] 
+380 SIP-Authorization [RFC4740] 
+381 SIP-Authentication-Info [RFC4740] 
+382 SIP-Number-Auth-Items [RFC4740] 
+383 SIP-Deregistration-Reason [RFC4740] 
+384 SIP-Reason-Code [RFC4740] 
+385 SIP-Reason-Info [RFC4740] 
+386 SIP-Visited-Network-Id [RFC4740] 
+387 SIP-User-Authorization-Type [RFC4740] 
+388 SIP-Supported-User-Data-Type [RFC4740] 
+389 SIP-User-Data [RFC4740] 
+390 SIP-User-Data-Type [RFC4740] 
+391 SIP-User-Data-Contents [RFC4740] 
+392 SIP-User-Data-Already-Available [RFC4740] 
+393 SIP-Method [RFC4740] 
+-->
+<!-- 394-399 Unassigned  -->    
+<!-- 400 408 is defined in nasreq.xml
+400 NAS-Filter-Rule [RFC4005] 
+401 Tunneling [RFC4005] 
+402 CHAP-Auth [RFC4005] 
+403 CHAP-Algorithm [RFC4005] 
+404 CHAP-Ident [RFC4005] 
+405 CHAP-Response [RFC4005] 
+406 Acounting-Auth-Method [RFC4005] 
+407 QoS-Filter-Rule [RFC4005] 
+408 Origin-AAA-Protocol [RFC4005] 
+ -->
+<!-- 409-410 Unassigned -->
+-->
+<!-- AVP:s 411 - 461 Belongs to Carge Control and is defined in chargecontrol.xml
+411 CC-Correlation-Id [RFC4006] 
+412 CC-Input-Octets [RFC4006] 
+413 CC-Money [RFC4006] 
+414 CC-Output-Octets [RFC4006] 
+415 CC-Request-Number [RFC4006] 
+416 CC-Request-Type [RFC4006] 
+417 CC-Service-Specific-Units [RFC4006] 
+418 CC-Session-Failover [RFC4006] 
+419 CC-Sub-Session-Id [RFC4006] 
+420 CC-Time [RFC4006] 
+421 CC-Total-Octets [RFC4006] 
+422 Check-Balance-Result [RFC4006] 
+423 Cost-Information [RFC4006] 
+424 Cost-Unit [RFC4006] 
+425 Currency-Code [RFC4006] 
+426 Credit-Control [RFC4006] 
+427 Credit-Control-Failure-Handling [RFC4006] 
+428 Direct-Debiting-Failure-Handling [RFC4006] 
+429 Exponent [RFC4006] 
+430 Final-Unit-Indication [RFC4006] 
+431 Granted-Service-Unit [RFC4006] 
+432 Rating-Group [RFC4006] 
+433 Redirect-Address-Type [RFC4006] 
+434 Redirect-Server [RFC4006] 
+435 Redirect-Server-Address [RFC4006] 
+436 Requested-Action [RFC4006] 
+437 Requested-Service-Unit [RFC4006] 
+438 Restriction-Filter-Rule [RFC4006] 
+439 Service-Identifier [RFC4006] 
+440 Service-Parameter-Info [RFC4006] 
+441 Service-Parameter-Type [RFC4006] 
+442 Service-Parameter-Value [RFC4006] 
+443 Subscription-Id [RFC4006] 
+444 Subscription-Id-Data [RFC4006] 
+445 Unit-Value [RFC4006] 
+446 Used-Service-Unit [RFC4006] 
+447 Value-Digits [RFC4006] 
+448 Validity-Time [RFC4006] 
+449 Final-Unit-Action [RFC4006] 
+450 Subscription-Id-Type [RFC4006] 
+451 Tariff-Time-Change [RFC4006] 
+452 Tariff-Change-Usage [RFC4006] 
+453 G-S-U-Pool-Identifier [RFC4006] 
+454 CC-Unit-Type [RFC4006] 
+455 Multiple-Services-Indicator [RFC4006] 
+456 Multiple-Services-Credit-Control [RFC4006] 
+457 G-S-U-Pool-Reference [RFC4006] 
+458 User-Equipment-Info [RFC4006] 
+459 User-Equipment-Info-Type [RFC4006] 
+460 User-Equipment-Info-Value [RFC4006] 
+461 Service-Context-Id [RFC4006] 
+
+--> 
+<!-- epa.xml
+     462 EAP-Payload [RFC4072] 
      463 EAP-Reissued-Payload [RFC4072] 
      464 EAP-Master-Session-Key [RFC4072] 
      465 Accounting-EAP-Auth-Method [RFC4072] 
