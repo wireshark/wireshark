@@ -919,6 +919,7 @@ class EthCtx:
       self.type[ident]['tname'] = asn2c(ident)
     self.type[ident]['export'] = self.conform.use_item('EXPORTS', ident)
     self.type[ident]['enum'] = self.conform.use_item('MAKE_ENUM', ident)
+    self.type[ident]['vals_ext'] = self.conform.use_item('USE_VALS_EXT', ident)
     self.type[ident]['user_def'] = self.conform.use_item('USER_DEFINED', ident)
     self.type[ident]['no_emit'] = self.conform.use_item('NO_EMIT', ident)
     self.type[ident]['tname'] = self.conform.use_item('TYPE_RENAME', ident, val_dflt=self.type[ident]['tname'])
@@ -1153,7 +1154,7 @@ class EthCtx:
         self.eth_type[nm]['ref'].append(t)
       else:
         self.eth_type_ord.append(nm)
-        self.eth_type[nm] = { 'import' : None, 'proto' : self.eproto, 'export' : 0, 'enum' : 0,
+        self.eth_type[nm] = { 'import' : None, 'proto' : self.eproto, 'export' : 0, 'enum' : 0, 'vals_ext' : 0,
                               'user_def' : EF_TYPE|EF_VALS, 'no_emit' : EF_TYPE|EF_VALS,
                               'val' : self.type[t]['val'],
                               'attr' : {}, 'ref' : [t]}
@@ -1162,10 +1163,15 @@ class EthCtx:
         self.eth_export_ord.append(nm)
       self.eth_type[nm]['export'] |= self.type[t]['export']
       self.eth_type[nm]['enum'] |= self.type[t]['enum']
+      self.eth_type[nm]['vals_ext'] |= self.type[t]['vals_ext']
       self.eth_type[nm]['user_def'] &= self.type[t]['user_def']
       self.eth_type[nm]['no_emit'] &= self.type[t]['no_emit']
       if self.type[t]['attr'].get('STRINGS') == '$$':
-        self.eth_type[nm]['attr']['STRINGS'] = 'VALS(%s)' % (self.eth_vals_nm(nm))
+        use_ext = self.type[t]['vals_ext']
+        if (use_ext):
+          self.eth_type[nm]['attr']['STRINGS'] = '&%s_ext' % (self.eth_vals_nm(nm))
+        else:
+          self.eth_type[nm]['attr']['STRINGS'] = 'VALS(%s)' % (self.eth_vals_nm(nm))
       self.eth_type[nm]['attr'].update(self.conform.use_item('ETYPE_ATTR', nm))
     for t in self.eth_type_ord:
       bits = self.eth_type[t]['val'].eth_named_bits()
@@ -1275,6 +1281,9 @@ class EthCtx:
       if (self.NAPI() and 'NAME' in attr):
         attr['NAME'] += self.field[f]['idx']
       attr.update(self.conform.use_item('EFIELD_ATTR', nm))
+      use_vals_ext = self.eth_type[ethtype].get('vals_ext')
+      if (use_vals_ext):
+        attr['DISPLAY'] += '|BASE_EXT_STRING'
       self.eth_hf[nm] = {'fullname' : fullname, 'pdu' : self.field[f]['pdu'],
                          'ethtype' : ethtype, 'modified' : self.field[f]['modified'],
                          'attr' : attr.copy(),
@@ -1334,6 +1343,7 @@ class EthCtx:
   def eth_vals(self, tname, vals):
     out = ""
     has_enum = self.eth_type[tname]['enum'] & EF_ENUM
+    use_ext = self.eth_type[tname]['vals_ext']
     if (not self.eth_type[tname]['export'] & EF_VALS):
       out += 'static '
     if (self.eth_type[tname]['export'] & EF_VALS) and (self.eth_type[tname]['export'] & EF_TABLE):
@@ -1346,6 +1356,8 @@ class EthCtx:
         vval = val
       out += '  { %3s, "%s" },\n' % (vval, id)
     out += "  { 0, NULL }\n};\n"
+    if (use_ext):
+      out += "\nstatic value_string_ext %s_ext = VALUE_STRING_EXT_INIT(%s);\n" % (self.eth_vals_nm(tname), self.eth_vals_nm(tname)) 
     return out
 
   #--- eth_enum_prefix ------------------------------------------------------------
@@ -2031,6 +2043,7 @@ class EthCnf:
     #                                   Value name             Default value       Duplicity check   Usage check
     self.tblcfg['EXPORTS']         = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['MAKE_ENUM']       = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['USE_VALS_EXT']    = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['PDU']             = { 'val_nm' : 'attr',     'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['REGISTER']        = { 'val_nm' : 'attr',     'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['USER_DEFINED']    = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
@@ -2324,6 +2337,9 @@ class EthCnf:
             elif (par[i] == 'UPPER_CASE'):     default_flags |= EF_UCASE
             elif (par[i] == 'NO_UPPER_CASE'):  default_flags &= ~EF_UCASE
             else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[i]), UserWarning, fn, lineno)
+        elif result.group('name') == 'USE_VALS_EXT':
+          ctx = result.group('name')
+          default_flags = 0xFF
         elif result.group('name') == 'FN_HDR':
           minp = 1
           if (ctx in ('FN_PARS',)) and name: minp = 0
@@ -2458,6 +2474,12 @@ class EthCnf:
           elif (par[i] == 'NO_UPPER_CASE'):  flags &= ~EF_UCASE
           else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[i]), UserWarning, fn, lineno)
         self.add_item('MAKE_ENUM', par[0], flag=flags, fn=fn, lineno=lineno)
+      elif ctx == 'USE_VALS_EXT':
+        if empty.match(line): continue
+        par = get_par(line, 1, 1, fn=fn, lineno=lineno)
+        if not par: continue
+        flags = default_flags
+        self.add_item('USE_VALS_EXT', par[0], flag=flags, fn=fn, lineno=lineno)
       elif ctx in ('PDU', 'PDU_NEW'):
         if empty.match(line): continue
         par = get_par(line, 1, 5, fn=fn, lineno=lineno)

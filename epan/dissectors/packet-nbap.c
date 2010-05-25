@@ -6397,7 +6397,7 @@ dissect_nbap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 79 "nbap.cnf"
+#line 82 "nbap.cnf"
      col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                  val_to_str(ProcedureCode, nbap_ProcedureCode_vals,
                             "unknown message"));
@@ -6431,7 +6431,7 @@ static const per_sequence_t ProcedureID_sequence[] = {
 
 static int
 dissect_nbap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 86 "nbap.cnf"
+#line 89 "nbap.cnf"
   ProcedureCode = 0xFFFF;
   ddMode = 0xFFFF;
   ProcedureID = NULL;
@@ -6439,7 +6439,7 @@ dissect_nbap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_ProcedureID, ProcedureID_sequence);
 
-#line 92 "nbap.cnf"
+#line 95 "nbap.cnf"
   ProcedureID = ep_strdup_printf("%s/%s", 
                                  val_to_str(ProcedureCode, VALS(nbap_ProcedureCode_vals), "unknown(%u)"),
                                  val_to_str(ddMode, VALS(nbap_DdMode_vals), "unknown(%u)"));      
@@ -7463,13 +7463,15 @@ static const value_string nbap_ProtocolIE_ID_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext nbap_ProtocolIE_ID_vals_ext = VALUE_STRING_EXT_INIT(nbap_ProtocolIE_ID_vals);
+
 
 static int
 dissect_nbap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
 
-#line 68 "nbap.cnf"
+#line 71 "nbap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(nbap_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -8037,7 +8039,7 @@ dissect_nbap_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 static int
 dissect_nbap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 104 "nbap.cnf"
+#line 107 "nbap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;
   gint tvb_len;
@@ -56309,7 +56311,7 @@ void proto_register_nbap(void) {
         NULL, HFILL }},
     { &hf_nbap_id,
       { "id", "nbap.id",
-        FT_UINT32, BASE_DEC, VALS(nbap_ProtocolIE_ID_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &nbap_ProtocolIE_ID_vals_ext, 0,
         "ProtocolIE_ID", HFILL }},
     { &hf_nbap_criticality,
       { "criticality", "nbap.criticality",
@@ -57253,7 +57255,7 @@ void proto_register_nbap(void) {
         "Criticality", HFILL }},
     { &hf_nbap_iE_ID,
       { "iE-ID", "nbap.iE_ID",
-        FT_UINT32, BASE_DEC, VALS(nbap_ProtocolIE_ID_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &nbap_ProtocolIE_ID_vals_ext, 0,
         "ProtocolIE_ID", HFILL }},
     { &hf_nbap_repetitionNumber,
       { "repetitionNumber", "nbap.repetitionNumber",

@@ -18,6 +18,9 @@ ProcedureCode
 ProtocolIE-ID
 ProcedureID/ddMode
 
+#.USE_VALS_EXT
+ProtocolIE-ID
+
 #.TYPE_RENAME
 ProcedureID/ddMode DdMode
 
