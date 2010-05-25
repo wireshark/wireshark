@@ -105,6 +105,10 @@
 #include <ige-mac-menu.h>
 #endif
 
+#ifdef HAVE_GTKOSXAPPLICATION
+#include <igemacintegration/gtkosxapplication.h>
+#endif
+
 typedef struct _menu_item {
     char    *name;
     gint    group;
@@ -566,7 +570,7 @@ static GtkItemFactoryEntry menu_items[] =
     {"/View/_Time Display Format", NULL, NULL, 0, "<Branch>", NULL,},
     {"/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", "<alt><control>1", GTK_MENU_FUNC(timestamp_format_cb),
                         TS_ABSOLUTE_WITH_DATE, "<RadioItem>", NULL,},
-    {"/View/Time Display Format/Time of Day:   01:02:03.123456", "<alt><control>2", GTK_MENU_FUNC(timestamp_format_cb), 
+    {"/View/Time Display Format/Time of Day:   01:02:03.123456", "<alt><control>2", GTK_MENU_FUNC(timestamp_format_cb),
                         TS_ABSOLUTE, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
     {"/View/Time Display Format/Seconds Since Epoch (1970-01-01):   1234567890.123456", "<alt><control>3", GTK_MENU_FUNC(timestamp_format_cb),
                         TS_EPOCH, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
@@ -726,7 +730,7 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Analyze/Prepare a Filter/... o_r not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
                        MATCH_SELECTED_OR_NOT, NULL, NULL,},
     {"/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Analyze/_Enabled Protocols...", "<shift><control>E", GTK_MENU_FUNC(proto_cb), 
+    {"/Analyze/_Enabled Protocols...", "<shift><control>E", GTK_MENU_FUNC(proto_cb),
                        0, "<StockItem>", WIRESHARK_STOCK_CHECKBOX,},
     {"/Analyze/Decode _As...", NULL, GTK_MENU_FUNC(decode_as_cb),
                        0, "<StockItem>", WIRESHARK_STOCK_DECODE_AS,},
@@ -1169,7 +1173,13 @@ main_menu_new(GtkAccelGroup ** table) {
     GtkWidget *quit_item, *about_item, *preferences_item;
     IgeMacMenuGroup *group;
 #endif
-
+#ifdef HAVE_GTKOSXAPPLICATION
+    GtkOSXApplication *theApp;
+    GtkWidget * item;
+    GtkOSXApplicationMenuGroup *group;
+    GtkWidget * dock_menu;
+#endif
+	
     grp = gtk_accel_group_new();
 
     if (initialize)
@@ -1206,6 +1216,47 @@ main_menu_new(GtkAccelGroup ** table) {
     g_signal_connect(quit_item, "activate", G_CALLBACK(file_quit_cmd_cb), NULL);
     ige_mac_menu_set_quit_menu_item(GTK_MENU_ITEM(quit_item));
 #endif
+	
+#ifdef HAVE_GTKOSXAPPLICATION
+    theApp = g_object_new(GTK_TYPE_OSX_APPLICATION, NULL);
+	
+    if(prefs.gui_macosx_style) {
+        gtk_osxapplication_set_menu_bar(theApp, GTK_MENU_SHELL(menubar));
+        gtk_osxapplication_set_use_quartz_accelerators(theApp, TRUE);
+
+        group = gtk_osxapplication_add_app_menu_group (theApp);
+        item = gtk_item_factory_get_item(main_menu_factory,"/Help/About Wireshark");
+        gtk_osxapplication_add_app_menu_item(theApp, group,GTK_MENU_ITEM (item));
+
+        group = gtk_osxapplication_add_app_menu_group (theApp);
+        item = gtk_item_factory_get_item(main_menu_factory,"/Edit/Preferences...");
+        gtk_osxapplication_add_app_menu_item(theApp, group,GTK_MENU_ITEM (item));
+
+        group = gtk_osxapplication_add_app_menu_group (theApp);
+        item = gtk_item_factory_get_item(main_menu_factory,"/Help");
+        gtk_osxapplication_set_help_menu(theApp,GTK_MENU_ITEM(item));
+
+        /* Quit item is not needed */
+        gtk_item_factory_delete_item(main_menu_factory,"/File/Quit");
+    }
+
+    /* generate dock menu */
+    dock_menu = gtk_menu_new();
+
+    item = gtk_menu_item_new_with_label("Start");
+    g_signal_connect_data (item, "activate", G_CALLBACK (capture_start_cb),0,0, 0);
+    gtk_menu_append(dock_menu, item);
+
+    item = gtk_menu_item_new_with_label("Stop");
+    g_signal_connect_data (item, "activate", G_CALLBACK (capture_stop_cb),0,0, 0);
+    gtk_menu_append(dock_menu, item);
+
+    item = gtk_menu_item_new_with_label("Restart");
+    g_signal_connect_data (item, "activate", G_CALLBACK (capture_restart_cb),0,0, 0);
+    gtk_menu_append(dock_menu, item);
+
+    gtk_osxapplication_set_dock_menu(theApp, GTK_MENU_SHELL(dock_menu));
+#endif
 
     if (table)
         *table = grp;
@@ -1220,8 +1271,7 @@ void menu_dissector_filter_cb(  GtkWidget *widget _U_,
 {
     dissector_filter_t      *filter_entry = callback_data;
     GtkWidget               *filter_te;
-    const char              *buf;    
-
+    const char              *buf;
 
     filter_te = g_object_get_data(G_OBJECT(popup_menu_object), E_DFILTER_TE_KEY);
 
@@ -1803,7 +1853,6 @@ remove_menu_recent_capture_filename(gchar *cf_name) {
     GList* child_list_item;
     GtkWidget    *menu_item_child;
     const gchar *menu_item_cf_name;
-    
 
     /* get the submenu container item */
     submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
@@ -2136,9 +2185,9 @@ timestamp_format_cb(GtkWidget *w _U_, gpointer d _U_, gint action)
         timestamp_set_type(action);
         recent.gui_time_format = action;
 #ifdef NEW_PACKET_LIST
-		/* This call adjusts column width */
-		cf_timestamp_auto_precision(&cfile);		
-		new_packet_list_queue_draw();
+        /* This call adjusts column width */
+        cf_timestamp_auto_precision(&cfile);
+        new_packet_list_queue_draw();
 #else
         cf_change_time_formats(&cfile);
 #endif
@@ -2158,9 +2207,9 @@ timestamp_precision_cb(GtkWidget *w _U_, gpointer d _U_, gint action)
         }
         recent.gui_time_precision  = action;
 #ifdef NEW_PACKET_LIST
-		/* This call adjusts column width */
-		cf_timestamp_auto_precision(&cfile);
-		new_packet_list_queue_draw();
+        /* This call adjusts column width */
+        cf_timestamp_auto_precision(&cfile);
+        new_packet_list_queue_draw();
 #else
         cf_change_time_formats(&cfile);
 #endif
@@ -2259,7 +2308,7 @@ menu_colorize_changed(gboolean packet_list_colorize) {
         recent.packet_list_colorize = packet_list_colorize;
         color_filters_enable(packet_list_colorize);
 #ifdef NEW_PACKET_LIST
-		new_packet_list_colorize_packets();
+        new_packet_list_colorize_packets();
 #else
         cf_colorize_packets(&cfile);
 #endif
@@ -3059,7 +3108,7 @@ menu_prefs_change_cancel (GtkWidget *w _U_, gpointer parent_w)
     window_destroy(GTK_WIDGET(parent_w));
 }
 
-static void 
+static void
 menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
 {
     pref_t *pref = data;
@@ -3251,7 +3300,7 @@ rebuild_protocol_prefs_menu (module_t *prefs_module_p, gboolean preferences)
 
         label = g_strdup_printf ("%s Preferences...", prefs_module_p->description);
         menu_item = gtk_image_menu_item_new_with_label (label);
-        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item), 
+        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item),
                                        gtk_image_new_from_stock(GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU));
         gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
         g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
@@ -3278,7 +3327,7 @@ menus_set_column_align_default (gboolean right_justify)
     GList       *child_list, *child_list_item;
     const gchar *menu_item_name;
     size_t       menu_item_len;
-    
+
     /* get the submenu container item */
     submenu = packet_list_heading_factory->widget;
 
@@ -3371,7 +3420,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
                              (id == -1) ? FALSE : TRUE);
         set_menu_sensitivity(tree_view_menu_factory, "/Filter Field Reference",
                              (id == -1) ? FALSE : TRUE);
-        
+
         prev_abbrev = g_object_get_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev");
         if (!prev_abbrev || (strcmp (prev_abbrev, abbrev) != 0)) {
             /* No previous protocol or protocol changed - update Protocol Preferences menu */

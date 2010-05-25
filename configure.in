@@ -800,29 +800,35 @@ main(void)
 	AC_MSG_RESULT($ac_cv_dladdr_finds_executable_path)
 fi
 
-dnl IGE Mac integration check
-AC_MSG_CHECKING(whether to use IGE Mac integration functions)
+if test "x$no_gtk" != "xyes"
+then
+    #
+    # We have GTK+; do we want the OS X integration functions and,
+    # if so, do we have them and, if so, which versions do we have,
+    # the old Carbon-based ones or the new Cocoa-based ones?
+    #
+    AC_MSG_CHECKING(whether to use OS X integration functions)
 
-AC_ARG_WITH(ige-mac-integration,
-  AC_HELP_STRING( [--with-ige-mac-integration],
-                  [use IGE Mac integration. (@<:@default=yes, if available@:>@]),
-[
-    if test $withval = no
-    then
-        want_ige_mac_integration=no
+    AC_ARG_WITH(osx-integration,
+      AC_HELP_STRING( [--with-osx-integration],
+                      [use OS X integration functions (@<:@default=yes, if available@:>@]),
+    [
+        if test $withval = no
+        then
+            want_osx_integration=no
+        else
+            want_osx_integration=yes
+        fi
+    ],[
+        want_osx_integration=yes
+    ])
+    if test "x$want_osx_integration" = "xno"; then
+        AC_MSG_RESULT(no)
     else
-        want_ige_mac_integration=yes
+        AC_MSG_RESULT(yes)
+        AC_WIRESHARK_OSX_INTEGRATION_CHECK
     fi
-],[
-    want_ige_mac_integration=yes
-])
-if test "x$want_ige_mac_integration" = "xno" -o "x$no_gtk" = "xyes" ; then
-    AC_MSG_RESULT(no)
-else
-    AC_MSG_RESULT(yes)
-    AC_WIRESHARK_IGE_MAC_INTEGRATION_CHECK
 fi
-
 
 AC_SUBST(wireshark_bin)
 AC_SUBST(wireshark_man)
@@ -1074,7 +1080,8 @@ dnl pcap remote check
 AC_MSG_CHECKING(whether to use libpcap remote capturing feature)
 
 AC_ARG_WITH(pcap-remote,
-[  --with-pcap-remote        use libpcap remote capturing (requires libpcap)],
+    AC_HELP_STRING([--with-pcap-remote],
+                   [use libpcap remote capturing (requires libpcap)]),
 [
     if test $withval = no
     then
@@ -1096,8 +1103,8 @@ dnl zlib check
 AC_MSG_CHECKING(whether to use zlib for reading compressed capture files)
 
 AC_ARG_WITH(zlib,
-  AC_HELP_STRING( [--with-zlib@<:@=DIR@:>@],
-                  [use zlib (located in directory DIR, if supplied) to read compressed data.  @<:@default=yes, if available@:>@]),
+  AC_HELP_STRING([--with-zlib@<:@=DIR@:>@],
+                 [use zlib (located in directory DIR, if supplied) to read compressed data.  @<:@default=yes, if available@:>@]),
 [
 	if test $withval = no
 	then

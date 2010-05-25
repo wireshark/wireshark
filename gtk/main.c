@@ -183,6 +183,10 @@
 #include "gtk/new_packet_list.h"
 #endif
 
+#ifdef HAVE_GTKOSXAPPLICATION
+#include <igemacintegration/gtkosxapplication.h>
+#endif
+
 /*
  * Files under personal and global preferences directories in which
  * GTK settings for Wireshark are stored.
@@ -1767,6 +1771,9 @@ main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 static void
 main_capture_callback(gint event, capture_options *capture_opts, gpointer user_data _U_)
 {
+#ifdef HAVE_GTKOSXAPPLICATION
+    GtkOSXApplication *theApp;
+#endif	
     switch(event) {
     case(capture_cb_capture_prepared):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture prepared");
@@ -1775,6 +1782,10 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
     case(capture_cb_capture_update_started):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update started");
         main_capture_cb_capture_update_started(capture_opts);
+#ifdef HAVE_GTKOSXAPPLICATION
+        theApp = g_object_new(GTK_TYPE_OSX_APPLICATION, NULL);
+        gtk_osxapplication_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsiconcap48_xpm));
+#endif
         break;
     case(capture_cb_capture_update_continue):
         /*g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update continue");*/
@@ -1798,6 +1809,10 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture stopping");
         /* Beware: this state won't be called, if the capture child
          * closes the capturing on it's own! */
+#ifdef HAVE_GTKOSXAPPLICATION
+        theApp = g_object_new(GTK_TYPE_OSX_APPLICATION, NULL);
+        gtk_osxapplication_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsicon64_xpm));
+#endif
         break;
     default:
         g_warning("main_capture_callback: event %u unknown", event);
@@ -2039,7 +2054,10 @@ main(int argc, char *argv[])
   dfilter_t           *jump_to_filter = NULL;
   int                  optind_initial;
   int                  status;
-
+#ifdef HAVE_GTKOSXAPPLICATION
+  GtkOSXApplication   *theApp;
+#endif
+	
 #ifdef HAVE_LIBPCAP
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
 #define OPTSTRING_B "B:"
@@ -2984,6 +3002,12 @@ main(int argc, char *argv[])
 
   profile_store_persconffiles (FALSE);
 
+#ifdef HAVE_GTKOSXAPPLICATION
+  theApp = g_object_new(GTK_TYPE_OSX_APPLICATION, NULL);
+  gtk_osxapplication_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsicon64_xpm));
+  gtk_osxapplication_ready(theApp);
+#endif
+	
   g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
 
   /* we'll enter the GTK loop now and hand the control over to GTK ... */
@@ -3003,6 +3027,10 @@ main(int argc, char *argv[])
   /* hide the (unresponsive) main window, while asking the user to close the console window */
   gtk_widget_hide(top_level);
 
+#ifdef HAVE_GTKOSXAPPLICATION
+  g_object_unref(theApp);
+#endif
+	
   /* Shutdown windows sockets */
   WSACleanup();
 
@@ -3541,13 +3569,13 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
     /* Menu bar */
     menubar = main_menu_new(&accel);
 
-#ifdef HAVE_IGE_MAC_INTEGRATION
-    /* MacOS X native menus are created and displayed by main_menu_new() */
+#if defined(HAVE_IGE_MAC_INTEGRATION) || defined (HAVE_GTKOSXAPPLICATION)
+    /* Mac OS X native menus are created and displayed by main_menu_new() */
     if(!prefs_p->gui_macosx_style) {
 #endif
     gtk_window_add_accel_group(GTK_WINDOW(top_level), accel);
     gtk_widget_show(menubar);
-#ifdef HAVE_IGE_MAC_INTEGRATION
+#if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
     }
 #endif
 

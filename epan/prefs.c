@@ -2849,7 +2849,7 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_MAXIMIZED ": %s\n",
 		  prefs.gui_geometry_save_maximized == TRUE ? "TRUE" : "FALSE");
 
-  fprintf(pf, "\n# Use MacOS X style (Mac OS X with native GTK only)?\n");
+  fprintf(pf, "\n# Use Mac OS X style (Mac OS X with native GTK only)?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_MACOSX_STYLE ": %s\n",
 	          prefs.gui_macosx_style == TRUE ? "TRUE" : "FALSE");

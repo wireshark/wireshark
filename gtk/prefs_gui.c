@@ -173,7 +173,7 @@ gui_prefs_show(void)
 	GtkWidget *show_version_cb;
 	GtkWidget *webbrowser_te;
 	GtkWidget *save_position_cb, *save_size_cb, *save_maximized_cb;
-#ifdef HAVE_IGE_MAC_INTEGRATION
+#if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
 	GtkWidget *macosx_style_cb;
 #endif
 
@@ -232,10 +232,10 @@ gui_prefs_show(void)
 	    prefs.gui_geometry_save_maximized);
 	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_MAXIMIZED_KEY, save_maximized_cb);
 
-#ifdef HAVE_IGE_MAC_INTEGRATION
+#if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
 	macosx_style_cb = create_preference_check_button(main_tb, pos++,
-	    "MacOS X style", 
-	    "Whether to create a MacOS X look and feel. Checking this box will move the "
+	    "Mac OS X style", 
+	    "Whether to create a Mac OS X look and feel. Checking this box will move the "
 	    "menu bar to the top of the screen instead of the top of the Wireshark window. "
 	    "Requires a restart of Wireshark to take effect.",
 	    prefs.gui_macosx_style);
@@ -408,7 +408,7 @@ gui_prefs_fetch(GtkWidget *w)
 	prefs.gui_geometry_save_maximized =
 	    gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_MAXIMIZED_KEY));
 
-#ifdef HAVE_IGE_MAC_INTEGRATION
+#if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
 	prefs.gui_macosx_style =
 	    gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), MACOSX_STYLE_KEY));
 #endif

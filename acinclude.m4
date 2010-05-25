@@ -1743,19 +1743,29 @@ fi
 ])
 
 #
-# AC_WIRESHARK_IGE_MAC_INTEGRATION_CHECK
+# AC_WIRESHARK_OSX_INTEGRATION_CHECK
 #
 # Checks for the presence of OS X integration functions in the GTK+ framework
 # or as a separate library.
 #
-# http://developer.imendio.com/projects/gtk-macosx/integration
+# http://sourceforge.net/apps/trac/gtk-osx/wiki/Integrate
 #
-AC_DEFUN([AC_WIRESHARK_IGE_MAC_INTEGRATION_CHECK],
+# http://live.gnome.org/GTK%2B/OSX/Integration
+#    for the old Carbon-based integration functions
+#
+# http://gtk-osx.sourceforge.net/ige-mac-integration/
+#    for the new Cocoa-based integration functions
+#
+AC_DEFUN([AC_WIRESHARK_OSX_INTEGRATION_CHECK],
 [
 	ac_save_CFLAGS="$CFLAGS"
 	ac_save_LIBS="$LIBS"
 	CFLAGS="$CFLAGS $GTK_CFLAGS"
 	LIBS="$GTK_LIBS $LIBS"
+
+	#
+	# Check for the old integration functions in the Gtk framework.
+	#
 	AC_CHECK_LIB(Gtk, ige_mac_menu_set_menu_bar,
 	[
 		AC_DEFINE(HAVE_IGE_MAC_INTEGRATION, 1,
@@ -1768,10 +1778,31 @@ AC_DEFUN([AC_WIRESHARK_IGE_MAC_INTEGRATION_CHECK],
 
 	if test x$have_ige_mac == x
 	then
+		#
+		# Not found - check for the old integration functions in
+		# a -ligemacintegration library.
+		#
 		AC_CHECK_LIB(igemacintegration, ige_mac_menu_set_menu_bar,
 		[
 			AC_DEFINE(HAVE_IGE_MAC_INTEGRATION, 1,
 				[Define to 1 if the the Gtk+ framework or a separate library inclues the Imendio IGE Mac OS X Integration functions.])
+			# We don't want gtk stuff in LIBS (which is reset below) so
+			# manually set GTK_LIBS (which is more appropriate)
+			GTK_LIBS="$GTK_LIBS -ligemacintegration"
+		])
+	fi
+	
+	if test x$have_ige_mac == x
+	then
+		#
+		# Not found - check for the new integration functions in
+		# a -ligemacintegration library.
+		#
+		AC_CHECK_LIB(igemacintegration, gtk_osxapplication_set_menu_bar,
+		[
+			AC_DEFINE(HAVE_GTKOSXAPPLICATION, 1,
+				[Define to 1 if the the Gtk+ framework or a separate library inclues the GtkOSXApplication Integration functions.])
+			have_ige_mac=yes
 			# We don't want gtk stuff in LIBS (which is reset below) so
 			# manually set GTK_LIBS (which is more appropriate)
 			GTK_LIBS="$GTK_LIBS -ligemacintegration"

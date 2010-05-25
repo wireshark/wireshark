@@ -1728,9 +1728,9 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * shouldn't have more than 128 bytes (actually,
 			 * we shouldn't have that many).
 			 *
-			 * XXX - actually, MacOS X 10.1 (yes, that's
+			 * XXX - actually, Mac OS X 10.1 (yes, that's
 			 * redundant, but that's what Apple calls it,
-			 * not MacOS X.1) puts names longer than 16
+			 * not Mac OS X.1) puts names longer than 16
 			 * characters into session request messages,
 			 * so we can have more than 32 bytes of
 			 * name value, so we can have more than 128

@@ -510,18 +510,18 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 #ifdef HAVE_OS_X_FRAMEWORKS
 		Gestalt(gestaltSystemVersion, &macosx_ver);
 
-		/* The following functions are only available in MacOS 10.4+ */
+		/* The following functions are only available in Mac OS 10.4+ */
 		if(macosx_ver >= 0x1040) {
 			Gestalt(gestaltSystemVersionMajor, &macosx_major_ver);
 			Gestalt(gestaltSystemVersionMinor, &macosx_minor_ver);
 			Gestalt(gestaltSystemVersionBugFix, &macosx_bugfix_ver);
 
-			g_string_append_printf(str, " (MacOS %ld.%ld.%ld)",
+			g_string_append_printf(str, " (Mac OS %ld.%ld.%ld)",
 					  (long)macosx_major_ver,
 					  (long)macosx_minor_ver,
 					  (long)macosx_bugfix_ver);
 		} else {
-			g_string_append_printf(str, " (MacOS X < 10.4 [%lx])",
+			g_string_append_printf(str, " (Mac OS X < 10.4 [%lx])",
 					  (long)macosx_ver);
 			/* See Apple's Gestalt Manager Reference for meanings
 			 * of the macosx_ver values. */
