@@ -2018,6 +2018,42 @@ DEBUG_ENTRY("dissect_per_sequence");
    max_len or min_len == NO_BOUND means there is no lower/upper constraint
 
 */
+
+static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, header_field_info *hfi, guint32 length)
+{
+	tvbuff_t *out_tvb = NULL;
+	guint32  value, pad_length=0;
+	
+	out_tvb = new_octet_aligned_subset_bits(tvb, offset, actx, length);
+	
+	if (hfi) {
+		actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
+		proto_item_append_text(actx->created_item, " [bit length %u", length);
+		if (length%8) {
+			pad_length = 8-(length%8);
+			proto_item_append_text(actx->created_item, ", %u LSB pad bits", pad_length);
+		}
+		
+		if (length<=32) {
+			if (length<=8)
+				value = tvb_get_guint8(out_tvb, 0);
+			else if (length<=16)
+				value = tvb_get_ntohs(out_tvb, 0);
+			else if (length<=24)
+				value = tvb_get_ntoh24(out_tvb, 0);
+			else
+				value = tvb_get_ntohl(out_tvb, 0);
+			
+			value >>= pad_length;
+			
+			proto_item_append_text(actx->created_item, ", %s decimal value %u", 
+				decode_bits_in_field(0, length, value), value);
+		}
+		proto_item_append_text(actx->created_item, "]");
+	}
+
+	return out_tvb;
+}
 guint32
 dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb)
 {
@@ -2052,12 +2088,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 				if (actx->aligned){
 					BYTE_ALIGN_OFFSET(offset);
 				}
-				out_tvb = new_octet_aligned_subset_bits(tvb, offset, actx, length);
-
-				if (hfi) {
-					actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
-					proto_item_append_text(actx->created_item, " [bit length %u]", length);
-				}
+				out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, length);
 			}
 			val_start = offset>>3;
 			val_length = (length+7)/8;
@@ -2072,11 +2103,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 
 	/* 15.9 if length is fixed and less than or equal to sixteen bits*/
 	if ((min_len==max_len) && (max_len<=16)) {
-		out_tvb = new_octet_aligned_subset_bits(tvb, offset, actx, min_len);
-		if (hfi) {
-			actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
-			proto_item_append_text(actx->created_item, " [bit length %u]", max_len);
-		}
+		out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, min_len);
 		offset+=min_len;
 		if (value_tvb)
 			*value_tvb = out_tvb;
@@ -2093,11 +2120,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 			/* TODO the displayed value will be wrong for the unaligned variant */
 			BYTE_ALIGN_OFFSET(offset);
 		}
-		out_tvb = new_octet_aligned_subset_bits(tvb, offset, actx, min_len);
-		if (hfi) {
-			actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
-			proto_item_append_text(actx->created_item, " [bit length %u]", max_len);
-		}
+		out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, min_len);
 		offset+=min_len;
 		if (value_tvb)
 			*value_tvb = out_tvb;
@@ -2118,12 +2141,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 		if (actx->aligned){
 			BYTE_ALIGN_OFFSET(offset);
 		}
-		out_tvb = new_octet_aligned_subset_bits(tvb, offset, actx, length);
-
-		if (hfi) {
-			actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
-			proto_item_append_text(actx->created_item, " [bit length %u]", length);
-		}
+		out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, length);
 	}
 	val_start = offset>>3;
 	val_length = (length+7)/8;
