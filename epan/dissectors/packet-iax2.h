@@ -219,7 +219,7 @@ typedef enum {
   IAX2_MINI_VOICE_PACKET,
   IAX2_FULL_PACKET,
   IAX2_MINI_VIDEO_PACKET,
-  IAX2_META_PACKET
+  IAX2_TRUNK_PACKET
 } packet_type;
 
 /* Container for tapping relevant data */

@@ -104,6 +104,14 @@ static int hf_iax2_video_csub = -1;
 static int hf_iax2_video_codec = -1;
 static int hf_iax2_marker = -1;
 static int hf_iax2_modem_csub = -1;
+static int hf_iax2_trunk_metacmd = -1;
+static int hf_iax2_trunk_cmddata = -1;
+static int hf_iax2_trunk_cmddata_ts = -1;
+static int hf_iax2_trunk_ts = -1;
+static int hf_iax2_trunk_ncalls = -1;
+static int hf_iax2_trunk_call_len = -1;
+static int hf_iax2_trunk_call_scallno = -1;
+static int hf_iax2_trunk_call_ts = -1;
 
 static int hf_iax2_cap_g723_1 = -1;
 static int hf_iax2_cap_gsm = -1;
@@ -160,6 +168,8 @@ static gint ett_iax2_codecs = -1;       /* capabilities IE */
 static gint ett_iax2_ies_apparent_addr = -1; /* apparent address IE */
 static gint ett_iax2_fragment = -1;
 static gint ett_iax2_fragments = -1;
+static gint ett_iax2_trunk_cmddata = -1;
+static gint ett_iax2_trunk_call = -1;
 
 static const fragment_items iax2_fragment_items = {
   &ett_iax2_fragment,
@@ -182,6 +192,10 @@ static dissector_handle_t data_handle;
 static dissector_table_t iax2_dataformat_dissector_table;
 /* voice/video call subdissectors, AST_FORMAT_* */
 static dissector_table_t iax2_codec_dissector_table;
+
+
+/* IAX2 Meta trunk packet Command data flags */
+#define IAX2_TRUNK_TS 1
 
 /* IAX2 Full-frame types */
 static const value_string iax_frame_types[] = {
@@ -367,7 +381,7 @@ static const value_string iax_packet_types[] = {
   {IAX2_FULL_PACKET,       "Full packet"},
   {IAX2_MINI_VOICE_PACKET, "Mini voice packet"},
   {IAX2_MINI_VIDEO_PACKET, "Mini video packet"},
-  {IAX2_META_PACKET,       "Meta packet"},
+  {IAX2_TRUNK_PACKET,      "Trunk packet"},
   {0,NULL}
 };
 
@@ -988,6 +1002,12 @@ static guint32 dissect_minivideopacket (tvbuff_t * tvb, guint32 offset,
                                         proto_tree * iax2_tree,
                                         proto_tree * main_tree);
 
+static guint32 dissect_trunkpacket (tvbuff_t * tvb, guint32 offset,
+                                        guint16 scallno,
+                                        packet_info * pinfo,
+                                        proto_tree * iax2_tree,
+                                        proto_tree * main_tree);
+
 static void dissect_payload(tvbuff_t *tvb, guint32 offset,
                             packet_info *pinfo, proto_tree *iax2_tree,
                             proto_tree *tree, guint32 ts, gboolean video,
@@ -1019,8 +1039,8 @@ dissect_iax2 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   stmp = tvb_get_ntohs(tvb, offset);
   if( stmp == 0 ) {
-    /* starting with 0x0000 indicates either a mini video packet or a 'meta'
-     * packet, whatever that means */
+    /* starting with 0x0000 indicates meta packet which can be either a mini
+     * video packet or a trunk packet */
     offset+=2;
     stmp = tvb_get_ntohs(tvb, offset);
     if( stmp & 0x8000 ) {
@@ -1030,7 +1050,7 @@ dissect_iax2 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       offset += 2;
     }
     else {
-      type = IAX2_META_PACKET;
+      type = IAX2_TRUNK_PACKET;
     }
   } else {
     /* The source call/fullpacket flag is common to both mini and full packets */
@@ -1079,10 +1099,10 @@ dissect_iax2 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       iax2_info->messageName = "MINI_VIDEO_PACKET";
       len = dissect_minivideopacket( tvb, offset, scallno, pinfo, full_mini_subtree, tree );
       break;
-    case IAX2_META_PACKET:
+    case IAX2_TRUNK_PACKET:
       /* not implemented yet */
-      iax2_info->messageName = "META_PACKET";
-      len = 0;
+      iax2_info->messageName = "TRUNK_PACKET";
+      len = dissect_trunkpacket( tvb, offset, scallno, pinfo, full_mini_subtree, tree );
       break;
     default:
       len = 0;
@@ -1796,6 +1816,154 @@ dissect_minipacket (tvbuff_t * tvb, guint32 offset, guint16 scallno, packet_info
   return offset;
 }
 
+
+static guint32 dissect_trunkcall_ts (tvbuff_t * tvb, guint32 offset, proto_tree * iax2_tree)
+{
+  proto_item *call_item;
+  proto_tree *call_tree;
+  guint16 datalen, rlen, ts, scallno;
+
+  /*
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |     Data Length (in octets)   |R|     Source Call Number      |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |           time-stamp          |                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
+   |                                       Data                    |
+   :                                                               :
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  */
+
+  datalen = tvb_get_ntohs(tvb, offset);
+  scallno = tvb_get_ntohs(tvb, offset + 2);
+  ts = tvb_get_ntohs(tvb, offset + 4);
+
+  rlen = MIN(tvb_length(tvb) - offset - 6, datalen);
+
+  if( iax2_tree ) {
+    call_item = proto_tree_add_text(iax2_tree, tvb, offset, rlen + 6, "Trunk call from %u, ts: %u", scallno, ts);
+    call_tree = proto_item_add_subtree(call_item, ett_iax2_trunk_call);
+
+    proto_tree_add_item(call_tree, hf_iax2_trunk_call_len, tvb, offset, 2, FALSE);
+    proto_tree_add_item(call_tree, hf_iax2_trunk_call_scallno, tvb, offset + 2, 2, FALSE);
+    proto_tree_add_item(call_tree, hf_iax2_trunk_call_ts, tvb, offset + 4, 2, FALSE);
+
+  }
+
+  offset += 6 + rlen;
+
+  return offset;
+}
+
+static guint32 dissect_trunkcall_nots (tvbuff_t * tvb, guint32 offset, proto_tree * iax2_tree)
+{
+  proto_item *call_item;
+  proto_tree *call_tree;
+  guint16 datalen, rlen, scallno;
+
+  /*
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |R|      Source Call Number     |     Data Length (in octets)   |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   :                             Data                              :
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  */
+
+  scallno = tvb_get_ntohs(tvb, offset);
+  datalen = tvb_get_ntohs(tvb, offset + 2);
+
+  rlen = MIN(tvb_length(tvb) - offset - 4, datalen);
+
+  if( iax2_tree ) {
+    call_item = proto_tree_add_text(iax2_tree, tvb, offset, rlen + 6, "Trunk call from %u", scallno);
+    call_tree = proto_item_add_subtree(call_item, ett_iax2_trunk_call);
+
+    proto_tree_add_item(call_tree, hf_iax2_trunk_call_scallno, tvb, offset, 2, FALSE);
+    proto_tree_add_item(call_tree, hf_iax2_trunk_call_len, tvb, offset + 2, 2, FALSE);
+  }
+
+  offset += 4 + rlen;
+
+  return offset;
+}
+
+
+static guint32 dissect_trunkpacket (tvbuff_t * tvb, guint32 offset,
+                                        guint16 scallno, packet_info * pinfo,
+                                        proto_tree * iax2_tree, proto_tree *main_tree)
+{
+  guint32 ts;
+  guint8 cmddata, trunkts;
+  int ncalls = 0;
+  /*iax_packet_data *iax_packet;*/
+  proto_item *cd, *nc = NULL;
+  proto_tree *field_tree = NULL;
+
+  /* shut the compiler up */
+  scallno = scallno;
+  main_tree = main_tree;
+
+  cmddata = tvb_get_guint8(tvb, offset + 1);
+  trunkts = cmddata & IAX2_TRUNK_TS;
+
+  /* 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1   */
+  /* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+  /* |F|         Meta Indicator      |V|Meta Command | Cmd Data (0)  | */
+  /* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+  /* |                            time-stamp                         | */
+  /* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+
+
+  if( iax2_tree ) {
+    /* Meta Command */
+    proto_tree_add_item(iax2_tree, hf_iax2_trunk_metacmd, tvb, offset, 1, FALSE);
+
+    /* Command data */
+    cd = proto_tree_add_uint(iax2_tree, hf_iax2_trunk_cmddata, tvb, offset + 1, 1, cmddata);
+    field_tree = proto_item_add_subtree(cd, ett_iax2_trunk_cmddata);
+    if (trunkts)
+      proto_item_append_text(cd, " (trunk timestamps)");
+
+    /* CD -> Trunk timestamp */
+    proto_tree_add_boolean(field_tree, hf_iax2_trunk_cmddata_ts, tvb, offset + 1, 1, cmddata);
+
+    /* Timestamp */
+    ts = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(iax2_tree, hf_iax2_trunk_ts, tvb, offset + 2, 4, FALSE);
+  }
+  
+  offset += 6;
+
+  if( trunkts ) {
+    /* Trunk calls with timestamp */
+    while(tvb_length_remaining(tvb, offset) >= 6) {
+      offset = dissect_trunkcall_ts (tvb, offset, iax2_tree);
+      ncalls++;
+    }
+  }
+  else {
+    /* Trunk calls without timestamp */
+    while(tvb_length_remaining(tvb, offset) >= 4) {
+      offset = dissect_trunkcall_nots (tvb, offset, iax2_tree);
+      ncalls++;
+    }
+  }
+
+  if( iax2_tree ) {
+    /* number of items */
+    nc = proto_tree_add_uint(iax2_tree, hf_iax2_trunk_ncalls, NULL, 0, 0, ncalls);
+    PROTO_ITEM_SET_GENERATED(nc);
+  }
+
+  col_add_fstr (pinfo->cinfo, COL_INFO, "Trunk packet with %d calls", ncalls);
+
+  return offset;
+}
+
+
 static void process_iax_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                               gboolean video, iax_packet_data *iax_packet )
 {
@@ -2087,7 +2255,7 @@ proto_register_iax2 (void)
 
     {&hf_iax2_packet_type,
      {"Packet type", "iax2.packet_type", FT_UINT8, BASE_DEC, VALS(iax_packet_types), 0,
-      "Full/minivoice/minivideo/meta packet",
+      "Full/minivoice/minivideo/trunk packet",
       HFILL}},
 
     {&hf_iax2_callno,
@@ -2208,6 +2376,40 @@ proto_register_iax2 (void)
       0x0,
       "Modem subclass gives the type of modem", HFILL}},
 
+    {&hf_iax2_trunk_ts,
+     {"Timestamp", "iax2.timestamp", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "timestamp is the time, in ms after the start ofCommand data this call, at which this trunk packet was transmitted",
+      HFILL}},
+
+    {&hf_iax2_trunk_metacmd,
+     {"Meta command", "iax2.trunk.metacmd", FT_UINT8, BASE_DEC, NULL, 0x7F,
+      "Meta command indicates whether or not the Meta Frame is a trunk.", HFILL}},
+
+    {&hf_iax2_trunk_cmddata,
+     {"Command data", "iax2.trunk.cmddata", FT_UINT8, BASE_HEX, NULL, 0x0,
+      "Flags for options that apply to a trunked call", HFILL}},
+
+    {&hf_iax2_trunk_cmddata_ts,
+     {"Trunk timestamps", "iax2.trunk.cmddata.ts", FT_BOOLEAN, 8, NULL, IAX2_TRUNK_TS,
+      "True: calls do each include their own timestamp", HFILL}},
+
+    {&hf_iax2_trunk_call_len,
+     {"Data length", "iax2.trunk.call.len", FT_UINT16, BASE_DEC, NULL, 0x0,
+      "Trunk call data length in octets", HFILL}},
+
+    {&hf_iax2_trunk_call_scallno,
+     {"Source call number", "iax2.trunk.call.scallno", FT_UINT16, BASE_DEC, NULL, 0x7FFF,
+      "Trunk call source call number", HFILL}},
+
+    {&hf_iax2_trunk_call_ts,
+     {"Timestamp", "iax2.trunk.call.ts", FT_UINT16, BASE_DEC, NULL, 0x0,
+      "timestamp is the time, in ms after the start of this call, at which this packet was transmitted",
+      HFILL}},
+
+    {&hf_iax2_trunk_ncalls,
+     {"Number of calls", "iax2.trunk.ncalls", FT_UINT16, BASE_DEC, NULL, 0x0,
+      "Number of calls in this trunk packet",
+      HFILL}},
     /*
      * Decoding for the ies
      */
@@ -2575,7 +2777,9 @@ proto_register_iax2 (void)
     &ett_iax2_codecs,
     &ett_iax2_ies_apparent_addr,
     &ett_iax2_fragment,
-    &ett_iax2_fragments
+    &ett_iax2_fragments,
+    &ett_iax2_trunk_cmddata,
+    &ett_iax2_trunk_call
   };
 
   /* initialise the hf_iax2_ies[] array to -1 */
