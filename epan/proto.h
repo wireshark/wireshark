@@ -370,15 +370,15 @@ typedef proto_node proto_item;
  */
 
 /* expert severities */
-#define PI_SEVERITY_MASK	0x0000E000	/* mask usually for internal use only! */
+#define PI_SEVERITY_MASK	0x00F00000	/* mask usually for internal use only! */
 /** Usual workflow, e.g. TCP connection establishing */
-#define PI_CHAT			0x00002000
+#define PI_CHAT			0x00200000
 /** Notable messages, e.g. an application returned an "usual" error code like HTTP 404 */
-#define PI_NOTE			0x00004000
+#define PI_NOTE			0x00400000
 /** Warning, e.g. application returned an "unusual" error code */
-#define PI_WARN			0x00006000
+#define PI_WARN			0x00600000
 /** Serious problems, e.g. [Malformed Packet] */
-#define PI_ERROR		0x00008000
+#define PI_ERROR		0x00800000
 
 /* expert "event groups" */
 #define PI_GROUP_MASK		0xFF000000	/* mask usually for internal use only! */
