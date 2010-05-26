@@ -1337,7 +1337,7 @@ main(int argc, char *argv[])
 #else
   /* We're not saving the capture to a file; if "-q" wasn't specified,
      we should print packet information */
-  if (!quiet)
+  if (!global_capture_opts.quiet)
     print_packet_info = TRUE;
 #endif
 
