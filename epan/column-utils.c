@@ -346,7 +346,6 @@ col_prepend_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
   else
     max_len = COL_MAX_LEN;
 
-  va_start(ap, format);
   for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       if (cinfo->col_data[i] != cinfo->col_buf[i]) {
@@ -356,7 +355,9 @@ col_prepend_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
         g_strlcpy(orig_buf, cinfo->col_buf[i], max_len);
         orig = orig_buf;
       }
+      va_start(ap, format);
       g_vsnprintf(cinfo->col_buf[i], max_len, format, ap);
+      va_end(ap);
 
       /*
        * Move the fence, unless it's at the beginning of the string.
@@ -368,7 +369,6 @@ col_prepend_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
       cinfo->col_data[i] = cinfo->col_buf[i];
     }
   }
-  va_end(ap);
 }
 void
 col_prepend_fence_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
@@ -387,7 +387,6 @@ col_prepend_fence_fstr(column_info *cinfo, const gint el, const gchar *format, .
   else
     max_len = COL_MAX_LEN;
 
-  va_start(ap, format);
   for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       if (cinfo->col_data[i] != cinfo->col_buf[i]) {
@@ -397,7 +396,9 @@ col_prepend_fence_fstr(column_info *cinfo, const gint el, const gchar *format, .
         g_strlcpy(orig_buf, cinfo->col_buf[i], max_len);
         orig = orig_buf;
       }
+      va_start(ap, format);
       g_vsnprintf(cinfo->col_buf[i], max_len, format, ap);
+      va_end(ap);
 
       /*
        * Move the fence if it exists, else create a new fence at the
@@ -412,7 +413,6 @@ col_prepend_fence_fstr(column_info *cinfo, const gint el, const gchar *format, .
       cinfo->col_data[i] = cinfo->col_buf[i];
     }
   }
-  va_end(ap);
 }
 
 /* Use this if "str" points to something that won't stay around (and
@@ -513,7 +513,6 @@ col_add_fstr(column_info *cinfo, const gint el, const gchar *format, ...) {
   else
     max_len = COL_MAX_LEN;
 
-  va_start(ap, format);
   for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       fence = cinfo->col_fence[i];
@@ -529,10 +528,11 @@ col_add_fstr(column_info *cinfo, const gint el, const gchar *format, ...) {
          */
         cinfo->col_data[i] = cinfo->col_buf[i];
       }
+      va_start(ap, format);
       g_vsnprintf(&cinfo->col_buf[i][fence], max_len - fence, format, ap);
+      va_end(ap);
     }
   }
-  va_end(ap);
 }
 
 static void
