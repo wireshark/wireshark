@@ -208,9 +208,9 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	plugin.rc.in - This contains the DLL resource template for Windows
 	</para></listitem>
 	</itemizedlist>
-	You can find a good example for these files in the agentx plugin directory. Makefile.common
+	You can find a good example for these files in the interlink plugin directory. Makefile.common
 	and Makefile.am have to be modified to reflect the relevant files and dissector name.
-	moduldeinfo.h and moduleinfo.nmake have to be filled in with the version information.
+	moduleinfo.h and moduleinfo.nmake have to be filled in with the version information.
 	Compile the dissector to a DLL or shared library and copy it into the plugin
 	directory of the installation.
 	</para>
