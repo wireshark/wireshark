@@ -742,18 +742,16 @@
   </section>
   <section id="ChAdvNameResolutionSection">
     <title>Name Resolution</title>
-    <para>Name resolution tries to resolve some of the numerical
+    <para>Name resolution tries to convert some of the numerical
     address values into a human readable format. There are two
-    possible ways to do these conversations, depending on the
+    possible ways to do these conversions, depending on the
     resolution to be done: calling system/network services (like
-    the gethostname function) and/or evaluate from Wireshark
-    specific configuration files. For details about the
+    the <function>gethostname()</function> function) and/or resolve
+    from Wireshark specific configuration files. For details about the
     configuration files Wireshark uses for name resolution and
-    alike, see 
-    <xref linkend="AppFiles" />.</para>
-    <para>The name resolution feature can be en-/disabled
-    separately for the protocol layers of the following
-    sections.</para>
+    alike, see <xref linkend="AppFiles" />.</para>
+    <para>The name resolution feature can be enabled individually
+    for the protocol layers listed in the following sections.</para>
     <section>
       <title>Name Resolution drawbacks</title>
       <para>Name resolution can be invaluable while working with
@@ -764,7 +762,7 @@
           <para>
           <command>Name resolution will often fail.</command> The
           name to be resolved might simply be unknown by the name
-          servers asked or the servers are just not available and
+          servers asked, or the servers are just not available and
           the name is also not found in Wireshark's configuration
           files.</para>
         </listitem>
@@ -774,9 +772,9 @@
           file or somewhere else.</command> So the resolved names
           might not be available if you open the capture file later
           or on a different machine. Each time you open a capture
-          file it may look "slightly different", maybe simply
-          because you can't connect to a name server (which you
-          could connect before).</para>
+          file it may look "slightly different", simply
+          because you can't connect to the name server (which you
+          could connect to before).</para>
         </listitem>
         <listitem>
           <para>
@@ -793,7 +791,7 @@
           Wireshark.</command> This is required for acceptable
           performance. However, if the name resolution information
           should change while Wireshark is running, Wireshark won't
-          notice a change to the name resolution information once
+          notice a change in the name resolution information once
           it gets cached. If this information changes while
           Wireshark is running, e.g. a new DHCP lease takes effect,
           Wireshark won't notice it. XXX - is this true for all or
@@ -824,8 +822,8 @@
       <command>Ethernet codes (ethers file)</command>: If the ARP
       name resolution failed, Wireshark tries to convert the
       Ethernet address to a known device name, which has been
-      assigned by the user using an ethers file (e.g.
-      00:09:5b:01:02:03 -&gt; homerouter).</para>
+      assigned by the user using an <filename>ethers</filename>
+      file (e.g. 00:09:5b:01:02:03 -&gt; homerouter).</para>
       <para>
       <command>Ethernet manufacturer codes (manuf file)</command>: If
       neither ARP or ethers returns a result, Wireshark tries
@@ -838,42 +836,46 @@
       <para>Try to resolve an IP address (e.g. 216.239.37.99) to
       something more "human readable".</para>
       <para>
-      <command>DNS/ADNS name resolution (system/library
-      service)</command>: Wireshark will ask the operating system (or
-      the ADNS library), to convert an IP address to the hostname
-      associated with it (e.g. 216.239.37.99 -&gt;
+      <command>DNS/concurrent DNS name resolution (system/library
+      service)</command>: Wireshark will ask the operating system
+      (or the concurrent DNS library), to convert an IP address to
+      the hostname associated with it (e.g. 216.239.37.99 -&gt;
       www.1.google.com). The DNS service is using synchronous calls
       to the DNS server. So Wireshark will stop responding until a
       response to a DNS request is returned. If possible, you might
-      consider using the ADNS library (which won't wait for a
-      network response).</para>
+      consider using the concurrent DNS library (which won't wait
+      for a name server response).</para>
       <warning>
         <title>Warning!</title>
         <para>Enabling network name resolution when your name
         server is unavailable may significantly slow down Wireshark
         while it waits for all of the name server requests to time
-        out. Use ADNS in that case.</para>
+        out. Use concurrent DNS in that case.</para>
       </warning>
       <para>
-      <command>DNS vs. ADNS</command>: here's a short comparison:
+      <command>DNS vs. concurrent DNS</command>: here's a short
+      comparison:
       Both mechanisms are used to convert an IP address to some
       human readable (domain) name. The usual DNS call
-      gethostname() will try to convert the address to a name. To
-      do this, it will first ask the systems hosts file (e.g.
-      /etc/hosts) if it finds a matching entry. If that fails, it
-      will ask the configured DNS server(s) about the name.</para>
-      <para>So the real difference between DNS and ADNS comes when
-      the system has to wait for the DNS server about a name
-      resolution. The system call gethostname() will wait until a
-      name is resolved or an error occurs. If the DNS server is
-      unavailable, this might take quite a while (several seconds).
-      The ADNS service will work a bit differently. It will also
-      ask the DNS server, but it won't wait for the answer. It will
-      just return to Wireshark in a very short amount of time. The
-      actual (and the following) address fields won't show the
-      resolved name until the ADNS call returned. As mentioned
-      above, the values get cached, so you can use View/Reload to
-      "update" these fields to show the resolved values.</para>
+      <function>gethostname()</function> will try to convert the
+      address to a name. To do this, it will first ask the systems
+      hosts file (e.g. <filename>/etc/hosts</filename>) if it finds
+      a matching entry. If that fails, it will ask the configured
+      DNS server(s) about the name.</para>
+      <para>So the real difference between DNS and concurrent DNS
+      comes when the system has to wait for the DNS server about a
+      name resolution. The system call <function>gethostname()
+      </function> will wait until a name is resolved or an error
+      occurs. If the DNS server is unavailable, this might take
+      quite a while (several seconds).</para>
+      <para>The concurrent DNS service works a bit differently. It
+      will also ask the DNS server, but it won't wait for the
+      answer. It will just return to Wireshark in a very short
+      amount of time. The actual (and the following) address fields
+      won't show the resolved name until the DNS server returns an
+      answer. As mentioned above, the values get cached, so you can
+      use View/Reload to "update" these fields to show the resolved
+      values.</para>
       <para>
       <command>hosts name resolution (hosts file)</command>: If DNS
       name resolution failed, Wireshark will try to convert an IP
@@ -892,10 +894,9 @@
       <para>Try to resolve a TCP/UDP port (e.g. 80) to something
       more "human readable".</para>
       <para>
-      <command>TCP/UDP port conversion (system
-      service)</command>: Wireshark will ask the operating system to
-      convert a TCP or UDP port to its well known name (e.g. 80
-      -&gt; http).</para>
+      <command>TCP/UDP port conversion (system service)</command>:
+      Wireshark will ask the operating system to convert a TCP or
+      UDP port to its well known name (e.g. 80 -&gt; http).</para>
       <para>XXX - mention the role of the /etc/services file (but
       don't forget the files and folders section)!</para>
     </section>
