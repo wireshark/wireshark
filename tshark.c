@@ -2179,10 +2179,16 @@ capture_input_drops(capture_options *capture_opts _U_, guint32 dropped)
 }
 
 
-/* capture child closed its side of the pipe, do the required cleanup */
+/*
+ * Capture child closed its side of the pipe, report any error and
+ * do the required cleanup.
+ */
 void
-capture_input_closed(capture_options *capture_opts)
+capture_input_closed(capture_options *capture_opts, gchar *msg)
 {
+  if (msg != NULL)
+    fprintf(stderr, "tshark: %s\n", msg);
+
   report_counts();
 
   if(capture_opts->cf != NULL && ((capture_file *) capture_opts->cf)->wth != NULL) {

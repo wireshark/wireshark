@@ -97,9 +97,10 @@ extern void capture_input_error_message(capture_options *capture_opts, char *err
 extern void capture_input_cfilter_error_message(capture_options *capture_opts, char *error_message);
 
 /**
- * Capture child closed its side of the pipe, do the required cleanup.
+ * Capture child closed its side of the pipe, report any error and
+ * do the required cleanup.
  */
-extern void capture_input_closed(capture_options *capture_opts);
+extern void capture_input_closed(capture_options *capture_opts, gchar *msg);
 
 struct if_stat_cache_s;
 typedef struct if_stat_cache_s if_stat_cache_t;

@@ -510,13 +510,16 @@ capture_input_cfilter_error_message(capture_options *capture_opts, char *error_m
 
 /* capture child closed its side of the pipe, do the required cleanup */
 void
-capture_input_closed(capture_options *capture_opts)
+capture_input_closed(capture_options *capture_opts, gchar *msg)
 {
     int  err;
     int  packet_count_save;
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture stopped!");
     g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
+
+    if (msg != NULL)
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", msg);
 
     /* if we didn't start the capture, do a fake start. */
     /* (happens if we got an error message - we won't get a filename then). */

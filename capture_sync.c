@@ -1434,7 +1434,6 @@ sync_pipe_input_cb(gint source, gpointer user_data)
       else
         primary_msg = g_strdup("Error reading from sync pipe");
     }
-    g_free(primary_msg); /* XXX - display this */
 
     /* No more child process. */
     capture_opts->fork_child = -1;
@@ -1442,7 +1441,8 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 #ifdef _WIN32
     ws_close(capture_opts->signal_pipe_write_fd);
 #endif
-    capture_input_closed(capture_opts);
+    capture_input_closed(capture_opts, primary_msg);
+    g_free(primary_msg);
     return FALSE;
   }
 
