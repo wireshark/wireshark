@@ -1046,11 +1046,14 @@ capture_cleanup_handler(int signum _U_)
 static void
 report_counts(void)
 {
-  if (global_capture_opts.quiet) {
-    /* Report the count only if we aren't printing a packet count
-       as packets arrive. */
-    fprintf(stderr, "%u packet%s captured\n", global_ld.packet_count,
-            plurality(global_ld.packet_count, "", "s"));
+  /* Don't print this if we're a capture child. */
+  if (!capture_child) {
+    if (global_capture_opts.quiet) {
+      /* Report the count only if we aren't printing a packet count
+         as packets arrive. */
+      fprintf(stderr, "%u packet%s captured\n", global_ld.packet_count,
+              plurality(global_ld.packet_count, "", "s"));
+    }
   }
   infoprint = FALSE; /* we just reported it */
 }
@@ -1059,6 +1062,7 @@ static void
 report_counts_siginfo(int signum _U_)
 {
   int sav_errno = errno;
+
   /* If we've been told to delay printing, just set a flag asking
      that we print counts (if we're supposed to), otherwise print
      the count of packets captured (if we're supposed to). */
@@ -3353,7 +3357,7 @@ main(int argc, char *argv[])
   /* Catch SIGINFO and, if we get it and we're capturing in
      quiet mode, report the number of packets we've captured. */
   action.sa_handler = report_counts_siginfo;
-  action.sa_flags = 0;
+  action.sa_flags = SA_RESTART;
   sigemptyset(&action.sa_mask);
   sigaction(SIGINFO, &action, NULL);
 #endif /* SIGINFO */

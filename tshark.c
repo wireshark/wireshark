@@ -1884,7 +1884,7 @@ capture(void)
   /* Catch SIGINFO and, if we get it and we're capturing to a file in
      quiet mode, report the number of packets we've captured. */
   action.sa_handler = report_counts_siginfo;
-  action.sa_flags = 0;
+  action.sa_flags = SA_RESTART;
   sigemptyset(&action.sa_mask);
   sigaction(SIGINFO, &action, NULL);
 #endif /* SIGINFO */
