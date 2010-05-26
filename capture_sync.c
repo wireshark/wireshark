@@ -1549,12 +1549,12 @@ sync_pipe_wait_for_child(int fork_child, gchar **msgp)
     } else {
       /* What?  It had to either have exited, or stopped, or died with
          a signal; what happened here? */
-      *msgp = g_strdup_printf("Bad status from wait(): %#o",
+      *msgp = g_strdup_printf("Bad status from waitpid(): %#o",
                               fork_child_status);
       ret = -1;
     }
   } else {
-    *msgp = g_strdup_printf("Error from wait(): %s", strerror(errno));
+    *msgp = g_strdup_printf("Error from waitpid(): %s", strerror(errno));
     ret = -1;
   }
 #endif
