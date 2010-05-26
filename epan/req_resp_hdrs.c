@@ -46,13 +46,14 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 	gint		next_offset;
 	gint		next_offset_sav;
 	gint		length_remaining, reported_length_remaining;
-	int		linelen;
+	int			linelen;
 	gchar		*header_val;
 	long int	content_length;
 	gboolean	content_length_found = FALSE;
 	gboolean	content_type_found = FALSE;
 	gboolean	chunked_encoding = FALSE;
 	gboolean	keepalive_found = FALSE;
+	gchar		*line;
 
 	/*
 	 * Do header desegmentation if we've been told to.
@@ -151,24 +152,15 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				/*
 				 * Check if we've found Content-Length.
 				 */
-				if (tvb_strncaseeql(tvb, next_offset_sav,
-				    "Content-Length:", 15) == 0) {
-					header_val = tvb_get_ephemeral_string(tvb,
-					    next_offset_sav + 15,
-					    linelen - 15);
-					if (sscanf(header_val,
-					    "%li", &content_length)
-					    == 1)
+				line = tvb_get_ephemeral_string(tvb, next_offset_sav, linelen);
+				if (g_ascii_strncasecmp(line, "Content-Length:", 15) == 0) {
+					if (sscanf(line+15,"%li", &content_length) == 1)
 						content_length_found = TRUE;
-				} else if (tvb_strncaseeql(tvb, next_offset_sav,
-				    "Content-Type:", 13) == 0) {
+				} else if (g_ascii_strncasecmp(line, "Content-Type:", 13) == 0) {
 					content_type_found = TRUE;
-				} else if (tvb_strncaseeql(tvb, next_offset_sav,
-				    "Connection:", 11) == 0) {
+				} else if (g_ascii_strncasecmp(line, "Connection:", 11) == 0) {
 					/* Check for keep-alive */
-					header_val = tvb_get_ephemeral_string(tvb,
-					    next_offset_sav + 11,
-					    linelen - 11);
+					header_val = line+11;
 					if(header_val){
 						while(*header_val==' '){
 							header_val++;
@@ -177,9 +169,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 							keepalive_found = TRUE;
 						}
 					}
-				} else if (tvb_strncaseeql(tvb,
-					    next_offset_sav,
-					    "Transfer-Encoding:", 18) == 0) {
+				} else if (g_ascii_strncasecmp( line, "Transfer-Encoding:", 18) == 0) {
 					/*
 					 * Find out if this Transfer-Encoding is
 					 * chunked.  It should be, since there
@@ -189,8 +179,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					gchar *p;
 					guint len;
 
-					header_val = tvb_get_ephemeral_string(tvb,
-					    next_offset_sav + 18, linelen - 18);
+					header_val = line+18;
 					p = header_val;
 					len = (guint) strlen(header_val);
 					/* Skip white space */
