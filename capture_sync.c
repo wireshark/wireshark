@@ -179,7 +179,7 @@ protect_arg (const gchar *argv)
                 pp++;
             if (*pp == '"')
                 len++;
-	}
+        }
         len++;
         p++;
     }
@@ -200,9 +200,9 @@ protect_arg (const gchar *argv)
                 pp++;
             if (*pp == '"')
                 *q++ = '\\';
-	}
-	*q++ = *p;
-	p++;
+        }
+        *q++ = *p;
+        p++;
     }
 
     if (need_dblquotes)
@@ -215,7 +215,7 @@ protect_arg (const gchar *argv)
 /*
  * Generate a string for a Win32 error.
  */
-#define ERRBUF_SIZE	1024
+#define ERRBUF_SIZE    1024
 static char *
 win32strerror(DWORD error)
 {
@@ -550,16 +550,16 @@ sync_pipe_start(capture_options *capture_opts) {
       ws_close(sync_pipe[PIPE_READ]);
       execv(argv[0], (gpointer)argv);
       g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
-		argv[0], strerror(errno));
+                argv[0], strerror(errno));
       sync_pipe_errmsg_to_parent(2, errmsg, "");
 
       /* Exit with "_exit()", so that we don't close the connection
          to the X server (and cause stuff buffered up by our parent but
-	 not yet sent to be sent, as that stuff should only be sent by
-	 our parent).  We've sent an error message to the parent, so
-	 we exit with an exit status of 1 (any exit status other than
-	 0 or 1 will cause an additional message to report that exit
-	 status, over and above the error message we sent to the parent). */
+         not yet sent to be sent, as that stuff should only be sent by
+         our parent).  We've sent an error message to the parent, so
+         we exit with an exit status of 1 (any exit status other than
+         0 or 1 will cause an additional message to report that exit
+         status, over and above the error message we sent to the parent). */
       _exit(1);
     }
 
@@ -570,7 +570,7 @@ sync_pipe_start(capture_options *capture_opts) {
 
     /* Parent process - read messages from the child process over the
        sync pipe. */
-    g_free( (gpointer) argv);	/* free up arg array */
+    g_free( (gpointer) argv);   /* free up arg array */
 
     /* Close the write side of the pipe, so that only the child has it
        open, and thus it completely closes, and thus returns to us
@@ -763,7 +763,7 @@ sync_pipe_open_command(const char** argv, int *data_read_fd,
         ws_close(sync_pipe[PIPE_WRITE]);
         execv(argv[0], (gpointer)argv);
         g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
-		   argv[0], strerror(errno));
+                   argv[0], strerror(errno));
         sync_pipe_errmsg_to_parent(2, errmsg, "");
 
         /* Exit with "_exit()", so that we don't close the connection
@@ -784,7 +784,7 @@ sync_pipe_open_command(const char** argv, int *data_read_fd,
 
     /* Parent process - read messages from the child process over the
        sync pipe. */
-    g_free( (gpointer) argv);	/* free up arg array */
+    g_free( (gpointer) argv);   /* free up arg array */
 
     /* Close the write sides of the pipes, so that only the child has them
        open, and thus they completely close, and thus return to us
@@ -897,10 +897,10 @@ sync_pipe_run_command(const char** argv, gchar **data, gchar **primary_msg,
       if (nread == 0)
         *primary_msg = g_strdup("Child dumpcap closed sync pipe prematurely");
       else {
-      	/* Don't report EINTR - that might just be from a ^C. */
-      	if (errno == EINTR)
-      	  *primary_msg = NULL;
-      	else
+        /* Don't report EINTR - that might just be from a ^C. */
+        if (errno == EINTR)
+          *primary_msg = NULL;
+        else
           *primary_msg = g_strdup_printf("Error reading from sync pipe: %s",
                                          strerror(errno));
       }
@@ -1165,10 +1165,10 @@ sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg)
       if (nread == 0)
         *msg = g_strdup("Child dumpcap closed sync pipe prematurely");
       else {
-      	/* Don't report EINTR - that might just be from a ^C. */
-      	if (errno == EINTR)
-      	  *msg = NULL;
-      	else
+        /* Don't report EINTR - that might just be from a ^C. */
+        if (errno == EINTR)
+          *msg = NULL;
+        else
           *msg = g_strdup_printf("Error reading from sync pipe: %s",
                                  strerror(errno));
       }
@@ -1444,10 +1444,10 @@ sync_pipe_input_cb(gint source, gpointer user_data)
       if (nread == 0)
         primary_msg = g_strdup("Child dumpcap closed sync pipe prematurely");
       else {
-      	/* Don't report EINTR - that might just be from a ^C. */
-      	if (errno == EINTR)
-      	  primary_msg = NULL;
-      	else
+        /* Don't report EINTR - that might just be from a ^C. */
+        if (errno == EINTR)
+          primary_msg = NULL;
+        else
           primary_msg = g_strdup_printf("Error reading from sync pipe: %s",
                                         strerror(errno));
       }
@@ -1636,13 +1636,13 @@ sync_pipe_signame(int sig)
      Linux is POSIX compliant.  These are not POSIX-defined signals ---
      ISO/IEC 9945-1:1990 (IEEE Std 1003.1-1990), paragraph B.3.3.1.1 sez:
 
-	``The signals SIGBUS, SIGEMT, SIGIOT, SIGTRAP, and SIGSYS
-	were omitted from POSIX.1 because their behavior is
-	implementation dependent and could not be adequately catego-
-	rized.  Conforming implementations may deliver these sig-
-	nals, but must document the circumstances under which they
-	are delivered and note any restrictions concerning their
-	delivery.''
+        ``The signals SIGBUS, SIGEMT, SIGIOT, SIGTRAP, and SIGSYS
+        were omitted from POSIX.1 because their behavior is
+        implementation dependent and could not be adequately catego-
+        rized.  Conforming implementations may deliver these sig-
+        nals, but must document the circumstances under which they
+        are delivered and note any restrictions concerning their
+        delivery.''
 
      So we only check for SIGSYS on those systems that happen to
      implement them (a system can be POSIX-compliant and implement
@@ -1669,7 +1669,7 @@ sync_pipe_signame(int sig)
     break;
 
   default:
-	/* Returning a static buffer is ok in the context we use it here */
+    /* Returning a static buffer is ok in the context we use it here */
     g_snprintf(sigmsg_buf, sizeof sigmsg_buf, "Signal %d", sig);
     sigmsg = sigmsg_buf;
     break;
@@ -1755,7 +1755,7 @@ sync_pipe_kill(int fork_child)
 {
     if (fork_child != -1) {
 #ifndef _WIN32
-        int sts = kill(fork_child, SIGTERM);	/* SIGTERM so it can clean up if necessary */
+        int sts = kill(fork_child, SIGTERM);    /* SIGTERM so it can clean up if necessary */
         if (sts != 0) {
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
                   "Sending SIGTERM to child failed: %s\n", strerror(errno));
