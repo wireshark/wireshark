@@ -1712,6 +1712,21 @@ cf_redissect_packets(capture_file *cf)
   rescan_packets(cf, "Reprocessing", "all packets", TRUE, TRUE);
 }
 
+gboolean
+cf_read_frame_r(capture_file *cf, frame_data *fdata,
+	union wtap_pseudo_header *pseudo_header, guint8 *pd,
+	int *err, gchar **err_info)
+{
+  return wtap_seek_read(cf->wth, fdata->file_off, pseudo_header,
+        pd, fdata->cap_len, err, err_info);
+}
+
+gboolean
+cf_read_frame(capture_file *cf, frame_data *fdata, int *err, gchar **err_info)
+{
+  return cf_read_frame_r(cf, fdata, &cf->pseudo_header, cf->pd, err, err_info);
+}
+
 /* Rescan the list of packets, reconstructing the CList.
 
    "action" describes why we're doing this; it's used in the progress
@@ -1907,8 +1922,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
         fdata->col_text = se_alloc0(sizeof(fdata->col_text) * (cf->cinfo.num_cols));
     }
 
-    if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
-        cf->pd, fdata->cap_len, &err, &err_info)) {
+    if (!cf_read_frame (cf, fdata, &err, &err_info)) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             cf_read_error_message(err, err_info), cf->filename);
             break;
@@ -2211,8 +2225,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
       frame_data_cleanup(fdata);
     }
 
-    if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
-        cf->pd, fdata->cap_len, &err, &err_info)) {
+    if (!cf_read_frame (cf, fdata, &err, &err_info)) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             cf_read_error_message(err, err_info), cf->filename);
             break;
@@ -2502,8 +2515,7 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
     }
 
     /* Get the packet */
-    if (!wtap_seek_read(cf->wth, fdata->file_off, &pseudo_header,
-                        pd, fdata->cap_len, &err, &err_info)) {
+    if (!cf_read_frame_r(cf, fdata, &pseudo_header, pd, &err, &err_info)) {
       /* Attempt to get the packet failed. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     cf_read_error_message(err, err_info), cf->filename);
@@ -3799,8 +3811,7 @@ find_packet(capture_file *cf,
       /* Is this packet in the display? */
       if (fdata->flags.passed_dfilter) {
         /* Yes.  Load its data. */
-        if (!wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
-                cf->pd, fdata->cap_len, &err, &err_info)) {
+        if (!cf_read_frame(cf, fdata, &err, &err_info)) {
           /* Read error.  Report the error, and go back to the frame
              where we started. */
           simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -4031,8 +4042,7 @@ cf_select_packet(capture_file *cf, int row)
   }
 
   /* Get the data in that frame. */
-  if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
-               cf->pd, fdata->cap_len, &err, &err_info)) {
+  if (!cf_read_frame (cf, fdata, &err, &err_info)) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
           cf_read_error_message(err, err_info), cf->filename);
     return;

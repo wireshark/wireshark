@@ -149,8 +149,7 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 	double				cur_time;
 
 	/* Load the frame from the capture file */
-	if (!wtap_seek_read(cfile.wth, frame->file_off, &phdr, pd,
-	    frame->cap_len, &err, &err_info)) {
+	if (!cf_read_frame_r(&cfile, frame, &phdr, pd, &err, &err_info)) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    cf_read_error_message(err, err_info), cfile.filename);
 		return FALSE;	/* failure */

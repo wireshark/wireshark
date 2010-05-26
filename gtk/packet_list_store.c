@@ -1097,8 +1097,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	else
 		cinfo = NULL;
 
-	if (!wtap_seek_read(cfile.wth, fdata->file_off, &pseudo_header,
-		pd, fdata->cap_len, &err, &err_info)) {
+	if (!cf_read_frame_r(&cfile, fdata, &pseudo_header, pd, &err, &err_info)) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			cf_read_error_message(err, err_info), cfile.filename);
 			return;

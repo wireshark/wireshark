@@ -590,8 +590,7 @@ get_filter_from_packet_list_row_and_column(gpointer data)
     if (fdata != NULL) {
         epan_dissect_t edt;
 
-        if (!wtap_seek_read(cfile.wth, fdata->file_off, &cfile.pseudo_header,
-                   cfile.pd, fdata->cap_len, &err, &err_info)) {
+        if (!cf_read_frame(&cfile, fdata, &err, &err_info)) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       cf_read_error_message(err, err_info), cfile.filename);
             return NULL;

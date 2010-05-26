@@ -1798,8 +1798,7 @@ static struct tcpheader *select_tcpip_session (capture_file *cf, struct segment 
 	}
 
 	/* dissect the current frame */
-	if (!wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
-	    cf->pd, fdata->cap_len, &err, &err_info)) {
+	if (!cf_read_frame(cf, fdata, &err, &err_info)) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			cf_read_error_message(err, err_info), cf->filename);
 		return NULL;

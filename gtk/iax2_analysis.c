@@ -3413,8 +3413,7 @@ static void iax2_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 		return; /* if we exit here it's an error */
 
 	/* dissect the current frame */
-	if (!wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
-	    cf->pd, fdata->cap_len, &err, &err_info)) {
+	if (!cf_read_frame(cf, fdata, &err, &err_info)) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			cf_read_error_message(err, err_info), cf->filename);
 		return;

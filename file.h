@@ -110,6 +110,13 @@ void cf_reload(capture_file *cf);
  */
 cf_read_status_t cf_read(capture_file *cf, gboolean from_save);
 
+gboolean cf_read_frame_r(capture_file *cf, frame_data *fdata,
+	union wtap_pseudo_header *pseudo_header, guint8 *pd,
+	int *err, gchar **err_info);
+
+gboolean cf_read_frame(capture_file *cf, frame_data *fdata,
+	int *err, gchar **err_info);
+
 /**
  * Start reading from the end of a capture file.
  * This is used in "Update list of packets in Real-Time".

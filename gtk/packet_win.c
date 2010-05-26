@@ -144,8 +144,7 @@ void new_window_cb(GtkWidget *w _U_)
 #ifdef NEW_PACKET_LIST
 
   /* With the new packetlists "lazy columns" it's neccesary to reread the frame */
-  if (!wtap_seek_read(cfile.wth, cfile.current_frame->file_off, &cfile.pseudo_header,
-        cfile.pd, cfile.current_frame->cap_len, &err, &err_info)) {
+  if (!cf_read_frame(&cfile, cfile.current_frame, &err, &err_info)) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             cf_read_error_message(err, err_info), cfile.filename);
             return;
