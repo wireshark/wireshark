@@ -51,6 +51,7 @@
 #include <epan/packet.h>
 #include <epan/sminmpec.h>
 #include <epan/strutil.h>
+#include <epan/arptypes.h>
 #include "packet-arp.h"
 
 static int proto_dhcpv6 = -1;
@@ -810,12 +811,26 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
             case CL_OPTION_VENDOR_NAME :
             case CL_OPTION_CONFIG_FILE_NAME :
             case CL_OPTION_EMBEDDED_COMPONENT_LIST :
-            case CL_OPTION_VENDOR_OUI :
                 opt_len = tlv_len;
                 field_len = tlv_len;
                 proto_item_append_text(ti, "\"%s\"",
                                        tvb_format_stringzpad(tvb, sub_off, field_len));
                 break;
+
+            case CL_OPTION_VENDOR_OUI :         
+                /* CableLabs specs treat 17.8 inconsistently
+                 * as either binary (3b) or string (6b) */
+                opt_len = tlv_len;
+                if (tlv_len == 3) {
+                    proto_item_append_text(ti, "%s",
+                        bytes_to_str_punct(tvb_get_ptr(tvb, sub_off, 3), 3, ':'));
+                } else if (tlv_len == 6) {
+                    proto_item_append_text(ti, "\"%s\"", tvb_format_stringzpad(tvb, sub_off, tlv_len));
+                } else {
+                    proto_item_append_text(ti, "Suboption %d: suboption length isn't 3 or 6", type);
+                }
+                break;
+
             case CL_OPTION_ORO :
                 field_len = 2;
                 opt_len = tlv_len;
@@ -1094,7 +1109,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     off += 4;
     /* Right now, none of the options can be filtered at, so provide a hex
        array for minimalistic filtering */
-    proto_tree_add_item(subtree, hf_option_value, tvb, off, optlen, FALSE);
+    if (optlen)
+        proto_tree_add_item(subtree, hf_option_value, tvb, off, optlen, FALSE);
 
     switch (opttype) {
     case OPTION_CLIENTID:
@@ -1412,14 +1428,33 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
         break;
     case OPTION_INTERFACE_ID:
+    {
+        gint namelen;
+
         if (optlen == 0) {
             proto_tree_add_text(subtree, tvb, off,
                                 optlen, "INTERFACE_ID: malformed option");
             break;
         }
-        buf = tvb_get_ephemeral_string(tvb, off, optlen);
-        proto_tree_add_text(subtree, tvb, off, optlen, "Interface-ID: %s", buf);
-        break;
+
+        namelen = tvb_strnlen(tvb, off, optlen)+1;
+        if (namelen == 0)
+        {
+            buf = tvb_get_ephemeral_string(tvb, off, optlen);
+            proto_tree_add_text(subtree, tvb, off, optlen, "Interface-ID: %s", buf);
+        } else {
+            buf = tvb_get_ephemeral_string(tvb, off, namelen-1);
+            proto_tree_add_text(subtree, tvb, off, namelen, "Interface-ID: %s", buf);
+
+            temp_optlen = optlen - namelen;
+            off += namelen;
+            if (temp_optlen >= 6)
+                proto_tree_add_text(subtree, tvb, off,
+                                    temp_optlen, "Link-layer address: %s",
+                                    arphrdaddr_to_str(tvb_get_ptr(tvb, off, 6), 6, ARPHRD_ETHER));
+        }
+    }
+    break;
     case OPTION_RECONF_MSG:
         if (optlen != 1) {
             proto_tree_add_text(subtree, tvb, off,
@@ -1587,12 +1622,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             proto_tree_add_item(subtree, hf_clientfqdn_n, tvb, off, 1, FALSE);
             proto_tree_add_item(subtree, hf_clientfqdn_o, tvb, off, 1, FALSE);
             proto_tree_add_item(subtree, hf_clientfqdn_s, tvb, off, 1, FALSE);
-#if 0
-            proto_tree_add_text(subtree, tvb, off, 1,
-                                "flags: %d",
-                                (guint32)tvb_get_guint8(tvb, off));
-#endif
-            dhcpv6_domain(subtree, tvb, off-1, optlen+1);
+
+            dhcpv6_domain(subtree, tvb, off-1, optlen-1);
         }
         break;
     case OPTION_PANA_AGENT:
