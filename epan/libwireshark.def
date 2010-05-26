@@ -608,6 +608,8 @@ make_printable_string
 match_strrval
 match_strrval_idx
 match_strval
+match_strval_ext
+match_strval_ext_init
 match_strval_idx
 md5_append
 md5_finish
@@ -1104,6 +1106,7 @@ UnregRejectReason_vals          DATA
 UnregRequestReason_vals         DATA
 uri_str_to_bytes
 val_to_str
+val_to_str_ext
 vals_pdu_type                   DATA
 vals_status                     DATA
 value_is_in_range
