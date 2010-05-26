@@ -633,6 +633,7 @@ prefs_register_uint_preference(module_t *module, const char *name,
 	preference = register_preference(module, name, title, description,
 	    PREF_UINT);
 	preference->varp.uint = var;
+	preference->default_val.uint = *var;
 	g_assert(base > 0 && base != 1 && base < 37);
 	preference->info.base = base;
 }
@@ -650,6 +651,7 @@ prefs_register_bool_preference(module_t *module, const char *name,
 	preference = register_preference(module, name, title, description,
 	    PREF_BOOL);
 	preference->varp.boolp = var;
+	preference->default_val.boolval = *var;
 }
 
 /*
@@ -666,6 +668,7 @@ prefs_register_enum_preference(module_t *module, const char *name,
 	preference = register_preference(module, name, title, description,
 	    PREF_ENUM);
 	preference->varp.enump = var;
+	preference->default_val.enumval = *var;
 	preference->info.enum_info.enumvals = enumvals;
 	preference->info.enum_info.radio_buttons = radio_buttons;
 }
@@ -679,6 +682,7 @@ prefs_register_string_preference(module_t *module, const char *name,
 				 const char **var)
 {
 	pref_t *preference;
+	char *varcopy;
 
 	preference = register_preference(module, name, title, description,
 	    PREF_STRING);
@@ -692,11 +696,15 @@ prefs_register_string_preference(module_t *module, const char *name,
 	 * If the value is a null pointer, make it a copy of a null
 	 * string, otherwise make it a copy of the value.
 	 */
-	if (*var == NULL)
+	if (*var == NULL) {
 		*var = g_strdup("");
-	else
+		varcopy = g_strdup("");
+	} else {
 		*var = g_strdup(*var);
+		varcopy = g_strdup(*var);
+	}
 	preference->varp.string = var;
+	preference->default_val.string = varcopy;
 	preference->saved_val.string = NULL;
 }
 
@@ -726,6 +734,7 @@ prefs_register_range_preference(module_t *module, const char *name,
 	if (*var == NULL)
 		*var = range_empty();
 	preference->varp.range = var;
+	preference->default_val.range = range_copy(*var);
 	preference->saved_val.range = NULL;
 }
 
@@ -2658,18 +2667,24 @@ write_pref(gpointer data, gpointer user_data)
 
 		case 10:
 			fprintf(arg->pf, "# A decimal number.\n");
+			if (pref->default_val.uint == *pref->varp.uint)
+			    fprintf(arg->pf, "#");
 			fprintf(arg->pf, "%s.%s: %u\n", arg->module->name,
 			    pref->name, *pref->varp.uint);
 			break;
 
 		case 8:
 			fprintf(arg->pf, "# An octal number.\n");
+			if (pref->default_val.uint == *pref->varp.uint)
+			    fprintf(arg->pf, "#");
 			fprintf(arg->pf, "%s.%s: %#o\n", arg->module->name,
 			    pref->name, *pref->varp.uint);
 			break;
 
 		case 16:
 			fprintf(arg->pf, "# A hexadecimal number.\n");
+			if (pref->default_val.uint == *pref->varp.uint)
+			    fprintf(arg->pf, "#");
 			fprintf(arg->pf, "%s.%s: %#x\n", arg->module->name,
 			    pref->name, *pref->varp.uint);
 			break;
@@ -2678,6 +2693,8 @@ write_pref(gpointer data, gpointer user_data)
 
 	case PREF_BOOL:
 		fprintf(arg->pf, "# TRUE or FALSE (case-insensitive).\n");
+		if (pref->default_val.boolval == *pref->varp.boolp)
+		    fprintf(arg->pf, "#");
 		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
 		    *pref->varp.boolp ? "TRUE" : "FALSE");
 		break;
@@ -2704,12 +2721,16 @@ write_pref(gpointer data, gpointer user_data)
 				fprintf(arg->pf, ", ");
 		}
 		fprintf(arg->pf, "# (case-insensitive).\n");
+		if (pref->default_val.enumval == *pref->varp.enump)
+		    fprintf(arg->pf, "#");
 		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name,
 		    pref->name, val_string);
 		break;
 
 	case PREF_STRING:
 		fprintf(arg->pf, "# A string.\n");
+		if (!(strcmp(pref->default_val.string, *pref->varp.string)))
+		    fprintf(arg->pf, "#");
 		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
 		    *pref->varp.string);
 		break;
@@ -2720,6 +2741,8 @@ write_pref(gpointer data, gpointer user_data)
 
 		range_string_p = range_convert_range(*pref->varp.range);
 		fprintf(arg->pf, "# A string denoting an positive integer range (e.g., \"1-20,30-40\").\n");
+		if ((ranges_are_equal(pref->default_val.range, *pref->varp.range)))
+		    fprintf(arg->pf, "#");
 		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
 			range_string_p);
 		break;
@@ -2784,36 +2807,38 @@ write_prefs(char **pf_path_return)
   }
 
   fputs("# Configuration file for Wireshark " VERSION ".\n"
-    "#\n"
-    "# This file is regenerated each time preferences are saved within\n"
-    "# Wireshark.  Making manual changes should be safe, however.\n", pf);
+	"#\n"
+	"# This file is regenerated each time preferences are saved within\n"
+	"# Wireshark.  Making manual changes should be safe, however.\n"
+	"# Protocol preferences that have been commented out have not been\n"
+	"# changed from their default value.\n", pf);
 
   fprintf (pf, "\n######## User Interface ########\n");
 
   fprintf(pf, "\n# Vertical scrollbars should be on right side?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_SCROLLBAR_ON_RIGHT ": %s\n",
-		  prefs.gui_scrollbar_on_right == TRUE ? "TRUE" : "FALSE");
+	  prefs.gui_scrollbar_on_right == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Packet-list selection bar can be used to browse w/o selecting?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_PLIST_SEL_BROWSE ": %s\n",
-		  prefs.gui_plist_sel_browse == TRUE ? "TRUE" : "FALSE");
+	  prefs.gui_plist_sel_browse == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Protocol-tree selection bar can be used to browse w/o selecting?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_PTREE_SEL_BROWSE ": %s\n",
-		  prefs.gui_ptree_sel_browse == TRUE ? "TRUE" : "FALSE");
+	  prefs.gui_ptree_sel_browse == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Alternating colors in TreeViews?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_ALTERN_COLORS ": %s\n",
-		  prefs.gui_altern_colors == TRUE ? "TRUE" : "FALSE");
+	  prefs.gui_altern_colors == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Place filter toolbar inside the statusbar?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_FILTER_TOOLBAR_IN_STATUSBAR ": %s\n",
-                 prefs.filter_toolbar_show_in_statusbar == TRUE ? "TRUE" : "FALSE");
+	 prefs.filter_toolbar_show_in_statusbar == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Protocol-tree line style.\n");
   fprintf(pf, "# One of: NONE, SOLID, DOTTED, TABBED\n");
@@ -2823,88 +2848,88 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "\n# Protocol-tree expander style.\n");
   fprintf(pf, "# One of: NONE, SQUARE, TRIANGLE, CIRCULAR\n");
   fprintf(pf, PRS_GUI_PTREE_EXPANDER_STYLE ": %s\n",
-		  gui_ptree_expander_style_text[prefs.gui_ptree_expander_style]);
+	  gui_ptree_expander_style_text[prefs.gui_ptree_expander_style]);
 
   fprintf(pf, "\n# Hex dump highlight style.\n");
   fprintf(pf, "# One of: BOLD, INVERSE\n");
   fprintf(pf, PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE ": %s\n",
-		  gui_hex_dump_highlight_style_text[prefs.gui_hex_dump_highlight_style]);
+	  gui_hex_dump_highlight_style_text[prefs.gui_hex_dump_highlight_style]);
 
   fprintf(pf, "\n# Main Toolbar style.\n");
   fprintf(pf, "# One of: ICONS, TEXT, BOTH\n");
   fprintf(pf, PRS_GUI_TOOLBAR_MAIN_STYLE ": %s\n",
-		  gui_toolbar_style_text[prefs.gui_toolbar_main_style]);
+	  gui_toolbar_style_text[prefs.gui_toolbar_main_style]);
 
   fprintf(pf, "\n# Filter Toolbar style.\n");
   fprintf(pf, "# One of: ICONS, TEXT, BOTH\n");
   fprintf(pf, PRS_GUI_TOOLBAR_FILTER_STYLE ": %s\n",
-		  gui_toolbar_style_text[prefs.gui_toolbar_filter_style]);
+	  gui_toolbar_style_text[prefs.gui_toolbar_filter_style]);
 
   fprintf(pf, "\n# Save window position at exit?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_POSITION ": %s\n",
-		  prefs.gui_geometry_save_position == TRUE ? "TRUE" : "FALSE");
+	  prefs.gui_geometry_save_position == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Save window size at exit?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_SIZE ": %s\n",
-		  prefs.gui_geometry_save_size == TRUE ? "TRUE" : "FALSE");
+	  prefs.gui_geometry_save_size == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Save window maximized state at exit?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_MAXIMIZED ": %s\n",
-		  prefs.gui_geometry_save_maximized == TRUE ? "TRUE" : "FALSE");
+	  prefs.gui_geometry_save_maximized == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Use Mac OS X style (Mac OS X with native GTK only)?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_MACOSX_STYLE ": %s\n",
-	          prefs.gui_macosx_style == TRUE ? "TRUE" : "FALSE");
+	  prefs.gui_macosx_style == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Open a console window (WIN32 only)?\n");
   fprintf(pf, "# One of: NEVER, AUTOMATIC, ALWAYS\n");
   fprintf(pf, PRS_GUI_CONSOLE_OPEN ": %s\n",
-		  gui_console_open_text[prefs.gui_console_open]);
+	  gui_console_open_text[prefs.gui_console_open]);
 
   fprintf(pf, "\n# The max. number of entries in the display filter list.\n");
   fprintf(pf, "# A decimal number.\n");
   fprintf(pf, PRS_GUI_RECENT_DF_ENTRIES_MAX ": %d\n",
-	          prefs.gui_recent_df_entries_max);
+	  prefs.gui_recent_df_entries_max);
 
   fprintf(pf, "\n# The max. number of items in the open recent files list.\n");
   fprintf(pf, "# A decimal number.\n");
   fprintf(pf, PRS_GUI_RECENT_COUNT_MAX ": %d\n",
-	          prefs.gui_recent_files_count_max);
+	  prefs.gui_recent_files_count_max);
 
   fprintf(pf, "\n# Where to start the File Open dialog box.\n");
   fprintf(pf, "# One of: LAST_OPENED, SPECIFIED\n");
   fprintf(pf, PRS_GUI_FILEOPEN_STYLE ": %s\n",
-		  gui_fileopen_style_text[prefs.gui_fileopen_style]);
+	  gui_fileopen_style_text[prefs.gui_fileopen_style]);
 
   if (prefs.gui_fileopen_dir != NULL) {
     fprintf(pf, "\n# Directory to start in when opening File Open dialog.\n");
     fprintf(pf, PRS_GUI_FILEOPEN_DIR ": %s\n",
-                  prefs.gui_fileopen_dir);
+	    prefs.gui_fileopen_dir);
   }
 
   fprintf(pf, "\n# The preview timeout in the File Open dialog.\n");
   fprintf(pf, "# A decimal number (in seconds).\n");
   fprintf(pf, PRS_GUI_FILEOPEN_PREVIEW ": %d\n",
-	          prefs.gui_fileopen_preview);
+	  prefs.gui_fileopen_preview);
 
   fprintf(pf, "\n# Ask to save unsaved capture files?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_ASK_UNSAVED ": %s\n",
-		  prefs.gui_ask_unsaved == TRUE ? "TRUE" : "FALSE");
+	  prefs.gui_ask_unsaved == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Wrap to beginning/end of file during search?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_FIND_WRAP ": %s\n",
-		  prefs.gui_find_wrap == TRUE ? "TRUE" : "FALSE");
+	  prefs.gui_find_wrap == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Settings dialogs use a save button?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_USE_PREF_SAVE ": %s\n",
-		  prefs.gui_use_pref_save == TRUE ? "TRUE" : "FALSE");
+	  prefs.gui_use_pref_save == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# The path to the webbrowser.\n");
   fprintf(pf, "# Ex: mozilla %%s\n");
@@ -2912,31 +2937,31 @@ write_prefs(char **pf_path_return)
 
   fprintf(pf, "\n# Custom window title. (Prepended to existing titles.)\n");
   fprintf(pf, PRS_GUI_WINDOW_TITLE ": %s\n",
-              prefs.gui_window_title);
+	  prefs.gui_window_title);
 
   fprintf(pf, "\n# Custom start page title.\n");
   fprintf(pf, PRS_GUI_START_TITLE ": %s\n",
-              prefs.gui_start_title);
+	  prefs.gui_start_title);
 
   fprintf(pf, "\n# Show version in start page, can be useful in custom builds.\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_VERSION_IN_START_PAGE ": %s\n",
-		  prefs.gui_version_in_start_page == TRUE ? "TRUE" : "FALSE");
+	  prefs.gui_version_in_start_page == TRUE ? "TRUE" : "FALSE");
 
   fprintf (pf, "\n######## User Interface: Layout ########\n");
 
   fprintf(pf, "\n# Layout type (1-6).\n");
   fprintf(pf, PRS_GUI_LAYOUT_TYPE ": %d\n",
-	          prefs.gui_layout_type);
+	  prefs.gui_layout_type);
 
   fprintf(pf, "\n# Layout content of the panes (1-3).\n");
   fprintf(pf, "# One of: NONE, PLIST, PDETAILS, PBYTES\n");
   fprintf(pf, PRS_GUI_LAYOUT_CONTENT_1 ": %s\n",
-	          gui_layout_content_text[prefs.gui_layout_content_1]);
+	  gui_layout_content_text[prefs.gui_layout_content_1]);
   fprintf(pf, PRS_GUI_LAYOUT_CONTENT_2 ": %s\n",
-	          gui_layout_content_text[prefs.gui_layout_content_2]);
+	  gui_layout_content_text[prefs.gui_layout_content_2]);
   fprintf(pf, PRS_GUI_LAYOUT_CONTENT_3 ": %s\n",
-	          gui_layout_content_text[prefs.gui_layout_content_3]);
+	  gui_layout_content_text[prefs.gui_layout_content_3]);
 
   fprintf (pf, "\n######## User Interface: Columns ########\n");
 
@@ -2970,24 +2995,24 @@ write_prefs(char **pf_path_return)
   fprintf (pf, "\n# Color preferences for a marked frame.\n");
   fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_MARKED_FG,
-    (prefs.gui_marked_fg.red * 255 / 65535),
-    (prefs.gui_marked_fg.green * 255 / 65535),
-    (prefs.gui_marked_fg.blue * 255 / 65535));
+	   (prefs.gui_marked_fg.red * 255 / 65535),
+	   (prefs.gui_marked_fg.green * 255 / 65535),
+	   (prefs.gui_marked_fg.blue * 255 / 65535));
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_MARKED_BG,
-    (prefs.gui_marked_bg.red * 255 / 65535),
-    (prefs.gui_marked_bg.green * 255 / 65535),
-    (prefs.gui_marked_bg.blue * 255 / 65535));
+	   (prefs.gui_marked_bg.red * 255 / 65535),
+	   (prefs.gui_marked_bg.green * 255 / 65535),
+	   (prefs.gui_marked_bg.blue * 255 / 65535));
 
   fprintf (pf, "\n# Color preferences for a ignored frame.\n");
   fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_IGNORED_FG,
-    (prefs.gui_ignored_fg.red * 255 / 65535),
-    (prefs.gui_ignored_fg.green * 255 / 65535),
-    (prefs.gui_ignored_fg.blue * 255 / 65535));
+	   (prefs.gui_ignored_fg.red * 255 / 65535),
+	   (prefs.gui_ignored_fg.green * 255 / 65535),
+	   (prefs.gui_ignored_fg.blue * 255 / 65535));
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_IGNORED_BG,
-    (prefs.gui_ignored_bg.red * 255 / 65535),
-    (prefs.gui_ignored_bg.green * 255 / 65535),
-    (prefs.gui_ignored_bg.blue * 255 / 65535));
+	   (prefs.gui_ignored_bg.red * 255 / 65535),
+	   (prefs.gui_ignored_bg.green * 255 / 65535),
+	   (prefs.gui_ignored_bg.blue * 255 / 65535));
 
   /* Don't write the colors of the 10 easy-access-colorfilters to the preferences
    * file until the colors can be changed in the GUI. Currently this is not really
@@ -3004,21 +3029,21 @@ write_prefs(char **pf_path_return)
   fprintf (pf, "\n# TCP stream window color preferences.\n");
   fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_CL_FG,
-    (prefs.st_client_fg.red * 255 / 65535),
-    (prefs.st_client_fg.green * 255 / 65535),
-    (prefs.st_client_fg.blue * 255 / 65535));
+	   (prefs.st_client_fg.red * 255 / 65535),
+	   (prefs.st_client_fg.green * 255 / 65535),
+	   (prefs.st_client_fg.blue * 255 / 65535));
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_CL_BG,
-    (prefs.st_client_bg.red * 255 / 65535),
-    (prefs.st_client_bg.green * 255 / 65535),
-    (prefs.st_client_bg.blue * 255 / 65535));
+	   (prefs.st_client_bg.red * 255 / 65535),
+	   (prefs.st_client_bg.green * 255 / 65535),
+	   (prefs.st_client_bg.blue * 255 / 65535));
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_SR_FG,
-    (prefs.st_server_fg.red * 255 / 65535),
-    (prefs.st_server_fg.green * 255 / 65535),
-    (prefs.st_server_fg.blue * 255 / 65535));
+	   (prefs.st_server_fg.red * 255 / 65535),
+	   (prefs.st_server_fg.green * 255 / 65535),
+	   (prefs.st_server_fg.blue * 255 / 65535));
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_SR_BG,
-    (prefs.st_server_bg.red * 255 / 65535),
-    (prefs.st_server_bg.green * 255 / 65535),
-    (prefs.st_server_bg.blue * 255 / 65535));
+	   (prefs.st_server_bg.red * 255 / 65535),
+	   (prefs.st_server_bg.green * 255 / 65535),
+	   (prefs.st_server_bg.blue * 255 / 65535));
 
   fprintf(pf, "\n######## Console: logging level ########\n");
   fprintf(pf, "# (debugging only, not in the Preferences dialog)\n");
@@ -3068,65 +3093,65 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "\n# Capture in promiscuous mode?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_CAP_PROM_MODE ": %s\n",
-		  prefs.capture_prom_mode == TRUE ? "TRUE" : "FALSE");
+	  prefs.capture_prom_mode == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Capture in Pcap-NG format?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_CAP_PCAP_NG ": %s\n",
-		  prefs.capture_pcap_ng == TRUE ? "TRUE" : "FALSE");
+	  prefs.capture_pcap_ng == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Update packet list in real time during capture?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_CAP_REAL_TIME ": %s\n",
-		  prefs.capture_real_time == TRUE ? "TRUE" : "FALSE");
+	  prefs.capture_real_time == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Scroll packet list during capture?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_CAP_AUTO_SCROLL ": %s\n",
-		  prefs.capture_auto_scroll == TRUE ? "TRUE" : "FALSE");
+	  prefs.capture_auto_scroll == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Show capture info dialog while capturing?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_CAP_SHOW_INFO ": %s\n",
-		  prefs.capture_show_info == TRUE ? "TRUE" : "FALSE");
+	  prefs.capture_show_info == TRUE ? "TRUE" : "FALSE");
 
   fprintf (pf, "\n######## Printing ########\n");
 
   fprintf (pf, "\n# Can be one of \"text\" or \"postscript\".\n"
-    "print.format: %s\n", pr_formats[prefs.pr_format]);
+	   "print.format: %s\n", pr_formats[prefs.pr_format]);
 
   fprintf (pf, "\n# Can be one of \"command\" or \"file\".\n"
-    "print.destination: %s\n", pr_dests[prefs.pr_dest]);
+	   "print.destination: %s\n", pr_dests[prefs.pr_dest]);
 
   fprintf (pf, "\n# This is the file that gets written to when the "
-    "destination is set to \"file\"\n"
-    "%s: %s\n", PRS_PRINT_FILE, prefs.pr_file);
+	   "destination is set to \"file\"\n"
+	   "%s: %s\n", PRS_PRINT_FILE, prefs.pr_file);
 
   fprintf (pf, "\n# Output gets piped to this command when the destination "
-    "is set to \"command\"\n"
-    "%s: %s\n", PRS_PRINT_CMD, prefs.pr_cmd);
+	   "is set to \"command\"\n"
+	   "%s: %s\n", PRS_PRINT_CMD, prefs.pr_cmd);
 
   fprintf(pf, "\n####### Name Resolution ########\n");
 
   fprintf(pf, "\n# Resolve addresses to names?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive), or a list of address types to resolve.\n");
   fprintf(pf, PRS_NAME_RESOLVE ": %s\n",
-		  name_resolve_to_string(prefs.name_resolve));
+	  name_resolve_to_string(prefs.name_resolve));
 
   fprintf(pf, "\n# Name resolution concurrency.\n");
   fprintf(pf, "# A decimal number.\n");
   fprintf(pf, PRS_NAME_RESOLVE_CONCURRENCY ": %d\n",
-		  prefs.name_resolve_concurrency);
+	  prefs.name_resolve_concurrency);
 
   fprintf(pf, "\n# Load SMI modules?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_NAME_RESOLVE_LOAD_SMI_MODULES ": %s\n",
-		  prefs.load_smi_modules == TRUE ? "TRUE" : "FALSE");
+	  prefs.load_smi_modules == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Suppress SMI errors?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_NAME_RESOLVE_SUPPRESS_SMI_ERRORS ": %s\n",
-		  prefs.suppress_smi_errors == TRUE ? "TRUE" : "FALSE");
+	  prefs.suppress_smi_errors == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n####### Taps/Statistics ########\n");
 
@@ -3137,14 +3162,14 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "\n# Maximum visible channels in RTP Player window.\n");
   fprintf(pf, "# An integer value greater than 0.\n");
   fprintf(pf, PRS_RTP_PLAYER_MAX_VISIBLE ": %d\n",
-		  prefs.rtp_player_max_visible);
+	  prefs.rtp_player_max_visible);
 
   fprintf(pf, "\n####### Protocols ########\n");
 
   fprintf(pf, "\n# Display hidden items in packet details pane?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_DISPLAY_HIDDEN_PROTO_ITEMS ": %s\n",
-		  prefs.display_hidden_proto_items == TRUE ? "TRUE" : "FALSE");
+	  prefs.display_hidden_proto_items == TRUE ? "TRUE" : "FALSE");
 
   pe_tree_foreach(prefs_modules, write_module_prefs, pf);
 

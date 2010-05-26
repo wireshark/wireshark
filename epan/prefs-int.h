@@ -84,6 +84,13 @@ struct preference {
 		range_t *range;
 	} saved_val;		/* original value, when editing from the GUI */
 	union {
+		guint uint;
+		gboolean boolval;
+		gint enumval;
+		char *string;
+		range_t *range;
+	} default_val;		/* the default value of the preference */
+	union {
 	  guint base;			/* input/output base, for PREF_UINT */
 	  guint32 max_value;		/* maximum value of a range */
 	  struct {
