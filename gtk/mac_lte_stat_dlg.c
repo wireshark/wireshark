@@ -756,6 +756,7 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     GtkWidget     *close_bt;
     GtkWidget     *help_bt;
 
+    GtkTooltips   *tooltips = gtk_tooltips_new();
     GtkListStore  *store;
 
     GtkTreeView       *tree_view;
@@ -973,6 +974,9 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     /* Initially disabled */
     gtk_widget_set_sensitive(hs->filter_bt, FALSE);
     gtk_widget_show(hs->filter_bt);
+    gtk_tooltips_set_tip(tooltips, hs->filter_bt,
+                         "Generate and set a filter showing only frames with selected RNTI and UEId",
+                         NULL);
 
 
     /**********************************************/
