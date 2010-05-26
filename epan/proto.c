@@ -1080,9 +1080,12 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 
 	pi = proto_tree_add_text_node(tree, NULL, 0, 0);
 
-	va_start(ap, format);
-	if (pi)
+	if (pi) {
+		va_start(ap, format);
 		proto_tree_set_representation(pi, format, ap);
+		va_end(ap);
+	}
+	va_start(ap, format);
 	vprintf(format, ap);
 	va_end(ap);
 	printf("\n");
@@ -3634,8 +3637,6 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 	}
 
 	if (!PROTO_ITEM_IS_HIDDEN(pi)) {
-		va_start(ap, format);
-
 		/*
 		 * If we don't already have a representation,
 		 * generate the default representation.
@@ -3647,10 +3648,11 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 
 		curlen = strlen(fi->rep->representation);
 		if (ITEM_LABEL_LENGTH > curlen) {
+			va_start(ap, format);
 			g_vsnprintf(fi->rep->representation + curlen,
 				ITEM_LABEL_LENGTH - (gulong) curlen, format, ap);
+			va_end(ap);
 		}
-		va_end(ap);
 	}
 }
 

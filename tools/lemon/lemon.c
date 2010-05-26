@@ -1333,7 +1333,6 @@ void ErrorMsg(const char *filename, int lineno, const char *format, ...)
   va_list ap;
   int end, restart, base;
 
-  va_start(ap, format);
   /* Prepare a prefix to be prepended to every output line */
   if( lineno>0 ){
     sprintf(prefix,"%.*s:%d: ",PREFIXLIMIT-10,filename,lineno);
@@ -1344,6 +1343,7 @@ void ErrorMsg(const char *filename, int lineno, const char *format, ...)
   availablewidth = LINEWIDTH - prefixsize;
 
   /* Generate the error message */
+  va_start(ap, format);
   vsprintf(errmsg,format,ap);
   va_end(ap);
   errmsgsize = (int) strlen(errmsg);

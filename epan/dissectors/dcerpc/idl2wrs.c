@@ -105,13 +105,17 @@ static char line[1024];
 static void FPRINTF(FILE *fh, const char *format, ...)
 {
 	va_list args;
-	va_start(args, format);
+
 #ifdef IDL2WRS_DEBUG
+	va_start(args, format);
 	vfprintf (stderr, format, args);
-#endif
-	if (fh)
-		vfprintf (fh, format, args);
 	va_end(args);
+#endif
+	if (fh) {
+		va_start(args, format);
+		vfprintf (fh, format, args);
+		va_end(args);
+	}
 }
 
 typedef struct _pointer_item_t {
