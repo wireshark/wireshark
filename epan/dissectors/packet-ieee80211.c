@@ -710,10 +710,10 @@ static const value_string aruba_mgt_typevals[] = {
 
 #ifdef MESH_OVERRIDES
 #define CAT_MESH_PEER_LINK                 30 /* Per 802.11s draft 1.08.  ANA will probably revise this */
-#define CAT_MESH_LINK_METRIC               31  
-#define CAT_MESH_PATH_SELECTION            32 
+#define CAT_MESH_LINK_METRIC               31
+#define CAT_MESH_PATH_SELECTION            32
 #define CAT_MESH_INTERWORKING              33
-#define CAT_MESH_RESOURCE_COORDINATION     34 
+#define CAT_MESH_RESOURCE_COORDINATION     34
 #define CAT_MESH_SECURITY_ARCHITECTURE     35
 #endif /* MESH_OVERRIDES */
 
@@ -775,19 +775,19 @@ static const value_string aruba_mgt_typevals[] = {
 #endif /* MESH_OVERRIDES */
 
 /* 11s draft, table 7-22 */
-#define MESH_LINK_CANCELLED                     2 
-#define MESH_MAX_NEIGHBORS                      3 
-#define MESH_CONFIG_POLICY_VIOLATION            4 
-#define MESH_CLOSE_RCVD                         5 
-#define MESH_MAX_RETRIES                        6 
-#define MESH_CONFIRM_TIMEOUT                    7 
+#define MESH_LINK_CANCELLED                     2
+#define MESH_MAX_NEIGHBORS                      3
+#define MESH_CONFIG_POLICY_VIOLATION            4
+#define MESH_CLOSE_RCVD                         5
+#define MESH_MAX_RETRIES                        6
+#define MESH_CONFIRM_TIMEOUT                    7
 
 #define MESH_MGMT_IE_CONFIGURATION       36
 #define MESH_MGMT_IE_ID                  37
-#define MESH_MGMT_IE_PEER_LINK           40 
-#define MESH_MGMT_IE_PREQ                53 
-#define MESH_MGMT_IE_PREP                54 
-#define MESH_MGMT_IE_PERR                55 
+#define MESH_MGMT_IE_PEER_LINK           40
+#define MESH_MGMT_IE_PREQ                53
+#define MESH_MGMT_IE_PREP                54
+#define MESH_MGMT_IE_PERR                55
 
 /* Vendor actions */
 /* MARVELL */
@@ -1912,7 +1912,7 @@ find_header_length (guint16 fcf, guint16 ctrl_fcf, gboolean is_ht)
 
 #ifdef MESH_OVERRIDES
 /* ************************************************************************* */
-/*            Return the length of the mesh header if any (in bytes)         
+/*            Return the length of the mesh header if any (in bytes)
  *
  * Per IEEE 802.11-07/0799r8:
  * 7.1.3.5a.1 The Mesh Header field (...) is present in Data frames if and
@@ -1944,7 +1944,7 @@ find_mesh_header_length(const guchar * pd, int offset, guint16 fcf)
       return 6 + 6*(mesh_flags & MESH_FLAGS_ADDRESS_EXTENSION);
     break;
   }
-  return 0;  
+  return 0;
 }
 #endif /* MESH_OVERRIDES */
 
@@ -3470,7 +3470,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                   offset += add_fixed_field (action_tree, tvb, offset, FIELD_CAP_INFO);
                   length = offset;
                   break;
- 
+
                 case MESH_PL_PEER_LINK_CONFIRM:
                   offset = 0;
                   offset += add_fixed_field (action_tree, tvb, offset, FIELD_CATEGORY_CODE);
@@ -3528,7 +3528,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                   offset = 0;
                   offset += add_fixed_field (action_tree, tvb, 0, FIELD_CATEGORY_CODE);
                   offset += add_fixed_field (action_tree, tvb, 1, FIELD_MESH_MGT_ACTION_PS_CODE);
-                  length = offset; 
+                  length = offset;
                   break;
 
                 /* undefined values */
@@ -3536,7 +3536,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                   offset = 0;
                   offset += add_fixed_field (action_tree, tvb, 0, FIELD_CATEGORY_CODE);
                   offset += add_fixed_field (action_tree, tvb, 1, FIELD_MESH_MGT_ACTION_PS_CODE);
-                  length = offset; 
+                  length = offset;
                   break;
                 }
               break;
@@ -5800,14 +5800,14 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
           if (tag_len > 0) {
             col_append_fstr(pinfo->cinfo, COL_INFO, ", MESHID=\"%s\"",
                             format_text(id, tag_len));
-          } 
+          }
         }
       break;
       }
 
     case TAG_MESH_PREQ:
       {
-        guint8 flags; 
+        guint8 flags;
         proto_item *item;
         proto_tree *subtree;
 
@@ -7071,7 +7071,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           case 6:
             break;
           default:
-            g_error("Invalid mesh header length (%d)\n", mesh_hdr_len);
+            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                "Invalid mesh header length (%d)\n",
+                mesh_hdr_len);
         }
         hdr_len += mesh_hdr_len;
       }
@@ -9726,23 +9728,23 @@ proto_register_ieee80211 (void)
 
   static const value_string mesh_mgt_ie_codes[] ={
     /* TODO: incomplete */
-    {MESH_MGMT_IE_CONFIGURATION, "Mesh Configuration"}, 
-    {MESH_MGMT_IE_ID, "Mesh ID"}, 
-    {MESH_MGMT_IE_PEER_LINK, "Peer Link Management"}, 
-    {MESH_MGMT_IE_PREQ, "Path Request"}, 
-    {MESH_MGMT_IE_PREP, "Path Response"}, 
-    {MESH_MGMT_IE_PERR, "Path Error"}, 
+    {MESH_MGMT_IE_CONFIGURATION, "Mesh Configuration"},
+    {MESH_MGMT_IE_ID, "Mesh ID"},
+    {MESH_MGMT_IE_PEER_LINK, "Peer Link Management"},
+    {MESH_MGMT_IE_PREQ, "Path Request"},
+    {MESH_MGMT_IE_PREP, "Path Response"},
+    {MESH_MGMT_IE_PERR, "Path Error"},
     {0, NULL}
   };
 
   static const true_false_string mesh_dest_rf_flags ={
-    "[RF = 1] Intermediate Nodes That Respond Will Also Forward", 
+    "[RF = 1] Intermediate Nodes That Respond Will Also Forward",
     "[RF = 0] Intermediate Nodes That Respond Will Not Forward"
   };
 
   static const true_false_string mesh_dest_do_flags ={
-    "[DO = 1] Only Destination Will Respond", 
-    "[DO = 0] Intermediate Nodes May Respond" 
+    "[DO = 1] Only Destination Will Respond",
+    "[DO = 0] Intermediate Nodes May Respond"
   };
 #endif /* MESH_OVERRIDES */
 
@@ -11545,7 +11547,7 @@ proto_register_ieee80211 (void)
 
     {&ff_mesh_mgt_ie_id,
      {"Mesh Managment IE ID", "wlan.mesh_ie",
-      FT_UINT8, BASE_HEX, VALS (&mesh_mgt_ie_codes), 0, 
+      FT_UINT8, BASE_HEX, VALS (&mesh_mgt_ie_codes), 0,
       "Information Element ID", HFILL }},
 
     {&ff_mesh_mgt_dest_flags,
