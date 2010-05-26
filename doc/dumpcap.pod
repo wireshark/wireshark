@@ -19,6 +19,7 @@ S<[ B<-L> ]>
 S<[ B<-n> ]>
 S<[ B<-M> ]>
 S<[ B<-p> ]>
+S<[ B<-q> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
 S<[ B<-S> ]>
 S<[ B<-v> ]>
@@ -208,6 +209,17 @@ B<-p> cannot be used to ensure that the only traffic that is captured is
 traffic sent to or from the machine on which B<Dumpcap> is running,
 broadcast traffic, and multicast traffic to addresses received by that
 machine.
+
+=item -q
+
+When capturing packets, don't display the continuous count of packets
+captured that is normally shown when saving a capture to a file;
+instead, just display, at the end of the capture, a count of packets
+captured.  On systems that support the SIGINFO signal, such as various
+BSDs, you can cause the current count to be displayed by typing your
+"status" character (typically control-T, although it
+might be set to "disabled" by default on at least some BSDs, so you'd
+have to explicitly set it to use it).
 
 =item -s  E<lt>capture snaplenE<gt>
 

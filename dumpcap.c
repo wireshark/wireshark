@@ -144,6 +144,11 @@ static GAsyncQueue *cap_pipe_pending_q, *cap_pipe_done_q;
 static GMutex *cap_pipe_read_mtx;
 #endif
 
+#ifdef SIGINFO
+static gboolean infodelay;	/* if TRUE, don't print capture info in SIGINFO handler */
+static gboolean infoprint;	/* if TRUE, print capture info after clearing infodelay */
+#endif /* SIGINFO */
+
 /** Stop a low-level capture (stops the capture child). */
 static void capture_loop_stop(void);
 
@@ -213,6 +218,9 @@ typedef struct _loop_data {
   gint           packet_count;          /* Number of packets we have already captured */
   gint           packet_max;            /* Number of packets we're supposed to capture - 0 means infinite */
   gint           inpkts_to_sync_pipe;   /* Packets not already send out to the sync_pipe */
+#ifdef SIGINFO
+  gboolean       report_packet_count;   /* Set by SIGINFO handler; print packet count */
+#endif
 
   /* pcap "input file" */
   pcap_t        *pcap_h;                /* pcap handle */
@@ -370,6 +378,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -n                       use pcapng format instead of pcap\n");
   /*fprintf(output, "\n");*/
   fprintf(output, "Miscellaneous:\n");
+  fprintf(output, "  -q                       don't report packet capture counts\n");
   fprintf(output, "  -v                       print version information and exit\n");
   fprintf(output, "  -h                       display this help and exit\n");
   fprintf(output, "\n");
@@ -1031,6 +1040,35 @@ capture_cleanup_handler(int signum _U_)
     capture_loop_stop();
 }
 #endif
+
+
+#ifdef SIGINFO
+static void
+report_counts(void)
+{
+  if (global_capture_opts.quiet) {
+    /* Report the count only if we aren't printing a packet count
+       as packets arrive. */
+    fprintf(stderr, "%u packet%s captured\n", global_ld.packet_count,
+            plurality(global_ld.packet_count, "", "s"));
+  }
+  infoprint = FALSE; /* we just reported it */
+}
+
+static void
+report_counts_siginfo(int signum _U_)
+{
+  int sav_errno = errno;
+  /* If we've been told to delay printing, just set a flag asking
+     that we print counts (if we're supposed to), otherwise print
+     the count of packets captured (if we're supposed to). */
+  if (infodelay)
+    infoprint = TRUE;
+  else
+    report_counts();
+  errno = sav_errno;
+}
+#endif /* SIGINFO */
 
 static void exit_main(int status)
 {
@@ -2623,7 +2661,8 @@ do_file_switch_or_stop(capture_options *capture_opts,
       if(cnd_file_duration)
         cnd_reset(cnd_file_duration);
       libpcap_dump_flush(global_ld.pdh, NULL);
-      report_packet_count(global_ld.inpkts_to_sync_pipe);
+      if (!capture_opts->quiet)
+        report_packet_count(global_ld.inpkts_to_sync_pipe);
       global_ld.inpkts_to_sync_pipe = 0;
       report_new_capture_file(capture_opts->save_file);
     } else {
@@ -2665,6 +2704,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   /* init the loop data */
   global_ld.go                  = TRUE;
   global_ld.packet_count        = 0;
+#ifdef SIGINFO
+  global_ld.report_packet_count = FALSE;
+#endif
   if (capture_opts->has_autostop_packets)
     global_ld.packet_max        = capture_opts->autostop_packets;
   else
@@ -2782,6 +2824,15 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     inpkts = capture_loop_dispatch(capture_opts, &global_ld, errmsg,
                                    sizeof(errmsg));
 
+#ifdef SIGINFO
+    /* Were we asked to print packet counts by the SIGINFO handler? */
+    if (global_ld.report_packet_count) {
+        fprintf(stderr, "%u packet%s captured\n", global_ld.packet_count,
+                plurality(global_ld.packet_count, "", "s"));
+        global_ld.report_packet_count = FALSE;
+    }
+#endif
+
 #ifdef _WIN32
     /* any news from our parent (signal pipe)? -> just stop the capture */
     if (!signal_pipe_check_running()) {
@@ -2827,7 +2878,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
         /* Send our parent a message saying we've written out
            "global_ld.inpkts_to_sync_pipe" packets to the capture file. */
-        report_packet_count(global_ld.inpkts_to_sync_pipe);
+        if (!capture_opts->quiet)
+          report_packet_count(global_ld.inpkts_to_sync_pipe);
 
         global_ld.inpkts_to_sync_pipe = 0;
       }
@@ -2913,7 +2965,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   /* there might be packets not yet notified to the parent */
   /* (do this after closing the file, so all packets are already flushed) */
   if(global_ld.inpkts_to_sync_pipe) {
-    report_packet_count(global_ld.inpkts_to_sync_pipe);
+    if (!capture_opts->quiet)
+      report_packet_count(global_ld.inpkts_to_sync_pipe);
     global_ld.inpkts_to_sync_pipe = 0;
   }
 
@@ -3155,7 +3208,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_I ""
 #endif
 
-#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:hi:" OPTSTRING_I "L" OPTSTRING_m "Mnp" OPTSTRING_r "Ss:" OPTSTRING_u "vw:y:Z:"
+#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:hi:" OPTSTRING_I "L" OPTSTRING_m "Mnpq" OPTSTRING_r "Ss:" OPTSTRING_u "vw:y:Z:"
 
 #ifdef DEBUG_CHILD_DUMPCAP
   if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
@@ -3295,6 +3348,15 @@ main(int argc, char *argv[])
   sigaction(SIGHUP, NULL, &oldaction);
   if (oldaction.sa_handler == SIG_DFL)
     sigaction(SIGHUP, &action, NULL);
+
+#ifdef SIGINFO
+  /* Catch SIGINFO and, if we get it and we're capturing in
+     quiet mode, report the number of packets we've captured. */
+  action.sa_handler = report_counts_siginfo;
+  action.sa_flags = 0;
+  sigemptyset(&action.sa_mask);
+  sigaction(SIGINFO, &action, NULL);
+#endif /* SIGINFO */
 #endif  /* _WIN32 */
 
   /* ----------------------------------------------------------------- */
@@ -3423,6 +3485,7 @@ main(int argc, char *argv[])
       case 'i':        /* Use interface x */
       case 'n':        /* Use pcapng format */
       case 'p':        /* Don't capture in promiscuous mode */
+      case 'q':        /* Don't print (or report) packet counts */
       case 's':        /* Set the snapshot (capture) length */
       case 'w':        /* Write to capture file x */
       case 'y':        /* Set the pcap data link type */
@@ -3742,7 +3805,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 /* indication report routines */
 
 
-void
+static void
 report_packet_count(int packet_count)
 {
     char tmp[SP_DECISIZE+1+1];
@@ -3767,9 +3830,30 @@ report_new_capture_file(const char *filename)
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "File: %s", filename);
         pipe_write_block(2, SP_FILE, filename);
     } else {
+#ifdef SIGINFO
+        /*
+         * Prevent a SIGINFO handler from writing to the standard error
+         * while we're doing so; instead, have it just set a flag telling
+         * us to print that information when we're done.
+         */
+        infodelay = TRUE;
+#endif /* SIGINFO */
         fprintf(stderr, "File: %s\n", filename);
         /* stderr could be line buffered */
         fflush(stderr);
+
+#ifdef SIGINFO
+        /*
+         * Allow SIGINFO handlers to write.
+         */
+        infodelay = FALSE;
+
+        /*
+         * If a SIGINFO handler asked us to write out capture counts, do so.
+         */
+        if (infoprint)
+          report_counts();
+#endif /* SIGINFO */
     }
 }
 

@@ -86,6 +86,7 @@ capture_opts_init(capture_options *capture_opts, void *cf)
   capture_opts->saving_to_file          = FALSE;
   capture_opts->save_file               = NULL;
   capture_opts->use_pcapng              = FALSE;            /* the default is pcap */
+  capture_opts->quiet                   = FALSE;
   capture_opts->real_time_mode          = TRUE;
   capture_opts->show_info               = TRUE;
   capture_opts->quit_after_cap          = FALSE;
@@ -491,6 +492,9 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         break;
     case 'p':        /* Don't capture in promiscuous mode */
         capture_opts->promisc_mode = FALSE;
+        break;
+    case 'q':        /* Quiet mode (don't print packet counts) */
+        capture_opts->quiet = TRUE;
         break;
     case 'Q':        /* Quit after capture (just capture to file) */
         capture_opts->quit_after_cap  = TRUE;
