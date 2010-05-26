@@ -135,7 +135,7 @@ void prefs_cleanup(void)
  */
 module_t *
 prefs_register_module(module_t *parent, const char *name, const char *title,
-    const char *description, void (*apply_cb)(void))
+		      const char *description, void (*apply_cb)(void))
 {
 	return prefs_register_module_or_subtree(parent, name, title, description,
 	    FALSE, apply_cb);
@@ -156,7 +156,8 @@ prefs_register_subtree(module_t *parent, const char *title, const char *descript
 
 static module_t *
 prefs_register_module_or_subtree(module_t *parent, const char *name,
-    const char *title, const char *description, gboolean is_subtree, void (*apply_cb)(void))
+				 const char *title, const char *description,
+				 gboolean is_subtree, void (*apply_cb)(void))
 {
 	module_t *module;
 	const char *p;
@@ -404,7 +405,7 @@ call_foreach_cb(void *value, void *data)
 
 static guint
 prefs_module_list_foreach(emem_tree_t *module_list, module_cb callback,
-    gpointer user_data)
+			  gpointer user_data)
 {
 	call_foreach_t call_data;
 
@@ -459,7 +460,8 @@ prefs_modules_foreach(module_cb callback, gpointer user_data)
  * as this can be used when walking the display tree of modules.
  */
 guint
-prefs_modules_foreach_submodules(module_t *module, module_cb callback, gpointer user_data)
+prefs_modules_foreach_submodules(module_t *module, module_cb callback,
+				 gpointer user_data)
 {
 	return prefs_module_list_foreach((module)?module->submodules:prefs_top_level_modules, callback, user_data);
 }
@@ -513,7 +515,7 @@ prefs_apply(module_t *module)
  */
 static pref_t *
 register_preference(module_t *module, const char *name, const char *title,
-    const char *description, pref_type_t type)
+		    const char *description, pref_type_t type)
 {
 	pref_t *preference;
 	const gchar *p;
@@ -623,7 +625,8 @@ prefs_get_title_by_name(const char *name)
  */
 void
 prefs_register_uint_preference(module_t *module, const char *name,
-    const char *title, const char *description, guint base, guint *var)
+			       const char *title, const char *description,
+			       guint base, guint *var)
 {
 	pref_t *preference;
 
@@ -639,7 +642,8 @@ prefs_register_uint_preference(module_t *module, const char *name,
  */
 void
 prefs_register_bool_preference(module_t *module, const char *name,
-    const char *title, const char *description, gboolean *var)
+			       const char *title, const char *description,
+			       gboolean *var)
 {
 	pref_t *preference;
 
@@ -653,8 +657,9 @@ prefs_register_bool_preference(module_t *module, const char *name,
  */
 void
 prefs_register_enum_preference(module_t *module, const char *name,
-    const char *title, const char *description, gint *var,
-    const enum_val_t *enumvals, gboolean radio_buttons)
+			       const char *title, const char *description,
+			       gint *var, const enum_val_t *enumvals,
+			       gboolean radio_buttons)
 {
 	pref_t *preference;
 
@@ -670,7 +675,8 @@ prefs_register_enum_preference(module_t *module, const char *name,
  */
 void
 prefs_register_string_preference(module_t *module, const char *name,
-    const char *title, const char *description, const char **var)
+				 const char *title, const char *description,
+				 const char **var)
 {
 	pref_t *preference;
 
@@ -699,8 +705,8 @@ prefs_register_string_preference(module_t *module, const char *name,
  */
 void
 prefs_register_range_preference(module_t *module, const char *name,
-    const char *title, const char *description, range_t **var,
-    guint32 max_value)
+				const char *title, const char *description,
+				range_t **var, guint32 max_value)
 {
 	pref_t *preference;
 
@@ -729,7 +735,8 @@ prefs_register_range_preference(module_t *module, const char *name,
  * Note: Static preferences are not saved to the preferences file.
  */
 void prefs_register_static_text_preference(module_t *module, const char *name,
-    const char *title, const char *description)
+					   const char *title,
+					   const char *description)
 {
 	register_preference(module, name, title, description, PREF_STATIC_TEXT);
 }
@@ -738,16 +745,14 @@ void prefs_register_static_text_preference(module_t *module, const char *name,
  * Register a uat 'preference'. It adds a button that opens the uat's window in the
  * preferences tab of the module.
  */
-extern void prefs_register_uat_preference(module_t *module,
-										  const char *name,
-										  const char *title,
-										  const char *description,
-										  void* uat) {
+extern void prefs_register_uat_preference(module_t *module, const char *name,
+					  const char *title,
+					  const char *description, void* uat)
+{
 
 	pref_t* preference = register_preference(module, name, title, description, PREF_UAT);
 
 	preference->varp.uat = uat;
-
 }
 
 
@@ -1381,7 +1386,8 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
 /* read the preferences file (or similiar) and call the callback
  * function to set each key/value pair found */
 int
-read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fct, void *private_data)
+read_prefs_file(const char *pf_path, FILE *pf,
+		pref_set_pair_cb pref_set_pair_fct, void *private_data)
 {
   enum { START, IN_VAR, PRE_VAL, IN_VAL, IN_SKIP };
   int       got_c, state = START;
