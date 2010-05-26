@@ -1051,10 +1051,21 @@ new_packet_list_enable_color(gboolean enable)
 	gtk_widget_queue_draw (packetlist->view);
 }
 
+/* Redraw the packet list *and* currently-selected detail */
 void
 new_packet_list_queue_draw(void)
 {
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+	gint row;
+
 	gtk_widget_queue_draw (packetlist->view);
+
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
+	if (!gtk_tree_selection_get_selected(selection, NULL, &iter))
+		return;
+	row = row_number_from_iter(&iter);
+	cf_select_packet(&cfile, row);
 }
 
 /* call this after last set_frame_mark is done */
@@ -1062,6 +1073,7 @@ static void mark_frames_ready(void)
 {
 	file_save_update_dynamics();
 	packets_bar_update();
+	new_packet_list_queue_draw();
 }
 
 static void
@@ -1092,7 +1104,6 @@ static void mark_all_frames(gboolean set)
 		        set_frame_mark(set, fdata);
 	}
 	mark_frames_ready();
-	new_packet_list_queue_draw();
 }
 
 void new_packet_list_mark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
