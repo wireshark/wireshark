@@ -6070,6 +6070,8 @@ proto_registrar_dump_fields(const int format)
 			blurb = hfinfo->blurb;
 			if (blurb == NULL)
 				blurb = "";
+			else if (strlen(blurb) == 0)
+				blurb = "\"\"";
 			if (format == 1) {
 				printf("F\t%s\t%s\t%s\t%s\t%s\n",
 					hfinfo->name, hfinfo->abbrev, enum_name,
