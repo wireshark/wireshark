@@ -896,8 +896,14 @@ sync_pipe_run_command(const char** argv, gchar **data, gchar **primary_msg,
       /* No unusual exit status; just report the read problem. */
       if (nread == 0)
         *primary_msg = g_strdup("Child dumpcap closed sync pipe prematurely");
-      else
-        *primary_msg = g_strdup("Error reading from sync pipe");
+      else {
+      	/* Don't report EINTR - that might just be from a ^C. */
+      	if (errno == EINTR)
+      	  *primary_msg = NULL;
+      	else
+          *primary_msg = g_strdup_printf("Error reading from sync pipe: %s",
+                                         strerror(errno));
+      }
     }
     *secondary_msg = NULL;
 
@@ -1158,8 +1164,14 @@ sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg)
       /* No unusual exit status; just report the read problem. */
       if (nread == 0)
         *msg = g_strdup("Child dumpcap closed sync pipe prematurely");
-      else
-        *msg = g_strdup("Error reading from sync pipe");
+      else {
+      	/* Don't report EINTR - that might just be from a ^C. */
+      	if (errno == EINTR)
+      	  *msg = NULL;
+      	else
+          *msg = g_strdup_printf("Error reading from sync pipe: %s",
+                                 strerror(errno));
+      }
     }
 
     return -1;
@@ -1431,8 +1443,14 @@ sync_pipe_input_cb(gint source, gpointer user_data)
       /* No unusual exit status; just report the read problem. */
       if (nread == 0)
         primary_msg = g_strdup("Child dumpcap closed sync pipe prematurely");
-      else
-        primary_msg = g_strdup("Error reading from sync pipe");
+      else {
+      	/* Don't report EINTR - that might just be from a ^C. */
+      	if (errno == EINTR)
+      	  primary_msg = NULL;
+      	else
+          primary_msg = g_strdup_printf("Error reading from sync pipe: %s",
+                                        strerror(errno));
+      }
     }
 
     /* No more child process. */
