@@ -129,32 +129,32 @@ struct tcp_multisegment_pdu {
 	guint32 nxtpdu;
 	guint32 first_frame;
 	guint32 last_frame;
-        nstime_t last_frame_time;
+	nstime_t last_frame_time;
 	guint32 flags;
 #define MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT	0x00000001
 };
 
 typedef struct _tcp_flow_t {
-	guint32 base_seq;	/* base seq number (used by relative sequence numbers)
-				 * or 0 if not yet known.
-				 */
+	guint32 base_seq;		/* base seq number (used by relative sequence numbers)
+							 * or 0 if not yet known.
+							 */
 	tcp_unacked_t *segments;
-	guint32 lastack;	/* last seen ack */
+	guint32 lastack;		/* last seen ack */
 	nstime_t lastacktime;	/* Time of the last ack packet */
 	guint32 lastnondupack;	/* frame number of last seen non dupack */
-	guint32 dupacknum;	/* dupack number */
-	guint32 nextseq;	/* highest seen nextseq */
+	guint32 dupacknum;		/* dupack number */
+	guint32 nextseq;		/* highest seen nextseq */
 	guint32 nextseqframe;	/* frame number for segment with highest
-				 * sequence number
-				 */
+							 * sequence number
+							 */
 	nstime_t nextseqtime;	/* Time of the nextseq packet so we can
-				 * distinguish between retransmission,
-				 * fast retransmissions and outoforder
-				 */
-	guint32 window;		/* last seen window */
-	gint16	win_scale;	/* -1 is we dont know */
-        gint16  scps_capable;   /* flow advertised scps capabilities */
-        guint16 maxsizeacked;   /* 0 if not yet known */
+							 * distinguish between retransmission,
+							 * fast retransmissions and outoforder
+							 */
+	guint32 window;			/* last seen window */
+	gint16	win_scale;		/* -1 is we dont know */
+	gint16  scps_capable;   /* flow advertised scps capabilities */
+	guint16 maxsizeacked;   /* 0 if not yet known */
 
 /* This tcp flow/session contains only one single PDU and should
  * be reassembled until the final FIN segment.
@@ -171,7 +171,7 @@ typedef struct _tcp_flow_t {
 	/* Process info, currently discovered via IPFIX */
 	guint32 process_uid;    /* UID of local process */
 	guint32 process_pid;    /* PID of local process */
-	gchar *username;	/* Username of the local process */
+	gchar *username;		/* Username of the local process */
 	gchar *command;         /* Local process name + path + args */
 } tcp_flow_t;
 
