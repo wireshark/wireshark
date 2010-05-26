@@ -193,6 +193,26 @@ rather than
 
 	11644473600ULL
 
+Don't assume that you can scan through a va_list initialized by va_start
+more than once without closing it with va_end and re-initalizing it with
+va_start.  This applies even if you're not scanning through it yourself,
+but are calling a routine that scans through it, such as vfprintf() or
+one of the routines in Wireshark that takes a format and a va_list as an
+argument.  You must do
+
+	va_start(ap, format);
+	call_routine1(xxx, format, ap);
+	va_end(ap);
+	va_start(ap, format);
+	call_routine2(xxx, format, ap);
+	va_end(ap);
+
+rather 
+	va_start(ap, format);
+	call_routine1(xxx, format, ap);
+	call_routine2(xxx, format, ap);
+	va_end(ap);
+
 Don't use a label without a statement following it.  For example,
 something such as
 
