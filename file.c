@@ -2354,12 +2354,15 @@ ref_time_packets(capture_file *cf)
 
   nstime_set_unset(&first_ts);
   nstime_set_unset(&prev_dis_ts);
-  nstime_set_unset(&prev_cap_ts);
   cum_bytes = 0;
 
   for (fdata = cf->plist_start; fdata != NULL; fdata = fdata->next) {
     /* just add some value here until we know if it is being displayed or not */
     fdata->cum_bytes = cum_bytes + fdata->pkt_len;
+
+    /*
+     *Timestamps
+     */
 
     /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time
@@ -2370,7 +2373,7 @@ ref_time_packets(capture_file *cf)
       /* if this frames is marked as a reference time frame, reset
         firstsec and firstusec to this frame */
     if(fdata->flags.ref_time){
-    first_ts = fdata->abs_ts;
+        first_ts = fdata->abs_ts;
     }
 
     /* If we don't have the time stamp of the previous displayed packet,
@@ -2396,12 +2399,17 @@ ref_time_packets(capture_file *cf)
      this packet. */
     nstime_delta(&fdata->del_dis_ts, &fdata->abs_ts, &prev_dis_ts);
 
+    prev_dis_ts = fdata->abs_ts;
+
+    /*
+     * Byte counts
+     */
     if( (fdata->flags.passed_dfilter) || (fdata->flags.ref_time) ){
         /* This frame either passed the display filter list or is marked as
         a time reference frame.  All time reference frames are displayed
         even if they dont pass the display filter */
         if(fdata->flags.ref_time){
-            /* if this was a TIME REF frame we should reset the cul bytes field */
+            /* if this was a TIME REF frame we should reset the cum_bytes field */
             cum_bytes = fdata->pkt_len;
             fdata->cum_bytes =  cum_bytes;
         } else {
