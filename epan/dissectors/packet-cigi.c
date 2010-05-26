@@ -2764,7 +2764,7 @@ cigi_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
 static gint
 cigi_add_data(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    gint8 packet_size = 0;
+    guint8 packet_size = 0;
 
     packet_size = tvb_get_guint8(tvb, offset-1);
 
