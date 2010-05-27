@@ -1141,7 +1141,9 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
                        0, "<StockItem>", WIRESHARK_STOCK_WIKI,},
     {"/Filter Field Reference", NULL, GTK_MENU_FUNC(selected_ptree_ref_cb),
                        0, "<StockItem>", WIRESHARK_STOCK_INTERNET,},
+#if GLIB_CHECK_VERSION(2,6,0)
     {"/Protocol Help", NULL, NULL, 0, "<Branch>", NULL,},
+#endif
     {"/Protocol Preferences", NULL, NULL, 0, NULL, NULL,},
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, "<StockItem>", WIRESHARK_STOCK_DECODE_AS,},

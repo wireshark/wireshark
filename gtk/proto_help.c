@@ -41,6 +41,8 @@
 #include <epan/strutil.h>
 #include <epan/proto.h>
 
+#if GLIB_CHECK_VERSION(2,6,0)
+
 #define PH_MENU_TOP "/Protocol Help"
 
 #define PH_FILE_LOG "ph.log"
@@ -100,9 +102,9 @@ static void ph_logging_handler(const gchar*, GLogLevelFlags, const gchar*, gpoin
  * Protocol help routines. Adds web browser links to protocol menu items
  * via configuration files.
  */
- 
+
 /** Initialization
- * 
+ *
  * @param void
  * @return void
  */
@@ -128,7 +130,7 @@ void proto_help_init(void)
 		return;
 
 	g_ph_key_files = g_ptr_array_new();
-	
+
 	/* Start loop */
 
 #ifdef PH_DEBUG_LOG
@@ -156,7 +158,7 @@ void proto_help_init(void)
 }
 
 /** Initialize the menu
- * 
+ *
  * @param widget Context menu root
  * @return void
  */
@@ -167,7 +169,7 @@ void proto_help_menu_init(GtkWidget *widget)
 }
 
 /** Clear the menu
- * 
+ *
  * @param void
  * @return void
  */
@@ -198,7 +200,7 @@ url_destroy_cb(GtkWidget *w _U_, gpointer url) {
 }
 
 /** Fill in the protocol help menu
- * 
+ *
  * @param selection Currently-selected packet
  * @param cf Capture file
  * @return void
@@ -234,7 +236,7 @@ void proto_help_menu_modify(GtkTreeSelection *selection, capture_file *cf)
 		g_assert(phkf);
 
 		value = ph_ini_get_path(phkf->keyfile, proto_abbrev, PH_INI_KEY_OVERVIEW);
-		
+
 		if(!value)
 		{
 			g_log(NULL, G_LOG_LEVEL_DEBUG, "Overview page of the protocol '%s' is not defined", proto_abbrev);
@@ -272,7 +274,7 @@ void proto_help_menu_modify(GtkTreeSelection *selection, capture_file *cf)
 		{
 			keys = ph_ini_get_keywords(phkf->keyfile, proto_abbrev);
 			table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
-	
+
 			for(i = 0; keys[i] != NULL; i++)
 			{
 				if(!strcmp(keys[i], PH_INI_KEY_OVERVIEW)) continue; /* We already added the overview */
@@ -281,7 +283,7 @@ void proto_help_menu_modify(GtkTreeSelection *selection, capture_file *cf)
 
 				value = ph_ini_get_path(phkf->keyfile, proto_abbrev, keys[i]);
 				if(!value || !strlen(value)) continue;
-				
+
 				loc = string_replace(phkf->loc_template, PH_PATH_SEARCH_STR, value);
 				g_free(value);
 				if (!loc || !strlen(loc)) continue;
@@ -296,7 +298,7 @@ void proto_help_menu_modify(GtkTreeSelection *selection, capture_file *cf)
 				g_assert(menu_item);
 				g_signal_connect(menu_item, "destroy", G_CALLBACK(url_destroy_cb), loc);
 			}
-	
+
 			g_hash_table_destroy(table);
 		}
 	}
@@ -308,7 +310,7 @@ void proto_help_menu_modify(GtkTreeSelection *selection, capture_file *cf)
 
 /**
 * Function ph_menu_onclick
-* 
+*
 * @param GtkWidget *widget Description
 * @param gpointer data Description
 * @param guint action Description
@@ -317,7 +319,7 @@ void proto_help_menu_modify(GtkTreeSelection *selection, capture_file *cf)
 static void ph_menu_onclick(GtkWidget *widget _U_, gpointer data, guint action _U_)
 {
 	gchar *loc = (gchar *) data;
-	
+
 	g_log(NULL, G_LOG_LEVEL_DEBUG, "Sending '%s' to the browser.", loc);
 
 	if (! loc) {
@@ -332,7 +334,7 @@ static void ph_menu_onclick(GtkWidget *widget _U_, gpointer data, guint action _
 }
 
 /** Get the field ID for a selected tree item.
- * 
+ *
  * @param selection Tree selection
  * @param cfile Capture file
  * @return Field ID or 0
@@ -370,12 +372,12 @@ ph_capture_get_protocol_id(GtkTreeSelection *selection, capture_file *cf)
 	{
 		proto_id = proto_registrar_get_parent(proto_id);
 	}
-	
+
 	return proto_id;
 }
 
 /** Get the protocol name for a selected tree item.
- * 
+ *
  * @param selection Tree selection
  * @param cfile Capture file
  * @return Name for a protocol or NULL
@@ -389,7 +391,7 @@ ph_capture_get_protocol_name(GtkTreeSelection *selection, capture_file *cf)
 }
 
 /** Get the abbreviated protocol name for a selected tree item.
- * 
+ *
  * @param selection Tree selection
  * @param cfile Capture file
  * @return Abbreviated (lower-case) name for a protocol or NULL
@@ -409,7 +411,7 @@ ph_capture_get_protocol_abbrev(GtkTreeSelection *selection, capture_file *cf)
 static gchar* ph_capture_get_description(capture_file *cf)
 {
 	gchar *buffer = NULL;
-	
+
 	if(cf->finfo_selected->rep->representation != 0)
 	{
 		buffer = g_strdup(cf->finfo_selected->rep->representation);
@@ -419,12 +421,12 @@ static gchar* ph_capture_get_description(capture_file *cf)
 		buffer = g_malloc(ITEM_LABEL_LENGTH);
 		proto_item_fill_label(cf->finfo_selected, buffer);
 	}
-	
+
 	return buffer;
 }
 
 /** Load a protocol help key file and add it to the global array.
- * 
+ *
  * @param filename Full path to the key file.
  * @return Newly-created key file entry or NULL.
  */
@@ -485,7 +487,7 @@ ph_ini_load_file(const gchar *filename)
 	phkf->keyfile = kf;
 	phkf->source = ph_ini_get_value(kf, PH_INI_GROUP_DATABASE, PH_INI_DB_KEY_SOURCE, "(Unknown source)");
 	phkf->loc_template = loc_template;
-	
+
 	g_ptr_array_add(g_ph_key_files, phkf);
 
 	return phkf;
@@ -507,7 +509,7 @@ ph_ini_get_value(GKeyFile *keyfile, const gchar *group, const gchar *key, gchar 
 	if (keyfile) {
 		value = g_key_file_get_string(keyfile, group, key, NULL);
 	}
-	
+
 	if (!value) {
 		value = g_strdup(alt);
 	}
@@ -521,7 +523,7 @@ ph_ini_get_value(GKeyFile *keyfile, const gchar *group, const gchar *key, gchar 
  * @param keyfile The key file to search
  * @param protocol Wireshark protocol name to map, e.g. "tcp".
  * @param keyword The key to fetch from the mapped section.
- * @return 
+ * @return
  */
 static gchar*
 ph_ini_get_path(GKeyFile *keyfile, const gchar *protocol, const gchar *keyword)
@@ -548,7 +550,7 @@ ph_ini_get_path(GKeyFile *keyfile, const gchar *protocol, const gchar *keyword)
 
 /** Given a protocol name, map it to a section in the keyfile, then
  * return the keys in that section.
- * 
+ *
  * @param keyfile The key file to search
  * @param protocol Wireshark protocol name to map, e.g. "tcp".
  * @return An array of keys in the mapped section. Must be freed with g_strfreev().
@@ -562,7 +564,7 @@ ph_ini_get_keywords(GKeyFile *keyfile, const gchar *protocol)
 	gsize length = 0;
 
 	if(!keyfile) return NULL;
-	
+
 	map = g_key_file_get_string(keyfile, PH_INI_GROUP_MAP, protocol, &error);
 
 	if(!map)
@@ -581,13 +583,13 @@ ph_ini_get_keywords(GKeyFile *keyfile, const gchar *protocol)
 		g_log(NULL, G_LOG_LEVEL_DEBUG, "Display titles are not defined (%s)", protocol);
 		g_error_free(error);
 	}
-	
+
 	return keys;
 }
 
 /**
 * Function ph_parse_string
-* 
+*
 * @param const gchar *description Description
 * @param const gchar *value Description
 * @return guint Description
@@ -614,7 +616,7 @@ static guint ph_parse_string(const gchar *description, const gchar *value)
 #ifdef PH_DEBUG_LOG
 /**
  * Function ph_logging_handler
- * 
+ *
  * @param const gchar *domain Description
  * @param GLogLevelFlags level Description
  * @param const gchar *message Description
@@ -628,7 +630,7 @@ static void ph_logging_handler(const gchar *domain _U_, GLogLevelFlags level, co
 	FILE *file = NULL;
 	struct tm *timestamp = NULL;
 	time_t now;
-	
+
 	time(&now);
 	timestamp = localtime(&now);
 
@@ -651,7 +653,7 @@ static void ph_logging_handler(const gchar *domain _U_, GLogLevelFlags level, co
 	}
 
 	file = fopen(ph_log_path, "a+");
-	
+
 	if(file)
 	{
 		log = g_strdup_printf("[%04u-%02u-%02u %02u:%02u:%02u %s] %s\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min, timestamp->tm_sec, type, message);
@@ -659,4 +661,12 @@ static void ph_logging_handler(const gchar *domain _U_, GLogLevelFlags level, co
 		fclose(file);
 	}
 }
-#endif
+#endif /* PH_DEBUG_LOG */
+
+#else /* GLIB_CHECK_VERSION(2,6,0) */
+
+void proto_help_init(void) {}
+void proto_help_menu_init(GtkWidget *widget _U_) {}
+void proto_help_menu_modify(GtkTreeSelection *selection _U_, capture_file *cf _U_) {}
+
+#endif /* GLIB_CHECK_VERSION(2,6,0) */

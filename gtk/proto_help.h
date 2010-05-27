@@ -25,22 +25,27 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PROTO_HELP_H__
+#define __PROTO_HELP_H__
+
 /** Search for and read configuration files
- * 
+ *
  */
 extern void proto_help_init(void);
 
 /** Initialize the menu
- * 
+ *
  * @param widget Context menu root
  * @return void
  */
 extern void proto_help_menu_init(GtkWidget *);
 
 /** Fill in the protocol help menu
- * 
+ *
  * @param selection Currently-selected packet
  * @param cf Capture file
  * @return void
  */
 extern void proto_help_menu_modify(GtkTreeSelection*, capture_file *cfile);
+
+#endif /* __PROTO_HELP_H__ */
