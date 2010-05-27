@@ -115,7 +115,8 @@ static const char *sync_pipe_signame(int);
 static gboolean sync_pipe_input_cb(gint source, gpointer user_data);
 static int sync_pipe_wait_for_child(int fork_child, gchar **msgp);
 static void pipe_convert_header(const guchar *header, int header_len, char *indicator, int *block_len);
-static int pipe_read_block(int pipe_fd, char *indicator, int len, char *msg);
+static int pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
+                           char **err_msg);
 
 
 
@@ -854,6 +855,7 @@ sync_pipe_run_command(const char** argv, gchar **data, gchar **primary_msg,
 {
   gchar *msg;
   int data_pipe_read_fd, sync_pipe_read_fd, fork_child, ret;
+  char *wait_msg;
   gchar buffer[PIPE_BUF_SIZE+1];
   int  nread;
   char indicator;
@@ -861,6 +863,7 @@ sync_pipe_run_command(const char** argv, gchar **data, gchar **primary_msg,
   char *primary_msg_text;
   int  secondary_msg_len;
   char *secondary_msg_text;
+  char *combined_msg;
   GString *data_buf = NULL;
   int count;
 
@@ -879,7 +882,7 @@ sync_pipe_run_command(const char** argv, gchar **data, gchar **primary_msg,
    * First, wait for an SP_ERROR_MSG message or SP_SUCCESS message.
    */
   nread = pipe_read_block(sync_pipe_read_fd, &indicator, SP_MAX_MSG_LEN,
-                          buffer);
+                          buffer, primary_msg);
   if(nread <= 0) {
     /* We got a read error from the sync pipe, or we got no data at
        all from the sync pipe, so we're not going to be getting any
@@ -891,18 +894,24 @@ sync_pipe_run_command(const char** argv, gchar **data, gchar **primary_msg,
        itself while going down. Even in the rare cases that this isn't the
        case, the child will get an error when writing to the broken pipe
        the next time, cleaning itself up then. */
-    ret = sync_pipe_wait_for_child(fork_child, primary_msg);
-    if (ret == 0) {
-      /* No unusual exit status; just report the read problem. */
-      if (nread == 0)
+    ret = sync_pipe_wait_for_child(fork_child, &wait_msg);
+    if(nread == 0) {
+      /* We got an EOF from the sync pipe.  That means that it exited
+         before giving us any data to read.  If ret is -1, we report
+         that as a bad exit (e.g., exiting due to a signal); otherwise,
+         we report it as a premature exit. */
+      if (ret == -1)
+        *primary_msg = wait_msg;
+      else
         *primary_msg = g_strdup("Child dumpcap closed sync pipe prematurely");
-      else {
-        /* Don't report EINTR - that might just be from a ^C. */
-        if (errno == EINTR)
-          *primary_msg = NULL;
-        else
-          *primary_msg = g_strdup_printf("Error reading from sync pipe: %s",
-                                         strerror(errno));
+    } else {
+      /* We got an error from the sync pipe.  If ret is -1, report
+         both the sync pipe I/O error and the wait error. */
+      if (ret == -1) {
+        combined_msg = g_strdup_printf("%s\n\n%s", *primary_msg, wait_msg);
+        g_free(*primary_msg);
+        g_free(wait_msg);
+        *primary_msg = combined_msg;
       }
     }
     *secondary_msg = NULL;
@@ -1112,6 +1121,7 @@ sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg)
   int argc;
   const char **argv;
   int message_read_fd, ret;
+  char *wait_msg;
   gchar buffer[PIPE_BUF_SIZE+1];
   int  nread;
   char indicator;
@@ -1119,6 +1129,7 @@ sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg)
   char *primary_msg_text;
   int  secondary_msg_len;
   char *secondary_msg_text;
+  char *combined_msg;
 
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_interface_stats_open");
 
@@ -1147,7 +1158,7 @@ sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg)
    * First, wait for an SP_ERROR_MSG message or SP_SUCCESS message.
    */
   nread = pipe_read_block(message_read_fd, &indicator, SP_MAX_MSG_LEN,
-                          buffer);
+                          buffer, msg);
   if(nread <= 0) {
     /* We got a read error from the sync pipe, or we got no data at
        all from the sync pipe, so we're not going to be getting any
@@ -1159,18 +1170,24 @@ sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg)
        itself while going down. Even in the rare cases that this isn't the
        case, the child will get an error when writing to the broken pipe
        the next time, cleaning itself up then. */
-    ret = sync_pipe_wait_for_child(*fork_child, msg);
-    if (ret == 0) {
-      /* No unusual exit status; just report the read problem. */
-      if (nread == 0)
+    ret = sync_pipe_wait_for_child(*fork_child, &wait_msg);
+    if(nread == 0) {
+      /* We got an EOF from the sync pipe.  That means that it exited
+         before giving us any data to read.  If ret is -1, we report
+         that as a bad exit (e.g., exiting due to a signal); otherwise,
+         we report it as a premature exit. */
+      if (ret == -1)
+        *msg = wait_msg;
+      else
         *msg = g_strdup("Child dumpcap closed sync pipe prematurely");
-      else {
-        /* Don't report EINTR - that might just be from a ^C. */
-        if (errno == EINTR)
-          *msg = NULL;
-        else
-          *msg = g_strdup_printf("Error reading from sync pipe: %s",
-                                 strerror(errno));
+    } else {
+      /* We got an error from the sync pipe.  If ret is -1, report
+         both the sync pipe I/O error and the wait error. */
+      if (ret == -1) {
+        combined_msg = g_strdup_printf("%s\n\n%s", *msg, wait_msg);
+        g_free(*msg);
+        g_free(wait_msg);
+        *msg = combined_msg;
       }
     }
 
@@ -1254,10 +1271,11 @@ sync_interface_stats_close(int *read_fd, int *fork_child, gchar **msg)
 /* read a number of bytes from a pipe */
 /* (blocks until enough bytes read or an error occurs) */
 static int
-pipe_read_bytes(int pipe_fd, char *bytes, int required)
+pipe_read_bytes(int pipe_fd, char *bytes, int required, char **msg)
 {
     int newly;
     int offset = 0;
+    int error;
 
     while(required) {
         newly = read(pipe_fd, &bytes[offset], required);
@@ -1265,12 +1283,17 @@ pipe_read_bytes(int pipe_fd, char *bytes, int required)
             /* EOF */
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
                   "read from pipe %d: EOF (capture closed?)", pipe_fd);
+            *msg = 0;
             return offset;
         }
         if (newly < 0) {
             /* error */
+            error = errno;
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "read from pipe %d: error(%u): %s", pipe_fd, errno, strerror(errno));
+                  "read from pipe %d: error(%u): %s", pipe_fd, error,
+                  strerror(error));
+            *msg = g_strdup_printf("Error reading from sync pipe: %s",
+                                   strerror(error));
             return newly;
         }
 
@@ -1278,6 +1301,7 @@ pipe_read_bytes(int pipe_fd, char *bytes, int required)
         offset += newly;
     }
 
+    *msg = NULL;
     return offset;
 }
 
@@ -1357,17 +1381,35 @@ pipe_convert_header(const guchar *header, int header_len, char *indicator, int *
    (1-byte message indicator, 3-byte message length (excluding length
    and indicator field), and the rest is the message) */
 static int
-pipe_read_block(int pipe_fd, char *indicator, int len, char *msg)
+pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
+                char **err_msg)
 {
     int required;
     int newly;
     guchar header[4];
 
     /* read header (indicator and 3-byte length) */
-    newly = pipe_read_bytes(pipe_fd, header, 4);
+    newly = pipe_read_bytes(pipe_fd, header, 4, err_msg);
     if(newly != 4) {
+    	if (newly == 0) {
+    	    /*
+	     * Immediate EOF; if the capture child exits normally, this
+	     * is an "I'm done" indication, so don't report it as an
+	     * error.
+	     */
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+                  "read %d got an EOF", pipe_fd);
+            return 0;
+        }
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
               "read %d failed to read header: %u", pipe_fd, newly);
+        if (newly != -1) {
+            /*
+	     * Short read, but not an immediate EOF.
+	     */
+            *err_msg = g_strdup_printf("Premature EOF reading from sync pipe: got only %d bytes",
+                                       newly);
+        }
         return -1;
     }
 
@@ -1390,15 +1432,19 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg)
         /* we have a problem here, try to read some more bytes from the pipe to debug where the problem really is */
         memcpy(msg, header, sizeof(header));
         newly = read(pipe_fd, &msg[sizeof(header)], len-sizeof(header));
-        g_warning("Unknown message from dumpcap, try to show it as a string: %s", msg);
+        *err_msg = g_strdup_printf("Unknown message from dumpcap, try to show it as a string: %s",
+                                   msg);
         return -1;
     }
     len = required;
 
     /* read the actual block data */
-    newly = pipe_read_bytes(pipe_fd, msg, required);
+    newly = pipe_read_bytes(pipe_fd, msg, required, err_msg);
     if(newly != required) {
-        g_warning("Unknown message from dumpcap, try to show it as a string: %s", msg);
+    	if (newly != -1) {
+            *err_msg = g_strdup_printf("Unknown message from dumpcap, try to show it as a string: %s",
+                                       msg);
+	}
         return -1;
     }
 
@@ -1406,6 +1452,7 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg)
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
           "read %d ok indicator: %c len: %u msg: %s", pipe_fd, *indicator,
           len, msg);
+    *err_msg = NULL;
     return newly + 4;
 }
 
@@ -1422,34 +1469,43 @@ sync_pipe_input_cb(gint source, gpointer user_data)
   int  nread;
   char indicator;
   int  primary_len;
-  char * primary_msg;
+  char *primary_msg;
   int  secondary_len;
-  char * secondary_msg;
+  char *secondary_msg;
+  char *wait_msg, *combined_msg;
 
-  nread = pipe_read_block(source, &indicator, SP_MAX_MSG_LEN, buffer);
+  nread = pipe_read_block(source, &indicator, SP_MAX_MSG_LEN, buffer,
+                          &primary_msg);
   if(nread <= 0) {
-    /* We got a read error from the sync pipe, or we got no data at
-       all from the sync pipe, so we're not going to be getting any
-       data or error message from the child process.  Pick up its
-       exit status, and complain.
+    /* We got a read error, or a bad message, or an EOF, from the sync pipe.
 
-       We don't have to worry about killing the child, if the sync pipe
-       returned an error. Usually this error is caused as the child killed itself
-       while going down. Even in the rare cases that this isn't the case,
-       the child will get an error when writing to the broken pipe the next time,
-       cleaning itself up then. */
-    ret = sync_pipe_wait_for_child(capture_opts->fork_child, &primary_msg);
-    if (ret == 0) {
-      /* No unusual exit status; just report the read problem. */
-      if (nread == 0)
-        primary_msg = g_strdup("Child dumpcap closed sync pipe prematurely");
-      else {
-        /* Don't report EINTR - that might just be from a ^C. */
-        if (errno == EINTR)
-          primary_msg = NULL;
-        else
-          primary_msg = g_strdup_printf("Error reading from sync pipe: %s",
-                                        strerror(errno));
+       If we got a read error or a bad message, nread is -1 and
+       primary_msg is set to point to an error message.  We don't
+       have to worry about killing the child; usually this error
+       is caused as the child killed  itself while going down.
+       Even in the rare cases that this isn't the case, the child
+       will get an error when writing to the broken pipe the next time,
+       cleaning itself up then.
+
+       If we got an EOF, nread is 0 and primary_msg isn't set.  This
+       is an indication that the capture is finished. */
+    ret = sync_pipe_wait_for_child(capture_opts->fork_child, &wait_msg);
+    if(nread == 0) {
+      /* We got an EOF from the sync pipe.  That means that the capture
+         child exited, and not in the middle of a message; we treat
+         that as an indication that it's done, and only report an
+         error if ret is -1, in which case wait_msg is the error
+         message. */
+      if (ret == -1)
+        primary_msg = wait_msg;
+    } else {
+      /* We got an error from the sync pipe.  If ret is -1, report
+         both the sync pipe I/O error and the wait error. */
+      if (ret == -1) {
+        combined_msg = g_strdup_printf("%s\n\n%s", primary_msg, wait_msg);
+        g_free(primary_msg);
+        g_free(wait_msg);
+        primary_msg = combined_msg;
       }
     }
 
@@ -1536,23 +1592,10 @@ sync_pipe_wait_for_child(int fork_child, gchar **msgp)
   if (waitpid(fork_child, &fork_child_status, 0) != -1) {
     if (WIFEXITED(fork_child_status)) {
       /*
-       * The child exited; return its exit status, if it seems uncommon
-       * (0=ok, 1=command syntax error, 2=other error).
-       *
-       * For an exit status of 0, there's no error to tell the user about.
-       * For an exit status of 1 or 2, the child will inform us about errors
-       * through the sync_pipe, so don't return an error.
-       * If there are situations where the child won't send us such an error
-       * message, this should be fixed in the child and not worked around
-       * here!
+       * The child exited; return its exit status.  Do not treat this as
+       * an error.
        */
-      if (WEXITSTATUS(fork_child_status) != 0 &&
-          WEXITSTATUS(fork_child_status) != 1 &&
-          WEXITSTATUS(fork_child_status) != 2) {
-        *msgp = g_strdup_printf("Child dumpcap process exited: exit status %d",
-                                WEXITSTATUS(fork_child_status));
-        ret = -1;
-      }
+      ret = WEXITSTATUS(fork_child_status);
     } else if (WIFSTOPPED(fork_child_status)) {
       /* It stopped, rather than exiting.  "Should not happen." */
       *msgp = g_strdup_printf("Child dumpcap process stopped: %s",

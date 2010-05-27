@@ -1869,10 +1869,17 @@ capture(void)
   /* Catch a CTRL+C event and, if we get it, clean up and exit. */
   SetConsoleCtrlHandler(capture_cleanup, TRUE);
 #else /* _WIN32 */
-  /* Catch SIGINT and SIGTERM and, if we get either of them, clean up
-     and exit. */
+  /* Catch SIGINT and SIGTERM and, if we get either of them,
+     clean up and exit.  If SIGHUP isn't being ignored, catch
+     it too and, if we get it, clean up and exit.
+
+     We restart any read that was in progress, so that it doesn't
+     disrupt reading from the sync pipe.  The signal handler tells
+     the capture child to finish; it will report that it finished,
+     or will exit abnormally, so  we'll stop reading from the sync
+     pipe, pick up the exit status, and quit. */
   action.sa_handler = capture_cleanup;
-  action.sa_flags = 0;
+  action.sa_flags = SA_RESTART;
   sigemptyset(&action.sa_mask);
   sigaction(SIGTERM, &action, NULL);
   sigaction(SIGINT, &action, NULL);
@@ -1882,7 +1889,10 @@ capture(void)
 
 #ifdef SIGINFO
   /* Catch SIGINFO and, if we get it and we're capturing to a file in
-     quiet mode, report the number of packets we've captured. */
+     quiet mode, report the number of packets we've captured.
+
+     Again, restart any read that was in progress, so that it doesn't
+     disrupt reading from the sync pipe. */
   action.sa_handler = report_counts_siginfo;
   action.sa_flags = SA_RESTART;
   sigemptyset(&action.sa_mask);
@@ -2218,10 +2228,8 @@ capture_cleanup(DWORD ctrltype _U_)
      and quit, just as we handle SIGINT, SIGHUP, and SIGTERM in that
      way on UNIX.
 
-     However, as handlers run in a new thread, we can't just longjmp
-     out; we have to set "ld.go" to FALSE, and must return TRUE so that
-     no other handler - such as one that would terminate the process -
-     gets called.
+     We must return TRUE so that no other handler - such as one that would
+     terminate the process - gets called.
 
      XXX - for some reason, typing ^C to TShark, if you run this in
      a Cygwin console window in at least some versions of Cygwin,
@@ -2247,6 +2255,10 @@ capture_cleanup(int signum _U_)
 {
   /* tell the capture child to stop */
   sync_pipe_stop(&global_capture_opts);
+
+  /* don't stop our own loop already here, otherwise status messages and
+   * cleanup wouldn't be done properly. The child will indicate the stop of
+   * everything by calling capture_input_closed() later */
 }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
