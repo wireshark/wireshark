@@ -198,6 +198,7 @@ static int hf_pgm_opt_type = -1;
 static int hf_pgm_opt_len = -1;
 static int hf_pgm_opt_tlen = -1;
 
+static int hf_pgm_genopt_end = -1;
 static int hf_pgm_genopt_type = -1;
 static int hf_pgm_genopt_len = -1;
 static int hf_pgm_genopt_opx = -1;
@@ -421,6 +422,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_join);
 			ptvcursor_set_tree(cursor, opt_tree);
 
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 
 			if (genopts_len < PGM_OPT_JOIN_SIZE) {
@@ -443,7 +445,9 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_parityprm);
 			ptvcursor_set_tree(cursor, opt_tree);
 
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
+
 			
 			if (genopts_len < PGM_OPT_PARITY_PRM_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, ptvcursor_tvbuff(cursor),
@@ -468,6 +472,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_paritygrp);
 			ptvcursor_set_tree(cursor, opt_tree);
 
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 
 			if (genopts_len < PGM_OPT_PARITY_GRP_SIZE) {
@@ -494,6 +499,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_naklist);
 			ptvcursor_set_tree(cursor, opt_tree);
 
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 			
 			optdata_len = tvb_get_guint8(tvb, ptvcursor_current_offset(cursor));
@@ -552,6 +558,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_ccdata);
 			ptvcursor_set_tree(cursor, opt_tree);
 
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 
 			if (genopts_len < PGM_OPT_PGMCC_DATA_SIZE) {
@@ -566,8 +573,8 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			ptvcursor_add(cursor, hf_pgm_opt_ccdata_res, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_opt_ccdata_tsp, 4, FALSE);
 			optdata_afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ptvcursor_add(cursor, hf_pgm_opt_ccdata_afi, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_ccdata_res2, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_ccdata_afi, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_ccdata_res2, 2, FALSE);
 
 			switch (optdata_afi) {
 
@@ -593,6 +600,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_ccdata);
 			ptvcursor_set_tree(cursor, opt_tree);
 
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 
 			if (genopts_len < PGM_OPT_PGMCC_FEEDBACK_SIZE) {
@@ -632,6 +640,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_nak_bo_ivl);
 			ptvcursor_set_tree(cursor, opt_tree);
 
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 
 			if (genopts_len < PGM_OPT_NAK_BO_IVL_SIZE) {
@@ -644,8 +653,8 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_ivl_res, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_ivl_bo_ivl, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_ivl_bo_ivl_sqn, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_ivl_bo_ivl, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_ivl_bo_ivl_sqn, 4, FALSE);
 
 			break;
 		}
@@ -653,6 +662,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_nak_bo_rng);
 			ptvcursor_set_tree(cursor, opt_tree);
 
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 
 			if (genopts_len < PGM_OPT_NAK_BO_RNG_SIZE) {
@@ -676,6 +686,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_redirect);
 			ptvcursor_set_tree(cursor, opt_tree);
 
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 
 			if (genopts_len < PGM_OPT_REDIRECT_SIZE) {
@@ -689,8 +700,8 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_opt_redirect_res, 1, FALSE);
 			optdata_afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ptvcursor_add(cursor, hf_pgm_opt_redirect_afi, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_redirect_res2, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_redirect_afi, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_redirect_res2, 2, FALSE);
 
 			switch (optdata_afi) {
 
@@ -714,6 +725,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_fragment);
 			ptvcursor_set_tree(cursor, opt_tree);
 
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 
 			if (genopts_len < PGM_OPT_FRAGMENT_SIZE) {
@@ -1235,9 +1247,12 @@ proto_register_pgm(void)
     { &hf_pgm_opt_tlen,
       { "Total Length", "pgm.opts.tlen", FT_UINT16, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
+    { &hf_pgm_genopt_end,
+      { "Option end", "pgm.genopts.end", FT_BOOLEAN, 8,
+          TFS(&tfs_yes_no), 0x80, NULL, HFILL }},
     { &hf_pgm_genopt_type,
       { "Type", "pgm.genopts.type", FT_UINT8, BASE_HEX,
-          VALS(opt_vals), 0x0, NULL, HFILL }},
+          VALS(opt_vals), 0x7f, NULL, HFILL }},
     { &hf_pgm_genopt_len,
       { "Length", "pgm.genopts.len", FT_UINT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
