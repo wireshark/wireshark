@@ -652,7 +652,7 @@ static void ph_logging_handler(const gchar *domain _U_, GLogLevelFlags level, co
 			type = "OTHER";
 	}
 
-	file = fopen(ph_log_path, "a+");
+	file = ws_fopen(ph_log_path, "a+");
 
 	if(file)
 	{
