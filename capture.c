@@ -399,6 +399,7 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
     /* increase the capture file packet counter by the number of incoming packets */
     cf_set_packet_count(capture_opts->cf,
         cf_get_packet_count(capture_opts->cf) + to_read);
+    cf_fake_continue_tail(capture_opts->cf);
 
     capture_callback_invoke(capture_cb_capture_fixed_continue, capture_opts);
   }

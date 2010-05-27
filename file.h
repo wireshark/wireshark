@@ -103,7 +103,7 @@ void cf_reload(capture_file *cf);
 
 /**
  * Read all packets of a capture file into the internal structures.
- * 
+ *
  * @param cf the capture file to be read
  * @param from_save reread asked from cf_save
  * @return one of cf_read_status_t
@@ -120,7 +120,7 @@ gboolean cf_read_frame(capture_file *cf, frame_data *fdata,
 /**
  * Start reading from the end of a capture file.
  * This is used in "Update list of packets in Real-Time".
- * 
+ *
  * @param cf the capture file to be read from
  * @param fname the filename to be read from
  * @param is_tempfile is this a temporary file?
@@ -131,7 +131,7 @@ cf_status_t cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempf
 
 /**
  * Read packets from the "end" of a capture file.
- * 
+ *
  * @param cf the capture file to be read from
  * @param to_read the number of packets to read
  * @param err the error code, if an error had occured
@@ -140,8 +140,15 @@ cf_status_t cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempf
 cf_read_status_t cf_continue_tail(capture_file *cf, volatile int to_read, int *err);
 
 /**
+ * Fake reading packets from the "end" of a capture file.
+ *
+ * @param cf the capture file to be read from
+ */
+void cf_fake_continue_tail(capture_file *cf);
+
+/**
  * Finish reading from "end" of a capture file.
- * 
+ *
  * @param cf the capture file to be read from
  * @param err the error code, if an error had occured
  * @return one of cf_read_status_t
@@ -151,7 +158,7 @@ cf_read_status_t cf_finish_tail(capture_file *cf, int *err);
 /**
  * Determine whether this capture file (or a range of it) can be saved
  * (except by copying the raw file data).
- * 
+ *
  * @param cf the capture file to check
  * @return TRUE if it can be saved, FALSE if it can't
  */
@@ -159,7 +166,7 @@ gboolean cf_can_save_as(capture_file *cf);
 
 /**
  * Save a capture file (or a range of it).
- * 
+ *
  * @param cf the capture file to save to
  * @param fname the filename to save to
  * @param range the range of packets to save
@@ -171,7 +178,7 @@ cf_status_t cf_save(capture_file * cf, const char *fname, packet_range_t *range,
 
 /**
  * Get a displayable name of the capture file.
- * 
+ *
  * @param cf the capture file
  * @return the displayable name (don't have to be g_free'd)
  */
@@ -197,7 +204,7 @@ const gchar *cf_get_tempfile_source(capture_file *cf);
 
 /**
  * Get the number of packets in the capture file.
- * 
+ *
  * @param cf the capture file
  * @return the number of packets in the capture file
  */
@@ -205,7 +212,7 @@ int cf_get_packet_count(capture_file *cf);
 
 /**
  * Set the number of packets in the capture file.
- * 
+ *
  * @param cf the capture file
  * @param the number of packets in the capture file
  */
@@ -213,7 +220,7 @@ void cf_set_packet_count(capture_file *cf, int packet_count);
 
 /**
  * Is this capture file a temporary file?
- * 
+ *
  * @param cf the capture file
  * @return TRUE if it's a temporary file, FALSE otherwise
  */
@@ -226,7 +233,7 @@ void cf_set_tempfile(capture_file *cf, gboolean is_tempfile);
 
 /**
  * Set flag, if the number of packet drops while capturing are known or not.
- * 
+ *
  * @param cf the capture file
  * @param drops_known TRUE if the number of packet drops are known, FALSE otherwise
  */
@@ -234,7 +241,7 @@ void cf_set_drops_known(capture_file *cf, gboolean drops_known);
 
 /**
  * Set the number of packet drops while capturing.
- * 
+ *
  * @param cf the capture file
  * @param drops the number of packet drops occured while capturing
  */
@@ -242,7 +249,7 @@ void cf_set_drops(capture_file *cf, guint32 drops);
 
 /**
  * Get flag state, if the number of packet drops while capturing are known or not.
- * 
+ *
  * @param cf the capture file
  * @return TRUE if the number of packet drops are known, FALSE otherwise
  */
@@ -250,7 +257,7 @@ gboolean cf_get_drops_known(capture_file *cf);
 
 /**
  * Get the number of packet drops while capturing.
- * 
+ *
  * @param cf the capture file
  * @return the number of packet drops occured while capturing
  */
@@ -259,7 +266,7 @@ guint32 cf_get_drops(capture_file *cf);
 /**
  * Set the read filter.
  * @todo this shouldn't be required, remove it somehow
- * 
+ *
  * @param cf the capture file
  * @param rfcode the readfilter
  */
@@ -267,7 +274,7 @@ void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode);
 
 /**
  * "Display Filter" packets in the capture file.
- * 
+ *
  * @param cf the capture file
  * @param dfilter the display filter
  * @param force TRUE if do in any case, FALSE only if dfilter changed
@@ -277,7 +284,7 @@ cf_status_t cf_filter_packets(capture_file *cf, gchar *dfilter, gboolean force);
 
 /**
  * At least one "Refence Time" flag has changed, rescan all packets.
- * 
+ *
  * @param cf the capture file
  */
 void cf_reftime_packets(capture_file *cf);
@@ -289,21 +296,21 @@ gulong cf_get_computed_elapsed(void);
 
 /**
  * The coloring rules have changed, redo coloring
- * 
+ *
  * @param cf the capture file
  */
 void cf_colorize_packets(capture_file *cf);
 
 /**
  * "Something" has changed, rescan all packets.
- * 
+ *
  * @param cf the capture file
  */
 void cf_redissect_packets(capture_file *cf);
 
 /**
  * Rescan all packets and just run taps - don't reconstruct the display.
- * 
+ *
  * @param cf the capture file
  * @return one of cf_read_status_t
  */
@@ -311,21 +318,21 @@ cf_read_status_t cf_retap_packets(capture_file *cf);
 
 /**
  * The time format has changed, rescan all packets.
- * 
+ *
  * @param cf the capture file
  */
 void cf_change_time_formats(capture_file *cf);
 
 /**
  * Adjust timestamp precision if auto is selected.
- * 
+ *
  * @param cf the capture file
  */
 void cf_timestamp_auto_precision(capture_file *cf);
 
 /**
  * Print the capture file.
- * 
+ *
  * @param cf the capture file
  * @param print_args the arguments what and how to print
  * @return one of cf_print_status_t
@@ -334,7 +341,7 @@ cf_print_status_t cf_print_packets(capture_file *cf, print_args_t *print_args);
 
 /**
  * Print (export) the capture file into PDML format.
- * 
+ *
  * @param cf the capture file
  * @param print_args the arguments what and how to export
  * @return one of cf_print_status_t
@@ -343,7 +350,7 @@ cf_print_status_t cf_write_pdml_packets(capture_file *cf, print_args_t *print_ar
 
 /**
  * Print (export) the capture file into PSML format.
- * 
+ *
  * @param cf the capture file
  * @param print_args the arguments what and how to export
  * @return one of cf_print_status_t
@@ -370,7 +377,7 @@ cf_print_status_t cf_write_carrays_packets(capture_file *cf, print_args_t *print
 
 /**
  * Find Packet in protocol tree.
- * 
+ *
  * @param cf the capture file
  * @param string the string to find
  * @return TRUE if a packet was found, FALSE otherwise
@@ -379,7 +386,7 @@ gboolean cf_find_packet_protocol_tree(capture_file *cf, const char *string);
 
 /**
  * Find Packet in summary line.
- * 
+ *
  * @param cf the capture file
  * @param string the string to find
  * @return TRUE if a packet was found, FALSE otherwise
@@ -388,7 +395,7 @@ gboolean cf_find_packet_summary_line(capture_file *cf, const char *string);
 
 /**
  * Find Packet in packet data.
- * 
+ *
  * @param cf the capture file
  * @param string the string to find
  * @param string_size the size of the string to find
@@ -399,7 +406,7 @@ gboolean cf_find_packet_data(capture_file *cf, const guint8 *string,
 
 /**
  * Find Packet by display filter.
- * 
+ *
  * @param cf the capture file
  * @param sfcode the display filter to find a packet for
  * @return TRUE if a packet was found, FALSE otherwise
@@ -408,7 +415,7 @@ gboolean cf_find_packet_dfilter(capture_file *cf, dfilter_t *sfcode);
 
 /**
  * GoTo Packet in first row.
- * 
+ *
  * @param cf the capture file
  * @return TRUE if the first row exists, FALSE otherwise
  */
@@ -416,7 +423,7 @@ gboolean cf_goto_top_frame(capture_file *cf);
 
 /**
  * GoTo Packet in last row.
- * 
+ *
  * @param cf the capture file
  * @return TRUE if last row exists, FALSE otherwise
  */
@@ -424,7 +431,7 @@ gboolean cf_goto_bottom_frame(capture_file *cf);
 
 /**
  * GoTo Packet with the given row.
- * 
+ *
  * @param cf the capture file
  * @param row the row to go to
  * @return TRUE if this row exists, FALSE otherwise

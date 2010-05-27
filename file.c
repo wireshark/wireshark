@@ -904,6 +904,11 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
     return CF_READ_OK;
 }
 
+void
+cf_fake_continue_tail(capture_file *cf) {
+  cf->state = FILE_READ_DONE;
+}
+
 cf_read_status_t
 cf_finish_tail(capture_file *cf, int *err)
 {
