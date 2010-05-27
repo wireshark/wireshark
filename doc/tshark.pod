@@ -136,16 +136,19 @@ Specify a criterion that specifies when B<TShark> is to stop writing
 to a capture file.  The criterion is of the form I<test>B<:>I<value>,
 where I<test> is one of:
 
-B<duration>:I<value> Stop writing to a capture file after I<value> seconds have elapsed.
+B<duration>:I<value> Stop writing to a capture file after I<value> seconds
+have elapsed.
 
-B<filesize>:I<value> Stop writing to a capture file after it reaches a size of I<value>
-kilobytes (where a kilobyte is 1024 bytes). If this option
-is used together with the -b option, B<TShark> will stop writing to the
-current capture file and switch to the next one if filesize is reached. When reading a capture file,
-B<TShark> will stop reading the file after the number of bytes read exceeds this number
-(the complete packet will be read, so more bytes than this number may be read).
+B<filesize>:I<value> Stop writing to a capture file after it reaches a size of
+I<value> kilobytes (where a kilobyte is 1024 bytes). If this option is used
+together with the -b option, B<TShark> will stop writing to the current
+capture file and switch to the next one if filesize is reached. When reading a
+capture file, B<TShark> will stop reading the file after the number of bytes
+read exceeds this number (the complete packet will be read, so more bytes than
+this number may be read).
 
-B<files>:I<value> Stop writing to capture files after I<value> number of files were written.
+B<files>:I<value> Stop writing to capture files after I<value> number of files
+were written.
 
 =item -b  E<lt>capture ring buffer optionE<gt>
 
@@ -174,10 +177,16 @@ B<filesize>:I<value> switch to the next file after it reaches a size of
 I<value> kilobytes (where a kilobyte is 1024 bytes).
 
 B<files>:I<value> begin again with the first file after I<value> number of
-files were written (form a ring buffer).  This option requires either
-B<duration> or B<filesize> to be specified to control when to go to the next
-file.  It should be noted that each B<-b> parameter takes exactly one criterion;
-to specify two criterion, each must be preceded by the B<-b> option.
+files were written (form a ring buffer).  This value must be less than 100000.
+Caution should be used when using large numbers of files: some filesystems do
+not handle many files in a single directory well.  The B<files> criterion
+requires either B<duration> or B<filesize> to be specified to control when to
+go to the next file.  It should be noted that each B<-b> parameter takes exactly
+one criterion; to specify two criterion, each must be preceded by the B<-b>
+option.
+
+Example: B<-b filesize:1024 -b files:5> results in a ring buffer of five files
+of size one megabyte.
 
 =item -B  E<lt>capture buffer sizeE<gt>
 
@@ -695,7 +704,7 @@ This option can be used multiple times on the command line.
 =item B<-z> diameter,avp[,I<cmd.code>,I<field>,I<field>,I<...>]
 
 This option enables extraction of most important diameter fields from large capture files.
-Exactly one text line for each diameter message with matched B<diameter.cmd.code> will be printed. 
+Exactly one text line for each diameter message with matched B<diameter.cmd.code> will be printed.
 
 Empty diameter command code or '*' can be specified to mach any B<diameter.cmd.code>
 
@@ -707,7 +716,7 @@ Example: B<-z diameter,avp,272>  extract default field set from diameter CC mess
 
 Extract most important fields from diameter CC messages:
 
-B<tshark -r file.cap.gz -q -z diameter,avp,272,CC-Request-Type,CC-Request-Number,Session-Id,Subscription-Id-Data,Rating-Group,Result-Code> 
+B<tshark -r file.cap.gz -q -z diameter,avp,272,CC-Request-Type,CC-Request-Number,Session-Id,Subscription-Id-Data,Rating-Group,Result-Code>
 
 Following fields will be printed out for each diameter message:
 
@@ -1108,7 +1117,7 @@ when a dissector bug is encountered.  abort(3) will cause the program to
 exit abnormally; if you are running B<TShark> in a debugger, it
 should halt in the debugger and allow inspection of the process, and, if
 you are not running it in a debugger, it will, on some OSes, assuming
-your environment is configured correctly, generate a core dump file. 
+your environment is configured correctly, generate a core dump file.
 This can be useful to developers attempting to troubleshoot a problem
 with a protocol dissector.
 
