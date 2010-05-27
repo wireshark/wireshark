@@ -304,6 +304,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 
 /* capture related options */
 static capture_options global_capture_opts;
+static gboolean quiet;
 
 static void capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
   const u_char *pd);
@@ -1048,7 +1049,7 @@ report_counts(void)
 {
   /* Don't print this if we're a capture child. */
   if (!capture_child) {
-    if (global_capture_opts.quiet) {
+    if (quiet) {
       /* Report the count only if we aren't printing a packet count
          as packets arrive. */
       fprintf(stderr, "%u packet%s captured\n", global_ld.packet_count,
@@ -2665,7 +2666,7 @@ do_file_switch_or_stop(capture_options *capture_opts,
       if(cnd_file_duration)
         cnd_reset(cnd_file_duration);
       libpcap_dump_flush(global_ld.pdh, NULL);
-      if (!capture_opts->quiet)
+      if (!quiet)
         report_packet_count(global_ld.inpkts_to_sync_pipe);
       global_ld.inpkts_to_sync_pipe = 0;
       report_new_capture_file(capture_opts->save_file);
@@ -2882,7 +2883,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
         /* Send our parent a message saying we've written out
            "global_ld.inpkts_to_sync_pipe" packets to the capture file. */
-        if (!capture_opts->quiet)
+        if (!quiet)
           report_packet_count(global_ld.inpkts_to_sync_pipe);
 
         global_ld.inpkts_to_sync_pipe = 0;
@@ -2969,7 +2970,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   /* there might be packets not yet notified to the parent */
   /* (do this after closing the file, so all packets are already flushed) */
   if(global_ld.inpkts_to_sync_pipe) {
-    if (!capture_opts->quiet)
+    if (!quiet)
       report_packet_count(global_ld.inpkts_to_sync_pipe);
     global_ld.inpkts_to_sync_pipe = 0;
   }
@@ -3489,7 +3490,6 @@ main(int argc, char *argv[])
       case 'i':        /* Use interface x */
       case 'n':        /* Use pcapng format */
       case 'p':        /* Don't capture in promiscuous mode */
-      case 'q':        /* Don't print (or report) packet counts */
       case 's':        /* Set the snapshot (capture) length */
       case 'w':        /* Write to capture file x */
       case 'y':        /* Set the pcap data link type */
@@ -3535,6 +3535,10 @@ main(int argc, char *argv[])
           }
         }
 #endif
+        break;
+
+      case 'q':        /* Quiet */
+        quiet = TRUE;
         break;
 
       /*** all non capture option specific ***/

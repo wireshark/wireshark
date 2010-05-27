@@ -762,6 +762,7 @@ main(int argc, char *argv[])
 #else
   gboolean             capture_option_specified = FALSE;
 #endif
+  gboolean             quiet = FALSE;
   int                  out_file_type = WTAP_FILE_PCAP;
   gchar               *cf_name = NULL, *rfilter = NULL;
 #ifdef HAVE_PCAP_OPEN_DEAD
@@ -1017,7 +1018,6 @@ main(int argc, char *argv[])
 #ifdef HAVE_PCAP_CREATE
       case 'I':        /* Capture in monitor mode, if available */
 #endif
-      case 'q':        /* Don't print packet counts */
       case 's':        /* Set the snapshot (capture) length */
       case 'w':        /* Write to capture file x */
       case 'y':        /* Set the pcap data link type */
@@ -1153,6 +1153,9 @@ main(int argc, char *argv[])
           exit(1);
           break;
         }
+        break;
+      case 'q':        /* Quiet */
+        quiet = TRUE;
         break;
       case 'r':        /* Read capture file x */
         cf_name = g_strdup(optarg);
@@ -1320,7 +1323,7 @@ main(int argc, char *argv[])
   if (!global_capture_opts.saving_to_file) {
     /* We're not saving the capture to a file; if "-q" wasn't specified,
        we should print packet information */
-    if (!global_capture_opts.quiet)
+    if (!quiet)
       print_packet_info = TRUE;
   } else {
     /* We're saving to a file; if we're writing to the standard output.
@@ -1337,7 +1340,7 @@ main(int argc, char *argv[])
 #else
   /* We're not saving the capture to a file; if "-q" wasn't specified,
      we should print packet information */
-  if (!global_capture_opts.quiet)
+  if (!quiet)
     print_packet_info = TRUE;
 #endif
 
@@ -1663,7 +1666,7 @@ main(int argc, char *argv[])
         show_print_file_io_error(err);
         return err;
       }
-    } else if (!global_capture_opts.quiet) {
+    } else if (!quiet) {
       /*
        * We're not printing information for each packet, and the user
        * didn't ask us not to print a count of packets as they arrive,
