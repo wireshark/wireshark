@@ -113,7 +113,7 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
 #endif
   current_time = time(NULL);
 
-  g_snprintf(filenum, sizeof(filenum), "%05u", (rb_data.curr_file_num + 1) % 100000);
+  g_snprintf(filenum, sizeof(filenum), "%05u", (rb_data.curr_file_num + 1) % RINGBUFFER_MAX_NUM_FILES);
   strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
   rfile->name = g_strconcat(rb_data.fprefix, "_", filenum, "_", timestr,
 			    rb_data.fsuffix, NULL);

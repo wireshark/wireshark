@@ -30,11 +30,13 @@
 #include "wiretap/wtap.h"
 
 #define RINGBUFFER_UNLIMITED_FILES 0
-/* minimum number of ringbuffer files */
+/* Minimum number of ringbuffer files */
 #define RINGBUFFER_MIN_NUM_FILES 0
-/* maximum number of ringbuffer files */
-/* (only to avoid crashes on very large numbers) */
-#define RINGBUFFER_MAX_NUM_FILES 10000
+/* Maximum number of ringbuffer files */
+/* Avoid crashes on very large numbers. Should be a power of 10 */
+#define RINGBUFFER_MAX_NUM_FILES 100000
+/* Maximum number for FAT filesystems */
+#define RINGBUFFER_WARN_NUM_FILES 65535
 
 int ringbuf_init(const char *capture_name, guint num_files);
 const gchar *ringbuf_current_filename(void);

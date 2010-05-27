@@ -604,10 +604,15 @@ void capture_opts_trim_snaplen(capture_options *capture_opts, int snaplen_min)
 void capture_opts_trim_ring_num_files(capture_options *capture_opts)
 {
   /* Check the value range of the ring_num_files parameter */
-  if (capture_opts->ring_num_files > RINGBUFFER_MAX_NUM_FILES)
+  if (capture_opts->ring_num_files > RINGBUFFER_MAX_NUM_FILES) {
+    cmdarg_err("Too many ring buffer files (%u). Reducing to %u.\n", capture_opts->ring_num_files, RINGBUFFER_MAX_NUM_FILES);
     capture_opts->ring_num_files = RINGBUFFER_MAX_NUM_FILES;
+  } else if (capture_opts->ring_num_files > RINGBUFFER_WARN_NUM_FILES) {
+    cmdarg_err("%u is a lot of ring buffer files.\n", capture_opts->ring_num_files);
+  }
 #if RINGBUFFER_MIN_NUM_FILES > 0
   else if (capture_opts->ring_num_files < RINGBUFFER_MIN_NUM_FILES)
+    cmdarg_err("Too few ring buffer files (%u). Increasing to %u.\n", capture_opts->ring_num_files, RINGBUFFER_MIN_NUM_FILES);
     capture_opts->ring_num_files = RINGBUFFER_MIN_NUM_FILES;
 #endif
 }
