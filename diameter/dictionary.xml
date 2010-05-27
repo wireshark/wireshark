@@ -1519,7 +1519,7 @@ http://www.iana.org/assignments/radius-types
 				<gavp name="Experimental-Result-Code"/>
 			</grouped>
 		</avp>
-		<!-- 3GPP TS 29.230 version 6.5.0 Release 6, ETSI TS 129 230 V6.5.0 (2005-09) -->
+		<!-- 3GPP TS 29.230 version 9.2.0 Release 9, ETSI TS 129 230 V9.2.0 (2010-04) -->
 		<avp name="Experimental-Result-Code" code="298" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 			<enum name="DIAMETER_FIRST_REGISTRATION" code="2001"/>
@@ -1527,10 +1527,19 @@ http://www.iana.org/assignments/radius-types
 			<enum name="DIAMETER_UNREGISTERED_SERVICE" code="2003"/>
 			<enum name="DIAMETER_SUCCESS_SERVER_NAME_NOT_STORED" code="2004"/>
 			<enum name="DIAMETER_SERVER_SELECTION(Deprecated value)" code="2005"/>
+			<enum name="DIAMETER_PDP_CONTEXT_DELETION_INDICATION" code="2021"/>
 			<enum name="DIAMETER_USER_DATA_NOT_AVAILABLE" code="4100"/>
 			<enum name="DIAMETER_PRIOR_UPDATE_IN_PROGRESS" code="4101"/>
 			<enum name="DIAMETER_ERROR_OUT_OF_RESOURCES" code="4121"/>
 			<enum name="DIAMETER_PCC_BEARER_EVENT" code="4141"/>
+			<enum name="DIAMETER_AUTHENTICATION_DATA_UNAVAILABLE" code="4181"/>
+			<enum name="DIAMETER_ERROR_ABSENT_USER" code="4201"/>
+			<enum name="DIAMETER_ERROR_UNREACHABLE_USER" code="4221"/>
+			<enum name="DIAMETER_ERROR_SUSPENDED_USER" code="4222"/>
+			<enum name="DIAMETER_ERROR_DETACHED_USER" code="4223"/>
+			<enum name="DIAMETER_ERROR_POSITIONING_DENIED" code="4224"/>
+			<enum name="DIAMETER_ERROR_POSITIONING_FAILED" code="4225"/>
+			<enum name="DIAMETER_ERROR_UNKNOWN_UNREACHABLE LCS_CLIENT" code="4226"/>
 			<enum name="DIAMETER_ERROR_USER_UNKNOWN" code="5001"/>
 			<enum name="DIAMETER_ERROR_IDENTITIES_DONT_MATCH" code="5002"/>
 			<enum name="DIAMETER_ERROR_IDENTITY_NOT_REGISTERED" code="5003"/>
@@ -1546,12 +1555,22 @@ http://www.iana.org/assignments/radius-types
 			<enum name="DIAMETER_ERROR_W-APN_UNUSED_BY_USER" code="5042"/>
 			<enum name="DIAMETER_ERROR_W-DIAMETER_ERROR_NO_ACCESS_INDEPENDENT_SUBSCRIPTION" code="5043"/>
 			<enum name="DIAMETER_ERROR_USER_NO_W-APN_SUBSCRIPTION" code="5044"/>
+			<enum name="DIAMETER_ERROR_UNSUITABLE_NETWORK" code="5045"/>
+			<enum name="INVALID_SERVICE_INFORMATION" code="5061"/>
+			<enum name="FILTER_RESTRICTIONS" code="5062"/>
+			<enum name="REQUESTED_SERVICE_NOT_AUTHORIZED" code="5063"/>
+			<enum name="DUPLICATED_AF_SESSION" code="5064"/>
+			<enum name="IP-CAN_SESSION_NOT_AVAILABLE" code="5065"/>
+			<enum name="UNAUTHORIZED_NON_EMERGENCY_SESSION" code="5066"/>
 			<enum name="DIAMETER_ERROR_USER_DATA_NOT_RECOGNIZED" code="5100"/>
 			<enum name="DIAMETER_ERROR_OPERATION_NOT_ALLOWED" code="5101"/>
 			<enum name="DIAMETER_ERROR_USER_DATA_CANNOT_BE_READ" code="5102"/>
 			<enum name="DIAMETER_ERROR_USER_DATA_CANNOT_BE_MODIFIED" code="5103"/>
 			<enum name="DIAMETER_ERROR_USER_DATA_CANNOT_BE_NOTIFIED" code="5104"/>
 			<enum name="DIAMETER_ERROR_TRANSPARENT_DATA_OUT_OF_SYNC" code="5105"/>
+			<enum name="DIAMETER_ERROR_SUBS_DATA_ABSENT" code="5106"/>
+			<enum name="DIAMETER_ERROR_NO_SUBSCRIPTION_TO_DATA" code="5107"/>
+			<enum name="DIAMETER_ERROR_DSAI_NOT_AVAILABLE" code="5108"/>
 			<enum name="DIAMETER_ERROR_START_INDICATION" code="5120"/>
 			<enum name="DIAMETER_ERROR_STOP_INDICATION" code="5121"/>
 			<enum name="DIAMETER_ERROR_UNKNOWN_MBMS_BEARER_SERVICE" code="5122"/>
@@ -1564,6 +1583,18 @@ http://www.iana.org/assignments/radius-types
 			<enum name="DIAMETER_QOS_RULE_EVENT" code="5145"/>
 			<enum name="DIAMETER_ERROR_TRAFFIC_MAPPING_INFO_REJECTED" code="5146"/>
 			<enum name="DIAMETER_ERROR_CONFLICTING_REQUEST" code="5147"/>
+			<enum name="DIAMETER_ERROR_IMPI_UNKNOWN" code="5401"/>
+			<enum name="DIAMETER_ERROR_NOT_AUTHORIZED" code="5402"/>
+			<enum name="DIAMETER_ERROR_TRANSACTION_IDENTIFIER_INVALID" code="5403"/>
+			<enum name="DIAMETER_ERROR_UNKNOWN_EPS_SUBSCRIPTION" code="5420"/>
+			<enum name="DIAMETER_ERROR_RAT_NOT_ALLOWED" code="5421"/>
+			<enum name="DIAMETER_ERROR_EQUIPMENT_UNKNOWN" code="5422"/>
+			<enum name="DIAMETER_ERROR_UNKNOWN_SERVING_NODE" code="5423"/>
+			<enum name="DIAMETER_ERROR_USER_NO_NON_3GPP_SUBSCRIPTION" code="5450"/>
+			<enum name="DIAMETER_ERROR_USER_NO_APN_SUBSCRIPTION" code="5451"/>
+			<enum name="DIAMETER_ERROR_RAT_TYPE_NOT_ALLOWED" code="5452"/>
+			<enum name="DIAMETER_ERROR_SUBSESSION" code="5470"/>
+			<enum name="DIAMETER_ERROR_UNAUTHORIZED_REQUESTING_NETWORK" code="5490"/>
 		</avp>
 		<!-- RFC3588 AVP -->
 		<avp name="Inband-Security-Id" code="299" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
