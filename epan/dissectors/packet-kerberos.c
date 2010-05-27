@@ -492,14 +492,14 @@ printf("read keytab file %s\n", filename);
     /* should use a file in the wireshark users dir */
     ret = krb5_kt_resolve(krb5_ctx, filename, &keytab);
     if(ret){
-        fprintf(stderr, "KERBEROS ERROR: Could not open keytab file :%s\n",filename);
+        fprintf(stderr, "KERBEROS ERROR: Badly formatted keytab filename :%s\n",filename);
 
         return;
     }
 
     ret = krb5_kt_start_seq_get(krb5_ctx, keytab, &cursor);
     if(ret){
-        fprintf(stderr, "KERBEROS ERROR: Could not read from keytab file :%s\n",filename);
+        fprintf(stderr, "KERBEROS ERROR: Could not open or could not read from keytab file :%s\n",filename);
         return;
     }
 
