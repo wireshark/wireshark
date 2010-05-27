@@ -22,10 +22,7 @@
 #
 
 if (HAVE_LIBLUA)
-	add_subdirectory( wslua )
-	set(WSLUA_LIB wslua)
-else()
-	set(WSLUA_LIB )
+	include( wslua/CMakeLists.txt )
 endif()
 if (HAVE_LIBPYTHON)
 	add_subdirectory( wspython )
@@ -41,10 +38,10 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/dfilter
 	${CMAKE_CURRENT_SOURCE_DIR}/dissectors
 	${CMAKE_CURRENT_SOURCE_DIR}/ftypes
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua
 )
 
 link_directories(
-	wslua
 	wspython
 )
 
@@ -1250,6 +1247,7 @@ set(epan_LIBS
 	${GNUTLS_LIBRARIES}
 	${SMI_LIBRARIES}
 	${M_LIBRARIES}
+	${LUA_LIBRARIES}
 )
 
 set(CLEAN_FILES
@@ -1269,6 +1267,7 @@ set(CLEAN_FILES
 	# ${DISSECTOR_FILES } end
 	${DISSECTOR_SUPPORT_SRC}
 	${LIBWIRESHARK_ASM_FILES}
+	${WSLUA_FILES}
 )
 
 if (WERROR)
@@ -1288,6 +1287,7 @@ add_library(epan ${LINK_MODE_LIB}
 	${CRYPT_FILES}
 	${DFILTER_FILES}
 	${FTYPE_FILES}
+	${WSLUA_FILES}
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
 	${LIBWIRESHARK_ASM_FILES}
@@ -1299,7 +1299,6 @@ set_target_properties(epan PROPERTIES LINK_FLAGS ${WS_LINK_FLAGS})
 SET_TARGET_PROPERTIES(epan PROPERTIES OUTPUT_NAME "wireshark")
 
 target_link_libraries(epan
-	${WSLUA_LIB}
 	${WSPYTHON_LIB}
 )
 
