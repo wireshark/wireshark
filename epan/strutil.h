@@ -244,4 +244,15 @@ gchar* ws_strdup_escape_underscore (const gchar *str);
  */
 gchar* ws_strdup_unescape_underscore (const gchar *str);
 
+/** Replace values in a string
+ *
+ * @param str String containing 0 or more values to be replaced.
+ * @param old_val Old value.
+ * @param new_val New value. May be NULL, in which case occurences of
+ *                           old_value will be removed.
+ * @return A newly-allocated version of str with replacement values or
+ * NULL on failure.
+ */
+gchar *string_replace(const gchar* str, const gchar *old_val, const gchar *new_val);
+
 #endif /* __STRUTIL_H__ */

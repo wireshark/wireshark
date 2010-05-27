@@ -94,6 +94,7 @@
 #include "gtk/uat_gui.h"
 #include "gtk/gui_utils.h"
 #include "gtk/manual_addr_resolv.h"
+#include "gtk/proto_help.h"
 
 #ifdef NEW_PACKET_LIST
 #include "gtk/new_packet_list.h"
@@ -1140,6 +1141,7 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
                        0, "<StockItem>", WIRESHARK_STOCK_WIKI,},
     {"/Filter Field Reference", NULL, GTK_MENU_FUNC(selected_ptree_ref_cb),
                        0, "<StockItem>", WIRESHARK_STOCK_INTERNET,},
+    {"/Protocol Help", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Protocol Preferences", NULL, NULL, 0, NULL, NULL,},
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, "<StockItem>", WIRESHARK_STOCK_DECODE_AS,},
@@ -1378,9 +1380,11 @@ menus_init(void) {
     set_menus_for_capture_in_progress(FALSE);
     set_menus_for_file_set(/* dialog */TRUE, /* previous file */ FALSE, /* next_file */ FALSE);
 
-    /* init with an empty recent files list */
+    /* Init with an empty recent files list */
     clear_menu_recent_capture_file_cmd_cb(NULL, NULL);
 
+    /* Protocol help links */
+    proto_help_menu_init(tree_view_menu_factory->widget);
     }
 }
 

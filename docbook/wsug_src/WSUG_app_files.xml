@@ -527,6 +527,155 @@ c0-a8-1c-00      CEO
 	</varlistentry>
       </variablelist>
     </para>
+
+	<section id="ChProtocolHelp"><title>Protocol help configuration</title>
+	<para>
+	  Wireshark can use configuration files to create context-sensitive menu
+	  items for protocol detail items which will load help URLs in your web
+	  browser.
+	</para>
+	<para>
+	  To create a protocol help file, create a folder named "protocol_help"
+	  in either the personal or global configuration folders. Then create a
+	  text file with the extension ".ini" in the "protocol_help" folder. The
+	  file must contain key-value pairs with the following sections:
+	  <variablelist>
+	    <varlistentry>
+	      <term>[database]</term>
+	      <listitem>
+		<para>
+		  Mandatory. This contains initialization information for the
+		  help file. The following keys must be defined: 
+		  <variablelist>
+		    <varlistentry>
+		      <term>source</term>
+		      <listitem><para>Source name, e.g. "HyperGlobalMegaMart".</para></listitem>
+		    </varlistentry>
+		    <varlistentry>
+		      <term>version</term>
+		      <listitem><para>Must be "1".</para></listitem>
+		    </varlistentry>
+		    <varlistentry>
+		      <term>location</term>
+		      <listitem>
+			<para>
+			General URL for help items. Variables can be substituted using
+			the [location data] section below.
+			</para>
+		      </listitem>
+		    </varlistentry>
+		  </variablelist>
+		</para>
+	      </listitem>
+	    </varlistentry>
+
+	    <varlistentry>
+	      <term>[location data]</term>
+	      <listitem>
+		<para>
+		  Optional. Contains keys that will be used for variable
+		  substitution in the "location" value. For example, if
+		  the database section contains
+		  <programlisting>
+locatoin = http://www.example.com/proto?cookie=${cookie}&amp;path=${PATH}
+		  </programlisting>
+		  then setting
+		  <programlisting>
+cookie = anonymous-user-1138
+		  </programlisting>
+		  will result in the URL
+		  "http://www.example.com/proto?cookie=anonymous-user-1138&amp;path=${PATH}".
+		  PATH is used for help path substitution, and shouldn't be defined in this section.
+		</para>
+	      </listitem>
+	    </varlistentry>
+
+	    <varlistentry>
+	      <term>[map]</term>
+	      <listitem>
+		<para>
+		  Maps Wireshark protocol names to section names below. Each key
+		  MUST match a valid protocol name such as "ip". Each value MUST
+		  have a matching section defined in the configuration file.
+		</para>
+	      </listitem>
+	    </varlistentry>
+
+	  </variablelist>
+
+	  Each protocol section must contain an "_OVERVIEW" key which will be used
+	  as the first menu item for the help source. Subsequent keys must match
+	  descriptions in the protocol detail. Values will be used as the ${PATH}
+	  variable in the location template. If ${PATH} isn't present in the location
+	  template the value will be appended to the location.
+	</para>
+
+	<para>
+	  Suppose the file
+	  <filename>C:\Users\sam.clemens\AppData\Roaming\Wireshark\protocol_help\wikipedia.ini</filename>
+	  contains the following:
+
+	  <programlisting>
+# Wikipedia (en) protocol help file.
+
+# Help file initialization
+# source: The source of the help information, e.g. "Inacon" or "Wikipedia"
+# version: Currently unused. Must be "1".
+# url_template: Template for generated URLs. See "URL Data" below.
+[database]
+source=Wikipedia
+version=1
+url_template=http://${language}.wikipedia.org/wiki/${PATH}
+
+# Substitution data for the location template.
+# Each occurence of the keys below in the locaton template will be
+# substituted with their corresponding values. For example, "${license}"
+# in the URL template above will be replaced with the value of "license"
+# below.
+#
+# PATH is reserved for the help paths below; do not specify it here.
+[location data]
+language = en
+
+# Maps Wireshark protocol names to section names below. Each key MUST match
+# a valid protocol name. Each value MUST have a matching section below.
+[map]
+tcp=TCP
+
+# Mapped protocol sections.
+# Keys must match protocol detail items descriptions.
+[TCP]
+_OVERVIEW=Transmission_Control_Protocol
+Destination port=Transmission_Control_Protocol#TCP_ports
+Source port=Transmission_Control_Protocol#TCP_ports
+	  </programlisting>
+	  Right-clicking on a TCP protocol detail item will display a help menu
+	  item that displays the Wikipedia page for TCP. Right-clicking on the
+	  TCP destination or source ports will display additional help menu items that
+	  take you to the "TCP ports" section of the page.
+	</para>
+	
+	<para>
+	  The [location data] and ${PATH} can be omitted if they are not needed.
+	  For example, the following configuration is functionally equivalent to
+	  the previous configuration:
+	  <programlisting>
+[database]
+source=Wikipedia
+version=1
+location=http://en.wikipedia.org/wiki/
+
+[map]
+tcp=TCP
+
+[TCP]
+_OVERVIEW=Transmission_Control_Protocol
+Destination port=Transmission_Control_Protocol#TCP_ports
+Source port=Transmission_Control_Protocol#TCP_ports
+	  </programlisting>
+	</para>
+	</section>
+
 	</section>
 
 	<section id="ChWindowsFolder"><title>Windows folders</title>

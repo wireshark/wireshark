@@ -157,6 +157,7 @@
 #include "gtk/tap_dfilter_dlg.h"
 #include "gtk/prefs_column.h"
 #include "gtk/prefs_dlg.h"
+#include "gtk/proto_help.h"
 
 #ifdef HAVE_LIBPCAP
 #include "../image/wsicon16.xpm"
@@ -807,6 +808,7 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
         cf_unselect_field(&cfile);
         packet_hex_print(byte_view, byte_data,
                          cfile.current_frame, NULL, byte_len);
+        proto_help_menu_modify(sel, &cfile);
         return;
     }
     gtk_tree_model_get(model, &iter, 1, &finfo, -1);
@@ -870,6 +872,7 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
     }
     packet_hex_print(byte_view, byte_data, cfile.current_frame, finfo,
                      byte_len);
+    proto_help_menu_modify(sel, &cfile);
 }
 
 void collapse_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
@@ -2416,6 +2419,8 @@ main(int argc, char *argv[])
 		  "Could not open recent file\n\"%s\": %s.",
 		  rf_path, strerror(rf_open_errno));
   }
+
+  proto_help_init();
 
   cap_file_init(&cfile);
 

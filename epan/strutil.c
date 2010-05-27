@@ -1090,3 +1090,19 @@ ws_strdup_unescape_underscore (const gchar *str)
 
 	return new_str;
 }
+
+/* Create a newly-allocated string with replacement values. */
+gchar *string_replace(const gchar* str, const gchar *old_val, const gchar *new_val) {
+	gchar **str_parts;
+	gchar *new_str;
+
+	if (!str || !old_val) {
+		return NULL;
+	}
+	
+	str_parts = g_strsplit(str, old_val, 0);
+	new_str = g_strjoinv(new_val, str_parts);
+	g_strfreev(str_parts);
+	
+	return new_str;
+}
