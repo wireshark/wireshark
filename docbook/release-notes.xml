@@ -253,12 +253,6 @@ Wireshark Info
     </para>
 
     <para>
-      Crash when marking a packet while a capture is running.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4260">Bug
-      4260</ulink>)
-    </para>
-
-    <para>
       Crash when sorting column while capturing.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4273">Bug
       4273</ulink>)
@@ -274,12 +268,6 @@ Wireshark Info
       Summary pane selected frame highlighting not maintained.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4445">Bug
       4445</ulink>)
-    </para>
-
-    <para>
-      Delta times are wrong when "Set time reference (toggle)" is applied.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4669">Bug
-      4669</ulink>)
     </para>
 
   </section>
