@@ -7021,63 +7021,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
             seq_number);
       }
-
-#ifdef MESH_OVERRIDES
-      if (tree &&
-	  (FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T4 ||
-	   FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T2))
-      {
-        proto_item *msh_fields;
-        proto_tree *msh_tree;
-
-        guint16 mshoff;
-        guint8 mesh_flags;
-        guint8 mesh_ttl;
-        guint32 mesh_seq_number;
-        guint8 mesh_hdr_len;
-        const guint8 *ptr;
-
-        mshoff = hdr_len;
-        mesh_flags = tvb_get_guint8(tvb, mshoff + 0);
-        /* heuristic method to determine if this is a mesh frame */
-        if (mesh_flags & ~MESH_FLAGS_ADDRESS_EXTENSION) {
-#if 0
-          g_warning("Invalid mesh flags: %x.  Interpreting as WDS frame.\n",  mesh_flags);
-#endif
-          break;
-        }
-        ptr = tvb_get_ptr(tvb, mshoff, 1);
-        mesh_hdr_len = find_mesh_header_length(ptr, 0, fcf);
-        mesh_ttl = tvb_get_guint8(tvb, mshoff + 1);
-        mesh_seq_number = 0xffffff & tvb_get_letohl(tvb, mshoff + 2);
-
-        msh_fields = proto_tree_add_text(hdr_tree, tvb, mshoff, mesh_hdr_len, "Mesh Header");
-        msh_tree = proto_item_add_subtree (msh_fields, ett_msh_parameters);
-
-        proto_tree_add_boolean_format (msh_tree, hf_mesh_flags,
-              tvb, mshoff, 1, mesh_flags, "Address Extension %x", mesh_flags & MESH_FLAGS_ADDRESS_EXTENSION);
-        proto_tree_add_uint (msh_tree, hf_mesh_ttl, tvb, mshoff + 1, 1, mesh_ttl);
-        proto_tree_add_uint (msh_tree, hf_mesh_seq, tvb, mshoff + 2, 4, mesh_seq_number);
-        switch (mesh_hdr_len) {
-          case 24:
-            ptr = tvb_get_ptr (tvb, mshoff + 18, 6);
-            proto_tree_add_ether(msh_tree, hf_mesh_ae3, tvb, mshoff + 18, 6, ptr);
-          case 18:
-            ptr = tvb_get_ptr (tvb, mshoff + 12, 6);
-            proto_tree_add_ether(msh_tree, hf_mesh_ae2, tvb, mshoff + 12, 6, ptr);
-          case 12:
-            ptr = tvb_get_ptr (tvb, mshoff + 6, 6);
-            proto_tree_add_ether(msh_tree, hf_mesh_ae1, tvb, mshoff + 6, 6, ptr);
-          case 6:
-            break;
-          default:
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                "Invalid mesh header length (%d)\n",
-                mesh_hdr_len);
-        }
-        hdr_len += mesh_hdr_len;
-      }
-#endif /* MESH_OVERRIDES */
       break;
 
     case CONTROL_FRAME:
@@ -7489,6 +7432,63 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         }
 
       }
+
+#ifdef MESH_OVERRIDES
+      if (tree &&
+	  (FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T4 ||
+	   FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T2))
+      {
+        proto_item *msh_fields;
+        proto_tree *msh_tree;
+
+        guint16 mshoff;
+        guint8 mesh_flags;
+        guint8 mesh_ttl;
+        guint32 mesh_seq_number;
+        guint8 mesh_hdr_len;
+        const guint8 *ptr;
+
+        mshoff = hdr_len;
+        mesh_flags = tvb_get_guint8(tvb, mshoff + 0);
+        /* heuristic method to determine if this is a mesh frame */
+        if (mesh_flags & ~MESH_FLAGS_ADDRESS_EXTENSION) {
+#if 0
+          g_warning("Invalid mesh flags: %x.  Interpreting as WDS frame.\n",  mesh_flags);
+#endif
+          break;
+        }
+        ptr = tvb_get_ptr(tvb, mshoff, 1);
+        mesh_hdr_len = find_mesh_header_length(ptr, 0, fcf);
+        mesh_ttl = tvb_get_guint8(tvb, mshoff + 1);
+        mesh_seq_number = 0xffffff & tvb_get_letohl(tvb, mshoff + 2);
+
+        msh_fields = proto_tree_add_text(hdr_tree, tvb, mshoff, mesh_hdr_len, "Mesh Header");
+        msh_tree = proto_item_add_subtree (msh_fields, ett_msh_parameters);
+
+        proto_tree_add_boolean_format (msh_tree, hf_mesh_flags,
+              tvb, mshoff, 1, mesh_flags, "Address Extension %x", mesh_flags & MESH_FLAGS_ADDRESS_EXTENSION);
+        proto_tree_add_uint (msh_tree, hf_mesh_ttl, tvb, mshoff + 1, 1, mesh_ttl);
+        proto_tree_add_uint (msh_tree, hf_mesh_seq, tvb, mshoff + 2, 4, mesh_seq_number);
+        switch (mesh_hdr_len) {
+          case 24:
+            ptr = tvb_get_ptr (tvb, mshoff + 18, 6);
+            proto_tree_add_ether(msh_tree, hf_mesh_ae3, tvb, mshoff + 18, 6, ptr);
+          case 18:
+            ptr = tvb_get_ptr (tvb, mshoff + 12, 6);
+            proto_tree_add_ether(msh_tree, hf_mesh_ae2, tvb, mshoff + 12, 6, ptr);
+          case 12:
+            ptr = tvb_get_ptr (tvb, mshoff + 6, 6);
+            proto_tree_add_ether(msh_tree, hf_mesh_ae1, tvb, mshoff + 6, 6, ptr);
+          case 6:
+            break;
+          default:
+            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                "Invalid mesh header length (%d)\n",
+                mesh_hdr_len);
+        }
+        hdr_len += mesh_hdr_len;
+      }
+#endif /* MESH_OVERRIDES */
       break;
   }
 
