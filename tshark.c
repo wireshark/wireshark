@@ -158,7 +158,7 @@ static gboolean infodelay;	/* if TRUE, don't print capture info in SIGINFO handl
 static gboolean infoprint;	/* if TRUE, print capture info after clearing infodelay */
 #endif /* SIGINFO */
 
-static int capture(void);
+static gboolean capture(void);
 static void report_counts(void);
 #ifdef _WIN32
 static BOOL WINAPI capture_cleanup(DWORD);
@@ -1683,7 +1683,9 @@ main(int argc, char *argv[])
     /* For now, assume libpcap gives microsecond precision. */
     timestamp_set_precision(TS_PREC_AUTO_USEC);
 
-    capture();
+    if (!capture()) {
+        return 1;     /* an error occurred */
+    }
 
     if (print_packet_info) {
       if (!write_finale()) {
@@ -1828,7 +1830,7 @@ pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe
 
 
 #ifdef HAVE_LIBPCAP
-static int
+static gboolean
 capture(void)
 {
   gboolean ret;
