@@ -2394,19 +2394,19 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* 	ESM message container 9.9.3.15	M	LV-E	2-n */
 	ELEM_MAND_LV_E(NAS_PDU_TYPE_EMM, DE_EMM_ESM_MSG_CONT, "");
 	/* 50	GUTI	EPS mobile identity 9.9.3.12	O	TLV	13 */
-	ELEM_OPT_TLV(0x50, NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, "GUTI");
+	ELEM_OPT_TLV(0x50, NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, " - GUTI");
 	/* 13	Location area identification	Location area identification 9.9.2.2	O	TV	6 */
-	ELEM_OPT_TV(0x13, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_LOC_AREA_ID, "Location area identification");
+	ELEM_OPT_TV(0x13, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_LOC_AREA_ID, "");
 	/* 23	MS identity 	Mobile identity 9.9.2.3	O	TLV	7-10 */
-	ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, "MS identity");
+	ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, " - MS identity");
 	/* 53	EMM cause	EMM cause 9.9.3.9	O	TV	2 */
 	ELEM_OPT_TV(0x53, NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, "");
 	/* 17	T3402 value	GPRS timer 9.9.3.16	O	TV	2 */
-	ELEM_OPT_TV(0x17, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, "T3402 value");
+	ELEM_OPT_TV(0x17, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - T3402 value");
 	/* 59	T3423 value	GPRS timer 9.9.3.16	O	TV	2 */
-	ELEM_OPT_TV(0x59, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, "T3423 value");
+	ELEM_OPT_TV(0x59, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - T3423 value");
 	/* 4A	Equivalent PLMNs	PLMN list 9.9.2.8	O	TLV	5-47 */
-	ELEM_OPT_TLV(0x4a, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_PLM_LST, "Equivalent PLMNs");
+	ELEM_OPT_TLV(0x4a, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_PLM_LST, " - Equivalent PLMNs");
 	/* 34	Emergency Number List 9.9.3.37	O	TLV	5-50 */
 	ELEM_OPT_TLV(0x34, GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST, "");
 	/* 64	EPS network feature support	EPS network feature support 9.9.3.12A	O	TLV	3 */ 
@@ -2496,13 +2496,13 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* 50	Additional GUTI	EPS mobile identity 9.9.3.12	O	TLV	13 */
 	ELEM_OPT_TLV( 0x50 , NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, " - Additional GUTI");
 	/* 52 Last visited registered TAI	Tracking area identity 9.9.3.32	O	TV	6 */
-	ELEM_OPT_TV(0x52, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID, "Last visited registered TAI");
+	ELEM_OPT_TV(0x52, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID, " - Last visited registered TAI");
 	/* 5c DRX parameter	DRX parameter 9.9.3.8	O	TV	3 */
 	ELEM_OPT_TV(0x5c, GSM_A_PDU_TYPE_GM, DE_DRX_PARAM, "" );
 	/* 31 MS network capability	MS network capability 9.9.3.20	M	LV	3-9 */
 	ELEM_OPT_TLV( 0x31, GSM_A_PDU_TYPE_GM, DE_MS_NET_CAP , "" );
 	/* 13 Old location area identification	Location area identification 9.9.2.2	O	TV	6 */
-	ELEM_OPT_TV(0x13, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_LOC_AREA_ID, "Old location area identification");
+	ELEM_OPT_TV(0x13, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_LOC_AREA_ID, " - Old location area identification");
 	/* 9- TMSI status	TMSI status 9.9.3.31	O	TV	1 */
 	ELEM_OPT_TV_SHORT( 0x90 , GSM_A_PDU_TYPE_GM, DE_TMSI_STAT , "" );
 	/* 11	Mobile station classmark 2	Mobile station classmark 2 9.9.2.5	O	TLV	5 */
@@ -2566,7 +2566,7 @@ nas_emm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* 
 	 * NAS key set identifierASME 	NAS key set identifier 9.9.3.21	M	V	1/2  
 	 */
-	de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, "ASME");
+	de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, " ASME");
 	bit_offset+=4;
 	
 	/* Fix the lengths */
@@ -2832,7 +2832,7 @@ nas_emm_ext_serv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset++;
 
 	/* M-TMSI	Mobile identity 9.9.2.3	M	LV	6 */
-	ELEM_MAND_LV(NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, "M-TMSI");
+	ELEM_MAND_LV(NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, " - M-TMSI");
 	/* B-	CSFB response	CSFB response 9.9.3.5	C	TV	1 */
 	ELEM_OPT_TV_SHORT(0xb0, NAS_PDU_TYPE_EMM, DE_EMM_CSFB_RESP, "");
 	/* 57	EPS bearer context status	EPS bearer context status 9.9.2.1	O	TLV	4 */
@@ -2941,7 +2941,7 @@ nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
 	bit_offset+=4;
 	/* 	NAS key set identifierASME	NAS key set identifier 9.9.3.21	M	V	1/2 */
-	de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, "ASME");
+	de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, " ASME");
 	bit_offset+=4;
 
 	/* Fix up the lengths */
@@ -2976,7 +2976,7 @@ nas_emm_sec_mode_comp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 		return;
 
 	/* 23	IMEISV	Mobile identity 9.9.2.3	O	TLV	11 */
-	ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, "IMEISV");
+	ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, " - IMEISV");
  
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -3187,7 +3187,7 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	bit_offset = curr_offset<<3;
 
 	/* 	NAS key set identifierASME	NAS key set identifier 9.9.3.21	M	V	1/2 */
-	de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, "ASME");
+	de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, " ASME");
 	bit_offset+=4;
 
 	/* 	EPS update type	EPS update type 9.9.3.14	M	V	1/2 */
@@ -3205,7 +3205,7 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	if (curr_len==0)
 		return;
 	/* 	B-	NAS key set identifierSGSN	NAS key set identifier 9.9.3.21	O	TV	1 */
-	ELEM_OPT_TV_SHORT( 0xb0 , NAS_PDU_TYPE_EMM, DE_EMM_NAS_KEY_SET_ID , "SGSN" );
+	ELEM_OPT_TV_SHORT( 0xb0 , NAS_PDU_TYPE_EMM, DE_EMM_NAS_KEY_SET_ID , " - SGSN" );
 	/* 8-	GPRS ciphering key sequence number	Ciphering key sequence number 9.9.3.4a	O	TV	1  */
 	ELEM_OPT_TV_SHORT(0x80, GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM, "");
 	/* 19	Old P-TMSI signature	P-TMSI signature 9.9.3.26	O	TV	4 */
@@ -3217,7 +3217,7 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	/* 58	UE network capability	UE network capability 9.9.3.34	O	TLV	4-15 */
 	ELEM_OPT_TLV(0x58, NAS_PDU_TYPE_EMM, DE_EMM_UE_NET_CAP, "");
 	/* 52	Last visited registered TAI	Tracking area identity 9.9.3.32	O	TV	6 */
-	ELEM_OPT_TV(0x52, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID, "Last visited registered TAI");
+	ELEM_OPT_TV(0x52, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID, " - Last visited registered TAI");
 	/* 5C	DRX parameter	DRX parameter 9.9.3.8	O	TV	3 */
 	ELEM_OPT_TV(0x5c, GSM_A_PDU_TYPE_GM, DE_DRX_PARAM, "" );
 	/* A-	UE radio capability information update needed	UE radio capability information update needed 9.9.3.35	O	TV	1 */
@@ -3227,7 +3227,7 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	/* 31	MS network capability	MS network capability 9.9.3.20	O	TLV	4-10 */
 	ELEM_OPT_TLV( 0x31 , GSM_A_PDU_TYPE_GM, DE_MS_NET_CAP , "" );
 	/* 13	Old location area identification	Location area identification 9.9.2.2	O	TV	6 */
-	ELEM_OPT_TV(0x13, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_LOC_AREA_ID, "Old location area identification");
+	ELEM_OPT_TV(0x13, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_LOC_AREA_ID, " - Old location area identification");
  	/* 9-	TMSI status	TMSI status 9.9.3.31	O	TV	1  */
 	ELEM_OPT_TV_SHORT( 0x90 , GSM_A_PDU_TYPE_GM, DE_TMSI_STAT , "" );
 	/* 11	Mobile station classmark 2	Mobile station classmark 2 9.9.2.5	O	TLV	5 */
@@ -3379,7 +3379,7 @@ nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offs
 	/* TFT	Traffic flow template 9.9.4.16	M	LV	2-256 */
 	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , "" );
 	/* 5D	Transaction identifier	Transaction identifier 9.9.4.17	O	TLV	3-4 */
-	ELEM_OPT_TLV( 0x5d , GSM_A_PDU_TYPE_GM, DE_LINKED_TI , "Transaction identifier" );
+	ELEM_OPT_TLV( 0x5d , GSM_A_PDU_TYPE_GM, DE_LINKED_TI , " - Transaction identifier" );
 	/* 30	Negotiated QoS	Quality of service 9.9.4.12	O	TLV	14-18 */
 	ELEM_OPT_TLV( 0x30 , GSM_A_PDU_TYPE_GM, DE_QOS , " - Negotiated QoS" );
 	/* 32	Negotiated LLC SAPI	LLC service access point identifier 9.9.4.7	O	TV	2 */
@@ -3457,7 +3457,7 @@ nas_esm_act_def_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offs
 	/* 	PDN address	PDN address 9.9.4.9	M	LV	6-14 DE_ESM_PDN_ADDR*/
 	ELEM_MAND_LV( NAS_PDU_TYPE_ESM, DE_ESM_PDN_ADDR , "" );
 	/* 5D	Transaction identifier	Transaction identifier 9.9.4.17	O	TLV	3-4 */
-	ELEM_OPT_TLV( 0x5d , GSM_A_PDU_TYPE_GM, DE_LINKED_TI , "Transaction identifier" );
+	ELEM_OPT_TLV( 0x5d , GSM_A_PDU_TYPE_GM, DE_LINKED_TI , " - Transaction identifier" );
 	/* 30	Negotiated QoS	Quality of service 9.9.4.12	O	TLV	14-18 */
 	ELEM_OPT_TLV( 0x30 , GSM_A_PDU_TYPE_GM, DE_QOS , " - Negotiated QoS" );
 	/* 32	Negotiated LLC SAPI	LLC service access point identifier 9.9.4.7	O	TV	2 */
