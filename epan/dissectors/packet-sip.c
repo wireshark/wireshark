@@ -675,6 +675,9 @@ static guint sip_tls_port = TLS_PORT_SIP;
 /* global_sip_raw_text determines whether we are going to display		*/
 /* the raw text of the SIP message, much like the MEGACO dissector does.	*/
 static gboolean global_sip_raw_text = FALSE;
+/* global_sip_raw_text_without_crlf determines whether we are going to display	*/
+/* the raw text of the SIP message with or without the '\r\n'.				*/
+static gboolean global_sip_raw_text_without_crlf = FALSE;
 /* strict_sip_version determines whether the SIP dissector enforces
  * the SIP version to be "SIP/2.0". */
 static gboolean strict_sip_version = TRUE;
@@ -3080,7 +3083,10 @@ tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 		tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 		linelen = next_offset - offset;
 		if (raw_tree) {
-			str = tvb_format_text(tvb, offset, linelen);
+			if (global_sip_raw_text_without_crlf)
+				str = tvb_format_text_wsp(tvb, offset, linelen);
+			else
+				str = tvb_format_text(tvb, offset, linelen);
 			proto_tree_add_string_format(raw_tree, hf_raw_sip_line, tvb, offset, linelen,
 						     str,
 						     "%s",
@@ -4520,6 +4526,12 @@ void proto_register_sip(void)
 		"SIP message should be displayed "
 		"in addition to the dissection tree",
 		&global_sip_raw_text);
+	prefs_register_bool_preference(sip_module, "display_raw_text_without_crlf",
+		"Don't show '\\r\\n' in raw SIP messages",
+		"If the raw text of the SIP message "
+		"is displayed, the trailing carriage "
+		"return and line feed are not shown",
+		&global_sip_raw_text_without_crlf);
 	prefs_register_bool_preference(sip_module, "strict_sip_version",
 		"Enforce strict SIP version check (" SIP2_HDR ")",
 		"If enabled, only " SIP2_HDR " traffic will be dissected as SIP. "
