@@ -822,7 +822,7 @@ main(int argc, char *argv[])
 				  set_profile_name (optarg);
 			  } else {
 				  cmdarg_err("Configuration Profile \"%s\" does not exist", optarg);
-				  exit(1);
+				  return 1;
 			  }
 			  break;
 		  case 'X':
@@ -932,10 +932,10 @@ main(int argc, char *argv[])
         write_prefs(NULL);
       } else {
         cmdarg_err("Invalid \"%s\" option for -G flag", argv[2]);
-        exit(1);
+        return 1;
       }
     }
-    exit(0);
+    return 0;
   }
 
   /* Set the C-language locale to the native environment. */
@@ -1027,7 +1027,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
         status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
         if(status != 0) {
-            exit(status);
+            return status;
         }
 #else
         capture_option_specified = TRUE;
@@ -1039,7 +1039,7 @@ main(int argc, char *argv[])
 	break;
       case 'd':        /* Decode as rule */
         if (!add_decode_as(optarg))
-          exit(1);
+          return 1;
         break;
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
       case 'K':        /* Kerberos keytab file */
@@ -1060,11 +1060,11 @@ main(int argc, char *argv[])
             cmdarg_err("There are no interfaces on which a capture can be done");
             break;
           }
-          exit(2);
+          return 2;
         }
         capture_opts_print_interfaces(if_list);
         free_interface_list(if_list);
-        exit(0);
+        return 0;
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1079,7 +1079,7 @@ main(int argc, char *argv[])
         if(!output_fields_set_option(output_fields, optarg)) {
           cmdarg_err("\"%s\" is not a valid field output option=value pair.", optarg);
           output_fields_list_options(stderr);
-          exit(1);
+          return 1;
         }
         break;
       case 'F':
@@ -1087,12 +1087,12 @@ main(int argc, char *argv[])
         if (out_file_type < 0) {
           cmdarg_err("\"%s\" isn't a valid capture file type", optarg);
           list_capture_types();
-          exit(1);
+          return 1;
         }
         break;
       case 'h':        /* Print help and exit */
         print_usage(TRUE);
-        exit(0);
+        return 0;
         break;
       case 'l':        /* "Line-buffer" standard output */
         /* This isn't line-buffering, strictly speaking, it's just
@@ -1133,7 +1133,7 @@ main(int argc, char *argv[])
           cmdarg_err("-N specifies unknown resolving option '%c';",
                      badopt);
           cmdarg_err_cont( "           Valid options are 'm', 'n', 't', and 'C'");
-          exit(1);
+          return 1;
         }
         break;
       case 'o':        /* Override preference from command line */
@@ -1144,13 +1144,13 @@ main(int argc, char *argv[])
 
         case PREFS_SET_SYNTAX_ERR:
           cmdarg_err("Invalid -o flag \"%s\"", optarg);
-          exit(1);
+          return 1;
           break;
 
         case PREFS_SET_NO_SUCH_PREF:
         case PREFS_SET_OBSOLETE:
           cmdarg_err("-o flag \"%s\" specifies unknown preference", optarg);
-          exit(1);
+          return 1;
           break;
         }
         break;
@@ -1184,7 +1184,7 @@ main(int argc, char *argv[])
             optarg);
           cmdarg_err_cont("It must be \"r\" for relative, \"a\" for absolute,");
           cmdarg_err_cont("\"ad\" for absolute with date, or \"d\" for delta.");
-          exit(1);
+          return 1;
         }
         break;
       case 'T':        /* printing Type */
@@ -1206,7 +1206,7 @@ main(int argc, char *argv[])
         } else {
           cmdarg_err("Invalid -T parameter.");
           cmdarg_err_cont("It must be \"ps\", \"text\", \"pdml\", \"psml\" or \"fields\".");
-          exit(1);
+          return 1;
         }
         break;
       case 'u':        /* Seconds type */
@@ -1217,7 +1217,7 @@ main(int argc, char *argv[])
         else {
           cmdarg_err("Invalid seconds type \"%s\"", optarg);
           cmdarg_err_cont("It must be \"s\" for seconds or \"hms\" for hours, minutes and seconds.");
-          exit(1);
+          return 1;
         }
         break;
       case 'v':         /* Show version and exit */
@@ -1234,7 +1234,7 @@ main(int argc, char *argv[])
         show_version(comp_info_str, runtime_info_str);
         g_string_free(comp_info_str, TRUE);
         g_string_free(runtime_info_str, TRUE);
-        exit(0);
+        return 0;
         break;
       }
       case 'V':        /* Verbose */
@@ -1263,7 +1263,7 @@ main(int argc, char *argv[])
           cmdarg_err("invalid -z argument.");
           cmdarg_err_cont("  -z argument must be one of :");
           list_stat_cmd_args();
-          exit(1);
+          return 1;
         }
         break;
       default:
@@ -1275,7 +1275,7 @@ main(int argc, char *argv[])
         default:
           print_usage(TRUE);
         }
-        exit(1);
+        return 1;
         break;
     }
   }
@@ -1284,12 +1284,12 @@ main(int argc, char *argv[])
   if(WRITE_FIELDS != output_action && 0 != output_fields_num_fields(output_fields)) {
         cmdarg_err("Output fields were specified with \"-e\", "
             "but \"-Tfields\" was not specified.");
-        exit(1);
+        return 1;
   } else if(WRITE_FIELDS == output_action && 0 == output_fields_num_fields(output_fields)) {
         cmdarg_err("\"-Tfields\" was specified, but no fields were "
                     "specified with \"-e\".");
 
-        exit(1);
+        return 1;
   }
 
   /* If no capture filter or read filter has been specified, and there are
@@ -1301,7 +1301,7 @@ main(int argc, char *argv[])
       if (rfilter != NULL) {
         cmdarg_err("Read filters were specified both with \"-R\" "
             "and with additional command-line arguments");
-        exit(1);
+        return 1;
       }
       rfilter = get_args_as_string(argc, argv, optind);
     } else {
@@ -1309,7 +1309,7 @@ main(int argc, char *argv[])
       if (global_capture_opts.has_cfilter) {
         cmdarg_err("Capture filters were specified both with \"-f\""
             " and with additional command-line arguments");
-        exit(1);
+        return 1;
       }
       global_capture_opts.has_cfilter = TRUE;
       global_capture_opts.cfilter = get_args_as_string(argc, argv, optind);
@@ -1334,7 +1334,7 @@ main(int argc, char *argv[])
     if (strcmp(global_capture_opts.save_file, "-") == 0 && print_packet_info) {
       cmdarg_err("You can't write both raw packet data and dissected packets"
           " to the standard output.");
-      exit(1);
+      return 1;
     }
   }
 #else
@@ -1350,7 +1350,7 @@ main(int argc, char *argv[])
 #endif
   if (arg_error) {
     print_usage(FALSE);
-    exit(1);
+    return 1;
   }
 
   /* We don't support capture filters when reading from a capture file
@@ -1361,7 +1361,7 @@ main(int argc, char *argv[])
     if (global_capture_opts.has_cfilter) {
       cmdarg_err("Only read filters, not capture filters, "
           "can be specified when reading a capture file.");
-      exit(1);
+      return 1;
     }
   }
 #endif
@@ -1369,7 +1369,7 @@ main(int argc, char *argv[])
   if (print_hex) {
     if (output_action != WRITE_TEXT) {
       cmdarg_err("Raw packet hex data can only be printed as text or PostScript");
-      exit(1);
+      return 1;
     }
   }
 
@@ -1380,12 +1380,12 @@ main(int argc, char *argv[])
     if (cf_name) {
       /* Yes - that's bogus. */
       cmdarg_err("You can't specify -L and a capture file to be read.");
-      exit(1);
+      return 1;
     }
     /* No - did they specify a ring buffer option? */
     if (global_capture_opts.multi_files_on) {
       cmdarg_err("Ring buffer requested, but a capture isn't being done.");
-      exit(1);
+      return 1;
     }
   } else {
     if (cf_name) {
@@ -1396,22 +1396,22 @@ main(int argc, char *argv[])
       if (global_capture_opts.multi_files_on) {
         cmdarg_err("Multiple capture files requested, but "
                    "a capture isn't being done.");
-        exit(1);
+        return 1;
       }
       if (global_capture_opts.has_file_duration) {
         cmdarg_err("Switching capture files after a time interval was specified, but "
                    "a capture isn't being done.");
-        exit(1);
+        return 1;
       }
       if (global_capture_opts.has_ring_num_files) {
         cmdarg_err("A ring buffer of capture files was specified, but "
           "a capture isn't being done.");
-        exit(1);
+        return 1;
       }
       if (global_capture_opts.has_autostop_files) {
         cmdarg_err("A maximum number of capture files was specified, but "
           "a capture isn't being done.");
-        exit(1);
+        return 1;
       }
 
       /* Note: TShark now allows the restriction of a _read_ file by packet count
@@ -1421,7 +1421,7 @@ main(int argc, char *argv[])
       if (global_capture_opts.has_autostop_duration) {
         cmdarg_err("A maximum capture time was specified, but "
           "a capture isn't being done.");
-        exit(1);
+        return 1;
       }
     } else {
       /*
@@ -1433,7 +1433,7 @@ main(int argc, char *argv[])
         /* When capturing, we only support writing libpcap format. */
         if (out_file_type != WTAP_FILE_PCAP) {
           cmdarg_err("Live captures can only be saved in libpcap format.");
-          exit(1);
+          return 1;
         }
         if (global_capture_opts.multi_files_on) {
           /* Multiple-file mode doesn't work under certain conditions:
@@ -1443,18 +1443,18 @@ main(int argc, char *argv[])
           if (strcmp(global_capture_opts.save_file, "-") == 0) {
             cmdarg_err("Multiple capture files requested, but "
               "the capture is being written to the standard output.");
-            exit(1);
+            return 1;
           }
           if (global_capture_opts.output_to_pipe) {
             cmdarg_err("Multiple capture files requested, but "
               "the capture file is a pipe.");
-            exit(1);
+            return 1;
           }
           if (!global_capture_opts.has_autostop_filesize &&
 	      !global_capture_opts.has_file_duration) {
             cmdarg_err("Multiple capture files requested, but "
               "no maximum capture file size or duration was specified.");
-            exit(1);
+            return 1;
           }
         }
       } else {
@@ -1464,12 +1464,12 @@ main(int argc, char *argv[])
         if (global_capture_opts.has_autostop_filesize) {
           cmdarg_err("Maximum capture file size specified, but "
            "capture isn't being saved to a file.");
-          exit(1);
+          return 1;
         }
         if (global_capture_opts.multi_files_on) {
           cmdarg_err("Multiple capture files requested, but "
             "the capture isn't being saved to a file.");
-          exit(1);
+          return 1;
         }
       }
     }
@@ -1524,7 +1524,7 @@ main(int argc, char *argv[])
         }
       }
 #endif
-      exit(2);
+      return 2;
     }
   }
   cfile.rfcode = rfcode;
@@ -1573,7 +1573,7 @@ main(int argc, char *argv[])
 
     if (cf_open(&cfile, cf_name, FALSE, &err) != CF_OK) {
       epan_cleanup();
-      exit(2);
+      return 2;
     }
 
     /* Set timestamp precision; there should arguably be a command-line
@@ -1611,7 +1611,7 @@ main(int argc, char *argv[])
 #endif
     if (err != 0) {
       epan_cleanup();
-      exit(2);
+      return 2;
     }
   } else {
     /* No capture file specified, so we're supposed to do a live capture
@@ -1627,14 +1627,14 @@ main(int argc, char *argv[])
       detailed_err = cant_load_winpcap_err("TShark");
       cmdarg_err_cont("%s", detailed_err);
       g_free(detailed_err);
-      exit(2);
+      return 2;
     }
 #endif
 
     /* trim the interface name and exit if that failed */
     if (!capture_opts_trim_iface(&global_capture_opts,
         (prefs_p->capture_device) ? get_if_name(prefs_p->capture_device) : NULL)) {
-        exit(2);
+        return 2;
     }
 
     /* if requested, list the link layer types and exit */
@@ -1648,23 +1648,22 @@ main(int argc, char *argv[])
         if (caps == NULL) {
             cmdarg_err("%s", err_str);
             g_free(err_str);
-            exit(2);
+            return 2;
         }
         if (caps->data_link_types == NULL) {
             cmdarg_err("The capture device \"%s\" has no data link types.", global_capture_opts.iface);
-            exit(2);
+            return 2;
         }
         capture_opts_print_if_capabilities(caps,
                                            global_capture_opts.monitor_mode);
         free_if_capabilities(caps);
-        exit(0);
+        return 0;
     }
 
     if (print_packet_info) {
       if (!write_preamble(NULL)) {
-        err = errno;
-        show_print_file_io_error(err);
-        return err;
+        show_print_file_io_error(errno);
+        return 2;
       }
     } else if (!quiet) {
       /*
@@ -1684,7 +1683,7 @@ main(int argc, char *argv[])
     timestamp_set_precision(TS_PREC_AUTO_USEC);
 
     if (!capture()) {
-        return 1;     /* an error occurred */
+      return 2;     /* an error occurred */
     }
 
     if (print_packet_info) {
@@ -1696,7 +1695,7 @@ main(int argc, char *argv[])
 #else
     /* No - complain. */
     cmdarg_err("This version of TShark was not built with support for capturing packets.");
-    exit(2);
+    return 2;
 #endif
   }
 
