@@ -646,6 +646,11 @@ packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 
 	PACKET_LIST_RECORD_APPEND(packet_list->physical_rows, newrecord);
 
+	if (packet_list->columnized) {
+		/* XXX, dissect? */
+		packet_list->columnized = FALSE;
+	}
+
 	/* 
 	 * Issue a row_inserted signal if the model is connected
 	 * and the row is vissible.
@@ -998,9 +1003,7 @@ packet_list_resort(PacketList *packet_list)
 		return;
 
 	/* resort physical rows according to sorting column */
-	g_qsort_with_data(packet_list->physical_rows->pdata,
-			  PACKET_LIST_RECORD_COUNT(packet_list->physical_rows),
-			  sizeof(PacketListRecord*),
+	g_ptr_array_sort_with_data(packet_list->physical_rows,
 			  (GCompareDataFunc) packet_list_qsort_physical_compare_func,
 			  packet_list);
 
