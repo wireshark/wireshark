@@ -91,7 +91,7 @@ ADD_CUSTOM_COMMAND(
     OUTPUT init.lua
     COMMAND ${PERL_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/wslua/make-init-lua.pl
-      ${CMAKE_CURRENT_SOURCE_DIR}
+      ${CMAKE_SOURCE_DIR}
       ${CMAKE_CURRENT_SOURCE_DIR}/wslua/template-init.lua
       > init.lua
     DEPENDS

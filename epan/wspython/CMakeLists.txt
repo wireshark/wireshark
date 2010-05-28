@@ -21,50 +21,22 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-include_directories(
-	${CMAKE_CURRENT_BINARY_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}
-)
-
 set(WSPYTHON_FILES
-	wspy_register.c
-	wspy_proto.c
+	wspython/wspy_register.c
+	wspython/wspy_proto.c
 )
-
-set(CLEAN_FILES
-	${WSPYTHON_FILES}
-)
-
-if (WERROR)
-	set_source_files_properties(
-		${CLEAN_FILES}
-		PROPERTIES
-		COMPILE_FLAGS -Werror
-	)
-endif()
-
-set(wspython_LIBS
-	${PYTHON_LIBRARIES}
-)
-
-add_library(wspython STATIC
-	${WSPYTHON_FILES}
-)
-set_target_properties(wspython PROPERTIES LINK_FLAGS ${WS_LINK_FLAGS})
-
-target_link_libraries(wspython ${wspython_LIBS})
 
 install(PROGRAMS
-		register-dissector.py
-		wspy_dissector.py
-		wspy_libws.py
+		wspython/register-dissector.py
+		wspython/wspy_dissector.py
+		wspython/wspy_libws.py
 	DESTINATION	
 		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}/python/${CPACK_PACKAGE_VERSION}
 )
 
 
 install(DIRECTORY
-		wspy_dissectors
+		wspython/wspy_dissectors
 	DESTINATION	
 		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}/python/${CPACK_PACKAGE_VERSION}
 	PATTERN ".svn" EXCLUDE

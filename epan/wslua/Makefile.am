@@ -114,7 +114,7 @@ dummy:
 	touch dummy
 
 init.lua: template-init.lua make-init-lua.pl ../ftypes/ftypes.h ../../wiretap/wtap.h  ../proto.h ../../stat_menu.h
-	$(PERL) $(srcdir)/make-init-lua.pl $(srcdir) $(srcdir)/template-init.lua > init.lua
+	$(PERL) $(srcdir)/make-init-lua.pl $(top_srcdir) $(srcdir)/template-init.lua > init.lua
 
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g termoutput \

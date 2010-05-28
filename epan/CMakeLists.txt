@@ -25,10 +25,7 @@ if (HAVE_LIBLUA)
 	include( wslua/CMakeLists.txt )
 endif()
 if (HAVE_LIBPYTHON)
-	add_subdirectory( wspython )
-	set(WSPYTHON_LIB wspython)
-else()
-	set(WSPYTHON_LIB )
+	include( wspython/CMakeLists.txt )
 endif()
 
 add_subdirectory( dissectors/dcerpc )
@@ -39,10 +36,7 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/dissectors
 	${CMAKE_CURRENT_SOURCE_DIR}/ftypes
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua
-)
-
-link_directories(
-	wspython
+	${CMAKE_CURRENT_SOURCE_DIR}/wspython
 )
 
 set(CRC_FILES
@@ -1248,6 +1242,7 @@ set(epan_LIBS
 	${SMI_LIBRARIES}
 	${M_LIBRARIES}
 	${LUA_LIBRARIES}
+	${PYTHON_LIBRARIES}
 )
 
 set(CLEAN_FILES
@@ -1268,6 +1263,7 @@ set(CLEAN_FILES
 	${DISSECTOR_SUPPORT_SRC}
 	${LIBWIRESHARK_ASM_FILES}
 	${WSLUA_FILES}
+	${WSPYTHON_FILES}
 )
 
 if (WERROR)
@@ -1288,6 +1284,7 @@ add_library(epan ${LINK_MODE_LIB}
 	${DFILTER_FILES}
 	${FTYPE_FILES}
 	${WSLUA_FILES}
+	${WSPYTHON_FILES}
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
 	${LIBWIRESHARK_ASM_FILES}
@@ -1297,10 +1294,6 @@ set_target_properties(epan PROPERTIES LINK_FLAGS ${WS_LINK_FLAGS})
 # By default the name for a library with target name epan will be libepan,
 # but Ethereal is now named Wireshark
 SET_TARGET_PROPERTIES(epan PROPERTIES OUTPUT_NAME "wireshark")
-
-target_link_libraries(epan
-	${WSPYTHON_LIB}
-)
 
 target_link_libraries(epan ${epan_LIBS})
 

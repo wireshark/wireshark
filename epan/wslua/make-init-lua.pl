@@ -28,10 +28,9 @@
 
 use strict;
 
-my $cd = shift;
-my $WSROOT = $cd  . "/../..";
+my $WSROOT = shift;
 
-die "'$cd' is not a directory" unless -d $cd;
+die "'$WSROOT' is not a directory" unless -d $WSROOT;
 
 my $wtap_encaps_table = '';
 my $ft_types_table = '';
