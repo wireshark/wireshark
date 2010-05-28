@@ -131,22 +131,6 @@ TSHARK_TAP_SRC =	\
 	tap-stats_tree.c	\
 	tap-wspstat.c
 
-# helpers already available on some platforms (and on others not)
-EXTRA_wireshark_SOURCES =	\
-	wsgetopt.c	\
-	inet_ntop.c	\
-	inet_pton.c	\
-	strerror.c	\
-	strncasecmp.c	\
-	strptime.c
-
-# corresponding headers
-EXTRA_wireshark_INCLUDES =	\
-	wsgetopt.h	\
-	inet_v6defs.h	\
-	strerror.h	\
-	strptime.h
-
 # wireshark specifics
 wireshark_SOURCES =	\
 	$(WIRESHARK_COMMON_SRC)	\
@@ -264,5 +248,4 @@ noinst_HEADERS =	\
 	$(WIRESHARK_COMMON_INCLUDES) \
 	$(SHARK_COMMON_CAPTURE_INCLUDES) \
 	$(wireshark_INCLUDES) \
-	$(EXTRA_wireshark_INCLUDES) \
 	$(dumpcap_INCLUDES)

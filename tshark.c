@@ -52,13 +52,13 @@
 #endif
 
 #ifdef NEED_STRERROR_H
-#include "strerror.h"
+#include "wsutil/strerror.h"
 #endif
 
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #else
-#include "wsgetopt.h"
+#include "wsutil/wsgetopt.h"
 #endif
 
 #include <glib.h>

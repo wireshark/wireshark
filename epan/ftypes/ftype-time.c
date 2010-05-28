@@ -42,7 +42,7 @@
 #include <ftypes-int.h>
 
 #ifdef NEED_STRPTIME_H
-#include "strptime.h"
+#include "wsutil/strptime.h"
 #endif
 
 static gboolean
@@ -175,14 +175,14 @@ relative_val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _
 {
 	char    *curptr, *endptr;
         gboolean negative = FALSE;
-        
+
 	curptr = s;
 
         if(*curptr == '-') {
             negative = TRUE;
             curptr++;
         }
-        
+
 	/*
 	 * If it doesn't begin with ".", it should contain a seconds
 	 * value.
@@ -313,7 +313,7 @@ value_get(fvalue_t *fv)
 {
 	return &(fv->value.time);
 }
-   
+
 static int
 absolute_val_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
 {
@@ -331,7 +331,7 @@ absolute_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 	    abs_time_to_str(&fv->value.time, ABSOLUTE_TIME_LOCAL,
 	        rtype == FTREPR_DISPLAY));
 }
-   
+
 static int
 relative_val_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
 {

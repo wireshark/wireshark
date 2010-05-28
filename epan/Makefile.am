@@ -87,10 +87,6 @@ libwireshark_asmopt_la_SOURCES = \
 	asm_utils.h		\
 	asm_utils_win32_x86.asm
 
-EXTRA_libwireshark_la_SOURCES =	\
-	inet_aton.c		\
-	inet_aton.h
-
 EXTRA_DIST = \
 	diam_dict.l		\
 	dtd_grammar.lemon 	\
@@ -116,8 +112,6 @@ CLEANFILES = \
 	libwireshark_generated.la 	\
 	libwireshark_asmopt.a 		\
 	libwireshark_asmopt.la 		\
-	inet_ntop.c			\
-	inet_pton.c			\
 	*~
 
 DISTCLEANFILES = \
@@ -188,12 +182,6 @@ tvbtest.o exntest.o: exceptions.h
 
 sminmpec.c: enterprise-numbers ../tools/make-sminmpec.pl
 	$(PERL) $(srcdir)/../tools/make-sminmpec.pl $(srcdir)/enterprise-numbers sminmpec.c
-
-inet_ntop.c:
-	ln -s $(srcdir)/../inet_ntop.c .
-
-inet_pton.c:
-	ln -s $(srcdir)/../inet_pton.c .
 
 if HAVE_PLUGINS
 

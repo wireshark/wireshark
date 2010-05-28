@@ -576,16 +576,9 @@ set(INSTALL_FILES
 )
 
 set(LIBEPAN_LIBS
-#		@GETOPT_O@	# wsgetopt.c
-#		@INET_ATON_LO@	# epan/inet_aton.c
-#		@INET_NTOP_LO@	# inet_ntop.c
-#		@INET_PTON_LO@	# inet_pton.c
 #		@NSL_LIBS@	# -lnsl
 #		@SOCKET_LIBS@	# -lsocket
 #		@SSL_LIBS@	# -lcrypto
-#		@STRERROR_O@	# strerror.c
-#		@STRNCASECMP_O@	# strncasecmp.c
-#		@STRPTIME_O@	# strptime.c
 		epan
 #		$(plugin_ldadd)	# in case of static
 		${PCRE_LIBRARIES}

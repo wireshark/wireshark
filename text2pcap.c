@@ -128,11 +128,11 @@
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #else
-#include "wsgetopt.h"
+#include "wsutil/wsgetopt.h"
 #endif
 
 #ifdef NEED_STRPTIME_H
-# include "strptime.h"
+# include "wsutil/strptime.h"
 #endif
 
 #include "text2pcap.h"
@@ -1075,7 +1075,7 @@ usage (void)
             "  -u <srcp>,<destp>      prepend dummy UDP header with specified\n"
             "                         dest and source ports (in DECIMAL).\n"
             "                         Automatically prepends Ethernet & IP headers as well.\n"
-            "                         Example: -u 1000 69 to make the packets look like TFTP/UDP packets.\n" 
+            "                         Example: -u 1000 69 to make the packets look like TFTP/UDP packets.\n"
             "  -T <srcp>,<destp>      prepend dummy TCP header with specified\n"
             "                         dest and source ports (in DECIMAL).\n"
             "                         Automatically prepends Ethernet & IP headers as well.\n"

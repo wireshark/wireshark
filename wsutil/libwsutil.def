@@ -19,6 +19,15 @@ ws_stdio_rename
 ws_stdio_stat
 ws_stdio_unlink
 
+; inet_aton.c
+inet_aton
+
+; inet_ntop.c
+inet_ntop
+
+; inet_pton.c
+inet_pton
+
 ; mpeg-audio.c
 mpa_bitrate
 mpa_frequency
@@ -36,6 +45,9 @@ relinquish_special_privs_perm
 running_with_special_privs
 started_with_special_privs
 
+; strptime.c
+strptime
+
 ; str_util.c
 ascii_strdown_inplace
 ascii_strup_inplace
@@ -48,3 +60,9 @@ type_util_guint64_to_gdouble
 utf_16to8
 utf_8to16
 utf_8to16_snprintf
+
+; wsgetopt.c
+getopt
+optarg DATA
+optind DATA
+opterr DATA

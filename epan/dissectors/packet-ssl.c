@@ -121,7 +121,9 @@
 #include <epan/filesystem.h>
 #include <epan/report_err.h>
 #include <epan/expert.h>
-#include "inet_v6defs.h"
+#ifdef NEED_INET_V6DEFS_H
+#include "wsutil/inet_v6defs.h"
+#endif
 #include "packet-x509if.h"
 #include "packet-ssl.h"
 #include "packet-ssl-utils.h"

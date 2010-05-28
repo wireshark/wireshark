@@ -45,7 +45,7 @@
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #else
-#include "wsgetopt.h"
+#include "wsutil/wsgetopt.h"
 #endif
 
 #ifdef _WIN32
@@ -56,7 +56,7 @@
 #endif
 
 #ifdef NEED_STRPTIME_H
-# include "strptime.h"
+# include "wsutil/strptime.h"
 #endif
 
 #include "epan/crypt/crypt-md5.h"
@@ -141,7 +141,7 @@ abs_time_to_str_with_sec_resolution(const struct wtap_nstime *abs_time)
 {
     struct tm *tmp;
     gchar *buf = g_malloc(16);
-    
+
 #ifdef _MSC_VER
     /* calling localtime() on MSVC 2005 with huge values causes it to crash */
     /* XXX - find the exact value that still does work */
@@ -166,7 +166,7 @@ abs_time_to_str_with_sec_resolution(const struct wtap_nstime *abs_time)
 }
 
 static gchar*
-fileset_get_filename_by_pattern(guint idx,    const struct wtap_nstime *time_val, 
+fileset_get_filename_by_pattern(guint idx,    const struct wtap_nstime *time_val,
                                     gchar *fprefix, gchar *fsuffix)
 {
     gchar filenum[5+1];
@@ -1003,7 +1003,7 @@ main(int argc, char *argv[])
         pdh = wtap_dump_open(filename, out_file_type,
             out_frame_type, wtap_snapshot_length(wth),
             FALSE /* compressed */, &err);
-        if (pdh == NULL) {  
+        if (pdh == NULL) {
           fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
                   wtap_strerror(err));
           exit(2);
@@ -1045,7 +1045,7 @@ main(int argc, char *argv[])
       if (split_packet_count > 0) {
 
         /* time for the next file? */
-        if (written_count > 0 && 
+        if (written_count > 0 &&
             written_count % split_packet_count == 0) {
           if (!wtap_dump_close(pdh, &err)) {
             fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
@@ -1274,7 +1274,7 @@ main(int argc, char *argv[])
       pdh = wtap_dump_open(filename, out_file_type,
 			   out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
       if (pdh == NULL) {
-	fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename, 
+	fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
 		wtap_strerror(err));
 	exit(2);
       }

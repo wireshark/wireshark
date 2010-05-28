@@ -50,7 +50,7 @@
 #endif
 
 #ifdef NEED_INET_V6DEFS_H
-# include "inet_v6defs.h"
+# include "wsutil/inet_v6defs.h"
 #endif
 
 #include <glib.h>

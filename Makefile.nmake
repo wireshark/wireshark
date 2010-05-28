@@ -27,7 +27,7 @@ WIN_SETUP=tools/$(WIRESHARK_TARGET_PLATFORM)-setup.sh
 #     If $(CHECK_TAG) is null, but either config.nmake or Makefile.nmake
 #      are newer than the $(LIBS_CHECK) target, then a detailed verification
 #      as to the required library package files will be made.
-#    
+#
 LIBS_CHECK=_libs_check_
 !IF [$(SH) $(WIN_SETUP) --checktag "$(WIRESHARK_LIBS)"] != 0
 CHECK_TAG=_check_tag_
@@ -71,12 +71,6 @@ capinfos_OBJECTS = $(capinfos_SOURCES:.c=.obj)
 dftest_OBJECTS = $(dftest_SOURCES:.c=.obj)
 dumpcap_OBJECTS = $(dumpcap_SOURCES:.c=.obj)
 randpkt_OBJECTS = $(randpkt_SOURCES:.c=.obj)
-
-EXTRA_OBJECTS = \
-	wsgetopt.obj	\
-	inet_ntop.obj	\
-	inet_pton.obj	\
-	strptime.obj
 
 wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib shell32.lib comctl32.lib \
@@ -252,28 +246,28 @@ $(RESOURCES): image
 
 wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 
-wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) wsgetopt.obj inet_ntop.obj inet_pton.obj codecs epan gtk image\wireshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
+wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan gtk image\wireshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) wsgetopt.obj inet_ntop.obj inet_pton.obj $(GTK_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
+		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:wireshark.exe;1
 !ENDIF
 
-tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) wsgetopt.obj inet_ntop.obj inet_pton.obj epan image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) epan image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) wsgetopt.obj inet_ntop.obj inet_pton.obj image\tshark.res
+		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) image\tshark.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "tshark.exe.manifest" -outputresource:tshark.exe;1
 !ENDIF
 
-rawshark.exe	: $(LIBS_CHECK) config.h $(rawshark_OBJECTS) wsgetopt.obj inet_ntop.obj epan image\rawshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
+rawshark.exe	: $(LIBS_CHECK) config.h $(rawshark_OBJECTS) epan image\rawshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:rawshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(rawshark_LIBS) $(rawshark_OBJECTS) wsgetopt.obj inet_ntop.obj image\rawshark.res
+		/OUT:rawshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(rawshark_LIBS) $(rawshark_OBJECTS) image\rawshark.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "rawshark.exe.manifest" -outputresource:rawshark.exe;1
@@ -282,10 +276,10 @@ rawshark.exe	: $(LIBS_CHECK) config.h $(rawshark_OBJECTS) wsgetopt.obj inet_ntop
 # XXX: This makefile does not properly handle doing a 'nmake ... capinfos.exe' directly since some of the .objs
 #      (e.g. epan\plugins.obj) must be built first using epan\Makefile.nmake (which happens for 'nmake ... all').
 # Linking with setargv.obj enables "wildcard expansion" of command-line arguments
-capinfos.exe	: $(LIBS_CHECK) config.h $(capinfos_OBJECTS) wsgetopt.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
+capinfos.exe	: $(LIBS_CHECK) config.h $(capinfos_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(capinfos_OBJECTS) wsgetopt.obj $(capinfos_LIBS) setargv.obj image\capinfos.res
+		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(capinfos_OBJECTS) $(capinfos_LIBS) setargv.obj image\capinfos.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "capinfos.exe.manifest" -outputresource:capinfos.exe;1
@@ -293,29 +287,29 @@ capinfos.exe	: $(LIBS_CHECK) config.h $(capinfos_OBJECTS) wsgetopt.obj wsutil\li
 
 # XXX: This makefile does not properly handle doing a 'nmake ... editcap.exe' directly since some of the .objs
 #      (e.g. epan\plugins.obj) must be built first using epan\Makefile.nmake (which happens for 'nmake ... all').
-editcap.exe	: $(LIBS_CHECK) config.h $(editcap_OBJECTS) wsgetopt.obj strptime.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
+editcap.exe	: $(LIBS_CHECK) config.h $(editcap_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(editcap_OBJECTS) wsgetopt.obj strptime.obj $(editcap_LIBS) image\editcap.res
+		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(editcap_OBJECTS) $(editcap_LIBS) image\editcap.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "editcap.exe.manifest" -outputresource:editcap.exe;1
 !ENDIF
 
 # Linking with setargv.obj enables "wildcard expansion" of command-line arguments
-mergecap.exe	: $(LIBS_CHECK)  config.h mergecap.obj merge.obj wsgetopt.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
+mergecap.exe	: $(LIBS_CHECK)  config.h mergecap.obj merge.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj merge.obj wsgetopt.obj $(mergecap_LIBS) setargv.obj image\mergecap.res
+		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj merge.obj $(mergecap_LIBS) setargv.obj image\mergecap.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "mergecap.exe.manifest" -outputresource:mergecap.exe;1
 !ENDIF
 
-text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj wsgetopt.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib strptime.obj image\text2pcap.res
+text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\text2pcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj wsgetopt.obj $(text2pcap_LIBS) strptime.obj image\text2pcap.res
+		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj $(text2pcap_LIBS) image\text2pcap.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "text2pcap.exe.manifest" -outputresource:text2pcap.exe;1
@@ -330,19 +324,19 @@ dftest.exe	: $(dftest_OBJECTS) epan
 	mt.exe -nologo -manifest "dftest.exe.manifest" -outputresource:dftest.exe;1
 !ENDIF
 
-randpkt.exe	: $(randpkt_OBJECTS) wsgetopt.obj
+randpkt.exe	: $(randpkt_OBJECTS)
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:randpkt.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(randpkt_LIBS) $(randpkt_OBJECTS) wsgetopt.obj
+		/OUT:randpkt.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(randpkt_LIBS) $(randpkt_OBJECTS)
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "randpkt.exe.manifest" -outputresource:randpkt.exe;1
 !ENDIF
 
-dumpcap.exe	: $(LIBS_CHECK) config.h $(dumpcap_OBJECTS) wsgetopt.obj inet_ntop.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res
+dumpcap.exe	: $(LIBS_CHECK) config.h $(dumpcap_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) wsgetopt.obj inet_ntop.obj image\dumpcap.res
+		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) image\dumpcap.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "dumpcap.exe.manifest" -outputresource:dumpcap.exe;1
@@ -428,7 +422,7 @@ text2pcap-scanner.obj : text2pcap-scanner.c
 	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 #
-# The following targets will rebuild their respective objs 
+# The following targets will rebuild their respective objs
 # if and when svnversion.h should change.
 #
 
@@ -449,7 +443,7 @@ version_info.obj : $*.c svnversion.h
 
 clean-local: clean-deps
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
- 		$(EXTRA_OBJECTS) $(EXECUTABLES) *.pdb *.exe.manifest \
+ 		$(EXECUTABLES) *.pdb *.exe.manifest \
 		capinfos.obj editcap.obj mergecap.obj text2pcap.obj \
 		nio-ie5.obj update.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
@@ -687,7 +681,7 @@ doxygen-run:
 !ENDIF
 
 doxygen: doxygen.cfg doxygen-run
-	
+
 
 ################################################################################
 # Prepare build environment by downloading and installing required libraries
@@ -736,7 +730,7 @@ check_libs:
 #  If $(CHECK_TAG) is non-null then checktag failed; Exit with an error message. (See beginning of this Makefile).
 #  Otherwise do detailed library package files verification only if Makefile.nmake or config.make have been updated
 #  (or dummy file doesn't exist because of 'make clean' or whatever).
-#  Note that the creation/modification time of a file after an svn update of that file 
+#  Note that the creation/modification time of a file after an svn update of that file
 #   is the time of the update (not the time of the file in the repository).
 # touch is only called if libverify succeeds.
 $(LIBS_CHECK):  $(CHECK_TAG) config.nmake Makefile.nmake
@@ -972,9 +966,9 @@ install-generated-files:
 	xcopy ".\wimaxasncp\*.*" $(INSTALL_DIR)\wimaxasncp /d
 	if not exist $(INSTALL_DIR)\plugins mkdir $(INSTALL_DIR)\plugins
 	if not exist $(INSTALL_DIR)\plugins\$(VERSION) mkdir $(INSTALL_DIR)\plugins\$(VERSION)
-	cd plugins 
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-plugins 
-	cd .. 
+	cd plugins
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-plugins
+	cd ..
 
 # "install-all" will copy all files needed to run Wireshark/Tshark
 # to the INSTALL_DIR, so you can run/debug Wireshark/Tshark from there.

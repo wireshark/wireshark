@@ -90,7 +90,7 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/addr_resolv.h>
-#include <epan/inet_aton.h>
+#include <wsutil/inet_aton.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <ctype.h>

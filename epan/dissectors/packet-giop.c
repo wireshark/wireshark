@@ -289,7 +289,7 @@
 #include <glib.h>
 #include <math.h>
 #ifdef NEED_STRERROR_H
-#include "strerror.h"
+#include "wsutil/strerror.h"
 #endif
 
 #include "isprint.h"

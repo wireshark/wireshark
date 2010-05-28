@@ -42,13 +42,13 @@
 #endif
 
 #ifdef NEED_STRERROR_H
-#include "strerror.h"
+#include "wsutil/strerror.h"
 #endif
 
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #else
-#include "wsgetopt.h"
+#include "wsutil/wsgetopt.h"
 #endif
 
 #ifdef _WIN32 /* Needed for console I/O */
@@ -1774,7 +1774,7 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
 {
 #ifdef HAVE_GTKOSXAPPLICATION
     GtkOSXApplication *theApp;
-#endif	
+#endif
     switch(event) {
     case(capture_cb_capture_prepared):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture prepared");
@@ -2058,7 +2058,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_GTKOSXAPPLICATION
   GtkOSXApplication   *theApp;
 #endif
-	
+
 #ifdef HAVE_LIBPCAP
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
 #define OPTSTRING_B "B:"
@@ -3010,7 +3010,7 @@ main(int argc, char *argv[])
   gtk_osxapplication_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsicon64_xpm));
   gtk_osxapplication_ready(theApp);
 #endif
-	
+
   g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
 
   /* we'll enter the GTK loop now and hand the control over to GTK ... */
@@ -3033,7 +3033,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_GTKOSXAPPLICATION
   g_object_unref(theApp);
 #endif
-	
+
   /* Shutdown windows sockets */
   WSACleanup();
 

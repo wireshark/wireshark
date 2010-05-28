@@ -33,7 +33,7 @@
 #include <errno.h>
 
 #ifdef NEED_STRERROR_H
-#include "strerror.h"
+#include "wsutil/strerror.h"
 #endif
 
 #include <glib.h>

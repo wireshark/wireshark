@@ -295,17 +295,6 @@ endif		# HAVE_PLUGINS
 
 include Makefile.common
 
-# Optional objects that I know how to build. These will be
-# linked into the wireshark executable.
-# They will also be linked into the tshark executable; if this
-# list ever grows to include something that can't be linked with
-# tshark, or if tshark needs something that wireshark doesn't,
-# we should probably split this into stuff needed both
-# by wireshark and tshark and stuff needed only by one or the
-# other.
-wireshark_optional_objects = @GETOPT_O@ @STRERROR_O@ \
-	@STRNCASECMP_O@ @STRPTIME_O@
-
 if ENABLE_STATIC
 wireshark_LDFLAGS = -Wl,-static -all-static
 else
@@ -320,14 +309,11 @@ endif
 # @GTK_LIBS@ (as those are also needed for X applications, and GTK+
 # applications are X applications).
 wireshark_LDADD = \
-	$(wireshark_optional_objects)	\
 	gtk/libui.a			\
 	codecs/libcodec.a		\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
-	@INET_PTON_LO@			\
-	@INET_NTOP_LO@			\
 	@SSL_LIBS@ 			\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
@@ -351,12 +337,9 @@ endif
 
 # Libraries and plugin flags with which to link tshark.
 tshark_LDADD = \
-	$(wireshark_optional_objects)	\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
-	@INET_PTON_LO@			\
-	@INET_NTOP_LO@			\
 	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
@@ -381,12 +364,9 @@ endif
 
 # Libraries and plugin flags with which to link rawshark.
 rawshark_LDADD = \
-	$(wireshark_optional_objects)	\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
-	@INET_PTON_LO@			\
-	@INET_NTOP_LO@			\
 	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
@@ -403,13 +383,8 @@ rawshark_LDADD = \
 	@LIBSMI_LDFLAGS@
 rawshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
-# Optional objects that I know how to build, and that are needed by
-# text2pcap.
-text2pcap_optional_objects = @STRERROR_O@ @STRPTIME_O@
-
 # Libraries with which to link text2pcap.
 text2pcap_LDADD = \
-	$(text2pcap_optional_objects)	\
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@ -lm
@@ -455,7 +430,6 @@ randpkt_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 # Libraries and plugin flags with which to link dftest.
 dftest_LDADD = \
-	$(wireshark_optional_objects)	\
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	epan/libwireshark.la		\
@@ -478,7 +452,6 @@ dftest_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 dumpcap_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
-	@INET_NTOP_LO@			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\

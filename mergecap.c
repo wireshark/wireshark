@@ -30,7 +30,7 @@
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #else
-#include "wsgetopt.h"
+#include "wsutil/wsgetopt.h"
 #endif
 
 #include "svnversion.h"

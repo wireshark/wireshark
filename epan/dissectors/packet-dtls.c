@@ -70,7 +70,9 @@
 #include <epan/emem.h>
 #include <epan/tap.h>
 #include <epan/reassemble.h>
-#include "inet_v6defs.h"
+#ifdef NEED_INET_V6DEFS_H
+#include "wsutil/inet_v6defs.h"
+#endif
 #include "packet-ssl-utils.h"
 
 /* we need to remember the top tree so that subdissectors we call are created

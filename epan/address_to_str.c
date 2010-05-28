@@ -50,7 +50,7 @@
 #endif
 
 #ifdef NEED_INET_V6DEFS_H
-# include "inet_v6defs.h"
+# include "wsutil/inet_v6defs.h"
 #endif
 
 #include "to_str.h"
@@ -395,7 +395,7 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
   /* copy to output buffer */
   if (tempptr != temp) {
     size_t temp_len = (size_t) (tempptr - temp);
-    
+
     if (temp_len < (size_t) buf_len) {
       memcpy(buf, temp, temp_len);
       buf[temp_len] = '\0';

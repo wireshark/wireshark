@@ -90,11 +90,11 @@
 #endif
 
 #ifdef NEED_INET_ATON_H
-# include "inet_aton.h"
+# include "wsutil/inet_aton.h"
 #endif
 
 #ifdef NEED_INET_V6DEFS_H
-# include "inet_v6defs.h"
+# include "wsutil/inet_v6defs.h"
 #endif
 
 #if defined(_WIN32) && defined(INET6)

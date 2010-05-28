@@ -56,11 +56,6 @@ libwireshark_LIBS = \
 LIBWIRESHARK_OBJECTS = $(LIBWIRESHARK_ALL_SRC:.c=.obj)
 
 EXTRA_OBJECTS = \
-#	strerror.obj	\
-	inet_aton.obj	\
-	inet_pton.obj	\
-	inet_ntop.obj	\
-	strptime.obj	\
 !IF defined(NASM) && "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
 	asm_utils_win32_x86.obj
 !ELSE
@@ -107,7 +102,7 @@ clean-local:
 		libwireshark.lib libwireshark.dll *.manifest libwireshark.exp \
 		*.pdb doxygen.cfg html/*.* \
 		exntest.obj exntest.exe reassemble_test.obj reassemble_test.exe tvbtest.obj tvbtest.exe
-	if exist html rmdir html	
+	if exist html rmdir html
 
 clean:  clean-local
 	cd crc
@@ -134,13 +129,12 @@ clean:  clean-local
 # the same for now.
 #
 distclean-local: clean-local
-	rm -f config.h register.c mkstemp.c strptime.c \
-		inet_ntop.c inet_pton.c \
+	rm -f config.h register.c mkstemp.c \
 		$(LIBWIRESHARK_DISTCLEAN_GENERATED_SRC) \
 		$(LIBWIRESHARK_DISTCLEAN_GENERATED_INCLUDES) \
 		$(LIBWIRESHARK_NODISTCLEAN_GENERATED_SRC) \
 		$(LIBWIRESHARK_NODISTCLEAN_GENERATED_INCLUDES) \
-		dtd_grammar.out	sminmpec.c 
+		dtd_grammar.out	sminmpec.c
 
 distclean: distclean-local
 	cd crc
@@ -285,28 +279,11 @@ asm_utils_win32_x86.obj: asm_utils_win32_x86.asm
 	$(NASM) -f $(WIRESHARK_TARGET_PLATFORM) -o $@ $?
 !ENDIF
 
-# (Windows only) Copy some sources from /trunk to /trunk/epan.
-# It is a cleaner to compile these sources separately with this makefile than
-# using the object code compiled by the makefile in /trunk for both dynamically
-# and statically linking
-
-strptime.c: ..\strptime.c
-	set copycmd=/y
-	xcopy ..\strptime.c . /d
-
-inet_ntop.c: ..\inet_ntop.c
-	set copycmd=/y
-	xcopy ..\inet_ntop.c . /d
-
-inet_pton.c: ..\inet_pton.c
-	set copycmd=/y
-	xcopy ..\inet_pton.c . /d
-
 sminmpec.c: enterprise-numbers ..\tools\make-sminmpec.pl
 	$(PERL) ../tools/make-sminmpec.pl enterprise-numbers sminmpec.c
 
 RUNLEX=..\tools\runlex.sh
- 
+
 diam_dict_lex.h: diam_dict.c
 diam_dict.obj : diam_dict.c
 	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?

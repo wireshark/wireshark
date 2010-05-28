@@ -28,24 +28,46 @@ if HAVE_WARNINGS_AS_ERRORS
 AM_CFLAGS = -Werror
 endif
 
+# Optional objects that I know how to build. These will be
+# linked into libwsutil.
+wsutil_optional_objects =	\
+	@GETOPT_O@ 		\
+	@STRERROR_O@		\
+	@STRNCASECMP_O@		\
+	@STRPTIME_O@		\
+	@INET_PTON_LO@		\
+	@INET_NTOP_LO@
+
 lib_LTLIBRARIES = libwsutil.la
 
 INCLUDES = -I$(srcdir)/..
 
-libwsutil_la_SOURCES =	\
+libwsutil_la_SOURCES =		\
 	$(LIBWSUTIL_SRC)	\
 	$(LIBWSUTIL_INCLUDES)
 
-libwsutil_la_LIBADD = @GLIB_LIBS@
+libwsutil_la_LIBADD =	\
+	@GLIB_LIBS@	\
+	$(wsutil_optional_objects)
 
-EXTRA_DIST = \
+EXTRA_DIST =		\
 	Makefile.common	\
 	Makefile.nmake	\
 	file_util.c	\
 	file_util.h 	\
+	inet_ntop.c	\
+	inet_pton.c	\
+	inet_v6defs.h	\
 	libwsutil.def	\
+	strerror.c	\
+	strerror.h	\
+	strncasecmp.c	\
+	strptime.c	\
+	strptime.h	\
 	unicode-utils.c	\
-	unicode-utils.h
+	unicode-utils.h	\
+	wsgetopt.c	\
+	wsgetopt.h
 
 CLEANFILES = \
 	libwsutil.a	\

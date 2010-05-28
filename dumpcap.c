@@ -62,7 +62,7 @@
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #else
-#include "wsgetopt.h"
+#include "wsutil/wsgetopt.h"
 #endif
 
 #ifdef HAVE_NETDB_H
@@ -95,7 +95,7 @@
 #endif
 
 #ifdef NEED_INET_V6DEFS_H
-# include "inet_v6defs.h"
+# include "wsutil/inet_v6defs.h"
 #endif
 
 #include <wsutil/privileges.h>
@@ -674,7 +674,7 @@ get_if_capabilities(const char *devname, gboolean monitor_mode
         g_free(caps);
         return NULL;
     }
-    status = pcap_can_set_rfmon(pch); 
+    status = pcap_can_set_rfmon(pch);
     if (status < 0) {
         /* Error. */
         if (status == PCAP_ERROR)

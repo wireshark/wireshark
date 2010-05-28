@@ -29,6 +29,13 @@ IF(WIN32)
 ENDIF(WIN32)
 
 set(WSUTIL_FILES
+#		@GETOPT_O@	# wsgetopt.c
+#		@INET_ATON_LO@	# inet_aton.c
+#		@INET_NTOP_LO@	# inet_ntop.c
+#		@INET_PTON_LO@	# inet_pton.c
+#		@STRERROR_O@	# strerror.c
+#		@STRNCASECMP_O@	# strncasecmp.c
+#		@STRPTIME_O@	# strptime.c
   mpeg-audio.c
   privileges.c
   str_util.c
