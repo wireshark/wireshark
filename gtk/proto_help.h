@@ -1,7 +1,7 @@
 /* proto_help.h
  * Routines for dynamic protocol help menus
  *
- * $Id: capture_dlg.c 32829 2010-05-16 08:14:29Z guy $
+ * $Id$
  *
  * Edgar Gladkich <edgar.gladkich@incacon.de>
  * Gerald Combs <gerald@wireshark.org>
