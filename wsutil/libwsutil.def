@@ -66,3 +66,4 @@ getopt
 optarg DATA
 optind DATA
 opterr DATA
+optopt DATA
