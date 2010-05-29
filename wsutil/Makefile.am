@@ -31,12 +31,13 @@ endif
 # Optional objects that I know how to build. These will be
 # linked into libwsutil.
 wsutil_optional_objects =	\
-	@GETOPT_O@ 		\
-	@STRERROR_O@		\
-	@STRNCASECMP_O@		\
-	@STRPTIME_O@		\
+	@GETOPT_LO@ 		\
+	@INET_ATON_LO@		\
+	@INET_NTOP_LO@		\
 	@INET_PTON_LO@		\
-	@INET_NTOP_LO@
+	@STRERROR_LO@		\
+	@STRNCASECMP_LO@	\
+	@STRPTIME_LO@
 
 lib_LTLIBRARIES = libwsutil.la
 
@@ -48,7 +49,20 @@ libwsutil_la_SOURCES =		\
 
 EXTRA_libwsutil_la_SOURCES=	\
 	inet_aton.c		\
-	inet_aton.h
+	inet_aton.h		\
+	inet_ntop.c		\
+	inet_pton.c		\
+	inet_v6defs.h		\
+	strerror.c		\
+	strerror.h		\
+	strncasecmp.c		\
+	strptime.c		\
+	strptime.h		\
+	wsgetopt.c		\
+	wsgetopt.h
+
+libwsutil_la_DEPENDENCIES=	\
+	$(wsutil_optional_objects)
 
 libwsutil_la_LIBADD =		\
 	@GLIB_LIBS@		\
@@ -59,19 +73,9 @@ EXTRA_DIST =		\
 	Makefile.nmake	\
 	file_util.c	\
 	file_util.h 	\
-	inet_ntop.c	\
-	inet_pton.c	\
-	inet_v6defs.h	\
 	libwsutil.def	\
-	strerror.c	\
-	strerror.h	\
-	strncasecmp.c	\
-	strptime.c	\
-	strptime.h	\
 	unicode-utils.c	\
-	unicode-utils.h	\
-	wsgetopt.c	\
-	wsgetopt.h
+	unicode-utils.h
 
 CLEANFILES = \
 	libwsutil.a	\
