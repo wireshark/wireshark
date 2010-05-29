@@ -46,8 +46,12 @@ libwsutil_la_SOURCES =		\
 	$(LIBWSUTIL_SRC)	\
 	$(LIBWSUTIL_INCLUDES)
 
-libwsutil_la_LIBADD =	\
-	@GLIB_LIBS@	\
+EXTRA_libwsutil_la_SOURCES=	\
+	inet_aton.c		\
+	inet_aton.h
+
+libwsutil_la_LIBADD =		\
+	@GLIB_LIBS@		\
 	$(wsutil_optional_objects)
 
 EXTRA_DIST =		\

@@ -23,6 +23,7 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 libwsutil_LIBS = $(GLIB_LIBS)
 
 OBJECTS = file_util.obj		\
+	inet_aton.obj		\
 	inet_ntop.obj		\
 	inet_pton.obj		\
 	$(LIBWSUTIL_SRC:.c=.obj) \
