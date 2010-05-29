@@ -22,6 +22,7 @@
  */
 
 #include "strerror.h"
+#include <glib.h>
 
 /*
  * Version of "strerror()", for the benefit of OSes that don't have it
