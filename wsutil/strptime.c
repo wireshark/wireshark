@@ -536,11 +536,12 @@ strptime_internal (rp, fmt, tm, decided, era_cnt)
 	      *decided = raw;
 	    }
 #endif
-	  if (!match_string (HERE_AM_STR, rp))
+	  if (!match_string (HERE_AM_STR, rp)) {
 	    if (match_string (HERE_PM_STR, rp))
 	      is_pm = 1;
 	    else
 	      return NULL;
+	  }
 	  break;
 	case 'r':
 #ifdef _NL_CURRENT
