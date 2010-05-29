@@ -1223,9 +1223,6 @@ add_lemon_files(LIBWIRESHARK_FILES
 set(epan_LIBS
 	wiretap
 	wsutil
-#	@INET_ATON_LO@
-#	@INET_PTON_LO@
-#	@INET_NTOP_LO@
 #	@SSL_LIBS@
 	${PCRE_LIBRARIES}
 	${GLIB2_LIBRARIES}

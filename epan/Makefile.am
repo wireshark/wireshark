@@ -129,7 +129,7 @@ MAINTAINERCLEANFILES = \
 # Add the object files for missing routines, if any.
 #
 libwireshark_la_LIBADD = \
-	@INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ libwireshark_generated.la \
+	libwireshark_generated.la \
 	libwireshark_asmopt.la crc/libcrc.la crypt/libairpdcap.la \
 	ftypes/libftypes.la dfilter/libdfilter.la dissectors/libdissectors.la \
 	dissectors/libdirtydissectors.la $(wslua_lib) $(wspython_lib) @SOCKET_LIBS@ @NSL_LIBS@ \
@@ -139,7 +139,7 @@ libwireshark_la_LIBADD = \
 	${top_builddir}/wsutil/libwsutil.la -lm
 
 libwireshark_la_DEPENDENCIES = \
-	@INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ libwireshark_generated.la \
+	libwireshark_generated.la \
 	libwireshark_asmopt.la crc/libcrc.la crypt/libairpdcap.la \
 	ftypes/libftypes.la dfilter/libdfilter.la dissectors/libdissectors.la \
 	dissectors/libdirtydissectors.la $(wslua_lib) $(wspython_lib) \
