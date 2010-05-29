@@ -4496,8 +4496,8 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 	/* if we always add and never delete, then id == len - 1 is correct */
 	if(gpa_hfinfo.len>=gpa_hfinfo.allocated_len){
 		if(!gpa_hfinfo.hfi){
-			gpa_hfinfo.allocated_len=1000;
-			gpa_hfinfo.hfi=g_malloc(sizeof(header_field_info *)*1000);
+			gpa_hfinfo.allocated_len=100000;
+			gpa_hfinfo.hfi=g_malloc(sizeof(header_field_info *)*100000);
 		} else {
 			gpa_hfinfo.allocated_len+=1000;
 			gpa_hfinfo.hfi=g_realloc(gpa_hfinfo.hfi, sizeof(header_field_info *)*gpa_hfinfo.allocated_len);
