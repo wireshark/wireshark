@@ -463,7 +463,7 @@ static int hf_rtcp_rtpfb_tmbbr_fci_ssrc = -1;
 static int hf_rtcp_rtpfb_tmbbr_fci_exp = -1;
 static int hf_rtcp_rtpfb_tmbbr_fci_mantissa = -1;
 static int hf_rtcp_rtpfb_tmbbr_fci_bitrate = -1;
-static int hf_rtcp_rtpfb_tmbbr_fci_messuredoverhead = -1;
+static int hf_rtcp_rtpfb_tmbbr_fci_measuredoverhead = -1;
 static int hf_srtcp_e = -1;
 static int hf_srtcp_index = -1;
 static int hf_srtcp_mki = -1;
@@ -754,7 +754,7 @@ dissect_rtcp_rtpfb_tmmbr( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, prot
     proto_tree_add_string_format_value( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_bitrate, tvb, offset, 3, "", "%u", bitrate);
     offset += 3;
     /* Overhead */
-    proto_tree_add_item( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_messuredoverhead, tvb, offset, 1, FALSE );
+    proto_tree_add_item( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_measuredoverhead, tvb, offset, 1, FALSE );
     offset += 1;
 
     if (top_item != NULL) {
@@ -847,9 +847,9 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
       if (rtcp_rtpfb_fmt == 1) {
         offset = dissect_rtcp_rtpfb_nack(tvb, offset, rtcp_tree, top_item);
       } else if (rtcp_rtpfb_fmt == 3) {
-        offset = dissect_rtcp_rtpfb_tmmbr(tvb, offset, rtcp_tree, top_item, counter, 1);
-      } else if (rtcp_rtpfb_fmt == 4) {
         offset = dissect_rtcp_rtpfb_tmmbr(tvb, offset, rtcp_tree, top_item, counter, 0);
+      } else if (rtcp_rtpfb_fmt == 4) {
+        offset = dissect_rtcp_rtpfb_tmmbr(tvb, offset, rtcp_tree, top_item, counter, 1);
       } else {
 			  /* Unknown FMT */
 			  proto_tree_add_item(rtcp_tree, hf_rtcp_fci, tvb, offset, packet_length - offset, FALSE );
@@ -4535,10 +4535,10 @@ proto_register_rtcp(void)
 			}
 		},
     {
-      &hf_rtcp_rtpfb_tmbbr_fci_messuredoverhead,
+      &hf_rtcp_rtpfb_tmbbr_fci_measuredoverhead,
 			{
-				"Messured Overhead",
-				"rtcp.rtpfb.tmmbr.fci.messuredoverhead",
+				"Measured Overhead",
+				"rtcp.rtpfb.tmmbr.fci.measuredoverhead",
 				FT_UINT16,
 				BASE_DEC,
 				NULL,
