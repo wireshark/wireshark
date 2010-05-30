@@ -4414,6 +4414,7 @@ proto_reg_handoff_ppp_raw_hdlc(void)
   ppp_usb_handle = create_dissector_handle(dissect_ppp_usb, proto_ppp);
   dissector_add("usb.bulk", IF_CLASS_UNKNOWN, ppp_usb_handle);
   dissector_add("usb.bulk", IF_CLASS_VENDOR_SPECIFIC, ppp_usb_handle);
+  dissector_add("usb.bulk", IF_CLASS_CDC_DATA, ppp_usb_handle);
 }
 
 /*
