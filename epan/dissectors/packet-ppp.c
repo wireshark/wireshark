@@ -4361,23 +4361,32 @@ dissect_ppp_usb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
     (tvb_memeql(tvb, 0, buf1, sizeof(buf1)) == 0)) {
     dissect_ppp_raw_hdlc(tvb, pinfo, tree);
   }
-  else {
-    /* See if it's missing the 0x7e framing character */
-    if (tvb_memeql(tvb, 0, &buf1[1], 2) == 0) {
-      /* Yup ... what TODO?  Should we try faking it by sticking 0x7e in
-       * front?  Or try telling dissect_ppp_raw_hdlc() NOT to look for the
-       * 0x7e frame deliminator?  Or is this a bug in libpcap (used 1.1.0)?
-       * Or a bug in the Linux kernel (tested with 2.6.24.4)  Or a bug in
-       * usbmon?  Or is the data we're looking at really just part of the
-       * payload and not control data?  Well, at least in my case it's
-       * definitely not, but not sure if this is always the case. Is this
-       * issue applicable only to PPP/USB or PPP/XYZ, in which case a more
-       * general solution should be found?
-       */
+  else if ((tvb_memeql(tvb, 0, &buf1[1], sizeof(buf1) - 1) == 0) ||
+    (tvb_memeql(tvb, 0, &buf2[1], sizeof(buf2) - 1) == 0)) { 
+    /* It's missing the 0x7e framing character.  What TODO?
+     * Should we try faking it by sticking 0x7e in front?  Or try telling
+     * dissect_ppp_raw_hdlc() NOT to look for the 0x7e frame deliminator?
+     * Or is this a bug in libpcap (used 1.1.0)?
+     * Or a bug in the Linux kernel (tested with 2.6.24.4)  Or a bug in
+     * usbmon?  Or is the data we're looking at really just part of the
+     * payload and not control data?  Well, at least in my case it's
+     * definitely not, but not sure if this is always the case. Is this
+     * issue applicable only to PPP/USB or PPP/XYZ, in which case a more
+     * general solution should be found?
+     */
       /* For now, just try skipping the framing I guess??? */
-      next_tvb = tvb_new_subset_remaining(tvb, 2);
+      if ( tvb_get_guint8(tvb, 1) == 0x03)
+        next_tvb = tvb_new_subset_remaining(tvb, 2);
+      else
+        next_tvb = tvb_new_subset_remaining(tvb, 3);
       dissect_ppp(next_tvb, pinfo, tree);
-    }
+  }
+  else if (tvb_get_guint8(tvb, 0) == 0x7e) {
+    /* Well, let's guess that since the 1st byte is 0x7e that it really is
+     * a PPP frame, and the address and control bytes are compressed (NULL)
+     * per http://tools.ietf.org/html/rfc1662, section 3.2. */
+    next_tvb = tvb_new_subset_remaining(tvb, 1);
+    dissect_ppp_hdlc_common(next_tvb, pinfo, tree);
   }
 }
 
