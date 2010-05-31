@@ -101,6 +101,20 @@ static int hf_nfs_fh_version = -1;
 static int hf_nfs_fh_auth_type = -1;
 static int hf_nfs_fh_fsid_type = -1;
 static int hf_nfs_fh_fileid_type = -1;
+static int hf_nfs_fh_obj_id = -1;
+static int hf_nfs_fh_ro_node = -1;
+static int hf_nfs_fh_obj = -1;
+static int hf_nfs_fh_obj_fsid = -1;
+static int hf_nfs_fh_obj_treeid = -1;
+static int hf_nfs_fh_obj_kindid = -1;
+static int hf_nfs_fh_obj_inode = -1;
+static int hf_nfs_fh_obj_gen = -1;
+static int hf_nfs_fh_ex = -1;
+static int hf_nfs_fh_ex_fsid = -1;
+static int hf_nfs_fh_ex_treeid = -1;
+static int hf_nfs_fh_ex_kindid = -1;
+static int hf_nfs_fh_ex_inode = -1;
+static int hf_nfs_fh_ex_gen = -1;
 static int hf_nfs_fh_flag = -1;
 static int hf_nfs_fh_endianness = -1;
 static int hf_gxfh3_utlfield = -1;
@@ -603,6 +617,8 @@ static gint ett_nfs_gid4 = -1;
 static gint ett_nfs_service4 = -1;
 static gint ett_nfs_sessionid4 = -1;
 static gint ett_nfs_layoutseg = -1;
+static gint ett_nfs_fh_obj = -1;
+static gint ett_nfs_fh_ex = -1;
 static gint ett_nfs_layoutseg_fh = -1;
 static gint ett_nfs_reclaim_complete4 = -1;
 
@@ -618,6 +634,7 @@ static dissector_table_t nfs_fhandle_table;
 #define FHT_NETAPP		5
 #define FHT_NETAPP_V4		6
 #define FHT_NETAPP_GX_V3	7
+#define FHT_CELERRA		8
 
 
 static enum_val_t nfs_fhandle_types[] = {
@@ -629,6 +646,7 @@ static enum_val_t nfs_fhandle_types[] = {
 	{ "ontap_v3",	"ONTAP_V3",	FHT_NETAPP },
 	{ "ontap_v4",	"ONTAP_V4",	FHT_NETAPP_V4},
 	{ "ontap_gx_v3","ONTAP_GX_V3",	FHT_NETAPP_GX_V3},
+	{ "celerra",	"CELERRA", FHT_CELERRA },
 	{ NULL, NULL, 0 }
 };
 /* decode all nfs filehandles as this type */
@@ -1069,6 +1087,7 @@ static const value_string names_fhtype[] =
 	{	FHT_NETAPP,		"ONTAP 7G nfs v3 file handle"		},
 	{	FHT_NETAPP_V4,	 	"ONTAP 7G nfs v4 file handle"		},
 	{	FHT_NETAPP_GX_V3,	"ONTAP GX nfs v3 file handle"		},
+	{   FHT_CELERRA,	"Celerra nfs file handle"		},
 	{	0,			NULL					}
 };
 
@@ -2044,6 +2063,125 @@ out:
 	;
 }
 
+
+/* Dissect EMC Celerra NFSv3/v4 File Handles */
+static void
+dissect_fhandle_data_CELERRA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint16 offset=0;
+	guint16	fhlen;
+	guint32 obj_fsid;
+	guint16	obj_kindid;
+	guint16	obj_treeid;
+	guint32 obj_inode;
+	guint32 obj_gen;
+	guint32 ex_fsid;
+	guint16	ex_kindid;
+	guint16	ex_treeid;
+	guint32 ex_inode;
+	guint32 ex_gen;
+	guint32	obj_id;
+	guint32	ro_node;
+
+	if (!tree) return;
+
+	fhlen = tvb_reported_length(tvb);
+
+	/* Display the entire filehandle */
+	proto_tree_add_item(tree, hf_nfs_fh_fhandle_data, tvb, 0, fhlen, FALSE);
+
+    	/* 	On Celerra if fhlen = 32, it's an NFSv3 filehandle */
+	if (fhlen == 32) {
+		/* Create a "File/Dir" subtree: bytes 0 thru 15 of the 32-byte file handle 	 */
+		{
+		proto_item* obj_item = NULL;
+		proto_tree* obj_tree = NULL;
+		obj_item = proto_tree_add_item(tree, hf_nfs_fh_obj, tvb, offset+0, 16, TRUE );
+		obj_tree = proto_item_add_subtree(obj_item, ett_nfs_fh_obj);
+
+		obj_fsid   = tvb_get_letohl(tvb, offset+0);
+		proto_tree_add_uint(obj_tree, hf_nfs_fh_obj_fsid,   tvb,  offset+0, 4, obj_fsid);
+		obj_kindid = tvb_get_letohs(tvb, offset+4);
+		proto_tree_add_uint(obj_tree, hf_nfs_fh_obj_kindid, tvb,  offset+4, 2, obj_kindid);
+		obj_treeid = tvb_get_letohs(tvb, offset+6);
+		proto_tree_add_uint(obj_tree, hf_nfs_fh_obj_treeid, tvb,  offset+6, 2, obj_treeid);
+		obj_inode  = tvb_get_letohl(tvb, offset+8);
+		proto_tree_add_uint(obj_tree, hf_nfs_fh_obj_inode,  tvb,  offset+8, 4, obj_inode);
+		obj_gen	  = tvb_get_letohl(tvb, offset+12);
+		proto_tree_add_uint(obj_tree, hf_nfs_fh_obj_gen,    tvb, offset+12, 4, obj_gen);
+		}
+		{
+		/* Create "Export" subtree (NFSv3: Bytes 16 thru 31 of the 32-byte file handle  */
+		proto_item* ex_item = NULL;
+		proto_tree* ex_tree = NULL;
+		ex_item = proto_tree_add_item(tree, hf_nfs_fh_ex, tvb,  offset+16, 16, TRUE );
+		ex_tree = proto_item_add_subtree(ex_item, ett_nfs_fh_ex);
+
+		ex_fsid   = tvb_get_letohl(tvb, offset+16);
+		proto_tree_add_uint(ex_tree, hf_nfs_fh_ex_fsid,     tvb, offset+16, 4, ex_fsid);
+		ex_kindid = tvb_get_letohs(tvb, offset+20);
+		proto_tree_add_uint(ex_tree, hf_nfs_fh_ex_kindid,   tvb, offset+20, 2, ex_kindid);
+		ex_treeid = tvb_get_letohs(tvb, offset+22);
+		proto_tree_add_uint(ex_tree, hf_nfs_fh_ex_treeid,   tvb, offset+22, 2, ex_treeid);
+		ex_inode  = tvb_get_letohl(tvb, offset+24);
+		proto_tree_add_uint(ex_tree, hf_nfs_fh_ex_inode,    tvb, offset+24, 4, ex_inode);
+		ex_gen    = tvb_get_letohl(tvb, offset+28);
+		proto_tree_add_uint(ex_tree, hf_nfs_fh_ex_gen,      tvb, offset+28, 4, ex_gen);
+		}
+	} else {
+		/* On Celerra if fhlen = 40, it's an NFSv4 filehandle).  In Celerra NFSv4  
+		filehandles, the first 4 bytes are the Named Attribute ID, and the next 4 bytes 
+		is the RO_Node boolean which is true is the file/dir is Read Only.  Unlike the 
+		NFSv3 filehandles, the next 16 bytes contain the *export* info followed by 16 bytes 
+		containing the *file/dir* info. */ 
+
+		/* "Named Attribute ID" or "Object ID" (bytes 0 thru 3) */
+		obj_id = tvb_get_letohl(tvb, offset+0);
+		if (obj_id <= 0 || obj_id > 9) obj_id = 1;
+		proto_tree_add_uint(tree, hf_nfs_fh_obj_id,         tvb,  offset+0, 4, obj_id);
+		
+		/* "RO_Node" boolean (bytes 4 thru 7) */
+		ro_node = tvb_get_letohl(tvb, offset+4);
+		proto_tree_add_boolean(tree, hf_nfs_fh_ro_node,     tvb,  offset+4, 4, ro_node);
+
+		/* Create "Export" subtree (bytes 8 thru 23 of the 40-byte filehandle  */
+		{
+		proto_item* ex_item = NULL;
+		proto_tree* ex_tree = NULL;
+		ex_item = proto_tree_add_item(tree, hf_nfs_fh_ex,  tvb,  offset+8, 16, TRUE );
+		ex_tree = proto_item_add_subtree(ex_item, ett_nfs_fh_ex);
+
+		ex_fsid   = tvb_get_letohl(tvb, offset+8);
+		proto_tree_add_uint(ex_tree, hf_nfs_fh_ex_fsid,    tvb,  offset+8,  4, ex_fsid);
+		ex_kindid = tvb_get_letohs(tvb, offset+12);
+		proto_tree_add_uint(ex_tree, hf_nfs_fh_ex_kindid,  tvb, offset+12,  2, ex_kindid);
+		ex_treeid = tvb_get_letohs(tvb, offset+14);
+		proto_tree_add_uint(ex_tree, hf_nfs_fh_ex_treeid,  tvb, offset+14,  2, ex_treeid);
+		ex_inode  = tvb_get_letohl(tvb, offset+16);
+		proto_tree_add_uint(ex_tree, hf_nfs_fh_ex_inode,   tvb, offset+16,  4, ex_inode);
+		ex_gen    = tvb_get_letohl(tvb, offset+20);
+		proto_tree_add_uint(ex_tree, hf_nfs_fh_ex_gen,     tvb, offset+20,  4, ex_gen);
+		}
+		/* Create a "File/Dir/Object" subtree (bytes 24 thru 39 of the 40-byte filehandle) 	 */
+		{		
+		proto_item* obj_item = NULL;
+		proto_tree* obj_tree = NULL;
+		obj_item = proto_tree_add_item(tree, hf_nfs_fh_obj, tvb, offset+24, 16, TRUE);
+		obj_tree = proto_item_add_subtree(obj_item, ett_nfs_fh_obj);
+
+		obj_fsid   = tvb_get_letohl(tvb, offset+24);
+		proto_tree_add_uint(obj_tree, hf_nfs_fh_obj_fsid,   tvb, offset+24,  4, obj_fsid);
+		obj_kindid = tvb_get_letohs(tvb, offset+28);
+		proto_tree_add_uint(obj_tree, hf_nfs_fh_obj_kindid, tvb, offset+28,  2, obj_kindid);
+		obj_treeid = tvb_get_letohs(tvb, offset+30);
+		proto_tree_add_uint(obj_tree, hf_nfs_fh_obj_treeid, tvb, offset+30,  2, obj_treeid);
+		obj_inode  = tvb_get_letohl(tvb, offset+32);
+		proto_tree_add_uint(obj_tree, hf_nfs_fh_obj_inode,  tvb, offset+32,  4, obj_inode);
+		obj_gen	  = tvb_get_letohl(tvb, offset+36);
+		proto_tree_add_uint(obj_tree, hf_nfs_fh_obj_gen,    tvb, offset+36,  4, obj_gen); 
+		}
+	}
+};
 
 static void
 dissect_fhandle_data_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
@@ -9660,6 +9798,24 @@ static const value_string layoutreturn_names[] = {
 	{ 0, NULL }
 };
 
+const value_string nfs_fh_obj_id[] = {
+	{ 1, "NF4REG"},
+	{ 2, "NF4DIR"},
+	{ 3, "NF4BLK"},
+	{ 4, "NF4CHR"},
+	{ 5, "NF4LNK"},
+	{ 6, "NF4SOCK"},
+	{ 7, "NF4FIFO"},
+	{ 8, "NF4ATTRDIR"},
+	{ 9, "NF4NAMEDATTR"},
+	{ 0, NULL }
+};
+
+static const true_false_string nfsv4_ro_boolean = {
+	"object is read only",
+	"object is *not* read-only"
+};
+
 static const value_string layoutrecall_names[] = {
 	{ 1, "RECALL_FILE"},
 	{ 2, "RECALL_FSID"},
@@ -10188,6 +10344,48 @@ proto_register_nfs(void)
 		{ &hf_nfs_fh_fileid_type, {
 			"fileid_type", "nfs.fh.fileid_type", FT_UINT8, BASE_DEC,
 			VALS(fileid_type_names), 0, "file ID type", HFILL }},
+		{ &hf_nfs_fh_obj_id, {
+			"Object type", "nfs.fh.obj.id", FT_UINT32, BASE_DEC,
+			VALS(nfs_fh_obj_id), 0, "Object ID", HFILL }},
+		{ &hf_nfs_fh_ro_node, {
+			"RO_node", "nfs.fh.ro.node", FT_BOOLEAN, BASE_NONE,
+			TFS(&nfsv4_ro_boolean), 0, "Read Only Node", HFILL }},
+		{ &hf_nfs_fh_obj, {
+			"Object info", "nfs.fh.obj.info", FT_BYTES, BASE_NONE,
+			NULL, 0,"File/Dir/Object Info", HFILL }},
+		{ &hf_nfs_fh_obj_fsid, {
+			"obj_fsid", "nfs.fh.obj.fsid", FT_UINT32, BASE_DEC,
+			NULL, 0, "File system ID of the object", HFILL }},
+		{ &hf_nfs_fh_obj_kindid, {
+			"obj_kindid", "nfs.fh.obj.kindid", FT_UINT16, BASE_DEC,
+			NULL, 0, "KindID of the object", HFILL }},		
+		{ &hf_nfs_fh_obj_treeid, {
+			"obj_treeid", "nfs.fh.obj.treeid", FT_UINT16, BASE_DEC,
+			NULL, 0, "TreeID of the object", HFILL }},		
+		{ &hf_nfs_fh_obj_inode, {
+			"obj_inode", "nfs.fh.obj.inode", FT_UINT32, BASE_DEC,
+			NULL, 0, "Inode of the object", HFILL }},		
+		{ &hf_nfs_fh_obj_gen, {
+			"obj_gen", "nfs.fh.obj.gen", FT_UINT32, BASE_DEC,
+			NULL, 0, "Generation ID of the object", HFILL }},		
+		{ &hf_nfs_fh_ex, {
+			"Export info", "nfs.fh.ex.info", FT_BYTES, BASE_NONE,
+			NULL, 0, "Export Info (16 bytes)", HFILL }},
+		{ &hf_nfs_fh_ex_fsid, {
+			"ex_fsid", "nfs.fh.ex.fsid", FT_UINT32, BASE_DEC,
+			NULL, 0, "File system ID of the object", HFILL }},
+		{ &hf_nfs_fh_ex_kindid, {
+			"ex_kindid", "nfs.fh.ex.kindid", FT_UINT16, BASE_DEC,
+			NULL, 0, "KindID of the object", HFILL }},		
+		{ &hf_nfs_fh_ex_treeid, {
+			"ex_treeid", "nfs.fh.ex.treeid", FT_UINT16, BASE_DEC,
+			NULL, 0, "TreeID of the object", HFILL }},		
+		{ &hf_nfs_fh_ex_inode, {
+			"ex_inode", "nfs.fh.ex.inode", FT_UINT32, BASE_DEC,
+			NULL, 0, "Inode of the object", HFILL }},		
+		{ &hf_nfs_fh_ex_gen, {
+			"ex_gen", "nfs.fh.ex.gen", FT_UINT32, BASE_DEC,
+			NULL, 0, "Generation ID of the object", HFILL }},
 		{ &hf_nfs_fh_flag, {
 			"flag", "nfs.fh.flag", FT_UINT32, BASE_HEX,
 			NULL, 0, "file handle flag", HFILL }},
@@ -11632,6 +11830,8 @@ proto_register_nfs(void)
 		&ett_nfs_sessionid4,
 		&ett_nfs_layoutseg,		
 		&ett_nfs_layoutseg_fh,
+		&ett_nfs_fh_obj,
+		&ett_nfs_fh_ex,
 		&ett_nfs_cb_argop,
 		&ett_nfs_cb_resop,
 		&ett_nfs_cb_getattr,
@@ -11720,6 +11920,9 @@ proto_reg_handoff_nfs(void)
 
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_NETAPP_GX_v3, proto_nfs);
 	dissector_add("nfs_fhandle.type", FHT_NETAPP_GX_V3, fhandle_handle);
+
+	fhandle_handle=create_dissector_handle(dissect_fhandle_data_CELERRA, proto_nfs);
+	dissector_add("nfs_fhandle.type", FHT_CELERRA, fhandle_handle);
 
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_unknown, proto_nfs);
 	dissector_add("nfs_fhandle.type", FHT_UNKNOWN, fhandle_handle);
