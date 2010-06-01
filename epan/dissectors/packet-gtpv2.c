@@ -36,6 +36,7 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <epan/sminmpec.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
@@ -133,30 +134,7 @@ static int hf_gtpv2_ue_time_zone= -1;
 static int hf_gtpv2_ue_time_zone_dst= -1;
 
 static int hf_gtpv2_node_type= -1;
-
-static int hf_gtpv2_b_tft_opcode= -1;
-static int hf_gtpv2_b_tft_ebit= -1;
-static int hf_gtpv2_b_tft_number= -1;
-static int hf_gtpv2_b_tft_pf_id= -1;
-static int hf_gtpv2_b_tft_pf_direction= -1;
-static int hf_gtpv2_b_tft_pf_eval= -1;
-static int hf_gtpv2_b_tft_pf_length= -1;
-static int hf_gtpv2_b_tft_pf_comp_type= -1;
-static int hf_gtpv2_b_tft_pf_ipv4= -1;
-static int hf_gtpv2_b_tft_pf_ipv4_mask= -1;
-static int hf_gtpv2_b_tft_pf_ipv6= -1;
-static int hf_gtpv2_b_tft_pf_ipv6_mask= -1;
-static int hf_gtpv2_b_tft_pf_prot_id= -1;
-static int hf_gtpv2_b_tft_pf_single_local= -1;
-static int hf_gtpv2_b_tft_pf_local_port_low= -1;
-static int hf_gtpv2_b_tft_pf_local_port_high= -1;
-static int hf_gtpv2_b_tft_pf_single_remote= -1;
-static int hf_gtpv2_b_tft_pf_remote_port_low= -1;
-static int hf_gtpv2_b_tft_pf_remote_port_high= -1;
-static int hf_gtpv2_b_tft_pf_security= -1;
-static int hf_gtpv2_b_tft_pf_service_type= -1;
-static int hf_gtpv2_b_tft_pf_service_type_mask= -1;
-static int hf_gtpv2_b_tft_pf_flow_label= -1;
+static int hf_gtpv2_enterprise_id = -1;
 static int hf_gtpv2_apn_rest= -1;
 static int hf_gtpv2_pti= -1;
 static int hf_gtpv2_uli_cgi_lac= -1;
@@ -296,6 +274,8 @@ static const value_string gtpv2_message_type_vals[] = {
 #define GTPV2_BEARER_CONTROL_MODE   130
 #define GTPV2_CNG_REP_ACT       131
 #define GTPV2_NODE_TYPE         135
+#define GTPV2_FQDN				136
+#define GTPV2_PRIVATE_EXT       255
 
 #define SPARE                               0X0
 #define CREATE_NEW_TFT                      0X20
@@ -383,7 +363,7 @@ static const value_string gtpv2_element_type_vals[] = {
     {136, "Fully Qualified Domain Name (FQDN)"},                                /* Variable Length / 8.66 */
     {137, "Transaction Identifier (TI)"},                                       /* Variable Length / 8.68 */
     /* 138-254 "Spare."},   */                                                  /* For future use. FFS */
-    {255, "Private"},                                                           /* Extension Extendable / 8.71 */
+    {255, "Private"},                                                           /* Extension Extendable / 8.67 */
     {0, NULL}
 };
 
@@ -833,146 +813,12 @@ static const value_string gtpv2_direction_vals[] = {
 static void
 dissect_gtpv2_bearer_tft(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
-    int offset= 0,i=0,newoffset2;
-    guint8 number, opcode, ebit, comptype, length1;
-    proto_tree *ie_tree;
-    proto_item *ti;
-    number = tvb_get_guint8(tvb,offset)& 0x0f;
-    opcode = tvb_get_guint8(tvb,offset)& 0xe0;
-    ebit = tvb_get_guint8(tvb,offset)& 0x10;
-    proto_tree_add_item(tree, hf_gtpv2_b_tft_opcode, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gtpv2_b_tft_number, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gtpv2_b_tft_ebit, tvb, offset, 1, FALSE);
-    offset++;
-    switch(opcode)
-    {
-    case SPARE:
-        /* Spare */
-        break;
-    case CREATE_NEW_TFT:
-        /* Create New TFT */
-    case ADD_PACKET_FILTERS_TFT:
-        /* Add packet filters to existing TFT */
-    case REPLACE_PACKET_FILTERS_TFT:
-        /*Replace Packet filters in existing TFT */
-        while (i<number)
-        {
-            i++;newoffset2=0;
-            length1 =tvb_get_guint8(tvb,offset+2);
-            ti = proto_tree_add_text(tree, tvb, offset, 3+length1, "Packet Filter %d",i);
-            ie_tree = proto_item_add_subtree(ti, ett_gtpv2_ie);
-            proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_id, tvb, offset, 1, FALSE);
-            proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_direction, tvb, offset, 1, FALSE);
-            offset++;
-            proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_eval, tvb, offset, 1, FALSE);
-            offset++;
-            proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_length, tvb, offset, 1, FALSE);
-            offset++;
-
-            while (newoffset2<length1)
-            {
-                proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_comp_type, tvb, offset, 1, FALSE);
-                comptype = tvb_get_guint8(tvb,offset);
-                offset++;
-                newoffset2++;
-                if (comptype==16)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv4, tvb, offset, 4, FALSE);
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv4_mask, tvb, offset, 4, FALSE);
-                    offset+=8;
-                    newoffset2+=8;
-                }
-                if (comptype==32)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv6, tvb, offset, 16, FALSE);
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv6_mask, tvb, offset, 16, FALSE);
-                    offset+=32;
-                    newoffset2+=32;
-                }
-                if (comptype==48)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_prot_id, tvb, offset, 1, FALSE);
-                    offset+=1;
-                    newoffset2+=1;
-                }
-                if (comptype==64)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_single_local, tvb, offset, 2, FALSE);
-                    offset+=2;
-                    newoffset2+=2;
-                }
-                if (comptype==65)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_local_port_low, tvb, offset, 2, FALSE);
-                    offset+=2;
-                    newoffset2+=2;
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_local_port_high, tvb, offset, 2, FALSE);
-                    offset+=2;
-                    newoffset2+=2;
-                }
-                if (comptype==80)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_single_remote, tvb, offset, 2, FALSE);
-                    offset+=2;
-                    newoffset2+=2;
-                }
-                if (comptype==81)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_remote_port_low, tvb, offset, 2, FALSE);
-                    offset+=2;
-                    newoffset2+=2;
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_remote_port_high, tvb, offset, 2, FALSE);
-                    offset+=2;
-                    newoffset2+=2;
-                }
-                if (comptype==96)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_security, tvb, offset, 4, FALSE);
-                    offset+=4;
-                    newoffset2+=4;
-                }
-                if (comptype==112)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_service_type, tvb, offset, 1, FALSE);
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_service_type_mask, tvb, offset, 1, FALSE);
-                    offset+=2;
-                    newoffset2+=2;
-                }
-                if (comptype==128)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_flow_label, tvb, offset, 3, FALSE);
-                    offset+=3;
-                    newoffset2+=3;
-                }
-            }
-        }
-
-        break;
-    case DELETE_TFT:
-        /* Delete Existing TFT */
-        break;
-
-    case DELETE_PACKET_FILTERS_TFT:
-        /* Delete Packet filters from existing TFT */
-        while (i<number)
-        {
-            i++;
-            ti = proto_tree_add_text(tree, tvb, offset, 1, "Packet Filter %d",i);
-            ie_tree = proto_item_add_subtree(ti, ett_gtpv2_ie);
-            proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_id, tvb, offset, 1, FALSE);
-            proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_direction, tvb, offset, 1, FALSE);
-            offset++;
-        }
-        break;
-    case NO_TFT_OPERATION:
-        /* No TFT operation */
-        break;
-    case RESERVED:
-        /* Reserved */
-        break;
-    default:
-        break;
-    }
+	/* The detailed coding of Traffic Aggregate
+	 * Description is specified in 3GPP TS 24.008 [5] ,
+	 * clause 10.5.6.12, beginning with octet 3..
+	 * Use the decoding in packet-gsm_a_gm.c
+	 */
+	de_sm_tflow_temp(tvb, tree, 0, length, NULL, 0);
 
 }
  /* 8.20 Traffic Aggregate Description (TAD)
@@ -980,147 +826,14 @@ dissect_gtpv2_bearer_tft(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static void
 dissect_gtpv2_tad(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
-    int offset= 0,i=0,newoffset2;
-    guint8 number, opcode, ebit, comptype, length1;
-    proto_tree *ie_tree;
-    proto_item *ti;
-    number = tvb_get_guint8(tvb,offset)& 0x0f;
-    opcode = tvb_get_guint8(tvb,offset)& 0xe0;
-    ebit = tvb_get_guint8(tvb,offset)& 0x10;
-    proto_tree_add_item(tree, hf_gtpv2_b_tft_opcode, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gtpv2_b_tft_number, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gtpv2_b_tft_ebit, tvb, offset, 1, FALSE);
-    offset++;
-    switch(opcode)
-    {
-    case SPARE:
-        /* Spare */
-        break;
-    case CREATE_NEW_TFT:
-        /* Create New TFT */
-    case ADD_PACKET_FILTERS_TFT:
-        /* Add packet filters to existing TFT */
-    case REPLACE_PACKET_FILTERS_TFT:
-        /*Replace Packet filters in existing TFT */
-        while (i<number)
-        {
-            i++;newoffset2=0;
-            length1 =tvb_get_guint8(tvb,offset+2);
-            ti = proto_tree_add_text(tree, tvb, offset, 3+length1, "Packet Filter %d",i);
-            ie_tree = proto_item_add_subtree(ti, ett_gtpv2_ie);
-            proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_id, tvb, offset, 1, FALSE);
-            proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_direction, tvb, offset, 1, FALSE);
-            offset++;
-            proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_eval, tvb, offset, 1, FALSE);
-            offset++;
-            proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_length, tvb, offset, 1, FALSE);
-            offset++;
-
-            while (newoffset2<length1)
-            {
-                proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_comp_type, tvb, offset, 1, FALSE);
-                comptype = tvb_get_guint8(tvb,offset);
-                offset++;
-                newoffset2++;
-                if (comptype==16)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv4, tvb, offset, 4, FALSE);
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv4_mask, tvb, offset, 4, FALSE);
-                    offset+=8;
-                    newoffset2+=8;
-                }
-                if (comptype==32)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv6, tvb, offset, 16, FALSE);
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv6_mask, tvb, offset, 16, FALSE);
-                    offset+=32;
-                    newoffset2+=32;
-                }
-                if (comptype==48)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_prot_id, tvb, offset, 1, FALSE);
-                    offset+=1;
-                    newoffset2+=1;
-                }
-                if (comptype==64)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_single_local, tvb, offset, 2, FALSE);
-                    offset+=2;
-                    newoffset2+=2;
-                }
-                if (comptype==65)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_local_port_low, tvb, offset, 2, FALSE);
-                    offset+=2;
-                    newoffset2+=2;
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_local_port_high, tvb, offset, 2, FALSE);
-                    offset+=2;
-                    newoffset2+=2;
-                }
-                if (comptype==80)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_single_remote, tvb, offset, 2, FALSE);
-                    offset+=2;
-                    newoffset2+=2;
-                }
-                if (comptype==81)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_remote_port_low, tvb, offset, 2, FALSE);
-                    offset+=2;
-                    newoffset2+=2;
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_remote_port_high, tvb, offset, 2, FALSE);
-                    offset+=2;
-                    newoffset2+=2;
-                }
-                if (comptype==96)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_security, tvb, offset, 4, FALSE);
-                    offset+=4;
-                    newoffset2+=4;
-                }
-                if (comptype==112)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_service_type, tvb, offset, 1, FALSE);
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_service_type_mask, tvb, offset, 1, FALSE);
-                    offset+=2;
-                    newoffset2+=2;
-                }
-                if (comptype==128)
-                {
-                    proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_flow_label, tvb, offset, 3, FALSE);
-                    offset+=3;
-                    newoffset2+=3;
-                }
-            }
-        }
-
-        break;
-    case DELETE_TFT:
-        /* Delete Existing TFT */
-        break;
-
-    case DELETE_PACKET_FILTERS_TFT:
-        /* Delete Packet filters from existing TFT */
-        while (i<number)
-        {
-            i++;
-            ti = proto_tree_add_text(tree, tvb, offset, 1, "Packet Filter %d",i);
-            ie_tree = proto_item_add_subtree(ti, ett_gtpv2_ie);
-            proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_id, tvb, offset, 1, FALSE);
-            proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_direction, tvb, offset, 1, FALSE);
-            offset++;
-        }
-        break;
-    case NO_TFT_OPERATION:
-        /* No TFT operation */
-        break;
-    case RESERVED:
-        /* Reserved */
-        break;
-    default:
-        break;
-    }
+	/* The detailed coding of Traffic Aggregate
+	 * Description is specified in 3GPP TS 24.008 [5] ,
+	 * clause 10.5.6.12, beginning with octet 3..
+	 * Use the decoding in packet-gsm_a_gm.c
+	 */
+	de_sm_tflow_temp(tvb, tree, 0, length, NULL, 0);
 }
+
 /*
  * 8.21 User Location Info (ULI)
  *
@@ -1483,7 +1196,7 @@ static const value_string gtpv2_cng_rep_act_vals[] = {
 };
 
 static void
-dissect_cng_rep_act(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+dissect_gtpv2_cng_rep_act(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
 
     proto_tree_add_item(tree, hf_gtpv2_cng_rep_act, tvb, 0, 1, FALSE);
@@ -1502,15 +1215,41 @@ static const value_string gtpv2_node_type_vals[] = {
 };
 
 static void
-dissect_node_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+dissect_gtpv2_node_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
 
     proto_tree_add_item(tree, hf_gtpv2_node_type, tvb, 0, 1, FALSE);
 }
 
- /* 8.66 Fully Qualified Domain Name (FQDN)
+ /* 
+  * 8.66 Fully Qualified Domain Name (FQDN)
+  */
+static void
+dissect_gtpv2_fqdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+	/* The FQDN field encoding shall be identical to the encoding of
+	 * a FQDN within a DNS message of section 3.1 of IETF
+	 * RFC 1035 [31] but excluding the trailing zero byte.
+	 */
+
+    proto_tree_add_text(tree, tvb, 0, length, "Not dissected yet");
+}
+/*
  * 8.67 Private Extension
  */
+static void
+dissect_private_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+	int offset = 0;
+
+	/* oct 5 -7 Enterprise ID */
+    proto_tree_add_item(tree, hf_gtpv2_enterprise_id, tvb, offset, 2, FALSE);
+	offset+=2;
+	proto_tree_add_text(tree, tvb, offset, length-2, "Proprietary value");
+
+}
+
+
 typedef struct _gtpv2_ie {
     int ie_type;
     void (*decode) (tvbuff_t *, packet_info *, proto_tree *, proto_item *, guint16, guint8);
@@ -1551,12 +1290,14 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_UE_TIME_ZONE, dissect_gtpv2_ue_time_zone},   /* 114, UE Time Zone */
     {GTPV2_APN_RESTRICTION,                             /* 127, APN Restriction */
     dissect_gtpv2_apn_rest},
-    {GTPV2_SELEC_MODE,dissect_gtpv2_selec_mode},        /* 128 Selection Mode */
-    {GTPV2_BEARER_CONTROL_MODE,
-    dissect_gtpv2_bearer_control_mode},                 /* 130 Bearer Control Mode*/
-    {GTPV2_CNG_REP_ACT ,dissect_cng_rep_act},           /* 131 Change Reporting Action 8.61 */
-    {GTPV2_NODE_TYPE ,dissect_node_type},               /* 135 Node Type 8.65 */
-                                                        /* 137-254 Spare. For future use. FFS */
+    {GTPV2_SELEC_MODE,dissect_gtpv2_selec_mode},					/* 128 Selection Mode */
+    {GTPV2_BEARER_CONTROL_MODE,dissect_gtpv2_bearer_control_mode},	/* 130 Bearer Control Mode*/
+    {GTPV2_CNG_REP_ACT ,dissect_gtpv2_cng_rep_act},					/* 131 Change Reporting Action 8.61 */
+    {GTPV2_NODE_TYPE ,dissect_gtpv2_node_type},						/* 135 Node Type 8.65 */
+	{GTPV2_FQDN, dissect_gtpv2_fqdn},								/* 136 8.66 Fully Qualified Domain Name (FQDN) */
+																	/* 137-254 Spare. For future use. FFS */
+	{GTPV2_PRIVATE_EXT,dissect_private_ext},
+
 
     {0, dissect_gtpv2_unknown}
 };
@@ -1949,121 +1690,6 @@ void proto_register_gtpv2(void)
         FT_UINT8, BASE_DEC, VALS(gtpv2_rat_type_vals), 0x0,
         NULL, HFILL}
         },
-        {&hf_gtpv2_b_tft_opcode,
-        {"Operation Code", "gtpv2.b_tft_opcode",
-        FT_UINT8, BASE_DEC, VALS(gtpv2_opcode_vals), 0xe0,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_ebit,
-        {"Ebit", "gtpv2.b_tft_ebit",
-        FT_BOOLEAN, 8, NULL, 0x10,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_number,
-        {"Number of Packet Filters", "gtpv2.b_tft_number",
-        FT_UINT8, BASE_DEC, NULL, 0x0f,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_id,
-        {"Packet Filter Identifier", "gtpv2.b_tft_pf_id",
-        FT_UINT8, BASE_DEC, NULL, 0x0f,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_direction,
-        {"Direction", "gtpv2.b_tft_pf_direction",
-        FT_UINT8, BASE_DEC, VALS(gtpv2_direction_vals), 0x30,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_eval,
-        {"Evaluation Precedence", "gtpv2.b_tft_pf_eval",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_length,
-        {"Length of Packet Filter", "gtpv2.b_tft_pf_length",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_comp_type,
-        {"Component Type", "gtpv2.b_tft_pf_comp_type",
-        FT_UINT8, BASE_DEC, VALS(gtpv2_comp_type_vals), 0x0,
-        NULL , HFILL}
-        },
-        { &hf_gtpv2_b_tft_pf_ipv4,
-        {"IPv4 address", "gtpv2.b_tft_pf_ipv4",
-        FT_IPv4, BASE_NONE, NULL, 0x0,
-        NULL, HFILL}
-        },
-        { &hf_gtpv2_b_tft_pf_ipv6,
-        {"IPv6 address", "gtpv2.b_tft_pf_ipv6",
-        FT_IPv6, BASE_NONE, NULL, 0x0,
-        NULL, HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_ipv4_mask,
-        {"IPV4 address mask field", "gtpv2.b_tft_pf_ipv4_mask",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_ipv6_mask,
-        {"IPV6 address mask field", "gtpv2.b_tft_pf_ipv6_mask",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_prot_id,
-        {"Protocol Identifier/Next Header type", "gtpv2.b_tft_pf_prot_id",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_single_local,
-        {"Single Local port type", "gtpv2.b_tft_pf_single_local",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_local_port_low,
-        {"Local port range low limit", "gtpv2.b_tft_pf_local_port_low",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_local_port_high,
-        {"Local port range high limit", "gtpv2.b_tft_pf_local_port_high",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_single_remote,
-        {"Single remote port type", "gtpv2.b_tft_pf_single_remote",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_remote_port_low,
-        {"Remote port range low limit", "gtpv2.b_tft_pf_remote_port_low",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_remote_port_high,
-        {"Remote port range high limit", "gtpv2.b_tft_pf_remote_port_high",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_security,
-        {"Security Parameter Index", "gtpv2.b_tft_pf_security",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_service_type,
-        {"Type of Service/Traffic Class type", "gtpv2.b_tft_pf_service_type",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_service_type_mask,
-        {"Type of Service/Traffic Class mask", "gtpv2.b_tft_pf_service_type_mask",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        NULL , HFILL}
-        },
-        {&hf_gtpv2_b_tft_pf_flow_label,
-        {"Flow Label Type", "gtpv2.b_tft_pf_flow_label",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
-        NULL, HFILL}
-        },
         { &hf_gtpv2_uli_ecgi_flg,
         {"ECGI Present Flag)", "gtpv2.uli_ecgi_flg",
         FT_BOOLEAN, 8, NULL, 0x10,
@@ -2218,6 +1844,11 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_node_type,
         {"Node Type", "gtpv2.node_type",
         FT_UINT8, BASE_DEC, VALS(gtpv2_node_type_vals), 0x0,
+        NULL, HFILL}
+        },
+		{ &hf_gtpv2_enterprise_id,
+        {"Enterprise ID", "gtpv2.enterprise_id",
+        FT_UINT16, BASE_DEC, VALS(sminmpec_values), 0x0,
         NULL, HFILL}
         },
         { &hf_gtpv2_address_digits,

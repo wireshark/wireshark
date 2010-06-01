@@ -4026,7 +4026,7 @@ static const value_string gsm_a_tft_param_id_vals[] = {
 	{ 0,	NULL }
 };
 
-static guint16
+guint16
 de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	      curr_offset;
