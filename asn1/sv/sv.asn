@@ -1,0 +1,25 @@
+-- $Id:$
+IEC61850 DEFINITIONS ::= BEGIN
+
+SampledValues ::= CHOICE {
+	savPdu	[APPLICATION 0]	IMPLICIT SavPdu,
+	...
+}
+
+SavPdu ::= SEQUENCE {
+	noASDU	[0] IMPLICIT INTEGER(0..65535),
+	seqASDU	[2] IMPLICIT SEQUENCE OF ASDU
+}
+
+ASDU ::= SEQUENCE {
+	svID		[0] IMPLICIT VisibleString,
+	smpCnt		[2] IMPLICIT INTEGER(0..65535),
+	confRef		[3] IMPLICIT INTEGER(0..4294967295),
+	smpSynch	[5] IMPLICIT INTEGER{none(0),local(1),global(2)},
+	seqData		[7] IMPLICIT Data,
+	...
+}
+
+Data ::= OCTET STRING
+
+END

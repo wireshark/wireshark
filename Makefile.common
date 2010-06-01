@@ -129,6 +129,7 @@ TSHARK_TAP_SRC =	\
 	tap-smbsids.c	\
 	tap-smbstat.c	\
 	tap-stats_tree.c	\
+	tap-sv.c \
 	tap-wspstat.c
 
 # wireshark specifics

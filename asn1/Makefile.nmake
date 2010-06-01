@@ -92,6 +92,7 @@ BER_LIST= \
 	smrse			\
 	snmp			\
 	spnego			\
+	sv			\
 	t125			\
 	tcap			\
 	wlancertextn		\

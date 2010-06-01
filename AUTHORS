@@ -3071,6 +3071,10 @@ Edgar Gladkich		<edgar.gladkich [AT] inacon.de> {
 	Protocol help
 }
 
+Michael Bernhard	<michael.bernhard [AT] bfh.ch> {
+	IEC 61850 dissector
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

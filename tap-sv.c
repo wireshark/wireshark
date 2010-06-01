@@ -1,0 +1,65 @@
+/* tap-sv.c
+ * Copyright 2008 Michael Bernhard
+ *
+ * $Id$
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
+#include <string.h>
+#include "epan/packet_info.h"
+#include <epan/tap.h>
+#include <epan/nstime.h>
+#include "register.h"
+#include "epan/dissectors/packet-sv.h"
+
+static int
+sv_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
+{
+	int i;
+	const sv_frame_data * sv_data = pri;
+
+	printf("%f %u ", nstime_to_sec(&pinfo->fd->rel_ts), sv_data->smpCnt);
+
+	for(i = 0; i < sv_data->num_phsMeas; i++) {
+		printf("%d ", sv_data->phsMeas[i].value);
+	}
+
+	printf("\n");
+
+	return 0;
+}
+
+void
+register_tap_listener_sv(void)
+{
+	register_tap_listener("sv", NULL, NULL, 0, NULL, sv_packet, NULL);
+}

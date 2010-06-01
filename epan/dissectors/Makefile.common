@@ -148,6 +148,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-sabp.c \
 	packet-smrse.c \
 	packet-spnego.c \
+	packet-sv.c \
 	packet-ulp.c \
 	packet-wlancertextn.c \
 	packet-x224.c \
@@ -1254,6 +1255,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ssl-utils.h	\
 	packet-stat-notify.h	\
 	packet-stat.h	\
+	packet-sv.h	\
 	packet-t30.h	\
 	packet-t38.h	\
 	packet-tacacs.h	\

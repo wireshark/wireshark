@@ -1,0 +1,34 @@
+# sv.cnf
+# SampledValue conformation file
+
+# $Id:$
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+#.PDU
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.FN_BODY ASDU/smpCnt
+	guint32 value;
+	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index, &value);
+	sv_data.smpCnt = value;
+#.END
+
+#.FN_BODY ASDU/smpSynch
+	guint32 value;
+	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index, &value);
+	sv_data.smpSynch = value;
+#.END
+
+#.FN_BODY Data
+	offset = dissect_PhsMeas1(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+#.END
+
+#.END_OF_CNF
