@@ -103,7 +103,6 @@ static int hf_nas_eps_emm_tai_tol = -1;
 static int hf_nas_eps_emm_tai_n_elem = -1;
 static int hf_nas_eps_emm_tai_tac = -1;
 static int hf_nas_eps_emm_eea0 = -1;
-static int hf_nas_eps_emm_128eea0 = -1;
 static int hf_nas_eps_emm_128eea1 = -1;
 static int hf_nas_eps_emm_128eea2 = -1;
 static int hf_nas_eps_emm_eea3 = -1;
@@ -111,6 +110,7 @@ static int hf_nas_eps_emm_eea4 = -1;
 static int hf_nas_eps_emm_eea5 = -1;
 static int hf_nas_eps_emm_eea6 = -1;
 static int hf_nas_eps_emm_eea7 = -1;
+static int hf_nas_eps_emm_eia0 = -1;
 static int hf_nas_eps_emm_128eia1 = -1;
 static int hf_nas_eps_emm_128eia2 = -1;
 static int hf_nas_eps_emm_eia3 = -1;
@@ -1151,7 +1151,7 @@ de_emm_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
  */
 /* Type of integrity protection algorithm (octet 2, bit 1 to 3) */
 static const value_string nas_eps_emm_toi_vals[] = {
-	{ 0,	"Reserved"},
+	{ 0,	"EPS integrity algorithm EIA0 (null integrity protection algorithm)"},
 	{ 1,	"EPS integrity algorithm 128-EIA1"},
 	{ 2,	"EPS integrity algorithm 128-EIA2"},
 	{ 3,	"EPS integrity algorithm EIA3"},
@@ -1165,7 +1165,7 @@ static const value_string nas_eps_emm_toi_vals[] = {
 /* Type of ciphering algorithm (octet 2, bit 5 to 7) */
 
 static const value_string nas_eps_emm_toc_vals[] = {
-	{ 0,	"EPS encryption algorithm 128-EEA0 (ciphering not used)"},
+	{ 0,	"EPS encryption algorithm EEA0 (null ciphering algorithm)"},
 	{ 1,	"EPS encryption algorithm 128-EEA1"},
 	{ 2,	"EPS encryption algorithm 128-EEA2"},
 	{ 3,	"EPS encryption algorithm EEA3"},
@@ -1419,8 +1419,8 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
 
 	/* EPS encryption algorithms supported (octet 3) */
-	/* EPS encryption algorithm 128-EEA0 supported (octet 3, bit 8) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eea0, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm EEA0 supported (octet 3, bit 8) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea0, tvb, curr_offset, 1, FALSE);
 	/* EPS encryption algorithm 128-EEA1 supported (octet 3, bit 7) */
 	proto_tree_add_item(tree, hf_nas_eps_emm_128eea1, tvb, curr_offset, 1, FALSE);
 	/* EPS encryption algorithm 128-EEA2 supported (octet 3, bit 6) */
@@ -1438,10 +1438,10 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	curr_offset++;
 
 
-	/* EPS integrity algorithms supported (octet 4)
-	* Bit 8 of octet 4 is spare and shall be coded as zero.
-	* EPS integrity algorithm 128-EIA1 supported (octet 4, bit 7)
-	*/
+	/* EPS integrity algorithms supported (octet 4) */
+	/* EPS integrity algorithm EIA0 supported (octet 4, bit 8) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia0, tvb, curr_offset, 1, FALSE);
+	/* EPS integrity algorithm 128-EIA1 supported (octet 4, bit 7) */
 	proto_tree_add_item(tree, hf_nas_eps_emm_128eia1, tvb, curr_offset, 1, FALSE);
 	/* EPS integrity algorithm 128-EIA2 supported (octet 4, bit 6) */
 	proto_tree_add_item(tree, hf_nas_eps_emm_128eia2, tvb, curr_offset, 1, FALSE);
@@ -1571,10 +1571,9 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
 
 	/* EPS integrity algorithms supported (octet 4)
-	* Bit 8 of octet 4 is spare and shall be coded as zero.
-	* EPS integrity algorithm 128-EIA1 supported (octet 4, bit 7)
-	*/
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 1, FALSE);
+	/* EPS integrity algorithm EIA0 supported (octet 4, bit 8) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia0, tvb, curr_offset, 1, FALSE);
+	/* EPS integrity algorithm 128-EIA1 supported (octet 4, bit 7) */
 	proto_tree_add_item(tree, hf_nas_eps_emm_128eia1, tvb, curr_offset, 1, FALSE);
 	/* EPS integrity algorithm 128-EIA2 supported (octet 4, bit 6) */
 	proto_tree_add_item(tree, hf_nas_eps_emm_128eia2, tvb, curr_offset, 1, FALSE);
@@ -4504,11 +4503,6 @@ void proto_register_nas_eps(void) {
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x80,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128eea0,
-		{ "128-EEA0","nas_eps.emm.128eea0",
-		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x80,
-		NULL, HFILL }
-	},
 	{ &hf_nas_eps_emm_128eea1,
 		{ "128-EEA1","nas_eps.emm.128eea1",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x40,
@@ -4542,6 +4536,11 @@ void proto_register_nas_eps(void) {
 	{ &hf_nas_eps_emm_eea7,
 		{ "EEA7","nas_eps.emm.eea7",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x01,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_eia0,
+		{ "EIA0","nas_eps.emm.eia0",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x80,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_128eia1,
