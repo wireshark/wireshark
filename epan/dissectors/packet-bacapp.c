@@ -5680,10 +5680,10 @@ fVendorIdentifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 
-	if (lvt != 1) {
+	if ((lvt < 1) || (lvt > 2)) { /* vendorIDs >= 1  and <= 2 are supported */
 		proto_item *expert_item;
-		expert_item = proto_tree_add_text(tree, tvb, 0, lvt, "Wrong length indicated. Expected 1, got %u", lvt);
-		expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", lvt);
+		expert_item = proto_tree_add_text(tree, tvb, 0, lvt, "Wrong length indicated. Expected 1 or 2, got %u", lvt);
+		expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1 or 2, got %u", lvt);
 		PROTO_ITEM_SET_GENERATED(expert_item);
 		return offset+tag_len+lvt;
 	}
@@ -8597,11 +8597,15 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint save_fragmented = FALSE, data_offset = 0, bacapp_apdu_size = fGetMaxAPDUSize(0), fragment = FALSE;
 	tvbuff_t* new_tvb = NULL;
 	guint offset = 0;
-	gint8 bacapp_seqno = -1;
+	guint8 bacapp_seqno = 0;
 	guint8 bacapp_service, bacapp_reason, bacapp_prop_win_size;
 	guint8 bacapp_invoke_id = 0;
 	proto_item *ti;
 	proto_tree *bacapp_tree = NULL;
+
+	gint svc;
+	proto_item *tt = 0;
+	gint8 ack = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-APDU");
 	col_clear (pinfo->cinfo, COL_INFO);
@@ -8620,12 +8624,14 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (flag & BACAPP_SEGMENTED_REQUEST)
 			{
 				fragment = TRUE;
+				ack = 0;
 				bacapp_apdu_size = fGetMaxAPDUSize(tvb_get_guint8(tvb, offset + 1)); /* has 16 values, reserved are 50 Bytes */
 				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 2);
 				bacapp_seqno = tvb_get_guint8(tvb, offset + 3);
 				bacapp_prop_win_size = tvb_get_guint8(tvb, offset + 4);
 				bacapp_service = tvb_get_guint8(tvb, offset + 5);
 				data_offset = 6;
+				
 			}
 			else
 			{
@@ -8657,6 +8663,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (flag & BACAPP_SEGMENTED_REQUEST)
 			{
 				fragment = TRUE;
+				ack = 1;
 				bacapp_apdu_size = fGetMaxAPDUSize(0); /* has minimum of 50 Bytes */
 				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
 				bacapp_seqno = tvb_get_guint8(tvb, offset + 2);
@@ -8720,6 +8727,10 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (!fragment)
 			offset = do_the_dissection(tvb,pinfo,bacapp_tree);
+		else
+			fStartConfirmed(tvb, pinfo, bacapp_tree, offset, ack, &svc, &tt);
+			/* not resetting the offset so the remaining can be done */
+
 	}
 
 	if (fragment) { /* fragmented */
@@ -8738,7 +8749,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				"Reassembled BACapp", frag_msg, &msg_frag_items,
 				NULL, tree);
 
-		if (frag_msg) { /* Reassembled */
+		if (new_tvb) { /* Reassembled */
 			col_append_str(pinfo->cinfo, COL_INFO,
 				" (Message Reassembled)");
 		} else { /* Not last packet of reassembled Short Message */
