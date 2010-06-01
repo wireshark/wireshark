@@ -1682,9 +1682,16 @@ main(int argc, char *argv[])
     /* For now, assume libpcap gives microsecond precision. */
     timestamp_set_precision(TS_PREC_AUTO_USEC);
 
-    if (!capture()) {
-      return 2;     /* an error occurred */
-    }
+    /*
+     * XXX - this returns FALSE if an error occurred, but it also
+     * returns FALSE if the capture stops because a time limit
+     * was reached (and possibly other limits), so we can't assume
+     * it means an error.
+     *
+     * The capture code is a bit twisty, so it doesn't appear to
+     * be an easy fix.  We just ignore the return value for now.
+     */
+    capture();
 
     if (print_packet_info) {
       if (!write_finale()) {
