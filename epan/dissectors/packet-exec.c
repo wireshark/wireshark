@@ -72,12 +72,12 @@ static gint ett_exec = -1;
  * each packet of the conversation. */
 
 typedef enum {
-	NONE                 = 0,
-	WAIT_FOR_STDERR_PORT = 1,
-	WAIT_FOR_USERNAME    = 2,
-	WAIT_FOR_PASSWORD    = 3,
-	WAIT_FOR_COMMAND     = 4,
-	WAIT_FOR_DATA        = 5
+	NONE,
+	WAIT_FOR_STDERR_PORT,
+	WAIT_FOR_USERNAME,
+	WAIT_FOR_PASSWORD,
+	WAIT_FOR_COMMAND,
+	WAIT_FOR_DATA
 } exec_session_state_t;
 
 
