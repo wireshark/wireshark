@@ -1570,7 +1570,7 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	curr_offset++;
 
 
-	/* EPS integrity algorithms supported (octet 4)
+	/* EPS integrity algorithms supported (octet 4) */
 	/* EPS integrity algorithm EIA0 supported (octet 4, bit 8) */
 	proto_tree_add_item(tree, hf_nas_eps_emm_eia0, tvb, curr_offset, 1, FALSE);
 	/* EPS integrity algorithm 128-EIA1 supported (octet 4, bit 7) */
