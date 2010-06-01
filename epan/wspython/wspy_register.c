@@ -229,7 +229,7 @@ void py_dissect(tvbuff_t * tvb, packet_info * pinfo,
  */
 dissector_t py_generic_dissector(void)
 {
-  return py_dissect;
+  return &py_dissect;
 }
 
 struct SRegisterHandoffsForeach {

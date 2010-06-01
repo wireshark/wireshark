@@ -138,6 +138,40 @@ MSVC_VARIANT=MSVC2008
 #
 NASM=$(WIRESHARK_LIBS)\nasm-2.02\nasm.exe
 
+#
+# Optional: the Python library enables scripting support.
+#
+# If you don't have the Python library, comment this line out, so that
+# PYTHON_EMBED isn't defined.
+#
+# NOTE: The Python library must have been compiled with the same
+# compiler (MSVC_VARIANT) as Wireshark. Kown python.org Python
+# CRT versions:
+#
+# Python version    CRT (32-bit)    CRT (64-bit)
+# 2.4.4             7.1             ?
+# 2.6.1             9.0             ?
+# 2.6.2                             9.0
+#
+# If you versions of Python and Visual C++ use different CRTs
+# comment this out.
+#
+#PYTHON_EMBED=1
+
+#
+# Optional: the Python interpreter is used as part of the buildsystem
+#
+# If you have the Python interpreter, set this to the directory in which
+# the Python package is stored
+#
+# If you don't have the Python interpreter, comment this line out, so that
+# PYTHON_DIR isn't defined.
+#
+# V2.4 to V2.6 should work
+#
+#PYTHON_VER=26
+#PYTHON_DIR=C:\Python$(PYTHON_VER)
+
 
 !if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
 ##### Win32 Libraries #####
@@ -582,29 +616,11 @@ PERL=perl
 POD2MAN=$(SH) pod2man
 POD2HTML=$(SH) pod2html
 
-# Command for native Windows Python (recommended)
-# V2.4 to V2.6 should work
-
-# If you want to specify your Python settings, uncomment the lines below.
-#PYTHON="C:\Python26\python.exe"
-#PATH=c:\Python26;$(PATH)
-
-# Command for Cygwin's Python (not recommended)
+#
+# If you don't have the native Python package installed, you can use
+# the Cygwin version (not recommended)
+#
 #PYTHON=env python
-
-# Otherwise, find Python automatically.
-!IF !DEFINED(PYTHON)
-!IF EXIST(c:\Python26\python.exe)
-PYTHON="C:\Python26\python.exe"
-PATH=c:\Python26;$(PATH)
-!ELSE IF EXIST(c:\Python25\python.exe)
-PYTHON="C:\Python25\python.exe"
-PATH=c:\Python25;$(PATH)
-!ELSE IF EXIST(c:\Python24\python.exe)
-PYTHON="C:\Python24\python.exe"
-PATH=c:\Python24;$(PATH)
-!ENDIF
-!ENDIF
 
 # command for lex/flexx (cygwin's flex recommended)
 LEX=flex
@@ -673,6 +689,36 @@ HHC_DIR=$(PROGRAM_FILES)/HTML Help Workshop
 UPX=$(WIRESHARK_LIBS)\upx303w\upx.exe
 
 ##### Flags, PATHs and Miscellaneous #####
+
+# Santity check: native vs Cygwin Python options
+!IF DEFINED(PYTHON) && DEFINED(PYTHON_DIR)
+!ERROR PYTHON and PYTHON_DIR cannot be specified at the same time
+!ENDIF
+
+# Find native Python automatically if PYTHON(_DIR) wasn't defined
+!IF !DEFINED(PYTHON) && !DEFINED(PYTHON_DIR)
+!IF EXIST(c:\Python26\python.exe)
+PYTHON_VER=26
+!ELSE IF EXIST(c:\Python25\python.exe)
+PYTHON_VER=25
+!ELSE IF EXIST(c:\Python24\python.exe)
+PYTHON_VER=24
+!ENDIF
+
+!IF DEFINED(PYTHON_VER)
+PYTHON_DIR=C:\Python$(PYTHON_VER)
+!ENDIF
+!ENDIF
+
+!IF DEFINED(PYTHON_DIR)
+PYTHON="$(PYTHON_DIR)\python.exe"
+PATH=$(PYTHON_DIR);$(PATH)
+!ENDIF
+
+# Santity check: Python embedding requires a valid PYTHON_DIR
+!IF DEFINED(PYTHON_EMBED) && !DEFINED(PYTHON_DIR)
+!ERROR PYTHON_EMBED requires that PYTHON_DIR is defined
+!ENDIF
 
 # "convert" the MSVC variant into the required MSC compiler version
 !IF "$(MSVC_VARIANT)" == "MSVC6"
@@ -1114,6 +1160,17 @@ LUA_VERSION=^#define HAVE_LUA_5_1 1
 LUA_CFLAGS=
 LUA_LIBS=
 LUA_CONFIG=
+!ENDIF
+
+!IF DEFINED(PYTHON_EMBED)
+PYTHON_CFLAGS=/I$(PYTHON_DIR)\include
+PYTHON_LIBS=$(PYTHON_DIR)\libs\python$(PYTHON_VER).lib
+# Nmake uses carets to escape special characters
+PYTHON_CONFIG=^#define HAVE_PYTHON 1
+!else
+PYTHON_CFLAGS=
+PYTHON_LIBS=
+PYTHON_CONFIG=
 !ENDIF
 
 !IFDEF PORTAUDIO_DIR

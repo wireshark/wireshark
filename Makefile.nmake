@@ -43,7 +43,7 @@ GENERATED_CFLAGS=-DHAVE_CONFIG_H $(LOCAL_CFLAGS) $(GLIB_CFLAGS) /I. /Iwiretap \
 	$(ZLIB_CFLAGS) /I$(PCAP_DIR)\include \
 	$(AIRPCAP_CFLAGS) \
 	$(C_ARES_CFLAGS) $(ADNS_CFLAGS) $(PCRE_CFLAGS) $(GNUTLS_CFLAGS) \
-	$(LUA_CFLAGS) $(SMI_CFLAGS) $(GEOIP_CFLAGS) \
+	$(LUA_CFLAGS) $(PYTHON_CFLAGS) $(SMI_CFLAGS) $(GEOIP_CFLAGS) \
 	-D_U_="" -D_NEED_VAR_IMPORT_
 CFLAGS=-WX $(GENERATED_CFLAGS)
 
@@ -77,6 +77,7 @@ wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(HHC_LIBS) \
 	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
+	$(PYTHON_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
 !ELSE
@@ -96,6 +97,7 @@ tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GLIB_LIBS) \
 	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
+	$(PYTHON_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
 !ELSE
@@ -115,6 +117,7 @@ rawshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GLIB_LIBS) \
 	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
+	$(PYTHON_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
 !ELSE
@@ -155,7 +158,8 @@ dumpcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsutil\libwsutil.lib \
 	$(GLIB_LIBS) \
         $(GTHREAD_LIBS) \
-	$(GNUTLS_LIBS)
+	$(GNUTLS_LIBS) \
+	$(PYTHON_LIBS)
 
 dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
@@ -369,6 +373,7 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_LIBGCRYPT@/$(LIBGCRYPT_CONFIG)/" \
 	    -e "s/@HAVE_LUA@/$(LUA_CONFIG)/" \
 	    -e "s/@HAVE_LUA_5_1@/$(LUA_VERSION)/" \
+	    -e "s/@HAVE_PYTHON@/$(PYTHON_CONFIG)/" \
 	    -e "s/@HAVE_AIRPCAP@/$(AIRPCAP_CONFIG)/" \
 	    -e "s/@HAVE_AIRPDCAP@/$(AIRPDCAP_CONFIG)/" \
 	    -e "s/@HAVE_LIBPORTAUDIO@/$(PORTAUDIO_CONFIG)/" \
@@ -943,6 +948,12 @@ install-generated-files:
 !IFDEF LUA_DIR
 	xcopy ".\epan\wslua\init.lua" $(INSTALL_DIR) /d
 	xcopy ".\epan\wslua\console.lua" $(INSTALL_DIR) /d
+!ENDIF
+!IFDEF PYTHON_DIR
+	if not exist $(INSTALL_DIR)\python mkdir $(INSTALL_DIR)\python
+	xcopy ".\epan\wspython\register-dissector.py" $(INSTALL_DIR)\python /d
+	xcopy ".\epan\wspython\wspy_dissector.py" $(INSTALL_DIR)\python /d
+	xcopy ".\epan\wspython\wspy_libws.py" $(INSTALL_DIR)\python /d
 !ENDIF
 	xcopy ipmap.html $(INSTALL_DIR) /d
 	xcopy doc\*.html $(INSTALL_DIR) /d
