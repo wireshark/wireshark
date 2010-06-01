@@ -776,39 +776,8 @@ dissect_gtpv2_serv_net(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 }
 
 /*
- * 8.19 EPS Bearer Level Traffic Flow Template (Bearer TFT) */
-
-static const value_string gtpv2_opcode_vals[] = {
-    {0, "Spare"},
-    {1, "Create New TFT"},
-    {2, "Delete Existing TFT"},
-    {3, "Add Packet filters to existing TFT"},
-    {4, "Replace Packet filters in existing TFT"},
-    {5, "Delete Packet filters from existing TFT"},
-    {6, "No TFT Operation"},
-    {7, "Reserved"},
-    {0, NULL}
-};
-static const value_string gtpv2_comp_type_vals[] = {
-    {16, "IPV4 remote address type"},
-    {32, "IPV6 remote address type"},
-    {48, "Protocol Identifier"},
-    {64, "Single local port type"},
-    {65, "Local port range type"},
-    {80, "Single remote port type"},
-    {81, "Remote port range type"},
-    {96, "Security Parameter Index type"},
-    {112, "Type of Service/Traffic class type"},
-    {128, "Flow Label type"},
-    {0, NULL}
-};
-static const value_string gtpv2_direction_vals[] = {
-    {0, "Pre Rel-7 TFT filter"},
-    {1, "Downlink only"},
-    {2, "uplink only"},
-    {3, "bidirectional"},
-    {0, NULL}
-};
+ * 8.19 EPS Bearer Level Traffic Flow Template (Bearer TFT)
+ */
 
 static void
 dissect_gtpv2_bearer_tft(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
