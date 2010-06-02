@@ -333,11 +333,11 @@ execute_next_instruction:
 		result_code = 15;
 		goto decompression_failure;
 	}
+	used_udvm_cycles++;
 	current_instruction = buff[current_address];
 
 	switch ( current_instruction ) {
 	case SIGCOMP_INSTR_DECOMPRESSION_FAILURE:
-		used_udvm_cycles++;
 		if ( result_code == 0 )
 			result_code = 9;
 		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
@@ -365,7 +365,6 @@ execute_next_instruction:
 		break;
 
 	case SIGCOMP_INSTR_AND: /* 1 AND ($operand_1, %operand_2) */
-		used_udvm_cycles++;
 		if (show_instr_detail_level == 2 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 				"Addr: %u ## AND(1) (operand_1, operand_2)",
@@ -407,7 +406,6 @@ execute_next_instruction:
 		break;
 
 	case SIGCOMP_INSTR_OR: /* 2 OR ($operand_1, %operand_2) */
-		used_udvm_cycles++;
 		if (show_instr_detail_level == 2 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 				"Addr: %u ## OR(2) (operand_1, operand_2)",
@@ -449,7 +447,6 @@ execute_next_instruction:
 		break;
 
 	case SIGCOMP_INSTR_NOT: /* 3 NOT ($operand_1) */
-		used_udvm_cycles++;
 		if (show_instr_detail_level == 2 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 				"Addr: %u ## NOT(3) ($operand_1)",
@@ -483,7 +480,6 @@ execute_next_instruction:
 		break;
 
 	case SIGCOMP_INSTR_LSHIFT: /* 4 LSHIFT ($operand_1, %operand_2) */
-		used_udvm_cycles++;
 		if (show_instr_detail_level == 2 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 				"Addr: %u ## LSHIFT(4) ($operand_1, operand_2)",
@@ -524,7 +520,6 @@ execute_next_instruction:
 
 		break;
 	case SIGCOMP_INSTR_RSHIFT: /* 5 RSHIFT ($operand_1, %operand_2) */
-		used_udvm_cycles++;
 		if (show_instr_detail_level == 2 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 				"Addr: %u ## RSHIFT(5) (operand_1, operand_2)",
@@ -564,7 +559,6 @@ execute_next_instruction:
 		goto execute_next_instruction;
 		break;
 	case SIGCOMP_INSTR_ADD: /* 6 ADD ($operand_1, %operand_2) */
-		used_udvm_cycles++;
 		if (show_instr_detail_level == 2 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 				"Addr: %u ## ADD(6) (operand_1, operand_2)",
@@ -604,7 +598,6 @@ execute_next_instruction:
 		goto execute_next_instruction;
 
 	case SIGCOMP_INSTR_SUBTRACT: /* 7 SUBTRACT ($operand_1, %operand_2) */
-		used_udvm_cycles++;
 		if (show_instr_detail_level == 2 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 				"Addr: %u ## SUBTRACT(7) (operand_1, operand_2)",
@@ -645,7 +638,6 @@ execute_next_instruction:
 		break;
 
 	case SIGCOMP_INSTR_MULTIPLY: /* 8 MULTIPLY ($operand_1, %operand_2) */
-		used_udvm_cycles++;
 		if (show_instr_detail_level == 2 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 				"Addr: %u ##MULTIPLY(8) (operand_1, operand_2)",
@@ -693,7 +685,6 @@ execute_next_instruction:
 		break;
 
 	case SIGCOMP_INSTR_DIVIDE: /* 9 DIVIDE ($operand_1, %operand_2) */
-		used_udvm_cycles++;
 		if (show_instr_detail_level == 2 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 				"Addr: %u ## DIVIDE(9) (operand_1, operand_2)",
@@ -743,7 +734,6 @@ execute_next_instruction:
 		break;
 
 	case SIGCOMP_INSTR_REMAINDER: /* 10 REMAINDER ($operand_1, %operand_2) */
-		used_udvm_cycles++;
 		if (show_instr_detail_level == 2 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 				"Addr: %u ## REMAINDER(10) (operand_1, operand_2)",
@@ -849,7 +839,7 @@ execute_next_instruction:
 				operand_address, ref_destination);
 		}
 		current_address = next_operand_address;
-		used_udvm_cycles = used_udvm_cycles + 1 + length;
+		used_udvm_cycles = used_udvm_cycles + length;
 
 		n = 0;
 		k = position;
@@ -944,7 +934,6 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading bytes at %u Value %u 0x%x",
 					addr, value, value);
 		}
-		used_udvm_cycles++;
 		current_address = next_operand_address;
 		goto execute_next_instruction;
 		break;
@@ -982,7 +971,7 @@ execute_next_instruction:
 				current_address, addr, n, n-1);
 		}
 		operand_address = next_operand_address;
-		used_udvm_cycles = used_udvm_cycles + 1 + n;
+		used_udvm_cycles = used_udvm_cycles + n;
 		while ( n > 0) {
 			n = n - 1;
 			/* %value */
@@ -1051,7 +1040,6 @@ execute_next_instruction:
 		buff[stack_location] = (stack_fill >> 8) & 0x00FF;
 		buff[(stack_location+1) & 0xFFFF] = stack_fill & 0x00FF;
 
-		used_udvm_cycles++;
 		goto execute_next_instruction;
 
 		break;
@@ -1108,7 +1096,6 @@ execute_next_instruction:
 		buff[destination] = (value >> 8) & 0x00FF;
 		buff[(destination+1) & 0xFFFF] = value & 0x00FF;
 
-		used_udvm_cycles++;
 		goto execute_next_instruction;
 
 		break;
@@ -1196,7 +1183,7 @@ execute_next_instruction:
 				position = byte_copy_left;
 			}
 		}
-		used_udvm_cycles = used_udvm_cycles + 1 + length;
+		used_udvm_cycles = used_udvm_cycles + length;
 		goto execute_next_instruction;
 		break;
 
@@ -1290,7 +1277,7 @@ execute_next_instruction:
 		buff[result_dest] = k >> 8;
 		buff[result_dest + 1] = k & 0x00ff;
 
-		used_udvm_cycles = used_udvm_cycles + 1 + length;
+		used_udvm_cycles = used_udvm_cycles + length;
 		goto execute_next_instruction;
 		break;
 
@@ -1420,7 +1407,7 @@ execute_next_instruction:
 		}
 		buff[result_dest] = k >> 8;
 		buff[result_dest + 1] = k & 0x00ff;
-		used_udvm_cycles = used_udvm_cycles + 1 + length;
+		used_udvm_cycles = used_udvm_cycles + length;
 		goto execute_next_instruction;
 
 		break;
@@ -1497,7 +1484,7 @@ execute_next_instruction:
 			k = ( k + 1 ) & 0xffff;
 			n++;
 		}/* end while */
-		used_udvm_cycles = used_udvm_cycles + 1 + length;
+		used_udvm_cycles = used_udvm_cycles + length;
 		goto execute_next_instruction;
 		break;
 
@@ -1523,7 +1510,6 @@ execute_next_instruction:
 				current_address, at_address);
 		}
 		current_address = at_address;
-		used_udvm_cycles++;
 		goto execute_next_instruction;
 		break;
 
@@ -1600,7 +1586,6 @@ execute_next_instruction:
 			current_address = at_address_2;
 		if ( value_1 > value_2 )
 			current_address = at_address_3;
-		used_udvm_cycles++;
 		goto execute_next_instruction;
 		break;
 
@@ -1644,7 +1629,6 @@ execute_next_instruction:
 		/* ... and jump to the destination address */
 		current_address = at_address;
 
-		used_udvm_cycles++;
 		goto execute_next_instruction;
 
 		break;
@@ -1679,7 +1663,6 @@ execute_next_instruction:
 		/* ... and set the PC to the popped value */
 		current_address = at_address;
 
-		used_udvm_cycles++;
 		goto execute_next_instruction;
 
 		break;
@@ -1741,7 +1724,7 @@ execute_next_instruction:
 			result_code = 6;
 			goto decompression_failure;
 		}
-		used_udvm_cycles = used_udvm_cycles + 1 + n;
+		used_udvm_cycles = used_udvm_cycles + n;
 
 		goto execute_next_instruction;
 
@@ -1787,7 +1770,7 @@ execute_next_instruction:
 				operand_address, at_address);
 		}
 		 /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
-		used_udvm_cycles = used_udvm_cycles + 1 + length;
+		used_udvm_cycles = used_udvm_cycles + length;
 
 		n = 0;
 		k = position;
@@ -1920,6 +1903,7 @@ execute_next_instruction:
 			if (input_address > ( msg_end - 1)){
 				current_address = at_address;
 				result_code = 14;
+				used_udvm_cycles = used_udvm_cycles + length;
 				goto execute_next_instruction;
 			}
 
@@ -1943,7 +1927,7 @@ execute_next_instruction:
 			k = ( k + 1 ) & 0xffff;
 			n++;
 		}
-		used_udvm_cycles = used_udvm_cycles + 1 + length;
+		used_udvm_cycles = used_udvm_cycles + length;
 		current_address = next_operand_address;
 		goto execute_next_instruction;
 		break;
@@ -2034,7 +2018,6 @@ execute_next_instruction:
 				buff, &old_input_bit_order, &remaining_bits,
 				&input_bits, &input_address, length, &result_code, msg_end);
 		if ( result_code == 11 ){
-			used_udvm_cycles = used_udvm_cycles + 1;
 			current_address = at_address;
 			goto execute_next_instruction;
 		}
@@ -2049,7 +2032,6 @@ execute_next_instruction:
 			"               Loading value: %u (0x%x) at Addr: %u, remaining_bits: %u", value, value, destination, remaining_bits);
 		}
 
-		used_udvm_cycles = used_udvm_cycles + 1;
 		goto execute_next_instruction;
 		break;
 	case SIGCOMP_INSTR_INPUT_HUFFMAN: /* 30 */
@@ -2096,7 +2078,7 @@ execute_next_instruction:
 				current_address, destination, at_address, n, n, n, n, n);
 		}
 
-		used_udvm_cycles = used_udvm_cycles + 1 + n;
+		used_udvm_cycles = used_udvm_cycles + n;
 
 		/*
 		 * Note that if n = 0 then the INPUT-HUFFMAN instruction is ignored and
@@ -2338,7 +2320,7 @@ execute_next_instruction:
 		if ( result_code != 0 ){
 			goto decompression_failure;
 		}
-		used_udvm_cycles = used_udvm_cycles + 1 + state_length;
+		used_udvm_cycles = used_udvm_cycles + state_length;
 		goto execute_next_instruction;
 		break;
 	case SIGCOMP_INSTR_STATE_CREATE: /* 32 */
@@ -2440,7 +2422,7 @@ execute_next_instruction:
 		state_instruction_buff[no_of_state_create] = state_instruction;
 		state_minimum_access_length_buff[no_of_state_create] = minimum_access_length;
 		state_state_retention_priority_buff[no_of_state_create] = state_retention_priority;
-		used_udvm_cycles = used_udvm_cycles + 1 + state_length;
+		used_udvm_cycles = used_udvm_cycles + state_length;
 		/* Debug */
 		byte_copy_right = buff[66] << 8;
 		byte_copy_right = byte_copy_right | buff[67];
@@ -2507,7 +2489,6 @@ execute_next_instruction:
 		 * TODO implement it
 		 */
 		udvm_state_free(buff,p_id_start,p_id_length);
-		used_udvm_cycles++;
 
 		goto execute_next_instruction;
 		break;
@@ -2584,7 +2565,7 @@ execute_next_instruction:
 			output_address ++;
 			n++;
 		}
-		used_udvm_cycles = used_udvm_cycles + 1 + output_length;
+		used_udvm_cycles = used_udvm_cycles + output_length;
 		goto execute_next_instruction;
 		break;
 	case SIGCOMP_INSTR_END_MESSAGE: /* 35 */
@@ -2752,7 +2733,7 @@ execute_next_instruction:
 		/*
 		proto_tree_add_text(udvm_tree, decomp_tvb, 0, -1,"SigComp message Decompressed");
 		*/
-		used_udvm_cycles = used_udvm_cycles + 1 + state_length;
+		used_udvm_cycles = used_udvm_cycles + state_length;
 		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"maximum_UDVM_cycles %u used_udvm_cycles %u",
 			maximum_UDVM_cycles, used_udvm_cycles);
 		return decomp_tvb;
