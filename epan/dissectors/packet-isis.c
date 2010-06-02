@@ -31,6 +31,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/nlpid.h>
+#include <epan/etypes.h>
 #include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-isis-lsp.h"
@@ -322,4 +323,5 @@ proto_reg_handoff_isis(void)
 
     isis_handle = create_dissector_handle(dissect_isis, proto_isis);
     dissector_add("osinl", NLPID_ISO10589_ISIS, isis_handle);
+    dissector_add("ethertype", ETHERTYPE_L2ISIS, isis_handle);
 }

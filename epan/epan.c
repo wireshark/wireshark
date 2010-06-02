@@ -170,7 +170,7 @@ epan_dissect_new(const gboolean create_proto_tree, const gboolean proto_tree_vis
 {
 	epan_dissect_t	*edt;
 
-	edt = g_new(epan_dissect_t, 1);
+	edt = g_new0(epan_dissect_t, 1);
 
 	return epan_dissect_init(edt, create_proto_tree, proto_tree_visible);
 }

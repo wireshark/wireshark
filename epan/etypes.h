@@ -95,6 +95,14 @@
 #define ETHERTYPE_CGMP			0x2001
 #endif
 
+#ifndef ETHERTYPE_TRILL					/* Internet Engineering Task Force */
+#define ETHERTYPE_TRILL			0x22F3
+#endif
+
+#ifndef ETHERTYPE_L2ISIS				/* Internet Engineering Task Force */
+#define ETHERTYPE_L2ISIS		0x22F4
+#endif
+
 #ifndef ETHERTYPE_MSRP
 #define ETHERTYPE_MSRP			0x22EA
 #endif

@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/etypes.h>
 
 static int proto_trill = -1 ;
 static gint ett_trill = -1 ;
@@ -64,11 +65,6 @@ static dissector_handle_t eth_dissector ;
 #define TRILL_BIT_FIELDS_LEN 2
 #define TRILL_NICKNAME_LEN 2
 #define TRILL_OP_LENGTH_BYTE_UNITS 0x4
-#ifndef ETHERTYPE_TRILL
-  #define ETHERTYPE_TRILL 0x88C8 /* TODO Open Solaris RBridge uses this value.
-                                    Update when IEEE Assigns a number and move
-                                    it to epan/etypes.h. */
-#endif
 
 static const true_false_string multi_dst_strings = {
   "Multi-Destination TRILL Frame",
