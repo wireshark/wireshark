@@ -1,7 +1,7 @@
 /* packet-gtpv2.c
  *
  * Routines for GTPv2 dissection
- * Copyright 2009, Anders Broman <anders.broman [at] ericcsson.com>
+ * Copyright 2009 - 2010, Anders Broman <anders.broman [at] ericcsson.com>
  *
  * $Id$
  *
@@ -228,14 +228,24 @@ static const value_string gtpv2_message_type_vals[] = {
     {171, "Release Access Bearers Response"},
     /* 172-175 For future use */
     /* SGW to SGSN/MME (S4/S11) */
-    {176, "Downlink Data Notification "},
+    {176, "Downlink Data Notification"},
     {177, "Downlink Data Notification Acknowledgement"},
     /* SGW to SGSN (S4) */
-    {178, "Update Bearer Complete "},
+    {178, "Update Bearer Complete"},
     /* 179-191 For future use */
     /* Other */
-    /* 192-244 For future use */
-    /* 245-255 Reserved for GTP-U TS 29.281 [13] */
+    {200, "Update PDN Connection Set Request"},
+    {201, "Update PDN Connection Set Response"},
+	/* 202 to 230 For future use */
+	/* MBMS GW to MME/SGSN (Sm/Sn) */
+    {231, "MBMS Session Start Request"},
+    {323, "MBMS Session Start Response"},
+    {233, "MBMS Session Update Request"},
+    {234, "MBMS Session Update Response"},
+    {235, "MBMS Session Stop Request"},
+    {236, "MBMS Session Stop Response"},
+	/* 237 to 239 For future use */
+/* 245-255 Reserved for GTP-U TS 29.281 [13] */
     {0, NULL}
 };
 
@@ -362,7 +372,18 @@ static const value_string gtpv2_element_type_vals[] = {
     {135, "Node Type"},                                                         /* Extendable / 8.65 */
     {136, "Fully Qualified Domain Name (FQDN)"},                                /* Variable Length / 8.66 */
     {137, "Transaction Identifier (TI)"},                                       /* Variable Length / 8.68 */
-    /* 138-254 "Spare."},   */                                                  /* For future use. FFS */
+    {138, "MBMS Session"},														/* Duration Extendable / 8.69 */
+    {139, "MBMS Service Area"},													/* Extendable / 8.70 */
+    {140, "MBMS Session Identifier"},											/* Extendable / 8.71 */
+    {141, "MBMS Flow Identifier"},												/* Extendable / 8.72 */
+    {142, "MBMS IP Multicast Distribution"},									/* Extendable / 8.73 */
+    {143, "MBMS Distribution Acknowledge"},										/* Extendable / 8.74 */
+    {144, "RFSP Index"},														/* Fixed Length / 8.77 */
+    {145, "User CSG Information (UCI)"},										/* Extendable / 8.75 */
+    {146, "CSG Information Reporting Action"},									/* Extendable / 8.76 */
+    {147, "CSG ID"},															/* Extendable / 8.78 */
+    {148, "CSG Membership Indication (CMI)"},									/* Extendable / 8.79 */
+    /* 149 to 254 Spare. For future use.  */                                    /* For future use. FFS */
     {255, "Private"},                                                           /* Extension Extendable / 8.67 */
     {0, NULL}
 };
