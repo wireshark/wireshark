@@ -831,10 +831,13 @@ static gboolean
 try_get_ber_length(tvbuff_t *tvb, int *bl_offset, guint32 *length, gboolean *ind) {
 	int offset = *bl_offset;
 	guint8 oct, len;
-	/* guint32 tmp_len; */
+	guint32 tmp_len; 
 	guint32 tmp_length;
 	gboolean tmp_ind;
 	int tmp_offset;
+	gint8 tclass;
+	gint32 ttag;
+
 	tmp_length = 0;
 	tmp_ind = FALSE;
 
@@ -856,20 +859,21 @@ try_get_ber_length(tvbuff_t *tvb, int *bl_offset, guint32 *length, gboolean *ind
 		} else {
 			/* 8.1.3.6 */
 
+			/* indefinite length encoded - must be constructed */
 			tmp_offset = offset;
-			/* check for EOC */
-			if (tvb_get_guint8(tvb, offset) || tvb_get_guint8(tvb, offset+1)) {
-				if (length)
-					*length = 0;
-				if (ind)
-					*ind = tmp_ind;
+			
+			do {
+				tmp_offset = get_ber_identifier(tvb, tmp_offset, &tclass, NULL, &ttag);
+				
+				try_get_ber_length(tvb, &tmp_offset, &tmp_len, &tmp_ind);
 
-				*bl_offset = offset;
-				return FALSE;
-			}
-			tmp_length += 2;
+				tmp_offset += tmp_len;
+
+			} while (!((tclass == BER_CLASS_UNI) && (ttag == 0) && (tmp_len == 0))); 
+
+			tmp_length = tmp_offset - offset;
 			tmp_ind = TRUE;
-			offset = tmp_offset;
+
 		}
 	}
 
@@ -887,37 +891,15 @@ printf("get BER length %d, offset %d (remaining %d)\n", tmp_length, offset, tvb_
 }
 
 int
-get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind) {
+get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind) 
+{
 	int bl_offset = offset;
-	int s_offset;
 	guint32 bl_length;
-	guint32 tot_length = 0;
-	gint8 tclass;
-	gboolean tpc;
-	gint32 ttag;
 
-	while (1) {
-		/* Traverse the BER to find the length. This will fix most indefinite length issues. */
-		/* Assumption here is that indefinite length is always used on constructed types*/
-		s_offset = bl_offset;
-		if (try_get_ber_length(tvb, &bl_offset, &bl_length, ind)) {
-			/* No more lengths to fetch. */
-			tot_length += bl_length;
-			break;
-		}
-
-		/* We're in the middle of an indefinite length. */
-		bl_offset = get_ber_identifier(tvb, bl_offset, &tclass, &tpc, &ttag);
-
-		/* Make sure we've moved forward in the packet */
-		if (bl_offset <= s_offset)
-			THROW(ReportedBoundsError);
-
-		tot_length += (bl_offset - s_offset);  /* length + tag and length */
-	}
+	try_get_ber_length(tvb, &bl_offset, &bl_length, ind);
 
 	if (length)
-		*length = tot_length;
+		*length = bl_length;
 
 	return bl_offset;
 }
