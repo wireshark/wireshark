@@ -322,10 +322,7 @@ static void dissect_batadv_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		dissect_batadv_batman_v9(tvb, pinfo, tree);
 		break;
 	default:
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		}
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
 		call_dissector(data_handle, tvb, pinfo, tree);
 		break;
 	}
@@ -387,11 +384,7 @@ static void dissect_batadv_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	batman_packeth->pad = tvb_get_guint8(tvb, 21);
 
 	/* Set info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Seq=%u",
-		                batman_packeth->seqno);
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
 
 	/* Set tree info */
 	if (tree) {
@@ -509,11 +502,7 @@ static void dissect_batadv_batman_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	batman_packeth->num_hna = tvb_get_guint8(tvb, 19);
 
 	/* Set info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Seq=%u",
-		                batman_packeth->seqno);
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
 
 	/* Set tree info */
 	if (tree) {
@@ -625,11 +614,7 @@ static void dissect_batadv_batman_v9(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	batman_packeth->gwflags = tvb_get_guint8(tvb, 20);
 
 	/* Set info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Seq=%u",
-		                batman_packeth->seqno);
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
 
 	/* Set tree info */
 	if (tree) {
@@ -756,10 +741,7 @@ static void dissect_batadv_bcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		dissect_batadv_bcast_v6(tvb, pinfo, tree);
 		break;
 	default:
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		}
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
 		call_dissector(data_handle, tvb, pinfo, tree);
 		break;
 	}
@@ -782,11 +764,7 @@ static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	bcast_packeth->seqno = tvb_get_ntohs(tvb, 8);
 
 	/* Set info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Seq=%u",
-		                bcast_packeth->seqno);
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", bcast_packeth->seqno);
 
 	/* Set tree info */
 	if (tree) {
@@ -853,10 +831,7 @@ static void dissect_batadv_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		dissect_batadv_icmp_v7(tvb, pinfo, tree);
 		break;
 	default:
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		}
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
 		call_dissector(data_handle, tvb, pinfo, tree);
 		break;
 	}
@@ -884,12 +859,9 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	icmp_packeth->seqno = tvb_get_ntohs(tvb, 17);
 
 	/* Set info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
-		                val_to_str(icmp_packeth->msg_type, icmp_packettypenames, "Unknown (0x%02x)"),
-		                icmp_packeth->seqno);
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
+		     val_to_str(icmp_packeth->msg_type, icmp_packettypenames, "Unknown (0x%02x)"),
+		     icmp_packeth->seqno);
 
 	/* Set tree info */
 	if (tree) {
@@ -971,12 +943,9 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	icmp_packeth->uid = tvb_get_guint8(tvb, 17);
 
 	/* Set info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
-		                val_to_str(icmp_packeth->msg_type, icmp_packettypenames, "Unknown (0x%02x)"),
-		                icmp_packeth->seqno);
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
+		     val_to_str(icmp_packeth->msg_type, icmp_packettypenames, "Unknown (0x%02x)"),
+		     icmp_packeth->seqno);
 
 	/* Set tree info */
 	if (tree) {
@@ -1052,10 +1021,7 @@ static void dissect_batadv_unicast(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		dissect_batadv_unicast_v6(tvb, pinfo, tree);
 		break;
 	default:
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		}
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
 		call_dissector(data_handle, tvb, pinfo, tree);
 		break;
 	}
@@ -1078,9 +1044,7 @@ static void dissect_batadv_unicast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	unicast_packeth->ttl = tvb_get_guint8(tvb, 8);
 
 	/* Set info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Set tree info */
 	if (tree) {
@@ -1145,10 +1109,7 @@ static void dissect_batadv_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		dissect_batadv_vis_v6(tvb, pinfo, tree);
 		break;
 	default:
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		}
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
 		call_dissector(data_handle, tvb, pinfo, tree);
 		break;
 	}
@@ -1180,12 +1141,9 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	SET_ADDRESS(&vis_packeth->sender_orig, AT_ETHER, 6, sender_orig_addr);
 
 	/* Set info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
-		                val_to_str(vis_packeth->vis_type, vis_packettypenames, "Unknown (0x%02x)"),
-		                vis_packeth->seqno);
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
+		     val_to_str(vis_packeth->vis_type, vis_packettypenames, "Unknown (0x%02x)"),
+		     vis_packeth->seqno);
 
 	/* Set tree info */
 	if (tree) {
