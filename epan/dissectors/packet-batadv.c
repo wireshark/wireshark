@@ -225,9 +225,8 @@ static const value_string vis_packettypenames[] = {
 
 
 /* forward declaration */
-void proto_register_batadv(void);
 void proto_reg_handoff_batadv(void);
-static void dissect_batman_plugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
 static dissector_handle_t batman_handle;
 
 /* supported packet dissectors */
@@ -254,8 +253,8 @@ static void dissect_vis_entry_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static void dissect_vis_entry_v8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* other dissectors */
-static dissector_handle_t data_handle = NULL;
-static dissector_handle_t eth_handle = NULL;
+static dissector_handle_t data_handle;
+static dissector_handle_t eth_handle;
 
 static int proto_batadv_plugin = -1;
 
@@ -268,6 +267,8 @@ static unsigned int batadv_ethertype = ETH_P_BATMAN;
 static void dissect_batman_plugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 type;
+
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	type = tvb_get_guint8(tvb, 0);
 
@@ -292,6 +293,8 @@ static void dissect_batman_plugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	{
 		tvbuff_t *next_tvb;
 		guint length_remaining;
+
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_???");
 
 		length_remaining = tvb_length_remaining(tvb, 1);
 		next_tvb = tvb_new_subset(tvb, 0, length_remaining, -1);
@@ -332,7 +335,7 @@ static void dissect_batadv_gwflags(tvbuff_t *tvb, guint8 gwflags, int offset, pr
 {
 	proto_tree *gwflags_tree;
 	guint8 s = (gwflags & 0x80) >> 7;
-	guint8 downbits = (gwflags & 0x7C) >> 3;
+	guint8 downbits = (gwflags & 0x78) >> 3;
 	guint8 upbits = (gwflags & 0x07);
 	guint down, up;
 
@@ -388,8 +391,8 @@ static void dissect_batadv_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL, *tf, *tgw;
-		proto_tree *batadv_batman_tree = NULL, *flag_tree = NULL;
+		proto_item *ti, *tf, *tgw;
+		proto_tree *batadv_batman_tree, *flag_tree;
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, BATMAN_PACKET_V5_SIZE,
@@ -506,8 +509,8 @@ static void dissect_batadv_batman_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL, *tf;
-		proto_tree *batadv_batman_tree = NULL, *flag_tree = NULL;
+		proto_item *ti, *tf;
+		proto_tree *batadv_batman_tree, *flag_tree;
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, BATMAN_PACKET_V7_SIZE,
@@ -618,8 +621,8 @@ static void dissect_batadv_batman_v9(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL, *tf, *tgw;
-		proto_tree *batadv_batman_tree = NULL, *flag_tree = NULL;
+		proto_item *ti, *tf, *tgw;
+		proto_tree *batadv_batman_tree, *flag_tree;
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, BATMAN_PACKET_V9_SIZE,
@@ -709,8 +712,8 @@ static void dissect_batadv_hna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL;
-		proto_tree *batadv_batman_hna_tree = NULL;
+		proto_item *ti;
+		proto_tree *batadv_batman_hna_tree;
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, 6,
@@ -768,8 +771,8 @@ static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL;
-		proto_tree *batadv_bcast_tree = NULL;
+		proto_item *ti;
+		proto_tree *batadv_bcast_tree;
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, BCAST_PACKET_V6_SIZE,
@@ -865,8 +868,8 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL;
-		proto_tree *batadv_icmp_tree = NULL;
+		proto_item *ti;
+		proto_tree *batadv_icmp_tree;
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, ICMP_PACKET_V6_SIZE,
@@ -949,8 +952,8 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL;
-		proto_tree *batadv_icmp_tree = NULL;
+		proto_item *ti;
+		proto_tree *batadv_icmp_tree;
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, ICMP_PACKET_V7_SIZE,
@@ -1048,8 +1051,8 @@ static void dissect_batadv_unicast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL;
-		proto_tree *batadv_unicast_tree = NULL;
+		proto_item *ti;
+		proto_tree *batadv_unicast_tree;
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, UNICAST_PACKET_V6_SIZE,
@@ -1147,7 +1150,7 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL;
+		proto_item *ti;
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, VIS_PACKET_V6_SIZE,
@@ -1246,14 +1249,13 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 static void dissect_vis_entry_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	const guint8  *dst;
-
-	dst = tvb_get_ptr(tvb, 0, 6);
-
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL;
-		proto_tree *batadv_vis_entry_tree = NULL;
+		const guint8  *dst;
+		proto_item    *ti;
+		proto_tree    *batadv_vis_entry_tree;
+
+		dst = tvb_get_ptr(tvb, 0, 6);
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, VIS_ENTRY_V6_SIZE,
@@ -1271,15 +1273,14 @@ static void dissect_vis_entry_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 static void dissect_vis_entry_v8(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	const guint8  *dst, *src;
-
-	src = tvb_get_ptr(tvb, 0, 6);
-	dst = tvb_get_ptr(tvb, 6, 6);
-
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL;
-		proto_tree *batadv_vis_entry_tree = NULL;
+		const guint8  *dst, *src;
+		proto_item *ti;
+		proto_tree *batadv_vis_entry_tree;
+
+		src = tvb_get_ptr(tvb, 0, 6);
+		dst = tvb_get_ptr(tvb, 6, 6);
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, VIS_ENTRY_V8_SIZE,
