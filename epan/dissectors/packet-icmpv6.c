@@ -106,6 +106,10 @@ static int hf_icmpv6_comp = -1;
 static int hf_icmpv6_x509if_Name = -1;
 static int hf_icmpv6_x509af_Certificate = -1;
 static int hf_icmpv6_recursive_dns_serv = -1;
+static int hf_icmpv6_opt_prefix_len = -1;
+static int hf_icmpv6_opt_flag_l = -1;
+static int hf_icmpv6_opt_flag_a = -1;
+static int hf_icmpv6_opt_flag_reserved = -1;
 
 
 static gint ett_icmpv6 = -1;
@@ -292,16 +296,20 @@ static const value_string option_vals[] = {
     { FMIP6_OPT_NEW_ROUTER_PREFIX_INFO, "New Router Prefix Information" },          /* [RFC4068] */
     { FMIP6_OPT_LINK_LAYER_ADDRESS,     "Link-layer Address" },                     /* [RFC4068] */
     { FMIP6_OPT_NEIGHBOR_ADV_ACK,       "Neighbor Advertisement Acknowledgment" },  /* [RFC4068] */
+	/* 21-22   Unassigned */
     { 21,                               "CARD Request" },                           /* [RFC4065] */
     { 22,                               "CARD Reply" },                             /* [RFC4065] */
     { 23,                               "MAP" },                                    /* [RFC4140] */
     { ND_OPT_ROUTE_INFO,                "Route Information" },                      /* [RFC4191] */
     { ND_OPT_RECURSIVE_DNS_SERVER,      "Recursive DNS Server" },                   /* [RFC5006] */
     { 26,                               "RA Flags Extension" },                     /* [RFC5075] */
-    { 27,                               "Handover Key Request" },                   /* [RFC-ietf-mipshop-handover-key-03.txt] */
-    { 28,                               "Handover Key Reply" },                     /* [RFC-ietf-mipshop-handover-key-03.txt] */
+    { 27,                               "Handover Key Request" },                   /* [RFC5269] */
+    { 28,                               "Handover Key Reply" },                     /* [RFC5269] */
     { ND_OPT_MAP,                       "HMIPv6 MAP option" },
-/*29-252  Unassigned */
+	/* 31-137  Unassigned */
+    { 138,                              "CARD Request" },                           /* [RFC4065] */
+    { 139,                              "CARD Reply" },                             /* [RFC4065] */
+	/* 140-252 Unassigned */
     { 253,                              "RFC3692-style Experiment 1" },             /* [RFC4727] */
     { 254,                              "RFC3692-style Experiment 2" },             /* [RFC4727] */
     { 0,                                NULL }
@@ -413,25 +421,24 @@ again:
     }
     case ND_OPT_PREFIX_INFORMATION:
     {
+		/* RFC 4861 */
         struct nd_opt_prefix_info nd_opt_prefix_info, *pi;
         int flagoff;
 
         pi = &nd_opt_prefix_info;
         tvb_memcpy(tvb, (guint8 *)pi, offset, sizeof *pi);
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_prefix_len),
-                            1, "Prefix length: %u", pi->nd_opt_pi_prefix_len);
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_len, tvb, offset + 2, 1, FALSE);
 
-        flagoff = offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_flags_reserved);
+        flagoff = offset + 3;
         tf = proto_tree_add_text(icmp6opt_tree, tvb, flagoff, 1, "Flags: 0x%02x",
-                                 tvb_get_guint8(tvb, offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_flags_reserved)));
+                                 tvb_get_guint8(tvb, flagoff));
         field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-        proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                            decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
-                                                    ND_OPT_PI_FLAG_ONLINK, 8, "Onlink", "Not onlink"));
-        proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                            decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
-                                                    ND_OPT_PI_FLAG_AUTO, 8, "Auto", "Not auto"));
+		proto_tree_add_item(field_tree, hf_icmpv6_opt_flag_l, tvb, offset + 3, 1, FALSE);
+		proto_tree_add_item(field_tree, hf_icmpv6_opt_flag_a, tvb, offset + 3, 1, FALSE);
+		proto_tree_add_item(field_tree, hf_icmpv6_opt_flag_reserved, tvb, offset + 3, 1, FALSE);
+#if 0
+		/* This bits are not in the RFC, removed the code Anders Broman 2010-06-02
+			if no one complains for a while delete it. */
         proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
                             decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
                                                     ND_OPT_PI_FLAG_ROUTER, 8,
@@ -440,26 +447,30 @@ again:
                             decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
                                                     ND_OPT_PI_FLAG_SITEPREF, 8,
                                                     "Site prefix", "Not site prefix"));
+#endif
         if (pntohl(&pi->nd_opt_pi_valid_time) == 0xffffffff)
             proto_tree_add_text(icmp6opt_tree, tvb,
-                                offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_valid_time),
+                                offset+4,
                                 4, "Valid lifetime: infinity");
         else
             proto_tree_add_text(icmp6opt_tree, tvb,
-                                offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_valid_time),
+                                offset+4,
                                 4, "Valid lifetime: %u",
                                 pntohl(&pi->nd_opt_pi_valid_time));
         if (pntohl(&pi->nd_opt_pi_preferred_time) == 0xffffffff)
             proto_tree_add_text(icmp6opt_tree, tvb,
-                                offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_preferred_time),
+                                offset+8,
                                 4, "Preferred lifetime: infinity");
         else
             proto_tree_add_text(icmp6opt_tree, tvb,
-                                offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_preferred_time),
+                                offset+8,
                                 4, "Preferred lifetime: %u",
                                 pntohl(&pi->nd_opt_pi_preferred_time));
         proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_prefix),
+                            offset + 12,
+                            4, "Reserved");
+        proto_tree_add_text(icmp6opt_tree, tvb,
+                            offset + 16,
                             16, "Prefix: %s", ip6_to_str(&pi->nd_opt_pi_prefix));
         break;
     }
@@ -2274,6 +2285,18 @@ proto_register_icmpv6(void)
             NULL, HFILL }},
         { &hf_icmpv6_recursive_dns_serv,
           { "Recursive DNS Servers", "icmpv6.recursive_dns_serv", FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+		{ &hf_icmpv6_opt_prefix_len,
+          { "Prefix Length", "icmpv6.opt_prefix.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+		{ &hf_icmpv6_opt_flag_l,
+          { "On-link flag(L)", "icmpv6.opt_prefix.flag.l", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+            NULL, HFILL }},
+		{ &hf_icmpv6_opt_flag_a,
+          { "Autonomous address-configuration flag(A)", "icmpv6.opt_prefix.flag.a", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+            NULL, HFILL }},
+		{ &hf_icmpv6_opt_flag_reserved,
+          { "Reserved", "icmpv6.opt_prefix.flag.reserved", FT_UINT8, BASE_DEC, NULL, 0x3f,
             NULL, HFILL }}
     };
 

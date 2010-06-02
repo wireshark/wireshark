@@ -466,7 +466,7 @@ struct nd_opt_prefix_info {	/* prefix information */
 };
 
 #define ND_OPT_PI_FLAG_ONLINK		0x80
-#define ND_OPT_PI_FLAG_AUTO		0x40
+#define ND_OPT_PI_FLAG_AUTO			0x40
 #define ND_OPT_PI_FLAG_ROUTER		0x20
 #define ND_OPT_PI_FLAG_SITEPREF		0x10
 
