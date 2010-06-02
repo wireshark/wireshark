@@ -135,6 +135,12 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            Capinfos now checks the time order of capture files.
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>

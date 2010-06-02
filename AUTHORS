@@ -2482,6 +2482,7 @@ Brian Bogora		<brian_bogora [AT] mitel.com> {
 Jim Young		<sysjhy [AT] langate.gsu.edu> {
 	Improvements LLDP dissection (803.3 "PMD Auto-Negotiation Advertised
 		Capability" and "Operational MAU Type")
+	Capinfos time order checking
 
 }
 

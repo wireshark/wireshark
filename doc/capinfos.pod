@@ -22,6 +22,7 @@ S<[ B<-l> ]>
 S<[ B<-L> ]>
 S<[ B<-m> ]>
 S<[ B<-N> ]>
+S<[ B<-o> ]>
 S<[ B<-q> ]>
 S<[ B<-Q> ]>
 S<[ B<-r> ]>
@@ -159,6 +160,12 @@ Displays the average data rate, in bits/sec
 Display the snaplen (if any) for a file.
 snaplen (if available) is determined from the capture file header
 and by looking for truncated records in the capture file.
+
+=item -o
+
+Displays "True" if packets exist in strict chronological order 
+or "False" if one or more packets in the capture exists 
+"out-of-order" time-wise.
 
 =item -L 
 

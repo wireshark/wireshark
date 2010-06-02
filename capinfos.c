@@ -137,6 +137,8 @@ static gboolean cap_data_rate_byte = TRUE;  /* Report data rate bytes/sec */
 static gboolean cap_data_rate_bit = TRUE;   /* Report data rate bites/sec */
 static gboolean cap_packet_size = TRUE;     /* Report average packet size */
 static gboolean cap_packet_rate = TRUE;     /* Report average packet rate */
+static gboolean cap_in_order = TRUE;        /* Report if packets are in chronological order (True/False) */
+
 #ifdef HAVE_LIBGCRYPT
 static gboolean cap_file_hashes = TRUE;     /* Calculate file hashes */
 #endif
@@ -180,6 +182,7 @@ typedef struct _capture_info {
   double        packet_rate;
   double        packet_size;
   double        data_rate;              /* in bytes */
+  gboolean      in_order;
 } capture_info;
 
 static void
@@ -197,6 +200,7 @@ enable_all_infos(void)
   cap_duration = TRUE;
   cap_start_time = TRUE;
   cap_end_time = TRUE;
+  cap_in_order = TRUE;
 
   cap_data_rate_byte = TRUE;
   cap_data_rate_bit = TRUE;
@@ -223,6 +227,7 @@ disable_all_infos(void)
   cap_duration       = FALSE;
   cap_start_time     = FALSE;
   cap_end_time       = FALSE;
+  cap_in_order       = FALSE;
 
   cap_data_rate_byte = FALSE;
   cap_data_rate_bit  = FALSE;
@@ -333,6 +338,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
                           printf     ("RIPEMD160:           %s\n", file_rmd160);
                           printf     ("MD5:                 %s\n", file_md5);
   }
+  if (cap_in_order)       printf     ("Strict time order:   %s\n", (cf_info->in_order) ? "True" : "False");
 #endif /* HAVE_LIBGCRYPT */
 }
 
@@ -385,6 +391,7 @@ print_stats_table_header(void)
                           print_stats_table_header_label("RIPEMD160");
                           print_stats_table_header_label("MD5");
   }
+  if (cap_in_order)       print_stats_table_header_label("Strict time order");
 #endif /* HAVE_LIBGCRYPT */
 
   printf("\n");
@@ -542,6 +549,13 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
   }
 #endif /* HAVE_LIBGCRYPT */
 
+  if (cap_in_order) {
+    putsep();
+    putquote();
+    printf("%s", (cf_info->in_order) ? "True" : "False");
+    putquote();
+  }
+
   printf("\n");
 }
 
@@ -562,14 +576,21 @@ process_cap_file(wtap *wth, const char *filename)
   double                start_time = 0;
   double                stop_time  = 0;
   double                cur_time   = 0;
+  double		prev_time = 0;
+  gboolean		in_order = TRUE;
 
   /* Tally up data that we need to parse through the file to find */
   while (wtap_read(wth, &err, &err_info, &data_offset))  {
     phdr = wtap_phdr(wth);
+    prev_time = cur_time;
     cur_time = secs_nsecs(&phdr->ts);
     if(packet==0) {
       start_time = cur_time;
       stop_time = cur_time;
+      prev_time = cur_time;
+    }
+    if (cur_time < prev_time) {
+      in_order = FALSE;
     }
     if (cur_time < start_time) {
       start_time = cur_time;
@@ -644,6 +665,7 @@ process_cap_file(wtap *wth, const char *filename)
   cf_info.start_time = start_time;
   cf_info.stop_time = stop_time;
   cf_info.duration = stop_time-start_time;
+  cf_info.in_order = in_order;
 
   /* Number of packet bytes */
   cf_info.packet_bytes = bytes;
@@ -709,6 +731,7 @@ usage(gboolean is_error)
   fprintf(output, "  -u display the capture duration (in seconds)\n");
   fprintf(output, "  -a display the capture start time\n");
   fprintf(output, "  -e display the capture end time\n");
+  fprintf(output, "  -o display the capture file chronological status (True/False)\n");
   fprintf(output, "  -S display start and end times as seconds\n");
   fprintf(output, "\n");
   fprintf(output, "Statistic infos:\n");
@@ -809,7 +832,7 @@ main(int argc, char *argv[])
 
   /* Process the options */
 
-  while ((opt = getopt(argc, argv, "tEcs" FILE_HASH_OPT "dluaeyizvhxCALTRrSNqQBmb")) !=-1) {
+  while ((opt = getopt(argc, argv, "tEcs" FILE_HASH_OPT "dluaeyizvhxoCALTRrSNqQBmb")) !=-1) {
 
     switch (opt) {
 
@@ -888,6 +911,11 @@ main(int argc, char *argv[])
       cap_file_hashes = TRUE;
       break;
 #endif
+
+    case 'o':
+      if (report_all_infos) disable_all_infos();
+      cap_in_order = TRUE;
+      break;
 
     case 'C':
       continue_after_wtap_open_offline_failure = FALSE;
