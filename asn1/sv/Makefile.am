@@ -1,4 +1,4 @@
-# $Id:$
+# $Id$
 #
 #
 # Wireshark - Network traffic analyzer
