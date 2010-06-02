@@ -127,6 +127,7 @@ typedef struct _packet_info {
 
   int     iplen;                /* total length of IP packet */
   int     iphdrlen;             /* length of IP header */
+  guint8  ip_ttl;               /* IP time to live */
   int	  p2p_dir;              /* Packet was captured as an
                                        outbound (P2P_DIR_SENT)
                                        inbound (P2P_DIR_RECV)

@@ -53,6 +53,7 @@ static int hf_icmp_checksum = -1;
 static int hf_icmp_checksum_bad = -1;
 static int hf_icmp_ident = -1;
 static int hf_icmp_seq_num = -1;
+static int hf_icmp_seq_num_le = -1;
 static int hf_icmp_mtu = -1;
 static int hf_icmp_redir_gw = -1;
 
@@ -731,7 +732,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
   }
 
-  col_set_str(pinfo->cinfo, COL_INFO, type_str);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%-20s", type_str);
   if (code_str)
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", code_str);
 
@@ -783,6 +784,10 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case ICMP_MASKREPLY:
         proto_tree_add_item(icmp_tree, hf_icmp_ident, tvb, 4, 2, FALSE);
         proto_tree_add_item(icmp_tree, hf_icmp_seq_num, tvb, 6, 2, FALSE);
+        proto_tree_add_item(icmp_tree, hf_icmp_seq_num_le, tvb, 6, 2, TRUE);
+        col_append_fstr(pinfo->cinfo, COL_INFO,
+            " (id=0x%04x, seq(be/le)=%u/%u, ttl=%u)", tvb_get_ntohs(tvb, 4),
+            tvb_get_ntohs(tvb, 6), tvb_get_letohs(tvb, 6), pinfo->ip_ttl);
 	break;
 
       case ICMP_UNREACH:
@@ -928,6 +933,10 @@ proto_register_icmp(void)
     { &hf_icmp_seq_num,
       { "Sequence number", "icmp.seq",           FT_UINT16, BASE_DEC_HEX,    NULL, 0x0,
         NULL, HFILL }},
+
+    { &hf_icmp_seq_num_le,
+      {"Sequence number (LE)", "icmp.seq_le",   FT_UINT16, BASE_DEC_HEX,    NULL, 0x0,
+       "", HFILL }},
 
     { &hf_icmp_mtu,
       { "MTU of next hop", "icmp.mtu",           FT_UINT16, BASE_DEC,    NULL, 0x0,

@@ -1469,6 +1469,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   }
 
   iph->ip_ttl = tvb_get_guint8(tvb, offset + 8);
+  pinfo->ip_ttl = iph->ip_ttl;
   if (tree) {
     ttl_item = proto_tree_add_item(ip_tree, hf_ip_ttl, tvb, offset + 8, 1, FALSE);
   } else {
