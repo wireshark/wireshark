@@ -381,10 +381,8 @@ dissect_sv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		item = proto_tree_add_item(parent_tree, proto_sv, tvb, 0, -1, FALSE);
 		tree = proto_item_add_subtree(item, ett_sv);
 	}
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* APPID */
 	if (tree && tvb_reported_length_remaining(tvb, offset) >= 2)
@@ -424,61 +422,61 @@ void proto_register_sv(void) {
 	/* List of fields */
 	static hf_register_info hf[] = {
 		{ &hf_sv_appid,
-		{ "APPID",	"sv.appid", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ "APPID",	"sv.appid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_sv_length,
-		{ "Length",	"sv.length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "Length",	"sv.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_sv_reserve1,
-		{ "Reserved 1",	"sv.reserve1", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "", HFILL }},
+		{ "Reserved 1",	"sv.reserve1", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_sv_reserve2,
-		{ "Reserved 2",	"sv.reserve2", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "", HFILL }},
+		{ "Reserved 2",	"sv.reserve2", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_sv_phmeas_instmag_i,
-		{ "value", "sv.meas_value", FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+		{ "value", "sv.meas_value", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_sv_phsmeas_q,
-		{ "quality", "sv.meas_quality", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+		{ "quality", "sv.meas_quality", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_sv_phsmeas_q_validity,
-		{ "validity", "sv.meas_quality.validity", FT_UINT32, BASE_HEX, VALS(sv_q_validity_vals), Q_VALIDITY_MASK, "", HFILL}},
+		{ "validity", "sv.meas_quality.validity", FT_UINT32, BASE_HEX, VALS(sv_q_validity_vals), Q_VALIDITY_MASK, NULL, HFILL}},
 
 		{ &hf_sv_phsmeas_q_overflow,
-		{ "overflow", "sv.meas_quality.overflow", FT_BOOLEAN, 32, NULL, Q_OVERFLOW, "", HFILL}},
+		{ "overflow", "sv.meas_quality.overflow", FT_BOOLEAN, 32, NULL, Q_OVERFLOW, NULL, HFILL}},
 
 		{ &hf_sv_phsmeas_q_outofrange,
-		{ "out of range", "sv.meas_quality.outofrange", FT_BOOLEAN, 32, NULL, Q_OUTOFRANGE, "", HFILL}},
+		{ "out of range", "sv.meas_quality.outofrange", FT_BOOLEAN, 32, NULL, Q_OUTOFRANGE, NULL, HFILL}},
 
 		{ &hf_sv_phsmeas_q_badreference,
-		{ "bad reference", "sv.meas_quality.badreference", FT_BOOLEAN, 32, NULL, Q_BADREFERENCE, "", HFILL}},
+		{ "bad reference", "sv.meas_quality.badreference", FT_BOOLEAN, 32, NULL, Q_BADREFERENCE, NULL, HFILL}},
 
 		{ &hf_sv_phsmeas_q_oscillatory,
-		{ "oscillatory", "sv.meas_quality.oscillatory", FT_BOOLEAN, 32, NULL, Q_OSCILLATORY, "", HFILL}},
+		{ "oscillatory", "sv.meas_quality.oscillatory", FT_BOOLEAN, 32, NULL, Q_OSCILLATORY, NULL, HFILL}},
 
 		{ &hf_sv_phsmeas_q_failure,
-		{ "failure", "sv.meas_quality.failure", FT_BOOLEAN, 32, NULL, Q_FAILURE, "", HFILL}},
+		{ "failure", "sv.meas_quality.failure", FT_BOOLEAN, 32, NULL, Q_FAILURE, NULL, HFILL}},
 
 		{ &hf_sv_phsmeas_q_olddata,
-		{ "old data", "sv.meas_quality.olddata", FT_BOOLEAN, 32, NULL, Q_OLDDATA, "", HFILL}},
+		{ "old data", "sv.meas_quality.olddata", FT_BOOLEAN, 32, NULL, Q_OLDDATA, NULL, HFILL}},
 
 		{ &hf_sv_phsmeas_q_inconsistent,
-		{ "inconsistent", "sv.meas_quality.inconsistent", FT_BOOLEAN, 32, NULL, Q_INCONSISTENT, "", HFILL}},
+		{ "inconsistent", "sv.meas_quality.inconsistent", FT_BOOLEAN, 32, NULL, Q_INCONSISTENT, NULL, HFILL}},
 
 		{ &hf_sv_phsmeas_q_inaccurate,
-		{ "inaccurate", "sv.meas_quality.inaccurate", FT_BOOLEAN, 32, NULL, Q_INACCURATE, "", HFILL}},
+		{ "inaccurate", "sv.meas_quality.inaccurate", FT_BOOLEAN, 32, NULL, Q_INACCURATE, NULL, HFILL}},
 
 		{ &hf_sv_phsmeas_q_source,
-		{ "source", "sv.meas_quality.source", FT_UINT32, BASE_HEX, VALS(sv_q_source_vals), Q_SOURCE_MASK, "", HFILL}},
+		{ "source", "sv.meas_quality.source", FT_UINT32, BASE_HEX, VALS(sv_q_source_vals), Q_SOURCE_MASK, NULL, HFILL}},
 
 		{ &hf_sv_phsmeas_q_test,
-		{ "test", "sv.meas_quality.teset", FT_BOOLEAN, 32, NULL, Q_TEST, "", HFILL}},
+		{ "test", "sv.meas_quality.teset", FT_BOOLEAN, 32, NULL, Q_TEST, NULL, HFILL}},
 
 		{ &hf_sv_phsmeas_q_operatorblocked,
-		{ "operator blocked", "sv.meas_quality.operatorblocked", FT_BOOLEAN, 32, NULL, Q_OPERATORBLOCKED, "", HFILL}},
+		{ "operator blocked", "sv.meas_quality.operatorblocked", FT_BOOLEAN, 32, NULL, Q_OPERATORBLOCKED, NULL, HFILL}},
 
 		{ &hf_sv_phsmeas_q_derived,
-		{ "derived", "sv.meas_quality.derived", FT_BOOLEAN, 32, NULL, Q_DERIVED, "", HFILL}},
+		{ "derived", "sv.meas_quality.derived", FT_BOOLEAN, 32, NULL, Q_DERIVED, NULL, HFILL}},
 
 
 
@@ -487,42 +485,42 @@ void proto_register_sv(void) {
     { &hf_sv_savPdu,
       { "savPdu", "sv.savPdu",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sv.SavPdu", HFILL }},
+        NULL, HFILL }},
     { &hf_sv_noASDU,
       { "noASDU", "sv.noASDU",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sv.INTEGER_0_65535", HFILL }},
+        "INTEGER_0_65535", HFILL }},
     { &hf_sv_seqASDU,
       { "seqASDU", "sv.seqASDU",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sv.SEQUENCE_OF_ASDU", HFILL }},
+        "SEQUENCE_OF_ASDU", HFILL }},
     { &hf_sv_seqASDU_item,
-      { "seqASDU", "sv.seqASDU_item",
+      { "ASDU", "sv.ASDU",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sv.ASDU", HFILL }},
+        NULL, HFILL }},
     { &hf_sv_svID,
       { "svID", "sv.svID",
         FT_STRING, BASE_NONE, NULL, 0,
-        "sv.VisibleString", HFILL }},
+        "VisibleString", HFILL }},
     { &hf_sv_smpCnt,
       { "smpCnt", "sv.smpCnt",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sv.T_smpCnt", HFILL }},
+        NULL, HFILL }},
     { &hf_sv_confRef,
       { "confRef", "sv.confRef",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "sv.INTEGER_0_4294967295", HFILL }},
+        "INTEGER_0_4294967295", HFILL }},
     { &hf_sv_smpSynch,
       { "smpSynch", "sv.smpSynch",
         FT_INT32, BASE_DEC, VALS(sv_T_smpSynch_vals), 0,
-        "sv.T_smpSynch", HFILL }},
+        NULL, HFILL }},
     { &hf_sv_seqData,
       { "seqData", "sv.seqData",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "sv.Data", HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "Data", HFILL }},
 
 /*--- End of included file: packet-sv-hfarr.c ---*/
-#line 308 "packet-sv-template.c"
+#line 306 "packet-sv-template.c"
 	};
 
 	/* List of subtrees */
@@ -539,7 +537,7 @@ void proto_register_sv(void) {
     &ett_sv_ASDU,
 
 /*--- End of included file: packet-sv-ettarr.c ---*/
-#line 316 "packet-sv-template.c"
+#line 314 "packet-sv-template.c"
 	};
 
 	/* Register protocol */
