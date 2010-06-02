@@ -138,6 +138,12 @@ static dissector_table_t ber_oid_dissector_table=NULL;
 static dissector_table_t ber_syntax_dissector_table=NULL;
 static GHashTable *syntax_table=NULL;
 
+static gint8 last_class;
+static gboolean last_pc;
+static gint32 last_tag;
+static guint32 last_length;
+static gboolean last_ind;
+
 static const value_string ber_class_codes[] = {
 	{ BER_CLASS_UNI,	"UNIVERSAL" },
 	{ BER_CLASS_APP,	"APPLICATION" },
@@ -780,7 +786,22 @@ printf ("\n");
 	if (tag)
 		*tag = tmp_tag;
 
+	last_class = tmp_class;
+	last_pc = tmp_pc;
+	last_tag = tmp_tag;
+
 	return offset;
+}
+
+static void get_last_ber_identifier(gint8 *class, gboolean *pc, gint32 *tag) 
+{
+	if (class)
+		*class = last_class;
+	if (pc)
+		*pc = last_pc;
+	if (tag)
+		*tag = last_tag;
+
 }
 
 int dissect_ber_identifier(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gint8 *class, gboolean *pc, gint32 *tag)
@@ -831,13 +852,12 @@ static gboolean
 try_get_ber_length(tvbuff_t *tvb, int *bl_offset, guint32 *length, gboolean *ind) {
 	int offset = *bl_offset;
 	guint8 oct, len;
-	guint32 tmp_len; 
+	guint32 tmp_len;
+	gint8 tclass;
+	gint32 ttag;
 	guint32 tmp_length;
 	gboolean tmp_ind;
 	int tmp_offset;
-	gint8 tclass;
-	gint32 ttag;
-
 	tmp_length = 0;
 	tmp_ind = FALSE;
 
@@ -858,8 +878,8 @@ try_get_ber_length(tvbuff_t *tvb, int *bl_offset, guint32 *length, gboolean *ind
 			}
 		} else {
 			/* 8.1.3.6 */
+			/* indefinite length encoded - must be constructed */	
 
-			/* indefinite length encoded - must be constructed */
 			tmp_offset = offset;
 			
 			do {
@@ -873,7 +893,6 @@ try_get_ber_length(tvbuff_t *tvb, int *bl_offset, guint32 *length, gboolean *ind
 
 			tmp_length = tmp_offset - offset;
 			tmp_ind = TRUE;
-
 		}
 	}
 
@@ -889,19 +908,42 @@ printf("get BER length %d, offset %d (remaining %d)\n", tmp_length, offset, tvb_
 	*bl_offset = offset;
 	return TRUE;
 }
-
+ 
 int
 get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind) 
 {
 	int bl_offset = offset;
 	guint32 bl_length;
 
+
+	gint8 save_class;
+	gboolean save_pc;
+	gint32 save_tag;	
+
+	/* save last tag */
+	save_class = last_class;
+	save_pc = last_pc;
+	save_tag = last_tag;
+
 	try_get_ber_length(tvb, &bl_offset, &bl_length, ind);
+
+	/* restore last tag */
+	last_class = save_class;
+	last_pc = save_pc;
+	last_tag = save_tag;
 
 	if (length)
 		*length = bl_length;
 
 	return bl_offset;
+}
+
+static void get_last_ber_length(guint32 *length, gboolean *ind) 
+{
+	if (length)
+		*length = last_length;
+	if (ind)
+		*ind = last_ind;
 }
 
 /* this function dissects the length octets of the BER TLV.
@@ -932,6 +974,9 @@ dissect_ber_length(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int 
 printf("dissect BER length %d, offset %d (remaining %d)\n", tmp_length, offset, tvb_length_remaining(tvb, offset));
 #endif
 
+ last_length = tmp_length;
+ last_ind = tmp_ind; 
+
 	return offset;
 }
 
@@ -943,7 +988,7 @@ static void ber_defragment_init(void) {
   reassembled_table_init(&octet_reassembled_table);
 }
 
-static int
+int
 reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 con_len, gboolean ind, tvbuff_t **out_tvb)
 {
   fragment_data *fd_head = NULL;
@@ -1036,6 +1081,7 @@ dissect_ber_constrained_octet_string(gboolean implicit_tag, asn1_ctx_t *actx, pr
 	int end_offset;
 	proto_item *it, *cause;
   guint32 i;
+  guint32 len_remain;
 
 #ifdef DEBUG_BER
 {
@@ -1080,10 +1126,28 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 			return end_offset;
 		}
 	} else {
-		/* implicit tag so just trust the length of the tvb */
-		pc=FALSE;
-		len=tvb_length_remaining(tvb,offset);
-		end_offset=offset+len;
+	  /* implicit tag so get from last tag/length */
+	        
+	  get_last_ber_identifier(&class, &pc, &tag);
+	  get_last_ber_length(&len, &ind);
+
+	  end_offset=offset+len;
+
+	  /* caller may have created new buffer for indefinite length data Verify via length */
+	  len_remain = (guint32)tvb_length_remaining(tvb, offset);
+	  if((ind) && (len_remain == len - 2)) {
+			/* new buffer received so adjust length and indefinite flag */
+			len -=2;
+			end_offset -= 2;
+			ind = FALSE;
+	  } else if (len_remain < len) {
+			/* error - short frame */
+		  cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: length:%u longer than tvb_length_remaining:%d", len, len_remain);
+		  proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+		  expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error length");
+		  return end_offset;
+	  }
+
 	}
 
 	actx->created_item = NULL;

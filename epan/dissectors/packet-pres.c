@@ -671,7 +671,7 @@ dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 	oid=find_oid_by_pres_ctx_id(actx->pinfo, presentation_context_identifier);
 	if(oid){
-		next_tvb = tvb_new_subset_remaining(tvb, offset);
+		dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &next_tvb);
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
 	} else {
 		if (!pres_try_users_table(presentation_context_identifier, tvb, offset, actx->pinfo)) {
