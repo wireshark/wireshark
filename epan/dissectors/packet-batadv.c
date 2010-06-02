@@ -776,7 +776,7 @@ static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	bcast_packeth = ep_alloc(sizeof(struct bcast_packet_v6));
 
-	bcast_packeth->version = tvb_get_ntohs(tvb, 1);
+	bcast_packeth->version = tvb_get_guint8(tvb, 1);
 	orig_addr = tvb_get_ptr(tvb, 2, 6);
 	SET_ADDRESS(&bcast_packeth->orig, AT_ETHER, 6, orig_addr);
 	bcast_packeth->seqno = tvb_get_ntohs(tvb, 8);
