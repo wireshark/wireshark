@@ -461,6 +461,9 @@ static void dissect_batadv_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 		}
 	}
 
+	/* Calculate offset even when we got no tree */
+	offset = BATMAN_PACKET_V5_SIZE + batman_packeth->num_hna * 6;
+
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining >= BATMAN_PACKET_V5_SIZE) {
 		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
@@ -571,6 +574,9 @@ static void dissect_batadv_batman_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 			offset += 6;
 		}
 	}
+
+	/* Calculate offset even when we got no tree */
+	offset = BATMAN_PACKET_V7_SIZE + batman_packeth->num_hna * 6;
 
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining >= BATMAN_PACKET_V7_SIZE) {
@@ -692,6 +698,9 @@ static void dissect_batadv_batman_v9(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 		}
 	}
 
+	/* Calculate offset even when we got no tree */
+	offset = BATMAN_PACKET_V9_SIZE + batman_packeth->num_hna * 6;
+
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining >= BATMAN_PACKET_V9_SIZE) {
 		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
@@ -797,6 +806,9 @@ static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		proto_tree_add_item(batadv_bcast_tree, hf_batadv_bcast_seqno, tvb, offset, 2, FALSE);
 		offset += 2;
 	}
+
+	/* Calculate offset even when we got no tree */
+	offset = BCAST_PACKET_V6_SIZE;
 
 	SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, orig_addr);
 	SET_ADDRESS(&pinfo->src, AT_ETHER, 6, orig_addr);
@@ -907,6 +919,9 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		offset += 1;
 	}
 
+	/* Calculate offset even when we got no tree */
+	offset = ICMP_PACKET_V6_SIZE;
+
 	SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, orig_addr);
 	SET_ADDRESS(&pinfo->src, AT_ETHER, 6, orig_addr);
 
@@ -990,6 +1005,9 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_uid, tvb, offset, 1, FALSE);
 		offset += 1;
 	}
+
+	/* Calculate offset even when we got no tree */
+	offset = ICMP_PACKET_V7_SIZE;
 
 	SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, orig_addr);
 	SET_ADDRESS(&pinfo->src, AT_ETHER, 6, orig_addr);
@@ -1077,6 +1095,9 @@ static void dissect_batadv_unicast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		proto_tree_add_item(batadv_unicast_tree, hf_batadv_unicast_ttl, tvb, offset, 1, FALSE);
 		offset += 1;
 	}
+
+	/* Calculate offset even when we got no tree */
+	offset = UNICAST_PACKET_V6_SIZE;
 
 	SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dest_addr);
 	SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, dest_addr);
@@ -1190,6 +1211,9 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		proto_tree_add_ether(batadv_vis_tree, hf_batadv_vis_sender_orig, tvb, offset, 6, sender_orig_addr);
 		offset += 6;
 	}
+
+	/* Calculate offset even when we got no tree */
+	offset = VIS_PACKET_V6_SIZE;
 
 	SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, sender_orig_addr);
 	SET_ADDRESS(&pinfo->src, AT_ETHER, 6, vis_orig_addr);
