@@ -183,7 +183,7 @@ static const char* simple_avp(diam_ctx_t*, diam_avp_t*, tvbuff_t*);
 
 static const value_string no_vs[] = {{0, NULL} };
 static GArray no_garr = { (void*)no_vs, 1 };
-static value_string_ext no_vs_avps_ext = { NULL, 0, (void*)no_vs};
+static value_string_ext no_vs_avps_ext = { (value_string_match_t) match_strval_ext_init, 0, (void*)no_vs};
 static diam_vnd_t unknown_vendor = { 0xffffffff, &no_garr, &no_vs_avps_ext,  &no_garr };
 static diam_vnd_t no_vnd = { 0, NULL, NULL, NULL };
 static diam_avp_t unknown_avp = {0, &unknown_vendor, simple_avp, simple_avp, -1, -1, NULL };
