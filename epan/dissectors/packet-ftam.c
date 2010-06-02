@@ -861,7 +861,7 @@ dissect_ftam_FTAM_Quality_of_Service(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 static int
 dissect_ftam_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   return offset;
 }
@@ -1308,7 +1308,7 @@ static const ber_choice_t FTAM_Regime_PDU_choice[] = {
 
 static int
 dissect_ftam_FTAM_Regime_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 90 "ftam.cnf"
+#line 93 "ftam.cnf"
   gint branch_taken;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1703,7 +1703,7 @@ dissect_ftam_Permitted_Actions_Attribute(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_ftam_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 73 "ftam.cnf"
+#line 76 "ftam.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -1907,7 +1907,7 @@ dissect_ftam_Concurrency_Access(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_ftam_AP_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 85 "ftam.cnf"
+#line 88 "ftam.cnf"
 	/* XXX have no idea about this one */
 
 
@@ -1918,7 +1918,7 @@ dissect_ftam_AP_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_ftam_AE_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 87 "ftam.cnf"
+#line 90 "ftam.cnf"
 	/* XXX have no idea about this one */
 
 
@@ -2072,7 +2072,7 @@ dissect_ftam_T_extension_attribute_identifier(gboolean implicit_tag _U_, tvbuff_
 
 static int
 dissect_ftam_T_extension_attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 76 "ftam.cnf"
+#line 79 "ftam.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -3135,7 +3135,7 @@ static const ber_choice_t File_PDU_choice[] = {
 
 static int
 dissect_ftam_File_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 99 "ftam.cnf"
+#line 102 "ftam.cnf"
   gint branch_taken;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -3439,7 +3439,7 @@ static const ber_choice_t Bulk_Data_PDU_choice[] = {
 
 static int
 dissect_ftam_Bulk_Data_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 108 "ftam.cnf"
+#line 111 "ftam.cnf"
   gint branch_taken;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -3781,7 +3781,7 @@ dissect_ftam_T_attribute_extension_attribute_identifier(gboolean implicit_tag _U
 
 static int
 dissect_ftam_T_extension_attribute_Pattern(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 82 "ftam.cnf"
+#line 85 "ftam.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -4701,7 +4701,7 @@ static const ber_choice_t FSM_PDU_choice[] = {
 
 static int
 dissect_ftam_FSM_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 117 "ftam.cnf"
+#line 120 "ftam.cnf"
   gint branch_taken;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
