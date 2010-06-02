@@ -137,7 +137,8 @@ Wireshark Info
 
         <listitem>
           <para>
-            Capinfos now checks the time order of capture files.
+            Capinfos and editcap now respectively support time order checking
+            and forcing.
           </para>
         </listitem>
 

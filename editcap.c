@@ -134,6 +134,10 @@ static gboolean check_startstop = FALSE;
 static gboolean dup_detect = FALSE;
 static gboolean dup_detect_by_time = FALSE;
 
+static int do_strict_time_adjustment = FALSE;
+static struct time_adjustment strict_time_adj = {{0, 0}, 0}; /* strict time adjustment */
+static nstime_t previous_time = {0, 0}; /* previous time */
+
 static int find_dct2000_real_data(guint8 *buf);
 
 static gchar *
@@ -362,6 +366,81 @@ set_time_adjustment(char *optarg_str_p)
     }
   }
   time_adj.tv.tv_usec = val;
+}
+
+static void
+set_strict_time_adj(char *optarg)
+{
+  char *frac, *end;
+  long val;
+  size_t frac_digits;
+
+  if (!optarg)
+    return;
+
+  /* skip leading whitespace */
+  while (*optarg == ' ' || *optarg == '\t') {
+      optarg++;
+  }
+
+  /* 
+   * check for a negative adjustment 
+   * A negative strict adjustment value is a flag 
+   * to adjust all frames by the specifed delta time.
+   */
+  if (*optarg == '-') {
+      strict_time_adj.is_negative = 1;
+      optarg++;
+  }
+
+  /* collect whole number of seconds, if any */
+  if (*optarg == '.') {         /* only fractional (i.e., .5 is ok) */
+      val  = 0;
+      frac = optarg;
+  } else {
+      val = strtol(optarg, &frac, 10);
+      if (frac == NULL || frac == optarg || val == LONG_MIN || val == LONG_MAX) {
+          fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
+                  optarg);
+          exit(1);
+      }
+      if (val < 0) {            /* implies '--' since we caught '-' above  */
+          fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
+                  optarg);
+          exit(1);
+      }
+  }
+  strict_time_adj.tv.tv_sec = val;
+
+  /* now collect the partial seconds, if any */
+  if (*frac != '\0') {             /* chars left, so get fractional part */
+    val = strtol(&(frac[1]), &end, 10);
+    /* if more than 6 fractional digits truncate to 6 */
+    if((end - &(frac[1])) > 6) {
+        frac[7] = 't'; /* 't' for truncate */
+        val = strtol(&(frac[1]), &end, 10);
+    }
+    if (*frac != '.' || end == NULL || end == frac
+        || val < 0 || val > ONE_MILLION || val == LONG_MIN || val == LONG_MAX) {
+      fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
+              optarg);
+      exit(1);
+    }
+  }
+  else {
+    return;                     /* no fractional digits */
+  }
+
+  /* adjust fractional portion from fractional to numerator
+   * e.g., in "1.5" from 5 to 500000 since .5*10^6 = 500000 */
+  if (frac && end) {            /* both are valid */
+    frac_digits = end - frac - 1;   /* fractional digit count (remember '.') */
+    while(frac_digits < 6) {    /* this is frac of 10^6 */
+      val *= 10;
+      frac_digits++;
+    }
+  }
+  strict_time_adj.tv.tv_usec = val;
 }
 
 static void
@@ -613,7 +692,7 @@ usage(gboolean is_error)
   fprintf(output, "\n");
   fprintf(output, "           NOTE: The use of the 'Duplicate packet removal' options with\n");
   fprintf(output, "           other editcap options except -v may not always work as expected.\n");
-  fprintf(output, "           Specifically the -r and -t options will very likely NOT have the\n");
+  fprintf(stderr, "           Specifically the -r, -t or -S options will very likely NOT have the\n");
   fprintf(output, "           desired effect if combined with the -d, -D or -w.\n");
   fprintf(output, "\n");
   fprintf(output, "Packet manipulation:\n");
@@ -621,6 +700,14 @@ usage(gboolean is_error)
   fprintf(output, "  -C <choplen>           chop each packet at the end by <choplen> bytes.\n");
   fprintf(output, "  -t <time adjustment>   adjust the timestamp of each packet;\n");
   fprintf(output, "                         <time adjustment> is in relative seconds (e.g. -0.5).\n");
+  fprintf(stderr, "  -S <strict adjustment> adjust timestamp of packets if necessary to insure\n");
+  fprintf(stderr, "                         strict chronological increasing order. The <strict\n");
+  fprintf(stderr, "                         adjustment> is specified in relative seconds with\n");
+  fprintf(stderr, "                         values of 0 or 0.000001 being the most reasonable.\n");
+  fprintf(stderr, "                         A negative adjustment value will modify timestamps so\n");
+  fprintf(stderr, "                         that each packet's delta time is the absolute value\n");
+  fprintf(stderr, "                         of the adjustment specified. A value of -0 will set\n");
+  fprintf(stderr, "                         all packets to the timestamp of the first packet.\n");
   fprintf(output, "  -E <error probability> set the probability (between 0.0 and 1.0 incl.)\n");
   fprintf(output, "                         that a particular packet byte will be randomly changed.\n");
   fprintf(output, "\n");
@@ -734,7 +821,7 @@ main(int argc, char *argv[])
 #endif
 
   /* Process the options */
-  while ((opt = getopt(argc, argv, "A:B:c:C:dD:E:F:hrs:i:t:T:vw:")) !=-1) {
+  while ((opt = getopt(argc, argv, "A:B:c:C:dD:E:F:hrs:i:t:S:T:vw:")) !=-1) {
 
     switch (opt) {
 
@@ -844,6 +931,11 @@ main(int argc, char *argv[])
 
     case 't':
       set_time_adjustment(optarg);
+      break;
+
+    case 'S':
+      set_strict_time_adj(optarg);
+      do_strict_time_adjustment = TRUE;
       break;
 
     case 'T':
@@ -1094,6 +1186,66 @@ main(int argc, char *argv[])
           snap_phdr = *phdr;
           snap_phdr.caplen = snaplen;
           phdr = &snap_phdr;
+        }
+
+        /*
+         *  Do we adjust timestamps to insure strict chronologically order?
+         */
+
+        if (do_strict_time_adjustment) {
+          if (previous_time.secs || previous_time.nsecs) {
+            if (!strict_time_adj.is_negative) {
+              nstime_t current;
+              nstime_t delta;
+
+              current.secs = phdr->ts.secs;
+              current.nsecs = phdr->ts.nsecs;
+
+              nstime_delta(&delta, &current, &previous_time);
+
+              if (delta.secs < 0 || delta.nsecs < 0)
+              {
+                /*
+                 * A negative delta indicates that the current packet
+                 * has an absolute timestamp less than the previous packet
+                 * that it is being compared to.  This is NOT a normal
+                 * situation since trace files usually have packets in
+                 * chronological order (oldest to newest).
+                 */
+                /* printf("++out of order, need to adjust this packet!\n"); */
+                snap_phdr = *phdr;
+                snap_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.tv_sec;
+                snap_phdr.ts.nsecs = previous_time.nsecs;
+                if (snap_phdr.ts.nsecs + strict_time_adj.tv.tv_usec * 1000 > ONE_MILLION * 1000) {
+                  /* carry */
+                  snap_phdr.ts.secs++;
+                  snap_phdr.ts.nsecs += (strict_time_adj.tv.tv_usec - ONE_MILLION) * 1000;
+                } else {
+                  snap_phdr.ts.nsecs += strict_time_adj.tv.tv_usec * 1000;
+                }
+                phdr = &snap_phdr;
+              }
+            } else {
+              /* 
+               * A negative strict time adjustment is requested. 
+               * Unconditionally set each timestamp to previous 
+               * packet's timestamp plus delta.
+               */
+              snap_phdr = *phdr;
+              snap_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.tv_sec;
+              snap_phdr.ts.nsecs = previous_time.nsecs;
+              if (snap_phdr.ts.nsecs + strict_time_adj.tv.tv_usec * 1000 > ONE_MILLION * 1000) {
+                /* carry */
+                snap_phdr.ts.secs++;
+                snap_phdr.ts.nsecs += (strict_time_adj.tv.tv_usec - ONE_MILLION) * 1000;
+              } else {
+                snap_phdr.ts.nsecs += strict_time_adj.tv.tv_usec * 1000;
+              }
+              phdr = &snap_phdr;
+            }
+          }
+          previous_time.secs = phdr->ts.secs;
+          previous_time.nsecs = phdr->ts.nsecs;
         }
 
         /* assume that if the frame's tv_sec is 0, then

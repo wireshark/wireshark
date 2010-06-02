@@ -17,6 +17,7 @@ S<[ B<-i> E<lt>seconds per fileE<gt> ]>
 S<[ B<-r> ]>
 S<[ B<-s> E<lt>snaplenE<gt> ]>
 S<[ B<-t> E<lt>time adjustmentE<gt> ]>
+S<[ B<-S> E<lt>strict time adjustmentE<gt> ]>
 S<[ B<-T> E<lt>encapsulation typeE<gt> ]>
 S<[ B<-v> ]>
 I<infile>
@@ -204,6 +205,39 @@ This feature is useful when synchronizing dumps
 collected on different machines where the time difference between the
 two machines is known or can be estimated.
 
+=item -S  E<lt>strict time adjustmentE<gt>
+
+Time adjust selected packets to insure strict chronological order. 
+
+The <strict time adjustment> value represents relative seconds
+specified as [-]I<seconds>[I<.fractional seconds>].
+
+As the capture file is processed each packet's absolute time is 
+I<possibly> adjusted to be equal to or greater than the previous 
+packet's absolute timestamp depending on the <strict time 
+adjustment> value.  
+
+If <strict time adjustment> value is 0 or greater (e.g. 0.000001) 
+then B<only> packets with a timestamp less than the previous packet 
+will adjusted.  The adjusted timestamp value will be set to be 
+equal to the timestamp value of the previous packet plus the value 
+of the <strict time adjustment> value.  A <strict time adjustment> 
+value of 0 will adjust the minimum number of timestamp values 
+necessary to insure that the resulting capture file is in 
+strict chronological order.
+
+If <strict time adjustment> value is specified as a 
+negative value, then the timestamp values of B<all> 
+packets will be adjusted to be equal to the timestamp value 
+of the previous packet plus the absolute value of the 
+<lt>strict time adjustment<gt> value. A <strict time
+adjustment> value of -0 will result in all packets
+having the timestamp value of the first packet.
+
+This feature is useful when the trace file has an occasional
+packet with a negative delta time relative to the previous 
+packet.
+
 =item -T  E<lt>encapsulation typeE<gt>
 
 Sets the packet encapsulation type of the output capture file.
@@ -287,6 +321,14 @@ real output file):
 or on Windows systems
 
     editcap -v -D 0 capture.pcap NUL
+
+To advance the timestamps of each packet forward by 3.0827 seconds:
+
+    editcap -t 3.0827 capture.pcap adjusted.pcap
+
+To insure all timestamps are in strict chronological order:
+
+    editcap -S 0 capture.pcap adjusted.pcap
 
 To introduce 5% random errors in a capture file use:
 
