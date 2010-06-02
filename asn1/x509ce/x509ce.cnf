@@ -3,9 +3,6 @@
 
 # $Id$
 
-#.MODULE_IMPORT
-MTSAbstractService	x411
-
 #.IMPORT ../x509if/x509if-exp.cnf
 #.IMPORT ../x509af/x509af-exp.cnf
 #.IMPORT ../x509sat/x509sat-exp.cnf
@@ -92,6 +89,7 @@ StatusReferrals
 SubjectKeyIdentifier
 
 #.REGISTER
+CertificatePoliciesSyntax B "2.5.29.3"  "id-ce-certificatePolicies"
 AttributesSyntax          B "2.5.29.9"  "id-ce-subjectDirectoryAttributes"
 SubjectKeyIdentifier      B "2.5.29.14" "id-ce-subjectKeyIdentifier"
 KeyUsage                  B "2.5.29.15" "id-ce-keyUsage"
@@ -153,6 +151,9 @@ EntrustVersionInfo	B "1.2.840.113533.7.65.0" "id-ce-entrustVersionInfo"
 CRLReferral/issuer	crlr_issuer
 CertificatePairExactAssertion/issuedToThisCAAssertion	cpea_issuedToThisCAAssertion
 CertificatePairExactAssertion/issuedByThisCAAssertion	cpea_issuedByThisCAAssertion
+CertificateGroup/serialNumberRange			certificateGroupNumberRange
+CertificateAssertion/subjectAltName			subjectAltNameType
+EnhancedCertificateAssertion/pathToName			enhancedPathToName
 	
 #.FN_PARS PolicyQualifierInfo/policyQualifierId
   FN_VARIANT = _str  HF_INDEX = hf_x509ce_object_identifier_id  VAL_PTR = &object_identifier_id
