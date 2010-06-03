@@ -46,21 +46,21 @@
 #include <epan/sctpppids.h>
 
 typedef struct _gcp_hf_ett_t {
-	struct {
-		int ctx;
-		int ctx_cmd;
-		int ctx_term;
-		int ctx_term_type;
-		int ctx_term_bir;
-		int ctx_term_nsap;
-	} hf;
-	
-	struct {
-		gint ctx;
-		gint ctx_cmds;
-		gint ctx_terms;
-		gint ctx_term;
-	} ett;
+    struct {
+        int ctx;
+        int ctx_cmd;
+        int ctx_term;
+        int ctx_term_type;
+        int ctx_term_bir;
+        int ctx_term_nsap;
+    } hf;
+
+    struct {
+        gint ctx;
+        gint ctx_cmds;
+        gint ctx_terms;
+        gint ctx_term;
+    } ett;
 } gcp_hf_ett_t;
 
 #define NULL_CONTEXT 0
@@ -168,7 +168,7 @@ typedef struct _gcp_terms_t {
 
 typedef struct _gcp_cmd_t {
     guint offset;
-	gchar* str;
+    gchar* str;
     gcp_cmd_type_t type;
     gcp_terms_t terms;
     struct _gcp_msg_t* msg;
@@ -181,7 +181,7 @@ typedef struct _gcp_cmd_t {
 typedef struct _gcp_ctx_t {
     gcp_msg_t* initial;
     guint32 id;
-	struct _gcp_cmd_msg_t* cmds;
+    struct _gcp_cmd_msg_t* cmds;
     struct _gcp_ctx_t* prev;
     gcp_terms_t terms;
 } gcp_ctx_t;

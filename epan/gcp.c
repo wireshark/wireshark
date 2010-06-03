@@ -41,72 +41,71 @@ static emem_tree_t* ctxs_by_trx = NULL;
 static emem_tree_t* ctxs = NULL;
 
 const value_string gcp_cmd_type[] = {
-	{ GCP_CMD_NONE, "NoCommand"},
-	{ GCP_CMD_ADD_REQ, "addReq"},
-	{ GCP_CMD_MOVE_REQ, "moveReq"},
-	{ GCP_CMD_MOD_REQ, "modReq"},
-	{ GCP_CMD_SUB_REQ, "subtractReq"},
-	{ GCP_CMD_AUDITCAP_REQ, "auditCapRequest"},
-	{ GCP_CMD_AUDITVAL_REQ, "auditValueRequest"},
-	{ GCP_CMD_NOTIFY_REQ, "notifyReq"},
-	{ GCP_CMD_SVCCHG_REQ, "serviceChangeReq"},
-	{ GCP_CMD_TOPOLOGY_REQ, "topologyReq"},
-	{ GCP_CMD_CTX_ATTR_AUDIT_REQ, "ctxAttrAuditReq"},
-	{ GCP_CMD_ADD_REPLY, "addReply"},
-	{ GCP_CMD_MOVE_REPLY, "moveReply"},
-	{ GCP_CMD_MOD_REPLY, "modReply"},
-	{ GCP_CMD_SUB_REPLY, "subtractReply"},
-	{ GCP_CMD_AUDITCAP_REPLY, "auditCapReply"},
-	{ GCP_CMD_AUDITVAL_REPLY, "auditValReply"},
-	{ GCP_CMD_NOTIFY_REPLY, "notifyReply"},
-	{ GCP_CMD_SVCCHG_REPLY, "serviceChangeReply"},
-	{ GCP_CMD_TOPOLOGY_REPLY, "topologyReply"},
+    { GCP_CMD_NONE, "NoCommand"},
+    { GCP_CMD_ADD_REQ, "addReq"},
+    { GCP_CMD_MOVE_REQ, "moveReq"},
+    { GCP_CMD_MOD_REQ, "modReq"},
+    { GCP_CMD_SUB_REQ, "subtractReq"},
+    { GCP_CMD_AUDITCAP_REQ, "auditCapRequest"},
+    { GCP_CMD_AUDITVAL_REQ, "auditValueRequest"},
+    { GCP_CMD_NOTIFY_REQ, "notifyReq"},
+    { GCP_CMD_SVCCHG_REQ, "serviceChangeReq"},
+    { GCP_CMD_TOPOLOGY_REQ, "topologyReq"},
+    { GCP_CMD_CTX_ATTR_AUDIT_REQ, "ctxAttrAuditReq"},
+    { GCP_CMD_ADD_REPLY, "addReply"},
+    { GCP_CMD_MOVE_REPLY, "moveReply"},
+    { GCP_CMD_MOD_REPLY, "modReply"},
+    { GCP_CMD_SUB_REPLY, "subtractReply"},
+    { GCP_CMD_AUDITCAP_REPLY, "auditCapReply"},
+    { GCP_CMD_AUDITVAL_REPLY, "auditValReply"},
+    { GCP_CMD_NOTIFY_REPLY, "notifyReply"},
+    { GCP_CMD_SVCCHG_REPLY, "serviceChangeReply"},
+    { GCP_CMD_TOPOLOGY_REPLY, "topologyReply"},
     { 0, NULL }
 };
 
 const value_string gcp_term_types[] = {
-	{   GCP_TERM_TYPE_AAL1, "aal1" },
-	{   GCP_TERM_TYPE_AAL2, "aal2" },
-	{   GCP_TERM_TYPE_AAL1_STRUCT, "aal1struct" },
-	{   GCP_TERM_TYPE_IP_RTP, "ipRtp" },
-	{   GCP_TERM_TYPE_TDM, "tdm" },
-	{ 0, NULL }
+    { GCP_TERM_TYPE_AAL1, "aal1" },
+    { GCP_TERM_TYPE_AAL2, "aal2" },
+    { GCP_TERM_TYPE_AAL1_STRUCT, "aal1struct" },
+    { GCP_TERM_TYPE_IP_RTP, "ipRtp" },
+    { GCP_TERM_TYPE_TDM, "tdm" },
+    { 0, NULL }
 };
 
 
 void gcp_init(void) {
-  static gboolean gcp_initialized = FALSE;
+    static gboolean gcp_initialized = FALSE;
 
-  if (gcp_initialized)
-    return;
+    if (gcp_initialized)
+        return;
 
-  msgs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_msgs");
-  trxs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_trxs");
-  ctxs_by_trx = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_ctxs_by_trx");
-  ctxs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_ctxs");
-  gcp_initialized = TRUE;
+    msgs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_msgs");
+    trxs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_trxs");
+    ctxs_by_trx = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_ctxs_by_trx");
+    ctxs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_ctxs");
+    gcp_initialized = TRUE;
 }
 
 gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
     gcp_msg_t* m;
     guint32 framenum = (guint32)pinfo->fd->num;
-	guint32 offset = (guint32)o;
-	address* src = &(pinfo->src);
-	address* dst = &(pinfo->dst);
-	address* lo_addr;
-	address* hi_addr;
-
+    guint32 offset = (guint32)o;
+    address* src = &(pinfo->src);
+    address* dst = &(pinfo->dst);
+    address* lo_addr;
+    address* hi_addr;
 
     if (keep_persistent_data) {
-		emem_tree_key_t key[] = {
-			{1,&(framenum)},
-			{1,&offset},
-			{0,NULL},
-		};
+        emem_tree_key_t key[] = {
+            {1,&(framenum)},
+            {1,&offset},
+            {0,NULL}
+        };
 
         if (( m = se_tree_lookup32_array(msgs,key) )) {
             m->commited = TRUE;
-			return m;
+            return m;
         } else {
             m = se_alloc(sizeof(gcp_msg_t));
             m->framenum = framenum;
@@ -123,33 +122,33 @@ gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
         m->commited = FALSE;
     }
 
-	if (CMP_ADDRESS(src, dst) < 0)  {
-		lo_addr = src;
-		hi_addr = dst;
-	} else {
-		lo_addr = dst;
-		hi_addr = src;
-	}
+    if (CMP_ADDRESS(src, dst) < 0)  {
+        lo_addr = src;
+        hi_addr = dst;
+    } else {
+        lo_addr = dst;
+        hi_addr = src;
+    }
 
-	switch(lo_addr->type) {
-		case AT_NONE:
-			m->lo_addr = 0;
-			m->hi_addr = 0;
-			break;
-		case AT_IPv4:
-			memcpy((guint8*)&(m->hi_addr),hi_addr->data,4);
-			memcpy((guint8*)&(m->lo_addr),lo_addr->data,4);
-			break;
-		case AT_SS7PC:
-			m->hi_addr = mtp3_pc_hash((const mtp3_addr_pc_t *)hi_addr->data);
-			m->lo_addr = mtp3_pc_hash((const mtp3_addr_pc_t *)lo_addr->data);
-			break;
-		default:
-			/* XXX: heuristic and error prone */
-			m->hi_addr = g_str_hash(ep_address_to_str(hi_addr));
-			m->lo_addr = g_str_hash(ep_address_to_str(lo_addr));
-			break;
-	}
+    switch(lo_addr->type) {
+        case AT_NONE:
+            m->lo_addr = 0;
+            m->hi_addr = 0;
+            break;
+        case AT_IPv4:
+            memcpy((guint8*)&(m->hi_addr),hi_addr->data,4);
+            memcpy((guint8*)&(m->lo_addr),lo_addr->data,4);
+            break;
+        case AT_SS7PC:
+            m->hi_addr = mtp3_pc_hash((const mtp3_addr_pc_t *)hi_addr->data);
+            m->lo_addr = mtp3_pc_hash((const mtp3_addr_pc_t *)lo_addr->data);
+            break;
+        default:
+            /* XXX: heuristic and error prone */
+            m->hi_addr = g_str_hash(ep_address_to_str(hi_addr));
+            m->lo_addr = g_str_hash(ep_address_to_str(lo_addr));
+        break;
+    }
 
     return m;
 }
@@ -170,12 +169,12 @@ gcp_trx_t* gcp_trx(gcp_msg_t* m ,guint32 t_id , gcp_trx_type_t type, gboolean ke
             }
             DISSECTOR_ASSERT_NOT_REACHED();
         } else {
-			emem_tree_key_t key[] = {
-				{1,&(m->hi_addr)},
-				{1,&(m->lo_addr)},
-				{1,&(t_id)},
-				{0,NULL}
-			};
+            emem_tree_key_t key[] = {
+                {1,&(m->hi_addr)},
+                {1,&(m->lo_addr)},
+                {1,&(t_id)},
+                {0,NULL}
+            };
 
             trxmsg = se_alloc(sizeof(gcp_trx_msg_t));
             t = se_tree_lookup32_array(trxs,key);
@@ -237,19 +236,19 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
 
     if (persistent) {
 
-		emem_tree_key_t ctx_key[] = {
-		{1,&(m->hi_addr)},
-		{1,&(m->lo_addr)},
-		{1,&(c_id)},
-		{0,NULL}
-		};
+        emem_tree_key_t ctx_key[] = {
+            {1,&(m->hi_addr)},
+            {1,&(m->lo_addr)},
+            {1,&(c_id)},
+            {0,NULL}
+        };
 
-		emem_tree_key_t trx_key[] = {
-		{1,&(m->hi_addr)},
-		{1,&(m->lo_addr)},
-		{1,&(t->id)},
-		{0,NULL}
-		};
+        emem_tree_key_t trx_key[] = {
+            {1,&(m->hi_addr)},
+            {1,&(m->lo_addr)},
+            {1,&(t->id)},
+            {0,NULL}
+        };
 
         if (m->commited) {
             if (( context = se_tree_lookup32_array(ctxs_by_trx,trx_key) )) {
@@ -335,7 +334,7 @@ gcp_cmd_t* gcp_cmd(gcp_msg_t* m, gcp_trx_t* t, gcp_ctx_t* c, gcp_cmd_type_t type
     gcp_cmd_msg_t* cmdtrx;
     gcp_cmd_msg_t* cmdctx;
 
-    if ( !m || !t || !c) return NULL;
+    if ( !m || !t || !c ) return NULL;
 
     if (persistent) {
         if (m->commited) {
@@ -526,7 +525,7 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
 }
 
 gchar* gcp_cmd_to_str(gcp_cmd_t* c, gboolean persistent) {
-    gchar* s = "-";
+    gchar* s;
     gcp_terms_t* term;
 
     if ( !c ) return "-";
@@ -598,24 +597,26 @@ gchar* gcp_cmd_to_str(gcp_cmd_t* c, gboolean persistent) {
         case GCP_CMD_OTHER_REQ:
             s = "Request {";
             break;
-
+        default:
+            s = "-";
+            break;
     }
 
     for (term = c->terms.next; term; term = term->next) {
         s = ep_strdup_printf("%s %s",s,term->term->str);
-    };
+    }
 
     if (c->error) {
         s = ep_strdup_printf("%s Error=%i",s,c->error);
     }
 
-	s = ep_strdup_printf("%s }", s);
+    s = ep_strdup_printf("%s }", s);
 
-	if (persistent) {
-		if (! c->str) c->str = se_strdup(s);
-	} else {
-		c->str = s;
-	}
+    if (persistent) {
+        if (! c->str) c->str = se_strdup(s);
+    } else {
+        c->str = s;
+    }
 
     return s;
 }
@@ -626,15 +627,16 @@ static gchar* gcp_trx_to_str(gcp_msg_t* m, gcp_trx_t* t, gboolean persistent) {
 
     if ( !m || !t ) return "-";
 
-	s = ep_strdup_printf("T %x { ",t->id);
+    s = ep_strdup_printf("T %x { ",t->id);
 
     if (t->cmds) {
         if (t->cmds->cmd->ctx) {
             s = ep_strdup_printf("%s C %x {",s,t->cmds->cmd->ctx->id);
 
             for (c = t->cmds; c; c = c->next) {
-                if (c->cmd->msg == m)
+                if (c->cmd->msg == m) {
                     s = ep_strdup_printf("%s %s",s,gcp_cmd_to_str(c->cmd,persistent));
+                }
             }
 
             s = ep_strdup_printf("%s %s",s,"}");
@@ -656,7 +658,7 @@ gchar* gcp_msg_to_str(gcp_msg_t* m, gboolean persistent) {
 
     for (t = m->trxs; t; t = t->next) {
         s = ep_strdup_printf("%s %s",s,gcp_trx_to_str(m,t->trx, persistent));
-    };
+    }
 
     return s;
 }
@@ -691,7 +693,6 @@ void gcp_analyze_msg(proto_tree* gcp_tree, tvbuff_t* gcp_tvb, gcp_msg_t* m, gcp_
                 ctx_node->next = contexts.next;
                 contexts.next = ctx_node;
             }
-
         }
     }
 
