@@ -2705,6 +2705,10 @@ nas_emm_detach_req_DL(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	curr_len--;
 	curr_offset++;
 
+	/* No more mandatory elements */
+	if (curr_len==0)
+		return;
+
 	/* EMM cause	EMM cause 9.9.3.9	O	TV	2 */
 	ELEM_OPT_TV(0x53, NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, "");
 
