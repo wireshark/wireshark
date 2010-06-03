@@ -13,7 +13,7 @@ S<[ B<-l> ]>
 S<[ B<-n> ]>
 S<[ B<-N> E<lt>name resolving flagsE<gt> ]>
 S<[ B<-o> E<lt>preference settingE<gt> ] ...>
-S<[ B<-r> E<lt>infile or pipeE<gt> ]>
+S<[ B<-r> E<lt>pipeE<gt>|- ]>
 S<[ B<-R> E<lt>read (display) filterE<gt> ]>
 S<[ B<-s> ]>
 S<[ B<-S> E<lt>field formatE<gt> ]>
@@ -156,10 +156,11 @@ form I<prefname>B<:>I<value>, where I<prefname> is the name of the
 preference (which is the same name that would appear in the preference
 file), and I<value> is the value to which it should be set.
 
-=item -r  E<lt>input file or pipeE<gt>
+=item -r  E<lt>pipeE<gt>|-
 
-Read packet data from I<input source>. It can be a regular file or pipe,
-and must be have the record format specified above.
+Read packet data from I<input source>. It can be either the name of a FIFO
+(named pipe) or ``-'' to read data from the standard input, and must have
+the record format specified above.
 
 =item -R  E<lt>read (display) filterE<gt>
 
