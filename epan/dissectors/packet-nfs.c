@@ -266,6 +266,7 @@ static int hf_nfs_argop4 = -1;
 static int hf_nfs_resop4 = -1;
 static int hf_nfs_linktext4 = -1;
 static int hf_nfs_tag4 = -1;
+static int hf_nfs_ops_count4 = -1;
 static int hf_nfs_component4 = -1;
 static int hf_nfs_clientid4 = -1;
 static int hf_nfs_ace4 = -1;
@@ -8807,7 +8808,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	ops = tvb_get_ntohl(tvb, offset+0);
 
-	fitem = proto_tree_add_text(tree, tvb, offset, 4,
+	fitem = proto_tree_add_uint_format(tree, hf_nfs_ops_count4, tvb, offset+0, 4, ops,
 		"Operations (count: %u)", ops);
 	offset += 4;
 
@@ -9299,7 +9300,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	ops = tvb_get_ntohl(tvb, offset+0);
 
-	fitem = proto_tree_add_text(tree, tvb, offset, 4,
+	fitem = proto_tree_add_uint_format(tree, hf_nfs_ops_count4, tvb, offset+0, 4, ops,
 		"Operations (count: %u)", ops);
 	offset += 4;
 
@@ -10722,6 +10723,10 @@ proto_register_nfs(void)
 		{ &hf_nfs_tag4, {
 			"Tag", "nfs.tag", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs_ops_count4, {
+			"Operations", "nfs.ops.count", FT_UINT32, BASE_DEC,
+			NULL, 0, "Number of Operations", HFILL }},
 
 		{ &hf_nfs_clientid4, {
 			"clientid", "nfs.clientid", FT_UINT64, BASE_HEX,
