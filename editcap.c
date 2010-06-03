@@ -369,18 +369,18 @@ set_time_adjustment(char *optarg_str_p)
 }
 
 static void
-set_strict_time_adj(char *optarg)
+set_strict_time_adj(char *optarg_str_p)
 {
   char *frac, *end;
   long val;
   size_t frac_digits;
 
-  if (!optarg)
+  if (!optarg_str_p)
     return;
 
   /* skip leading whitespace */
-  while (*optarg == ' ' || *optarg == '\t') {
-      optarg++;
+  while (*optarg_str_p == ' ' || *optarg_str_p == '\t') {
+      optarg_str_p++;
   }
 
   /* 
@@ -388,25 +388,25 @@ set_strict_time_adj(char *optarg)
    * A negative strict adjustment value is a flag 
    * to adjust all frames by the specifed delta time.
    */
-  if (*optarg == '-') {
+  if (*optarg_str_p == '-') {
       strict_time_adj.is_negative = 1;
-      optarg++;
+      optarg_str_p++;
   }
 
   /* collect whole number of seconds, if any */
-  if (*optarg == '.') {         /* only fractional (i.e., .5 is ok) */
+  if (*optarg_str_p == '.') {         /* only fractional (i.e., .5 is ok) */
       val  = 0;
-      frac = optarg;
+      frac = optarg_str_p;
   } else {
-      val = strtol(optarg, &frac, 10);
-      if (frac == NULL || frac == optarg || val == LONG_MIN || val == LONG_MAX) {
+      val = strtol(optarg_str_p, &frac, 10);
+      if (frac == NULL || frac == optarg_str_p || val == LONG_MIN || val == LONG_MAX) {
           fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
-                  optarg);
+                  optarg_str_p);
           exit(1);
       }
       if (val < 0) {            /* implies '--' since we caught '-' above  */
           fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
-                  optarg);
+                  optarg_str_p);
           exit(1);
       }
   }
@@ -423,7 +423,7 @@ set_strict_time_adj(char *optarg)
     if (*frac != '.' || end == NULL || end == frac
         || val < 0 || val > ONE_MILLION || val == LONG_MIN || val == LONG_MAX) {
       fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
-              optarg);
+              optarg_str_p);
       exit(1);
     }
   }
