@@ -32,7 +32,73 @@
 #include <epan/tap.h>
 #include <epan/addr_resolv.h>
 
-#include "packet-bat.h"
+/* Start content from packet-bat.h */
+#define BAT_BATMAN_PORT  4305
+#define BAT_GW_PORT  4306
+#define BAT_VIS_PORT  4307
+
+#define UNIDIRECTIONAL 0x80
+#define DIRECTLINK 0x40
+
+struct batman_packet_v5 {
+	guint8  version;  /* batman version field */
+	guint8  flags;    /* 0x80: UNIDIRECTIONAL link, 0x40: DIRECTLINK flag, ... */
+	guint8  ttl;
+	guint8  gwflags;  /* flags related to gateway functions: gateway class */
+	guint16 seqno;
+	guint16 gwport;
+	address orig;
+	address old_orig;
+	guint8  tq;
+	guint8  hna_len;
+};
+#define BATMAN_PACKET_V5_SIZE 18
+
+struct gw_packet {
+	guint8  type;
+};
+#define GW_PACKET_SIZE 1
+
+#define TUNNEL_DATA 0x01
+#define TUNNEL_IP_REQUEST 0x02
+#define TUNNEL_IP_INVALID 0x03
+#define TUNNEL_KEEPALIVE_REQUEST 0x04
+#define TUNNEL_KEEPALIVE_REPLY 0x05
+
+#define DATA_TYPE_NEIGH 1
+#define DATA_TYPE_SEC_IF 2
+#define DATA_TYPE_HNA 3
+
+struct vis_packet_v22 {
+	address sender_ip;
+	guint8  version;
+	guint8  gw_class;
+	guint16 tq_max;
+};
+#define VIS_PACKET_V22_SIZE 8
+
+struct vis_data_v22 {
+	guint8  type;
+	guint16 data;
+	address ip;
+};
+#define VIS_PACKET_V22_DATA_SIZE 7
+
+struct vis_packet_v23 {
+	address sender_ip;
+	guint8  version;
+	guint8  gw_class;
+	guint8  tq_max;
+};
+#define VIS_PACKET_V23_SIZE 7
+
+struct vis_data_v23 {
+	guint8  type;
+	guint8  data;
+	address ip;
+};
+#define VIS_PACKET_V23_DATA_SIZE 6
+/* End content from packet-bat.h */
 
 /* trees */
 static gint ett_bat_batman = -1;
@@ -92,10 +158,8 @@ static const value_string vis_packettypenames[] = {
 };
 
 /* forward declaration */
-void proto_register_bat(void);
 void proto_reg_handoff_bat(void);
 
-/* supported packet dissectors */
 /* supported packet dissectors */
 static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_bat_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -141,8 +205,7 @@ static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		dissect_bat_batman_v5(tvb, pinfo, tree);
 		break;
 	default:
-		if (check_col(pinfo->cinfo, COL_INFO))  
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
 		call_dissector(data_handle, tvb, pinfo, tree);
 		break;
 	}
@@ -152,7 +215,7 @@ static void dissect_bat_gwflags(tvbuff_t *tvb, guint8 gwflags, int offset, proto
 {
 	proto_tree *gwflags_tree;
 	guint8 s = (gwflags & 0x80) >> 7;
-	guint8 downbits = (gwflags & 0x7C) >> 3;
+	guint8 downbits = (gwflags & 0x78) >> 3;
 	guint8 upbits = (gwflags & 0x07);
 	guint down, up;
 
@@ -194,13 +257,12 @@ static void dissect_bat_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	batman_packeth->hna_len = tvb_get_guint8(tvb, 17);
 
 	/* Set info column */
-        if (check_col(pinfo->cinfo, COL_INFO))  
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
 
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL, *tf, *tgw;
-		proto_tree *bat_batman_tree = NULL, *flag_tree = NULL;
+		proto_item *ti, *tf, *tgw;
+		proto_tree *bat_batman_tree, *flag_tree;
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, BATMAN_PACKET_V5_SIZE,
@@ -262,6 +324,9 @@ static void dissect_bat_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		}
 	}
 
+	/* Calculate offset even when we got no tree */
+	offset = BATMAN_PACKET_V5_SIZE + batman_packeth->hna_len * 5;
+
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (length_remaining != 0) {
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -287,8 +352,8 @@ static void dissect_bat_hna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL;
-		proto_tree *bat_batman_hna_tree = NULL;
+		proto_item *ti;
+		proto_tree *bat_batman_hna_tree;
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 5,
@@ -333,20 +398,20 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_GW");
 
 	/* Set info column */
-        if (check_col(pinfo->cinfo, COL_INFO))  
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Type=%s",
 			     val_to_str(gw_packeth->type, gw_packettypenames, "Unknown (0x%02x)"));
-	if (ip != 0) {
-		if (check_col(pinfo->cinfo, COL_INFO))  
+		if (ip != 0) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, " IP: %s (%s)",
 					get_hostname(ip), ip_to_str(ip_addr));
+		}
 	}
 
 
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL;
-		proto_tree *bat_gw_entry_tree = NULL;
+		proto_item *ti;
+		proto_tree *bat_gw_entry_tree;
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 1,
@@ -365,6 +430,11 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = ip_pos + 4;
 		}
 	}
+
+	/* Calculate offset even when we got no tree */
+	offset = 1;
+	if (gw_packeth->type != TUNNEL_DATA && ip != 0)
+		offset = ip_pos + 4;
 
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (length_remaining != 0) {
@@ -398,8 +468,7 @@ static void dissect_bat_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dissect_bat_vis_v23(tvb, pinfo, tree);
 		break;
 	default:
-		if (check_col(pinfo->cinfo, COL_INFO))  
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
 		call_dissector(data_handle, tvb, pinfo, tree);
 		break;
 	}
@@ -429,13 +498,14 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_VIS");
 
 	/* Set info column */
-        if (check_col(pinfo->cinfo, COL_INFO))  
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Src: %s (%s)",
 			     get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
+	}
 
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL;
+		proto_item *ti;
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V22_SIZE,
@@ -459,6 +529,9 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		proto_tree_add_item(bat_vis_tree, hf_bat_max_tq_v22, tvb, offset, 2, FALSE);
 		offset += 2;
 	}
+
+	/* Calculate offset even when we got no tree */
+	offset = VIS_PACKET_V22_SIZE;
 
 	tap_queue_packet(bat_tap, pinfo, vis_packeth);
 
@@ -506,8 +579,8 @@ static void dissect_vis_entry_v22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL;
-		proto_tree *bat_vis_entry_tree = NULL;
+		proto_item *ti;
+		proto_tree *bat_vis_entry_tree;
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 7,
@@ -560,13 +633,14 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_VIS");
 
 	/* Set info column */
-        if (check_col(pinfo->cinfo, COL_INFO))  
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Src: %s (%s)",
 			     get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
+	}
 
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL;
+		proto_item *ti;
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V23_SIZE,
@@ -590,6 +664,9 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		proto_tree_add_item(bat_vis_tree, hf_bat_max_tq_v23, tvb, offset, 1, FALSE);
 		offset += 1;
 	}
+
+	/* Calculate offset even when we got no tree */
+	offset = VIS_PACKET_V23_SIZE;
 
 	tap_queue_packet(bat_tap, pinfo, vis_packeth);
 
@@ -637,8 +714,8 @@ static void dissect_vis_entry_v23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti = NULL;
-		proto_tree *bat_vis_entry_tree = NULL;
+		proto_item *ti;
+		proto_tree *bat_vis_entry_tree;
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 7,
@@ -669,7 +746,7 @@ static void dissect_vis_entry_v23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 void proto_register_bat(void)
 {
-	module_t *bat_module = NULL;
+	module_t *bat_module;
 
 	static hf_register_info hf[] = {
 		{ &hf_bat_batman_version,

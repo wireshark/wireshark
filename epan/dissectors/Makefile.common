@@ -993,7 +993,6 @@ DISSECTOR_INCLUDES =	\
 	packet-assa_r3_public.h	\
 	packet-atalk.h	\
 	packet-atm.h	\
-	packet-bat.h	\
 	packet-ber.h	\
 	packet-bgp.h	\
 	packet-bootparams.h	\
