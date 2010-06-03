@@ -874,10 +874,11 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	icmp_packeth->seqno = tvb_get_ntohs(tvb, 17);
 
 	/* Set info column */
-	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
-		     val_to_str(icmp_packeth->msg_type, icmp_packettypenames, "Unknown (0x%02x)"),
-		     icmp_packeth->seqno);
-
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
+			     val_to_str(icmp_packeth->msg_type, icmp_packettypenames, "Unknown (0x%02x)"),
+			     icmp_packeth->seqno);
+	}
 	/* Set tree info */
 	if (tree) {
 		proto_item *ti;
@@ -961,10 +962,11 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	icmp_packeth->uid = tvb_get_guint8(tvb, 17);
 
 	/* Set info column */
-	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
-		     val_to_str(icmp_packeth->msg_type, icmp_packettypenames, "Unknown (0x%02x)"),
-		     icmp_packeth->seqno);
-
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
+			     val_to_str(icmp_packeth->msg_type, icmp_packettypenames, "Unknown (0x%02x)"),
+			     icmp_packeth->seqno);
+	}
 	/* Set tree info */
 	if (tree) {
 		proto_item *ti;
@@ -1165,10 +1167,11 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	SET_ADDRESS(&vis_packeth->sender_orig, AT_ETHER, 6, sender_orig_addr);
 
 	/* Set info column */
-	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
-		     val_to_str(vis_packeth->vis_type, vis_packettypenames, "Unknown (0x%02x)"),
-		     vis_packeth->seqno);
-
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
+			     val_to_str(vis_packeth->vis_type, vis_packettypenames, "Unknown (0x%02x)"),
+			     vis_packeth->seqno);
+	}
 	/* Set tree info */
 	if (tree) {
 		proto_item *ti;
