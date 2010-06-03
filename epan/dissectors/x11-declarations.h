@@ -1860,6 +1860,7 @@ static int hf_x11_dri2_Connect_driver_type = -1;
 static int hf_x11_dri2_Connect_reply_driver_name_length = -1;
 static int hf_x11_dri2_Connect_reply_device_name_length = -1;
 static int hf_x11_dri2_Connect_reply_driver_name = -1;
+static int hf_x11_dri2_Connect_reply_alignment_pad = -1;
 static int hf_x11_dri2_Connect_reply_device_name = -1;
 static int hf_x11_dri2_Authenticate_window = -1;
 static int hf_x11_dri2_Authenticate_magic = -1;

@@ -146,12 +146,11 @@ my $error;
 # glRender sub-op output files
 my $enum;
 
-
-my $mesadir = 'mesa/src/mesa/glapi';
-if (-d 'mesa/src/mesa/glapi/gen') {
-    # Mesa API definitions moved recently (February 22, 2010)
-    $mesadir = 'mesa/src/mesa/glapi/gen';
-}
+# Mesa API definitions keep moving
+my @mesas = ('mesa/src/mapi/glapi/gen',  # 2010-04-26
+	     'mesa/src/mesa/glapi/gen',  # 2010-02-22
+	     'mesa/src/mesa/glapi');     # 2004-05-18
+my $mesadir = (grep { -d } @mesas)[0];
 
 sub mesa_category_start {
     my ($t, $elt) = @_;
@@ -1284,7 +1283,7 @@ sub find_version {
     # this will generate an error on stderr if git isn't in our $PATH
     # but that's OK.  The version is still set to 'unknown' in that case
     # and at least the operator could see it.
-    my $ver = `git --git-dir=$lib/.git describe`;
+    my $ver = `git --git-dir=$lib/.git describe --tags`;
     $ver //= 'unknown';
     chomp $ver;
     return $ver;

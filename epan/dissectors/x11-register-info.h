@@ -1860,6 +1860,7 @@
 { &hf_x11_dri2_Connect_reply_driver_name_length, { "driver_name_length", "x11.dri2.Connect.reply.driver_name_length", FT_UINT32, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
 { &hf_x11_dri2_Connect_reply_device_name_length, { "device_name_length", "x11.dri2.Connect.reply.device_name_length", FT_UINT32, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
 { &hf_x11_dri2_Connect_reply_driver_name, { "driver_name", "x11.dri2.Connect.reply.driver_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+{ &hf_x11_dri2_Connect_reply_alignment_pad, { "alignment_pad", "x11.dri2.Connect.reply.alignment_pad", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 { &hf_x11_dri2_Connect_reply_device_name, { "device_name", "x11.dri2.Connect.reply.device_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 { &hf_x11_dri2_Authenticate_window, { "window", "x11.dri2.Authenticate.window", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 { &hf_x11_dri2_Authenticate_magic, { "magic", "x11.dri2.Authenticate.magic", FT_UINT32, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
