@@ -348,6 +348,9 @@ static gint ett_sua_assoc = -1;
 
 static int sua_tap = -1;
 
+static mtp3_addr_pc_t *sua_dpc;
+static mtp3_addr_pc_t *sua_opc;
+
 static dissector_handle_t data_handle;
 static dissector_table_t sccp_ssn_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;
@@ -1239,10 +1242,22 @@ dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
 #define POINT_CODE_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
-dissect_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, gboolean source)
 {
+  guint32 pc;
+
+  pc = tvb_get_ntohl(parameter_tvb, POINT_CODE_OFFSET);
+
+  if (source) {
+    sua_opc->type = mtp3_standard;
+    sua_opc->pc = pc;
+  } else {
+    sua_dpc->type = mtp3_standard;
+    sua_dpc->pc = pc;
+  }
+
   proto_tree_add_item(parameter_tree, hf_point_code_dpc, parameter_tvb, POINT_CODE_OFFSET, POINT_CODE_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)", mtp3_pc_to_str(tvb_get_ntohl(parameter_tvb, POINT_CODE_OFFSET)));
+  proto_item_append_text(parameter_item, " (%s)", mtp3_pc_to_str(pc));
 }
 
 #define SSN_LENGTH 1
@@ -1544,7 +1559,8 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_
     dissect_global_title_parameter(parameter_tvb, parameter_tree);
     break;
   case V8_POINT_CODE_PARAMETER_TAG:
-    dissect_point_code_parameter(parameter_tvb, parameter_tree, parameter_item);
+    /* Reuse whether we have source_ssn or not to determine which address we're looking at */
+    dissect_point_code_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   case V8_SUBSYSTEM_NUMBER_PARAMETER_TAG:
     dissect_ssn_parameter(parameter_tvb, parameter_tree, parameter_item, &ssn);
@@ -1829,7 +1845,8 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb
     dissect_global_title_parameter(parameter_tvb, parameter_tree);
     break;
   case POINT_CODE_PARAMETER_TAG:
-    dissect_point_code_parameter(parameter_tvb, parameter_tree, parameter_item);
+    /* Reuse whether we have source_ssn or not to determine which address we're looking at */
+    dissect_point_code_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   case SUBSYSTEM_NUMBER_PARAMETER_TAG:
     dissect_ssn_parameter(parameter_tvb, parameter_tree, parameter_item, &ssn);
@@ -1900,6 +1917,9 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   drn = 0;
   srn = 0;
 
+  sua_opc = ep_alloc0(sizeof(mtp3_addr_pc_t));
+  sua_dpc = ep_alloc0(sizeof(mtp3_addr_pc_t));
+
   common_header_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   dissect_common_header(common_header_tvb, pinfo, sua_tree);
 
@@ -1921,6 +1941,11 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   } else {
 	  pinfo->sccp_info = NULL;
   }
+
+  if (sua_opc->type)
+    SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) sua_opc);
+  if (sua_dpc->type)
+    SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) sua_dpc);
 
   /* If there was SUA data it could be dissected */
   if(data_tvb)
