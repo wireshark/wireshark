@@ -84,7 +84,7 @@ tcpdump -i &lt;interface> -s 65535 -w &lt;some-file>
       <title>Help information available from dumpcap</title>
       <programlisting>
 dumpcap -h
-Dumpcap 1.1.4
+Dumpcap 1.4.0
 Capture network packets and dump them into a libpcap file.
 See http://www.wireshark.org for more information.
 
@@ -114,6 +114,7 @@ Output (files):
                               files:NUM - ringbuffer: replace after NUM files
   -n                       use pcapng format instead of pcap
 Miscellaneous:
+  -q                       don't report packet capture counts
   -v                       print version information and exit
   -h                       display this help and exit
 
@@ -139,7 +140,7 @@ Use Ctrl-C to stop capturing at any time.
       <title>Help information available from capinfos</title>
       <programlisting>
 capinfos -h
-Capinfos 1.3.5
+Capinfos 1.4.0
 Prints various information (infos) about capture files.
 See http://www.wireshark.org for more information.
 
@@ -160,6 +161,7 @@ Time infos:
   -u display the capture duration (in seconds)
   -a display the capture start time
   -e display the capture end time
+  -o display the capture file chronological (True/False)
   -S display start and end times as seconds
 
 Statistic infos:
@@ -199,6 +201,52 @@ output format.
     </para>
   </section>
 
+  <section id="AppToolsrawshark" >
+    <title><command>rawshark</command>: Dump and analyze network traffic.
+    </title>
+    <para>
+      Rawshark reads a stream of packets from a file or pipe, and prints
+      a line describing its output, followed by a set of matching fields
+      for each packet on stdout.
+    </para>
+    <example id="AppToolsrawsharkEx">
+      <title>Help information available from rawshark</title>
+      <programlisting>
+$ rawshark -h
+Rawshark 1.4.0
+Dump and analyze network traffic.
+See http://www.wireshark.org for more information.
+
+Copyright 1998-2010 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
+This is free software; see the source for copying conditions. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Usage: rawshark [options] ...
+
+Input file:
+  -r &lt;infile&gt;              set the pipe or file name to read from
+
+Processing:
+  -R &lt;read filter&gt;         packet filter in Wireshark display filter syntax
+  -F &lt;field&gt;               field to display
+  -s                       skip PCAP header on input
+  -n                       disable all name resolution (def: all enabled)
+  -N &lt;name resolve flags&gt;  enable specific name resolution(s): "mntC"
+  -d &lt;encap:dlt&gt;|&lt;proto:protoname&gt;
+                           packet encapsulation or protocol
+Output:
+  -S                       format string for fields (%D - name, %S - stringval, %N numval)
+  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)
+  -l                       flush output after each packet
+
+Miscellaneous:
+  -h                       display this help and exit
+  -v                       display version info and exit
+  -o &lt;name&gt;:&lt;value&gt; ...    override preference setting
+      </programlisting>
+    </example>
+  </section>
+
   <section id="AppToolseditcap">
     <title><command>editcap</command>: Edit capture files</title>
     <para>
@@ -216,7 +264,7 @@ output format.
       <para>
       <programlisting>
 $ editcap -h
-Editcap 1.1.4
+Editcap 1.4.0
 Edit and/or translate the format of capture files.
 See http://www.wireshark.org for more information.
 
@@ -253,6 +301,14 @@ Packet manipulation:
   -C &lt;choplen&gt;           chop each packet at the end by &lt;choplen&gt; bytes.
   -t &lt;time adjustment&gt;   adjust the timestamp of each packet;
                          &lt;time adjustment&gt; is in relative seconds (e.g. -0.5).
+  -S &lt;strict adjustment&gt; adjust timestamp of packets if necessary to insure
+                         strict chronological increasing order. The &lt;strict
+                         adjustment&gt; is specified in relative seconds with
+                         values of 0 or 0.000001 being the most reasonable.
+                         A negative adjustment value will modify timestamps so
+                         that each packet's delta time is the absolute value
+                         of the adjustment specified. A value of -0 will set
+                         all packets to the timestamp of the first packet.
   -E &lt;error probability&gt; set the probability (between 0.0 and 1.0 incl.)
                          that a particular packet byte will be randomly changed.
 
@@ -285,7 +341,7 @@ Miscellaneous:
       <programlisting>
 $ editcap -F
 editcap: option requires an argument -- F
-editcap: The available capture file types for "F":
+editcap: The available capture file types for the "-F" flag are:
     libpcap - Wireshark/tcpdump/... - libpcap
     nseclibpcap - Wireshark - nanosecond libpcap
     modlibpcap - Modified tcpdump - libpcap
@@ -308,6 +364,9 @@ editcap: The available capture file types for "F":
     k12text - K12 text file
     commview - TamoSoft CommView
     pcapng - Wireshark - pcapng (experimental)
+    btsnoop - Symbian OS btsnoop
+    nstrace10 - NetScaler Trace (Version 1.0)
+    nstrace20 - NetScaler Trace (Version 2.0)
       </programlisting>
       </para>
     </example>
@@ -321,7 +380,8 @@ editcap: The available capture file types for "F":
       <programlisting>
 $ editcap -T
 editcap: option requires an argument -- T
-editcap: The available encapsulation types for "T":
+editcap: The available encapsulation types for the "-T" flag are:
+    unknown - Unknown
     ether - Ethernet
     tr - Token Ring
     slip - SLIP
@@ -438,6 +498,14 @@ editcap: The available encapsulation types for "T":
     tnef - Transport-Neutral Encapsulation Format
     usb-linux-mmap - USB packets with Linux header and padding
     gsm_um - GSM Um Interface
+    dpnss_link - Digital Private Signalling System No 1 Link Layer
+    packetlogger - PacketLogger
+    nstrace10 - NetScaler Encapsulation 1.0 of Ethernet
+    nstrace20 - NetScaler Encapsulation 2.0 of Ethernet
+    fc2 - Fibre Channel FC-2
+    fc2sof - Fibre Channel FC-2 With Frame Delimiter
+    jfif - JPEG/JFIF
+    ipnet - Solaris IPNET
       </programlisting>
       </para>
     </informalexample>
@@ -510,7 +578,7 @@ editcap: The available encapsulation types for "T":
       <title>Help information available from mergecap</title>
       <programlisting>
 $ mergecap -h
-Mergecap 1.1.4
+Mergecap 1.4.0
 Merge two or more capture files into one.
 See http://www.wireshark.org for more information.
 

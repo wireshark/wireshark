@@ -178,16 +178,9 @@
 	    </para>
 	</listitem>
 	<listitem>
-	    <para>
- 		  XXX -  the "Filter:" button currently doesn't work on Windows!
-	    </para>
-	</listitem>
-	<listitem>
-	    <para>
-		  XXX - missing feature:
-		  If Wireshark doesn't recognize the selected file as a capture file, 
-		  it should grey out the "Open" button.		  
-	    </para>
+	    <note><para>
+ 		  The "Filter:" button currently doesn't work on Windows!
+	    </para></note>
 	</listitem>
 	</itemizedlist>
 		</entry>

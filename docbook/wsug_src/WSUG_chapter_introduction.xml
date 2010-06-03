@@ -276,7 +276,14 @@
 	  can get it from <ulink
 	  url="http://www.wireshark.org/download/win32/all-versions/wireshark-setup-0.99.4.exe"
 	  />.
-	  Microsoft retired support for Windows NT 4.0 in 2005.
+	  Microsoft retired support for Windows NT 4.0 in 2004.
+	</para></listitem>
+	<listitem><para>
+	  Windows 2000 no longer works with Wireshark. The last known version
+	  to work was Wireshark 1.2.x (which includes WinPcap 4.1.1). You still
+	  can get it from <ulink
+	  url="http://www.wireshark.org/download/win32/all-versions/" />.
+	  Microsoft retired support for Windows 2000 in 2010.
 	</para></listitem>
 	<listitem><para>
 	  Windows CE and the embedded versions of Windows are not currently supported.
@@ -382,6 +389,12 @@
     </para>
     <para>
       In 2006 the project moved house and re-emerged under a new name: Wireshark.
+    </para>
+    <para>
+      In 2008, after ten years of development, Wireshark finally arrived at
+      version 1.0. This release was the first deemed complete, with the minimum
+      features implemented. Its release coincided with the first Wireshark
+      Developer and User Conference, called SharkFest.
     </para>
   </section>
 
@@ -560,8 +573,8 @@
 	<listitem>
 	  <para>
 	    The version number of Wireshark and the dependent libraries linked with
-		it, e.g. GTK+, etc. You can obtain this with the command
-	    <command>wireshark -v</command>.
+	    it, e.g. GTK+, etc. You can obtain this from the about dialog box
+	    of Wireshark, or with the command <command>wireshark -v</command>.
 	  </para>
 	</listitem>
 	<listitem>

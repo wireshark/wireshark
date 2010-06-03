@@ -130,9 +130,9 @@
 	<example id="Ch02Ex1">
 	  <title>Building GTK+ from source</title>
 	  <programlisting>
-gzip -dc gtk+-1.2.10.tar.gz | tar xvf -
+gzip -dc gtk+-2.21.1.tar.gz | tar xvf -
 &lt;much output removed>
-cd gtk+-1.2.10
+cd gtk+-2.21.1
 ./configure
 &lt;much output removed>
 make
@@ -144,7 +144,7 @@ make install
 	<note>
 	  <title>Note!</title>
 	  <para>
-	    You may need to change the version number of gtk+ in 
+	    You may need to change the version number of GTK+ in
 	    <xref linkend="Ch02Ex1"/> to match the version of GTK+ you have 
 	      downloaded. The directory you change to will change if the 
 	      version of GTK+ changes, and in all cases, 
@@ -156,7 +156,7 @@ make install
 	  <title>Note!</title>
 	  <para>
 	    If you use Linux, or have GNU <command>tar</command> installed, 
-	    you can use <command>tar zxvf gtk+-1.2.10.tar.gz</command>. It 
+	    you can use <command>tar zxvf gtk+-2.21.1.tar.gz</command>. It
 	    is also possible to use <command>gunzip -c</command> or 
 	    <command>gzcat</command> rather than <command>gzip -dc</command> 
 	    on many UNIX systems.
@@ -165,8 +165,8 @@ make install
 	<note>
 	  <title>Note!</title>
 	  <para>
-	    If you downloaded gtk+ or any other tar file using Windows, 
-	    you may find your file called gtk+-1_2_8_tar.gz.
+	    If you downloaded GTK+ or any other tar file using Windows,
+	    you may find your file called gtk+-2_21_1_tar.gz.
 	  </para>
 	</note>
     </para>
@@ -184,9 +184,9 @@ make install
 	<example id="Ch2Ex2">
 	  <title>Building and installing libpcap</title>
 	  <programlisting>
-gzip -dc libpcap-0.9.4.tar.Z | tar xvf -
+gzip -dc libpcap-1.0.0.tar.Z | tar xvf -
 &lt;much output removed>
-cd libpcap-0.9.4
+cd libpcap-1.0.0
 ./configure
 &lt;much output removed>
 make

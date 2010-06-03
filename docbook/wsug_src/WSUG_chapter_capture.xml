@@ -894,7 +894,7 @@ wireshark -i eth0 -k
 		<entry>-</entry>
 		<entry>-</entry>
 		<entry><command>Single temporary file</command></entry>
-		<entry>etherXXXXXX (where XXXXXX is a unique number)</entry>
+		<entry>wiresharkXXXXXX (where XXXXXX is a unique number)</entry>
 	      </row>
 	      <row>
 		<entry>foo.cap</entry>
@@ -908,14 +908,14 @@ wireshark -i eth0 -k
 		<entry>x</entry>
 		<entry>-</entry>
 		<entry><command>Multiple files, continuous</command></entry>
-		<entry>foo_00001_20040205110102.cap, foo_00002_20040205110102.cap, ...</entry>
+		<entry>foo_00001_20100205110102.cap, foo_00002_20100205110318.cap, ...</entry>
 	      </row>
 	      <row>
 		<entry>foo.cap</entry>
 		<entry>x</entry>
 		<entry>x</entry>
 		<entry><command>Multiple files, ring buffer</command></entry>
-		<entry>foo_00001_20040205110102.cap, foo_00002_20040205110102.cap, ...</entry>
+		<entry>foo_00001_20100205110102.cap, foo_00002_20100205110318.cap, ...</entry>
 	      </row>
 	    </tbody>
       </tgroup>

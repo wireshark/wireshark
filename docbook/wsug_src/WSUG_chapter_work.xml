@@ -247,7 +247,6 @@
 		<para>
 		  Copy the packet bytes to the clipboard as raw binary. The data is stored in the
 		  clipboard as MIME-type "application/octet-stream".</para>
-		<para>This option is not available in versions of Wireshark built using GTK+ 1.x.</para>
 		</entry>
 		  </row>
 	      <row>
@@ -449,7 +448,6 @@
 		  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected
 		  in the Packet Bytes Pane). The data is stored in the
 		  clipboard as MIME-type "application/octet-stream".</para>
-		<para>This option is not available in versions of Wireshark built using GTK+ 1.x.</para>
 		</entry>
 		  </row>
 	      <row>
