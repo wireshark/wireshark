@@ -1903,7 +1903,6 @@ execute_next_instruction:
 			if (input_address > ( msg_end - 1)){
 				current_address = at_address;
 				result_code = 14;
-				used_udvm_cycles = used_udvm_cycles + length;
 				goto execute_next_instruction;
 			}
 
