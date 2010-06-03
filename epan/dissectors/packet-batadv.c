@@ -55,7 +55,7 @@ struct batman_packet_v5 {
 	guint8  tq;
 	guint16 seqno;
 	address orig;
-	address  prev_sender;
+	address prev_sender;
 	guint8  num_hna;
 	guint8  pad;
 };
@@ -68,7 +68,7 @@ struct batman_packet_v7 {
 	guint8  tq;
 	guint16 seqno;
 	address orig;
-	address  prev_sender;
+	address prev_sender;
 	guint8  ttl;
 	guint8  num_hna;
 };
@@ -81,7 +81,7 @@ struct batman_packet_v9 {
 	guint8  tq;
 	guint16 seqno;
 	address orig;
-	address  prev_sender;
+	address prev_sender;
 	guint8  ttl;
 	guint8  num_hna;
 	guint8  gwflags;
@@ -89,12 +89,27 @@ struct batman_packet_v9 {
 };
 #define BATMAN_PACKET_V9_SIZE 22
 
+struct batman_packet_v10 {
+	guint8  packet_type;
+	guint8  version;  /* batman version field */
+	guint8  flags;    /* 0x40: DIRECTLINK flag, 0x20 VIS_SERVER flag... */
+	guint8  tq;
+	guint32 seqno;
+	address orig;
+	address prev_sender;
+	guint8  ttl;
+	guint8  num_hna;
+	guint8  gwflags;
+	guint8  pad;
+};
+#define BATMAN_PACKET_V10_SIZE 24
+
 struct icmp_packet_v6 {
 	guint8  packet_type;
 	guint8  version;  /* batman version field */
 	guint8  msg_type;   /* 0 = ECHO REPLY, 3 = DESTINATION_UNREACHABLE, 8 = ECHO_REQUEST, 11 = TTL exceeded */
-	address  dst;
-	address  orig;
+	address dst;
+	address orig;
 	guint8  ttl;
 	guint8  uid;
 	guint16 seqno;
@@ -106,8 +121,8 @@ struct icmp_packet_v7 {
 	guint8  version;  /* batman version field */
 	guint8  msg_type;   /* 0 = ECHO REPLY, 3 = DESTINATION_UNREACHABLE, 8 = ECHO_REQUEST, 11 = TTL exceeded */
 	guint8  ttl;
-	address  dst;
-	address  orig;
+	address dst;
+	address orig;
 	guint16 seqno;
 	guint8  uid;
 };
@@ -116,7 +131,7 @@ struct icmp_packet_v7 {
 struct unicast_packet_v6 {
 	guint8  packet_type;
 	guint8  version;
-	address  dest;
+	address dest;
 	guint8  ttl;
 };
 #define UNICAST_PACKET_V6_SIZE 9
@@ -124,23 +139,45 @@ struct unicast_packet_v6 {
 struct bcast_packet_v6 {
 	guint8  packet_type;
 	guint8  version;  /* batman version field */
-	address  orig;
+	address orig;
 	guint16 seqno;
 };
 #define BCAST_PACKET_V6_SIZE 10
 
+struct bcast_packet_v10 {
+	guint8  packet_type;
+	guint8  version;  /* batman version field */
+	address orig;
+	guint8  ttl;
+	guint32 seqno;
+};
+#define BCAST_PACKET_V10_SIZE 13
+
 struct vis_packet_v6 {
 	guint8  packet_type;
-	guint8  version;                       /* batman version field */
-	guint8  vis_type;   /* which type of vis-participant sent this? */
-	guint8  seqno;    /* sequence number */
-	guint8  entries;   /* number of entries behind this struct */
-	guint8  ttl;    /* TTL */
-	address  vis_orig;  /* originator that informs about its neighbours */
-	address  target_orig; /* who should receive this packet */
-	address  sender_orig; /* who sent or rebroadcasted this packet */
+	guint8  version;      /* batman version field */
+	guint8  vis_type;     /* which type of vis-participant sent this? */
+	guint8  seqno;        /* sequence number */
+	guint8  entries;      /* number of entries behind this struct */
+	guint8  ttl;          /* TTL */
+	address vis_orig;     /* originator that informs about its neighbours */
+	address target_orig;  /* who should receive this packet */
+	address sender_orig;  /* who sent or rebroadcasted this packet */
 };
 #define VIS_PACKET_V6_SIZE 24
+
+struct vis_packet_v10 {
+	guint8  packet_type;
+	guint8  version;      /* batman version field */
+	guint8  vis_type;     /* which type of vis-participant sent this? */
+	guint8  entries;      /* number of entries behind this struct */
+	guint32 seqno;        /* sequence number */
+	guint8  ttl;          /* TTL */
+	address vis_orig;     /* originator that informs about its neighbours */
+	address target_orig;  /* who should receive this packet */
+	address sender_orig;  /* who sent or rebroadcasted this packet */
+};
+#define VIS_PACKET_V10_SIZE 27
 
 #define VIS_ENTRY_V6_SIZE 7
 #define VIS_ENTRY_V8_SIZE 13
@@ -169,6 +206,7 @@ static int hf_batadv_batman_ttl = -1;
 static int hf_batadv_batman_gwflags = -1;
 static int hf_batadv_batman_tq = -1;
 static int hf_batadv_batman_seqno = -1;
+static int hf_batadv_batman_seqno32 = -1;
 static int hf_batadv_batman_orig = -1;
 static int hf_batadv_batman_prev_sender = -1;
 static int hf_batadv_batman_num_hna = -1;
@@ -179,6 +217,8 @@ static int hf_batadv_bcast_version = -1;
 static int hf_batadv_bcast_pad = -1;
 static int hf_batadv_bcast_orig = -1;
 static int hf_batadv_bcast_seqno = -1;
+static int hf_batadv_bcast_seqno32 = -1;
+static int hf_batadv_bcast_ttl = -1;
 
 static int hf_batadv_icmp_version = -1;
 static int hf_batadv_icmp_msg_type = -1;
@@ -195,6 +235,7 @@ static int hf_batadv_unicast_ttl = -1;
 static int hf_batadv_vis_version = -1;
 static int hf_batadv_vis_type = -1;
 static int hf_batadv_vis_seqno = -1;
+static int hf_batadv_vis_seqno32 = -1;
 static int hf_batadv_vis_entries = -1;
 static int hf_batadv_vis_ttl = -1;
 static int hf_batadv_vis_vis_orig = -1;
@@ -234,9 +275,11 @@ static void dissect_batadv_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static void dissect_batadv_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_batadv_batman_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_batadv_batman_v9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_batadv_batman_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void dissect_batadv_bcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_batadv_bcast_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void dissect_batadv_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -247,6 +290,7 @@ static void dissect_batadv_unicast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 static void dissect_batadv_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void dissect_batadv_hna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_vis_entry_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -323,6 +367,9 @@ static void dissect_batadv_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		break;
 	case 9:
 		dissect_batadv_batman_v9(tvb, pinfo, tree);
+		break;
+	case 10:
+		dissect_batadv_batman_v10(tvb, pinfo, tree);
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
@@ -713,6 +760,129 @@ static void dissect_batadv_batman_v9(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	}
 }
 
+static void dissect_batadv_batman_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint8 type;
+	struct batman_packet_v10 *batman_packeth;
+	const guint8  *prev_sender_addr, *orig_addr;
+	gint i;
+
+	tvbuff_t *next_tvb;
+	guint length_remaining;
+	int offset = 0;
+
+	batman_packeth = ep_alloc(sizeof(struct batman_packet_v10));
+
+	type = tvb_get_guint8(tvb, 0);
+	batman_packeth->version = tvb_get_guint8(tvb, 1);
+
+	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
+	if (batman_packeth->version == 0 || type != BATADV_PACKET) {
+		return;
+	}
+
+	batman_packeth->flags = tvb_get_guint8(tvb, 2);
+	batman_packeth->tq = tvb_get_guint8(tvb, 3);
+	batman_packeth->seqno = tvb_get_ntohl(tvb, 4);
+	orig_addr = tvb_get_ptr(tvb, 8, 6);
+	SET_ADDRESS(&batman_packeth->orig, AT_ETHER, 6, orig_addr);
+	prev_sender_addr = tvb_get_ptr(tvb, 14, 6);
+	SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, 6, prev_sender_addr);
+	batman_packeth->ttl = tvb_get_guint8(tvb, 20);
+	batman_packeth->num_hna = tvb_get_guint8(tvb, 21);
+	batman_packeth->gwflags = tvb_get_guint8(tvb, 22);
+
+	/* Set info column */
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
+
+	/* Set tree info */
+	if (tree) {
+		proto_item *ti, *tf, *tgw;
+		proto_tree *batadv_batman_tree, *flag_tree;
+
+		if (PTREE_DATA(tree)->visible) {
+			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, BATMAN_PACKET_V10_SIZE,
+			                                    "B.A.T.M.A.N., Orig: %s (%s)",
+			                                    get_ether_name(orig_addr), ether_to_str(orig_addr));
+		} else {
+			ti = proto_tree_add_item(tree, proto_batadv_plugin, tvb, 0, BATMAN_PACKET_V10_SIZE, FALSE);
+		}
+		batadv_batman_tree = proto_item_add_subtree(ti, ett_batadv_batman);
+
+		/* items */
+		proto_tree_add_uint_format(batadv_batman_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_PACKET,
+		                           "Packet Type: %s (%u)", "BATADV_PACKET", BATADV_PACKET);
+		offset += 1;
+
+		proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_version, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		tf = proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_flags, tvb, offset, 1, FALSE);
+		/* <flags> */
+		flag_tree =  proto_item_add_subtree(tf, ett_batadv_batman_flags);
+		proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_directlink, tvb, offset, 1, batman_packeth->flags);
+		proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_vis_server, tvb, offset, 1, batman_packeth->flags);
+		proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_primaries_first_hop, tvb, offset, 1, batman_packeth->flags);
+		/* </flags> */
+		offset += 1;
+
+		proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_tq, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_seqno32, tvb, offset, 4, FALSE);
+		offset += 4;
+
+		proto_tree_add_ether(batadv_batman_tree, hf_batadv_batman_orig, tvb, offset, 6, orig_addr);
+		offset += 6;
+
+		proto_tree_add_ether(batadv_batman_tree, hf_batadv_batman_prev_sender, tvb, offset, 6, prev_sender_addr);
+		offset += 6;
+
+		proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_ttl, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_num_hna, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		tgw = proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_gwflags, tvb, offset, 1, FALSE);
+		dissect_batadv_gwflags(tvb, batman_packeth->gwflags, offset, tgw);
+		offset += 1;
+
+		/* Hidden: proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_pad, tvb, offset, 1, FALSE); */
+		offset += 1;
+
+		SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, orig_addr);
+		SET_ADDRESS(&pinfo->src, AT_ETHER, 6, orig_addr);
+
+		tap_queue_packet(batadv_tap, pinfo, batman_packeth);
+
+		for (i = 0; i < batman_packeth->num_hna; i++) {
+			next_tvb = tvb_new_subset(tvb, offset, 6, 6);
+
+			if (have_tap_listener(batadv_follow_tap)) {
+				tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
+			}
+
+			dissect_batadv_hna(next_tvb, pinfo, batadv_batman_tree);
+			offset += 6;
+		}
+	}
+
+	/* Calculate offset even when we got no tree */
+	offset = BATMAN_PACKET_V10_SIZE + batman_packeth->num_hna * 6;
+
+	length_remaining = tvb_length_remaining(tvb, offset);
+	if (length_remaining >= BATMAN_PACKET_V10_SIZE) {
+		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+
+		if (have_tap_listener(batadv_follow_tap)) {
+			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
+		}
+
+		dissect_batadv_batman_v10(next_tvb, pinfo, tree);
+	}
+}
+
 static void dissect_batadv_hna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	const guint8  *hna;
@@ -751,6 +921,9 @@ static void dissect_batadv_bcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	case 8:
 	case 9:
 		dissect_batadv_bcast_v6(tvb, pinfo, tree);
+		break;
+	case 10:
+		dissect_batadv_bcast_v10(tvb, pinfo, tree);
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
@@ -828,6 +1001,79 @@ static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	}
 }
 
+static void dissect_batadv_bcast_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	struct bcast_packet_v10 *bcast_packeth;
+	const guint8  *orig_addr;
+
+	tvbuff_t *next_tvb;
+	guint length_remaining;
+	int offset = 0;
+
+	bcast_packeth = ep_alloc(sizeof(struct bcast_packet_v10));
+
+	bcast_packeth->version = tvb_get_guint8(tvb, 1);
+	orig_addr = tvb_get_ptr(tvb, 2, 6);
+	SET_ADDRESS(&bcast_packeth->orig, AT_ETHER, 6, orig_addr);
+	bcast_packeth->ttl = tvb_get_guint8(tvb, 8);
+	bcast_packeth->seqno = tvb_get_ntohl(tvb, 9);
+
+	/* Set info column */
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", bcast_packeth->seqno);
+
+	/* Set tree info */
+	if (tree) {
+		proto_item *ti;
+		proto_tree *batadv_bcast_tree;
+
+		if (PTREE_DATA(tree)->visible) {
+			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, BCAST_PACKET_V10_SIZE,
+			                                    "B.A.T.M.A.N. Bcast, Orig: %s (%s)",
+			                                    get_ether_name(orig_addr), ether_to_str(orig_addr));
+		} else {
+			ti = proto_tree_add_item(tree, proto_batadv_plugin, tvb, 0, BCAST_PACKET_V10_SIZE, FALSE);
+		}
+		batadv_bcast_tree = proto_item_add_subtree(ti, ett_batadv_bcast);
+
+		/* items */
+		proto_tree_add_uint_format(batadv_bcast_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_BCAST,
+		                           "Packet Type: %s (%u)", "BATADV_BCAST", BATADV_BCAST);
+		offset += 1;
+
+		proto_tree_add_item(batadv_bcast_tree, hf_batadv_bcast_version, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_ether(batadv_bcast_tree, hf_batadv_bcast_orig, tvb, offset, 6, orig_addr);
+		offset += 6;
+
+		proto_tree_add_item(batadv_bcast_tree, hf_batadv_bcast_ttl, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_item(batadv_bcast_tree, hf_batadv_bcast_seqno32, tvb, offset, 4, FALSE);
+		offset += 4;
+	}
+
+	/* Calculate offset even when we got no tree */
+	offset = BCAST_PACKET_V10_SIZE;
+
+	SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, orig_addr);
+	SET_ADDRESS(&pinfo->src, AT_ETHER, 6, orig_addr);
+
+	tap_queue_packet(batadv_tap, pinfo, bcast_packeth);
+
+	length_remaining = tvb_length_remaining(tvb, offset);
+
+	if (length_remaining != 0) {
+		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+
+		if (have_tap_listener(batadv_follow_tap)) {
+			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
+		}
+
+		call_dissector(eth_handle, next_tvb, pinfo, tree);
+	}
+}
+
 static void dissect_batadv_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 version;
@@ -843,6 +1089,7 @@ static void dissect_batadv_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	case 7:
 	case 8:
 	case 9:
+	case 10:
 		dissect_batadv_icmp_v7(tvb, pinfo, tree);
 		break;
 	default:
@@ -1041,6 +1288,7 @@ static void dissect_batadv_unicast(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	case 7:
 	case 8:
 	case 9:
+	case 10:
 		dissect_batadv_unicast_v6(tvb, pinfo, tree);
 		break;
 	default:
@@ -1133,6 +1381,9 @@ static void dissect_batadv_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	case 8:
 	case 9:
 		dissect_batadv_vis_v6(tvb, pinfo, tree);
+		break;
+	case 10:
+		dissect_batadv_vis_v10(tvb, pinfo, tree);
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
@@ -1274,6 +1525,113 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	}
 }
 
+static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	struct vis_packet_v10 *vis_packeth;
+	const guint8  *vis_orig_addr, *target_orig_addr, *sender_orig_addr;
+	proto_tree *batadv_vis_tree = NULL;
+
+	tvbuff_t *next_tvb;
+	guint length_remaining;
+	int offset = 0, i;
+
+	vis_packeth = ep_alloc(sizeof(struct vis_packet_v10));
+
+	vis_packeth->version = tvb_get_guint8(tvb, 1);
+	vis_packeth->vis_type = tvb_get_guint8(tvb, 2);
+	vis_packeth->entries = tvb_get_guint8(tvb, 3);
+	vis_packeth->seqno = tvb_get_ntohl(tvb, 4);
+	vis_packeth->ttl = tvb_get_guint8(tvb, 8);
+
+	vis_orig_addr = tvb_get_ptr(tvb, 9, 6);
+	SET_ADDRESS(&vis_packeth->vis_orig, AT_ETHER, 6, vis_orig_addr);
+	target_orig_addr = tvb_get_ptr(tvb, 15, 6);
+	SET_ADDRESS(&vis_packeth->target_orig, AT_ETHER, 6, target_orig_addr);
+	sender_orig_addr = tvb_get_ptr(tvb, 21, 6);
+	SET_ADDRESS(&vis_packeth->sender_orig, AT_ETHER, 6, sender_orig_addr);
+
+	/* Set info column */
+	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
+		     val_to_str(vis_packeth->vis_type, vis_packettypenames, "Unknown (0x%02x)"),
+		     vis_packeth->seqno);
+
+	/* Set tree info */
+	if (tree) {
+		proto_item *ti;
+
+		if (PTREE_DATA(tree)->visible) {
+			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, VIS_PACKET_V10_SIZE,
+			                                    "B.A.T.M.A.N. Vis, Orig: %s (%s)",
+			                                    get_ether_name(vis_orig_addr), ether_to_str(vis_orig_addr));
+		} else {
+			ti = proto_tree_add_item(tree, proto_batadv_plugin, tvb, 0, VIS_PACKET_V10_SIZE, FALSE);
+		}
+		batadv_vis_tree = proto_item_add_subtree(ti, ett_batadv_vis);
+
+		/* items */
+		proto_tree_add_uint_format(batadv_vis_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_VIS,
+		                           "Packet Type: %s (%u)", "BATADV_VIS", BATADV_VIS);
+		offset += 1;
+
+		proto_tree_add_item(batadv_vis_tree, hf_batadv_vis_version, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_item(batadv_vis_tree, hf_batadv_vis_type, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_item(batadv_vis_tree, hf_batadv_vis_entries, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_item(batadv_vis_tree, hf_batadv_vis_seqno32, tvb, offset, 4, FALSE);
+		offset += 4;
+
+		proto_tree_add_item(batadv_vis_tree, hf_batadv_vis_ttl, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_ether(batadv_vis_tree, hf_batadv_vis_vis_orig, tvb, offset, 6, vis_orig_addr);
+		offset += 6;
+
+		proto_tree_add_ether(batadv_vis_tree, hf_batadv_vis_target_orig, tvb, offset, 6, target_orig_addr);
+		offset += 6;
+
+		proto_tree_add_ether(batadv_vis_tree, hf_batadv_vis_sender_orig, tvb, offset, 6, sender_orig_addr);
+		offset += 6;
+	}
+
+	/* Calculate offset even when we got no tree */
+	offset = VIS_PACKET_V10_SIZE;
+
+	SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, sender_orig_addr);
+	SET_ADDRESS(&pinfo->src, AT_ETHER, 6, vis_orig_addr);
+
+	SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, target_orig_addr);
+	SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, target_orig_addr);
+
+	tap_queue_packet(batadv_tap, pinfo, vis_packeth);
+
+	for (i = 0; i < vis_packeth->entries; i++) {
+		next_tvb = tvb_new_subset(tvb, offset, VIS_ENTRY_V8_SIZE, VIS_ENTRY_V8_SIZE);
+
+		if (have_tap_listener(batadv_follow_tap)) {
+			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
+		}
+
+		dissect_vis_entry_v8(next_tvb, pinfo, batadv_vis_tree);
+		offset += VIS_ENTRY_V8_SIZE;
+	}
+
+	length_remaining = tvb_length_remaining(tvb, offset);
+	if (length_remaining != 0) {
+		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+
+		if (have_tap_listener(batadv_follow_tap)) {
+			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
+		}
+
+		call_dissector(data_handle, next_tvb, pinfo, tree);
+	}
+}
+
 static void dissect_vis_entry_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* Set tree info */
@@ -1364,6 +1722,11 @@ void proto_register_batadv(void)
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
+		{ &hf_batadv_batman_seqno32,
+		  { "Sequence number", "batadv.batman.seq",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_batadv_batman_orig,
 		  { "Originator", "batadv.batman.orig",
 		    FT_ETHER, BASE_NONE, NULL, 0x0,
@@ -1422,6 +1785,16 @@ void proto_register_batadv(void)
 		{ &hf_batadv_bcast_seqno,
 		  { "Sequence number", "batadv.bcast.seq",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_bcast_seqno32,
+		  { "Sequence number", "batadv.bcast.seq",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_bcast_ttl,
+		  { "Time to Live", "batadv.bcast.ttl",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_batadv_icmp_version,
@@ -1487,6 +1860,11 @@ void proto_register_batadv(void)
 		{ &hf_batadv_vis_seqno,
 		  { "Sequence number", "batadv.vis.seq",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL}
+		},
+		{ &hf_batadv_vis_seqno32,
+		  { "Sequence number", "batadv.vis.seq",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL}
 		},
 		{ &hf_batadv_vis_entries,
