@@ -10630,7 +10630,7 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr3_fsid, {
-			"fsid", "nfs.fattr3.fsid", FT_UINT64, BASE_HEX,
+			"fsid", "nfs.fattr3.fsid", FT_UINT64, BASE_HEX_DEC,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr3_fileid, {
