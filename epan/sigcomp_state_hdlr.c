@@ -609,18 +609,6 @@ static const guint8 presence_static_dictionary_for_sigcomp[PRESENCE_STATE_LENGTH
 
 static GHashTable *state_buffer_table=NULL;
 
-static void
-state_buffer_table_cleanup(gpointer key , gpointer value, gpointer user_data _U_){
-
-	guint8 *state_buff = value;
-	gchar *partial_state_str = key;
-
-	if ( state_buff ){
-		g_free(state_buff);
-		g_free(partial_state_str);
-	}
-
-}
 
 void
 sigcomp_init_udvm(void){
@@ -631,12 +619,14 @@ sigcomp_init_udvm(void){
 
 	/* Destroy any existing memory chunks / hashes. */
 	if (state_buffer_table){
-		g_hash_table_foreach(state_buffer_table, state_buffer_table_cleanup, NULL);
 		g_hash_table_destroy(state_buffer_table);
 	}
 	
 
-	state_buffer_table = g_hash_table_new(g_str_hash, g_str_equal);
+	state_buffer_table = g_hash_table_new_full(g_str_hash, 
+		g_str_equal,
+		g_free, /* key_destroy_func */
+		g_free); /* value_destroy_func */
 	/*
 	 * Store static dictionaries in hash table
 	 */
