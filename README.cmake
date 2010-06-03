@@ -73,6 +73,7 @@ What works?
 
 All the executables now build from clean source on:
 * 32bit openSUSE 11.2
+* 64bit FedoraXXX
 * 32bit Ubuntu 9.04
 
 What needs to be done?

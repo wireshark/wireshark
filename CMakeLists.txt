@@ -512,35 +512,36 @@ set(WIRESHARK_COMMON_SRC
 )
 
 set(TSHARK_TAP_SRC
-        tap-afpstat.c
-        tap-ansi_astat.c
-        tap-bootpstat.c
-        tap-camelcounter.c
-        tap-camelsrt.c
-        tap-comparestat.c
-        tap-dcerpcstat.c
-        tap-diameter-avp.c
-        tap-funnel.c
-        tap-gsm_astat.c
-        tap-h225counter.c
-        tap-h225rassrt.c
-        tap-httpstat.c
-        tap-iostat.c
-        tap-iousers.c
-        tap-mgcpstat.c
-        tap-megacostat.c
-        tap-protocolinfo.c
-        tap-protohierstat.c
-        tap-radiusstat.c
-        tap-rpcstat.c
-        tap-rpcprogs.c
-        tap-rtp.c
-        tap-sctpchunkstat.c
-        tap-sipstat.c
-        tap-smbsids.c
-        tap-smbstat.c
-        tap-stats_tree.c
-        tap-wspstat.c
+	tap-afpstat.c
+	tap-ansi_astat.c
+	tap-bootpstat.c
+	tap-camelcounter.c
+	tap-camelsrt.c
+	tap-comparestat.c
+	tap-dcerpcstat.c
+	tap-diameter-avp.c
+	tap-funnel.c
+	tap-gsm_astat.c
+	tap-h225counter.c
+	tap-h225rassrt.c
+	tap-httpstat.c
+	tap-iostat.c
+	tap-iousers.c
+	tap-mgcpstat.c
+	tap-megacostat.c
+	tap-protocolinfo.c
+	tap-protohierstat.c
+	tap-radiusstat.c
+	tap-rpcstat.c
+	tap-rpcprogs.c
+	tap-rtp.c
+	tap-sctpchunkstat.c
+	tap-sipstat.c
+	tap-smbsids.c
+	tap-smbstat.c
+	tap-stats_tree.c
+	tap-sv.c
+	tap-wspstat.c
 )
 
 set(INSTALL_DIRS

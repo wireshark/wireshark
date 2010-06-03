@@ -239,6 +239,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-s1ap.c
 	dissectors/packet-smrse.c
 	dissectors/packet-spnego.c
+	dissectors/packet-sv.c
 	dissectors/packet-ulp.c
 	dissectors/packet-wlancertextn.c
 	dissectors/packet-x224.c
@@ -1266,9 +1267,9 @@ set(CLEAN_FILES
 
 if (WERROR)
     set_source_files_properties(
-        ${CLEAN_FILES}
-        PROPERTIES
-        COMPILE_FLAGS -Werror
+	${CLEAN_FILES}
+	PROPERTIES
+	COMPILE_FLAGS -Werror
     )
 endif()
 
