@@ -744,12 +744,12 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
   case TS_PREC_FIXED_SEC:
   case TS_PREC_AUTO_SEC:
     if (ts->secs >= (60*60)) {
-      g_snprintf(buf, COL_MAX_LEN,"%dh %dm %ds",
+      g_snprintf(buf, COL_MAX_LEN,"%dh %2dm %2ds",
 		 (gint32) ts->secs / (60 * 60),
 		 (gint32) (ts->secs / 60) % 60,
 		 (gint32) ts->secs % 60);
     } else if (ts->secs >= 60) {
-      g_snprintf(buf, COL_MAX_LEN,"%dh %ds",
+      g_snprintf(buf, COL_MAX_LEN,"%dh %2ds",
 		 (gint32) ts->secs / 60,
 		 (gint32) ts->secs % 60);
     } else {
@@ -760,13 +760,13 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
   case TS_PREC_FIXED_DSEC:
   case TS_PREC_AUTO_DSEC:
     if (ts->secs >= (60*60)) {
-      g_snprintf(buf, COL_MAX_LEN,"%dh %dm %d.%01lds",
+      g_snprintf(buf, COL_MAX_LEN,"%dh %2dm %2d.%01lds",
 		 (gint32) ts->secs / (60 * 60),
 		 (gint32) (ts->secs / 60) % 60,
 		 (gint32) ts->secs % 60,
 		 (long)ts->nsecs / 100000000);
     } else if (ts->secs >= 60) {
-      g_snprintf(buf, COL_MAX_LEN,"%dm %d.%01lds",
+      g_snprintf(buf, COL_MAX_LEN,"%dm %2d.%01lds",
 		 (gint32) ts->secs / 60,
 		 (gint32) ts->secs % 60,
 		 (long)ts->nsecs / 100000000);
@@ -779,13 +779,13 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
   case TS_PREC_FIXED_CSEC:
   case TS_PREC_AUTO_CSEC:
     if (ts->secs >= (60*60)) {
-      g_snprintf(buf, COL_MAX_LEN,"%dh %dm %d.%02lds",
+      g_snprintf(buf, COL_MAX_LEN,"%dh %2dm %2d.%02lds",
 		 (gint32) ts->secs / (60 * 60),
 		 (gint32) (ts->secs / 60) % 60,
 		 (gint32) ts->secs % 60,
 		 (long)ts->nsecs / 10000000);
     } else if (ts->secs >= 60) {
-      g_snprintf(buf, COL_MAX_LEN,"%dm %d.%02lds",
+      g_snprintf(buf, COL_MAX_LEN,"%dm %2d.%02lds",
 		 (gint32) ts->secs / 60,
 		 (gint32) ts->secs % 60,
 		 (long)ts->nsecs / 10000000);
@@ -798,13 +798,13 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
   case TS_PREC_FIXED_MSEC:
   case TS_PREC_AUTO_MSEC:
     if (ts->secs >= (60*60)) {
-      g_snprintf(buf, COL_MAX_LEN,"%dh %dm %d.%03lds",
+      g_snprintf(buf, COL_MAX_LEN,"%dh %2dm %2d.%03lds",
 		 (gint32) ts->secs / (60 * 60),
 		 (gint32) (ts->secs / 60) % 60,
 		 (gint32) ts->secs % 60,
 		 (long)ts->nsecs / 1000000);
     } else if (ts->secs >= 60) {
-      g_snprintf(buf, COL_MAX_LEN,"%dm %d.%03lds",
+      g_snprintf(buf, COL_MAX_LEN,"%dm %2d.%03lds",
 		 (gint32) ts->secs / 60,
 		 (gint32) ts->secs % 60,
 		 (long)ts->nsecs / 1000000);
@@ -817,13 +817,13 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
   case TS_PREC_FIXED_USEC:
   case TS_PREC_AUTO_USEC:
     if (ts->secs >= (60*60)) {
-      g_snprintf(buf, COL_MAX_LEN,"%dh %dm %d.%06lds",
+      g_snprintf(buf, COL_MAX_LEN,"%dh %2dm %2d.%06lds",
 		 (gint32) ts->secs / (60 * 60),
 		 (gint32) (ts->secs / 60) % 60,
 		 (gint32) ts->secs % 60,
 		 (long)ts->nsecs / 1000);
     } else if (ts->secs >= 60) {
-      g_snprintf(buf, COL_MAX_LEN,"%dm %d.%06lds",
+      g_snprintf(buf, COL_MAX_LEN,"%dm %2d.%06lds",
 		 (gint32) ts->secs / 60,
 		 (gint32) ts->secs % 60,
 		 (long)ts->nsecs / 1000);
@@ -836,13 +836,13 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
   case TS_PREC_FIXED_NSEC:
   case TS_PREC_AUTO_NSEC:
     if (ts->secs >= (60*60)) {
-      g_snprintf(buf, COL_MAX_LEN,"%dh %dm %d.%09lds",
+      g_snprintf(buf, COL_MAX_LEN,"%dh %2dm %2d.%09lds",
 		 (gint32) ts->secs / (60 * 60),
 		 (gint32) (ts->secs / 60) % 60,
 		 (gint32) ts->secs % 60,
 		 (long)ts->nsecs);
     } else if (ts->secs >= 60) {
-      g_snprintf(buf, COL_MAX_LEN,"%dm %d.%09lds",
+      g_snprintf(buf, COL_MAX_LEN,"%dm %2d.%09lds",
 		 (gint32) ts->secs / 60,
 		 (gint32) ts->secs % 60,
 		 (long)ts->nsecs);
