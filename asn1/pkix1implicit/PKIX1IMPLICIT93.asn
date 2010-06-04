@@ -405,6 +405,7 @@ NoticeReference ::= SEQUENCE {
      noticeNumbers    SEQUENCE OF INTEGER }
 
 DisplayText ::= CHOICE {
+     ia5String	    IA5String,
      visibleString    VisibleString,
      bmpString        BMPString,
      utf8String       UTF8String }

@@ -63,6 +63,7 @@ static int hf_pkix1implicit_explicitText = -1;    /* DisplayText */
 static int hf_pkix1implicit_organization = -1;    /* DisplayText */
 static int hf_pkix1implicit_noticeNumbers = -1;   /* T_noticeNumbers */
 static int hf_pkix1implicit_noticeNumbers_item = -1;  /* INTEGER */
+static int hf_pkix1implicit_ia5String = -1;       /* IA5String */
 static int hf_pkix1implicit_visibleString = -1;   /* VisibleString */
 static int hf_pkix1implicit_bmpString = -1;       /* BMPString */
 static int hf_pkix1implicit_utf8String = -1;      /* UTF8String */
@@ -160,6 +161,17 @@ dissect_pkix1implicit_AuthorityInfoAccessSyntax(gboolean implicit_tag _U_, tvbuf
 
 
 static int
+dissect_pkix1implicit_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
 dissect_pkix1implicit_VisibleString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_VisibleString,
                                             actx, tree, tvb, offset, hf_index,
@@ -192,16 +204,18 @@ dissect_pkix1implicit_UTF8String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 
 static const value_string pkix1implicit_DisplayText_vals[] = {
-  {   0, "visibleString" },
-  {   1, "bmpString" },
-  {   2, "utf8String" },
+  {   0, "ia5String" },
+  {   1, "visibleString" },
+  {   2, "bmpString" },
+  {   3, "utf8String" },
   { 0, NULL }
 };
 
 static const ber_choice_t DisplayText_choice[] = {
-  {   0, &hf_pkix1implicit_visibleString, BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_NOOWNTAG, dissect_pkix1implicit_VisibleString },
-  {   1, &hf_pkix1implicit_bmpString, BER_CLASS_UNI, BER_UNI_TAG_BMPString, BER_FLAGS_NOOWNTAG, dissect_pkix1implicit_BMPString },
-  {   2, &hf_pkix1implicit_utf8String, BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_pkix1implicit_UTF8String },
+  {   0, &hf_pkix1implicit_ia5String, BER_CLASS_UNI, BER_UNI_TAG_IA5String, BER_FLAGS_NOOWNTAG, dissect_pkix1implicit_IA5String },
+  {   1, &hf_pkix1implicit_visibleString, BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_NOOWNTAG, dissect_pkix1implicit_VisibleString },
+  {   2, &hf_pkix1implicit_bmpString, BER_CLASS_UNI, BER_UNI_TAG_BMPString, BER_FLAGS_NOOWNTAG, dissect_pkix1implicit_BMPString },
+  {   3, &hf_pkix1implicit_utf8String, BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_pkix1implicit_UTF8String },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -342,6 +356,10 @@ void proto_register_pkix1implicit(void) {
       { "noticeNumbers item", "pkix1implicit.noticeNumbers_item",
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
+    { &hf_pkix1implicit_ia5String,
+      { "ia5String", "pkix1implicit.ia5String",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_pkix1implicit_visibleString,
       { "visibleString", "pkix1implicit.visibleString",
         FT_STRING, BASE_NONE, NULL, 0,
