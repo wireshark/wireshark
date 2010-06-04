@@ -32,7 +32,7 @@
 #include <epan/conversation.h>
 #include <epan/dissectors/packet-tcap.h>
 
-#define LENGTH_OID 16
+#define LENGTH_OID 23
 struct tcaphash_context_t {
   struct tcaphash_context_key_t * key;
   guint32 session_id;
@@ -48,45 +48,45 @@ struct tcaphash_context_t {
   gboolean subdissector_present;
   dissector_handle_t subdissector_handle;
   void (* callback) (tvbuff_t *,packet_info *, proto_tree *, struct tcaphash_context_t *);
-  struct tcaphash_begincall_t * begincall; 
-  struct tcaphash_contcall_t * contcall; 
+  struct tcaphash_begincall_t * begincall;
+  struct tcaphash_contcall_t * contcall;
   struct tcaphash_endcall_t * endcall;
-  struct tcaphash_ansicall_t * ansicall; 
+  struct tcaphash_ansicall_t * ansicall;
 };
 
 struct tcaphash_begincall_t {
   struct tcaphash_begin_info_key_t * beginkey;
   struct tcaphash_context_t * context;
   gboolean father;
-  struct tcaphash_begincall_t * next_begincall; 
-  struct tcaphash_begincall_t * previous_begincall; 
+  struct tcaphash_begincall_t * next_begincall;
+  struct tcaphash_begincall_t * previous_begincall;
 };
 
-struct tcaphash_contcall_t { 
+struct tcaphash_contcall_t {
   struct tcaphash_cont_info_key_t * contkey;
   struct tcaphash_context_t * context;
   gboolean father;
-  struct tcaphash_contcall_t * next_contcall; 
-  struct tcaphash_contcall_t * previous_contcall; 
+  struct tcaphash_contcall_t * next_contcall;
+  struct tcaphash_contcall_t * previous_contcall;
 };
 
 struct tcaphash_endcall_t {
   struct tcaphash_end_info_key_t * endkey;
   struct tcaphash_context_t * context;
   gboolean father;
-  struct tcaphash_endcall_t * next_endcall; 
-  struct tcaphash_endcall_t * previous_endcall; 
+  struct tcaphash_endcall_t * next_endcall;
+  struct tcaphash_endcall_t * previous_endcall;
 };
 
 struct tcaphash_ansicall_t {
   struct tcaphash_ansi_info_key_t * ansikey;
   struct tcaphash_context_t * context;
   gboolean father;
-  struct tcaphash_ansicall_t * next_ansicall; 
-  struct tcaphash_ansicall_t * previous_ansicall; 
+  struct tcaphash_ansicall_t * next_ansicall;
+  struct tcaphash_ansicall_t * previous_ansicall;
 };
 
-/* The Key for the hash table is the TCAP origine transaction identifier 
+/* The Key for the hash table is the TCAP origine transaction identifier
    of the TC_BEGIN containing the InitialDP */
 
 struct tcaphash_context_key_t {
