@@ -1443,17 +1443,17 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	gboolean pc;
 	gint tag;
 
-	/* Check if ANSI TCAP and call the ANSI TCAP dissector if that's the case 
+	/* Check if ANSI TCAP and call the ANSI TCAP dissector if that's the case
 	 * PackageType ::= CHOICE { unidirectional			[PRIVATE 1] IMPLICIT UniTransactionPDU,
 	 * 						 queryWithPerm				[PRIVATE 2] IMPLICIT TransactionPDU,
 	 * 						 queryWithoutPerm			[PRIVATE 3] IMPLICIT TransactionPDU,
 	 * 						 response					[PRIVATE 4] IMPLICIT TransactionPDU,
 	 * 						 conversationWithPerm		[PRIVATE 5] IMPLICIT TransactionPDU,
 	 * 						 conversationWithoutPerm	[PRIVATE 6] IMPLICIT TransactionPDU,
-	 * 						 abort						[PRIVATE 22] IMPLICIT Abort 
+	 * 						 abort						[PRIVATE 22] IMPLICIT Abort
 	 * 						 }
-	 * 	
-	 * 
+	 *
+	 *
 	 */
 	get_ber_identifier(tvb, 0, &class, &pc, &tag);
 
@@ -1507,7 +1507,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		 */
 		if ( p_tcap_context && cur_oid && !p_tcap_context->oid_present ) {
 			/* Save the application context and the sub dissector */
-			g_strlcpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
+			g_strlcpy(p_tcap_context->oid, cur_oid, sizeof(p_tcap_context->oid));
 			p_tcap_context->oid_present=TRUE;
 			if ( (subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
 				p_tcap_context->subdissector_handle=subdissector_handle;
@@ -2139,11 +2139,11 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 		  if (p_tcap_context->oid_present) {
 			  /* We have already an Application Context, check if we have
 			     to fallback to a lower version */
-			  if ( strncmp(p_tcap_context->oid,cur_oid, LENGTH_OID)!=0) {
+			  if ( strncmp(p_tcap_context->oid, cur_oid, sizeof(p_tcap_context->oid))!=0) {
 				  /* ACN, changed, Fallback to lower version
 				   * and update the subdissector (purely formal)
 				   */
-				  g_strlcpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
+				  g_strlcpy(p_tcap_context->oid,cur_oid, sizeof(p_tcap_context->oid));
 				  if ( (subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
 					  p_tcap_context->subdissector_handle=subdissector_handle;
 					  p_tcap_context->subdissector_present=TRUE;
@@ -2151,7 +2151,7 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 			  }
 		  } else {
 			  /* We do not have the OID in the TCAP context, so store it */
-			  g_strlcpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
+			  g_strlcpy(p_tcap_context->oid, cur_oid, sizeof(p_tcap_context->oid));
 			  p_tcap_context->oid_present=TRUE;
 			  /* Try to find a subdissector according to OID */
 			  if ( (subdissector_handle
