@@ -281,7 +281,7 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
 
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("Rate", renderer,
+	column = gtk_tree_view_column_new_with_attributes ("Rate (ms)", renderer,
 													   "text", RATE_COLUMN,
 													   NULL);
 	gtk_tree_view_column_set_resizable (column,TRUE);
