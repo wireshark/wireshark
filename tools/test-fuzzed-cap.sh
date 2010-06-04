@@ -14,6 +14,9 @@ then
 	exit 1
 fi
 
+# Directory containing tshark.  Default current directory.
+BIN_DIR=.
+
 # These may be set to your liking
 # Stop the child process, if it's running longer than x seconds
 MAX_CPU_TIME=900
@@ -26,8 +29,12 @@ ulimit -S -t $MAX_CPU_TIME -v $MAX_VMEM
 # Allow core files to be generated
 ulimit -c unlimited
 
+if [ "$BIN_DIR" = "." ]; then
+    export WIRESHARK_RUN_FROM_BUILD_DIRECTORY=
+fi
+
 export WIRESHARK_DEBUG_SCRUB_MEMORY=
 export WIRESHARK_DEBUG_SE_USE_CANARY=
 export MALLOC_CHECK_=3
 
-./tshark -nVxr $1 > /dev/null
+$BIN_DIR/tshark -nVxr $1 > /dev/null
