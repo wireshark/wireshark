@@ -1,0 +1,532 @@
+/* EPCglobal Low-Level Reader Protocol Packet Dissector
+ *
+ * Copyright 2008, Intermec Technologies Corp. <matt.poduska@intermec.com>
+ *
+ * $Id$
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1999 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+
+#ifndef _LLRP_GENERATED_v1_0_H
+#define _LLRP_GENERATED_v1_0_H
+
+#include "llrpparsetypes.h" 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern t_llrp_parse_validator llrp_v1_0_parse_validator;
+
+#ifdef __cplusplus
+}
+#endif
+
+
+
+/* ----------------------------------------------------------------------------- */
+/* Choice Forward Declarations (12 total) */
+    
+extern t_llrp_compound_item llrp_choice_SpecParameter;
+extern t_llrp_compound_item llrp_choice_AccessCommandOpSpec;
+extern t_llrp_compound_item llrp_choice_AccessCommandOpSpecResult;
+extern t_llrp_compound_item llrp_choice_EPCParameter;
+extern t_llrp_compound_item llrp_choice_Timestamp;
+extern t_llrp_compound_item llrp_choice_AirProtocolLLRPCapabilities;
+extern t_llrp_compound_item llrp_choice_AirProtocolUHFRFModeTable;
+extern t_llrp_compound_item llrp_choice_AirProtocolInventoryCommandSettings;
+extern t_llrp_compound_item llrp_choice_AirProtocolTagSpec;
+extern t_llrp_compound_item llrp_choice_AirProtocolEPCMemorySelector;
+extern t_llrp_compound_item llrp_choice_AirProtocolTagData;
+extern t_llrp_compound_item llrp_choice_AirProtocolSingulationDetails;
+
+/* ----------------------------------------------------------------------------- */
+/* Parameter Forward Declarations (108 total) */
+    
+extern t_llrp_compound_item llrp_param_UTCTimestamp;
+extern t_llrp_compound_item llrp_param_Uptime;
+extern t_llrp_compound_item llrp_param_Custom;
+extern t_llrp_compound_item llrp_param_GeneralDeviceCapabilities;
+extern t_llrp_compound_item llrp_param_ReceiveSensitivityTableEntry;
+extern t_llrp_compound_item llrp_param_PerAntennaReceiveSensitivityRange;
+extern t_llrp_compound_item llrp_param_PerAntennaAirProtocol;
+extern t_llrp_compound_item llrp_param_GPIOCapabilities;
+extern t_llrp_compound_item llrp_param_LLRPCapabilities;
+extern t_llrp_compound_item llrp_param_RegulatoryCapabilities;
+extern t_llrp_compound_item llrp_param_UHFBandCapabilities;
+extern t_llrp_compound_item llrp_param_TransmitPowerLevelTableEntry;
+extern t_llrp_compound_item llrp_param_FrequencyInformation;
+extern t_llrp_compound_item llrp_param_FrequencyHopTable;
+extern t_llrp_compound_item llrp_param_FixedFrequencyTable;
+extern t_llrp_compound_item llrp_param_ROSpec;
+extern t_llrp_compound_item llrp_param_ROBoundarySpec;
+extern t_llrp_compound_item llrp_param_ROSpecStartTrigger;
+extern t_llrp_compound_item llrp_param_PeriodicTriggerValue;
+extern t_llrp_compound_item llrp_param_GPITriggerValue;
+extern t_llrp_compound_item llrp_param_ROSpecStopTrigger;
+extern t_llrp_compound_item llrp_param_AISpec;
+extern t_llrp_compound_item llrp_param_AISpecStopTrigger;
+extern t_llrp_compound_item llrp_param_TagObservationTrigger;
+extern t_llrp_compound_item llrp_param_InventoryParameterSpec;
+extern t_llrp_compound_item llrp_param_RFSurveySpec;
+extern t_llrp_compound_item llrp_param_RFSurveySpecStopTrigger;
+extern t_llrp_compound_item llrp_param_AccessSpec;
+extern t_llrp_compound_item llrp_param_AccessSpecStopTrigger;
+extern t_llrp_compound_item llrp_param_AccessCommand;
+extern t_llrp_compound_item llrp_param_LLRPConfigurationStateValue;
+extern t_llrp_compound_item llrp_param_Identification;
+extern t_llrp_compound_item llrp_param_GPOWriteData;
+extern t_llrp_compound_item llrp_param_KeepaliveSpec;
+extern t_llrp_compound_item llrp_param_AntennaProperties;
+extern t_llrp_compound_item llrp_param_AntennaConfiguration;
+extern t_llrp_compound_item llrp_param_RFReceiver;
+extern t_llrp_compound_item llrp_param_RFTransmitter;
+extern t_llrp_compound_item llrp_param_GPIPortCurrentState;
+extern t_llrp_compound_item llrp_param_EventsAndReports;
+extern t_llrp_compound_item llrp_param_ROReportSpec;
+extern t_llrp_compound_item llrp_param_TagReportContentSelector;
+extern t_llrp_compound_item llrp_param_AccessReportSpec;
+extern t_llrp_compound_item llrp_param_TagReportData;
+extern t_llrp_compound_item llrp_param_EPCData;
+extern t_llrp_compound_item llrp_param_EPC_96;
+extern t_llrp_compound_item llrp_param_ROSpecID;
+extern t_llrp_compound_item llrp_param_SpecIndex;
+extern t_llrp_compound_item llrp_param_InventoryParameterSpecID;
+extern t_llrp_compound_item llrp_param_AntennaID;
+extern t_llrp_compound_item llrp_param_PeakRSSI;
+extern t_llrp_compound_item llrp_param_ChannelIndex;
+extern t_llrp_compound_item llrp_param_FirstSeenTimestampUTC;
+extern t_llrp_compound_item llrp_param_FirstSeenTimestampUptime;
+extern t_llrp_compound_item llrp_param_LastSeenTimestampUTC;
+extern t_llrp_compound_item llrp_param_LastSeenTimestampUptime;
+extern t_llrp_compound_item llrp_param_TagSeenCount;
+extern t_llrp_compound_item llrp_param_AccessSpecID;
+extern t_llrp_compound_item llrp_param_RFSurveyReportData;
+extern t_llrp_compound_item llrp_param_FrequencyRSSILevelEntry;
+extern t_llrp_compound_item llrp_param_ReaderEventNotificationSpec;
+extern t_llrp_compound_item llrp_param_EventNotificationState;
+extern t_llrp_compound_item llrp_param_ReaderEventNotificationData;
+extern t_llrp_compound_item llrp_param_HoppingEvent;
+extern t_llrp_compound_item llrp_param_GPIEvent;
+extern t_llrp_compound_item llrp_param_ROSpecEvent;
+extern t_llrp_compound_item llrp_param_ReportBufferLevelWarningEvent;
+extern t_llrp_compound_item llrp_param_ReportBufferOverflowErrorEvent;
+extern t_llrp_compound_item llrp_param_ReaderExceptionEvent;
+extern t_llrp_compound_item llrp_param_OpSpecID;
+extern t_llrp_compound_item llrp_param_RFSurveyEvent;
+extern t_llrp_compound_item llrp_param_AISpecEvent;
+extern t_llrp_compound_item llrp_param_AntennaEvent;
+extern t_llrp_compound_item llrp_param_ConnectionAttemptEvent;
+extern t_llrp_compound_item llrp_param_ConnectionCloseEvent;
+extern t_llrp_compound_item llrp_param_LLRPStatus;
+extern t_llrp_compound_item llrp_param_FieldError;
+extern t_llrp_compound_item llrp_param_ParameterError;
+extern t_llrp_compound_item llrp_param_C1G2LLRPCapabilities;
+extern t_llrp_compound_item llrp_param_C1G2UHFRFModeTable;
+extern t_llrp_compound_item llrp_param_C1G2UHFRFModeTableEntry;
+extern t_llrp_compound_item llrp_param_C1G2InventoryCommand;
+extern t_llrp_compound_item llrp_param_C1G2Filter;
+extern t_llrp_compound_item llrp_param_C1G2TagInventoryMask;
+extern t_llrp_compound_item llrp_param_C1G2TagInventoryStateAwareFilterAction;
+extern t_llrp_compound_item llrp_param_C1G2TagInventoryStateUnawareFilterAction;
+extern t_llrp_compound_item llrp_param_C1G2RFControl;
+extern t_llrp_compound_item llrp_param_C1G2SingulationControl;
+extern t_llrp_compound_item llrp_param_C1G2TagInventoryStateAwareSingulationAction;
+extern t_llrp_compound_item llrp_param_C1G2TagSpec;
+extern t_llrp_compound_item llrp_param_C1G2TargetTag;
+extern t_llrp_compound_item llrp_param_C1G2Read;
+extern t_llrp_compound_item llrp_param_C1G2Write;
+extern t_llrp_compound_item llrp_param_C1G2Kill;
+extern t_llrp_compound_item llrp_param_C1G2Lock;
+extern t_llrp_compound_item llrp_param_C1G2LockPayload;
+extern t_llrp_compound_item llrp_param_C1G2BlockErase;
+extern t_llrp_compound_item llrp_param_C1G2BlockWrite;
+extern t_llrp_compound_item llrp_param_C1G2EPCMemorySelector;
+extern t_llrp_compound_item llrp_param_C1G2_PC;
+extern t_llrp_compound_item llrp_param_C1G2_CRC;
+extern t_llrp_compound_item llrp_param_C1G2SingulationDetails;
+extern t_llrp_compound_item llrp_param_C1G2ReadOpSpecResult;
+extern t_llrp_compound_item llrp_param_C1G2WriteOpSpecResult;
+extern t_llrp_compound_item llrp_param_C1G2KillOpSpecResult;
+extern t_llrp_compound_item llrp_param_C1G2LockOpSpecResult;
+extern t_llrp_compound_item llrp_param_C1G2BlockEraseOpSpecResult;
+extern t_llrp_compound_item llrp_param_C1G2BlockWriteOpSpecResult;
+
+/* Enumerations */
+  
+#define LLRP_ENUM_v1_0_AirProtocols_Unspecified  0
+#define LLRP_ENUM_v1_0_AirProtocols_EPCGlobalClass1Gen2  1
+#define LLRP_ENUM_v1_0_GetReaderCapabilitiesRequestedData_All  0
+#define LLRP_ENUM_v1_0_GetReaderCapabilitiesRequestedData_General_Device_Capabilities  1
+#define LLRP_ENUM_v1_0_GetReaderCapabilitiesRequestedData_LLRP_Capabilities  2
+#define LLRP_ENUM_v1_0_GetReaderCapabilitiesRequestedData_Regulatory_Capabilities  3
+#define LLRP_ENUM_v1_0_GetReaderCapabilitiesRequestedData_LLRP_Air_Protocol_Capabilities  4
+#define LLRP_ENUM_v1_0_CommunicationsStandard_Unspecified  0
+#define LLRP_ENUM_v1_0_CommunicationsStandard_US_FCC_Part_15  1
+#define LLRP_ENUM_v1_0_CommunicationsStandard_ETSI_302_208  2
+#define LLRP_ENUM_v1_0_CommunicationsStandard_ETSI_300_220  3
+#define LLRP_ENUM_v1_0_CommunicationsStandard_Australia_LIPD_1W  4
+#define LLRP_ENUM_v1_0_CommunicationsStandard_Australia_LIPD_4W  5
+#define LLRP_ENUM_v1_0_CommunicationsStandard_Japan_ARIB_STD_T89  6
+#define LLRP_ENUM_v1_0_CommunicationsStandard_Hong_Kong_OFTA_1049  7
+#define LLRP_ENUM_v1_0_CommunicationsStandard_Taiwan_DGT_LP0002  8
+#define LLRP_ENUM_v1_0_CommunicationsStandard_Korea_MIC_Article_5_2  9
+#define LLRP_ENUM_v1_0_ROSpecState_Disabled  0
+#define LLRP_ENUM_v1_0_ROSpecState_Inactive  1
+#define LLRP_ENUM_v1_0_ROSpecState_Active  2
+#define LLRP_ENUM_v1_0_ROSpecStartTriggerType_Null  0
+#define LLRP_ENUM_v1_0_ROSpecStartTriggerType_Immediate  1
+#define LLRP_ENUM_v1_0_ROSpecStartTriggerType_Periodic  2
+#define LLRP_ENUM_v1_0_ROSpecStartTriggerType_GPI  3
+#define LLRP_ENUM_v1_0_ROSpecStopTriggerType_Null  0
+#define LLRP_ENUM_v1_0_ROSpecStopTriggerType_Duration  1
+#define LLRP_ENUM_v1_0_ROSpecStopTriggerType_GPI_With_Timeout  2
+#define LLRP_ENUM_v1_0_AISpecStopTriggerType_Null  0
+#define LLRP_ENUM_v1_0_AISpecStopTriggerType_Duration  1
+#define LLRP_ENUM_v1_0_AISpecStopTriggerType_GPI_With_Timeout  2
+#define LLRP_ENUM_v1_0_AISpecStopTriggerType_Tag_Observation  3
+#define LLRP_ENUM_v1_0_TagObservationTriggerType_Upon_Seeing_N_Tags_Or_Timeout  0
+#define LLRP_ENUM_v1_0_TagObservationTriggerType_Upon_Seeing_No_More_New_Tags_For_Tms_Or_Timeout  1
+#define LLRP_ENUM_v1_0_TagObservationTriggerType_N_Attempts_To_See_All_Tags_In_FOV_Or_Timeout  2
+#define LLRP_ENUM_v1_0_RFSurveySpecStopTriggerType_Null  0
+#define LLRP_ENUM_v1_0_RFSurveySpecStopTriggerType_Duration  1
+#define LLRP_ENUM_v1_0_RFSurveySpecStopTriggerType_N_Iterations_Through_Frequency_Range  2
+#define LLRP_ENUM_v1_0_AccessSpecState_Disabled  0
+#define LLRP_ENUM_v1_0_AccessSpecState_Active  1
+#define LLRP_ENUM_v1_0_AccessSpecStopTriggerType_Null  0
+#define LLRP_ENUM_v1_0_AccessSpecStopTriggerType_Operation_Count  1
+#define LLRP_ENUM_v1_0_GetReaderConfigRequestedData_All  0
+#define LLRP_ENUM_v1_0_GetReaderConfigRequestedData_Identification  1
+#define LLRP_ENUM_v1_0_GetReaderConfigRequestedData_AntennaProperties  2
+#define LLRP_ENUM_v1_0_GetReaderConfigRequestedData_AntennaConfiguration  3
+#define LLRP_ENUM_v1_0_GetReaderConfigRequestedData_ROReportSpec  4
+#define LLRP_ENUM_v1_0_GetReaderConfigRequestedData_ReaderEventNotificationSpec  5
+#define LLRP_ENUM_v1_0_GetReaderConfigRequestedData_AccessReportSpec  6
+#define LLRP_ENUM_v1_0_GetReaderConfigRequestedData_LLRPConfigurationStateValue  7
+#define LLRP_ENUM_v1_0_GetReaderConfigRequestedData_KeepaliveSpec  8
+#define LLRP_ENUM_v1_0_GetReaderConfigRequestedData_GPIPortCurrentState  9
+#define LLRP_ENUM_v1_0_GetReaderConfigRequestedData_GPOWriteData  10
+#define LLRP_ENUM_v1_0_GetReaderConfigRequestedData_EventsAndReports  11
+#define LLRP_ENUM_v1_0_IdentificationType_MAC_Address  0
+#define LLRP_ENUM_v1_0_IdentificationType_EPC  1
+#define LLRP_ENUM_v1_0_KeepaliveTriggerType_Null  0
+#define LLRP_ENUM_v1_0_KeepaliveTriggerType_Periodic  1
+#define LLRP_ENUM_v1_0_GPIPortState_Low  0
+#define LLRP_ENUM_v1_0_GPIPortState_High  1
+#define LLRP_ENUM_v1_0_GPIPortState_Unknown  2
+#define LLRP_ENUM_v1_0_ROReportTriggerType_None  0
+#define LLRP_ENUM_v1_0_ROReportTriggerType_Upon_N_Tags_Or_End_Of_AISpec  1
+#define LLRP_ENUM_v1_0_ROReportTriggerType_Upon_N_Tags_Or_End_Of_ROSpec  2
+#define LLRP_ENUM_v1_0_AccessReportTriggerType_Whenever_ROReport_Is_Generated  0
+#define LLRP_ENUM_v1_0_AccessReportTriggerType_End_Of_AccessSpec  1
+#define LLRP_ENUM_v1_0_NotificationEventType_Upon_Hopping_To_Next_Channel  0
+#define LLRP_ENUM_v1_0_NotificationEventType_GPI_Event  1
+#define LLRP_ENUM_v1_0_NotificationEventType_ROSpec_Event  2
+#define LLRP_ENUM_v1_0_NotificationEventType_Report_Buffer_Fill_Warning  3
+#define LLRP_ENUM_v1_0_NotificationEventType_Reader_Exception_Event  4
+#define LLRP_ENUM_v1_0_NotificationEventType_RFSurvey_Event  5
+#define LLRP_ENUM_v1_0_NotificationEventType_AISpec_Event  6
+#define LLRP_ENUM_v1_0_NotificationEventType_AISpec_Event_With_Details  7
+#define LLRP_ENUM_v1_0_NotificationEventType_Antenna_Event  8
+#define LLRP_ENUM_v1_0_ROSpecEventType_Start_Of_ROSpec  0
+#define LLRP_ENUM_v1_0_ROSpecEventType_End_Of_ROSpec  1
+#define LLRP_ENUM_v1_0_ROSpecEventType_Preemption_Of_ROSpec  2
+#define LLRP_ENUM_v1_0_RFSurveyEventType_Start_Of_RFSurvey  0
+#define LLRP_ENUM_v1_0_RFSurveyEventType_End_Of_RFSurvey  1
+#define LLRP_ENUM_v1_0_AISpecEventType_End_Of_AISpec  0
+#define LLRP_ENUM_v1_0_AntennaEventType_Antenna_Disconnected  0
+#define LLRP_ENUM_v1_0_AntennaEventType_Antenna_Connected  1
+#define LLRP_ENUM_v1_0_ConnectionAttemptStatusType_Success  0
+#define LLRP_ENUM_v1_0_ConnectionAttemptStatusType_Failed_A_Reader_Initiated_Connection_Already_Exists  1
+#define LLRP_ENUM_v1_0_ConnectionAttemptStatusType_Failed_A_Client_Initiated_Connection_Already_Exists  2
+#define LLRP_ENUM_v1_0_ConnectionAttemptStatusType_Failed_Reason_Other_Than_A_Connection_Already_Exists  3
+#define LLRP_ENUM_v1_0_ConnectionAttemptStatusType_Another_Connection_Attempted  4
+#define LLRP_ENUM_v1_0_StatusCode_M_Success  0
+#define LLRP_ENUM_v1_0_StatusCode_M_ParameterError  100
+#define LLRP_ENUM_v1_0_StatusCode_M_FieldError  101
+#define LLRP_ENUM_v1_0_StatusCode_M_UnexpectedParameter  102
+#define LLRP_ENUM_v1_0_StatusCode_M_MissingParameter  103
+#define LLRP_ENUM_v1_0_StatusCode_M_DuplicateParameter  104
+#define LLRP_ENUM_v1_0_StatusCode_M_OverflowParameter  105
+#define LLRP_ENUM_v1_0_StatusCode_M_OverflowField  106
+#define LLRP_ENUM_v1_0_StatusCode_M_UnknownParameter  107
+#define LLRP_ENUM_v1_0_StatusCode_M_UnknownField  108
+#define LLRP_ENUM_v1_0_StatusCode_M_UnsupportedMessage  109
+#define LLRP_ENUM_v1_0_StatusCode_M_UnsupportedVersion  110
+#define LLRP_ENUM_v1_0_StatusCode_M_UnsupportedParameter  111
+#define LLRP_ENUM_v1_0_StatusCode_P_ParameterError  200
+#define LLRP_ENUM_v1_0_StatusCode_P_FieldError  201
+#define LLRP_ENUM_v1_0_StatusCode_P_UnexpectedParameter  202
+#define LLRP_ENUM_v1_0_StatusCode_P_MissingParameter  203
+#define LLRP_ENUM_v1_0_StatusCode_P_DuplicateParameter  204
+#define LLRP_ENUM_v1_0_StatusCode_P_OverflowParameter  205
+#define LLRP_ENUM_v1_0_StatusCode_P_OverflowField  206
+#define LLRP_ENUM_v1_0_StatusCode_P_UnknownParameter  207
+#define LLRP_ENUM_v1_0_StatusCode_P_UnknownField  208
+#define LLRP_ENUM_v1_0_StatusCode_P_UnsupportedParameter  209
+#define LLRP_ENUM_v1_0_StatusCode_A_Invalid  300
+#define LLRP_ENUM_v1_0_StatusCode_A_OutOfRange  301
+#define LLRP_ENUM_v1_0_StatusCode_R_DeviceError  401
+#define LLRP_ENUM_v1_0_C1G2DRValue_DRV_8  0
+#define LLRP_ENUM_v1_0_C1G2DRValue_DRV_64_3  1
+#define LLRP_ENUM_v1_0_C1G2MValue_MV_FM0  0
+#define LLRP_ENUM_v1_0_C1G2MValue_MV_2  1
+#define LLRP_ENUM_v1_0_C1G2MValue_MV_4  2
+#define LLRP_ENUM_v1_0_C1G2MValue_MV_8  3
+#define LLRP_ENUM_v1_0_C1G2ForwardLinkModulation_PR_ASK  0
+#define LLRP_ENUM_v1_0_C1G2ForwardLinkModulation_SSB_ASK  1
+#define LLRP_ENUM_v1_0_C1G2ForwardLinkModulation_DSB_ASK  2
+#define LLRP_ENUM_v1_0_C1G2SpectralMaskIndicator_Unknown  0
+#define LLRP_ENUM_v1_0_C1G2SpectralMaskIndicator_SI  1
+#define LLRP_ENUM_v1_0_C1G2SpectralMaskIndicator_MI  2
+#define LLRP_ENUM_v1_0_C1G2SpectralMaskIndicator_DI  3
+#define LLRP_ENUM_v1_0_C1G2TruncateAction_Unspecified  0
+#define LLRP_ENUM_v1_0_C1G2TruncateAction_Do_Not_Truncate  1
+#define LLRP_ENUM_v1_0_C1G2TruncateAction_Truncate  2
+#define LLRP_ENUM_v1_0_C1G2StateAwareTarget_SL  0
+#define LLRP_ENUM_v1_0_C1G2StateAwareTarget_Inventoried_State_For_Session_S0  1
+#define LLRP_ENUM_v1_0_C1G2StateAwareTarget_Inventoried_State_For_Session_S1  2
+#define LLRP_ENUM_v1_0_C1G2StateAwareTarget_Inventoried_State_For_Session_S2  3
+#define LLRP_ENUM_v1_0_C1G2StateAwareTarget_Inventoried_State_For_Session_S3  4
+#define LLRP_ENUM_v1_0_C1G2StateAwareAction_AssertSLOrA_DeassertSLOrB  0
+#define LLRP_ENUM_v1_0_C1G2StateAwareAction_AssertSLOrA_Noop  1
+#define LLRP_ENUM_v1_0_C1G2StateAwareAction_Noop_DeassertSLOrB  2
+#define LLRP_ENUM_v1_0_C1G2StateAwareAction_NegateSLOrABBA_Noop  3
+#define LLRP_ENUM_v1_0_C1G2StateAwareAction_DeassertSLOrB_AssertSLOrA  4
+#define LLRP_ENUM_v1_0_C1G2StateAwareAction_DeassertSLOrB_Noop  5
+#define LLRP_ENUM_v1_0_C1G2StateAwareAction_Noop_AssertSLOrA  6
+#define LLRP_ENUM_v1_0_C1G2StateAwareAction_Noop_NegateSLOrABBA  7
+#define LLRP_ENUM_v1_0_C1G2StateUnawareAction_Select_Unselect  0
+#define LLRP_ENUM_v1_0_C1G2StateUnawareAction_Select_DoNothing  1
+#define LLRP_ENUM_v1_0_C1G2StateUnawareAction_DoNothing_Unselect  2
+#define LLRP_ENUM_v1_0_C1G2StateUnawareAction_Unselect_DoNothing  3
+#define LLRP_ENUM_v1_0_C1G2StateUnawareAction_Unselect_Select  4
+#define LLRP_ENUM_v1_0_C1G2StateUnawareAction_DoNothing_Select  5
+#define LLRP_ENUM_v1_0_C1G2TagInventoryStateAwareI_State_A  0
+#define LLRP_ENUM_v1_0_C1G2TagInventoryStateAwareI_State_B  1
+#define LLRP_ENUM_v1_0_C1G2TagInventoryStateAwareS_SL  0
+#define LLRP_ENUM_v1_0_C1G2TagInventoryStateAwareS_Not_SL  1
+#define LLRP_ENUM_v1_0_C1G2LockPrivilege_Read_Write  0
+#define LLRP_ENUM_v1_0_C1G2LockPrivilege_Perma_Lock  1
+#define LLRP_ENUM_v1_0_C1G2LockPrivilege_Perma_Unlock  2
+#define LLRP_ENUM_v1_0_C1G2LockPrivilege_Unlock  3
+#define LLRP_ENUM_v1_0_C1G2LockDataField_Kill_Password  0
+#define LLRP_ENUM_v1_0_C1G2LockDataField_Access_Password  1
+#define LLRP_ENUM_v1_0_C1G2LockDataField_EPC_Memory  2
+#define LLRP_ENUM_v1_0_C1G2LockDataField_TID_Memory  3
+#define LLRP_ENUM_v1_0_C1G2LockDataField_User_Memory  4
+#define LLRP_ENUM_v1_0_C1G2ReadResultType_Success  0
+#define LLRP_ENUM_v1_0_C1G2ReadResultType_Nonspecific_Tag_Error  1
+#define LLRP_ENUM_v1_0_C1G2ReadResultType_No_Response_From_Tag  2
+#define LLRP_ENUM_v1_0_C1G2ReadResultType_Nonspecific_Reader_Error  3
+#define LLRP_ENUM_v1_0_C1G2WriteResultType_Success  0
+#define LLRP_ENUM_v1_0_C1G2WriteResultType_Tag_Memory_Overrun_Error  1
+#define LLRP_ENUM_v1_0_C1G2WriteResultType_Tag_Memory_Locked_Error  2
+#define LLRP_ENUM_v1_0_C1G2WriteResultType_Insufficient_Power  3
+#define LLRP_ENUM_v1_0_C1G2WriteResultType_Nonspecific_Tag_Error  4
+#define LLRP_ENUM_v1_0_C1G2WriteResultType_No_Response_From_Tag  5
+#define LLRP_ENUM_v1_0_C1G2WriteResultType_Nonspecific_Reader_Error  6
+#define LLRP_ENUM_v1_0_C1G2KillResultType_Success  0
+#define LLRP_ENUM_v1_0_C1G2KillResultType_Zero_Kill_Password_Error  1
+#define LLRP_ENUM_v1_0_C1G2KillResultType_Insufficient_Power  2
+#define LLRP_ENUM_v1_0_C1G2KillResultType_Nonspecific_Tag_Error  3
+#define LLRP_ENUM_v1_0_C1G2KillResultType_No_Response_From_Tag  4
+#define LLRP_ENUM_v1_0_C1G2KillResultType_Nonspecific_Reader_Error  5
+#define LLRP_ENUM_v1_0_C1G2LockResultType_Success  0
+#define LLRP_ENUM_v1_0_C1G2LockResultType_Insufficient_Power  1
+#define LLRP_ENUM_v1_0_C1G2LockResultType_Nonspecific_Tag_Error  2
+#define LLRP_ENUM_v1_0_C1G2LockResultType_No_Response_From_Tag  3
+#define LLRP_ENUM_v1_0_C1G2LockResultType_Nonspecific_Reader_Error  4
+#define LLRP_ENUM_v1_0_C1G2BlockEraseResultType_Success  0
+#define LLRP_ENUM_v1_0_C1G2BlockEraseResultType_Tag_Memory_Overrun_Error  1
+#define LLRP_ENUM_v1_0_C1G2BlockEraseResultType_Tag_Memory_Locked_Error  2
+#define LLRP_ENUM_v1_0_C1G2BlockEraseResultType_Insufficient_Power  3
+#define LLRP_ENUM_v1_0_C1G2BlockEraseResultType_Nonspecific_Tag_Error  4
+#define LLRP_ENUM_v1_0_C1G2BlockEraseResultType_No_Response_From_Tag  5
+#define LLRP_ENUM_v1_0_C1G2BlockEraseResultType_Nonspecific_Reader_Error  6
+#define LLRP_ENUM_v1_0_C1G2BlockWriteResultType_Success  0
+#define LLRP_ENUM_v1_0_C1G2BlockWriteResultType_Tag_Memory_Overrun_Error  1
+#define LLRP_ENUM_v1_0_C1G2BlockWriteResultType_Tag_Memory_Locked_Error  2
+#define LLRP_ENUM_v1_0_C1G2BlockWriteResultType_Insufficient_Power  3
+#define LLRP_ENUM_v1_0_C1G2BlockWriteResultType_Nonspecific_Tag_Error  4
+#define LLRP_ENUM_v1_0_C1G2BlockWriteResultType_No_Response_From_Tag  5
+#define LLRP_ENUM_v1_0_C1G2BlockWriteResultType_Nonspecific_Reader_Error  6
+
+/* Parameters */
+  
+#define LLRP_PARM_v1_0_AntennaID  1
+#define LLRP_PARM_v1_0_FirstSeenTimestampUTC  2
+#define LLRP_PARM_v1_0_FirstSeenTimestampUptime  3
+#define LLRP_PARM_v1_0_LastSeenTimestampUTC  4
+#define LLRP_PARM_v1_0_LastSeenTimestampUptime  5
+#define LLRP_PARM_v1_0_PeakRSSI  6
+#define LLRP_PARM_v1_0_ChannelIndex  7
+#define LLRP_PARM_v1_0_TagSeenCount  8
+#define LLRP_PARM_v1_0_ROSpecID  9
+#define LLRP_PARM_v1_0_InventoryParameterSpecID  10
+#define LLRP_PARM_v1_0_C1G2_CRC  11
+#define LLRP_PARM_v1_0_C1G2_PC  12
+#define LLRP_PARM_v1_0_EPC_96  13
+#define LLRP_PARM_v1_0_SpecIndex  14
+#define LLRP_PARM_v1_0_AccessSpecID  16
+#define LLRP_PARM_v1_0_OpSpecID  17
+#define LLRP_PARM_v1_0_C1G2SingulationDetails  18
+#define LLRP_PARM_v1_0_UTCTimestamp  128
+#define LLRP_PARM_v1_0_Uptime  129
+#define LLRP_PARM_v1_0_GeneralDeviceCapabilities  137
+#define LLRP_PARM_v1_0_ReceiveSensitivityTableEntry  139
+#define LLRP_PARM_v1_0_PerAntennaAirProtocol  140
+#define LLRP_PARM_v1_0_GPIOCapabilities  141
+#define LLRP_PARM_v1_0_LLRPCapabilities  142
+#define LLRP_PARM_v1_0_RegulatoryCapabilities  143
+#define LLRP_PARM_v1_0_UHFBandCapabilities  144
+#define LLRP_PARM_v1_0_TransmitPowerLevelTableEntry  145
+#define LLRP_PARM_v1_0_FrequencyInformation  146
+#define LLRP_PARM_v1_0_FrequencyHopTable  147
+#define LLRP_PARM_v1_0_FixedFrequencyTable  148
+#define LLRP_PARM_v1_0_PerAntennaReceiveSensitivityRange  149
+#define LLRP_PARM_v1_0_ROSpec  177
+#define LLRP_PARM_v1_0_ROBoundarySpec  178
+#define LLRP_PARM_v1_0_ROSpecStartTrigger  179
+#define LLRP_PARM_v1_0_PeriodicTriggerValue  180
+#define LLRP_PARM_v1_0_GPITriggerValue  181
+#define LLRP_PARM_v1_0_ROSpecStopTrigger  182
+#define LLRP_PARM_v1_0_AISpec  183
+#define LLRP_PARM_v1_0_AISpecStopTrigger  184
+#define LLRP_PARM_v1_0_TagObservationTrigger  185
+#define LLRP_PARM_v1_0_InventoryParameterSpec  186
+#define LLRP_PARM_v1_0_RFSurveySpec  187
+#define LLRP_PARM_v1_0_RFSurveySpecStopTrigger  188
+#define LLRP_PARM_v1_0_AccessSpec  207
+#define LLRP_PARM_v1_0_AccessSpecStopTrigger  208
+#define LLRP_PARM_v1_0_AccessCommand  209
+#define LLRP_PARM_v1_0_LLRPConfigurationStateValue  217
+#define LLRP_PARM_v1_0_Identification  218
+#define LLRP_PARM_v1_0_GPOWriteData  219
+#define LLRP_PARM_v1_0_KeepaliveSpec  220
+#define LLRP_PARM_v1_0_AntennaProperties  221
+#define LLRP_PARM_v1_0_AntennaConfiguration  222
+#define LLRP_PARM_v1_0_RFReceiver  223
+#define LLRP_PARM_v1_0_RFTransmitter  224
+#define LLRP_PARM_v1_0_GPIPortCurrentState  225
+#define LLRP_PARM_v1_0_EventsAndReports  226
+#define LLRP_PARM_v1_0_ROReportSpec  237
+#define LLRP_PARM_v1_0_TagReportContentSelector  238
+#define LLRP_PARM_v1_0_AccessReportSpec  239
+#define LLRP_PARM_v1_0_TagReportData  240
+#define LLRP_PARM_v1_0_EPCData  241
+#define LLRP_PARM_v1_0_RFSurveyReportData  242
+#define LLRP_PARM_v1_0_FrequencyRSSILevelEntry  243
+#define LLRP_PARM_v1_0_ReaderEventNotificationSpec  244
+#define LLRP_PARM_v1_0_EventNotificationState  245
+#define LLRP_PARM_v1_0_ReaderEventNotificationData  246
+#define LLRP_PARM_v1_0_HoppingEvent  247
+#define LLRP_PARM_v1_0_GPIEvent  248
+#define LLRP_PARM_v1_0_ROSpecEvent  249
+#define LLRP_PARM_v1_0_ReportBufferLevelWarningEvent  250
+#define LLRP_PARM_v1_0_ReportBufferOverflowErrorEvent  251
+#define LLRP_PARM_v1_0_ReaderExceptionEvent  252
+#define LLRP_PARM_v1_0_RFSurveyEvent  253
+#define LLRP_PARM_v1_0_AISpecEvent  254
+#define LLRP_PARM_v1_0_AntennaEvent  255
+#define LLRP_PARM_v1_0_ConnectionAttemptEvent  256
+#define LLRP_PARM_v1_0_ConnectionCloseEvent  257
+#define LLRP_PARM_v1_0_LLRPStatus  287
+#define LLRP_PARM_v1_0_FieldError  288
+#define LLRP_PARM_v1_0_ParameterError  289
+#define LLRP_PARM_v1_0_C1G2LLRPCapabilities  327
+#define LLRP_PARM_v1_0_C1G2UHFRFModeTable  328
+#define LLRP_PARM_v1_0_C1G2UHFRFModeTableEntry  329
+#define LLRP_PARM_v1_0_C1G2InventoryCommand  330
+#define LLRP_PARM_v1_0_C1G2Filter  331
+#define LLRP_PARM_v1_0_C1G2TagInventoryMask  332
+#define LLRP_PARM_v1_0_C1G2TagInventoryStateAwareFilterAction  333
+#define LLRP_PARM_v1_0_C1G2TagInventoryStateUnawareFilterAction  334
+#define LLRP_PARM_v1_0_C1G2RFControl  335
+#define LLRP_PARM_v1_0_C1G2SingulationControl  336
+#define LLRP_PARM_v1_0_C1G2TagInventoryStateAwareSingulationAction  337
+#define LLRP_PARM_v1_0_C1G2TagSpec  338
+#define LLRP_PARM_v1_0_C1G2TargetTag  339
+#define LLRP_PARM_v1_0_C1G2Read  341
+#define LLRP_PARM_v1_0_C1G2Write  342
+#define LLRP_PARM_v1_0_C1G2Kill  343
+#define LLRP_PARM_v1_0_C1G2Lock  344
+#define LLRP_PARM_v1_0_C1G2LockPayload  345
+#define LLRP_PARM_v1_0_C1G2BlockErase  346
+#define LLRP_PARM_v1_0_C1G2BlockWrite  347
+#define LLRP_PARM_v1_0_C1G2EPCMemorySelector  348
+#define LLRP_PARM_v1_0_C1G2ReadOpSpecResult  349
+#define LLRP_PARM_v1_0_C1G2WriteOpSpecResult  350
+#define LLRP_PARM_v1_0_C1G2KillOpSpecResult  351
+#define LLRP_PARM_v1_0_C1G2LockOpSpecResult  352
+#define LLRP_PARM_v1_0_C1G2BlockEraseOpSpecResult  353
+#define LLRP_PARM_v1_0_C1G2BlockWriteOpSpecResult  354
+#define LLRP_PARM_v1_0_Custom  1023
+
+/* Custom Parameters */
+  
+
+/* Messages */
+  
+#define LLRP_MSG_v1_0_GET_READER_CAPABILITIES  1
+#define LLRP_MSG_v1_0_GET_READER_CONFIG  2
+#define LLRP_MSG_v1_0_SET_READER_CONFIG  3
+#define LLRP_MSG_v1_0_CLOSE_CONNECTION_RESPONSE  4
+#define LLRP_MSG_v1_0_GET_READER_CAPABILITIES_RESPONSE  11
+#define LLRP_MSG_v1_0_GET_READER_CONFIG_RESPONSE  12
+#define LLRP_MSG_v1_0_SET_READER_CONFIG_RESPONSE  13
+#define LLRP_MSG_v1_0_CLOSE_CONNECTION  14
+#define LLRP_MSG_v1_0_ADD_ROSPEC  20
+#define LLRP_MSG_v1_0_DELETE_ROSPEC  21
+#define LLRP_MSG_v1_0_START_ROSPEC  22
+#define LLRP_MSG_v1_0_STOP_ROSPEC  23
+#define LLRP_MSG_v1_0_ENABLE_ROSPEC  24
+#define LLRP_MSG_v1_0_DISABLE_ROSPEC  25
+#define LLRP_MSG_v1_0_GET_ROSPECS  26
+#define LLRP_MSG_v1_0_ADD_ROSPEC_RESPONSE  30
+#define LLRP_MSG_v1_0_DELETE_ROSPEC_RESPONSE  31
+#define LLRP_MSG_v1_0_START_ROSPEC_RESPONSE  32
+#define LLRP_MSG_v1_0_STOP_ROSPEC_RESPONSE  33
+#define LLRP_MSG_v1_0_ENABLE_ROSPEC_RESPONSE  34
+#define LLRP_MSG_v1_0_DISABLE_ROSPEC_RESPONSE  35
+#define LLRP_MSG_v1_0_GET_ROSPECS_RESPONSE  36
+#define LLRP_MSG_v1_0_ADD_ACCESSSPEC  40
+#define LLRP_MSG_v1_0_DELETE_ACCESSSPEC  41
+#define LLRP_MSG_v1_0_ENABLE_ACCESSSPEC  42
+#define LLRP_MSG_v1_0_DISABLE_ACCESSSPEC  43
+#define LLRP_MSG_v1_0_GET_ACCESSSPECS  44
+#define LLRP_MSG_v1_0_ADD_ACCESSSPEC_RESPONSE  50
+#define LLRP_MSG_v1_0_DELETE_ACCESSSPEC_RESPONSE  51
+#define LLRP_MSG_v1_0_ENABLE_ACCESSSPEC_RESPONSE  52
+#define LLRP_MSG_v1_0_DISABLE_ACCESSSPEC_RESPONSE  53
+#define LLRP_MSG_v1_0_GET_ACCESSSPECS_RESPONSE  54
+#define LLRP_MSG_v1_0_GET_REPORT  60
+#define LLRP_MSG_v1_0_RO_ACCESS_REPORT  61
+#define LLRP_MSG_v1_0_KEEPALIVE  62
+#define LLRP_MSG_v1_0_READER_EVENT_NOTIFICATION  63
+#define LLRP_MSG_v1_0_ENABLE_EVENTS_AND_REPORTS  64
+#define LLRP_MSG_v1_0_KEEPALIVE_ACK  72
+#define LLRP_MSG_v1_0_ERROR_MESSAGE  100
+#define LLRP_MSG_v1_0_CUSTOM_MESSAGE  1023
+
+/* Custom Messages */
+  
+
+#endif /* _LLRP_GENERATED_v1_0_H */
+

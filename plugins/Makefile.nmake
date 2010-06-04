@@ -14,6 +14,7 @@ PLUGIN_LIST = \
 	gryphon     \
 	interlink   \
 	irda        \
+	llrp        \
 	m2m         \
 	mate        \
 	opcua       \
@@ -45,8 +46,8 @@ distclean-local: clean-local
 
 maintainer-clean-local: distclean-local
 
-checkapi: 
-        $(MAKE) -f Makefile.nmake PLUGIN_TARGET=checkapi process-plugins 
+checkapi:
+	$(MAKE) -f Makefile.nmake PLUGIN_TARGET=checkapi process-plugins 
 
 
 
