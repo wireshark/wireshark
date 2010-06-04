@@ -59,6 +59,7 @@
 #include "packet-e212.h"
 #include "packet-frame.h"
 #include <epan/tap.h>
+#include <address.h>
 
 static Standard_Type decode_mtp3_standard;
 #define SCCP_SI 3
@@ -204,10 +205,12 @@ static const value_string sccp_national_indicator_values[] = {
   { 0x1,  "Address coded to National standard" },
   { 0,    NULL } };
 
+#define ROUTE_ON_GT  0x0
+#define ROUTE_ON_SSN 0x1
 static const value_string sccp_routing_indicator_values[] = {
-  { 0x0, "Route on GT" },
-  { 0x1, "Route on SSN" },
-  { 0,   NULL } };
+  { ROUTE_ON_GT,  "Route on GT" },
+  { ROUTE_ON_SSN, "Route on SSN" },
+  { 0,		  NULL } };
 
 #define AI_GTI_NO_GT			0x0
 #define ITU_AI_GTI_NAI			0x1
@@ -695,8 +698,8 @@ static gint ett_sccp_digits = -1;
 
 /* Declarations to desegment XUDT Messages */
 static gboolean sccp_xudt_desegment = TRUE;
-
 static gboolean show_key_params = FALSE;
+static gboolean set_addresses = FALSE;
 
 static int sccp_tap = -1;
 
@@ -1051,14 +1054,17 @@ dissect_sccp_slr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
         || m == SCCP_MSG_TYPE_LUDT|| m == SCCP_MSG_TYPE_LUDTS)
 
 static proto_item *
-dissect_sccp_gt_address_information(tvbuff_t *tvb, proto_tree *tree,
-				    guint length, gboolean even_length,
-				    gboolean called)
+dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
+				    proto_tree *tree, guint length,
+				    gboolean even_length, gboolean called,
+				    gboolean route_on_gt)
 {
   guint offset = 0;
   guint8 odd_signal, even_signal;
   proto_item *digits_item, *hidden_item;
-  char gt_digits[GT_MAX_SIGNALS+1] = { 0 };
+  char *gt_digits;
+
+  gt_digits = ep_alloc0(GT_MAX_SIGNALS+1);
 
   while(offset < length)
   {
@@ -1090,8 +1096,15 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, proto_tree *tree,
 					     "Address information (digits): %s",
 					     gt_digits);
 
-  hidden_item = proto_tree_add_string(tree, hf_sccp_gt_digits, tvb, 0, length,
-			       gt_digits);
+  if (set_addresses && route_on_gt) {
+    if (called) {
+      SET_ADDRESS(&pinfo->dst, AT_STRINGZ, 1+(int)strlen(gt_digits), gt_digits);
+    } else {
+      SET_ADDRESS(&pinfo->src, AT_STRINGZ, 1+(int)strlen(gt_digits), gt_digits);
+    }
+  }
+
+  hidden_item = proto_tree_add_string(tree, hf_sccp_gt_digits, tvb, 0, length, gt_digits);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
 
   return digits_item;
@@ -1099,7 +1112,7 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, proto_tree *tree,
 
 static void
 dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length,
-			  guint8 gti, gboolean called)
+			  guint8 gti, gboolean route_on_gt, gboolean called)
 {
   proto_item *gt_item = 0;
   proto_item *digits_item = 0;
@@ -1185,9 +1198,9 @@ dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
   signals_tvb = tvb_new_subset(tvb, offset, (length - offset),
 			       (length - offset));
 
-  digits_item = dissect_sccp_gt_address_information(signals_tvb, gt_tree,
+  digits_item = dissect_sccp_gt_address_information(signals_tvb, pinfo, gt_tree,
 						    (length - offset),
-						    even, called);
+						    even, called, route_on_gt);
 
   /* Display the country code (if we can) */
   switch(np >> GT_NP_SHIFT) {
@@ -1268,15 +1281,15 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
   const char *tcap_ssn_dissector_short_name = NULL;
 
   call_item = proto_tree_add_text(tree, tvb, 0, length,
-				    "%s Party address (%u byte%s)",
-				    called ? "Called" : "Calling", length,
-				    plurality(length, "", "s"));
+				  "%s Party address (%u byte%s)",
+				  called ? "Called" : "Calling", length,
+				  plurality(length, "", "s"));
   call_tree = proto_item_add_subtree(call_item, called ? ett_sccp_called
 						       : ett_sccp_calling);
 
   call_ai_item = proto_tree_add_text(call_tree, tvb, 0,
-				       ADDRESS_INDICATOR_LENGTH,
-				       "Address Indicator");
+				     ADDRESS_INDICATOR_LENGTH,
+				     "Address Indicator");
   call_ai_tree = proto_item_add_subtree(call_ai_item, called ? ett_sccp_called_ai
 							     : ett_sccp_calling_ai);
 
@@ -1334,7 +1347,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             tvb, offset, ITU_PC_LENGTH, TRUE);
         offset += ITU_PC_LENGTH;
 
-      }else if (decode_mtp3_standard == JAPAN_STANDARD) {
+      } else if (decode_mtp3_standard == JAPAN_STANDARD) {
 
         if (length < offset + JAPAN_PC_LENGTH){
           expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + JAPAN_PC_LENGTH, JAPAN_PC_LENGTH);
@@ -1366,14 +1379,14 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
       ssn = tvb_get_guint8(tvb, offset);
 
       if (called && assoc)
-		assoc->called_ssn = ssn;
+	assoc->called_ssn = ssn;
       else if (assoc)
-		assoc->calling_ssn = ssn;
+	assoc->calling_ssn = ssn;
 
       if (is_connectionless(message_type) && sccp_msg) {
-		guint* ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
+	guint* ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
 
-		*ssn_ptr  = ssn;
+	*ssn_ptr  = ssn;
       }
 
       proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
@@ -1391,26 +1404,23 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
       ssn_dissector = dissector_get_port_handle(sccp_ssn_dissector_table, ssn);
 
       if (ssn_dissector) {
-		  ssn_dissector_short_name = dissector_handle_get_short_name(ssn_dissector);
+	ssn_dissector_short_name = dissector_handle_get_short_name(ssn_dissector);
 
-		  if(ssn_dissector_short_name) {
-			  item = proto_tree_add_text(call_tree, tvb, offset - 1, ADDRESS_SSN_LENGTH, "Linked to %s", ssn_dissector_short_name);
-			  PROTO_ITEM_SET_GENERATED(item);
+	if(ssn_dissector_short_name) {
+	  item = proto_tree_add_text(call_tree, tvb, offset - 1, ADDRESS_SSN_LENGTH, "Linked to %s", ssn_dissector_short_name);
+	  PROTO_ITEM_SET_GENERATED(item);
 
-			  if (g_ascii_strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
-				  tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
+	  if (g_ascii_strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
+	    tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
 
-				  if(tcap_ssn_dissector){
-				  tcap_ssn_dissector_short_name = dissector_handle_get_short_name(tcap_ssn_dissector);
-				  proto_item_append_text(item,", TCAP SSN linked to %s", tcap_ssn_dissector_short_name);
-				  }
-			  }
-		  } /* short name */
+	    if(tcap_ssn_dissector) {
+	      tcap_ssn_dissector_short_name = dissector_handle_get_short_name(tcap_ssn_dissector);
+	      proto_item_append_text(item,", TCAP SSN linked to %s", tcap_ssn_dissector_short_name);
+	    }
+	  }
+	} /* short name */
       } /* ssn_dissector */
     } /* ssni */
-
-    if (!tree)
-      return;	/* got SSN, that's all we need here... */
 
     /* Dissect GT (if present) */
     if (gti != AI_GTI_NO_GT) {
@@ -1420,7 +1430,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
       gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
 			      (length - offset));
       dissect_sccp_global_title(gt_tvb, pinfo, call_tree, (length - offset), gti,
-				called);
+				(routing_ind == ROUTE_ON_GT), called);
     }
 
   } else if (decode_mtp3_standard == ANSI_STANDARD) {
@@ -1445,30 +1455,27 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
     if (ssni) {
       ssn = tvb_get_guint8(tvb, offset);
 
-		if (called && assoc){
-			assoc->called_ssn = ssn;
-		}else if (assoc){
-			assoc->calling_ssn = ssn;
-		}
+      if (called && assoc){
+	assoc->called_ssn = ssn;
+      }else if (assoc){
+	assoc->calling_ssn = ssn;
+      }
 
-		if (is_connectionless(message_type) && sccp_msg) {
-			guint* ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
+      if (is_connectionless(message_type) && sccp_msg) {
+	guint* ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
 
-			*ssn_ptr  = ssn;
-	}
+	*ssn_ptr  = ssn;
+      }
 
-	proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
+      proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
 					    : hf_sccp_calling_ssn,
 			  tvb, offset, ADDRESS_SSN_LENGTH, ssn);
-    hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
-				 ADDRESS_SSN_LENGTH, ssn);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+      hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
+					ADDRESS_SSN_LENGTH, ssn);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-    offset += ADDRESS_SSN_LENGTH;
+      offset += ADDRESS_SSN_LENGTH;
     }
-
-    if (!tree)
-      return;	/* got SSN, that's all we need here... */
 
     /* Dissect PC (if present) */
     if (pci) {
@@ -1482,7 +1489,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
       gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
 			      (length - offset));
       dissect_sccp_global_title(gt_tvb, pinfo, call_tree, (length - offset), gti,
-				called);
+				(routing_ind == ROUTE_ON_GT), called);
     }
 
   }
@@ -3394,6 +3401,10 @@ proto_register_sccp(void)
   prefs_register_uat_preference(sccp_module, "users_table", "Users Table",
 				 "A table that enumerates user protocols to be used against specific PCs and SSNs",
 				 users_uat);
+
+  prefs_register_bool_preference(sccp_module, "set_addresses", "Set source and destination GT addresses",
+				 "Set the source and destination addresses to the GT digits (if RI=GT)."
+				 "  This may affect TCAP's ability to recognize which messages belong to which TCAP session.", &set_addresses);
 
   register_init_routine(&init_sccp);
 
