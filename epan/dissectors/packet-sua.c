@@ -33,6 +33,7 @@
 # include "config.h"
 #endif
 
+#include <string.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
@@ -350,6 +351,9 @@ static int sua_tap = -1;
 
 static mtp3_addr_pc_t *sua_dpc;
 static mtp3_addr_pc_t *sua_opc;
+static guint16 sua_ri;
+static gchar *sua_source_gt;
+static gchar *sua_destination_gt;
 
 static dissector_handle_t data_handle;
 static dissector_table_t sccp_ssn_dissector_table;
@@ -364,6 +368,7 @@ typedef enum {
 } Version_Type;
 
 static gint version = SUA_RFC;
+static gint set_addresses = FALSE;
 
 static void
 dissect_parameters(tvbuff_t *tlv_tvb, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn);
@@ -730,6 +735,8 @@ dissect_source_address_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
   proto_tree *address_indicator_tree;
   tvbuff_t *parameters_tvb;
 
+  sua_ri = tvb_get_ntohs(parameter_tvb, ROUTING_INDICATOR_OFFSET);
+
   if(parameter_tree) {
     proto_tree_add_item(parameter_tree, hf_source_address_routing_indicator, parameter_tvb, ROUTING_INDICATOR_OFFSET, ROUTING_INDICATOR_LENGTH, ENC_BIG_ENDIAN);
     address_indicator_item = proto_tree_add_text(parameter_tree, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, "Address Indicator");
@@ -750,6 +757,8 @@ dissect_destination_address_parameter(tvbuff_t *parameter_tvb, proto_tree *param
   proto_item *address_indicator_item;
   proto_tree *address_indicator_tree;
   tvbuff_t *parameters_tvb;
+
+  sua_ri = tvb_get_ntohs(parameter_tvb, ROUTING_INDICATOR_OFFSET);
 
   if(parameter_tree) {
     proto_tree_add_item(parameter_tree, hf_destination_address_routing_indicator, parameter_tvb, ROUTING_INDICATOR_OFFSET, ROUTING_INDICATOR_LENGTH, ENC_BIG_ENDIAN);
@@ -1194,14 +1203,16 @@ static const value_string nature_of_address_values[] = {
   { 0,                                             NULL } };
 
 static void
-dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, gboolean source)
 {
   guint16 global_title_length;
   guint16 offset;
   gboolean even_length;
   guint8 odd_signal, even_signal;
   guint8 number_of_digits;
-  char gt_digits[GT_MAX_SIGNALS+1] = { 0 };
+  char *gt_digits;
+
+  gt_digits = ep_alloc0(GT_MAX_SIGNALS+1);
 
   global_title_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) -
                         (PARAMETER_HEADER_LENGTH + RESERVED_3_LENGTH + GTI_LENGTH + NO_OF_DIGITS_LENGTH + TRANSLATION_TYPE_LENGTH + NUMBERING_PLAN_LENGTH + NATURE_OF_ADDRESS_LENGTH);
@@ -1236,6 +1247,14 @@ dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
 			       parameter_tvb, GLOBAL_TITLE_OFFSET,
 			       global_title_length, gt_digits,
 			       "Address information (digits): %s", gt_digits);
+
+  if (sua_ri == ROUTE_ON_GT_ROUTING_INDICATOR) {
+    if (source) {
+      sua_source_gt = gt_digits;
+    } else {
+      sua_destination_gt = gt_digits;
+    }
+  }
 }
 
 #define POINT_CODE_LENGTH 4
@@ -1248,12 +1267,14 @@ dissect_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree
 
   pc = tvb_get_ntohl(parameter_tvb, POINT_CODE_OFFSET);
 
-  if (source) {
-    sua_opc->type = mtp3_standard;
-    sua_opc->pc = pc;
-  } else {
-    sua_dpc->type = mtp3_standard;
-    sua_dpc->pc = pc;
+  if (sua_ri == ROUTE_ON_SSN_PC_ROUTING_INDICATOR) {
+    if (source) {
+      sua_opc->type = mtp3_standard;
+      sua_opc->pc = pc;
+    } else {
+      sua_dpc->type = mtp3_standard;
+      sua_dpc->pc = pc;
+    }
   }
 
   proto_tree_add_item(parameter_tree, hf_point_code_dpc, parameter_tvb, POINT_CODE_OFFSET, POINT_CODE_LENGTH, ENC_BIG_ENDIAN);
@@ -1556,7 +1577,8 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_
     dissect_drn_label_parameter(parameter_tvb, parameter_tree);
     break;
   case V8_GLOBAL_TITLE_PARAMETER_TAG:
-    dissect_global_title_parameter(parameter_tvb, parameter_tree);
+    /* Reuse whether we have source_ssn or not to determine which address we're looking at */
+    dissect_global_title_parameter(parameter_tvb, parameter_tree, (source_ssn != NULL));
     break;
   case V8_POINT_CODE_PARAMETER_TAG:
     /* Reuse whether we have source_ssn or not to determine which address we're looking at */
@@ -1713,13 +1735,16 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb
   }
 
   /*
-  ** If no tree, only the data and ssn parameters in the source and destination
-  ** address need to be dissected. This in order to make dissection of the data
-  ** possible when there is no tree.
+  ** If no tree, only the data, ssn, PC, and GT parameters in the source and destination
+  ** addresses need to be dissected. This in order to make dissection of the data
+  ** possible and to allow us to set the source and destination addresses when there is
+  ** no tree.
   */
   if (!tree && tag != DATA_PARAMETER_TAG
             && tag != SOURCE_ADDRESS_PARAMETER_TAG
             && tag != DESTINATION_ADDRESS_PARAMETER_TAG
+            && tag != POINT_CODE_PARAMETER_TAG
+            && tag != GLOBAL_TITLE_PARAMETER_TAG
             && tag != SUBSYSTEM_NUMBER_PARAMETER_TAG)
     return;	/* Nothing to do here */
 
@@ -1842,7 +1867,8 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb
     dissect_drn_label_parameter(parameter_tvb, parameter_tree);
     break;
   case GLOBAL_TITLE_PARAMETER_TAG:
-    dissect_global_title_parameter(parameter_tvb, parameter_tree);
+    /* Reuse whether we have source_ssn or not to determine which address we're looking at */
+    dissect_global_title_parameter(parameter_tvb, parameter_tree, (source_ssn != NULL));
     break;
   case POINT_CODE_PARAMETER_TAG:
     /* Reuse whether we have source_ssn or not to determine which address we're looking at */
@@ -1919,6 +1945,8 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
 
   sua_opc = ep_alloc0(sizeof(mtp3_addr_pc_t));
   sua_dpc = ep_alloc0(sizeof(mtp3_addr_pc_t));
+  sua_source_gt = NULL;
+  sua_destination_gt = NULL;
 
   common_header_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   dissect_common_header(common_header_tvb, pinfo, sua_tree);
@@ -1942,10 +1970,17 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
 	  pinfo->sccp_info = NULL;
   }
 
-  if (sua_opc->type)
-    SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) sua_opc);
-  if (sua_dpc->type)
-    SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) sua_dpc);
+  if (set_addresses) {
+    if (sua_opc->type)
+      SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) sua_opc);
+    if (sua_dpc->type)
+      SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) sua_dpc);
+
+    if (sua_source_gt)
+      SET_ADDRESS(&pinfo->src, AT_STRINGZ, 1+(int)strlen(sua_source_gt), sua_source_gt);
+    if (sua_destination_gt)
+      SET_ADDRESS(&pinfo->dst, AT_STRINGZ, 1+(int)strlen(sua_destination_gt), sua_destination_gt);
+  }
 
   /* If there was SUA data it could be dissected */
   if(data_tvb)
@@ -2150,6 +2185,9 @@ proto_register_sua(void)
   sua_module = prefs_register_protocol(proto_sua, NULL);
   prefs_register_obsolete_preference(sua_module, "sua_version");
   prefs_register_enum_preference(sua_module, "version", "SUA Version", "Version used by Wireshark", &version, options, FALSE);
+  prefs_register_bool_preference(sua_module, "set_address", "Set source and destination addresses",
+				 "Set the source and destination addresses to the PC or GT digits, depending on the routing indicator."
+				 "  This may affect TCAP's ability to recognize which messages belong to which TCAP session.", &set_addresses);
 
   register_heur_dissector_list("sua", &heur_subdissector_list);
   sua_tap = register_tap("sua");
