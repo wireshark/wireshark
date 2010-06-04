@@ -24,6 +24,7 @@ CertType ::= BIT STRING {
 	ssl-server(1),
 	smime(2),
 	object-signing(3),
+	reserved-for-future-use(4),
 	ssl-ca(5),
 	smime-ca(6),
 	object-signing-ca(7)

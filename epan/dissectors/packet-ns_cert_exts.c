@@ -62,6 +62,7 @@ static int hf_ns_cert_exts_CertType_ssl_client = -1;
 static int hf_ns_cert_exts_CertType_ssl_server = -1;
 static int hf_ns_cert_exts_CertType_smime = -1;
 static int hf_ns_cert_exts_CertType_object_signing = -1;
+static int hf_ns_cert_exts_CertType_reserved_for_future_use = -1;
 static int hf_ns_cert_exts_CertType_ssl_ca = -1;
 static int hf_ns_cert_exts_CertType_smime_ca = -1;
 static int hf_ns_cert_exts_CertType_object_signing_ca = -1;
@@ -164,6 +165,7 @@ static const asn_namedbit CertType_bits[] = {
   {  1, &hf_ns_cert_exts_CertType_ssl_server, -1, -1, "ssl-server", NULL },
   {  2, &hf_ns_cert_exts_CertType_smime, -1, -1, "smime", NULL },
   {  3, &hf_ns_cert_exts_CertType_object_signing, -1, -1, "object-signing", NULL },
+  {  4, &hf_ns_cert_exts_CertType_reserved_for_future_use, -1, -1, "reserved-for-future-use", NULL },
   {  5, &hf_ns_cert_exts_CertType_ssl_ca, -1, -1, "ssl-ca", NULL },
   {  6, &hf_ns_cert_exts_CertType_smime_ca, -1, -1, "smime-ca", NULL },
   {  7, &hf_ns_cert_exts_CertType_object_signing_ca, -1, -1, "object-signing-ca", NULL },
@@ -282,6 +284,10 @@ void proto_register_ns_cert_exts(void) {
     { &hf_ns_cert_exts_CertType_object_signing,
       { "object-signing", "ns_cert_exts.object-signing",
         FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_ns_cert_exts_CertType_reserved_for_future_use,
+      { "reserved-for-future-use", "ns_cert_exts.reserved-for-future-use",
+        FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_ns_cert_exts_CertType_ssl_ca,
       { "ssl-ca", "ns_cert_exts.ssl-ca",
