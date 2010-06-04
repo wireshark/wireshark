@@ -39,6 +39,7 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/strutil.h>
+#include <epan/crc32.h>
 
 static int proto_nfs = -1;
 
@@ -2221,17 +2222,15 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
-	/* create a semiunique hash value for the filehandle */
+	/* Create a unique hash value for the filehandle using CRC32 */
 	{
 		guint32 fhhash;
-		guint32 i;
+		guint8 *fh_array;
 		proto_item *fh_item;
 
-		for(fhhash=0,i=0;i<(fhlen-3);i+=4){
-			guint32 val;
-			val = tvb_get_ntohl(tvb, offset+i);
-			fhhash ^= (val >> 16) ^ val;
-		}
+		fh_array = tvb_get_string(tvb, offset, fhlen);
+		fhhash = crc32_ccitt(fh_array, fhlen);
+
 		if(hidden){
 			fh_item=proto_tree_add_uint(tree, hf_nfs_fh_hash, tvb, offset,
 				fhlen, fhhash);
@@ -10187,7 +10186,7 @@ proto_register_nfs(void)
 			"length", "nfs.fh.length", FT_UINT32, BASE_DEC,
 			NULL, 0, "file handle length", HFILL }},
 		{ &hf_nfs_fh_hash, {
-			"hash", "nfs.fh.hash", FT_UINT32, BASE_HEX,
+			"hash (CRC-32)", "nfs.fh.hash", FT_UINT32, BASE_HEX,
 			NULL, 0, "file handle hash", HFILL }},
 		{ &hf_nfs_fh_mount_fileid, {
 			"fileid", "nfs.fh.mount.fileid", FT_UINT32, BASE_DEC,
