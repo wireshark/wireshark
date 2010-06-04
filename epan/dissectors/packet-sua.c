@@ -368,7 +368,7 @@ typedef enum {
 } Version_Type;
 
 static gint version = SUA_RFC;
-static gint set_addresses = FALSE;
+static gboolean set_addresses = FALSE;
 
 static void
 dissect_parameters(tvbuff_t *tlv_tvb, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn);
@@ -2185,7 +2185,7 @@ proto_register_sua(void)
   sua_module = prefs_register_protocol(proto_sua, NULL);
   prefs_register_obsolete_preference(sua_module, "sua_version");
   prefs_register_enum_preference(sua_module, "version", "SUA Version", "Version used by Wireshark", &version, options, FALSE);
-  prefs_register_bool_preference(sua_module, "set_address", "Set source and destination addresses",
+  prefs_register_bool_preference(sua_module, "set_addresses", "Set source and destination addresses",
 				 "Set the source and destination addresses to the PC or GT digits, depending on the routing indicator."
 				 "  This may affect TCAP's ability to recognize which messages belong to which TCAP session.", &set_addresses);
 
