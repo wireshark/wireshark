@@ -35,11 +35,12 @@
 #endif
 
 #include <string.h>
-#include "epan/packet_info.h"
+#include <epan/packet_info.h>
 #include <epan/tap.h>
+#include <epan/stat_cmd_args.h>
 #include <epan/nstime.h>
+#include <epan/dissectors/packet-sv.h>
 #include "register.h"
-#include "epan/dissectors/packet-sv.h"
 
 static int
 sv_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
@@ -58,8 +59,30 @@ sv_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 	return 0;
 }
 
+static void
+svstat_init(const char *optarg _U_, void* userdata _U_)
+{
+	GString	*error_string;
+
+	error_string = register_tap_listener(
+			"sv",
+			NULL,
+			NULL,
+			0,
+			NULL,
+			sv_packet,
+			NULL);
+	if (error_string){
+		/* error, we failed to attach to the tap. clean up */
+		fprintf(stderr, "tshark: Couldn't register sv,stat tap: %s\n",
+				error_string->str);
+		g_string_free(error_string, TRUE);
+		exit(1);
+	}
+}
+
 void
 register_tap_listener_sv(void)
 {
-	register_tap_listener("sv", NULL, NULL, 0, NULL, sv_packet, NULL);
+	register_stat_cmd_arg("sv", svstat_init, NULL);
 }
