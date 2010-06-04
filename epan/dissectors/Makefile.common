@@ -688,6 +688,7 @@ DISSECTOR_SRC = \
 	packet-netsync.c 	\
 	packet-nettl.c		\
 	packet-newmail.c	\
+	packet-nwmtp.c		\
 	packet-nfs.c		\
 	packet-nfsacl.c		\
 	packet-nfsauth.c	\

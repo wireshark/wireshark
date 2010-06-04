@@ -3078,6 +3078,10 @@ Michael Bernhard	<michael.bernhard [AT] bfh.ch> {
 	IEC 61850 dissector
 }
 
+Holger Freyther		<zecke [AT] selfish.org> {
+	NexusWare C7 MTP over UDP dissector
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
