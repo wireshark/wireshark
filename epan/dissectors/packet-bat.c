@@ -1,6 +1,6 @@
 /* packet-bat.c
  * Routines for B.A.T.M.A.N. Layer 3 dissection
- * Copyright 2008-2009 Sven Eckelmann <sven.eckelmann@gmx.de>
+ * Copyright 2008-2010 Sven Eckelmann <sven.eckelmann@gmx.de>
  *
  * $Id$
  *
@@ -162,7 +162,7 @@ void proto_reg_handoff_bat(void);
 
 /* supported packet dissectors */
 static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static void dissect_bat_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
 static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
@@ -194,6 +194,7 @@ static guint global_bat_vis_udp_port = BAT_VIS_PORT;
 static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 version;
+	int offset = 0;
 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_BATMAN");
@@ -202,7 +203,9 @@ static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	version = tvb_get_guint8(tvb, 0);
 	switch (version) {
 	case 5:
-		dissect_bat_batman_v5(tvb, pinfo, tree);
+		while (tvb_reported_length_remaining(tvb, offset)) {
+			offset = dissect_bat_batman_v5(tvb, offset, pinfo, tree);
+		}
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
@@ -228,115 +231,102 @@ static void dissect_bat_gwflags(tvbuff_t *tvb, guint8 gwflags, int offset, proto
 
 }
 
-static void dissect_bat_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
+	proto_item *tf, *tgw;
+	proto_tree *bat_batman_tree = NULL, *flag_tree;
 	struct batman_packet_v5 *batman_packeth;
 	const guint8  *old_orig_addr, *orig_addr;
 	guint32 old_orig, orig;
 	gint i;
 
 	tvbuff_t *next_tvb;
-	guint length_remaining;
-	int offset = 0;
 
 	batman_packeth = ep_alloc(sizeof(struct batman_packet_v5));
 
-	batman_packeth->version = tvb_get_guint8(tvb, 0);
-	batman_packeth->flags = tvb_get_guint8(tvb, 1);
-	batman_packeth->ttl = tvb_get_guint8(tvb, 2);
-	batman_packeth->gwflags = tvb_get_guint8(tvb, 3);
-	batman_packeth->seqno = tvb_get_ntohs(tvb, 4);
-	batman_packeth->gwport = tvb_get_ntohs(tvb, 6);
-	orig_addr = tvb_get_ptr(tvb, 8, 4);
-	orig = tvb_get_ipv4(tvb, 8);
+	batman_packeth->version = tvb_get_guint8(tvb, offset+0);
+	batman_packeth->flags = tvb_get_guint8(tvb, offset+1);
+	batman_packeth->ttl = tvb_get_guint8(tvb, offset+2);
+	batman_packeth->gwflags = tvb_get_guint8(tvb, offset+3);
+	batman_packeth->seqno = tvb_get_ntohs(tvb, offset+4);
+	batman_packeth->gwport = tvb_get_ntohs(tvb, offset+6);
+	orig_addr = tvb_get_ptr(tvb, offset+8, 4);
+	orig = tvb_get_ipv4(tvb, offset+8);
 	SET_ADDRESS(&batman_packeth->orig, AT_IPv4, 4, orig_addr);
-	old_orig_addr = tvb_get_ptr(tvb, 12, 4);
-	old_orig = tvb_get_ipv4(tvb, 12);
+	old_orig_addr = tvb_get_ptr(tvb, offset+12, 4);
+	old_orig = tvb_get_ipv4(tvb, offset+12);
 	SET_ADDRESS(&batman_packeth->old_orig, AT_IPv4, 4, old_orig_addr);
-	batman_packeth->tq = tvb_get_guint8(tvb, 16);
-	batman_packeth->hna_len = tvb_get_guint8(tvb, 17);
+	batman_packeth->tq = tvb_get_guint8(tvb, offset+16);
+	batman_packeth->hna_len = tvb_get_guint8(tvb, offset+17);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
 
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti, *tf, *tgw;
-		proto_tree *bat_batman_tree, *flag_tree;
+		proto_item *ti;
 
 		if (PTREE_DATA(tree)->visible) {
-			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, BATMAN_PACKET_V5_SIZE,
+			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, offset, BATMAN_PACKET_V5_SIZE,
 							    "B.A.T.M.A.N., Orig: %s (%s)",
 							    get_hostname(orig), ip_to_str(batman_packeth->orig.data));
 		} else {
-			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, BATMAN_PACKET_V5_SIZE, FALSE);
+			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, offset, BATMAN_PACKET_V5_SIZE, FALSE);
 		}
 		bat_batman_tree = proto_item_add_subtree(ti, ett_bat_batman);
-
-		/* items */
-		proto_tree_add_item(bat_batman_tree, hf_bat_batman_version, tvb, offset, 1, FALSE);
-		offset += 1;
-
-		tf = proto_tree_add_item(bat_batman_tree, hf_bat_batman_flags, tvb, offset, 1, FALSE);
-		/* <flags> */
-		flag_tree =  proto_item_add_subtree(tf, ett_bat_batman_flags);
-		proto_tree_add_boolean(flag_tree, hf_bat_batman_flags_unidirectional, tvb, offset, 1, batman_packeth->flags);
-		proto_tree_add_boolean(flag_tree, hf_bat_batman_flags_directlink, tvb, offset, 1, batman_packeth->flags);
-		/* </flags> */
-		offset += 1;
-
-		proto_tree_add_item(bat_batman_tree, hf_bat_batman_ttl, tvb, offset, 1, FALSE);
-		offset += 1;
-
-		tgw = proto_tree_add_item(bat_batman_tree, hf_bat_batman_gwflags, tvb, offset, 1, FALSE);
-		dissect_bat_gwflags(tvb, batman_packeth->gwflags, offset, tgw);
-		offset += 1;
-
-		proto_tree_add_item(bat_batman_tree, hf_bat_batman_seqno, tvb, offset, 2, FALSE);
-		offset += 2;
-
-		proto_tree_add_item(bat_batman_tree, hf_bat_batman_gwport, tvb, offset, 2, FALSE);
-		offset += 2;
-
-		proto_tree_add_ipv4(bat_batman_tree, hf_bat_batman_orig, tvb, offset, 4, orig);
-		offset += 4;
-
-		proto_tree_add_ipv4(bat_batman_tree, hf_bat_batman_old_orig, tvb, offset, 4,  old_orig);
-		offset += 4;
-
-		proto_tree_add_item(bat_batman_tree, hf_bat_batman_tq, tvb, offset, 1, FALSE);
-		offset += 1;
-
-		proto_tree_add_item(bat_batman_tree, hf_bat_batman_hna_len, tvb, offset, 1, FALSE);
-		offset += 1;
-
-		tap_queue_packet(bat_tap, pinfo, batman_packeth);
-
-		for (i = 0; i < batman_packeth->hna_len; i++) {
-			next_tvb = tvb_new_subset(tvb, offset, 5, 5);
-
-			if (have_tap_listener(bat_follow_tap)) {
-				tap_queue_packet(bat_follow_tap, pinfo, next_tvb);
-			}
-
-			dissect_bat_hna(next_tvb, pinfo, bat_batman_tree);
-			offset += 5;
-		}
 	}
 
-	/* Calculate offset even when we got no tree */
-	offset = BATMAN_PACKET_V5_SIZE + batman_packeth->hna_len * 5;
+	/* items */
+	proto_tree_add_item(bat_batman_tree, hf_bat_batman_version, tvb, offset, 1, FALSE);
+	offset += 1;
 
-	length_remaining = tvb_reported_length_remaining(tvb, offset);
-	if (length_remaining != 0) {
-		next_tvb = tvb_new_subset_remaining(tvb, offset);
+	tf = proto_tree_add_item(bat_batman_tree, hf_bat_batman_flags, tvb, offset, 1, FALSE);
+	/* <flags> */
+	flag_tree =  proto_item_add_subtree(tf, ett_bat_batman_flags);
+	proto_tree_add_boolean(flag_tree, hf_bat_batman_flags_unidirectional, tvb, offset, 1, batman_packeth->flags);
+	proto_tree_add_boolean(flag_tree, hf_bat_batman_flags_directlink, tvb, offset, 1, batman_packeth->flags);
+	/* </flags> */
+	offset += 1;
+
+	proto_tree_add_item(bat_batman_tree, hf_bat_batman_ttl, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	tgw = proto_tree_add_item(bat_batman_tree, hf_bat_batman_gwflags, tvb, offset, 1, FALSE);
+	dissect_bat_gwflags(tvb, batman_packeth->gwflags, offset, tgw);
+	offset += 1;
+
+	proto_tree_add_item(bat_batman_tree, hf_bat_batman_seqno, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	proto_tree_add_item(bat_batman_tree, hf_bat_batman_gwport, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	proto_tree_add_ipv4(bat_batman_tree, hf_bat_batman_orig, tvb, offset, 4, orig);
+	offset += 4;
+
+	proto_tree_add_ipv4(bat_batman_tree, hf_bat_batman_old_orig, tvb, offset, 4,  old_orig);
+	offset += 4;
+
+	proto_tree_add_item(bat_batman_tree, hf_bat_batman_tq, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(bat_batman_tree, hf_bat_batman_hna_len, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	tap_queue_packet(bat_tap, pinfo, batman_packeth);
+
+	for (i = 0; i < batman_packeth->hna_len; i++) {
+		next_tvb = tvb_new_subset(tvb, offset, 5, 5);
 
 		if (have_tap_listener(bat_follow_tap)) {
 			tap_queue_packet(bat_follow_tap, pinfo, next_tvb);
 		}
 
-		dissect_bat_batman(next_tvb, pinfo, tree);
+		dissect_bat_hna(next_tvb, pinfo, bat_batman_tree);
+		offset += 5;
 	}
+
+	return offset;
 }
 
 static void dissect_bat_hna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
