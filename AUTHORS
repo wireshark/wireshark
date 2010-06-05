@@ -2096,7 +2096,7 @@ Chris Wilson            <chris [AT] mxtelecom.com> {
 
 Rolf Fiedler            <Rolf.Fiedler [AT] Innoventif.com> {
 	ISDN TEI management frame support
-	Support for reading EyeSDN USB S0 trace files
+	Support for reading and writing EyeSDN USB S0 trace files
 }
 
 Alastair Maw            <ethereal [AT] almaw.com> {

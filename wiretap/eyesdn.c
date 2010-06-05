@@ -395,3 +395,143 @@ parse_eyesdn_packet_data(FILE_T fh, int pkt_len, guint8* buf, int *err,
 	}
 	return TRUE;
 }
+
+
+struct header {
+    int usecs;
+    time_t secs;
+    int channel;
+    int origin;
+    int protocol;
+    int size;
+};
+
+static int write_esc(const guchar *buf, int len, FILE *file)
+{
+    int i, byte;
+    
+    for(i=0; i<len; i++) {
+	byte=buf[i];
+	if(byte == 0xff || byte == 0xfe) {
+	    fputc(0xfe, file);
+	    byte-=2;
+	}
+	fputc(byte, file);
+    }
+    if(ferror(file)) return -1;
+    else return len;
+}
+
+static int write_header(FILE *file, struct header *hp)
+{
+    unsigned char buf[12];
+    
+    buf[0] = (unsigned char)(0xff & (hp->usecs >> 16));
+    buf[1] = (unsigned char)(0xff & (hp->usecs >> 8));
+    buf[2] = (unsigned char)(0xff & (hp->usecs >> 0));
+    buf[3] = (unsigned char)0;
+    buf[4] = (unsigned char)(0xff & (hp->secs >> 24));
+    buf[5] = (unsigned char)(0xff & (hp->secs >> 16));
+    buf[6] = (unsigned char)(0xff & (hp->secs >> 8));
+    buf[7] = (unsigned char)(0xff & (hp->secs >> 0));
+    buf[8] = (unsigned char) hp->channel;
+    buf[9] = (unsigned char) (hp->origin?1:0) + (hp->protocol << 1);
+    buf[10]= (unsigned char)(0xff &(hp->size >> 8));
+    buf[11]= (unsigned char)(0xff &(hp->size >> 0));
+    
+    return write_esc(buf, 12, file);
+}
+
+static void writeToTrc(FILE *file, struct header *hdr, 
+		       const guchar *buf)
+{
+    fputc(0xff, file); /* start flag */
+    write_header(file, hdr);
+    write_esc(buf, hdr->size, file);
+}
+
+static gboolean eyesdn_dump(wtap_dumper *wdh,
+			    const struct wtap_pkthdr *phdr,
+			    const union wtap_pseudo_header *pseudo_header _U_,
+			    const guchar *pd, int *err);
+
+gboolean eyesdn_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
+{
+    wdh->subtype_write=eyesdn_dump;
+    wdh->subtype_close=NULL;
+
+    wdh->bytes_dumped += fprintf(wdh->fh, "EyeSDN");
+    *err=0;
+    return TRUE;
+}
+
+int eyesdn_dump_can_write_encap(int encap)
+{
+    switch (encap) {
+    case WTAP_ENCAP_ISDN:
+    case WTAP_ENCAP_LAYER1_EVENT:
+    case WTAP_ENCAP_DPNSS:
+    case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
+    case WTAP_ENCAP_LAPB:
+    case WTAP_ENCAP_MTP2:
+    case WTAP_ENCAP_BACNET_MS_TP:
+    case WTAP_ENCAP_PER_PACKET:
+	return 0;
+    default:
+	return WTAP_ERR_UNSUPPORTED_ENCAP;
+    }
+}
+
+/* Write a record for a packet to a dump file.
+ *    Returns TRUE on success, FALSE on failure. */
+static gboolean eyesdn_dump(wtap_dumper *wdh,
+			    const struct wtap_pkthdr *phdr,
+			    const union wtap_pseudo_header *pseudo_header _U_,
+			    const guchar *pd, int *err)
+{
+    struct header hdr;    
+
+    hdr.usecs=phdr->ts.nsecs/1000;
+    hdr.secs=phdr->ts.secs;
+    hdr.size=phdr->caplen;
+    hdr.origin = pseudo_header->isdn.uton;
+    hdr.channel = pseudo_header->isdn.channel;
+
+    switch(phdr->pkt_encap) {
+    case WTAP_ENCAP_ISDN:
+	hdr.protocol=EYESDN_ENCAP_ISDN; /* set depending on decoder format and mode */
+	break;
+    case WTAP_ENCAP_LAYER1_EVENT:
+	hdr.protocol=EYESDN_ENCAP_MSG;
+	break;
+    case WTAP_ENCAP_DPNSS:
+	hdr.protocol=EYESDN_ENCAP_DPNSS;
+	break;
+#if 0
+    case WTAP_ENCAP_DASS2:
+	hdr.protocol=EYESDN_ENCAP_DASS2;
+	break;
+#endif
+    case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
+	hdr.protocol=EYESDN_ENCAP_ATM;
+	hdr.channel=0x80;
+	break;
+    case WTAP_ENCAP_LAPB:
+	hdr.protocol=EYESDN_ENCAP_LAPB;
+	break;
+    case WTAP_ENCAP_MTP2:
+	hdr.protocol=EYESDN_ENCAP_MTP2;
+	break;
+    case WTAP_ENCAP_BACNET_MS_TP:
+	hdr.protocol=EYESDN_ENCAP_BACNET;
+	break;
+    default:
+	*err=-1;
+	return FALSE;
+    }
+
+    writeToTrc(wdh->fh, &hdr, pd);
+
+    *err=0;
+    return TRUE;
+}

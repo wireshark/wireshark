@@ -476,8 +476,8 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_EYESDN */
-	{ "EyeSDN USB S0/E1 ISDN trace format", "eyesdn", "*.*", NULL, FALSE,
-		NULL, NULL },
+	{ "EyeSDN USB S0/E1 ISDN trace format", "eyesdn", "*.trc", ".trc", FALSE,
+	   eyesdn_dump_can_write_encap, eyesdn_dump_open },
 
 	/* WTAP_FILE_NETTL */
 	{ "HP-UX nettl trace", "nettl", "*.TRC0;*.TRC1", ".TRC0", FALSE,
