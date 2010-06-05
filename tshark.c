@@ -1457,6 +1457,11 @@ main(int argc, char *argv[])
             return 1;
           }
         }
+        /* Currently, we don't support read filters when capturing. */
+        if (rfilter != NULL) {
+          cmdarg_err("Read filters aren't supported when capturing.");
+          return 1;
+        }
       } else {
         /* They didn't specify a "-w" flag, so we won't be saving to a
            capture file.  Check for options that only make sense if
@@ -1490,6 +1495,20 @@ main(int argc, char *argv[])
      have a tap filter with one of MATE's late-registered fields as part
      of the filter.  We can now process all the "-z" arguments. */
   start_requested_stats();
+
+  /* We currently don't support taps, or printing dissected packets,
+     if we're writing to a pipe. */
+  if (global_capture_opts.saving_to_file &&
+      global_capture_opts.output_to_pipe) {
+    if (have_tap_listeners()) {
+      cmdarg_err("Taps aren't supported when saving to a pipe.");
+      return 1;
+    }
+    if (print_packet_info) {
+      cmdarg_err("Printing dissected packets isn't supported when saving to a pipe.");
+      return 1;
+    }
+  }
 
   /* disabled protocols as per configuration file */
   if (gdp_path == NULL && dp_path == NULL) {
