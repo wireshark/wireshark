@@ -1457,9 +1457,10 @@ main(int argc, char *argv[])
             return 1;
           }
         }
-        /* Currently, we don't support read filters when capturing. */
+        /* Currently, we don't support read filters when capturing
+           and saving the packets. */
         if (rfilter != NULL) {
-          cmdarg_err("Read filters aren't supported when capturing.");
+          cmdarg_err("Read filters aren't supported when capturing and saving the captured packets.");
           return 1;
         }
       } else {
@@ -1496,6 +1497,7 @@ main(int argc, char *argv[])
      of the filter.  We can now process all the "-z" arguments. */
   start_requested_stats();
 
+#ifdef HAVE_LIBPCAP
   /* We currently don't support taps, or printing dissected packets,
      if we're writing to a pipe. */
   if (global_capture_opts.saving_to_file &&
@@ -1509,6 +1511,7 @@ main(int argc, char *argv[])
       return 1;
     }
   }
+#endif
 
   /* disabled protocols as per configuration file */
   if (gdp_path == NULL && dp_path == NULL) {
