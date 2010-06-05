@@ -1582,6 +1582,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   unsigned char *authenticator_data_computed = NULL;
   unsigned char *authenticator_data_computed_md;
 
+  unsigned char ctr_block[16];
 
   /*
    * load the top pane info. This should be overwritten by
@@ -2389,12 +2390,20 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		      else
 			{
-			  err = gcry_cipher_setkey (cypher_hd, esp_crypt_key, esp_crypt_key_len);
+			  if (crypt_mode_libgcrypt == GCRY_CIPHER_MODE_CTR)
+			    {
+			      /* Counter mode key includes a 4 byte, (32 bit), nonce following the key */
+			      err = gcry_cipher_setkey (cypher_hd, esp_crypt_key, esp_crypt_key_len - 4);
+			    }
+			  else
+			    {
+			      err = gcry_cipher_setkey (cypher_hd, esp_crypt_key, esp_crypt_key_len);
+			    }
 			  if (err)
 			    {
 			      fprintf(stderr,
-                                      "<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, gcry_cipher_setkey failed: %s\n",
-				      gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gpg_strerror (err));
+			              "<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, gcry_cipher_setkey(key_len=%d) failed: %s\n",
+				      gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, esp_crypt_key_len, gpg_strerror (err));
 			      gcry_cipher_close (cypher_hd);
 			      g_free(encrypted_data);
 			      g_free(decrypted_data);
@@ -2402,9 +2411,25 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    }
 			  else
 			    {
-			      err = gcry_cipher_decrypt (cypher_hd,
-                                                         decrypted_data,
-                                                         decrypted_len_alloc + esp_iv_len, encrypted_data, decrypted_len_alloc);
+			      if (crypt_mode_libgcrypt == GCRY_CIPHER_MODE_CTR)
+			        {
+			          memset(ctr_block, 0, 16);
+			          memcpy(ctr_block, esp_crypt_key + esp_crypt_key_len - 4, 4);
+			          memcpy(ctr_block + 4, encrypted_data, 8);
+			          ctr_block[15] = 1;
+			          err = gcry_cipher_setctr (cypher_hd, ctr_block, 16);
+			          if (!err)
+			            {
+			              memcpy(decrypted_data, encrypted_data, esp_iv_len);
+			              err = gcry_cipher_decrypt (cypher_hd, decrypted_data + esp_iv_len, decrypted_len_alloc,
+			                                         encrypted_data + esp_iv_len, decrypted_len_alloc - esp_iv_len);
+			            }
+			        }
+			      else
+			        {
+			          err = gcry_cipher_decrypt (cypher_hd, decrypted_data, decrypted_len_alloc + esp_iv_len,
+			                                     encrypted_data, decrypted_len_alloc);
+			        }
 			      if (err)
 				{
 				  fprintf(stderr,
