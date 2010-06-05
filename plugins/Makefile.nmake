@@ -14,7 +14,6 @@ PLUGIN_LIST = \
 	gryphon     \
 	interlink   \
 	irda        \
-	llrp        \
 	m2m         \
 	mate        \
 	opcua       \

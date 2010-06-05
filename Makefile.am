@@ -272,7 +272,6 @@ plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
 	-dlopen plugins/gryphon/gryphon.la \
 	-dlopen plugins/interlink/interlink.la \
 	-dlopen plugins/irda/irda.la \
-	-dlopen plugins/llrp/llrp.la \
 	-dlopen plugins/m2m/m2m.la \
 	-dlopen plugins/mate/mate.la \
 	-dlopen plugins/opcua/opcua.la \

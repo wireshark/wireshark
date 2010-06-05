@@ -30,7 +30,6 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	gryphon \
 	interlink \
 	irda \
-	llrp \
 	m2m \
 	mate \
 	opcua \
