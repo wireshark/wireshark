@@ -99,7 +99,7 @@ capture_step_10packets() {
 
 	# we should have an output file now
 	if [ ! -f "./testout.pcap" ]; then
-	capture_test_output ./testout.txt
+		capture_test_output ./testout.txt
 		test_step_failed "No output file!"
 		return
 	fi
@@ -365,7 +365,7 @@ tshark_capture_suite() {
 	if [ $TEST_FIFO ]; then
 		test_step_add "Capture via fifo" capture_step_fifo
 	fi
-    # tshark now using dumpcap for capturing, read filters won't work by definition
+	# tshark now using dumpcap for capturing, read filters won't work by definition
 	#test_step_add "Capture read filter (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_read_filter
 	test_step_add "Capture snapshot length 68 bytes (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_snapshot
 }
