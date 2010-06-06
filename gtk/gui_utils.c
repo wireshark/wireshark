@@ -1251,7 +1251,6 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
                 gtk_tree_view_collapse_row(GTK_TREE_VIEW(tree), path);
             else
                 gtk_tree_view_expand_row(GTK_TREE_VIEW(tree), path, FALSE /* !open_all */);
-            gtk_tree_path_free(path);
             rc = TRUE;
             break; 
     }
