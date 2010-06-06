@@ -874,6 +874,13 @@ typedef int (*wtap_open_routine_t)(struct wtap*, int *, char **);
 struct wtap* wtap_open_offline(const char *filename, int *err,
     gchar **err_info, gboolean do_random);
 
+/*
+ * If we were compiled with zlib and we're at EOF, unset EOF so that
+ * wtap_read/gzread has a chance to succeed. This is necessary if
+ * we're tailing a file.
+ */
+void wtap_cleareof(wtap *wth);
+
 /* Returns TRUE if read was successful. FALSE if failure. data_offset is
  * set to the offset in the file where the data for the read packet is
  * located. */

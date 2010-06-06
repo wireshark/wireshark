@@ -25,17 +25,24 @@
 	'FT_INT24',		'Signed 24-bit integer',
 	'FT_INT32',		'Signed 32-bit integer',
 	'FT_INT64',		'Signed 64-bit integer',
+	'FT_FLOAT',		'Single-precision floating point',
 	'FT_DOUBLE',		'Double-precision floating point',
 	'FT_ABSOLUTE_TIME',	'Date/Time stamp',
 	'FT_RELATIVE_TIME',	'Time duration',
 	'FT_STRING',		'String',
-	'FT_STRINGZ',		'String',
-	'FT_UINT_STRING',	'String',
+	'FT_STRINGZ',		'NULL terminated string',
+	'FT_EBCDIC',		'EBCDIC string',
+	'FT_UINT_STRING',	'Length string pair',
 	'FT_ETHER',		'6-byte Hardware (MAC) Address',
 	'FT_BYTES',		'Byte array',
+	'FT_UINT_BYTES',	'Length byte array pair',
 	'FT_IPv4',		'IPv4 address',
 	'FT_IPv6',		'IPv6 address',
 	'FT_IPXNET',		'IPX network or server name',
+	'FT_FRAMENUM',		'Frame number',
+	'FT_PCRE',		'Perl Compatible Regular Expression',
+	'FT_GUID',		'Globally Unique Identifier',
+	'FT_OID',		'Object Identifier',
 );
 
 # Read all the data into memory
@@ -43,7 +50,9 @@ while (<STDIN>) {
 	next unless (/^([PF])/);
 
 	$record_type = $1;
-	chomp($_);
+	# Strip the line from its line-end sequence
+	# chomp($_) won't work on Win32/CygWin as it leaves the '\r' character.
+	$_ =~ s/[\r\n]//g;
 	$_ =~ s/\&/\&amp\;/g;
 	$_ =~ s/\>/\&gt;/g;
 	$_ =~ s/\</\&lt\;/g;

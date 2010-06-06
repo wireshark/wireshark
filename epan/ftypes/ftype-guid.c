@@ -130,7 +130,7 @@ ftype_register_guid(void)
 
     static ftype_t guid_type = {
         FT_GUID,              /* ftype */
-        "GUID",              /* name */
+        "FT_GUID",           /* name */
         "Globally Unique Identifier",            /* pretty_name */
         GUID_LEN,            /* wire_size */
         NULL,                /* new_value */

@@ -36,6 +36,7 @@
 
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include <glib.h>
 #include <epan/conversation.h>
@@ -2055,6 +2056,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 
 		case HDR_CONTENT_LENGTH:
+			errno = 0;
 #if GLIB_CHECK_VERSION(2,12,0)
 			eh_ptr->content_length = g_ascii_strtoll(value, &p, 10);
 #elif defined(HAVE_STRTOLL)
@@ -2065,7 +2067,9 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 #endif
 
 			up = (guchar *)p;
-			if (eh_ptr->content_length < 0 || p == value ||
+			if (eh_ptr->content_length < 0 ||
+			    p == value ||
+			    errno == ERANGE ||
 			    (*up != '\0' && !isspace(*up))) {
 				/*
 				 * Content length not valid; pretend

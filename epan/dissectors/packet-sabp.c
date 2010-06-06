@@ -30,7 +30,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * Ref: 3GPP TS 25.419 version 7.7.0 (2006-03)
+ * Ref: 3GPP TS 25.419 version  V9.0.0 (2009-12)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -50,11 +50,6 @@
 #include "packet-e212.h"
 #include "packet-gsm_map.h"
 #include "packet-gsm_sms.h"
-
-#ifdef _MSC_VER
-/* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
-#pragma warning(disable:4146)
-#endif
 
 #define PNAME  "UTRAN IuBC interface SABP signaling"
 #define PSNAME "SABP"
@@ -102,7 +97,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-sabp-val.h ---*/
-#line 56 "packet-sabp-template.c"
+#line 51 "packet-sabp-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_sabp = -1;
@@ -188,7 +183,7 @@ static int hf_sabp_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_sabp_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-sabp-hf.c ---*/
-#line 62 "packet-sabp-template.c"
+#line 57 "packet-sabp-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_sabp = -1;
@@ -240,7 +235,7 @@ static gint ett_sabp_SuccessfulOutcome = -1;
 static gint ett_sabp_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-sabp-ett.c ---*/
-#line 70 "packet-sabp-template.c"
+#line 65 "packet-sabp-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -1591,7 +1586,7 @@ static int dissect_SABP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-sabp-fn.c ---*/
-#line 94 "packet-sabp-template.c"
+#line 89 "packet-sabp-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1633,7 +1628,15 @@ get_sabp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	/* Get the length of the sabp packet. offset in bits  */
 	offset = dissect_per_length_determinant(tvb, bit_offset, &asn1_ctx, NULL, -1, &type_length);
 
-	/* return the remaining length of the PDU */
+	/* 
+	 * Return the length of the PDU
+	 * which is 3 + the length of the length, we only care about lenght up to 16K
+	 * ("n" less than 128) a single octet containing "n" with bit 8 set to zero;
+	 * ("n" less than 16K) two octets containing "n" with bit 8 of the first octet set to 1 and bit 7 set to zero;
+	 */
+	if (type_length < 128)
+		return type_length+4;
+
 	return type_length+5;
 }
 
@@ -1979,7 +1982,7 @@ void proto_register_sabp(void) {
         "sabp.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sabp-hfarr.c ---*/
-#line 177 "packet-sabp-template.c"
+#line 180 "packet-sabp-template.c"
   };
 
   /* List of subtrees */
@@ -2032,7 +2035,7 @@ void proto_register_sabp(void) {
     &ett_sabp_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sabp-ettarr.c ---*/
-#line 186 "packet-sabp-template.c"
+#line 189 "packet-sabp-template.c"
   };
 
 
@@ -2110,7 +2113,7 @@ proto_reg_handoff_sabp(void)
 
 
 /*--- End of included file: packet-sabp-dis-tab.c ---*/
-#line 222 "packet-sabp-template.c"
+#line 225 "packet-sabp-template.c"
 
 }
 

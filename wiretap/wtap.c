@@ -35,6 +35,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_LIBZ
+#include <zlib.h>
+#endif
+
 #include "wtap-int.h"
 #include "wtap.h"
 
@@ -610,6 +614,15 @@ wtap_close(wtap *wth)
 		file_close(wth->random_fh);
 
 	g_free(wth);
+}
+
+void
+wtap_cleareof(wtap *wth) {
+#ifdef HAVE_LIBZ
+	/* Reset EOF */
+	if (gzeof(wth->fh))
+		gzclearerr(wth->fh);
+#endif
 }
 
 gboolean

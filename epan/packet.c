@@ -322,7 +322,10 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.clnp_dstref = 0;
 	edt->pi.link_dir = LINK_DIR_UNKNOWN;
 
-    EP_CHECK_CANARY(("before dissecting frame %d",fd->num));
+	/* to enable decode as for ethertype=0x0000 (fix for bug 4721) */
+	edt->pi.ethertype = G_MAXINT;
+
+	EP_CHECK_CANARY(("before dissecting frame %d",fd->num));
     
 	TRY {
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
