@@ -57,37 +57,28 @@
  */
 
 
-static int esc_read(guint8 *buf, int len, FILE_T fh, int seekback)
+static int esc_read(guint8 *buf, int len, FILE_T fh)
 {
-    int i;
-    int value;
-    gint64 cur_off;
-    int err;
+	int i;
+	int value;
 
-    if(seekback) cur_off = file_tell(fh);
-    else cur_off=0; /* suppress uninitialized warning */
-    
-    for(i=0; i<len; i++) {
-	value=file_getc(fh);
-	if(value==-1)
-	    return -2; /* EOF or error */
-	if(value==0xff)
-	    return -1; /* error !!, read into next frame */
-	if(value==0xfe) {
-	    /* we need to escape */
-	    value=file_getc(fh);
-	    if(value==-1)
-		return -2;
-	    value+=2;
+	for(i=0; i<len; i++) {
+		value=file_getc(fh);
+		if(value==-1)
+			return -2; /* EOF or error */
+		if(value==0xff)
+			return -1; /* error !!, read into next frame */
+		if(value==0xfe) {
+			/* we need to escape */
+			value=file_getc(fh);
+			if(value==-1)
+				return -2;
+			value+=2;
+		}
+		buf[i]=value;
 	}
-	buf[i]=value;
-    }
 
-    if(seekback) {
-	if (file_seek(fh, cur_off, SEEK_SET, &err) == -1)
-	    return err<0?err:-err;
-    }
-    return i;
+	return i;
 }
 
 /* Magic text to check for eyesdn-ness of file */
@@ -117,29 +108,30 @@ static int parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
    byte offset.  Returns -1 on failure, and sets "*err" to the error. */
 static gint64 eyesdn_seek_next_packet(wtap *wth, int *err)
 {
-  int byte;
-  gint64 cur_off;
+	int byte;
+	gint64 cur_off;
 
-  while ((byte = file_getc(wth->fh)) != EOF) {
-    if (byte == 0xff) {
-        cur_off = file_tell(wth->fh);
-        if (cur_off == -1) {
-          /* Error. */
-          *err = file_error(wth->fh);
-          return -1;
-        }
-        return cur_off;
-      }
-  }
-  if (file_eof(wth->fh)) {
-    /* We got an EOF. */
-    *err = 0;
-  } else {
-    /* We (presumably) got an error (there's no equivalent to "ferror()"
-       in zlib, alas, so we don't have a wrapper to check for an error). */
-    *err = file_error(wth->fh);
-  }
-  return -1;
+	while ((byte = file_getc(wth->fh)) != EOF) {
+		if (byte == 0xff) {
+			cur_off = file_tell(wth->fh);
+			if (cur_off == -1) {
+				/* Error. */
+				*err = file_error(wth->fh);
+				return -1;
+			}
+			return cur_off;
+		}
+	}
+	if (file_eof(wth->fh)) {
+		/* We got an EOF. */
+		*err = 0;
+	} else {
+		/* We (presumably) got an error (there's no equivalent to
+		   "ferror()" in zlib, alas, so we don't have a wrapper to
+		   check for an error). */
+		*err = file_error(wth->fh);
+	}
+	return -1;
 }
 
 int eyesdn_open(wtap *wth, int *err, gchar **err_info _U_)
@@ -244,7 +236,7 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 	 * for a packet. Read in that header and extract the useful
 	 * information.
 	 */
-	if (esc_read(hdr, EYESDN_HDR_LENGTH, fh, 0) != EYESDN_HDR_LENGTH) {
+	if (esc_read(hdr, EYESDN_HDR_LENGTH, fh) != EYESDN_HDR_LENGTH) {
 		*err = file_error(fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -268,102 +260,115 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
         pkt_len = pntohs(&hdr[10]);
 
 	switch(direction >> 1) {
+
 	default:
 	case EYESDN_ENCAP_ISDN: /* ISDN */
-	    pseudo_header->isdn.uton = direction & 1;
-	    pseudo_header->isdn.channel = channel;
-	    if(channel) { /* bearer channels */
-		if(wth) {
-		    wth->phdr.pkt_encap = WTAP_ENCAP_ISDN; /* recognises PPP */
-		    pseudo_header->isdn.uton=!pseudo_header->isdn.uton; /* bug */
+		pseudo_header->isdn.uton = direction & 1;
+		pseudo_header->isdn.channel = channel;
+		if(channel) { /* bearer channels */
+			if(wth) {
+				wth->phdr.pkt_encap = WTAP_ENCAP_ISDN; /* recognises PPP */
+				pseudo_header->isdn.uton=!pseudo_header->isdn.uton; /* bug */
+			}
+		} else { /* D channel */
+			if(wth) {
+				wth->phdr.pkt_encap = WTAP_ENCAP_ISDN;
+			}
 		}
-	    } else { /* D channel */
-		if(wth) {
-		    wth->phdr.pkt_encap = WTAP_ENCAP_ISDN;
-		}
-	    }
-	    break;
+		break;
+
 	case EYESDN_ENCAP_MSG: /* Layer 1 message */
-	    if(wth) {
-		wth->phdr.pkt_encap = WTAP_ENCAP_LAYER1_EVENT;
-	    }
-	    pseudo_header->l1event.uton = (direction & 1);
-	    break;
+		if(wth) {
+			wth->phdr.pkt_encap = WTAP_ENCAP_LAYER1_EVENT;
+		}
+		pseudo_header->l1event.uton = (direction & 1);
+		break;
+
 	case EYESDN_ENCAP_LAPB: /* X.25 via LAPB */ 
-	    if(wth) {
-		wth->phdr.pkt_encap = WTAP_ENCAP_LAPB;
-	    }
-	    pseudo_header->x25.flags = (direction & 1) ? 0 : 0x80;
-	    break;
+		if(wth) {
+			wth->phdr.pkt_encap = WTAP_ENCAP_LAPB;
+		}
+		pseudo_header->x25.flags = (direction & 1) ? 0 : 0x80;
+		break;
+
 	case EYESDN_ENCAP_ATM: { /* ATM cells */
 #define CELL_LEN 53
-	    unsigned char cell[CELL_LEN];
-	    if(pkt_len != CELL_LEN) {
-		*err = WTAP_ERR_BAD_RECORD;
-		*err_info = g_strdup_printf("eyesdn: ATM cell has a length "
-					    "!= 53 (%u)", pkt_len);
-		return -1;
-	    }
+		unsigned char cell[CELL_LEN];
+		gint64 cur_off;
 
-	    if (esc_read(cell, CELL_LEN, fh, 1) != CELL_LEN) {
-		*err = file_error(fh);
-		if (*err == 0)
-		    *err = WTAP_ERR_SHORT_READ;
-		return -1;
-	    }
+		if(pkt_len != CELL_LEN) {
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf(
+			    "eyesdn: ATM cell has a length != 53 (%u)",
+			    pkt_len);
+			return -1;
+		}
 
-	    if(wth) {
-		wth->phdr.pkt_encap = WTAP_ENCAP_ATM_PDUS_UNTRUNCATED;
-	    }
-	    pseudo_header->atm.flags=ATM_RAW_CELL;
-	    pseudo_header->atm.aal=AAL_UNKNOWN;
-	    pseudo_header->atm.type=TRAF_UMTS_FP;
-	    pseudo_header->atm.subtype=TRAF_ST_UNKNOWN;
-	    pseudo_header->atm.vpi=((cell[0]&0xf)<<4) + (cell[0]&0xf);
-	    pseudo_header->atm.vci=((cell[0]&0xf)<<4) + cell[0]; /* from cell */
-	    pseudo_header->atm.channel=direction & 1;
-	}
-	    break;
+		cur_off = file_tell(fh);
+		if (esc_read(cell, CELL_LEN, fh) != CELL_LEN) {
+			*err = file_error(fh);
+			if (*err == 0)
+				*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		}
+		if (file_seek(fh, cur_off, SEEK_SET, err) == -1)
+			return -1;
+		if(wth) {
+			wth->phdr.pkt_encap = WTAP_ENCAP_ATM_PDUS_UNTRUNCATED;
+		}
+		pseudo_header->atm.flags=ATM_RAW_CELL;
+		pseudo_header->atm.aal=AAL_UNKNOWN;
+		pseudo_header->atm.type=TRAF_UMTS_FP;
+		pseudo_header->atm.subtype=TRAF_ST_UNKNOWN;
+		pseudo_header->atm.vpi=((cell[0]&0xf)<<4) + (cell[0]&0xf);
+		pseudo_header->atm.vci=((cell[0]&0xf)<<4) + cell[0]; /* from cell */
+		pseudo_header->atm.channel=direction & 1;
+		}
+		break;
+
 	case EYESDN_ENCAP_MTP2: /* SS7 frames */
-	    pseudo_header->mtp2.sent = direction & 1;
-	    pseudo_header->mtp2.annex_a_used = MTP2_ANNEX_A_USED_UNKNOWN;
-	    pseudo_header->mtp2.link_number = channel;	    
-	    if(wth) {
-		wth->phdr.pkt_encap = WTAP_ENCAP_MTP2;
-	    }
-	    break;
-	case EYESDN_ENCAP_DPNSS: /* DPNSS */
-	    pseudo_header->isdn.uton = direction & 1;
-	    pseudo_header->isdn.channel = channel;
-	    if(wth) {
-		wth->phdr.pkt_encap = WTAP_ENCAP_DPNSS;
-	    }
-	    break;
-	case EYESDN_ENCAP_DASS2: /* DASS2 frames */
-	    pseudo_header->isdn.uton = direction & 1;
-	    pseudo_header->isdn.channel = channel;
-	    if(wth) {
-		wth->phdr.pkt_encap = WTAP_ENCAP_DPNSS;
-	    }
-	    break;
-	case EYESDN_ENCAP_BACNET: /* BACNET async over HDLC frames */
-	    /* pseudo_header->isdn.uton = direction & 1; */
-	    /* pseudo_header->isdn.channel = channel; */
-	    if(wth) {
-		wth->phdr.pkt_encap = WTAP_ENCAP_BACNET_MS_TP;
-	    }
-	    break;
-	} 
+		pseudo_header->mtp2.sent = direction & 1;
+		pseudo_header->mtp2.annex_a_used = MTP2_ANNEX_A_USED_UNKNOWN;
+		pseudo_header->mtp2.link_number = channel;		
+		if(wth) {
+			wth->phdr.pkt_encap = WTAP_ENCAP_MTP2;
+		}
+		break;
 
-        if(pkt_len > EYESDN_MAX_PACKET_LEN) {
-	    *err = WTAP_ERR_BAD_RECORD;
-	    *err_info = g_strdup_printf("eyesdn: File has %u-byte packet, bigger than maximum of %u",
+	case EYESDN_ENCAP_DPNSS: /* DPNSS */
+		pseudo_header->isdn.uton = direction & 1;
+		pseudo_header->isdn.channel = channel;
+		if(wth) {
+			wth->phdr.pkt_encap = WTAP_ENCAP_DPNSS;
+		}
+		break;
+
+	case EYESDN_ENCAP_DASS2: /* DASS2 frames */
+		pseudo_header->isdn.uton = direction & 1;
+		pseudo_header->isdn.channel = channel;
+		if(wth) {
+			wth->phdr.pkt_encap = WTAP_ENCAP_DPNSS;
+		}
+		break;
+
+	case EYESDN_ENCAP_BACNET: /* BACNET async over HDLC frames */
+		/* pseudo_header->isdn.uton = direction & 1; */
+		/* pseudo_header->isdn.channel = channel; */
+		if(wth) {
+			wth->phdr.pkt_encap = WTAP_ENCAP_BACNET_MS_TP;
+		}
+		break;
+	}
+
+	if(pkt_len > EYESDN_MAX_PACKET_LEN) {
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("eyesdn: File has %u-byte packet, bigger than maximum of %u",
 		pkt_len, EYESDN_MAX_PACKET_LEN);
-	    return -1;
+		return -1;
 	}
 
 	if (wth) {
-	        wth->phdr.ts.secs = secs;
+		wth->phdr.ts.secs = secs;
 		wth->phdr.ts.nsecs = usecs * 1000;
 		wth->phdr.caplen = pkt_len;
 		wth->phdr.len = pkt_len;
@@ -380,74 +385,44 @@ parse_eyesdn_packet_data(FILE_T fh, int pkt_len, guint8* buf, int *err,
         int bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = esc_read(buf, pkt_len, fh, 0);
+	bytes_read = esc_read(buf, pkt_len, fh);
 	if (bytes_read != pkt_len) {
-	    if (bytes_read == -2) {
-		*err = file_error(fh);
-		if (*err == 0)
-		    *err = WTAP_ERR_SHORT_READ;
-	    }  else if (bytes_read == -1) {
-	        *err = WTAP_ERR_BAD_RECORD;
-	        *err_info = g_strdup("eyesdn: No flag character seen in frame");
-	    } else
-		*err = WTAP_ERR_SHORT_READ;
-	    return FALSE;
+		if (bytes_read == -2) {
+			*err = file_error(fh);
+			if (*err == 0)
+				*err = WTAP_ERR_SHORT_READ;
+		} else if (bytes_read == -1) {
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup("eyesdn: No flag character seen in frame");
+		} else
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
 	}
 	return TRUE;
 }
 
 
-struct header {
-    int usecs;
-    time_t secs;
-    int channel;
-    int origin;
-    int protocol;
-    int size;
-};
-
-static int write_esc(const guchar *buf, int len, FILE *file)
+static gboolean
+esc_write(wtap_dumper *wdh, const guint8 *buf, int len, int *err)
 {
-    int i, byte;
-    
-    for(i=0; i<len; i++) {
-	byte=buf[i];
-	if(byte == 0xff || byte == 0xfe) {
-	    fputc(0xfe, file);
-	    byte-=2;
+	int i;
+	guint8 byte;
+	static const guint8 esc = 0xfe;
+	
+	for(i=0; i<len; i++) {
+		byte=buf[i];
+		if(byte == 0xff || byte == 0xfe) {
+			/*
+			 * Escape the frame delimiter and escape byte.
+			 */
+			if (!wtap_dump_file_write(wdh, &esc, sizeof esc, err))
+				return FALSE;
+			byte-=2;
+		}
+		if (!wtap_dump_file_write(wdh, &byte, sizeof byte, err))
+			return FALSE;
 	}
-	fputc(byte, file);
-    }
-    if(ferror(file)) return -1;
-    else return len;
-}
-
-static int write_header(FILE *file, struct header *hp)
-{
-    unsigned char buf[12];
-    
-    buf[0] = (unsigned char)(0xff & (hp->usecs >> 16));
-    buf[1] = (unsigned char)(0xff & (hp->usecs >> 8));
-    buf[2] = (unsigned char)(0xff & (hp->usecs >> 0));
-    buf[3] = (unsigned char)0;
-    buf[4] = (unsigned char)(0xff & (hp->secs >> 24));
-    buf[5] = (unsigned char)(0xff & (hp->secs >> 16));
-    buf[6] = (unsigned char)(0xff & (hp->secs >> 8));
-    buf[7] = (unsigned char)(0xff & (hp->secs >> 0));
-    buf[8] = (unsigned char) hp->channel;
-    buf[9] = (unsigned char) (hp->origin?1:0) + (hp->protocol << 1);
-    buf[10]= (unsigned char)(0xff &(hp->size >> 8));
-    buf[11]= (unsigned char)(0xff &(hp->size >> 0));
-    
-    return write_esc(buf, 12, file);
-}
-
-static void writeToTrc(FILE *file, struct header *hdr, 
-		       const guchar *buf)
-{
-    fputc(0xff, file); /* start flag */
-    write_header(file, hdr);
-    write_esc(buf, hdr->size, file);
+	return TRUE;
 }
 
 static gboolean eyesdn_dump(wtap_dumper *wdh,
@@ -457,29 +432,33 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 
 gboolean eyesdn_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 {
-    wdh->subtype_write=eyesdn_dump;
-    wdh->subtype_close=NULL;
+	wdh->subtype_write=eyesdn_dump;
+	wdh->subtype_close=NULL;
 
-    wdh->bytes_dumped += fprintf(wdh->fh, "EyeSDN");
-    *err=0;
-    return TRUE;
+	if (!wtap_dump_file_write(wdh, eyesdn_hdr_magic,
+	    EYESDN_HDR_MAGIC_SIZE, err))
+		return FALSE;
+	wdh->bytes_dumped += EYESDN_HDR_MAGIC_SIZE;
+	*err=0;
+	return TRUE;
 }
 
 int eyesdn_dump_can_write_encap(int encap)
 {
-    switch (encap) {
-    case WTAP_ENCAP_ISDN:
-    case WTAP_ENCAP_LAYER1_EVENT:
-    case WTAP_ENCAP_DPNSS:
-    case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
-    case WTAP_ENCAP_LAPB:
-    case WTAP_ENCAP_MTP2:
-    case WTAP_ENCAP_BACNET_MS_TP:
-    case WTAP_ENCAP_PER_PACKET:
-	return 0;
-    default:
-	return WTAP_ERR_UNSUPPORTED_ENCAP;
-    }
+	switch (encap) {
+	case WTAP_ENCAP_ISDN:
+	case WTAP_ENCAP_LAYER1_EVENT:
+	case WTAP_ENCAP_DPNSS:
+	case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
+	case WTAP_ENCAP_LAPB:
+	case WTAP_ENCAP_MTP2:
+	case WTAP_ENCAP_BACNET_MS_TP:
+	case WTAP_ENCAP_PER_PACKET:
+		return 0;
+
+	default:
+		return WTAP_ERR_UNSUPPORTED_ENCAP;
+	}
 }
 
 /* Write a record for a packet to a dump file.
@@ -489,49 +468,81 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 			    const union wtap_pseudo_header *pseudo_header _U_,
 			    const guchar *pd, int *err)
 {
-    struct header hdr;    
+	static const guint8 start_flag = 0xff;
+	guint8 buf[EYESDN_HDR_LENGTH];
+	int usecs;
+	time_t secs;
+	int channel;
+	int origin;
+	int protocol;
+	int size;
 
-    hdr.usecs=phdr->ts.nsecs/1000;
-    hdr.secs=phdr->ts.secs;
-    hdr.size=phdr->caplen;
-    hdr.origin = pseudo_header->isdn.uton;
-    hdr.channel = pseudo_header->isdn.channel;
+	usecs=phdr->ts.nsecs/1000;
+	secs=phdr->ts.secs;
+	size=phdr->caplen;
+	origin = pseudo_header->isdn.uton;
+	channel = pseudo_header->isdn.channel;
 
-    switch(phdr->pkt_encap) {
-    case WTAP_ENCAP_ISDN:
-	hdr.protocol=EYESDN_ENCAP_ISDN; /* set depending on decoder format and mode */
-	break;
-    case WTAP_ENCAP_LAYER1_EVENT:
-	hdr.protocol=EYESDN_ENCAP_MSG;
-	break;
-    case WTAP_ENCAP_DPNSS:
-	hdr.protocol=EYESDN_ENCAP_DPNSS;
-	break;
+	switch(phdr->pkt_encap) {
+
+	case WTAP_ENCAP_ISDN:
+		protocol=EYESDN_ENCAP_ISDN; /* set depending on decoder format and mode */
+		break;
+
+	case WTAP_ENCAP_LAYER1_EVENT:
+		protocol=EYESDN_ENCAP_MSG;
+		break;
+
+	case WTAP_ENCAP_DPNSS:
+		protocol=EYESDN_ENCAP_DPNSS;
+		break;
+
 #if 0
-    case WTAP_ENCAP_DASS2:
-	hdr.protocol=EYESDN_ENCAP_DASS2;
-	break;
+	case WTAP_ENCAP_DASS2:
+		protocol=EYESDN_ENCAP_DASS2;
+		break;
 #endif
-    case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
-	hdr.protocol=EYESDN_ENCAP_ATM;
-	hdr.channel=0x80;
-	break;
-    case WTAP_ENCAP_LAPB:
-	hdr.protocol=EYESDN_ENCAP_LAPB;
-	break;
-    case WTAP_ENCAP_MTP2:
-	hdr.protocol=EYESDN_ENCAP_MTP2;
-	break;
-    case WTAP_ENCAP_BACNET_MS_TP:
-	hdr.protocol=EYESDN_ENCAP_BACNET;
-	break;
-    default:
-	*err=-1;
-	return FALSE;
-    }
 
-    writeToTrc(wdh->fh, &hdr, pd);
+	case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
+		protocol=EYESDN_ENCAP_ATM;
+		channel=0x80;
+		break;
 
-    *err=0;
-    return TRUE;
+	case WTAP_ENCAP_LAPB:
+		protocol=EYESDN_ENCAP_LAPB;
+		break;
+
+	case WTAP_ENCAP_MTP2:
+		protocol=EYESDN_ENCAP_MTP2;
+		break;
+
+	case WTAP_ENCAP_BACNET_MS_TP:
+		protocol=EYESDN_ENCAP_BACNET;
+		break;
+
+	default:
+		*err=WTAP_ERR_UNSUPPORTED_ENCAP;
+		return FALSE;
+	}
+
+	phton24(&buf[0], usecs);
+
+	buf[3] = (guint8)0;
+	buf[4] = (guint8)(0xff & (secs >> 24));
+	buf[5] = (guint8)(0xff & (secs >> 16));
+	buf[6] = (guint8)(0xff & (secs >> 8));
+	buf[7] = (guint8)(0xff & (secs >> 0));
+
+	buf[8] = (guint8) channel;
+	buf[9] = (guint8) (origin?1:0) + (protocol << 1);
+	phtons(&buf[10], size);
+	
+	/* start flag */
+	if (!wtap_dump_file_write(wdh, &start_flag, sizeof start_flag, err))
+		return FALSE;
+	if (!esc_write(wdh, buf, 12, err))
+		return FALSE;
+	if (!esc_write(wdh, pd, size, err))
+		return FALSE;
+	return TRUE;
 }

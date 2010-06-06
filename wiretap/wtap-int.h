@@ -247,6 +247,15 @@ extern gint wtap_num_file_types;
 	}
 #endif
 
+#ifndef phton24
+#define phton24(p, v) \
+	{ 				\
+	(p)[0] = (guint8)((v) >> 16);	\
+	(p)[1] = (guint8)((v) >> 8);	\
+	(p)[2] = (guint8)((v) >> 0);	\
+	}
+#endif
+
 #ifndef phtonl
 #define phtonl(p, v) \
 	{ 				\
