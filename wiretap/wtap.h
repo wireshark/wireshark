@@ -817,11 +817,11 @@ typedef struct wtap_dumper wtap_dumper;
 struct file_type_info {
     /* the file type name */
     /* should be NULL for all "pseudo" types that are only internally used and not read/writeable */
-	const char *name;
+    const char *name;
 
     /* the file type short name, used as a shortcut for the command line tools */
     /* should be NULL for all "pseudo" types that are only internally used and not read/writeable */
-	const char *short_name;
+    const char *short_name;
 
     /* the common file extensions for this type (seperated by semicolon) */
     /* should be *.* if no common extension is applicable */
@@ -832,15 +832,15 @@ struct file_type_info {
     const char *file_extension_default;
 
     /* can this type be compressed with gzip? */
-	gboolean	can_compress;
+    gboolean can_compress;
 
     /* can this type write this encapsulation format? */
     /* should be NULL is this file type don't have write support */
-	int	(*can_write_encap)(int);
+    int (*can_write_encap)(int);
 
     /* the function to open the capture file for writing */
     /* should be NULL is this file type don't have write support */
-	int	(*dump_open)(wtap_dumper *, gboolean, int *);
+    int (*dump_open)(wtap_dumper *, gboolean, int *);
 };
 
 
