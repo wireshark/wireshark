@@ -1687,14 +1687,8 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		}
 		atm_hdr[SUNATM_VPI] = (guint8)pseudo_header->atm.vpi;
 		phtons(&atm_hdr[SUNATM_VCI], pseudo_header->atm.vci);
-		nwritten = wtap_dump_file_write(wdh, atm_hdr, sizeof(atm_hdr));
-		if (nwritten != sizeof(atm_hdr)) {
-			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-				*err = wtap_dump_file_ferror(wdh);
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
+		if (!wtap_dump_file_write(wdh, atm_hdr, sizeof(atm_hdr), err))
 			return FALSE;
-		}
 		wdh->bytes_dumped += sizeof(atm_hdr);
 		break;
 
@@ -1706,14 +1700,8 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		phtons(&irda_hdr[IRDA_SLL_PKTTYPE_OFFSET],
 		    pseudo_header->irda.pkttype);
 		phtons(&irda_hdr[IRDA_SLL_PROTOCOL_OFFSET], 0x0017);
-		nwritten = wtap_dump_file_write(wdh, irda_hdr, sizeof(irda_hdr));
-		if (nwritten != sizeof(irda_hdr)) {
-			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-				*err = wtap_dump_file_ferror(wdh);
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
+		if (!wtap_dump_file_write(wdh, irda_hdr, sizeof(irda_hdr), err))
 			return FALSE;
-		}
 		wdh->bytes_dumped += sizeof(irda_hdr);
 		break;
 
@@ -1726,14 +1714,8 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		mtp2_hdr[MTP2_ANNEX_A_USED_OFFSET] = pseudo_header->mtp2.annex_a_used;
 		phtons(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET],
 		    pseudo_header->mtp2.link_number);
-		nwritten = wtap_dump_file_write(wdh, mtp2_hdr, sizeof(mtp2_hdr));
-		if (nwritten != sizeof(mtp2_hdr)) {
-			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-				*err = wtap_dump_file_ferror(wdh);
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
+		if (!wtap_dump_file_write(wdh, mtp2_hdr, sizeof(mtp2_hdr), err))
 			return FALSE;
-		}
 		wdh->bytes_dumped += sizeof(mtp2_hdr);
 		break;
 
@@ -1812,14 +1794,8 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		default:
 		  break;
 		}
-		nwritten = wtap_dump_file_write(wdh, erf_hdr, size);
-		if (nwritten != (guint) size) {
-			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-				*err = wtap_dump_file_ferror(wdh);
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
+		if (!wtap_dump_file_write(wdh, erf_hdr, size, err))
 			return FALSE;
-		}
 		wdh->bytes_dumped += size;
 		break;
 
@@ -1844,27 +1820,15 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 
 	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
 		bt_hdr.direction = GUINT32_TO_BE(pseudo_header->p2p.sent ? LIBPCAP_BT_PHDR_SENT : LIBPCAP_BT_PHDR_RECV);
-		nwritten = wtap_dump_file_write(wdh, &bt_hdr, sizeof bt_hdr);
-		if (nwritten != sizeof bt_hdr) {
-			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-				*err = wtap_dump_file_ferror(wdh);
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
+		if (!wtap_dump_file_write(wdh, &bt_hdr, sizeof bt_hdr, err))
 			return FALSE;
-		}
 		wdh->bytes_dumped += sizeof bt_hdr;
 		break;
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:
 		ppp_hdr.direction = (pseudo_header->p2p.sent ? LIBPCAP_PPP_PHDR_SENT : LIBPCAP_PPP_PHDR_RECV);
-		nwritten = wtap_dump_file_write(wdh, &ppp_hdr, sizeof ppp_hdr);
-		if (nwritten != sizeof ppp_hdr) {
-			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-				*err = wtap_dump_file_ferror(wdh);
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
+		if (!wtap_dump_file_write(wdh, &ppp_hdr, sizeof ppp_hdr, err))
 			return FALSE;
-		}
 		wdh->bytes_dumped += sizeof ppp_hdr;
 		break;
 	}

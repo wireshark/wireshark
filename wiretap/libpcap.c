@@ -911,7 +911,6 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 {
 	guint32 magic;
 	struct pcap_hdr file_hdr;
-	size_t nwritten;
 
 	/* This is a libpcap file */
 	wdh->subtype_write = libpcap_dump;
@@ -945,14 +944,8 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 		return FALSE;
 	}
 
-	nwritten = wtap_dump_file_write(wdh, &magic, sizeof magic);
-	if (nwritten != sizeof magic) {
-		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-			*err = wtap_dump_file_ferror(wdh);
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &magic, sizeof magic, err))
 		return FALSE;
-	}
 	wdh->bytes_dumped += sizeof magic;
 
 	/* current "libpcap" format is 2.4 */
@@ -974,14 +967,8 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	file_hdr.snaplen = (wdh->snaplen != 0) ? wdh->snaplen :
 						 WTAP_MAX_PACKET_SIZE;
 	file_hdr.network = wtap_wtap_encap_to_pcap_encap(wdh->encap);
-	nwritten = wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr);
-	if (nwritten != sizeof file_hdr) {
-		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-			*err = wtap_dump_file_ferror(wdh);
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
 		return FALSE;
-	}
 	wdh->bytes_dumped += sizeof file_hdr;
 
 	return TRUE;
@@ -996,7 +983,6 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 {
 	struct pcaprec_ss990915_hdr rec_hdr;
 	size_t hdr_size;
-	size_t nwritten;
 	int phdrsize;
 
 	phdrsize = pcap_get_phdr_size(wdh->encap, pseudo_header);
@@ -1069,27 +1055,15 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		return FALSE;
 	}
 
-	nwritten = wtap_dump_file_write(wdh, &rec_hdr, hdr_size);
-	if (nwritten != hdr_size) {
-		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-			*err = wtap_dump_file_ferror(wdh);
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &rec_hdr, hdr_size, err))
 		return FALSE;
-	}
 	wdh->bytes_dumped += hdr_size;
 
 	if (!pcap_write_phdr(wdh, wdh->encap, pseudo_header, err))
 		return FALSE;
 
-	nwritten = wtap_dump_file_write(wdh, pd, phdr->caplen);
-	if (nwritten != phdr->caplen) {
-		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-			*err = wtap_dump_file_ferror(wdh);
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
 		return FALSE;
-	}
         wdh->bytes_dumped += phdr->caplen;
 	return TRUE;
 }

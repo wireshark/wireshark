@@ -388,7 +388,7 @@ static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
     rec_hdr.incl_len = GUINT32_TO_BE(phdr->caplen-1);
     rec_hdr.orig_len = GUINT32_TO_BE(phdr->len-1);
 
-    if (!wtap_dump_file_write_all(wdh, &rec_hdr, sizeof rec_hdr, err))
+    if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
         return FALSE;
 
     wdh->bytes_dumped += sizeof rec_hdr;
@@ -396,7 +396,7 @@ static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
     /* Skip HCI packet type */
     ++pd;
 
-    if (!wtap_dump_file_write_all(wdh, pd, phdr->caplen-1, err))
+    if (!wtap_dump_file_write(wdh, pd, phdr->caplen-1, err))
         return FALSE;
 
     wdh->bytes_dumped += phdr->caplen-1;
@@ -417,12 +417,12 @@ static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
     rec_hdr.incl_len = GUINT32_TO_BE(phdr->caplen);
     rec_hdr.orig_len = GUINT32_TO_BE(phdr->len);
 
-    if (!wtap_dump_file_write_all(wdh, &rec_hdr, sizeof rec_hdr, err))
+    if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
         return FALSE;
 
     wdh->bytes_dumped += sizeof rec_hdr;
 
-    if (!wtap_dump_file_write_all(wdh, pd, phdr->caplen, err))
+    if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
         return FALSE;
 
     wdh->bytes_dumped += phdr->caplen;
@@ -453,7 +453,7 @@ gboolean btsnoop_dump_open_h1(wtap_dumper *wdh, gboolean cant_seek _U_, int *err
         return FALSE;
     }
 
-    if (!wtap_dump_file_write_all(wdh, btsnoop_magic, sizeof btsnoop_magic, err))
+    if (!wtap_dump_file_write(wdh, btsnoop_magic, sizeof btsnoop_magic, err))
         return FALSE;
 
     wdh->bytes_dumped += sizeof btsnoop_magic;
@@ -463,7 +463,7 @@ gboolean btsnoop_dump_open_h1(wtap_dumper *wdh, gboolean cant_seek _U_, int *err
     /* HCI type encoded in first byte */
     file_hdr.datalink = GUINT32_TO_BE(KHciLoggerDatalinkTypeH1);
 
-    if (!wtap_dump_file_write_all(wdh, &file_hdr, sizeof file_hdr, err))
+    if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
         return FALSE;
 
     wdh->bytes_dumped += sizeof file_hdr;
@@ -495,7 +495,7 @@ gboolean btsnoop_dump_open_h4(wtap_dumper *wdh, gboolean cant_seek _U_, int *err
         return FALSE;
     }
 
-    if (!wtap_dump_file_write_all(wdh, btsnoop_magic, sizeof btsnoop_magic, err))
+    if (!wtap_dump_file_write(wdh, btsnoop_magic, sizeof btsnoop_magic, err))
         return FALSE;
 
     wdh->bytes_dumped += sizeof btsnoop_magic;
@@ -505,7 +505,7 @@ gboolean btsnoop_dump_open_h4(wtap_dumper *wdh, gboolean cant_seek _U_, int *err
     /* HCI type encoded in first byte */
     file_hdr.datalink = GUINT32_TO_BE(KHciLoggerDatalinkTypeH4);
 
-    if (!wtap_dump_file_write_all(wdh, &file_hdr, sizeof file_hdr, err))
+    if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
         return FALSE;
 
     wdh->bytes_dumped += sizeof file_hdr;

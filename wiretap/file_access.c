@@ -1024,31 +1024,53 @@ static FILE_T wtap_dump_file_fdopen(wtap_dumper *wdh _U_, int fd)
 #endif
 
 /* internally writing raw bytes (compressed or not) */
-size_t wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize)
+gboolean
+wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize,
+    int *err)
 {
+	size_t nwritten;
 #ifdef HAVE_LIBZ
-	if(wdh->compressed) {
-		return gzwrite(wdh->fh, buf, (unsigned) bufsize);
+	int errnum;
+#endif
+
+#ifdef HAVE_LIBZ
+	if (wdh->compressed) {
+		nwritten = gzwrite(wdh->fh, buf, (unsigned) bufsize);
+		/*
+		 * At least according to zlib.h, gzwrite returns 0
+		 * on error; that appears to be the case in libz
+		 * 1.2.5.
+		 */
+		if (nwritten == 0) {
+			gzerror(wdh->fh, &errnum);
+			if (errnum == Z_ERRNO)
+				*err = errno;
+			else {
+				/*
+				 * XXX - what to do with this zlib-specific
+				 * number?
+				 */
+				*err = errnum;
+			}
+			return FALSE;
+		}
 	} else
 #endif
 	{
-		return fwrite(buf, 1, bufsize, wdh->fh);
+		nwritten = fwrite(buf, 1, bufsize, wdh->fh);
+		/*
+		 * At least according to the Mac OS X man page,
+		 * this can return a short count on an error.
+		 */
+		if (nwritten != bufsize) {
+			if (ferror(wdh->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
 	}
-}
-
-gboolean wtap_dump_file_write_all(wtap_dumper *wdh, const void *buf, unsigned bufsize, int *err)
-{
-	size_t nwritten;
-
-    nwritten = wtap_dump_file_write(wdh, buf, bufsize);
-    if (nwritten != bufsize) {
-        if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-            *err = wtap_dump_file_ferror(wdh);
-        else
-            *err = WTAP_ERR_SHORT_WRITE;
-        return FALSE;
-    }
-    return TRUE;
+	return TRUE;
 }
 
 /* internally close a file for writing (compressed or not) */
@@ -1063,25 +1085,3 @@ static int wtap_dump_file_close(wtap_dumper *wdh)
 		return fclose(wdh->fh);
 	}
 }
-
-int wtap_dump_file_ferror(wtap_dumper *wdh)
-{
-#ifdef HAVE_LIBZ
-	int errnum;
-
-	if(wdh->compressed) {
-		gzerror(wdh->fh, &errnum);
-
-		if(errnum == Z_ERRNO) {
-			return errno;
-		} else {
-			/* XXX - what to do with this zlib specific number? */
-			return errnum;
-		}
-	} else
-#endif
-	{
-		return ferror(wdh->fh);
-	}
-}
-

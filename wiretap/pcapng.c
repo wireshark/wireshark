@@ -1482,21 +1482,14 @@ pcapng_write_section_header_block(wtap_dumper *wdh, wtapng_block_t *wblock, int 
 {
 	pcapng_block_header_t bh;
 	pcapng_section_header_block_t shb;
-	size_t nwritten;
 
 
 	/* write block header */
 	bh.block_type = wblock->type;
 	bh.block_total_length = sizeof(bh) + sizeof(shb) /* + options */ + 4;
 
-	nwritten = wtap_dump_file_write(wdh, &bh, sizeof bh);
-	if (nwritten != sizeof bh) {
-		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-			*err = wtap_dump_file_ferror(wdh);
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
 		return FALSE;
-	}
 	wdh->bytes_dumped += sizeof bh;
 
 	/* write block fixed content */
@@ -1506,27 +1499,16 @@ pcapng_write_section_header_block(wtap_dumper *wdh, wtapng_block_t *wblock, int 
 	shb.version_minor = 0;
 	shb.section_length = -1;
 
-	nwritten = wtap_dump_file_write(wdh, &shb, sizeof shb);
-	if (nwritten != sizeof shb) {
-		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-			*err = wtap_dump_file_ferror(wdh);
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &shb, sizeof shb, err))
 		return FALSE;
-	}
 	wdh->bytes_dumped += sizeof shb;
 
 	/* XXX - write (optional) block options */
 
 	/* write block footer */
-	nwritten = wtap_dump_file_write(wdh, &bh.block_total_length, sizeof bh.block_total_length);
-	if (nwritten != sizeof bh.block_total_length) {
-		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-			*err = wtap_dump_file_ferror(wdh);
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &bh.block_total_length,
+	    sizeof bh.block_total_length, err))
 		return FALSE;
-	}
 	wdh->bytes_dumped += sizeof bh.block_total_length;
 
 	return TRUE;
@@ -1539,7 +1521,6 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 {
 	pcapng_block_header_t bh;
 	pcapng_interface_description_block_t idb;
-	size_t nwritten;
 
 
 	pcapng_debug3("pcapng_write_if_descr_block: encap = %d (%s), snaplen = %d",
@@ -1556,14 +1537,8 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	bh.block_type = wblock->type;
 	bh.block_total_length = sizeof(bh) + sizeof(idb) /* + options */ + 4;
 
-	nwritten = wtap_dump_file_write(wdh, &bh, sizeof bh);
-	if (nwritten != sizeof bh) {
-		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-			*err = wtap_dump_file_ferror(wdh);
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
 		return FALSE;
-	}
 	wdh->bytes_dumped += sizeof bh;
 
 	/* write block fixed content */
@@ -1571,27 +1546,16 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	idb.reserved	= 0;
 	idb.snaplen	= wblock->data.if_descr.snap_len;
 
-	nwritten = wtap_dump_file_write(wdh, &idb, sizeof idb);
-	if (nwritten != sizeof idb) {
-		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-			*err = wtap_dump_file_ferror(wdh);
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &idb, sizeof idb, err))
 		return FALSE;
-	}
 	wdh->bytes_dumped += sizeof idb;
 
 	/* XXX - write (optional) block options */
 
 	/* write block footer */
-	nwritten = wtap_dump_file_write(wdh, &bh.block_total_length, sizeof bh.block_total_length);
-	if (nwritten != sizeof bh.block_total_length) {
-		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-			*err = wtap_dump_file_ferror(wdh);
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &bh.block_total_length,
+	    sizeof bh.block_total_length, err))
 		return FALSE;
-	}
 	wdh->bytes_dumped += sizeof bh.block_total_length;
 
 	return TRUE;
@@ -1603,7 +1567,6 @@ pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 {
 	pcapng_block_header_t bh;
 	pcapng_enhanced_packet_block_t epb;
-	size_t nwritten;
 	const guint32 zero_pad = 0;
 	guint32 pad_len;
 	guint32 phdr_len;
@@ -1619,14 +1582,8 @@ pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	bh.block_type = wblock->type;
 	bh.block_total_length = (guint32)sizeof(bh) + (guint32)sizeof(epb) + phdr_len + wblock->data.packet.cap_len + pad_len /* + options */ + 4;
 
-	nwritten = wtap_dump_file_write(wdh, &bh, sizeof bh);
-	if (nwritten != sizeof bh) {
-		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-			*err = wtap_dump_file_ferror(wdh);
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
 		return FALSE;
-	}
 	wdh->bytes_dumped += sizeof bh;
 
 	/* write block fixed content */
@@ -1636,14 +1593,8 @@ pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	epb.captured_len	= wblock->data.packet.cap_len + phdr_len;
 	epb.packet_len		= wblock->data.packet.packet_len + phdr_len;
 
-	nwritten = wtap_dump_file_write(wdh, &epb, sizeof epb);
-	if (nwritten != sizeof epb) {
-		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-			*err = wtap_dump_file_ferror(wdh);
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &epb, sizeof epb, err))
 		return FALSE;
-	}
 	wdh->bytes_dumped += sizeof epb;
 
 	/* write pseudo header */
@@ -1653,40 +1604,24 @@ pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	wdh->bytes_dumped += phdr_len;
 
 	/* write packet data */
-	nwritten = wtap_dump_file_write(wdh, wblock->frame_buffer, wblock->data.packet.cap_len);
-	if (nwritten != wblock->data.packet.cap_len) {
-		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-			*err = wtap_dump_file_ferror(wdh);
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, wblock->frame_buffer,
+	    wblock->data.packet.cap_len, err))
 		return FALSE;
-	}
 	wdh->bytes_dumped += wblock->data.packet.cap_len;
 
 	/* write padding (if any) */
 	if (pad_len != 0) {
-		nwritten = wtap_dump_file_write(wdh, &zero_pad, pad_len);
-		if (nwritten != pad_len) {
-			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-				*err = wtap_dump_file_ferror(wdh);
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
+		if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err))
 			return FALSE;
-		}
 		wdh->bytes_dumped += pad_len;
 	}
 
 	/* XXX - write (optional) block options */
 
 	/* write block footer */
-	nwritten = wtap_dump_file_write(wdh, &bh.block_total_length, sizeof bh.block_total_length);
-	if (nwritten != sizeof bh.block_total_length) {
-		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
-			*err = wtap_dump_file_ferror(wdh);
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &bh.block_total_length,
+	    sizeof bh.block_total_length, err))
 		return FALSE;
-	}
 	wdh->bytes_dumped += sizeof bh.block_total_length;
 
 	return TRUE;
