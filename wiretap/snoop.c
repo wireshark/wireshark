@@ -878,33 +878,20 @@ int snoop_dump_can_write_encap(int encap)
 gboolean snoop_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 {
 	struct snoop_hdr file_hdr;
-	size_t nwritten;
 
 	/* This is a snoop file */
 	wdh->subtype_write = snoop_dump;
 	wdh->subtype_close = NULL;
 
 	/* Write the file header. */
-	nwritten = fwrite(&snoop_magic, 1, sizeof snoop_magic, wdh->fh);
-	if (nwritten != sizeof snoop_magic) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &snoop_magic, sizeof snoop_magic, err))
 		return FALSE;
-	}
 
 	/* current "snoop" format is 2 */
 	file_hdr.version = g_htonl(2);
 	file_hdr.network = g_htonl(wtap_encap[wdh->encap]);
-	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
-	if (nwritten != sizeof file_hdr) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
 		return FALSE;
-	}
 
 	return TRUE;
 }
@@ -917,7 +904,6 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	const guchar *pd, int *err)
 {
 	struct snooprec_hdr rec_hdr;
-	size_t nwritten;
 	int reclen;
 	guint padlen;
 	static char zeroes[4];
@@ -942,14 +928,8 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	rec_hdr.cum_drops = 0;
 	rec_hdr.ts_sec = g_htonl(phdr->ts.secs);
 	rec_hdr.ts_usec = g_htonl(phdr->ts.nsecs / 1000);
-	nwritten = fwrite(&rec_hdr, 1, sizeof rec_hdr, wdh->fh);
-	if (nwritten != sizeof rec_hdr) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
 		return FALSE;
-	}
 
 	if (wdh->encap == WTAP_ENCAP_ATM_PDUS) {
 		/*
@@ -986,33 +966,15 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 		}
 		atm_hdr.vpi = (guint8) pseudo_header->atm.vpi;
 		atm_hdr.vci = g_htons(pseudo_header->atm.vci);
-		nwritten = fwrite(&atm_hdr, 1, sizeof atm_hdr, wdh->fh);
-		if (nwritten != sizeof atm_hdr) {
-			if (nwritten == 0 && ferror(wdh->fh))
-				*err = errno;
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
+		if (!wtap_dump_file_write(wdh, &atm_hdr, sizeof atm_hdr, err))
 			return FALSE;
-		}
 	}
 
-	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
-	if (nwritten != phdr->caplen) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
 		return FALSE;
-	}
 
 	/* Now write the padding. */
-	nwritten = fwrite(zeroes, 1, padlen, wdh->fh);
-	if (nwritten != padlen) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, zeroes, padlen, err))
 		return FALSE;
-	}
 	return TRUE;
 }

@@ -723,7 +723,6 @@ int nettl_dump_can_write_encap(int encap)
 gboolean nettl_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 {
 	struct nettl_file_hdr file_hdr;
-	size_t nwritten;
 
 	/* This is a nettl file */
 	wdh->subtype_write = nettl_dump;
@@ -739,14 +738,8 @@ gboolean nettl_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	file_hdr.os_v=0x55;
 	g_strlcpy(file_hdr.model,"9000/800",11);
 	file_hdr.unknown=g_htons(0x406);
-	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
-	if (nwritten != sizeof(file_hdr)) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
 		return FALSE;
-	}
 	wdh->bytes_dumped += sizeof(file_hdr);
 
 	return TRUE;
@@ -760,7 +753,6 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 	const guchar *pd, int *err)
 {
 	struct nettlrec_hdr rec_hdr;
-	size_t nwritten;
 	guint8 dummyc[24];
 
 	memset(&rec_hdr,0,sizeof(rec_hdr));
@@ -831,67 +823,37 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 			return FALSE;
 	}
 
-	nwritten = fwrite(&rec_hdr, 1, sizeof(rec_hdr), wdh->fh);
-	if (nwritten != sizeof(rec_hdr)) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof(rec_hdr), err))
 		return FALSE;
-	}
 	wdh->bytes_dumped += sizeof(rec_hdr);
 
 	/* Write out 4 extra bytes of unknown stuff for HP-UX11
 	 * header format.
 	 */
 	memset(dummyc, 0, sizeof dummyc);
-	nwritten = fwrite(dummyc, 1, 4, wdh->fh);
-	if (nwritten != 4) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, dummyc, 4, err))
 		return FALSE;
-	}
 	wdh->bytes_dumped += 4;
 
 	if ((phdr->pkt_encap == WTAP_ENCAP_FDDI_BITSWAPPED) ||
 	    (phdr->pkt_encap == WTAP_ENCAP_NETTL_FDDI)) {
 		/* add those weird 3 bytes of padding */
-		nwritten = fwrite(dummyc, 1, 3, wdh->fh);
-		if (nwritten != 3) {
-			if (nwritten == 0 && ferror(wdh->fh))
-				*err = errno;
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
+		if (!wtap_dump_file_write(wdh, dummyc, 3, err))
 			return FALSE;
-		}
         	wdh->bytes_dumped += 3;
 	}
 /*
 	} else if (phdr->pkt_encap == WTAP_ENCAP_NETTL_X25) {
-		nwritten = fwrite(dummyc, 1, 24, wdh->fh);
-		if (nwritten != 24) {
-			if (nwritten == 0 && ferror(wdh->fh))
-				*err = errno;
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
+		if (!wtap_dump_file_write(wdh, dummyc, 24, err))
 			return FALSE;
-		}
 		wdh->bytes_dumped += 24;
 	}
 */
 
 	/* write actual PDU data */
 
-	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
-	if (nwritten != phdr->caplen) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
 		return FALSE;
-	}
         wdh->bytes_dumped += phdr->caplen;
 
 	return TRUE;

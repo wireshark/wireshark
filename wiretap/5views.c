@@ -377,9 +377,17 @@ int _5views_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean _5views_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
+gboolean _5views_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 {
 	_5views_dump_t *_5views;
+
+	/* This is a 5Views file.  We can't fill in some fields in the
+	   header until all the packets have been written, so we can't
+	   write to a pipe. */
+	if (cant_seek) {
+		*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
+		return FALSE;
+	}
 
 	/* We can't fill in all the fields in the file header, as we
 	   haven't yet written any packets.  As we'll have to rewrite
@@ -408,7 +416,6 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 	const guchar *pd, int *err)
 {
 	_5views_dump_t *_5views = (_5views_dump_t *)wdh->priv;
-	size_t nwritten;
 	static t_5VW_TimeStamped_Header HeaderFrame;
 
 	/* Frame Header */
@@ -427,24 +434,13 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 	HeaderFrame.RecInfo = htolel(0);
 
 	/* write the record header */
-	nwritten = fwrite(&HeaderFrame, 1, sizeof(t_5VW_TimeStamped_Header), wdh->fh);
-	if (nwritten != sizeof(t_5VW_TimeStamped_Header)) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &HeaderFrame,
+	    sizeof(t_5VW_TimeStamped_Header), err))
 		return FALSE;
-	}
 
 	/* write the data */
-	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
-	if (nwritten != phdr->caplen) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
 		return FALSE;
-	}
 
 	_5views->nframes ++;
 
@@ -455,7 +451,6 @@ static gboolean _5views_dump_close(wtap_dumper *wdh, int *err)
 {
 	_5views_dump_t *_5views = (_5views_dump_t *)wdh->priv;
 	t_5VW_Capture_Header file_hdr;
-	size_t nwritten;
 
 	if (fseek(wdh->fh, 0, SEEK_SET) == -1) {
 		*err = errno;
@@ -496,14 +491,9 @@ static gboolean _5views_dump_close(wtap_dumper *wdh, int *err)
 	file_hdr.TramesStockeesInFile = htolel(_5views->nframes);
 
 	/* Write the file header. */
-	nwritten = fwrite(&file_hdr, 1, sizeof(t_5VW_Capture_Header), wdh->fh);
-	if (nwritten != sizeof(t_5VW_Capture_Header)) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &file_hdr, sizeof(t_5VW_Capture_Header),
+	    err))
 		return FALSE;
-	}
 
 	return TRUE;
 }

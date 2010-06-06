@@ -507,23 +507,17 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int
 	file_header.offset_to_first_packet = (guint16) (sizeof(capture_file_header) + sizeof(tlv_header) + strlen(comment));
 	file_header.offset_to_first_packet = GUINT16_TO_LE(file_header.offset_to_first_packet);
 	file_header.number_of_information_elements = 1;
-	if(!fwrite(&file_header, sizeof(capture_file_header), 1, wdh->fh)) {
-		*err = errno;
+	if(!wtap_dump_file_write(wdh, &file_header, sizeof(capture_file_header), err))
 		return FALSE;
-	}
 
 	/* create the comment entry */
 	comment_header.type = GUINT16_TO_LE(INFORMATION_TYPE_COMMENT);
 	comment_header.length = (guint16) (sizeof(tlv_header) + strlen(comment));
 	comment_header.length = GUINT16_TO_LE(comment_header.length);
-	if(!fwrite(&comment_header, sizeof(tlv_header), 1, wdh->fh)) {
-		*err = errno;
+	if(!wtap_dump_file_write(wdh, &comment_header, sizeof(tlv_header), err))
 		return FALSE;
-	}
-	if(!fwrite(&comment, sizeof(char), strlen(comment), wdh->fh)) {
-		*err = errno;
+	if(!wtap_dump_file_write(wdh, &comment, strlen(comment), err))
 		return FALSE;
-	}
 
 	init_time_offset();
 
@@ -538,7 +532,6 @@ static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 {
 	niobserver_dump_t *niobserver = (niobserver_dump_t *)wdh->priv;
 	packet_entry_header packet_header;
-	size_t nwritten;
 	guint64 capture_nanoseconds;
 
 	if (phdr->ts.secs < seconds1970to2000) {
@@ -566,23 +559,12 @@ static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	niobserver->packet_count++;
 	packet_header.nano_seconds_since_2000 = GUINT64_TO_LE(capture_nanoseconds);
 
-	nwritten = fwrite(&packet_header, sizeof(packet_header), 1, wdh->fh);
-	if (nwritten != 1) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &packet_header, sizeof(packet_header),
+	    err))
 		return FALSE;
-	}
 
-	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
-	if (nwritten != phdr->caplen) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
 		return FALSE;
-	}
 
 	return TRUE;
 }

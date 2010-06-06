@@ -745,38 +745,24 @@ int k12_dump_can_write_encap(int encap) {
 
 static const gchar dumpy_junk[] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 
-static gboolean do_fwrite(const void *data, size_t size, size_t count, FILE *stream, int *err_p) {
-    size_t nwritten;
-
-    nwritten = fwrite(data, size, count, stream);
-    if (nwritten != count) {
-        if (nwritten == 0 && ferror(stream))
-            *err_p = errno;
-        else
-            *err_p = WTAP_ERR_SHORT_WRITE;
-        return FALSE;
-    }
-    return TRUE;
-}
-
 static gboolean k12_dump_record(wtap_dumper *wdh, guint32 len,  guint8* buffer, int *err_p) {
     k12_dump_t *k12 = (k12_dump_t *)wdh->priv;
     guint32 junky_offset = (0x2000 - ( (k12->file_offset - 0x200) % 0x2000 )) % 0x2000;
 
     if (len > junky_offset) {
         if (junky_offset) {
-            if (! do_fwrite(buffer, 1, junky_offset, wdh->fh, err_p))
+            if (! wtap_dump_file_write(wdh, buffer, junky_offset, err_p))
                 return FALSE;
         }
-        if (! do_fwrite(dumpy_junk, 1, 0x10, wdh->fh, err_p))
+        if (! wtap_dump_file_write(wdh, dumpy_junk, 0x10, err_p))
             return FALSE;
 
-        if (! do_fwrite(buffer+junky_offset, 1, len - junky_offset, wdh->fh, err_p))
+        if (! wtap_dump_file_write(wdh, buffer+junky_offset, len - junky_offset, err_p))
             return FALSE;
 
         k12->file_offset += len + 0x10;
     } else {
-        if (! do_fwrite(buffer, 1, len, wdh->fh, err_p))
+        if (! wtap_dump_file_write(wdh, buffer, len, err_p))
             return FALSE;
         k12->file_offset += len;
     }
@@ -950,7 +936,7 @@ static gboolean k12_dump_close(wtap_dumper *wdh, int *err) {
         guint32 u;
     } d;
 
-    if (! do_fwrite(k12_eof, 1, 2, wdh->fh, err))
+    if (! wtap_dump_file_write(wdh, k12_eof, 2, err))
         return FALSE;
 
     if (fseek(wdh->fh, 8, SEEK_SET) == -1) {
@@ -960,12 +946,12 @@ static gboolean k12_dump_close(wtap_dumper *wdh, int *err) {
 
     d.u = g_htonl(k12->file_len);
 
-    if (! do_fwrite(d.b, 1, 4, wdh->fh, err))
+    if (! wtap_dump_file_write(wdh, d.b, 4, err))
         return FALSE;
 
     d.u = g_htonl(k12->num_of_records);
 
-    if (! do_fwrite(d.b, 1, 4, wdh->fh, err))
+    if (! wtap_dump_file_write(wdh, d.b, 4, err))
         return FALSE;
 
     return TRUE;
@@ -980,7 +966,7 @@ gboolean k12_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err) {
         return FALSE;
     }
 
-    if ( ! do_fwrite(k12_file_magic, 1, 8, wdh->fh, err)) {
+    if ( ! wtap_dump_file_write(wdh, k12_file_magic, 8, err)) {
         return FALSE;
     }
 

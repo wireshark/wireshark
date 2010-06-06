@@ -681,7 +681,6 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	struct netmonrec_2_x_hdr rec_2_x_hdr;
 	char *hdrp;
 	size_t hdr_size;
-	size_t nwritten;
 	double t;
 	guint32 time_low, time_high;
 	struct netmon_atm_hdr atm_hdr;
@@ -738,14 +737,8 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		return FALSE;
 	}
 
-	nwritten = fwrite(hdrp, 1, hdr_size, wdh->fh);
-	if (nwritten != hdr_size) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, hdrp, hdr_size, err))
 		return FALSE;
-	}
 
 	if (wdh->encap == WTAP_ENCAP_ATM_PDUS) {
 		/*
@@ -756,24 +749,12 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		memset(&atm_hdr.src, 0, sizeof atm_hdr.src);
 		atm_hdr.vpi = g_htons(pseudo_header->atm.vpi);
 		atm_hdr.vci = g_htons(pseudo_header->atm.vci);
-		nwritten = fwrite(&atm_hdr, 1, sizeof atm_hdr, wdh->fh);
-		if (nwritten != sizeof atm_hdr) {
-			if (nwritten == 0 && ferror(wdh->fh))
-				*err = errno;
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
+		if (!wtap_dump_file_write(wdh, &atm_hdr, sizeof atm_hdr, err))
 			return FALSE;
-		}
 	}
 
-	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
-	if (nwritten != phdr->caplen) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
 		return FALSE;
-	}
 
 	/*
 	 * Stash the file offset of this frame.
@@ -811,7 +792,6 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 {
 	netmon_dump_t *netmon = (netmon_dump_t *)wdh->priv;
 	size_t n_to_write;
-	size_t nwritten;
 	struct netmon_hdr file_hdr;
 	const char *magicp;
 	size_t magic_size;
@@ -820,16 +800,8 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 	/* Write out the frame table.  "netmon->frame_table_index" is
 	   the number of entries we've put into it. */
 	n_to_write = netmon->frame_table_index * sizeof *netmon->frame_table;
-	nwritten = fwrite(netmon->frame_table, 1, n_to_write, wdh->fh);
-	if (nwritten != n_to_write) {
-		if (err != NULL) {
-			if (nwritten == 0 && ferror(wdh->fh))
-				*err = errno;
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
-		}
+	if (!wtap_dump_file_write(wdh, netmon->frame_table, n_to_write, err))
 		return FALSE;
-	}
 
 	/* Now go fix up the file header. */
 	fseek(wdh->fh, 0, SEEK_SET);
@@ -862,16 +834,8 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 			*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
 		return FALSE;
 	}
-	nwritten = fwrite(magicp, 1, magic_size, wdh->fh);
-	if (nwritten != magic_size) {
-		if (err != NULL) {
-			if (nwritten == 0 && ferror(wdh->fh))
-				*err = errno;
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
-		}
+	if (!wtap_dump_file_write(wdh, magicp, magic_size, err))
 		return FALSE;
-	}
 
 	file_hdr.network = htoles(wtap_encap[wdh->encap]);
 	tm = localtime(&netmon->first_record_time.secs);
@@ -897,16 +861,8 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 	file_hdr.frametableoffset = htolel(netmon->frame_table_offset);
 	file_hdr.frametablelength =
 	    htolel(netmon->frame_table_index * sizeof *netmon->frame_table);
-	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
-	if (nwritten != sizeof file_hdr) {
-		if (err != NULL) {
-			if (nwritten == 0 && ferror(wdh->fh))
-				*err = errno;
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
-		}
+	if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
 		return FALSE;
-	}
 
 	return TRUE;
 }

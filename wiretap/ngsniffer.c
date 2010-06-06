@@ -2025,7 +2025,6 @@ int ngsniffer_dump_can_write_encap(int encap)
 gboolean ngsniffer_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 {
     ngsniffer_dump_t *ngsniffer;
-    size_t nwritten;
     char buf[6] = {REC_VERS, 0x00, 0x12, 0x00, 0x00, 0x00}; /* version record */
 
     /* This is a sniffer file */
@@ -2038,22 +2037,11 @@ gboolean ngsniffer_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
     ngsniffer->start = 0;
 
     /* Write the file header. */
-    nwritten = fwrite(ngsniffer_magic, 1, sizeof ngsniffer_magic, wdh->fh);
-    if (nwritten != sizeof ngsniffer_magic) {
-	if (nwritten == 0 && ferror(wdh->fh))
-	    *err = errno;
-	else
-	    *err = WTAP_ERR_SHORT_WRITE;
+    if (!wtap_dump_file_write(wdh, ngsniffer_magic, sizeof ngsniffer_magic,
+                              err))
 	return FALSE;
-    }
-    nwritten = fwrite(buf, 1, 6, wdh->fh);
-    if (nwritten != 6) {
-	if (nwritten == 0 && ferror(wdh->fh))
-	    *err = errno;
-	else
-	    *err = WTAP_ERR_SHORT_WRITE;
+    if (!wtap_dump_file_write(wdh, buf, 6, err))
 	return FALSE;
-    }
 
     return TRUE;
 }
@@ -2065,7 +2053,6 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 {
     ngsniffer_dump_t *ngsniffer = (ngsniffer_dump_t *)wdh->priv;
     struct frame2_rec rec_hdr;
-    size_t nwritten;
     char buf[6];
     time_t tsecs;
     guint64 t;
@@ -2109,14 +2096,8 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	version.cmprs_level = 0;
 	version.rsvd[0] = 0;
 	version.rsvd[1] = 0;
-	nwritten = fwrite(&version, 1, sizeof version, wdh->fh);
-	if (nwritten != sizeof version) {
-	    if (nwritten == 0 && ferror(wdh->fh))
-		*err = errno;
-	    else
-		*err = WTAP_ERR_SHORT_WRITE;
+	if (!wtap_dump_file_write(wdh, &version, sizeof version, err))
 	    return FALSE;
-	}
     }
 
     buf[0] = REC_FRAME2;
@@ -2125,14 +2106,8 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     buf[3] = (char)((phdr->caplen + sizeof(struct frame2_rec))/256);
     buf[4] = 0x00;
     buf[5] = 0x00;
-    nwritten = fwrite(buf, 1, 6, wdh->fh);
-    if (nwritten != 6) {
-	if (nwritten == 0 && ferror(wdh->fh))
-	    *err = errno;
-	else
-	    *err = WTAP_ERR_SHORT_WRITE;
+    if (!wtap_dump_file_write(wdh, buf, 6, err))
 	return FALSE;
-    }
     /* Seconds since the start of the capture */
     tsecs = phdr->ts.secs - ngsniffer->start;
     /* Extract the number of days since the start of the capture */
@@ -2187,22 +2162,10 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     rec_hdr.flags = 0;
     rec_hdr.true_size = phdr->len != phdr->caplen ? htoles(phdr->len) : 0;
     rec_hdr.rsvd = 0;
-    nwritten = fwrite(&rec_hdr, 1, sizeof rec_hdr, wdh->fh);
-    if (nwritten != sizeof rec_hdr) {
-	if (nwritten == 0 && ferror(wdh->fh))
-	    *err = errno;
-	else
-	    *err = WTAP_ERR_SHORT_WRITE;
+    if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
 	return FALSE;
-    }
-    nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
-    if (nwritten != phdr->caplen) {
-	if (nwritten == 0 && ferror(wdh->fh))
-	    *err = errno;
-	else
-	    *err = WTAP_ERR_SHORT_WRITE;
+    if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
 	return FALSE;
-    }
     return TRUE;
 }
 
@@ -2212,18 +2175,9 @@ static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err)
 {
     /* EOF record */
     char buf[6] = {REC_EOF, 0x00, 0x00, 0x00, 0x00, 0x00};
-    size_t nwritten;
 
-    nwritten = fwrite(buf, 1, 6, wdh->fh);
-    if (nwritten != 6) {
-	if (err != NULL) {
-	    if (nwritten == 0 && ferror(wdh->fh))
-		*err = errno;
-	    else
-		*err = WTAP_ERR_SHORT_WRITE;
-	}
+    if (!wtap_dump_file_write(wdh, buf, 6, err))
 	return FALSE;
-    }
     return TRUE;
 }
 

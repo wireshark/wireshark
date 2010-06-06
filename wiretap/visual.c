@@ -705,7 +705,6 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     struct visual_write_info * visual = wdh->priv;
     struct visual_pkt_hdr vpkt_hdr;
     size_t hdr_size = sizeof vpkt_hdr;
-    size_t nwritten;
     unsigned delta_msec;
     guint32 packet_status;
 
@@ -785,26 +784,12 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     vpkt_hdr.status = htolel(packet_status);
 
     /* Write the packet header. */
-    nwritten = fwrite(&vpkt_hdr, 1, hdr_size, wdh->fh);
-    if (nwritten != hdr_size)
-    {
-        if (nwritten == 0 && ferror(wdh->fh))
-            *err = errno;
-        else
-            *err = WTAP_ERR_SHORT_WRITE;
+    if (!wtap_dump_file_write(wdh, &vpkt_hdr, hdr_size, err))
         return FALSE;
-    }
 
     /* Write the packet data */
-    nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
-    if (nwritten != phdr->caplen)
-    {
-        if (nwritten == 0 && ferror(wdh->fh))
-            *err = errno;
-        else
-            *err = WTAP_ERR_SHORT_WRITE;
+    if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
         return FALSE;
-    }
 
     /* Store the frame offset in the index table. */
     if (visual->index_table_index >= visual->index_table_size)
@@ -830,7 +815,6 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
 {
     struct visual_write_info * visual = wdh->priv;
     size_t n_to_write;
-    size_t nwritten;
     struct visual_file_hdr vfile_hdr;
     const char *magicp;
     size_t magic_size;
@@ -845,16 +829,8 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
     {
         /* Write the index table to the file. */
         n_to_write = visual->index_table_index * sizeof *visual->index_table;
-        nwritten = fwrite(visual->index_table, 1, n_to_write, wdh->fh);
-        if (nwritten != n_to_write)
+        if (!wtap_dump_file_write(wdh, visual->index_table, n_to_write, err))
         {
-            if (err != NULL)
-            {
-                if (nwritten == 0 && ferror(wdh->fh))
-                    *err = errno;
-                else
-                    *err = WTAP_ERR_SHORT_WRITE;
-            }
             visual_dump_free(wdh);
             return FALSE;
         }
@@ -864,16 +840,8 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
     fseek(wdh->fh, 0, SEEK_SET);
     magicp = visual_magic;
     magic_size = sizeof visual_magic;
-    nwritten = fwrite(magicp, 1, magic_size, wdh->fh);
-    if (nwritten != magic_size)
+    if (!wtap_dump_file_write(wdh, magicp, magic_size, err))
     {
-        if (err != NULL)
-        {
-            if (nwritten == 0 && ferror(wdh->fh))
-                *err = errno;
-            else
-                *err = WTAP_ERR_SHORT_WRITE;
-        }
         visual_dump_free(wdh);
         return FALSE;
     }
@@ -914,16 +882,8 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
     }
 
     /* Write the file header following the magic bytes. */
-    nwritten = fwrite(&vfile_hdr, 1, sizeof vfile_hdr, wdh->fh);
-    if (nwritten != sizeof vfile_hdr)
+    if (!wtap_dump_file_write(wdh, &vfile_hdr, sizeof vfile_hdr, err))
     {
-        if (err != NULL)
-        {
-            if (nwritten == 0 && ferror(wdh->fh))
-                *err = errno;
-            else
-                *err = WTAP_ERR_SHORT_WRITE;
-        }
         visual_dump_free(wdh);
         return FALSE;
     }

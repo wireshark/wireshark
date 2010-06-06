@@ -1647,7 +1647,6 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 	struct i2c_file_hdr i2c_hdr;
 	struct libpcap_bt_phdr bt_hdr;
 	struct libpcap_ppp_phdr ppp_hdr;
-	size_t nwritten;
 	size_t size;
 
 	switch (encap) {
@@ -1729,14 +1728,8 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		phtons(&lapd_hdr[LAPD_SLL_PROTOCOL_OFFSET], ETH_P_LAPD);
 		lapd_hdr[LAPD_SLL_ADDR_OFFSET + 0] =
 		    pseudo_header->lapd.we_network?0x01:0x00;
-		nwritten = fwrite(&lapd_hdr, 1, sizeof(lapd_hdr), wdh->fh);
-		if (nwritten != sizeof(lapd_hdr)) {
-			if (nwritten == 0 && ferror(wdh->fh))
-				*err = errno;
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
+		if (!wtap_dump_file_write(wdh, lapd_hdr, sizeof(lapd_hdr), err))
 			return FALSE;
-		}
 		wdh->bytes_dumped += sizeof(lapd_hdr);
 		break;
 
@@ -1750,14 +1743,8 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		sita_hdr[SITA_ERRORS1_OFFSET] = pseudo_header->sita.errors1;
 		sita_hdr[SITA_ERRORS2_OFFSET] = pseudo_header->sita.errors2;
 		sita_hdr[SITA_PROTO_OFFSET]   = pseudo_header->sita.proto;
-		nwritten = fwrite(&sita_hdr, 1, sizeof(sita_hdr), wdh->fh);
-		if (nwritten != sizeof(sita_hdr)) {
-			if (nwritten == 0 && ferror(wdh->fh))
-				*err = errno;
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
+		if (!wtap_dump_file_write(wdh, sita_hdr, sizeof(sita_hdr), err))
 			return FALSE;
-		}
 		wdh->bytes_dumped += sizeof(sita_hdr);
 		break;
 
@@ -1807,14 +1794,8 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		i2c_hdr.bus = pseudo_header->i2c.bus |
 			(pseudo_header->i2c.is_event ? 0x80 : 0x00);
 		phtonl((guint8 *)&i2c_hdr.flags, pseudo_header->i2c.flags);
-		nwritten = fwrite(&i2c_hdr, 1, sizeof(i2c_hdr), wdh->fh);
-		if (nwritten != sizeof(i2c_hdr)) {
-			if (nwritten == 0 && ferror(wdh->fh))
-				*err = errno;
-			else
-				*err = WTAP_ERR_SHORT_WRITE;
+		if (!wtap_dump_file_write(wdh, &i2c_hdr, sizeof(i2c_hdr), err))
 			return FALSE;
-		}
 		wdh->bytes_dumped += sizeof(i2c_hdr);
 		break;
 

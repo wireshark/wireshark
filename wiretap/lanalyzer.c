@@ -434,97 +434,47 @@ static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
 }
 
 /*---------------------------------------------------
- * Returns 0 or error
- * Write one block with error control
+ * Returns TRUE on success, FALSE on error
+ * Write "cnt" bytes of zero with error control
  *---------------------------------------------------*/
-static int swrite(const void* what, guint size, FILE *hd)
+static gboolean s0write(wtap_dumper *wdh, size_t cnt, int *err)
 {
-	size_t nwritten;
-
-	nwritten = fwrite(what, 1, size, hd);
-	if (nwritten != size) {
-		if (nwritten == 0 && ferror(hd))
-			return errno;
-		else
-			return WTAP_ERR_SHORT_WRITE;
-            }
-	return 0; /* ok */
-}
-
-/*---------------------------------------------------
- * Returns 0 or error
- * Write one block with error control
- *---------------------------------------------------*/
-static int s0write(size_t cnt, FILE *hd)
-{
-	static guint8 z64[64];
-	size_t nwritten;
+	static const guint8 z64[64];
 	size_t snack;
 
 	while (cnt) {
-            snack = cnt > 64 ? 64 : cnt;
-            nwritten = fwrite(z64, 1, snack, hd);
-            if (nwritten != snack) {
-		      if (nwritten == 0 && ferror(hd))
-			      return errno;
-		      else
-			      return WTAP_ERR_SHORT_WRITE;
-                  }
-            cnt -= snack;
-            }
-	return 0; /* ok */
+		snack = cnt > 64 ? 64 : cnt;
+
+		if (!wtap_dump_file_write(wdh, z64, snack, err))
+			return FALSE;
+		cnt -= snack;
+	}
+	return TRUE; /* ok */
 }
 
 /*---------------------------------------------------
- * Returns 0 or error
- * Write one block with error control
+ * Returns TRUE on success, FALSE on error
+ * Write an 8-bit value with error control
  *---------------------------------------------------*/
-static int s8write(const guint8 s8, FILE *hd)
+static gboolean s8write(wtap_dumper *wdh, const guint8 s8, int *err)
 {
-	size_t nwritten;
-
-	nwritten = fwrite(&s8, 1, 1, hd);
-	if (nwritten != 1) {
-		if (nwritten == 0 && ferror(hd))
-			return errno;
-		else
-			return WTAP_ERR_SHORT_WRITE;
-            }
-	return 0; /* ok */
+	return wtap_dump_file_write(wdh, &s8, 1, err);
 }
 /*---------------------------------------------------
- * Returns 0 or error
- * Write one block with error control
+ * Returns TRUE on success, FALSE on error
+ * Write a 16-bit value with error control
  *---------------------------------------------------*/
-static int s16write(const guint16 s16, FILE *hd)
+static gboolean s16write(wtap_dumper *wdh, const guint16 s16, int *err)
 {
-	size_t nwritten;
-
-	nwritten = fwrite(&s16, 1, 2, hd);
-	if (nwritten != 2) {
-		if (nwritten == 0 && ferror(hd))
-			return errno;
-		else
-			return WTAP_ERR_SHORT_WRITE;
-            }
-	return 0; /* ok */
+	return wtap_dump_file_write(wdh, &s16, 2, err);
 }
 /*---------------------------------------------------
- * Returns 0 or error
- * Write one block with error control
+ * Returns TRUE on success, FALSE on error
+ * Write a 32-bit value with error control
  *---------------------------------------------------*/
-static int s32write(const guint32 s32, FILE *hd)
+static gboolean s32write(wtap_dumper *wdh, const guint32 s32, int *err)
 {
-	size_t nwritten;
-
-	nwritten = fwrite(&s32, 1, 4, hd);
-	if (nwritten != 4) {
-		if (nwritten == 0 && ferror(hd))
-			return errno;
-		else
-			return WTAP_ERR_SHORT_WRITE;
-            }
-	return 0; /* ok */
+	return wtap_dump_file_write(wdh, &s32, 4, err);
 }
 /*---------------------------------------------------
  *
@@ -569,15 +519,13 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
 
       len = phdr->caplen + (phdr->caplen ? LA_PacketRecordSize : 0);
 
-      *err = s16write(htoles(0x1005), wdh->fh);
-      if (*err)
+      if (!s16write(wdh, htoles(0x1005), err))
             return FALSE;
-      *err = s16write(htoles(len), wdh->fh);
-      if (*err)
+      if (!s16write(wdh, htoles(len), err))
             return FALSE;
 
-	  tv.tv_sec  = (long int) phdr->ts.secs;
-	  tv.tv_usec = phdr->ts.nsecs / 1000;
+      tv.tv_sec  = (long int) phdr->ts.secs;
+      tv.tv_usec = phdr->ts.nsecs / 1000;
 
       if (!itmp->init) {
             /* collect some information for the
@@ -597,41 +545,32 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
       x  += (double) td.tv_sec * 1000000;
       x  *= 2;
 
-      *err = s16write(htoles(0x0001), wdh->fh);           /* pr.rx_channels */
-      if (*err)
+      if (!s16write(wdh, htoles(0x0001), err))             /* pr.rx_channels */
             return FALSE;
-      *err = s16write(htoles(0x0008), wdh->fh);           /* pr.rx_errors   */
-      if (*err)
+      if (!s16write(wdh, htoles(0x0008), err))             /* pr.rx_errors   */
             return FALSE;
-      *err = s16write(htoles(phdr->len + 4), wdh->fh);    /* pr.rx_frm_len  */
-      if (*err)
+      if (!s16write(wdh, htoles(phdr->len + 4), err))      /* pr.rx_frm_len  */
             return FALSE;
-      *err = s16write(htoles(phdr->caplen), wdh->fh);     /* pr.rx_frm_sln  */
-      if (*err)
+      if (!s16write(wdh, htoles(phdr->caplen), err))       /* pr.rx_frm_sln  */
             return FALSE;
 
       for (i = 0; i < 3; i++) {
-            *err = s16write(htoles((guint16) x), wdh->fh);/* pr.rx_time[i]  */
-            if (*err)
+            if (!s16write(wdh, htoles((guint16) x), err))  /* pr.rx_time[i]  */
                   return FALSE;
             x /= 0xffff;
-            }
+      }
 
-      *err = s32write(htolel(++itmp->pkts), wdh->fh);      /* pr.pktno      */
-      if (*err)
+      if (!s32write(wdh, htolel(++itmp->pkts), err))       /* pr.pktno      */
             return FALSE;
-      *err = s16write(htoles(itmp->lastlen), wdh->fh);     /* pr.prlen      */
-      if (*err)
+      if (!s16write(wdh, htoles(itmp->lastlen), err))      /* pr.prlen      */
             return FALSE;
       itmp->lastlen = len;
 
-      *err = s0write(12, wdh->fh);
-      if (*err)
-		return FALSE;
+      if (!s0write(wdh, 12, err))
+            return FALSE;
 
-      *err = swrite(pd , phdr->caplen , wdh->fh);
-      if (*err)
-		return FALSE;
+      if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+            return FALSE;
 
       wdh->bytes_dumped += thisSize;
 
@@ -721,138 +660,107 @@ static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
 
       fseek(wdh->fh, 0, SEEK_SET);
 
-      *err = swrite(&LA_HeaderRegularFake,  sizeof LA_HeaderRegularFake, wdh->fh);
-      if (*err)
+      if (!wtap_dump_file_write(wdh, &LA_HeaderRegularFake,
+                                sizeof LA_HeaderRegularFake, err))
 		return FALSE;
-      *err = swrite(&LA_RxChannelNameFake , sizeof LA_RxChannelNameFake , wdh->fh);
-      if (*err)
+      if (!wtap_dump_file_write(wdh, &LA_RxChannelNameFake,
+                                sizeof LA_RxChannelNameFake, err))
 		return FALSE;
-      *err = swrite(&LA_TxChannelNameFake , sizeof LA_TxChannelNameFake , wdh->fh);
-      if (*err)
+      if (!wtap_dump_file_write(wdh, &LA_TxChannelNameFake,
+                                sizeof LA_TxChannelNameFake, err))
 		return FALSE;
-      *err = swrite(&LA_RxTemplateNameFake, sizeof LA_RxTemplateNameFake, wdh->fh);
-      if (*err)
+      if (!wtap_dump_file_write(wdh, &LA_RxTemplateNameFake,
+                                sizeof LA_RxTemplateNameFake, err))
 		return FALSE;
-      *err = swrite(&LA_TxTemplateNameFake, sizeof LA_TxTemplateNameFake, wdh->fh);
-      if (*err)
+      if (!wtap_dump_file_write(wdh, &LA_TxTemplateNameFake,
+                                sizeof LA_TxTemplateNameFake, err))
 		return FALSE;
-      *err = swrite(&LA_DisplayOptionsFake, sizeof LA_DisplayOptionsFake, wdh->fh);
-      if (*err)
-		return FALSE;
-      /*-----------------------------------------------------------------*/
-      *err = s16write(htoles(RT_Summary), wdh->fh);        /* rid */
-      if (*err)
-            return FALSE;
-      *err = s16write(htoles(SummarySize), wdh->fh);       /* rlen */
-      if (*err)
-            return FALSE;
-      *err = s8write((guint8) fT->tm_mday, wdh->fh);       /* s.datcre.day */
-      if (*err)
-            return FALSE;
-      *err = s8write((guint8) (fT->tm_mon+1), wdh->fh);    /* s.datcre.mon */
-      if (*err)
-            return FALSE;
-      *err = s16write(htoles(fT->tm_year + 1900), wdh->fh);/* s.datcre.year */
-      if (*err)
-            return FALSE;
-      *err = s8write((guint8) fT->tm_mday, wdh->fh);       /* s.datclo.day */
-      if (*err)
-            return FALSE;
-      *err = s8write((guint8) (fT->tm_mon+1), wdh->fh);    /* s.datclo.mon */
-      if (*err)
-            return FALSE;
-      *err = s16write(htoles(fT->tm_year + 1900), wdh->fh);/* s.datclo.year */
-      if (*err)
-            return FALSE;
-      *err = s8write((guint8) fT->tm_sec, wdh->fh);        /* s.timeopn.second */
-      if (*err)
-            return FALSE;
-      *err = s8write((guint8) fT->tm_min, wdh->fh);        /* s.timeopn.minute */
-      if (*err)
-            return FALSE;
-      *err = s8write((guint8) fT->tm_hour, wdh->fh);       /* s.timeopn.hour */
-      if (*err)
-            return FALSE;
-      *err = s8write((guint8) fT->tm_mday, wdh->fh);       /* s.timeopn.mday */
-      if (*err)
-            return FALSE;
-      *err = s0write(2, wdh->fh);
-      if (*err)
-		return FALSE;
-      *err = s8write((guint8) fT->tm_sec, wdh->fh);        /* s.timeclo.second */
-      if (*err)
-            return FALSE;
-      *err = s8write((guint8) fT->tm_min, wdh->fh);        /* s.timeclo.minute */
-      if (*err)
-            return FALSE;
-      *err = s8write((guint8) fT->tm_hour, wdh->fh);       /* s.timeclo.hour */
-      if (*err)
-            return FALSE;
-      *err = s8write((guint8) fT->tm_mday, wdh->fh);       /* s.timeclo.mday */
-      if (*err)
-            return FALSE;
-      *err = s0write(2, wdh->fh);
-      if (*err)
-		return FALSE;
-      *err = s0write(6, wdh->fh);                          /* EAddr  == 0      */
-      if (*err)
-		return FALSE;
-      *err = s16write(htoles(1), wdh->fh);                 /* s.mxseqno */
-      if (*err)
-            return FALSE;
-      *err = s16write(htoles(0), wdh->fh);                 /* s.slcoffo */
-      if (*err)
-            return FALSE;
-      *err = s16write(htoles(1514), wdh->fh);              /* s.mxslc */
-      if (*err)
-            return FALSE;
-      *err = s32write(htolel(itmp->pkts), wdh->fh);        /* s.totpktt */
-      if (*err)
-            return FALSE;
-      *err = s0write(12, wdh->fh);                         /* statrg == 0; ? -1*/
-      if (*err)                                            /* stptrg == 0; ? -1*/
-		return FALSE;                                  /* s.mxpkta[0]=0    */
-      *err = s32write(htolel(itmp->pkts), wdh->fh);        /* sr.s.mxpkta[1]  */
-      if (*err)
-            return FALSE;
-      *err = s0write(34*4, wdh->fh);                       /* s.mxpkta[2-33]=0  */
-      if (*err)
-		return FALSE;
-      *err = s16write(htoles(board_type), wdh->fh);
-      if (*err)
-            return FALSE;
-      *err = s0write(20, wdh->fh);                         /* board_version == 0 */
-      if (*err)
-            return FALSE;
-      /*-----------------------------------------------------------------*/
-      *err = s16write(htoles(RT_SubfileSummary), wdh->fh);    /* ssr.rid */
-      if (*err)
-            return FALSE;
-      *err = s16write(htoles(LA_SubfileSummaryRecordSize-4), wdh->fh);    /* ssr.rlen */
-      if (*err)
-            return FALSE;
-      *err = s16write(htoles(1), wdh->fh);                    /* ssr.seqno */
-      if (*err)
-            return FALSE;
-      *err = s32write(htolel(itmp->pkts), wdh->fh);           /* ssr.totpkts */
-      if (*err)
-            return FALSE;
-      /*-----------------------------------------------------------------*/
-      *err = swrite(&LA_CyclicInformationFake, sizeof LA_CyclicInformationFake, wdh->fh);
-      if (*err)
+      if (!wtap_dump_file_write(wdh, &LA_DisplayOptionsFake,
+                                sizeof LA_DisplayOptionsFake, err))
 		return FALSE;
       /*-----------------------------------------------------------------*/
-      *err = s16write(htoles(RT_Index), wdh->fh);             /* rid */
-      if (*err)
+      if (!s16write(wdh, htoles(RT_Summary), err))         /* rid */
             return FALSE;
-      *err = s16write(htoles(LA_IndexRecordSize -4), wdh->fh);/* rlen */
-      if (*err)
+      if (!s16write(wdh, htoles(SummarySize), err))        /* rlen */
             return FALSE;
-      *err = s16write(htoles(LA_IndexSize), wdh->fh);         /* idxsp */
-      if (*err)
+      if (!s8write(wdh, (guint8) fT->tm_mday, err))        /* s.datcre.day */
             return FALSE;
-      *err = s0write(LA_IndexRecordSize - 6, wdh->fh);
-      if (*err)
+      if (!s8write(wdh, (guint8) (fT->tm_mon+1), err))     /* s.datcre.mon */
+            return FALSE;
+      if (!s16write(wdh, htoles(fT->tm_year + 1900), err)) /* s.datcre.year */
+            return FALSE;
+      if (!s8write(wdh, (guint8) fT->tm_mday, err))        /* s.datclo.day */
+            return FALSE;
+      if (!s8write(wdh, (guint8) (fT->tm_mon+1), err))     /* s.datclo.mon */
+            return FALSE;
+      if (!s16write(wdh, htoles(fT->tm_year + 1900), err)) /* s.datclo.year */
+            return FALSE;
+      if (!s8write(wdh, (guint8) fT->tm_sec, err))         /* s.timeopn.second */
+            return FALSE;
+      if (!s8write(wdh, (guint8) fT->tm_min, err))         /* s.timeopn.minute */
+            return FALSE;
+      if (!s8write(wdh, (guint8) fT->tm_hour, err))        /* s.timeopn.hour */
+            return FALSE;
+      if (!s8write(wdh, (guint8) fT->tm_mday, err))        /* s.timeopn.mday */
+            return FALSE;
+      if (!s0write(wdh, 2, err))
+            return FALSE;
+      if (!s8write(wdh, (guint8) fT->tm_sec, err))         /* s.timeclo.second */
+            return FALSE;
+      if (!s8write(wdh, (guint8) fT->tm_min, err))         /* s.timeclo.minute */
+            return FALSE;
+      if (!s8write(wdh, (guint8) fT->tm_hour, err))        /* s.timeclo.hour */
+            return FALSE;
+      if (!s8write(wdh, (guint8) fT->tm_mday, err))        /* s.timeclo.mday */
+            return FALSE;
+      if (!s0write(wdh, 2, err))
+            return FALSE;
+      if (!s0write(wdh, 6, err))                           /* EAddr  == 0      */
+            return FALSE;
+      if (!s16write(wdh, htoles(1), err))                  /* s.mxseqno */
+            return FALSE;
+      if (!s16write(wdh, htoles(0), err))                  /* s.slcoffo */
+            return FALSE;
+      if (!s16write(wdh, htoles(1514), err))               /* s.mxslc */
+            return FALSE;
+      if (!s32write(wdh, htolel(itmp->pkts), err))         /* s.totpktt */
+            return FALSE;
+      /*
+       * statrg == 0; ? -1
+       * stptrg == 0; ? -1
+       * s.mxpkta[0]=0
+       */
+      if (!s0write(wdh, 12, err))
+            return FALSE;
+      if (!s32write(wdh, htolel(itmp->pkts), err))         /* sr.s.mxpkta[1]  */
+            return FALSE;
+      if (!s0write(wdh, 34*4, err))                        /* s.mxpkta[2-33]=0  */
+            return FALSE;
+      if (!s16write(wdh, htoles(board_type), err))
+            return FALSE;
+      if (!s0write(wdh, 20, err))                             /* board_version == 0 */
+            return FALSE;
+      /*-----------------------------------------------------------------*/
+      if (!s16write(wdh, htoles(RT_SubfileSummary), err))     /* ssr.rid */
+            return FALSE;
+      if (!s16write(wdh, htoles(LA_SubfileSummaryRecordSize-4), err)) /* ssr.rlen */
+            return FALSE;
+      if (!s16write(wdh, htoles(1), err))                     /* ssr.seqno */
+            return FALSE;
+      if (!s32write(wdh, htolel(itmp->pkts), err))            /* ssr.totpkts */
+            return FALSE;
+      /*-----------------------------------------------------------------*/
+      if (!wtap_dump_file_write(wdh, &LA_CyclicInformationFake,
+                                sizeof LA_CyclicInformationFake, err))
+            return FALSE;
+      /*-----------------------------------------------------------------*/
+      if (!s16write(wdh, htoles(RT_Index), err))              /* rid */
+            return FALSE;
+      if (!s16write(wdh, htoles(LA_IndexRecordSize -4), err)) /* rlen */
+            return FALSE;
+      if (!s16write(wdh, htoles(LA_IndexSize), err))          /* idxsp */
+            return FALSE;
+      if (!s0write(wdh, LA_IndexRecordSize - 6, err))
             return FALSE;
 
       return TRUE;

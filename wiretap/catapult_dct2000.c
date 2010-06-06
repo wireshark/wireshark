@@ -601,24 +601,6 @@ int catapult_dct2000_dump_can_write_encap(int encap)
 /* Write a single packet out to the file */
 /*****************************************/
 
-static gboolean do_fwrite(const void *data, size_t size, size_t count, FILE *stream, int *err_p)
-{
-    size_t nwritten;
-
-    nwritten = fwrite(data, size, count, stream);
-    if (nwritten != count) {
-        if (nwritten == 0 && ferror(stream)) {
-            *err_p = errno;
-        }
-        else {
-            *err_p = WTAP_ERR_SHORT_WRITE;
-        }
-
-        return FALSE;
-    }
-    return TRUE;
-}
-
 gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
                                const union wtap_pseudo_header *pseudo_header,
                                const guchar *pd, int *err)
@@ -639,20 +621,22 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     if (dct2000 == NULL) {
 
         /* Write out saved first line */
-        if (!do_fwrite(file_externals->firstline, 1, file_externals->firstline_length, wdh->fh, err)) {
+        if (!wtap_dump_file_write(wdh, file_externals->firstline,
+                                  file_externals->firstline_length, err)) {
             return FALSE;
         }
-        if (!do_fwrite("\n", 1, 1, wdh->fh, err)) {
+        if (!wtap_dump_file_write(wdh, "\n", 1, err)) {
             return FALSE;
         }
 
         /* Also write out saved second line with timestamp corresponding to the
            opening time of the log.
         */
-        if (!do_fwrite(file_externals->secondline, 1, file_externals->secondline_length, wdh->fh, err)) {
+        if (!wtap_dump_file_write(wdh, file_externals->secondline,
+                                  file_externals->secondline_length, err)) {
             return FALSE;
         }
-        if (!do_fwrite("\n", 1, 1, wdh->fh, err)) {
+        if (!wtap_dump_file_write(wdh, "\n", 1, err)) {
             return FALSE;
         }
 
@@ -678,7 +662,8 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
                                                       (const void*)&(pseudo_header->dct2000.seek_off));
 
     /* Write out text before timestamp */
-    if (!do_fwrite(prefix->before_time, 1, strlen(prefix->before_time), wdh->fh, err)) {
+    if (!wtap_dump_file_write(wdh, prefix->before_time,
+                              strlen(prefix->before_time), err)) {
         return FALSE;
     }
 
@@ -698,18 +683,19 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     }
 
     /* Write out the calculated timestamp */
-    if (!do_fwrite(time_string, 1, strlen(time_string), wdh->fh, err)) {
+    if (!wtap_dump_file_write(wdh, time_string, strlen(time_string), err)) {
         return FALSE;
     }
 
     /* Write out text between timestamp and start of hex data */
     if (prefix->after_time == NULL) {
-        if (!do_fwrite(" l ", 1, strlen(" l "), wdh->fh, err)) {
+        if (!wtap_dump_file_write(wdh, " l ", strlen(" l "), err)) {
             return FALSE;
         }
     }
     else {
-        if (!do_fwrite(prefix->after_time, 1, strlen(prefix->after_time), wdh->fh, err)) {
+        if (!wtap_dump_file_write(wdh, prefix->after_time,
+                                  strlen(prefix->after_time), err)) {
             return FALSE;
         }
     }
@@ -747,7 +733,7 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
     /**************************************/
     /* Remainder is encapsulated protocol */
-    if (!do_fwrite("$", 1, 1, wdh->fh, err)) {
+    if (!wtap_dump_file_write(wdh, "$", 1, err)) {
         return FALSE;
     }
 
@@ -759,7 +745,7 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             c[1] = char_from_hex((guchar)(pd[n] & 0x0f));
 
             /* Write both hex chars of byte together */
-            if (!do_fwrite(c, 1, 2, wdh->fh, err)) {
+            if (!wtap_dump_file_write(wdh, c, 2, err)) {
                 return FALSE;
             }
         }
@@ -770,14 +756,14 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             c[0] = pd[n];
 
             /* Write both hex chars of byte together */
-            if (!do_fwrite(c, 1, 1, wdh->fh, err)) {
+            if (!wtap_dump_file_write(wdh, c, 1, err)) {
                 return FALSE;
             }
         }
     }
 
     /* End the line */
-    if (!do_fwrite("\n", 1, 1, wdh->fh, err)) {
+    if (!wtap_dump_file_write(wdh, "\n", 1, err)) {
         return FALSE;
     }
 

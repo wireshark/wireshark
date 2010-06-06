@@ -320,7 +320,6 @@ static gboolean commview_dump(wtap_dumper *wdh,
 			      const guchar *pd, int *err)
 {
 	commview_header_t cv_hdr;
-	size_t bytes_written = 0;
 	char date_time[5];
 
 	memset(&cv_hdr, 0, sizeof(cv_hdr));
@@ -376,47 +375,44 @@ static gboolean commview_dump(wtap_dumper *wdh,
 		return FALSE;
 	}
 
-	bytes_written += fwrite(&cv_hdr.data_len, 2, 1, wdh->fh);
-	bytes_written += fwrite(&cv_hdr.source_data_len, 2, 1, wdh->fh);
-	bytes_written += fwrite(&cv_hdr.version, 1, 1, wdh->fh);
-	bytes_written += fwrite(&cv_hdr.year, 2, 1, wdh->fh);
-	bytes_written += fwrite(&cv_hdr.month, 1, 1, wdh->fh);
-	bytes_written += fwrite(&cv_hdr.day, 1, 1, wdh->fh);
-	bytes_written += fwrite(&cv_hdr.hours, 1, 1, wdh->fh);
-	bytes_written += fwrite(&cv_hdr.minutes, 1, 1, wdh->fh);
-	bytes_written += fwrite(&cv_hdr.seconds, 1, 1, wdh->fh);
-	bytes_written += fwrite(&cv_hdr.usecs, 4, 1, wdh->fh);
-	bytes_written += fwrite(&cv_hdr.flags, 1, 1, wdh->fh);
-	bytes_written += fwrite(&cv_hdr.signal_level, 1, 1, wdh->fh);
-	bytes_written += fwrite(&cv_hdr.rate, 1, 1, wdh->fh);
-	bytes_written += fwrite(&cv_hdr.band, 1, 1, wdh->fh);
-	bytes_written += fwrite(&cv_hdr.channel, 1, 1, wdh->fh);
-	bytes_written += fwrite(&cv_hdr.direction, 1, 1, wdh->fh);
-	bytes_written += fwrite(&cv_hdr.reserved, 2, 1, wdh->fh);
-
-	if(bytes_written != 17) { /* 17 units of data should have been written
-				   * above. */
-		if(bytes_written == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
-
+	if (!wtap_dump_file_write(wdh, &cv_hdr.data_len, 2, err))
 		return FALSE;
-	}
-
+	if (!wtap_dump_file_write(wdh, &cv_hdr.source_data_len, 2, err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, &cv_hdr.version, 1, err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, &cv_hdr.year, 2, err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, &cv_hdr.month, 1, err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, &cv_hdr.day, 1, err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, &cv_hdr.hours, 1, err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, &cv_hdr.minutes, 1, err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, &cv_hdr.seconds, 1, err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, &cv_hdr.usecs, 4, err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, &cv_hdr.flags, 1, err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, &cv_hdr.signal_level, 1, err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, &cv_hdr.rate, 1, err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, &cv_hdr.band, 1, err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, &cv_hdr.channel, 1, err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, &cv_hdr.direction, 1, err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, &cv_hdr.reserved, 2, err))
+		return FALSE;
 	wdh->bytes_dumped += COMMVIEW_HEADER_SIZE;
 
-	bytes_written = fwrite(pd, 1, phdr->caplen, wdh->fh);
-
-	if(bytes_written != phdr->caplen) {
-		if(bytes_written == 0 && ferror(wdh->fh))
-			*err = errno;
-		else
-			*err = WTAP_ERR_SHORT_WRITE;
-
+	if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
 		return FALSE;
-	}
-
 	wdh->bytes_dumped += phdr->caplen;
 
 	return TRUE;

@@ -430,8 +430,6 @@ guint64	ns_hrtime2nsec(guint32 tm);
 
 static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr, 
 	const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
-gboolean nstrace_add_signature(wtap_dumper *wdh);
-gboolean nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr, const guchar *pd);
 
 
 #define GET_READ_PAGE_SIZE(remaining_file_size) ((gint32)((remaining_file_size>NSPR_PAGESIZE)?NSPR_PAGESIZE:remaining_file_size))
@@ -1086,10 +1084,9 @@ gboolean nstrace_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 }
 
 
-gboolean nstrace_add_signature(wtap_dumper *wdh)
+static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
 {
 	nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
-	size_t nwritten;
 
 	if (wdh->file_type == WTAP_FILE_NETSCALER_1_0)
 	{
@@ -1101,12 +1098,12 @@ gboolean nstrace_add_signature(wtap_dumper *wdh)
 		memcpy(sig10.sig_Signature, NSPR_SIGSTR_V10, NSPR_SIGSIZE_V10);
 
 		/* Write the record into the file */
-		nwritten = fwrite(&sig10, 1, nspr_signature_v10_s, wdh->fh);
-		if (nwritten != nspr_signature_v10_s)
+		if (!wtap_dump_file_write(wdh, &sig10, nspr_signature_v10_s,
+		    err))
 			return FALSE;    
 
 		/* Move forward the page offset */
-		nstrace->page_offset += (guint16) nwritten;
+		nstrace->page_offset += (guint16) nspr_signature_v10_s;
 	
 	} else if (wdh->file_type == WTAP_FILE_NETSCALER_2_0)
 	{
@@ -1119,12 +1116,12 @@ gboolean nstrace_add_signature(wtap_dumper *wdh)
 		memcpy(sig20->sig_Signature, NSPR_SIGSTR_V20, sizeof(NSPR_SIGSTR_V20));
 
 		/* Write the record into the file */
-		nwritten = fwrite(sig20, 1, sig20->sig_RecordSize, wdh->fh);
-		if (nwritten != sig20->sig_RecordSize) 
+		if (!wtap_dump_file_write(wdh, sig20, sig20->sig_RecordSize,
+		    err))
 			return FALSE;    
 
 		/* Move forward the page offset */
-		nstrace->page_offset += (guint16) nwritten;
+		nstrace->page_offset += (guint16) sig20->sig_RecordSize;
 	
 	} else  
 	{
@@ -1136,11 +1133,11 @@ gboolean nstrace_add_signature(wtap_dumper *wdh)
 }
 
 
-gboolean nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-     const guchar *pd)
+static gboolean
+nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+     const guchar *pd, int *err)
 {
 	nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
-	size_t nwritten;
 	guint64 nsg_creltime;
 
 	if (wdh->file_type == WTAP_FILE_NETSCALER_1_0)
@@ -1159,8 +1156,7 @@ gboolean nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		abs10.abs_Time = htolel((guint32)phdr->ts.secs - (guint32)(nsg_creltime/1000000000));
 
 		/* Write the record into the file */
-		nwritten = fwrite(&abs10, 1, nspr_abstime_v10_s, wdh->fh);
-		if (nwritten != nspr_abstime_v10_s) 
+		if (!wtap_dump_file_write(wdh, &abs10, nspr_abstime_v10_s, err))
 			return FALSE;
 
 		/* Move forward the page offset */
@@ -1181,8 +1177,7 @@ gboolean nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		abs20.abs_Time = htolel((guint32)phdr->ts.secs - (guint32)(nsg_creltime/1000000000));
 
 		/* Write the record into the file */
-		nwritten = fwrite(&abs20, 1, nspr_abstime_v20_s, wdh->fh);
-		if (nwritten != nspr_abstime_v20_s) 
+		if (!wtap_dump_file_write(wdh, &abs20, nspr_abstime_v20_s, err))
 			return FALSE;
 
 		/* Move forward the page offset */
@@ -1204,18 +1199,19 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err)
 {  
 	nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
-	size_t nwritten;
 
 	if (nstrace->page_offset == 0)
 	{
 		/* Add the signature record and abs time record */
 		if (wdh->file_type == WTAP_FILE_NETSCALER_1_0)
 		{
-			if ((nstrace_add_signature(wdh) == FALSE) || (nstrace_add_abstime(wdh, phdr, pd) == FALSE))
+			if (!nstrace_add_signature(wdh, err) ||
+			    !nstrace_add_abstime(wdh, phdr, pd, err))
 				return FALSE;
 		} else if (wdh->file_type == WTAP_FILE_NETSCALER_2_0)
 		{
-			if ((nstrace_add_signature(wdh) == FALSE) || (nstrace_add_abstime(wdh, phdr, pd) == FALSE))
+			if (!nstrace_add_signature(wdh, err) ||
+			    !nstrace_add_abstime(wdh, phdr, pd, err))
 				return FALSE;
 		} else
 		{
@@ -1242,23 +1238,15 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 				nstrace->page_offset = 0;
 
 				/* Possibly add signature and abstime records and increment offset */
-				if (nstrace_add_signature(wdh) == FALSE)
+				if (!nstrace_add_signature(wdh, err))
 					return FALSE;
 			}
 
 			/* Write the actual record as is */
-			nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
-			if (nwritten != phdr->caplen)
-			{
-				if (nwritten == 0 && ferror(wdh->fh))
-					*err = errno;
-				else
-					*err = WTAP_ERR_SHORT_WRITE;
-
+			if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
 				return FALSE;
-			}
 
-			nstrace->page_offset += (guint16) nwritten;
+			nstrace->page_offset += (guint16) phdr->caplen;
 		} else if (wdh->file_type == WTAP_FILE_NETSCALER_2_0)
 		{
 			*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
@@ -1290,24 +1278,15 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 				nstrace->page_offset = 0;
 
 				/* Possibly add signature and abstime records and increment offset */
-				if (nstrace_add_signature(wdh) == FALSE)
-				return FALSE;
+				if (!nstrace_add_signature(wdh, err))
+					return FALSE;
 			}
 
 			/* Write the actual record as is */
-			nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
-
-			if (nwritten != phdr->caplen)
-			{
-				if (nwritten == 0 && ferror(wdh->fh))
-					*err = errno;
-				else
-					*err = WTAP_ERR_SHORT_WRITE;
-
+			if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
 				return FALSE;
-			}
 
-			nstrace->page_offset += (guint16) nwritten;
+			nstrace->page_offset += (guint16) phdr->caplen;
 		}
 
 		break;
