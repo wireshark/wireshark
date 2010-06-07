@@ -837,31 +837,7 @@ dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return tvb_length(tvb);
 }
 
-
-void
-proto_reg_handoff_dtpt(void)
-{
-	static dissector_handle_t	dtpt_handle;
-	static gboolean Initialized=FALSE;
-	static int ServerPort;
-
-	if (!Initialized) {
-		dtpt_handle = new_create_dissector_handle(dissect_dtpt, proto_dtpt);
-		dtpt_conversation_handle = new_create_dissector_handle(dissect_dtpt_conversation, proto_dtpt);
-/**		dtpt_data_handle = new_create_dissector_handle(dissect_dtpt_data, proto_dtpt); **/
-
-		data_handle = find_dissector("data");
-		Initialized=TRUE;
-	} else {
-		dissector_delete("tcp.port", ServerPort, dtpt_handle);
-	}
-
-	/* set port for future deletes */
-	ServerPort=gbl_dtptServerPort;
-
-	dissector_add("tcp.port", gbl_dtptServerPort, dtpt_handle);
-}
-
+void proto_reg_handoff_dtpt(void);
 
 void
 proto_register_dtpt(void)
@@ -1194,3 +1170,30 @@ proto_register_dtpt(void)
 					"Set the TDP port for the DTPT Server",
 					10, &gbl_dtptServerPort);
 }
+
+
+void
+proto_reg_handoff_dtpt(void)
+{
+	static dissector_handle_t	dtpt_handle;
+	static gboolean Initialized=FALSE;
+	static int ServerPort;
+
+	if (!Initialized) {
+		dtpt_handle = new_create_dissector_handle(dissect_dtpt, proto_dtpt);
+		dtpt_conversation_handle = new_create_dissector_handle(dissect_dtpt_conversation, proto_dtpt);
+/**		dtpt_data_handle = new_create_dissector_handle(dissect_dtpt_data, proto_dtpt); **/
+
+		data_handle = find_dissector("data");
+		Initialized=TRUE;
+	} else {
+		dissector_delete("tcp.port", ServerPort, dtpt_handle);
+	}
+
+	/* set port for future deletes */
+	ServerPort=gbl_dtptServerPort;
+
+	dissector_add("tcp.port", gbl_dtptServerPort, dtpt_handle);
+}
+
+
