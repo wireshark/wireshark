@@ -41,7 +41,7 @@ Wireshark Info
             The SMB dissector could dereference a NULL pointer.
             <!-- Fixed in trunk: r32650 -->
             <!-- Fixed in trunk-1.2: r33142 -->
-            <!-- Fixed in trunk-1.0: r -->
+            <!-- Fixed in trunk-1.0: r33145 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4734">Bug
             4734</ulink>)
           </para>
@@ -58,11 +58,11 @@ Wireshark Info
             J. Oquendo discovered that the ASN.1 BER dissector could overrun the stack.
             <!-- Fixed in trunk: r32922, r33046 -->
             <!-- Fixed in trunk-1.2: r33122 -->
-            <!-- Fixed in trunk-1.0: r -->
+            <!-- Fixed in trunk-1.0: r33146 -->
             <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
             ????</ulink>) -->
           </para>
-          <para>Versions affected: ???? to 1.0.13, 1.2.0 to 1.2.8</para>
+          <para>Versions affected: 0.10.13 to 1.0.13, 1.2.0 to 1.2.8</para>
           <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
@@ -75,7 +75,7 @@ Wireshark Info
             The SMB PIPE dissector could dereference a NULL pointer on some platforms.
             <!-- Fixed in trunk: r32848 -->
             <!-- Fixed in trunk-1.2: r33120 -->
-            <!-- Fixed in trunk-1.0: r -->
+            <!-- Fixed in trunk-1.0: r33143 -->
             <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
             ????</ulink>) -->
           </para>
@@ -92,11 +92,11 @@ Wireshark Info
             The SigComp Universal Decompressor Virtual Machine could go into an infinite loop.
             <!-- Fixed in trunk: r33061, r33065 -->
             <!-- Fixed in trunk-1.2: r33131 -->
-            <!-- Fixed in trunk-1.0: r -->
+            <!-- Fixed in trunk-1.0: r33147 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4826">Bug
             4826</ulink>)
           </para>
-          <para>Versions affected: ???? to 1.0.13, 1.2.0 to 1.2.8</para>
+          <para>Versions affected: 0.10.7 to 1.0.13, 1.2.0 to 1.2.8</para>
           <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
@@ -109,11 +109,11 @@ Wireshark Info
             The SigComp Universal Decompressor Virtual Machine could overrun a buffer.
             <!-- Fixed in trunk: r33087, r33090 -->
             <!-- Fixed in trunk-1.2: r33134 -->
-            <!-- Fixed in trunk-1.0: r -->
+            <!-- Fixed in trunk-1.0: r33149 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4837">Bug
             4837</ulink>)
           </para>
-          <para>Versions affected: ???? to 1.0.13, 1.2.0 to 1.2.8</para>
+          <para>Versions affected: 0.10.8 to 1.0.13, 1.2.0 to 1.2.8</para>
           <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
