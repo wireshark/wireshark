@@ -13,9 +13,6 @@
 		<avp name="EAP-Master-Session-Key" code="464">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="EAP-Key-Name" code="102">
-			<type type-name="OctetString"/>
-		</avp>
 		<avp name="Accounting-EAP-Auth-Method" code="465">
 			<type type-name="Unsigned64"/>
 		</avp>

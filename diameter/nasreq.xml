@@ -4,29 +4,52 @@
 
 		<command name="AA" code="265" vendor-id="None"/>
 
-		<avp name="Accounting-Input-Octets" code="363">
+		<avp name="Accounting-Input-Octets" code="363" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="Unsigned64"/>
 		</avp>
-		<avp name="Accounting-Output-Octets" code="364">
+		<avp name="Accounting-Output-Octets" code="364" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="Unsigned64"/>
 		</avp>
-		<avp name="Accounting-Input-Packets" code="365">
+		<avp name="Accounting-Input-Packets" code="365" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="Unsigned64"/>
 		</avp>
-		<avp name="Accounting-Output-Packets" code="366">
+		<avp name="Accounting-Output-Packets" code="366" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="Unsigned64"/>
 		</avp>
-		<avp name="NAS-Filter-Rule" code="400">
+<!--
+368 - 393 is in sip.xml
+368 SIP-Accounting-Information [RFC4740] 
+369 SIP-Accounting-Server-URI [RFC4740] 
+370 SIP-Credit-Control-Server-URI [RFC4740] 
+371 SIP-Server-URI [RFC4740] 
+372 SIP-Server-Capabilities [RFC4740] 
+373 SIP-Mandatory-Capability [RFC4740] 
+374 SIP-Optional-Capability [RFC4740] 
+375 SIP-Server-Assignment-Type [RFC4740] 
+376 SIP-Auth-Data-Item [RFC4740] 
+377 SIP-Authentication-Scheme [RFC4740] 
+378 SIP-Item-Number [RFC4740] 
+379 SIP-Authenticate [RFC4740] 
+380 SIP-Authorization [RFC4740] 
+381 SIP-Authentication-Info [RFC4740] 
+382 SIP-Number-Auth-Items [RFC4740] 
+383 SIP-Deregistration-Reason [RFC4740] 
+384 SIP-Reason-Code [RFC4740] 
+385 SIP-Reason-Info [RFC4740] 
+386 SIP-Visited-Network-Id [RFC4740] 
+387 SIP-User-Authorization-Type [RFC4740] 
+388 SIP-Supported-User-Data-Type [RFC4740] 
+389 SIP-User-Data [RFC4740] 
+390 SIP-User-Data-Type [RFC4740] 
+391 SIP-User-Data-Contents [RFC4740] 
+392 SIP-User-Data-Already-Available [RFC4740] 
+393 SIP-Method [RFC4740] 
+394-399 Unassigned 
+-->    
+		<avp name="NAS-Filter-Rule" code="400" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="IPFilterRule"/>
 		</avp>
-		<avp name="Tunneling" code="401">
-			<grouped>
-				<gavp name="CHAP-Algorithm"/>
-				<gavp name="CHAP-Ident"/>
-				<gavp name="CHAP-Response"/>
-			</grouped>
-		</avp>
-		<avp name="CHAP-Auth" code="402">
+		<avp name="Tunneling" code="401" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
 			<grouped>
 				<gavp name="Tunnel-Type"/>
 				<gavp name="Tunnel-Medium-Type"/>
@@ -40,18 +63,25 @@
 				<gavp name="Tunnel-Private-Group-Id"/>
 			</grouped>
 		</avp>
-		<avp name="CHAP-Algorithm" code="403">
+		<avp name="CHAP-Auth" code="402" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="CHAP-Algorithm"/>
+				<gavp name="CHAP-Ident"/>
+				<gavp name="CHAP-Response"/>
+			</grouped>
+		</avp>
+		<avp name="CHAP-Algorithm" code="403" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="Enumerated"/>
 			<enum name="CHAP with MD5" code="5"/>
 		</avp>
-		<avp name="CHAP-Ident" code="404">
+		<avp name="CHAP-Ident" code="404" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="OctetString" code="405">
-			<type type-name="IPFilterRule"/>
+		<avp name="CHAP-Response" code="405" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Accounting-Auth-Method" code="406">
-			<type type-name="Unsigned32"/>
+		<avp name="Accounting-Auth-Method" code="406" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="Enumerated"/>
 			<enum name="PAP" code="1"/>
 			<enum name="CHAP" code="2"/>
 			<enum name="MS-CHAP-1" code="3"/>
@@ -62,7 +92,7 @@
 		<avp name="QoS-Filter-Rule" code="407">
 			<type type-name="QoSFilterRule"/>
 		</avp>
-		<avp name="Origin-AAA-Protocol" code="408">
+		<avp name="Origin-AAA-Protocol" code="408" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="Enumerated"/>
 			<enum name="RADIUS" code="1"/>
 		</avp>
