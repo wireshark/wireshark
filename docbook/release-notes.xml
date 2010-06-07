@@ -87,6 +87,23 @@ Wireshark Info
           -->
         </listitem>
 
+        <listitem>
+          <para>
+            The SigComp Universal Decompressor Virtual Machine could overrun a buffer.
+            <!-- Fixed in trunk: r33087, r33090 -->
+            <!-- Fixed in trunk-1.2: r33134 -->
+            <!-- Fixed in trunk-1.0: r -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4837">Bug
+            4837</ulink>)
+          </para>
+          <para>Versions affected: ???? to 1.0.13, 1.2.0 to 1.2.8</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+          </para>
+          -->
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -201,9 +218,9 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-          .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
+          The NFS FH hash (nfs.fh.hash) incorrectly matches multiple filehandles.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4839">Bug
+          4839</ulink>)
         </para></listitem>
 
         <listitem><para>

@@ -133,7 +133,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 	tvbuff_t	*decomp_tvb;
 	guint8		buff[UDVM_MEMORY_SIZE];
 	char		string[2];
-	guint8		*out_buff;		/* Largest allowed size for a message is 65535  */
+	guint8		*out_buff;		/* Largest allowed size for a message is UDVM_MEMORY_SIZE = 65536 */
 	guint32		i = 0;
 	guint16		n = 0;
 	guint16		m = 0;
@@ -322,8 +322,8 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 		offset++;
 
 	}
-	/* Largest allowed size for a message is 65535  */
-	out_buff = g_malloc(65535);
+	/* Largest allowed size for a message is UDVM_MEMORY_SIZE = 65536  */
+	out_buff = g_malloc(UDVM_MEMORY_SIZE);
 	/* Start executing code */
 	current_address = udvm_start_ip;
 	input_address = 0;
