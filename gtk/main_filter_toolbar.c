@@ -52,30 +52,15 @@
 
 GtkWidget   *main_display_filter_widget=NULL;
 
+/* #define NEW_FILTER_COMBO_BOX 1 */
 /* Run the current display filter on the current packet set, and
    redisplay. */
 static void
 filter_activate_cb(GtkWidget *w _U_, gpointer data)
 {
   const char *s;
-#ifdef NEW_FILTER_COMBO_BOX
-#if GTK_CHECK_VERSION(2,6,0)
-#else
-	GtkTreeIter   iter;
-	GtkTreeModel *model;
-#endif
-  /* Since 2.6 */
-  #if GTK_CHECK_VERSION(2,6,0)
-  s = gtk_combo_box_get_active_text(GTK_COMBO_BOX(filter_cm))
-  #else
-  gtk_combo_box_get_active_iter(GTK_COMBO_BOX(filter_cm), &iter);
-  model = gtk_combo_box_get_model(GTK_COMBO_BOX(filter_cm));
-  gtk_tree_model_get(model, &iter, 0, &s, -1);
-  #endif
 
-#else
   s = gtk_entry_get_text(GTK_ENTRY(data));
-#endif
   main_filter_packets(&cfile, s, FALSE);
 }
 
@@ -90,8 +75,6 @@ filter_reset_cb(GtkWidget *w, gpointer data _U_)
   }
   main_filter_packets(&cfile, NULL, FALSE);
 }
-
-/* #define NEW_FILTER_COMBO_BOX 1 */
 
 GtkWidget *filter_toolbar_new()
 {
@@ -297,26 +280,33 @@ dfilter_entry_match(gconstpointer a, gconstpointer b)
 
 #ifdef NEW_FILTER_COMBO_BOX
 static gboolean
-dfilter_entry_match_new(GtkWidget *filter_cm, char *s)
+dfilter_entry_match_new(GtkWidget *filter_cm, char *s, int *index)
 {
 	GtkTreeModel *model = gtk_combo_box_get_model (GTK_COMBO_BOX(filter_cm));
 	GtkTreeIter   iter;
 	GValue value = { 0, {{0}}};
 	const char *filter_str;
+	int i;
 
-	if (!gtk_tree_model_get_iter_first (model, &iter))
+	i = -1;
+	if (!gtk_tree_model_get_iter_first (model, &iter)){
+		*index = i;
 		return FALSE;
+	}
 	do{
+		i++;
 		gtk_tree_model_get_value (model, &iter, 0, &value);
 		filter_str = g_value_get_string (&value);
 		if(filter_str){
 			if(strcmp(s, filter_str) == 0){
 				g_value_unset (&value);
+				*index = i;
 				return TRUE;
 			}
 		}
 	}while (gtk_tree_model_iter_next (model, &iter));
 
+	*index = i;
 	return FALSE;
 }
 #endif
@@ -326,7 +316,8 @@ dfilter_entry_match_new(GtkWidget *filter_cm, char *s)
 static gboolean
 dfilter_combo_add(GtkWidget *filter_cm, char *s) {
 #ifdef NEW_FILTER_COMBO_BOX
-	if(!dfilter_entry_match_new(filter_cm,s))
+	int index;
+	if(!dfilter_entry_match_new(filter_cm,s, &index))
 		gtk_combo_box_append_text(GTK_COMBO_BOX(filter_cm), s);
 #else
     GList     *dfilter_list = g_object_get_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY);
@@ -414,7 +405,11 @@ dfilter_combo_add_recent(gchar *s) {
 gboolean
 main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
 {
+#ifdef NEW_FILTER_COMBO_BOX
+    GtkWidget *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
+#else
     GtkCombo  *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
+#endif
     GList     *dfilter_list = g_object_get_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY);
     gboolean   free_filter = TRUE;
     char      *s;
@@ -430,6 +425,19 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
        our own filter list, and feed it to gtk_combo_set_popdown_strings when
        a new filter is added. */
     if (cf_status == CF_OK && strlen(s) > 0) {
+#ifdef NEW_FILTER_COMBO_BOX
+		int index;
+		if(!dfilter_entry_match_new(filter_cm,s, &index)){
+			gtk_combo_box_prepend_text(GTK_COMBO_BOX(filter_cm), s);
+			index++;
+		}
+		while ((guint)index >= prefs.gui_recent_df_entries_max){
+			gtk_combo_box_remove_text(GTK_COMBO_BOX(filter_cm), index);
+			index--;
+		}
+
+#else
+
         GList *li;
 
         while ((li = g_list_find_custom(dfilter_list, s, dfilter_entry_match)) != NULL)
@@ -446,8 +454,8 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
         g_object_set_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY, dfilter_list);
         gtk_combo_set_popdown_strings(filter_cm, dfilter_list);
         gtk_entry_set_text(GTK_ENTRY(filter_cm->entry), g_list_first(dfilter_list)->data);
+#endif
     }
-
     if (free_filter)
         g_free(s);
 
