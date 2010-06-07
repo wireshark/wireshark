@@ -2650,8 +2650,11 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
      * going to the same place, flush the standard output, so everything
      * buffered up is written, and then print a newline to the standard error
      * before printing the error message, to separate it from the packet
-     * data.
+     * data.  (Alas, that only works on UN*X; st_dev is meaningless, and
+     * the _fstat() documentation at Microsoft doesn't indicate whether
+     * st_ino is even supported.)
      */
+#ifndef _WIN32
     if (print_packet_info) {
       struct stat stat_stdout, stat_stderr;
 
@@ -2663,6 +2666,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
         }
       }
     }
+#endif
     switch (err) {
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
