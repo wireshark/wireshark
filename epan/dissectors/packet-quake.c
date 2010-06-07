@@ -83,11 +83,11 @@ static guint gbl_quakeServerPort=DEFAULTnet_hostport;
 
 #define NETFLAG_LENGTH_MASK     0x0000ffff
 #define NETFLAG_DATA            0x00010000
-#define NETFLAG_ACK                     0x00020000
-#define NETFLAG_NAK                     0x00040000
-#define NETFLAG_EOM                     0x00080000
+#define NETFLAG_ACK             0x00020000
+#define NETFLAG_NAK             0x00040000
+#define NETFLAG_EOM             0x00080000
 #define NETFLAG_UNRELIABLE      0x00100000
-#define NETFLAG_CTL                     0x80000000
+#define NETFLAG_CTL             0x80000000
 
 
 #define CCREQ_CONNECT           0x01
@@ -451,40 +451,35 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		quake_item = proto_tree_add_item(tree, proto_quake,
 				tvb, 0, -1, FALSE);
-		if (quake_item)
-			quake_tree = proto_item_add_subtree(quake_item, ett_quake);
+		quake_tree = proto_item_add_subtree(quake_item, ett_quake);
 	}
 
 	if (quake_tree) {
-		proto_item* flags_item = NULL;
-		proto_tree* flags_tree = NULL;
+		proto_item* flags_item;
+		proto_tree* flags_tree;
 
 		flags_item = proto_tree_add_uint(quake_tree, hf_quake_header_flags,
 			tvb, 0, 2, flags);
-		if (flags_item) {
-			flags_tree = proto_item_add_subtree(flags_item, ett_quake_flags);
-		}
+		flags_tree = proto_item_add_subtree(flags_item, ett_quake_flags);
 
-		if (flags_tree) {
-			proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
-				decode_boolean_bitfield(flags, NETFLAG_DATA, 32,
-				"Data","-"));
-			proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
-				decode_boolean_bitfield(flags, NETFLAG_ACK, 32,
-				"Acknowledgment","-"));
-			proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
-				decode_boolean_bitfield(flags, NETFLAG_NAK, 32,
-				"No Acknowledgment","-"));
-			proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
-				decode_boolean_bitfield(flags, NETFLAG_EOM, 32,
-				"End Of Message","-"));
-			proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
-				decode_boolean_bitfield(flags, NETFLAG_UNRELIABLE, 32,
-				"Unreliable","-"));
-			proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
-				decode_boolean_bitfield(flags, NETFLAG_CTL, 32,
-				"Control","-"));
-		}
+		proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
+				    decode_boolean_bitfield(flags, NETFLAG_DATA, 32,
+							    "Data","-"));
+		proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
+				    decode_boolean_bitfield(flags, NETFLAG_ACK, 32,
+							    "Acknowledgment","-"));
+		proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
+				    decode_boolean_bitfield(flags, NETFLAG_NAK, 32,
+							    "No Acknowledgment","-"));
+		proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
+				    decode_boolean_bitfield(flags, NETFLAG_EOM, 32,
+							    "End Of Message","-"));
+		proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
+				    decode_boolean_bitfield(flags, NETFLAG_UNRELIABLE, 32,
+							    "Unreliable","-"));
+		proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
+				    decode_boolean_bitfield(flags, NETFLAG_CTL, 32,
+							    "Control","-"));
 		proto_tree_add_uint(quake_tree, hf_quake_header_length,
 			tvb, 2, 2, length);
 	}
@@ -511,26 +506,7 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-void
-proto_reg_handoff_quake(void)
-{
-	static gboolean Initialized=FALSE;
-	static guint ServerPort;
-
-	if (!Initialized) {
-		quake_handle = create_dissector_handle(dissect_quake, proto_quake);
-		data_handle = find_dissector("data");
-		Initialized=TRUE;
-	} else {
-		dissector_delete("udp.port", ServerPort, quake_handle);
-	}
-
-	/* set port for future deletes */
-	ServerPort=gbl_quakeServerPort;
-
-	dissector_add("udp.port", gbl_quakeServerPort, quake_handle);
-}
-
+void proto_reg_handoff_quake(void);
 
 void
 proto_register_quake(void)
@@ -662,3 +638,26 @@ proto_register_quake(void)
 					"Set the UDP port for the Quake Server",
 					10, &gbl_quakeServerPort);
 }
+
+
+void
+proto_reg_handoff_quake(void)
+{
+	static gboolean Initialized=FALSE;
+	static guint ServerPort;
+
+	if (!Initialized) {
+		quake_handle = create_dissector_handle(dissect_quake, proto_quake);
+		data_handle = find_dissector("data");
+		Initialized=TRUE;
+	} else {
+		dissector_delete("udp.port", ServerPort, quake_handle);
+	}
+
+	/* set port for future deletes */
+	ServerPort=gbl_quakeServerPort;
+
+	dissector_add("udp.port", gbl_quakeServerPort, quake_handle);
+}
+
+
