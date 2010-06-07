@@ -104,6 +104,23 @@ Wireshark Info
           -->
         </listitem>
 
+        <listitem>
+          <para>
+            The SigComp Universal Decompressor Virtual Machine could overrun a buffer.
+            <!-- Fixed in trunk: r33087, r33090 -->
+            <!-- Fixed in trunk-1.2: r33134 -->
+            <!-- Fixed in trunk-1.0: r33149 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4837">Bug
+            4837</ulink>)
+          </para>
+          <para>Versions affected: 0.10.8 to 1.0.13, 1.2.0 to 1.2.8</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+          </para>
+          -->
+        </listitem>
+
       </itemizedlist>
 
     </para>
