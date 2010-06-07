@@ -271,9 +271,20 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
-DOCSIS,
+ASN.1 BER,
+BGP,
 HTTP,
-SSL
+IGMP,
+IPsec,
+Kerberos,
+NFS,
+PGM,
+PTP,
+SABP,
+SigComp,
+SMB,
+TCAP,
+XML,
 
     </para>
     </section>

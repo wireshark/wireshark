@@ -32,7 +32,7 @@
 #include "epan/conversation.h"
 #include "epan/dissectors/packet-tcap.h"
 
-#define LENGTH_OID 16
+#define LENGTH_OID 23
 struct tcaphash_context_t {
   struct tcaphash_context_key_t * key;
   guint32 session_id;
