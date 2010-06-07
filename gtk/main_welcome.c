@@ -59,7 +59,7 @@
 #include "gtk/capture_if_dlg.h"
 #include "gtk/capture_globals.h"
 #endif
-#include "../image/wssplash-dev.xpm"
+#include "../image/wssplash.xpm"
 #include "../version_info.h"
 
 #ifdef _WIN32
