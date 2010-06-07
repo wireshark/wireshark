@@ -58,28 +58,28 @@ GtkWidget   *main_display_filter_widget=NULL;
 static void
 filter_activate_cb(GtkWidget *w _U_, gpointer data)
 {
-  const char *s;
+    const char *s;
 
-  s = gtk_entry_get_text(GTK_ENTRY(data));
-  main_filter_packets(&cfile, s, FALSE);
+    s = gtk_entry_get_text(GTK_ENTRY(data));
+    main_filter_packets(&cfile, s, FALSE);
 }
 
 /* redisplay with no display filter */
 static void
 filter_reset_cb(GtkWidget *w, gpointer data _U_)
 {
-  GtkWidget *filter_te = NULL;
+    GtkWidget *filter_te = NULL;
 
-  if ((filter_te = g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY))) {
-    gtk_entry_set_text(GTK_ENTRY(filter_te), "");
-  }
-  main_filter_packets(&cfile, NULL, FALSE);
+    if ((filter_te = g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY))) {
+        gtk_entry_set_text(GTK_ENTRY(filter_te), "");
+    }
+    main_filter_packets(&cfile, NULL, FALSE);
 }
 
-GtkWidget *filter_toolbar_new()
+GtkWidget *filter_toolbar_new(void)
 {
     GtkWidget     *filter_cm;
-	GtkWidget     *filter_te;
+    GtkWidget     *filter_te;
     GtkWidget     *filter_tb;
 #ifdef NEW_FILTER_COMBO_BOX
 #else
@@ -125,8 +125,8 @@ GtkWidget *filter_toolbar_new()
 
     /* Create the filter combobox */
 #ifdef NEW_FILTER_COMBO_BOX
-	filter_cm = gtk_combo_box_entry_new_text ();
-	filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
+    filter_cm = gtk_combo_box_entry_new_text ();
+    filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
 #else
     filter_cm = gtk_combo_new();
     dfilter_list = NULL;
@@ -271,34 +271,34 @@ GtkWidget *filter_toolbar_new()
 
 #ifdef NEW_FILTER_COMBO_BOX
 static gboolean
-dfilter_entry_match_new(GtkWidget *filter_cm, char *s, int *index)
+dfilter_entry_match(GtkWidget *filter_cm, char *s, int *index)
 {
-	GtkTreeModel *model = gtk_combo_box_get_model (GTK_COMBO_BOX(filter_cm));
-	GtkTreeIter   iter;
-	GValue value = { 0, {{0}}};
-	const char *filter_str;
-	int i;
+    GtkTreeModel *model = gtk_combo_box_get_model (GTK_COMBO_BOX(filter_cm));
+    GtkTreeIter   iter;
+    GValue value = { 0, {{0}}};
+    const char *filter_str;
+    int i;
 
-	i = -1;
-	if (!gtk_tree_model_get_iter_first (model, &iter)){
-		*index = i;
-		return FALSE;
-	}
-	do{
-		i++;
-		gtk_tree_model_get_value (model, &iter, 0, &value);
-		filter_str = g_value_get_string (&value);
-		if(filter_str){
-			if(strcmp(s, filter_str) == 0){
-				g_value_unset (&value);
-				*index = i;
-				return TRUE;
-			}
-		}
-	}while (gtk_tree_model_iter_next (model, &iter));
+    i = -1;
+    if (!gtk_tree_model_get_iter_first (model, &iter)){
+        *index = i;
+        return FALSE;
+    }
+    do{
+        i++;
+        gtk_tree_model_get_value (model, &iter, 0, &value);
+        filter_str = g_value_get_string (&value);
+        if(filter_str){
+            if(strcmp(s, filter_str) == 0){
+                g_value_unset (&value);
+                *index = i;
+                return TRUE;
+            }
+        }
+    }while (gtk_tree_model_iter_next (model, &iter));
 
-	*index = i;
-	return FALSE;
+    *index = i;
+    return FALSE;
 }
 #else
 static gint
@@ -317,7 +317,8 @@ static gboolean
 dfilter_combo_add(GtkWidget *filter_cm, char *s) {
 #ifdef NEW_FILTER_COMBO_BOX
     int index;
-    if(!dfilter_entry_match_new(filter_cm,s, &index))
+
+    if(!dfilter_entry_match(filter_cm,s, &index))
         gtk_combo_box_append_text(GTK_COMBO_BOX(filter_cm), s);
 #else
     GList     *dfilter_list = g_object_get_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY);
@@ -427,7 +428,8 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
     if (cf_status == CF_OK && strlen(s) > 0) {
 #ifdef NEW_FILTER_COMBO_BOX
         int index;
-        if(!dfilter_entry_match_new(filter_cm,s, &index)){
+
+        if(!dfilter_entry_match(filter_cm,s, &index)){
             gtk_combo_box_prepend_text(GTK_COMBO_BOX(filter_cm), s);
             index++;
         }
@@ -435,7 +437,6 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
             gtk_combo_box_remove_text(GTK_COMBO_BOX(filter_cm), index);
             index--;
         }
-
 #else
         GList *li;
 
