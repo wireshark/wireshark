@@ -409,8 +409,8 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
     GtkWidget *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
 #else
     GtkCombo  *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
-#endif
     GList     *dfilter_list = g_object_get_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY);
+#endif
     gboolean   free_filter = TRUE;
     char      *s;
     cf_status_t cf_status;
@@ -437,7 +437,6 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
 		}
 
 #else
-
         GList *li;
 
         while ((li = g_list_find_custom(dfilter_list, s, dfilter_entry_match)) != NULL)
