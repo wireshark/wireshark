@@ -36,6 +36,41 @@ Wireshark Info
 
       <itemizedlist>
 
+        <listitem>
+          <para>
+            The SMB dissector could dereference a NULL pointer.
+            <!-- Fixed in trunk: r32650 -->
+            <!-- Fixed in trunk-1.2: r33142 -->
+            <!-- Fixed in trunk-1.0: r -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4734">Bug
+            4734</ulink>)
+          </para>
+          <para>Versions affected: 0.99.6 to 1.0.13, 1.2.0 to 1.2.8</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+          </para>
+          -->
+        </listitem>
+
+
+        <listitem>
+          <para>
+            The SMB PIPE dissector could dereference a NULL pointer on some platforms.
+            <!-- Fixed in trunk: r32848 -->
+            <!-- Fixed in trunk-1.2: r33120 -->
+            <!-- Fixed in trunk-1.0: r33143 -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>) -->
+          </para>
+          <para>Versions affected: 0.8.20 to 1.0.13, 1.2.0 to 1.2.8</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+          </para>
+          -->
+        </listitem>
+
       </itemizedlist>
 
     </para>
