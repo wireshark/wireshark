@@ -777,16 +777,20 @@ filter_autocomplete_handle_backspace(GtkWidget *filter_te, GtkWidget *list, GtkW
   size_t prefix_len;
   gboolean protocols_only = FALSE;
 
-  /* Delete the last character in the prefix string */
-  prefix_len = strlen(prefix)-1;
-  prefix[prefix_len] = '\0';
+  prefix_len = strlen(prefix);
 
-  if (prefix_len == 0) {
+  if (prefix_len < 1) {
     /* Remove the popup window for protocols */
     gtk_widget_destroy(popup_win);
     g_object_set_data(G_OBJECT(main_win), E_FILT_AUTOCOMP_PTR_KEY, NULL);
     return;
-  } else if(strchr(prefix, '.') == NULL) {
+  }
+
+  /* Delete the last character in the prefix string */
+  prefix_len--;
+  prefix[prefix_len] = '\0';
+
+  if(strchr(prefix, '.') == NULL) {
     protocols_only = TRUE;
   }
 

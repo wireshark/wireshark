@@ -251,7 +251,6 @@ col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
   else
 	max_len = COL_MAX_LEN;
 
-  va_start(ap, format);
   for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       fence = cinfo->col_fence[i];
@@ -267,11 +266,12 @@ col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
          */
         cinfo->col_data[i] = cinfo->col_buf[i];
       }
+      va_start(ap, format);
       g_vsnprintf(&cinfo->col_buf[i][fence], max_len - fence, format, ap);
+      va_end(ap);
       cinfo->col_buf[i][max_len - 1] = '\0';
     }
   }
-  va_end(ap);
 }
 
 void
@@ -283,13 +283,14 @@ col_custom_set_fstr(header_field_info *hfinfo, const gchar *format, ...)
   if (!have_custom_cols(ci))
     return;
 
-  va_start(ap, format);
   for (i = ci->col_first[COL_CUSTOM];
        i <= ci->col_last[COL_CUSTOM]; i++) {
     if (ci->fmt_matx[i][COL_CUSTOM] &&
 	strcmp(ci->col_custom_field[i], hfinfo->abbrev) == 0) {
       ci->col_data[i] = ci->col_buf[i];
+      va_start(ap, format);
       g_vsnprintf(ci->col_buf[i], COL_MAX_LEN, format, ap);
+      va_end(ap);
 
       g_strlcpy(ci->col_expr.col_expr[i], hfinfo->abbrev, COL_MAX_LEN);
 
@@ -306,7 +307,6 @@ col_custom_set_fstr(header_field_info *hfinfo, const gchar *format, ...)
       }
     }
   }
-  va_end(ap);
 }
 
 void
@@ -449,7 +449,6 @@ col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
   else
 	max_len = COL_MAX_LEN;
 
-  va_start(ap, format);
   for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       if (cinfo->col_data[i] != cinfo->col_buf[i]) {
@@ -459,7 +458,9 @@ col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
         g_strlcpy(orig_buf, cinfo->col_buf[i], max_len);
         orig = orig_buf;
       }
+      va_start(ap, format);
       g_vsnprintf(cinfo->col_buf[i], max_len, format, ap);
+      va_end(ap);
       cinfo->col_buf[i][max_len - 1] = '\0';
 
       /*
@@ -472,7 +473,6 @@ col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
       cinfo->col_data[i] = cinfo->col_buf[i];
     }
   }
-  va_end(ap);
 }
 void
 col_prepend_fence_fstr(column_info *cinfo, gint el, const gchar *format, ...)
@@ -491,7 +491,6 @@ col_prepend_fence_fstr(column_info *cinfo, gint el, const gchar *format, ...)
   else
 	max_len = COL_MAX_LEN;
 
-  va_start(ap, format);
   for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       if (cinfo->col_data[i] != cinfo->col_buf[i]) {
@@ -501,7 +500,9 @@ col_prepend_fence_fstr(column_info *cinfo, gint el, const gchar *format, ...)
         g_strlcpy(orig_buf, cinfo->col_buf[i], max_len);
         orig = orig_buf;
       }
+      va_start(ap, format);
       g_vsnprintf(cinfo->col_buf[i], max_len, format, ap);
+      va_end(ap);
       cinfo->col_buf[i][max_len - 1] = '\0';
 
       /*
@@ -517,7 +518,6 @@ col_prepend_fence_fstr(column_info *cinfo, gint el, const gchar *format, ...)
       cinfo->col_data[i] = cinfo->col_buf[i];
     }
   }
-  va_end(ap);
 }
 
 /* Use this if "str" points to something that won't stay around (and

@@ -61,9 +61,9 @@ hexdigit [0-9A-Fa-f]
 directive #TEXT2PCAP.*
 comment #[^W].*
 byte [0-9A-Fa-f][0-9A-Fa-f][ \t]
-byte_eol [0-9A-Fa-f][0-9A-Fa-f]\n
+byte_eol [0-9A-Fa-f][0-9A-Fa-f]\r?\n
 offset [0-9A-Fa-f]+[: \t]
-offset_eol [0-9A-Fa-f]+\n
+offset_eol [0-9A-Fa-f]+\r?\n
 text [^ \n\t]+
 mailfwd >
 eol \r?\n\r?

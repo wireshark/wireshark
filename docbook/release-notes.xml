@@ -94,6 +94,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Application crash when changing real-time option.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035">Bug
+          4035</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           The XML dissector doesn't allow dots (".") in tags.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4405">Bug
           4405</ulink>)
@@ -109,6 +115,12 @@ Wireshark Info
           Want to be able to apply decode as to Data Portion of Lan Trace.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4721">Bug
           4721</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          tshark returns 0 on non-valid filter and interface.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4735">Bug
+          4735</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -142,15 +154,33 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-          .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
+           text2pcap expects \n delimited text (instead of \r\n) on win32.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4780">Bug
+          4780</ulink>)
         </para></listitem>
 
         <listitem><para>
-          .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
+          Wrong decoding for BGP ORF.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4782">Bug
+          4782</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Crash when Ctrl-Backspacing the display filter.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4797">Bug
+          4797</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Acker AFI field incorrect size in PGM dissector.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4798">Bug
+          4798</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Fedora 13: wireshark fails to build (linking problem).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4815">Bug
+          4815</ulink>)
         </para></listitem>
 
         <listitem><para>

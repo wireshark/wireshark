@@ -132,6 +132,13 @@ cf_status_t cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempf
 cf_read_status_t cf_continue_tail(capture_file *cf, volatile int to_read, int *err);
 
 /**
+ * Fake reading packets from the "end" of a capture file.
+ *
+ * @param cf the capture file to be read from
+ */
+void cf_fake_continue_tail(capture_file *cf);
+
+/**
  * Finish reading from "end" of a capture file.
  * 
  * @param cf the capture file to be read from

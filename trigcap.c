@@ -49,12 +49,12 @@ static void panic(int err, const char* fmt, ...) {
 static void dprintf(int lev, const char* fmt, ...) {
 	va_list ap;
 
-	va_start(ap,fmt);
 	if (lev <= debug_level) {
+		va_start(ap,fmt);
 		vfprintf(stderr,fmt,ap);
+		va_end(ap);
 		fflush(stderr);
 	}
-	va_end(ap);
 }
 
 
