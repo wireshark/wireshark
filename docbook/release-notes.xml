@@ -224,9 +224,9 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-          .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
+          AES-CTR decoding not working, (dissectors/packet_ipsec.c using gcrypt).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4838">Bug
+          4838</ulink>)
         </para></listitem>
 
       </itemizedlist>
