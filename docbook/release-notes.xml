@@ -41,7 +41,7 @@ Wireshark Info
             The SMB dissector could dereference a NULL pointer.
             <!-- Fixed in trunk: r32650 -->
             <!-- Fixed in trunk-1.2: r33142 -->
-            <!-- Fixed in trunk-1.0: r -->
+            <!-- Fixed in trunk-1.0: r33145 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4734">Bug
             4734</ulink>)
           </para>
