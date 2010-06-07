@@ -906,8 +906,8 @@ dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
         /* The bits 8 through 5, of octet e+3 (Fig 8.21.5-1 in TS 29.274 V8.2.0) are spare
         and hence they would not make any difference to the hex string following it, thus we directly read 4 bytes from tvb */
 
-        proto_tree_add_item(tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 3, FALSE);
-        offset+=3;
+        proto_tree_add_item(tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, FALSE);
+        offset+=4;
         if(offset==length)
             return;
 
@@ -1742,7 +1742,7 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_uli_ecgi_eci,
         {"ECI (E-UTRAN Cell Identifier)", "gtpv2.uli_ecgi_eci",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
+        FT_UINT32, BASE_HEX, NULL, 0x0FFFFFFF,
         NULL, HFILL}
         },
         {&hf_gtpv2_f_teid_v4,
