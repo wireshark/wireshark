@@ -269,15 +269,6 @@ GtkWidget *filter_toolbar_new()
     return filter_tb;
 }
 
-static gint
-dfilter_entry_match(gconstpointer a, gconstpointer b)
-{
-    const char *s1 = a;
-    const char *s2 = b;
-
-    return strcmp(s1, s2);
-}
-
 #ifdef NEW_FILTER_COMBO_BOX
 static gboolean
 dfilter_entry_match_new(GtkWidget *filter_cm, char *s, int *index)
@@ -309,6 +300,15 @@ dfilter_entry_match_new(GtkWidget *filter_cm, char *s, int *index)
 	*index = i;
 	return FALSE;
 }
+#else
+static gint
+dfilter_entry_match(gconstpointer a, gconstpointer b)
+{
+    const char *s1 = a;
+    const char *s2 = b;
+
+    return strcmp(s1, s2);
+}
 #endif
 
 /* add a display filter to the combo box */
@@ -316,9 +316,9 @@ dfilter_entry_match_new(GtkWidget *filter_cm, char *s, int *index)
 static gboolean
 dfilter_combo_add(GtkWidget *filter_cm, char *s) {
 #ifdef NEW_FILTER_COMBO_BOX
-	int index;
-	if(!dfilter_entry_match_new(filter_cm,s, &index))
-		gtk_combo_box_append_text(GTK_COMBO_BOX(filter_cm), s);
+    int index;
+    if(!dfilter_entry_match_new(filter_cm,s, &index))
+        gtk_combo_box_append_text(GTK_COMBO_BOX(filter_cm), s);
 #else
     GList     *dfilter_list = g_object_get_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY);
 
@@ -348,22 +348,22 @@ void
 dfilter_recent_combo_write_all(FILE *rf) {
     GtkWidget *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
 #ifdef NEW_FILTER_COMBO_BOX
-	GtkTreeModel *model = gtk_combo_box_get_model (GTK_COMBO_BOX(filter_cm));
-	GtkTreeIter   iter;
-	GValue value = { 0, {{0}}};
-	const char *filter_str;
-	guint      max_count = 0;
+    GtkTreeModel *model = gtk_combo_box_get_model (GTK_COMBO_BOX(filter_cm));
+    GtkTreeIter   iter;
+    GValue value = { 0, {{0}}};
+    const char *filter_str;
+    guint      max_count = 0;
 
-	if (!gtk_tree_model_get_iter_first (model, &iter))
-		return;
-	do{
-		gtk_tree_model_get_value (model, &iter, 0, &value);
-		filter_str = g_value_get_string (&value);
-		if(filter_str)
-			fprintf (rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", filter_str);
-		g_value_unset (&value);
+    if (!gtk_tree_model_get_iter_first (model, &iter))
+        return;
+    do{
+        gtk_tree_model_get_value (model, &iter, 0, &value);
+        filter_str = g_value_get_string (&value);
+        if(filter_str)
+            fprintf (rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", filter_str);
+        g_value_unset (&value);
 
-	}while (gtk_tree_model_iter_next (model, &iter)&& (max_count++ < prefs.gui_recent_df_entries_max));
+    }while (gtk_tree_model_iter_next (model, &iter)&& (max_count++ < prefs.gui_recent_df_entries_max));
 
 #else
     GList     *dfilter_list = g_object_get_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY);
@@ -426,15 +426,15 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
        a new filter is added. */
     if (cf_status == CF_OK && strlen(s) > 0) {
 #ifdef NEW_FILTER_COMBO_BOX
-		int index;
-		if(!dfilter_entry_match_new(filter_cm,s, &index)){
-			gtk_combo_box_prepend_text(GTK_COMBO_BOX(filter_cm), s);
-			index++;
-		}
-		while ((guint)index >= prefs.gui_recent_df_entries_max){
-			gtk_combo_box_remove_text(GTK_COMBO_BOX(filter_cm), index);
-			index--;
-		}
+        int index;
+        if(!dfilter_entry_match_new(filter_cm,s, &index)){
+            gtk_combo_box_prepend_text(GTK_COMBO_BOX(filter_cm), s);
+            index++;
+        }
+        while ((guint)index >= prefs.gui_recent_df_entries_max){
+            gtk_combo_box_remove_text(GTK_COMBO_BOX(filter_cm), index);
+            index--;
+        }
 
 #else
         GList *li;
