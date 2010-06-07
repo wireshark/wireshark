@@ -753,6 +753,7 @@ main(int argc, char *argv[])
   int                  gdp_open_errno, gdp_read_errno;
   int                  dp_open_errno, dp_read_errno;
   int                  err;
+  int                  exit_status = 0;
 #ifdef HAVE_LIBPCAP
   gboolean             list_link_layer_types = FALSE;
   gboolean             start_capture = FALSE;
@@ -1632,8 +1633,9 @@ main(int argc, char *argv[])
     err = load_cap_file(&cfile, NULL, out_file_type, 0, 0);
 #endif
     if (err != 0) {
-      epan_cleanup();
-      return 2;
+      /* We still dump out the results of taps, etc., as we might have
+         read some packets; however, we exit with an error status. */
+      exit_status = 2;
     }
   } else {
     /* No capture file specified, so we're supposed to do a live capture
@@ -1742,7 +1744,7 @@ main(int argc, char *argv[])
   output_fields_free(output_fields);
   output_fields = NULL;
 
-  return 0;
+  return exit_status;
 }
 
 /*#define USE_BROKEN_G_MAIN_LOOP*/
@@ -2641,7 +2643,26 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   }
 
   if (err != 0) {
-    /* Print a message noting that the read failed somewhere along the line. */
+    /*
+     * Print a message noting that the read failed somewhere along the line.
+     *
+     * If we're printing packet data, and the standard output and error are
+     * going to the same place, flush the standard output, so everything
+     * buffered up is written, and then print a newline to the standard error
+     * before printing the error message, to separate it from the packet
+     * data.
+     */
+    if (print_packet_info) {
+      struct stat stat_stdout, stat_stderr;
+
+      if (fstat(1, &stat_stdout) == 0 && fstat(2, &stat_stderr) == 0) {
+        if (stat_stdout.st_dev == stat_stderr.st_dev &&
+            stat_stdout.st_ino == stat_stderr.st_ino) {
+          fflush(stdout);
+          fprintf(stderr, "\n");
+        }
+      }
+    }
     switch (err) {
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
