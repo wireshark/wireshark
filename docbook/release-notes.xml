@@ -53,6 +53,22 @@ Wireshark Info
           -->
         </listitem>
 
+        <listitem>
+          <para>
+            J. Oquendo discovered that the ASN.1 BER dissector could overrun the stack.
+            <!-- Fixed in trunk: r32922, r33046 -->
+            <!-- Fixed in trunk-1.2: r33122 -->
+            <!-- Fixed in trunk-1.0: r33146 -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>) -->
+          </para>
+          <para>Versions affected: 0.10.13 to 1.0.13, 1.2.0 to 1.2.8</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+          </para>
+          -->
+        </listitem>
 
         <listitem>
           <para>
