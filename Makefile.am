@@ -316,7 +316,7 @@ wireshark_LDADD = \
 	@SSL_LIBS@ 			\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
-	@PCAP_LIBS@ @GTK_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ @FRAMEWORKS@ \
+	@PCAP_LIBS@ @GTK_LIBS@ -lm @ADNS_LIBS@ @KRB5_LIBS@ @FRAMEWORKS@ \
 	@LIBICONV@			\
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\

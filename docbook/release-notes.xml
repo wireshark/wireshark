@@ -145,6 +145,12 @@ Wireshark Info
           1791</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Fedora 13: wireshark fails to build (linking problem).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4815">Bug
+          4815</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -170,7 +176,9 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
-DOCSIS.
+ASN.1 BER,
+SMB,
+SMB PIPE
 
     </para>
     </section>
