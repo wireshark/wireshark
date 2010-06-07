@@ -2186,7 +2186,7 @@ dissect_ptp_v2_timeInterval(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree
 	time_subns = tvb_get_ntohs(tvb, *cur_offset+6);
 
 	ptptimeInterval_ti = proto_tree_add_text(tree, tvb, *cur_offset, 8,
-		"%s: %f nanoseconds", name, time);
+		"%s: %f nanoseconds", name, time_double);
 
 	ptptimeInterval_subtree = proto_item_add_subtree(ptptimeInterval_ti, ett_ptp_v2_timeInterval);
 

@@ -130,15 +130,15 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-          .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
+          Wrong variable used for proto_tree_add_text() in ptp dissector.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4773">Bug
+          4773</ulink>)
         </para></listitem>
 
         <listitem><para>
-          .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
+          Crash when close window frame of gtk file chooser.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4778">Bug
+          4778</ulink>)
         </para></listitem>
 
         <listitem><para>
