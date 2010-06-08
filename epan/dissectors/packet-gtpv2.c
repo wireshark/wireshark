@@ -145,7 +145,15 @@ static int hf_gtpv2_uli_rai_lac= -1;
 static int hf_gtpv2_uli_rai_rac= -1;
 static int hf_gtpv2_uli_tai_tac= -1;
 static int hf_gtpv2_uli_ecgi_eci= -1;
+static int hf_gtpv2_uli_ecgi_eci_spare= -1;
 static int hf_gtpv2_bearer_control_mode= -1;
+
+/* Definition of User Location Info (AVP 22) masks */
+#define GTPv2_ULI_CGI_MASK			0x01
+#define GTPv2_ULI_SAI_MASK			0x02
+#define GTPv2_ULI_RAI_MASK			0x04
+#define GTPv2_ULI_TAI_MASK			0x08
+#define GTPv2_ULI_ECGI_MASK			0x10
 
 static void dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, gint offset);
 
@@ -837,6 +845,81 @@ dissect_gtpv2_tad(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
  */
 
 static void
+decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_, guint flags)
+{
+    int offset = 1;
+
+    /* 8.22.1 CGI field  */
+    if (flags & GTPv2_ULI_CGI_MASK)
+    {
+        dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+        offset+=3;
+        proto_tree_add_item(tree, hf_gtpv2_uli_cgi_lac, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_gtpv2_uli_cgi_ci, tvb, offset, 2, FALSE);
+        offset+=4;
+        if(offset==length)
+            return;
+    }
+
+    /* 8.22.2 SAI field  */
+    if (flags & GTPv2_ULI_SAI_MASK)
+    {
+        dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+        offset+=3;
+        proto_tree_add_item(tree, hf_gtpv2_uli_sai_lac, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_gtpv2_uli_sai_sac, tvb, offset, 2, FALSE);
+        offset+=4;
+        if(offset==length)
+            return;
+    }
+    /* 8.22.3 RAI field  */
+    if (flags & GTPv2_ULI_RAI_MASK)
+    {
+        dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+        offset+=3;
+        proto_tree_add_item(tree, hf_gtpv2_uli_rai_lac, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_gtpv2_uli_rai_rac, tvb, offset, 2, FALSE);
+        offset+=4;
+        if(offset==length)
+            return;
+    }
+    /* 8.22.4 TAI field  */
+    if (flags & GTPv2_ULI_TAI_MASK)
+    {
+        dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+        offset+=3;
+        proto_tree_add_item(tree, hf_gtpv2_uli_tai_tac, tvb, offset, 2, FALSE);
+        offset+=2;
+        if(offset==length)
+            return;
+    }
+    /* 8.22.5 ECGI field */
+    if (flags & GTPv2_ULI_ECGI_MASK)
+    {
+        guint8 octet;
+        guint32 octet4;
+        guint8 spare;
+        guint32 ECGI;
+        dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+        offset+=3;
+        /* The bits 8 through 5, of octet e+3 (Fig 8.21.5-1 in TS 29.274 V8.2.0) are spare
+        and hence they would not make any difference to the hex string following it, thus we directly read 4 bytes from tvb */
+
+        octet = tvb_get_guint8(tvb,offset);
+        spare = octet & 0xF0;
+        octet4 = tvb_get_ntohl(tvb,offset);
+        ECGI = octet4 & 0x0FFFFFFF;
+        proto_tree_add_uint(tree, hf_gtpv2_uli_ecgi_eci_spare, tvb, offset, 1, spare);
+        proto_tree_add_uint(tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, ECGI);
+        //proto_tree_add_item(tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, FALSE);
+        offset+=4;
+        if(offset==length)
+            return;
+
+    }
+}
+
+static void
 dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
     int offset = 0;
@@ -852,66 +935,60 @@ dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     proto_tree_add_item(tree, hf_gtpv2_uli_sai_flg, tvb, offset, 1, FALSE);
     /* CGI B1  */
     proto_tree_add_item(tree, hf_gtpv2_uli_cgi_flg, tvb, offset, 1, FALSE);
-    offset++;
 
-    /* 8.22.1 CGI field  */
-    if (flags&0x01)
+    decode_gtpv2_uli(tvb, pinfo, tree, item, length, instance, flags);
+
+    return;
+}
+
+/* Diameter 3GPP AVP Code: 22 3GPP-User-Location-Info
+/*
+ * TS 29.061 v9.2.0
+ * 16.4.7.2 Coding 3GPP Vendor-Specific RADIUS attributes
+ *
+ * For P-GW, the Geographic Location Type values and coding are defined as follows:
+ *
+ * 0			CGI
+ * 1			SAI
+ * 2			RAI
+ * 3-127		Spare for future use
+ * 128		TAI
+ * 129		ECGI
+ * 130		TAI and ECGI
+ * 131-255	Spare for future use
+ */
+
+static int
+dissect_diameter_3gpp_uli(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+{
+    int offset = 0;
+    guint length;
+    guint flags;
+    guint flags_3gpp;
+    length = tvb_length(tvb);
+    flags_3gpp = tvb_get_guint8(tvb,offset);
+
+    switch(flags_3gpp)
     {
-        dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
-        offset+=3;
-        proto_tree_add_item(tree, hf_gtpv2_uli_cgi_lac, tvb, offset, 2, FALSE);
-        proto_tree_add_item(tree, hf_gtpv2_uli_cgi_ci, tvb, offset, 2, FALSE);
-        offset+=4;
-        if(offset==length)
-            return;
+    case 128:
+        /* TAI */
+        flags = GTPv2_ULI_TAI_MASK;
+        break;
+    case 129:
+        /* ECGI */
+        flags = GTPv2_ULI_ECGI_MASK;
+        break;
+    case 130:
+        /* TAI and ECGI */
+        flags = GTPv2_ULI_TAI_MASK + GTPv2_ULI_ECGI_MASK;
+        break;
+    default:
+        flags = flags_3gpp;
+        break;
     }
 
-    /* 8.22.2 SAI field  */
-    if (flags&0x02)
-    {
-        dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
-        offset+=3;
-        proto_tree_add_item(tree, hf_gtpv2_uli_sai_lac, tvb, offset, 2, FALSE);
-        proto_tree_add_item(tree, hf_gtpv2_uli_sai_sac, tvb, offset, 2, FALSE);
-        offset+=4;
-        if(offset==length)
-            return;
-    }
-    /* 8.22.3 RAI field  */
-    if (flags&0x04)
-    {
-        dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
-        offset+=3;
-        proto_tree_add_item(tree, hf_gtpv2_uli_rai_lac, tvb, offset, 2, FALSE);
-        proto_tree_add_item(tree, hf_gtpv2_uli_rai_rac, tvb, offset, 2, FALSE);
-        offset+=4;
-        if(offset==length)
-            return;
-    }
-    /* 8.22.4 TAI field  */
-    if (flags&0x08)
-    {
-        dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
-        offset+=3;
-        proto_tree_add_item(tree, hf_gtpv2_uli_tai_tac, tvb, offset, 2, FALSE);
-        offset+=2;
-        if(offset==length)
-            return;
-    }
-    /* 8.22.5 ECGI field */
-    if (flags&0x10)
-    {
-        dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
-        offset+=3;
-        /* The bits 8 through 5, of octet e+3 (Fig 8.21.5-1 in TS 29.274 V8.2.0) are spare
-        and hence they would not make any difference to the hex string following it, thus we directly read 4 bytes from tvb */
-
-        proto_tree_add_item(tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, FALSE);
-        offset+=4;
-        if(offset==length)
-            return;
-
-    }
+    decode_gtpv2_uli(tvb, pinfo, tree, NULL, length, 0, flags);
+    return length;
 }
 
 /*
@@ -1682,27 +1759,27 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_uli_ecgi_flg,
         {"ECGI Present Flag)", "gtpv2.uli_ecgi_flg",
-        FT_BOOLEAN, 8, NULL, 0x10,
+        FT_BOOLEAN, 8, NULL, GTPv2_ULI_ECGI_MASK,
         NULL, HFILL}
         },
         { &hf_gtpv2_uli_tai_flg,
         {"TAI Present Flag)", "gtpv2.uli_tai_flg",
-        FT_BOOLEAN, 8, NULL, 0x08,
+        FT_BOOLEAN, 8, NULL, GTPv2_ULI_TAI_MASK,
         NULL, HFILL}
         },
         { &hf_gtpv2_uli_rai_flg,
         {"RAI Present Flag)", "gtpv2.uli_rai_flg",
-        FT_BOOLEAN, 8, NULL, 0x04,
+        FT_BOOLEAN, 8, NULL, GTPv2_ULI_RAI_MASK,
         NULL, HFILL}
         },
         { &hf_gtpv2_uli_sai_flg,
         {"SAI Present Flag)", "gtpv2.uli_sai_flg",
-        FT_BOOLEAN, 8, NULL, 0x02,
+        FT_BOOLEAN, 8, NULL, GTPv2_ULI_SAI_MASK,
         NULL, HFILL}
         },
         { &hf_gtpv2_uli_cgi_flg,
         {"CGI Present Flag)", "gtpv2.uli_cgi_flg",
-        FT_BOOLEAN, 8, NULL, 0x01,
+        FT_BOOLEAN, 8, NULL, GTPv2_ULI_CGI_MASK,
         NULL, HFILL}
         },
         { &hf_gtpv2_uli_cgi_lac,
@@ -1742,7 +1819,12 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_uli_ecgi_eci,
         {"ECI (E-UTRAN Cell Identifier)", "gtpv2.uli_ecgi_eci",
-        FT_UINT32, BASE_HEX, NULL, 0x0FFFFFFF,
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+        },
+        {&hf_gtpv2_uli_ecgi_eci_spare,
+        {"Spare", "gtpv2.uli_ecgi_eci_spare",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL}
         },
         {&hf_gtpv2_f_teid_v4,
@@ -1836,7 +1918,7 @@ void proto_register_gtpv2(void)
         FT_UINT8, BASE_DEC, VALS(gtpv2_node_type_vals), 0x0,
         NULL, HFILL}
         },
-		{ &hf_gtpv2_enterprise_id,
+        { &hf_gtpv2_enterprise_id,
         {"Enterprise ID", "gtpv2.enterprise_id",
         FT_UINT16, BASE_DEC, VALS(sminmpec_values), 0x0,
         NULL, HFILL}
@@ -1859,6 +1941,8 @@ void proto_register_gtpv2(void)
     proto_gtpv2 = proto_register_protocol("GPRS Tunneling Protocol V2", "GTPv2", "gtpv2");
     proto_register_field_array(proto_gtpv2, hf_gtpv2, array_length(hf_gtpv2));
     proto_register_subtree_array(ett_gtpv2_array, array_length(ett_gtpv2_array));
+    /* AVP Code: 22 3GPP-User-Location-Info */
+    dissector_add("diameter.3gpp", 22, new_create_dissector_handle(dissect_diameter_3gpp_uli, proto_gtpv2));
 
     register_dissector("gtpv2", dissect_gtpv2, proto_gtpv2);
 }

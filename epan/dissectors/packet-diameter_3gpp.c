@@ -175,6 +175,11 @@ proto_reg_handoff_diameter_3gpp(void)
 	/* AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
 	/* Registered by packet-gtp.c */
 
+	/* AVP Code: 22 3GPP-User-Location-Info
+	 * Registered by packet-gtpv2.c
+	 */
+
+
 	/* AVP Code: 701 MSISDN */
 	dissector_add("diameter.3gpp", 701, new_create_dissector_handle(dissect_diameter_3gpp_msisdn, proto_diameter_3gpp));
 
