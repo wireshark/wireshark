@@ -15,15 +15,29 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
+     o The SMB dissector could dereference a NULL pointer. (Bug 4734)
+
+       Versions affected: 0.99.6 to 1.0.13, 1.2.0 to 1.2.8
+
      o J. Oquendo discovered that the ASN.1 BER dissector could
        overrun the stack.
 
-       Versions affected: ???? to 1.0.13, 1.2.0 to 1.2.8
+       Versions affected: 0.10.13 to 1.0.13, 1.2.0 to 1.2.8
 
-     o The SMB PIPE dissector could dereference a NULL pointer. (Bug
-       4734)
+     o The SMB PIPE dissector could dereference a NULL pointer on
+       some platforms.
 
-       Versions affected: ???? to 1.0.13, 1.2.0 to 1.2.8
+       Versions affected: 0.8.20 to 1.0.13, 1.2.0 to 1.2.8
+
+     o The SigComp Universal Decompressor Virtual Machine could go
+       into an infinite loop. (Bug 4826)
+
+       Versions affected: 0.10.7 to 1.0.13, 1.2.0 to 1.2.8
+
+     o The SigComp Universal Decompressor Virtual Machine could
+       overrun a buffer. (Bug 4837)
+
+       Versions affected: 0.10.8 to 1.0.13, 1.2.0 to 1.2.8
 
    The following bugs have been fixed:
 
@@ -37,8 +51,6 @@ What's New
 
      o Want to be able to apply decode as to Data Portion of Lan
        Trace. (Bug 4721)
-
-     o tshark returns 0 on non-valid filter and interface. (Bug 4735)
 
      o SABP short pdu (packet_per.c). (Bug 4743)
 
@@ -64,9 +76,11 @@ What's New
      o Fedora 13: wireshark fails to build (linking problem). (Bug
        4815)
 
-     o . (Bug )
+     o The NFS FH hash (nfs.fh.hash) incorrectly matches multiple
+       filehandles. (Bug 4839)
 
-     o . (Bug )
+     o AES-CTR decoding not working, (dissectors/packet_ipsec.c using
+       gcrypt). (Bug 4838)
 
   New and Updated Features
 
@@ -78,7 +92,8 @@ What's New
 
   Updated Protocol Support
 
-   DOCSIS, HTTP, SSL
+   ASN.1 BER, BGP, HTTP, IGMP, IPsec, Kerberos, NFS, PGM, PTP, SABP,
+   SigComp, SMB, TCAP, XML,
 
   Updated Capture File Support
 
