@@ -941,7 +941,7 @@ dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     return;
 }
 
-/* Diameter 3GPP AVP Code: 22 3GPP-User-Location-Info
+/* Diameter 3GPP AVP Code: 22 3GPP-User-Location-Info */
 /*
  * TS 29.061 v9.2.0
  * 16.4.7.2 Coding 3GPP Vendor-Specific RADIUS attributes
