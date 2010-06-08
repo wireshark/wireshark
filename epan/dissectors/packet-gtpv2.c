@@ -903,7 +903,9 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
         dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
         offset+=3;
         /* The bits 8 through 5, of octet e+3 (Fig 8.21.5-1 in TS 29.274 V8.2.0) are spare
-        and hence they would not make any difference to the hex string following it, thus we directly read 4 bytes from tvb */
+         * and hence they would not make any difference to the hex string following it, 
+		 * thus we directly read 4 bytes from the tvb
+		 */
 
         octet = tvb_get_guint8(tvb,offset);
         spare = octet & 0xF0;
@@ -911,7 +913,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
         ECGI = octet4 & 0x0FFFFFFF;
         proto_tree_add_uint(tree, hf_gtpv2_uli_ecgi_eci_spare, tvb, offset, 1, spare);
         proto_tree_add_uint(tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, ECGI);
-        //proto_tree_add_item(tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, FALSE);
+        /*proto_tree_add_item(tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, FALSE);*/
         offset+=4;
         if(offset==length)
             return;
