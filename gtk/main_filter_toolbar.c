@@ -146,7 +146,7 @@ GtkWidget *filter_toolbar_new(void)
     g_signal_connect(filter_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
     g_signal_connect(filter_tb, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
 
-	gtk_widget_set_size_request(filter_cm, 400, -1);
+    gtk_widget_set_size_request(filter_cm, 400, -1);
     gtk_widget_show(filter_cm);
     item = gtk_tool_item_new ();
     gtk_container_add (GTK_CONTAINER (item), filter_cm);
@@ -170,11 +170,8 @@ GtkWidget *filter_toolbar_new(void)
     /* Create the "Add Expression..." button, to pop up a dialog
        for constructing filter comparison expressions. */
     filter_add_expr_bt = gtk_tool_button_new_from_stock(WIRESHARK_STOCK_ADD_EXPRESSION);
-#ifdef NEW_FILTER_COMBO_BOX
-#else
     g_object_set_data(G_OBJECT(filter_tb), E_FILT_FILTER_TE_KEY, filter_te);
     g_signal_connect(filter_add_expr_bt, "clicked", G_CALLBACK(filter_add_expr_bt_cb), filter_tb);
-#endif
     gtk_widget_show(GTK_WIDGET(filter_add_expr_bt));
 
     gtk_toolbar_insert(GTK_TOOLBAR(filter_tb),
