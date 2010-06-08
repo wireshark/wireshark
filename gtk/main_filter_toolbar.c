@@ -52,7 +52,7 @@
 
 GtkWidget   *main_display_filter_widget=NULL;
 
-#define NEW_FILTER_COMBO_BOX 1 
+#define NEW_FILTER_COMBO_BOX 1
 /* Run the current display filter on the current packet set, and
    redisplay. */
 static void
@@ -182,7 +182,7 @@ GtkWidget *filter_toolbar_new(void)
                        -1);
 
     gtk_tooltips_set_tip(GTK_TOOLTIPS(tooltips), GTK_WIDGET(filter_add_expr_bt),
-                         "Add an expression to this filter string", 
+                         "Add an expression to this filter string",
                          "Private");
 
     /* Create the "Clear" button */
@@ -195,7 +195,7 @@ GtkWidget *filter_toolbar_new(void)
                        -1);
 
     gtk_tooltips_set_tip(GTK_TOOLTIPS(tooltips), GTK_WIDGET(filter_reset),
-                         "Clear this filter string and update the display", 
+                         "Clear this filter string and update the display",
                          "Private");
 
     /* Create the "Apply" button */
@@ -295,6 +295,7 @@ dfilter_entry_match(GtkWidget *filter_cm, char *s, int *index)
                 return TRUE;
             }
         }
+	g_value_unset (&value);
     }while (gtk_tree_model_iter_next (model, &iter));
 
     *index = i;
