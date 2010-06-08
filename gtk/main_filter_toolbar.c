@@ -386,9 +386,13 @@ dfilter_recent_combo_write_all(FILE *rf) {
 /* empty the combobox entry field */
 void
 dfilter_combo_add_empty(void) {
-    GtkWidget *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
 
+#ifdef NEW_FILTER_COMBO_BOX
+    /* This doesn't seem to be necessary with a Combo Box */
+#else
+    GtkWidget *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(filter_cm)->entry), "");
+#endif
 }
 
 
