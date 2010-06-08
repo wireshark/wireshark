@@ -151,6 +151,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Crash in filter autocompletion.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4306">Bug
+          4306</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           The XML dissector doesn't allow dots (".") in tags.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4405">Bug
           4405</ulink>)

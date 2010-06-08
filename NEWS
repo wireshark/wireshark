@@ -45,6 +45,8 @@ What's New
 
      o Application crash when changing real-time option. (Bug 4035)
 
+     o Crash in filter autocompletion. (Bug 4306)
+
      o The XML dissector doesn't allow dots (".") in tags. (Bug 4405)
 
      o Live capture stops when using zlib 1.2.5. (Bug 4708)
