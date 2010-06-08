@@ -774,7 +774,7 @@ filter_autocomplete_handle_backspace(GtkWidget *filter_te, GtkWidget *list, GtkW
 
   prefix_len = strlen(prefix);
 
-  if (prefix_len < 1) {
+  if (prefix_len <= 1) {
     /* Remove the popup window for protocols */
     gtk_widget_destroy(popup_win);
     g_object_set_data(G_OBJECT(main_win), E_FILT_AUTOCOMP_PTR_KEY, NULL);
