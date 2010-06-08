@@ -1,1720 +1,592 @@
 ------------------------------------------------------------------------
-r31300 | gerald | 2009-12-17 13:17:43 -0800 (Thu, 17 Dec 2009) | 2 lines
-Changed paths:
-   M /trunk-1.2/config.nmake
-   M /trunk-1.2/configure.in
-   M /trunk-1.2/debian/changelog
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/version.conf
-
-Bump everything to 1.2.6.
-
-------------------------------------------------------------------------
-r31368 | gerald | 2009-12-27 13:55:24 -0800 (Sun, 27 Dec 2009) | 1 line
-Changed paths:
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-12-27]
-------------------------------------------------------------------------
-r31437 | gerald | 2010-01-03 08:04:37 -0800 (Sun, 03 Jan 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-01-03]
-------------------------------------------------------------------------
-r31457 | gerald | 2010-01-06 10:34:48 -0800 (Wed, 06 Jan 2010) | 16 lines
-Changed paths:
-   M /trunk-1.2/Makefile.nmake
-
-Copy over r31370 from the trunk in order to appease the new Windows
-build slave.
-
-------------------------------------------------------------------------
-r31370 | wmeier | 2009-12-27 17:47:10 -0800 (Sun, 27 Dec 2009) | 6 lines
-Changed paths:
-   M /trunk/Makefile.nmake
-
-From Jim Young: Fix for "nmake call to cygwin 1.7.1 bash fails if win32 style backslash path delimiters".
-
-Note the change seems to also work AOK for cygwin1.5.?.
-
-See Bug #4359. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4359
-------------------------------------------------------------------------
-
-
-------------------------------------------------------------------------
-r31479 | gerald | 2010-01-10 08:04:36 -0800 (Sun, 10 Jan 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-01-10]
-------------------------------------------------------------------------
-r31539 | gerald | 2010-01-15 17:02:51 -0800 (Fri, 15 Jan 2010) | 173 lines
-Changed paths:
-   M /trunk-1.2/Makefile.nmake
-   M /trunk-1.2/airpcap_loader.c
-   M /trunk-1.2/asn1/spnego/packet-spnego-template.c
-   M /trunk-1.2/capture-wpcap.c
-   M /trunk-1.2/config.h.win32
-   M /trunk-1.2/config.nmake
-   M /trunk-1.2/docbook/Makefile.common
-   M /trunk-1.2/docbook/README.txt
-   M /trunk-1.2/docbook/developer-guide.xml
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/docbook/user-guide.xml
-   M /trunk-1.2/docbook/wsdg_src/WSDG_chapter_quick_setup.xml
-   M /trunk-1.2/docbook/wsdg_src/WSDG_chapter_sources.xml
-   M /trunk-1.2/docbook/wsdg_src/WSDG_chapter_tools.xml
-   M /trunk-1.2/docbook/wsug_graphics/note.png
-   M /trunk-1.2/docbook/wsug_graphics/tip.png
-   M /trunk-1.2/docbook/wsug_graphics/warning.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-analyze-menu.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-bytes-pane-tabs.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-bytes-pane.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-capture-info.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-capture-interface-details.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-capture-interfaces-win32.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-capture-interfaces.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-capture-menu.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-capture-options.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-capture-preferences.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-choose-color-rule.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-coloring-fields.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-coloring-rules-dialog.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-decode-as-show.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-decode-as.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-details-pane-popup-menu.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-details-pane.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-display-filter-tcp.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-edit-color-rule-dialog.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-edit-menu.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-enabled-protocols.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-expert-colored-tree.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-expert-column.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-expert-infos.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-export-objects.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-export-pdml.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-export-plain.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-export-ps.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-export-psml.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-export-selected.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-file-menu.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-file-set-dialog.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-filter-add-expression.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-filter-toolbar.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-filters.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-find-packet.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-follow-stream.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-go-menu.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-goto-packet.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-gui-colors-preferences.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-gui-columns-preferences.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-gui-config-profiles.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-gui-font-preferences.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-gui-interface-options.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-gui-layout-preferences.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-gui-preferences.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-help-menu.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-list-pane.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-logo.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-main-toolbar.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-main.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-menu.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-merge-gtk20.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-merge-gtk24.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-merge-win32.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-nameresolution-preferences.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-open-gtk20.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-open-gtk24.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-open-win32.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-packet-format.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-packet-pane-popup-menu.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-packet-range.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-packet-selected.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-packet-sep-win.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-print.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-printing-preferences.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-save-as-gtk20.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-save-as-gtk24.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-save-as-win32.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-statistics-menu.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-stats-conversations.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-stats-endpoints.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-stats-hierarchy.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-stats-iographs.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-stats-lte-mac-traffic.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-stats-srt-dcerpc-filter.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-stats-srt-dcerpc.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-stats-summary.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-stats-wlan-traffic.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-statusbar-empty.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-statusbar-filter.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-statusbar-loaded.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-statusbar-profile.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-statusbar-selected.png
-   A /trunk-1.2/docbook/wsug_graphics/ws-tel-rtpstream-analysis.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-time-reference.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-view-menu.png
-   M /trunk-1.2/docbook/wsug_src/WSUG_chapter_statistics.xml
-   A /trunk-1.2/docbook/wsug_src/WSUG_chapter_telephony.xml
-   M /trunk-1.2/docbook/wsug_src/WSUG_chapter_use.xml
-   M /trunk-1.2/epan/dissectors/packet-bootp.c
-   M /trunk-1.2/epan/dissectors/packet-kerberos.c
-   M /trunk-1.2/epan/dissectors/packet-kerberos.h
-   M /trunk-1.2/epan/dissectors/packet-kink.c
-   M /trunk-1.2/epan/dissectors/packet-spnego.c
-   M /trunk-1.2/epan/dissectors/packet-ssl-utils.c
-   M /trunk-1.2/epan/follow.c
-   M /trunk-1.2/epan/wslua/wslua_tree.c
-   M /trunk-1.2/epan/wslua/wslua_tvb.c
-   M /trunk-1.2/gtk/capture_dlg.c
-   M /trunk-1.2/gtk/capture_dlg.h
-   M /trunk-1.2/gtk/main_welcome.c
-   M /trunk-1.2/gtk/rtp_player.c
-   M /trunk-1.2/gtk/uat_gui.c
-   M /trunk-1.2/plugins/opcua/opcua.c
-   M /trunk-1.2/print.c
-   M /trunk-1.2/tap-rtp-common.c
-
-Copy over revisions from the trunk:
-
-------------------------------------------------------------------------
-r29401 | kukosa | 2009-08-13 03:36:53 -0700 (Thu, 13 Aug 2009) | 1 line
-Changed paths:
-   M /trunk/epan/dissectors/packet-ssl-utils.c
-
-use G_GSIZE_MODIFIER instead of %zd which is not supported by MSVC
-------------------------------------------------------------------------
-r30695 | gerald | 2009-10-25 10:05:08 -0700 (Sun, 25 Oct 2009) | 2 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-bootp.c
-
-Option 2 (Time Offset) is signed.
-------------------------------------------------------------------------
-r31294 | wmeier | 2009-12-17 08:22:50 -0800 (Thu, 17 Dec 2009) | 4 lines
-Changed paths:
-   M /trunk/plugins/opcua/opcua.c
-
-From  Martin Lutz: Patch tvb_memeql return check;
-  ... tvb_memeql returns 0 for truth.
-See: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3986#c7
-------------------------------------------------------------------------
-r31297 | jake | 2009-12-17 09:59:46 -0800 (Thu, 17 Dec 2009) | 1 line
-Changed paths:
-   M /trunk/gtk/rtp_player.c
-
-Squelch a GTK warning on the RTP player spinner control.
-------------------------------------------------------------------------
-r31298 | jake | 2009-12-17 11:58:57 -0800 (Thu, 17 Dec 2009) | 1 line
-Changed paths:
-   M /trunk/gtk/rtp_player.c
-
-Squelch GTK warnings on the RTP player progress bar when resizeing the window.
-------------------------------------------------------------------------
-r31315 | gerald | 2009-12-18 11:44:10 -0800 (Fri, 18 Dec 2009) | 2 lines
-Changed paths:
-   M /trunk/airpcap_loader.c
-
-Don't try to free a static pointer.
-------------------------------------------------------------------------
-r31316 | gerald | 2009-12-18 12:36:36 -0800 (Fri, 18 Dec 2009) | 3 lines
-Changed paths:
-   M /trunk/Makefile.nmake
-   M /trunk/capture-wpcap.c
-   M /trunk/config.h.win32
-   M /trunk/config.nmake
-
-Use the WinPcap version of pcap_datalink_val_to_description if it's
-present.  Add an entry for DLT_PPI in case it's not.
-------------------------------------------------------------------------
-r31317 | jake | 2009-12-18 15:14:26 -0800 (Fri, 18 Dec 2009) | 1 line
-Changed paths:
-   M /trunk/docbook/user-guide.xml
-   M /trunk/docbook/wsug_graphics/ws-menu.png
-   M /trunk/docbook/wsug_graphics/ws-statistics-menu.png
-   A /trunk/docbook/wsug_graphics/ws-telephony-menu.png
-   M /trunk/docbook/wsug_src/WSUG_chapter_use.xml
-
-Update the User Guide to show the current menu.
-------------------------------------------------------------------------
-r31318 | jake | 2009-12-18 15:26:12 -0800 (Fri, 18 Dec 2009) | 3 lines
-Changed paths:
-   M /trunk/gtk/rtp_player.c
-
-PortAudio doesn't make sure that a default device is even available on the default Host API (go figure).
-Therefore opening the default stream may fail in the precense of usable devices, on other Host API's.
-If the default stream fails to open iterate among the Host API's to find one with a default device.
-------------------------------------------------------------------------
-r31331 | jake | 2009-12-20 15:22:21 -0800 (Sun, 20 Dec 2009) | 3 lines
-Changed paths:
-   M /trunk/tap-rtp-common.c
-
-Fix for bug 4340:
-Reset statistics variable when restart statistics gathering.
-------------------------------------------------------------------------
-r31334 | sake | 2009-12-20 22:47:32 -0800 (Sun, 20 Dec 2009) | 4 lines
-Changed paths:
-   M /trunk/epan/follow.c
-
-Fix some [-XX bytes missing in capture file] messages when doing 
-follow TCP stream.
-------------------------------------------------------------------------
-r31364 | jake | 2009-12-27 05:26:00 -0800 (Sun, 27 Dec 2009) | 2 lines
-Changed paths:
-   M /trunk/gtk/uat_gui.c
-
-Fix for bug 4354:
-Set Edit and Delete button sensitivity when deleting a row.
-------------------------------------------------------------------------
-r31393 | stig | 2009-12-30 11:21:21 -0800 (Wed, 30 Dec 2009) | 2 lines
-Changed paths:
-   M /trunk/gtk/capture_dlg.c
-   M /trunk/gtk/capture_dlg.h
-   M /trunk/gtk/main_welcome.c
-
-Set correct linktype when starting capture from the welcome page.
-------------------------------------------------------------------------
-r31395 | sfisher | 2009-12-31 11:08:59 -0800 (Thu, 31 Dec 2009) | 10 lines
-Changed paths:
-   M /trunk/print.c
-
-Fix bug #1564: PSML - structure context node missing [when not displaying
-packet #1 from the capture file]
-
-This change keeps track of whether the <structure></structure> elements
-and information in between have been shown yet, and if not, it shows them
-once.  The previous behavior would only show it if packet #1 from the
-capture file was being shown.
-------------------------------------------------------------------------
-r31401 | stig | 2010-01-01 10:49:38 -0800 (Fri, 01 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk/epan/wslua/wslua_tree.c
-
-Use correct length for FT_STRINGZ when adding the item to the tree.
-------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-
-------------------------------------------------------------------------
-r29213 | sahlberg | 2009-07-28 06:01:41 -0700 (Tue, 28 Jul 2009) | 15 lines
-Changed paths:
-   M /trunk/asn1/spnego/packet-spnego-template.c
-   M /trunk/epan/dissectors/packet-kerberos.c
-   M /trunk/epan/dissectors/packet-kerberos.h
-   M /trunk/epan/dissectors/packet-kink.c
-   M /trunk/epan/dissectors/packet-spnego.c
-
-When we passed the crytobuffer to krb5_c_decrypt() we never actually 
-verified that we did have enough data in the buffer/tvb, which could 
-lead to a SEGV.
-(for example if we enable KRB5 decryption but we do NOT use TCP 
-reassembly, and the encrypted data goes beyong the end of the current 
-segment)
-
-
-Change the signature to decrypt_krb5_data() to take a TVB instead of a 
-buffer+length.
-Actually check that we do have the entire encrypted PDU before calling 
-out to the kerberos libraries.
-------------------------------------------------------------------------
-r31326 | jake | 2009-12-20 06:49:49 -0800 (Sun, 20 Dec 2009) | 2 lines
-Changed paths:
-   M /trunk/docbook/README.txt
-   M /trunk/docbook/developer-guide.xml
-   M /trunk/docbook/wsdg_src/WSDG_chapter_quick_setup.xml
-   M /trunk/docbook/wsdg_src/WSDG_chapter_sources.xml
-   M /trunk/docbook/wsdg_src/WSDG_chapter_tools.xml
-
-Clean up the docbook source code, apply proper tags, update references.
-Update readme information, add some editing information for authors.
-------------------------------------------------------------------------
-r31369 | jake | 2009-12-27 14:20:03 -0800 (Sun, 27 Dec 2009) | 1 line
-Changed paths:
-   M /trunk/docbook/Makefile.common
-   M /trunk/docbook/user-guide.xml
-   A /trunk/docbook/wsug_graphics/ws-tel-rtpstream-analysis.png
-   M /trunk/docbook/wsug_src/WSUG_chapter_statistics.xml
-   A /trunk/docbook/wsug_src/WSUG_chapter_telephony.xml
-   M /trunk/docbook/wsug_src/WSUG_chapter_use.xml
-
-Start Telephony statistics chapter.
-------------------------------------------------------------------------
-r31398 | stig | 2010-01-01 07:57:14 -0800 (Fri, 01 Jan 2010) | 3 lines
-Changed paths:
-   M /trunk/epan/wslua/wslua_tvb.c
-
-Add missing stringz tvbrange method.
-This fixes bug 2244.
-------------------------------------------------------------------------
-
-
-------------------------------------------------------------------------
-r31551 | gerald | 2010-01-17 08:04:37 -0800 (Sun, 17 Jan 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-01-17]
-------------------------------------------------------------------------
-r31581 | gerald | 2010-01-19 17:02:36 -0800 (Tue, 19 Jan 2010) | 57 lines
-Changed paths:
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/epan/addr_resolv.c
-   M /trunk-1.2/epan/addr_resolv.h
-   M /trunk-1.2/epan/dissectors/packet-ip.c
-   M /trunk-1.2/epan/dissectors/packet-kerberos.c
-   M /trunk-1.2/epan/wslua/wslua_proto.c
-   M /trunk-1.2/gtk/main.c
-
-Copy over revisions from the trunk. ADNS changes have not been tested:
-
-------------------------------------------------------------------------
-r31361 | gerald | 2009-12-24 09:21:02 -0800 (Thu, 24 Dec 2009) | 3 lines
-Changed paths:
-   M /trunk/epan/addr_resolv.c
-   M /trunk/epan/addr_resolv.h
-
-Have get_host_ipaddr and get_host_ipaddr6 return FALSE if network name
-resolution is disabled. Fix some indentation.
-------------------------------------------------------------------------
-r31449 | stig | 2010-01-05 07:37:45 -0800 (Tue, 05 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk/epan/wslua/wslua_proto.c
-
-Use correct field types for signed integer.
-------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-
-------------------------------------------------------------------------
-r31350 | gerald | 2009-12-22 12:01:06 -0800 (Tue, 22 Dec 2009) | 4 lines
-Changed paths:
-   M /trunk/epan/addr_resolv.c
-   M /trunk/epan/addr_resolv.h
-   M /trunk/gtk/main.c
-
-Change host_name_lookup_process to return TRUE if anything new has been
-resolved since the last time it was called. Use this to redraw the packet
-list and detail any time we have newly-resolved objects.
-------------------------------------------------------------------------
-r31360 | gerald | 2009-12-23 16:58:31 -0800 (Wed, 23 Dec 2009) | 3 lines
-Changed paths:
-   M /trunk/epan/addr_resolv.c
-   M /trunk/epan/addr_resolv.h
-
-If we're using c-ares, have get_host_ipaddr and get_host_ipaddr6 time
-out after 250ms. This should fix the annoying freeze in bug 658.
-------------------------------------------------------------------------
-r31400 | wmeier | 2010-01-01 09:11:38 -0800 (Fri, 01 Jan 2010) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-kerberos.c
-
-Fix Bug #4363: wireshark decodes kerberos AS-REQ PADATA incorrectly.
-See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4363
-
-------------------------------------------------------------------------
-r31471 | wmeier | 2010-01-08 15:53:46 -0800 (Fri, 08 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-ip.c
-
-Fix Bug #4177: Analyze ! Expert... doesn't show IP "Bad Checksum" errors.
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r31596 | gerald | 2010-01-20 14:53:59 -0800 (Wed, 20 Jan 2010) | 73 lines
-Changed paths:
-   M /trunk-1.2/asn1/pkcs12/packet-pkcs12-template.c
-   M /trunk-1.2/doc/README.developer
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/epan/dissectors/packet-bjnp.c
-   M /trunk-1.2/epan/dissectors/packet-dmp.c
-   M /trunk-1.2/epan/dissectors/packet-fip.c
-   M /trunk-1.2/epan/dissectors/packet-ieee80211.c
-   M /trunk-1.2/epan/dissectors/packet-ldss.c
-   M /trunk-1.2/epan/dissectors/packet-lwres.c
-   M /trunk-1.2/epan/dissectors/packet-pkcs12.c
-   M /trunk-1.2/epan/dissectors/packet-sctp.c
-   M /trunk-1.2/epan/dissectors/pidl/mapi/request.cnf.c
-   M /trunk-1.2/epan/dissectors/pidl/mapi/response.cnf.c
-
-Copy over revisions from the trunk:
-
-------------------------------------------------------------------------
-r31498 | wmeier | 2010-01-11 07:26:39 -0800 (Mon, 11 Jan 2010) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-ieee80211.c
-
-Fix Bug 4183: "Wireshark can't decrypt WPA(2)-PSK when passphrase is 63 bytes".
-See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4183
-------------------------------------------------------------------------
-r31499 | etxrab | 2010-01-11 08:14:26 -0800 (Mon, 11 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk/asn1/pkcs12/packet-pkcs12-template.c
-   M /trunk/epan/dissectors/packet-dmp.c
-   M /trunk/epan/dissectors/packet-ldss.c
-   M /trunk/epan/dissectors/packet-pkcs12.c
-   M /trunk/epan/dissectors/pidl/mapi/request.cnf.c
-   M /trunk/epan/dissectors/pidl/mapi/response.cnf.c
-
-Fix part of Bug 3917 "tvb_new_real_data is prone to memory leak"
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3917
-------------------------------------------------------------------------
-r31522 | tuexen | 2010-01-13 13:31:24 -0800 (Wed, 13 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-sctp.c
-
-Display correct chunk type for unknown chunks.
-------------------------------------------------------------------------
-r31524 | gerald | 2010-01-13 17:22:00 -0800 (Wed, 13 Jan 2010) | 6 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-lwres.c
-
-Fix several buffer overflows found by babi babi. Replace a lot of manual
-fetching and displaying with proto_tree_add_item().
-
-Use get_dns_name() instead of lwres_get_dns_name(), which fixes a separate
-issue.
-------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-
-------------------------------------------------------------------------
-r31472 | sfisher | 2010-01-09 12:15:02 -0800 (Sat, 09 Jan 2010) | 6 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-bjnp.c
-
-
-Change col_set_str() call to col_add_str() since the string being passed
-to it is freed right afterwards.  This fixes an issue reported to
-wireshark-users by Ershov Pavel on Jan 9, 2010 (in the U.S.).
-------------------------------------------------------------------------
-r31560 | guy | 2010-01-18 15:21:13 -0800 (Mon, 18 Jan 2010) | 8 lines
-Changed paths:
-   M /trunk/doc/README.developer
-
-Rewrite the bit about null vs. non-null "tree" dissector arguments a
-bit, so as not to imply that there's some form of global "mode"
-Wireshark is in when it passes a null or non-null pointer (there isn't),
-and to explicitly note that there is *no* guarantee about the value of
-"tree" on the first call to the dissector.  (I.e., please do not build a
-mental model of how Wireshark works in that regard, and write your
-dissector based on that mental model - you *will* be wrong.)
-------------------------------------------------------------------------
-r31534 | stig | 2010-01-15 05:40:14 -0800 (Fri, 15 Jan 2010) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-fip.c
-
-Change col_set_str() call to col_add_str() since the string being passed
-can be a ep_alloc from val_to_str().
-------------------------------------------------------------------------
-
-
-------------------------------------------------------------------------
-r31600 | gerald | 2010-01-21 08:22:46 -0800 (Thu, 21 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/epan/addr_resolv.c
-
-Fix compilation on machines without c-ares.
-
-------------------------------------------------------------------------
-r31601 | etxrab | 2010-01-21 08:31:05 -0800 (Thu, 21 Jan 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/diameter/TGPPGmb.xml
-   M /trunk-1.2/diameter/dictionary.xml
-   M /trunk-1.2/diameter/imscxdx.xml
-
-Update Diameter files.
-------------------------------------------------------------------------
-r31604 | gerald | 2010-01-21 09:02:35 -0800 (Thu, 21 Jan 2010) | 10 lines
-Changed paths:
-   M /trunk-1.2/epan/addr_resolv.c
-
-Copy over r30773 with manual intervention.
-
-------------------------------------------------------------------------
-r30773 | jake | 2009-10-30 14:57:43 -0700 (Fri, 30 Oct 2009) | 1 line
-Changed paths:
-   M /trunk/epan/addr_resolv.c
-
-Prepare for c-ares 1.6.1 release.
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-r31605 | gerald | 2010-01-21 09:30:45 -0800 (Thu, 21 Jan 2010) | 36 lines
-Changed paths:
-   M /trunk-1.2/config.nmake
-   M /trunk-1.2/configure.in
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/epan/dfilter/semcheck.c
-   M /trunk-1.2/epan/ftypes/ftype-bytes.c
-   M /trunk-1.2/epan/ftypes/ftype-pcre.c
-   M /trunk-1.2/epan/ftypes/ftype-string.c
-   M /trunk-1.2/epan/ftypes/ftype-tvbuff.c
-   M /trunk-1.2/epan/ftypes/ftypes-int.h
-   M /trunk-1.2/epan/ftypes/ftypes.h
-   M /trunk-1.2/gtk/dfilter_expr_dlg.c
-   M /trunk-1.2/version_info.c
-
-Copy over revisions from the trunk:
-
-------------------------------------------------------------------------
-r31302 | gerald | 2009-12-17 17:15:08 -0800 (Thu, 17 Dec 2009) | 3 lines
-Changed paths:
-   M /trunk/configure.in
-   M /trunk/epan/dfilter/semcheck.c
-   M /trunk/epan/ftypes/ftype-bytes.c
-   M /trunk/epan/ftypes/ftype-pcre.c
-   M /trunk/epan/ftypes/ftype-string.c
-   M /trunk/epan/ftypes/ftype-tvbuff.c
-   M /trunk/epan/ftypes/ftypes-int.h
-   M /trunk/epan/ftypes/ftypes.h
-   M /trunk/gtk/dfilter_expr_dlg.c
-   M /trunk/version_info.c
-
-If we don't have PCRE and we do have GLib >= 2.14, use GRegexes for the
-"matches" operator.
-------------------------------------------------------------------------
-r31303 | gerald | 2009-12-17 17:25:46 -0800 (Thu, 17 Dec 2009) | 2 lines
-Changed paths:
-   M /trunk/epan/ftypes/ftype-bytes.c
-   M /trunk/epan/ftypes/ftype-tvbuff.c
-
-Fix our match flags.
-------------------------------------------------------------------------
-r31304 | gerald | 2009-12-17 17:29:56 -0800 (Thu, 17 Dec 2009) | 3 lines
-Changed paths:
-   M /trunk/config.nmake
-
-Disable PCRE in the Win32 build. GRegex uses a newer version than we do
-and this matches the Win64 configuration.
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r31606 | gerald | 2010-01-21 12:03:21 -0800 (Thu, 21 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/image/wiresharkdoc.ico
-   M /trunk-1.2/packaging/macosx/Resources/wsicondoc.icns
-
-Copy over the latest document icons from the trunk.
-
-------------------------------------------------------------------------
-r31607 | gerald | 2010-01-21 13:13:41 -0800 (Thu, 21 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/Makefile.nmake
-   M /trunk-1.2/config.nmake
-   M /trunk-1.2/packaging/nsis/Makefile.nmake
-   M /trunk-1.2/packaging/nsis/wireshark.nsi
-
-Prep for a bunch of library updates. This will break the build for a while.
-
-------------------------------------------------------------------------
-r31608 | gerald | 2010-01-21 13:32:51 -0800 (Thu, 21 Jan 2010) | 32 lines
-Changed paths:
-   M /trunk-1.2/Makefile.nmake
-   M /trunk-1.2/asn1/pkcs12/packet-pkcs12-template.c
-   M /trunk-1.2/asn1/snmp/packet-snmp-template.c
-   M /trunk-1.2/config.h.win32
-   M /trunk-1.2/config.nmake
-   M /trunk-1.2/epan/dissectors/packet-ipsec.c
-   M /trunk-1.2/epan/dissectors/packet-isakmp.c
-   M /trunk-1.2/epan/dissectors/packet-mikey.c
-   M /trunk-1.2/epan/dissectors/packet-pkcs12.c
-   M /trunk-1.2/epan/dissectors/packet-snmp.c
-   M /trunk-1.2/epan/dissectors/packet-ssl-utils.c
-   M /trunk-1.2/epan/dissectors/packet-ssl-utils.h
-   M /trunk-1.2/epan/dissectors/packet-zbee-security.c
-   M /trunk-1.2/epan/epan.c
-   M /trunk-1.2/packaging/u3/tools/sysdep.h
-   M /trunk-1.2/version_info.c
-
-Copy over the latest GNUTLS bundle support with manual intervention.
-
-------------------------------------------------------------------------
-r31341 | gerald | 2009-12-21 13:06:01 -0800 (Mon, 21 Dec 2009) | 5 lines
-Changed paths:
-   M /trunk/Makefile.nmake
-   M /trunk/asn1/pkcs12/packet-pkcs12-template.c
-   M /trunk/asn1/snmp/packet-snmp-template.c
-   M /trunk/capinfos.c
-   M /trunk/config.h.win32
-   M /trunk/config.nmake
-   M /trunk/epan/dissectors/packet-ipsec.c
-   M /trunk/epan/dissectors/packet-isakmp.c
-   M /trunk/epan/dissectors/packet-mikey.c
-   M /trunk/epan/dissectors/packet-pkcs12.c
-   M /trunk/epan/dissectors/packet-snmp.c
-   M /trunk/epan/dissectors/packet-ssl-utils.c
-   M /trunk/epan/dissectors/packet-ssl-utils.h
-   M /trunk/epan/dissectors/packet-zbee-security.c
-   M /trunk/epan/epan.c
-   M /trunk/packaging/u3/tools/sysdep.h
-   M /trunk/tools/win32-setup.sh
-   M /trunk/tools/win64-setup.sh
-   M /trunk/version_info.c
-
-Switch to using a bundled version of the openSUSE Build Service packages
-for GNUTLS since they provide 32-bit and 64-bit Windows packages. We no
-longer have winposixtype.h, so remove its #includes and add a ssize_t
-typedef to config.h.win32.
-------------------------------------------------------------------------
-
-
-------------------------------------------------------------------------
-r31610 | gerald | 2010-01-21 14:01:15 -0800 (Thu, 21 Jan 2010) | 11 lines
-Changed paths:
-   M /trunk-1.2/epan/dissectors/packet-ssl-utils.c
-
-Copy over r31342 from the trunk:
-
-------------------------------------------------------------------------
-r31342 | gerald | 2009-12-21 13:34:18 -0800 (Mon, 21 Dec 2009) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-ssl-utils.c
-
-Can someone explain why it's a good idea that functions like strlen
-return a size_t and then not define a size_t format specifier for sprintf?
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-r31611 | gerald | 2010-01-21 14:13:07 -0800 (Thu, 21 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/epan/dissectors/packet-ssl-utils.c
-
-Add a cast.
-
-------------------------------------------------------------------------
-r31612 | gerald | 2010-01-21 15:49:06 -0800 (Thu, 21 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/Makefile.nmake
-   M /trunk-1.2/tools/win32-setup.sh
-   M /trunk-1.2/tools/win64-setup.sh
-
-Use the latest libs.
-
-------------------------------------------------------------------------
-r31613 | gerald | 2010-01-21 15:55:42 -0800 (Thu, 21 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/docbook/release-notes.xml
-
-Add a note about the 64-bit installer.
-
-------------------------------------------------------------------------
-r31614 | gerald | 2010-01-21 17:30:59 -0800 (Thu, 21 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/packaging/nsis/Makefile.nmake
-
-Add missing DLLs.
-
-------------------------------------------------------------------------
-r31627 | gerald | 2010-01-22 14:36:47 -0800 (Fri, 22 Jan 2010) | 11 lines
-Changed paths:
-   M /trunk-1.2/epan/dissectors/packet-kerberos.c
-
-Copy over r31626 from the trunk:
-
-------------------------------------------------------------------------
-r31626 | gerald | 2010-01-22 14:36:03 -0800 (Fri, 22 Jan 2010) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-kerberos.c
-
-In our case, not being able to read the Kerberos configuration file
-isn't a big deal.
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-r31643 | gerald | 2010-01-24 08:04:59 -0800 (Sun, 24 Jan 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-01-24]
-------------------------------------------------------------------------
-r31672 | gerald | 2010-01-25 15:46:42 -0800 (Mon, 25 Jan 2010) | 40 lines
-Changed paths:
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/docbook/wsug_src/WSUG_app_tools.xml
-   M /trunk-1.2/epan/dissectors/packet-dhcpv6.c
-   M /trunk-1.2/epan/dissectors/packet-gprs-llc.c
-   M /trunk-1.2/epan/dissectors/packet-zrtp.c
-
-Copy over revisions from the trunk:
-
-------------------------------------------------------------------------
-r31609 | jake | 2010-01-21 13:46:46 -0800 (Thu, 21 Jan 2010) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-dhcpv6.c
-
-From Alexandre Forget:
-Fix the ORO suboption offset error.
-------------------------------------------------------------------------
-r31615 | guy | 2010-01-21 20:43:07 -0800 (Thu, 21 Jan 2010) | 5 lines
-Changed paths:
-   M /trunk/docbook/wsug_src/WSUG_app_tools.xml
-
-Clarify tcpdump's default snapshot length a bit - and recommend 65535 as
-the argument to "-s" (1500 is too small even for Ethernet, as the
-maximum size of packets on Ethernet is 1514 bytes if you don't count the
-FCS and 1518 bytes if you do).
-------------------------------------------------------------------------
-r31667 | etxrab | 2010-01-25 12:14:34 -0800 (Mon, 25 Jan 2010) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-gprs-llc.c
-
-From Mike Morrin:
-Empty GPRS LLC S frames cause truncated data exception.
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4417
-------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-
-------------------------------------------------------------------------
-r31598 | jake | 2010-01-20 23:56:21 -0800 (Wed, 20 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-zrtp.c
-
-Add Skein MAC authentication tag types.
-------------------------------------------------------------------------
-
-
-------------------------------------------------------------------------
-r31677 | jake | 2010-01-25 23:27:42 -0800 (Mon, 25 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/debian/changelog
-
-Adjust release timestamp.
-
-------------------------------------------------------------------------
-r31691 | gerald | 2010-01-26 16:00:53 -0800 (Tue, 26 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/ChangeLog
-   M /trunk-1.2/NEWS
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/print.c
-   M /trunk-1.2/tools/win32-setup.sh
-   M /trunk-1.2/tools/win64-setup.sh
-
-Final documentation and library tag updates, plus a bonus bug fix.
-
-------------------------------------------------------------------------
-r31692 | gerald | 2010-01-26 16:01:28 -0800 (Tue, 26 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/version.conf
-
-Build 1.2.6.
-
-------------------------------------------------------------------------
-r31702 | gerald | 2010-01-27 08:04:19 -0800 (Wed, 27 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/packaging/macosx/Info.plist.in
-   M /trunk-1.2/version_info.c
-
-Update the copyright year.
-
-------------------------------------------------------------------------
-r31711 | gerald | 2010-01-27 17:24:30 -0800 (Wed, 27 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/config.nmake
-   M /trunk-1.2/configure.in
-   M /trunk-1.2/debian/changelog
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/version.conf
-
-1.2.6 -> 1.2.7.
-
-------------------------------------------------------------------------
-r31719 | gerald | 2010-01-28 09:36:41 -0800 (Thu, 28 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/Makefile.nmake
-
-Use the right User's Guide version.
-
-------------------------------------------------------------------------
-r31743 | gerald | 2010-01-31 08:05:01 -0800 (Sun, 31 Jan 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-01-31]
-------------------------------------------------------------------------
-r31801 | jake | 2010-02-05 11:09:46 -0800 (Fri, 05 Feb 2010) | 54 lines
-Changed paths:
-   M /trunk-1.2/docbook/Makefile.common
-   M /trunk-1.2/docbook/user-guide.xml
-   M /trunk-1.2/docbook/wsdg_src/WSDG_chapter_tools.xml
-   A /trunk-1.2/docbook/wsug_graphics/ws-capture-options-remote-capture.png
-   A /trunk-1.2/docbook/wsug_graphics/ws-capture-options-remote-interface.png
-   A /trunk-1.2/docbook/wsug_graphics/ws-capture-options-remote-settings.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-capture-options.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-menu.png
-   M /trunk-1.2/docbook/wsug_graphics/ws-statistics-menu.png
-   A /trunk-1.2/docbook/wsug_graphics/ws-telephony-menu.png
-   M /trunk-1.2/docbook/wsug_src/WSUG_chapter_capture.xml
-
-Copy over missing files and revisions listed on roadmap from the trunk:
-------------------------------------------------------------------------
-r31317 | jake | 2009-12-19 00:14:26 +0100 (Sat, 19 Dec 2009) | 1 line
-Changed paths:
-   M /trunk/docbook/user-guide.xml
-   M /trunk/docbook/wsug_graphics/ws-menu.png
-   M /trunk/docbook/wsug_graphics/ws-statistics-menu.png
-   A /trunk/docbook/wsug_graphics/ws-telephony-menu.png
-   M /trunk/docbook/wsug_src/WSUG_chapter_use.xml
-
-Update the User Guide to show the current menu.
-------------------------------------------------------------------------
-r31154 | jake | 2009-12-02 20:33:28 +0100 (Wed, 02 Dec 2009) | 3 lines
-Changed paths:
-   M /trunk/docbook/Makefile.common
-   M /trunk/docbook/user-guide.xml
-   A /trunk/docbook/wsug_graphics/ws-capture-options-remote-capture.png
-   A /trunk/docbook/wsug_graphics/ws-capture-options-remote-interface.png
-   A /trunk/docbook/wsug_graphics/ws-capture-options-remote-settings.png
-   M /trunk/docbook/wsug_graphics/ws-capture-options.png
-   M /trunk/docbook/wsug_src/WSUG_chapter_capture.xml
-
-Update User Guide:
-- New Capture Options dialog.
-- Add Remote Capture section.
-------------------------------------------------------------------------
-r30848 | gerald | 2009-11-07 00:57:01 +0100 (Sat, 07 Nov 2009) | 3 lines
-Changed paths:
-   M /trunk/docbook/wsdg_src/WSDG_chapter_tools.xml
-
-Fix a warning in a table (which results in an error in Fop 0.95). Reformat
-it slightly while we're at it.
-------------------------------------------------------------------------
-r31325 | guy | 2009-12-19 23:12:36 +0100 (Sat, 19 Dec 2009) | 2 lines
-Changed paths:
-   M /trunk/docbook/wsdg_src/WSDG_chapter_tools.xml
-
-Get rid of no-longer-applicable and no-longer-referred-to footnote.
-------------------------------------------------------------------------
-r31326 | jake | 2009-12-20 15:49:49 +0100 (Sun, 20 Dec 2009) | 2 lines
-Changed paths:
-   M /trunk/docbook/wsdg_src/WSDG_chapter_tools.xml
-
-Clean up the docbook source code, apply proper tags, update references.
-Update readme information, add some editing information for authors.
-------------------------------------------------------------------------
-r31797 | wmeier | 2010-02-05 04:37:46 +0100 (Fri, 05 Feb 2010) | 4 lines
-Changed paths:
-   M /trunk/docbook/wsdg_src/WSDG_chapter_tools.xml
-
-From Chris Maynard:  "Wrong download link to vcredist_x86.exe"
-(from me): Change a few additional cases of "2008EE" to "2008EE SP1"
-  and indicate that 2008EE SP1 is recommended (rather than 2005EE).
-------------------------------------------------------------------------
-------------------------------------------------------------------------
-r31819 | gerald | 2010-02-07 08:04:37 -0800 (Sun, 07 Feb 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-02-07]
-------------------------------------------------------------------------
-r31850 | gerald | 2010-02-09 13:07:12 -0800 (Tue, 09 Feb 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/Makefile.nmake
-   M /trunk-1.2/config.nmake
-   M /trunk-1.2/tools/win32-setup.sh
-
-Switch back to GeoIP 1.4.5 for the Win32 1.2 build.
-
-------------------------------------------------------------------------
-r31872 | gerald | 2010-02-12 16:46:00 -0800 (Fri, 12 Feb 2010) | 9 lines
-Changed paths:
-   M /trunk-1.2/Makefile.nmake
-   M /trunk-1.2/config.nmake
-   M /trunk-1.2/packaging/nsis/Makefile.nmake
-   M /trunk-1.2/packaging/nsis/wireshark.nsi
-   M /trunk-1.2/packaging/ws-manifest.pl
-   M /trunk-1.2/tools/win32-setup.sh
-
-From Jaap:
-
-Install the OldCigarettes Windows 2000 XP API Wrapper on Windows 2000.
-
-From me:
-
-Add the API wrapper to the setup. Exclude it from the U3 and PortableApps
-packages. Switch back to GeoIP 1.4.6. Update the GTK+ bundle.
-
-------------------------------------------------------------------------
-r31873 | gerald | 2010-02-12 17:22:07 -0800 (Fri, 12 Feb 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/config.nmake
-
-Try to fix the 64-bit build.
-
-------------------------------------------------------------------------
-r31879 | gerald | 2010-02-14 08:04:16 -0800 (Sun, 14 Feb 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-02-14]
-------------------------------------------------------------------------
-r31906 | jake | 2010-02-17 12:38:01 -0800 (Wed, 17 Feb 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/asn1/Makefile.nmake
-
-Complete the port of Revision 31175, which was only partially done in Revision 31211.
-------------------------------------------------------------------------
-r31940 | gerald | 2010-02-21 08:04:00 -0800 (Sun, 21 Feb 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-02-21]
-------------------------------------------------------------------------
-r31996 | gerald | 2010-02-24 15:41:28 -0800 (Wed, 24 Feb 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/config.nmake
-   M /trunk-1.2/tools/win32-setup.sh
-   M /trunk-1.2/tools/win64-setup.sh
-
-Use the current GTK+ 2.16.6 bundle.
-
-------------------------------------------------------------------------
-r32048 | gerald | 2010-02-28 08:04:55 -0800 (Sun, 28 Feb 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-02-28]
-------------------------------------------------------------------------
-r32137 | gerald | 2010-03-07 08:04:39 -0800 (Sun, 07 Mar 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-03-07]
-------------------------------------------------------------------------
-r32187 | gerald | 2010-03-14 08:04:48 -0700 (Sun, 14 Mar 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-03-14]
-------------------------------------------------------------------------
-r32215 | gerald | 2010-03-16 16:22:42 -0700 (Tue, 16 Mar 2010) | 102 lines
-Changed paths:
-   M /trunk-1.2/acinclude.m4
-   M /trunk-1.2/configure.in
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/epan/dissectors/packet-dmp.c
-   M /trunk-1.2/epan/dissectors/packet-gsm_a_bssmap.c
-   M /trunk-1.2/epan/dissectors/packet-gsm_sms.c
-   M /trunk-1.2/epan/dissectors/packet-ldss.c
-   M /trunk-1.2/epan/dissectors/packet-ppp.c
-   M /trunk-1.2/epan/ppptypes.h
-   M /trunk-1.2/epan/wslua/wslua_field.c
-   M /trunk-1.2/epan/wslua/wslua_tree.c
-   M /trunk-1.2/gtk/io_stat.c
-   M /trunk-1.2/gtk/main_proto_draw.c
-   M /trunk-1.2/plugins/profinet/packet-dcerpc-pn-io.c
-   M /trunk-1.2/tools/checkAPIs.pl
-
-Copy over revisions from the trunk:
-
-------------------------------------------------------------------------
-r30249 | stig | 2009-10-02 09:51:31 -0700 (Fri, 02 Oct 2009) | 3 lines
-Changed paths:
-   M /trunk/epan/wslua/wslua_field.c
-   M /trunk/epan/wslua/wslua_tree.c
-
-From Beth via bug 4049:
-Add support for FT_BOOLEAN fields to FieldInfo and TreeItem.
-------------------------------------------------------------------------
-r30305 | etxrab | 2009-10-04 08:49:52 -0700 (Sun, 04 Oct 2009) | 1 line
-Changed paths:
-   M /trunk/gtk/io_stat.c
-   M /trunk/tools/checkAPIs.pl
-
-Get rid of deprecated symblol gtk_widget_draw().
-------------------------------------------------------------------------
-r30729 | stig | 2009-10-27 06:59:05 -0700 (Tue, 27 Oct 2009) | 2 lines
-Changed paths:
-   M /trunk/gtk/io_stat.c
-
-Use correct default value in tick interval combo box.
-------------------------------------------------------------------------
-r31032 | dimeg | 2009-11-20 08:23:18 -0800 (Fri, 20 Nov 2009) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-gsm_a_bssmap.c
-
-When decoding a Cell Identifier, curr_offset is not increased after
-reading rnc-id
-------------------------------------------------------------------------
-r31659 | stig | 2010-01-25 05:58:07 -0800 (Mon, 25 Jan 2010) | 6 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-dmp.c
-   M /trunk/epan/dissectors/packet-ldss.c
-
-Change back from tvb_child_uncompress() to tvb_uncompress() when
-parent is NULL, because this will lead to a DISSECTOR_ASSERT in 
-tvb_set_child_real_data_tvbuff().
-
-This bug was introduced in revision 31499.
-------------------------------------------------------------------------
-r31786 | wmeier | 2010-02-04 06:41:22 -0800 (Thu, 04 Feb 2010) | 2 lines
-Changed paths:
-   M /trunk/gtk/main_proto_draw.c
-
-Fix a crash which occurs if a progress bar is displayed while generating a hex bytes pane.
-------------------------------------------------------------------------
-r31787 | wmeier | 2010-02-04 07:03:30 -0800 (Thu, 04 Feb 2010) | 2 lines
-Changed paths:
-   M /trunk/gtk/main_proto_draw.c
-
-Fix a typo....
-------------------------------------------------------------------------
-r31918 | guy | 2010-02-18 16:05:34 -0800 (Thu, 18 Feb 2010) | 2 lines
-Changed paths:
-   M /trunk/configure.in
-
-There's an echo in here....
-------------------------------------------------------------------------
-r31919 | guy | 2010-02-18 16:15:29 -0800 (Thu, 18 Feb 2010) | 3 lines
-Changed paths:
-   M /trunk/acinclude.m4
-
-Don't say "Checking for broken pcap-config" if we don't have a
-pcap-config to check for brokenness.
-------------------------------------------------------------------------
-r31978 | stig | 2010-02-24 00:22:33 -0800 (Wed, 24 Feb 2010) | 3 lines
-Changed paths:
-   M /trunk/plugins/profinet/packet-dcerpc-pn-io.c
-
-From Hannes Diethelm via bug 4525:
-Corrected values for IdentInfo (which was obviously wrong)
-------------------------------------------------------------------------
-r31985 | etxrab | 2010-02-24 04:41:01 -0800 (Wed, 24 Feb 2010) | 2 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-gsm_sms.c
-
-GSM SMS PDU TPVPF wrong interpretation.
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4524
-------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-------------------------------------------------------------------------
-r30570 | etxrab | 2009-10-16 03:32:06 -0700 (Fri, 16 Oct 2009) | 1 line
-Changed paths:
-   M /trunk/gtk/io_stat.c
-
-More gtk_option_menu -> gtk_combo_box
-------------------------------------------------------------------------
-r31738 | jake | 2010-01-30 02:43:46 -0800 (Sat, 30 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-ppp.c
-   M /trunk/epan/ppptypes.h
-
-IANA updates and fixes for PPP types.
-------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r32223 | gerald | 2010-03-17 12:14:44 -0700 (Wed, 17 Mar 2010) | 72 lines
-Changed paths:
-   M /trunk-1.2/asn1/pres/packet-pres-template.c
-   M /trunk-1.2/asn1/snmp/packet-snmp-template.c
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/epan/dfilter/dfilter-macro.c
-   M /trunk-1.2/epan/dissectors/packet-http.c
-   M /trunk-1.2/epan/dissectors/packet-isakmp.c
-   M /trunk-1.2/epan/dissectors/packet-k12.c
-   M /trunk-1.2/epan/dissectors/packet-pres.c
-   M /trunk-1.2/epan/dissectors/packet-sccp.c
-   M /trunk-1.2/epan/dissectors/packet-sip.c
-   M /trunk-1.2/epan/dissectors/packet-snmp.c
-   M /trunk-1.2/epan/dissectors/packet-user_encap.c
-   M /trunk-1.2/epan/geoip_db.c
-   M /trunk-1.2/epan/oids.c
-   M /trunk-1.2/epan/proto.c
-   M /trunk-1.2/epan/uat-int.h
-   M /trunk-1.2/epan/uat.c
-   M /trunk-1.2/epan/uat.h
-   M /trunk-1.2/epan/uat_load.l
-   M /trunk-1.2/gtk/main_menu.c
-   M /trunk-1.2/gtk/main_welcome.c
-   M /trunk-1.2/gtk/uat_gui.c
-
-Copy over revisions from the trunk:
-
-------------------------------------------------------------------------
-r31987 | jake | 2010-02-24 11:05:55 -0800 (Wed, 24 Feb 2010) | 4 lines
-Changed paths:
-   M /trunk/gtk/menus.c
-
-Fix for bug 4522:
-Don't offer "Wiki Protocol Page" and "Filter Field Reference" in the 
-context menu when a Text item is selected.
-------------------------------------------------------------------------
-r32005 | jake | 2010-02-25 09:41:57 -0800 (Thu, 25 Feb 2010) | 3 lines
-Changed paths:
-   M /trunk/gtk/main_welcome.c
-
-Fix for bug 2478:
-"Push to test. Release to detonate."
-------------------------------------------------------------------------
-r32090 | etxrab | 2010-03-03 07:29:38 -0800 (Wed, 03 Mar 2010) | 6 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-sip.c
-
-Changed to use g_str_hash ()
-sip_hash_func() function seem to not generate unique enough keys
-if load generation tools are used with many thousands users.
-Loading time ~5 min -> 30s
-
-There is a memory leak in the sip_is_packet_resend area as well.
-------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-
-------------------------------------------------------------------------
-r32081 | etxrab | 2010-03-01 21:44:04 -0800 (Mon, 01 Mar 2010) | 3 lines
-Changed paths:
-   M /trunk/asn1/snmp/packet-snmp-template.c
-   M /trunk/epan/dissectors/packet-snmp.c
-
-From Luis Ontanon:
-Check for duplicate entries in usmUserTable.
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2426
-------------------------------------------------------------------------
-r32112 | stig | 2010-03-04 04:50:18 -0800 (Thu, 04 Mar 2010) | 4 lines
-Changed paths:
-   M /trunk/asn1/pres/packet-pres-template.c
-   M /trunk/asn1/snmp/packet-snmp-template.c
-   M /trunk/epan/dfilter/dfilter-macro.c
-   M /trunk/epan/dissectors/packet-http.c
-   M /trunk/epan/dissectors/packet-isakmp.c
-   M /trunk/epan/dissectors/packet-k12.c
-   M /trunk/epan/dissectors/packet-mac-lte.c
-   M /trunk/epan/dissectors/packet-pres.c
-   M /trunk/epan/dissectors/packet-sccp.c
-   M /trunk/epan/dissectors/packet-snmp.c
-   M /trunk/epan/dissectors/packet-user_encap.c
-   M /trunk/epan/geoip_db.c
-   M /trunk/epan/oids.c
-   M /trunk/epan/uat-int.h
-   M /trunk/epan/uat.c
-   M /trunk/epan/uat.h
-   M /trunk/epan/uat_load.l
-   M /trunk/gtk/uat_gui.c
-
-From LEGO via bug 3459:
-Add a callback to UAT to be called after the table has being updated,
-use it to renew the snmp_ue_cache.
-------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r32227 | gerald | 2010-03-17 13:05:43 -0700 (Wed, 17 Mar 2010) | 13 lines
-Changed paths:
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/epan/proto.h
-
-Add r32193:
-
-------------------------------------------------------------------------
-r32193 | jake | 2010-03-15 01:14:58 -0700 (Mon, 15 Mar 2010) | 3 lines
-Changed paths:
-   M /trunk/epan/proto.h
-
-Fix for bug 4565:
-As a true 'pseudo' GLib function, act benign when presented a NULL pointer.
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r32242 | etxrab | 2010-03-19 00:22:29 -0700 (Fri, 19 Mar 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/Makefile.am
-   M /trunk-1.2/diameter/chargecontrol.xml
-   M /trunk-1.2/diameter/dictionary.xml
-   M /trunk-1.2/diameter/mobileipv4.xml
-   A /trunk-1.2/diameter/mobileipv6.xml
-   M /trunk-1.2/packaging/nsis/wireshark.nsi
-
-Update Dimaeter xml files.
-------------------------------------------------------------------------
-r32255 | etxrab | 2010-03-20 15:25:54 -0700 (Sat, 20 Mar 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/diameter/TGPPGmb.xml
-   M /trunk-1.2/diameter/imscxdx.xml
-   M /trunk-1.2/diameter/mobileipv4.xml
-
-AVP updates
-------------------------------------------------------------------------
-r32260 | gerald | 2010-03-21 08:05:22 -0700 (Sun, 21 Mar 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-03-21]
-------------------------------------------------------------------------
-r32315 | etxrab | 2010-03-27 14:43:18 -0700 (Sat, 27 Mar 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/epan/dissectors/packet-sip.c
-
-Fix for" Parsing SIP messages within the same TCP Packet report a wrong SIP method"
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4570
-------------------------------------------------------------------------
-r32318 | gerald | 2010-03-28 08:04:45 -0700 (Sun, 28 Mar 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-03-28]
-------------------------------------------------------------------------
-r32332 | gerald | 2010-03-30 16:47:50 -0700 (Tue, 30 Mar 2010) | 38 lines
-Changed paths:
-   M /trunk-1.2/AUTHORS
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/gtk/capture_dlg.c
-   M /trunk-1.2/gtk/rtp_player.c
-   M /trunk-1.2/wiretap/wtap.c
-
-Copy over revisions from the trunk:
-
-------------------------------------------------------------------------
-r31438 | stig | 2010-01-04 03:59:27 -0800 (Mon, 04 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk/gtk/capture_dlg.c
-
-Check for valid linktype_history in capture_get_linktype().
-------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-
-------------------------------------------------------------------------
-r32304 | morriss | 2010-03-26 17:54:11 -0700 (Fri, 26 Mar 2010) | 7 lines
-Changed paths:
-   M /trunk/gtk/rtp_player.c
-
-Fix (or at least work around the crash in)
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4119 :
-
-Never insert more than 1000 silence frames (e.g., if the sequence number jumps
-massively).  There may be a better way, but at least now we won't crash.
-Leave a comment in the code indicating this.
-------------------------------------------------------------------------
-r32321 | guy | 2010-03-28 12:35:14 -0700 (Sun, 28 Mar 2010) | 4 lines
-Changed paths:
-   M /trunk/AUTHORS
-   M /trunk/wiretap/wtap.c
-
-From Robert Bullen: give the Bluetooth-H4-with-Linux-pseudo-header
-encapsulation a name different from the no-pseudo-header H4
-encapsulation.
-------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r32333 | gerald | 2010-03-30 16:53:38 -0700 (Tue, 30 Mar 2010) | 38 lines
-Changed paths:
-   M /trunk-1.2/tap-iostat.c
-
-Copy over revisions from the trunk:
-
-------------------------------------------------------------------------
-r32296 | morriss | 2010-03-26 14:07:49 -0700 (Fri, 26 Mar 2010) | 7 lines
-Changed paths:
-   M /trunk/tap-iostat.c
-
-Use 64-bit counters throughout.  This fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3205
-though most of the other taps also need such a change.
-
-Note: the columns don't align with really big numbers.
-
-Add support for 64-bit ftypes.
-------------------------------------------------------------------------
-r32298 | morriss | 2010-03-26 14:19:30 -0700 (Fri, 26 Mar 2010) | 4 lines
-Changed paths:
-   M /trunk/tap-iostat.c
-
-Use one space and a larger printf field width instead of many spaces and a
-smaller field width.  This allows printf to use those extra spaces if it needs
-to, helping column alignment when the numbers are big.
-------------------------------------------------------------------------
-r32299 | guy | 2010-03-26 15:30:54 -0700 (Fri, 26 Mar 2010) | 5 lines
-Changed paths:
-   M /trunk/tap-iostat.c
-
-If we have more than 4294967295 items, we have a real problem, as we
-allocate memory for each item.
-
-Use gboolean for Boolean flags.
-------------------------------------------------------------------------
-r32300 | guy | 2010-03-26 15:36:22 -0700 (Fri, 26 Mar 2010) | 2 lines
-Changed paths:
-   M /trunk/tap-iostat.c
-
-Print 32-bit counters with the right format.
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-r32334 | gerald | 2010-03-30 17:01:29 -0700 (Tue, 30 Mar 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/docbook/release-notes.xml
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r32341 | gerald | 2010-03-31 09:34:33 -0700 (Wed, 31 Mar 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/ChangeLog
-   M /trunk-1.2/NEWS
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/version.conf
-
-Build 1.2.7.
-
-------------------------------------------------------------------------
-r32344 | gerald | 2010-03-31 15:51:08 -0700 (Wed, 31 Mar 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/config.nmake
-   M /trunk-1.2/configure.in
-   M /trunk-1.2/debian/changelog
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/version.conf
-
-1.2.7 -> 1.2.8.
-
-------------------------------------------------------------------------
-r32374 | gerald | 2010-04-04 08:05:06 -0700 (Sun, 04 Apr 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-04-04]
-------------------------------------------------------------------------
-r32446 | gerald | 2010-04-11 08:04:36 -0700 (Sun, 11 Apr 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-04-11]
-------------------------------------------------------------------------
-r32507 | gerald | 2010-04-18 08:04:40 -0700 (Sun, 18 Apr 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-04-18]
-------------------------------------------------------------------------
-r32556 | gerald | 2010-04-25 08:04:47 -0700 (Sun, 25 Apr 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-04-25]
-------------------------------------------------------------------------
-r32632 | gerald | 2010-05-02 08:04:42 -0700 (Sun, 02 May 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-05-02]
-------------------------------------------------------------------------
-r32642 | etxrab | 2010-05-03 00:49:50 -0700 (Mon, 03 May 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/diameter/TGPPGmb.xml
-   M /trunk-1.2/diameter/TGPPSh.xml
-   M /trunk-1.2/diameter/dictionary.xml
-
-Update diameter xml files.
-------------------------------------------------------------------------
-r32655 | gerald | 2010-05-03 17:20:39 -0700 (Mon, 03 May 2010) | 92 lines
-Changed paths:
-   M /trunk-1.2/capture.c
-   M /trunk-1.2/capture_ui_utils.c
-   M /trunk-1.2/cfile.c
-   M /trunk-1.2/cfile.h
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/file.c
-   M /trunk-1.2/file.h
-   M /trunk-1.2/gtk/main.c
-   M /trunk-1.2/gtk/packet_win.c
-   M /trunk-1.2/plugins/docsis/packet-bpkmreq.c
-   M /trunk-1.2/plugins/docsis/packet-bpkmrsp.c
-   M /trunk-1.2/plugins/docsis/packet-dsaack.c
-   M /trunk-1.2/plugins/docsis/packet-dsarsp.c
-   M /trunk-1.2/plugins/docsis/packet-dscack.c
-   M /trunk-1.2/plugins/docsis/packet-dscrsp.c
-   M /trunk-1.2/plugins/docsis/packet-dsdrsp.c
-   M /trunk-1.2/plugins/docsis/packet-map.c
-   M /trunk-1.2/plugins/docsis/packet-regack.c
-   M /trunk-1.2/plugins/docsis/packet-regrsp.c
-   M /trunk-1.2/wiretap/packetlogger.c
-   M /trunk-1.2/wiretap/pcapng.c
-
-Copy over revisions from the trunk:
-
-------------------------------------------------------------------------
-r28809 | tuexen | 2009-06-22 05:13:12 -0700 (Mon, 22 Jun 2009) | 2 lines
-Changed paths:
-   M /trunk/wiretap/packetlogger.c
-
-Improve heuristic for packetlogger file format detection.
-------------------------------------------------------------------------
-r31512 | stig | 2010-01-13 02:21:25 -0800 (Wed, 13 Jan 2010) | 2 lines
-Changed paths:
-   M /trunk/gtk/main.c
-
-Display the capture filter in the main window title when capturing.
-
-------------------------------------------------------------------------
-r32390 | gerald | 2010-04-05 14:13:00 -0700 (Mon, 05 Apr 2010) | 2 lines
-Changed paths:
-   M /trunk/capture_ui_utils.c
-
-Note that -X stdin_descr stretches the original intent of the -X option.
-------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-------------------------------------------------------------------------
-r32393 | guy | 2010-04-05 15:20:21 -0700 (Mon, 05 Apr 2010) | 11 lines
-Changed paths:
-   M /trunk/wiretap/pcapng.c
-
-Treat the first block we read, when opening, specially:
-
-	1) if it's not an SHB, just say "this is not a pcap-ng file",
-	   don't try to process it (we can't process it, as we haven't
-	   finished setting up all the state information yet);
-
-	2) if it has the right SHB type code, but isn't a valid SHB,
-	   just say "this is not a pcap-ng file".
-
-For all other SHB's, treat anything that renders it invalid as an error.
-------------------------------------------------------------------------
-r30363 | krj | 2009-10-06 06:51:56 -0700 (Tue, 06 Oct 2009) | 1 line
-Changed paths:
-   M /trunk/gtk/main.c
-
-Guard icon_list_create()
-------------------------------------------------------------------------
-r32357 | gerald | 2010-04-01 14:55:01 -0700 (Thu, 01 Apr 2010) | 4 lines
-Changed paths:
-   M /trunk/capture.c
-   M /trunk/capture_ui_utils.c
-   M /trunk/cfile.c
-   M /trunk/cfile.h
-   M /trunk/file.c
-   M /trunk/file.h
-   M /trunk/gtk/main.c
-
-Keep a copy of the interface description and capture filter around so that
-we can use it in the main window title during and after capture. Add a
-"-X" option for providing a description for stdin.
-------------------------------------------------------------------------
-r32362 | rbalint | 2010-04-02 13:40:20 -0700 (Fri, 02 Apr 2010) | 3 lines
-Changed paths:
-   M /trunk/gtk/packet_win.c
-
-Fix crash when double clicking in packet list area before capturing any packet.
-The crash does not happen when using the new packet list.
-------------------------------------------------------------------------
-r32396 | guy | 2010-04-05 19:49:18 -0700 (Mon, 05 Apr 2010) | 4 lines
-Changed paths:
-   M /trunk/plugins/docsis/packet-bpkmrsp.c
-
-The third argument to val_to_str() is a format string that gets passed
-the value that couldn't be mapped to a string - it's an integer and
-needs to be printed with an integer format.  Fixes bug 4644.
-------------------------------------------------------------------------
-r32400 | morriss | 2010-04-06 08:45:11 -0700 (Tue, 06 Apr 2010) | 1 line
-Changed paths:
-   M /trunk/plugins/docsis/packet-bpkmreq.c
-   M /trunk/plugins/docsis/packet-dsaack.c
-   M /trunk/plugins/docsis/packet-dsarsp.c
-   M /trunk/plugins/docsis/packet-dscack.c
-   M /trunk/plugins/docsis/packet-dscrsp.c
-   M /trunk/plugins/docsis/packet-dsdrsp.c
-   M /trunk/plugins/docsis/packet-map.c
-   M /trunk/plugins/docsis/packet-regack.c
-
-Don't use %s as the format string in val_to_str().
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r32661 | gerald | 2010-05-04 12:13:29 -0700 (Tue, 04 May 2010) | 125 lines
-Changed paths:
-   M /trunk-1.2/AUTHORS
-   M /trunk-1.2/configure.in
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/epan/dissectors/packet-evrc.c
-   M /trunk-1.2/epan/dissectors/packet-http.c
-   M /trunk-1.2/epan/dissectors/packet-ntp.c
-   M /trunk-1.2/epan/dissectors/packet-ptp.c
-   M /trunk-1.2/epan/dissectors/packet-ssl.c
-   M /trunk-1.2/epan/dissectors/packet-tcp.c
-   M /trunk-1.2/epan/ex-opt.h
-   M /trunk-1.2/epan/wslua/wslua_proto.c
-   M /trunk-1.2/gtk/main.c
-   M /trunk-1.2/gtk/main_packet_list.c
-   M /trunk-1.2/gtk/main_packet_list.h
-   M /trunk-1.2/gtk/prefs_dlg.c
-   M /trunk-1.2/plugins/mate/mate.h
-   M /trunk-1.2/plugins/mate/mate_grammar.lemon
-   M /trunk-1.2/plugins/mate/mate_setup.c
-   M /trunk-1.2/version_info.c
-
-Copy over revisions from the trunk:
-
-------------------------------------------------------------------------
-r30191 | stig | 2009-09-29 03:01:06 -0700 (Tue, 29 Sep 2009) | 2 lines
-Changed paths:
-   M /trunk/epan/ex-opt.h
-
-Corrected prototype for ex_opt_get_nth().
-------------------------------------------------------------------------
-r32433 | morriss | 2010-04-08 18:42:12 -0700 (Thu, 08 Apr 2010) | 5 lines
-Changed paths:
-   M /trunk/configure.in
-   M /trunk/epan/dissectors/packet-http.c
-
-Use a 64-bit number to store the content length.  This fixes:
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1958
-
-Of course this doesn't mean we can reassemble that much data.
-------------------------------------------------------------------------
-r32434 | guy | 2010-04-08 19:00:07 -0700 (Thu, 08 Apr 2010) | 4 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-http.c
-
-Squelch compiler warnings.  (We know that header.content_length is less
-than a value that fits into an int, so we know its value will fit into
-an int.)
-------------------------------------------------------------------------
-r32456 | sake | 2010-04-13 12:37:44 -0700 (Tue, 13 Apr 2010) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-ssl.c
-
-Fix for bug 4535: The SSL dissector can not correctly resemple SSL records when the record header is spit between packets
-------------------------------------------------------------------------
-r32465 | morriss | 2010-04-14 11:39:00 -0700 (Wed, 14 Apr 2010) | 6 lines
-Changed paths:
-   M /trunk/plugins/mate/mate.h
-   M /trunk/plugins/mate/mate_grammar.lemon
-   M /trunk/plugins/mate/mate_setup.c
-
-Be sure we initialize the p_id in hf's.  This fixes
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3010 .
-
-Also finish the implementation of ShowTimes for GOGs so that the variable gets
-initialized (preventing another uninitialized variable warning from Valgrind).
-------------------------------------------------------------------------
-r32481 | jake | 2010-04-15 14:12:34 -0700 (Thu, 15 Apr 2010) | 7 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-ntp.c
-
-From Dave Higton:
-When decoding NTP where the Reference Clock ID is "MSF/0", Wireshark textifies
-this as "Rugby (UK) Radio 60 kHz".  The MSF transmitter was moved several years
-ago from Rugby to Anthorn.
-
-Also updates from RFC 4330.
-------------------------------------------------------------------------
-r32500 | morriss | 2010-04-16 15:48:33 -0700 (Fri, 16 Apr 2010) | 9 lines
-Changed paths:
-   M /trunk/gtk/main_packet_list.c
-   M /trunk/gtk/main_packet_list.h
-   M /trunk/gtk/prefs_dlg.c
-
-Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3387 (crash
-when changing the font and deleting a column at the same time while using
-the old packet list):
-
-Don't calculate the default column widths until after both the font and column
-preferences have been applied.
-
-This isn't a problem in the new packet list.
-------------------------------------------------------------------------
-r32548 | morriss | 2010-04-23 19:04:14 -0700 (Fri, 23 Apr 2010) | 1 line
-Changed paths:
-   M /trunk/version_info.c
-
-Tell, in the version info, if we were compiled 32- or 64-bit.
-------------------------------------------------------------------------
-r32582 | etxrab | 2010-04-27 21:54:25 -0700 (Tue, 27 Apr 2010) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-evrc.c
-
-From Michael Lum:
-EVRC packet bundling not handled correctly.
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4718
-------------------------------------------------------------------------
-r32585 | jake | 2010-04-28 01:19:39 -0700 (Wed, 28 Apr 2010) | 2 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-tcp.c
-
-From jmmikkel:
-Set the sequence number for the next PDU if the current frame contains both the finish of the previous and the complete next one.
-------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-------------------------------------------------------------------------
-r32499 | wmeier | 2010-04-16 12:27:56 -0700 (Fri, 16 Apr 2010) | 3 lines
-Changed paths:
-   M /trunk/AUTHORS
-   M /trunk/epan/dissectors/packet-ptp.c
-
-From Marcus Renz: Fix for "PTP dissector displays big correction field values wrong"
-See: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4635
-------------------------------------------------------------------------
-r32517 | jake | 2010-04-19 11:48:12 -0700 (Mon, 19 Apr 2010) | 4 lines
-Changed paths:
-   M /trunk/epan/wslua/wslua_proto.c
-
-Fix for bug 4695:
-Modify ProtoField_tostring() to ProtoField__tostring() 
-and clean up description.
-------------------------------------------------------------------------
-r32603 | morriss | 2010-04-29 12:30:54 -0700 (Thu, 29 Apr 2010) | 6 lines
-Changed paths:
-   M /trunk/gtk/main.c
-
-Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4308 :
-
-Make a function that checks if the user is running as root or if npf.sys isn't
-loaded (on Windows) and call it *after* showing the main window so that the
-popup (if any) shows up above the main window.
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
 r32663 | gerald | 2010-05-04 14:45:21 -0700 (Tue, 04 May 2010) | 2 lines
 Changed paths:
    M /trunk-1.2/docbook/release-notes.xml
 
 Update the DOCSIS fix revisions.
+
+------------------------------------------------------------------------
+r32676 | gerald | 2010-05-05 10:05:11 -0700 (Wed, 05 May 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/ChangeLog
+   M /trunk-1.2/NEWS
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/version.conf
+
+Release 1.2.8.
+
+------------------------------------------------------------------------
+r32682 | gerald | 2010-05-05 14:05:06 -0700 (Wed, 05 May 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/config.nmake
+   M /trunk-1.2/configure.in
+   M /trunk-1.2/debian/changelog
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/version.conf
+
+1.2.8 -> 1.2.9
+
+------------------------------------------------------------------------
+r32730 | gerald | 2010-05-09 08:04:54 -0700 (Sun, 09 May 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-05-09]
+------------------------------------------------------------------------
+r32834 | gerald | 2010-05-16 08:07:36 -0700 (Sun, 16 May 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-05-16]
+------------------------------------------------------------------------
+r32919 | gerald | 2010-05-23 08:04:52 -0700 (Sun, 23 May 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-05-23]
+------------------------------------------------------------------------
+r33025 | gerald | 2010-05-30 08:04:43 -0700 (Sun, 30 May 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-05-30]
+------------------------------------------------------------------------
+r33111 | gerald | 2010-06-06 08:04:49 -0700 (Sun, 06 Jun 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-06-06]
+------------------------------------------------------------------------
+r33115 | gerald | 2010-06-06 15:13:16 -0700 (Sun, 06 Jun 2010) | 126 lines
+Changed paths:
+   M /trunk-1.2/asn1/sabp/packet-sabp-template.c
+   M /trunk-1.2/doc/dfilter2pod.pl
+   M /trunk-1.2/docbook/dfilter2xml.pl
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/dissectors/packet-http.c
+   M /trunk-1.2/epan/dissectors/packet-igmp.c
+   M /trunk-1.2/epan/dissectors/packet-kerberos.c
+   M /trunk-1.2/epan/dissectors/packet-sabp.c
+   M /trunk-1.2/epan/dissectors/packet-xml.c
+   M /trunk-1.2/epan/ftypes/ftype-bytes.c
+   M /trunk-1.2/epan/ftypes/ftype-guid.c
+   M /trunk-1.2/epan/libwireshark.def
+   M /trunk-1.2/epan/packet.c
+   M /trunk-1.2/file.c
+   M /trunk-1.2/gtk/capture_file_dlg.c
+   M /trunk-1.2/gtk/decode_as_dlg.c
+   M /trunk-1.2/gtk/io_stat.c
+   M /trunk-1.2/wiretap/wtap.c
+   M /trunk-1.2/wiretap/wtap.h
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r30940 | kukosa | 2009-11-12 06:44:40 -0800 (Thu, 12 Nov 2009) | 1 line
+Changed paths:
+   M /trunk/epan/libwireshark.def
+
+Export more BER functions
+------------------------------------------------------------------------
+r32068 | stig | 2010-03-01 14:11:20 -0800 (Mon, 01 Mar 2010) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-xml.c
+
+From LEGO via bug 4405:
+Add the dot ('.') to the characters that can compose a name.
+------------------------------------------------------------------------
+r32715 | gerald | 2010-05-07 12:45:47 -0700 (Fri, 07 May 2010) | 5 lines
+Changed paths:
+   M /trunk/wiretap/wtap.c
+
+EOF in zlib 1.2.5 seems to be sticky. When we're tailing a file and we
+reach EOF, zlib's file handle seems to stay at EOF even when more data
+is appended to the file. Add a check for 1.2.5 which calls gzseek in
+order to unset EOF. Fixes bugs 4708 and 4748.
+------------------------------------------------------------------------
+r32716 | gerald | 2010-05-07 14:15:24 -0700 (Fri, 07 May 2010) | 3 lines
+Changed paths:
+   M /trunk/file.c
+   M /trunk/wiretap/wtap.c
+   M /trunk/wiretap/wtap.h
+
+Zlib has an officially-sanctioned way of clearing EOF when we're tailing
+a file.  Use it.
+------------------------------------------------------------------------
+r32733 | stig | 2010-05-10 03:48:45 -0700 (Mon, 10 May 2010) | 2 lines
+Changed paths:
+   M /trunk/gtk/io_stat.c
+
+Bring back "1 min" and "10 min" in IO Graph Tick interval.
+------------------------------------------------------------------------
+r32756 | jake | 2010-05-11 11:04:03 -0700 (Tue, 11 May 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-igmp.c
+
+Show version as generated field.
+------------------------------------------------------------------------
+r32765 | jake | 2010-05-11 14:46:17 -0700 (Tue, 11 May 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/ftypes/ftype-bytes.c
+   M /trunk/epan/ftypes/ftype-guid.c
+
+Straighten out field type names.
+------------------------------------------------------------------------
+r32766 | jake | 2010-05-11 14:49:30 -0700 (Tue, 11 May 2010) | 2 lines
+Changed paths:
+   M /trunk/doc/dfilter2pod.pl
+   M /trunk/docbook/dfilter2xml.pl
+
+Update display filter scripts with new field types.
+------------------------------------------------------------------------
+r32774 | guy | 2010-05-12 12:44:23 -0700 (Wed, 12 May 2010) | 4 lines
+Changed paths:
+   M /trunk/gtk/capture_file_dlg.c
+
+Don't set the sensitivity of the Open button based on whether we can
+open the currently-selected file; that button is also used to select the
+file or directory typed in the location bar.  This should fix bug 1791.
+------------------------------------------------------------------------
+r32848 | morriss | 2010-05-17 14:49:09 -0700 (Mon, 17 May 2010) | 1 line
+Changed paths:
+   M /trunk/epan/dissectors/packet-smb-pipe.c
+
+Don't pass a NULL pointer to what is supposed to be (according to the format) a string: some implementations of vsnprintf() will core on that.  (Unfortunately it seems that g_vsnprintf() doesn't protect us from this...)
+------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+------------------------------------------------------------------------
+r32680 | etxrab | 2010-05-05 12:22:28 -0700 (Wed, 05 May 2010) | 1 line
+Changed paths:
+   M /trunk/asn1/sabp/packet-sabp-template.c
+   M /trunk/epan/dissectors/packet-sabp.c
+
+Calculate correct PDU lenght if the per_length_determinant is one byte long.
+------------------------------------------------------------------------
+r32723 | sake | 2010-05-08 00:55:12 -0700 (Sat, 08 May 2010) | 3 lines
+Changed paths:
+   M /trunk/epan/packet.c
+   M /trunk/gtk/decode_as_dlg.c
+
+Enable "Decode As..." for ethertype 0x0000 (fix for bug 4721)
+------------------------------------------------------------------------
+r32752 | wmeier | 2010-05-11 07:34:16 -0700 (Tue, 11 May 2010) | 10 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-kerberos.c
+
+Fix handling of pa-data-type KRB5_PA_PAC_REQUEST (& KRB5_PA_S4U2SELF).
+
+-Define pa-data-type KRB5_PA_PAC_REQUEST properly so that it is recognized.
+  Fixes bug #4752 (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4752)
+-Also revert definition of  KRB5_PA_S4U2SELF (to be a positive number).
+(All of the above reverts part of SVN #31400).
+
+-Display pa-data-type as FT_INT32.
+-Display the value for pa-data-type KRB5_PA_PAC_REQUEST as Boolean (not Int).
+------------------------------------------------------------------------
+r32772 | morriss | 2010-05-12 06:24:42 -0700 (Wed, 12 May 2010) | 13 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-http.c
+
+From Dirk via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4758 :
+
+The HTTP dissector uses strtoll() to convert the Content-Length string into a
+64bit variable. But that string can contain a number larger (or less) than
+64bit, which lets the strtoll() return INT_MAX (or INT_MIN). strtoll() then
+indicates this with errno==ERANGE.
+
+The attachted patch checks if errno is set this way and then treats that HTTP
+Content-Length as unspecified, since we don't know the real size.
+
+I haven't checked other occurences of strtoll() in the HTTP dissector if they
+could benefit from the errno check, or if other dissectors could use it.
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r33119 | gerald | 2010-06-06 17:02:21 -0700 (Sun, 06 Jun 2010) | 10 lines
+Changed paths:
+   M /trunk-1.2/wiretap/wtap.def
+
+Copy over r32719 from the trunk:
+
+------------------------------------------------------------------------
+r32719 | guy | 2010-05-07 17:43:23 -0700 (Fri, 07 May 2010) | 2 lines
+Changed paths:
+   M /trunk/wiretap/wtap.def
+
+Add wtap_cleareof().
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r33120 | gerald | 2010-06-06 18:01:30 -0700 (Sun, 06 Jun 2010) | 12 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/dissectors/packet-smb-pipe.c
+
+Copy over r32848 from the trunk:
+
+------------------------------------------------------------------------
+r32848 | morriss | 2010-05-17 14:49:09 -0700 (Mon, 17 May 2010) | 1 line
+Changed paths:
+   M /trunk/epan/dissectors/packet-smb-pipe.c
+
+Don't pass a NULL pointer to what is supposed to be (according to the format) a string: some implementations of vsnprintf() will core on that.  (Unfortunately it seems that g_vsnprintf() doesn't protect us from this...)
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r33121 | gerald | 2010-06-06 18:13:14 -0700 (Sun, 06 Jun 2010) | 13 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/dissectors/packet-ptp.c
+   M /trunk-1.2/gtk/gui_utils.c
+
+Copy over r32911 from the trunk:
+
+------------------------------------------------------------------------
+r32911 | jake | 2010-05-20 12:03:13 -0700 (Thu, 20 May 2010) | 3 lines
+Changed paths:
+   M /trunk/gtk/gui_utils.c
+
+Fix for bug 4778:
+Check that the widget pointer is still present.
+------------------------------------------------------------------------
+
+Fix PTP regression (bug 4773). Update the release notes.
+
+------------------------------------------------------------------------
+r33122 | gerald | 2010-06-06 18:26:43 -0700 (Sun, 06 Jun 2010) | 19 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/dissectors/packet-ber.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r32922 | gerald | 2010-05-23 16:42:58 -0700 (Sun, 23 May 2010) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ber.c
+
+Make get_ber_length() iterative instead of recursive so we don't overrun the
+stack. Discovered by J. Oquendo.
+------------------------------------------------------------------------
+r33046 | gal | 2010-06-02 06:33:37 -0700 (Wed, 02 Jun 2010) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ber.c
+
+Updated get_ber_length to handle multiple nested indefinite length encodings.
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r33123 | gerald | 2010-06-06 18:58:57 -0700 (Sun, 06 Jun 2010) | 97 lines
+Changed paths:
+   M /trunk-1.2/Makefile.am
+   M /trunk-1.2/capture.c
+   M /trunk-1.2/doc/README.developer
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/column-utils.c
+   M /trunk-1.2/epan/dissectors/packet-bgp.h
+   M /trunk-1.2/epan/dissectors/packet-pgm.c
+   M /trunk-1.2/epan/proto.c
+   M /trunk-1.2/file.c
+   M /trunk-1.2/file.h
+   M /trunk-1.2/gtk/filter_autocomplete.c
+   M /trunk-1.2/text2pcap-scanner.l
+   M /trunk-1.2/tools/lemon/lemon.c
+   M /trunk-1.2/trigcap.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r32947 | jake | 2010-05-25 10:47:00 -0700 (Tue, 25 May 2010) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-bgp.h
+
+Fix for bug 4782:
+Use proper bitmask to test the "MATCH"-part.
+------------------------------------------------------------------------
+r32956 | wmeier | 2010-05-25 15:27:00 -0700 (Tue, 25 May 2010) | 4 lines
+Changed paths:
+   M /trunk/text2pcap-scanner.l
+
+Handle lines ending in \r\n.
+Fixes Bug #4780 
+See: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4780
+------------------------------------------------------------------------
+r32962 | guy | 2010-05-25 19:21:23 -0700 (Tue, 25 May 2010) | 3 lines
+Changed paths:
+   M /trunk/doc/README.developer
+
+Put in a warning about the <stdarg.h> problem that I just found and
+fixed in one place (and am now fixing in some other places).
+------------------------------------------------------------------------
+r32987 | gerald | 2010-05-26 17:49:01 -0700 (Wed, 26 May 2010) | 3 lines
+Changed paths:
+   M /trunk/gtk/filter_autocomplete.c
+
+Make sure our prefix length is > 0 before lopping off the last
+character.  Fixes bug 4797.
+------------------------------------------------------------------------
+r33005 | gerald | 2010-05-27 16:55:04 -0700 (Thu, 27 May 2010) | 4 lines
+Changed paths:
+   M /trunk/capture.c
+   M /trunk/file.c
+   M /trunk/file.h
+
+Add cf_fake_continue_tail() which is called when real-time capture
+updates are off and which sets the capture file state to a value that
+won't cause an assertion when the user stops capturing. Fixes bug 4035.
+------------------------------------------------------------------------
+r33028 | guy | 2010-05-31 12:37:26 -0700 (Mon, 31 May 2010) | 13 lines
+Changed paths:
+   M /trunk/Makefile.am
+
+Wireshark requires routines from libm, such as ceil(), so link with it;
+we shouldn't rely on getting it pulled in by other shared libraries, as
+
+	1) there's no guarantee that the other shared libraries we use
+	   are linked with it or will continue to be linked with it;
+
+	2) there's no guarantee that we're even linking dynamically;
+
+	3) it fails on Fedora 13 as part of a change to catch programs
+	   that implicitly (or explicitly) assume, in their build
+	   procedures, that they'll get libraries linked in as a result
+	   of linking with other libraries.
+------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+------------------------------------------------------------------------
+r32961 | guy | 2010-05-25 19:01:49 -0700 (Tue, 25 May 2010) | 4 lines
+Changed paths:
+   M /trunk/epan/column-utils.c
+
+Once you've used a va_list, you can't use it again until you
+reinitialize it with va_start().  (Yes, there are platforms where
+reusing the va_arg fails, e.g. Mac OS X on x86-64.)
+------------------------------------------------------------------------
+r32963 | guy | 2010-05-25 19:25:13 -0700 (Tue, 25 May 2010) | 6 lines
+Changed paths:
+   M /trunk/epan/dissectors/dcerpc/idl2wrs.c
+   M /trunk/epan/proto.c
+   M /trunk/tools/lemon/lemon.c
+   M /trunk/trigcap.c
+
+More <stdarg.h> cleanup; some are real bugs, some are just "don't do
+va_start and va_end unless you're actually going to use the va_list"
+(those bring the va_start and va_end closer to the use point, which
+makes it a little more obvious that we're using <stdarg.h> correctly and
+makes it a little harder to use it incorrectly).
+------------------------------------------------------------------------
+r33003 | jake | 2010-05-27 14:54:58 -0700 (Thu, 27 May 2010) | 5 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-pgm.c
+
+From  Steven McCoy:
+AFI fields are 2 bytes i.s.o. 1.
+
+From me, several more size changes and decode cleanup.
+------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r33127 | etxrab | 2010-06-07 05:51:23 -0700 (Mon, 07 Jun 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/diameter/TGPPGmb.xml
+   M /trunk-1.2/diameter/dictionary.xml
+   M /trunk-1.2/diameter/eap.xml
+   M /trunk-1.2/diameter/nasreq.xml
+   M /trunk-1.2/diameter/sip.xml
+
+Update diameter.xml files.
+------------------------------------------------------------------------
+r33131 | gerald | 2010-06-07 08:57:27 -0700 (Mon, 07 Jun 2010) | 43 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/sigcomp-udvm.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r33065 | guy | 2010-06-02 18:22:18 -0700 (Wed, 02 Jun 2010) | 20 lines
+Changed paths:
+   M /trunk/epan/sigcomp-udvm.c
+
+Sorry, I forgot that 8.6. UDVM Cycles says
+
+	Note that the number of UDVM cycles MUST NOT be increased if a
+	request for additional compressed data fails.
+
+so we *shouldn't* increase the cycle count further when
+SIGCOMP_INSTR_INPUT_BYTES fails.  That does *NOT* of course, mean that
+we shouldn't increase the cycle count by 1 for a failed INPUT-BYTES
+instruction - that would leave UDVM vulnerable to infinite loops (as per
+bug 4826), and I *really* doubt that was their intent; presumably, it
+means it should not be increased *by the number of cycles for the
+additional data*:
+
+	Additionally, if the UDVM successfully requests n bits of
+	compressed data using one of the INPUT instructions then the
+	number of available UDVM cycles is increased by n *
+	cycles_per_bit once the instruction has been executed.
+
+if the attempt to get that additional data fails.
+------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+------------------------------------------------------------------------
+r33061 | gerald | 2010-06-02 15:16:49 -0700 (Wed, 02 Jun 2010) | 4 lines
+Changed paths:
+   M /trunk/epan/sigcomp-udvm.c
+
+Increment the cycle count no matter what. Increase the cycle count
+further when SIGCOMP_INSTR_INPUT_BYTES fails. Fixes the infinite loop
+found in bug 4826.
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r33133 | gerald | 2010-06-07 09:07:15 -0700 (Mon, 07 Jun 2010) | 20 lines
+Changed paths:
+   M /trunk-1.2/epan/dissectors/packet-nfs.c
+
+Copy over r33079:
+
+------------------------------------------------------------------------
+r33079 | wmeier | 2010-06-03 17:45:37 -0700 (Thu, 03 Jun 2010) | 12 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-nfs.c
+
+From Cal Turney: The NFS FH hash (nfs.fh.hash) incorrectly matches multiple filehandles.
+"The method used in packet-nfs.c to calculate a 32-bit hash representing the 
+ 32-byte filehandle is faulty in that the hash often matches multiple
+ filehandles."
+
+"This patch uses CRC-32 to calculate the hash.
+ We (EMC GNS) have tested this patch for the past two years and we have not
+ found a single case where the hash matched more than one filehandle."
+
+See Bug #4839: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4839
+------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+r33134 | gerald | 2010-06-07 09:07:46 -0700 (Mon, 07 Jun 2010) | 23 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/sigcomp-udvm.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r33087 | gerald | 2010-06-04 11:28:02 -0700 (Fri, 04 Jun 2010) | 3 lines
+Changed paths:
+   M /trunk/epan/sigcomp-udvm.c
+
+According to RFC 3220 section 7 the max UDVM message size is 65536,
+not 65535. Hopefully fixes bug 4837.
+------------------------------------------------------------------------
+
+Copy over with manual intervention:
+
+------------------------------------------------------------------------
+r33090 | guy | 2010-06-04 12:29:26 -0700 (Fri, 04 Jun 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/sigcomp-udvm.c
+
+Fix comments.
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r33135 | gerald | 2010-06-07 09:20:00 -0700 (Mon, 07 Jun 2010) | 20 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/dissectors/packet-ipsec.c
+
+Apply patch from bug 4838:
+
+Decoding IPsec (ESP) using AES-CTR fails.
+
+When specifying SA keys for AES-CTR, wireshark expects a key length of 160, 224
+or 288 bits, (i.e. 128, 192 or 256 bits, followed by the 32 bit nonce value),
+but gcry_cipher_setkey() in packet_ipsec.c fails, as it expects 128, 192 or 256
+bits.
+
+Omitting the nonce won't work -- even if wireshark liked those key lengths,
+gcrypt wouldn't be able to decrypt without it.
+
+Looking at gcrypt.h, I'm guessing what's missing may be a call to
+gcry_cipher_setctr()? Once gcrypt has the nonce, the key len could be
+decremented by 4, (32 bits), for the call to gcry_cipher_setkey() and things
+should work from there.
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r33142 | gerald | 2010-06-07 11:39:55 -0700 (Mon, 07 Jun 2010) | 15 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/dissectors/packet-smb.c
+
+Copy over r32650 by hand:
+------------------------------------------------------------------------
+r32650 | morriss | 2010-05-03 12:33:23 -0700 (Mon, 03 May 2010) | 6 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-smb.c
+
+Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4734 :
+
+Don't crash on a malformed SMB packet.  According to svn blame, this code
+has been here since rev 21713 though maybe something else changed to make the
+crash apparent.
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r33150 | gerald | 2010-06-07 12:21:26 -0700 (Mon, 07 Jun 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r33153 | gerald | 2010-06-07 13:39:11 -0700 (Mon, 07 Jun 2010) | 13 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/tcap-persistentdata.h
+
+Copy over by hand:
+
+------------------------------------------------------------------------
+r33091 | morriss | 2010-06-04 12:37:31 -0700 (Fri, 04 Jun 2010) | 1 line
+Changed paths:
+   M /trunk/epan/tcap-persistentdata.h
+
+Increase LENGTH_OID a bit to give us more room for ACNs (probably more than will ever be used).
+------------------------------------------------------------------------
+
+
+Update the release notes.
 
 ------------------------------------------------------------------------

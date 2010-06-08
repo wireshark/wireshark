@@ -1,4 +1,4 @@
-Wireshark 1.2.8 Release Notes
+Wireshark 1.2.9 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,40 +15,58 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o The DOCSIS dissector could crash. (Bug 4644), (bug 4646) -->
+     o J. Oquendo discovered that the ASN.1 BER dissector could
+       overrun the stack.
 
-       Versions affected: 0.9.6 to 1.0.12, 1.2.0 to 1.2.7
+       Versions affected: ???? to 1.0.13, 1.2.0 to 1.2.8
+
+     o The SMB PIPE dissector could dereference a NULL pointer. (Bug
+       4734)
+
+       Versions affected: ???? to 1.0.13, 1.2.0 to 1.2.8
 
    The following bugs have been fixed:
 
-     o HTTP parser limits with Content-Length. (Bug 1958)
+     o Cannot open file with File -> Open. (Bug 1791)
 
-     o MATE dissector bug with GOGs. (Bug 3010)
+     o Application crash when changing real-time option. (Bug 4035)
 
-     o Changing fonts and deleting system time from preferences,
-       results in wireshark crash. (Bug 3387)
+     o The XML dissector doesn't allow dots (".") in tags. (Bug 4405)
 
-     o ERF file starting with record with timestamp=0,1 or 2 not
-       recognized as ERF file. (Bug 4503)
+     o Live capture stops when using zlib 1.2.5. (Bug 4708)
 
-     o The SSL dissector can not correctly resemple SSL records when
-       the record header is spit between packets. (Bug 4535)
+     o Want to be able to apply decode as to Data Portion of Lan
+       Trace. (Bug 4721)
 
-     o TCP reassembly can call subdissector with incorrect TCP
-       sequence number. (Bug 4624)
+     o tshark returns 0 on non-valid filter and interface. (Bug 4735)
 
-     o PTP dissector displays big correction field values wrong. (Bug
-       4635)
+     o SABP short pdu (packet_per.c). (Bug 4743)
 
-     o MSF is at Anthorn, not Rugby. (Bug 4678)
+     o Kerberos pre-auth type constants - MS extensions are wrong.
+       (Bug 4752)
 
-     o ProtoField __tostring() description is missing in Wireshark's
-       Lua API Reference Manual. (Bug 4695)
+     o Check HTTP Content-Length parsing for overflow. (Bug 4758)
 
-     o EVRC packet bundling not handled correctly. (Bug 4718)
+     o Wrong variable used for proto_tree_add_text() in ptp
+       dissector. (Bug 4773)
 
-     o Completely unresponsive when run very first time by root user.
-       (Bug 4308)
+     o Crash when close window frame of gtk file chooser. (Bug 4778)
+
+     o text2pcap expects \n delimited text (instead of \r\n) on
+       win32. (Bug 4780)
+
+     o Wrong decoding for BGP ORF. (Bug 4782)
+
+     o Crash when Ctrl-Backspacing the display filter. (Bug 4797)
+
+     o Acker AFI field incorrect size in PGM dissector. (Bug 4798)
+
+     o Fedora 13: wireshark fails to build (linking problem). (Bug
+       4815)
+
+     o . (Bug )
+
+     o . (Bug )
 
   New and Updated Features
 
