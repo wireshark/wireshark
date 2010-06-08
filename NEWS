@@ -1,4 +1,4 @@
-Wireshark 1.0.13 Release Notes
+Wireshark 1.0.14 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,13 +15,36 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o The DOCSIS dissector could crash. (Bug 4644), (bug 4646) -->
+     o The SMB dissector could dereference a NULL pointer. (Bug 4734)
 
-       Versions affected: ???
+       Versions affected: 0.99.6 to 1.0.13, 1.2.0 to 1.2.8
+
+     o J. Oquendo discovered that the ASN.1 BER dissector could
+       overrun the stack.
+
+       Versions affected: 0.10.13 to 1.0.13, 1.2.0 to 1.2.8
+
+     o The SMB PIPE dissector could dereference a NULL pointer on
+       some platforms.
+
+       Versions affected: 0.8.20 to 1.0.13, 1.2.0 to 1.2.8
+
+     o The SigComp Universal Decompressor Virtual Machine could go
+       into an infinite loop. (Bug 4826)
+
+       Versions affected: 0.10.7 to 1.0.13, 1.2.0 to 1.2.8
+
+     o The SigComp Universal Decompressor Virtual Machine could
+       overrun a buffer. (Bug 4837)
+
+       Versions affected: 0.10.8 to 1.0.13, 1.2.0 to 1.2.8
 
    The following bugs have been fixed:
 
-     o MATE dissector bug with GOGs. (Bug 3010)
+     o Cannot open file with File -> Open. (Bug 1791)
+
+     o Fedora 13: wireshark fails to build (linking problem). (Bug
+       4815)
 
   New and Updated Features
 
@@ -33,7 +56,7 @@ What's New
 
   Updated Protocol Support
 
-   DOCSIS.
+   ASN.1 BER, SMB, SMB PIPE
 
   New and Updated Capture File Support
 
