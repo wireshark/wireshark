@@ -56,8 +56,8 @@ static dissector_handle_t idmp_handle = NULL;
 
 static proto_tree *top_tree = NULL;
 static struct SESSION_DATA_STRUCTURE* session = NULL;
-static char *protocolID = NULL;
-static char *saved_protocolID = NULL;
+static const char *protocolID = NULL;
+static const char *saved_protocolID = NULL;
 static guint32 opcode = -1;
 
 void prefs_register_idmp(void); /* forward declaration for use in preferences registration */
@@ -107,7 +107,7 @@ static const fragment_items idmp_frag_items = {
 };
 
 
-static int call_idmp_oid_callback(tvbuff_t *tvb, int offset, packet_info *pinfo, int op, proto_tree *tree)	
+static int call_idmp_oid_callback(tvbuff_t *tvb, int offset, packet_info *pinfo, int op, proto_tree *tree _U_)	
 {
 	struct SESSION_DATA_STRUCTURE *session;
 	
