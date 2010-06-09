@@ -1772,6 +1772,7 @@ AC_OUTPUT(
   asn1/h501/Makefile
   asn1/HI2Operations/Makefile
   asn1/hnbap/Makefile
+  asn1/idmp/Makefile
   asn1/inap/Makefile
   asn1/kerberos/Makefile
   asn1/ldap/Makefile
