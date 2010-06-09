@@ -321,7 +321,7 @@ extern DIS_ParserNode DIS_FIELDS_NONE[];
 extern DIS_BitMask DIS_APPEARANCE_LANDPLATFORM[];
 extern DIS_BitMask DIS_APPEARANCE_LIFEFORM[];
 
-extern void initializeFieldParsers();
+extern void initializeFieldParsers(void);
 
 extern gint parseField_Bytes(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode, guint numBytes);
 

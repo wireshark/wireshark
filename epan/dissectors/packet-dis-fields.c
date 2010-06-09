@@ -429,7 +429,7 @@ DIS_BitMask DIS_APPEARANCE_LIFEFORM[] =
  * specific PDU.  These fields are only accessed and used if a variant
  * field indicates they are to be used.
  */
-void initializeFieldParsers()
+void initializeFieldParsers(void)
 {
     initializeParser(DIS_FIELDS_VP_GENERIC);
     initializeParser(DIS_FIELDS_VP_ARTICULATED_PART);
