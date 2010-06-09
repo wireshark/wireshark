@@ -55,7 +55,6 @@ static guint tcp_port = 0;
 static dissector_handle_t idmp_handle = NULL;
 
 static proto_tree *top_tree = NULL;
-static struct SESSION_DATA_STRUCTURE* session = NULL;
 static const char *protocolID = NULL;
 static const char *saved_protocolID = NULL;
 static guint32 opcode = -1;

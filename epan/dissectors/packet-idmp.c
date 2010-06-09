@@ -63,7 +63,6 @@ static guint tcp_port = 0;
 static dissector_handle_t idmp_handle = NULL;
 
 static proto_tree *top_tree = NULL;
-static struct SESSION_DATA_STRUCTURE* session = NULL;
 static const char *protocolID = NULL;
 static const char *saved_protocolID = NULL;
 static guint32 opcode = -1;
@@ -172,7 +171,7 @@ static int hf_idmp_present = -1;                  /* INTEGER */
 static int hf_idmp_absent = -1;                   /* NULL */
 
 /*--- End of included file: packet-idmp-hf.c ---*/
-#line 131 "packet-idmp-template.c"
+#line 130 "packet-idmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_idmp = -1;
@@ -191,7 +190,7 @@ static gint ett_idmp_Code = -1;
 static gint ett_idmp_InvokeId = -1;
 
 /*--- End of included file: packet-idmp-ett.c ---*/
-#line 135 "packet-idmp-template.c"
+#line 134 "packet-idmp-template.c"
 
 
 /*--- Included file: packet-idmp-fn.c ---*/
@@ -615,7 +614,7 @@ dissect_idmp_IDM_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 /*--- End of included file: packet-idmp-fn.c ---*/
-#line 137 "packet-idmp-template.c"
+#line 136 "packet-idmp-template.c"
 
 void
 register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name)
@@ -932,7 +931,7 @@ void proto_register_idmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-idmp-hfarr.c ---*/
-#line 321 "packet-idmp-template.c"
+#line 320 "packet-idmp-template.c"
   };
 
   /* List of subtrees */
@@ -955,7 +954,7 @@ void proto_register_idmp(void) {
     &ett_idmp_InvokeId,
 
 /*--- End of included file: packet-idmp-ettarr.c ---*/
-#line 329 "packet-idmp-template.c"
+#line 328 "packet-idmp-template.c"
   };
   module_t *idmp_module;
 
