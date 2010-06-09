@@ -1107,6 +1107,7 @@ DISSECTOR_INCLUDES =	\
 	packet-http.h	\
 	packet-i2c.h	\
 	packet-iax2.h	\
+	packet-idmp.h	\
 	packet-idp.h	\
 	packet-ieee80211.h	\
 	packet-ieee802154.h	\
