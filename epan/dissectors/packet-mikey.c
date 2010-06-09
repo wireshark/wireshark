@@ -863,7 +863,7 @@ dissect_payload_t(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pro
 	switch (ts_type) {
 	case T_NTP:
 	case T_NTP_UTC: {
-		gchar *buff;
+		const gchar *buff;
 
 		tvb_ensure_bytes_exist(tvb, offset+2, 8);
 		buff = ntp_fmt_ts(tvb_get_ptr(tvb, offset+2, 8));

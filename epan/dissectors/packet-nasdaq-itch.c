@@ -210,7 +210,7 @@ time_stamp(tvbuff_t *tvb, proto_tree *nasdaq_itch_tree, int id, int offset, int 
 
   if (nasdaq_itch_tree) {
       guint32 ms, val;
-      char *display = "";
+      const char *display = "";
 
       ms = val = nasdaq_itch_atou(str_value, size);
       switch (size) {

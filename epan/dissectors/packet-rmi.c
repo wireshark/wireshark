@@ -124,7 +124,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     rmi_type   rmitype;
 
-    char *epid_hostname;
+    const char *epid_hostname;
 	guint epid_len;
 
     offset     = 0;

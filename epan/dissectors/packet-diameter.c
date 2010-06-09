@@ -562,7 +562,7 @@ time_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 {
 	int len = tvb_length(tvb);
 	guint8 ntptime[8] = {0,0,0,0,0,0,0,0};
-	char* label;
+	const char* label;
 	proto_item* pi;
 
 	if ( len != 4 ) {

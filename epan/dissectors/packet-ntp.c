@@ -572,7 +572,7 @@ static tvbparse_wanted_t* want_ignore;
  * returns pointer to filled buffer.  This buffer will be freed automatically once
  * dissection of the next packet occurs.
  */
-char *
+const char *
 ntp_fmt_ts(const guint8 *reftime)
 {
 	guint32 tempstmp, tempfrac;
@@ -664,7 +664,8 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	const guint8	*org;
 	const guint8	*rec;
 	const guint8	*xmt;
-	gchar		*buff;
+	const gchar	*buffc;
+	gchar           *buff;
 	int		i;
 	int		macofs;
 	gint            maclen;
@@ -681,16 +682,16 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 */
 	stratum = tvb_get_guint8(tvb, 1);
 	if (stratum == 0) {
-		buff="Peer Clock Stratum: unspecified or unavailable (%u)";
+		buffc="Peer Clock Stratum: unspecified or unavailable (%u)";
 	} else if (stratum == 1) {
-		buff="Peer Clock Stratum: primary reference (%u)";
+		buffc="Peer Clock Stratum: primary reference (%u)";
 	} else if ((stratum >= 2) && (stratum <= 15)) {
-		buff="Peer Clock Stratum: secondary reference (%u)";
+		buffc="Peer Clock Stratum: secondary reference (%u)";
 	} else {
-		buff="Peer Clock Stratum: reserved: %u";
+		buffc="Peer Clock Stratum: reserved: %u";
 	}
 	proto_tree_add_uint_format(ntp_tree, hf_ntp_stratum, tvb, 1, 1,
-				   stratum, buff, stratum);
+				   stratum, buffc, stratum);
 	/* Poll interval, 1byte field indicating the maximum interval
 	 * between successive messages, in seconds to the nearest
 	 * power of two.

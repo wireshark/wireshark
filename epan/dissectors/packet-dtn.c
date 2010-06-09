@@ -56,9 +56,9 @@ static int dissect_contact_header(tvbuff_t *tvb, packet_info *pinfo,
 static int dissect_tcp_convergence_data_header(tvbuff_t *tvb, proto_tree *tree);
 static int dissect_version_5_primary_header(packet_info *pinfo,
 					    proto_tree *primary_tree, tvbuff_t *tvb);
-static int add_sdnv_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, char *field_id);
-static int add_dtn_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, char *field_id);
-static int add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, char *field_id);
+static int add_sdnv_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, const char *field_id);
+static int add_dtn_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, const char *field_id);
+static int add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, const char *field_id);
 
 /* For Reassembling TCP Convergence Layer segments */
 static GHashTable *msg_fragment_table = NULL;
@@ -1066,8 +1066,8 @@ dissect_version_5_primary_header(packet_info *pinfo,
     int timestamp_sequence;
     int lifetime;
     char *time_string;
-    gchar *src_node;
-    gchar *dst_node;
+    const gchar *src_node;
+    const gchar *dst_node;
     guint8 srrflags;
     proto_item *srr_flag_item = NULL;
     proto_tree *srr_flag_tree = NULL;
@@ -2060,7 +2060,7 @@ evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount)
 }
 
 static int
-add_sdnv_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, char *field_id)
+add_sdnv_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, const char *field_id)
 {
     int sdnv_length;
     int sdnv_value;
@@ -2078,7 +2078,7 @@ add_sdnv_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, char *field_id)
  * Returns bytes in both SDNVs or 0 if something goes wrong.
  */
 static int
-add_dtn_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, char *field_id)
+add_dtn_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, const char *field_id)
 {
     int sdnv_length, sdnv2_length;
     int sdnv_value;
@@ -2109,7 +2109,7 @@ add_dtn_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, char *field_id
  * Returns bytes in SDNV or 0 if something goes wrong.
  */
 static int
-add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, char *field_id)
+add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, const char *field_id)
 {
     int sdnv_length;
     int sdnv_value;

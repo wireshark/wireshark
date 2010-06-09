@@ -4306,7 +4306,7 @@ de_sm_mbms_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 {
 	guint32	curr_offset, temp32;
 	guint8 oct;
-	gchar *str;
+	const gchar *str;
 
 	curr_offset = offset;
 
@@ -4371,7 +4371,7 @@ static guint16
 de_sm_enh_nsapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
-	gchar *str;
+	const gchar *str;
 
 	oct = tvb_get_guint8(tvb, offset);
 

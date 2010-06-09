@@ -344,13 +344,13 @@ typedef struct dcm_open_tag {
     gboolean	is_header_fragmented;
     gboolean	is_value_fragmented;
 
-    guint32	len_decoded;	/* Should only by < 16 bytes				    */
+    guint32	len_decoded;	/* Should only by < 16 bytes		    */
 
     guint16	grp;		/* Already decoded group		    */
     guint16	elm;		/* Already decoded element		    */
     gchar      *vr;		/* Already decoded VR			    */
 
-    gboolean	is_vl_long;	/* If TRUE, Value Length is 4 Bytes, otherwise 2	*/
+    gboolean	is_vl_long;	/* If TRUE, Value Length is 4 Bytes, otherwise 2 */
     guint16	vl_1;		/* Partially decoded 1st two bytes of length  */
     guint16	vl_2;		/* Partially decoded 2nd two bytes of length  */
 
@@ -5437,7 +5437,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dcm_tag_t   *tag_def   = NULL;
 
     const gchar *vr = NULL;
-    gchar       *tag_value = NULL;		/* Tag Value converted to a string	*/
+    gchar       *tag_value = NULL;	/* Tag Value converted to a string	*/
     gchar       *tag_summary;
 
     guint32 vl = 0;
@@ -5762,7 +5762,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     else if (vl == 0) {
 	/* No value */
-	tag_value = "<Empty>";
+	g_strlcpy(tag_value, "<Empty>", MAX_BUF_LEN);
     }
     else if (vl > vl_max) {
 	/* Tag is longer than the PDV/PDU. Don't perform any decoding */

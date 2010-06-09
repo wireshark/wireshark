@@ -1832,7 +1832,7 @@ dissect_lcp_async_map_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                           proto_tree *tree)
 {
   guint32 map;
-  char *mapstr;
+  const char *mapstr;
   static const char *ctrlchars[32] = {
     "NUL", "SOH",       "STX", "ETX",        "EOT",      "ENQ", "ACK", "BEL",
     "BS",  "HT",        "NL",  "VT",         "NP (FF)",  "CR",  "SO",  "SI",
@@ -1849,9 +1849,9 @@ dissect_lcp_async_map_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
    */
   map = tvb_get_ntohl(tvb, offset + 2);
   if (map == 0x00000000)
-    mapstr = "None";	/* don't map any control characters */
+      mapstr = "None";	/* don't map any control characters */
   else if (map == 0xffffffff)
-    mapstr = "All";	/* map all control characters */
+      mapstr = "All";	/* map all control characters */
   else {
 #define MAX_MAPSTR_LEN (32*(10+2)+1)
     mapstr=ep_alloc(MAX_MAPSTR_LEN);
@@ -1861,7 +1861,7 @@ dissect_lcp_async_map_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     str_index = 0;
     for (i = 0; i < 32; i++) {
       if (map & (1 << i)) {
-        returned_length = g_snprintf(&mapstr[str_index], MAX_MAPSTR_LEN-str_index,
+        returned_length = g_snprintf((char *)(&mapstr[str_index]), MAX_MAPSTR_LEN-str_index,
                                      "%s%s", str_index?"":", ", ctrlchars[i]);
         str_index += MIN(returned_length, MAX_MAPSTR_LEN-str_index);
       }

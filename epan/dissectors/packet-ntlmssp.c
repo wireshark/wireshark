@@ -282,7 +282,7 @@ typedef struct _ntlmssp_packet_info {
 } ntlmssp_packet_info;
 
 #ifdef DEBUG_NTLMSSP
-static void printnbyte(const guint8* tab,int nb,char* txt,char* txt2)
+static void printnbyte(const guint8* tab,int nb,const char* txt,const char* txt2)
 {
   int i=0;
   fprintf(stderr,"%s ",txt);
@@ -305,7 +305,7 @@ static void printnbyte(const guint8* tab,int nb,char* txt,char* txt2)
 }
 */
 #else
-static void printnbyte(const guint8* tab _U_,int nb _U_, char* txt _U_,char* txt2 _U_)
+static void printnbyte(const guint8* tab _U_,int nb _U_, const char* txt _U_,const char* txt2 _U_)
 {
 }
 #endif
@@ -1149,7 +1149,7 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 		guint16 name_len = tvb_get_letohs(tvb, offset + 2);
 		proto_tree *name_tree = NULL;
 		proto_item *name_item = NULL;
-		char *name = NULL;
+		const char *name = NULL;
 
 		if (ntlmv2_tree) {
 			name_item = proto_tree_add_item(
