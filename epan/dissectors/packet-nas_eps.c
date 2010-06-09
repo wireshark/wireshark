@@ -195,230 +195,227 @@ static int ett_nas_eps_esm_msg_cont = -1;
 /* Global variables */
 packet_info *gpinfo;
 
-/* Forward declarations */
-static void dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 /* Table 9.8.1: Message types for EPS mobility management
- *	0	1	-	-	-	-	-	-		EPS mobility management messages
+ *  0   1   -   -   -   -   -   -       EPS mobility management messages
  */
-static const value_string nas_msg_emm_strings[] = {									
-	{ 0x41,	"Attach request"},
-	{ 0x42,	"Attach accept"},
-	{ 0x43,	"Attach complete"},
-	{ 0x44,	"Attach reject"},
-	{ 0x45,	"Detach request"},
-	{ 0x46,	"Detach accept"},
-							
-	{ 0x48,	"Tracking area update request"},
-	{ 0x49,	"Tracking area update accept"},
-	{ 0x4a,	"Tracking area update complete"},
-	{ 0x4b,	"Tracking area update reject"},
-							
-	{ 0x4c,	"Extended service request"},
-	{ 0x4e,	"Service reject"},
-									
-	{ 0x50,	"GUTI reallocation command"},
-	{ 0x51,	"GUTI reallocation complete"},
-	{ 0x52,	"Authentication request"},
-	{ 0x53,	"Authentication response"},
-	{ 0x54,	"Authentication reject"},
-	{ 0x5c,	"Authentication failure"},
-	{ 0x55,	"Identity request"},
-	{ 0x56,	"Identity response"},
-	{ 0x5d,	"Security mode command"},
-	{ 0x5e,	"Security mode complete"},
-	{ 0x5f,	"Security mode reject"},
-									
-	{ 0x60,	"EMM status"},
-	{ 0x61,	"EMM information"},
-	{ 0x62,	"Downlink NAS transport"},
-	{ 0x63,	"Uplink NAS transport"},
-	{ 0x64, "CS Service notification"},
-	{ 0x68, "Downlink generic NAS transport"},
-	{ 0x69, "Uplink generic NAS transport"},
-	{ 0,	NULL }
+static const value_string nas_msg_emm_strings[] = {                                 
+    { 0x41, "Attach request"},
+    { 0x42, "Attach accept"},
+    { 0x43, "Attach complete"},
+    { 0x44, "Attach reject"},
+    { 0x45, "Detach request"},
+    { 0x46, "Detach accept"},
+                            
+    { 0x48, "Tracking area update request"},
+    { 0x49, "Tracking area update accept"},
+    { 0x4a, "Tracking area update complete"},
+    { 0x4b, "Tracking area update reject"},
+                            
+    { 0x4c, "Extended service request"},
+    { 0x4e, "Service reject"},
+                                    
+    { 0x50, "GUTI reallocation command"},
+    { 0x51, "GUTI reallocation complete"},
+    { 0x52, "Authentication request"},
+    { 0x53, "Authentication response"},
+    { 0x54, "Authentication reject"},
+    { 0x5c, "Authentication failure"},
+    { 0x55, "Identity request"},
+    { 0x56, "Identity response"},
+    { 0x5d, "Security mode command"},
+    { 0x5e, "Security mode complete"},
+    { 0x5f, "Security mode reject"},
+                                    
+    { 0x60, "EMM status"},
+    { 0x61, "EMM information"},
+    { 0x62, "Downlink NAS transport"},
+    { 0x63, "Uplink NAS transport"},
+    { 0x64, "CS Service notification"},
+    { 0x68, "Downlink generic NAS transport"},
+    { 0x69, "Uplink generic NAS transport"},
+    { 0,    NULL }
 };
 
 /* Table 9.8.2: Message types for EPS session management */
 
-static const value_string nas_msg_esm_strings[] = {	
-	{ 0xc1,	"Activate default EPS bearer context request"},
-	{ 0xc2,	"Activate default EPS bearer context accept"},
-	{ 0xc3,	"Activate default EPS bearer context reject"},
-	{ 0xc5,	"Activate dedicated EPS bearer context request"},
-	{ 0xc6,	"Activate dedicated EPS bearer context accept"},
-	{ 0xc7,	"Activate dedicated EPS bearer context reject"},
-	{ 0xc9,	"Modify EPS bearer context request"},
-	{ 0xca,	"Modify EPS bearer context accept"},
-	{ 0xcb,	"Modify EPS bearer context reject"},
-	{ 0xcd,	"Deactivate EPS bearer context request"},
-	{ 0xce,	"Deactivate EPS bearer context accept"},
-	{ 0xd0,	"PDN connectivity request"},
-	{ 0xd1,	"PDN connectivity reject"},
-	{ 0xd2,	"PDN disconnect request"},
-	{ 0xd3,	"PDN disconnect reject"},
-	{ 0xd4,	"Bearer resource allocation request"},
-	{ 0xd5,	"Bearer resource allocation reject"},
-	{ 0xd6,	"Bearer resource modification request"},
-	{ 0xd7,	"Bearer resource modification reject"},
-	{ 0xd9,	"ESM information request"},
-	{ 0xda,	"ESM information response"},
-	{ 0xdb,	"Notification"},
-	{ 0xe8,	"ESM status"},
-	{ 0,	NULL }
+static const value_string nas_msg_esm_strings[] = { 
+    { 0xc1, "Activate default EPS bearer context request"},
+    { 0xc2, "Activate default EPS bearer context accept"},
+    { 0xc3, "Activate default EPS bearer context reject"},
+    { 0xc5, "Activate dedicated EPS bearer context request"},
+    { 0xc6, "Activate dedicated EPS bearer context accept"},
+    { 0xc7, "Activate dedicated EPS bearer context reject"},
+    { 0xc9, "Modify EPS bearer context request"},
+    { 0xca, "Modify EPS bearer context accept"},
+    { 0xcb, "Modify EPS bearer context reject"},
+    { 0xcd, "Deactivate EPS bearer context request"},
+    { 0xce, "Deactivate EPS bearer context accept"},
+    { 0xd0, "PDN connectivity request"},
+    { 0xd1, "PDN connectivity reject"},
+    { 0xd2, "PDN disconnect request"},
+    { 0xd3, "PDN disconnect reject"},
+    { 0xd4, "Bearer resource allocation request"},
+    { 0xd5, "Bearer resource allocation reject"},
+    { 0xd6, "Bearer resource modification request"},
+    { 0xd7, "Bearer resource modification reject"},
+    { 0xd9, "ESM information request"},
+    { 0xda, "ESM information response"},
+    { 0xdb, "Notification"},
+    { 0xe8, "ESM status"},
+    { 0,    NULL }
 };
 
 static const value_string security_header_type_vals[] = {
-	{ 0,	"Plain NAS message, not security protected"},
-	{ 1,	"Integrity protected"},
-	{ 2,	"Integrity protected and ciphered"},
-	{ 3,	"Integrity protected with new EPS security context"},
-	{ 4,	"Integrity protected and ciphered with new EPS security context"},
-	{ 5,	"Reserved"},
-	{ 6,	"Reserved"},
-	{ 7,	"Reserved"},
-	{ 8,	"Reserved"},
-	{ 9,	"Reserved"},
-	{ 10,	"Reserved"},
-	{ 11,	"Reserved"},
-	{ 12,	"Security header for the SERVICE REQUEST message "},
-	{ 13,	"These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\""},
-	{ 14,	"These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\""},
-	{ 15,	"These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\""},
-	{ 0,	NULL }
+    { 0,    "Plain NAS message, not security protected"},
+    { 1,    "Integrity protected"},
+    { 2,    "Integrity protected and ciphered"},
+    { 3,    "Integrity protected with new EPS security context"},
+    { 4,    "Integrity protected and ciphered with new EPS security context"},
+    { 5,    "Reserved"},
+    { 6,    "Reserved"},
+    { 7,    "Reserved"},
+    { 8,    "Reserved"},
+    { 9,    "Reserved"},
+    { 10,   "Reserved"},
+    { 11,   "Reserved"},
+    { 12,   "Security header for the SERVICE REQUEST message "},
+    { 13,   "These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\""},
+    { 14,   "These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\""},
+    { 15,   "These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\""},
+    { 0,    NULL }
 };
 
 const value_string nas_eps_common_elem_strings[] = {
-	{ 0x00,	"EPS bearer context status" },				/* 9.9.2.1	EPS bearer context status */
-	{ 0x00,	"Location area identification" },			/* 9.9.2.2	Location area identification */
-	{ 0x00,	"Mobile identity" },						/* 9.9.2.3	Mobile identity */
-	{ 0x00, "Mobile station classmark 2" },				/* 9.9.2.4	Mobile station classmark 2 */
-	{ 0x00, "Mobile station classmark 3" },				/* 9.9.2.5	Mobile station classmark 3 */
-	{ 0x00, "NAS security parameters from E-UTRA" },	/* 9.9.2.6	NAS security parameters from E-UTRA */
-	{ 0x00, "NAS security parameters to E-UTRA" },		/* 9.9.2.7	NAS security parameters to E-UTRA */
-	{ 0x00,	"PLMN list" },								/* 9.9.2.8	PLMN list	*/
-														/* 9.9.2.9  Spare half octet */
-	{ 0x00, "Supported codec list" },					/* 9.9.2.10	Supported codec list */
-	{ 0, NULL }
+    { 0x00, "EPS bearer context status" },              /* 9.9.2.1  EPS bearer context status */
+    { 0x00, "Location area identification" },           /* 9.9.2.2  Location area identification */
+    { 0x00, "Mobile identity" },                        /* 9.9.2.3  Mobile identity */
+    { 0x00, "Mobile station classmark 2" },             /* 9.9.2.4  Mobile station classmark 2 */
+    { 0x00, "Mobile station classmark 3" },             /* 9.9.2.5  Mobile station classmark 3 */
+    { 0x00, "NAS security parameters from E-UTRA" },    /* 9.9.2.6  NAS security parameters from E-UTRA */
+    { 0x00, "NAS security parameters to E-UTRA" },      /* 9.9.2.7  NAS security parameters to E-UTRA */
+    { 0x00, "PLMN list" },                              /* 9.9.2.8  PLMN list   */
+                                                        /* 9.9.2.9  Spare half octet */
+    { 0x00, "Supported codec list" },                   /* 9.9.2.10 Supported codec list */
+    { 0, NULL }
 };
 /* Utility functions */
 static guint8
 calc_bitrate(guint8 value){
 
 
-	if (value > 63 && value <= 127) {
-		value = 64 + (value - 64) * 8;
-	}
+    if (value > 63 && value <= 127) {
+        value = 64 + (value - 64) * 8;
+    }
     if (value > 127 && value <= 254) {
-		value = 576 + (value - 128) * 64;
-	}
-	if (value==0xff){
-		value = 0;
-	}
+        value = 576 + (value - 128) * 64;
+    }
+    if (value==0xff){
+        value = 0;
+    }
 
-	return value;
+    return value;
 }
 static guint8
 calc_bitrate_ext(guint8 value){
 
 
-	if (value > 0 && value <= 0x4a) {
-		value = 8600 + value * 100;
-	}
+    if (value > 0 && value <= 0x4a) {
+        value = 8600 + value * 100;
+    }
     if (value > 0x4a && value <= 0xba) {
-		value = 16 + (value-0x4a);
-	}
-	if (value > 0xba && value <= 0xfa) {
-		value = 128 + (value-0xba)*2;
-	}
+        value = 16 + (value-0x4a);
+    }
+    if (value > 0xba && value <= 0xfa) {
+        value = 128 + (value-0xba)*2;
+    }
 
-	return value;
+    return value;
 }
 
-#define	NUM_NAS_EPS_COMMON_ELEM (sizeof(nas_eps_common_elem_strings)/sizeof(value_string))
+#define NUM_NAS_EPS_COMMON_ELEM (sizeof(nas_eps_common_elem_strings)/sizeof(value_string))
 gint ett_nas_eps_common_elem[NUM_NAS_EPS_COMMON_ELEM];
 
 typedef enum
 {
-	DE_EPS_CMN_EPS_BE_CTX_STATUS,				/* 9.9.2.1	EPS bearer context status */
-	DE_EPS_CMN_LOC_AREA_ID,						/* 9.9.2.2	Location area identification */
-	DE_EPS_CMN_MOB_ID,							/* 9.9.2.3	Mobile identity */
-	DE_EPS_MS_CM_2,								/* 9.9.2.4	Mobile station classmark 2 */
-	DE_EPS_MS_CM_3,								/* 9.9.2.5	Mobile station classmark 3 */
-	DE_EPS_NAS_SEC_PAR_FROM_EUTRA,				/* 9.9.2.6	NAS security parameters from E-UTRA */
-	DE_EPS_NAS_SEC_PAR_TO_EUTRA,				/* 9.9.2.7	NAS security parameters to E-UTRA */
+    DE_EPS_CMN_EPS_BE_CTX_STATUS,               /* 9.9.2.1  EPS bearer context status */
+    DE_EPS_CMN_LOC_AREA_ID,                     /* 9.9.2.2  Location area identification */
+    DE_EPS_CMN_MOB_ID,                          /* 9.9.2.3  Mobile identity */
+    DE_EPS_MS_CM_2,                             /* 9.9.2.4  Mobile station classmark 2 */
+    DE_EPS_MS_CM_3,                             /* 9.9.2.5  Mobile station classmark 3 */
+    DE_EPS_NAS_SEC_PAR_FROM_EUTRA,              /* 9.9.2.6  NAS security parameters from E-UTRA */
+    DE_EPS_NAS_SEC_PAR_TO_EUTRA,                /* 9.9.2.7  NAS security parameters to E-UTRA */
 
-	DE_EPS_CMN_PLM_LST,							/* 9.9.2.8	PLMN list */
-	DE_EPS_CMN_SUP_CODEC_LST,					/* 9.9.2.6	9.9.2.10	Supported codec list */
-	DE_EPS_COMMON_NONE							/* NONE */
+    DE_EPS_CMN_PLM_LST,                         /* 9.9.2.8  PLMN list */
+    DE_EPS_CMN_SUP_CODEC_LST,                   /* 9.9.2.6  9.9.2.10    Supported codec list */
+    DE_EPS_COMMON_NONE                          /* NONE */
 }
 nas_eps_common_elem_idx_t;
 /* 
- * 9.9.2	Common information elements
+ * 9.9.2    Common information elements
  */
 
 /*
- * 9.9.2.1	EPS bearer context status
+ * 9.9.2.1  EPS bearer context status
  */
 static const true_false_string  nas_eps_emm_ebi_vals = {
-	"BEARER CONTEXT-ACTIVE",
-	"BEARER CONTEXT-INACTIVE"
+    "BEARER CONTEXT-ACTIVE",
+    "BEARER CONTEXT-INACTIVE"
 };
 
 static guint16
 de_eps_cmn_eps_be_ctx_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+    guint32 curr_offset;
 
-	curr_offset = offset;
+    curr_offset = offset;
 
-	/* EBI(7)  EBI(6)  EBI(5)  EBI(4)  EBI(3)  EBI(2)  EBI(1) EBI(0) octet 3 */
-	proto_tree_add_item(tree, hf_nas_eps_emm_ebi7, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_ebi6, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_ebi5, tvb, curr_offset, 1, FALSE);
-	/* EBI(0) - EBI(4): Bits 0 to 4 of octet 3 are spare and shall be coded as zero. */
-	proto_tree_add_item(tree, hf_nas_eps_emm_ebi4, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_ebi3, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_ebi2, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_ebi1, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_ebi0, tvb, curr_offset, 1, FALSE);
-	curr_offset++;
-	/* EBI(15) EBI(14) EBI(13) EBI(12) EBI(11) EBI(10) EBI(9) EBI(8) octet 4 */
-	proto_tree_add_item(tree, hf_nas_eps_emm_ebi15, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_ebi14, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_ebi13, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_ebi12, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_ebi11, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_ebi10, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_ebi9, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_ebi8, tvb, curr_offset, 1, FALSE);
+    /* EBI(7)  EBI(6)  EBI(5)  EBI(4)  EBI(3)  EBI(2)  EBI(1) EBI(0) octet 3 */
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi7, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi6, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi5, tvb, curr_offset, 1, FALSE);
+    /* EBI(0) - EBI(4): Bits 0 to 4 of octet 3 are spare and shall be coded as zero. */
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi4, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi3, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi2, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi1, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi0, tvb, curr_offset, 1, FALSE);
+    curr_offset++;
+    /* EBI(15) EBI(14) EBI(13) EBI(12) EBI(11) EBI(10) EBI(9) EBI(8) octet 4 */
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi15, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi14, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi13, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi12, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi11, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi10, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi9, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi8, tvb, curr_offset, 1, FALSE);
 
-	return len;
+    return len;
 }
 /*
- * 9.9.2.2	Location area identification
+ * 9.9.2.2  Location area identification
  * See subclause 10.5.1.3 in 3GPP TS 24.008 [6].
  */
 /*
- * 9.9.2.3	Mobile identity
+ * 9.9.2.3  Mobile identity
  * See subclause 10.5.1.4 in 3GPP TS 24.008 [6].
  * exported from gsm_a_common
  */
 
 /*
- * 9.9.2.4	Mobile station classmark 2
+ * 9.9.2.4  Mobile station classmark 2
  * See subclause 10.5.1.6 in 3GPP TS 24.008 [13].
  */
 /*
- * 9.9.2.5	Mobile station classmark 3
+ * 9.9.2.5  Mobile station classmark 3
  * See subclause 10.5.1.7 in 3GPP TS 24.008 [13].
  */
 /*
- * 9.9.2.8	PLMN list
+ * 9.9.2.8  PLMN list
  * See subclause 10.5.1.13 in 3GPP TS 24.008 [6].
  */
 /*
- * 9.9.2.7	Spare half octet
+ * 9.9.2.7  Spare half octet
  * This element is used in the description of EMM and ESM messages when an odd number of 
  * half octet type 1 information elements are used. This element is filled with spare bits 
  * set to zero and is placed in bits 5 to 8 of the octet unless otherwise specified.
@@ -426,231 +423,231 @@ de_eps_cmn_eps_be_ctx_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
  */
 
 /*
- * 9.9.2.6	NAS security parameters from E-UTRA
+ * 9.9.2.6  NAS security parameters from E-UTRA
  */
 static guint16
 de_sec_par_from_eutra(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+    guint32 curr_offset;
 
-	curr_offset = offset;
+    curr_offset = offset;
 
-	/* DL NAS COUNT value (short) (octet 2, bit 1 to 4)
-	 * This field contains the 4 least significant bits of the binary representation of the downlink
-	 * NAS COUNT value applicable when this information element is sent.
-	 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 4, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_dl_nas_cnt, tvb, curr_offset, 1, FALSE);
+    /* DL NAS COUNT value (short) (octet 2, bit 1 to 4)
+     * This field contains the 4 least significant bits of the binary representation of the downlink
+     * NAS COUNT value applicable when this information element is sent.
+     */
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 4, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_dl_nas_cnt, tvb, curr_offset, 1, FALSE);
 
-	return len;
+    return len;
 }
 
 /*
- * 9.9.2.7	NAS security parameters to E-UTRA
+ * 9.9.2.7  NAS security parameters to E-UTRA
  */
 static guint16
 de_sec_par_to_eutra(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+    guint32 curr_offset;
 
-	curr_offset = offset;
-	/* NonceMME value (octet 1 to 5)
-	 * This field is coded as the nonce value in the Nonce information element (see subclause 9.9.3.25).
-	 */
-	proto_tree_add_item(tree, hf_nas_eps_emm_nounce_mme, tvb, curr_offset, 1, FALSE);
-	curr_offset+=4;
-	/* type of ciphering algorithm (octet 6, bit 5 to 7)
-	 * These fields are coded as the type of integrity protection algorithm and type of ciphering algorithm
-	 * in the NAS security algorithms information element (see subclause 9.9.3.23).
-	 * Bit 4 and 8 of octet 6 are spare and shall be coded as zero.
-	 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_toc, tvb, curr_offset, 1, FALSE);
-	/* Type of integrity protection algorithm (octet 6, bit 1 to 3)*/
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_toi, tvb, curr_offset, 1, FALSE);
-	curr_offset++;
-	/*
-	 * NAS key set identifier (octet 7, bit 1 to 3) and
-	 * type of security context flag (TSC) (octet 7, bit 4)
-	 * These fields are coded as the NAS key set identifier and type of security context flag in the
-	 * NAS key set identifier information element (see subclause 9.9.3.21).
-	 * Bit 5 to 8 of octet 7 are spare and shall be coded as zero.
-	 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 4, FALSE);
-	/* Type of security context flag (TSC) 	V	1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_tsc, tvb, (curr_offset<<3)+4, 1, FALSE);
-	/* NAS key set identifier */
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, (curr_offset<<3)+5, 3, FALSE);
-	curr_offset++;
-	return len;
-}			
+    curr_offset = offset;
+    /* NonceMME value (octet 1 to 5)
+     * This field is coded as the nonce value in the Nonce information element (see subclause 9.9.3.25).
+     */
+    proto_tree_add_item(tree, hf_nas_eps_emm_nounce_mme, tvb, curr_offset, 1, FALSE);
+    curr_offset+=4;
+    /* type of ciphering algorithm (octet 6, bit 5 to 7)
+     * These fields are coded as the type of integrity protection algorithm and type of ciphering algorithm
+     * in the NAS security algorithms information element (see subclause 9.9.3.23).
+     * Bit 4 and 8 of octet 6 are spare and shall be coded as zero.
+     */
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_toc, tvb, curr_offset, 1, FALSE);
+    /* Type of integrity protection algorithm (octet 6, bit 1 to 3)*/
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_toi, tvb, curr_offset, 1, FALSE);
+    curr_offset++;
+    /*
+     * NAS key set identifier (octet 7, bit 1 to 3) and
+     * type of security context flag (TSC) (octet 7, bit 4)
+     * These fields are coded as the NAS key set identifier and type of security context flag in the
+     * NAS key set identifier information element (see subclause 9.9.3.21).
+     * Bit 5 to 8 of octet 7 are spare and shall be coded as zero.
+     */
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 4, FALSE);
+    /* Type of security context flag (TSC)  V   1/2 */
+    proto_tree_add_bits_item(tree, hf_nas_eps_tsc, tvb, (curr_offset<<3)+4, 1, FALSE);
+    /* NAS key set identifier */
+    proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, (curr_offset<<3)+5, 3, FALSE);
+    curr_offset++;
+    return len;
+}           
 
 /*
- * 9.9.2.10	Supported codec list
+ * 9.9.2.10 Supported codec list
  * See subclause 10.5.4.32 in 3GPP TS 24.008 [13].
  * Dissectecd in packet-gsm_a_dtap.c
  */
 
 guint16 (*nas_eps_common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
-	/* 9.9.2	Common information elements */
-	de_eps_cmn_eps_be_ctx_status,	/* 9.9.2.1	EPS bearer context status */
-	de_lai,							/* 9.9.2.2	Location area identification */
-	de_mid,							/* 9.9.2.3	Mobile identity See subclause 10.5.1.4 in 3GPP TS 24.008*/
-	de_ms_cm_2,						/* 9.9.2.4	Mobile station classmark 2 */
-	de_ms_cm_3,						/* 9.9.2.5	Mobile station classmark 3 */
-	de_sec_par_from_eutra,			/* 9.9.2.6	NAS security parameters from E-UTRA */
-	de_sec_par_to_eutra,			/* 9.9.2.7	NAS security parameters to E-UTRA */
+    /* 9.9.2    Common information elements */
+    de_eps_cmn_eps_be_ctx_status,   /* 9.9.2.1  EPS bearer context status */
+    de_lai,                         /* 9.9.2.2  Location area identification */
+    de_mid,                         /* 9.9.2.3  Mobile identity See subclause 10.5.1.4 in 3GPP TS 24.008*/
+    de_ms_cm_2,                     /* 9.9.2.4  Mobile station classmark 2 */
+    de_ms_cm_3,                     /* 9.9.2.5  Mobile station classmark 3 */
+    de_sec_par_from_eutra,          /* 9.9.2.6  NAS security parameters from E-UTRA */
+    de_sec_par_to_eutra,            /* 9.9.2.7  NAS security parameters to E-UTRA */
 
-	de_plmn_list,					/* 9.9.2.8	PLMN list */
-	NULL,							/* 9.9.2.10	Supported codec list (packet-gsm_a_dtap.c) */
-	NULL,	/* NONE */
+    de_plmn_list,                   /* 9.9.2.8  PLMN list */
+    NULL,                           /* 9.9.2.10 Supported codec list (packet-gsm_a_dtap.c) */
+    NULL,   /* NONE */
 };
 
 const value_string nas_emm_elem_strings[] = {
-	/* 9.9.3	EPS Mobility Management (EMM) information elements */
-	{ 0x00,	"Additional update result" },			/* 9.9.3.0A Additional update result */
-	{ 0x00,	"Additional update type" },				/* 9.9.3.0B Additional update type */
-	{ 0x00,	"Authentication failure parameter" },	/* 9.9.3.1	Authentication failure parameter */
-	{ 0x00,	"Authentication parameter AUTN" },		/* 9.9.3.2	Authentication parameter AUTN */
-	{ 0x00,	"Authentication parameter RAND" },		/* 9.9.3.3	Authentication parameter RAND */
-	{ 0x00,	"Authentication response parameter" },	/* 9.9.3.4	Authentication response parameter */
-	{ 0x00,	"CSFB response" },						/* 9.9.3.5	CSFB response */
-	{ 0x00,	"Daylight saving time" },				/* 9.9.3.6	Daylight saving time */
-	{ 0x00,	"Detach type" },						/* 9.9.3.7	Detach type */
-	{ 0x00,	"DRX parameter" },						/* 9.9.3.8	DRX parameter */
-	{ 0x00,	"EMM cause" },							/* 9.9.3.9	EMM cause */
-	{ 0x00,	"EPS attach result" },					/* 9.9.3.10	EPS attach result */
-	{ 0x00,	"EPS attach type" },					/* 9.9.3.11	EPS attach type */
-	{ 0x00,	"EPS mobile identity" },				/* 9.9.3.12	EPS mobile identity */
-	{ 0x00,	"EPS network feature support" },		/* 9.9.3.12	EPS mobile identity */
-	{ 0x00,	"EPS update result" },					/* 9.9.3.13	EPS update result */
-	{ 0x00,	"EPS update type" },					/* 9.9.3.14	EPS update type */
-	{ 0x00,	"ESM message container" },				/* 9.9.3.15	ESM message conta */
-	{ 0x00,	"GPRS timer" },							/* 9.9.3.16	GPRS timer ,See subclause 10.5.7.3 in 3GPP TS 24.008 [6]. */
-	{ 0x00,	"Identity type 2" },					/* 9.9.3.17	Identity type 2 ,See subclause 10.5.5.9 in 3GPP TS 24.008 [6]. */
-	{ 0x00,	"IMEISV request" },						/* 9.9.3.18	IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. */
-	{ 0x00,	"KSI and sequence number" },			/* 9.9.3.19	KSI and sequence number */
-	{ 0x00,	"MS network capability" },				/* 9.9.3.20	MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6]. */
-	{ 0x00,	"NAS key set identifier" },				/* 9.9.3.21	NAS key set identifier */
-	{ 0x00, "NAS message container" },				/* 9.9.3.22	NAS message container */
-	{ 0x00,	"NAS security algorithms" },			/* 9.9.3.23	NAS security algorithms */
-	{ 0x00,	"Network name" },						/* 9.9.3.24	Network name, See subclause 10.5.3.5a in 3GPP TS 24.008 [6]. */
-	{ 0x00,	"Nonce" },								/* 9.9.3.25	Nonce */
-	{ 0x00,	"Paging identity" },					/* 9.9.3.25A Paging identity */
-	{ 0x00,	"P-TMSI signature" },					/* 9.9.3.26	P-TMSI signature, See subclause 10.5.5.8 in 3GPP TS 24.008 [6]. */
-	{ 0x00,	"Service type" },						/* 9.9.3.27	Service type ,See subclause 10.5.5.15 in 3GPP TS 24.008 [6]. */
-	{ 0x00,	"Short MAC" },							/* 9.9.3.28	Short MAC */
-	{ 0x00,	"Time zone" },							/* 9.9.3.29	Time zone, See subclause 10.5.3.8 in 3GPP TS 24.008 [6]. */
-	{ 0x00,	"Time zone and time" },					/* 9.9.3.30	Time zone and time, See subclause 10.5.3.9 in 3GPP TS 24.008 [6]. */
-	{ 0x00,	"TMSI status" },						/* 9.9.3.31	TMSI status, See subclause 10.5.5.4 in 3GPP TS 24.008 [6]. */
-	{ 0x00,	"Tracking area identity" },				/* 9.9.3.32	Tracking area identity */
-	{ 0x00,	"Tracking area identity list" },		/* 9.9.3.33	Tracking area identity list */
-	{ 0x00,	"UE network capability" },				/* 9.9.3.34	UE network capability */
-	{ 0x00,	"UE radio capability information update needed" },	/* 9.9.3.35	UE radio capability information update needed */
-	{ 0x00,	"UE security capability" },				/* 9.9.3.36	UE security capability */
-	{ 0x00,	"Emergency Number List" },				/* 9.9.3.37	Emergency Number List */
-	{ 0x00,	"CLI" },								/* 9.9.3.38	CLI */
-	{ 0x00,	"SS Code" },							/* 9.9.3.39	SS Code */
-	{ 0x00,	"LCS indicator" },						/* 9.9.3.40	LCS indicator */
-	{ 0x00,	"LCS client identity" },				/* 9.9.3.41	LCS client identity */
+    /* 9.9.3    EPS Mobility Management (EMM) information elements */
+    { 0x00, "Additional update result" },           /* 9.9.3.0A Additional update result */
+    { 0x00, "Additional update type" },             /* 9.9.3.0B Additional update type */
+    { 0x00, "Authentication failure parameter" },   /* 9.9.3.1  Authentication failure parameter */
+    { 0x00, "Authentication parameter AUTN" },      /* 9.9.3.2  Authentication parameter AUTN */
+    { 0x00, "Authentication parameter RAND" },      /* 9.9.3.3  Authentication parameter RAND */
+    { 0x00, "Authentication response parameter" },  /* 9.9.3.4  Authentication response parameter */
+    { 0x00, "CSFB response" },                      /* 9.9.3.5  CSFB response */
+    { 0x00, "Daylight saving time" },               /* 9.9.3.6  Daylight saving time */
+    { 0x00, "Detach type" },                        /* 9.9.3.7  Detach type */
+    { 0x00, "DRX parameter" },                      /* 9.9.3.8  DRX parameter */
+    { 0x00, "EMM cause" },                          /* 9.9.3.9  EMM cause */
+    { 0x00, "EPS attach result" },                  /* 9.9.3.10 EPS attach result */
+    { 0x00, "EPS attach type" },                    /* 9.9.3.11 EPS attach type */
+    { 0x00, "EPS mobile identity" },                /* 9.9.3.12 EPS mobile identity */
+    { 0x00, "EPS network feature support" },        /* 9.9.3.12 EPS mobile identity */
+    { 0x00, "EPS update result" },                  /* 9.9.3.13 EPS update result */
+    { 0x00, "EPS update type" },                    /* 9.9.3.14 EPS update type */
+    { 0x00, "ESM message container" },              /* 9.9.3.15 ESM message conta */
+    { 0x00, "GPRS timer" },                         /* 9.9.3.16 GPRS timer ,See subclause 10.5.7.3 in 3GPP TS 24.008 [6]. */
+    { 0x00, "Identity type 2" },                    /* 9.9.3.17 Identity type 2 ,See subclause 10.5.5.9 in 3GPP TS 24.008 [6]. */
+    { 0x00, "IMEISV request" },                     /* 9.9.3.18 IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. */
+    { 0x00, "KSI and sequence number" },            /* 9.9.3.19 KSI and sequence number */
+    { 0x00, "MS network capability" },              /* 9.9.3.20 MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6]. */
+    { 0x00, "NAS key set identifier" },             /* 9.9.3.21 NAS key set identifier */
+    { 0x00, "NAS message container" },              /* 9.9.3.22 NAS message container */
+    { 0x00, "NAS security algorithms" },            /* 9.9.3.23 NAS security algorithms */
+    { 0x00, "Network name" },                       /* 9.9.3.24 Network name, See subclause 10.5.3.5a in 3GPP TS 24.008 [6]. */
+    { 0x00, "Nonce" },                              /* 9.9.3.25 Nonce */
+    { 0x00, "Paging identity" },                    /* 9.9.3.25A Paging identity */
+    { 0x00, "P-TMSI signature" },                   /* 9.9.3.26 P-TMSI signature, See subclause 10.5.5.8 in 3GPP TS 24.008 [6]. */
+    { 0x00, "Service type" },                       /* 9.9.3.27 Service type ,See subclause 10.5.5.15 in 3GPP TS 24.008 [6]. */
+    { 0x00, "Short MAC" },                          /* 9.9.3.28 Short MAC */
+    { 0x00, "Time zone" },                          /* 9.9.3.29 Time zone, See subclause 10.5.3.8 in 3GPP TS 24.008 [6]. */
+    { 0x00, "Time zone and time" },                 /* 9.9.3.30 Time zone and time, See subclause 10.5.3.9 in 3GPP TS 24.008 [6]. */
+    { 0x00, "TMSI status" },                        /* 9.9.3.31 TMSI status, See subclause 10.5.5.4 in 3GPP TS 24.008 [6]. */
+    { 0x00, "Tracking area identity" },             /* 9.9.3.32 Tracking area identity */
+    { 0x00, "Tracking area identity list" },        /* 9.9.3.33 Tracking area identity list */
+    { 0x00, "UE network capability" },              /* 9.9.3.34 UE network capability */
+    { 0x00, "UE radio capability information update needed" },  /* 9.9.3.35 UE radio capability information update needed */
+    { 0x00, "UE security capability" },             /* 9.9.3.36 UE security capability */
+    { 0x00, "Emergency Number List" },              /* 9.9.3.37 Emergency Number List */
+    { 0x00, "CLI" },                                /* 9.9.3.38 CLI */
+    { 0x00, "SS Code" },                            /* 9.9.3.39 SS Code */
+    { 0x00, "LCS indicator" },                      /* 9.9.3.40 LCS indicator */
+    { 0x00, "LCS client identity" },                /* 9.9.3.41 LCS client identity */
 
-	{ 0, NULL }
+    { 0, NULL }
 };
-#define	NUM_NAS_EMM_ELEM (sizeof(nas_emm_elem_strings)/sizeof(value_string))
+#define NUM_NAS_EMM_ELEM (sizeof(nas_emm_elem_strings)/sizeof(value_string))
 gint ett_nas_eps_emm_elem[NUM_NAS_EMM_ELEM];
 
 typedef enum
 {
-	/* 9.9.3	EPS Mobility Management (EMM) information elements */
-	DE_EMM_ADD_UPD_RES,			/* 9.9.3.0A Additional update result */
-	DE_EMM_ADD_UPD_TYPE,		/* 9.9.3.0B Additional update type */
-	DE_EMM_AUTH_FAIL_PAR,		/* 9.9.3.1	Authentication failure parameter (dissected in packet-gsm_a_dtap.c)*/
-	DE_EMM_AUTN,				/* 9.9.3.2	Authentication parameter AUTN */
-	DE_EMM_AUTH_PAR_RAND,		/* 9.9.3.3	Authentication parameter RAND */
-	DE_EMM_AUTH_RESP_PAR,		/* 9.9.3.4	Authentication response parameter */
-	DE_EMM_CSFB_RESP,			/* 9.9.3.5	CSFB response */
-	DE_EMM_DAYL_SAV_T,			/* 9.9.3.6	Daylight saving time */
-	DE_EMM_DET_TYPE,			/* 9.9.3.7	Detach type */
-	DE_EMM_DRX_PAR,				/* 9.9.3.8	DRX parameter (dissected in packet-gsm_a_gm.c)*/
-	DE_EMM_CAUSE,				/* 9.9.3.9	EMM cause */
-	DE_EMM_ATT_RES,				/* 9.9.3.10	EPS attach result (Coded inline */
-	DE_EMM_ATT_TYPE,			/* 9.9.3.11	EPS attach type (Coded Inline)*/
-	DE_EMM_EPS_MID,				/* 9.9.3.12	EPS mobile identity */
-	DE_EMM_EPS_NET_FEATURE_SUP, /* 9.9.3.12A EPS network feature support */
-	DE_EMM_EPS_UPD_RES,			/* 9.9.3.13	EPS update result ( Coded inline)*/
-	DE_EMM_EPS_UPD_TYPE,		/* 9.9.3.14	EPS update type */
-	DE_EMM_ESM_MSG_CONT,		/* 9.9.3.15	ESM message conta */
-	DE_EMM_GPRS_TIMER,			/* 9.9.3.16	GPRS timer ,See subclause 10.5.7.3 in 3GPP TS 24.008 [6]. */
-	DE_EMM_ID_TYPE_2,			/* 9.9.3.17	Identity type 2 ,See subclause 10.5.5.9 in 3GPP TS 24.008 [6]. */
-	DE_EMM_IMEISV_REQ,			/* 9.9.3.18	IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. */
-	DE_EMM_KSI_AND_SEQ_NO,		/* 9.9.3.19	KSI and sequence number */
-	DE_EMM_MS_NET_CAP,			/* 9.9.3.20	MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6]. */
-	DE_EMM_NAS_KEY_SET_ID,		/* 9.9.3.21	NAS key set identifier (coded inline)*/
-	DE_EMM_NAS_MSG_CONT,		/* 9.9.3.22	NAS message container */
-	DE_EMM_NAS_SEC_ALGS,		/* 9.9.3.23	NAS security algorithms */
-	DE_EMM_NET_NAME,			/* 9.9.3.24	Network name, See subclause 10.5.3.5a in 3GPP TS 24.008 [6]. */
-	DE_EMM_NONCE,				/* 9.9.3.25	Nonce */
-	DE_EMM_PAGING_ID,			/* 9.9.3.25A Paging identity */
-	DE_EMM_P_TMSI_SIGN,			/* 9.9.3.26	P-TMSI signature, See subclause 10.5.5.8 in 3GPP TS 24.008 [6]. */
-	DE_EMM_SERV_TYPE,			/* 9.9.3.27	Service type */
-	DE_EMM_SHORT_MAC,			/* 9.9.3.28	Short MAC */
-	DE_EMM_TZ,					/* 9.9.3.29	Time zone, See subclause 10.5.3.8 in 3GPP TS 24.008 [6]. */
-	DE_EMM_TZ_AND_T,			/* 9.9.3.30	Time zone and time, See subclause 10.5.3.9 in 3GPP TS 24.008 [6]. */
-	DE_EMM_TMSI_STAT,			/* 9.9.3.31	TMSI status, See subclause 10.5.5.4 in 3GPP TS 24.008 [6]. */
-	DE_EMM_TRAC_AREA_ID,		/* 9.9.3.32	Tracking area identity */
-	DE_EMM_TRAC_AREA_ID_LST,	/* 9.9.3.33	Tracking area identity list */
-	DE_EMM_UE_NET_CAP,			/* 9.9.3.34	UE network capability */
-	DE_EMM_UE_RA_CAP_INF_UPD_NEED,	/* 9.9.3.35	UE radio capability information update needed */
-	DE_EMM_UE_SEC_CAP,			/* 9.9.3.36	UE security capability */ 
-	DE_EMM_EMERG_NUM_LST,		/* 9.9.3.37	Emergency Number List */
-	DE_EMM_CLI,					/* 9.9.3.38	CLI */
-	DE_EMM_SS_CODE,				/* 9.9.3.39	SS Code */
-	DE_EMM_LCS_IND,				/* 9.9.3.40	LCS indicator */
-	DE_EMM_LCS_CLIENT_ID,		/* 9.9.3.41	LCS client identity */
-	DE_EMM_GEN_MSG_CONT_TYPE,	/* 9.9.3.42 Generic message container type */
-	DE_EMM_GEN_MSG_CONT,		/* 9.9.3.43 Generic message container */
-	DE_EMM_VOICE_DMN_PREF,		/* 9.9.3.44 Voice domain preference and UE's usage setting */
-	DE_EMM_NONE					/* NONE */
+    /* 9.9.3    EPS Mobility Management (EMM) information elements */
+    DE_EMM_ADD_UPD_RES,         /* 9.9.3.0A Additional update result */
+    DE_EMM_ADD_UPD_TYPE,        /* 9.9.3.0B Additional update type */
+    DE_EMM_AUTH_FAIL_PAR,       /* 9.9.3.1  Authentication failure parameter (dissected in packet-gsm_a_dtap.c)*/
+    DE_EMM_AUTN,                /* 9.9.3.2  Authentication parameter AUTN */
+    DE_EMM_AUTH_PAR_RAND,       /* 9.9.3.3  Authentication parameter RAND */
+    DE_EMM_AUTH_RESP_PAR,       /* 9.9.3.4  Authentication response parameter */
+    DE_EMM_CSFB_RESP,           /* 9.9.3.5  CSFB response */
+    DE_EMM_DAYL_SAV_T,          /* 9.9.3.6  Daylight saving time */
+    DE_EMM_DET_TYPE,            /* 9.9.3.7  Detach type */
+    DE_EMM_DRX_PAR,             /* 9.9.3.8  DRX parameter (dissected in packet-gsm_a_gm.c)*/
+    DE_EMM_CAUSE,               /* 9.9.3.9  EMM cause */
+    DE_EMM_ATT_RES,             /* 9.9.3.10 EPS attach result (Coded inline */
+    DE_EMM_ATT_TYPE,            /* 9.9.3.11 EPS attach type (Coded Inline)*/
+    DE_EMM_EPS_MID,             /* 9.9.3.12 EPS mobile identity */
+    DE_EMM_EPS_NET_FEATURE_SUP, /* 9.9.3.12A EPS network feature support */
+    DE_EMM_EPS_UPD_RES,         /* 9.9.3.13 EPS update result ( Coded inline)*/
+    DE_EMM_EPS_UPD_TYPE,        /* 9.9.3.14 EPS update type */
+    DE_EMM_ESM_MSG_CONT,        /* 9.9.3.15 ESM message conta */
+    DE_EMM_GPRS_TIMER,          /* 9.9.3.16 GPRS timer ,See subclause 10.5.7.3 in 3GPP TS 24.008 [6]. */
+    DE_EMM_ID_TYPE_2,           /* 9.9.3.17 Identity type 2 ,See subclause 10.5.5.9 in 3GPP TS 24.008 [6]. */
+    DE_EMM_IMEISV_REQ,          /* 9.9.3.18 IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. */
+    DE_EMM_KSI_AND_SEQ_NO,      /* 9.9.3.19 KSI and sequence number */
+    DE_EMM_MS_NET_CAP,          /* 9.9.3.20 MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6]. */
+    DE_EMM_NAS_KEY_SET_ID,      /* 9.9.3.21 NAS key set identifier (coded inline)*/
+    DE_EMM_NAS_MSG_CONT,        /* 9.9.3.22 NAS message container */
+    DE_EMM_NAS_SEC_ALGS,        /* 9.9.3.23 NAS security algorithms */
+    DE_EMM_NET_NAME,            /* 9.9.3.24 Network name, See subclause 10.5.3.5a in 3GPP TS 24.008 [6]. */
+    DE_EMM_NONCE,               /* 9.9.3.25 Nonce */
+    DE_EMM_PAGING_ID,           /* 9.9.3.25A Paging identity */
+    DE_EMM_P_TMSI_SIGN,         /* 9.9.3.26 P-TMSI signature, See subclause 10.5.5.8 in 3GPP TS 24.008 [6]. */
+    DE_EMM_SERV_TYPE,           /* 9.9.3.27 Service type */
+    DE_EMM_SHORT_MAC,           /* 9.9.3.28 Short MAC */
+    DE_EMM_TZ,                  /* 9.9.3.29 Time zone, See subclause 10.5.3.8 in 3GPP TS 24.008 [6]. */
+    DE_EMM_TZ_AND_T,            /* 9.9.3.30 Time zone and time, See subclause 10.5.3.9 in 3GPP TS 24.008 [6]. */
+    DE_EMM_TMSI_STAT,           /* 9.9.3.31 TMSI status, See subclause 10.5.5.4 in 3GPP TS 24.008 [6]. */
+    DE_EMM_TRAC_AREA_ID,        /* 9.9.3.32 Tracking area identity */
+    DE_EMM_TRAC_AREA_ID_LST,    /* 9.9.3.33 Tracking area identity list */
+    DE_EMM_UE_NET_CAP,          /* 9.9.3.34 UE network capability */
+    DE_EMM_UE_RA_CAP_INF_UPD_NEED,  /* 9.9.3.35 UE radio capability information update needed */
+    DE_EMM_UE_SEC_CAP,          /* 9.9.3.36 UE security capability */ 
+    DE_EMM_EMERG_NUM_LST,       /* 9.9.3.37 Emergency Number List */
+    DE_EMM_CLI,                 /* 9.9.3.38 CLI */
+    DE_EMM_SS_CODE,             /* 9.9.3.39 SS Code */
+    DE_EMM_LCS_IND,             /* 9.9.3.40 LCS indicator */
+    DE_EMM_LCS_CLIENT_ID,       /* 9.9.3.41 LCS client identity */
+    DE_EMM_GEN_MSG_CONT_TYPE,   /* 9.9.3.42 Generic message container type */
+    DE_EMM_GEN_MSG_CONT,        /* 9.9.3.43 Generic message container */
+    DE_EMM_VOICE_DMN_PREF,      /* 9.9.3.44 Voice domain preference and UE's usage setting */
+    DE_EMM_NONE                 /* NONE */
 
 }
 nas_emm_elem_idx_t;
 
 /* TODO: Update to latest spec */
-/* 9.9.3	EPS Mobility Management (EMM) information elements
- * 9.9.3.1	Authentication failure parameter
+/* 9.9.3    EPS Mobility Management (EMM) information elements
+ * 9.9.3.1  Authentication failure parameter
  * See subclause 10.5.3.2.2 in 3GPP TS 24.008 [6].
  * (dissected in packet-gsm_a_dtap.c)
  */
 /*
- * 9.9.3.2	Authentication parameter AUTN
+ * 9.9.3.2  Authentication parameter AUTN
  * See subclause 10.5.3.1.1 in 3GPP TS 24.008 [6].
  */
 /*
- * 9.9.3.3	Authentication parameter RAND
+ * 9.9.3.3  Authentication parameter RAND
  * See subclause 10.5.3.1 in 3GPP TS 24.008 [6].
  */
 /*
- * 9.9.3.4	Authentication response parameter
+ * 9.9.3.4  Authentication response parameter
  */
 static guint16
 de_emm_auth_resp_par(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+    guint32 curr_offset;
 
-	curr_offset = offset;
+    curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_nas_eps_emm_res, tvb, curr_offset, len, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_res, tvb, curr_offset, len, FALSE);
 
-	return len;
+    return len;
 }
 /*
- * 9.9.3.4A	Ciphering key sequence number
+ * 9.9.3.4A Ciphering key sequence number
  * See subclause 9.9.3.19 in 3GPP TS 24.008 [13].
  */
 
 /*
- * 9.9.3.5	CSFB response
+ * 9.9.3.5  CSFB response
  */
 
 /*
@@ -658,52 +655,52 @@ de_emm_auth_resp_par(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
  */
 
 static const value_string nas_eps_emm_csfb_resp_vals[] = {
-	{ 0x0,	"CS fallback rejected by the UE"},
-	{ 0x1,	"CS fallback accepted by the UE"},
-	{ 0, NULL }
+    { 0x0,  "CS fallback rejected by the UE"},
+    { 0x1,  "CS fallback accepted by the UE"},
+    { 0, NULL }
 };
 
 static guint16
 de_emm_csfb_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset, bit_offset;
+    guint32 curr_offset, bit_offset;
 
-	curr_offset = offset;
+    curr_offset = offset;
 
-	/* bit 4 Spare */
-	bit_offset = curr_offset<<3;
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset+4, 1, FALSE);
+    /* bit 4 Spare */
+    bit_offset = curr_offset<<3;
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset+4, 1, FALSE);
 
-	proto_tree_add_item(tree, hf_nas_eps_emm_csfb_resp, tvb, curr_offset, 1, FALSE);
-	curr_offset++;
+    proto_tree_add_item(tree, hf_nas_eps_emm_csfb_resp, tvb, curr_offset, 1, FALSE);
+    curr_offset++;
 
-	return(curr_offset-offset);
+    return(curr_offset-offset);
 }
 /*
- * 9.9.3.6	Daylight saving time
+ * 9.9.3.6  Daylight saving time
  * See subclause 10.5.3.12 in 3GPP TS 24.008 [6].
  */
 /*
- * 9.9.3.7	Detach type
+ * 9.9.3.7  Detach type
  * Coded inline
  */
 static const value_string nas_eps_emm_switch_off_vals[] = {
-	{ 0x0,	"Normal detach"},
-	{ 0x1,	"Switch off"},
-	{ 0, NULL }
+    { 0x0,  "Normal detach"},
+    { 0x1,  "Switch off"},
+    { 0, NULL }
 };
 /* Type of detach (octet 1)
  * In the UE to network direction:
  */
 static const value_string nas_eps_emm_type_of_dtatch_UL_vals[] = {
-	{ 0x1,	"EPS detach"},
-	{ 0x2,	"IMSI detach"},
-	{ 0x3,	"Combined EPS/IMSI detach"},
-	{ 0x4,	"Combined EPS/IMSI detach"}, /* All other values are interpreted as "combined EPS/IMSI detach" in this version of the protocol.*/
-	{ 0x5,	"Combined EPS/IMSI detach"}, /* -"- */
-	{ 0x6,	"Reserved"},
-	{ 0x7,	"Reserved"},
-	{ 0, NULL }
+    { 0x1,  "EPS detach"},
+    { 0x2,  "IMSI detach"},
+    { 0x3,  "Combined EPS/IMSI detach"},
+    { 0x4,  "Combined EPS/IMSI detach"}, /* All other values are interpreted as "combined EPS/IMSI detach" in this version of the protocol.*/
+    { 0x5,  "Combined EPS/IMSI detach"}, /* -"- */
+    { 0x6,  "Reserved"},
+    { 0x7,  "Reserved"},
+    { 0, NULL }
 };
 
 /* 
@@ -711,188 +708,188 @@ static const value_string nas_eps_emm_type_of_dtatch_UL_vals[] = {
  */
 
 static const value_string nas_eps_emm_type_of_dtatch_DL_vals[] = {
-	{ 0x1,	"Re-attach required"},
-	{ 0x2,	"Re-attach not required"},
-	{ 0x3,	"IMSI detach"},
-	{ 0x4,	"IMSI detach"}, /* All other values are interpreted as "re-attach not required" in this version of the protocol.*/
-	{ 0x5,	"IMSI detach"}, /* -"- */
-	{ 0x6,	"Reserved"},
-	{ 0x7,	"Reserved"},
-	{ 0, NULL }
+    { 0x1,  "Re-attach required"},
+    { 0x2,  "Re-attach not required"},
+    { 0x3,  "IMSI detach"},
+    { 0x4,  "IMSI detach"}, /* All other values are interpreted as "re-attach not required" in this version of the protocol.*/
+    { 0x5,  "IMSI detach"}, /* -"- */
+    { 0x6,  "Reserved"},
+    { 0x7,  "Reserved"},
+    { 0, NULL }
 };
 
 /*
- * 9.9.3.8	DRX parameter
+ * 9.9.3.8  DRX parameter
  * See subclause 10.5.5.6 in 3GPP TS 24.008 [13].
  */
 /*
- * 9.9.3.9	EMM cause
+ * 9.9.3.9  EMM cause
  */
 static const value_string nas_eps_emm_cause_values[] = {
-	{ 0x2,	"IMSI unknown in HLR"},
-	{ 0x3,	"Illegal MS"},
-	{ 0x6,	"Illegal ME"},
-	{ 0x7,	"EPS services not allowed"},
-	{ 0x8,	"EPS services and non-EPS services not allowed"},
-	{ 0x9,	"UE identity cannot be derived by the network"},
-	{ 0xa,	"Implicitly detached"},
-	{ 0xb,	"PLMN not allowed"},
-	{ 0xc,	"Tracking Area not allowed"},
-	{ 0xd,	"Roaming not allowed in this tracking area"},
-	{ 0xe,	"EPS services not allowed in this PLMN"},
-	{ 0xf,	"No Suitable Cells In tracking area"},
-	{ 0x10,	"MSC temporarily not reachable"},
-	{ 0x11,	"Network failure"},
-	{ 0x12,	"CS domain not available"},
-	{ 0x13,	"ESM failure"},
-	{ 0x14,	"MAC failure"},
-	{ 0x15,	"Synch failure"},
-	{ 0x16,	"Congestion"},
-	{ 0x17,	"UE security capabilities mismatch"},
-	{ 0x18,	"Security mode rejected, unspecified"},
-	{ 0x19,	"Not authorized for this CSG"},
-	{ 0x1a,	"Non-EPS authentication unacceptable"},
-	{ 0x26,	"CS fallback call establishment not allowed"},
-	{ 0x27,	"CS domain temporarily not available"},
-	{ 0x28,	"No EPS bearer context activated"},
-	{ 0x5f,	"Semantically incorrect message"},
-	{ 0x60,	"Invalid mandatory information"},
-	{ 0x61,	"Message type non-existent or not implemented"},
-	{ 0x62,	"Message type not compatible with the protocol state"},
-	{ 0x63,	"Information element non-existent or not implemented"},
-	{ 0x64,	"Conditional IE error"},
-	{ 0x65,	"Message not compatible with the protocol state"},
-	{ 0x6f,	"Protocol error, unspecified"},
-	{ 0, NULL }
+    { 0x2,  "IMSI unknown in HLR"},
+    { 0x3,  "Illegal MS"},
+    { 0x6,  "Illegal ME"},
+    { 0x7,  "EPS services not allowed"},
+    { 0x8,  "EPS services and non-EPS services not allowed"},
+    { 0x9,  "UE identity cannot be derived by the network"},
+    { 0xa,  "Implicitly detached"},
+    { 0xb,  "PLMN not allowed"},
+    { 0xc,  "Tracking Area not allowed"},
+    { 0xd,  "Roaming not allowed in this tracking area"},
+    { 0xe,  "EPS services not allowed in this PLMN"},
+    { 0xf,  "No Suitable Cells In tracking area"},
+    { 0x10, "MSC temporarily not reachable"},
+    { 0x11, "Network failure"},
+    { 0x12, "CS domain not available"},
+    { 0x13, "ESM failure"},
+    { 0x14, "MAC failure"},
+    { 0x15, "Synch failure"},
+    { 0x16, "Congestion"},
+    { 0x17, "UE security capabilities mismatch"},
+    { 0x18, "Security mode rejected, unspecified"},
+    { 0x19, "Not authorized for this CSG"},
+    { 0x1a, "Non-EPS authentication unacceptable"},
+    { 0x26, "CS fallback call establishment not allowed"},
+    { 0x27, "CS domain temporarily not available"},
+    { 0x28, "No EPS bearer context activated"},
+    { 0x5f, "Semantically incorrect message"},
+    { 0x60, "Invalid mandatory information"},
+    { 0x61, "Message type non-existent or not implemented"},
+    { 0x62, "Message type not compatible with the protocol state"},
+    { 0x63, "Information element non-existent or not implemented"},
+    { 0x64, "Conditional IE error"},
+    { 0x65, "Message not compatible with the protocol state"},
+    { 0x6f, "Protocol error, unspecified"},
+    { 0, NULL }
 };
 
 static guint16
 de_emm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+    guint32 curr_offset;
 
-	curr_offset = offset;
+    curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_nas_eps_emm_cause, tvb, curr_offset, 1, FALSE);
-	curr_offset++;
+    proto_tree_add_item(tree, hf_nas_eps_emm_cause, tvb, curr_offset, 1, FALSE);
+    curr_offset++;
 
-	return curr_offset-offset;}
+    return curr_offset-offset;}
 /*
- * 9.9.3.10	EPS attach result
+ * 9.9.3.10 EPS attach result
  */
 
 static const value_string nas_eps_emm_EPS_attach_result_values[] = {
-	{ 0,	"reserved"},
-	{ 1,	"EPS only"},
-	{ 2,	"Combined EPS/IMSI attach"},
-	{ 3,	"reserved"},
-	{ 4,	"reserved"},
-	{ 5,	"reserved"},
-	{ 6,	"reserved"},
-	{ 7,	"reserved"},
-	{ 0, NULL }
+    { 0,    "reserved"},
+    { 1,    "EPS only"},
+    { 2,    "Combined EPS/IMSI attach"},
+    { 3,    "reserved"},
+    { 4,    "reserved"},
+    { 5,    "reserved"},
+    { 6,    "reserved"},
+    { 7,    "reserved"},
+    { 0, NULL }
 };
 /* Coded inline */
 
 /*
- * 9.9.3.11	EPS attach type
+ * 9.9.3.11 EPS attach type
  */
 
 static const value_string nas_eps_emm_eps_att_type_vals[] = {
-	{ 0,	"EPS attach(unused)"},
-	{ 1,	"EPS attach"},
-	{ 2,	"Combined handover EPS/IMSI attach"},
-	{ 3,	"EPS attach(unused)"},
-	{ 4,	"EPS attach(unused)"},
-	{ 5,	"EPS attach(unused)"},
-	{ 6,	"EPS emergency attach"},
-	{ 7,	"Reserved"},
-	{ 0, NULL }
+    { 0,    "EPS attach(unused)"},
+    { 1,    "EPS attach"},
+    { 2,    "Combined handover EPS/IMSI attach"},
+    { 3,    "EPS attach(unused)"},
+    { 4,    "EPS attach(unused)"},
+    { 5,    "EPS attach(unused)"},
+    { 6,    "EPS emergency attach"},
+    { 7,    "Reserved"},
+    { 0, NULL }
 };
 /* Coded inline */
 
 /*
- * 9.9.3.12	EPS mobile identity
+ * 9.9.3.12 EPS mobile identity
  */
 static char *
 unpack_eps_mid_digits(tvbuff_t *tvb) {
 
-	int length;
-	guint8 octet;
-	int i=0;
-	int offset = 0;
-	char *digit_str;
+    int length;
+    guint8 octet;
+    int i=0;
+    int offset = 0;
+    char *digit_str;
 
-	length = tvb_length(tvb);
+    length = tvb_length(tvb);
 
-	digit_str = ep_alloc(length*2);
+    digit_str = ep_alloc(length*2);
 
-	/* Get identity digit 1 */
-	octet = tvb_get_guint8(tvb,offset);
-	digit_str[i++] = (((octet>>4) & 0x0f) + '0');
-	offset++;
+    /* Get identity digit 1 */
+    octet = tvb_get_guint8(tvb,offset);
+    digit_str[i++] = (((octet>>4) & 0x0f) + '0');
+    offset++;
 
-	/* Loop on following octets to retrieve other identity digits */
-	while ( offset < length ){
+    /* Loop on following octets to retrieve other identity digits */
+    while ( offset < length ){
 
-		octet = tvb_get_guint8(tvb,offset);
-		digit_str[i] = ((octet & 0x0f) + '0');
-		i++;
+        octet = tvb_get_guint8(tvb,offset);
+        digit_str[i] = ((octet & 0x0f) + '0');
+        i++;
 
-		/*
-		 * unpack second value in byte
-		 */
-		octet = octet >> 4;
+        /*
+         * unpack second value in byte
+         */
+        octet = octet >> 4;
 
-		if (octet == 0x0f)	/* odd number bytes - hit filler */
-			break;
+        if (octet == 0x0f)  /* odd number bytes - hit filler */
+            break;
 
-		digit_str[i] = ((octet & 0x0f) + '0');
-		i++;
-		offset++;
+        digit_str[i] = ((octet & 0x0f) + '0');
+        i++;
+        offset++;
 
-	}
-	digit_str[i]= '\0';
-	return digit_str;
+    }
+    digit_str[i]= '\0';
+    return digit_str;
 }
 
 static const value_string nas_eps_emm_type_of_id_vals[] = {
-	{ 0,	"reserved"},
-	{ 1,	"IMSI"},
-	{ 2,	"reserved"},
-	{ 3,	"IMEI"},
-	{ 4,	"reserved"},
-	{ 5,	"reserved"},
-	{ 6,	"GUTI"},
-	{ 7,	"reserved"},
-	{ 0, NULL }
+    { 0,    "reserved"},
+    { 1,    "IMSI"},
+    { 2,    "reserved"},
+    { 3,    "IMEI"},
+    { 4,    "reserved"},
+    { 5,    "reserved"},
+    { 6,    "GUTI"},
+    { 7,    "reserved"},
+    { 0, NULL }
 };
 static guint16
 de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
-	guint8 octet;
-	char	*digit_str;
-	tvbuff_t *new_tvb;
+    guint32 curr_offset;
+    guint8 octet;
+    char    *digit_str;
+    tvbuff_t *new_tvb;
 
-	curr_offset = offset;
+    curr_offset = offset;
 
-	octet = tvb_get_guint8(tvb,offset);
-	/* Type of identity (octet 3) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_odd_even, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_type_of_id, tvb, curr_offset, 1, FALSE);
-	switch (octet&0x7){
-		case 1:
-			/* IMSI */
-			new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
-			digit_str = unpack_eps_mid_digits(new_tvb);
-			proto_tree_add_string(tree, hf_nas_eps_emm_imsi, new_tvb, 0, -1, digit_str);
-			break;
-		case 3:
-			/* IMEI */
-			new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
-			digit_str = unpack_eps_mid_digits(new_tvb);
-			proto_tree_add_string(tree, hf_nas_eps_emm_imei, new_tvb, 0, -1, digit_str);
+    octet = tvb_get_guint8(tvb,offset);
+    /* Type of identity (octet 3) */
+    proto_tree_add_item(tree, hf_nas_eps_emm_odd_even, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_type_of_id, tvb, curr_offset, 1, FALSE);
+    switch (octet&0x7){
+        case 1:
+            /* IMSI */
+            new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
+            digit_str = unpack_eps_mid_digits(new_tvb);
+            proto_tree_add_string(tree, hf_nas_eps_emm_imsi, new_tvb, 0, -1, digit_str);
+            break;
+        case 3:
+            /* IMEI */
+            new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
+            digit_str = unpack_eps_mid_digits(new_tvb);
+            proto_tree_add_string(tree, hf_nas_eps_emm_imei, new_tvb, 0, -1, digit_str);
 			break;
 		case 6:
 			/* GUTI */
@@ -1080,13 +1077,11 @@ static const value_string nas_eps_emm_NAS_key_set_identifier_vals[] = {
 	{ 0, NULL }
 };
 
-/* Takes bit offset as input and consusmes 4 bits */
+/* Takes bit offset as input and consumes 4 bits */
 static void
-de_emm_nas_key_set_id_bits(tvbuff_t *tvb, proto_tree *tree, guint32 bit_offset, gchar *add_string)
+de_emm_nas_key_set_id_bits(tvbuff_t *tvb, proto_tree *tree, guint32 bit_offset, const gchar *add_string)
 {
 	proto_item *item;
-	
-
 
 	/* Type of security context flag (TSC) (octet 1)	V	1/2 */
 	proto_tree_add_bits_item(tree, hf_nas_eps_tsc, tvb, bit_offset, 1, FALSE);
@@ -4162,10 +4157,10 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 static void
 dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *item;
-	proto_tree *nas_eps_tree;
+	proto_item 	*item;
+	proto_tree 	*nas_eps_tree;
 	guint8		pd, security_header_type;
-	int			offset = 0;
+	int		offset = 0;
 	guint32		len;
 	guint32		msg_auth_code;
 
@@ -4950,6 +4945,7 @@ void proto_register_nas_eps(void) {
 	/* Register dissector */
 	register_dissector(PFNAME, dissect_nas_eps, proto_nas_eps);
 }
+
 void
 proto_reg_handoff_nas_eps(void)
 {
