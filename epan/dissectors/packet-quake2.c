@@ -91,7 +91,6 @@ dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, int direction _U_)
 {
 	proto_tree	*cl_tree = NULL;
-	proto_item	*cl_item = NULL;
 	guint8		*text;
 	int		len;
 	int		offset;
@@ -100,14 +99,10 @@ dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	marker = tvb_get_ntohl(tvb, 0);
 	if (tree) {
+		proto_item *cl_item = NULL;
 		cl_item = proto_tree_add_text(tree, tvb,
 				0, -1, "Connectionless");
-		if (cl_item)
-			cl_tree = proto_item_add_subtree(
-				cl_item, ett_quake2_connectionless);
-	}
-
-	if (cl_tree) {
+		cl_tree = proto_item_add_subtree(cl_item, ett_quake2_connectionless);
 		proto_tree_add_uint(cl_tree, hf_quake2_connectionless_marker,
 				tvb, 0, 4, marker);
 	}
@@ -150,8 +145,8 @@ dissect_quake2_client_commands_move(tvbuff_t *tvb, packet_info *pinfo _U_,
 	#define CM_IMPULSE  (1<<7)
 	/* qshared.h */
 	#define	BUTTON_ATTACK 	1
-	#define BUTTON_USE		2
-	#define BUTTON_ANY		128
+	#define BUTTON_USE	2
+	#define BUTTON_ANY	128
 
 	guint8 	chksum;
 	guint32 lastframe;
@@ -408,12 +403,9 @@ dissect_quake2_client_commands(tvbuff_t *tvb, packet_info *pinfo,
 					hf_quake2_game_client_command, tvb, offset, 1,
 					client_cmd_type);
 
-			if (cmd_type_item) {
-				proto_item_append_text(cmd_type_item, " (%s)",
-						val_to_str(client_cmd_type, names_client_cmd, "%u"));
-				clc_tree = proto_item_add_subtree(
-						cmd_type_item, ett_quake2_game_clc_cmd);
-			}
+			proto_item_append_text(cmd_type_item, " (%s)",
+					       val_to_str(client_cmd_type, names_client_cmd, "%u"));
+			clc_tree = proto_item_add_subtree(cmd_type_item, ett_quake2_game_clc_cmd);
 		}
 
 		offset++;
@@ -504,7 +496,6 @@ dissect_quake2_server_commands(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree)
 {
 	tvbuff_t *next_tvb = NULL;
-	proto_item *cmd_type_item = NULL;
 	guint8 server_cmd_type;
 	guint rest_length = 0;
 	int offset = 0;
@@ -512,13 +503,12 @@ dissect_quake2_server_commands(tvbuff_t *tvb, packet_info *pinfo,
 	server_cmd_type = tvb_get_guint8(tvb, offset);
 
 	if (tree) {
+		proto_item *cmd_type_item;
 		cmd_type_item = proto_tree_add_uint(tree,
 				hf_quake2_game_server_command, tvb, offset, 1, server_cmd_type);
 
-		if (cmd_type_item) {
-			proto_item_append_text(cmd_type_item, " (%s)",
-					val_to_str(server_cmd_type, names_server_cmd, "%u"));
-		}
+		proto_item_append_text(cmd_type_item, " (%s)",
+				       val_to_str(server_cmd_type, names_server_cmd, "%u"));
 	}
 
 	offset++;
@@ -584,7 +574,6 @@ static const value_string names_reliable[] = {
         { 0, NULL }
 };
 
-
 static const value_string names_direction[] = {
 #define DIR_C2S 0
 	{ DIR_C2S, "Client to Server" },
@@ -598,24 +587,22 @@ static void
 dissect_quake2_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int direction)
 {
-	proto_tree	*game_tree = NULL;
-	proto_item	*game_item = NULL;
-	guint32 seq1;
-	guint32 seq2;
-	int rel1;
-	int rel2;
-	int offset;
-	guint		rest_length;
+	proto_tree *game_tree = NULL;
+	guint32    seq1;
+	guint32    seq2;
+	int        rel1;
+	int        rel2;
+	int        offset;
+	guint      rest_length;
 
 	direction = (pinfo->destport == gbl_quake2ServerPort) ?
 			DIR_C2S : DIR_S2C;
 
 	if (tree) {
+		proto_item *game_item;
 		game_item = proto_tree_add_text(tree, tvb,
 				0, -1, "Game");
-		if (game_item)
-			game_tree = proto_item_add_subtree(
-				game_item, ett_quake2_game);
+		game_tree = proto_item_add_subtree(game_item, ett_quake2_game);
 	}
 
 	offset = 0;
@@ -627,14 +614,12 @@ dissect_quake2_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 		proto_item *seq1_item = proto_tree_add_text(game_tree,
 			tvb, offset, 4, "Current Sequence: %u (%s)",
 			seq1, val_to_str(rel1,names_reliable,"%u"));
-		if (seq1_item) {
-			proto_tree *seq1_tree = proto_item_add_subtree(
-				seq1_item, ett_quake2_game_seq1);
-			proto_tree_add_uint(seq1_tree, hf_quake2_game_seq1,
-					tvb, offset, 4, seq1);
-			proto_tree_add_boolean(seq1_tree, hf_quake2_game_rel1,
-					tvb, offset+3, 1, rel1);
-		}
+		proto_tree *seq1_tree = proto_item_add_subtree(
+			seq1_item, ett_quake2_game_seq1);
+		proto_tree_add_uint(seq1_tree, hf_quake2_game_seq1,
+				    tvb, offset, 4, seq1);
+		proto_tree_add_boolean(seq1_tree, hf_quake2_game_rel1,
+				       tvb, offset+3, 1, rel1);
 	}
 	offset += 4;
 
@@ -645,14 +630,12 @@ dissect_quake2_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 		proto_item *seq2_item = proto_tree_add_text(game_tree,
 			tvb, offset, 4, "Acknowledge Sequence: %u (%s)",
 			seq2, val_to_str(rel2,names_reliable,"%u"));
-		if (seq2_item) {
-			proto_tree *seq2_tree = proto_item_add_subtree(
-				seq2_item, ett_quake2_game_seq2);
-			proto_tree_add_uint(seq2_tree, hf_quake2_game_seq2,
-					tvb, offset, 4, seq2);
-			proto_tree_add_boolean(seq2_tree, hf_quake2_game_rel2,
-					tvb, offset+3, 1, rel2);
-		}
+		proto_tree *seq2_tree = proto_item_add_subtree(
+			seq2_item, ett_quake2_game_seq2);
+		proto_tree_add_uint(seq2_tree, hf_quake2_game_seq2,
+				    tvb, offset, 4, seq2);
+		proto_tree_add_boolean(seq2_tree, hf_quake2_game_rel2,
+				       tvb, offset+3, 1, rel2);
 	}
 	offset += 4;
 
@@ -673,28 +656,22 @@ dissect_quake2_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 		tvb_new_subset(tvb, offset, rest_length , rest_length);
 
 		if (direction == DIR_C2S) {
-			proto_item *c_item = NULL;
 			proto_tree *c_tree = NULL;
 			if (tree) {
+				proto_item *c_item;
 				c_item = proto_tree_add_text(game_tree, next_tvb,
-				0, -1, "Client Commands");
-				if (c_item) {
-					c_tree = proto_item_add_subtree(
-						c_item, ett_quake2_game_clc);
-				}
+							     0, -1, "Client Commands");
+				c_tree = proto_item_add_subtree(c_item, ett_quake2_game_clc);
 			}
 			dissect_quake2_client_commands(next_tvb, pinfo, c_tree);
 		}
 		else {
-			proto_item *c_item = NULL;
 			proto_tree *c_tree = NULL;
 			if (tree) {
+				proto_item *c_item;
 				c_item = proto_tree_add_text(game_tree, next_tvb,
-				0, -1, "Server Commands");
-				if (c_item) {
-					c_tree = proto_item_add_subtree(
-					c_item, ett_quake2_game_svc);
-				}
+							     0, -1, "Server Commands");
+				c_tree = proto_item_add_subtree(c_item, ett_quake2_game_svc);
 			}
 			dissect_quake2_server_commands(next_tvb, pinfo, c_tree);
 		}
@@ -706,7 +683,6 @@ static void
 dissect_quake2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*quake2_tree = NULL;
-	proto_item	*quake2_item = NULL;
 	int		direction;
 
 	direction = (pinfo->destport == gbl_quake2ServerPort) ?
@@ -718,19 +694,16 @@ dissect_quake2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			names_direction, "%u"));
 
 	if (tree) {
+		proto_item *quake2_item;
 		quake2_item = proto_tree_add_item(tree, proto_quake2,
-				tvb, 0, -1, FALSE);
-		if (quake2_item)
-			quake2_tree = proto_item_add_subtree(
-				quake2_item, ett_quake2);
-			if (quake2_tree) {
-				proto_tree_add_uint_format(quake2_tree,
-					direction == DIR_S2C ?
-					hf_quake2_s2c :
-					hf_quake2_c2s,
-					tvb, 0, 0, 1,
-					"Direction: %s", val_to_str(direction, names_direction, "%u"));
-			}
+						  tvb, 0, -1, FALSE);
+		quake2_tree = proto_item_add_subtree(quake2_item, ett_quake2);
+		proto_tree_add_uint_format(quake2_tree,
+					   direction == DIR_S2C ?
+					   hf_quake2_s2c :
+					   hf_quake2_c2s,
+					   tvb, 0, 0, 1,
+					   "Direction: %s", val_to_str(direction, names_direction, "%u"));
 	}
 
 	if (tvb_get_ntohl(tvb, 0) == 0xffffffff) {
@@ -756,28 +729,7 @@ dissect_quake2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-void
-proto_reg_handoff_quake2(void)
-{
-	static gboolean Initialized=FALSE;
-	static dissector_handle_t quake2_handle;
-	static guint ServerPort;
-
-	if (!Initialized) {
-		quake2_handle = create_dissector_handle(dissect_quake2,
-				proto_quake2);
-		data_handle = find_dissector("data");
-		Initialized=TRUE;
-	} else {
-		dissector_delete("udp.port", ServerPort, quake2_handle);
-	}
-
-        /* set port for future deletes */
-        ServerPort=gbl_quake2ServerPort;
-
-	dissector_add("udp.port", gbl_quake2ServerPort, quake2_handle);
-}
-
+void proto_reg_handoff_quake2(void);
 
 void
 proto_register_quake2(void)
@@ -924,3 +876,28 @@ proto_register_quake2(void)
 					"Set the UDP port for the Quake II Server",
 					10, &gbl_quake2ServerPort);
 }
+
+
+void
+proto_reg_handoff_quake2(void)
+{
+	static gboolean Initialized=FALSE;
+	static dissector_handle_t quake2_handle;
+	static guint ServerPort;
+
+	if (!Initialized) {
+		quake2_handle = create_dissector_handle(dissect_quake2,
+				proto_quake2);
+		data_handle = find_dissector("data");
+		Initialized=TRUE;
+	} else {
+		dissector_delete("udp.port", ServerPort, quake2_handle);
+	}
+
+        /* set port for future deletes */
+        ServerPort=gbl_quake2ServerPort;
+
+	dissector_add("udp.port", gbl_quake2ServerPort, quake2_handle);
+}
+
+

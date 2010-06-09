@@ -356,7 +356,6 @@ dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8		command;
 	int		direction;
-	proto_item	*control_item = NULL;
 	proto_tree	*control_tree = NULL;
 	guint		rest_length;
 	tvbuff_t	*next_tvb;
@@ -371,13 +370,12 @@ dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
+		proto_item *control_item;
 		control_item = proto_tree_add_text(tree, tvb,
 				0, -1, "Control %s: %s",
 				val_to_str(direction, names_control_direction, "%u"),
 				val_to_str(command, names_control_command, "%u"));
-		if (control_item)
-			control_tree = proto_item_add_subtree(control_item,
-						ett_quake_control);
+		control_tree = proto_item_add_subtree(control_item, ett_quake_control);
 		proto_tree_add_uint(control_tree, hf_quake_control_command,
 					tvb, 0, 1, command);
 	}
@@ -387,39 +385,39 @@ dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (command) {
 		case CCREQ_CONNECT:
 			dissect_quake_CCREQ_CONNECT
-			(next_tvb, control_tree);
+				(next_tvb, control_tree);
 		break;
 		case CCREQ_SERVER_INFO:
 			dissect_quake_CCREQ_SERVER_INFO
-			(next_tvb, control_tree);
+				(next_tvb, control_tree);
 		break;
 		case CCREQ_PLAYER_INFO:
 			dissect_quake_CCREQ_PLAYER_INFO
-			(next_tvb, control_tree);
+				(next_tvb, control_tree);
 		break;
 		case CCREQ_RULE_INFO:
 			dissect_quake_CCREQ_RULE_INFO
-			(next_tvb, control_tree);
+				(next_tvb, control_tree);
 		break;
 		case CCREP_ACCEPT:
 			dissect_quake_CCREP_ACCEPT
-			(next_tvb, pinfo, control_tree);
+				(next_tvb, pinfo, control_tree);
 		break;
 		case CCREP_REJECT:
 			dissect_quake_CCREP_REJECT
-			(next_tvb, control_tree);
+				(next_tvb, control_tree);
 		break;
 		case CCREP_SERVER_INFO:
 			dissect_quake_CCREP_SERVER_INFO
-			(next_tvb, control_tree);
+				(next_tvb, control_tree);
 		break;
 		case CCREP_PLAYER_INFO:
 			dissect_quake_CCREP_PLAYER_INFO
-			(next_tvb, control_tree);
+				(next_tvb, control_tree);
 		break;
 		case CCREP_RULE_INFO:
 			dissect_quake_CCREP_RULE_INFO
-			(next_tvb, control_tree);
+				(next_tvb, control_tree);
 		break;
 		default:
 			call_dissector(data_handle,next_tvb, pinfo, control_tree);
@@ -432,7 +430,6 @@ static void
 dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*quake_tree = NULL;
-	proto_item	*quake_item = NULL;
 	guint32		length;
 	guint32		flags;
 	guint32		sequence = 0;
@@ -447,6 +444,7 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	length &= NETFLAG_LENGTH_MASK;
 
 	if (tree) {
+		proto_item *quake_item;
 		quake_item = proto_tree_add_item(tree, proto_quake,
 				tvb, 0, -1, FALSE);
 		quake_tree = proto_item_add_subtree(quake_item, ett_quake);
