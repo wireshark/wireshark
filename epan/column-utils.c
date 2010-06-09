@@ -749,7 +749,7 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
 		 (gint32) (ts->secs / 60) % 60,
 		 (gint32) ts->secs % 60);
     } else if (ts->secs >= 60) {
-      g_snprintf(buf, COL_MAX_LEN,"%dh %2ds",
+      g_snprintf(buf, COL_MAX_LEN,"%dm %2ds",
 		 (gint32) ts->secs / 60,
 		 (gint32) ts->secs % 60);
     } else {
