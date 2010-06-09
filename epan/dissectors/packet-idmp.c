@@ -115,7 +115,7 @@ static const fragment_items idmp_frag_items = {
 };
 
 
-static call_idmp_oid_callback(tvbuff_t *tvb, int offset, packet_info *pinfo, int op, proto_tree *tree)	
+static int call_idmp_oid_callback(tvbuff_t *tvb, int offset, packet_info *pinfo, int op, proto_tree *tree)	
 {
 	struct SESSION_DATA_STRUCTURE *session;
 	
@@ -625,7 +625,7 @@ register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int proto 
 }
 
 
-static gint dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int offset = 0;
 

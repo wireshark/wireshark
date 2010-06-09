@@ -45,8 +45,6 @@
 /* Initialize the protocol and registered fields */
 static int proto_ros = -1;
 
-static struct SESSION_DATA_STRUCTURE* session = NULL;
-
 static proto_tree *top_tree=NULL;
 static guint32 opcode;
 static guint32 invokeid;
@@ -144,8 +142,11 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 	const value_string *lookup;
 	proto_item *item=NULL;
 	proto_tree *ros_tree=NULL;
+	struct SESSION_DATA_STRUCTURE* session = NULL;
 
-	if((rinfo = (ros_info_t*)g_hash_table_lookup(protocol_table, oid)) != NULL) {
+	session = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
+
+	if((session != NULL) && ((rinfo = (ros_info_t*)g_hash_table_lookup(protocol_table, oid)) != NULL)) {
 
 		if(tree){
 			item = proto_tree_add_item(tree, *(rinfo->proto), tvb, 0, -1, FALSE);
@@ -204,7 +205,7 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 	return FALSE;
 }
 
-static int
+int
 call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t *next_tvb;
@@ -395,9 +396,6 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				"Internal error:can't get application context from ACSE dissector.");
 		}
 		return  ;
-	} else {
-		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
-
 	}
 
 	conversation = find_or_create_conversation(pinfo);
