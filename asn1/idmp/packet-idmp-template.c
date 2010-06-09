@@ -143,7 +143,7 @@ register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int proto 
 }
 
 
-static int dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int offset = 0;
 
@@ -235,11 +235,8 @@ static int dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		offset = dissect_idmp_IDM_PDU(FALSE, tvb, offset, &asn1_ctx, tree, hf_idmp_PDU);
 
 		pinfo->private_data = save_private_data;
-	} else {
-		offset = tvb_length(tvb);
-	}
+	} 
 
-	return offset;
 }
 
 static guint get_idmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
