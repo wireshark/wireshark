@@ -210,6 +210,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-h450-ros.c
 	dissectors/packet-h460.c
 	dissectors/packet-h501.c
+	dissectors/packet-idmp.c
 	dissectors/packet-logotypecertextn.c
 	dissectors/packet-mms.c
 	dissectors/packet-mpeg-audio.c
