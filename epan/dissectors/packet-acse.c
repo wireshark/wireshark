@@ -1202,7 +1202,7 @@ static const value_string acse_Release_request_reason_vals[] = {
 
 static int
 dissect_acse_Release_request_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 97 "acse.cnf"
+#line 102 "acse.cnf"
   int reason = -1;
  
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1210,8 +1210,7 @@ dissect_acse_Release_request_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
   if(reason != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Release-Request (%s)", val_to_str(reason, acse_Release_request_reason_vals, "reason(%d)"));
-
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(reason, acse_Release_request_reason_vals, "reason(%d)"));
 
 
 
@@ -1239,8 +1238,14 @@ dissect_acse_RLRQ_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_acse_RLRQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+#line 94 "acse.cnf"
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Release-Request");
+
+    offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 2, TRUE, dissect_acse_RLRQ_apdu_U);
+
+
+
 
   return offset;
 }
@@ -1256,7 +1261,7 @@ static const value_string acse_Release_response_reason_vals[] = {
 
 static int
 dissect_acse_Release_response_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 109 "acse.cnf"
+#line 118 "acse.cnf"
   int reason = -1;
  
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1264,7 +1269,7 @@ dissect_acse_Release_response_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
   if(reason != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Release-Response (%s)", val_to_str(reason, acse_Release_request_reason_vals, "reason(%d)"));
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(reason, acse_Release_response_reason_vals, "reason(%d)"));
 
 
 
@@ -1293,8 +1298,14 @@ dissect_acse_RLRE_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_acse_RLRE_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+#line 110 "acse.cnf"
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Release-Response");
+
+    offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 3, TRUE, dissect_acse_RLRE_apdu_U);
+
+
+
 
   return offset;
 }
