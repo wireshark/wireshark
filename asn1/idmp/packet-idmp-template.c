@@ -155,7 +155,7 @@ static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 	guint32		idmp_length;
 	fragment_data *fd_head;
 	conversation_t *conv;
-	guint32		dst_ref;
+	guint32		dst_ref = 0;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
