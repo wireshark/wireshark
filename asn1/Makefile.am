@@ -28,19 +28,19 @@ SUBDIRS = 		\
 	ansi_map	\
 	ansi_tcap	\
 	camel		\
-	cdt			\
-	charging_ase\
+	cdt		\
+	charging_ase	\
 	cmip		\
-	cmp			\
+	cmp		\
 	crmf		\
-	cms			\
-	dap			\
-	dop			\
+	cms		\
+	dap		\
+	dop		\
 	disp		\
-	dsp			\
-	ess			\
+	dsp		\
+	ess		\
 	ftam		\
-	gnm			\
+	gnm		\
 	goose		\
 	gsm_map		\
 	h225		\
@@ -56,18 +56,19 @@ SUBDIRS = 		\
 	h501		\
 	HI2Operations	\
 	hnbap		\
+	idmp		\
 	inap		\
 	kerberos	\
 	ldap		\
-	logotypecertextn	\
+	logotypecertextn \
 	lte-rrc		\
-	mms			\
+	mms		\
 	mpeg-audio	\
 	mpeg-pes	\
 	nbap		\
-	ns_cert_exts\
+	ns_cert_exts	\
 	ocsp		\
-	p7			\
+	p7		\
 	pcap		\
 	pkcs1		\
 	pkcs12		\
@@ -84,23 +85,23 @@ SUBDIRS = 		\
 	qsig		\
 	ranap		\
 	rnsap		\
-	ros			\
-	rrc			\
+	ros		\
+	rrc		\
 	rrlp		\
 	rtse		\
-	rua			\
+	rua		\
 	s1ap		\
 	s4406		\
 	sabp		\
 	smrse		\
 	snmp		\
 	spnego		\
-	sv			\
+	sv		\
 	t125		\
-	t38			\
+	t38		\
 	tcap		\
-	ulp			\
-	wlancertextn\
+	ulp		\
+	wlancertextn	\
 	x2ap		\
 	x411		\
 	x420		\
