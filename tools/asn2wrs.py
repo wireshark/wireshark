@@ -1508,6 +1508,15 @@ class EthCtx:
     out += 'dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);\n'
     return out
 
+  #--- eth_out_syntax_reg ----------------------------------------------------------
+  def eth_out_syntax_reg(self, p, f):
+    if f.endswith('_PDU'):
+    	n = f[:-4]
+    else:
+	n = f
+    out = '  register_ber_syntax_dissector("'+n+'", proto_'+p+', dissect_'+f+');\n'
+    return out
+
   #--- eth_output_hf ----------------------------------------------------------
   def eth_output_hf (self):
     if not len(self.eth_hf_ord) and not len(self.eth_hfpdu_ord) and not len(self.named_bit): return
@@ -1832,6 +1841,15 @@ class EthCtx:
         fx.write('  %sregister_%s_oid_dissector(%s, dissect_%s, proto_%s, %s);\n' % (new_prefix, reg['rtype'].lower(), roid, f, self.eproto, reg['roidname']))
       fempty = False
     fx.write('\n')
+    if (self.conform.register_syntaxes and len(self.eth_hfpdu_ord)):
+      first_decl = True
+      for p in self.eth_hfpdu_ord:
+        if first_decl:
+          fx.write('/*--- Syntax registrations ---*/\n')
+          first_decl = False
+        fx.write(self.eth_out_syntax_reg(self.eproto, p))
+      if not first_decl:
+        fx.write('\n')
     self.output.file_close(fx, discard=fempty)
 
   #--- eth_output_table -----------------------------------------------------
@@ -2039,6 +2057,7 @@ class EthCnf:
     self.fn = {}
     self.report = {}
     self.suppress_line = False
+    self.register_syntaxes = False
     self.include_path = []
     #                                   Value name             Default value       Duplicity check   Usage check
     self.tblcfg['EXPORTS']         = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
@@ -2664,6 +2683,9 @@ class EthCnf:
       par = self.check_par(par, 1, 1, fn, lineno)
       if not par: return
       self.ectx.default_external_type_cb = par[0]
+    elif opt in ("-R",):
+      par = self.check_par(par, 0, 0, fn, lineno)
+      self.register_syntaxes = True
     else:
       warnings.warn_explicit("Unknown option %s" % (opt),
                              UserWarning, fn, lineno)
@@ -7629,7 +7651,8 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c cnf_file] [-e] input_file(s) ...
   -L            : Suppress #line directive from .cnf file
   -D dir        : Directory for input_file(s) (default: '.')
   -C            : Add check for SIZE constraints
-
+  -R            : Register PDUs as BER syntaxes		
+  
   input_file(s) : Input ASN.1 file(s)
 
   -d dbg        : Debug output, dbg = [l][y][p][s][a][t][c][m][o]
@@ -7650,7 +7673,7 @@ def eth_main():
   global lexer
   print "ASN.1 to Wireshark dissector compiler";
   try:
-    opts, args = getopt.getopt(sys.argv[1:], "h?d:D:buXp:FTo:O:c:I:eESs:kLC");
+    opts, args = getopt.getopt(sys.argv[1:], "h?d:D:buXp:FTo:O:c:I:eESs:kLCR");
   except getopt.GetoptError:
     eth_usage(); sys.exit(2)
   if len(args) < 1:
