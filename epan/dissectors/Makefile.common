@@ -120,6 +120,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-h450-ros.c \
 	packet-h460.c \
 	packet-h501.c \
+	packet-idmp.c \
 	packet-logotypecertextn.c \
 	packet-mms.c \
 	packet-mpeg-audio.c \

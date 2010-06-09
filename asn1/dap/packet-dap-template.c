@@ -36,6 +36,7 @@
 #include "packet-ber.h"
 #include "packet-acse.h"
 #include "packet-ros.h"
+#include "packet-idmp.h"
 
 #include "packet-x509if.h"
 #include "packet-x509af.h"
@@ -136,6 +137,8 @@ void proto_reg_handoff_dap(void) {
     
   /* Register DAP with ROS (with no use of RTSE) */
   register_ros_protocol_info("2.5.9.1", &dap_ros_info, 0, "id-as-directory-access", FALSE); 
+
+  register_idmp_protocol_info("2.5.33.0", &dap_ros_info, 0, "dap-ip");
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");

@@ -1,3 +1,11 @@
+# $Id$
+
+
+#.TYPE_ATTR
+# X509AF also exports the type Time. This makes sure asn2wrs uses the locally defined version.
+Time                     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_Time_vals)  BITMASK = 0
+#.END
+
 #.IMPORT	../x509if/x509if-exp.cnf
 #.IMPORT	../x509af/x509af-exp.cnf
 #.IMPORT	../x509sat/x509sat-exp.cnf
@@ -12,7 +20,6 @@ DAP-InvokeIDSet
 #.END
 
 #.MODULE_IMPORT
-ServiceAdministration	x509if
 AttributeCertificateDefinitions	x509af
 BasicAccessControl	crmf
 
@@ -172,8 +179,10 @@ PagedResultsRequest/queryReference	pagedResultsQueryReference
 
 EntryInformationSelection/extraAttributes/select	extraSelect
 
-# This table creates the value_sting to name P7 operation codes and errors
-# in file packet-p7-table.c which is included in the template file
+SaslCredentials/credentials				saslCredentials
+
+# This table creates the value_sting to name DAP operation codes and errors
+# in file packet-dap-table.c which is included in the template file
 #
 #.TABLE_HDR
 /* DAP OPERATIONS */

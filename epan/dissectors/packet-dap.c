@@ -44,6 +44,7 @@
 #include "packet-ber.h"
 #include "packet-acse.h"
 #include "packet-ros.h"
+#include "packet-idmp.h"
 
 #include "packet-x509if.h"
 #include "packet-x509af.h"
@@ -222,7 +223,7 @@ static int hf_dap_bind_token = -1;                /* Token */
 static int hf_dap_req = -1;                       /* T_req */
 static int hf_dap_rep = -1;                       /* T_rep */
 static int hf_dap_mechanism = -1;                 /* DirectoryString */
-static int hf_dap_credentials_01 = -1;            /* OCTET_STRING */
+static int hf_dap_saslCredentials = -1;           /* OCTET_STRING */
 static int hf_dap_saslAbort = -1;                 /* BOOLEAN */
 static int hf_dap_algorithm = -1;                 /* AlgorithmIdentifier */
 static int hf_dap_utctime = -1;                   /* UTCTime */
@@ -480,7 +481,7 @@ static int hf_dap_SearchControlOptions_separateFamilyMembers = -1;
 static int hf_dap_SearchControlOptions_searchFamily = -1;
 
 /*--- End of included file: packet-dap-hf.c ---*/
-#line 66 "packet-dap-template.c"
+#line 67 "packet-dap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dap = -1;
@@ -659,7 +660,7 @@ static gint ett_dap_UpdateError = -1;
 static gint ett_dap_T_signedUpdateError = -1;
 
 /*--- End of included file: packet-dap-ett.c ---*/
-#line 70 "packet-dap-template.c"
+#line 71 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-val.h ---*/
@@ -684,7 +685,7 @@ static gint ett_dap_T_signedUpdateError = -1;
 #define id_errcode_dsaReferral         9
 
 /*--- End of included file: packet-dap-val.h ---*/
-#line 72 "packet-dap-template.c"
+#line 73 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-table.c ---*/
@@ -722,7 +723,7 @@ static const value_string dap_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-dap-table.c ---*/
-#line 74 "packet-dap-template.c"
+#line 75 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-fn.c ---*/
@@ -1995,7 +1996,7 @@ dissect_dap_SpkmCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static const ber_sequence_t SaslCredentials_sequence[] = {
   { &hf_dap_mechanism       , BER_CLASS_CON, 0, 0, dissect_x509sat_DirectoryString },
-  { &hf_dap_credentials_01  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_dap_OCTET_STRING },
+  { &hf_dap_saslCredentials , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_dap_OCTET_STRING },
   { &hf_dap_saslAbort       , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
   { NULL, 0, 0, 0, NULL }
 };
@@ -4777,7 +4778,7 @@ static int dissect_UpdateError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-dap-fn.c ---*/
-#line 76 "packet-dap-template.c"
+#line 77 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-table11.c ---*/
@@ -4809,7 +4810,7 @@ static const ros_opr_t dap_opr_tab[] = {
 
 
 /*--- End of included file: packet-dap-table11.c ---*/
-#line 78 "packet-dap-template.c"
+#line 79 "packet-dap-template.c"
 
 /*--- Included file: packet-dap-table21.c ---*/
 #line 1 "packet-dap-table21.c"
@@ -4838,7 +4839,7 @@ static const ros_err_t dap_err_tab[] = {
 
 
 /*--- End of included file: packet-dap-table21.c ---*/
-#line 79 "packet-dap-template.c"
+#line 80 "packet-dap-template.c"
 
 static const ros_info_t dap_ros_info = {
   "DAP",
@@ -5456,7 +5457,7 @@ void proto_register_dap(void) {
       { "mechanism", "dap.mechanism",
         FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
         "DirectoryString", HFILL }},
-    { &hf_dap_credentials_01,
+    { &hf_dap_saslCredentials,
       { "credentials", "dap.credentials",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
@@ -6478,7 +6479,7 @@ void proto_register_dap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-dap-hfarr.c ---*/
-#line 98 "packet-dap-template.c"
+#line 99 "packet-dap-template.c"
   };
 
   /* List of subtrees */
@@ -6659,7 +6660,7 @@ void proto_register_dap(void) {
     &ett_dap_T_signedUpdateError,
 
 /*--- End of included file: packet-dap-ettarr.c ---*/
-#line 104 "packet-dap-template.c"
+#line 105 "packet-dap-template.c"
   };
   module_t *dap_module;
 
@@ -6695,6 +6696,8 @@ void proto_reg_handoff_dap(void) {
     
   /* Register DAP with ROS (with no use of RTSE) */
   register_ros_protocol_info("2.5.9.1", &dap_ros_info, 0, "id-as-directory-access", FALSE); 
+
+  register_idmp_protocol_info("2.5.33.0", &dap_ros_info, 0, "dap-ip");
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");
