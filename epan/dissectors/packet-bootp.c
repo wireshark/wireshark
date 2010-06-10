@@ -33,6 +33,7 @@
  * RFC 5223: Discovering Location-to-Service Translation (LoST) Servers Using the Dynamic Host Configuration Protocol (DHCP)
  * RFC 5417: CAPWAP Access Controller DHCP Option
  * draft-ietf-dhc-fqdn-option-07.txt
+ * TFTP Server Address Option for DHCPv4 [draft-raj-dhc-tftp-addr-option-06.txt: http://tools.ietf.org/html/draft-raj-dhc-tftp-addr-option-06]
  * BOOTP and DHCP Parameters
  *     http://www.iana.org/assignments/bootp-dhcp-parameters
  * DOCSIS(TM) 2.0 Radio Frequency Interface Specification
@@ -671,7 +672,7 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 147 */ { "Unassigned",				opaque, NULL },
 /* 148 */ { "Unassigned",				opaque, NULL },
 /* 149 */ { "Unassigned",				opaque, NULL },
-/* 150 */ { "TFTP server address",			opaque, NULL },
+/* 150 */ { "TFTP Server Address",			ipv4_list, NULL },
 /* 151 */ { "Unassigned",				opaque, NULL },
 /* 152 */ { "Unassigned",				opaque, NULL },
 /* 153 */ { "Unassigned",				opaque, NULL },
