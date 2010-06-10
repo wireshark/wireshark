@@ -503,8 +503,16 @@ static const value_string rtse_RefuseReason_vals[] = {
 
 static int
 dissect_rtse_RefuseReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+#line 137 "rtse.cnf"
+  int reason = -1;
+ 
+    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                &reason);
+
+
+  if(reason != -1)
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(reason, rtse_RefuseReason_vals, "reason(%d)"));
+
 
   return offset;
 }
@@ -553,8 +561,14 @@ static const ber_sequence_t RTORJapdu_set[] = {
 
 int
 dissect_rtse_RTORJapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+#line 129 "rtse.cnf"
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Refuse");
+
+    offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               RTORJapdu_set, hf_index, ett_rtse_RTORJapdu);
+
+
+
 
   return offset;
 }

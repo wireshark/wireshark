@@ -125,4 +125,19 @@ RTABapdu
   if(open_request && string && check_col(actx->pinfo->cinfo, COL_INFO))
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
 
+#.FN_BODY RTORJapdu
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Refuse");
+
+  %(DEFAULT_BODY)s
+
+#.FN_PARS RefuseReason
+  VAL_PTR=&reason
+
+#.FN_BODY RefuseReason
+  int reason = -1;
+ 
+  %(DEFAULT_BODY)s
+
+  if(reason != -1)
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(reason, rtse_RefuseReason_vals, "reason(%%d)"));
 #.END
