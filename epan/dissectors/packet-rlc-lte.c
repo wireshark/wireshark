@@ -1434,7 +1434,8 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
     offset = (bit_offset+7) / 8;
     if (tvb_length_remaining(tvb, offset) > 0) {
         expert_add_info_format(pinfo, status_ti, PI_MALFORMED, PI_ERROR,
-                               "%u bytes remaining after Status PDU complete",
+                               "%cL %u bytes remaining after Status PDU complete",
+                               (p_rlc_lte_info->direction == DIRECTION_UPLINK) ? 'U' : 'D',
                                tvb_length_remaining(tvb, offset));
     }
 
@@ -2182,7 +2183,7 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_am_ack_sn,
             { "ACK Sequence Number",
               "rlc-lte.am.ack-sn", FT_UINT16, BASE_DEC, 0, 0x0,
-              "Sequence Number we're next expecting to receive", HFILL
+              "Sequence Number we expect to receive next", HFILL
             }
         },
         { &hf_rlc_lte_am_e1,

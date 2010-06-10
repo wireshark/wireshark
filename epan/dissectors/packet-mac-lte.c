@@ -2071,7 +2071,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                  tvb, offset, 1, FALSE);
         if (reserved != 0) {
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                                   "U/DL-SCH header Reserved bits not zero");
+                                   "%cL-SCH header Reserved bits not zero",
+                                   (p_mac_lte_info->direction == DIRECTION_UPLINK) ? 'U' : 'D');
         }
 
         /* Extended bit */
@@ -2110,7 +2111,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if (have_seen_data_header &&
             (lcids[number_of_headers] > 10) && (lcids[number_of_headers] != PADDING_LCID)) {
             expert_add_info_format(pinfo, lcid_ti, PI_MALFORMED, PI_ERROR,
-                                   "Control subheaders should not appear after data subheaders");
+                                   "%cL-SCH Control subheaders should not appear after data subheaders",
+                                   (p_mac_lte_info->direction == DIRECTION_UPLINK) ? 'U' : 'D');
         }
 
         /* Show an expert item if we're seeing more then one BSR in a frame */
@@ -2207,7 +2209,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if (match_strval(lcids[number_of_headers],
                          (direction == DIRECTION_UPLINK) ? ulsch_lcid_vals : dlsch_lcid_vals) == NULL) {
             expert_add_info_format(pinfo, pdu_subheader_ti, PI_MALFORMED, PI_ERROR,
-                                       "Unexpected LCID received (%u)", lcids[number_of_headers]);
+                                   "%cL-SCH: Unexpected LCID received (%u)",
+                                   (p_mac_lte_info->direction == DIRECTION_UPLINK) ? 'U' : 'D',
+                                   lcids[number_of_headers]);
         }
 
         /* Set length of this subheader */
