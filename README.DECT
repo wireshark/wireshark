@@ -25,12 +25,11 @@ Edit->Preferences...
     Colums
 
       No.      | Number
-      Time     | Time (format as specified)
       Protocol | Protocol
-      TA       | HP-UX Subsystem
-      A-Field  | Network src addr
-      B-Field  | Network dest addr
-      Info     | Information
+      Frame    | Custom Column: dect.framenumber
+      TA       | Custom Column: dect.cc.TA
+      A-Field  | Custom Column: dect.cc.AField
+      B-Field  | Custom Column: dect.cc.BField
   OK
 
 

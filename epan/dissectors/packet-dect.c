@@ -6,7 +6,7 @@
  * $Id$
  *
  * Copyright 2008-2009:
- * - Andreas Schuler <krater (A) badterrorist.com>
+ * - Andreas Schuler <andreas (A) schulerdev.de>
  * - Matthias Wenzel <dect (A) mazzoo.de>
  *
  * Wireshark - Network traffic analyzer
@@ -30,8 +30,8 @@
 
 /*
  TODO (roughly in that order)
- - Don't use structs to access the elements in the datastream.
- - Use tvb_..._item wherever possible
+ - Don't use structs to access the elements in the datastream
+   (i.e. pkt_afield, pkt_bfield).
  - Add references to documentation (ETSI EN 300 175 parts 1-8)
  - Make things stateful
  - Once the capture format has stabilized, get rid of the Ethernet
@@ -50,6 +50,8 @@
 
 #define DECT_PACKET_PP	0
 #define DECT_PACKET_FP	1
+
+#define DECT_PACKET_INFO_LEN	11
 
 /* scramble table with corrections by Jakub Hruska */
 static guint8 scrt[8][31]=
@@ -79,17 +81,15 @@ struct dect_bfield
 
 static int proto_dect = -1;
 
-#if 0
-static int proto_dect2 = -1;
-#endif
-
 
 static gint ett_dect				= -1;
+static gint ett_columns				= -1;
 static gint ett_afield				= -1;
 static gint ett_ahead				= -1;
 static gint ett_atail				= -1;
 static gint ett_aqt				= -1;
 static gint ett_bfield				= -1;
+static gint ett_bfdescrdata			= -1;
 
 static int hf_dect_transceivermode		= -1;
 static int hf_dect_preamble			= -1;
@@ -98,6 +98,10 @@ static int hf_dect_channel			= -1;
 static int hf_dect_framenumber			= -1;
 static int hf_dect_rssi				= -1;
 static int hf_dect_slot				= -1;
+static int hf_dect_cc				= -1;
+static int hf_dect_cc_TA			= -1;
+static int hf_dect_cc_AField		= -1;
+static int hf_dect_cc_BField		= -1;
 static int hf_dect_A				= -1;
 static int hf_dect_A_Head			= -1;
 static int hf_dect_A_Head_TA_FP			= -1;
@@ -114,6 +118,7 @@ static int hf_dect_A_Tail_Qt_0_Sp		= -1;
 static int hf_dect_A_Tail_Qt_0_Esc		= -1;
 static int hf_dect_A_Tail_Qt_0_Txs		= -1;
 static int hf_dect_A_Tail_Qt_0_Mc		= -1;
+static int hf_dect_A_Tail_Qt_0_CA		= -1;
 static int hf_dect_A_Tail_Qt_0_Spr1		= -1;
 static int hf_dect_A_Tail_Qt_0_Cn		= -1;
 static int hf_dect_A_Tail_Qt_0_Spr2		= -1;
@@ -190,6 +195,7 @@ static int hf_dect_A_Tail_Qt_4_A47		= -1;
 static int hf_dect_A_Tail_Qt_6_Spare		= -1;
 static int hf_dect_A_Tail_Qt_6_Mfn		= -1;
 static int hf_dect_A_Tail_Mt_Mh			= -1;
+static int hf_dect_A_Tail_Mt_Mh_attr	= -1;
 static int hf_dect_A_Tail_Mt_Mh_fmid		= -1;
 static int hf_dect_A_Tail_Mt_Mh_pmid		= -1;
 static int hf_dect_A_Tail_Mt_BasicConCtrl	= -1;
@@ -197,14 +203,18 @@ static int hf_dect_A_Tail_Mt_Encr_Cmd1		= -1;
 static int hf_dect_A_Tail_Mt_Encr_Cmd2		= -1;
 static int hf_dect_A_Tail_Pt_ExtFlag		= -1;
 static int hf_dect_A_Tail_Pt_SDU		= -1;
+static int hf_dect_A_Tail_Pt_RFPI		= -1;
+static int hf_dect_A_Tail_Pt_BsData		= -1; 
 static int hf_dect_A_Tail_Pt_InfoType		= -1;
-static int hf_dect_A_Tail_Pt_Fill_Fillbits	= -1;
+static int hf_dect_A_Tail_Pt_SlotPairs		= -1;
+static int hf_dect_A_Tail_Pt_Fillbits		= -1;
 static int hf_dect_A_Tail_Pt_Bearer_Sn		= -1;
 static int hf_dect_A_Tail_Pt_Bearer_Cn		= -1;
 static int hf_dect_A_Tail_Pt_Bearer_Sp		= -1;
 static int hf_dect_A_RCRC			= -1;
 static int hf_dect_B				= -1;
 static int hf_dect_B_Data			= -1;
+static int hf_dect_B_DescrambledData		= -1;
 static int hf_dect_B_fn				= -1;
 static int hf_dect_B_XCRC			= -1;
 
@@ -255,7 +265,7 @@ static const value_string BA_vals[]=
 };
 
 static const value_string QTHead_vals[]=
-{
+{ /* EN 300 175-3 V2.3.0  7.2.3.1 */
 	{0, "Static System Info"},
 	{1, "Static System Info"},
 	{2, "Extended RF Carriers Part 1"},
@@ -266,9 +276,9 @@ static const value_string QTHead_vals[]=
 	{7, "Escape"},
 	{8, "Obsolete"},
 	{9, "Extended RF Carriers Part 2"},
-	{10, "Reserved(?)"},
-	{11, "Transmit Information(?)"},
-	{12, "Reserved"},
+	{10, "Reserved("},
+	{11, "Transmit Information"},
+	{12, "Extended Fixed Part Capabilities 2"},
 	{13, "Reserved"},
 	{14, "Reserved"},
 	{15, "Reserved"},
@@ -1035,15 +1045,15 @@ static const value_string MTEncrCmd2_vals[]=
 	{0, NULL}
 };
 
-static const value_string PTExtFlag_vals[]=
-{
-	{0, "bla1"},
-	{1, "bla2"},
+static const value_string PTExtFlag_vals[]=		
+{	/* EN 300 175-3 V2.3.0   7.2.4.2.2 */
+	{0, "Next normal Page in Frame 0"},
+	{1, "Another Page in next Frame"},
 	{0, NULL}
 };
 
 static const value_string PTSDU_vals[]=
-{
+{	/* EN 300 175-3 V2.3.0   7.2.4.2.3 */
 	{0, "Zero Length Page"},
 	{1, "Short Page"},
 	{2, "Full Page"},
@@ -1208,17 +1218,19 @@ calc_rcrc(guint8* data)
 
 static gint
 dissect_bfield(gboolean dect_packet_type _U_, guint8 a_header,
-	struct dect_bfield *pkt_bfield, packet_info *pinfo, const guint8 *pkt_ptr _U_,
-	tvbuff_t *tvb, proto_item *ti _U_, proto_tree *DectTree, gint offset)
+	struct dect_bfield *pkt_bfield, packet_info *pinfo _U_, const guint8 *pkt_ptr _U_,
+	tvbuff_t *tvb, proto_item *ti _U_, proto_tree *DectTree, gint offset, proto_tree *ColumnsTree)
 {
 	guint8 xcrc, xcrclen;
 	guint16 blen;
 	gint oldoffset, fn;
-	proto_item *bfieldti	=NULL;
-#if 0
-	proto_item *bxcrc	=NULL;
-#endif
-	proto_tree *BField	=NULL;
+	char *bfield_str;
+	char *bfield_short_str;
+	proto_item *bfieldti        = NULL;
+	proto_tree *BField          = NULL;
+
+	proto_item *bfdescrdatati   = NULL;
+	proto_tree *BFDescrData	    = NULL;
 
 	/* B-Field */
 	switch((a_header&0x0E)>>1)
@@ -1231,66 +1243,59 @@ dissect_bfield(gboolean dect_packet_type _U_, guint8 a_header,
 		blen=40;
 		xcrclen=4;
 
-		col_append_str(pinfo->cinfo, COL_INFO /*Type1*/, " (Full Slot)");
+		bfield_short_str="Full Slot";
+		bfield_str="Full Slot (320 bit data, 4 bit xcrc)";
 		break;
 	case 2:
 		blen=100;
 		xcrclen=4;
 
-		col_append_str(pinfo->cinfo, COL_INFO /*Type1*/, " (Double Slot)");
+		bfield_short_str="Double Slot";
+		bfield_str="Double Slot (800 bit data, 4 bit xcrc)";
 		break;
 	case 4:
 		blen=10;
 		xcrclen=4;
 
-		col_append_str(pinfo->cinfo, COL_INFO /*Type1*/, " (Half Slot)");
+		bfield_short_str="Half Slot";
+		bfield_str="Half Slot (80 bit data, 4 bit xcrc)";
 		break;
 	case 7:
 	default:
 		blen=0;
 		xcrclen=0;
 
-		col_append_str(pinfo->cinfo, COL_INFO /*Type1*/, " (No B-Field)");
+		bfield_short_str="No B-Field";
+		bfield_str="No B-Field";
 		break;
 
 	}
+
+	proto_tree_add_string(ColumnsTree, hf_dect_cc_BField, tvb, offset, 1, bfield_short_str);
+
 	if(blen)
 	{
-		bfieldti	= proto_tree_add_item(DectTree, hf_dect_B, tvb, offset, 40, FALSE);
-		BField		= proto_item_add_subtree(bfieldti, ett_bfield);
+		bfieldti		= proto_tree_add_item(DectTree, hf_dect_B, tvb, offset, 40, FALSE);
+		BField			= proto_item_add_subtree(bfieldti, ett_bfield);
+
+		proto_tree_add_none_format(BField, hf_dect_B_Data, tvb, offset, 40, "%s", bfield_str);
+
+		bfdescrdatati	= proto_tree_add_item(BField, hf_dect_B_DescrambledData, tvb, offset, 40, FALSE);
+		BFDescrData		= proto_item_add_subtree(bfdescrdatati, ett_bfdescrdata);
 	}
 
 	oldoffset=offset;
 
-	if((blen+(xcrclen/8)+1)<=pkt_bfield->Length)
+	if(blen<=pkt_bfield->Length)
 	{
 		guint16 x, y;
-		for(x=0;x<blen;x+=16)
-		{
-			/*
-			 * XXX - should this just be an FTYPE_BYTES field,
-			 * and possibly just displayed as "Data: N bytes"
-			 * rather than giving all the bytes of data?
-			 */
-			for(y=0;y<16;y++)
-			{
-				if((x+y)>=blen)
-					break;
-			}
-			proto_tree_add_item(BField, hf_dect_B_Data, tvb, offset, y, FALSE);
-			if(y==16)
-				offset+=16;
-			else
-				/* XXX: Why 16-y and not y??? */
-				offset+=16-y;
-		}
 		for(fn=0;fn<8;fn++)
 		{
 			guint16 bytecount=0;
 
 			offset=oldoffset;
 
-			proto_tree_add_none_format(BField, hf_dect_B_fn, tvb, offset, 0, "\nFramenumber %u/%u", fn, fn+8);
+			proto_tree_add_none_format(BFDescrData, hf_dect_B_fn, tvb, offset, 0, "Framenumber %u/%u", fn, fn+8);
 			for(x=0;x<blen;x+=16)
 			{
 				/*
@@ -1298,6 +1303,11 @@ dissect_bfield(gboolean dect_packet_type _U_, guint8 a_header,
 				 * field, and possibly just displayed as
 				 * "Data: N bytes" rather than giving all
 				 * the bytes of data?
+				 *
+				 * No, it gives you the bytes in descrambled
+				 * form depending on the framenumber. Sometimes,
+				 * you doesn't know the real framenumber, so you need
+				 * the range of all possible descramblings. (a.schuler)
 				 */
 				emem_strbuf_t *string;
 				string = ep_strbuf_new(NULL);
@@ -1309,24 +1319,28 @@ dissect_bfield(gboolean dect_packet_type _U_, guint8 a_header,
 					ep_strbuf_append_printf(string,"%.2x ", pkt_bfield->Data[x+y]^scrt[fn][bytecount%31]);
 					bytecount++;
 				}
-				proto_tree_add_uint_format(BField, hf_dect_B_Data, tvb, offset, y, 0x2323, "Data: %s", string->str);
-				if(y==16)
-					offset+=16;
-				else
-					offset+=16-y;
+				proto_tree_add_none_format(BFDescrData, hf_dect_B_Data, tvb, offset, y, "Data: %s", string->str);
+				offset+=y;
 			}
 		}
-		xcrc=calc_xcrc(pkt_bfield->Data, 83);
+	}
+	else
+		proto_tree_add_none_format(BField, hf_dect_B_Data, tvb, offset, 0, "Data too Short");
 
+	xcrc=calc_xcrc(pkt_bfield->Data, 83);
+
+	if((blen+1)<=pkt_bfield->Length)
+	{
 		if(xcrc!=(pkt_bfield->Data[40]&0xf0))
 			/* XXX: pkt_bfield->Data[40]&0xf0 isn't really the Recv value?? */
-			proto_tree_add_uint_format(bfieldti, hf_dect_B_XCRC, tvb, offset, 1, 0, "X-CRC Error (Calc:%.2x, Recv:%.2x)", xcrc, pkt_bfield->Data[40]&0xf0);
+			proto_tree_add_uint_format(bfieldti, hf_dect_B_XCRC, tvb, offset, 1, 0, "X-CRC Error (Calc:%.2x, Recv:%.2x)",xcrc, pkt_bfield->Data[40]&0xf0);
 		else
 			/* XXX: pkt_bfield->Data[40]&0xf0 isn't really the Recv value?? */
 			proto_tree_add_uint_format(bfieldti, hf_dect_B_XCRC, tvb, offset, 1, 1, "X-CRC Match (Calc:%.2x, Recv:%.2x)", xcrc, pkt_bfield->Data[40]&0xf0);
 	}
 	else
-		proto_tree_add_uint_format(BField, hf_dect_B_Data, tvb, offset, 0, 0x2323, "Data too Short");
+		proto_tree_add_uint_format(bfieldti, hf_dect_B_XCRC, tvb, offset, 1, 0, "No X-CRC logged (Calc:%.2x)", xcrc);
+
 	return offset;
 }
 
@@ -1337,33 +1351,39 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 {
 	guint16 rcrc;
 	guint8 rcrcdat[8];
-	gint offset		=11;
-	guint8 tailtype		=0;
-	proto_item *afieldti	=NULL;
-	proto_item *aheadti	=NULL;
-	proto_item *atailti	=NULL;
-#if 0
-	proto_item *arcrc	=NULL;
-	proto_item *aqtti	=NULL;
-#endif
-	proto_tree *AField	=NULL;
-	proto_tree *AHead	=NULL;
-	proto_tree *ATail	=NULL;
+	gint offset			= DECT_PACKET_INFO_LEN;
+	guint8 tailtype		= 0;
+	emem_strbuf_t *afield_str;
+
+	proto_tree *ColumnsTree = NULL;
+	proto_item *columnstreeti = NULL;
+
+	proto_item *afieldti	= NULL;
+	proto_item *aheadti	= NULL;
+	proto_item *atailti	= NULL;
+	proto_tree *AField	= NULL;
+	proto_tree *AHead	= NULL;
+	proto_tree *ATail	= NULL;
 
 	guint8	header, tail_0, tail_1, tail_2, tail_3, tail_4;
-#if 0
-	proto_tree *AQT		=NULL;
-#endif
+
+	/************************** Custom Columns ****************************/
+	columnstreeti	= proto_tree_add_item(DectTree, hf_dect_cc, tvb,0,0, FALSE);
+	ColumnsTree		= proto_item_add_subtree(columnstreeti, ett_afield);
+
+	afield_str		= ep_strbuf_new(NULL);
+
+	col_append_fstr(pinfo->cinfo, COL_INFO, "Use Custom Columns for Infos");
 
 	/************************** A-Field ***********************************/
 
 	/* A-Field */
-	header=tvb_get_guint8(tvb, offset+0);
-	tail_0=tvb_get_guint8(tvb, offset+1);
-	tail_1=tvb_get_guint8(tvb, offset+2);
-	tail_2=tvb_get_guint8(tvb, offset+3);
-	tail_3=tvb_get_guint8(tvb, offset+4);
-	tail_4=tvb_get_guint8(tvb, offset+5);
+	header = tvb_get_guint8(tvb, offset+0);
+	tail_0 = tvb_get_guint8(tvb, offset+1);
+	tail_1 = tvb_get_guint8(tvb, offset+2);
+	tail_2 = tvb_get_guint8(tvb, offset+3);
+	tail_3 = tvb_get_guint8(tvb, offset+4);
+	tail_4 = tvb_get_guint8(tvb, offset+5);
 	tailtype	= header >> 5;
 	afieldti	= proto_tree_add_item(DectTree, hf_dect_A, tvb, offset, 8, FALSE);
 	AField		= proto_item_add_subtree(afieldti, ett_afield);
@@ -1385,30 +1405,40 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 	/* Tail */
 	if(dect_packet_type==DECT_PACKET_FP)
 	{
-		atailti	= proto_tree_add_uint_format(afieldti, hf_dect_A_Tail, tvb, offset, 5, 0x2323, "FP-Tail: %s", val_to_str(tailtype, TA_vals_FP, "Error, please report: %d"));
+		atailti = proto_tree_add_none_format(afieldti, hf_dect_A_Tail, tvb, offset, 5, 
+			"FP-Tail: %s", val_to_str(tailtype, TA_vals_FP, "Error, please report: %d"));
 	}
 	else
 	{
-		atailti	= proto_tree_add_uint_format(afieldti, hf_dect_A_Tail, tvb, offset, 5, 0x2323, "PP-Tail: %s", val_to_str(tailtype, TA_vals_PP, "Error, please report: %d"));
+		atailti = proto_tree_add_none_format(afieldti, hf_dect_A_Tail, tvb, offset, 5, 
+			"PP-Tail: %s", val_to_str(tailtype, TA_vals_PP, "Error, please report: %d"));
 	}
 
 	ATail = proto_item_add_subtree(atailti, ett_atail);
 
 	if((tailtype==0)||(tailtype==1))		/* Ct */
 	{
-		col_set_str(pinfo->cinfo, COL_INFO, "[Ct]");
+		proto_tree_add_string(ColumnsTree, hf_dect_cc_TA, tvb, offset, 1, "[Ct]");
+
+		if(tailtype==0)
+			ep_strbuf_append_printf(afield_str,"C-Channel Next  Data: %s",tvb_bytes_to_str(tvb, offset, 5));
+		else
+			ep_strbuf_append_printf(afield_str,"C-Channel First Data: %s",tvb_bytes_to_str(tvb, offset, 5));
+
+		proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, afield_str->str);
 	}
 	else if((tailtype==2)||(tailtype==3))		/* Nt, Nt connectionless bearer */
 	{
-		col_set_str(pinfo->cinfo, COL_INFO, "[Nt]");
-		col_append_fstr(pinfo->cinfo, COL_INFO /*Type2*/, " RFPI:%s",
-			tvb_bytes_to_str(tvb, offset, 5));
+		proto_tree_add_string(ColumnsTree, hf_dect_cc_TA, tvb, offset, 1, "[Nt]");
+
+		ep_strbuf_append_printf(afield_str,"RFPI: %s",tvb_bytes_to_str(tvb, offset, 5));
+		proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, afield_str->str);
 
 		proto_tree_add_item(atailti, hf_dect_A_Tail_Nt, tvb, offset, 5, FALSE);
 	}
 	else if(tailtype==4)				/* Qt */
 	{
-		col_set_str(pinfo->cinfo, COL_INFO, "[Qt]");
+		proto_tree_add_string(ColumnsTree, hf_dect_cc_TA, tvb, offset, 1, "[Qt]");
 
 		proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_Qh, tvb, offset, 1, FALSE);
 
@@ -1416,7 +1446,7 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 		{
 		case 0:		/* Static System Info */
 		case 1:
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " Static System Info");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Static System Info");
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Nr, tvb, offset, 1, FALSE);
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Sn, tvb, offset, 1, FALSE);
@@ -1426,14 +1456,13 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Esc, tvb, offset, 1, FALSE);
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Txs, tvb, offset, 1, FALSE);
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Mc, tvb, offset, 1, FALSE);
-			offset++;
 
-			proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Mt_Mh, tvb, offset, 2, 0x2323, " Carrier%s%s%s%s%s%s%s%s%s%s available",
+			proto_tree_add_none_format(ATail, hf_dect_A_Tail_Qt_0_CA, tvb, offset, 2, " Carrier%s%s%s%s%s%s%s%s%s%s available",
 				(tail_1&0x02)?" 0":"", (tail_1&0x01)?" 1":"", (tail_2&0x80)?" 2":"",
 				(tail_2&0x40)?" 3":"", (tail_2&0x20)?" 4":"", (tail_2&0x10)?" 5":"",
 				(tail_2&0x08)?" 6":"", (tail_2&0x04)?" 7":"", (tail_2&0x02)?" 8":"",
 				(tail_2&0x01)?" 9":"");
-			offset++;
+			offset+=2;
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Spr1, tvb, offset, 1, FALSE);
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Cn, tvb, offset, 1, FALSE);
@@ -1446,10 +1475,11 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			offset-=5;
 			break;
 		case 2:		/* Extended RF Carriers Part 1 */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " Extended RF Carriers Part 1");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Extended RF Carriers Part 1");
+			/* TODO: See ETSI EN 300 175-3 V2.3.0  7.2.3.3 */
 			break;
 		case 3:		/* Fixed Part Capabilities */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " Fixed Part Capabilities");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Fixed Part Capabilities");
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A12, tvb, offset, 1, FALSE);
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A13, tvb, offset, 1, FALSE);
@@ -1503,7 +1533,8 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			offset-=5;
 			break;
 		case 4:		/* Extended Fixed Part Capabilities */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " Extended Fixed Part Capabilities");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Extended Fixed Part Capabilities");
+
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_CRFPHops, tvb, offset, 1, FALSE);
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_CRFPEnc, tvb, offset, 1, FALSE);
@@ -1556,13 +1587,15 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			offset-=5;
 			break;
 		case 5:		/* SARI List Contents */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " SARI List Contents");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "SARI List Contents");
+			/* TODO: See ETSI EN 300 175-3 V2.3.0  7.2.3.6 */
 			break;
-		case 6:		/* Multi-Frame No. */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " Multi-Frame No.");
-
+		case 6:		/* Multi-Frame No.    ETSI EN 300 175-3 V2.3.0  7.2.3.7  */
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_6_Spare, tvb, offset, 2, FALSE);
 			offset+=2;
+
+			ep_strbuf_append_printf(afield_str,"Multi-Frame No.: %s",tvb_bytes_to_str(tvb, offset, 3));
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, afield_str->str);
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_6_Mfn, tvb, offset, 3, FALSE);
 			offset+=3;
@@ -1570,28 +1603,30 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			/* due to addition further down */
 			offset-=5;
 			break;
-		case 7:		/* Escape */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " Escape");
+		case 7:		/* Escape    ETSI EN 300 175-3 V2.3.0  7.2.3.8 */
+			ep_strbuf_append_printf(afield_str,"Escape Data: %s",tvb_bytes_to_str(tvb, offset, 5));
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, afield_str->str);
 			break;
 		case 8:		/* Obsolete */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " Obsolete");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Obsolete");
 			break;
 		case 9:		/* Extended RF Carriers Part 2 */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " Extended RF Carriers Part 2");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Extended RF Carriers Part 2");
+			/* TODO: See ETSI EN 300 175-3 V2.3.0  7.2.3.9 */
 			break;
-		case 10:	/* Reserved(?) */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " Reserved(?)");
-			break;
-		case 11:	/* Transmit Information(?) */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " Transmit Information(?)");
+		case 11:	/* Transmit Information */
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Transmit Information");
+			/* TODO: See ETSI EN 300 175-3 V2.3.0  7.2.3.10 */
 			break;
 		case 12:	/* Extended Fixed Part Capabilities 2 */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " Extended Fixed Part Capabilities 2");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Extended Fixed Part Capabilities 2");
+			/* TODO: See ETSI EN 300 175-3 V2.3.0  7.2.3.11 */
 			break;
+		case 10:	/* Reserved */
 		case 13:
 		case 14:
 		case 15:
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " Reserved");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Reserved");
 			break;
 		}
 	}
@@ -1600,20 +1635,21 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 	}
 	else if((tailtype==6)||((tailtype==7)&&(dect_packet_type==DECT_PACKET_PP)))	/* Mt */
 	{
-		col_set_str(pinfo->cinfo, COL_INFO, "[Mt]");
+		proto_tree_add_string(ColumnsTree, hf_dect_cc_TA, tvb, offset, 1, "[Mt]");
 
 		proto_tree_add_uint(ATail, hf_dect_A_Tail_Mt_Mh, tvb, offset, 1, tail_0);
 
 		switch(tail_0>>4)
 		{
 		case 0:		/* Basic Connection Control */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Basic Connection Control");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Basic Connection Control");
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_BasicConCtrl, tvb, offset, 1, FALSE);
 			offset++;
 
 			if(((tail_0 & 0x0f)==6)||((tail_0 & 0x0f)==7))
 			{
-				proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Mt_Mh, tvb, offset, 4, 0x2323, "here should be attributes...");
+				/* TODO See ETSI EN 300 175-3 V2.3.0  7.2.5.2.4 */
+				proto_tree_add_none_format(ATail, hf_dect_A_Tail_Mt_Mh_attr, tvb, offset, 4, "More infos at ETSI EN 300 175-3 V2.3.0  7.2.5.2.4");
 				offset +=4;
 			}
 			else
@@ -1629,19 +1665,24 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			offset-=5;
 			break;
 		case 1:		/* Advanced Connection Control */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Advanced Connection Control");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Advanced Connection Control");
 			break;
 		case 2:		/* MAC Layer Test Messages */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "MAC Layer Test Messages");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "MAC Layer Test Messages");
 			break;
 		case 3:		/* Quality Control */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Quality Control");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Quality Control");
 			break;
 		case 4:		/* Broadcast and Connectionless Services */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Broadcast and Connectionless Services");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Broadcast and Connectionless Services");
 			break;
 		case 5:		/* Encryption Control */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Encryption Control");
+
+			ep_strbuf_append_printf(afield_str,"Encryption Control: %s %s",
+				val_to_str((tail_0&0x0c)>>2, MTEncrCmd1_vals, "Error, please report: %d"),
+				val_to_str(tail_0&0x03, MTEncrCmd2_vals, "Error, please report: %d"));
+
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, afield_str->str);
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Encr_Cmd1, tvb, offset, 1, FALSE);
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Encr_Cmd2, tvb, offset, 1, FALSE);
@@ -1657,16 +1698,16 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			offset-=5;
 			break;
 		case 6:		/* Tail for use with the first Transmission of a B-Field \"bearer request\" Message */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Tail for use with the first Transmission of a B-Field \"bearer request\" Message");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Tail for use with the first Transmission of a B-Field \"bearer request\" Message");
 			break;
 		case 7:		/* Escape */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Escape");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Escape");
 			break;
 		case 8:		/* TARI Message */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "TARI Message");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "TARI Message");
 			break;
 		case 9:		/* REP Connection Control */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "REP Connection Control");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "REP Connection Control");
 			break;
 		case 10:	/* Reserved */
 		case 11:
@@ -1674,16 +1715,20 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 		case 13:
 		case 14:
 		case 15:
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Reserved");
+			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Reserved");
 			break;
 		}
 	}
-	else if((tailtype==7)&&(dect_packet_type==DECT_PACKET_FP))	/* Pt */
+	else if((tailtype==7)&&(dect_packet_type==DECT_PACKET_FP))	/* ETSI EN 300 175-3 V2.3.0  7.2.4  Pt */
 	{
-		col_set_str(pinfo->cinfo, COL_INFO, "[Pt]");
+		proto_tree_add_string(ColumnsTree, hf_dect_cc_TA, tvb, offset, 1, "[Pt]");
 
 		proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_ExtFlag, tvb, offset, 1, FALSE);
 		proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_SDU, tvb, offset, 1, FALSE);
+
+		if(((tail_0&0x70)>>4)&0xfe)
+			ep_strbuf_append_printf(afield_str,"%s, ",val_to_str((tail_0&0x70)>>4, PTSDU_vals, "Error, please report: %d"));
+	
 		switch((tail_0&0x70)>>4)
 		{
 		case 0:		/* Zero Length Page */
@@ -1693,30 +1738,37 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 XXX: Hier weitermachen
 #endif
 			{
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " Zero Length Page");
-				proto_tree_add_uint_format(atailti, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 3, 0x2323, "RFPI:xxxxx%.1x%.2x%.2x", (pkt_afield->Tail[0]&0x0f), pkt_afield->Tail[1], pkt_afield->Tail[2]);
+				ep_strbuf_append_printf(afield_str,"RFPI: xxxxx%.1x%.2x%.2x, ", (pkt_afield->Tail[0]&0x0f), pkt_afield->Tail[1], pkt_afield->Tail[2]);
+				proto_tree_add_none_format(atailti, hf_dect_A_Tail_Pt_RFPI, tvb, offset, 3, "RFPI: xxxxx%.1x%.2x%.2x", (pkt_afield->Tail[0]&0x0f), pkt_afield->Tail[1], pkt_afield->Tail[2]);
 				offset+=3;
 
 				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 1, FALSE);
 			}
 			else
 			{
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " Short Page");
-				proto_tree_add_uint_format(atailti, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 3, 0x2323, "Bs Data:%.1x%.2x%.2x", (pkt_afield->Tail[0]&0x0f), pkt_afield->Tail[1], pkt_afield->Tail[2]);
+				ep_strbuf_append_printf(afield_str,"Bs Data: %.1x%.2x%.2x, ", (pkt_afield->Tail[0]&0x0f), pkt_afield->Tail[1], pkt_afield->Tail[2]);
+				proto_tree_add_none_format(atailti, hf_dect_A_Tail_Pt_BsData, tvb, offset, 3, "Bs Data: %.1x%.2x%.2x", (pkt_afield->Tail[0]&0x0f), pkt_afield->Tail[1], pkt_afield->Tail[2]);
 				offset+=3;
 
 				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 1, FALSE);
 			}
+
+			ep_strbuf_append_printf(afield_str,"%s",val_to_str(pkt_afield->Tail[3]>>4, PTInfoType_vals, "Error, please report: %d"));
+
 			switch(pkt_afield->Tail[3]>>4)
 			{
 			case 0: /* Fill Bits */
-				proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Pt_Fill_Fillbits, tvb, offset, 2, 0x2323, "Fillbits:%.1x%.2x", pkt_afield->Tail[3]&0x0f, pkt_afield->Tail[4]);
+				proto_tree_add_none_format(ATail, hf_dect_A_Tail_Pt_Fillbits, tvb, offset, 2, "Fillbits: %.1x%.2x", pkt_afield->Tail[3]&0x0f, pkt_afield->Tail[4]);
 				offset+=2;
 				break;
 			case 1: /* Blind Full Slot Information for Circuit Mode Service */
+				offset+=2;
+				break;
 			case 7: /* Escape */
+				offset+=2;
+				break;
 			case 8: /* Dummy or connectionless Bearer Marker */
-				proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 2, 0x2323, " Slot-Pairs:%s%s%s%s%s%s%s%s%s%s%s%s available",
+				proto_tree_add_none_format(ATail, hf_dect_A_Tail_Pt_SlotPairs, tvb, offset, 2, " Slot-Pairs: %s%s%s%s%s%s%s%s%s%s%s%s available",
 					(pkt_afield->Tail[3]&0x08)?" 0/12":"", (pkt_afield->Tail[3]&0x04)?" 1/13":"", (pkt_afield->Tail[3]&0x02)?" 2/14":"",
 					(pkt_afield->Tail[3]&0x01)?" 3/15":"", (pkt_afield->Tail[4]&0x80)?" 4/16":"", (pkt_afield->Tail[4]&0x40)?" 5/17":"",
 					(pkt_afield->Tail[4]&0x20)?" 6/18":"", (pkt_afield->Tail[4]&0x10)?" 7/19":"", (pkt_afield->Tail[4]&0x08)?" 8/20":"",
@@ -1739,7 +1791,6 @@ XXX: Hier weitermachen
 			case 6: /* Extended Modulation Types */
 				offset+=2;
 				break;
-
 			case 9: /* Bearer Handover/Replacement Information */
 				offset+=2;
 				break;
@@ -1763,25 +1814,28 @@ XXX: Hier weitermachen
 			offset-=5;
 			break;
 		case 2:		/* Full Page */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " Full Page");
+			ep_strbuf_append_printf(afield_str,"Full Page");
 			break;
 		case 3:		/* MAC Resume Page */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " MAC Resume Page");
+			ep_strbuf_append_printf(afield_str,"MAC Resume Page");
 			break;
 		case 4:		/* Not the Last 36 Bits of a Long Page */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " Not the Last 36 Bits");
+			ep_strbuf_append_printf(afield_str,"Not the Last 36 Bits");
 			break;
 		case 5:		/* The First 36 Bits of a Long Page */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " The First 36 Bits");
+			ep_strbuf_append_printf(afield_str,"The First 36 Bits");
 			break;
 		case 6:		/* The Last 36 Bits of a Long Page */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " The Last 36 Bits");
+			ep_strbuf_append_printf(afield_str,"The Last 36 Bits");
 			break;
 		case 7:		/* All of a Long Page */
-			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, " All of a Long Page");
+			ep_strbuf_append_printf(afield_str,"All of a Long Page");
 			break;
 		}
+
+		proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, afield_str->str);
 	}
+
 
 	offset+=5;
 
@@ -1799,7 +1853,7 @@ XXX: Hier weitermachen
 	offset+=2;
 
 	/* **************** B-Field ************************************/
-	offset=dissect_bfield(dect_packet_type, header, pkt_bfield, pinfo, pkt_ptr, tvb, ti, DectTree, offset);
+	offset=dissect_bfield(dect_packet_type, header, pkt_bfield, pinfo, pkt_ptr, tvb, ti, DectTree, offset, ColumnsTree);
 }
 
 static void
@@ -1814,29 +1868,25 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Packetpointer */
 	pkt_len=tvb_length(tvb);
 
-	if(pkt_len>140)
-			pkt_len=140;
-
-	if(pkt_len<13)
+	if(pkt_len<=DECT_PACKET_INFO_LEN)
 	{
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "No Data");
 		return;
 	}
 
-	pkt_ptr=tvb_get_ptr(tvb, 11, pkt_len-11);
+	pkt_ptr=tvb_get_ptr(tvb, DECT_PACKET_INFO_LEN, pkt_len-DECT_PACKET_INFO_LEN);
 
 	/* fill A-Field */
 	pkt_afield.Header=pkt_ptr[0];
 	memcpy((char*)(&(pkt_afield.Tail)), (char*)(pkt_ptr+1), 5);
 	pkt_afield.RCRC=(((guint16)pkt_ptr[6])<<8)|pkt_ptr[7];
 
-
 	/* fill B-Field */
-	if(pkt_len>13)
+	if(pkt_len>DECT_PACKET_INFO_LEN+2)
 		memcpy((char*)(&(pkt_bfield.Data)), (char*)(pkt_ptr+8), pkt_len-5-8);
 	else
 		memset((char*)(&(pkt_bfield.Data)), 0, 128);
-	pkt_bfield.Length=pkt_len-13;
+	pkt_bfield.Length=pkt_len-DECT_PACKET_INFO_LEN-8;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT");
 
@@ -1927,6 +1977,25 @@ proto_register_dect(void)
 		{"Packet-Type", "dect.type", FT_BYTES, BASE_NONE, NULL,
 			0x0, NULL, HFILL}},
 
+
+	/* **************** Custom Columns ***********************/
+
+		{ &hf_dect_cc,
+		{"Columns", "dect.cc", FT_NONE, BASE_NONE, NULL,
+			0x0, NULL, HFILL}},
+
+		{ &hf_dect_cc_TA,
+		{"TA", "dect.cc.TA", FT_STRING, BASE_NONE, NULL,
+			0x0, NULL, HFILL}},
+
+		{ &hf_dect_cc_AField,
+		{"A-Field", "dect.cc.afield", FT_STRING, BASE_NONE, NULL,
+			0x0, NULL, HFILL}},
+
+		{ &hf_dect_cc_BField,
+		{"B-Field", "dect.cc.bfield", FT_STRING, BASE_NONE, NULL,
+			0x0, NULL, HFILL}},
+
 	/* **************** A-Field ******************************/
 	/* ***** Header ***** */
 		{ &hf_dect_A,
@@ -1959,12 +2028,12 @@ proto_register_dect(void)
 
 	/* ***** Tail ***** */
 		{ &hf_dect_A_Tail,
-		{"A-Field Tail", "dect.afield.tail", FT_UINT8, BASE_DEC, NULL,
-			0xE0, NULL, HFILL}},
+		{"A-Field Tail", "dect.afield.tail", FT_NONE, BASE_NONE, NULL,
+			0x0, NULL, HFILL}},
 
 	/* Nt */
 		{ &hf_dect_A_Tail_Nt,
-		{"Nt/RFPI", "dect.afield.tail.Nt", FT_BYTES, BASE_NONE, NULL,
+		{"RFPI", "dect.afield.tail.Nt", FT_BYTES, BASE_NONE, NULL,
 			0x0, "A-Field Tail: Nt/RFPI", HFILL}},
 
 	/* Qt */
@@ -1999,9 +2068,14 @@ proto_register_dect(void)
 		{"Mc", "dect.afield.tail.Qt.Mc", FT_UINT8, BASE_DEC, VALS(QTExtendedCarrier_vals),
 			0x04, NULL, HFILL}},
 
+	/* Byte 2 */
+		{ &hf_dect_A_Tail_Qt_0_CA,
+		{"CA", "dect.afield.tail.Qt.CA", FT_NONE, BASE_NONE, NULL,
+			0x0, NULL, HFILL}},
+			
 	/* Byte 3 */
 		{ &hf_dect_A_Tail_Qt_0_Spr1,
-		{"Spr", "dect.afield.tail.Qt.Spr1", FT_UINT8, BASE_DEC, VALS(QTSpr_vals),
+		{"Spr1", "dect.afield.tail.Qt.Spr1", FT_UINT8, BASE_DEC, VALS(QTSpr_vals),
 			0xC0, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_0_Cn,
@@ -2010,7 +2084,7 @@ proto_register_dect(void)
 
 	/* Byte 4 */
 		{ &hf_dect_A_Tail_Qt_0_Spr2,
-		{"Spr", "dect.afield.tail.Qt.Spr2", FT_UINT8, BASE_DEC, VALS(QTSpr_vals),
+		{"Spr2", "dect.afield.tail.Qt.Spr2", FT_UINT8, BASE_DEC, VALS(QTSpr_vals),
 			0xC0, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_0_PSCN,
@@ -2317,6 +2391,10 @@ proto_register_dect(void)
 		{"Mh", "dect.afield.tail.Mt.Mh", FT_UINT8, BASE_DEC, VALS(MTHead_vals),
 			0xF0, NULL, HFILL}},
 
+		{ &hf_dect_A_Tail_Mt_Mh_attr,
+		{"Mh", "dect.afield.tail.Mt.Mh.attr", FT_NONE, BASE_NONE, NULL,
+			0x0, NULL, HFILL}},
+
 		{ &hf_dect_A_Tail_Mt_Mh_fmid,
 		{"Mh/FMID", "dect.afield.tail.Mt.Mh.fmid", FT_UINT16, BASE_HEX, NULL,
 			0x0FF0, NULL, HFILL}},
@@ -2345,15 +2423,27 @@ proto_register_dect(void)
 			0x80, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Pt_SDU,
-		{"SDU", "dect.afield.tail.Pt.SDU", FT_UINT8, BASE_DEC, VALS(PTSDU_vals),
+		{"Bs SDU", "dect.afield.tail.Pt.SDU", FT_UINT8, BASE_DEC, VALS(PTSDU_vals),
 			0x70, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Pt_RFPI,
+		{"InfoType", "dect.afield.tail.Pt.RFPI", FT_NONE, BASE_NONE, NULL,
+			0x0, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Pt_BsData,
+		{"Bs Data", "dect.afield.tail.Pt.BsData", FT_NONE, BASE_NONE, NULL,
+			0x0, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Pt_InfoType,
 		{"InfoType", "dect.afield.tail.Pt.InfoType", FT_UINT8, BASE_DEC, VALS(PTInfoType_vals),
 			0xF0, NULL, HFILL}},
 
-		{ &hf_dect_A_Tail_Pt_Fill_Fillbits,
-		{"FillBits", "dect.afield.tail.Pt.InfoType.FillBits", FT_UINT8, BASE_DEC, NULL,
+		{ &hf_dect_A_Tail_Pt_Fillbits,
+		{"FillBits", "dect.afield.tail.Pt.FillBits", FT_NONE, BASE_NONE, NULL,
+			0x0, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Pt_SlotPairs,
+		{"SlotPairs", "dect.afield.tail.Pt.SlotPairs", FT_NONE, BASE_NONE, NULL,
 			0x0, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Pt_Bearer_Sn,
@@ -2376,11 +2466,15 @@ proto_register_dect(void)
 	/* ***************** B-Field *************************** */
 		{ &hf_dect_B,
 		{"B-Field", "dect.bfield", FT_BYTES, BASE_NONE,
-			NULL, 0x0, NULL, HFILL}},
+			0x0, 0x0, NULL, HFILL}},
 
 		{ &hf_dect_B_Data,
-		{"B-Field", "dect.bfield.data", FT_BYTES, BASE_NONE, NULL,
+		{"B-Field", "dect.bfield.data", FT_NONE, BASE_NONE, NULL,
 			0x0, NULL, HFILL}},
+
+		{ &hf_dect_B_DescrambledData,
+		{"Descrambled Data", "dect.bfield.descrdata", FT_NONE, BASE_NONE,
+			0x0, 0x0, NULL, HFILL}},
 
 		{ &hf_dect_B_fn,
 		{"B-Field", "dect.bfield.framenumber", FT_NONE, BASE_NONE, NULL,
@@ -2397,11 +2491,13 @@ proto_register_dect(void)
 	static gint *ett[]=
 	{
 		&ett_dect,
+		&ett_columns,
 		&ett_ahead,
 		&ett_afield,
 		&ett_atail,
 		&ett_aqt,
-		&ett_bfield
+		&ett_bfield,
+		&ett_bfdescrdata
 	};
 
 	proto_dect=proto_register_protocol("DECT Protocol", "DECT", "dect");
