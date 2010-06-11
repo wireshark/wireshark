@@ -189,7 +189,7 @@ reason code
 #define		user_abort				0x02
 #define		protocol_error				0x04
 #define		no_reason				0x08
-
+#define		implementation_restriction		0x10
 
 #define		SESSION_NO_ABORT		0
 #define		SESSION_USER_ABORT		1
@@ -204,7 +204,6 @@ struct SESSION_DATA_STRUCTURE
 	guint32 ros_op;
 	gboolean rtse_reassemble;
 };
-#define		implementation_restriction		0x10
 
 extern const value_string ses_vals[];
 
