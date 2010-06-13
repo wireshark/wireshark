@@ -30,7 +30,9 @@
 #define ACTION_FIND_NEXT        3
 #define ACTION_FIND_PREVIOUS    4
 #define ACTION_COLORIZE         5
-#define ACTION_WEB_LOOKUP	6
+#define ACTION_WEB_LOOKUP       6
+#define ACTION_COPY             7
+
 
 /* Action type - says what to do with the filter */
 #define ACTYPE_SELECTED         0
@@ -48,6 +50,8 @@
 #define CALLBACK_FIND_PREVIOUS(type, extra) ((ACTION_FIND_PREVIOUS<<16) | ((type)<<8) | (extra))
 #define CALLBACK_COLORIZE(type, extra)      ((ACTION_COLORIZE<<16) | ((type)<<8) | (extra))
 #define CALLBACK_WEB_LOOKUP                 (ACTION_WEB_LOOKUP<<16)
+#define CALLBACK_COPY                       (ACTION_COPY<<16)
+
 
 /* Extract components of callback argument */
 #define FILTER_ACTION(cb_arg)           (((cb_arg)>>16) & 0xff)
