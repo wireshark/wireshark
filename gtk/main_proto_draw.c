@@ -699,7 +699,7 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
   g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TREE_PTR, tree);
   g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TREE_VIEW_PTR, tree_view);
 
-  gtk_widget_show(byte_view);
+  gtk_widget_show(byte_view); /* triggers byte_view_realize_cb which calls packet_hex_print */
 
   /* no tabs if this is the first page */
   if (!(gtk_notebook_page_num(GTK_NOTEBOOK(byte_nb), byte_scrollw)))
@@ -707,7 +707,7 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
   else
         gtk_notebook_set_show_tabs(GTK_NOTEBOOK(byte_nb), TRUE);
 
-  /* set this page (this will print the packet data) */
+  /* set this page */
   gtk_notebook_set_current_page(GTK_NOTEBOOK(byte_nb),
     gtk_notebook_page_num(GTK_NOTEBOOK(byte_nb), byte_nb));
 
@@ -1094,7 +1094,7 @@ savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 }
 
 static GtkTextMark *
-packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int start, int end, guint32 mask, int mask_le, int use_digits, int create_mark)
+packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int bstart, int bend, guint32 mask, int mask_le, int use_digits, int create_mark)
 {
 	GtkTextIter i_start, i_stop, iter;
 
@@ -1109,7 +1109,7 @@ packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int start, int end, guint32 mas
 	int start_line, start_line_pos;
 	int stop_line, stop_line_pos;
 
-	if (start == -1 || end == -1)
+	if (bstart == -1 || bend == -1)
 		return NULL;
 
 	/* Display with inverse video ? */
@@ -1135,11 +1135,11 @@ packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int start, int end, guint32 mas
 		g_assert_not_reached();
 	}
 
-	start_line = start / per_line;
-	start_line_pos = start % per_line;
+	start_line = bstart / per_line;
+	start_line_pos = bstart % per_line;
 
-	stop_line = end / per_line;
-	stop_line_pos = end % per_line;
+	stop_line = bend / per_line;
+	stop_line_pos = bend % per_line;
 
 #define hex_fix(pos)   hex_offset + (pos * per_one) + (pos / BYTE_VIEW_SEP) - (pos == per_line)
 #define ascii_fix(pos) ascii_offset + pos + (pos / BYTE_VIEW_SEP) - (pos == per_line)
@@ -1201,7 +1201,7 @@ packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int start, int end, guint32 mas
 				}
 
 				if (!mask)
-					goto end;
+					goto xend;
 
 				line_pos++;
 			}
@@ -1240,7 +1240,7 @@ packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int start, int end, guint32 mas
 				}
 
 				if (!mask)
-					goto end;
+					goto xend;
 
 				line_pos--;
 			}
@@ -1249,7 +1249,7 @@ packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int start, int end, guint32 mas
 			stop_line--;
 		}
 	}
-end:
+xend:
 	return (create_mark) ? gtk_text_buffer_create_mark(buf, NULL, &iter, TRUE) : NULL;
 #undef hex_fix
 #undef ascii_fix
@@ -1501,9 +1501,10 @@ packet_hex_update(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 	g_object_ref(buf);
 
 #if 0
-	/* XXX: Apparently not a good idea; If a progress_bar
-	 *      is displayed below in delayed_create_progress_dlg()
-	 *      there will then be a crash internally in the gtk library.
+	/* XXX: Setting the text_view buffer to NULL is apparently 
+	 *      not a good idea; If a progress_bar is displayed below
+	 *      in delayed_create_progress_dlg() there will then be
+	 *      a crash internally in the gtk library.
 	 *      (It appears that gtk_text_view_set_buffer
 	 *       queues a callback to be run when this
 	 *       thread is next idle. Unfortunately the call to
