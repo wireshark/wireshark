@@ -46,6 +46,7 @@ volume_name="Wireshark"
 tmp_dir="/tmp/dmg-$$"
 auto_open_opt=
 utilities="Utilities"
+ws_bin="$package/Contents/Resources/bin/wireshark-bin"
 
 PATH=$PATH:/Developer/Tools
 
@@ -103,12 +104,18 @@ fi
 echo -e "\nCREATE WIRESHARK DISK IMAGE\n"
 
 # Get the architecture
-case `uname -p` in
-	'powerpc')
-		architecture="PPC"
+case `file $ws_bin` in
+	*Mach-O*64-bit*x86_64)
+		architecture="Intel 64"
 		;;
-	'i386')
-		architecture="Intel"
+	*Mach-O*i386)
+		architecture="Intel 32"
+		;;
+	*Mach-O*ppc64)
+		architecture="PPC 64"
+		;;
+	*Mach-O*ppc)
+		architecture="PPC 32"
 		;;
 	*)
 		echo "Cannot determine architecture"
