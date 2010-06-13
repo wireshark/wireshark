@@ -564,6 +564,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-glbp.c
 	dissectors/packet-gmrp.c
 	dissectors/packet-gnutella.c
+	dissectors/packet-gopher.c
 	dissectors/packet-gpef.c
 	dissectors/packet-gprs-llc.c
 	dissectors/packet-gre.c
