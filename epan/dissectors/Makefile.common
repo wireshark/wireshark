@@ -477,6 +477,7 @@ DISSECTOR_SRC = \
 	packet-glbp.c		\
 	packet-gmrp.c		\
 	packet-gnutella.c	\
+	packet-gopher.c		\
 	packet-gpef.c		\
 	packet-gprs-llc.c	\
 	packet-gre.c		\
