@@ -52,11 +52,6 @@ body h3 {
   font-size: 1.1em;
 }
 
-body h1, body h3, body h3, body h4, body h5, body h6 {
-  letter-spacing: 0.2em;
-  border-bottom: 1px solid silver;
-}
-
 body hr {
   border: none; /* Broken on IE6 */
 }
