@@ -354,6 +354,8 @@ static const value_string sctp_payload_proto_id_values[] = {
 /* Unassigned 26 */
   { X2AP_PAYLOAD_PROTOCOL_ID,            "X2AP" },
   { IRCP_PAYLOAD_PROTOCOL_ID,            "IRCP" },
+  { LCS_AP_PAYLOAD_PROTOCOL_ID,          "LCS-AP" },
+  { MPICH2_PAYLOAD_PROTOCOL_ID,          "MPICH2" },
   { 0,                                   NULL } };
 
 

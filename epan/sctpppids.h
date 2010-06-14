@@ -55,9 +55,11 @@
 #define FORCES_MP_PAYLOAD_PROTOCOL_ID   22
 #define FORCES_LP_PAYLOAD_PROTOCOL_ID   23
 #define SBC_AP_PAYLOAD_PROTOCOL_ID      24
-#define NBAP_PAYLOAD_PROTOCOL_ID		25
+#define NBAP_PAYLOAD_PROTOCOL_ID        25
 /* Unassigned 26 */
 #define X2AP_PAYLOAD_PROTOCOL_ID        27
 #define IRCP_PAYLOAD_PROTOCOL_ID        28
+#define LCS_AP_PAYLOAD_PROTOCOL_ID      29
+#define MPICH2_PAYLOAD_PROTOCOL_ID      30
 #define M2TP_PAYLOAD_PROTOCOL_ID        99    /* s-link */
 #endif /* sctpppids.h */
