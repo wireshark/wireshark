@@ -4120,16 +4120,16 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tag_tvb)
   if (i <= count || tag_off + 2 > tag_len)
     goto done;
 
-  cap_item = proto_tree_add_item(tree, hf_ieee80211_rsn_cap, tag_tvb, tag_off, 2, FALSE);
+  cap_item = proto_tree_add_item(tree, hf_ieee80211_rsn_cap, tag_tvb, tag_off, 2, ENC_LITTLE_ENDIAN);
   cap_tree = proto_item_add_subtree(cap_item, ett_rsn_cap_tree);
 
-  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_preauth, tag_tvb, tag_off, 2, FALSE);
-  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_no_pairwise, tag_tvb, tag_off, 2, FALSE);
-  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_ptksa_replay_counter, tag_tvb, tag_off, 2, FALSE);
-  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_gtksa_replay_counter, tag_tvb, tag_off, 2, FALSE);
-  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_mfpr, tag_tvb, tag_off, 2, FALSE);
-  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_mfpc, tag_tvb, tag_off, 2, FALSE);
-  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_peerkey, tag_tvb, tag_off, 2, FALSE);
+  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_preauth, tag_tvb, tag_off, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_no_pairwise, tag_tvb, tag_off, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_ptksa_replay_counter, tag_tvb, tag_off, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_gtksa_replay_counter, tag_tvb, tag_off, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_mfpr, tag_tvb, tag_off, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_mfpc, tag_tvb, tag_off, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_peerkey, tag_tvb, tag_off, 2, ENC_LITTLE_ENDIAN);
   tag_off += 2;
 
   if (tag_off + 2 > tag_len)
@@ -4180,7 +4180,7 @@ dissect_mobility_domain(proto_tree *tree, tvbuff_t *tvb, int offset,
   }
 
   proto_tree_add_item(tree, hf_ieee80211_tag_mobility_domain_mdid,
-                      tvb, offset, 2, FALSE);
+                      tvb, offset, 2, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(tree, hf_ieee80211_tag_mobility_domain_ft_capab,
                       tvb, offset + 2, 1, FALSE);
   proto_tree_add_item(tree, hf_ieee80211_tag_mobility_domain_ft_capab_ft_over_ds,
