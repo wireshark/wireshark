@@ -351,7 +351,10 @@ static int flow_graph_tcp_add_to_graph(packet_info *pinfo, const struct tcpheade
     gai->frame_label = g_strdup(flags);
   }
 
-  gai->comment = g_strdup_printf("Seq = %u Ack = %u",tcph->th_seq, tcph->th_ack);
+  if (tcph->th_flags & TH_ACK)
+      gai->comment = g_strdup_printf("Seq = %u Ack = %u",tcph->th_seq, tcph->th_ack);
+  else
+      gai->comment = g_strdup_printf("Seq = %u",tcph->th_seq);
 
   gai->line_style=1;
   gai->conv_num=0;
