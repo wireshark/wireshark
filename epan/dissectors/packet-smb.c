@@ -30,8 +30,6 @@
 # include "config.h"
 #endif
 
-#include <inttypes.h>
-
 #include <time.h>
 #include <string.h>
 #include <glib.h>
