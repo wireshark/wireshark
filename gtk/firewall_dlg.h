@@ -1,7 +1,7 @@
 /* firewall_dlg.h
  * Produce ACL rules for various products from a packet.
  *
- * $Id:$
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -22,11 +22,11 @@
  * Foundation,  Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef FIREWALL_DLG_H_INCLUDED
-#define FIREWALL_DLG_H_INCLUDED
+#ifndef __FIREWALL_DLG_H__
+#define __FIREWALL_DLG_H__
 
 /* Generate ACL / firewall rules from different fields in the
    selected packet. */
 void firewall_rule_cb(GtkWidget * w, gpointer data _U_);
 
-#endif /* FIREWALL_DLG_H_INCLUDED */
+#endif /* __FIREWALL_DLG_H__ */

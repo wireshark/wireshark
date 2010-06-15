@@ -28,6 +28,7 @@
 
 #ifndef __EXPERT_DLG_H__
 #define __EXPERT_DLG_H__
+
 #include <gtk/gtk.h>
 
 typedef struct expert_tapdata_s {

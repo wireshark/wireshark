@@ -23,4 +23,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __MANUAL_ADDR_RESOLV_H__
+#define __MANUAL_ADDR_RESOLV_H__
+
 void manual_addr_resolv_dlg (GtkWidget *w _U_, gpointer data);
+
+#endif /* __MANUAL_ADDR_RESOLV_H__ */

@@ -25,8 +25,8 @@
  * Foundation,  Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef RTP_STREAM_DLG_H_INCLUDED
-#define RTP_STREAM_DLG_H_INCLUDED
+#ifndef __RTP_STREAM_DLG_H__
+#define __RTP_STREAM_DLG_H__
 
 #include <gtk/gtk.h>
 
@@ -48,4 +48,4 @@ void rtpstream_dlg_show(GList *list);
  */
 void rtpstream_dlg_update(GList *list);
 
-#endif /*RTP_STREAM_DLG_H_INCLUDED*/
+#endif /* __RTP_STREAM_DLG_H__ */

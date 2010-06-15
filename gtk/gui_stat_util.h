@@ -23,9 +23,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
-#ifndef __gtk_stat_util__
-#define __gtk_stat_util__
+#ifndef __GTK_STAT_UTIL_H__
+#define __GTK_STAT_UTIL_H__
 
 #include <gtk/gtk.h>
 
@@ -63,4 +62,4 @@ extern void init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, const c
  */
 extern GtkTreeView *create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, const stat_column *headers);
 
-#endif
+#endif /* __GUI_STAT_UTIL_H__ */

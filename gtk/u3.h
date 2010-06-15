@@ -22,6 +22,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __GTK_U3_H__
+#define __GTK_U3_H__
+
 gboolean u3_active(void);
 
 void u3_runtime_info(GString *str);
@@ -31,3 +34,5 @@ void u3_deregister_pid(void);
 
 char * u3_expand_device_path(char *path);
 char * u3_contract_device_path(char *path);
+
+#endif /* __GTK_U3_H__ */

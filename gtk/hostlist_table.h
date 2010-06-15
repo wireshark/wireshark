@@ -23,6 +23,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __HOSTLIST_TABLE_H__
+#define __HOSTLIST_TABLE_H__
+
 #include "sat.h"
 
 /** @file
@@ -116,3 +119,5 @@ extern void init_hostlist_notebook_cb(GtkWidget *w, gpointer d);
  */
 void add_hostlist_table_data(hostlist_table *hl, const address *addr,
                              guint32 port, gboolean sender, int num_frames, int num_bytes, SAT_E sat, int port_type);
+
+#endif /* __HOSTLIST_TABLE_H__ */

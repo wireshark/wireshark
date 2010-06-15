@@ -1,4 +1,4 @@
-/* win32-file-dlg.h
+/* win32_file_dlg.h
  * Native Windows file dialog routines
  *
  * $Id$

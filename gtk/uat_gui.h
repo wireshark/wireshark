@@ -27,9 +27,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef _UAT_GUI_H_
-#define _UAT_GUI_H_
+#ifndef __UAT_GUI_H__
+#define __UAT_GUI_H__
 
 void uat_window_cb(GtkWidget* unused, void* uat);
 
-#endif
+#endif /* __UAT_GUI_H__ */

@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __GTKGUIPLUGINS_H__
-#define __GTKGUIPLUGINS_H__
+#ifndef __PLUGINS_DLG_H__
+#define __PLUGINS_DLG_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,4 +35,4 @@ GtkWidget * about_plugins_page_new(void);
 }
 #endif /* __cplusplus */
 
-#endif /* __GTKGUIPLUGINS_H__ */
+#endif /* __PLUGINS_DLG_H__ */

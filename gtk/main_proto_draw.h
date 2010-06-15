@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __GTKPACKET_H__
-#define __GTKPACKET_H__
+#ifndef __MAIN_PROTO_DRAW_H__
+#define __MAIN_PROTO_DRAW_H__
 
 /** @file
  *  Packet tree and details panes.
@@ -244,4 +244,4 @@ extern gchar *expert_color_warn_str;
 extern gchar *expert_color_error_str;
 extern gchar *expert_color_foreground_str;
 
-#endif
+#endif /* __MAIN_PROTO_DRAW_H__ */

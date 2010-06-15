@@ -22,6 +22,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __CFILTER_COMBO_UTILS_H__
+#define __CFILTER_COMBO_UTILS_H__
+
 /** @file
  *  Capture filter combo box routines
  */
@@ -32,3 +35,5 @@ extern gboolean cfilter_combo_add_recent(gchar *s);
 #define E_CFILTER_CM_KEY          "capture_filter_combo"
 #define E_CFILTER_FL_KEY          "capture_filter_list"
 #define RECENT_KEY_CAPTURE_FILTER "recent.capture_filter"
+
+#endif /* __CFILTER_COMBO_UTILS_H__ */

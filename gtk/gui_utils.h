@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __GTKGUIUI_UTIL_H__
-#define __GTKGUIUI_UTIL_H__
+#ifndef __GUI_UTILS_H__
+#define __GUI_UTILS_H__
 
 /** @defgroup windows_group Windows
  *
@@ -461,4 +461,4 @@ gint ws_combo_box_get_active(GtkComboBox *combo_box);
 void ws_combo_box_set_active(GtkComboBox *combo_box, gint idx);
 
 
-#endif /* __GTKGUIUI_UTIL_H__ */
+#endif /* __GUI_UTIL__H__ */

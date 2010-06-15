@@ -28,8 +28,8 @@
  * Foundation,  Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef GRAPH_ANALYSIS_H_INCLUDED
-#define GRAPH_ANALYSIS_H_INCLUDED
+#ifndef __GRAPH_ANALYSIS_H__
+#define __GRAPH_ANALYSIS_H__
 
 #include <glib.h>
 #include <gtk/gtk.h>
@@ -130,4 +130,4 @@ void graph_analysis_update(graph_analysis_data_t* user_data);
 void graph_analysis_redraw(graph_analysis_data_t* user_data);
 
 
-#endif /*GRAPH_ANALYSIS_H_INCLUDED*/
+#endif /* __GRAPH_ANALYSIS_H__ */

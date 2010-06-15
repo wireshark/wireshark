@@ -30,8 +30,8 @@
  * Foundation,  Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef IAX2_ANALYSIS_H_INCLUDED
-#define IAX2_ANALYSIS_H_INCLUDED
+#ifndef __IAX2_ANALYSIS_H__
+#define __IAX2_ANALYSIS_H__
 
 #include <glib.h>
 #include <epan/address.h>
@@ -116,4 +116,4 @@ extern int iax2_packet_analyse(tap_iax2_stat_t *statinfo,
         const struct _iax2_info_t *iax2info);
 
 
-#endif /*IAX2_ANALYSIS_H_INCLUDED*/
+#endif /* __IAX2_ANALYSIS_H__ */

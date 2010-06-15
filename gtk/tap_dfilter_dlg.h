@@ -23,6 +23,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __TAP_DFILTER_DLG_H__
+#define __TAP_DFILTER_DLG_H__
+
 /*
  * You can easily add a display filter dialog for your gui tap by using 
  * the following infrastructure:
@@ -71,3 +74,5 @@ void register_dfilter_stat(tap_dfilter_dlg *info, const char *name,
 
 /* This will update the titles of the dialog windows when we load a new capture file. */
 void tap_dfilter_dlg_update (void);
+
+#endif /* __TAP_DFILTER_DLG_H__ */

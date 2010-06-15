@@ -1,4 +1,4 @@
-/* follow_stream.c
+/* follow_stream.h
  * Common routines for following data streams
  *
  * $Id$
@@ -22,6 +22,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  */
+
+#ifndef __FOLLOW_STREAM_H__
+#define __FOLLOW_STREAM_H__
 
 #include <gtk/gtk.h>
 
@@ -108,3 +111,5 @@ gboolean follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
 frs_return_t follow_read_tcp_stream(follow_info_t *follow_info, gboolean (*print_line)(char *, size_t, gboolean, void *), void *arg);
 frs_return_t follow_read_udp_stream(follow_info_t *follow_info, gboolean (*print_line)(char *, size_t, gboolean, void *), void *arg);
 frs_return_t follow_read_ssl_stream(follow_info_t *follow_info, gboolean (*print_line)(char *, size_t, gboolean, void *), void *arg);
+
+#endif /* __FOLLOW_STREAM_H__ */

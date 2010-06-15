@@ -22,7 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
+#ifndef __PACKET_HISTORY_H__
+#define __PACKET_HISTORY_H__
 
 extern void packet_history_add(gint row);
 
@@ -32,4 +33,4 @@ extern void history_forward_cb(GtkWidget *widget, gpointer data);
 
 extern void history_back_cb(GtkWidget *widget, gpointer data);
 
-
+#endif /* __PACKET_HISTORY_H__ */

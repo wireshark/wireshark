@@ -33,8 +33,8 @@
  * Foundation,  Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef VOIP_CALLS_H_INCLUDED
-#define VOIP_CALLS_H_INCLUDED
+#ifndef __VOIP_CALLS_H__
+#define __VOIP_CALLS_H__
 
 #include <glib.h>
 #include <stdio.h>
@@ -294,4 +294,4 @@ void voip_calls_reset(voip_calls_tapinfo_t *tapinfo);
 
 void graph_analysis_data_init(void);
 
-#endif /*VOIP_CALLS_H_INCLUDED*/
+#endif /* __VOIP_CALLS_H__ */

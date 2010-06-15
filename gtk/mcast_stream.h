@@ -29,8 +29,8 @@
  * Foundation,  Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef Mcast_STREAM_H_INCLUDED
-#define Mcast_STREAM_H_INCLUDED
+#ifndef __MCAST_STREAM_H__
+#define __MCAST_STREAM_H__
 
 #include <glib.h>
 #include <stdio.h>
@@ -146,4 +146,4 @@ void mcaststream_reset(mcaststream_tapinfo_t *tapinfo);
 */
 void mcaststream_scan(void);
 
-#endif /*Mcast_STREAM_H_INCLUDED*/
+#endif /* __MCAST_STREAM_H__ */

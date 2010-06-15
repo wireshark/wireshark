@@ -24,6 +24,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#ifndef __GSM_MAP_STAT_H__
+#define __GSM_MAP_STAT_H__
+
 /** @file
  *  Statistics for GSM MAP Operations.
  */
@@ -39,3 +42,5 @@ typedef struct _gsm_map_stat_t {
 
 /** Global gsm map statistic data */
 extern gsm_map_stat_t		gsm_map_stat;
+
+#endif /* __GSM_MAP_STAT_H__ */

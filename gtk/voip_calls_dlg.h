@@ -33,8 +33,8 @@
  * Foundation,  Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef VOIP_CALLS_DLG_H_INCLUDED
-#define VOIP_CALLS_DLG_H_INCLUDED
+#ifndef __VOIP_CALLS_DLG_H__
+#define __VOIP_CALLS_DLG_H__
 
 #include <gtk/gtk.h>
 
@@ -49,4 +49,4 @@ void voip_calls_dlg_update(GList *list);
 void voip_calls_dlg_draw(void *ptr);
 void voip_calls_dlg_reset(void *ptr);
 
-#endif /* VOIP_CALLS_DLG_H_INCLUDED*/
+#endif /* __VOIP_CALLS_DLG_H__ */

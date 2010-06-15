@@ -21,6 +21,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __FILTER_UTILS_H__
+#define __FILTER_UTILS_H__
+
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
 /* Filter actions */
@@ -60,3 +63,5 @@
 
 
 extern void apply_selected_filter (guint callback_action, char *filter);
+
+#endif /* __FILTER_UTILS_H__ */

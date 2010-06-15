@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef __SUPPORTED_DLG_H__
-#define __SUPPORTED_DLG_H__
+#ifndef __SUPPORTED_PROTOS_DLG_H__
+#define __SUPPORTED_PROTOS_DLG_H__
 
 /** @file
  *  "Supported Protocols" dialog box.
@@ -42,4 +42,4 @@ void supported_cb(GtkWidget *widget, gpointer data);
 /** Redraw all the supported protos text widgets, to use a new font. */
 void supported_redraw(void);
 
-#endif
+#endif /* __SUPPORTED_PROTOS_DLG_H__ */

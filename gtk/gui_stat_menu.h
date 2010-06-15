@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __GTKGUISTATMENU_H__
-#define __GTKGUISTATMENU_H__
+#ifndef __GTK_STAT_MENU_H__
+#define __GTK_STAT_MENU_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,4 +88,4 @@ extern void register_stat_menu_item_stock(
 }
 #endif /* __cplusplus */
 
-#endif /* __GTKGUISTATMENU_H__ */
+#endif /* __GTK_STAT_MENU_H__ */

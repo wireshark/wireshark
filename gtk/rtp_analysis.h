@@ -29,8 +29,8 @@
  * Foundation,  Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef RTP_ANALYSIS_H_INCLUDED
-#define RTP_ANALYSIS_H_INCLUDED
+#ifndef __RTP_ANALYSIS_H__
+#define __RTP_ANALYSIS_H__
 
 #include <glib.h>
 #include <epan/address.h>
@@ -128,4 +128,4 @@ extern int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
         const struct _rtp_info *rtpinfo);
 
 
-#endif /*RTP_ANALYSIS_H_INCLUDED*/
+#endif /* __RTP_ANALYSIS_H__ */

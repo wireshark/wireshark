@@ -21,7 +21,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
+
+#ifndef __SCTP_STAT_H__ 
+#define __SCTP_STAT_H__ 
+
 #include <epan/dissectors/packet-sctp.h>
 #include <epan/address.h>
 #ifndef _WIN32
@@ -405,4 +408,5 @@ void set_analyse_child(struct sctp_analyse *child);
 void remove_analyse_child(struct sctp_analyse *child);
 
 void sctp_set_assoc_filter(void);
-
+ 
+#endif /* __SCTP_STAT_H__ */

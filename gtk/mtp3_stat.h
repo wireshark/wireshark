@@ -24,6 +24,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#ifndef __MTP3_STAT_H__
+#define __MTP3_STAT_H__
+
 /** @file
  *  Statistics for MTP3.
  *  @todo Could someone with more knowledge of this comment it for doxygen?
@@ -48,3 +51,5 @@ typedef struct _mtp3_stat_t {
 
 extern mtp3_stat_t		mtp3_stat[];
 extern guint8			mtp3_num_used;
+
+#endif /* __MTP3_STAT_H__ */

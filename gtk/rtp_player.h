@@ -33,6 +33,9 @@
  * Foundation,  Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __RTP_PLAYER_H__
+#define __RTP_PLAYER_H__
+
 #ifdef HAVE_LIBPORTAUDIO
 
 void rtp_player_init(voip_calls_tapinfo_t *voip_calls_tap);
@@ -40,3 +43,5 @@ void add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo);
 void reset_rtp_player(void);
 
 #endif /* HAVE_LIBPORTAUDIO */
+
+#endif /* __RTP_PLAYER_H__ */

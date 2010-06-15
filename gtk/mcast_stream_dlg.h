@@ -29,8 +29,8 @@
  * Foundation,  Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef Mcast_STREAM_DLG_H_INCLUDED
-#define Mcast_STREAM_DLG_H_INCLUDED
+#ifndef __MCAST_STREAM_DLG_H__
+#define __MCAST_STREAM_DLG_H__
 
 #include <gtk/gtk.h>
 
@@ -52,4 +52,4 @@ void mcaststream_dlg_show(GList *list);
  */
 void mcaststream_dlg_update(GList *list);
 
-#endif /*Mcast_STREAM_DLG_H_INCLUDED*/
+#endif /* __MCAST_STREAM_DLG_H__ */

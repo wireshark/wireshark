@@ -25,6 +25,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __EXPERT_COMP_TABLE_H__
+#define __EXPERT_COMP_TABLE_H__
+
 #include <gtk/gtk.h>
 #include <epan/expert.h>
 #include <gtk/expert_dlg.h>
@@ -86,3 +89,4 @@ void reset_error_table_data(error_equiv_table *err);
  */
 void free_error_table_data(error_equiv_table *err);
 
+#endif /* __EXPERT_COMP_TABLE_H__ */

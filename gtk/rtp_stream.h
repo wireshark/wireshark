@@ -25,8 +25,8 @@
  * Foundation,  Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef RTP_STREAM_H_INCLUDED
-#define RTP_STREAM_H_INCLUDED
+#ifndef __RTP_STREAM_H__
+#define __RTP_STREAM_H__
 
 #include "rtp_analysis.h"
 #include <glib.h>
@@ -157,4 +157,4 @@ gboolean rtpstream_save(rtp_stream_info_t* stream, const gchar *filename);
 void rtpstream_mark(rtp_stream_info_t* stream_fwd, rtp_stream_info_t* stream_rev);
 
 
-#endif /*RTP_STREAM_H_INCLUDED*/
+#endif /* __RTP_STREAM_H__ */

@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PACKET_LIST_H__
-#define __PACKET_LIST_H__
+#ifndef __MAIN_PACKET_LIST_H__
+#define __MAIN_PACKET_LIST_H__
 
 #ifndef NEW_PACKET_LIST
 
@@ -177,4 +177,4 @@ extern void packet_list_recent_write_all(FILE *rf);
 
 #endif /* NEW_PACKET_LIST */
 
-#endif /* __PACKET_LIST_H__ */
+#endif /* __MAIN_PACKET_LIST_H__ */

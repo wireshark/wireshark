@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __MAIN_MENU_H__
-#define __MAIN_MENU_H__
+#ifndef __MENUS_H__
+#define __MENUS_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -142,4 +142,4 @@ void set_menus_for_selected_packet(capture_file *cf);
 }
 #endif /* __cplusplus */
 
-#endif /* __MAIN_MENU_H__ */
+#endif /* __MENUS_H__ */

@@ -24,6 +24,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __SERVICE_RESPONSE_TIME_TABLE_H__
+#define __SERVICE_RESPONSE_TIME_TABLE_H__
+
 #include <gtk/gtk.h>
 #include "epan/nstime.h"
 #include "../timestats.h"
@@ -96,3 +99,4 @@ void reset_srt_table_data(srt_stat_table *rst);
  */
 void free_srt_table_data(srt_stat_table *rst);
 
+#endif /* __SERVICE_RESPONSE_TIME_TABLE_H__ */
