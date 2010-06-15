@@ -177,6 +177,25 @@ WS_VAR_IMPORT const value_string nt_cmd_vals[];
 #define SMBE_sharebufexc 36 /* A sharing buffer has been exceeded */
 #define SMBE_diskfull 39
 
+/* Used for SMB Export Object feature */
+typedef struct _smb_eo_t {
+        guint8 cmd;
+        int     tid,uid,fid;
+        guint32  pkt_num;
+        gchar   *hostname;
+        gchar   *filename;
+        int fid_type;
+        gint64  end_of_file;
+        gchar   *content_type;
+        guint32  payload_len;
+        const guint8 *payload_data;
+        guint64 smb_file_offset;
+        guint32 smb_chunk_len;
+} smb_eo_t;
+
+/* Strings that describes the SMB object type */
+WS_VAR_IMPORT const value_string smb_fid_types[];
+
 /* the information we need to keep around for NT transatcion commands */
 typedef struct {
 	int subcmd;
@@ -238,7 +257,8 @@ typedef struct {
 	int subcmd;
 	int trans_subcmd;
 	int function;
-	int fid;
+        /* Unification of fid variable type (was int) */
+        guint16 fid;
 	guint16 lanman_cmd;
 	guchar *param_descrip;  /* Keep these descriptors around */
 	guchar *data_descrip;
@@ -269,6 +289,8 @@ typedef struct conv_tables {
 
 	/* track fid to fidstruct (filename/openframe/closeframe */
 	emem_tree_t *fid_tree;
+        /* We'll use a GSL list instead */
+        GSList  *GSL_fid_info;
 
 	/* track tid to fidstruct (sharename/shareframe/unshareframe */
 	emem_tree_t *tid_tree;
@@ -334,8 +356,13 @@ typedef struct _smb_fid_saved_info_t {
 	guint32 create_disposition;
 } smb_fid_saved_info_t;
 struct _smb_fid_into_t {
-	int opened_in;
-	int closed_in;
+        guint16 tid,fid;
+        /* The end_of_file will store the last registered offset or
+           the reported end_of_file from the SMB protocol */
+        gint64  end_of_file;
+        /* These two were int */
+	guint opened_in;
+	guint closed_in;
 	int type;
 	smb_fid_saved_info_t *fsi;
 };

@@ -3082,6 +3082,10 @@ Holger Freyther		<zecke [AT] selfish.org> {
 	NexusWare C7 MTP over UDP dissector
 }
 
+Jose Pico		 jose.pico@telefonica.net {
+	Routines for exporting SMB objects
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

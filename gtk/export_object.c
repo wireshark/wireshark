@@ -318,7 +318,9 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 
 	object_list->store = gtk_tree_store_new(EO_NUM_COLUMNS,
 						 G_TYPE_INT, G_TYPE_STRING,
-						 G_TYPE_STRING, G_TYPE_INT,
+						 /* we need a UINT64
+                                                    (was G_TYPE_STRING, G_TYPE_INT,) */
+                                                 G_TYPE_STRING, G_TYPE_INT64,
 						 G_TYPE_STRING);
 
 	object_list->tree = tree_view_new(GTK_TREE_MODEL(object_list->store));
@@ -375,7 +377,6 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 
 	selection = gtk_tree_view_get_selection(object_list->tree_view);
 	g_signal_connect(selection, "changed", G_CALLBACK(eo_remember_row_num), object_list);
-
 
 	bbox = dlg_button_row_new(GTK_STOCK_HELP, WIRESHARK_STOCK_SAVE_ALL, GTK_STOCK_SAVE_AS, GTK_STOCK_CANCEL, NULL);
 

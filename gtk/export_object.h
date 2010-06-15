@@ -42,7 +42,9 @@ typedef struct _export_object_entry_t {
 	gchar *hostname;
 	gchar *content_type;
 	gchar *filename;
-	guint payload_len;
+        /* We need to store a 64 bit integer to hold a file length
+           (was guint payload_len;) */
+        gint64 payload_len;
 	guint8 *payload_data;
 } export_object_entry_t;
 
@@ -52,5 +54,6 @@ void export_object_window(const gchar *tapname, const gchar *name,
 /* Protocol specific */
 void eo_http_cb(GtkWidget *widget _U_, gpointer data _U_);
 void eo_dicom_cb(GtkWidget *widget _U_, gpointer data _U_);
+void eo_smb_cb(GtkWidget *widget _U_, gpointer data _U_);
 
 #endif /* __EXPORT_OBJECT_H__ */
