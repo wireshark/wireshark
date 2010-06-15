@@ -3082,7 +3082,11 @@ Holger Freyther		<zecke [AT] selfish.org> {
 	NexusWare C7 MTP over UDP dissector
 }
 
-Jose Pico		 jose.pico@telefonica.net {
+Jose Pico		 <jose [AT] taddong.com> {
+	Routines for exporting SMB objects
+}
+
+David Perez		 <david [AT] taddong.com> {
 	Routines for exporting SMB objects
 }
 
