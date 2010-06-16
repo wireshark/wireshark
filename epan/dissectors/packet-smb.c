@@ -4285,7 +4285,7 @@ dissect_lock_and_read_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 }
 
 typedef struct _rw_info_t {
-	guint32 offset;
+	guint64 offset;
 	guint32 len;
 	guint16 fid;
 } rw_info_t;
@@ -4340,7 +4340,7 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	if(rwi){
 		proto_item *it;
 
-		it=proto_tree_add_uint(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
+		it=proto_tree_add_uint64(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
 
 		PROTO_ITEM_SET_GENERATED(it);
 		it=proto_tree_add_uint(tree, hf_smb_file_rw_length, tvb, 0, 0, rwi->len);
@@ -4402,7 +4402,7 @@ dissect_write_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	if(rwi){
 		proto_item *it;
 
-		it=proto_tree_add_uint(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
+		it=proto_tree_add_uint64(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
 
 		PROTO_ITEM_SET_GENERATED(it);
 		it=proto_tree_add_uint(tree, hf_smb_file_rw_length, tvb, 0, 0, rwi->len);
@@ -6246,7 +6246,8 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	guint16 andxoffset=0, bc, maxcnt_low;
 	guint32 maxcnt_high;
 	guint32 maxcnt=0;
-	guint32 ofs = 0;
+	guint32 offsetlow, offsethigh=0;
+	guint64 ofs;
 	smb_info_t *si= (smb_info_t *)pinfo->private_data;
 	unsigned int fid;
 	rw_info_t *rwi=NULL;
@@ -6280,7 +6281,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset += 2;
 
 	/* offset */
-	ofs = tvb_get_letohl(tvb, offset);
+	offsetlow = tvb_get_letohl(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
 	offset += 4;
 
@@ -6329,10 +6330,24 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	maxcnt=maxcnt_high;
 	maxcnt=(maxcnt<<16)|maxcnt_low;
 
+	/* remaining */
+	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	if(wc==12){
+		/* high offset */
+		offsethigh=tvb_get_letohl(tvb, offset);
+		proto_tree_add_item(tree, hf_smb_high_offset, tvb, offset, 4, TRUE);
+		offset += 4;
+	}
+
+	ofs=offsethigh;
+	ofs=(ofs<<32)|offsetlow;
+
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO,
-				", %u byte%s at offset %u", maxcnt,
-				(maxcnt == 1) ? "" : "s", ofs);
+				", %u byte%s at offset %" G_GINT64_MODIFIER "u",
+				maxcnt, (maxcnt == 1) ? "" : "s", ofs);
 
 	/* save the offset/len for this transaction */
 	if(si->sip && !pinfo->fd->flags.visited){
@@ -6350,21 +6365,11 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	if(rwi){
 		proto_item *it;
 
-		it=proto_tree_add_uint(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
+		it=proto_tree_add_uint64(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
 
 		PROTO_ITEM_SET_GENERATED(it);
 		it=proto_tree_add_uint(tree, hf_smb_file_rw_length, tvb, 0, 0, rwi->len);
 		PROTO_ITEM_SET_GENERATED(it);
-	}
-
-	/* remaining */
-	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
-	offset += 2;
-
-	if(wc==12){
-		/* high offset */
-		proto_tree_add_item(tree, hf_smb_high_offset, tvb, offset, 4, TRUE);
-		offset += 4;
 	}
 
 	BYTE_COUNT;
@@ -6444,7 +6449,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	if(rwi){
 		proto_item *it;
 
-		it=proto_tree_add_uint(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
+		it=proto_tree_add_uint64(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
 
 		PROTO_ITEM_SET_GENERATED(it);
 		it=proto_tree_add_uint(tree, hf_smb_file_rw_length, tvb, 0, 0, rwi->len);
@@ -6476,7 +6481,11 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_uint(tree, hf_smb_data_offset, tvb, offset, 2, dataoffset);
 	offset += 2;
 
-	/* XXX we should really only do this in case we have seen LARGE FILE being negotiated */
+	/*
+	 * XXX - we should really only do this in case we have seen
+	 * LARGE FILE being negotiated.  Unfortunately, we might not
+	 * have seen the negotiation phase in the capture....
+	 */
 	/* data length high */
 	datalen_high = tvb_get_letohl(tvb, offset);
 	if(datalen_high==0xffffffff){
@@ -6568,9 +6577,10 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static int
 dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
-	guint32 ofs=0;
 	guint8	wc, cmd=0xff;
 	guint16 andxoffset=0, bc, dataoffset=0, datalen_low, datalen_high;
+	guint32 offsetlow, offsethigh=0;
+	guint64 ofs;
 	guint32 datalen=0;
 	smb_info_t *si = (smb_info_t *)pinfo->private_data;
         guint16 fid=0; /* was unsigned int fid=0; */
@@ -6615,7 +6625,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 
 	/* offset */
-	ofs = tvb_get_letohl(tvb, offset);
+	offsetlow = tvb_get_letohl(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
 	offset += 4;
 
@@ -6650,11 +6660,20 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_uint(tree, hf_smb_data_offset, tvb, offset, 2, dataoffset);
 	offset += 2;
 
-	/* FIXME: handle Large (48-bit) byte/offset to COL_INFO */
+	if(wc==14){
+		/* high offset */
+		offsethigh=tvb_get_letohl(tvb, offset);
+		proto_tree_add_item(tree, hf_smb_high_offset, tvb, offset, 4, TRUE);
+		offset += 4;
+	}
+
+	ofs=offsethigh;
+	ofs=(ofs<<32)|offsetlow;
+
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO,
-				", %u byte%s at offset %u", datalen,
-				(datalen == 1) ? "" : "s", ofs);
+				", %u byte%s at offset %" G_GINT64_MODIFIER "u",
+				datalen, (datalen == 1) ? "" : "s", ofs);
 
 	/* save the offset/len for this transaction */
 	if(si->sip && !pinfo->fd->flags.visited){
@@ -6672,19 +6691,13 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	if(rwi){
 		proto_item *it;
 
-		it=proto_tree_add_uint(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
+		it=proto_tree_add_uint64(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
 
 		PROTO_ITEM_SET_GENERATED(it);
 		it=proto_tree_add_uint(tree, hf_smb_file_rw_length, tvb, 0, 0, rwi->len);
 		PROTO_ITEM_SET_GENERATED(it);
 	}
 
-
-	if(wc==14){
-		/* high offset */
-		proto_tree_add_item(tree, hf_smb_high_offset, tvb, offset, 4, TRUE);
-		offset += 4;
-	}
 
 	BYTE_COUNT;
 
@@ -6833,7 +6846,7 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if(rwi){
 		proto_item *it;
 
-		it=proto_tree_add_uint(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
+		it=proto_tree_add_uint64(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
 
 		PROTO_ITEM_SET_GENERATED(it);
 		it=proto_tree_add_uint(tree, hf_smb_file_rw_length, tvb, 0, 0, rwi->len);
@@ -19699,7 +19712,7 @@ proto_register_smb(void)
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_file_rw_offset,
-	  { "File Offset", "smb.file.rw.offset", FT_UINT32, BASE_DEC,
+	  { "File Offset", "smb.file.rw.offset", FT_UINT64, BASE_DEC,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_file_rw_length,
