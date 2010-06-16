@@ -189,7 +189,7 @@ typedef struct _smb_eo_t {
         gchar   *content_type;
         guint32  payload_len;
         const guint8 *payload_data;
-        gsize   smb_file_offset;
+        guint64 smb_file_offset;
         guint32 smb_chunk_len;
 } smb_eo_t;
 

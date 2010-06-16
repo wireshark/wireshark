@@ -123,11 +123,11 @@ void insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_e
 	guint		i;
         free_chunk      *current_free_chunk;
         free_chunk      *new_free_chunk;
-        gsize           chunk_offset=eo_info->smb_file_offset;
-        gsize           chunk_length=eo_info->payload_len;
-        gsize           chunk_end_offset = chunk_offset+chunk_length-1;
+	guint64 	chunk_offset=eo_info->smb_file_offset;
+	guint64 	chunk_length=eo_info->payload_len;
+        guint64         chunk_end_offset = chunk_offset+chunk_length-1;
 	/* Size of file in memory */
-        gsize           calculated_size = chunk_offset+chunk_length;	
+        guint64         calculated_size = chunk_offset+chunk_length;	
 	gpointer	dest_memory_addr;
 
 	/* Let's recalculate the file length and data gathered */
@@ -196,7 +196,17 @@ void insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_e
 	   ...first, we shall be able to allocate the memory */
 	if (!entry->payload_data) {
 		/* This is a New file */
-		entry->payload_data = g_try_malloc(calculated_size);
+		if (calculated_size > G_MAXSIZE) {
+			/*
+			 * The argument to g_try_malloc() is
+			 * a gsize, the maximum value of which is
+			 * G_MAXSIZE.  If the calculated size is
+			 * bigger than that, we just say the attempt
+			 * to allocate memory failed.
+			 */
+			entry->payload_data=NULL;
+		} else
+			entry->payload_data = g_try_malloc((gsize)calculated_size);
 		if (!entry->payload_data) {
 			/* Memory error */
 			file->is_out_of_memory=TRUE;
@@ -206,13 +216,21 @@ void insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_e
 		if (calculated_size > (guint64) entry->payload_len &&
 		    !file->is_out_of_memory) { 
 			/* We need more memory */
-			dest_memory_addr=g_try_realloc(
-				entry->payload_data,
-				calculated_size);
+			if (calculated_size > G_MAXSIZE) {
+				/*
+				 * As for g_try_malloc(), so for
+				 * g_try_realloc().
+				 */
+				dest_memory_addr=NULL;
+			} else {
+				dest_memory_addr=g_try_realloc(
+					entry->payload_data,
+					(gsize)calculated_size);
+			}
 			if(!dest_memory_addr) { 
 				/* Memory error */
 				file->is_out_of_memory=TRUE;
-				/* We don have memory for this file. 
+				/* We don't have memory for this file. 
 				   Free the current file content from memory */
 				g_free(entry->payload_data);
 				entry->payload_data=NULL;
