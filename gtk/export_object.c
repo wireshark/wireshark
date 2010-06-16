@@ -160,7 +160,7 @@ eo_save_entry(gchar *save_as_filename, export_object_entry_t *entry, gboolean sh
 		if (bytes_left > 0x40000000)
 			bytes_to_write = 0x40000000;
 		else
-			bytes_to_write = bytes_left;
+			bytes_to_write = (int)bytes_left;
 		bytes_written = ws_write(to_fd, ptr, bytes_to_write);
 		if(bytes_written <= 0) {
 			if (bytes_written < 0)
