@@ -3246,7 +3246,7 @@ dissect_v9_pdu_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, i
 			proto_tree_add_item(pdutree, hf_cflow_fw_ext_event,
 				tvb, offset, length, FALSE);
 			break;
-		case 40000: // NF_F_USERNAME[_MAX]
+		case 40000: /* NF_F_USERNAME[_MAX] */
 			proto_tree_add_item(pdutree, hf_cflow_aaa_username,
 				tvb, offset, length, FALSE);
 			break;
