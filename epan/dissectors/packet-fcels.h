@@ -118,6 +118,7 @@ static const value_string fc_els_proto_val[] = {
 #define FC_ELS_RJT_CMDNOTSUPP   0x0B
 #define FC_ELS_RJT_GENFAIL2     0x0D
 #define FC_ELS_RJT_CMDINPROG    0x0E
+#define FC_ELS_RJT_FIP          0x20
 #define FC_ELS_RJT_VENDOR       0xFF
 
 static const value_string fc_els_rjt_val[] = {
@@ -129,6 +130,7 @@ static const value_string fc_els_rjt_val[] = {
     {FC_ELS_RJT_CMDNOTSUPP, "Command Not Supported"},
     {FC_ELS_RJT_GENFAIL2  , "Unable to Perform Cmd"},
     {FC_ELS_RJT_CMDINPROG , "Command in Progress Already"},
+    {FC_ELS_RJT_FIP       , "FIP Error"},
     {FC_ELS_RJT_VENDOR    , "Vendor Unique Error"},
     {0, NULL}
 };
@@ -172,6 +174,7 @@ static const value_string fc_els_rjt_val[] = {
 #define FC_ELS_RJT_DET_OORSRC_C4         0x42
 #define FC_ELS_RJT_DET_INV_PNNAME        0x44
 #define FC_ELS_RJT_DET_AUTH_REQD         0x48
+#define FC_ELS_RJT_DET_NOT_NEIGHBOR      0x62
 
 static const value_string fc_els_rjt_det_val[] = {
     {FC_ELS_RJT_DET_NODET            , "No further details"},
@@ -213,6 +216,7 @@ static const value_string fc_els_rjt_det_val[] = {
     {FC_ELS_RJT_DET_OORSRC_C4        , "No Resources to Support Class 4 Conn"},
     {FC_ELS_RJT_DET_INV_PNNAME       , "Invalid Port/Node Name"},
     {FC_ELS_RJT_DET_AUTH_REQD        , "Authentication Required"},
+    {FC_ELS_RJT_DET_NOT_NEIGHBOR     , "VN2VN_Port not in Neighbor Set"},
     {0, NULL}
 };
 

@@ -61,7 +61,8 @@ enum fip_opcode {
         FIP_OP_DISC =   1,              /* discovery, advertisement, etc. */
         FIP_OP_LS = 2,                  /* Link Service request or reply */
         FIP_OP_CTRL =   3,              /* control */
-        FIP_OP_VLAN =   4               /* VLAN request or reply */
+        FIP_OP_VLAN =   4,              /* VLAN request or reply */
+        FIP_OP_VN2VN =  5,              /* VN_port to VN_port operation */
 };
 
 /*
@@ -90,11 +91,24 @@ enum fip_vlan_subcode {
         FIP_VL_REP =    2               /* reply */
 };
 
+/*
+ * Subcodes for FIP_OP_VN2VN.
+ * XXX proposal
+ */
+enum fip_vn2vn_subcode {
+        FIP_SC_VN_PROBE_REQ = 1,        /* probe request */
+        FIP_SC_VN_PROBE_REP = 2,        /* probe reply */
+        FIP_SC_VN_CLAIM_NOTIFY = 3,     /* claim notification */
+        FIP_SC_VN_CLAIM_REP = 4,        /* claim response */
+        FIP_SC_VN_BEACON = 5,           /* beacon */
+};
+
 static const value_string fip_opcodes[] = {
         { FIP_OP_DISC,      "Discovery" },
         { FIP_OP_LS,        "Link Service" },
         { FIP_OP_CTRL,      "Control" },
         { FIP_OP_VLAN,      "VLAN" },
+        { FIP_OP_VN2VN,     "VN2VN" },
         { 0,                NULL }
 };
 
@@ -122,6 +136,15 @@ static const value_string fip_vlan_subcodes[] = {
         { 0,    NULL }
 };
 
+static const value_string fip_vn2vn_subcodes[] = {
+        { FIP_SC_VN_PROBE_REQ,   "Probe Request" },
+        { FIP_SC_VN_PROBE_REP,   "Probe Reply" },
+        { FIP_SC_VN_CLAIM_NOTIFY, "Claim Notification" },
+        { FIP_SC_VN_CLAIM_REP,   "Claim Response" },
+        { FIP_SC_VN_BEACON,      "Beacon" },
+        { 0,    NULL }
+};
+
 /*
  * Descriptor types.
  */
@@ -139,7 +162,8 @@ enum fip_desc_type {
         FIP_DT_VN =     11,             /* VN_Port Info */
         FIP_DT_FKA =    12,             /* FIP keep-alive / advert. period */
         FIP_DT_VEND =   13,             /* Vendor-specific TLV */
-        FIP_DT_VLAN =   14              /* VLAN number */
+        FIP_DT_VLAN =   14,             /* VLAN number */
+        FIP_DT_FC4F =   15,             /* FC-4 features */
 };
 
 static const value_string fip_desc_types[] = {
@@ -157,6 +181,7 @@ static const value_string fip_desc_types[] = {
         { FIP_DT_FKA,   "FKA_ADV_Period" },
         { FIP_DT_VEND,  "Vendor_ID" },
         { FIP_DT_VLAN,  "VLAN" },
+        { FIP_DT_FC4F,  "FC-4 features" },
         { 0,    NULL }
 };
 
@@ -166,6 +191,7 @@ static const value_string fip_desc_types[] = {
 enum fip_flag {
         FIP_FL_FPMA =   0x8000,         /* supports FPMA fabric-provided MACs */
         FIP_FL_SPMA =   0x4000,         /* supports SPMA server-provided MACs */
+        FIP_FL_REC_P2P = 0x0008,        /* recorded addr or point-to-point */
         FIP_FL_AVAIL =  0x0004,         /* available for FLOGI */
         FIP_FL_SOL =    0x0002,         /* this is a solicited message */
         FIP_FL_FPORT =  0x0001          /* sent from an F port */
@@ -178,11 +204,13 @@ static int hf_fip_disc_subcode  = -1;
 static int hf_fip_ls_subcode    = -1;
 static int hf_fip_ctrl_subcode  = -1;
 static int hf_fip_vlan_subcode  = -1;
+static int hf_fip_vn2vn_subcode  = -1;
 static int hf_fip_hex_subcode   = -1;
 static int hf_fip_dlen          = -1;
 static int hf_fip_flags         = -1;
 static int hf_fip_flag_fpma     = -1;
 static int hf_fip_flag_spma     = -1;
+static int hf_fip_flag_rec_p2p  = -1;
 static int hf_fip_flag_avail    = -1;
 static int hf_fip_flag_sol      = -1;
 static int hf_fip_flag_fport    = -1;
@@ -190,6 +218,7 @@ static int hf_fip_flag_fport    = -1;
 static const int *hf_fip_flags_fields[] = {
     &hf_fip_flag_fpma,
     &hf_fip_flag_spma,
+    &hf_fip_flag_rec_p2p,
     &hf_fip_flag_avail,
     &hf_fip_flag_sol,
     &hf_fip_flag_fport,
@@ -214,6 +243,13 @@ static int hf_fip_desc_vend     = -1;
 static int hf_fip_desc_vend_data = -1;
 static int hf_fip_desc_vlan     = -1;
 static int hf_fip_desc_unk      = -1;
+static int hf_fip_desc_fc4f_types = -1;
+static int hf_fip_desc_fcp_feat = -1;
+static int hf_fip_type_ip       = -1;
+static int hf_fip_type_fcp      = -1;
+static int hf_fip_type_gs3      = -1;
+static int hf_fip_fcp_feat_i    = -1;
+static int hf_fip_fcp_feat_t    = -1;
 
 static int ett_fip              = -1;
 static int ett_fip_flags        = -1;
@@ -229,6 +265,9 @@ static int ett_fip_dt_fka       = -1;
 static int ett_fip_dt_vend      = -1;
 static int ett_fip_dt_vlan      = -1;
 static int ett_fip_dt_unk       = -1;
+static int ett_fip_dt_fc4f      = -1;
+static int ett_fip_dt_fc4f_types = -1;
+static int ett_fip_dt_fcp_feat  = -1;
 
 static dissector_handle_t fc_handle;
 
@@ -240,6 +279,56 @@ fip_desc_type_len(proto_tree *tree, tvbuff_t *tvb)
 {
     proto_tree_add_item(tree, hf_fip_desc_type, tvb, 0, 1, FALSE);
     proto_tree_add_item(tree, hf_fip_desc_len, tvb, 1, 1, FALSE);
+}
+
+/*
+ * Dissect the FC-4 type features descriptor.
+ */
+static void
+fip_desc_fc4f(tvbuff_t *tvb, proto_tree *tree, proto_item *item)
+{
+    guint mask;
+    guint offset;
+    static const int *types_word0[] = { /* types 0 - 31 */
+        &hf_fip_type_ip,
+        &hf_fip_type_fcp,
+        NULL
+    };
+    static const int *types_word1[] = { /* types 32 - 63 */
+        &hf_fip_type_gs3,
+        NULL
+    };
+    static const int *fcp_feat[] = {
+        &hf_fip_fcp_feat_t,
+        &hf_fip_fcp_feat_i,
+        NULL
+    };
+
+    /*
+     * First the 256-bit bitmask of types supported.
+     */
+    offset = 4;
+    proto_tree_add_bitmask(tree, tvb, offset, hf_fip_desc_fc4f_types,
+            ett_fip_dt_fc4f_types, types_word0, FALSE);
+    offset += 4;
+    proto_tree_add_bitmask(tree, tvb, offset, hf_fip_desc_fc4f_types,
+            ett_fip_dt_fc4f_types, types_word1, FALSE);
+    offset += 256 / 8 - 4;   /* skip to end of bitmask (32 bytes) */
+
+    /*
+     * Next the 4-bit capabilities per type.
+     * Only decode FCP (type 8) for now.
+     */
+    offset += 8 / 2;        /* skip first 8 types, 2 types per byte */
+    proto_tree_add_bitmask(tree, tvb, offset, hf_fip_desc_fcp_feat,
+            ett_fip_dt_fcp_feat, fcp_feat, FALSE);
+    mask = tvb_get_ntohl(tvb, offset);
+    if (mask & 1) {
+        proto_item_append_text(item, "FCP Target ");
+    }
+    if (mask & 2) {
+        proto_item_append_text(item, "FCP Initiator ");
+    }
 }
 
 static void
@@ -288,6 +377,9 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case FIP_OP_VLAN:
         info = val_to_str(sub, fip_vlan_subcodes, "VLAN 0x%x");
         break;
+    case FIP_OP_VN2VN:
+        info = val_to_str(sub, fip_vn2vn_subcodes, "VN2VN 0x%x");
+        break;
     default:
         info = val_to_str(op, fip_opcodes, "Unknown op 0x%x");
         break;
@@ -315,6 +407,9 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     case FIP_OP_VLAN:
         proto_tree_add_item(fip_tree, hf_fip_vlan_subcode, tvb, 5, 1, FALSE);
+        break;
+    case FIP_OP_VN2VN:
+        proto_tree_add_item(fip_tree, hf_fip_vn2vn_subcode, tvb, 5, 1, FALSE);
         break;
     default:
         proto_tree_add_item(fip_tree, hf_fip_hex_subcode, tvb, 5, 1, FALSE);
@@ -448,6 +543,11 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     2, 2, FALSE);
             proto_item_append_text(item, "%u", tvb_get_ntohs(desc_tvb, 2));
             break;
+        case FIP_DT_FC4F:
+            subtree = proto_item_add_subtree(item, ett_fip_dt_fc4f);
+            fip_desc_type_len(subtree, desc_tvb);
+            fip_desc_fc4f(desc_tvb, subtree, item);
+            break;
         default:
             subtree = proto_item_add_subtree(item, ett_fip_dt_unk);
             fip_desc_type_len(subtree, desc_tvb);
@@ -484,6 +584,9 @@ proto_register_fip(void)
         { &hf_fip_vlan_subcode,
           {"VLAN Subcode", "fip.vlan_subcode", FT_UINT8, BASE_HEX,
            VALS(fip_vlan_subcodes), 0, NULL, HFILL}},
+        { &hf_fip_vn2vn_subcode,
+          {"VN2VN Subcode", "fip.vn2vn_subcode", FT_UINT8, BASE_HEX,
+           VALS(fip_vn2vn_subcodes), 0, NULL, HFILL}},
         { &hf_fip_hex_subcode,
           {"Unknown Subcode", "fip.subcode", FT_UINT8, BASE_HEX,
            NULL, 0, NULL, HFILL}},
@@ -499,6 +602,9 @@ proto_register_fip(void)
         { &hf_fip_flag_spma,
           {"Server Provided MAC addr", "fip.flags.spma", FT_BOOLEAN, 16,
             NULL, FIP_FL_SPMA, NULL, HFILL}},
+        { &hf_fip_flag_rec_p2p,
+          {"REC/P2P", "fip.flags.rec_p2p", FT_BOOLEAN, 16,
+            NULL, FIP_FL_REC_P2P, NULL, HFILL}},
         { &hf_fip_flag_avail,
           {"Available", "fip.flags.available", FT_BOOLEAN, 16,
             NULL, FIP_FL_AVAIL, NULL, HFILL}},
@@ -560,6 +666,24 @@ proto_register_fip(void)
             0, NULL, HFILL}},
         { &hf_fip_desc_vlan,
           {"VLAN", "fip.vlan", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}},
+        { &hf_fip_desc_fc4f_types,
+          {"FC4 Types", "fip.fc4f.types", FT_UINT32, BASE_HEX, NULL,
+            0, NULL, HFILL}},
+        { &hf_fip_desc_fcp_feat,
+          {"FCP Features", "fip.fc4f.feat.fcp", FT_UINT32, BASE_HEX, NULL,
+            0xf, NULL, HFILL}},
+        { &hf_fip_type_ip,
+          {"IP", "fip.fc4f.ip", FT_BOOLEAN, 32, NULL, 1 << 5, NULL, HFILL}},
+        { &hf_fip_type_fcp,
+          {"FCP", "fip.fc4f.fcp", FT_BOOLEAN, 32, NULL, 1 << 8, NULL, HFILL}},
+        { &hf_fip_type_gs3,
+          {"GS3", "fip.fc4f.gs3", FT_BOOLEAN, 32, NULL, 1 << 0, NULL, HFILL}},
+        { &hf_fip_fcp_feat_t,
+          {"FCP Target", "fip.fc4f.feat.fcp.target", FT_BOOLEAN,
+            32, NULL, 1, NULL, HFILL}},
+        { &hf_fip_fcp_feat_i,
+          {"FCP Initiator", "fip.fc4f.feat.fcp.initiator", FT_BOOLEAN,
+            32, NULL, 2, NULL, HFILL}},
         { &hf_fip_desc_unk,
           {"Unknown Descriptor", "fip.desc", FT_BYTES, BASE_NONE, NULL,
             0, NULL, HFILL}}
@@ -578,6 +702,9 @@ proto_register_fip(void)
         &ett_fip_dt_fka,
         &ett_fip_dt_vend,
         &ett_fip_dt_vlan,
+        &ett_fip_dt_fc4f,
+        &ett_fip_dt_fc4f_types,
+        &ett_fip_dt_fcp_feat,
         &ett_fip_dt_unk
     };
 
