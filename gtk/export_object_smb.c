@@ -123,11 +123,11 @@ void insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_e
 	guint		i;
         free_chunk      *current_free_chunk;
         free_chunk      *new_free_chunk;
-	guint64 	chunk_offset=eo_info->smb_file_offset;
-	guint64 	chunk_length=eo_info->payload_len;
-        guint64         chunk_end_offset = chunk_offset+chunk_length-1;
+        gsize           chunk_offset=eo_info->smb_file_offset;
+        gsize           chunk_length=eo_info->payload_len;
+        gsize           chunk_end_offset = chunk_offset+chunk_length-1;
 	/* Size of file in memory */
-        guint64         calculated_size = chunk_offset+chunk_length;	
+        gsize           calculated_size = chunk_offset+chunk_length;	
 	gpointer	dest_memory_addr;
 
 	/* Let's recalculate the file length and data gathered */
