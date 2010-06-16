@@ -36,11 +36,15 @@
  **
  ** http://www.cisco.com/warp/public/cc/pd/iosw/prodlit/tflow_wp.htm
  **
+ ** Cisco ASA5500 Series
+ ** http://www.cisco.com/en/US/docs/security/asa/asa83/netflow/netflow.html
+ **
  ** for NetFlow v9 information.
  ** ( http://www.ietf.org/rfc/rfc3954.txt ?)
  ** http://www.ietf.org/rfc/rfc5101.txt
  ** http://www.ietf.org/rfc/rfc5102.txt
  ** http://www.ietf.org/rfc/rfc5103.txt
+ ** http://www.iana.org/assignments/ipfix/ipfix.xml
  ** for IPFIX
  **
  *****************************************************************************
@@ -438,6 +442,18 @@ static int      hf_cflow_total_tcp_psh		 = -1;
 static int      hf_cflow_total_tcp_ack		 = -1;
 static int      hf_cflow_total_tcp_urg		 = -1;
 static int      hf_cflow_ip_total_length64       = -1;
+static int	hf_cflow_post_natsource_ipv4_address	= -1;	/* ID: 225 */
+static int	hf_cflow_post_natdestination_ipv4_address	= -1;	/* ID: 226 */
+static int	hf_cflow_post_naptsource_transport_port	= -1;	/* ID: 227 */
+static int	hf_cflow_post_naptdestination_transport_port	= -1;	/* ID: 228 */
+static int	hf_cflow_nat_originating_address_realm	= -1;	/* ID: 229 */
+static int	hf_cflow_nat_event		= -1;	/* ID: 230 */
+static int	hf_cflow_initiator_octets	= -1;	/* ID: 231 */
+static int	hf_cflow_responder_octets	= -1;	/* ID: 232 */
+static int	hf_cflow_firewall_event		= -1;	/* ID: 233 */
+static int	hf_cflow_ingress_vrfid		= -1;	/* ID: 234 */
+static int	hf_cflow_egress_vrfid		= -1;	/* ID: 235 */
+static int	hf_cflow_vrfname		= -1;	/* ID: 236 */
 static int	hf_cflow_post_mpls_top_label_exp = -1;	/* ID: 237 */
 static int	hf_cflow_tcp_window_scale	 = -1;	/* ID: 238 */
 static int      hf_cflow_biflow_direction	 = -1;
@@ -519,6 +535,12 @@ static int	hf_cflow_information_element_range_end	 = -1;	/* ID: 343 */
 static int	hf_cflow_information_element_semantics	 = -1;	/* ID: 344 */
 static int	hf_cflow_information_element_units	 = -1;	/* ID: 345 */
 static int	hf_cflow_private_enterprise_number	 = -1;	/* ID: 346 */
+
+/* Cisco ASA 5500 Series */
+static int	hf_cflow_ingress_acl_id	= -1; /* NF_F_INGRESS_ACL_ID (33000) */
+static int	hf_cflow_egress_acl_id	= -1; /* NF_F_EGRESS_ACL_ID  (33001) */
+static int	hf_cflow_fw_ext_event	= -1; /* NF_F_FW_EXT_EVENT   (33002) */
+static int	hf_cflow_aaa_username	= -1; /* NF_F_USERNAME[_MAX] (40000) */
 
 /* pie = private information element */
 
@@ -2706,6 +2728,71 @@ dissect_v9_pdu_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, i
 			    tvb, offset, length, FALSE);
 			break;
 
+		case 225: /* postNATSourceIPv4Address */
+		case 40001: /* NF_F_XLATE_SRC_ADDR_IPV4 (Cisco ASA 5500 Series) */
+			ti = proto_tree_add_item(pdutree, hf_cflow_post_natsource_ipv4_address,
+				tvb, offset, length, FALSE);
+			break;
+
+		case 226: /* postNATDestinationIPv4Address */
+		case 40002: /* NF_F_XLATE_DST_ADDR_IPV4 (Cisco ASA 5500 Series) */
+			ti = proto_tree_add_item(pdutree, hf_cflow_post_natdestination_ipv4_address,
+				tvb, offset, length, FALSE);
+			break;
+
+		case 227: /* postNAPTSourceTransportPort */
+		case 40003: /* NF_F_XLATE_SRC_PORT (Cisco ASA 5500 Series) */
+			ti = proto_tree_add_item(pdutree, hf_cflow_post_naptsource_transport_port,
+				tvb, offset, length, FALSE);
+			break;
+
+		case 228: /* postNAPTDestinationTransportPort */
+		case 40004: /* NF_F_XLATE_DST_PORT (Cisco ASA 5500 Series) */
+			ti = proto_tree_add_item(pdutree, hf_cflow_post_naptdestination_transport_port,
+				tvb, offset, length, FALSE);
+			break;
+
+		case 229: /* natOriginatingAddressRealm */
+			ti = proto_tree_add_item(pdutree, hf_cflow_nat_originating_address_realm,
+				tvb, offset, length, FALSE);
+			break;
+
+		case 230: /* natEvent */
+			ti = proto_tree_add_item(pdutree, hf_cflow_nat_event,
+				tvb, offset, length, FALSE);
+			break;
+
+		case 231: /* initiatorOctets */
+			ti = proto_tree_add_item(pdutree, hf_cflow_initiator_octets,
+				tvb, offset, length, FALSE);
+			break;
+
+		case 232: /* responderOctets */
+			ti = proto_tree_add_item(pdutree, hf_cflow_responder_octets,
+				tvb, offset, length, FALSE);
+			break;
+
+		case 233: /* firewallEvent */
+		case 40005: /* NF_F_FW_EVENT (Cisco ASA 5500 Series) */
+			ti = proto_tree_add_item(pdutree, hf_cflow_firewall_event,
+				tvb, offset, length, FALSE);
+			break;
+
+		case 234: /* ingressVRFID */
+			ti = proto_tree_add_item(pdutree, hf_cflow_ingress_vrfid,
+				tvb, offset, length, FALSE);
+			break;
+
+		case 235: /* egressVRFID */
+			ti = proto_tree_add_item(pdutree, hf_cflow_egress_vrfid,
+				tvb, offset, length, FALSE);
+			break;
+
+		case 236: /* VRFname */
+			ti = proto_tree_add_item(pdutree, hf_cflow_vrfname,
+				tvb, offset, length, FALSE);
+			break;
+
 		case 237: /* postMplsTopLabelExp */
 			ti = proto_tree_add_item(pdutree, hf_cflow_post_mpls_top_label_exp,
 				tvb, offset, length, FALSE);
@@ -3146,6 +3233,24 @@ dissect_v9_pdu_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, i
 				tvb, offset, length, FALSE);
 			break;
 
+		/* Cisco ASA 5500 Series */
+		case 33000: /* NF_F_INGRESS_ACL_ID */
+			proto_tree_add_item(pdutree, hf_cflow_ingress_acl_id,
+				tvb, offset, length, FALSE);
+			break;
+		case 33001: /* NF_F_EGRESS_ACL_ID */
+			proto_tree_add_item(pdutree, hf_cflow_egress_acl_id,
+				tvb, offset, length, FALSE);
+			break;
+		case 33002: /* NF_F_FW_EXT_EVENT */
+			proto_tree_add_item(pdutree, hf_cflow_fw_ext_event,
+				tvb, offset, length, FALSE);
+			break;
+		case 40000: // NF_F_USERNAME[_MAX]
+			proto_tree_add_item(pdutree, hf_cflow_aaa_username,
+				tvb, offset, length, FALSE);
+			break;
+			
                 /* CACE Technologies */
 		case VENDOR_CACE << 16 | 0: /* caceLocalIPv4Address */
 			ti = proto_tree_add_item(pdutree, hf_pie_cace_local_ipv4_address,
@@ -3251,7 +3356,8 @@ dissect_v9_pdu_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, i
 			if ((type & 0x8000) && (pen != REVPEN))
 				ti = proto_tree_add_text(pdutree, tvb, offset, length,
 							 "(%s) Type %u ",
-							 match_strval(pen, sminmpec_values), type & 0x7fff);
+							 match_strval(pen, sminmpec_values),
+							 pen > 0 ? type & 0x7fff : type);
 			break;
 		}
 		if (ti && pen == REVPEN) {
@@ -3752,18 +3858,18 @@ static const value_string v9_template_types[] = {
 	{ 222, "tcpAckTotalCount" },
 	{ 223, "tcpUrgTotalCount" },
 	{ 224, "ipTotalLength" },
-	{ 225, "natOrigInsideAddr" },
-	{ 226, "natTransInsideAddr" },
-	{ 227, "natOrigOutsideAddr" },
-	{ 228, "natTransOutsideAddr" },
-	{ 229, "natOrigInsidePort" },
-	{ 230, "natTransInsidePort" },
-	{ 231, "natOrigOutsidePort" },
-	{ 232, "natTransOutsidePort" },
-	{ 233, "natEvent" },
-	{ 234, "fwInitiatorOctets" },
-	{ 235, "fwResponderOctets" },
-	{ 236, "fwEvent" },
+	{ 225, "postNATSourceIPv4Address" },
+	{ 226, "postNATDestinationIPv4Address" },
+	{ 227, "postNAPTSourceTransportPort" },
+	{ 228, "postNAPTDestinationTransportPort" },
+	{ 229, "natOriginatingAddressRealm" },
+	{ 230, "natEvent" },
+	{ 231, "initiatorOctets" },
+	{ 232, "responderOctets" },
+	{ 233, "firewallEvent" },
+	{ 234, "ingressVRFID" },
+	{ 235, "egressVRFID" },
+	{ 236, "VRFname" },
 	{ 237, "postMplsTopLabelExp" },
 	{ 238, "tcpWindowScale" },
 	{ 239, "biflowDirection" },
@@ -3847,6 +3953,16 @@ static const value_string v9_template_types[] = {
 	{ 344, "informationElementSemantics" },
 	{ 345, "informationElementUnits" },
 	{ 346, "privateEnterpriseNumber" },
+	/* Cisco ASA5500 Series NetFlow */
+	{ 33000, "INGRESS_ACL_ID" },
+	{ 33001, "EGRESS_ACL_ID" },
+	{ 33002, "FW_EXT_EVENT" },	
+	{ 40000, "AAA_USERNAME" },
+	{ 40001, "XLATE_SRC_ADDR_IPV4" },	
+	{ 40002, "XLATE_DST_ADDR_IPV4" },
+	{ 40003, "XLATE_SRC_PORT" },
+	{ 40004, "XLATE_DST_PORT" },
+	{ 40005, "FW_EVENT" },
 	{ 0, NULL }
 };
 
@@ -3883,6 +3999,50 @@ static const value_string v9_forwarding_status[] = {
 	{ 3, "Consume"},  /* Observed on 7200 12.4(9)T */
 	{ 0, NULL }
 };
+static const value_string v9_forwarding_status_code[] = {	
+	{ 64, "Forwarded (Unknown)" },
+	{ 65, "Forwarded Fragmented" },
+	{ 66, "Forwarded not Fragmented" },
+	{ 128, "Dropped (Unknown)" },
+	{ 129, "Drop ACL Deny" },
+	{ 130, "Drop ACL drop" },
+	{ 131, "Drop Unroutable" },
+	{ 132, "Drop Adjacency" },
+	{ 133, "Drop Fragmentation & DF set" },
+	{ 134, "Drop Bad header checksum" },
+	{ 135, "Drop Bad total Length" },
+	{ 136, "Drop Bad Header Length" },
+	{ 137, "Drop bad TTL" },
+	{ 138, "Drop Policer" },
+	{ 139, "Drop WRED" },
+	{ 140, "Drop RPF" },
+	{ 141, "Drop For us" },
+	{ 142, "Drop Bad output interface" },
+	{ 143, "Drop Hardware" },
+	{ 192, "Consumed (Unknown)" },
+	{ 193, "Terminate Punt Adjacency" },
+	{ 194, "Terminate Incomplete Adjacency" },
+	{ 195, "Terminate For us" },
+	{ 0, NULL }
+};
+static const value_string v9_firewall_event[] = {
+	{ 0, "Default (ignore)"},
+	{ 1, "Flow created"},
+	{ 2, "Flow deleted"},
+	{ 3, "Flow denied"},
+	{ 4, "Flow alart"},
+	{ 0, NULL }
+};
+
+static const value_string v9_extended_firewall_event[] = {
+	{ 0, "ignore"},
+	{ 1001, "Flow denied by an ingress ACL"},
+	{ 1002, "Flow denied by an egress ACL"},
+	{ 1003, "Flow denied by security appliance"},
+	{ 1004, "Flow denied (TCP flow beginning with not TCP SYN)"},	
+	{ 0, NULL }
+};
+
 
 static int
 v9_template_hash(guint16 id, const address * net_src, guint32 src_id)
@@ -5154,6 +5314,76 @@ proto_register_netflow(void)
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
 		  "IP total length", HFILL}
 		},
+		{&hf_cflow_post_natsource_ipv4_address,
+		 {"Post NAT Source IPv4 Address", "cflow.post_natsource_ipv4_address",
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_post_natdestination_ipv4_address,
+		 {"Post NAT Destination IPv4 Address", "cflow.post_natdestination_ipv4_address",
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_post_naptsource_transport_port,
+		 {"Post NAPT Source Transport Port", "cflow.post_naptsource_transport_port",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_post_naptdestination_transport_port,
+		 {"Post NAPT Destination Transport Port", "cflow.post_naptdestination_transport_port",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_nat_originating_address_realm,
+		 {"Nat Originating Address Realm", "cflow.nat_originating_address_realm",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_nat_event,
+		 {"Nat Event", "cflow.nat_event",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_initiator_octets,
+		 {"Initiator Octets", "cflow.initiator_octets",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_responder_octets,
+		 {"Responder Octets", "cflow.responder_octets",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_firewall_event,
+		 {"Firewall Event", "cflow.firewall_event",
+		  FT_UINT8, BASE_DEC, VALS(v9_firewall_event), 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_ingress_vrfid,
+		 {"Ingress VRFID", "cflow.ingress_vrfid",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_egress_vrfid,
+		 {"Egress VRFID", "cflow.egress_vrfid",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_vrfname,
+		 {"VRFname", "cflow.vrfname",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_post_mpls_top_label_exp,
+		 {"Post Mpls Top Label Exp", "cflow.post_mpls_top_label_exp",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_tcp_window_scale,
+		 {"Tcp Window Scale", "cflow.tcp_window_scale",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
 		{&hf_cflow_biflow_direction,
 		 {"Biflow Direction", "cflow.biflow_direction",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -5162,392 +5392,392 @@ proto_register_netflow(void)
 		{&hf_cflow_ethernet_header_length,
 		 {"Ethernet Header Length", "cflow.ethernet_header_length",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Ethernet Header Length", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_ethernet_payload_length,
 		 {"Ethernet Payload Length", "cflow.ethernet_payload_length",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Ethernet Payload Length", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_ethernet_total_length,
 		 {"Ethernet Total Length", "cflow.ethernet_total_length",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Ethernet Total Length", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_dot1q_vlan_id,
 		 {"Dot1q Vlan Id", "cflow.dot1q_vlan_id",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Dot1q Vlan Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_dot1q_priority,
 		 {"Dot1q Priority", "cflow.dot1q_priority",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Dot1q Priority", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_dot1q_customer_vlan_id,
 		 {"Dot1q Customer Vlan Id", "cflow.dot1q_customer_vlan_id",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Dot1q Customer Vlan Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_dot1q_customer_priority,
 		 {"Dot1q Customer Priority", "cflow.dot1q_customer_priority",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Dot1q Customer Priority", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_metro_evc_id,
 		 {"Metro Evc Id", "cflow.metro_evc_id",
 		  FT_STRING, BASE_NONE, NULL, 0x0,
-		  "Metro Evc Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_metro_evc_type,
 		 {"Metro Evc Type", "cflow.metro_evc_type",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Metro Evc Type", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_pseudo_wire_id,
 		 {"Pseudo Wire Id", "cflow.pseudo_wire_id",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Pseudo Wire Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_pseudo_wire_type,
 		 {"Pseudo Wire Type", "cflow.pseudo_wire_type",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Pseudo Wire Type", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_pseudo_wire_control_word,
 		 {"Pseudo Wire Control Word", "cflow.pseudo_wire_control_word",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Pseudo Wire Control Word", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_ingress_physical_interface,
 		 {"Ingress Physical Interface", "cflow.ingress_physical_interface",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Ingress Physical Interface", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_egress_physical_interface,
 		 {"Egress Physical Interface", "cflow.egress_physical_interface",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Egress Physical Interface", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_post_dot1q_vlan_id,
 		 {"Post Dot1q Vlan Id", "cflow.post_dot1q_vlan_id",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Post Dot1q Vlan Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_post_dot1q_customer_vlan_id,
 		 {"Post Dot1q Customer Vlan Id", "cflow.post_dot1q_customer_vlan_id",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Post Dot1q Customer Vlan Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_ethernet_type,
 		 {"Ethernet Type", "cflow.ethernet_type",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Ethernet Type", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_post_ip_precedence,
 		 {"Post Ip Precedence", "cflow.post_ip_precedence",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Post Ip Precedence", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_collection_time_milliseconds,
 		 {"Collection Time Milliseconds", "cflow.collection_time_milliseconds",
 		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
-		  "Collection Time Milliseconds", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_export_sctp_stream_id,
 		 {"Export Sctp Stream Id", "cflow.export_sctp_stream_id",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Export Sctp Stream Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_max_export_seconds,
 		 {"Max Export Seconds", "cflow.max_export_seconds",
 		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
-		  "Max Export Seconds", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_max_flow_end_seconds,
 		 {"Max Flow End Seconds", "cflow.max_flow_end_seconds",
 		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
-		  "Max Flow End Seconds", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_message_md5_checksum,
 		 {"Message MD5 Checksum", "cflow.message_md5_checksum",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "Message MD5 Checksum", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_message_scope,
 		 {"Message Scope", "cflow.message_scope",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Message Scope", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_min_export_seconds,
 		 {"Min Export Seconds", "cflow.min_export_seconds",
 		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
-		  "Min Export Seconds", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_min_flow_start_seconds,
 		 {"Min Flow Start Seconds", "cflow.min_flow_start_seconds",
 		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
-		  "Min Flow Start Seconds", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_opaque_octets,
 		 {"Opaque Octets", "cflow.opaque_octets",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "Opaque Octets", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_session_scope,
 		 {"Session Scope", "cflow.session_scope",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Session Scope", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_max_flow_end_microseconds,
 		 {"Max Flow End Microseconds", "cflow.max_flow_end_microseconds",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "Max Flow End Microseconds", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_max_flow_end_milliseconds,
 		 {"Max Flow End Milliseconds", "cflow.max_flow_end_milliseconds",
 		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
-		  "Max Flow End Milliseconds", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_max_flow_end_nanoseconds,
 		 {"Max Flow End Nanoseconds", "cflow.max_flow_end_nanoseconds",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "Max Flow End Nanoseconds", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_min_flow_start_microseconds,
 		 {"Min Flow Start Microseconds", "cflow.min_flow_start_microseconds",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "Min Flow Start Microseconds", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_min_flow_start_milliseconds,
 		 {"Min Flow Start Milliseconds", "cflow.min_flow_start_milliseconds",
 		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
-		  "Min Flow Start Milliseconds", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_min_flow_start_nanoseconds,
 		 {"Min Flow Start Nanoseconds", "cflow.min_flow_start_nanoseconds",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "Min Flow Start Nanoseconds", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_collector_certificate,
 		 {"Collector Certificate", "cflow.collector_certificate",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "Collector Certificate", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_exporter_certificate,
 		 {"Exporter Certificate", "cflow.exporter_certificate",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "Exporter Certificate", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_selection_sequence_id,
 		 {"Selection Sequence Id", "cflow.selection_sequence_id",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Selection Sequence Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_selector_id,
 		 {"Selector Id", "cflow.selector_id",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Selector Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_information_element_id,
 		 {"Information Element Id", "cflow.information_element_id",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Information Element Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_selector_algorithm,
 		 {"Selector Algorithm", "cflow.selector_algorithm",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Selector Algorithm", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_sampling_packet_interval,
 		 {"Sampling Packet Interval", "cflow.sampling_packet_interval",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Sampling Packet Interval", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_sampling_packet_space,
 		 {"Sampling Packet Space", "cflow.sampling_packet_space",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Sampling Packet Space", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_sampling_time_interval,
 		 {"Sampling Time Interval", "cflow.sampling_time_interval",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Sampling Time Interval", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_sampling_time_space,
 		 {"Sampling Time Space", "cflow.sampling_time_space",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Sampling Time Space", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_sampling_size,
 		 {"Sampling Size", "cflow.sampling_size",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Sampling Size", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_sampling_population,
 		 {"Sampling Population", "cflow.sampling_population",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Sampling Population", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_sampling_probability,
 		 {"Sampling Probability", "cflow.sampling_probability",
 		  FT_FLOAT, BASE_NONE, NULL, 0x0,
-		  "Sampling Probability", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_mpls_label_stack_section,
 		 {"Mpls Label Stack Section", "cflow.mpls_label_stack_section",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "Mpls Label Stack Section", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_mpls_payload_packet_section,
 		 {"Mpls Payload Packet Section", "cflow.mpls_payload_packet_section",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "Mpls Payload Packet Section", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_selector_id_total_pkts_observed,
 		 {"Selector Id Total Pkts Observed", "cflow.selector_id_total_pkts_observed",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Selector Id Total Pkts Observed", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_selector_id_total_pkts_selected,
 		 {"Selector Id Total Pkts Selected", "cflow.selector_id_total_pkts_selected",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Selector Id Total Pkts Selected", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_absolute_error,
 		 {"Absolute Error", "cflow.absolute_error",
 		  FT_FLOAT, BASE_NONE, NULL, 0x0,
-		  "Absolute Error", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_relative_error,
 		 {"Relative Error", "cflow.relative_error",
 		  FT_FLOAT, BASE_NONE, NULL, 0x0,
-		  "Relative Error", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_observation_time_seconds,
 		 {"Observation Time Seconds", "cflow.observation_time_seconds",
 		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
-		  "Observation Time Seconds", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_observation_time_milliseconds,
 		 {"Observation Time Milliseconds", "cflow.observation_time_milliseconds",
 		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
-		  "Observation Time Milliseconds", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_observation_time_microseconds,
 		 {"Observation Time Microseconds", "cflow.observation_time_microseconds",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "Observation Time Microseconds", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_observation_time_nanoseconds,
 		 {"Observation Time Nanoseconds", "cflow.observation_time_nanoseconds",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "Observation Time Nanoseconds", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_digest_hash_value,
 		 {"Digest Hash Value", "cflow.digest_hash_value",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Digest Hash Value", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_hash_ippayload_offset,
 		 {"Hash IPPayload Offset", "cflow.hash_ippayload_offset",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Hash IPPayload Offset", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_hash_ippayload_size,
 		 {"Hash IPPayload Size", "cflow.hash_ippayload_size",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Hash IPPayload Size", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_hash_output_range_min,
 		 {"Hash Output Range Min", "cflow.hash_output_range_min",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Hash Output Range Min", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_hash_output_range_max,
 		 {"Hash Output Range Max", "cflow.hash_output_range_max",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Hash Output Range Max", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_hash_selected_range_min,
 		 {"Hash Selected Range Min", "cflow.hash_selected_range_min",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Hash Selected Range Min", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_hash_selected_range_max,
 		 {"Hash Selected Range Max", "cflow.hash_selected_range_max",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Hash Selected Range Max", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_hash_digest_output,
 		 {"Hash Digest Output", "cflow.hash_digest_output",
 		  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		  "Hash Digest Output", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_hash_initialiser_value,
 		 {"Hash Initialiser Value", "cflow.hash_initialiser_value",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Hash Initialiser Value", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_selector_name,
 		 {"Selector Name", "cflow.selector_name",
 		  FT_STRING, BASE_NONE, NULL, 0x0,
-		  "Selector Name", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_upper_cilimit,
 		 {"Upper CILimit", "cflow.upper_cilimit",
 		  FT_FLOAT, BASE_NONE, NULL, 0x0,
-		  "Upper CILimit", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_lower_cilimit,
 		 {"Lower CILimit", "cflow.lower_cilimit",
 		  FT_FLOAT, BASE_NONE, NULL, 0x0,
-		  "Lower CILimit", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_confidence_level,
 		 {"Confidence Level", "cflow.confidence_level",
 		  FT_FLOAT, BASE_NONE, NULL, 0x0,
-		  "Confidence Level", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_information_element_data_type,
 		 {"Information Element Data Type", "cflow.information_element_data_type",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Information Element Data Type", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_information_element_description,
 		 {"Information Element Description", "cflow.information_element_description",
 		  FT_STRING, BASE_NONE, NULL, 0x0,
-		  "Information Element Description", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_information_element_name,
 		 {"Information Element Name", "cflow.information_element_name",
 		  FT_STRING, BASE_NONE, NULL, 0x0,
-		  "Information Element Name", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_information_element_range_begin,
 		 {"Information Element Range Begin", "cflow.information_element_range_begin",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Information Element Range Begin", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_information_element_range_end,
 		 {"Information Element Range End", "cflow.information_element_range_end",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Information Element Range End", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_information_element_semantics,
 		 {"Information Element Semantics", "cflow.information_element_semantics",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Information Element Semantics", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_information_element_units,
 		 {"Information Element Units", "cflow.information_element_units",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Information Element Units", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_private_enterprise_number,
 		 {"Private Enterprise Number", "cflow.private_enterprise_number",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Private Enterprise Number", HFILL}
+		  NULL, HFILL}
 		},
 		/*
 		 * end pdu content storage
@@ -5603,6 +5833,27 @@ proto_register_netflow(void)
 		 {"Scope Field Count", "cflow.scope_field_count",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
 		  "Options Template Scope Field Count", HFILL}
+		 },
+		/* Cisco ASA 5500 Series */
+		{&hf_cflow_ingress_acl_id,
+		 {"Ingress ACL ID", "cflow.ingress_acl_id",
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		 },
+		{&hf_cflow_egress_acl_id,
+		 {"Egress ACL ID", "cflow.egress_acl_id",
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		 },
+		{&hf_cflow_fw_ext_event,
+		 {"Extended firewall event code", "cflow.fw_ext_event",
+		  FT_UINT16, BASE_DEC, VALS(v9_extended_firewall_event), 0x0,
+		  NULL, HFILL}
+		 },
+		{&hf_cflow_aaa_username,
+		 {"AAA username", "cflow.aaa_username",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
 		 },
 
                 /* Private Information Elements */
