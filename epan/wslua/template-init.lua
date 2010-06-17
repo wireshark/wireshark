@@ -25,9 +25,12 @@
 -- along with this program; if not, write to the Free Software
 -- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
--- Lua is disabled by default, comment out the following line to enable Lua support.
-disable_lua = true; do return end;
+-- Set disable_lua to true to disable Lua support.
+disable_lua = false
 
+if disable_lua then
+    do return
+end
 
 -- If set and we are running with special privileges this setting
 -- tells whether scripts other than this one are to be run.
