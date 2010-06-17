@@ -6482,6 +6482,9 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 
 	/*
+	 * XXX - the SNIA SMB spec says this is a USHORT, not a
+	 * ULONG.
+	 *
 	 * XXX - we should really only do this in case we have seen
 	 * LARGE FILE being negotiated.  Unfortunately, we might not
 	 * have seen the negotiation phase in the capture....
@@ -6641,7 +6644,11 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* XXX we should really only do this in case we have seen LARGE FILE being negotiated */
+	/*
+	 * XXX - we should really only do this in case we have seen
+	 * LARGE FILE being negotiated.  Unfortunately, we might not
+	 * have seen the negotiation phase in the capture....
+	 */
 	/* data length high */
 	datalen_high = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_data_len_high, tvb, offset, 2, datalen_high);
