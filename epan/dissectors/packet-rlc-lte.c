@@ -1608,7 +1608,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         int n;
         for (n=0; n < s_number_of_extensions; n++) {
             show_AM_PDU_in_tree(pinfo, tree, tvb, offset, s_lengths[n], p_rlc_lte_info,
-                                first_includes_start && last_includes_end);
+                                (n==0) ? first_includes_start : TRUE);
             show_PDU_in_info(pinfo, top_ti, s_lengths[n],
                              (n==0) ? first_includes_start : TRUE,
                              TRUE);
@@ -1620,7 +1620,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /* Final data element */
     if (tvb_length_remaining(tvb, offset) > 0) {
         show_AM_PDU_in_tree(pinfo, tree, tvb, offset, -1, p_rlc_lte_info,
-                            first_includes_start && last_includes_end);
+                            ((s_number_of_extensions == 0) ? first_includes_start : TRUE) && last_includes_end);
         show_PDU_in_info(pinfo, top_ti, (guint16)tvb_length_remaining(tvb, offset),
                          (s_number_of_extensions == 0) ? first_includes_start : TRUE,
                          last_includes_end);
