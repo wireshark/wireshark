@@ -283,9 +283,6 @@ static int
 eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
 	       const void *data)
 {
-	extern GSList	*GSL_active_files;
-	extern GTree	*btree_visited_packet;
-
 	export_object_list_t *object_list = tapdata;
 	const smb_eo_t *eo_info = data;
 
@@ -437,8 +434,6 @@ eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
 void
 eo_smb_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-	extern GSList	*GSL_active_files;
-	extern GTree	*btree_visited_packet;
 	int 	i=0,last;
 	active_file	*in_list_file;
 
