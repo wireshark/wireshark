@@ -215,8 +215,8 @@ my %APIs = (
 
 );
 
-# Deprecated GTK functions with (E)rror or (W)arning flag:
-# (The list is based upon the GTK+ 2.18.5 documentation; Some of
+# Deprecated GTK functions/macros with (E)rror or (W)arning flag:
+# (The list is based upon the GTK+ 2.20.1 documentation; Some of
 #  the entries are are commented out since they are currently
 #  being used in Wireshark and since the replacement functionality
 #  is not available in all the GTK+ versions that Wireshark
@@ -244,6 +244,10 @@ my %deprecatedGtkFunctions = (
                 'gtk_button_box_set_child_ipadding',           'E', # style properties child-internal-pad-x/-y
                 'gtk_button_box_set_child_size',               'E', # style properties child-min-width/-height
                 'gtk_button_box_set_spacing',                  'E', # gtk_box_set_spacing [==]
+                'gtk_button_enter',                            'E', # since 2.20
+                'gtk_button_leave',                            'E', # since 2.20
+                'gtk_button_pressed',                          'E', # since 2.20
+                'gtk_button_released',                         'E', # since 2.20
                 'gtk_calendar_display_options',                'E',
                 'gtk_calendar_freeze',                         'E',
                 'gtk_calendar_thaw',                           'E',
@@ -435,6 +439,13 @@ my %deprecatedGtkFunctions = (
                 'gtk_ctree_toggle_expansion_recursive',        'E',
                 'gtk_ctree_unselect',                          'E',
                 'gtk_ctree_unselect_recursive',                'E',
+                'gtk_curve_get_vector',                        'E', # since 2.20
+                'gtk_curve_new',                               'E', # since 2.20
+                'gtk_curve_reset',                             'E', # since 2.20
+                'gtk_curve_set_curve_type',                    'E', # since 2.20
+                'gtk_curve_set_gamma',                         'E', # since 2.20
+                'gtk_curve_set_range',                         'E', # since 2.20
+                'gtk_curve_set_vector',                        'E', # since 2.20
                 'gtk_drag_set_default_icon',                   'E',
                 'gtk_draw_arrow',                              'E',
                 'gtk_draw_box',                                'E',
@@ -478,10 +489,13 @@ my %deprecatedGtkFunctions = (
                 'gtk_file_selection_set_filename',             'E',
                 'gtk_file_selection_set_select_multiple',      'E',
                 'gtk_file_selection_show_fileop_buttons',      'E',
+                'gtk_fixed_get_has_window',                    'E', # gtk_widget_get_has_window() (available since 2.18)
+                'gtk_fixed_set_has_window',                    'E', # gtk_widget_set_has_window() (available since 2.18)
                 'gtk_font_selection_dialog_get_apply_button',  'E',
                 'gtk_font_selection_dialog_get_font',          'E',
-                'gtk_font_selection_get_font',                 'E', # gtk_font_selection_get_font_name [!=]
+                'gtk_font_selection_get_font',                 'E', # gtk_font_selection_get_font_name() [!=]
                 'GTK_FUNDAMENTAL_TYPE',                        'E',
+                'gtk_gamma_curve_new',                         'E', # since 2.20
                 'gtk_hbutton_box_get_layout_default',          'E',
                 'gtk_hbutton_box_get_spacing_default',         'E',
                 'gtk_hbutton_box_set_layout_default',          'E',
@@ -494,6 +508,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_image_get',                               'E',
                 'gtk_image_set',                               'E',
                 'gtk_input_add_full',                          'W', # >>> g_io_add_watch_full()
+                'gtk_input_dialog_new',                        'E', # since 2.20
                 'gtk_input_remove',                            'W', # >>> g_source_remove()
                 'GTK_IS_ROOT_TREE',                            'E',
                 'gtk_item_factories_path_delete',              'E', # GtkUIManager (avail since 2.4) ...
@@ -563,12 +578,14 @@ my %deprecatedGtkFunctions = (
                 'gtk_menu_prepend',                            'E', # gtk_menu_shell_prepend() [==?]
                 'gtk_menu_tool_button_set_arrow_tooltip',      'E',
                 'gtk_notebook_current_page',                   'E',
+                'gtk_notebook_query_tab_label_packing',        'E', # since 2.20
                 'gtk_notebook_get_group_id',                   'E',
                 'gtk_notebook_set_group_id',                   'E',
                 'gtk_notebook_set_homogeneous_tabs',           'E',
                 'gtk_notebook_set_page',                       'E', # gtk_notebook_set_current_page() [==]
                 'gtk_notebook_set_tab_border',                 'E',
                 'gtk_notebook_set_tab_hborder',                'E',
+                'gtk_notebook_set_tab_label_packing',          'E', # since 2.20
                 'gtk_notebook_set_tab_vborder',                'E',
                 'gtk_object_add_arg_type',                     'E',
                 'gtk_object_data_force_id',                    'E',
@@ -591,6 +608,8 @@ my %deprecatedGtkFunctions = (
                 'gtk_object_set_data_full',                    'E',
                 'gtk_object_set_user_data',                    'E',
                 'gtk_object_sink',                             'E',
+                'GTK_OBJECT_TYPE',                             'E', # G_OBJECT_TYPE
+                'GTK_OBJECT_TYPE_NAME',                        'E', # G_OBJECT_TYPE_NAME
                 'gtk_object_unref',                            'E',
                 'gtk_object_weakref',                          'E',
                 'gtk_object_weakunref',                        'E',
@@ -864,6 +883,32 @@ my %deprecatedGtkFunctions = (
 ##  (or: use conditional code based upon the GTK version).
                 'gtk_cell_view_get_cell_renderers',            'E', # gtk_cell_layout_get_cells ()         (avail since 2.12)
 ##              'gtk_tree_view_column_get_cell_renderers',     'W', # gtk_cell_layout_get_cells ()         (avail since 2.12)
+##
+## Deprecated as of GTK+ 2.20 but to be replaced only when Wireshark requires GTK+ 2.18 or later
+##  (or: use conditional code based upon the GTK version).
+                'GTK_WIDGET_APP_PAINTABLE',                    'E', # gtk_widget_get_app_paintable()       (avail since 2.18)
+                'GTK_WIDGET_CAN_DEFAULT',                      'E', # gtk_widget_getcan_default()          (avail since 2.18)
+                'GTK_WIDGET_CAN_FOCUS',                        'E', # gtk_widget_getcan_focus()            (avail since 2.18)
+                'GTK_WIDGET_COMPOSITE_CHILD',                  'E', # gtk_widget_getcomposite_child()      (avail since 2.18)
+                'GTK_WIDGET_DOUBLE_BUFFERED',                  'E', # gtk_widget_getdouble_buffered()      (avail since 2.18)
+                'GTK_WIDGET_DRAWABLE',                         'E', # gtk_widget_getdrawable()             (avail since 2.18)
+                'GTK_WIDGET_FLAGS',                            'E', # gtk_widget_getflags()                (avail since 2.18)
+                'GTK_WIDGET_HAS_DEFAULT',                      'E', # gtk_widget_gethas_default()          (avail since 2.18)
+                'GTK_WIDGET_HAS_FOCUS',                        'E', # gtk_widget_gethas_focus()            (avail since 2.18)
+                'GTK_WIDGET_HAS_GRAB',                         'E', # gtk_widget_gethas_grab()             (avail since 2.18)
+                'GTK_WIDGET_IS_SENSITIVE',                     'E', # gtk_widget_getis_sensitive()         (avail since 2.18)
+                'GTK_WIDGET_MAPPED',                           'E', # gtk_widget_getmapped()               (avail since 2.18)
+                'GTK_WIDGET_NO_WINDOW',                        'W', # gtk_widget_getno_window()            (avail since 2.18)
+                'GTK_WIDGET_PARENT_SENSITIVE',                 'E', # gtk_widget_getparent_sensitive()     (avail since 2.18)
+                'GTK_WIDGET_RC_STYLE',                         'E', # gtk_widget_getrc_style()             (avail since 2.18)
+                'GTK_WIDGET_REALIZED',                         'W', # gtk_widget_getrealized()             (avail since 2.18)
+                'GTK_WIDGET_RECEIVES_DEFAULT',                 'E', # gtk_widget_getreceives_default()     (avail since 2.18)
+                'GTK_WIDGET_SAVED_STATE',                      'E', # gtk_widget_getsaved_state()          (avail since 2.18)
+                'GTK_WIDGET_SENSITIVE',                        'W', # gtk_widget_getsensitive()            (avail since 2.18)
+                'GTK_WIDGET_STATE',                            'W', # gtk_widget_getstate()                (avail since 2.18)
+                'GTK_WIDGET_TOPLEVEL',                         'E', # gtk_widget_gettoplevel()             (avail since 2.18)
+                'GTK_WIDGET_TYPE',                             'E', # gtk_widget_gettype()                 (avail since 2.18)
+                'GTK_WIDGET_VISIBLE',                          'W', # gtk_widget_getvisible()              (avail since 2.18)
 );
 
 @{$APIs{'deprecated-gtk'}->{'functions'}}      = grep {$deprecatedGtkFunctions{$_} eq 'E'} keys %deprecatedGtkFunctions;
