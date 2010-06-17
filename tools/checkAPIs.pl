@@ -114,20 +114,25 @@ my %APIs = (
                 'perror',                            # Use strerror() and report messages in whatever
                                                      #  fashion is appropriate for the code in question.
                 'ctime',                             # Use abs_time_secs_to_str()
-                ### Deprecated glib functions
-                # (The list is based upon the GLib 2.22.3 documentation; Some of
+                ### Deprecated glib functions/macros
+                # (The list is based upon the GLib 2.24.1 documentation; Some of
                 #  the entries are are commented out since they are currently
                 #  being used in Wireshark and since the replacement functionality
                 #  is not available in all the GLib versions that Wireshark
                 #  currently supports (ie: versions starting with GLib 2.4).
+                'G_ALLOC_AND_FREE',
+                'G_ALLOC_ONLY',
                 'g_async_queue_ref_unlocked',        # g_async_queue_ref()   (OK since 2.8)
                 'g_async_queue_unref_and_unlock',    # g_async_queue_unref() (OK since 2.8)
                 'g_basename',
                 'g_cache_value_foreach',             # g_cache_key_foreach()
                 'g_date_set_time',                   # g_date_set_time_t (avail since 2.10)
                 'g_dirname',
+                'G_GNUC_FUNCTION',
+                'G_GNUC_PRETTY_FUNCTION',
                 'g_hash_table_freeze',
                 'g_hash_table_thaw',
+                'G_HAVE_GINT64',
                 'g_io_channel_close',
                 'g_io_channel_read',
                 'g_io_channel_seek',
