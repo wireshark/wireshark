@@ -2644,10 +2644,10 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             /* Get appropriate dissector handle */
             volatile dissector_handle_t protocol_handle = 0;
             if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
-                protocol_handle = find_dissector("lte-rrc.ul.ccch");
+                protocol_handle = find_dissector("lte_rrc.ul_ccch");
             }
             else {
-                protocol_handle = find_dissector("lte-rrc.dl.ccch");
+                protocol_handle = find_dissector("lte_rrc.dl_ccch");
             }
 
             /* Hide raw view of bytes */

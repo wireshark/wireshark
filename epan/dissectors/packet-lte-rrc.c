@@ -18326,8 +18326,58 @@ dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
 		dissect_DL_CCCH_Message_PDU(tvb, pinfo, lte_rrc_tree);
 	}
-
 }
+
+static void
+dissect_lte_rrc_DL_DCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *ti;
+	proto_tree *lte_rrc_tree;
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC DL_DCCH");
+	col_clear(pinfo->cinfo, COL_INFO);
+	if (tree) {
+
+		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, FALSE);
+		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+		dissect_DL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree);
+	}
+}
+
+
+static void
+dissect_lte_rrc_UL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *ti;
+	proto_tree *lte_rrc_tree;
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC UL_CCCH");
+	col_clear(pinfo->cinfo, COL_INFO);
+	if (tree) {
+
+		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, FALSE);
+		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+		dissect_UL_CCCH_Message_PDU(tvb, pinfo, lte_rrc_tree);
+	}
+}
+
+static void
+dissect_lte_rrc_UL_DCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *ti;
+	proto_tree *lte_rrc_tree;
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC UL_DCCH");
+	col_clear(pinfo->cinfo, COL_INFO);
+	if (tree) {
+
+		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, FALSE);
+		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+		dissect_UL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree);
+	}
+}
+
+
 
 /*--- proto_register_rrc -------------------------------------------*/
 void proto_register_lte_rrc(void) {
@@ -23240,7 +23290,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 93 "packet-lte-rrc-template.c"
+#line 143 "packet-lte-rrc-template.c"
   };
 
   /* List of subtrees */
@@ -23886,13 +23936,19 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_RRM_Config,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 99 "packet-lte-rrc-template.c"
+#line 149 "packet-lte-rrc-template.c"
   };
 
 
   /* Register protocol */
   proto_lte_rrc = proto_register_protocol(PNAME, PSNAME, PFNAME);
+
+  /* These entry points will first create an lte_rrc root node */
   register_dissector("lte_rrc.dl_ccch", dissect_lte_rrc_DL_CCCH, proto_lte_rrc);
+  register_dissector("lte_rrc.dl_dcch", dissect_lte_rrc_DL_DCCH, proto_lte_rrc);
+  register_dissector("lte_rrc.ul_ccch", dissect_lte_rrc_UL_CCCH, proto_lte_rrc);
+  register_dissector("lte_rrc.ul_dcch", dissect_lte_rrc_UL_DCCH, proto_lte_rrc);
+
   /* Register fields and subtrees */
   proto_register_field_array(proto_lte_rrc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -23914,7 +23970,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 111 "packet-lte-rrc-template.c"
+#line 167 "packet-lte-rrc-template.c"
 
 }
 

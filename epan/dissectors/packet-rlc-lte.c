@@ -1098,10 +1098,10 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
         switch (p_rlc_lte_info->channelType) {
             case CHANNEL_TYPE_CCCH:
                 if (p_rlc_lte_info->direction == DIRECTION_UPLINK) {
-                    protocol_handle = find_dissector("lte-rrc.ul.ccch");
+                    protocol_handle = find_dissector("lte_rrc.ul_ccch");
                 }
                 else {
-                    protocol_handle = find_dissector("lte-rrc.dl.ccch");
+                    protocol_handle = find_dissector("lte_rrc.dl_ccch");
                 }
                 break;
 
