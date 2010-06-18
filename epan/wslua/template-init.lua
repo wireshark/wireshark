@@ -29,7 +29,7 @@
 disable_lua = false
 
 if disable_lua then
-    do return
+    return
 end
 
 -- If set and we are running with special privileges this setting
