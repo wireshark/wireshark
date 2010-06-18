@@ -111,6 +111,10 @@
 #define ETHERTYPE_AVBTP			0x22F0
 #endif
 
+#ifndef ETHERTYPE_GIGAMON
+#define ETHERTYPE_GIGAMON	0x22e5 /* Gigamon Header */
+#endif
+
 #ifndef ETHERTYPE_CENTRINO_PROMISC
 #define ETHERTYPE_CENTRINO_PROMISC	0x2452	/* Intel Centrino promiscuous packets */
 #endif
