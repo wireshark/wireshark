@@ -114,9 +114,9 @@ my %APIs = (
                 'perror',                            # Use strerror() and report messages in whatever
                                                      #  fashion is appropriate for the code in question.
                 'ctime',                             # Use abs_time_secs_to_str()
-                ### Deprecated glib functions/macros
-                # (The list is based upon the GLib 2.24.1 documentation; Some of
-                #  the entries are are commented out since they are currently
+                ### Deprecated GLib/GObject functions/macros
+                # (The list is based upon the GLib 2.24.1 & GObject 2.24.1 documentation;
+                #  Some of the entries are commented out since they are currently
                 #  being used in Wireshark and since the replacement functionality
                 #  is not available in all the GLib versions that Wireshark
                 #  currently supports (ie: versions starting with GLib 2.4).
@@ -153,6 +153,10 @@ my %APIs = (
                 'g_string_sprintf',                  # use g_string_printf() instead
                 'g_string_sprintfa',                 # use g_string_append_printf instead
                 'g_tree_traverse',
+                'g_value_set_boxed_take_ownership',
+                'g_value_set_object_take_ownership',
+                'g_value_set_param_take_ownership',
+                'g_value_set_string_take_ownership',
                 'G_WIN32_DLLMAIN_FOR_DLL_NAME',
                 'g_win32_get_package_installation_directory',
                 'g_win32_get_package_installation_subdirectory',
@@ -220,9 +224,9 @@ my %APIs = (
 
 );
 
-# Deprecated GTK functions/macros with (E)rror or (W)arning flag:
+# Deprecated GTK+ functions/macros with (E)rror or (W)arning flag:
 # (The list is based upon the GTK+ 2.20.1 documentation; Some of
-#  the entries are are commented out since they are currently
+#  the entries are commented out since they are currently
 #  being used in Wireshark and since the replacement functionality
 #  is not available in all the GTK+ versions that Wireshark
 #  currently supports (ie: versions starting with GTK+ 2.4).
@@ -859,7 +863,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_window_position',                         'E',
                 'gtk_window_set_policy',                       'E', # >>? gtk_window_set_resizable()
 ##
-## Deprecated for GTK versions greater than 2.4
+## Deprecated for GTK+ versions greater than 2.4
 ## Note that entries marked with 'W' are currently being used by Wireshark
 ## Those marked with 'E' are not being used by Wireshark
 ##
