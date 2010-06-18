@@ -6310,10 +6310,24 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	 * bits in max count, but it does show a 32-bit timeout
 	 * after the min count field.
 	 *
-	 * Perhaps the 32-bit timeout field was hijacked as a 16-bit
-	 * high count and a 16-bit reserved field.
+	 * The Microsoft [MS-SMB] spec shows it as a ULONG named
+	 * Timeout_or_MaxCountHigh, which is
 	 *
-	 * We fetch and display it as 32 bits.
+	 *	...extended to be treated as a union of a 32-bit
+	 *	Timeout field and a 16-bit MaxCountHigh field.
+	 *	When reading from a regular file, the field
+	 *	MUST be interpreted as MaxCountHigh and the
+	 *	two unused bytes MUST be zero.  When reading from
+	 *	a name[sic] pipe or I/O device, the field MUST
+	 *	be interpreted as Timeout.
+	 *
+	 * Timeout is a timeout in milliseconds, with 0xffffffff
+	 * and 0xfffffffe having special meaning.
+	 *
+	 * MaxCountHigh is 16 bits of the MaxCountHigh value
+	 * followed by 16 bits of Reserved.
+	 *
+	 * We fetch and display it as 32 bits for now.
          *
          * XXX if maxcount high is 0xFFFFFFFF we assume it is just padding
 	 * bytes and we just ignore it.
