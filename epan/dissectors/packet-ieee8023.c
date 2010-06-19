@@ -127,7 +127,7 @@ dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
   }
   ENDTRY;
 
-  add_ethernet_trailer(pinfo, fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
+  add_ethernet_trailer(pinfo, tree, fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
 }
 
 void

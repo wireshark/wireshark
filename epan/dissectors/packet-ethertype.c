@@ -160,7 +160,7 @@ const value_string etype_vals[] = {
   { 0, NULL }
 };
 
-static void add_dix_trailer(packet_info *pinfo, proto_tree *fh_tree,
+static void add_dix_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     int trailer_id, tvbuff_t *tvb, tvbuff_t *next_tvb, int offset_after_etype,
     guint length_before, gint fcs_len);
 
@@ -307,12 +307,12 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		}
 	}
 
-	add_dix_trailer(pinfo, fh_tree, trailer_id, tvb, next_tvb, offset_after_etype,
+	add_dix_trailer(pinfo, tree, fh_tree, trailer_id, tvb, next_tvb, offset_after_etype,
 	    length_before, fcs_len);
 }
 
 static void
-add_dix_trailer(packet_info *pinfo, proto_tree *fh_tree, int trailer_id,
+add_dix_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree, int trailer_id,
     tvbuff_t *tvb, tvbuff_t *next_tvb, int offset_after_etype,
     guint length_before, gint fcs_len)
 {
@@ -347,7 +347,7 @@ add_dix_trailer(packet_info *pinfo, proto_tree *fh_tree, int trailer_id,
 	} else
 		trailer_tvb = NULL;	/* no trailer */
 
-	add_ethernet_trailer(pinfo, fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
+	add_ethernet_trailer(pinfo, tree, fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
 }
 
 void
