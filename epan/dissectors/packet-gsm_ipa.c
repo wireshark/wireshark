@@ -1,7 +1,7 @@
 /* packet-gsm_ipa.c
  * Routines for packet dissection of ip.access GSM over IP
  * Copyright 2009 by Harald Welte <laforge@gnumonks.org>
- * Copyright 2009 by Holger Hans Peter Freyther <zecke@selfish.org>
+ * Copyright 2009, 2010 by Holger Hans Peter Freyther <zecke@selfish.org>
  *
  * $Id$
  *
@@ -31,6 +31,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/ipproto.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_ipa = -1;
@@ -171,13 +172,14 @@ dissect_ipaccess(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-
+	gint remaining;
+	gint header_length = 3;
 	int offset = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPA");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+	while ((remaining = tvb_reported_length_remaining(tvb, offset)) > 0) {
 		proto_item *ti;
 		proto_tree *ipa_tree;
 		guint16 len, msg_type;
@@ -190,20 +192,30 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		                val_to_str(msg_type, ipa_protocol_vals,
 		                           "unknown 0x%02x"));
 
+		/*
+		 * The IPA header is different depending on the transport protocol.
+		 * With UDP there seems to be a fourth byte for the IPA header.
+		 * We attempt to detect this by checking if the length from the
+		 * header + four bytes of the IPA header equals the remaining size.
+		 */
+		if ((pinfo->ipproto == IP_PROTO_UDP) && (len + 4 == remaining)) {
+			header_length++;
+		}
+
 		if (tree) {
 			ti = proto_tree_add_protocol_format(tree, proto_ipa,
-					tvb, offset, len+3,
+					tvb, offset, len+header_length,
 					"IPA protocol ip.access, type: %s",
 					val_to_str(msg_type, ipa_protocol_vals,
 						   "unknown 0x%02x"));
 			ipa_tree = proto_item_add_subtree(ti, ett_ipa);
 			proto_tree_add_item(ipa_tree, hf_ipa_data_len,
-					    tvb, offset+1, 1, FALSE);
+					    tvb, offset, 2, FALSE);
 			proto_tree_add_item(ipa_tree, hf_ipa_protocol,
 					    tvb, offset+2, 1, FALSE);
 		}
 
-		next_tvb = tvb_new_subset(tvb, offset+3, len, len);
+		next_tvb = tvb_new_subset(tvb, offset+header_length, len, len);
 
 		switch (msg_type) {
 		case ABISIP_OML:
@@ -226,7 +238,7 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			break;
 		}
-		offset += len + 3;
+		offset += len + header_length;
 	}
 }
 
@@ -235,7 +247,7 @@ void proto_register_ipa(void)
 	static hf_register_info hf[] = {
 		{&hf_ipa_data_len,
 		 {"DataLen", "ipa.data_len",
-		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
 		  "The length of the data (in bytes)", HFILL}
 		 },
 		{&hf_ipa_protocol,
