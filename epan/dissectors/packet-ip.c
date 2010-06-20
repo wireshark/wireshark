@@ -1313,6 +1313,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   guint32    addr;
   int        offset = 0;
   guint      hlen, optlen;
+  guint16    flags;
   guint8     nxt;
   guint16    ipsum;
   fragment_data *ipfd_head=NULL;
@@ -1447,7 +1448,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   iph->ip_off = tvb_get_ntohs(tvb, offset + 6);
   if (tree) {
     int bit_offset = (offset + 6) * 8;
-    tf = proto_tree_add_bits_item(field_tree, hf_ip_flags, tvb, bit_offset + 0, 3, FALSE);
+    flags = (iph->ip_off & (IP_RF | IP_DF | IP_MF)) >> IP_OFFSET_WIDTH;
+    tf = proto_tree_add_uint(ip_tree, hf_ip_flags, tvb, offset + 6, 1, flags);
     field_tree = proto_item_add_subtree(tf, ett_ip_off);
     if (ip_security_flag) {
       proto_item *sf;
@@ -1716,6 +1718,8 @@ void
 proto_register_ip(void)
 {
 #define ARG_TO_STR(ARG) #ARG
+#define FLAGS_OFFSET_WIDTH_MSG(WIDTH) \
+    "Flags (" ARG_TO_STR(WIDTH) " bits)"
 #define FRAG_OFFSET_WIDTH_MSG(WIDTH) \
     "Fragment offset (" ARG_TO_STR(WIDTH) " bits)"
 
@@ -1875,7 +1879,7 @@ proto_register_ip(void)
 #endif /* HAVE_GEOIP */
 		{ &hf_ip_flags,
 		{ "Flags",		"ip.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
+			FLAGS_OFFSET_WIDTH_MSG(IP_FLAGS_WIDTH), HFILL }},
 
 		{ &hf_ip_flags_sf,
 		{ "Security flag", "ip.flags.sf", FT_BOOLEAN, IP_FLAGS_WIDTH, TFS(&flags_sf_set_evil), 0x0,
