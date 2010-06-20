@@ -81,7 +81,7 @@ static gint ett_srcport = -1;
 
 
 static void
-dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gmhdr_tree, guint offset, guint16 length)
+dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, guint offset, guint16 length)
 {
   proto_tree *ti;
   proto_tree *srcport_tree;
