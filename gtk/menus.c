@@ -43,6 +43,7 @@
 #include <epan/strutil.h>
 #include <epan/plugins.h>
 #include <epan/epan_dissect.h>
+#include <epan/column.h>
 
 #include "../print.h"
 #include "../register.h"
@@ -618,6 +619,7 @@ static GtkItemFactoryEntry menu_items[] =
 #ifdef NEW_PACKET_LIST
     {"/View/Resize All Columns", "<shift><control>R", GTK_MENU_FUNC(new_packet_list_resize_columns_cb),
                        0, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
+    {"/View/Visible Columns", NULL, NULL, 0, NULL, NULL,},
 #else
     {"/View/Resize All Columns", "<shift><control>R", GTK_MENU_FUNC(packet_list_resize_columns_cb),
                        0, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
@@ -807,6 +809,7 @@ static GtkItemFactoryEntry packet_list_heading_items[] =
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
+    {"/Hide Column", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_HIDE, NULL, NULL,},
     {"/Remove Column", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_REMOVE, "<StockItem>", GTK_STOCK_DELETE,}
 #else
     {"/Sort Ascending", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_SORT_ASCENDING, "<StockItem>", GTK_STOCK_SORT_ASCENDING,},
@@ -3325,6 +3328,56 @@ rebuild_protocol_prefs_menu (module_t *prefs_module_p, gboolean preferences)
     }
 
 }
+
+#ifdef NEW_PACKET_LIST
+static void
+menu_visible_column_toggle (GtkWidget *w _U_, gpointer data)
+{
+    new_packet_list_toggle_visible_column (GPOINTER_TO_INT(data));
+}
+
+static void
+menu_activate_all_columns (GtkWidget *w _U_, gpointer data _U_)
+{
+    new_packet_list_set_all_columns_visible ();
+}
+
+void
+rebuild_visible_columns_menu (void)
+{
+    GtkWidget *menu_columns, *menu_item;
+    GtkWidget *sub_menu;
+    GList     *clp;
+    fmt_data  *cfmt;
+    gint       col_id = 0;
+
+    menu_columns = gtk_item_factory_get_widget(main_menu_factory, "/View/Visible Columns");
+
+    sub_menu = gtk_menu_new();
+    gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_columns), sub_menu);
+
+    clp = g_list_first (prefs.col_list);
+    while (clp) {
+        cfmt = (fmt_data *) clp->data;
+        menu_item = gtk_check_menu_item_new_with_label(cfmt->title);
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), cfmt->visible);
+        g_signal_connect(menu_item, "activate", G_CALLBACK(menu_visible_column_toggle), GINT_TO_POINTER(col_id));
+        gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
+        gtk_widget_show (menu_item);
+        clp = g_list_next (clp);
+        col_id++;
+    }
+
+    menu_item = gtk_menu_item_new();
+    gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
+    gtk_widget_show (menu_item);
+
+    menu_item = gtk_menu_item_new_with_label ("Enable All");
+    gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
+    g_signal_connect(menu_item, "activate", G_CALLBACK(menu_activate_all_columns), NULL);
+    gtk_widget_show (menu_item);
+}
+#endif
 
 void
 menus_set_column_align_default (gboolean right_justify)

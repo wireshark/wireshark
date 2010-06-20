@@ -62,6 +62,43 @@ static void column_field_changed_cb(GtkEditable *, gpointer);
 static void column_dnd_row_deleted_cb(GtkTreeModel *, GtkTreePath *, gpointer);
 static gboolean column_title_changed_cb(GtkCellRendererText *, const gchar *, const gchar *, gpointer);
 
+enum {
+#ifdef NEW_PACKET_LIST
+  VISIBLE_COLUMN,
+#endif
+  TITLE_COLUMN,
+  FORMAT_COLUMN,
+  DATA_COLUMN,
+  N_COLUMN /* The number of columns */
+};
+
+#ifdef NEW_PACKET_LIST
+/* Visible toggled */
+static void
+visible_toggled(GtkCellRendererToggle *cell _U_, gchar *path_str, gpointer data)
+{
+  GtkTreeModel    *model = (GtkTreeModel *)data;
+  GtkTreeIter      iter;
+  GtkTreePath     *path = gtk_tree_path_new_from_string(path_str);
+  GList           *clp;
+  fmt_data        *cfmt;
+
+  gtk_tree_model_get_iter(model, &iter, path);
+  gtk_tree_model_get(model, &iter, DATA_COLUMN, &clp, -1);
+
+  cfmt = (fmt_data *) clp->data;
+  if (cfmt->visible)
+    cfmt->visible = FALSE;
+  else
+    cfmt->visible = TRUE;
+
+  gtk_list_store_set(GTK_LIST_STORE(model), &iter, VISIBLE_COLUMN, cfmt->visible, -1);
+  cfile.cinfo.columns_changed = TRUE;
+
+  gtk_tree_path_free(path);
+} /* visible_toggled */
+#endif
+
 /*
  * Create and display the column selection widgets.
  * Called as part of the creation of the Preferences notebook ( Edit ! Preferences )
@@ -77,7 +114,11 @@ column_prefs_show(GtkWidget *prefs_window) {
     gint               i;
     gchar             *fmt;
     gint               cur_fmt;
+#ifdef NEW_PACKET_LIST
+    const gchar       *column_titles[] = {"Visible", "Title", "Field type"};
+#else
     const gchar       *column_titles[] = {"Title", "Field type"};
+#endif
     GtkListStore      *store;
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
@@ -107,7 +148,11 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_container_add(GTK_CONTAINER(list_vb), list_sc);
     gtk_widget_show(list_sc);
 
-    store = gtk_list_store_new(3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
+    store = gtk_list_store_new(N_COLUMN,
+#ifdef NEW_PACKET_LIST
+			       G_TYPE_BOOLEAN,
+#endif
+			       G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
     column_row_deleted_handler_id = 
         g_signal_connect(GTK_TREE_MODEL(store), "row-deleted", G_CALLBACK(column_dnd_row_deleted_cb), NULL);
 
@@ -118,15 +163,23 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_tooltips_set_tip (tooltips, column_l, 
         "Click on a title to change its name.\nDrag an item to change its order.", NULL);
 
+#ifdef NEW_PACKET_LIST
+    renderer = gtk_cell_renderer_toggle_new();
+    g_signal_connect(renderer, "toggled", G_CALLBACK(visible_toggled), store);
+    column = gtk_tree_view_column_new_with_attributes(column_titles[VISIBLE_COLUMN], renderer, "active", VISIBLE_COLUMN, NULL);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(column_l), column);
+#endif
+
     renderer = gtk_cell_renderer_text_new();
     g_object_set(G_OBJECT(renderer), "editable", TRUE, NULL);
     g_signal_connect (renderer, "edited", G_CALLBACK(column_title_changed_cb), GTK_TREE_MODEL(store));
-    column = gtk_tree_view_column_new_with_attributes(column_titles[0], renderer, "text", 0, NULL);
+    column = gtk_tree_view_column_new_with_attributes(column_titles[TITLE_COLUMN], renderer, "text", TITLE_COLUMN, NULL);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_append_column(GTK_TREE_VIEW(column_l), column);
 
     renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes(column_titles[1], renderer, "text", 1, NULL);
+    column = gtk_tree_view_column_new_with_attributes(column_titles[FORMAT_COLUMN], renderer, "text", FORMAT_COLUMN, NULL);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_append_column(GTK_TREE_VIEW(column_l), column);
 
@@ -152,8 +205,17 @@ column_prefs_show(GtkWidget *prefs_window) {
             }
             fmt = g_strdup_printf("%s", col_format_desc(cur_fmt));
         }
+#if GTK_CHECK_VERSION(2,6,0)
+        gtk_list_store_insert_with_values(store, &iter, G_MAXINT,
+#else
         gtk_list_store_append(store, &iter);
-        gtk_list_store_set(store, &iter, 0, cfmt->title, 1, fmt, 2, clp, -1);
+        gtk_list_store_set(store, &iter,
+#endif
+#ifdef NEW_PACKET_LIST
+			   VISIBLE_COLUMN, cfmt->visible,
+#endif
+			   TITLE_COLUMN, cfmt->title, FORMAT_COLUMN, fmt, DATA_COLUMN, clp, -1);
+
         if (first_row) {
             first_iter = iter;
             first_row = FALSE;
@@ -332,11 +394,18 @@ column_list_new_cb(GtkWidget *w _U_, gpointer data) {
     column_prefs_add_custom (cur_fmt, title, NULL);
 
     model = gtk_tree_view_get_model(column_l);
+#if GTK_CHECK_VERSION(2,6,0)
+    gtk_list_store_insert_with_values(GTK_LIST_STORE(model), &iter, G_MAXINT,
+#else
     gtk_list_store_append(GTK_LIST_STORE(model), &iter);
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, 
-                       0, title,
-                       1, col_format_desc(cur_fmt),
-                       2, g_list_last(prefs.col_list),
+#endif
+#ifdef NEW_PACKET_LIST
+                       VISIBLE_COLUMN, TRUE,
+#endif
+                       TITLE_COLUMN, title,
+                       FORMAT_COLUMN, col_format_desc(cur_fmt),
+                       DATA_COLUMN, g_list_last(prefs.col_list),
                        -1);
 
     /* Triggers call to column_list_select_cb()   */
@@ -370,7 +439,7 @@ column_list_delete_cb(GtkWidget *w _U_, gpointer data) {
     sel = gtk_tree_view_get_selection(column_l);
     if (gtk_tree_selection_get_selected(sel, &model, &iter))
     {
-        gtk_tree_model_get(model, &iter, 2, &clp, -1);
+        gtk_tree_model_get(model, &iter, DATA_COLUMN, &clp, -1);
 
         cfmt = (fmt_data *) clp->data;
         g_free(cfmt->title);
@@ -432,9 +501,9 @@ column_title_changed_cb(GtkCellRendererText *cell _U_, const gchar *str_path, co
 
     gtk_tree_model_get_iter(model, &iter, path); 
   
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, new_title, -1);
+    gtk_list_store_set(GTK_LIST_STORE(model), &iter, TITLE_COLUMN, new_title, -1);
 
-    gtk_tree_model_get(model, &iter, 2, &clp, -1);
+    gtk_tree_model_get(model, &iter, DATA_COLUMN, &clp, -1);
     if (clp) {    
         cfmt  = (fmt_data *) clp->data;
         g_free(cfmt->title);
@@ -463,7 +532,7 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer data _U_)
     /* if something was selected */
     if (gtk_tree_selection_get_selected(sel, &model, &iter))
     {
-        gtk_tree_model_get(model, &iter, 2, &clp, -1);
+        gtk_tree_model_get(model, &iter, DATA_COLUMN, &clp, -1);
         g_assert(clp != NULL);
         cfmt    = (fmt_data *) clp->data;
         cur_fmt = get_column_format_from_str(cfmt->fmt);
@@ -532,7 +601,7 @@ column_menu_changed_cb(GtkWidget *w, gpointer data) {
         return;  /* no column list selection [Can this happen ?]: ignore callback */
 
     cur_cb_fmt = gtk_combo_box_get_active(GTK_COMBO_BOX(w));
-    gtk_tree_model_get(model, &iter, 2, &clp, -1);
+    gtk_tree_model_get(model, &iter, DATA_COLUMN, &clp, -1);
     cfmt    = (fmt_data *) clp->data;
     cur_fmt = get_column_format_from_str(cfmt->fmt);
 
@@ -566,7 +635,7 @@ column_menu_changed_cb(GtkWidget *w, gpointer data) {
     }
     g_signal_handler_unblock(field_te, column_field_changed_handler_id);
 
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, 1, fmt, -1);
+    gtk_list_store_set(GTK_LIST_STORE(model), &iter, FORMAT_COLUMN, fmt, -1);
     g_free(fmt);
     g_free(cfmt->fmt);
     cfmt->fmt = g_strdup(col_format_to_string(cur_cb_fmt));
@@ -600,7 +669,7 @@ column_field_changed_cb(GtkEditable *te, gpointer data) {
     }
 
     field = gtk_editable_get_chars(te, 0, -1);
-    gtk_tree_model_get(model, &iter, 2, &clp, -1);
+    gtk_tree_model_get(model, &iter, DATA_COLUMN, &clp, -1);
     cfmt  = (fmt_data *) clp->data;
     if (strcmp(cfmt->custom_field, field) == 0) {
         return; /* no action req'd */
@@ -610,7 +679,7 @@ column_field_changed_cb(GtkEditable *te, gpointer data) {
     cur_fmt = get_column_format_from_str(cfmt->fmt);
     fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_fmt), field);
 
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, 1, fmt, -1);
+    gtk_list_store_set(GTK_LIST_STORE(model), &iter, FORMAT_COLUMN, fmt, -1);
     g_free(fmt);
     g_free(cfmt->custom_field);
     cfmt->custom_field = field;
@@ -647,7 +716,7 @@ column_dnd_row_deleted_cb(GtkTreeModel *model, GtkTreePath *path _U_, gpointer d
          items_left;
          items_left = gtk_tree_model_iter_next (model, &iter)) {
 
-        gtk_tree_model_get(model, &iter, 2, &clp, -1);
+        gtk_tree_model_get(model, &iter, DATA_COLUMN, &clp, -1);
         if (clp) {
             prefs.col_list = g_list_remove_link(prefs.col_list, clp);
             new_col_list = g_list_concat(new_col_list, clp);

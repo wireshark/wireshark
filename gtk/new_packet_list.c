@@ -199,6 +199,7 @@ col_title_change_ok (GtkWidget *w, gpointer parent_w)
 		prefs_main_write();
 	}
 
+	rebuild_visible_columns_menu ();
 	window_destroy(GTK_WIDGET(parent_w));
 }
 
@@ -352,6 +353,49 @@ new_packet_list_xalign_column (gint col_id, GtkTreeViewColumn *col, gchar xalign
 }
 
 static void
+new_packet_list_set_visible_column (gint col_id, GtkTreeViewColumn *col, gboolean visible)
+{
+	gtk_tree_view_column_set_visible(col, visible);
+	set_column_visible(col_id, visible);
+
+	if (!prefs.gui_use_pref_save) {
+		prefs_main_write();
+	}
+
+	rebuild_visible_columns_menu ();
+	gtk_widget_queue_draw (packetlist->view);
+}
+
+void
+new_packet_list_toggle_visible_column (gint col_id)
+{
+	GtkTreeViewColumn *col =
+	  gtk_tree_view_get_column(GTK_TREE_VIEW(GTK_TREE_VIEW(packetlist->view)), col_id);
+
+	new_packet_list_set_visible_column (col_id, col, get_column_visible(col_id) ? FALSE : TRUE);
+}
+
+void
+new_packet_list_set_all_columns_visible (void)
+{
+	GtkTreeViewColumn *col;
+	int col_id;
+
+	for (col_id = 0; col_id < cfile.cinfo.num_cols; col_id++) {
+		col = gtk_tree_view_get_column(GTK_TREE_VIEW(GTK_TREE_VIEW(packetlist->view)), col_id);
+		gtk_tree_view_column_set_visible(col, TRUE);
+		set_column_visible(col_id, TRUE);
+	}
+
+	if (!prefs.gui_use_pref_save) {
+		prefs_main_write();
+	}
+
+	rebuild_visible_columns_menu ();
+	gtk_widget_queue_draw (packetlist->view);
+}
+
+static void
 new_packet_list_remove_column (gint col_id, GtkTreeViewColumn *col _U_)
 {
 	column_prefs_remove(col_id);
@@ -398,6 +442,9 @@ new_packet_list_column_menu_cb (GtkWidget *w _U_, gpointer user_data _U_, COLUMN
 		break;
 	case COLUMN_SELECTED_RENAME:
 		col_title_edit_dlg (col);
+		break;
+	case COLUMN_SELECTED_HIDE:
+		new_packet_list_set_visible_column (col_id, col, FALSE);
 		break;
 	case COLUMN_SELECTED_REMOVE:
 		new_packet_list_remove_column (col_id, col);
@@ -494,6 +541,7 @@ create_view_and_model(void)
 		g_free (escaped_title);
 		gtk_tree_view_column_set_clickable(col, TRUE);
 		gtk_tree_view_column_set_resizable(col, TRUE);
+		gtk_tree_view_column_set_visible(col, get_column_visible(i));
 		gtk_tree_view_column_set_sizing(col,GTK_TREE_VIEW_COLUMN_FIXED);
 		gtk_tree_view_column_set_reorderable(col, TRUE); /* XXX - Should this be saved in the prefs? */
 
@@ -544,6 +592,8 @@ create_view_and_model(void)
 			g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_PREV_COLUMN_KEY, col);
 		}
 	}
+
+	rebuild_visible_columns_menu ();
 
 	return packetlist->view;
 }

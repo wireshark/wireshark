@@ -68,6 +68,7 @@ static void   free_col_info(e_prefs *);
 
 static gboolean prefs_initialized = FALSE;
 static gchar *gpf_path = NULL;
+static gchar *cols_hidden_list = NULL;
 
 /*
  * XXX - variables to allow us to attempt to interpret the first
@@ -1083,6 +1084,7 @@ init_prefs(void) {
     cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
     cfmt->title = g_strdup(col_fmt[i * 2]);
     cfmt->fmt   = g_strdup(col_fmt[(i * 2) + 1]);
+    cfmt->visible = TRUE;
     cfmt->custom_field = NULL;
     prefs.col_list = g_list_append(prefs.col_list, cfmt);
   }
@@ -1640,6 +1642,30 @@ prefs_is_capture_device_hidden(const char *name)
 }
 
 /*
+ * Returns TRUE if the given column is hidden
+ */
+static gboolean
+prefs_is_column_hidden(const gchar *cols_hidden, const char *fmt)
+{
+	gchar *tok, *cols;
+	size_t len;
+
+	if (cols_hidden && fmt) {
+		cols = g_strdup (cols_hidden);
+		len = strlen (fmt);
+		for (tok = strtok (cols, ","); tok; tok = strtok(NULL, ",")) {
+			if (strlen (tok) == len && strcmp (fmt, tok) == 0) {
+				g_free (cols);
+				return TRUE;
+			}
+		}
+		g_free (cols);
+	}
+
+	return FALSE;
+}
+
+/*
  * Returns TRUE if the given device should capture in monitor mode by default
  */
 gboolean
@@ -1667,6 +1693,7 @@ prefs_capture_device_monitor_mode(const char *name)
 #define PRS_PRINT_DEST                   "print.destination"
 #define PRS_PRINT_FILE                   "print.file"
 #define PRS_PRINT_CMD                    "print.command"
+#define PRS_COL_HIDDEN                   "column.hidden"
 #define PRS_COL_FMT                      "column.format"
 #define PRS_STREAM_CL_FG                 "stream.client.fg"
 #define PRS_STREAM_CL_BG                 "stream.client.bg"
@@ -1902,6 +1929,8 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
   } else if (strcmp(pref_name, PRS_PRINT_CMD) == 0) {
     g_free(prefs.pr_cmd);
     prefs.pr_cmd = g_strdup(value);
+  } else if (strcmp(pref_name, PRS_COL_HIDDEN) == 0) {
+    cols_hidden_list = g_strdup (value);
   } else if (strcmp(pref_name, PRS_COL_FMT) == 0) {
     col_l = prefs_get_string_list(value);
     if (col_l == NULL)
@@ -1946,22 +1975,27 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     prefs.num_cols   = llen / 2;
     col_l_elt = g_list_first(col_l);
     while(col_l_elt) {
+      gchar *prefs_fmt;
       cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
       cfmt->title    = g_strdup(col_l_elt->data);
       col_l_elt      = col_l_elt->next;
       if (strncmp(col_l_elt->data, cust_format, cust_format_len) == 0) {
-        gchar *fmt     = g_strdup(col_l_elt->data);
         cfmt->fmt      = g_strdup(cust_format);
-        cfmt->custom_field = g_strdup(&fmt[cust_format_len+1]);  /* add 1 for ':' */
-        g_free (fmt);
+        prefs_fmt      = g_strdup(col_l_elt->data);
+        cfmt->custom_field = g_strdup(&prefs_fmt[cust_format_len+1]);  /* add 1 for ':' */
       } else {
         cfmt->fmt      = g_strdup(col_l_elt->data);
+        prefs_fmt      = g_strdup(cfmt->fmt);
         cfmt->custom_field = NULL;
       }
+      cfmt->visible   = prefs_is_column_hidden (cols_hidden_list, prefs_fmt) ? FALSE : TRUE;
+      g_free (prefs_fmt);
       col_l_elt      = col_l_elt->next;
       prefs.col_list = g_list_append(prefs.col_list, cfmt);
     }
     prefs_clear_string_list(col_l);
+    g_free (cols_hidden_list);
+    cols_hidden_list = NULL;
   } else if (strcmp(pref_name, PRS_STREAM_CL_FG) == 0) {
     cval = strtoul(value, NULL, 16);
     prefs.st_client_fg.pixel = 0;
@@ -2786,6 +2820,7 @@ write_prefs(char **pf_path_return)
   GList       *clp, *col_l;
   fmt_data    *cfmt;
   const gchar *cust_format = col_format_to_string(COL_CUSTOM);
+  GString     *cols_hidden = g_string_new ("");
 
   /* Needed for "-G defaultprefs" */
   init_prefs();
@@ -2968,16 +3003,31 @@ write_prefs(char **pf_path_return)
   clp = prefs.col_list;
   col_l = NULL;
   while (clp) {
+    gchar *prefs_fmt;
     cfmt = (fmt_data *) clp->data;
     col_l = g_list_append(col_l, g_strdup(cfmt->title));
     if ((strcmp(cfmt->fmt, cust_format) == 0) && (cfmt->custom_field)) {
-      gchar *fmt = g_strdup_printf("%s:%s", cfmt->fmt, cfmt->custom_field);
-      col_l = g_list_append(col_l, fmt);
+      prefs_fmt = g_strdup_printf("%s:%s", cfmt->fmt, cfmt->custom_field);
+      col_l = g_list_append(col_l, prefs_fmt);
     } else {
+      prefs_fmt = cfmt->fmt;
       col_l = g_list_append(col_l, g_strdup(cfmt->fmt));
+    }
+    if (!cfmt->visible) {
+      if (strlen (cols_hidden->str)) {
+	g_string_append (cols_hidden, ", ");
+      }
+      g_string_append (cols_hidden, prefs_fmt);
     }
     clp = clp->next;
   }
+  fprintf (pf, "\n# Packet list hidden columns.\n");
+  fprintf (pf, "# List all columns to hide in the packet list.\n");
+  fprintf (pf, "%s: %s\n", PRS_COL_HIDDEN, cols_hidden->str);
+  /* This frees the list of strings, but not the strings to which it
+     refers; they are free'ed in put_string_list(). */
+  g_string_free (cols_hidden, TRUE);
+
   fprintf (pf, "\n# Packet list column format.\n");
   fprintf (pf, "# Each pair of strings consists of a column title and its format.\n");
   fprintf (pf, "%s: %s\n", PRS_COL_FMT, put_string_list(col_l));
