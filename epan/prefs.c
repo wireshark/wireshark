@@ -1858,7 +1858,7 @@ try_convert_to_custom_column(gpointer *el_data)
         { COL_BSSGP_TLLI, "bssgp.tlli" },
         { COL_HPUX_SUBSYS, "nettl.subsys" },
         { COL_HPUX_DEVID, "nettl.devid" },
-        { COL_DSCP_VALUE, "ip.dsfield" },
+        { COL_DSCP_VALUE, "ip.dsfield.dscp" },
         { COL_FR_DLCI, "fr.dlci" },
         { COL_REL_CONV_TIME, "tcp.time_relative" },
         { COL_DELTA_CONV_TIME, "tcp.time_delta" },
