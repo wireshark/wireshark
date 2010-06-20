@@ -906,9 +906,16 @@ welcome_new(void)
 
     item_hb = welcome_button(GTK_STOCK_HELP,
         "User's Guide",
-		"The User's Guide (local version, if installed)",
+		"The User's Guide "
+#ifdef HHC_DIR
+        "(local version, if installed)",
         "Locally installed (if installed) otherwise online version",
         G_CALLBACK(topic_menu_cb), GINT_TO_POINTER(HELP_CONTENT));
+#else
+        "(online version)",
+        topic_online_url(ONLINEPAGE_USERGUIDE),
+        G_CALLBACK(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_USERGUIDE));
+#endif
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
