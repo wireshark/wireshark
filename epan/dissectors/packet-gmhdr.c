@@ -42,7 +42,8 @@
 static const value_string gmhdr_ftype_timestamp[] = {
   { GMHDR_FTYPE_TIMESTAMP_LOCAL, "Local" },
   { GMHDR_FTYPE_TIMESTAMP_NTP,   "NTP" },
-  { GMHDR_FTYPE_TIMESTAMP_EXT,   "External" }
+  { GMHDR_FTYPE_TIMESTAMP_EXT,   "External" },
+  { 0,                           NULL }
 };
 
 #define GMHDR_SRCPORT_PLFM_MASK         0x00f80000
