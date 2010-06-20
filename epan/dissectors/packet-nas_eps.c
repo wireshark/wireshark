@@ -4203,8 +4203,11 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset+=4;
 		if ((security_header_type==2)||(security_header_type==4)){
 			if(msg_auth_code!=0){
+				/* Sequence number	Sequence number 9.6	M	V	1 */
+				proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
+				offset++;
 				/* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
-				proto_tree_add_text(nas_eps_tree, tvb, offset, len-5,"Ciphered message");
+				proto_tree_add_text(nas_eps_tree, tvb, offset, len-6,"Ciphered message");
 				return;
 			}
 		}
