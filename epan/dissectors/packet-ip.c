@@ -1115,7 +1115,7 @@ static const ip_tcp_opt ipopts[] = {
 void
 dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
 			const ip_tcp_opt *opttab, int nopts, int eol,
-			packet_info *pinfo, proto_tree *opt_tree)
+			packet_info *pinfo, proto_tree *opt_tree, proto_item *opt_item)
 {
   guchar            opt;
   const ip_tcp_opt *optp;
@@ -1124,7 +1124,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
   const char       *name;
   void            (*dissect)(const struct ip_tcp_opt *, tvbuff_t *,
 				int, guint, packet_info *, proto_tree *);
-  guint             len;
+  guint             len, nop_count = 0;
 
   while (length > 0) {
     opt = tvb_get_guint8(tvb, offset);
@@ -1142,11 +1142,18 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       optlen = 2;
       name = ep_strdup_printf("Unknown (0x%02x)", opt);
       dissect = NULL;
+      nop_count = 0;
     } else {
       len_type = optp->len_type;
       optlen = optp->optlen;
       name = optp->name;
       dissect = optp->dissect;
+      if (opt_item && len_type == NO_LENGTH && optlen == 0 && opt == 1) { /* 1 = NOP in both IP and TCP */
+	/* Count number of NOP in a row */
+	nop_count++;
+      } else {
+	nop_count = 0;
+      }
     }
     --length;      /* account for type byte */
     if (len_type != NO_LENGTH) {
@@ -1207,6 +1214,10 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
     } else {
       proto_tree_add_text(opt_tree, tvb, offset,      1, "%s", name);
       offset += 1;
+
+      if (nop_count == 4 && strcmp (name, "NOP") == 0) {
+	expert_add_info_format(pinfo, opt_item, PI_PROTOCOL, PI_WARN, "4 NOP in a row");
+      }
     }
     if (opt == eol)
       break;
@@ -1612,7 +1623,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         "Options: (%u bytes)", optlen);
       field_tree = proto_item_add_subtree(tf, ett_ip_options);
       dissect_ip_tcp_options(tvb, offset + 20, optlen,
-         ipopts, N_IP_OPTS, IPOPT_END, pinfo, field_tree);
+         ipopts, N_IP_OPTS, IPOPT_END, pinfo, field_tree, tf);
     }
   }
 

@@ -2338,7 +2338,7 @@ static void dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
         field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
         dissect_ip_tcp_options(tvb, offset, length,
                                ipcp_iphc_subopts, N_IPCP_IPHC_SUBOPTS, -1,
-                               pinfo, field_tree);
+                               pinfo, field_tree, NULL);
       }
       return;
     }
@@ -3088,7 +3088,7 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
                                  "Options: (%d byte%s)", length, plurality(length, "", "s"));
         field_tree = proto_item_add_subtree(tf, options_subtree_index);
         dissect_ip_tcp_options(tvb, offset, length, opts, nopts, -1,
-                               pinfo, field_tree);
+                               pinfo, field_tree, NULL);
       }
     }
     break;
@@ -3252,7 +3252,7 @@ static void
 dissect_lcp_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect_ip_tcp_options(tvb, 0, tvb_reported_length(tvb), lcp_opts, N_LCP_OPTS,
-                         -1, pinfo, tree);
+                         -1, pinfo, tree, NULL);
 }
 
 /*
@@ -3320,7 +3320,7 @@ dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                  "Options: (%d byte%s)", length, plurality(length, "", "s"));
         field_tree = proto_item_add_subtree(tf, ett_vsncp_options);
         dissect_ip_tcp_options(tvb, offset, length, vsncp_opts, N_VSNCP_OPTS, -1,
-                               pinfo, field_tree);
+                               pinfo, field_tree, NULL);
       }
     }
     break;
@@ -3581,7 +3581,7 @@ dissect_bap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                "Data (%d byte%s)", length, plurality(length, "", "s"));
       field_tree = proto_item_add_subtree(tf, ett_bap_options);
       dissect_ip_tcp_options(tvb, offset, length, bap_opts, N_BAP_OPTS, -1,
-                             pinfo, field_tree);
+                             pinfo, field_tree, NULL);
     }
   }
 }

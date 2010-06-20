@@ -3497,10 +3497,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tf = proto_tree_add_bytes_format(tcp_tree, hf_tcp_options, tvb, offset +  20,
                                              optlen, p_options, "Options: (%u bytes)", optlen);
             field_tree = proto_item_add_subtree(tf, ett_tcp_options);
-        } else
+        } else {
+            tf = NULL;
             field_tree = NULL;
+        }
         dissect_ip_tcp_options(tvb, offset + 20, optlen,
-                               tcpopts, N_TCP_OPTS, TCPOPT_EOL, pinfo, field_tree);
+                               tcpopts, N_TCP_OPTS, TCPOPT_EOL, pinfo, field_tree, tf);
     }
 
     if(!pinfo->fd->flags.visited){
