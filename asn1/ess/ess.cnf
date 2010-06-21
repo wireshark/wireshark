@@ -26,7 +26,7 @@ SigningCertificateV2 B "1.2.840.113549.1.9.16.2.47" "id-aa-signingCertificateV2"
 
 RestrictiveTag	   B "2.16.840.1.101.2.1.8.3.0"	  "id-restrictiveAttributes"
 EnumeratedTag	   B "2.16.840.1.101.2.1.8.3.1"	  "id-enumeratedPermissiveAttributes"
-PermissiveTag	   B "2.16.840.1.101.2.1.8.3.2"	  "id-restrictiveAttributes"
+PermissiveTag	   B "2.16.840.1.101.2.1.8.3.2"	  "id-permissiveAttributes"
 InformativeTag	   B "2.16.840.1.101.2.1.8.3.3"	  "id-informativeAttributes"
 EnumeratedTag	   B "2.16.840.1.101.2.1.8.3.4"	  "id-enumeratedRestrictiveAttributes"
 
