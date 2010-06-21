@@ -1,4 +1,3 @@
-
 /* packet-ospf.c
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
