@@ -1,11 +1,14 @@
 /* packet-gmhdr.c
  * Routines for Gigamon header disassembly (modified from packet-vlan.c)
  *
+ * Dissector for Gigamon Header and Trailer
+ * Copyright Gigamon 2010
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
- * Dissector for Gigamon Header and Trailer
- * Copyright Gigamon 2010
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
