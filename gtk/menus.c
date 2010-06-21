@@ -809,6 +809,7 @@ static GtkItemFactoryEntry packet_list_heading_items[] =
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
+    {"/Displayed Columns", NULL, NULL, 0, NULL, NULL,},
     {"/Hide Column", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_HIDE, NULL, NULL,},
     {"/Remove Column", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_REMOVE, "<StockItem>", GTK_STOCK_DELETE,}
 #else
@@ -3345,37 +3346,41 @@ menu_activate_all_columns (GtkWidget *w _U_, gpointer data _U_)
 void
 rebuild_visible_columns_menu (void)
 {
-    GtkWidget *menu_columns, *menu_item;
+    GtkWidget *menu_columns[2], *menu_item;
     GtkWidget *sub_menu;
     GList     *clp;
     fmt_data  *cfmt;
-    gint       col_id = 0;
+    gint       i, col_id;
 
-    menu_columns = gtk_item_factory_get_widget(main_menu_factory, "/View/Displayed Columns");
+    menu_columns[0] = gtk_item_factory_get_widget(main_menu_factory, "/View/Displayed Columns");
+    menu_columns[1] = gtk_item_factory_get_widget(packet_list_heading_factory, "/Displayed Columns");
 
-    sub_menu = gtk_menu_new();
-    gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_columns), sub_menu);
+    for (i = 0; i < 2; i++) {
+        sub_menu = gtk_menu_new();
+        gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_columns[i]), sub_menu);
 
-    clp = g_list_first (prefs.col_list);
-    while (clp) {
-        cfmt = (fmt_data *) clp->data;
-        menu_item = gtk_check_menu_item_new_with_label(cfmt->title);
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), cfmt->visible);
-        g_signal_connect(menu_item, "activate", G_CALLBACK(menu_visible_column_toggle), GINT_TO_POINTER(col_id));
+        clp = g_list_first (prefs.col_list);
+        col_id = 0;
+        while (clp) {
+            cfmt = (fmt_data *) clp->data;
+            menu_item = gtk_check_menu_item_new_with_label(cfmt->title);
+            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), cfmt->visible);
+            g_signal_connect(menu_item, "activate", G_CALLBACK(menu_visible_column_toggle), GINT_TO_POINTER(col_id));
+            gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
+            gtk_widget_show (menu_item);
+            clp = g_list_next (clp);
+            col_id++;
+        }
+
+        menu_item = gtk_menu_item_new();
         gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
         gtk_widget_show (menu_item);
-        clp = g_list_next (clp);
-        col_id++;
+
+        menu_item = gtk_menu_item_new_with_label ("Display All");
+        gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
+        g_signal_connect(menu_item, "activate", G_CALLBACK(menu_activate_all_columns), NULL);
+        gtk_widget_show (menu_item);
     }
-
-    menu_item = gtk_menu_item_new();
-    gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
-    gtk_widget_show (menu_item);
-
-    menu_item = gtk_menu_item_new_with_label ("Display All");
-    gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
-    g_signal_connect(menu_item, "activate", G_CALLBACK(menu_activate_all_columns), NULL);
-    gtk_widget_show (menu_item);
 }
 #endif
 
