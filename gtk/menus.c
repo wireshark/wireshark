@@ -619,7 +619,7 @@ static GtkItemFactoryEntry menu_items[] =
 #ifdef NEW_PACKET_LIST
     {"/View/Resize All Columns", "<shift><control>R", GTK_MENU_FUNC(new_packet_list_resize_columns_cb),
                        0, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
-    {"/View/Visible Columns", NULL, NULL, 0, NULL, NULL,},
+    {"/View/Displayed Columns", NULL, NULL, 0, NULL, NULL,},
 #else
     {"/View/Resize All Columns", "<shift><control>R", GTK_MENU_FUNC(packet_list_resize_columns_cb),
                        0, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
@@ -3351,7 +3351,7 @@ rebuild_visible_columns_menu (void)
     fmt_data  *cfmt;
     gint       col_id = 0;
 
-    menu_columns = gtk_item_factory_get_widget(main_menu_factory, "/View/Visible Columns");
+    menu_columns = gtk_item_factory_get_widget(main_menu_factory, "/View/Displayed Columns");
 
     sub_menu = gtk_menu_new();
     gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_columns), sub_menu);
@@ -3372,7 +3372,7 @@ rebuild_visible_columns_menu (void)
     gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
     gtk_widget_show (menu_item);
 
-    menu_item = gtk_menu_item_new_with_label ("Enable All");
+    menu_item = gtk_menu_item_new_with_label ("Display All");
     gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
     g_signal_connect(menu_item, "activate", G_CALLBACK(menu_activate_all_columns), NULL);
     gtk_widget_show (menu_item);

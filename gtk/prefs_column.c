@@ -115,7 +115,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     gchar             *fmt;
     gint               cur_fmt;
 #ifdef NEW_PACKET_LIST
-    const gchar       *column_titles[] = {"Visible", "Title", "Field type"};
+    const gchar       *column_titles[] = {"Displayed", "Title", "Field type"};
 #else
     const gchar       *column_titles[] = {"Title", "Field type"};
 #endif
