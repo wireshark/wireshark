@@ -6238,7 +6238,10 @@ de_rr_apdu_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     sub_tvb = tvb_new_subset(tvb, offset, len, len);
 
-    call_dissector(rrlp_dissector, sub_tvb, gsm_a_dtap_pinfo, tree);
+    /* gsm_a_dtap_pinfo MUST be set by any dissector calling de_rr_apdu_data      */
+    /* XXX: test added to match de_rr_ho_to_utran_cmd & etc (and to fix a crash)  */
+    if (rrlp_dissector && gsm_a_dtap_pinfo)
+        call_dissector(rrlp_dissector, sub_tvb, gsm_a_dtap_pinfo, tree);
 
     return len;
 }
