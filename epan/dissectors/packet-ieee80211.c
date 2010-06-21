@@ -515,8 +515,10 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 /* 0x34 below */
 #define TAG_MOBILITY_DOMAIN          0x36  /* IEEE Std 802.11r-2008 */
 /* 0x37 below */
-#define TAG_TIMEOUT_INTERVAL         0x38  /* IEEE Std 802.11r-2008 */
-#define TAG_RIC_DATA                 0x39  /* IEEE Std 802.11r-2008 */
+#define TAG_TIMEOUT_INTERVAL         0x38  /* 56 IEEE Std 802.11r-2008 */
+#define TAG_RIC_DATA                 0x39  /* 57 IEEE Std 802.11r-2008 */
+#define TAG_SUPPORTED_REGULATORY_CLASSES            59 /* IEEE Std 802.11w-2009 */
+#define TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT    60 /* IEEE Std 802.11w-2009 */
 #define TAG_HT_INFO                  0x3D  /* IEEE Stc 802.11n/D2.0 */
 #define TAG_SECONDARY_CHANNEL_OFFSET 0x3E  /* IEEE Stc 802.11n/D1.10/D2.0 */
 /* 0x45 below */
@@ -533,10 +535,6 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_CISCO_UNKNOWN_96         0x96  /* Cisco Compatible eXtensions */
 #define TAG_VENDOR_SPECIFIC_IE       0xDD
 #define TAG_SYMBOL_PROPRIETARY       0xAD
-#if 0 /* Not yet assigned tag numbers by ANA */
-#define TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT    0xFF
-#define TAG_SUPPORTED_REGULATORY_CLASSES            0xFE
-#endif
 
 #ifndef MESH_OVERRIDES
 #define TAG_SUPPORTED_CHANNELS    0x24
@@ -5065,6 +5063,8 @@ static const value_string tag_num_vals[] = {
 #endif
   { TAG_TIMEOUT_INTERVAL,         "Timeout Interval"},
   { TAG_RIC_DATA,                 "RIC Data"},
+  { TAG_SUPPORTED_REGULATORY_CLASSES, "Supported Regulatory Classes"},
+  { TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement"},
   { TAG_RIC_DESCRIPTOR,           "RIC Descriptor"},
   { TAG_MMIE,                     "Management MIC"},
 #ifdef MESH_OVERRIDES
@@ -5075,10 +5075,6 @@ static const value_string tag_num_vals[] = {
   { TAG_MESH_PREP,    "Mesh Path Response"},
   { TAG_MESH_PERR,    "Mesh Path Error"},
 #endif /* MESH_OVERRIDES */
-  #if 0 /*Not yet assigned tag numbers by ANA */
-  { TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement"},
-  { TAG_SUPPORTED_REGULATORY_CLASSES, "Supported Regulatory Classes"},
-  #endif
   { 0,                        NULL }
 };
 
@@ -5226,9 +5222,10 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
 
     case TAG_DS_PARAMETER:
-      if (tag_len < 1)
+		/* The length of the dot11CurrentChannelNumber parameter is 1 octet */
+      if (tag_len != 1)
       {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 1",
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u wrong, must be = 1",
                              tag_len);
         break;
       }
@@ -6444,7 +6441,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     /*** End: Neighbor Report Tag - Dustin Johnson ***/
 #endif /* MESH_OVERRIDES */
 
-#if 0 /*Not yet assigned tag numbers by ANA */
     /*** Begin: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
     case TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT:
     {
@@ -6470,13 +6466,12 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
     }
     /*** End: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
-#endif
-#if 0 /*Not yet assigned tag numbers by ANA */
     /*** Begin: Supported Regulatory Classes Tag - Dustin Johnson ***/
     case TAG_SUPPORTED_REGULATORY_CLASSES:
     {
       guint tag_offset;
       guint8 current_field;
+	  guint i;
 
       if (tag_len < 2) {
         proto_tree_add_text (tree, tvb, offset + 2, tag_len,
@@ -6510,7 +6505,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
     }
     /*** End: Supported Regulatory Classes Tag - Dustin Johnson ***/
-#endif
     default:
       tvb_ensure_bytes_exist (tvb, offset + 2, tag_len);
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 1 + tag_len_len,
