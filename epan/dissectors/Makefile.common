@@ -631,6 +631,7 @@ DISSECTOR_SRC = \
 	packet-m2ua.c		\
 	packet-m3ua.c		\
 	packet-mac-lte.c		\
+	packet-mactelnet.c	\
 	packet-maccontrol.c	\
 	packet-manolito.c	\
 	packet-mbtcp.c		\
