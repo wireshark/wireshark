@@ -3351,7 +3351,7 @@ rebuild_visible_columns_menu (void)
     GList     *clp;
     fmt_data  *cfmt;
     gchar     *title;
-    gint       i, col_id;
+    gint       i, col_id, cur_fmt;
 
     menu_columns[0] = gtk_item_factory_get_widget(main_menu_factory, "/View/Displayed Columns");
     menu_columns[1] = gtk_item_factory_get_widget(packet_list_heading_factory, "/Displayed Columns");
@@ -3364,7 +3364,8 @@ rebuild_visible_columns_menu (void)
         col_id = 0;
         while (clp) {
             cfmt = (fmt_data *) clp->data;
-            if (cfmt->custom_field) {
+            cur_fmt = get_column_format_from_str(cfmt->fmt);
+            if (cur_fmt == COL_CUSTOM) {
                 title = g_strdup_printf ("%s  (%s)", cfmt->title, cfmt->custom_field);
             } else {
                 title = g_strdup_printf ("%s  (%s)", cfmt->title, col_format_desc(cfile.cinfo.col_fmt[col_id]));

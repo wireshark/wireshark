@@ -3015,7 +3015,7 @@ write_prefs(char **pf_path_return)
     }
     if (!cfmt->visible) {
       if (strlen (cols_hidden->str)) {
-	g_string_append (cols_hidden, ", ");
+	g_string_append (cols_hidden, ",");
       }
       g_string_append (cols_hidden, prefs_fmt);
     }
