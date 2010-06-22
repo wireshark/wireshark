@@ -194,26 +194,26 @@ static int
 dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *ti;
-  gint16 length;
+  guint tvblen, length;
   proto_tree *gmhdr_tree = NULL;
   guint offset;
   guint16 cksum, comp_cksum;
   
-  offset  = tvb_reported_length(tvb);
-  if (offset<4){
-	  return 0;
-  }
- 
   /* See if this packet has a Gigamon trailer, if yes, then decode it */ 
-  if (tvb_get_ntohs(tvb, -4) != ETHERTYPE_GIGAMON) {
+  /* (Don't throw any exceptions while checking for the trailer).     */
+  tvblen = tvb_length(tvb); /* end+1 */
+  if (tvblen < 5)
+	  return 0;
+  if (tvb_get_ntohs(tvb, tvblen-4) != ETHERTYPE_GIGAMON)
     return 0;
-  }
 
-  offset  = tvb_reported_length(tvb) - 2; /* 2 byte checksum */
-  cksum   = tvb_get_ntohs(tvb, offset);
-  offset -= 3;  /* 1 byte length + 2 byte ET */
-  length  = tvb_get_guint8(tvb, offset); /* length of Gigamon header */
-  offset -= length;
+  length  = tvb_get_guint8(tvb, tvblen-5); /* length of Gigamon header */
+  if ((tvblen-5) < length)  /* XXX: Should use != length ?? */
+      return 0;
+
+  offset  = tvblen - 5 - length;
+
+  cksum   = tvb_get_ntohs(tvb, tvblen-2);
 
   /* Verify the checksum; if not valid, it means that the trailer is not valid */
   {
@@ -227,6 +227,7 @@ dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     }
   }
 
+  /* OK: We appear to have a Gigamon trailer */
   if (tree) {
     ti = proto_tree_add_item(tree, proto_gmhdr, tvb, offset, length + 5, FALSE);
 
@@ -238,7 +239,7 @@ dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
     dissect_gmtlv(tvb, pinfo, gmhdr_tree, offset, length);
   }
-  return tvb_reported_length(tvb);
+  return tvblen;
 }
 
 void
