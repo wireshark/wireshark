@@ -3254,6 +3254,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
     } else {
       dest_cfmt->custom_field = NULL;
     }
+    dest_cfmt->visible = src_cfmt->visible;
     dest->col_list = g_list_append(dest->col_list, dest_cfmt);
   }
   dest->num_cols = src->num_cols;

@@ -342,6 +342,7 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field)
   cfmt->custom_field = g_strdup(custom_field);
 
   if (custom_field) {
+    cfmt->visible = TRUE;
     clp = g_list_last(prefs.col_list);
     last_cfmt = (fmt_data *) clp->data;
     if (strcmp(last_cfmt->fmt, "%i") == 0) {
@@ -351,6 +352,7 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field)
       prefs.col_list = g_list_append(prefs.col_list, cfmt);
     }
   } else {
+    cfmt->visible = FALSE;  /* Will be set to TRUE in visible_toggled() when added to list */
     prefs.col_list = g_list_append(prefs.col_list, cfmt);
   }
 }
