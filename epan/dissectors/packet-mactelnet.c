@@ -107,11 +107,11 @@ static const value_string controlpackettypenames[] = {
 static int
 dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *mactelnet_item = NULL;
-	proto_tree *mactelnet_tree = NULL;
-	proto_item *mactelnet_control_item = NULL;
-	proto_tree *mactelnet_control_tree = NULL;
-	guint16 type = 0;
+	proto_item *mactelnet_item;
+	proto_tree *mactelnet_tree;
+	proto_item *mactelnet_control_item;
+	proto_tree *mactelnet_control_tree;
+	guint16 type;
 
 	/* Check that there's enough data */
 	if (tvb_length(tvb) < 22)
@@ -182,8 +182,8 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (type == 1) {
 			while(tvb_length_remaining(tvb, offset) > 0) {
 				if (tvb_length_remaining(tvb, offset) > 4 && tvb_get_ntohl(tvb, offset) == control_packet) {
-					guint8 datatype = 0;
-					guint32 datalength = 0;
+					guint8 datatype;
+					guint32 datalength;
 					offset += 4;
 
 					/* Add subtree for control packet */
@@ -232,10 +232,8 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				} else {
 					/* Data packet, let wireshark handle it */
-					tvbuff_t        *next_client;
-					next_client = tvb_new_subset(tvb, offset, -1, -1);
-					call_dissector(data_handle, next_client, pinfo, mactelnet_tree);
-					return offset;
+					tvbuff_t *next_client = tvb_new_subset(tvb, offset, -1, -1);
+					return call_dissector(data_handle, next_client, pinfo, mactelnet_tree);
 				}
 			}
 		}
@@ -309,20 +307,37 @@ proto_register_mactelnet(void)
 		&ett_mactelnet_control,
 	};
 
+	module_t *mactelnet_module;
+
 	/* Register the protocol name and description */
 	proto_mactelnet = proto_register_protocol ("MikroTik MAC-Telnet Protocol", PROTO_TAG_MACTELNET, "mactelnet");
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array (proto_mactelnet, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
+
+	mactelnet_module = prefs_register_protocol(proto_mactelnet, proto_reg_handoff_mactelnet);
+
+	prefs_register_uint_preference(mactelnet_module, "port", "UDP Port",
+				       "MAC-Telnet UDP port if other than the default",
+				       10, &global_mactelnet_port);
 }
 
 void
 proto_reg_handoff_mactelnet(void)
 {
-	dissector_handle_t mactelnet_handle;
-	mactelnet_handle = new_create_dissector_handle(dissect_mactelnet,
-							 proto_mactelnet);
-	dissector_add("udp.port", global_mactelnet_port, mactelnet_handle);
-	data_handle = find_dissector("data");
+	static gboolean initialized = FALSE;
+	static int current_port;
+	static dissector_handle_t mactelnet_handle;
+
+	if (!initialized) {
+		mactelnet_handle = new_create_dissector_handle(dissect_mactelnet, proto_mactelnet);
+		data_handle = find_dissector("data");
+		initialized = TRUE;
+	} else {
+		dissector_delete("udp.port", current_port, mactelnet_handle);
+	}
+
+	current_port = global_mactelnet_port;
+	dissector_add("udp.port", current_port, mactelnet_handle);
 }
