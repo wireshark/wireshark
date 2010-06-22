@@ -3090,6 +3090,10 @@ David Perez		 <david [AT] taddong.com> {
 	Routines for exporting SMB objects
 }
 
+Håkon Nessjøen		<haakon.nessjoen@gmail.com> {
+	Mikrotik RouterOS protocol dissector
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
