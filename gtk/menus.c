@@ -3350,6 +3350,7 @@ rebuild_visible_columns_menu (void)
     GtkWidget *sub_menu;
     GList     *clp;
     fmt_data  *cfmt;
+    gchar     *title;
     gint       i, col_id;
 
     menu_columns[0] = gtk_item_factory_get_widget(main_menu_factory, "/View/Displayed Columns");
@@ -3363,7 +3364,13 @@ rebuild_visible_columns_menu (void)
         col_id = 0;
         while (clp) {
             cfmt = (fmt_data *) clp->data;
-            menu_item = gtk_check_menu_item_new_with_label(cfmt->title);
+            if (cfmt->custom_field) {
+                title = g_strdup_printf ("%s  (%s)", cfmt->title, cfmt->custom_field);
+            } else {
+                title = g_strdup_printf ("%s  (%s)", cfmt->title, col_format_desc(cfile.cinfo.col_fmt[col_id]));
+            }
+            menu_item = gtk_check_menu_item_new_with_label(title);
+            g_free (title);
             gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), cfmt->visible);
             g_signal_connect(menu_item, "activate", G_CALLBACK(menu_visible_column_toggle), GINT_TO_POINTER(col_id));
             gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
