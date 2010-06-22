@@ -199,6 +199,11 @@ dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   guint offset;
   guint16 cksum, comp_cksum;
   
+  offset  = tvb_reported_length(tvb);
+  if (offset<4){
+	  return 0;
+  }
+ 
   /* See if this packet has a Gigamon trailer, if yes, then decode it */ 
   if (tvb_get_ntohs(tvb, -4) != ETHERTYPE_GIGAMON) {
     return 0;
