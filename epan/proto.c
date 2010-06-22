@@ -1495,7 +1495,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 	}
 	/*
-	 * XXX - this should just check the REP_*_ENDIAN bit, with
+	 * XXX - this should just check the ENC_*_ENDIAN bit, with
 	 * those fields for which we treat any non-zero value of
 	 * "encoding" checking the rest of the bits.
 	 */
