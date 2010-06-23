@@ -134,7 +134,7 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		guint32 offset = 0;
 
 		/* create display subtree for the protocol */
-		mactelnet_item = proto_tree_add_item(tree, proto_mactelnet, tvb, 0, -1, FALSE);
+		mactelnet_item = proto_tree_add_item(tree, proto_mactelnet, tvb, 0, -1, ENC_NA);
 		mactelnet_tree = proto_item_add_subtree(mactelnet_item, ett_mactelnet);
 
 		/* ver(1) */
