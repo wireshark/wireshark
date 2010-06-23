@@ -81,6 +81,8 @@
 #include <wsutil/file_util.h>
 #include "packet-ber.h"
 
+#define HAS_GKEY_FILE GLIB_CHECK_VERSION(2,6,0) 
+
 static gint proto_ber = -1;
 static gint hf_ber_id_class = -1;
 static gint hf_ber_id_pc = -1;
@@ -135,7 +137,9 @@ static gboolean show_internal_ber_fields = FALSE;
 static gboolean decode_octetstring_as_ber = FALSE;
 static gboolean decode_primitive_as_ber = FALSE;
 static gboolean decode_unexpected = FALSE;
+#if HAS_GKEY_FILE
 static const gchar *ber_oid_file = NULL;
+#endif /* HAS_GKEY_FILE */
 
 static gchar *decode_as_syntax = NULL;
 static gchar *ber_filename = NULL;
@@ -334,6 +338,7 @@ void ber_set_filename(gchar *filename)
   }
 }
 
+#if HAS_GKEY_FILE
 static void ber_load_oid_tables(const gchar *from)
 {
 	WS_DIR		*dir;             /* scanned directory */
@@ -423,6 +428,8 @@ ber_apply_prefs(void)
 {
 	ber_load_oid_tables(ber_oid_file);
 }
+
+#endif /* HAS_GKEY_FILE */
 
 static void
 ber_check_length (guint32 length, gint32 min_len, gint32 max_len, asn1_ctx_t *actx, proto_item *item, gboolean bit)
@@ -4705,7 +4712,12 @@ proto_register_ber(void)
     proto_set_cant_toggle(proto_ber);
 
     /* Register preferences */
+#if HAS_GKEY_FILE
     ber_module = prefs_register_protocol(proto_ber, ber_apply_prefs);
+#else
+    ber_module = prefs_register_protocol(proto_ber, NULL);
+#endif /* HAS_GKEY_FILE */
+
     prefs_register_bool_preference(ber_module, "show_internals",
 	"Show internal BER encapsulation tokens",
 	"Whether the dissector should also display internal"
@@ -4724,11 +4736,14 @@ proto_register_ber(void)
 	"Whether the dissector should try decoding unknown primitive as"
 	" constructed ASN.1 BER encoded data", &decode_primitive_as_ber);
 
+#if HAS_GKEY_FILE
     prefs_register_string_preference(ber_module, "oid_file",
 	"Additional OBJECT IDENTIFIER information",
 	"Additional, local, object identifier information, "
 	" including names and syntaxes."
 	" A single file may be specified, or a directory containing files with a \".oid\" suffix", &ber_oid_file);
+
+#endif /* HAS_GKEY_FILE */
 
     ber_oid_dissector_table = register_dissector_table("ber.oid", "BER OID Dissectors", FT_STRING, BASE_NONE);
     ber_syntax_dissector_table = register_dissector_table("ber.syntax", "BER Syntax Dissectors", FT_STRING, BASE_NONE);
