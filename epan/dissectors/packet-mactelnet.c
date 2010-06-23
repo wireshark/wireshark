@@ -64,7 +64,7 @@ static gint hf_mactelnet_control_width = -1;
 static gint hf_mactelnet_control_height = -1;
 
 /* Global port preference */
-static int global_mactelnet_port = 20561;
+static guint global_mactelnet_port = 20561;
 
 /* Control packet definition */
 static const guint32 control_packet = 0x563412FF;
@@ -330,7 +330,7 @@ void
 proto_reg_handoff_mactelnet(void)
 {
 	static gboolean initialized = FALSE;
-	static int current_port;
+	static guint current_port;
 	static dissector_handle_t mactelnet_handle;
 
 	if (!initialized) {
