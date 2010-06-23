@@ -112,7 +112,7 @@ static int hf_lte_rrc_UECapabilityInformation_PDU = -1;  /* UECapabilityInformat
 static int hf_lte_rrc_UE_EUTRA_Capability_PDU = -1;  /* UE_EUTRA_Capability */
 static int hf_lte_rrc_lte_rrc_HandoverCommand_PDU = -1;  /* HandoverCommand */
 static int hf_lte_rrc_lte_rrc_HandoverPreparationInformation_PDU = -1;  /* HandoverPreparationInformation */
-static int hf_lte_rrc_UERadioAccessCapabilityInformation_PDU = -1;  /* UERadioAccessCapabilityInformation */
+static int hf_lte_rrc_lte_rrc_UERadioAccessCapabilityInformation_PDU = -1;  /* UERadioAccessCapabilityInformation */
 static int hf_lte_rrc_SystemInformationBlockType1_v890_IEs_PDU = -1;  /* SystemInformationBlockType1_v890_IEs */
 static int hf_lte_rrc_message = -1;               /* BCCH_BCH_MessageType */
 static int hf_lte_rrc_message_01 = -1;            /* BCCH_DL_SCH_MessageType */
@@ -18185,7 +18185,7 @@ static const per_sequence_t UERadioAccessCapabilityInformation_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lte_rrc_UERadioAccessCapabilityInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_UERadioAccessCapabilityInformation, UERadioAccessCapabilityInformation_sequence);
@@ -18291,11 +18291,11 @@ int dissect_lte_rrc_HandoverPreparationInformation_PDU(tvbuff_t *tvb _U_, packet
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_UERadioAccessCapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+int dissect_lte_rrc_UERadioAccessCapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  offset = dissect_lte_rrc_UERadioAccessCapabilityInformation(tvb, offset, &asn1_ctx, tree, hf_lte_rrc_UERadioAccessCapabilityInformation_PDU);
+  offset = dissect_lte_rrc_UERadioAccessCapabilityInformation(tvb, offset, &asn1_ctx, tree, hf_lte_rrc_lte_rrc_UERadioAccessCapabilityInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -18436,7 +18436,7 @@ void proto_register_lte_rrc(void) {
       { "HandoverPreparationInformation", "lte-rrc.HandoverPreparationInformation",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_UERadioAccessCapabilityInformation_PDU,
+    { &hf_lte_rrc_lte_rrc_UERadioAccessCapabilityInformation_PDU,
       { "UERadioAccessCapabilityInformation", "lte-rrc.UERadioAccessCapabilityInformation",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},

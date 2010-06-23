@@ -16,6 +16,8 @@ HandoverCommand
 HandoverCommand_PDU
 HandoverPreparationInformation
 HandoverPreparationInformation_PDU
+UERadioAccessCapabilityInformation
+UERadioAccessCapabilityInformation_PDU
 #UEInformationResponse
 
 #.PDU_NEW

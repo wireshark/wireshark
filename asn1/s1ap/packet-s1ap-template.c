@@ -75,6 +75,7 @@ static int ett_s1ap_TransportLayerAddress = -1;
 static int ett_s1ap_ToTargetTransparentContainer = -1;
 static int ett_s1ap_ToSourceTransparentContainer = -1;
 static int ett_s1ap_RRCContainer = -1;
+static int ett_s1ap_UERadioCapability = -1;
 
 #include "packet-s1ap-ett.c"
 
@@ -226,6 +227,7 @@ void proto_register_s1ap(void) {
 		  &ett_s1ap_ToTargetTransparentContainer,
 		  &ett_s1ap_ToSourceTransparentContainer,
 		  &ett_s1ap_RRCContainer,
+		  &ett_s1ap_UERadioCapability,
 #include "packet-s1ap-ettarr.c"
   };
 

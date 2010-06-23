@@ -1734,6 +1734,8 @@ Anders Broman           <anders.broman [AT] ericsson.com> {
 	MP4V-ES dissection
 	NAS EPS dissection
 	GTPv2 dissection
+	Work on the initial version of the new packet list
+	Miscellaneous enhancements and fixes
 }
 
 Christian Falckenberg   <christian.falckenberg [AT] nortelnetworks.com> {
@@ -3270,6 +3272,7 @@ Hadar Shoham		<hadar [AT] ti.com>
 Robert Bullen		<robert [AT] bitcricket.com>
 Chuck Kristofek		<chuck.kristofek [AT] ngc.com>
 Markus Renz		<Markus.Renz [AT] hirschmann.de>
+Toshihiro Kataoka	<kataoka.toshihiro [AT] gmail.com>
 
 Dan Lasley <dlasley[AT]promus.com> gave permission for his
 dumpit() hex-dump routine to be used.
