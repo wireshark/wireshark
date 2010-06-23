@@ -82,14 +82,14 @@ static const value_string packettypenames[] = {
 	{ 2, "Acknowledge" },
 	{ 255, "End session" },
 	{ 0, NULL }
-};	
+};
 
 /* Known client types */
 static const value_string clienttypenames[] = {
 	{ 0x0015, "MAC Telnet" },
 	{ 0x0f90, "Winbox" },
 	{ 0, NULL }
-};	
+};
 
 /* Known control-packet types */
 static const value_string controlpackettypenames[] = {
@@ -102,7 +102,7 @@ static const value_string controlpackettypenames[] = {
 	{ 6, "Terminal height" },
 	{ 9, "End authentication" },
 	{ 0, NULL }
-};	
+};
 
 
 static int
@@ -124,14 +124,14 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*  Get the type byte */
 	type = tvb_get_guint8(tvb, 1);
 
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s Type: %s",
-	ether_to_str(tvb_get_ptr(tvb, 2, 6)), ether_to_str(tvb_get_ptr(tvb, 8, 6)),
+		     ether_to_str(tvb_get_ptr(tvb, 2, 6)),
+		     ether_to_str(tvb_get_ptr(tvb, 8, 6)),
 		     val_to_str(type, packettypenames, "Unknown Type:0x%02x"));
 
 	if (tree) {
 		guint8 no_ip[4] = {0,0,0,0};
-		guint8 offset = 0;
+		guint32 offset = 0;
 
 		/* create display subtree for the protocol */
 		mactelnet_item = proto_tree_add_item(tree, proto_mactelnet, tvb, 0, -1, FALSE);
@@ -173,7 +173,7 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* clienttype(2) */
 			proto_tree_add_item(mactelnet_tree, hf_mactelnet_client_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
-		} 
+		}
 
 		/* counter(4) */
 		proto_tree_add_item(mactelnet_tree, hf_mactelnet_databytes, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -181,8 +181,8 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* Data packets only */
 		if (type == 1) {
-			while(tvb_length_remaining(tvb, offset) > 0) {
-				if (tvb_length_remaining(tvb, offset) > 4 && tvb_get_ntohl(tvb, offset) == control_packet) {
+			while(tvb_reported_length_remaining(tvb, offset) > 0) {
+				if (tvb_reported_length_remaining(tvb, offset) > 4 && tvb_get_ntohl(tvb, offset) == control_packet) {
 					guint8 datatype;
 					guint32 datalength;
 
@@ -243,7 +243,7 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	}
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 
