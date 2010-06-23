@@ -139,12 +139,12 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
 static void
 dissect_gmhdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *ti;
-  gint16 length;
-  volatile guint16 encap_proto;
-  volatile gboolean is_802_2;
+  proto_tree          *ti;
+  gint16               length;
+  volatile guint16     encap_proto;
+  volatile gboolean    is_802_2;
   proto_tree *volatile gmhdr_tree = NULL;
-  volatile guint offset = 0;
+  volatile guint       offset = 0;
 
   length = tvb_get_guint8(tvb, offset); /* Length of the Gigamon header */
 
@@ -203,13 +203,13 @@ dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   /* (Don't throw any exceptions while checking for the trailer).     */
   tvblen = tvb_length(tvb); /* end+1 */
   if (tvblen < 5)
-	  return 0;
+    return 0;
   if (tvb_get_ntohs(tvb, tvblen-4) != ETHERTYPE_GIGAMON)
     return 0;
 
   length  = tvb_get_guint8(tvb, tvblen-5); /* length of Gigamon header */
-  if ((tvblen-5) < length)  /* XXX: Should use != length ?? */
-      return 0;
+  if ((tvblen-5) != length)
+    return 0;
 
   offset  = tvblen - 5 - length;
 
@@ -246,39 +246,39 @@ void
 proto_register_gmhdr(void)
 {
   static hf_register_info hf[] = {
-        { &hf_gmhdr_srcport, {
-                "Src Port", "gmhdr.srcport", FT_UINT24, BASE_HEX,
-                NULL, 0, "Original Source Port", HFILL }},
-        { &hf_gmhdr_srcport_plfm, {
-                "Platform Id", "gmhdr.srcport_plfm", FT_UINT24, BASE_DEC,
-                VALS(gmhdr_plfm_str), GMHDR_SRCPORT_PLFM_MASK, "Original Platform Id", HFILL }},
-        { &hf_gmhdr_srcport_gid, {
-                "Group Id", "gmhdr.srcport_gid", FT_UINT24, BASE_DEC,
-                NULL, GMHDR_SRCPORT_GID_MASK, "Original Source Group Id", HFILL }},
-        { &hf_gmhdr_srcport_bid, {
-                "Box Id", "gmhdr.srcport_bid", FT_UINT24, BASE_DEC,
-                NULL, GMHDR_SRCPORT_BID_MASK, "Original Source Box Id", HFILL }},
-        { &hf_gmhdr_srcport_pid, {
-                "Port Id", "gmhdr.srcport_pid", FT_UINT24, BASE_DEC,
-                NULL, GMHDR_SRCPORT_PID_MASK, "Original Source Port Id", HFILL }},
-        { &hf_gmhdr_pktsize, {
-                "Original Packet Size", "gmhdr.pktsize", FT_UINT16, BASE_DEC,
-                NULL, 0, NULL, HFILL }},
-        { &hf_gmhdr_timestamp, {
-                "Time Stamp", "gmhdr.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
-                NULL, 0x0, NULL, HFILL }},
-        { &hf_gmhdr_generic, {
-                "Generic Field", "gmhdr.generic", FT_BYTES, BASE_NONE,
-                NULL, 0x0, NULL, HFILL }},
-        { &hf_gmhdr_etype, {
-                "Type", "gmhdr.etype", FT_UINT16, BASE_HEX,
-                VALS(etype_vals), 0x0, "Ethertype", HFILL }},
-        { &hf_gmhdr_len, {
-                "Length", "gmhdr.len", FT_UINT16, BASE_DEC,
-                NULL, 0x0, NULL, HFILL }},
-        { &hf_gmhdr_trailer, {
-                "Trailer", "gmhdr.trailer", FT_BYTES, BASE_NONE,
-                NULL, 0x0, "GMHDR Trailer", HFILL }}
+    { &hf_gmhdr_srcport, {
+        "Src Port", "gmhdr.srcport", FT_UINT24, BASE_HEX,
+        NULL, 0, "Original Source Port", HFILL }},
+    { &hf_gmhdr_srcport_plfm, {
+        "Platform Id", "gmhdr.srcport_plfm", FT_UINT24, BASE_DEC,
+        VALS(gmhdr_plfm_str), GMHDR_SRCPORT_PLFM_MASK, "Original Platform Id", HFILL }},
+    { &hf_gmhdr_srcport_gid, {
+        "Group Id", "gmhdr.srcport_gid", FT_UINT24, BASE_DEC,
+        NULL, GMHDR_SRCPORT_GID_MASK, "Original Source Group Id", HFILL }},
+    { &hf_gmhdr_srcport_bid, {
+        "Box Id", "gmhdr.srcport_bid", FT_UINT24, BASE_DEC,
+        NULL, GMHDR_SRCPORT_BID_MASK, "Original Source Box Id", HFILL }},
+    { &hf_gmhdr_srcport_pid, {
+        "Port Id", "gmhdr.srcport_pid", FT_UINT24, BASE_DEC,
+        NULL, GMHDR_SRCPORT_PID_MASK, "Original Source Port Id", HFILL }},
+    { &hf_gmhdr_pktsize, {
+        "Original Packet Size", "gmhdr.pktsize", FT_UINT16, BASE_DEC,
+        NULL, 0, NULL, HFILL }},
+    { &hf_gmhdr_timestamp, {
+        "Time Stamp", "gmhdr.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_gmhdr_generic, {
+        "Generic Field", "gmhdr.generic", FT_BYTES, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_gmhdr_etype, {
+        "Type", "gmhdr.etype", FT_UINT16, BASE_HEX,
+        VALS(etype_vals), 0x0, "Ethertype", HFILL }},
+    { &hf_gmhdr_len, {
+        "Length", "gmhdr.len", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_gmhdr_trailer, {
+        "Trailer", "gmhdr.trailer", FT_BYTES, BASE_NONE,
+        NULL, 0x0, "GMHDR Trailer", HFILL }}
   };
   static gint *ett[] = {
     &ett_gmhdr,
