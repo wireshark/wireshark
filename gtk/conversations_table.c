@@ -50,10 +50,15 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/help_dlg.h"
 #include "gtk/main.h"
+#include "gtk/stock_icons.h"
+#include "gtk/follow_tcp.h"
+#include "gtk/follow_udp.h"
+#include "gtk/keys.h"
 
 #define COL_STR_LEN 16
 #define CONV_PTR_KEY "conversations-pointer"
 #define NB_PAGES_KEY "notebook-pages"
+#define FOLLOW_STREAM_BT_KEY "follow-stream-button"
 #define NO_BPS_STR "N/A"
 
 #define CMP_NUM(n1, n2)                         \
@@ -1544,12 +1549,27 @@ static void
 ct_nb_switch_page_cb(GtkNotebook *nb, GtkNotebookPage *pg _U_, guint page, gpointer data)
 {
     GtkWidget *copy_bt = (GtkWidget *) data;
-    void ** pages = g_object_get_data(G_OBJECT(nb), NB_PAGES_KEY);
+    GtkWidget *follow_stream_bt = g_object_get_data(G_OBJECT(nb), FOLLOW_STREAM_BT_KEY);
+    void      **pages = g_object_get_data(G_OBJECT(nb), NB_PAGES_KEY);
+    GtkTooltips *tooltips = gtk_tooltips_new();
 
     page++;
 
     if (pages && page > 0 && (int) page <= GPOINTER_TO_INT(pages[0]) && copy_bt) {
         g_object_set_data(G_OBJECT(copy_bt), CONV_PTR_KEY, pages[page]);
+        g_object_set_data(G_OBJECT(follow_stream_bt), CONV_PTR_KEY, pages[page]);
+    }
+
+    /* Filter Stream only available for TCP and UDP */
+    if (strcmp(((conversations_table *)pages[page])->name, "TCP") == 0) {
+        gtk_tooltips_set_tip(tooltips, follow_stream_bt, "Follow TCP Stream.", NULL);
+        gtk_widget_set_sensitive(follow_stream_bt, TRUE);
+    } else if (strcmp(((conversations_table *)pages[page])->name, "UDP") == 0) {
+        gtk_tooltips_set_tip(tooltips, follow_stream_bt, "Follow UDP Stream.", NULL);
+        gtk_widget_set_sensitive(follow_stream_bt, TRUE);
+    } else {
+        gtk_tooltips_set_tip(tooltips, follow_stream_bt, "Follow TCP or UDP Stream.", NULL);
+        gtk_widget_set_sensitive(follow_stream_bt, FALSE);
     }
 }
 
@@ -1664,6 +1684,50 @@ ct_filter_toggle_dest(GtkWidget *widget, gpointer data)
     }
 }
 
+static void
+follow_stream_cb(GtkWidget *follow_stream_bt, gpointer data _U_)
+{
+    conversations_table *ct = g_object_get_data (G_OBJECT(follow_stream_bt), CONV_PTR_KEY);
+    GtkTreeIter iter;
+    GtkTreeModel *model;
+    GtkTreeSelection  *sel;
+    guint32 idx = 0;
+    gchar *filter;
+    conv_t *conv;
+
+    sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(ct->table));
+    if (!gtk_tree_selection_get_selected(sel, &model, &iter)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
+        return;
+    }
+
+    gtk_tree_model_get (model, &iter, INDEX_COLUMN, &idx, -1);
+    if (idx >= ct->num_conversations) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
+        return;
+    }
+
+    conv = &g_array_index(ct->conversations, conv_t, idx);
+    filter = g_strdup_printf("%s==%s && %s==%s && %s==%s && %s==%s",
+                             ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_ANY_ADDRESS),
+                             ep_address_to_str(&conv->src_address),
+                             ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_ANY_PORT),
+                             ct_port_to_str(conv->port_type, conv->src_port),
+                             ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_ANY_ADDRESS),
+                             ep_address_to_str(&conv->dst_address),
+                             ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_ANY_PORT),
+                             ct_port_to_str(conv->port_type, conv->dst_port));
+
+    apply_selected_filter (ACTYPE_SELECTED|ACTION_MATCH, filter);
+    if (strcmp(ct->name, "TCP") == 0) 
+        follow_tcp_stream_cb (follow_stream_bt, data);
+    else if (strcmp(ct->name, "UDP") == 0) 
+        follow_udp_stream_cb (follow_stream_bt, data);
+    else 
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Unknown stream: %s", ct->name);
+
+    g_free (filter);
+}
 
 void
 init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
@@ -1686,6 +1750,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     GtkTooltips *tooltips = gtk_tooltips_new();
 
     GtkWidget *copy_bt;
+    GtkWidget *follow_stream_bt;
 
     pages = g_malloc(sizeof(void *) * (g_slist_length(registered_ct_tables) + 1));
 
@@ -1743,7 +1808,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     /* Button row. */
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
     /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
+    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, WIRESHARK_STOCK_FOLLOW_STREAM, GTK_STOCK_HELP, NULL);
 
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
@@ -1756,6 +1821,13 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
     g_object_set_data(G_OBJECT(copy_bt), CONV_PTR_KEY, pages[page]);
 
+    follow_stream_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_FOLLOW_STREAM);
+    gtk_tooltips_set_tip(tooltips, follow_stream_bt, "Follow Stream.", NULL);
+    g_object_set_data(G_OBJECT(follow_stream_bt), E_DFILTER_TE_KEY, main_display_filter_widget);
+    g_object_set_data(G_OBJECT(follow_stream_bt), CONV_PTR_KEY, pages[page]);
+    g_signal_connect(follow_stream_bt, "clicked", G_CALLBACK(follow_stream_cb), NULL);
+
+    g_object_set_data(G_OBJECT(nb), FOLLOW_STREAM_BT_KEY, follow_stream_bt);
     g_signal_connect(nb, "switch-page", G_CALLBACK(ct_nb_switch_page_cb), copy_bt);
 
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);

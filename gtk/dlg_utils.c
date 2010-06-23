@@ -132,6 +132,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
 #ifdef HAVE_GEOIP    
     const gchar *map          = NULL;
 #endif /* HAVE_GEOIP */
+    const gchar *follow_stream = NULL;
 
 
     va_start(stock_id_list, stock_id_first);
@@ -170,6 +171,8 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
         } else if (strcmp(stock_id, WIRESHARK_STOCK_MAP) == 0) {
             map = stock_id;
 #endif /* HAVE_GEOIP */
+        } else if (strcmp(stock_id, WIRESHARK_STOCK_FOLLOW_STREAM) == 0) {
+            follow_stream = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_STOP) == 0) {
             stop = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_HELP) == 0) {
@@ -390,6 +393,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     if (stop    != NULL) dlg_button_new(hbox, button_hbox, stop);
     if (clear   != NULL) dlg_button_new(hbox, button_hbox, clear);
     if (filter_stream!= NULL) dlg_button_new(hbox, button_hbox, filter_stream);
+    if (follow_stream != NULL) dlg_button_new(hbox, button_hbox, follow_stream);
     if (close   != NULL) dlg_button_new(hbox, button_hbox, close);
     if (cancel  != NULL) dlg_button_new(hbox, button_hbox, cancel);
 
