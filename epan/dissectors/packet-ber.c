@@ -64,6 +64,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include <glib.h>
 
@@ -76,6 +77,8 @@
 #include <epan/oids.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
+#include <epan/filesystem.h>
+#include <wsutil/file_util.h>
 #include "packet-ber.h"
 
 static gint proto_ber = -1;
@@ -110,7 +113,9 @@ static gint hf_ber_unknown_BITSTRING = -1;
 static gint hf_ber_unknown_ENUMERATED = -1;
 static gint hf_ber_constructed_OCTETSTRING = -1;
 static gint hf_ber_no_oid = -1;
+static gint hf_ber_no_syntax = -1;
 static gint hf_ber_oid_not_implemented = -1;
+static gint hf_ber_syntax_not_implemented = -1;
 static gint hf_ber_direct_reference = -1;         /* OBJECT_IDENTIFIER */
 static gint hf_ber_indirect_reference = -1;       /* INTEGER */
 static gint hf_ber_data_value_descriptor = -1;    /* ObjectDescriptor */
@@ -130,6 +135,7 @@ static gboolean show_internal_ber_fields = FALSE;
 static gboolean decode_octetstring_as_ber = FALSE;
 static gboolean decode_primitive_as_ber = FALSE;
 static gboolean decode_unexpected = FALSE;
+static const gchar *ber_oid_file = NULL;
 
 static gchar *decode_as_syntax = NULL;
 static gchar *ber_filename = NULL;
@@ -255,7 +261,7 @@ register_ber_oid_syntax(const char *oid, const char *name, const char *syntax)
 {
 
   if(syntax && *syntax)
-    g_hash_table_insert(syntax_table, (const gpointer)oid, (const gpointer)syntax);
+    g_hash_table_insert(syntax_table, (const gpointer)g_strdup(oid), (const gpointer)g_strdup(syntax));
 
   if(name && *name)
     register_ber_oid_name(oid, name);
@@ -304,7 +310,7 @@ void ber_decode_as(const gchar *syntax)
 static const gchar *
 get_ber_oid_syntax(const char *oid)
 {
-	return g_hash_table_lookup(syntax_table, oid);
+       return g_hash_table_lookup(syntax_table, oid);
 }
 
 void ber_set_filename(gchar *filename)
@@ -326,6 +332,96 @@ void ber_set_filename(gchar *filename)
 
     }
   }
+}
+
+static void ber_load_oid_tables(const gchar *from)
+{
+	WS_DIR		*dir;             /* scanned directory */
+    WS_DIRENT	*file;            /* current file */
+    gchar		*fullname, *dot;
+    const gchar	*filename;	
+	GKeyFile	*ber_key_file;
+	gchar		**ber_oids;
+	gchar		*name, *syntax;
+	gsize		i, length;
+
+	if(from && *from) {
+
+		if(test_for_directory(from) == EISDIR) {
+			/* this is a directory - just look for *.oid files */			
+			if ((dir = ws_dir_open(from, 0, NULL)) != NULL) {
+				while ((file = ws_dir_read_name(dir)) != NULL) {
+					filename = ws_dir_get_name(file);
+
+					if (strcmp(filename, ".") == 0 || strcmp(filename, "..") == 0)
+						continue;        /* skip "." and ".." */
+
+					fullname = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", from, filename);
+
+					if (test_for_directory(fullname) == EISDIR) {
+					  ber_load_oid_tables(fullname);
+						g_free(fullname);
+						continue;
+					}
+
+					/* skip anything but files with .oid suffix */
+					dot = strrchr(filename, '.');
+					if (dot == NULL || strcmp(dot+1, "oid") != 0) {
+						g_free(fullname);
+						continue;
+					}
+
+					if (file_exists(fullname)) {
+				        ber_load_oid_tables(fullname);
+		            }
+				    g_free(fullname);
+				}
+				ws_dir_close(dir);
+			}
+
+		} else {
+
+			ber_key_file = g_key_file_new();
+
+			if(ber_key_file) {
+
+				if(g_key_file_load_from_file(ber_key_file, from, G_KEY_FILE_NONE, NULL)) {
+					/* we have successfully opened the file */
+	
+					/* iterate the keys - which will be the oids */
+					ber_oids = g_key_file_get_groups(ber_key_file, &length);
+
+					if(ber_oids) {
+
+						for(i=0; i < length; i++) {
+		
+							/* for each oid, look up a name and optional syntax */
+							name = g_key_file_get_string(ber_key_file, ber_oids[i], "name", NULL);
+
+							if(name) {
+	
+								syntax = g_key_file_get_string(ber_key_file, ber_oids[i], "syntax", NULL);
+								register_ber_oid_syntax(ber_oids[i], name, syntax);
+	
+								g_free(name);
+								if(syntax)
+									g_free(syntax);
+							}
+						}
+						g_strfreev(ber_oids);
+					}
+				}
+				
+				g_key_file_free(ber_key_file);
+			}
+		}
+	}
+}
+
+static void
+ber_apply_prefs(void)
+{
+	ber_load_oid_tables(ber_oid_file);
 }
 
 static void
@@ -659,10 +755,14 @@ int
 call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t *next_tvb;
+	const char *syntax = NULL;
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	if(oid == NULL ||
-	    !dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree)){
+	   (!dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree)
+	   /* see if a syntax has been registered for this oid */
+	    && (((syntax = get_ber_oid_syntax(oid)) == NULL) 
+		|| !dissector_try_string(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree))) ){
 		proto_item *item=NULL;
 		proto_tree *next_tree=NULL;
 		gint length_remaining;
@@ -674,7 +774,10 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 		  proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
 		  expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "BER Error: No OID supplied");
 		} else if (tvb_get_ntohs (tvb, offset) != 0x0500) { /* Not NULL tag */
-		  item=proto_tree_add_none_format(tree, hf_ber_oid_not_implemented, next_tvb, 0, length_remaining, "BER: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
+		  if(syntax) 
+		    item=proto_tree_add_none_format(tree, hf_ber_syntax_not_implemented, next_tvb, 0, length_remaining, "BER: Dissector for syntax:%s not implemented. Contact Wireshark developers if you want this supported", syntax);
+		  else
+		    item=proto_tree_add_none_format(tree, hf_ber_oid_not_implemented, next_tvb, 0, length_remaining, "BER: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
 		  proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
 		  expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "BER: Dissector for OID %s not implemented", oid);
 		} else {
@@ -724,9 +827,9 @@ call_ber_syntax_callback(const char *syntax, tvbuff_t *tvb, int offset, packet_i
 	  proto_tree *next_tree=NULL;
 
 	  if (syntax == NULL)
-	    item=proto_tree_add_none_format(tree, hf_ber_no_oid, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: No syntax supplied to call_ber_syntax_callback");
+	    item=proto_tree_add_none_format(tree, hf_ber_no_syntax, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: No syntax supplied to call_ber_syntax_callback");
 	  else
-	    item=proto_tree_add_none_format(tree, hf_ber_oid_not_implemented, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: Dissector for syntax: %s not implemented. Contact Wireshark developers if you want this supported", syntax);
+	    item=proto_tree_add_none_format(tree, hf_ber_syntax_not_implemented, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: Dissector for syntax: %s not implemented. Contact Wireshark developers if you want this supported", syntax);
 	  if(item){
 	    next_tree=proto_item_add_subtree(item, ett_ber_unknown);
 	  }
@@ -4412,6 +4515,12 @@ dissect_ber_EmbeddedPDV_Type(gboolean implicit_tag, proto_tree *tree, tvbuff_t *
 }
 
 static void
+dissect_ber_syntax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  (void) dissect_unknown_ber(pinfo, tvb, 0, tree);
+}
+
+static void
 dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   const char *name;
@@ -4541,6 +4650,12 @@ proto_register_ber(void)
 	{ &hf_ber_oid_not_implemented, {
 	    "OID not implemented", "ber.oid_not_implemented", FT_NONE, BASE_NONE,
 	    NULL, 0, "Dissector for OID not implemented", HFILL }},
+	{ &hf_ber_no_syntax, {
+	    "No OID", "ber.no_oid", FT_NONE, BASE_NONE,
+	    NULL, 0, "No syntax supplied to call_ber_syntax_callback", HFILL }},
+	{ &hf_ber_syntax_not_implemented, {
+	    "Syntax not implemented", "ber.syntax_not_implemented", FT_NONE, BASE_NONE,
+	    NULL, 0, "Dissector for OID not implemented", HFILL }},
     { &hf_ber_direct_reference,
       { "direct-reference", "ber.direct_reference",
         FT_OID, BASE_NONE, NULL, 0,
@@ -4590,7 +4705,7 @@ proto_register_ber(void)
     proto_set_cant_toggle(proto_ber);
 
     /* Register preferences */
-    ber_module = prefs_register_protocol(proto_ber, NULL);
+    ber_module = prefs_register_protocol(proto_ber, ber_apply_prefs);
     prefs_register_bool_preference(ber_module, "show_internals",
 	"Show internal BER encapsulation tokens",
 	"Whether the dissector should also display internal"
@@ -4603,14 +4718,23 @@ proto_register_ber(void)
 	"Decode OCTET STRING as BER encoded data",
 	"Whether the dissector should try decoding OCTET STRINGs as"
 	" constructed ASN.1 BER encoded data", &decode_octetstring_as_ber);
+
     prefs_register_bool_preference(ber_module, "decode_primitive",
 	"Decode Primitive as BER encoded data",
 	"Whether the dissector should try decoding unknown primitive as"
 	" constructed ASN.1 BER encoded data", &decode_primitive_as_ber);
 
+    prefs_register_string_preference(ber_module, "oid_file",
+	"Additional OBJECT IDENTIFIER information",
+	"Additional, local, object identifier information, "
+	" including names and syntaxes."
+	" A single file may be specified, or a directory containing files with a \".oid\" suffix", &ber_oid_file);
+
     ber_oid_dissector_table = register_dissector_table("ber.oid", "BER OID Dissectors", FT_STRING, BASE_NONE);
     ber_syntax_dissector_table = register_dissector_table("ber.syntax", "BER Syntax Dissectors", FT_STRING, BASE_NONE);
     syntax_table=g_hash_table_new(g_str_hash, g_str_equal); /* oid to syntax */
+
+    register_ber_syntax_dissector("ASN.1", proto_ber, dissect_ber_syntax);
 
     register_init_routine(ber_defragment_init);
 }
