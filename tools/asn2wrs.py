@@ -571,6 +571,7 @@ class EthCtx:
     self.default_containing_variant = '_pdu_new'
     self.default_embedded_pdv_cb = None
     self.default_external_type_cb = None
+    self.remove_prefix = None
     self.srcdir = None
     self.emitted_pdu = {}
     self.module = {}
@@ -987,6 +988,9 @@ class EthCtx:
     self.field[ident] = {'type' : type, 'idx' : idx, 'impl' : impl, 'pdu' : pdu,
                          'modified' : '', 'attr' : {} }
     name = ident.split('/')[-1]
+    if self.remove_prefix and name.startswith(self.remove_prefix):
+        name = name[len(self.remove_prefix):]
+
     if len(ident.split('/')) > 1 and name == '_item':  # Sequence/Set of type
       if len(self.field[ident]['type'].split('/')) > 1:
         self.field[ident]['attr']['NAME'] = '"%s item"' % ident.split('/')[-2]
@@ -1514,6 +1518,10 @@ class EthCtx:
     	n = f[:-4]
     else:
 	n = f
+
+    if self.remove_prefix and n.startswith(self.remove_prefix):
+        n = n[len(self.remove_prefix):]
+
     out = '  register_ber_syntax_dissector("'+n+'", proto_'+p+', dissect_'+f+');\n'
     return out
 
@@ -1535,6 +1543,8 @@ class EthCtx:
     fx = self.output.file_open('hfarr')
     for f in (self.eth_hfpdu_ord + self.eth_hf_ord):
       t = self.eth_hf[f]['ethtype']
+      if self.remove_prefix and t.startswith(self.remove_prefix):
+        t = t[len(self.remove_prefix):]
       name=self.eth_hf[f]['attr']['NAME']
       trantab=maketrans("- ", "__")
       name=name.translate(trantab)
@@ -2686,6 +2696,10 @@ class EthCnf:
     elif opt in ("-R",):
       par = self.check_par(par, 0, 0, fn, lineno)
       self.register_syntaxes = True
+    elif opt in ("-r",):
+      par = self.check_par(par, 1, 1, fn, lineno)
+      if not par: return
+      self.ectx.remove_prefix = par[0]
     else:
       warnings.warn_explicit("Unknown option %s" % (opt),
                              UserWarning, fn, lineno)
@@ -7651,7 +7665,8 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c cnf_file] [-e] input_file(s) ...
   -L            : Suppress #line directive from .cnf file
   -D dir        : Directory for input_file(s) (default: '.')
   -C            : Add check for SIZE constraints
-  -R            : Register PDUs as BER syntaxes		
+  -R            : Register PDUs as BER syntaxes
+  -r prefix     : Remove the prefix from type names
   
   input_file(s) : Input ASN.1 file(s)
 
@@ -7673,7 +7688,7 @@ def eth_main():
   global lexer
   print "ASN.1 to Wireshark dissector compiler";
   try:
-    opts, args = getopt.getopt(sys.argv[1:], "h?d:D:buXp:FTo:O:c:I:eESs:kLCR");
+    opts, args = getopt.getopt(sys.argv[1:], "h?d:D:buXp:FTo:O:c:I:eESs:kLCRr:");
   except getopt.GetoptError:
     eth_usage(); sys.exit(2)
   if len(args) < 1:
