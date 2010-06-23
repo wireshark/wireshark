@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x509sat.c                                                           */
-/* ../../tools/asn2wrs.py -b -e -p x509sat -c ./x509sat.cnf -s ./packet-x509sat-template -D . SelectedAttributeTypes.asn */
+/* ../../tools/asn2wrs.py -b -e -R -r Syntax -p x509sat -c ./x509sat.cnf -s ./packet-x509sat-template -D . SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.c */
 
@@ -82,8 +82,15 @@ static int hf_x509sat_SyntaxNumericString_PDU = -1;  /* SyntaxNumericString */
 static int hf_x509sat_SyntaxPrintableString_PDU = -1;  /* SyntaxPrintableString */
 static int hf_x509sat_SyntaxIA5String_PDU = -1;   /* SyntaxIA5String */
 static int hf_x509sat_SyntaxBMPString_PDU = -1;   /* SyntaxBMPString */
+static int hf_x509sat_SyntaxUniversalString_PDU = -1;  /* SyntaxUniversalString */
 static int hf_x509sat_SyntaxUTF8String_PDU = -1;  /* SyntaxUTF8String */
+static int hf_x509sat_SyntaxTeletexString_PDU = -1;  /* SyntaxTeletexString */
+static int hf_x509sat_SyntaxT61String_PDU = -1;   /* SyntaxT61String */
+static int hf_x509sat_SyntaxVideotexString_PDU = -1;  /* SyntaxVideotexString */
 static int hf_x509sat_SyntaxGraphicString_PDU = -1;  /* SyntaxGraphicString */
+static int hf_x509sat_SyntaxISO646String_PDU = -1;  /* SyntaxISO646String */
+static int hf_x509sat_SyntaxVisibleString_PDU = -1;  /* SyntaxVisibleString */
+static int hf_x509sat_SyntaxGeneralString_PDU = -1;  /* SyntaxGeneralString */
 static int hf_x509sat_GUID_PDU = -1;              /* GUID */
 static int hf_x509sat_teletexString = -1;         /* TeletexString */
 static int hf_x509sat_printableString = -1;       /* PrintableString */
@@ -1499,7 +1506,7 @@ dissect_x509sat_SyntaxIA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x509sat_SyntaxBMPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 327 "x509sat.cnf"
+#line 349 "x509sat.cnf"
 	tvbuff_t	*wide_tvb = NULL;
 	char		*string;
 
@@ -1507,7 +1514,7 @@ dissect_x509sat_SyntaxBMPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
                                             actx, tree, tvb, offset, hf_index,
                                             &wide_tvb);
 
-#line 332 "x509sat.cnf"
+#line 354 "x509sat.cnf"
 	if (! wide_tvb) {
 		return offset;
 	}
@@ -1521,8 +1528,52 @@ dissect_x509sat_SyntaxBMPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 static int
+dissect_x509sat_SyntaxUniversalString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UniversalString,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
 dissect_x509sat_SyntaxUTF8String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxTeletexString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxT61String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxVideotexString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_VideotexString,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
 
@@ -1543,8 +1594,41 @@ dissect_x509sat_SyntaxGraphicString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static int
+dissect_x509sat_SyntaxISO646String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_VisibleString,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxVisibleString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_VisibleString,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_SyntaxGeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GeneralString,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
 dissect_x509sat_GUID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 341 "x509sat.cnf"
+#line 363 "x509sat.cnf"
   gint8 class;
   gboolean pc;
   gint32 tag;
@@ -1708,15 +1792,50 @@ static void dissect_SyntaxBMPString_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_x509sat_SyntaxBMPString(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_SyntaxBMPString_PDU);
 }
+static void dissect_SyntaxUniversalString_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509sat_SyntaxUniversalString(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_SyntaxUniversalString_PDU);
+}
 static void dissect_SyntaxUTF8String_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_x509sat_SyntaxUTF8String(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_SyntaxUTF8String_PDU);
 }
+static void dissect_SyntaxTeletexString_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509sat_SyntaxTeletexString(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_SyntaxTeletexString_PDU);
+}
+static void dissect_SyntaxT61String_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509sat_SyntaxT61String(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_SyntaxT61String_PDU);
+}
+static void dissect_SyntaxVideotexString_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509sat_SyntaxVideotexString(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_SyntaxVideotexString_PDU);
+}
 static void dissect_SyntaxGraphicString_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_x509sat_SyntaxGraphicString(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_SyntaxGraphicString_PDU);
+}
+static void dissect_SyntaxISO646String_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509sat_SyntaxISO646String(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_SyntaxISO646String_PDU);
+}
+static void dissect_SyntaxVisibleString_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509sat_SyntaxVisibleString(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_SyntaxVisibleString_PDU);
+}
+static void dissect_SyntaxGeneralString_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509sat_SyntaxGeneralString(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_SyntaxGeneralString_PDU);
 }
 static void dissect_GUID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
@@ -1826,35 +1945,63 @@ void proto_register_x509sat(void) {
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x509sat_SyntaxGeneralizedTime_PDU,
-      { "SyntaxGeneralizedTime", "x509sat.SyntaxGeneralizedTime",
+      { "GeneralizedTime", "x509sat.GeneralizedTime",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x509sat_SyntaxUTCTime_PDU,
-      { "SyntaxUTCTime", "x509sat.SyntaxUTCTime",
+      { "UTCTime", "x509sat.UTCTime",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x509sat_SyntaxNumericString_PDU,
-      { "SyntaxNumericString", "x509sat.SyntaxNumericString",
+      { "NumericString", "x509sat.NumericString",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x509sat_SyntaxPrintableString_PDU,
-      { "SyntaxPrintableString", "x509sat.SyntaxPrintableString",
+      { "PrintableString", "x509sat.PrintableString",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x509sat_SyntaxIA5String_PDU,
-      { "SyntaxIA5String", "x509sat.SyntaxIA5String",
+      { "IA5String", "x509sat.IA5String",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x509sat_SyntaxBMPString_PDU,
-      { "SyntaxBMPString", "x509sat.SyntaxBMPString",
+      { "BMPString", "x509sat.BMPString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509sat_SyntaxUniversalString_PDU,
+      { "UniversalString", "x509sat.UniversalString",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x509sat_SyntaxUTF8String_PDU,
-      { "SyntaxUTF8String", "x509sat.SyntaxUTF8String",
+      { "UTF8String", "x509sat.UTF8String",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509sat_SyntaxTeletexString_PDU,
+      { "TeletexString", "x509sat.TeletexString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509sat_SyntaxT61String_PDU,
+      { "T61String", "x509sat.T61String",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509sat_SyntaxVideotexString_PDU,
+      { "VideotexString", "x509sat.VideotexString",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x509sat_SyntaxGraphicString_PDU,
-      { "SyntaxGraphicString", "x509sat.SyntaxGraphicString",
+      { "GraphicString", "x509sat.GraphicString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509sat_SyntaxISO646String_PDU,
+      { "ISO646String", "x509sat.ISO646String",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509sat_SyntaxVisibleString_PDU,
+      { "VisibleString", "x509sat.VisibleString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509sat_SyntaxGeneralString_PDU,
+      { "GeneralString", "x509sat.GeneralString",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x509sat_GUID_PDU,
@@ -2593,6 +2740,46 @@ void proto_reg_handoff_x509sat(void) {
   register_ber_oid_dissector("1.3.6.1.4.1.311.60.2.1.1", dissect_DirectoryString_PDU, proto_x509sat, "jurisdictionOfIncorporationLocalityName");
   register_ber_oid_dissector("1.3.6.1.4.1.311.60.2.1.2", dissect_DirectoryString_PDU, proto_x509sat, "jurisdictionOfIncorporationStateOrProvinceName");
   register_ber_oid_dissector("1.3.6.1.4.1.311.60.2.1.3", dissect_CountryName_PDU, proto_x509sat, "jurisdictionOfIncorporationCountryName");
+
+/*--- Syntax registrations ---*/
+  register_ber_syntax_dissector("DirectoryString", proto_x509sat, dissect_DirectoryString_PDU);
+  register_ber_syntax_dissector("UniqueIdentifier", proto_x509sat, dissect_UniqueIdentifier_PDU);
+  register_ber_syntax_dissector("CountryName", proto_x509sat, dissect_CountryName_PDU);
+  register_ber_syntax_dissector("Guide", proto_x509sat, dissect_Guide_PDU);
+  register_ber_syntax_dissector("EnhancedGuide", proto_x509sat, dissect_EnhancedGuide_PDU);
+  register_ber_syntax_dissector("PostalAddress", proto_x509sat, dissect_PostalAddress_PDU);
+  register_ber_syntax_dissector("TelephoneNumber", proto_x509sat, dissect_TelephoneNumber_PDU);
+  register_ber_syntax_dissector("TelexNumber", proto_x509sat, dissect_TelexNumber_PDU);
+  register_ber_syntax_dissector("FacsimileTelephoneNumber", proto_x509sat, dissect_FacsimileTelephoneNumber_PDU);
+  register_ber_syntax_dissector("X121Address", proto_x509sat, dissect_X121Address_PDU);
+  register_ber_syntax_dissector("InternationalISDNNumber", proto_x509sat, dissect_InternationalISDNNumber_PDU);
+  register_ber_syntax_dissector("DestinationIndicator", proto_x509sat, dissect_DestinationIndicator_PDU);
+  register_ber_syntax_dissector("PreferredDeliveryMethod", proto_x509sat, dissect_PreferredDeliveryMethod_PDU);
+  register_ber_syntax_dissector("PresentationAddress", proto_x509sat, dissect_PresentationAddress_PDU);
+  register_ber_syntax_dissector("ProtocolInformation", proto_x509sat, dissect_ProtocolInformation_PDU);
+  register_ber_syntax_dissector("NameAndOptionalUID", proto_x509sat, dissect_NameAndOptionalUID_PDU);
+  register_ber_syntax_dissector("CaseIgnoreListMatch", proto_x509sat, dissect_CaseIgnoreListMatch_PDU);
+  register_ber_syntax_dissector("ObjectIdentifier", proto_x509sat, dissect_ObjectIdentifier_PDU);
+  register_ber_syntax_dissector("OctetString", proto_x509sat, dissect_OctetString_PDU);
+  register_ber_syntax_dissector("BitString", proto_x509sat, dissect_BitString_PDU);
+  register_ber_syntax_dissector("Integer", proto_x509sat, dissect_Integer_PDU);
+  register_ber_syntax_dissector("Boolean", proto_x509sat, dissect_Boolean_PDU);
+  register_ber_syntax_dissector("GeneralizedTime", proto_x509sat, dissect_SyntaxGeneralizedTime_PDU);
+  register_ber_syntax_dissector("UTCTime", proto_x509sat, dissect_SyntaxUTCTime_PDU);
+  register_ber_syntax_dissector("NumericString", proto_x509sat, dissect_SyntaxNumericString_PDU);
+  register_ber_syntax_dissector("PrintableString", proto_x509sat, dissect_SyntaxPrintableString_PDU);
+  register_ber_syntax_dissector("IA5String", proto_x509sat, dissect_SyntaxIA5String_PDU);
+  register_ber_syntax_dissector("BMPString", proto_x509sat, dissect_SyntaxBMPString_PDU);
+  register_ber_syntax_dissector("UniversalString", proto_x509sat, dissect_SyntaxUniversalString_PDU);
+  register_ber_syntax_dissector("UTF8String", proto_x509sat, dissect_SyntaxUTF8String_PDU);
+  register_ber_syntax_dissector("TeletexString", proto_x509sat, dissect_SyntaxTeletexString_PDU);
+  register_ber_syntax_dissector("T61String", proto_x509sat, dissect_SyntaxT61String_PDU);
+  register_ber_syntax_dissector("VideotexString", proto_x509sat, dissect_SyntaxVideotexString_PDU);
+  register_ber_syntax_dissector("GraphicString", proto_x509sat, dissect_SyntaxGraphicString_PDU);
+  register_ber_syntax_dissector("ISO646String", proto_x509sat, dissect_SyntaxISO646String_PDU);
+  register_ber_syntax_dissector("VisibleString", proto_x509sat, dissect_SyntaxVisibleString_PDU);
+  register_ber_syntax_dissector("GeneralString", proto_x509sat, dissect_SyntaxGeneralString_PDU);
+  register_ber_syntax_dissector("GUID", proto_x509sat, dissect_GUID_PDU);
 
 
 /*--- End of included file: packet-x509sat-dis-tab.c ---*/

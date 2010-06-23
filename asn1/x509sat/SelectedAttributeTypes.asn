@@ -1473,15 +1473,16 @@ SyntaxNumericString ::= NumericString
 SyntaxPrintableString ::= PrintableString
 SyntaxIA5String ::= IA5String
 SyntaxBMPString ::= BMPString
---SyntaxUniversalString ::= UniversalString
+SyntaxUniversalString ::= UniversalString
 SyntaxUTF8String ::= UTF8String
---SyntaxTeletexString ::= TeletexString
---SyntaxT61String ::= T61String
---SyntaxVideotexString ::= VideotexString
+SyntaxTeletexString ::= TeletexString
+SyntaxT61String ::= T61String
+SyntaxVideotexString ::= VideotexString
 SyntaxGraphicString ::= GraphicString
---SyntaxISO646String ::= ISO646String
---SyntaxVisibleString ::= VisibleString
---SyntaxGeneralString ::= GeneralString
+SyntaxISO646String ::= ISO646String
+SyntaxVisibleString ::= VisibleString
+SyntaxGeneralString ::= GeneralString
+
 GUID ::= OCTET STRING
 
 END -- SelectedAttributeTypes
