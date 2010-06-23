@@ -878,6 +878,7 @@ DISSECTOR_SRC = \
 	packet-tali.c		\
 	packet-tapa.c		\
 	packet-tcp.c		\
+	packet-tdmoe.c		\
 	packet-tds.c		\
 	packet-teamspeak2.c	\
 	packet-teimanagement.c	\

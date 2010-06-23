@@ -3095,6 +3095,7 @@ David Perez		 <david [AT] taddong.com> {
 
 Håkon Nessjøen		<haakon.nessjoen@gmail.com> {
 	Mikrotik RouterOS protocol dissector
+	Digium TDMoE protocol dissector
 }
 
 and by:

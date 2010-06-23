@@ -451,6 +451,10 @@
 #ifndef ETHERTYPE_LLT           	
 #define ETHERTYPE_LLT           	0xCAFE	/* Veritas Low Latency Transport (not officially registered) */
 #endif                          	
+
+#ifndef ETHERTYPE_TDMOE
+#define ETHERTYPE_TDMOE			0xD00D	/* Digium TDMoE packets (not officially registered) */
+#endif
 					
 #ifndef ETHERTYPE_FCFT          	
 #define ETHERTYPE_FCFT          	0xFCFC	/* used to transport FC frames+MDS hdr internal to Cisco's MDS switch */
