@@ -3368,7 +3368,7 @@ rebuild_visible_columns_menu (void)
             if (cur_fmt == COL_CUSTOM) {
                 title = g_strdup_printf ("%s  (%s)", cfmt->title, cfmt->custom_field);
             } else {
-                title = g_strdup_printf ("%s  (%s)", cfmt->title, col_format_desc(cfile.cinfo.col_fmt[col_id]));
+                title = g_strdup_printf ("%s  (%s)", cfmt->title, col_format_desc (cur_fmt));
             }
             menu_item = gtk_check_menu_item_new_with_label(title);
             g_free (title);
