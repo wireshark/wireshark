@@ -2672,6 +2672,7 @@ Abhik Sarkar 		<sarkar.abhik [AT] gmail.com> {
 
 Robin Seggelmann	<seggelmann [AT] fh-muenster.de> {
 	Support for SCTP reassembly.
+	Improve chunk statistics.
 }
 
 Chris Bontje		<cbontje [AT] gmail.com> {

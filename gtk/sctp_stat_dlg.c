@@ -126,7 +126,7 @@ GtkWidget *create_list(void)
 	GtkCellRenderer *renderer;
 	GtkTreeView *list_view;
 	GtkTreeSelection *selection;
-	
+
 	list_store = gtk_list_store_new(N_COLUMN,
 		G_TYPE_UINT, /* Port1*/
 		G_TYPE_UINT, /* Port2*/

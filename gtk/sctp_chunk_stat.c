@@ -53,6 +53,7 @@
 #include "gtk/tap_dfilter_dlg.h"
 #include "gtk/gui_utils.h"
 #include "gtk/main.h"
+#include "gtk/sctp_stat.h"
 
 
 static void sctpstat_init(const char *optarg, void *userdata);
@@ -86,30 +87,6 @@ typedef struct _sctp_stat_t {
 
 typedef struct _sctp_info sctp_into_t;
 
-#define SCTP_DATA_CHUNK_ID		 0
-#define SCTP_INIT_CHUNK_ID		 1
-#define SCTP_INIT_ACK_CHUNK_ID		 2
-#define SCTP_SACK_CHUNK_ID		 3
-#define SCTP_HEARTBEAT_CHUNK_ID		 4
-#define SCTP_HEARTBEAT_ACK_CHUNK_ID	 5
-#define SCTP_ABORT_CHUNK_ID		 6
-#define SCTP_SHUTDOWN_CHUNK_ID		 7
-#define SCTP_SHUTDOWN_ACK_CHUNK_ID	 8
-#define SCTP_ERROR_CHUNK_ID		 9
-#define SCTP_COOKIE_ECHO_CHUNK_ID	10
-#define SCTP_COOKIE_ACK_CHUNK_ID	11
-#define SCTP_ECNE_CHUNK_ID		12
-#define SCTP_CWR_CHUNK_ID		13
-#define SCTP_SHUTDOWN_COMPLETE_CHUNK_ID 14
-#define SCTP_AUTH_CHUNK_ID              15
-#define SCTP_NR_SACK_CHUNK_ID	        16
-#define SCTP_ASCONF_ACK_CHUNK_ID      0x80
-#define SCTP_PKTDROP_CHUNK_ID	      0x81
-#define SCTP_FORWARD_TSN_CHUNK_ID     0xC0
-#define SCTP_ASCONF_CHUNK_ID	      0xC1
-#define SCTP_IETF_EXT		      0xFF
-
-#define CHUNK_TYPE_OFFSET 0
 #define CHUNK_TYPE(x)(tvb_get_guint8((x), CHUNK_TYPE_OFFSET))
 
 static void
@@ -159,7 +136,6 @@ sctpstat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, cons
 	sctp_ep_t *tmp = NULL, *te = NULL;
 	struct _sctp_info *si = (struct _sctp_info *) phi;
 	guint32 tvb_number;
-	guint8 chunk_type;
 
 	if (!hs)
 		return (0);
@@ -191,14 +167,11 @@ sctpstat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, cons
 
 
 	if (si->number_of_tvbs > 0) {
-		chunk_type = CHUNK_TYPE(si->tvb[0]);
-		if ((chunk_type == SCTP_INIT_CHUNK_ID) ||
-		    (chunk_type == SCTP_INIT_ACK_CHUNK_ID)) {
-			(te->chunk_count[chunk_type])++;
-		} else {
-			for(tvb_number = 0; tvb_number < si->number_of_tvbs; tvb_number++) {
+		for(tvb_number = 0; tvb_number < si->number_of_tvbs; tvb_number++) {
+			if (IS_SCTP_CHUNK_TYPE(CHUNK_TYPE(si->tvb[tvb_number])))
 				(te->chunk_count[CHUNK_TYPE(si->tvb[tvb_number])])++;
-			}
+			else
+				(te->chunk_count[OTHER_CHUNKS_INDEX])++;
 		}
 	}
 	return (1);
@@ -237,6 +210,11 @@ sctpstat_draw(void *phs)
 		12, tmp->chunk_count[SCTP_ABORT_CHUNK_ID],
 		13, tmp->chunk_count[SCTP_ERROR_CHUNK_ID],
 		14, tmp->chunk_count[SCTP_NR_SACK_CHUNK_ID],
+		15, tmp->chunk_count[SCTP_ASCONF_ACK_CHUNK_ID],
+		16, tmp->chunk_count[SCTP_PKTDROP_CHUNK_ID],
+		17, tmp->chunk_count[SCTP_FORWARD_TSN_CHUNK_ID],
+		18, tmp->chunk_count[SCTP_ASCONF_CHUNK_ID],
+		19, tmp->chunk_count[OTHER_CHUNKS_INDEX],
 		-1
 		);
 	}
@@ -267,14 +245,19 @@ static const stat_column titles[]={
 	{G_TYPE_UINT, RIGHT,  "DATA" },
 	{G_TYPE_UINT, RIGHT,  "SACK" },
 	{G_TYPE_UINT, RIGHT,  "HBEAT" },
-	{G_TYPE_UINT, RIGHT,  "HBEAT_ACK" },
+	{G_TYPE_UINT, RIGHT,  "HBEAT-ACK" },
 	{G_TYPE_UINT, RIGHT,  "INIT" },
-	{G_TYPE_UINT, RIGHT,  "INIT_ACK" },
+	{G_TYPE_UINT, RIGHT,  "INIT-ACK" },
 	{G_TYPE_UINT, RIGHT,  "COOKIE" },
-	{G_TYPE_UINT, RIGHT,  "COOKIE_ACK" },
+	{G_TYPE_UINT, RIGHT,  "COOKIE-ACK" },
 	{G_TYPE_UINT, RIGHT,  "ABORT" },
 	{G_TYPE_UINT, RIGHT,  "ERROR" },
-	{G_TYPE_UINT, RIGHT,  "NR_SACK" }
+	{G_TYPE_UINT, RIGHT,  "NR-SACK" },
+	{G_TYPE_UINT, RIGHT,  "ASCONF-ACK" },
+	{G_TYPE_UINT, RIGHT,  "PKTDROP" },
+	{G_TYPE_UINT, RIGHT,  "FORWARD-TSN" },
+	{G_TYPE_UINT, RIGHT,  "ASCONF" },
+	{G_TYPE_UINT, RIGHT,  "Others" }
 };
 
 static void
@@ -297,7 +280,7 @@ sctpstat_init(const char *optarg, void *userdata _U_)
 
 	hs->win = dlg_window_new("Wireshark: SCTP Chunk Statistics");  /* transient_for top_level */
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(hs->win), TRUE);
-	gtk_window_set_default_size(GTK_WINDOW(hs->win), 600, 200);
+	gtk_window_set_default_size(GTK_WINDOW(hs->win), 700, 250);
 
 	hs->vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_set_border_width(GTK_CONTAINER(hs->vbox), 12);
@@ -307,7 +290,7 @@ sctpstat_init(const char *optarg, void *userdata _U_)
 	/* init a scrolled window*/
 	hs->scrolled_window = scrolled_window_new(NULL, NULL);
 
-	hs->table = create_stat_table(hs->scrolled_window, hs->vbox, 15, titles);
+	hs->table = create_stat_table(hs->scrolled_window, hs->vbox, 20, titles);
 
 	error_string=register_tap_listener("sctp", hs, hs->filter, 0,
 	                                   sctpstat_reset,

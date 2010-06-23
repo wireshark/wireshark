@@ -49,7 +49,19 @@
 #define SCTP_ERROR_CHUNK_ID              9
 #define SCTP_COOKIE_ECHO_CHUNK_ID       10
 #define SCTP_COOKIE_ACK_CHUNK_ID        11
+#define SCTP_ECNE_CHUNK_ID              12
+#define SCTP_CWR_CHUNK_ID               13
+#define SCTP_SHUTDOWN_COMPLETE_CHUNK_ID 14
+#define SCTP_AUTH_CHUNK_ID              15 
 #define SCTP_NR_SACK_CHUNK_ID           16
+#define SCTP_FORWARD_TSN_CHUNK_ID     0xc0
+#define SCTP_ASCONF_ACK_CHUNK_ID      0x80
+#define SCTP_PKTDROP_CHUNK_ID         0x81
+#define SCTP_ASCONF_CHUNK_ID          0xc1
+#define SCTP_IETF_EXT                  255
+
+#define IS_SCTP_CHUNK_TYPE(t) \
+        (((t) <= 16) || ((t) == 0xC0) || ((t) == 0xC1) || ((t) == 0x80) || ((t) == 0x81))
 
 #define CHUNK_TYPE_LENGTH             1
 #define CHUNK_FLAGS_LENGTH            1
@@ -90,33 +102,15 @@
                                        DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH)
 #define MAX_ADDRESS_LEN                47
 
-/* 
- * The NUM_CHUNKS field is used as the bound on the size of
- * counter arrays that store the sctp chunk counts for each 
- * "Chunk Type" in a given association.
- * UPPER_BOUND_CHUNK_TYPE variable is the upper bound on the 
- * "Chunk Type" field of an SCTP PDU, which will be
- * interpreted by the current version of wireshark for
- * displaying statistical information.
- * As per RFC 4960 Chunk Types 0 to 14 are in use.
- * Chunk Type 15 is AUTHENTICATION CHUNK defined in RFC 4895
- * The Chunk Type 16 is to be assigned to Non Renagable Sacks
- * This version of wireshark will interpret chunk types from 0
- * to 16 and information corresponding to all chunk types
- * > 16 are summed up and stored as "other" chunks at 
- * an index of 17 in appropriate data structures.
- */
-#define UPPER_BOUND_CHUNK_TYPE  16
-
-/* The below value is 18 */
-#define NUM_CHUNKS		UPPER_BOUND_CHUNK_TYPE+2 
+/* The below value is 256 */
+#define NUM_CHUNKS	0xff
 
 /* This variable is used as an index into arrays
  * which store the cumulative information corresponding
  * all chunks with Chunk Type greater > 16
  * The value for the below variable is 17
  */
-#define OTHER_CHUNKS_INDEX	NUM_CHUNKS-1
+#define OTHER_CHUNKS_INDEX	0xfe
 
 /* VNB */
 /* This variable stores the maximum chunk type value

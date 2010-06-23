@@ -44,26 +44,6 @@
 #include "gtk/sctp_stat.h"
 #include "gtk/main.h"
 
-
-#define SCTP_HEARTBEAT_CHUNK_ID          4
-#define SCTP_HEARTBEAT_ACK_CHUNK_ID      5
-#define SCTP_ABORT_CHUNK_ID              6
-#define SCTP_SHUTDOWN_CHUNK_ID           7
-#define SCTP_SHUTDOWN_ACK_CHUNK_ID       8
-#define SCTP_ERROR_CHUNK_ID              9
-#define SCTP_COOKIE_ECHO_CHUNK_ID       10
-#define SCTP_COOKIE_ACK_CHUNK_ID        11
-#define SCTP_ECNE_CHUNK_ID              12
-#define SCTP_CWR_CHUNK_ID               13
-#define SCTP_SHUTDOWN_COMPLETE_CHUNK_ID 14
-#define SCTP_AUTH_CHUNK_ID              15 
-#define SCTP_NR_SACK_CHUNK_ID           16 
-#define SCTP_FORWARD_TSN_CHUNK_ID      192
-#define SCTP_ASCONF_ACK_CHUNK_ID      0x80
-#define SCTP_PKTDROP_CHUNK_ID         0X81
-#define SCTP_ASCONF_CHUNK_ID          0XC1
-#define SCTP_IETF_EXT                  255
-
 #define SCTP_ABORT_CHUNK_T_BIT        0x01
 
 #define PARAMETER_TYPE_LENGTH            2
@@ -471,7 +451,7 @@ static sctp_assoc_info_t * add_chunk_count(address * vadd, sctp_assoc_info_t * i
 	guint8 * dat;
 	int i;
 
-		list = g_list_first(info->addr_chunk_count);
+	list = g_list_first(info->addr_chunk_count);
 
 	while (list)
 	{
@@ -481,7 +461,7 @@ static sctp_assoc_info_t * add_chunk_count(address * vadd, sctp_assoc_info_t * i
 			v = (address *) (ch->addr);
 			if (ADDRESSES_EQUAL(vadd, v))
 			{	
-				if (type <= UPPER_BOUND_CHUNK_TYPE)
+				if (IS_SCTP_CHUNK_TYPE(type))
 					ch->addr_count[type]++;
 				else
 					ch->addr_count[OTHER_CHUNKS_INDEX]++;
@@ -506,7 +486,7 @@ static sctp_assoc_info_t * add_chunk_count(address * vadd, sctp_assoc_info_t * i
 	for (i=0; i < NUM_CHUNKS; i++)
 		ch->addr_count[i] = 0;
 
-	if (type <= UPPER_BOUND_CHUNK_TYPE)
+	if (IS_SCTP_CHUNK_TYPE(type))
 		ch->addr_count[type]++;
 	else
 		ch->addr_count[OTHER_CHUNKS_INDEX]++;
@@ -791,7 +771,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				}
 
 				idx = tvb_get_guint8(sctp_info->tvb[0],0); 
-				if (idx > UPPER_BOUND_CHUNK_TYPE)
+				if (!IS_SCTP_CHUNK_TYPE(idx))
 					idx = OTHER_CHUNKS_INDEX;
 
 				info->chunk_count[idx]++;
@@ -816,7 +796,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				for (chunk_number = 0; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
 				{
 					idx = tvb_get_guint8(sctp_info->tvb[0],0); 
-					if ( idx > UPPER_BOUND_CHUNK_TYPE )
+					if (!IS_SCTP_CHUNK_TYPE(idx))
 						idx = OTHER_CHUNKS_INDEX;
 
 					info->chunk_count[idx]++;
@@ -1064,7 +1044,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			}
 			
 			idx = tvb_get_guint8(sctp_info->tvb[0],0);
-			if (idx > UPPER_BOUND_CHUNK_TYPE)
+			if (!IS_SCTP_CHUNK_TYPE(idx))
 				idx = OTHER_CHUNKS_INDEX;
 			info->chunk_count[idx]++;
 			if (info->direction == 1)
@@ -1122,7 +1102,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			for (chunk_number = 0; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
 			{
 				idx = tvb_get_guint8(sctp_info->tvb[chunk_number],0);
-				if (idx > UPPER_BOUND_CHUNK_TYPE)
+				if (!IS_SCTP_CHUNK_TYPE(idx))
 					idx = OTHER_CHUNKS_INDEX;
 
 				info->chunk_count[idx]++;
