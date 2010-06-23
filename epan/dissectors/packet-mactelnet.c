@@ -25,6 +25,7 @@
 
 /*
  * Thanks to "omniflux" for dissecting the protocol by hand before me.
+ * http://www.omniflux.com/devel/mikrotik/Mikrotik_MAC_Telnet_Procotol.txt
  */
 
 #ifdef HAVE_CONFIG_H
@@ -44,7 +45,7 @@ void proto_reg_handoff_mactelnet(void);
 
 /* Initialize the protocol and registered fields */
 static gint proto_mactelnet = -1;
-static gint hf_mactelnet = -1;
+static gint hf_mactelnet_control_packet = -1;
 static gint hf_mactelnet_type = -1;
 static gint hf_mactelnet_protocolver = -1;
 static gint hf_mactelnet_source_mac = -1;
@@ -62,11 +63,11 @@ static gint hf_mactelnet_control_terminal = -1;
 static gint hf_mactelnet_control_width = -1;
 static gint hf_mactelnet_control_height = -1;
 
-/* Global port pref */
+/* Global port preference */
 static int global_mactelnet_port = 20561;
 
 /* Control packet definition */
-static guint32 control_packet = 0x563412FF;
+static const guint32 control_packet = 0x563412FF;
 
 /* Initialize the subtree pointers */
 static gint ett_mactelnet = -1;
@@ -184,11 +185,13 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				if (tvb_length_remaining(tvb, offset) > 4 && tvb_get_ntohl(tvb, offset) == control_packet) {
 					guint8 datatype;
 					guint32 datalength;
-					offset += 4;
 
 					/* Add subtree for control packet */
 					mactelnet_control_item = proto_tree_add_item(mactelnet_tree, hf_mactelnet_control, tvb, offset, -1, ENC_NA);
 					mactelnet_control_tree = proto_item_add_subtree(mactelnet_control_item, ett_mactelnet);
+					/* Control packet magic number (4) */
+					proto_tree_add_item(mactelnet_control_tree, hf_mactelnet_control_packet, tvb, offset, 4, ENC_BIG_ENDIAN);
+					offset += 4;
 
 					/* Control packet type (1) */
 	 				datatype = tvb_get_guint8(tvb, offset);
@@ -228,8 +231,8 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						case 9:	/* End authentication (no data) */
 							break;
 					}
+					proto_item_set_len (mactelnet_control_item, datalength + 9);
 					offset += datalength;
-
 				} else {
 					/* Data packet, let wireshark handle it */
 					tvbuff_t *next_client = tvb_new_subset(tvb, offset, -1, -1);
@@ -248,12 +251,12 @@ void
 proto_register_mactelnet(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_mactelnet,
-		{ "Data", "mactelnet.data", FT_NONE, BASE_NONE, NULL, 0x0,
-		  "MAC-Telnet Data", HFILL }},
+		{ &hf_mactelnet_control_packet,
+		{ "Control Packet Magic Number", "mactelnet.control_packet", FT_UINT32, BASE_HEX, NULL, 0x0,
+		  NULL, HFILL }},
 		{ &hf_mactelnet_type,
 		{ "Type", "mactelnet.type", FT_UINT8, BASE_DEC, VALS(packettypenames), 0x0,
-		  "Package Type", HFILL }},
+		  "Packet Type", HFILL }},
 		{ &hf_mactelnet_protocolver,
 		{ "Protocol Version", "mactelnet.protocol_version", FT_UINT8, BASE_DEC, NULL, 0x0,
 		  NULL, HFILL }},
@@ -265,7 +268,7 @@ proto_register_mactelnet(void)
 		  NULL, HFILL }},
 		{ &hf_mactelnet_session_id,
 		{ "Session ID", "mactelnet.session_id", FT_UINT16, BASE_HEX, NULL , 0x0,
-		 "Session ID for this connection", HFILL }},
+		  "Session ID for this connection", HFILL }},
 		{ &hf_mactelnet_client_type,
 		{ "Client Type", "mactelnet.client_type", FT_UINT16, BASE_HEX, VALS(clienttypenames) , 0x0,
 		  NULL, HFILL }},
@@ -286,7 +289,7 @@ proto_register_mactelnet(void)
 		  "Login encryption key", HFILL }},
 		{ &hf_mactelnet_control_password,
 		{ "Password MD5", "mactelnet.control_password", FT_BYTES, BASE_NONE, NULL , 0x0,
-		  NULL, HFILL }},
+		  "Null padded MD5 password", HFILL }},
 		{ &hf_mactelnet_control_username,
 		{ "Username", "mactelnet.control_username", FT_STRING, BASE_NONE, NULL , 0x0,
 		  NULL, HFILL }},
