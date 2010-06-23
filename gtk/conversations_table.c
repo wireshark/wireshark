@@ -1481,6 +1481,52 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
 }
 
 
+static void
+follow_stream_cb(GtkWidget *follow_stream_bt, gpointer data _U_)
+{
+    conversations_table *ct = g_object_get_data (G_OBJECT(follow_stream_bt), CONV_PTR_KEY);
+    GtkTreeIter iter;
+    GtkTreeModel *model;
+    GtkTreeSelection  *sel;
+    guint32 idx = 0;
+    gchar *filter;
+    conv_t *conv;
+
+    sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(ct->table));
+    if (!gtk_tree_selection_get_selected(sel, &model, &iter)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
+        return;
+    }
+
+    gtk_tree_model_get (model, &iter, INDEX_COLUMN, &idx, -1);
+    if (idx >= ct->num_conversations) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
+        return;
+    }
+
+    conv = &g_array_index(ct->conversations, conv_t, idx);
+    filter = g_strdup_printf("%s==%s && %s==%s && %s==%s && %s==%s",
+                             ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_ANY_ADDRESS),
+                             ep_address_to_str(&conv->src_address),
+                             ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_ANY_PORT),
+                             ct_port_to_str(conv->port_type, conv->src_port),
+                             ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_ANY_ADDRESS),
+                             ep_address_to_str(&conv->dst_address),
+                             ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_ANY_PORT),
+                             ct_port_to_str(conv->port_type, conv->dst_port));
+
+    apply_selected_filter (ACTYPE_SELECTED|ACTION_MATCH, filter);
+    if (strcmp(ct->name, "TCP") == 0) 
+        follow_tcp_stream_cb (follow_stream_bt, data);
+    else if (strcmp(ct->name, "UDP") == 0) 
+        follow_udp_stream_cb (follow_stream_bt, data);
+    else 
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Unknown stream: %s", ct->name);
+
+    g_free (filter);
+}
+
+
 void
 init_conversation_table(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func)
 {
@@ -1490,7 +1536,8 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     GtkWidget *bbox;
     GtkWidget *close_bt, *help_bt;
     gboolean ret;
-    GtkWidget *copy_bt;
+    GtkWidget *copy_bt, *follow_stream_bt;
+    gboolean add_follow_stream_button = FALSE;
     GtkTooltips *tooltips = gtk_tooltips_new();
 
     conversations=g_malloc0(sizeof(conversations_table));
@@ -1514,10 +1561,16 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
         return;
     }
 
+    if ((strcmp(table_name, "TCP") == 0) || (strcmp(table_name, "UDP") == 0))
+        add_follow_stream_button = TRUE;
+
     /* Button row. */
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
     /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
+    if (add_follow_stream_button)
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, WIRESHARK_STOCK_FOLLOW_STREAM, GTK_STOCK_HELP, NULL);
+    else
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
@@ -1528,6 +1581,13 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
                          "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
     g_object_set_data(G_OBJECT(copy_bt), CONV_PTR_KEY, conversations);
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
+
+    if (add_follow_stream_button) {
+        follow_stream_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_FOLLOW_STREAM);
+        g_object_set_data(G_OBJECT(follow_stream_bt), E_DFILTER_TE_KEY, main_display_filter_widget);
+        g_object_set_data(G_OBJECT(follow_stream_bt), CONV_PTR_KEY, conversations);
+        g_signal_connect(follow_stream_bt, "clicked", G_CALLBACK(follow_stream_cb), NULL);
+    }
 
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_CONVERSATIONS_DIALOG);
@@ -1684,50 +1744,6 @@ ct_filter_toggle_dest(GtkWidget *widget, gpointer data)
     }
 }
 
-static void
-follow_stream_cb(GtkWidget *follow_stream_bt, gpointer data _U_)
-{
-    conversations_table *ct = g_object_get_data (G_OBJECT(follow_stream_bt), CONV_PTR_KEY);
-    GtkTreeIter iter;
-    GtkTreeModel *model;
-    GtkTreeSelection  *sel;
-    guint32 idx = 0;
-    gchar *filter;
-    conv_t *conv;
-
-    sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(ct->table));
-    if (!gtk_tree_selection_get_selected(sel, &model, &iter)) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
-        return;
-    }
-
-    gtk_tree_model_get (model, &iter, INDEX_COLUMN, &idx, -1);
-    if (idx >= ct->num_conversations) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
-        return;
-    }
-
-    conv = &g_array_index(ct->conversations, conv_t, idx);
-    filter = g_strdup_printf("%s==%s && %s==%s && %s==%s && %s==%s",
-                             ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_ANY_ADDRESS),
-                             ep_address_to_str(&conv->src_address),
-                             ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_ANY_PORT),
-                             ct_port_to_str(conv->port_type, conv->src_port),
-                             ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_ANY_ADDRESS),
-                             ep_address_to_str(&conv->dst_address),
-                             ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_ANY_PORT),
-                             ct_port_to_str(conv->port_type, conv->dst_port));
-
-    apply_selected_filter (ACTYPE_SELECTED|ACTION_MATCH, filter);
-    if (strcmp(ct->name, "TCP") == 0) 
-        follow_tcp_stream_cb (follow_stream_bt, data);
-    else if (strcmp(ct->name, "UDP") == 0) 
-        follow_udp_stream_cb (follow_stream_bt, data);
-    else 
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Unknown stream: %s", ct->name);
-
-    g_free (filter);
-}
 
 void
 init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
