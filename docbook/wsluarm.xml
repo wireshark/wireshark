@@ -12,17 +12,16 @@
 	  Both Tecgraf and Lua.org are laboratories of the Department of Computer Science.
 	</para>
 	<para>
-	   In Wireshark Lua can be used to write dissectors and taps. 
+	   In Wireshark Lua can be used to write dissectors and taps.
 	</para>
 	<para>
 	  Wireshark's Lua interpreter starts by loading <command>init.lua</command> that
 	  is located in the global configuration directory of Wireshark.
-	  Lua is disabled by default by setting the variable <command>disable_lua</command>
-	  to true in <command>init.lua</command>. To enable lua the line that sets that variable
-	  must be removed or commented out.
+	  Lua is enabled by default.  To disable Lua the line variable <command>disable_lua</command>
+	  should be set to <command>true</command> in <command>init.lua</command>.
 	</para>
 	<para>
-	  After loading <command>init.lua</command> from the data directory if lua is enabled
+	  After loading <command>init.lua</command> from the data directory if Lua is enabled
 	  Wireshark will try to load a file named <command>init.lua</command> in the user's
 	  directory.
 	</para>
@@ -32,11 +31,11 @@
 	</para>
 	<para>
 	  The command line option <command>-X lua_script:&lt;file.lua&gt;</command> can be used to
-	  load lua scripts as well.	  
+	  load Lua scripts as well.
 	</para>
 	<para>
-	  The Lua code will be executed once after all the protocols have being initialized and before reading
-	  any file.
+	  The Lua code will be executed once after all the protocol dissectors have being initialized
+	  and before reading any file.
 	</para>
   </section>
   <section id="wslua_dissector_example">
@@ -76,7 +75,7 @@ do
                 [11] = DissectorTable.get("ip.proto"):get_dissector(132), -- sctp
         }
 
-        function p_multi.dissector(buf,pkt,root) 
+        function p_multi.dissector(buf,pkt,root)
 
                 local t = root:add(p_multi,buf(0,2))
                 t:add(f_proto,buf(0,1))
@@ -93,7 +92,7 @@ do
                         -- pkt.cols.info:set(buf(2,buf:len() - 3):string())
                 else
                         data_dis:call(buf(2):tvb(),pkt,root)
-                end 
+                end
 
         end
 
@@ -116,10 +115,10 @@ do
 	local function menuable_tap()
 		-- Declare the window we will use
 		local tw = TextWindow.new("Address Counter")
-		
+
 		-- This will contain a hash of counters of appearances of a certain address
 		local ips = {}
-		
+
 		-- this is our tap
 		local tap = Listener.new();
 
@@ -127,7 +126,7 @@ do
 			-- this way we remove the listener than otherwise will remain running indifinitelly
 			tap:remove();
 		end
-		
+
 		-- we tell the window to call the remove() function when closed
 		tw:set_atclose(remove)
 
