@@ -49,8 +49,12 @@ SRC_FILES = \
 A2W_FLAGS= -b -e -R -r Syntax
 
 EXTRA_CNF= \
-	../x509if/x509if-exp.cnf 
+	../x509if/x509if-exp.cnf \
+	../x411/x411-exp.cnf 
 
 ../x509if/x509if-exp.cnf:
 	(cd ../x509if && $(MAKE_CNF_EXPORT))
+
+../x411/x411-exp.cnf:
+	(cd ../x411 && $(MAKE_CNF_EXPORT))
 
