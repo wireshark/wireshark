@@ -1557,7 +1557,7 @@ de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
         else if ((oct8 & 0xc0) == 0x40)
         {
             str = "SDCCH/8 + SACCH/C8 or CBCH (SDCCH/8), Subchannel";
-            subchannel = ((oct8 % 0x38)>>3);
+            subchannel = ((oct8 & 0x38)>>3);
         } else {
             str = "Unknown channel information";
             subchannel = oct8;
