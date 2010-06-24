@@ -157,6 +157,7 @@ static const char* hfinfo_int_vals_format(const header_field_info *hfinfo);
 static const char* hfinfo_int_format(const header_field_info *hfinfo);
 static const char* hfinfo_int_value_format(const header_field_info *hfinfo);
 static const char* hfinfo_int64_format(const header_field_info *hfinfo);
+static const char* hfinfo_numeric_value_format(const header_field_info *hfinfo);
 
 static proto_item *
 proto_tree_add_node(proto_tree *tree, field_info *fi);
@@ -3520,7 +3521,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gchar *result,
 					g_strlcpy(result, val_to_str_ext(integer, (value_string_ext *) (hfinfo->strings), "%d"), size);
 				} else {
 					g_strlcpy(result, val_to_str(integer, cVALS(hfinfo->strings), "%d"), size);
-			}
+				}
 			} else if (IS_BASE_DUAL(hfinfo->display)) {
 				g_snprintf(result, size, hfinfo_int_value_format(hfinfo), integer, integer);
 			} else {
@@ -3580,11 +3581,20 @@ proto_custom_set(proto_tree* tree, const int field_id, gchar *result,
 		}
 
 		switch(hfinfo->type) {
-		case FT_EBCDIC:
-		case FT_STRING:
-		case FT_STRINGZ:
-		case FT_UINT_STRING:
-			g_snprintf(expr, size, "\"%s\"",result);
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+		case FT_FRAMENUM:
+		case FT_BOOLEAN:
+			g_snprintf(expr, size, hfinfo_numeric_value_format(hfinfo), fvalue_get_uinteger(&finfo->value));
+			break;
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+			g_snprintf(expr, size, hfinfo_numeric_value_format(hfinfo), fvalue_get_sinteger(&finfo->value));
+			break;
 		default:
 			g_strlcpy(expr, result, size);
 			break;
@@ -6155,6 +6165,79 @@ hfinfo_numeric_format(const header_field_info *hfinfo)
 						break;
 					case FT_UINT64:
 						format = "%s == 0x%016" G_GINT64_MODIFIER "x";
+						break;
+					default:
+						DISSECTOR_ASSERT_NOT_REACHED();
+						;
+				}
+				break;
+			default:
+				DISSECTOR_ASSERT_NOT_REACHED();
+				;
+		}
+	}
+	return format;
+}
+
+static const char *
+hfinfo_numeric_value_format(const header_field_info *hfinfo)
+{
+	const char *format = NULL;
+
+	/* Pick the proper format string */
+	if (hfinfo->type == FT_FRAMENUM) {
+		/*
+		 * Frame numbers are always displayed in decimal.
+		 */
+		format = "%u";
+	} else {
+		/* Get the underlying BASE_ value */
+		switch(hfinfo->display & BASE_DISPLAY_E_MASK) {
+			case BASE_DEC:
+			case BASE_DEC_HEX:
+			case BASE_OCT: /* I'm lazy */
+			case BASE_CUSTOM:
+				switch(hfinfo->type) {
+					case FT_UINT8:
+					case FT_UINT16:
+					case FT_UINT24:
+					case FT_UINT32:
+						format = "%u";
+						break;
+					case FT_UINT64:
+						format = "%" G_GINT64_MODIFIER "u";
+						break;
+					case FT_INT8:
+					case FT_INT16:
+					case FT_INT24:
+					case FT_INT32:
+						format = "%d";
+						break;
+					case FT_INT64:
+						format = "%" G_GINT64_MODIFIER "d";
+						break;
+					default:
+						DISSECTOR_ASSERT_NOT_REACHED();
+						;
+				}
+				break;
+			case BASE_HEX:
+			case BASE_HEX_DEC:
+				switch(hfinfo->type) {
+					case FT_UINT8:
+						format = "0x%02x";
+						break;
+					case FT_UINT16:
+						format = "0x%04x";
+						break;
+					case FT_UINT24:
+						format = "0x%06x";
+						break;
+					case FT_UINT32:
+						format = "0x%08x";
+						break;
+					case FT_UINT64:
+						format = "0x%016" G_GINT64_MODIFIER "x";
 						break;
 					default:
 						DISSECTOR_ASSERT_NOT_REACHED();
