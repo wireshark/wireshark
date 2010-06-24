@@ -1887,7 +1887,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
                         ssl->pre_master_secret.data = pre_master_secret.data;
                         ssl->pre_master_secret.data_len = pre_master_len;
-                        ssl_debug_printf("pre master secret",&ssl->pre_master_secret);
+                        /*ssl_debug_printf("pre master secret",&ssl->pre_master_secret);*/
 
                         /* Remove the master secret if it was there.
                            This forces keying material regeneration in
