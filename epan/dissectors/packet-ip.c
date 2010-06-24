@@ -1402,20 +1402,20 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	   "Unknown DSCP"),IPDSFIELD_ECN(iph->ip_tos));
 
       field_tree = proto_item_add_subtree(tf, ett_ip_dsfield);
-      proto_tree_add_uint(field_tree, hf_ip_dsfield_dscp, tvb, offset + 1, 1, iph->ip_tos);
-      proto_tree_add_uint(field_tree, hf_ip_dsfield_ect, tvb, offset + 1, 1, iph->ip_tos);
-      proto_tree_add_uint(field_tree, hf_ip_dsfield_ce, tvb, offset + 1, 1, iph->ip_tos);
+      proto_tree_add_item(field_tree, hf_ip_dsfield_dscp, tvb, offset + 1, 1, ENC_NA);
+      proto_tree_add_item(field_tree, hf_ip_dsfield_ect, tvb, offset + 1, 1, ENC_NA);
+      proto_tree_add_item(field_tree, hf_ip_dsfield_ce, tvb, offset + 1, 1, ENC_NA);
     } else {
       tf = proto_tree_add_uint_format(ip_tree, hf_ip_tos, tvb, offset + 1, 1, iph->ip_tos,
 	  "Type of service: 0x%02x (%s)", iph->ip_tos,
 	  val_to_str( IPTOS_TOS(iph->ip_tos), iptos_vals, "Unknown") );
 
       field_tree = proto_item_add_subtree(tf, ett_ip_tos);
-      proto_tree_add_uint(field_tree, hf_ip_tos_precedence, tvb, offset + 1, 1, iph->ip_tos);
-      proto_tree_add_boolean(field_tree, hf_ip_tos_delay, tvb, offset + 1, 1, iph->ip_tos);
-      proto_tree_add_boolean(field_tree, hf_ip_tos_throughput, tvb, offset + 1, 1, iph->ip_tos);
-      proto_tree_add_boolean(field_tree, hf_ip_tos_reliability, tvb, offset + 1, 1, iph->ip_tos);
-      proto_tree_add_boolean(field_tree, hf_ip_tos_cost, tvb, offset + 1, 1, iph->ip_tos);
+      proto_tree_add_item(field_tree, hf_ip_tos_precedence, tvb, offset + 1, 1, ENC_NA);
+      proto_tree_add_item(field_tree, hf_ip_tos_delay, tvb, offset + 1, 1, ENC_NA);
+      proto_tree_add_item(field_tree, hf_ip_tos_throughput, tvb, offset + 1, 1, ENC_NA);
+      proto_tree_add_item(field_tree, hf_ip_tos_reliability, tvb, offset + 1, 1, ENC_NA);
+      proto_tree_add_item(field_tree, hf_ip_tos_cost, tvb, offset + 1, 1, ENC_NA);
     }
   }
 
@@ -1757,14 +1757,14 @@ proto_register_ip(void)
 			NULL, HFILL }},
 
 		{ &hf_ip_dsfield_ect,
-		{ "ECN-Capable Transport (ECT)",	"ip.dsfield.ect", FT_UINT8, BASE_DEC, NULL,
+		{ "ECN-Capable Transport (ECT)",	"ip.dsfield.ect", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 			IPDSFIELD_ECT_MASK,
-			NULL, HFILL }},
+			"Explicit Congestion Notification Capable Transport", HFILL }},
 
 		{ &hf_ip_dsfield_ce,
-		{ "ECN-CE",	"ip.dsfield.ce", FT_UINT8, BASE_DEC, NULL,
+		{ "ECN-CE",	"ip.dsfield.ce", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 			IPDSFIELD_CE_MASK,
-			NULL, HFILL }},
+			"Explicit Congestion Notification - Congestion Experienced", HFILL }},
 
 		{ &hf_ip_tos,
 		{ "Type of Service",	"ip.tos", FT_UINT8, BASE_DEC, NULL, 0x0,
