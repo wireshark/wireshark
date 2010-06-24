@@ -280,6 +280,7 @@ static StringInfo ssl_decrypted_data = {NULL, 0};
 static gint ssl_decrypted_data_avail = 0;
 
 static gchar* ssl_keys_list = NULL;
+static gchar* ssl_psk = NULL;
 
 #if defined(SSL_DECRYPT_DEBUG) || defined(HAVE_LIBGNUTLS)
 static gchar* ssl_debug_file_name = NULL;
@@ -1822,44 +1823,118 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
             case SSL_HND_CLIENT_KEY_EXCHG:
                 {
                     /* PAOLO: here we can have all the data to build session key*/
-                    StringInfo encrypted_pre_master;
-                    gint ret;
-                    guint encrlen, skip;
-                    encrlen = length;
-                    skip = 0;
+
+                    gint cipher_num;
 
                     if (!ssl)
                         break;
 
-                    /* get encrypted data, on tls1 we have to skip two bytes
-                     * (it's the encrypted len and should be equal to record len - 2)
-                     */
-                    if (ssl->version == SSL_VER_TLS||ssl->version == SSL_VER_TLSv1DOT1||ssl->version == SSL_VER_TLSv1DOT2)
+                    cipher_num = ssl->cipher;
+
+                    if (cipher_num == 0x8a || cipher_num == 0x8b || cipher_num == 0x8c || cipher_num == 0x8d)
                     {
-                        encrlen  = tvb_get_ntohs(tvb, offset);
-                        skip = 2;
-                        if (encrlen > length - 2)
-                        {
-                            ssl_debug_printf("dissect_ssl3_handshake wrong encrypted length (%d max %d)\n",
-                                encrlen, length);
+                        /* calculate pre master secret*/
+                        StringInfo pre_master_secret;
+                        guint psk_len, pre_master_len;
+
+                        int size;
+                        unsigned char *out;
+                        int i,j = 0;
+                        char input[2];
+
+                        if (!ssl_psk || (ssl_psk[0] == 0)) {
+	                        ssl_debug_printf("dissect_ssl3_handshake can't find pre-shared-key\n");
                             break;
                         }
-                    }
-                    encrypted_pre_master.data = se_alloc(encrlen);
-                    encrypted_pre_master.data_len = encrlen;
-                    tvb_memcpy(tvb, encrypted_pre_master.data, offset+skip, encrlen);
 
-                    if (!ssl->private_key) {
-                        ssl_debug_printf("dissect_ssl3_handshake can't find private key\n");
-                        break;
-                    }
+                        size = (int)strlen(ssl_psk);
 
-                    /* go with ssl key processessing; encrypted_pre_master
-                     * will be used for master secret store*/
-                    ret = ssl_decrypt_pre_master_secret(ssl, &encrypted_pre_master, ssl->private_key);
-                    if (ret < 0) {
-                        ssl_debug_printf("dissect_ssl3_handshake can't decrypt pre master secret\n");
-                        break;
+                        /* psk must be 0 to 16 bytes*/
+                        if (size < 0 || size > 32 || size % 2 != 0)
+                        {
+                            break;
+                        }
+
+                        /* convert hex string into char*/
+                        out = (unsigned char*) g_malloc(size > 0 ? size / 2 : 0);
+
+                        for (i = 0; i < size; i+=2)
+                        {
+                            input[0] = ssl_psk[0 + i];
+                            input[1] = ssl_psk[1 + i];
+                            out[j++] = (unsigned int) strtoul((const char*)&input, NULL, 16);
+                        }
+
+                        ssl->psk = (guchar*) out;
+
+                        psk_len = size > 0 ? size / 2 : 0;
+                        pre_master_len = psk_len * 2 + 4;
+
+                        pre_master_secret.data = se_alloc(pre_master_len);
+                        pre_master_secret.data_len = pre_master_len;
+                        /* 2 bytes psk_len*/
+                        pre_master_secret.data[0] = psk_len >> 8;
+                        pre_master_secret.data[1] = psk_len & 0xFF;
+                        /* psk_len bytes times 0*/
+                        memset(&pre_master_secret.data[2], 0, psk_len);
+                        /* 2 bytes psk_len*/
+                        pre_master_secret.data[psk_len + 2] = psk_len >> 8;
+                        pre_master_secret.data[psk_len + 3] = psk_len & 0xFF;
+                        /* psk*/
+                        memcpy(&pre_master_secret.data[psk_len + 4], ssl->psk, psk_len);
+
+                        g_free(out);
+
+                        ssl->pre_master_secret.data = pre_master_secret.data;
+                        ssl->pre_master_secret.data_len = pre_master_len;
+                        ssl_debug_printf("pre master secret",&ssl->pre_master_secret);
+
+                        /* Remove the master secret if it was there.
+                           This forces keying material regeneration in
+                           case we're renegotiating */
+                        ssl->state &= ~(SSL_MASTER_SECRET|SSL_HAVE_SESSION_KEY);
+                        ssl->state |= SSL_PRE_MASTER_SECRET;
+                    }
+                    else
+                    {
+                        StringInfo encrypted_pre_master;
+                        gint ret;
+                        guint encrlen, skip;
+                        encrlen = length;
+                        skip = 0;
+
+                        /* get encrypted data, on tls1 we have to skip two bytes
+                         * (it's the encrypted len and should be equal to record len - 2)
+                         * in case of rsa1024 that would be 128 + 2 = 130; for psk not neccessary
+						 */
+                        if (ssl->version == SSL_VER_TLS||ssl->version == SSL_VER_TLSv1DOT1||ssl->version == SSL_VER_TLSv1DOT2)
+                        {
+                            encrlen  = tvb_get_ntohs(tvb, offset);
+                            skip = 2;
+                            if (encrlen > length - 2)
+                            {
+                                ssl_debug_printf("dissect_ssl3_handshake wrong encrypted length (%d max %d)\n",
+                                    encrlen, length);
+                                break;
+                            }
+                        }
+                        encrypted_pre_master.data = se_alloc(encrlen);
+                        encrypted_pre_master.data_len = encrlen;
+                        tvb_memcpy(tvb, encrypted_pre_master.data, offset+skip, encrlen);
+
+                        if (!ssl->private_key) {
+                            ssl_debug_printf("dissect_ssl3_handshake can't find private key\n");
+                            break;
+                        }
+
+                        /* go with ssl key processessing; encrypted_pre_master
+                         * will be used for master secret store
+						 */
+                        ret = ssl_decrypt_pre_master_secret(ssl, &encrypted_pre_master, ssl->private_key);
+                        if (ret < 0) {
+                            ssl_debug_printf("dissect_ssl3_handshake can't decrypt pre master secret\n");
+                            break;
+                        }
                     }
                     if (ssl_generate_keyring_material(ssl)<0) {
                         ssl_debug_printf("dissect_ssl3_handshake can't generate keyring material\n");
@@ -4424,6 +4499,9 @@ proto_register_ssl(void)
              "Redirect SSL debug to file name; leave empty to disable debugging, "
              "or use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
              (const gchar **)&ssl_debug_file_name);
+        prefs_register_string_preference(ssl_module, "psk", "Pre-Shared-Key",
+             "Pre-Shared-Key as HEX string, should be 0 to 16 bytes",
+             (const gchar **)&ssl_psk);
 #endif
     }
 

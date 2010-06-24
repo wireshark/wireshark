@@ -44,6 +44,7 @@
 #define SSL_DECRYPT_DEBUG
 
 #define SSL_CIPHER_CTX gcry_cipher_hd_t
+#define SSL_PSK_KEY guchar
 #ifdef SSL_FAST
 #define SSL_PRIVATE_KEY gcry_mpi_t
 #else /* SSL_FAST */
@@ -52,6 +53,7 @@
 #else  /* HAVE_LIBGNUTLS */
 #define SSL_CIPHER_CTX void*
 #define SSL_PRIVATE_KEY void
+#define SSL_PSK_KEY void
 #endif /* HAVE_LIBGNUTLS */
 
 
@@ -241,6 +243,7 @@ typedef struct _SslDecoder {
 
 #define KEX_RSA         0x10
 #define KEX_DH          0x11
+#define KEX_PSK         0x12
 
 #define SIG_RSA         0x20
 #define SIG_DSS         0x21
@@ -305,6 +308,7 @@ typedef struct _SslDecryptSession {
     SslDecoder *server_new;
     SslDecoder *client_new;
     SSL_PRIVATE_KEY* private_key;
+    SSL_PSK_KEY* psk;
     guint32 version;
     guint16 version_netorder;
     StringInfo app_data_segment;
