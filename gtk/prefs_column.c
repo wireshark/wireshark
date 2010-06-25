@@ -340,6 +340,7 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field)
   cfmt->title = g_strdup(title);
   cfmt->fmt = g_strdup(col_format_to_string(fmt));
   cfmt->custom_field = g_strdup(custom_field);
+  cfmt->resolved = TRUE;
 
   if (custom_field) {
     cfmt->visible = TRUE;

@@ -160,7 +160,7 @@ right_justify_column (gint col)
 	case COL_CUSTOM:
 		hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[col]);
 		/* Check if this is a valid field and we have no strings lookup table */
-		if ((hfi != NULL) && (hfi->strings == NULL)) {
+		if ((hfi != NULL) && ((hfi->strings == NULL) || !get_column_resolved(col))) {
 			/* Check for bool, framenum and decimal/octal integer types */
 			if ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
 				(((hfi->display == BASE_DEC) || (hfi->display == BASE_OCT)) &&
@@ -175,6 +175,32 @@ right_justify_column (gint col)
 	}
 
 	return right_justify;
+}
+
+static gboolean
+resolve_column (gint col)
+{
+	header_field_info *hfi;
+	gboolean resolve = FALSE;
+
+	switch (cfile.cinfo.col_fmt[col]) {
+
+	case COL_CUSTOM:
+		hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[col]);
+		/* Check if this is a valid field and we have no strings lookup table */
+		if ((hfi != NULL) && (hfi->strings != NULL) && 
+			/* Check for bool, framenum and decimal/octal integer types */
+		    ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
+		     IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type))) {
+			resolve = TRUE;
+		}
+		break;
+
+	default:
+		break;
+	}
+
+	return resolve;
 }
 
 static void
@@ -408,7 +434,18 @@ new_packet_list_remove_column (gint col_id, GtkTreeViewColumn *col _U_)
 }
 
 void
-new_packet_list_column_menu_cb (GtkWidget *w _U_, gpointer user_data _U_, COLUMN_SELECTED_E action)
+new_packet_list_toggle_resolved (GtkWidget *w, gint col_id)
+{
+	/* We have to check for skip-update because we get an emit in menus_set_column_resolved() */
+	if (g_object_get_data(G_OBJECT(w), "skip-update") == NULL) {
+		set_column_resolved (col_id, get_column_resolved (col_id) ? FALSE : TRUE);
+
+		new_packet_list_recreate();
+	}
+}
+
+void
+new_packet_list_column_menu_cb (GtkWidget *w, gpointer user_data _U_, COLUMN_SELECTED_E action)
 {
 	GtkTreeViewColumn *col = (GtkTreeViewColumn *)
 	  g_object_get_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_COLUMN_KEY);
@@ -424,6 +461,9 @@ new_packet_list_column_menu_cb (GtkWidget *w _U_, gpointer user_data _U_, COLUMN
 	case COLUMN_SELECTED_SORT_NONE:
 		gtk_tree_view_column_set_sort_indicator(col, FALSE);
 		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), 0, GTK_SORT_ASCENDING);
+		break;
+	case COLUMN_SELECTED_TOGGLE_RESOLVED:
+		new_packet_list_toggle_resolved (w, col_id);
 		break;
 	case COLUMN_SELECTED_ALIGN_LEFT:
 		new_packet_list_xalign_column (col_id, col, COLUMN_XALIGN_LEFT);
@@ -464,6 +504,7 @@ new_packet_list_column_button_pressed_cb (GtkWidget *widget, GdkEvent *event, gp
 	gboolean   right_justify = right_justify_column (col_id);
 
 	menus_set_column_align_default (right_justify);
+	menus_set_column_resolved (get_column_resolved (col_id), resolve_column (col_id));
 	g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_COLUMN_KEY, col);
 	popup_menu_handler (widget, event, menu);
 }

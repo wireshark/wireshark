@@ -797,6 +797,10 @@ static GtkItemFactoryEntry packet_list_heading_items[] =
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
+    {"/Show Resolved", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_TOGGLE_RESOLVED, "<CheckItem>", NULL,},
+
+    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+
     {"/Align Left", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_LEFT, "<StockItem>", GTK_STOCK_JUSTIFY_LEFT,},
     {"/Align Center", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_CENTER, "<StockItem>", GTK_STOCK_JUSTIFY_CENTER,},
     {"/Align Right", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_RIGHT, "<StockItem>", GTK_STOCK_JUSTIFY_RIGHT,},
@@ -3391,6 +3395,18 @@ rebuild_visible_columns_menu (void)
     }
 }
 #endif
+
+void
+menus_set_column_resolved (gboolean resolved, gboolean can_resolve)
+{
+    GtkWidget *menu;
+
+    menu = gtk_item_factory_get_widget(packet_list_heading_factory, "/Show Resolved");
+    g_object_set_data(G_OBJECT(menu), "skip-update", (void *)1);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), resolved && can_resolve);
+    set_menu_sensitivity(packet_list_heading_factory, "/Show Resolved", can_resolve);
+    g_object_set_data(G_OBJECT(menu), "skip-update", NULL);
+}
 
 void
 menus_set_column_align_default (gboolean right_justify)

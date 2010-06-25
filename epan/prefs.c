@@ -1085,6 +1085,7 @@ init_prefs(void) {
     cfmt->title = g_strdup(col_fmt[i * 2]);
     cfmt->fmt   = g_strdup(col_fmt[(i * 2) + 1]);
     cfmt->visible = TRUE;
+    cfmt->resolved = TRUE;
     cfmt->custom_field = NULL;
     prefs.col_list = g_list_append(prefs.col_list, cfmt);
   }
@@ -1989,6 +1990,7 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
         cfmt->custom_field = NULL;
       }
       cfmt->visible   = prefs_is_column_hidden (cols_hidden_list, prefs_fmt) ? FALSE : TRUE;
+      cfmt->resolved  = TRUE;
       g_free (prefs_fmt);
       col_l_elt      = col_l_elt->next;
       prefs.col_list = g_list_append(prefs.col_list, cfmt);
@@ -3255,6 +3257,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
       dest_cfmt->custom_field = NULL;
     }
     dest_cfmt->visible = src_cfmt->visible;
+    dest_cfmt->resolved = src_cfmt->resolved;
     dest->col_list = g_list_append(dest->col_list, dest_cfmt);
   }
   dest->num_cols = src->num_cols;

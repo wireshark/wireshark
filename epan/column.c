@@ -683,6 +683,34 @@ set_column_visible(const gint col, gboolean visible)
   cfmt->visible = visible;
 }
 
+gboolean
+get_column_resolved(const gint col)
+{
+  GList    *clp = g_list_nth(prefs.col_list, col);
+  fmt_data *cfmt;
+
+  if (!clp)  /* Invalid column requested */
+    return TRUE;
+
+  cfmt = (fmt_data *) clp->data;
+
+  return(cfmt->resolved);
+}
+
+void
+set_column_resolved(const gint col, gboolean resolved)
+{
+  GList    *clp = g_list_nth(prefs.col_list, col);
+  fmt_data *cfmt;
+
+  if (!clp)  /* Invalid column requested */
+    return;
+
+  cfmt = (fmt_data *) clp->data;
+
+  cfmt->resolved = resolved;
+}
+
 const gchar *
 get_column_custom_field(const gint col)
 {

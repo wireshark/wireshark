@@ -738,8 +738,12 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 
 			if(!packet_list->string_pool)
 				packet_list->string_pool = g_string_chunk_new(32);
-
-			str = g_string_chunk_insert_const (packet_list->string_pool,  (const gchar *)cinfo->col_data[col]);
+			if (!get_column_resolved (col) && cinfo->col_expr.col_expr_val[col]) {
+				/* Use the unresolved value in col_expr_val */
+				str = g_string_chunk_insert_const (packet_list->string_pool, (const gchar *)cinfo->col_expr.col_expr_val[col]);
+			} else {
+				str = g_string_chunk_insert_const (packet_list->string_pool, (const gchar *)cinfo->col_data[col]);
+			}
 			record->fdata->col_text[col] = str;
 			break;
 	}
