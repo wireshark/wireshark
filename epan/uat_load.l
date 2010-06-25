@@ -308,18 +308,18 @@ gboolean uat_load(uat_t* uat_in, char** err) {
 
 	uat->changed = FALSE;
 	uat->loaded = TRUE;
+	UAT_UPDATE(uat);
+
 	if (error) {
-		UAT_UPDATE(uat);
 		*err = ep_strdup(error);
 		return FALSE;
-	} else {
-		UAT_UPDATE(uat);
-		*err = NULL;
-		return TRUE;
 	}
-	
+
 	if (uat->post_update_cb) 
 		uat->post_update_cb();
+
+	*err = NULL;
+	return TRUE;
 }
 
 gboolean uat_load_str(uat_t* uat_in, char* entry, char** err) {
