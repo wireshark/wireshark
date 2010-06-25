@@ -2253,10 +2253,11 @@ main(int argc, char *argv[])
 		  rf_path, strerror(rf_open_errno));
   }
 
-  if (test_for_directory(recent.gui_fileopen_remembered_dir) != EISDIR) {
-    set_last_open_dir(get_persdatafile_dir());
-  } else {
+  if (recent.gui_fileopen_remembered_dir && 
+      test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {
     set_last_open_dir(recent.gui_fileopen_remembered_dir);
+  } else {
+    set_last_open_dir(get_persdatafile_dir());
   }
 
   /* Set getopt index back to initial value, so it will start with the
@@ -3722,6 +3723,10 @@ void change_configuration_profile (const gchar *profile_name)
      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 		  "Could not open common recent file\n\"%s\": %s.",
 		  rf_path, strerror(rf_open_errno));
+   }
+   if (recent.gui_fileopen_remembered_dir && 
+       test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {
+     set_last_open_dir(recent.gui_fileopen_remembered_dir);
    }
    timestamp_set_type (recent.gui_time_format);
    timestamp_set_seconds_type (recent.gui_seconds_format);

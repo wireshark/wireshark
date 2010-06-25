@@ -723,7 +723,10 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
     }
     prefs_clear_string_list(col_l);
   } else if (strcmp(key, RECENT_GUI_FILEOPEN_REMEMBERED_DIR) == 0) { 
-      recent.gui_fileopen_remembered_dir = g_strdup(value);
+    if (recent.gui_fileopen_remembered_dir) {
+      g_free (recent.gui_fileopen_remembered_dir);
+    }
+    recent.gui_fileopen_remembered_dir = g_strdup(value);
   }
 
   return PREFS_SET_OK;
@@ -817,6 +820,7 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
   recent.privs_warn_if_no_npf = TRUE;
 
   recent.col_width_list = NULL;
+  recent.gui_fileopen_remembered_dir = NULL;
 
   /* Construct the pathname of the user's recent common file. */
   rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE, FALSE);
@@ -876,6 +880,11 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
 
   if (recent.col_width_list) {
     free_col_width_info(&recent);
+  }
+
+  if (recent.gui_fileopen_remembered_dir) {
+    g_free (recent.gui_fileopen_remembered_dir);
+    recent.gui_fileopen_remembered_dir = NULL;
   }
 
   /* Construct the pathname of the user's profile recent file. */
