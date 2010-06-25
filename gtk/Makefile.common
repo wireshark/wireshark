@@ -316,6 +316,7 @@ noinst_HEADERS = \
 	text_page_utils.h	\
 	u3.h \
 	uat_gui.h \
+	utf8_entities.h \
 	voip_calls.h	\
 	voip_calls_dlg.h \
 	webbrowser.h

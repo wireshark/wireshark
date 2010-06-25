@@ -84,6 +84,7 @@
 #include "gtk/rtp_stream.h"
 #include "gtk/rtp_stream_dlg.h"
 #include "gtk/stock_icons.h"
+#include "gtk/utf8_entities.h"
 
 #ifdef HAVE_LIBPORTAUDIO
 #include "gtk/graph_analysis.h"
@@ -1151,7 +1152,7 @@ static void dialog_graph_draw(user_data_t* user_data)
          * Draw "x" for Sequence Errors and "m" for Marks
          */
 	/* Draw the labels Fwd and Rev */
-	g_strlcpy(label_string,"<-Fwd",sizeof(label_string));
+	g_strlcpy(label_string, UTF8_LEFTWARDS_ARROW "Fwd",sizeof(label_string));
 	pango_layout_set_text(layout, label_string, -1);
 	pango_layout_get_pixel_size(layout, &lwidth, NULL);
 	gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
@@ -1159,7 +1160,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 		user_data->dlg.dialog_graph.pixmap_width-right_x_border+33-lwidth,
 		user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3,
 		layout);
-        g_strlcpy(label_string,"<-Rev",sizeof(label_string));
+        g_strlcpy(label_string, UTF8_LEFTWARDS_ARROW "Rev",sizeof(label_string));
         pango_layout_set_text(layout, label_string, -1);
         pango_layout_get_pixel_size(layout, &lwidth, NULL);
         gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,

@@ -61,6 +61,7 @@
 #include <gtk/font_utils.h>
 #include "gtk/follow_ssl.h"
 #include "gtk/follow_stream.h"
+#include "gtk/utf8_entities.h"
 
 #ifdef SSL_PLUGIN
 #include "packet-ssl-utils.h"
@@ -251,25 +252,25 @@ follow_ssl_stream_cb(GtkWidget * w, gpointer data _U_)
 
     if(follow_info->client_port == stats.port[0]) {
 	    server_to_client_string =
-		    g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
+		    g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
 				    hostname0, port0,
 				    hostname1, port1,
 				    follow_info->bytes_written[0]);
 
 	    client_to_server_string =
-		    g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
+		    g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
 				    hostname1, port1,
 				    hostname0, port0,
 				    follow_info->bytes_written[1]);
     } else {
 	    server_to_client_string =
-		    g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
+		    g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
 				    hostname1, port1,
 				    hostname0, port0,
 				    follow_info->bytes_written[0]);
 
 	    client_to_server_string =
-		    g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
+		    g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
 				    hostname0, port0,
 				    hostname1, port1,
 				    follow_info->bytes_written[1]);
