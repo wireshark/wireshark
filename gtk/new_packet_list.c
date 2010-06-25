@@ -187,12 +187,15 @@ resolve_column (gint col)
 
 	case COL_CUSTOM:
 		hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[col]);
-		/* Check if this is a valid field and we have no strings lookup table */
-		if ((hfi != NULL) && (hfi->strings != NULL) && 
-			/* Check for bool, framenum and decimal/octal integer types */
-		    ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
-		     IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type))) {
-			resolve = TRUE;
+		/* Check if this is a valid field */
+		if (hfi != NULL) {
+			/* Check if we have an OID or a strings table with integer values */
+		  	if ((hfi->type == FT_OID) ||
+			    ((hfi->strings != NULL) && 
+			     ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) || 
+			      IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)))) {
+				resolve = TRUE;
+			}
 		}
 		break;
 

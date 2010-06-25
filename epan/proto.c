@@ -3581,6 +3581,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gchar *result,
 		}
 
 		switch(hfinfo->type) {
+
 		case FT_UINT8:
 		case FT_UINT16:
 		case FT_UINT24:
@@ -3589,12 +3590,19 @@ proto_custom_set(proto_tree* tree, const int field_id, gchar *result,
 		case FT_BOOLEAN:
 			g_snprintf(expr, size, hfinfo_numeric_value_format(hfinfo), fvalue_get_uinteger(&finfo->value));
 			break;
+
 		case FT_INT8:
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
 			g_snprintf(expr, size, hfinfo_numeric_value_format(hfinfo), fvalue_get_sinteger(&finfo->value));
 			break;
+
+		case FT_OID:
+			bytes = fvalue_get(&finfo->value);
+			g_strlcpy(expr, oid_encoded2string(bytes, fvalue_length(&finfo->value)), size);
+			break;
+
 		default:
 			g_strlcpy(expr, result, size);
 			break;
