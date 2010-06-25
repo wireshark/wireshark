@@ -328,8 +328,8 @@ typedef struct
     guint16   firstSN;
     guint16   lastSN;
 
-    /* AM Only */
-    enum { SN_OK, SN_Repeated, SN_MAC_Retx, SN_Retx, SN_Missing} amState;
+    /* AM/UM */
+    enum { SN_OK, SN_Repeated, SN_MAC_Retx, SN_Retx, SN_Missing} state;
 } state_sequence_analysis_report_in_frame;
 
 
@@ -589,7 +589,7 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
             /* AM                                       */
             /********************************************/
 
-            switch (p->amState) {
+            switch (p->state) {
                 case SN_OK:
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                 tvb, 0, 0, TRUE);
@@ -688,11 +688,69 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
             PROTO_ITEM_SET_GENERATED(ti);
 
             if (!p->sequenceExpectedCorrect) {
-                /* Incorrect sequence number */
-                expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                       "Wrong Sequence Number for %s on UE %u - got %u, expected %u",
-                                       val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
-                                       p_rlc_lte_info->ueid, sequenceNumber, p->sequenceExpected);
+                /* Work out SN wrap (in case needed below) */
+                guint16 snLimit;
+                if (p_rlc_lte_info->UMSequenceNumberLength == 5) {
+                    snLimit = 32;
+                }
+                else {
+                    snLimit = 1024;
+                }
+                
+                switch (p->state) {
+                    case SN_Missing:
+                        ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
+                                                    tvb, 0, 0, FALSE);
+                        PROTO_ITEM_SET_GENERATED(ti);
+                        ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_skipped,
+                                                    tvb, 0, 0, TRUE);
+                        PROTO_ITEM_SET_GENERATED(ti);
+                        if (p->lastSN != p->firstSN) {
+                            expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+                                                   "UM SNs (%u to %u) missing for %s on UE %u",
+                                                   p->firstSN, p->lastSN,
+                                                   val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
+                                                   p_rlc_lte_info->ueid);
+                            proto_item_append_text(seqnum_ti, " - SNs missing (%u to %u)",
+                                                   p->firstSN, p->lastSN);
+                            tap_info->missingSNs = ((p->lastSN - p->firstSN) % snLimit) + 1;
+                        }
+                        else {
+                            expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+                                                   "UM SN (%u) missing for %s on UE %u",
+                                                   p->firstSN,
+                                                   val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
+                                                   p_rlc_lte_info->ueid);
+                            proto_item_append_text(seqnum_ti, " - SN missing (%u)",
+                                                   p->firstSN);
+                            tap_info->missingSNs = 1;
+                        }
+                        break;
+                    case SN_Repeated:
+                        ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
+                                                    tvb, 0, 0, FALSE);
+                        PROTO_ITEM_SET_GENERATED(ti);
+                        ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_repeated,
+                                                    tvb, 0, 0, TRUE);
+                        PROTO_ITEM_SET_GENERATED(ti);
+                        expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+                                               "UM SN (%u) repeated for %s for UE %u",
+                                               p->firstSN,
+                                               val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
+                                               p_rlc_lte_info->ueid);
+                        proto_item_append_text(seqnum_ti, "- SN %u Repeated",
+                                               p->sequenceExpected);
+                        break;
+
+                    default:
+                        /* Incorrect sequence number */
+                        expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+                                               "Wrong Sequence Number for %s on UE %u - got %u, expected %u",
+                                               val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
+                                               p_rlc_lte_info->ueid, sequenceNumber, p->sequenceExpected);
+                        break;
+                }
+
             }
             else {
                 /* Correct sequence number, so check frame indication bits consistent */
@@ -748,6 +806,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     state_sequence_analysis_report_in_frame  *p_report_in_frame = NULL;
     gboolean               createdChannel = FALSE;
     guint16                expectedSequenceNumber = 0;
+    guint16                snLimit = 0;
 
     /* If find stat_report_in_frame already, use that and get out */
     if (pinfo->fd->flags.visited) {
@@ -802,7 +861,6 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 
             /* Work out expected sequence number */
             if (!createdChannel) {
-                guint16  snLimit;
                 if (p_rlc_lte_info->UMSequenceNumberLength == 5) {
                     snLimit = 32;
                 }
@@ -815,6 +873,25 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
             /* Set report for this frame */
             /* For UM, sequence number is always expectedSequence number */
             p_report_in_frame->sequenceExpectedCorrect = (sequenceNumber == expectedSequenceNumber);
+
+            /* For wrong sequence number... */
+            if (!p_report_in_frame->sequenceExpectedCorrect) {
+
+                p_report_in_frame->sequenceExpectedCorrect = FALSE;
+
+                /* Frames are not missing if we get an earlier sequence number again */
+                if (((snLimit + expectedSequenceNumber - sequenceNumber) % snLimit) > 40) {
+                    p_report_in_frame->state = SN_Missing;
+                    tap_info->missingSNs = (snLimit + sequenceNumber - expectedSequenceNumber) % snLimit;
+                    p_report_in_frame->firstSN = expectedSequenceNumber;
+                    p_report_in_frame->lastSN = (snLimit + sequenceNumber - 1) % snLimit;
+                }
+                else {
+                    /* An SN has been repeated */
+                    p_report_in_frame->state = SN_Repeated;
+                    p_report_in_frame->firstSN = sequenceNumber;
+                }
+            }
             p_report_in_frame->sequenceExpected = expectedSequenceNumber;
             p_report_in_frame->previousFrameNum = p_channel_status->previousFrameNum;
             p_report_in_frame->previousSegmentIncomplete = p_channel_status->previousSegmentIncomplete;
@@ -843,7 +920,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
             /* First of all, check to see whether frame is judged to be MAC Retx */
             if (is_mac_lte_frame_retx(pinfo, p_rlc_lte_info->direction)) {
                 /* Just report that this is a MAC Retx */
-                p_report_in_frame->amState = SN_MAC_Retx;
+                p_report_in_frame->state = SN_MAC_Retx;
 
                 /* No channel state to update */
             }
@@ -857,7 +934,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                 p_report_in_frame->sequenceExpected = expectedSequenceNumber;
                 p_report_in_frame->previousFrameNum = p_channel_status->previousFrameNum;
                 p_report_in_frame->previousSegmentIncomplete = p_channel_status->previousSegmentIncomplete;
-                p_report_in_frame->amState = SN_OK;
+                p_report_in_frame->state = SN_OK;
 
                 /* Update channel status */
                 p_channel_status->previousSequenceNumber = sequenceNumber;
@@ -867,7 +944,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 
             /* Previous subframe repeated? */
             else if (((sequenceNumber+1) % 1024) == expectedSequenceNumber) {
-                p_report_in_frame->amState = SN_Repeated;
+                p_report_in_frame->state = SN_Repeated;
 
                 /* Set report for this frame */
                 p_report_in_frame->sequenceExpectedCorrect = FALSE;
@@ -889,7 +966,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                 /* Rx window is 512, so check to see if this is a retx */
                 if (delta < 512) {
                     /* Probably a retx due to receiving NACK */
-                    p_report_in_frame->amState = SN_Retx;
+                    p_report_in_frame->state = SN_Retx;
 
                     p_report_in_frame->firstSN = sequenceNumber;
                     /* Don't update anything in channel state */
@@ -897,7 +974,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 
                 else {
                     /* Ahead of expected SN. Assume frames have been missed */
-                    p_report_in_frame->amState = SN_Missing;
+                    p_report_in_frame->state = SN_Missing;
 
                     p_report_in_frame->firstSN = expectedSequenceNumber;
                     p_report_in_frame->lastSN = (1024 + sequenceNumber-1) % 1024;

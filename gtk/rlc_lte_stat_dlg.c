@@ -455,6 +455,9 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         channel_stats->channelType = si->channelType;
         channel_stats->channelId = si->channelId;
     }
+    else {
+        return 0;
+    }
 
     if (si->direction == DIRECTION_UPLINK) {
         channel_stats->UL_frames++;
