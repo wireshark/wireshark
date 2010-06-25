@@ -2252,7 +2252,12 @@ main(int argc, char *argv[])
 		  "Could not open recent file\n\"%s\": %s.",
 		  rf_path, strerror(rf_open_errno));
   }
-  set_last_open_dir(recent.gui_fileopen_remembered_dir);
+
+  if (test_for_directory(recent.gui_fileopen_remembered_dir) != EISDIR) {
+    set_last_open_dir(get_persdatafile_dir());
+  } else {
+    set_last_open_dir(recent.gui_fileopen_remembered_dir);
+  }
 
   /* Set getopt index back to initial value, so it will start with the
      first command line parameter again.  Also reset opterr to 1, so that
