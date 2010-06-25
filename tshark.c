@@ -2161,6 +2161,7 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
   tap_flags = union_of_tap_listener_flags();
 
   if(do_dissection) {
+    wtap_cleareof(cf->wth);
     while (to_read-- && cf->wth) {
       ret = wtap_read(cf->wth, &err, &err_info, &data_offset);
       if(ret == FALSE) {
