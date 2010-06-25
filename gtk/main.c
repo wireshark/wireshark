@@ -2241,7 +2241,18 @@ main(int argc, char *argv[])
 
   /* Init the "Open file" dialog directory */
   /* (do this after the path settings are processed) */
-  set_last_open_dir(get_persdatafile_dir());
+  
+  /* Read the profile dependent (static part) of the recent file. */
+  /* Only the static part of it will be read, as we don't have the gui now to fill the */
+  /* recent lists which is done in the dynamic part. */
+  /* We have to do this already here, so command line parameters can overwrite these values. */
+  recent_read_profile_static(&rf_path, &rf_open_errno);
+  if (rf_path != NULL && rf_open_errno != 0) {
+    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+		  "Could not open recent file\n\"%s\": %s.",
+		  rf_path, strerror(rf_open_errno));
+  }
+  set_last_open_dir(recent.gui_fileopen_remembered_dir);
 
   /* Set getopt index back to initial value, so it will start with the
      first command line parameter again.  Also reset opterr to 1, so that
@@ -2407,21 +2418,7 @@ main(int argc, char *argv[])
 #endif /* !_WIN32 && G_THREADS_ENABLED && USE_THREADS */
 
   splash_update(RA_CONFIGURATION, NULL, (gpointer)splash_win);
-
-
-  /* Read the profile dependent (static part) of the recent file. */
-  /* Only the static part of it will be read, as we don't have the gui now to fill the */
-  /* recent lists which is done in the dynamic part. */
-  /* We have to do this already here, so command line parameters can overwrite these values. */
-  recent_read_profile_static(&rf_path, &rf_open_errno);
-  if (rf_path != NULL && rf_open_errno != 0) {
-    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-		  "Could not open recent file\n\"%s\": %s.",
-		  rf_path, strerror(rf_open_errno));
-  }
-
   proto_help_init();
-
   cap_file_init(&cfile);
 
   /* Fill in capture options with values from the preferences */

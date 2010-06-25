@@ -87,6 +87,7 @@ typedef struct recent_settings_tag {
     gboolean    privs_warn_if_elevated;
     gboolean    privs_warn_if_no_npf;
     GList      *col_width_list;                     /* column widths */
+    gchar      *gui_fileopen_remembered_dir;        /* folder of last capture loaded in File Open dialog */ 
 } recent_settings_t;
 
 /** Global recent settings. */
