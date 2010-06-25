@@ -69,7 +69,6 @@
 #include "gtk/help_dlg.h"
 #include "gtk/follow_stream.h"
 
-
 /* With MSVC and a libwireshark.dll, we need a special declaration. */
 WS_VAR_IMPORT FILE *data_out_file;
 
@@ -107,6 +106,7 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 	tcp_stream_chunk sc;
 	size_t              nchars;
 	gchar           *data_out_filename;
+	const char rarr_str[] = { 0xe2, 0x86, 0x92, 0x00 };
 
 	/* we got tcp so we can follow */
 	if (cfile.edt->pi.ipproto != IP_PROTO_TCP) {
@@ -271,14 +271,14 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 	/* Host 0 --> Host 1 */
 	if(sc.src_port == stats.port[0]) {
 		server_to_client_string =
-			g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
-					hostname0, port0,
+			g_strdup_printf("%s:%s %s %s:%s (%u bytes)",
+					hostname0, port0, rarr_str,
 					hostname1, port1,
 					stats.bytes_written[0]);
 	} else {
 		server_to_client_string =
-			g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
-					hostname1, port1,
+			g_strdup_printf("%s:%s %s %s:%s (%u bytes)",
+					hostname1, port1, rarr_str,
 					hostname0,port0,
 					stats.bytes_written[0]);
 	}
@@ -286,14 +286,14 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 	/* Host 1 --> Host 0 */
 	if(sc.src_port == stats.port[1]) {
 		client_to_server_string =
-			g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
-					hostname0, port0,
+			g_strdup_printf("%s:%s %s %s:%s (%u bytes)",
+					hostname0, port0, rarr_str,
 					hostname1, port1,
 					stats.bytes_written[1]);
 	} else {
 		client_to_server_string =
-			g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
-					hostname1, port1,
+			g_strdup_printf("%s:%s %s %s:%s (%u bytes)",
+					hostname1, port1, rarr_str,
 					hostname0, port0,
 					stats.bytes_written[1]);
 	}
