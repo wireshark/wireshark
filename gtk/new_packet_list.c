@@ -685,7 +685,6 @@ new_packet_list_freeze(void)
 void
 new_packet_list_thaw(void)
 {
-
 	/* Apply model */
 	gtk_tree_view_set_model( GTK_TREE_VIEW(packetlist->view), GTK_TREE_MODEL(packetlist));
 
@@ -698,9 +697,7 @@ new_packet_list_thaw(void)
 void
 new_packet_list_recreate_visible_rows(void)
 {
-
 	packet_list_recreate_visible_rows(packetlist);
-
 }
 
 void new_packet_list_resize_column(gint col)
@@ -1163,7 +1160,8 @@ new_packet_list_queue_draw(void)
 }
 
 /* call this after last set_frame_mark is done */
-static void mark_frames_ready(void)
+static void
+mark_frames_ready(void)
 {
 	file_save_update_dynamics();
 	packets_bar_update();
@@ -1188,7 +1186,8 @@ set_frame_ignore(gboolean set, frame_data *fdata)
 		cf_unignore_frame(&cfile, fdata);
 }
 
-static void mark_all_frames(gboolean set)
+static void
+mark_all_frames(gboolean set)
 {
 	frame_data *fdata;
 
@@ -1200,12 +1199,14 @@ static void mark_all_frames(gboolean set)
 	mark_frames_ready();
 }
 
-void new_packet_list_mark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+void
+new_packet_list_mark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 	mark_all_frames(TRUE);
 }
 
-void new_packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+void
+new_packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 	mark_all_frames(FALSE);
 }
@@ -1256,7 +1257,8 @@ new_packet_list_set_font(PangoFontDescription *font)
 	gtk_widget_modify_font(packetlist->view, font);
 }
 
-void new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_)
+void
+new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
@@ -1272,7 +1274,8 @@ void new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 	mark_frames_ready();
 }
 
-void new_packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_)
+void
+new_packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
@@ -1288,7 +1291,8 @@ void new_packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 	redissect_packets();
 }
 
-static void ignore_all_frames(gboolean set)
+static void
+ignore_all_frames(gboolean set)
 {
 	frame_data *fdata;
 
@@ -1300,16 +1304,17 @@ static void ignore_all_frames(gboolean set)
 	redissect_packets();
 }
 
-void new_packet_list_ignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+void
+new_packet_list_ignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 	ignore_all_frames(TRUE);
 }
 
-void new_packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+void
+new_packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 	ignore_all_frames(FALSE);
 }
-
 
 static gboolean
 get_col_text_from_record( PacketListRecord *record, gint col_num, gchar** cell_text){
@@ -1408,7 +1413,8 @@ new_packet_list_get_widget(void)
 	return packetlist->view;
 }
 
-void new_packet_list_colorize_packets(void)
+void
+new_packet_list_colorize_packets(void)
 {
 	packet_list_reset_colorized(packetlist);
 	gtk_widget_queue_draw (packetlist->view);
