@@ -620,7 +620,7 @@ packet_list_visible_record(PacketList *packet_list, GtkTreeIter *iter)
 	g_return_val_if_fail(record, FALSE);
 	g_return_val_if_fail(record->fdata, FALSE);
 
-	return (record->fdata->flags.passed_dfilter || record->fdata->flags.passed_dfilter);
+	return (record->fdata->flags.passed_dfilter || record->fdata->flags.ref_time);
 }
 
 gint
