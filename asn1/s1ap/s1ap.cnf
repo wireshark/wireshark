@@ -232,8 +232,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #.FN_HDR HandoverRequest
 	handover_type_value = 0;
 	
-#.FN_BODY Source-ToTarget-TransparentContainer 
-#VAL_PTR = &parameter_tvb
+#.FN_BODY Source-ToTarget-TransparentContainer VAL_PTR = &parameter_tvb
 # I think the message is "directly encoded" into the octest string(no "double encoding")
 # (Compare RANAP)
 # Annex A
@@ -248,7 +247,6 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
  start_offset = offset;
 %(DEFAULT_BODY)s
 
-	parameter_tvb = tvb_new_subset(tvb, start_offset>>3, -1, -1);
 	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToTargetTransparentContainer);
 
     switch(handover_type_value){
@@ -293,8 +291,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 		break;
 	}
 
-#.FN_BODY Target-ToSource-TransparentContainer 
-#VAL_PTR = &parameter_tvb
+#.FN_BODY Target-ToSource-TransparentContainer VAL_PTR = &parameter_tvb
 # I think the message is "directly encoded" into the octest string(no "double encoding")
 # See Target-ToSource-TransparentContainer in RANAP
 
@@ -305,7 +302,6 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
  start_offset = offset;
 %(DEFAULT_BODY)s
 
-	parameter_tvb = tvb_new_subset(tvb, start_offset>>3, -1, -1);
 	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToSourceTransparentContainer);
 
     switch(handover_type_value){
