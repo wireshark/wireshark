@@ -1112,11 +1112,11 @@ static snmp_ue_assoc_t* ue_se_dup(snmp_ue_assoc_t* o) {
 #define CACHE_INSERT(c,a) if (c) { snmp_ue_assoc_t* t = c; c = a; c->next = t; } else { c = a; a->next = NULL; }
 
 static void renew_ue_cache(void) {
+	localized_ues = NULL;
+	unlocalized_ues = NULL;
+
 	if (num_ueas) {
 		guint i;
-
-		localized_ues = NULL;
-		unlocalized_ues = NULL;
 
 		for(i = 0; i < num_ueas; i++) {
 			snmp_ue_assoc_t* a = ue_se_dup(&(ueas[i]));
@@ -1129,9 +1129,6 @@ static void renew_ue_cache(void) {
 			}
 
 		}
-	} else {
-		localized_ues = NULL;
-		unlocalized_ues = NULL;
 	}
 }
 
@@ -1920,6 +1917,10 @@ static void snmp_users_update_cb(void* p _U_, const char** err) {
 	
 	*err = NULL;
 
+	if (num_ueas == 0)
+		/* Nothing to update */
+		return;
+
 	if (! ue->user.userName.len)
 		g_string_append_printf(es,"no userName\n");
 
@@ -2103,7 +2104,7 @@ void proto_register_snmp(void) {
 					   snmp_users_copy_cb,
 					   snmp_users_update_cb,
 					   snmp_users_free_cb,
-                       renew_ue_cache,
+					   renew_ue_cache,
 					   users_fields);
 
   static uat_field_t specific_traps_flds[] = {

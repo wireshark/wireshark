@@ -1214,11 +1214,11 @@ static snmp_ue_assoc_t* ue_se_dup(snmp_ue_assoc_t* o) {
 #define CACHE_INSERT(c,a) if (c) { snmp_ue_assoc_t* t = c; c = a; c->next = t; } else { c = a; a->next = NULL; }
 
 static void renew_ue_cache(void) {
+	localized_ues = NULL;
+	unlocalized_ues = NULL;
+
 	if (num_ueas) {
 		guint i;
-
-		localized_ues = NULL;
-		unlocalized_ues = NULL;
 
 		for(i = 0; i < num_ueas; i++) {
 			snmp_ue_assoc_t* a = ue_se_dup(&(ueas[i]));
@@ -1231,9 +1231,6 @@ static void renew_ue_cache(void) {
 			}
 
 		}
-	} else {
-		localized_ues = NULL;
-		unlocalized_ues = NULL;
 	}
 }
 
@@ -2700,7 +2697,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1480 "packet-snmp-template.c"
+#line 1477 "packet-snmp-template.c"
 
 
 guint
@@ -3144,6 +3141,10 @@ static void snmp_users_update_cb(void* p _U_, const char** err) {
 	
 	*err = NULL;
 
+	if (num_ueas == 0)
+		/* Nothing to update */
+		return;
+
 	if (! ue->user.userName.len)
 		g_string_append_printf(es,"no userName\n");
 
@@ -3551,7 +3552,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2066 "packet-snmp-template.c"
+#line 2067 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3591,7 +3592,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2082 "packet-snmp-template.c"
+#line 2083 "packet-snmp-template.c"
   };
   module_t *snmp_module;
 
@@ -3616,7 +3617,7 @@ void proto_register_snmp(void) {
 					   snmp_users_copy_cb,
 					   snmp_users_update_cb,
 					   snmp_users_free_cb,
-                       renew_ue_cache,
+					   renew_ue_cache,
 					   users_fields);
 
   static uat_field_t specific_traps_flds[] = {
