@@ -702,6 +702,8 @@ set_frame_reftime(gboolean set, frame_data *frame, gint row) {
   }
   cf_reftime_packets(&cfile);
 #ifdef NEW_PACKET_LIST
+  if (!frame->flags.ref_time && !frame->flags.passed_dfilter)
+    new_packet_list_recreate_visible_rows();
   new_packet_list_queue_draw();
 #endif
 }

@@ -620,7 +620,7 @@ packet_list_visible_record(PacketList *packet_list, GtkTreeIter *iter)
 	g_return_val_if_fail(record, FALSE);
 	g_return_val_if_fail(record->fdata, FALSE);
 
-	return record->fdata->flags.passed_dfilter;
+	return (record->fdata->flags.passed_dfilter || record->fdata->flags.passed_dfilter);
 }
 
 gint
@@ -637,7 +637,7 @@ packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 	newrecord->fdata = fdata;
 	newrecord->physical_pos = PACKET_LIST_RECORD_COUNT(packet_list->physical_rows);
 
-	if (newrecord->fdata->flags.passed_dfilter) {
+	if (fdata->flags.passed_dfilter || fdata->flags.ref_time) {
 		newrecord->visible_pos = PACKET_LIST_RECORD_COUNT(packet_list->visible_rows);
 		PACKET_LIST_RECORD_APPEND(packet_list->visible_rows, newrecord);
 	}
@@ -1019,7 +1019,7 @@ packet_list_resort(PacketList *packet_list)
 		record->physical_pos = phy_idx;
 		g_assert(record->visible_pos >= -1);
 		if (record->visible_pos >= 0) {
-			g_assert(record->fdata->flags.passed_dfilter);
+			g_assert(record->fdata->flags.passed_dfilter || record->fdata->flags.ref_time);
 			neworder[vis_idx] = record->visible_pos;
 			PACKET_LIST_RECORD_SET(packet_list->visible_rows, vis_idx, record);
 			record->visible_pos = vis_idx;
@@ -1058,7 +1058,7 @@ packet_list_recreate_visible_rows(PacketList *packet_list)
 
 	for(phy_idx = 0, vis_idx = 0; phy_idx < PACKET_LIST_RECORD_COUNT(packet_list->physical_rows); ++phy_idx) {
 		record = PACKET_LIST_RECORD_GET(packet_list->physical_rows, phy_idx);
-		if (record->fdata->flags.passed_dfilter) {
+		if (record->fdata->flags.passed_dfilter || record->fdata->flags.ref_time) {
 			record->visible_pos = vis_idx++;
 			PACKET_LIST_RECORD_APPEND(packet_list->visible_rows, record);
 		}
