@@ -727,6 +727,8 @@ dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
   gboolean pc, ind = 0;
   gint32 ber_tag;
 
+  attributedesc_string=NULL;
+
 
 one_more_pdu:
 
@@ -839,15 +841,9 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     /* No.  Attach that information to the conversation, and add
      * it to the list of information structures.
      */
-    ldap_info = g_malloc(sizeof(ldap_conv_info_t));
-    ldap_info->auth_type = 0;
-    ldap_info->auth_mech = 0;
-    ldap_info->first_auth_frame = 0;
+    ldap_info = g_malloc0(sizeof(ldap_conv_info_t));
     ldap_info->matched=g_hash_table_new(ldap_info_hash_matched, ldap_info_equal_matched);
     ldap_info->unmatched=g_hash_table_new(ldap_info_hash_unmatched, ldap_info_equal_unmatched);
-    ldap_info->num_results = 0;
-    ldap_info->start_tls_frame = 0;
-    ldap_info->start_tls_pending = FALSE;
 
     conversation_add_proto_data(conversation, proto_ldap, ldap_info);
 
@@ -1099,6 +1095,7 @@ int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int maxlen, gbo
   len=tvb_get_guint8(tvb, offset);
   offset+=1;
   *str=0;
+  attributedesc_string=NULL;
 
   while(len){
     /* add potential field separation dot */

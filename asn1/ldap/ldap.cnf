@@ -252,7 +252,7 @@ gint32 tag;
 
 #.FN_BODY ServerSaslCreds VAL_PTR = &parameter_tvb
 
-tvbuff_t	*parameter_tvb;
+tvbuff_t	*parameter_tvb = NULL;
 ldap_conv_info_t *ldap_info;
 
 %(DEFAULT_BODY)s
@@ -410,7 +410,7 @@ ldap_conv_info_t *ldap_info;
 
 #.FN_BODY SearchRequest/_untag/scope VAL_PTR = &scope
 
-  gint 	scope;
+  guint32 scope = 0xffff;
   const gchar *valstr;
 
   %(DEFAULT_BODY)s
@@ -673,6 +673,7 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 #.FN_BODY Filter
 	proto_tree *tr=NULL;
 	proto_item *it=NULL;
+	attributedesc_string=NULL;
 
 	if(tree){
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Filter: ");
