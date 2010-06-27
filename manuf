@@ -401,7 +401,7 @@
 00:01:5A	DigitalVid             # Digital Video Broadcasting
 00:01:5B	ItaltelSPA             # ITALTEL S.p.A/RF-UP-I
 00:01:5C	Cadant                 # CADANT INC.
-00:01:5D	SunMicrosy             # Sun Microsystems, Inc
+00:01:5D	Oracle                 # Oracle Corporation
 00:01:5E	BestTechno             # BEST TECHNOLOGY CO., LTD.
 00:01:5F	DigitalDes             # DIGITAL DESIGN GmbH
 00:01:60	Elmex                  # ELMEX Co., LTD.
@@ -1006,7 +1006,7 @@
 00:03:B7	Zaccess                # ZACCESS Systems
 00:03:B8	NetkitSolu             # NetKit Solutions, LLC
 00:03:B9	HualongTel             # Hualong Telecom Co., Ltd.
-00:03:BA	SunMicrosy             # Sun Microsystems Inc.
+00:03:BA	Oracle                 # Oracle Corporation
 00:03:BB	SignalComm             # Signal Communications Limited
 00:03:BC	Cot                    # COT GmbH
 00:03:BD	Omnicluste             # OmniCluster Technologies, Inc.
@@ -1969,7 +1969,7 @@
 00:07:7F	JCommunica             # J Communications Co., Ltd.
 00:07:80	BluegigaTe             # Bluegiga Technologies OY
 00:07:81	Itron                  # Itron Inc.
-00:07:82	SunMicrosy             # Sun Microsystems, Inc.
+00:07:82	Oracle                 # Oracle Corporation
 00:07:83	SyncomNetw             # SynCom Network, Inc.
 00:07:84	Cisco                  # Cisco Systems Inc.
 00:07:85	Cisco                  # Cisco Systems Inc.
@@ -4189,7 +4189,7 @@
 00:10:4C	Lecroy                 # LeCroy Corporation
 00:10:4D	SurtecIndu             # SURTEC INDUSTRIES, INC.
 00:10:4E	Ceologic
-00:10:4F	SunMicrosy             # Sun Microsystems, Inc.
+00:10:4F	Oracle                 # Oracle Corporation
 00:10:50	Rion                   # RION CO., LTD.
 00:10:51	Cmicro                 # CMICRO CORPORATION
 00:10:52	Mettler-To             # METTLER-TOLEDO (ALBSTADT) GMBH
@@ -5212,7 +5212,7 @@
 00:14:4C	GeneralMet             # General Meters Corp.
 00:14:4D	Intelligen             # Intelligent Systems
 00:14:4E	Srisa
-00:14:4F	SunMicrosy             # Sun Microsystems, Inc.
+00:14:4F	Oracle                 # Oracle Corporation
 00:14:50	Heim                   # Heim Systems GmbH
 00:14:51	AppleCompu             # Apple Computer Inc.
 00:14:52	Calculex               # CALCULEX,INC.
@@ -8501,7 +8501,7 @@
 00:21:25	KukJeTongS             # KUK JE TONG SHIN Co.,LTD
 00:21:26	ShenzhenTo             # Shenzhen Torch Equipment Co., Ltd.
 00:21:27	Tp-LinkTec             # TP-LINK Technology Co., Ltd.
-00:21:28	SunMicrosy             # Sun Microsystems Inc
+00:21:28	Oracle                 # Oracle Corporation
 00:21:29	Cisco-Link             # Cisco-Linksys, LLC
 00:21:2A	Audiovox               # Audiovox Corporation
 00:21:2B	MsaAuer                # MSA Auer
@@ -8727,7 +8727,7 @@
 00:22:07	IntenoBroa             # Inteno Broadband Technology AB
 00:22:08	Certicom               # Certicom Corp
 00:22:09	OmronHealt             # Omron Healthcare Co., Ltd
-00:22:0A	ReardenLab             # Rearden Labs
+00:22:0A	Onlive                 # OnLive, Inc
 00:22:0B	NationalSo             # National Source Coding Center
 00:22:0C	Cisco                  # Cisco Systems
 00:22:0D	Cisco                  # Cisco Systems
@@ -13969,6 +13969,9 @@
 00:50:C2:CB:40:00/36	GeaFarmTec             # GEA Farm Technologies GmbH
 00:50:C2:CB:60:00/36	KrontekPty             # Krontek Pty Ltd
 00:50:C2:CB:70:00/36	Inotech                # inotech GmbH
+00:50:C2:CB:80:00/36	Raith                  # Raith GmbH
+00:50:C2:CB:90:00/36	MicroTechn             # Micro Technic A/S
+00:50:C2:CB:A0:00/36	DeltaTauDa             # DELTA TAU DATA SYSTEMS
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -15967,7 +15970,7 @@
 08:00:1D	AbleCommun             # ABLE COMMUNICATIONS INC.
 08:00:1E	ApolloComp             # APOLLO COMPUTER INC.
 08:00:1F	Sharp                  # SHARP CORPORATION
-08:00:20	SunMicrosy             # SUN MICROSYSTEMS INC.
+08:00:20	Oracle                 # Oracle Corporation
 08:00:21	3m                     # 3M COMPANY
 08:00:22	Nbi                    # NBI INC.
 08:00:23	PanasonicC             # Panasonic Communications Co., Ltd.
@@ -16151,6 +16154,7 @@
 14:A6:2C	SMDezacSA              # S.M. Dezac S.A.
 14:A8:6B	ShenzhenTe             # ShenZhen Telacom Science&Technology Co., Ltd
 14:D7:6E	ConchElect             # CONCH ELECTRONIC Co.,Ltd
+14:FE:AF	Sagittar               # SAGITTAR LIMITED
 18:01:E3	Elektrobit             # Elektrobit Wireless Communications Ltd
 18:06:75	DilaxIntel             # DILAX Intelcom GmbH
 18:0C:77	Westinghou             # Westinghouse Electric Company, LLC
@@ -16168,7 +16172,9 @@
 1C:12:9D	IeeePesPsr             # IEEE PES PSRC/SUB     
 1C:17:D3	Cisco                  # Cisco Systems
 1C:3A:4F	AccuspecEl             # AccuSpec Electronics, LLC
+1C:3D:E7	SigmaKoki              # Sigma Koki Co.,Ltd.
 1C:4B:D6	Azurewave
+1C:65:9D	LiteonTech             # Liteon Technology Corporation
 1C:6F:65	Giga-ByteT             # GIGA-BYTE TECHNOLOGY CO.,LTD.
 1C:8F:8A	PhaseMotio             # Phase Motion Control SpA
 1C:AF:F7	D-LinkInte             # D-LINK INTERNATIONAL PTE LIMITED
@@ -16313,6 +16319,7 @@
 40:97:D1	BkElectron             # BK Electronics cc
 40:A6:A4	Passivsyst             # PassivSystems Ltd
 40:C7:C9	Naviit                 # Naviit Inc.
+40:CD:3A	Z3Technolo             # Z3 Technology
 40:D3:2D	Apple                  # Apple, Inc
 40:D4:0E	Biodata                # Biodata Ltd
 40:EC:F8	Siemens                # Siemens AG
@@ -16335,6 +16342,7 @@
 44:83:12	Star-Net
 44:87:FC	Elitegroup             # ELITEGROUP COMPUTER SYSTEM CO., LTD.
 44:8E:81	Vig
+44:91:DB	ShanghaiHu             # Shanghai Huaqin Telecom Technology Co.,Ltd
 44:A4:2D	TctMobile              # TCT Mobile Limited
 44:A6:89	PromaxElec             # PROMAX ELECTRONICA SA
 44:A8:C2	SewooTech              # SEWOO TECH CO., LTD
@@ -16347,7 +16355,7 @@
 47:54:43	GtcNotRegi             # GTC (Not registered!)		(This number is a multicast!)
 48:12:49	LuxcomTech             # Luxcom Technologies Inc.
 48:1B:D2	IntronScie             # Intron Scientific co., ltd.
-48:2C:EA	BusinessLi             # Business Light Radios
+48:2C:EA	MotorolaBu             # Motorola Inc Business Light Radios
 48:34:3D	Iep                    # IEP GmbH
 48:44:53	Hds???                 # HDS ???
 48:44:87	CiscoSpvtg             # Cisco SPVTG
@@ -16441,6 +16449,7 @@
 5C:FF:35	Wistron                # Wistron Corporation
 60:12:83	Soluciones             # Soluciones Tecnologicas para la Salud y el Bienestar SA
 60:1D:0F	MidniteSol             # Midnite Solar
+60:2A:54	CardiotekB             # CardioTek B.V.
 60:33:4B	Apple
 60:38:0E	AlpsElectr             # Alps Electric Co.,
 60:39:1F	Abb                    # ABB Ltd
@@ -16547,6 +16556,7 @@
 74:7E:1A	RedEmbedde             # Red Embedded Design Limited
 74:8E:F8	BrocadeCom             # Brocade Communications Systems, Inc.
 74:90:50	RenesasEle             # Renesas Electronics Corporation
+74:91:1A	RuckusWire             # Ruckus Wireless
 74:B9:EB	FujianGold             # Fujian Goldcat Electronic Technology Co.,Ltd.
 74:D8:50	Evrisko                # Evrisko Systems
 74:E5:37	Radspin
@@ -16597,6 +16607,7 @@
 7C:76:73	Enmas                  # ENMAS GmbH
 7C:7B:E4	Z&#39;Seda             # Z&#39;SEDAI KENKYUSHO CORPORATION
 7C:A2:9B	DSignt&Amp             # D.SignT GmbH &amp; Co. KG
+7C:B5:42	AcesTechno             # ACES Technology
 7C:BB:6F	CoscoElect             # Cosco Electronics Co., Ltd.
 7C:C5:37	Apple
 7C:CB:0D	AaxeonTech             # Aaxeon Technologies Inc.
@@ -16672,6 +16683,7 @@
 90:47:16	Rorze                  # RORZE CORPORATION
 90:4C:E5	HonHaiPrec             # Hon Hai Precision Ind. Co.,Ltd.
 90:51:3F	Elettronic             # Elettronica Santerno
+90:54:46	TesElectro             # TES ELECTRONIC SOLUTIONS
 90:55:AE	EricssonEa             # Ericsson, EAB/RWI/K
 90:6D:C8	DlgAutomaç             # DLG Automação Industrial Ltda
 90:7F:61	ChiconyEle             # Chicony Electronics Co., Ltd.
@@ -16853,6 +16865,7 @@ BC:A9:D6	Cyber-Rain             # Cyber-Rain, Inc.
 BC:B1:81	Sharp                  # SHARP CORPORATION
 BC:D5:B6	D2dTechnol             # d2d technologies
 BC:F2:AF	Devolo                 # devolo AG
+BC:FF:AC	Topcon                 # TOPCON CORPORATION
 C0:00:00	WesternDig             # Western Digital (may be reversed 00 00 C0?)
 C0:0D:7E	Additech               # Additech, Inc.
 C0:1E:9B	PixaviAs               # Pixavi AS
@@ -16882,6 +16895,7 @@ C4:7D:4F	Cisco                  # Cisco Systems
 C4:82:3F	FujianNewl             # Fujian Newland Auto-ID Tech. Co,.Ltd.
 C4:AA:A1	SummitDeve             # SUMMIT DEVELOPMENT, spol.s r.o.
 C4:E1:7C	U2s                    # U2S co.
+C4:F4:64	SpicaInter             # Spica international
 C4:FC:E4	DishtvNz               # DishTV NZ Ltd
 C8:02:A6	BeijingNew             # Beijing Newmine Technology
 C8:0A:A9	QuantaComp             # Quanta Computer Inc.
