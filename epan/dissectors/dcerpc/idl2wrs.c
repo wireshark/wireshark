@@ -1,5 +1,5 @@
 /* idl2wrs.c
- * IDL to Wireshark dissector compiler 
+ * IDL to Wireshark dissector compiler
  *
  * $Id$
  *
@@ -735,7 +735,7 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 		fprintf(stderr, "ERROR: parsebrackets should not be reached  unknown tag:%s\n", ti->str);
 		Exit(10);
 	}
-	
+
 	return NULL;
 }
 
@@ -2199,7 +2199,7 @@ static void parsetypedefunion(int pass)
 			continue;
 		}
 	}
-	
+
 	if (!tmpti || !tmpti->next){
 		fprintf(stderr, "ERROR: typedefunion  missing matching '}'\n");
 		Exit(10);
@@ -2249,7 +2249,7 @@ static void parsetypedefunion(int pass)
 			FPRINTF(eth_code, "\n");
 			break;
 		case 4:
-			FPRINTF(eth_code, "    guint32 level;\n");
+			FPRINTF(eth_code, "    guint32 level = 0;\n");
 			FPRINTF(eth_code, "\n");
 			FPRINTF(eth_code, "    ALIGN_TO_4_BYTES;\n");
 			FPRINTF(eth_code, "\n");
