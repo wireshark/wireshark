@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2010-06-19)
+(last updated 2010-06-27)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -28615,8 +28615,8 @@ Decimal
       bits&schizo.com
 7165
   SAMBA Team
-    Gerald Carter
-      jerry&samba.org
+    Volker Lendecke
+      iana&samba.org
 7166
   Peters Securities Co, L.P.
     Scott Zionic
@@ -82469,7 +82469,7 @@ Nancy - FRANCE
 20728
   Spook Limited
     Martin Luck
-      mluck&spook.eu.com
+      martin&spook.co.uk
 20729
   Piotr Matusz
     Piotr Matusz
@@ -103066,7 +103066,7 @@ Association)
 25873
   BitlBee Team
     Jelmer Vernooij
-      jelmer&vernstok.nl
+      jelmer&samba.org
 25874
   GrimIce Inc.
     Osbert Morris
@@ -121460,8 +121460,8 @@ Decentralization / Helenic Public Administra
       bslee&st.co.kr
 30469
   Synacor Inc
-    Eric Toczek
-      etoczek&synacor.com
+    Geoff Franks
+      monitor&synacor.com
 30470
   CyberTrails
     Shawn Ostapuk
@@ -143217,9 +143217,9 @@ Decentralization / Helenic Public Administra
     Ricardo Frei Bruel
       ti&crvnatural.com.br
 35908
-  Embrane Software, Inc.
-    David Dai
-      dhdai&embrane.com
+  Embrane, Inc.
+    Marco Di Benedetto
+      marcodb&embrane.com
 35909
   Horace Mann Educators Corporation
     William Fellner
@@ -143592,6 +143592,218 @@ Decentralization / Helenic Public Administra
   PJB Consulting
     Jakub Pjanka
       jakub&pjb.com.pl
+36002
+  Taiji Computer Corporation Ltd.
+    liqi
+      liqi&mail.taiji.com.cn
+36003
+  Techlan Reti s.r.l.
+    Simone Gasparini
+      simone.gasparini&techlan.it
+36004
+  Vitracom AG
+    Ralph Majer
+      majer&vitracom.de
+36005
+  CSE s.c.a.r.l. Consorzio Servizi Bancari
+    Ezio Faccioli
+      sisunix&csebo.it
+36006
+  VFT Telecom
+    Mr. Nguyen Thai Ha
+      hant&vft.com.vn
+36007
+  Logikos, Inc.
+    Stefan Kelley
+      skelley&logikos.com
+36008
+  Kelly Services, Inc.
+    Jim Merrill
+      jim.merrill&kellyservices.com
+36009
+  6connect, Inc.
+    Aaron Hughes
+      aaron&6connect.net
+36010
+  lordgandalf
+    Niels de Leeuw
+      niels&lordgandalf.nl
+36011
+  Commontime Ltd
+    Neil Whitworth
+      iana&commontime.com
+36012
+  Oxford Life Insurance Company
+    Terry Turner
+      TerryTurner&Oxfordlife.com
+36013
+  SMA Solar Technology AG
+    Andreas Mueller
+      sysadmin&sma.de
+36014
+  Radio Free Asia
+    David Baden
+      badend&rfa.org
+36015
+  SavillTech 
+    John Savill
+      john&savilltech.com
+36016
+  PROCERGS - Rio Grande do Sul State IT Company, Brazil
+    Leonardo Reginin
+      leonardo&procergs.rs.gov.br
+36017
+  Huntsman Cancer Institute at the University of Utah
+    Dennis Berry
+      Dinny.Berry&hci.utah.edu
+36018
+  RAAF Technology
+    Rubin Simons
+      rubin.simons&raaftech.nl
+36019
+  die tageszeitung
+    Norbert Thies
+      norbert&taz.de
+36020
+  PoC Oy Ltd.
+    Erkka Marjakangas
+      erkka.marjakangas&poc.fi
+36021
+  IT Research Center LLP
+    Rinat R Yamalutdinov
+      yamalutdinov_r&itrc.kz
+36022
+  rku.it GmbH
+    Klaus Seeger
+      klaus.seeger&rku-it.de
+36023
+  Stichting Christelijke Hogeschool Windesheim
+    Johan van der Molen
+      ja.van.der.molen&windesheim.nl
+36024
+  AltaSoft s.c.
+    Emil Kruczek
+      ekruczek&altasoft.com.pl
+36025
+  Videopolis France
+    Joern Berrisch
+      jb&tvtrip.com
+36026
+  GoldZone Web
+    Gaëtan Trellu
+      gaetan.trellu&gmail.com
+36027
+  Methode
+    Marco Miller
+      mmiller&methode.com
+36028
+  NoconaGeek
+    Curtis Wood
+      noconageek&gmail.com
+36029
+  Medical Micrographics LLC
+    Bryan Jennings
+      bryan&medicalmicrographics.com
+36030
+  Happyserver Ltd
+    Michael Derringer
+      michael&happyserver.co.uk
+36031
+  Techsense Solutions Sdn Bhd
+    Namran Hussin
+      namran&techsense.com.my
+36032
+  Promsvjazdizajn, OOO
+    Maxim Krakovskiy
+      kmm&promsd.ru
+36033
+  Pak eVentures
+    Muhammad Raza Saeed
+      raza.saeed&confiz.com
+36034
+  Kelvin Connect Ltd
+    Meurig Sage
+      alarmsupport&kelvinconnect.com
+36035
+  Signe S.A.
+    María José Martínez
+      mariajose.martinez&signe.es
+36036
+  DNA Oy
+    Lasse Leppänen
+      Lasse.Leppanen&dna.fi
+36037
+  Folia a/s
+    Rikke Ottesen
+      ro&folia.dk
+36038
+  Adif, Administrador de Infraestructuras Ferroviarias
+    Rafael J. Mata Martin
+      rmata&adif.es
+36039
+  Estonian Internet Foundation
+    Norman Aeg
+      norman.aeg&eestiinternet.ee
+36040
+  Ibetor, S.L.
+    Mikel Nava
+      mnava&ibetor.es
+36041
+  KAMAZ Inc.
+    Oleg Soroka
+      soroka&kamaz.org
+36042
+  LIAB ApS
+    Mikkel S. Andersen
+      info&liab.dk
+36043
+  Athena Wireless Communications Inc.
+    Warren Steffen
+      wsteffen&athenawirelesscommunications.com
+36044
+  NSSR.neT
+    Stefan Richter
+      Stefan.Richter&nssr.net
+36045
+  Uma Electrotechnical Services
+    Devendra Kumar Shukla
+      devendrakumarshukla&gmail.com
+36046
+  tdvine Co., Ltd
+    SahngOh Jung
+      sahngoh&tdvine.com
+36047
+  Kadme AS
+    Adalbert Michelic
+      adalbert&kadme.com
+36048
+  PUISSANCE +
+    Francis DELPECH
+      delpech&puissanceplus.com
+36049
+  GGG Kft.
+    Gaspar Pechy
+      ukobold&ggg.hu
+36050
+  Feed Your Head
+    Wolfgang Hotwagner
+      postmaster&feedyourhead.at
+36051
+  TDM Consult GmbH
+    Thorsten Marsen
+      t.d.marsen&tdm-consult.com
+36052
+  EdgeCast Networks, Inc.
+    John Scharber
+      john&edgecast.com
+36053
+  Azka National for Information Technology
+    Abdel Rahim Omer Ali
+      abd&azka.com
+36054
+  eVigilo Ltd
+    Bronya Korolyova
+      bronya&evigilo.net
 
 
 End of Document
