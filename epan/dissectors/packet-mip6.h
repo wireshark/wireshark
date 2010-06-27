@@ -46,7 +46,13 @@ typedef enum {
 	BE    = 7,
 	FBU   = 8,
 	FBACK = 9,
-	FNA   = 10
+	FNA   = 10,
+	EMH   = 11,
+	HAS   = 12,
+	HB    = 13,
+	HI    = 14,
+	HAck  = 15,
+	BR    = 16,
 } mhTypes;
 
 static const value_string mip6_mh_types[] = {
@@ -61,6 +67,12 @@ static const value_string mip6_mh_types[] = {
 	{FBU,   "Fast Binding Update"},
 	{FBACK, "Fast Binding Acknowledgment"},
 	{FNA,   "Fast Neighbor Advertisement"},
+	{EMH,   "Experimental Mobility Header"},
+	{HAS,   "Home Agent Switch"},
+	{HB,    "Heartbeat"},
+	{HI,    "Handover Initiate"},
+	{HAck,  "Handover Acknowledge"},
+	{BR,    "Binding Revocation"},
 	{0,     NULL}
 };
 
@@ -210,6 +222,17 @@ static const value_string fmip6_fback_status_value[] = {
 	{   0, NULL }
 };
 
+/* Heartbeat flag description */
+static const true_false_string mip6_hb_u_flag_value = {
+	"Unsolicited Heartbeat Response",
+	"Otherwise"
+};
+
+static const true_false_string mip6_hb_r_flag_value = {
+	"Heartbeat Response",
+	"Heartbeat Request"
+};
+
 /* MH LLA Option code */
 static const value_string fmip6_lla_optcode_value[] = {
 	{   2, "Link Layer Address of the MN" },
@@ -234,6 +257,12 @@ static const value_string mip6_mnid_subtype_value[] = {
 #define FMIP6_FBU_LEN         6
 #define FMIP6_FBACK_LEN       6
 #define FMIP6_FNA_LEN         2
+#define MIP6_EMH_LEN          0
+#define MIP6_HAS_LEN         18
+#define MIP6_HB_LEN           6
+#define MIP6_HI_LEN           4
+#define MIP6_HAck_LEN         4
+#define MIP6_BR_LEN           6
 
 /* Field offsets & lengths for mobility headers */
 #define MIP6_PROTO_OFF        0
@@ -331,6 +360,51 @@ static const value_string mip6_mnid_subtype_value[] = {
 #define FMIP6_FNA_RES_OFF     6
 #define FMIP6_FNA_OPTS_OFF    8
 #define FMIP6_FNA_RES_LEN     2
+
+#define MIP6_HAS_NRADR_OFF    6
+#define MIP6_HAS_RES_OFF      7
+#define MIP6_HAS_HAA_OFF      8
+#define MIP6_HAS_OPTS_OFF    24
+#define MIP6_HAS_NRADR_LEN    1
+#define MIP6_HAS_RES_LEN      1
+#define MIP6_HAS_HAA_LEN     16
+
+#define MIP6_HB_RES_OFF       6
+#define MIP6_HB_FLAGS_OFF     7
+#define MIP6_HB_SEQNR_OFF     8
+#define MIP6_HB_OPTS_OFF     12
+#define MIP6_HB_RES_LEN       1
+#define MIP6_HB_FLAGS_LEN     1
+#define MIP6_HB_SEQNR_LEN     4
+
+#define MIP6_HI_SEQNR_OFF     6
+#define MIP6_HI_FLAGS_OFF     8
+#define MIP6_HI_CODE_OFF      9
+#define MIP6_HI_OPTS_OFF     10
+#define MIP6_HI_SEQNR_LEN     2
+#define MIP6_HI_FLAGS_LEN     1
+#define MIP6_HI_CODE_LEN      1
+
+#define MIP6_HAck_SEQNR_OFF   6
+#define MIP6_HAck_RES_OFF     8
+#define MIP6_HAck_CODE_OFF    9
+#define MIP6_HAck_OPTS_OFF   10
+#define MIP6_HAck_SEQNR_LEN   2
+#define MIP6_HAck_RES_LEN     1
+#define MIP6_HAck_CODE_LEN    1
+
+#define MIP6_BR_TYPE_OFF      6
+#define MIP6_BR_TRGR_OFF      7
+#define MIP6_BR_SEQNR_OFF     8
+#define MIP6_BR_FLAGS_OFF    10
+#define MIP6_BR_RES_OFF      11
+#define MIP6_BR_OPTS_OFF     12
+#define MIP6_BR_TYPE_LEN      1
+#define MIP6_BR_TRGR_LEN      1
+#define MIP6_BR_SEQNR_LEN     2
+#define MIP6_BR_FLAGS_LEN     1
+#define MIP6_BR_RES_LEN       1
+
 
 /* Field offsets & field and option lengths for mobility options.
  * The option length does *not* include the option type and length

@@ -96,6 +96,10 @@ static int hf_fmip6_fback_k_flag = -1;
 static int hf_fmip6_fback_seqnr = -1;
 static int hf_fmip6_fback_lifetime = -1;
 
+static int hf_mip6_hb_u_flag = -1;
+static int hf_mip6_hb_r_flag = -1;
+static int hf_mip6_hb_seqnr = -1;
+
 static int hf_mip6_bra_interval = -1;
 
 static int hf_mip6_acoa_acoa = -1;
@@ -340,6 +344,32 @@ dissect_mip6_be(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 	}
 
 	return MIP6_DATA_OFF + MIP6_BE_LEN;
+}
+
+static int
+dissect_mip6_hb(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
+{
+	proto_tree *data_tree = NULL;
+	proto_item *ti;
+
+	col_set_str(pinfo->cinfo, COL_INFO, "Heartbeat");
+
+	if (mip6_tree) {
+		ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 
+				MIP6_HB_LEN, "Heartbeat");
+		data_tree = proto_item_add_subtree(ti, ett_mip6);
+
+		proto_tree_add_item(data_tree, hf_mip6_hb_u_flag, tvb, 
+				MIP6_HB_FLAGS_OFF, MIP6_HB_FLAGS_LEN, FALSE);
+		proto_tree_add_item(data_tree, hf_mip6_hb_r_flag, tvb, 
+				MIP6_HB_FLAGS_OFF, MIP6_HB_FLAGS_LEN, FALSE);
+
+		proto_tree_add_item(data_tree, hf_mip6_hb_seqnr, tvb,
+				MIP6_HB_SEQNR_OFF, MIP6_HB_SEQNR_LEN, FALSE);
+
+	}
+
+	return MIP6_DATA_OFF + MIP6_HB_LEN;
 }
 
 static int
@@ -966,6 +996,9 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case FNA:
 		offset = dissect_fmip6_fna(tvb, mip6_tree, pinfo);
 		break;
+	case HB:
+		offset = dissect_mip6_hb(tvb, mip6_tree, pinfo);
+		break;
 	default:
 		dissect_mip6_unknown(tvb, mip6_tree, pinfo);
 		offset = len;
@@ -1155,6 +1188,16 @@ proto_register_mip6(void)
 	                             NULL, HFILL }},
 	{ &hf_fmip6_fback_lifetime, { "Lifetime", "fmip6.fback.lifetime",
 	                              FT_UINT16, BASE_DEC, NULL, 0,
+	                              NULL, HFILL }},
+
+	{ &hf_mip6_hb_u_flag,       { "Unsolicited (U) flag", "mip6.hb.u_flag",
+	                              FT_BOOLEAN, 8, TFS(&mip6_hb_u_flag_value),
+	                              0x02, NULL, HFILL }},
+	{ &hf_mip6_hb_r_flag,       { "Response (R) flag", "mip6.hb.r_flag",
+	                              FT_BOOLEAN, 8, TFS(&mip6_hb_r_flag_value),
+	                              0x01, NULL, HFILL }},
+	{ &hf_mip6_hb_seqnr,        { "Sequence number", "mip6.hb.seqnr",
+	                              FT_UINT32, BASE_DEC, NULL, 0,
 	                              NULL, HFILL }},
 
 	{ &hf_mip6_bra_interval,    { "Refresh interval", "mip6.bra.interval",
