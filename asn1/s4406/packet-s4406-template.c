@@ -104,6 +104,8 @@ void proto_register_s4406(void) {
   proto_register_field_array(proto_s4406, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  register_ber_syntax_dissector("STANAG 4406", proto_s4406, dissect_s4406); 
+  register_ber_oid_syntax(".p772", NULL, "STANAG 4406");
 }
 
 
@@ -112,8 +114,4 @@ void proto_reg_handoff_s4406(void) {
 #include "packet-s4406-dis-tab.c"
 
   register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_s4406, proto_s4406, "STANAG 4406");
-
-  register_ber_syntax_dissector("STANAG 4406", proto_s4406, dissect_s4406); 
-  register_ber_oid_syntax(".p772", NULL, "STANAG 4406");
-
 }

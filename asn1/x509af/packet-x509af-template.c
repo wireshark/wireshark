@@ -113,6 +113,14 @@ void proto_register_x509af(void) {
   proto_register_field_array(proto_x509af, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+
+  register_ber_syntax_dissector("Certificate", proto_x509af, dissect_x509af_Certificate_PDU); 
+  register_ber_syntax_dissector("CertificateList", proto_x509af, dissect_CertificateList_PDU); 
+  register_ber_syntax_dissector("CrossCertificatePair", proto_x509af, dissect_CertificatePair_PDU); 
+
+  register_ber_oid_syntax(".cer", NULL, "Certificate");
+  register_ber_oid_syntax(".crt", NULL, "Certificate");
+  register_ber_oid_syntax(".crl", NULL, "CertificateList");
 }
 
 
@@ -166,13 +174,5 @@ void proto_reg_handoff_x509af(void) {
 	register_ldap_name_dissector("arl", dissect_CertificateList_PDU, proto_x509af);
 
 	register_ldap_name_dissector("crossCertificatePair", dissect_CertificatePair_PDU, proto_x509af);
-
-	register_ber_syntax_dissector("Certificate", proto_x509af, dissect_x509af_Certificate_PDU); 
-	register_ber_oid_syntax(".cer", NULL, "Certificate");
-	register_ber_oid_syntax(".crt", NULL, "Certificate");
-	register_ber_syntax_dissector("CertificateList", proto_x509af, dissect_CertificateList_PDU); 
-	register_ber_oid_syntax(".crl", NULL, "CertificateList");
-	register_ber_syntax_dissector("CrossCertificatePair", proto_x509af, dissect_CertificatePair_PDU); 
-
 }
 

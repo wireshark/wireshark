@@ -2178,6 +2178,7 @@ void proto_register_snmp(void) {
 
 	register_init_routine(renew_ue_cache);
 
+	register_ber_syntax_dissector("SNMP", proto_snmp, dissect_snmp_tcp);
 }
 
 
@@ -2200,8 +2201,6 @@ void proto_reg_handoff_snmp(void) {
 	dissector_add("tcp.port", TCP_PORT_SNMP_TRAP, snmp_tcp_handle);
 
 	data_handle = find_dissector("data");
-
-	register_ber_syntax_dissector("SNMP", proto_snmp, dissect_snmp_tcp);
 
 	/*
 	 * Process preference settings.

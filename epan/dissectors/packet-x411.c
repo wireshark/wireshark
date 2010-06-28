@@ -499,7 +499,7 @@ static int hf_x411_UniversalOrganizationalUnitNames_item = -1;  /* UniversalOrga
 static int hf_x411_character_encoding = -1;       /* T_character_encoding */
 static int hf_x411_two_octets = -1;               /* BMPString_SIZE_1_ub_string_length */
 static int hf_x411_four_octets = -1;              /* UniversalString_SIZE_1_ub_string_length */
-static int hf_x411_iso_639_language_code = -1;    /* PrintableString_SIZE_CONSTR42072472 */
+static int hf_x411_iso_639_language_code = -1;    /* PrintableString_SIZE_CONSTR001 */
 static int hf_x411_x121_dcc_code_01 = -1;         /* T_x121_dcc_code_01 */
 static int hf_x411_iso_3166_alpha2_code_01 = -1;  /* T_iso_3166_alpha2_code_01 */
 static int hf_x411_numeric_code = -1;             /* T_numeric_code */
@@ -6505,7 +6505,7 @@ dissect_x411_T_character_encoding(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 static int
-dissect_x411_PrintableString_SIZE_CONSTR42072472(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_x411_PrintableString_SIZE_CONSTR001(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
                                                         actx, tree, tvb, offset,
                                                         2, 5, hf_index, NULL);
@@ -6516,7 +6516,7 @@ dissect_x411_PrintableString_SIZE_CONSTR42072472(gboolean implicit_tag _U_, tvbu
 
 static const ber_sequence_t UniversalOrBMPString_set[] = {
   { &hf_x411_character_encoding, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x411_T_character_encoding },
-  { &hf_x411_iso_639_language_code, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x411_PrintableString_SIZE_CONSTR42072472 },
+  { &hf_x411_iso_639_language_code, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x411_PrintableString_SIZE_CONSTR001 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -10417,7 +10417,7 @@ void proto_register_x411(void) {
     { &hf_x411_iso_639_language_code,
       { "iso-639-language-code", "x411.iso_639_language_code",
         FT_STRING, BASE_NONE, NULL, 0,
-        "PrintableString_SIZE_CONSTR42072472", HFILL }},
+        "PrintableString_SIZE_CONSTR001", HFILL }},
     { &hf_x411_x121_dcc_code_01,
       { "x121-dcc-code", "x411.x121_dcc_code",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -11308,6 +11308,7 @@ void proto_register_x411(void) {
 				 " than the default of 102)",
 				 10, &global_x411_tcp_port);
 
+  register_ber_syntax_dissector("X.411 Message", proto_x411, dissect_x411_mts_apdu);
 }
 
 
@@ -11472,7 +11473,7 @@ void proto_reg_handoff_x411(void) {
 
 
 /*--- End of included file: packet-x411-dis-tab.c ---*/
-#line 295 "packet-x411-template.c"
+#line 296 "packet-x411-template.c"
 
   /* APPLICATION CONTEXT */
 
@@ -11484,7 +11485,6 @@ void proto_reg_handoff_x411(void) {
   register_rtse_oid_dissector_handle("2.6.0.2.12", x411_handle, 0, "id-as-mta-rtse", TRUE); 
   register_rtse_oid_dissector_handle("2.6.0.2.7", x411_handle, 0, "id-as-mtse", FALSE);
 
-  register_ber_syntax_dissector("X.411 Message", proto_x411, dissect_x411_mts_apdu);
   register_rtse_oid_dissector_handle("applicationProtocol.1", x411_handle, 0, "mts-transfer-protocol-1984", FALSE);
   register_rtse_oid_dissector_handle("applicationProtocol.12", x411_handle, 0, "mta-transfer-protocol", FALSE);
 
