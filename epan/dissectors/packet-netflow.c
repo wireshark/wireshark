@@ -35,6 +35,7 @@
  ** See
  **
  ** http://www.cisco.com/warp/public/cc/pd/iosw/prodlit/tflow_wp.htm
+ ** http://www.cisco.com/en/US/technologies/tk648/tk362/technologies_white_paper09186a00800a3db9.html
  **
  ** Cisco ASA5500 Series
  ** http://www.cisco.com/en/US/docs/security/asa/asa83/netflow/netflow.html
@@ -45,6 +46,7 @@
  ** http://www.ietf.org/rfc/rfc5102.txt
  ** http://www.ietf.org/rfc/rfc5103.txt
  ** http://www.iana.org/assignments/ipfix/ipfix.xml
+ ** http://www.iana.org/assignments/psamp-parameters/psamp-parameters.xml
  ** for IPFIX
  **
  *****************************************************************************
@@ -60,7 +62,7 @@
  **
  ** See also
  **
- ** http://www.cisco.com/univercd/cc/td/doc/cisintwk/intsolns/netflsol/nfwhite.htm
+ ** http://www.cisco.com/en/US/docs/ios/solutions_docs/netflow/nfwhite.html
  **
  ** $Yahoo: //depot/fumerola/packet-netflow/packet-netflow.c#14 $
  */
@@ -201,6 +203,7 @@ static int      ett_flowtime = -1;
 static int      ett_template = -1;
 static int      ett_field = -1;
 static int      ett_dataflowset = -1;
+static int      ett_fwdstat = -1;
 
 /*
  * cflow header
@@ -326,6 +329,7 @@ static int      hf_cflow_direction = -1;
 static int      hf_cflow_if_name = -1;
 static int      hf_cflow_if_descr = -1;
 static int      hf_cflow_sampler_name = -1;
+static int      hf_cflow_forwarding_status_code = -1;
 static int      hf_cflow_forwarding_status = -1;
 static int      hf_cflow_forwarding_code = -1;
 static int      hf_cflow_nbar_appl_desc = -1;
@@ -1386,12 +1390,14 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 {
 	int             orig_offset = offset;
 
-	if (tplt->option_template && (hdrinfo->vspec == 9)) {
-		offset += dissect_v9_pdu_scope(tvb, pinfo, pdutree, offset, tplt);
-
-	} else {
-		offset += dissect_v9_pdu_data(tvb, pinfo, pdutree, offset, tplt, hdrinfo, tplt->option_template);
+	if (tplt->scopes != NULL && tplt->count_scopes > 0) {
+		if (hdrinfo->vspec == 9) {
+			offset += dissect_v9_pdu_scope(tvb, pinfo, pdutree, offset, tplt);
+		} else if (hdrinfo->vspec == 10) {
+			offset += dissect_v9_pdu_data(tvb, pinfo, pdutree, offset, tplt, hdrinfo, 1);
+		}
 	}
+	offset += dissect_v9_pdu_data(tvb, pinfo, pdutree, offset, tplt, hdrinfo, 0);
 
 	return (guint) (offset - orig_offset);
 }
@@ -1481,7 +1487,8 @@ dissect_v9_pdu_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, i
 	const guint8 *reftime;
 	guint16 count = ipfix_scope_flag ? tplt->count_scopes : tplt->count;
 	struct v9_template_entry *entries = ipfix_scope_flag ? tplt->scopes : tplt->entries;
-	
+	proto_tree *    fwdstattree = 0;	
+
 	if (entries == NULL) {
 		/* I don't think we can actually hit this condition.
 		   If we can, what would cause it?  Does this need a
@@ -2127,9 +2134,15 @@ dissect_v9_pdu_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, i
 			break;
 
 		case 89: /* FORWARDING_STATUS */
-			proto_tree_add_item(pdutree, hf_cflow_forwarding_status,
+			/* Forwarding status is encoded on 1 byte with
+			 * the 2 left bits giving the status and the 6
+			 * remaining bits giving the reason code. */
+			ti = proto_tree_add_item(pdutree, hf_cflow_forwarding_status_code,
 			    tvb, offset, length, FALSE);
-			proto_tree_add_item(pdutree, hf_cflow_forwarding_code,
+			fwdstattree = proto_item_add_subtree(ti, ett_fwdstat);
+			proto_tree_add_item(fwdstattree, hf_cflow_forwarding_status,
+ 			    tvb, offset, length, FALSE);
+			proto_tree_add_item(fwdstattree, hf_cflow_forwarding_code,
 			    tvb, offset, length, FALSE);
 			break;
 
@@ -4042,6 +4055,40 @@ static const value_string v9_extended_firewall_event[] = {
 	{ 1004, "Flow denied (TCP flow beginning with not TCP SYN)"},	
 	{ 0, NULL }
 };
+static const value_string engine_type[] = {
+	{ 0, "RP"},
+	{ 1, "VIP/Linecard"},
+	{ 2, "PFC/DFC" },
+	{ 0, NULL }
+};
+static const value_string v9_flow_end_reason[] = {
+	{ 0, "Unknown"},
+	{ 1, "Idle timeout"},
+	{ 2, "Active timeout" },
+	{ 3, "End of Flow detected" },
+	{ 4, "Forced end" },
+	{ 5, "Lack of resources" },	
+	{ 0, NULL }
+};
+static const value_string v9_biflow_direction[] = {
+	{ 0, "Arbitrary"},
+	{ 1, "Initiator"},
+	{ 2, "ReverseInitiator" },
+	{ 3, "Perimeter" },
+	{ 0, NULL }
+};
+static const value_string selector_algorithm[] = {
+	{ 0, "Reserved"},
+	{ 1, "Systematic count-based Sampling"},
+	{ 2, "Systematic time-based Sampling"},
+	{ 3, "Random n-out-of-N Sampling"},
+	{ 4, "Uniform probabilistic Sampling"},
+	{ 5, "Property match Filtering"},
+	{ 6, "Hash based Filtering using BOB"},
+	{ 7, " Hash based Filtering using IPSX"},
+	{ 8, "Hash based Filtering using CRC"},	
+	{ 0, NULL }
+};
 
 
 static int
@@ -4303,7 +4350,7 @@ proto_register_netflow(void)
 		 },
 		{&hf_cflow_engine_type,
 		 {"EngineType", "cflow.engine_type",
-		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  FT_UINT8, BASE_DEC, VALS(engine_type), 0x0,
 		  "Flow switching engine type", HFILL}
 		 },
 		{&hf_cflow_engine_id,
@@ -5006,7 +5053,7 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_flow_end_reason,
 		 {"Flow End Reason", "cflow.flow_end_reason",
-		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  FT_UINT8, BASE_DEC, VALS(v9_flow_end_reason), 0x0,
 		  NULL, HFILL}
 		},
 		{&hf_cflow_common_properties_id,
@@ -5386,7 +5433,7 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_biflow_direction,
 		 {"Biflow Direction", "cflow.biflow_direction",
-		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  FT_UINT8, BASE_DEC, VALS(v9_biflow_direction), 0x0,
 		  NULL, HFILL}
 		},
 		{&hf_cflow_ethernet_header_length,
@@ -5586,7 +5633,7 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_selector_algorithm,
 		 {"Selector Algorithm", "cflow.selector_algorithm",
-		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  FT_UINT16, BASE_DEC, VALS(selector_algorithm), 0x0,
 		  NULL, HFILL}
 		},
 		{&hf_cflow_sampling_packet_interval,
@@ -5952,7 +5999,8 @@ proto_register_netflow(void)
 		&ett_flowtime,
 		&ett_template,
 		&ett_field,
-		&ett_dataflowset
+		&ett_dataflowset,
+		&ett_fwdstat
 	};
 
 	module_t *netflow_module;
