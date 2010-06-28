@@ -53,4 +53,7 @@ int dissect_x420_ReceiptTimeField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 /*--- End of included file: packet-x420-exp.h ---*/
 #line 30 "packet-x420-template.h"
 
+void proto_reg_handoff_x420(void);
+void proto_register_x420(void);
+
 #endif  /* PACKET_X420_H */

@@ -28,4 +28,7 @@
 
 #include "packet-x420-exp.h"
 
+void proto_reg_handoff_x420(void);
+void proto_register_x420(void);
+
 #endif  /* PACKET_X420_H */

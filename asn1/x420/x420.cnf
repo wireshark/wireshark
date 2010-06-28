@@ -1,12 +1,13 @@
+# x411.cnf
+# X.420 (InterPersonal Messaging) conformance file
+# $Id$
+
 #.TYPE_ATTR
 Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 # Permitted-Actions-Attribute is exported from FTAM as DISPLAY = BASE_HEX - 
 # but this causes a runtime error.
 # We override the definition here until we can identify the fix correct fix
 Permitted-Actions-Attribute TYPE = FT_BYTES   DISPLAY = BASE_NONE   STRINGS = NULL  BITMASK = 0
-
-#.MODULE_IMPORT
-MTSAbstractService	x411
 
 #.IMPORT ../ftam/ftam-exp.cnf
 #.IMPORT ../x411/x411-exp.cnf
@@ -21,6 +22,12 @@ RN
 NRN
 ON
 ID
+#.END
+
+#.NO_EMIT
+# These fields are only used through COMPONENTS OF,
+# and consequently generate unused code warnings
+CommonFields
 #.END
 
 #.EXPORTS

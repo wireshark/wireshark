@@ -1,3 +1,7 @@
+# x411.cnf
+# X.411 (MTA Access and Transfer) conformance file
+# $Id$
+
 #.TYPE_ATTR
 CountryName 	TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x411_CountryName_U_vals)  BITMASK = 0
 Time		TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
@@ -12,12 +16,41 @@ Time		TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 #.OMIT_ASSIGNMENT
 # These gives unused code warnings
 MTAOriginatorRequestedAlternateRecipient
+
+#The following are only referenced through the SIGNATURE MACRO
+#and so have no representation on the wire.
 ProofOfDeliveryAlgorithmIdentifier
-DeliveryControls
 ContentIntegrityAlgorithmIdentifier
 MessageOriginAuthenticationAlgorithmIdentifier
 ProbeOriginAuthenticationAlgorithmIdentifier
 ReportOriginAuthenticationAlgorithmIdentifier
+ProofOfSubmissionAlgorithmIdentifier
+
+BilateralDomain
+DeliveryControls
+RTSE-apdus
+MTSInvokeIds
+ID
+RTTPapdu
+RTTRapdu
+RTABapdu
+AbortReason
+#.END
+
+#.NO_EMIT
+# These fields are only used through COMPONENTS OF,
+# and consequently generate unused code warnings
+PerMessageTransferFields
+PerProbeTransferFields
+PerReportTransferFields
+PerMessageSubmissionFields
+PerProbeSubmissionFields
+PerReportDeliveryFields
+PerRecipientReportFields
+#PerRecipientReportFields/report-type
+InternalAdditionalActions
+AdditionalActions
+NonBasicParameters
 #.END
 
 #.EXPORTS

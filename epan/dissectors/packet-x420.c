@@ -1036,7 +1036,7 @@ dissect_x420_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_x420_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 210 "x420.cnf"
+#line 217 "x420.cnf"
   const char *name = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
@@ -1054,7 +1054,7 @@ dissect_x420_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_x420_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 218 "x420.cnf"
+#line 225 "x420.cnf"
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
@@ -1231,7 +1231,7 @@ dissect_x420_RelatedIPMsField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_x420_SubjectField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 238 "x420.cnf"
+#line 245 "x420.cnf"
   tvbuff_t *subject=NULL;
 
     offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -1497,7 +1497,7 @@ dissect_x420_G3FacsimileBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_x420_Interchange_Data_Element(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 256 "x420.cnf"
+#line 263 "x420.cnf"
 /* XXX Not implemented yet */
 
 
@@ -1738,7 +1738,7 @@ dissect_x420_BilaterallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_x420_NationallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 259 "x420.cnf"
+#line 266 "x420.cnf"
 /* XXX Not implemented yet */
 
 
@@ -1852,7 +1852,7 @@ static const ber_sequence_t IPM_sequence[] = {
 
 int
 dissect_x420_IPM(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 222 "x420.cnf"
+#line 229 "x420.cnf"
 
  col_append_str(actx->pinfo->cinfo, COL_INFO, " Message");
 
@@ -2123,7 +2123,7 @@ static const ber_sequence_t IPN_set[] = {
 
 int
 dissect_x420_IPN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 229 "x420.cnf"
+#line 236 "x420.cnf"
 
  col_append_str(actx->pinfo->cinfo, COL_INFO, " Notification");
 
@@ -2158,23 +2158,6 @@ dissect_x420_InformationObject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   return offset;
 }
 
-
-static const ber_sequence_t CommonFields_set[] = {
-  { &hf_x420_subject_ipm    , BER_CLASS_APP, 11, BER_FLAGS_NOOWNTAG, dissect_x420_SubjectIPMField },
-  { &hf_x420_ipn_originator , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_IPNOriginatorField },
-  { &hf_x420_ipm_intended_recipient, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_IPMIntendedRecipientField },
-  { &hf_x420_conversion_eits, BER_CLASS_APP, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x420_ConversionEITsField },
-  { &hf_x420_notification_extensions, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_NotificationExtensionsField },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_x420_CommonFields(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              CommonFields_set, hf_index, ett_x420_CommonFields);
-
-  return offset;
-}
 
 
 static const ber_sequence_t AbsenceAdvice_sequence[] = {
@@ -2725,7 +2708,7 @@ dissect_x420_Precedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_x420_CharacterSetRegistration(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 249 "x420.cnf"
+#line 256 "x420.cnf"
   guint32 crs;
     offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             1U, 32767U, hf_index, &crs);
@@ -2966,7 +2949,7 @@ dissect_x420_Document_Type_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x420_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 262 "x420.cnf"
+#line 269 "x420.cnf"
 /* XXX: Not implemented yet */
 
 
@@ -3122,7 +3105,7 @@ dissect_x420_EnvironmentParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_x420_T_compression_algorithm_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 265 "x420.cnf"
+#line 272 "x420.cnf"
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
 
@@ -3134,7 +3117,7 @@ dissect_x420_T_compression_algorithm_id(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_x420_T_compression_algorithm_param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 268 "x420.cnf"
+#line 275 "x420.cnf"
 /* XXX: Not implemented yet */
 
 

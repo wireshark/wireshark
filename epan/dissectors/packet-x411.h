@@ -233,4 +233,7 @@ int dissect_x411_SecurityLabel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 /*--- End of included file: packet-x411-exp.h ---*/
 #line 34 "packet-x411-template.h"
 
+void proto_reg_handoff_x411(void);
+void proto_register_x411(void);
+
 #endif  /* PACKET_X411_H */
