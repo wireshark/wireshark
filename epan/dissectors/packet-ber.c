@@ -749,10 +749,11 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	if(oid == NULL ||
-	   (!dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree)
-	   /* see if a syntax has been registered for this oid */
-	    && (((syntax = get_ber_oid_syntax(oid)) == NULL) 
-		|| !dissector_try_string(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree))) ){
+	   ((((syntax = get_ber_oid_syntax(oid)) == NULL) ||
+	     /* First see if a syntax has been registered for this oid (user defined) */
+	     !dissector_try_string(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree)) &&
+	    /* Then try registered oid's */
+	    (!dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree)))) {
 		proto_item *item=NULL;
 		proto_tree *next_tree=NULL;
 		gint length_remaining;
