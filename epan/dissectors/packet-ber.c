@@ -3984,7 +3984,7 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
 	  end_offset=offset+len;
 	}
 
-	tmpstr=tvb_get_ptr(tvb, offset, len);
+	tmpstr=tvb_get_ephemeral_string(tvb, offset, len);
 	strptr = str;
 	/* those fields are allways present */
 	strptr += g_snprintf(str, 20, "%.4s-%.2s-%.2s %.2s:%.2s:%.2s",
@@ -4074,7 +4074,7 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 		len = tvb_length_remaining(tvb,offset);
 	}
 
-	instr = tvb_get_ptr(tvb, offset, len);
+	instr = tvb_get_ephemeral_string(tvb, offset, len);
 
 	/* YYMMDDhhmm */
 	for(i=0;i<10;i++) {
