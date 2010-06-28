@@ -2817,15 +2817,12 @@ get_ether_name(const guint8 *addr)
   return tp->name;
 } /* get_ether_name */
 
-
-/* Look for an ether name in the hash, and return it if found.
- * If it's not found, simply return NULL. We DO NOT make a new
- * hash entry for it with the hex digits turned into a string.
+/* Look for a (non-dummy) ether name in the hash, and return it if found.
+ * If it's not found, simply return NULL.
  */
 gchar *
 get_ether_name_if_known(const guint8 *addr)
 {
-  int hash_idx;
   hashether_t *tp;
 
   /* Initialize ether structs if we're the first
@@ -2838,45 +2835,19 @@ get_ether_name_if_known(const guint8 *addr)
     eth_resolution_initialized = 1;
   }
 
-  hash_idx = HASH_ETH_ADDRESS(addr);
+  /* eth_name_lookup will create a hash entry if it doesn't exist */
+  tp = eth_name_lookup(addr, TRUE);
+  g_assert(tp != NULL);
 
-  tp = eth_table[hash_idx];
-
-  if( tp == NULL ) {
-    /* Hash key not found in table.
-     * Force a lookup (and a hash entry) for addr, then call
-     * myself. I plan on not getting into an infinite loop because
-     * eth_name_lookup() is guaranteed to make a hashtable entry,
-     * so when I call myself again, I can never get into this
-     * block of code again. Knock on wood...
-     */
-    (void) eth_name_lookup(addr, TRUE);
-    return get_ether_name_if_known(addr); /* a well-placed goto would suffice */
+  if (! tp->is_dummy_entry) {
+    /* Name is from an ethers file (or is a "well-known" MAC address name from the manuf file) */
+    return tp->name;
   }
   else {
-    while(1) {
-      if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
-        if (!tp->is_dummy_entry) {
-          /* A name was found, and its origin is an ethers file */
-          return tp->name;
-        }
-        else {
-          /* A name was found, but it was created, not found in a file */
-          return NULL;
-        }
-      }
-      if (tp->next == NULL) {
-        /* Read my reason above for why I'm sure I can't get into an infinite loop */
-        (void) eth_name_lookup(addr, TRUE);
-        return get_ether_name_if_known(addr); /* a well-placed goto would suffice */
-      }
-      tp = tp->next;
-    }
+    /* Name was created */
+    return NULL;
   }
-  g_assert_not_reached();
-  return NULL;
 }
-
 
 extern guint8 *
 get_ether_addr(const gchar *name)
