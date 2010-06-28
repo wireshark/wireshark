@@ -21,7 +21,7 @@
     Follow TCP Stream menu item from the Wireshark Tools menu (or
     use the context menu in the packet list). Wireshark will set an
     appropriate display filter and pop up a dialog box with all the
-    data from the TCP stream laid out in order, as shown in 
+    data from the TCP stream laid out in order, as shown in
     <xref linkend="ChAdvFollowStream" />.</para>
     <note>
       <title>Note!</title>
@@ -46,7 +46,7 @@
       <para>The stream content won't be updated while doing a live
       capture. To get the latest content you'll have to reopen the
       dialog.</para>
-      <para>You can choose from the following actions: 
+      <para>You can choose from the following actions:
       <orderedlist>
         <listitem>
           <para>
@@ -77,7 +77,7 @@
         </listitem>
       </orderedlist></para>
       <para>You can choose to view the data in one of the following
-      formats: 
+      formats:
       <orderedlist>
         <listitem>
           <para>
@@ -139,7 +139,7 @@
     <section id="ChAdvExpertInfoEntries">
       <title>Expert Info Entries</title>
       <para>Each expert info will contain the following things
-      which will be described in detail below: 
+      which will be described in detail below:
       <table id="ChAdvTabExpertInfoEntries" frame="none">
         <title>Some example expert infos</title>
         <tgroup cols="7">
@@ -188,7 +188,7 @@
         <title>Severity</title>
         <para>Every expert info has a specific severity level. The
         following severity levels are used, in parentheses are the
-        colors in which the items will be marked in the GUI: 
+        colors in which the items will be marked in the GUI:
         <itemizedlist>
           <listitem>
             <para>
@@ -218,7 +218,7 @@
       <section id="ChAdvExpertGroup">
         <title>Group</title>
         <para>There are some common groups of expert infos. The
-        following are currently implemented: 
+        following are currently implemented:
         <itemizedlist>
           <listitem>
             <para>
@@ -339,11 +339,11 @@
       <title>"Expert" Packet List Column (optional)</title>
       <graphic entityref="WiresharkExpertColumn" format="PNG" />
       <para>An optional "Expert Info Severity" packet list column
-      is available (since SVN 22387 -&gt; 0.99.7), that displays
+      is available (since SVN 22387 &#x2192; 0.99.7), that displays
       the most significant severity of a packet, or stays empty if
       everything seems ok. This column is not displayed by default,
       but can be easily added using the Preferences Columns page
-      described in 
+      described in
       <xref linkend="ChCustPreferencesSection" />.</para>
     </section>
   </section>
@@ -368,7 +368,7 @@
       1.1.1970) and the time of day (in nanoseconds since
       midnight). You can adjust the way Wireshark displays the time
       stamp data in the packet list, see the "Time Display Format"
-      item in the 
+      item in the
       <xref linkend="ChUseViewMenuSection" /> for details.</para>
       <para>While reading or writing capture files, Wireshark
       converts the time stamp data between the capture file format
@@ -409,7 +409,7 @@
       and displays them. So accuracy will depend on the capture
       system (operating system, performance, ...) that you use.
       Because of this, the above question is difficult to answer in
-      a general way. 
+      a general way.
       <note>
         <title>Note!</title>
         <para>USB connected network adapters often provide a very
@@ -431,7 +431,7 @@
     confusing. If you get a capture file from somewhere around the
     world time zones can even be a lot more confusing ;-)</para>
     <para>First of all, there are two reasons why you may not need
-    to think about time zones at all: 
+    to think about time zones at all:
     <itemizedlist>
       <listitem>
         <para>You are only interested in the time differences
@@ -471,9 +471,9 @@
       <para>Be aware that at a few places on earth don't use time
       zones with even hour offsets (e.g. New Delhi uses
       UTC+05:30)!</para>
-      <para>Further information can be found at: 
+      <para>Further information can be found at:
       <ulink url="&WikipediaTimezone;">
-        &WikipediaTimezone;</ulink> and 
+        &WikipediaTimezone;</ulink> and
       <ulink url="&WikipediaUTC;">
       &WikipediaUTC;</ulink>.</para>
     </sidebar>
@@ -492,13 +492,13 @@
       Australia).</para>
       <para>Keep in mind: UTC remains the same all year around,
       regardless of DST!</para>
-      <para>Further information can be found at: 
+      <para>Further information can be found at:
       <ulink url="&WikipediaDaylightSaving;">
       &WikipediaDaylightSaving;</ulink>.</para>
     </sidebar>
-    <para>Further time zone and DST information can be found at: 
+    <para>Further time zone and DST information can be found at:
     <ulink url="&TimezoneGMTSite;">
-    &TimezoneGMTSite;</ulink> and 
+    &TimezoneGMTSite;</ulink> and
     <ulink url="&TimezoneWorldClockSite;">
     &TimezoneWorldClockSite;</ulink>.</para>
     <section>
@@ -507,7 +507,7 @@
       helpful to set your computer's time and time zone
       right.</para>
       <para>You should set your computers time and time zone in the
-      correct sequence: 
+      correct sequence:
       <orderedlist>
         <listitem>
           <para>Set your time zone to your current location</para>
@@ -516,7 +516,7 @@
           <para>Set your computer's clock to the local time</para>
         </listitem>
       </orderedlist>This way you will tell your computer both the
-      local time and also the time offset to UTC. 
+      local time and also the time offset to UTC.
       <tip>
         <title>Tip!</title>
         <para>If you travel around the world, it's an often made
@@ -532,7 +532,7 @@
         automatically adjust your computer to the correct time, by
         synchronizing it to Internet NTP clock servers. NTP clients
         are available for all operating systems that Wireshark
-        supports (and for a lot more), for examples see: 
+        supports (and for a lot more), for examples see:
         <ulink url="&NTPSite;">&NTPSite;</ulink>.</para>
       </tip></para>
     </section>
@@ -544,7 +544,7 @@
       format), and some other capture file formats, such as the
       Windows Sniffer, EtherPeek, AiroPeek, and Sun snoop formats,
       save the arrival time of packets as UTC values. UN*X systems,
-      and "Windows NT based" systems (Windows NT 4.0, 2000, XP, 
+      and "Windows NT based" systems (Windows NT 4.0, 2000, XP,
 	  Server 2003, Vista, Server 2008) represent
       time internally as UTC. When Wireshark is capturing, no
       conversion is necessary. However, if the system time zone is
@@ -688,7 +688,7 @@
       chunks of data. Wireshark will try to find the corresponding
       packets of this chunk, and will show the combined data as
       additional pages in the "Packet Bytes" pane (for information
-      about this pane, see 
+      about this pane, see
       <xref linkend="ChUsePacketBytesPaneSection" />).</para>
       <para>
         <figure id="ChAdvWiresharkBytesPaneTabs">
@@ -709,7 +709,7 @@
         <para>You will find the reassembled data in the last packet
         of the chunk.</para>
       </note>
-      <para>An example: In a 
+      <para>An example: In a
       <command>HTTP</command> GET response, the requested data (e.g.
       an HTML page) is returned. Wireshark will show the hex dump of
       the data in a new tab "Uncompressed entity body" in the
@@ -721,7 +721,7 @@
       enabled, as it can be extremely helpful while analyzing
       network packets.</para>
       <para>The enabling or disabling of the reassemble settings of
-      a protocol typically requires two things: 
+      a protocol typically requires two things:
       <orderedlist>
         <listitem>
           <para>the lower level protocol (e.g., TCP) must support
@@ -817,19 +817,19 @@
       <command>ARP name resolution (system
       service)</command>: Wireshark will ask the operating system to
       convert an Ethernet address to the corresponding IP address
-      (e.g. 00:09:5b:01:02:03 -&gt; 192.168.0.1).</para>
+      (e.g. 00:09:5b:01:02:03 &#x2192; 192.168.0.1).</para>
       <para>
       <command>Ethernet codes (ethers file)</command>: If the ARP
       name resolution failed, Wireshark tries to convert the
       Ethernet address to a known device name, which has been
       assigned by the user using an <filename>ethers</filename>
-      file (e.g. 00:09:5b:01:02:03 -&gt; homerouter).</para>
+      file (e.g. 00:09:5b:01:02:03 &#x2192; homerouter).</para>
       <para>
       <command>Ethernet manufacturer codes (manuf file)</command>: If
       neither ARP or ethers returns a result, Wireshark tries
       to convert the first 3 bytes of an ethernet address to an
       abbreviated manufacturer name, which has been assigned by the
-      IEEE (e.g. 00:09:5b:01:02:03 -&gt; Netgear_01:02:03).</para>
+      IEEE (e.g. 00:09:5b:01:02:03 &#x2192; Netgear_01:02:03).</para>
     </section>
     <section>
       <title>IP name resolution (network layer)</title>
@@ -839,7 +839,7 @@
       <command>DNS/concurrent DNS name resolution (system/library
       service)</command>: Wireshark will ask the operating system
       (or the concurrent DNS library), to convert an IP address to
-      the hostname associated with it (e.g. 216.239.37.99 -&gt;
+      the hostname associated with it (e.g. 216.239.37.99 &#x2192;
       www.1.google.com). The DNS service is using synchronous calls
       to the DNS server. So Wireshark will stop responding until a
       response to a DNS request is returned. If possible, you might
@@ -880,7 +880,7 @@
       <command>hosts name resolution (hosts file)</command>: If DNS
       name resolution failed, Wireshark will try to convert an IP
       address to the hostname associated with it, using a hosts
-      file provided by the user (e.g. 216.239.37.99 -&gt;
+      file provided by the user (e.g. 216.239.37.99 &#x2192;
       www.google.com).</para>
     </section>
     <section>
@@ -896,7 +896,7 @@
       <para>
       <command>TCP/UDP port conversion (system service)</command>:
       Wireshark will ask the operating system to convert a TCP or
-      UDP port to its well known name (e.g. 80 -&gt; http).</para>
+      UDP port to its well known name (e.g. 80 &#x2192; http).</para>
       <para>XXX - mention the role of the /etc/services file (but
       don't forget the files and folders section)!</para>
     </section>
@@ -907,7 +907,7 @@
     integrity.</para>
     <tip>
       <title>Tip!</title>
-      <para>Applying checksums as described here is also known as 
+      <para>Applying checksums as described here is also known as
       <command>redundancy checking</command>.</para>
     </tip>
     <sidebar>
@@ -947,7 +947,7 @@
       the network medium, the importance of error detection, the
       processor load to perform the calculation, the performance
       needed and many other things.</para>
-      <para>Further information about checksums can be found at: 
+      <para>Further information about checksums can be found at:
       <ulink url="&WikipediaWebsite;/wiki/Checksum" />.</para>
     </sidebar>
     <section>
@@ -999,7 +999,7 @@
       packets, making the analysis of the packet data much
       harder.</para>
       <para>You can do two things to avoid this checksum offloading
-      problem: 
+      problem:
       <itemizedlist>
         <listitem>
           <para>Turn off the checksum offloading in the network

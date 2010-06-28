@@ -1228,7 +1228,7 @@ standard libpcap format.
       </para>
     <para>
 	Display Filter Macros can be managed with a <xref linkend="ChUserTable"/> by selecting
-	<command>Analyze &#8594; Display Filter Macros</command> from the menu.
+	<command>Analyze &#x2192; Display Filter Macros</command> from the menu.
 	The User Table has  the following fields
       </para>
             <variablelist>
@@ -1254,7 +1254,7 @@ standard libpcap format.
   <section id="ChEssCategoryAttributes"><title>ESS Category Attributes</title>
   <para>
     Wireshark uses this table to map ESS Security Category attributes to textual
-    representations.  The values to put in this table are usually found in a 
+    representations.  The values to put in this table are usually found in a
     <ulink url="http://www.xmlspif.org/">XML SPIF</ulink>, which is used for defining
     security labels.
   </para>

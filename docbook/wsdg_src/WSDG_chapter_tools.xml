@@ -82,7 +82,7 @@
     <para>After clicking the Next button several times, the setup
     will then download and install the selected packages (this may
     take a while, depending on the package size).</para>
-    <para>Under: "Start -&gt; Programs -&gt; Cygwin -&gt; Cygwin
+    <para>Under: "Start&#x2192;Programs&#x2192;Cygwin&#x2192;Cygwin
     Bash Shell" you should now be able to start a new Cygwin bash
     shell, which is similar to the command line
     (command.com/cmd.exe) in Win32, but much more powerful.</para>
