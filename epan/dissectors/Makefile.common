@@ -1232,6 +1232,7 @@ DISSECTOR_INCLUDES =	\
 	packet-rtse.h	\
 	packet-rwall.h	\
 	packet-rx.h		\
+	packet-s1ap.h	\
 	packet-s4406.h	\
 	packet-sccp.h \
 	packet-scsi.h	\

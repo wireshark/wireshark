@@ -10,12 +10,14 @@ ALIGNED
 
 #.EXPORTS
 TargetRNC-ID
+TargetRNC-ID_PDU
 Service-Handover
 IntegrityProtectionInformation
 EncryptionInformation
 SourceRNC-ToTargetRNC-TransparentContainer_PDU
 
 #.PDU_NEW
+TargetRNC-ID
 RANAP-PDU
 SourceRNC-ToTargetRNC-TransparentContainer
 

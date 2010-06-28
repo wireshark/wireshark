@@ -8,7 +8,12 @@ PER
 ALIGNED
 #.END
 
-#.EXPORTS
+#.EXPORTS ONLY_VALS WS_VAR
+CauseRadioNetwork
+CauseTransport
+CauseNas
+CauseProtocol
+CauseMisc
 
 #.PDU_NEW
 S1AP-PDU
