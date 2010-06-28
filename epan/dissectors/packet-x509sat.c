@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x509sat.c                                                           */
-/* ../../tools/asn2wrs.py -b -e -R -r Syntax -p x509sat -c ./x509sat.cnf -s ./packet-x509sat-template -D . SelectedAttributeTypes.asn */
+/* ../../tools/asn2wrs.py -b -e -r Syntax -p x509sat -c ./x509sat.cnf -s ./packet-x509sat-template -D . SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.c */
 
@@ -2581,6 +2581,52 @@ void proto_register_x509sat(void) {
   proto_register_field_array(proto_x509sat, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+
+/*--- Included file: packet-x509sat-syn-reg.c ---*/
+#line 1 "packet-x509sat-syn-reg.c"
+  /*--- Syntax registrations ---*/
+  register_ber_syntax_dissector("DirectoryString", proto_x509sat, dissect_DirectoryString_PDU);
+  register_ber_syntax_dissector("UniqueIdentifier", proto_x509sat, dissect_UniqueIdentifier_PDU);
+  register_ber_syntax_dissector("CountryName", proto_x509sat, dissect_CountryName_PDU);
+  register_ber_syntax_dissector("Guide", proto_x509sat, dissect_Guide_PDU);
+  register_ber_syntax_dissector("EnhancedGuide", proto_x509sat, dissect_EnhancedGuide_PDU);
+  register_ber_syntax_dissector("PostalAddress", proto_x509sat, dissect_PostalAddress_PDU);
+  register_ber_syntax_dissector("TelephoneNumber", proto_x509sat, dissect_TelephoneNumber_PDU);
+  register_ber_syntax_dissector("TelexNumber", proto_x509sat, dissect_TelexNumber_PDU);
+  register_ber_syntax_dissector("FacsimileTelephoneNumber", proto_x509sat, dissect_FacsimileTelephoneNumber_PDU);
+  register_ber_syntax_dissector("X121Address", proto_x509sat, dissect_X121Address_PDU);
+  register_ber_syntax_dissector("InternationalISDNNumber", proto_x509sat, dissect_InternationalISDNNumber_PDU);
+  register_ber_syntax_dissector("DestinationIndicator", proto_x509sat, dissect_DestinationIndicator_PDU);
+  register_ber_syntax_dissector("PreferredDeliveryMethod", proto_x509sat, dissect_PreferredDeliveryMethod_PDU);
+  register_ber_syntax_dissector("PresentationAddress", proto_x509sat, dissect_PresentationAddress_PDU);
+  register_ber_syntax_dissector("ProtocolInformation", proto_x509sat, dissect_ProtocolInformation_PDU);
+  register_ber_syntax_dissector("NameAndOptionalUID", proto_x509sat, dissect_NameAndOptionalUID_PDU);
+  register_ber_syntax_dissector("CaseIgnoreListMatch", proto_x509sat, dissect_CaseIgnoreListMatch_PDU);
+  register_ber_syntax_dissector("ObjectIdentifier", proto_x509sat, dissect_ObjectIdentifier_PDU);
+  register_ber_syntax_dissector("OctetString", proto_x509sat, dissect_OctetString_PDU);
+  register_ber_syntax_dissector("BitString", proto_x509sat, dissect_BitString_PDU);
+  register_ber_syntax_dissector("Integer", proto_x509sat, dissect_Integer_PDU);
+  register_ber_syntax_dissector("Boolean", proto_x509sat, dissect_Boolean_PDU);
+  register_ber_syntax_dissector("GeneralizedTime", proto_x509sat, dissect_SyntaxGeneralizedTime_PDU);
+  register_ber_syntax_dissector("UTCTime", proto_x509sat, dissect_SyntaxUTCTime_PDU);
+  register_ber_syntax_dissector("NumericString", proto_x509sat, dissect_SyntaxNumericString_PDU);
+  register_ber_syntax_dissector("PrintableString", proto_x509sat, dissect_SyntaxPrintableString_PDU);
+  register_ber_syntax_dissector("IA5String", proto_x509sat, dissect_SyntaxIA5String_PDU);
+  register_ber_syntax_dissector("BMPString", proto_x509sat, dissect_SyntaxBMPString_PDU);
+  register_ber_syntax_dissector("UniversalString", proto_x509sat, dissect_SyntaxUniversalString_PDU);
+  register_ber_syntax_dissector("UTF8String", proto_x509sat, dissect_SyntaxUTF8String_PDU);
+  register_ber_syntax_dissector("TeletexString", proto_x509sat, dissect_SyntaxTeletexString_PDU);
+  register_ber_syntax_dissector("T61String", proto_x509sat, dissect_SyntaxT61String_PDU);
+  register_ber_syntax_dissector("VideotexString", proto_x509sat, dissect_SyntaxVideotexString_PDU);
+  register_ber_syntax_dissector("GraphicString", proto_x509sat, dissect_SyntaxGraphicString_PDU);
+  register_ber_syntax_dissector("ISO646String", proto_x509sat, dissect_SyntaxISO646String_PDU);
+  register_ber_syntax_dissector("VisibleString", proto_x509sat, dissect_SyntaxVisibleString_PDU);
+  register_ber_syntax_dissector("GeneralString", proto_x509sat, dissect_SyntaxGeneralString_PDU);
+  register_ber_syntax_dissector("GUID", proto_x509sat, dissect_GUID_PDU);
+
+/*--- End of included file: packet-x509sat-syn-reg.c ---*/
+#line 75 "packet-x509sat-template.c"
+
 }
 
 
@@ -2741,49 +2787,9 @@ void proto_reg_handoff_x509sat(void) {
   register_ber_oid_dissector("1.3.6.1.4.1.311.60.2.1.2", dissect_DirectoryString_PDU, proto_x509sat, "jurisdictionOfIncorporationStateOrProvinceName");
   register_ber_oid_dissector("1.3.6.1.4.1.311.60.2.1.3", dissect_CountryName_PDU, proto_x509sat, "jurisdictionOfIncorporationCountryName");
 
-/*--- Syntax registrations ---*/
-  register_ber_syntax_dissector("DirectoryString", proto_x509sat, dissect_DirectoryString_PDU);
-  register_ber_syntax_dissector("UniqueIdentifier", proto_x509sat, dissect_UniqueIdentifier_PDU);
-  register_ber_syntax_dissector("CountryName", proto_x509sat, dissect_CountryName_PDU);
-  register_ber_syntax_dissector("Guide", proto_x509sat, dissect_Guide_PDU);
-  register_ber_syntax_dissector("EnhancedGuide", proto_x509sat, dissect_EnhancedGuide_PDU);
-  register_ber_syntax_dissector("PostalAddress", proto_x509sat, dissect_PostalAddress_PDU);
-  register_ber_syntax_dissector("TelephoneNumber", proto_x509sat, dissect_TelephoneNumber_PDU);
-  register_ber_syntax_dissector("TelexNumber", proto_x509sat, dissect_TelexNumber_PDU);
-  register_ber_syntax_dissector("FacsimileTelephoneNumber", proto_x509sat, dissect_FacsimileTelephoneNumber_PDU);
-  register_ber_syntax_dissector("X121Address", proto_x509sat, dissect_X121Address_PDU);
-  register_ber_syntax_dissector("InternationalISDNNumber", proto_x509sat, dissect_InternationalISDNNumber_PDU);
-  register_ber_syntax_dissector("DestinationIndicator", proto_x509sat, dissect_DestinationIndicator_PDU);
-  register_ber_syntax_dissector("PreferredDeliveryMethod", proto_x509sat, dissect_PreferredDeliveryMethod_PDU);
-  register_ber_syntax_dissector("PresentationAddress", proto_x509sat, dissect_PresentationAddress_PDU);
-  register_ber_syntax_dissector("ProtocolInformation", proto_x509sat, dissect_ProtocolInformation_PDU);
-  register_ber_syntax_dissector("NameAndOptionalUID", proto_x509sat, dissect_NameAndOptionalUID_PDU);
-  register_ber_syntax_dissector("CaseIgnoreListMatch", proto_x509sat, dissect_CaseIgnoreListMatch_PDU);
-  register_ber_syntax_dissector("ObjectIdentifier", proto_x509sat, dissect_ObjectIdentifier_PDU);
-  register_ber_syntax_dissector("OctetString", proto_x509sat, dissect_OctetString_PDU);
-  register_ber_syntax_dissector("BitString", proto_x509sat, dissect_BitString_PDU);
-  register_ber_syntax_dissector("Integer", proto_x509sat, dissect_Integer_PDU);
-  register_ber_syntax_dissector("Boolean", proto_x509sat, dissect_Boolean_PDU);
-  register_ber_syntax_dissector("GeneralizedTime", proto_x509sat, dissect_SyntaxGeneralizedTime_PDU);
-  register_ber_syntax_dissector("UTCTime", proto_x509sat, dissect_SyntaxUTCTime_PDU);
-  register_ber_syntax_dissector("NumericString", proto_x509sat, dissect_SyntaxNumericString_PDU);
-  register_ber_syntax_dissector("PrintableString", proto_x509sat, dissect_SyntaxPrintableString_PDU);
-  register_ber_syntax_dissector("IA5String", proto_x509sat, dissect_SyntaxIA5String_PDU);
-  register_ber_syntax_dissector("BMPString", proto_x509sat, dissect_SyntaxBMPString_PDU);
-  register_ber_syntax_dissector("UniversalString", proto_x509sat, dissect_SyntaxUniversalString_PDU);
-  register_ber_syntax_dissector("UTF8String", proto_x509sat, dissect_SyntaxUTF8String_PDU);
-  register_ber_syntax_dissector("TeletexString", proto_x509sat, dissect_SyntaxTeletexString_PDU);
-  register_ber_syntax_dissector("T61String", proto_x509sat, dissect_SyntaxT61String_PDU);
-  register_ber_syntax_dissector("VideotexString", proto_x509sat, dissect_SyntaxVideotexString_PDU);
-  register_ber_syntax_dissector("GraphicString", proto_x509sat, dissect_SyntaxGraphicString_PDU);
-  register_ber_syntax_dissector("ISO646String", proto_x509sat, dissect_SyntaxISO646String_PDU);
-  register_ber_syntax_dissector("VisibleString", proto_x509sat, dissect_SyntaxVisibleString_PDU);
-  register_ber_syntax_dissector("GeneralString", proto_x509sat, dissect_SyntaxGeneralString_PDU);
-  register_ber_syntax_dissector("GUID", proto_x509sat, dissect_GUID_PDU);
-
 
 /*--- End of included file: packet-x509sat-dis-tab.c ---*/
-#line 80 "packet-x509sat-template.c"
+#line 82 "packet-x509sat-template.c"
 
   /* OBJECT CLASSES */
 

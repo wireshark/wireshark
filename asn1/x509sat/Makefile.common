@@ -46,7 +46,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b -e -R -r Syntax
+A2W_FLAGS= -b -e -r Syntax
 
 EXTRA_CNF= \
 	../x509if/x509if-exp.cnf \

@@ -71,6 +71,8 @@ void proto_register_x509sat(void) {
   proto_register_field_array(proto_x509sat, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+#include "packet-x509sat-syn-reg.c"
+
 }
 
 
