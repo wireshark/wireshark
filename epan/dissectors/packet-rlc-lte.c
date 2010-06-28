@@ -1343,7 +1343,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     tap_info->sequenceNumber = (guint16)sn;
 
     /* Show SN in info column */
-    write_pdu_label_and_info(top_ti, NULL, pinfo, "  SN=%04u", (guint16)sn);
+    write_pdu_label_and_info(top_ti, NULL, pinfo, "  SN=%-4u", (guint16)sn);
 
     proto_item_set_len(um_header_ti, offset-start_offset);
 
@@ -1983,7 +1983,7 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                  val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"));
     }
     else {
-        write_pdu_label_and_info(top_ti, NULL, pinfo, "%s:%u",
+        write_pdu_label_and_info(top_ti, NULL, pinfo, "%s:%-2u",
                                  val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
                                  p_rlc_lte_info->channelId);
     }
