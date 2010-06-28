@@ -1097,6 +1097,9 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int o
   /* not sure we need this */
   actx->pinfo->fragmented = TRUE;
 
+  if(out_tvb)
+    *out_tvb=NULL;
+
   while(!fd_head) {
 
     offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_ber_constructed_OCTETSTRING, &next_tvb);
@@ -1194,6 +1197,9 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 }
 #endif
 
+	if(out_tvb)
+		*out_tvb=NULL;
+
 	if (!implicit_tag) {
 		hoffset = offset;
 		/* read header and len for the octet string */
@@ -1214,8 +1220,6 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 			  proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
 			  dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
 			}
-			if(out_tvb)
-				*out_tvb=NULL;
 			return end_offset;
 		}
 	} else {
@@ -1255,8 +1259,6 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 		length_remaining = tvb_length_remaining(tvb, offset);
 #if 0
 		if(length_remaining<1){
-			if(out_tvb)
-				*out_tvb=NULL;
 			return end_offset;
 		}
 #endif
