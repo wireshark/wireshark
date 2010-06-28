@@ -1387,6 +1387,10 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 #endif
 
 
+	if(value){
+		*value=0;
+	}
+
 	if(!implicit_tag){
 	  offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
 	  offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
