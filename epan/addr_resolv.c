@@ -138,13 +138,13 @@
 #define ENAME_MANUF     "manuf"
 #define ENAME_SERVICES  "services"
 
-#define MAXMANUFLEN 9   /* max vendor name length with ending '\0' */
-#define HASHETHSIZE    2048
-#define HASHHOSTSIZE   2048
-#define HASHIPXNETSIZE  256
-#define HASHMANUFSIZE   256
-#define HASHPORTSIZE    256
-#define SUBNETLENGTHSIZE 32 /*1-32 inc.*/
+#define MAXMANUFLEN         9  /* max vendor name length with ending '\0' */
+#define HASHETHSIZE      2048
+#define HASHHOSTSIZE     2048
+#define HASHIPXNETSIZE    256
+#define HASHMANUFSIZE     256
+#define HASHPORTSIZE      256
+#define SUBNETLENGTHSIZE   32  /*1-32 inc.*/
 
 /* hash table used for IPv4 lookup */
 
@@ -153,7 +153,7 @@
 typedef struct hashipv4 {
   guint             addr;
   gboolean          is_dummy_entry; /* name is IPv4 address in dot format */
-  gboolean          resolve;       /* already tried to resolve it */
+  gboolean          resolve;        /* already tried to resolve it */
   struct hashipv4   *next;
   gchar             ip[16];
   gchar             name[MAXNAMELEN];
@@ -167,16 +167,16 @@ typedef struct hashipv4 {
 typedef struct hashipv6 {
   struct e_in6_addr addr;
   gboolean          is_dummy_entry; /* name is IPv6 address in colon format */
-  gboolean          resolve;       /* */
+  gboolean          resolve;        /* */
   struct hashipv6   *next;
-  gchar             ip6[47];  /* XX */
+  gchar             ip6[47];        /* XX */
   gchar             name[MAXNAMELEN];
 } hashipv6_t;
 
 /* Array of entries of subnets of different lengths */
 typedef struct {
-  gsize mask_length; /*1-32*/
-  guint32 mask;        /* e.g. 255.255.255.*/
+  gsize        mask_length;      /*1-32*/
+  guint32      mask;             /* e.g. 255.255.255.*/
   hashipv4_t** subnet_addresses; /* Hash table of subnet addresses */
 } subnet_length_entry_t;
 
@@ -185,9 +185,9 @@ typedef struct {
 #define HASH_PORT(port) ((port) & (HASHPORTSIZE - 1))
 
 typedef struct hashport {
-  guint16       port;
-  struct hashport   *next;
-  gchar         name[MAXNAMELEN];
+  guint16          port;
+  struct hashport *next;
+  gchar            name[MAXNAMELEN];
 } hashport_t;
 
 /* hash table used for IPX network lookup */
@@ -197,9 +197,9 @@ typedef struct hashport {
 #define HASH_IPX_NET(net)   ((net) & (HASHIPXNETSIZE - 1))
 
 typedef struct hashipxnet {
-  guint         addr;
-  struct hashipxnet     *next;
-  gchar         name[MAXNAMELEN];
+  guint               addr;
+  struct hashipxnet  *next;
+  gchar               name[MAXNAMELEN];
 } hashipxnet_t;
 
 /* hash tables used for ethernet and manufacturer lookup */
@@ -211,18 +211,18 @@ typedef struct hashipxnet {
 #define HASH_ETH_MANUF(addr) (((int)(addr)[2]) & (HASHMANUFSIZE - 1))
 
 typedef struct hashmanuf {
-  guint8        addr[3];
-  struct hashmanuf      *next;
-  char          name[MAXMANUFLEN];
+  guint8            addr[3];
+  struct hashmanuf *next;
+  char              name[MAXMANUFLEN];
 } hashmanuf_t;
 
 typedef struct hashether {
-  guint8                addr[6];
-  gboolean              is_dummy_entry;     /* not a complete entry */
-  gboolean              resolve;            /* */
-  struct hashether      *next;
-  char                  hexa[6*3];
-  char                  name[MAXNAMELEN];
+  guint8            addr[6];
+  gboolean          is_dummy_entry;     /* not a complete entry */
+  gboolean          resolve;            /* */
+  struct hashether *next;
+  char              hexa[6*3];
+  char              name[MAXNAMELEN];
 } hashether_t;
 
 /* internal ethernet type */
@@ -307,7 +307,7 @@ typedef struct _async_dns_queue_msg
 
 typedef struct _async_hostent {
   int addr_size;
-  int copied;
+  int   copied;
   void *addrp;
 } async_hostent_t;
 
@@ -336,18 +336,18 @@ adns_state ads;
 
 typedef struct _async_dns_queue_msg
 {
-  gboolean          submitted;
-  guint32           ip4_addr;
-  int               type;
-  adns_query        query;
+  gboolean    submitted;
+  guint32     ip4_addr;
+  int         type;
+  adns_query  query;
 } async_dns_queue_msg_t;
 
 #endif /* HAVE_GNU_ADNS */
 #endif /* HAVE_C_ARES */
 #ifdef ASYNC_DNS
-static         gboolean async_dns_initialized = FALSE;
-static  int     async_dns_in_flight = 0;
-static  GList  *async_dns_queue_head = NULL;
+static  gboolean  async_dns_initialized = FALSE;
+static  int       async_dns_in_flight = 0;
+static  GList    *async_dns_queue_head = NULL;
 
 /* push a dns request */
 static void
@@ -370,8 +370,8 @@ add_async_dns_ipv4(int type, guint32 addr)
 #endif
 
 typedef struct {
-  guint32 mask;
-  gsize mask_length;
+  guint32      mask;
+  gsize        mask_length;
   const gchar* name; /* Shallow copy */
 } subnet_entry_t;
 
@@ -628,9 +628,9 @@ static gchar
         return tp->name;
       }
       if (tp->next == NULL) {
-	tp->next = (hashport_t *)g_malloc(sizeof(hashport_t));
-	tp = tp->next;
-	break;
+        tp->next = (hashport_t *)g_malloc(sizeof(hashport_t));
+        tp = tp->next;
+        break;
       }
       tp = tp->next;
     }
@@ -718,15 +718,15 @@ c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
   if (status == ARES_SUCCESS) {
     for (p = he->h_addr_list; *p != NULL; p++) {
       switch(caqm->family) {
-        case AF_INET:
-          add_ipv4_name(caqm->addr.ip4, he->h_name);
-          break;
-        case AF_INET6:
-          add_ipv6_name(&caqm->addr.ip6, he->h_name);
-          break;
-        default:
-          /* Throw an exception? */
-          break;
+      case AF_INET:
+        add_ipv4_name(caqm->addr.ip4, he->h_name);
+        break;
+      case AF_INET6:
+        add_ipv6_name(&caqm->addr.ip6, he->h_name);
+        break;
+      default:
+        /* Throw an exception? */
+        break;
       }
     }
   }
@@ -1314,12 +1314,12 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
       tp = manuf_table[hash_idx] = (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
     } else {
       while(1) {
-	if (tp->next == NULL) {
-	  tp->next = (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
-	  tp = tp->next;
-	  break;
-	}
-	tp = tp->next;
+        if (tp->next == NULL) {
+          tp->next = (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
+          tp = tp->next;
+          break;
+        }
+        tp = tp->next;
       }
     }
 
@@ -1344,13 +1344,13 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
   } else {
     while(1) {
       if (memcmp(etp->addr, addr, sizeof(etp->addr)) == 0) {
-	/* address already known */
-	return;
+        /* address already known */
+        return;
       }
       if (etp->next == NULL) {
-	etp->next = (hashether_t *)g_malloc(sizeof(hashether_t));
-	etp = etp->next;
-	break;
+        etp->next = (hashether_t *)g_malloc(sizeof(hashether_t));
+        etp = etp->next;
+        break;
       }
       etp = etp->next;
     }
@@ -1453,7 +1453,7 @@ initialize_ethers(void)
   /* Compute the pathname of the ethers file. */
   if (g_ethers_path == NULL) {
     g_ethers_path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
-				    get_systemfile_dir(), ENAME_ETHERS);
+                                    get_systemfile_dir(), ENAME_ETHERS);
   }
 
   /* Set g_pethers_path here, but don't actually do anything
@@ -1496,19 +1496,19 @@ add_eth_name(const guint8 *addr, const gchar *name)
   } else {
     while(1) {
       if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
-	/* address already known */
-	if (!tp->is_dummy_entry) {
-	  return tp;
-	} else {
-	  /* replace this dummy (manuf) entry with a real name */
-	  new_one = FALSE;
-	  break;
-	}
+        /* address already known */
+        if (!tp->is_dummy_entry) {
+          return tp;
+        } else {
+          /* replace this dummy (manuf) entry with a real name */
+          new_one = FALSE;
+          break;
+        }
       }
       if (tp->next == NULL) {
-	tp->next = (hashether_t *)g_malloc(sizeof(hashether_t));
-	tp = tp->next;
-	break;
+        tp->next = (hashether_t *)g_malloc(sizeof(hashether_t));
+        tp = tp->next;
+        break;
       }
       tp = tp->next;
     }
@@ -1547,12 +1547,12 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve)
   } else {
     while(1) {
       if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
-	return tp;
+        return tp;
       }
       if (tp->next == NULL) {
-	tp->next = (hashether_t *)g_malloc(sizeof(hashether_t));
-	tp = tp->next;
-	break;
+        tp->next = (hashether_t *)g_malloc(sizeof(hashether_t));
+        tp = tp->next;
+        break;
       }
       tp = tp->next;
     }
@@ -1689,7 +1689,7 @@ eth_addr_lookup(const gchar *name)
     tp = table[i];
     while (tp) {
       if (strcmp(tp->name, name) == 0)
-	return tp->addr;
+        return tp->addr;
       tp = tp->next;
     }
   }
@@ -1921,12 +1921,12 @@ ipxnet_name_lookup(const guint addr)
   } else {
     while(1) {
       if (tp->addr == addr) {
-	return tp->name;
+        return tp->name;
       }
       if (tp->next == NULL) {
-	tp->next = (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
-	tp = tp->next;
-	break;
+        tp->next = (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
+        tp = tp->next;
+        break;
       }
       tp = tp->next;
     }
@@ -1963,7 +1963,7 @@ ipxnet_addr_lookup(const gchar *name, gboolean *success)
     while (tp) {
       if (strcmp(tp->name, name) == 0) {
         *success = TRUE;
-	return tp->addr;
+        return tp->addr;
       }
       tp = tp->next;
     }
@@ -2447,7 +2447,7 @@ host_name_lookup_process(gpointer data _U_) {
     async_dns_queue_head = g_list_remove(async_dns_queue_head, (void *) caqm);
     if (caqm->family == AF_INET) {
       ares_gethostbyaddr(ghba_chan, &caqm->addr.ip4, sizeof(guint32), AF_INET,
-			 c_ares_ghba_cb, caqm);
+                         c_ares_ghba_cb, caqm);
       async_dns_in_flight++;
     } else if (caqm->family == AF_INET6) {
       ares_gethostbyaddr(ghba_chan, &caqm->addr.ip6, sizeof(struct e_in6_addr),
@@ -2515,7 +2515,7 @@ host_name_lookup_process(gpointer data _U_) {
     if (! almsg->submitted && almsg->type == AF_INET) {
       addr_bytes = (guint8 *) &almsg->ip4_addr;
       g_snprintf(addr_str, sizeof addr_str, "%u.%u.%u.%u.in-addr.arpa.", addr_bytes[3],
-		 addr_bytes[2], addr_bytes[1], addr_bytes[0]);
+                 addr_bytes[2], addr_bytes[1], addr_bytes[0]);
       /* XXX - what if it fails? */
       adns_submit (ads, addr_str, adns_r_ptr, 0, NULL, &almsg->query);
       almsg->submitted = TRUE;
@@ -2531,10 +2531,10 @@ host_name_lookup_process(gpointer data _U_) {
     if (almsg->submitted) {
       ret = adns_check(ads, &almsg->query, &ans, NULL);
       if (ret == 0) {
-	if (ans->status == adns_s_ok) {
-	  add_ipv4_name(almsg->ip4_addr, *ans->rrs.str);
-	}
-	dequeue = TRUE;
+        if (ans->status == adns_s_ok) {
+          add_ipv4_name(almsg->ip4_addr, *ans->rrs.str);
+        }
+        dequeue = TRUE;
       }
     }
     cur = cur->next;
