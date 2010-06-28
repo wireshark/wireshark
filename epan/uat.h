@@ -297,6 +297,7 @@ uat_t* uat_get_table_by_name(const char* name);
  * Some common uat_fld_chk_cbs
  */
 gboolean uat_fld_chk_str(void*, const char*, unsigned, const void*, const void*, const char** err);
+gboolean uat_fld_chk_oid(void*, const char*, unsigned, const void*, const void*, const char** err);
 gboolean uat_fld_chk_proto(void*, const char*, unsigned, const void*, const void*, const char** err);
 gboolean uat_fld_chk_num_dec(void*, const char*, unsigned, const void*, const void*, const char** err);
 gboolean uat_fld_chk_num_hex(void*, const char*, unsigned, const void*, const void*, const char** err);
@@ -368,6 +369,14 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  */
 #define UAT_FLD_PATHNAME(basename,field_name,title,desc) \
 	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_str,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+
+/*
+ * OID - just a CSTRING with a specific check routine 
+ *
+ */
+#define UAT_FLD_OID(basename,field_name,title,desc) \
+	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_oid,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+
 
 /*
  * LSTRING MACROS
@@ -462,6 +471,20 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 			*out_ptr = ep_strdup(((value_string*)vs)[i].strptr); \
 			*out_len = (unsigned)strlen(*out_ptr); return; } } }
 
+#define UAT_VS_CSTRING_DEF(basename,field_name,rec_t,default_val,default_str) \
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* vs, const void* u2 _U_) {\
+	guint i; \
+	char* str = ep_strndup(buf,len); \
+	const char* cstr; ((rec_t*)rec)->field_name = default_val; \
+	for(i=0; ( cstr = ((value_string*)vs)[i].strptr ) ;i++) { \
+		if (g_str_equal(cstr,str)) { \
+		  ((rec_t*)rec)->field_name = g_strdup(((value_string*)vs)[i].strptr); return; } } } \
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* vs _U_, const void* u2 _U_) {\
+		if (((rec_t*)rec)->field_name ) { \
+			*out_ptr = (((rec_t*)rec)->field_name); \
+			*out_len = (unsigned)strlen((((rec_t*)rec)->field_name)); \
+		} else { \
+			*out_ptr = ""; *out_len = 0; } }
 
 #define UAT_FLD_VS(basename,field_name,title,enum,desc) \
 	{#field_name, title, PT_TXTMOD_ENUM,{uat_fld_chk_enum,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{&(enum),&(enum),&(enum)},&(enum),desc,FLDFILL}

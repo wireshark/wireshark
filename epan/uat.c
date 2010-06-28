@@ -398,6 +398,31 @@ gboolean uat_fld_chk_str(void* u1 _U_, const char* strptr, unsigned len _U_, con
 	return TRUE;
 }
 
+gboolean uat_fld_chk_oid(void* u1 _U_, const char* strptr, unsigned len, const void* u2 _U_, const void* u3 _U_, const char** err) {
+  unsigned int i;
+	*err = NULL;
+	
+	if (strptr == NULL) {
+	  *err = "NULL pointer";
+	}
+
+	for(i = 0; i < len; i++)
+	  if(!(isdigit(strptr[i]) || strptr[i] == '.')) {
+	    *err = "Only digits [0-9] and \".\" allowed in an OID"; 
+	    break;
+	  }
+
+	if(strptr[len-1] == '.')
+	  *err = "OIDs must not be terminated with a \".\"";
+
+	if(!((*strptr == '0' || *strptr == '1' || *strptr =='2') && (len > 1 && strptr[1] == '.')))
+	  *err = "OIDs must start with \"0.\" (ITU-T assigned), \"1.\" (ISO assigned) or \"2.\" (joint ISO/ITU-T assigned)";
+
+	/* should also check that the second arc is in the range 0-39 */
+
+	return *err == NULL;
+}
+
 gboolean uat_fld_chk_proto(void* u1 _U_, const char* strptr, unsigned len, const void* u2 _U_, const void* u3 _U_, const char** err) {
 	if (len) {
 		char* name = ep_strndup(strptr,len);
