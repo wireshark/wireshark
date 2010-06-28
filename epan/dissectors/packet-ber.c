@@ -76,12 +76,11 @@
 #include <epan/reassemble.h>
 #include <epan/oids.h>
 #include <epan/expert.h>
+#include <epan/uat.h>
 #include <epan/asn1.h>
 #include <epan/filesystem.h>
 #include <wsutil/file_util.h>
 #include "packet-ber.h"
-
-#define HAS_GKEY_FILE GLIB_CHECK_VERSION(2,6,0) 
 
 static gint proto_ber = -1;
 static gint hf_ber_id_class = -1;
@@ -137,9 +136,6 @@ static gboolean show_internal_ber_fields = FALSE;
 static gboolean decode_octetstring_as_ber = FALSE;
 static gboolean decode_primitive_as_ber = FALSE;
 static gboolean decode_unexpected = FALSE;
-#if HAS_GKEY_FILE
-static const gchar *ber_oid_file = NULL;
-#endif /* HAS_GKEY_FILE */
 
 static gchar *decode_as_syntax = NULL;
 static gchar *ber_filename = NULL;
@@ -225,6 +221,62 @@ typedef struct _da_data {
   gpointer user_data;
 } da_data;
 
+typedef struct _oid_user_t {
+  char *oid;
+  char *name;
+  char *syntax;
+} oid_user_t;
+
+UAT_CSTRING_CB_DEF(oid_users, oid, oid_user_t);
+UAT_CSTRING_CB_DEF(oid_users, name, oid_user_t);
+UAT_VS_CSTRING_DEF(oid_users, syntax, oid_user_t, 0, "");
+
+static oid_user_t *oid_users;
+static guint num_oid_users;
+
+#define MAX_SYNTAX_NAMES 128
+static value_string syntax_names[MAX_SYNTAX_NAMES+1] = {
+  {0, ""},
+  {0, NULL}
+};
+
+static void *
+oid_copy_cb(void *dest, const void *orig, unsigned len _U_)
+{
+	oid_user_t *u = dest;
+	const oid_user_t *o = orig;
+
+	u->oid = g_strdup(o->oid);
+	u->name = g_strdup(o->name);
+	u->syntax = o->syntax;
+
+	return dest;
+}
+
+static void
+oid_free_cb(void *r)
+{
+	oid_user_t *u = r;
+
+	g_free(u->oid);
+	g_free(u->name);
+}
+
+static int
+cmp_value_string(const void *v1, const void *v2)
+{
+  value_string *vs1 = (value_string *)v1;
+  value_string *vs2 = (value_string *)v2;
+
+  return strcmp(vs1->strptr, vs2->strptr);
+}
+
+static uat_field_t users_flds[] = {
+  UAT_FLD_OID(oid_users, oid, "OID", "Object Identifier"),
+  UAT_FLD_CSTRING(oid_users, name, "Name", "Human readable name for the OID"),
+  UAT_FLD_VS(oid_users, syntax, "Syntax", syntax_names, "Syntax of values associated with the OID"),
+  UAT_END_FIELDS
+};
 
 void
 dissect_ber_oid_NULL_callback(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
@@ -276,6 +328,20 @@ void
 register_ber_oid_name(const char *oid, const char *name)
 {
 	oid_add_from_string(name, oid);
+}
+
+static void 
+ber_add_syntax_name(gpointer key, gpointer value _U_, gpointer user_data)
+{
+  guint *i = (guint*)user_data;
+
+  if(*i < MAX_SYNTAX_NAMES) {
+    syntax_names[*i].value = *i;
+    syntax_names[*i].strptr = (const gchar*)key;
+
+    (*i)++;
+  }
+
 }
 
 static void ber_decode_as_dt(const gchar *table_name _U_, ftenum_t selector_type _U_, gpointer key, gpointer value, gpointer user_data)
@@ -338,98 +404,15 @@ void ber_set_filename(gchar *filename)
   }
 }
 
-#if HAS_GKEY_FILE
-static void ber_load_oid_tables(const gchar *from)
-{
-	WS_DIR		*dir;             /* scanned directory */
-    WS_DIRENT	*file;            /* current file */
-    gchar		*fullname, *dot;
-    const gchar	*filename;	
-	GKeyFile	*ber_key_file;
-	gchar		**ber_oids;
-	gchar		*name, *syntax;
-	gsize		i, length;
-
-	if(from && *from) {
-
-		if(test_for_directory(from) == EISDIR) {
-			/* this is a directory - just look for *.oid files */			
-			if ((dir = ws_dir_open(from, 0, NULL)) != NULL) {
-				while ((file = ws_dir_read_name(dir)) != NULL) {
-					filename = ws_dir_get_name(file);
-
-					if (strcmp(filename, ".") == 0 || strcmp(filename, "..") == 0)
-						continue;        /* skip "." and ".." */
-
-					fullname = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", from, filename);
-
-					if (test_for_directory(fullname) == EISDIR) {
-					  ber_load_oid_tables(fullname);
-						g_free(fullname);
-						continue;
-					}
-
-					/* skip anything but files with .oid suffix */
-					dot = strrchr(filename, '.');
-					if (dot == NULL || strcmp(dot+1, "oid") != 0) {
-						g_free(fullname);
-						continue;
-					}
-
-					if (file_exists(fullname)) {
-				        ber_load_oid_tables(fullname);
-		            }
-				    g_free(fullname);
-				}
-				ws_dir_close(dir);
-			}
-
-		} else {
-
-			ber_key_file = g_key_file_new();
-
-			if(ber_key_file) {
-
-				if(g_key_file_load_from_file(ber_key_file, from, G_KEY_FILE_NONE, NULL)) {
-					/* we have successfully opened the file */
-	
-					/* iterate the keys - which will be the oids */
-					ber_oids = g_key_file_get_groups(ber_key_file, &length);
-
-					if(ber_oids) {
-
-						for(i=0; i < length; i++) {
-		
-							/* for each oid, look up a name and optional syntax */
-							name = g_key_file_get_string(ber_key_file, ber_oids[i], "name", NULL);
-
-							if(name) {
-	
-								syntax = g_key_file_get_string(ber_key_file, ber_oids[i], "syntax", NULL);
-								register_ber_oid_syntax(ber_oids[i], name, syntax);
-	
-								g_free(name);
-								if(syntax)
-									g_free(syntax);
-							}
-						}
-						g_strfreev(ber_oids);
-					}
-				}
-				
-				g_key_file_free(ber_key_file);
-			}
-		}
-	}
-}
 
 static void
-ber_apply_prefs(void)
+ber_update_oids(void)
 {
-	ber_load_oid_tables(ber_oid_file);
-}
+  guint i;
 
-#endif /* HAS_GKEY_FILE */
+  for(i = 0; i < num_oid_users; i++) 
+    register_ber_oid_syntax(oid_users[i].oid, oid_users[i].name, oid_users[i].syntax);
+}
 
 static void
 ber_check_length (guint32 length, gint32 min_len, gint32 max_len, asn1_ctx_t *actx, proto_item *item, gboolean bit)
@@ -4703,6 +4686,19 @@ proto_register_ber(void)
 	&ett_ber_T_encoding,
     };
     module_t *ber_module;
+    uat_t* users_uat = uat_new("OID Tables",
+			       sizeof(oid_user_t),
+			       "oid",
+			       FALSE,
+			       (void*) &oid_users,
+			       &num_oid_users,
+			       UAT_CAT_GENERAL,
+			       "ChObjectIdentifiers",
+			       oid_copy_cb,
+			       NULL,
+			       oid_free_cb,
+			       ber_update_oids,
+			       users_flds);
 
     proto_ber = proto_register_protocol("Basic Encoding Rules (ASN.1 X.690)", "BER", "ber");
     register_dissector ("ber", dissect_ber, proto_ber);
@@ -4712,11 +4708,7 @@ proto_register_ber(void)
     proto_set_cant_toggle(proto_ber);
 
     /* Register preferences */
-#if HAS_GKEY_FILE
-    ber_module = prefs_register_protocol(proto_ber, ber_apply_prefs);
-#else
     ber_module = prefs_register_protocol(proto_ber, NULL);
-#endif /* HAS_GKEY_FILE */
 
     prefs_register_bool_preference(ber_module, "show_internals",
 	"Show internal BER encapsulation tokens",
@@ -4736,14 +4728,10 @@ proto_register_ber(void)
 	"Whether the dissector should try decoding unknown primitive as"
 	" constructed ASN.1 BER encoded data", &decode_primitive_as_ber);
 
-#if HAS_GKEY_FILE
-    prefs_register_string_preference(ber_module, "oid_file",
-	"Additional OBJECT IDENTIFIER information",
-	"Additional, local, object identifier information, "
-	" including names and syntaxes."
-	" A single file may be specified, or a directory containing files with a \".oid\" suffix", &ber_oid_file);
-
-#endif /* HAS_GKEY_FILE */
+    prefs_register_uat_preference(ber_module, "oid_table", "Object Identifiers",
+				  "A table that provides names for object identifiers"
+				  " and the syntax of any associated values",
+				  users_uat);
 
     ber_oid_dissector_table = register_dissector_table("ber.oid", "BER OID Dissectors", FT_STRING, BASE_NONE);
     ber_syntax_dissector_table = register_dissector_table("ber.syntax", "BER Syntax Dissectors", FT_STRING, BASE_NONE);
@@ -4757,14 +4745,25 @@ proto_register_ber(void)
 void
 proto_reg_handoff_ber(void)
 {
+  guint i = 1;
         dissector_handle_t ber_handle;
 
-	
 	oid_add_from_string("asn1","2.1");
 	oid_add_from_string("basic-encoding","2.1.1");
 
 	ber_handle = create_dissector_handle(dissect_ber, proto_ber);
 	dissector_add("wtap_encap", WTAP_ENCAP_BER, ber_handle);
+
+	ber_decode_as_foreach(ber_add_syntax_name, &i);
+	
+	if(i > 1)
+	  qsort(&syntax_names[1], i - 1, sizeof(value_string), cmp_value_string); 
+	syntax_names[i].value = 0;
+	syntax_names[i].strptr = NULL;
+
+
+
+	ber_update_oids();
 }
 
 gboolean oid_has_dissector(const char *oid) {
