@@ -1061,6 +1061,11 @@ standard libpcap format.
 	      </listitem>
 	      <listitem>
 		<para>
+		  Object Identifier Names and Associated Syntaxes (<xref linkend="ChObjectIdentifiers"/>)
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>
 		  PRES Users Context List (pres_context_list) (<xref linkend="ChPresContextList"/>)
 		</para>
 	      </listitem>
@@ -1341,6 +1346,43 @@ standard libpcap format.
       </variablelist>
   </section>
 
+  <section id="ChObjectIdentifiers"><title>Object Identifiers</title>
+  <para>
+    Many protocols that use ASN.1 use Object Identifiers (OIDs) to uniquely identify certain pieces of information. In many cases, they are used in an extension mechanism so that new object identifiers (and associated values) may be defined without needing to change the base standard.
+  </para>
+  <para>
+    Whilst Wireshark has knowledge about many of the OIDs and the syntax of their associated values, the extensibility means that other values may be encountered. 
+  </para>
+  <para>
+    Wireshark uses this table to allow the user to define the name and syntax of Object Identifiers that Wireshark does not know about (for example, a privately defined X.400 extension). It also allows the user to override the name and syntax of Object Identifiers that Wireshark does know about (e.g. changing the name "id-at-countryName" to just "c"). 
+  </para>
+  <para>
+    This table is handled by an <xref linkend="ChUserTable"/> with the following fields.
+  </para>
+  <variablelist>
+      <varlistentry><term><command>OID</command></term>
+      <listitem>
+          <para>
+	    The string representation of the Object Identifier e.g. "2.5.4.6".
+          </para>
+      </listitem>
+      </varlistentry>
+      <varlistentry><term><command>Name</command></term>
+      <listitem>
+          <para>
+	    The name that should be displayed by Wireshark when the Object Identifier is dissected e.g. ("c");
+          </para>
+      </listitem>
+      </varlistentry>
+      <varlistentry><term><command>Syntax</command></term>
+      <listitem>
+          <para>
+	    The syntax of the value associated with the Object Identifier. This must be one of the syntaxes that Wireshark already knows about (e.g. "PrintableString").
+          </para>
+      </listitem>
+      </varlistentry>
+  </variablelist>
+  </section>
 
   <section id="ChPresContextList"><title>PRES Users Context List</title>
   <para>
