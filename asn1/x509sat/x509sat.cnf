@@ -64,7 +64,7 @@ XDayOf
 ZonalResult
 ZonalSelect
 
-#.PDU
+#.SYNTAX
 BitString
 Boolean
 CaseIgnoreListMatch
@@ -83,23 +83,22 @@ OctetString
 PostalAddress
 PreferredDeliveryMethod
 PresentationAddress
-SyntaxBMPString
-SyntaxGeneralizedTime
-SyntaxGeneralString
-SyntaxGraphicString
-SyntaxIA5String
-SyntaxISO646String
-SyntaxNumericString
-SyntaxPrintableString
-SyntaxT61String
-SyntaxTeletexString
-SyntaxUniversalString
-SyntaxUTF8String
-SyntaxUTCTime
-SyntaxVideotexString
-SyntaxVisibleString
+SyntaxBMPString "BMPString"
+SyntaxGeneralizedTime "GeneralizedTime"
+SyntaxGeneralString "GeneralString"
+SyntaxGraphicString "GraphicString"
+SyntaxIA5String "IA5String"
+SyntaxISO646String "ISO646String"
+SyntaxNumericString "NumericString"
+SyntaxPrintableString "PrintableString"
+SyntaxT61String "T61String"
+SyntaxTeletexString "TeletexString"
+SyntaxUniversalString "UniversalString"
+SyntaxUTF8String "UTF8String"
+SyntaxUTCTime "UTCTime"
+SyntaxVideotexString "VideotexString"
+SyntaxVisibleString "VisibleString"
 TelephoneNumber
-
 TelexNumber
 UniqueIdentifier
 X121Address

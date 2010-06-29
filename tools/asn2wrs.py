@@ -1512,19 +1512,6 @@ class EthCtx:
     out += 'dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);\n'
     return out
 
-  #--- eth_out_syntax_reg ----------------------------------------------------------
-  def eth_out_syntax_reg(self, p, f):
-    if f.endswith('_PDU'):
-    	n = f[:-4]
-    else:
-	n = f
-
-    if self.remove_prefix and n.startswith(self.remove_prefix):
-        n = n[len(self.remove_prefix):]
-
-    out = '  register_ber_syntax_dissector("'+n+'", proto_'+p+', dissect_'+f+');\n'
-    return out
-
   #--- eth_output_hf ----------------------------------------------------------
   def eth_output_hf (self):
     if not len(self.eth_hf_ord) and not len(self.eth_hfpdu_ord) and not len(self.named_bit): return
@@ -1858,11 +1845,12 @@ class EthCtx:
     fx = self.output.file_open('syn-reg')
     fempty = True
     first_decl = True
-    for p in self.eth_hfpdu_ord:
+    for k in self.conform.get_order('SYNTAX'):
+      reg = self.conform.use_item('SYNTAX', k)
       if first_decl:
         fx.write('  /*--- Syntax registrations ---*/\n')
         first_decl = False
-      fx.write(self.eth_out_syntax_reg(self.eproto, p))
+      fx.write('  register_ber_syntax_dissector(%s, proto_%s, dissect_%s_PDU);\n' % (k, self.eproto, reg['pdu']));
       fempty=False
     self.output.file_close(fx, discard=fempty)
 
@@ -2078,6 +2066,7 @@ class EthCnf:
     self.tblcfg['MAKE_ENUM']       = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['USE_VALS_EXT']    = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['PDU']             = { 'val_nm' : 'attr',     'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['SYNTAX']             = { 'val_nm' : 'attr',     'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['REGISTER']        = { 'val_nm' : 'attr',     'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['USER_DEFINED']    = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['NO_EMIT']         = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
@@ -2181,6 +2170,16 @@ class EthCnf:
     if (reg and reg[0]=='@'): (reg, hidden) = (reg[1:], True)
     attr = {'new' : is_new, 'reg' : reg, 'hidden' : hidden, 'need_decl' : False, 'export' : False}
     self.add_item('PDU', par[0], attr=attr, fn=fn, lineno=lineno)
+    return
+
+  def add_syntax(self, par, fn, lineno):
+    #print "add_syntax(par=%s, %s, %d)" % (str(par), fn, lineno)
+    if( (len(par) >=2)):
+      name = par[1]
+    else:
+      name = '"'+par[0]+'"'
+    attr = { 'pdu' : par[0] }
+    self.add_item('SYNTAX', name, attr=attr, fn=fn, lineno=lineno)
     return
 
   def add_register(self, pdu, par, fn, lineno):
@@ -2312,7 +2311,7 @@ class EthCnf:
                                     'OMIT_ASSIGNMENT', 'NO_OMIT_ASSGN',
                                     'VIRTUAL_ASSGN', 'SET_TYPE', 'ASSIGN_VALUE_TO_TYPE',
                                     'TYPE_RENAME', 'FIELD_RENAME', 'TF_RENAME', 'IMPORT_TAG',
-                                    'TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR'):
+                                    'TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR', 'SYNTAX'):
           ctx = result.group('name')
         elif result.group('name') in ('OMIT_ALL_ASSIGNMENTS', 'OMIT_ASSIGNMENTS_EXCEPT',
                                       'OMIT_ALL_TYPE_ASSIGNMENTS', 'OMIT_TYPE_ASSIGNMENTS_EXCEPT',
@@ -2522,6 +2521,13 @@ class EthCnf:
         self.add_pdu(par[0:2], is_new, fn, lineno)
         if (len(par)>=3):
           self.add_register(par[0], par[2:5], fn, lineno)
+      elif ctx in ('SYNTAX'):
+        if empty.match(line): continue
+        par = get_par(line, 1, 2, fn=fn, lineno=lineno)
+        if not par: continue
+        if not self.check_item('PDU', par[0]):
+          self.add_pdu(par[0:1], False, fn, lineno)
+        self.add_syntax(par, fn, lineno)
       elif ctx in ('REGISTER', 'REGISTER_NEW'):
         if empty.match(line): continue
         par = get_par(line, 3, 4, fn=fn, lineno=lineno)
