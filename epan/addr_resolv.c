@@ -211,34 +211,39 @@ typedef struct hashipxnet {
 #define HASH_ETH_MANUF(addr) (((int)(addr)[2]) & (HASHMANUFSIZE - 1))
 
 typedef struct hashmanuf {
-  guint8            addr[3];
   struct hashmanuf *next;
+  guint8            addr[3];
   char              name[MAXMANUFLEN];
 } hashmanuf_t;
 
 typedef struct hashether {
-  guint8            addr[6];
-  gboolean          is_dummy_entry;     /* not a complete entry */
-  gboolean          resolve;            /* */
   struct hashether *next;
+  gboolean          is_dummy_entry;     /* not a complete entry */
+  guint8            addr[6];
   char              hexa[6*3];
   char              name[MAXNAMELEN];
 } hashether_t;
+
+typedef struct hashwka {
+  struct hashwka   *next;
+  guint8            addr[6];
+  char              name[MAXNAMELEN];
+} hashwka_t;
 
 /* internal ethernet type */
 
 typedef struct _ether
 {
-  guint8        addr[6];
-  char          name[MAXNAMELEN];
+  guint8            addr[6];
+  char              name[MAXNAMELEN];
 } ether_t;
 
 /* internal ipxnet type */
 
 typedef struct _ipxnet
 {
-  guint         addr;
-  char          name[MAXNAMELEN];
+  guint             addr;
+  char              name[MAXNAMELEN];
 } ipxnet_t;
 
 static hashipv4_t   *ipv4_table[HASHHOSTSIZE];
@@ -253,7 +258,7 @@ static hashport_t   *sctp_port_table[HASHPORTSIZE];
 static hashport_t   *dccp_port_table[HASHPORTSIZE];
 static hashether_t  *eth_table[HASHETHSIZE];
 static hashmanuf_t  *manuf_table[HASHMANUFSIZE];
-static hashether_t  *(*wka_table[48])[HASHETHSIZE];
+static hashwka_t    *(*wka_table[48])[HASHETHSIZE];
 static hashipxnet_t *ipxnet_table[HASHIPXNETSIZE];
 
 static subnet_length_entry_t subnet_length_entries[SUBNETLENGTHSIZE]; /* Ordered array of entries */
@@ -1292,9 +1297,9 @@ hash_eth_wka(const guint8 *addr, unsigned int mask)
 static void
 add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
 {
-  int hash_idx;
-  hashmanuf_t *tp;
-  hashether_t *(*wka_tp)[HASHETHSIZE], *etp;
+  gint         hash_idx;
+  hashmanuf_t *mtp;
+  hashwka_t   *(*wka_tp)[HASHETHSIZE], *wtp;
 
   if (mask == 48) {
     /* This is a well-known MAC address; just add this to the Ethernet
@@ -1307,25 +1312,24 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
     /* This is a manufacturer ID; add it to the manufacturer ID hash table */
 
     hash_idx = HASH_ETH_MANUF(addr);
+    mtp = manuf_table[hash_idx];
 
-    tp = manuf_table[hash_idx];
-
-    if( tp == NULL ) {
-      tp = manuf_table[hash_idx] = (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
+    if( mtp == NULL ) {
+      mtp = manuf_table[hash_idx] = (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
     } else {
       while(1) {
-        if (tp->next == NULL) {
-          tp->next = (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
-          tp = tp->next;
+        if (mtp->next == NULL) {
+          mtp->next = (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
+          mtp = mtp->next;
           break;
         }
-        tp = tp->next;
+        mtp = mtp->next;
       }
     }
 
-    memcpy(tp->addr, addr, sizeof(tp->addr));
-    g_strlcpy(tp->name, name, MAXMANUFLEN);
-    tp->next = NULL;
+    memcpy(mtp->addr, addr, sizeof(mtp->addr));
+    g_strlcpy(mtp->name, name, MAXMANUFLEN);
+    mtp->next = NULL;
     return;
   }
 
@@ -1337,48 +1341,47 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
 
   hash_idx = hash_eth_wka(addr, mask);
 
-  etp = (*wka_tp)[hash_idx];
+  wtp = (*wka_tp)[hash_idx];
 
-  if( etp == NULL ) {
-    etp = (*wka_tp)[hash_idx] = (hashether_t *)g_malloc(sizeof(hashether_t));
+  if( wtp == NULL ) {
+    wtp = (*wka_tp)[hash_idx] = (hashwka_t *)g_malloc(sizeof(hashwka_t));
   } else {
     while(1) {
-      if (memcmp(etp->addr, addr, sizeof(etp->addr)) == 0) {
+      if (memcmp(wtp->addr, addr, sizeof(wtp->addr)) == 0) {
         /* address already known */
         return;
       }
-      if (etp->next == NULL) {
-        etp->next = (hashether_t *)g_malloc(sizeof(hashether_t));
-        etp = etp->next;
+      if (wtp->next == NULL) {
+	wtp->next = (hashwka_t *)g_malloc(sizeof(hashwka_t));
+	wtp = wtp->next;
         break;
       }
-      etp = etp->next;
+      wtp = wtp->next;
     }
   }
 
-  memcpy(etp->addr, addr, sizeof(etp->addr));
-  g_strlcpy(etp->name, name, MAXNAMELEN);
-  etp->next = NULL;
-  etp->is_dummy_entry = FALSE;
+  memcpy(wtp->addr, addr, sizeof(wtp->addr));
+  g_strlcpy(wtp->name, name, MAXNAMELEN);
+  wtp->next = NULL;
 
 } /* add_manuf_name */
 
 static hashmanuf_t *
 manuf_name_lookup(const guint8 *addr)
 {
-  int hash_idx;
-  hashmanuf_t *tp;
-  guint8 stripped_addr[3];
+  gint         hash_idx;
+  hashmanuf_t *mtp;
+  guint8       stripped_addr[3];
 
   hash_idx = HASH_ETH_MANUF(addr);
 
   /* first try to find a "perfect match" */
-  tp = manuf_table[hash_idx];
-  while(tp != NULL) {
-    if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
-      return tp;
+  mtp = manuf_table[hash_idx];
+  while(mtp != NULL) {
+    if (memcmp(mtp->addr, addr, sizeof(mtp->addr)) == 0) {
+      return mtp;
     }
-    tp = tp->next;
+    mtp = mtp->next;
   }
 
   /* Mask out the broadcast/multicast flag but not the locally
@@ -1389,27 +1392,27 @@ manuf_name_lookup(const guint8 *addr)
   memcpy(stripped_addr, addr, 3);
   stripped_addr[0] &= 0xFE;
 
-  tp = manuf_table[hash_idx];
-  while(tp != NULL) {
-    if (memcmp(tp->addr, stripped_addr, sizeof(tp->addr)) == 0) {
-      return tp;
+  mtp = manuf_table[hash_idx];
+  while(mtp != NULL) {
+    if (memcmp(mtp->addr, stripped_addr, sizeof(mtp->addr)) == 0) {
+      return mtp;
     }
-    tp = tp->next;
+    mtp = mtp->next;
   }
 
   return NULL;
 
 } /* manuf_name_lookup */
 
-static hashether_t *
+static hashwka_t *
 wka_name_lookup(const guint8 *addr, const unsigned int mask)
 {
-  int hash_idx;
-  hashether_t *(*wka_tp)[HASHETHSIZE];
-  hashether_t *tp;
-  guint8 masked_addr[6];
-  unsigned int num;
-  int i;
+  gint       hash_idx;
+  hashwka_t *(*wka_tp)[HASHETHSIZE];
+  hashwka_t *wtp;
+  guint8     masked_addr[6];
+  guint      num;
+  gint       i;
 
   wka_tp = wka_table[mask];
   if (wka_tp == NULL) {
@@ -1430,13 +1433,13 @@ wka_name_lookup(const guint8 *addr, const unsigned int mask)
 
   hash_idx = hash_eth_wka(masked_addr, mask);
 
-  tp = (*wka_tp)[hash_idx];
+  wtp = (*wka_tp)[hash_idx];
 
-  while(tp != NULL) {
-    if (memcmp(tp->addr, masked_addr, sizeof(tp->addr)) == 0) {
-      return tp;
+  while(wtp != NULL) {
+    if (memcmp(wtp->addr, masked_addr, sizeof(wtp->addr)) == 0) {
+      return wtp;
     }
-    tp = tp->next;
+    wtp = wtp->next;
   }
 
   return NULL;
@@ -1447,8 +1450,8 @@ static void
 initialize_ethers(void)
 {
   ether_t *eth;
-  char *manuf_path;
-  unsigned int mask;
+  char    *manuf_path;
+  guint    mask;
 
   /* Compute the pathname of the ethers file. */
   if (g_ethers_path == NULL) {
@@ -1483,9 +1486,9 @@ initialize_ethers(void)
 static hashether_t *
 add_eth_name(const guint8 *addr, const gchar *name)
 {
-  int hash_idx;
+  gint         hash_idx;
   hashether_t *tp;
-  int new_one = TRUE;
+  gboolean     new_one = TRUE;
 
   hash_idx = HASH_ETH_ADDRESS(addr);
 
@@ -1531,12 +1534,12 @@ add_eth_name(const guint8 *addr, const gchar *name)
 static hashether_t *
 eth_name_lookup(const guint8 *addr, const gboolean resolve)
 {
-  int hash_idx;
-  hashmanuf_t *manufp;
-  hashether_t *tp;
-  ether_t *eth;
-  hashether_t *etp;
-  unsigned int mask;
+  gint          hash_idx;
+  hashmanuf_t  *mtp;
+  hashether_t  *tp;
+  ether_t      *eth;
+  hashwka_t    *wtp;
+  guint         mask;
 
   hash_idx = HASH_ETH_ADDRESS(addr);
 
@@ -1547,7 +1550,7 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve)
   } else {
     while(1) {
       if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
-        return tp;
+          return tp;
       }
       if (tp->next == NULL) {
         tp->next = (hashether_t *)g_malloc(sizeof(hashether_t));
@@ -1573,9 +1576,9 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve)
     mask = 7;
     for (;;) {
       /* Only the topmost 5 bytes participate fully */
-      if ((etp = wka_name_lookup(addr, mask+40)) != NULL) {
+      if ((wtp = wka_name_lookup(addr, mask+40)) != NULL) {
         g_snprintf(tp->name, MAXNAMELEN, "%s_%02x",
-                   etp->name, addr[5] & (0xFF >> mask));
+                   wtp->name, addr[5] & (0xFF >> mask));
         tp->is_dummy_entry = TRUE;
         return tp;
       }
@@ -1587,9 +1590,9 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve)
     mask = 7;
     for (;;) {
       /* Only the topmost 4 bytes participate fully */
-      if ((etp = wka_name_lookup(addr, mask+32)) != NULL) {
+      if ((wtp = wka_name_lookup(addr, mask+32)) != NULL) {
         g_snprintf(tp->name, MAXNAMELEN, "%s_%02x:%02x",
-                   etp->name, addr[4] & (0xFF >> mask), addr[5]);
+                   wtp->name, addr[4] & (0xFF >> mask), addr[5]);
         tp->is_dummy_entry = TRUE;
         return tp;
       }
@@ -1601,9 +1604,9 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve)
     mask = 7;
     for (;;) {
       /* Only the topmost 3 bytes participate fully */
-      if ((etp = wka_name_lookup(addr, mask+24)) != NULL) {
+      if ((wtp = wka_name_lookup(addr, mask+24)) != NULL) {
         g_snprintf(tp->name, MAXNAMELEN, "%s_%02x:%02x:%02x",
-                   etp->name, addr[3] & (0xFF >> mask), addr[4], addr[5]);
+                   wtp->name, addr[3] & (0xFF >> mask), addr[4], addr[5]);
         tp->is_dummy_entry = TRUE;
         return tp;
       }
@@ -1613,9 +1616,9 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve)
     }
 
     /* Now try looking in the manufacturer table. */
-    if ((manufp = manuf_name_lookup(addr)) != NULL) {
+    if ((mtp = manuf_name_lookup(addr)) != NULL) {
       g_snprintf(tp->name, MAXNAMELEN, "%s_%02x:%02x:%02x",
-                 manufp->name, addr[3], addr[4], addr[5]);
+                 mtp->name, addr[3], addr[4], addr[5]);
       tp->is_dummy_entry = TRUE;
       return tp;
     }
@@ -1625,9 +1628,9 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve)
     mask = 7;
     for (;;) {
       /* Only the topmost 2 bytes participate fully */
-      if ((etp = wka_name_lookup(addr, mask+16)) != NULL) {
+      if ((wtp = wka_name_lookup(addr, mask+16)) != NULL) {
         g_snprintf(tp->name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x",
-                   etp->name, addr[2] & (0xFF >> mask), addr[3], addr[4],
+                   wtp->name, addr[2] & (0xFF >> mask), addr[3], addr[4],
                    addr[5]);
         tp->is_dummy_entry = TRUE;
         return tp;
@@ -1640,9 +1643,9 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve)
     mask = 7;
     for (;;) {
       /* Only the topmost byte participates fully */
-      if ((etp = wka_name_lookup(addr, mask+8)) != NULL) {
+      if ((wtp = wka_name_lookup(addr, mask+8)) != NULL) {
         g_snprintf(tp->name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x:%02x",
-                   etp->name, addr[1] & (0xFF >> mask), addr[2], addr[3],
+                   wtp->name, addr[1] & (0xFF >> mask), addr[2], addr[3],
                    addr[4], addr[5]);
         tp->is_dummy_entry = TRUE;
         return tp;
@@ -1654,9 +1657,9 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve)
 
     for (mask = 7; mask > 0; mask--) {
       /* Not even the topmost byte participates fully */
-      if ((etp = wka_name_lookup(addr, mask)) != NULL) {
+      if ((wtp = wka_name_lookup(addr, mask)) != NULL) {
         g_snprintf(tp->name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x:%02x:%02x",
-                   etp->name, addr[0] & (0xFF >> mask), addr[1], addr[2],
+                   wtp->name, addr[0] & (0xFF >> mask), addr[1], addr[2],
                    addr[3], addr[4], addr[5]);
         tp->is_dummy_entry = TRUE;
         return tp;
@@ -1679,10 +1682,10 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve)
 static guint8 *
 eth_addr_lookup(const gchar *name)
 {
-  ether_t *eth;
-  hashether_t *tp;
+  ether_t      *eth;
+  hashether_t  *tp;
   hashether_t **table = eth_table;
-  int i;
+  gint          i;
 
   /* to be optimized (hash table from name to addr) */
   for (i = 0; i < HASHETHSIZE; i++) {
@@ -2926,20 +2929,20 @@ extern const gchar *
 get_manuf_name(const guint8 *addr)
 {
   gchar *cur;
-  hashmanuf_t  *manufp;
+  hashmanuf_t  *mtp;
 
   if ((g_resolv_flags & RESOLV_MAC) && !eth_resolution_initialized) {
     initialize_ethers();
     eth_resolution_initialized = 1;
   }
 
-  if (!(g_resolv_flags & RESOLV_MAC) || ((manufp = manuf_name_lookup(addr)) == NULL)) {
+  if (!(g_resolv_flags & RESOLV_MAC) || ((mtp = manuf_name_lookup(addr)) == NULL)) {
     cur=ep_alloc(MAXMANUFLEN);
     g_snprintf(cur, MAXMANUFLEN, "%02x:%02x:%02x", addr[0], addr[1], addr[2]);
     return cur;
   }
 
-  return manufp->name;
+  return mtp->name;
 
 } /* get_manuf_name */
 
@@ -2947,18 +2950,18 @@ get_manuf_name(const guint8 *addr)
 const gchar *
 get_manuf_name_if_known(const guint8 *addr)
 {
-  hashmanuf_t  *manufp;
+  hashmanuf_t  *mtp;
 
   if (!eth_resolution_initialized) {
     initialize_ethers();
     eth_resolution_initialized = 1;
   }
 
-  if ((manufp = manuf_name_lookup(addr)) == NULL) {
+  if ((mtp = manuf_name_lookup(addr)) == NULL) {
     return NULL;
   }
 
-  return manufp->name;
+  return mtp->name;
 
 } /* get_manuf_name_if_known */
 
