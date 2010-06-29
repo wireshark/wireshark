@@ -3833,7 +3833,7 @@ proto_register_tcp(void)
             "Which previous segment is this an ACK for", HFILL}},
 
         { &hf_tcp_analysis_bytes_in_flight,
-          { "Number of bytes in flight",            "tcp.analysis.bytes_in_flight", FT_UINT32, BASE_DEC, NULL, 0x0,
+          { "Bytes in flight",            "tcp.analysis.bytes_in_flight", FT_UINT32, BASE_DEC, NULL, 0x0,
             "How many bytes are now in flight for this connection", HFILL}},
 
         { &hf_tcp_analysis_ack_rtt,
