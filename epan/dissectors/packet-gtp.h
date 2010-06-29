@@ -31,7 +31,7 @@ typedef struct gtp_msg_hash_entry {
     guint32 rep_frame;      /*frame with reply */
     gint seq_nr;			/*sequence number*/
 	guint msgtype; 			/*messagetype*/
-} gtp_msg_hash_t;                 
+} gtp_msg_hash_t;
 
 /* definitions of GTP messages */
 #define GTP_MSG_UNKNOWN             0x00
@@ -100,19 +100,20 @@ typedef struct gtp_msg_hash_entry {
 #define GTP_MBMS_SES_STOP_RES       119
 #define GTP_MBMS_SES_UPD_REQ        120
 #define GTP_MBMS_SES_UPD_RES        121
-/* 122-127  For future use. Shall not be sent. 
+/* 122-127  For future use. Shall not be sent.
  * If received, shall be treated as an Unknown message.
  */
 #define GTP_MS_INFO_CNG_NOT_REQ     121
 #define GTP_MS_INFO_CNG_NOT_RES     122
-/* 130-239  For future use. Shall not be sent. 
+/* 130-239  For future use. Shall not be sent.
  * If received, shall be treated as an Unknown message.
  */
 #define GTP_MSG_DATA_TRANSF_REQ     0xF0
 #define GTP_MSG_DATA_TRANSF_RESP    0xF1
-/* 242-254  For future use. Shall not be sent. 
+/* 242-254  For future use. Shall not be sent.
  * If received, shall be treated as an Unknown message.
  */
+#define GTP_MSG_END_MARKER          0xFE /* 254 */
 #define GTP_MSG_TPDU                0xFF
 
 #endif /* __PACKET_GTP_H*/
