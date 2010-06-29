@@ -96,6 +96,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/manual_addr_resolv.h"
 #include "gtk/proto_help.h"
+#include "gtk/dissector_tables_dlg.h"
 
 #ifdef NEW_PACKET_LIST
 #include "gtk/new_packet_list.h"
@@ -780,7 +781,10 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Help/_Supported Protocols (slow!)", NULL, GTK_MENU_FUNC(supported_cb), 0, NULL, NULL,},
     {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Help/_About Wireshark", NULL, GTK_MENU_FUNC(about_wireshark_cb),
-                       0, "<StockItem>", WIRESHARK_STOCK_ABOUT}
+                       0, "<StockItem>", WIRESHARK_STOCK_ABOUT},
+    {"/Internal/Dissector tables", NULL, GTK_MENU_FUNC(dissector_tables_dlg_cb),
+                       0, NULL, NULL,}
+
 };
 
 
@@ -2522,7 +2526,7 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 #endif
             g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_ROW_KEY,
 #ifdef NEW_PACKET_LIST
-                            GINT_TO_POINTER(physical_row));
+                            GINT_TO_POINTER(row));
 #else
                             GINT_TO_POINTER(row));
 #endif
