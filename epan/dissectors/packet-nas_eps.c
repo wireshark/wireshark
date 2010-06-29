@@ -4207,14 +4207,19 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
 				offset++;
 				/* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
-				proto_tree_add_text(nas_eps_tree, tvb, offset, len-6,"Ciphered message");
-				return;
+				pd = tvb_get_guint8(tvb,offset)&0x0f;
+				/* If pd is in plaintext this message probably isn't ciphered */
+				if((pd!=7)&&(pd!=2)){
+					proto_tree_add_text(nas_eps_tree, tvb, offset, len-6,"Ciphered message");
+					return;
+				}
 			}
+		}else{
+			/* Sequence number	Sequence number 9.6	M	V	1 */
+			proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
+			offset++;
 		}
 	}
-	/* Sequence number	Sequence number 9.6	M	V	1 */
-	proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
-	offset++;
 	/* NAS message	NAS message 9.7	M	V	1-n  */
 
 	pd = tvb_get_guint8(tvb,offset)&0x0f;
