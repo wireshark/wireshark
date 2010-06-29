@@ -4085,7 +4085,8 @@ static guint16 (*bssmap_bss_to_bss_element_fcn[])(tvbuff_t *tvb, proto_tree *tre
 static guint16
 be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset, ie_len, idx, fe_start_offset;
+    guint32 curr_offset, ie_len, fe_start_offset;
+    gint idx;
     const gchar *str;
     proto_item *item = NULL;
     proto_tree *  bss_to_bss_tree = NULL;
@@ -4118,7 +4119,7 @@ be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
         /*
          * decode field element
          */
-        if ((str == NULL) || (bssmap_bss_to_bss_element_fcn[idx] == NULL))
+        if (idx < 0 || (bssmap_bss_to_bss_element_fcn[idx] == NULL))
         {
             proto_tree_add_text(bss_to_bss_tree,
                 tvb, curr_offset, ie_len,
@@ -6283,7 +6284,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * decode elements
      */
-    if (bssmap_msg_fcn[idx] == NULL)
+    if (idx < 0 || bssmap_msg_fcn[idx] == NULL)
     {
         proto_tree_add_text(bssmap_tree,
             tvb, offset, len - offset,
