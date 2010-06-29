@@ -168,6 +168,7 @@ static int hf_gtpv2_bearer_control_mode= -1;
 #define GTPv2_ULI_ECGI_MASK			0x10
 
 #define GTPV2_FORWARD_RELOCATION_REQ	133
+#define GTPV2_FORWARD_CTX_NOTIFICATION	137
 static void dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, gint offset, guint8 message_type);
 
 /*Message Types for GTPv2 (Refer Pg19 29.274) (SB)*/
@@ -1253,17 +1254,30 @@ static const value_string gtpv2_container_type_vals[] = {
 
 
 static void
-dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
+dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length,guint8 message_type,  guint8 instance _U_)
 {
-
+	tvbuff_t *tvb_new;
     int offset = 0;
+	guint8 container_type;
 
 	/* Octets	8	7	6	5	4	3	2	1
 	 * 5			Spare	  |	Container Type
 	 */
     proto_tree_add_item(tree, hf_gtpv2_container_type, tvb, offset, 1, FALSE);
+	container_type = tvb_get_guint8(tvb,offset);
 	offset++;
-	proto_tree_add_text(tree, tvb, offset, length-1, "Not dissected yet");
+	if(message_type == GTPV2_FORWARD_CTX_NOTIFICATION){
+		switch(container_type){
+			case 3:
+				/* E-UTRAN transparent container */
+				tvb_new = tvb_new_subset(tvb, offset, length-1, length-1);
+				dissect_s1ap_ENB_StatusTransfer_TransparentContainer_PDU(tvb_new, pinfo, tree);
+				return;
+			default:
+				break;
+		}
+	}
+	proto_tree_add_text(tree, tvb, offset, length-offset, "Not dissected yet");
 
 }
 
