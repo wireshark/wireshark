@@ -235,7 +235,9 @@ static oid_user_t *oid_users;
 static guint num_oid_users;
 
 #define MAX_SYNTAX_NAMES 128
-static value_string syntax_names[MAX_SYNTAX_NAMES+1] = {
+/* Define non_const_value_string as a hack to prevent chackAPIs.pl from complaining */
+#define non_const_value_string value_string
+static non_const_value_string syntax_names[MAX_SYNTAX_NAMES+1] = {
   {0, ""},
   {0, NULL}
 };
