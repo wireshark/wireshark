@@ -438,7 +438,7 @@ dissect_pres_Called_presentation_selector(gboolean implicit_tag _U_, tvbuff_t *t
 
 static int
 dissect_pres_Presentation_context_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 77 "pres.cnf"
+#line 76 "pres.cnf"
   const char *name;
   char *oid;
 
@@ -501,13 +501,13 @@ static const ber_sequence_t Context_list_item_sequence[] = {
 
 static int
 dissect_pres_Context_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 92 "pres.cnf"
+#line 91 "pres.cnf"
 	abstract_syntax_name_oid=NULL;
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Context_list_item_sequence, hf_index, ett_pres_Context_list_item);
 
-#line 95 "pres.cnf"
+#line 94 "pres.cnf"
 	register_ctx_id_and_oid(actx->pinfo, presentation_context_identifier, abstract_syntax_name_oid);
 
   return offset;
@@ -651,9 +651,6 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 			proto_item *ti = proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
 			expert_add_info_format(actx->pinfo, ti, PI_UNDECODED, PI_WARN, "Dissector is not available");
 		}
-		  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
-
 	}
 
 
@@ -664,7 +661,7 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 53 "pres.cnf"
+#line 52 "pres.cnf"
 
  tvbuff_t	*next_tvb;
  char *oid; 
@@ -709,7 +706,7 @@ static const value_string pres_T_presentation_data_values_vals[] = {
 };
 
 static const ber_choice_t T_presentation_data_values_choice[] = {
-  {   0, &hf_pres_single_ASN1_type, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pres_T_single_ASN1_type },
+  {   0, &hf_pres_single_ASN1_type, BER_CLASS_CON, 0, 0, dissect_pres_T_single_ASN1_type },
   {   1, &hf_pres_octet_aligned  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_pres_T_octet_aligned },
   {   2, &hf_pres_arbitrary      , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_pres_BIT_STRING },
   { 0, NULL, 0, 0, 0, NULL }
@@ -1777,7 +1774,7 @@ void proto_register_pres(void) {
         NULL, HFILL }},
     { &hf_pres_single_ASN1_type,
       { "single-ASN1-type", "pres.single_ASN1_type",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_pres_octet_aligned,
       { "octet-aligned", "pres.octet_aligned",
