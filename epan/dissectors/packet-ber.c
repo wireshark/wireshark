@@ -747,6 +747,10 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 	tvbuff_t *next_tvb;
 	const char *syntax = NULL;
 
+	if (!tvb) {
+		return offset;
+	}
+
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	if(oid == NULL ||
 	   ((((syntax = get_ber_oid_syntax(oid)) == NULL) ||
