@@ -3117,6 +3117,9 @@ static const value_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 	{ 0x09,	"DSMIPv6 IPv4 Home Agent Address Request" },
 	{ 0x0a,	"IP address allocation via NAS signalling" },
 	{ 0x0b,	"IPv4 address allocation via DHCPv4" },
+	{ 0x0c,	"P-CSCF IPv4 Address Request" },
+	{ 0x0d,	"DNS Server IPv4 Address Request" },
+	{ 0x0e,	"MSISDN Request" },
 	{ 0, NULL }
 };
 static const value_string gsm_a_sm_pco_net2ms_prot_vals[] = {
@@ -3129,6 +3132,11 @@ static const value_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x07,	"DSMIPv6 Home Agent Address" },
 	{ 0x08,	"DSMIPv6 Home Network Prefix" },
 	{ 0x09,	"DSMIPv6 IPv4 Home Agent Address" },
+	{ 0x0a,	"Reserved" },
+	{ 0x0b,	"Reserved" },
+	{ 0x0c,	"P-CSCF IPv4 Address" },
+	{ 0x0d,	"DNS Server IPv4 Address" },
+	{ 0x0e,	"MSISDN" },
 	{ 0, NULL }
 };
 #endif
@@ -3146,7 +3154,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	proto_tree_add_item(tree, hf_gsm_a_gm_sm_ext, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_text(tree,tvb, curr_offset, 1, "Configuration Protocol: PPP (%u)",oct&0x0f);
+	proto_tree_add_text(tree,tvb, curr_offset, 1, "Configuration Protocol: PPP (%u)",oct&0x07);
 	curr_len--;
 	curr_offset++;
 
@@ -5173,6 +5181,7 @@ dtap_gmm_service_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 /*
  * [8] 9.5.1 Activate PDP context request
+ * Direction:			MS to network
  */
 static void
 dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5185,6 +5194,8 @@ dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	/* MS to network */
+	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_NET_SAPI );
 
@@ -5203,6 +5214,7 @@ dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 /*
  * [9] 9.5.2 Activate PDP context accept
+ * Direction:			network to MS
  */
 static void
 dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5215,6 +5227,8 @@ dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	/* Network to MS*/
+	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI );
 
@@ -5242,6 +5256,7 @@ dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 /*
  * [8] 9.5.3 Activate PDP context reject
+ * Direction:			network to MS
  */
 static void
 dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5254,6 +5269,8 @@ dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	/* Network to MS*/
+	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
 
@@ -5264,6 +5281,7 @@ dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 /*
  * [8] 9.5.4 Activate Secondary PDP Context Request
+ * Direction:			MS to network
  */
 static void
 dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5276,6 +5294,8 @@ dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	curr_len = len;
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	/* MS to Network */
+	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_NET_SAPI );
 
@@ -5294,7 +5314,8 @@ dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 }
 
 /*
- * [7] 9.5.5
+ * [7] 9.5.5	Activate Secondary PDP Context Accept
+ * Direction:			network to MS
  */
 static void
 dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5307,6 +5328,8 @@ dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	curr_len = len;
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	/* Network to MS*/
+	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI );
 
@@ -5330,6 +5353,7 @@ dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 /*
  * [8] 9.5.6 Activate Secondary PDP Context Reject
+ * Direction:			network to MS
  */
 static void
 dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5342,6 +5366,8 @@ dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	curr_len = len;
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	/* Network to MS*/
+	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
 
@@ -5352,6 +5378,7 @@ dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 /*
  * [8] 9.5.7 Request PDP context activation
+ * Direction:			network to MS
  */
 static void
 dtap_sm_req_pdp_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5364,6 +5391,8 @@ dtap_sm_req_pdp_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	/* Network to MS*/
+	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR , " - Offered PDP address" );
 
@@ -5376,6 +5405,7 @@ dtap_sm_req_pdp_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 /*
  * [8] 9.5.8 Request PDP context activation reject
+ * Direction:			MS to network
  */
 static void
 dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5388,6 +5418,8 @@ dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	curr_len = len;
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	/* MS to  Network */
+	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
 
@@ -5398,6 +5430,7 @@ dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 /*
  * [8] 9.5.9 Modify PDP context request (Network to MS direction)
+ * Direction:			network to MS
  */
 static void
 dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5410,6 +5443,8 @@ dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	curr_len = len;
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	/* Network to MS */
+	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM,DE_RAD_PRIO);
 #if 0
@@ -5434,6 +5469,7 @@ dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 /*
  * [8] 9.5.10 Modify PDP context request (MS to network direction)
+ * Direction:			MS to network
  */
 static void
 dtap_sm_mod_pdp_req_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5446,6 +5482,8 @@ dtap_sm_mod_pdp_req_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	curr_len = len;
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	/* MS to Network */
+	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
 
 	ELEM_OPT_TV( 0x32 , GSM_A_PDU_TYPE_GM, DE_LLC_SAPI , " - Requested LLC SAPI" );
 
@@ -5460,6 +5498,7 @@ dtap_sm_mod_pdp_req_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 /*
  * [8] 9.5.11 Modify PDP context accept (MS to network direction)
+ * Direction:			MS to network
  */
 static void
 dtap_sm_mod_pdp_acc_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5472,6 +5511,8 @@ dtap_sm_mod_pdp_acc_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	curr_len = len;
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	/* MS to Network */
+	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
@@ -5480,6 +5521,7 @@ dtap_sm_mod_pdp_acc_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 /*
  * [8] 9.5.12 Modify PDP context accept (Network to MS direction)
+ * Direction:			Network to MS
  */
 static void
 dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5492,6 +5534,8 @@ dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	curr_len = len;
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	/* Network to MS */
+	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
 
 	ELEM_OPT_TLV( 0x30 , GSM_A_PDU_TYPE_GM, DE_QOS , " - Negotiated QoS" );
 
@@ -5508,6 +5552,7 @@ dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 /*
  * [8] 9.5.13 Modify PDP Context Reject
+ * Direction:			both 
  */
 static void
 dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5520,6 +5565,9 @@ dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	/* Network or the MS */
+	gsm_a_dtap_pinfo->link_dir = LINK_DIR_UNKNOWN;
+
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
 
@@ -5530,6 +5578,7 @@ dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 /*
  * [8] 9.5.14 Deactivate PDP context request
+ * Direction:			both
  */
 static void
 dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5542,6 +5591,7 @@ dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	curr_len = len;
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	gsm_a_dtap_pinfo->link_dir = LINK_DIR_UNKNOWN;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
 
@@ -5557,6 +5607,7 @@ dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
 /*
  * [8] 9.5.15 Deactivate PDP context accept
+ * Direction:			both
  */
 static void
 dtap_sm_deact_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5569,6 +5620,7 @@ dtap_sm_deact_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	curr_len = len;
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	gsm_a_dtap_pinfo->link_dir = LINK_DIR_UNKNOWN;
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
@@ -5580,6 +5632,7 @@ dtap_sm_deact_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
 /*
  * [8] 9.5.21 SM Status
+ * Direction:			both
  */
 static void
 dtap_sm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5592,6 +5645,7 @@ dtap_sm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	gsm_a_dtap_pinfo->link_dir = LINK_DIR_UNKNOWN;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
 
@@ -5600,6 +5654,7 @@ dtap_sm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 /*
  * [9] 9.5.22 Activate MBMS Context Request
+ * Direction:			MS to network
  */
 static void
 dtap_sm_act_mbms_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5636,6 +5691,7 @@ dtap_sm_act_mbms_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 /*
  * [9] 9.5.23 Activate MBMS Context Accept
+ * Direction:			network to MS
  */
 static void
 dtap_sm_act_mbms_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5660,6 +5716,7 @@ dtap_sm_act_mbms_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 /*
  * [9] 9.5.24 Activate MBMS Context Reject
+ * Direction:			network to MS
  */
 static void
 dtap_sm_act_mbms_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5682,6 +5739,7 @@ dtap_sm_act_mbms_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 /*
  * [9] 9.5.25 Request MBMS Context Activation
+ * Direction:			network to MS
  */
 static void
 dtap_sm_req_mbms_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5708,6 +5766,7 @@ dtap_sm_req_mbms_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 /*
  * [8] 9.5.26 Request MBMS Context Activation Reject
+ * Direction:			MS to network
  */
 static void
 dtap_sm_req_mbms_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
