@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V9.2.0 (2010-03)
+-- 3GPP TS 36.413 V9.3.0 (2010-06)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -111,7 +111,8 @@ Routing-ID,
 	WarningMessageContents,
 	BroadcastCompletedAreaList,
 	RRC-Establishment-Cause,
-	BroadcastCancelledAreaList
+	BroadcastCancelledAreaList,
+	PS-ServiceNotAvailable
 
 FROM S1AP-IEs
 
@@ -267,7 +268,8 @@ FROM S1AP-Containers
 	maxnoofTAIforWarning,
 	maxnoofCellinTAI,
 	maxnoofCellinEAI,
-	id-ExtendedRepetitionPeriod
+	id-ExtendedRepetitionPeriod,
+	id-PS-ServiceNotAvailable
 
 
 FROM S1AP-Constants;
@@ -300,19 +302,20 @@ HandoverRequired ::= SEQUENCE {
 }
 
 HandoverRequiredIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MME-UE-S1AP-ID							CRITICALITY reject	TYPE MME-UE-S1AP-ID		 							PRESENCE mandatory	} |
-	{ ID id-eNB-UE-S1AP-ID							CRITICALITY reject	TYPE ENB-UE-S1AP-ID		 							PRESENCE mandatory	} |
-	{ ID id-HandoverType							CRITICALITY reject	TYPE HandoverType		 							PRESENCE mandatory	} |
-	{ ID id-Cause									CRITICALITY ignore	TYPE Cause		 									PRESENCE mandatory	} |
-	{ ID id-TargetID								CRITICALITY reject	TYPE TargetID	 									PRESENCE mandatory	} |
-	{ ID id-Direct-Forwarding-Path-Availability		CRITICALITY ignore	TYPE Direct-Forwarding-Path-Availability		PRESENCE optional } |
-	{ ID id-SRVCCHOIndication						CRITICALITY reject	TYPE	SRVCCHOIndication							PRESENCE optional }|
-	{ ID id-Source-ToTarget-TransparentContainer	CRITICALITY reject 	TYPE Source-ToTarget-TransparentContainer 	PRESENCE mandatory }|
-	{ ID id-Source-ToTarget-TransparentContainer-Secondary 	CRITICALITY reject 	TYPE Source-ToTarget-TransparentContainer 	PRESENCE optional }|
-	{ ID id-MSClassmark2							CRITICALITY reject	TYPE MSClassmark2									PRESENCE  conditional }|
-	{ ID id-MSClassmark3							CRITICALITY ignore	TYPE MSClassmark3									PRESENCE conditional } |
-	{ ID id-CSG-Id									CRITICALITY reject	TYPE CSG-Id											PRESENCE optional} |
-	{ ID id-CellAccessMode							CRITICALITY reject	TYPE CellAccessMode									PRESENCE optional},
+	{ ID id-MME-UE-S1AP-ID							CRITICALITY reject	TYPE MME-UE-S1AP-ID		 							PRESENCE mandatory }|
+	{ ID id-eNB-UE-S1AP-ID							CRITICALITY reject	TYPE ENB-UE-S1AP-ID		 							PRESENCE mandatory }|
+	{ ID id-HandoverType							CRITICALITY reject	TYPE HandoverType		 							PRESENCE mandatory }|
+	{ ID id-Cause									CRITICALITY ignore	TYPE Cause		 									PRESENCE mandatory }|
+	{ ID id-TargetID								CRITICALITY reject	TYPE TargetID	 									PRESENCE mandatory }|
+	{ ID id-Direct-Forwarding-Path-Availability		CRITICALITY ignore	TYPE Direct-Forwarding-Path-Availability		PRESENCE optional }|
+	{ ID id-SRVCCHOIndication						CRITICALITY reject	TYPE SRVCCHOIndication								PRESENCE optional }|
+	{ ID id-Source-ToTarget-TransparentContainer	CRITICALITY reject	TYPE Source-ToTarget-TransparentContainer 	PRESENCE mandatory }|
+	{ ID id-Source-ToTarget-TransparentContainer-Secondary 	CRITICALITY reject 	TYPE Source-ToTarget-TransparentContainer	PRESENCE optional }|
+	{ ID id-MSClassmark2							CRITICALITY reject	TYPE MSClassmark2									PRESENCE conditional }|
+	{ ID id-MSClassmark3							CRITICALITY ignore	TYPE MSClassmark3									PRESENCE conditional }|
+	{ ID id-CSG-Id									CRITICALITY reject	TYPE CSG-Id											PRESENCE optional }|
+	{ ID id-CellAccessMode							CRITICALITY reject	TYPE CellAccessMode									PRESENCE optional }|
+	{ ID id-PS-ServiceNotAvailable					CRITICALITY ignore	TYPE PS-ServiceNotAvailable						PRESENCE optional },
 	...
 }
 

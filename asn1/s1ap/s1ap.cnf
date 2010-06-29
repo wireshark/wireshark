@@ -15,6 +15,9 @@ CauseNas
 CauseProtocol
 CauseMisc
 
+#.EXPORTS
+ENB-StatusTransfer-TransparentContainer_PDU
+
 #.PDU_NEW
 S1AP-PDU
 SourceeNB-ToTargeteNB-TransparentContainer
@@ -23,6 +26,7 @@ SourceRNC-ToTargetRNC-TransparentContainer
 TargetRNC-ToSourceRNC-TransparentContainer
 SourceBSS-ToTargetBSS-TransparentContainer
 TargetBSS-ToSourceBSS-TransparentContainer
+ENB-StatusTransfer-TransparentContainer
 
 #.MAKE_ENUM
 ProcedureCode
@@ -619,6 +623,7 @@ id-CSGMembershipStatus								ProtocolIE-ID
 id-LPPa-PDU											ProtocolIE-ID
 id-Routing-ID										ProtocolIE-ID
 id-Time-Synchronization-Info						ProtocolIE-ID
+id-PS-ServiceNotAvailable							ProtocolIE-ID
 #.END
 
 #.REGISTER_NEW
@@ -751,6 +756,7 @@ CellAccessMode							N s1ap.ies id-CellAccessMode
 CSGMembershipStatus						N s1ap.ies id-CSGMembershipStatus
 LPPa-PDU								N s1ap.ies id-LPPa-PDU
 Routing-ID								N s1ap.ies id-Routing-ID
+PS-ServiceNotAvailable					N s1ap.ies id-PS-ServiceNotAvailable
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst				N s1ap.ies.pair.first id-RAB-SetupOrModifyItem

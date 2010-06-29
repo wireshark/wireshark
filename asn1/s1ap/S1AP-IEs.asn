@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V9.2.0 (2010-03)
+-- 3GPP TS 36.413 V9.3.0 (2010-06)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -603,7 +603,10 @@ ForbiddenInterRATs ::= ENUMERATED {
 	geran,
 	utran,
 	cdma2000,
-	...
+	...,
+	geranandutran,
+	cdma2000andutran
+
 }
 
 ForbiddenTAs ::= SEQUENCE (SIZE(1.. maxnoofEPLMNsPlusOne)) OF ForbiddenTAs-Item
@@ -818,6 +821,10 @@ Pre-emptionVulnerability ::= ENUMERATED {
 
 PriorityLevel				::= INTEGER { spare (0), highest (1), lowest (14), no-priority (15) } (0..15)
 
+PS-ServiceNotAvailable ::= ENUMERATED {
+	ps-service-not-available,
+	...
+}
 
 -- Q
 
