@@ -1312,7 +1312,7 @@ netlogon_dissect_LEVEL(tvbuff_t *tvb, int offset,
                        packet_info *pinfo, proto_tree *tree,
                        guint8 *drep)
 {
-    guint16 level;
+    guint16 level = 0;
 
     offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
                                 hf_netlogon_level16, &level);
@@ -2236,7 +2236,7 @@ netlogon_dissect_VALIDATION(tvbuff_t *tvb, int offset,
                             packet_info *pinfo, proto_tree *tree,
                             guint8 *drep)
 {
-    guint16 level;
+    guint16 level = 0;
 
     offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
                                 hf_netlogon_validation_level, &level);
@@ -4013,7 +4013,7 @@ netlogon_dissect_DELTA_UNION(tvbuff_t *tvb, int offset,
     proto_item *item=NULL;
     proto_tree *tree=NULL;
     int old_offset=offset;
-    guint16 level;
+    guint16 level = 0;
 
     if(parent_tree){
         item = proto_tree_add_text(parent_tree, tvb, offset, 0,
@@ -4147,7 +4147,7 @@ netlogon_dissect_DELTA_ID_UNION(tvbuff_t *tvb, int offset,
     proto_item *item=NULL;
     proto_tree *tree=NULL;
     int old_offset=offset;
-    guint16 level;
+    guint16 level = 0;
 
     if(parent_tree){
         item = proto_tree_add_text(parent_tree, tvb, offset, 0,
@@ -4773,7 +4773,7 @@ netlogon_dissect_CONTROL_QUERY_INFORMATION(tvbuff_t *tvb, int offset,
                                            packet_info *pinfo, proto_tree *tree,
                                            guint8 *drep)
 {
-    guint32 level;
+    guint32 level = 0;
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
                                 hf_netlogon_level, &level);
@@ -4893,7 +4893,7 @@ netlogon_dissect_CONTROL_DATA_INFORMATION(tvbuff_t *tvb, int offset,
                                           packet_info *pinfo, proto_tree *tree,
                                           guint8 *drep)
 {
-    guint32 level;
+    guint32 level = 0;
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
                                 hf_netlogon_level, &level);
@@ -6080,7 +6080,7 @@ netlogon_dissect_DOMAIN_INFORMATION(tvbuff_t *tvb, int offset,
                                     packet_info *pinfo, proto_tree *tree,
                                     guint8 *drep)
 {
-    guint32 level;
+    guint32 level = 0;
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
                                 hf_netlogon_level, &level);
@@ -6335,7 +6335,7 @@ netlogon_dissect_TYPE_44(tvbuff_t *tvb, int offset,
     proto_item *item=NULL;
     proto_tree *tree=NULL;
     int old_offset=offset;
-    guint32 level;
+    guint32 level = 0;
 
     if(parent_tree){
         item = proto_tree_add_text(parent_tree, tvb, offset, 0,
