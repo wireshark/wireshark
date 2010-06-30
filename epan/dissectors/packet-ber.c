@@ -949,12 +949,13 @@ int dissect_ber_identifier(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *t
  */
 /* 8.1.3 Length octets */
 static gboolean
-try_get_ber_length(tvbuff_t *tvb, int *bl_offset, guint32 *length, gboolean *ind) {
+try_get_ber_length(tvbuff_t *tvb, int *bl_offset, gboolean pc, guint32 *length, gboolean *ind) {
 	int offset = *bl_offset;
 	guint8 oct, len;
 	guint32 tmp_len;
 	gint8 tclass;
 	gint32 ttag;
+	gboolean tpc;
 	guint32 tmp_length;
 	gboolean tmp_ind;
 	int tmp_offset;
@@ -980,14 +981,17 @@ try_get_ber_length(tvbuff_t *tvb, int *bl_offset, guint32 *length, gboolean *ind
 			/* 8.1.3.6 */
 			/* indefinite length encoded - must be constructed */	
 
+		  if(!pc)
+		    return FALSE;
+
 			tmp_offset = offset;
 			
 			do {
-				tmp_offset = get_ber_identifier(tvb, tmp_offset, &tclass, NULL, &ttag);
-				
-				try_get_ber_length(tvb, &tmp_offset, &tmp_len, &tmp_ind);
-
-				tmp_offset += tmp_len;
+				tmp_offset = get_ber_identifier(tvb, tmp_offset, &tclass, &tpc, &ttag);
+				if(try_get_ber_length(tvb, &tmp_offset, tpc, &tmp_len, &tmp_ind))
+				  tmp_offset += tmp_len;
+				else
+				  return FALSE;
 
 			} while (!((tclass == BER_CLASS_UNI) && (ttag == 0) && (tmp_len == 0))); 
 
@@ -1015,7 +1019,6 @@ get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind)
 	int bl_offset = offset;
 	guint32 bl_length;
 
-
 	gint8 save_class;
 	gboolean save_pc;
 	gint32 save_tag;	
@@ -1025,15 +1028,18 @@ get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind)
 	save_pc = last_pc;
 	save_tag = last_tag;
 
-	try_get_ber_length(tvb, &bl_offset, &bl_length, ind);
+	if(try_get_ber_length(tvb, &bl_offset, last_pc, &bl_length, ind)) {
+	  if (length)
+	    *length = bl_length;
+	} else 
+	  /* we couldn't get a length */
+	  bl_offset = offset;
 
 	/* restore last tag */
 	last_class = save_class;
 	last_pc = save_pc;
 	last_tag = save_tag;
 
-	if (length)
-		*length = bl_length;
 
 	return bl_offset;
 }
