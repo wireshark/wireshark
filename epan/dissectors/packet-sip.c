@@ -2277,7 +2277,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 						/* Walk past number and spaces characters to get to start
 						   of method name */
-						for (sub_value_offset=0; sub_value_offset < linelen; sub_value_offset++)
+						for (sub_value_offset=0; sub_value_offset < value_len; sub_value_offset++)
 						{
 							if (!isdigit((guchar)value[sub_value_offset]))
 							{
@@ -2288,7 +2288,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							}
 						}
 
-						for (; sub_value_offset < linelen; sub_value_offset++)
+						for (; sub_value_offset < value_len; sub_value_offset++)
 						{
 							if (isalpha((guchar)value[sub_value_offset]))
 							{
@@ -2347,7 +2347,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						}
 
 						/* RSeq number */
-						for (sub_value_offset=0; sub_value_offset < linelen; sub_value_offset++)
+						for (sub_value_offset=0; sub_value_offset < value_len; sub_value_offset++)
 						{
 							if (!isdigit((guchar)value[sub_value_offset]))
 							{
@@ -2359,7 +2359,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						}
 
 						/* Get to start of CSeq number */
-						for ( ; sub_value_offset < linelen; sub_value_offset++)
+						for ( ; sub_value_offset < value_len; sub_value_offset++)
 						{
 							if (value[sub_value_offset] != ' ' &&
 						        value[sub_value_offset] != '\t')
@@ -2370,7 +2370,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						cseq_no_offset = sub_value_offset;
 
 						/* CSeq number */
-						for ( ; sub_value_offset < linelen; sub_value_offset++)
+						for ( ; sub_value_offset < value_len; sub_value_offset++)
 						{
 							if (!isdigit((guchar)value[sub_value_offset]))
 							{
@@ -2383,7 +2383,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						}
 
 						/* Get to start of CSeq method name */
-						for ( ; sub_value_offset < linelen; sub_value_offset++)
+						for ( ; sub_value_offset < value_len; sub_value_offset++)
 						{
 							if (isalpha((guchar)value[sub_value_offset]))
 							{
