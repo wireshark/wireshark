@@ -463,6 +463,8 @@ ldap_conv_info_t *ldap_info;
   guint32	i, len;
   int           old_offset = offset;
 
+  attr_type=NULL;
+
   /* extract the value of the octetstring */
   offset = dissect_ber_octet_string(FALSE, actx, NULL, tvb, offset, hf_index, &next_tvb);
 
