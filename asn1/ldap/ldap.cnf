@@ -654,6 +654,7 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 	proto_item *it=NULL;
 	const char *old_substring_value=substring_value;
 
+	attr_type=NULL;
 	substring_value=NULL;
 	substring_item_init=NULL;
 	substring_item_any=NULL;
