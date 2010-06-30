@@ -772,7 +772,6 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   dfilter_t   *dfcode;
   gboolean filtering_tap_listeners;
   guint tap_flags;
-  volatile gboolean visible = FALSE;
   gboolean compiled;
 
   /* Compile the current display filter.
@@ -812,10 +811,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
     TRY{
       if (read_packet(cf, dfcode, filtering_tap_listeners, tap_flags,
                       data_offset) != -1) {
-        visible = TRUE;
         newly_displayed_packets++;
-      }else{
-        visible = FALSE;
       }
     }
     CATCH(OutOfMemoryError) {
@@ -876,7 +872,6 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
      we have some new packets. */
   if (newly_displayed_packets && auto_scroll_live && cf->plist_end != NULL)
 #ifdef NEW_PACKET_LIST
-    if(visible)
       new_packet_list_moveto_end();
 #else
     /* this doesn't seem to work well with a frozen GTK_Clist, so do this after
