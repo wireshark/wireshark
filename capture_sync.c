@@ -554,6 +554,8 @@ sync_pipe_start(capture_options *capture_opts) {
       return FALSE;
     }
 
+    capture_opts->fork_child_status = 0;
+
     /* we might wait for a moment till child is ready, so update screen now */
     main_window_update();
 
@@ -1259,6 +1261,7 @@ sync_pipe_wait_for_child(capture_options *capture_opts)
 #else
   if (wait(&wstatus) != -1) {
     if (WIFEXITED(wstatus)) {
+      capture_opts->fork_child_status = WEXITSTATUS(wstatus);
       /* The child exited; display its exit status, if it seems uncommon (0=ok, 1=error) */
       /* the child will inform us about errors through the sync_pipe, which will popup */
       /* an error message, so don't popup another one */

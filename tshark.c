@@ -733,6 +733,7 @@ main(int argc, char *argv[])
   int                  gdp_open_errno, gdp_read_errno;
   int                  dp_open_errno, dp_read_errno;
   int                  err;
+  int                  exit_status = 0;
 #ifdef HAVE_LIBPCAP
   gboolean             list_link_layer_types = FALSE;
   gboolean             start_capture = FALSE;
@@ -1616,7 +1617,18 @@ main(int argc, char *argv[])
     /* For now, assume libpcap gives microsecond precision. */
     timestamp_set_precision(TS_PREC_AUTO_USEC);
 
+    /*
+     * XXX - this returns FALSE if an error occurred, but it also
+     * returns FALSE if the capture stops because a time limit
+     * was reached (and possibly other limits), so we can't assume
+     * it means an error.
+     *
+     * The capture code is a bit twisty, so it doesn't appear to
+     * be an easy fix.  We just ignore the return value for now.
+     * Instead, pass on the exit status from the capture child.
+     */
     capture();
+    exit_status = global_capture_opts.fork_child_status;
 
     if (print_packet_info) {
       if (!write_finale()) {
@@ -1638,7 +1650,7 @@ main(int argc, char *argv[])
   output_fields_free(output_fields);
   output_fields = NULL;
 
-  return 0;
+  return exit_status;
 }
 
 /*#define USE_BROKEN_G_MAIN_LOOP*/
