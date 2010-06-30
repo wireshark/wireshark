@@ -52,5 +52,5 @@ CLEANFILES = \
 	parsetab.pyc \
 	$(DISSECTOR_FILES) \
 	*-exp.cnf \
-	packet-*-{dis-tab,ettarr,ett,fn,hfarr,hf,table*,val,exp}.[hc]
+	packet-*-{dis-tab,ettarr,ett,exp,fn,hfarr,hf,table*,val}.[hc]
 
