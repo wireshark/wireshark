@@ -251,6 +251,7 @@ EXTRA_DIST = \
 	$(WSDG_SOURCE)		\
 	$(RELEASE_NOTES_SOURCE)	\
 	check_svn_version.sh	\
+	docbook.vcproj		\
 	make-wsluarm.pl		\
 	Makefile.nmake		\
 	CMakeLists.txt

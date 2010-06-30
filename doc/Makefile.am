@@ -288,6 +288,7 @@ EXTRA_DIST = \
 	README.stats_tree	\
 	README.tapping	\
 	README.xml-output	\
+	doc.vcproj		\
 	make-authors-format.pl	\
 	make-authors-short.pl	\
 	perlnoutf.pl		\
@@ -305,3 +306,4 @@ EXTRA_DIST = \
 	tshark.pod		\
 	wireshark-filter.pod.template \
 	wireshark.pod.template
+

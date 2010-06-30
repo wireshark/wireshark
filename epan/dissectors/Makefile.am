@@ -51,6 +51,7 @@ EXTRA_DIST = \
 	Makefile.nmake		\
 	packet-ncp2222.inc	\
 	README.X11		\
+	dissectors.vcproj	\
 	x11-fields
 
 packet-ncp2222.c : $(top_srcdir)/tools/ncp2222.py

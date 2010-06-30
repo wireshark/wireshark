@@ -88,6 +88,7 @@ EXTRA_DIST = \
 	doxygen.cfg.in			\
 	file_dlg_win32.c		\
 	file_dlg_win32.h		\
+	libui.vcproj			\
 	main_airpcap_toolbar.c		\
 	Makefile.common			\
 	Makefile.nmake			\

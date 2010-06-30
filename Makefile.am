@@ -832,7 +832,12 @@ EXTRA_DIST = \
 	cmake/modules/FindM.cmake		\
 	cmake/modules/FindKERBEROS.cmake	\
 	cmake/modules/FindPOD.cmake		\
-	CPackConfig.txt
+	CPackConfig.txt				\
+	all.vcproj		\
+	dumpcap.vcproj		\
+	packaging.vcproj	\
+	tshark.vcproj		\
+	wireshark.vcproj
 
 install-exec-hook:
 if HAVE_DUMPCAP_GROUP

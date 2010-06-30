@@ -95,6 +95,7 @@ EXTRA_DIST = \
 	dtd_preparse.l 		\
 	enterprise-numbers  	\
 	libwireshark.def	\
+	libwireshark.vcproj	\
 	Makefile.common		\
 	Makefile.nmake		\
 	radius_dict.l   	\

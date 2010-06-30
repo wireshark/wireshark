@@ -64,6 +64,7 @@ EXTRA_DIST = \
 	README.developer	\
 	Makefile.common		\
 	Makefile.nmake		\
+	libwiretap.vcproj	\
 	wtap.def		\
 	$(GENERATOR_FILES) 	\
 	$(GENERATED_FILES)

@@ -43,6 +43,7 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 plugindir = @plugindir@
 
 EXTRA_DIST = \
+	plugins.vcproj	\
 	Makefile.nmake
 
 MAINTAINERCLEANFILES = \
