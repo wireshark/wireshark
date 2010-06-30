@@ -4241,7 +4241,11 @@ int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, p
 			proto_tree_add_item(parent_tree, hf_ber_bitstring_empty, tvb, offset, 1, FALSE);
 		} else {
 			/* padding */
-			proto_tree_add_item(parent_tree, hf_ber_bitstring_padding, tvb, offset, 1, FALSE);
+			proto_item *pad_item = proto_tree_add_item(parent_tree, hf_ber_bitstring_padding, tvb, offset, 1, FALSE);
+			if (pad > 7) {
+				expert_add_info_format(actx->pinfo, pad_item, PI_UNDECODED, PI_WARN, 
+						       "Illegal padding (0 .. 7): %d", pad);
+			}
 		}
 		offset++;
 		len--;
@@ -4308,6 +4312,14 @@ int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, p
 		}
 	}
 
+	if (pad > 0 && pad < 8 && len > 0) {
+		guint8 bits_in_pad = tvb_get_guint8(tvb, offset + len - 1) & (0xFF >> (8-pad));
+		if (bits_in_pad) {
+			expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN, 
+					       "Bits set in padded area: 0x%02x", bits_in_pad);
+		}
+	}
+                
 	ber_check_length(8*len-pad, min_len, max_len, actx, item, TRUE);
 
 	return end_offset;
