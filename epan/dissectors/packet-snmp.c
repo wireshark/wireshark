@@ -580,9 +580,10 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	add_oid_debug_subtree(oid_info,pt_name);
 
 	if (!subids) {
-		proto_item* pi = proto_tree_add_text(pt_name,tvb, 0, 0, "invalid oid: %s", oid_bytes);
+		repr = oid_encoded2string(oid_bytes, name_len);
+		proto_item* pi = proto_tree_add_text(pt_name,tvb, 0, 0, "invalid oid: %s", repr);
 		pt = proto_item_add_subtree(pi, ett_decoding_error);
-		expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "invalid oid: %s", oid_bytes);
+		expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "invalid oid: %s", repr);
 		return dissect_unknown_ber(actx->pinfo, tvb, name_offset, pt);
 	}
 
@@ -2697,7 +2698,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1477 "packet-snmp-template.c"
+#line 1478 "packet-snmp-template.c"
 
 
 guint
@@ -3552,7 +3553,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2067 "packet-snmp-template.c"
+#line 2068 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3592,7 +3593,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2083 "packet-snmp-template.c"
+#line 2084 "packet-snmp-template.c"
   };
   module_t *snmp_module;
 
