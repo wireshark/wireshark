@@ -399,7 +399,7 @@ void
 new_packet_list_toggle_visible_column (gint col_id)
 {
 	GtkTreeViewColumn *col =
-	  gtk_tree_view_get_column(GTK_TREE_VIEW(GTK_TREE_VIEW(packetlist->view)), col_id);
+	  gtk_tree_view_get_column(GTK_TREE_VIEW(packetlist->view), col_id);
 
 	new_packet_list_set_visible_column (col_id, col, get_column_visible(col_id) ? FALSE : TRUE);
 }
@@ -411,7 +411,7 @@ new_packet_list_set_all_columns_visible (void)
 	int col_id;
 
 	for (col_id = 0; col_id < cfile.cinfo.num_cols; col_id++) {
-		col = gtk_tree_view_get_column(GTK_TREE_VIEW(GTK_TREE_VIEW(packetlist->view)), col_id);
+		col = gtk_tree_view_get_column(GTK_TREE_VIEW(packetlist->view), col_id);
 		gtk_tree_view_column_set_visible(col, TRUE);
 		set_column_visible(col_id, TRUE);
 	}
@@ -1387,7 +1387,7 @@ new_packet_list_recent_write_all(FILE *rf)
 		} else {
 			fprintf (rf, " %s,", col_format_to_string(col_fmt));
 		}
-		tree_column = gtk_tree_view_get_column(GTK_TREE_VIEW(GTK_TREE_VIEW(packetlist->view)), col);
+		tree_column = gtk_tree_view_get_column(GTK_TREE_VIEW(packetlist->view), col);
 		width = gtk_tree_view_column_get_width(tree_column);
 		xalign = recent_get_column_xalign (col);
 		if (width == 0) {
