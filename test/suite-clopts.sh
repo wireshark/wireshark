@@ -113,7 +113,7 @@ clopts_step_invalid_capfilter() {
 
 	$TSHARK -f 'jkghg' -w './testout.pcap' > ./testout.txt 2>&1
 	RETURNVALUE=$?
-	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+	if [ ! $RETURNVALUE -eq $EXIT_COMMAND_LINE ]; then
 		test_step_failed "exit status: $RETURNVALUE"
 	else
 		grep -i 'Invalid capture filter: "jkghg"' ./testout.txt > /dev/null
@@ -131,7 +131,7 @@ clopts_step_invalid_capfilter() {
 clopts_step_invalid_interface() {
 	$TSHARK -i invalid_interface -w './testout.pcap' > ./testout.txt 2>&1
 	RETURNVALUE=$?
-	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+	if [ ! $RETURNVALUE -eq $EXIT_COMMAND_LINE ]; then
 		test_step_failed "exit status: $RETURNVALUE"
 	else
 		grep -i 'The capture session could not be initiated' ./testout.txt > /dev/null
