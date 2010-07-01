@@ -104,6 +104,19 @@ struct batman_packet_v10 {
 };
 #define BATMAN_PACKET_V10_SIZE 24
 
+struct batman_packet_v11 {
+	guint8  packet_type;
+	guint8  version;  /* batman version field */
+	guint8  flags;    /* 0x40: DIRECTLINK flag, 0x20 VIS_SERVER flag... */
+	guint8  tq;
+	guint32 seqno;
+	address orig;
+	address prev_sender;
+	guint8  ttl;
+	guint8  num_hna;
+};
+#define BATMAN_PACKET_V11_SIZE 22
+
 struct icmp_packet_v6 {
 	guint8  packet_type;
 	guint8  version;  /* batman version field */
@@ -276,6 +289,7 @@ static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinf
 static int dissect_batadv_batman_v7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
 static void dissect_batadv_bcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -378,6 +392,11 @@ static void dissect_batadv_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	case 10:
 		while (offset != -1 && tvb_length_remaining(tvb, offset) >= BATMAN_PACKET_V10_SIZE) {
 			offset = dissect_batadv_batman_v10(tvb, offset, pinfo, tree);
+		}
+		break;
+	case 11:
+		while (offset != -1 && tvb_length_remaining(tvb, offset) >= BATMAN_PACKET_V11_SIZE) {
+			offset = dissect_batadv_batman_v11(tvb, offset, pinfo, tree);
 		}
 		break;
 	default:
@@ -840,6 +859,108 @@ static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pin
 	return offset;
 }
 
+static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *tf;
+	proto_tree *batadv_batman_tree = NULL, *flag_tree;
+	guint8 type;
+	struct batman_packet_v11 *batman_packeth;
+	const guint8  *prev_sender_addr, *orig_addr;
+	gint i;
+
+	tvbuff_t *next_tvb;
+
+	batman_packeth = ep_alloc(sizeof(struct batman_packet_v11));
+
+	type = tvb_get_guint8(tvb, offset+0);
+	batman_packeth->version = tvb_get_guint8(tvb, offset+1);
+
+	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
+	if (batman_packeth->version == 0 || type != BATADV_PACKET) {
+		return -1;
+	}
+
+	batman_packeth->flags = tvb_get_guint8(tvb, offset+2);
+	batman_packeth->tq = tvb_get_guint8(tvb, offset+3);
+	batman_packeth->seqno = tvb_get_ntohl(tvb, offset+4);
+	orig_addr = tvb_get_ptr(tvb, offset+8, 6);
+	SET_ADDRESS(&batman_packeth->orig, AT_ETHER, 6, orig_addr);
+	prev_sender_addr = tvb_get_ptr(tvb, offset+14, 6);
+	SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, 6, prev_sender_addr);
+	batman_packeth->ttl = tvb_get_guint8(tvb, offset+20);
+	batman_packeth->num_hna = tvb_get_guint8(tvb, offset+21);
+
+	/* Set info column */
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
+
+	/* Set tree info */
+	if (tree) {
+		proto_item *ti;
+
+		if (PTREE_DATA(tree)->visible) {
+			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, offset, BATMAN_PACKET_V11_SIZE,
+			                                    "B.A.T.M.A.N., Orig: %s (%s)",
+			                                    get_ether_name(orig_addr), ether_to_str(orig_addr));
+		} else {
+			ti = proto_tree_add_item(tree, proto_batadv_plugin, tvb, offset, BATMAN_PACKET_V11_SIZE, FALSE);
+		}
+		batadv_batman_tree = proto_item_add_subtree(ti, ett_batadv_batman);
+	}
+
+	/* items */
+	proto_tree_add_uint_format(batadv_batman_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_PACKET,
+					"Packet Type: %s (%u)", "BATADV_PACKET", BATADV_PACKET);
+	offset += 1;
+
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_version, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	tf = proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_flags, tvb, offset, 1, FALSE);
+	/* <flags> */
+	flag_tree =  proto_item_add_subtree(tf, ett_batadv_batman_flags);
+	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_directlink, tvb, offset, 1, batman_packeth->flags);
+	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_vis_server, tvb, offset, 1, batman_packeth->flags);
+	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_primaries_first_hop, tvb, offset, 1, batman_packeth->flags);
+	/* </flags> */
+	offset += 1;
+
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_tq, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_seqno32, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	proto_tree_add_ether(batadv_batman_tree, hf_batadv_batman_orig, tvb, offset, 6, orig_addr);
+	offset += 6;
+
+	proto_tree_add_ether(batadv_batman_tree, hf_batadv_batman_prev_sender, tvb, offset, 6, prev_sender_addr);
+	offset += 6;
+
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_ttl, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_num_hna, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, orig_addr);
+	SET_ADDRESS(&pinfo->src, AT_ETHER, 6, orig_addr);
+
+	tap_queue_packet(batadv_tap, pinfo, batman_packeth);
+
+	for (i = 0; i < batman_packeth->num_hna; i++) {
+		next_tvb = tvb_new_subset(tvb, offset, 6, 6);
+
+		if (have_tap_listener(batadv_follow_tap)) {
+			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
+		}
+
+		dissect_batadv_hna(next_tvb, pinfo, batadv_batman_tree);
+		offset += 6;
+	}
+
+	return offset;
+}
+
 static void dissect_batadv_hna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	const guint8  *hna;
@@ -880,6 +1001,7 @@ static void dissect_batadv_bcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		dissect_batadv_bcast_v6(tvb, pinfo, tree);
 		break;
 	case 10:
+	case 11:
 		dissect_batadv_bcast_v10(tvb, pinfo, tree);
 		break;
 	default:
@@ -1047,6 +1169,7 @@ static void dissect_batadv_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	case 8:
 	case 9:
 	case 10:
+	case 11:
 		dissect_batadv_icmp_v7(tvb, pinfo, tree);
 		break;
 	default:
@@ -1246,6 +1369,7 @@ static void dissect_batadv_unicast(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	case 8:
 	case 9:
 	case 10:
+	case 11:
 		dissect_batadv_unicast_v6(tvb, pinfo, tree);
 		break;
 	default:
@@ -1340,6 +1464,7 @@ static void dissect_batadv_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		dissect_batadv_vis_v6(tvb, pinfo, tree);
 		break;
 	case 10:
+	case 11:
 		dissect_batadv_vis_v10(tvb, pinfo, tree);
 		break;
 	default:
