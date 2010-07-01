@@ -139,7 +139,7 @@ struct icmp_packet_v7 {
 	guint16 seqno;
 	guint8  uid;
 };
-#define ICMP_PACKET_V7_SIZE 18
+#define ICMP_PACKET_V7_SIZE 19
 
 struct unicast_packet_v6 {
 	guint8  packet_type;
@@ -1243,8 +1243,8 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_uid, tvb, offset, 1, FALSE);
 		offset += 1;
 
-		proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_seqno, tvb, offset, 1, FALSE);
-		offset += 1;
+		proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_seqno, tvb, offset, 2, FALSE);
+		offset += 2;
 	}
 
 	/* Calculate offset even when we got no tree */
@@ -1328,8 +1328,8 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		proto_tree_add_ether(batadv_icmp_tree, hf_batadv_icmp_orig, tvb, offset, 6, orig_addr);
 		offset += 6;
 
-		proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_seqno, tvb, offset, 1, FALSE);
-		offset += 1;
+		proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_seqno, tvb, offset, 2, FALSE);
+		offset += 2;
 
 		proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_uid, tvb, offset, 1, FALSE);
 		offset += 1;
