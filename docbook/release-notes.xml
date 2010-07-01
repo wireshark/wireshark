@@ -175,6 +175,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Tshark returns 0 even with an invalid interface or capture filter.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4735">Bug
+          4735</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           SABP short pdu (packet_per.c).
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4743">Bug
           4743</ulink>)
