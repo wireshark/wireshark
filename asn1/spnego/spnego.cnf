@@ -23,6 +23,8 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
 
   gssapi_oid_value *value;
 
+  MechType_oid = NULL;
+
 %(DEFAULT_BODY)s
 
   value = gssapi_lookup_oid_str(MechType_oid);

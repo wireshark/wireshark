@@ -458,7 +458,7 @@ ldap_conv_info_t *ldap_info;
 
 #.FN_BODY AttributeValue
 
-  tvbuff_t	*next_tvb;
+  tvbuff_t	*next_tvb = NULL;
   gchar		*string;
   guint32	i, len;
   int           old_offset = offset;
@@ -469,7 +469,7 @@ ldap_conv_info_t *ldap_info;
   offset = dissect_ber_octet_string(FALSE, actx, NULL, tvb, offset, hf_index, &next_tvb);
 
   /* if we have an attribute type that isn't binary see if there is a better dissector */
-  if(!attr_type || !dissector_try_string(ldap_name_dissector_table, attr_type, next_tvb, actx->pinfo, tree)) {
+  if(!attr_type || !next_tvb || !dissector_try_string(ldap_name_dissector_table, attr_type, next_tvb, actx->pinfo, tree)) {
 	offset = old_offset;
 
 	/* do the default thing */
