@@ -73,6 +73,7 @@
 static PacketList *packetlist;
 static gboolean last_at_end = FALSE;
 static gboolean enable_color;
+static gulong column_changed_handler_id;
 
 static GtkWidget *create_view_and_model(void);
 static void scroll_to_and_select_iter(GtkTreeModel *model, GtkTreeSelection *selection, GtkTreeIter *iter);
@@ -112,6 +113,7 @@ new_packet_list_create(void)
 void
 new_packet_list_recreate(void)
 {
+	g_signal_handler_block(packetlist->view, column_changed_handler_id);
 	gtk_widget_destroy(pkt_scrollw);
 
 	prefs.num_cols = g_list_length(prefs.col_list);
@@ -512,6 +514,44 @@ new_packet_list_column_button_pressed_cb (GtkWidget *widget, GdkEvent *event, gp
 	popup_menu_handler (widget, event, menu);
 }
 
+static void
+column_dnd_changed_cb(GtkTreeView *tree_view, gpointer data _U_)
+{
+	GtkTreeViewColumn  *column;
+	GtkTreeSelection   *selection;
+	GtkTreeModel  *model;
+	GtkTreeIter    iter;
+	GList         *columns, *list, *clp, *new_col_list = NULL;
+	gint           old_col_id, new_col_id = 0;
+	fmt_data      *cfmt;
+
+	selection = gtk_tree_view_get_selection(tree_view);
+	if (!gtk_tree_selection_get_selected(selection, &model, &iter))
+		return;
+
+	list = columns = gtk_tree_view_get_columns(tree_view);
+	while (columns) {
+		column = columns->data;
+		old_col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(column), E_MPACKET_LIST_COL_KEY));
+
+		clp = g_list_nth (prefs.col_list, old_col_id);
+		cfmt = (fmt_data *) clp->data;
+		new_col_list = g_list_append (new_col_list, cfmt);
+		columns = g_list_next (columns);
+		new_col_id++;
+	}
+	g_list_free (list);
+	g_list_free (prefs.col_list);
+
+	prefs.col_list = new_col_list;
+
+	if (!prefs.gui_use_pref_save) {
+		prefs_main_write();
+	}
+
+	new_packet_list_recreate();
+}
+
 static GtkWidget *
 create_view_and_model(void)
 {
@@ -541,6 +581,7 @@ create_view_and_model(void)
 					   PM_PACKET_LIST_KEY));
 	g_signal_connect(packetlist->view, "button_press_event", G_CALLBACK(popup_menu_handler),
 				   g_object_get_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
+	column_changed_handler_id = g_signal_connect(packetlist->view, "columns-changed", G_CALLBACK(column_dnd_changed_cb), NULL);
 	g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY, packetlist);
 
 	/*		g_object_unref(packetlist); */ /* Destroy automatically with view for now */ /* XXX - Messes up freezing & thawing */
