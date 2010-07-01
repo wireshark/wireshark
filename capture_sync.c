@@ -593,6 +593,8 @@ sync_pipe_start(capture_options *capture_opts) {
       return FALSE;
     }
 
+    capture_opts->fork_child_status = 0;
+
     /* we might wait for a moment till child is ready, so update screen now */
     main_window_update();
 
@@ -1511,6 +1513,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 
     /* No more child process. */
     capture_opts->fork_child = -1;
+    capture_opts->fork_child_status = ret;
 
 #ifdef _WIN32
     ws_close(capture_opts->signal_pipe_write_fd);

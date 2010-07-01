@@ -1748,8 +1748,10 @@ main(int argc, char *argv[])
      *
      * The capture code is a bit twisty, so it doesn't appear to
      * be an easy fix.  We just ignore the return value for now.
+     * Instead, pass on the exit status from the capture child.
      */
     capture();
+    exit_status = global_capture_opts.fork_child_status;
 
     if (print_packet_info) {
       if (!write_finale()) {
