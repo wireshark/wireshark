@@ -524,7 +524,11 @@ GList *
 get_ip_address_list_from_packet_list_row(gpointer data)
 {
     gint    row = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_ROW_KEY));
+#ifdef NEW_PACKET_LIST
+    gint    column = new_packet_list_get_column_id (GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY)));
+#else
     gint    column = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY));
+#endif
     gint    col;
     frame_data *fdata;
     GList      *addr_list = NULL;
@@ -575,7 +579,11 @@ static gchar *
 get_filter_from_packet_list_row_and_column(gpointer data)
 {
     gint    row = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_ROW_KEY));
+#ifdef NEW_PACKET_LIST
+    gint    column = new_packet_list_get_column_id (GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY)));
+#else
     gint    column = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY));
+#endif
     frame_data *fdata;
     gchar      *buf=NULL;
     int         err;

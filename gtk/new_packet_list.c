@@ -1316,14 +1316,25 @@ new_packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 	ignore_all_frames(FALSE);
 }
 
-static gboolean
-get_col_text_from_record( PacketListRecord *record, gint col_num, gchar** cell_text){
+guint
+new_packet_list_get_column_id (gint col_num)
+{
+  GtkTreeViewColumn *column = gtk_tree_view_get_column (GTK_TREE_VIEW(packetlist->view), col_num);
+  gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(column), E_MPACKET_LIST_COL_KEY));
 
-	if (col_based_on_frame_data(&cfile.cinfo, col_num)) {
-		col_fill_in_frame_data(record->fdata, &cfile.cinfo, col_num, FALSE);
-		*cell_text = g_strdup(cfile.cinfo.col_data[col_num]);
+  return col_id;
+}
+
+static gboolean
+get_col_text_from_record( PacketListRecord *record, gint col_num, gchar** cell_text)
+{
+	gint col_id = new_packet_list_get_column_id (col_num);
+
+	if (col_based_on_frame_data(&cfile.cinfo, col_id)) {
+		col_fill_in_frame_data(record->fdata, &cfile.cinfo, col_id, FALSE);
+		*cell_text = g_strdup(cfile.cinfo.col_data[col_id]);
 	}else
-		*cell_text = g_strdup(record->fdata->col_text[col_num]);
+		*cell_text = g_strdup(record->fdata->col_text[col_id]);
 
 	return TRUE;
 }

@@ -52,6 +52,7 @@ void new_packet_list_set_all_columns_visible (void);
 void new_packet_list_column_menu_cb (GtkWidget *w, gpointer data, COLUMN_SELECTED_E action);
 void new_packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_);
 gboolean new_packet_list_get_event_row_column(GdkEventButton *event_button, gint *physical_row, gint *row, gint *column);
+guint new_packet_list_get_column_id (gint col_num);
 
 /** Set the font of the packet list window.
  *
