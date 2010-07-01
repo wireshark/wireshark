@@ -1017,7 +1017,7 @@ int
 get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind) 
 {
 	int bl_offset = offset;
-	guint32 bl_length;
+	guint32 bl_length = 0;
 
 	gint8 save_class;
 	gboolean save_pc;
@@ -1028,12 +1028,12 @@ get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind)
 	save_pc = last_pc;
 	save_tag = last_tag;
 
-	if(try_get_ber_length(tvb, &bl_offset, last_pc, &bl_length, ind)) {
-	  if (length)
-	    *length = bl_length;
-	} else 
+	if(!try_get_ber_length(tvb, &bl_offset, last_pc, &bl_length, ind)) {
 	  /* we couldn't get a length */
 	  bl_offset = offset;
+	}
+	if (length)
+	  *length = bl_length;
 
 	/* restore last tag */
 	last_class = save_class;
