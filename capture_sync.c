@@ -217,7 +217,7 @@ protect_arg (const gchar *argv)
  * Generate a string for a Win32 error.
  */
 #define ERRBUF_SIZE    1024
-static char *
+static const char *
 win32strerror(DWORD error)
 {
     static char errbuf[ERRBUF_SIZE+1];
@@ -238,6 +238,53 @@ win32strerror(DWORD error)
     }
     p = strchr(errbuf, '\0');
     g_snprintf(p, (gulong)(sizeof errbuf - (p-errbuf)), " (%lu)", error);
+    return errbuf;
+}
+
+/*
+ * Generate a string for a Win32 exception code.
+ */
+static const char *
+win32strexception(DWORD exception)
+{
+    static char errbuf[ERRBUF_SIZE+1];
+    static const struct exception_msg {
+      int code;
+      char *msg;
+    } exceptions[] = {
+      { EXCEPTION_ACCESS_VIOLATION, "Access violation" },
+      { EXCEPTION_ARRAY_BOUNDS_EXCEEDED, "Array bounds exceeded" },
+      { EXCEPTION_BREAKPOINT, "Breakpoint" },
+      { EXCEPTION_DATATYPE_MISALIGNMENT, "Data type misalignment" },
+      { EXCEPTION_FLT_DENORMAL_OPERAND, "Denormal floating-point operand" },
+      { EXCEPTION_FLT_DIVIDE_BY_ZERO, "Floating-point divide by zero" },
+      { EXCEPTION_FLT_INEXACT_RESULT, "Floating-point inexact result" },
+      { EXCEPTION_FLT_INVALID_OPERATION, "Invalid floating-point operation" },
+      { EXCEPTION_FLT_OVERFLOW, "Floating-point overflow" },
+      { EXCEPTION_FLT_STACK_CHECK, "Floating-point stack check" },
+      { EXCEPTION_FLT_UNDERFLOW, "Floating-point underflow" },
+      { EXCEPTION_GUARD_PAGE, "Guard page violation" },
+      { EXCEPTION_ILLEGAL_INSTRUCTION, "Illegal instruction" },
+      { EXCEPTION_IN_PAGE_ERROR, "Page-in error" },
+      { EXCEPTION_INT_DIVIDE_BY_ZERO, "Integer divide by zero" },
+      { EXCEPTION_INT_OVERFLOW, "Integer overflow" },
+      { EXCEPTION_INVALID_DISPOSITION, "Invalid disposition" },
+      { EXCEPTION_INVALID_HANDLE, "Invalid handle" },
+      { EXCEPTION_NONCONTINUABLE_EXCEPTION, "Non-continuable exception" },
+      { EXCEPTION_PRIV_INSTRUCTION, "Privileged instruction" },
+      { EXCEPTION_SINGLE_STEP, "Single-step complete" },
+      { EXCEPTION_STACK_OVERFLOW, "Stack overflow" },
+      { STATUS_UNWIND_CONSOLIDATE, "Frame consolidation executed" },
+      { 0, NULL }
+    };
+#define N_EXCEPTIONS	(sizeof exceptions / sizeof exceptions[0])
+    int i;
+
+    for (i = 0; i < N_EXCEPTIONS; i++) {
+    	if (exceptions[i].code == exception)
+    	  return exceptions[i].msg;
+    }
+    g_snprintf(errbuf, (gulong)sizeof errbuf, "Exception 0x%08x", exception);
     return errbuf;
 }
 #endif
@@ -1594,11 +1641,14 @@ sync_pipe_wait_for_child(int fork_child, gchar **msgp)
     /*
      * The child exited; return its exit status.  Do not treat this as
      * an error.
-     *
-     * XXX - can we distinguish "exited with an exit status XXX" from
-     * "terminated with an uncaught exception YYY"?
      */
     ret = fork_child_status;
+    if ((fork_child_status & 0xC0000000) == ERROR_SEVERITY_ERROR) {
+      /* Probably an exception code */
+      *msgp = g_strdup_printf("Child dumpcap process died: %s",
+                              win32strexception(fork_child_status));
+      ret = -1;
+    }
   }
 #else
   if (waitpid(fork_child, &fork_child_status, 0) != -1) {
