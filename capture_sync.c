@@ -1590,6 +1590,15 @@ sync_pipe_wait_for_child(int fork_child, gchar **msgp)
   if (_cwait(&fork_child_status, fork_child, _WAIT_CHILD) == -1) {
     *msgp = g_strdup_printf("Error from cwait(): %s", strerror(errno));
     ret = -1;
+  } else {
+    /*
+     * The child exited; return its exit status.  Do not treat this as
+     * an error.
+     *
+     * XXX - can we distinguish "exited with an exit status XXX" from
+     * "terminated with an uncaught exception YYY"?
+     */
+    ret = fork_child_status;
   }
 #else
   if (waitpid(fork_child, &fork_child_status, 0) != -1) {
