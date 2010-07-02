@@ -2,13 +2,13 @@
  * packet-ppi.c
  * Routines for PPI Packet Header dissection
  *
+ * $Id$
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2007 Gerald Combs
  *
  * Copied from README.developer
- *
- * $Id$
  *
  * Copyright (c) 2006 CACE Technologies, Davis (California)
  * All rights reserved.
@@ -458,8 +458,6 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     guint16 common_frequency;
     gchar *chan_str;
 
-    if (!tree)
-        return;
     ti = proto_tree_add_text(tree, tvb, offset, data_len, "802.11-Common");
     ftree = proto_item_add_subtree(ti, ett_dot11_common);
     add_ppi_field_header(tvb, ftree, &offset);
@@ -546,9 +544,6 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
     *n_mac_flags = tvb_get_letohl(tvb, offset + subtree_off);
     *ampdu_id = tvb_get_letohl(tvb, offset + 4 + subtree_off);
 
-    if (!tree)
-        return;
-
     if (add_subtree) {
         ti = proto_tree_add_text(tree, tvb, offset, data_len, "802.11n MAC");
         ftree = proto_item_add_subtree(ti, ett_dot11n_mac);
@@ -591,9 +586,6 @@ static void dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     ptvcursor_t *csr = NULL;
     guint16 ext_frequency;
     gchar *chan_str;
-
-    if (!tree)
-        return;
 
     ti = proto_tree_add_text(tree, tvb, offset, data_len, "802.11n MAC+PHY");
     ftree = proto_item_add_subtree(ti, ett_dot11n_mac_phy);
@@ -666,9 +658,6 @@ static void dissect_aggregation_extension(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_item *ti = NULL;
     ptvcursor_t *csr = NULL;
 
-    if (!tree)
-        return;
-
     ti = proto_tree_add_text(tree, tvb, offset, data_len, "Aggregation Extension");
     ftree = proto_item_add_subtree(ti, ett_aggregation_extension);
     add_ppi_field_header(tvb, ftree, &offset);
@@ -690,9 +679,6 @@ static void dissect_8023_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     proto_tree *ftree = tree;
     proto_item *ti = NULL;
     ptvcursor_t *csr = NULL;
-
-    if (!tree)
-        return;
 
     ti = proto_tree_add_text(tree, tvb, offset, data_len, "802.3 Extension");
     ftree = proto_item_add_subtree(ti, ett_8023_extension);
