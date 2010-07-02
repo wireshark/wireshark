@@ -127,6 +127,21 @@ compute_timestamp_diff(gint *diffsec, gint *diffusec,
   }
 }
 
+/* Remove any %<interface_name> from an IP address. */
+char *sanitize_filter_ip(char *hostname) {
+    gchar *end;
+    gchar *ret;
+
+    ret = g_strdup(hostname);
+    if (!ret)
+        return NULL;
+
+    end = strchr(ret, '%');
+    if (end)
+        *end = '\0';
+    return ret;
+}
+
 /* Try to figure out if we're remotely connected, e.g. via ssh or
    Terminal Server, and create a capture filter that matches aspects of the
    connection.  We match the following environment variables:
@@ -145,6 +160,7 @@ const gchar *get_conn_cfilter(void) {
 	char *pprotocol = NULL;
 	char *phostname = NULL;
 	size_t hostlen;
+	char *remip, *locip;
 
 	if (filter_str == NULL) {
 		filter_str = g_string_new("");
@@ -152,15 +168,21 @@ const gchar *get_conn_cfilter(void) {
 	if ((env = getenv("SSH_CONNECTION")) != NULL) {
 		tokens = g_strsplit(env, " ", 4);
 		if (tokens[3]) {
+			remip = sanitize_filter_ip(tokens[0]);
+			locip = sanitize_filter_ip(tokens[2]);
 			g_string_printf(filter_str, "not (tcp port %s and %s host %s "
-							 "and tcp port %s and %s host %s)", tokens[1], host_ip_af(tokens[0]), tokens[0],
-				tokens[3], host_ip_af(tokens[2]), tokens[2]);
+							 "and tcp port %s and %s host %s)", tokens[1], host_ip_af(remip), remip,
+				tokens[3], host_ip_af(locip), locip);
+			g_free(remip);
+			g_free(locip);
 			return filter_str->str;
 		}
 	} else if ((env = getenv("SSH_CLIENT")) != NULL) {
 		tokens = g_strsplit(env, " ", 3);
+		remip = sanitize_filter_ip(tokens[2]);
 		g_string_printf(filter_str, "not (tcp port %s and %s host %s "
-			"and tcp port %s)", tokens[1], host_ip_af(tokens[0]), tokens[0], tokens[2]);
+			"and tcp port %s)", tokens[1], host_ip_af(remip), tokens[0], remip);
+		g_free(remip);
 		return filter_str->str;
 	} else if ((env = getenv("REMOTEHOST")) != NULL) {
 		/* FreeBSD 7.0 sets REMOTEHOST to an empty string */
@@ -169,7 +191,9 @@ const gchar *get_conn_cfilter(void) {
 		    strcmp(env, "") == 0) {
 			return "";
 		}
-		g_string_printf(filter_str, "not %s host %s", host_ip_af(env), env);
+		remip = sanitize_filter_ip(env);
+		g_string_printf(filter_str, "not %s host %s", host_ip_af(remip), remip);
+		g_free(remip);
 		return filter_str->str;
 	} else if ((env = getenv("DISPLAY")) != NULL) {
 		/*

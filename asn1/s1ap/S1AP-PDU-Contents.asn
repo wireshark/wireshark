@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V9.2.0 (2010-03)
+-- 3GPP TS 36.413 V9.3.0 (2010-06)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -111,7 +111,8 @@ Routing-ID,
 	WarningMessageContents,
 	BroadcastCompletedAreaList,
 	RRC-Establishment-Cause,
-	BroadcastCancelledAreaList
+	BroadcastCancelledAreaList,
+	PS-ServiceNotAvailable
 
 FROM S1AP-IEs
 
@@ -267,7 +268,8 @@ FROM S1AP-Containers
 	maxnoofTAIforWarning,
 	maxnoofCellinTAI,
 	maxnoofCellinEAI,
-	id-ExtendedRepetitionPeriod
+	id-ExtendedRepetitionPeriod,
+	id-PS-ServiceNotAvailable
 
 
 FROM S1AP-Constants;
@@ -312,7 +314,8 @@ HandoverRequiredIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-MSClassmark2							CRITICALITY reject	TYPE MSClassmark2									PRESENCE  conditional }|
 	{ ID id-MSClassmark3							CRITICALITY ignore	TYPE MSClassmark3									PRESENCE conditional } |
 	{ ID id-CSG-Id									CRITICALITY reject	TYPE CSG-Id											PRESENCE optional} |
-	{ ID id-CellAccessMode							CRITICALITY reject	TYPE CellAccessMode									PRESENCE optional},
+	{ ID id-CellAccessMode							CRITICALITY reject	TYPE CellAccessMode									PRESENCE optional }|
+	{ ID id-PS-ServiceNotAvailable					CRITICALITY ignore	TYPE PS-ServiceNotAvailable						PRESENCE optional },
 	...
 }
 

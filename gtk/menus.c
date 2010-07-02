@@ -2518,7 +2518,7 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 #endif
             g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_ROW_KEY,
 #ifdef NEW_PACKET_LIST
-                            GINT_TO_POINTER(physical_row));
+                            GINT_TO_POINTER(row));
 #else
                             GINT_TO_POINTER(row));
 #endif
