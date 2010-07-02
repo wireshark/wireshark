@@ -317,6 +317,7 @@ dissector_handle_get_protocol_index
 dissector_handle_get_short_name
 dissector_reset
 dissector_reset_string
+dissector_table_foreach
 dissector_table_foreach_handle
 dissector_try_heuristic
 dissector_try_port

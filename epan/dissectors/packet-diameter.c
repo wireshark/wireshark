@@ -1545,7 +1545,7 @@ proto_register_diameter(void)
 	new_register_dissector("diameter", dissect_diameter, proto_diameter);
 
 	/* Register dissector table(s) to do sub dissection of AVP:s ( OctetStrings) */
-	diameter_dissector_table = register_dissector_table("diameter.base", "DIAMETER_3GPP_AVPS", FT_UINT32, BASE_DEC);
+	diameter_dissector_table = register_dissector_table("diameter.base", "DIAMETER_BASE_AVPS", FT_UINT32, BASE_DEC);
 	diameter_3gpp_avp_dissector_table = register_dissector_table("diameter.3gpp", "DIAMETER_3GPP_AVPS", FT_UINT32, BASE_DEC);
 	diameter_ericsson_avp_dissector_table = register_dissector_table("diameter.ericsson", "DIAMETER_ERICSSON_AVPS", FT_UINT32, BASE_DEC);
 

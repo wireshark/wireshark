@@ -1,49 +1,126 @@
-Wireshark 1.3.0 Release Notes
+Wireshark 1.4.0rc2 Release Notes
 
    ------------------------------------------------------------------
 
 What is Wireshark?
 
    Wireshark is the world's most popular network protocol analyzer.
-   It is used for troubleshooting, analysis, development, and
+   It is used for troubleshooting, analysis, development and
    education.
 
 What's New
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed. See the security
-   advisory for details and a workaround.
-
-     o The NetFlow dissector could run off with your dog, crash your
-       truck, and write a country music song about the experience.
-
-       Versions affected: 0.99.5 to 1.0.8
-
    The following bugs have been fixed:
 
-     o Wireshark could crash without warning.
+     o Update time display in background. (Bug 1275)
+
+     o Wireshark is unresponsive when capturing from named pipes on
+       Windows. (Bug 1759)
 
   New and Updated Features
 
    The following features are new (or have been significantly
-   updated) since version 1.0:
+   updated) since version 1.2:
 
      o The packet list internals have been rewritten and are now more
        efficient.
 
-     o Capturing from pipes on Windows has been improved.
+     o Columns are easier to use. You can add a protocol field as a
+       column by right-clicking on its packet detail item, and you
+       can adjust some column preferences by right-clicking the
+       column header.
+
+     o Preliminary Python scripting support has been added.
+
+     o Many memory leaks have been fixed.
+
+     o Wireshark 1.4 does not support Windows 2000. Please use
+       Wireshark 1.2 or 1.0 on those systems.
+
+     o Packets can now be ignored (excluded from dissection), similar
+       to the way they can be marked.
+
+     o Manual IP address resolution is now supported.
+
+     o Columns with seconds can now be displayed as hours, minutes
+       and seconds.
+
+     o You can now set the capture buffer size on UNIX and Linux if
+       you have libpcap 1.0.0 or greater.
+
+     o TShark no longer needs elevated privileges on UNIX or Linux to
+       list interfaces. Only dumpcap requires privileges now.
+
+     o Wireshark and TShark can enable 802.11 monitor mode directly
+       if you have libpcap 1.0.0 or greater.
+
+     o You can play RTP streams directly from the RTP Analysis
+       window.
+
+     o Capinfos and editcap now respectively support time order
+       checking and forcing.
+
+     o Wireshark now has a "jump to timestamp" command-line option.
+
+     o You can open JPEG files directly in Wireshark.
 
   New Protocol Support
 
+   3GPP Nb Interface RTP Multiplex, Access Node Control Protocol,
+   Apple Network-MIDI Session Protocol, ARUBA encapsulated remote
+   mirroring, Assa Abloy R3, Asynchronous Transfer Mode, B.A.T.M.A.N.
+   Advanced Protocol, Bluetooth AMP Packet, Bluetooth OBEX, Bundle
+   Protocol, CIP Class Generic, CIP Connection Configuration Object,
+   CIP Connection Manager, CIP Message Router, collectd network data,
+   Control And Provisioning of Wireless Access Points, Controller
+   Area Network, Device Level Ring, DOCSIS Bonded Initial Ranging
+   Message, Dropbox LAN sync Discovery Protocol, Dropbox LAN sync
+   Protocol, DTN TCP Convergence Layer Protocol, EtherCAT Switch
+   Link, Fibre Channel Delimiters, File Replication Service DFS-R,
+   Gateway Load Balancing Protocol, GigE Vision Control Protocol, Git
+   Smart Protocol, GSM over IP ip.access CCM sub-protocol, GSM over
+   IP protocol as used by ip.access, GSM Radiotap, HI2Operations,
+   Host Identity Protocol, HP encapsulated remote mirroring, HP NIC
+   Teaming Heartbeat, IEC61850 Sampled Values, IEEE 1722 Protocol,
+   InfiniBand Link, Interlink Protocol, IPv6 over IEEE 802.15.4, ISO
+   10035-1 OSI Connectionless Association Control Service, ISO 9548-1
+   OSI Connectionless Session Protocol, ISO 9576-1 OSI Connectionless
+   Presentation Protocol, ITU-T Q.708 ISPC Analysis, Juniper Packet
+   Mirror, Licklider Transmission Protocol, MPLS PW ATM AAL5 CPCS-SDU
+   mode encapsulation, MPLS PW ATM Cell Header, MPLS PW ATM Control
+   Word, MPLS PW ATM N-to-One encapsulation, no CW, MPLS PW ATM
+   N-to-One encapsulation, with CW, MPLS PW ATM One-to-One or AAL5
+   PDU encapsulation, Multiple Stream Reservation Protocol,
+   NetPerfMeter Protocol, NetScaler Trace, NexusWare C7 MTP, NSN
+   FLIP, OMRON FINS Protocol, packetbb Protocol, Peer Network
+   Resolution Protocol, PKIX Attribute Certificate, Pseudowire
+   Padding, Server/Application State Protocol, Solaris IPNET, TN3270
+   Protocol, TN5250 Protocol, TRILL, Twisted Banana, UMTS FP Hint,
+   UMTS MAC, UMTS Metadata, UMTS RLC, USB HID, USB HUB, UTRAN Iuh
+   interface HNBAP signalling, UTRAN Iuh interface RUA signalling,
+   V5.2, Vendor Specific Control Protocol, Vendor Specific Network
+   Protocol, VMware Lab Manager, VXI-11 Asynchronous Abort, VXI-11
+   Core Protocol, VXI-11 Interrupt, X.411 Message Access Service,
+   ZigBee Cluster Library
+
   Updated Protocol Support
 
+   There are too many to list here.
+
   New and Updated Capture File Support
+
+   Accellent 5Views, ASN.1 Basic Encoding Rules, Catapult DCT2000,
+   Daintree SNA, Endace ERF, EyeSDN, Gammu DCT3 trace, IBM iSeries,
+   JPEG/JFIF, libpcap, Lucent/Ascend access server trace, NetScaler,
+   PacketLogger, pcapng, Shomiti/Finisar Surveyor, Sun snoop, Symbian
+   OS btsnoop, Visual Networks
 
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   the download page on the main web site.
+   http://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
@@ -66,27 +143,27 @@ Known Problems
    (Bug 553)
 
    Wireshark might make your system disassociate from a wireless
-   network on OS X. (Bug 1315)
+   network on OS X 10.4. (Bug 1315)
 
    Dumpcap might not quit if Wireshark or TShark crashes. (Bug 1419)
 
-   Wireshark is unable to decrypt WPA group keys. (Bug 1420)
-
    The BER dissector might infinitely loop. (Bug 1516)
-
-   Wireshark can't dynamically update the packet list. This means
-   that host name resolutions above a certain response time threshold
-   won't show up in the packet list. (Bug 1605)
 
    Capture filters aren't applied when capturing from named pipes.
    (Bug 1814)
 
-   Wireshark might freeze when reading from a pipe. (Bug 2082)
-
-   Capturing from named pipes might be delayed on Windows. (Bug 2200)
-
    Filtering tshark captures with display filters (-R) no longer
    works. (Bug 2234)
+
+   The 64-bit Windows installer does not ship with the same libraries
+   as the 32-bit installer. (Bug 3610)
+
+   Hex pane display issue after startup. (Bug 4056)
+
+   Packet list rows are oversized. (Bug 4357)
+
+   Summary pane selected frame highlighting not maintained. (Bug
+   4445)
 
 Getting Help
 
@@ -94,8 +171,9 @@ Getting Help
    list. Subscription information and archives for all of Wireshark's
    mailing lists can be found on the web site.
 
-   Commercial support, training, and development services are
-   available from CACE Technologies.
+   Commercial support is available from CACE Technologies.
+
+   Training is available from Wireshark University.
 
 Frequently Asked Questions
 

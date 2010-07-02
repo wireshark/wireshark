@@ -41,7 +41,7 @@
 #include <epan/strutil.h>
 #include <epan/proto.h>
 
-#if GLIB_CHECK_VERSION(2,6,0)
+#if GLIB_CHECK_VERSION(2,14,0) /* GRegex */
 
 #define PH_MENU_TOP "/Protocol Help"
 
@@ -663,10 +663,10 @@ static void ph_logging_handler(const gchar *domain _U_, GLogLevelFlags level, co
 }
 #endif /* PH_DEBUG_LOG */
 
-#else /* GLIB_CHECK_VERSION(2,6,0) */
+#else /* GLIB_CHECK_VERSION(2,14,0) */ /* No GRegex */
 
 void proto_help_init(void) {}
 void proto_help_menu_init(GtkWidget *widget _U_) {}
 void proto_help_menu_modify(GtkTreeSelection *selection _U_, capture_file *cf _U_) {}
 
-#endif /* GLIB_CHECK_VERSION(2,6,0) */
+#endif /* GLIB_CHECK_VERSION(2,14,0) */
