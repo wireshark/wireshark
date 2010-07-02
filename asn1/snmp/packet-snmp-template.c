@@ -395,7 +395,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	proto_item *pi_name, *pi_varbind, *pi_value = NULL;
 	proto_tree *pt, *pt_varbind, *pt_name, *pt_value;
 	char label[ITEM_LABEL_LENGTH];
-	char* repr = NULL;
+	const char* repr = NULL;
 	const char* info_oid = NULL;
 	char* valstr;
 	int hfid = -1;
@@ -478,8 +478,10 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	add_oid_debug_subtree(oid_info,pt_name);
 
 	if (!subids) {
+		proto_item* pi;
+
 		repr = oid_encoded2string(oid_bytes, name_len);
-		proto_item* pi = proto_tree_add_text(pt_name,tvb, 0, 0, "invalid oid: %s", repr);
+		pi = proto_tree_add_text(pt_name,tvb, 0, 0, "invalid oid: %s", repr);
 		pt = proto_item_add_subtree(pi, ett_decoding_error);
 		expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "invalid oid: %s", repr);
 		return dissect_unknown_ber(actx->pinfo, tvb, name_offset, pt);
