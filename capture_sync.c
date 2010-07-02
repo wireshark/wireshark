@@ -44,7 +44,6 @@
 #include <signal.h>
 
 #ifdef _WIN32
-#include <Winbase.h>
 #include <wsutil/unicode-utils.h>
 #endif
 
@@ -275,7 +274,6 @@ win32strexception(DWORD exception)
       { EXCEPTION_PRIV_INSTRUCTION, "Privileged instruction" },
       { EXCEPTION_SINGLE_STEP, "Single-step complete" },
       { EXCEPTION_STACK_OVERFLOW, "Stack overflow" },
-      { STATUS_UNWIND_CONSOLIDATE, "Frame consolidation executed" },
       { 0, NULL }
     };
 #define N_EXCEPTIONS	(sizeof exceptions / sizeof exceptions[0])
