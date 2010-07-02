@@ -1410,7 +1410,7 @@ static guint32 dissect_iax2_command(tvbuff_t * tvb, guint32 offset,
   if (offset >= tvb_reported_length (tvb))
     return offset;
 
-  offset += dissect_ies(tvb, offset, tree, &ie_data);
+  offset = dissect_ies(tvb, offset, tree, &ie_data);
 
   /* if this is a data call, set up a subdissector for the circuit */
   if(iax_call && ie_data.dataformat != (guint32)-1 && iax_call -> subdissector == NULL) {
