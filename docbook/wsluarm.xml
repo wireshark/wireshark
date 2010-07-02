@@ -17,12 +17,11 @@
 	<para>
 	  Wireshark's Lua interpreter starts by loading <command>init.lua</command> that
 	  is located in the global configuration directory of Wireshark.
-	  Lua is disabled by default by setting the variable <command>disable_lua</command>
-	  to true in <command>init.lua</command>. To enable lua the line that sets that variable
-	  must be removed or commented out.
+	  Lua is enabled by default.  To disable Lua the line variable <command>disable_lua</command>
+	  should be set to <command>true</command> in <command>init.lua</command>.
 	</para>
 	<para>
-	  After loading <command>init.lua</command> from the data directory if lua is enabled
+	  After loading <command>init.lua</command> from the data directory if Lua is enabled
 	  Wireshark will try to load a file named <command>init.lua</command> in the user's
 	  directory.
 	</para>
@@ -32,11 +31,11 @@
 	</para>
 	<para>
 	  The command line option <command>-X lua_script:&lt;file.lua&gt;</command> can be used to
-	  load lua scripts as well.	  
+	  load Lua scripts as well.
 	</para>
 	<para>
-	  The Lua code will be executed once after all the protocols have being initialized and before reading
-	  any file.
+	  The Lua code will be executed once after all the protocol dissectors have being initialized
+	  and before reading any file.
 	</para>
   </section>
   <section id="wslua_dissector_example">

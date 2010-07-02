@@ -300,6 +300,36 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -v                       display version info and exit\n");
   fprintf(output, "  -o <name>:<value> ...    override preference setting\n");
   fprintf(output, "  -K <keytab>              keytab file to use for kerberos decryption\n");
+  fprintf(output, "  -G [report]              dump one of several available reports and exit\n");
+  fprintf(output, "                           default report=\"fields\"\n");
+  fprintf(output, "                           use \"-G ?\" for more help\n");
+}
+
+static void
+glossary_option_help(void)
+{
+  FILE *output;
+
+  output = stdout;
+
+  fprintf(output, "TShark " VERSION "%s\n", wireshark_svnversion);
+
+  fprintf(output, "\n");
+  fprintf(output, "Usage: tshark -G [report]\n");
+  fprintf(output, "\n");
+  fprintf(output, "Glossary table reports:\n");
+  fprintf(output, "  -G [fields]              dump glossary in original format and exit\n");
+  fprintf(output, "  -G fields2               dump glossary in format 2 and exit\n");
+  fprintf(output, "  -G fields3               dump glossary in format 3 and exit\n");
+  fprintf(output, "  -G protocols             dump protocols in registration database and exit\n");
+  fprintf(output, "  -G values                dump value, range, true/false strings and exit\n");
+  fprintf(output, "  -G decodes               dump \"layer type\"/\"decode as\" associations and exit\n");
+  fprintf(output, "\n");
+  fprintf(output, "Preference reports:\n");
+  fprintf(output, "  -G defaultprefs          dump default preferences and exit\n");
+  fprintf(output, "  -G currentprefs          dump current preferences and exit\n");
+  fprintf(output, "\n");
+
 }
 
 /*
@@ -927,12 +957,16 @@ main(int argc, char *argv[])
         dissector_dump_decodes();
       else if (strcmp(argv[2], "defaultprefs") == 0)
         write_prefs(NULL);
+      else if (strcmp(argv[2], "?") == 0)
+        glossary_option_help();
+      else if (strcmp(argv[2], "-?") == 0)
+        glossary_option_help();
       else if (strcmp(argv[2], "currentprefs") == 0) {
         read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
             &pf_open_errno, &pf_read_errno, &pf_path);
         write_prefs(NULL);
       } else {
-        cmdarg_err("Invalid \"%s\" option for -G flag", argv[2]);
+        cmdarg_err("Invalid \"%s\" option for -G flag, enter -G ? for more help.", argv[2]);
         return 1;
       }
     }

@@ -166,11 +166,12 @@ nameres_prefs_show(void)
 	    "Support for this feature was not compiled into this version of Wireshark");
 #endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
 #ifdef HAVE_LIBSMI
-	/* Suppress smi errors */
+	/* Enable OID resolution */
 	table_row++;
 	load_smi_modules_cb = create_preference_check_button(main_tb, table_row,
 		"Enable OID resolution:", "You must restart Wireshark for this change to"
-		" take effect.", prefs.load_smi_modules);
+		" take effect. [If True the 'SMI paths' and 'SMI modules' preferences will be shown].",
+                prefs.load_smi_modules);
 	g_object_set_data(G_OBJECT(main_vb), LOAD_SMI_MODULES_KEY, load_smi_modules_cb);
 
 	/* Suppress smi errors */

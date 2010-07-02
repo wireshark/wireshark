@@ -432,7 +432,7 @@ static gboolean check_is_802_2(tvbuff_t *tvb, int fcs_len)
  * it does, maybe it doesn't"), we try to infer whether it has an FCS.
  */
 void
-add_ethernet_trailer(packet_info *pinfo, proto_tree *fh_tree, int trailer_id,
+add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree, int trailer_id,
 		     tvbuff_t *tvb, tvbuff_t *trailer_tvb, int fcs_len)
 {
   /* If there're some bytes left over, show those bytes as a trailer.
@@ -446,7 +446,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *fh_tree, int trailer_id,
     gboolean has_fcs = FALSE;
 
     if (dissector_try_heuristic(eth_trailer_subdissector_list, trailer_tvb,
-		pinfo, fh_tree)) {
+		pinfo, tree)) {
       return;
     }
 
