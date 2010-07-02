@@ -1521,7 +1521,7 @@ void proto_reg_handoff_ess(void) {
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.47", dissect_SigningCertificateV2_PDU, proto_ess, "id-aa-signingCertificateV2");
   register_ber_oid_dissector("2.16.840.1.101.2.1.8.3.0", dissect_RestrictiveTag_PDU, proto_ess, "id-restrictiveAttributes");
   register_ber_oid_dissector("2.16.840.1.101.2.1.8.3.1", dissect_EnumeratedTag_PDU, proto_ess, "id-enumeratedPermissiveAttributes");
-  register_ber_oid_dissector("2.16.840.1.101.2.1.8.3.2", dissect_PermissiveTag_PDU, proto_ess, "id-restrictiveAttributes");
+  register_ber_oid_dissector("2.16.840.1.101.2.1.8.3.2", dissect_PermissiveTag_PDU, proto_ess, "id-permissiveAttributes");
   register_ber_oid_dissector("2.16.840.1.101.2.1.8.3.3", dissect_InformativeTag_PDU, proto_ess, "id-informativeAttributes");
   register_ber_oid_dissector("2.16.840.1.101.2.1.8.3.4", dissect_EnumeratedTag_PDU, proto_ess, "id-enumeratedRestrictiveAttributes");
 

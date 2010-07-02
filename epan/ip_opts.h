@@ -48,7 +48,7 @@ typedef struct ip_tcp_opt {
    length field in the option, if present, includes the type and
    length bytes. */
 extern void dissect_ip_tcp_options(tvbuff_t *, int, guint,
-    const ip_tcp_opt *, int, int, packet_info *, proto_tree *);
+    const ip_tcp_opt *, int, int, packet_info *, proto_tree *, proto_item *);
 
 /* Routine to dissect options that work like IPv6 options, where the
    length field in the option, if present, includes only the data, not

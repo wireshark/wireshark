@@ -65,6 +65,8 @@ extern void menu_colorize_changed(gboolean packet_list_colorize);
 /* Reset preferences menu on profile or preference change. */
 extern void menu_prefs_reset(void);
 
+extern void rebuild_visible_columns_menu (void);
+
 #ifdef HAVE_LIBPCAP
 /** The "Auto Scroll Packet List in Live Capture" option changed. */
 extern void menu_auto_scroll_live_changed(gboolean auto_scroll_in);
