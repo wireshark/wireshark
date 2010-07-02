@@ -113,6 +113,7 @@ typedef struct gtp_msg_hash_entry {
 /* 242-254  For future use. Shall not be sent. 
  * If received, shall be treated as an Unknown message.
  */
+#define GTP_MSG_END_MARKER          0xFE /* 254 */
 #define GTP_MSG_TPDU                0xFF
 
 #endif /* __PACKET_GTP_H*/

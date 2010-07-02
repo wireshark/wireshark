@@ -460,6 +460,7 @@ static const value_string message_type[] = {
     {GTP_MS_INFO_CNG_NOT_RES, "MS Info Change Notification Response"},
     {GTP_MSG_DATA_TRANSF_REQ, "Data record transfer request"},
     {GTP_MSG_DATA_TRANSF_RESP, "Data record transfer response"},
+    {GTP_MSG_END_MARKER, "End Marker"},
     {GTP_MSG_TPDU, "T-PDU"},
     {0, NULL}
 };

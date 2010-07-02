@@ -73,6 +73,7 @@
 static PacketList *packetlist;
 static gboolean last_at_end = FALSE;
 static gboolean enable_color;
+static gulong column_changed_handler_id;
 
 static GtkWidget *create_view_and_model(void);
 static void scroll_to_and_select_iter(GtkTreeModel *model, GtkTreeSelection *selection, GtkTreeIter *iter);
@@ -112,6 +113,7 @@ new_packet_list_create(void)
 void
 new_packet_list_recreate(void)
 {
+	g_signal_handler_block(packetlist->view, column_changed_handler_id);
 	gtk_widget_destroy(pkt_scrollw);
 
 	prefs.num_cols = g_list_length(prefs.col_list);
@@ -370,7 +372,7 @@ void
 new_packet_list_toggle_visible_column (gint col_id)
 {
 	GtkTreeViewColumn *col =
-	  gtk_tree_view_get_column(GTK_TREE_VIEW(GTK_TREE_VIEW(packetlist->view)), col_id);
+	  gtk_tree_view_get_column(GTK_TREE_VIEW(packetlist->view), col_id);
 
 	new_packet_list_set_visible_column (col_id, col, get_column_visible(col_id) ? FALSE : TRUE);
 }
@@ -382,7 +384,7 @@ new_packet_list_set_all_columns_visible (void)
 	int col_id;
 
 	for (col_id = 0; col_id < cfile.cinfo.num_cols; col_id++) {
-		col = gtk_tree_view_get_column(GTK_TREE_VIEW(GTK_TREE_VIEW(packetlist->view)), col_id);
+		col = gtk_tree_view_get_column(GTK_TREE_VIEW(packetlist->view), col_id);
 		gtk_tree_view_column_set_visible(col, TRUE);
 		set_column_visible(col_id, TRUE);
 	}
@@ -468,6 +470,44 @@ new_packet_list_column_button_pressed_cb (GtkWidget *widget, GdkEvent *event, gp
 	popup_menu_handler (widget, event, menu);
 }
 
+static void
+column_dnd_changed_cb(GtkTreeView *tree_view, gpointer data _U_)
+{
+	GtkTreeViewColumn  *column;
+	GtkTreeSelection   *selection;
+	GtkTreeModel  *model;
+	GtkTreeIter    iter;
+	GList         *columns, *list, *clp, *new_col_list = NULL;
+	gint           old_col_id, new_col_id = 0;
+	fmt_data      *cfmt;
+
+	selection = gtk_tree_view_get_selection(tree_view);
+	if (!gtk_tree_selection_get_selected(selection, &model, &iter))
+		return;
+
+	list = columns = gtk_tree_view_get_columns(tree_view);
+	while (columns) {
+		column = columns->data;
+		old_col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(column), E_MPACKET_LIST_COL_KEY));
+
+		clp = g_list_nth (prefs.col_list, old_col_id);
+		cfmt = (fmt_data *) clp->data;
+		new_col_list = g_list_append (new_col_list, cfmt);
+		columns = g_list_next (columns);
+		new_col_id++;
+	}
+	g_list_free (list);
+	g_list_free (prefs.col_list);
+
+	prefs.col_list = new_col_list;
+
+	if (!prefs.gui_use_pref_save) {
+		prefs_main_write();
+	}
+
+	new_packet_list_recreate();
+}
+
 static GtkWidget *
 create_view_and_model(void)
 {
@@ -497,6 +537,7 @@ create_view_and_model(void)
 					   PM_PACKET_LIST_KEY));
 	g_signal_connect(packetlist->view, "button_press_event", G_CALLBACK(popup_menu_handler),
 				   g_object_get_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
+	column_changed_handler_id = g_signal_connect(packetlist->view, "columns-changed", G_CALLBACK(column_dnd_changed_cb), NULL);
 	g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY, packetlist);
 
 	/*		g_object_unref(packetlist); */ /* Destroy automatically with view for now */ /* XXX - Messes up freezing & thawing */
@@ -1267,14 +1308,25 @@ void new_packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 }
 
 
-static gboolean
-get_col_text_from_record( PacketListRecord *record, gint col_num, gchar** cell_text){
+guint
+new_packet_list_get_column_id (gint col_num)
+{
+  GtkTreeViewColumn *column = gtk_tree_view_get_column (GTK_TREE_VIEW(packetlist->view), col_num);
+  gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(column), E_MPACKET_LIST_COL_KEY));
 
-	if (col_based_on_frame_data(&cfile.cinfo, col_num)) {
-		col_fill_in_frame_data(record->fdata, &cfile.cinfo, col_num, FALSE);
-		*cell_text = g_strdup(cfile.cinfo.col_data[col_num]);
+  return col_id;
+}
+
+static gboolean
+get_col_text_from_record( PacketListRecord *record, gint col_num, gchar** cell_text)
+{
+	gint col_id = new_packet_list_get_column_id (col_num);
+
+	if (col_based_on_frame_data(&cfile.cinfo, col_id)) {
+		col_fill_in_frame_data(record->fdata, &cfile.cinfo, col_id, FALSE);
+		*cell_text = g_strdup(cfile.cinfo.col_data[col_id]);
 	}else
-		*cell_text = g_strdup(record->fdata->col_text[col_num]);
+		*cell_text = g_strdup(record->fdata->col_text[col_id]);
 
 	return TRUE;
 }
@@ -1338,7 +1390,7 @@ new_packet_list_recent_write_all(FILE *rf)
 		} else {
 			fprintf (rf, " %s,", col_format_to_string(col_fmt));
 		}
-		tree_column = gtk_tree_view_get_column(GTK_TREE_VIEW(GTK_TREE_VIEW(packetlist->view)), col);
+		tree_column = gtk_tree_view_get_column(GTK_TREE_VIEW(packetlist->view), col);
 		width = gtk_tree_view_column_get_width(tree_column);
 		xalign = recent_get_column_xalign (col);
 		if (width == 0) {
