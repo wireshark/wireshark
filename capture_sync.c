@@ -44,6 +44,7 @@
 #include <signal.h>
 
 #ifdef _WIN32
+#include <Winbase.h>
 #include <wsutil/unicode-utils.h>
 #endif
 
