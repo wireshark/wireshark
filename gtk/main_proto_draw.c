@@ -1153,17 +1153,18 @@ packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int bstart, int bend, guint32 m
 	if (mask == 0x00 || recent.gui_bytes_view != BYTES_BITS) {
 		while (start_line <= stop_line) {
 			int line_pos_end = (start_line == stop_line) ? stop_line_pos : per_line;
+			int first_block_adjust = (recent.gui_bytes_view == BYTES_HEX) ? (line_pos_end == per_line/2) : 0;
 
 			if (start_line_pos == line_pos_end) break;
 
 			/* bits/hex */
 			gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, hex_fix(start_line_pos));
-			gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, hex_fix(line_pos_end)-1-(line_pos_end == per_line/2));
+			gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, hex_fix(line_pos_end)-1-first_block_adjust);
 			gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
 
 			/* ascii */
 			gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, ascii_fix(start_line_pos));
-			gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, ascii_fix(line_pos_end)-(line_pos_end == per_line/2));
+			gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, ascii_fix(line_pos_end)-first_block_adjust);
 			gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
 
 			start_line_pos = 0;
