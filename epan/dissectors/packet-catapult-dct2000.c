@@ -1429,6 +1429,11 @@ static void attach_mac_lte_info(packet_info *pinfo)
         }
     }
 
+    if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
+        p_mac_lte_info->subframeNumberOfGrantPresent = TRUE;
+        p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i++];
+    }
+
     /* Store info in packet */
     p_add_proto_data(pinfo->fd, proto_mac_lte, p_mac_lte_info);
 }

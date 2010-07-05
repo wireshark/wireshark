@@ -2959,6 +2959,12 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         p_mac_lte_info->subframeNumber = 9;
     }
 
+    if (p_mac_lte_info->subframeNumberOfGrantPresent) {
+        ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_grant_subframe_number,
+                                 tvb, 0, 0, p_mac_lte_info->subframeNumberOfGrant);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+
     if (p_mac_lte_info->rntiType != NO_RNTI) {
         ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rnti,
                                  tvb, 0, 0, p_mac_lte_info->rnti);
@@ -3747,7 +3753,7 @@ void proto_register_mac_lte(void)
         },
         { &hf_mac_lte_suspected_dl_retx_original_frame,
             { "Frame with previous tx",
-              "mac-lte.dlsch.retx.original_frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              "mac-lte.dlsch.retx.original-frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
               NULL, HFILL
             }
         },

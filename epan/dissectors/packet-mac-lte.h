@@ -88,7 +88,9 @@ typedef struct mac_lte_info
     /* Extra info to display */
     guint16         rnti;
     guint16         ueid;
-    guint16         subframeNumber;
+    guint8          subframeNumber;
+    gboolean        subframeNumberOfGrantPresent;
+    guint8          subframeNumberOfGrant;
     guint8          isPredefinedData;
     guint16         length;
     guint8          reTxCount;   /* UL */
