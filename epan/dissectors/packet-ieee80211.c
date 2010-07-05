@@ -477,6 +477,8 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define FIELD_TARGET_AP_ADDRESS         0x34
 #define FIELD_MESH_MGT_ACTION_PS_CODE   0x35    /* Mesh Management action peer link code */
 #define FIELD_MESH_MGT_ACTION_PL_CODE   0x36    /* Mesh Management action peer link code */
+#define FIELD_GAS_COMEBACK_DELAY        0x37
+#define FIELD_GAS_FRAGMENT_ID           0x38
 #define FIELD_SA_QUERY_ACTION_CODE      0x39
 #define FIELD_TRANSACTION_ID            0x3A
 
@@ -530,6 +532,7 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_OVERLAP_BSS_SCAN_PAR     0x49   /* IEEE P802.11n/D6.0 */
 #define TAG_RIC_DESCRIPTOR           0x4B  /* IEEE Std 802.11r-2008 */
 #define TAG_MMIE                     0x4C  /* IEEE Std 802.11w-2009 */
+#define TAG_ADVERTISEMENT_PROTOCOL   0x6C  /* IEEE P802.11u/D10.0 */
 #define TAG_EXTENDED_CAPABILITIES    0X7F   /* IEEE Stc 802.11n/D1.10/D2.0 */
 #define TAG_AGERE_PROPRIETARY        0x80
 #define TAG_CISCO_CCX1_CKIP          0x85  /* Cisco Compatible eXtensions */
@@ -565,6 +568,81 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_MESH_PERR             70  /* 55 */
 #endif /* MESH_OVERRIDES */
 
+static const value_string tag_num_vals[] = {
+  { TAG_SSID,                 "SSID parameter set" },
+  { TAG_SUPP_RATES,           "Supported Rates" },
+  { TAG_FH_PARAMETER,         "FH Parameter set" },
+  { TAG_DS_PARAMETER,         "DS Parameter set" },
+  { TAG_CF_PARAMETER,         "CF Parameter set" },
+  { TAG_TIM,                  "Traffic Indication Map (TIM)" },
+  { TAG_IBSS_PARAMETER,       "IBSS Parameter set" },
+  { TAG_COUNTRY_INFO,         "Country Information" },
+  { TAG_FH_HOPPING_PARAMETER, "Hopping Pattern Parameters" },
+  { TAG_CHALLENGE_TEXT,       "Challenge text" },
+  { TAG_ERP_INFO,             "ERP Information" },
+  { TAG_ERP_INFO_OLD,         "ERP Information" },
+  { TAG_RSN_IE,               "RSN Information" },
+  { TAG_EXT_SUPP_RATES,       "Extended Supported Rates" },
+  { TAG_CISCO_CCX1_CKIP,      "Cisco CCX1 CKIP + Device Name" },
+  { TAG_CISCO_UNKNOWN_88,     "Cisco Unknown 88" },
+  { TAG_CISCO_UNKNOWN_95,     "Cisco Unknown 95" },
+  { TAG_CISCO_UNKNOWN_96,     "Cisco Unknown 96" },
+  { TAG_VENDOR_SPECIFIC_IE,   "Vendor Specific" },
+  { TAG_SYMBOL_PROPRIETARY,   "Symbol Proprietary"},
+  { TAG_AGERE_PROPRIETARY,    "Agere Proprietary"},
+  { TAG_REQUEST,              "Request"},
+  { TAG_QBSS_LOAD,            "QBSS Load Element"},
+  { TAG_EDCA_PARAM_SET,       "EDCA Parameter Set"},
+  { TAG_TSPEC,                "Traffic Specification"},
+  { TAG_TCLAS,                "Traffic Classification"},
+  { TAG_SCHEDULE,             "Schedule"},
+  { TAG_TS_DELAY,             "TS Delay"},
+  { TAG_TCLAS_PROCESS,        "TCLAS Processing"},
+  { TAG_HT_CAPABILITY,        "HT Capabilities (802.11n D1.10)"},
+#ifndef MESH_OVERRIDES
+  { TAG_NEIGHBOR_REPORT,      "Neighbor Report"},
+#endif
+  { TAG_HT_INFO,              "HT Information (802.11n D1.10)"},
+  { TAG_SECONDARY_CHANNEL_OFFSET, "Secondary Channel Offset (802.11n D1.10)"},
+#ifndef MESH_OVERRIDES
+  { TAG_WSIE,                     "Wave Service Information"}, /* www.aradasystems.com */
+#endif
+  { TAG_20_40_BSS_CO_EX,          "20/40 BSS Coexistence"},
+  { TAG_20_40_BSS_INTOL_CH_REP,   "20/40 BSS Intolerant Channel Report"},   /* IEEE P802.11n/D6.0 */
+  { TAG_OVERLAP_BSS_SCAN_PAR,     "Overlapping BSS Scan Parameters"},       /* IEEE P802.11n/D6.0 */
+  { TAG_QOS_CAPABILITY,           "QoS Capability"},
+  { TAG_POWER_CONSTRAINT,         "Power Constraint"},
+  { TAG_POWER_CAPABILITY,         "Power Capability"},
+  { TAG_TPC_REQUEST,              "TPC Request"},
+  { TAG_TPC_REPORT,               "TPC Report"},
+  { TAG_SUPPORTED_CHANNELS,       "Supported Channels"},
+  { TAG_CHANNEL_SWITCH_ANN,       "Channel Switch Announcement"},
+  { TAG_MEASURE_REQ,              "Measurement Request"},
+  { TAG_MEASURE_REP,              "Measurement Report"},
+  { TAG_QUIET,                    "Quiet"},
+  { TAG_IBSS_DFS,                 "IBSS DFS"},
+  { TAG_EXTENDED_CAPABILITIES,    "Extended Capabilities"},
+  { TAG_MOBILITY_DOMAIN,          "Mobility Domain"},
+#ifndef MESH_OVERRIDES
+  { TAG_FAST_BSS_TRANSITION,      "Fast BSS Transition"},
+#endif
+  { TAG_TIMEOUT_INTERVAL,         "Timeout Interval"},
+  { TAG_RIC_DATA,                 "RIC Data"},
+  { TAG_SUPPORTED_REGULATORY_CLASSES, "Supported Regulatory Classes"},
+  { TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement"},
+  { TAG_RIC_DESCRIPTOR,           "RIC Descriptor"},
+  { TAG_MMIE,                     "Management MIC"},
+  { TAG_ADVERTISEMENT_PROTOCOL,   "Advertisement Protocol"},
+#ifdef MESH_OVERRIDES
+  { TAG_MESH_ID,                 "Mesh ID"},
+  { TAG_MESH_CONFIGURATION,      "Mesh Configuration"},
+  { TAG_MESH_PEER_LINK_MGMT,     "Mesh Peer Link Management"},
+  { TAG_MESH_PREQ,               "Mesh Path Request"},
+  { TAG_MESH_PREP,               "Mesh Path Response"},
+  { TAG_MESH_PERR,               "Mesh Path Error"},
+#endif /* MESH_OVERRIDES */
+  { 0,                        NULL }
+};
 
 #define WPA_OUI     (const guint8 *) "\x00\x50\xF2"
 #define RSN_OUI     (const guint8 *) "\x00\x0F\xAC"
@@ -747,6 +825,10 @@ static const value_string aruba_mgt_typevals[] = {
 #define PA_MEASUREMENT_PILOT               7
 #define PA_DSE_POWER_CONSTRAINT            8
 #define PA_VENDOR_SPECIFIC                 9
+#define PA_GAS_INITIAL_REQUEST             10
+#define PA_GAS_INITIAL_RESPONSE            11
+#define PA_GAS_COMEBACK_REQUEST            12
+#define PA_GAS_COMEBACK_RESPONSE           13
 
 #define HT_ACTION_NOTIFY_CHAN_WIDTH           0
 #define HT_ACTION_SM_PWR_SAVE                 1
@@ -1040,6 +1122,16 @@ static int hf_ieee80211_ff_dls_timeout = -1;         /* DLS timeout value */
 static int hf_ieee80211_ff_ft_action_code = -1; /* 8 bit FT Action code */
 static int hf_ieee80211_ff_sta_address = -1;
 static int hf_ieee80211_ff_target_ap_address = -1;
+static int hf_ieee80211_ff_gas_comeback_delay = -1;
+static int hf_ieee80211_ff_gas_fragment_id = -1;
+static int hf_ieee80211_ff_more_gas_fragments = -1;
+static int hf_ieee80211_ff_query_request_length = -1;
+static int hf_ieee80211_ff_query_request = -1;
+static int hf_ieee80211_ff_query_response_length = -1;
+static int hf_ieee80211_ff_query_response = -1;
+static int hf_ieee80211_ff_anqp_info_id = -1;
+static int hf_ieee80211_ff_anqp_info_length = -1;
+static int hf_ieee80211_ff_anqp_info = -1;
 
 /* Vendor specific */
 static int ff_marvell_action_type = -1;
@@ -1572,6 +1664,11 @@ static int hf_ieee80211_tag_mmie_keyid = -1;
 static int hf_ieee80211_tag_mmie_ipn = -1;
 static int hf_ieee80211_tag_mmie_mic = -1;
 
+/* IEEE P802.11u/D10.0, 7.3.2.91 */
+static int hf_ieee80211_tag_adv_proto_resp_len_limit = -1;
+static int hf_ieee80211_tag_adv_proto_pame_bi = -1;
+static int hf_ieee80211_tag_adv_proto_id = -1;
+
 /* 802.11n 7.3.2.48 */
 static int hta_cap = -1;
 static int hta_ext_chan_offset = -1;
@@ -1812,6 +1909,11 @@ static gint ett_fcs = -1;
 
 static gint ett_radio = -1;
 
+static gint ett_adv_proto = -1;
+static gint ett_adv_proto_tuple = -1;
+static gint ett_gas_query = -1;
+static gint ett_gas_anqp = -1;
+
 static const fragment_items frag_items = {
   &ett_fragment,
   &ett_fragments,
@@ -1842,6 +1944,17 @@ static dissector_handle_t data_handle;
 static dissector_handle_t wlancap_handle;
 
 static int wlan_tap = -1;
+
+static const value_string adv_proto_id_vals[] =
+{
+  {0, "Access Network Query Protocol"},
+  {1, "MIH Information Service"},
+  {2, "MIH Command and Event Services Capability Discovery"},
+  {3, "Emergency Alert System (EAS)"},
+  {4, "Location-to-Service Translation Protocol"},
+  {221, "Vendor Specific"},
+  {0, NULL}
+};
 
 /*     Davide Schiera (2006-11-22): including AirPDcap project                */
 #ifdef HAVE_AIRPDCAP
@@ -2563,6 +2676,211 @@ dissect_vendor_action_marvell (proto_tree *tree, tvbuff_t *tvb, int offset)
     }
 
   return offset;
+}
+
+static guint
+dissect_advertisement_protocol(packet_info *pinfo, proto_tree *tree,
+                               tvbuff_t *tvb, int offset, gboolean *anqp)
+{
+  guint8 tag_no, tag_len, left;
+  proto_item *item = NULL;
+  proto_tree *adv_tree, *adv_tuple_tree;
+
+  if (anqp)
+    *anqp = FALSE;
+  tag_no = tvb_get_guint8(tvb, offset);
+  item = proto_tree_add_uint_format(tree, tag_number, tvb, offset, 1, tag_no,
+                                    "Tag Number: %u (%s)", tag_no,
+                                    val_to_str(tag_no, tag_num_vals,
+                                               "Unknown (%d)"));
+  tag_len = tvb_get_guint8(tvb, offset + 1);
+  if (tag_no != TAG_ADVERTISEMENT_PROTOCOL) {
+    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+                           "Unexpected IE %d (expected Advertisement "
+                           "Protocol)", tag_no);
+    return 2 + tag_len;
+  }
+  item = proto_tree_add_uint(tree, tag_length, tvb, offset + 1, 1, tag_len);
+  if (tag_len < 2) {
+    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+                           "Advertisement Protocol: IE must be at least 2 "
+                           "octets long");
+    return 2 + tag_len;
+  }
+
+  left = tag_len;
+  offset += 2;
+  item = proto_tree_add_text(tree, tvb, offset, left,
+                             "Advertisement Protocol element");
+  adv_tree = proto_item_add_subtree(item, ett_adv_proto);
+
+  while (left >= 2) {
+    guint8 id;
+
+    id = tvb_get_guint8(tvb, offset + 1);
+    item = proto_tree_add_text(adv_tree, tvb, offset, 2,
+                               "Advertisement Protocol Tuple: %s",
+                               val_to_str(id, adv_proto_id_vals,
+                                          "Unknown (%d)"));
+    adv_tuple_tree = proto_item_add_subtree(item, ett_adv_proto_tuple);
+
+    proto_tree_add_item(adv_tuple_tree,
+                        hf_ieee80211_tag_adv_proto_resp_len_limit, tvb,
+                        offset, 1, FALSE);
+    proto_tree_add_item(adv_tuple_tree,
+                        hf_ieee80211_tag_adv_proto_pame_bi, tvb,
+                        offset, 1, FALSE);
+    offset++;
+    left--;
+    proto_tree_add_item(adv_tuple_tree, hf_ieee80211_tag_adv_proto_id, tvb,
+                        offset, 1, FALSE);
+    offset++;
+    left--;
+
+    if (id == 0 && anqp)
+      *anqp = TRUE;
+
+    if (id == 221) {
+      /* Vendor specific */
+      guint8 len = tvb_get_guint8(tvb, offset);
+      offset++;
+      left--;
+      if (len > left) {
+        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+                               "Vendor specific info length error");
+        return 2 + tag_len;
+      }
+      proto_tree_add_text(adv_tuple_tree, tvb, offset, len,
+                          "Vendor Specific Advertisement Protocol info");
+      offset += len;
+      left -= len;
+    }
+  }
+
+  if (left) {
+    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+                           "Unexpected extra data in the end");
+  }
+
+  return 2 + tag_len;
+}
+
+static void
+dissect_anqp(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean request)
+{
+  guint16 len;
+
+  proto_tree_add_text(tree, tvb, offset, 4,
+                      request ? "Access Network Query Protocol Request" :
+                      "Access Network Query Protocol Response");
+  proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info_id,
+                      tvb, offset, 2, TRUE);
+  offset += 2;
+  proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info_length,
+                      tvb, offset, 2, TRUE);
+  len = tvb_get_letohs(tvb, offset);
+  offset += 2;
+  proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info,
+                      tvb, offset, len, FALSE);
+}
+
+static guint
+dissect_gas_initial_request(proto_tree *tree, tvbuff_t *tvb, int offset,
+                            gboolean anqp)
+{
+  guint16 req_len;
+  int start = offset;
+  proto_item *item;
+  proto_tree *query, *anqp_tree;
+
+  /* Query Request Length (2 octets) */
+  req_len = tvb_get_letohs(tvb, offset);
+
+  item = proto_tree_add_text(tree, tvb, offset, 2 + req_len, "Query Request");
+  query = proto_item_add_subtree(item, ett_gas_query);
+
+  proto_tree_add_item(query, hf_ieee80211_ff_query_request_length,
+                      tvb, offset, 2, TRUE);
+  offset += 2;
+  /*
+   * Query Request (GAS query; formatted per protocol specified in the
+   * Advertisement Protocol IE)
+   */
+  item = proto_tree_add_item(query, hf_ieee80211_ff_query_request,
+                             tvb, offset, req_len, FALSE);
+  if (anqp) {
+    anqp_tree = proto_item_add_subtree(item, ett_gas_anqp);
+    dissect_anqp(anqp_tree, tvb, offset, TRUE);
+  }
+  offset += req_len;
+
+  return offset - start;
+}
+
+static guint
+dissect_gas_initial_response(proto_tree *tree, tvbuff_t *tvb, int offset,
+                             gboolean anqp)
+{
+  guint16 resp_len;
+  int start = offset;
+  proto_item *item;
+  proto_tree *query, *anqp_tree;
+
+  /* Query Response Length (2 octets) */
+  resp_len = tvb_get_letohs(tvb, offset);
+
+  item = proto_tree_add_text(tree, tvb, offset, 2 + resp_len,
+                             "Query Response");
+  query = proto_item_add_subtree(item, ett_gas_query);
+
+  proto_tree_add_item(query, hf_ieee80211_ff_query_response_length,
+                      tvb, offset, 2, TRUE);
+  offset += 2;
+  /* Query Response (optional) */
+  if (resp_len) {
+    item = proto_tree_add_item(query, hf_ieee80211_ff_query_response,
+                               tvb, offset, resp_len, FALSE);
+    if (anqp) {
+      anqp_tree = proto_item_add_subtree(item, ett_gas_anqp);
+      dissect_anqp(anqp_tree, tvb, offset, FALSE);
+    }
+    offset += resp_len;
+  }
+
+  return offset - start;
+}
+
+static guint
+dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, int offset,
+                              gboolean anqp, guint8 frag)
+{
+  guint16 resp_len;
+  int start = offset;
+  proto_item *item;
+  proto_tree *query, *anqp_tree;
+
+  /* Query Response Length (2 octets) */
+  resp_len = tvb_get_letohs(tvb, offset);
+
+  item = proto_tree_add_text(tree, tvb, offset, 2 + resp_len,
+                             "Query Response");
+  query = proto_item_add_subtree(item, ett_gas_query);
+
+  proto_tree_add_item(query, hf_ieee80211_ff_query_response_length,
+                      tvb, offset, 2, TRUE);
+  offset += 2;
+  /* Query Response (optional) */
+  if (resp_len) {
+    item = proto_tree_add_item(query, hf_ieee80211_ff_query_response,
+                               tvb, offset, resp_len, FALSE);
+    if (anqp && frag == 0) {
+      anqp_tree = proto_item_add_subtree(item, ett_gas_anqp);
+      dissect_anqp(anqp_tree, tvb, offset, FALSE);
+    }
+    offset += resp_len;
+  }
+
+  return offset - start;
 }
 
 /* ************************************************************************* */
@@ -3405,6 +3723,62 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                         break;
                       }
                       break;
+                    case PA_GAS_INITIAL_REQUEST:
+                    {
+                      gboolean anqp;
+                      offset += add_fixed_field(action_tree, tvb, offset,
+                                                FIELD_DIALOG_TOKEN);
+                      offset += dissect_advertisement_protocol(g_pinfo,
+                                                               action_tree,
+                                                               tvb, offset,
+                                                               &anqp);
+                      offset += dissect_gas_initial_request(action_tree, tvb,
+                                                            offset, anqp);
+                      break;
+                    }
+                    case PA_GAS_INITIAL_RESPONSE:
+                    {
+                      gboolean anqp;
+                      offset += add_fixed_field(action_tree, tvb, offset,
+                                                FIELD_DIALOG_TOKEN);
+                      offset += add_fixed_field(action_tree, tvb, offset,
+                                                FIELD_STATUS_CODE);
+                      offset += add_fixed_field(action_tree, tvb, offset,
+                                                FIELD_GAS_COMEBACK_DELAY);
+                      offset += dissect_advertisement_protocol(g_pinfo,
+                                                               action_tree,
+                                                               tvb, offset,
+                                                               &anqp);
+                      offset += dissect_gas_initial_response(action_tree, tvb,
+                                                             offset, anqp);
+                      break;
+                    }
+                    case PA_GAS_COMEBACK_REQUEST:
+                      offset += add_fixed_field(action_tree, tvb, offset,
+                                                FIELD_DIALOG_TOKEN);
+                      break;
+                    case PA_GAS_COMEBACK_RESPONSE:
+                    {
+                      gboolean anqp;
+                      guint8 frag;
+                      offset += add_fixed_field(action_tree, tvb, offset,
+                                                FIELD_DIALOG_TOKEN);
+                      offset += add_fixed_field(action_tree, tvb, offset,
+                                                FIELD_STATUS_CODE);
+                      frag = tvb_get_guint8(tvb, offset) & 0x7f;
+                      offset += add_fixed_field(action_tree, tvb, offset,
+                                                FIELD_GAS_FRAGMENT_ID);
+                      offset += add_fixed_field(action_tree, tvb, offset,
+                                                FIELD_GAS_COMEBACK_DELAY);
+                      offset += dissect_advertisement_protocol(g_pinfo,
+                                                               action_tree,
+                                                               tvb, offset,
+                                                               &anqp);
+                      offset += dissect_gas_comeback_response(action_tree,
+                                                              tvb, offset,
+                                                              anqp, frag);
+                      break;
+                    }
                   }
                 length += offset - start;  /* Size of fixed fields */
                 break;
@@ -3683,6 +4057,20 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                           FALSE);
       length += 6;
       break;
+
+    case FIELD_GAS_COMEBACK_DELAY:
+      proto_tree_add_item(tree, hf_ieee80211_ff_gas_comeback_delay,
+                          tvb, offset, 2, TRUE);
+      length += 2;
+      break;
+
+    case FIELD_GAS_FRAGMENT_ID:
+      proto_tree_add_item(tree, hf_ieee80211_ff_gas_fragment_id,
+                          tvb, offset, 1, FALSE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_more_gas_fragments,
+                          tvb, offset, 1, FALSE);
+      length += 1;
+      break;
   }
   return length;
 }
@@ -3718,6 +4106,27 @@ static const value_string ft_subelem_id_vals[] =
   {2, "GTK subelement"},
   {3, "PMK-R0 key holder identifier (R0KH-ID)"},
   {4, "IGTK"},
+  {0, NULL}
+};
+
+static const value_string anqp_info_id_vals[] =
+{
+  {256, "ANQP Query list"},
+  {257, "ANQP Capability list"},
+  {258, "Venue Name information"},
+  {259, "Emergency Call Number information"},
+  {260, "Network Authentication Type information"},
+  {261, "Roaming Consortium list"},
+  {262, "IP Address Type Availability information"},
+  {263, "NAI Realm list"},
+  {264, "3GPP Cellular Network information"},
+  {265, "AP Geospatial Location"},
+  {266, "AP Civic Location"},
+  {267, "AP Location Public Identifier URI"},
+  {268, "Domain Name list"},
+  {269, "Emergency Alert Identifier URI"},
+  {270, "TDLS Discovery"},
+  {56797, "ANQP vendor-specific list"},
   {0, NULL}
 };
 
@@ -5007,80 +5416,7 @@ dissect_vendor_ie_ht(proto_item * item, proto_tree * tree, tvbuff_t * tag_tvb)
 /*           Dissect and add tagged (optional) fields to proto tree          */
 /* ************************************************************************* */
 
-static const value_string tag_num_vals[] = {
-  { TAG_SSID,                 "SSID parameter set" },
-  { TAG_SUPP_RATES,           "Supported Rates" },
-  { TAG_FH_PARAMETER,         "FH Parameter set" },
-  { TAG_DS_PARAMETER,         "DS Parameter set" },
-  { TAG_CF_PARAMETER,         "CF Parameter set" },
-  { TAG_TIM,                  "Traffic Indication Map (TIM)" },
-  { TAG_IBSS_PARAMETER,       "IBSS Parameter set" },
-  { TAG_COUNTRY_INFO,         "Country Information" },
-  { TAG_FH_HOPPING_PARAMETER, "Hopping Pattern Parameters" },
-  { TAG_CHALLENGE_TEXT,       "Challenge text" },
-  { TAG_ERP_INFO,             "ERP Information" },
-  { TAG_ERP_INFO_OLD,         "ERP Information" },
-  { TAG_RSN_IE,               "RSN Information" },
-  { TAG_EXT_SUPP_RATES,       "Extended Supported Rates" },
-  { TAG_CISCO_CCX1_CKIP,      "Cisco CCX1 CKIP + Device Name" },
-  { TAG_CISCO_UNKNOWN_88,     "Cisco Unknown 88" },
-  { TAG_CISCO_UNKNOWN_95,     "Cisco Unknown 95" },
-  { TAG_CISCO_UNKNOWN_96,     "Cisco Unknown 96" },
-  { TAG_VENDOR_SPECIFIC_IE,   "Vendor Specific" },
-  { TAG_SYMBOL_PROPRIETARY,   "Symbol Proprietary"},
-  { TAG_AGERE_PROPRIETARY,    "Agere Proprietary"},
-  { TAG_REQUEST,              "Request"},
-  { TAG_QBSS_LOAD,            "QBSS Load Element"},
-  { TAG_EDCA_PARAM_SET,       "EDCA Parameter Set"},
-  { TAG_TSPEC,                "Traffic Specification"},
-  { TAG_TCLAS,                "Traffic Classification"},
-  { TAG_SCHEDULE,             "Schedule"},
-  { TAG_TS_DELAY,             "TS Delay"},
-  { TAG_TCLAS_PROCESS,        "TCLAS Processing"},
-  { TAG_HT_CAPABILITY,        "HT Capabilities (802.11n D1.10)"},
-#ifndef MESH_OVERRIDES
-  { TAG_NEIGHBOR_REPORT,      "Neighbor Report"},
-#endif
-  { TAG_HT_INFO,              "HT Information (802.11n D1.10)"},
-  { TAG_SECONDARY_CHANNEL_OFFSET, "Secondary Channel Offset (802.11n D1.10)"},
-#ifndef MESH_OVERRIDES
-  { TAG_WSIE,                     "Wave Service Information"}, /* www.aradasystems.com */
-#endif
-  { TAG_20_40_BSS_CO_EX,          "20/40 BSS Coexistence"},
-  { TAG_20_40_BSS_INTOL_CH_REP,   "20/40 BSS Intolerant Channel Report"},   /* IEEE P802.11n/D6.0 */
-  { TAG_OVERLAP_BSS_SCAN_PAR,     "Overlapping BSS Scan Parameters"},       /* IEEE P802.11n/D6.0 */
-  { TAG_QOS_CAPABILITY,           "QoS Capability"},
-  { TAG_POWER_CONSTRAINT,         "Power Constraint"},
-  { TAG_POWER_CAPABILITY,         "Power Capability"},
-  { TAG_TPC_REQUEST,              "TPC Request"},
-  { TAG_TPC_REPORT,               "TPC Report"},
-  { TAG_SUPPORTED_CHANNELS,       "Supported Channels"},
-  { TAG_CHANNEL_SWITCH_ANN,       "Channel Switch Announcement"},
-  { TAG_MEASURE_REQ,              "Measurement Request"},
-  { TAG_MEASURE_REP,              "Measurement Report"},
-  { TAG_QUIET,                    "Quiet"},
-  { TAG_IBSS_DFS,                 "IBSS DFS"},
-  { TAG_EXTENDED_CAPABILITIES,    "Extended Capabilities"},
-  { TAG_MOBILITY_DOMAIN,          "Mobility Domain"},
-#ifndef MESH_OVERRIDES
-  { TAG_FAST_BSS_TRANSITION,      "Fast BSS Transition"},
-#endif
-  { TAG_TIMEOUT_INTERVAL,         "Timeout Interval"},
-  { TAG_RIC_DATA,                 "RIC Data"},
-  { TAG_SUPPORTED_REGULATORY_CLASSES, "Supported Regulatory Classes"},
-  { TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement"},
-  { TAG_RIC_DESCRIPTOR,           "RIC Descriptor"},
-  { TAG_MMIE,                     "Management MIC"},
-#ifdef MESH_OVERRIDES
-  { TAG_MESH_ID,    "Mesh ID"},
-  { TAG_MESH_CONFIGURATION,    "Mesh Configuration"},
-  { TAG_MESH_PEER_LINK_MGMT,    "Mesh Peer Link Management"},
-  { TAG_MESH_PREQ,    "Mesh Path Request"},
-  { TAG_MESH_PREP,    "Mesh Path Response"},
-  { TAG_MESH_PERR,    "Mesh Path Error"},
-#endif /* MESH_OVERRIDES */
-  { 0,                        NULL }
-};
+
 
 static const value_string environment_vals[] = {
   { 0x20, "Any" },
@@ -6336,6 +6672,11 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
     }
     /*** End: Extended Capabilities Tag - Dustin Johnson ***/
+    case TAG_ADVERTISEMENT_PROTOCOL:
+    {
+      dissect_advertisement_protocol(pinfo, tree, tvb, offset, NULL);
+      break;
+    }
 
 #ifndef MESH_OVERRIDES
     /*** Begin: Neighbor Report Tag - Dustin Johnson ***/
@@ -9486,6 +9827,10 @@ proto_register_ieee80211 (void)
     {PA_MEASUREMENT_PILOT, "Measurement Pilot"},
     {PA_DSE_POWER_CONSTRAINT, "DSE power constraint"},
     {PA_VENDOR_SPECIFIC, "Vendor Specific"},
+    {PA_GAS_INITIAL_REQUEST, "GAS Initial Request"},
+    {PA_GAS_INITIAL_RESPONSE, "GAS Initial Response"},
+    {PA_GAS_COMEBACK_REQUEST, "GAS Comeback Request"},
+    {PA_GAS_COMEBACK_RESPONSE, "GAS Comeback Response"},
     {0x00, NULL}
   };
 
@@ -9608,6 +9953,17 @@ proto_register_ieee80211 (void)
     {0x35, "Invalid pairwise master key identifier (PMKID)"},
     {0x36, "Invalid MDIE"},
     {0x37, "Invalid FTIE"},
+    {0x3B, "GAS Advertisement Protocol not supported"},
+    {0x3C, "No outstanding GAS request"},
+    {0x3D, "GAS Response not received from the Advertisement Server"},
+    {0x3E, "STA timed out waiting for GAS Query Response"},
+    {0x3F, "GAS Response is larger than query response length limit"},
+    {0x40, "Advertisement Server in the network is not currently reachable"},
+    {0x41, "Requested information is not available for this BSSID"},
+    {0x42, "Transmission failure"},
+    {0x43, "Request refused due to permissions received via SSPN interface"},
+    {0x44, "Request refused because AP does not support unauthenticated "
+     "access"},
     {0x00, NULL}
   };
 
@@ -11608,6 +11964,50 @@ proto_register_ieee80211 (void)
      {"Target AP Address", "wlan_mgt.fixed.target_ap_address",
       FT_ETHER, BASE_NONE, NULL, 0, "Target AP MAC address", HFILL }},
 
+    {&hf_ieee80211_ff_gas_comeback_delay,
+     {"GAS Comeback Delay", "wlan_mgt.fixed.gas_comeback_delay",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_gas_fragment_id,
+     {"GAS Query Response Fragment ID", "wlan_mgt.fixed.gas_fragment_id",
+      FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL
+     }},
+
+    {&hf_ieee80211_ff_more_gas_fragments,
+     {"More GAS Fragments", "wlan_mgt.fixed.more_gas_fragments",
+      FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_query_request_length,
+     {"Query Request Length", "wlan_mgt.fixed.query_request_length",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_query_request,
+     {"Query Request", "wlan_mgt.fixed.query_request",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_query_response_length,
+     {"Query Response Length", "wlan_mgt.fixed.query_response_length",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_query_response,
+     {"Query Response", "wlan_mgt.fixed.query_response",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_info_id,
+     {"Info ID", "wlan_mgt.fixed.anqp.info_id",
+      FT_UINT16, BASE_DEC, VALS(&anqp_info_id_vals), 0,
+      "Access Network Query Protocol Info ID", HFILL }},
+
+    {&hf_ieee80211_ff_anqp_info_length,
+     {"Length", "wlan_mgt.fixed.anqp.info_length",
+      FT_UINT16, BASE_DEC, NULL, 0, "Access Network Query Protocol Length",
+      HFILL }},
+
+    {&hf_ieee80211_ff_anqp_info,
+     {"Information", "wlan_mgt.fixed.anqp.info",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      "Access Network Query Protocol Information", HFILL }},
+
     {&hf_ieee80211_ff_dls_timeout,
      {"DLS timeout", "wlan_mgt.fixed.dls_timeout",
       FT_UINT16, BASE_HEX, NULL, 0, "DLS timeout value", HFILL }},
@@ -13016,7 +13416,19 @@ proto_register_ieee80211 (void)
       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
     {&hf_ieee80211_tag_mmie_mic,
      {"MIC", "wlan_mgt.mmie.mic",
-      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }}
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    /* Advertisement Protocol */
+    {&hf_ieee80211_tag_adv_proto_resp_len_limit,
+     {"Query Response Length Limit", "wlan_mgt.adv_proto.resp_len_limit",
+      FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
+    {&hf_ieee80211_tag_adv_proto_pame_bi,
+     {"PAME-BI", "wlan_mgt.adv_proto.pame_bi",
+      FT_UINT8, BASE_DEC, NULL, 0x80,
+      "Pre-Association Message Xchange BSSID Independent (PAME-BI)", HFILL }},
+    {&hf_ieee80211_tag_adv_proto_id,
+     {"Advertisement Protocol ID", "wlan_mgt.adv_proto.id",
+      FT_UINT8, BASE_DEC, VALS(adv_proto_id_vals), 0, NULL, HFILL }}
   };
 
   static hf_register_info aggregate_fields[] = {
@@ -13088,7 +13500,11 @@ proto_register_ieee80211 (void)
     &ett_pst_tree,
     &ett_pst_cap_tree,
     &ett_chan_noc_tree,
-    &ett_wave_chnl_tree
+    &ett_wave_chnl_tree,
+    &ett_adv_proto,
+    &ett_adv_proto_tuple,
+    &ett_gas_query,
+    &ett_gas_anqp
   };
   module_t *wlan_module;
 
