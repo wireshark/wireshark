@@ -1399,6 +1399,8 @@ static void attach_mac_lte_info(packet_info *pinfo)
         }
     }
 
+    p_mac_lte_info->dl_retx = dl_retx_unknown;
+
     if (outhdr_values_found > 10) {
         /* Extra PHY parameters */
         if (p_mac_lte_info->direction == DIRECTION_DOWNLINK) {
@@ -1408,7 +1410,12 @@ static void attach_mac_lte_info(packet_info *pinfo)
             p_mac_lte_info->detailed_phy_info.dl_info.aggregation_level = outhdr_values[i++];
             p_mac_lte_info->detailed_phy_info.dl_info.mcs_index = outhdr_values[i++];
             p_mac_lte_info->detailed_phy_info.dl_info.redundancy_version_index = outhdr_values[i++];
-            p_mac_lte_info->detailed_phy_info.dl_info.retx = outhdr_values[i++];
+            if (outhdr_values[i++]) {
+                p_mac_lte_info->dl_retx = dl_retx_yes;
+            }
+            else {
+                p_mac_lte_info->dl_retx = dl_retx_no;
+            }
             p_mac_lte_info->detailed_phy_info.dl_info.resource_block_length = outhdr_values[i++];
             p_mac_lte_info->crcStatusValid = TRUE;
             p_mac_lte_info->detailed_phy_info.dl_info.crc_status = outhdr_values[i++];

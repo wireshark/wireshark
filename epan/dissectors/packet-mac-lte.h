@@ -71,6 +71,12 @@ typedef enum mac_lte_oob_event {
     ltemac_sr_failure
 } mac_lte_oob_event;
 
+typedef enum mac_lte_dl_retx {
+    dl_retx_no,
+    dl_retx_yes,
+    dl_retx_unknown
+} mac_lte_dl_retx;
+
 /* Context info attached to each LTE MAC frame */
 typedef struct mac_lte_info
 {
@@ -85,8 +91,10 @@ typedef struct mac_lte_info
     guint16         subframeNumber;
     guint8          isPredefinedData;
     guint16         length;
-    guint8          reTxCount;
+    guint8          reTxCount;   /* UL */
     guint8          crcStatusValid;
+
+    mac_lte_dl_retx dl_retx;
 
     /* More Physical layer info (direction-specific) */
     union {
@@ -106,7 +114,6 @@ typedef struct mac_lte_info
             guint8 aggregation_level;
             guint8 mcs_index;
             guint8 redundancy_version_index;
-            guint8 retx;
             guint8 resource_block_length; 
             guint8 crc_status;
         } dl_info;
@@ -129,8 +136,7 @@ typedef struct mac_lte_tap_info {
     guint8   crcStatus;
     guint8   direction;
 
-    guint8   isULRetx;
-    guint8   isDLRetx;
+    guint8   isPHYRetx;
 
     /* Number of bytes (which part is used depends upon context settings) */
     guint32  single_number_of_bytes;
@@ -151,7 +157,7 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 /* UDP framing format                                            */
 /* -----------------------                                       */
 /* Several people have asked about dissecting MAC by framing     */
-/* PDUs over IP.  A suggested format over UDP has been           */
+/* PDUs over IP.  A suggested format over UDP has been created   */
 /* and implemented by this dissector, using the definitions      */
 /* below. A link to an example program showing you how to encode */
 /* these headers and send LTE MAC PDUs on a UDP socket is        */

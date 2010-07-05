@@ -160,8 +160,7 @@ static int hf_mac_lte_control_power_headroom_reserved = -1;
 static int hf_mac_lte_control_power_headroom_level = -1;
 static int hf_mac_lte_control_padding = -1;
 
-static int hf_mac_lte_suspected_dl_harq_resend = -1;
-static int hf_mac_lte_suspected_dl_harq_resend_original_frame = -1;
+static int hf_mac_lte_suspected_dl_retx_original_frame = -1;
 
 static int hf_mac_lte_ul_harq_resend_original_frame = -1;
 
@@ -528,9 +527,6 @@ static gboolean global_mac_lte_dissect_crc_failures = FALSE;
 /* Whether should attempt to decode lcid 1&2 SDUs as srb1/2 (i.e. AM RLC) */
 static gboolean global_mac_lte_attempt_srb_decode = TRUE;
 
-/* Whether should attempt to detect and flag DL HARQ resends */
-static gboolean global_mac_lte_attempt_dl_harq_resend_detect = TRUE;
-
 /* Whether should attempt to track UL HARQ resends */
 static gboolean global_mac_lte_attempt_ul_harq_resend_track = TRUE;
 
@@ -691,12 +687,11 @@ typedef struct LastFrameDataAllSubframes {
 static GHashTable *mac_lte_dl_harq_hash = NULL;
 
 typedef struct DLHARQResult {
-    gboolean    status;
     guint       previousFrameNum;
 } DLHARQResult;
 
 
-/* This table stores (CRFrameNum -> DLHARQResult).  It is assigned during the first
+/* This table stores (FrameNumber -> DLHARQResult).  It is assigned during the first
    pass and used thereafter */
 static GHashTable *mac_lte_dl_harq_result_hash = NULL;
 
@@ -1047,11 +1042,6 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
                                      p_mac_lte_info->detailed_phy_info.dl_info.redundancy_version_index);
             PROTO_ITEM_SET_GENERATED(ti);
 
-            ti = proto_tree_add_boolean(phy_tree, hf_mac_lte_context_phy_dl_retx,
-                                        tvb, 0, 0,
-                                        p_mac_lte_info->detailed_phy_info.dl_info.retx);
-            PROTO_ITEM_SET_GENERATED(ti);
-
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_dl_resource_block_length,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.dl_info.resource_block_length);
@@ -1066,7 +1056,7 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
 
             write_pdu_label_and_info(phy_ti, NULL,
                                      (global_mac_lte_layer_to_show == ShowPHYLayer) ? pinfo : NULL,
-                                     "DCI_Format=%s Res_Alloc=%u Aggr_Level=%s MCS=%u RV=%u ReTx=%u "
+                                     "DCI_Format=%s Res_Alloc=%u Aggr_Level=%s MCS=%u RV=%u "
                                      "Res_Block_len=%u CRC_status=%s",
                                      val_to_str_const(p_mac_lte_info->detailed_phy_info.dl_info.dci_format,
                                                       dci_format_vals, "Unknown"),
@@ -1075,7 +1065,6 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
                                                       aggregation_level_vals, "Unknown"),
                                      p_mac_lte_info->detailed_phy_info.dl_info.mcs_index,
                                      p_mac_lte_info->detailed_phy_info.dl_info.redundancy_version_index,
-                                     p_mac_lte_info->detailed_phy_info.dl_info.retx,
                                      p_mac_lte_info->detailed_phy_info.dl_info.resource_block_length,
                                      val_to_str_const(p_mac_lte_info->detailed_phy_info.dl_info.crc_status,
                                                       crc_status_vals, "Unknown"));
@@ -1536,10 +1525,7 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
     DLHARQResult *result = NULL;
     proto_item *result_ti;
 
-    /* FDD only for now! */
-    if (p_mac_lte_info->radioType != FDD_RADIO) {
-        return FALSE;
-    }
+    /* TDD may not work... */
 
     if (!pinfo->fd->flags.visited) {
         /* First time, so set result and update DL harq table */
@@ -1552,9 +1538,9 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
         if (ueData != NULL) {
 
             /* Looking for a frame sent 8 or 9 subframes previously.
-               TODO: have even seen retx 10 SFs later... */
+               TODO: have seen retx >=10 SFs later... */
             gboolean found_match = FALSE;
-            gint SFs_ago;
+            gint     SFs_ago;
 
             for (SFs_ago=8; (SFs_ago <= 9) && !found_match; SFs_ago++) {
                 /* Check 8 SFs ago */
@@ -1588,6 +1574,14 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
                     }
                 }
             }
+
+            /* Even if we didn't find a previous frame, if we know its a retx, setup result */
+            if ((result == NULL) && (p_mac_lte_info->dl_retx == dl_retx_yes)) {
+                result = se_alloc(sizeof(DLHARQResult));
+                result->previousFrameNum = 0;
+                g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result);
+            }
+
         }
         else {
             /* Allocate entry in table for this UE/RNTI */
@@ -1611,16 +1605,22 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
         result = g_hash_table_lookup(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
     }
 
-    /* Show result, with link back to original frame */
-    result_ti = proto_tree_add_boolean(tree, hf_mac_lte_suspected_dl_harq_resend,
+
+    /************************************************************/
+    /* Show result, with link back to original frame (if known) */
+    result_ti = proto_tree_add_boolean(tree, hf_mac_lte_context_phy_dl_retx,
                                        tvb, 0, 0, (result != NULL));
     if (result != NULL) {
         proto_item *original_ti;
         expert_add_info_format(pinfo, result_ti, PI_SEQUENCE, PI_WARN,
-                               "Suspected DL HARQ resend (UE=%u)", p_mac_lte_info->ueid);
-        original_ti = proto_tree_add_uint(tree, hf_mac_lte_suspected_dl_harq_resend_original_frame,
-                                         tvb, 0, 0, result->previousFrameNum);
-        PROTO_ITEM_SET_GENERATED(original_ti);
+                               "%sDL HARQ resend (UE=%u)",
+                               (p_mac_lte_info->dl_retx == dl_retx_unknown) ? "Suspected " : "",
+                               p_mac_lte_info->ueid);
+        if (result->previousFrameNum != 0) {
+            original_ti = proto_tree_add_uint(tree, hf_mac_lte_suspected_dl_retx_original_frame,
+                                             tvb, 0, 0, result->previousFrameNum);
+            PROTO_ITEM_SET_GENERATED(original_ti);
+        }
     }
     else {
         /* Don't show negatives */
@@ -1973,7 +1973,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                    proto_item *pdu_ti,
                                    volatile int offset, guint8 direction,
                                    mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info,
-                                   proto_item *retx_ti)
+                                   proto_item *retx_ti,
+                                   proto_tree *context_tree)
 {
     guint8          extension;
     volatile guint8 n;
@@ -2003,9 +2004,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     tap_info->raw_length = p_mac_lte_info->length;
 
     /* For downlink frames, can try to work out if this looks like a HARQ resend */
-    if ((direction == DIRECTION_DOWNLINK) && global_mac_lte_attempt_dl_harq_resend_detect) {
-        if (DetectIfDLHARQResend(pinfo, tvb, offset, tree, p_mac_lte_info)) {
-            tap_info->isDLRetx = TRUE;
+    if (direction == DIRECTION_DOWNLINK) {
+        /* Result will be added to context tree */
+        int detected = DetectIfDLHARQResend(pinfo, tvb, offset, context_tree, p_mac_lte_info);
+        if (p_mac_lte_info->dl_retx == dl_retx_unknown) {
+            tap_info->isPHYRetx = detected;
+        }
+        else {
+            tap_info->isPHYRetx = p_mac_lte_info->dl_retx;
         }
     }
 
@@ -3011,13 +3017,12 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* May also have extra Physical layer attributes set for this frame */
     show_extra_phy_parameters(pinfo, tvb, mac_lte_tree, p_mac_lte_info);
 
-
     /* Set context-info parts of tap struct */
     tap_info.rnti = p_mac_lte_info->rnti;
     tap_info.ueid = p_mac_lte_info->ueid;
     tap_info.rntiType = p_mac_lte_info->rntiType;
     tap_info.isPredefinedData = p_mac_lte_info->isPredefinedData;
-    tap_info.isULRetx = (p_mac_lte_info->reTxCount >= 1);
+    tap_info.isPHYRetx = (p_mac_lte_info->reTxCount >= 1);
     tap_info.crcStatusValid = p_mac_lte_info->crcStatusValid;
     tap_info.crcStatus = p_mac_lte_info->detailed_phy_info.dl_info.crc_status;
     tap_info.direction = p_mac_lte_info->direction;
@@ -3047,7 +3052,8 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(mac_lte_tree, hf_mac_lte_raw_pdu, tvb, offset, -1, FALSE);
         write_pdu_label_and_info(pdu_ti, NULL, pinfo, "Raw data (%u bytes)", tvb_length_remaining(tvb, offset));
 
-        /* Queue tap info */
+        /* Queue tap info.
+           TODO: unfortunately DL retx detection won't get done if we return here... */
         if (!pinfo->in_error_pkt) {
             tap_queue_packet(mac_lte_tap, pinfo, &tap_info);
         }
@@ -3076,7 +3082,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Can be UL-SCH or DL-SCH */
             dissect_ulsch_or_dlsch(tvb, pinfo, mac_lte_tree, pdu_ti, offset,
                                    p_mac_lte_info->direction, p_mac_lte_info, &tap_info,
-                                   retx_ti);
+                                   retx_ti, context_tree);
             break;
 
         case SI_RNTI:
@@ -3332,12 +3338,6 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_context_phy_dl_redundancy_version_index,
             { "RV Index",
               "mac-lte.dl-phy.rv-index", FT_UINT8, BASE_DEC, 0, 0x0,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_lte_context_phy_dl_retx,
-            { "DL Retx",
-              "mac-lte.dl-phy.retx", FT_BOOLEAN, BASE_DEC, 0, 0x0,
               NULL, HFILL
             }
         },
@@ -3734,22 +3734,22 @@ void proto_register_mac_lte(void)
         },
 
         /* Generated fields */
-        { &hf_mac_lte_suspected_dl_harq_resend,
-            { "Suspected DL HARQ resend",
-              "mac-lte.dlsch.suspected-harq-resend", FT_BOOLEAN, BASE_NONE, 0, 0x0,
+        { &hf_mac_lte_context_phy_dl_retx,
+            { "DL Retx",
+              "mac-lte.dlsch.retx", FT_BOOLEAN, BASE_DEC, 0, 0x0,
               NULL, HFILL
             }
         },
-        { &hf_mac_lte_suspected_dl_harq_resend_original_frame,
+        { &hf_mac_lte_suspected_dl_retx_original_frame,
             { "Frame with previous tx",
-              "mac-lte.dlsch.suspected-harq-resend-original_frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              "mac-lte.dlsch.retx.original_frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
               NULL, HFILL
             }
         },
 
         { &hf_mac_lte_ul_harq_resend_original_frame,
             { "Frame with previous tx",
-              "mac-lte.ulsch.harq-resend-original_frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              "mac-lte.ulsch.retx.original-frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
               NULL, HFILL
             }
         },
@@ -3854,6 +3854,7 @@ void proto_register_mac_lte(void)
     prefs_register_obsolete_preference(mac_lte_module, "check_reserved_bits");
     prefs_register_obsolete_preference(mac_lte_module, "decode_rar_ul_grant");
     prefs_register_obsolete_preference(mac_lte_module, "show_rlc_info_column");
+    prefs_register_obsolete_preference(mac_lte_module, "attempt_to_detect_dl_harq_resend");
     
     prefs_register_uint_preference(mac_lte_module, "retx_count_warn",
         "Number of Re-Transmits before expert warning triggered",
@@ -3900,11 +3901,6 @@ void proto_register_mac_lte(void)
                                   "LCID -> DRB Mappings Table",
                                   "A table that maps from configurable lcids -> RLC logical channels",
                                   lcid_drb_mappings_uat);
-
-    prefs_register_bool_preference(mac_lte_module, "attempt_to_detect_dl_harq_resend",
-        "Attempt to detect DL HARQ resends",
-        "Attempt to detect DL HARQ resends (useful if logging UE side so need to infer)",
-        &global_mac_lte_attempt_dl_harq_resend_detect);
 
     prefs_register_bool_preference(mac_lte_module, "attempt_to_track_ul_harq_resend",
         "Attempt to track UL HARQ resends",

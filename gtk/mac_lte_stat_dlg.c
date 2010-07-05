@@ -405,7 +405,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     /* Uplink */
     if (si->direction == DIRECTION_UPLINK) {
-        if (si->isULRetx) {
+        if (si->isPHYRetx) {
             te->stats.UL_retx_frames++;
             return 1;
         }
@@ -430,7 +430,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     /* Downlink */
     else {
-        if (si->isDLRetx) {
+        if (si->isPHYRetx) {
             te->stats.DL_retx_frames++;
             return 1;
         }
