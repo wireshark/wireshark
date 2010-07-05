@@ -165,8 +165,9 @@ typedef struct mac_lte_stat_t {
 
     /* Labels */
     GtkWidget  *mac_lte_stat_ues_lb;
-
     GtkWidget  *filter_bt;
+
+    GtkWidget  *show_dct_errors_cb;
 
     /* Common stats */
     mac_lte_common_stats common_stats;
@@ -542,6 +543,7 @@ mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep, mac_lte_stat_t *hs)
 
     /* Enable/disable filter controls */
     gtk_widget_set_sensitive(hs->filter_bt, mac_stat_ep != NULL);
+    gtk_widget_set_sensitive(hs->show_dct_errors_cb, mac_stat_ep != NULL);
 }
 
 
@@ -671,6 +673,11 @@ static void filter_clicked(GtkWindow *win _U_, mac_lte_stat_t* hs)
         static char buffer[MAX_FILTER_LEN];
         int offset = 0;
 
+        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb))) {
+                offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                                     "dct2000.error-comment or (");
+        }
+
         /* Get the UE details */
         gtk_tree_model_get(model, &iter, TABLE_COLUMN, &ep, -1);
 
@@ -681,6 +688,12 @@ static void filter_clicked(GtkWindow *win _U_, mac_lte_stat_t* hs)
         offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
                              "mac-lte.rnti == %u and mac-lte.ueid == %u",
                              ep->stats.rnti, ep->stats.ueid);
+
+        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb))) {
+                offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                                     ")");
+        }
+
 
         /* Set its value to our new string */
         gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), buffer);
@@ -978,6 +991,14 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
                          "Generate and set a filter showing only frames with selected RNTI and UEId",
                          NULL);
 
+    /* Allow DCT errors to be shown... */
+    hs->show_dct_errors_cb = gtk_check_button_new_with_mnemonic("Show DCT2000 error strings");
+    gtk_container_add(GTK_CONTAINER(filter_buttons_hb), hs->show_dct_errors_cb);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb), FALSE);
+    gtk_tooltips_set_tip(tooltips, hs->show_dct_errors_cb, "When checked, generated filters will "
+                         "include DCT2000 error strings", NULL);
+    /* Initially disabled */
+    gtk_widget_set_sensitive(hs->show_dct_errors_cb, FALSE);
 
     /**********************************************/
     /* Register the tap listener                  */
