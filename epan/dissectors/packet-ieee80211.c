@@ -1270,6 +1270,7 @@ static int tag_length = -1;
 static int tag_interpretation = -1;
 static int tag_oui = -1;
 
+static int hf_ieee80211_tag_ds_param_channel = -1;
 
 static int tim_length = -1;
 static int tim_dtim_count = -1;
@@ -5235,6 +5236,9 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
                              tag_len, out_buff);
       proto_item_append_text(ti, ": %s", out_buff);
       wlan_stats.channel = tvb_get_guint8(tvb, offset + 2);
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_ds_param_channel, tvb,
+                          offset + 2, 1, FALSE);
       break;
 
     case TAG_CF_PARAMETER:
@@ -11621,6 +11625,11 @@ proto_register_ieee80211 (void)
     {&tag_oui,
      {"OUI", "wlan_mgt.tag.oui",
       FT_BYTES, BASE_NONE, NULL, 0, "OUI of vendor specific IE", HFILL }},
+
+    {&hf_ieee80211_tag_ds_param_channel,
+     {"Current Channel", "wlan_mgt.ds.current_channel",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "DS Parameter Set - Current Channel", HFILL }},
 
     {&tim_length,
      {"TIM length", "wlan_mgt.tim.length",
