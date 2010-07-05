@@ -477,6 +477,9 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define FIELD_TARGET_AP_ADDRESS         0x34
 #define FIELD_MESH_MGT_ACTION_PS_CODE   0x35    /* Mesh Management action peer link code */
 #define FIELD_MESH_MGT_ACTION_PL_CODE   0x36    /* Mesh Management action peer link code */
+#define FIELD_SA_QUERY_ACTION_CODE      0x39
+#define FIELD_TRANSACTION_ID            0x3A
+
 
 /* ************************************************************************* */
 /*        Logical field codes (IEEE 802.11 encoding of tags)                 */
