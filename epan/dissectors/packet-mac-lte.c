@@ -2953,6 +2953,11 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_subframe_number,
                              tvb, 0, 0, p_mac_lte_info->subframeNumber);
     PROTO_ITEM_SET_GENERATED(ti);
+    if (p_mac_lte_info->subframeNumber > 9) {
+        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                               "Subframe number was out of range - using max (9) instead");
+        p_mac_lte_info->subframeNumber = 9;
+    }
 
     if (p_mac_lte_info->rntiType != NO_RNTI) {
         ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rnti,
