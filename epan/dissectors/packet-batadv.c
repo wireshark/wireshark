@@ -46,6 +46,8 @@
 #define ECHO_REQUEST 8
 #define TTL_EXCEEDED 11
 
+#define BAT_RR_LEN 16
+
 struct batman_packet_v5 {
 	guint8  packet_type;
 	guint8  version;  /* batman version field */
@@ -206,6 +208,7 @@ static gint ett_batadv_batman_gwflags = -1;
 static gint ett_batadv_batman_hna = -1;
 static gint ett_batadv_bcast = -1;
 static gint ett_batadv_icmp = -1;
+static gint ett_batadv_icmp_rr = -1;
 static gint ett_batadv_unicast = -1;
 static gint ett_batadv_vis = -1;
 static gint ett_batadv_vis_entry = -1;
@@ -1267,10 +1270,40 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	}
 }
 
+static void
+dissect_batadv_icmp_rr(proto_tree *batadv_icmp_tree, tvbuff_t *tvb, int offset)
+{
+	proto_tree *field_tree = NULL;
+	proto_item *tf;
+	int ptr, i;
+	const guint8  *addr;
+
+	ptr = tvb_get_guint8(tvb, offset);
+	if (ptr < 1 || ptr > BAT_RR_LEN)
+		return;
+
+	tf = proto_tree_add_text(batadv_icmp_tree, tvb, offset, 1+ 6 * BAT_RR_LEN, "ICMP RR");
+	field_tree = proto_item_add_subtree(tf, ett_batadv_icmp_rr);
+	proto_tree_add_text(field_tree, tvb, offset, 1, "Pointer: %d", ptr);
+
+	ptr--;
+	offset++;
+	for (i = 0; i < BAT_RR_LEN; i++) {
+		addr = tvb_get_ptr(tvb, offset, 6);
+		proto_tree_add_text(field_tree, tvb, offset, 6, "%s%s",
+				    (i > ptr) ? "-" : ether_to_str(addr),
+				    (i == ptr) ? " <- (current)" : "");
+
+		offset += 6;
+	}
+}
+
 static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct icmp_packet_v7 *icmp_packeth;
 	const guint8  *dst_addr, *orig_addr;
+	proto_item *ti;
+	proto_tree *batadv_icmp_tree = NULL;
 
 	tvbuff_t *next_tvb;
 	guint length_remaining;
@@ -1294,49 +1327,51 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			     val_to_str(icmp_packeth->msg_type, icmp_packettypenames, "Unknown (0x%02x)"),
 			     icmp_packeth->seqno);
 	}
+
 	/* Set tree info */
 	if (tree) {
-		proto_item *ti;
-		proto_tree *batadv_icmp_tree;
-
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, ICMP_PACKET_V7_SIZE,
-			                                    "B.A.T.M.A.N. ICMP, Orig: %s (%s), Dst: %s (%s)",
-			                                    get_ether_name(orig_addr), ether_to_str(orig_addr), get_ether_name(dst_addr), ether_to_str(dst_addr));
+								"B.A.T.M.A.N. ICMP, Orig: %s (%s), Dst: %s (%s)",
+								get_ether_name(orig_addr), ether_to_str(orig_addr), get_ether_name(dst_addr), ether_to_str(dst_addr));
 		} else {
 			ti = proto_tree_add_item(tree, proto_batadv_plugin, tvb, 0, ICMP_PACKET_V7_SIZE, FALSE);
 		}
 		batadv_icmp_tree = proto_item_add_subtree(ti, ett_batadv_icmp);
-
-		/* items */
-		proto_tree_add_uint_format(batadv_icmp_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_ICMP,
-		                           "Packet Type: %s (%u)", "BATADV_ICMP", BATADV_ICMP);
-		offset += 1;
-
-		proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_version, tvb, offset, 1, FALSE);
-		offset += 1;
-
-		proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_msg_type, tvb, offset, 1, FALSE);
-		offset += 1;
-
-		proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_ttl, tvb, offset, 1, FALSE);
-		offset += 1;
-
-		proto_tree_add_ether(batadv_icmp_tree, hf_batadv_icmp_dst, tvb, offset, 6, dst_addr);
-		offset += 6;
-
-		proto_tree_add_ether(batadv_icmp_tree, hf_batadv_icmp_orig, tvb, offset, 6, orig_addr);
-		offset += 6;
-
-		proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_seqno, tvb, offset, 2, FALSE);
-		offset += 2;
-
-		proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_uid, tvb, offset, 1, FALSE);
-		offset += 1;
 	}
 
-	/* Calculate offset even when we got no tree */
-	offset = ICMP_PACKET_V7_SIZE;
+	/* items */
+	proto_tree_add_uint_format(batadv_icmp_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_ICMP,
+					"Packet Type: %s (%u)", "BATADV_ICMP", BATADV_ICMP);
+	offset += 1;
+
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_version, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_msg_type, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_ttl, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_ether(batadv_icmp_tree, hf_batadv_icmp_dst, tvb, offset, 6, dst_addr);
+	offset += 6;
+
+	proto_tree_add_ether(batadv_icmp_tree, hf_batadv_icmp_orig, tvb, offset, 6, orig_addr);
+	offset += 6;
+
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_seqno, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_uid, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	/* rr data available? */
+	length_remaining = tvb_length_remaining(tvb, offset);
+	if (length_remaining >= 1 + BAT_RR_LEN * 6) {
+		dissect_batadv_icmp_rr(batadv_icmp_tree, tvb, offset);
+		offset += 1 + BAT_RR_LEN * 6;
+	}
 
 	SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, orig_addr);
 	SET_ADDRESS(&pinfo->src, AT_ETHER, 6, orig_addr);
@@ -1999,6 +2034,7 @@ void proto_register_batadv(void)
 		&ett_batadv_batman_gwflags,
 		&ett_batadv_bcast,
 		&ett_batadv_icmp,
+		&ett_batadv_icmp_rr,
 		&ett_batadv_unicast,
 		&ett_batadv_vis,
 		&ett_batadv_vis_entry
