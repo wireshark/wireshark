@@ -271,8 +271,6 @@ static int hf_nfs_mode3_xoth = -1;
 /* NFSv4 */
 static int hf_nfs_nfsstat4 = -1;
 static int hf_nfs_op4 = -1;
-static int hf_nfs_opname = -1;
-static int hf_nfs_main_opname = -1;
 static int hf_nfs_main_opcode = -1;
 static int hf_nfs_linktext4 = -1;
 static int hf_nfs_tag4 = -1;
@@ -8962,8 +8960,6 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	for (ops_counter=0; ops_counter<ops; ops_counter++)
 	{
-		proto_item *opname_item;
-
 		op_summary[ops_counter].optext = g_string_new("");
 
 		opcode = tvb_get_ntohl(tvb, offset);
@@ -8989,9 +8985,6 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		
 		opname=val_to_str(opcode, names_nfsv4_operation, "Unknown");
-	
-		opname_item=proto_tree_add_string(newftree, hf_nfs_opname, tvb, 0, 0, opname); 
-		PROTO_ITEM_SET_GENERATED(opname_item);
 		offset += 4;		
 		
 		g_string_append_printf (op_summary[ops_counter].optext, "%s", opname);
@@ -9496,8 +9489,6 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				
 				main_op_item=proto_tree_add_uint(ftree, hf_nfs_main_opcode, tvb, 0, 0, main_opcode);
 				PROTO_ITEM_SET_GENERATED(main_op_item);
-				main_op_item=proto_tree_add_string(ftree, hf_nfs_main_opname, tvb, 0, 0, main_opname);
-				PROTO_ITEM_SET_GENERATED(main_op_item);
 			}				
 				
 			if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -9600,8 +9591,6 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	for (ops_counter = 0; ops_counter < ops; ops_counter++)
 	{
-		proto_item *opname_item;
-		
 		op_summary[ops_counter].optext = g_string_new("");
 		
 		opcode = tvb_get_ntohl(tvb, offset);
@@ -9628,8 +9617,6 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		
 		opname=val_to_str(opcode, names_nfsv4_operation, "Unknown");
-		opname_item=proto_tree_add_string(newftree, hf_nfs_opname, tvb, offset, 4, opname); 
-		PROTO_ITEM_SET_GENERATED(opname_item);
 		offset += 4;
 		
 		g_string_append_printf (op_summary[ops_counter].optext, "%s", opname);
@@ -9910,9 +9897,6 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				main_opname=val_to_str(main_opcode, names_nfsv4_operation, "Unknown");
 				
 				main_op_item=proto_tree_add_uint(ftree, hf_nfs_main_opcode, tvb, 0, 0, main_opcode);
-				PROTO_ITEM_SET_GENERATED(main_op_item);
-				main_op_item=proto_tree_add_string(ftree, hf_nfs_main_opname, tvb, 0, 0, main_opname);
-				PROTO_ITEM_SET_GENERATED(main_op_item);
 			}				
 
 			if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -11070,18 +11054,9 @@ proto_register_nfs(void)
 			"Opcode", "nfs.opcode", FT_UINT32, BASE_DEC,
 			VALS(names_nfsv4_operation), 0, NULL, HFILL }},
 		
-		{ &hf_nfs_opname, {
-			"Opname", "nfs.opname", FT_STRING, BASE_NONE,
-			NULL, 0, "Operation name", HFILL }},
-		
-		{ &hf_nfs_main_opname, {
-			"Main Opname", "nfs.main_opname", FT_STRING, BASE_NONE,
-			NULL, 0, "Main Operation name", HFILL }},
-		
 		{ &hf_nfs_main_opcode, {
 			"Main Opcode", "nfs.main_opcode", FT_UINT32, BASE_DEC,
 			NULL, 0, "Main Operation number", HFILL }},
-
 		
 		{ &hf_nfs_linktext4, {
 			"Name", "nfs.symlink.linktext", FT_STRING, BASE_NONE,
