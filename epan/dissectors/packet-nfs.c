@@ -9019,7 +9019,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			length = tvb_get_ntohl(tvb, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_count4,
 				offset);
-				g_string_append_printf (op_summary[ops_counter].optext, " FH:0x%08x Offset:%"G_GINT64_MODIFIER"u Len:%u", last_fh_hash, file_offset, length);
+				g_string_append_printf (op_summary[ops_counter].optext, " FH:0x%08x Len:%u", last_fh_hash, length);
 
 			break;
 
@@ -9100,7 +9100,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_length4, offset);
 			offset = dissect_nfs_locker4(tvb, offset, newftree);
 			if (lock_length == 0xffffffffffffffff)
-				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %u Length: <End of File>", 
+				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %"G_GINT64_MODIFIER"u Length: <End of File>", 
 									 last_fh_hash,file_offset);
 			else {
 				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %"G_GINT64_MODIFIER"u Length: %"G_GINT64_MODIFIER"u ", 
@@ -9125,7 +9125,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			lock_length = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_length4, offset);
 			if (lock_length == 0xffffffffffffffff)
-				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %u Length: <End of File>", 
+				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %"G_GINT64_MODIFIER"u Length: <End of File>", 
 									last_fh_hash,file_offset);
 			else {
 				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %"G_GINT64_MODIFIER"u Length: %"G_GINT64_MODIFIER"u ", 
@@ -9323,7 +9323,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			dissect_rpc_uint32(tvb, newftree, hf_write_data_length, offset); /* don't change offset */				
 			offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs_data);
 			if (sid_hash != 0)
-				g_string_append_printf (op_summary[ops_counter].optext, " StateID:0x%04x Offset:%u Len:%u", sid_hash, string_length);
+				g_string_append_printf (op_summary[ops_counter].optext, " StateID:0x%04x Offset:%"G_GINT64_MODIFIER"u Len:%u", sid_hash, file_offset, string_length);
 			break;
 
 		case NFS4_OP_RELEASE_LOCKOWNER:
