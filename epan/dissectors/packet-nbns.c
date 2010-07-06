@@ -1715,6 +1715,16 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			if (length == 0)
 				goto continuation;
+
+			/* 
+			   * I added this IF test to catch issues when the dissector loses track of the stream normally 
+			   * because of missing frames in the capture and the first byte of the TCP data being check 
+			   * happens to be a 0.  I'm adding a second sanity test to try to reject false positives.  
+			   * I've haven't seen any real world CIFS/SMB traffic where the NBSS PDU length is greater then 
+			   * 65536 bytes. I could have added this with an OR argument to the previous IF test but I added it 
+			   * this way for clarity. - Frank Schorr */  
+			if (length > 65536)
+				goto continuation;
 			break;
 
 		case SESSION_REQUEST:
