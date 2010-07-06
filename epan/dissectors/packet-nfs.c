@@ -696,7 +696,7 @@ typedef struct _nfsv4_operation_summary {
  In practice this seems to be a very reliable method of determining the most significant
  operation(s). */
 
-static nfsv4_operation_tiers[] = {
+static int nfsv4_operation_tiers[] = {
 		 1 /* 0 */ ,
 		 1 /* 1 */ ,
 	 	 1 /* 2 */ ,
@@ -9577,10 +9577,8 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *newftree = NULL;
 	guint32 string_length;
 	guint32 status;
-	char *name=NULL;
 	const char *opname=NULL;
 	guint32 last_fh_hash=0;
-	guint32 saved_fh_hash=0;
 	guint16 sid_hash=0;
 	guint highest_tier=5;
 	guint current_tier=5;
