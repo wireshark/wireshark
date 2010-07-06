@@ -300,7 +300,6 @@
 		78E9AE1B0A36A8E3000D76A8 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				SYMROOT = "$(PROJECT_DIR)/build";
 			};
 			name = Development;
@@ -308,7 +307,6 @@
 		78E9AE1C0A36A8E3000D76A8 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				SYMROOT = "$(PROJECT_DIR)/build";
 			};
 			name = Deployment;
@@ -316,7 +314,6 @@
 		78E9AE1D0A36A8E3000D76A8 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				SYMROOT = "$(PROJECT_DIR)/build";
 			};
 			name = Default;
