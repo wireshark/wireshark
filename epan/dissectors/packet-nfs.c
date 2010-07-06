@@ -9099,7 +9099,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			lock_length = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_length4, offset);
 			offset = dissect_nfs_locker4(tvb, offset, newftree);
-			if (lock_length == 0xffffffffffffffff)
+			if (lock_length == G_MAXUINT64)
 				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %"G_GINT64_MODIFIER"u Length: <End of File>", 
 									 last_fh_hash,file_offset);
 			else {
@@ -9124,7 +9124,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_offset4, offset);
 			lock_length = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_length4, offset);
-			if (lock_length == 0xffffffffffffffff)
+			if (lock_length == G_MAXUINT64)
 				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %"G_GINT64_MODIFIER"u Length: <End of File>", 
 									last_fh_hash,file_offset);
 			else {
