@@ -1182,7 +1182,7 @@ dissect_v8_aggpdu(tvbuff_t * tvb _U_, packet_info * pinfo _U_, proto_tree * pdut
 		case V8PDU_DPREFIX_METHOD:
 		case V8PDU_TOSDSTPREFIX_METHOD:
 		default:	/* stop warning that :
-				   ‘local_cflow_*’ may be used
+				   'local_cflow_*' may be used
 				   uninitialized in this function */
 			local_cflow_net	 = hf_cflow_dstnet;
 			local_cflow_mask = hf_cflow_dstmask;
