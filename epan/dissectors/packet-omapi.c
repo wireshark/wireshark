@@ -132,6 +132,18 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     return;
   }
+  else if ( !(tvb_get_ntohl(tvb, 8) || tvb_get_ntohl(tvb, 12)) )
+  {
+    /* This is a startup message, and more */
+    ptvcursor_add(cursor, hf_omapi_version, 4, FALSE);
+    ptvcursor_add(cursor, hf_omapi_hlength, 4, FALSE);
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+      col_append_str(pinfo->cinfo, COL_INFO, "Status message");
+    }
+    proto_item_append_text(ti, ", Status message"); 
+  }
 
   ptvcursor_add(cursor, hf_omapi_auth_id, 4, FALSE);
   authlength = tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor));
@@ -139,7 +151,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_INFO)) 
   {
-    col_add_str(pinfo->cinfo, COL_INFO, 
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
       val_to_str(tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor)), omapi_opcode_vals, "Unknown opcode (0x%04x)"));
   }
   proto_item_append_text(ti, ", Opcode: %s", 
