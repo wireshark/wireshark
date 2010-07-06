@@ -246,6 +246,12 @@ wireshark.bsc: *.sbr epan\*.sbr epan\dfilter\*.sbr epan\ftypes\*.sbr epan\wslua\
 <<
 	xcopy $@ $(INSTALL_DIR)\ /d
 
+pdb_zip: all
+	cd $(INSTALL_DIR)
+	rm -f ../wireshark-pdb-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).zip
+	zip -9 ../wireshark-pdb-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).zip *.pdb
+	cd ..
+
 $(RESOURCES): image
 
 wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
