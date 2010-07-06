@@ -1,7 +1,7 @@
 /* packet-nas_eps.c
  * Routines for Non-Access-Stratum (NAS) protocol for Evolved Packet System (EPS) dissection
  *
- * Copyright 2008 - 2009, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2008 - 2010, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -4202,6 +4202,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		msg_auth_code = tvb_get_ntohl(tvb, offset);
 		offset+=4;
 		if ((security_header_type==2)||(security_header_type==4)){
+			/* Possible ciphered message */
 			if(msg_auth_code!=0){
 				/* Sequence number	Sequence number 9.6	M	V	1 */
 				proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
@@ -4213,6 +4214,11 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_text(nas_eps_tree, tvb, offset, len-6,"Ciphered message");
 					return;
 				}
+			}else{
+				/* msg_auth_code == 0, probably not ciphered */
+				/* Sequence number	Sequence number 9.6	M	V	1 */
+				proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
+				offset++;
 			}
 		}else{
 			/* Sequence number	Sequence number 9.6	M	V	1 */
