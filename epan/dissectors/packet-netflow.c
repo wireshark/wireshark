@@ -157,7 +157,7 @@ static const value_string v8_agg[] = {
 	{V8PDU_DESTONLY_METHOD, "V8 Destination aggregation (Cisco Catalyst)"},
 	{V8PDU_SRCDEST_METHOD, "V8 Src/Dest aggregation (Cisco Catalyst)"},
 	{V8PDU_FULL_METHOD, "V8 Full aggregation (Cisco Catalyst)"},
-	{V8PDU_TOSAS_METHOD, "V8 TOS+AS aggregation aggregation"},
+	{V8PDU_TOSAS_METHOD, "V8 TOS+AS aggregation"},
 	{V8PDU_TOSPROTOPORT_METHOD, "V8 TOS+Protocol aggregation"},
 	{V8PDU_TOSSRCPREFIX_METHOD, "V8 TOS+Source Prefix aggregation"},
 	{V8PDU_TOSDSTPREFIX_METHOD, "V8 TOS+Destination Prefix aggregation"},
@@ -167,9 +167,16 @@ static const value_string v8_agg[] = {
 };
 
 /* Version 9 template cache structures */
-#define V9TEMPLATE_CACHE_MAX_ENTRIES	100
+/* This was 100, but this gives a horrible hash distribution. */
+/* I've also increased this to reduce the chance of collisions until I
+   have a chance to add chaining (or something) to the template cache
+   hash */
+#define V9TEMPLATE_CACHE_MAX_ENTRIES	521
+
 /* Max number of entries/scopes per template */
-#define V9TEMPLATE_MAX_FIELDS 30
+/* I wonder if I can make this dynamic... 42 is more than sufficient
+   for my current needs though. */
+#define V9TEMPLATE_MAX_FIELDS 42
 
 struct v9_template_entry {
 	guint16	type;
@@ -1107,7 +1114,10 @@ dissect_v8_aggpdu(tvbuff_t * tvb _U_, packet_info * pinfo _U_, proto_tree * pdut
 {
 	int             startoffset = offset;
 	guint8		verspec;
-
+	int      local_cflow_as;  /* hf_cflow_srcas || hf_cflow_dstas */
+	int      local_cflow_net; /* hf_cflow_srcnet || hf_cflow_dstnet */
+	int      local_cflow_int; /* hf_cflow_outputint || hf_cflow_inputint */
+	int      local_cflow_mask; /* hf_cflow_srcmask || hf_cflow_dstmask */
 	proto_tree_add_item(pdutree, hf_cflow_flows, tvb, offset, 4, FALSE);
 	offset += 4;
 
@@ -1130,7 +1140,11 @@ dissect_v8_aggpdu(tvbuff_t * tvb _U_, packet_info * pinfo _U_, proto_tree * pdut
 			offset =
 			    flow_process_textfield(pdutree, tvb, offset, 2,
 						   "reserved");
-		}
+		} 
+		/* ACF - Seen in the wild and documented here...
+		   http://www.caida.org/tools/measurement/cflowd/configuration/configuration-9.html#ss9.1 
+		*/
+		offset = flow_process_ints(pdutree, tvb, offset);
 		break;
 	case V8PDU_PROTO_METHOD:
 	case V8PDU_TOSPROTOPORT_METHOD:
@@ -1157,18 +1171,32 @@ dissect_v8_aggpdu(tvbuff_t * tvb _U_, packet_info * pinfo _U_, proto_tree * pdut
 	case V8PDU_DPREFIX_METHOD:
 	case V8PDU_TOSSRCPREFIX_METHOD:
 	case V8PDU_TOSDSTPREFIX_METHOD:
+		switch (verspec) {
+		case V8PDU_SPREFIX_METHOD:
+		case V8PDU_TOSSRCPREFIX_METHOD:
+			local_cflow_net	 = hf_cflow_srcnet;
+			local_cflow_mask = hf_cflow_srcmask;
+			local_cflow_as	 = hf_cflow_srcas;
+			local_cflow_int	 = hf_cflow_inputint;
+			break;
+		case V8PDU_DPREFIX_METHOD:
+		case V8PDU_TOSDSTPREFIX_METHOD:
+		default:	/* stop warning that :
+				   ‘local_cflow_*’ may be used
+				   uninitialized in this function */
+			local_cflow_net	 = hf_cflow_dstnet;
+			local_cflow_mask = hf_cflow_dstmask;
+			local_cflow_as	 = hf_cflow_dstas;
+			local_cflow_int	 = hf_cflow_outputint;
+			break;
+		}
+
 		proto_tree_add_item(pdutree,
-				    verspec ==
-				    V8PDU_SPREFIX_METHOD ?
-				    hf_cflow_srcnet : hf_cflow_dstnet, tvb,
-				    offset, 4, FALSE);
+				    local_cflow_net, tvb, offset, 4, FALSE);
 		offset += 4;
 
 		proto_tree_add_item(pdutree,
-				    verspec ==
-				    V8PDU_SPREFIX_METHOD ?
-				    hf_cflow_srcmask : hf_cflow_dstmask, tvb,
-				    offset++, 1, FALSE);
+				    local_cflow_mask, tvb, offset++, 1, FALSE);
 
 		if (verspec == V8PDU_SPREFIX_METHOD
 		    || verspec == V8PDU_DPREFIX_METHOD)
@@ -1181,16 +1209,11 @@ dissect_v8_aggpdu(tvbuff_t * tvb _U_, packet_info * pinfo _U_, proto_tree * pdut
 					    offset++, 1, FALSE);
 
 		proto_tree_add_item(pdutree,
-				    verspec ==
-				    V8PDU_SPREFIX_METHOD ? hf_cflow_srcas
-				    : hf_cflow_dstas, tvb, offset, 2, FALSE);
+				    local_cflow_as, tvb, offset, 2, FALSE);
 		offset += 2;
 
 		proto_tree_add_item(pdutree,
-				    verspec ==
-				    V8PDU_SPREFIX_METHOD ?
-				    hf_cflow_inputint : hf_cflow_outputint,
-				    tvb, offset, 2, FALSE);
+				    local_cflow_int, tvb, offset, 2, FALSE);
 		offset += 2;
 
 		offset =
