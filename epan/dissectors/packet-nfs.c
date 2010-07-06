@@ -11609,10 +11609,10 @@ proto_register_nfs(void)
 		   "CB Procedure", "nfs.cb_procedure", FT_UINT32, BASE_DEC,
 			VALS(nfs_cb_proc_vals), 0, NULL, HFILL }},
 		{ &hf_nfs_cb_argop, {
-		    "Opcode", "nfs.call.operation", FT_UINT32, BASE_DEC,
+		    "Opcode", "nfs.cb.operation", FT_UINT32, BASE_DEC,
 		    VALS(names_nfs_cb_operation), 0, NULL, HFILL }},
 		{ &hf_nfs_cb_resop, {
-		      "Opcode", "nfs.reply.operation", FT_UINT32, BASE_DEC,
+		      "Opcode", "nfs.cb_reply.operation", FT_UINT32, BASE_DEC,
 			VALS(names_nfs_cb_operation), 0, NULL, HFILL }},
 		{ &hf_nfs_lrs_present, {
 			"Stateid present?", "nfs.lrs_present", FT_BOOLEAN, BASE_NONE,
