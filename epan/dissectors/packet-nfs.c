@@ -9019,7 +9019,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			length = tvb_get_ntohl(tvb, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_count4,
 				offset);
-				g_string_append_printf (op_summary[ops_counter].optext, " FH:0x%08x Offset:%llu Len:%u", last_fh_hash, file_offset, length);
+				g_string_append_printf (op_summary[ops_counter].optext, " FH:0x%08x Offset:%"G_GINT64_MODIFIER"u Len:%u", last_fh_hash, file_offset, length);
 
 			break;
 
@@ -9103,7 +9103,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %u Length: <End of File>", 
 									 last_fh_hash,file_offset);
 			else {
-				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %llu Length: %llu ", 
+				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %"G_GINT64_MODIFIER"u Length: %"G_GINT64_MODIFIER"u ", 
 									 last_fh_hash,file_offset,lock_length);
 			}
 
@@ -9128,7 +9128,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %u Length: <End of File>", 
 									last_fh_hash,file_offset);
 			else {
-				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %llu Length: %llu ", 
+				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %"G_GINT64_MODIFIER"u Length: %"G_GINT64_MODIFIER"u ", 
 									last_fh_hash,file_offset,lock_length);
 			}
 			break;
@@ -9140,7 +9140,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (nfs_file_name_snooping){
 				rpc_call_info_value *civ=pinfo->private_data;
 				nfs_name_snoop_add_name(civ->xid, tvb,
-										//name_offset, strlen(name),
+										/*name_offset, strlen(name),*/
 										0, 0,
 										0, 0, name);
 			}
