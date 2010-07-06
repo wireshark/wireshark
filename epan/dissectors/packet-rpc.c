@@ -2062,15 +2062,22 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				"Procedure: %s (%u)", procname, proc);
 		}
 
+		/* Print the program version, procedure name, and message type (call or reply). */
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			if (first_pdu)
 				col_clear(pinfo->cinfo, COL_INFO);
 			else
 				col_append_str(pinfo->cinfo, COL_INFO, "  ; ");
-			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s",
-				vers,
-				procname,
-				msg_type_name);
+			/* Special case for NFSv4 - if the type is COMPOUND, do not print the procedure name */
+			if (vers==4 && prog==NFS_PROGRAM && !strcmp(procname, "COMPOUND")) 
+				col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s",
+					vers,
+					msg_type_name);
+			else
+				col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s",
+					vers,
+					procname,
+					msg_type_name);
 		}
 
 		/* Keep track of the address whence the call came, and the
@@ -2268,15 +2275,22 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 		}
 
+		/* Print the program version, procedure name, and message type (call or reply). */
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			if (first_pdu)
 				col_clear(pinfo->cinfo, COL_INFO);
 			else
 				col_append_str(pinfo->cinfo, COL_INFO, "  ; ");
-			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s",
-				vers,
-				procname,
-				msg_type_name);
+			/* Special case for NFSv4 - if the type is COMPOUND, do not print the procedure name */
+			if (vers==4 && prog==NFS_PROGRAM && !strcmp(procname, "COMPOUND")) 
+				col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s",
+					vers,
+					msg_type_name);
+			else
+				col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s",
+					vers,
+					procname,
+					msg_type_name);
 		}
 
 		if (rpc_tree) {

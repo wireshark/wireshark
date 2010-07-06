@@ -30,6 +30,7 @@
 #include "config.h"
 #endif
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -40,6 +41,10 @@
 #include <epan/emem.h>
 #include <epan/strutil.h>
 #include <epan/crc32.h>
+
+#include <epan/crc16.h>
+#include <glib.h>
+#include <glib/gprintf.h>
 
 static int proto_nfs = -1;
 
@@ -265,8 +270,10 @@ static int hf_nfs_mode3_xoth = -1;
 
 /* NFSv4 */
 static int hf_nfs_nfsstat4 = -1;
-static int hf_nfs_argop4 = -1;
-static int hf_nfs_resop4 = -1;
+static int hf_nfs_op4 = -1;
+static int hf_nfs_opname = -1;
+static int hf_nfs_main_opname = -1;
+static int hf_nfs_main_opcode = -1;
 static int hf_nfs_linktext4 = -1;
 static int hf_nfs_tag4 = -1;
 static int hf_nfs_ops_count4 = -1;
@@ -375,6 +382,7 @@ static int hf_nfs_secinfo_rpcsec_gss_info_service = -1;
 static int hf_nfs_attrdircreate = -1;
 static int hf_nfs_client_id4_id = -1;
 static int hf_nfs_stateid4_other = -1;
+static int hf_nfs_stateid4_hash = -1;
 static int hf_nfs_lock4_reclaim = -1;
 static int hf_nfs_acl4 = -1;
 static int hf_nfs_callback_ident = -1;
@@ -669,6 +677,88 @@ gint default_nfs_fhandle_type=FHT_UNKNOWN;
 gboolean nfs_fhandle_reqrep_matching = FALSE;
 static emem_tree_t *nfs_fhandle_frame_table = NULL;
 
+typedef struct _nfsv4_operation_summary {
+		guint32 opcode;
+		gboolean iserror;
+		GString *optext;
+} nfsv4_operation_summary;
+
+
+/* To try to determine which NFSv4 operations are most important in a request, we categorize
+ the operations into different "tiers".
+ All operations falling into the highest tier (where 1 is highest, 5 is lowest) are considered
+ to be the "most significant" operations.  This information is useful for display purposes,
+ filtering, and for response time calculations.
+ For example, virtually all NFSv4 requests include a GETATTR.  But in a request with
+ PUTFH; CLOSE; GETATTR operations, CLOSE is the significant operation.  In a request with
+ PUTFH; GETATTR operations, GETATTR is the significant operation.  CLOSE has higher tier than
+ GETATTR, which is in a higher tier than PUTFH.
+ In practice this seems to be a very reliable method of determining the most significant
+ operation(s). */
+
+static nfsv4_operation_tiers[] = {
+		 1 /* 0 */ ,
+		 1 /* 1 */ ,
+	 	 1 /* 2 */ ,
+		 2 /* 3, NFS4_OP_ACCESS */ ,	
+		 1 /* 4, NFS4_OP_CLOSE */,
+		 1 /* 5, NFS4_OP_COMMIT	*/,				
+		 1 /* 6, NFS4_OP_CREATE	*/,				
+		 1 /* 7, NFS4_OP_DELEGPURGE	*/,				
+		 1 /* 8, NFS4_OP_DELEGRETURN */,			
+		 3 /* 9, NFS4_OP_GETATTR */,				
+		 4 /* 10, NFS4_OP_GETFH	*/,			
+		 1 /* 11, NFS4_OP_LINK	*/,				
+		 1 /* 12, NFS4_OP_LOCK */,				
+		 1 /* 13, NFS4_OP_LOCKT	*/,			
+		 1 /* 14, NFS4_OP_LOCKU	*/,			
+		 1 /* 15, NFS4_OP_LOOKUP */,				
+		 1 /* 16, NFS4_OP_LOOKUPP */,				
+		 2 /* 17, NFS4_OP_NVERIFY */,				
+		 1 /* 18, NFS4_OP_OPEN */,				
+		 1 /* 19, NFS4_OP_OPENATTR */,			
+		 1 /* 20, NFS4_OP_OPEN_CONFIRM */,			
+		 1 /* 21, NFS4_OP_OPEN_DOWNGRADE */,			
+		 4 /* 22, NFS4_OP_PUTFH	*/,			
+		 3 /* 23, NFS4_OP_PUTPUBFH	*/,			
+		 3 /* 24, NFS4_OP_PUTROOTFH	*/,			
+		 1 /* 25, NFS4_OP_READ	*/,				
+		 1 /* 26, NFS4_OP_READDIR */,				
+		 1 /* 27, NFS4_OP_READLINK	*/,			
+		 1 /* 28, NFS4_OP_REMOVE */,				
+		 1 /* 29, NFS4_OP_RENAME */,			
+		 1 /* 30, NFS4_OP_RENEW	*/,			
+		 4 /* 31, NFS4_OP_RESTOREFH	*/,			
+		 4 /* 32, NFS4_OP_SAVEFH */,				
+		 1 /* 33, NFS4_OP_SECINFO */,				
+		 1 /* 34, NFS4_OP_SETATTR */,				
+		 1 /* 35, NFS4_OP_SETCLIENTID */,			
+		 1 /* 36, NFS4_OP_SETCLIENTID_CONFIRM */,	
+		 1 /* 37, NFS4_OP_VERIFY */,				
+		 1 /* 38, NFS4_OP_WRITE	*/,			
+		 1 /* 39, NFS4_OP_RELEASE_LOCKOWNER	*/,
+			/* Minor version 1 */
+		 1 /* 40, NFS4_OP_BACKCHANNEL_CTL */,      
+		 1 /* 41, NFS4_OP_BIND_CONN_TO_SESSION */,
+		 1 /* 42, NFS4_OP_EXCHANGE_ID */,  
+		 1 /* 43, NFS4_OP_CREATE_SESSION */,
+		 1 /* 44, NFS4_OP_DESTROY_SESSION */,
+		 1 /* 45, NFS4_OP_FREE_STATEID */,  
+		 1 /* 46, NFS4_OP_GET_DIR_DELEGATION */,
+		 1 /* 47, NFS4_OP_GETDEVINFO */,
+		 1 /* 48, NFS4_OP_GETDEVLIST */,
+		 1 /* 49, NFS4_OP_LAYOUTCOMMIT */,
+		 1 /* 50, NFS4_OP_LAYOUTGET */,
+		 1 /* 51, NFS4_OP_LAYOUTRETURN */,
+		 1 /* 52, NFS4_OP_SECINFO_NO_NAME */, 
+		 1 /* 53, NFS4_OP_SEQUENCE */,
+		 1 /* 54, NFS4_OP_SET_SSV */,
+		 1 /* 55, NFS4_OP_TEST_STATEID */,
+		 1 /* 56, NFS4_OP_WANT_DELEGATION  */,
+		 1 /* 57, NFS4_OP_DESTROY_CLIENTID  */,
+		 1 /* 58, NFS4_OP_RECLAIM_COMPLETE */
+};
+
 
 /* file name snooping */
 gboolean nfs_file_name_snooping = FALSE;
@@ -697,7 +787,10 @@ static GHashTable *nfs_name_snoop_matched = NULL;
 static emem_tree_t *nfs_name_snoop_known = NULL;
 static emem_tree_t *nfs_file_handles = NULL;
 
-static int dissect_nfs_stateid4(tvbuff_t *tvb, int offset, proto_tree *tree);
+gboolean nfs_display_v4_tag = TRUE;
+gboolean display_major_nfsv4_ops = TRUE;
+
+static int dissect_nfs_stateid4(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *hash);
 
 static void reg_callback(int cbprog);
 
@@ -3767,10 +3860,11 @@ dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		/* NFS v3 LOOKUP, CREATE, MKDIR, READDIRPLUS
 			calls might give us a mapping*/
-		if( (civ->prog==100003)
-		  &&(civ->vers==3)
+		if( ((civ->prog==100003)
+		  &&((civ->vers==3)
 		  &&(!civ->request)
-		  &&((civ->proc==3)||(civ->proc==8)||(civ->proc==9)||(civ->proc==17))
+		  &&((civ->proc==3)||(civ->proc==8)||(civ->proc==9)||(civ->proc==17)))) 
+		|| civ->vers==4
 		) {
 			fh_length=tvb_get_ntohl(tvb, offset);
 			fh_offset=offset+4;
@@ -6434,10 +6528,10 @@ dissect_nfs_ace4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 		ace_tree = proto_item_add_subtree(ace_item, ett_nfs_ace4);
 	}
+	
+	offset = dissect_rpc_uint32(tvb, ace_tree, hf_nfs_acetype4, offset);
 
 	if (ace_tree) {
-		offset = dissect_rpc_uint32(tvb, ace_tree, hf_nfs_acetype4, offset);
-
 		aceflag4 = tvb_get_ntohl(tvb, offset);
 
 		aceflag_item = proto_tree_add_text(ace_tree, tvb, offset, 4,
@@ -6479,13 +6573,13 @@ dissect_nfs_ace4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 						ACE4_IDENTIFIER_GROUP);
 			}
 		}
-
-		offset += 4;
-
-		offset = dissect_nfs_acemask4(tvb, offset, ace_tree);
-
-		offset = dissect_nfs_utf8string(tvb, offset, ace_tree, hf_nfs_who, NULL);
 	}
+
+	offset += 4;
+
+	offset = dissect_nfs_acemask4(tvb, offset, ace_tree);
+
+	offset = dissect_nfs_utf8string(tvb, offset, ace_tree, hf_nfs_who, NULL);
 
 	return offset;
 }
@@ -6500,9 +6594,9 @@ dissect_nfs_fattr4_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_nfs_fh4(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, const char *name)
+	proto_tree *tree, const char *name, guint32 *hash)
 {
-	return dissect_nfs_fh3(tvb, offset, pinfo, tree, name, NULL);
+	return dissect_nfs_fh3(tvb, offset, pinfo, tree, name, hash);
 }
 
 static int
@@ -7045,7 +7139,7 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 					case FATTR4_FILEHANDLE:
 						attr_vals_offset = dissect_nfs_fh4(tvb, attr_vals_offset,
-							pinfo, attr_newftree, "fattr4_filehandle");
+							pinfo, attr_newftree, "fattr4_filehandle", NULL);
 						break;
 
 					case FATTR4_FILES_FREE:
@@ -7323,7 +7417,7 @@ dissect_nfs4_attribute(tvbuff_t *tvb, int offset, packet_info *pinfo , proto_tre
 		break;
 
 	case FATTR4_FILEHANDLE:
-		offset = dissect_nfs_fh4(tvb, offset, pinfo, attribute_tree, "fattr4_filehandle");
+		offset = dissect_nfs_fh4(tvb, offset, pinfo, attribute_tree, "fattr4_filehandle", NULL);
 		break;
 
 	case FATTR4_FILES_FREE:
@@ -7643,7 +7737,7 @@ static int
 dissect_nfs_open_claim_delegate_cur4(tvbuff_t *tvb, int offset,
 	proto_tree *tree)
 {
-	offset = dissect_nfs_stateid4(tvb, offset, tree);
+	offset = dissect_nfs_stateid4(tvb, offset, tree, NULL);
 	offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_component4, NULL);
 
 	return offset;
@@ -7668,18 +7762,34 @@ static const value_string names_claim_type4[] = {
 	{	0, NULL }
 };
 
+/* XXX - need a better place to populate name than here, maybe? */
 static int
-dissect_nfs_open_claim4(tvbuff_t *tvb, int offset,
-	proto_tree *tree)
+dissect_nfs_open_claim4(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree, char **name)
 {
 	guint open_claim_type4;
 	proto_item *fitem = NULL;
 	proto_tree *newftree = NULL;
+	guint32 name_offset, name_len;
 
 	open_claim_type4 = tvb_get_ntohl(tvb, offset);
 	fitem = proto_tree_add_uint(tree, hf_nfs_open_claim_type4, tvb,
 		offset+0, 4, open_claim_type4);
 	offset += 4;
+	
+	if (open_claim_type4==CLAIM_NULL) {
+				dissect_nfs_utf8string(tvb, offset, newftree, hf_nfs_component4, name);
+				if (nfs_file_name_snooping){
+						rpc_call_info_value *civ=pinfo->private_data;
+						
+						name_offset=offset+4;
+						name_len=tvb_get_ntohl(tvb, offset);
+						
+						nfs_name_snoop_add_name(civ->xid, tvb,
+							name_offset, name_len,
+							0, 0, NULL);
+		}
+	}
 
 	if (fitem) {
 		newftree = proto_item_add_subtree(fitem, ett_nfs_open_claim4);
@@ -7688,7 +7798,7 @@ dissect_nfs_open_claim4(tvbuff_t *tvb, int offset,
 		switch(open_claim_type4)
 		{
 			case CLAIM_NULL:
-				offset = dissect_nfs_utf8string(tvb, offset, newftree, hf_nfs_component4, NULL);
+				offset = dissect_nfs_utf8string(tvb, offset, newftree, hf_nfs_component4, name);
 				break;
 
 			case CLAIM_PREVIOUS:
@@ -8059,16 +8169,16 @@ dissect_nfs_change_info4(tvbuff_t *tvb, int offset,
 	proto_tree *fitem = NULL;
 
 	fitem = proto_tree_add_text(tree, tvb, offset, 0, "%s", name);
+	offset = dissect_rpc_bool(tvb, newftree,
+			hf_nfs_change_info4_atomic, offset);
+	offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_changeid4_before,
+			offset);
+	offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_changeid4_after,
+			offset);
+
 
 	if (fitem) {
 		newftree = proto_item_add_subtree(fitem, ett_nfs_change_info4);
-
-		offset = dissect_rpc_bool(tvb, newftree,
-				hf_nfs_change_info4_atomic, offset);
-		offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_changeid4_before,
-				offset);
-		offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_changeid4_after,
-				offset);
 	}
 
 	return offset;
@@ -8147,20 +8257,36 @@ dissect_nfs_open4_rflags(tvbuff_t *tvb, int offset,
 
 static int
 dissect_nfs_stateid4(tvbuff_t *tvb, int offset,
-		proto_tree *tree)
+		proto_tree *tree, guint16 *hash)
 {
 	proto_item *fitem = NULL;
+	proto_item *sh_item;
 	proto_tree *newftree = NULL;
+	guint16 sid_hash;
+	guint8 *sidh_array;
+
 
 	if(tree){
 		fitem = proto_tree_add_text(tree, tvb, offset, 4, "stateid");
 		newftree = proto_item_add_subtree(fitem, ett_nfs_stateid4);
 	}
+	
+	sidh_array = tvb_get_string(tvb, offset, 16);
+	sid_hash = crc16_ccitt(sidh_array, 16);
+	
+	sh_item=proto_tree_add_uint(newftree, hf_nfs_stateid4_hash, tvb, offset,
+									+		16, sid_hash);
+	PROTO_ITEM_SET_GENERATED(sh_item);
+
 
 	offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
 
 	proto_tree_add_item(newftree, hf_nfs_stateid4_other, tvb, offset, 12, FALSE);
 	offset+=12;
+	
+	if (hash)
+		*hash=sid_hash;
+
 
 	return offset;
 }
@@ -8169,7 +8295,7 @@ static int
 dissect_nfs_open_read_delegation4(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_nfs_stateid4(tvb, offset, tree);
+	offset = dissect_nfs_stateid4(tvb, offset, tree, NULL);
 	offset = dissect_rpc_bool(tvb, tree, hf_nfs_recall4, offset);
 	offset = dissect_nfs_ace4(tvb, offset, pinfo, tree);
 
@@ -8374,7 +8500,7 @@ static int
 dissect_nfs_open_write_delegation4(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_nfs_stateid4(tvb, offset, tree);
+	offset = dissect_nfs_stateid4(tvb, offset, tree, NULL);
 	offset = dissect_rpc_bool(tvb, tree, hf_nfs_recall, offset);
 	offset = dissect_nfs_space_limit4(tvb, offset, tree);
 	offset = dissect_nfs_ace4(tvb, offset, pinfo, tree);
@@ -8449,7 +8575,7 @@ static int
 dissect_nfs_open_to_lock_owner4(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_seqid4, offset);
-	offset = dissect_nfs_stateid4(tvb, offset, tree);
+	offset = dissect_nfs_stateid4(tvb, offset, tree, NULL);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_lock_seqid4, offset);
 	offset = dissect_nfs_lock_owner4(tvb, offset, tree);
 
@@ -8459,7 +8585,7 @@ dissect_nfs_open_to_lock_owner4(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_nfs_exist_lock_owner4(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	offset = dissect_nfs_stateid4(tvb, offset, tree);
+	offset = dissect_nfs_stateid4(tvb, offset, tree, NULL);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_lock_seqid4, offset);
 
 	return offset;
@@ -8546,7 +8672,7 @@ dissect_nfs_layoutreturn4(tvbuff_t *tvb, int offset, proto_tree *tree)
 	if (returntype == 1) { /* RETURN_FILE */
 		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_offset4, offset);
 		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_length4, offset);
-		offset = dissect_nfs_stateid4(tvb, offset, tree);
+		offset = dissect_nfs_stateid4(tvb, offset, tree, NULL);
 		offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_lrf_body_content);
 	}
 
@@ -8562,7 +8688,7 @@ dissect_nfs_layoutreturn_stateid(tvbuff_t *tvb, proto_tree *tree, int offset)
 	offset = dissect_rpc_bool(tvb, tree, hf_nfs_lrs_present, offset);
 
 	if (lrs_present) {
-		offset = dissect_nfs_stateid4(tvb, offset, tree);
+		offset = dissect_nfs_stateid4(tvb, offset, tree, NULL);
 	}
 
 	return offset;
@@ -8790,7 +8916,7 @@ dissect_nfs_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 		fh_tree = proto_item_add_subtree(fh_fitem, ett_nfs_layoutseg_fh);
 		for (i = 0; i < fh_num; i++) {
-			offset = dissect_nfs_fh4(tvb, offset, pinfo, fh_tree, "lo_filehandle");
+			offset = dissect_nfs_fh4(tvb, offset, pinfo, fh_tree, "lo_filehandle", NULL);
 		}
 	}
 	return offset;
@@ -8800,16 +8926,32 @@ static int
 dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
-	guint32 ops, ops_counter;
+	guint32 ops, ops_counter, summary_counter;
 	guint opcode;
+	guint name_offset=0;
 	proto_item *fitem;
 	proto_tree *ftree = NULL;
 	proto_tree *newftree = NULL;
 	guint32 string_length;
 	int cbprog;
-
+	char *name, *source_name, *dest_name=NULL;
+	const char *opname=NULL;
+	guint32 last_fh_hash=0;
+	guint32 saved_fh_hash=0;
+	guint16 sid_hash, clientid_hash=0;
+	guint8 *clientid_array;
+	guint64 lock_length, file_offset;
+	guint32 length;
+	guint highest_tier=5;
+	guint current_tier=5;
+	guint first_operation=1;
+	
+	nfsv4_operation_summary *op_summary;
+	
 	ops = tvb_get_ntohl(tvb, offset+0);
-
+	
+	op_summary=g_malloc(sizeof(nfsv4_operation_summary) * ops);
+	
 	fitem = proto_tree_add_uint_format(tree, hf_nfs_ops_count4, tvb, offset+0, 4, ops,
 		"Operations (count: %u)", ops);
 	offset += 4;
@@ -8820,17 +8962,16 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	for (ops_counter=0; ops_counter<ops; ops_counter++)
 	{
+		proto_item *opname_item;
+
+		op_summary[ops_counter].optext = g_string_new("");
+
 		opcode = tvb_get_ntohl(tvb, offset);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%c%s",
-				ops_counter==0?' ':';',
-				val_to_str(opcode, names_nfsv4_operation, "Unknown"));
-		}
 
+		op_summary[ops_counter].opcode = opcode;
 
-		fitem = proto_tree_add_uint(ftree, hf_nfs_argop4, tvb, offset, 4,
+		fitem = proto_tree_add_uint(ftree, hf_nfs_op4, tvb, offset, 4,
 			opcode);
-		offset += 4;
 
 		/* the opcodes are not contiguous */
 		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_RECLAIM_COMPLETE)	&&
@@ -8846,17 +8987,28 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		} else {
 			break;
 		}
+		
+		opname=val_to_str(opcode, names_nfsv4_operation, "Unknown");
+	
+		opname_item=proto_tree_add_string(newftree, hf_nfs_opname, tvb, 0, 0, opname); 
+		PROTO_ITEM_SET_GENERATED(opname_item);
+		offset += 4;		
+		
+		g_string_append_printf (op_summary[ops_counter].optext, "%s", opname);
+		g_string_printf (op_summary[ops_counter].optext, "%s", val_to_str(opcode, names_nfsv4_operation, "Unknown"));
 
 		switch(opcode)
 		{
 		case NFS4_OP_ACCESS:
 			offset = dissect_access(tvb, offset, newftree, "access");
+			g_string_append_printf (op_summary[ops_counter].optext, " FH:0x%08x", last_fh_hash);
 			break;
 
 		case NFS4_OP_CLOSE:
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4,
 				offset);
-			offset = dissect_nfs_stateid4(tvb, offset, newftree);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree, &sid_hash);
+			g_string_append_printf (op_summary[ops_counter].optext, " StateID:0x%04x", sid_hash);
 			break;
 
 		case NFS4_OP_COMMIT:
@@ -8864,6 +9016,11 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_count4,
 				offset);
+			length = tvb_get_ntohl(tvb, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_count4,
+				offset);
+				g_string_append_printf (op_summary[ops_counter].optext, " FH:0x%08x Offset:%llu Len:%u", last_fh_hash, file_offset, length);
+
 			break;
 
 		case NFS4_OP_CREATE:
@@ -8906,7 +9063,8 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_DELEGRETURN:
-			offset = dissect_nfs_stateid4(tvb, offset, newftree);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree, &sid_hash);
+			g_string_append_printf (op_summary[ops_counter].optext, " StateID:0x%04x", sid_hash);
 			break;
 
 		case NFS4_OP_GETATTR:
@@ -8918,9 +9076,14 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				getattr_req_tree = proto_item_add_subtree(getattr_req_item,ett_nfs_getattr4_args);
 				offset = dissect_nfs4_attr_request(tvb, offset, pinfo, getattr_req_tree, 1);
 			}
+				
+			if (last_fh_hash != 0)
+				g_string_append_printf (op_summary[ops_counter].optext, " FH:0x%08x", last_fh_hash);
+
 			break;
 
 		case NFS4_OP_GETFH:
+			last_fh_hash=0;
 			break;
 
 		case NFS4_OP_LINK:
@@ -8931,9 +9094,19 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case NFS4_OP_LOCK:
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_lock_type4, offset);
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_lock4_reclaim, offset);
+			file_offset = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_offset4, offset);
+			lock_length = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_length4, offset);
 			offset = dissect_nfs_locker4(tvb, offset, newftree);
+			if (lock_length == 0xffffffffffffffff)
+				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %u Length: <End of File>", 
+									 last_fh_hash,file_offset);
+			else {
+				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %llu Length: %llu ", 
+									 last_fh_hash,file_offset,lock_length);
+			}
+
 			break;
 
 		case NFS4_OP_LOCKT:
@@ -8946,14 +9119,37 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case NFS4_OP_LOCKU:
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_lock_type4, offset);
 			offset = dissect_rpc_uint32(tvb, tree, hf_nfs_seqid4, offset);
-			offset = dissect_nfs_stateid4(tvb, offset, newftree);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree, NULL);
+			file_offset = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_offset4, offset);
+			lock_length = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_length4, offset);
+			if (lock_length == 0xffffffffffffffff)
+				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %u Length: <End of File>", 
+									last_fh_hash,file_offset);
+			else {
+				g_string_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x Offset: %llu Length: %llu ", 
+									last_fh_hash,file_offset,lock_length);
+			}
 			break;
 
 		case NFS4_OP_LOOKUP:
+			name_offset=offset;
 			offset = dissect_nfs_utf8string(tvb, offset, newftree,
-				hf_nfs_component4, NULL);
+								hf_nfs_component4, &name);
+			if (nfs_file_name_snooping){
+				rpc_call_info_value *civ=pinfo->private_data;
+				nfs_name_snoop_add_name(civ->xid, tvb,
+										//name_offset, strlen(name),
+										0, 0,
+										0, 0, name);
+			}
+			g_string_append_printf (op_summary[ops_counter].optext, " ");
+			if (last_fh_hash != 0)
+						g_string_append_printf (op_summary[ops_counter].optext, "DH:0x%08x/", last_fh_hash);
+			if (name != NULL)
+						g_string_append_printf (op_summary[ops_counter].optext, "%s", name);
+				
 			break;
 
 		case NFS4_OP_LOOKUPP:
@@ -8961,6 +9157,9 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		case NFS4_OP_NVERIFY:
 			offset = dissect_nfs_fattr4(tvb, offset, pinfo, newftree);
+			if (last_fh_hash != 0)
+				g_string_append_printf (op_summary[ops_counter].optext, " FH:0x%08x", last_fh_hash);
+
 			break;
 
 		case NFS4_OP_OPEN:
@@ -8970,7 +9169,12 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_nfs_open4_share_deny(tvb, offset, newftree);
 			offset = dissect_nfs_open_owner4(tvb, offset, newftree);
 			offset = dissect_nfs_openflag4(tvb, offset, pinfo, newftree);
-			offset = dissect_nfs_open_claim4(tvb, offset, newftree);
+			offset = dissect_nfs_open_claim4(tvb, offset, pinfo, newftree, &name);
+				g_string_append_printf (op_summary[ops_counter].optext, " ");
+				if (last_fh_hash != 0)
+					g_string_append_printf (op_summary[ops_counter].optext, "DH:0x%08x/", last_fh_hash);
+				if (name != NULL)
+					g_string_append_printf (op_summary[ops_counter].optext, "%s", name);
 			break;
 
 		case NFS4_OP_OPENATTR:
@@ -8979,13 +9183,13 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_OPEN_CONFIRM:
-			offset = dissect_nfs_stateid4(tvb, offset, newftree);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree, NULL);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4,
 				offset);
 			break;
 
 		case NFS4_OP_OPEN_DOWNGRADE:
-			offset = dissect_nfs_stateid4(tvb, offset, newftree);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree, NULL);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4,
 				offset);
 			offset = dissect_nfs_open4_share_access(tvb, offset, newftree);
@@ -8993,7 +9197,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_PUTFH:
-			offset = dissect_nfs_fh4(tvb, offset, pinfo, newftree, "filehandle");
+			offset = dissect_nfs_fh4(tvb, offset, pinfo, newftree, "filehandle", &last_fh_hash);
 			break;
 
 		case NFS4_OP_PUTPUBFH:
@@ -9001,24 +9205,30 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_READ:
-			offset = dissect_nfs_stateid4(tvb, offset, newftree);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree, &sid_hash);
+			file_offset = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_offset4,
 				offset);
+			length = tvb_get_ntohl(tvb, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_count4,
 				offset);
+			if (sid_hash != 0)
+				g_string_append_printf (op_summary[ops_counter].optext, " StateID:0x%04x Offset:%" G_GINT64_MODIFIER "u Len:%u", sid_hash, file_offset, length);
 			break;
 
 		case NFS4_OP_READDIR:
-			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_cookie4,
-				offset);
-			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_cookieverf4,
-				offset);
-			offset = dissect_rpc_uint32(tvb, newftree,
-				hf_nfs_count4_dircount, offset);
-			offset = dissect_rpc_uint32(tvb, newftree,
-				hf_nfs_count4_maxcount, offset);
-			offset = dissect_nfs_attributes(tvb, offset, pinfo, newftree,
-				FATTR4_BITMAP_ONLY);
+				offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_cookie4,
+					offset);
+				offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_cookieverf4,
+															+					offset);
+				offset = dissect_rpc_uint32(tvb, newftree,
+								hf_nfs_count4_dircount, offset);
+				offset = dissect_rpc_uint32(tvb, newftree,
+								hf_nfs_count4_maxcount, offset);
+				offset = dissect_nfs_attributes(tvb, offset, pinfo, newftree,
+								FATTR4_BITMAP_ONLY);
+				if (last_fh_hash != 0)
+					g_string_append_printf (op_summary[ops_counter].optext, " FH:0x%08x", last_fh_hash);
 			break;
 
 		case NFS4_OP_READLINK:
@@ -9030,22 +9240,36 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		case NFS4_OP_REMOVE:
 			offset = dissect_nfs_utf8string(tvb, offset, newftree,
-				hf_nfs_component4, NULL);
+				hf_nfs_component4, &name);
+			g_string_append_printf (op_summary[ops_counter].optext, " ");
+			if (last_fh_hash != 0)
+				g_string_append_printf (op_summary[ops_counter].optext, "DH:0x%08x/", last_fh_hash);
+			if (name != NULL)
+				g_string_append_printf (op_summary[ops_counter].optext, "%s", name);
 			break;
 
 		case NFS4_OP_RENAME:
 			offset = dissect_nfs_utf8string(tvb, offset, newftree,
-				hf_nfs_component4, NULL);
+				hf_nfs_component4, &source_name);
 			offset = dissect_nfs_utf8string(tvb, offset, newftree,
-				hf_nfs_component4, NULL);
+				hf_nfs_component4, &dest_name);
+			g_string_append_printf (op_summary[ops_counter].optext, " From: %s To: %s", source_name, dest_name);
 			break;
 
 		case NFS4_OP_RENEW:
+			clientid_array = tvb_get_string(tvb, offset, 8);
+			clientid_hash = crc16_ccitt(clientid_array, 8);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_clientid4, offset);
+			g_string_append_printf (op_summary[ops_counter].optext, " CID: 0x%04x", clientid_hash);
+
 			break;
 
 		case NFS4_OP_RESTOREFH:
+			last_fh_hash = saved_fh_hash;
+			break;
+				
 		case NFS4_OP_SAVEFH:
+			saved_fh_hash = last_fh_hash;
 			break;
 
 		case NFS4_OP_SECINFO:
@@ -9054,8 +9278,9 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_SETATTR:
-			offset = dissect_nfs_stateid4(tvb, offset, newftree);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree, NULL);
 			offset = dissect_nfs_fattr4(tvb, offset, pinfo, newftree);
+			g_string_append_printf (op_summary[ops_counter].optext, " FH:0x%08x", last_fh_hash);
 			break;
 
 		case NFS4_OP_SETCLIENTID:
@@ -9090,12 +9315,15 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_WRITE:
-			offset = dissect_nfs_stateid4(tvb, offset, newftree);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree, &sid_hash);
+			file_offset = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_offset4, offset);
 			offset = dissect_nfs_stable_how4(tvb, offset, newftree, "stable");
 			string_length = tvb_get_ntohl(tvb,offset+0);
-			dissect_rpc_uint32(tvb, newftree, hf_write_data_length, offset); /* don't change offset */
+			dissect_rpc_uint32(tvb, newftree, hf_write_data_length, offset); /* don't change offset */				
 			offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs_data);
+			if (sid_hash != 0)
+				g_string_append_printf (op_summary[ops_counter].optext, " StateID:0x%04x Offset:%u Len:%u", sid_hash, string_length);
 			break;
 
 		case NFS4_OP_RELEASE_LOCKOWNER:
@@ -9173,7 +9401,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_length4, offset);
 			offset = dissect_rpc_uint64(tvb, newftree,
 										hf_nfs_length4_minlength, offset);
-			offset = dissect_nfs_stateid4(tvb, offset, newftree);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree, NULL);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_count4_maxcount,
 										offset);
 			break;
@@ -9182,7 +9410,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_offset4, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_length4, offset);
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_reclaim4, offset);
-			offset = dissect_nfs_stateid4(tvb, offset, newftree);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree, NULL);
 			offset = dissect_nfs_newoffset4(tvb, offset, newftree);
 			offset = dissect_nfs_newtime4(tvb, offset, newftree);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_layouttype4,
@@ -9239,6 +9467,52 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 		}
 	}
+	
+	/* Detect which tiers are present in this packet */
+	for (summary_counter=0; summary_counter < ops_counter; summary_counter++) 
+	{
+		current_tier = nfsv4_operation_tiers[op_summary[summary_counter].opcode];
+		if (current_tier < highest_tier)
+			highest_tier=current_tier;
+	}
+
+	/* Display packet summary */
+	for (summary_counter=0; summary_counter < ops_counter; summary_counter++)
+	{
+		guint main_opcode;
+		proto_item *main_op_item;
+
+		main_opcode=op_summary[summary_counter].opcode;
+		current_tier = nfsv4_operation_tiers[op_summary[summary_counter].opcode];
+
+		/* Display summary info only for operations that are "most significant".  
+		   Controlled by a user option. */
+		if (current_tier == highest_tier || !display_major_nfsv4_ops) {
+			if (current_tier == highest_tier) {
+				const char *main_opname=NULL;
+				
+				/* Display a filterable field of the most significant operations in all cases. */
+				main_opname=val_to_str(main_opcode, names_nfsv4_operation, "Unknown");
+				
+				main_op_item=proto_tree_add_uint(ftree, hf_nfs_main_opcode, tvb, 0, 0, main_opcode);
+				PROTO_ITEM_SET_GENERATED(main_op_item);
+				main_op_item=proto_tree_add_string(ftree, hf_nfs_main_opname, tvb, 0, 0, main_opname);
+				PROTO_ITEM_SET_GENERATED(main_op_item);
+			}				
+				
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				if (first_operation==0)
+					/* Seperator between operation text */
+					col_append_fstr(pinfo->cinfo, COL_INFO, " |");
+
+				if (op_summary[summary_counter].optext->len > 0)
+					col_append_fstr(pinfo->cinfo, COL_INFO, " %s", op_summary[summary_counter].optext->str);
+
+				first_operation=0;
+			}
+		}
+	}
+
 
 	return offset;
 }
@@ -9250,7 +9524,8 @@ dissect_nfs4_compound_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	char *tag=NULL;
 
 	offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_tag4, &tag);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
+	/* Display the NFSv4 tag.  If it is empty, string generator will have returned "<EMPTY>", in which case don't display anything */
+	if (check_col(pinfo->cinfo, COL_INFO) && nfs_display_v4_tag && strncmp(tag,"<EMPTY>",7)!=0) {
 		col_append_fstr(pinfo->cinfo, COL_INFO," %s", tag);
 	}
 
@@ -9295,15 +9570,27 @@ static int
 dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
-	guint32 ops, ops_counter;
+	guint32 ops, ops_counter, summary_counter;
 	guint32 opcode;
 	proto_item *fitem;
 	proto_tree *ftree = NULL;
 	proto_tree *newftree = NULL;
 	guint32 string_length;
 	guint32 status;
+	char *name=NULL;
+	const char *opname=NULL;
+	guint32 last_fh_hash=0;
+	guint32 saved_fh_hash=0;
+	guint16 sid_hash=0;
+	guint highest_tier=5;
+	guint current_tier=5;
+	guint first_operation=1;
+	
+	nfsv4_operation_summary *op_summary;
 
 	ops = tvb_get_ntohl(tvb, offset+0);
+	
+	op_summary=g_malloc(sizeof(nfsv4_operation_summary) * ops);
 
 	fitem = proto_tree_add_uint_format(tree, hf_nfs_ops_count4, tvb, offset+0, 4, ops,
 		"Operations (count: %u)", ops);
@@ -9315,22 +9602,22 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	for (ops_counter = 0; ops_counter < ops; ops_counter++)
 	{
+		proto_item *opname_item;
+		
+		op_summary[ops_counter].optext = g_string_new("");
+		
 		opcode = tvb_get_ntohl(tvb, offset);
+		
+		op_summary[ops_counter].iserror=FALSE;
+		op_summary[ops_counter].opcode = opcode;
 
 		/* sanity check for bogus packets */
 		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_RECLAIM_COMPLETE) &&
 			(opcode != NFS4_OP_ILLEGAL))
 			break;
 
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%c%s",
-				ops_counter==0?' ':';',
-				val_to_str(opcode, names_nfsv4_operation, "Unknown"));
-		}
-
-		fitem = proto_tree_add_uint(ftree, hf_nfs_resop4, tvb, offset, 4,
+		fitem = proto_tree_add_uint(ftree, hf_nfs_op4, tvb, offset, 4,
 			opcode);
-		offset += 4;
 
 		/* all of the V4 ops are contiguous, except for NFS4_OP_ILLEGAL */
 		if (opcode == NFS4_OP_ILLEGAL) {
@@ -9341,6 +9628,13 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		} else {
 			break;
 		}
+		
+		opname=val_to_str(opcode, names_nfsv4_operation, "Unknown");
+		opname_item=proto_tree_add_string(newftree, hf_nfs_opname, tvb, offset, 4, opname); 
+		PROTO_ITEM_SET_GENERATED(opname_item);
+		offset += 4;
+		
+		g_string_append_printf (op_summary[ops_counter].optext, "%s", opname);
 
 		offset = dissect_nfs_nfsstat4(tvb, offset, newftree, &status);
 
@@ -9351,9 +9645,11 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		if ((status != NFS4_OK) &&
 			((opcode != NFS4_OP_LOCK) && (opcode != NFS4_OP_LOCKT) &&
-			(opcode != NFS4_OP_SETATTR)))
+			 (opcode != NFS4_OP_SETATTR))) {
+			op_summary[ops_counter].iserror=TRUE;
 			continue;
-
+		}
+		
 		/* These parsing routines are only executed if the status is NFS4_OK */
 		switch(opcode)
 		{
@@ -9363,7 +9659,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_CLOSE:
-			offset = dissect_nfs_stateid4(tvb, offset, newftree);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree, NULL);
 			break;
 
 		case NFS4_OP_COMMIT:
@@ -9390,7 +9686,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_GETFH:
-			offset = dissect_nfs_fh4(tvb, offset, pinfo, newftree, "Filehandle");
+			offset = dissect_nfs_fh4(tvb, offset, pinfo, newftree, "Filehandle", &last_fh_hash);
 			break;
 
 		case NFS4_OP_LINK:
@@ -9403,7 +9699,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (status == NFS4_OK)
 			{
 				if (opcode == NFS4_OP_LOCK)
-					offset = dissect_nfs_stateid4(tvb, offset, newftree);
+					offset = dissect_nfs_stateid4(tvb, offset, newftree, NULL);
 			}
 			else
 			if (status == NFS4ERR_DENIED)
@@ -9411,11 +9707,11 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_LOCKU:
-			offset = dissect_nfs_stateid4(tvb, offset, newftree);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree, NULL);
 			break;
 
 		case NFS4_OP_OPEN:
-			offset = dissect_nfs_stateid4(tvb, offset, newftree);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree, &sid_hash);
 			offset = dissect_nfs_change_info4(tvb, offset, newftree,
 				"change_info");
 			offset = dissect_nfs_open4_rflags(tvb, offset, newftree,
@@ -9423,11 +9719,17 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_nfs_attributes(tvb, offset, pinfo, newftree,
 				FATTR4_BITMAP_ONLY);
 			offset = dissect_nfs_open_delegation4(tvb, offset, pinfo, newftree);
+			g_string_append_printf (op_summary[ops_counter].optext, " StateID:0x%04x", sid_hash);
 			break;
 
 		case NFS4_OP_OPEN_CONFIRM:
 		case NFS4_OP_OPEN_DOWNGRADE:
-			offset = dissect_nfs_stateid4(tvb, offset, newftree);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree, NULL);
+			break;
+		
+		case NFS4_OP_RESTOREFH:
+		case NFS4_OP_SAVEFH:
+		case NFS4_OP_PUTFH:
 			break;
 
 		case NFS4_OP_READ:
@@ -9539,7 +9841,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case NFS4_OP_LAYOUTGET:
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_return_on_close4,
 									  offset);
-			offset = dissect_nfs_stateid4(tvb, offset, newftree);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree, NULL);
 			offset = dissect_nfs_layout(tvb, offset, pinfo, newftree);
 			break;
 
@@ -9581,6 +9883,52 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 		}
 	}
+	
+	/* Detect which tiers are present in this packet */
+	for (summary_counter=0; summary_counter < ops_counter; summary_counter++)
+	{
+		current_tier = nfsv4_operation_tiers[op_summary[summary_counter].opcode];
+		if (current_tier < highest_tier)
+			highest_tier=current_tier;
+	}
+	
+	/* Display packet summary */
+	for (summary_counter=0; summary_counter < ops_counter; summary_counter++)
+	{
+		guint main_opcode;
+		proto_item *main_op_item;
+		
+		main_opcode=op_summary[summary_counter].opcode;
+		current_tier = nfsv4_operation_tiers[op_summary[summary_counter].opcode];
+		
+		/* Display summary info only for operations that are "most significant".  
+		 Controlled by a user option. 
+		 Display summary info for operations that return an error as well.  */
+		if (current_tier == highest_tier || !display_major_nfsv4_ops || op_summary[summary_counter].iserror==TRUE) {
+			if (current_tier == highest_tier) {
+				const char *main_opname=NULL;
+				
+				/* Display a filterable field of the most significant operations in all cases. */
+				main_opname=val_to_str(main_opcode, names_nfsv4_operation, "Unknown");
+				
+				main_op_item=proto_tree_add_uint(ftree, hf_nfs_main_opcode, tvb, 0, 0, main_opcode);
+				PROTO_ITEM_SET_GENERATED(main_op_item);
+				main_op_item=proto_tree_add_string(ftree, hf_nfs_main_opname, tvb, 0, 0, main_opname);
+				PROTO_ITEM_SET_GENERATED(main_op_item);
+			}				
+
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				if (first_operation==0)
+				/* Seperator between operation text */
+					col_append_fstr(pinfo->cinfo, COL_INFO, " |");
+				
+				if (op_summary[summary_counter].optext->len > 0)
+					col_append_fstr(pinfo->cinfo, COL_INFO, " %s", op_summary[summary_counter].optext->str);
+				first_operation=0;
+			}
+		}
+	}
+
 
 	return offset;
 }
@@ -9594,11 +9942,15 @@ dissect_nfs4_compound_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nfs_nfsstat4(tvb, offset, tree, &status);
 	offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_tag4, &tag);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
+	/* Display the NFSv4 tag. If it is empty, string generator will have returned "<EMPTY>", in which case don't display anything */
+	if (check_col(pinfo->cinfo, COL_INFO) && nfs_display_v4_tag && strncmp(tag,"<EMPTY>",7)!=0) {
 		col_append_fstr(pinfo->cinfo, COL_INFO," %s", tag);
 	}
 
 	offset = dissect_nfs_resop4(tvb, offset, pinfo, tree);
+	
+	if (status != NFS4_OK)
+		col_append_fstr(pinfo->cinfo, COL_INFO," Status: %s", val_to_str(status, names_nfs_nfsstat4, "Unknown error:%u"));
 
 	return offset;
 }
@@ -9833,8 +10185,7 @@ static const value_string layoutrecall_names[] = {
 
 /* NFS Callback */
 static int hf_nfs_cb_procedure = -1;
-static int hf_nfs_cb_argop = -1;
-static int hf_nfs_cb_resop = -1;
+static int hf_nfs_cb_op = -1;
 static int hf_nfs_cb_truncate = -1;
 static int hf_nfs_cb_layoutrecall_type = -1;
 static int hf_nfs_cb_clorachanged = -1;
@@ -9937,10 +10288,10 @@ dissect_nfs_cb_layoutrecall(tvbuff_t *tvb, int offset, proto_tree *tree, packet_
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_cb_layoutrecall_type, offset);
 
 	if (recall_type == 1) { /* RECALL_FILE */
-		offset = dissect_nfs_fh4(tvb, offset, pinfo, tree, "filehandle");
+		offset = dissect_nfs_fh4(tvb, offset, pinfo, tree, "filehandle", NULL);
 		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_offset4, offset);
 		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_length4, offset);
-		offset = dissect_nfs_stateid4(tvb, offset, tree);
+		offset = dissect_nfs_stateid4(tvb, offset, tree, NULL);
 	} else if (recall_type == 2) { /* RECALL_FSID */
 		offset = dissect_nfs_fsid4(tvb, offset, tree, "fsid");
 	}
@@ -9972,7 +10323,7 @@ dissect_nfs_cb_argop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		  col_append_fstr(pinfo->cinfo, COL_INFO, "%c%s", ops_counter==0?' ':';',
 				  val_to_str(opcode, names_nfs_cb_operation, "Unknown"));
 
-		fitem = proto_tree_add_uint(ftree, hf_nfs_cb_argop, tvb, offset, 4, opcode);
+		fitem = proto_tree_add_uint(ftree, hf_nfs_cb_op, tvb, offset, 4, opcode);
 		offset += 4;
 
 	/* the opcodes are not contiguous */
@@ -9991,9 +10342,9 @@ dissect_nfs_cb_argop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		switch (opcode)
 		{
 		case NFS4_OP_CB_RECALL:
-		  	offset = dissect_nfs_stateid4(tvb, offset, newftree);
+		  	offset = dissect_nfs_stateid4(tvb, offset, newftree, NULL);
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_cb_truncate, offset);
-			offset = dissect_nfs_fh4(tvb, offset, pinfo, newftree, "filehandle");
+			offset = dissect_nfs_fh4(tvb, offset, pinfo, newftree, "filehandle", NULL);
 			break;
 		case NFS4_OP_CB_GETATTR:
 		case NFS4_OP_CB_LAYOUTRECALL:
@@ -10075,7 +10426,7 @@ dissect_nfs_cb_resop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%c%s",	ops_counter==0?' ':';',
 					val_to_str(opcode, names_nfs_cb_operation, "Unknown"));
 
-		fitem = proto_tree_add_uint(ftree, hf_nfs_cb_resop, tvb, offset, 4, opcode);
+		fitem = proto_tree_add_uint(ftree, hf_nfs_cb_op, tvb, offset, 4, opcode);
 		offset += 4;
 
 	  /* all of the V4 ops are contiguous, except for NFS4_OP_ILLEGAL */
@@ -10717,14 +11068,23 @@ proto_register_nfs(void)
 			"Status", "nfs.nfsstat4", FT_UINT32, BASE_DEC,
 			VALS(names_nfs_nfsstat4), 0, "Reply status", HFILL }},
 
-		{ &hf_nfs_argop4, {
-			"Opcode", "nfs.call.operation", FT_UINT32, BASE_DEC,
+		{ &hf_nfs_op4, {
+			"Opcode", "nfs.opcode", FT_UINT32, BASE_DEC,
 			VALS(names_nfsv4_operation), 0, NULL, HFILL }},
+		
+		{ &hf_nfs_opname, {
+			"Opname", "nfs.opname", FT_STRING, BASE_NONE,
+			NULL, 0, "Operation name", HFILL }},
+		
+		{ &hf_nfs_main_opname, {
+			"Main Opname", "nfs.main_opname", FT_STRING, BASE_NONE,
+			NULL, 0, "Main Operation name", HFILL }},
+		
+		{ &hf_nfs_main_opcode, {
+			"Main Opcode", "nfs.main_opcode", FT_UINT32, BASE_DEC,
+			NULL, 0, "Main Operation number", HFILL }},
 
-		{ &hf_nfs_resop4,	{
-			"Opcode", "nfs.reply.operation", FT_UINT32, BASE_DEC,
-			VALS(names_nfsv4_operation), 0, NULL, HFILL }},
-
+		
 		{ &hf_nfs_linktext4, {
 			"Name", "nfs.symlink.linktext", FT_STRING, BASE_NONE,
 			NULL, 0, "Symbolic link contents", HFILL }},
@@ -11221,6 +11581,10 @@ proto_register_nfs(void)
 			"Data", "nfs.stateid4.other", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_nfs_stateid4_hash, {
+			"StateID Hash", "nfs.stateid4.hash", FT_UINT16, BASE_HEX,
+			NULL, 0, "StateID Hash", HFILL }},
+		
 		{ &hf_nfs_acl4, {
 			"ACL", "nfs.acl", FT_NONE, BASE_NONE,
 			NULL, 0, "Access Control List", HFILL }},
@@ -11608,12 +11972,9 @@ proto_register_nfs(void)
 		{ &hf_nfs_cb_procedure, {
 		   "CB Procedure", "nfs.cb_procedure", FT_UINT32, BASE_DEC,
 			VALS(nfs_cb_proc_vals), 0, NULL, HFILL }},
-		{ &hf_nfs_cb_argop, {
-		    "Opcode", "nfs.call.operation", FT_UINT32, BASE_DEC,
+		{ &hf_nfs_cb_op, {
+		    "Opcode", "nfs.cb.operation", FT_UINT32, BASE_DEC,
 		    VALS(names_nfs_cb_operation), 0, NULL, HFILL }},
-		{ &hf_nfs_cb_resop, {
-		      "Opcode", "nfs.reply.operation", FT_UINT32, BASE_DEC,
-			VALS(names_nfs_cb_operation), 0, NULL, HFILL }},
 		{ &hf_nfs_lrs_present, {
 			"Stateid present?", "nfs.lrs_present", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
@@ -11885,8 +12246,18 @@ proto_register_nfs(void)
 				       &nfs_file_name_full_snooping);
 	prefs_register_bool_preference(nfs_module, "fhandle_find_both_reqrep",
 				       "Fhandle filters finds both request/response",
-				       "With this option display filters for nfs fhandles (nfs.fh.{name|full_name|hash}) will find both the request and response packets for a RPC call, even if the actual fhandle is only present in one of the packets",
+				       "With this option display filters for nfs fhandles (nfs.fh.{name|full_name|hash}) will find both the request \
+						and response packets for a RPC call, even if the actual fhandle is only present in one of the packets",
 					&nfs_fhandle_reqrep_matching);
+	
+	prefs_register_bool_preference(nfs_module, "display_nfsv4_tag",
+						"Display NFSv4 tag in info Column",
+						"When enabled, this option will print the NFSv4 tag (if one exists) in the Info column in the Summary pane",
+					&nfs_display_v4_tag);
+	prefs_register_bool_preference(nfs_module, "display_major_nfsv4_ops",
+					   "Display only 'significant' NFSv4 Operations in info Column",
+					   "When enabled, shows only the significant NFSv4 Operations in the info column.  Others (like GETFH, PUTFH, etc) are not displayed",
+					&display_major_nfsv4_ops);
 	nfs_fhandle_table = register_dissector_table("nfs_fhandle.type",
 	    "NFS Filehandle types", FT_UINT8, BASE_HEX);
 
