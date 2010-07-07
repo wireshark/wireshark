@@ -52,7 +52,6 @@
 
 GtkWidget   *main_display_filter_widget=NULL;
 
-#define NEW_FILTER_COMBO_BOX 1
 /* Run the current display filter on the current packet set, and
    redisplay. */
 static void
