@@ -93,7 +93,7 @@ endif()
 
 if (AUTOGEN_dcerpc)
   FOREACH(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
-    set(PIDL_DISSECTOR_AUTOGEN_SRC 
+    set(PIDL_DISSECTOR_AUTOGEN_SRC
 	${PIDL_DISSECTOR_AUTOGEN_SRC}
 	dissectors/dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}.c
     )
@@ -118,13 +118,13 @@ if (AUTOGEN_dcerpc)
 	DEPENDS
 	  ${CUR_PROTO_DIR}/${PROTOCOL_NAME}.idl
 	  ${CUR_PROTO_DIR}/${PROTOCOL_NAME}.cnf
-	  ${CUR_PROTO_DIR}/packet-dcerpc-${PROTOCOL_NAME}-template.c 
+	  ${CUR_PROTO_DIR}/packet-dcerpc-${PROTOCOL_NAME}-template.c
 	  ${CUR_PROTO_DIR}/packet-dcerpc-${PROTOCOL_NAME}-template.h
     )
   ENDFOREACH()
 else()
   FOREACH(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
-    set(PIDL_DISSECTOR_AUTOGEN_SRC 
+    set(PIDL_DISSECTOR_AUTOGEN_SRC
 	${PIDL_DISSECTOR_AUTOGEN_SRC}
 	dissectors/packet-dcerpc-${PROTOCOL_NAME}.c
     )
@@ -164,7 +164,10 @@ ADD_CUSTOM_COMMAND(
 
 set(PIDL_DISSECTOR_SRC
 	dissectors/packet-dcerpc-atsvc.c
+	dissectors/packet-dcerpc-budb.c
+	dissectors/packet-dcerpc-butc.c
 	dissectors/packet-dcerpc-dfs.c
+	dissectors/packet-dcerpc-drsuapi.c
 	dissectors/packet-dcerpc-dssetup.c
 	dissectors/packet-dcerpc-efs.c
 	dissectors/packet-dcerpc-frstrans.c
@@ -232,20 +235,19 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-qsig.c
 	dissectors/packet-ranap.c
 	dissectors/packet-ros.c
-	dissectors/packet-rtnet.c
 	dissectors/packet-rtse.c
 	dissectors/packet-rua.c
+	dissectors/packet-s1ap.c
 	dissectors/packet-s4406.c
 	dissectors/packet-sabp.c
-	dissectors/packet-s1ap.c
 	dissectors/packet-smrse.c
 	dissectors/packet-spnego.c
 	dissectors/packet-sv.c
 	dissectors/packet-ulp.c
 	dissectors/packet-wlancertextn.c
 	dissectors/packet-x224.c
-	dissectors/packet-x509af.c
 	dissectors/packet-x2ap.c
+	dissectors/packet-x509af.c
 	dissectors/packet-x509ce.c
 	dissectors/packet-x509if.c
 	dissectors/packet-x509sat.c
@@ -550,8 +552,8 @@ set(DISSECTOR_SRC
 	dissectors/packet-fmp.c
 	dissectors/packet-fmp_notify.c
 	dissectors/packet-force10-oui.c
+	dissectors/packet-fp_hint.c
 	dissectors/packet-fr.c
-	dissectors/packet-fp_hint.c  
 	dissectors/packet-fractalgeneratorprotocol.c
 	dissectors/packet-frame.c
 	dissectors/packet-ftp.c
@@ -581,6 +583,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-gsm_sms.c
 	dissectors/packet-gsm_sms_ud.c
 	dissectors/packet-gsm_um.c
+	dissectors/packet-gsmtap.c
 	dissectors/packet-gssapi.c
 	dissectors/packet-gtp.c
 	dissectors/packet-gtpv2.c
@@ -885,6 +888,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-rsync.c
 	dissectors/packet-rtcp.c
 	dissectors/packet-rtmpt.c
+	dissectors/packet-rtnet.c
 	dissectors/packet-rtp-events.c
 	dissectors/packet-rtp.c
 	dissectors/packet-rtps.c
@@ -936,8 +940,8 @@ set(DISSECTOR_SRC
 	dissectors/packet-snaeth.c
 	dissectors/packet-sndcp.c
 	dissectors/packet-sndcp-xid.c
-	dissectors/packet-socks.c
 	dissectors/packet-socketcan.c
+	dissectors/packet-socks.c
 	dissectors/packet-nasdaq-soup.c
 	dissectors/packet-spp.c
 	dissectors/packet-spray.c

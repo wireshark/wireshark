@@ -475,24 +475,25 @@ DISSECTOR_SRC = \
 	packet-giop.c		\
 	packet-git.c		\
 	packet-glbp.c		\
+	packet-gmhdr.c		\
 	packet-gmrp.c		\
 	packet-gnutella.c	\
 	packet-gopher.c		\
 	packet-gpef.c		\
 	packet-gprs-llc.c	\
 	packet-gre.c		\
-	packet-gsm_a_bssmap.c		\
-	packet-gsm_a_common.c		\
-	packet-gsm_a_dtap.c		\
-	packet-gsm_a_gm.c		\
-	packet-gsm_a_rp.c		\
+	packet-gsm_a_bssmap.c	\
+	packet-gsm_a_common.c	\
+	packet-gsm_a_dtap.c	\
+	packet-gsm_a_gm.c	\
+	packet-gsm_a_rp.c	\
 	packet-gsm_a_rr.c	\
 	packet-gsm_ipa.c	\
-	packet-gsm_bsslap.c		\
+	packet-gsm_bsslap.c	\
 	packet-gsm_bssmap_le.c	\
 	packet-gsm_sms.c	\
 	packet-gsm_sms_ud.c	\
-	packet-gsm_um.c	\
+	packet-gsm_um.c		\
 	packet-gsmtap.c		\
 	packet-gssapi.c		\
 	packet-gtp.c		\
@@ -691,7 +692,6 @@ DISSECTOR_SRC = \
 	packet-netsync.c 	\
 	packet-nettl.c		\
 	packet-newmail.c	\
-	packet-nwmtp.c		\
 	packet-nfs.c		\
 	packet-nfsacl.c		\
 	packet-nfsauth.c	\
@@ -709,6 +709,7 @@ DISSECTOR_SRC = \
 	packet-ntlmssp.c	\
 	packet-ntp.c		\
 	packet-null.c		\
+	packet-nwmtp.c		\
 	packet-oicq.c		\
 	packet-olsr.c		\
 	packet-omapi.c		\
@@ -895,9 +896,9 @@ DISSECTOR_SRC = \
 	packet-tn3270.c		\
 	packet-tn5250.c		\
 	packet-tpkt.c		\
-	packet-tpncp.c	\
+	packet-tpncp.c		\
 	packet-tr.c		\
-        packet-trill.c          \
+	packet-trill.c          \
 	packet-trmac.c		\
 	packet-tsp.c		\
 	packet-tte.c		\
@@ -921,13 +922,12 @@ DISSECTOR_SRC = \
 	packet-v120.c		\
 	packet-v5ua.c		\
 	packet-v52.c		\
-	packet-vmlab.c		\
 	packet-vcdu.c		\
 	packet-vicp.c		\
 	packet-vines.c		\
 	packet-vj.c		\
 	packet-vlan.c		\
-	packet-gmhdr.c		\
+	packet-vmlab.c		\
 	packet-vnc.c		\
 	packet-vrrp.c		\
 	packet-vtp.c		\
