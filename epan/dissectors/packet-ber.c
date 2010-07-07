@@ -183,7 +183,7 @@ static const value_string ber_uni_tag_codes[] = {
 	{ BER_UNI_TAG_EMBEDDED_PDV,		"EMBEDDED PDV" },
 	{ BER_UNI_TAG_UTF8String,		"UTF8String" },
 	{ BER_UNI_TAG_RELATIVE_OID,		"RELATIVE-OID" },
-	/* UNIVERSAL 14-15	
+	/* UNIVERSAL 14-15
 	 * Reserved for future editions of this
 	 * Recommendation | International Standard
 	 */
@@ -304,14 +304,14 @@ register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, co
 	oid_add_from_string(name, oid);
 }
 
-void 
+void
 register_ber_syntax_dissector(const char *syntax, int proto, dissector_t dissector)
 {
   dissector_handle_t dissector_handle;
 
   dissector_handle=create_dissector_handle(dissector, proto);
   dissector_add_string("ber.syntax", syntax, dissector_handle);
-  
+
 }
 
 void
@@ -332,7 +332,7 @@ register_ber_oid_name(const char *oid, const char *name)
 	oid_add_from_string(name, oid);
 }
 
-static void 
+static void
 ber_add_syntax_name(gpointer key, gpointer value _U_, gpointer user_data)
 {
   guint *i = (guint*)user_data;
@@ -349,13 +349,13 @@ ber_add_syntax_name(gpointer key, gpointer value _U_, gpointer user_data)
 static void ber_decode_as_dt(const gchar *table_name _U_, ftenum_t selector_type _U_, gpointer key, gpointer value, gpointer user_data)
 {
   da_data *decode_as_data;
-  
+
   decode_as_data = (da_data *)user_data;
 
   decode_as_data->func(key, value, decode_as_data->user_data);
 }
 
-void ber_decode_as_foreach(GHFunc func, gpointer user_data) 
+void ber_decode_as_foreach(GHFunc func, gpointer user_data)
 {
   da_data decode_as_data;
 
@@ -399,7 +399,7 @@ void ber_set_filename(gchar *filename)
     ber_filename = g_strdup(filename);
 
     if((ptr = strrchr(ber_filename, '.')) != NULL) {
-      
+
       ber_decode_as(get_ber_oid_syntax(ptr));
 
     }
@@ -412,7 +412,7 @@ ber_update_oids(void)
 {
   guint i;
 
-  for(i = 0; i < num_oid_users; i++) 
+  for(i = 0; i < num_oid_users; i++)
     register_ber_oid_syntax(oid_users[i].oid, oid_users[i].name, oid_users[i].syntax);
 }
 
@@ -590,7 +590,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 					next_tree = proto_item_add_subtree(item, ett_ber_octet_string);
 					offset = dissect_unknown_ber(pinfo, tvb, offset, next_tree);
 				}
-			} 
+			}
 			if (!is_decoded_as) {
 				offset = dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_OCTETSTRING, NULL);
 			}
@@ -657,7 +657,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 	    }
 
 	    /* we can't dissect this directly as it is specific */
-	    pi = proto_tree_add_none_format(tree, hf_ber_unknown_BER_primitive, tvb, offset, len, 
+	    pi = proto_tree_add_none_format(tree, hf_ber_unknown_BER_primitive, tvb, offset, len,
 					    "[%s %d] ", val_to_str(class,ber_class_codes,"Unknown"), tag);
 
 	    is_decoded_as = FALSE;
@@ -682,7 +682,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 	      is_printable = TRUE;
 	      for(i=0;i<len;i++){
 		c = tvb_get_guint8(tvb, offset+i);
-		
+
 		if(is_printable && !g_ascii_isprint(c))
 		  is_printable=FALSE;
 
@@ -763,7 +763,7 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 		proto_item *item=NULL;
 		proto_tree *next_tree=NULL;
 		gint length_remaining;
-		
+
 		length_remaining = tvb_length_remaining(tvb, offset);
 
 		if (oid == NULL) {
@@ -771,7 +771,7 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 		  proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
 		  expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "BER Error: No OID supplied");
 		} else if (tvb_get_ntohs (tvb, offset) != 0x0500) { /* Not NULL tag */
-		  if(syntax) 
+		  if(syntax)
 		    item=proto_tree_add_none_format(tree, hf_ber_syntax_not_implemented, next_tvb, 0, length_remaining, "BER: Dissector for syntax:%s not implemented. Contact Wireshark developers if you want this supported", syntax);
 		  else
 		    item=proto_tree_add_none_format(tree, hf_ber_oid_not_implemented, next_tvb, 0, length_remaining, "BER: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
@@ -795,8 +795,8 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 		     */
 		    dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
 		  } else {
-		    proto_tree_add_text(next_tree, next_tvb, 0, length_remaining, 
-				    "Unknown Data (%d byte%s)", length_remaining, 
+		    proto_tree_add_text(next_tree, next_tvb, 0, length_remaining,
+				    "Unknown Data (%d byte%s)", length_remaining,
 				    plurality(length_remaining, "", "s"));
 		  }
 		}
@@ -893,7 +893,7 @@ printf ("\n");
 	return offset;
 }
 
-static void get_last_ber_identifier(gint8 *class, gboolean *pc, gint32 *tag) 
+static void get_last_ber_identifier(gint8 *class, gboolean *pc, gint32 *tag)
 {
 	if (class)
 		*class = last_class;
@@ -979,21 +979,22 @@ try_get_ber_length(tvbuff_t *tvb, int *bl_offset, gboolean pc, guint32 *length, 
 			}
 		} else {
 			/* 8.1.3.6 */
-			/* indefinite length encoded - must be constructed */	
+			/* indefinite length encoded - must be constructed */
 
 		  if(!pc)
 		    return FALSE;
 
 			tmp_offset = offset;
-			
+
 			do {
 				tmp_offset = get_ber_identifier(tvb, tmp_offset, &tclass, &tpc, &ttag);
-				if(try_get_ber_length(tvb, &tmp_offset, tpc, &tmp_len, &tmp_ind))
+				/* Make sure we move forward */
+				if(tmp_offset > offset && try_get_ber_length(tvb, &tmp_offset, tpc, &tmp_len, &tmp_ind))
 				  tmp_offset += tmp_len;
 				else
 				  return FALSE;
 
-			} while (!((tclass == BER_CLASS_UNI) && (ttag == 0) && (tmp_len == 0))); 
+			} while (!((tclass == BER_CLASS_UNI) && (ttag == 0) && (tmp_len == 0)));
 
 			tmp_length = tmp_offset - offset;
 			tmp_ind = TRUE;
@@ -1012,16 +1013,16 @@ printf("get BER length %d, offset %d (remaining %d)\n", tmp_length, offset, tvb_
 	*bl_offset = offset;
 	return TRUE;
 }
- 
+
 int
-get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind) 
+get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind)
 {
 	int bl_offset = offset;
 	guint32 bl_length = 0;
 
 	gint8 save_class;
 	gboolean save_pc;
-	gint32 save_tag;	
+	gint32 save_tag;
 
 	/* save last tag */
 	save_class = last_class;
@@ -1044,7 +1045,7 @@ get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind)
 	return bl_offset;
 }
 
-static void get_last_ber_length(guint32 *length, gboolean *ind) 
+static void get_last_ber_length(guint32 *length, gboolean *ind)
 {
 	if (length)
 		*length = last_length;
@@ -1081,7 +1082,7 @@ printf("dissect BER length %d, offset %d (remaining %d)\n", tmp_length, offset, 
 #endif
 
  last_length = tmp_length;
- last_ind = tmp_ind; 
+ last_ind = tmp_ind;
 
 	return offset;
 }
@@ -1237,7 +1238,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 		}
 	} else {
 	  /* implicit tag so get from last tag/length */
-	        
+
 	  get_last_ber_identifier(&class, &pc, &tag);
 	  get_last_ber_length(&len, &ind);
 
@@ -1585,7 +1586,7 @@ dissect_ber_real(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbu
 		/* 8.5.1	The encoding of a real value shall be primitive. */
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
-	/* 8.5.2	If the real value is the value zero, 
+	/* 8.5.2	If the real value is the value zero,
 	 *			there shall be no contents octets in the encoding.
 	 */
 	if (val_length==0){
@@ -1763,7 +1764,7 @@ ber_sequence_try_again:
 			}
 			offset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
 			offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, NULL, NULL);
-			if( seq->class == BER_CLASS_UNI){ 
+			if( seq->class == BER_CLASS_UNI){
 			  cause = proto_tree_add_text(tree, tvb, offset, len,
 				    "BER Error: Wrong field in SEQUENCE  expected class:%s(%d) tag:%d (%s) but found class:%s(%d) tag:%d",
 				    val_to_str(seq->class,ber_class_codes,"Unknown"),seq->class,
@@ -1903,7 +1904,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n",name,coun
 		}
 		offset = eoffset;
 		if(!(seq->flags & BER_FLAGS_NOOWNTAG) ) {
-			/* if we stripped the tag and length we should also strip the EOC is ind_len 
+			/* if we stripped the tag and length we should also strip the EOC is ind_len
 			 * Unless its a zero length field (len = 2)
 			 */
 			if((ind_field == 1)&&(len>2))
@@ -2093,7 +2094,7 @@ ber_old_sequence_try_again:
 			}
 			offset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
 			offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, NULL, NULL);
-			if( seq->class == BER_CLASS_UNI){ 
+			if( seq->class == BER_CLASS_UNI){
 			  cause = proto_tree_add_text(tree, tvb, offset, len,
 				    "BER Error: Wrong field in SEQUENCE  expected class:%s(%d) tag:%d (%s) but found class:%s(%d) tag:%d",
 				    val_to_str(seq->class,ber_class_codes,"Unknown"),seq->class,
@@ -2229,7 +2230,7 @@ printf("SEQUENCE dissect_ber_old_sequence(%s) subdissector ate %d bytes\n",name,
 		offset = eoffset;
 		seq++;
 		if(!(seq->flags & BER_FLAGS_NOOWNTAG) ) {
-			/* if we stripped the tag and length we should also strip the EOC is ind_len 
+			/* if we stripped the tag and length we should also strip the EOC is ind_len
 			 * Unless its a zero length field (len = 2)
 			 */
 			if((ind_field == 1)&&(len>2))
@@ -2448,7 +2449,7 @@ printf("SET dissect_ber_set(%s) calling subdissector\n",name);
 				imp_tag = TRUE;
 			count=cset->func(imp_tag, next_tvb, 0, actx, tree, *cset->p_id);
 
-			/* if we consumed some bytes, 
+			/* if we consumed some bytes,
 			   or we knew the length was zero (during the first pass only) */
 			if(count || (first_pass && (len == 0 || (ind_field == 1 && len == 2)))) {
 			    /* we found it! */
@@ -2709,7 +2710,7 @@ printf("SET dissect_old_ber_set(%s) calling subdissector\n",name);
 			}
 			count=cset->func(tree, next_tvb, 0, actx);
 
-			/* if we consumed some bytes, 
+			/* if we consumed some bytes,
 			   or we knew the length was zero (during the first pass only) */
 			if(count || (first_pass && (len == 0 || (ind_field == 1 && len == 2)))) {
 			    /* we found it! */
@@ -2834,8 +2835,8 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n",name,tvb_length_remainin
                 item = proto_tree_add_text(parent_tree, tvb, offset, 0, "BER Error: Empty choice was found");
                 proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
                 expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_WARN, "BER Error: Empty choice was found");
-                return offset; 
-        }       
+                return offset;
+        }
 
 	/* read header and len for choice field */
 	offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -3067,8 +3068,8 @@ printf("CHOICE dissect_ber_old_choice(%s) entered len:%d\n",name,tvb_length_rema
                 item = proto_tree_add_text(parent_tree, tvb, offset, 0, "BER Error: Empty choice was found");
                 proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
                 expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_WARN, "BER Error: Empty choice was found");
-                return offset; 
-        }       
+                return offset;
+        }
 
 	/* read header and len for choice field */
 	offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -3367,7 +3368,7 @@ printf("RESTRICTED STRING dissect_ber_octet_string(%s) entered\n",name);
 	return dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, hoffset, min_len, max_len, hf_id, out_tvb);
 }
 
-int dissect_ber_restricted_string(gboolean implicit_tag, gint32 type, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb) 
+int dissect_ber_restricted_string(gboolean implicit_tag, gint32 type, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb)
 {
 	return dissect_ber_constrained_restricted_string(implicit_tag, type, actx, tree, tvb, offset, NO_BOUND, NO_BOUND, hf_id, out_tvb);
 }
@@ -3474,7 +3475,7 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 	} else {
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
-	
+
 	if (value_tvb)
 		*value_tvb = tvb_new_subset(tvb, offset, len, len);
 
@@ -3772,7 +3773,7 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n",name);
 			||(!implicit_tag&&((classx!=BER_CLASS_UNI)
 							||(tagx!=type)))) {
 			tvb_ensure_bytes_exist(tvb, hoffsetx, 2);
-			causex = proto_tree_add_text(tree, tvb, offset, lenx, "BER Error: %s Of expected but class:%s(%d) %s tag:%d was unexpected", 
+			causex = proto_tree_add_text(tree, tvb, offset, lenx, "BER Error: %s Of expected but class:%s(%d) %s tag:%d was unexpected",
 							(type==BER_UNI_TAG_SEQUENCE)?"Set":"Sequence", val_to_str(classx,ber_class_codes,"Unknown"), classx, pcx ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string, tagx);
 			proto_item_set_expert_flags(causex, PI_MALFORMED, PI_WARN);
 			expert_add_info_format(actx->pinfo, causex, PI_MALFORMED, PI_WARN, "BER Error: %s Of expected",(type==BER_UNI_TAG_SEQUENCE)?"Set":"Sequence");
@@ -4249,7 +4250,7 @@ int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, p
 			/* padding */
 			proto_item *pad_item = proto_tree_add_item(parent_tree, hf_ber_bitstring_padding, tvb, offset, 1, FALSE);
 			if (pad > 7) {
-				expert_add_info_format(actx->pinfo, pad_item, PI_UNDECODED, PI_WARN, 
+				expert_add_info_format(actx->pinfo, pad_item, PI_UNDECODED, PI_WARN,
 						       "Illegal padding (0 .. 7): %d", pad);
 			}
 		}
@@ -4311,7 +4312,7 @@ int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, p
 
 		for (byteno = 0; byteno < len; byteno++) {
 			if (bitstring[byteno]) {
-				expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN, 
+				expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN,
 						       "Unknown bit(s): 0x%s", bytes_to_str(bitstring, len));
 				break;
 			}
@@ -4321,11 +4322,11 @@ int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, p
 	if (pad > 0 && pad < 8 && len > 0) {
 		guint8 bits_in_pad = tvb_get_guint8(tvb, offset + len - 1) & (0xFF >> (8-pad));
 		if (bits_in_pad) {
-			expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN, 
+			expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN,
 					       "Bits set in padded area: 0x%02x", bits_in_pad);
 		}
 	}
-                
+
 	ber_check_length(8*len-pad, min_len, max_len, actx, item, TRUE);
 
 	return end_offset;
@@ -4388,12 +4389,12 @@ int dissect_ber_bitstring32(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
 	return offset;
 }
 
-/* 
+/*
  *	8.18	Encoding of a value of the external type
  *	8.18.1	The encoding of a value of the external type shall be the BER encoding of the following
- *			sequence type, assumed to be defined in an environment of EXPLICIT TAGS, 
+ *			sequence type, assumed to be defined in an environment of EXPLICIT TAGS,
  *			with a value as specified in the subclauses below:
- *	
+ *
  *	[UNIVERSAL 8] IMPLICIT SEQUENCE {
  *		direct-reference			OBJECT IDENTIFIER OPTIONAL,
  *		indirect-reference		INTEGER OPTIONAL,
@@ -4402,7 +4403,7 @@ int dissect_ber_bitstring32(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
  *		single-ASN1-type				[0] ABSTRACT-SYNTAX.&Type,
  *		octet-aligned					[1] IMPLICIT OCTET STRING,
  *		arbitrary						[2] IMPLICIT BIT STRING } }
- *	
+ *
  */
 
 static int
@@ -4415,11 +4416,11 @@ dissect_ber_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-dissect_ber_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) 
+dissect_ber_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)
 {
   if (actx->external.u.ber.ber_callback) {
     offset = actx->external.u.ber.ber_callback(FALSE, tvb, offset, actx, tree, hf_index);
-  } else if (actx->external.direct_ref_present && 
+  } else if (actx->external.direct_ref_present &&
 	     dissector_get_string_handle(ber_oid_dissector_table, actx->external.direct_reference)) {
     offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
   } else {
@@ -4438,7 +4439,7 @@ dissect_ber_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 static int
-dissect_ber_ObjectDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) 
+dissect_ber_ObjectDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)
 {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_ObjectDescriptor,
 					 actx, tree, tvb, offset, hf_index,
@@ -4448,7 +4449,7 @@ dissect_ber_ObjectDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 static int
-dissect_ber_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) 
+dissect_ber_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)
 {
   if (actx->external.u.ber.ber_callback) {
     offset = actx->external.u.ber.ber_callback(FALSE, tvb, offset, actx, tree, hf_index);
@@ -4460,7 +4461,7 @@ dissect_ber_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 static int
-dissect_ber_T_arbitrary(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) 
+dissect_ber_T_arbitrary(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)
 {
   if (actx->external.u.ber.ber_callback) {
     offset = actx->external.u.ber.ber_callback(FALSE, tvb, offset, actx, tree, hf_index);
@@ -4551,7 +4552,7 @@ dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_DEF_SRC, "BER encoded file");
 
   if(!decode_as_syntax) {
- 
+
     /* if we got here we couldn't find anything better */
     col_set_str(pinfo->cinfo, COL_INFO, "Unknown BER");
 
@@ -4786,9 +4787,9 @@ proto_reg_handoff_ber(void)
 	dissector_add("wtap_encap", WTAP_ENCAP_BER, ber_handle);
 
 	ber_decode_as_foreach(ber_add_syntax_name, &i);
-	
+
 	if(i > 1)
-	  qsort(&syntax_names[1], i - 1, sizeof(value_string), cmp_value_string); 
+	  qsort(&syntax_names[1], i - 1, sizeof(value_string), cmp_value_string);
 	syntax_names[i].value = 0;
 	syntax_names[i].strptr = NULL;
 
