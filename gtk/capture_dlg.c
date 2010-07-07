@@ -1508,7 +1508,11 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
   filter_te = GTK_COMBO(filter_cm)->entry;
   filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
 
+#ifdef PCAP_NETMASK_UNKNOWN
   if (pcap_compile(pd, &fcode, filter_text, 1 /* Do optimize */, PCAP_NETMASK_UNKNOWN) < 0) {
+#else
+  if (pcap_compile(pd, &fcode, filter_text, 1 /* Do optimize */, 0) < 0) {
+#endif
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", pcap_geterr(pd));
   } else {
     GString *bpf_code_dump = g_string_new("");
