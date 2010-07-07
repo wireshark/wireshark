@@ -978,26 +978,31 @@ try_get_ber_length(tvbuff_t *tvb, int *bl_offset, gboolean pc, guint32 *length, 
 				tmp_length = (tmp_length<<8) + oct;
 			}
 		} else {
-			/* 8.1.3.6 */
-			/* indefinite length encoded - must be constructed */
+		    /* 8.1.3.6 */
+		    /* indefinite length encoded - must be constructed */
 
-		  if(!pc)
-		    return FALSE;
+		    if(!pc)
+			return FALSE;
 
-			tmp_offset = offset;
+		    tmp_offset = offset;
 
-			do {
-				tmp_offset = get_ber_identifier(tvb, tmp_offset, &tclass, &tpc, &ttag);
-				/* Make sure we move forward */
-				if(tmp_offset > offset && try_get_ber_length(tvb, &tmp_offset, tpc, &tmp_len, &tmp_ind))
-				  tmp_offset += tmp_len;
-				else
-				  return FALSE;
+		    do {
+			tmp_offset = get_ber_identifier(tvb, tmp_offset, &tclass, &tpc, &ttag);
 
-			} while (!((tclass == BER_CLASS_UNI) && (ttag == 0) && (tmp_len == 0)));
+			/* Make sure we move forward */
+			if(tmp_offset > offset && try_get_ber_length(tvb, &tmp_offset, tpc, &tmp_len, &tmp_ind)) {
+			    if (tmp_len > 0) {
+				tmp_offset += tmp_len;
+				continue;
+			    }
+			}
 
-			tmp_length = tmp_offset - offset;
-			tmp_ind = TRUE;
+			return FALSE;
+
+		    } while (!((tclass == BER_CLASS_UNI) && (ttag == 0) && (tmp_len == 0)));
+
+		    tmp_length = tmp_offset - offset;
+		    tmp_ind = TRUE;
 		}
 	}
 
