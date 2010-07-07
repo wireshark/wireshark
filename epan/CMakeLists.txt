@@ -162,12 +162,13 @@ ADD_CUSTOM_COMMAND(
       ${CMAKE_SOURCE_DIR}/tools/process-x11-xcb.pl
 )
 
+# Note that some dissectors are added in dissectors/dcerpc/CMakeLists.txt
 set(PIDL_DISSECTOR_SRC
+#	dissectors/packet-dcerpc-budb.c
+#	dissectors/packet-dcerpc-butc.c
+#	dissectors/packet-dcerpc-drsuapi.c
 	dissectors/packet-dcerpc-atsvc.c
-	dissectors/packet-dcerpc-budb.c
-	dissectors/packet-dcerpc-butc.c
 	dissectors/packet-dcerpc-dfs.c
-	dissectors/packet-dcerpc-drsuapi.c
 	dissectors/packet-dcerpc-dssetup.c
 	dissectors/packet-dcerpc-efs.c
 	dissectors/packet-dcerpc-frstrans.c
