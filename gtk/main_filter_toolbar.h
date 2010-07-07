@@ -26,7 +26,6 @@
 #ifndef __MAIN_FILTER_TOOLBAR_H__
 #define __MAIN_FILTER_TOOLBAR_H__
 
-#define E_DFILTER_FL_KEY          "display_filter_list"
 #define E_DFILTER_CM_KEY          "display_filter_combo"
 
 extern GtkWidget *filter_toolbar_new(void);

@@ -947,8 +947,10 @@ recent_read_dynamic(char **rf_path_return, int *rf_errno_return)
   if ((rf = ws_fopen(rf_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
     read_prefs_file(rf_path, rf, read_set_recent_pair_dynamic, NULL);
+#if 0
     /* set dfilter combobox to have an empty line */
     dfilter_combo_add_empty();
+#endif
     fclose(rf);
     g_free(rf_path);
     rf_path = NULL;

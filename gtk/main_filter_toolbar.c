@@ -81,10 +81,6 @@ GtkWidget *filter_toolbar_new(void)
     GtkWidget     *filter_cm;
     GtkWidget     *filter_te;
     GtkWidget     *filter_tb;
-#ifdef NEW_FILTER_COMBO_BOX
-#else
-    GList         *dfilter_list = NULL;
-#endif
     GtkTooltips   *tooltips;
     GtkToolItem   *filter_bt, *filter_add_expr_bt, *filter_reset;
     GtkToolItem   *filter_apply, *item;
@@ -124,17 +120,8 @@ GtkWidget *filter_toolbar_new(void)
                          "Private");
 
     /* Create the filter combobox */
-#ifdef NEW_FILTER_COMBO_BOX
     filter_cm = gtk_combo_box_entry_new_text ();
     filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
-#else
-    filter_cm = gtk_combo_new();
-    dfilter_list = NULL;
-    gtk_combo_disable_activate(GTK_COMBO(filter_cm));
-    gtk_combo_set_case_sensitive(GTK_COMBO(filter_cm), TRUE);
-    g_object_set_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY, dfilter_list);
-    filter_te = GTK_COMBO(filter_cm)->entry;
-#endif
     main_display_filter_widget=filter_te;
     g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
     g_object_set_data(G_OBJECT(filter_te), E_DFILTER_CM_KEY, filter_cm);
@@ -157,11 +144,7 @@ GtkWidget *filter_toolbar_new(void)
                        -1);
 
     /* setting a tooltip for a combobox will do nothing, so add it to the corresponding text entry */
-#ifdef NEW_FILTER_COMBO_BOX
     gtk_tooltips_set_tip(tooltips, filter_cm,
-#else
-    gtk_tooltips_set_tip(tooltips, filter_te,
-#endif
         "Enter a display filter, or choose one of your recently used filters. "
         "The background color of this field is changed by a continuous syntax check "
         "(green is valid, red is invalid, yellow may have unexpected results).",
@@ -266,7 +249,6 @@ GtkWidget *filter_toolbar_new(void)
     return filter_tb;
 }
 
-#ifdef NEW_FILTER_COMBO_BOX
 static gboolean
 dfilter_entry_match(GtkWidget *filter_cm, char *s, int *index)
 {
@@ -298,43 +280,15 @@ dfilter_entry_match(GtkWidget *filter_cm, char *s, int *index)
     *index = i;
     return FALSE;
 }
-#else
-static gint
-dfilter_entry_match(gconstpointer a, gconstpointer b)
-{
-    const char *s1 = a;
-    const char *s2 = b;
-
-    return strcmp(s1, s2);
-}
-#endif
 
 /* add a display filter to the combo box */
 /* Note: a new filter string will not replace an old identical one */
 static gboolean
 dfilter_combo_add(GtkWidget *filter_cm, char *s) {
-#ifdef NEW_FILTER_COMBO_BOX
     int index;
 
     if(!dfilter_entry_match(filter_cm,s, &index))
         gtk_combo_box_append_text(GTK_COMBO_BOX(filter_cm), s);
-#else
-    GList     *dfilter_list = g_object_get_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY);
-
-    /* GtkCombos don't let us get at their list contents easily, so we maintain
-       our own filter list, and feed it to gtk_combo_set_popdown_strings when
-       a new filter is added. */
-    if (s && strlen(s) > 0 &&
-        g_list_length(dfilter_list) < prefs.gui_recent_df_entries_max &&
-        g_list_find_custom(dfilter_list, s, dfilter_entry_match) == NULL) {
-
-        dfilter_list = g_list_append(dfilter_list, s);
-        s = NULL;
-        g_object_set_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY, dfilter_list);
-        gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), dfilter_list);
-        gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(filter_cm)->entry), g_list_first(dfilter_list)->data);
-    }
-#endif
     g_free(s);
 
     return TRUE;
@@ -346,7 +300,6 @@ dfilter_combo_add(GtkWidget *filter_cm, char *s) {
 void
 dfilter_recent_combo_write_all(FILE *rf) {
     GtkWidget *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
-#ifdef NEW_FILTER_COMBO_BOX
     GtkTreeModel *model = gtk_combo_box_get_model (GTK_COMBO_BOX(filter_cm));
     GtkTreeIter   iter;
     GValue value = { 0, {{0}}};
@@ -364,34 +317,16 @@ dfilter_recent_combo_write_all(FILE *rf) {
 
     }while (gtk_tree_model_iter_next (model, &iter)&& (max_count++ < prefs.gui_recent_df_entries_max));
 
-#else
-    GList     *dfilter_list = g_object_get_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY);
-    GList     *li;
-    guint      max_count = 0;
-
-    /* write all non empty display filter strings to the recent file (until max count) */
-    li = g_list_first(dfilter_list);
-    while ( li && (max_count++ < prefs.gui_recent_df_entries_max) ) {
-        if (strlen(li->data)) {
-            fprintf (rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", (char *)li->data);
-        }
-        li = li->next;
-    }
-#endif
 }
+#if 0
 
 /* empty the combobox entry field */
 void
 dfilter_combo_add_empty(void) {
 
-#ifdef NEW_FILTER_COMBO_BOX
     /* This doesn't seem to be necessary with a Combo Box */
-#else
-    GtkWidget *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(filter_cm)->entry), "");
-#endif
 }
-
+#endif
 
 /* add a display filter coming from the user's recent file to the dfilter combo box */
 gboolean
@@ -408,12 +343,7 @@ dfilter_combo_add_recent(gchar *s) {
 gboolean
 main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
 {
-#ifdef NEW_FILTER_COMBO_BOX
     GtkWidget *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
-#else
-    GtkCombo  *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
-    GList     *dfilter_list = g_object_get_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY);
-#endif
     gboolean   free_filter = TRUE;
     char      *s;
     cf_status_t cf_status;
@@ -428,7 +358,6 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
        our own filter list, and feed it to gtk_combo_set_popdown_strings when
        a new filter is added. */
     if (cf_status == CF_OK && strlen(s) > 0) {
-#ifdef NEW_FILTER_COMBO_BOX
         int index;
 
         if(!dfilter_entry_match(filter_cm,s, &index)){
@@ -439,24 +368,6 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
             gtk_combo_box_remove_text(GTK_COMBO_BOX(filter_cm), index);
             index--;
         }
-#else
-        GList *li;
-
-        while ((li = g_list_find_custom(dfilter_list, s, dfilter_entry_match)) != NULL)
-            /* Delete old/duplicate entry now. We'll re-add it later */
-            dfilter_list = g_list_delete_link(dfilter_list, li);
-
-        /* trim list size first */
-        while (g_list_length(dfilter_list) >= prefs.gui_recent_df_entries_max)
-            dfilter_list = g_list_delete_link(dfilter_list, g_list_last(dfilter_list));
-
-        free_filter = FALSE;
-        /* Push the filter to the front of the list */
-        dfilter_list = g_list_prepend(dfilter_list, s);
-        g_object_set_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY, dfilter_list);
-        gtk_combo_set_popdown_strings(filter_cm, dfilter_list);
-        gtk_entry_set_text(GTK_ENTRY(filter_cm->entry), g_list_first(dfilter_list)->data);
-#endif
     }
     if (free_filter)
         g_free(s);
