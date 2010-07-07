@@ -66,16 +66,18 @@ static guint8 scrt[8][31]=
 	{0x79, 0xA4, 0x2B, 0xB1, 0x0C, 0xB7, 0xA8, 0x9D, 0xE6, 0x90, 0xAE, 0xC4, 0x32, 0xDE, 0xA2, 0x77, 0x9A, 0x42, 0xBB, 0x10, 0xCB, 0x7A, 0x89, 0xDE, 0x69, 0x0A, 0xEC, 0x43, 0x2D, 0xEA, 0x27}
 };
 
+#define DECT_AFIELD_TAIL_SIZE 5
 struct dect_afield
 {
 	guint8	Header;
-	guint8	Tail[5];
+	guint8	Tail[DECT_AFIELD_TAIL_SIZE];
 	guint16	RCRC;
 };
 
+#define DECT_BFIELD_DATA_SIZE 128
 struct dect_bfield
 {
-	guint8	Data[128];
+	guint8	Data[DECT_BFIELD_DATA_SIZE];
 	guint8	Length;
 };
 
@@ -1176,6 +1178,7 @@ calc_xcrc(guint8* data, guint8 length)
 	return crc;
 }
 
+/* XXX - This should be moved to epan/crc/ */
 static guint16
 calc_rcrc(guint8* data)
 {
@@ -1218,7 +1221,7 @@ calc_rcrc(guint8* data)
 
 static gint
 dissect_bfield(gboolean dect_packet_type _U_, guint8 a_header,
-	struct dect_bfield *pkt_bfield, packet_info *pinfo _U_, const guint8 *pkt_ptr _U_,
+	struct dect_bfield *pkt_bfield, packet_info *pinfo _U_,
 	tvbuff_t *tvb, proto_item *ti _U_, proto_tree *DectTree, gint offset, proto_tree *ColumnsTree)
 {
 	guint8 xcrc, xcrclen;
@@ -1346,7 +1349,7 @@ dissect_bfield(gboolean dect_packet_type _U_, guint8 a_header,
 
 static void
 dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
-	struct dect_bfield *pkt_bfield, packet_info *pinfo, const guint8 *pkt_ptr,
+	struct dect_bfield *pkt_bfield, packet_info *pinfo,
 	tvbuff_t *tvb, proto_item *ti, proto_tree *DectTree)
 {
 	guint16 rcrc;
@@ -1841,7 +1844,7 @@ XXX: Hier weitermachen
 
 	/* R-CRC */
 
-	memcpy(rcrcdat, pkt_ptr, 6);
+	tvb_memcpy(tvb, rcrcdat, DECT_PACKET_INFO_LEN, 6);
 	rcrcdat[6]=0;
 	rcrcdat[7]=0;
 	rcrc=calc_rcrc(rcrcdat);
@@ -1853,7 +1856,7 @@ XXX: Hier weitermachen
 	offset+=2;
 
 	/* **************** B-Field ************************************/
-	offset=dissect_bfield(dect_packet_type, header, pkt_bfield, pinfo, pkt_ptr, tvb, ti, DectTree, offset, ColumnsTree);
+	offset=dissect_bfield(dect_packet_type, header, pkt_bfield, pinfo, tvb, ti, DectTree, offset, ColumnsTree);
 }
 
 static void
@@ -1861,11 +1864,9 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint16			type;
 	guint			pkt_len;
-	const guint8		*pkt_ptr;
 	struct dect_afield	pkt_afield;
 	struct dect_bfield	pkt_bfield;
 
-	/* Packetpointer */
 	pkt_len=tvb_length(tvb);
 
 	if(pkt_len<=DECT_PACKET_INFO_LEN)
@@ -1874,19 +1875,22 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 	}
 
-	pkt_ptr=tvb_get_ptr(tvb, DECT_PACKET_INFO_LEN, pkt_len-DECT_PACKET_INFO_LEN);
-
 	/* fill A-Field */
-	pkt_afield.Header=pkt_ptr[0];
-	memcpy((char*)(&(pkt_afield.Tail)), (char*)(pkt_ptr+1), 5);
-	pkt_afield.RCRC=(((guint16)pkt_ptr[6])<<8)|pkt_ptr[7];
+	pkt_afield.Header = tvb_get_guint8(tvb, DECT_PACKET_INFO_LEN);
+	tvb_memcpy(tvb, &(pkt_afield.Tail), DECT_PACKET_INFO_LEN+1, DECT_AFIELD_TAIL_SIZE);
+	pkt_afield.RCRC = tvb_get_ntohs(tvb, DECT_PACKET_INFO_LEN+6);
 
 	/* fill B-Field */
-	if(pkt_len>DECT_PACKET_INFO_LEN+2)
-		memcpy((char*)(&(pkt_bfield.Data)), (char*)(pkt_ptr+8), pkt_len-5-8);
-	else
-		memset((char*)(&(pkt_bfield.Data)), 0, 128);
 	pkt_bfield.Length=pkt_len-DECT_PACKET_INFO_LEN-8;
+
+	/* XXX - Should we throw an exception here? */
+	if (pkt_bfield.Length > DECT_BFIELD_DATA_SIZE)
+		pkt_bfield.Length = DECT_BFIELD_DATA_SIZE;
+
+	if(pkt_len>DECT_PACKET_INFO_LEN+2)
+		tvb_memcpy(tvb, &(pkt_bfield.Data), DECT_PACKET_INFO_LEN+8, pkt_bfield.Length);
+	else
+		memset(&(pkt_bfield.Data), 0, DECT_BFIELD_DATA_SIZE);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT");
 
@@ -1929,12 +1933,12 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0x1675:
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT PP");
 			proto_item_append_text(typeti, " Phone Packet");
-			dissect_decttype(DECT_PACKET_PP, &pkt_afield, &pkt_bfield, pinfo, pkt_ptr, tvb, ti, DectTree);
+			dissect_decttype(DECT_PACKET_PP, &pkt_afield, &pkt_bfield, pinfo, tvb, ti, DectTree);
 			break;
 		case 0xe98a:
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT RFP");
 			proto_item_append_text(typeti, " Station Packet");
-			dissect_decttype(DECT_PACKET_FP, &pkt_afield, &pkt_bfield, pinfo, pkt_ptr, tvb, ti, DectTree);
+			dissect_decttype(DECT_PACKET_FP, &pkt_afield, &pkt_bfield, pinfo, tvb, ti, DectTree);
 			break;
 		default:
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT Unk");
