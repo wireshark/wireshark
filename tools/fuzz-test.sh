@@ -32,10 +32,17 @@ MAX_PASSES=0
 TWO_PASS=
 
 # These may be set to your liking
-# Stop the child process, if it's running longer than x seconds
+# Stop the child process if it's running longer than x seconds
 MAX_CPU_TIME=900
-# Stop the child process, if it's using more than y * 1024 bytes
+# Stop the child process if it's using more than y * 1024 bytes
 MAX_VMEM=500000
+# Stop the child process if its stack is larger than than z * 1024 bytes
+# Windows XP:   2033
+# Windows 7:    2034
+# OS X 10.6:    8192
+# Linux 2.6.24: 8192
+# Solaris 10:   8192
+MAX_STACK=2033
 # Insert z times an error into the capture file (0.02 seems to be a good value to find errors)
 ERR_PROB=0.02
 # Trigger an abort if a dissector finds a bug.
@@ -69,7 +76,7 @@ fi
 
 # set some limits to the child processes, e.g. stop it if it's running longer then MAX_CPU_TIME seconds
 # (ulimit is not supported well on cygwin and probably other platforms, e.g. cygwin shows some warnings)
-ulimit -S -t $MAX_CPU_TIME -v $MAX_VMEM
+ulimit -S -t $MAX_CPU_TIME -v $MAX_VMEM -s $MAX_STACK
 ulimit -c unlimited
 
 ### usually you won't have to change anything below this line ###
