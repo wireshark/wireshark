@@ -103,7 +103,7 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
 	grep -i "dissector bug" $TMP_DIR/$ERR_FILE \
 	    > /dev/null 2>&1 && DISSECTOR_BUG=1
 	if [ $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 ] ; then
-	    RAND_FILE="rand-`$DATE +%Y-%m-%d`-$$.pcap"
+	    RAND_FILE="randpkt-`$DATE +%Y-%m-%d`-$$.pcap"
             echo ""
 	    echo " ERROR"
 	    echo -e "Processing failed.  Capture info follows:\n"
