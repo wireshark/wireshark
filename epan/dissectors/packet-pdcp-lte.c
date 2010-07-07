@@ -1671,7 +1671,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
                             /* First-Missing-Sequence SN */
                             fms = tvb_get_ntohs(tvb, offset) & 0x0fff;
-                            sn = fms;
+                            sn = (fms + 1) % 4096;
                             proto_tree_add_item(pdcp_tree, hf_pdcp_lte_fms, tvb,
                                                 offset, 2, FALSE);
                             offset += 2;
