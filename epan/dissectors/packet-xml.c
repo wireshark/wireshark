@@ -160,7 +160,7 @@ static const gchar* default_media_types[] = {
 };
 
 static void insert_xml_frame(xml_frame_t *parent, xml_frame_t *new_child) {
-	new_child->firts_child = NULL;
+	new_child->first_child = NULL;
 	new_child->last_child = NULL;
 
 	new_child->parent = parent;
@@ -168,8 +168,8 @@ static void insert_xml_frame(xml_frame_t *parent, xml_frame_t *new_child) {
 	new_child->prev_sibling = NULL;
 	if (parent == NULL) return;  /* root */
 
-	if (parent->firts_child == NULL) {  /* the 1st child */
-		parent->firts_child = new_child;
+	if (parent->first_child == NULL) {  /* the 1st child */
+		parent->first_child = new_child;
 	} else {  /* following children */
 		parent->last_child->next_sibling = new_child;
 		new_child->prev_sibling = parent->last_child;
@@ -247,7 +247,7 @@ static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 xml_frame_t *xml_get_tag(xml_frame_t *frame, const gchar *name) {
 	xml_frame_t *tag = NULL;
 
-	xml_frame_t *xml_item = frame->firts_child;
+	xml_frame_t *xml_item = frame->first_child;
 	while (xml_item) {
 		if ((xml_item->type == XML_FRAME_TAG)) {
 			if (!name) {  /* get the 1st tag */
@@ -267,7 +267,7 @@ xml_frame_t *xml_get_tag(xml_frame_t *frame, const gchar *name) {
 xml_frame_t *xml_get_attrib(xml_frame_t *frame, const gchar *name) {
 	xml_frame_t *attr = NULL;
 
-	xml_frame_t *xml_item = frame->firts_child;
+	xml_frame_t *xml_item = frame->first_child;
 	while (xml_item) {
 		if ((xml_item->type == XML_FRAME_ATTRIB) && 
 			xml_item->name_orig_case && !strcmp(xml_item->name_orig_case, name)) {
@@ -283,7 +283,7 @@ xml_frame_t *xml_get_attrib(xml_frame_t *frame, const gchar *name) {
 xml_frame_t *xml_get_cdata(xml_frame_t *frame) {
 	xml_frame_t *cdata = NULL;
 
-	xml_frame_t *xml_item = frame->firts_child;
+	xml_frame_t *xml_item = frame->first_child;
 	while (xml_item) {
 		if ((xml_item->type == XML_FRAME_CDATA)) {
         	cdata = xml_item;
@@ -1030,21 +1030,19 @@ static void register_dtd(dtd_build_data_t* dtd_data, GString* errors) {
 		dtd_named_list_t* nl = g_ptr_array_remove_index(dtd_data->attributes,0);
 		xml_ns_t* element = g_hash_table_lookup(elements,nl->name);
 
-		if (!element) {
-			g_string_append_printf(errors,"element %s is not defined\n", nl->name);
+		if (element) {
+	        while(nl->list->len) {
+	            gchar* name = g_ptr_array_remove_index(nl->list,0);
+	            int* id_p = g_malloc(sizeof(int));
 
-			goto next_attribute;
+	            *id_p = -1;
+	            g_hash_table_insert(element->attributes,name,id_p);
+	        }
+		}
+		else {
+            g_string_append_printf(errors,"element %s is not defined\n", nl->name);
 		}
 
-		while(nl->list->len) {
-			gchar* name = g_ptr_array_remove_index(nl->list,0);
-			int* id_p = g_malloc(sizeof(int));
-
-			*id_p = -1;
-			g_hash_table_insert(element->attributes,name,id_p);
-		}
-
-next_attribute:
 		g_free(nl->name);
 		g_ptr_array_free(nl->list,TRUE);
 		g_free(nl);

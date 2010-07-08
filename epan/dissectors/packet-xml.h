@@ -64,7 +64,7 @@ typedef struct _xml_ns_t {
 typedef struct _xml_frame_t {
 	int type;
 	struct _xml_frame_t* parent;
-	struct _xml_frame_t* firts_child;
+	struct _xml_frame_t* first_child;
 	struct _xml_frame_t* last_child;
 	struct _xml_frame_t* prev_sibling;
 	struct _xml_frame_t* next_sibling;
