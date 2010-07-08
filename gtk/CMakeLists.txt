@@ -39,6 +39,7 @@ set(WIRESHARK_GTK_SRC
 	decode_as_dcerpc.c
 	decode_as_dlg.c
 	dfilter_expr_dlg.c
+	dissector_tables_dlg.c
 	dlg_utils.c
 	drag_and_drop.c
 	expert_comp_table.c
