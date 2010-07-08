@@ -51,6 +51,7 @@ WIRESHARK_GTK_SRC = \
 	decode_as_dcerpc.c	\
 	decode_as_dlg.c	\
 	dfilter_expr_dlg.c	\
+	dissector_tables_dlg.c	\
 	dlg_utils.c	\
 	drag_and_drop.c 	\
 	expert_comp_table.c    \
@@ -233,6 +234,7 @@ noinst_HEADERS = \
 	decode_as_dlg.h	\
 	decode_as_dcerpc.h \
 	dfilter_expr_dlg.h \
+	dissector_tables_dlg.h	\
 	dlg_utils.h	\
 	drag_and_drop.h	\
 	expert_comp_dlg.h	\

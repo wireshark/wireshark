@@ -44,6 +44,7 @@
 #include <epan/plugins.h>
 #include <epan/epan_dissect.h>
 #include <epan/column.h>
+#include "gtk/dissector_tables_dlg.h"
 
 #include "../print.h"
 #include "../register.h"
@@ -758,6 +759,9 @@ static GtkItemFactoryEntry menu_items[] =
     {"/_Tools", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Tools/Firewall ACL Rules", NULL,
                        firewall_rule_cb, 0, NULL, NULL,},
+    {"/WS internal", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/WS internal/Dissector tables", NULL, GTK_MENU_FUNC(dissector_tables_dlg_cb),   
+                         0, NULL, NULL,},
     {"/_Help", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Help/_Contents", "F1", GTK_MENU_FUNC(topic_menu_cb), HELP_CONTENT, "<StockItem>", GTK_STOCK_HELP,},
     {"/Help/FAQ's", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_FAQ, NULL, NULL,},
