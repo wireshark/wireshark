@@ -68,6 +68,8 @@ static int hf_net_use_local_port=-1;
 static int hf_net_file_server_port=-1;
 static int hf_net_local_port=-1;
 static int hf_net_file_server_address=-1;
+static int hf_net_full_pathname=-1;
+static int hf_net_file_identifier=-1;
 
 static const value_string file_xfer_modes[]={
  {0x00,"TFTP"},

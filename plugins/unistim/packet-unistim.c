@@ -92,9 +92,6 @@ static gint dissect_uftp_message(proto_tree *unistim_tree, packet_info *pinfo,
 
 static void set_ascii_item(proto_tree *unistim_tree, tvbuff_t *tvb,
                            gint offset,guint msg_len);
-static void set_ascii_null_term_item(proto_tree *msg_tree,tvbuff_t *tvb, 
-                                     gint offset,guint msg_len,
-                                     const char *label);
 
 
 static int proto_unistim = -1;
@@ -1662,7 +1659,9 @@ dissect_key_indicator_phone(proto_tree *msg_tree,
 static gint
 dissect_network_switch(proto_tree *msg_tree,
                        tvbuff_t *tvb,gint offset, guint msg_len){
-   guint network_cmd; 
+   guint network_cmd;
+   guint string_len;
+
    network_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_network_switch_cmd,tvb,offset,1,FALSE);
    offset+=1;msg_len-=1;
@@ -1736,8 +1735,12 @@ dissect_network_switch(proto_tree *msg_tree,
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,1,FALSE);
          offset+=1;msg_len-=1;
-         set_ascii_null_term_item(msg_tree,tvb,offset,msg_len,"Full Pathname :");
-         set_ascii_null_term_item(msg_tree,tvb,offset,msg_len,"File Identifier :");
+         string_len=tvb_strsize(tvb,offset);
+         proto_tree_add_item(msg_tree,hf_net_full_pathname,tvb,offset,string_len,ENC_NA);
+         offset+=string_len;msg_len-=string_len;
+         string_len=tvb_strsize(tvb,offset);
+         proto_tree_add_item(msg_tree,hf_net_file_identifier,tvb,offset,string_len,ENC_NA);
+         offset+=string_len;msg_len-=string_len;
          proto_tree_add_item(msg_tree,hf_net_file_server_port,tvb,offset,2,FALSE);
          offset+=2;msg_len-=2;
          proto_tree_add_item(msg_tree,hf_net_local_port,tvb,offset,2,FALSE);
@@ -1757,8 +1760,8 @@ dissect_network_switch(proto_tree *msg_tree,
          break;
       case 0x12:
    /*Reset Watchdog*/
-      proto_tree_add_item(msg_tree,hf_net_server_time_out,
-                          tvb,offset,2,FALSE);
+         proto_tree_add_item(msg_tree,hf_net_server_time_out,
+                             tvb,offset,2,FALSE);
          offset+=2;
          break;
       case 0x13:
@@ -2549,69 +2552,8 @@ dissect_audio_phone(proto_tree *msg_tree,
 
 static void
 set_ascii_item(proto_tree *msg_tree,tvbuff_t *tvb, gint offset,guint msg_len){
-   char *buffer=NULL;
-   gsize buffer_index=0;
-   guint16 msg_index=0;
-   guint8 character;
-   const char *label="DATA: ";
-   #define MAX_BUFFER 1024
-   buffer=(char *)ep_alloc(MAX_BUFFER);
-
-   buffer_index=g_strlcpy(buffer,label,MAX_BUFFER);
-   while((buffer_index<MAX_BUFFER-2)&&(msg_index<msg_len)){
-      character=tvb_get_guint8(tvb,offset+msg_index);
-      msg_index++;
-      if((character>0x1f)&&(character<0x7f)){
-         /*g_vsnprintf called in proto_tree_add_text blows up if you end up with %s as text so escape %*/
-         if(character=='%'){
-            buffer[buffer_index]='%';
-            buffer_index++;
-         }
-         buffer[buffer_index]=character;
-         buffer_index++;
-      }
-      else{
-         buffer[buffer_index]='.';
-         buffer_index++;
-      }
-   }
-   buffer[buffer_index]='\0';
-
-   proto_tree_add_text(msg_tree,tvb,offset,msg_len,"%s",buffer);
-}
-
-static void
-set_ascii_null_term_item(proto_tree *msg_tree,tvbuff_t *tvb, gint offset,guint msg_len,const char *label){
-   char *buffer=NULL;
-   gsize buffer_index=0;
-   guint16 msg_index=0;
-   guint8 character;
-   #define MAX_BUFFER 1024
-   buffer=(char *)ep_alloc(MAX_BUFFER);
-
-   buffer_index=g_strlcpy(buffer,label,MAX_BUFFER);
-   while((buffer_index<MAX_BUFFER-2)&&(msg_index<msg_len)){
-      character=tvb_get_guint8(tvb,offset+msg_index);
-      msg_index++;
-      if((character>0x1f)&&(character<0x7f)){
-         /*g_vsnprintf called in proto_tree_add_text blows up if you end up with %s as text so escape %*/
-         if(character=='%'){
-            buffer[buffer_index]='%';
-            buffer_index++;
-         }
-         buffer[buffer_index]=character;
-         buffer_index++;
-      }
-      else if(character==0x00)
-         break;
-      else{
-         buffer[buffer_index]='.';
-         buffer_index++;
-      }
-   }
-   buffer[buffer_index]='\0';
-
-   proto_tree_add_text(msg_tree,tvb,offset,msg_len,"%s",buffer);
+   proto_tree_add_text(msg_tree,tvb,offset,msg_len,"DATA: %s",
+                       tvb_format_text(tvb,offset,msg_len));
 }
 
 void
@@ -3842,6 +3784,14 @@ proto_register_unistim(void){
           { &hf_net_file_server_port,
              {"File Server Port","unistim.net.file.server.port",FT_UINT16,
                 BASE_DEC,NULL,0x00,NULL,HFILL}
+          },
+          { &hf_net_full_pathname,
+             {"Full Pathname","unistim.net.full_pathname",FT_STRINGZ,
+                BASE_NONE,NULL,0x00,NULL,HFILL}
+          },
+          { &hf_net_file_identifier,
+             {"File Identifier","unistim.net.file_identifier",FT_STRINGZ,
+                BASE_NONE,NULL,0x00,NULL,HFILL}
           },
           { &hf_net_local_port,
              {"Local XFer Port","unistim.net.local.xfer.port",FT_UINT16,
