@@ -9016,14 +9016,13 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_COMMIT:
+			file_offset = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_offset4,
-				offset);
-			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_count4,
 				offset);
 			length = tvb_get_ntohl(tvb, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_count4,
 				offset);
-				g_string_append_printf (op_summary[ops_counter].optext, " FH:0x%08x Len:%u", last_fh_hash, length);
+			g_string_append_printf (op_summary[ops_counter].optext, " FH:0x%08x Offset:%"G_GINT64_MODIFIER"u Len:%u", last_fh_hash, file_offset, length);
 
 			break;
 
