@@ -211,13 +211,13 @@ static dissector_handle_t data_handle;
 /* TCP structs and definitions */
 
 /* **************************************************************************
-
- * RTT and reltive sequence numbers.
+ * RTT, relative sequence numbers, window scaling & etc.
  * **************************************************************************/
-static gboolean tcp_analyze_seq = TRUE;
-static gboolean tcp_relative_seq = TRUE;
+static gboolean tcp_analyze_seq           = TRUE;
+static gboolean tcp_relative_seq          = TRUE;
+static gboolean tcp_window_scaling        = TRUE;
 static gboolean tcp_track_bytes_in_flight = TRUE;
-static gboolean tcp_calculate_ts = FALSE;
+static gboolean tcp_calculate_ts          = FALSE;
 
 /* SLAB allocator for tcp_unacked structures
  */
@@ -550,10 +550,12 @@ pdu_store_window_scale_option(guint8 ws, struct tcp_analysis *tcpd)
 static void
 tcp_get_relative_seq_ack(guint32 *seq, guint32 *ack, guint32 *win, struct tcp_analysis *tcpd)
 {
-    if (tcpd && tcp_relative_seq) {
-        (*seq) -= tcpd->fwd->base_seq;
-        (*ack) -= tcpd->rev->base_seq;
-        if(tcpd->fwd->win_scale!=-1){
+    if (tcpd) {
+        if (tcp_relative_seq) {
+            (*seq) -= tcpd->fwd->base_seq;
+            (*ack) -= tcpd->rev->base_seq;
+        }
+        if ((tcp_window_scaling) && (tcpd->fwd->win_scale!=-1)) {
             (*win)<<=tcpd->fwd->win_scale;
         }
     }
@@ -2142,7 +2144,7 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp, tvbuff_t *tvb,
                                offset, optlen, ws, "%s: %u (multiply by %u)",
                                optp->name, ws, 1 << ws);
     tcp_info_append_uint(pinfo, "WS", ws);
-    if(!pinfo->fd->flags.visited && tcp_analyze_seq && tcp_relative_seq){
+    if(!pinfo->fd->flags.visited && tcp_analyze_seq && tcp_window_scaling){
         pdu_store_window_scale_option(ws, tcpd);
     }
 }
@@ -3175,7 +3177,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(!(pinfo->fd->flags.visited)){
                     tcp_analyze_sequence_number(pinfo, tcph->th_seq, tcph->th_ack, tcph->th_seglen, tcph->th_flags, tcph->th_win, tcpd);
                 }
-                if(tcp_relative_seq){
+                if(tcp_relative_seq || tcp_window_scaling){
                     tcp_get_relative_seq_ack(&(tcph->th_seq), &(tcph->th_ack), &(tcph->th_win), tcpd);
                     if ((tcph->th_flags&TH_SYN)) {   /* SYNs are never scaled */
                         tcph->th_win = real_window;
@@ -3280,7 +3282,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tf_syn = proto_tree_add_boolean(field_tree, hf_tcp_flags_syn, tvb, offset + 13, 1, tcph->th_flags);
         tf_fin = proto_tree_add_boolean(field_tree, hf_tcp_flags_fin, tvb, offset + 13, 1, tcph->th_flags);
         if (tcph->th_flags & TH_ACK) {
-            if(tcp_relative_seq && tcph->th_win!=real_window) {
+            if(tcp_window_scaling && tcph->th_win!=real_window) {
                 proto_tree_add_uint_format(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win, "Window size: %u (scaled)", tcph->th_win);
             } else {
                 proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, real_window);
@@ -3510,7 +3512,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* If there was window scaling in the SYN packet but none in the SYN+ACK
              * then we should just forget about the windowscaling completely.
              */
-            if(tcp_analyze_seq && tcp_relative_seq){
+            if(tcp_analyze_seq && tcp_window_scaling){
                 verify_tcp_window_scaling(tcpd);
             }
             /* If the SYN or the SYN+ACK offered SCPS capabilities,
@@ -4150,11 +4152,15 @@ proto_register_tcp(void)
         "Make the TCP dissector analyze TCP sequence numbers to find and flag segment retransmissions, missing segments and RTT",
         &tcp_analyze_seq);
     prefs_register_bool_preference(tcp_module, "relative_sequence_numbers",
-        "Relative sequence numbers and window scaling",
+        "Relative sequence numbers",
         "Make the TCP dissector use relative sequence numbers instead of absolute ones. "
-        "To use this option you must also enable \"Analyze TCP sequence numbers\". "
-        "This option will also try to track and adjust the window field according to any TCP window scaling options seen.",
+        "To use this option you must also enable \"Analyze TCP sequence numbers\". ",
         &tcp_relative_seq);
+    prefs_register_bool_preference(tcp_module, "window_scaling",
+        "Window scaling",
+        "Try to track and adjust the window field according to any TCP window scaling options seen."
+        "To use this option you must also enable \"Analyze TCP sequence numbers\". ",
+        &tcp_window_scaling);
     prefs_register_bool_preference(tcp_module, "track_bytes_in_flight",
         "Track number of bytes in flight",
         "Make the TCP dissector track the number on un-ACKed bytes of data are in flight per packet. "
