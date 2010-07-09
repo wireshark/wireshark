@@ -948,8 +948,16 @@ int dissect_ber_identifier(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *t
  * an indefinite length and haven't reached EOC.
  */
 /* 8.1.3 Length octets */
+
+/*
+ * Set a limit on recursion so we don't blow away the stack. Another approach
+ * would be to remove recursion completely but then we'd exhaust CPU+memory
+ * trying to read a hellabyte of nested indefinite lengths.
+ * XXX - Max nesting in the ASN.1 plugin is 32.
+ */
+#define BER_MAX_INDEFINITE_NESTING 500
 static gboolean
-try_get_ber_length(tvbuff_t *tvb, int *bl_offset, gboolean pc, guint32 *length, gboolean *ind) {
+try_get_ber_length(tvbuff_t *tvb, int *bl_offset, gboolean pc, guint32 *length, gboolean *ind, gint nest_level) {
 	int offset = *bl_offset;
 	guint8 oct, len;
 	guint32 tmp_len;
@@ -961,6 +969,11 @@ try_get_ber_length(tvbuff_t *tvb, int *bl_offset, gboolean pc, guint32 *length, 
 	int tmp_offset;
 	tmp_length = 0;
 	tmp_ind = FALSE;
+	
+	if (nest_level > BER_MAX_INDEFINITE_NESTING) {
+		/* Assume that we have a malformed packet. */
+		THROW(ReportedBoundsError);
+	}
 
 	oct = tvb_get_guint8(tvb, offset);
 	offset += 1;
@@ -990,7 +1003,7 @@ try_get_ber_length(tvbuff_t *tvb, int *bl_offset, gboolean pc, guint32 *length, 
 			tmp_offset = get_ber_identifier(tvb, tmp_offset, &tclass, &tpc, &ttag);
 
 			/* Make sure we move forward */
-			if(tmp_offset > offset && try_get_ber_length(tvb, &tmp_offset, tpc, &tmp_len, &tmp_ind)) {
+			if(tmp_offset > offset && try_get_ber_length(tvb, &tmp_offset, tpc, &tmp_len, &tmp_ind, nest_level+1)) {
 			    if (tmp_len > 0) {
 				tmp_offset += tmp_len;
 				continue;
@@ -1034,7 +1047,7 @@ get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind)
 	save_pc = last_pc;
 	save_tag = last_tag;
 
-	if(!try_get_ber_length(tvb, &bl_offset, last_pc, &bl_length, ind)) {
+	if(!try_get_ber_length(tvb, &bl_offset, last_pc, &bl_length, ind, 0)) {
 	  /* we couldn't get a length */
 	  bl_offset = offset;
 	}
