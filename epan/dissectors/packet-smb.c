@@ -15136,7 +15136,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		COUNT_BYTES_TRANS_SUBR(4);
 		/* Mac Support Flags */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		support = tvb_get_ntohl(tvb, offset);
+		support = tvb_get_letohl(tvb, offset);
 		item = proto_tree_add_text(tree, tvb, offset, 4,
 					   "Mac Support Flags: 0x%08x", support);
 		ti = proto_item_add_subtree(item, ett_smb_mac_support_flags);
