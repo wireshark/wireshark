@@ -660,6 +660,10 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 {
 	tvbuff_t *next_tvb;
 
+	if (!tvb) {
+		return offset;
+	}
+
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	if(oid == NULL ||
 	    !dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree)){
