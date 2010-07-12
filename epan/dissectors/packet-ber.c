@@ -4015,6 +4015,17 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
 	  end_offset=offset+len;
 	}
 
+	if (len < 14 || len > 23) {
+		cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: GeneralizedTime invalid length: %u", len);
+		proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+		expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: GeneralizedTime invalid length");
+		if (decode_unexpected) {
+			proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
+			dissect_unknown_ber(actx->pinfo, tvb, offset, unknown_tree);
+		}
+		return end_offset;
+	}
+
 	tmpstr=tvb_get_ephemeral_string(tvb, offset, len);
 	strptr = str;
 	/* those fields are allways present */
@@ -4105,6 +4116,12 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 		len = tvb_length_remaining(tvb,offset);
 	}
 
+	if (len < 10 || len > 19) {
+		cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: UTCTime invalid length: %u", len);
+		instr = tvb_get_ephemeral_string(tvb, offset, len > 19 ? 19 : len);
+		goto malformed;
+	}
+
 	instr = tvb_get_ephemeral_string(tvb, offset, len);
 
 	/* YYMMDDhhmm */
@@ -4193,9 +4210,8 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 malformed:
 	proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
 	expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding");
-	g_snprintf(outstr, (len>29)?31:len+1, "%s", instr);
 	if(hf_id >= 0){
-		proto_tree_add_string(tree, hf_id, tvb, offset, len, outstr);
+		proto_tree_add_string(tree, hf_id, tvb, offset, len, instr);
 	}
 	return offset+len;
 }
