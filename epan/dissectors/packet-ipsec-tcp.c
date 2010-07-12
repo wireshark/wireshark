@@ -67,6 +67,7 @@ static const value_string tcpencap_proto_vals[] = {
 	{ 0,	NULL }
 };
 
+#define TRAILERLENGTH 16
 #define TCP_CISCO_IPSEC 10000
 static guint global_tcpencap_tcp_port = TCP_CISCO_IPSEC;
 
@@ -77,16 +78,23 @@ static dissector_handle_t udp_handle;
 #define TCP_ENCAP_P_UDP 2
 
 
-/* oh what a crap protocol.
-   there is nothing in the protocol that makes it easy to identify and then
-   worse is that by default it is using port 10000 which ndmp has been
-   using for ages.
-
-   assume it is tcpencap    if it does not look like ndmp
+/* Another case of several companies creating protocols and
+   choosing an easy-to-remember port. Playing tonight: Cisco vs NDMP.
 */
 static int
-packet_is_tcpencap(tvbuff_t *tvb, packet_info *pinfo)
+packet_is_tcpencap(tvbuff_t *tvb, packet_info *pinfo, guint32 offset)
 {
+	if (	/* Must be zero */
+		tvb_get_ntohl(tvb, offset + 0) != 0 ||
+		/* Lower 12 bits must be zero */
+		(tvb_get_ntohs(tvb, offset + 6) & 0xfff) != 0 ||
+		/* Protocol must be UDP or ESP */
+		(tvb_get_guint8(tvb, offset + 13) != 17 &&
+		 tvb_get_guint8(tvb, offset + 13) != 50)
+	) {
+		return FALSE;
+	}
+
 	if(check_if_ndmp(tvb, pinfo)){
 		return FALSE;
 	}
@@ -112,7 +120,8 @@ dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8  protocol;
 
 	/* verify that this looks like a tcpencap packet */
-	if(!packet_is_tcpencap(tvb, pinfo)){
+	if (reported_length <= TRAILERLENGTH + 8 ||
+	   !packet_is_tcpencap(tvb, pinfo, reported_length - TRAILERLENGTH) ) {
 		return 0;
 	}
 
@@ -133,9 +142,9 @@ dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tcpencap_tree = proto_item_add_subtree(tree_item, ett_tcpencap);
 
 		/* Dissect the trailer following the encapsulated IPSEC/ISAKMP packet */
-		offset = reported_length - 16;
+		offset = reported_length - TRAILERLENGTH;
 		unknown_item = proto_tree_add_item(tcpencap_tree, hf_tcpencap_unknown, tvb,
-			offset, 16, FALSE);
+			offset, TRAILERLENGTH, FALSE);
 		/* Try to guess the contents of the trailer */
 		tcpencap_unknown_tree = proto_item_add_subtree(unknown_item, ett_tcpencap_unknown);
 		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_zero, tvb, offset + 0, 4, FALSE);
@@ -151,7 +160,7 @@ dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Create the tvbuffer for the next dissector */
-	next_tvb = tvb_new_subset(tvb, 0, reported_length - 16 , -1);
+	next_tvb = tvb_new_subset(tvb, 0, reported_length - TRAILERLENGTH , -1);
 	if (protocol == TCP_ENCAP_P_UDP) {
 		call_dissector(udp_handle, next_tvb, pinfo, tree);
 	} else { /* Hopefully ESP */

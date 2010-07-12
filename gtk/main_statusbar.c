@@ -422,19 +422,19 @@ profile_bar_new(void)
 
 
 /*
- * update the packets statusbar to the current values
+ * Update the packets statusbar to the current values
  */
 void
 packets_bar_update(void)
 {
     if(packets_bar) {
-        /* remove old status */
+        /* Remove old status */
         if(packets_str) {
             g_free(packets_str);
             gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
         }
 
-        /* do we have any packets? */
+        /* Do we have any packets? */
         if(cfile.count) {
             if(cfile.drops_known) {
                 packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u Dropped: %u",
@@ -443,6 +443,12 @@ packets_bar_update(void)
                 packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u Ignored: %u",
                     cfile.count, cfile.displayed_count, cfile.marked_count, cfile.ignored_count);
             } else {
+				if(cfile.is_tempfile){
+					/* Live capture */
+					packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u",
+						cfile.count, cfile.displayed_count, cfile.marked_count);
+				}else{
+					/* Loading an existing file */
                 gulong computed_elapsed = cf_get_computed_elapsed();
 
                 packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u Load time: %lu:%02lu.%03lu",
@@ -450,6 +456,7 @@ packets_bar_update(void)
                     computed_elapsed/60000,
                     computed_elapsed%60000/1000,
                     computed_elapsed%1000);
+            }
             }
         } else {
             packets_str = g_strdup(" No Packets");
@@ -459,7 +466,7 @@ packets_bar_update(void)
 }
 
 /*
- * update the packets statusbar to the current values
+ * Update the packets statusbar to the current values
  */
 void
 profile_bar_update(void)
@@ -706,6 +713,7 @@ statusbar_capture_update_finished_cb(capture_options *capture_opts)
     /* Pop the "<live capture in progress>" message off the status bar. */
     statusbar_pop_file_msg();
     statusbar_set_filename(cf->filename, cf->f_datalen, &(cf->elapsed_time));
+    packets_bar_update();
 }
 
 static void

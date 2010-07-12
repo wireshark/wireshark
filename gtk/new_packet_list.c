@@ -156,6 +156,8 @@ right_justify_column (gint col)
 	case COL_NUMBER:
 	case COL_PACKET_LENGTH:
 	case COL_CUMULATIVE_BYTES:
+	case COL_DCE_CALL:
+	case COL_DSCP_VALUE:
 		right_justify = TRUE;
 		break;
 
