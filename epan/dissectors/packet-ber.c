@@ -953,23 +953,22 @@ int dissect_ber_identifier(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *t
  * Set a limit on recursion so we don't blow away the stack. Another approach
  * would be to remove recursion completely but then we'd exhaust CPU+memory
  * trying to read a hellabyte of nested indefinite lengths.
- * XXX - Max nesting in the ASN.1 plugin is 32.
+ * XXX - Max nesting in the ASN.1 plugin is 32. Should they match?
  */
 #define BER_MAX_INDEFINITE_NESTING 500
-static gboolean
-try_get_ber_length(tvbuff_t *tvb, int *bl_offset, gboolean pc, guint32 *length, gboolean *ind, gint nest_level) {
-	int offset = *bl_offset;
+static int
+try_get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind, gint nest_level) {
 	guint8 oct, len;
 	guint32 tmp_len;
-	gint8 tclass;
-	gint32 ttag;
-	gboolean tpc;
 	guint32 tmp_length;
 	gboolean tmp_ind;
-	int tmp_offset;
+	int tmp_offset,s_offset;
+	gint8 tclass;
+	gboolean tpc;
+	gint32 ttag;
 	tmp_length = 0;
 	tmp_ind = FALSE;
-	
+
 	if (nest_level > BER_MAX_INDEFINITE_NESTING) {
 		/* Assume that we have a malformed packet. */
 		THROW(ReportedBoundsError);
@@ -991,31 +990,26 @@ try_get_ber_length(tvbuff_t *tvb, int *bl_offset, gboolean pc, guint32 *length, 
 				tmp_length = (tmp_length<<8) + oct;
 			}
 		} else {
-		    /* 8.1.3.6 */
-		    /* indefinite length encoded - must be constructed */
+			/* 8.1.3.6 */
 
-		    if(!pc)
-			return FALSE;
-
-		    tmp_offset = offset;
-
-		    do {
-			tmp_offset = get_ber_identifier(tvb, tmp_offset, &tclass, &tpc, &ttag);
-
-			/* Make sure we move forward */
-			if(tmp_offset > offset && try_get_ber_length(tvb, &tmp_offset, tpc, &tmp_len, &tmp_ind, nest_level+1)) {
-			    if (tmp_len > 0) {
-				tmp_offset += tmp_len;
-				continue;
-			    }
+			tmp_offset = offset;
+			/* ok in here we can traverse the BER to find the length, this will fix most indefinite length issues */
+			/* Assumption here is that indefinite length is always used on constructed types*/
+			/* check for EOC */
+			while (tvb_get_guint8(tvb, offset) || tvb_get_guint8(tvb, offset+1)) {
+				/* not an EOC at offset */
+				s_offset=offset;
+				offset= get_ber_identifier(tvb, offset, &tclass, &tpc, &ttag);
+				offset= try_get_ber_length(tvb,offset, &tmp_len, NULL, nest_level+1);
+				tmp_length += tmp_len+(offset-s_offset); /* length + tag and length */
+				offset += tmp_len;
+                                /* Make sure we've moved forward in the packet */
+				if (offset <= s_offset)
+					THROW(ReportedBoundsError);
 			}
-
-			return FALSE;
-
-		    } while (!((tclass == BER_CLASS_UNI) && (ttag == 0) && (tmp_len == 0)));
-
-		    tmp_length = tmp_offset - offset;
-		    tmp_ind = TRUE;
+			tmp_length += 2;
+			tmp_ind = TRUE;
+			offset = tmp_offset;
 		}
 	}
 
@@ -1028,39 +1022,13 @@ try_get_ber_length(tvbuff_t *tvb, int *bl_offset, gboolean pc, guint32 *length, 
 printf("get BER length %d, offset %d (remaining %d)\n", tmp_length, offset, tvb_length_remaining(tvb, offset));
 #endif
 
-	*bl_offset = offset;
-	return TRUE;
+	return offset;
 }
 
 int
 get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind)
 {
-	int bl_offset = offset;
-	guint32 bl_length = 0;
-
-	gint8 save_class;
-	gboolean save_pc;
-	gint32 save_tag;
-
-	/* save last tag */
-	save_class = last_class;
-	save_pc = last_pc;
-	save_tag = last_tag;
-
-	if(!try_get_ber_length(tvb, &bl_offset, last_pc, &bl_length, ind, 0)) {
-	  /* we couldn't get a length */
-	  bl_offset = offset;
-	}
-	if (length)
-	  *length = bl_length;
-
-	/* restore last tag */
-	last_class = save_class;
-	last_pc = save_pc;
-	last_tag = save_tag;
-
-
-	return bl_offset;
+	return try_get_ber_length(tvb, offset, length, ind, 1);
 }
 
 static void get_last_ber_length(guint32 *length, gboolean *ind)
