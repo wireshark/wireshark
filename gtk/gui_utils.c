@@ -1442,6 +1442,11 @@ str_ptr_sort_func(GtkTreeModel *model,
 }
 
 /**
+ * ws_combo_box_text_and_pointer convenience functions
+ *  (Code adapted from GtkComboBox.c)
+ */
+
+/**
  * ws_combo_box_new_text_and_pointer:
  *
  * Convenience function which constructs a new "text and pointer" combo box, which
@@ -1460,14 +1465,19 @@ ws_combo_box_new_text_and_pointer(void)
     GtkCellRenderer *cell;
     GtkListStore    *store;
 
-    store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
+    /* The list store for the GtkComboBox has 3 columns:
+       0: text string for display in GtkComboBox list;
+       1: pointer (data) associated with the entry;
+       2: True/False depending upon whether this entry is selectable ("sensitive" attribute).
+    */
+    store = gtk_list_store_new(3, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_BOOLEAN);
     combo_box = gtk_combo_box_new_with_model(GTK_TREE_MODEL (store));
     g_object_unref(store);
 
     cell = gtk_cell_renderer_text_new();
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combo_box), cell, TRUE);
     gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combo_box), cell,
-                                   "text", 0,
+                                   "text", 0, "sensitive", 2,
                                    NULL);
 
     return combo_box;
@@ -1489,6 +1499,33 @@ void ws_combo_box_clear_text_and_pointer(GtkComboBox *combo_box)
 }
 
 /**
+ * ws_combo_box_append_text_and_pointer_with_sensitivity:
+ * @param combo_box A #GtkComboBox constructed using ws_combo_box_new_text_and_pointer()
+ * @param text A string to be displayed as an entry in the dropdown list of the combo_box
+ * @param ptr  A pointer to be associated with this entry of the combo_box
+ * @param sensitive TRUE/FALSE to set sensitivity of the entry
+ *
+ * Appends text and ptr to the list of strings and pointers stored in combo_box.
+ * The sensitivity of the row will be set as requested. Note that
+ * you can only use this function with combo boxes constructed with
+ * ws_combo_box_new_text_and_pointer().
+ */
+void
+ws_combo_box_append_text_and_pointer_with_sensitivity (GtkComboBox   *combo_box,
+                                                       const gchar   *text,
+                                                       const gpointer ptr,
+                                                       const gboolean sensitive)
+{
+    GtkTreeIter   iter;
+    GtkListStore *store;
+
+    store = GTK_LIST_STORE(gtk_combo_box_get_model(combo_box));
+
+    gtk_list_store_append(store, &iter);
+    gtk_list_store_set(store, &iter, 0, text, 1, ptr, 2, sensitive, -1);
+}
+
+/**
  * ws_combo_box_append_text_and_pointer:
  * @param combo_box A #GtkComboBox constructed using ws_combo_box_new_text_and_pointer()
  * @param text A string to be displayed as an entry in the dropdown list of the combo_box
@@ -1498,19 +1535,13 @@ void ws_combo_box_clear_text_and_pointer(GtkComboBox *combo_box)
  * you can only use this function with combo boxes constructed with
  * ws_combo_box_new_text_and_pointer().
  */
-void
-ws_combo_box_append_text_and_pointer (GtkComboBox   *combo_box,
-                                      const gchar   *text,
-                                      const gpointer ptr)
+void ws_combo_box_append_text_and_pointer (GtkComboBox  *combo_box,
+                                          const gchar   *text,
+                                          const gpointer ptr)
 {
-    GtkTreeIter   iter;
-    GtkListStore *store;
-
-    store = GTK_LIST_STORE(gtk_combo_box_get_model(combo_box));
-
-    gtk_list_store_append(store, &iter);
-    gtk_list_store_set(store, &iter, 0, text, 1, ptr, -1);
+    ws_combo_box_append_text_and_pointer_with_sensitivity(combo_box, text, ptr, TRUE);
 }
+
 
 /**
  * ws_combo_box_get_active_pointer:
@@ -1559,5 +1590,3 @@ ws_combo_box_set_active(GtkComboBox *combo_box, gint idx)
 {
     gtk_combo_box_set_active(combo_box, idx);
 }
-
-

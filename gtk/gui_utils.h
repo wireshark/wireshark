@@ -422,6 +422,24 @@ GtkWidget *ws_combo_box_new_text_and_pointer(void);
 void ws_combo_box_clear_text_and_pointer(GtkComboBox *combo_box);
 
 /**
+ * ws_combo_box_append_text_and_pointer_with_sensitivity:
+ * @param combo_box A #GtkComboBox constructed using ws_combo_box_new_text_and_pointer()
+ * @param text A string to be displayed as an entry in the dropdown list of the combo_box
+ * @param ptr  A pointer to be associated with this entry of the combo_box
+ * @param sensitive TRUE/FALSE to set sensitivity of the entry
+ *
+ * Appends text and ptr to the list of strings and pointers stored in combo_box.
+ * The sensitivity of the row will be set as requested. Note that
+ * you can only use this function with combo boxes constructed with
+ * ws_combo_box_new_text_and_pointer().
+ */
+void
+ws_combo_box_append_text_and_pointer_with_sensitivity (GtkComboBox   *combo_box,
+                                                       const gchar   *text,
+                                                       const gpointer ptr,
+                                                       const gboolean sensitive);
+
+/**
  * ws_combo_box_append_text_and_pointer:
  * @param combo_box A #GtkComboBox constructed using ws_combo_box_new_text_and_pointer()
  * @param text A string to be displayed as an entry in the dropdown list of the combo_box
