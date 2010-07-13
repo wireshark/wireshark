@@ -280,7 +280,7 @@
 	</para></listitem>
 	<listitem><para>
 	  Windows 2000 no longer works with Wireshark. The last known version
-	  to work was Wireshark 1.2.x (which includes WinPcap 4.1.1). You still
+	  to work was Wireshark 1.2.x (which includes WinPcap 4.1.2). You still
 	  can get it from <ulink
 	  url="http://www.wireshark.org/download/win32/all-versions/" />.
 	  Microsoft retired support for Windows 2000 in 2010.
