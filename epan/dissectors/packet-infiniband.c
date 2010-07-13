@@ -240,7 +240,8 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_transport_header_version,     tvb, offset, 1, FALSE); offset +=1;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_partition_key,                tvb, offset, 2, FALSE); offset +=2;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_reserved8,                    tvb, offset, 1, FALSE); offset +=1;
-            proto_tree_add_item(base_transport_header_tree, hf_infiniband_destination_qp,               tvb, offset, 3, FALSE); offset +=3;
+            proto_tree_add_item(base_transport_header_tree, hf_infiniband_destination_qp,               tvb, offset, 3, FALSE);
+            dst_qp = tvb_get_ntoh24(tvb, offset); offset +=3;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_acknowledge_request,          tvb, offset, 1, FALSE);
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_reserved7,                    tvb, offset, 1, FALSE); offset +=1;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_packet_sequence_number,       tvb, offset, 3, FALSE); offset +=3;
