@@ -6,23 +6,23 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* This module provides rpc call/reply SRT (Server Response Time) statistics 
+/* This module provides rpc call/reply SRT (Server Response Time) statistics
  * to Wireshark.
  *
  * It serves as an example on how to use the tap api.
@@ -98,7 +98,7 @@ rpcstat_reset(void *arg)
 }
 
 
-static int
+static gboolean
 rpcstat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2)
 {
 	rpcstat_t *rs = arg;
@@ -106,23 +106,23 @@ rpcstat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
 	/* we are only interested in reply packets */
 	if(ri->request){
-		return 0;
+		return FALSE;
 	}
 	/* we are only interested in certain program/versions */
 	if( (ri->prog!=rs->program) || (ri->vers!=rs->version) ){
-		return 0;
+		return FALSE;
 	}
-	/* maybe we have discovered a new procedure? 
-	 * then we might need to extend our tables 
+	/* maybe we have discovered a new procedure?
+	 * then we might need to extend our tables
 	 */
 	if(ri->proc>=rs->num_procedures){
 		guint32 i;
 		if(ri->proc>256){
-			/* no program have probably ever more than this many 
-			 * procedures anyway and it prevent us from allocating
-			 * infinite memory if passed a garbage procedure id 
+			/* no program have probably ever more than this many
+			 * procedures anyway and it prevents us from allocating
+			 * infinite memory if passed a garbage procedure id
 			 */
-			return 0;
+			return FALSE;
 		}
 		for(i=rs->num_procedures;i<=ri->proc;i++){
 			init_srt_table_row(&rs->srt_table, i, rpc_proc_name(rs->program, rs->version, i));
@@ -131,7 +131,7 @@ rpcstat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 	}
 	add_srt_table_data(&rs->srt_table, ri->proc, &ri->req_time, pinfo);
 
-	return 1;
+	return TRUE;
 }
 
 static void
@@ -151,16 +151,16 @@ static gint32 rpc_max_vers=-1;
 static gint32 rpc_min_proc=-1;
 static gint32 rpc_max_proc=-1;
 
-static void *
+static void
 rpcstat_find_procs(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
 {
 	rpc_proc_info_key *k=(rpc_proc_info_key *)key;
 
 	if(k->prog!=rpc_program){
-		return NULL;
+		return;
 	}
 	if(k->vers!=rpc_version){
-		return NULL;
+		return;
 	}
 	if(rpc_min_proc==-1){
 		rpc_min_proc=k->proc;
@@ -173,7 +173,7 @@ rpcstat_find_procs(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
 		rpc_max_proc=k->proc;
 	}
 
-	return NULL;
+	return;
 }
 
 static void
@@ -266,7 +266,7 @@ gtk_rpcstat_init(const char *optarg, void* userdata _U_)
 	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(rs->win), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
-	
+
 	title_string = rpcstat_gen_title(rs);
 	stat_label=gtk_label_new(title_string);
 	g_free(title_string);
@@ -380,7 +380,7 @@ rpcstat_program_select(GtkWidget *prog_combo_box, gpointer user_data)
 	for(i=rpc_min_vers;i<=rpc_max_vers;i++){
 		char vs[5];
 		g_snprintf(vs, sizeof(vs), "%d",i);
-		ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(vers_combo_box), 
+		ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(vers_combo_box),
 						     vs, GINT_TO_POINTER(i));
 	}
 	g_signal_connect(vers_combo_box, "changed", G_CALLBACK(rpcstat_version_select), NULL);
