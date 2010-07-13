@@ -83,14 +83,16 @@
 #define E_CAP_IFACE_KEY                 "cap_iface"
 #define E_CAP_IFACE_IP_KEY              "cap_iface_ip"
 #define E_CAP_SNAP_CB_KEY               "cap_snap_cb"
-#define E_CAP_LT_OM_KEY                 "cap_lt_om"
-#define E_CAP_LT_OM_LABEL_KEY           "cap_lt_om_label"
+#define E_CAP_LT_CBX_KEY                "cap_lt_cbx"
+#define E_CAP_LT_CBX_LABEL_KEY          "cap_lt_cbx_label"
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
 #define E_CAP_BUFFER_SIZE_SB_KEY        "cap_buffer_size_sb"
 #endif
 #define E_CAP_SNAP_SB_KEY               "cap_snap_sb"
 #define E_CAP_PROMISC_KEY               "cap_promisc"
+#ifdef HAVE_PCAP_CREATE
 #define E_CAP_MONITOR_KEY               "cap_monitor"
+#endif
 #define E_CAP_PCAP_NG_KEY               "cap_pcap_ng"
 #define E_CAP_FILT_KEY                  "cap_filter_te"
 #define E_CAP_FILE_TE_KEY               "cap_file_te"
@@ -153,9 +155,6 @@
 #define E_CAP_SAMP_TIMER_SB_KEY         "cap_samp_timer_sb"
 #endif
 
-#define E_CAP_OM_LT_VALUE_KEY           "cap_om_lt_value"
-
-
 /*
  * Keep a static pointer to the current "Capture Options" window, if
  * any, so that if somebody tries to do "Capture:Start" while there's
@@ -163,7 +162,6 @@
  * one, rather than creating a new one.
  */
 static GtkWidget *cap_open_w;
-static GtkWidget * dl_hdr_menu=NULL;
 static GHashTable *cap_settings_history=NULL;
 
 #ifdef HAVE_PCAP_REMOTE
@@ -266,15 +264,13 @@ set_if_capabilities(gboolean monitor_mode_changed)
   if_info_t *if_info;
   if_capabilities_t *caps;
   int err;
-  GtkWidget *lt_menu, *lt_menu_item;
   GList *lt_entry;
   cap_settings_t cap_settings;
   gint linktype_select, linktype_count;
   data_link_info_t *data_link_info;
-  gchar *linktype_menu_label;
   guint num_supported_link_types;
-  GtkWidget *linktype_om = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_LT_OM_KEY);
-  GtkWidget *linktype_lb = g_object_get_data(G_OBJECT(linktype_om), E_CAP_LT_OM_LABEL_KEY);
+  GtkWidget *linktype_combo_box = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_LT_CBX_KEY);
+  GtkWidget *linktype_lb = g_object_get_data(G_OBJECT(linktype_combo_box), E_CAP_LT_CBX_LABEL_KEY);
   GtkWidget *if_ip_lb;
   GString *ip_str = g_string_new("IP address: ");
   int ips = 0;
@@ -293,12 +289,6 @@ set_if_capabilities(gboolean monitor_mode_changed)
   GtkWidget *advanced_bt;
 #endif
 
-  /* Deallocate the existing menu for Datalink header type */
-  if (dl_hdr_menu != NULL)
-    gtk_widget_destroy(dl_hdr_menu);
-
-  lt_menu = gtk_menu_new();
-  dl_hdr_menu= lt_menu;
   entry_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
   if_text = g_strstrip(entry_text);
   if_name = g_strdup(get_if_name(if_text));
@@ -328,7 +318,7 @@ set_if_capabilities(gboolean monitor_mode_changed)
 
   /*
    * If the interface name is in the list of known interfaces, get
-   * its list of link-layer types and set the option menu to display it.
+   * its list of link-layer types and set the combo_box to display it.
    *
    * If it's not, don't bother - the user might be in the middle of
    * editing the list, or it might be a remote device in which case
@@ -375,6 +365,16 @@ set_if_capabilities(gboolean monitor_mode_changed)
           caps = capture_get_if_capabilities(if_name, cap_settings.monitor_mode,
                                              NULL);
 
+#if 0 /* for testing: Add an "unsupported" link-type */
+          if (caps != NULL) {
+            data_link_info_t *foo = g_malloc(sizeof (data_link_info_t));
+            foo->dlt = 150;
+            foo->name = g_strdup("Bar");
+            foo->description = NULL;
+            caps->data_link_types = g_list_append(caps->data_link_types, foo);
+          }
+#endif
+
 	  /* create string of list of IP addresses of this interface */
 	  for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
 	    if (ips != 0)
@@ -413,6 +413,11 @@ set_if_capabilities(gboolean monitor_mode_changed)
   g_free(entry_text);
   g_free(if_name);
 
+  /* -- (Re)Create LinkType GtkComboBox entries -- */
+  /* Deallocate the existing GtkComboBox entries for Datalink header type */
+  g_signal_handlers_disconnect_by_func(linktype_combo_box, G_CALLBACK(select_link_type_cb), NULL );
+  ws_combo_box_clear_text_and_pointer(GTK_COMBO_BOX(linktype_combo_box));
+
   num_supported_link_types = 0;
   linktype_select = 0;
   linktype_count = 0;
@@ -424,26 +429,27 @@ set_if_capabilities(gboolean monitor_mode_changed)
          lt_entry = g_list_next(lt_entry)) {
       data_link_info = lt_entry->data;
       if (data_link_info->description != NULL) {
-        lt_menu_item = gtk_menu_item_new_with_label(data_link_info->description);
-        g_object_set_data(G_OBJECT(lt_menu_item), E_CAP_LT_OM_KEY, linktype_om);
-        g_signal_connect(lt_menu_item, "activate", G_CALLBACK(select_link_type_cb),
-                         GINT_TO_POINTER(data_link_info->dlt));
+        ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(linktype_combo_box),
+                                             data_link_info->description, 
+                                             GINT_TO_POINTER(data_link_info->dlt));
+
         num_supported_link_types++;
       } else {
+        gchar *str;
         /* Not supported - tell them about it but don't let them select it. */
-        linktype_menu_label = g_strdup_printf("%s (not supported)",
-                                              data_link_info->name);
-        lt_menu_item = gtk_menu_item_new_with_label(linktype_menu_label);
-        g_free(linktype_menu_label);
+        str = g_strdup_printf("%s (not supported)", data_link_info->name);
+        ws_combo_box_append_text_and_pointer_with_sensitivity(GTK_COMBO_BOX(linktype_combo_box),
+                                                              str, 
+                                                              GINT_TO_POINTER(-1),  /* Flag as "not supported" */
+                                                              FALSE);
+        g_free(str);
       }
       if (data_link_info->dlt == cap_settings.linktype) {
         /* Found a matching dlt, select this */
         linktype_select = linktype_count;
       }
-      gtk_menu_shell_append(GTK_MENU_SHELL(lt_menu), lt_menu_item);
-      gtk_widget_show(lt_menu_item);
       linktype_count++;
-    }
+    } /* for (lt_entry = ... */
     free_if_capabilities(caps);
   }
 #ifdef HAVE_PCAP_CREATE
@@ -455,26 +461,26 @@ set_if_capabilities(gboolean monitor_mode_changed)
   }
 #endif
   if (linktype_count == 0) {
-    lt_menu_item = gtk_menu_item_new_with_label("(not supported)");
-    gtk_menu_shell_append(GTK_MENU_SHELL(lt_menu), lt_menu_item);
-    gtk_widget_show(lt_menu_item);
+    ws_combo_box_append_text_and_pointer_with_sensitivity(GTK_COMBO_BOX(linktype_combo_box),
+                                                         "not supported",
+                                                         GINT_TO_POINTER(-1),  /* Flag as "not supported" */
+                                                         FALSE);
   }
-  gtk_option_menu_set_menu(GTK_OPTION_MENU(linktype_om), lt_menu);
   gtk_widget_set_sensitive(linktype_lb, num_supported_link_types >= 2);
-  gtk_widget_set_sensitive(linktype_om, num_supported_link_types >= 2);
+  gtk_widget_set_sensitive(linktype_combo_box, num_supported_link_types >= 2);
 
-  g_object_set_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(cap_settings.linktype));
-  global_capture_opts.linktype = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY));
+  global_capture_opts.linktype = cap_settings.linktype;
 
 #ifdef HAVE_PCAP_CREATE
   /* Set the monitor-mode checkbox to the appropriate value */
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(monitor_cb),
                                cap_settings.monitor_mode);
 #endif
-
   /* Restore the menu to the last index used */
-  gtk_option_menu_set_history(GTK_OPTION_MENU(linktype_om),linktype_select);
-  if_ip_lb = g_object_get_data(G_OBJECT(linktype_om), E_CAP_IFACE_KEY);
+  ws_combo_box_set_active(GTK_COMBO_BOX(linktype_combo_box),linktype_select);
+  g_signal_connect(linktype_combo_box, "changed", G_CALLBACK(select_link_type_cb), NULL);
+
+  if_ip_lb = g_object_get_data(G_OBJECT(linktype_combo_box), E_CAP_IFACE_IP_KEY);
   if(ips == 0) {
     g_string_append(ip_str, "unknown");
   }
@@ -842,7 +848,7 @@ error_list_remote_interface_cb (gpointer dialog _U_, gint btn _U_, gpointer data
 }
 
 /* Retrieve the list of local or remote interfaces according to selected
- * options and re-fill inteface name combobox */
+ * options and re-fill interface name combobox */
 static void
 update_interface_list()
 {
@@ -1552,7 +1558,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *capture_fr, *capture_vb,
                 *if_hb, *if_cb, *if_lb,
                 *if_ip_hb, *if_ip_lb, *if_ip_eb,
-                *linktype_hb, *linktype_lb, *linktype_om,
+                *linktype_hb, *linktype_lb, *linktype_combo_box,
                 *snap_hb, *snap_cb, *snap_sb, *snap_lb,
                 *promisc_cb,
 #ifdef HAVE_PCAP_CREATE
@@ -1682,7 +1688,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     g_free(err_str);
   }
 
-  /* select the first ad default (THIS SHOULD BE CHANGED) */
+  /* select the first as default (THIS SHOULD BE CHANGED) */
   airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
 #endif
 
@@ -1800,13 +1806,13 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   linktype_lb = gtk_label_new("Link-layer header type:");
   gtk_box_pack_start(GTK_BOX(linktype_hb), linktype_lb, FALSE, FALSE, 3);
 
-  linktype_om = gtk_option_menu_new();
-  g_object_set_data(G_OBJECT(linktype_om), E_CAP_LT_OM_LABEL_KEY, linktype_lb);
+  linktype_combo_box = ws_combo_box_new_text_and_pointer();
+  g_object_set_data(G_OBJECT(linktype_combo_box), E_CAP_LT_CBX_LABEL_KEY, linktype_lb);
   /* Default to "use the default" */
-  /* Datalink menu index is not resetted, it will be restored with last used value */
-  /* g_object_set_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1)); */
-  g_object_set_data(G_OBJECT(linktype_om), E_CAP_IFACE_KEY, if_ip_lb);
-  dl_hdr_menu=NULL;
+  /* Datalink menu index is not reset; it will be restored with last used value */
+  /* g_object_set_data(G_OBJECT(linktype_combo_box), E_CAP_CBX_LT_VALUE_KEY, GINT_TO_POINTER(-1)); */
+
+  g_object_set_data(G_OBJECT(linktype_combo_box), E_CAP_IFACE_IP_KEY, if_ip_lb);
   if (cap_settings_history == NULL) {
     cap_settings_history = g_hash_table_new(g_str_hash, g_str_equal);
   }
@@ -1825,12 +1831,12 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
    *
    * We leave it as "multiple link-layer types" for now.
    */
-  gtk_tooltips_set_tip(tooltips, linktype_om,
+  gtk_tooltips_set_tip(tooltips, linktype_combo_box,
     "The selected interface supports multiple link-layer types; select the desired one.", NULL);
-  gtk_box_pack_start (GTK_BOX(linktype_hb), linktype_om, FALSE, FALSE, 0);
-  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_LT_OM_KEY, linktype_om);
+  gtk_box_pack_start (GTK_BOX(linktype_hb), linktype_combo_box, FALSE, FALSE, 0);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_LT_CBX_KEY, linktype_combo_box);
   g_signal_connect(GTK_ENTRY(GTK_COMBO(if_cb)->entry), "changed",
-                 G_CALLBACK(capture_prep_interface_changed_cb), NULL);
+                   G_CALLBACK(capture_prep_interface_changed_cb), NULL);
 
   /* Promiscuous mode row */
   promisc_cb = gtk_check_button_new_with_mnemonic(
@@ -2584,20 +2590,20 @@ capture_cancel_cb(GtkWidget *win, gpointer data)
   window_cancel_button_cb (win, data);
 }
 
-/* user selected a link type, convert to internal value */
+/* user change linktype selection;, convert to internal DLT value */
 static void
-select_link_type_cb(GtkWidget *w, gpointer data)
+select_link_type_cb(GtkWidget *linktype_combo_box, gpointer data _U_)
 {
-  int new_linktype = GPOINTER_TO_INT(data);
-  GtkWidget *linktype_om = g_object_get_data(G_OBJECT(w), E_CAP_LT_OM_KEY);
-  int old_linktype = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY));
+  gpointer  ptr;
+  int       dlt;
 
-  /* If the link is changed, update the menu and store the index and the value
-     to reuse later when the dialog window will be reopened */
-  if (old_linktype != new_linktype) {
-    g_object_set_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(new_linktype));
-    global_capture_opts.linktype = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY));
+  if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(linktype_combo_box), &ptr)) {
+    g_assert_not_reached();  /* Programming error: somehow nothing is active */
   }
+  if ((dlt = GPOINTER_TO_INT(ptr)) == -1) {
+    g_assert_not_reached();  /* Programming error: somehow managed to select an "unsupported" entry */
+  }
+  global_capture_opts.linktype = dlt;
 }
 
 #ifdef HAVE_PCAP_REMOTE
@@ -2706,7 +2712,7 @@ capture_dlg_prep(gpointer parent_w) {
 #endif
             *pcap_ng_cb, *filter_te, *filter_cm,
             *file_te, *multi_files_on_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_cb,
-            *linktype_om, *sync_cb, *auto_scroll_cb, *hide_info_cb,
+            *sync_cb, *auto_scroll_cb, *hide_info_cb,
             *stop_packets_cb, *stop_packets_sb,
             *stop_filesize_cb, *stop_filesize_sb, *stop_filesize_cbx,
             *stop_duration_cb, *stop_duration_sb, *stop_duration_cbx,
@@ -2735,7 +2741,6 @@ capture_dlg_prep(gpointer parent_w) {
 #endif
   snap_cb    = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SNAP_CB_KEY);
   snap_sb    = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SNAP_SB_KEY);
-  linktype_om  = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_LT_OM_KEY);
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   buffer_size_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_BUFFER_SIZE_SB_KEY);
 #endif
@@ -2788,11 +2793,8 @@ capture_dlg_prep(gpointer parent_w) {
   global_capture_opts.iface = g_strdup(if_name);
   global_capture_opts.iface_descr = get_interface_descriptive_name(global_capture_opts.iface);
   g_free(entry_text);
-  /* The Linktype will be stored when the interface will be changed, or if not, not datalink option is used,
+  /* The Linktype is stored when the interface is changed, or if not, 
      the acquisition will be performed on the default datalink for the device */
-  /*  global_capture_opts.linktype =
-      GPOINTER_TO_INT(g_object_get_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY)); */
-
 #ifdef HAVE_PCAP_REMOTE
   global_capture_opts.src_type = (capture_source)
       GPOINTER_TO_INT(g_object_get_data(G_OBJECT(iftype_cbx), E_CAP_CBX_IFTYPE_VALUE_KEY));
