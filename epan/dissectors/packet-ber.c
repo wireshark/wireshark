@@ -959,7 +959,7 @@ int dissect_ber_identifier(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *t
 static int
 try_get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind, gint nest_level) {
 	guint8 oct, len;
-	guint32 tmp_len;
+	guint32 indef_len;
 	guint32 tmp_length;
 	gboolean tmp_ind;
 	int tmp_offset,s_offset;
@@ -1000,9 +1000,9 @@ try_get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind, gi
 				/* not an EOC at offset */
 				s_offset=offset;
 				offset= get_ber_identifier(tvb, offset, &tclass, &tpc, &ttag);
-				offset= try_get_ber_length(tvb,offset, &tmp_len, NULL, nest_level+1);
-				tmp_length += tmp_len+(offset-s_offset); /* length + tag and length */
-				offset += tmp_len;
+				offset= try_get_ber_length(tvb,offset, &indef_len, NULL, nest_level+1);
+				tmp_length += indef_len+(offset-s_offset); /* length + tag and length */
+				offset += indef_len;
                                 /* Make sure we've moved forward in the packet */
 				if (offset <= s_offset)
 					THROW(ReportedBoundsError);
