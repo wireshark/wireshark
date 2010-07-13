@@ -59,19 +59,18 @@
 #include "gtk/main.h"
 #include "gtk/filter_autocomplete.h"
 
-
 /* used to keep track of the statistics for an entire program interface */
-typedef struct _rpcstat_t {
+typedef struct _dcerpcstat_t {
 	GtkWidget *win;
 	srt_stat_table srt_table;
 	const char *prog;
 	e_uuid_t uuid;
 	guint16 ver;
 	int num_procedures;
-} rpcstat_t;
+} dcerpcstat_t;
 
 
-static int
+static gboolean
 uuid_equal(e_uuid_t *uuid1, e_uuid_t *uuid2)
 {
 	if( (uuid1->Data1!=uuid2->Data1)
@@ -85,13 +84,13 @@ uuid_equal(e_uuid_t *uuid1, e_uuid_t *uuid2)
 	  ||(uuid1->Data4[5]!=uuid2->Data4[5])
 	  ||(uuid1->Data4[6]!=uuid2->Data4[6])
 	  ||(uuid1->Data4[7]!=uuid2->Data4[7]) ){
-		return 0;
+		return FALSE;
 	}
-	return 1;
+	return TRUE;
 }
 
 static char *
-dcerpcstat_gen_title(rpcstat_t *rs)
+dcerpcstat_gen_title(dcerpcstat_t *rs)
 {
 	char *title;
 
@@ -100,7 +99,7 @@ dcerpcstat_gen_title(rpcstat_t *rs)
 }
 
 static void
-dcerpcstat_set_title(rpcstat_t *rs)
+dcerpcstat_set_title(dcerpcstat_t *rs)
 {
 	char *title;
 
@@ -112,53 +111,53 @@ dcerpcstat_set_title(rpcstat_t *rs)
 static void
 dcerpcstat_reset(void *rs_arg)
 {
-	rpcstat_t *rs = rs_arg;
+	dcerpcstat_t *rs = rs_arg;
 
 	reset_srt_table_data(&rs->srt_table);
 	dcerpcstat_set_title(rs);
 }
 
 
-static int
+static gboolean
 dcerpcstat_packet(void *rs_arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ri_arg)
 {
-	rpcstat_t *rs = rs_arg;
+	dcerpcstat_t *rs = rs_arg;
 	const dcerpc_info *ri = ri_arg;
 
 	if(!ri->call_data){
-		return 0;
+		return FALSE;
 	}
 	if(!ri->call_data->req_frame){
 		/* we have not seen the request so we dont know the delta*/
-		return 0;
+		return FALSE;
 	}
 	if(ri->call_data->opnum>=rs->num_procedures){
 		/* dont handle this since its outside of known table */
-		return 0;
+		return FALSE;
 	}
 
 	/* we are only interested in reply packets */
 	if(ri->ptype != PDU_RESP){
-		return 0;
+		return FALSE;
 	}
 
 	/* we are only interested in certain program/versions */
 	if( (!uuid_equal( (&ri->call_data->uuid), (&rs->uuid)))
 	  ||(ri->call_data->ver!=rs->ver)){
-		return 0;
+		return FALSE;
 	}
 
 
 	add_srt_table_data(&rs->srt_table, ri->call_data->opnum, &ri->call_data->req_time, pinfo);
 
 
-	return 1;
+	return TRUE;
 }
 
 static void
 dcerpcstat_draw(void *rs_arg)
 {
-	rpcstat_t *rs = rs_arg;
+	dcerpcstat_t *rs = rs_arg;
 
 	draw_srt_table_data(&rs->srt_table);
 }
@@ -173,7 +172,7 @@ dcerpcstat_draw(void *rs_arg)
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
-	rpcstat_t *rs=(rpcstat_t *)data;
+	dcerpcstat_t *rs=(dcerpcstat_t *)data;
 
 	protect_thread_critical_region();
 	remove_tap_listener(rs);
@@ -190,7 +189,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 static void
 gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 {
-	rpcstat_t *rs;
+	dcerpcstat_t *rs;
 	guint32 i, max_procs;
 	char *title_string;
 	char *filter_string;
@@ -205,8 +204,8 @@ gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 	int major, minor;
 	guint16 ver;
 	int pos=0;
-        const char *filter=NULL;
-        GString *error_string;
+	const char *filter=NULL;
+	GString *error_string;
 	int hf_opnum;
 
 	/*
@@ -252,7 +251,7 @@ gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 	}
 	ver = major;
 
-	rs=g_malloc(sizeof(rpcstat_t));
+	rs=g_malloc(sizeof(dcerpcstat_t));
 	rs->prog=dcerpc_get_proto_name(&uuid, ver);
 	if(!rs->prog){
 		g_free(rs);
@@ -301,7 +300,7 @@ gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 		init_srt_table(&rs->srt_table, max_procs+1, vbox, NULL);
 	}
 
-       	for(i=0;i<(max_procs+1);i++){
+	for(i=0;i<(max_procs+1);i++){
 		int j;
 		const char *proc_name;
 
@@ -394,7 +393,7 @@ dcerpcstat_version_select(GtkWidget *item _U_, gpointer key)
 
 
 
-static void *
+static void
 dcerpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
 {
 	dcerpc_uuid_key *k=(dcerpc_uuid_key *)key;
@@ -402,13 +401,13 @@ dcerpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_
 	char vs[5];
 
 	if(!uuid_equal((&k->uuid), dcerpc_uuid_program)){
-		return NULL;
+		return;
 	}
 
 	g_snprintf(vs, sizeof(vs), "%u",k->ver);
 	menu_item=gtk_menu_item_new_with_label(vs);
 	g_signal_connect(menu_item, "activate", G_CALLBACK(dcerpcstat_version_select),
-                       (gpointer)((long)k->ver));
+			 (gpointer)((long)k->ver));
 	gtk_widget_show(menu_item);
 	gtk_menu_shell_append(GTK_MENU_SHELL(vers_menu), menu_item);
 
@@ -416,7 +415,7 @@ dcerpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_
 		dcerpc_version=k->ver;
 	}
 
-	return NULL;
+	return;
 }
 
 
@@ -489,7 +488,7 @@ dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v)
 	return;
 }
 
-static void *
+static void
 dcerpcstat_find_next_program(gpointer *key, gpointer *value, gpointer *user_data _U_)
 {
 	dcerpc_uuid_key *k=(dcerpc_uuid_key *)key;
@@ -499,7 +498,7 @@ dcerpcstat_find_next_program(gpointer *key, gpointer *value, gpointer *user_data
 	if((current_uuid_key==NULL)&&(new_uuid_key==NULL)){
 		new_uuid_key=k;
 		new_uuid_value=v;
-		return NULL;
+		return;
 	}
 
 	/* if we havent got a current one yet, just check the new
@@ -508,33 +507,33 @@ dcerpcstat_find_next_program(gpointer *key, gpointer *value, gpointer *user_data
 		if(strcmp(new_uuid_value->name, v->name)>0){
 			new_uuid_key=k;
 			new_uuid_value=v;
-			return NULL;
+			return;
 		}
-		return NULL;
+		return;
 	}
 
 	/* searching for the next one we are only interested in those
 	   that sorts alphabetically after the current one */
 	if(strcmp(current_uuid_value->name, v->name)>=0){
 		/* this one doesnt so just skip it */
-		return NULL;
+		return;
 	}
 
 	/* is it the first potential new entry? */
 	if(new_uuid_key==NULL){
 		new_uuid_key=k;
 		new_uuid_value=v;
-		return NULL;
+		return;
 	}
 
 	/* does it sort before the current new one? */
 	if(strcmp(new_uuid_value->name, v->name)>0){
 		new_uuid_key=k;
 		new_uuid_value=v;
-		return NULL;
+		return;
 	}
 
-	return NULL;
+	return;
 }
 
 
@@ -558,7 +557,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	  "Service Response Time Statistics Filter",
 	  FALSE,
 	  FALSE,
-          FALSE
+	  FALSE
 	};
 
 	/* if the window is already open, bring it to front and
@@ -657,18 +656,18 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_entry);
 
 	/* button box */
-        bbox = dlg_button_row_new(WIRESHARK_STOCK_CREATE_STAT, GTK_STOCK_CANCEL, NULL);
+	bbox = dlg_button_row_new(WIRESHARK_STOCK_CREATE_STAT, GTK_STOCK_CANCEL, NULL);
 	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
-        gtk_widget_show(bbox);
+	gtk_widget_show(bbox);
 
-        start_button = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
+	start_button = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
 	g_signal_connect_swapped(start_button, "clicked",
-                              G_CALLBACK(dcerpcstat_start_button_clicked), NULL);
+				 G_CALLBACK(dcerpcstat_start_button_clicked), NULL);
 
-        cancel_button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-        window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);
+	cancel_button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+	window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);
 
-        g_signal_connect(dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(dlg, "destroy", dlg_destroy_cb, NULL);
 
 	/* Catch the "activate" signal on the filter text entry, so that
@@ -678,13 +677,13 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	   focus. */
 	dlg_set_activate(filter_entry, start_button);
 
-        gtk_widget_grab_default(start_button );
+	gtk_widget_grab_default(start_button );
 
 	/* Give the initial focus to the "Filter" entry box. */
 	gtk_widget_grab_focus(filter_entry);
 
 	gtk_widget_show_all(dlg);
-        window_present(dlg);
+	window_present(dlg);
 }
 
 void
