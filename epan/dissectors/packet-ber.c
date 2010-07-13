@@ -763,19 +763,31 @@ int dissect_ber_identifier(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *t
  * an indefinite length and haven't reached EOC.
  */
 /* 8.1.3 Length octets */
-static gboolean
-try_get_ber_length(tvbuff_t *tvb, int *bl_offset, guint32 *length, gboolean *ind) {
-	int offset = *bl_offset;
+
+/*
+ * Set a limit on recursion so we don't blow away the stack. Another approach
+ * would be to remove recursion completely but then we'd exhaust CPU+memory
+ * trying to read a hellabyte of nested indefinite lengths.
+ * XXX - Max nesting in the ASN.1 plugin is 32. Should they match?
+ */
+#define BER_MAX_INDEFINITE_NESTING 500
+static int
+try_get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind, gint nest_level) {
 	guint8 oct, len;
-	guint32 tmp_len; 
+	guint32 indef_len;
 	guint32 tmp_length;
 	gboolean tmp_ind;
-	int tmp_offset;
+	int tmp_offset,s_offset;
 	gint8 tclass;
+	gboolean tpc;
 	gint32 ttag;
-
 	tmp_length = 0;
 	tmp_ind = FALSE;
+
+	if (nest_level > BER_MAX_INDEFINITE_NESTING) {
+		/* Assume that we have a malformed packet. */
+		THROW(ReportedBoundsError);
+	}
 
 	oct = tvb_get_guint8(tvb, offset);
 	offset += 1;
@@ -795,21 +807,24 @@ try_get_ber_length(tvbuff_t *tvb, int *bl_offset, guint32 *length, gboolean *ind
 		} else {
 			/* 8.1.3.6 */
 
-			/* indefinite length encoded - must be constructed */
 			tmp_offset = offset;
-
-			do {
-				tmp_offset = get_ber_identifier(tvb, tmp_offset, &tclass, NULL, &ttag);
-				
-				try_get_ber_length(tvb, &tmp_offset, &tmp_len, &tmp_ind);
-
-				tmp_offset += tmp_len;
-
-			} while (!((tclass == BER_CLASS_UNI) && (ttag == 0) && (tmp_len == 0))); 
-
-			tmp_length = tmp_offset - offset;
+			/* ok in here we can traverse the BER to find the length, this will fix most indefinite length issues */
+			/* Assumption here is that indefinite length is always used on constructed types*/
+			/* check for EOC */
+			while (tvb_get_guint8(tvb, offset) || tvb_get_guint8(tvb, offset+1)) {
+				/* not an EOC at offset */
+				s_offset=offset;
+				offset= get_ber_identifier(tvb, offset, &tclass, &tpc, &ttag);
+				offset= try_get_ber_length(tvb,offset, &indef_len, NULL, nest_level+1);
+				tmp_length += indef_len+(offset-s_offset); /* length + tag and length */
+				offset += indef_len;
+                                /* Make sure we've moved forward in the packet */
+				if (offset <= s_offset)
+					THROW(ReportedBoundsError);
+			}
+			tmp_length += 2;
 			tmp_ind = TRUE;
-
+			offset = tmp_offset;
 		}
 	}
 
@@ -822,22 +837,13 @@ try_get_ber_length(tvbuff_t *tvb, int *bl_offset, guint32 *length, gboolean *ind
 printf("get BER length %d, offset %d (remaining %d)\n", tmp_length, offset, tvb_length_remaining(tvb, offset));
 #endif
 
-	*bl_offset = offset;
-	return TRUE;
+	return offset;
 }
 
 int
-get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind) 
+get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind)
 {
-	int bl_offset = offset;
-	guint32 bl_length;
-
-	try_get_ber_length(tvb, &bl_offset, &bl_length, ind);
-
-	if (length)
-		*length = bl_length;
-
-	return bl_offset;
+	return try_get_ber_length(tvb, offset, length, ind, 1);
 }
 
 /* this function dissects the length octets of the BER TLV.
