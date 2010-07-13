@@ -2807,9 +2807,8 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint                   offset = 0;
     struct mac_lte_info    *p_mac_lte_info = NULL;
 
-    /* Zero out tap */
-    static mac_lte_tap_info tap_info;
-    memset(&tap_info, 0, sizeof(mac_lte_tap_info));
+    /* Allocate and zero tap struct */
+    mac_lte_tap_info *tap_info = ep_alloc0(sizeof(mac_lte_tap_info));
 
     /* Set protocol name */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC-LTE");
@@ -3029,17 +3028,17 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     show_extra_phy_parameters(pinfo, tvb, mac_lte_tree, p_mac_lte_info);
 
     /* Set context-info parts of tap struct */
-    tap_info.rnti = p_mac_lte_info->rnti;
-    tap_info.ueid = p_mac_lte_info->ueid;
-    tap_info.rntiType = p_mac_lte_info->rntiType;
-    tap_info.isPredefinedData = p_mac_lte_info->isPredefinedData;
-    tap_info.isPHYRetx = (p_mac_lte_info->reTxCount >= 1);
-    tap_info.crcStatusValid = p_mac_lte_info->crcStatusValid;
-    tap_info.crcStatus = p_mac_lte_info->detailed_phy_info.dl_info.crc_status;
-    tap_info.direction = p_mac_lte_info->direction;
+    tap_info->rnti = p_mac_lte_info->rnti;
+    tap_info->ueid = p_mac_lte_info->ueid;
+    tap_info->rntiType = p_mac_lte_info->rntiType;
+    tap_info->isPredefinedData = p_mac_lte_info->isPredefinedData;
+    tap_info->isPHYRetx = (p_mac_lte_info->reTxCount >= 1);
+    tap_info->crcStatusValid = p_mac_lte_info->crcStatusValid;
+    tap_info->crcStatus = p_mac_lte_info->detailed_phy_info.dl_info.crc_status;
+    tap_info->direction = p_mac_lte_info->direction;
 
     /* Also set total number of bytes (won't be used for UL/DL-SCH) */
-    tap_info.single_number_of_bytes = tvb_length_remaining(tvb, offset);
+    tap_info->single_number_of_bytes = tvb_length_remaining(tvb, offset);
 
     /* If we know its predefined data, don't try to decode any further */
     if (p_mac_lte_info->isPredefinedData) {
@@ -3050,7 +3049,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Queue tap info */
         if (!pinfo->in_error_pkt) {
-            tap_queue_packet(mac_lte_tap, pinfo, &tap_info);
+            tap_queue_packet(mac_lte_tap, pinfo, tap_info);
         }
 
         return;
@@ -3066,7 +3065,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Queue tap info.
            TODO: unfortunately DL retx detection won't get done if we return here... */
         if (!pinfo->in_error_pkt) {
-            tap_queue_packet(mac_lte_tap, pinfo, &tap_info);
+            tap_queue_packet(mac_lte_tap, pinfo, tap_info);
         }
 
         return;
@@ -3085,14 +3084,14 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         case RA_RNTI:
             /* RAR PDU */
-            dissect_rar(tvb, pinfo, mac_lte_tree, pdu_ti, offset, p_mac_lte_info, &tap_info);
+            dissect_rar(tvb, pinfo, mac_lte_tree, pdu_ti, offset, p_mac_lte_info, tap_info);
             break;
 
         case C_RNTI:
         case SPS_RNTI:
             /* Can be UL-SCH or DL-SCH */
             dissect_ulsch_or_dlsch(tvb, pinfo, mac_lte_tree, pdu_ti, offset,
-                                   p_mac_lte_info->direction, p_mac_lte_info, &tap_info,
+                                   p_mac_lte_info->direction, p_mac_lte_info, tap_info,
                                    retx_ti, context_tree);
             break;
 
@@ -3112,7 +3111,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Queue tap info */
-    tap_queue_packet(mac_lte_tap, pinfo, &tap_info);
+    tap_queue_packet(mac_lte_tap, pinfo, tap_info);
 }
 
 

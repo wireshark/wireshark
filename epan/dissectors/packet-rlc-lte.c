@@ -1881,9 +1881,8 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint                   offset = 0;
     struct rlc_lte_info    *p_rlc_lte_info = NULL;
 
-    /* Zero out tap */
-    static rlc_lte_tap_info tap_info;
-    memset(&tap_info, 0, sizeof(rlc_lte_tap_info));
+    /* Allocate and Zero tap struct */
+    rlc_lte_tap_info *tap_info = ep_alloc0(sizeof(rlc_lte_tap_info));
 
     /* Set protocol name */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC-LTE");
@@ -1989,15 +1988,15 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Set context-info parts of tap struct */
-    tap_info.rlcMode = p_rlc_lte_info->rlcMode;
-    tap_info.direction = p_rlc_lte_info->direction;
-    tap_info.priority = p_rlc_lte_info->priority;
-    tap_info.ueid = p_rlc_lte_info->ueid;
-    tap_info.channelType = p_rlc_lte_info->channelType;
-    tap_info.channelId = p_rlc_lte_info->channelId;
-    tap_info.pduLength = p_rlc_lte_info->pduLength;
-    tap_info.UMSequenceNumberLength = p_rlc_lte_info->UMSequenceNumberLength;
-    tap_info.loggedInMACFrame = (p_get_proto_data(pinfo->fd, proto_mac_lte) != NULL);
+    tap_info->rlcMode = p_rlc_lte_info->rlcMode;
+    tap_info->direction = p_rlc_lte_info->direction;
+    tap_info->priority = p_rlc_lte_info->priority;
+    tap_info->ueid = p_rlc_lte_info->ueid;
+    tap_info->channelType = p_rlc_lte_info->channelType;
+    tap_info->channelId = p_rlc_lte_info->channelId;
+    tap_info->pduLength = p_rlc_lte_info->pduLength;
+    tap_info->UMSequenceNumberLength = p_rlc_lte_info->UMSequenceNumberLength;
+    tap_info->loggedInMACFrame = (p_get_proto_data(pinfo->fd, proto_mac_lte) != NULL);
 
     /* Reset this count */
     s_number_of_extensions = 0;
@@ -2011,12 +2010,12 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         case RLC_UM_MODE:
             dissect_rlc_lte_um(tvb, pinfo, rlc_lte_tree, offset, p_rlc_lte_info, top_ti,
-                               &tap_info);
+                               tap_info);
             break;
 
         case RLC_AM_MODE:
             dissect_rlc_lte_am(tvb, pinfo, rlc_lte_tree, offset, p_rlc_lte_info, top_ti,
-                               &tap_info);
+                               tap_info);
             break;
 
         case RLC_PREDEF:
@@ -2034,9 +2033,7 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Queue tap info */
-    if (!pinfo->in_error_pkt) {
-        tap_queue_packet(rlc_lte_tap, pinfo, &tap_info);
-    }
+    tap_queue_packet(rlc_lte_tap, pinfo, tap_info);
 }
 
 
