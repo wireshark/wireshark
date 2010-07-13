@@ -70,13 +70,16 @@ man1_MANS = \
 	@editcap_man@	\
 	@dumpcap_man@	\
 	@idl2wrs_man@	\
-	@rawshark_man@
+	@rawshark_man@	\
+	@dftest_man@	\
+	@randpkt_man@
 man4_MANS = @wiresharkfilter_man@
 man_MANS =
 
 pkgdata_DATA = AUTHORS-SHORT $(top_srcdir)/docbook/ws.css wireshark.html \
 	tshark.html wireshark-filter.html capinfos.html editcap.html \
-	idl2wrs.html mergecap.html text2pcap.html dumpcap.html rawshark.html
+	idl2wrs.html mergecap.html text2pcap.html dumpcap.html rawshark.html \
+	dftest.html randpkt.html
 
 #
 # Build the short version of the authors file for the about dialog
@@ -236,6 +239,32 @@ rawshark.html: rawshark.pod ../config.h $(top_srcdir)/docbook/ws.css
 	--noindex							\
 	$(srcdir)/rawshark.pod > rawshark.html
 
+dftest.1: dftest.pod ../config.h
+	$(POD2MAN)					\
+	--center="The Wireshark Network Analyzer"	\
+	--release=$(VERSION)				\
+	$(srcdir)/dftest.pod > dftest.1
+
+dftest.html: dftest.pod ../config.h $(top_srcdir)/docbook/ws.css
+	$(POD2HTML)                     \
+	--title="dftest - The Wireshark Network Analyzer $(VERSION)"	\
+	--css=$(top_srcdir)/docbook/ws.css				\
+	--noindex							\
+	$(srcdir)/dftest.pod > dftest.html
+
+randpkt.1: randpkt.pod ../config.h
+	$(POD2MAN)					\
+	--center="The Wireshark Network Analyzer"	\
+	--release=$(VERSION)				\
+	$(srcdir)/randpkt.pod > randpkt.1
+
+randpkt.html: randpkt.pod ../config.h $(top_srcdir)/docbook/ws.css
+	$(POD2HTML)                     \
+	--title="randpkt - The Wireshark Network Analyzer $(VERSION)"	\
+	--css=$(top_srcdir)/docbook/ws.css				\
+	--noindex							\
+	$(srcdir)/randpkt.pod > randpkt.html
+
 CLEANFILES =		\
 	wireshark-filter.pod \
 	wireshark.pod \
@@ -258,7 +287,11 @@ CLEANFILES =		\
 	idl2wrs.1	\
 	idl2wrs.html	\
 	rawshark.1	\
-	rawshark.html
+	rawshark.html	\
+	dftests.1	\
+	dftests.html	\
+	randpkt.1	\
+	randpkt.html
 
 DISTCLEANFILES =		\
 	pod2htmi.tmp		\

@@ -1,0 +1,37 @@
+
+=head1 NAME
+
+dftest - Shows display filter byte-code, for debugging dfilter routines.
+
+=head1 SYNOPSIS
+
+B<dftest>
+S<[ E<lt>filterE<gt> ]>
+
+=head1 DESCRIPTION
+
+B<dftest> is a simple tool which compiles a display filter and shows its bytecode.
+
+=head1 OPTIONS
+
+=over 4
+
+=item filter
+
+The display filter expression. If needed it has to be quoted.
+
+=back
+
+=head1 EXAMPLES
+
+Show how the IP protocol is filtered:
+
+    dftest ip
+
+Shows how frame 150 is filtered:
+
+    dftest "frame.number == 150"
+
+=head1 SEE ALSO
+
+wireshark-filter(4)
