@@ -10,6 +10,7 @@ S<[ B<-a> E<lt>capture autostop conditionE<gt> ] ...>
 S<[ B<-b> E<lt>capture ring buffer optionE<gt>] ...>
 S<[ B<-B> E<lt>capture buffer sizeE<gt> ] >
 S<[ B<-c> E<lt>capture packet countE<gt> ]>
+S<[ B<-d> ]>
 S<[ B<-D> ]>
 S<[ B<-f> E<lt>capture filterE<gt> ]>
 S<[ B<-h> ]>
@@ -125,6 +126,11 @@ libpcap.
 
 Set the maximum number of packets to read when capturing live
 data.
+
+=item -d
+
+Dump the code generated for the capture filter in a human-readable form,
+and exit.
 
 =item -D
 

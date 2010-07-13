@@ -319,6 +319,8 @@ static void report_packet_drops(guint32 drops);
 static void report_capture_error(const char *error_msg, const char *secondary_error_msg);
 static void report_cfilter_error(const char *cfilter, const char *errmsg);
 
+#define MSG_MAX_LENGTH 4096
+
 static void
 print_usage(gboolean print_ver) {
 
@@ -351,8 +353,11 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
   fprintf(output, "  -D                       print list of interfaces and exit\n");
   fprintf(output, "  -L                       print list of link-layer types of iface and exit\n");
+#ifdef HAVE_BPF_IMAGE
+  fprintf(output, "  -d                       print generated BPF code for capture filter\n");
+#endif
   fprintf(output, "  -S                       print statistics for each interface once every second\n");
-  fprintf(output, "  -M                       for -D, -L, and -S produce machine-readable output\n");
+  fprintf(output, "  -M                       for -D, -L, and -S, produce machine-readable output\n");
   fprintf(output, "\n");
 #ifdef HAVE_PCAP_REMOTE
   fprintf(output, "\nRPCAP options:\n");
@@ -469,6 +474,215 @@ cmdarg_err_cont(const char *fmt, ...)
     fprintf(stderr, "\n");
     va_end(ap);
   }
+}
+
+static pcap_t *
+open_capture_device(capture_options *capture_opts, char *open_err_str,
+                    size_t open_err_str_size)
+{
+  pcap_t *pcap_h;
+#ifdef HAVE_PCAP_CREATE
+  int         err;
+#endif
+#ifdef HAVE_PCAP_REMOTE
+  struct pcap_rmtauth auth;
+#endif
+
+  /* Open the network interface to capture from it.
+     Some versions of libpcap may put warnings into the error buffer
+     if they succeed; to tell if that's happened, we have to clear
+     the error buffer, and check if it's still a null string.  */
+  open_err_str[0] = '\0';
+#ifdef HAVE_PCAP_OPEN
+  /*
+   * If we're opening a remote device, use pcap_open(); that's currently
+   * the only open routine that supports remote devices.
+   */
+  if (strncmp (capture_opts->iface, "rpcap://", 8) == 0) {
+    auth.type = capture_opts->auth_type == CAPTURE_AUTH_PWD ?
+      RPCAP_RMTAUTH_PWD : RPCAP_RMTAUTH_NULL;
+    auth.username = capture_opts->auth_username;
+    auth.password = capture_opts->auth_password;
+
+    pcap_h = pcap_open(capture_opts->iface,
+                       capture_opts->has_snaplen ? capture_opts->snaplen :
+                                                   WTAP_MAX_PACKET_SIZE,
+                       /* flags */
+                       (capture_opts->promisc_mode ? PCAP_OPENFLAG_PROMISCUOUS : 0) |
+                       (capture_opts->datatx_udp ? PCAP_OPENFLAG_DATATX_UDP : 0) |
+                       (capture_opts->nocap_rpcap ? PCAP_OPENFLAG_NOCAPTURE_RPCAP : 0),
+                       CAP_READ_TIMEOUT, &auth, open_err_str);
+  } else
+#endif /* HAVE_PCAP_OPEN */
+  {
+    /*
+     * If we're not opening a remote device, use pcap_create() and
+     * pcap_activate() if we have them, so that we can set the buffer
+     * size, otherwise use pcap_open_live().
+     */
+#ifdef HAVE_PCAP_CREATE
+    pcap_h = pcap_create(capture_opts->iface, open_err_str);
+    if (pcap_h != NULL) {
+      pcap_set_snaplen(pcap_h, capture_opts->has_snaplen ? capture_opts->snaplen : WTAP_MAX_PACKET_SIZE);
+      pcap_set_promisc(pcap_h, capture_opts->promisc_mode);
+      pcap_set_timeout(pcap_h, CAP_READ_TIMEOUT);
+
+      if (capture_opts->buffer_size > 1) {
+        pcap_set_buffer_size(pcap_h, capture_opts->buffer_size * 1024 * 1024);
+      }
+      if (capture_opts->monitor_mode)
+        pcap_set_rfmon(pcap_h, 1);
+      err = pcap_activate(pcap_h);
+      if (err < 0) {
+        /* Failed to activate, set to NULL */
+        if (err == PCAP_ERROR)
+          g_strlcpy(open_err_str, pcap_geterr(pcap_h), open_err_str_size);
+        else
+          g_strlcpy(open_err_str, pcap_statustostr(err), open_err_str_size);
+        pcap_close(pcap_h);
+        pcap_h = NULL;
+      }
+    }
+#else
+    pcap_h = pcap_open_live(capture_opts->iface,
+                            capture_opts->has_snaplen ? capture_opts->snaplen :
+                                                        WTAP_MAX_PACKET_SIZE,
+                            capture_opts->promisc_mode, CAP_READ_TIMEOUT,
+                            open_err_str);
+#endif
+  }
+
+  /* If not using libcap: we now can now set euid/egid to ruid/rgid         */
+  /*  to remove any suid privileges.                                        */
+  /* If using libcap: we can now remove NET_RAW and NET_ADMIN capabilities  */
+  /*  (euid/egid have already previously been set to ruid/rgid.             */
+  /* (See comment in main() for details)                                    */
+#ifndef HAVE_LIBCAP
+  relinquish_special_privs_perm();
+#else
+  relinquish_all_capabilities();
+#endif
+
+  return pcap_h;
+}
+
+static void
+get_capture_device_open_failure_messages(const char *open_err_str,
+                                         char *errmsg, size_t errmsg_len,
+                                         char *secondary_errmsg,
+                                         size_t secondary_errmsg_len)
+{
+  const char *libpcap_warn;
+  static const char ppamsg[] = "can't find PPA for ";
+
+  /* If we got a "can't find PPA for X" message, warn the user (who
+     is running dumcap on HP-UX) that they don't have a version of
+     libpcap that properly handles HP-UX (libpcap 0.6.x and later
+     versions, which properly handle HP-UX, say "can't find /dev/dlpi
+     PPA for X" rather than "can't find PPA for X"). */
+  if (strncmp(open_err_str, ppamsg, sizeof ppamsg - 1) == 0)
+    libpcap_warn =
+      "\n\n"
+      "You are running (T)Wireshark with a version of the libpcap library\n"
+      "that doesn't handle HP-UX network devices well; this means that\n"
+      "(T)Wireshark may not be able to capture packets.\n"
+      "\n"
+      "To fix this, you should install libpcap 0.6.2, or a later version\n"
+      "of libpcap, rather than libpcap 0.4 or 0.5.x.  It is available in\n"
+      "packaged binary form from the Software Porting And Archive Centre\n"
+      "for HP-UX; the Centre is at http://hpux.connect.org.uk/ - the page\n"
+      "at the URL lists a number of mirror sites.";
+  else
+    libpcap_warn = "";
+  g_snprintf(errmsg, (gulong) errmsg_len,
+             "The capture session could not be initiated (%s).", open_err_str);
+#ifndef _WIN32
+  g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
+"Please check to make sure you have sufficient permissions, and that you have "
+"the proper interface or pipe specified.%s", libpcap_warn);
+#else
+  g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
+"\n"
+"Please check that \"%s\" is the proper interface.\n"
+"\n"
+"\n"
+"Help can be found at:\n"
+"\n"
+"       http://wiki.wireshark.org/WinPcap\n"
+"       http://wiki.wireshark.org/CaptureSetup\n",
+             capture_opts->iface);
+#endif /* _WIN32 */
+}
+
+static gboolean
+compile_capture_filter(const char *iface, pcap_t *pcap_h,
+                       struct bpf_program *fcode, const char *cfilter)
+{
+  bpf_u_int32 netnum, netmask;
+  gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
+
+  if (pcap_lookupnet(iface, &netnum, &netmask, lookup_net_err_str) < 0) {
+    /*
+     * Well, we can't get the netmask for this interface; it's used
+     * only for filters that check for broadcast IP addresses, so
+     * we just punt and use 0.  It might be nice to warn the user,
+     * but that's a pain in a GUI application, as it'd involve popping
+     * up a message box, and it's not clear how often this would make
+     * a difference (only filters that check for IP broadcast addresses
+     * use the netmask).
+     */
+    /*cmdarg_err(
+      "Warning:  Couldn't obtain netmask info (%s).", lookup_net_err_str);*/
+    netmask = 0;
+  }
+  if (pcap_compile(pcap_h, fcode, cfilter, 1, netmask) < 0)
+    return FALSE;
+  return TRUE;
+}
+
+static gboolean
+show_filter_code(capture_options *capture_opts)
+{
+  pcap_t *pcap_h;
+  gchar open_err_str[PCAP_ERRBUF_SIZE];
+  char errmsg[MSG_MAX_LENGTH+1];
+  char secondary_errmsg[MSG_MAX_LENGTH+1];
+  struct bpf_program fcode;
+  struct bpf_insn *insn;
+  u_int i;
+
+  pcap_h = open_capture_device(capture_opts, open_err_str,
+                               sizeof open_err_str);
+  if (pcap_h == NULL) {
+    /* Open failed; get messages */
+    get_capture_device_open_failure_messages(open_err_str,
+                                             errmsg, sizeof errmsg,
+                                             secondary_errmsg,
+                                             sizeof secondary_errmsg);
+    /* And report them */
+    report_capture_error(errmsg, secondary_errmsg);
+    return FALSE;
+  }
+
+  /* OK, try to compile the capture filter. */
+  if (!compile_capture_filter(capture_opts->iface, pcap_h, &fcode,
+                              capture_opts->cfilter)) {
+    report_cfilter_error(capture_opts->cfilter, errmsg);
+    return FALSE;
+  }
+  pcap_close(pcap_h);
+
+  if (capture_child) {
+    /* Let our parent know we succeeded. */
+    pipe_write_block(2, SP_SUCCESS, NULL);
+ }
+
+  /* Now print the filter code. */
+  insn = fcode.bf_insns;
+
+  for (i = 0; i < fcode.bf_len; insn++, i++)
+    printf("%s\n", bpf_image(insn, i));
+  return TRUE;
 }
 
 /*
@@ -1873,21 +2087,13 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 {
   gchar       open_err_str[PCAP_ERRBUF_SIZE];
   gchar      *sync_msg_str;
-  static const char ppamsg[] = "can't find PPA for ";
   const char *set_linktype_err_str;
-  const char *libpcap_warn;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-  int         err;
-#endif
 #ifdef _WIN32
+  int         err;
   gchar      *sync_secondary_msg_str;
   WORD        wVersionRequested;
   WSADATA     wsaData;
 #endif
-#ifdef HAVE_PCAP_REMOTE
-  struct pcap_rmtauth auth;
-#endif
-
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_input : %s", capture_opts->iface);
 
@@ -1940,80 +2146,8 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
   }
 #endif
 
-  /* Open the network interface to capture from it.
-     Some versions of libpcap may put warnings into the error buffer
-     if they succeed; to tell if that's happened, we have to clear
-     the error buffer, and check if it's still a null string.  */
-  open_err_str[0] = '\0';
-#ifdef HAVE_PCAP_OPEN
-  /*
-   * If we're opening a remote device, use pcap_open(); that's currently
-   * the only open routine that supports remote devices.
-   */
-  if (strncmp (capture_opts->iface, "rpcap://", 8) == 0) {
-    auth.type = capture_opts->auth_type == CAPTURE_AUTH_PWD ?
-      RPCAP_RMTAUTH_PWD : RPCAP_RMTAUTH_NULL;
-    auth.username = capture_opts->auth_username;
-    auth.password = capture_opts->auth_password;
-
-    ld->pcap_h = pcap_open(capture_opts->iface,
-                 capture_opts->has_snaplen ? capture_opts->snaplen :
-                            WTAP_MAX_PACKET_SIZE,
-                 /* flags */
-                 (capture_opts->promisc_mode ? PCAP_OPENFLAG_PROMISCUOUS : 0) |
-                 (capture_opts->datatx_udp ? PCAP_OPENFLAG_DATATX_UDP : 0) |
-                 (capture_opts->nocap_rpcap ? PCAP_OPENFLAG_NOCAPTURE_RPCAP : 0),
-                 CAP_READ_TIMEOUT, &auth, open_err_str);
-  } else
-#endif /* HAVE_PCAP_OPEN */
-  {
-    /*
-     * If we're not opening a remote device, use pcap_create() and
-     * pcap_activate() if we have them, so that we can set the buffer
-     * size, otherwise use pcap_open_live().
-     */
-#ifdef HAVE_PCAP_CREATE
-    ld->pcap_h = pcap_create(capture_opts->iface, open_err_str);
-    if (ld->pcap_h != NULL) {
-      pcap_set_snaplen(ld->pcap_h, capture_opts->has_snaplen ? capture_opts->snaplen : WTAP_MAX_PACKET_SIZE);
-      pcap_set_promisc(ld->pcap_h, capture_opts->promisc_mode);
-      pcap_set_timeout(ld->pcap_h, CAP_READ_TIMEOUT);
-
-      if (capture_opts->buffer_size > 1) {
-        pcap_set_buffer_size(ld->pcap_h, capture_opts->buffer_size * 1024 * 1024);
-      }
-      if (capture_opts->monitor_mode)
-        pcap_set_rfmon(ld->pcap_h, 1);
-      err = pcap_activate(ld->pcap_h);
-      if (err < 0) {
-        /* Failed to activate, set to NULL */
-        if (err == PCAP_ERROR)
-          g_strlcpy(open_err_str, pcap_geterr(ld->pcap_h), sizeof open_err_str);
-        else
-          g_strlcpy(open_err_str, pcap_statustostr(err), sizeof open_err_str);
-        pcap_close(ld->pcap_h);
-        ld->pcap_h = NULL;
-      }
-    }
-#else
-    ld->pcap_h = pcap_open_live(capture_opts->iface,
-                                capture_opts->has_snaplen ? capture_opts->snaplen :
-                                                            WTAP_MAX_PACKET_SIZE,
-                                capture_opts->promisc_mode, CAP_READ_TIMEOUT,
-                                open_err_str);
-#endif
-  }
-
-  /* If not using libcap: we now can now set euid/egid to ruid/rgid         */
-  /*  to remove any suid privileges.                                        */
-  /* If using libcap: we can now remove NET_RAW and NET_ADMIN capabilities  */
-  /*  (euid/egid have already previously been set to ruid/rgid.             */
-  /* (See comment in main() for details)                                    */
-#ifndef HAVE_LIBCAP
-  relinquish_special_privs_perm();
-#else
-  relinquish_all_capabilities();
-#endif
+  ld->pcap_h = open_capture_device(capture_opts, open_err_str,
+                                   sizeof open_err_str);
 
   if (ld->pcap_h != NULL) {
     /* we've opened "iface" as a network device */
@@ -2096,44 +2230,10 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 
       if (ld->cap_pipe_err == PIPNEXIST) {
         /* Pipe doesn't exist, so output message for interface */
-
-        /* If we got a "can't find PPA for X" message, warn the user (who
-           is running (T)Wireshark on HP-UX) that they don't have a version
-           of libpcap that properly handles HP-UX (libpcap 0.6.x and later
-           versions, which properly handle HP-UX, say "can't find /dev/dlpi
-           PPA for X" rather than "can't find PPA for X"). */
-        if (strncmp(open_err_str, ppamsg, sizeof ppamsg - 1) == 0)
-          libpcap_warn =
-            "\n\n"
-            "You are running (T)Wireshark with a version of the libpcap library\n"
-            "that doesn't handle HP-UX network devices well; this means that\n"
-            "(T)Wireshark may not be able to capture packets.\n"
-            "\n"
-            "To fix this, you should install libpcap 0.6.2, or a later version\n"
-            "of libpcap, rather than libpcap 0.4 or 0.5.x.  It is available in\n"
-            "packaged binary form from the Software Porting And Archive Centre\n"
-            "for HP-UX; the Centre is at http://hpux.connect.org.uk/ - the page\n"
-            "at the URL lists a number of mirror sites.";
-        else
-          libpcap_warn = "";
-        g_snprintf(errmsg, (gulong) errmsg_len,
-          "The capture session could not be initiated (%s).", open_err_str);
-#ifndef _WIN32
-        g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
-"Please check to make sure you have sufficient permissions, and that you have "
-"the proper interface or pipe specified.%s", libpcap_warn);
-#else
-    g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
-"\n"
-"Please check that \"%s\" is the proper interface.\n"
-"\n"
-"\n"
-"Help can be found at:\n"
-"\n"
-"       http://wiki.wireshark.org/WinPcap\n"
-"       http://wiki.wireshark.org/CaptureSetup\n",
-    capture_opts->iface);
-#endif /* _WIN32 */
+        get_capture_device_open_failure_messages(open_err_str, errmsg,
+                                                 errmsg_len,
+                                                 secondary_errmsg,
+                                                 secondary_errmsg_len);
       }
       /*
        * Else pipe (or file) does exist and cap_pipe_open_live() has
@@ -2167,7 +2267,6 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 
   return TRUE;
 }
-
 
 /* close the capture input file (pcap or capture pipe) */
 static void capture_loop_close_input(loop_data *ld) {
@@ -2207,32 +2306,17 @@ static void capture_loop_close_input(loop_data *ld) {
 
 /* init the capture filter */
 static initfilter_status_t
-capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, gchar * iface, gchar * cfilter) {
-  bpf_u_int32 netnum, netmask;
-  gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
+capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe,
+                         gchar * iface, gchar * cfilter)
+{
   struct bpf_program fcode;
-
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_init_filter: %s", cfilter);
 
   /* capture filters only work on real interfaces */
   if (cfilter && !from_cap_pipe) {
     /* A capture filter was specified; set it up. */
-    if (pcap_lookupnet(iface, &netnum, &netmask, lookup_net_err_str) < 0) {
-      /*
-       * Well, we can't get the netmask for this interface; it's used
-       * only for filters that check for broadcast IP addresses, so
-       * we just punt and use 0.  It might be nice to warn the user,
-       * but that's a pain in a GUI application, as it'd involve popping
-       * up a message box, and it's not clear how often this would make
-       * a difference (only filters that check for IP broadcast addresses
-       * use the netmask).
-       */
-      /*cmdarg_err(
-        "Warning:  Couldn't obtain netmask info (%s).", lookup_net_err_str);*/
-      netmask = 0;
-    }
-    if (pcap_compile(pcap_h, &fcode, cfilter, 1, netmask) < 0) {
+    if (!compile_capture_filter(iface, pcap_h, &fcode, cfilter)) {
       /* Treat this specially - our caller might try to compile this
          as a display filter and, if that succeeds, warn the user that
          the display and capture filter syntaxes are different. */
@@ -2699,7 +2783,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   gboolean    write_ok;
   gboolean    close_ok;
   gboolean    cfilter_error = FALSE;
-#define MSG_MAX_LENGTH 4096
   char        errmsg[MSG_MAX_LENGTH+1];
   char        secondary_errmsg[MSG_MAX_LENGTH+1];
 
@@ -3177,6 +3260,9 @@ main(int argc, char *argv[])
   GLogLevelFlags       log_flags;
   gboolean             list_interfaces = FALSE;
   gboolean             list_link_layer_types = FALSE;
+#ifdef HAVE_BPF_IMAGE
+  gboolean             print_bpf_code = FALSE;
+#endif
   gboolean             machine_readable = FALSE;
   gboolean             print_statistics = FALSE;
   int                  status, run_once_args = 0;
@@ -3213,7 +3299,13 @@ main(int argc, char *argv[])
 #define OPTSTRING_I ""
 #endif
 
-#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:hi:" OPTSTRING_I "L" OPTSTRING_m "Mnpq" OPTSTRING_r "Ss:" OPTSTRING_u "vw:y:Z:"
+#ifdef HAVE_BPF_IMAGE
+#define OPTSTRING_d "d"
+#else
+#define OPTSTRING_d ""
+#endif
+
+#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:" OPTSTRING_d "Df:hi:" OPTSTRING_I "L" OPTSTRING_m "Mnpq" OPTSTRING_r "Ss:" OPTSTRING_u "vw:y:Z:"
 
 #ifdef DEBUG_CHILD_DUMPCAP
   if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
@@ -3550,6 +3642,12 @@ main(int argc, char *argv[])
         list_link_layer_types = TRUE;
         run_once_args++;
         break;
+#ifdef HAVE_BPF_IMAGE
+      case 'd':        /* Print BPF code for capture filter and exit */
+        print_bpf_code = TRUE;
+        run_once_args++;
+        break;
+#endif
       case 'S':        /* Print interface statistics once a second */
         print_statistics = TRUE;
         run_once_args++;
@@ -3669,7 +3767,7 @@ main(int argc, char *argv[])
   }
 
   /*
-   * "-L", and capturing, act on a particular interface, so we have to
+   * "-L", "-d", and capturing act on a particular interface, so we have to
    * have an interface; if none was specified, pick a default.
    */
   if (capture_opts_trim_iface(&global_capture_opts, NULL) == FALSE) {
@@ -3708,8 +3806,18 @@ main(int argc, char *argv[])
     exit_main(0);
   }
 
-  /* We're supposed to do a capture.  Process the remaining arguments. */
+  /* We're supposed to do a capture, or print the BPF code for a filter.
+     Process the snapshot length, as that affects the generated BPF code. */
   capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
+
+#ifdef HAVE_BPF_IMAGE
+  if (print_bpf_code) {
+    show_filter_code(&global_capture_opts);
+    exit_main(0);
+  }
+#endif
+
+  /* We're supposed to do a capture.  Process the ring buffer arguments. */
   capture_opts_trim_ring_num_files(&global_capture_opts);
 
   /* Now start the capture. */
