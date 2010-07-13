@@ -23,11 +23,11 @@
 G_BEGIN_DECLS
 
 #define GTK_TYPE_VUMETER                (gtk_vumeter_get_type ())
-#define GTK_VUMETER(obj)                (GTK_CHECK_CAST ((obj), GTK_TYPE_VUMETER, GtkVUMeter))
-#define GTK_VUMETER_CLASS(klass)        (GTK_CHECK_CLASS_CAST ((klass), GTK_TYPE_VUMETER GtkVUMeterClass))
-#define GTK_IS_VUMETER(obj)             (GTK_CHECK_TYPE ((obj), GTK_TYPE_VUMETER))
-#define GTK_IS_VUMETER_CLASS(klass)     (GTK_CHECK_CLASS_TYPE ((klass), GTK_TYPE_VUMETER))
-#define GTK_VUMETER_GET_CLASS(obj)      (GTK_CHECK_GET_CLASS ((obj), GTK_TYPE_VUMETER, GtkVUMeterClass))
+#define GTK_VUMETER(obj)                (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_VUMETER, GtkVUMeter))
+#define GTK_VUMETER_CLASS(klass)        (G_TYPE_CHECK_CLASS_CAST ((klass) , GTK_TYPE_VUMETER GtkVUMeterClass))
+#define GTK_IS_VUMETER(obj)             (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GTK_TYPE_VUMETER))
+#define GTK_IS_VUMETER_CLASS(klass)     (G_TYPE_CHECK_CLASS_TYPE ((klass) , GTK_TYPE_VUMETER))
+#define GTK_VUMETER_GET_CLASS(obj)      (G_TYPE_INSTANCE_GET_CLASS ((obj) , GTK_TYPE_VUMETER, GtkVUMeterClass))
 
 typedef struct _GtkVUMeter      GtkVUMeter;
 typedef struct _GtkVUMeterClass GtkVUMeterClass;
