@@ -2249,7 +2249,7 @@ static void parsetypedefunion(int pass)
 			FPRINTF(eth_code, "\n");
 			break;
 		case 4:
-			FPRINTF(eth_code, "    guint32 level;\n");
+			FPRINTF(eth_code, "    guint32 level = 0;\n");
 			FPRINTF(eth_code, "\n");
 			FPRINTF(eth_code, "    ALIGN_TO_4_BYTES;\n");
 			FPRINTF(eth_code, "\n");
