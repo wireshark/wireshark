@@ -560,12 +560,14 @@ set(INSTALL_FILES
 	cfilters
 	colorfilters
 	dfilters
+	${CMAKE_BINARY_DIR}/dftest.html
 	${CMAKE_BINARY_DIR}/dumpcap.html
 	${CMAKE_BINARY_DIR}/editcap.html
 	${CMAKE_BINARY_DIR}/idl2wrs.html
 	ipmap.html
 	manuf
 	${CMAKE_BINARY_DIR}/mergecap.html
+	${CMAKE_BINARY_DIR}/randpkt.html
 	${CMAKE_BINARY_DIR}/rawshark.html
 	services
 	smi_modules
@@ -861,10 +863,12 @@ ADD_CUSTOM_COMMAND(
 )
 
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/capinfos 1 )
+pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/dftest 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/dumpcap 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/editcap 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/idl2wrs 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/mergecap 1 )
+pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/randpkt 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/rawshark 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/text2pcap 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/tshark 1 )
@@ -876,10 +880,12 @@ add_custom_target(
 	DEPENDS
 		AUTHORS-SHORT
 		capinfos.html
+		dftest.html
 		dumpcap.html
 		editcap.html
 		idl2wrs.html
 		mergecap.html
+		randpkt.html
 		rawshark.html
 		text2pcap.html
 		tshark.html
@@ -889,10 +895,12 @@ add_custom_target(
 
 set(MAN1_FILES
 	${CMAKE_BINARY_DIR}/capinfos.1
+	${CMAKE_BINARY_DIR}/dftest.1
 	${CMAKE_BINARY_DIR}/dumpcap.1
 	${CMAKE_BINARY_DIR}/editcap.1
 	${CMAKE_BINARY_DIR}/idl2wrs.1
 	${CMAKE_BINARY_DIR}/mergecap.1
+	${CMAKE_BINARY_DIR}/randpkt.1
 	${CMAKE_BINARY_DIR}/rawshark.1
 	${CMAKE_BINARY_DIR}/text2pcap.1
 	${CMAKE_BINARY_DIR}/tshark.1

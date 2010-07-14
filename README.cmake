@@ -81,7 +81,9 @@ What needs to be done?
 ======================
 
 - Add asn1 autogen target (assigned: krj)
-- Redo glib2 find modules.
+- Redo glib2 find modules. Add version detection while at it.
+- Change default for PCRE to off and use GLIB2 regexes by default.
+  This requires the redone glib2 detection module.
 - Add back platform specific objects.
 - Fix places in the cmake files marked as todo.
 - Add back (working) install target.
