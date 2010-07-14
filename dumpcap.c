@@ -476,6 +476,22 @@ cmdarg_err_cont(const char *fmt, ...)
   }
 }
 
+#ifdef HAVE_LIBCAP
+static void
+relinquish_all_capabilities(void)
+{
+    /* Drop any and all capabilities this process may have.            */
+    /* Allowed whether or not process has any privileges.              */
+    cap_t caps = cap_init();    /* all capabilities initialized to off */
+    print_caps("Pre-clear");
+    if (cap_set_proc(caps)) {
+        cmdarg_err("cap_set_proc() fail return: %s", strerror(errno));
+    }
+    print_caps("Post-clear");
+    cap_free(caps);
+}
+#endif
+
 static pcap_t *
 open_capture_device(capture_options *capture_opts, char *open_err_str,
                     size_t open_err_str_size)
@@ -637,7 +653,14 @@ set_pcap_linktype(pcap_t *pcap_h, capture_options *capture_opts,
 #endif
   g_snprintf(errmsg, (gulong) errmsg_len, "Unable to set data link type (%s).",
              set_linktype_err_str);
-  g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, please_report);
+  /*
+   * If the error isn't "XXX is not one of the DLTs supported by this device",
+   * tell the user to tell the Wireshark developers about it.
+   */
+  if (strstr(set_linktype_err_str, "is not one of the DLTs supported by this device") == NULL)
+    g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, please_report);
+  else
+    secondary_errmsg[0] = '\0';
   return FALSE;
 }
 
@@ -1409,21 +1432,6 @@ relinquish_privs_except_capture(void)
 
         cap_free(caps);
     }
-}
-
-
-static void
-relinquish_all_capabilities(void)
-{
-    /* Drop any and all capabilities this process may have.            */
-    /* Allowed whether or not process has any privileges.              */
-    cap_t caps = cap_init();    /* all capabilities initialized to off */
-    print_caps("Pre-clear");
-    if (cap_set_proc(caps)) {
-        cmdarg_err("cap_set_proc() fail return: %s", strerror(errno));
-    }
-    print_caps("Post-clear");
-    cap_free(caps);
 }
 
 #endif /* HAVE_LIBCAP */
