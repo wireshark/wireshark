@@ -493,8 +493,8 @@ relinquish_all_capabilities(void)
 #endif
 
 static pcap_t *
-open_capture_device(capture_options *capture_opts, char *open_err_str,
-                    size_t open_err_str_size)
+open_capture_device(capture_options *capture_opts,
+                    char (*open_err_str)[PCAP_ERRBUF_SIZE])
 {
   pcap_t *pcap_h;
 #ifdef HAVE_PCAP_CREATE
@@ -508,7 +508,7 @@ open_capture_device(capture_options *capture_opts, char *open_err_str,
      Some versions of libpcap may put warnings into the error buffer
      if they succeed; to tell if that's happened, we have to clear
      the error buffer, and check if it's still a null string.  */
-  open_err_str[0] = '\0';
+  (*open_err_str)[0] = '\0';
 #ifdef HAVE_PCAP_OPEN
   /*
    * If we're opening a remote device, use pcap_open(); that's currently
@@ -537,7 +537,7 @@ open_capture_device(capture_options *capture_opts, char *open_err_str,
      * size, otherwise use pcap_open_live().
      */
 #ifdef HAVE_PCAP_CREATE
-    pcap_h = pcap_create(capture_opts->iface, open_err_str);
+    pcap_h = pcap_create(capture_opts->iface, *open_err_str);
     if (pcap_h != NULL) {
       pcap_set_snaplen(pcap_h, capture_opts->has_snaplen ? capture_opts->snaplen : WTAP_MAX_PACKET_SIZE);
       pcap_set_promisc(pcap_h, capture_opts->promisc_mode);
@@ -552,9 +552,9 @@ open_capture_device(capture_options *capture_opts, char *open_err_str,
       if (err < 0) {
         /* Failed to activate, set to NULL */
         if (err == PCAP_ERROR)
-          g_strlcpy(open_err_str, pcap_geterr(pcap_h), open_err_str_size);
+          g_strlcpy(*open_err_str, pcap_geterr(pcap_h), sizeof *open_err_str);
         else
-          g_strlcpy(open_err_str, pcap_statustostr(err), open_err_str_size);
+          g_strlcpy(*open_err_str, pcap_statustostr(err), sizeof *open_err_str);
         pcap_close(pcap_h);
         pcap_h = NULL;
       }
@@ -666,7 +666,7 @@ set_pcap_linktype(pcap_t *pcap_h, capture_options *capture_opts,
 
 static gboolean
 compile_capture_filter(const char *iface, pcap_t *pcap_h,
-                       struct bpf_program *fcode, const char *cfilter)
+                       struct bpf_program *fcode, char *cfilter)
 {
   bpf_u_int32 netnum, netmask;
   gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
@@ -701,8 +701,7 @@ show_filter_code(capture_options *capture_opts)
   struct bpf_insn *insn;
   u_int i;
 
-  pcap_h = open_capture_device(capture_opts, open_err_str,
-                               sizeof open_err_str);
+  pcap_h = open_capture_device(capture_opts, &open_err_str);
   if (pcap_h == NULL) {
     /* Open failed; get messages */
     get_capture_device_open_failure_messages(open_err_str,
@@ -2169,8 +2168,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
   }
 #endif
 
-  ld->pcap_h = open_capture_device(capture_opts, open_err_str,
-                                   sizeof open_err_str);
+  ld->pcap_h = open_capture_device(capture_opts, &open_err_str);
 
   if (ld->pcap_h != NULL) {
     /* we've opened "iface" as a network device */
@@ -4015,7 +4013,9 @@ report_capture_error(const char *error_msg, const char *secondary_error_msg)
             "Secondary Error: %s", secondary_error_msg);
     	sync_pipe_errmsg_to_parent(2, error_msg, secondary_error_msg);
     } else {
-        fprintf(stderr, "%s\n%s\n", error_msg, secondary_error_msg);
+        fprintf(stderr, "%s\n", error_msg);
+        if (secondary_error_msg[0] != '\0')
+          fprintf(stderr, "%s\n", secondary_error_msg);
     }
 }
 
