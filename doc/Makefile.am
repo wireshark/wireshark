@@ -326,16 +326,18 @@ EXTRA_DIST = \
 	make-authors-short.pl	\
 	perlnoutf.pl		\
 	capinfos.pod		\
-	dfilter2pod.pl	\
+	dfilter2pod.pl		\
+	dftest.pod		\
 	dumpcap.pod		\
 	editcap.pod		\
 	eproto2sgml		\
 	idl2wrs.pod		\
-	mergecap.pod	\
+	mergecap.pod		\
+	randpkt.pod		\
 	randpkt.txt		\
-	rawshark.pod	\
+	rawshark.pod		\
 	sgml.doc.template	\
-	text2pcap.pod	\
+	text2pcap.pod		\
 	tshark.pod		\
 	wireshark-filter.pod.template \
 	wireshark.pod.template
