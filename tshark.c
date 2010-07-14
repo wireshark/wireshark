@@ -138,12 +138,6 @@ static print_stream_t *print_stream;
 
 static output_fields_t* output_fields  = NULL;
 
-/*
- * Standard secondary message for unexpected errors.
- */
-static const char please_report[] =
-    "Please report this to the Wireshark developers";
-
 #ifdef HAVE_LIBPCAP
 /*
  * TRUE if we're to print packet counts to keep track of captured packets.

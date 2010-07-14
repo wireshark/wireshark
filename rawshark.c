@@ -140,12 +140,6 @@ typedef enum {
 static gboolean line_buffered;
 static print_format_e print_format = PR_FMT_TEXT;
 
-/*
- * Standard secondary message for unexpected errors.
- */
-static const char please_report[] =
-    "Please report this to the Wireshark developers";
-
 cf_status_t raw_cf_open(capture_file *cf, const char *fname);
 static int load_cap_file(capture_file *cf);
 static gboolean process_packet(capture_file *cf, gint64 offset,
