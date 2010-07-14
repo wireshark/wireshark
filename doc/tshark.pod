@@ -281,8 +281,14 @@ the same character as the field values.  Defaults to B<n>.
 
 B<separator=/t|/s|>E<lt>characterE<gt> Set the separator character to
 use for fields.  If B</t> tab will be used (this is the default), if
-B</s>, s single space will be used.  Otherwise any character that can be
+B</s>, a single space will be used.  Otherwise any character that can be
 accepted by the command line as part of the option may be used.
+
+B<aggregator=,|/s|>E<lt>characterE<gt> Set the aggregator character to
+use for fields that have multiple occurences.  If B<,> a comma will be used
+(this is the default), if B</s>, a single space will be used.  Otherwise 
+any character that can be accepted by the command line as part of the
+option may be used.
 
 B<quote=d|s|n> Set the quote character to use to surround fields.  B<d>
 uses double-quotes, B<s> single-quotes, B<n> no quotes (the default).

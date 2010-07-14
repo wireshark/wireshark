@@ -75,9 +75,10 @@ typedef struct {
 struct _output_fields {
     gboolean print_header;
     gchar separator;
+    gchar aggregator;
     GPtrArray* fields;
     GHashTable* field_indicies;
-    const gchar** field_values;
+    emem_strbuf_t** field_values;
     gchar quote;
 };
 
@@ -1255,6 +1256,7 @@ output_fields_t* output_fields_new()
     output_fields_t* fields = g_new(output_fields_t, 1);
     fields->print_header = FALSE;
     fields->separator = '\t';
+    fields->aggregator = ',';
     fields->fields = NULL; /*Do lazy initialisation */
     fields->field_indicies = NULL;
     fields->field_values = NULL;
@@ -1362,6 +1364,26 @@ gboolean output_fields_set_option(output_fields_t* info, gchar* option)
         return TRUE;
     }
 
+    if(0 == strcmp(option_name,"aggregator")) {
+        switch(NULL == option_value ? '\0' : *option_value) {
+        case '\0':
+            return FALSE;
+        case '/':
+            switch(*++option_value) {
+            case 's':
+                info->aggregator = ' ';
+                break;
+            default:
+                info->aggregator = '\\';
+            }
+            break;
+        default:
+            info->aggregator = *option_value;
+            break;
+        }
+        return TRUE;
+    }
+
     if(0 == strcmp(option_name, "quote")) {
         switch(NULL == option_value ? '\0' : *option_value) {
         default: /* Fall through */
@@ -1435,7 +1457,12 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
             guint actual_index;
             actual_index = GPOINTER_TO_UINT(field_index);
             /* Unwrap change made to disambiguiate zero / null */
-            call_data->fields->field_values[actual_index - 1] = value;
+            if (call_data->fields->field_values[actual_index - 1] == NULL ) {
+                call_data->fields->field_values[actual_index - 1] = ep_strbuf_new(value);
+            } else {
+                ep_strbuf_append_printf(call_data->fields->field_values[actual_index - 1],
+                    "%c%s",call_data->fields->aggregator,value);
+            }
         }
     }
 
@@ -1475,7 +1502,7 @@ void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, FILE 
     }
 
     /* Buffer to store values for this packet */
-    fields->field_values = ep_alloc_array0(const gchar*, fields->fields->len);
+    fields->field_values = ep_alloc_array0(emem_strbuf_t*, fields->fields->len);
 
     proto_tree_children_foreach(edt->tree, proto_tree_get_node_field_values,
                                 &data);
@@ -1488,7 +1515,7 @@ void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, FILE 
             if(fields->quote != '\0') {
                 fputc(fields->quote, fh);
             }
-            fputs(fields->field_values[i], fh);
+            fputs(fields->field_values[i]->str, fh);
             if(fields->quote != '\0') {
                 fputc(fields->quote, fh);
             }
