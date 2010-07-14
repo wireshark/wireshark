@@ -33,6 +33,7 @@
 #include <epan/etypes.h>
 #include <epan/prefs.h>
 #include <epan/in_cksum.h>
+#include <epan/expert.h>
 
 #include "packet-ieee8023.h"
 
@@ -101,6 +102,11 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
       case GMHDR_FTYPE_SRCPORT: {
         guint16 pid;
         guint32 tv = tvb_get_ntohl(tvb, offset) >> 8; /* Only 24-bit field */
+
+        if (fl != 3) {
+          expert_add_info_format(pinfo, gmhdr_tree, PI_MALFORMED, PI_ERROR, "Field length %u invalid", fl);
+          break;
+        }
         ti = proto_tree_add_item(gmhdr_tree, hf_gmhdr_srcport,      tvb, offset, fl, FALSE);
         srcport_tree = proto_item_add_subtree(ti, ett_srcport);
         proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_plfm, tvb, offset, fl, FALSE);         
@@ -115,11 +121,19 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
         break;
       }
       case GMHDR_FTYPE_PKTSIZE:
+        if (fl != 2) {
+          expert_add_info_format(pinfo, gmhdr_tree, PI_MALFORMED, PI_ERROR, "Field length %u invalid", fl);
+          break;
+        }
         proto_tree_add_item(gmhdr_tree, hf_gmhdr_pktsize, tvb, offset, fl, FALSE);
         break;
       case GMHDR_FTYPE_TIMESTAMP_LOCAL: 
       case GMHDR_FTYPE_TIMESTAMP_NTP:
       case GMHDR_FTYPE_TIMESTAMP_EXT:
+        if (fl != 8) {
+          expert_add_info_format(pinfo, gmhdr_tree, PI_MALFORMED, PI_ERROR, "Field length %u invalid", fl);
+          break;
+        }
         ti = proto_tree_add_item(gmhdr_tree, hf_gmhdr_timestamp, tvb, offset, fl, FALSE);
         proto_item_append_text(ti, "; Source: %s", val_to_str(tl>>8, gmhdr_ftype_timestamp, "Unknown")); 
         break;
