@@ -478,6 +478,23 @@ cmdarg_err_cont(const char *fmt, ...)
 
 #ifdef HAVE_LIBCAP
 static void
+#if 0 /* Set to enable capability debugging */
+/* see 'man cap_to_text()' for explanation of output                         */
+/* '='   means 'all= '  ie: no capabilities                                  */
+/* '=ip' means 'all=ip' ie: all capabilities are permissible and inheritable */
+/* ....                                                                      */
+print_caps(const char *pfx) {
+    cap_t caps = cap_get_proc();
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+          "%s: EUID: %d  Capabilities: %s", pfx,
+          geteuid(), cap_to_text(caps, NULL));
+    cap_free(caps);
+#else
+print_caps(const char *pfx _U_) {
+#endif
+}
+
+static void
 relinquish_all_capabilities(void)
 {
     /* Drop any and all capabilities this process may have.            */
@@ -1370,24 +1387,6 @@ static void exit_main(int status)
  * CAP_NET_ADMIN and CAP_NET_RAW, then relinquish our permissions.
  * (See comment in main() for details)
  */
-
-static void
-#if 0 /* Set to enable capability debugging */
-/* see 'man cap_to_text()' for explanation of output                         */
-/* '='   means 'all= '  ie: no capabilities                                  */
-/* '=ip' means 'all=ip' ie: all capabilities are permissible and inheritable */
-/* ....                                                                      */
-print_caps(const char *pfx) {
-    cap_t caps = cap_get_proc();
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-          "%s: EUID: %d  Capabilities: %s", pfx,
-          geteuid(), cap_to_text(caps, NULL));
-    cap_free(caps);
-#else
-print_caps(const char *pfx _U_) {
-#endif
-}
-
 static void
 relinquish_privs_except_capture(void)
 {
