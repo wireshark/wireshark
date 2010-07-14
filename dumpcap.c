@@ -712,6 +712,7 @@ compile_capture_filter(const char *iface, pcap_t *pcap_h,
   return TRUE;
 }
 
+#ifdef HAVE_BPF_IMAGE
 static gboolean
 show_filter_code(capture_options *capture_opts)
 {
@@ -765,6 +766,7 @@ show_filter_code(capture_options *capture_opts)
     printf("%s\n", bpf_image(insn, i));
   return TRUE;
 }
+#endif
 
 /*
  * capture_interface_list() is expected to do the right thing to get
