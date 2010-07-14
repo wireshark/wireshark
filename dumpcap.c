@@ -544,7 +544,7 @@ open_capture_device(capture_options *capture_opts,
                        (capture_opts->promisc_mode ? PCAP_OPENFLAG_PROMISCUOUS : 0) |
                        (capture_opts->datatx_udp ? PCAP_OPENFLAG_DATATX_UDP : 0) |
                        (capture_opts->nocap_rpcap ? PCAP_OPENFLAG_NOCAPTURE_RPCAP : 0),
-                       CAP_READ_TIMEOUT, &auth, open_err_str);
+                       CAP_READ_TIMEOUT, &auth, *open_err_str);
   } else
 #endif /* HAVE_PCAP_OPEN */
   {
@@ -581,7 +581,7 @@ open_capture_device(capture_options *capture_opts,
                             capture_opts->has_snaplen ? capture_opts->snaplen :
                                                         WTAP_MAX_PACKET_SIZE,
                             capture_opts->promisc_mode, CAP_READ_TIMEOUT,
-                            open_err_str);
+                            *open_err_str);
 #endif
   }
 
@@ -601,6 +601,7 @@ open_capture_device(capture_options *capture_opts,
 
 static void
 get_capture_device_open_failure_messages(const char *open_err_str,
+                                         capture_options *capture_opts,
                                          char *errmsg, size_t errmsg_len,
                                          char *secondary_errmsg,
                                          size_t secondary_errmsg_len)
@@ -722,6 +723,7 @@ show_filter_code(capture_options *capture_opts)
   if (pcap_h == NULL) {
     /* Open failed; get messages */
     get_capture_device_open_failure_messages(open_err_str,
+                                             capture_opts,
                                              errmsg, sizeof errmsg,
                                              secondary_errmsg,
                                              sizeof secondary_errmsg);
@@ -2243,7 +2245,9 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 
       if (ld->cap_pipe_err == PIPNEXIST) {
         /* Pipe doesn't exist, so output message for interface */
-        get_capture_device_open_failure_messages(open_err_str, errmsg,
+        get_capture_device_open_failure_messages(open_err_str,
+                                                 capture_opts,
+                                                 errmsg,
                                                  errmsg_len,
                                                  secondary_errmsg,
                                                  secondary_errmsg_len);
