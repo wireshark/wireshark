@@ -284,6 +284,11 @@ use for fields.  If B</t> tab will be used (this is the default), if
 B</s>, a single space will be used.  Otherwise any character that can be
 accepted by the command line as part of the option may be used.
 
+B<occurrence=f|l|a> Select which occurrence to use for fields that have
+multiple occurences.  If B<f> the first occurrence will be used, if B<l>
+the last occurrence will be used and if B<a> all occurrences will be used
+(this is the default).
+
 B<aggregator=,|/s|>E<lt>characterE<gt> Set the aggregator character to
 use for fields that have multiple occurences.  If B<,> a comma will be used
 (this is the default), if B</s>, a single space will be used.  Otherwise 

@@ -75,6 +75,7 @@ typedef struct {
 struct _output_fields {
     gboolean print_header;
     gchar separator;
+    gchar occurrence;
     gchar aggregator;
     GPtrArray* fields;
     GHashTable* field_indicies;
@@ -1256,6 +1257,7 @@ output_fields_t* output_fields_new()
     output_fields_t* fields = g_new(output_fields_t, 1);
     fields->print_header = FALSE;
     fields->separator = '\t';
+    fields->occurrence = 'a';
     fields->aggregator = ',';
     fields->fields = NULL; /*Do lazy initialisation */
     fields->field_indicies = NULL;
@@ -1364,6 +1366,19 @@ gboolean output_fields_set_option(output_fields_t* info, gchar* option)
         return TRUE;
     }
 
+    if(0 == strcmp(option_name, "occurrence")) {
+        switch(NULL == option_value ? '\0' : *option_value) {
+        case 'f':
+        case 'l':
+        case 'a':
+            info->occurrence = *option_value;
+            break;
+        default:
+            return FALSE;
+        }
+        return TRUE;
+    }
+
     if(0 == strcmp(option_name,"aggregator")) {
         switch(NULL == option_value ? '\0' : *option_value) {
         case '\0':
@@ -1409,8 +1424,9 @@ gboolean output_fields_set_option(output_fields_t* info, gchar* option)
 void output_fields_list_options(FILE *fh)
 {
     fprintf(fh, "TShark: The available options for field output \"E\" are:\n");
-    fputs("header=y|n   Print field abbreviations as first line of output (def: N: no)\n", fh);
+    fputs("header=y|n    Print field abbreviations as first line of output (def: N: no)\n", fh);
     fputs("separator=/t|/s|<character>   Set the separator to use;\n     \"/t\" = tab, \"/s\" = space (def: /t: tab)\n", fh);
+    fputs("occurrence=f|l|a  Select the occurrence of a field to use;\n     \"f\" = first, \"l\" = last, \"a\" = all (def: a: all)\n", fh);
     fputs("aggregator=,|/s|<character>   Set the aggregator to use;\n     \",\" = comma, \"/s\" = space (def: ,: comma)\n", fh);
     fputs("quote=d|s|n   Print either d: double-quotes, s: single quotes or \n     n: no quotes around field values (def: n: none)\n", fh);
 }
@@ -1458,9 +1474,13 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
             guint actual_index;
             actual_index = GPOINTER_TO_UINT(field_index);
             /* Unwrap change made to disambiguiate zero / null */
-            if (call_data->fields->field_values[actual_index - 1] == NULL ) {
+            if ( call_data->fields->field_values[actual_index - 1] == NULL ) {
                 call_data->fields->field_values[actual_index - 1] = ep_strbuf_new(value);
-            } else {
+            } else if ( call_data->fields->occurrence == 'l' ) {
+                /* print only the value of the last occurrence of the field */
+                ep_strbuf_printf(call_data->fields->field_values[actual_index - 1],"%s",value);
+            } else if ( call_data->fields->occurrence == 'a' ) {
+                /* print the value of all accurrences of the field */
                 ep_strbuf_append_printf(call_data->fields->field_values[actual_index - 1],
                     "%c%s",call_data->fields->aggregator,value);
             }
