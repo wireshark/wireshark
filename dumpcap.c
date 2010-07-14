@@ -614,6 +614,33 @@ get_capture_device_open_failure_messages(const char *open_err_str,
 #endif /* _WIN32 */
 }
 
+/* Set the data link type on a pcap. */
+static gboolean
+set_pcap_linktype(pcap_t *pcap_h, capture_options *capture_opts,
+                  char *errmsg, size_t errmsg_len,
+                  char *secondary_errmsg, size_t secondary_errmsg_len)
+{
+  char *set_linktype_err_str;
+
+  if (capture_opts->linktype == -1)
+    return TRUE; /* just use the default */ 
+#ifdef HAVE_PCAP_SET_DATALINK
+  if (pcap_set_datalink(pcap_h, capture_opts->linktype) == 0)
+    return TRUE; /* no error */
+  set_linktype_err_str = pcap_geterr(pcap_h);
+#else
+  /* Let them set it to the type it is; reject any other request. */
+  if (get_pcap_linktype(pcap_h, capture_opts->iface) == capture_opts->linktype)
+    return TRUE; /* no error */
+  set_linktype_err_str =
+    "That DLT isn't one of the DLTs supported by this device";
+#endif
+  g_snprintf(errmsg, (gulong) errmsg_len, "Unable to set data link type (%s).",
+             set_linktype_err_str);
+  g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, please_report);
+  return FALSE;
+}
+
 static gboolean
 compile_capture_filter(const char *iface, pcap_t *pcap_h,
                        struct bpf_program *fcode, const char *cfilter)
@@ -664,9 +691,18 @@ show_filter_code(capture_options *capture_opts)
     return FALSE;
   }
 
+  /* Set the link-layer type. */
+  if (!set_pcap_linktype(pcap_h, capture_opts, errmsg, sizeof errmsg,
+                         secondary_errmsg, sizeof secondary_errmsg)) {
+    pcap_close(pcap_h);
+    report_capture_error(errmsg, secondary_errmsg);
+    return FALSE;
+  }
+
   /* OK, try to compile the capture filter. */
   if (!compile_capture_filter(capture_opts->iface, pcap_h, &fcode,
                               capture_opts->cfilter)) {
+    pcap_close(pcap_h);
     report_cfilter_error(capture_opts->cfilter, errmsg);
     return FALSE;
   }
@@ -1392,26 +1428,6 @@ relinquish_all_capabilities(void)
 
 #endif /* HAVE_LIBCAP */
 
-/* Set the data link type on a pcap. */
-static const char *
-set_pcap_linktype(pcap_t *pch, char *devname
-#ifdef HAVE_PCAP_SET_DATALINK
-                  _U_
-#endif
-                , int dlt)
-{
-#ifdef HAVE_PCAP_SET_DATALINK
-  if (pcap_set_datalink(pch, dlt) == 0)
-    return NULL;	/* no error */
-  return pcap_geterr(pch);
-#else
-  /* Let them set it to the type it is; reject any other request. */
-  if (get_pcap_linktype(pch, devname) == dlt)
-    return NULL;	/* no error */
-  return "That DLT isn't one of the DLTs supported by this device";
-#endif
-}
-
 /* Take care of byte order in the libpcap headers read from pipes.
  * (function taken from wiretap/libpcap.c) */
 static void
@@ -2087,7 +2103,6 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 {
   gchar       open_err_str[PCAP_ERRBUF_SIZE];
   gchar      *sync_msg_str;
-  const char *set_linktype_err_str;
 #ifdef _WIN32
   int         err;
   gchar      *sync_secondary_msg_str;
@@ -2206,16 +2221,9 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 #endif
 
     /* setting the data link type only works on real interfaces */
-    if (capture_opts->linktype != -1) {
-      set_linktype_err_str = set_pcap_linktype(ld->pcap_h, capture_opts->iface,
-        capture_opts->linktype);
-      if (set_linktype_err_str != NULL) {
-        g_snprintf(errmsg, (gulong) errmsg_len, "Unable to set data link type (%s).",
-                set_linktype_err_str);
-        g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, please_report);
-        return FALSE;
-      }
-    }
+    if (!set_pcap_linktype(ld->pcap_h, capture_opts, errmsg, errmsg_len,
+                           secondary_errmsg, secondary_errmsg_len))
+      return FALSE;
     ld->linktype = get_pcap_linktype(ld->pcap_h, capture_opts->iface);
   } else {
     /* We couldn't open "iface" as a network device. */
