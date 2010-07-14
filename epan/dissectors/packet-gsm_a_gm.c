@@ -286,6 +286,7 @@ static int hf_gsm_a_sm_packet_flow_id = -1;
 static int hf_gsm_a_sm_tmgi = -1;
 static int hf_gsm_a_sm_enh_nsapi = -1;
 static int hf_gsm_a_sm_req_type = -1;
+static int hf_gsm_a_gm_rel_lev_ind = -1;
 
 static int hf_gsm_a_gmm_net_cap_gea1 = -1;
 static int hf_gsm_a_gmm_net_cap_smdch = -1;
@@ -1009,6 +1010,12 @@ static const value_string gsm_a_gm_acc_tech_type_vals[] = {
 	{ 0, NULL }
 };
 
+static const value_string gsm_a_gm_revision_level_indicator_vals[] = {
+	{ 0x00, "The ME is Release '98 or older" },
+	{ 0x01, "The ME is Release '99 onwards" },
+
+	{ 0, NULL }
+};
 guint16
 de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -2015,17 +2022,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		bits_needed = 1;
 		GET_DATA;
 
-		/* analyse bits */
-		switch ( oct>>(32-bits_needed) )
-		{
-			case 0x00: str="The ME is Release 98 or older"; break;
-			case 0x01: str="The ME is Release 99 onwards";  break;
-			default:   str="This should not happen";
-		}
-
-		proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"Revision Level Indicator: %s (%u)",str,oct>>(32-bits_needed));
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rel_lev_ind, tvb, bit_offset, 1, FALSE);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -6411,6 +6408,11 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_sm_req_type,
 		{ "Request type", "gsm_a.sm.req_type",
 		  FT_UINT8, BASE_DEC, VALS(gsm_a_sm_req_type_vals), 0x07,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rel_lev_ind,
+		{ "Revision Level Indicator", "gsm_a.gm.rel_lev_ind",
+		   FT_UINT8, BASE_HEX, VALS(gsm_a_gm_revision_level_indicator_vals), 0x0,
 		NULL, HFILL }
 	},
 	};
