@@ -73,7 +73,7 @@ int packetlogger_open(wtap *wth, int *err, gchar **err_info _U_)
 
 	/* Verify this file belongs to us */
 	if (!((8 <= pl_hdr.len) && (pl_hdr.len < 65536) &&
-	      (type < 0x04 || type == 0xFB || type == 0xFE || type == 0xFF)))
+	      (type < 0x04 || type == 0xFB || type == 0xFC || type == 0xFE || type == 0xFF)))
 		return 0;
 
 	/* No file header. Reset the fh to 0 so we can read the first packet */
