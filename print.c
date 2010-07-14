@@ -1410,8 +1410,9 @@ void output_fields_list_options(FILE *fh)
 {
     fprintf(fh, "TShark: The available options for field output \"E\" are:\n");
     fputs("header=y|n   Print field abbreviations as first line of output (def: N: no)\n", fh);
-    fputs("separator=/t|/s|<character>   Set the separator to use; \"/t\" = tab,\n \"/s\" = space (def: /t: tab)\n", fh);
-    fputs("quote=d|s|n   Print either d: double-quotes, s: single quotes or n: no quotes around field values (def: n: none)\n", fh);
+    fputs("separator=/t|/s|<character>   Set the separator to use;\n     \"/t\" = tab, \"/s\" = space (def: /t: tab)\n", fh);
+    fputs("aggregator=,|/s|<character>   Set the aggregator to use;\n     \",\" = comma, \"/s\" = space (def: ,: comma)\n", fh);
+    fputs("quote=d|s|n   Print either d: double-quotes, s: single quotes or \n     n: no quotes around field values (def: n: none)\n", fh);
 }
 
 
