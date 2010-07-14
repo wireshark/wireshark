@@ -1239,7 +1239,7 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-
+	MechType_oid = NULL;
 
 	/*
 	 * We need this later, so lets get it now ...
