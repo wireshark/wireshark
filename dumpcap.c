@@ -601,7 +601,11 @@ open_capture_device(capture_options *capture_opts,
 
 static void
 get_capture_device_open_failure_messages(const char *open_err_str,
-                                         capture_options *capture_opts,
+                                         const char *iface
+#ifndef _WIN32
+                                                           _U_
+#endif
+                                         ,
                                          char *errmsg, size_t errmsg_len,
                                          char *secondary_errmsg,
                                          size_t secondary_errmsg_len)
@@ -644,7 +648,7 @@ get_capture_device_open_failure_messages(const char *open_err_str,
 "\n"
 "       http://wiki.wireshark.org/WinPcap\n"
 "       http://wiki.wireshark.org/CaptureSetup\n",
-             capture_opts->iface);
+             iface);
 #endif /* _WIN32 */
 }
 
@@ -723,7 +727,7 @@ show_filter_code(capture_options *capture_opts)
   if (pcap_h == NULL) {
     /* Open failed; get messages */
     get_capture_device_open_failure_messages(open_err_str,
-                                             capture_opts,
+                                             capture_opts->iface,
                                              errmsg, sizeof errmsg,
                                              secondary_errmsg,
                                              sizeof secondary_errmsg);
@@ -2246,7 +2250,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
       if (ld->cap_pipe_err == PIPNEXIST) {
         /* Pipe doesn't exist, so output message for interface */
         get_capture_device_open_failure_messages(open_err_str,
-                                                 capture_opts,
+                                                 capture_opts->iface,
                                                  errmsg,
                                                  errmsg_len,
                                                  secondary_errmsg,
