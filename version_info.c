@@ -418,7 +418,21 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 		 * that.
 		 *
 		 * At least on Linux Standard Base-compliant distributions,
-		 * there's an "lsb_release" command.
+		 * there's an "lsb_release" command.  However:
+		 *
+		 *	http://forums.fedoraforum.org/showthread.php?t=220885
+		 *
+		 * seems to suggest that if you don't have the redhat-lsb
+		 * package installed, you don't have lsb_release, and that
+		 * /etc/fedora-release has the release information on
+		 * Fedora.
+		 *
+		 *	http://linux.die.net/man/1/lsb_release
+		 *
+		 * suggests that there's an /etc/distrib-release file, but
+		 * it doesn't indicate whether "distrib" is literally
+		 * "distrib" or is the name for the distribution, and
+		 * also speaks of an /etc/debian_version file.
 		 */
 		g_string_append_printf(str, "%s %s", name.sysname, name.release);
 #endif /* HAVE_OS_X_FRAMEWORKS */
