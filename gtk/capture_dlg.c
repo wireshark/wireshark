@@ -436,10 +436,11 @@ set_if_capabilities(gboolean monitor_mode_changed)
         gchar *str;
         /* Not supported - tell them about it but don't let them select it. */
         str = g_strdup_printf("%s (not supported)", data_link_info->name);
-        ws_combo_box_append_text_and_pointer_with_sensitivity(GTK_COMBO_BOX(linktype_combo_box),
-                                                              str,
-                                                              GINT_TO_POINTER(-1),  /* Flag as "not supported" */
-                                                              FALSE);
+        ws_combo_box_append_text_and_pointer_full(GTK_COMBO_BOX(linktype_combo_box),
+                                                  NULL,
+                                                  str,
+                                                  GINT_TO_POINTER(-1),  /* Flag as "not supported" */
+                                                  FALSE);
         g_free(str);
       }
       if (data_link_info->dlt == cap_settings.linktype) {
@@ -459,10 +460,11 @@ set_if_capabilities(gboolean monitor_mode_changed)
   }
 #endif
   if (linktype_count == 0) {
-    ws_combo_box_append_text_and_pointer_with_sensitivity(GTK_COMBO_BOX(linktype_combo_box),
-                                                         "not supported",
-                                                         GINT_TO_POINTER(-1),  /* Flag as "not supported" */
-                                                         FALSE);
+    ws_combo_box_append_text_and_pointer_full(GTK_COMBO_BOX(linktype_combo_box),
+                                              NULL,
+                                              "not supported",
+                                              GINT_TO_POINTER(-1),  /* Flag as "not supported" */
+                                              FALSE);
   }
   gtk_widget_set_sensitive(linktype_lb, num_supported_link_types >= 2);
   gtk_widget_set_sensitive(linktype_combo_box, num_supported_link_types >= 2);
