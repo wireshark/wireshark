@@ -457,8 +457,6 @@ dumpcap_LDADD = \
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
 	@FRAMEWORKS@			\
-	@LIBGCRYPT_LIBS@		\
-	@LIBGNUTLS_LIBS@		\
 	@LIBCAP_LIBS@
 dumpcap_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 

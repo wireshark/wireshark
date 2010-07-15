@@ -1839,7 +1839,7 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
 static void
 get_gui_compiled_info(GString *str)
 {
-  get_epan_compiled_version_info(str);
+  epan_get_compiled_version_info(str);
 
   g_string_append(str, ", ");
 #ifdef HAVE_LIBPORTAUDIO
@@ -1867,6 +1867,8 @@ get_gui_compiled_info(GString *str)
 static void
 get_gui_runtime_info(GString *str)
 {
+  epan_get_runtime_version_info(str);
+
 #ifdef HAVE_AIRPCAP
   g_string_append(str, ", ");
   get_runtime_airpcap_version(str);
@@ -1876,7 +1878,6 @@ get_gui_runtime_info(GString *str)
     g_string_append(str, ", ");
     u3_runtime_info(str);
   }
-
 }
 
 static e_prefs *

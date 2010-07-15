@@ -124,6 +124,18 @@ epan_dissect_free(epan_dissect_t* edt);
 /* Sets custom column */
 const gchar *
 epan_custom_set(epan_dissect_t *edt, int id,
-				gchar *result, gchar *expr, const int size );
+				gchar *result, gchar *expr, const int size);
+
+/*
+ * Get compile-time information for libraries used by libwireshark.
+ */
+void
+epan_get_compiled_version_info(GString *str);
+
+/*
+ * Get runtime information for libraries used by libwireshark.
+ */
+void
+epan_get_runtime_version_info(GString *str);
 
 #endif /* EPAN_H */
