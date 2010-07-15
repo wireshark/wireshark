@@ -378,9 +378,20 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 		 * On Solaris, it's some kind of build information.
 		 * On HP-UX, it appears to be some sort of subrevision
 		 * thing.
+		 * On *BSD and Darwin/OS X, it's a long string giving
+		 * a build date, config file name, etc., etc., etc..
 		 */
-		g_string_append_printf(str, "%s %s", name.sysname, name.release);
 #ifdef HAVE_OS_X_FRAMEWORKS
+		/*
+		 * On Mac OS X, report the Mac OS X version number as
+		 * the OS, and put the Darwin information in parentheses.
+		 *
+		 * XXX - can we get the build name?  There's no API to
+		 * get it; it's currently in
+		 * /System/Library/CoreServices/SystemVersion.plist
+		 * but there's no guarantee that it will continue to
+		 * be there.
+		 */
 		Gestalt(gestaltSystemVersion, &macosx_ver);
 
 		/* The following functions are only available in Mac OS 10.4+ */
@@ -389,16 +400,27 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 			Gestalt(gestaltSystemVersionMinor, &macosx_minor_ver);
 			Gestalt(gestaltSystemVersionBugFix, &macosx_bugfix_ver);
 
-			g_string_append_printf(str, " (Mac OS %ld.%ld.%ld)",
+			g_string_append_printf(str, "Mac OS %ld.%ld.%ld",
 					  (long)macosx_major_ver,
 					  (long)macosx_minor_ver,
 					  (long)macosx_bugfix_ver);
 		} else {
-			g_string_append_printf(str, " (Mac OS X < 10.4 [%lx])",
+			g_string_append_printf(str, "Mac OS X < 10.4 [%lx]",
 					  (long)macosx_ver);
 			/* See Apple's Gestalt Manager Reference for meanings
 			 * of the macosx_ver values. */
 		}
+		g_string_append_printf(str, " (%s %s)", name.sysname, name.release);
+#else /* HAVE_OS_X_FRAMEWORKS */
+		/*
+		 * XXX - on Linux, are there any APIs to get the distribution
+		 * name and version number?  I think some distributions have
+		 * that.
+		 *
+		 * At least on Linux Standard Base-compliant distributions,
+		 * there's an "lsb_release" command.
+		 */
+		g_string_append_printf(str, "%s %s", name.sysname, name.release);
 #endif /* HAVE_OS_X_FRAMEWORKS */
 	}
 #else
