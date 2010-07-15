@@ -996,6 +996,7 @@ main(int argc, char *argv[])
         pdh = wtap_dump_open(filename, out_file_type,
             out_frame_type, wtap_snapshot_length(wth),
             FALSE /* compressed */, &err);
+fprintf(stderr, "pdh1: %p\n", pdh);
         if (pdh == NULL) {  
           fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
                   wtap_strerror(err));
@@ -1027,6 +1028,7 @@ main(int argc, char *argv[])
           pdh = wtap_dump_open(filename, out_file_type,
              out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
 
+fprintf(stderr, "pdh2: %p\n", pdh);
           if (pdh == NULL) {
             fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
               wtap_strerror(err));
@@ -1240,7 +1242,6 @@ main(int argc, char *argv[])
       count++;
     }
 
-    g_free(filename);
     g_free(fprefix);
     g_free(fsuffix);
 
@@ -1260,6 +1261,20 @@ main(int argc, char *argv[])
       }
     }
 
+    if (!pdh) {
+      /* No valid packages found, open the outfile so we can write an empty header */
+      g_free (filename);
+      filename = g_strdup(argv[optind+1]);
+
+      pdh = wtap_dump_open(filename, out_file_type,
+			   out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
+      if (pdh == NULL) {
+	fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename, 
+		wtap_strerror(err));
+	exit(2);
+      }
+    }
+
     if (!wtap_dump_close(pdh, &err)) {
 
       fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
@@ -1267,6 +1282,7 @@ main(int argc, char *argv[])
       exit(2);
 
     }
+    g_free(filename);
   }
 
   if (dup_detect) {
