@@ -135,18 +135,14 @@ wireshark-filter.4: wireshark-filter.pod ../config.h
 	--section=4					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
-	wireshark-filter.pod > wireshark-filter.4
+	$(srcdir)/wireshark-filter.pod > wireshark-filter.4
 
 wireshark-filter.html: wireshark-filter.pod ../config.h $(top_srcdir)/docbook/ws.css
 	$(POD2HTML)								\
 	--title="wireshark-filter - The Wireshark Network Analyzer $(VERSION)"	\
 	--css=$(top_srcdir)/docbook/ws.css					\
 	--noindex								\
-	wireshark-filter.pod > wireshark-filter.html
-
-wireshark-filter.pod: wireshark-filter.pod.template  ../tshark
-	WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ../tshark -G fields | \
-	$(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/wireshark-filter.pod.template > wireshark-filter.pod
+	$(srcdir)/wireshark-filter.pod > wireshark-filter.html
 
 capinfos.1: capinfos.pod ../config.h
 	$(POD2MAN)					\
@@ -266,7 +262,6 @@ randpkt.html: randpkt.pod ../config.h $(top_srcdir)/docbook/ws.css
 	$(srcdir)/randpkt.pod > randpkt.html
 
 CLEANFILES =		\
-	wireshark-filter.pod \
 	wireshark.pod \
 	wireshark-filter.4 \
 	wireshark-filter.html \
@@ -339,6 +334,6 @@ EXTRA_DIST = \
 	sgml.doc.template	\
 	text2pcap.pod		\
 	tshark.pod		\
-	wireshark-filter.pod.template \
+	wireshark-filter.pod    \
 	wireshark.pod.template
 

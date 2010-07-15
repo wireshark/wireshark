@@ -155,7 +155,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\wireshark-filter.pod.template"
+				RelativePath=".\wireshark-filter.pod"
 				>
 			</File>
 			<File

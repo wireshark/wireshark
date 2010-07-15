@@ -368,13 +368,30 @@ lets "ip.dst ne 224.1.2.3" filter out the unwanted IP packets. The
 second filter has already been explained above where filtering with
 multiply occuring fields was discussed.
 
-=head1 FILTER PROTOCOL REFERENCE
+=head1 FILTER FIELD REFERENCE
 
-Each entry below provides an abbreviated protocol or field name.  Every
-one of these fields can be used in a display filter.  The type of the
-field is also given.
+The entire list of display filters is too large to list here. You can
+can find references and examples at the following locations:
 
-=insert_dfilter_table
+=over 4
+
+=item
+
+The online Display Filter Reference: L<http://www.wireshark.org/docs/dfref/>
+
+=item
+
+I<Help:Supported Protocols> in Wireshark
+
+=item
+
+C<tshark -G fields> on the command line
+
+=item
+
+The Wireshark wiki: L<http://wiki.wireshark.org/DisplayFilters>
+
+=back
 
 =head1 NOTES
 

@@ -848,20 +848,6 @@ ADD_CUSTOM_COMMAND(
 		${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
 )
 
-ADD_CUSTOM_COMMAND(
-	OUTPUT	wireshark-filter.pod
-	COMMAND tshark
-		-G fields |
-		${PERL}
-		${CMAKE_SOURCE_DIR}/doc/dfilter2pod.pl
-		${CMAKE_SOURCE_DIR}/doc/wireshark-filter.pod.template
-		> wireshark-filter.pod
-	DEPENDS
-		${CMAKE_SOURCE_DIR}/doc/dfilter2pod.pl
-		${CMAKE_SOURCE_DIR}/doc/wireshark-filter.pod.template
-		tshark
-)
-
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/capinfos 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/dftest 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/dumpcap 1 )
