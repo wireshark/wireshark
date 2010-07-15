@@ -158,7 +158,6 @@ dumpcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsutil\libwsutil.lib \
 	$(GLIB_LIBS) \
         $(GTHREAD_LIBS) \
-	$(GNUTLS_LIBS) \
 	$(PYTHON_LIBS)
 
 dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
