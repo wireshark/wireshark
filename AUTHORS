@@ -2523,6 +2523,14 @@ Stig Bjørlykke		<stig [AT] bjorlykke.org> {
 	WLAN Traffic Statistics
 	Filter autocompletion usability improvements
 	Remote capture improvements and RPCAP support
+	BJNP, DropBox, Memcache, nat-pmp, PacketLogger, rpcap
+	Improved dissectors using ASN.1 (BER).
+	Lua functions and improvements.
+	Statistics improvements (Protocol Hierarchy, Conversations, IO Graph)
+	Column handling functions (right-click column headers)
+	Enhancements and fixes in the new packet list
+	Various User Guide updates
+	Miscellaneous enhancements and fixes
 }
 
 Kyle J. Harms		<kyle.j.harms [AT] boeing.com> {
