@@ -186,7 +186,7 @@ rawshark.html: rawshark.pod ../config.h ws.css
 clean:
 	rm -f wireshark.html wireshark.1 wireshark.pod
 	rm -f tshark.html tshark.1
-	rm -f wireshark-filter.html wireshark-filter.4 wireshark-filter.pod
+	rm -f wireshark-filter.html wireshark-filter.4
 	rm -f capinfos.html capinfos.1
 	rm -f editcap.html editcap.1
 	rm -f idl2wrs.html idl2wrs.1
