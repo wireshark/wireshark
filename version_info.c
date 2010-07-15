@@ -45,14 +45,6 @@
 #include <pcre.h>	/* to get the libpcre version number */
 #endif /* HAVE_LIBPCRE */
 
-#ifdef HAVE_LIBGCRYPT
-#include <gcrypt.h>
-#endif /* HAVE_LIBGCRYPT */
-
-#ifdef HAVE_LIBGNUTLS
-#include <gnutls/gnutls.h>
-#endif /* HAVE_LIBGNUTLS */
-
 #ifdef HAVE_SYS_UTSNAME_H
 #include <sys/utsname.h>
 #endif
