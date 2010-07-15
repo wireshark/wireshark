@@ -433,6 +433,35 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 		 * it doesn't indicate whether "distrib" is literally
 		 * "distrib" or is the name for the distribution, and
 		 * also speaks of an /etc/debian_version file.
+		 *
+		 * "lsb_release" apparently parses /etc/lsb-release, which
+		 * has shell-style assignments, assigning to, among other
+		 * values, DISTRIB_ID (distributor/distribution name),
+		 * DISTRIB_RELEASE (release number of the distribution),
+		 * DISTRIB_DESCRIPTION (*might* be name followed by version,
+		 * but the manpage for lsb_release seems to indicate that's
+		 * not guaranteed), and DISTRIB_CODENAME (code name, e.g.
+		 * "licentious" for the Ubuntu Licentious Lemur release).
+		 * the lsb_release man page also speaks of the distrib-release
+		 * file, but Debian doesn't have one, and Ubuntu 7's
+		 * lsb_release command doesn't look for one.
+		 *
+		 * I've seen references to /etc/redhat-release as well.
+		 *
+		 * At least on my Ubuntu 7 system, /etc/debian_version
+		 * doesn't contain anything interesting (just some Debian
+		 * codenames).
+		 *
+		 * See also
+		 *
+		 *	http://bugs.python.org/issue1322
+		 *
+		 *	http://www.novell.com/coolsolutions/feature/11251.html
+		 *
+		 *	http://linuxmafia.com/faq/Admin/release-files.html
+		 *
+		 * and the Lib/Platform.py file in recent Python 2.x
+		 * releases.
 		 */
 		g_string_append_printf(str, "%s %s", name.sysname, name.release);
 #endif /* HAVE_OS_X_FRAMEWORKS */
