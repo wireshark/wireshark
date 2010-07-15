@@ -358,7 +358,11 @@ epan_get_compiled_version_info(GString *str)
  * Get runtime information for libraries used by libwireshark.
  */
 void
-epan_get_runtime_version_info(GString *str)
+epan_get_runtime_version_info(GString *str
+#if !defined(HAVE_LIBGNUTLS) && !defined(HAVE_LIBGCRYPT)
+_U_
+#endif
+)
 {
         /* GnuTLS */
 #ifdef HAVE_LIBGNUTLS
