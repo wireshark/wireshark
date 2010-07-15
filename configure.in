@@ -463,8 +463,9 @@ case "$host_os" in
 darwin*)
 	AC_MSG_CHECKING([whether we can build with Core Foundation, Launch Services, and Core Services])
 	ac_save_LIBS="$LIBS"
-	ac_frameworks="-framework ApplicationServices -framework CoreFoundation -framework CoreServices"
-	LIBS="$LIBS $ac_frameworks"
+	ac_coreservices_frameworks="-framework CoreServices"
+	ac_launchservices_frameworks="-framework ApplicationServices -framework CoreFoundation $ac_coreservices_frameworks"
+	LIBS="$LIBS $ac_launchservices_frameworks $ac_coreservices_frameworks"
 	AC_TRY_LINK(
 	   [
 #       include <CoreFoundation/CFBase.h>
@@ -490,7 +491,8 @@ darwin*)
 	   [echo $ac_n "cross compiling; assumed OK... $ac_c"])
 	if test "$ac_cv_can_use_osx_frameworks" = yes ; then
 		AC_DEFINE(HAVE_OS_X_FRAMEWORKS, 1, [Define to 1 if you have OS X frameworks])
-		FRAMEWORKS="$ac_frameworks"
+		CORESERVICES_FRAMEWORKS="$ac_coreservices_frameworks"
+		LAUNCHSERVICES_FRAMEWORKS="$ac_launchservices_frameworks"
 		AC_MSG_RESULT(yes)
 	else
 		AC_MSG_RESULT(no)
@@ -498,7 +500,8 @@ darwin*)
 	LIBS="$ac_save_LIBS"
 	;;
 esac
-AC_SUBST(FRAMEWORKS)
+AC_SUBST(CORESERVICES_FRAMEWORKS)
+AC_SUBST(LAUNCHSERVICES_FRAMEWORKS)
 
 #
 # If using $prefix we add "$prefix/include" to the include search path
