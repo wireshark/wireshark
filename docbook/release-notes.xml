@@ -53,6 +53,22 @@ Wireshark Info
           -->
         </listitem>
 
+        <listitem>
+          <para>
+            The GSM A RR dissector could crash.
+            <!-- Fixed in trunk: r33280 -->
+            <!-- Fixed in trunk-1.2: r??? -->
+            <!-- Fixed in trunk-1.0: ??? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4897">Bug
+            4897</ulink>)
+          </para>
+          <para>Versions affected: ? to ?, ? to ?</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+          </para>
+          -->
+        </listitem>
 
       </itemizedlist>
 
@@ -72,117 +88,9 @@ Wireshark Info
 -->
 
         <listitem><para>
-          Cannot open file with File -> Open.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1791">Bug
-          1791</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Application crash when changing real-time option.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035">Bug
-          4035</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Crash in filter autocompletion.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4306">Bug
-          4306</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The XML dissector doesn't allow dots (".") in tags.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4405">Bug
-          4405</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Live capture stops when using zlib 1.2.5.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4708">Bug
-          4708</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Want to be able to apply decode as to Data Portion of Lan Trace.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4721">Bug
-          4721</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Tshark returns 0 even with an invalid interface or capture filter.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4735">Bug
-          4735</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          SABP short pdu (packet_per.c).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4743">Bug
-          4743</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Kerberos pre-auth type constants - MS extensions are wrong.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4752">Bug
-          4752</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Check HTTP Content-Length parsing for overflow.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4758">Bug
-          4758</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wrong variable used for proto_tree_add_text() in ptp dissector.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4773">Bug
-          4773</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Crash when close window frame of gtk file chooser.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4778">Bug
-          4778</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-           text2pcap expects \n delimited text (instead of \r\n) on win32.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4780">Bug
-          4780</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wrong decoding for BGP ORF.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4782">Bug
-          4782</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Crash when Ctrl-Backspacing the display filter.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4797">Bug
-          4797</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Acker AFI field incorrect size in PGM dissector.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4798">Bug
-          4798</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Fedora 13: wireshark fails to build (linking problem).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4815">Bug
-          4815</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The NFS FH hash (nfs.fh.hash) incorrectly matches multiple filehandles.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4839">Bug
-          4839</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          AES-CTR decoding not working, (dissectors/packet_ipsec.c using gcrypt).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4838">Bug
-          4838</ulink>)
+          Wireshark crash selecting Inter-Asterisk exchange v2 packet data.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4868">Bug
+          4868</ulink>)
         </para></listitem>
 
       </itemizedlist>

@@ -1659,7 +1659,8 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
 		  /* Port is after next ':' */
 		  port_offset = tvb_find_guint8(tvb, address_offset, -1, ':');
-
+	  /* Check if port is present if not skipp */
+	  if(port_offset!=-1){
 		  /* Port ends with '/' */
 		  port_end_offset = tvb_find_guint8(tvb, port_offset, -1, '/');
 
@@ -1671,6 +1672,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 			  msrp_transport_address_set = TRUE;
 		  }
 	  }
+    }
 	  break;
   case SDP_H248_ITEM:
 	  /* Decode h248 item ITU-T Rec. H.248.12 (2001)/Amd.1 (11/2002)*/
