@@ -1,7 +1,8 @@
 /* packet-vrrp.c
  * Routines for the Virtual Router Redundancy Protocol (VRRP)
- * RFC2338
- * draft-ietf-vrrp-ipv6-spec-07.txt
+ *
+ * VRRPv2: RFC3768 (superseeding RFC2338)
+ * VRRPv3: RFC5798
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
@@ -44,9 +45,11 @@ static gint hf_vrrp_version = -1;
 static gint hf_vrrp_type = -1;
 static gint hf_vrrp_virt_rtr_id = -1;
 static gint hf_vrrp_prio = -1;
-static gint hf_vrrp_count_ip = -1;
+static gint hf_vrrp_addr_count = -1;
 static gint hf_vrrp_auth_type = -1;
 static gint hf_vrrp_adver_int = -1;
+static gint hf_vrrp_reserved_mbz = -1;
+static gint hf_vrrp_short_adver_int = -1;
 static gint hf_vrrp_ip = -1;
 static gint hf_vrrp_ip6 = -1;
 
@@ -90,6 +93,9 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8  ver_type;
 	vec_t cksum_vec[4];
 	guint32 phdr[2];
+	gboolean is_ipv6;
+
+	is_ipv6 = (pinfo->src.type == AT_IPv6);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VRRP");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -103,7 +109,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		proto_item *ti, *tv;
 		proto_tree *vrrp_tree, *ver_type_tree;
-		guint8 priority, ip_count = 0, auth_type = VRRP_AUTH_TYPE_NONE;
+		guint8 priority, addr_count = 0, auth_type = VRRP_AUTH_TYPE_NONE;
 		guint16 cksum, computed_cksum;
 		guint8 auth_buf[VRRP_AUTH_DATA_LEN + 1];
 
@@ -131,26 +137,29 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					   val_to_str(priority, vrrp_prio_vals, "Non-default backup priority"));
 		offset++;
 
-		ip_count = tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint(vrrp_tree, hf_vrrp_count_ip, tvb,
-		    offset, 1, ip_count);
+		addr_count = tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint(vrrp_tree, hf_vrrp_addr_count, tvb,
+		    offset, 1, addr_count);
 		offset++;
 
 		switch(hi_nibble(ver_type)) {
 		case 3:
-			/* Skip reserve field */
-			offset++;
+			/* 4 bits reserved (mbz) + 12 bits interval */
+			proto_tree_add_item(vrrp_tree, hf_vrrp_reserved_mbz, tvb, offset, 1, FALSE);
+			proto_tree_add_item(vrrp_tree, hf_vrrp_short_adver_int, tvb, offset, 2, FALSE);
+			offset+=2;
 			break;
 		case 2:
 		default:
+			/* 1 byte auth type + 1 byte interval */
 			auth_type = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(vrrp_tree, hf_vrrp_auth_type, tvb, offset, 1, FALSE);
 			offset++;
+
+			proto_tree_add_item(vrrp_tree, hf_vrrp_adver_int, tvb, offset, 1, FALSE);
+			offset++;
 			break;
 		}
-
-		proto_tree_add_item(vrrp_tree, hf_vrrp_adver_int, tvb, offset, 1, FALSE);
-		offset++;
 
 		cksum = tvb_get_ntohs(tvb, offset);
 		vrrp_len = (gint)tvb_reported_length(tvb);
@@ -195,20 +204,15 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		offset+=2;
 
-		switch(hi_nibble(ver_type)) {
-		case 3:
-			proto_tree_add_item(vrrp_tree, hf_vrrp_ip6, tvb, offset, 16, FALSE);
-			offset+=16;
-			break;
-		case 2:
-		default:
-			while (ip_count > 0) {
-				proto_tree_add_item(vrrp_tree, hf_vrrp_ip, tvb,
-				    offset, 4, FALSE);
+		while (addr_count > 0) {
+			if (is_ipv6) {
+				proto_tree_add_item(vrrp_tree, hf_vrrp_ip6, tvb, offset, 16, FALSE);
+				offset+=16;
+			} else {
+				proto_tree_add_item(vrrp_tree, hf_vrrp_ip, tvb, offset, 4, FALSE);
 				offset+=4;
-				ip_count--;
 			}
-			break;
+			addr_count--;
 		}
 		if (auth_type != VRRP_AUTH_TYPE_SIMPLE_TEXT)
 			return; /* Contents of the authentication data is undefined */
@@ -251,10 +255,10 @@ void proto_register_vrrp(void)
 		   FT_UINT8, BASE_DEC, NULL, 0x0,
 		   "Sending VRRP router's priority for the virtual router", HFILL }},
 
-		{ &hf_vrrp_count_ip,
-		  {"Count IP Addrs", "vrrp.count_ip_addrs",
+		{ &hf_vrrp_addr_count,
+		  {"Addr Count", "vrrp.addr_count",
 		   FT_UINT8, BASE_DEC, NULL, 0x0,
-		   "The number of IP addresses contained in this VRRP advertisement", HFILL }},
+		   "The number of addresses contained in this VRRP advertisement", HFILL }},
 
 		{ &hf_vrrp_auth_type,
 		  {"Auth Type", "vrrp.auth_type",
@@ -265,6 +269,16 @@ void proto_register_vrrp(void)
 		  {"Adver Int", "vrrp.adver_int",
 		   FT_UINT8, BASE_DEC, NULL, 0x0,
 		   "Time interval (in seconds) between ADVERTISEMENTS", HFILL }},
+
+		{ &hf_vrrp_reserved_mbz,
+		  {"Reserved", "vrrp.reserved_mbz",
+		   FT_UINT8, BASE_DEC, NULL, 0xF0,
+		   "Must be zero", HFILL }},
+
+		{ &hf_vrrp_short_adver_int,
+		  {"Adver Int", "vrrp.short_adver_int",
+		   FT_UINT16, BASE_DEC, NULL, 0x0FFF,
+		   "Time interval (in centiseconds) between ADVERTISEMENTS", HFILL }},
 
 		{ &hf_vrrp_ip,
 		  {"IP Address", "vrrp.ip_addr",
