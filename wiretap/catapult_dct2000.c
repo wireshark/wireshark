@@ -1114,7 +1114,7 @@ static gboolean parse_line(gchar *linebuff, gint line_length,
         n++;
     }
     else {
-        *direction = received;
+        *direction = sent;
     }
 
 
