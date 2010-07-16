@@ -57,7 +57,7 @@ Wireshark Info
           <para>
             The GSM A RR dissector could crash.
             <!-- Fixed in trunk: r33280 -->
-            <!-- Fixed in trunk-1.2: r??? -->
+            <!-- Fixed in trunk-1.2: r33554 -->
             <!-- Fixed in trunk-1.0: ??? -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4897">Bug
             4897</ulink>)
