@@ -38,6 +38,7 @@
 
 #include <epan/ipproto.h>
 #include <epan/ip_opts.h>
+#include <epan/sminmpec.h>
 #include "packet-mip6.h"
 #include "packet-ntp.h"
 
@@ -72,12 +73,15 @@ static int hf_mip6_bu_k_flag = -1;
 static int hf_mip6_bu_m_flag = -1;
 static int hf_nemo_bu_r_flag = -1;
 static int hf_proxy_bu_p_flag = -1;
+static int hf_proxy_bu_f_flag = -1;
+static int hf_proxy_bu_t_flag = -1;
 static int hf_mip6_bu_lifetime = -1;
 
 static int hf_mip6_ba_status = -1;
 static int hf_mip6_ba_k_flag = -1;
 static int hf_nemo_ba_r_flag = -1;
 static int hf_proxy_ba_p_flag = -1;
+static int hf_proxy_ba_t_flag = -1;
 static int hf_mip6_ba_seqnr = -1;
 static int hf_mip6_ba_lifetime = -1;
 
@@ -114,8 +118,20 @@ static int hf_mip6_bad_auth = -1;
 static int hf_fmip6_lla_optcode = -1;
 
 static int hf_mip6_mnid_subtype = -1;
+static int hf_mip6_vsm_vid = -1;
+static int hf_mip6_vsm_subtype = -1;
+static int hf_mip6_vsm_subtype_3gpp = -1;
+
+static int hf_pmip6_hi_opttype = -1;
+static int hf_pmip6_att_opttype = -1;
 
 static int hf_pmip6_timestamp = -1;
+static int hf_mip6_ipv4ha_preflen = -1;
+static int hf_mip6_ipv4ha_p_flag = -1;
+static int hf_mip6_ipv4ha_ha = -1;
+static int hf_mip6_ipv4aa_status = -1;
+static int hf_mip6_ipv4aa_ha = -1;
+static int hf_pmip6_gre_key = -1;
 static int hf_mip6_mobility_opt = -1;
 
 /* Initialize the subtree pointers */
@@ -128,8 +144,15 @@ static gint ett_mip6_opt_bad = -1;
 static gint ett_nemo_opt_mnp = -1;
 static gint ett_fmip6_opt_lla = -1;
 static gint ett_mip6_opt_mnid = -1;
+static gint ett_mip6_opt_vsm = -1;
+static gint ett_mip6_opt_ssm = -1;
 static gint ett_pmip6_opt_hnp = -1;
+static gint ett_pmip6_opt_hi = -1;
+static gint ett_pmip6_opt_att = -1;
 static gint ett_pmip6_opt_ts = -1;
+static gint ett_mip6_opt_ipv4ha = -1;
+static gint ett_mip6_opt_ipv4aa = -1;
+static gint ett_pmip6_opt_grek = -1;
 
 /* Functions to dissect the mobility headers */
 
@@ -269,6 +292,10 @@ dissect_mip6_bu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 				MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
 		proto_tree_add_item(data_tree, hf_proxy_bu_p_flag, tvb, 
 				MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
+		proto_tree_add_item(data_tree, hf_proxy_bu_f_flag, tvb, 
+				MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
+		proto_tree_add_item(data_tree, hf_proxy_bu_t_flag, tvb, 
+				MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
 
 		if ((tvb_get_guint8(tvb, MIP6_BU_FLAGS_OFF) & 0x0004 ) == 0x0004)
 			proto_nemo = 1;
@@ -306,7 +333,8 @@ dissect_mip6_ba(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 				MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, FALSE);
 		proto_tree_add_item(data_tree, hf_proxy_ba_p_flag, tvb, 
 				MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, FALSE);
-
+		proto_tree_add_item(data_tree, hf_proxy_ba_t_flag, tvb, 
+				MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, FALSE);
 		if ((tvb_get_guint8(tvb, MIP6_BA_FLAGS_OFF) & 0x0040 ) == 0x0040)
 			proto_nemo = 1;
 
@@ -629,6 +657,72 @@ dissect_mip6_opt_mnid(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 }
 
 static void
+dissect_mip6_opt_vsm(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+                     guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+	proto_tree *field_tree = NULL;
+	proto_item *tf;
+	int len, p;
+	guint32 vendorid;
+	int hf_mip6_vsm_subtype_local;
+
+	tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
+	field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+
+	proto_tree_add_item(field_tree, hf_mip6_vsm_vid, tvb,
+			offset + MIP6_VSM_VID_OFF, MIP6_VSM_VID_LEN, FALSE);
+
+	vendorid = tvb_get_ntohl(tvb, offset+MIP6_VSM_VID_OFF);
+	switch (vendorid) {
+	case VENDOR_THE3GPP:
+		hf_mip6_vsm_subtype_local = hf_mip6_vsm_subtype_3gpp;
+		break;
+	default:
+		hf_mip6_vsm_subtype_local = hf_mip6_vsm_subtype;
+		break;
+	}
+	proto_tree_add_item(field_tree, hf_mip6_vsm_subtype_local, tvb,
+			offset + MIP6_VSM_SUBTYPE_OFF, MIP6_VSM_SUBTYPE_LEN, FALSE);
+
+	p = offset + MIP6_VSM_DATA_OFF;
+	len = optlen - MIP6_VSM_DATA_OFF;
+	if (len > 0)
+		proto_tree_add_text(field_tree, tvb, p, len, "Data");
+
+}
+
+static void
+dissect_mip6_opt_ssm(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+                     guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+	int len, p;
+
+	p = offset + MIP6_SSM_SSM_OFF;
+	len = optlen - MIP6_SSM_SSM_OFF;
+
+	if (len > 0)
+		proto_tree_add_text(opt_tree, tvb, p, len, "Identifier: %s", tvb_format_text(tvb, p, len));
+}
+
+static void
+dissect_pmip6_opt_hi(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+                     guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+
+	proto_tree_add_item(opt_tree, hf_pmip6_hi_opttype, tvb,
+			offset + PMIP6_HI_HI_OFF, PMIP6_HI_HI_LEN, FALSE);
+}
+
+static void
+dissect_pmip6_opt_att(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+                     guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+
+	proto_tree_add_item(opt_tree, hf_pmip6_att_opttype, tvb,
+			offset + PMIP6_ATT_ATT_OFF, PMIP6_ATT_ATT_LEN, FALSE);
+}
+
+static void
 dissect_pmip6_opt_ts(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
                      guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
 {
@@ -637,6 +731,61 @@ dissect_pmip6_opt_ts(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 	reftime = tvb_get_ptr(tvb, offset + 2, optlen);
 	proto_tree_add_bytes_format(opt_tree, hf_pmip6_timestamp, tvb, offset , 10,
 			reftime, "Timestamp: %s", ntp_fmt_ts(reftime));
+}
+
+static void
+dissect_pmip6_opt_ipv4ha(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+                     guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+	proto_tree *field_tree = NULL;
+	proto_item *tf;
+	int len, p;
+
+	tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
+	field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+
+	p = offset + MIP6_IPV4HA_PREFIXL_OFF;
+	len = MIP6_IPV4HA_PREFIXL_LEN;
+
+	proto_tree_add_item(field_tree, hf_mip6_ipv4ha_preflen, tvb, p, len, FALSE);
+	proto_tree_add_item(field_tree, hf_mip6_ipv4ha_p_flag, tvb, p, len+1, FALSE);
+
+	proto_tree_add_item(field_tree, hf_mip6_ipv4ha_ha, tvb,
+			offset + MIP6_IPV4HA_HA_OFF, MIP6_IPV4HA_HA_LEN, FALSE);
+
+}
+
+static void
+dissect_pmip6_opt_ipv4aa(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+                     guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+	proto_tree *field_tree = NULL;
+	proto_item *tf;
+	int len, p;
+
+	tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
+	field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+
+	proto_tree_add_item(field_tree, hf_mip6_ipv4aa_status, tvb,
+			offset + MIP6_IPV4AA_STATUS_OFF, MIP6_IPV4AA_STATUS_LEN, FALSE);
+
+	p = offset + MIP6_IPV4AA_PREFIXL_OFF;
+	len = MIP6_IPV4AA_PREFIXL_LEN;
+
+	proto_tree_add_item(field_tree, hf_mip6_ipv4ha_preflen, tvb, p, len, FALSE);
+
+	proto_tree_add_item(field_tree, hf_mip6_ipv4aa_ha, tvb,
+			offset + MIP6_IPV4AA_HA_OFF, MIP6_IPV4AA_HA_LEN, FALSE);
+
+}
+
+static void
+dissect_pmip6_opt_grek(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+                     guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+	proto_tree_add_item(opt_tree, hf_pmip6_gre_key, tvb,
+			offset + PMIP6_GREK_ID_OFF, PMIP6_GREK_ID_LEN, FALSE);
+
 }
 
 static const ip_tcp_opt mip6_opts[] = {
@@ -713,12 +862,44 @@ static const ip_tcp_opt mip6_opts[] = {
 	dissect_mip6_opt_mnid
 },
 {
+	VSM,						/* 19 Vendor Specific Mobility Option [RFC5094]  */
+	"Vendor Specific Mobility",
+	&ett_mip6_opt_vsm,
+	VARIABLE_LENGTH,
+	MIP6_VSM_MINLEN,
+	dissect_mip6_opt_vsm
+},
+{
+	SSM,						/* 20 Service Selection Mobility Option [RFC5149]  */
+	"Service Selection Mobility",
+	&ett_mip6_opt_ssm,
+	VARIABLE_LENGTH,
+	MIP6_SSM_MINLEN,
+	dissect_mip6_opt_ssm
+},
+{
 	HNP,
 	"Home Network Prefix",
 	&ett_pmip6_opt_hnp,
 	FIXED_LENGTH,
 	NEMO_MNP_LEN,
 	dissect_nemo_opt_mnp
+},
+{
+	MOHI,
+	"Handoff Indicator Option",
+	&ett_pmip6_opt_hi,
+	FIXED_LENGTH,
+	PMIP6_HI_LEN,
+	dissect_pmip6_opt_hi
+},
+{
+	ATT,
+	"Access Technology Type Option",
+	&ett_pmip6_opt_att,
+	FIXED_LENGTH,
+	PMIP6_ATT_LEN,
+	dissect_pmip6_opt_att
 },
 {
 	TS,
@@ -728,53 +909,34 @@ static const ip_tcp_opt mip6_opts[] = {
 	PMIP6_TS_LEN,
 	dissect_pmip6_opt_ts
 },
+{
+	IPV4HA,
+	"IPv4 Home Address",
+	&ett_mip6_opt_ipv4ha,
+	FIXED_LENGTH,
+	MIP6_IPV4HA_LEN,
+	dissect_pmip6_opt_ipv4ha
+},
+{
+	IPV4AA,
+	"IPv4 Address Acknowledgement",
+	&ett_mip6_opt_ipv4aa,
+	FIXED_LENGTH,
+	MIP6_IPV4AA_LEN,
+	dissect_pmip6_opt_ipv4aa
+},
+{
+	GREK,
+	"GRE Key",
+	&ett_pmip6_opt_grek,
+	FIXED_LENGTH,
+	PMIP6_GREK_LEN,
+	dissect_pmip6_opt_grek
+},
 };
 
 #define N_MIP6_OPTS	(sizeof mip6_opts / sizeof mip6_opts[0])
 
-/* Mobility Option types 
- * http://www.iana.org/assignments/mobility-parameters/mobility-parameters.xhtml
- */
-
-static const value_string nas_eps_emm_lcs_ind_vals[] = {
-	{ 0,	"Pad1"},										/* RFC3775 */ 
-	{ 1,	"PadN"},										/* RFC3775 */ 
-	{ 2,	"Binding Refresh Advice"},						/* RFC3775 */ 
-	{ 3,	"Alternate Care-of Address"},					/* RFC3775 */ 
-	{ 4,	"Nonce Indices"},								/* RFC3775 */ 
-	{ 5,	"Authorization Data"},							/* RFC3775 */ 
-	{ 6,	"Mobile Network Prefix Option"},				/* RFC3963 */ 
-	{ 7,	"Mobility Header Link-Layer Address option"},	/* RFC5568 */ 
-	{ 8,	"MN-ID-OPTION-TYPE"},							/* RFC4283 */ 
-	{ 9,	"AUTH-OPTION-TYPE"},							/* RFC4285 */ 
-	{ 10,	"MESG-ID-OPTION-TYPE"},							/* RFC4285 */ 
-	{ 11,	"CGA Parameters Request"},						/* RFC4866 */ 
-	{ 12,	"CGA Parameters"},								/* RFC4866 */ 
-	{ 13,	"Signature"},									/* RFC4866 */ 
-	{ 14,	"Permanent Home Keygen Token"},					/* RFC4866 */ 
-	{ 15,	"Care-of Test Init"},							/* RFC4866 */ 
-	{ 16,	"Care-of Test"},								/* RFC4866 */ 
-	{ 17,	"DNS-UPDATE-TYPE"},								/* RFC5026 */ 
-	{ 18,	"Experimental Mobility Option"},				/* RFC5096 */ 
-	{ 19,	"Vendor Specific Mobility Option"},				/* RFC5094 */ 
-	{ 20,	"Service Selection Mobility Option"},			/* RFC5149 */ 
-	{ 21,	"Binding Authorization Data for FMIPv6 (BADF)"}, /* RFC5568 */ 
-	{ 22,	"Home Network Prefix Option"},					/* RFC5213 */ 
-	{ 23,	"Handoff Indicator Option"},					/* RFC5213 */ 
-	{ 24,	"Access Technology Type Option"},				/* RFC5213 */ 
-	{ 25,	"Mobile Node Link-layer Identifier Option"},	/* RFC5213 */ 
-	{ 26,	"Link-local Address Option"},					/* RFC5213 */ 
-	{ 27,	"Timestamp Option"},							/* RFC5213 */ 
-	{ 28,	"Restart Counter"},								/* RFC-ietf-netlmm-pmipv6-heartbeat-07 */ 
-	{ 29,	"IPv4 Home Address"},							/* RFC5555 */ 
-	{ 30,	"IPv4 Address Acknowledgement"},				/* RFC5555 */ 
-	{ 31,	"NAT Detection"},								/* RFC5555 */ 
-	{ 32,	"IPv4 Care-of Address"},						/* RFC5555 */ 
-	{ 33,	"GRE Key Option"},								/* RFC-ietf-netlmm-grekey-option-09 */ 
-	{ 34,	"Mobility Header IPv6 Address/Prefix"},			/* RFC5568 */ 
-	{ 35,	"Binding Identifier"},							/* RFC-ietf-monami6-multiplecoa-14 */ 
-	{ 0, NULL }
-};
 
 /* Like "dissect_ip_tcp_options()", but assumes the length of an option
  * *doesn't* include the type and length bytes.  The option parsers,
@@ -963,13 +1125,13 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case HOTI:
 		offset = dissect_mip6_hoti(tvb, mip6_tree, pinfo);
 		break;
-	case COTI:
+	case MHCOTI:
 		offset = dissect_mip6_coti(tvb, mip6_tree, pinfo);
 		break;
 	case HOT:
 		offset = dissect_mip6_hot(tvb, mip6_tree, pinfo);
 		break;
-	case COT:
+	case MHCOT:
 		offset = dissect_mip6_cot(tvb, mip6_tree, pinfo);
 		break;
 	case BU:
@@ -1082,35 +1244,45 @@ proto_register_mip6(void)
 	                              FT_UINT16, BASE_DEC, NULL, 0,
 	                              NULL, HFILL }},
 	{ &hf_mip6_bu_a_flag,       { "Acknowledge (A) flag", "mip6.bu.a_flag",
-	                              FT_BOOLEAN, 8, TFS(&mip6_bu_a_flag_value),
-	                              0x80, NULL, HFILL }},
+	                              FT_BOOLEAN, 16, TFS(&mip6_bu_a_flag_value),
+	                              0x8000, NULL, HFILL }},
 	{ &hf_mip6_bu_h_flag,       { "Home Registration (H) flag",
 	                              "mip6.bu.h_flag",
-	                              FT_BOOLEAN, 8, TFS(&mip6_bu_h_flag_value),
-	                              0x40, NULL, HFILL }},
+	                              FT_BOOLEAN, 16, TFS(&mip6_bu_h_flag_value),
+	                              0x4000, NULL, HFILL }},
 	{ &hf_mip6_bu_l_flag,       { "Link-Local Compatibility (L) flag",
 	                              "mip6.bu.l_flag",
-	                              FT_BOOLEAN, 8, TFS(&mip6_bu_l_flag_value),
-	                              0x20, "Home Registration (H) flag", HFILL }},
+	                              FT_BOOLEAN, 16, TFS(&mip6_bu_l_flag_value),
+	                              0x2000, "Home Registration (H) flag", HFILL }},
 	{ &hf_mip6_bu_k_flag,       { "Key Management Compatibility (K) flag",
 	                              "mip6.bu.k_flag",
-	                              FT_BOOLEAN, 8, TFS(&mip6_bu_k_flag_value),
-	                              0x10, NULL,
+	                              FT_BOOLEAN, 16, TFS(&mip6_bu_k_flag_value),
+	                              0x1000, NULL,
 	                              HFILL }},
 	{ &hf_mip6_bu_m_flag,       { "MAP Registration Compatibility (M) flag",
 	                              "mip6.bu.m_flag",
-	                              FT_BOOLEAN, 8, TFS(&mip6_bu_m_flag_value),
-	                              0x08, NULL,
+	                              FT_BOOLEAN, 16, TFS(&mip6_bu_m_flag_value),
+	                              0x0800, NULL,
 	                              HFILL }},
 	{ &hf_nemo_bu_r_flag,       { "Mobile Router (R) flag", 
 	                              "nemo.bu.r_flag",
-	                              FT_BOOLEAN, 8, TFS(&nemo_bu_r_flag_value),
-	                              0x04, NULL,
+	                              FT_BOOLEAN, 16, TFS(&nemo_bu_r_flag_value),
+	                              0x0400, NULL,
 	                              HFILL }},
 	{ &hf_proxy_bu_p_flag,      { "Proxy Registration (P) flag", 
 	                              "mip6.bu.p_flag",
-	                              FT_BOOLEAN, 8, TFS(&proxy_bu_p_flag_value),
-	                              0x02, NULL,
+	                              FT_BOOLEAN, 16, TFS(&proxy_bu_p_flag_value),
+	                              0x0200, NULL,
+	                              HFILL }},
+	{ &hf_proxy_bu_f_flag,      { "Forcing UDP encapsulation (F) flag", 
+	                              "mip6.bu.f_flag",
+	                              FT_BOOLEAN, 16, TFS(&proxy_bu_f_flag_value),
+	                              0x0100, NULL,
+	                              HFILL }},
+	{ &hf_proxy_bu_t_flag,      { "TLV-header format (T) flag", 
+	                              "mip6.bu.t_flag",
+	                              FT_BOOLEAN, 16, TFS(&proxy_bu_t_flag_value),
+	                              0x0080, NULL,
 	                              HFILL }},
 	{ &hf_mip6_bu_lifetime,     { "Lifetime", "mip6.bu.lifetime",
 	                              FT_UINT16, BASE_DEC, NULL, 0,
@@ -1134,6 +1306,11 @@ proto_register_mip6(void)
 	                              "proxy.ba.p_flag",
 	                              FT_BOOLEAN, 8, TFS(&proxy_bu_p_flag_value),
 	                              0x20, NULL,
+	                              HFILL }},
+	{ &hf_proxy_ba_t_flag,      { "TLV-header format (T) flag",
+	                              "proxy.ba.t_flag",
+	                              FT_BOOLEAN, 8, TFS(&proxy_bu_t_flag_value),
+	                              0x10, NULL,
 	                              HFILL }},
 
 	{ &hf_mip6_ba_seqnr,        { "Sequence number", "mip6.ba.seqnr",
@@ -1220,7 +1397,7 @@ proto_register_mip6(void)
 	                              NULL, HFILL }},
 
 	{ &hf_fmip6_lla_optcode,    { "Option-Code", "mip6.lla.optcode",
-	                              FT_UINT8, BASE_DEC, VALS(&fmip6_lla_optcode_value), 0,
+	                              FT_UINT8, BASE_DEC, VALS(fmip6_lla_optcode_value), 0,
 	                              NULL, HFILL }},
 
 	{ &hf_nemo_mnp_pfl,         { "Mobile Network Prefix Length", "nemo.mnp.pfl",
@@ -1232,14 +1409,59 @@ proto_register_mip6(void)
 	                              NULL, HFILL }},
 
 	{ &hf_mip6_mnid_subtype,    { "Subtype", "mip6.mnid.subtype",
-                                      FT_UINT8, BASE_DEC, VALS(&mip6_mnid_subtype_value), 0,
+                                      FT_UINT8, BASE_DEC, VALS(mip6_mnid_subtype_value), 0,
+                                      NULL, HFILL }},
+
+	{ &hf_mip6_vsm_vid,         { "VendorId", "mip6.vsm.vendorId",
+                                      FT_UINT32, BASE_DEC, VALS(sminmpec_values), 0x0,
+                                      NULL, HFILL }},
+
+	{ &hf_mip6_vsm_subtype,     { "Subtype", "mip6.vsm.subtype",
+                                      FT_UINT8, BASE_DEC, VALS(mip6_vsm_subtype_value), 0,
+                                      NULL, HFILL }},
+
+	{ &hf_mip6_vsm_subtype_3gpp, { "Subtype", "mip6.vsm.subtype",
+                                      FT_UINT8, BASE_DEC, VALS(mip6_vsm_subtype_3gpp_value), 0,
+                                      NULL, HFILL }},
+
+	{ &hf_pmip6_hi_opttype,     { "Handoff Indicator Option type", "pmip6.hi",
+                                      FT_UINT8, BASE_DEC, VALS(pmip6_hi_opttype_value), 0,
+                                      NULL, HFILL }},
+
+	{ &hf_pmip6_att_opttype,    { "Access Technology Type Option type", "pmip6.att",
+                                      FT_UINT8, BASE_DEC, VALS(pmip6_att_opttype_value), 0,
                                       NULL, HFILL }},
 
 	{ &hf_pmip6_timestamp,      { "Timestamp", "pmip6.timestamp",
                                       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
-	{ &hf_mip6_mobility_opt,      { "Mobility Options", "pmip6.mobility_opt",
-                                      FT_UINT8, BASE_DEC, VALS(nas_eps_emm_lcs_ind_vals), 0, NULL, HFILL }},
+	{ &hf_mip6_ipv4ha_preflen,  { "Prefix-len", "mip6.ipv4ha.preflen",
+                                      FT_UINT8, BASE_DEC, NULL, 0xfc, 
+                                      NULL, HFILL}},
+
+	{ &hf_mip6_ipv4ha_p_flag,   { "mobile network prefix (P) flag", "mip6.ipv4ha.p_flag",
+                                      FT_BOOLEAN, 16, TFS(&mip6_ipv4ha_p_flag_value), 0x0200,
+                                      NULL, HFILL }},
+
+	{ &hf_mip6_ipv4ha_ha,       { "IPv4 Home Address", "mip6.ipv4ha.ha",
+                                      FT_IPv4, BASE_NONE, NULL, 0x0,
+                                      NULL, HFILL }},
+
+	{ &hf_mip6_ipv4aa_status,   { "Status", "mip6.ipv4aa.sts",
+                                      FT_UINT8, BASE_DEC, NULL, 0x0,
+                                      NULL, HFILL}},
+
+	{ &hf_mip6_ipv4aa_ha,       { "IPv4 Address Acknowledgement", "mip6.ipv4aa.ha",
+                                      FT_IPv4, BASE_NONE, NULL, 0x0,
+                                      NULL, HFILL }},
+
+	{ &hf_pmip6_gre_key,        { "GRE Key", "pmip6.gre_key",
+                                      FT_UINT32, BASE_DEC, NULL, 0x0,
+                                      NULL, HFILL}},
+
+	{ &hf_mip6_mobility_opt,    { "Mobility Options", "pmip6.mobility_opt",
+                                      FT_UINT8, BASE_DEC, VALS(mip6_mobility_options), 0,
+                                      NULL, HFILL }},
 	};
 
 	/* Setup protocol subtree array */
@@ -1253,8 +1475,15 @@ proto_register_mip6(void)
 		&ett_fmip6_opt_lla,
 		&ett_nemo_opt_mnp,
 		&ett_mip6_opt_mnid,
+		&ett_mip6_opt_vsm,
+		&ett_mip6_opt_ssm,
 		&ett_pmip6_opt_hnp,
-		&ett_pmip6_opt_ts
+		&ett_pmip6_opt_hi,
+		&ett_pmip6_opt_att,
+		&ett_pmip6_opt_ts,
+		&ett_mip6_opt_ipv4ha,
+		&ett_mip6_opt_ipv4aa,
+		&ett_pmip6_opt_grek,
 	};
 
 	/* Register the protocol name and description */

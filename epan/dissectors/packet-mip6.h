@@ -38,9 +38,9 @@
 typedef enum {
 	BRR  = 0,
 	HOTI = 1,
-	COTI = 2,
+	MHCOTI = 2,
 	HOT  = 3,
-	COT  = 4,
+	MHCOT  = 4,
 	BU   = 5,
 	BA   = 6,
 	BE    = 7,
@@ -58,9 +58,9 @@ typedef enum {
 static const value_string mip6_mh_types[] = {
 	{BRR,   "Binding Refresh Request"},
 	{HOTI,  "Home Test Init"},
-	{COTI,  "Care-of Test Init"},
+	{MHCOTI,  "Care-of Test Init"},
 	{HOT,   "Home Test"},
-	{COT,   "Care-of Test"},
+	{MHCOT,   "Care-of Test"},
 	{BU,    "Binding Update"},
 	{BA,    "Binding Acknowledgement"},
 	{BE,    "Binding Error"},
@@ -89,35 +89,40 @@ typedef enum {
 	MNP  = 6,	/* 6 Mobile Network Prefix Option */
 	MHLLA  = 7,	/* 7 Mobility Header Link-Layer Address option [RFC5568] */
 	MNID = 8,	/* 8 MN-ID-OPTION-TYPE */
-				/* 9 AUTH-OPTION-TYPE */
-				/* 10 MESG-ID-OPTION-TYPE [RFC4285]  */
-				/* 11 CGA Parameters Request [RFC4866]  */
-				/* 12 CGA Parameters [RFC4866]  */
-				/* 13 Signature [RFC4866]  */
-				/* 14 Permanent Home Keygen Token [RFC4866]  */ 
-				/* 15 Care-of Test Init [RFC4866]  */
-				/* 16 Care-of Test [RFC4866]  */
-				/* 17 DNS-UPDATE-TYPE [RFC5026]  */
-				/* 18 Experimental Mobility Option [RFC5096]  */
-				/* 19 Vendor Specific Mobility Option [RFC5094]  */
-				/* 20 Service Selection Mobility Option [RFC5149]  */
-				/* 21 Binding Authorization Data for FMIPv6 (BADF) [RFC5568]  */
-	HNP  = 22,	/* Home Network Prefix  */
-				/* 22 Home Network Prefix Option [RFC5213]   */
-				/* 23 Handoff Indicator Option [RFC5213]   */
-				/* 24 Access Technology Type Option [RFC5213]  */ 
-				/* 25 Mobile Node Link-layer Identifier Option [RFC5213]  */ 
-				/* 26 Link-local Address Option [RFC5213   */
-	TS   = 27	/* Timestamp */
-				/* 28 Restart Counter [RFC-ietf-netlmm-pmipv6-heartbeat-07] */ 
-				/* 29 IPv4 Home Address [RFC5555]  */
-				/* 30 IPv4 Address Acknowledgement [RFC5555] */ 
-				/* 31 NAT Detection [RFC5555]  */
-				/* 32 IPv4 Care-of Address [RFC5555]  */
-				/* 33 GRE Key Option [RFC-ietf-netlmm-grekey-option-09]  */
-				/* 34 Mobility Header IPv6 Address/Prefix [RFC5568]  */
-				/* 35 Binding Identifier [RFC-ietf-monami6-multiplecoa-14]  */
-
+	AUTH = 9,	/* 9 AUTH-OPTION-TYPE */
+	MESGID = 10,	/* 10 MESG-ID-OPTION-TYPE [RFC4285]  */
+	CGAPR = 11,	/* 11 CGA Parameters Request [RFC4866]  */
+	CGAR = 12,	/* 12 CGA Parameters [RFC4866]  */
+	SIGN = 13,	/* 13 Signature [RFC4866]  */
+	PHKT = 14,	/* 14 Permanent Home Keygen Token [RFC4866]  */ 
+	MOCOTI = 15,	/* 15 Care-of Test Init [RFC4866]  */
+	MOCOT = 16,	/* 16 Care-of Test [RFC4866]  */
+	DNSU = 17,	/* 17 DNS-UPDATE-TYPE [RFC5026]  */
+	EM = 18,	/* 18 Experimental Mobility Option [RFC5096]  */
+	VSM = 19,	/* 19 Vendor Specific Mobility Option [RFC5094]  */
+	SSM = 20,	/* 20 Service Selection Mobility Option [RFC5149]  */
+	BADFF = 21,	/* 21 Binding Authorization Data for FMIPv6 (BADF) [RFC5568]  */
+	HNP  = 22,	/* 22 Home Network Prefix Option [RFC5213]   */
+	MOHI = 23,	/* 23 Handoff Indicator Option [RFC5213]   */
+	ATT = 24,	/* 24 Access Technology Type Option [RFC5213]  */ 
+	MNLLI = 25,	/* 25 Mobile Node Link-layer Identifier Option [RFC5213]  */ 
+	LLA = 26,	/* 26 Link-local Address Option [RFC5213   */
+	TS   = 27,	/* 27 Timestamp */
+	RC = 28,	/* 28 Restart Counter [RFC-ietf-netlmm-pmipv6-heartbeat-07] */ 
+	IPV4HA = 29,	/* 29 IPv4 Home Address [RFC5555]  */
+	IPV4AA = 30,	/* 30 IPv4 Address Acknowledgement [RFC5555] */ 
+	NATD = 31,	/* 31 NAT Detection [RFC5555]  */
+	IPV4COA = 32,	/* 32 IPv4 Care-of Address [RFC5555]  */
+	GREK = 33,	/* 33 GRE Key Option [RFC-ietf-netlmm-grekey-option-09]  */
+	MHIPV6AP = 34,	/* 34 Mobility Header IPv6 Address/Prefix [RFC5568]  */
+	BI = 35,	/* 35 Binding Identifier [RFC-ietf-monami6-multiplecoa-14]  */
+	IPV4HAREQ = 36,	/* 36 IPv4 Home Address Request [RFC5844] */
+	IPV4HAREP = 37,	/* 37 IPv4 Home Address Reply [RFC5844] */
+	IPV4DRA = 38,	/* 38 IPv4 Default-Router Address [RFC5844] */
+	IPV4DSM = 39,	/* 39 IPv4 DHCP Support Mode [RFC5844] */
+	CR = 40,	/* 40 Context Request Option [RFC-ietf-mipshop-pfmipv6-14] */
+	LMAA = 41,	/* 41 Local Mobility Anchor Address Option [RFC-ietf-mipshop-pfmipv6-14] */
+	MNLLAII = 42,	/* 42 Mobile Node Link-local Address Interface Identifier Option [RFC-ietf-mipshop-pfmipv6-14] */
 } optTypes;
 
 /* Binding Update flag description */
@@ -154,6 +159,16 @@ static const true_false_string nemo_bu_r_flag_value = {
 static const true_false_string proxy_bu_p_flag_value = {
 	"Proxy Registration",
 	"No Proxy Registration"
+};
+
+static const true_false_string proxy_bu_f_flag_value = {
+	"Forcing UDP encapsulation used",
+	"No Forcing UDP encapsulation"
+};
+
+static const true_false_string proxy_bu_t_flag_value = {
+	"TLV-header format used",
+	"No TLV-header format"
 };
 
 /* Binding Acknowledgement status values */
@@ -245,6 +260,119 @@ static const value_string mip6_mnid_subtype_value[] = {
 	{   0, NULL }
 };
 
+/* mobile network prefix flag description */
+static const true_false_string mip6_ipv4ha_p_flag_value = {
+	"mobile network prefixt requested",
+	"mobile network prefix not requested"
+};
+
+/* Vendor-Specific Mobility Option */
+static const value_string mip6_vsm_subtype_value[] = {
+	{   0, NULL }
+};
+
+/* Vendor-Specific Mobility Option (3GPP TS29.282) */
+static const value_string mip6_vsm_subtype_3gpp_value[] = {
+	{   1, "Protocol Configuration Options" },
+	{   2, "3GPP Specific PMIPv6 Error Code" },
+	{   3, "PMIPv6 PDN GW IP Address" },
+	{   4, "PMIPv6 DHCPv4 Address Allocation Procedure Indication" },
+	{   5, "PMIPv6 Fully Qualified PDN Connection Set Identifier" },
+	{   6, "PMIPv6 PDN type indication" },
+	{   7, "Charging ID" },
+	{   8, "Selection Mode" },
+	{   9, "I-WLAN Mobility Access Point Name (APN)" },
+	{  10, "Charging Characteristics" },
+	{  11, "Mobile Equipment Identity (MEI)" },
+	{  12, "MSISDN" },
+	{  13, "Serving Network" },
+	{  14, "APN Restriction" },
+	{  15, "Maximum APN Restriction" },
+	{  16, "Unauthenticated IMSI" },
+	{  17, "PDN Connection ID" },
+	{   0, NULL }
+};
+
+/* Handoff Indicator Option type */
+static const value_string pmip6_hi_opttype_value[] = {
+	{   0, "Reserved" },
+	{   1, "Attachment over a new interface" },
+	{   2, "Handoff between two different interfaces of the mobile node" },
+	{   3, "Handoff between mobile access gateways for the same interface" },
+	{   4, "Handoff state unknown" },
+	{   5, "Handoff state not changed (Re-registration)" },
+	{   0, NULL }
+};
+
+/* Access Technology Type Option type */
+static const value_string pmip6_att_opttype_value[] = {
+	{   0, "Reserved" },
+	{   1, "Virtual" },
+	{   2, "PPP" },
+	{   3, "IEEE 802.3" },
+	{   4, "IEEE 802.11a/b/g" },
+	{   5, "IEEE 802.16e" },
+	{   6, "3GPP GERAN" },
+	{   7, "3GPP UTRAN" },
+	{   8, "3GPP E-UTRAN" },
+	{   9, "3GPP2 eHRPD" },
+	{  10, "3GPP2 HRPD" },
+	{  11, "3GPP2 1xRTT" },
+	{  12, "3GPP2 UMB" },
+	{   0, NULL }
+};
+
+/* Mobility Option types 
+ * http://www.iana.org/assignments/mobility-parameters/mobility-parameters.xhtml
+ */
+
+static const value_string mip6_mobility_options[] = {
+	{ PAD1,	"Pad1"},										/* RFC3775 */ 
+	{ PADN,	"PadN"},										/* RFC3775 */ 
+	{ BRA,	"Binding Refresh Advice"},						/* RFC3775 */ 
+	{ ACOA,	"Alternate Care-of Address"},					/* RFC3775 */ 
+	{ NI,	"Nonce Indices"},								/* RFC3775 */ 
+	{ AUTD,	"Authorization Data"},							/* RFC3775 */ 
+	{ MNP,	"Mobile Network Prefix Option"},				/* RFC3963 */ 
+	{ MHLLA,	"Mobility Header Link-Layer Address option"},	/* RFC5568 */ 
+	{ MNID,	"MN-ID-OPTION-TYPE"},							/* RFC4283 */ 
+	{ AUTH,	"AUTH-OPTION-TYPE"},							/* RFC4285 */ 
+	{ MESGID,	"MESG-ID-OPTION-TYPE"},							/* RFC4285 */ 
+	{ CGAPR,	"CGA Parameters Request"},						/* RFC4866 */ 
+	{ CGAR,	"CGA Parameters"},								/* RFC4866 */ 
+	{ SIGN,	"Signature"},									/* RFC4866 */ 
+	{ PHKT,	"Permanent Home Keygen Token"},					/* RFC4866 */ 
+	{ MOCOTI,	"Care-of Test Init"},							/* RFC4866 */ 
+	{ MOCOT,	"Care-of Test"},								/* RFC4866 */ 
+	{ DNSU,	"DNS-UPDATE-TYPE"},								/* RFC5026 */ 
+	{ EM,	"Experimental Mobility Option"},				/* RFC5096 */ 
+	{ VSM,	"Vendor Specific Mobility Option"},				/* RFC5094 */ 
+	{ SSM,	"Service Selection Mobility Option"},			/* RFC5149 */ 
+	{ BADFF,	"Binding Authorization Data for FMIPv6 (BADF)"}, /* RFC5568 */ 
+	{ HNP,	"Home Network Prefix Option"},					/* RFC5213 */ 
+	{ MOHI,	"Handoff Indicator Option"},					/* RFC5213 */ 
+	{ ATT,	"Access Technology Type Option"},				/* RFC5213 */ 
+	{ MNLLI,	"Mobile Node Link-layer Identifier Option"},	/* RFC5213 */ 
+	{ LLA,	"Link-local Address Option"},					/* RFC5213 */ 
+	{ TS,	"Timestamp Option"},							/* RFC5213 */ 
+	{ RC,	"Restart Counter"},								/* RFC5847 */ 
+	{ IPV4HA,	"IPv4 Home Address"},							/* RFC5555 */ 
+	{ IPV4AA,	"IPv4 Address Acknowledgement"},				/* RFC5555 */ 
+	{ NATD,	"NAT Detection"},								/* RFC5555 */ 
+	{ IPV4COA,	"IPv4 Care-of Address"},						/* RFC5555 */ 
+	{ GREK,	"GRE Key Option"},								/* RFC5845 */ 
+	{ MHIPV6AP,	"Mobility Header IPv6 Address/Prefix"},			/* RFC5568 */ 
+	{ BI,	"Binding Identifier"},							/* RFC5648 */ 
+	{ IPV4HAREQ,	"IPv4 Home Address Request"},					/* RFC5844 */ 
+	{ IPV4HAREP,	"IPv4 Home Address Reply"},						/* RFC5844 */ 
+	{ IPV4DRA,	"IPv4 Default-Router Address"},					/* RFC5844 */ 
+	{ IPV4DSM,	"IPv4 DHCP Support Mode"},						/* RFC5844 */ 
+	{ CR,	"Context Request Option"},						/* RFC-ietf-mipshop-pfmipv6-14 */ 
+	{ LMAA,	"Local Mobility Anchor Address Option"},		/* RFC-ietf-mipshop-pfmipv6-14 */ 
+	{ MNLLAII,	"Mobile Node Link-local Address Interface Identifier Option"},	/* RFC-ietf-mipshop-pfmipv6-14 */ 
+	{ 0, NULL }
+};
+
 /* Message lengths */
 #define MIP6_BRR_LEN          2
 #define MIP6_HOTI_LEN        10
@@ -315,8 +443,8 @@ static const value_string mip6_mnid_subtype_value[] = {
 #define MIP6_BU_LIFETIME_OFF 10
 #define MIP6_BU_OPTS_OFF     12
 #define MIP6_BU_SEQNR_LEN     2
-#define MIP6_BU_FLAGS_LEN     1
-#define MIP6_BU_RES_LEN       1
+#define MIP6_BU_FLAGS_LEN     2
+#define MIP6_BU_RES_LEN       0
 #define MIP6_BU_LIFETIME_LEN  2
 
 #define MIP6_BA_STATUS_OFF    6
@@ -441,6 +569,43 @@ static const value_string mip6_mnid_subtype_value[] = {
 #define MIP6_MNID_SUBTYPE_LEN 1
 #define MIP6_MNID_MNID_OFF    3
 
+#define MIP6_VSM_MINLEN       2
+#define MIP6_VSM_VID_OFF      2
+#define MIP6_VSM_VID_LEN      4
+#define MIP6_VSM_SUBTYPE_OFF  6
+#define MIP6_VSM_SUBTYPE_LEN  1
+#define MIP6_VSM_DATA_OFF     7
+
+
+#define MIP6_SSM_MINLEN       2
+#define MIP6_SSM_SSM_OFF      2
+
+#define PMIP6_HI_LEN          2
+#define PMIP6_HI_HI_OFF       3
+#define PMIP6_HI_HI_LEN       1
+
+#define PMIP6_ATT_LEN         2
+#define PMIP6_ATT_ATT_OFF     3
+#define PMIP6_ATT_ATT_LEN     1
+
 #define PMIP6_TS_LEN          8
+
+#define MIP6_IPV4HA_LEN       6
+#define MIP6_IPV4HA_PREFIXL_OFF 2
+#define MIP6_IPV4HA_PREFIXL_LEN 1
+#define MIP6_IPV4HA_HA_OFF    4
+#define MIP6_IPV4HA_HA_LEN    4
+
+#define MIP6_IPV4AA_LEN       6
+#define MIP6_IPV4AA_STATUS_OFF 2
+#define MIP6_IPV4AA_STATUS_LEN 1
+#define MIP6_IPV4AA_PREFIXL_OFF 3
+#define MIP6_IPV4AA_PREFIXL_LEN 1
+#define MIP6_IPV4AA_HA_OFF    4
+#define MIP6_IPV4AA_HA_LEN    4
+
+#define PMIP6_GREK_LEN        6
+#define PMIP6_GREK_ID_OFF     4
+#define PMIP6_GREK_ID_LEN     4
 
 #endif /* __PACKET_MIP6_H_DEFINED__ */
