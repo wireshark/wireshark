@@ -151,22 +151,22 @@ static const true_false_string mip6_bu_m_flag_value = {
 	"No MAP Registration Compatibility",
 };
 
-static const true_false_string nemo_bu_r_flag_value = {
+static const true_false_string mip6_nemo_bu_r_flag_value = {
 	"Mobile Router Compatibility",
 	"No Mobile Router Compatibility"
 };
 
-static const true_false_string proxy_bu_p_flag_value = {
+static const true_false_string pmip6_bu_p_flag_value = {
 	"Proxy Registration",
 	"No Proxy Registration"
 };
 
-static const true_false_string proxy_bu_f_flag_value = {
+static const true_false_string mip6_bu_f_flag_value = {
 	"Forcing UDP encapsulation used",
 	"No Forcing UDP encapsulation"
 };
 
-static const true_false_string proxy_bu_t_flag_value = {
+static const true_false_string pmip6_bu_t_flag_value = {
 	"TLV-header format used",
 	"No TLV-header format"
 };
@@ -546,10 +546,10 @@ static const value_string mip6_mobility_options[] = {
 #define MIP6_ACOA_ACOA_OFF    2
 #define MIP6_ACOA_ACOA_LEN   16
 
-#define NEMO_MNP_LEN         18
-#define NEMO_MNP_PL_OFF       3
-#define NEMO_MNP_MNP_OFF      4
-#define NEMO_MNP_MNP_LEN     16
+#define MIP6_NEMO_MNP_LEN         18
+#define MIP6_NEMO_MNP_PL_OFF       3
+#define MIP6_NEMO_MNP_MNP_OFF      4
+#define MIP6_NEMO_MNP_MNP_LEN     16
 
 #define MIP6_NI_LEN           4
 #define MIP6_NI_HNI_OFF       2

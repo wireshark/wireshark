@@ -71,17 +71,17 @@ static int hf_mip6_bu_h_flag = -1;
 static int hf_mip6_bu_l_flag = -1;
 static int hf_mip6_bu_k_flag = -1;
 static int hf_mip6_bu_m_flag = -1;
-static int hf_nemo_bu_r_flag = -1;
-static int hf_proxy_bu_p_flag = -1;
-static int hf_proxy_bu_f_flag = -1;
-static int hf_proxy_bu_t_flag = -1;
+static int hf_mip6_nemo_bu_r_flag = -1;
+static int hf_pmip6_bu_p_flag = -1;
+static int hf_mip6_bu_f_flag = -1;
+static int hf_pmip6_bu_t_flag = -1;
 static int hf_mip6_bu_lifetime = -1;
 
 static int hf_mip6_ba_status = -1;
 static int hf_mip6_ba_k_flag = -1;
-static int hf_nemo_ba_r_flag = -1;
-static int hf_proxy_ba_p_flag = -1;
-static int hf_proxy_ba_t_flag = -1;
+static int hf_mip6_nemo_ba_r_flag = -1;
+static int hf_pmip6_ba_p_flag = -1;
+static int hf_pmip6_ba_t_flag = -1;
 static int hf_mip6_ba_seqnr = -1;
 static int hf_mip6_ba_lifetime = -1;
 
@@ -107,8 +107,8 @@ static int hf_mip6_hb_seqnr = -1;
 static int hf_mip6_bra_interval = -1;
 
 static int hf_mip6_acoa_acoa = -1;
-static int hf_nemo_mnp_mnp = -1;
-static int hf_nemo_mnp_pfl = -1;
+static int hf_mip6_nemo_mnp_mnp = -1;
+static int hf_mip6_nemo_mnp_pfl = -1;
 
 static int hf_mip6_ni_hni = -1;
 static int hf_mip6_ni_cni = -1;
@@ -141,7 +141,7 @@ static gint ett_mip6_opt_bra = -1;
 static gint ett_mip6_opt_acoa = -1;
 static gint ett_mip6_opt_ni = -1;
 static gint ett_mip6_opt_bad = -1;
-static gint ett_nemo_opt_mnp = -1;
+static gint ett_mip6_nemo_opt_mnp = -1;
 static gint ett_fmip6_opt_lla = -1;
 static gint ett_mip6_opt_mnid = -1;
 static gint ett_mip6_opt_vsm = -1;
@@ -288,13 +288,13 @@ dissect_mip6_bu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 				MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
 		proto_tree_add_item(data_tree, hf_mip6_bu_m_flag, tvb, 
 				MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
-		proto_tree_add_item(data_tree, hf_nemo_bu_r_flag, tvb, 
+		proto_tree_add_item(data_tree, hf_mip6_nemo_bu_r_flag, tvb, 
 				MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
-		proto_tree_add_item(data_tree, hf_proxy_bu_p_flag, tvb, 
+		proto_tree_add_item(data_tree, hf_pmip6_bu_p_flag, tvb, 
 				MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
-		proto_tree_add_item(data_tree, hf_proxy_bu_f_flag, tvb, 
+		proto_tree_add_item(data_tree, hf_mip6_bu_f_flag, tvb, 
 				MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
-		proto_tree_add_item(data_tree, hf_proxy_bu_t_flag, tvb, 
+		proto_tree_add_item(data_tree, hf_pmip6_bu_t_flag, tvb, 
 				MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
 
 		if ((tvb_get_guint8(tvb, MIP6_BU_FLAGS_OFF) & 0x0004 ) == 0x0004)
@@ -329,11 +329,11 @@ dissect_mip6_ba(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 				MIP6_BA_STATUS_OFF, MIP6_BA_STATUS_LEN, FALSE);
 		proto_tree_add_item(data_tree, hf_mip6_ba_k_flag, tvb, 
 				MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, FALSE);
-		proto_tree_add_item(data_tree, hf_nemo_ba_r_flag, tvb, 
+		proto_tree_add_item(data_tree, hf_mip6_nemo_ba_r_flag, tvb, 
 				MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, FALSE);
-		proto_tree_add_item(data_tree, hf_proxy_ba_p_flag, tvb, 
+		proto_tree_add_item(data_tree, hf_pmip6_ba_p_flag, tvb, 
 				MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, FALSE);
-		proto_tree_add_item(data_tree, hf_proxy_ba_t_flag, tvb, 
+		proto_tree_add_item(data_tree, hf_pmip6_ba_t_flag, tvb, 
 				MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, FALSE);
 		if ((tvb_get_guint8(tvb, MIP6_BA_FLAGS_OFF) & 0x0040 ) == 0x0040)
 			proto_nemo = 1;
@@ -537,7 +537,7 @@ dissect_mip6_opt_acoa(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 }
 
 static void
-dissect_nemo_opt_mnp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+dissect_mip6_nemo_opt_mnp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
                       guint optlen, packet_info *pinfo _U_,
                       proto_tree *opt_tree)
 {
@@ -545,11 +545,11 @@ dissect_nemo_opt_mnp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 	proto_item *tf;
 	tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
 	field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-	proto_tree_add_item(field_tree, hf_nemo_mnp_pfl, tvb,
-			offset + NEMO_MNP_PL_OFF, 1, FALSE);
+	proto_tree_add_item(field_tree, hf_mip6_nemo_mnp_pfl, tvb,
+			offset + MIP6_NEMO_MNP_PL_OFF, 1, FALSE);
 
-	proto_tree_add_item(field_tree, hf_nemo_mnp_mnp, tvb,
-			offset + NEMO_MNP_MNP_OFF, NEMO_MNP_MNP_LEN, FALSE);
+	proto_tree_add_item(field_tree, hf_mip6_nemo_mnp_mnp, tvb,
+			offset + MIP6_NEMO_MNP_MNP_OFF, MIP6_NEMO_MNP_MNP_LEN, FALSE);
 }
 
 static void
@@ -824,10 +824,10 @@ static const ip_tcp_opt mip6_opts[] = {
 {
 	MNP,						/* 6 Mobile Network Prefix Option */
 	"Mobile Network Prefix",
-	&ett_nemo_opt_mnp,
+	&ett_mip6_nemo_opt_mnp,
 	FIXED_LENGTH,
-	NEMO_MNP_LEN,
-	dissect_nemo_opt_mnp
+	MIP6_NEMO_MNP_LEN,
+	dissect_mip6_nemo_opt_mnp
 },
 {
 	NI,							/* 4 Nonce Indices */
@@ -882,8 +882,8 @@ static const ip_tcp_opt mip6_opts[] = {
 	"Home Network Prefix",
 	&ett_pmip6_opt_hnp,
 	FIXED_LENGTH,
-	NEMO_MNP_LEN,
-	dissect_nemo_opt_mnp
+	MIP6_NEMO_MNP_LEN,
+	dissect_mip6_nemo_opt_mnp
 },
 {
 	MOHI,
@@ -1264,24 +1264,24 @@ proto_register_mip6(void)
 	                              FT_BOOLEAN, 16, TFS(&mip6_bu_m_flag_value),
 	                              0x0800, NULL,
 	                              HFILL }},
-	{ &hf_nemo_bu_r_flag,       { "Mobile Router (R) flag", 
-	                              "nemo.bu.r_flag",
-	                              FT_BOOLEAN, 16, TFS(&nemo_bu_r_flag_value),
+	{ &hf_mip6_nemo_bu_r_flag,  { "Mobile Router (R) flag", 
+	                              "mip6.nemo.bu.r_flag",
+	                              FT_BOOLEAN, 16, TFS(&mip6_nemo_bu_r_flag_value),
 	                              0x0400, NULL,
 	                              HFILL }},
-	{ &hf_proxy_bu_p_flag,      { "Proxy Registration (P) flag", 
-	                              "mip6.bu.p_flag",
-	                              FT_BOOLEAN, 16, TFS(&proxy_bu_p_flag_value),
+	{ &hf_pmip6_bu_p_flag,      { "Proxy Registration (P) flag", 
+	                              "pmip6.bu.p_flag",
+	                              FT_BOOLEAN, 16, TFS(&pmip6_bu_p_flag_value),
 	                              0x0200, NULL,
 	                              HFILL }},
-	{ &hf_proxy_bu_f_flag,      { "Forcing UDP encapsulation (F) flag", 
+	{ &hf_mip6_bu_f_flag,       { "Forcing UDP encapsulation (F) flag", 
 	                              "mip6.bu.f_flag",
-	                              FT_BOOLEAN, 16, TFS(&proxy_bu_f_flag_value),
+	                              FT_BOOLEAN, 16, TFS(&mip6_bu_f_flag_value),
 	                              0x0100, NULL,
 	                              HFILL }},
-	{ &hf_proxy_bu_t_flag,      { "TLV-header format (T) flag", 
-	                              "mip6.bu.t_flag",
-	                              FT_BOOLEAN, 16, TFS(&proxy_bu_t_flag_value),
+	{ &hf_pmip6_bu_t_flag,      { "TLV-header format (T) flag", 
+	                              "pmip6.bu.t_flag",
+	                              FT_BOOLEAN, 16, TFS(&pmip6_bu_t_flag_value),
 	                              0x0080, NULL,
 	                              HFILL }},
 	{ &hf_mip6_bu_lifetime,     { "Lifetime", "mip6.bu.lifetime",
@@ -1297,19 +1297,19 @@ proto_register_mip6(void)
 	                              FT_BOOLEAN, 8, TFS(&mip6_bu_k_flag_value),
 	                              0x80, NULL,
 	                              HFILL }},
-	{ &hf_nemo_ba_r_flag,       { "Mobile Router (R) flag",
-	                              "nemo.ba.r_flag",
-	                              FT_BOOLEAN, 8, TFS(&nemo_bu_r_flag_value),
+	{ &hf_mip6_nemo_ba_r_flag,  { "Mobile Router (R) flag",
+	                              "mip6.nemo.ba.r_flag",
+	                              FT_BOOLEAN, 8, TFS(&mip6_nemo_bu_r_flag_value),
 	                              0x40, NULL,
 	                              HFILL }},
-	{ &hf_proxy_ba_p_flag,      { "Proxy Registration (P) flag",
-	                              "proxy.ba.p_flag",
-	                              FT_BOOLEAN, 8, TFS(&proxy_bu_p_flag_value),
+	{ &hf_pmip6_ba_p_flag,      { "Proxy Registration (P) flag",
+	                              "pmip6.ba.p_flag",
+	                              FT_BOOLEAN, 8, TFS(&pmip6_bu_p_flag_value),
 	                              0x20, NULL,
 	                              HFILL }},
-	{ &hf_proxy_ba_t_flag,      { "TLV-header format (T) flag",
-	                              "proxy.ba.t_flag",
-	                              FT_BOOLEAN, 8, TFS(&proxy_bu_t_flag_value),
+	{ &hf_pmip6_ba_t_flag,      { "TLV-header format (T) flag",
+	                              "pmip6.ba.t_flag",
+	                              FT_BOOLEAN, 8, TFS(&pmip6_bu_t_flag_value),
 	                              0x10, NULL,
 	                              HFILL }},
 
@@ -1400,11 +1400,11 @@ proto_register_mip6(void)
 	                              FT_UINT8, BASE_DEC, VALS(fmip6_lla_optcode_value), 0,
 	                              NULL, HFILL }},
 
-	{ &hf_nemo_mnp_pfl,         { "Mobile Network Prefix Length", "nemo.mnp.pfl",
+	{ &hf_mip6_nemo_mnp_pfl,    { "Mobile Network Prefix Length", "mip6.nemo.mnp.pfl",
 	                              FT_UINT8, BASE_DEC, NULL, 0,
 	                              NULL, HFILL }},
 
-	{ &hf_nemo_mnp_mnp,         { "Mobile Network Prefix", "nemo.mnp.mnp",
+	{ &hf_mip6_nemo_mnp_mnp,    { "Mobile Network Prefix", "mip6.nemo.mnp.mnp",
 	                              FT_IPv6, BASE_NONE, NULL, 0,
 	                              NULL, HFILL }},
 
@@ -1473,7 +1473,7 @@ proto_register_mip6(void)
 		&ett_mip6_opt_ni,
 		&ett_mip6_opt_bad,
 		&ett_fmip6_opt_lla,
-		&ett_nemo_opt_mnp,
+		&ett_mip6_nemo_opt_mnp,
 		&ett_mip6_opt_mnid,
 		&ett_mip6_opt_vsm,
 		&ett_mip6_opt_ssm,
