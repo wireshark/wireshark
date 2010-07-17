@@ -758,6 +758,7 @@ if(BUILD_capinfos)
 		${WTAP_PLUGIN_SOURCES}
 	)
 	add_executable(capinfos ${capinfos_FILES})
+	add_dependencies(capinfos svnversion)
 	set_target_properties(capinfos PROPERTIES LINK_FLAGS ${WS_LINK_FLAGS})
 	target_link_libraries(capinfos ${capinfos_LIBS})
 	install(TARGETS capinfos RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -789,8 +790,6 @@ if(BUILD_dumpcap)
 		${CAP_LIBRARIES}
 #		@SOCKET_LIBS@
 #		@NSL_LIBS@
-		${GCRYPT_LIBRARIES}
-		${GNUTLS_LIBRARIES}
 		${ZLIB_LIBRARIES}
 		${APPLE_COCOA_LIBRARY}
 	)
