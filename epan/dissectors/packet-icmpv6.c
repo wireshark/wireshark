@@ -299,25 +299,25 @@ static const value_string option_vals[] = {
     { ND_OPT_TIMESTAMP,                 "Timestamp" },                              /* [RFC3971] */
     { ND_OPT_NONCE,                     "Nonce" },                                  /* [RFC3971] */
     { ND_OPT_TRUST_ANCHOR,              "Trust Anchor" },                           /* [RFC3971] */
-    { 16,                               "Certificate" },                            /* [RFC3971] */
+    { ND_OPT_CERTIFICATE,               "Certificate" },                            /* [RFC3971] */
     { FMIP6_OPT_IP_ADDRESS,             "IP Address Option" },                      /* [RFC4068] */
     { FMIP6_OPT_NEW_ROUTER_PREFIX_INFO, "New Router Prefix Information" },          /* [RFC4068] */
     { FMIP6_OPT_LINK_LAYER_ADDRESS,     "Link-layer Address" },                     /* [RFC4068] */
     { FMIP6_OPT_NEIGHBOR_ADV_ACK,       "Neighbor Advertisement Acknowledgment" },  /* [RFC4068] */
 	/* 21-22   Unassigned */
-    { 21,                               "CARD Request" },                           /* [RFC4065] */
-    { 22,                               "CARD Reply" },                             /* [RFC4065] */
     { 23,                               "MAP" },                                    /* [RFC4140] */
     { ND_OPT_ROUTE_INFO,                "Route Information" },                      /* [RFC4191] */
     { ND_OPT_RECURSIVE_DNS_SERVER,      "Recursive DNS Server" },                   /* [RFC5006] */
     { 26,                               "RA Flags Extension" },                     /* [RFC5075] */
     { 27,                               "Handover Key Request" },                   /* [RFC5269] */
     { 28,                               "Handover Key Reply" },                     /* [RFC5269] */
-    { ND_OPT_MAP,                       "HMIPv6 MAP option" },
+    { 29,                               "Handover Assist Information" },            /* [RFC5271] */
+    { 30,                               "Mobile Node Identifier Option" },          /* [RFC5271] */
 	/* 31-137  Unassigned */
     { 138,                              "CARD Request" },                           /* [RFC4065] */
     { 139,                              "CARD Reply" },                             /* [RFC4065] */
 	/* 140-252 Unassigned */
+    { ND_OPT_MAP,                       "HMIPv6 MAP option" },                      /* unassigned */
     { 253,                              "RFC3692-style Experiment 1" },             /* [RFC4727] */
     { 254,                              "RFC3692-style Experiment 2" },             /* [RFC4727] */
     { 0,                                NULL }
@@ -326,6 +326,14 @@ static const value_string option_vals[] = {
 static const value_string icmpv6_option_name_type_vals[] = {
     { 1,    "DER Encoded X.501 Name" },
     { 2,    "FQDN" },
+    { 3,    "SHA-1 Subject Key Identifier (SKI)" },
+    { 4,    "SHA-224 Subject Key Identifier (SKI)" },
+    { 5,    "SHA-256 Subject Key Identifier (SKI)" },
+    { 6,    "SHA-384 Subject Key Identifier (SKI)" },
+    { 7,    "SHA-512 Subject Key Identifier (SKI)" },
+    { 253,  "Reserved for Experimental Use" },
+    { 254,  "Reserved for Experimental Use" },
+    { 255,  "Reserved" },
     { 0,    NULL }
 };
 
