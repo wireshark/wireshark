@@ -380,6 +380,7 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 	int	trlr_size = 0;
 	int	rec_offset;
 	guint8	*data_ptr;
+	gint64	delta = 0;	/* signed - frame times can be before the nominal start */
 	time_t	secs;
 	guint32	usecs;
 	double	t;
@@ -514,14 +515,15 @@ again:
 	switch (netmon->version_major) {
 
 	case 1:
-		t += ((double)pletohl(&hdr.hdr_1_x.ts_delta))*1000;
+		delta = ((gint32)pletohl(&hdr.hdr_1_x.ts_delta))*1000;
 		break;
 
 	case 2:
-		t += (double)pletohl(&hdr.hdr_2_x.ts_delta_lo)
-		    + (double)pletohl(&hdr.hdr_2_x.ts_delta_hi)*4294967296.0;
+		delta = pletohl(&hdr.hdr_2_x.ts_delta_lo)
+		    | (((guint64)pletohl(&hdr.hdr_2_x.ts_delta_hi)) << 32);
 		break;
 	}
+	t += (double)delta;
 	secs = (time_t)(t/1000000);
 	usecs = (guint32)(t - (double)secs*1000000);
 	wth->phdr.ts.secs = netmon->start_secs + secs;
