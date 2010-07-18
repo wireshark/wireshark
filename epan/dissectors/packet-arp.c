@@ -141,6 +141,12 @@ struct address_hash_value {
 #ifndef ATMARPOP_NAK
 #define ATMARPOP_NAK   10      /* ATMARP NAK.  */
 #endif
+#ifndef ARPOP_EXP1
+#define ARPOP_EXP1     24      /* Experimental 1 */
+#endif
+#ifndef ARPOP_EXP2
+#define ARPOP_EXP2     25      /* Experimental 2 */
+#endif
 
 static const value_string op_vals[] = {
   {ARPOP_REQUEST,  "request" },
@@ -149,6 +155,8 @@ static const value_string op_vals[] = {
   {ARPOP_RREPLY,   "reverse reply"  },
   {ARPOP_IREQUEST, "inverse request"},
   {ARPOP_IREPLY,   "inverse reply"  },
+  {ARPOP_EXP1,     "experimental 1" },
+  {ARPOP_EXP2,     "experimental 2" },
   {0,              NULL          } };
 
 static const value_string atmop_vals[] = {
@@ -296,6 +304,9 @@ static const value_string hrd_vals[] = {
   {ARPHRD_TIA_102_PRJ_25_CAI, "TIA-102 Project 25 CAI"},
   {ARPHRD_WIEGAND_INTERFACE,  "Wiegand Interface"},
   {ARPHRD_PURE_IP,            "Pure IP"    },
+  {ARPHDR_HW_EXP1,            "Experimental 1"},
+  {ARPHDR_HFI,                "HFI"        },
+  {ARPHDR_HW_EXP2,            "Experimental 2"},
   {0,                NULL                  } };
 
 const gchar *
