@@ -95,6 +95,30 @@ struct netmonrec_2_x_hdr {
 };
 
 /*
+ * Network Monitor 2.1 and later record trailers; documented in the Network
+ * Monitor 3.x help files, for 3.3 and later, although they don't clearly
+ * state how the trailer format changes from version to version.
+ *
+ * Some fields are multi-byte integers, but they're not aligned on their
+ * natural boundaries.
+ */
+struct netmonrec_2_1_trlr {
+	guint8 network[2];		/* network type for this packet */
+};
+
+struct netmonrec_2_2_trlr {
+	guint8 network[2];		/* network type for this packet */
+	guint8 process_info_index[4];	/* index into the process info table */
+};
+
+struct netmonrec_2_3_trlr {
+	guint8 network[2];		/* network type for this packet */
+	guint8 process_info_index[4];	/* index into the process info table */
+	guint8 utc_timestamp[8];	/* packet time stamp, as .1 us units since January 1, 1601, 00:00:00 UTC */
+	guint8 timezone_index;		/* index of time zone information */
+};
+
+/*
  * The link-layer header on ATM packets.
  */
 struct netmon_atm_hdr {
@@ -108,10 +132,38 @@ typedef struct {
 	time_t	start_secs;
 	guint32	start_usecs;
 	guint8	version_major;
+	guint8	version_minor;
 	guint32 *frame_table;
 	guint32	frame_table_size;
 	guint	current_frame;
 } netmon_t;
+
+static const int netmon_encap[] = {
+	WTAP_ENCAP_UNKNOWN,
+	WTAP_ENCAP_ETHERNET,
+	WTAP_ENCAP_TOKEN_RING,
+	WTAP_ENCAP_FDDI_BITSWAPPED,
+	WTAP_ENCAP_ATM_PDUS,	/* NDIS WAN - this is what's used for ATM */
+	WTAP_ENCAP_UNKNOWN,	/* NDIS LocalTalk */
+	WTAP_ENCAP_UNKNOWN,	/* NDIS "DIX" - should not occur */
+	WTAP_ENCAP_UNKNOWN,	/* NDIS ARCNET raw */
+	WTAP_ENCAP_UNKNOWN,	/* NDIS ARCNET 878.2 */
+	WTAP_ENCAP_UNKNOWN,	/* NDIS ATM (no, this is NOT used for ATM) */
+	WTAP_ENCAP_UNKNOWN,	/* NDIS Wireless WAN */
+	WTAP_ENCAP_UNKNOWN	/* NDIS IrDA */
+};
+#define NUM_NETMON_ENCAPS (sizeof netmon_encap / sizeof netmon_encap[0])
+
+/*
+ * Special link-layer types.
+ */
+#define NETMON_NET_LINUX_SLL		0xE071
+#define NETMON_NET_NETEVENT		0xFFE0
+#define NETMON_NET_NETWORK_INFO_EX	0xFFFB
+#define NETMON_NET_PAYLOAD_HEADER	0xFFFC
+#define NETMON_NET_NETWORK_INFO		0xFFFD
+#define NETMON_NET_DNS_CACHE		0xFFFE
+#define NETMON_NET_NETMON_FILTER	0xFFFF
 
 static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
@@ -133,21 +185,6 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	char magic[sizeof netmon_1_x_magic];
 	struct netmon_hdr hdr;
 	int file_type;
-	static const int netmon_encap[] = {
-		WTAP_ENCAP_UNKNOWN,
-		WTAP_ENCAP_ETHERNET,
-		WTAP_ENCAP_TOKEN_RING,
-		WTAP_ENCAP_FDDI_BITSWAPPED,
-		WTAP_ENCAP_ATM_PDUS,	/* NDIS WAN - this is what's used for ATM */
-		WTAP_ENCAP_UNKNOWN,	/* NDIS LocalTalk */
-		WTAP_ENCAP_UNKNOWN,	/* NDIS "DIX" - should not occur */
-		WTAP_ENCAP_UNKNOWN,	/* NDIS ARCNET raw */
-		WTAP_ENCAP_UNKNOWN,	/* NDIS ARCNET 878.2 */
-		WTAP_ENCAP_UNKNOWN,	/* NDIS ATM (no, this is NOT used for ATM) */
-		WTAP_ENCAP_UNKNOWN,	/* NDIS Wireless WAN */
-		WTAP_ENCAP_UNKNOWN	/* NDIS IrDA */
-	};
-	#define NUM_NETMON_ENCAPS (sizeof netmon_encap / sizeof netmon_encap[0])
 	struct tm tm;
 	int frame_table_offset;
 	guint32 frame_table_length;
@@ -219,10 +256,8 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 
 	/* NetMon capture file formats v2.1+ use per-packet encapsulation types.  NetMon 3 sets the value in
 	 * the header to 1 (Ethernet) for backwards compability. */
-	/* XXX - It would be better if we could set this to WTAP_ENCAP_PER_PACKET and show a message for
-	 * that, but the wtap_read() routine asserts on that value to catch errors. */
 	if((hdr.ver_major == 2 && hdr.ver_minor >= 1) || hdr.ver_major > 2)
-		wth->file_encap = WTAP_ENCAP_UNKNOWN;
+		wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	else
 		wth->file_encap = netmon_encap[hdr.network];
 
@@ -256,6 +291,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	netmon->start_usecs = pletohs(&hdr.ts_msec)*1000;
 
 	netmon->version_major = hdr.ver_major;
+	netmon->version_minor = hdr.ver_minor;
 
 	/*
 	 * Get the offset of the frame index table.
@@ -334,13 +370,21 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 		struct netmonrec_1_x_hdr hdr_1_x;
 		struct netmonrec_2_x_hdr hdr_2_x;
 	}	hdr;
+	union {
+		struct netmonrec_2_1_trlr trlr_2_1;
+		struct netmonrec_2_2_trlr trlr_2_2;
+		struct netmonrec_2_3_trlr trlr_2_3;
+	}	trlr;
 	int	hdr_size = 0;
+	int	trlr_size = 0;
 	int	rec_offset;
 	guint8	*data_ptr;
 	time_t	secs;
 	guint32	usecs;
 	double	t;
+	guint16 network;
 
+again:
 	/* Have we reached the end of the packet data? */
 	if (netmon->current_frame >= netmon->frame_table_size) {
 		/* Yes.  We won't need the frame table any more;
@@ -354,9 +398,17 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 	/* Seek to the beginning of the current record, if we're
 	   not there already (seeking to the current position
 	   may still cause a seek and a read of the underlying file,
-	   so we don't want to do it unconditionally). */
+	   so we don't want to do it unconditionally).
+
+	   If the beginning of the current record is *before* the
+	   current position, that's an error. */
 	rec_offset = netmon->frame_table[netmon->current_frame];
 	if (wth->data_offset != rec_offset) {
+		if (rec_offset < wth->data_offset) {
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup("netmon: Record offset is in the middle of an earlier record");
+			return FALSE;
+		}
 		wth->data_offset = rec_offset;
 		if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1)
 			return FALSE;
@@ -483,6 +535,70 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
 		atm_guess_traffic_type(data_ptr, packet_size,
 		    &wth->pseudo_header);
+	}
+
+	/*
+	 * For version 2.1 and later, there's additional information
+	 * after the frame data.
+	 */
+	if ((netmon->version_major == 2 && netmon->version_minor >= 1) ||
+	    netmon->version_major > 2) {
+	    	if (netmon->version_major > 2) {
+	    		/*
+	    		 * Asssume 2.3 format, for now.
+	    		 */
+			trlr_size = sizeof (struct netmonrec_2_3_trlr);
+	    	} else {
+			switch (netmon->version_minor) {
+
+			case 1:
+				trlr_size = sizeof (struct netmonrec_2_1_trlr);
+				break;
+
+			case 2:
+				trlr_size = sizeof (struct netmonrec_2_2_trlr);
+				break;
+
+			default:
+				trlr_size = sizeof (struct netmonrec_2_3_trlr);
+				break;
+			}
+		}
+		errno = WTAP_ERR_CANT_READ;
+
+		bytes_read = file_read(&trlr, 1, trlr_size, wth->fh);
+		if (bytes_read != trlr_size) {
+			*err = file_error(wth->fh);
+			if (*err == 0 && bytes_read != 0) {
+				*err = WTAP_ERR_SHORT_READ;
+			}
+			return FALSE;
+		}
+		wth->data_offset += trlr_size;
+
+		network = pletohs(trlr.trlr_2_1.network);
+		if (network >= NUM_NETMON_ENCAPS
+		    || netmon_encap[network] == WTAP_ENCAP_UNKNOWN) {
+			switch (network) {
+
+			case NETMON_NET_NETEVENT:
+			case NETMON_NET_NETWORK_INFO_EX:
+			case NETMON_NET_PAYLOAD_HEADER:
+			case NETMON_NET_NETWORK_INFO:
+			case NETMON_NET_DNS_CACHE:
+			case NETMON_NET_NETMON_FILTER:
+				/*
+				 * Just ignore those record types, for
+				 * now.  Read the next record.
+				 */
+				goto again;
+			}
+			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
+			    network);
+			return FALSE;
+		}
+		wth->phdr.pkt_encap = netmon_encap[network];
 	}
 
 	return TRUE;
