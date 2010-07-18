@@ -1314,7 +1314,7 @@ static void
 dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *ipv6_tree = NULL;
-  proto_item *ti;
+  proto_item *ipv6_item = NULL, *ti;
   guint8 nxt;
   guint8 stype=0;
   int advance;
@@ -1355,9 +1355,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *ipv6_tc_tree;
     proto_item *ipv6_tc;
 
-    /* !!! specify length */
-    ti = proto_tree_add_item(tree, proto_ipv6, tvb, offset, 40, FALSE);
-    ipv6_tree = proto_item_add_subtree(ti, ett_ipv6);
+    ipv6_item = proto_tree_add_item(tree, proto_ipv6, tvb, offset, -1, FALSE);
+    ipv6_tree = proto_item_add_subtree(ipv6_item, ett_ipv6);
 
     /* !!! warning: (4-bit) version, (6-bit) DSCP, (1-bit) ECN-ECT, (1-bit) ECN-CE and (20-bit) Flow */
     pi = proto_tree_add_item(ipv6_tree, hf_ipv6_version, tvb,
@@ -1553,6 +1552,7 @@ again:
   PROTO_ITEM_SET_HIDDEN(ti);
 #endif
 
+  proto_item_set_len (ipv6_item, offset);
   tap_queue_packet(ipv6_tap, pinfo, &ipv6);
 
   /* collect packet info */
