@@ -29,6 +29,7 @@
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "atm.h"
+#include "pcap-encap.h"
 #include "netmon.h"
 
 /* The file at
@@ -157,7 +158,7 @@ static const int netmon_encap[] = {
 /*
  * Special link-layer types.
  */
-#define NETMON_NET_LINUX_SLL		0xE071
+#define NETMON_NET_PCAP_BASE		0xE000
 #define NETMON_NET_NETEVENT		0xFFE0
 #define NETMON_NET_NETWORK_INFO_EX	0xFFFB
 #define NETMON_NET_PAYLOAD_HEADER	0xFFFC
@@ -577,8 +578,35 @@ again:
 		wth->data_offset += trlr_size;
 
 		network = pletohs(trlr.trlr_2_1.network);
-		if (network >= NUM_NETMON_ENCAPS
-		    || netmon_encap[network] == WTAP_ENCAP_UNKNOWN) {
+		if ((network & 0xF000) == NETMON_NET_PCAP_BASE) {
+			/*
+			 * Converted pcap file - the LINKTYPE_ value
+			 * is the network value with 0xF000 masked off.
+			 */
+			network &= 0x0FFF;
+			wth->phdr.pkt_encap =
+			    wtap_pcap_encap_to_wtap_encap(network);
+			if (wth->phdr.pkt_encap == WTAP_ENCAP_UNKNOWN) {
+				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+				*err_info = g_strdup_printf("netmon: converted pcap network type %u unknown or unsupported",
+				    network);
+				return FALSE;
+			}
+		} else if (network < NUM_NETMON_ENCAPS) {
+			/*
+			 * Regular NetMon encapsulation.
+			 */
+			wth->phdr.pkt_encap = netmon_encap[network];
+			if (wth->phdr.pkt_encap == WTAP_ENCAP_UNKNOWN) {
+				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+				*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
+				    network);
+				return FALSE;
+			}
+		} else {
+			/*
+			 * Special packet type for metadata.
+			 */
 			switch (network) {
 
 			case NETMON_NET_NETEVENT:
@@ -592,13 +620,14 @@ again:
 				 * now.  Read the next record.
 				 */
 				goto again;
+
+			default:
+				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+				*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
+				    network);
+				return FALSE;
 			}
-			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-			*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
-			    network);
-			return FALSE;
 		}
-		wth->phdr.pkt_encap = netmon_encap[network];
 	}
 
 	return TRUE;
