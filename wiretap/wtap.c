@@ -467,8 +467,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "JPEG/JFIF", "jfif" },
 
 	/* WTAP_ENCAP_IPNET */
-	{ "Solaris IPNET", "ipnet" }
+	{ "Solaris IPNET", "ipnet" },
 
+	/* WTAP_ENCAP_SOCKETCAN */
+	{ "SocketCAN", "socketcan" }
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);
