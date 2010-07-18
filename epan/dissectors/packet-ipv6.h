@@ -289,6 +289,8 @@ struct icmp6_hdr {
 #define ICMP6_DST_UNREACH_BEYONDSCOPE	2	/* beyond scope of source address */
 #define ICMP6_DST_UNREACH_ADDR			3	/* address unreachable */
 #define ICMP6_DST_UNREACH_NOPORT		4	/* port unreachable */
+#define ICMP6_DST_UNREACH_INGR_EGR		5	/* source address failed ingress/egress policy */
+#define ICMP6_DST_UNREACH_REJECT		6	/* reject route to destination */
 
 #define ICMP6_TIME_EXCEED_TRANSIT 		0	/* ttl==0 in transit */
 #define ICMP6_TIME_EXCEED_REASSEMBLY	1	/* ttl==0 in reass */

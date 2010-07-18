@@ -134,6 +134,9 @@ static const value_string icmpv6_type_str[] = {
     { ICMP6_PACKET_TOO_BIG,        "Too big" },
     { ICMP6_TIME_EXCEEDED,         "Time exceeded" },
     { ICMP6_PARAM_PROB,            "Parameter problem" },
+    { 100,                         "Private experimentation" },
+    { 101,                         "Private experimentation" },
+    { 127,                         "Reserved for expansion of ICMPv6 error messages" },
     { ICMP6_ECHO_REQUEST,          "Echo request" },
     { ICMP6_ECHO_REPLY,            "Echo reply" },
     { ICMP6_MEMBERSHIP_QUERY,      "Multicast listener query" },
@@ -161,15 +164,20 @@ static const value_string icmpv6_type_str[] = {
     { ICMP6_MCAST_ROUTER_SOLICIT,  "Multicast Router Solicitation" },
     { ICMP6_MCAST_ROUTER_TERM,     "Multicast Router Termination" },
     { ICMP6_FMIPV6_MESSAGES,       "FMIPv6 Messages" },
+    { 200,                         "Private experimentation" },
+    { 201,                         "Private experimentation" },
+    { 255,                         "Reserved for expansion of ICMPv6 informational messages" },
     { 0, NULL }
 };
 
 static const value_string icmpv6_unreach_code_str[] = {
     { ICMP6_DST_UNREACH_NOROUTE,     "Route unreachable" },
     { ICMP6_DST_UNREACH_ADMIN,       "Administratively prohibited" },
-    { ICMP6_DST_UNREACH_NOTNEIGHBOR, "Not a neighbor" },
+    { ICMP6_DST_UNREACH_BEYONDSCOPE, "Beyond scope of source address" },
     { ICMP6_DST_UNREACH_ADDR,        "Address unreachable" },
     { ICMP6_DST_UNREACH_NOPORT,      "Port unreachable" },
+    { ICMP6_DST_UNREACH_INGR_EGR,    "Source address failed ingress/egress policy" },
+    { ICMP6_DST_UNREACH_REJECT,      "Reject route to destination" },
     { 0, NULL }
 };
 
