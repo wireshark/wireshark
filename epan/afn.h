@@ -65,6 +65,7 @@ extern "C" {
 #define AFNUM_EIGRP_COMMON	16384 /* EIGRP Common Service Family */
 #define AFNUM_EIGRP_IPV4	16385 /* EIGRP IPv4 Service Family */
 #define AFNUM_EIGRP_IPV6	16386 /* EIGRP IPv6 Service Family */
+#define AFNUM_LCAF		16387 /* LISP Canonical Address Format */
 extern const value_string afn_vals[];
 
 #ifdef __cplusplus
