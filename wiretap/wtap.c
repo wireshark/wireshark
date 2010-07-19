@@ -470,7 +470,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "Solaris IPNET", "ipnet" },
 
 	/* WTAP_ENCAP_SOCKETCAN */
-	{ "SocketCAN", "socketcan" }
+	{ "SocketCAN", "socketcan" },
+
+	/* WTAP_ENCAP_IEEE802_11_NETMON_RADIO */
+	{ "IEEE 802.11 plus Network Monitor radio header", "ieee-802-11-netmon" }
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);

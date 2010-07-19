@@ -146,7 +146,8 @@ static const int netmon_encap[] = {
 	WTAP_ENCAP_FDDI_BITSWAPPED,
 	WTAP_ENCAP_ATM_PDUS,	/* NDIS WAN - this is what's used for ATM */
 	WTAP_ENCAP_UNKNOWN,	/* NDIS LocalTalk */
-	WTAP_ENCAP_UNKNOWN,	/* NDIS "DIX" - should not occur */
+	WTAP_ENCAP_IEEE802_11_NETMON_RADIO,
+				/* NDIS "DIX" - used for 802.11 */
 	WTAP_ENCAP_UNKNOWN,	/* NDIS ARCNET raw */
 	WTAP_ENCAP_UNKNOWN,	/* NDIS ARCNET 878.2 */
 	WTAP_ENCAP_UNKNOWN,	/* NDIS ATM (no, this is NOT used for ATM) */
