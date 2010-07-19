@@ -910,9 +910,8 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   op_code = tvb_get_guint8(tvb, 1);
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "COPS %s",
-                 val_to_str(op_code, cops_op_code_vals, "Unknown Op Code"));
+  col_add_fstr(pinfo->cinfo, COL_INFO, "COPS %s",
+               val_to_str(op_code, cops_op_code_vals, "Unknown Op Code"));
 
   /* Currently used by PacketCable */
   client_type = tvb_get_ntohs(tvb, 2);
@@ -1120,7 +1119,7 @@ static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, guint32 o
     if (ret < 0)
       break;
 
-    /*Pad to 32bit boundary */
+    /* Pad to 32bit boundary */
     if (object_len % sizeof (guint32))
       object_len += (sizeof (guint32) - object_len % sizeof (guint32));
 
@@ -2753,11 +2752,8 @@ cops_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8 op
      g_snprintf(info,sizeof(info),"COPS %-20s - %s",val_to_str(op_code,cops_op_code_vals, "Unknown"),
 		val_to_str(code16,table_cops_dqos_transaction_id, "Unknown"));
 
-     if (check_col(pinfo->cinfo, COL_INFO)) {
-          col_clear(pinfo->cinfo, COL_INFO);
-          col_add_str(pinfo->cinfo, COL_INFO,info);
-     }
-
+     col_clear(pinfo->cinfo, COL_INFO);
+     col_add_str(pinfo->cinfo, COL_INFO,info);
 }
 
 /* Cops - Section : Subscriber IDv4 */
@@ -3149,11 +3145,8 @@ cops_mm_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8
      g_snprintf(info,sizeof(info),"COPS %-20s - %s",val_to_str(op_code,cops_op_code_vals, "Unknown"),
 		val_to_str(code16,table_cops_mm_transaction_id, "Unknown"));
 
-     if (check_col(pinfo->cinfo, COL_INFO)) {
-          col_clear(pinfo->cinfo, COL_INFO);
-          col_add_str(pinfo->cinfo, COL_INFO,info);
-     }
-
+     col_clear(pinfo->cinfo, COL_INFO);
+     col_add_str(pinfo->cinfo, COL_INFO,info);
 }
 
 /* Cops - Section : AMID */
