@@ -748,6 +748,7 @@ static gint hf_cops_pcmm_synch_options_report_type = -1;
 static gint hf_cops_pcmm_synch_options_synch_type = -1;
 static gint hf_cops_pcmm_msg_receipt_key = -1;
 static gint hf_cops_pcmm_userid = -1;
+static gint hf_cops_pcmm_sharedresourceid = -1;
 
 
 /* Initialize the subtree pointers */
@@ -2452,9 +2453,15 @@ void proto_register_cops(void)
     },
 
     { &hf_cops_pcmm_userid,
-    	{ "UserID", "cops.pc_mm_userid",
-    	FT_STRING, BASE_NONE, NULL, 0,
-    	"PacketCable Multimedia UserID", HFILL }
+	    { "UserID", "cops.pc_mm_userid",
+	    FT_STRING, BASE_NONE, NULL, 0,
+	    "PacketCable Multimedia UserID", HFILL }
+    },
+
+    { &hf_cops_pcmm_sharedresourceid,
+	    { "SharedResourceID", "cops.pc_mm_sharedresourceid",
+	    FT_UINT32, BASE_HEX, NULL, 0,
+	    "PacketCable Multimedia SharedResourceID", HFILL }
     },
 
     /* End of addition for PacketCable */
@@ -5499,6 +5506,20 @@ cops_userid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      info_to_display(tvb, stt, offset, n-4, "UserID", NULL, FMT_STR, &hf_cops_pcmm_userid);
 }
 
+/* Cops - Section : SharedResourceID */
+static void
+cops_sharedresourceid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+
+     proto_tree *stt;
+
+     /* Create a subtree */
+     stt = info_to_cops_subtree(tvb,st,n,offset,"SharedResourceID");
+     offset += 4;
+
+     /* SharedResourceID */
+     info_to_display(tvb,stt,offset,4,"SharedResourceID", NULL,FMT_HEX,&hf_cops_pcmm_sharedresourceid);
+}
+
 /* PacketCable D-QoS S-Num/S-Type globs */
 #define PCDQ_TRANSACTION_ID              0x0101
 #define PCDQ_SUBSCRIBER_IDv4             0x0201
@@ -5655,6 +5676,7 @@ decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 offset, proto_t
 #define PCMM_SYNCH_OPTIONS                 0x1201
 #define PCMM_MSG_RECEIPT_KEY               0x1301
 #define PCMM_USERID                        0x1501
+#define PCMM_SHAREDRESOURCEID              0x1601
 
 
 static void
@@ -5797,8 +5819,11 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                cops_msg_receipt_key(tvb, tree, object_len, offset);
                break;
         case PCMM_USERID:
-			   cops_userid(tvb, tree, object_len, offset);
-			   break;
+               cops_userid(tvb, tree, object_len, offset);
+               break;
+        case PCMM_SHAREDRESOURCEID:
+               cops_sharedresourceid(tvb, tree, object_len, offset);
+               break;
 
        }
 
