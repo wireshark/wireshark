@@ -93,6 +93,24 @@ Wireshark Info
           4868</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          zlib-1.2.5 cause tshark to stop live capture.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4916">Bug
+          4916</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Crash when adding SNMP users.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4926">Bug
+          4926</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark via ssh -X on ipv6 link-local address fails to allow capture.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4945">Bug
+          4945</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>

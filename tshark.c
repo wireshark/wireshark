@@ -2014,6 +2014,7 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
 #endif /* SIGINFO */
 
   if(do_dissection) {
+    wtap_cleareof(cf->wth);
     while (to_read-- && cf->wth) {
       ret = wtap_read(cf->wth, &err, &err_info, &data_offset);
       if(ret == FALSE) {
