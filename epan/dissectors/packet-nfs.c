@@ -7906,62 +7906,38 @@ dissect_nfs_clientaddr4(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	char *universal_ip_address = NULL;
 	char *protocol = NULL;
-	char *end;
-#define MAX_ADDR_WORDS 6
-	guint16 words[MAX_ADDR_WORDS];
+	guint8 b1, b2, b3, b4, b5, b6, b7, b8, b9, b10;
 	guint16 port;
 	int addr_offset;
-	int cnt;
 
 	offset = dissect_rpc_string(tvb, tree, hf_nfs_r_netid, offset, &protocol);
 	addr_offset = offset;
 	offset = dissect_rpc_string(tvb, tree, hf_nfs_r_addr, offset, &universal_ip_address);
 
 	if(strlen(protocol) == 3 && strncmp(protocol,"tcp",3) == 0) {
-		cnt = 0;
-		end = universal_ip_address;
-
-		while(1){
-			char *old_end;
-			if(cnt>=MAX_ADDR_WORDS){
-				break;
-			}
-			old_end = end;
-			words[cnt]=(guint16)strtol(end, &end, 10);
-			if (end == old_end) {
-			   	/* initial '.' */
-				end++;
-				continue;
-			}
-			if(end==NULL){
-				break;
-			}
-			if(*end==0){
-				cnt++;
-				break;
-			}
-			cnt++;
-			end++;
-		}
-
-		switch (cnt) {
-		case 6:
-		     port = (words[4]<<8) | words[5];
-		     proto_tree_add_text(tree, tvb, addr_offset, offset,
-		     	"[callback ip address %d.%d.%d.%d, protocol=%s, port=%u]",
-				words[0], words[1], words[2], words[3],
-				protocol, port);
-		     break;
-		case 2:
-		     /* Some clients (linux) sometimes send only the port. */
-		     port = (words[0]<<8) | words[1];
-		     proto_tree_add_text(tree, tvb, addr_offset, offset-addr_offset, "[callback ip address NOT SPECIFIED, protocol=%s, port=%u]",
+		if (universal_ip_address && sscanf(universal_ip_address, "%hhu.%hhu.%hhu.%hhu.%hhu.%hhu",
+						   &b1, &b2, &b3, &b4, &b5, &b6) == 6) {
+			/* IPv4: h1.h2.h3.h4.p1.p2 */
+			port = (b5<<8) | b6;
+			proto_tree_add_text(tree, tvb, addr_offset, offset,
+				"[callback IPv4 address %u.%u.%u.%u, protocol=%s, port=%u]",
+				b1, b2, b3, b4, protocol, port);
+		} else if (universal_ip_address && sscanf(universal_ip_address, "%hhu.%hhu",
+						   &b1, &b2) == 2) {
+			/* Some clients (linux) sometimes send only the port. */
+			port = (b1<<8) | b2;
+			proto_tree_add_text(tree, tvb, addr_offset, offset-addr_offset, "[callback ip address NOT SPECIFIED, protocol=%s, port=%u]",
 		     		protocol,
 				port);
-		     break;
-		default:
+		} else if (universal_ip_address && sscanf(universal_ip_address, "%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx.%hhu.%hhu",
+							  &b1, &b2, &b3, &b4, &b5, &b6, &b7, &b8, &b9, &b10) == 10) {
+			
+			port = (b9<<8) | b10;
+			proto_tree_add_text(tree, tvb, addr_offset, offset,
+				"[callback IPv6 address %2x:%2x:%2x:%2x:%2x:%2x:%2x:%2x, protocol=%s, port=%u]",
+				b1, b2, b3, b4, b5, b6, b7, b8, protocol, port);
+		} else {
 			proto_tree_add_text(tree, tvb, addr_offset, offset-addr_offset, "[Invalid address]");
-
 		}
 	}
 
