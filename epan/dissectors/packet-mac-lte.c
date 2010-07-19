@@ -2119,6 +2119,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             expert_add_info_format(pinfo, lcid_ti, PI_MALFORMED, PI_ERROR,
                                    "%cL-SCH Control subheaders should not appear after data subheaders",
                                    (p_mac_lte_info->direction == DIRECTION_UPLINK) ? 'U' : 'D');
+            return;
         }
 
         /* Show an expert item if we're seeing more then one BSR in a frame */
@@ -2126,6 +2127,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             if (have_seen_bsr) {
                 expert_add_info_format(pinfo, lcid_ti, PI_MALFORMED, PI_ERROR,
                                       "There shouldn't be > 1 BSR in a frame");
+                return;
             }
             have_seen_bsr = TRUE;
         }
@@ -2669,7 +2671,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
 
         /* LCID 1 and 2 can be assumed to be srb1&2, so can dissect as RLC AM */
-        if ((lcids[n] == 1) || (lcids[n] == 2)) {
+        else if ((lcids[n] == 1) || (lcids[n] == 2)) {
             if (global_mac_lte_attempt_srb_decode) {
                 /* Call RLC dissector */
                 call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
