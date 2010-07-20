@@ -804,6 +804,18 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 /* Heuristic dissection */
 static gboolean global_mac_lte_heur = FALSE;
 
+static void call_with_catch_all(dissector_handle_t handle, tvbuff_t* tvb, packet_info *pinfo, proto_tree *tree)
+{
+
+    /* Call it (catch exceptions so that stats will be updated) */
+    TRY {
+        call_dissector_only(handle, tvb, pinfo, tree);
+    }
+    CATCH_ALL {
+    }
+    ENDTRY
+}
+
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
 static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                                      proto_tree *tree)
@@ -1351,15 +1363,7 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Hide raw view of bytes */
         PROTO_ITEM_SET_HIDDEN(ti);
 
-        /* Call it (catch exceptions so that stats will be updated) */
-        /* TODO: couldn't avoid warnings for 'ti' by using volatile
-                 (with gcc 3.4.6)                                   */
-/*        TRY {                                                         */
-            call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
-/*        }                                                             */
-/*        CATCH_ALL {                                                   */
-/*        }                                                             */
-/*        ENDTRY                                                        */
+        call_with_catch_all(protocol_handle, rrc_tvb, pinfo, tree);
     }
 
     /* Check that this *is* downlink! */
@@ -1971,7 +1975,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree _U_,
    function */
 static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                    proto_item *pdu_ti,
-                                   volatile int offset, guint8 direction,
+                                   volatile guint32 offset, guint8 direction,
                                    mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info,
                                    proto_item *retx_ti,
                                    proto_tree *context_tree)
@@ -2661,13 +2665,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             /* Hide raw view of bytes */
             PROTO_ITEM_SET_HIDDEN(sdu_ti);
 
-            /* Call it (catch exceptions so that stats will be updated) */
-            TRY {
-                call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
-            }
-            CATCH_ALL {
-            }
-            ENDTRY
+            call_with_catch_all(protocol_handle, rrc_tvb, pinfo, tree);
         }
 
         /* LCID 1 and 2 can be assumed to be srb1&2, so can dissect as RLC AM */

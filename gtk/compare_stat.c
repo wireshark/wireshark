@@ -341,7 +341,7 @@ call_foreach_new_order(gpointer value, gpointer arg)
 				cs->zebra_time.nsecs++;
 				se_tree_insert32(cs->nr_tree, fInfo->id, fInfo);
 				fInfo->zebra_time=cs->zebra_time;
-				cs->zebra_time.nsecs=cs->zebra_time.nsecs++;
+				cs->zebra_time.nsecs++;
 			}
 		} else {
 			if((g_array_index(cs->ip_ttl_list, guint8, 0)==fInfo->ip_ttl) || (g_array_index(cs->ip_ttl_list, guint8, 1)==fInfo->ip_ttl)){
@@ -352,7 +352,7 @@ call_foreach_new_order(gpointer value, gpointer arg)
 				cs->zebra_time.nsecs++;
 				se_tree_insert32(cs->nr_tree, fInfo->id, fInfo);
 				fInfo->zebra_time=cs->zebra_time;
-				cs->zebra_time.nsecs=cs->zebra_time.nsecs++;
+				cs->zebra_time.nsecs++;
 			}
 
 		}
