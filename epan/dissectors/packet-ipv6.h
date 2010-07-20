@@ -39,12 +39,12 @@
 
 /*
  * Definition for internet protocol version 6.
- * RFC 1883
+ * RFC 2460
  */
 struct ip6_hdr {
 	union {
 		struct ip6_hdrctl {
-			guint32 ip6_un1_flow;	/* 20 bits of flow-ID */
+			guint32 ip6_un1_flow;	/* version, class, flow */
 			guint16 ip6_un1_plen;	/* payload length */
 			guint8  ip6_un1_nxt;	/* next header */
 			guint8  ip6_un1_hlim;	/* hop limit */
