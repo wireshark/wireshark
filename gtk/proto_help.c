@@ -182,7 +182,7 @@ static void ph_menu_reset(void)
 	if(!g_ph_menu_factory) return;
 
 	menu_item = gtk_item_factory_get_widget(g_ph_menu_factory, PH_MENU_TOP);
-	menu_entries = gtk_container_children(GTK_CONTAINER(menu_item));
+	menu_entries = gtk_container_get_children(GTK_CONTAINER(menu_item));
 
 	for(menu_entry = g_list_first(menu_entries); menu_entry != NULL; menu_entry = g_list_next(menu_entry))
 	{
