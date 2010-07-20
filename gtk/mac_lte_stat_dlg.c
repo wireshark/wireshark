@@ -375,9 +375,13 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         /* Not found among existing, so create a new one anyway */
         if (te == NULL) {
             if ((te = alloc_mac_lte_ep(si, pinfo))) {
-                /* New item is head of list */
-                te->next = hs->ep_list;
-                hs->ep_list = te;
+                /* Add new item to end of list */
+                mac_lte_ep_t *p = hs->ep_list;
+                while (p->next) {
+                    p = p->next;
+                }
+                p->next = te;
+                te->next = NULL;
 
                 /* Update counts of unique ueids & rntis */
                 update_ueid_rnti_counts(si->rnti, si->ueid, hs);
