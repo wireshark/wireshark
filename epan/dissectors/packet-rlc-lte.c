@@ -1450,7 +1450,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
     proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_ack_sn, tvb,
                                 bit_offset, 10, &ack_sn, FALSE);
     bit_offset += 10;
-    write_pdu_label_and_info(top_ti, status_ti, pinfo, "  ACK_SN=%u", (guint16)ack_sn);
+    write_pdu_label_and_info(top_ti, status_ti, pinfo, "  ACK_SN=%-4u", (guint16)ack_sn);
 
     tap_info->ACKNo = (guint16)ack_sn;
 
@@ -1473,7 +1473,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
             nack_ti = proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_nack_sn, tvb,
                                                   bit_offset, 10, &nack_sn, FALSE);
             bit_offset += 10;
-            write_pdu_label_and_info(top_ti, NULL, pinfo, "  NACK_SN=%u", (guint16)nack_sn);
+            write_pdu_label_and_info(top_ti, NULL, pinfo, "  NACK_SN=%-4u", (guint16)nack_sn);
 
             /* Copy into struct, but don't exceed buffer */
             if (nack_count < MAX_NACKs) {
@@ -1654,7 +1654,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     offset += 2;
     tap_info->sequenceNumber = sn;
 
-    write_pdu_label_and_info(top_ti, am_header_ti, pinfo, "sn=%u", sn);
+    write_pdu_label_and_info(top_ti, am_header_ti, pinfo, "sn=%-4u", sn);
 
     /***************************************/
     /* Dissect extra segment header fields */
