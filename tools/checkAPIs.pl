@@ -122,6 +122,8 @@ my %APIs = (
                 #  currently supports (ie: versions starting with GLib 2.4).
                 'G_ALLOC_AND_FREE',
                 'G_ALLOC_ONLY',
+                'g_allocator_free',                  # "use slice allocator" (avail since 2.10,2.14)
+                'g_allocator_new',                   # "use slice allocator" (avail since 2.10,2.14)
                 'g_async_queue_ref_unlocked',        # g_async_queue_ref()   (OK since 2.8)
                 'g_async_queue_unref_and_unlock',    # g_async_queue_unref() (OK since 2.8)
                 'g_basename',
@@ -137,6 +139,8 @@ my %APIs = (
                 'g_io_channel_read',
                 'g_io_channel_seek',
                 'g_io_channel_write',
+                'g_list_pop_allocator',              # "does nothing since 2.10"
+                'g_list_push_allocator',             # "does nothing since 2.10"
                 'g_main_destroy',
                 'g_main_is_running',
                 'g_main_iteration',
@@ -145,11 +149,15 @@ my %APIs = (
                 'g_main_quit',
                 'g_main_run',
                 'g_main_set_poll_func',
+                'g_node_pop_allocator',              # "does nothing since 2.10"
+                'g_node_push_allocator',             # "does nothing since 2.10"
                 'g_scanner_add_symbol',
                 'g_scanner_remove_symbol',
                 'g_scanner_foreach_symbol',
                 'g_scanner_freeze_symbol_table',
                 'g_scanner_thaw_symbol_table',
+                'g_slist_pop_allocator',             # "does nothing since 2.10"
+                'g_slist_push_allocator',            # "does nothing since 2.10"
                 'g_string_sprintf',                  # use g_string_printf() instead
                 'g_string_sprintfa',                 # use g_string_append_printf instead
                 'g_tree_traverse',
@@ -163,10 +171,6 @@ my %APIs = (
 ##
 ## Following Deprecated as of GLib 2.10; to be replaced only when Wireshark requires GLib 2.10 or later
 ## Note: Only the commented out items are currently used by Wireshark
-                'g_allocator_free',                  # "use slice allocator" (avail since 2.10,2.14)
-                'g_allocator_new',                   # "use slice allocator" (avail since 2.10,2.14)
-                'g_list_pop_allocator',              # "does nothing since 2.10"
-                'g_list_push_allocator',             # "does nothing since 2.10"
 ### GMemChunks should used *only* with GLib < 2.10.
 ###  There's an issue wherein GLib >= 2.10 g_mem_chunk_destroy doesn't actually free memory thus
 ###   leading to memory leaks.
@@ -187,10 +191,6 @@ my %APIs = (
 ## 2.10         'g_chunk_new',                       # g_slice_new  (avail since 2.10)
                 'g_chunk_new0',                      # g_slice_new0 (avail since 2.10)
 ###
-                'g_node_pop_allocator',              # "does nothing since 2.10"
-                'g_node_push_allocator',             # "does nothing since 2.10"
-                'g_slist_pop_allocator',             # "does nothing since 2.10"
-                'g_slist_push_allocator',            # "does nothing since 2.10"
 ## Following Deprecated as of GLib 2.22;
 ## Note: Not currently used by Wireshark
                 'g_mapped_file_free',                # [as of 2.22: use g_map_file_unref]
@@ -365,7 +365,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_color_selection_set_change_palette_hook', 'E',
                 'gtk_color_selection_set_color',               'E',
                 'gtk_color_selection_set_update_policy',       'E',
-                'gtk_combo_disable_activate',                  'E', # GtkComboBox ... (avail since 2.4/2.6/2.10/2.14)
+                'gtk_combo_disable_activate',                  'W', # GtkComboBoxEntry ... (avail since 2.4/2.6/2.10/2.14)
                 'gtk_combo_new',                               'W',
                 'gtk_combo_set_case_sensitive',                'W',
                 'gtk_combo_set_item_string',                   'E',
@@ -529,10 +529,10 @@ my %deprecatedGtkFunctions = (
                 'gtk_item_factory_create_menu_entries',        'E',
                 'gtk_item_factory_delete_entries',             'E',
                 'gtk_item_factory_delete_entry',               'E',
-                'gtk_item_factory_delete_item',                'E',
+                'gtk_item_factory_delete_item',                'W',
                 'gtk_item_factory_from_path',                  'E',
-                'gtk_item_factory_from_widget',                'E',
-                'gtk_item_factory_get_item',                   'E',
+                'gtk_item_factory_from_widget',                'W',
+                'gtk_item_factory_get_item',                   'W',
                 'gtk_item_factory_get_item_by_action',         'E',
                 'gtk_item_factory_get_widget',                 'W',
                 'gtk_item_factory_get_widget_by_action',       'E',
@@ -626,10 +626,10 @@ my %deprecatedGtkFunctions = (
                 'gtk_old_editable_claim_selection',            'E',
                 'gtk_option_menu_get_history',                 'E', # GtkComboBox ... (avail since 2.4/2.6/2.10/2.14)
                 'gtk_option_menu_get_menu',                    'E',
-                'gtk_option_menu_new',                         'W',
+                'gtk_option_menu_new',                         'E',
                 'gtk_option_menu_remove_menu',                 'E',
-                'gtk_option_menu_set_history',                 'W',
-                'gtk_option_menu_set_menu',                    'W',
+                'gtk_option_menu_set_history',                 'E',
+                'gtk_option_menu_set_menu',                    'E',
                 'gtk_paint_string',                            'E',
                 'gtk_paned_gutter_size',                       'E', # gtk_paned_set_gutter_size()
                 'gtk_paned_set_gutter_size',                   'E', # "does nothing"
