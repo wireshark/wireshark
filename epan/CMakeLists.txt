@@ -778,6 +778,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-netbios.c
 	dissectors/packet-netdump.c
 	dissectors/packet-netflow.c
+	dissectors/packet-netmon-802_11.c
 	dissectors/packet-netperfmeter.c
 	dissectors/packet-netsync.c
 	dissectors/packet-nettl.c
