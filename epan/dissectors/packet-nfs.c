@@ -8909,7 +8909,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *newftree = NULL;
 	guint32 string_length;
 	int cbprog;
-	char *name, *source_name, *dest_name=NULL;
+	char *name = NULL, *source_name = NULL, *dest_name=NULL;
 	const char *opname=NULL;
 	guint32 last_fh_hash=0;
 	guint32 saved_fh_hash=0;
@@ -9232,7 +9232,9 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				hf_nfs_component4, &source_name);
 			offset = dissect_nfs_utf8string(tvb, offset, newftree,
 				hf_nfs_component4, &dest_name);
-			g_string_append_printf (op_summary[ops_counter].optext, " From: %s To: %s", source_name, dest_name);
+			g_string_append_printf (op_summary[ops_counter].optext, " From: %s To: %s",
+                                                source_name ? source_name : "Unknown",
+                                                dest_name ? dest_name : "Unknown");
 			break;
 
 		case NFS4_OP_RENEW:
