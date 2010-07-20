@@ -73,17 +73,17 @@ typedef struct _dcerpcstat_t {
 static gboolean
 uuid_equal(e_uuid_t *uuid1, e_uuid_t *uuid2)
 {
-	if( (uuid1->Data1!=uuid2->Data1)
-	  ||(uuid1->Data2!=uuid2->Data2)
-	  ||(uuid1->Data3!=uuid2->Data3)
-	  ||(uuid1->Data4[0]!=uuid2->Data4[0])
-	  ||(uuid1->Data4[1]!=uuid2->Data4[1])
-	  ||(uuid1->Data4[2]!=uuid2->Data4[2])
-	  ||(uuid1->Data4[3]!=uuid2->Data4[3])
-	  ||(uuid1->Data4[4]!=uuid2->Data4[4])
-	  ||(uuid1->Data4[5]!=uuid2->Data4[5])
-	  ||(uuid1->Data4[6]!=uuid2->Data4[6])
-	  ||(uuid1->Data4[7]!=uuid2->Data4[7]) ){
+	if( (uuid1->Data1    != uuid2->Data1)
+	  ||(uuid1->Data2    != uuid2->Data2)
+	  ||(uuid1->Data3    != uuid2->Data3)
+	  ||(uuid1->Data4[0] != uuid2->Data4[0])
+	  ||(uuid1->Data4[1] != uuid2->Data4[1])
+	  ||(uuid1->Data4[2] != uuid2->Data4[2])
+	  ||(uuid1->Data4[3] != uuid2->Data4[3])
+	  ||(uuid1->Data4[4] != uuid2->Data4[4])
+	  ||(uuid1->Data4[5] != uuid2->Data4[5])
+	  ||(uuid1->Data4[6] != uuid2->Data4[6])
+	  ||(uuid1->Data4[7] != uuid2->Data4[7]) ){
 		return FALSE;
 	}
 	return TRUE;
@@ -128,11 +128,11 @@ dcerpcstat_packet(void *rs_arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		return FALSE;
 	}
 	if(!ri->call_data->req_frame){
-		/* we have not seen the request so we dont know the delta*/
+		/* we have not seen the request so we don't know the delta*/
 		return FALSE;
 	}
-	if(ri->call_data->opnum>=rs->num_procedures){
-		/* dont handle this since its outside of known table */
+	if(ri->call_data->opnum >= rs->num_procedures){
+		/* don't handle this since its outside of known table */
 		return FALSE;
 	}
 
@@ -143,7 +143,7 @@ dcerpcstat_packet(void *rs_arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 	/* we are only interested in certain program/versions */
 	if( (!uuid_equal( (&ri->call_data->uuid), (&rs->uuid)))
-	  ||(ri->call_data->ver!=rs->ver)){
+	  ||(ri->call_data->ver != rs->ver)){
 		return FALSE;
 	}
 
@@ -172,7 +172,7 @@ dcerpcstat_draw(void *rs_arg)
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
-	dcerpcstat_t *rs=(dcerpcstat_t *)data;
+	dcerpcstat_t *rs = (dcerpcstat_t *)data;
 
 	protect_thread_critical_region();
 	remove_tap_listener(rs);
@@ -203,8 +203,8 @@ gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 	guint d1,d2,d3,d40,d41,d42,d43,d44,d45,d46,d47;
 	int major, minor;
 	guint16 ver;
-	int pos=0;
-	const char *filter=NULL;
+	int pos = 0;
+	const char *filter = NULL;
 	GString *error_string;
 	int hf_opnum;
 
@@ -220,81 +220,87 @@ gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 	 * report aggregate statistics for all minor version numbers
 	 * if it's omitted?
 	 */
-	if(sscanf(optarg,"dcerpc,srt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d,%n", &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos)==13){
-		uuid.Data1=d1;
-		uuid.Data2=d2;
-		uuid.Data3=d3;
-		uuid.Data4[0]=d40;
-		uuid.Data4[1]=d41;
-		uuid.Data4[2]=d42;
-		uuid.Data4[3]=d43;
-		uuid.Data4[4]=d44;
-		uuid.Data4[5]=d45;
-		uuid.Data4[6]=d46;
-		uuid.Data4[7]=d47;
-		if(pos){
-			filter=optarg+pos;
+	if(sscanf(
+		   optarg,
+		   "dcerpc,srt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d,%n",
+		   &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos)
+	   == 13) {
+		uuid.Data1    = d1;
+		uuid.Data2    = d2;
+		uuid.Data3    = d3;
+		uuid.Data4[0] = d40;
+		uuid.Data4[1] = d41;
+		uuid.Data4[2] = d42;
+		uuid.Data4[3] = d43;
+		uuid.Data4[4] = d44;
+		uuid.Data4[5] = d45;
+		uuid.Data4[6] = d46;
+		uuid.Data4[7] = d47;
+		if(pos) {
+			filter = optarg+pos;
 		} else {
-			filter=NULL;
+			filter = NULL;
 		}
 	} else {
 		fprintf(stderr, "wireshark: invalid \"-z dcerpc,srt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
 		exit(1);
 	}
-	if (major < 0 || major > 65535) {
+	if ((major < 0) || (major > 65535)) {
 		fprintf(stderr,"wireshark: dcerpcstat_init() Major version number %d is invalid - must be positive and <= 65535\n", major);
 		exit(1);
 	}
-	if (minor < 0 || minor > 65535) {
+	if ((minor < 0) || (minor > 65535)) {
 		fprintf(stderr,"wireshark: dcerpcstat_init() Minor version number %d is invalid - must be positive and <= 65535\n", minor);
 		exit(1);
 	}
 	ver = major;
 
-	rs=g_malloc(sizeof(dcerpcstat_t));
-	rs->prog=dcerpc_get_proto_name(&uuid, ver);
+	rs = g_malloc(sizeof(dcerpcstat_t));
+	rs->prog = dcerpc_get_proto_name(&uuid, ver);
 	if(!rs->prog){
 		g_free(rs);
-		fprintf(stderr,"wireshark: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%u not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],ver);
+		fprintf(stderr,
+			"wireshark: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%u not supported\n",
+			uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],ver);
 		exit(1);
 	}
-	hf_opnum=dcerpc_get_proto_hf_opnum(&uuid, ver);
-	procs=dcerpc_get_proto_sub_dissector(&uuid, ver);
-	rs->uuid=uuid;
-	rs->ver=ver;
+	hf_opnum = dcerpc_get_proto_hf_opnum(&uuid, ver);
+	procs    = dcerpc_get_proto_sub_dissector(&uuid, ver);
+	rs->uuid = uuid;
+	rs->ver  = ver;
 
-	rs->win = dlg_window_new("dcerpc-stat");  /* transient_for top_level */
-	gtk_window_set_destroy_with_parent (GTK_WINDOW(rs->win), TRUE);
+	rs->win  = dlg_window_new("dcerpc-stat");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent(GTK_WINDOW(rs->win), TRUE);
 
 	dcerpcstat_set_title(rs);
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
 
-	vbox=gtk_vbox_new(FALSE, 3);
+	vbox = gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(rs->win), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
-	title_string=dcerpcstat_gen_title(rs);
-	stat_label=gtk_label_new(title_string);
+	title_string = dcerpcstat_gen_title(rs);
+	stat_label   = gtk_label_new(title_string);
 	g_free(title_string);
 	gtk_box_pack_start(GTK_BOX(vbox), stat_label, FALSE, FALSE, 0);
 
 	filter_string = g_strdup_printf("Filter: %s",filter ? filter : "");
-	filter_label=gtk_label_new(filter_string);
+	filter_label  = gtk_label_new(filter_string);
 	g_free(filter_string);
 	gtk_label_set_line_wrap(GTK_LABEL(filter_label), TRUE);
 	gtk_box_pack_start(GTK_BOX(vbox), filter_label, FALSE, FALSE, 0);
 
 	for(i=0,max_procs=0;procs[i].name;i++){
 		if(procs[i].num>max_procs){
-			max_procs=procs[i].num;
+			max_procs = procs[i].num;
 		}
 	}
-	rs->num_procedures=max_procs+1;
+	rs->num_procedures = max_procs+1;
 
 	/* We must display TOP LEVEL Widget before calling init_srt_table() */
 	gtk_widget_show_all(rs->win);
 
-	if(hf_opnum!=-1){
+	if(hf_opnum != -1){
 		init_srt_table(&rs->srt_table, max_procs+1, vbox, proto_registrar_get_nth(hf_opnum)->abbrev);
 	} else {
 		init_srt_table(&rs->srt_table, max_procs+1, vbox, NULL);
@@ -304,10 +310,10 @@ gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 		int j;
 		const char *proc_name;
 
-		proc_name="unknown";
+		proc_name = "unknown";
 		for(j=0;procs[j].name;j++){
-			if(procs[j].num==i){
-				proc_name=procs[j].name;
+			if (procs[j].num == i){
+				proc_name = procs[j].name;
 			}
 		}
 
@@ -315,7 +321,7 @@ gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 	}
 
 
-	error_string=register_tap_listener("dcerpc", rs, filter, 0, dcerpcstat_reset, dcerpcstat_packet, dcerpcstat_draw);
+	error_string = register_tap_listener("dcerpc", rs, filter, 0, dcerpcstat_reset, dcerpcstat_packet, dcerpcstat_draw);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
@@ -333,7 +339,7 @@ gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 	window_set_cancel_button(rs->win, close_bt, window_cancel_button_cb);
 
 	g_signal_connect(rs->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-	g_signal_connect(rs->win, "destroy", G_CALLBACK(win_destroy_cb), rs);
+	g_signal_connect(rs->win, "destroy",      G_CALLBACK(win_destroy_cb), rs);
 
 	gtk_widget_show_all(rs->win);
 	window_present(rs->win);
@@ -344,17 +350,14 @@ gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 
 
 
-static e_uuid_t *dcerpc_uuid_program=NULL;
-static guint16 dcerpc_version;
-static GtkWidget *dlg=NULL;
-static GtkWidget *prog_menu;
-static GtkWidget *vers_opt, *vers_menu;
-static GtkWidget *filter_entry;
-static dcerpc_uuid_key *current_uuid_key=NULL;
-static dcerpc_uuid_value *current_uuid_value=NULL;
-static dcerpc_uuid_key *new_uuid_key=NULL;
-static dcerpc_uuid_value *new_uuid_value=NULL;
-
+static e_uuid_t          *dcerpc_uuid_program;
+static guint16            dcerpc_version;
+static GtkWidget         *dlg = NULL;
+static GtkWidget         *filter_entry;
+static dcerpc_uuid_key   *current_uuid_key;
+static dcerpc_uuid_value *current_uuid_value;
+static dcerpc_uuid_key   *new_uuid_key;
+static dcerpc_uuid_value *new_uuid_value;
 
 static void
 dcerpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
@@ -362,6 +365,10 @@ dcerpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 	GString *str;
 	const char *filter;
 
+	if (dcerpc_uuid_program == NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Please select a program");
+		return;
+	}
 	str = g_string_new("dcerpc,srt");
 	g_string_append_printf(str,
 	    ",%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%u.%u",
@@ -372,8 +379,8 @@ dcerpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 	    dcerpc_uuid_program->Data4[4], dcerpc_uuid_program->Data4[5],
 	    dcerpc_uuid_program->Data4[6], dcerpc_uuid_program->Data4[7],
 	    dcerpc_version, 0);
-	filter=gtk_entry_get_text(GTK_ENTRY(filter_entry));
-	if(filter[0]!=0){
+	filter = gtk_entry_get_text(GTK_ENTRY(filter_entry));
+	if(filter[0] != 0){
 		g_string_append_printf(str, ",%s", filter);
 	}
 
@@ -383,130 +390,100 @@ dcerpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 
 
 static void
-dcerpcstat_version_select(GtkWidget *item _U_, gpointer key)
+dcerpcstat_version_select(GtkWidget *vers_combo_box, gpointer user_data _U_)
 {
-	int vers=(long)key;
+	dcerpc_uuid_key *k;
 
-	dcerpc_version=vers;
+	if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(vers_combo_box), (gpointer)&k)) {
+		g_assert_not_reached();  /* Programming error: somehow no active item */
+	}
+
+	dcerpc_version = k->ver;
 }
 
-
-
-
 static void
-dcerpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
+dcerpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer user_data)
 {
-	dcerpc_uuid_key *k=(dcerpc_uuid_key *)key;
-	GtkWidget *menu_item;
+	dcerpc_uuid_key *k = (dcerpc_uuid_key *)key;
+	GtkWidget       *vers_combo_box = user_data;
 	char vs[5];
 
-	if(!uuid_equal((&k->uuid), dcerpc_uuid_program)){
+	if(!uuid_equal(&(k->uuid), dcerpc_uuid_program)){
 		return;
 	}
+	g_snprintf(vs, sizeof(vs), "%u", k->ver);
+	ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(vers_combo_box), vs, k);
+}
 
-	g_snprintf(vs, sizeof(vs), "%u",k->ver);
-	menu_item=gtk_menu_item_new_with_label(vs);
-	g_signal_connect(menu_item, "activate", G_CALLBACK(dcerpcstat_version_select),
-			 (gpointer)((long)k->ver));
-	gtk_widget_show(menu_item);
-	gtk_menu_shell_append(GTK_MENU_SHELL(vers_menu), menu_item);
+static void
+dcerpcstat_program_select(GtkWidget *prog_combo_box, gpointer user_data)
+{
+	dcerpc_uuid_key *k;
+	GtkWidget *vers_combo_box;
 
-	if(dcerpc_version==0xffff){
-		dcerpc_version=k->ver;
+	vers_combo_box = user_data;
+
+	if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(prog_combo_box), (gpointer)&k)) {
+		g_assert_not_reached();  /* Programming error: somehow no active item */
 	}
 
-	return;
+	g_signal_handlers_disconnect_by_func(vers_combo_box, G_CALLBACK(dcerpcstat_version_select), NULL );
+	ws_combo_box_clear_text_and_pointer(GTK_COMBO_BOX(vers_combo_box));
+
+	g_assert((k != NULL) && "dcerpc_stat: invalid selection"); /* Somehow selected top level ?? */
+	dcerpc_uuid_program = &(k->uuid);
+
+	/* re-create version menu */
+	g_signal_handlers_disconnect_by_func(vers_combo_box, G_CALLBACK(dcerpcstat_version_select), NULL );
+	ws_combo_box_clear_text_and_pointer(GTK_COMBO_BOX(vers_combo_box));
+
+	g_hash_table_foreach(dcerpc_uuids, (GHFunc)dcerpcstat_find_vers, vers_combo_box);
+
+	g_signal_connect(vers_combo_box, "changed", G_CALLBACK(dcerpcstat_version_select), NULL);
+	ws_combo_box_set_active(GTK_COMBO_BOX(vers_combo_box), 0); /* default: triggers dcerpcstat_version_select callback */
+
 }
 
-
-static void
-dcerpcstat_program_select(GtkWidget *item _U_, gpointer key)
+static GtkTreeIter
+dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v, GtkWidget *prog_combo_box, int program_item_index)
 {
-	dcerpc_uuid_key *k=(dcerpc_uuid_key *)key;
-
-	dcerpc_uuid_program=&k->uuid;
-
-	/* change version menu */
-	dcerpc_version=0xffff;
-	gtk_object_destroy(GTK_OBJECT(vers_menu));
-	vers_menu=gtk_menu_new();
-	g_hash_table_foreach(dcerpc_uuids, (GHFunc)dcerpcstat_find_vers, NULL);
-	gtk_option_menu_set_menu(GTK_OPTION_MENU(vers_opt), vers_menu);
-}
-
-
-static GtkWidget *program_submenu_menu;
-static GtkWidget *program_submenu_item;
-static GtkWidget *program_submenu_label;
-static int program_subitem_index;
-static const char *first_menu_name;
-static void
-dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v)
-{
-	GtkWidget *program_menu_item;
-	GtkWidget *box;
+	static GtkTreeIter iter;
 	char str[64];
 
-	switch(program_subitem_index%15){
+	switch(program_item_index%15){
 	case 0:
-
-		first_menu_name=v->name;
 		g_snprintf(str,sizeof(str),"%s ...",v->name);
-		program_submenu_item=gtk_menu_item_new();
-		box=gtk_hbox_new(TRUE,0);
-		gtk_container_add(GTK_CONTAINER(program_submenu_item), box);
-
-		program_submenu_label=gtk_label_new(str);
-		gtk_box_pack_start(GTK_BOX(box), program_submenu_label, TRUE, TRUE, 0);
-		gtk_widget_show(program_submenu_label);
-		gtk_widget_show(box);
-
-		gtk_menu_shell_append(GTK_MENU_SHELL(prog_menu), program_submenu_item);
-		gtk_widget_show(program_submenu_item);
-
-		program_submenu_menu=gtk_menu_new();
-		gtk_menu_item_set_submenu(GTK_MENU_ITEM(program_submenu_item), program_submenu_menu);
+		iter = ws_combo_box_append_text_and_pointer_full(
+			GTK_COMBO_BOX(prog_combo_box), NULL, str, NULL, FALSE); /* top-level entries are insensitive */
 		break;
-	case 14:
-		g_snprintf(str,sizeof(str),"%s - %s",first_menu_name,v->name);
-		gtk_label_set_text(GTK_LABEL(program_submenu_label), str);
+
+	default:
 		break;
-/*qqq*/
-	}
-	program_subitem_index++;
-
-	program_menu_item=gtk_menu_item_new_with_label(v->name);
-	g_signal_connect(program_menu_item, "activate", G_CALLBACK(dcerpcstat_program_select), k);
-
-	gtk_widget_show(program_menu_item);
-	gtk_menu_shell_append(GTK_MENU_SHELL(program_submenu_menu), program_menu_item);
-
-	if(!dcerpc_uuid_program){
-		dcerpc_uuid_program=&k->uuid;
 	}
 
-	return;
+	return ws_combo_box_append_text_and_pointer_full(
+		GTK_COMBO_BOX(prog_combo_box), &iter, v->name, k, TRUE);
 }
 
 static void
 dcerpcstat_find_next_program(gpointer *key, gpointer *value, gpointer *user_data _U_)
 {
-	dcerpc_uuid_key *k=(dcerpc_uuid_key *)key;
-	dcerpc_uuid_value *v=(dcerpc_uuid_value *)value;
+	dcerpc_uuid_key   *k = (dcerpc_uuid_key *)key;
+	dcerpc_uuid_value *v = (dcerpc_uuid_value *)value;
 
 	/* first time called, just set new_uuid to this one */
-	if((current_uuid_key==NULL)&&(new_uuid_key==NULL)){
-		new_uuid_key=k;
-		new_uuid_value=v;
+	if((current_uuid_key==NULL) && (new_uuid_key==NULL)){
+		new_uuid_key   = k;
+		new_uuid_value = v;
 		return;
 	}
 
-	/* if we havent got a current one yet, just check the new
+	/* if we haven't got a current one yet, just check the new
 	   and scan for the first one alphabetically  */
 	if(current_uuid_key==NULL){
 		if(strcmp(new_uuid_value->name, v->name)>0){
-			new_uuid_key=k;
-			new_uuid_value=v;
+			new_uuid_key   = k;
+			new_uuid_value = v;
 			return;
 		}
 		return;
@@ -514,22 +491,22 @@ dcerpcstat_find_next_program(gpointer *key, gpointer *value, gpointer *user_data
 
 	/* searching for the next one we are only interested in those
 	   that sorts alphabetically after the current one */
-	if(strcmp(current_uuid_value->name, v->name)>=0){
+	if(strcmp(current_uuid_value->name, v->name) >= 0){
 		/* this one doesnt so just skip it */
 		return;
 	}
 
 	/* is it the first potential new entry? */
 	if(new_uuid_key==NULL){
-		new_uuid_key=k;
-		new_uuid_value=v;
+		new_uuid_key   = k;
+		new_uuid_value = v;
 		return;
 	}
 
 	/* does it sort before the current new one? */
-	if(strcmp(new_uuid_value->name, v->name)>0){
-		new_uuid_key=k;
-		new_uuid_value=v;
+	if(strcmp(new_uuid_value->name, v->name) > 0){
+		new_uuid_key   = k;
+		new_uuid_value = v;
 		return;
 	}
 
@@ -540,19 +517,23 @@ dcerpcstat_find_next_program(gpointer *key, gpointer *value, gpointer *user_data
 static void
 dlg_destroy_cb(void)
 {
-	dlg=NULL;
+	dlg = NULL;
 }
 
 
 static void
 gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	GtkWidget *dlg_box;
-	GtkWidget *prog_box, *prog_label, *prog_opt;
-	GtkWidget *vers_label;
-	GtkWidget *filter_box, *filter_bt;
-	GtkWidget *bbox, *start_button, *cancel_button;
-	const char *filter;
+	GtkWidget       *dlg_box;
+	GtkWidget       *prog_box,   *prog_label, *prog_combo_box;
+	GtkWidget       *vers_label, *vers_combo_box;
+	GtkWidget       *filter_box, *filter_bt;
+	GtkWidget       *bbox, *start_button, *cancel_button;
+        GtkCellRenderer *cell_renderer;
+	GtkTreeIter      program_first_item_iter;
+	const char      *filter;
+	int              program_item_index = 0;
+
 	static construct_args_t args = {
 	  "Service Response Time Statistics Filter",
 	  FALSE,
@@ -567,82 +548,115 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 		return;
 	}
 
-	dlg=dlg_window_new("Wireshark: Compute DCE-RPC SRT statistics");
+	dlg = dlg_window_new("Wireshark: Compute DCE-RPC SRT statistics");
 	gtk_window_set_default_size(GTK_WINDOW(dlg), 400, -1);
 
-	dlg_box=gtk_vbox_new(FALSE, 10);
+	dlg_box = gtk_vbox_new(FALSE, 10);
 	gtk_container_set_border_width(GTK_CONTAINER(dlg_box), 10);
 	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
 	gtk_widget_show(dlg_box);
 
 	/* Program box */
-	prog_box=gtk_hbox_new(FALSE, 3);
+	prog_box = gtk_hbox_new(FALSE, 3);
 
 	/* Program label */
 	gtk_container_set_border_width(GTK_CONTAINER(prog_box), 10);
-	prog_label=gtk_label_new("Program:");
+	prog_label = gtk_label_new("Program:");
 	gtk_box_pack_start(GTK_BOX(prog_box), prog_label, FALSE, FALSE, 0);
 	gtk_widget_show(prog_label);
 
 	/* Program menu */
-	prog_opt=gtk_option_menu_new();
-	prog_menu=gtk_menu_new();
-	current_uuid_key=NULL;
-	current_uuid_value=NULL;
-/*qqq*/
-	program_submenu_item=NULL;
-	program_submenu_menu=NULL;
-	program_subitem_index=0;
+	dcerpc_uuid_program = NULL;   /* default: no program selected */
+
+	/* The "program combo box" is implemented with a two-level tree.
+	   Each top-level of the tree has (up to) 15 selectable "program name"
+	   children and shows the name of the first child of that entry
+	   as "child_name ...". Each of the top-level entries can be expanded
+	   (to show the children) but is "insensitive": ie: cannot be selected.
+	   (dcerpcstat_add_program_to_menu() does the actual work to add entries
+	    to the combo box).
+            XXX: A simpler alternative might be to just do away with all the two-level
+                 complexity and just use a standard ws_combo_box... even though the
+                 list of "program names" is quite large.
+            XXX: The gtkrc file distributed with Windows Wireshark has the 
+                 "appears-as-list" GtkComboBox style property set to 1 and thus
+                 on Windows the entries for this combo box will appear as a tree-view.
+                 The default is 0(FALSE). In this case the the combo box entries will
+                 display as a menu with sub-menus.
+                 A possibility would be to set "appears-as-list" to 0  just for this
+                 particular combo box on Windows so that the entries will appear as a
+                 menu even on Windows).
+	*/
+	prog_combo_box = ws_combo_box_new_text_and_pointer_full(&cell_renderer);
+	{
+		/* XXX: Hack So that the top-level insensitive entries don't show
+		        as "grayed out"; The "foreground normal" color is used instead.
+			This may not really be necessary but seems better to me.
+		*/
+		GtkStyle *s;
+		s = gtk_widget_get_style(prog_combo_box);
+		g_object_set(cell_renderer, 
+			     "foreground-gdk", &(s->fg[GTK_STATE_NORMAL]), 
+			     "foreground-set", TRUE,
+			     NULL);
+	}
+
+	current_uuid_key   = NULL;
+	current_uuid_value = NULL;
 	do {
-		new_uuid_key=NULL;
-		new_uuid_value=NULL;
+		new_uuid_key   = NULL;
+		new_uuid_value = NULL;
 		g_hash_table_foreach(dcerpc_uuids, (GHFunc)dcerpcstat_find_next_program, NULL);
 		if(new_uuid_key){
-			dcerpcstat_add_program_to_menu(new_uuid_key, new_uuid_value);
+			GtkTreeIter tmp_iter;
+			tmp_iter = dcerpcstat_add_program_to_menu(new_uuid_key, new_uuid_value,
+								  prog_combo_box, program_item_index);
+			if (program_item_index == 0)
+				program_first_item_iter = tmp_iter;
+			program_item_index += 1;
 		}
-		current_uuid_key=new_uuid_key;
-		current_uuid_value=new_uuid_value;
-	} while(new_uuid_key!=NULL);
-
-	gtk_option_menu_set_menu(GTK_OPTION_MENU(prog_opt), prog_menu);
-	gtk_box_pack_start(GTK_BOX(prog_box), prog_opt, TRUE, TRUE, 0);
-	gtk_widget_show(prog_opt);
+		current_uuid_key   = new_uuid_key;
+		current_uuid_value = new_uuid_value;
+	} while(new_uuid_key != NULL);
+	gtk_box_pack_start(GTK_BOX(prog_box), prog_combo_box, TRUE, TRUE, 0);
+	gtk_widget_show(prog_combo_box);
 
 	/* Version label */
 	gtk_container_set_border_width(GTK_CONTAINER(prog_box), 10);
-	vers_label=gtk_label_new("Version:");
+	vers_label = gtk_label_new("Version:");
 	gtk_box_pack_start(GTK_BOX(prog_box), vers_label, FALSE, FALSE, 0);
 	gtk_widget_show(vers_label);
 
-	/* Version menu */
-	vers_opt=gtk_option_menu_new();
-	vers_menu=gtk_menu_new();
-	dcerpc_version=0xffff;
-	g_hash_table_foreach(dcerpc_uuids, (GHFunc)dcerpcstat_find_vers, NULL);
-	gtk_option_menu_set_menu(GTK_OPTION_MENU(vers_opt), vers_menu);
-	gtk_box_pack_start(GTK_BOX(prog_box), vers_opt, TRUE, TRUE, 0);
-	gtk_widget_show(vers_opt);
+	/* Version combo-box */
+	/* Note: version combo box rows set when dcerpcstat_program_select() callback invoked */
+	vers_combo_box = ws_combo_box_new_text_and_pointer();
+	gtk_box_pack_start(GTK_BOX(prog_box), vers_combo_box, TRUE, TRUE, 0);
+	gtk_widget_show(vers_combo_box);
 
+	g_signal_connect(prog_combo_box, "changed", G_CALLBACK(dcerpcstat_program_select), vers_combo_box);
+#if 0 /* Don't select an active entry given the way the drop down treeview appears if a default (active) entry is set */
+	ws_combo_box_set_active_iter(GTK_COMBO_BOX(prog_combo_box), &program_first_item_iter); /* triggers callback */
+#endif
 	gtk_box_pack_start(GTK_BOX(dlg_box), prog_box, TRUE, TRUE, 0);
 	gtk_widget_show(prog_box);
 
 	/* Filter box */
-	filter_box=gtk_hbox_new(FALSE, 3);
+	filter_box = gtk_hbox_new(FALSE, 3);
 
 	/* Filter label */
-	filter_bt=gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
+	filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
 	g_signal_connect(filter_bt, "clicked", G_CALLBACK(display_filter_construct_cb), &args);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_bt, FALSE, FALSE, 0);
 	gtk_widget_show(filter_bt);
 
 	/* Filter entry */
-	filter_entry=gtk_entry_new();
+	filter_entry = gtk_entry_new();
 	g_signal_connect(filter_entry, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
 	g_object_set_data(G_OBJECT(filter_box), E_FILT_AUTOCOMP_PTR_KEY, NULL);
 	g_signal_connect(filter_entry, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
 	g_signal_connect(dlg, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, TRUE, TRUE, 0);
-	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+	filter = gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 	if(filter){
 		gtk_entry_set_text(GTK_ENTRY(filter_entry), filter);
 	} else {
