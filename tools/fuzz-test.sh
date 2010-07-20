@@ -191,10 +191,8 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
         echo " ERROR"
         echo -e "Processing failed.  Capture info follows:\n"
         echo "  Output file: $TMP_DIR/$TMP_FILE"
-        if [ $DISSECTOR_BUG -ne 0 ] ; then
         echo -e "stderr follows:\n"
         cat $TMP_DIR/$ERR_FILE
-        fi
         exit 1
     fi
     echo " OK"
