@@ -8,8 +8,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * Copied from README.developer
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -184,37 +182,37 @@ proto_register_netmon_802_11(void)
 
   static hf_register_info hf[] = {
     { &hf_netmon_802_11_version, { "Header revision", "netmon_802_11.version", FT_UINT8,
-			  BASE_DEC, NULL, 0x0, "", HFILL } },
+			  BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_length, { "Header length", "netmon_802_11.length", FT_UINT16,
-			 BASE_DEC, NULL, 0x0, "", HFILL } },
+			 BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_op_mode, { "Operation mode", "netmon_802_11.op_mode", FT_UINT32,
-			  BASE_HEX, NULL, 0x0, "", HFILL } },
+			  BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_op_mode_sta, { "Station mode", "netmon_802_11.op_mode.sta", FT_UINT32,
-			  BASE_HEX, NULL, OP_MODE_STA, "", HFILL } },
+			  BASE_HEX, NULL, OP_MODE_STA, NULL, HFILL } },
     { &hf_netmon_802_11_op_mode_ap, { "AP mode", "netmon_802_11.op_mode.ap", FT_UINT32,
-			  BASE_HEX, NULL, OP_MODE_AP, "", HFILL } },
+			  BASE_HEX, NULL, OP_MODE_AP, NULL, HFILL } },
     { &hf_netmon_802_11_op_mode_sta_ext, { "Extensible station mode", "netmon_802_11.op_mode.sta_ext", FT_UINT32,
-			  BASE_HEX, NULL, OP_MODE_STA_EXT, "", HFILL } },
+			  BASE_HEX, NULL, OP_MODE_STA_EXT, NULL, HFILL } },
     { &hf_netmon_802_11_op_mode_mon, { "Monitor mode", "netmon_802_11.op_mode.on", FT_UINT32,
-			  BASE_HEX, NULL, OP_MODE_MON, "", HFILL } },
+			  BASE_HEX, NULL, OP_MODE_MON, NULL, HFILL } },
     { &hf_netmon_802_11_flags, { "Flags", "netmon_802_11.flags", FT_UINT32,
-			  BASE_HEX, NULL, 0x0, "", HFILL } },
+			  BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_phy_type, { "PHY type", "netmon_802_11.phy_type", FT_UINT32,
-			  BASE_DEC, VALS(phy_type), 0x0, "", HFILL } },
+			  BASE_DEC, VALS(phy_type), 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_channel, { "Channel", "netmon_802_11.channel", FT_UINT32,
-			  BASE_DEC, NULL, 0x0, "", HFILL } },
+			  BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_frequency, { "Center frequency", "netmon_802_11.frequency", FT_UINT32,
-			  BASE_DEC, NULL, 0x0, "", HFILL } },
+			  BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_rssi, { "RSSI", "netmon_802_11.rssi", FT_INT32,
-			  BASE_DEC, NULL, 0x0, "", HFILL } },
+			  BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_datarate, { "Data rate", "netmon_802_11.datarate", FT_UINT32,
-			  BASE_DEC, NULL, 0x0, "", HFILL } },
+			  BASE_DEC, NULL, 0x0, NULL, HFILL } },
     /*
      * XXX - is this host, or MAC, time stamp?
      * It might be a FILETIME.
      */
     { &hf_netmon_802_11_timestamp, { "Timestamp", "netmon_802_11.timestamp", FT_UINT64,
-			  BASE_DEC, NULL, 0x0, "", HFILL } },
+			  BASE_DEC, NULL, 0x0, NULL, HFILL } },
   };
   static gint *ett[] = {
     &ett_netmon_802_11,
