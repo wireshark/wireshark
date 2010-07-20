@@ -401,6 +401,24 @@ gint get_default_col_size(GtkWidget *view, const gchar *str);
  */
 
 /**
+ * ws_combo_box_new_text_and_pointer_full:
+ *
+ * Convenience function which constructs a new "text and pointer" combo box, which
+ * is a #GtkComboBox just displaying strings and storing a pointer associated with 
+ * each combo_box entry; The pointer can be retrieved when an entry is selected. 
+ * Also: optionally returns the cell renderer for the combo box.
+ * If you use this function to create a text_and_pointer combo_box,
+ * you should only manipulate its data source with the
+ * following convenience functions:
+ *   ws_combo_box_append_text_and_pointer()
+ *   ws_combo_box_append_text_and_pointer_full()
+ *
+ * @param cell_p  pointer to return the 'GtkCellRenderer *' for the combo box (or NULL).
+ * @return A pointer to a new text_and_pointer combo_box.
+ */
+GtkWidget *ws_combo_box_new_text_and_pointer_full(GtkCellRenderer **cell_p);
+
+/**
  * ws_combo_box_new_text_and_pointer:
  *
  * Convenience function which constructs a new "text and pointer" combo box, which

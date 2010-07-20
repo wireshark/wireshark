@@ -1447,21 +1447,29 @@ str_ptr_sort_func(GtkTreeModel *model,
  */
 
 /**
- * ws_combo_box_new_text_and_pointer:
+ * ws_combo_box_new_text_and_pointer_full:
  *
  * Convenience function which constructs a new "text and pointer" combo box, which
  * is a #GtkComboBox just displaying strings and storing a pointer associated with 
  * each combo_box entry; The pointer can be retrieved when an entry is selected. 
+ * Also: optionally returns the cell renderer for the combo box.
  * If you use this function to create a text_and_pointer combo_box,
  * you should only manipulate its data source with the
  * following convenience functions:
  *   ws_combo_box_append_text_and_pointer()
  *   ws_combo_box_append_text_and_pointer_full()
  *
+ * @param cell_p  pointer to return the 'GtkCellRenderer *' for the combo box (or NULL).
  * @return A pointer to a new text_and_pointer combo_box.
  */
+
+/* Note:
+ * GtkComboBox style property: "appears-as-list":
+ *   Default: 0: ie: displays as menus
+ *   Wireshark Windows gtkrc: 1: ie: displays as lists (treeview)
+ */
 GtkWidget *
-ws_combo_box_new_text_and_pointer(void) {
+ws_combo_box_new_text_and_pointer_full(GtkCellRenderer **cell_p) {
     GtkWidget       *combo_box;
     GtkCellRenderer *cell;
     GtkTreeStore    *store;
@@ -1480,8 +1488,32 @@ ws_combo_box_new_text_and_pointer(void) {
     gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combo_box), cell,
                                    "text", 0, "sensitive", 2,
                                    NULL);
+    if (cell_p != NULL) {
+        *cell_p = cell;
+    }
     return combo_box;
 }
+
+/**
+ * ws_combo_box_new_text_and_pointer:
+ *
+ * Convenience function which constructs a new "text and pointer" combo box, which
+ * is a #GtkComboBox just displaying strings and storing a pointer associated with 
+ * each combo_box entry; The pointer can be retrieved when an entry is selected. 
+ * If you use this function to create a text_and_pointer combo_box,
+ * you should only manipulate its data source with the
+ * following convenience functions:
+ *   ws_combo_box_append_text_and_pointer()
+ *   ws_combo_box_append_text_and_pointer_full()
+ *
+ * @return A pointer to a new text_and_pointer combo_box.
+ */
+
+GtkWidget *
+ws_combo_box_new_text_and_pointer(void) {
+    return ws_combo_box_new_text_and_pointer_full(NULL);
+}
+
 
 /**
  * ws_combo_box_clear_text_and_pointer:
