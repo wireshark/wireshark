@@ -65,6 +65,7 @@ typedef struct _ucp_tap_rec_t {
 
 /* Preferences */
 gboolean ucp_desegment = TRUE;
+
 /* STX + TRN(2 num. char.) + / + LEN(5 num. char.) + / + 'O'/'R' + / + OT(2 num. char.) + / */
 #define UCP_HEADER_SIZE 15
 
@@ -74,8 +75,8 @@ gboolean ucp_desegment = TRUE;
  */
 #define AHex2Bin(n)     (((n) & 0x40) ? ((n) & 0x0F) + 9 : ((n) & 0x0F))
 
-#define UCP_STX         0x02                    /* Start of UCP PDU      */
-#define UCP_ETX         0x03                    /* End of UCP PDU        */
+#define UCP_STX       0x02                      /* Start of UCP PDU      */
+#define UCP_ETX       0x03                      /* End of UCP PDU        */
 
 #define UCP_MALFORMED   -1                      /* Not a valid PDU       */
 #define UCP_INV_CHK     -2                      /* Incorrect checksum    */
@@ -98,12 +99,12 @@ static  dissector_handle_t ucp_handle;
  *
  * Header (fixed) section
  */
-static int proto_ucp = -1;
+static int proto_ucp             = -1;
 
-static int hf_ucp_hdr_TRN       = -1;
-static int hf_ucp_hdr_LEN       = -1;
-static int hf_ucp_hdr_O_R       = -1;
-static int hf_ucp_hdr_OT        = -1;
+static int hf_ucp_hdr_TRN        = -1;
+static int hf_ucp_hdr_LEN        = -1;
+static int hf_ucp_hdr_O_R        = -1;
+static int hf_ucp_hdr_OT         = -1;
 
 /*
  * Stats section
@@ -757,15 +758,15 @@ ucp_mktime(char *datestr)
 {
     struct tm    r_time;
 
-    r_time.tm_mday = 10 * (datestr[0] - '0') + (datestr[1] - '0');
+    r_time.tm_mday = (10 * (datestr[0] - '0') + (datestr[1] - '0'));
     r_time.tm_mon  = (10 * (datestr[2] - '0') + (datestr[3] - '0')) - 1;
-    r_time.tm_year = 10 * (datestr[4] - '0') + (datestr[5] - '0');
+    r_time.tm_year = (10 * (datestr[4] - '0') + (datestr[5] - '0'));
     if (r_time.tm_year < 90)
         r_time.tm_year += 100;
-    r_time.tm_hour = 10 * (datestr[6] - '0') + (datestr[7] - '0');
-    r_time.tm_min  = 10 * (datestr[8] - '0') + (datestr[9] - '0');
+    r_time.tm_hour = (10 * (datestr[6] - '0') + (datestr[7] - '0'));
+    r_time.tm_min  = (10 * (datestr[8] - '0') + (datestr[9] - '0'));
     if (datestr[10])
-        r_time.tm_sec  = 10 * (datestr[10] - '0') + (datestr[11] - '0');
+        r_time.tm_sec  = (10 * (datestr[10] - '0') + (datestr[11] - '0'));
     else
         r_time.tm_sec  = 0;
     r_time.tm_isdst = -1;
@@ -1132,7 +1133,7 @@ add_03O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleByte(hf_ucp_parm_RC);
     UcpHandleString(hf_ucp_parm_LRC);
     UcpHandleByte(hf_ucp_parm_DD);
-    UcpHandleTime(hf_ucp_parm_DDT);
+    UcpHandleTime(hf_ucp_parm_DDT);    /* DDMMYYHHmm */
     ucp_handle_mt(tree, tvb, &offset);
 }
 
@@ -1560,8 +1561,8 @@ add_30O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleString(hf_ucp_parm_NAdC);
     UcpHandleInt(hf_ucp_parm_NPID);
     UcpHandleByte(hf_ucp_parm_DD);
-    UcpHandleTime(hf_ucp_parm_DDT);
-    UcpHandleTime(hf_ucp_parm_VP);
+    UcpHandleTime(hf_ucp_parm_DDT);     /* DDMMYYHHmm */
+    UcpHandleTime(hf_ucp_parm_VP);      /* DDMMYYHHmm */
     UcpHandleData(hf_ucp_data_section);
 }
 
@@ -1573,7 +1574,7 @@ add_30R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 
     intval = UcpHandleByte(hf_ucp_parm_ACK);
     if (intval == 'A') {
-        UcpHandleTime(hf_ucp_parm_MVP);
+        UcpHandleTime(hf_ucp_parm_MVP); /* DDMMYYHHmm */
         tap_rec->result = 0;
     } else {
         tap_rec->result = UcpHandleInt(hf_ucp_parm_EC);
@@ -1612,13 +1613,13 @@ add_5xO(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleString(hf_ucp_parm_LRAd);
     UcpHandleInt(hf_ucp_parm_LPID);
     UcpHandleByte(hf_ucp_parm_DD);
-    UcpHandleTime(hf_ucp_parm_DDT);
-    UcpHandleTime(hf_ucp_parm_VP);
+    UcpHandleTime(hf_ucp_parm_DDT);     /* DDMMYYHHmm */
+    UcpHandleTime(hf_ucp_parm_VP);      /* DDMMYYHHmm */
     UcpHandleString(hf_ucp_parm_RPID);
-    UcpHandleTime(hf_ucp_parm_SCTS);
+    UcpHandleTime(hf_ucp_parm_SCTS);    /* DDMMYYhhmmss */
     UcpHandleByte(hf_ucp_parm_Dst);
     UcpHandleInt(hf_ucp_parm_Rsn);
-    UcpHandleTime(hf_ucp_parm_DSCTS);
+    UcpHandleTime(hf_ucp_parm_DSCTS);   /* DDMMYYhhmmss */
     intval = UcpHandleByte(hf_ucp_parm_MT);
     UcpHandleString(hf_ucp_parm_NB);
     if (intval != '3')
