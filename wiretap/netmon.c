@@ -516,7 +516,13 @@ again:
 	switch (netmon->version_major) {
 
 	case 1:
-		delta = ((gint32)pletohl(&hdr.hdr_1_x.ts_delta))*1000;
+		/*
+		 * According to Paul Long, this offset is unsigned.
+		 * It's 32 bits, so the maximum value will fit in
+		 * a gint64 such as delta, even after multiplying
+		 * it by 1000.
+		 */
+		delta = ((guint32)pletohl(&hdr.hdr_1_x.ts_delta))*1000;
 		break;
 
 	case 2:
