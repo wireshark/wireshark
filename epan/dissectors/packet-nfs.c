@@ -411,6 +411,8 @@ static int hf_nfs_stripedevs4 = -1;
 static int hf_nfs_devaddr4 = -1;
 static int hf_nfs_return_on_close4 = -1;
 static int hf_nfs_slotid4 = -1;
+static int hf_nfs_high_slotid4 = -1;
+static int hf_nfs_target_high_slotid4 = -1;
 static int hf_nfs_sr_status4 = -1;
 static int hf_nfs_serverscope4 = -1;
 static int hf_nfs_minorid4 = -1;
@@ -9436,7 +9438,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 											 FALSE, NULL, NULL);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
-			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_high_slotid4, offset);
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_cachethis4, offset);
 			break;
 
@@ -9851,8 +9853,8 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 											 FALSE, NULL, NULL);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
-			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
-			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_high_slotid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_target_high_slotid4, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_sr_status4,
 										offset);
 			break;
@@ -11791,6 +11793,13 @@ proto_register_nfs(void)
 		{ &hf_nfs_slotid4, {
 			"slot ID", "nfs.slotid4", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
+              
+                { &hf_nfs_high_slotid4, {
+                        "high slot id", "nfs.high.slotid4", FT_UINT32, BASE_DEC,
+                        NULL, 0, NULL, HFILL }},
+		{ &hf_nfs_target_high_slotid4, {
+			"target high slot id", "nfs.target.high.slotid4", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }}, 
 
 		{ &hf_nfs_sr_status4, {
 			"status", "nfs.status", FT_UINT32, BASE_DEC,
