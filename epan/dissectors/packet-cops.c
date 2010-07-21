@@ -3574,7 +3574,7 @@ cops_best_effort_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32
      offset += 3;
 
      /* Authorized Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Authorized Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 36 : 32, "Authorized Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
@@ -3625,7 +3625,7 @@ cops_best_effort_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32
      if (n < 56) return;
 
      /* Reserved Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Reserved Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 36 : 32, "Reserved Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
@@ -3676,7 +3676,7 @@ cops_best_effort_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32
      if (n < 80) return;
 
      /* Committed Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Committed Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 36 : 32, "Committed Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
@@ -3743,7 +3743,7 @@ cops_non_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint 
      offset += 3;
 
      /* Authorized Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 28, "Authorized Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Authorized Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
@@ -3798,7 +3798,7 @@ cops_non_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint 
      if (n < 64) return;
 
      /* Reserved Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Reserved Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Reserved Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
@@ -3853,7 +3853,7 @@ cops_non_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint 
      if (n < 92) return;
 
      /* Committed Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Committed Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Committed Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
@@ -3924,7 +3924,7 @@ cops_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, g
      offset += 3;
 
      /* Authorized Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 28, "Authorized Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Authorized Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -3976,7 +3976,7 @@ cops_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, g
      if (n < 64) return;
 
      /* Reserved Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Reserved Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Reserved Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -4028,7 +4028,7 @@ cops_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, g
      if (n < 92) return;
 
      /* Committed Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Committed Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Committed Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -4096,7 +4096,7 @@ cops_unsolicited_grant_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, g
      offset += 3;
 
      /* Authorized Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 16, "Authorized Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 28 : 24, "Authorized Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -4139,7 +4139,7 @@ cops_unsolicited_grant_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, g
      if (n < 40) return;
 
      /* Reserved Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 16, "Reserved Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 28 : 24, "Reserved Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -4182,7 +4182,7 @@ cops_unsolicited_grant_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, g
      if (n < 56) return;
 
      /* Committed Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 16, "Committed Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 28 : 24, "Committed Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -4241,7 +4241,7 @@ cops_ugs_with_activity_detection_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n,
      offset += 3;
 
      /* Authorized Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Authorized Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 36 : 32, "Authorized Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -4292,7 +4292,7 @@ cops_ugs_with_activity_detection_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n,
      if (n < 56) return;
 
      /* Reserved Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Reserved Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 36 : 32, "Reserved Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -4343,7 +4343,7 @@ cops_ugs_with_activity_detection_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n,
      if (n < 80) return;
 
      /* Committed Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Committed Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 36 : 32, "Committed Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -4410,7 +4410,7 @@ cops_downstream_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 
      offset += 3;
 
      /* Authorized Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Authorized Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Authorized Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
@@ -4418,8 +4418,8 @@ cops_downstream_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 
      offset += 1;
 
      /* Downstream Resequencing */
-	 info_to_display(tvb,object_tree,offset,1,"Downstream Resequencing",NULL,FMT_HEX,&hf_cops_pcmm_down_resequencing);
-	 offset += 1;
+     info_to_display(tvb,object_tree,offset,1,"Downstream Resequencing",NULL,FMT_HEX,&hf_cops_pcmm_down_resequencing);
+     offset += 1;
 
      proto_tree_add_text(object_tree, tvb, offset, 2, "Reserved");
      offset += 2;
@@ -4469,7 +4469,7 @@ cops_downstream_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 
      if (n < 56) return;
 
      /* Reserved Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Reserved Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Reserved Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
@@ -4528,7 +4528,7 @@ cops_downstream_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 
      if (n < 80) return;
 
      /* Committed Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Committed Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Committed Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
