@@ -49,6 +49,7 @@
 static int proto_gtpv2 = -1;
 static int hf_gtpv2_flags = -1;
 static int hf_gtpv2_version = -1;
+static int hf_gtpv2_p = -1;
 static int hf_gtpv2_t = -1;
 static int hf_gtpv2_message_type = -1;
 static int hf_gtpv2_msg_length = -1;
@@ -1689,14 +1690,14 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
          * length shall be a multiple of 4 octets.
          * Figure 5.1-1 illustrates the format of the GTPv2-C Header.
          * Bits       8  7  6   5       4   3       2       1
-         * Octets   1 Version   Spare   T   Spare   Spare   Spare
+         * Octets   1 Version   P       T   Spare   Spare   Spare
          *          2 Message Type
          *          3 Message Length (1st Octet)
          *          4 Message Length (2nd Octet)
          *  m-k(m+3)    If T flag is set to 1, then TEID shall be placed into octets 5-8.
          *              Otherwise, TEID field is not present at all.
-         *  n-(n+1)   Sequence Number
-         * (n+2)-(n+3) Spare
+         *  n-(n+2)   Sequence Number
+         * (n+3)      Spare
          * Figure 5.1-1: General format of GTPv2 Header for Control Plane
          */
         tf = proto_tree_add_item(gtpv2_tree, hf_gtpv2_flags, tvb, offset, 1, FALSE);
@@ -1705,6 +1706,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         /* Octet 1 */
         t_flag = (tvb_get_guint8(tvb,offset) & 0x08)>>3;
         proto_tree_add_item(flags_tree, hf_gtpv2_version, tvb, offset, 1, FALSE);
+        proto_tree_add_item(flags_tree, hf_gtpv2_p, tvb, offset, 1, FALSE);
         proto_tree_add_item(flags_tree, hf_gtpv2_t, tvb, offset, 1, FALSE);
         offset++;
 
@@ -1720,13 +1722,13 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             proto_tree_add_item(gtpv2_tree, hf_gtpv2_teid, tvb, offset, 4, FALSE);
             offset+=4;
         }
-        /* Sequence Number 2 octets */
-        proto_tree_add_item(gtpv2_tree, hf_gtpv2_seq, tvb, offset, 2, FALSE);
-        offset+=2;
+        /* Sequence Number 3 octets */
+        proto_tree_add_item(gtpv2_tree, hf_gtpv2_seq, tvb, offset, 3, FALSE);
+        offset+=3;
 
-        /* Spare 2 octets */
-        proto_tree_add_item(gtpv2_tree, hf_gtpv2_spare, tvb, offset, 2, FALSE);
-        offset+=2;
+        /* Spare 1 octet */
+        proto_tree_add_item(gtpv2_tree, hf_gtpv2_spare, tvb, offset, 1, FALSE);
+        offset+=1;
 
         dissect_gtpv2_ie_common(tvb, pinfo, gtpv2_tree, offset, message_type);
     }
@@ -1746,6 +1748,11 @@ void proto_register_gtpv2(void)
         FT_UINT8, BASE_DEC, NULL, 0xe0,
         NULL, HFILL}
         },
+        {&hf_gtpv2_p,
+        {"P", "gtpv2.p",
+        FT_UINT8, BASE_DEC, NULL, 0x10,
+        "If Piggybacked message is present or not", HFILL}
+        },        
         { &hf_gtpv2_t,
         {"T", "gtpv2.t",
         FT_UINT8, BASE_DEC, NULL, 0x08,
