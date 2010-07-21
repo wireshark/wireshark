@@ -521,8 +521,12 @@ again:
 		 * It's 32 bits, so the maximum value will fit in
 		 * a gint64 such as delta, even after multiplying
 		 * it by 1000.
+		 *
+		 * pletohl() returns a guint32; we cast it to gint64
+		 * before multiplying, so that the product doesn't
+		 * overflow a guint32.
 		 */
-		delta = ((guint32)pletohl(&hdr.hdr_1_x.ts_delta))*1000;
+		delta = ((gint64)pletohl(&hdr.hdr_1_x.ts_delta))*1000;
 		break;
 
 	case 2:
