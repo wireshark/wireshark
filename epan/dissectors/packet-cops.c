@@ -14,7 +14,7 @@
  *    Based on PKT-SP-DQOS-I09-040402 (April 2, 2004)
  *
  *    PacketCable Multimedia Specification
- *    Based on PKT-SP-MM-I04-080522
+ *    Based on PKT-SP-MM-I04-080522 and PKT-SP-MM-I05-091029
  *
  *    www.packetcable.com
  *
@@ -724,6 +724,7 @@ static gint hf_cops_pcmm_ass_min_rtr_packet_size = -1;
 static gint hf_cops_pcmm_max_concat_burst = -1;
 static gint hf_cops_pcmm_req_att_mask = -1;
 static gint hf_cops_pcmm_forbid_att_mask = -1;
+static gint hf_cops_pcmm_att_aggr_rule_mask = -1;
 static gint hf_cops_pcmm_nominal_polling_interval = -1;
 static gint hf_cops_pcmm_tolerated_poll_jitter = -1;
 static gint hf_cops_pcmm_unsolicited_grant_size = -1;
@@ -2314,12 +2315,17 @@ void proto_register_cops(void)
 		{ "Required Attribute Mask", "cops.pc_mm_ramask",
 		FT_UINT16, BASE_DEC, NULL, 0,
 		"PacketCable Multimedia Committed Envelope Required Attribute Mask", HFILL }
-	},
-	{ &hf_cops_pcmm_forbid_att_mask,
+    },
+    { &hf_cops_pcmm_forbid_att_mask,
 		{ "Forbidden Attribute Mask", "cops.pc_mm_famask",
 		FT_UINT16, BASE_DEC, NULL, 0,
 		"PacketCable Multimedia Committed Envelope Forbidden Attribute Mask", HFILL }
-	},
+    },
+    { &hf_cops_pcmm_att_aggr_rule_mask,
+		{ "Attribute Aggregation Rule Mask", "cops.pc_mm_aarmask",
+		FT_UINT16, BASE_DEC, NULL, 0,
+		"PacketCable Multimedia Committed Envelope Attribute Aggregation Rule Mask", HFILL }
+    },
 
     { &hf_cops_pcmm_nominal_polling_interval,
 	    { "Nominal Polling Interval", "cops.pc_mm_npi",
@@ -3552,7 +3558,7 @@ cops_docsis_service_class_name(tvbuff_t *tvb, proto_tree *st, guint object_len, 
 
 /* Cops - Section : Best Effort Service */
 static void
-cops_best_effort_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_best_effort_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
 
@@ -3607,8 +3613,14 @@ cops_best_effort_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 off
      offset += 4;
 
      /* Forbidden Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-	 offset += 4;
+     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+     offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 56) return;
 
@@ -3644,16 +3656,22 @@ cops_best_effort_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 off
      offset += 2;
 
      /* Maximum Concatenated Burst */
-	 info_to_display(tvb,object_tree,offset,2,"Maximum Concatenated Burst",NULL,FMT_DEC,&hf_cops_pcmm_max_concat_burst);
-	 offset += 2;
+     info_to_display(tvb,object_tree,offset,2,"Maximum Concatenated Burst",NULL,FMT_DEC,&hf_cops_pcmm_max_concat_burst);
+     offset += 2;
 
-	 /* Required Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-	 offset += 4;
+     /* Required Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+     offset += 4;
 
-	 /* Forbidden Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-	 offset += 4;
+     /* Forbidden Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+     offset += 4;
+
+     if (i05) {
+         /* Attribute Aggregation Rule Mask */
+         info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+         offset += 4;
+     }
 
      if (n < 80) return;
 
@@ -3694,16 +3712,22 @@ cops_best_effort_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 off
 
      /* Required Attribute Mask */
      info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-	 offset += 4;
+     offset += 4;
 
-	 /* Forbidden Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-	 offset += 4;
+     /* Forbidden Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+     offset += 4;
+
+     if (i05) {
+         /* Attribute Aggregation Rule Mask */
+         info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+         offset += 4;
+     }
 }
 
 /* Cops - Section : Non-Real-Time Polling Service */
 static void
-cops_non_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_non_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
 
@@ -3758,12 +3782,18 @@ cops_non_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, g
      offset += 4;
 
      /* Required Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-	 offset += 4;
+     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+     offset += 4;
 
-	 /* Forbidden Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-	 offset += 4;
+     /* Forbidden Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+     offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 64) return;
 
@@ -3799,20 +3829,26 @@ cops_non_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, g
      offset += 2;
 
      /* Maximum Concatenated Burst */
-	 info_to_display(tvb,object_tree,offset,2,"Maximum Concatenated Burst",NULL,FMT_DEC,&hf_cops_pcmm_max_concat_burst);
-	 offset += 2;
+     info_to_display(tvb,object_tree,offset,2,"Maximum Concatenated Burst",NULL,FMT_DEC,&hf_cops_pcmm_max_concat_burst);
+     offset += 2;
 
-	 /* Nominal Polling Interval */
-	 info_to_display(tvb,object_tree,offset,4,"Nominal Polling Interval",NULL,FMT_DEC,&hf_cops_pcmm_nominal_polling_interval);
-	 offset += 4;
+     /* Nominal Polling Interval */
+     info_to_display(tvb,object_tree,offset,4,"Nominal Polling Interval",NULL,FMT_DEC,&hf_cops_pcmm_nominal_polling_interval);
+     offset += 4;
 
-	 /* Required Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-	 offset += 4;
+     /* Required Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+     offset += 4;
 
-	 /* Forbidden Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-	 offset += 4;
+     /* Forbidden Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+     offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 92) return;
 
@@ -3848,25 +3884,31 @@ cops_non_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, g
      offset += 2;
 
      /* Maximum Concatenated Burst */
-	 info_to_display(tvb,object_tree,offset,2,"Maximum Concatenated Burst",NULL,FMT_DEC,&hf_cops_pcmm_max_concat_burst);
-	 offset += 2;
+     info_to_display(tvb,object_tree,offset,2,"Maximum Concatenated Burst",NULL,FMT_DEC,&hf_cops_pcmm_max_concat_burst);
+     offset += 2;
 
-	 /* Nominal Polling Interval */
-	 info_to_display(tvb,object_tree,offset,4,"Nominal Polling Interval",NULL,FMT_DEC,&hf_cops_pcmm_nominal_polling_interval);
-	 offset += 4;
+     /* Nominal Polling Interval */
+     info_to_display(tvb,object_tree,offset,4,"Nominal Polling Interval",NULL,FMT_DEC,&hf_cops_pcmm_nominal_polling_interval);
+     offset += 4;
 
-	 /* Required Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-	 offset += 4;
+     /* Required Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+     offset += 4;
 
-	 /* Forbidden Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-	 offset += 4;
+     /* Forbidden Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+     offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 }
 
 /* Cops - Section : Real-Time Polling Service */
 static void
-cops_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
 
@@ -3925,6 +3967,12 @@ cops_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint
      info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
      offset += 4;
 
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
+
      if (n < 64) return;
 
      /* Reserved Envelope */
@@ -3952,24 +4000,30 @@ cops_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint
      offset += 2;
 
      /* Maximum Concatenated Burst */
-	 info_to_display(tvb,object_tree,offset,2,"Maximum Concatenated Burst",NULL,FMT_DEC,&hf_cops_pcmm_max_concat_burst);
-	 offset += 2;
+     info_to_display(tvb,object_tree,offset,2,"Maximum Concatenated Burst",NULL,FMT_DEC,&hf_cops_pcmm_max_concat_burst);
+     offset += 2;
 
-	 /* Nominal Polling Interval */
-	 info_to_display(tvb,object_tree,offset,4,"Nominal Polling Interval",NULL,FMT_DEC,&hf_cops_pcmm_nominal_polling_interval);
-	 offset += 4;
+     /* Nominal Polling Interval */
+     info_to_display(tvb,object_tree,offset,4,"Nominal Polling Interval",NULL,FMT_DEC,&hf_cops_pcmm_nominal_polling_interval);
+     offset += 4;
 
-	 /* Tolerated Poll Jitter */
-	 info_to_display(tvb,object_tree,offset,4,"Tolerated Poll Jitter",NULL,FMT_DEC,&hf_cops_pcmm_tolerated_poll_jitter);
-	 offset += 4;
+     /* Tolerated Poll Jitter */
+     info_to_display(tvb,object_tree,offset,4,"Tolerated Poll Jitter",NULL,FMT_DEC,&hf_cops_pcmm_tolerated_poll_jitter);
+     offset += 4;
 
-	 /* Required Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-	 offset += 4;
+     /* Required Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+     offset += 4;
 
-	 /* Forbidden Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-	 offset += 4;
+     /* Forbidden Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+     offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 92) return;
 
@@ -3998,29 +4052,35 @@ cops_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint
      offset += 2;
 
      /* Maximum Concatenated Burst */
-	 info_to_display(tvb,object_tree,offset,2,"Maximum Concatenated Burst",NULL,FMT_DEC,&hf_cops_pcmm_max_concat_burst);
-	 offset += 2;
+     info_to_display(tvb,object_tree,offset,2,"Maximum Concatenated Burst",NULL,FMT_DEC,&hf_cops_pcmm_max_concat_burst);
+     offset += 2;
 
-	 /* Nominal Polling Interval */
-	 info_to_display(tvb,object_tree,offset,4,"Nominal Polling Interval",NULL,FMT_DEC,&hf_cops_pcmm_nominal_polling_interval);
-	 offset += 4;
+     /* Nominal Polling Interval */
+     info_to_display(tvb,object_tree,offset,4,"Nominal Polling Interval",NULL,FMT_DEC,&hf_cops_pcmm_nominal_polling_interval);
+     offset += 4;
 
-	 /* Tolerated Poll Jitter */
-	 info_to_display(tvb,object_tree,offset,4,"Tolerated Poll Jitter",NULL,FMT_DEC,&hf_cops_pcmm_tolerated_poll_jitter);
-	 offset += 4;
+     /* Tolerated Poll Jitter */
+     info_to_display(tvb,object_tree,offset,4,"Tolerated Poll Jitter",NULL,FMT_DEC,&hf_cops_pcmm_tolerated_poll_jitter);
+     offset += 4;
 
-	 /* Required Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-	 offset += 4;
+     /* Required Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+     offset += 4;
 
-	 /* Forbidden Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-	 offset += 4;
+     /* Forbidden Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+     offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 }
 
 /* Cops - Section : Unsolicited Grant Service */
 static void
-cops_unsolicited_grant_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_unsolicited_grant_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
 
@@ -4063,12 +4123,18 @@ cops_unsolicited_grant_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint
      offset += 4;
 
      /* Required Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-	 offset += 4;
+     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+     offset += 4;
 
-	 /* Forbidden Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-	 offset += 4;
+     /* Forbidden Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+     offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 40) return;
 
@@ -4100,12 +4166,18 @@ cops_unsolicited_grant_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint
      offset += 4;
 
      /* Required Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-	 offset += 4;
+     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+     offset += 4;
 
-	 /* Forbidden Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-	 offset += 4;
+     /* Forbidden Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+     offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 56) return;
 
@@ -4137,17 +4209,23 @@ cops_unsolicited_grant_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint
      offset += 4;
 
      /* Required Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-	 offset += 4;
+     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+     offset += 4;
 
-	 /* Forbidden Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-	 offset += 4;
+     /* Forbidden Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+     offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 }
 
 /* Cops - Section : Unsolicited Grant Service with Activity Detection */
 static void
-cops_ugs_with_activity_detection_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_ugs_with_activity_detection_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
 
@@ -4198,12 +4276,18 @@ cops_ugs_with_activity_detection_i04(tvbuff_t *tvb, proto_tree *st, guint n, gui
      offset += 4;
 
      /* Required Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-	 offset += 4;
+     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+     offset += 4;
 
-	 /* Forbidden Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-	 offset += 4;
+     /* Forbidden Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+     offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 56) return;
 
@@ -4243,12 +4327,18 @@ cops_ugs_with_activity_detection_i04(tvbuff_t *tvb, proto_tree *st, guint n, gui
      offset += 4;
 
      /* Required Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-	 offset += 4;
+     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+     offset += 4;
 
-	 /* Forbidden Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-	 offset += 4;
+     /* Forbidden Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+     offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 80) return;
 
@@ -4288,17 +4378,23 @@ cops_ugs_with_activity_detection_i04(tvbuff_t *tvb, proto_tree *st, guint n, gui
      offset += 4;
 
      /* Required Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-	 offset += 4;
+     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+     offset += 4;
 
-	 /* Forbidden Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-	 offset += 4;
+     /* Forbidden Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+     offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 }
 
 /* Cops - Section : Downstream Service */
 static void
-cops_downstream_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_downstream_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
 
@@ -4353,16 +4449,22 @@ cops_downstream_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offs
      offset += 4;
 
      /* Downstream Peak Traffic Rate */
-	 info_to_display(tvb,object_tree,offset,4,"Downstream Peak Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_down_peak_traffic_rate);
-	 offset += 4;
+     info_to_display(tvb,object_tree,offset,4,"Downstream Peak Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_down_peak_traffic_rate);
+     offset += 4;
 
-	 /* Required Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-	 offset += 4;
+     /* Required Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+     offset += 4;
 
-	 /* Forbidden Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-	 offset += 4;
+     /* Forbidden Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+     offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 56) return;
 
@@ -4406,16 +4508,22 @@ cops_downstream_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offs
      offset += 4;
 
      /* Downstream Peak Traffic Rate */
-	 info_to_display(tvb,object_tree,offset,4,"Downstream Peak Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_down_peak_traffic_rate);
-	 offset += 4;
+     info_to_display(tvb,object_tree,offset,4,"Downstream Peak Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_down_peak_traffic_rate);
+     offset += 4;
 
-	 /* Required Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-	 offset += 4;
+     /* Required Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+     offset += 4;
 
-	 /* Forbidden Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-	 offset += 4;
+     /* Forbidden Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+     offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 80) return;
 
@@ -4459,16 +4567,22 @@ cops_downstream_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offs
      offset += 4;
 
      /* Downstream Peak Traffic Rate */
-	 info_to_display(tvb,object_tree,offset,4,"Downstream Peak Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_down_peak_traffic_rate);
-	 offset += 4;
+     info_to_display(tvb,object_tree,offset,4,"Downstream Peak Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_down_peak_traffic_rate);
+     offset += 4;
 
-	 /* Required Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-	 offset += 4;
+     /* Required Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+     offset += 4;
 
-	 /* Forbidden Attribute Mask */
-	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-	 offset += 4;
+     /* Forbidden Attribute Mask */
+     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+     offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 }
 
 /* Cops - Section : Upstream Drop */
@@ -5737,38 +5851,50 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                cops_docsis_service_class_name(tvb, tree, object_len, offset);
                break;
         case PCMM_BEST_EFFORT_SERVICE:
-		       if (object_len == 40 || object_len == 72 || object_len == 104)
-		           cops_best_effort_service_i04(tvb, tree, object_len, offset);
+		       if (object_len == 44 || object_len == 80 || object_len == 116)
+			   cops_best_effort_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+		       else if (object_len == 40 || object_len == 72 || object_len == 104)
+			   cops_best_effort_service_i04_i05(tvb, tree, object_len, offset, FALSE);
 		       else
 		    	   cops_best_effort_service(tvb, tree, object_len, offset);
 		       break;
         case PCMM_NON_REAL_TIME_POLLING_SERVICE:
-        	   if (object_len == 44 || object_len == 80 || object_len == 116)
-                   cops_non_real_time_polling_service_i04(tvb, tree, object_len, offset);
+        	   if (object_len == 48 || object_len == 88 || object_len == 128)
+			   cops_non_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+        	   else if (object_len == 44 || object_len == 80 || object_len == 116)
+			   cops_non_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, FALSE);
         	   else
         		   cops_non_real_time_polling_service(tvb, tree, object_len, offset);
                break;
         case PCMM_REAL_TIME_POLLING_SERVICE:
-        	   if (object_len == 44 || object_len == 80 || object_len == 116)
-                   cops_real_time_polling_service_i04(tvb, tree, object_len, offset);
+        	   if (object_len == 48 || object_len == 88 || object_len == 128)
+			   cops_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+        	   else if (object_len == 44 || object_len == 80 || object_len == 116)
+			   cops_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, FALSE);
         	   else
         		   cops_real_time_polling_service(tvb, tree, object_len, offset);
                break;
         case PCMM_UNSOLICITED_GRANT_SERVICE:
-        	   if (object_len == 32 || object_len == 56 || object_len == 80)
-                   cops_unsolicited_grant_service_i04(tvb, tree, object_len, offset);
+        	   if (object_len == 36 || object_len == 64 || object_len == 92)
+			  cops_unsolicited_grant_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+        	   else if (object_len == 32 || object_len == 56 || object_len == 80)
+			  cops_unsolicited_grant_service_i04_i05(tvb, tree, object_len, offset, FALSE);
         	   else
         		   cops_unsolicited_grant_service(tvb, tree, object_len, offset);
         	   break;
         case PCMM_UGS_WITH_ACTIVITY_DETECTION:
-        	   if (object_len == 40 || object_len == 72 || object_len == 104)
-                   cops_ugs_with_activity_detection_i04(tvb, tree, object_len, offset);
+        	   if (object_len == 44 || object_len == 80 || object_len == 116)
+			  cops_ugs_with_activity_detection_i04_i05(tvb, tree, object_len, offset, TRUE);
+        	   else if (object_len == 40 || object_len == 72 || object_len == 104)
+			  cops_ugs_with_activity_detection_i04_i05(tvb, tree, object_len, offset, FALSE);
         	   else
         		   cops_ugs_with_activity_detection(tvb, tree, object_len, offset);
         	   break;
         case PCMM_DOWNSTREAM_SERVICE:
-        	   if (object_len == 40 || object_len == 72 || object_len == 104)
-                   cops_downstream_service_i04(tvb, tree, object_len, offset);
+        	   if (object_len == 44 || object_len == 80 || object_len == 116)
+			   cops_downstream_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+        	   else if (object_len == 40 || object_len == 72 || object_len == 104)
+			   cops_downstream_service_i04_i05(tvb, tree, object_len, offset, FALSE);
         	   else
         		   cops_downstream_service(tvb, tree, object_len, offset);
         	   break;
