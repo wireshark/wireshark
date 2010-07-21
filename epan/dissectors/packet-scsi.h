@@ -107,8 +107,8 @@ typedef struct _scsi_cdb_table_t {
 
 
 /* SPC Commands */
-#define SCSI_SPC_ACCESS_CONTROL_IN	 0x85
-#define SCSI_SPC_ACCESS_CONTROL_OUT	 0x87
+#define SCSI_SPC_ACCESS_CONTROL_IN       0x86
+#define SCSI_SPC_ACCESS_CONTROL_OUT      0x87
 #define SCSI_SPC_CHANGE_DEFINITION       0x40
 #define SCSI_SPC_COMPARE                 0x39
 #define SCSI_SPC_COPY                    0x18
