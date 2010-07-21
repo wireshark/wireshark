@@ -1508,6 +1508,7 @@ main_cf_cb_file_read_started(capture_file *cf _U_)
 static void
 main_cf_cb_file_read_finished(capture_file *cf)
 {
+    gchar* dirname;
     set_display_filename(cf);
 
     /* Enable menu items that make sense if you have a capture file you've
@@ -1516,6 +1517,11 @@ main_cf_cb_file_read_finished(capture_file *cf)
 
     /* Enable menu items that make sense if you have some captured packets. */
     set_menus_for_captured_packets(TRUE);
+
+    /* Remember this capture folder so that it will appear in Open dialog and saved in recent. */
+    dirname = get_dirname(cf->filename);
+    set_last_open_dir(dirname);
+
 }
 
 #ifdef HAVE_LIBPCAP
