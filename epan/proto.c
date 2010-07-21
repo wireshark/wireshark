@@ -3582,12 +3582,15 @@ proto_custom_set(proto_tree* tree, const int field_id, gchar *result,
 
 		switch(hfinfo->type) {
 
+		case FT_BOOLEAN:
+			g_snprintf(expr, size, "%u", fvalue_get_uinteger(&finfo->value) ? 1 : 0);
+			break;
+
 		case FT_UINT8:
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
 		case FT_FRAMENUM:
-		case FT_BOOLEAN:
 			g_snprintf(expr, size, hfinfo_numeric_value_format(hfinfo), fvalue_get_uinteger(&finfo->value));
 			break;
 
