@@ -1305,7 +1305,7 @@ static const value_string gtpv2_cause_type_vals[] = {
     {15, "<spare>"},
     {0, NULL}
 };
-value_string_ext gtpv2_cause_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_cause_type_vals);
+static value_string_ext gtpv2_cause_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_cause_type_vals);
 
 static void
 dissect_gtpv2_F_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
@@ -1382,7 +1382,7 @@ static const value_string gtpv2_target_type_vals[] = {
     {3,  "Home eNodeB ID"},
     {0, NULL}
 };
-value_string_ext gtpv2_target_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_target_type_vals);
+static value_string_ext gtpv2_target_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_target_type_vals);
 
 static void
 dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
@@ -2140,7 +2140,7 @@ void proto_register_gtpv2(void)
         },
 		{ &hf_gtpv2_cause_type,
         {"Cause Type","gtpv2.cause_type",
-        FT_UINT8, BASE_DEC|BASE_EXT_STRING, VALS(&gtpv2_cause_type_vals_ext),0x0f,
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gtpv2_cause_type_vals_ext,0x0f,
         NULL, HFILL}
         },
 		{ &hf_gtpv2_CauseRadioNetwork,
@@ -2165,7 +2165,7 @@ void proto_register_gtpv2(void)
         },
 		{ &hf_gtpv2_target_type,
         {"Target Type","gtpv2.target_type",
-        FT_UINT8, BASE_DEC|BASE_EXT_STRING, VALS(&gtpv2_target_type_vals_ext),0x0,
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gtpv2_target_type_vals_ext,0x0,
         NULL, HFILL}
         },
 		{ &hf_gtpv2_CauseProtocol,
