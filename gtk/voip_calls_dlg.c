@@ -78,18 +78,18 @@
 /* pointer to the one and only dialog window */
 static GtkWidget *voip_calls_dlg = NULL;
 
-static GtkListStore *list_store = NULL;
+static GtkListStore *list_store  = NULL;
 static GtkTreeIter list_iter;
-static GtkWidget *list = NULL;
+static GtkWidget *list           = NULL;
 
-static GtkWidget *top_label = NULL;
-static GtkWidget *status_label = NULL;
+static GtkWidget *top_label      = NULL;
+static GtkWidget *status_label   = NULL;
 
-/*static GtkWidet *bt_unselect = NULL;*/
-static GtkWidget *bt_filter = NULL;
-static GtkWidget *bt_graph = NULL;
+/*static GtkWidet *bt_unselect   = NULL;*/
+static GtkWidget *bt_filter      = NULL;
+static GtkWidget *bt_graph       = NULL;
 #ifdef HAVE_LIBPORTAUDIO
-static GtkWidget *bt_player = NULL;
+static GtkWidget *bt_player      = NULL;
 #endif /* HAVE_LIBPORTAUDIO */
 
 static guint32 calls_nb = 0;     /* number of displayed calls */
@@ -99,17 +99,17 @@ static graph_analysis_data_t *graph_analysis_data = NULL;
 
 enum
 {
-   CALL_COL_START_TIME,
-   CALL_COL_STOP_TIME,
-   CALL_COL_INITIAL_SPEAKER,
-   CALL_COL_FROM,
-   CALL_COL_TO,
-   CALL_COL_PROTOCOL,
-   CALL_COL_PACKETS,
-   CALL_COL_STATE,
-   CALL_COL_COMMENTS,
-   CALL_COL_DATA,
-   NUM_COLS /* The number of columns */
+	CALL_COL_START_TIME,
+	CALL_COL_STOP_TIME,
+	CALL_COL_INITIAL_SPEAKER,
+	CALL_COL_FROM,
+	CALL_COL_TO,
+	CALL_COL_PROTOCOL,
+	CALL_COL_PACKETS,
+	CALL_COL_STATE,
+	CALL_COL_COMMENTS,
+	CALL_COL_DATA,
+	NUM_COLS /* The number of columns */
 };
 
 
@@ -410,28 +410,18 @@ voip_calls_on_select_row_cb(GtkTreeSelection *selection, gpointer data _U_)
 static void
 add_to_list_store(voip_calls_info_t* strinfo)
 {
-	gchar label_text[256];
-	gchar *data[NUM_COLS];
 	gchar field[NUM_COLS][50];
-	gint c;
 	isup_calls_info_t *isupinfo;
 	h323_calls_info_t *h323info;
 	gboolean flag = FALSE;
 
-	for (c=0; c<NUM_COLS; c++) {
-		data[c] = &field[c][0];
-	}
-
-	g_snprintf(field[CALL_COL_START_TIME], 15, "%3f", nstime_to_sec(&strinfo->start_rel));
-	g_snprintf(field[CALL_COL_STOP_TIME], 15, "%3f", nstime_to_sec(&strinfo->stop_rel));
-/*	XXX display_signed_time(data[0], sizeof(field[CALL_COL_START_TIME]), strinfo->start_rel.secs, strinfo->start_rel.nsecs, TO_STR_TIME_RES_T_NSECS); */
-/*	display_signed_time(data[1], sizeof(field[CALL_COL_STOP_TIME]), strinfo->stop_rel.secs, strinfo->stop_rel.nsecs, TO_STR_TIME_RES_T_NSECS); */
 	g_snprintf(field[CALL_COL_INITIAL_SPEAKER], 30, "%s", get_addr_name(&(strinfo->initial_speaker)));
-	g_snprintf(field[CALL_COL_FROM], 50, "%s", strinfo->from_identity);
-	g_snprintf(field[CALL_COL_TO], 50, "%s", strinfo->to_identity);
-	g_snprintf(field[CALL_COL_PROTOCOL], 15, "%s", ((strinfo->protocol==VOIP_COMMON)&&strinfo->protocol_name)?strinfo->protocol_name:voip_protocol_name[strinfo->protocol]);
-	g_snprintf(field[CALL_COL_PACKETS], 15, "%u", strinfo->npackets);
-	g_snprintf(field[CALL_COL_STATE], 15, "%s", voip_call_state_name[strinfo->call_state]);
+	g_snprintf(field[CALL_COL_FROM],            50, "%s", strinfo->from_identity);
+	g_snprintf(field[CALL_COL_TO],              50, "%s", strinfo->to_identity);
+	g_snprintf(field[CALL_COL_PROTOCOL],        15, "%s", 
+		   ((strinfo->protocol==VOIP_COMMON)&&strinfo->protocol_name)?
+		       strinfo->protocol_name:voip_protocol_name[strinfo->protocol]);
+	g_snprintf(field[CALL_COL_STATE],           15, "%s", voip_call_state_name[strinfo->call_state]);
 
 	/* Add comments based on the protocol */
 	switch (strinfo->protocol) {
@@ -445,9 +435,11 @@ add_to_list_store(voip_calls_info_t* strinfo)
 			if (strinfo->call_state == VOIP_CALL_SETUP)
 				flag = h323info->is_faststart_Setup;
 			else
-				if ((h323info->is_faststart_Setup == TRUE) && (h323info->is_faststart_Proc == TRUE)) flag = TRUE;
-			g_snprintf(field[CALL_COL_COMMENTS],35, "Tunneling: %s  Fast Start: %s", (h323info->is_h245Tunneling==TRUE?"ON":"OFF"),
-				(flag==TRUE?"ON":"OFF"));
+				if ((h323info->is_faststart_Setup == TRUE) && (h323info->is_faststart_Proc == TRUE))
+					flag = TRUE;
+			g_snprintf(field[CALL_COL_COMMENTS],35, "Tunneling: %s  Fast Start: %s",
+				   (h323info->is_h245Tunneling==TRUE?"ON":"OFF"),
+				   (flag==TRUE?"ON":"OFF"));
 			break;
 		case VOIP_COMMON:
 			field[CALL_COL_COMMENTS][0]='\0';
@@ -463,36 +455,19 @@ add_to_list_store(voip_calls_info_t* strinfo)
 
 	/* Fill the new row */
 	gtk_list_store_set(list_store, &list_iter,
-			    CALL_COL_START_TIME, data[0],
-			    CALL_COL_STOP_TIME,  data[1],
-			    CALL_COL_INITIAL_SPEAKER,  data[2],
-			    CALL_COL_FROM,  data[3],
-			    CALL_COL_TO,  data[4],
-			    CALL_COL_PROTOCOL,  data[5],
-			    CALL_COL_PACKETS,  data[6],
-			    CALL_COL_STATE,  data[7],
-			    CALL_COL_COMMENTS,  data[8],
-			    CALL_COL_DATA, strinfo,
+			   CALL_COL_START_TIME,       nstime_to_sec(&strinfo->start_rel),
+			   CALL_COL_STOP_TIME,        nstime_to_sec(&strinfo->stop_rel),
+			   CALL_COL_INITIAL_SPEAKER,  &field[CALL_COL_INITIAL_SPEAKER][0],
+			   CALL_COL_FROM,             &field[CALL_COL_FROM][0],
+			   CALL_COL_TO,               &field[CALL_COL_TO][0],
+			   CALL_COL_PROTOCOL,         &field[CALL_COL_PROTOCOL][0],
+			   CALL_COL_PACKETS,          strinfo->npackets,
+			   CALL_COL_STATE,            &field[CALL_COL_STATE][0],
+			   CALL_COL_COMMENTS,         &field[CALL_COL_COMMENTS][0],
+			   CALL_COL_DATA,             strinfo,
 			   -1);
 
-	/* Update the top label with the number of detected calls */
-	calls_nb++;
-	g_snprintf(label_text, 256,
-		"Detected %u VoIP %s. Selected %u %s.",
-		calls_nb,
-		plurality(calls_nb, "Call", "Calls"),
-		calls_ns,
-		plurality(calls_ns, "Call", "Calls"));
-	gtk_label_set_text(GTK_LABEL(top_label), label_text);
-
-	/* Update the status label with the number of total messages */
-	g_snprintf(label_text, 256,
-		"Total: Calls: %u   Start packets: %u   Completed calls: %u   Rejected calls: %u",
-			g_list_length(voip_calls_get_info()->callsinfo_list),
-			voip_calls_get_info()->start_packets,
-			voip_calls_get_info()->completed_calls,
-			voip_calls_get_info()->rejected_calls);
-	gtk_label_set_text(GTK_LABEL(status_label), label_text);
+        calls_nb += 1;
 }
 
 /****************************************************************************/
@@ -508,13 +483,13 @@ create_list_view(void)
 
 	/* Create the store */
 	list_store = gtk_list_store_new(NUM_COLS,       /* Total number of columns XXX */
-					G_TYPE_STRING,  /* Start Time */
-					G_TYPE_STRING,  /* Stop Time */
+					G_TYPE_DOUBLE,  /* Start Time */
+					G_TYPE_DOUBLE,  /* Stop Time */
 					G_TYPE_STRING,  /* Initial Speaker */
 					G_TYPE_STRING,  /* From */
 					G_TYPE_STRING,  /* To */
 					G_TYPE_STRING,  /* Protocol */
-					G_TYPE_STRING,  /* Packets */
+					G_TYPE_UINT,    /* Packets */
 					G_TYPE_STRING,  /* State */
 					G_TYPE_STRING,  /* Comments */
 					G_TYPE_POINTER  /* Data */
@@ -522,6 +497,9 @@ create_list_view(void)
 
 	/* Create a view */
 	list = gtk_tree_view_new_with_model(GTK_TREE_MODEL(list_store));
+
+	/* The view now holds a reference.  We can get rid of our own reference */
+	g_object_unref(G_OBJECT(list_store));
 
 	list_view = GTK_TREE_VIEW(list);
 	sortable = GTK_TREE_SORTABLE(list_store);
@@ -535,16 +513,12 @@ create_list_view(void)
 	gtk_tree_sortable_set_sort_column_id(sortable, CALL_COL_START_TIME, GTK_SORT_ASCENDING);
 	gtk_tree_view_set_headers_clickable(list_view, FALSE);
 
-	/* The view now holds a reference.  We can get rid of our own reference */
-	g_object_unref(G_OBJECT(list_store));
-
-	/* 
-	 * Create the first column packet, associating the "text" attribute of the
-	 * cell_renderer to the first column of the model 
-	 */
+	/* Start Time */
 	renderer = gtk_cell_renderer_text_new();
+	g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);  /* right align  */
+	g_object_set(G_OBJECT(renderer), "xpad", 10, NULL);
 	column = gtk_tree_view_column_new_with_attributes("Start Time", renderer,
-		"text", CALL_COL_START_TIME, 
+		"text", CALL_COL_START_TIME,
 		NULL);
 	gtk_tree_view_column_set_sort_column_id(column, CALL_COL_START_TIME);
 	gtk_tree_view_column_set_resizable(column, TRUE);
@@ -556,6 +530,8 @@ create_list_view(void)
 
 	/* Stop Time */
 	renderer = gtk_cell_renderer_text_new();
+	g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);  /* right align  */
+	g_object_set(G_OBJECT(renderer), "xpad", 10, NULL);
 	column = gtk_tree_view_column_new_with_attributes("Stop Time", renderer,
 		"text", CALL_COL_STOP_TIME,
 		NULL);
@@ -616,6 +592,8 @@ create_list_view(void)
 
 	/* Packets */
 	renderer = gtk_cell_renderer_text_new();
+	g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);  /* right align numbers */
+	g_object_set(G_OBJECT(renderer), "xpad", 10, NULL);
 	column = gtk_tree_view_column_new_with_attributes("Packets", renderer,
 		"text", CALL_COL_PACKETS,
 		NULL);
@@ -685,7 +663,7 @@ voip_calls_dlg_create(void)
 	voip_calls_dlg_w = dlg_window_new(win_name);  /* transient_for top_level */
 	gtk_window_set_destroy_with_parent(GTK_WINDOW(voip_calls_dlg_w), TRUE);
 
-	gtk_window_set_default_size(GTK_WINDOW(voip_calls_dlg_w), 840, 350);
+	gtk_window_set_default_size(GTK_WINDOW(voip_calls_dlg_w), 1000, 350);
 
 	main_vb = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(voip_calls_dlg_w), main_vb);
@@ -762,7 +740,7 @@ voip_calls_dlg_create(void)
 
 	voip_calls_dlg = voip_calls_dlg_w;
 
-	g_free(win_name); 
+	g_free(win_name);
 }
 
 
@@ -782,10 +760,10 @@ voip_calls_dlg_update(GList *listx)
 		calls_ns = 0;
 		gtk_list_store_clear(list_store);
 
-		g_snprintf(label_text, 256,
+		g_snprintf(label_text, sizeof(label_text),
 			"Total: Calls: %u   Start packets: %u   Completed calls: %u   Rejected calls: %u",
 			g_list_length(voip_calls_get_info()->callsinfo_list),
-			voip_calls_get_info()->start_packets, 
+			voip_calls_get_info()->start_packets,
 			voip_calls_get_info()->completed_calls,
 			voip_calls_get_info()->rejected_calls);
 		gtk_label_set_text(GTK_LABEL(status_label), label_text);
@@ -796,9 +774,9 @@ voip_calls_dlg_update(GList *listx)
 			listx = g_list_next(listx);
 		}
 
-		g_snprintf(label_text, 256,
+		g_snprintf(label_text, sizeof(label_text),
 			"Detected %u VoIP %s. Selected %u %s.",
-			calls_nb, 
+			calls_nb,
 			plurality(calls_nb, "Call", "Calls"),
 			calls_ns,
 			plurality(calls_ns, "Call", "Calls"));
