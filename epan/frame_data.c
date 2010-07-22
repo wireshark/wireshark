@@ -197,9 +197,9 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->cum_bytes = cum_bytes + phdr->len;
   fdata->cap_len = phdr->caplen;
   fdata->file_off = offset;
-  /* To save some memory, we coarcese it into a gint8 */
-  g_assert(phdr->pkt_encap <= G_MAXINT8);
-  fdata->lnk_t = (gint8) phdr->pkt_encap;
+  /* To save some memory, we coerce it into a gint16 */
+  g_assert(phdr->pkt_encap <= G_MAXINT16);
+  fdata->lnk_t = (gint16) phdr->pkt_encap;
   fdata->abs_ts.secs = phdr->ts.secs;
   fdata->abs_ts.nsecs = phdr->ts.nsecs;
   fdata->flags.passed_dfilter = 0;
