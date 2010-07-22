@@ -5891,7 +5891,7 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         		   cops_ugs_with_activity_detection(tvb, tree, object_len, offset);
         	   break;
         case PCMM_DOWNSTREAM_SERVICE:
-        	   if (object_len == 44 || object_len == 80 || object_len == 116)
+        	   if (object_len == 48 || object_len == 88 || object_len == 128)
 			   cops_downstream_service_i04_i05(tvb, tree, object_len, offset, TRUE);
         	   else if (object_len == 40 || object_len == 72 || object_len == 104)
 			   cops_downstream_service_i04_i05(tvb, tree, object_len, offset, FALSE);
