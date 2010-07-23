@@ -1905,7 +1905,7 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += sizeof(guint8);
 
     /* Get and display the originator address. */
-    if (mesh_header & LOWPAN_MESH_HEADER_V) {
+    if (!(mesh_header & LOWPAN_MESH_HEADER_V)) {
         guint64         addr64 = tvb_get_ntoh64(tvb, offset);
         if (tree) {
             proto_tree_add_uint64(mesh_tree, hf_6lowpan_mesh_orig64, tvb, offset, sizeof(guint64), addr64);
@@ -1928,7 +1928,7 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     SET_ADDRESS(&pinfo->net_src,  AT_EUI64, sizeof(guint64), src_ifcid);
 
     /* Get and display the destination address. */
-    if (mesh_header & LOWPAN_MESH_HEADER_F) {
+    if (!(mesh_header & LOWPAN_MESH_HEADER_F)) {
         guint64         addr64 = tvb_get_ntoh64(tvb, offset);
         if (tree) {
             proto_tree_add_uint64(mesh_tree, hf_6lowpan_mesh_dest64, tvb, offset, sizeof(guint64), addr64);
@@ -2308,9 +2308,9 @@ proto_register_6lowpan(void)
 
         /* Mesh header fields. */
         { &hf_6lowpan_mesh_v,
-        { "V",                              "6lowpan.mesh.v", FT_BOOLEAN, 8, NULL, LOWPAN_MESH_HEADER_V, "extended originator address present", HFILL }},
+        { "V",                              "6lowpan.mesh.v", FT_BOOLEAN, 8, NULL, LOWPAN_MESH_HEADER_V, "shortened originator address present", HFILL }},
         { &hf_6lowpan_mesh_f,
-        { "D",                              "6lowpan.mesh.f", FT_BOOLEAN, 8, NULL, LOWPAN_MESH_HEADER_F, "extended destination address present", HFILL }},
+        { "D",                              "6lowpan.mesh.f", FT_BOOLEAN, 8, NULL, LOWPAN_MESH_HEADER_F, "shortened destination address present", HFILL }},
         { &hf_6lowpan_mesh_hops,
         { "Hops left",                      "6lowpan.mesh.hops", FT_UINT8, BASE_DEC, NULL, LOWPAN_MESH_HEADER_HOPS, NULL, HFILL }},
         { &hf_6lowpan_mesh_orig16,
