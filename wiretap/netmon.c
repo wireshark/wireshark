@@ -139,8 +139,14 @@ typedef struct {
 	guint	current_frame;
 } netmon_t;
 
+/*
+ * XXX - at least in some NetMon 3.4 VPN captures, the per-packet
+ * link-layer type is 0, but the packets have Ethernet headers.
+ * We handle this by mapping 0 to WTAP_ENCAP_ETHERNET; should we,
+ * instead, use the per-file link-layer type?
+ */
 static const int netmon_encap[] = {
-	WTAP_ENCAP_UNKNOWN,
+	WTAP_ENCAP_ETHERNET,
 	WTAP_ENCAP_ETHERNET,
 	WTAP_ENCAP_TOKEN_RING,
 	WTAP_ENCAP_FDDI_BITSWAPPED,
