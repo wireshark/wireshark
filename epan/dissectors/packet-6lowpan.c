@@ -246,6 +246,7 @@ static int hf_6lowpan_bcast_seqnum = -1;
 static int hf_6lowpan_mesh_v = -1;
 static int hf_6lowpan_mesh_f = -1;
 static int hf_6lowpan_mesh_hops = -1;
+static int hf_6lowpan_mesh_hops8 = -1;
 static int hf_6lowpan_mesh_orig16 = -1;
 static int hf_6lowpan_mesh_orig64 = -1;
 static int hf_6lowpan_mesh_dest16 = -1;
@@ -874,50 +875,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
      */
     bit_offset = offset << 3;
 
-    /* Parse the traffic class and flow label. */
-    ipv6_class = 0;
-    ipv6.ip6_flow = 0;
-    if (!(hc1_encoding & LOWPAN_HC1_TRAFFIC_CLASS)) {
-        /* Parse the traffic class. */
-        ipv6_class = tvb_get_bits8(tvb, bit_offset, LOWPAN_IPV6_TRAFFIC_CLASS_BITS);
-        if (tree) {
-            proto_tree_add_uint(tree, hf_6lowpan_traffic_class, tvb, bit_offset>>3,
-                    BITS_TO_BYTE_LEN(bit_offset, LOWPAN_IPV6_TRAFFIC_CLASS_BITS), ipv6_class);
-        }
-        bit_offset += LOWPAN_IPV6_TRAFFIC_CLASS_BITS;
-
-        /* Parse the flow label. */
-        ipv6.ip6_flow = tvb_get_bits32(tvb, bit_offset, LOWPAN_IPV6_FLOW_LABEL_BITS, FALSE);
-        if (tree) {
-            proto_tree_add_uint(tree, hf_6lowpan_flow_label, tvb, bit_offset>>3,
-                    BITS_TO_BYTE_LEN(bit_offset, LOWPAN_IPV6_FLOW_LABEL_BITS), ipv6.ip6_flow);
-        }
-        bit_offset += LOWPAN_IPV6_FLOW_LABEL_BITS;
-    }
-    ipv6.ip6_flow = g_ntohl(ipv6.ip6_flow | (ipv6_class << LOWPAN_IPV6_FLOW_LABEL_BITS));
-    ipv6.ip6_vfc = ((0x6 << 4) | (ipv6_class >> 4));
-
-    /* Parse the IPv6 next header field. */
-    if (next_header == LOWPAN_HC1_NEXT_UDP) {
-        ipv6.ip6_nxt = IP_PROTO_UDP;
-    }
-    else if (next_header == LOWPAN_HC1_NEXT_ICMP) {
-        ipv6.ip6_nxt = IP_PROTO_ICMPV6;
-    }
-    else if (next_header == LOWPAN_HC1_NEXT_TCP) {
-        ipv6.ip6_nxt = IP_PROTO_TCP;
-    }
-    else {
-        /* Parse the next header field. */
-        ipv6.ip6_nxt = tvb_get_bits8(tvb, bit_offset, LOWPAN_IPV6_NEXT_HEADER_BITS);
-        if (tree) {
-            proto_tree_add_uint_format(tree, hf_6lowpan_next_header, tvb, bit_offset>>3,
-                    BITS_TO_BYTE_LEN(bit_offset, LOWPAN_IPV6_NEXT_HEADER_BITS), ipv6.ip6_nxt,
-                    "Next header: %s (0x%02x)", ipprotostr(ipv6.ip6_nxt), ipv6.ip6_nxt);
-        }
-        bit_offset += LOWPAN_IPV6_NEXT_HEADER_BITS;
-    }
-
+    /* Parse hop limit */
     ipv6.ip6_hops = tvb_get_bits8(tvb, bit_offset, LOWPAN_IPV6_HOP_LIMIT_BITS);
     if (tree) {
         proto_tree_add_uint(tree, hf_6lowpan_hop_limit, tvb, bit_offset>>3,
@@ -998,6 +956,50 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
      * to do decompression before reassembly, and changing the address will cause
      * wireshark to think that the middle fragments came from another device.
      */
+
+    /* Parse the traffic class and flow label. */
+    ipv6_class = 0;
+    ipv6.ip6_flow = 0;
+    if (!(hc1_encoding & LOWPAN_HC1_TRAFFIC_CLASS)) {
+        /* Parse the traffic class. */
+        ipv6_class = tvb_get_bits8(tvb, bit_offset, LOWPAN_IPV6_TRAFFIC_CLASS_BITS);
+        if (tree) {
+            proto_tree_add_uint(tree, hf_6lowpan_traffic_class, tvb, bit_offset>>3,
+                    BITS_TO_BYTE_LEN(bit_offset, LOWPAN_IPV6_TRAFFIC_CLASS_BITS), ipv6_class);
+        }
+        bit_offset += LOWPAN_IPV6_TRAFFIC_CLASS_BITS;
+
+        /* Parse the flow label. */
+        ipv6.ip6_flow = tvb_get_bits32(tvb, bit_offset, LOWPAN_IPV6_FLOW_LABEL_BITS, FALSE);
+        if (tree) {
+            proto_tree_add_uint(tree, hf_6lowpan_flow_label, tvb, bit_offset>>3,
+                    BITS_TO_BYTE_LEN(bit_offset, LOWPAN_IPV6_FLOW_LABEL_BITS), ipv6.ip6_flow);
+        }
+        bit_offset += LOWPAN_IPV6_FLOW_LABEL_BITS;
+    }
+    ipv6.ip6_flow = g_ntohl(ipv6.ip6_flow | (ipv6_class << LOWPAN_IPV6_FLOW_LABEL_BITS));
+    ipv6.ip6_vfc = ((0x6 << 4) | (ipv6_class >> 4));
+
+    /* Parse the IPv6 next header field. */
+    if (next_header == LOWPAN_HC1_NEXT_UDP) {
+        ipv6.ip6_nxt = IP_PROTO_UDP;
+    }
+    else if (next_header == LOWPAN_HC1_NEXT_ICMP) {
+        ipv6.ip6_nxt = IP_PROTO_ICMPV6;
+    }
+    else if (next_header == LOWPAN_HC1_NEXT_TCP) {
+        ipv6.ip6_nxt = IP_PROTO_TCP;
+    }
+    else {
+        /* Parse the next header field. */
+        ipv6.ip6_nxt = tvb_get_bits8(tvb, bit_offset, LOWPAN_IPV6_NEXT_HEADER_BITS);
+        if (tree) {
+            proto_tree_add_uint_format(tree, hf_6lowpan_next_header, tvb, bit_offset>>3,
+                    BITS_TO_BYTE_LEN(bit_offset, LOWPAN_IPV6_NEXT_HEADER_BITS), ipv6.ip6_nxt,
+                    "Next header: %s (0x%02x)", ipprotostr(ipv6.ip6_nxt), ipv6.ip6_nxt);
+        }
+        bit_offset += LOWPAN_IPV6_NEXT_HEADER_BITS;
+    }
 
     /*=====================================================
      * Parse and Reconstruct the UDP Header
@@ -1900,7 +1902,16 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_bits_item(flag_tree, hf_6lowpan_pattern, tvb, offset * 8, LOWPAN_PATTERN_MESH_BITS, FALSE);
         proto_tree_add_boolean(flag_tree, hf_6lowpan_mesh_v, tvb, offset, sizeof(guint8), mesh_header & LOWPAN_MESH_HEADER_V);
         proto_tree_add_boolean(flag_tree, hf_6lowpan_mesh_f, tvb, offset, sizeof(guint8), mesh_header & LOWPAN_MESH_HEADER_F);
-        proto_tree_add_uint(flag_tree, hf_6lowpan_mesh_hops, tvb, offset, sizeof(guint8), mesh_header & LOWPAN_MESH_HEADER_HOPS);
+        if ((mesh_header & LOWPAN_MESH_HEADER_HOPS)==15)
+        {
+          guint8 HopsLeft;
+          proto_tree_add_uint(flag_tree, hf_6lowpan_mesh_hops, tvb, offset, sizeof(guint8), mesh_header & LOWPAN_MESH_HEADER_HOPS);
+          offset += sizeof(guint8);
+          HopsLeft=tvb_get_guint8(tvb, offset);
+          proto_tree_add_uint(mesh_tree, hf_6lowpan_mesh_hops8, tvb, offset, sizeof(guint8), HopsLeft);
+        }
+        else
+          proto_tree_add_uint(flag_tree, hf_6lowpan_mesh_hops, tvb, offset, sizeof(guint8), mesh_header & LOWPAN_MESH_HEADER_HOPS);
     }
     offset += sizeof(guint8);
 
