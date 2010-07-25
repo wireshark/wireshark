@@ -126,12 +126,13 @@ static int hf_pmip6_hi_opttype = -1;
 static int hf_pmip6_att_opttype = -1;
 
 static int hf_pmip6_timestamp = -1;
+static int hf_pmip6_rc = -1;
 static int hf_mip6_ipv4ha_preflen = -1;
 static int hf_mip6_ipv4ha_p_flag = -1;
 static int hf_mip6_ipv4ha_ha = -1;
 static int hf_mip6_ipv4aa_status = -1;
-static int hf_mip6_ipv4aa_ha = -1;
 static int hf_pmip6_gre_key = -1;
+static int hf_mip6_ipv4dra_dra = -1;
 static int hf_mip6_mobility_opt = -1;
 
 /* Initialize the subtree pointers */
@@ -150,9 +151,13 @@ static gint ett_pmip6_opt_hnp = -1;
 static gint ett_pmip6_opt_hi = -1;
 static gint ett_pmip6_opt_att = -1;
 static gint ett_pmip6_opt_ts = -1;
+static gint ett_pmip6_opt_rc = -1;
 static gint ett_mip6_opt_ipv4ha = -1;
 static gint ett_mip6_opt_ipv4aa = -1;
 static gint ett_pmip6_opt_grek = -1;
+static gint ett_mip6_opt_ipv4hareq = -1;
+static gint ett_mip6_opt_ipv4harep = -1;
+static gint ett_mip6_opt_ipv4dra = -1;
 
 /* Functions to dissect the mobility headers */
 
@@ -734,6 +739,15 @@ dissect_pmip6_opt_ts(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 }
 
 static void
+dissect_pmip6_opt_rc(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+                     guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+	proto_tree_add_item(opt_tree, hf_pmip6_rc, tvb,
+			offset + PMIP6_RC_RC_OFF, PMIP6_RC_RC_LEN, FALSE);
+
+}
+
+static void
 dissect_pmip6_opt_ipv4ha(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
                      guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
 {
@@ -761,7 +775,6 @@ dissect_pmip6_opt_ipv4aa(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 {
 	proto_tree *field_tree = NULL;
 	proto_item *tf;
-	int len, p;
 
 	tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
 	field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
@@ -769,12 +782,10 @@ dissect_pmip6_opt_ipv4aa(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 	proto_tree_add_item(field_tree, hf_mip6_ipv4aa_status, tvb,
 			offset + MIP6_IPV4AA_STATUS_OFF, MIP6_IPV4AA_STATUS_LEN, FALSE);
 
-	p = offset + MIP6_IPV4AA_PREFIXL_OFF;
-	len = MIP6_IPV4AA_PREFIXL_LEN;
+	proto_tree_add_item(field_tree, hf_mip6_ipv4ha_preflen, tvb, 
+			offset + MIP6_IPV4AA_PREFIXL_OFF, MIP6_IPV4AA_PREFIXL_LEN, FALSE);
 
-	proto_tree_add_item(field_tree, hf_mip6_ipv4ha_preflen, tvb, p, len, FALSE);
-
-	proto_tree_add_item(field_tree, hf_mip6_ipv4aa_ha, tvb,
+	proto_tree_add_item(field_tree, hf_mip6_ipv4ha_ha, tvb,
 			offset + MIP6_IPV4AA_HA_OFF, MIP6_IPV4AA_HA_LEN, FALSE);
 
 }
@@ -785,6 +796,60 @@ dissect_pmip6_opt_grek(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 {
 	proto_tree_add_item(opt_tree, hf_pmip6_gre_key, tvb,
 			offset + PMIP6_GREK_ID_OFF, PMIP6_GREK_ID_LEN, FALSE);
+
+}
+
+static void
+dissect_pmip6_opt_ipv4hareq(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+                     guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+	proto_tree *field_tree = NULL;
+	proto_item *tf;
+
+	tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
+	field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+
+	proto_tree_add_item(field_tree, hf_mip6_ipv4ha_preflen, tvb, 
+			offset + MIP6_IPV4HAREQ_PREFIXL_OFF, MIP6_IPV4HAREQ_PREFIXL_LEN, FALSE);
+
+	proto_tree_add_item(field_tree, hf_mip6_ipv4ha_ha, tvb,
+			offset + MIP6_IPV4HAREQ_HA_OFF, MIP6_IPV4HAREQ_HA_LEN, FALSE);
+
+}
+
+static void
+dissect_pmip6_opt_ipv4harep(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+                     guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+	proto_tree *field_tree = NULL;
+	proto_item *tf;
+
+	tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
+	field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+
+	proto_tree_add_item(field_tree, hf_mip6_ipv4aa_status, tvb,
+			offset + MIP6_IPV4HAREP_STATUS_OFF, MIP6_IPV4HAREP_STATUS_LEN, FALSE);
+
+	proto_tree_add_item(field_tree, hf_mip6_ipv4ha_preflen, tvb, 
+			offset + MIP6_IPV4HAREP_PREFIXL_OFF, MIP6_IPV4HAREP_PREFIXL_LEN, FALSE);
+
+	proto_tree_add_item(field_tree, hf_mip6_ipv4ha_ha, tvb,
+			offset + MIP6_IPV4HAREP_HA_OFF, MIP6_IPV4HAREP_HA_LEN, FALSE);
+
+}
+
+static void
+dissect_pmip6_opt_ipv4dra(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+                     guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+	proto_tree *field_tree = NULL;
+	proto_item *tf;
+
+	tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
+	field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+
+	proto_tree_add_item(field_tree, hf_mip6_ipv4dra_dra, tvb,
+			offset + MIP6_IPV4DRA_DRA_OFF, MIP6_IPV4DRA_DRA_LEN, FALSE);
 
 }
 
@@ -910,6 +975,14 @@ static const ip_tcp_opt mip6_opts[] = {
 	dissect_pmip6_opt_ts
 },
 {
+	RC,
+	"Restart Counter",
+	&ett_pmip6_opt_rc,
+	FIXED_LENGTH,
+	PMIP6_RC_LEN,
+	dissect_pmip6_opt_rc
+},
+{
 	IPV4HA,
 	"IPv4 Home Address",
 	&ett_mip6_opt_ipv4ha,
@@ -932,6 +1005,30 @@ static const ip_tcp_opt mip6_opts[] = {
 	FIXED_LENGTH,
 	PMIP6_GREK_LEN,
 	dissect_pmip6_opt_grek
+},
+{
+	IPV4HAREQ,
+	"IPv4 Home Address Request",
+	&ett_mip6_opt_ipv4hareq,
+	FIXED_LENGTH,
+	MIP6_IPV4HAREQ_LEN,
+	dissect_pmip6_opt_ipv4hareq
+},
+{
+	IPV4HAREP,
+	"IPv4 Home Address Reply",
+	&ett_mip6_opt_ipv4harep,
+	FIXED_LENGTH,
+	MIP6_IPV4HAREP_LEN,
+	dissect_pmip6_opt_ipv4harep
+},
+{
+	IPV4DRA,
+	"IPv4 Default-Router Address",
+	&ett_mip6_opt_ipv4dra,
+	FIXED_LENGTH,
+	MIP6_IPV4DRA_LEN,
+	dissect_pmip6_opt_ipv4dra
 },
 };
 
@@ -1435,6 +1532,10 @@ proto_register_mip6(void)
 	{ &hf_pmip6_timestamp,      { "Timestamp", "pmip6.timestamp",
                                       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
+	{ &hf_pmip6_rc,             { "Restart Counter", "pmip6.rc",
+                                      FT_UINT32, BASE_DEC, NULL, 0x0,
+                                      NULL, HFILL}},
+
 	{ &hf_mip6_ipv4ha_preflen,  { "Prefix-len", "mip6.ipv4ha.preflen",
                                       FT_UINT8, BASE_DEC, NULL, 0xfc, 
                                       NULL, HFILL}},
@@ -1451,13 +1552,13 @@ proto_register_mip6(void)
                                       FT_UINT8, BASE_DEC, NULL, 0x0,
                                       NULL, HFILL}},
 
-	{ &hf_mip6_ipv4aa_ha,       { "IPv4 Address Acknowledgement", "mip6.ipv4aa.ha",
-                                      FT_IPv4, BASE_NONE, NULL, 0x0,
-                                      NULL, HFILL }},
-
 	{ &hf_pmip6_gre_key,        { "GRE Key", "pmip6.gre_key",
                                       FT_UINT32, BASE_DEC, NULL, 0x0,
                                       NULL, HFILL}},
+
+	{ &hf_mip6_ipv4dra_dra,       { "IPv4 Default-Router Address", "mip6.ipv4dra.dra",
+                                      FT_IPv4, BASE_NONE, NULL, 0x0,
+                                      NULL, HFILL }},
 
 	{ &hf_mip6_mobility_opt,    { "Mobility Options", "pmip6.mobility_opt",
                                       FT_UINT8, BASE_DEC, VALS(mip6_mobility_options), 0,
@@ -1481,9 +1582,13 @@ proto_register_mip6(void)
 		&ett_pmip6_opt_hi,
 		&ett_pmip6_opt_att,
 		&ett_pmip6_opt_ts,
+		&ett_pmip6_opt_rc,
 		&ett_mip6_opt_ipv4ha,
 		&ett_mip6_opt_ipv4aa,
 		&ett_pmip6_opt_grek,
+		&ett_mip6_opt_ipv4hareq,
+		&ett_mip6_opt_ipv4harep,
+		&ett_mip6_opt_ipv4dra,
 	};
 
 	/* Register the protocol name and description */

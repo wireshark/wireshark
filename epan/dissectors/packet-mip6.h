@@ -108,14 +108,14 @@ typedef enum {
 	MNLLI = 25,	/* 25 Mobile Node Link-layer Identifier Option [RFC5213]  */ 
 	LLA = 26,	/* 26 Link-local Address Option [RFC5213   */
 	TS   = 27,	/* 27 Timestamp */
-	RC = 28,	/* 28 Restart Counter [RFC-ietf-netlmm-pmipv6-heartbeat-07] */ 
+	RC = 28,	/* 28 Restart Counter [RFC5847] */ 
 	IPV4HA = 29,	/* 29 IPv4 Home Address [RFC5555]  */
 	IPV4AA = 30,	/* 30 IPv4 Address Acknowledgement [RFC5555] */ 
 	NATD = 31,	/* 31 NAT Detection [RFC5555]  */
 	IPV4COA = 32,	/* 32 IPv4 Care-of Address [RFC5555]  */
-	GREK = 33,	/* 33 GRE Key Option [RFC-ietf-netlmm-grekey-option-09]  */
+	GREK = 33,	/* 33 GRE Key Option [RFC5845]  */
 	MHIPV6AP = 34,	/* 34 Mobility Header IPv6 Address/Prefix [RFC5568]  */
-	BI = 35,	/* 35 Binding Identifier [RFC-ietf-monami6-multiplecoa-14]  */
+	BI = 35,	/* 35 Binding Identifier [RFC5648]  */
 	IPV4HAREQ = 36,	/* 36 IPv4 Home Address Request [RFC5844] */
 	IPV4HAREP = 37,	/* 37 IPv4 Home Address Reply [RFC5844] */
 	IPV4DRA = 38,	/* 38 IPv4 Default-Router Address [RFC5844] */
@@ -590,6 +590,10 @@ static const value_string mip6_mobility_options[] = {
 
 #define PMIP6_TS_LEN          8
 
+#define PMIP6_RC_LEN          4
+#define PMIP6_RC_RC_OFF       2
+#define PMIP6_RC_RC_LEN       4
+
 #define MIP6_IPV4HA_LEN       6
 #define MIP6_IPV4HA_PREFIXL_OFF 2
 #define MIP6_IPV4HA_PREFIXL_LEN 1
@@ -607,5 +611,25 @@ static const value_string mip6_mobility_options[] = {
 #define PMIP6_GREK_LEN        6
 #define PMIP6_GREK_ID_OFF     4
 #define PMIP6_GREK_ID_LEN     4
+
+#define MIP6_IPV4HAREQ_LEN       6
+#define MIP6_IPV4HAREQ_PREFIXL_OFF 2
+#define MIP6_IPV4HAREQ_PREFIXL_LEN 1
+#define MIP6_IPV4HAREQ_HA_OFF    4
+#define MIP6_IPV4HAREQ_HA_LEN    4
+
+#define MIP6_IPV4HAREP_LEN       6
+#define MIP6_IPV4HAREP_STATUS_OFF 2
+#define MIP6_IPV4HAREP_STATUS_LEN 1
+#define MIP6_IPV4HAREP_PREFIXL_OFF 3
+#define MIP6_IPV4HAREP_PREFIXL_LEN 1
+#define MIP6_IPV4HAREP_HA_OFF    4
+#define MIP6_IPV4HAREP_HA_LEN    4
+
+#define MIP6_IPV4DRA_LEN      6
+#define MIP6_IPV4DRA_RES_OFF  2
+#define MIP6_IPV4DRA_RES_LEN  2
+#define MIP6_IPV4DRA_DRA_OFF  4
+#define MIP6_IPV4DRA_DRA_LEN  4
 
 #endif /* __PACKET_MIP6_H_DEFINED__ */
