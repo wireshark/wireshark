@@ -2319,11 +2319,13 @@ proto_register_6lowpan(void)
 
         /* Mesh header fields. */
         { &hf_6lowpan_mesh_v,
-        { "V",                              "6lowpan.mesh.v", FT_BOOLEAN, 8, NULL, LOWPAN_MESH_HEADER_V, "shortened originator address present", HFILL }},
+        { "V",                              "6lowpan.mesh.v", FT_BOOLEAN, 8, NULL, LOWPAN_MESH_HEADER_V, "short originator address present", HFILL }},
         { &hf_6lowpan_mesh_f,
-        { "D",                              "6lowpan.mesh.f", FT_BOOLEAN, 8, NULL, LOWPAN_MESH_HEADER_F, "shortened destination address present", HFILL }},
+        { "D",                              "6lowpan.mesh.f", FT_BOOLEAN, 8, NULL, LOWPAN_MESH_HEADER_F, "short destination address present", HFILL }},
         { &hf_6lowpan_mesh_hops,
         { "Hops left",                      "6lowpan.mesh.hops", FT_UINT8, BASE_DEC, NULL, LOWPAN_MESH_HEADER_HOPS, NULL, HFILL }},
+        { &hf_6lowpan_mesh_hops8,
+        { "Deep Hops left (Flags.Hops left == 15)", "6lowpan.mesh.hops8", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_6lowpan_mesh_orig16,
         { "Originator",                     "6lowpan.mesh.orig16", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_6lowpan_mesh_orig64,
