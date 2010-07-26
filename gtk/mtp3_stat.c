@@ -59,27 +59,27 @@
 
 enum
 {
-   OPC_COLUMN,
-   DPC_COLUMN,
-   SI_COLUMN,
-   NUM_MSUS_COLUMN,
-   NUM_BYTES_COLUMN,
-   AVG_BYTES_COLUMN,
-   N_COLUMN /* The number of columns */
+    OPC_COLUMN,
+    DPC_COLUMN,
+    SI_COLUMN,
+    NUM_MSUS_COLUMN,
+    NUM_BYTES_COLUMN,
+    AVG_BYTES_COLUMN,
+    N_COLUMN /* The number of columns */
 };
 
 
 typedef struct _mtp3_stat_dlg_t {
-    GtkWidget		*win;
-    GtkWidget		*scrolled_win;
-    GtkWidget		*table;
-    char		*entries[N_COLUMN];
+    GtkWidget       *win;
+    GtkWidget       *scrolled_win;
+    GtkWidget       *table;
+    char        *entries[N_COLUMN];
 } mtp3_stat_dlg_t;
 
-static mtp3_stat_dlg_t	dlg;
+static mtp3_stat_dlg_t  dlg;
 
-mtp3_stat_t		mtp3_stat[MTP3_MAX_NUM_OPC_DPC];
-guint8			mtp3_num_used;
+mtp3_stat_t     mtp3_stat[MTP3_MAX_NUM_OPC_DPC];
+guint8          mtp3_num_used;
 
 
 
@@ -88,32 +88,32 @@ static
 GtkWidget* create_list(void)
 {
 
-    GtkListStore *list_store;
-    GtkWidget *list;
+    GtkListStore      *list_store;
+    GtkWidget         *list;
     GtkTreeViewColumn *column;
-    GtkCellRenderer *renderer;
-    GtkTreeSortable *sortable;
-	GtkTreeView     *list_view;
-	GtkTreeSelection  *selection;
+    GtkCellRenderer   *renderer;
+    GtkTreeSortable   *sortable;
+    GtkTreeView       *list_view;
+    GtkTreeSelection  *selection;
 
-	/* Create the store */
-    list_store = gtk_list_store_new(N_COLUMN,	/* Total number of columns XXX*/
-                               G_TYPE_STRING,	/* OPC				*/
-                               G_TYPE_STRING,	/* DPC				*/
-                               G_TYPE_STRING,	/* SI				*/
-                               G_TYPE_INT,		/* Num MSUs			*/
-                               G_TYPE_INT,		/* Num Bytes		*/
-                               G_TYPE_FLOAT);	/* Avg Bytes		*/
+    /* Create the store */
+    list_store = gtk_list_store_new(N_COLUMN,   /* Total number of columns XXX*/
+                               G_TYPE_STRING,   /* OPC              */
+                               G_TYPE_STRING,   /* DPC              */
+                               G_TYPE_STRING,   /* SI               */
+                               G_TYPE_INT,      /* Num MSUs         */
+                               G_TYPE_INT,      /* Num Bytes        */
+                               G_TYPE_FLOAT);   /* Avg Bytes        */
 
     /* Create a view */
     list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
 
-	list_view = GTK_TREE_VIEW(list);
-	sortable = GTK_TREE_SORTABLE(list_store);
+    list_view = GTK_TREE_VIEW(list);
+    sortable = GTK_TREE_SORTABLE(list_store);
 
 #if GTK_CHECK_VERSION(2,6,0)
-	/* Speed up the list display */
-	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
+    /* Speed up the list display */
+    gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
 #endif
 
     /* Setup the sortable columns */
@@ -124,39 +124,39 @@ GtkWidget* create_list(void)
     g_object_unref (G_OBJECT (list_store));
 
     /* 
-	 * Create the first column packet, associating the "text" attribute of the
+     * Create the first column packet, associating the "text" attribute of the
      * cell_renderer to the first column of the model 
-	 */
-	/* 1:st column */
-	renderer = gtk_cell_renderer_text_new ();
+     */
+    /* 1:st column */
+    renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("OPC", renderer, 
-		"text",	OPC_COLUMN, 
-		NULL);
+        "text", OPC_COLUMN, 
+        NULL);
 
-	gtk_tree_view_column_set_sort_column_id(column, OPC_COLUMN);
+    gtk_tree_view_column_set_sort_column_id(column, OPC_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_min_width(column, 80);
 
-	/* Add the column to the view. */
+    /* Add the column to the view. */
     gtk_tree_view_append_column (list_view, column);
 
     /* 2:nd column... */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("DPC", renderer, 
-		"text", DPC_COLUMN,
-		NULL);
+        "text", DPC_COLUMN,
+        NULL);
     gtk_tree_view_column_set_sort_column_id(column, DPC_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_min_width(column, 80);
     gtk_tree_view_append_column (list_view, column);
 
-	/* 3:d column... */
+    /* 3:d column... */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("SI", renderer, 
-		"text", SI_COLUMN,
-		NULL);
+        "text", SI_COLUMN,
+        NULL);
     gtk_tree_view_column_set_sort_column_id(column, SI_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
@@ -165,10 +165,10 @@ GtkWidget* create_list(void)
 
     /* 4:th column... */
     renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("Num MSUs", renderer, 
-		"text", NUM_MSUS_COLUMN, 
-		NULL);
-	
+    column = gtk_tree_view_column_new_with_attributes ("Num MSUs", renderer, 
+        "text", NUM_MSUS_COLUMN, 
+        NULL);
+    
 
     gtk_tree_view_column_set_sort_column_id(column, NUM_MSUS_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
@@ -178,9 +178,9 @@ GtkWidget* create_list(void)
 
     /* 5:th column... */
     renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("Num Bytes", renderer, 
-		"text", NUM_BYTES_COLUMN, 
-		NULL);
+    column = gtk_tree_view_column_new_with_attributes ("Num Bytes", renderer, 
+        "text", NUM_BYTES_COLUMN, 
+        NULL);
 
     gtk_tree_view_column_set_sort_column_id(column, NUM_BYTES_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
@@ -190,11 +190,11 @@ GtkWidget* create_list(void)
 
     /* 6:th column... */
     renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("Avg Bytes", renderer, 
-		"text", AVG_BYTES_COLUMN, 
-		NULL);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func, 
-		GINT_TO_POINTER(AVG_BYTES_COLUMN), NULL);
+    column = gtk_tree_view_column_new_with_attributes ("Avg Bytes", renderer, 
+        "text", AVG_BYTES_COLUMN, 
+        NULL);
+    gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func, 
+        GINT_TO_POINTER(AVG_BYTES_COLUMN), NULL);
 
     gtk_tree_view_column_set_sort_column_id(column, AVG_BYTES_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
@@ -202,52 +202,52 @@ GtkWidget* create_list(void)
     gtk_tree_view_column_set_min_width(column, 80);
     gtk_tree_view_append_column (list_view, column);
 
-	/* Now enable the sorting of each column */
+    /* Now enable the sorting of each column */
     gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list_view), TRUE);
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list_view), TRUE);
 
-	/* Setup the selection handler */
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
-	gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+    /* Setup the selection handler */
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+    gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
 
-	return list;
+    return list;
 
 }
 
 static void
 mtp3_stat_reset(
-    void		*tapdata)
+    void        *tapdata)
 {
-    mtp3_stat_t		(*stat_p)[MTP3_MAX_NUM_OPC_DPC] = tapdata;
+    mtp3_stat_t     (*stat_p)[MTP3_MAX_NUM_OPC_DPC] = tapdata;
 
     mtp3_num_used = 0;
     memset(stat_p, 0, MTP3_MAX_NUM_OPC_DPC * sizeof(mtp3_stat_t));
 
     if (dlg.win != NULL)
     {
-		gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(dlg.table))));
+        gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(dlg.table))));
     }
 }
 
 
-static int
+static gboolean
 mtp3_stat_packet(
-    void		*tapdata,
-    packet_info		*pinfo _U_,
-    epan_dissect_t	*edt _U_,
-    const void		*data)
+    void            *tapdata,
+    packet_info     *pinfo _U_,
+    epan_dissect_t  *edt _U_,
+    const void      *data)
 {
-    mtp3_stat_t		(*stat_p)[MTP3_MAX_NUM_OPC_DPC] = tapdata;
-    const mtp3_tap_rec_t	*data_p = data;
-    int				i;
+    mtp3_stat_t           (*stat_p)[MTP3_MAX_NUM_OPC_DPC] = tapdata;
+    const mtp3_tap_rec_t  *data_p = data;
+    int                    i;
 
     if (data_p->si_code >= MTP3_NUM_SI_CODE)
     {
-	/*
-	 * we thought this si_code was not used ?
-	 * is MTP3_NUM_SI_CODE out of date ?
-	 */
-	return(0);
+        /*
+         * we thought this si_code was not used ?
+         * is MTP3_NUM_SI_CODE out of date ?
+         */
+        return(FALSE);
     }
 
     /*
@@ -256,28 +256,28 @@ mtp3_stat_packet(
     i = 0;
     while (i < mtp3_num_used)
     {
-	if (memcmp(&data_p->addr_opc, &(*stat_p)[i].addr_opc, sizeof(mtp3_addr_pc_t)) == 0)
-	{
-	    if (memcmp(&data_p->addr_dpc, &(*stat_p)[i].addr_dpc, sizeof(mtp3_addr_pc_t)) == 0)
-	    {
-		break;
-	    }
-	}
+        if (memcmp(&data_p->addr_opc, &(*stat_p)[i].addr_opc, sizeof(mtp3_addr_pc_t)) == 0)
+        {
+            if (memcmp(&data_p->addr_dpc, &(*stat_p)[i].addr_dpc, sizeof(mtp3_addr_pc_t)) == 0)
+            {
+                break;
+            }
+        }
 
-	i++;
+        i++;
     }
 
     if (i == mtp3_num_used)
     {
-	if (mtp3_num_used == MTP3_MAX_NUM_OPC_DPC)
-	{
-	    /*
-	     * too many
-	     */
-	    return(0);
-	}
+        if (mtp3_num_used == MTP3_MAX_NUM_OPC_DPC)
+        {
+            /*
+             * too many
+             */
+            return(FALSE);
+        }
 
-	mtp3_num_used++;
+        mtp3_num_used++;
     }
 
     (*stat_p)[i].addr_opc = data_p->addr_opc;
@@ -285,67 +285,67 @@ mtp3_stat_packet(
     (*stat_p)[i].si_code[data_p->si_code].num_msus++;
     (*stat_p)[i].si_code[data_p->si_code].size += data_p->size;
 
-    return(1);
+    return(TRUE);
 }
 
 
 static void
 mtp3_stat_draw(
-    void		*tapdata)
+    void        *tapdata)
 {
-    mtp3_stat_t		(*stat_p)[MTP3_MAX_NUM_OPC_DPC] = tapdata;
-    int			i,j;
-    char		*str;
-	float		avg;
+    mtp3_stat_t   (*stat_p)[MTP3_MAX_NUM_OPC_DPC] = tapdata;
+    int           i,j;
+    char         *str;
+    float         avg;
     GtkListStore *list_store = NULL;
-	GtkTreeIter  iter;
+    GtkTreeIter   iter;
 
     if (!dlg.win || !tapdata)
     {
-	return;
+        return;
     }
 
     str=ep_alloc(256);
     i = 0;
 
-	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (dlg.table))); /* Get store */
+    list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (dlg.table))); /* Get store */
     while (i < mtp3_num_used)
     {
-		mtp3_addr_to_str_buf(&(*stat_p)[i].addr_opc, str, 256);
-		dlg.entries[0] = g_strdup(str);
+        mtp3_addr_to_str_buf(&(*stat_p)[i].addr_opc, str, 256);
+        dlg.entries[0] = g_strdup(str);
 
-		mtp3_addr_to_str_buf(&(*stat_p)[i].addr_dpc, str, 256);
-		dlg.entries[1] = g_strdup(str);
+        mtp3_addr_to_str_buf(&(*stat_p)[i].addr_dpc, str, 256);
+        dlg.entries[1] = g_strdup(str);
 
-		for (j=0; j < MTP3_NUM_SI_CODE; j++){
-			/* Creates a new row at position. iter will be changed to point to this new row. 
-			 * If position is larger than the number of rows on the list, then the new row will be appended to the list.
-			 * The row will be filled with the values given to this function.
-			 * :
-			 * should generally be preferred when inserting rows in a sorted list store.
-			 */
-			 avg = 0.0f;
-			 if ((*stat_p)[i].si_code[j].num_msus !=0){
-				 avg = (float)(*stat_p)[i].si_code[j].size/(float)(*stat_p)[i].si_code[j].num_msus;
-			 }
+        for (j=0; j < MTP3_NUM_SI_CODE; j++){
+            /* Creates a new row at position. iter will be changed to point to this new row. 
+             * If position is larger than the number of rows on the list, then the new row will be appended to the list.
+             * The row will be filled with the values given to this function.
+             * :
+             * should generally be preferred when inserting rows in a sorted list store.
+             */
+             avg = 0.0f;
+             if ((*stat_p)[i].si_code[j].num_msus !=0){
+                 avg = (float)(*stat_p)[i].si_code[j].size/(float)(*stat_p)[i].si_code[j].num_msus;
+             }
 
 
 #if GTK_CHECK_VERSION(2,6,0)
-			gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
+            gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
 #else
-			gtk_list_store_append  (list_store, &iter);
-			gtk_list_store_set  (list_store, &iter,
+            gtk_list_store_append  (list_store, &iter);
+            gtk_list_store_set  (list_store, &iter,
 #endif
-			   OPC_COLUMN, dlg.entries[0],
-			   DPC_COLUMN, dlg.entries[1],
-			   SI_COLUMN, mtp3_service_indicator_code_short_vals[j].strptr,
-			   NUM_MSUS_COLUMN, (*stat_p)[i].si_code[j].num_msus,
-			   NUM_BYTES_COLUMN, (*stat_p)[i].si_code[j].size,
-			   AVG_BYTES_COLUMN, avg,
-			   -1);
-		}
-		i++;
-	}
+               OPC_COLUMN,       dlg.entries[0],
+               DPC_COLUMN,       dlg.entries[1],
+               SI_COLUMN,        mtp3_service_indicator_code_short_vals[j].strptr,
+               NUM_MSUS_COLUMN,  (*stat_p)[i].si_code[j].num_msus,
+               NUM_BYTES_COLUMN, (*stat_p)[i].si_code[j].size,
+               AVG_BYTES_COLUMN, avg,
+               -1);
+        }
+        i++;
+    }
 }
 
 
@@ -353,8 +353,8 @@ mtp3_stat_draw(
 
 static void
 mtp3_stat_gtk_win_destroy_cb(
-    GtkWindow		*win _U_,
-    gpointer		user_data _U_)
+    GtkWindow       *win _U_,
+    gpointer        user_data _U_)
 {
     memset((void *) user_data, 0, sizeof(mtp3_stat_dlg_t));
 }
@@ -362,21 +362,21 @@ mtp3_stat_gtk_win_destroy_cb(
 
 static void
 mtp3_stat_gtk_win_create(
-    mtp3_stat_dlg_t	*dlg_p,
-    const char		*title)
+    mtp3_stat_dlg_t *dlg_p,
+    const char      *title)
 {
-    GtkWidget		*vbox;
-    GtkWidget		*bt_close;
-    GtkWidget		*bbox;
+    GtkWidget       *vbox;
+    GtkWidget       *bt_close;
+    GtkWidget       *bbox;
 
 
-	dlg_p->win = dlg_window_new(title);  /* transient_for top_level */
-	gtk_window_set_destroy_with_parent (GTK_WINDOW(dlg_p->win), TRUE);
+    dlg_p->win = dlg_window_new(title);  /* transient_for top_level */
+    gtk_window_set_destroy_with_parent (GTK_WINDOW(dlg_p->win), TRUE);
 
     gtk_window_set_default_size(GTK_WINDOW(dlg_p->win), 640, 390);
 
     vbox = gtk_vbox_new(FALSE, 3);
-	gtk_container_add(GTK_CONTAINER(dlg_p->win), vbox);
+    gtk_container_add(GTK_CONTAINER(dlg_p->win), vbox);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
     dlg_p->scrolled_win = scrolled_window_new(NULL, NULL);
@@ -402,8 +402,8 @@ mtp3_stat_gtk_win_create(
 
 static void
 mtp3_stat_gtk_cb(
-    GtkWidget		*w _U_,
-    gpointer		d _U_)
+    GtkWidget       *w _U_,
+    gpointer        d _U_)
 {
 
     /*
@@ -411,8 +411,8 @@ mtp3_stat_gtk_cb(
      */
     if (dlg.win)
     {
-	gdk_window_raise(dlg.win->window);
-	return;
+        gdk_window_raise(dlg.win->window);
+        return;
     }
 
     mtp3_stat_gtk_win_create(&dlg, "MTP3 Statistics");
@@ -431,23 +431,23 @@ mtp3_stat_gtk_init( const char *optarg _U_, void* userdata _U_)
 void
 register_tap_listener_gtkmtp3_stat(void)
 {
-    GString		*err_p;
+    GString     *err_p;
 
 
     memset((void *) &mtp3_stat, 0, sizeof(mtp3_stat_t));
 
     err_p =
-	register_tap_listener("mtp3", &mtp3_stat, NULL, 0,
-	    mtp3_stat_reset,
-	    mtp3_stat_packet,
-	    mtp3_stat_draw);
+    register_tap_listener("mtp3", &mtp3_stat, NULL, 0,
+        mtp3_stat_reset,
+        mtp3_stat_packet,
+        mtp3_stat_draw);
 
     if (err_p != NULL)
     {
-	simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "%s", err_p->str);
-	g_string_free(err_p, TRUE);
+        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "%s", err_p->str);
+        g_string_free(err_p, TRUE);
 
-	exit(1);
+        exit(1);
     }
 
     register_stat_menu_item("_MTP3/MSUs",  REGISTER_STAT_GROUP_TELEPHONY,
