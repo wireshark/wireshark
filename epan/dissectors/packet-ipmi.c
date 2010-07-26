@@ -1112,8 +1112,8 @@ ipmi_do_dissect(tvbuff_t *tvb, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfm
 	struct ipmi_saved_data *saved_saved_data;
 	struct ipmi_header hdr, *saved_hdr;
 	guint8 hdr_crc, hdr_exp_crc, data_crc, data_exp_crc;
-	guint8 is_resp, is_broadcast = 0, i, tmp;
-	guint len, siglen, hdrlen, offs, data_chk_offs;
+	guint8 is_resp, is_broadcast = 0, tmp;
+	guint i, len, siglen, hdrlen, offs, data_chk_offs;
 	const char *bcast, *ndesc, *cdesc, *ccdesc;
 
 	if (dfmt->flags & IPMI_D_NONE) {
