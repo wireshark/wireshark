@@ -627,6 +627,17 @@ the length was added to it, if the length field is greater than 24 bits
 long, so that, if the length value is *very* large and adding it to the
 offset causes an overflow, that overflow is detected.
 
+If you have a
+
+	for (i = {start}; i < {end}; i++)
+
+loop, make sure that the type of the loop index variable is large enough
+to hold the maximum {end} value plus 1; otherwise, the loop index
+variable can overflow before it ever reaches its maximum value.  In
+particular, be very careful when using gint8, guint8, gint16, or guint16
+variables as loop indices; you almost always want to use an "int"/"gint"
+or "unsigned int"/"guint" as the loop index rather than a shorter type.
+
 If you are fetching a length field from the buffer, corresponding to the
 length of a portion of the packet, and subtracting from that length a
 value corresponding to the length of, for example, a header in the
