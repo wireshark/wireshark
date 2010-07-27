@@ -100,15 +100,16 @@ Don't declare variables in the middle of executable code; not all C
 compilers support that.  Variables should be declared outside a
 function, or at the beginning of a function or compound statement.
 
-Don't use anonymous unions; not all compilers support it.
+Don't use anonymous unions; not all compilers support them.
 Example:
-typedef struct foo {
-  guint32 foo;
-  union {
-    guint32 foo_l;
-    guint16 foo_s;
-  } u;  /* have a name here */
-} foo_t;
+
+	typedef struct foo {
+	  guint32 foo;
+	  union {
+	    guint32 foo_l;
+	    guint16 foo_s;
+	  } u;  /* have a name here */
+	} foo_t;
 
 Don't use "uchar", "u_char", "ushort", "u_short", "uint", "u_int",
 "ulong", "u_long" or "boolean"; they aren't defined on all platforms.
