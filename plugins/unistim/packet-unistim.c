@@ -643,7 +643,7 @@ dissect_broadcast_switch(proto_tree *msg_tree,
    proto_tree *time_tree;
    bcast_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_broadcast_switch_cmd,tvb,offset,1,FALSE);
-   offset+=1;
+   offset+=1;msg_len-=1;
    switch(bcast_cmd){
       case 0x00:
    /*Accessory Sync Update   -   len=3 */
@@ -1353,7 +1353,7 @@ dissect_display_phone(proto_tree *msg_tree,
    guint highlight_cmd;
    display_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_display_phone_cmd,tvb,offset,1,FALSE);
-   offset+=1;
+   offset+=1;msg_len-=1;
    switch(display_cmd){
       case 0x00:
    /*Display Manager Attributes Info*/
@@ -1803,7 +1803,7 @@ dissect_network_phone(proto_tree *msg_tree,
    guint i;
    network_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_network_phone_cmd,tvb,offset,1,FALSE);
-   offset+=1;
+   offset+=1;msg_len-=1;
    switch(network_cmd){
       case 0x00:
    /*Soft Reset Ack done length = 3*/
