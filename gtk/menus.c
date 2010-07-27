@@ -430,9 +430,9 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
             /* Set one of the temporary coloring filters */
             color_filters_set_tmp((guint8)(action>>8),filter,FALSE);
 #ifdef NEW_PACKET_LIST
-			new_packet_list_colorize_packets();
+            new_packet_list_colorize_packets();
 #else
-			cf_colorize_packets(&cfile);
+            cf_colorize_packets(&cfile);
 #endif
         }
 
@@ -760,7 +760,7 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Tools/Firewall ACL Rules", NULL,
                        firewall_rule_cb, 0, NULL, NULL,},
     {"/WS internal", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/WS internal/Dissector tables", NULL, GTK_MENU_FUNC(dissector_tables_dlg_cb),   
+    {"/WS internal/Dissector tables", NULL, GTK_MENU_FUNC(dissector_tables_dlg_cb),
                          0, NULL, NULL,},
     {"/_Help", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Help/_Contents", "F1", GTK_MENU_FUNC(topic_menu_cb), HELP_CONTENT, "<StockItem>", GTK_STOCK_HELP,},
@@ -1195,7 +1195,7 @@ main_menu_new(GtkAccelGroup ** table) {
     GtkOSXApplicationMenuGroup *group;
     GtkWidget * dock_menu;
 #endif
-	
+
     grp = gtk_accel_group_new();
 
     if (initialize)
@@ -1232,10 +1232,10 @@ main_menu_new(GtkAccelGroup ** table) {
     g_signal_connect(quit_item, "activate", G_CALLBACK(file_quit_cmd_cb), NULL);
     ige_mac_menu_set_quit_menu_item(GTK_MENU_ITEM(quit_item));
 #endif
-	
+
 #ifdef HAVE_GTKOSXAPPLICATION
     theApp = g_object_new(GTK_TYPE_OSX_APPLICATION, NULL);
-	
+
     if(prefs.gui_macosx_style) {
         gtk_osxapplication_set_menu_bar(theApp, GTK_MENU_SHELL(menubar));
         gtk_osxapplication_set_use_quartz_accelerators(theApp, TRUE);
@@ -2549,7 +2549,7 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
     if(event->type == GDK_BUTTON_PRESS) {
         event_button = (GdkEventButton *) event;
 
-        /* To qoute the "Gdk Event Structures" doc:
+        /* To quote the "Gdk Event Structures" doc:
          * "Normally button 1 is the left mouse button, 2 is the middle button, and 3 is the right button" */
         if(event_button->button == 3) {
             gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,
