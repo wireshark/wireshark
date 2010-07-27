@@ -368,7 +368,7 @@ PDV-list ::= SEQUENCE {
   transfer-syntax-name             Transfer-syntax-name OPTIONAL,
   presentation-context-identifier  Presentation-context-identifier,
   presentation-data-values
-    CHOICE {single-ASN1-type	[0] IMPLICIT OCTET STRING,
+    CHOICE {single-ASN1-type	[0] ANY,
 --              [0]  ABSTRACT-SYNTAX.&Type
 --                     (CONSTRAINED BY {
                         

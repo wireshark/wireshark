@@ -70,6 +70,23 @@ Wireshark Info
           -->
         </listitem>
 
+        <listitem>
+          <para>
+            Due to a regression the ASN.1 BER dissector could overrun the stack.
+            <!-- Fixed in trunk: r33505 -->
+            <!-- Fixed in trunk-1.2: r33508 -->
+            <!-- Fixed in trunk-1.0: ????? -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4984">Bug
+            4984</ulink>) -->
+          </para>
+          <para>Versions affected: 1.0.14, 1.2.9</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+          </para>
+          -->
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -86,6 +103,18 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
+
+        <listitem><para>
+          Wireshark crashes after configuring new Information column.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4854">Bug
+          4854</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Crash triggered when changing display filter from right-mouse pop-up menu via packet-list.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4860">Bug
+          4860</ulink>)
+        </para></listitem>
 
         <listitem><para>
           Wireshark crash selecting Inter-Asterisk exchange v2 packet data.
@@ -109,6 +138,24 @@ Wireshark Info
           Wireshark via ssh -X on ipv6 link-local address fails to allow capture.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4945">Bug
           4945</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          OMAPI dissector fails to parse combined initialization messages.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4982">Bug
+          4982</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          QUERY_FS_INFO for Macintosh level 0x301 - MacSupportFlags decodes wrong.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4993">Bug
+          4993</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          SCSI dissector misidentifies ATA PASSTHROUGH command as ACCESS CONTROL IN.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5037">Bug
+          5037</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -137,19 +184,11 @@ There are no new protocols in this release.
     <para>
 
 ASN.1 BER,
-BGP,
-HTTP,
-IGMP,
-IPsec,
-Kerberos,
-NFS,
-PGM,
-PTP,
-SABP,
-SigComp,
-SMB,
-TCAP,
-XML,
+GSM A RR,
+IAX2,
+OMAPI,
+SCSI,
+SMB
 
     </para>
     </section>
@@ -157,7 +196,6 @@ XML,
     <section id="NewCapture"><title>Updated Capture File Support</title>
     <para>
 
-ERF, PacketLogger.
 
     </para>
     </section>

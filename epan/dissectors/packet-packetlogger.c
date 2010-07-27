@@ -48,7 +48,8 @@ static gint ett_packetlogger = -1;
 #define PKT_HCI_EVENT       0x01
 #define PKT_SENT_ACL_DATA   0x02
 #define PKT_RECV_ACL_DATA   0x03
-#define PKT_INFO            0xFB
+#define PKT_POWER           0xFB
+#define PKT_NOTE            0xFC
 #define PKT_NEW_CONTROLLER  0xFE
 
 static const value_string type_vals[] = {
@@ -56,7 +57,8 @@ static const value_string type_vals[] = {
   { PKT_HCI_EVENT,       "HCI Event"       },
   { PKT_SENT_ACL_DATA,   "Sent ACL Data"   },
   { PKT_RECV_ACL_DATA,   "Recv ACL Data"   },
-  { PKT_INFO,            "Info"            },
+  { PKT_POWER,           "Power"           },
+  { PKT_NOTE,            "Note"            },
   { PKT_NEW_CONTROLLER,  "New Controller"  },
   { 0, NULL }
 };
@@ -120,10 +122,11 @@ static void dissect_packetlogger (tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   } else {
     /* PacketLogger data */
     switch (pl_type) {
-    case PKT_INFO:
+    case PKT_POWER:
+    case PKT_NOTE:
     case PKT_NEW_CONTROLLER:
       proto_tree_add_item (packetlogger_tree, hf_info, next_tvb, 0, len, FALSE);
-      col_set_str (pinfo->cinfo, COL_INFO, tvb_format_stringzpad_wsp (next_tvb, 0, len));
+      col_add_fstr (pinfo->cinfo, COL_INFO, "%s", tvb_format_stringzpad_wsp (next_tvb, 0, len));
       break;
     default:
       call_dissector (data_handle, next_tvb, pinfo, tree);
