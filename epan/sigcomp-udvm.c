@@ -339,7 +339,7 @@ execute_next_instruction:
 		goto decompression_failure;
 	}
 	used_udvm_cycles++;
-	current_instruction = buff[current_address];
+	current_instruction = buff[current_address & 0xffff];
 
 	switch ( current_instruction ) {
 	case SIGCOMP_INSTR_DECOMPRESSION_FAILURE:
@@ -401,7 +401,7 @@ execute_next_instruction:
 		lsb = result & 0xff;
 		msb = result >> 8;
 		buff[result_dest] = msb;
-		buff[result_dest+1] = lsb;
+		buff[(result_dest+1) & 0xffff] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
 				result, result_dest);
@@ -442,7 +442,7 @@ execute_next_instruction:
 		lsb = result & 0xff;
 		msb = result >> 8;
 		buff[result_dest] = msb;
-		buff[result_dest+1] = lsb;
+		buff[(result_dest+1) & 0xffff] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
 				result, result_dest);
@@ -476,7 +476,7 @@ execute_next_instruction:
 		lsb = result & 0xff;
 		msb = result >> 8;
 		buff[result_dest] = msb;
-		buff[result_dest+1] = lsb;
+		buff[(result_dest+1) & 0xffff] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
 				result, result_dest);
@@ -516,7 +516,7 @@ execute_next_instruction:
 		lsb = result & 0xff;
 		msb = result >> 8;
 		buff[result_dest] = msb;
-		buff[result_dest+1] = lsb;
+		buff[(result_dest+1) & 0xffff] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
 				result, result_dest);
@@ -556,7 +556,7 @@ execute_next_instruction:
 		lsb = result & 0xff;
 		msb = result >> 8;
 		buff[result_dest] = msb;
-		buff[result_dest+1] = lsb;
+		buff[(result_dest+1) & 0xffff] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
 				result, result_dest);
@@ -595,7 +595,7 @@ execute_next_instruction:
 		lsb = result & 0xff;
 		msb = result >> 8;
 		buff[result_dest] = msb;
-		buff[result_dest+1] = lsb;
+		buff[(result_dest+1) & 0xffff] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"               Loading result %u at %u",
 				result, result_dest);
@@ -634,7 +634,7 @@ execute_next_instruction:
 		lsb = result & 0xff;
 		msb = result >> 8;
 		buff[result_dest] = msb;
-		buff[result_dest+1] = lsb;
+		buff[(result_dest+1) & 0xffff] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"               Loading result %u at %u",
 				result, result_dest);
@@ -681,7 +681,7 @@ execute_next_instruction:
 		lsb = result & 0xff;
 		msb = result >> 8;
 		buff[result_dest] = msb;
-		buff[result_dest+1] = lsb;
+		buff[(result_dest+1) & 0xffff] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
 				result, result_dest);
@@ -730,7 +730,7 @@ execute_next_instruction:
 		lsb = result & 0xff;
 		msb = result >> 8;
 		buff[result_dest] = msb;
-		buff[result_dest+1] = lsb;
+		buff[(result_dest+1) & 0xffff] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
 				result, result_dest);
@@ -779,7 +779,7 @@ execute_next_instruction:
 		lsb = result & 0xff;
 		msb = result >> 8;
 		buff[result_dest] = msb;
-		buff[result_dest+1] = lsb;
+		buff[(result_dest+1) & 0xffff] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
 				result, result_dest);
@@ -932,7 +932,7 @@ execute_next_instruction:
 		msb = value >> 8;
 
 		buff[address] = msb;
-		buff[address + 1] = lsb;
+		buff[(address + 1) & 0xffff] = lsb;
 
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Value %u",
@@ -989,7 +989,7 @@ execute_next_instruction:
 				goto decompression_failure;
 
 			buff[address] = msb;
-			buff[address + 1] = lsb;
+			buff[(address + 1) & 0xffff] = lsb;
 			/* debug
 			*/
 			length = next_operand_address - operand_address;
@@ -1281,7 +1281,7 @@ execute_next_instruction:
 			}
 		}
 		buff[result_dest] = k >> 8;
-		buff[result_dest + 1] = k & 0x00ff;
+		buff[(result_dest + 1) & 0xffff] = k & 0x00ff;
 
 		used_udvm_cycles = used_udvm_cycles + length;
 		goto execute_next_instruction;
@@ -2031,7 +2031,7 @@ execute_next_instruction:
 		if (destination >= UDVM_MEMORY_SIZE - 1)
 			goto decompression_failure;
 		buff[destination] = msb;
-		buff[destination + 1]=lsb;
+		buff[(destination + 1) & 0xffff]=lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
 			"               Loading value: %u (0x%x) at Addr: %u, remaining_bits: %u", value, value, destination, remaining_bits);
@@ -2216,7 +2216,7 @@ execute_next_instruction:
 					if (destination >= UDVM_MEMORY_SIZE - 1)
 						goto decompression_failure;
 					buff[destination] = msb;
-					buff[destination + 1]=lsb;
+					buff[(destination + 1) & 0xffff]=lsb;
 					if (print_level_1 ){
 						proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
 					"               Loading H: %u (0x%x) at Addr: %u,j = %u remaining_bits: %u",
@@ -2792,7 +2792,7 @@ decode_udvm_literal_operand(guint8 *buff,guint operand_address, guint16 *value)
 			 */
 			temp_data = buff[operand_address] & 0x1f;
 			operand = temp_data << 8;
-			temp_data = buff[operand_address + 1];
+			temp_data = buff[(operand_address + 1) & 0xffff];
 			operand = operand | temp_data;
 			*value = operand;
 			offset = offset + 2;
@@ -2804,7 +2804,7 @@ decode_udvm_literal_operand(guint8 *buff,guint operand_address, guint16 *value)
 			offset ++;
 			temp_data = buff[operand_address] & 0x1f;
 			operand = temp_data << 8;
-			temp_data = buff[operand_address + 1];
+			temp_data = buff[(operand_address + 1) & 0xffff];
 			operand = operand | temp_data;
 			*value = operand;
 			offset = offset + 2;
@@ -2857,12 +2857,12 @@ dissect_udvm_reference_operand(guint8 *buff,guint operand_address, guint16 *valu
 			 */
 			temp_data = buff[operand_address] & 0x3f;
 			operand = temp_data << 8;
-			temp_data = buff[operand_address + 1];
+			temp_data = buff[(operand_address + 1) & 0xffff];
 			operand = operand | temp_data;
 			operand = (operand * 2);
 			*result_dest = operand;
 			temp_data16 = buff[operand] << 8;
-			temp_data16 = temp_data16 | buff[operand+1];
+			temp_data16 = temp_data16 | buff[(operand+1) & 0xffff];
 			*value = temp_data16;
 			offset = offset + 2;
 
@@ -2872,10 +2872,10 @@ dissect_udvm_reference_operand(guint8 *buff,guint operand_address, guint16 *valu
 			 */
 			operand_address++;
 			operand = buff[operand_address] << 8;
-			operand = operand | buff[operand_address + 1];
+			operand = operand | buff[(operand_address + 1) & 0xffff];
 			*result_dest = operand;
 			temp_data16 = buff[operand] << 8;
-			temp_data16 = temp_data16 | buff[operand+1];
+			temp_data16 = temp_data16 | buff[(operand+1) & 0xffff];
 			*value = temp_data16;
 			offset = offset + 3;
 
@@ -2888,7 +2888,7 @@ dissect_udvm_reference_operand(guint8 *buff,guint operand_address, guint16 *valu
 		operand = (operand * 2);
 		*result_dest = operand;
 		temp_data16 = buff[operand] << 8;
-		temp_data16 = temp_data16 | buff[operand+1];
+		temp_data16 = temp_data16 | buff[(operand+1) & 0xffff];
 		*value = temp_data16;
 		offset ++;
 	}
@@ -2925,6 +2925,8 @@ decode_udvm_multitype_operand(guint8 *buff,guint operand_address, guint16 *value
 	guint16 temp_data16;
 	guint16 memmory_addr = 0;
 
+*value = 0;
+
 	bytecode = buff[operand_address];
 	test_bits = ( bytecode & 0xc0 ) >> 6;
 	switch (test_bits ){
@@ -2945,7 +2947,7 @@ decode_udvm_multitype_operand(guint8 *buff,guint operand_address, guint16 *value
 		 */
 		memmory_addr = ( bytecode & 0x3f) * 2;
 		temp_data16 = buff[memmory_addr] << 8;
-		temp_data16 = temp_data16 | buff[memmory_addr+1];
+		temp_data16 = temp_data16 | buff[(memmory_addr+1) & 0xffff];
 		*value = temp_data16;
 		offset ++;
 		break;
@@ -2958,7 +2960,7 @@ decode_udvm_multitype_operand(guint8 *buff,guint operand_address, guint16 *value
 		 */
 			temp_data = buff[operand_address] & 0x1f;
 			operand = temp_data << 8;
-			temp_data = buff[operand_address + 1];
+			temp_data = buff[(operand_address + 1) & 0xffff];
 			operand = operand | temp_data;
 			*value = operand;
 			offset = offset + 2;
@@ -2970,7 +2972,7 @@ decode_udvm_multitype_operand(guint8 *buff,guint operand_address, guint16 *value
 		 */
 				temp_data = buff[operand_address] & 0x0f;
 				operand = temp_data << 8;
-				temp_data = buff[operand_address + 1];
+				temp_data = buff[(operand_address + 1) & 0xffff];
 				operand = operand | temp_data;
 				operand = operand + 61440;
 				*value = operand;
@@ -3002,15 +3004,15 @@ decode_udvm_multitype_operand(guint8 *buff,guint operand_address, guint16 *value
 					 * 1000 0001 nnnnnnnn nnnnnnnn      memory[N]           0 - 65535
 					 */
 						offset ++;
-						temp_data16 = buff[operand_address + 1] << 8;
-						temp_data16 = temp_data16 | buff[operand_address + 2];
+						temp_data16 = buff[(operand_address + 1) & 0xffff] << 8;
+						temp_data16 = temp_data16 | buff[(operand_address + 2) & 0xffff];
 						/*  debug
 						 * g_warning("Reading 0x%x From address %u",temp_data16,operand_address);
 						 */
 						if ( (bytecode & 0x01) == 1 ){
 							memmory_addr = temp_data16;
 							temp_data16 = buff[memmory_addr] << 8;
-							temp_data16 = temp_data16 | buff[memmory_addr+1];
+							temp_data16 = temp_data16 | buff[(memmory_addr+1) & 0xffff];
 						}
 						*value = temp_data16;
 						offset = offset +2;
@@ -3037,9 +3039,9 @@ decode_udvm_multitype_operand(guint8 *buff,guint operand_address, guint16 *value
 		 */
 			memmory_addr = buff[operand_address] & 0x1f;
 			memmory_addr = memmory_addr << 8;
-			memmory_addr = memmory_addr | buff[operand_address + 1];
+			memmory_addr = memmory_addr | buff[(operand_address + 1) & 0xffff];
 			temp_data16 = buff[memmory_addr] << 8;
-			temp_data16 = temp_data16 | buff[memmory_addr+1];
+			temp_data16 = temp_data16 | buff[(memmory_addr+1) & 0xffff];
 			*value = temp_data16;
 			/*  debug
 			 * g_warning("Reading 0x%x From address %u",temp_data16,memmory_addr);

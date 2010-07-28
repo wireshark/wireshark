@@ -411,6 +411,7 @@ sigcomp_init_udvm(void){
 	/*
 	 * Debug 	g_warning("Sigcomp init: Storing partial state =%s",partial_state_str);
 	 */
+	memset(sip_sdp_buff, 0, 8);
 	i = 0;
 	while ( i < SIP_SDP_STATE_LENGTH ){
 		sip_sdp_buff[i+8] = sip_sdp_static_dictionaty_for_sigcomp[i];
