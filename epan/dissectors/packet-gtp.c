@@ -6287,14 +6287,14 @@ static int decode_gtp_unknown(tvbuff_t * tvb, int offset, packet_info * pinfo _U
     return tvb_length_remaining(tvb, offset);
 }
 
-static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
     struct _gtp_hdr gtp_hdr;
     proto_tree *gtp_tree, *flags_tree;
     proto_item *ti, *tf;
     int i, offset, length, gtp_prime, checked_field, mandatory;
     int seq_no=0, flow_label=0;
-    guint8 pdu_no, next_hdr = 0, ext_hdr_val, version;
+    guint8 pdu_no, next_hdr = 0, ext_hdr_val;
     const guint8 *tid_val;
     gchar *tid_str;
     guint32 teid = 0;
@@ -6305,18 +6305,6 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     gtp_conv_info_t *gtp_info=(gtp_conv_info_t *)pinfo->private_data;
     void* pd_save;
 
-        /*
-         * If this is GTPv2-C call the gtpv2 dissector if present
-         * Should this be moved to after the conversation stuff to retain that functionality for GTPv2 ???
-         */
-        version = tvb_get_guint8(tvb,0)>>5;
-        if (version==2) {
-                /* GTPv2-C 3GPP TS 29.274 */
-                if (gtpv2_handle) {
-                        call_dissector(gtpv2_handle, tvb, pinfo, tree);
-                        return;
-                }
-        }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -6358,7 +6346,7 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             case 0:
                         gtp_version = 0;
                         break;
-                case 1:
+            case 1:
                         gtp_version = 1;
                         break;
             default:
@@ -6366,8 +6354,7 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                         break;
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-                col_add_str(pinfo->cinfo, COL_INFO, val_to_str(gtp_hdr.message, message_type, "Unknown"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(gtp_hdr.message, message_type, "Unknown"));
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_gtp, tvb, 0, -1, FALSE);
@@ -6377,13 +6364,6 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         flags_tree = proto_item_add_subtree(tf, ett_gtp_flags);
 
         proto_tree_add_uint(flags_tree, hf_gtp_flags_ver, tvb, 0, 1, gtp_hdr.flags);
-
-        if(version>=2){
-                proto_tree_add_text(tree, tvb, 0, -1, "No WS dissector for GTP version %u %s", version, val_to_str(version, ver_types, "Unknown"));
-                pinfo->private_data = pd_save;
-                return;
-        }
-
         proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, 0, 1, gtp_hdr.flags);
 
         switch (gtp_version) {
@@ -6587,13 +6567,42 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             call_dissector(ppp_handle, next_tvb, pinfo, tree);
         }
 
-        if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-            col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
-            col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
-        }
+        col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
+        col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
     }
     pinfo->private_data = pd_save;
 }
+
+static void dissect_gtpprim(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+{
+
+	dissect_gtp_common(tvb, pinfo, tree);
+}
+
+static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+{
+	guint8 version;
+        /*
+         * If this is GTPv2-C call the gtpv2 dissector if present
+         * Should this be moved to after the conversation stuff to retain that functionality for GTPv2 ???
+         */
+        version = tvb_get_guint8(tvb,0)>>5;
+        if (version==2) {
+                /* GTPv2-C 3GPP TS 29.274 */
+                if (gtpv2_handle) {
+                        call_dissector(gtpv2_handle, tvb, pinfo, tree);
+                        return;
+                }
+        }
+        if(version>2){
+                proto_tree_add_text(tree, tvb, 0, -1, "No WS dissector for GTP version %u %s", version, val_to_str(version, ver_types, "Unknown"));
+                return;
+        }
+
+		dissect_gtp_common(tvb, pinfo, tree);
+
+}
+
 
 static const true_false_string yes_no_tfs = {
     "yes",
@@ -7043,8 +7052,8 @@ void proto_register_gtp(void)
 
     gtp_module = prefs_register_protocol(proto_gtp, proto_reg_handoff_gtp);
 
-    prefs_register_uint_preference(gtp_module, "v0_port", "GTPv0 port", "GTPv0 port (default 3386)", 10, &g_gtpv0_port);
-    prefs_register_uint_preference(gtp_module, "v1c_port", "GTPv1 control plane (GTP-C) port", "GTPv1 control plane port (default 2123)", 10,
+    prefs_register_uint_preference(gtp_module, "v0_port", "GTPv0 and GTP' port", "GTPv0 and GTP' port (default 3386)", 10, &g_gtpv0_port);
+    prefs_register_uint_preference(gtp_module, "v1c_port", "GTPv1 or GTPv2 control plane (GTP-C, GTPv2-C) port", "GTPv1 and GTPv2 control plane port (default 2123)", 10,
                                    &g_gtpv1c_port);
     prefs_register_uint_preference(gtp_module, "v1u_port", "GTPv1 user plane (GTP-U) port", "GTPv1 user plane port (default 2152)", 10,
                                    &g_gtpv1u_port);
@@ -7062,15 +7071,26 @@ void proto_register_gtp(void)
     prefs_register_bool_preference(gtp_module, "dissect_gtp_over_tcp", "Dissect GTP over TCP", "Dissect GTP over TCP", &g_gtp_over_tcp);
 
     register_dissector("gtp", dissect_gtp, proto_gtp);
+    register_dissector("gtpprim", dissect_gtpprim, proto_gtp);
 
     register_init_routine(gtp_reinit);
     gtp_tap=register_tap("gtp");
 }
+/* TS 132 295 V9.0.0 (2010-02)
+ * 5.1.3 Port usage
+ * - The UDP Destination Port may be the server port number 3386 which has been reserved for GTP'.
+ * Alternatively another port can be used, which has been configured by O&M, except Port Number 2123
+ * which is used by GTPv2-C.
+ * :
+ * The TCP Destination Port may be the server port number 3386, which has been reserved for G-PDUs. Alternatively,
+ * another port may be used as configured by O&M. Extra implementation-specific destination ports are possible but
+ * all CGFs shall support the server port number.
+ */
 
 void proto_reg_handoff_gtp(void)
 {
     static gboolean Initialized = FALSE;
-    static dissector_handle_t gtp_handle;
+    static dissector_handle_t gtp_handle, gtp_prim_handle;
     static gboolean gtp_over_tcp;
     static guint gtpv0_port;
     static guint gtpv1c_port;
@@ -7078,6 +7098,7 @@ void proto_reg_handoff_gtp(void)
 
     if (!Initialized) {
         gtp_handle = find_dissector("gtp");
+		gtp_prim_handle = find_dissector("gtpprim");
         ppp_subdissector_table = find_dissector_table("ppp.protocol");
 
         radius_register_avp_dissector(VENDOR_THE3GPP, 5, dissect_radius_qos_umts);
@@ -7103,12 +7124,12 @@ void proto_reg_handoff_gtp(void)
 
         Initialized = TRUE;
     } else {
-        dissector_delete("udp.port", gtpv0_port, gtp_handle);
+        dissector_delete("udp.port", gtpv0_port, gtp_prim_handle);
         dissector_delete("udp.port", gtpv1c_port, gtp_handle);
         dissector_delete("udp.port", gtpv1u_port, gtp_handle);
 
         if (gtp_over_tcp) {
-            dissector_delete("tcp.port", gtpv0_port, gtp_handle);
+            dissector_delete("tcp.port", gtpv0_port, gtp_prim_handle);
             dissector_delete("tcp.port", gtpv1c_port, gtp_handle);
             dissector_delete("tcp.port", gtpv1u_port, gtp_handle);
         }
@@ -7119,12 +7140,12 @@ void proto_reg_handoff_gtp(void)
     gtpv1c_port = g_gtpv1c_port;
     gtpv1u_port = g_gtpv1u_port;
 
-    dissector_add("udp.port", g_gtpv0_port, gtp_handle);
+    dissector_add("udp.port", g_gtpv0_port, gtp_prim_handle);
     dissector_add("udp.port", g_gtpv1c_port, gtp_handle);
     dissector_add("udp.port", g_gtpv1u_port, gtp_handle);
 
     if (g_gtp_over_tcp) {
-        dissector_add("tcp.port", g_gtpv0_port, gtp_handle);
+        dissector_add("tcp.port", g_gtpv0_port, gtp_prim_handle);
         dissector_add("tcp.port", g_gtpv1c_port, gtp_handle);
         dissector_add("tcp.port", g_gtpv1u_port, gtp_handle);
     }
