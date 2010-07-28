@@ -3872,6 +3872,8 @@ nas_esm_pdn_disc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Fix the lengths */
 	curr_len--;
 	curr_offset++;
+	if (curr_len == 0)
+		return;
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
 
