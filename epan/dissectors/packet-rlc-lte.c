@@ -59,7 +59,17 @@ static gint global_rlc_lte_am_sequence_analysis = FALSE;
 static gint global_rlc_lte_um_sequence_analysis = FALSE;
 
 /* By default don't call PDCP/RRC dissectors for SDU data */
-static gboolean global_rlc_lte_call_pdcp = FALSE;
+static gboolean global_rlc_lte_call_pdcp_for_srb = FALSE;
+
+enum pdcp_for_drb { PDCP_drb_off, PDCP_drb_SN_7, PDCP_drb_SN_12};
+static enum_val_t pdcp_drb_col_vals[] = {
+    {"pdcp-drb-off",   "Off",       PDCP_drb_off},
+    {"pdcp-drb-sn-7",  "7-bit SN",  PDCP_drb_SN_7},
+    {"pdcp-drb-sn-12", "12-bit SN", PDCP_drb_SN_12},
+    {NULL, NULL, -1}
+};
+static gint global_rlc_lte_call_pdcp_for_drb = (gint)PDCP_drb_off;
+
 static gboolean global_rlc_lte_call_rrc = FALSE;
 
 /* Preference to expect RLC headers without payloads */
@@ -480,42 +490,60 @@ static void show_AM_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *
     proto_item *data_ti = proto_tree_add_item(tree, hf_rlc_lte_am_data, tvb, offset, length, FALSE);
 
     /* Decode signalling PDUs as PDCP */
-    if (global_rlc_lte_call_pdcp && whole_pdu) {
-        if (rlc_info->channelType == CHANNEL_TYPE_SRB) {
-            /* Attempt to decode payload using LTE PDCP dissector */
-            tvbuff_t *pdcp_tvb = tvb_new_subset(tvb, offset, length, length);
-            volatile dissector_handle_t protocol_handle;
+    if (whole_pdu &&
+        (((global_rlc_lte_call_pdcp_for_srb) && (rlc_info->channelType == CHANNEL_TYPE_SRB)) ||
+         ((global_rlc_lte_call_pdcp_for_drb != PDCP_drb_off) && (rlc_info->channelType == CHANNEL_TYPE_DRB)))) {
 
-            struct pdcp_lte_info *p_pdcp_lte_info;
+        /* Attempt to decode payload using LTE PDCP dissector */
+        tvbuff_t *pdcp_tvb = tvb_new_subset(tvb, offset, length, length);
+        volatile dissector_handle_t protocol_handle;
 
-            /* Reuse or allocate struct */
-            p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
-            if (p_pdcp_lte_info == NULL) {
-                p_pdcp_lte_info = se_alloc0(sizeof(struct pdcp_lte_info));
-                /* Store info in packet */
-                p_add_proto_data(pinfo->fd, proto_pdcp_lte, p_pdcp_lte_info);
-            }
+        struct pdcp_lte_info *p_pdcp_lte_info;
 
-            p_pdcp_lte_info->channelType = Channel_DCCH;
-            p_pdcp_lte_info->direction = rlc_info->direction;
-            p_pdcp_lte_info->no_header_pdu = FALSE;
-            p_pdcp_lte_info->plane = SIGNALING_PLANE;
-
-            p_pdcp_lte_info->rohc_compression = FALSE;
-
-
-            /* Get dissector handle */
-            protocol_handle = find_dissector("pdcp-lte");
-
-            TRY {
-                call_dissector_only(protocol_handle, pdcp_tvb, pinfo, tree);
-            }
-            CATCH_ALL {
-            }
-            ENDTRY
-
-            PROTO_ITEM_SET_HIDDEN(data_ti);
+        /* Reuse or allocate struct */
+        p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
+        if (p_pdcp_lte_info == NULL) {
+            p_pdcp_lte_info = se_alloc0(sizeof(struct pdcp_lte_info));
+            /* Store info in packet */
+            p_add_proto_data(pinfo->fd, proto_pdcp_lte, p_pdcp_lte_info);
         }
+
+        p_pdcp_lte_info->channelType = Channel_DCCH;
+        p_pdcp_lte_info->direction = rlc_info->direction;
+        p_pdcp_lte_info->no_header_pdu = FALSE;
+        if (rlc_info->channelType == CHANNEL_TYPE_SRB) {
+            p_pdcp_lte_info->plane = SIGNALING_PLANE;
+        }
+        else {
+            p_pdcp_lte_info->plane = USER_PLANE;
+        }
+        /* Set sequence number field length */
+        switch (global_rlc_lte_call_pdcp_for_drb) {
+            case PDCP_drb_SN_7:
+                p_pdcp_lte_info->seqnum_length = 7;
+                break;
+            case PDCP_drb_SN_12:
+                p_pdcp_lte_info->seqnum_length = 12;
+                break;
+            default:
+                DISSECTOR_ASSERT(FALSE);
+                break;
+        }
+
+        p_pdcp_lte_info->rohc_compression = FALSE;
+
+
+        /* Get dissector handle */
+        protocol_handle = find_dissector("pdcp-lte");
+
+        TRY {
+            call_dissector_only(protocol_handle, pdcp_tvb, pinfo, tree);
+        }
+        CATCH_ALL {
+        }
+        ENDTRY
+
+        PROTO_ITEM_SET_HIDDEN(data_ti);
     }
 }
 
@@ -2449,7 +2477,14 @@ void proto_register_rlc_lte(void)
         "Call PDCP dissector for SRB PDUs",
         "Call PDCP dissector for signalling PDUs.  Note that without reassembly, it can"
         "only be called for complete PDus (i.e. not segmented over RLC)",
-        &global_rlc_lte_call_pdcp);
+        &global_rlc_lte_call_pdcp_for_srb);
+
+    prefs_register_enum_preference(rlc_lte_module, "call_pdcp_for_drb",
+        "Call PDCP dissector for DRB PDUs",
+        "Call PDCP dissector for user-plane PDUs.  Note that without reassembly, it can"
+        "only be called for complete PDus (i.e. not segmented over RLC)",
+        &global_rlc_lte_call_pdcp_for_drb, pdcp_drb_col_vals, FALSE);
+
 
     prefs_register_bool_preference(rlc_lte_module, "call_rrc_for_ccch",
         "Call RRC dissector for CCCH PDUs",
