@@ -107,19 +107,19 @@ static void
 window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
 {
 #ifndef _WIN32
-  static GdkPixmap *icon_pmap = NULL;
-  static GdkBitmap *icon_mask = NULL;
-  GtkStyle         *style;
+    static GdkPixmap *icon_pmap = NULL;
+    static GdkBitmap *icon_mask = NULL;
+    GtkStyle         *style;
 
-  style = gtk_widget_get_style (win);
+    style = gtk_widget_get_style (win);
 
-  if (icon_pmap == NULL) {
-    icon_pmap = gdk_pixmap_create_from_xpm_d (win->window,
-		&icon_mask, &style->bg[GTK_STATE_NORMAL],
-		(gchar **) wsicon16_xpm);
-  }
+    if (icon_pmap == NULL) {
+        icon_pmap = gdk_pixmap_create_from_xpm_d (win->window,
+                                                  &icon_mask, &style->bg[GTK_STATE_NORMAL],
+                                                  (gchar **) wsicon16_xpm);
+    }
 
-  gdk_window_set_icon (win->window, NULL, icon_pmap, icon_mask);
+    gdk_window_set_icon (win->window, NULL, icon_pmap, icon_mask);
 #endif
 }
 
@@ -129,22 +129,22 @@ window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
 GtkWidget *
 window_new(GtkWindowType type, const gchar *title)
 {
-  GtkWidget *win;
+    GtkWidget *win;
 
-  win = gtk_window_new(type);
-  if (title != NULL)
-    gtk_window_set_title(GTK_WINDOW(win), title);
-  g_signal_connect(win, "realize", G_CALLBACK(window_icon_realize_cb), NULL);
+    win = gtk_window_new(type);
+    if (title != NULL)
+        gtk_window_set_title(GTK_WINDOW(win), title);
+    g_signal_connect(win, "realize", G_CALLBACK(window_icon_realize_cb), NULL);
 
-  /* XXX - which one is the correct default policy? or use a preference for this? */
-  /* GTK_WIN_POS_NONE, GTK_WIN_POS_CENTER or GTK_WIN_POS_MOUSE */
-  /* a lot of people dislike GTK_WIN_POS_MOUSE */
+    /* XXX - which one is the correct default policy? or use a preference for this? */
+    /* GTK_WIN_POS_NONE, GTK_WIN_POS_CENTER or GTK_WIN_POS_MOUSE */
+    /* a lot of people dislike GTK_WIN_POS_MOUSE */
 
-  /* set the initial position (must be done, before show is called!) */
+    /* set the initial position (must be done, before show is called!) */
 /*  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);*/
-  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_NONE);
+    gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_NONE);
 
-  return win;
+    return win;
 }
 
 
@@ -153,25 +153,25 @@ window_new(GtkWindowType type, const gchar *title)
 GtkWidget *
 window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_name)
 {
-  window_geometry_t geom;
-  GtkWidget *win = window_new(type, title);
+    window_geometry_t geom;
+    GtkWidget *win = window_new(type, title);
 
-  g_object_set_data(G_OBJECT(win), WINDOW_GEOM_KEY, (gpointer)g_strdup(geom_name));
+    g_object_set_data(G_OBJECT(win), WINDOW_GEOM_KEY, (gpointer)g_strdup(geom_name));
 
-  /* do we have a previously saved size and position of this window? */
-  if(geom_name) {
-    /* It's a good idea to set the position and size of the window already here,
-     * as it's still invisible and won't "flicker the screen" while initially resizing. */
-    if(window_geom_load(geom_name, &geom)) {
-      /* XXX - use prefs to select which values to set? */
-      geom.set_pos        = TRUE;
-      geom.set_size       = TRUE;
-      geom.set_maximized  = FALSE;  /* don't maximize until window is shown */
-      window_set_geometry(win, &geom);
+    /* do we have a previously saved size and position of this window? */
+    if(geom_name) {
+        /* It's a good idea to set the position and size of the window already here,
+         * as it's still invisible and won't "flicker the screen" while initially resizing. */
+        if(window_geom_load(geom_name, &geom)) {
+            /* XXX - use prefs to select which values to set? */
+            geom.set_pos        = TRUE;
+            geom.set_size       = TRUE;
+            geom.set_maximized  = FALSE;  /* don't maximize until window is shown */
+            window_set_geometry(win, &geom);
+        }
     }
-  }
 
-  return win;
+    return win;
 }
 
 
@@ -180,15 +180,15 @@ window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_n
 GtkWidget *
 splash_window_new(void)
 {
-  GtkWidget *win;
+    GtkWidget *win;
 
-  win = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark");
-  gtk_window_set_decorated(GTK_WINDOW(win), FALSE);
+    win = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark");
+    gtk_window_set_decorated(GTK_WINDOW(win), FALSE);
 
-  /* set the initial position (must be done, before show is called!) */
-  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER);
+    /* set the initial position (must be done, before show is called!) */
+    gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER);
 
-  return win;
+    return win;
 }
 
 
@@ -196,38 +196,38 @@ splash_window_new(void)
 void
 window_present(GtkWidget *win)
 {
-  window_geometry_t geom;
-  const gchar *name;
+    window_geometry_t geom;
+    const gchar *name;
 
-  /* present this window */
-  gtk_window_present(GTK_WINDOW(win));
+    /* present this window */
+    gtk_window_present(GTK_WINDOW(win));
 
-  /* do we have a previously saved size and position of this window? */
-  name = g_object_get_data(G_OBJECT(win), WINDOW_GEOM_KEY);
-  if(name) {
-    if(window_geom_load(name, &geom)) {
-      /* XXX - use prefs to select which values to set? */
-      geom.set_pos        = TRUE;
-      geom.set_size       = TRUE;
-      geom.set_maximized  = TRUE;
-      window_set_geometry(win, &geom);
+    /* do we have a previously saved size and position of this window? */
+    name = g_object_get_data(G_OBJECT(win), WINDOW_GEOM_KEY);
+    if(name) {
+        if(window_geom_load(name, &geom)) {
+            /* XXX - use prefs to select which values to set? */
+            geom.set_pos        = TRUE;
+            geom.set_size       = TRUE;
+            geom.set_maximized  = TRUE;
+            window_set_geometry(win, &geom);
+        }
     }
-  }
 }
 
 
 static gint
 window_key_press_cb (GtkWidget *widget, GdkEventKey *event, gpointer cancel_button)
 {
-  g_return_val_if_fail (widget != NULL, FALSE);
-  g_return_val_if_fail (event != NULL, FALSE);
+    g_return_val_if_fail (widget != NULL, FALSE);
+    g_return_val_if_fail (event != NULL, FALSE);
 
-  if (event->keyval == GDK_Escape) {
-    gtk_widget_activate(GTK_WIDGET(cancel_button));
-    return TRUE;
-  }
+    if (event->keyval == GDK_Escape) {
+        gtk_widget_activate(GTK_WIDGET(cancel_button));
+        return TRUE;
+    }
 
-  return FALSE;
+    return FALSE;
 }
 
 
@@ -245,26 +245,26 @@ window_key_press_cb (GtkWidget *widget, GdkEventKey *event, gpointer cancel_butt
 static void
 window_set_cancel(GtkWidget *widget, GtkWidget *cancel_button)
 {
-  g_signal_connect(widget, "key_press_event", G_CALLBACK(window_key_press_cb), cancel_button);
+    g_signal_connect(widget, "key_press_event", G_CALLBACK(window_key_press_cb), cancel_button);
 }
 
 
 /* set the actions needed for the cancel "Close"/"Ok"/"Cancel" button that closes the window */
 void window_set_cancel_button(GtkWidget *win, GtkWidget *bt, window_cancel_button_fct cb)
 {
-  if(cb)
-    g_signal_connect(bt, "clicked", G_CALLBACK(cb), win);
+    if(cb)
+        g_signal_connect(bt, "clicked", G_CALLBACK(cb), win);
 
-  gtk_widget_grab_default(bt);
+    gtk_widget_grab_default(bt);
 
-  window_set_cancel(win, bt);
+    window_set_cancel(win, bt);
 }
 
 
 /* default callback handler for cancel button "clicked" signal */
 void window_cancel_button_cb(GtkWidget *w _U_, gpointer data)
 {
-  window_destroy(GTK_WIDGET(data));
+    window_destroy(GTK_WIDGET(data));
 }
 
 
@@ -306,7 +306,7 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
         &geom->x,
         &geom->y);
     if (gdk_window_get_deskrelative_origin(widget->window,
-				&desk_x, &desk_y)) {
+                                           &desk_x, &desk_y)) {
         if (desk_x <= geom->x &&
             desk_y <= geom->y)
         {
@@ -481,27 +481,27 @@ window_geom_recent_write_all(gpointer rf)
 void
 window_destroy(GtkWidget *win)
 {
-  window_geometry_t geom;
-  const gchar *name;
+    window_geometry_t geom;
+    const gchar *name;
 
-  if (!win)
-    return;
+    if (!win)
+        return;
 
-  /* get_geometry must be done *before* destroy is running, as the window geometry
-   * cannot be retrieved at destroy time (so don't use event "destroy" for this) */
-  /* ...and don't do this at all, if we currently have no GdkWindow (e.g. if the
-   * GtkWidget is hidden) */
-  if(!GTK_WIDGET_NO_WINDOW(win) && GTK_WIDGET_VISIBLE(win)) {
-      window_get_geometry(win, &geom);
+    /* get_geometry must be done *before* destroy is running, as the window geometry
+     * cannot be retrieved at destroy time (so don't use event "destroy" for this) */
+    /* ...and don't do this at all, if we currently have no GdkWindow (e.g. if the
+     * GtkWidget is hidden) */
+    if(!GTK_WIDGET_NO_WINDOW(win) && GTK_WIDGET_VISIBLE(win)) {
+        window_get_geometry(win, &geom);
 
-      name = g_object_get_data(G_OBJECT(win), WINDOW_GEOM_KEY);
-      if(name) {
-        window_geom_save(name, &geom);
-        g_free((gpointer)name);
-      }
-  }
+        name = g_object_get_data(G_OBJECT(win), WINDOW_GEOM_KEY);
+        if(name) {
+            window_geom_save(name, &geom);
+            g_free((gpointer)name);
+        }
+    }
 
-  gtk_widget_destroy(win);
+    gtk_widget_destroy(win);
 }
 
 
@@ -530,7 +530,7 @@ GtkWidget *xpm_to_widget(const char ** xpm) {
 /* Data should be created with "gdk-pixbuf-csource --raw" */
 GtkWidget *pixbuf_to_widget(const char * pb_data) {
     GdkPixbuf *pixbuf;
-    
+
     pixbuf = gdk_pixbuf_new_from_inline (-1, pb_data, FALSE, NULL);
     return gtk_image_new_from_pixbuf(pixbuf);
 }
@@ -540,21 +540,21 @@ GtkWidget *pixbuf_to_widget(const char * pb_data) {
  * user-specified decoration changes, we can correctly update the
  * window title.
  */
-#define MAIN_WINDOW_NAME_KEY	"main_window_name"
+#define MAIN_WINDOW_NAME_KEY  "main_window_name"
 
 /* Set the name of the top-level window and its icon to the specified
    string. */
 void
 set_main_window_name(const gchar *window_name)
 {
-  gchar *old_window_name;
+    gchar *old_window_name;
 
-  /* Attach the new un-decorated window name to the window. */
-  old_window_name = g_object_get_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY);
-  g_free(old_window_name);
-  g_object_set_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY, g_strdup(window_name));
+    /* Attach the new un-decorated window name to the window. */
+    old_window_name = g_object_get_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY);
+    g_free(old_window_name);
+    g_object_set_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY, g_strdup(window_name));
 
-  update_main_window_name();
+    update_main_window_name();
 }
 
 /* Update the name of the main window if the user-specified decoration
@@ -562,29 +562,29 @@ set_main_window_name(const gchar *window_name)
 void
 update_main_window_name(void)
 {
-  gchar *window_name;
-  gchar *title;
+    gchar *window_name;
+    gchar *title;
 
-  window_name = g_object_get_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY);
-  if (window_name != NULL) {
-    /* use user-defined window title if preference is set */
-    title = create_user_window_title(window_name);
-    gtk_window_set_title(GTK_WINDOW(top_level), title);
-    gdk_window_set_icon_name(top_level->window, title);
-    g_free(title);
-  }
+    window_name = g_object_get_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY);
+    if (window_name != NULL) {
+        /* use user-defined window title if preference is set */
+        title = create_user_window_title(window_name);
+        gtk_window_set_title(GTK_WINDOW(top_level), title);
+        gdk_window_set_icon_name(top_level->window, title);
+        g_free(title);
+    }
 }
 
 /* update the main window */
 void main_window_update(void)
 {
-  while (gtk_events_pending()) gtk_main_iteration();
+    while (gtk_events_pending()) gtk_main_iteration();
 }
 
 /* exit the main window */
 void main_window_exit(void)
 {
-  exit(0);
+    exit(0);
 }
 
 #ifdef HAVE_LIBPCAP
@@ -592,14 +592,14 @@ void main_window_exit(void)
 /* quit a nested main window */
 void main_window_nested_quit(void)
 {
-  if (gtk_main_level() > 0)
-    gtk_main_quit();
+    if (gtk_main_level() > 0)
+        gtk_main_quit();
 }
 
 /* quit the main window */
 void main_window_quit(void)
 {
-  gtk_main_quit();
+    gtk_main_quit();
 }
 
 
@@ -613,7 +613,7 @@ typedef struct pipe_input_tag {
 #ifdef _WIN32
 #else
     GIOChannel          *channel;
-#endif    
+#endif
 } pipe_input_t;
 
 
@@ -623,70 +623,70 @@ typedef struct pipe_input_tag {
 static gboolean
 pipe_timer_cb(gpointer data)
 {
-  HANDLE handle;
-  DWORD avail = 0;
-  gboolean result, result1;
-  DWORD childstatus;
-  pipe_input_t *pipe_input = data;
-  gint iterations = 0;
+    HANDLE handle;
+    DWORD avail = 0;
+    gboolean result, result1;
+    DWORD childstatus;
+    pipe_input_t *pipe_input = data;
+    gint iterations = 0;
 
 
-  /* try to read data from the pipe only 5 times, to avoid blocking */
-  while(iterations < 5) {
-	  /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: new iteration");*/
+    /* try to read data from the pipe only 5 times, to avoid blocking */
+    while(iterations < 5) {
+        /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: new iteration");*/
 
-	  /* Oddly enough although Named pipes don't work on win9x,
-		 PeekNamedPipe does !!! */
-	  handle = (HANDLE) _get_osfhandle (pipe_input->source);
-	  result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
+        /* Oddly enough although Named pipes don't work on win9x,
+           PeekNamedPipe does !!! */
+        handle = (HANDLE) _get_osfhandle (pipe_input->source);
+        result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
 
-	  /* Get the child process exit status */
-	  result1 = GetExitCodeProcess((HANDLE)*(pipe_input->child_process),
-								   &childstatus);
+        /* Get the child process exit status */
+        result1 = GetExitCodeProcess((HANDLE)*(pipe_input->child_process),
+                                     &childstatus);
 
-	  /* If the Peek returned an error, or there are bytes to be read
-		 or the childwatcher thread has terminated then call the normal
-		 callback */
-	  if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
+        /* If the Peek returned an error, or there are bytes to be read
+           or the childwatcher thread has terminated then call the normal
+           callback */
+        if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
 
-		/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: data avail");*/
+            /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: data avail");*/
 
-		if(pipe_input->pipe_input_id != 0) {
-		  /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: stop timer");*/
-		  /* avoid reentrancy problems and stack overflow */
-		  g_source_remove(pipe_input->pipe_input_id);
-		  pipe_input->pipe_input_id = 0;
-		}
+            if(pipe_input->pipe_input_id != 0) {
+                /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: stop timer");*/
+                /* avoid reentrancy problems and stack overflow */
+                g_source_remove(pipe_input->pipe_input_id);
+                pipe_input->pipe_input_id = 0;
+            }
 
-		/* And call the real handler */
-		if (!pipe_input->input_cb(pipe_input->source, pipe_input->user_data)) {
-			g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: input pipe closed, iterations: %u", iterations);
-			/* pipe closed, return false so that the old timer is not run again */
-			return FALSE;
-		}
-	  }
-	  else {
-		/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: no data avail");*/
-		/* No data, stop now */
-		break;
-	  }
+            /* And call the real handler */
+            if (!pipe_input->input_cb(pipe_input->source, pipe_input->user_data)) {
+                g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: input pipe closed, iterations: %u", iterations);
+                /* pipe closed, return false so that the old timer is not run again */
+                return FALSE;
+            }
+        }
+        else {
+            /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: no data avail");*/
+            /* No data, stop now */
+            break;
+        }
 
-	  iterations++;
-  }
+        iterations++;
+    }
 
-  if(pipe_input->pipe_input_id == 0) {
-	/* restore pipe handler */
-	pipe_input->pipe_input_id = g_timeout_add(200, pipe_timer_cb, data);
-	/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: finished with iterations: %u, new timer", iterations);*/
+    if(pipe_input->pipe_input_id == 0) {
+        /* restore pipe handler */
+        pipe_input->pipe_input_id = g_timeout_add(200, pipe_timer_cb, data);
+        /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: finished with iterations: %u, new timer", iterations);*/
 
-	/* Return false so that the old timer is not run again */
-	return FALSE;
-  } else {
-	/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: finished with iterations: %u, old timer", iterations);*/
+        /* Return false so that the old timer is not run again */
+        return FALSE;
+    } else {
+        /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: finished with iterations: %u, old timer", iterations);*/
 
-	/* we didn't stopped the old timer, so let it run */
-	return TRUE;
-  }
+        /* we didn't stopped the old timer, so let it run */
+        return TRUE;
+    }
 }
 
 #else /* _WIN32 */
@@ -698,22 +698,22 @@ static gboolean
 pipe_input_cb(GIOChannel *source _U_, GIOCondition condition _U_,
                gpointer data)
 {
-  pipe_input_t *pipe_input = data;
+    pipe_input_t *pipe_input = data;
 
 
-  /* avoid reentrancy problems and stack overflow */
-  g_source_remove(pipe_input->pipe_input_id);
+    /* avoid reentrancy problems and stack overflow */
+    g_source_remove(pipe_input->pipe_input_id);
 
-  if (pipe_input->input_cb(pipe_input->source, pipe_input->user_data)) {
-    /* restore pipe handler */
-    pipe_input->pipe_input_id = g_io_add_watch_full (pipe_input->channel,
-				     G_PRIORITY_HIGH,
-				     G_IO_IN|G_IO_ERR|G_IO_HUP,
-				     pipe_input_cb,
-				     pipe_input,
-				     NULL);
-  }
-  return TRUE;
+    if (pipe_input->input_cb(pipe_input->source, pipe_input->user_data)) {
+        /* restore pipe handler */
+        pipe_input->pipe_input_id = g_io_add_watch_full (pipe_input->channel,
+                                                         G_PRIORITY_HIGH,
+                                                         G_IO_IN|G_IO_ERR|G_IO_HUP,
+                                                         pipe_input_cb,
+                                                         pipe_input,
+                                                         NULL);
+    }
+    return TRUE;
 }
 #endif
 
@@ -732,17 +732,17 @@ void pipe_input_set_handler(gint source, gpointer user_data, int *child_process,
        this but doesn't seem to work over processes.  Attempt to do
        something similar here, start a timer and check for data on every
        timeout. */
-	/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_input_set_handler: new");*/
+       /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_input_set_handler: new");*/
     pipe_input.pipe_input_id = g_timeout_add(200, pipe_timer_cb, &pipe_input);
 #else
     pipe_input.channel = g_io_channel_unix_new(source);
     g_io_channel_set_encoding(pipe_input.channel, NULL, NULL);
     pipe_input.pipe_input_id = g_io_add_watch_full(pipe_input.channel,
-                                      G_PRIORITY_HIGH,
-				      G_IO_IN|G_IO_ERR|G_IO_HUP,
-				      pipe_input_cb,
-				      &pipe_input,
-				      NULL);
+                                                   G_PRIORITY_HIGH,
+                                                   G_IO_IN|G_IO_ERR|G_IO_HUP,
+                                                   pipe_input_cb,
+                                                   &pipe_input,
+                                                   NULL);
 #endif
 }
 
@@ -771,8 +771,8 @@ void pipe_input_set_handler(gint source, gpointer user_data, int *child_process,
 void
 reactivate_window(GtkWidget *win)
 {
-  gdk_window_show(win->window);
-  gdk_window_raise(win->window);
+    gdk_window_show(win->window);
+    gdk_window_raise(win->window);
 }
 
 /* List of all GtkScrolledWindows, so we can globally set the scrollbar
@@ -788,11 +788,11 @@ static void set_scrollbar_placement_scrollw(GtkWidget *scrollw);
 GtkWidget *
 scrolled_window_new(GtkAdjustment *hadjustment, GtkAdjustment *vadjustment)
 {
-  GtkWidget *scrollw;
+    GtkWidget *scrollw;
 
-  scrollw = gtk_scrolled_window_new(hadjustment, vadjustment);
-  setup_scrolled_window(scrollw);
-  return scrollw;
+    scrollw = gtk_scrolled_window_new(hadjustment, vadjustment);
+    setup_scrolled_window(scrollw);
+    return scrollw;
 }
 
 /* Set a GtkScrolledWindow's scrollbar placement and add it to the list
@@ -800,23 +800,23 @@ scrolled_window_new(GtkAdjustment *hadjustment, GtkAdjustment *vadjustment)
 static void
 setup_scrolled_window(GtkWidget *scrollw)
 {
-  set_scrollbar_placement_scrollw(scrollw);
+    set_scrollbar_placement_scrollw(scrollw);
 
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollw),
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollw),
                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
-  scrolled_windows = g_list_append(scrolled_windows, scrollw);
+    scrolled_windows = g_list_append(scrolled_windows, scrollw);
 
-  /* Catch the "destroy" event on the widget, so that we remove it from
-     the list when it's destroyed. */
-  g_signal_connect(scrollw, "destroy", G_CALLBACK(forget_scrolled_window), NULL);
+    /* Catch the "destroy" event on the widget, so that we remove it from
+       the list when it's destroyed. */
+    g_signal_connect(scrollw, "destroy", G_CALLBACK(forget_scrolled_window), NULL);
 }
 
 /* Remove a GtkScrolledWindow from the list of GtkScrolledWindows. */
 static void
 forget_scrolled_window(GtkWidget *scrollw, gpointer data _U_)
 {
-  scrolled_windows = g_list_remove(scrolled_windows, scrollw);
+    scrolled_windows = g_list_remove(scrolled_windows, scrollw);
 }
 
 /* Set the scrollbar placement of a GtkScrolledWindow based upon user
@@ -824,19 +824,19 @@ forget_scrolled_window(GtkWidget *scrollw, gpointer data _U_)
 static void
 set_scrollbar_placement_scrollw(GtkWidget *scrollw)
 {
-  if (prefs.gui_scrollbar_on_right) {
-    gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scrollw),
-				      GTK_CORNER_TOP_LEFT);
-  } else {
-    gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scrollw),
-				      GTK_CORNER_TOP_RIGHT);
-  }
+    if (prefs.gui_scrollbar_on_right) {
+        gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scrollw),
+                                          GTK_CORNER_TOP_LEFT);
+    } else {
+        gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scrollw),
+                                          GTK_CORNER_TOP_RIGHT);
+    }
 }
 
 static void
 set_scrollbar_placement_cb(gpointer data, gpointer user_data _U_)
 {
-  set_scrollbar_placement_scrollw((GtkWidget *)data);
+    set_scrollbar_placement_scrollw((GtkWidget *)data);
 }
 
 /* Set the scrollbar placement of all GtkScrolledWindows based on
@@ -844,7 +844,7 @@ set_scrollbar_placement_cb(gpointer data, gpointer user_data _U_)
 void
 set_scrollbar_placement_all(void)
 {
-  g_list_foreach(scrolled_windows, set_scrollbar_placement_cb, NULL);
+    g_list_foreach(scrolled_windows, set_scrollbar_placement_cb, NULL);
 }
 
 /* List of all CTrees/TreeViews, so we can globally set the line and
@@ -860,123 +860,123 @@ static int tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointe
 GtkWidget *
 tree_view_new(GtkTreeModel *model)
 {
-  GtkWidget *tree;
+    GtkWidget *tree;
 
-  tree = gtk_tree_view_new_with_model(model);
-  setup_tree(tree);
-  return tree;
+    tree = gtk_tree_view_new_with_model(model);
+    setup_tree(tree);
+    return tree;
 }
 
 /* Set a Tree's styles and add it to the list of Trees. */
 static void
 setup_tree(GtkWidget *tree)
 {
-  set_tree_styles(tree);
+    set_tree_styles(tree);
 
-  trees = g_list_append(trees, tree);
+    trees = g_list_append(trees, tree);
 
-  /* Catch the "destroy" event on the widget, so that we remove it from
-     the list when it's destroyed. */
-  g_signal_connect(tree, "destroy", G_CALLBACK(forget_tree), NULL);
-  g_signal_connect(tree, "key-press-event", G_CALLBACK(tree_view_key_pressed_cb), NULL );
+    /* Catch the "destroy" event on the widget, so that we remove it from
+       the list when it's destroyed. */
+    g_signal_connect(tree, "destroy", G_CALLBACK(forget_tree), NULL);
+    g_signal_connect(tree, "key-press-event", G_CALLBACK(tree_view_key_pressed_cb), NULL );
 }
 
 /* Remove a Tree from the list of Trees. */
 static void
 forget_tree(GtkWidget *tree, gpointer data _U_)
 {
-  trees = g_list_remove(trees, tree);
+    trees = g_list_remove(trees, tree);
 }
 
 /* Set the styles of a Tree based upon user preferences. */
 static void
 set_tree_styles(GtkWidget *tree)
 {
-  g_assert(prefs.gui_altern_colors >= 0 && prefs.gui_altern_colors <= 1);
-  gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(tree),
-                               prefs.gui_altern_colors);
+    g_assert(prefs.gui_altern_colors >= 0 && prefs.gui_altern_colors <= 1);
+    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(tree),
+                                 prefs.gui_altern_colors);
 }
 
 static void
 set_tree_styles_cb(gpointer data, gpointer user_data _U_)
 {
-  set_tree_styles((GtkWidget *)data);
+    set_tree_styles((GtkWidget *)data);
 }
 
 /* Set the styles of all Trees based upon style values. */
 void
 set_tree_styles_all(void)
 {
-  g_list_foreach(trees, set_tree_styles_cb, NULL);
+    g_list_foreach(trees, set_tree_styles_cb, NULL);
 }
 
 /* Move the currently-selected item in a list store up or down one position. */
 gboolean
 tree_view_list_store_move_selection(GtkTreeView *tree, gboolean move_up)
 {
-  GtkTreeIter       from, to;
-  GtkTreeModel     *model;
-  GtkTreeSelection *sel;
-  GtkTreePath      *path_from, *path_to;
+    GtkTreeIter       from, to;
+    GtkTreeModel     *model;
+    GtkTreeSelection *sel;
+    GtkTreePath      *path_from, *path_to;
 
-  sel = gtk_tree_view_get_selection(tree);
-  if (! gtk_tree_selection_get_selected(sel, &model, &from)) {
-    return FALSE;
-  }
+    sel = gtk_tree_view_get_selection(tree);
+    if (! gtk_tree_selection_get_selected(sel, &model, &from)) {
+        return FALSE;
+    }
 
-  path_from = gtk_tree_model_get_path(model, &from);
-  if (!path_from) {
-    return FALSE;
-  }
+    path_from = gtk_tree_model_get_path(model, &from);
+    if (!path_from) {
+        return FALSE;
+    }
 
-  path_to = gtk_tree_path_copy(path_from);
-  /* XXX - Why does one return void and the other return a gboolean? */
-  if (move_up) {
-    gtk_tree_path_prev(path_to);
-  } else {
-    gtk_tree_path_next(path_to);
-  }
+    path_to = gtk_tree_path_copy(path_from);
+    /* XXX - Why does one return void and the other return a gboolean? */
+    if (move_up) {
+        gtk_tree_path_prev(path_to);
+    } else {
+        gtk_tree_path_next(path_to);
+    }
 
-  if (gtk_tree_path_compare(path_from, path_to) == 0) {
+    if (gtk_tree_path_compare(path_from, path_to) == 0) {
+        gtk_tree_path_free(path_from);
+        gtk_tree_path_free(path_to);
+        return FALSE;
+    }
+
+    gtk_tree_model_get_iter(model, &to, path_to);
+    gtk_list_store_swap(GTK_LIST_STORE(model), &from, &to);
     gtk_tree_path_free(path_from);
     gtk_tree_path_free(path_to);
-    return FALSE;
-  }
-
-  gtk_tree_model_get_iter(model, &to, path_to);
-  gtk_list_store_swap(GTK_LIST_STORE(model), &from, &to);
-  gtk_tree_path_free(path_from);
-  gtk_tree_path_free(path_to);
-  return TRUE;
+    return TRUE;
 }
 
 /* Find the selected row number in a list store. */
 gint
 tree_view_list_store_get_selected_row(GtkTreeView *tree) {
-  GtkTreeIter       iter;
-  GtkTreeModel     *model;
-  GtkTreeSelection *sel;
-  GtkTreePath      *path;
-  gchar            *path_str;
-  gint              row;
+    GtkTreeIter       iter;
+    GtkTreeModel     *model;
+    GtkTreeSelection *sel;
+    GtkTreePath      *path;
+    gchar            *path_str;
+    gint              row;
 
-  sel = gtk_tree_view_get_selection(tree);
-  if (! gtk_tree_selection_get_selected(sel, &model, &iter)) {
-    return -1;
-  }
+    sel = gtk_tree_view_get_selection(tree);
+    if (! gtk_tree_selection_get_selected(sel, &model, &iter)) {
+        return -1;
+    }
 
-  path = gtk_tree_model_get_path(model, &iter);
-  if (!path) {
-    return FALSE;
-  }
-  
-  path_str = gtk_tree_path_to_string(path);
-  gtk_tree_path_free(path);
-  
-  row = (gint) strtol(path_str, NULL, 10);
-  g_free(path_str);
-  
-  return row;
+    path = gtk_tree_model_get_path(model, &iter);
+    if (!path) {
+        return FALSE;
+    }
+
+    path_str = gtk_tree_path_to_string(path);
+    gtk_tree_path_free(path);
+
+    row = (gint) strtol(path_str, NULL, 10);
+    g_free(path_str);
+
+    return row;
 }
 
 /* append a row to the simple list */
@@ -1035,33 +1035,33 @@ void render_as_url(GtkCellRenderer *cell)
 
 void simple_list_url_col(GtkWidget *list, gint col)
 {
-  GtkTreeViewColumn *ul_column;
-  GList             *renderers_list;
-  GtkCellRenderer   *ul_renderer;
+    GtkTreeViewColumn *ul_column;
+    GList             *renderers_list;
+    GtkCellRenderer   *ul_renderer;
 
-  /* make the column look like a link ... */
-  ul_column = gtk_tree_view_get_column(GTK_TREE_VIEW(list), col);
+    /* make the column look like a link ... */
+    ul_column = gtk_tree_view_get_column(GTK_TREE_VIEW(list), col);
 
-  renderers_list = gtk_tree_view_column_get_cell_renderers(ul_column);
+    renderers_list = gtk_tree_view_column_get_cell_renderers(ul_column);
 
-  if(renderers_list != NULL) {
-    /* it is simple list - there should be only one renderer */
-    ul_renderer = (GtkCellRenderer*)renderers_list->data;
+    if(renderers_list != NULL) {
+        /* it is simple list - there should be only one renderer */
+        ul_renderer = (GtkCellRenderer*)renderers_list->data;
 
-    render_as_url(ul_renderer);
+        render_as_url(ul_renderer);
 
-    g_list_free(renderers_list);
-  }
+        g_list_free(renderers_list);
+    }
 
 }
 
 void
 copy_to_clipboard(GString *str)
 {
-        GtkClipboard    *cb;
+    GtkClipboard    *cb;
 
-      	cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);     /* Get the default clipboard */
-	gtk_clipboard_set_text(cb, str->str, -1);            /* Copy the byte data into the clipboard */
+    cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);     /* Get the default clipboard */
+    gtk_clipboard_set_text(cb, str->str, -1);            /* Copy the byte data into the clipboard */
 }
 
 
@@ -1140,40 +1140,40 @@ void copy_binary_to_clipboard(const guint8* data_p, int len)
 gchar *
 create_user_window_title(const gchar *caption)
 {
-	/* fail-safe */
-	if (caption == NULL)
-		return g_strdup("");
+    /* fail-safe */
+    if (caption == NULL)
+        return g_strdup("");
 
-	/* no user-defined title specified */
-	if ((prefs.gui_window_title == NULL) || (*prefs.gui_window_title == '\0'))
-		return g_strdup(caption);
+    /* no user-defined title specified */
+    if ((prefs.gui_window_title == NULL) || (*prefs.gui_window_title == '\0'))
+        return g_strdup(caption);
 
-	return g_strdup_printf("%s %s", prefs.gui_window_title, caption);
+    return g_strdup_printf("%s %s", prefs.gui_window_title, caption);
 }
 
 /* XXX move toggle_tree over from proto_draw.c to handle GTK+ 1 */
 /*
- * This callback is invoked when keyboard focus is within either 
- * the packetlist view or the detail view.  The keystrokes processed 
- * within this callback are attempting to modify the detail view.  
- * Within the detail view we special case the Left Arrow, Backspace 
+ * This callback is invoked when keyboard focus is within either
+ * the packetlist view or the detail view.  The keystrokes processed
+ * within this callback are attempting to modify the detail view.
+ * Within the detail view we special case the Left Arrow, Backspace
  * and Enter keys depending on the state of the expander (if any)
  * for the item in focus.
  *
- * Returning FALSE allows processing of the original key_press_event 
+ * Returning FALSE allows processing of the original key_press_event
  * by other callbacks.  Left/Right scrolling of the packetlist
  * view and expanding/collapsing of the detail view lists is
  * handled by the default GtkTreeView key-press-event call back.
  *
  * XXX - Would an improved version of this callback test to see which
- * of the two GtkTreeView lists has focus?  Left/Right scrolling of 
- * the packetlist is currently not optimal.  It will take several 
- * right or left keypress events before the packetlist responds.  
+ * of the two GtkTreeView lists has focus?  Left/Right scrolling of
+ * the packetlist is currently not optimal.  It will take several
+ * right or left keypress events before the packetlist responds.
  * The problem appears to be that the focus is on a particular cell
  * within the highlighted row cell (like a spreadsheet).  Scrolling
- * of the view  right or left will not occur until the focus is 
- * moved to a cell off the left or right edge of the packet list 
- * view.  Also TAB/SHIFT-TAB events can move keyboard focus to 
+ * of the view  right or left will not occur until the focus is
+ * moved to a cell off the left or right edge of the packet list
+ * view.  Also TAB/SHIFT-TAB events can move keyboard focus to
  * the packetlist header where there is currently visual hint
  * a header cell has focus.
  */
@@ -1201,7 +1201,7 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
     if(!path) {
         return FALSE;
     }
-    
+
     /* Always FALSE when we're in the packet list (at least until we add sub-packets) */
     expanded = gtk_tree_view_row_expanded(GTK_TREE_VIEW(tree), path);
     expandable = gtk_tree_model_iter_has_child(model, &iter);
@@ -1212,7 +1212,7 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
                 /* Subtree is expanded. Collapse it. */
                 gtk_tree_view_collapse_row(GTK_TREE_VIEW(tree), path);
                 rc = TRUE;
-		break;
+                break;
             }
             /* No break - fall through to jumping to the parent */
         case GDK_BackSpace:
@@ -1220,7 +1220,7 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
                 /* subtree is already collapsed, jump to parent node */
                 if(! gtk_tree_model_iter_parent(model, &parent, &iter)) {
                     rc = FALSE;
-                    break; 
+                    break;
                 }
                 gtk_tree_path_free(path);
                 path = gtk_tree_model_get_path(model, &parent);
@@ -1231,19 +1231,19 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
                                                  NULL /* focus_column */,
                                                  FALSE /* !start_editing */);
                 rc = TRUE;
-                break; 
+                break;
             }
             break;
         case GDK_Right:
-	    if (expandable) {
-		/* We have a subtree. Try to expand it. */
-		gtk_tree_view_expand_row(GTK_TREE_VIEW(tree), path, FALSE /* !open_all */);
-		rc = TRUE;
-		break;
-	    } else {
-	        rc = FALSE;
-		break;
-	    }
+            if (expandable) {
+                /* We have a subtree. Try to expand it. */
+                gtk_tree_view_expand_row(GTK_TREE_VIEW(tree), path, FALSE /* !open_all */);
+                rc = TRUE;
+                break;
+            } else {
+                rc = FALSE;
+                break;
+            }
         case GDK_Return:
         case GDK_KP_Enter:
             /* Reverse the current state. */
@@ -1252,7 +1252,7 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
             else
                 gtk_tree_view_expand_row(GTK_TREE_VIEW(tree), path, FALSE /* !open_all */);
             rc = TRUE;
-            break; 
+            break;
     }
 
     if(path) {
@@ -1266,7 +1266,7 @@ switch_to_fixed_col(GtkTreeView *view)
 {
     gint size;
     GtkTreeViewColumn *column;
-    GList	    *columns, *list;
+    GList             *columns, *list;
 
     columns = gtk_tree_view_get_columns(GTK_TREE_VIEW(view));
     list = columns;
@@ -1279,20 +1279,20 @@ switch_to_fixed_col(GtkTreeView *view)
         columns = g_list_next(columns);
     }
     g_list_free(list);
-    
+
 #if GTK_CHECK_VERSION(2,6,0)
     gtk_tree_view_set_fixed_height_mode(view, TRUE);
 #endif
 }
 
-gint 
+gint
 get_default_col_size(GtkWidget *view, const gchar *str)
 {
     PangoLayout *layout;
     gint col_width;
 
     layout = gtk_widget_create_pango_layout(view, str);
-    pango_layout_get_pixel_size(layout, 
+    pango_layout_get_pixel_size(layout,
                                 &col_width, /* width */
                                 NULL); /* height */
     g_object_unref(G_OBJECT(layout));
@@ -1301,10 +1301,10 @@ get_default_col_size(GtkWidget *view, const gchar *str)
 }
 
 
-/* 
+/*
  * This function can be called from gtk_tree_view_column_set_cell_data_func()
  * the user data must be the colum number.
- * Present floats with two decimals 
+ * Present floats with two decimals
  */
 void
 float_data_func (GtkTreeViewColumn *column _U_,
@@ -1336,10 +1336,10 @@ float_data_func (GtkTreeViewColumn *column _U_,
     g_object_set(renderer, "text", buf, NULL);
 }
 
-/* 
+/*
  * This function can be called from gtk_tree_view_column_set_cell_data_func()
  * the user data must be the colum number.
- * Present value as hexadecimal. 
+ * Present value as hexadecimal.
  */
 void
 present_as_hex_func (GtkTreeViewColumn *column _U_,
@@ -1389,10 +1389,10 @@ u64_data_func (GtkTreeViewColumn *column _U_,
     g_object_set(renderer, "text", bp, NULL);
 }
 
-/* 
+/*
  * This function can be called from gtk_tree_view_column_set_cell_data_func()
- * the user data must be the colum number.
- * Renders the const static string whos pointer is stored 
+ * The user data must be the column number.
+ * Renders the const static string whose pointer is stored.
  */
 void
 str_ptr_data_func (GtkTreeViewColumn *column _U_,
@@ -1400,7 +1400,7 @@ str_ptr_data_func (GtkTreeViewColumn *column _U_,
                    GtkTreeModel      *model,
                    GtkTreeIter       *iter,
                    gpointer           user_data)
-{	
+{
     const gchar *str = NULL;
 
     /* The col to get data from is in userdata */
@@ -1431,10 +1431,10 @@ str_ptr_sort_func(GtkTreeModel *model,
     if (str_a == str_b) {
         /* it's worth testing because a lot of rows point to the same data */
         return 0;
-    } 
+    }
     else if (str_a == NULL || str_b == NULL) {
         ret = (str_a == NULL) ? -1 : 1;
-    } 
+    }
     else {
         ret = g_ascii_strcasecmp(str_a,str_b);
     }
@@ -1450,8 +1450,8 @@ str_ptr_sort_func(GtkTreeModel *model,
  * ws_combo_box_new_text_and_pointer_full:
  *
  * Convenience function which constructs a new "text and pointer" combo box, which
- * is a #GtkComboBox just displaying strings and storing a pointer associated with 
- * each combo_box entry; The pointer can be retrieved when an entry is selected. 
+ * is a #GtkComboBox just displaying strings and storing a pointer associated with
+ * each combo_box entry; The pointer can be retrieved when an entry is selected.
  * Also: optionally returns the cell renderer for the combo box.
  * If you use this function to create a text_and_pointer combo_box,
  * you should only manipulate its data source with the
@@ -1498,8 +1498,8 @@ ws_combo_box_new_text_and_pointer_full(GtkCellRenderer **cell_p) {
  * ws_combo_box_new_text_and_pointer:
  *
  * Convenience function which constructs a new "text and pointer" combo box, which
- * is a #GtkComboBox just displaying strings and storing a pointer associated with 
- * each combo_box entry; The pointer can be retrieved when an entry is selected. 
+ * is a #GtkComboBox just displaying strings and storing a pointer associated with
+ * each combo_box entry; The pointer can be retrieved when an entry is selected.
  * If you use this function to create a text_and_pointer combo_box,
  * you should only manipulate its data source with the
  * following convenience functions:
@@ -1520,7 +1520,7 @@ ws_combo_box_new_text_and_pointer(void) {
  * @param combo_box A #GtkComboBox constructed using ws_combo_box_new_text_and_pointer()
  *
  * Clears all the text_and_pointer entries in the text_and_pointer combo_box.
- * Note: A "changed" signal will be emitted after the clear if there was 
+ * Note: A "changed" signal will be emitted after the clear if there was
  * an active (selected) entry before the clear.
  * You should use this function only with combo boxes constructed with
  * ws_combo_box_new_text_and_pointer().
@@ -1534,7 +1534,7 @@ ws_combo_box_clear_text_and_pointer(GtkComboBox *combo_box)
 /**
  * ws_combo_box_append_text_and_pointer_full:
  * @param combo_box A #GtkComboBox constructed using ws_combo_box_new_text_and_pointer()
- * @param parent_iter Parent row for apending; NULL if appending to tree top-level; 
+ * @param parent_iter Parent row for apending; NULL if appending to tree top-level;
  * @param text A string to be displayed as an entry in the dropdown list of the combo_box
  * @param ptr  A pointer to be associated with this entry of the combo_box
  * @param sensitive TRUE/FALSE to set sensitivity of the entry
@@ -1603,7 +1603,7 @@ ws_combo_box_get_active_pointer(GtkComboBox *combo_box, gpointer *ptr)
 
     if (gtk_combo_box_get_active_iter(combo_box, &iter)) {
         store = GTK_TREE_STORE(gtk_combo_box_get_model(combo_box));
-        gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 
+        gtk_tree_model_get(GTK_TREE_MODEL(store), &iter,
                            1, ptr, -1);
         return TRUE;
     }
@@ -1618,7 +1618,7 @@ ws_combo_box_get_active_pointer(GtkComboBox *combo_box, gpointer *ptr)
  *          the index returned is that of the top-level for the acftive entry.
  */
 gint
-ws_combo_box_get_active(GtkComboBox *combo_box) 
+ws_combo_box_get_active(GtkComboBox *combo_box)
 {
     return gtk_combo_box_get_active(combo_box);
 }
