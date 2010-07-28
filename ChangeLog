@@ -1,130 +1,4 @@
 ------------------------------------------------------------------------
-r32445 | gerald | 2010-04-11 08:04:02 -0700 (Sun, 11 Apr 2010) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-04-11]
-------------------------------------------------------------------------
-r32506 | gerald | 2010-04-18 08:04:01 -0700 (Sun, 18 Apr 2010) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-04-18]
-------------------------------------------------------------------------
-r32555 | gerald | 2010-04-25 08:04:08 -0700 (Sun, 25 Apr 2010) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-04-25]
-------------------------------------------------------------------------
-r32631 | gerald | 2010-05-02 08:04:07 -0700 (Sun, 02 May 2010) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-05-02]
-------------------------------------------------------------------------
-r32662 | gerald | 2010-05-04 14:44:03 -0700 (Tue, 04 May 2010) | 19 lines
-Changed paths:
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/plugins/docsis/packet-bpkmreq.c
-   M /trunk-1.0/plugins/docsis/packet-bpkmrsp.c
-   M /trunk-1.0/plugins/docsis/packet-dsaack.c
-   M /trunk-1.0/plugins/docsis/packet-dsarsp.c
-   M /trunk-1.0/plugins/docsis/packet-dscack.c
-   M /trunk-1.0/plugins/docsis/packet-dscrsp.c
-   M /trunk-1.0/plugins/docsis/packet-dsdrsp.c
-   M /trunk-1.0/plugins/docsis/packet-map.c
-   M /trunk-1.0/plugins/docsis/packet-regack.c
-   M /trunk-1.0/plugins/docsis/packet-regrsp.c
-   M /trunk-1.0/plugins/mate/mate.h
-   M /trunk-1.0/plugins/mate/mate_grammar.lemon
-   M /trunk-1.0/plugins/mate/mate_setup.c
-
-Copy over with manual intervention:
-------------------------------------------------------------------------
-r32396 | guy | 2010-04-05 19:49:18 -0700 (Mon, 05 Apr 2010) | 4 lines
-Changed paths:
-   M /trunk/plugins/docsis/packet-bpkmrsp.c
-
-The third argument to val_to_str() is a format string that gets passed
-the value that couldn't be mapped to a string - it's an integer and
-needs to be printed with an integer format.  Fixes bug 4644.
-------------------------------------------------------------------------
-r32398 | morriss | 2010-04-06 06:40:06 -0700 (Tue, 06 Apr 2010) | 1 line
-Changed paths:
-   M /trunk/plugins/docsis/packet-regrsp.c
-
-Don't use %s as the format string in val_to_str().  This fixes the fuzz failure in bug 4646.
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r32665 | gerald | 2010-05-04 16:00:58 -0700 (Tue, 04 May 2010) | 2 lines
-Changed paths:
-   M /trunk-1.0/ChangeLog
-   M /trunk-1.0/NEWS
-   M /trunk-1.0/version.conf
-
-Build 1.0.13.
-
-------------------------------------------------------------------------
-r32674 | gerald | 2010-05-05 08:56:39 -0700 (Wed, 05 May 2010) | 2 lines
-Changed paths:
-   M /trunk-1.0/version.conf
-
-Build 1.0.13.
-
-------------------------------------------------------------------------
-r32675 | gerald | 2010-05-05 09:50:39 -0700 (Wed, 05 May 2010) | 2 lines
-Changed paths:
-   M /trunk-1.0/docbook/release-notes.xml
-
-Release note fix.
-
-------------------------------------------------------------------------
-r32679 | gerald | 2010-05-05 11:24:01 -0700 (Wed, 05 May 2010) | 2 lines
-Changed paths:
-   M /trunk-1.0/config.nmake
-   M /trunk-1.0/configure.in
-   M /trunk-1.0/debian/changelog
-   M /trunk-1.0/docbook/release-notes.xml
-
-1.0.13 -> 1.0.14
-
-------------------------------------------------------------------------
-r32729 | gerald | 2010-05-09 08:04:19 -0700 (Sun, 09 May 2010) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-05-09]
-------------------------------------------------------------------------
-r32833 | gerald | 2010-05-16 08:06:22 -0700 (Sun, 16 May 2010) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-05-16]
-------------------------------------------------------------------------
-r32918 | gerald | 2010-05-23 08:04:11 -0700 (Sun, 23 May 2010) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-05-23]
-------------------------------------------------------------------------
-r33024 | gerald | 2010-05-30 08:04:05 -0700 (Sun, 30 May 2010) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-05-30]
-------------------------------------------------------------------------
 r33110 | gerald | 2010-06-06 08:04:12 -0700 (Sun, 06 Jun 2010) | 1 line
 Changed paths:
    M /trunk-1.0/epan/enterprise-numbers
@@ -372,5 +246,112 @@ we shouldn't rely on getting it pulled in by other shared libraries, as
 ------------------------------------------------------------------------
 
 Update the release notes.
+
+------------------------------------------------------------------------
+r33156 | gerald | 2010-06-07 21:52:51 -0700 (Mon, 07 Jun 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/ChangeLog
+   M /trunk-1.0/NEWS
+
+Update ChangeLog and NEWS.
+
+------------------------------------------------------------------------
+r33162 | gerald | 2010-06-08 11:39:23 -0700 (Tue, 08 Jun 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/version.conf
+
+Build 1.0.14.
+
+------------------------------------------------------------------------
+r33173 | gerald | 2010-06-08 17:06:37 -0700 (Tue, 08 Jun 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/config.nmake
+   M /trunk-1.0/configure.in
+   M /trunk-1.0/debian/changelog
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/version.conf
+
+1.0.14 -> 1.0.15
+
+------------------------------------------------------------------------
+r33216 | gerald | 2010-06-13 08:04:08 -0700 (Sun, 13 Jun 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-06-13]
+------------------------------------------------------------------------
+r33261 | gerald | 2010-06-20 08:04:17 -0700 (Sun, 20 Jun 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-06-20]
+------------------------------------------------------------------------
+r33337 | gerald | 2010-06-27 08:24:16 -0700 (Sun, 27 Jun 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-06-27]
+------------------------------------------------------------------------
+r33427 | gerald | 2010-07-04 08:24:09 -0700 (Sun, 04 Jul 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-07-04]
+------------------------------------------------------------------------
+r33485 | gerald | 2010-07-11 08:24:12 -0700 (Sun, 11 Jul 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-07-11]
+------------------------------------------------------------------------
+r33566 | gerald | 2010-07-18 08:24:10 -0700 (Sun, 18 Jul 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-07-18]
+------------------------------------------------------------------------
+r33626 | gerald | 2010-07-25 08:24:21 -0700 (Sun, 25 Jul 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-07-25]
+------------------------------------------------------------------------
+r33662 | gerald | 2010-07-28 16:39:00 -0700 (Wed, 28 Jul 2010) | 3 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/dissectors/packet-ber.c
+
+Replace get_ber_length() and try_get_ber_length() with versions from the
+trunk.
+
+------------------------------------------------------------------------
+r33663 | gerald | 2010-07-28 16:51:20 -0700 (Wed, 28 Jul 2010) | 16 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/sigcomp-udvm.c
+   M /trunk-1.0/epan/sigcomp_state_hdlr.c
+
+Copy over r33321 from the trunk.
+
+------------------------------------------------------------------------
+r33321 | gerald | 2010-06-25 10:14:41 -0700 (Fri, 25 Jun 2010) | 6 lines
+Changed paths:
+   M /trunk/epan/sigcomp-udvm.c
+   M /trunk/epan/sigcomp_state_hdlr.c
+
+Make sure our addresses are modulo 2^16 in a lot of places. Fixes a
+crash found while fuzzing, and hopefully fixes bug 4867.
+
+In sigcomp_init_udvm() initialize the first 8 bytes of our buffers,
+which squelches a valgrind complaint.
+------------------------------------------------------------------------
+
 
 ------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-Wireshark 1.0.14 Release Notes
+Wireshark 1.0.15 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,36 +15,19 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o The SMB dissector could dereference a NULL pointer. (Bug 4734)
-
-       Versions affected: 0.99.6 to 1.0.13, 1.2.0 to 1.2.8
-
-     o J. Oquendo discovered that the ASN.1 BER dissector could
-       overrun the stack.
-
-       Versions affected: 0.10.13 to 1.0.13, 1.2.0 to 1.2.8
-
-     o The SMB PIPE dissector could dereference a NULL pointer on
-       some platforms.
-
-       Versions affected: 0.8.20 to 1.0.13, 1.2.0 to 1.2.8
-
-     o The SigComp Universal Decompressor Virtual Machine could go
-       into an infinite loop. (Bug 4826)
-
-       Versions affected: 0.10.7 to 1.0.13, 1.2.0 to 1.2.8
-
      o The SigComp Universal Decompressor Virtual Machine could
-       overrun a buffer. (Bug 4837)
+       overrun a buffer. (Bug 4867)
 
-       Versions affected: 0.10.8 to 1.0.13, 1.2.0 to 1.2.8
+       Versions affected: 0.10.8 to 1.0.14, 1.2.0 to 1.2.9
 
-   The following bugs have been fixed:
+       CVE-2010-2287
 
-     o Cannot open file with File -> Open. (Bug 1791)
+     o Due to a regression the ASN.1 BER dissector could overrun the
+       stack.
 
-     o Fedora 13: wireshark fails to build (linking problem). (Bug
-       4815)
+       Versions affected: 0.10.13 to 1.0.14, 1.2.0 to 1.2.9
+
+       CVE-2010-2284
 
   New and Updated Features
 
@@ -56,7 +39,7 @@ What's New
 
   Updated Protocol Support
 
-   ASN.1 BER, SMB, SMB PIPE
+   ASN.1 BER
 
   New and Updated Capture File Support
 
