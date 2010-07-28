@@ -2979,8 +2979,7 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_START_TITLE ": %s\n",
 	  prefs.gui_start_title);
 
-  fprintf(pf, "\n# Show version in start page and main window's title bar.\n");
-  fprintf(pf, "# This can be useful for keeping track of custom builds.\n");
+  fprintf(pf, "\n# Show version in start page, can be useful in custom builds.\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_VERSION_IN_START_PAGE ": %s\n",
 	  prefs.gui_version_in_start_page == TRUE ? "TRUE" : "FALSE");

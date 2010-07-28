@@ -1427,11 +1427,7 @@ set_display_filename(capture_file *cf)
   }
 
   /* window title */
-  if (prefs.gui_version_in_start_page) {
-	  win_name = g_strdup_printf("Wireshark %s %s:  %s", VERSION, wireshark_svnversion, cf_get_display_name(cf));
-  } else {
-	  win_name = g_strdup_printf("Wireshark:  %s", cf_get_display_name(cf));
-  }
+  win_name = g_strdup_printf("%s - Wireshark", cf_get_display_name(cf));
   set_main_window_name(win_name);
   g_free(win_name);
 }
