@@ -1844,6 +1844,8 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             guint16 nbRecords;
 
             nbRecords = tvb_get_ntohs( tvb, offset+4+2 );
+            proto_tree_add_text( icmp6_tree, tvb, offset+4, 2, "Reserved: %d (Should always be zero)",
+                                 tvb_get_ntohs (tvb, offset+4) );
             proto_tree_add_item( icmp6_tree, hf_icmpv6_nor, tvb, offset+4+2, 2, FALSE );
             dissect_mldrv2( tvb, offset+4+2+2, nbRecords, icmp6_tree );
             break;
@@ -1913,6 +1915,8 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             ns = &nd_neighbor_solicit;
             tvb_memcpy(tvb, (guint8 *)ns, offset, sizeof *ns);
+            proto_tree_add_text(icmp6_tree, tvb, offset+4, 4, "Reserved: %d (Should always be zero)",
+                                tvb_get_ntohl (tvb, offset+4));
             proto_tree_add_text(icmp6_tree, tvb,
                                 offset + offsetof(struct nd_neighbor_solicit, nd_ns_target), 16,
 #ifdef INET6
@@ -1968,6 +1972,8 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             rd = &nd_redirect;
             tvb_memcpy(tvb, (guint8 *)rd, offset, sizeof *rd);
+            proto_tree_add_text(icmp6_tree, tvb, offset+4, 4, "Reserved: %d (Should always be zero)",
+                                tvb_get_ntohs (tvb, offset+4));
             proto_tree_add_text(icmp6_tree, tvb,
                                 offset + offsetof(struct nd_redirect, nd_rd_target), 16,
 #ifdef INET6

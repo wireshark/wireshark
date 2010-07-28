@@ -91,6 +91,7 @@ static gint hf_xdmcp_session_id = -1;
 static gint hf_xdmcp_display_number = -1;
 
 static gint ett_xdmcp = -1;
+static gint ett_xdmcp_authentication_names = -1;
 static gint ett_xdmcp_authorization_names = -1;
 static gint ett_xdmcp_connections = -1;
 static gint ett_xdmcp_connection = -1;
@@ -149,6 +150,33 @@ static gint xdmcp_add_bytes(proto_tree *tree, const char *text,
   proto_tree_add_text(tree, tvb, offset, len+2,
 		      "%s (%u byte%s)", text, len, plurality(len, "", "s"));
   return len+2;
+}
+
+static gint xdmcp_add_authentication_names(proto_tree *tree,
+				    tvbuff_t *tvb, gint offset)
+{
+  proto_tree *anames_tree;
+  proto_item *anames_ti;
+  gint anames_len, anames_start_offset;
+
+  anames_start_offset = offset;
+  anames_len = tvb_get_guint8(tvb, offset);
+  anames_ti = proto_tree_add_text(tree, tvb,
+				  anames_start_offset, -1,
+				  "Authentication names (%d)",
+				  anames_len);
+  anames_tree = proto_item_add_subtree(anames_ti,
+				       ett_xdmcp_authentication_names);
+
+  anames_len = tvb_get_guint8(tvb, offset);
+  offset++;
+  while (anames_len > 0) {
+    offset += xdmcp_add_string(anames_tree, hf_xdmcp_authentication_name,
+			       tvb, offset);
+    anames_len--;
+  }
+  proto_item_set_len(anames_ti, offset - anames_start_offset);
+  return offset - anames_start_offset;
 }
 
 static gint xdmcp_add_authorization_names(proto_tree *tree,
@@ -263,7 +291,7 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case XDMCP_BROADCAST_QUERY:
       case XDMCP_QUERY:
       case XDMCP_INDIRECT_QUERY:
-	offset += xdmcp_add_authorization_names(xdmcp_tree, tvb, offset);
+	offset += xdmcp_add_authentication_names(xdmcp_tree, tvb, offset);
 	break;
 
       case XDMCP_WILLING:
@@ -500,6 +528,7 @@ void proto_register_xdmcp(void)
   /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_xdmcp,
+    &ett_xdmcp_authentication_names,
     &ett_xdmcp_authorization_names,
     &ett_xdmcp_connections,
     &ett_xdmcp_connection

@@ -14,7 +14,7 @@
  *    Based on PKT-SP-DQOS-I09-040402 (April 2, 2004)
  *
  *    PacketCable Multimedia Specification
- *    Based on PKT-SP-MM-I04-080522
+ *    Based on PKT-SP-MM-I04-080522 and PKT-SP-MM-I05-091029
  *
  *    www.packetcable.com
  *
@@ -724,6 +724,7 @@ static gint hf_cops_pcmm_ass_min_rtr_packet_size = -1;
 static gint hf_cops_pcmm_max_concat_burst = -1;
 static gint hf_cops_pcmm_req_att_mask = -1;
 static gint hf_cops_pcmm_forbid_att_mask = -1;
+static gint hf_cops_pcmm_att_aggr_rule_mask = -1;
 static gint hf_cops_pcmm_nominal_polling_interval = -1;
 static gint hf_cops_pcmm_tolerated_poll_jitter = -1;
 static gint hf_cops_pcmm_unsolicited_grant_size = -1;
@@ -748,6 +749,7 @@ static gint hf_cops_pcmm_synch_options_report_type = -1;
 static gint hf_cops_pcmm_synch_options_synch_type = -1;
 static gint hf_cops_pcmm_msg_receipt_key = -1;
 static gint hf_cops_pcmm_userid = -1;
+static gint hf_cops_pcmm_sharedresourceid = -1;
 
 
 /* Initialize the subtree pointers */
@@ -909,7 +911,6 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   op_code = tvb_get_guint8(tvb, 1);
-  if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "COPS %s",
                  val_to_str(op_code, cops_op_code_vals, "Unknown Op Code"));
 
@@ -2320,6 +2321,11 @@ void proto_register_cops(void)
 		FT_UINT16, BASE_DEC, NULL, 0,
 		"PacketCable Multimedia Committed Envelope Forbidden Attribute Mask", HFILL }
 	},
+    { &hf_cops_pcmm_att_aggr_rule_mask,
+		{ "Attribute Aggregation Rule Mask", "cops.pc_mm_aarmask",
+		FT_UINT16, BASE_DEC, NULL, 0,
+		"PacketCable Multimedia Committed Envelope Attribute Aggregation Rule Mask", HFILL }
+    },
 
     { &hf_cops_pcmm_nominal_polling_interval,
 	    { "Nominal Polling Interval", "cops.pc_mm_npi",
@@ -2455,6 +2461,12 @@ void proto_register_cops(void)
     	{ "UserID", "cops.pc_mm_userid",
     	FT_STRING, BASE_NONE, NULL, 0,
     	"PacketCable Multimedia UserID", HFILL }
+    },
+
+    { &hf_cops_pcmm_sharedresourceid,
+	    { "SharedResourceID", "cops.pc_mm_sharedresourceid",
+	    FT_UINT32, BASE_HEX, NULL, 0,
+	    "PacketCable Multimedia SharedResourceID", HFILL }
     },
 
     /* End of addition for PacketCable */
@@ -2746,12 +2758,9 @@ cops_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8 op
      g_snprintf(info,sizeof(info),"COPS %-20s - %s",val_to_str(op_code,cops_op_code_vals, "Unknown"),
 		val_to_str(code16,table_cops_dqos_transaction_id, "Unknown"));
 
-     if (check_col(pinfo->cinfo, COL_INFO)) {
           col_clear(pinfo->cinfo, COL_INFO);
           col_add_str(pinfo->cinfo, COL_INFO,info);
      }
-
-}
 
 /* Cops - Section : Subscriber IDv4 */
 static void
@@ -3142,12 +3151,9 @@ cops_mm_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8
      g_snprintf(info,sizeof(info),"COPS %-20s - %s",val_to_str(op_code,cops_op_code_vals, "Unknown"),
 		val_to_str(code16,table_cops_mm_transaction_id, "Unknown"));
 
-     if (check_col(pinfo->cinfo, COL_INFO)) {
           col_clear(pinfo->cinfo, COL_INFO);
           col_add_str(pinfo->cinfo, COL_INFO,info);
      }
-
-}
 
 /* Cops - Section : AMID */
 static void
@@ -3552,7 +3558,7 @@ cops_docsis_service_class_name(tvbuff_t *tvb, proto_tree *st, guint object_len, 
 
 /* Cops - Section : Best Effort Service */
 static void
-cops_best_effort_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_best_effort_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
 
@@ -3568,7 +3574,7 @@ cops_best_effort_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 off
      offset += 3;
 
      /* Authorized Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Authorized Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 36 : 32, "Authorized Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
@@ -3610,10 +3616,16 @@ cops_best_effort_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 off
 	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
 	 offset += 4;
 
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
+
      if (n < 56) return;
 
      /* Reserved Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Reserved Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 36 : 32, "Reserved Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
@@ -3655,10 +3667,16 @@ cops_best_effort_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 off
 	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
 	 offset += 4;
 
+     if (i05) {
+         /* Attribute Aggregation Rule Mask */
+         info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+         offset += 4;
+     }
+
      if (n < 80) return;
 
      /* Committed Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Committed Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 36 : 32, "Committed Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
@@ -3699,11 +3717,17 @@ cops_best_effort_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 off
 	 /* Forbidden Attribute Mask */
 	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
 	 offset += 4;
+
+     if (i05) {
+         /* Attribute Aggregation Rule Mask */
+         info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+         offset += 4;
+     }
 }
 
 /* Cops - Section : Non-Real-Time Polling Service */
 static void
-cops_non_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_non_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
 
@@ -3719,7 +3743,7 @@ cops_non_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, g
      offset += 3;
 
      /* Authorized Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 28, "Authorized Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Authorized Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
@@ -3765,10 +3789,16 @@ cops_non_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, g
 	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
 	 offset += 4;
 
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
+
      if (n < 64) return;
 
      /* Reserved Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Reserved Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Reserved Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
@@ -3813,11 +3843,17 @@ cops_non_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, g
 	 /* Forbidden Attribute Mask */
 	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
 	 offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 92) return;
 
      /* Committed Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Committed Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Committed Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
@@ -3862,11 +3898,17 @@ cops_non_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, g
 	 /* Forbidden Attribute Mask */
 	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
 	 offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 }
 
 /* Cops - Section : Real-Time Polling Service */
 static void
-cops_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
 
@@ -3882,7 +3924,7 @@ cops_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint
      offset += 3;
 
      /* Authorized Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 28, "Authorized Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Authorized Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -3925,10 +3967,16 @@ cops_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint
      info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
      offset += 4;
 
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
+
      if (n < 64) return;
 
      /* Reserved Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Reserved Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Reserved Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -3970,11 +4018,17 @@ cops_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint
 	 /* Forbidden Attribute Mask */
 	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
 	 offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 92) return;
 
      /* Committed Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Committed Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Committed Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -4016,11 +4070,17 @@ cops_real_time_polling_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint
 	 /* Forbidden Attribute Mask */
 	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
 	 offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 }
 
 /* Cops - Section : Unsolicited Grant Service */
 static void
-cops_unsolicited_grant_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_unsolicited_grant_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
 
@@ -4036,7 +4096,7 @@ cops_unsolicited_grant_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint
      offset += 3;
 
      /* Authorized Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 16, "Authorized Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 28 : 24, "Authorized Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -4069,11 +4129,17 @@ cops_unsolicited_grant_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint
 	 /* Forbidden Attribute Mask */
 	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
 	 offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 40) return;
 
      /* Reserved Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 16, "Reserved Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 28 : 24, "Reserved Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -4106,11 +4172,17 @@ cops_unsolicited_grant_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint
 	 /* Forbidden Attribute Mask */
 	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
 	 offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 56) return;
 
      /* Committed Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 16, "Committed Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 28 : 24, "Committed Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -4143,11 +4215,17 @@ cops_unsolicited_grant_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint
 	 /* Forbidden Attribute Mask */
 	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
 	 offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 }
 
 /* Cops - Section : Unsolicited Grant Service with Activity Detection */
 static void
-cops_ugs_with_activity_detection_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_ugs_with_activity_detection_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
 
@@ -4163,7 +4241,7 @@ cops_ugs_with_activity_detection_i04(tvbuff_t *tvb, proto_tree *st, guint n, gui
      offset += 3;
 
      /* Authorized Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Authorized Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 36 : 32, "Authorized Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -4204,11 +4282,17 @@ cops_ugs_with_activity_detection_i04(tvbuff_t *tvb, proto_tree *st, guint n, gui
 	 /* Forbidden Attribute Mask */
 	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
 	 offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 56) return;
 
      /* Reserved Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Reserved Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 36 : 32, "Reserved Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -4249,11 +4333,17 @@ cops_ugs_with_activity_detection_i04(tvbuff_t *tvb, proto_tree *st, guint n, gui
 	 /* Forbidden Attribute Mask */
 	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
 	 offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 80) return;
 
      /* Committed Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Committed Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 36 : 32, "Committed Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Request Transmission Policy */
@@ -4294,11 +4384,17 @@ cops_ugs_with_activity_detection_i04(tvbuff_t *tvb, proto_tree *st, guint n, gui
 	 /* Forbidden Attribute Mask */
 	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
 	 offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 }
 
 /* Cops - Section : Downstream Service */
 static void
-cops_downstream_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+cops_downstream_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
 
@@ -4314,7 +4410,7 @@ cops_downstream_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offs
      offset += 3;
 
      /* Authorized Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Authorized Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Authorized Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
@@ -4363,11 +4459,17 @@ cops_downstream_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offs
 	 /* Forbidden Attribute Mask */
 	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
 	 offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 56) return;
 
      /* Reserved Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Reserved Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Reserved Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
@@ -4416,11 +4518,17 @@ cops_downstream_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offs
 	 /* Forbidden Attribute Mask */
 	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
 	 offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 
      if (n < 80) return;
 
      /* Committed Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, 24, "Committed Envelope");
+     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Committed Envelope");
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
      /* Traffic Priority */
@@ -4469,6 +4577,12 @@ cops_downstream_service_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offs
 	 /* Forbidden Attribute Mask */
 	 info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
 	 offset += 4;
+
+     if (i05) {
+       /* Attribute Aggregation Rule Mask */
+       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+       offset += 4;
+     }
 }
 
 /* Cops - Section : Upstream Drop */
@@ -5499,6 +5613,20 @@ cops_userid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      info_to_display(tvb, stt, offset, n-4, "UserID", NULL, FMT_STR, &hf_cops_pcmm_userid);
 }
 
+/* Cops - Section : SharedResourceID */
+static void
+cops_sharedresourceid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+
+     proto_tree *stt;
+
+     /* Create a subtree */
+     stt = info_to_cops_subtree(tvb,st,n,offset,"SharedResourceID");
+     offset += 4;
+
+     /* SharedResourceID */
+     info_to_display(tvb,stt,offset,4,"SharedResourceID", NULL,FMT_HEX,&hf_cops_pcmm_sharedresourceid);
+}
+
 /* PacketCable D-QoS S-Num/S-Type globs */
 #define PCDQ_TRANSACTION_ID              0x0101
 #define PCDQ_SUBSCRIBER_IDv4             0x0201
@@ -5655,6 +5783,7 @@ decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 offset, proto_t
 #define PCMM_SYNCH_OPTIONS                 0x1201
 #define PCMM_MSG_RECEIPT_KEY               0x1301
 #define PCMM_USERID                        0x1501
+#define PCMM_SHAREDRESOURCEID              0x1601
 
 
 static void
@@ -5722,38 +5851,50 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                cops_docsis_service_class_name(tvb, tree, object_len, offset);
                break;
         case PCMM_BEST_EFFORT_SERVICE:
-		       if (object_len == 40 || object_len == 72 || object_len == 104)
-		           cops_best_effort_service_i04(tvb, tree, object_len, offset);
+		       if (object_len == 44 || object_len == 80 || object_len == 116)
+			   cops_best_effort_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+		       else if (object_len == 40 || object_len == 72 || object_len == 104)
+			   cops_best_effort_service_i04_i05(tvb, tree, object_len, offset, FALSE);
 		       else
 		    	   cops_best_effort_service(tvb, tree, object_len, offset);
 		       break;
         case PCMM_NON_REAL_TIME_POLLING_SERVICE:
-        	   if (object_len == 44 || object_len == 80 || object_len == 116)
-                   cops_non_real_time_polling_service_i04(tvb, tree, object_len, offset);
+        	   if (object_len == 48 || object_len == 88 || object_len == 128)
+			   cops_non_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+        	   else if (object_len == 44 || object_len == 80 || object_len == 116)
+			   cops_non_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, FALSE);
         	   else
         		   cops_non_real_time_polling_service(tvb, tree, object_len, offset);
                break;
         case PCMM_REAL_TIME_POLLING_SERVICE:
-        	   if (object_len == 44 || object_len == 80 || object_len == 116)
-                   cops_real_time_polling_service_i04(tvb, tree, object_len, offset);
+        	   if (object_len == 48 || object_len == 88 || object_len == 128)
+			   cops_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+        	   else if (object_len == 44 || object_len == 80 || object_len == 116)
+			   cops_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, FALSE);
         	   else
         		   cops_real_time_polling_service(tvb, tree, object_len, offset);
                break;
         case PCMM_UNSOLICITED_GRANT_SERVICE:
-        	   if (object_len == 32 || object_len == 56 || object_len == 80)
-                   cops_unsolicited_grant_service_i04(tvb, tree, object_len, offset);
+        	   if (object_len == 36 || object_len == 64 || object_len == 92)
+			  cops_unsolicited_grant_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+        	   else if (object_len == 32 || object_len == 56 || object_len == 80)
+			  cops_unsolicited_grant_service_i04_i05(tvb, tree, object_len, offset, FALSE);
         	   else
         		   cops_unsolicited_grant_service(tvb, tree, object_len, offset);
         	   break;
         case PCMM_UGS_WITH_ACTIVITY_DETECTION:
-        	   if (object_len == 40 || object_len == 72 || object_len == 104)
-                   cops_ugs_with_activity_detection_i04(tvb, tree, object_len, offset);
+        	   if (object_len == 44 || object_len == 80 || object_len == 116)
+			  cops_ugs_with_activity_detection_i04_i05(tvb, tree, object_len, offset, TRUE);
+        	   else if (object_len == 40 || object_len == 72 || object_len == 104)
+			  cops_ugs_with_activity_detection_i04_i05(tvb, tree, object_len, offset, FALSE);
         	   else
         		   cops_ugs_with_activity_detection(tvb, tree, object_len, offset);
         	   break;
         case PCMM_DOWNSTREAM_SERVICE:
-        	   if (object_len == 40 || object_len == 72 || object_len == 104)
-                   cops_downstream_service_i04(tvb, tree, object_len, offset);
+        	   if (object_len == 48 || object_len == 88 || object_len == 128)
+			   cops_downstream_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+        	   else if (object_len == 40 || object_len == 72 || object_len == 104)
+			   cops_downstream_service_i04_i05(tvb, tree, object_len, offset, FALSE);
         	   else
         		   cops_downstream_service(tvb, tree, object_len, offset);
         	   break;
@@ -5799,6 +5940,9 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         case PCMM_USERID:
 			   cops_userid(tvb, tree, object_len, offset);
 			   break;
+        case PCMM_SHAREDRESOURCEID:
+               cops_sharedresourceid(tvb, tree, object_len, offset);
+               break;
 
        }
 
