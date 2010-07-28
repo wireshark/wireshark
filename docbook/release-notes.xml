@@ -87,6 +87,22 @@ Wireshark Info
           -->
         </listitem>
 
+        <listitem>
+          <para>
+            The IPMI dissector could go into an infinite loop.
+            <!-- Fixed in trunk: r33637 -->
+            <!-- Fixed in trunk-1.2: r33653 -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5053">Bug
+            5053</ulink>) -->
+          </para>
+          <para>Versions affected: 1.2.0 to 1.2.9</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+          </para>
+          -->
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -186,7 +202,9 @@ There are no new protocols in this release.
 ASN.1 BER,
 GSM A RR,
 IAX2,
+IPMI,
 OMAPI,
+PRES,
 SCSI,
 SMB
 
