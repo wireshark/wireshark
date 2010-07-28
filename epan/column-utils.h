@@ -171,7 +171,7 @@ extern void	col_append_str(column_info *cinfo, gint col, const gchar *str);
  * @param format the format string
  * @param ... the variable number of parameters
  */
-extern void	col_append_fstr(column_info *cinfo, gint col, const gchar *format, ...)
+extern void	col_append_fstr(column_info *cinfo, const gint col, const gchar *format, ...)
     GNUC_FORMAT_CHECK(printf, 3, 4);
 
 /** Prepend the given text to a column element, the text will be formatted and copied.
@@ -204,7 +204,7 @@ extern void	col_prepend_fence_fstr(column_info *cinfo, gint col, const gchar *fo
  * @param sep the separator string or NULL for default: ", "
  * @param str the string to append
  */
-extern void	col_append_sep_str(column_info *cinfo, gint col, const gchar *sep,
+extern void	col_append_sep_str(column_info *cinfo, const gint col, const gchar *sep,
 		const gchar *str);
 
 /** Append the given text (prepended by a separator) to a column element.
