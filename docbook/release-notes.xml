@@ -32,13 +32,13 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed. See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2010-06.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2010-08.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
         <listitem>
           <para>
-            The SigComp Universal Decompressor Virtual Machine could crash.
+            The SigComp Universal Decompressor Virtual Machine could overrun a buffer.
             <!-- Fixed in trunk: r33321 -->
             <!-- Fixed in trunk-1.2: r33547 -->
             <!-- Fixed in trunk-1.0: ??? -->
@@ -46,11 +46,9 @@ Wireshark Info
             4867</ulink>)
           </para>
           <para>Versions affected: 0.10.8 to 1.0.14, 1.2.0 to 1.2.9</para>
-          <!--
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-2287">CVE-2010-2287</ulink>
           </para>
-          -->
         </listitem>
 
         <listitem>
@@ -58,11 +56,10 @@ Wireshark Info
             The GSM A RR dissector could crash.
             <!-- Fixed in trunk: r33280 -->
             <!-- Fixed in trunk-1.2: r33554 -->
-            <!-- Fixed in trunk-1.0: ??? -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4897">Bug
             4897</ulink>)
           </para>
-          <para>Versions affected: ? to ?, ? to ?</para>
+          <para>Versions affected: 1.2.2 to 1.2.9</para>
           <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
@@ -79,12 +76,10 @@ Wireshark Info
             <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4984">Bug
             4984</ulink>) -->
           </para>
-          <para>Versions affected: 1.0.14, 1.2.9</para>
-          <!--
+          <para>Versions affected: 0.10.13 to 1.0.14, 1.2.0 to 1.2.9</para>
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-2284">CVE-2010-2284</ulink>
           </para>
-          -->
         </listitem>
 
         <listitem>
@@ -207,12 +202,14 @@ There are no new protocols in this release.
 
 ASN.1 BER,
 GSM A RR,
+GTP,
 IAX2,
 IPMI,
 OMAPI,
 PRES,
 SCSI,
-SMB
+SMB,
+UNISTIM
 
     </para>
     </section>
@@ -220,6 +217,7 @@ SMB
     <section id="NewCapture"><title>Updated Capture File Support</title>
     <para>
 
+There are no new or updated capture file formats in this release.
 
     </para>
     </section>

@@ -1,4 +1,4 @@
-Wireshark 1.2.9 Release Notes
+Wireshark 1.2.10 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,74 +15,56 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o The SMB dissector could dereference a NULL pointer. (Bug 4734)
-
-       Versions affected: 0.99.6 to 1.0.13, 1.2.0 to 1.2.8
-
-     o J. Oquendo discovered that the ASN.1 BER dissector could
-       overrun the stack.
-
-       Versions affected: 0.10.13 to 1.0.13, 1.2.0 to 1.2.8
-
-     o The SMB PIPE dissector could dereference a NULL pointer on
-       some platforms.
-
-       Versions affected: 0.8.20 to 1.0.13, 1.2.0 to 1.2.8
-
-     o The SigComp Universal Decompressor Virtual Machine could go
-       into an infinite loop. (Bug 4826)
-
-       Versions affected: 0.10.7 to 1.0.13, 1.2.0 to 1.2.8
-
      o The SigComp Universal Decompressor Virtual Machine could
-       overrun a buffer. (Bug 4837)
+       overrun a buffer. (Bug 4867)
 
-       Versions affected: 0.10.8 to 1.0.13, 1.2.0 to 1.2.8
+       Versions affected: 0.10.8 to 1.0.14, 1.2.0 to 1.2.9
+
+       CVE-2010-2287
+
+     o The GSM A RR dissector could crash. (Bug 4897)
+
+       Versions affected: 1.2.2 to 1.2.9
+
+     o Due to a regression the ASN.1 BER dissector could overrun the
+       stack.
+
+       Versions affected: 0.10.13 to 1.0.14, 1.2.0 to 1.2.9
+
+       CVE-2010-2284
+
+     o The IPMI dissector could go into an infinite loop.
+
+       Versions affected: 1.2.0 to 1.2.9
 
    The following bugs have been fixed:
 
-     o Cannot open file with File -> Open. (Bug 1791)
+     o Wireshark crashes after configuring new Information column.
+       (Bug 4854)
 
-     o Application crash when changing real-time option. (Bug 4035)
+     o Crash triggered when changing display filter from right-mouse
+       pop-up menu via packet-list. (Bug 4860)
 
-     o Crash in filter autocompletion. (Bug 4306)
+     o Wireshark crash selecting Inter-Asterisk exchange v2 packet
+       data. (Bug 4868)
 
-     o The XML dissector doesn't allow dots (".") in tags. (Bug 4405)
+     o zlib-1.2.5 cause tshark to stop live capture. (Bug 4916)
 
-     o Live capture stops when using zlib 1.2.5. (Bug 4708)
+     o Crash when adding SNMP users. (Bug 4926)
 
-     o Want to be able to apply decode as to Data Portion of Lan
-       Trace. (Bug 4721)
+     o Wireshark via ssh -X on ipv6 link-local address fails to allow
+       capture. (Bug 4945)
 
-     o SABP short pdu (packet_per.c). (Bug 4743)
+     o OMAPI dissector fails to parse combined initialization
+       messages. (Bug 4982)
 
-     o Kerberos pre-auth type constants - MS extensions are wrong.
-       (Bug 4752)
+     o QUERY_FS_INFO for Macintosh level 0x301 - MacSupportFlags
+       decodes wrong. (Bug 4993)
 
-     o Check HTTP Content-Length parsing for overflow. (Bug 4758)
+     o SCSI dissector misidentifies ATA PASSTHROUGH command as ACCESS
+       CONTROL IN. (Bug 5037)
 
-     o Wrong variable used for proto_tree_add_text() in ptp
-       dissector. (Bug 4773)
-
-     o Crash when close window frame of gtk file chooser. (Bug 4778)
-
-     o text2pcap expects \n delimited text (instead of \r\n) on
-       win32. (Bug 4780)
-
-     o Wrong decoding for BGP ORF. (Bug 4782)
-
-     o Crash when Ctrl-Backspacing the display filter. (Bug 4797)
-
-     o Acker AFI field incorrect size in PGM dissector. (Bug 4798)
-
-     o Fedora 13: wireshark fails to build (linking problem). (Bug
-       4815)
-
-     o The NFS FH hash (nfs.fh.hash) incorrectly matches multiple
-       filehandles. (Bug 4839)
-
-     o AES-CTR decoding not working, (dissectors/packet_ipsec.c using
-       gcrypt). (Bug 4838)
+     o Wrong decoding of GTP Prime (GTP') packets. (Bug 5055)
 
   New and Updated Features
 
@@ -94,12 +76,12 @@ What's New
 
   Updated Protocol Support
 
-   ASN.1 BER, BGP, HTTP, IGMP, IPsec, Kerberos, NFS, PGM, PTP, SABP,
-   SigComp, SMB, TCAP, XML,
+   ASN.1 BER, GSM A RR, GTP, IAX2, IPMI, OMAPI, PRES, SCSI, SMB,
+   UNISTIM
 
   Updated Capture File Support
 
-   ERF, PacketLogger.
+   There are no new or updated capture file formats in this release.
 
 Getting Wireshark
 
