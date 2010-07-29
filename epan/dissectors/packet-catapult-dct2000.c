@@ -1515,7 +1515,7 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* Create tty tree. */
     ti = proto_tree_add_item(tree, hf_catapult_dct2000_tty, tvb, offset, -1, FALSE);
-    tty_tree = proto_item_add_subtree(ti, ett_catapult_dct2000);
+    tty_tree = proto_item_add_subtree(ti, ett_catapult_dct2000_tty);
 
     /* Show the tty lines one at a time. */
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -1524,15 +1524,35 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         /* Extract & add the string. */
         char *string = (char*)tvb_get_ephemeral_string(tvb, offset, linelen);
-        proto_tree_add_string_format(tty_tree, hf_catapult_dct2000_tty_line,
-                                     tvb, offset,
-                                     linelen, string,
-                                     "%s", string);
+        if (isascii(string[0])) {
+            /* If looks printable treat as string... */
+            proto_tree_add_string_format(tty_tree, hf_catapult_dct2000_tty_line,
+                                         tvb, offset,
+                                         linelen, string,
+                                         "%s", string);
+        }
+        else {
+            /* Otherwise show as $hex */
+            int n, idx;
+            char *hex_string;
+            int tty_string_length = tvb_length_remaining(tvb, offset);
+            hex_string = ep_alloc(1+(2*tty_string_length)+1);
+
+            idx = sprintf(hex_string, "$");
+
+            /* Write hex out to new string */
+            for (n=0; n < tty_string_length; n++) {
+                idx += sprintf(hex_string+idx, "%02x",
+                               tvb_get_guint8(tvb, offset+n));
+            }
+            string = hex_string;
+        }
         lines++;
 
         /* Show first line in info column */
         if (lines == 1) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "tty (%s", string);
+            proto_item_append_text(ti, " (%s)", string);
         }
 
         /* Move onto next line. */
