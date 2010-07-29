@@ -87,7 +87,8 @@ setup_gtk_node_pr(stat_node* node)
 			parent = node->parent->pr->iter;
 		}
 		gtk_tree_store_append (node->st->pr->store, node->pr->iter, parent);
-		gtk_tree_store_set(node->st->pr->store, node->pr->iter, TITLE_COLUMN, node->name, RATE_COLUMN, "", COUNT_COLUMN, "", -1);
+		gtk_tree_store_set(node->st->pr->store, node->pr->iter,
+				   TITLE_COLUMN, node->name, RATE_COLUMN, "", COUNT_COLUMN, "", -1);
 	}
 }
 
@@ -105,10 +106,10 @@ draw_gtk_node(stat_node* node)
 
 	if (node->st->pr->store && node->pr->iter) {
 		gtk_tree_store_set(node->st->pr->store, node->pr->iter,
-						   RATE_COLUMN, rate,
-						   COUNT_COLUMN, value,
-						   PERCENT_COLUMN, percent,
-						   -1);
+				   RATE_COLUMN, rate,
+				   COUNT_COLUMN, value,
+				   PERCENT_COLUMN, percent,
+				   -1);
 	}
 
 	if (node->children) {
@@ -128,9 +129,9 @@ draw_gtk_tree(void *psp)
 
 		if (child->pr->iter && st->pr->store) {
 			gtk_tree_view_expand_row(GTK_TREE_VIEW(st->pr->tree),
-								 gtk_tree_model_get_path(GTK_TREE_MODEL(st->pr->store),
-														 child->pr->iter),
-								 FALSE);
+						 gtk_tree_model_get_path(GTK_TREE_MODEL(st->pr->store),
+									 child->pr->iter),
+						 FALSE);
 		}
 	}
 
@@ -255,7 +256,7 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 	scr_win = scrolled_window_new(NULL, NULL);
 
 	st->pr->store = gtk_tree_store_new (N_COLUMNS, G_TYPE_STRING, G_TYPE_STRING,
-									G_TYPE_STRING, G_TYPE_STRING);
+					    G_TYPE_STRING, G_TYPE_STRING);
 
 	st->pr->tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (st->pr->store));
 	g_object_unref(G_OBJECT(st->pr->store));
@@ -265,16 +266,16 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 	/* the columns */
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Topic / Item", renderer,
-													   "text", TITLE_COLUMN,
-													   NULL);
+							   "text", TITLE_COLUMN,
+							   NULL);
 	gtk_tree_view_column_set_resizable (column,TRUE);
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
 
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Count", renderer,
-													   "text", COUNT_COLUMN,
-													   NULL);
+							   "text", COUNT_COLUMN,
+							   NULL);
 
 	gtk_tree_view_column_set_resizable (column,TRUE);
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
@@ -282,16 +283,16 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Rate (ms)", renderer,
-													   "text", RATE_COLUMN,
-													   NULL);
+							   "text", RATE_COLUMN,
+							   NULL);
 	gtk_tree_view_column_set_resizable (column,TRUE);
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
 
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Percent", renderer,
-													   "text", PERCENT_COLUMN,
-													   NULL);
+							   "text", PERCENT_COLUMN,
+							   NULL);
 	gtk_tree_view_column_set_resizable(column,TRUE);
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
@@ -360,13 +361,13 @@ register_tap_listener_stats_tree_stat(void)
 {
 
 	stats_tree_presentation(register_gtk_stats_tree_tap,
-							setup_gtk_node_pr,
-                            NULL,
-							NULL,
-							NULL,
-                            NULL,
-                            free_tree_presentation,
-                            NULL,
-                            NULL,
-                            NULL);
+				setup_gtk_node_pr,
+				NULL,
+				NULL,
+				NULL,
+				NULL,
+				free_tree_presentation,
+				NULL,
+				NULL,
+				NULL);
 }
