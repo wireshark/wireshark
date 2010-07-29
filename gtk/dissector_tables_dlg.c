@@ -76,6 +76,24 @@ struct dissector_tables_tree_info {
 
 typedef struct dissector_tables_tree_info dissector_tables_tree_info_t;
 
+static gint
+ui_sort_func(GtkTreeModel *model,
+             GtkTreeIter  *a,
+             GtkTreeIter  *b,
+             gpointer      user_data)
+{
+    gchar *stra, *strb;
+
+    /* The col to get data from is in userdata */
+    gint data_column = GPOINTER_TO_INT(user_data);
+
+    gtk_tree_model_get(model, a, data_column, &stra, -1);
+    gtk_tree_model_get(model, b, data_column, &strb, -1);
+
+    return strcmp(stra, strb);
+}
+
+
 /*
  * Struct to hold the pointer to the trees
  * for dissector tables.
@@ -88,8 +106,10 @@ struct dissector_tables_trees {
 typedef struct dissector_tables_trees dissector_tables_trees_t;
 
 static void 
-proto_add_to_list(dissector_tables_tree_info_t *tree_info, GtkTreeStore *store, 
-                  gchar *str, const gchar *proto_name)
+proto_add_to_list(dissector_tables_tree_info_t *tree_info,
+                  GtkTreeStore *store, 
+                  gchar        *str,
+                  const gchar  *proto_name)
 {
 #if GTK_CHECK_VERSION(2,10,0)
     gtk_tree_store_insert_with_values(store, &tree_info->new_iter, &tree_info->iter, G_MAXINT,
@@ -107,7 +127,8 @@ proto_add_to_list(dissector_tables_tree_info_t *tree_info, GtkTreeStore *store,
 }
 
 static void
-decode_proto_add_to_list (const gchar *table_name _U_, ftenum_t selector_type _U_, gpointer key, gpointer value _U_, gpointer user_data)
+decode_proto_add_to_list (const gchar *table_name _U_, ftenum_t selector_type _U_,
+                          gpointer key, gpointer value _U_, gpointer user_data)
 {
     GtkTreeStore       *store;
     const gchar        *proto_name;
@@ -131,7 +152,8 @@ decode_proto_add_to_list (const gchar *table_name _U_, ftenum_t selector_type _U
     case FT_UINT24:
     case FT_UINT32:
         port = GPOINTER_TO_UINT(key);
-        str = g_strdup_printf ("%10d", port);  /* Hack: Use fixed width string so sort is numeric */
+        /* Hack: Use fixed width rj str so alpha sort (strcmp) will sort field numerically */
+        str = g_strdup_printf ("%10d", port);
         proto_add_to_list(tree_info, store, str, proto_name);
         g_free (str);
         break;
@@ -149,8 +171,10 @@ decode_proto_add_to_list (const gchar *table_name _U_, ftenum_t selector_type _U
 }
 
 static void 
-table_name_add_to_list(dissector_tables_tree_info_t  *tree_info, GtkWidget *tree_view, 
-                       const char *table_name, const char *ui_name)
+table_name_add_to_list(dissector_tables_tree_info_t  *tree_info,
+                       GtkWidget  *tree_view, 
+                       const char *table_name,
+                       const char *ui_name)
 {
     GtkTreeStore *store;
 
@@ -237,6 +261,8 @@ init_table(void)
      * cell_renderer to the first column of the model */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("UI name", renderer, "text", TABLE_UI_NAME_COL, NULL);
+    gtk_tree_sortable_set_sort_func(sortable, TABLE_UI_NAME_COL, 
+                                    ui_sort_func, GINT_TO_POINTER(TABLE_UI_NAME_COL), NULL);
     gtk_tree_view_column_set_sort_column_id(column, TABLE_UI_NAME_COL);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
@@ -246,6 +272,8 @@ init_table(void)
 
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("Short name", renderer, "text", TABLE_SHORT_NAME_COL, NULL);
+    gtk_tree_sortable_set_sort_func(sortable, TABLE_SHORT_NAME_COL, 
+                                    ui_sort_func, GINT_TO_POINTER(TABLE_SHORT_NAME_COL), NULL);
     gtk_tree_view_column_set_sort_column_id(column, TABLE_SHORT_NAME_COL);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
@@ -261,12 +289,12 @@ static void
 dissector_tables_dlg_init(void)
 {
     dissector_tables_trees_t dis_tbl_trees;
-    GtkWidget *vbox;
-    GtkWidget *hbox;
-    GtkWidget *main_nb;
-    GtkWidget *scrolled_window;
+    GtkWidget       *vbox;
+    GtkWidget       *hbox;
+    GtkWidget       *main_nb;
+    GtkWidget       *scrolled_window;
     GtkTreeSortable *sortable;
-    GtkWidget *temp_page, *tmp;
+    GtkWidget       *temp_page, *tmp;
 
     dissector_tables_dlg_w = dlg_window_new("Dissector tables");  /* transient_for top_level */
     gtk_window_set_destroy_with_parent (GTK_WINDOW(dissector_tables_dlg_w), TRUE);
