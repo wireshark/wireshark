@@ -1536,14 +1536,15 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             int n, idx;
             char *hex_string;
             int tty_string_length = tvb_length_remaining(tvb, offset);
-            hex_string = ep_alloc(1+(2*tty_string_length)+1);
+            int hex_string_length = 1+(2*tty_string_length)+1;
+            hex_string = ep_alloc(hex_string_length);
 
-            idx = sprintf(hex_string, "$");
+            idx = g_snprintf(hex_string, hex_string_length, "$");
 
             /* Write hex out to new string */
             for (n=0; n < tty_string_length; n++) {
-                idx += sprintf(hex_string+idx, "%02x",
-                               tvb_get_guint8(tvb, offset+n));
+                idx += g_snprintf(hex_string+idx, 3, "%02x",
+                                  tvb_get_guint8(tvb, offset+n));
             }
             string = hex_string;
         }
