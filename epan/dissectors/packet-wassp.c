@@ -29,10 +29,17 @@
   http://ietfreport.isoc.org/all-ids/draft-singh-capwap-ctp-02.txt
   looks very similar (but not always identical).
 
+  AC: Access Controller
+  BM (old):
+  BP (old):
+  MU: Mobile Unit (Wireless client)
+  RU: Radio Unit (Access point)
+
   TODO:
   - Improve heuristics!!!
   - Verify TLV descriptions/types
   - Add TLV descriptions
+  - Fix 802.11 frame dissection
  */
 
 #ifdef HAVE_CONFIG_H
@@ -48,6 +55,7 @@
 static int proto_wassp = -1;
 
 static dissector_handle_t snmp_handle;
+static dissector_handle_t ieee80211_handle;
 
 /* ett handles */
 static int ett_wassp = -1;
@@ -65,6 +73,8 @@ static int hf_wassp_seqno = -1;
 static int hf_wassp_flags = -1;
 static int hf_wassp_sessionid = -1;
 static int hf_wassp_length = -1;
+/* tunnel data */
+static int hf_data = -1;
 /* tunnel tlvs */
 static int hf_status = -1;
 static int hf_ru_soft_version = -1;
@@ -109,6 +119,8 @@ static int hf_ap_stats_block = -1;
 static int hf_ap_stats_block_ether = -1;
 static int hf_ap_stats_block_radio_a = -1;
 static int hf_ap_stats_block_radio_b_g = -1;
+static int hf_mu_stats_block = -1;
+static int hf_mu_stats_block_65 = -1;
 static int hf_dot1x_stats_block = -1;
 static int hf_block_config = -1;
 static int hf_config_radio = -1;
@@ -384,6 +396,8 @@ extval_to_str_idx(guint32 val, const ext_value_string *vs, gint *idx, const char
 /* Forward decls needed by wassp_tunnel_tlv_vals et al */
 static int dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	volatile guint32 offset, guint32 length, const ext_value_string *value_array);
+static int dissect_ieee80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
+	volatile guint32 offset, guint32 length, const ext_value_string *value_array);
 static int dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	guint32 offset, guint32 length, const ext_value_string *value_array);
 
@@ -538,6 +552,17 @@ static const ext_value_string wassp_tunnel_tlv_config_tlv_vals[] = {
 	{ 0,	NULL, NULL, NULL, NULL }
 };
 
+static const ext_value_string wassp_tunnel_mu_stats_block_65_tlv_vals[] = {
+
+	{ 0,	NULL, NULL, NULL, NULL }
+};
+
+static const ext_value_string wassp_tunnel_mu_stats_block_tlv_vals[] = {
+	{ 65, "MU_STATS_BLOCK_65", &hf_mu_stats_block_65, dissect_tlv, wassp_tunnel_mu_stats_block_65_tlv_vals },
+
+	{ 0,	NULL, NULL, NULL, NULL }
+};
+
 static const ext_value_string wassp_tunnel_ap_stats_block_tlv_vals[] = {
 	{ 1, "DOT11_ACKFailureCount", &hf_stats_dot11_ackfailurecount, NULL, NULL },
 	{ 2, "DOT11_FCSErrorCount", &hf_stats_dot11_fcserrorcount, NULL, NULL },
@@ -603,7 +628,7 @@ static const ext_value_string wassp_tunnel_ap_stats_block_tlv_vals[] = {
 	{ 62, "STATS_ETHER_BLOCK", &hf_ap_stats_block_ether, dissect_tlv, wassp_tunnel_ap_stats_block_tlv_vals },
 	{ 63, "STATS_RADIO_A_BLOCK", &hf_ap_stats_block_radio_a, dissect_tlv, wassp_tunnel_ap_stats_block_tlv_vals },
 	{ 64, "STATS_RADIO_B_G_BLOCK", &hf_ap_stats_block_radio_b_g, dissect_tlv, wassp_tunnel_ap_stats_block_tlv_vals },
-	{ 65, "MU_STATS_BLOCK", /* hf_, */ NULL, NULL, NULL },
+	{ 65, "MU_STATS_BLOCK", &hf_mu_stats_block, dissect_tlv, wassp_tunnel_ap_stats_block_tlv_vals },
 	{ 66, "WDS_BLOCK", /* hf_, */ NULL, NULL, NULL },
 	{ 67, "WDS_Role", /* hf_, */ NULL, NULL, NULL },
 	{ 68, "WDS_PARENT_MAC", /* hf_, */ NULL, NULL, NULL },
@@ -678,7 +703,7 @@ static const ext_value_string wassp_tunnel_tlv_vals[] = {
 	{ 63, "AP-IMG-TO-RAM", &hf_ap_img_to_ram, NULL, NULL },
 	{ 64, "AP-IMG-ROLE", &hf_ap_img_role, NULL, NULL },
 	{ 65, "AP_STATS_BLOCK", &hf_ap_stats_block, dissect_tlv, wassp_tunnel_ap_stats_block_tlv_vals },
-	{ 66, "MU_RF_STATS_BLOCK", &hf_mu_rf_stats_block, NULL, NULL },
+	{ 66, "MU_RF_STATS_BLOCK", &hf_mu_rf_stats_block, dissect_tlv, wassp_tunnel_mu_stats_block_tlv_vals },
 	{ 67, "STATS_REQUEST_TYPE", &hf_stats_request_type, NULL, NULL },
 	{ 68, "STATS_LAST", &hf_stats_last, NULL, NULL },
 	{ 69, "TLV_CONFIG", &hf_block_config, dissect_tlv, wassp_tunnel_tlv_config_tlv_vals },
@@ -776,6 +801,38 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 }
 
 static int
+dissect_ieee80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
+	volatile guint32 offset, guint32 length, const ext_value_string *value_array _U_)
+{
+	tvbuff_t *ieee80211_tvb;
+
+	/* Don't add IEEE 802.11 stuff to the info column */
+	if (check_col(pinfo->cinfo, COL_INFO)) 
+		col_set_writable(pinfo->cinfo, FALSE);
+
+	ieee80211_tvb = tvb_new_subset(tvb, offset, length, length);
+
+	/* Continue after IEEE 802.11 dissection errors */
+	TRY {
+		call_dissector(ieee80211_handle, ieee80211_tvb, pinfo, wassp_tree);
+	} CATCH2(BoundsError, ReportedBoundsError) {
+		expert_add_info_format(pinfo, NULL,
+			PI_MALFORMED, PI_ERROR,
+			"Malformed or short IEEE 802.11 subpacket");
+
+		col_append_str(pinfo->cinfo, COL_INFO,
+				" [Malformed or short IEEE 802.11 subpacket] " );
+	} ENDTRY;
+
+	if (check_col(pinfo->cinfo, COL_INFO)) 
+		col_set_writable(pinfo->cinfo, TRUE);
+
+	offset += length;
+
+	return offset;
+}
+
+static int
 dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	guint32 offset, guint32 length _U_, const ext_value_string *value_array)
 {
@@ -856,6 +913,7 @@ dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			wassp_tunnel_pdu_type, "Type 0x%02x"));
 
 	if (tree) {
+		/* Header dissection */
 		ti = proto_tree_add_item(tree, proto_wassp, tvb, offset, -1,
 		    FALSE);
 		wassp_tree = proto_item_add_subtree(ti, ett_wassp);
@@ -917,9 +975,18 @@ dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			break;
 		}
-		while (offset < packet_length)
-			offset = dissect_tlv(tvb, pinfo, wassp_tree,
-				offset, 0, wassp_tunnel_tlv_vals);
+		/* Body dissection */
+		switch (packet_type) {
+		case 15: /* Data: 802.11 packet with FCS */
+				offset = dissect_ieee80211(tvb, pinfo, wassp_tree,
+					offset, packet_length - offset, NULL);
+			break;
+		default:
+			while (offset < packet_length)
+				offset = dissect_tlv(tvb, pinfo, wassp_tree,
+					offset, 0, wassp_tunnel_tlv_vals);
+			break;
+		}
 	}
 	return offset;
 }
@@ -1001,6 +1068,11 @@ proto_register_wassp(void)
 		{ &hf_wassp_length,
 		{ "PDU Length",	"wassp.length", FT_UINT8, BASE_HEX, NULL,
 			0x0, NULL, HFILL }},
+
+	/* Data: Embedded IEEE 802.11 Frame */
+		{ &hf_data,
+		{ "DATA", "wassp.data", FT_NONE, BASE_NONE, NULL,
+				0x0, NULL, HFILL }},
 
 	/* WASSP tunnel data */
 		{ &hf_status,
@@ -1256,7 +1328,7 @@ proto_register_wassp(void)
 			0x0, NULL, HFILL }},
 
 		{ &hf_mu_rf_stats_block,
-		{ "MU_RF_STATS_BLOCK",	"wassp.mu.rf.stats.block", FT_INT32, BASE_DEC, NULL,
+		{ "MU_RF_STATS_BLOCK",	"wassp.mu.rf.stats.block", FT_NONE, BASE_NONE, NULL,
 			0x0, NULL, HFILL }},
 
 		{ &hf_stats_request_type,
@@ -1294,6 +1366,14 @@ proto_register_wassp(void)
 
 		{ &hf_ap_stats_block_radio_b_g,
 		{ "Radio-B/G Stats", "wassp.ap_stats_block.radiobg", FT_NONE, BASE_NONE, NULL,
+				0x0, NULL, HFILL }},
+
+		{ &hf_mu_stats_block,
+		{ "Mobile User Stats", "wassp.mustats", FT_NONE, BASE_NONE, NULL,
+				0x0, NULL, HFILL }},
+
+		{ &hf_mu_stats_block_65,
+		{ "MU Stats Unknown 65", "wassp.mustats.65", FT_NONE, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
 		{ &hf_dot1x_stats_block,
@@ -2046,5 +2126,6 @@ proto_reg_handoff_wassp(void)
 #endif
 
 	snmp_handle = find_dissector("snmp");
+	ieee80211_handle = find_dissector("wlan");
 }
 
