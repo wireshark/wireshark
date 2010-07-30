@@ -93,7 +93,7 @@ extern void set_menu_object_data(const gchar *path, const gchar *key, gpointer d
  * @param event the GdkEvent
  * @param data the corresponding menu 
  */
-extern gint popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data);
+extern gboolean popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data);
 
 /** The packet history has changed, we need to update the menu.
  *
