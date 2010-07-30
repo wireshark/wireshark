@@ -587,7 +587,7 @@ highlight_field(tvbuff_t *tvb, gint byte, GtkTreeView *tree_view,
 }
 
 /* Calls functions for different mouse-button presses. */
-static gint
+static gboolean
 byte_view_button_press_cb(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	GdkEventButton *event_button = NULL;

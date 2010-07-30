@@ -89,7 +89,7 @@ static void new_tree_view_selection_changed_cb(GtkTreeSelection *sel,
 
 static void destroy_new_window(GtkObject *object, gpointer user_data);
 
-static gint
+static gboolean
 button_press_handler(GtkWidget *widget, GdkEvent *event, gpointer data _U_)
 {
   if (widget == NULL || event == NULL) {

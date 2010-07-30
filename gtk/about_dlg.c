@@ -330,7 +330,7 @@ about_authors_page_new(void)
   return page;
 }
 
-static gint about_folders_callback(GtkWidget *widget, GdkEventButton *event, gint id _U_)
+static gboolean about_folders_callback(GtkWidget *widget, GdkEventButton *event, gint id _U_)
 {
   GtkTreeSelection *tree_selection;
   GtkTreeModel *model;

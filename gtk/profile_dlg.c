@@ -494,7 +494,7 @@ profile_dlg_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
 }
 
 
-static gint
+static gboolean
 profile_button_press_cb(GtkWidget *list, GdkEventButton *event, gpointer data _U_)
 {
   if (event->type == GDK_2BUTTON_PRESS) {
@@ -506,7 +506,7 @@ profile_button_press_cb(GtkWidget *list, GdkEventButton *event, gpointer data _U
   return FALSE;
 }
 
-static gint
+static gboolean
 profile_key_release_cb(GtkWidget *list, GdkEventKey *event, gpointer data _U_)
 {
   if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {
@@ -906,7 +906,7 @@ select_profile_cb (GtkWidget *w _U_, gpointer data)
 }
 
 gboolean
-profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event)
+profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_)
 {
   GdkEventButton *bevent = (GdkEventButton *)event;
   const gchar    *profile_name = get_profile_name ();

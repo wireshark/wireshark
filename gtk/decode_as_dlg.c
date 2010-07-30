@@ -1201,7 +1201,7 @@ decode_proto_add_to_list (const gchar *table_name, gpointer value, gpointer user
 }
 
 
-static gint
+static gboolean
 decode_list_button_press_cb(GtkWidget *list, GdkEventButton *event, gpointer data _U_)
 {
   if (event->type == GDK_2BUTTON_PRESS) {
@@ -1213,7 +1213,7 @@ decode_list_button_press_cb(GtkWidget *list, GdkEventButton *event, gpointer dat
   return FALSE;
 }
 
-static gint
+static gboolean
 decode_list_key_release_cb(GtkWidget *list, GdkEventKey *event, gpointer data _U_)
 {
   if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {

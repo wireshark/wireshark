@@ -35,8 +35,9 @@
  *
  * @param widget parent widget
  * @param event button event
+ * @param user_data pointer to user_data (unused)
  */
-gboolean profile_show_popup_cb(GtkWidget *w _U_, GdkEvent *event);
+gboolean profile_show_popup_cb(GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_);
 
 /** User requested the "Configuration Profiles" dialog box by menu or toolbar.
  *

@@ -644,7 +644,7 @@ packet_list_get_event_row_column(GtkWidget *w, GdkEventButton *event_button,
                                   row, column);
 }
 
-static gint
+static gboolean
 packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
 {
     GdkEventButton *event_button = (GdkEventButton *)event;

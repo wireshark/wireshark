@@ -55,30 +55,30 @@
 
 
 static gint fetch_enum_value(gpointer control, const enum_val_t *enumvals);
-static gint fileopen_dir_changed_cb(GtkWidget *myentry _U_, GdkEvent *event, gpointer parent_w);
-static gint fileopen_preview_changed_cb(GtkWidget *myentry _U_, GdkEvent *event, gpointer parent_w);
+static gboolean fileopen_dir_changed_cb(GtkWidget *myentry _U_, GdkEvent *event, gpointer parent_w);
+static gboolean fileopen_preview_changed_cb(GtkWidget *myentry _U_, GdkEvent *event, gpointer parent_w);
 static void fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w);
-static gint recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_, 
-					  GdkEvent *event _U_, gpointer parent_w);
-static gint recent_df_entries_changed_cb(GtkWidget *recent_df_entry _U_,
-					  GdkEvent *event _U_, gpointer parent_w);
+static gboolean recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_, 
+					      GdkEvent *event _U_, gpointer parent_w);
+static gboolean recent_df_entries_changed_cb(GtkWidget *recent_df_entry _U_,
+					     GdkEvent *event _U_, gpointer parent_w);
 #define PLIST_SEL_BROWSE_KEY		"plist_sel_browse"
 #define PTREE_SEL_BROWSE_KEY		"ptree_sel_browse"
 #define GEOMETRY_POSITION_KEY		"geometry_position"
-#define GEOMETRY_SIZE_KEY			"geometry_size"
+#define GEOMETRY_SIZE_KEY		"geometry_size"
 #define GEOMETRY_MAXIMIZED_KEY		"geometry_maximized"
 
-#define MACOSX_STYLE_KEY			"macosx_style"
+#define MACOSX_STYLE_KEY		"macosx_style"
 
 #define GUI_CONSOLE_OPEN_KEY		"console_open"
-#define GUI_FILEOPEN_KEY			"fileopen_behavior"
+#define GUI_FILEOPEN_KEY		"fileopen_behavior"
 #define GUI_FILEOPEN_PREVIEW_KEY	"fileopen_preview_timeout"
 #define GUI_RECENT_FILES_COUNT_KEY	"recent_files_count"
 #define GUI_RECENT_DF_ENTRIES_KEY	"recent_display_filter_entries"
 #define GUI_FILEOPEN_DIR_KEY		"fileopen_directory"
-#define GUI_ASK_UNSAVED_KEY			"ask_unsaved"
-#define GUI_WEBBROWSER_KEY			"webbrowser"
-#define GUI_FIND_WRAP_KEY			"find_wrap"
+#define GUI_ASK_UNSAVED_KEY		"ask_unsaved"
+#define GUI_WEBBROWSER_KEY		"webbrowser"
+#define GUI_FIND_WRAP_KEY		"find_wrap"
 #define GUI_USE_PREF_SAVE_KEY		"use_pref_save"
 #define GUI_SHOW_VERSION_KEY		"show_version"
 
@@ -526,7 +526,7 @@ gui_prefs_destroy(GtkWidget *w _U_)
 	}
 }
 
-static gint
+static gboolean
 recent_df_entries_changed_cb(GtkWidget *recent_df_entry _U_,
 			      GdkEvent *event _U_, gpointer parent_w)
 {
@@ -576,7 +576,7 @@ recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 	return FALSE;
 }
 
-static gint
+static gboolean
 fileopen_preview_changed_cb(GtkWidget *recent_files_entry _U_, 
 			      GdkEvent *event _U_, gpointer parent_w)
 {
@@ -601,7 +601,7 @@ fileopen_preview_changed_cb(GtkWidget *recent_files_entry _U_,
 	return FALSE;
 }
 
-static gint
+static gboolean
 fileopen_dir_changed_cb(GtkWidget *fileopen_entry _U_, GdkEvent *event _U_, gpointer parent_w)
 {
 	GtkWidget	*fileopen_dir_te;

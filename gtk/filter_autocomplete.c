@@ -25,8 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */ 
- 
+ */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -44,10 +44,10 @@
 #define E_FILT_AUTOCOMP_TREE_KEY    "filter_autocomplete_tree"
 
 
-static GtkWidget *filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, 
+static GtkWidget *filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name,
                                           gboolean protocols_only, gboolean *stop_propagation);
 static void autocomplete_protocol_string(GtkWidget  *filter_te, gchar* selected_str);
-static void autoc_filter_row_activated_cb(GtkTreeView *treeview, GtkTreePath *path, 
+static void autoc_filter_row_activated_cb(GtkTreeView *treeview, GtkTreePath *path,
                                           GtkTreeViewColumn *column, gpointer data);
 static gint filter_te_focus_out_cb(GtkWidget *filter_te, GdkEvent *event, gpointer data);
 static void init_autocompletion_list(GtkWidget *list);
@@ -77,28 +77,28 @@ is_protocol_name_being_typed(GtkWidget *filter_te, int str_len)
                                 "||", "or",
                                 "&&", "and",
                                 "^^", "xor" };
-  
+
   /* If the cursor is located at the beginning of the filter editable text,
    * then it's _probably_ a protocol name.
    **/
   if(!(cursor_pos = gtk_editable_get_position(GTK_EDITABLE(filter_te))))
     return TRUE;
-  
+
   start = gtk_editable_get_chars(GTK_EDITABLE(filter_te), 0, (gint) cursor_pos);
-  
+
   /* Point to one char before the current string in the filter editable text */
   pos = start + (cursor_pos - str_len);
-  
+
   /* Walk back through string to find last char which isn't ' ' or '(' */
   while(pos > start) {
     if(*pos != ' ' && *pos != '(') {
       /* Check if we have one of the logical operations */
       for(i = 0; i < (sizeof(logic_ops)/sizeof(logic_ops[0])); i++) {
         op_len = (int) strlen(logic_ops[i]);
-        
+
         if(pos-start+1 < op_len)
           continue;
-        
+
         /* If one of the logical operations is found, then the current string is _probably_ a protocol name */
         if(!strncmp(pos-op_len+1, logic_ops[i], op_len)) {
           g_free (start);
@@ -112,8 +112,8 @@ is_protocol_name_being_typed(GtkWidget *filter_te, int str_len)
     }
     pos--;
   }
-  
-  /* The "str" preceded only by ' ' or '(' chars, 
+
+  /* The "str" preceded only by ' ' or '(' chars,
    * which means that the str is _probably_ a protocol name.
    **/
   g_free (start);
@@ -159,9 +159,9 @@ autocomplete_protocol_string(GtkWidget *filter_te, gchar *selected_str)
 
 /* On row activated signal, complete the protocol string automatically */
 static void
-autoc_filter_row_activated_cb(GtkTreeView *treeview, 
-                              GtkTreePath *path, 
-                              GtkTreeViewColumn *column _U_, 
+autoc_filter_row_activated_cb(GtkTreeView *treeview,
+                              GtkTreePath *path,
+                              GtkTreeViewColumn *column _U_,
                               gpointer data)
 {
   GtkWidget *w_main;
@@ -188,9 +188,9 @@ autoc_filter_row_activated_cb(GtkTreeView *treeview,
   }
 }
 
-static gint
-filter_te_focus_out_cb(GtkWidget *filter_te _U_, 
-                       GdkEvent *event _U_, 
+static gboolean
+filter_te_focus_out_cb(GtkWidget *filter_te _U_,
+                       GdkEvent *event _U_,
                        gpointer data)
 {
   GtkWidget *win;
@@ -205,7 +205,7 @@ filter_te_focus_out_cb(GtkWidget *filter_te _U_,
 }
 
 static gboolean
-check_select_region (GtkWidget *filter_te, GtkWidget *popup_win, 
+check_select_region (GtkWidget *filter_te, GtkWidget *popup_win,
                      const gchar *string, unsigned int str_len)
 {
   gint pos1 = gtk_editable_get_position(GTK_EDITABLE(filter_te));
@@ -257,8 +257,8 @@ add_to_autocompletion_list(GtkWidget *list, const gchar *str)
 }
 
 static gboolean
-autocompletion_list_lookup(GtkWidget *filter_te, GtkWidget *popup_win, GtkWidget *list, 
-			   const gchar *str, gboolean *stop_propagation)
+autocompletion_list_lookup(GtkWidget *filter_te, GtkWidget *popup_win, GtkWidget *list,
+                           const gchar *str, gboolean *stop_propagation)
 {
   GtkRequisition requisition;
   GtkListStore *store;
@@ -284,7 +284,7 @@ autocompletion_list_lookup(GtkWidget *filter_te, GtkWidget *popup_win, GtkWidget
           exact_match = TRUE;
         }
         count++;
-        if (count == 1) 
+        if (count == 1)
           first = g_strdup (curr_str);
       } else {
         loop = gtk_list_store_remove(store, &iter);
@@ -312,8 +312,10 @@ autocompletion_list_lookup(GtkWidget *filter_te, GtkWidget *popup_win, GtkWidget
     gtk_tree_view_columns_autosize(GTK_TREE_VIEW(list));
     gtk_widget_size_request(list, &requisition);
 
-    gtk_widget_set_size_request(popup_win, popup_win->allocation.width, (requisition.height<200? requisition.height+8:200));
-    gtk_window_resize(GTK_WINDOW(popup_win), popup_win->allocation.width, (requisition.height<200? requisition.height+8:200));
+    gtk_widget_set_size_request(popup_win, popup_win->allocation.width,
+                                (requisition.height<200? requisition.height+8:200));
+    gtk_window_resize(GTK_WINDOW(popup_win), popup_win->allocation.width,
+                      (requisition.height<200? requisition.height+8:200));
 
     return TRUE;
   }
@@ -322,7 +324,7 @@ autocompletion_list_lookup(GtkWidget *filter_te, GtkWidget *popup_win, GtkWidget
 }
 
 gboolean
-filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
+filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpointer user_data _U_)
 {
   GtkWidget *popup_win;
   GtkWidget *w_toplevel;
@@ -353,9 +355,9 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
     gtk_widget_show(popup_win);
 
   pos = gtk_editable_get_position(GTK_EDITABLE(filter_te));
-  if (g_ascii_isalnum(ckey) ||      
+  if (g_ascii_isalnum(ckey) ||
       k == GDK_KP_Decimal || k == GDK_period ||
-      k == GDK_underscore || k == GDK_minus) 
+      k == GDK_underscore || k == GDK_minus)
   {
     /* Ensure we delete the selected text */
     gtk_editable_delete_selection(GTK_EDITABLE(filter_te));
@@ -366,13 +368,13 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
   /* get the string from filter_te, start from 0 till cursor's position */
   prefix_start = gtk_editable_get_chars(GTK_EDITABLE(filter_te), 0, pos);
 
-  /* If the pressed key is non-alphanumeric or one of the keys specified 
+  /* If the pressed key is non-alphanumeric or one of the keys specified
    * in the condition (decimal, period...) then destroy popup window.
    **/
-  if( !g_ascii_isalnum(ckey) && 
-      k != GDK_KP_Decimal && k != GDK_period && 
+  if( !g_ascii_isalnum(ckey) &&
+      k != GDK_KP_Decimal && k != GDK_period &&
       k != GDK_underscore && k != GDK_minus &&
-      k != GDK_space && k != GDK_Return && k != GDK_KP_Enter && 
+      k != GDK_space && k != GDK_Return && k != GDK_KP_Enter &&
       k != GDK_Page_Down && k != GDK_Down && k != GDK_Page_Up && k != GDK_Up &&
       k != GDK_BackSpace)
   {
@@ -382,7 +384,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
     }
     return FALSE;
   }
-  
+
   /* Let prefix points to the first char that is not aphanumeric,'.', '_' or '-',
    * start from the end of filter_te_str.
    **/
@@ -464,8 +466,8 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
 
   switch(k)
     {
-      /* a better implementation for UP/DOWN keys would be moving the control to the popup'ed window, and letting 
-       * the treeview handle the up, down actions directly and return the control to the filter text once 
+      /* a better implementation for UP/DOWN keys would be moving the control to the popup'ed window, and letting
+       * the treeview handle the up, down actions directly and return the control to the filter text once
        * the user press Enter or any key except for UP, DOWN arrows. * I wasn't able to find a way to do that. *
        **/
     case GDK_Page_Down:
@@ -605,8 +607,8 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
  * implementing the autocomplete in an optimized way.
  **/
 static gboolean
-build_autocompletion_list(GtkWidget *filter_te, GtkWidget *treeview, GtkWidget *popup_win, 
-			  const gchar *protocol_name, gboolean protocols_only, gboolean *stop_propagation)
+build_autocompletion_list(GtkWidget *filter_te, GtkWidget *treeview, GtkWidget *popup_win,
+                          const gchar *protocol_name, gboolean protocols_only, gboolean *stop_propagation)
 {
   void *cookie, *cookie2;
   protocol_t *protocol;
@@ -640,14 +642,14 @@ build_autocompletion_list(GtkWidget *filter_te, GtkWidget *treeview, GtkWidget *
           exact_match = TRUE;
         }
         count++;
-        if (count == 1) 
+        if (count == 1)
           first = name;
       }
     } else {
 
-      for (hfinfo = proto_get_first_protocol_field(i, &cookie2); 
+      for (hfinfo = proto_get_first_protocol_field(i, &cookie2);
            hfinfo != NULL;
-           hfinfo = proto_get_next_protocol_field(&cookie2)) 
+           hfinfo = proto_get_next_protocol_field(&cookie2))
       {
         if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
           continue;
@@ -658,14 +660,14 @@ build_autocompletion_list(GtkWidget *filter_te, GtkWidget *treeview, GtkWidget *
             exact_match = TRUE;
           }
           count++;
-          if (count == 1) 
+          if (count == 1)
             first = hfinfo->abbrev;
         }
       }
     }
   }
 
-  if (count == 1 && !exact_match && stop_propagation && 
+  if (count == 1 && !exact_match && stop_propagation &&
       strncmp(protocol_name, first, protocol_name_len) == 0)
   {
     /* Only one match (not exact) with correct case */
@@ -673,10 +675,10 @@ build_autocompletion_list(GtkWidget *filter_te, GtkWidget *treeview, GtkWidget *
   }
 
   /* Don't show an empty autocompletion-list or
-   * an autocompletion-list with only one entry with exact match 
+   * an autocompletion-list with only one entry with exact match
    **/
-  if (count == 0 || (count == 1 && exact_match && 
-		     strncmp(protocol_name, first, protocol_name_len) == 0))
+  if (count == 0 || (count == 1 && exact_match &&
+                     strncmp(protocol_name, first, protocol_name_len) == 0))
     return FALSE;
 
   return TRUE;
@@ -686,7 +688,8 @@ static void
 filter_autocomplete_disable_sorting(GtkTreeModel *model)
 {
 #if GTK_CHECK_VERSION(2,6,0)
-  gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
+  gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), 
+                                       GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
 #else
   gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), -2, GTK_SORT_ASCENDING);
 #endif
@@ -699,7 +702,8 @@ filter_autocomplete_enable_sorting(GtkTreeModel *model)
 }
 
 static GtkWidget *
-filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboolean protocols_only, gboolean *stop_propagation)
+filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name,
+                        gboolean protocols_only, gboolean *stop_propagation)
 {
   GtkWidget *popup_win;
   GtkWidget *treeview;
@@ -713,7 +717,7 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
   w_toplevel = gtk_widget_get_toplevel(filter_te);
 
   /* Create popup window */
-  popup_win = gtk_window_new (GTK_WINDOW_POPUP); 
+  popup_win = gtk_window_new (GTK_WINDOW_POPUP);
 
   /* Create scrolled window */
   filter_sc = scrolled_window_new(NULL, NULL);
@@ -748,8 +752,10 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
 
   gtk_widget_size_request(treeview, &requisition);
 
-  gtk_widget_set_size_request(popup_win, filter_te->allocation.width, (requisition.height<200? requisition.height+8:200));
-  gtk_window_resize(GTK_WINDOW(popup_win), filter_te->allocation.width, (requisition.height<200? requisition.height+8:200));
+  gtk_widget_set_size_request(popup_win, filter_te->allocation.width,
+                              (requisition.height<200? requisition.height+8:200));
+  gtk_window_resize(GTK_WINDOW(popup_win), filter_te->allocation.width,
+                    (requisition.height<200? requisition.height+8:200));
 
   gdk_window_get_origin(filter_te->window, &x_pos, &y_pos);
   y_pos = y_pos + filter_te->allocation.height;
@@ -764,7 +770,8 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
 }
 
 static void
-filter_autocomplete_handle_backspace(GtkWidget *filter_te, GtkWidget *list, GtkWidget *popup_win, gchar *prefix, GtkWidget *main_win)
+filter_autocomplete_handle_backspace(GtkWidget *filter_te, GtkWidget *list, GtkWidget *popup_win,
+                                     gchar *prefix, GtkWidget *main_win)
 {
   GtkTreeModel *model;
   GtkListStore *store;
@@ -806,15 +813,17 @@ filter_autocomplete_handle_backspace(GtkWidget *filter_te, GtkWidget *list, GtkW
 
   /* Enable sorting */
   filter_autocomplete_enable_sorting(model);
-  
+
   gtk_tree_view_columns_autosize(GTK_TREE_VIEW(list));
   gtk_widget_size_request(list, &requisition);
 
-  gtk_widget_set_size_request(popup_win, popup_win->allocation.width, (requisition.height<200? requisition.height+8:200));
-  gtk_window_resize(GTK_WINDOW(popup_win), popup_win->allocation.width, (requisition.height<200? requisition.height+8:200));
+  gtk_widget_set_size_request(popup_win, popup_win->allocation.width,
+                              (requisition.height<200? requisition.height+8:200));
+  gtk_window_resize(GTK_WINDOW(popup_win), popup_win->allocation.width,
+                    (requisition.height<200? requisition.height+8:200));
 }
 
-static void 
+static void
 filter_autocomplete_win_destroy_cb(GtkWidget *win, gpointer data _U_)
 {
   /* tell that the autocomplete window doesn't exist anymore */
@@ -822,7 +831,7 @@ filter_autocomplete_win_destroy_cb(GtkWidget *win, gpointer data _U_)
 }
 
 gboolean
-filter_parent_dlg_key_pressed_cb(GtkWidget *win, GdkEventKey *event)
+filter_parent_dlg_key_pressed_cb(GtkWidget *win, GdkEventKey *event, gpointer user_data _U_)
 {
   GtkWidget *popup_win;
 

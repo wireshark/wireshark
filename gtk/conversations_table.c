@@ -613,7 +613,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
     g_free (str);
 }
 
-static gint
+static gboolean
 ct_show_popup_menu_cb(void *widg _U_, GdkEvent *event, conversations_table *ct)
 {
     GdkEventButton *bevent = (GdkEventButton *)event;

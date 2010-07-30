@@ -446,15 +446,15 @@ static void magnify_move (struct graph * , int , int );
 static void magnify_destroy (struct graph * );
 static void magnify_draw (struct graph * );
 static void magnify_get_geom (struct graph * , int , int );
-static gint configure_event (GtkWidget * , GdkEventConfigure * );
-static gint expose_event (GtkWidget * , GdkEventExpose * );
-static gint button_press_event (GtkWidget * , GdkEventButton * );
-static gint button_release_event (GtkWidget * , GdkEventButton * );
-static gint motion_notify_event (GtkWidget * , GdkEventMotion * );
-static gint key_press_event (GtkWidget * , GdkEventKey * );
-static gint key_release_event (GtkWidget * , GdkEventKey * );
-static gint leave_notify_event (GtkWidget * , GdkEventCrossing * );
-static gint enter_notify_event (GtkWidget * , GdkEventCrossing * );
+static gboolean configure_event (GtkWidget * , GdkEventConfigure * , gpointer );
+static gboolean expose_event (GtkWidget * , GdkEventExpose * , gpointer );
+static gboolean button_press_event (GtkWidget * , GdkEventButton * , gpointer );
+static gboolean button_release_event (GtkWidget * , GdkEventButton * , gpointer );
+static gboolean motion_notify_event (GtkWidget * , GdkEventMotion * , gpointer );
+static gboolean key_press_event (GtkWidget * , GdkEventKey * , gpointer );
+static gboolean key_release_event (GtkWidget * , GdkEventKey * , gpointer );
+static gboolean leave_notify_event (GtkWidget * , GdkEventCrossing * , gpointer );
+static gboolean enter_notify_event (GtkWidget * , GdkEventCrossing * , gpointer );
 static void tseq_initialize (struct graph * );
 static void tseq_get_bounds (struct graph * );
 static void tseq_stevens_read_config (struct graph * );
@@ -760,7 +760,7 @@ static void create_drawing_area (struct graph *g)
 	 * !!! NEMLLO BY TO BYT NA KONCI graph_init_sequence()? !!!
 	 *
 	 */
-	g_signal_connect(g->drawing_area,"configure_event", G_CALLBACK(configure_event),
+	g_signal_connect(g->drawing_area, "configure_event", G_CALLBACK(configure_event),
                        NULL);
 
 	/* puts ("exiting create_drawing_area()"); */
@@ -2728,7 +2728,7 @@ static void magnify_draw (struct graph *g)
 
 }
 
-static gint configure_event (GtkWidget *widget, GdkEventConfigure *event)
+static gboolean configure_event (GtkWidget *widget, GdkEventConfigure *event, gpointer user_data _U_)
 {
         struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 	struct {
@@ -2787,7 +2787,7 @@ static gint configure_event (GtkWidget *widget, GdkEventConfigure *event)
 	return TRUE;
 }
 
-static gint expose_event (GtkWidget *widget, GdkEventExpose *event)
+static gboolean expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_data _U_)
 {
         struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 
@@ -3036,7 +3036,7 @@ static void do_key_motion_right (struct graph *g, int step)
 	do_key_motion (g);
 }
 
-static gint button_press_event (GtkWidget *widget, GdkEventButton *event)
+static gboolean button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer user_data _U_)
 {
         struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 
@@ -3073,7 +3073,7 @@ static gint button_press_event (GtkWidget *widget, GdkEventButton *event)
 	return TRUE;
 }
 
-static gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event)
+static gboolean motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer user_data _U_)
 {
         struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 	int x, y;
@@ -3130,7 +3130,7 @@ static gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event)
 	return TRUE;
 }
 
-static gint button_release_event (GtkWidget *widget, GdkEventButton *event)
+static gboolean button_release_event (GtkWidget *widget, GdkEventButton *event, gpointer user_data _U_)
 {
         struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 
@@ -3144,7 +3144,7 @@ static gint button_release_event (GtkWidget *widget, GdkEventButton *event)
 	return TRUE;
 }
 
-static gint key_press_event (GtkWidget *widget, GdkEventKey *event)
+static gboolean key_press_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data _U_)
 {
         struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 	int step;
@@ -3221,7 +3221,7 @@ static gint key_press_event (GtkWidget *widget, GdkEventKey *event)
 	return TRUE;
 }
 
-static gint key_release_event (GtkWidget *widget, GdkEventKey *event)
+static gboolean key_release_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data _U_)
 {
         struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 
@@ -3234,7 +3234,7 @@ static gint key_release_event (GtkWidget *widget, GdkEventKey *event)
 	return TRUE;
 }
 
-static gint leave_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_)
+static gboolean leave_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_, gpointer user_data _U_)
 {
         struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 
@@ -3244,7 +3244,7 @@ static gint leave_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_)
 	return TRUE;
 }
 
-static gint enter_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_)
+static gboolean enter_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_, gpointer user_data _U_)
 {
         struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 

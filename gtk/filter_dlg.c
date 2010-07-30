@@ -85,7 +85,7 @@ filter_dlg_delete_event_cb(GtkWidget *prefs_w, GdkEvent *event, gpointer data);
 static void
 filter_dlg_cancel_cb(GtkWidget *cancel_bt, gpointer data);
 
-static gint filter_sel_list_button_cb(GtkWidget *, GdkEventButton *,
+static gboolean filter_sel_list_button_cb(GtkWidget *, GdkEventButton *,
                                       gpointer);
 static void filter_sel_list_cb(GtkTreeSelection *, gpointer);
 static void filter_new_bt_clicked_cb(GtkWidget *, gpointer);
@@ -949,7 +949,7 @@ filter_dlg_destroy_cb(GtkWidget *win, gpointer data)
     forget_filter_dialog(win, list_type);
 }
 
-static gint
+static gboolean
 filter_sel_list_button_cb(GtkWidget *list, GdkEventButton *event,
                           gpointer data _U_)
 {

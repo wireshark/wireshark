@@ -2497,7 +2497,7 @@ menu_recent_read_finished(void) {
 }
 
 
-gint
+gboolean
 popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
     GtkWidget *menu = (GtkWidget *)data;

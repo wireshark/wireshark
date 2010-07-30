@@ -228,7 +228,7 @@ fill_in_tree(GtkWidget *tree_lcl, ph_stats_t *ps)
 
 static GtkWidget *popup_menu_object;
 
-static gint
+static gboolean
 proto_hier_show_popup_menu_cb(GtkWidget *widget _U_, GdkEvent *event, gpointer data _U_)
 {
     GdkEventButton *bevent = (GdkEventButton *)event;

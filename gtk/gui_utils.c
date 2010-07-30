@@ -216,7 +216,7 @@ window_present(GtkWidget *win)
 }
 
 
-static gint
+static gboolean
 window_key_press_cb (GtkWidget *widget, GdkEventKey *event, gpointer cancel_button)
 {
     g_return_val_if_fail (widget != NULL, FALSE);
@@ -854,7 +854,7 @@ static GList *trees;
 static void setup_tree(GtkWidget *tree);
 static void forget_tree(GtkWidget *tree, gpointer data);
 static void set_tree_styles(GtkWidget *tree);
-static int tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data _U_);
+static gboolean tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data _U_);
 
 /* Create a Tree, give it the right styles, and remember it. */
 GtkWidget *
@@ -1177,7 +1177,7 @@ create_user_window_title(const gchar *caption)
  * the packetlist header where there is currently visual hint
  * a header cell has focus.
  */
-static int
+static gboolean
 tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data _U_)
 {
     GtkTreeSelection* selection;

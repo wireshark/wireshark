@@ -813,7 +813,7 @@ wlan_details_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, gui
 	g_free (str);
 }
 
-static gint
+static gboolean
 wlan_show_popup_menu_cb(void *widg _U_, GdkEvent *event, wlanstat_t *et)
 {
 	GdkEventButton *bevent = (GdkEventButton *)event;
@@ -1009,7 +1009,7 @@ wlan_create_popup_menu(wlanstat_t *hs)
 	g_signal_connect(hs->table, "button_press_event", G_CALLBACK(wlan_show_popup_menu_cb), hs);
 }
 
-static gint
+static gboolean
 wlan_details_show_popup_menu_cb(void *widg _U_, GdkEvent *event, wlanstat_t *et)
 {
 	GdkEventButton *bevent = (GdkEventButton *)event;

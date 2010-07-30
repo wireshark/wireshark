@@ -39,15 +39,17 @@
  *
  * @param filter_te text-editing filter widget
  * @param event
+ * @aram  user_data pointer to user_data (unused)
  */
-extern gboolean filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event);
+extern gboolean filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpointer user_data _U_);
 
 /** Callback function that is called when a "key-press-event" signal occur.
  *
  * @param win parent window of the text-editing filter widget
  * @param event
+ * @param user_data pointer to user_data (unused)
  */
-extern gboolean filter_parent_dlg_key_pressed_cb(GtkWidget *win, GdkEventKey *event);
+extern gboolean filter_parent_dlg_key_pressed_cb(GtkWidget *win, GdkEventKey *event, gpointer user_data _U_);
 
 
 #endif

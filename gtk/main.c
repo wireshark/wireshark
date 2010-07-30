@@ -3504,7 +3504,7 @@ main_widgets_show_or_hide(void)
 
 
 /* called, when the window state changes (minimized, maximized, ...) */
-static int
+static gboolean
 window_state_event_cb (GtkWidget *widget _U_,
                        GdkEvent *event,
                        gpointer  data _U_)
@@ -3524,7 +3524,7 @@ window_state_event_cb (GtkWidget *widget _U_,
 
 
 #define NO_SHIFT_MOD_MASK (GDK_MODIFIER_MASK & ~(GDK_SHIFT_MASK|GDK_MOD2_MASK|GDK_LOCK_MASK))
-static int
+static gboolean
 top_level_key_pressed_cb(GtkWidget *w _U_, GdkEventKey *event, gpointer user_data _U_)
 {
     if (event->keyval == GDK_F8) {

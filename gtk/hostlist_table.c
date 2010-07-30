@@ -380,7 +380,7 @@ hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint c
 
     g_free (str);
 }
-static gint
+static gboolean
 hostlist_show_popup_menu_cb(void *widg _U_, GdkEvent *event, hostlist_table *et)
 {
     GdkEventButton *bevent = (GdkEventButton *)event;

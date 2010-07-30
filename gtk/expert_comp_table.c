@@ -346,7 +346,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
     }
 }
 
-static gint
+static gboolean
 error_show_popup_menu_cb(void *widg _U_, GdkEvent *event, error_equiv_table *err)
 {
 	GdkEventButton *bevent = (GdkEventButton *)event;

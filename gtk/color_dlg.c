@@ -70,7 +70,7 @@ static void destroy_edit_dialog_cb(gpointer filter_arg, gpointer dummy);
 static void create_new_color_filter(GtkButton *button, const char *filter);
 static void color_new_cb(GtkButton *button, gpointer user_data);
 static void color_edit_cb(GtkButton *button, gpointer user_data);
-static gint color_filters_button_cb(GtkWidget *, GdkEventButton *, gpointer);
+static gboolean color_filters_button_cb(GtkWidget *, GdkEventButton *, gpointer);
 static void color_disable_cb(GtkWidget *widget, gboolean user_data);
 static void color_delete_cb(GtkWidget *widget, gpointer user_data);
 static void color_save_cb(GtkButton *button, gpointer user_data);
@@ -817,7 +817,7 @@ color_edit_cb(GtkButton *button, gpointer user_data _U_)
 }
 
 /* User double-clicked on the coloring rule */
-static gint
+static gboolean
 color_filters_button_cb(GtkWidget *list, GdkEventButton *event,
                           gpointer data _U_)
 {
