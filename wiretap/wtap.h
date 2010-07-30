@@ -215,7 +215,8 @@ extern "C" {
 #define WTAP_ENCAP_JPEG_JFIF                    123
 #define WTAP_ENCAP_IPNET                        124
 #define WTAP_ENCAP_SOCKETCAN                    125
-#define WTAP_ENCAP_IEEE802_11_NETMON_RADIO	126
+#define WTAP_ENCAP_IEEE802_11_NETMON_RADIO      126
+#define WTAP_ENCAP_IEEE802_15_4_NOFCS		127
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 

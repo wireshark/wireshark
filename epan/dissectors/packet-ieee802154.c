@@ -2564,6 +2564,7 @@ void proto_reg_handoff_ieee802154(void)
     static gboolean prefs_initialized = FALSE;
     static dissector_handle_t  ieee802154_handle;
     static dissector_handle_t  ieee802154_nonask_phy_handle;
+    static dissector_handle_t  ieee802154_nofcs_handle;
     static unsigned int old_ieee802154_ethertype;
     GByteArray *bytes;
     gboolean    res;
@@ -2572,10 +2573,12 @@ void proto_reg_handoff_ieee802154(void)
         /* Get the dissector handles. */
         ieee802154_handle   = find_dissector("wpan");
         ieee802154_nonask_phy_handle = find_dissector("wpan-nonask-phy");
+        ieee802154_nofcs_handle = find_dissector("wpan_nofcs");
         data_handle         = find_dissector("data");
 
         dissector_add("wtap_encap", WTAP_ENCAP_IEEE802_15_4, ieee802154_handle);
         dissector_add("wtap_encap", WTAP_ENCAP_IEEE802_15_4_NONASK_PHY, ieee802154_nonask_phy_handle);
+        dissector_add("wtap_encap", WTAP_ENCAP_IEEE802_15_4_NOFCS, ieee802154_nofcs_handle);
 
         prefs_initialized = TRUE;
     } else {

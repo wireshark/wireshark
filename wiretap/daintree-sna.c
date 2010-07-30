@@ -126,7 +126,7 @@ int daintree_sna_open(wtap *wth, int *err _U_, gchar **err_info _U_)
 
 	/* set up for file type */
 	wth->file_type = WTAP_FILE_DAINTREE_SNA;
-	wth->file_encap = WTAP_ENCAP_IEEE802_15_4;
+	wth->file_encap = WTAP_ENCAP_IEEE802_15_4_NOFCS;
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
 	return 1; /* it's a Daintree file */
@@ -153,12 +153,20 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset
 
 	/* parse one line of capture data */
 	if (sscanf(readLine, "%*s %" G_GINT64_MODIFIER "u.%d %u %" READDATA_MAX_FIELD_SIZE "s",
-		&seconds, &wth->phdr.ts.nsecs,
-		&wth->phdr.len, readData) != 4) {
-			*err = WTAP_ERR_BAD_RECORD;
-			*err_info = g_strdup("daintree_sna: invalid read record");
-			return FALSE;
+	    &seconds, &wth->phdr.ts.nsecs, &wth->phdr.len, readData) != 4) {
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup("daintree_sna: invalid read record");
+		return FALSE;
 	}
+
+	/* Daintree doesn't store the FCS, but pads end of packet with 0xffff, which we toss */
+	if (wth->phdr.len <= FCS_LENGTH) {
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("daintree_sna: packet length <= %u bytes, no frame data present",
+		    FCS_LENGTH);
+		return FALSE;
+	}
+	wth->phdr.len -= FCS_LENGTH;
 
 	wth->phdr.ts.secs = (time_t) seconds;
 	wth->phdr.ts.nsecs *= 1000; /* convert mS to nS */
@@ -167,13 +175,11 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset
 	 * packet length field, write data to frame buffer */
 	if ((wth->phdr.caplen = daintree_sna_hex_char(readData, err)) > FCS_LENGTH) {
 		if (wth->phdr.caplen <= wth->phdr.len) {
-			/* Daintree doesn't store the FCS, but pads end of packet with 0xffff, which we toss */
-			wth->phdr.caplen -= FCS_LENGTH;
 			buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
 			memcpy(buffer_start_ptr(wth->frame_buffer), readData, wth->phdr.caplen);
 		} else {
 			*err = WTAP_ERR_BAD_RECORD;
-			*err_info = g_strdup_printf("daintree_sna: capture length (%d) > packet length (%d)",
+			*err_info = g_strdup_printf("daintree_sna: capture length (%u) > packet length (%u)",
 				wth->phdr.caplen, wth->phdr.len);
 			return FALSE;
 		}

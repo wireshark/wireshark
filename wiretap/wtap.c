@@ -473,7 +473,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "SocketCAN", "socketcan" },
 
 	/* WTAP_ENCAP_IEEE802_11_NETMON_RADIO */
-	{ "IEEE 802.11 plus Network Monitor radio header", "ieee-802-11-netmon" }
+	{ "IEEE 802.11 plus Network Monitor radio header", "ieee-802-11-netmon" },
+
+	/* WTAP_ENCAP_IEEE802_15_4_NOFCS */
+	{ "IEEE 802.15.4 Wireless PAN with FCS not present", "wpan-nofcs" },
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);
