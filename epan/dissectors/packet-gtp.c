@@ -105,6 +105,7 @@ static int hf_gtp_ext_id = -1;
 static int hf_gtp_ext_val = -1;
 static int hf_gtp_flags = -1;
 static int hf_gtp_flags_ver = -1;
+static int hf_gtp_prime_flags_ver = -1;
 static int hf_gtp_flags_pt = -1;
 static int hf_gtp_flags_spare1 = -1;
 static int hf_gtp_flags_snn = -1;
@@ -6363,22 +6364,22 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
         tf = proto_tree_add_uint(gtp_tree, hf_gtp_flags, tvb, 0, 1, gtp_hdr.flags);
         flags_tree = proto_item_add_subtree(tf, ett_gtp_flags);
 
-        proto_tree_add_uint(flags_tree, hf_gtp_flags_ver, tvb, 0, 1, gtp_hdr.flags);
+		if(gtp_prime==0){
+	        proto_tree_add_uint(flags_tree, hf_gtp_flags_ver, tvb, 0, 1, gtp_hdr.flags);
+		}else{
+	        proto_tree_add_uint(flags_tree, hf_gtp_prime_flags_ver, tvb, 0, 1, gtp_hdr.flags);
+		}
+
         proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, 0, 1, gtp_hdr.flags);
 
-        switch (gtp_version) {
-        case 0:
+        if((gtp_prime==1)||(gtp_version==0)){
             proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, 0, 1, gtp_hdr.flags);
             proto_tree_add_boolean(flags_tree, hf_gtp_flags_snn, tvb, 0, 1, gtp_hdr.flags);
-            break;
-        case 1:
+		}else{
             proto_tree_add_uint(flags_tree, hf_gtp_flags_spare2, tvb, 0, 1, gtp_hdr.flags);
             proto_tree_add_boolean(flags_tree, hf_gtp_flags_e, tvb, 0, 1, gtp_hdr.flags);
             proto_tree_add_boolean(flags_tree, hf_gtp_flags_s, tvb, 0, 1, gtp_hdr.flags);
             proto_tree_add_boolean(flags_tree, hf_gtp_flags_pn, tvb, 0, 1, gtp_hdr.flags);
-            break;
-        default:
-            break;
         }
 
         proto_tree_add_uint(gtp_tree, hf_gtp_message_type, tvb, 1, 1, gtp_hdr.message);
@@ -6662,6 +6663,11 @@ void proto_register_gtp(void)
           FT_UINT8, BASE_DEC, VALS(ver_types), GTP_VER_MASK,
           "GTP Version", HFILL}
         },
+        {&hf_gtp_prime_flags_ver,
+         {"Version", "gtp.prim.flags.version",
+          FT_UINT8, BASE_DEC,NULL, GTP_VER_MASK,
+          "GTP' Version", HFILL}
+		},
         {&hf_gtp_flags_pt,
          {"Protocol type", "gtp.flags.payload",
           FT_UINT8, BASE_DEC, VALS(pt_types), GTP_PT_MASK,
