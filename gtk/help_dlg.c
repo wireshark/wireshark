@@ -107,13 +107,17 @@ void help_topic_html(const gchar *topic) {
 
     url = g_string_new("");
 
+#ifdef DOC_DIR
     if (g_file_test(DOC_DIR "/wsug_html_chunked", G_FILE_TEST_IS_DIR)) {
         /* try to open the HTML page from wireshark.org instead */
         g_string_append_printf(url, "file://" DOC_DIR "/wsug_html_chunked/%s", topic);
     } else {
-        /* try to open the HTML page from wireshark.org instead */
+#endif /* ifdef DOC_DIR */ 
+       /* try to open the HTML page from wireshark.org instead */
         g_string_append_printf(url, "http://www.wireshark.org/docs/wsug_html_chunked/%s", topic);
+#ifdef DOC_DIR
     }
+#endif /* ifdef DOC_DIR */ 
 
     browser_open_url(url->str);
 
