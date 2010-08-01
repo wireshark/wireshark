@@ -14009,6 +14009,9 @@
 00:50:C2:CD:E0:00/36	AxotecTech             # Axotec Technologies GmbH
 00:50:C2:CD:F0:00/36	CoreelTech             # CoreEL TEchnologies (I) Pvt Ltd
 00:50:C2:CE:00:00/36	Industrial             # Industrial Control Links, Inc.
+00:50:C2:CE:10:00/36	Satellink              # Satellink Inc.
+00:50:C2:CE:20:00/36	SiconSrl               # Sicon srl
+00:50:C2:CE:30:00/36	Industrial             # Industrial Automatics Design Bureau 
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -16223,6 +16226,7 @@
 1C:AF:F7	D-LinkInte             # D-LINK INTERNATIONAL PTE LIMITED
 1C:BD:B9	D-LinkInte             # D-LINK INTERNATIONAL PTE LIMITED
 1C:C1:DE	HewlettPac             # Hewlett Packard
+1C:DF:0F	Cisco                  # Cisco Systems
 1C:F0:61	Scaps                  # SCAPS GmbH
 20:12:57	MostLuckyT             # Most Lucky Trading Ltd
 20:21:A5	LgElectron             # LG Electronics Inc
@@ -16300,6 +16304,7 @@
 30:EF:D1	AlstomStro             # Alstom Strongwish (Shenzhen) Co., Ltd.
 34:15:9E	Apple                  # Apple, Inc
 34:21:09	JensenScan             # Jensen Scandinavia AS
+34:78:77	O-NetCommu             # O-NET Communications(Shenzhen) Limited
 34:7E:39	NokiaDanma             # Nokia Danmark A/S
 34:83:02	Iforcom                # iForcom Co., Ltd
 34:86:2A	HeinzLackm             # Heinz Lackmann GmbH & Co KG
@@ -16309,6 +16314,7 @@
 34:C6:9A	Enecsys                # Enecsys Ltd
 34:CE:94	ParsecPty              # Parsec (Pty) Ltd
 34:D2:C4	RenaPrintS             # RENA GmbH Print Systeme
+34:DF:2A	FujikonInd             # Fujikon Industrial Co.,Limited
 34:E0:D7	DongguanQi             # DONGGUAN QISHENG ELECTRONICS INDUSTRIAL CO., LTD
 34:EF:44	2wire
 34:EF:8B	NttCommuni             # NTT Communications Corporation
@@ -16566,6 +16572,7 @@
 68:A1:B7	HonghaoMin             # Honghao Mingchuan Technology (Beijing) CO.,Ltd.
 68:AA:D2	Datecs                 # DATECS LTD.,
 68:B5:99	HewlettPac             # Hewlett Packard
+68:BD:AB	Cisco                  # Cisco Systems
 68:CA:00	Octopus                # Octopus Systems Limited
 68:CC:9C	MineSiteTe             # Mine Site Technologies
 68:DB:96	OpwillTech             # OPWILL Technologies CO .,LTD
@@ -16814,6 +16821,7 @@
 9C:5E:73	CalibreUk              # Calibre UK Ltd
 9C:75:14	WildixSrl              # Wildix srl
 9C:77:AA	Nadasnv
+9C:AD:EF	ObihaiTech             # Obihai Technology, Inc.
 9C:AF:CA	Cisco                  # Cisco Systems
 9C:B2:06	Procentec
 9C:C0:77	Printcount             # PrintCounts, LLC
@@ -16992,6 +17000,7 @@ C4:7D:4F	Cisco                  # Cisco Systems
 C4:82:3F	FujianNewl             # Fujian Newland Auto-ID Tech. Co,.Ltd.
 C4:93:13	100fioNetw             # 100fio networks technology llc
 C4:AA:A1	SummitDeve             # SUMMIT DEVELOPMENT, spol.s r.o.
+C4:B5:12	GeneralEle             # General Electric Digital Energy
 C4:CD:45	BeijingBoo             # Beijing Boomsense Technology CO.,LTD.
 C4:E1:7C	U2s                    # U2S co.
 C4:F4:64	SpicaInter             # Spica international
@@ -17030,6 +17039,7 @@ CC:54:59	OntimeNetw             # OnTime Networks AS
 CC:5C:75	WeightechC             # Weightech Com. Imp. Exp. Equip. Pesagem Ltda
 CC:69:B0	GlobalTraf             # Global Traffic Technologies, LLC
 CC:6B:98	MinetecWir             # Minetec Wireless Technologies
+CC:7A:30	CmaxWirele             # CMAX Wireless Co., Ltd.
 CC:B8:88	AnbSecurit             # AnB Securite s.a.
 CC:CC:4E	SunFountai             # Sun Fountainhead USA. Corp 
 CC:EA:1C	Dconworks              # DCONWORKS  Co., Ltd
@@ -17040,6 +17050,7 @@ D0:37:61	TexasInstr             # Texas Instruments
 D0:57:4C	Cisco                  # Cisco Systems
 D0:58:75	ActiveCont             # Active Control Technology Inc.
 D0:7D:E5	ForwardPay             # Forward Pay Systems, Inc.
+D0:89:99	Apcon                  # APCON, Inc.
 D0:B3:3F	ShenzhenTi             # SHENZHEN TINNO MOBILE TECHNOLOGY CO.,LTD.
 D0:BB:80	ShlTelemed             # SHL Telemedicine International Ltd.
 D0:D0:FD	Cisco                  # Cisco Systems
@@ -17105,6 +17116,7 @@ DC:E7:1C	AugElektro             # AUG Elektronik GmbH
 DC:FA:D5	StrongGesM             # STRONG Ges.m.b.H.
 E0:05:C5	Tp-LinkTec             # TP-LINK Technologies Co.,Ltd.
 E0:1C:EE	BravoTech              # Bravo Tech, Inc.
+E0:25:38	TitanPetPr             # Titan Pet Products
 E0:26:30	IntrigueTe             # Intrigue Technologies, Inc.
 E0:26:36	NortelNetw             # Nortel Networks
 E0:27:1A	TtcNext-Ge             # TTC Next-generation Home Network System WG
