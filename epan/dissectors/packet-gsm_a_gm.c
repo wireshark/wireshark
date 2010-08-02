@@ -3003,7 +3003,8 @@ static guint16
 de_gc_mbms_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
-	guint8	oct, i, j;
+        guint   i;
+	guint8	oct, j;
 	proto_item  *tf = NULL;
 	proto_tree  *tf_tree = NULL;
 

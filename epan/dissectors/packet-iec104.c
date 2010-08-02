@@ -1336,10 +1336,10 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 /* Is is called twice: For 'Packet List' and for 'Packet Details' */
 static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 TcpLen = tvb_length(tvb);
-	guint16 Brossa = 0;
+	guint TcpLen = tvb_length(tvb);
+	guint Brossa = 0;
 	guint8 Start;
-	guint8 Off;
+	guint Off;
 	guint8 Byte1 = 0;
 	struct apciheader * apcih;
 	emem_strbuf_t * res;

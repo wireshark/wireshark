@@ -6204,7 +6204,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       {
         proto_item *chan_item;
         proto_tree *chan_tree;
-        guint8 i;
+        guint i;
 
         offset += 2;
         if (tag_len > 8) /* XXX Is this a sane limit? */

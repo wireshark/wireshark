@@ -826,8 +826,8 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				
 				if (tree)
 				{
-					guint8 loop_count = 0;
-					guint8 r_byte = 0;
+					guint loop_count;
+					guint8 r_byte;
 					guint16 location = offset;
 					ctrl_field_item = proto_tree_add_text(llcgprs_tree, tvb, offset,
 						sack_length, "SACK FRAME: length = %u", sack_length);

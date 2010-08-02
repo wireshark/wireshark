@@ -1207,7 +1207,7 @@ dissect_random_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 static void
 dissect_chunks_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
-  gint32 number_of_chunks;
+  guint16 number_of_chunks;
   guint16 chunk_number, offset;
 
   number_of_chunks = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
@@ -1230,7 +1230,7 @@ static const value_string hmac_id_values[] = {
 static void
 dissect_hmac_algo_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
-  gint32 number_of_ids;
+  guint16 number_of_ids;
   guint16 id_number, offset;
 
   number_of_ids = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / HMAC_ID_LENGTH;
@@ -1241,7 +1241,7 @@ dissect_hmac_algo_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 static void
 dissect_supported_extensions_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  gint32 number_of_types;
+  guint16 number_of_types;
   guint16 type_number, offset;
 
   proto_item_append_text(parameter_item, " (Supported types: ");
