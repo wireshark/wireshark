@@ -631,7 +631,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		offset = dissect_smb_server_type_flags(
 			tvb, offset, pinfo, tree, NULL, TRUE);
 
-		if (cmd == BROWSE_DOMAIN_ANNOUNCEMENT) {
+		if (cmd == BROWSE_DOMAIN_ANNOUNCEMENT && tvb_get_letohs (tvb, offset + 2) != 0xAA55) {
 			/*
 			 * Network Monitor claims this is a "Comment
 			 * Pointer".  I don't believe it.
