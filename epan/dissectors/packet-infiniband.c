@@ -34,16 +34,38 @@
 #include <epan/proto.h>
 #include <epan/emem.h>
 #include <epan/dissectors/packet-frame.h>
+#include <epan/etypes.h>
 #include <string.h>
 #include "packet-infiniband.h"
 
-/* Main Dissector */
-/* Notes: */
-/* 1.) Floating "offset+=" statements should probably be "functionized" but they are inline */
-/* Offset is only passed by reference in specific places, so do not be confused when following code */
-/* In any code path, adding up "offset+=" statements will tell you what byte you are at */
+/* Helper dissector for correctly dissecting RoCE packets (encapsulated within an Ethernet */
+/* frame). The only difference from regular IB packets is that RoCE packets do not contain */
+/* a LRH, and always start with a GRH.                                                      */
+static void
+dissect_roce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    /* this is a RoCE packet, so signal the IB dissector not to look for LRH */
+    dissect_infiniband_common(tvb, pinfo, tree, TRUE);
+}
+
 static void
 dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    dissect_infiniband_common(tvb, pinfo, tree, FALSE);
+}
+
+/* Common Dissector for both InfiniBand and RoCE packets
+ * IN:
+ *       tvb - The tvbbuff of packet data
+ *       pinfo - The packet info structure with column information
+ *       tree - The tree structure under which field nodes are to be added
+ *       starts_with_grh - If true this packets start with a GRH header (RoCE), otherwise with LRH as usual
+ * Notes:
+ * 1.) Floating "offset+=" statements should probably be "functionized" but they are inline
+ * Offset is only passed by reference in specific places, so do not be confused when following code
+ * In any code path, adding up "offset+=" statements will tell you what byte you are at */
+static void
+dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean starts_with_grh)
 {
     /* Top Level Item */
     proto_item *infiniband_packet = NULL;
@@ -110,7 +132,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         /* If no packet details are being dissected, extract some high level info for the packet view */
         /* Assigns column values rather than full tree population */
-        dissect_general_info(tvb, offset, pinfo);
+        dissect_general_info(tvb, offset, pinfo, starts_with_grh);
         return;
     }
 
@@ -119,6 +141,13 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Headers Level Tree */
     all_headers_tree = proto_item_add_subtree(infiniband_packet, ett_all_headers);
+
+    if (starts_with_grh) {
+        /* this is a RoCE packet, skip LRH parsing */
+        lnh_val = IBA_GLOBAL;
+        packetLength = tvb_get_ntohs(tvb, 4);   /* since we have no LRH to get PktLen from, use that of the GRH */
+        goto skip_lrh;
+    }
 
     /* Local Route Header Subtree */
     local_route_header_item = proto_tree_add_item(all_headers_tree, hf_infiniband_LRH, tvb, offset, 8, FALSE);
@@ -171,6 +200,8 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     offset+=2;
     packetLength -= 8; /* Shave 8 bytes for the LRH. */
+
+skip_lrh:
 
     /* Key off Link Next Header.  This tells us what High Level Data Format we have */
     switch(lnh_val)
@@ -531,7 +562,7 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         /* If no packet details are being dissected, extract some high level info for the packet view */
         /* Assigns column values rather than full tree population */
-        dissect_general_info(tvb, offset, pinfo);
+        dissect_general_info(tvb, offset, pinfo, FALSE);
         return;
     }
 
@@ -3095,8 +3126,9 @@ static void parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tv
 * IN:
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
-*       pinfo - The packet info structure with column information */
-static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo)
+*       pinfo - The packet info structure with column information
+*       starts_with_grh - If true this packets start with a GRH header, otherwise with LRH  */
+static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo, gboolean starts_with_grh)
 {
     guint8 lnh_val = 0;             /* The Link Next Header Value.  Tells us which headers are coming */
     gboolean bthFollows = 0;        /* Tracks if we are parsing a BTH.  This is a significant decision point */
@@ -3109,6 +3141,11 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo)
     guint8 management_class = 0;
     MAD_Data MadData;
 
+    if (starts_with_grh) {
+        /* this is a RoCE packet, skip LRH parsing */
+        lnh_val = IBA_GLOBAL;
+        goto skip_lrh;
+    }
 
     virtualLane =  tvb_get_guint8(tvb, offset);
     virtualLane = virtualLane & 0xF0;
@@ -3128,6 +3165,8 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo)
     g_snprintf(src_addr_str, ADDR_STR_MAX_LEN, "SLID: %d", tvb_get_ntohs(tvb, offset));
     SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(src_addr_str)+1, src_addr_str);
     offset+=2;
+
+skip_lrh:
 
     switch(lnh_val)
     {
@@ -5235,10 +5274,16 @@ void proto_register_infiniband(void)
 
 }
 
-/* Reg Handoff.  Register dissectors we'll need for IPoIB */
+/* Reg Handoff.  Register dissectors we'll need for IPoIB and RoCE */
 void proto_reg_handoff_infiniband(void)
 {
+    dissector_handle_t roce_handle;
+
     ipv6_handle = find_dissector("ipv6");
     data_handle = find_dissector("data");
     ethertype_dissector_table = find_dissector_table("ethertype");
+
+    /* create and announce an anonymous RoCE dissector */
+    roce_handle = create_dissector_handle(dissect_roce, proto_infiniband);
+    dissector_add("ethertype", ETHERTYPE_ROCE, roce_handle);
 }

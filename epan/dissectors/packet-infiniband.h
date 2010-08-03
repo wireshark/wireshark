@@ -113,11 +113,13 @@ static dissector_handle_t ipv6_handle;
 static dissector_handle_t data_handle;
 static dissector_table_t ethertype_dissector_table;
 
+static void dissect_roce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean starts_with_grh);
 static void dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static gint32 find_next_header_sequence(guint32 OpCode);
 static gboolean contains(guint32 value, guint32* arr, int length);
-static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo);
+static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo, gboolean starts_with_grh);
 
 /* Parsing Methods for specific IB headers. */
 

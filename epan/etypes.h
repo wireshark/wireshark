@@ -460,6 +460,10 @@
 #define ETHERTYPE_FCFT          	0xFCFC	/* used to transport FC frames+MDS hdr internal to Cisco's MDS switch */
 #endif
 
+#ifndef ETHERTYPE_ROCE
+#define ETHERTYPE_ROCE		0x8915 /* Infiniband RDMA over Converged Ethernet */
+#endif
+
 WS_VAR_IMPORT const value_string etype_vals[];
 
 #endif /* etypes.h */
