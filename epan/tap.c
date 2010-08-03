@@ -109,7 +109,7 @@ tap_init(void)
    This function is only to be called once, when the dissector initializes.
 
    The return value from this call is later used as a parameter to the
-   tap_packet(unsinged int *tap_id,...
+   tap_packet(unsigned int *tap_id,...
    call so that the tap subsystem knows to which tap point this tapped
    packet is associated.
 */  
