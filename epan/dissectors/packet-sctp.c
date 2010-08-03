@@ -3533,7 +3533,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   length         = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
   padding_length = tvb_length(chunk_tvb) - length;
 
- if (useinfo)
+  if (useinfo && (check_col(pinfo->cinfo, COL_INFO)))
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, chunk_type_values, "RESERVED"));
 
   if (tree) {
@@ -3651,7 +3651,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   if (padding_length > 0)
     proto_tree_add_item(chunk_tree, hf_chunk_padding, chunk_tvb, CHUNK_HEADER_OFFSET + length, padding_length, NETWORK_BYTE_ORDER);
 
-  if (useinfo && ((type == SCTP_DATA_CHUNK_ID) || show_always_control_chunks))
+  if (useinfo && ((type == SCTP_DATA_CHUNK_ID) || show_always_control_chunks) && check_col(pinfo->cinfo, COL_INFO))
     col_set_fence(pinfo->cinfo, COL_INFO);
 
   return result;
@@ -3869,7 +3869,8 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCTP");
 
   /* Clear entries in Info column on summary display */
-  col_set_str(pinfo->cinfo, COL_INFO, "");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_set_str(pinfo->cinfo, COL_INFO, "");
 
   memset(&pinfo->ppids, 0, sizeof(pinfo->ppids));
 
