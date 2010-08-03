@@ -1170,7 +1170,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		mysql_frame_data_p = se_alloc(sizeof(struct mysql_frame_data));
 		mysql_frame_data_p->state = conn_data->state;
 		p_add_proto_data(pinfo->fd, proto_mysql, mysql_frame_data_p);
-	} else {
+	} else if (conn_data->state != FIELD_PACKET  && conn_data->state != ROW_PACKET ) {
 		/*  We have seen this frame before.  Set the connection state
 		 *  to whatever state it had the first time we saw this frame
 		 *  (e.g., based on whatever frames came before it).
@@ -2052,14 +2052,8 @@ mysql_dissect_field_packet(tvbuff_t *tvb, int offset, proto_tree *tree, mysql_co
 static int
 mysql_dissect_row_packet(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	while (offset < tvb_reported_length_remaining(tvb, offset))	{
-		int length = (int) tvb_get_guint8(tvb, offset);
-
-		proto_tree_add_item(tree, hf_mysql_row_length, tvb, offset, 1, FALSE);
-		offset += 1;
-
-		proto_tree_add_item(tree, hf_mysql_row_text, tvb, offset, length, FALSE);
-		offset += length;
+	while (tvb_reported_length_remaining(tvb, offset) > 0)	{
+		offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_row_text);
 	}
 
 	return offset;
