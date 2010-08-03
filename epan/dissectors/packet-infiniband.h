@@ -1378,4 +1378,7 @@ static gchar *src_addr_str = NULL,     /* the string to be displayed in the sour
 
 #define ADDR_STR_MAX_LEN  33      /* maximum length of src_addr_str and dst_addr_str */
 
+/* settings to be set by the user via the preferences dialog */
+static gboolean pref_identify_iba_payload = TRUE;
+
 #endif

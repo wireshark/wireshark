@@ -34,6 +34,7 @@
 #include <epan/proto.h>
 #include <epan/emem.h>
 #include <epan/dissectors/packet-frame.h>
+#include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <string.h>
 #include "packet-infiniband.h"
@@ -972,6 +973,7 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
          * similar to the RWH header. There is no way to identify these frames
          * positively.
          *
+         * If the appropriate option is set in protocol preferences,
          * We see if the first few bytes look like an EtherType header, and if so
          * call the appropriate dissector. If not we call the "data" dissector.
          */
@@ -979,7 +981,7 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
         etype = tvb_get_ntohs(tvb, local_offset);
         reserved =  tvb_get_ntohs(tvb, local_offset + 2);
 
-        if (reserved == 0) {
+        if (pref_identify_iba_payload && reserved == 0) {
             
             /* Get the captured length and reported length of the data
                after the Ethernet type. */
@@ -3351,6 +3353,8 @@ skip_lrh:
 /* Protocol Registration */
 void proto_register_infiniband(void)
 {
+    module_t *infiniband_module;
+
     /* Field dissector structures.
     * For reserved fields, reservedX denotes the reserved field is X bits in length.
     * e.g. reserved2 is a reserved field 2 bits in length.
@@ -5265,6 +5269,14 @@ void proto_register_infiniband(void)
     proto_register_field_array(proto_infiniband, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    /* register dissection preferences */
+    infiniband_module = prefs_register_protocol(proto_infiniband, NULL);
+
+    prefs_register_bool_preference(infiniband_module, "identify_payload",
+                                   "Attempt to identify and parse encapsulated IBA payloads",
+                                   "When set, dissector will attempt to identify unknown IBA payloads "
+                                   "as containing an encapsulated ethertype, and parse them accordingly",
+                                   &pref_identify_iba_payload);
 
     proto_infiniband_link = proto_register_protocol("InfiniBand Link", "InfiniBand Link", "infiniband_link");
     register_dissector("infiniband_link", dissect_infiniband_link, proto_infiniband_link);
