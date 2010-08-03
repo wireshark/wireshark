@@ -367,6 +367,9 @@ col_append_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
   int  len, max_len;
   va_list ap;
 
+  if (!check_col(cinfo, el))
+    return;
+
   if (el == COL_INFO)
     max_len = COL_MAX_INFO_LEN;
   else
@@ -400,6 +403,9 @@ col_append_sep_fstr(column_info *cinfo, const gint el, const gchar *separator,
   int  i;
   int  len, max_len, sep_len;
   va_list ap;
+
+  if (!check_col(cinfo, el))
+    return;
 
   if (separator == NULL)
     separator = ", ";    /* default */
