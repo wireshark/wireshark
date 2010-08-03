@@ -394,11 +394,11 @@ proto_register_exec(void)
 
 	/* Register our preferences */
 	prefs_register_bool_preference(exec_module, "info_show_username",
-		 "Show username in info column?",
+		 "Show username in info column",
 		 "Controls the display of the session's username in the info column.  This is only displayed if the packet containing it was seen during this capture session.", &preference_info_show_username);
 
 	prefs_register_bool_preference(exec_module, "info_show_command",
-		 "Show command in info column?",
+		 "Show command in info column",
 		 "Controls the display of the command being run on the server by this session in the info column.  This is only displayed if the packet containing it was seen during this capture session.", &preference_info_show_command);
 }
 
