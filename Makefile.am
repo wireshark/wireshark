@@ -645,7 +645,6 @@ EXTRA_DIST = \
 	image/capinfos.rc.in	\
 	image/clist_ascend.xpm	\
 	image/clist_descend.xpm	\
-	image/dn_arrow.xpm	\
 	image/dumpcap.rc.in	\
 	image/editcap.rc.in	\
 	image/file_dlg_win32.rc \
@@ -731,7 +730,6 @@ EXTRA_DIST = \
 	image/toolbar/wep_closed_24.xpm \
 	image/toolbar/wiki_24.xpm	\
 	image/tshark.rc.in	\
-	image/up_arrow.xpm	\
 	image/voip_bg.xpm	\
 	image/voip_select.xpm	\
 	image/wireshark.exe.manifest.in \

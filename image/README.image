@@ -10,9 +10,6 @@ File				Description
 clist_ascend.xpm		Packet list sort ascending and descending
 clist_descend.xpm		indicators
 
-dn_arrow.xpm			Up and down arrows (originally intended for
-up_arrow.xpm			filter dialogs - not currently used)
-
 wsicon.svg			Canonical vector source for the wireshark icon.
 wsicon256.png			Canonical raster source for the wireshark icon.
 				Generated from wsicon.svg.
