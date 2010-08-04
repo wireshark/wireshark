@@ -2033,7 +2033,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                     }
 
                     ti = proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
-                                             "Communities: %s", communities_emstr->str);
+                                             "Communities: %s", communities_emstr ? communities_emstr->str : "<none>");
                     communities_tree = proto_item_add_subtree(ti,
                                                               ett_bgp_communities);
 
@@ -2233,7 +2233,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                     }
 
                     ti = proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
-                                             "Cluster list: %s", cluster_list_emstr->str);
+                                             "Cluster list: %s", cluster_list_emstr ? cluster_list_emstr->str : "<none>");
                     cluster_list_tree = proto_item_add_subtree(ti,
                                                                ett_bgp_cluster_list);
 
