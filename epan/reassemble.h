@@ -187,13 +187,13 @@ fragment_add_seq_key(tvbuff_t *tvb, int offset, packet_info *pinfo,
                      guint32 frag_data_len, gboolean more_frags,
                      guint32 flags);
 
-/* a wrapper for fragment_add_seq_key - uses a key of source, dest and frame number */
+/* a wrapper for fragment_add_seq_key - uses a key of source, dest and id */
 extern fragment_data *fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint32 id, GHashTable *fragment_table, guint32 frag_number,
     guint32 frag_data_len, gboolean more_frags);
 
-/* another wrapper for fragment_add_seq_key - uses a key of source, dest, frame
- * number and act_id */
+/* another wrapper for fragment_add_seq_key - uses a key of source, dest, id
+ * and act_id */
 extern fragment_data *
 fragment_add_dcerpc_dg(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	void *act_id,
