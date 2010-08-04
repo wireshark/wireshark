@@ -2456,9 +2456,9 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
                         next_tvb = tvb_new_subset(tvb, offset + bit_offset/8,
                                 ((bit_offset % 8) + size + 7) / 8, -1);
                         call_dissector(mac_fdd_edch_handle, next_tvb, pinfo, top_level_tree);
-                        bit_offset += size;
                         dissected = TRUE;
                     }
+                    bit_offset += size;
                 }
 
                 bits_in_subframe += send_size;
