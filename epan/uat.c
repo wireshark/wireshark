@@ -404,6 +404,7 @@ gboolean uat_fld_chk_oid(void* u1 _U_, const char* strptr, unsigned len, const v
 	
 	if (strptr == NULL) {
 	  *err = "NULL pointer";
+	  return FALSE;
 	}
 
 	for(i = 0; i < len; i++)
