@@ -8002,7 +8002,7 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *subtree = NULL;
     guint64 encrypted_seq;
     guint64 digest;
-    guint64 confounder;
+    guint64 confounder = 0;
     int update_vars = 0;
 
     generate_hash_key(pinfo,is_server,&key,NULL);
