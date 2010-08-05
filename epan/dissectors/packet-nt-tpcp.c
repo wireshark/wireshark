@@ -28,6 +28,7 @@
 #endif
 
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef HAVE_SYS_TYPES_H
 #  include <sys/types.h>
@@ -123,6 +124,8 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else if (tpcph.version == TPCP_VER_2){
 		length = TPCP_VER_2_LENGTH;
 		tvb_memcpy(tvb, (guint8 *) &tpcph, 0, length);
+	} else {
+		memset (&tpcph, 0, sizeof (tpcph));
 	}
 	
 	
