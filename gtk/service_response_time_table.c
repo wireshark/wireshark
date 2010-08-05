@@ -8,17 +8,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -43,13 +43,13 @@
 
 enum
 {
-   INDEX_COLUMN,
-   PROCEDURE_COLUMN,
-   CALLS_COLUMN,
-   MIN_SRT_COLUMN,
-   MAX_SRT_COLUMN,
-   AVG_SRT_COLUMN,
-   N_COLUMNS
+	INDEX_COLUMN,
+	PROCEDURE_COLUMN,
+	CALLS_COLUMN,
+	MIN_SRT_COLUMN,
+	MAX_SRT_COLUMN,
+	AVG_SRT_COLUMN,
+	N_COLUMNS
 };
 
 
@@ -91,7 +91,7 @@ srt_show_popup_menu_cb(void *widg _U_, GdkEvent *event, srt_stat_table *rst)
 	GdkEventButton *bevent = (GdkEventButton *)event;
 
 	if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
-		gtk_menu_popup(GTK_MENU(rst->menu), NULL, NULL, NULL, NULL, 
+		gtk_menu_popup(GTK_MENU(rst->menu), NULL, NULL, NULL, NULL,
 			bevent->button, bevent->time);
 	}
 
@@ -176,21 +176,21 @@ srt_create_popup_menu(srt_stat_table *rst)
 /* ---------------- */
 static void
 srt_time_func (GtkTreeViewColumn *column _U_,
-                           GtkCellRenderer   *renderer,
-                           GtkTreeModel      *model,
-                           GtkTreeIter       *iter,
-                           gpointer           user_data)
-{	
+	       GtkCellRenderer   *renderer,
+	       GtkTreeModel      *model,
+	       GtkTreeIter       *iter,
+	       gpointer           user_data)
+{
 	 gchar *str;
 	 nstime_t *data;
 
-     /* The col to get data from is in userdata */
-     gint data_column = GPOINTER_TO_INT(user_data);
+	 /* The col to get data from is in userdata */
+	 gint data_column = GPOINTER_TO_INT(user_data);
 
-     gtk_tree_model_get(model, iter, data_column, &data, -1);
-     if (!data) {
-	     g_object_set(renderer, "text", "", NULL);
-	     return;
+	 gtk_tree_model_get(model, iter, data_column, &data, -1);
+	 if (!data) {
+		 g_object_set(renderer, "text", "", NULL);
+		 return;
 	 }
 	 str = g_strdup_printf("%3d.%06d", (int)data->secs, (data->nsecs+500)/1000);
 	 g_object_set(renderer, "text", str, NULL);
@@ -199,20 +199,20 @@ srt_time_func (GtkTreeViewColumn *column _U_,
 
 static void
 srt_avg_func (GtkTreeViewColumn *column _U_,
-                           GtkCellRenderer   *renderer,
-                           GtkTreeModel      *model,
-                           GtkTreeIter       *iter,
-                           gpointer           user_data)
-{	
-	 gchar *str;
-	 guint64 td;
-     gint data_column = GPOINTER_TO_INT(user_data);
+	      GtkCellRenderer   *renderer,
+	      GtkTreeModel      *model,
+	      GtkTreeIter       *iter,
+	      gpointer           user_data)
+{
+	gchar *str;
+	guint64 td;
+	gint data_column = GPOINTER_TO_INT(user_data);
 
-     gtk_tree_model_get(model, iter, data_column, &td, -1);
-     str=g_strdup_printf("%3d.%06d",
- 		    (int)(td/1000000), (int)(td%1000000));
-	 g_object_set(renderer, "text", str, NULL);
-	 g_free(str);
+	gtk_tree_model_get(model, iter, data_column, &td, -1);
+	str=g_strdup_printf("%3d.%06d",
+			    (int)(td/1000000), (int)(td%1000000));
+	g_object_set(renderer, "text", str, NULL);
+	g_free(str);
 }
 
 static gint
@@ -226,15 +226,15 @@ srt_time_sort_func(GtkTreeModel *model,
 	 gint ret = 0;
 	 gint data_column = GPOINTER_TO_INT(user_data);
 
-     gtk_tree_model_get(model, a, data_column, &ns_a, -1);
-     gtk_tree_model_get(model, b, data_column, &ns_b, -1);
+	 gtk_tree_model_get(model, a, data_column, &ns_a, -1);
+	 gtk_tree_model_get(model, b, data_column, &ns_b, -1);
 
 	if (ns_a == ns_b) {
 		ret = 0;
-	} 
+	}
 	else if (ns_a == NULL || ns_b == NULL) {
 		ret = (ns_a == NULL) ? -1 : 1;
-	} 
+	}
 	else {
 		ret = nstime_cmp(ns_a,ns_b);
 	}
@@ -259,19 +259,19 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 
 	/* Create the store */
 	store = gtk_list_store_new (N_COLUMNS,  /* Total number of columns */
-                               G_TYPE_INT,   	/* Index     */
-                               G_TYPE_STRING,   /* Procedure */
-                               G_TYPE_UINT,   	/* Calls     */
-                               G_TYPE_POINTER,  /* Min SRT   */
-                               G_TYPE_POINTER,  /* Max SRT   */
-                               G_TYPE_UINT64);  /* Avg SRT   */
+				    G_TYPE_INT,   	/* Index     */
+				    G_TYPE_STRING,   /* Procedure */
+				    G_TYPE_UINT,   	/* Calls     */
+				    G_TYPE_POINTER,  /* Min SRT   */
+				    G_TYPE_POINTER,  /* Max SRT   */
+				    G_TYPE_UINT64);  /* Avg SRT   */
 
-      /* Create a view */
-    tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
-    rst->table = GTK_TREE_VIEW(tree);
-    sortable = GTK_TREE_SORTABLE(store);
+	/* Create a view */
+	tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
+	rst->table = GTK_TREE_VIEW(tree);
+	sortable = GTK_TREE_SORTABLE(store);
 
-    /* The view now holds a reference.  We can get rid of our own reference */
+	/* The view now holds a reference.  We can get rid of our own reference */
 	g_object_unref (G_OBJECT (store));
 
 	if(filter_string){
@@ -298,10 +298,10 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 			gtk_tree_view_column_set_cell_data_func(column, renderer, srt_avg_func,  GINT_TO_POINTER(i), NULL);
 			break;
 		default:
-			column = gtk_tree_view_column_new_with_attributes (default_titles[i], renderer, "text", 
+			column = gtk_tree_view_column_new_with_attributes (default_titles[i], renderer, "text",
 					i, NULL);
 			break;
-		}				
+		}
 
 		gtk_tree_view_column_set_sort_column_id(column, i);
 		gtk_tree_view_column_set_resizable(column, TRUE);
@@ -319,7 +319,7 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 	gtk_container_add(GTK_CONTAINER(rst->scrolled_window), GTK_WIDGET (rst->table));
 	gtk_box_pack_start(GTK_BOX(vbox), rst->scrolled_window, TRUE, TRUE, 0);
 
-    gtk_tree_view_set_reorderable (rst->table, FALSE);   
+	gtk_tree_view_set_reorderable (rst->table, FALSE);
 	/* Now enable the sorting of each column */
 	gtk_tree_view_set_rules_hint(rst->table, TRUE);
 	gtk_tree_view_set_headers_clickable(rst->table, TRUE);
@@ -416,9 +416,9 @@ draw_srt_table_data(srt_stat_table *rst)
 		}
 		/* Scale the average SRT in units of 1us and round to the nearest us.
 		   tot.secs is a time_t which may be 32 or 64 bits (or even floating)
-                   depending uon the platform.  After casting tot.secs to 64 bits, it
-                   would take a capture with a duration of over 136 *years* to 
-                   overflow the secs portion of td. */
+		   depending uon the platform.  After casting tot.secs to 64 bits, it
+		   would take a capture with a duration of over 136 *years* to
+		   overflow the secs portion of td. */
 		td = ((guint64)(rst->procedures[i].stats.tot.secs))*NANOSECS_PER_SEC + rst->procedures[i].stats.tot.nsecs;
 		td = ((td / rst->procedures[i].stats.num) + 500) / 1000;
 
