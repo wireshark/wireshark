@@ -197,13 +197,20 @@ add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name)
 
 	src = ep_alloc(sizeof (data_source));
 	src->tvb = tvb;
-	/*
-	 * XXX - if we require this argument to be a string constant,
-	 * we don't need to allocate a buffer for a copy and make a
-	 * copy, and wouldn't need to free the buffer, either.
-	 */
-	src->name = ep_strdup_printf("%s (%u bytes)", name, tvb_length(tvb));
+    src->name_initialized = FALSE;
+	src->name = name;
 	pinfo->data_src = g_slist_append(pinfo->data_src, src);
+}
+
+const char*
+get_data_source_name(data_source *src)
+{
+	if (!src->name_initialized) {
+		src->name = ep_strdup_printf("%s (%u bytes)", src->name, tvb_length(src->tvb));
+		src->name_initialized = TRUE;
+	}
+
+	return src->name;
 }
 
 /*

@@ -384,6 +384,11 @@ extern void add_new_data_source(packet_info *pinfo, tvbuff_t *tvb,
     const char *name);
 
 /*
+ * Return the data source name.
+ */
+extern const char* get_data_source_name(data_source *src);
+
+/*
  * Free up a frame's list of data sources.
  */
 extern void free_data_sources(packet_info *pinfo);
