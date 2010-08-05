@@ -1062,6 +1062,10 @@ void add_new_data_source(packet_info *pinfo _U_, tvbuff_t *tvb _U_,
                         const char *name _U_)
 {}
 
+void packet_add_new_data_source(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_,
+                        const char *name _U_)
+{}
+
 proto_item *
 proto_tree_add_uint(proto_tree *tree _U_, int hfindex _U_, tvbuff_t *tvb _U_,
                     gint start _U_, gint length _U_, guint32 value _U_)
