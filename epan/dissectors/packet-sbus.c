@@ -820,7 +820,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             /*mark retries*/
                             if (request_val->retry_count>0) {
                                    col_append_fstr(pinfo->cinfo, COL_INFO,
-                                   " (Retry!)", request_val->retry_count);
+						   " (Retry %u!)", request_val->retry_count);
                             } /*no retry number as it is not always correctly calculated*/
                             break;
 
