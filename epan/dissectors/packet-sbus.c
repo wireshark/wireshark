@@ -1,6 +1,6 @@
 /* packet-sbus.c
  * Routines for Ether-S-Bus dissection
- * Copyright 2006, Christian Durrer <christian.durrer@sensemail.ch>
+ * Copyright 2010, Christian Durrer <christian.durrer@sensemail.ch>
  *
  * $Id$
  *
@@ -171,6 +171,26 @@
 #define F_INFO_B2      (1<<4)        /* EEPROM information of slot B2*/
 #define F_PGU_BAUD (1<<5)            /* PGU baudrate can be switched*/
 
+
+/* Read/write block command codes*/
+#define	SBUS_WR_START_OF_STREAM        0x00
+#define	SBUS_WR_BLOCK_DATA_STREAM      0x01
+#define	SBUS_WR_BLOCK_END_OF_STREAM    0x02
+#define	SBUS_WR_ABORT_BLOCK_STREAM     0x07
+#define	SBUS_WR_BLOCK_DATA_BYTES       0x08
+#define SBUS_RD_BLOCK_START_OF_STREAM  0X10
+#define	SBUS_RD_BLOCK_DATA_STREAM      0x11
+#define	SBUS_RD_ABORT_BLOCK_STREAM     0x17
+#define	SBUS_RD_BLOCK_DATA_BYTES       0x18
+#define	SBUS_DELETE_BLOCK              0x20
+#define	SBUS_GET_BLOCK_SIZE            0x21
+#define	SBUS_GET_PROGRAM_BLOCK_LIST    0x22
+
+/* Read/write block types*/
+#define	SBUS_RD_WR_CONFIGURATION_FILE  0x20
+#define	SBUS_RD_WR_PROGRAM_BLOCK_FILE  0x21
+#define SBUS_RD_WR_UNKNOWN_BLOCK_TYPE  0x83
+
 /* Initialize the protocol and registered fields */
 static int proto_sbus = -1;
 static int hf_sbus_length = -1;
@@ -219,6 +239,7 @@ static int hf_sbus_date = -1;
 static int hf_sbus_time = -1;
 static int hf_sbus_crc = -1;
 static int hf_sbus_crc_bad = -1;
+static int hf_sbus_retry = -1;
 static int hf_sbus_flags_accu = -1;
 static int hf_sbus_flags_error = -1;
 static int hf_sbus_flags_negative = -1;
@@ -227,6 +248,21 @@ static int hf_sbus_flags_zero = -1;
 static int hf_sbus_web_size = -1;
 static int hf_sbus_web_aid = -1;
 static int hf_sbus_web_seq = -1;
+/* Read/Write block telegram*/
+static int hf_sbus_rdwr_block_length = -1;
+static int hf_sbus_rdwr_telegram_type = -1;
+static int hf_sbus_rdwr_telegram_sequence = -1;
+static int hf_sbus_rdwr_block_size = -1;
+static int hf_sbus_rdwr_block_addr = -1;
+static int hf_sbus_rdwr_file_name = -1;
+static int hf_sbus_rdwr_list_type = -1;
+static int hf_sbus_rdwr_acknakcode = -1;
+/* Request-Response tracking */
+static int hf_sbus_response_in = -1;
+static int hf_sbus_response_to = -1;
+static int hf_sbus_response_time = -1;
+static int hf_sbus_timeout = -1;
+static int hf_sbus_request_in = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sbus = -1;
@@ -254,15 +290,23 @@ static const value_string sbus_att_vals[] = {
 };
 /* Block types*/
 static const value_string sbus_block_types[] = {
-       {0x00, "COB"},
-       {0x01, "XOB"},
-       {0x02, "PB"},
-       {0x03, "FB"},
-       {0x04, "ST"},
-       {0x05, "TR"},
-       {0x04, "TEXT"},
-       {0x05, "DB"},
-       {0x08, "SB"},
+       {0x00, "COB"},                        /* Cyclic organization block */
+       {0x01, "XOB"},                        /* Exception organization block */
+       {0x02, "PB"},                         /* Program block */
+       {0x03, "FB"},                         /* Function block */
+       {0x04, "ST"},                         /* Step of Graftec structure*/
+       {0x05, "TR"},                         /* Transition of Graftec structure*/
+       {0x04, "TEXT"},                       /* Text*/
+       {0x05, "DB"},                         /* Data Block*/
+       {0x08, "SB"},                         /* Sequential Block (Graftec)*/
+       {0x09, "DBX"},                        /* Special Data Block*/
+       {0x10, "BACnet"},                     /* BACnet configuration block */
+       {0x11, "CANopen"},                    /* CANopen configuration */
+       {0x12, "LONIP"},                      /* LONIP configuration */
+       {0x20, "Configuration file"},         /* LONIP configuration */
+       {0x21, "Program block file"},         /* LONIP configuration */
+       {0xFE, "All configuration blocks"},   /* all configuration blocks (delete blocks only) */
+       {0xFF, "All blocks"},                 /* all blocks (incl. program blocks) (delete blocks only) */
        {0, NULL}
 };
 /* ACK NAK values*/
@@ -314,7 +358,7 @@ static const value_string sbus_command_vals[] = {
        {0x20, "Read firmware version"},
        {0x21, "Read text*"},
        {0x22, "Read active transition*"},
-       {0x23, "Write user memeory*"},
+       {0x23, "Write user memory*"},
        {0x24, "Write program line*"},
        {0x25, "Write text*"},
        {0x28, "Run procedure*, CPU 0"},
@@ -396,6 +440,7 @@ static const value_string sbus_command_vals[] = {
        {0xA6, "Restart cold flag*"},
        {0xA7, "Write system buffer"},
        {0xA8, "Read system buffer"},
+       {0xA9, "Read/write block data*"},
        {0xAA, "Get diagnostic*"},
        {0xAB, "Read system information*"},
        {0xAC, "Changes blocks on run*"},
@@ -414,6 +459,49 @@ static const value_string webserver_aid_vals[] = {
        {0x12, "Last part of answer"},
        {0x13, "Server not ready"},
        {0, NULL}
+};
+static const value_string rdwrblock_vals[] = {
+	{0x00, "WR block start of stream"},
+	{0x01, "WR block data stream"},
+	{0x02, "WR block end of stream"},
+	{0x07, "Abort block WR stream"},
+	{0x08, "WR block data"},
+	{0x10, "RD block start of stream"},
+	{0x11, "RD block data stream"},
+	{0x17, "Abort block RD stream"},
+	{0x18, "RD block data"},
+	{0x20, "Delete block"},
+	{0x21, "Get block size"},
+	{0x22, "Get program block list"},
+	{0, NULL}
+};
+
+static const value_string rdwrblock_sts[] = {
+	{0x00, "ACK (Acknowledged)"},
+	{0x01, "Data"},
+	{0x02, "Busy"},
+	{0x03, "End of stream"},
+	{0x04, "Data EOF reached"},
+	{0x80, "NAK"},
+	{0x81, "NAK, unknown Tlg_Type"},
+	{0x82, "NAK, not supported  Tlg_Type"},
+	{0x83, "NAK, unknown Block Type"},
+	{0x84, "NAK, out of sequence"},
+	{0x85, "NAK, not supported Block number"},
+	{0x86, "NAK, Block Size invalid (to big)"},
+	{0x87, "NAK, Block Address invalid"},
+	{0x88, "NAK, CRC invalid"},
+	{0x89, "NAK, invalid status"},
+	{0x8A, "NAK, invalid command size (w-count)"},
+	{0xFF, "Abort (stream)"},
+	{0, NULL}
+};
+
+static const value_string rdwrblock_list_type_vals[] = {
+	{0x40, "Start request of program block"},
+	{0x41, "Get next program block"},
+	{0xFF, "Abort get list"},
+	{0, NULL}
 };
 
 static const guint crc_table[] = {
@@ -444,11 +532,18 @@ typedef struct {
 typedef struct {
        guint8 cmd_code;       /*command code from request*/
        guint8 count;          /*rcount value*/
-       guint8 sysinfo;        /*system information number (or command in other telegrams)*/
+       guint8 sysinfo;        /*system information number*/
+       guint8 block_tlg;      /*telegram type of RD/WR block telegrams*/
+       guint8 retry_count;    /*number of retries*/
+       guint32 req_frame;     /*frame number of last request*/
+       guint32 resp_frame;    /*frame number of response*/
+       nstime_t req_time;     /*time of the last request*/
 } sbus_request_val;
 
-/* The hash structure (for conversations)*/
+/* The hash/GMemChunk structure (for conversations)*/
 static GHashTable *sbus_request_hash = NULL;
+static GMemChunk *sbus_request_keys = NULL;
+static GMemChunk *sbus_request_vals = NULL;
 
 static guint crc_calc (guint crc, guint val)
 {
@@ -488,38 +583,52 @@ static void sbus_init_protocol(void){
               g_hash_table_destroy(sbus_request_hash);
        }
        sbus_request_hash = g_hash_table_new(sbus_hash, sbus_equal);
+       sbus_request_keys = se_alloc(sizeof(sbus_request_key));
+       sbus_request_vals = se_alloc(sizeof(sbus_request_val));
 }
 
 /* check whether the packet looks like SBUS or not */
 static gboolean
 is_sbus_pdu(tvbuff_t *tvb)
 {
-       guint32 length;
+	guint32 length;
 
-       /* we need at least 8 bytes to determine whether this is sbus or
-          not
-       */
-       if(tvb_length(tvb)<8){
-              return FALSE;
-       }
+	/* we need at least 8 bytes to determine whether this is sbus or
+	   not*/
+	if(tvb_length(tvb)<8){
+		return FALSE;
+	}
 
-       /* the length must be >= 8 bytes to accomodate the header,
-          it also must be <65536 to fit inside a udp packet
-       */
-       length=tvb_get_ntohl(tvb, 0);
-       if ( (length<8) || (length>65535) ) {
-              return FALSE;
-       }
-       if (tvb_reported_length(tvb) != length) {
-              return FALSE;
-       }
-
-       /* XXX */
-       /* We should also test version and protocol    but that requires
-          someone to look at the specification for SBUS
-       */
-
-       return TRUE;
+	/* the length must be >= 8 bytes to accomodate the header,
+	   it also must be <65536 to fit inside a udp packet
+	 */
+	length=tvb_get_ntohl(tvb, 0);
+	if ( (length<8) || (length>65535) ) {
+		return FALSE;
+	}
+	if (tvb_reported_length(tvb) != length) {
+		return FALSE;
+	}
+        /* First four byte indicate the length which must be at least 12 bytes*/
+        if (tvb_get_ntohl(tvb, 0) < 12) {
+                return (FALSE);	
+        }
+        /* Fifth byte indicates protocol version which can be 0 or 1*/
+        if (tvb_get_guint8(tvb, 4) > 0x01) {
+                return (FALSE);	
+        }
+        /* Sixth byte indicates protocol type and must be 0*/
+        if ( tvb_get_guint8(tvb, 5) != 0x00 ) {
+                return (FALSE);	
+        }
+        /* Seventh and eigth byte indicates the packet sequence number and can
+           be 0 to 65565 (--> check does not make sense)*/
+        /* Ninth byte the "attributes character" and must be either 0, 1 or 2
+           (request, response or ACK/NAK)*/
+        if (tvb_get_guint8(tvb, 8) > 0x02 ) {
+                return (FALSE);
+        }
+        return TRUE;
 }
 
 /*Dissect the telegram*/
@@ -544,7 +653,14 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        guint8 sbus_web_size;
        guint8 sbus_web_aid;
        guint8 sbus_web_seq;
+       guint8 sbus_rdwr_type;
+       guint8 sbus_rdwr_length;
+       guint8 sbus_rdwr_sequence;
+       guint8 sbus_rdwr_block_tlg;
+       guint8 sbus_rdwr_block_type;
+       guint8 sbus_rdwr_ack_nak;
        guint8 sbus_sysinfo_number;
+       guint8 sbus_quint8_helper0;
        guint32 sbus_binarymasked;
        guint32 sbus_binaries;
        guint16 sbus_ack_code;
@@ -553,6 +669,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        guint32 sbus_helper1;
        guint32 sbus_helper2;
        char *tmp_string;
+       nstime_t ns; /*we use this for the response time*/
 
 /* Set up conversations*/
        conversation_t *conversation = NULL;
@@ -571,6 +688,24 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
        request_val = (sbus_request_val *) g_hash_table_lookup(sbus_request_hash,
                             &request_key);
+       /*Get type of telegram for finding retries
+        *As we are storing the info in a hash table we need to update the info
+        *also in case this is no retry*/
+       sbus_attribut = tvb_get_guint8(tvb,8);
+       if (request_val && sbus_attribut == SBUS_REQUEST) {
+            if (request_val->req_frame < pinfo->fd->num){ /*a retry; req_frame smaller this frame*/
+                  request_val->retry_count +=1;
+            }
+            else { /*we have a conversation but this is not a retry so we store the packet info*/
+                  request_val->retry_count = 0;
+                  request_val->req_frame = pinfo->fd->num; /*store actual frame nr.*/
+                  request_val->req_time = pinfo->fd->abs_ts;
+            }
+       }
+       if (request_val && (sbus_attribut == SBUS_RESPONSE ||
+                                      sbus_attribut == SBUS_ACKNAK)) { /*a response*/
+            request_val->resp_frame = pinfo->fd->num; /*so store this frame nr.*/
+       }
        /* Only allocate a new hash element when it's a request*/
        sbus_attribut = tvb_get_guint8(tvb,8);
 
@@ -580,6 +715,10 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
               request_val = se_alloc(sizeof(sbus_request_val));
               request_val->cmd_code=tvb_get_guint8(tvb,10);
+              request_val->retry_count=0; 
+              request_val->req_frame = pinfo->fd->num; /*store actual frame nr.*/
+              request_val->req_time = pinfo->fd->abs_ts;
+              request_val->resp_frame = 0; /*response frame is not known yet*/
 
               if (((request_val->cmd_code) == SBUS_RD_USER_EEPROM_REGISTER) ||
                   ((request_val->cmd_code) == SBUS_WR_USER_EEPROM_REGISTER)) {
@@ -588,11 +727,16 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      request_val->count=((tvb_get_guint8(tvb,11))+1);
               }
 
-              /*Enter system info*/
+              /*Enter system info or telegram type (for rd/wr block telegrams)*/
               if ((request_val->cmd_code) == SBUS_RD_SYSTEM_INFORMATION) {
                      request_val->sysinfo=(tvb_get_guint8(tvb,12));
+                     request_val->block_tlg=0x0;
+              } else if ((request_val->cmd_code) == SBUS_RD_WR_PCD_BLOCK) {
+                     request_val->sysinfo=0x0;
+                     request_val->block_tlg=(tvb_get_guint8(tvb,12));
               } else {
                      request_val->sysinfo=0x0;
+                     request_val->block_tlg=0x0;
               }
 
               g_hash_table_insert(sbus_request_hash, new_request_key, request_val);
@@ -609,24 +753,75 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               switch (sbus_attribut){
                      case SBUS_REQUEST:
                             sbus_cmd_code = tvb_get_guint8(tvb,10);
+                            switch (sbus_cmd_code){
+                                    case SBUS_WEB_SERVER_SERIAL_COMM: 
+                                    /* Special treatment of web server request 
+                                     * as is is very helpful to see more information in the packetlist */
+                                            sbus_web_aid = tvb_get_guint8(tvb,12);
+                                            sbus_web_seq = tvb_get_guint8(tvb,13);
+                                            col_add_fstr(pinfo->cinfo, COL_INFO,
+                                                   "Web Server Request: %s (Seq No: %d)", 
+                                                   val_to_str(sbus_web_aid,
+                                                         webserver_aid_vals, "Unknown Request!"),	
+                                                         sbus_web_seq);
+                                            break;
+                                    case SBUS_RD_WR_PCD_BLOCK:
+                                            sbus_rdwr_type = tvb_get_guint8(tvb, 12);
+                                            col_add_fstr( pinfo->cinfo, COL_INFO,
+                                                    "Request:  %s", val_to_str( sbus_rdwr_type, rdwrblock_vals, 
+                                                    "This RD/WR block telegram is not implemented"));
+                                            /* Add name of file to be written in case of start of file stream */
+                                            if (sbus_rdwr_type == SBUS_WR_START_OF_STREAM) {
+                                                    sbus_rdwr_block_type = tvb_get_guint8(tvb, 14); 
+                                                    if ((sbus_rdwr_block_type == SBUS_RD_WR_CONFIGURATION_FILE) || 
+                                                        (sbus_rdwr_block_type == SBUS_RD_WR_PROGRAM_BLOCK_FILE)) {
+                                                            sbus_quint8_helper0=0;
+                                                            for (i=19; i<43; i++) { /*max length is 24 chars*/
+                                                                    /*find zero-termination of string*/ 
+                                                                    if ((tvb_get_guint8(tvb, i)) == 0x00) {
+                                                                            break;
+                                                                    }
+                                                                    sbus_quint8_helper0 += 1;
+                                                           }
+                                                           tmp_string = tvb_get_ephemeral_string(tvb , 19, 
+                                                                    sbus_quint8_helper0);
+                                                           col_append_fstr(pinfo->cinfo, COL_INFO,
+                                                                    ": (File: %s)", tmp_string);
+                                                    }
+                                            } else if (sbus_rdwr_type == SBUS_RD_BLOCK_START_OF_STREAM) {
+                                                    sbus_rdwr_block_type = tvb_get_guint8(tvb, 14); 
+                                                    if ((sbus_rdwr_block_type == SBUS_RD_WR_CONFIGURATION_FILE) || 
+                                                        (sbus_rdwr_block_type == SBUS_RD_WR_PROGRAM_BLOCK_FILE)) {
+                                                            sbus_quint8_helper0=0;
+                                                            for (i=15; i<39; i++) { /*max length is 24 chars*/
+                                                                    /*find zero-termination of string*/ 
+                                                                    if ((tvb_get_guint8(tvb, i)) == 0x00) {
+                                                                            break;
+                                                                    }
+                                                                    sbus_quint8_helper0 += 1;
+                                                           }
+                                                           tmp_string = tvb_get_ephemeral_string(tvb , 15, 
+                                                                    sbus_quint8_helper0);
+                                                           col_append_fstr(pinfo->cinfo, COL_INFO,
+                                                                    ": (File: %s)", tmp_string);
+                                                    }
+                                            }
 
-                            /* Special treatment of web server request
-                             * as is is very helpful to see more information in the packetlist */
-                            if (sbus_cmd_code == SBUS_WEB_SERVER_SERIAL_COMM) {
-                                   sbus_web_aid = tvb_get_guint8(tvb,12);
-                                   sbus_web_seq = tvb_get_guint8(tvb,13);
+                                            break;
 
-                                   col_add_fstr(pinfo->cinfo, COL_INFO,
-                                          "Web Server Request: %s (Seq No: %d)",
-                                          val_to_str(sbus_web_aid,
-                                                 webserver_aid_vals, "Unknown Request!"),
-                                                 sbus_web_seq);
-                            } else {
-                                   /* All other requests */
-                                   col_add_fstr(pinfo->cinfo, COL_INFO,
-                                          "Request: %s", val_to_str(sbus_cmd_code,
-                                          sbus_command_vals, "Unknown Command!"));
+
+                                    default:
+                                    /* All other requests */
+                                            col_add_fstr(pinfo->cinfo, COL_INFO,
+                                                    "Request: %s", val_to_str(sbus_cmd_code,
+                                                    sbus_command_vals, "Unknown Command!"));
+                                            break;
                             }
+                            /*mark retries*/
+                            if (request_val->retry_count>0) {
+                                   col_append_fstr(pinfo->cinfo, COL_INFO,
+                                   " (Retry!)", request_val->retry_count);
+                            } /*no retry number as it is not always correctly calculated*/
                             break;
 
                      case SBUS_RESPONSE:
@@ -645,6 +840,28 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                               " (Seq No: %d)",
                                               sbus_web_seq);
                                    }
+                             } else if (request_val && ((request_val->cmd_code) == SBUS_RD_WR_PCD_BLOCK)) {
+                                    /* Treat the ACK/NAK telgrams in a special way*/
+                                    switch (request_val->block_tlg) { 
+                                            case SBUS_WR_START_OF_STREAM:
+                                            case SBUS_WR_BLOCK_DATA_STREAM:
+                                            case SBUS_WR_BLOCK_END_OF_STREAM:
+                                            case SBUS_WR_ABORT_BLOCK_STREAM:
+                                            case SBUS_WR_BLOCK_DATA_BYTES:
+                                            case SBUS_DELETE_BLOCK:
+                                            case SBUS_RD_ABORT_BLOCK_STREAM:
+                                                     sbus_rdwr_ack_nak = tvb_get_guint8(tvb, 10);
+                                                     col_add_fstr( pinfo->cinfo, COL_INFO,
+                                                            "Response: %s", val_to_str(sbus_rdwr_ack_nak,
+                                                            rdwrblock_sts, "Unknown response!"));
+                                                    break;
+                                            default:
+                                                    sbus_rdwr_type = tvb_get_guint8(tvb, 9);
+                                                    col_add_fstr( pinfo->cinfo, COL_INFO,
+                                                            "Response: (%d byte)", sbus_rdwr_type);
+                                                    break;
+                                    }
+                                     
                             } else {
                                    col_set_str(pinfo->cinfo, COL_INFO, "Response");
                             }
@@ -707,7 +924,20 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      proto_tree_add_item(sbus_tree,
                          hf_sbus_command, tvb, offset, 1, FALSE);
                          offset += 1;
-
+                     if (request_val->retry_count > 0) {/*this is a retry telegram*/
+                         hi = proto_tree_add_boolean(sbus_tree,
+                              hf_sbus_retry, tvb, 0, 0, TRUE);
+                                    PROTO_ITEM_SET_HIDDEN(hi);
+                          nstime_delta(&ns, &pinfo->fd->abs_ts, &request_val->req_time);
+                          proto_tree_add_time(sbus_tree, hf_sbus_timeout,
+                              tvb, 0, 0, &ns);
+                          proto_tree_add_uint(sbus_tree, hf_sbus_request_in, tvb, 0, 0,
+                          request_val->req_frame);
+                     }
+                     if (request_val->resp_frame > pinfo->fd->num){
+                          proto_tree_add_uint(sbus_tree, hf_sbus_response_in, tvb, 0, 0,
+                          request_val->resp_frame);
+                     }
                      switch (sbus_cmd_code) {
                      /*Read Counter, Register or Timer*/
                      case SBUS_RD_COUNTER:
@@ -975,6 +1205,259 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    }
                             }
                             break;
+                     /* Read/write block request */
+                     case SBUS_RD_WR_PCD_BLOCK:
+                            sbus_rdwr_length = tvb_get_guint8(tvb,offset);
+                            proto_tree_add_item(sbus_tree,
+                                hf_sbus_rdwr_block_length, tvb, offset,
+                                1, sbus_rdwr_length);
+                            offset += 1;
+                            sbus_rdwr_type = tvb_get_guint8(tvb,offset);
+                            proto_tree_add_item(sbus_tree,
+                                hf_sbus_rdwr_telegram_type, tvb, offset,
+                                1, sbus_rdwr_type);
+                            offset += 1;
+                            switch(sbus_rdwr_type) {
+                            case SBUS_WR_START_OF_STREAM:
+                                    sbus_rdwr_block_type = tvb_get_guint8(tvb, 14);
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_rdwr_telegram_sequence, tvb, offset,
+                                        1, FALSE);
+                                    offset += 1;
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_block_type, tvb, offset, 
+                                        1, FALSE); 
+                                    offset += 1;
+
+                                    /* Check for file or block download */
+                                    if ((sbus_rdwr_block_type == SBUS_RD_WR_CONFIGURATION_FILE) || 
+                                        (sbus_rdwr_block_type == SBUS_RD_WR_PROGRAM_BLOCK_FILE)) {
+                                            proto_tree_add_item(sbus_tree,
+                                                    hf_sbus_rdwr_block_size, tvb, offset, 
+                                                    4, FALSE); 
+                                            offset += 4;
+                                            sbus_quint8_helper0=0;
+                                            /*find zero-termination of string*/
+                                            for (i=19; i<43; i++) { /*max length string is 24 char*/ 
+                                                    if ((tvb_get_guint8(tvb, i)) == 0x00) {
+                                                            break;
+                                                    }
+                                                    sbus_quint8_helper0 += 1;
+                                            }
+                                            tmp_string = tvb_get_ephemeral_string(tvb , 19, sbus_quint8_helper0); 
+                                            proto_tree_add_string(sbus_tree,
+                                                hf_sbus_rdwr_file_name, tvb, offset, 
+                                                sbus_quint8_helper0, tmp_string);
+                                            offset += sbus_quint8_helper0;
+                                            /*do not display a field for block data (skip)*/
+                                            offset += (sbus_rdwr_length-6-sbus_quint8_helper0);
+                                    } else { /* block write telegram, no file write*/
+                                            proto_tree_add_item(sbus_tree,
+                                                hf_sbus_block_nr, tvb, offset, 
+                                                2, FALSE); 
+                                            offset += 2;
+                                            proto_tree_add_item(sbus_tree,
+                                                hf_sbus_rdwr_block_size, tvb, offset, 
+                                                4, FALSE); 
+                                            offset += 4;
+                                            /*do not display a field for block data (skip)*/
+                                            offset += (sbus_rdwr_length-8);
+                                    }
+                                    break;
+                            case SBUS_WR_BLOCK_DATA_STREAM:
+                                    sbus_rdwr_sequence = tvb_get_guint8(tvb,offset);
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_rdwr_telegram_sequence, tvb, offset,
+                                        1, sbus_rdwr_sequence);
+                                    offset += 1;
+                                    /*do not display a field for block data (skip)*/
+                                    offset += (sbus_rdwr_length-1);
+                                    break;
+                            case SBUS_WR_BLOCK_END_OF_STREAM:
+                                    sbus_rdwr_sequence = tvb_get_guint8(tvb,offset);
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_rdwr_telegram_sequence, tvb, offset,
+                                        1, sbus_rdwr_sequence);
+                                    offset += 1;
+                                    /*do not display a field for block data (skip it)*/
+                                    offset += (sbus_rdwr_length-5);
+                                    /*do not display a field for block CRC (skip it)*/
+                                    offset += 4;
+                                    break;
+                            case SBUS_WR_ABORT_BLOCK_STREAM:
+                            case SBUS_RD_ABORT_BLOCK_STREAM:
+                                    break;
+                            case SBUS_WR_BLOCK_DATA_BYTES:
+                                    sbus_rdwr_block_type = tvb_get_guint8(tvb, 14);
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_block_type, tvb, offset, 
+                                        1, FALSE); 
+                                    offset += 1;
+
+                                    /* Check for file or block download */
+                                    if ((sbus_rdwr_block_type == SBUS_RD_WR_CONFIGURATION_FILE) || 
+                                        (sbus_rdwr_block_type == SBUS_RD_WR_PROGRAM_BLOCK_FILE)) {
+                                            proto_tree_add_item(sbus_tree,
+                                                    hf_sbus_rdwr_block_addr, tvb, offset, 
+                                                    4, FALSE); 
+                                            offset += 4;
+                                            sbus_quint8_helper0=0;
+                                            /*find zero-termination of string*/
+                                            for (i=19; i<43; i++) { /*max length string is 24 char*/ 
+                                                    if ((tvb_get_guint8(tvb, i)) == 0x00) {
+                                                            break;
+                                                    }
+                                                    sbus_quint8_helper0 += 1;
+                                            }
+                                            tmp_string = tvb_get_ephemeral_string(tvb, 19, sbus_quint8_helper0);
+                                            proto_tree_add_string(sbus_tree,
+                                                hf_sbus_rdwr_file_name, tvb, offset, 
+                                                sbus_quint8_helper0, tmp_string);
+                                            offset += sbus_quint8_helper0;
+                                            /*do not display a field for block data (skip)*/
+                                            offset += (sbus_rdwr_length-6-sbus_quint8_helper0);
+                                    } else { /* block write telegram, no file write*/
+                                            proto_tree_add_item(sbus_tree,
+                                                hf_sbus_block_nr, tvb, offset, 
+                                                2, FALSE); 
+                                            offset += 2;
+                                            proto_tree_add_item(sbus_tree,
+                                                hf_sbus_rdwr_block_addr, tvb, offset, 
+                                                4, FALSE); 
+                                            offset += 4;
+                                            /*do not display a field for block data (skip)*/
+                                            offset += (sbus_rdwr_length-8);
+                                    }
+                                    break;
+                            case SBUS_RD_BLOCK_START_OF_STREAM:
+                                    sbus_rdwr_block_type = tvb_get_guint8(tvb, 14);
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_rdwr_telegram_sequence, tvb, offset,
+                                        1, FALSE);
+                                    offset += 1;
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_block_type, tvb, offset, 
+                                        1, FALSE); 
+                                    offset += 1;
+
+                                    /* Check for file or block download */
+                                    if ((sbus_rdwr_block_type == SBUS_RD_WR_CONFIGURATION_FILE) || 
+                                        (sbus_rdwr_block_type == SBUS_RD_WR_PROGRAM_BLOCK_FILE)) {
+                                            sbus_quint8_helper0=0;
+                                            /*find zero-termination of string*/
+                                            for (i=14; i<38; i++) { /*max length string is 24 char*/ 
+                                                    if ((tvb_get_guint8(tvb, i)) == 0x00) {
+                                                            break;
+                                                    }
+                                                    sbus_quint8_helper0 += 1;
+                                            }
+                                            tmp_string = tvb_get_ephemeral_string(tvb, 14, sbus_quint8_helper0);
+                                            proto_tree_add_string(sbus_tree,
+                                                hf_sbus_rdwr_file_name, tvb, offset, 
+                                                sbus_quint8_helper0, tmp_string);
+                                            offset += sbus_quint8_helper0;
+                                    } else { /* block write telegram, no file write*/
+                                            proto_tree_add_item(sbus_tree,
+                                                hf_sbus_block_nr, tvb, offset, 
+                                                2, FALSE); 
+                                            offset += 2;
+                                    }
+                                    break;
+                            case SBUS_RD_BLOCK_DATA_STREAM:
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_rdwr_telegram_sequence, tvb, offset,
+                                        1, FALSE);
+                                    offset += 1;
+                                    break;
+                            case SBUS_RD_BLOCK_DATA_BYTES:
+                                    sbus_rdwr_block_type = tvb_get_guint8(tvb, 13);
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_block_type, tvb, offset, 
+                                        1, FALSE); 
+                                    offset += 1;
+                                    /* Check for file or block read */
+                                    if ((sbus_rdwr_block_type == SBUS_RD_WR_CONFIGURATION_FILE) || 
+                                        (sbus_rdwr_block_type == SBUS_RD_WR_PROGRAM_BLOCK_FILE)) {
+                                            /*reading from a file*/
+                                            proto_tree_add_item(sbus_tree,
+                                                hf_sbus_rdwr_block_addr, tvb, offset, 
+                                                4, FALSE); 
+                                            offset += 4;
+                                            proto_tree_add_item(sbus_tree,
+                                                hf_sbus_rdwr_block_size, tvb, offset, 
+                                                4, FALSE); 
+                                            offset += 4;
+                                            sbus_quint8_helper0=0;
+                                            /*find zero-termination of string*/
+                                            for (i=22; i<46; i++) { /*max length string is 24 char*/ 
+                                                    if ((tvb_get_guint8(tvb, i)) == 0x00) {
+                                                            break;
+                                                    }
+                                                    sbus_quint8_helper0 += 1;
+                                            }
+                                            tmp_string = tvb_get_ephemeral_string(tvb, 22, sbus_quint8_helper0);
+                                            proto_tree_add_string(sbus_tree,
+                                                hf_sbus_rdwr_file_name, tvb, offset, 
+                                                sbus_quint8_helper0, tmp_string);
+                                            offset += sbus_quint8_helper0 + 1;
+                                    } else { /* block read telegram, no file read*/
+                                            proto_tree_add_item(sbus_tree,
+                                                hf_sbus_block_nr, tvb, offset, 
+                                                2, FALSE); 
+                                            offset += 2;
+                                            proto_tree_add_item(sbus_tree,
+                                                hf_sbus_rdwr_block_addr, tvb, offset, 
+                                                4, FALSE); 
+                                            offset += 4;
+                                            proto_tree_add_item(sbus_tree,
+                                                hf_sbus_rdwr_block_size, tvb, offset, 
+                                                4, FALSE); 
+                                            offset += 4;
+                                    }
+                                    break;
+                            case SBUS_DELETE_BLOCK:
+                            case SBUS_GET_BLOCK_SIZE:
+                                    sbus_rdwr_block_type = tvb_get_guint8(tvb, 13);
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_block_type, tvb, offset, 
+                                        1, FALSE); 
+                                    offset += 1;
+                                    /* Check for file or block deletion */
+                                    if ((sbus_rdwr_block_type == SBUS_RD_WR_CONFIGURATION_FILE) || 
+                                        (sbus_rdwr_block_type == SBUS_RD_WR_PROGRAM_BLOCK_FILE)) {
+                                            /*delete a file*/
+                                            sbus_quint8_helper0=0;
+                                            /*find zero-termination of string*/
+                                            for (i=14; i<38; i++) { /*max length string is 24 char*/ 
+                                                    if ((tvb_get_guint8(tvb, i)) == 0x00) {
+                                                            break;
+                                                    }
+                                                    sbus_quint8_helper0 += 1;
+                                            }
+                                            tmp_string = tvb_get_ephemeral_string(tvb, 14, sbus_quint8_helper0);
+                                            proto_tree_add_string(sbus_tree,
+                                                hf_sbus_rdwr_file_name, tvb, offset, 
+                                                sbus_quint8_helper0, tmp_string);
+                                            offset += sbus_quint8_helper0 + 1;
+                                    } else { /* delete a block*/
+                                            proto_tree_add_item(sbus_tree,
+                                                hf_sbus_block_nr, tvb, offset, 
+                                                2, FALSE); 
+                                            offset += 2;
+                                    }
+                                    break;
+                            case SBUS_GET_PROGRAM_BLOCK_LIST:
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_rdwr_list_type, tvb, offset,
+                                        1, FALSE);
+                                    offset += 1;
+                                    break;
+
+                            default:
+                                    break;
+                            } 
+
+                            break;
 
 /*Inform that command was not dissected and add remaining length*/
                      default:
@@ -984,11 +1467,20 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                        "This telegram isn't implemented in the dissector.");
                                    offset = offset + sbus_helper;
                             }
+                            break;
                      }
               }
 
 /* Response dissection*/
               if (sbus_attribut == SBUS_RESPONSE && request_val) {
+                     /*add response time*/
+                     nstime_delta(&ns, &pinfo->fd->abs_ts, &request_val->req_time);
+                     proto_tree_add_time(sbus_tree, hf_sbus_response_time,
+                           tvb, 0, 0, &ns);
+                     /*add reference to request telegram*/
+                     proto_tree_add_uint(sbus_tree, hf_sbus_response_to, tvb, 0, 0,
+                          request_val->req_frame);
+
                      switch (request_val->cmd_code) {
                      /* Response: 32 bit values*/
                      case SBUS_RD_COUNTER:
@@ -1207,6 +1699,9 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    proto_tree_add_item(sbusdata_tree, hf_sbus_sysinfo0_5,
                                        tvb, offset, 1, FALSE);
                                    offset += 1;
+                            } else {
+                            /*do not dissect all system info telegrams as there is no need*/
+                            offset = (tvb_get_guint8(tvb,9) + 10);
                             }
                             break;
 
@@ -1243,6 +1738,90 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    }
                             }
                             break;
+                     /* Response: Read/Write block data */
+                     case SBUS_RD_WR_PCD_BLOCK:
+                            sbus_rdwr_block_tlg = request_val->block_tlg;
+                            sbus_rdwr_length = tvb_get_guint8(tvb,offset);
+                            proto_tree_add_item(sbus_tree,
+                                hf_sbus_rdwr_block_length, tvb, offset,
+                                1, sbus_rdwr_length);
+                            offset += 1;
+                            proto_tree_add_item(sbus_tree,
+                                hf_sbus_rdwr_acknakcode, tvb, offset, 
+                                1, FALSE); 
+                            offset += 1;
+                            switch(sbus_rdwr_block_tlg) {
+                            case SBUS_WR_START_OF_STREAM:
+                            case SBUS_WR_BLOCK_DATA_STREAM:
+                            case SBUS_WR_BLOCK_END_OF_STREAM:
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_rdwr_telegram_sequence, tvb, offset,
+                                        1, FALSE);
+                                    offset += 1;
+                                    break;
+                            case SBUS_WR_ABORT_BLOCK_STREAM:
+                            case SBUS_RD_ABORT_BLOCK_STREAM:
+                            case SBUS_WR_BLOCK_DATA_BYTES:
+                            case SBUS_DELETE_BLOCK:
+                                    break;
+                            case SBUS_RD_BLOCK_START_OF_STREAM:
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_rdwr_telegram_sequence, tvb, offset,
+                                        1, FALSE);
+                                    offset += 1;
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_rdwr_block_size, tvb, offset, 
+                                        4, FALSE); 
+                                    offset += 4;
+                                    /*do not display a field for block data (skip)*/
+                                    offset += (sbus_rdwr_length-6);
+                                    break;
+                            case SBUS_RD_BLOCK_DATA_STREAM:
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_rdwr_telegram_sequence, tvb, offset,
+                                        1, FALSE);
+                                    offset += 1;
+                                    /*do not display a field for block data (skip)*/
+                                    offset += (sbus_rdwr_length-2);
+                                    break;
+                            case SBUS_RD_BLOCK_DATA_BYTES:
+                                    /*do not display a field for block data (skip)*/
+                                    offset += (sbus_rdwr_length-1);
+                                    break;
+                            case SBUS_GET_BLOCK_SIZE:
+                                    sbus_rdwr_block_type = tvb_get_guint8(tvb, 10);
+                                    /* Check for unknown block type */
+                                    if (sbus_rdwr_block_type == SBUS_RD_WR_UNKNOWN_BLOCK_TYPE) {
+                                            /*unknown block, no more data follows*/
+                                    } else { /* add block size and CRC32 in case of known block*/
+                                            proto_tree_add_item(sbus_tree,
+                                                hf_sbus_rdwr_block_size, tvb, offset, 
+                                                4, FALSE); 
+                                            offset += 4;
+                                            /*Now the CRC32 follows, but I don't bother calculating it*/
+                                            offset += 4;
+                                    }
+                                    break;
+                            case SBUS_GET_PROGRAM_BLOCK_LIST:
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_block_type, tvb, offset, 
+                                        1, FALSE); 
+                                    offset += 1;
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_block_nr, tvb, offset, 
+                                        2, FALSE); 
+                                    offset += 2;
+                                    proto_tree_add_item(sbus_tree,
+                                        hf_sbus_rdwr_block_size, tvb, offset, 
+                                        4, FALSE); 
+                                    offset += 4;
+                                    /*do not display block_timestamp as no description is available*/
+                                    offset += (sbus_rdwr_length-8);
+                                    break;
+                            default:
+                                    break;
+                            } 
+                            break;
 
                      /*Inform that response was not dissected and add remaining length*/
                      default:
@@ -1255,6 +1834,15 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               }
 
               if (sbus_attribut == SBUS_ACKNAK) {
+                     /*Add response time if possible*/
+                     if (request_val) {
+                           nstime_delta(&ns, &pinfo->fd->abs_ts, &request_val->req_time);
+                           proto_tree_add_time(sbus_tree, hf_sbus_response_time,
+                               tvb, 0, 0, &ns);
+                           /*add reference to request telegram*/
+                          proto_tree_add_uint(sbus_tree, hf_sbus_response_to, tvb, 0, 0,
+                                request_val->req_frame);
+                     }
                      proto_tree_add_item(sbus_tree,
                          hf_sbus_acknackcode, tvb, offset, 2, FALSE);
                          offset += 2;
@@ -1400,7 +1988,7 @@ proto_register_sbus(void)
               { &hf_sbus_block_type,
                      { "Block type",           "sbus.block_type",
                      FT_UINT8, BASE_HEX, VALS(sbus_block_types), 0,
-                     "Program block type read", HFILL }
+                     "Program block type", HFILL }
               },
 
               { &hf_sbus_block_nr,
@@ -1567,6 +2155,55 @@ proto_register_sbus(void)
                      "Web server sequence nr (PACK_N)", HFILL }
               },
 
+              { &hf_sbus_rdwr_block_length,
+                     { "Read/write block telegram length",      "sbus.block.length",
+                     FT_UINT8, BASE_DEC, NULL, 0, 
+                     "Length of block part in this telegram", HFILL }
+              },
+
+              { &hf_sbus_rdwr_telegram_type,
+                     { "Read/write block telegram type",      "sbus.block.tlgtype",
+                     FT_UINT8, BASE_HEX, VALS(rdwrblock_vals), 0, 
+                     "Type of RD/WR block telegram", HFILL }
+              },
+
+              { &hf_sbus_rdwr_telegram_sequence,
+                     { "Sequence",           "sbus.block.seq",
+                     FT_UINT8, BASE_DEC, NULL, 0,           
+                     "Sequence number of block data stream telegram", HFILL }
+              },
+
+              { &hf_sbus_rdwr_block_size,
+                     { "Block size in bytes",      "sbus.block.size",
+                     FT_UINT32, BASE_DEC, NULL, 0,           
+                     "The size of the block in bytes", HFILL }
+              },
+
+              { &hf_sbus_rdwr_block_addr,
+                     { "Address inside block",      "sbus.block.addr",
+                     FT_UINT32, BASE_DEC, NULL, 0,           
+                     "The address inside a block", HFILL }
+              },
+
+
+              { &hf_sbus_rdwr_file_name,
+                     { "File name",      "sbus.block.filename",
+                     FT_STRING, BASE_NONE, NULL, 0,
+                     "Name of file to in RD/WR block telegram", HFILL }
+              },
+
+              { &hf_sbus_rdwr_list_type,
+                     { "Get program block list, command type",      "sbus.block.getlisttype",
+                     FT_UINT8, BASE_HEX, VALS(rdwrblock_list_type_vals), 0, 
+                     "Type of the Get Program Block list request", HFILL }
+              },
+
+              { &hf_sbus_rdwr_acknakcode,
+                     { "ACK/NAK code",      "sbus.block.nakcode",
+                     FT_UINT8, BASE_HEX, VALS(rdwrblock_sts), 0,           
+                     "ACK/NAK response for block write requests", HFILL }
+              },
+
               { &hf_sbus_crc,
                      { "Checksum",      "sbus.crc",
                      FT_UINT16, BASE_HEX, NULL, 0,
@@ -1577,6 +2214,10 @@ proto_register_sbus(void)
                      { "Bad Checksum",      "sbus.crc_bad",
                      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                      "A bad checksum in the telegram", HFILL }},
+
+              { &hf_sbus_retry, 
+                     { "Retry",      "sbus.retry", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                     "Repeated request telegram (due to wrong or missing answer)", HFILL }},
 
               { &hf_sbus_flags_accu,
                      { "ACCU", "sbus.flags.accu",
@@ -1600,7 +2241,38 @@ proto_register_sbus(void)
                      { "Z-flag", "sbus.flags.zflag",
                      FT_BOOLEAN, 8, TFS(&tfs_sbus_flags), F_ZERO,
                      "Zero status flag", HFILL }
+              },
+
+              { &hf_sbus_response_in,
+                     { "Response in frame nr.", "sbus.response_in",
+                     FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                     "The response to this Ether-S-Bus request is in this frame", HFILL }
+              },
+
+              { &hf_sbus_response_to,
+                     { "Request in frame nr.", "sbus.response_to",
+                     FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                     "This is a response to the Ether-S-Bus request in this frame", HFILL }
+              },
+
+              { &hf_sbus_response_time,
+                     { "Response time", "sbus.response_time",
+                     FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+                     "The time between the request and the response", HFILL }
+              },
+
+              { &hf_sbus_timeout,
+                     { "Time passed since first request", "sbus.timeout",
+                     FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+                     "The time between the first (identical) request and the repetition", HFILL }
+              },
+
+              { &hf_sbus_request_in,
+                     { "First request in frame nr.", "sbus.request_in",
+                     FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                     "The first request of this repeated request is in this frame", HFILL }
               }
+
        };
 
 /* Setup protocol subtree array */
