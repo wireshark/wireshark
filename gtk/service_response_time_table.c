@@ -39,6 +39,8 @@
 #include "gtk/filter_utils.h"
 #include "gtk/gui_utils.h"
 
+#define NANOSECS_PER_SEC 1000000000
+
 enum
 {
    INDEX_COLUMN,
@@ -190,7 +192,7 @@ srt_time_func (GtkTreeViewColumn *column _U_,
 	     g_object_set(renderer, "text", "", NULL);
 	     return;
 	 }
-	 str = g_strdup_printf("%3d.%05d", (int)data->secs, data->nsecs/10000);
+	 str = g_strdup_printf("%3d.%06d", (int)data->secs, (data->nsecs+500)/1000);
 	 g_object_set(renderer, "text", str, NULL);
 	 g_free(str);
 }
@@ -207,8 +209,8 @@ srt_avg_func (GtkTreeViewColumn *column _U_,
      gint data_column = GPOINTER_TO_INT(user_data);
 
      gtk_tree_model_get(model, iter, data_column, &td, -1);
-     str=g_strdup_printf("%3" G_GINT64_MODIFIER "d.%05" G_GINT64_MODIFIER "d",
- 		    td/100000, td%100000);
+     str=g_strdup_printf("%3d.%06d",
+ 		    (int)(td/1000000), (int)(td%1000000));
 	 g_object_set(renderer, "text", str, NULL);
 	 g_free(str);
 }
@@ -412,12 +414,14 @@ draw_srt_table_data(srt_stat_table *rst)
 		if(rst->procedures[i].stats.num==0){
 			continue;
 		}
+		/* Scale the average SRT in units of 1us and round to the nearest us.
+		   tot.secs is a time_t which may be 32 or 64 bits (or even floating)
+                   depending uon the platform.  After casting tot.secs to 64 bits, it
+                   would take a capture with a duration of over 136 *years* to 
+                   overflow the secs portion of td. */
+		td = ((guint64)(rst->procedures[i].stats.tot.secs))*NANOSECS_PER_SEC + rst->procedures[i].stats.tot.nsecs;
+		td = ((td / rst->procedures[i].stats.num) + 500) / 1000;
 
-		/* scale it to units of 10us.*/
-		/* for long captures with a large tot time, this can overflow on 32bit */
-		td=(int)rst->procedures[i].stats.tot.secs;
-		td=td*100000+(int)rst->procedures[i].stats.tot.nsecs/10000;
-		td/=rst->procedures[i].stats.num;
 		gtk_list_store_set(store, &rst->procedures[i].iter,
 				   CALLS_COLUMN,     rst->procedures[i].stats.num,
 				   MIN_SRT_COLUMN,   &rst->procedures[i].stats.min,
