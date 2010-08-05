@@ -565,6 +565,11 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 		tmp_info.src.type = AT_IPv6;
 		tmp_info.src.len  = 16;
 	}
+	else
+	{
+		tmp_info.src.type = AT_NONE;
+		tmp_info.src.len  = 0;
+	}
 
 	addr = g_malloc(tmp_info.src.len);
 	memcpy(addr, sctp_info->ip_src.data, tmp_info.src.len);
@@ -582,7 +587,12 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 		tmp_info.dst.type = AT_IPv6;
 		tmp_info.dst.len  = 16;
 	}
-
+	else
+	{
+		tmp_info.dst.type = AT_NONE;
+		tmp_info.dst.len  = 0;
+	}
+	
 	addr = g_malloc(tmp_info.dst.len);
 	memcpy(addr, sctp_info->ip_dst.data, tmp_info.dst.len);
 	tmp_info.dst.data = addr;
