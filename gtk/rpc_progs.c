@@ -160,7 +160,7 @@ add_new_program(rpc_program_t *rp)
 
 
 
-static int
+static gboolean
 rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg)
 {
 	const rpc_call_info_value *ri = arg;
@@ -216,7 +216,7 @@ rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 
 	/* we are only interested in reply packets */
 	if(ri->request || !rp){
-		return 0;
+		return FALSE;
 	}
 
 	/* calculate time delta between request and reply */
@@ -256,7 +256,7 @@ rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	}
 	rp->num++;
 
-	return 1;
+	return TRUE;
 }
 
 
@@ -275,11 +275,11 @@ rpcprogs_draw(void *dummy _U_)
 		}
 		/* Scale the average SRT in units of 1us and round to the nearest us.
 		   tot.secs is a time_t which may be 32 or 64 bits (or even floating)
-                   depending on the platform.  After casting tot.secs to a 64 bits int, it
-                   would take a capture with a duration of over 136 *years* to 
-                   overflow the secs portion of td. */
+		   depending on the platform.  After casting tot.secs to a 64 bits int, it
+		   would take a capture with a duration of over 136 *years* to
+		   overflow the secs portion of td. */
 		td = ((guint64)(rp->tot.secs))*NANOSECS_PER_SEC + rp->tot.nsecs;
-		td = ((td / rp->num) + 500) / 1000; 
+		td = ((td / rp->num) + 500) / 1000;
 
 		g_snprintf(rp->sprogram, sizeof(rp->sprogram), "%s",rpc_prog_name(rp->program));
 		gtk_label_set_text(GTK_LABEL(rp->wprogram), rp->sprogram);
