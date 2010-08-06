@@ -48,6 +48,8 @@ static int hf_synergy_handshake_clientname = -1;
 
 static int hf_synergy_cnop = -1;
 
+static int hf_synergy_calv = -1;
+
 static int hf_synergy_cbye = -1;
 
 static int hf_synergy_cinn = -1;
@@ -162,6 +164,8 @@ dissect_synergy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_synergy_handshake(tvb,pinfo,synergy_tree,offset+4);
 		else if(strncmp(buffer,"CNOP",4)==0)
 			proto_tree_add_item(synergy_tree,hf_synergy_cnop,tvb,offset+4,-1,FALSE);
+		else if(strncmp(buffer,"CALV",4)==0)
+			proto_tree_add_item(synergy_tree,hf_synergy_calv,tvb,offset+4,-1,FALSE);
 		else if(strncmp(buffer,"CBYE",4)==0)
 			proto_tree_add_item(synergy_tree,hf_synergy_cbye,tvb,offset+4,-1,FALSE);
 		else if(strncmp(buffer,"CINN",4)==0)
@@ -378,6 +382,9 @@ proto_register_synergy(void)
 		},
 		{ &hf_synergy_handshake_clientname,
 			{ "Client Name","synergy.handshake.client",FT_STRING, BASE_NONE, NULL, 0x0,NULL, HFILL }
+		},
+		{ &hf_synergy_calv,
+			{ "Keep Alive","synergy.calv",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_cnop,
 			{ "No Operation","synergy.cnop",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
