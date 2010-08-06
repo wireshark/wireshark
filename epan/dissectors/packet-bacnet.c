@@ -43,48 +43,48 @@ static dissector_handle_t data_handle;
 
 static const char*
 bacnet_mesgtyp_name (guint8 bacnet_mesgtyp){
-  static const char *type_names[] = {
-        "Who-Is-Router-To-Network",
-	"I-Am-Router-To-Network",
-	"I-Could-Be-Router-To-Network",
-	"Reject-Message-To-Network",
-	"Router-Busy-To-Network",
-	"Router-Available-To-Network",
-	"Initialize-Routing-Table",
-	"Initialize-Routing-Table-Ack",
-	"Establish-Connection-To-Network",
-	"Disconnect-Connection-To-Network"
+	static const char *type_names[] = {
+		"Who-Is-Router-To-Network",
+		"I-Am-Router-To-Network",
+		"I-Could-Be-Router-To-Network",
+		"Reject-Message-To-Network",
+		"Router-Busy-To-Network",
+		"Router-Available-To-Network",
+		"Initialize-Routing-Table",
+		"Initialize-Routing-Table-Ack",
+		"Establish-Connection-To-Network",
+		"Disconnect-Connection-To-Network"
 	};
-  if(bacnet_mesgtyp < 0x0a) {
-	return type_names[bacnet_mesgtyp];
-  } else {
-	return (bacnet_mesgtyp < 0x80)? "Reserved for Use by ASHRAE" : "Vendor Proprietary Message";
-  }
+	if(bacnet_mesgtyp < 0x0a) {
+		return type_names[bacnet_mesgtyp];
+	} else {
+		return (bacnet_mesgtyp < 0x80)? "Reserved for Use by ASHRAE" : "Vendor Proprietary Message";
+	}
 }
 
 static const char*
 bacnet_rejectreason_name (guint8 bacnet_rejectreason) {
-  static const char *type_names[] = {
-	"Other error.",
-	"The router is not directly connected to DNET and cannot find a router to DNET on any directly connected network using Who-Is-Router-To-Network messages.",
-	"The router is busy and unable to accept messages for the specified DNET at the present time.",
-	"It is an unknown network layer message type.",
-	"The message is too long to be routed to this DNET.",
-	"The router is no longer directly connected to DNET but can reconnect if requested.",
-	"The router is no longer directly connected to DNET and cannot reconnect even if requested."
+	static const char *type_names[] = {
+		"Other error.",
+		"The router is not directly connected to DNET and cannot find a router to DNET on any directly connected network using Who-Is-Router-To-Network messages.",
+		"The router is busy and unable to accept messages for the specified DNET at the present time.",
+		"It is an unknown network layer message type.",
+		"The message is too long to be routed to this DNET.",
+		"The router is no longer directly connected to DNET but can reconnect if requested.",
+		"The router is no longer directly connected to DNET and cannot reconnect even if requested."
 	};
-   return (bacnet_rejectreason > 6)? "Invalid Rejection Reason.":  type_names[bacnet_rejectreason];
+	return (bacnet_rejectreason > 6)? "Invalid Rejection Reason.":  type_names[bacnet_rejectreason];
 }
 
 /* Network Layer Control Information */
-#define BAC_CONTROL_NET		 0x80
-#define BAC_CONTROL_RES1	 0x40
-#define BAC_CONTROL_DEST	 0x20
-#define BAC_CONTROL_RES2	 0x10
-#define BAC_CONTROL_SRC		 0x08
-#define BAC_CONTROL_EXPECT	 0x04
-#define BAC_CONTROL_PRIO_HIGH	 0x02
-#define BAC_CONTROL_PRIO_LOW	 0x01
+#define BAC_CONTROL_NET		0x80
+#define BAC_CONTROL_RES1	0x40
+#define BAC_CONTROL_DEST	0x20
+#define BAC_CONTROL_RES2	0x10
+#define BAC_CONTROL_SRC		0x08
+#define BAC_CONTROL_EXPECT	0x04
+#define BAC_CONTROL_PRIO_HIGH	0x02
+#define BAC_CONTROL_PRIO_LOW	0x01
 
 /* Network Layer Message Types */
 #define BAC_NET_WHO_R		0x00
@@ -204,15 +204,15 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	i = 0;
 	j = 0;
 
-/* I don't know the length of the NPDU by now. Setting the length after dissection */
+	/* I don't know the length of the NPDU yet; Setting the length after dissection */
 	ti = proto_tree_add_item(tree, proto_bacnet, tvb, 0, -1, FALSE);
 
 	bacnet_tree = proto_item_add_subtree(ti, ett_bacnet);
 
 	proto_tree_add_uint_format_value(bacnet_tree, hf_bacnet_version, tvb,
-		offset, 1,
-                       bacnet_version,"0x%02x (%s)",bacnet_version,
-                       (bacnet_version == 0x01)?"ASHRAE 135-1995":"unknown");
+					 offset, 1,
+					 bacnet_version,"0x%02x (%s)",bacnet_version,
+					 (bacnet_version == 0x01)?"ASHRAE 135-1995":"unknown");
 	offset ++;
 	ct = proto_tree_add_uint(bacnet_tree, hf_bacnet_control,
 		tvb, offset, 1, bacnet_control);
@@ -345,11 +345,8 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			"%02x (%s)", bacnet_mesgtyp,
 			bacnet_mesgtyp_name(bacnet_mesgtyp));
 		/* Put the NPDU Type in the info column */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_add_str(pinfo->cinfo, COL_INFO,
-				bacnet_mesgtyp_name(bacnet_mesgtyp));
-		}
+		col_add_str(pinfo->cinfo, COL_INFO,
+			    bacnet_mesgtyp_name(bacnet_mesgtyp));
 		offset ++;
 		/* Vendor ID
 		* The standard says: "If Bit 7 of the control octet is 1 and
@@ -362,7 +359,6 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(bacnet_tree, hf_bacnet_vendor,
 				tvb, offset, 2, FALSE);
 			offset += 2;
-			/* attention: doesnt work here because of if(tree) */
 			call_dissector(data_handle,
 				tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 		}
@@ -416,16 +412,16 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* Port ID */
 					proto_tree_add_item(bacnet_tree, hf_bacnet_portid,
 					tvb, offset, 1, FALSE);
-				offset ++;
+					offset ++;
 					/* Port Info Length */
-				bacnet_pinfolen = tvb_get_guint8(tvb, offset);
+					bacnet_pinfolen = tvb_get_guint8(tvb, offset);
 					proto_tree_add_uint(bacnet_tree, hf_bacnet_pinfolen,
 					tvb, offset, 1, bacnet_pinfolen);
-				offset ++;
-				proto_tree_add_text(bacnet_tree, tvb, offset,
+					offset ++;
+					proto_tree_add_text(bacnet_tree, tvb, offset,
 					bacnet_pinfolen, "Port Info: %s",
 					tvb_bytes_to_str(tvb, offset, bacnet_pinfolen));
-				offset += bacnet_pinfolen;
+					offset += bacnet_pinfolen;
 			}
 		}
 		/* Establish-Connection-To-Network */
@@ -443,8 +439,10 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tvb, offset, 2, FALSE);
 			offset += 2;
 		}
-		proto_item_set_len(ti, offset);
 	}
+	/* Now set NPDU length */
+	proto_item_set_len(ti, offset);
+
 	/* dissect BACnet APDU */
 	next_tvb = tvb_new_subset_remaining(tvb,offset);
 	if (bacnet_control & BAC_CONTROL_NET) {
