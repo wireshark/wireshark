@@ -431,7 +431,7 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 		/* Create new data if necessary */
 		if (!data)
 		{
-			data = se_alloc(sizeof(rtsp_conversation_data_t));
+			data = se_alloc0(sizeof(rtsp_conversation_data_t));
 			conversation_add_proto_data(conv, proto_rtsp, data);
 		}
 
