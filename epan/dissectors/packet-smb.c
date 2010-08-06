@@ -365,8 +365,13 @@ static int hf_smb_lanman = -1;
 static int hf_smb_setup_action_guest = -1;
 static int hf_smb_fs = -1;
 static int hf_smb_connect_flags_dtid = -1;
+static int hf_smb_connect_flags_ext_sig = -1;
+static int hf_smb_connect_flags_ext_resp = -1;
 static int hf_smb_connect_support_search = -1;
 static int hf_smb_connect_support_in_dfs = -1;
+static int hf_smb_connect_support_csc_mask_vals = -1;
+static int hf_smb_connect_support_uniquefilename = -1;
+static int hf_smb_connect_support_extended_signature = -1;
 static int hf_smb_max_setup_count = -1;
 static int hf_smb_total_param_count = -1;
 static int hf_smb_total_data_count = -1;
@@ -7497,6 +7502,11 @@ dissect_empty_andx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
 	return offset;
 }
 
+	/*
+	 * From [MS-SMB] - v20100711 Server Message Block (SMB) Protocol Specification
+	 * http://download.microsoft.com/download/a/e/6/ae6e4142-aa58-45c6-8dcf-a657e5900cd3/%5BMS-SMB%5D.pdf
+	 * 2.2.4.7 SMB_COM_TREE_CONNECT_ANDX (0x75)
+	 */
 
 static const true_false_string tfs_connect_support_search = {
 	"Exclusive search bits supported",
@@ -7505,6 +7515,21 @@ static const true_false_string tfs_connect_support_search = {
 static const true_false_string tfs_connect_support_in_dfs = {
 	"Share is in Dfs",
 	"Share isn't in Dfs"
+};
+static const value_string connect_support_csc_mask_vals[] = {
+	{ 0,	"Automatic file-to-file reintegration NOT permitted"},
+	{ 1,	"Automatic file-to-file reintegration permitted"},
+	{ 2,	"Offline caching allow for the share"},
+	{ 3,	"Offline caching NOT allow for the share"},
+	{0, NULL}
+};
+static const true_false_string tfs_connect_support_uniquefilename = {
+	"Client allow to cache share namespaces",
+	"Client NOT allow to cache share namespaces"
+};
+static const true_false_string tfs_connect_support_extended_signature = {
+	"Extended signature",
+	"NOT extended signature"
 };
 
 static int
@@ -7525,6 +7550,12 @@ dissect_connect_support_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 			tvb, offset, 2, mask);
 		proto_tree_add_boolean(tree, hf_smb_connect_support_in_dfs,
 			tvb, offset, 2, mask);
+		proto_tree_add_uint(tree, hf_smb_connect_support_csc_mask_vals,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_connect_support_uniquefilename,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_connect_support_extended_signature,
+			tvb, offset, 2, mask);
 	}
 
 	offset += 2;
@@ -7535,6 +7566,16 @@ dissect_connect_support_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 static const true_false_string tfs_disconnect_tid = {
 	"DISCONNECT TID",
 	"Do NOT disconnect TID"
+};
+
+static const true_false_string tfs_extended_signature = {
+	"Extended Signature",
+	"NOT Extended Signature"
+};
+
+static const true_false_string tfs_extended_response = {
+	"Extended Response",
+	"NOT Extended Response"
 };
 
 static int
@@ -7552,6 +7593,10 @@ dissect_connect_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		tree = proto_item_add_subtree(item, ett_smb_connect_flags);
 
 		proto_tree_add_boolean(tree, hf_smb_connect_flags_dtid,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_connect_flags_ext_sig,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_connect_flags_ext_resp,
 			tvb, offset, 2, mask);
 	}
 
@@ -7664,6 +7709,9 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	guint16 andxoffset=0;
 	guint16 bc;
 	int an_len;
+	int count = 0;
+	proto_item *it = NULL;
+	proto_tree *tr = NULL;
 	const char *an;
 	smb_info_t *si = pinfo->private_data;
 
@@ -7706,12 +7754,28 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	   idea how to dissect it.  I'm guessing the third word
 	   contains connect support bits, which looks plausible
 	   from the values I've seen. */
-
+	
+	/* MaximalShareAccessRights and GuestMaximalShareAccessRights */
 	while (wleft != 0) {
-		proto_tree_add_text(tree, tvb, offset, 2,
-		    "Word parameter: 0x%04x", tvb_get_letohs(tvb, offset));
-		offset += 2;
-		wleft--;
+		/*
+		 * Refer to [MS-SMB] - v20100711
+		 * When a server returns extended information, the response
+		 * takes the following format, with WordCount = 7.
+		 * MaximalShareAccessRights, and GuestMaximalShareAccessRights fields
+		 * has added.
+		 */
+		if (count == 0) {
+			it = proto_tree_add_text(tree, tvb, offset, 4,
+				"Maximal Share Access Rights");
+		} else {
+			it = proto_tree_add_text(tree, tvb, offset, 4,
+				"Guest Maximal Share Access Rights");
+		}
+		tr = proto_item_add_subtree(it, ett_smb_nt_access_mask);
+		
+		offset = dissect_smb_access_mask(tvb, tr, offset);
+		wleft -= 2;
+		count++;
 	}
 
 	BYTE_COUNT;
@@ -18422,6 +18486,14 @@ proto_register_smb(void)
 		{ "Disconnect TID", "smb.connect.flags.dtid", FT_BOOLEAN, 16,
 		TFS(&tfs_disconnect_tid), 0x0001, "Disconnect TID?", HFILL }},
 
+	{ &hf_smb_connect_flags_ext_sig,
+		{ "Extended Signature", "smb.connect.flags.extendedsig", FT_BOOLEAN, 16,
+		TFS(&tfs_extended_signature), 0x0004, "Extended signature?", HFILL }},
+
+	{ &hf_smb_connect_flags_ext_resp,
+		{ "Extended Response", "smb.connect.flags.extendedresp", FT_BOOLEAN, 16,
+		TFS(&tfs_extended_response), 0x0008, "Extended response?", HFILL }},
+
 	{ &hf_smb_connect_support_search,
 		{ "Search Bits", "smb.connect.support.search", FT_BOOLEAN, 16,
 		TFS(&tfs_connect_support_search), 0x0001, "Exclusive Search Bits supported?", HFILL }},
@@ -18429,6 +18501,18 @@ proto_register_smb(void)
 	{ &hf_smb_connect_support_in_dfs,
 		{ "In Dfs", "smb.connect.support.dfs", FT_BOOLEAN, 16,
 		TFS(&tfs_connect_support_in_dfs), 0x0002, "Is this in a Dfs tree?", HFILL }},
+
+	{ &hf_smb_connect_support_csc_mask_vals,
+		{ "CSC Mask", "smb.connect.support.cscmask", FT_UINT16, BASE_DEC,
+		VALS(connect_support_csc_mask_vals), 0x000c, "CSC mask?", HFILL }},
+
+	{ &hf_smb_connect_support_uniquefilename,
+		{ "Unique File Name", "smb.connect.support.uniqfilename", FT_BOOLEAN, 16,
+		TFS(&tfs_connect_support_uniquefilename), 0x0010, "Unique file name supported?", HFILL }},
+
+	{ &hf_smb_connect_support_extended_signature,
+		{ "Extended Signatures", "smb.connect.support.extendedsig", FT_BOOLEAN, 16,
+		TFS(&tfs_connect_support_extended_signature), 0x0020, "Extended signatures?", HFILL }},
 
 	{ &hf_smb_max_setup_count,
 		{ "Max Setup Count", "smb.msc", FT_UINT8, BASE_DEC,
