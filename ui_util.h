@@ -43,7 +43,7 @@ extern "C" {
 void set_main_window_name(const gchar *);
 /* Update the name of the main window if the user-specified decoration
    changed. */
-void update_main_window_name(void);
+void update_main_window_title(void);
 /* update the main window */
 extern void main_window_update(void);
 /* exit the main window */

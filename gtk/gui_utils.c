@@ -48,6 +48,8 @@
 
 #include "image/wsicon16.xpm"
 
+#include "../version_info.h"
+
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -542,8 +544,9 @@ GtkWidget *pixbuf_to_widget(const char * pb_data) {
  */
 #define MAIN_WINDOW_NAME_KEY  "main_window_name"
 
-/* Set the name of the top-level window and its icon to the specified
-   string. */
+/* Set the name of the top level main_window_name with the specified string and call 
+   update_main_window_title() to construct the full title and display it in the main window
+   and its icon title. */
 void
 set_main_window_name(const gchar *window_name)
 {
@@ -554,25 +557,35 @@ set_main_window_name(const gchar *window_name)
     g_free(old_window_name);
     g_object_set_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY, g_strdup(window_name));
 
-    update_main_window_name();
+  update_main_window_title();
 }
 
-/* Update the name of the main window if the user-specified decoration
-   changed. */
+/* Construct the main window's title with the current main_window_name, optionally appended
+   with the user-specified title and/or wireshark version. Display the result in the main
+   window title bar and in its icon title. 
+   NOTE: The name was changed from '_name' to '_title' because main_window_name is actually
+         set in set_main_window_name() and is only one of the components of the title. */
 void
-update_main_window_name(void)
+update_main_window_title(void)
 {
     gchar *window_name;
     gchar *title;
 
+    /* Get the current filename or other title set in set_main_window_name */
     window_name = g_object_get_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY);
     if (window_name != NULL) {
-        /* use user-defined window title if preference is set */
-        title = create_user_window_title(window_name);
-        gtk_window_set_title(GTK_WINDOW(top_level), title);
-        gdk_window_set_icon_name(top_level->window, title);
-        g_free(title);
-    }
+
+    /* Optionally append the user-defined window title */
+    title = create_user_window_title(window_name);
+
+    /* Optionally append the version */
+    if (prefs.gui_version_in_start_page) {
+        title = g_strdup_printf("%s   [Wireshark %s %s]", title, VERSION, wireshark_svnversion);
+    } 
+    gtk_window_set_title(GTK_WINDOW(top_level), title);
+    gdk_window_set_icon_name(top_level->window, title);
+    g_free(title);
+  }
 }
 
 /* update the main window */
@@ -1148,7 +1161,7 @@ create_user_window_title(const gchar *caption)
     if ((prefs.gui_window_title == NULL) || (*prefs.gui_window_title == '\0'))
         return g_strdup(caption);
 
-    return g_strdup_printf("%s %s", prefs.gui_window_title, caption);
+    return g_strdup_printf("%s   [%s]", caption, prefs.gui_window_title);
 }
 
 /* XXX move toggle_tree over from proto_draw.c to handle GTK+ 1 */

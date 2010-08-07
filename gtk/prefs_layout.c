@@ -432,8 +432,8 @@ layout_prefs_show(void)
 
     /* Window title */
     window_title_te = create_preference_entry(main_tb, pos++,
-        "Custom window title (prepended to existing titles):", 
-        "Enter the text to be prepended to the window title.",
+        "Custom window title (appended to existing titles):", 
+        "Enter the text to be appended to the window title.",
         prefs.gui_window_title);
     gtk_entry_set_text(GTK_ENTRY(window_title_te), prefs.gui_window_title);
     g_object_set_data(G_OBJECT(main_vb), GUI_WINDOW_TITLE_KEY, window_title_te);
@@ -485,7 +485,7 @@ layout_prefs_fetch(GtkWidget *w)
 void
 layout_prefs_apply(GtkWidget *w _U_)
 {
-    update_main_window_name();
+    update_main_window_title();
     main_widgets_rearrange();
 }
 

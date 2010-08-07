@@ -2971,7 +2971,7 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "# Ex: mozilla %%s\n");
   fprintf(pf, PRS_GUI_WEBBROWSER ": %s\n", prefs.gui_webbrowser);
 
-  fprintf(pf, "\n# Custom window title. (Prepended to existing titles.)\n");
+  fprintf(pf, "\n# Custom window title. (Appended to existing titles.)\n");
   fprintf(pf, PRS_GUI_WINDOW_TITLE ": %s\n",
 	  prefs.gui_window_title);
 
@@ -2979,7 +2979,7 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_START_TITLE ": %s\n",
 	  prefs.gui_start_title);
 
-  fprintf(pf, "\n# Show version in start page, can be useful in custom builds.\n");
+  fprintf(pf, "\n# Show version in the start page and main screen's title bar.\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_VERSION_IN_START_PAGE ": %s\n",
 	  prefs.gui_version_in_start_page == TRUE ? "TRUE" : "FALSE");

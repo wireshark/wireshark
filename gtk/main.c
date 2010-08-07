@@ -1415,21 +1415,19 @@ resolv_update_cb(gpointer data _U_)
 }
 
 
-/* Set the file name in the name for the main window and in the name for the main window's icon. */
-static void
+/* Set main_window_name and it's icon title to the capture filename */
+void
 set_display_filename(capture_file *cf)
 {
-  gchar       *win_name;
+  gchar *window_name;
 
-  if (!cf->is_tempfile && cf->filename) {
-    /* Add this filename to the list of recent files in the "Recent Files" submenu */
-    add_menu_recent_capture_file(cf->filename);
+  if (cf->filename) {
+	  window_name = g_strdup_printf("%s", cf_get_display_name(cf));
+  } else {
+	  window_name = "The Wireshark Network Analyzer";
   }
-
-  /* window title */
-  win_name = g_strdup_printf("%s - Wireshark", cf_get_display_name(cf));
-  set_main_window_name(win_name);
-  g_free(win_name);
+  set_main_window_name(window_name);
+  g_free(window_name);
 }
 
 GtkWidget           *close_dlg = NULL;
@@ -1508,7 +1506,11 @@ main_cf_cb_file_read_started(capture_file *cf _U_)
 static void
 main_cf_cb_file_read_finished(capture_file *cf)
 {
-    set_display_filename(cf);
+	if (!cf->is_tempfile && cf->filename) {
+		/* Add this filename to the list of recent files in the "Recent Files" submenu */
+		add_menu_recent_capture_file(cf->filename);
+	}
+	set_display_filename(cf);
 
     /* Enable menu items that make sense if you have a capture file you've
        finished reading. */
@@ -1568,8 +1570,6 @@ main_capture_set_main_window_title(capture_options *capture_opts)
     if(capture_opts->iface) {
         g_string_append_printf(title, "from %s ", cf_get_tempfile_source(capture_opts->cf));
     }
-    g_string_append(title, "- Wireshark");
-
     set_main_window_name(title->str);
     g_string_free(title, TRUE);
 }
@@ -1619,7 +1619,11 @@ main_capture_cb_capture_update_finished(capture_options *capture_opts)
     capture_file *cf = capture_opts->cf;
     static GList *icon_list = NULL;
 
-    set_display_filename(cf);
+	if (!cf->is_tempfile && cf->filename) {
+		/* Add this filename to the list of recent files in the "Recent Files" submenu */
+		add_menu_recent_capture_file(cf->filename);
+	}
+	set_display_filename(cf);
 
     /* Enable menu items that make sense if you're not currently running
      a capture. */
@@ -3564,14 +3568,10 @@ static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
 {
     GtkAccelGroup *accel;
-    gchar         *title;
 
-    /* use user-defined title if preference is set */
-    title = create_user_window_title("The Wireshark Network Analyzer");
-
-    /* Main window */
-    top_level = window_new(GTK_WINDOW_TOPLEVEL, title);
-    g_free(title);
+	/* Main window */
+    top_level = window_new(GTK_WINDOW_TOPLEVEL, "");
+    set_main_window_name("The Wireshark Network Analyzer");
 
     gtk_widget_set_name(top_level, "main window");
     g_signal_connect(top_level, "delete_event", G_CALLBACK(main_window_delete_event_cb),
@@ -3751,7 +3751,7 @@ void change_configuration_profile (const gchar *profile_name)
    prefs_apply_all();
 
    /* Update window view and redraw the toolbar */
-   update_main_window_name();
+   update_main_window_title();
    toolbar_redraw_all();
 
    /* Enable all protocols and disable from the disabled list */

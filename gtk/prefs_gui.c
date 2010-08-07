@@ -326,8 +326,8 @@ gui_prefs_show(void)
 
 	/* Show version in welcome screen */
 	show_version_cb = create_preference_check_button(main_tb, pos++,
-	    "Welcome screen shows version:",
-	    "Whether version should be shown in the start page or not.",
+	    "Welcome screen and title bar shows version:",
+	    "Whether version should be shown in the start page and main screen's title bar.",
 	    prefs.gui_version_in_start_page );
 	g_object_set_data(G_OBJECT(main_vb), GUI_SHOW_VERSION_KEY, show_version_cb);
 
@@ -497,6 +497,9 @@ gui_prefs_apply(GtkWidget *w _U_ , gboolean redissect)
 		   XXX - do it only if the highlight style *did* change. */
 		redraw_packet_bytes_all();
 	}
+
+	/* Redisplay the main window's title */
+	update_main_window_title();
 
 	/* Redraw the help window(s). */
 	supported_redraw();
