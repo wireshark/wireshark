@@ -356,9 +356,10 @@ static const struct {
 	{ 225,		WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS },
 	/* Solaris IPNET */
 	{ 226,		WTAP_ENCAP_IPNET },
-
 	/* SocketCAN frame */
 	{ 227,		WTAP_ENCAP_SOCKETCAN },
+	/* IEEE 802.15.4 Wireless PAN no fcs */
+	{ 230,          WTAP_ENCAP_IEEE802_15_4_NOFCS },
 
 	/*
 	 * To repeat:
