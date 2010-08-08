@@ -6,6 +6,7 @@
  * Copyright 2002 Steve Housley <steve_housley@3com.com>
  * Copyright 2005 Dominique Bastien <dbastien@accedian.com>
  * Copyright 2009 Artem Tamazov <artem.tamazov@telllabs.com>
+ * Copyright 2010 Roberto Morro <roberto.morro[AT]tilab.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -46,7 +47,7 @@
 #define LACP_SUBTYPE                    0x1
 #define MARKER_SUBTYPE                  0x2
 #define OAM_SUBTYPE                     0x3
-#define ESMC_SUBTYPE                    0xa /*G.8624*/
+#define OSSP_SUBTYPE                    0xa /* IEEE 802.3 Annex 57A*/
 
 
 /* Offsets of fields within a LACPDU */
@@ -204,7 +205,7 @@ static const value_string subtype_vals[] = {
     { LACP_SUBTYPE, "LACP" },
     { MARKER_SUBTYPE, "Marker Protocol" },
     { OAM_SUBTYPE, "OAM" },
-    { ESMC_SUBTYPE, "Ethernet Synchronization Messaging Channel" },
+    { OSSP_SUBTYPE, "Organization Specific Slow Protocol" },
     { 0, NULL }
 };
 
@@ -659,12 +660,12 @@ static const true_false_string oam_var = {
 /*
  * ESMC
  */
-#define ESMC_ITU_OUI_0      0x00
-#define ESMC_ITU_OUI_1      0x19
-#define ESMC_ITU_OUI_2      0xa7
-#define ESMC_ITU_OUI_SIZE   3
-#define ESMC_ITU_SUBTYPE    0x0001
-#define ESMC_VERSION_1      0x01
+#define ITU_OUI_0                   0x00
+#define ITU_OUI_1                   0x19
+#define ITU_OUI_2                   0xa7
+#define OUI_SIZE                       3
+#define ESMC_ITU_SUBTYPE          0x0001
+#define ESMC_VERSION_1              0x01
 #define ESMC_QL_TLV_TYPE            0x01
 #define ESMC_QL_TLV_LENGTH          0x04
 #define ESMC_TIMESTAMP_TLV_TYPE     0x02
@@ -808,8 +809,8 @@ static int hf_lacpdu_term_len = -1;
 static int hf_lacpdu_term_reserved = -1;
 
 /* ESMC */
-static int hf_esmc_itu_oui = -1;
-static int hf_esmc_itu_subtype = -1;
+static int hf_ossp_oui = -1;
+static int hf_itu_subtype = -1;
 static int hf_esmc_version = -1;
 static int hf_esmc_event_flag = -1;
 static int hf_esmc_timestamp_valid_flag = -1;
@@ -957,6 +958,9 @@ static gint ett_oampdu_event_ose = -1;
 
 static gint ett_oampdu_lpbk_ctrl = -1;
 
+static gint ett_ossppdu = -1;
+static gint ett_itu_ossp = -1;
+
 static const char initial_sep[] = " (";
 static const char cont_sep[] = ", ";
 
@@ -985,7 +989,7 @@ static void
 dissect_marker_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void
-dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void
 dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -1008,6 +1012,11 @@ dissect_oampdu_loopback_control(tvbuff_t *tvb, proto_tree *tree);
 static void
 dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree);
 
+static void
+dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex);
+
+static void
+dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /*
  * Name: dissect_slow_protocols
@@ -1054,15 +1063,13 @@ dissect_slow_protocols(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case OAM_SUBTYPE:
             dissect_oampdu(tvb, pinfo, tree);
             break;
-        case ESMC_SUBTYPE:
-            dissect_esmc_pdu(tvb, pinfo, tree);
+        case OSSP_SUBTYPE:
+            dissect_ossp_pdu(tvb, pinfo, tree);
             break;
         default:
         {
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "Slow Protocols");
-
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown Subtype = %u.", subtype);
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown Subtype = %u.", subtype);
 
             if (tree)
             {
@@ -1119,7 +1126,6 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LACP");
-
     col_set_str(pinfo->cinfo, COL_INFO, "Link Aggregation Control Protocol");
 
     if (tree)
@@ -1138,10 +1144,7 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint(lacpdu_tree, hf_lacpdu_version_number, tvb,
                 LACPDU_VERSION_NUMBER, 1, raw_octet);
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Version %d.  ", raw_octet);
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Version %d.  ", raw_octet);
 
         /* Actor Type */
         raw_octet = tvb_get_guint8(tvb, LACPDU_ACTOR_TYPE);
@@ -1182,10 +1185,7 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint(lacpdu_tree, hf_lacpdu_actor_port, tvb,
                 LACPDU_ACTOR_PORT, 2, raw_word);
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
         col_append_fstr(pinfo->cinfo, COL_INFO, "Actor Port = %d ", raw_word);
-        }
 
         /* Actor State */
 
@@ -1306,10 +1306,7 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint(lacpdu_tree, hf_lacpdu_partner_port, tvb,
                 LACPDU_PARTNER_PORT, 2, raw_word);
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Partner Port = %d ", raw_word);
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Partner Port = %d ", raw_word);
 
         /* Partner State */
 
@@ -1465,7 +1462,6 @@ dissect_marker_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MARKER");
-
     col_set_str(pinfo->cinfo, COL_INFO, "Marker Protocol");
 
     if (tree)
@@ -1530,6 +1526,127 @@ dissect_marker_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /*
+ * Name: dissect_ossp_pdu
+ *
+ * Description:
+ *    This function is used to dissect the Organization Specific Slow
+ *    Protocol defined in IEEE 802.3 Annex 57B. Currently only the ESMC
+ *    slow protocol as defined in ITU-T G.8264 is implemented
+ *
+ * Input Arguments:
+ *    tvb: buffer associate with the rcv packet (see tvbuff.h).
+ *    pinfo: structure associate with the rcv packet (see packet_info.h).
+ *    tree: the protocol tree associate with the rcv packet (see proto.h).
+ *
+ * Return Values: None
+ *
+ * Notes:
+ *    Roberto Morro (roberto.morro[AT]tilab.com)
+ */
+static void
+dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    gint offset = 0;
+    const guint8 *oui_ptr;
+    const gchar *str;
+    proto_item *oui_item, *ossp_item;
+    proto_tree *ossp_tree;
+    tvbuff_t *ossp_tvb;
+    const guint8 itu_oui[] = {ITU_OUI_0, ITU_OUI_1, ITU_OUI_2};
+
+    /* OUI of the organization defining the protocol */
+    oui_ptr = tvb_get_ptr(tvb, offset+1, OUI_SIZE);
+    str = get_manuf_name(oui_ptr);
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "OSSP");
+    col_add_fstr(pinfo->cinfo, COL_INFO, "OUI: %s", str);
+
+    ossp_item = proto_tree_add_protocol_format(tree, proto_slow, tvb, 0, -1,
+                                               "Organization Specific Slow Protocol");
+    ossp_tree = proto_item_add_subtree(ossp_item, ett_ossppdu);
+
+    /* Slow Protocol Subtype */
+    proto_tree_add_item(ossp_tree, hf_slow_subtype, tvb, offset, 1, FALSE);
+    offset++;
+
+    oui_item = proto_tree_add_bytes(ossp_tree, hf_ossp_oui,
+                                    tvb, offset, OUI_SIZE, oui_ptr);
+    proto_item_append_text(oui_item, " (%s)", str);
+    offset += 3;
+
+    ossp_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    if (tvb_memeql(tvb, 1, itu_oui, OUI_SIZE) == 0)
+    {
+       dissect_itu_ossp(ossp_tvb, pinfo, ossp_tree);
+    }
+/*    new Organization Specific Slow Protocols go hereafter
+ *
+ *  else if (tvb_memeql(tvb, 1, xxx_oui, OUI_SIZE) == 0)
+ *  {
+ *     dissect_xxx_ossp(ossp_tvb, pinfo, ossp_tree);
+ *  }
+ *  else if (tvb_memeql(tvb, 1, yyy_oui, OUI_SIZE) == 0)
+ *  {
+ *     dissect_yyy_ossp(ossp_tvb, pinfo, ossp_tree);
+ *  }
+ */
+    else
+    {
+      proto_item_append_text(oui_item, " (Unknown OSSP organization)");
+    }
+}
+
+
+/*
+ * Name: dissect_itu_ossp
+ *
+ * Description:
+ *    This function is used to dissect the ITU-T OSSP (Organization Specific
+ *    Slow Protocol). Currently only the Ethernet Synchronization
+ *    Messaging Channel (ESMC) slow protocol as defined in ITU-T G.8264
+ *    is implemented
+ *
+ * Input Arguments:
+ *    tvb: buffer associate with the rcv packet (see tvbuff.h).
+ *    pinfo: structure associate with the rcv packet (see packet_info.h).
+ *    tree: the protocol tree associate with the rcv packet (see proto.h).
+ *    subtype: the protocol subtype (according to IEEE802.3 annex 57B)
+ *
+ * Return Values: None
+ *
+ * Notes:
+ *    Roberto Morro (roberto.morro[AT]tilab.com)
+ */
+
+static void
+dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint16  subtype;
+    proto_tree *itu_ossp_tree, *ti;
+
+    /* ITU-T OSSP Subtype */
+    subtype = tvb_get_ntohs(tvb, 0);
+    ti = proto_tree_add_item(tree, hf_itu_subtype, tvb, 0, 2, FALSE);
+
+    itu_ossp_tree = proto_item_add_subtree(ti, ett_itu_ossp);
+
+    switch (subtype)
+    {
+      case ESMC_ITU_SUBTYPE:
+        dissect_esmc_pdu(tvb, pinfo, itu_ossp_tree);
+        break;
+
+/*    Other ITU-T defined slow protocols go hereafter
+ *
+ *    case XXXX_ITU_SUBTYPE:
+ *      dissect_xxxx_pdu(tvb, pinfo, itu_ossp_tree);
+ *      break;
+ */
+      default:
+        proto_item_append_text(itu_ossp_tree, " (Unknown)");
+    }
+}
+/*
  * Description:
  *    This function is used to dissect ESMC PDU defined G.8264/Y.1364 clause 11.3.1.1.
  *
@@ -1539,52 +1656,20 @@ dissect_marker_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
 {
-    gint offset = 0; /*starting from Slow Protocol Subtype*/
+    gint offset = 2; /*starting from ESMC Version */
     gboolean event_flag;
     gboolean malformed = FALSE;
     gint ql = -1; /*negative means unknown:*/
     gboolean timestamp_valid_flag = FALSE; /*set if timestamp valid*/
     gint32 timestamp = -1; /*nanoseconds*/
-    proto_item *item_a;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESMC");
 
-    item_a = proto_tree_add_item(treex, proto_slow, tvb, offset, -1, FALSE);
-    proto_item_append_text(item_a, ": ESMC");
+    proto_item_append_text(treex, ": ESMC");
     {
         proto_tree *tree_a;
-        tree_a = proto_item_add_subtree(item_a, ett_esmc);
+        tree_a = proto_item_add_subtree(treex, ett_esmc);
 
-        proto_tree_add_item(tree_a, hf_slow_subtype, tvb, offset, 1, FALSE);
-        offset +=1;
-        { /* itu-oui */
-            const guint8 itu_oui[ESMC_ITU_OUI_SIZE] = {ESMC_ITU_OUI_0,ESMC_ITU_OUI_1,ESMC_ITU_OUI_2};
-            guint8 itu_oui_read[sizeof(itu_oui)];
-            proto_item *item_b;
-            tvb_memcpy(tvb, itu_oui_read, offset, sizeof(itu_oui));
-            item_b = proto_tree_add_bytes(tree_a, hf_esmc_itu_oui, tvb, offset
-                        , sizeof(itu_oui), itu_oui_read);
-            offset += sizeof(itu_oui);
-            if (memcmp(itu_oui_read, itu_oui, sizeof(itu_oui)))
-            {
-                malformed = TRUE;
-                expert_add_info_format(pinfo, item_b, PI_MALFORMED, PI_ERROR
-                        ,"IEEE assigned OUI must be %.2X-%.2X-%.2X"
-                        ,ESMC_ITU_OUI_0, ESMC_ITU_OUI_1, ESMC_ITU_OUI_2);
-            }
-        }
-        { /* itu subtype */
-            proto_item *item_b;
-            item_b = proto_tree_add_item(tree_a, hf_esmc_itu_subtype, tvb, offset, 2, FALSE);
-            if (tvb_get_ntohs(tvb, offset) != ESMC_ITU_SUBTYPE)
-            {
-                malformed = TRUE;
-                expert_add_info_format(pinfo, item_b, PI_MALFORMED, PI_ERROR
-                        ,"ITU Subtype must be 0x%.4x for all usages defined by G.8264/Y.1364"
-                        ,ESMC_ITU_SUBTYPE);
-            }
-            offset += 2;
-        }
         { /* version */
             proto_item *item_b;
             item_b = proto_tree_add_item(tree_a, hf_esmc_version, tvb, offset, 1, FALSE);
@@ -1623,7 +1708,8 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
             }
             offset += 4;
         }
-        proto_item_append_text(item_a, ", Event:%s", event_flag ? "1" : "0");
+        proto_item_append_text(treex, ", Event:%s", event_flag ?
+                               "Time-critical" : "Information");
 
         /*
          * Quality Level TLV is mandatory at fixed location.
@@ -1694,7 +1780,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
             proto_item_append_text(item_b, ", %s"
                 , val_to_str(ql, esmc_quality_level_opt_1_vals_short, "QL-INV%d"));
         }
-        proto_item_append_text(item_a, ", %s"
+        proto_item_append_text(treex, ", %s"
             , val_to_str(ql, esmc_quality_level_opt_1_vals_short, "QL-INV%d"));
 
         if (pref_decode_esmc_timestamp)
@@ -1769,7 +1855,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
         }
         if (timestamp_valid_flag)
         {
-            proto_item_append_text(item_a, ", Timestamp:%d", timestamp);
+            proto_item_append_text(treex, ", Timestamp:%d", timestamp);
         }
     }
 
@@ -1779,7 +1865,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
         if (0 != padding_size)
         {
             proto_tree* tree_a;
-            tree_a = proto_item_add_subtree(item_a, ett_esmc);
+            tree_a = proto_item_add_subtree(treex, ett_esmc);
             {
                 proto_item* item_b;
                 tvbuff_t* tvb_next;
@@ -1796,24 +1882,22 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
         }
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
+    /* append summary info */
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Event:%s", event_flag ?
+                    "Time-critical" : "Information");
+    if (ql >= 0)
     {
-        col_clear(pinfo->cinfo, COL_INFO);
-        /* append summary info */
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Event:%s", event_flag ? "1" : "0");
-        if (ql >= 0)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s"
-            , val_to_str(ql, esmc_quality_level_opt_1_vals_short, "QL-INVALID-%d"));
-        }
-        if (timestamp_valid_flag)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", TS:%d", timestamp);
-        }
-        if (malformed)
-        {
-            col_append_str(pinfo->cinfo, COL_INFO, ", Malformed PDU");
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s"
+        , val_to_str(ql, esmc_quality_level_opt_1_vals_short, "QL-INVALID-%d"));
+    }
+    if (timestamp_valid_flag)
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", TS:%d", timestamp);
+    }
+    if (malformed)
+    {
+        col_append_str(pinfo->cinfo, COL_INFO, ", Malformed PDU");
     }
 }
 
@@ -3038,15 +3122,15 @@ proto_register_slow_protocols(void)
  *  ESMC portion
  */
 
-        { &hf_esmc_itu_oui,
-          { "ITU-OUI",    "slow.esmc.itu_oui",
+        { &hf_ossp_oui,
+          { "OUI",    "slow.ossp.oui",
             FT_BYTES,     BASE_NONE,    NULL,    0,
-            "IEEE assigned Organizationally Unique Identifier for ITU-T", HFILL }},
+            "IEEE assigned Organizationally Unique Identifier", HFILL }},
 
-        { &hf_esmc_itu_subtype,
-          { "ITU Subtype",    "slow.esmc.itu_subtype",
+        { &hf_itu_subtype,
+          { "ITU-T OSSP Subtype",    "slow.ossp.itu.subtype",
             FT_UINT16,    BASE_HEX,    NULL,    0,
-            "The ITU Subtype is assigned by the ITU-T TSB", HFILL }},
+            "Subtype assigned by the ITU-T", HFILL }},
 
         { &hf_esmc_version,
           { "Version",    "slow.esmc.version",
@@ -3431,7 +3515,7 @@ proto_register_slow_protocols(void)
         { &hf_oampdu_lpbk_disable,
           { "Disable Remote Loopback", "slow.oam.lpbk.commands.disable",
             FT_BOOLEAN,    8,        NULL,    OAMPDU_LPBK_DISABLE,
-            "Disable Remote Loopback Command", HFILL }},
+            "Disable Remote Loopback Command", HFILL }}
     };
 
     /* Setup protocol subtree array */
@@ -3458,6 +3542,8 @@ proto_register_slow_protocols(void)
         &ett_oampdu_event_efsse,
         &ett_oampdu_event_ose,
         &ett_oampdu_lpbk_ctrl,
+        &ett_ossppdu,
+        &ett_itu_ossp
 
     };
 
