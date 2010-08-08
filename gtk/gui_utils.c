@@ -150,7 +150,7 @@ window_new(GtkWindowType type, const gchar *title)
 }
 
 
-/* Same as window_new(), but will keep it's geometry values (size, position, ...).
+/* Same as window_new(), but will keep its geometry values (size, position, ...).
  * Be sure to use window_present() and window_destroy() appropriately! */
 GtkWidget *
 window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_name)
@@ -557,7 +557,7 @@ set_main_window_name(const gchar *window_name)
     g_free(old_window_name);
     g_object_set_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY, g_strdup(window_name));
 
-  update_main_window_title();
+    update_main_window_title();
 }
 
 /* Construct the main window's title with the current main_window_name, optionally appended
@@ -574,18 +574,16 @@ update_main_window_title(void)
     /* Get the current filename or other title set in set_main_window_name */
     window_name = g_object_get_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY);
     if (window_name != NULL) {
+        /* Optionally append the user-defined window title */
+        title = create_user_window_title(window_name);
 
-    /* Optionally append the user-defined window title */
-    title = create_user_window_title(window_name);
-
-    /* Optionally append the version */
-    if (prefs.gui_version_in_start_page) {
-        title = g_strdup_printf("%s   [Wireshark %s %s]", title, VERSION, wireshark_svnversion);
-    } 
-    gtk_window_set_title(GTK_WINDOW(top_level), title);
-    gdk_window_set_icon_name(top_level->window, title);
-    g_free(title);
-  }
+        /* Optionally append the version */
+        if (prefs.gui_version_in_start_page) {
+            title = g_strdup_printf("%s   [Wireshark %s %s]", title, VERSION, wireshark_svnversion);
+        } 
+        gtk_window_set_title(GTK_WINDOW(top_level), title);
+        g_free(title);
+    }
 }
 
 /* update the main window */

@@ -1422,9 +1422,9 @@ set_display_filename(capture_file *cf)
   gchar *window_name;
 
   if (cf->filename) {
-	  window_name = g_strdup_printf("%s", cf_get_display_name(cf));
+    window_name = g_strdup_printf("%s", cf_get_display_name(cf));
   } else {
-	  window_name = "The Wireshark Network Analyzer";
+    window_name = "The Wireshark Network Analyzer";
   }
   set_main_window_name(window_name);
   g_free(window_name);
@@ -1506,11 +1506,11 @@ main_cf_cb_file_read_started(capture_file *cf _U_)
 static void
 main_cf_cb_file_read_finished(capture_file *cf)
 {
-	if (!cf->is_tempfile && cf->filename) {
-		/* Add this filename to the list of recent files in the "Recent Files" submenu */
-		add_menu_recent_capture_file(cf->filename);
-	}
-	set_display_filename(cf);
+    if (!cf->is_tempfile && cf->filename) {
+        /* Add this filename to the list of recent files in the "Recent Files" submenu */
+        add_menu_recent_capture_file(cf->filename);
+    }
+    set_display_filename(cf);
 
     /* Enable menu items that make sense if you have a capture file you've
        finished reading. */
@@ -1619,11 +1619,11 @@ main_capture_cb_capture_update_finished(capture_options *capture_opts)
     capture_file *cf = capture_opts->cf;
     static GList *icon_list = NULL;
 
-	if (!cf->is_tempfile && cf->filename) {
-		/* Add this filename to the list of recent files in the "Recent Files" submenu */
-		add_menu_recent_capture_file(cf->filename);
-	}
-	set_display_filename(cf);
+    if (!cf->is_tempfile && cf->filename) {
+        /* Add this filename to the list of recent files in the "Recent Files" submenu */
+        add_menu_recent_capture_file(cf->filename);
+    }
+    set_display_filename(cf);
 
     /* Enable menu items that make sense if you're not currently running
      a capture. */
@@ -3569,7 +3569,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
 {
     GtkAccelGroup *accel;
 
-	/* Main window */
+    /* Main window */
     top_level = window_new(GTK_WINDOW_TOPLEVEL, "");
     set_main_window_name("The Wireshark Network Analyzer");
 
