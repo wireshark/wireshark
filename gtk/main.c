@@ -1423,11 +1423,11 @@ set_display_filename(capture_file *cf)
 
   if (cf->filename) {
     window_name = g_strdup_printf("%s", cf_get_display_name(cf));
+    set_main_window_name(window_name);
+    g_free(window_name);
   } else {
-    window_name = "The Wireshark Network Analyzer";
+    set_main_window_name("The Wireshark Network Analyzer");
   }
-  set_main_window_name(window_name);
-  g_free(window_name);
 }
 
 GtkWidget           *close_dlg = NULL;
