@@ -729,6 +729,10 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				switch (hdr.wan_hdlc_subsub_captype) {
 
 				case 0:	/* LAPB/X.25 */
+					/*
+					 * XXX - at least one capture of
+					 * this type appears to be PPP.
+					 */
 					file_encap = WTAP_ENCAP_LAPB;
 					break;
 
