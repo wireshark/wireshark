@@ -533,7 +533,7 @@ static void
 color_next_not_selected_cb(GtkAction *action)
 {
 }
-static const char *ui_description =
+static const char *ui_desc_error_list_menu =
 "<ui>"
 "  <popup name='MainMenu'>"
 "    <menu action='/Apply as Filter'>"
@@ -574,35 +574,55 @@ static const char *ui_description =
 "</ui>";
 
 
-/* Normal items */
-static const GtkActionEntry entries[] = {
-  { "/Apply as Filter", NULL, "Apply as Filter" },
-  { "/Prepare a Filter", NULL, "Prepare a Filter" },
-  { "/Find Frame", NULL, "Find Frame" },
-  { "/Find Frame/Find Frame", NULL, "Find Frame" },
-  { "/Find Frame/Find Next", NULL, "Find Next" },
-  { "/Find Frame/Find Previous", NULL, "Find Previous" },
-  { "/Colorize Procedure", NULL, "Colorize Procedure" },
-  { "/Apply as Filter/Selected", NULL, "Selected", NULL, "Selected", G_CALLBACK(apply_as_selected_cb) },
-  { "/Apply as Filter/... not Selected", NULL, "... not Selected", NULL, "... not Selected", G_CALLBACK(apply_as_not_selected_cb) },
-  { "/Apply as Filter/... and Selected", NULL, "... and Selected", NULL, "... and Selected", G_CALLBACK(apply_as_and_selected_cb) },
-  { "/Apply as Filter/... or Selected", NULL, "... or Selected", NULL, "... or Selected", G_CALLBACK(apply_as_or_selected_cb) },
-  { "/Apply as Filter/... and not Selected", NULL, "... and not Selected", NULL, "... and not Selected", G_CALLBACK(apply_as_and_not_selected_cb) },
-  { "/Apply as Filter/... or not Selected", NULL, "... or not Selected", NULL, "... or not Selected", G_CALLBACK(apply_as_or_not_selected_cb) },
-  { "/Prepare a Filter/Selected", NULL, "Selected", NULL, "selcted", G_CALLBACK(prep_as_selected_cb) },
-  { "/Prepare a Filter/... not Selected", NULL, "... not Selected", NULL, "... not Selected", G_CALLBACK(prep_as_not_selected_cb) },
-  { "/Prepare a Filter/... and Selected", NULL, "... and Selected", NULL, "... and Selected", G_CALLBACK(prep_as_and_selected_cb) },
-  { "/Prepare a Filter/... or Selected", NULL, "... or Selected", NULL, "... or Selected", G_CALLBACK(prep_as_or_selected_cb) },
-  { "/Prepare a Filter/... and not Selected", NULL, "... and not Selected", NULL, "... and not Selected", G_CALLBACK(prep_as_and_not_selected_cb) },
-  { "/Prepare a Filter/... or not Selected", NULL, "... or not Selected", NULL, "... or not Selected", G_CALLBACK(prep_as_or_not_selected_cb) },
-  { "/Find Frame/Selected", NULL, "Selected", NULL, "Selected", G_CALLBACK(find_selected_cb) },
-  { "/Find Frame/Not Selected", NULL, "Not Selected", NULL, "Not Selected", G_CALLBACK(find_not_selected_cb) },
-  { "/Find Previous/Selected", NULL, "Selected", NULL, "Selected", G_CALLBACK(find_prev_selected_cb) },
-  { "/Find Previous/Not Selected", NULL, "Not Selected", NULL, "Not Selected", G_CALLBACK(find_prev_not_selected_cb) },
-  { "/Find Next/Selected", NULL, "Selected", NULL, "Selected", G_CALLBACK(find_next_selected_cb) },
-  { "/Find Next/Not Selected", NULL, "Not Selected", NULL, "Not Selected", G_CALLBACK(find_next_not_selected_cb) },
-  { "/Colorize Procedure/Selected", NULL, "Selected", NULL, "Selected", G_CALLBACK(color_next_selected_cb) },
-  { "/Colorize Procedure/Not Selected", NULL, "Not Selected", NULL, "Not Selected", G_CALLBACK(color_next_not_selected_cb) },
+/* 
+ * GtkActionEntry
+ * typedef struct {
+ *   const gchar     *name;
+ *   const gchar     *stock_id;
+ *   const gchar     *label;
+ *   const gchar     *accelerator;
+ *   const gchar     *tooltip;
+ *   GCallback  callback;
+ * } GtkActionEntry;
+ * const gchar *name;			The name of the action.  
+ * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.  
+ * const gchar *label;			The label for the action. This field should typically be marked for translation, 
+ *								see gtk_action_group_set_translation_domain(). 
+ *								If label is NULL, the label of the stock item with id stock_id is used.  
+ * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().  
+ * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation, 
+ *                              see gtk_action_group_set_translation_domain().  
+ * GCallback callback;			The function to call when the action is activated.  
+ *
+ */
+static const GtkActionEntry error_list_menu_entries[] = {
+  { "/Apply as Filter",							NULL, "Apply as Filter",		NULL, NULL,						NULL },
+  { "/Prepare a Filter",						NULL, "Prepare a Filter",		NULL, NULL,						NULL },
+  { "/Find Frame",								NULL, "Find Frame",				NULL, NULL,						NULL },
+  { "/Find Frame/Find Frame",					NULL, "Find Frame",				NULL, NULL,						NULL },
+  { "/Find Frame/Find Next",					NULL, "Find Next" ,				NULL, NULL,						NULL },
+  { "/Find Frame/Find Previous",				NULL, "Find Previous",			NULL, NULL,						NULL },
+  { "/Colorize Procedure",						NULL, "Colorize Procedure",		NULL, NULL,						NULL },
+  { "/Apply as Filter/Selected",				NULL, "Selected",				NULL, "Selected",				G_CALLBACK(apply_as_selected_cb) },
+  { "/Apply as Filter/... not Selected",		NULL, "... not Selected",		NULL, "... not Selected",		G_CALLBACK(apply_as_not_selected_cb) },
+  { "/Apply as Filter/... and Selected",		NULL, "... and Selected",		NULL, "... and Selected",		G_CALLBACK(apply_as_and_selected_cb) },
+  { "/Apply as Filter/... or Selected",			NULL, "... or Selected",		NULL, "... or Selected",		G_CALLBACK(apply_as_or_selected_cb) },
+  { "/Apply as Filter/... and not Selected",	NULL, "... and not Selected",	NULL, "... and not Selected",	G_CALLBACK(apply_as_and_not_selected_cb) },
+  { "/Apply as Filter/... or not Selected",		NULL, "... or not Selected",	NULL, "... or not Selected",	G_CALLBACK(apply_as_or_not_selected_cb) },
+  { "/Prepare a Filter/Selected",				NULL, "Selected",				NULL, "selcted",				G_CALLBACK(prep_as_selected_cb) },
+  { "/Prepare a Filter/... not Selected",		NULL, "... not Selected",		NULL, "... not Selected",		G_CALLBACK(prep_as_not_selected_cb) },
+  { "/Prepare a Filter/... and Selected",		NULL, "... and Selected",		NULL, "... and Selected",		G_CALLBACK(prep_as_and_selected_cb) },
+  { "/Prepare a Filter/... or Selected",		NULL, "... or Selected",		NULL, "... or Selected",		G_CALLBACK(prep_as_or_selected_cb) },
+  { "/Prepare a Filter/... and not Selected",	NULL, "... and not Selected",	NULL, "... and not Selected",	G_CALLBACK(prep_as_and_not_selected_cb) },
+  { "/Prepare a Filter/... or not Selected",	NULL, "... or not Selected",	NULL, "... or not Selected",	G_CALLBACK(prep_as_or_not_selected_cb) },
+  { "/Find Frame/Selected",						NULL, "Selected",				NULL, "Selected",				G_CALLBACK(find_selected_cb) },
+  { "/Find Frame/Not Selected",					NULL, "Not Selected",			NULL, "Not Selected",			G_CALLBACK(find_not_selected_cb) },
+  { "/Find Previous/Selected",					NULL, "Selected",				NULL, "Selected",				G_CALLBACK(find_prev_selected_cb) },
+  { "/Find Previous/Not Selected",				NULL, "Not Selected",			NULL, "Not Selected",			G_CALLBACK(find_prev_not_selected_cb) },
+  { "/Find Next/Selected",						NULL, "Selected",				NULL, "Selected",				G_CALLBACK(find_next_selected_cb) },
+  { "/Find Next/Not Selected",					NULL, "Not Selected",			NULL, "Not Selected",			G_CALLBACK(find_next_not_selected_cb) },
+  { "/Colorize Procedure/Selected",				NULL, "Selected",				NULL, "Selected",				G_CALLBACK(color_next_selected_cb) },
+  { "/Colorize Procedure/Not Selected",			NULL, "Not Selected",			NULL, "Not Selected",			G_CALLBACK(color_next_not_selected_cb) },
 };
 #endif
 static void
@@ -632,7 +652,6 @@ error_create_popup_menu(error_equiv_table *err)
 {
     GtkItemFactory *item_factory;
 
-
     err->select = gtk_tree_view_get_selection (GTK_TREE_VIEW (err->tree_view));
     gtk_tree_selection_set_mode (err->select, GTK_SELECTION_SINGLE);
     g_signal_connect (G_OBJECT (err->select), "changed",
@@ -644,6 +663,35 @@ error_create_popup_menu(error_equiv_table *err)
 
     err->menu = gtk_item_factory_get_widget(item_factory, "<main>");
     g_signal_connect(err->tree_view, "button_press_event", G_CALLBACK(error_show_popup_menu_cb), err);
+#if 0
+	/* Experimental, TODO: Review variable names etc */
+	GtkUIManager *ui_manager;
+	GtkActionGroup *action_group;
+	GError *error = NULL;
+
+    err->select = gtk_tree_view_get_selection (GTK_TREE_VIEW (err->tree_view));
+    gtk_tree_selection_set_mode (err->select, GTK_SELECTION_SINGLE);
+    g_signal_connect (G_OBJECT (err->select), "changed",
+                  G_CALLBACK (expert_goto_pkt_cb),
+                  err);
+
+	action_group = gtk_action_group_new ("ActionGroup"); 
+	gtk_action_group_add_actions (action_group, error_list_menu_entries, G_N_ELEMENTS(error_list_menu_entries), NULL);
+
+	ui_manager = gtk_ui_manager_new ();
+	gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
+	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_error_list_menu, -1, &error); 
+	if (error != NULL) 
+    { 
+        fprintf (stderr, "Warning: building menu failed: %s\n", 
+                error->message); 
+        g_error_free (error); 
+        error = NULL; 
+    } 
+	err->menu = gtk_ui_manager_get_widget(ui_manager, "/MainMenu");
+	g_signal_connect(err->tree_view, "button_press_event", G_CALLBACK(error_show_popup_menu_cb), err);
+#endif
+
 }
 
 void
