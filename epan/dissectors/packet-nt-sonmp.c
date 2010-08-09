@@ -50,7 +50,7 @@
 /* Last updated from version 229 ("200609010000Z") of SnpxChassisType in SYNOPTICS-ROOT-MIB.mib */
 static const value_string sonmp_chassis_val[] =
 {
-	{1, "other"),
+	{1, "other"},
 	{2, "3000"},
 	{3, "3030"},
 	{4, "2310"},
@@ -211,7 +211,6 @@ static const value_string sonmp_chassis_val[] =
 	{160, "Ethernet Routing Switch 2500-26T-PWR"},
 	{161, "Ethernet Routing Switch 2500-50T"},
 	{162, "Ethernet Routing Switch 2500-50T-PWR"},
-
 	{0, NULL}
 };
 
