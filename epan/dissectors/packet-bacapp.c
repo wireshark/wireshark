@@ -4033,7 +4033,8 @@ fSigned64 (tvbuff_t *tvb, guint offset, guint32 lvt, gint64 *val)
 {
 	gboolean valid = FALSE;
 	gint64 value = 0;
-	guint8 data, i;
+	guint8 data;
+        guint32 i;
 
 	/* we can only handle 7 bytes for a 64-bit value due to signed-ness */
 	if (lvt && (lvt <= 7)) {
