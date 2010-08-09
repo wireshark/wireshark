@@ -8797,7 +8797,6 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (fragment) { /* fragmented */
 		fragment_data *frag_msg = NULL;
-		guint real_size = 0;
 
 		new_tvb = NULL;
 		pinfo->fragmented = TRUE;
