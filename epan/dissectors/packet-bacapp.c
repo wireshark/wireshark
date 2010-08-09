@@ -80,7 +80,7 @@
  * @param pinfo
  * @param tree
  **/
-void
+static void
 dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /**
