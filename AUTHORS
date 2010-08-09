@@ -3106,6 +3106,10 @@ Håkon Nessjøen		<haakon.nessjoen@gmail.com> {
 	Digium TDMoE protocol dissector
 }
 
+Herbert Lischka		<herbert [AT] lischka-berlin.de> {
+	BACNET dissector fixes and enhancements
+}
+
 
 and by:
 
