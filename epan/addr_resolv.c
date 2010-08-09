@@ -3094,7 +3094,7 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
   int nfds;
   fd_set rfds, wfds;
   async_hostent_t ahe;
-#else /* HAVE_C_ARES */
+#elif defined(HAVE_GETHOSTBYNAME2)
   struct hostent *hp;
 #endif /* HAVE_C_ARES */
 
