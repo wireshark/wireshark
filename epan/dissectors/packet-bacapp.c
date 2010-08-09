@@ -2152,7 +2152,7 @@ proto_reg_handoff_bacapp(void);
  * @param fromcoding
  * @return count of modified characters of returned string, -1 for errors
  */
-guint32
+static guint32
 fConvertXXXtoUTF8(gchar *in, gsize *inbytesleft, gchar *out, gsize *outbytesleft, const gchar *fromcoding);
 
 static void
