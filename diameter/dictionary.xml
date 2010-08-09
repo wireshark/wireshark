@@ -827,13 +827,21 @@
 		<avp name="Event-Timestamp" code="55" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="Time"/>
 		</avp>
-<!--  
-56        Egress-VLANID                            [RFC4675]
-57        Ingress-Filters                          [RFC4675]
-58        Egress-VLAN-Name                         [RFC4675]
-59        User-Priority-Table                      [RFC4675]
--->
-		<avp name="CHAP-Challenge" code="60" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+    <avp name="Egress-VLANID" code="56" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="AIngress-Filters" code="57" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
+      <type type-name="Enumerated"/>
+      <enum name="Enabled" code="1"/>
+      <enum name="Disabled" code="2"/>
+    </avp>
+    <avp name="Egress-VLAN-Name" code="58" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="User-Priority-Table" code="59" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="CHAP-Challenge" code="60" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="NAS-Port-Type" code="61" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
@@ -990,20 +998,18 @@
 		<avp name="Framed-Pool" code="88" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="OctetString"/>
 		</avp>
-<!--
-http://www.iana.org/assignments/radius-types
-   89        CUI                                      [RFC4372]
--->
-		<avp name="Tunnel-Client-Auth-Id" code="90" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+    <avp name="CUI" code="89" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="Tunnel-Client-Auth-Id" code="90" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Tunnel-Server-Auth-Id" code="91" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
-<!--
-http://www.iana.org/assignments/radius-types
-   92        NAS-Filter-Rule                          [RFC4849]
--->
+    <avp name="NAS-Filter-Rule" code="92" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+      <type type-name="UTF8String"/>
+    </avp>
 <!--  93	(unassigned) -->
 		<avp name="Originating-Line-Info" code="94" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="OctetString"/>
@@ -1110,10 +1116,10 @@ http://www.iana.org/assignments/radius-types
 		<avp name="SIP-AOR" code="122" mandatory="may">
 			<type type-name="UTF8String"/>
 		</avp>
-<!--
-123       Delegated-IPv6-Prefix                    [RFC4818]
--->
-		<avp name="MIP6-Feature-Vector" code="124" mandatory="may">
+    <avp name="Delegated-IPv6-Prefix" code="123" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="MIP6-Feature-Vector" code="124" mandatory="may">
 			<type type-name="Unsigned64"/>
 		</avp>
 		<avp name="MIP6-Home-Link-Prefix" code="125" mandatory="may">
@@ -1138,18 +1144,51 @@ http://www.iana.org/assignments/radius-types
 		<avp name="Location-Capable" code="131" mandatory="may">
 			<type type-name="OctetString"/>
 		</avp>
-		<!--
-133       Framed-Management-Protocol               [RFC5607]
-134       Management-Transport-Protection          [RFC5607]
-135       Management-Policy-Id                     [RFC5607]
-136       Management-Privilege-Level               [RFC5607]
-137       PKM-SS-Cert                              [RFC-zorn-radius-pkmv1-12.txt]
-138       PKM-CA-Cert                              [RFC-zorn-radius-pkmv1-12.txt]
-139       PKM-Auth-Wait-Timeout                    [RFC-zorn-radius-pkmv1-12.txt]
-140       PKM-Cryptosuite-List                     [RFC-zorn-radius-pkmv1-12.txt]
-141       PKM-SAID                                 [RFC-zorn-radius-pkmv1-12.txt]
-142       PKM-SA-Descriptor                        [RFC-zorn-radius-pkmv1-12.txt]
-143       PKM-Auth-Key                             [RFC-zorn-radius-pkmv1-12.txt]
+    <avp name="Framed-Management-Protocol" code="133" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
+      <type type-name="Enumerated"/>
+      <enum name="SNMP" code="1"/>
+      <enum name="Web-based" code="2"/>
+      <enum name="NETCONF" code="3"/>
+      <enum name="FTP" code="4"/>
+      <enum name="TFTP" code="5"/>
+      <enum name="SFTP" code="6"/>
+      <enum name="RCP" code="7"/>
+      <enum name="SCP" code="8"/>
+    </avp>
+    <avp name="Management-Transport-Protection" code="133" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
+      <type type-name="Enumerated"/>
+      <enum name="No-Protection" code="1"/>
+      <enum name="Integrity-Protection" code="2"/>
+      <enum name="Integrity-Confidentiality-Protection" code="3"/>
+    </avp>
+    <avp name="Management-Policy-Id" code="135" mandatory="may">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="Management-Privilege-Level" code="136" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
+      <type type-name="Integer32"/>
+    </avp>
+    <avp name="PKM-SS-Cert" code="137" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="PKM-CA-Cert" code="138" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="PKM-Config-Settings" code="139" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="PKM-Cryptosuite-List" code="140" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="PPKM-SAID" code="141" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="PKM-SA-Descriptor" code="142" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="PKM-Auth-Key" code="143" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <!--
 144-191   Unassigned
 192-223   Experimental Use                         [RFC3575]
 224-240   Implementation Specific                  [RFC3575]
