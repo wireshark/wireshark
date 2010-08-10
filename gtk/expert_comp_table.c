@@ -360,6 +360,7 @@ error_show_popup_menu_cb(void *widg _U_, GdkEvent *event, error_equiv_table *err
 
 	return FALSE;
 }
+#define USE_GUIMANAGER 1
 #ifndef USE_GUIMANAGER
 static GtkItemFactoryEntry error_list_menu_items[] =
 {
@@ -604,6 +605,12 @@ static const char *ui_desc_error_list_menu =
 "     <menuitem action='/Colorize Procedure/Selected'/>"
 "     <menuitem action='/Colorize Procedure/Not Selected'/>"
 "    </menu>"
+"    <menu action='/Internet Search for Info Text'>"
+"     <menuitem action='/StartWebSearch'/>"
+"    </menu>"
+"    <menu action='/Copy'>"
+"     <menuitem action='/Copy/Selected'/>"
+"    </menu>"
 "  </popup>"
 "</ui>";
 
@@ -657,6 +664,10 @@ static const GtkActionEntry error_list_menu_entries[] = {
   { "/Find Next/Not Selected",					NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_next_not_selected_cb) },
   { "/Colorize Procedure/Selected",				NULL, "Selected",						NULL, "Selected",						G_CALLBACK(color_selected_cb) },
   { "/Colorize Procedure/Not Selected",			NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(color_not_selected_cb) },
+  { "/Internet Search for Info Text",			NULL, "Internet Search for Info Text",	NULL, "Internet Search for Info Text",	NULL },
+  { "/StartWebSearch",							NULL, "Go",								NULL, "Go",								G_CALLBACK(internet_search_cb) },
+  { "/Copy",									NULL, "Copy",							NULL, "Copy",							NULL },
+  { "/Copy/Selected",							NULL, "Selected",						NULL, "Selected",						G_CALLBACK(copy_cb) },
 };
 #endif
 static void
