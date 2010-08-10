@@ -173,7 +173,10 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
     type=FILTER_ACTYPE(callback_action);
 
 
-    gtk_tree_selection_get_selected(err->select, &model, &iter);
+	if(!gtk_tree_selection_get_selected(err->select, &model, &iter)){
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No selection made or the table is empty");
+		return;
+	}
 
     gtk_tree_model_get (model, &iter, 
                         GROUP_COLUMN,    &grp,
@@ -205,8 +208,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
     /* But allow for searching of internet for error string */
     procedure = &g_array_index(err->procs_array, error_procedure_t, selection);
 
-    /* FIXME what is 7 ?*/
-    if (action != ACTION_WEB_LOOKUP && action != 7) {
+    if (action != ACTION_WEB_LOOKUP && action != ACTION_COPY) {
         char *msg;
         if (0 /*procedure->fvalue_value==NULL*/) {
             if (action != ACTION_FIND_FRAME && action != ACTION_FIND_NEXT && action != ACTION_FIND_PREVIOUS) {
@@ -358,7 +360,7 @@ error_show_popup_menu_cb(void *widg _U_, GdkEvent *event, error_equiv_table *err
 
 	return FALSE;
 }
-
+#ifndef USE_GUIMANAGER
 static GtkItemFactoryEntry error_list_menu_items[] =
 {
 	/* Match */
@@ -449,90 +451,122 @@ static GtkItemFactoryEntry error_list_menu_items[] =
 
 };
 
-#if 0
+
+#else
 /* Prepare to change GtkItemFactory to GtkUIManager */
 static void
-apply_as_selected_cb(GtkAction *action)
+apply_as_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, 0));
 }
 static void
-apply_as_not_selected_cb(GtkAction *action)
+apply_as_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0));
 }
 static void
-apply_as_and_selected_cb(GtkAction *action)
+apply_as_and_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0));
 }
 static void
-apply_as_or_selected_cb(GtkAction *action)
+apply_as_or_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0));
 }
 static void
-apply_as_and_not_selected_cb(GtkAction *action)
+apply_as_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0));
 }
 static void
-apply_as_or_not_selected_cb(GtkAction *action)
+apply_as_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0));
 }
 
 static void
-prep_as_selected_cb(GtkAction *action)
+prep_as_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, 0));
 }
 static void
-prep_as_not_selected_cb(GtkAction *action)
+prep_as_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0));
 }
 static void
-prep_as_and_selected_cb(GtkAction *action)
+prep_as_and_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0));
 }
 static void
-prep_as_or_selected_cb(GtkAction *action)
+prep_as_or_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0));
 }
 static void
-prep_as_and_not_selected_cb(GtkAction *action)
+prep_as_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0));
 }
 static void
-prep_as_or_not_selected_cb(GtkAction *action)
+prep_as_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0));
 }
 
 static void
-find_selected_cb(GtkAction *action)
+find_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0));
 }
 static void
-find_not_selected_cb(GtkAction *action)
+find_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_NOT_SELECTED, 0));
 }
 static void
-find_prev_selected_cb(GtkAction *action)
+find_prev_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, 0));
 }
 static void
-find_prev_not_selected_cb(GtkAction *action)
+find_prev_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_NOT_SELECTED, 0));
 }
 static void
-find_next_selected_cb(GtkAction *action)
+find_next_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, 0));
 }
 static void
-find_next_not_selected_cb(GtkAction *action)
+find_next_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, 0));
 }
 static void
-color_next_selected_cb(GtkAction *action)
+color_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, 0));
 }
 static void
-color_next_not_selected_cb(GtkAction *action)
+color_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
+	error_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, 0));
 }
+static void
+internet_search_cb(GtkWidget *widget, gpointer user_data)
+{
+	error_select_filter_cb( widget , user_data, CALLBACK_WEB_LOOKUP);
+}
+static void
+copy_cb(GtkWidget *widget, gpointer user_data)
+{
+	error_select_filter_cb( widget , user_data, CALLBACK_COPY);
+}
+
 static const char *ui_desc_error_list_menu =
 "<ui>"
 "  <popup name='MainMenu'>"
@@ -596,33 +630,33 @@ static const char *ui_desc_error_list_menu =
  *
  */
 static const GtkActionEntry error_list_menu_entries[] = {
-  { "/Apply as Filter",							NULL, "Apply as Filter",		NULL, NULL,						NULL },
-  { "/Prepare a Filter",						NULL, "Prepare a Filter",		NULL, NULL,						NULL },
-  { "/Find Frame",								NULL, "Find Frame",				NULL, NULL,						NULL },
-  { "/Find Frame/Find Frame",					NULL, "Find Frame",				NULL, NULL,						NULL },
-  { "/Find Frame/Find Next",					NULL, "Find Next" ,				NULL, NULL,						NULL },
-  { "/Find Frame/Find Previous",				NULL, "Find Previous",			NULL, NULL,						NULL },
-  { "/Colorize Procedure",						NULL, "Colorize Procedure",		NULL, NULL,						NULL },
-  { "/Apply as Filter/Selected",				NULL, "Selected",				NULL, "Selected",				G_CALLBACK(apply_as_selected_cb) },
-  { "/Apply as Filter/... not Selected",		NULL, "... not Selected",		NULL, "... not Selected",		G_CALLBACK(apply_as_not_selected_cb) },
-  { "/Apply as Filter/... and Selected",		NULL, "... and Selected",		NULL, "... and Selected",		G_CALLBACK(apply_as_and_selected_cb) },
-  { "/Apply as Filter/... or Selected",			NULL, "... or Selected",		NULL, "... or Selected",		G_CALLBACK(apply_as_or_selected_cb) },
-  { "/Apply as Filter/... and not Selected",	NULL, "... and not Selected",	NULL, "... and not Selected",	G_CALLBACK(apply_as_and_not_selected_cb) },
-  { "/Apply as Filter/... or not Selected",		NULL, "... or not Selected",	NULL, "... or not Selected",	G_CALLBACK(apply_as_or_not_selected_cb) },
-  { "/Prepare a Filter/Selected",				NULL, "Selected",				NULL, "selcted",				G_CALLBACK(prep_as_selected_cb) },
-  { "/Prepare a Filter/... not Selected",		NULL, "... not Selected",		NULL, "... not Selected",		G_CALLBACK(prep_as_not_selected_cb) },
-  { "/Prepare a Filter/... and Selected",		NULL, "... and Selected",		NULL, "... and Selected",		G_CALLBACK(prep_as_and_selected_cb) },
-  { "/Prepare a Filter/... or Selected",		NULL, "... or Selected",		NULL, "... or Selected",		G_CALLBACK(prep_as_or_selected_cb) },
-  { "/Prepare a Filter/... and not Selected",	NULL, "... and not Selected",	NULL, "... and not Selected",	G_CALLBACK(prep_as_and_not_selected_cb) },
-  { "/Prepare a Filter/... or not Selected",	NULL, "... or not Selected",	NULL, "... or not Selected",	G_CALLBACK(prep_as_or_not_selected_cb) },
-  { "/Find Frame/Selected",						NULL, "Selected",				NULL, "Selected",				G_CALLBACK(find_selected_cb) },
-  { "/Find Frame/Not Selected",					NULL, "Not Selected",			NULL, "Not Selected",			G_CALLBACK(find_not_selected_cb) },
-  { "/Find Previous/Selected",					NULL, "Selected",				NULL, "Selected",				G_CALLBACK(find_prev_selected_cb) },
-  { "/Find Previous/Not Selected",				NULL, "Not Selected",			NULL, "Not Selected",			G_CALLBACK(find_prev_not_selected_cb) },
-  { "/Find Next/Selected",						NULL, "Selected",				NULL, "Selected",				G_CALLBACK(find_next_selected_cb) },
-  { "/Find Next/Not Selected",					NULL, "Not Selected",			NULL, "Not Selected",			G_CALLBACK(find_next_not_selected_cb) },
-  { "/Colorize Procedure/Selected",				NULL, "Selected",				NULL, "Selected",				G_CALLBACK(color_next_selected_cb) },
-  { "/Colorize Procedure/Not Selected",			NULL, "Not Selected",			NULL, "Not Selected",			G_CALLBACK(color_next_not_selected_cb) },
+  { "/Apply as Filter",							NULL, "Apply as Filter",				NULL, NULL,								NULL },
+  { "/Prepare a Filter",						NULL, "Prepare a Filter",				NULL, NULL,								NULL },
+  { "/Find Frame",								NULL, "Find Frame",						NULL, NULL,								NULL },
+  { "/Find Frame/Find Frame",					NULL, "Find Frame",						NULL, NULL,								NULL },
+  { "/Find Frame/Find Next",					NULL, "Find Next" ,						NULL, NULL,								NULL },
+  { "/Find Frame/Find Previous",				NULL, "Find Previous",					NULL, NULL,								NULL },
+  { "/Colorize Procedure",						NULL, "Colorize Procedure",				NULL, NULL,								NULL },
+  { "/Apply as Filter/Selected",				NULL, "Selected",						NULL, "Selected",						G_CALLBACK(apply_as_selected_cb) },
+  { "/Apply as Filter/... not Selected",		NULL, "... not Selected",				NULL, "... not Selected",				G_CALLBACK(apply_as_not_selected_cb) },
+  { "/Apply as Filter/... and Selected",		NULL, "... and Selected",				NULL, "... and Selected",				G_CALLBACK(apply_as_and_selected_cb) },
+  { "/Apply as Filter/... or Selected",			NULL, "... or Selected",				NULL, "... or Selected",				G_CALLBACK(apply_as_or_selected_cb) },
+  { "/Apply as Filter/... and not Selected",	NULL, "... and not Selected",			NULL, "... and not Selected",			G_CALLBACK(apply_as_and_not_selected_cb) },
+  { "/Apply as Filter/... or not Selected",		NULL, "... or not Selected",			NULL, "... or not Selected",			G_CALLBACK(apply_as_or_not_selected_cb) },
+  { "/Prepare a Filter/Selected",				NULL, "Selected",						NULL, "selcted",						G_CALLBACK(prep_as_selected_cb) },
+  { "/Prepare a Filter/... not Selected",		NULL, "... not Selected",				NULL, "... not Selected",				G_CALLBACK(prep_as_not_selected_cb) },
+  { "/Prepare a Filter/... and Selected",		NULL, "... and Selected",				NULL, "... and Selected",				G_CALLBACK(prep_as_and_selected_cb) },
+  { "/Prepare a Filter/... or Selected",		NULL, "... or Selected",				NULL, "... or Selected",				G_CALLBACK(prep_as_or_selected_cb) },
+  { "/Prepare a Filter/... and not Selected",	NULL, "... and not Selected",			NULL, "... and not Selected",			G_CALLBACK(prep_as_and_not_selected_cb) },
+  { "/Prepare a Filter/... or not Selected",	NULL, "... or not Selected",			NULL, "... or not Selected",			G_CALLBACK(prep_as_or_not_selected_cb) },
+  { "/Find Frame/Selected",						NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_selected_cb) },
+  { "/Find Frame/Not Selected",					NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_not_selected_cb) },
+  { "/Find Previous/Selected",					NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_prev_selected_cb) },
+  { "/Find Previous/Not Selected",				NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_prev_not_selected_cb) },
+  { "/Find Next/Selected",						NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_next_selected_cb) },
+  { "/Find Next/Not Selected",					NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_next_not_selected_cb) },
+  { "/Colorize Procedure/Selected",				NULL, "Selected",						NULL, "Selected",						G_CALLBACK(color_selected_cb) },
+  { "/Colorize Procedure/Not Selected",			NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(color_not_selected_cb) },
 };
 #endif
 static void
@@ -650,6 +684,7 @@ expert_goto_pkt_cb (GtkTreeSelection *selection, gpointer data _U_)
 static void
 error_create_popup_menu(error_equiv_table *err)
 {
+#ifndef USE_GUIMANAGER
     GtkItemFactory *item_factory;
 
     err->select = gtk_tree_view_get_selection (GTK_TREE_VIEW (err->tree_view));
@@ -663,7 +698,7 @@ error_create_popup_menu(error_equiv_table *err)
 
     err->menu = gtk_item_factory_get_widget(item_factory, "<main>");
     g_signal_connect(err->tree_view, "button_press_event", G_CALLBACK(error_show_popup_menu_cb), err);
-#if 0
+#else
 	/* Experimental, TODO: Review variable names etc */
 	GtkUIManager *ui_manager;
 	GtkActionGroup *action_group;
@@ -676,7 +711,10 @@ error_create_popup_menu(error_equiv_table *err)
                   err);
 
 	action_group = gtk_action_group_new ("ActionGroup"); 
-	gtk_action_group_add_actions (action_group, error_list_menu_entries, G_N_ELEMENTS(error_list_menu_entries), NULL);
+	gtk_action_group_add_actions (action_group,							/* the action group */
+								error_list_menu_entries,				/* an array of action descriptions */
+								G_N_ELEMENTS(error_list_menu_entries),	/* the number of entries */
+								err);									/* data to pass to the action callbacks */
 
 	ui_manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
