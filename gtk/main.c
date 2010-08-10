@@ -1518,7 +1518,7 @@ main_cf_cb_file_read_finished(capture_file *cf)
         cf_path_end = find_last_pathname_separator(cf->filename);
         dir_path_len = (cf_path_end - cf->filename);
         dir_path = g_malloc (dir_path_len + 1);
-        strncpy(dir_path, cf->filename, dir_path_len);
+		g_snprintf (dir_path, dir_path_len, cf->filename);
         dir_path[dir_path_len++] = '\0';
         set_last_open_dir(dir_path);
     }
