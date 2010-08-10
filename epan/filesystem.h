@@ -218,6 +218,13 @@ extern const char *file_write_error_message(int err);
  */
 extern const char *get_basename(const char *);
 
+ /*
+  * Given a pathname, return a pointer to the last pathname separator
+  * character in the pathname, or NULL if the pathname contains no
+  * separators.
+  */
+extern char *find_last_pathname_separator(const char *path);
+
 /*
  * Given a pathname, return a string containing everything but the
  * last component.  NOTE: this overwrites the pathname handed into

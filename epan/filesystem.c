@@ -93,7 +93,7 @@ static GHashTable *profile_files = NULL;
  * character in the pathname, or NULL if the pathname contains no
  * separators.
  */
-static char *
+char *
 find_last_pathname_separator(const char *path)
 {
 	char *separator;

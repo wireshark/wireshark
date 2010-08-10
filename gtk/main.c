@@ -1506,9 +1506,21 @@ main_cf_cb_file_read_started(capture_file *cf _U_)
 static void
 main_cf_cb_file_read_finished(capture_file *cf)
 {
+    gchar* cf_path_end;
+    gchar* dir_path;
+    size_t dir_path_len;
+
     if (!cf->is_tempfile && cf->filename) {
         /* Add this filename to the list of recent files in the "Recent Files" submenu */
         add_menu_recent_capture_file(cf->filename);
+
+        /* Remember folder for next Open dialog and saved in recent */
+        cf_path_end = find_last_pathname_separator(cf->filename);
+        dir_path_len = (cf_path_end - cf->filename);
+        dir_path = g_malloc (dir_path_len + 1);
+        strncpy(dir_path, cf->filename, dir_path_len);
+        dir_path[dir_path_len++] = '\0';
+        set_last_open_dir(dir_path);
     }
     set_display_filename(cf);
 

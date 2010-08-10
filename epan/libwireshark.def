@@ -425,6 +425,7 @@ find_conversation
 find_or_create_conversation
 find_dissector
 find_dissector_table
+find_last_pathname_separator
 find_protocol_by_id
 find_stream_circ
 find_tap_id
