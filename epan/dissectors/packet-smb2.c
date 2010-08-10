@@ -1086,7 +1086,7 @@ dissect_smb2_file_all_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
 	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
 
 	/* File Attributes */
-	offset = dissect_file_attributes(tvb, tree, offset, 4);
+	offset = dissect_file_ext_attr(tvb, tree, offset);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, FALSE);
@@ -1239,7 +1239,7 @@ dissect_smb2_file_basic_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
 
 	/* File Attributes */
-	offset = dissect_file_attributes(tvb, tree, offset, 4);
+	offset = dissect_file_ext_attr(tvb, tree, offset);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, FALSE);
@@ -2459,7 +2459,7 @@ static void dissect_smb2_file_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 		offset += 8;
 
 		/* File Attributes */
-		offset = dissect_file_attributes(tvb, tree, offset, 4);
+		offset = dissect_file_ext_attr(tvb, tree, offset);
 
 		/* file name length */
 		file_name_len=tvb_get_letohl(tvb, offset);
@@ -2543,7 +2543,7 @@ static void dissect_smb2_full_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 		offset += 8;
 
 		/* File Attributes */
-		offset = dissect_file_attributes(tvb, tree, offset, 4);
+		offset = dissect_file_ext_attr(tvb, tree, offset);
 
 		/* file name length */
 		file_name_len=tvb_get_letohl(tvb, offset);
@@ -2633,7 +2633,7 @@ static void dissect_smb2_both_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 		offset += 8;
 
 		/* File Attributes */
-		offset = dissect_file_attributes(tvb, tree, offset, 4);
+		offset = dissect_file_ext_attr(tvb, tree, offset);
 
 		/* file name length */
 		file_name_len=tvb_get_letohl(tvb, offset);
@@ -2805,7 +2805,7 @@ static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinf
 		offset += 8;
 
 		/* File Attributes */
-		offset = dissect_file_attributes(tvb, tree, offset, 4);
+		offset = dissect_file_ext_attr(tvb, tree, offset);
 
 		/* file name length */
 		file_name_len=tvb_get_letohl(tvb, offset);
@@ -3444,7 +3444,7 @@ dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	offset += 8;
 
 	/* File Attributes */
-	offset = dissect_file_attributes(tvb, tree, offset, 4);
+	offset = dissect_file_ext_attr(tvb, tree, offset);
 
 	return offset;
 }
@@ -4287,7 +4287,7 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset = dissect_smb_access_mask(tvb, tree, offset);
 
 	/* File Attributes */
-	offset = dissect_file_attributes(tvb, tree, offset, 4);
+	offset = dissect_file_ext_attr(tvb, tree, offset);
 
 	/* share access */
 	offset = dissect_nt_share_access(tvb, tree, offset);
@@ -4380,7 +4380,7 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset += 8;
 
 	/* File Attributes */
-	offset = dissect_file_attributes(tvb, tree, offset, 4);
+	offset = dissect_file_ext_attr(tvb, tree, offset);
 
 	/* reserved */
 	offset += 4;
