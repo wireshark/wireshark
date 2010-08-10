@@ -1397,7 +1397,7 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
     Tvb tvb = checkTvb(L,WSLUA_ARG_Dissector_call_TVB);
     Pinfo pinfo = checkPinfo(L,WSLUA_ARG_Dissector_call_PINFO);
     TreeItem ti = checkTreeItem(L,WSLUA_ARG_Dissector_call_TREE);
-    char* error = NULL;
+    char *volatile error = NULL;
 
     if (! ( d && tvb && pinfo) ) return 0;
 
@@ -1594,7 +1594,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
     Pinfo pinfo = checkPinfo(L,4);
     TreeItem ti = checkTreeItem(L,5);
     ftenum_t type;
-    gchar* error = NULL;
+    gchar *volatile error = NULL;
 
     if (! (dt && tvb && tvb->ws_tvb && pinfo && ti) ) return 0;
 
