@@ -2539,7 +2539,25 @@ BACnetObjectType [] = {
 	{27,"trend-log-multiple"},
 	{28,"load-control"},
 	{29,"structured-view"},
-	{30,"access-door"},
+	{30,"access-door"},		/* 30-37 added with addanda 135-2008j */
+	{32,"access-credential"},
+	{33,"access-point"},
+	{34,"access-rights"},
+	{35,"access-user"},
+	{36,"access-zone"},
+	{37,"credential-data-input"},
+	{39,"bitstring-value"},		/* 39-50 added with addenda 135-2008w */
+	{40,"characterstring-value"},
+	{41,"date-pattern-value"},
+	{42,"date-value"},
+	{43,"datetime-pattern-value"},
+	{44,"datetime-value"},
+	{45,"integer-value"},
+	{46,"large-analog-value"},
+	{47,"octetstring-value"},
+	{48,"positive-Integer-value"},
+	{49,"time-pattern-value"},
+	{50,"time-value"},
 	{0, NULL}
 /* Enumerated values 0-127 are reserved for definition by ASHRAE.
    Enumerated values 128-1023 may be used by others subject to
@@ -3040,6 +3058,87 @@ BACnetPropertyIdentifier [] = {
 	{233,"lock-status"},
 	{234,"masked-alarm-values"},
 	{235,"secured-status"},
+	{244,"absentee-limit"},		/* added with addenda 135-2008j */
+	{245,"access-alarm-events"},
+	{246,"access-doors"},
+	{247,"access-event"},
+	{248,"access-event-authentication-factor"},
+	{249,"access-event-credential"},
+	{250,"access-event-time"},
+	{251,"access-transaction�events"},
+	{252,"accompaniment"},
+	{253,"accompaniment-time"},
+	{254,"activation-time"},
+	{255,"active-authentication-policy"},
+	{256,"assigned-access-rights"},
+	{257,"authentication-factors"},
+	{258,"authentication-policy-list"},
+	{259,"authentication-policy-names"},
+	{260,"authentication-status"},
+	{261,"authorization-mode"},
+	{262,"belongs-to"},
+	{263,"credential-disable"},
+	{264,"credential-status"},
+	{265,"credentials"},
+	{266,"credentials-in-zone"},
+	{267,"days-remaining"},
+	{268,"entry-points"},
+	{269,"exit-points"},
+	{270,"expiry-time"},
+	{271,"extended-time-enable"},
+	{272,"failed-attempt-events"},
+	{273,"failed-attempts"},
+	{274,"failed-attempts-time"},
+	{275,"last-access-event"},
+	{276,"last-access-point"},
+	{277,"last-credential-added"},
+	{278,"last-credential-added-time"},
+	{279,"last-credential-removed"},
+	{280,"last-credential-removed-time"},
+	{281,"last-use-time"},
+	{282,"lockout"},
+	{283,"lockout-relinquish-time"},
+	{284,"master-exemption"},
+	{285,"max-failed-attempts"},
+	{286,"members"},
+	{287,"muster-point"},
+	{288,"negative-access-rules"},
+	{289,"number-of-authentication-policies"},
+	{290,"occupancy-count"},
+	{291,"occupancy-count-adjust"},
+	{292,"occupancy-count-enable"},
+	{293,"occupancy-exemption"},
+	{294,"occupancy-lower-limit"},
+	{295,"occupancy-lower-limit-enforced"},
+	{296,"occupancy-state"},
+	{297,"occupancy-upper-limit"},
+	{298,"occupancy-upper-limit-enforced"},
+	{299,"passback-exemption"},
+	{300,"passback-mode"},
+	{301,"passback-timeout"},
+	{302,"positive-access-rules"},
+	{303,"reason-for-disable"},
+	{304,"supported-formats"},
+	{305,"supported-format-classes"},
+	{306,"threat-authority"},
+	{307,"threat-level"},
+	{308,"trace-flag"},
+	{309,"transaction-notification-class"},
+	{310,"user-external-identifier"},
+	{311,"user-information-reference"},
+	/* enumeration values 312-316 reserved for future addenda */
+	{317,"user-name"},
+	{318,"user-type"},
+	{319,"uses-remaining"},
+	{320,"zone-from"},
+	{321,"zone-to"},
+	{322,"access-event-tag"},
+	{323,"global-identifier"},
+	/* enumeration values 324-325 reserved for future addenda */
+	{326,"verification-time"},
+	{342,"bit-mask"},		/* addenda 135-2008w */
+	{343,"bit-text"},
+	{344,"is-utc"},
   	{0, NULL}
 /* Enumerated values 0-511 are reserved for definition by ASHRAE.
    Enumerated values 512-4194303 may be used by others subject to
@@ -3263,6 +3362,10 @@ BACnetEventType [] = {
 	{9,"extended" },
 	{10,"buffer-ready" },
 	{11,"unsigned-range" },
+	{14,"double-out-of-range"},		/* added with addenda 135-2008w */
+	{15,"signed-out-of-range"},
+	{16,"unsigned-out-of-range"},
+	{17,"change-of-characterstring"},
 	{0,NULL }
 /* Enumerated values 0-63 are reserved for definition by ASHRAE.
    Enumerated values 64-65535 may be used by others subject to
@@ -4797,7 +4900,7 @@ fAddressBinding (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
 static guint
 fActionCommand (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 tag_match)
 {
-	guint lastoffset = 0;
+	guint lastoffset = 0, len;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 	proto_tree *subtree = tree;
@@ -4806,13 +4909,12 @@ fActionCommand (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
 	propertyArrayIndex = -1;
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info) ) {
 			if (tag_no == tag_match) {
 				return offset;
 			}
-			offset += fTagHeaderTree (tvb, subtree, offset,
-				&tag_no, &tag_info, &lvt);
+			offset += len;
 			subtree = tree;
 			continue;
 		}
@@ -4862,7 +4964,7 @@ fActionCommand (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
 static guint
 fActionList (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-	guint lastoffset = 0;
+	guint lastoffset = 0, len;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 	proto_tree *subtree = tree;
@@ -4870,10 +4972,9 @@ fActionList (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 
 	while (tvb_reported_length_remaining(tvb, offset)) {
 		lastoffset = offset;
-		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
-			offset += fTagHeaderTree (tvb, subtree, offset,
-				&tag_no, &tag_info, &lvt);
+			offset += len;
 			subtree = tree;
 			continue;
 		}
@@ -5490,7 +5591,7 @@ fBACnetPropertyValue (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 static guint
 fSubscribeCOVPropertyRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-	guint lastoffset = 0;
+	guint lastoffset = 0, len;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 	proto_tree *subtree = tree;
@@ -5498,9 +5599,9 @@ fSubscribeCOVPropertyRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
-			offset += fTagHeaderTree (tvb, subtree, offset,	&tag_no, &tag_info, &lvt);
+			offset += len;
 			subtree = tree;
 			continue;
 		}
@@ -5789,7 +5890,7 @@ fUnconfirmedTextMessageRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static guint
 fConfirmedPrivateTransferRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-	guint lastoffset = 0;
+	guint lastoffset = 0, len;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 	proto_tree *subtree = tree;
@@ -5798,12 +5899,11 @@ fConfirmedPrivateTransferRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	/* exit loop if nothing happens inside */
 	while (tvb_reported_length_remaining(tvb, offset)) {
 		lastoffset = offset;
-		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
 			if (tag_no == 2) /* Make sure it's the expected tag */
 			{
-				offset += fTagHeaderTree (tvb, subtree, offset,
-					&tag_no, &tag_info, &lvt);
+				offset += len;
 				subtree = tree;
 				continue;
 			}
@@ -6684,7 +6784,7 @@ fUnconfirmedEventNotificationRequest (tvbuff_t *tvb, packet_info *pinfo, proto_t
 static guint
 fConfirmedCOVNotificationRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-	guint lastoffset = 0;
+	guint lastoffset = 0, len;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 	proto_tree *subtree = tree;
@@ -6692,11 +6792,9 @@ fConfirmedCOVNotificationRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
-			offset += fTagHeaderTree (tvb, subtree, offset,
-				&tag_no, &tag_info, &lvt);
-			lastoffset = offset;
+			offset += len;
 			subtree = tree;
 			continue;
 		}
@@ -6987,7 +7085,7 @@ fGetEventInformationACK (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 static guint
 fAddListElementRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-	guint lastoffset = 0;
+	guint lastoffset = 0, len;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 	proto_tree *subtree = tree;
@@ -6997,10 +7095,9 @@ fAddListElementRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
-			offset += fTagHeaderTree (tvb, subtree, offset,
-				&tag_no, &tag_info, &lvt);
+			offset += len;
 			subtree = tree;
 			continue;
 		}
@@ -7206,7 +7303,7 @@ fReadPropertyRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 static guint
 fReadPropertyAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-	guint lastoffset = 0;
+	guint lastoffset = 0, len;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 	proto_tree *subtree = tree;
@@ -7215,10 +7312,9 @@ fReadPropertyAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	propertyArrayIndex = -1;
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
-			offset += fTagHeaderTree (tvb, tree, offset,
-				&tag_no, &tag_info, &lvt);
+			offset += len;
 			subtree = tree;
 			continue;
 		}
@@ -7256,11 +7352,10 @@ fWritePropertyRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		/* quit loop if we spot a closing tag */
 		if (tag_is_closing(tag_info)) {
-			offset += fTagHeaderTree (tvb, subtree, offset,
-				&tag_no, &tag_info, &lvt);
 			subtree = tree;
-			continue;
+			break;
 		}
 
 		switch (tag_no) {
@@ -7290,16 +7385,16 @@ fWritePropertyRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 static guint
 fWriteAccessSpecification (tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, guint offset)
 {
-	guint lastoffset = 0;
+	guint lastoffset = 0, len;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		/* maybe a listOfwriteAccessSpecifications if we spot a closing tag */
 		if (tag_is_closing(tag_info)) {
-			offset += fTagHeaderTree (tvb, subtree, offset,
-				&tag_no, &tag_info, &lvt);
+			offset += len;
 			continue;
 		}
 
@@ -7504,12 +7599,14 @@ fSpecialEvent (tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, guint off
 {
 	guint8 tag_no, tag_info;
 	guint32 lvt;
-	guint lastoffset = 0;
+	guint lastoffset = 0, len;
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		/* maybe a SEQUENCE of SpecialEvents if we spot a closing tag */
 		if (tag_is_closing(tag_info)) {
+			offset += len;
 			continue;
 		}
 
@@ -7548,14 +7645,16 @@ fSpecialEvent (tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, guint off
 static guint
 fSelectionCriteria (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-	guint lastoffset = 0;
+	guint lastoffset = 0, len;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
-		if (tag_is_closing(tag_info)) {  /* stop when we hit outer closing tag */
+		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		/* maybe a listOfSelectionCriteria if we spot a closing tag */
+		if (tag_is_closing(tag_info)) {
+			offset += len;
 			continue;
 		}
 
@@ -7593,8 +7692,9 @@ fObjectSelectionCriteria (tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
-		if (tag_is_closing(tag_info)) {  /* stop when we hit outer closing tag */
-			continue;
+		/* quit loop if we spot a closing tag */
+		if (tag_is_closing(tag_info)) {
+			break;
 		}
 
 		switch (tag_no) {
@@ -7692,7 +7792,7 @@ fReadAccessSpecification (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 static guint
 fReadAccessResult (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-	guint lastoffset = 0;
+	guint lastoffset = 0, len;
 	guint8 tag_no;
 	guint8 tag_info;
 	guint32 lvt;
@@ -7701,10 +7801,10 @@ fReadAccessResult (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		/* maybe a listOfReadAccessResults if we spot a closing tag here */
 		if (tag_is_closing(tag_info)) {
-			offset += fTagHeaderTree (tvb, subtree, offset,
-				&tag_no, &tag_info, &lvt);
+			offset += len;
 			if ((tag_no == 4 || tag_no == 5) && (subtree != tree)) subtree = subtree->parent; /* Value and error have extra subtree */
 			continue;
 		}
