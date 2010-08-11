@@ -103,7 +103,10 @@ static void printnbyte(const guint8* tab _U_,int nb _U_,const char* txt _U_,cons
 
 static GHashTable *netlogon_auths=NULL;
 static GHashTable *schannel_auths;
-
+/* Added next two lines for decoding NetrLogonControl2 
+   Control_data_information Level. Frank Schorr */
+static gint hf_netlogon_TrustedDomainName_string = -1; 
+static gint hf_netlogon_UserName_string = -1;          
 static gint DomainInfo_sid = -1;
 static gint DnsDomainInfo_sid = -1;
 static gint DnsDomainInfo_domain_guid = -1;
@@ -4901,14 +4904,16 @@ netlogon_dissect_CONTROL_DATA_INFORMATION(tvbuff_t *tvb, int offset,
     ALIGN_TO_4_BYTES;
     switch(level){
     case 5:
-        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo,
-                                              tree, drep, NDR_POINTER_UNIQUE, "unknown",
-                                              hf_netlogon_unknown_string, 0);
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo,			
+		/* Changed for decoding NetrLogonControl2 Control_data_information Level. Frank Schorr */
+							    tree, drep, NDR_POINTER_UNIQUE, "Trusted Domain Name",
+                                              hf_netlogon_TrustedDomainName_string, 0);
         break;
     case 6:
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo,
-                                              tree, drep, NDR_POINTER_UNIQUE, "unknown",
-                                              hf_netlogon_unknown_string, 0);
+		/* Changed for decoding NetrLogonControl2 Control_data_information Level. Frank Schorr */ 
+			                            tree, drep, NDR_POINTER_UNIQUE, "Trusted Domain Name",
+                                              hf_netlogon_TrustedDomainName_string, 0);
         break;
     case 0xfffe:
         offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -4916,8 +4921,9 @@ netlogon_dissect_CONTROL_DATA_INFORMATION(tvbuff_t *tvb, int offset,
         break;
     case 8:
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo,
-                                              tree, drep, NDR_POINTER_UNIQUE, "unknown",
-                                              hf_netlogon_unknown_string, 0);
+		/* Changed for decoding NetrLogonControl2 Control_data_information Level. Frank Schorr */
+			                            tree, drep, NDR_POINTER_UNIQUE, "UserName",
+                                              hf_netlogon_UserName_string, 0);
         break;
     }
 
@@ -8227,6 +8233,14 @@ proto_register_dcerpc_netlogon(void)
         { &hf_netlogon_unknown_string,
           { "Unknown string", "netlogon.unknown_string", FT_STRING, BASE_NONE,
             NULL, 0, "Unknown string. If you know what this is, contact wireshark developers.", HFILL }},
+	/* Added for decoding NetrLogonControl2 Control_data_information Level. Frank Schorr */
+	{ &hf_netlogon_TrustedDomainName_string,
+		{ "TrustedDomainName", "netlogon.TrustedDomainName", FT_STRING, BASE_NONE,
+		NULL, 0, "TrustedDomainName string.", HFILL }},
+	/* Added for decoding NetrLogonControl2 Control_data_information Level. Frank Schorr */
+	{ &hf_netlogon_UserName_string,
+		{ "UserName", "netlogon.UserName", FT_STRING, BASE_NONE,
+		NULL, 0, "UserName string.", HFILL }},
 
         { &hf_netlogon_dummy_string,
           { "Dummy String", "netlogon.dummy_string", FT_STRING, BASE_NONE,
