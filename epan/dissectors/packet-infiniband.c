@@ -114,11 +114,8 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                                                                    
     /* Mark the Packet type as Infiniband in the wireshark UI */
     /* Clear other columns */
-    if(pinfo->cinfo)
-    {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "InfiniBand");
-        col_clear(pinfo->cinfo, COL_INFO);
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "InfiniBand");
+    col_clear(pinfo->cinfo, COL_INFO);
 
     /* Get the parent tree from the ERF dissector.  We don't want to nest under ERF */
     if(tree && tree->parent)
@@ -260,10 +257,7 @@ skip_lrh:
 
             /* Get the OpCode - this tells us what headers are following */
             opCode = tvb_get_guint8(tvb, offset);
-            if (check_col(pinfo->cinfo, COL_INFO))
-            {
-                col_append_str(pinfo->cinfo, COL_INFO, val_to_str((guint32)opCode, OpCodeMap, "Unknown OpCode"));
-            }
+            col_append_str(pinfo->cinfo, COL_INFO, val_to_str((guint32)opCode, OpCodeMap, "Unknown OpCode"));
             offset +=1;
 
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_solicited_event,              tvb, offset, 1, FALSE);
@@ -541,10 +535,8 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Mark the Packet type as Infiniband in the wireshark UI */
     /* Clear other columns */
-    if(pinfo->cinfo)
-    {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "InfiniBand Link");
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "InfiniBand Link");
+    col_clear(pinfo->cinfo, COL_INFO);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
 		     val_to_str(operand, Operand_Description, "Unknown (0x%1x)"));
 
@@ -889,11 +881,8 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
  
     if(!tvb_bytes_exist(tvb, *offset, length)) /* previously consumed bytes + offset was all the data - none or corrupt payload */
     {
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_set_str(pinfo->cinfo, COL_INFO, "Invalid Packet Length from LRH! [Malformed Packet]");
-            col_set_fence(pinfo->cinfo, COL_INFO);
-        }
+        col_set_str(pinfo->cinfo, COL_INFO, "Invalid Packet Length from LRH! [Malformed Packet]");
+        col_set_fence(pinfo->cinfo, COL_INFO);
         return;
     }
     if(src_qp == 0 || src_qp == 1 || dst_qp == 0 || dst_qp == 1)    /* management datagram */
@@ -3208,10 +3197,7 @@ skip_lrh:
 
             /* Get the OpCode - this tells us what headers are following */
             opCode = tvb_get_guint8(tvb, offset);
-            if (check_col(pinfo->cinfo, COL_INFO))
-            {
-                col_append_str(pinfo->cinfo, COL_INFO, val_to_str((guint32)opCode, OpCodeMap, "Unknown OpCode"));
-            }
+            col_append_str(pinfo->cinfo, COL_INFO, val_to_str((guint32)opCode, OpCodeMap, "Unknown OpCode"));
             offset +=12;
             break;
         case IP_NON_IBA:
