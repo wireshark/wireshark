@@ -1374,9 +1374,11 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
-      if (data_tvb) {
-        length = tvb_length(data_tvb);
-      }
+	  if(!data_tvb){
+		  item = proto_tree_add_text(tree, tvb, offset, tokenlen, "Could not convert '%s' to bytes",format_specific_parameter);
+		  return;
+	  }
+	  length = tvb_length(data_tvb);
       if (length == 3){
         if(h264_handle && data_tvb){
           dissect_h264_profile(data_tvb, pinfo, tree);
