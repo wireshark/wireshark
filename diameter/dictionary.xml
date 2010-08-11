@@ -830,7 +830,7 @@
     <avp name="Egress-VLANID" code="56" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="AIngress-Filters" code="57" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
+    <avp name="Ingress-Filters" code="57" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
       <type type-name="Enumerated"/>
       <enum name="Enabled" code="1"/>
       <enum name="Disabled" code="2"/>
