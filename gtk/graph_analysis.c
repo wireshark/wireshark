@@ -112,7 +112,7 @@ static void graph_analysis_reset(graph_analysis_data_t *user_data)
 }
 
 /****************************************************************************/
-/* Reset the user_data structure */
+/* Init the user_data structure */
 static void graph_analysis_init_dlg(graph_analysis_data_t *user_data)
 {
 	int i;
@@ -254,18 +254,11 @@ static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 
 	g_string_insert(gstr, pos, text_to_insert);
 }
 
-
-/*
- * XXX - We might want to refactor this to write the graph data directly to
- * the file instead of loading everything into strings first.
- */
-
 /****************************************************************************/
 static gboolean dialog_graph_dump_to_file(graph_analysis_data_t *user_data)
 {
 	guint32 i, first_node, display_items, display_nodes;
 	guint32 start_position, end_position, item_width, header_length;
-	guint32 current_item;
 	graph_analysis_item_t *gai;
 	guint16  first_conv_num = 0;
 	gboolean several_convs = FALSE;
@@ -291,37 +284,25 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t *user_data)
 	tmp_str        = g_string_new("");
 	tmp_str2       = g_string_new("");
 
-	/* get the items to display and fill the matrix array */
+	display_items = 0;
 	list = g_list_first(user_data->graph_info->list);
-	current_item = 0;
-	i = 0;
-	while (list && current_item < NUM_DISPLAY_ITEMS)
+	while (list)
 	{
 		gai = list->data;
-		if (gai->display){
-			user_data->dlg.items[current_item].frame_num = gai->frame_num;
-			user_data->dlg.items[current_item].time = gai->time;
-			user_data->dlg.items[current_item].port_src = gai->port_src;
-			user_data->dlg.items[current_item].port_dst = gai->port_dst;
-			user_data->dlg.items[current_item].frame_label = gai->frame_label;
-			user_data->dlg.items[current_item].comment = gai->comment;
-			user_data->dlg.items[current_item].conv_num = gai->conv_num;
-			user_data->dlg.items[current_item].src_node = gai->src_node;
-			user_data->dlg.items[current_item].dst_node = gai->dst_node;
-			if (first_packet){
-				first_conv_num = gai->conv_num;
-				first_packet=FALSE;
-			}
-			if (user_data->dlg.items[current_item].conv_num != first_conv_num){
-				several_convs = TRUE;
-			}
-			current_item++;
-			i++;
-		}
-
 		list = g_list_next(list);
+
+		if (!gai->display)
+			continue;
+
+		display_items += 1;
+		if (first_packet){
+			first_conv_num = gai->conv_num;
+			first_packet=FALSE;
+		}
+		else if (gai->conv_num != first_conv_num){
+			several_convs = TRUE;
+		}
 	}
-	display_items = current_item;
 
 	/* if not items to display */
 	if (display_items == 0)
@@ -387,11 +368,18 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t *user_data)
 	 * Draw the items
 	 */
 
-	for (current_item=0; current_item<display_items; current_item++){
+	list = g_list_first(user_data->graph_info->list);
+	while (list)
+	{
+		gai = list->data;
+		list = g_list_next(list);
 
-		start_position = (user_data->dlg.items[current_item].src_node-first_node)*NODE_CHARS_WIDTH+NODE_CHARS_WIDTH/2;
+		if (!gai->display)
+			continue;
 
-		end_position = (user_data->dlg.items[current_item].dst_node-first_node)*NODE_CHARS_WIDTH+NODE_CHARS_WIDTH/2;
+		start_position = (gai->src_node-first_node)*NODE_CHARS_WIDTH+NODE_CHARS_WIDTH/2;
+
+		end_position = (gai->dst_node-first_node)*NODE_CHARS_WIDTH+NODE_CHARS_WIDTH/2;
 
 		if (start_position > end_position){
 			item_width=start_position-end_position;
@@ -405,34 +393,34 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t *user_data)
 		}
 
 		/* separator between conversations */
-		if (user_data->dlg.items[current_item].conv_num != first_conv_num){
+		if (gai->conv_num != first_conv_num){
 			fprintf(of, "%s\n", separator_line->str);
-			first_conv_num=user_data->dlg.items[current_item].conv_num;
+			first_conv_num=gai->conv_num;
 		}
 
 		/* write the conversation number */
 		if (several_convs){
-			g_string_printf(label_string, "%i", user_data->dlg.items[current_item].conv_num);
+			g_string_printf(label_string, "%i", gai->conv_num);
 			enlarge_string(label_string, 5, ' ');
 			fprintf(of, "%s", label_string->str);
 		}
 
 		/* write the time */
-		g_string_printf(label_string, "|%.3f", user_data->dlg.items[current_item].time);
+		g_string_printf(label_string, "|%.3f", gai->time);
 		enlarge_string(label_string, 10, ' ');
 		fprintf(of, "%s", label_string->str);
 
 		/* write the frame label */
 
 		g_string_printf(tmp_str, "%s", empty_line->str);
-		overwrite(tmp_str,user_data->dlg.items[current_item].frame_label,
+		overwrite(tmp_str,gai->frame_label,
 			start_position,
 			end_position
 			);
 		fprintf(of, "%s", tmp_str->str);
 
 		/* write the comments */
-		fprintf(of, "%s\n", user_data->dlg.items[current_item].comment);
+		fprintf(of, "%s\n", gai->comment);
 
 		/* write the arrow and frame label*/
 		fprintf(of, "%s", empty_header);
@@ -455,8 +443,8 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t *user_data)
 			end_position
 			);
 
-		g_snprintf(src_port,sizeof(src_port),"(%i)", user_data->dlg.items[current_item].port_src);
-		g_snprintf(dst_port,sizeof(dst_port),"(%i)", user_data->dlg.items[current_item].port_dst);
+		g_snprintf(src_port,sizeof(src_port),"(%i)", gai->port_src);
+		g_snprintf(dst_port,sizeof(dst_port),"(%i)", gai->port_dst);
 
 		if (start_position<end_position){
 			overwrite(tmp_str,src_port,start_position-9,start_position-1);
@@ -535,7 +523,7 @@ static gboolean save_to_file_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data)
 	/*                                                                      */
 	/* As a work-around:                                                    */
 	/*  We'll always destroy the window.                                    */
-       
+
 	/* check whether the file exists */
 	file_test = ws_fopen(user_data_p->dlg.save_file,"r");
 	if (file_test!=NULL){
@@ -563,7 +551,7 @@ static gboolean save_to_file_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data)
 /****************************************************************************/
 static void
 on_save_bt_clicked                    (GtkWidget       *button _U_,
-                                        graph_analysis_data_t *user_data)
+                                       graph_analysis_data_t *user_data)
 {
 #if 0  /* XXX: GtkFileChooserDialog/gtk_dialog_run currently being used is effectively modal so this is not req'd */
 	if (save_to_file_w != NULL) {
@@ -572,7 +560,7 @@ on_save_bt_clicked                    (GtkWidget       *button _U_,
 		return;
 	}
 #endif
-	save_to_file_w = 
+	save_to_file_w =
 		gtk_file_chooser_dialog_new("Wireshark: Save graph to plain text file",
 					    GTK_WINDOW(user_data->dlg.window),
 					    GTK_FILE_CHOOSER_ACTION_SAVE,
@@ -587,17 +575,17 @@ on_save_bt_clicked                    (GtkWidget       *button _U_,
 	window_present(save_to_file_w);
 
 	/* "Run" the GtkFileChooserDialog.                                              */
-        /* Upon exit: If "Accept" run the OK callback.                                  */
-        /*            If the OK callback returns with a FALSE status, re-run the dialog.*/
-        /*            Destroy the window.                                               */
-        /* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
-        /*      return with a TRUE status so that the dialog window will be destroyed.  */
+	/* Upon exit: If "Accept" run the OK callback.                                  */
+	/*            If the OK callback returns with a FALSE status, re-run the dialog.*/
+	/*            Destroy the window.                                               */
+	/* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
+	/*      return with a TRUE status so that the dialog window will be destroyed.  */
 	/*      Trying to re-run the dialog after popping up an alert box will not work */
-        /*       since the user will not be able to dismiss the alert box.              */
+	/*       since the user will not be able to dismiss the alert box.              */
 	/*      The (somewhat unfriendly) effect: the user must re-invoke the           */
 	/*      GtkFileChooserDialog whenever the OK callback pops up an alert box.     */
 	/*                                                                              */
-        /*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
+	/*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
 	/*            GtkFileChooserDialog.                                             */
 	while (gtk_dialog_run(GTK_DIALOG(save_to_file_w)) == GTK_RESPONSE_ACCEPT) {
 		if (save_to_file_ok_cb(NULL, user_data)) {
@@ -749,12 +737,12 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	middle_font_desc = pango_font_description_copy(pango_context_get_font_description(pango_layout_get_context(middle_layout)));
 	middle_font_size = pango_font_description_get_size(middle_font_desc);
 	pango_font_description_set_size(middle_font_desc,(gint)(middle_font_size*0.8));
-	pango_layout_set_font_description(middle_layout,middle_font_desc);	
+	pango_layout_set_font_description(middle_layout,middle_font_desc);
 
 	small_font_desc = pango_font_description_copy(pango_context_get_font_description(pango_layout_get_context(small_layout)));
 	small_font_size = pango_font_description_get_size(small_font_desc);
 	pango_font_description_set_size(small_font_desc,(gint)(small_font_size*0.7));
-	pango_layout_set_font_description(small_layout,small_font_desc);	
+	pango_layout_set_font_description(small_layout,small_font_desc);
 
 	pango_layout_get_pixel_size(layout, &label_width, &label_height);
 
@@ -1182,7 +1170,7 @@ static gboolean expose_event_time(GtkWidget *widget, GdkEventExpose *event, gpoi
 /****************************************************************************/
 static gboolean configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer data)
 {
-        graph_analysis_data_t *user_data = data;
+	graph_analysis_data_t *user_data = data;
 	int i;
 
 	/* gray and soft gray colors */
@@ -1444,16 +1432,16 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	gtk_box_pack_start(GTK_BOX(hbox), user_data->dlg.hpane, TRUE, TRUE, 0);
 
 	/* Create the scroll_vbox to include the vertical scroll and a box at the bottom */
-        scroll_vbox=gtk_vbox_new(FALSE, 0);
-        gtk_widget_show(scroll_vbox);
+	scroll_vbox=gtk_vbox_new(FALSE, 0);
+	gtk_widget_show(scroll_vbox);
 
 	/* create the associated v_scrollbar */
 	user_data->dlg.v_scrollbar_adjustment=(GtkAdjustment *)gtk_adjustment_new(0,0,0,0,0,0);
 	user_data->dlg.v_scrollbar=gtk_vscrollbar_new(user_data->dlg.v_scrollbar_adjustment);
 	gtk_widget_show(user_data->dlg.v_scrollbar);
 	gtk_box_pack_start(GTK_BOX(scroll_vbox), user_data->dlg.v_scrollbar, TRUE, TRUE, 0);
-	g_signal_connect(user_data->dlg.v_scrollbar_adjustment, "value_changed", 
-                         G_CALLBACK(v_scrollbar_changed), user_data);
+	g_signal_connect(user_data->dlg.v_scrollbar_adjustment, "value_changed",
+			 G_CALLBACK(v_scrollbar_changed), user_data);
 
 	frame_box = gtk_frame_new(NULL);
 	gtk_widget_size_request(user_data->dlg.v_scrollbar, &scroll_requisition);
