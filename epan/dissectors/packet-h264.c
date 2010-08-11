@@ -518,7 +518,9 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 	codenum = 1;
 	codenum = codenum << leading_zero_bits;
 	mask = codenum>>1;
-	if (leading_zero_bits > 8)
+	if (leading_zero_bits > 16)
+		value = tvb_get_bits32(tvb, bit_offset,leading_zero_bits, FALSE);
+	else if (leading_zero_bits > 8)
 		value = tvb_get_bits16(tvb, bit_offset,leading_zero_bits, FALSE);
 	else
 		value = tvb_get_bits8(tvb, bit_offset,leading_zero_bits );
