@@ -1368,13 +1368,15 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
    */
   if (mime_type != NULL && g_ascii_strcasecmp(mime_type, "H264") == 0) {
     if (strcmp(field_name, "profile-level-id") == 0) {
-      int length;
+      int length = 0;
 
       /* Length includes "=" as it's required by ascii_bytes_to_tvb()*/
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
-      length = tvb_length(data_tvb);
+      if (data_tvb) {
+        length = tvb_length(data_tvb);
+      }
       if (length == 3){
         if(h264_handle && data_tvb){
           dissect_h264_profile(data_tvb, pinfo, tree);
