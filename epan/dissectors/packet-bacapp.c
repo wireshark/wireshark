@@ -3065,7 +3065,7 @@ BACnetPropertyIdentifier [] = {
 	{248,"access-event-authentication-factor"},
 	{249,"access-event-credential"},
 	{250,"access-event-time"},
-	{251,"access-transaction�events"},
+	{251,"access-transaction-events"},
 	{252,"accompaniment"},
 	{253,"accompaniment-time"},
 	{254,"activation-time"},
