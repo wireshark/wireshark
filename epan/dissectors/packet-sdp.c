@@ -1375,7 +1375,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
 	  if(!data_tvb){
-		  item = proto_tree_add_text(tree, tvb, offset, tokenlen, "Could not convert '%s' to bytes",format_specific_parameter);
+		  item = proto_tree_add_text(tree, tvb, offset, tokenlen, "Could not convert '%s' to 3 bytes",format_specific_parameter);
 		  return;
 	  }
 	  length = tvb_length(data_tvb);
