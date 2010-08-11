@@ -1678,6 +1678,22 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     break;
   case SDP_PATH:
     /* msrp attributes that contain address needed for conversation */
+    /*    RFC 4975
+     *    path = path-label ":" path-list
+     *    path-label = "path"
+     *    path-list= MSRP-URI *(SP MSRP-URI)
+     *    MSRP-URI = msrp-scheme "://" authority
+     *       ["/" session-id] ";" transport *( ";" URI-parameter)
+     *                        ; authority as defined in RFC3986
+	 *
+	 *    msrp-scheme = "msrp" / "msrps"
+	 * RFC 3986
+	 * The authority component is preceded by a double slash ("//") and is terminated by 
+	 * the next slash ("/"), question mark ("?"), or number sign ("#") character, or by 
+	 * the end of the URI. 
+	 */
+
+    /* Check for "msrp://" */
     if (strncmp((char*)attribute_value, msrp_res, strlen(msrp_res)) == 0){
       int address_offset, port_offset, port_end_offset;
 
@@ -1687,7 +1703,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
       /* Port is after next ':' */
       port_offset = tvb_find_guint8(tvb, address_offset, -1, ':');
 	  /* Check if port is present if not skipp */
-	  if(port_offset!=-1){
+	  if(port_offset!= -1){
 		  /* Port ends with '/' */
 		  port_end_offset = tvb_find_guint8(tvb, port_offset, -1, '/');
 
