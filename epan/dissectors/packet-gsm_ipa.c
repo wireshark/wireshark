@@ -52,6 +52,7 @@ enum {
 	SUB_OML,
 	SUB_RSL,
 	SUB_SCCP,
+	SUB_MGCP,
 /*	SUB_IPACCESS, */
 
 	SUB_MAX
@@ -65,12 +66,14 @@ static dissector_handle_t sub_handles[SUB_MAX];
 #define TCP_PORT_AIP_PRIM	 5000
 
 #define ABISIP_RSL_MAX	0x20
+#define IPA_MGCP	0xfc
 #define AIP_SCCP	0xfd
 #define ABISIP_IPACCESS	0xfe
 #define ABISIP_OML	0xff
 
 static const value_string ipa_protocol_vals[] = {
 	{ 0x00,		"RSL" },
+	{ 0xfc,		"MGCP" },
 	{ 0xfd,		"SCCP" },
 	{ 0xfe,		"IPA" },
 	{ 0xff,		"OML" },
@@ -231,6 +234,10 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* hand this off to the standard SCCP dissector */
 			call_dissector(sub_handles[SUB_SCCP], next_tvb, pinfo, tree);
 			break;
+		case IPA_MGCP:
+			/* hand this off to the standard MGCP dissector */
+			call_dissector(sub_handles[SUB_MGCP], next_tvb, pinfo, tree);
+			break;
 		default:
 			if (msg_type < ABISIP_RSL_MAX) {
 				/* hand this off to the standard A-bis RSL dissector */
@@ -300,6 +307,7 @@ void proto_reg_handoff_gsm_ipa(void)
 	sub_handles[SUB_RSL] = find_dissector("gsm_abis_rsl");
 	sub_handles[SUB_OML] = find_dissector("gsm_abis_oml");
 	sub_handles[SUB_SCCP] = find_dissector("sccp");
+	sub_handles[SUB_MGCP] = find_dissector("mgcp");
 
 	ipa_handle = create_dissector_handle(dissect_ipa, proto_ipa);
 	dissector_add("tcp.port", TCP_PORT_ABISIP_PRIM, ipa_handle);
