@@ -1502,7 +1502,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   /*
    * If we have the entire IP header available, check the checksum.
    */
-  if (ip_check_checksum && tvb_bytes_exist(tvb, offset, hlen)) {
+  if (ip_check_checksum && tvb_bytes_exist(tvb, offset, hlen) && !pinfo->in_error_pkt) {
     ipsum = ip_checksum(tvb_get_ptr(tvb, offset, hlen), hlen);
     if (tree) {
       if (ipsum == 0) {
