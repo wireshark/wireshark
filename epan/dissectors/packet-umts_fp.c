@@ -3045,7 +3045,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_toa,
             { "ToA",
-              "fp.cfn-control", FT_INT16, BASE_DEC, NULL, 0x0,
+              "fp.toa", FT_INT16, BASE_DEC, NULL, 0x0,
               "Time of arrival (units are 125 microseconds)", HFILL
             }
         },
