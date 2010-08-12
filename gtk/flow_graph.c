@@ -55,22 +55,24 @@
 
 
 
-#define DISPLAYED 0
-#define ALL 1
-#define GENERAL 0
-#define TCP 1
-#define SRCDST 0
-#define NET_SRCDST 1
+#define TYPE_OF_PACKETS_DISPLAYED 0
+#define TYPE_OF_PACKETS_ALL 1
 
-static int type_of_packets = DISPLAYED;
-static int type_of_flow = GENERAL;
-static int node_addr_type = SRCDST;
+#define TYPE_OF_FLOW_GENERAL 0
+#define TYPE_OF_FLOW_TCP 1
+
+#define NODE_ADDR_TYPE_SRCDST 0
+#define NODE_ADDR_TYPE_NET_SRCDST 1
+
+static int type_of_packets = TYPE_OF_PACKETS_DISPLAYED;
+static int type_of_flow    = TYPE_OF_FLOW_GENERAL;
+static int node_addr_type  = NODE_ADDR_TYPE_SRCDST;
 
 static int tap_identifier;
 static gboolean have_frame_tap_listener=FALSE;
 static gboolean have_tcp_tap_listener=FALSE;
 static graph_analysis_info_t *graph_analysis = NULL;
-static graph_analysis_data_t *graph_analysis_data;
+static graph_analysis_data_t *graph_analysis_data = NULL;
 
 static GtkWidget *flow_graph_dlg = NULL;
 
@@ -81,15 +83,12 @@ static GtkWidget *select_tcp_rb;
 static GtkWidget *src_dst_rb;
 static GtkWidget *net_src_dst_rb;
 
-void flow_graph_data_init(void);
-
-
 /****************************************************************************/
 /* free up memory and initialize the pointers */
 
-static void flow_graph_reset(void *ptr _U_)
+static void
+flow_graph_reset(void *ptr _U_)
 {
-
 	graph_analysis_item_t *graph_item;
 
 	GList* list;
@@ -110,15 +109,14 @@ static void flow_graph_reset(void *ptr _U_)
 		graph_analysis->nconv = 0;
 		graph_analysis->list = NULL;
 	}
-	return;
 }
 
 /****************************************************************************/
-void flow_graph_data_init(void) {
+static void
+flow_graph_data_init(void) {
 	graph_analysis = g_malloc(sizeof(graph_analysis_info_t));
 	graph_analysis->nconv = 0;
 	graph_analysis->list = NULL;
-	return;
 }
 
 
@@ -147,6 +145,15 @@ flow_graph_on_destroy(GtkObject *object _U_, gpointer user_data _U_)
 	/* Clean up memory used by tap */
 	flow_graph_reset(NULL);
 
+	g_assert(graph_analysis != NULL);
+	g_assert(graph_analysis_data != NULL);
+
+	g_free(graph_analysis);
+	graph_analysis = NULL;
+
+	g_free(graph_analysis_data);
+	graph_analysis_data = NULL;
+
 	/* Note that we no longer have a "Flow Graph" dialog box. */
 	flow_graph_dlg = NULL;
 }
@@ -156,9 +163,9 @@ flow_graph_on_destroy(GtkObject *object _U_, gpointer user_data _U_)
 static void
 toggle_select_all(GtkWidget *widget _U_, gpointer user_data _U_)
 {
-  /* is the button now active? */
+	/* is the button now active? */
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(select_all_rb))) {
-		type_of_packets = ALL;
+		type_of_packets = TYPE_OF_PACKETS_ALL;
 	}
 }
 
@@ -166,9 +173,9 @@ toggle_select_all(GtkWidget *widget _U_, gpointer user_data _U_)
 static void
 toggle_select_displayed(GtkWidget *widget _U_, gpointer user_data _U_)
 {
-  /* is the button now active? */
+	/* is the button now active? */
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(select_displayed_rb))) {
-		type_of_packets = DISPLAYED;
+		type_of_packets = TYPE_OF_PACKETS_DISPLAYED;
 	}
 }
 
@@ -176,9 +183,9 @@ toggle_select_displayed(GtkWidget *widget _U_, gpointer user_data _U_)
 static void
 toggle_select_general(GtkWidget *widget _U_, gpointer user_data _U_)
 {
-  /* is the button now active? */
+	/* is the button now active? */
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(select_general_rb))) {
-		type_of_flow = GENERAL;
+		type_of_flow = TYPE_OF_FLOW_GENERAL;
 	}
 }
 
@@ -186,9 +193,9 @@ toggle_select_general(GtkWidget *widget _U_, gpointer user_data _U_)
 static void
 toggle_select_tcp(GtkWidget *widget _U_, gpointer user_data _U_)
 {
-  /* is the button now active? */
+	/* is the button now active? */
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(select_tcp_rb))) {
-		type_of_flow = TCP;
+		type_of_flow = TYPE_OF_FLOW_TCP;
 	}
 }
 
@@ -196,9 +203,9 @@ toggle_select_tcp(GtkWidget *widget _U_, gpointer user_data _U_)
 static void
 toggle_select_srcdst(GtkWidget *widget _U_, gpointer user_data _U_)
 {
-  /* is the button now active? */
+	/* is the button now active? */
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(src_dst_rb))) {
-		node_addr_type = SRCDST;
+		node_addr_type = NODE_ADDR_TYPE_SRCDST;
 	}
 }
 
@@ -206,15 +213,16 @@ toggle_select_srcdst(GtkWidget *widget _U_, gpointer user_data _U_)
 static void
 toggle_select_netsrcdst(GtkWidget *widget _U_, gpointer user_data _U_)
 {
-  /* is the button now active? */
+	/* is the button now active? */
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(net_src_dst_rb))) {
-		node_addr_type = NET_SRCDST;
+		node_addr_type = NODE_ADDR_TYPE_NET_SRCDST;
 	}
 }
 
 /****************************************************************************/
 /* Add a new frame into the graph */
-static int flow_graph_frame_add_to_graph(packet_info *pinfo)
+static int
+flow_graph_frame_add_to_graph(packet_info *pinfo)
 {
 	graph_analysis_item_t *gai;
 	int i;
@@ -224,7 +232,7 @@ static int flow_graph_frame_add_to_graph(packet_info *pinfo)
 	protocol=NULL;
 	colinfo=NULL;
 
-	if (node_addr_type == NET_SRCDST) {
+	if (node_addr_type == NODE_ADDR_TYPE_NET_SRCDST) {
 		if (pinfo->net_src.type!=AT_NONE && pinfo->net_dst.type!=AT_NONE) {
 			gai = g_malloc(sizeof(graph_analysis_item_t));
 			COPY_ADDRESS(&(gai->src_addr),&(pinfo->net_src));
@@ -302,101 +310,100 @@ static int flow_graph_frame_add_to_graph(packet_info *pinfo)
 	graph_analysis->list = g_list_append(graph_analysis->list, gai);
 
 	return 1;
-
 }
 
 /****************************************************************************/
 /* Add a new tcp frame into the graph */
-static int flow_graph_tcp_add_to_graph(packet_info *pinfo, const struct tcpheader *tcph)
+static int
+flow_graph_tcp_add_to_graph(packet_info *pinfo, const struct tcpheader *tcph)
 {
-  graph_analysis_item_t *gai;
-  /* copied from packet-tcp */
-  const gchar *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR" };
-  guint i, bpos;
-  gboolean flags_found = FALSE;
-  gchar flags[64];
+	graph_analysis_item_t *gai;
+	/* copied from packet-tcp */
+	const gchar *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR" };
+	guint i, bpos;
+	gboolean flags_found = FALSE;
+	gchar flags[64];
 
-  gai = g_malloc(sizeof(graph_analysis_item_t));
-  gai->frame_num = pinfo->fd->num;
-  gai->time= nstime_to_sec(&pinfo->fd->rel_ts);
-  if (node_addr_type == NET_SRCDST) {
-    COPY_ADDRESS(&(gai->src_addr),&(pinfo->net_src));
-    COPY_ADDRESS(&(gai->dst_addr),&(pinfo->net_dst));
-  } else {
-    COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
-    COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));
-  }
-  gai->port_src=pinfo->srcport;
-  gai->port_dst=pinfo->destport;
+	gai = g_malloc(sizeof(graph_analysis_item_t));
+	gai->frame_num = pinfo->fd->num;
+	gai->time= nstime_to_sec(&pinfo->fd->rel_ts);
+	if (node_addr_type == NODE_ADDR_TYPE_NET_SRCDST) {
+		COPY_ADDRESS(&(gai->src_addr),&(pinfo->net_src));
+		COPY_ADDRESS(&(gai->dst_addr),&(pinfo->net_dst));
+	} else {
+		COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
+		COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));
+	}
+	gai->port_src=pinfo->srcport;
+	gai->port_dst=pinfo->destport;
 
-  flags[0] = '\0';
-  for (i = 0; i < 8; i++) {
-    bpos = 1 << i;
-    if (tcph->th_flags & bpos) {
-      if (flags_found) {
-        g_strlcat(flags, ", ", sizeof(flags));
-      }
-      g_strlcat(flags, fstr[i], sizeof(flags));
-      flags_found = TRUE;
-    }
-  }
-  if (flags[0] == '\0') {
-    g_snprintf (flags, sizeof(flags), "<None>");
-  }
+	flags[0] = '\0';
+	for (i = 0; i < 8; i++) {
+		bpos = 1 << i;
+		if (tcph->th_flags & bpos) {
+			if (flags_found) {
+				g_strlcat(flags, ", ", sizeof(flags));
+			}
+			g_strlcat(flags, fstr[i], sizeof(flags));
+			flags_found = TRUE;
+		}
+	}
+	if (flags[0] == '\0') {
+		g_snprintf (flags, sizeof(flags), "<None>");
+	}
 
-  if ((tcph->th_have_seglen)&&(tcph->th_seglen!=0)){
-    gai->frame_label = g_strdup_printf("%s - Len: %u",flags, tcph->th_seglen);
-  }
-  else{
-    gai->frame_label = g_strdup(flags);
-  }
+	if ((tcph->th_have_seglen)&&(tcph->th_seglen!=0)){
+		gai->frame_label = g_strdup_printf("%s - Len: %u",flags, tcph->th_seglen);
+	}
+	else{
+		gai->frame_label = g_strdup(flags);
+	}
 
-  if (tcph->th_flags & TH_ACK)
-      gai->comment = g_strdup_printf("Seq = %u Ack = %u",tcph->th_seq, tcph->th_ack);
-  else
-      gai->comment = g_strdup_printf("Seq = %u",tcph->th_seq);
+	if (tcph->th_flags & TH_ACK)
+		gai->comment = g_strdup_printf("Seq = %u Ack = %u",tcph->th_seq, tcph->th_ack);
+	else
+		gai->comment = g_strdup_printf("Seq = %u",tcph->th_seq);
 
-  gai->line_style=1;
-  gai->conv_num=0;
-  gai->display=TRUE;
+	gai->line_style=1;
+	gai->conv_num=0;
+	gai->display=TRUE;
 
-  graph_analysis->list = g_list_append(graph_analysis->list, gai);
+	graph_analysis->list = g_list_append(graph_analysis->list, gai);
 
-  return 1;
-
+	return 1;
 }
 
 
 
 /****************************************************************************/
 /* whenever a frame packet is seen by the tap listener */
-static int
+static gboolean
 flow_graph_frame_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *dummy _U_)
 {
-
-	if ((type_of_packets == ALL)||(pinfo->fd->flags.passed_dfilter==1)){
+	if ((type_of_packets == TYPE_OF_PACKETS_ALL)||(pinfo->fd->flags.passed_dfilter==1)){
 		flow_graph_frame_add_to_graph(pinfo);
 	}
 
-	return 1;
+	return TRUE;
 }
 
 /****************************************************************************/
 /* whenever a TCP packet is seen by the tap listener */
-static int
+static gboolean
 flow_graph_tcp_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *tcp_info)
 {
 	const struct tcpheader *tcph = tcp_info;
 
-	if ((type_of_packets == ALL)||(pinfo->fd->flags.passed_dfilter==1)){
+	if ((type_of_packets == TYPE_OF_PACKETS_ALL)||(pinfo->fd->flags.passed_dfilter==1)){
 		flow_graph_tcp_add_to_graph(pinfo,tcph);
 	}
 
-	return 1;
+	return TRUE;
 }
 
 
-static void flow_graph_packet_draw(void *prs _U_)
+static void
+flow_graph_packet_draw(void *prs _U_)
 {
 	return;
 }
@@ -404,9 +411,8 @@ static void flow_graph_packet_draw(void *prs _U_)
 /****************************************************************************/
 static void
 flow_graph_on_ok                    (GtkButton       *button _U_,
-                                        gpointer         user_data)
+				     gpointer         user_data)
 {
-
 	if ((have_frame_tap_listener==TRUE)
 		||(have_tcp_tap_listener==TRUE))
 	{
@@ -416,7 +422,7 @@ flow_graph_on_ok                    (GtkButton       *button _U_,
 
 	/* Scan for displayed packets (retap all packets) */
 
-	if (type_of_flow == GENERAL){
+	if (type_of_flow == TYPE_OF_FLOW_GENERAL){
 		/* Register the tap listener */
 
 		if(have_frame_tap_listener==FALSE)
@@ -433,7 +439,7 @@ flow_graph_on_ok                    (GtkButton       *button _U_,
 
 		cf_retap_packets(&cfile);
 	}
-	else if (type_of_flow == TCP){
+	else if (type_of_flow == TYPE_OF_FLOW_TCP){
 	/* Register the tap listener */
 
 		if(have_tcp_tap_listener==FALSE)
@@ -458,7 +464,6 @@ flow_graph_on_ok                    (GtkButton       *button _U_,
 		graph_analysis_data->dlg.parent_w = user_data;
 		graph_analysis_create(graph_analysis_data);
 	}
-
 }
 
 
@@ -466,9 +471,9 @@ flow_graph_on_ok                    (GtkButton       *button _U_,
 /* INTERFACE                                                                */
 /****************************************************************************/
 
-static void flow_graph_dlg_create (void)
+static void
+flow_graph_dlg_create (void)
 {
-
 	GtkWidget *flow_graph_dlg_w;
 	GtkWidget *main_vb;
 	GtkWidget *hbuttonbox;
@@ -511,21 +516,22 @@ static void flow_graph_dlg_create (void)
 		("Process all packets"), NULL);
 	g_signal_connect(select_all_rb, "toggled", G_CALLBACK(toggle_select_all), NULL);
 	gtk_table_attach_defaults(GTK_TABLE(range_tb), select_all_rb, 0, 1, 0, 1);
-	if (type_of_packets == ALL) {
+	if (type_of_packets == TYPE_OF_PACKETS_ALL) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_all_rb),TRUE);
 	}
-  	gtk_widget_show(select_all_rb);
+ 	gtk_widget_show(select_all_rb);
 
 	/* Process displayed packets */
-	select_displayed_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_all_rb), "_Displayed packets");
+	select_displayed_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_all_rb),
+                                                                             "_Displayed packets");
 	gtk_tooltips_set_tip (tooltips, select_displayed_rb,
 		("Process displayed packets"), NULL);
 	g_signal_connect(select_displayed_rb, "toggled", G_CALLBACK(toggle_select_displayed), NULL);
 	gtk_table_attach_defaults(GTK_TABLE(range_tb), select_displayed_rb, 0, 1, 1, 2);
-	if (type_of_packets == DISPLAYED) {
+	if (type_of_packets == TYPE_OF_PACKETS_DISPLAYED) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_displayed_rb),TRUE);
 	}
-  	gtk_widget_show(select_displayed_rb);
+ 	gtk_widget_show(select_displayed_rb);
 
 	gtk_widget_show(range_tb);
 	gtk_widget_show(range_fr);
@@ -544,21 +550,22 @@ static void flow_graph_dlg_create (void)
 		("Show all packets, with general information"), NULL);
 	g_signal_connect(select_general_rb, "toggled", G_CALLBACK(toggle_select_general), NULL);
 	gtk_table_attach_defaults(GTK_TABLE(flow_type_tb), select_general_rb, 0, 1, 0, 1);
-	if (type_of_flow == GENERAL) {
+	if (type_of_flow == TYPE_OF_FLOW_GENERAL) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_general_rb),TRUE);
 	}
-  	gtk_widget_show(select_general_rb);
+ 	gtk_widget_show(select_general_rb);
 
 	/* TCP specific information */
-	select_tcp_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_general_rb), "_TCP flow");
+	select_tcp_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_general_rb),
+                                                                       "_TCP flow");
 	gtk_tooltips_set_tip (tooltips, select_tcp_rb,
 		("Show only TCP packets, with TCP specific information"), NULL);
 	g_signal_connect(select_tcp_rb, "toggled", G_CALLBACK(toggle_select_tcp), NULL);
 	gtk_table_attach_defaults(GTK_TABLE(flow_type_tb), select_tcp_rb, 0, 1, 1, 2);
-	if (type_of_flow == TCP) {
+	if (type_of_flow == TYPE_OF_FLOW_TCP) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_tcp_rb),TRUE);
 	}
-  	gtk_widget_show(select_tcp_rb);
+ 	gtk_widget_show(select_tcp_rb);
 
 	gtk_widget_show(flow_type_tb);
 	gtk_widget_show(flow_type_fr);
@@ -577,26 +584,27 @@ static void flow_graph_dlg_create (void)
 		("Nodes in the diagram are identified with source and destination addresses"), NULL);
 	g_signal_connect(src_dst_rb, "toggled", G_CALLBACK(toggle_select_srcdst), NULL);
 	gtk_table_attach_defaults(GTK_TABLE(node_addr_tb), src_dst_rb, 0, 1, 0, 1);
-	if (node_addr_type == SRCDST) {
+	if (node_addr_type == NODE_ADDR_TYPE_SRCDST) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(src_dst_rb),TRUE);
 	}
-  	gtk_widget_show(src_dst_rb);
+ 	gtk_widget_show(src_dst_rb);
 
 	/* Network source / dest address */
-	net_src_dst_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(src_dst_rb), "_Network source/destination addresses");
+	net_src_dst_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(src_dst_rb),
+                                                                        "_Network source/destination addresses");
 	gtk_tooltips_set_tip (tooltips, net_src_dst_rb,
 		("Nodes in the diagram are identified with network source and destination addresses"), NULL);
 	g_signal_connect(net_src_dst_rb, "toggled", G_CALLBACK(toggle_select_netsrcdst), NULL);
 	gtk_table_attach_defaults(GTK_TABLE(node_addr_tb), net_src_dst_rb, 0, 1, 1, 2);
-	if (node_addr_type == NET_SRCDST) {
+	if (node_addr_type == NODE_ADDR_TYPE_NET_SRCDST) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(net_src_dst_rb),TRUE);
 	}
-  	gtk_widget_show(net_src_dst_rb);
+ 	gtk_widget_show(net_src_dst_rb);
 
 	gtk_widget_show(node_addr_tb);
 	gtk_widget_show(node_addr_fr);
 
-        /* button row */
+	/* button row */
 	hbuttonbox = gtk_hbutton_box_new ();
 	gtk_box_pack_start (GTK_BOX (main_vb), hbuttonbox, FALSE, FALSE, 5);
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_SPREAD);
@@ -631,28 +639,34 @@ static void flow_graph_dlg_create (void)
 static void
 flow_graph_init_tap(const char *dummy _U_, void* userdata _U_)
 {
-
-	/* initialize graph items store */
-	flow_graph_data_init();
-
-	/* init the Graph Analysys */
-	graph_analysis_data = graph_analysis_init();
-	graph_analysis_data->graph_info = graph_analysis;
-
-	/* create dialog box if necessary */
-	if (flow_graph_dlg == NULL) {
-		flow_graph_dlg_create();
-	} else {
+	/* The storage allocated by flow_graph_data_init() and graph_analysis_init()  */
+	/*  will be considered to be "associated with" the flow_graph_dlg dialog box. */
+	/* It will be freed when the flow_graph_dlg dialog box is destroyed.          */
+	if (flow_graph_dlg != NULL) {
+		g_assert(graph_analysis != NULL);
+		g_assert(graph_analysis_data != NULL);
 		/* There's already a dialog box; reactivate it. */
 		reactivate_window(flow_graph_dlg);
-	}
+	} else {
+		g_assert(graph_analysis == NULL);
+		g_assert(graph_analysis_data == NULL);
 
+		/* initialize graph items store */
+		flow_graph_data_init();
+
+		/* init the Graph Analysis */
+		graph_analysis_data = graph_analysis_init();
+		graph_analysis_data->graph_info = graph_analysis;
+
+		flow_graph_dlg_create();
+	}
 }
 
 
 /****************************************************************************/
 /* entry point when called via the GTK menu */
-static void flow_graph_launch(GtkWidget *w _U_, gpointer data _U_)
+static void
+flow_graph_launch(GtkWidget *w _U_, gpointer data _U_)
 {
 	flow_graph_init_tap("",NULL);
 }
@@ -663,8 +677,7 @@ register_tap_listener_flow_graph(void)
 {
 	register_stat_cmd_arg("flow_graph",flow_graph_init_tap,NULL);
 	register_stat_menu_item_stock("Flo_w Graph...",
-        REGISTER_STAT_GROUP_UNSORTED, WIRESHARK_STOCK_FLOW_GRAPH,
-	    flow_graph_launch, NULL, NULL, NULL);
-
+				      REGISTER_STAT_GROUP_UNSORTED, WIRESHARK_STOCK_FLOW_GRAPH,
+				      flow_graph_launch, NULL, NULL, NULL);
 }
 
