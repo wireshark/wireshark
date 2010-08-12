@@ -1049,8 +1049,6 @@ proto_reg_handoff_PROTOABBREV(void)
  */
 		PROTOABBREV_handle = new_create_dissector_handle(dissect_PROTOABBREV,
 								 proto_PROTOABBREV);
-		dissector_add("PARENT_SUBFIELD", ID_VALUE, PROTOABBREV_handle);
-
 		initialized = TRUE;
 	} else {
 
