@@ -1194,6 +1194,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     proto_tree *rar_headers_tree;
     proto_item *ti;
     proto_item *rar_headers_ti;
+    proto_item *padding_length_ti;
     int        start_headers_offset = offset;
 
     write_pdu_label_and_info(pdu_ti, NULL, pinfo,
@@ -1312,12 +1313,18 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     /* Update TAP info */
     tap_info->number_of_rars += number_of_rars;
 
-    /* Warn if we don't seem to have reached the end of the frame yet */
-    if (tvb_length_remaining(tvb, offset) != 0) {
-           expert_add_info_format(pinfo, pdu_ti, PI_MALFORMED, PI_ERROR,
-                                  "%u bytes remaining after RAR PDU dissected",
-                                  tvb_length_remaining(tvb, offset));
+    /* Padding may follow */
+    if (tvb_length_remaining(tvb, offset) > 0) {
+        proto_tree_add_item(tree, hf_mac_lte_padding_data,
+                            tvb, offset, -1, FALSE);
     }
+    padding_length_ti = proto_tree_add_int(tree, hf_mac_lte_padding_length,
+                                           tvb, offset, 0,
+                                           p_mac_lte_info->length - offset);
+    PROTO_ITEM_SET_GENERATED(padding_length_ti);
+
+    /* Update padding bytes in stats */
+    tap_info->padding_bytes += (p_mac_lte_info->length - offset);
 }
 
 
