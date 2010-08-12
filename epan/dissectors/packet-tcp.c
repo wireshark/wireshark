@@ -162,6 +162,9 @@ static int hf_tcp_option_snack_le = -1;
 static int hf_tcp_option_snack_re = -1;
 static int hf_tcp_option_mood = -1;
 static int hf_tcp_option_mood_val = -1;
+static int hf_tcp_option_user_to = -1;
+static int hf_tcp_option_user_to_granularity = -1;
+static int hf_tcp_option_user_to_val = -1;
 static int hf_tcp_proc_src_uid = -1;
 static int hf_tcp_proc_src_pid = -1;
 static int hf_tcp_proc_src_uname = -1;
@@ -177,6 +180,7 @@ static gint ett_tcp_options = -1;
 static gint ett_tcp_option_sack = -1;
 static gint ett_tcp_option_scps = -1;
 static gint ett_tcp_option_scps_extended = -1;
+static gint ett_tcp_option_user_to = -1;
 static gint ett_tcp_analysis = -1;
 static gint ett_tcp_analysis_faults = -1;
 static gint ett_tcp_timestamps = -1;
@@ -185,6 +189,9 @@ static gint ett_tcp_segment  = -1;
 static gint ett_tcp_checksum = -1;
 static gint ett_tcp_process_info = -1;
 
+static const true_false_string tcp_option_user_to_granularity = {
+  "Minutes", "Seconds"
+};
 
 /* not all of the hf_fields below make sense for TCP but we have to provide
    them anyways to comply with the api (which was aimed for ip fragment
@@ -1454,6 +1461,7 @@ print_tcp_fragment_tree(fragment_data *ipfd_head, proto_tree *tree, proto_tree *
 #define TCPOPT_CORREXP          23      /* SCPS Corruption Experienced */
 #define TCPOPT_MOOD             25      /* RFC5841 TCP Packet Mood */
 #define TCPOPT_QS               27      /* RFC4782 */
+#define TCPOPT_USER_TO          28      /* RFC5482 */
 
 /*
  *     TCP option lengths
@@ -1476,7 +1484,7 @@ print_tcp_fragment_tree(fragment_data *ipfd_head, proto_tree *tree, proto_tree *
 #define TCPOLEN_CORREXP        2
 #define TCPOLEN_MOOD_MIN       2
 #define TCPOLEN_QS             8
-
+#define TCPOLEN_USER_TO        4
 
 
 /* Desegmentation of TCP streams */
@@ -2472,6 +2480,30 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
     }
 }
 
+static void
+dissect_tcpopt_user_to(const ip_tcp_opt *optp, tvbuff_t *tvb,
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+{
+    proto_item *hidden_item, *tf;
+    proto_tree *field_tree;
+    gboolean g;
+    guint16 to;
+
+    g = tvb_get_ntohs(tvb, offset + 2) & 0x8000;
+    to = tvb_get_ntohs(tvb, offset + 2) & 0x7FFF;
+    hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_user_to, tvb, offset,
+                                         optlen, TRUE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+
+    tf = proto_tree_add_uint_format(opt_tree, hf_tcp_option_user_to_val, tvb, offset,
+                               optlen, to, "%s: %u %s", optp->name, to, g ? "minutes" : "seconds");
+    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    proto_tree_add_item(field_tree, hf_tcp_option_user_to_granularity, tvb, offset + 2, 2, FALSE);
+    proto_tree_add_item(field_tree, hf_tcp_option_user_to_val, tvb, offset + 2, 2, FALSE);
+
+    tcp_info_append_uint(pinfo, "USER_TO", to);
+}
+
 /* This is called for SYN+ACK packets and the purpose is to verify that
  * the SCPS capabilities option has been successfully negotiated for the flow.
  * If the SCPS capabilities option was offered by only one party, the
@@ -2767,6 +2799,14 @@ static const ip_tcp_opt tcpopts[] = {
         FIXED_LENGTH,
         TCPOLEN_QS,
         dissect_tcpopt_qs
+    },
+    {
+        TCPOPT_USER_TO,
+        "User Timeout",
+        &ett_tcp_option_user_to,
+        FIXED_LENGTH,
+        TCPOLEN_USER_TO,
+        dissect_tcpopt_user_to
     }
 };
 
@@ -4051,6 +4091,18 @@ proto_register_tcp(void)
           { "TCP Mood Option Value", "tcp.options.mood_val", FT_STRING,
             BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
+        { &hf_tcp_option_user_to,
+          { "TCP User Timeout", "tcp.options.user_to", FT_BOOLEAN,
+            BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_tcp_option_user_to_granularity,
+          { "Granularity", "tcp.options.user_to_granularity", FT_BOOLEAN,
+            16, TFS(&tcp_option_user_to_granularity), 0x8000, "TCP User Timeout Granularity", HFILL}},
+
+        { &hf_tcp_option_user_to_val,
+          { "User Timeout", "tcp.options.user_to_val", FT_UINT16,
+            BASE_DEC, NULL, 0x7FFF, "TCP User Timeout Value", HFILL}},
+
         { &hf_tcp_pdu_time,
           { "Time until the last segment of this PDU", "tcp.pdu.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
             "How long time has passed until the last frame of this PDU", HFILL}},
@@ -4111,6 +4163,7 @@ proto_register_tcp(void)
         &ett_tcp_option_sack,
         &ett_tcp_option_scps,
         &ett_tcp_option_scps_extended,
+        &ett_tcp_option_user_to,
         &ett_tcp_analysis_faults,
         &ett_tcp_analysis,
         &ett_tcp_timestamps,
