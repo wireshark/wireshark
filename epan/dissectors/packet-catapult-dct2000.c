@@ -1189,6 +1189,7 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     int  chan;
     int  tf_start, num_chans_start;
     gint node_type;
+    int  calculated_variant;
 
     /* Only need to set info once per session. */
     struct fp_info *p_fp_info = p_get_proto_data(pinfo->fd, proto_fp);
@@ -1235,7 +1236,14 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     /* Only R6 sub-versions currently influence format within a release */
     switch (p_fp_info->release) {
         case 6:
-            switch (variant % 256) {
+            if (variant < 256) {
+                calculated_variant = variant;
+            }
+            else {
+                calculated_variant = variant / 256;
+            }
+
+            switch (calculated_variant) {
                 case 1:
                     p_fp_info->release_year = 2005;
                     p_fp_info->release_month = 6;
