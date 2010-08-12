@@ -47,6 +47,7 @@
 #include "key.h"
 #include "broadcast.h"
 #include "uftp.h"
+#include "expansion.h"
 
 /* Don't set this to 5000 until this dissector is made a heuristic one!
    It collides (at least) with tapa.
@@ -64,6 +65,8 @@ static gint dissect_broadcast_switch(proto_tree *msg_tree,
                                      tvbuff_t *tvb,gint offset,guint msg_len);
 static gint dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
+static gint dissect_expansion_switch(proto_tree *msg_tree,
+                                   tvbuff_t *tvb,gint offset,guint msg_len);
 static gint dissect_display_switch(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
 static gint dissect_key_indicator_switch(proto_tree *msg_tree,
@@ -75,6 +78,8 @@ static gint dissect_network_switch(proto_tree *msg_tree,
 static gint dissect_broadcast_phone(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
 static gint dissect_audio_phone(proto_tree *msg_tree,
+                                   tvbuff_t *tvb,gint offset,guint msg_len);
+static gint dissect_expansion_phone(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
 static gint dissect_display_phone(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
@@ -119,6 +124,8 @@ static int hf_key_switch_cmd=-1;
 static int hf_key_phone_cmd=-1;
 static int hf_network_switch_cmd=-1;
 static int hf_network_phone_cmd=-1;
+static int hf_expansion_switch_cmd=-1;
+static int hf_expansion_phone_cmd=-1;
 
 static int hf_generic_data=-1;
 static int hf_generic_string=-1;
@@ -148,12 +155,25 @@ static const range_string sequence_numbers[]={
 };
 
 static const value_string command_address[]={
+   {0x09,"Expansion Module-1 Manager Switch"},
+   {0x0A,"Expansion Module-2 Manager Switch"},
+   {0x0B,"Expansion Module-3 Manager Switch"},
+   {0x0C,"Expansion Module-4 Manager Switch"},
+   {0x0D,"Expansion Module-5 Manager Switch"},
+   {0x0E,"Expansion Module-6 Manager Switch"},
+   {0x10,"Expansion Module Manager Phone"},
 	{0x11,"Broadcast Manager Switch"},
 	{0x16,"Audio Manager Switch"},
 	{0x17,"Display Manager Switch"},
 	{0x19,"Key/Indicator Manager Switch"},
 	{0x1a,"Basic Manager Switch"},
 	{0x1e,"Network Manager Switch"},
+   {0x89,"Expansion Module-1 Manager Phone"},
+   {0x8A,"Expansion Module-2 Manager Phone"},
+   {0x8B,"Expansion Module-3 Manager Phone"},
+   {0x8C,"Expansion Module-4 Manager Phone"},
+   {0x8D,"Expansion Module-5 Manager Phone"},
+   {0x8E,"Expansion Module-6 Manager Phone"},
 	{0x91,"Broadcast Manager Phone"},
 	{0x96,"Audio Manager Phone"},
 	{0x97,"Display Manager Phone"},
@@ -412,6 +432,16 @@ dissect_unistim_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tv
       case 0x00:
    /*Nothing*/
          break;
+   /*Expansion Manager Switch*/
+      case 0x09:
+      case 0x0A:
+      case 0x0B:
+      case 0x0C:
+      case 0x0D:
+      case 0x0E:
+        offset = dissect_expansion_switch(msg_tree,tvb,offset,msg_len-2);
+        break;
+
       case 0x11:
    /*Broadcast Manager Switch*/
          offset = dissect_broadcast_switch(msg_tree,tvb,offset,msg_len-2);
@@ -436,6 +466,16 @@ dissect_unistim_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tv
    /*Network Manager Switch*/
          offset = dissect_network_switch(msg_tree,tvb,offset,msg_len-2);
          break;
+      case 0x89:
+      case 0x8A:
+      case 0x8B:
+      case 0x8C:
+      case 0x8D:
+      case 0x8E:
+      /*Expansion Manager Phone*/
+        offset = dissect_expansion_phone(msg_tree,tvb,offset,msg_len-2);
+        break;
+
       case 0x91:
    /*Broadcast Manager phone*/
          offset = dissect_broadcast_phone(msg_tree,tvb,offset,msg_len-2);
@@ -1794,6 +1834,75 @@ dissect_network_switch(proto_tree *msg_tree,
 }
 
 /*DONE*/
+static gint
+dissect_expansion_switch(proto_tree *msg_tree,
+                      tvbuff_t *tvb,gint offset, guint msg_len){
+   guint expansion_cmd;
+
+
+   expansion_cmd=tvb_get_guint8(tvb,offset);
+   proto_tree_add_item(msg_tree,hf_expansion_switch_cmd,tvb,offset,1,FALSE);
+   offset+=1; msg_len-=1;
+   switch(expansion_cmd){
+      case 0x17:
+         break;
+      case 0x57:
+        /*skip a byte for now, not sure what it means*/
+        offset+=1;
+        msg_len-=1;
+
+
+         proto_tree_add_item(msg_tree,hf_expansion_softlabel_number,tvb,
+                          offset,1,FALSE);
+         offset+=1;
+         msg_len-=1;
+
+         set_ascii_item(msg_tree,tvb,offset,msg_len);
+         break;
+      case 0x59:
+         /*skip a byte for now, not sure what it means*/
+         offset+=1;
+         msg_len-=1;
+         proto_tree_add_item(msg_tree,hf_expansion_softlabel_number,tvb,
+                          offset,1,FALSE);
+         offset+=1;
+         msg_len-=1;
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,
+                             tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_broadcast_icon_state,
+                             tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_broadcast_icon_cadence,
+                             tvb,offset,1,FALSE);
+         offset+=1;
+         msg_len-=1;
+         break;
+   }
+   offset+=msg_len;
+   return offset;
+}
+
+static gint
+dissect_expansion_phone(proto_tree *msg_tree,
+                      tvbuff_t *tvb,gint offset, guint msg_len){
+   guint expansion_cmd;
+   guint key_number;
+
+   expansion_cmd=tvb_get_guint8(tvb,offset);
+   proto_tree_add_item(msg_tree,hf_expansion_phone_cmd,tvb,offset,1,FALSE);
+   offset+=1; msg_len-=1;
+   key_number=(tvb_get_guint8(tvb,offset))-64;
+
+   switch(expansion_cmd){
+      case 0x59:
+        proto_tree_add_text(msg_tree,tvb,offset,msg_len,"Module Key Number: %i",key_number);
+        offset+=1;
+        msg_len-=1;
+        break;
+   }
+   offset+=msg_len;
+   return offset;
+}
+
 static gint
 dissect_network_phone(proto_tree *msg_tree, 
                       tvbuff_t *tvb,gint offset, guint msg_len){
@@ -3857,6 +3966,20 @@ proto_register_unistim(void){
             {"Call Timer ID","unistim.display.call.timer.id",FT_UINT8,
               BASE_DEC,NULL,DISPLAY_CALL_TIMER_ID,NULL,HFILL}
           },
+          { &hf_expansion_switch_cmd,
+            {"Expansion CMD (switch)","unistim.expansion.switch",FT_UINT8,
+              BASE_HEX,VALS(expansion_switch_msgs),0x0,NULL,HFILL}
+          },
+          { &hf_expansion_phone_cmd,
+             {"Expansion CMD (phone)","unistim.expansion.phone",FT_UINT8,
+              BASE_HEX,VALS(expansion_phone_msgs),0x0,NULL,HFILL}
+          },
+          { &hf_expansion_softlabel_number,
+            {"Module Soft Label Number","unistim.expansion.label.number",FT_UINT8,
+              BASE_DEC,NULL,0x00,NULL,HFILL}
+          },
+
+
          /****LAST****/
          { &hf_generic_string,
             {"DATA","unistim.generic.data",FT_STRING,
