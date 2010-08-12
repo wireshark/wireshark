@@ -89,9 +89,9 @@ static gint dissect_basic_phone(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
 static gint dissect_network_phone(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_unistim_message(proto_tree *unistim_tree, packet_info *pinfo, 
+static gint dissect_unistim_message(proto_tree *unistim_tree, packet_info *pinfo,
                                    tvbuff_t *tvb,gint offset);
-static gint dissect_uftp_message(proto_tree *unistim_tree, packet_info *pinfo, 
+static gint dissect_uftp_message(proto_tree *unistim_tree, packet_info *pinfo,
                                    tvbuff_t *tvb,gint offset);
 
 
@@ -149,9 +149,9 @@ static const value_string payload_names[]={
 };
 
 static const range_string sequence_numbers[]={
- {0x00,0xFFFFFFFE,"Normal Sequence Number"},
- {0xFFFFFFFF,0xFFFFFFFF, "RESET Sequence Number"},
- {0,0,NULL}
+   {0x00,0xFFFFFFFE,"Normal Sequence Number"},
+   {0xFFFFFFFF,0xFFFFFFFF, "RESET Sequence Number"},
+   {0,0,NULL}
 };
 
 static const value_string command_address[]={
@@ -162,47 +162,47 @@ static const value_string command_address[]={
    {0x0D,"Expansion Module-5 Manager Switch"},
    {0x0E,"Expansion Module-6 Manager Switch"},
    {0x10,"Expansion Module Manager Phone"},
-	{0x11,"Broadcast Manager Switch"},
-	{0x16,"Audio Manager Switch"},
-	{0x17,"Display Manager Switch"},
-	{0x19,"Key/Indicator Manager Switch"},
-	{0x1a,"Basic Manager Switch"},
-	{0x1e,"Network Manager Switch"},
+   {0x11,"Broadcast Manager Switch"},
+   {0x16,"Audio Manager Switch"},
+   {0x17,"Display Manager Switch"},
+   {0x19,"Key/Indicator Manager Switch"},
+   {0x1a,"Basic Manager Switch"},
+   {0x1e,"Network Manager Switch"},
    {0x89,"Expansion Module-1 Manager Phone"},
    {0x8A,"Expansion Module-2 Manager Phone"},
    {0x8B,"Expansion Module-3 Manager Phone"},
    {0x8C,"Expansion Module-4 Manager Phone"},
    {0x8D,"Expansion Module-5 Manager Phone"},
    {0x8E,"Expansion Module-6 Manager Phone"},
-	{0x91,"Broadcast Manager Phone"},
-	{0x96,"Audio Manager Phone"},
-	{0x97,"Display Manager Phone"},
-	{0x99,"Key/Indicator Manager Phone"},
-	{0x9a,"Basic Manager Phone"},
-	{0x9e,"Network Manager Phone"},
-	{0,NULL}
+   {0x91,"Broadcast Manager Phone"},
+   {0x96,"Audio Manager Phone"},
+   {0x97,"Display Manager Phone"},
+   {0x99,"Key/Indicator Manager Phone"},
+   {0x9a,"Basic Manager Phone"},
+   {0x9e,"Network Manager Phone"},
+   {0,NULL}
 };
 
 static int
 dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree){
-    gint offset=0;
-    proto_item *ti= NULL;
-    proto_item *ti1= NULL;
-    proto_tree *overall_unistim_tree = NULL;
-    proto_tree *rudpm_tree=NULL;
-    gint size;
+   gint offset=0;
+   proto_item *ti= NULL;
+   proto_item *ti1= NULL;
+   proto_tree *overall_unistim_tree = NULL;
+   proto_tree *rudpm_tree=NULL;
+   gint size;
 
-    /* heuristic*/
-    switch(tvb_get_guint8(tvb,offset+4)) {/*rudp packet type 0,1,2 only */
+   /* heuristic*/
+   switch(tvb_get_guint8(tvb,offset+4)) {/*rudp packet type 0,1,2 only */
       case 0x0:/*NAK*/
       case 0x1:/*ACK*/
          break;
       case 0x2:/*PAYLOAD*/
          switch(tvb_get_guint8(tvb,offset+5)){/*payload type 0,1,2,3,ff only */
-            case 0x0:/*NULL*/
-            case 0x1:/*UNISTIM*/
-            case 0x2:/*UNISTIM WITH TERM ID*/
-            case 0x3:/*UFTP*/
+            case 0x0: /*NULL*/
+            case 0x1: /*UNISTIM*/
+            case 0x2: /*UNISTIM WITH TERM ID*/
+            case 0x3: /*UFTP*/
             case 0xff:/*UNKNOWN BUT VALID*/
                break;
             default:
@@ -211,118 +211,118 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree){
          break;
       default:
          return 0;
-    }
+   }
 
 
-    size=tvb_length_remaining(tvb, offset);
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNISTIM");
-      /* Clear out stuff in the info column */
-    col_clear(pinfo->cinfo, COL_INFO);
-    ti = proto_tree_add_item(tree,proto_unistim,tvb,offset,-1,FALSE);
-    overall_unistim_tree = proto_item_add_subtree(ti,ett_unistim);
-    ti1=proto_tree_add_text(overall_unistim_tree,tvb,offset,5,"Reliable UDP");
-    rudpm_tree=proto_item_add_subtree(ti1,ett_unistim);
+   size=tvb_length_remaining(tvb, offset);
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNISTIM");
+   /* Clear out stuff in the info column */
+   col_clear(pinfo->cinfo, COL_INFO);
+   ti = proto_tree_add_item(tree,proto_unistim,tvb,offset,-1,FALSE);
+   overall_unistim_tree = proto_item_add_subtree(ti,ett_unistim);
+   ti1=proto_tree_add_text(overall_unistim_tree,tvb,offset,5,"Reliable UDP");
+   rudpm_tree=proto_item_add_subtree(ti1,ett_unistim);
 
-    proto_tree_add_item(rudpm_tree,hf_unistim_seq_nu,tvb,offset,4,FALSE);
+   proto_tree_add_item(rudpm_tree,hf_unistim_seq_nu,tvb,offset,4,FALSE);
 
-    /* Allocate new mem for queueing */
-    uinfo = (unistim_info_t *)se_alloc(sizeof(unistim_info_t));
+   /* Allocate new mem for queueing */
+   uinfo = (unistim_info_t *)se_alloc(sizeof(unistim_info_t));
 
-    /* Clear tap struct */
-    uinfo->rudp_type = 0;
-    uinfo->payload_type = 0;
-    uinfo->sequence = tvb_get_ntohl(tvb,offset);
-    uinfo->termid = 0;
-    uinfo->key_val = -1;
-    uinfo->key_state = -1;
-    uinfo->hook_state = -1;
-    uinfo->stream_connect = -1;
-    uinfo->trans_connect = -1;
-    uinfo->set_termid = -1;
-    uinfo->string_data = NULL;
-    uinfo->key_buffer = NULL;
-    SET_ADDRESS(&uinfo->it_ip, AT_NONE, 0, NULL);
-    SET_ADDRESS(&uinfo->ni_ip, AT_NONE, 0, NULL);
-    uinfo->it_port = 0;
+   /* Clear tap struct */
+   uinfo->rudp_type = 0;
+   uinfo->payload_type = 0;
+   uinfo->sequence = tvb_get_ntohl(tvb,offset);
+   uinfo->termid = 0;
+   uinfo->key_val = -1;
+   uinfo->key_state = -1;
+   uinfo->hook_state = -1;
+   uinfo->stream_connect = -1;
+   uinfo->trans_connect = -1;
+   uinfo->set_termid = -1;
+   uinfo->string_data = NULL;
+   uinfo->key_buffer = NULL;
+   SET_ADDRESS(&uinfo->it_ip, AT_NONE, 0, NULL);
+   SET_ADDRESS(&uinfo->ni_ip, AT_NONE, 0, NULL);
+   uinfo->it_port = 0;
 
-    offset+=4;
-    proto_tree_add_item(rudpm_tree,hf_unistim_packet_type,tvb,offset,1,FALSE);
-    uinfo->rudp_type = tvb_get_guint8(tvb,offset);
+   offset+=4;
+   proto_tree_add_item(rudpm_tree,hf_unistim_packet_type,tvb,offset,1,FALSE);
+   uinfo->rudp_type = tvb_get_guint8(tvb,offset);
 
-    switch(tvb_get_guint8(tvb,offset)) {
-          case 0x00:
-              /*NAK*/
-              col_add_fstr(pinfo->cinfo, COL_INFO, "NAK for seq -   0x%X",
-                              tvb_get_ntohl(tvb, offset-4));
-              break;
-          case 0x01:
-              /*ACK*/
-              col_add_fstr(pinfo->cinfo, COL_INFO, "ACK for seq -   0x%X",
-                          tvb_get_ntohl(tvb, offset-4));
-              break;
-          case 0x02:
-              col_add_fstr(pinfo->cinfo, COL_INFO, "Payload seq -   0x%X",
-                            tvb_get_ntohl(tvb, offset-4));
-              offset+=1;
-              dissect_payload(overall_unistim_tree,tvb,offset,pinfo);
-              break;
-          default:
-              return 0;
-              break;
-    }
+   switch(tvb_get_guint8(tvb,offset)) {
+      case 0x00:
+         /*NAK*/
+         col_add_fstr(pinfo->cinfo, COL_INFO, "NAK for seq -   0x%X",
+                      tvb_get_ntohl(tvb, offset-4));
+         break;
+      case 0x01:
+         /*ACK*/
+         col_add_fstr(pinfo->cinfo, COL_INFO, "ACK for seq -   0x%X",
+                      tvb_get_ntohl(tvb, offset-4));
+         break;
+      case 0x02:
+         col_add_fstr(pinfo->cinfo, COL_INFO, "Payload seq -   0x%X",
+                      tvb_get_ntohl(tvb, offset-4));
+         offset+=1;
+         dissect_payload(overall_unistim_tree,tvb,offset,pinfo);
+         break;
+      default:
+         return 0;
+         break;
+   }
 
-    /* Queue packet for tap */
-    tap_queue_packet(unistim_tap, pinfo, uinfo);
-    return size;
+   /* Queue packet for tap */
+   tap_queue_packet(unistim_tap, pinfo, uinfo);
+   return size;
 }
 
 static void
 dissect_payload(proto_tree *overall_unistim_tree,tvbuff_t *tvb, gint offset, packet_info *pinfo){
-      proto_item *ti;
-      proto_tree *unistim_tree;
-      guint payload_proto=tvb_get_guint8(tvb,offset);
+   proto_item *ti;
+   proto_tree *unistim_tree;
+   guint payload_proto=tvb_get_guint8(tvb,offset);
 
-      /* Payload type for tap */
-      uinfo->payload_type = payload_proto;
+   /* Payload type for tap */
+   uinfo->payload_type = payload_proto;
 
-      ti=proto_tree_add_item(overall_unistim_tree,hf_unistim_payload,
-                             tvb,offset,1,FALSE);
-      offset+=1;
-      unistim_tree=proto_item_add_subtree(ti,ett_unistim);
+   ti=proto_tree_add_item(overall_unistim_tree,hf_unistim_payload,
+                          tvb,offset,1,FALSE);
+   offset+=1;
+   unistim_tree=proto_item_add_subtree(ti,ett_unistim);
 
-      switch(payload_proto){
-         case 0x00:
+   switch(payload_proto){
+      case 0x00:
    /*NULL PROTO - NOTHING LEFT TO DO*/
-            return;
-         case 0x01:
+         return;
+      case 0x01:
    /*UNISTIM only so no term id but further payload work*/
-            /* Collect info for tap */
-            /* If no term id then packet sourced from NI */
-            COPY_ADDRESS(&(uinfo->ni_ip), &(pinfo->src));
-            COPY_ADDRESS(&(uinfo->it_ip), &(pinfo->dst));
-            uinfo->it_port = pinfo->destport;
-            break;
-         case 0x02:
+         /* Collect info for tap */
+         /* If no term id then packet sourced from NI */
+         COPY_ADDRESS(&(uinfo->ni_ip), &(pinfo->src));
+         COPY_ADDRESS(&(uinfo->it_ip), &(pinfo->dst));
+         uinfo->it_port = pinfo->destport;
+         break;
+      case 0x02:
    /*UNISTIM with term id*/
-            /* Termid packs are always sourced from the it, so collect relevant infos */
-            COPY_ADDRESS(&(uinfo->ni_ip),&(pinfo->dst));
-            COPY_ADDRESS(&(uinfo->it_ip),&(pinfo->src));
-            uinfo->it_port = pinfo->srcport;
-            uinfo->termid = tvb_get_ntohl(tvb,offset);
+         /* Termid packs are always sourced from the it, so collect relevant infos */
+         COPY_ADDRESS(&(uinfo->ni_ip),&(pinfo->dst));
+         COPY_ADDRESS(&(uinfo->it_ip),&(pinfo->src));
+         uinfo->it_port = pinfo->srcport;
+         uinfo->termid = tvb_get_ntohl(tvb,offset);
 
-            proto_tree_add_item(unistim_tree,hf_terminal_id,tvb,offset,4,FALSE);
-            offset+=4;
-            break;
-         case 0x03:
+         proto_tree_add_item(unistim_tree,hf_terminal_id,tvb,offset,4,FALSE);
+         offset+=4;
+         break;
+      case 0x03:
    /* UFTP */
-            offset = dissect_uftp_message(unistim_tree,pinfo,tvb,offset);
-            break;
-         case 0xff:
+         offset = dissect_uftp_message(unistim_tree,pinfo,tvb,offset);
+         break;
+      case 0xff:
    /*TODO flesh this out probably only for init*/
-            break;
-      }
+         break;
+   }
 
-   /* Handle UFTP seperately because it is significantly different 
+   /* Handle UFTP seperately because it is significantly different
       than standard UNISTIM */
    while (tvb_length_remaining(tvb, offset) > 0)
       offset = dissect_unistim_message(unistim_tree,pinfo,tvb,offset);
@@ -332,69 +332,69 @@ dissect_payload(proto_tree *overall_unistim_tree,tvbuff_t *tvb, gint offset, pac
 static gint
 dissect_uftp_message(proto_tree *unistim_tree,packet_info *pinfo _U_,tvbuff_t *tvb,gint offset){
 
-	guint command;
-	guint str_len;
-	guint dat_len;
-	proto_item *ti;
-	proto_tree *msg_tree;
+   guint command;
+   guint str_len;
+   guint dat_len;
+   proto_item *ti;
+   proto_tree *msg_tree;
 
-	ti = proto_tree_add_text(unistim_tree,tvb,offset,-1,"UFTP CMD");
+   ti = proto_tree_add_text(unistim_tree,tvb,offset,-1,"UFTP CMD");
 
-	msg_tree = proto_item_add_subtree(ti,ett_unistim);
+   msg_tree = proto_item_add_subtree(ti,ett_unistim);
 
-	command=tvb_get_guint8(tvb,offset);
+   command=tvb_get_guint8(tvb,offset);
 
-	proto_tree_add_item(msg_tree,hf_uftp_command,tvb,offset,1,FALSE);
+   proto_tree_add_item(msg_tree,hf_uftp_command,tvb,offset,1,FALSE);
 
-	offset += 1;
+   offset += 1;
 
-	switch(command)
-	{
-		case 0x80:
-			/* Connection request */
-			/* Nothing to do */
-			break;
-		
-		case 0x81:
-			/* Connection Details */
-			/* Get datablock size */
-			proto_tree_add_item(msg_tree,hf_uftp_datablock_size,tvb,offset,2,FALSE);
-			offset+=2;
-			/* Get datablock limit b4 flow control */
-			proto_tree_add_item(msg_tree,hf_uftp_datablock_limit,tvb,offset,1,FALSE);
-			offset+=1;
-			/* Get filename */
-			str_len = tvb_length_remaining(tvb, offset);
-			proto_tree_add_item(msg_tree,hf_uftp_filename,tvb,offset,str_len,FALSE);
-			offset += str_len;
-			break;
+   switch(command)
+   {
+      case 0x80:
+         /* Connection request */
+         /* Nothing to do */
+         break;
 
-		case 0x82:
-			/* Flow Control off */
-			/* Nothing to do */
-			break;
-		
-		case 0x00:
-			/* Connection Granted */
-			/* Nothing to do */
-			break;
+      case 0x81:
+         /* Connection Details */
+         /* Get datablock size */
+         proto_tree_add_item(msg_tree,hf_uftp_datablock_size,tvb,offset,2,FALSE);
+         offset+=2;
+         /* Get datablock limit b4 flow control */
+         proto_tree_add_item(msg_tree,hf_uftp_datablock_limit,tvb,offset,1,FALSE);
+         offset+=1;
+         /* Get filename */
+         str_len = tvb_length_remaining(tvb, offset);
+         proto_tree_add_item(msg_tree,hf_uftp_filename,tvb,offset,str_len,FALSE);
+         offset += str_len;
+         break;
 
-		case 0x01:
-			/* Connection Denied */
-			/* Nothing to do */
-			break;
+      case 0x82:
+         /* Flow Control off */
+         /* Nothing to do */
+         break;
 
-		case 0x02:
-			/* File Data Block */
-			/* Raw Data.. */
-			dat_len = tvb_length_remaining(tvb, offset);
-			proto_tree_add_item(msg_tree,hf_uftp_datablock,tvb,offset,dat_len,FALSE);
-			offset += dat_len;
-			break;
-	}
+      case 0x00:
+         /* Connection Granted */
+         /* Nothing to do */
+         break;
 
-	return offset;
-	
+      case 0x01:
+         /* Connection Denied */
+         /* Nothing to do */
+         break;
+
+      case 0x02:
+         /* File Data Block */
+         /* Raw Data.. */
+         dat_len = tvb_length_remaining(tvb, offset);
+         proto_tree_add_item(msg_tree,hf_uftp_datablock,tvb,offset,dat_len,FALSE);
+         offset += dat_len;
+         break;
+   }
+
+   return offset;
+
 }
 
 
@@ -418,12 +418,12 @@ dissect_unistim_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tv
 
    if (msg_len<=2)
    {
-     ti=proto_tree_add_item(msg_tree,hf_unistim_len,tvb,offset,1,FALSE);
-     expert_add_info_format(pinfo,ti,PI_MALFORMED,PI_ERROR,"Length too short");
-     return tvb_length(tvb);
+      ti=proto_tree_add_item(msg_tree,hf_unistim_len,tvb,offset,1,FALSE);
+      expert_add_info_format(pinfo,ti,PI_MALFORMED,PI_ERROR,"Length too short");
+      return tvb_length(tvb);
    } else {
-     proto_item_set_len(ti,msg_len);
-     proto_tree_add_item(msg_tree,hf_unistim_len,tvb,offset,1,FALSE);
+      proto_item_set_len(ti,msg_len);
+      proto_tree_add_item(msg_tree,hf_unistim_len,tvb,offset,1,FALSE);
    }
 
    offset+=1;
@@ -439,8 +439,8 @@ dissect_unistim_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tv
       case 0x0C:
       case 0x0D:
       case 0x0E:
-        offset = dissect_expansion_switch(msg_tree,tvb,offset,msg_len-2);
-        break;
+         offset = dissect_expansion_switch(msg_tree,tvb,offset,msg_len-2);
+         break;
 
       case 0x11:
    /*Broadcast Manager Switch*/
@@ -472,9 +472,9 @@ dissect_unistim_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tv
       case 0x8C:
       case 0x8D:
       case 0x8E:
-      /*Expansion Manager Phone*/
-        offset = dissect_expansion_phone(msg_tree,tvb,offset,msg_len-2);
-        break;
+   /*Expansion Manager Phone*/
+         offset = dissect_expansion_phone(msg_tree,tvb,offset,msg_len-2);
+         break;
 
       case 0x91:
    /*Broadcast Manager phone*/
@@ -1250,7 +1250,7 @@ dissect_display_switch(proto_tree *msg_tree,
                                 hf_display_write_address_line_number,
                                 tvb,offset,1,FALSE);
             offset+=1;msg_len-=1;
-         } 
+         }
          proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
          proto_tree_add_item(msg_tree,hf_display_write_cursor_move,
                              tvb,offset,1,FALSE);
@@ -1421,21 +1421,21 @@ dissect_display_phone(proto_tree *msg_tree,
          break;
       case 0x01:
    /*Contrast Level Report*/
-	 proto_tree_add_item(msg_tree,hf_display_contrast,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_display_contrast,tvb,offset,1,FALSE);
          offset+=1;msg_len-=1;
          break;
       case 0x02:
    /*Cursor Location Report*/
-	 proto_tree_add_item(msg_tree,hf_display_cursor_numeric,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_display_cursor_numeric,tvb,offset,1,FALSE);
          proto_tree_add_item(msg_tree,hf_display_cursor_context ,tvb,offset,1,FALSE);
          proto_tree_add_item(msg_tree,hf_display_cursor_line,tvb,offset,1,FALSE);
          proto_tree_add_item(msg_tree,hf_display_cursor_softkey,tvb,offset,1,FALSE);
          proto_tree_add_item(msg_tree,hf_display_cursor_softkey_id,tvb,offset,1,FALSE);
-	 offset+=1;msg_len-=1;
-	 proto_tree_add_item(msg_tree,hf_display_cursor_char_pos,tvb,offset,1,FALSE);
+         offset+=1;msg_len-=1;
+         proto_tree_add_item(msg_tree,hf_display_cursor_char_pos,tvb,offset,1,FALSE);
          proto_tree_add_item(msg_tree,hf_display_cursor_line_number,tvb,offset,1,FALSE);
          offset+=1;msg_len-=1;
-	 break;
+         break;
       case 0x03:
    /*Highlight Status On*/
          highlight_cmd=tvb_get_guint8(tvb,offset);
@@ -1494,7 +1494,7 @@ dissect_display_phone(proto_tree *msg_tree,
 
 
 static gint
-dissect_key_indicator_switch(proto_tree *msg_tree, 
+dissect_key_indicator_switch(proto_tree *msg_tree,
                              tvbuff_t *tvb, gint offset,guint msg_len){
    guint key_cmd;
    key_cmd=tvb_get_guint8(tvb,offset);
@@ -1894,17 +1894,17 @@ dissect_expansion_phone(proto_tree *msg_tree,
 
    switch(expansion_cmd){
       case 0x59:
-        proto_tree_add_text(msg_tree,tvb,offset,msg_len,"Module Key Number: %i",key_number);
-        offset+=1;
-        msg_len-=1;
-        break;
+         proto_tree_add_text(msg_tree,tvb,offset,msg_len,"Module Key Number: %i",key_number);
+         offset+=1;
+         msg_len-=1;
+         break;
    }
    offset+=msg_len;
    return offset;
 }
 
 static gint
-dissect_network_phone(proto_tree *msg_tree, 
+dissect_network_phone(proto_tree *msg_tree,
                       tvbuff_t *tvb,gint offset, guint msg_len){
    guint network_cmd;
    proto_tree *server_tree;
@@ -1969,7 +1969,7 @@ dissect_network_phone(proto_tree *msg_tree,
          proto_tree_add_item(msg_tree,hf_net_phone_primary_server_id,
                              tvb,offset,1,FALSE);
          offset+=1;msg_len-=1;
-         for (i=1; msg_len>8; i++){ 
+         for (i=1; msg_len>8; i++){
    /*if less than 9 not full report so punt*/
 /*          guint16 port_num;
             port_num=tvb_get_ntohs(tvb,offset);
@@ -2317,18 +2317,18 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
          /* Tap info again */
          uinfo->trans_connect = 1;
 
-         proto_tree_add_item(msg_tree,hf_basic_bit_field, tvb,offset,1,FALSE); 
+         proto_tree_add_item(msg_tree,hf_basic_bit_field, tvb,offset,1,FALSE);
          proto_tree_add_item(msg_tree,hf_audio_transducer_pair,tvb,offset,1,FALSE);
          proto_tree_add_item(msg_tree,hf_audio_rx_enable,tvb,offset,1,FALSE);
          proto_tree_add_item(msg_tree,hf_audio_tx_enable,tvb,offset,1,FALSE);
          offset+=1;msg_len-=1;
-         proto_tree_add_item(msg_tree,hf_basic_bit_field, tvb,offset,1,FALSE); 
+         proto_tree_add_item(msg_tree,hf_basic_bit_field, tvb,offset,1,FALSE);
          proto_tree_add_item(msg_tree,hf_audio_apb_number,tvb,offset,1,FALSE);
          proto_tree_add_item(msg_tree,hf_audio_sidetone_disable,tvb,offset,1,FALSE);
          proto_tree_add_item(msg_tree,hf_audio_destruct_additive,tvb,offset,1,FALSE);
          proto_tree_add_item(msg_tree,hf_audio_dont_force_active,tvb,offset,1,FALSE);
          offset+=1;msg_len-=1;
-         while(msg_len>0){ 
+         while(msg_len>0){
             proto_tree_add_item(msg_tree,hf_audio_mgr_stream_id,tvb,offset,1,TRUE);
             offset+=1;msg_len-=1;
          }
@@ -2632,20 +2632,20 @@ dissect_audio_phone(proto_tree *msg_tree,
          proto_tree_add_item(msg_tree,hf_audio_apb_number,tvb,offset,1,FALSE);
          offset+=1;msg_len-=1;
          while(msg_len>0){
-           apb_op_code=tvb_get_guint8(tvb,offset);
-           proto_tree_add_item(msg_tree,hf_audio_apb_op_code,tvb,
-                            offset,1,FALSE);
-           offset+=1;msg_len-=1;
-           if(apb_op_code>0x39){
-              /*should have a len + data*/
-              apb_data_len=tvb_get_guint8(tvb,offset);
-              proto_tree_add_item(msg_tree,hf_audio_apb_param_len,tvb,
-                             offset,1,FALSE);
-              offset+=1;msg_len-=1;
-              proto_tree_add_item(msg_tree,hf_audio_apb_data,tvb,
-                             offset,apb_data_len,FALSE);
-              offset+=apb_data_len;msg_len-=apb_data_len;
-           }
+            apb_op_code=tvb_get_guint8(tvb,offset);
+            proto_tree_add_item(msg_tree,hf_audio_apb_op_code,tvb,
+                                offset,1,FALSE);
+            offset+=1;msg_len-=1;
+            if(apb_op_code>0x39){
+               /*should have a len + data*/
+               apb_data_len=tvb_get_guint8(tvb,offset);
+               proto_tree_add_item(msg_tree,hf_audio_apb_param_len,tvb,
+                                   offset,1,FALSE);
+               offset+=1;msg_len-=1;
+               proto_tree_add_item(msg_tree,hf_audio_apb_data,tvb,
+                                   offset,apb_data_len,FALSE);
+               offset+=apb_data_len;msg_len-=apb_data_len;
+            }
          }
          break;
       case 0xff:
@@ -2670,13 +2670,13 @@ proto_register_unistim(void){
 
    module_t* unistim_module;
 
-   static hf_register_info hf[] = { 
-         { &hf_unistim_seq_nu, 
-            { "RUDP Seq Num","unistim.num",FT_UINT32, 
-               BASE_HEX|BASE_RANGE_STRING, RVALS(sequence_numbers), 0x0, NULL, HFILL} 
+   static hf_register_info hf[] = {
+         { &hf_unistim_seq_nu,
+            { "RUDP Seq Num","unistim.num",FT_UINT32,
+               BASE_HEX|BASE_RANGE_STRING, RVALS(sequence_numbers), 0x0, NULL, HFILL}
          },
          { &hf_unistim_cmd_add,
-            { "UNISTIM CMD Address","unistim.add",FT_UINT8, 
+            { "UNISTIM CMD Address","unistim.add",FT_UINT8,
                BASE_HEX,VALS(command_address),0x0,NULL,HFILL}
          },
          { &hf_uftp_command,
@@ -2700,15 +2700,15 @@ proto_register_unistim(void){
                BASE_NONE,NULL,0x0,NULL,HFILL}
          },
          { &hf_unistim_packet_type,
-            { "RUDP Pkt type","unistim.type",FT_UINT8, 
-               BASE_DEC, VALS(packet_names),0x0,NULL,HFILL} 
+            { "RUDP Pkt type","unistim.type",FT_UINT8,
+               BASE_DEC, VALS(packet_names),0x0,NULL,HFILL}
          },
          { &hf_unistim_payload,
-            { "UNISTIM Payload","unistim.pay",FT_UINT8, 
+            { "UNISTIM Payload","unistim.pay",FT_UINT8,
                BASE_HEX, VALS(payload_names),0x0,NULL,HFILL}
          },
          { &hf_unistim_len ,
-            { "UNISTIM CMD Length","unistim.len",FT_UINT8, 
+            { "UNISTIM CMD Length","unistim.len",FT_UINT8,
                BASE_DEC,NULL,0x0,NULL,HFILL}
          },
          { &hf_basic_bit_field,
@@ -2792,7 +2792,7 @@ proto_register_unistim(void){
                BASE_DEC,NULL,0x0,NULL,HFILL}
          },
          { &hf_net_diag_flag,
-            {"Query Network Manager Diagnostic","unistim.query.diagnostic", 
+            {"Query Network Manager Diagnostic","unistim.query.diagnostic",
                FT_BOOLEAN,8, NULL,
                QUERY_NETWORK_MANAGER_DIAGNOSTIC, NULL,HFILL}
          },
@@ -4010,7 +4010,7 @@ proto_register_unistim(void){
                                   "UNISTIM port (default 5000)", 10, &global_unistim_port);
 }
 
-void 
+void
 proto_reg_handoff_unistim(void) {
    static gboolean initialized = FALSE;
    static dissector_handle_t unistim_handle;
