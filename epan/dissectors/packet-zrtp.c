@@ -1,6 +1,6 @@
 /* packet-zrtp.c
  * Routines for zrtp packet dissection
- * IETF draft draft-zimmermann-avt-zrtp-17
+ * IETF draft draft-zimmermann-avt-zrtp-22
  * Copyright 2007, Sagar Pai <sagar@gmail.com>
  *
  * $Id$
@@ -152,6 +152,7 @@ static gint ett_zrtp_checksum = -1;
 #define ZRTP_ERR_70 0x70
 #define ZRTP_ERR_80 0x80
 #define ZRTP_ERR_90 0x90
+#define ZRTP_ERR_91 0x91
 #define ZRTP_ERR_A0 0xA0
 #define ZRTP_ERR_100 0x100
 
@@ -182,6 +183,9 @@ const value_zrtp_versions valid_zrtp_versions[]=
 const value_string_keyval zrtp_hash_type_vals[] =
   {
     { "S256",	"SHA-256 Hash"},
+    { "S384",	"SHA-384 Hash"},
+    { "N256",	"SHA-3 256-bit hash"},
+    { "N384",	"SHA-3 384 bit hash"},
     { NULL,		NULL }
   };
 
@@ -246,6 +250,7 @@ const value_string zrtp_error_vals[] =
     { ZRTP_ERR_70, "Auth. Error Bad Confirm Packet HMAC"},
     { ZRTP_ERR_80, "Nonce is reused"},
     { ZRTP_ERR_90, "Equal ZID's in Hello"},
+    { ZRTP_ERR_91, "SSRC collision"},
     { ZRTP_ERR_A0, "Service unavailable"},
     { ZRTP_ERR_100, "GoClear packet received, but not allowed"},
     { 0, NULL}
