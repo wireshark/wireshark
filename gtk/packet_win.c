@@ -55,7 +55,6 @@
 
 #include "../file.h"
 #include "../print.h"
-#include "../simple_dialog.h"
 #include "../ui_util.h"
 #include "../summary.h"
 

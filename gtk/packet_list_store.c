@@ -52,7 +52,6 @@
 
 #include "globals.h"
 
-#include "../simple_dialog.h"
 #include "../progress_dlg.h"
 
 static void packet_list_init(PacketList *pkg_tree);
