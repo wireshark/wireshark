@@ -1,4 +1,4 @@
-/* dnd.c
+/* drag_and_drop.c
  * Drag and Drop
  *
  * $Id$

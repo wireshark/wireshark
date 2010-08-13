@@ -1,4 +1,4 @@
-/* drag_and_drop_utils.h
+/* drag_and_drop.h
  *
  * $Id$
  *
