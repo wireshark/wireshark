@@ -58,11 +58,4 @@ extern void find_previous_cb(GtkWidget *widget, gpointer data);
  */
 extern void find_frame_with_filter(char *filter);
 
-/** Find next/previous frame by filter.
- *
- * @param filter the filter string
- * @param backwards TRUE, if searching should be done backwards
- */
-extern void find_previous_next_frame_with_filter(const char *filter, gboolean backwards);
-
 #endif /* find_dlg.h */

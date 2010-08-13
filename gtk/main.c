@@ -532,8 +532,6 @@ get_ip_address_list_from_packet_list_row(gpointer data)
     gint    col;
     frame_data *fdata;
     GList      *addr_list = NULL;
-    int         err;
-    gchar       *err_info;
 
 #ifdef NEW_PACKET_LIST
     fdata = (frame_data *) new_packet_list_get_row_data(row);
@@ -544,12 +542,8 @@ get_ip_address_list_from_packet_list_row(gpointer data)
     if (fdata != NULL) {
         epan_dissect_t edt;
 
-        if (!cf_read_frame (&cfile, fdata, &err, &err_info))
-	{
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      cf_read_error_message(err, err_info), cfile.filename);
-            return NULL;
-        }
+        if (!cf_read_frame (&cfile, fdata))
+            return NULL; /* error reading the frame */
 
         epan_dissect_init(&edt, FALSE, FALSE);
         col_custom_prime_edt(&edt, &cfile.cinfo);
@@ -586,8 +580,6 @@ get_filter_from_packet_list_row_and_column(gpointer data)
 #endif
     frame_data *fdata;
     gchar      *buf=NULL;
-    int         err;
-    gchar       *err_info;
 
 #ifdef NEW_PACKET_LIST
     fdata = (frame_data *) new_packet_list_get_row_data(row);
@@ -598,11 +590,8 @@ get_filter_from_packet_list_row_and_column(gpointer data)
     if (fdata != NULL) {
         epan_dissect_t edt;
 
-        if (!cf_read_frame(&cfile, fdata, &err, &err_info)) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      cf_read_error_message(err, err_info), cfile.filename);
-            return NULL;
-        }
+        if (!cf_read_frame(&cfile, fdata))
+            return NULL; /* error reading the frame */
         /* proto tree, visible. We need a proto tree if there's custom columns */
         epan_dissect_init(&edt, have_custom_cols(&cfile.cinfo), FALSE);
         col_custom_prime_edt(&edt, &cfile.cinfo);
@@ -769,10 +758,10 @@ reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_, REFTIME_ACTION_E action)
     }
     break;
   case REFTIME_FIND_NEXT:
-    find_previous_next_frame_with_filter("frame.ref_time", FALSE);
+    cf_find_packet_time_reference(&cfile, SD_FORWARD);
     break;
   case REFTIME_FIND_PREV:
-    find_previous_next_frame_with_filter("frame.ref_time", TRUE);
+    cf_find_packet_time_reference(&cfile, SD_BACKWARD);
     break;
   }
 }
@@ -780,13 +769,13 @@ reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_, REFTIME_ACTION_E action)
 void
 find_next_mark_cb(GtkWidget *w _U_, gpointer data _U_, int action _U_)
 {
-    find_previous_next_frame_with_filter("frame.marked == TRUE", FALSE);
+    cf_find_packet_marked(&cfile, SD_FORWARD);
 }
 
 void
 find_prev_mark_cb(GtkWidget *w _U_, gpointer data _U_, int action _U_)
 {
-    find_previous_next_frame_with_filter("frame.marked == TRUE", TRUE);
+    cf_find_packet_marked(&cfile, SD_BACKWARD);
 }
 
 static void
@@ -2079,7 +2068,7 @@ main(int argc, char *argv[])
   GtkWidget           *splash_win = NULL;
   GLogLevelFlags       log_flags;
   guint                go_to_packet = 0;
-  gboolean             jump_backwards = FALSE, saved_bw = FALSE;
+  gboolean             jump_backwards = FALSE;
   dfilter_t           *jump_to_filter = NULL;
   int                  optind_initial;
   int                  status;
@@ -2952,15 +2941,11 @@ main(int argc, char *argv[])
             /* try to compile given filter */
             if (!dfilter_compile(jfilter, &jump_to_filter)) {
               bad_dfilter_alert_box(jfilter);
-            } else
-            {
+            } else {
               /* Filter ok, jump to the first packet matching the filter
                  conditions. Default search direction is forward, but if
                  option d was given, search backwards */
-              saved_bw = cfile.sbackward;
-              cfile.sbackward = jump_backwards;
-              cf_find_packet_dfilter(&cfile, jump_to_filter);
-              cfile.sbackward = saved_bw;
+              cf_find_packet_dfilter(&cfile, jump_to_filter, jump_backwards);
             }
           }
           break;

@@ -131,11 +131,6 @@ void new_window_cb(GtkWidget *w _U_)
   struct PacketWinData *DataPtr;
   int i;
 
-#ifdef NEW_PACKET_LIST
-  int err;
-  gchar *err_info;
-#endif /* NEW_PACKET_LIST */
-
   if (!cfile.current_frame) {
     /* nothing has been captured so far */
     return;
@@ -144,10 +139,9 @@ void new_window_cb(GtkWidget *w _U_)
 #ifdef NEW_PACKET_LIST
 
   /* With the new packetlists "lazy columns" it's neccesary to reread the frame */
-  if (!cf_read_frame(&cfile, cfile.current_frame, &err, &err_info)) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            cf_read_error_message(err, err_info), cfile.filename);
-            return;
+  if (!cf_read_frame(&cfile, cfile.current_frame)) {
+    /* error reading the frame */
+    return;
   }
 #endif
 

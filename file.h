@@ -110,12 +110,30 @@ void cf_reload(capture_file *cf);
  */
 cf_read_status_t cf_read(capture_file *cf, gboolean from_save);
 
+/**
+ * Read the pseudo-header and raw data for a packet.  It will pop
+ * up an alert box if there's an error.
+ *
+ * @param cf the capture file from which to read the packet
+ * @param fdata the frame_data structure for the packet in question
+ * @param pseudo_header pointer to a wtap_pseudo_header union into
+ * which to read the packet's pseudo-header
+ * @param pd a guin8 array into which to read the packet's raw data
+ * @return TRUE if the read succeeded, FALSE if there was an error
+ */
 gboolean cf_read_frame_r(capture_file *cf, frame_data *fdata,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd,
-	int *err, gchar **err_info);
+                         union wtap_pseudo_header *pseudo_header, guint8 *pd);
 
-gboolean cf_read_frame(capture_file *cf, frame_data *fdata,
-	int *err, gchar **err_info);
+/**
+ * Read the pseudo-header and raw data for a packet into a
+ * capture_file structure's pseudo_header and pd members.
+ * It will pop up an alert box if there's an error.
+ *
+ * @param cf the capture file from which to read the packet
+ * @param fdata the frame_data structure for the packet in question
+ * @return TRUE if the read succeeded, FALSE if there was an error
+ */
+gboolean cf_read_frame(capture_file *cf, frame_data *fdata);
 
 /**
  * Start reading from the end of a capture file.
@@ -376,42 +394,79 @@ cf_print_status_t cf_write_csv_packets(capture_file *cf, print_args_t *print_arg
 cf_print_status_t cf_write_carrays_packets(capture_file *cf, print_args_t *print_args);
 
 /**
- * Find Packet in protocol tree.
+ * Find packet with a protocol tree item that contains a specified text string.
  *
  * @param cf the capture file
  * @param string the string to find
+ * @param dir direction in which to search
  * @return TRUE if a packet was found, FALSE otherwise
  */
-gboolean cf_find_packet_protocol_tree(capture_file *cf, const char *string);
+gboolean cf_find_packet_protocol_tree(capture_file *cf, const char *string,
+                                      search_direction dir);
 
 /**
- * Find Packet in summary line.
+ * Find packet whose summary line contains a specified text string.
  *
  * @param cf the capture file
  * @param string the string to find
+ * @param dir direction in which to search
  * @return TRUE if a packet was found, FALSE otherwise
  */
-gboolean cf_find_packet_summary_line(capture_file *cf, const char *string);
+gboolean cf_find_packet_summary_line(capture_file *cf, const char *string,
+                                     search_direction dir);
 
 /**
- * Find Packet in packet data.
+ * Find packet whose data contains a specified byte string.
  *
  * @param cf the capture file
  * @param string the string to find
  * @param string_size the size of the string to find
+ * @param dir direction in which to search
  * @return TRUE if a packet was found, FALSE otherwise
  */
 gboolean cf_find_packet_data(capture_file *cf, const guint8 *string,
-			  size_t string_size);
+                             size_t string_size, search_direction dir);
 
 /**
- * Find Packet by display filter.
+ * Find packet that matches a compiled display filter.
  *
  * @param cf the capture file
- * @param sfcode the display filter to find a packet for
+ * @param sfcode the display filter to match
+ * @param dir direction in which to search
  * @return TRUE if a packet was found, FALSE otherwise
  */
-gboolean cf_find_packet_dfilter(capture_file *cf, dfilter_t *sfcode);
+gboolean cf_find_packet_dfilter(capture_file *cf, dfilter_t *sfcode,
+                                search_direction dir);
+
+/**
+ * Find packet that matches a display filter given as a text string.
+ *
+ * @param cf the capture file
+ * @param filter the display filter to match
+ * @param dir direction in which to search
+ * @return TRUE if a packet was found, FALSE otherwise
+ */
+gboolean
+cf_find_packet_dfilter_string(capture_file *cf, const char *filter,
+                              search_direction dir);
+
+/**
+ * Find marked packet.
+ *
+ * @param cf the capture file
+ * @param dir direction in which to search
+ * @return TRUE if a packet was found, FALSE otherwise
+ */
+gboolean cf_find_packet_marked(capture_file *cf, search_direction dir);
+
+/**
+ * Find time-reference packet.
+ *
+ * @param cf the capture file
+ * @param dir direction in which to search
+ * @return TRUE if a packet was found, FALSE otherwise
+ */
+gboolean cf_find_packet_time_reference(capture_file *cf, search_direction dir);
 
 /**
  * GoTo Packet in first row.
@@ -503,15 +558,6 @@ void cf_ignore_frame(capture_file *cf, frame_data *frame);
  * @param frame the frame to be unignored
  */
 void cf_unignore_frame(capture_file *cf, frame_data *frame);
-
-/**
- * Convert error number and info to a complete message.
- *
- * @param err the error number
- * @param err_info a string with additional details about this error
- * @return statically allocated error message
- */
-char *cf_read_error_message(int err, gchar *err_info);
 
 /**
  * Merge two (or more) capture files into one.

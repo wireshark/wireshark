@@ -3390,8 +3390,6 @@ static void iax2_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	dfilter_t *sfcode;
 	capture_file *cf;
 	epan_dissect_t edt;
-	gint err;
-	gchar *err_info;
 	gboolean frame_matched;
 	frame_data *fdata;
 	GList *strinfo_list;
@@ -3414,11 +3412,8 @@ static void iax2_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 		return; /* if we exit here it's an error */
 
 	/* dissect the current frame */
-	if (!cf_read_frame(cf, fdata, &err, &err_info)) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			cf_read_error_message(err, err_info), cf->filename);
-		return;
-	}
+	if (!cf_read_frame(cf, fdata))
+		return;	/* error reading the frame */
 	epan_dissect_init(&edt, TRUE, FALSE);
 	epan_dissect_prime_dfilter(&edt, sfcode);
 	epan_dissect_run(&edt, &cf->pseudo_header, cf->pd, fdata, NULL);

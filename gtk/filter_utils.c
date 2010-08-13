@@ -94,10 +94,10 @@ apply_selected_filter (guint callback_action, char *filter)
 		find_frame_with_filter(str);
 		break;
 	case ACTION_FIND_NEXT:
-		find_previous_next_frame_with_filter(str, FALSE);
+		cf_find_packet_dfilter_string(&cfile, str, SD_FORWARD);
 		break;
 	case ACTION_FIND_PREVIOUS:
-		find_previous_next_frame_with_filter(str, TRUE);
+		cf_find_packet_dfilter_string(&cfile, str, SD_BACKWARD);
 		break;
 	case ACTION_COLORIZE:
 		color_display_with_filter(str);

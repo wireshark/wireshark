@@ -1782,8 +1782,6 @@ tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 static struct tcpheader *select_tcpip_session (capture_file *cf, struct segment *hdrs)
 {
 	frame_data *fdata;
-	gint err;
-	gchar *err_info;
 	epan_dissect_t edt;
 	dfilter_t *sfcode;
 	GString *error_string;
@@ -1798,11 +1796,8 @@ static struct tcpheader *select_tcpip_session (capture_file *cf, struct segment 
 	}
 
 	/* dissect the current frame */
-	if (!cf_read_frame(cf, fdata, &err, &err_info)) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			cf_read_error_message(err, err_info), cf->filename);
-		return NULL;
-	}
+	if (!cf_read_frame(cf, fdata))
+		return NULL;	/* error reading the frame */
 
 
 	error_string=register_tap_listener("tcp", &th, NULL, 0, NULL, tap_tcpip_packet, NULL);

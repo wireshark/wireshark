@@ -144,16 +144,11 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 	epan_dissect_t			edt;
 	union wtap_pseudo_header	phdr;
 	guint8				pd[WTAP_MAX_PACKET_SIZE];
-	int				err;
-	gchar				*err_info;
 	double				cur_time;
 
 	/* Load the frame from the capture file */
-	if (!cf_read_frame_r(&cfile, frame, &phdr, pd, &err, &err_info)) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    cf_read_error_message(err, err_info), cfile.filename);
+	if (!cf_read_frame_r(&cfile, frame, &phdr, pd))
 		return FALSE;	/* failure */
-	}
 
 	/* Dissect the frame   tree  not visible */
 	epan_dissect_init(&edt, TRUE, FALSE);

@@ -1088,8 +1088,6 @@ static void
 packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *record, gboolean dissect_columns, gboolean dissect_color)
 {
 	epan_dissect_t edt;
-	int err;
-	gchar *err_info;
 	frame_data *fdata;
 	column_info *cinfo;
 	gint col;
@@ -1104,11 +1102,8 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	else
 		cinfo = NULL;
 
-	if (!cf_read_frame_r(&cfile, fdata, &pseudo_header, pd, &err, &err_info)) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			cf_read_error_message(err, err_info), cfile.filename);
-			return;
-	}
+	if (!cf_read_frame_r(&cfile, fdata, &pseudo_header, pd))
+		return;	/* error reading the frame */
 
 	create_proto_tree = (color_filters_used() && dissect_color) ||
 						(have_custom_cols(cinfo) && dissect_columns);
