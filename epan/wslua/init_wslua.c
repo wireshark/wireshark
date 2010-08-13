@@ -288,6 +288,14 @@ static void lua_load_plugins (const char *dirname)
                 continue;
             }
 
+#ifndef _WIN32
+            /* skip files starting wih . */
+            if (name[0] == '.') {
+                g_free(filename);
+                continue;
+            }
+#endif
+
             /* skip anything but files with .lua suffix */
             dot = strrchr(name, '.');
             if (dot == NULL || strcmp(dot+1, "lua") != 0) {
