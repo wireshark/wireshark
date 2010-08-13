@@ -2612,7 +2612,7 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
 			<enum name="RESOURCES_LIMITATION"			code="9"/>
 			<enum name="MAX_NR_BEARERS_REACHED"			code="10"/>
 			<enum name="QOS_CHANGE_EXCEEDING_AUTHORIZATION"		code="11"/>
-			<enum name="NO_EVENT_TRIGGER"				code="12"/>
+			<enum name="RAI_CHANGE"					code="12"/>
 			<enum name="USER_LOCATION_CHANGE"			code="13"/>
 			<enum name="NO_EVENT_TRIGGERS"				code="14"/>
 			<enum name="OUT_OF_CREDIT"				code="15"/>
