@@ -117,7 +117,9 @@
 #include "../capture-wpcap.h"
 #include "../capture_wpcap_packet.h"
 #include <tchar.h> /* Needed for Unicode */
+#include <wsutil/unicode-utils.h>
 #include <commctrl.h>
+#include <shellapi.h>
 #endif /* _WIN32 */
 
 /* GTK related */
@@ -2040,6 +2042,8 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
   WSADATA 	       wsaData;
+  LPWSTR              *wc_argv;
+  int                  wc_argc, i;
 #endif  /* _WIN32 */
 
   char                *rf_path;
@@ -2095,6 +2099,16 @@ main(int argc, char *argv[])
 #define OPTSTRING "a:b:" OPTSTRING_B "c:C:Df:g:Hhi:" OPTSTRING_I "jJ:kK:lLm:nN:o:P:pQr:R:Ss:t:u:vw:X:y:z:"
 
   static const char optstring[] = OPTSTRING;
+
+#ifdef _WIN32
+  /* Convert our arg list to UTF-8. */
+  wc_argv = CommandLineToArgvW(GetCommandLineW(), &wc_argc);
+  if (wc_argv && wc_argc == argc) {
+    for (i = 0; i < argc; i++) {
+      argv[i] = g_strdup(utf_16to8(wc_argv[i]));
+    }
+  } /* XXX else bail because something is horribly, horribly wrong? */
+#endif /* _WIN32 */
 
   /*
    * Get credential information for later use, and drop privileges
@@ -2602,12 +2616,7 @@ main(int argc, char *argv[])
 	/* We may set "last_open_dir" to "cf_name", and if we change
 	   "last_open_dir" later, we free the old value, so we have to
 	   set "cf_name" to something that's been allocated. */
-#if defined _WIN32 && GLIB_CHECK_VERSION(2,6,0)
-        /* since GLib 2.6, we need to convert filenames to utf8 for Win32 */
-        cf_name = g_locale_to_utf8(optarg, -1, NULL, NULL, NULL);
-#else
         cf_name = g_strdup(optarg);
-#endif
         break;
       case 'R':        /* Read file filter */
         rfilter = optarg;
@@ -2686,12 +2695,7 @@ main(int argc, char *argv[])
        * file - yes, you could have "-r" as the last part of the command,
        * but that's a bit ugly.
        */
-#if defined _WIN32 && GLIB_CHECK_VERSION(2,6,0)
-      /* since GLib 2.6, we need to convert filenames to utf8 for Win32 */
-      cf_name = g_locale_to_utf8(argv[0], -1, NULL, NULL, NULL);
-#else
       cf_name = g_strdup(argv[0]);
-#endif
     }
     argc--;
     argv++;
