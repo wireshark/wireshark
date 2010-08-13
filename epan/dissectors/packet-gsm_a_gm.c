@@ -4179,6 +4179,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port,tvb,curr_offset,2,FALSE);
 					curr_offset+=2;
 					curr_len-=2;
+					break;
 
 				case 0x41:
 					str="Local port range type";
