@@ -2043,10 +2043,10 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 				value = tvb_get_bits64(tvb, offset, length, FALSE);
 			
 			if (actx->aligned){
-				proto_item_append_text(actx->created_item, ", %s decimal value %u", 
+				proto_item_append_text(actx->created_item, ", %s decimal value %" G_GINT64_MODIFIER "u", 
 					decode_bits_in_field(pad_length, length, value), value);
 			}else{
-				proto_item_append_text(actx->created_item, ", %s decimal value %u", 
+				proto_item_append_text(actx->created_item, ", %s decimal value %" G_GINT64_MODIFIER "u", 
 					decode_bits_in_field(0, length, value), value);
 			}
 		}
