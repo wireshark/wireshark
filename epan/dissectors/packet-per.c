@@ -221,24 +221,17 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx
 
   if (actx->aligned)
   {
-    /* get the 'odd' bits */
-    shift1 = offset & 0x07;
-    word = tvb_get_ntohs(tvb, offset) & bit_mask16[offset & 0x07];
-    word = word >> (16-(shift1+remainderval));
-    buf[0] = word & 0x00ff;
-
-    boffset = boffset + remainderval;
-    offset = boffset >> 3;
-    if (new_length >1){
-      shift1 = offset & 0x07;
-      shift0 = 8 - shift1;
-      octet0 = tvb_get_guint8(tvb, offset);
-      for (i=1; i<new_length; i++) {
-        octet1 = octet0;
-        octet0 = tvb_get_guint8(tvb, offset + i);
-        buf[i] = (octet1 << shift1) | (octet0 >> shift0);
-      }
-    }
+	if(no_of_bits<=8){
+		buf[0] = tvb_get_bits8(tvb, boffset, no_of_bits);
+	}else{
+		/* Add with padding */
+		buf[0] = tvb_get_bits8(tvb, boffset, 8-remainderval);
+		boffset = boffset + (8-remainderval);
+		for (i=1; i<new_length; i++){
+			 buf[i] = tvb_get_bits8(tvb, boffset,8);
+			 boffset+= 8;
+		}
+	}
   }
   else
   {
@@ -2022,7 +2015,8 @@ DEBUG_ENTRY("dissect_per_sequence");
 static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, header_field_info *hfi, guint32 length)
 {
 	tvbuff_t *out_tvb = NULL;
-	guint32  value, pad_length=0;
+	guint32  pad_length=0;
+	guint64  value;
 	
 	out_tvb = new_octet_aligned_subset_bits(tvb, offset, actx, length);
 	
@@ -2031,23 +2025,30 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 		proto_item_append_text(actx->created_item, " [bit length %u", length);
 		if (length%8) {
 			pad_length = 8-(length%8);
-			proto_item_append_text(actx->created_item, ", %u LSB pad bits", pad_length);
+			if (actx->aligned){
+				proto_item_append_text(actx->created_item, ", %u MSB pad bits", pad_length);
+			}else{
+				proto_item_append_text(actx->created_item, ", %u LSB pad bits", pad_length);
+			}
 		}
 		
-		if (length<=32) {
+		if (length<=64) {
 			if (length<=8)
-				value = tvb_get_guint8(out_tvb, 0);
+				value = tvb_get_bits8(tvb, offset, length);
 			else if (length<=16)
-				value = tvb_get_ntohs(out_tvb, 0);
-			else if (length<=24)
-				value = tvb_get_ntoh24(out_tvb, 0);
+				value = tvb_get_bits16(tvb, offset, length, FALSE);
+			else if (length<=32)
+				value = tvb_get_bits32(tvb, offset, length, FALSE);
 			else
-				value = tvb_get_ntohl(out_tvb, 0);
+				value = tvb_get_bits64(tvb, offset, length, FALSE);
 			
-			value >>= pad_length;
-			
-			proto_item_append_text(actx->created_item, ", %s decimal value %u", 
-				decode_bits_in_field(0, length, value), value);
+			if (actx->aligned){
+				proto_item_append_text(actx->created_item, ", %s decimal value %u", 
+					decode_bits_in_field(pad_length, length, value), value);
+			}else{
+				proto_item_append_text(actx->created_item, ", %s decimal value %u", 
+					decode_bits_in_field(0, length, value), value);
+			}
 		}
 		proto_item_append_text(actx->created_item, "]");
 	}
