@@ -519,6 +519,13 @@ extern void proto_item_set_text(proto_item *ti, const char *format, ...)
 extern void proto_item_append_text(proto_item *ti, const char *format, ...)
 	G_GNUC_PRINTF(2,3);
 
+/** Prepend to text of item after it has already been created.
+ @param ti the item to prepend the text to
+ @param format printf like format string
+ @param ... printf like parameters */
+extern void proto_item_prepend_text(proto_item *ti, const char *format, ...)
+	G_GNUC_PRINTF(2,3);
+
 /** Set proto_item's length inside tvb, after it has already been created.
  @param ti the item to set the length
  @param length the new length ot the item */

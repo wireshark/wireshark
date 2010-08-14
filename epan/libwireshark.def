@@ -731,6 +731,7 @@ proto_item_get_len
 proto_item_get_parent_nth
 proto_item_get_parent
 proto_item_get_subtree
+proto_item_prepend_text
 proto_item_set_end
 proto_item_set_expert_flags
 proto_item_set_len

@@ -3677,6 +3677,47 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 	}
 }
 
+/* Prepend to text of proto_item after having already been created. */
+void
+proto_item_prepend_text(proto_item *pi, const char *format, ...)
+{
+	field_info *fi = NULL;
+	char representation[ITEM_LABEL_LENGTH];
+	size_t curlen;
+	va_list	ap;
+
+	if (pi==NULL) {
+		return;
+	}
+
+	fi = PITEM_FINFO(pi);
+	if (fi==NULL) {
+		return;
+	}
+
+	if (!PROTO_ITEM_IS_HIDDEN(pi)) {
+		/*
+		 * If we don't already have a representation,
+		 * generate the default representation.
+		 */
+		if (fi->rep == NULL) {
+			ITEM_LABEL_NEW(fi->rep);
+			proto_item_fill_label(fi, fi->rep->representation);
+		}
+
+		strcpy(representation, fi->rep->representation);
+		va_start(ap, format);
+		g_vsnprintf(fi->rep->representation,
+			ITEM_LABEL_LENGTH, format, ap);
+		va_end(ap);
+		curlen = strlen(fi->rep->representation);
+		if (ITEM_LABEL_LENGTH > curlen) {
+			strncpy(fi->rep->representation + curlen, representation,
+				ITEM_LABEL_LENGTH - (gulong) curlen);
+		}
+	}
+}
+
 void
 proto_item_set_len(proto_item *pi, const gint length)
 {
