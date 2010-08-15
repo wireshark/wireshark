@@ -2096,8 +2096,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   progdlg_t  *progbar = NULL;
   gboolean    stop_flag;
   int         count;
-  int         err;
-  gchar      *err_info;
   frame_data *selected_frame, *preceding_frame, *following_frame, *prev_frame;
   int         selected_row, prev_row, preceding_row, following_row;
   gboolean    selected_frame_seen;
