@@ -83,6 +83,11 @@ static int hf_erf_ehdr_class_flags_drop = -1;
 static int hf_erf_ehdr_class_flags_str = -1;
 static int hf_erf_ehdr_class_seqnum = -1;
 
+/* BFS extension header */
+static int hf_erf_ehdr_bfs_hash = -1;
+static int hf_erf_ehdr_bfs_color = -1;
+static int hf_erf_ehdr_bfs_raw_hash = -1;
+
 /* Unknown extension header */
 static int hf_erf_ehdr_unk = -1;
 
@@ -338,9 +343,10 @@ static const value_string erf_type_vals[] = {
 /* Extended headers type defines */
 static const value_string ehdr_type_vals[] = {
   { EXT_HDR_TYPE_CLASSIFICATION, "Classification"},
-	{ EXT_HDR_TYPE_INTERCEPTID, "InterceptID"},
+  { EXT_HDR_TYPE_INTERCEPTID, "InterceptID"},
   { EXT_HDR_TYPE_RAW_LINK, "Raw Link"},
-	{ 0, NULL }
+  { EXT_HDR_TYPE_BFS, "BFS Filter/Hash"},
+  { 0, NULL }
 };
 
 
@@ -528,7 +534,26 @@ dissect_raw_link_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *pseud
     proto_tree_add_uint(int_tree, hf_erf_ehdr_raw_link_res , tvb, 0, 0,  (guint32)((hdr >> 32) & 0xFFFFFF)); 
     proto_tree_add_uint(int_tree, hf_erf_ehdr_raw_link_seqnum , tvb, 0, 0, (guint32)((hdr >> 16) & 0xffff));
     proto_tree_add_uint(int_tree, hf_erf_ehdr_raw_link_rate, tvb, 0, 0, (guint32)((hdr >> 8) & 0x00ff));
-		proto_tree_add_uint(int_tree, hf_erf_ehdr_raw_link_type, tvb, 0, 0, (guint32)(hdr & 0x00ff));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_raw_link_type, tvb, 0, 0, (guint32)(hdr & 0x00ff));
+  }
+}
+
+static void
+dissect_bfs_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *pseudo_hdr_tree, int idx)
+{
+  proto_item *int_item= NULL;
+  proto_tree *int_tree = NULL;
+  guint64 hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  
+  if (pseudo_hdr_tree){
+    int_item = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "BFS Filter/Hash");
+    int_tree = proto_item_add_subtree(int_item, ett_erf_pseudo_hdr);  
+    PROTO_ITEM_SET_GENERATED(int_item);
+    
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_t , tvb, 0, 0, (guint8)((hdr >> 56) & 0x7F));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_bfs_hash, tvb, 0, 0, (guint32)((hdr >> 48) & 0xFF));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_bfs_color, tvb, 0, 0, (guint32)((hdr >> 32) & 0xFFFF));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_bfs_raw_hash, tvb, 0, 0, (guint32)(hdr & 0xFFFFFFFF));
   }
 }
 
@@ -815,8 +840,11 @@ dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     case EXT_HDR_TYPE_RAW_LINK:
       dissect_raw_link_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
       break;
+    case EXT_HDR_TYPE_BFS:
+      dissect_bfs_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
+      break;
     default:
-			dissect_unknown_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
+      dissect_unknown_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
       break;
     }
     has_more = type & 0x80;
@@ -1171,8 +1199,13 @@ proto_register_erf(void)
     { &hf_erf_ehdr_class_flags_str, { "Stream Steering Bits", "erf.ehdr.class.flags.str", FT_UINT32, BASE_DEC, NULL, EHDR_CLASS_STER_MASK, NULL, HFILL } },
     { &hf_erf_ehdr_class_seqnum, { "Sequence number", "erf.ehdr.class.seqnum", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
-		/* Unknown Extension Header */
-		{ &hf_erf_ehdr_unk, { "Data", "erf.ehdr.unknown.data", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    /* BFS Extension Header */
+    { &hf_erf_ehdr_bfs_hash, { "Hash", "erf.ehdr.bfs.hash", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+    { &hf_erf_ehdr_bfs_color, { "Filter Color", "erf.ehdr.bfs.color", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
+    { &hf_erf_ehdr_bfs_raw_hash, { "Raw Hash", "erf.ehdr.bfs.rawhash", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+
+    /* Unknown Extension Header */
+    { &hf_erf_ehdr_unk, { "Data", "erf.ehdr.unknown.data", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
     /* MC HDLC Header */
     { &hf_erf_mc_hdlc_cn,   { "connection number", "erf.mchdlc.cn", FT_UINT16, BASE_DEC, NULL, MC_HDLC_CN_MASK, NULL, HFILL } },
