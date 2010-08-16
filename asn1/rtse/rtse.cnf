@@ -125,6 +125,16 @@ RTABapdu
   if(open_request && string && check_col(actx->pinfo->cinfo, COL_INFO))
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
 
+#.FN_BODY RTTPapdu  VAL_PTR=&priority
+  int priority = -1;
+
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Turn-Please");
+
+  %(DEFAULT_BODY)s
+
+  if(priority != -1)
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%d)", priority);
+
 #.FN_BODY RTORJapdu
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Refuse");
 

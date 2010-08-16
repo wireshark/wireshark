@@ -503,7 +503,7 @@ static const value_string rtse_RefuseReason_vals[] = {
 
 static int
 dissect_rtse_RefuseReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 137 "rtse.cnf"
+#line 147 "rtse.cnf"
   int reason = -1;
  
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -561,7 +561,7 @@ static const ber_sequence_t RTORJapdu_set[] = {
 
 int
 dissect_rtse_RTORJapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 129 "rtse.cnf"
+#line 139 "rtse.cnf"
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Refuse");
 
     offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
@@ -577,8 +577,19 @@ dissect_rtse_RTORJapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_rtse_RTTPapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+#line 129 "rtse.cnf"
+  int priority = -1;
+
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Turn-Please");
+
+    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                &priority);
+
+
+  if(priority != -1)
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%d)", priority);
+
+
 
   return offset;
 }
