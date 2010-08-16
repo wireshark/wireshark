@@ -2731,6 +2731,7 @@ static void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo
         {
             proto_item *pdu_block_header_ti;
             proto_tree *pdu_block_header_tree;
+            int        block_header_start_offset = offset;
 
             /* Add PDU block header subtree */
             pdu_block_header_ti = proto_tree_add_string_format(tree, hf_fp_hsdsch_pdu_block_header,
@@ -2754,15 +2755,17 @@ static void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo
             proto_tree_add_bits_ret_val(pdu_block_header_tree, hf_fp_pdus_in_block, tvb,
                                         (offset*8) + ((n % 2) ? 0 : 4), 4,
                                         &no_of_pdus[n], FALSE);
-            if ((n % 2) == 0)
+            if ((n % 2) == 0) {
                 offset++;
+            }
 
             /* Logical channel ID in block (4 bits) */
             proto_tree_add_bits_ret_val(pdu_block_header_tree, hf_fp_lchid, tvb,
                                         (offset*8) + ((n % 2) ? 4 : 0), 4,
                                         &lchid[n], FALSE);
-            if ((n % 2) == 1)
+            if ((n % 2) == 1) {
                 offset++;
+            }
             else {
                 if (n == (number_of_pdu_blocks-1)) {
                     /* Byte is padded out for last block */
@@ -2776,6 +2779,16 @@ static void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo
                                    (guint16)lchid[n],
                                    (guint16)no_of_pdus[n],
                                    (guint16)pdu_length[n]);
+
+            /* Set length of header tree item */
+            if (((n % 2) == 0) && (n < (number_of_pdu_blocks-1))) {
+                proto_item_set_len(pdu_block_header_ti,
+                                   offset - block_header_start_offset+1);
+            }
+            else {
+                proto_item_set_len(pdu_block_header_ti,
+                                   offset - block_header_start_offset);
+            }
         }
 
 
