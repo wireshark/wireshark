@@ -1202,58 +1202,6 @@ new_packet_list_queue_draw(void)
 	cf_select_packet(&cfile, row);
 }
 
-/* call this after last set_frame_mark is done */
-static void
-mark_frames_ready(void)
-{
-	file_save_update_dynamics();
-	packets_bar_update();
-	new_packet_list_queue_draw();
-}
-
-static void
-set_frame_mark(gboolean set, frame_data *fdata)
-{
-	if (set)
-		cf_mark_frame(&cfile, fdata);
-	else
-		cf_unmark_frame(&cfile, fdata);
-}
-
-static void
-set_frame_ignore(gboolean set, frame_data *fdata)
-{
-	if (set)
-		cf_ignore_frame(&cfile, fdata);
-	else
-		cf_unignore_frame(&cfile, fdata);
-}
-
-static void
-mark_all_frames(gboolean set)
-{
-	frame_data *fdata;
-
-	/* XXX: we might need a progressbar here */
-	for (fdata = cfile.plist_start; fdata != NULL; fdata = fdata->next) {
-                if( fdata->flags.passed_dfilter )
-		        set_frame_mark(set, fdata);
-	}
-	mark_frames_ready();
-}
-
-void
-new_packet_list_mark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
-{
-	mark_all_frames(TRUE);
-}
-
-void
-new_packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
-{
-	mark_all_frames(FALSE);
-}
-
 /* Set the selection mode of the packet list window. */
 void
 new_packet_list_set_sel_browse(gboolean val, gboolean force_set)
@@ -1300,6 +1248,25 @@ new_packet_list_set_font(PangoFontDescription *font)
 	gtk_widget_modify_font(packetlist->view, font);
 }
 
+
+/* call this after last set_frame_mark is done */
+static void
+mark_frames_ready(void)
+{
+	file_save_update_dynamics();
+	packets_bar_update();
+	new_packet_list_queue_draw();
+}
+
+static void
+set_frame_mark(gboolean set, frame_data *fdata)
+{
+	if (set)
+		cf_mark_frame(&cfile, fdata);
+	else
+		cf_unmark_frame(&cfile, fdata);
+}
+
 void
 new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 {
@@ -1317,6 +1284,57 @@ new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 	mark_frames_ready();
 }
 
+static void
+mark_all_displayed_frames(gboolean set)
+{
+	/* XXX: we might need a progressbar here */
+	frame_data *fdata;
+	for (fdata = cfile.plist_start; fdata != NULL; fdata = fdata->next) {
+		if( fdata->flags.passed_dfilter )
+			set_frame_mark(set, fdata);
+	}
+}
+
+void
+new_packet_list_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+	if(cfile.displayed_count < cfile.count){
+		if (cf_find_packet_marked(&cfile, SD_FORWARD)) {
+			mark_all_displayed_frames(FALSE);
+		}else {
+			mark_all_displayed_frames(TRUE);
+		}
+		mark_frames_ready();
+	}
+}
+
+static void
+unmark_all_frames()
+{
+	/* XXX: we might need a progressbar here */
+	frame_data *fdata;
+	for (fdata = cfile.plist_start; fdata != NULL && cfile.marked_count > 0; fdata = fdata->next) {
+		set_frame_mark(FALSE, fdata);
+	}
+}
+
+void
+new_packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+	unmark_all_frames();
+	mark_frames_ready();
+}
+
+
+static void
+set_frame_ignore(gboolean set, frame_data *fdata)
+{
+	if (set)
+		cf_ignore_frame(&cfile, fdata);
+	else
+		cf_unignore_frame(&cfile, fdata);
+}
+
 void
 new_packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 {
@@ -1329,35 +1347,77 @@ new_packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 	/* model is filled with the current model as a convenience. */
 	gtk_tree_selection_get_selected(selection, &model, &iter);
 	record = new_packet_list_get_record(model, &iter);
-
 	set_frame_ignore(!record->fdata->flags.ignored, record->fdata);
 	redissect_packets();
 }
 
 static void
-ignore_all_frames(gboolean set)
+ignore_all_displayed_frames(gboolean set)
 {
 	frame_data *fdata;
 
 	/* XXX: we might need a progressbar here */
 	for (fdata = cfile.plist_start; fdata != NULL; fdata = fdata->next) {
-                if( fdata->flags.passed_dfilter )
-		        set_frame_ignore(set, fdata);
+		if( fdata->flags.passed_dfilter )
+		set_frame_ignore(set, fdata);
 	}
 	redissect_packets();
 }
 
 void
-new_packet_list_ignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+new_packet_list_ignore_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-	ignore_all_frames(TRUE);
+	if(cfile.displayed_count < cfile.count){
+		frame_data *fdata;
+		/* Due to performance impact with large captures, don't check the filtered list for
+		an ignored frame; just check the first. If a ignored frame exists but isn't first and 
+		the user wants to unignore all the displayed frames, they will just re-exec the shortcut. */
+		fdata = cfile.first_displayed;
+		if (fdata->flags.ignored==TRUE) { 
+			ignore_all_displayed_frames(FALSE);
+		} else {		
+			ignore_all_displayed_frames(TRUE);
+		}
+	}
+}
+
+static void
+unignore_all_frames()
+{
+	frame_data *fdata;
+
+	/* XXX: we might need a progressbar here */
+	for (fdata = cfile.plist_start; fdata != NULL && cfile.ignored_count > 0; fdata = fdata->next) {
+		set_frame_ignore(FALSE, fdata);
+	}
+	redissect_packets();
 }
 
 void
 new_packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-	ignore_all_frames(FALSE);
+	unignore_all_frames();
 }
+
+
+static void
+untime_reference_all_frames()
+{
+	/* XXX: we might need a progressbar here */
+	frame_data *fdata;
+	for (fdata = cfile.plist_start; fdata != NULL && cfile.ref_time_count > 0; fdata = fdata->next) {
+		if (fdata->flags.ref_time == 1) {
+			set_frame_reftime(FALSE, fdata, cfile.current_row);
+		}
+	}
+}
+
+void
+new_packet_list_untime_reference_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+	untime_reference_all_frames();
+}
+
 
 guint
 new_packet_list_get_column_id (gint col_num)

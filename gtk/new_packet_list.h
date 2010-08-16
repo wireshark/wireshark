@@ -67,19 +67,19 @@ extern void new_packet_list_set_font(PangoFontDescription *font);
  */
 extern void new_packet_list_mark_frame_cb(GtkWidget *widget, gpointer data);
 
-/** Mark all packets in the list.
+/** Mark/unmark all displayed packets.
  *
  * @param widget parent widget (unused)
  * @param data unused
  */
-void new_packet_list_mark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
+extern void new_packet_list_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
-/** Unmark all packets in the list.
+/** UnMark all packets in the capture.
  *
  * @param widget parent widget (unused)
  * @param data unused
  */
-void new_packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
+extern void new_packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /** Ignore the currently selected packet.
  *
@@ -88,12 +88,12 @@ void new_packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
  */
 extern void new_packet_list_ignore_frame_cb(GtkWidget *widget, gpointer data);
 
-/** Ignore all packets in the list.
+/** Ignore/Unignore all displayed packets.
  *
  * @param widget parent widget (unused)
  * @param data unused
  */
-extern void new_packet_list_ignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
+extern void new_packet_list_ignore_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /** Un-ignore all packets in the list.
  *
@@ -101,6 +101,13 @@ extern void new_packet_list_ignore_all_frames_cb(GtkWidget *w _U_, gpointer data
  * @param data unused
  */
 extern void new_packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
+
+/** Un-Time Reference all packets in the capture.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void new_packet_list_untime_reference_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /* Different modes of copying summary data */
 typedef enum {

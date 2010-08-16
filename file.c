@@ -320,6 +320,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   cf->displayed_count = 0;
   cf->marked_count = 0;
   cf->ignored_count = 0;
+  cf->ref_time_count = 0;
   cf->drops_known = FALSE;
   cf->drops     = 0;
   cf->snap      = wtap_snapshot_length(cf->wth);

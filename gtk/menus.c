@@ -510,50 +510,48 @@ static GtkItemFactoryEntry menu_items[] =
                              0, "<StockItem>", GTK_STOCK_PASTE,},
 #endif
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Edit/_Find Packet...", "<control>F",
-                             GTK_MENU_FUNC(find_frame_cb), 0, "<StockItem>", GTK_STOCK_FIND,},
-    {"/Edit/Find Ne_xt", "<control>N", GTK_MENU_FUNC(find_next_cb), 0, NULL, NULL,},
-    {"/Edit/Find Pre_vious", "<control>B", GTK_MENU_FUNC(find_previous_cb), 0, NULL, NULL,},
-    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/_Find Packet...",                             "<control>F", GTK_MENU_FUNC(find_frame_cb), 0, "<StockItem>", GTK_STOCK_FIND,},
+    {"/Edit/Find Ne_xt",                                  "<control>N", GTK_MENU_FUNC(find_next_cb), 0, NULL, NULL,},
+    {"/Edit/Find Pre_vious",                              "<control>B", GTK_MENU_FUNC(find_previous_cb), 0, NULL, NULL,},
 #ifdef NEW_PACKET_LIST
-    {"/Edit/_Mark Packet (toggle)", "<control>M", GTK_MENU_FUNC(new_packet_list_mark_frame_cb),
-                       0, NULL, NULL,},
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/_Mark Packet (toggle)",                       "<control>M", GTK_MENU_FUNC(new_packet_list_mark_frame_cb),0, NULL, NULL,},
+    {"/Edit/Mark All Displayed Packets (toggle)",  "<shift><control>M", GTK_MENU_FUNC(new_packet_list_mark_all_displayed_frames_cb), 0, NULL, NULL,},
+    {"/Edit/Unmark All Packets",                     "<alt><control>M", GTK_MENU_FUNC(new_packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/Find Next Mark",                       "<shift><control>N", GTK_MENU_FUNC(find_next_mark_cb), 0, NULL, NULL,},
+    {"/Edit/Find Previous Mark",                   "<shift><control>B", GTK_MENU_FUNC(find_prev_mark_cb), 0, NULL, NULL,},
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/_Ignore Packet (toggle)",                     "<control>D", GTK_MENU_FUNC(new_packet_list_ignore_frame_cb), 0, NULL, NULL,},
+    {"/Edit/Ignore All Displayed Packets (toggle)","<shift><control>D", GTK_MENU_FUNC(new_packet_list_ignore_all_displayed_frames_cb), 0, NULL, NULL,},
+    {"/Edit/U_n-Ignore All Packets",                 "<alt><control>D", GTK_MENU_FUNC(new_packet_list_unignore_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/Set Time Reference (toggle)",                 "<control>T", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_TOGGLE, "<StockItem>", WIRESHARK_STOCK_TIME,},
+    {"/Edit/Un-Time Reference All Packets",          "<alt><control>T", GTK_MENU_FUNC(new_packet_list_untime_reference_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/Find Next Time Reference",               "<alt><control>N", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_NEXT, NULL, NULL,},
+    {"/Edit/Find Previous Time Reference",           "<alt><control>B", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_PREV, NULL, NULL,},
 #else
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Edit/_Mark Packet (toggle)", "<control>M", GTK_MENU_FUNC(packet_list_mark_frame_cb),
                        0, NULL, NULL,},
-#endif /* NEW_PACKET_LIST */
     {"/Edit/Find Next Mark", "<shift><control>N", GTK_MENU_FUNC(find_next_mark_cb),
                        0, NULL, NULL,},
     {"/Edit/Find Previous Mark", "<shift><control>B", GTK_MENU_FUNC(find_prev_mark_cb),
                        0, NULL, NULL,},
-#ifdef NEW_PACKET_LIST
-    {"/Edit/Mark _All Displayed Packets", "<control>A", GTK_MENU_FUNC(new_packet_list_mark_all_frames_cb), 0, NULL, NULL,},
-    {"/Edit/_Unmark All Packets", "<control>D", GTK_MENU_FUNC(new_packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
-#else
     {"/Edit/Mark _All Displayed Packets", "<control>A", GTK_MENU_FUNC(packet_list_mark_all_frames_cb), 0, NULL, NULL,},
     {"/Edit/_Unmark All Packets", "<control>D", GTK_MENU_FUNC(packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
-#endif /* NEW_PACKET_LIST */
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-#ifdef NEW_PACKET_LIST
-    {"/Edit/_Ignore Packet (toggle)", "<control>X", GTK_MENU_FUNC(new_packet_list_ignore_frame_cb),
-                       0, NULL, NULL,},
-    {"/Edit/Ignore All Displayed Packets", "<alt><shift><control>X", GTK_MENU_FUNC(new_packet_list_ignore_all_frames_cb),
-                       0, NULL, NULL,},
-    {"/Edit/U_n-Ignore All Packets", "<shift><control>X", GTK_MENU_FUNC(new_packet_list_unignore_all_frames_cb),
-                       0, NULL, NULL,},
-#else
     {"/Edit/_Ignore Packet (toggle)", "<control>X", GTK_MENU_FUNC(packet_list_ignore_frame_cb),
                        0, NULL, NULL,},
     {"/Edit/Ignore All Displayed Packets", "<alt><shift><control>X", GTK_MENU_FUNC(packet_list_ignore_all_frames_cb),
                        0, NULL, NULL,},
     {"/Edit/U_n-Ignore All Packets", "<shift><control>X", GTK_MENU_FUNC(packet_list_unignore_all_frames_cb),
                        0, NULL, NULL,},
-#endif /* NEW_PACKET_LIST */
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Edit/Set Time Reference (toggle)", "<control>T", GTK_MENU_FUNC(reftime_frame_cb),
                         REFTIME_TOGGLE, "<StockItem>", WIRESHARK_STOCK_TIME,},
-    {"/Edit/Find Next Reference", "<alt><shift><control>N", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_NEXT, NULL, NULL,},
-    {"/Edit/Find Previous Reference", "<alt><shift><control>B", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_PREV, NULL, NULL,},
+    {"/Edit/Find Next Time Reference", "<alt><shift><control>N", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_NEXT, NULL, NULL,},
+    {"/Edit/Find Previous Time Reference", "<alt><shift><control>B", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_PREV, NULL, NULL,},
+#endif /* NEW_PACKET_LIST */
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Edit/_Configuration Profiles...", "<shift><control>A", GTK_MENU_FUNC(profile_dialog_cb), 0, NULL, NULL,},
     {"/Edit/_Preferences...", "<shift><control>P", GTK_MENU_FUNC(prefs_page_cb),
@@ -2837,36 +2835,61 @@ packet_is_ssl(epan_dissect_t* edt)
 void
 set_menus_for_selected_packet(capture_file *cf)
 {
-    gboolean is_ssl = packet_is_ssl(cf->edt);
-    set_menu_sensitivity(main_menu_factory, "/Edit/Mark Packet (toggle)",
+    /* Making the menu context-sensitive allows for easier selection of the desired item and has
+	the added benefit with large captures of avoiding needless looping through huge lists 
+	for marked, ignored, or time-referenced packets. 
+	
+	When all the packets are currently displayed, there is no benefit to marking or ignoring 
+	all the frames even if the File>Merge function is used, because the marked and ignored 
+	packet attributes are scrubbed in the merged display list. */
+
+	gboolean is_ssl = packet_is_ssl(cf->edt);
+
+	set_menu_sensitivity(main_menu_factory, "/Edit/Mark Packet (toggle)",
                          cf->current_frame != NULL);
     set_menu_sensitivity(packet_list_menu_factory, "/Mark Packet (toggle)",
                          cf->current_frame != NULL);
-    set_menu_sensitivity(main_menu_factory, "/Edit/Find Next Mark",
-                         cf->current_frame != NULL);
-    set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous Mark",
-                         cf->current_frame != NULL);
-    set_menu_sensitivity(main_menu_factory, "/Edit/Mark All Displayed Packets",
-                         cf->current_frame != NULL);
-    set_menu_sensitivity(main_menu_factory, "/Edit/Unmark All Packets",
-                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Mark All Displayed Packets (toggle)",
+	                     cf->displayed_count > 0 && cf->displayed_count != cf->count);
+	/* Unlike un-gnore, do not allow unmark of all frames when no frames are displayed  */
+	set_menu_sensitivity(main_menu_factory, "/Edit/Unmark All Packets",
+                         cf->current_frame != NULL && cf->marked_count > 0);
+	set_menu_sensitivity(main_menu_factory, "/Edit/Find Next Mark",
+						 cf->current_frame != NULL ? 
+						 cf->marked_count > 0 && !(cf->marked_count == 1 && cf->current_frame->flags.marked==TRUE) :
+						 FALSE );
+	set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous Mark",
+                         cf->current_frame != NULL ?
+						 cf->marked_count > 0 && !(cf->marked_count == 1 && cf->current_frame->flags.marked==TRUE) :
+						 FALSE );
+
     set_menu_sensitivity(main_menu_factory, "/Edit/Ignore Packet (toggle)",
                          cf->current_frame != NULL);
-    set_menu_sensitivity(main_menu_factory, "/Edit/Ignore All Displayed Packets",
+	set_menu_sensitivity(packet_list_menu_factory, "/Ignore Packet (toggle)",
                          cf->current_frame != NULL);
-    set_menu_sensitivity(main_menu_factory, "/Edit/Un-Ignore All Packets",
-                         cf->current_frame != NULL);
-    set_menu_sensitivity(packet_list_menu_factory, "/Ignore Packet (toggle)",
-                         cf->current_frame != NULL);
+	set_menu_sensitivity(main_menu_factory, "/Edit/Ignore All Displayed Packets (toggle)",
+	                     cf->displayed_count > 0 && cf->displayed_count != cf->count);
+	/* Allow un-ignore of all frames even with no frames currently displayed */
+	set_menu_sensitivity(main_menu_factory, "/Edit/Un-Ignore All Packets",
+                         cf->ignored_count > 0);
+	
     set_menu_sensitivity(main_menu_factory, "/Edit/Set Time Reference (toggle)",
                          cf->current_frame != NULL);
+	set_menu_sensitivity(main_menu_factory, "/Edit/Un-Time Reference All Packets",
+                         cf->ref_time_count > 0);
+
     set_menu_sensitivity(packet_list_menu_factory, "/Set Time Reference (toggle)",
                          cf->current_frame != NULL);
-    set_menu_sensitivity(main_menu_factory, "/Edit/Find Next Reference",
-                         cf->current_frame != NULL);
-    set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous Reference",
-                         cf->current_frame != NULL);
-    set_menu_sensitivity(main_menu_factory, "/View/Resize All Columns",
+    set_menu_sensitivity(main_menu_factory, "/Edit/Find Next Time Reference",
+                         cf->current_frame != NULL ?
+						 cf->ref_time_count > 0 && !(cf->ref_time_count == 1 && cf->current_frame->flags.ref_time==TRUE) :
+						 FALSE );
+    set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous Time Reference",
+						 cf->current_frame != NULL ?
+						 cf->ref_time_count > 0 && !(cf->ref_time_count == 1 && cf->current_frame->flags.ref_time==TRUE) :
+						 FALSE );
+                             
+	set_menu_sensitivity(main_menu_factory, "/View/Resize All Columns",
                          cf->current_frame != NULL);
     set_menu_sensitivity(main_menu_factory, "/View/Collapse All",
                          cf->current_frame != NULL);

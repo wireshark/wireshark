@@ -59,6 +59,7 @@ typedef struct _capture_file {
   int          displayed_count; /* Number of displayed frames */
   int          marked_count;    /* Number of marked frames */
   int          ignored_count;   /* Number of ignored frames */
+  int          ref_time_count;  /* Number of time referenced frames */
   gboolean     drops_known;     /* TRUE if we know how many packets were dropped */
   guint32      drops;           /* Dropped packets */
   nstime_t     elapsed_time;    /* Elapsed time */

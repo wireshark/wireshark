@@ -690,14 +690,16 @@ copy_selected_plist_cb(GtkWidget *w _U_, gpointer data _U_, COPY_SELECTED_E acti
 
 
 /* mark as reference time frame */
-static void
+void
 set_frame_reftime(gboolean set, frame_data *frame, gint row) {
   if (row == -1)
     return;
   if (set) {
     frame->flags.ref_time=1;
+	cfile.ref_time_count++;
   } else {
     frame->flags.ref_time=0;
+    cfile.ref_time_count--;
   }
   cf_reftime_packets(&cfile);
 #ifdef NEW_PACKET_LIST

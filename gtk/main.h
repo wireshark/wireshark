@@ -136,13 +136,21 @@ typedef enum {
     COPY_SELECTED_VALUE         /**< "Copy Value" */
 } COPY_SELECTED_E;
 
-/** User highlited item in details window and then right clicked and selected the copy option
+/** User highlighted item in details window and then right clicked and selected the copy option
  *
  * @param widget parent widget
  * @param data parent widget
  * @param action the function to use
  */
 extern void copy_selected_plist_cb(GtkWidget *w _U_, gpointer data, COPY_SELECTED_E action);
+
+/** Set or remove a time reference on this frame 
+ *
+ * @param TRUE = set time ref, FALSE=unset time ref
+ * @param pointer to frame
+ * @param row number
+ */
+extern void set_frame_reftime(gboolean set, frame_data *frame, gint row);
 
 /** User requested the colorize function
  *  by menu or context menu of protocol tree.
