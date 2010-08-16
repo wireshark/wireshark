@@ -264,9 +264,9 @@ welcome_header_set_message(gchar *msg) {
     GString *message;
     time_t secs = time(NULL);
     struct tm *now = localtime(&secs);
-    
+
     message = g_string_new("<span weight=\"bold\" size=\"x-large\" foreground=\"white\">");
-    
+
     if (msg) {
 	g_string_append(message, msg);
     } else { /* Use our default header */
@@ -275,7 +275,7 @@ welcome_header_set_message(gchar *msg) {
 	} else {
 	    g_string_append(message, prefs.gui_start_title);
 	}
-    
+
 	if (prefs.gui_version_in_start_page) {
 	    g_string_append_printf(message, "</span>\n<span size=\"large\" foreground=\"white\">Version " VERSION "%s",
 				   wireshark_svnversion);
@@ -323,29 +323,29 @@ welcome_header_new(void)
 void
 welcome_header_push_msg(gchar *msg) {
     gchar *msg_copy = g_strdup(msg);
-    
+
     status_messages = g_slist_append(status_messages, msg_copy);
-    
+
     welcome_header_set_message(msg_copy);
-    
+
     gtk_widget_hide(welcome_hb);
 }
 
 void
 welcome_header_pop_msg(void) {
-    gchar *msg = NULL;    
+    gchar *msg = NULL;
 
     if (status_messages) {
 	g_free(status_messages->data);
         status_messages = g_slist_delete_link(status_messages, status_messages);
     }
-    
+
     if (status_messages) {
 	msg = status_messages->data;
     }
 
     welcome_header_set_message(msg);
-    
+
     if (!status_messages) {
         gtk_widget_show(welcome_hb);
     }
@@ -423,7 +423,7 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
     gchar	*str_escaped;
     glong        uni_len;
     gsize        uni_start, uni_end;
-    const unsigned int max = 60;
+    const glong  max = 60;
     int		 err;
     struct stat  stat_buf;
     GtkTooltips *tooltips;
@@ -817,7 +817,7 @@ welcome_new(void)
     reg_ret = RegQueryValueEx(HKEY_LOCAL_MACHINE,
 			      _T("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\EnableTCPChimney"),
 			      NULL, NULL, (LPBYTE) &chimney_enabled, &ce_size);
-    if (reg_ret == ERROR_SUCCESS && chimney_enabled) {	
+    if (reg_ret == ERROR_SUCCESS && chimney_enabled) {
 	item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
 		    "Offloading Detected",
 	    "TCP Chimney offloading is enabled. You \nmight not capture much data.",
