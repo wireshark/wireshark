@@ -1676,9 +1676,9 @@ tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const gboo
 	guint32	value = 0;
 	guint32	tempval = 0;
 	guint8	tot_no_bits;
-   guint8   tot_no_octets = 0;
-   guint8   i = 0;
-   gint8    shift = 0;
+	guint8	tot_no_octets = 0;
+	guint8	i = 0;
+	gint8	shift = 0;
 
 	if ((no_of_bits<=16)||(no_of_bits>32)) {
 		/* If bits <= 16 use tvb_get_bits8 or tvb_get_bits16 */
@@ -1694,27 +1694,28 @@ tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const gboo
 
 	bit_offset = bit_offset & 0x7;
 	tot_no_bits = bit_offset+no_of_bits;
-   tot_no_octets = tot_no_bits / 8;
-   if (tot_no_bits % 8) tot_no_octets++;
-   shift = no_of_bits - (8 - bit_offset);
+	tot_no_octets = tot_no_bits / 8;
+	if (tot_no_bits % 8)
+		tot_no_octets++;
+	shift = no_of_bits - (8 - bit_offset);
 
-   value = tvb_get_guint8(tvb, offset) & bit_mask8[bit_offset];
-   value = value << shift;
+	value = tvb_get_guint8(tvb, offset) & bit_mask8[bit_offset];
+	value = value << shift;
 
-   for (i = 1; i < tot_no_octets; i++)
-   {
-      shift = shift - 8;
-      tempval = tvb_get_guint8(tvb, offset+i);
-      if (shift >= 0)
-      {
-         tempval = tempval << shift;
-      }
-      else
-      {
-         tempval = tempval >> (8 - shift);
-      }
-      value = value | tempval;
-   }
+	for (i = 1; i < tot_no_octets; i++)
+	{
+		shift = shift - 8;
+		tempval = tvb_get_guint8(tvb, offset+i);
+		if (shift >= 0)
+		{
+			tempval = tempval << shift;
+		}
+		else
+		{
+			tempval = tempval >> (8 - shift);
+		}
+		value = value | tempval;
+	}
 
 	return value;
 }
