@@ -366,7 +366,7 @@ proto_register_ndp(void)
     static gint *ett[] = {
 		&ett_ndp,
     };
-    proto_ndp = proto_register_protocol("Nortel NDP", "NDP", "ndp");
+    proto_ndp = proto_register_protocol("Nortel Discovery Protocol", "NDP", "ndp");
     proto_register_field_array(proto_ndp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 	
