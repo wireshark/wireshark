@@ -1676,6 +1676,9 @@ tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const gboo
 	guint32	value = 0;
 	guint32	tempval = 0;
 	guint8	tot_no_bits;
+   guint8   tot_no_octets = 0;
+   guint8   i = 0;
+   gint8    shift = 0;
 
 	if ((no_of_bits<=16)||(no_of_bits>32)) {
 		/* If bits <= 16 use tvb_get_bits8 or tvb_get_bits16 */
@@ -1689,24 +1692,29 @@ tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const gboo
 	/* Byte align offset */
 	offset = bit_offset>>3;
 
-	/* Find out which mask to use for the most significant octet
-	 * by convering bit_offset into the offset into the first
-	 * fetched octet.
-	 */
 	bit_offset = bit_offset & 0x7;
 	tot_no_bits = bit_offset+no_of_bits;
-	/* Read four octets and mask off bit_offset bits */
-	value = tvb_get_ntohl(tvb,offset) & bit_mask32[bit_offset];
-	if(tot_no_bits < 32){
-		/* Left shift out the unused bits */
-		value = value >> (32 - tot_no_bits);
-	}else if(tot_no_bits > 32){
-		/* Spans five octets, read next octet and shift as needed */
-		value = value << (tot_no_bits - 32);
-		tempval = tvb_get_guint8(tvb,offset+4);
-		tempval = tempval >> (40-tot_no_bits);
-		value = value | tempval;
-	}
+   tot_no_octets = tot_no_bits / 8;
+   if (tot_no_bits % 8) tot_no_octets++;
+   shift = no_of_bits - (8 - bit_offset);
+
+   value = tvb_get_guint8(tvb, offset) & bit_mask8[bit_offset];
+   value = value << shift;
+
+   for (i = 1; i < tot_no_octets; i++)
+   {
+      shift = shift - 8;
+      tempval = tvb_get_guint8(tvb, offset+i);
+      if (shift >= 0)
+      {
+         tempval = tempval << shift;
+      }
+      else
+      {
+         tempval = tempval >> (8 - shift);
+      }
+      value = value | tempval;
+   }
 
 	return value;
 }
