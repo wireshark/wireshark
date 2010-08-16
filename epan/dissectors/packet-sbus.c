@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 
 /* Attribute values*/
 #define SBUS_REQUEST                   0x00
@@ -191,6 +192,10 @@
 #define	SBUS_RD_WR_PROGRAM_BLOCK_FILE  0x21
 #define SBUS_RD_WR_UNKNOWN_BLOCK_TYPE  0x83
 
+/* Read/write block error codes*/
+#define	SBUS_RD_WR_NAK                 0x80
+#define	SBUS_RD_WR_NAK_INVALID_SIZE    0x8A
+
 /* Initialize the protocol and registered fields */
 static int proto_sbus = -1;
 static int hf_sbus_length = -1;
@@ -250,6 +255,7 @@ static int hf_sbus_web_aid = -1;
 static int hf_sbus_web_seq = -1;
 /* Read/Write block telegram*/
 static int hf_sbus_rdwr_block_length = -1;
+static int hf_sbus_rdwr_block_length_ext = -1;
 static int hf_sbus_rdwr_telegram_type = -1;
 static int hf_sbus_rdwr_telegram_sequence = -1;
 static int hf_sbus_rdwr_block_size = -1;
@@ -637,7 +643,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
-       proto_item *ti, *et, *dt, *hi;
+       proto_item *ti, *et, *dt, *hi, *cs;
        proto_tree *sbus_tree, *ethsbus_tree, *sbusdata_tree;
 
        gint i;        /*for CRC calculation*/
@@ -654,7 +660,6 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        guint8 sbus_web_aid;
        guint8 sbus_web_seq;
        guint8 sbus_rdwr_type;
-       guint8 sbus_rdwr_length;
        guint8 sbus_rdwr_sequence;
        guint8 sbus_rdwr_block_tlg;
        guint8 sbus_rdwr_block_type;
@@ -665,6 +670,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        guint32 sbus_binaries;
        guint16 sbus_ack_code;
        guint32 sbus_show_bin;
+       guint32 sbus_rdwr_length;
        guint32 sbus_helper;
        guint32 sbus_helper1;
        guint32 sbus_helper2;
@@ -819,8 +825,8 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             }
                             /*mark retries*/
                             if (request_val->retry_count>0) {
-                                   col_append_fstr(pinfo->cinfo, COL_INFO,
-						   " (Retry %u!)", request_val->retry_count);
+                                   col_append_str(pinfo->cinfo, COL_INFO,
+                                   " (Retry)");
                             } /*no retry number as it is not always correctly calculated*/
                             break;
 
@@ -927,7 +933,9 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      if (request_val->retry_count > 0) {/*this is a retry telegram*/
                          hi = proto_tree_add_boolean(sbus_tree,
                               hf_sbus_retry, tvb, 0, 0, TRUE);
-                                    PROTO_ITEM_SET_HIDDEN(hi);
+                         PROTO_ITEM_SET_GENERATED(hi);
+                         expert_add_info_format(pinfo, hi, PI_SEQUENCE, PI_NOTE,
+                             "Repeated telegram (due to timeout?)");
                           nstime_delta(&ns, &pinfo->fd->abs_ts, &request_val->req_time);
                           proto_tree_add_time(sbus_tree, hf_sbus_timeout,
                               tvb, 0, 0, &ns);
@@ -1207,11 +1215,18 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             break;
                      /* Read/write block request */
                      case SBUS_RD_WR_PCD_BLOCK:
-                            sbus_rdwr_length = tvb_get_guint8(tvb,offset);
-                            proto_tree_add_item(sbus_tree,
-                                hf_sbus_rdwr_block_length, tvb, offset,
-                                1, sbus_rdwr_length);
-                            offset += 1;
+                            if (tvb_get_guint8(tvb,offset) == 0xff){
+                                    sbus_rdwr_length = ((tvb_get_ntohl(tvb,0))-15);
+                                    proto_tree_add_uint(sbus_tree,
+                                        hf_sbus_rdwr_block_length_ext, tvb, 0, 4, sbus_rdwr_length);
+                                    offset += 1;
+                            } else {
+                                    sbus_rdwr_length = tvb_get_guint8(tvb,offset);
+                                    proto_tree_add_uint(sbus_tree,
+                                        hf_sbus_rdwr_block_length, tvb, offset,
+                                        1, sbus_rdwr_length);
+                                    offset += 1;
+                            }
                             sbus_rdwr_type = tvb_get_guint8(tvb,offset);
                             proto_tree_add_item(sbus_tree,
                                 hf_sbus_rdwr_telegram_type, tvb, offset,
@@ -1746,9 +1761,14 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 hf_sbus_rdwr_block_length, tvb, offset,
                                 1, sbus_rdwr_length);
                             offset += 1;
-                            proto_tree_add_item(sbus_tree,
+                            hi = proto_tree_add_item(sbus_tree,
                                 hf_sbus_rdwr_acknakcode, tvb, offset, 
-                                1, FALSE); 
+                                1, FALSE);
+                            if ((tvb_get_guint8(tvb, offset) >= SBUS_RD_WR_NAK)&&
+                                (tvb_get_guint8(tvb, offset) <= SBUS_RD_WR_NAK_INVALID_SIZE)) {
+                                    expert_add_info_format(pinfo, hi, PI_RESPONSE_CODE, PI_CHAT,
+                                        "Telegram not acknowledged by PCD");
+                            }
                             offset += 1;
                             switch(sbus_rdwr_block_tlg) {
                             case SBUS_WR_START_OF_STREAM:
@@ -1843,9 +1863,13 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                           proto_tree_add_uint(sbus_tree, hf_sbus_response_to, tvb, 0, 0,
                                 request_val->req_frame);
                      }
-                     proto_tree_add_item(sbus_tree,
+                     hi = proto_tree_add_item(sbus_tree,
                          hf_sbus_acknackcode, tvb, offset, 2, FALSE);
-                         offset += 2;
+                     if (tvb_get_guint8(tvb, (offset+1)) > 0) {
+                             expert_add_info_format(pinfo, hi, PI_RESPONSE_CODE, PI_CHAT,
+                                 "Telegram not acknowledged by PCD");
+                     }
+                     offset += 2;
               }
 
               /* Calclulate CRC */
@@ -1859,12 +1883,15 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                          hf_sbus_crc, tvb, offset, 2, sbus_helper,
                          "Checksum: 0x%04x (correct)", sbus_helper);
               } else {
-                     proto_tree_add_uint_format(sbus_tree,
+                     cs = proto_tree_add_uint_format(sbus_tree,
                          hf_sbus_crc, tvb, offset, 2, sbus_helper,
                          "Checksum: 0x%04x (NOT correct)", sbus_helper);
+                     expert_add_info_format(pinfo, cs, PI_CHECKSUM, PI_ERROR,
+                         "Bad checksum");
                      hi = proto_tree_add_boolean(sbus_tree,
-                         hf_sbus_crc_bad, tvb, offset + 2, 2, TRUE);
+                         hf_sbus_crc_bad, tvb, offset, 2, TRUE);
                      PROTO_ITEM_SET_HIDDEN(hi);
+                     PROTO_ITEM_SET_GENERATED(hi);
               }
               offset += 2; /*now at the end of the telegram*/
        }
@@ -2158,7 +2185,13 @@ proto_register_sbus(void)
               { &hf_sbus_rdwr_block_length,
                      { "Read/write block telegram length",      "sbus.block.length",
                      FT_UINT8, BASE_DEC, NULL, 0, 
-                     "Length of block part in this telegram", HFILL }
+                     NULL, HFILL }
+              },
+
+              { &hf_sbus_rdwr_block_length_ext,
+                     { "Extended length (bytes)",           "sbus.len_ext",
+                     FT_UINT32, BASE_DEC, NULL, 0,
+                     NULL, HFILL }
               },
 
               { &hf_sbus_rdwr_telegram_type,
