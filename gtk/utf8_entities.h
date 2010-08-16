@@ -26,10 +26,16 @@
 #ifndef __UTF8_ENTITIES_H__
 #define __UTF8_ENTITIES_H__
 
-/* Sequences can be found at http://www.utf8-chartable.de/ among other places */
+/*
+ * Sequences can be found at
+ * http://www.fileformat.info/info/unicode/
+ * http://www.utf8-chartable.de/
+ * and other places
+ */
 
-#define UTF8_LEFTWARDS_ARROW	"\xe2\x86\x90"
-#define UTF8_RIGHTWARDS_ARROW	"\xe2\x86\x92"
-#define UTF8_LEFT_RIGHT_ARROW	"\xe2\x86\x94"
+#define UTF8_HORIZONTAL_ELLIPSIS        "\xe2\x80\xa6"
+#define UTF8_LEFTWARDS_ARROW	        "\xe2\x86\x90"
+#define UTF8_RIGHTWARDS_ARROW   	"\xe2\x86\x92"
+#define UTF8_LEFT_RIGHT_ARROW   	"\xe2\x86\x94"
 
 #endif /* __UTF8_ENTITIES_H__ */
