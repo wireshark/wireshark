@@ -501,7 +501,19 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/Copy/As Filter", "<shift><control>C", GTK_MENU_FUNC(match_selected_ptree_cb),
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY, NULL, NULL,},
 #if 0
-    /* Un-#if this when we actually implement Cut/Copy/Paste. */
+    /*
+     * Un-#if this when we actually implement Cut/Copy/Paste.
+     *
+     * XXX - the actions for these will be different depending on what
+     * widget we're in; ^C should copy from the filter text widget if
+     * we're in that widget, the packet list if we're in that widget
+     * (presumably copying the summaries of selected packets to the
+     * clipboard, e.g. the text copy would be the text of the columns),
+     * the packet detail if we're in that widget (presumably copying
+     * the contents of selected protocol tree items to the clipboard,
+     * e.g. the text copy would be the text displayed for those items),
+     * etc..
+     */
     {"/Edit/Cut", "<control>X", NULL,
                              0, "<StockItem>", GTK_STOCK_CUT,},
     {"/Edit/Copy", "<control>C", NULL,
@@ -513,8 +525,8 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/_Find Packet...",                             "<control>F", GTK_MENU_FUNC(find_frame_cb), 0, "<StockItem>", GTK_STOCK_FIND,},
     {"/Edit/Find Ne_xt",                                  "<control>N", GTK_MENU_FUNC(find_next_cb), 0, NULL, NULL,},
     {"/Edit/Find Pre_vious",                              "<control>B", GTK_MENU_FUNC(find_previous_cb), 0, NULL, NULL,},
-#ifdef NEW_PACKET_LIST
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+#ifdef NEW_PACKET_LIST
     {"/Edit/_Mark Packet (toggle)",                       "<control>M", GTK_MENU_FUNC(new_packet_list_mark_frame_cb),0, NULL, NULL,},
     {"/Edit/Mark All Displayed Packets (toggle)",  "<shift><control>M", GTK_MENU_FUNC(new_packet_list_mark_all_displayed_frames_cb), 0, NULL, NULL,},
     {"/Edit/Unmark All Packets",                     "<alt><control>M", GTK_MENU_FUNC(new_packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
@@ -522,6 +534,9 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/Find Previous Mark",                   "<shift><control>B", GTK_MENU_FUNC(find_prev_mark_cb), 0, NULL, NULL,},
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Edit/_Ignore Packet (toggle)",                     "<control>D", GTK_MENU_FUNC(new_packet_list_ignore_frame_cb), 0, NULL, NULL,},
+    /*
+     * XXX - this next one overrides /Edit/Copy/Description
+     */
     {"/Edit/Ignore All Displayed Packets (toggle)","<shift><control>D", GTK_MENU_FUNC(new_packet_list_ignore_all_displayed_frames_cb), 0, NULL, NULL,},
     {"/Edit/U_n-Ignore All Packets",                 "<alt><control>D", GTK_MENU_FUNC(new_packet_list_unignore_all_frames_cb), 0, NULL, NULL,},
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
@@ -530,7 +545,11 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/Find Next Time Reference",               "<alt><control>N", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_NEXT, NULL, NULL,},
     {"/Edit/Find Previous Time Reference",           "<alt><control>B", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_PREV, NULL, NULL,},
 #else
-    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    /*
+     * XXX - this should be changed to match the list used with the new
+     * packet list, assuming we don't just drop the old packet list
+     * code first.
+     */
     {"/Edit/_Mark Packet (toggle)", "<control>M", GTK_MENU_FUNC(packet_list_mark_frame_cb),
                        0, NULL, NULL,},
     {"/Edit/Find Next Mark", "<shift><control>N", GTK_MENU_FUNC(find_next_mark_cb),
@@ -2835,142 +2854,151 @@ packet_is_ssl(epan_dissect_t* edt)
 void
 set_menus_for_selected_packet(capture_file *cf)
 {
-    /* Making the menu context-sensitive allows for easier selection of the desired item and has
-	the added benefit with large captures of avoiding needless looping through huge lists 
-	for marked, ignored, or time-referenced packets. 
+    /* Making the menu context-sensitive allows for easier selection of the
+       desired item and has the added benefit, with large captures, of
+       avoiding needless looping through huge lists for marked, ignored,
+       or time-referenced packets. 
 	
-	When all the packets are currently displayed, there is no benefit to marking or ignoring 
-	all the frames even if the File>Merge function is used, because the marked and ignored 
-	packet attributes are scrubbed in the merged display list. */
+       When all the packets are currently displayed, there is no benefit
+       to marking or ignoring all the frames even if the File>Merge function
+       is used, because the marked and ignored packet attributes are scrubbed
+       in the merged display list. */
+    gboolean is_ssl = packet_is_ssl(cf->edt);
+    gboolean frame_selected = cf->current_frame != NULL;
+        /* A frame is selected */
+    gboolean have_marked = frame_selected && cf->marked_count > 0;
+        /* We have marked frames.  (XXX - why check frame_selected?) */
+    gboolean another_is_marked = have_marked &&
+        !(cf->marked_count == 1 && cf->current_frame->flags.marked);
+        /* We have a marked frame other than the current frame (i.e.,
+           we have at least one marked frame, and either there's more
+           than one marked frame or the current frame isn't marked). */
+    gboolean have_time_ref = cf->ref_time_count > 0;
+    gboolean another_is_time_ref = frame_selected && have_time_ref &&
+        !(cf->ref_time_count == 1 && cf->current_frame->flags.ref_time);
+        /* We have a time reference frame other than the current frame (i.e.,
+           we have at least one time reference frame, and either there's more
+           than one time reference frame or the current frame isn't a
+           time reference frame). (XXX - why check frame_selected?) */
 
-	gboolean is_ssl = packet_is_ssl(cf->edt);
-
-	set_menu_sensitivity(main_menu_factory, "/Edit/Mark Packet (toggle)",
-                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Mark Packet (toggle)",
+                         frame_selected);
     set_menu_sensitivity(packet_list_menu_factory, "/Mark Packet (toggle)",
-                         cf->current_frame != NULL);
+                         frame_selected);
     set_menu_sensitivity(main_menu_factory, "/Edit/Mark All Displayed Packets (toggle)",
-	                     cf->displayed_count > 0 && cf->displayed_count != cf->count);
-	/* Unlike un-gnore, do not allow unmark of all frames when no frames are displayed  */
-	set_menu_sensitivity(main_menu_factory, "/Edit/Unmark All Packets",
-                         cf->current_frame != NULL && cf->marked_count > 0);
-	set_menu_sensitivity(main_menu_factory, "/Edit/Find Next Mark",
-						 cf->current_frame != NULL ? 
-						 cf->marked_count > 0 && !(cf->marked_count == 1 && cf->current_frame->flags.marked==TRUE) :
-						 FALSE );
-	set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous Mark",
-                         cf->current_frame != NULL ?
-						 cf->marked_count > 0 && !(cf->marked_count == 1 && cf->current_frame->flags.marked==TRUE) :
-						 FALSE );
+	                 cf->displayed_count > 0 && cf->displayed_count != cf->count);
+    /* Unlike un-gnore, do not allow unmark of all frames when no frames are displayed  */
+    set_menu_sensitivity(main_menu_factory, "/Edit/Unmark All Packets",
+                         have_marked);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Find Next Mark",
+                         another_is_marked);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous Mark",
+                         another_is_marked);
 
     set_menu_sensitivity(main_menu_factory, "/Edit/Ignore Packet (toggle)",
-                         cf->current_frame != NULL);
-	set_menu_sensitivity(packet_list_menu_factory, "/Ignore Packet (toggle)",
-                         cf->current_frame != NULL);
-	set_menu_sensitivity(main_menu_factory, "/Edit/Ignore All Displayed Packets (toggle)",
+                         frame_selected);
+    set_menu_sensitivity(packet_list_menu_factory, "/Ignore Packet (toggle)",
+                         frame_selected);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Ignore All Displayed Packets (toggle)",
 	                     cf->displayed_count > 0 && cf->displayed_count != cf->count);
-	/* Allow un-ignore of all frames even with no frames currently displayed */
-	set_menu_sensitivity(main_menu_factory, "/Edit/Un-Ignore All Packets",
+    /* Allow un-ignore of all frames even with no frames currently displayed */
+    set_menu_sensitivity(main_menu_factory, "/Edit/Un-Ignore All Packets",
                          cf->ignored_count > 0);
 	
     set_menu_sensitivity(main_menu_factory, "/Edit/Set Time Reference (toggle)",
-                         cf->current_frame != NULL);
-	set_menu_sensitivity(main_menu_factory, "/Edit/Un-Time Reference All Packets",
-                         cf->ref_time_count > 0);
+                         frame_selected);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Un-Time Reference All Packets",
+                         have_time_ref);
 
     set_menu_sensitivity(packet_list_menu_factory, "/Set Time Reference (toggle)",
-                         cf->current_frame != NULL);
+                         frame_selected);
     set_menu_sensitivity(main_menu_factory, "/Edit/Find Next Time Reference",
-                         cf->current_frame != NULL ?
-						 cf->ref_time_count > 0 && !(cf->ref_time_count == 1 && cf->current_frame->flags.ref_time==TRUE) :
-						 FALSE );
+                         another_is_time_ref);
     set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous Time Reference",
-						 cf->current_frame != NULL ?
-						 cf->ref_time_count > 0 && !(cf->ref_time_count == 1 && cf->current_frame->flags.ref_time==TRUE) :
-						 FALSE );
+                         another_is_time_ref);
                              
-	set_menu_sensitivity(main_menu_factory, "/View/Resize All Columns",
-                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/View/Resize All Columns",
+                         frame_selected);
     set_menu_sensitivity(main_menu_factory, "/View/Collapse All",
-                         cf->current_frame != NULL);
+                         frame_selected);
     set_menu_sensitivity(tree_view_menu_factory, "/Collapse All",
-                         cf->current_frame != NULL);
+                         frame_selected);
     set_menu_sensitivity(main_menu_factory, "/View/Expand All",
-                         cf->current_frame != NULL);
+                         frame_selected);
     set_menu_sensitivity(tree_view_menu_factory, "/Expand All",
-                         cf->current_frame != NULL);
+                         frame_selected);
     set_menu_sensitivity(main_menu_factory, "/View/Colorize Conversation",
-                         cf->current_frame != NULL);
+                         frame_selected);
     set_menu_sensitivity(main_menu_factory, "/View/Reset Coloring 1-10",
                          tmp_color_filters_used());
     set_menu_sensitivity(main_menu_factory, "/View/Show Packet in New Window",
-                         cf->current_frame != NULL);
+                         frame_selected);
     set_menu_sensitivity(packet_list_menu_factory, "/Show Packet in New Window",
-                         cf->current_frame != NULL);
+                         frame_selected);
     set_menu_sensitivity(packet_list_menu_factory, "/Manually Resolve Address",
-                         cf->current_frame != NULL ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
+                         frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
     set_menu_sensitivity(packet_list_menu_factory, "/SCTP",
-                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_SCTP) : FALSE);
+                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_SCTP) : FALSE);
     set_menu_sensitivity(main_menu_factory, "/Analyze/Follow TCP Stream",
-                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
     set_menu_sensitivity(packet_list_menu_factory, "/Follow TCP Stream",
-                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
     set_menu_sensitivity(tree_view_menu_factory, "/Follow TCP Stream",
-                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
     set_menu_sensitivity(main_menu_factory, "/Analyze/Follow UDP Stream",
-                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
     set_menu_sensitivity(packet_list_menu_factory, "/Follow UDP Stream",
-                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
     set_menu_sensitivity(tree_view_menu_factory, "/Follow UDP Stream",
-                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
     set_menu_sensitivity(main_menu_factory, "/Analyze/Follow SSL Stream",
-                         cf->current_frame != NULL ? is_ssl : FALSE);
+                         frame_selected ? is_ssl : FALSE);
     set_menu_sensitivity(packet_list_menu_factory, "/Follow SSL Stream",
-                         cf->current_frame != NULL ? is_ssl : FALSE);
+                         frame_selected ? is_ssl : FALSE);
     set_menu_sensitivity(tree_view_menu_factory, "/Follow SSL Stream",
-                         cf->current_frame != NULL ? is_ssl : FALSE);
+                         frame_selected ? is_ssl : FALSE);
     set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter",
-                         cf->current_frame != NULL);
+                         frame_selected);
     set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/Ethernet",
-                         cf->current_frame != NULL ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
+                         frame_selected ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
     set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/IP",
-                         cf->current_frame != NULL ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
+                         frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
     set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/TCP",
-                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
     set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/UDP",
-                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
     set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/PN-CBA Server",
-                         cf->current_frame != NULL ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
+                         frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
     set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation",
-                         cf->current_frame != NULL);
+                         frame_selected);
     set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/Ethernet",
-                         cf->current_frame != NULL ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
+                         frame_selected ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
     set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/IP",
-                         cf->current_frame != NULL ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
+                         frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
     set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/TCP",
-                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
     set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/UDP",
-                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
     set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/PN-CBA Server",
-                         cf->current_frame != NULL ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
+                         frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
     set_menu_sensitivity(main_menu_factory, "/Analyze/Decode As...",
-                         cf->current_frame != NULL && decode_as_ok());
+                         frame_selected && decode_as_ok());
     set_menu_sensitivity(packet_list_menu_factory, "/Decode As...",
-                         cf->current_frame != NULL && decode_as_ok());
+                         frame_selected && decode_as_ok());
     set_menu_sensitivity(tree_view_menu_factory, "/Decode As...",
-                         cf->current_frame != NULL && decode_as_ok());
+                         frame_selected && decode_as_ok());
     set_menu_sensitivity(main_menu_factory, "/View/Name Resolution/Resolve Name",
-                         cf->current_frame != NULL && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
+                         frame_selected && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
     set_menu_sensitivity(tree_view_menu_factory, "/Resolve Name",
-                         cf->current_frame != NULL && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
+                         frame_selected && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
     set_menu_sensitivity(packet_list_menu_factory, "/Copy",
-                         cf->current_frame != NULL);
+                         frame_selected);
     set_menu_sensitivity(packet_list_menu_factory, "/Apply as Filter",
-                         cf->current_frame != NULL);
+                         frame_selected);
     set_menu_sensitivity(packet_list_menu_factory, "/Prepare a Filter",
-                         cf->current_frame != NULL);
+                         frame_selected);
     set_menu_sensitivity(main_menu_factory, "/Tools/Firewall ACL Rules",
-                         cf->current_frame != NULL);
+                         frame_selected);
 
     walk_menu_tree_for_selected_packet(tap_menu_tree_root, cf->current_frame,
                                        cf->edt);
