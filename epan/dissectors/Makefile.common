@@ -684,6 +684,7 @@ DISSECTOR_SRC = \
 	packet-ncp-sss.c 	\
 	packet-ncs.c		\
 	packet-ndmp.c		\
+	packet-ndp.c		\
 	packet-ndps.c		\
 	packet-netbios.c	\
 	packet-netdump.c	\
@@ -705,7 +706,6 @@ DISSECTOR_SRC = \
 	packet-nsip.c		\
 	packet-nsrp.c		\
 	packet-nt-oui.c		\
-	packet-nt-sonmp.c	\
 	packet-nt-tpcp.c	\
 	packet-ntlmssp.c	\
 	packet-ntp.c		\

@@ -1,5 +1,6 @@
-/* packet-sonmp.c
-* Routines for the disassembly of the "Nortel Networks / SynOptics Network Management Protocol"
+/* packet-ndp.c
+* Routines for the disassembly of the Nortel Discovery Protocol, formerly
+* the SynOptics Network Management Protocol (SONMP).
 * (c) Copyright Giles Scott <giles.scott1 [AT] arubanetworks.com>
 *
 * $Id$
@@ -21,6 +22,14 @@
 * You should have received a copy of the GNU General Public License
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+*
+* This protocol has gone by many names over the years:
+*
+* Bay Discovery Protocol (BDP), Bay Topology Protocol, Bay Network Management
+* Protocol (BNMP), Nortel Management MIB (NMM), Nortel Topology Discovery
+* Protocol (NTDP), SynOptics Network Management Protocol (SONMP).
+*   (source: Wikipedia article on "Nortel Discovery Protocol")
+* 
 */
 
 #include "config.h"
@@ -48,7 +57,7 @@
   
 /* chassis types */
 /* Last updated from version 229 ("200609010000Z") of SnpxChassisType in SYNOPTICS-ROOT-MIB.mib */
-static const value_string sonmp_chassis_val[] =
+static const value_string ndp_chassis_val[] =
 {
 	{1, "other"},
 	{2, "3000"},
@@ -215,24 +224,24 @@ static const value_string sonmp_chassis_val[] =
 };
 
 /* from synro179.mib - SnpxBackplaneType */
-static const value_string sonmp_backplane_val[] =
+static const value_string ndp_backplane_val[] =
 {
 	{1, "Other"},
-	{2, "ethernet"},
-	{3, "ethernet and tokenring"},
-	{4, "ethernet and FDDI"},
-	{5, "ethernet, tokenring and FDDI"},
-	{6, "ethernet and tokenring with redundant power"},
-	{7, "ethernet, tokenring, FDDI with redundant power"},
-	{8, "token ring"},
-	{9, "ethernet, tokenring and fast ethernet"},
-	{10, "ethernet and fast ethernet"},
-	{11, "ethernet, tokenring, fast ethernet with redundant power"},
-	{12, "ethernet, fast ethernet and gigabit ethernet"},
+	{2, "Ethernet"},
+	{3, "Ethernet and Tokenring"},
+	{4, "Ethernet and FDDI"},
+	{5, "Ethernet, Tokenring and FDDI"},
+	{6, "Ethernet and Tokenring with redundant power"},
+	{7, "Ethernet, Tokenring, FDDI with redundant power"},
+	{8, "Token Ring"},
+	{9, "Ethernet, Tokenring and Fast Ethernet"},
+	{10, "Ethernet and Fast Ethernet"},
+	{11, "Ethernet, Tokenring, Fast Ethernet with redundant power"},
+	{12, "Ethernet, Fast Ethernet and Gigabit Ethernet"},
 	{0, NULL}
 };
 
-static const value_string sonmp_nmm_state_val[] =
+static const value_string ndp_state_val[] =
 {
 	{1, "Topology Change"},
 	{2, "Heartbeat"},
@@ -241,33 +250,33 @@ static const value_string sonmp_nmm_state_val[] =
 };
 
 
-/* Offsets in SONMP NMM Hello structure. */
-#define SONMP_IP_ADDRESS 0
-#define SONMP_SEGMENT_IDENTIFIER 4
-#define SONMP_CHASSIS_TYPE 7
-#define SONMP_BACKPLANE_TYPE 8
-#define SONMP_NMM_STATE 9
-#define SONMP_NUMBER_OF_LINKS 10
+/* Offsets in NDP Hello structure. */
+#define NDP_IP_ADDRESS 0
+#define NDP_SEGMENT_IDENTIFIER 4
+#define NDP_CHASSIS_TYPE 7
+#define NDP_BACKPLANE_TYPE 8
+#define NDP_STATE 9
+#define NDP_NUMBER_OF_LINKS 10
 
-static int proto_sonmp = -1;
-static int hf_sonmp_ip_address = -1;
-static int hf_sonmp_segment_identifier = -1; 
-static int hf_sonmp_chassis_type = -1;
-static int hf_sonmp_backplane_type = -1;
-static int hf_sonmp_nmm_state = -1;
-static int hf_sonmp_number_of_links = -1;
+static int proto_ndp = -1;
+static int hf_ndp_ip_address = -1;
+static int hf_ndp_segment_identifier = -1; 
+static int hf_ndp_chassis_type = -1;
+static int hf_ndp_backplane_type = -1;
+static int hf_ndp_state = -1;
+static int hf_ndp_number_of_links = -1;
 
-static gint ett_sonmp = -1;
+static gint ett_ndp = -1;
 
 
 static void 
-dissect_sonmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	const char *hello_type;
-	proto_tree *sonmp_tree = NULL;
+	proto_tree *ndp_tree = NULL;
 	proto_item *ti;
 	
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SONMP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDP");
 	
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		hello_type = "";
@@ -285,35 +294,36 @@ dissect_sonmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 			}
 		}
-		col_add_fstr(pinfo->cinfo, COL_INFO, "SONMP - %sHello",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%sHello",
 		    hello_type);
 	}
 	
 	if (tree) {
-		ti = proto_tree_add_protocol_format(tree, proto_sonmp, tvb, 0, 11,
-			"Nortel Networks / SynOptics Network Management Protocol");
-		sonmp_tree = proto_item_add_subtree(ti, ett_sonmp);
+		ti = proto_tree_add_protocol_format(tree, proto_ndp, tvb, 0, 11,
+			"Nortel Discovery Protocol");
+
+		ndp_tree = proto_item_add_subtree(ti, ett_ndp);
 		
-		proto_tree_add_item(sonmp_tree, hf_sonmp_ip_address, tvb,
-			SONMP_IP_ADDRESS, 4, FALSE);
-		
-		
-		proto_tree_add_item(sonmp_tree, hf_sonmp_segment_identifier, tvb, 
-			SONMP_SEGMENT_IDENTIFIER, 3, FALSE);
+		proto_tree_add_item(ndp_tree, hf_ndp_ip_address, tvb,
+			NDP_IP_ADDRESS, 4, FALSE);
 		
 		
-		proto_tree_add_item(sonmp_tree, hf_sonmp_chassis_type, tvb,
-			SONMP_CHASSIS_TYPE, 1, FALSE);
-		
-		proto_tree_add_item(sonmp_tree, hf_sonmp_backplane_type, tvb,
-			SONMP_BACKPLANE_TYPE, 1, FALSE);
+		proto_tree_add_item(ndp_tree, hf_ndp_segment_identifier, tvb, 
+			NDP_SEGMENT_IDENTIFIER, 3, FALSE);
 		
 		
-		proto_tree_add_item(sonmp_tree, hf_sonmp_nmm_state, tvb,
-			SONMP_NMM_STATE, 1, FALSE);
+		proto_tree_add_item(ndp_tree, hf_ndp_chassis_type, tvb,
+			NDP_CHASSIS_TYPE, 1, FALSE);
 		
-		proto_tree_add_item(sonmp_tree, hf_sonmp_number_of_links, tvb,
-			SONMP_NUMBER_OF_LINKS, 1, FALSE);
+		proto_tree_add_item(ndp_tree, hf_ndp_backplane_type, tvb,
+			NDP_BACKPLANE_TYPE, 1, FALSE);
+		
+		
+		proto_tree_add_item(ndp_tree, hf_ndp_state, tvb,
+			NDP_STATE, 1, FALSE);
+		
+		proto_tree_add_item(ndp_tree, hf_ndp_number_of_links, tvb,
+			NDP_NUMBER_OF_LINKS, 1, FALSE);
 	}
 	
 	
@@ -322,57 +332,57 @@ dissect_sonmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 void
-proto_register_sonmp(void)
+proto_register_ndp(void)
 {
     static hf_register_info hf[] = {
-		{ &hf_sonmp_ip_address,
-		{ "NMM IP address",		"sonmp.ipaddress",  FT_IPv4, BASE_NONE, NULL, 0x0,
-		"IP address of the agent (NMM)", HFILL }},
+		{ &hf_ndp_ip_address,
+		{ "IP address",		"ndp.ipaddress",  FT_IPv4, BASE_NONE, NULL, 0x0,
+		"IP address of the Network Management Module (NMM))", HFILL }},
 		
-		{ &hf_sonmp_segment_identifier,
-		{ "Segment Identifier",		"sonmp.segmentident", FT_UINT24, BASE_HEX, NULL, 0x0,
+		{ &hf_ndp_segment_identifier,
+		{ "Segment Identifier",		"ndp.segmentident", FT_UINT24, BASE_HEX, NULL, 0x0,
 		"Segment id of the segment from which the agent is sending the topology message", HFILL }},
 		
-		{ &hf_sonmp_chassis_type,
-		{ "Chassis type",		"sonmp.chassis", FT_UINT8, BASE_DEC, 
-		VALS(sonmp_chassis_val), 0x0,
+		{ &hf_ndp_chassis_type,
+		{ "Chassis type",		"ndp.chassis", FT_UINT8, BASE_DEC, 
+		VALS(ndp_chassis_val), 0x0,
 		"Chassis type of the agent sending the topology message", HFILL }},
 		
-		{ &hf_sonmp_backplane_type,
-		{ "Backplane type",		"sonmp.backplane", FT_UINT8, BASE_DEC,
-		 VALS(sonmp_backplane_val), 0x0,
+		{ &hf_ndp_backplane_type,
+		{ "Backplane type",		"ndp.backplane", FT_UINT8, BASE_DEC,
+		 VALS(ndp_backplane_val), 0x0,
 		"Backplane type of the agent sending the topology message", HFILL }},
 		
-		{ &hf_sonmp_nmm_state,
-		{ "NMM state",		"sonmp.nmmstate", FT_UINT8, BASE_DEC,
-		 VALS(sonmp_nmm_state_val), 0x0,
-		"Current state of this agent", HFILL }},
+		{ &hf_ndp_state,
+		{ "State",		"ndp.state", FT_UINT8, BASE_DEC,
+		 VALS(ndp_state_val), 0x0,
+		"Current state of this Network Management Module (NMM)", HFILL }},
 		
-		{ &hf_sonmp_number_of_links,
-		{ "Number of links",		"sonmp.numberoflinks", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ &hf_ndp_number_of_links,
+		{ "Number of links",		"ndp.numberoflinks", FT_UINT8, BASE_DEC, NULL, 0x0,
 		"Number of interconnect ports", HFILL }},
     };
 	
     static gint *ett[] = {
-		&ett_sonmp,
+		&ett_ndp,
     };
-    proto_sonmp = proto_register_protocol("Nortel SONMP", "SONMP", "sonmp");
-    proto_register_field_array(proto_sonmp, hf, array_length(hf));
+    proto_ndp = proto_register_protocol("Nortel NDP", "NDP", "ndp");
+    proto_register_field_array(proto_ndp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 	
-    register_dissector("sonmp", dissect_sonmp, proto_sonmp);
+    register_dissector("ndp", dissect_ndp, proto_ndp);
 }
 
 void
-proto_reg_handoff_sonmp(void)
+proto_reg_handoff_ndp(void)
 {
-	dissector_handle_t sonmp_handle;
+	dissector_handle_t ndp_handle;
 	
-	sonmp_handle = find_dissector("sonmp");
+	ndp_handle = find_dissector("ndp");
 	
-	dissector_add("llc.nortel_pid", 0x01a1, sonmp_handle); /* flatnet hello */
-	dissector_add("llc.nortel_pid", 0x01a2, sonmp_handle); /* Segment hello */ 
+	dissector_add("llc.nortel_pid", 0x01a1, ndp_handle); /* flatnet hello */
+	dissector_add("llc.nortel_pid", 0x01a2, ndp_handle); /* Segment hello */ 
 	/* not got round to adding this but its really old, so I'm not sure people will see it */
 	/* it uses a different packet format */
-	/*      dissector_add("llc.nortel_pid", 0x01a3, sonmp_handle); */ /* Bridge hello */
+	/*      dissector_add("llc.nortel_pid", 0x01a3, ndp_handle); */ /* Bridge hello */
 }

@@ -2324,6 +2324,10 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
          * "smpp-gsm-sms" to "gsm-sms-ud", and then handle SMPP below.
          *
          * We also renamed "dcp" to "dccp", "x.25" to "x25" and "nsip" to "gprs_ns".
+	 *
+	 * The SynOptics Network Management Protocol (SONMP) is now known by
+	 * its modern name, the Nortel Discovery Protocol (NDP).
+	 *
          */
         if (module == NULL) {
           if (strcmp(pref_name, "Diameter") == 0)
@@ -2341,6 +2345,8 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
             module = prefs_find_module("x25");
           else if (strcmp(pref_name, "nsip") == 0)
             module = prefs_find_module("gprs-ns");
+          else if (strcmp(pref_name, "sonmp") == 0)
+            module = prefs_find_module("ndp");
 	  else if (strcmp(pref_name, "etheric") == 0 ||
 		   strcmp(pref_name, "isup_thin") == 0)
 	    /* This protocols was removed 7. July 2009 */

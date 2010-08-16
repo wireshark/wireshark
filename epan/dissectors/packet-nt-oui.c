@@ -31,9 +31,9 @@
 static int hf_llc_nortel_pid = -1;
 
 static const value_string nortel_pid_vals[] = {
-	{ 0x01a1,	"SONMP flatnet hello" },
-	{ 0x01a2,	"SONMP segment hello" },
-	{ 0x01a3,	"SONMP bridge hello" },
+	{ 0x01a1,	"NDP flatnet hello" },
+	{ 0x01a2,	"NDP segment hello" },
+	{ 0x01a3,	"NDP bridge hello" },
 	{ 0,		NULL }
 };
 
