@@ -303,6 +303,7 @@ skip_lrh:
         * The find_next_header_sequence method could be used to automate this.
         * We need to keep track of this so we know much data to mark as payload/ICRC/VCRC values. */
 
+        transport_type = (opCode & 0xE0) >> 5;   /* save transport type for identifying EoIB payloads later... */
         nextHeaderSequence = find_next_header_sequence((guint32) opCode);
 
         /* find_next_header_sequence gives us the DEFINE value corresponding to the header order following */
@@ -968,7 +969,14 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
         etype = tvb_get_ntohs(tvb, local_offset);
         reserved =  tvb_get_ntohs(tvb, local_offset + 2);
 
-        if (pref_identify_iba_payload && reserved == 0) {
+    	/* try to recognize whether or not this is a Mellanox EoIB packet by the
+           transport type and the 4 first bits of the payload */
+        if      (pref_dissect_eoib &&
+                 transport_type == TRANSPORT_UD &&
+                 tvb_get_bits8(tvb, local_offset*8, 4) == 0xC) {
+            dissector_found = parse_EoIB(parentTree, tvb, local_offset, pinfo);
+        }
+        else if (pref_identify_iba_payload && reserved == 0) {
             
             /* Get the captured length and reported length of the data
                after the Ethernet type. */
@@ -1165,6 +1173,54 @@ static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, gint *offset, packet_i
     *offset = tvb_reported_length(tvb) - 2;
     /* Display the VCRC */
     proto_tree_add_item(ah_tree, hf_infiniband_variant_crc, tvb, *offset, 2, FALSE);
+}
+
+/* Parse a Mellanox EoIB Encapsulation Header and the associated Ethernet frame
+* IN: parentTree to add the dissection to - in this code the all_headers_tree
+* IN: tvb - the data buffer from wireshark
+* IN: The current offset
+* IN: pinfo - packet info from wireshark */
+static gboolean parse_EoIB(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_info *pinfo)
+{
+    proto_item *header_item;
+    proto_tree *header_subtree;
+    gboolean ms;
+    gint8 seg_offset;
+    tvbuff_t *encap_tvb;
+    /* the encapsulated eoib size (including the header!) is remaining length-6 bytes of CRC */
+    int encap_size = tvb_reported_length_remaining(tvb, offset) - 6;
+
+    if (encap_size < 4) {
+        /* not even large enough to contain the eoib encap header. error! */
+        return FALSE;
+    }
+
+    encap_tvb = tvb_new_subset(tvb, offset + 4, tvb_length_remaining(tvb, offset + 4), encap_size - 4);
+
+    header_item = proto_tree_add_item(tree, hf_infiniband_EOIB, tvb, offset, 4, FALSE);
+    header_subtree = proto_item_add_subtree(header_item, ett_eoib);
+
+    proto_tree_add_item(header_subtree, hf_infiniband_ver, tvb, offset, 2, FALSE); 
+    proto_tree_add_item(header_subtree, hf_infiniband_tcp_chk, tvb, offset, 2, FALSE);
+    proto_tree_add_item(header_subtree, hf_infiniband_ip_chk, tvb, offset, 2, FALSE);
+    proto_tree_add_item(header_subtree, hf_infiniband_fcs, tvb, offset, 2, FALSE);
+
+    ms = tvb_get_bits8(tvb, (offset + 1)*8 + 2, 1);
+    seg_offset = tvb_get_bits8(tvb, (offset + 1)*8 + 3, 5); 
+
+    proto_tree_add_item(header_subtree, hf_infiniband_ms, tvb, offset, 2, FALSE);
+    proto_tree_add_item(header_subtree, hf_infiniband_seg_off, tvb, offset, 2, FALSE); offset += 2;
+    proto_tree_add_item(header_subtree, hf_infiniband_seg_id, tvb, offset, 2, FALSE); offset += 2;
+
+    if (seg_offset || ms) {
+        /* this is a fragment of an encapsulated Ethernet jumbo frame, parse as data */ 
+        call_dissector(data_handle, encap_tvb, pinfo, top_tree);
+    } else {
+        /* non-fragmented frames can be fully parsed */
+        call_dissector(eth_handle, encap_tvb, pinfo, top_tree);
+    }
+
+    return TRUE;
 }
 
 /* Parse Subnet Management (LID Routed)
@@ -3853,6 +3909,40 @@ void proto_register_infiniband(void)
                 FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
 
+        /* Mellanox EoIB encapsulation header */
+        { &hf_infiniband_EOIB, {
+                "Mellanox EoIB Encapsulation Header", "infiniband.eoib",
+                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_ver, {
+                "Version", "infiniband.eoib.version",
+                FT_UINT16, BASE_HEX, NULL, 0x3000, NULL, HFILL}
+        },
+        { &hf_infiniband_tcp_chk, {
+                "TCP Checksum", "infiniband.eoib.tcp_chk",
+                FT_UINT16, BASE_HEX, NULL, 0x0c00, NULL, HFILL}
+        },
+        { &hf_infiniband_ip_chk, {
+                "IP Checksum", "infiniband.eoib.ip_chk",
+                FT_UINT16, BASE_HEX, NULL, 0x0300, NULL, HFILL}
+        },
+        { &hf_infiniband_fcs, {
+                "FCS Field Present", "infiniband.eoib.fcs",
+                FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL}
+        },
+        { &hf_infiniband_ms, {
+                "More Segments to Follow", "infiniband.eoib.ms",
+                FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL}
+        },
+        { &hf_infiniband_seg_off, {
+                "Segment Offset", "infiniband.eoib.ip_seg_offset",
+                FT_UINT16, BASE_DEC, NULL, 0x001f, NULL, HFILL}
+        },
+        { &hf_infiniband_seg_id, {
+                "Segment ID", "infiniband.eoib.ip_seg_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+
         /* NodeDescription */
         { &hf_infiniband_NodeDescription_NodeString, {
                 "NodeString", "infiniband.nodedescription.nodestring",
@@ -5217,6 +5307,7 @@ void proto_register_infiniband(void)
         &ett_multipathrecord,
         &ett_serviceassocrecord,
         &ett_perfclass,
+        &ett_eoib
     };
 
     static hf_register_info hf_link[] = {    
@@ -5261,6 +5352,11 @@ void proto_register_infiniband(void)
                                    "When set, dissector will attempt to identify unknown IBA payloads "
                                    "as containing an encapsulated ethertype, and parse them accordingly",
                                    &pref_identify_iba_payload);
+    prefs_register_bool_preference(infiniband_module, "dissect_eoib",
+                                   "Attempt to identify and parse Mellanox EoIB packets",
+                                   "When set, dissector will attempt to identify and parse "
+                                   "Mellanox Ethernet-over-InfiniBand packets",
+                                   &pref_dissect_eoib);
 
     proto_infiniband_link = proto_register_protocol("InfiniBand Link", "InfiniBand Link", "infiniband_link");
     register_dissector("infiniband_link", dissect_infiniband_link, proto_infiniband_link);
@@ -5277,6 +5373,7 @@ void proto_reg_handoff_infiniband(void)
 
     ipv6_handle = find_dissector("ipv6");
     data_handle = find_dissector("data");
+    eth_handle = find_dissector("eth");
     ethertype_dissector_table = find_dissector_table("ethertype");
 
     /* create and announce an anonymous RoCE dissector */

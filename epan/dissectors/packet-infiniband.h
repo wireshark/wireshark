@@ -87,6 +87,7 @@ static gint ett_tracerecord = -1;
 static gint ett_multipathrecord = -1;
 static gint ett_serviceassocrecord = -1;
 static gint ett_perfclass = -1;
+static gint ett_eoib = -1;
 
 static gint ett_link = -1;
 
@@ -111,6 +112,7 @@ typedef struct {
 /* Dissector Declarations */
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t data_handle;
+static dissector_handle_t eth_handle;
 static dissector_table_t ethertype_dissector_table;
 
 static void dissect_roce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -135,6 +137,7 @@ static void parse_DETH(proto_tree *, tvbuff_t *, gint *offset, gint* src_qp);
 static void parse_RDETH(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_IPvSix(proto_tree *, tvbuff_t *, gint *offset, packet_info *);
 static void parse_RWH(proto_tree *, tvbuff_t *, gint *offset, packet_info *);
+static gboolean parse_EoIB(proto_tree *, tvbuff_t *, gint offset, packet_info *);
 
 static void parse_SUBN_LID_ROUTED(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
 static void parse_SUBN_DIRECTED_ROUTE(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
@@ -575,6 +578,15 @@ static int hf_infiniband_sm_key = -1;
 static int hf_infiniband_attribute_offset = -1;
 static int hf_infiniband_component_mask = -1;
 static int hf_infiniband_subnet_admin_data = -1;
+/* Mellanox EoIB encapsulation header */
+static int hf_infiniband_EOIB = -1;
+static int hf_infiniband_ver = -1;
+static int hf_infiniband_tcp_chk = -1;
+static int hf_infiniband_ip_chk = -1;
+static int hf_infiniband_fcs = -1;
+static int hf_infiniband_ms = -1;
+static int hf_infiniband_seg_off = -1;
+static int hf_infiniband_seg_id = -1;
 
 /* Attributes
 * Additional Structures for individuala attribute decoding.
@@ -1252,6 +1264,16 @@ static const value_string OpCodeMap[] =
 /* ___________________________________ */
 
 
+/* Infiniband transport services
+   These are an enumeration of the transport services over which an IB packet
+   might be sent. The values match the corresponding 3 bits of the opCode field
+   in the BTH  */
+#define TRANSPORT_RC    0
+#define TRANSPORT_UC    1
+#define TRANSPORT_RD    2
+#define TRANSPORT_UD    3
+
+
 /* Array of all availavle OpCodes to make matching a bit easier.
 * The OpCodes dictate the header sequence following in the packet.
 * These arrays tell the dissector which headers must be decoded for the given OpCode. */
@@ -1380,5 +1402,11 @@ static gchar *src_addr_str = NULL,     /* the string to be displayed in the sour
 
 /* settings to be set by the user via the preferences dialog */
 static gboolean pref_identify_iba_payload = TRUE;
+
+static gint8 transport_type = -1;      /* reflects the transport type of the packet being parsed.
+                                          only use one of the TRANSPORT_* values for this field */
+
+/* settings to be set by the user via the preferences dialog */
+static gboolean pref_dissect_eoib = TRUE;
 
 #endif
