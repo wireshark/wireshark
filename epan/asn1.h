@@ -101,7 +101,7 @@ typedef struct _asn1_ctx_t {
     tvbuff_t *arbitrary;
     union {
       struct {
-		int (*ber_callback)(gboolean imp_tag, tvbuff_t *tvb, int offset, struct _asn1_ctx_t* ,proto_tree *tree, int hf_index );
+        int (*ber_callback)(gboolean imp_tag, tvbuff_t *tvb, int offset, struct _asn1_ctx_t* ,proto_tree *tree, int hf_index );
       } ber;
       struct {
         int (*type_cb)(tvbuff_t*, int, struct _asn1_ctx_t*, proto_tree*, int);
@@ -127,7 +127,7 @@ typedef struct _asn1_ctx_t {
     tvbuff_t *data_value;
     union {
       struct {
-		int (*ber_callback)(gboolean imp_tag, tvbuff_t *tvb, int offset, struct _asn1_ctx_t* ,proto_tree *tree, int hf_index );
+        int (*ber_callback)(gboolean imp_tag, tvbuff_t *tvb, int offset, struct _asn1_ctx_t* ,proto_tree *tree, int hf_index );
       } ber;
       struct {
         int (*type_cb)(tvbuff_t*, int, struct _asn1_ctx_t*, proto_tree*, int);
