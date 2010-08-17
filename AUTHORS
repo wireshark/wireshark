@@ -3110,6 +3110,10 @@ Herbert Lischka		<herbert [AT] lischka-berlin.de> {
 	BACNET dissector fixes and enhancements
 }
 
+Tom Hughes		<tom [AT] compton.nu> {
+	FCGI dissector
+}
+
 
 and by:
 

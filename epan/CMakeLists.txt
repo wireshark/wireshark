@@ -537,6 +537,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-fcels.c
 	dissectors/packet-fcfcs.c
 	dissectors/packet-fcfzs.c
+	dissectors/packet-fcgi.c
 	dissectors/packet-fcip.c
 	dissectors/packet-fclctl.c
 	dissectors/packet-fcoe.c

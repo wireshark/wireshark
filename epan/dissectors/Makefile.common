@@ -447,6 +447,7 @@ DISSECTOR_SRC = \
 	packet-fcels.c		\
 	packet-fcfcs.c		\
 	packet-fcfzs.c		\
+	packet-fcgi.c		\
 	packet-fcip.c		\
 	packet-fclctl.c		\
 	packet-fcoe.c		\
