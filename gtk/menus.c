@@ -440,7 +440,39 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
     }
 }
 
-/* main menu */
+/*
+ * Main menu.
+ *
+ * Please do not use keystrokes that are used as "universal" shortcuts in
+ * various desktop environments:
+ *
+ *   Windows:
+ *	http://support.microsoft.com/kb/126449
+ *
+ *   GNOME:
+ *	http://library.gnome.org/users/user-guide/nightly/keyboard-skills.html.en
+ *
+ *   KDE:
+ *	http://developer.kde.org/documentation/standards/kde/style/keys/shortcuts.html
+ *
+ * In particular, do not use the following <control> sequences for anything
+ * other than their standard purposes:
+ *
+ *	<control>O	File->Open
+ *	<control>S	File->Save
+ *	<control>P	File->Print
+ *	<control>W	File->Close
+ *	<control>Q	File->Quit
+ *	<control>Z	Edit->Undo (which we don't currently have)
+ *	<control>X	Edit->Cut (which we don't currently have)
+ *	<control>C	Edit->Copy (which we don't currently have)
+ *	<control>V	Edit->Paste (which we don't currently have)
+ *	<control>A	Edit->Select All (which we don't currently have)
+ *
+ * Note that some if not all of the Edit keys above already perform those
+ * functions in text boxes, such as the Filter box.  Do no, under any
+ * circumstances, make a change that keeps them from doing so.
+ */
 static GtkItemFactoryEntry menu_items[] =
 {
     {"/_File", NULL, NULL, 0, "<Branch>", NULL,},
