@@ -200,7 +200,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     gtk_tooltips_set_tip (tooltips, add_expression_bt, ("Add an expression to the filter string"), NULL);
 
     /* Show the (in)validity of the default filter string */
-    filter_te_syntax_check_cb(filt_text_entry);
+    filter_te_syntax_check_cb(filt_text_entry, NULL);
 
     /* settings-hbox for "choose color frame" and "status frame" */
     settings_hbox = gtk_hbox_new (FALSE, 0);

@@ -480,7 +480,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_tree_view_append_column(GTK_TREE_VIEW(filter_l), column);
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(filter_l));
     gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
-    g_signal_connect(sel, "changed", G_CALLBACK(filter_sel_list_cb), filter_vb);
+    g_signal_connect(sel, "changed", G_CALLBACK(filter_sel_list_cb), NULL);
     g_signal_connect(filter_l, "button_press_event", G_CALLBACK(filter_sel_list_button_cb),
                    NULL);
     g_object_set_data(G_OBJECT(main_w), E_FILT_FILTER_L_KEY, filter_l);
@@ -859,7 +859,8 @@ filter_dlg_save_cb(GtkWidget *save_bt _U_, gpointer data)
 
 #if 0
 /* update a remaining dialog if another one was cancelled */
-static void filter_dlg_update_list_cb(gpointer data, gpointer user_data)
+static void
+filter_dlg_update_list_cb(gpointer data, gpointer user_data)
 {
     GtkWidget  *main_w = data;
     filter_list_type_t list_type = *(filter_list_type_t *)user_data;
@@ -1152,7 +1153,7 @@ filter_name_te_changed_cb(GtkWidget *w, gpointer data)
 
     if (DFILTER_EDITED_LIST == list_type) {
         /* colorize filter string entry */
-        filter_te_syntax_check_cb(filter_te);
+        filter_te_syntax_check_cb(filter_te, NULL);
     }
 
     /* if something was selected */
@@ -1310,7 +1311,7 @@ colorize_filter_te_as_valid(GtkWidget *w)
  */
 
 void
-filter_te_syntax_check_cb(GtkWidget *w)
+filter_te_syntax_check_cb(GtkWidget *w, gpointer user_data _U_)
 {
     const gchar *strval;
     dfilter_t   *dfp;

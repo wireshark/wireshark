@@ -438,7 +438,7 @@ find_filter_te_syntax_check_cb(GtkWidget *w, gpointer parent_w)
     /*
      * Display filter search; check it with "filter_te_syntax_check_cb()".
      */
-    filter_te_syntax_check_cb(w);
+      filter_te_syntax_check_cb(w, NULL);
   }
 }
 
