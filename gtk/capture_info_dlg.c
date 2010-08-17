@@ -88,13 +88,14 @@ capture_info_stop(capture_options *capture_opts)
   capture_stop(capture_opts);
 }
 
-/* GTK signals for "delete" and "clicked" events. Note they have different signatures */
+/* "delete-event" signal callback. Note different signature than "clicked" signal callback */
 static gboolean
 capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data) {
   capture_info_stop(data);
   return TRUE;
 }
 
+/* "clicked" signal callback */
 static void
 capture_info_stop_clicked_cb(GtkButton *w _U_, gpointer data) {
   capture_info_stop(data);
