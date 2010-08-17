@@ -38,7 +38,7 @@
 /*
  * Annex to ITU Operational Bulletin
  * No. 953 - 1.IV.2010
- * including amendments up to ITU Operational Bulletin No. 955 - 1.V.2010
+ * including amendments up to ITU Operational Bulletin No. 957 - 1.VI.2010
  *
  * COMPLEMENT TO ITU-T RECOMMENDATION E.212 (05/2008)
  */
@@ -282,7 +282,7 @@ const value_string E212_codes[] = {
 
 /*
  * Annex to ITU Operational Bulletin No. 932 - 15.V.2009
- * including amendments up to ITU Operational Bulletin No. 955 - 1.V.2010
+ * including amendments up to ITU Operational Bulletin No. 957 - 1.VI.2010
  * 
  * According to Recommendation ITU-T E.212 (05/2008)
  *
@@ -596,7 +596,7 @@ const value_string mcc_mnc_codes[] = {
 	{  282020, "Magti GSM Ltd." },
 	{  282030, "Iberiatel Ltd." },
 	{  282040, "Mobitel Ltd." },
-	{  282050, "United Telecom" },
+	{  282050, "Silknet JSC" },
 	{  284010, "M-Tel GSM BG" },
 	{  284050, "Globul" },
 	{  286010, "Turkcell" },
@@ -1339,6 +1339,7 @@ const value_string mcc_mnc_codes[] = {
 	{  542020, "Digicel (Fiji) Ltd" },
 	{  542030, "Telecom Fiji Ltd (CDMA)" },
 	{  546010, "OPT Mobilis" },
+	{  547020, "Digicel Tahiti" },
 	{  547100, "Mara Telecom" },
 	{  547200, "Tikiphone" },
 	{  548010, "Telecom Cook" },
