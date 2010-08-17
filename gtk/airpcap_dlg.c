@@ -1115,7 +1115,7 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
     g_signal_connect(ok_bt, "clicked", G_CALLBACK(on_add_key_ok_bt_clicked), add_key_window );
     g_signal_connect(cancel_bt, "clicked", G_CALLBACK(window_cancel_button_cb), add_key_window );
     g_signal_connect(add_type_cb, "changed", G_CALLBACK(on_add_type_cb_changed), add_key_window);
-    g_signal_connect(add_key_window, "delete_event", G_CALLBACK(window_delete_event_cb), add_key_window);
+    g_signal_connect(add_key_window, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
     g_signal_connect(add_key_window, "destroy", G_CALLBACK(on_add_key_w_destroy), data);
 
     /* Add widget data */
@@ -1399,7 +1399,7 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
         g_signal_connect(ok_bt, "clicked", G_CALLBACK(on_edit_key_ok_bt_clicked), edit_key_window );
         g_signal_connect(cancel_bt, "clicked", G_CALLBACK(window_cancel_button_cb), edit_key_window );
         g_signal_connect(edit_type_cb, "changed", G_CALLBACK(on_edit_type_cb_changed), edit_key_window);
-        g_signal_connect(edit_key_window, "delete_event", G_CALLBACK(window_delete_event_cb), edit_key_window);
+        g_signal_connect(edit_key_window, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
         g_signal_connect(edit_key_window, "destroy", G_CALLBACK(on_edit_key_w_destroy), data);
 
         /* Add widget data */
@@ -1944,7 +1944,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     cancel_bt = g_object_get_data(G_OBJECT(right_h_button_box), GTK_STOCK_CANCEL);
 
     /* Connect the callbacks */
-    g_signal_connect (airpcap_advanced_w, "delete_event", G_CALLBACK(window_delete_event_cb), airpcap_advanced_w);
+    g_signal_connect (airpcap_advanced_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
     g_signal_connect (airpcap_advanced_w, "destroy", G_CALLBACK(on_airpcap_advanced_destroy), airpcap_advanced_w);
 
     if (!airpcap_if_is_any(airpcap_if_selected))
@@ -2397,7 +2397,7 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     cancel_bt = g_object_get_data(G_OBJECT(right_h_button_box), GTK_STOCK_CANCEL);
 
     /* Connect the callbacks */
-    g_signal_connect (key_management_w, "delete_event", G_CALLBACK(window_delete_event_cb), key_management_w);
+    g_signal_connect (key_management_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
     g_signal_connect (key_management_w, "destroy", G_CALLBACK(on_key_management_destroy), key_management_w);
     g_signal_connect (add_new_key_bt, "clicked", G_CALLBACK(on_add_new_key_bt_clicked), key_management_w);
     g_signal_connect (remove_key_bt, "clicked", G_CALLBACK(on_remove_key_bt_clicked), key_management_w);
