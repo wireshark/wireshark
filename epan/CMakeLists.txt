@@ -775,6 +775,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ncp-sss.c
 	dissectors/packet-ncs.c
 	dissectors/packet-ndmp.c
+	dissectors/packet-ndp.c
 	dissectors/packet-ndps.c
 	dissectors/packet-netbios.c
 	dissectors/packet-netdump.c
@@ -796,7 +797,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-nsip.c
 	dissectors/packet-nsrp.c
 	dissectors/packet-nt-oui.c
-	dissectors/packet-nt-sonmp.c
 	dissectors/packet-nt-tpcp.c
 	dissectors/packet-ntlmssp.c
 	dissectors/packet-ntp.c
