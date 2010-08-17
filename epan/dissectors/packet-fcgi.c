@@ -116,7 +116,7 @@ dissect_nv_pairs(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
       if ((namelen & 0x80) == 0) {
          offset += 1;
       } else {
-         namelen = tvb_get_ntohl(tvb, offset) && 0x7FFFFFFF;
+         namelen = tvb_get_ntohl(tvb, offset) & 0x7FFFFFFF;
          offset += 4;
       }
 
@@ -124,7 +124,7 @@ dissect_nv_pairs(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
       if ((valuelen & 0x80) == 0) {
          offset += 1;
       } else {
-         valuelen = tvb_get_ntohl(tvb, offset) && 0x7FFFFFF;
+         valuelen = tvb_get_ntohl(tvb, offset) & 0x7FFFFFFF;
          offset += 4;
       }
 
