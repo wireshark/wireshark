@@ -68,11 +68,11 @@
 #define MAX_YSCALE 28
 #define LOGARITHMIC_YSCALE 0
 #define AUTO_MAX_YSCALE 1
-#define DEFAULT_YSCALE 1
+#define DEFAULT_YSCALE_INDEX 1
 static guint32 yscale_max[MAX_YSCALE] = {LOGARITHMIC_YSCALE, AUTO_MAX_YSCALE, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000, 20000000, 50000000, 100000000, 200000000, 500000000, 1000000000, 2000000000};
 
 #define MAX_PIXELS_PER_TICK 4
-#define DEFAULT_PIXELS_PER_TICK 2
+#define DEFAULT_PIXELS_PER_TICK_INDEX 2
 static guint32 pixels_per_tick[MAX_PIXELS_PER_TICK] = {1, 2, 5, 10};
 
 
@@ -89,7 +89,7 @@ static const char *plot_style_name[MAX_PLOT_STYLES] = {
 	"Dot",
 };
 
-
+#define DEFAULT_COUNT_TYPE  0
 #define COUNT_TYPE_FRAMES   0
 #define COUNT_TYPE_BYTES    1
 #define COUNT_TYPE_BITS     2
@@ -99,7 +99,7 @@ static const char *count_type_names[MAX_COUNT_TYPES] = {"Packets/Tick", "Bytes/T
 
 /* unit is in ms */
 #define MAX_TICK_VALUES 7
-#define DEFAULT_TICK_VALUE 3
+#define DEFAULT_TICK_VALUE_INDEX 3
 static const guint tick_interval_values[MAX_TICK_VALUES] = { 1, 10, 100, 1000, 10000, 60000, 600000 };
 
 #define CALC_TYPE_SUM	0
@@ -109,6 +109,7 @@ static const guint tick_interval_values[MAX_TICK_VALUES] = { 1, 10, 100, 1000, 1
 #define CALC_TYPE_AVG	4
 #define CALC_TYPE_LOAD	5
 #define MAX_CALC_TYPES  6
+#define DEFAULT_CALC_TYPE 0
 static const char *calc_type_names[MAX_CALC_TYPES] = {"SUM(*)", "COUNT(*)", "MAX(*)", "MIN(*)", "AVG(*)", "LOAD(*)"};
 
 
@@ -156,7 +157,7 @@ typedef struct _io_stat_graph_t {
 
 typedef struct _io_stat_t {
 	gboolean needs_redraw;
-	gint32 interval;    /* measurement interval in ms */
+	gint32 interval;      /* measurement interval in ms */
 	guint32 last_interval;
 	guint32 max_interval; /* XXX max_interval and num_items are redundant */
 	guint32 num_items;
@@ -182,7 +183,7 @@ typedef struct _io_stat_t {
 
 
 static void init_io_stat_window(io_stat_t *io);
-static gint filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio);
+static void filter_callback(GtkWidget *widget _U_, gpointer user_data);
 
 static void
 io_stat_set_title(io_stat_t *io)
@@ -239,15 +240,15 @@ io_stat_reset(io_stat_t *io)
 }
 
 static void
-gtk_iostat_reset(void *g)
+tap_iostat_reset(void *g)
 {
 	io_stat_graph_t *gio=g;
 
 	io_stat_reset(gio->io);
 }
 
-static int
-gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
+static gboolean
+tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
 {
 	io_stat_graph_t *git=g;
 	io_item_t *it;
@@ -257,7 +258,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 	/* we sometimes get called when git is disabled.
 	   this is a bug since the tap listener should be removed first */
 	if(!git->display){
-		return 0;
+		return FALSE;
 	}
 
 	git->io->needs_redraw=TRUE;
@@ -633,7 +634,6 @@ get_it_value(io_stat_t *io, int graph_id, int idx)
 	return (guint32)value; /* FIXME: loss of precision, visible on the graph for small values */
 }
 
-
 static void
 print_time_scale_string(char *buf, int buf_len, guint32 t, guint32 t_max, gboolean log_flag)
 {
@@ -649,7 +649,6 @@ print_time_scale_string(char *buf, int buf_len, guint32 t, guint32 t_max, gboole
 		g_snprintf(buf, buf_len, "%dus",t);
 	}
 }
-
 
 static void
 print_interval_string(char *buf, int buf_len, guint32 interval, io_stat_t *io,
@@ -697,7 +696,7 @@ io_stat_draw(io_stat_t *io)
 	gint32 current_interval;
 	guint32 top_y_border;
 	guint32 bottom_y_border;
-        PangoLayout  *layout;
+	PangoLayout  *layout;
 	int label_width, label_height;
 	guint32 draw_width, draw_height;
 	char label_string[45];
@@ -754,12 +753,12 @@ io_stat_draw(io_stat_t *io)
 	/*
 	 * Clear out old plot
 	 */
-        gdk_draw_rectangle(io->pixmap,
-                           io->draw_area->style->white_gc,
-                           TRUE,
-                           0, 0,
-                           io->draw_area->allocation.width,
-                           io->draw_area->allocation.height);
+	gdk_draw_rectangle(io->pixmap,
+			   io->draw_area->style->white_gc,
+			   TRUE,
+			   0, 0,
+			   io->draw_area->allocation.width,
+			   io->draw_area->allocation.height);
 
 	/*
 	 * Calculate the y scale we should use
@@ -838,8 +837,8 @@ io_stat_draw(io_stat_t *io)
 		g_snprintf(label_string, 15, "%d", max_y);
 	}
 
-        layout = gtk_widget_create_pango_layout(io->draw_area, label_string);
-        pango_layout_get_pixel_size(layout, &label_width, &label_height);
+	layout = gtk_widget_create_pango_layout(io->draw_area, label_string);
+	pango_layout_get_pixel_size(layout, &label_width, &label_height);
 
 	io->left_x_border=10;
 	io->right_x_border=label_width+20;
@@ -943,9 +942,9 @@ io_stat_draw(io_stat_t *io)
 	                pango_layout_set_text(layout, label_string, -1);
 	                pango_layout_get_pixel_size(layout, &lwidth, NULL);
 			gdk_draw_layout(io->pixmap,
-                	                io->draw_area->style->black_gc,
-                        	        io->pixmap_width-io->right_x_border+15+label_width-lwidth,
-                                	ypos-label_height/2,
+					io->draw_area->style->black_gc,
+					io->pixmap_width-io->right_x_border+15+label_width-lwidth,
+					ypos-label_height/2,
 	                                layout);
 		}
 	}
@@ -1016,15 +1015,15 @@ io_stat_draw(io_stat_t *io)
 				x_pos=x-1-io->pixels_per_tick/2-lwidth/2;
 			}
 
-                        gdk_draw_layout(io->pixmap,
-                                        io->draw_area->style->black_gc,
-                                        x_pos,
-                                        io->pixmap_height-bottom_y_border+15,
-                                        layout);
+			gdk_draw_layout(io->pixmap,
+					io->draw_area->style->black_gc,
+					x_pos,
+					io->pixmap_height-bottom_y_border+15,
+					layout);
 		}
 
 	}
-        g_object_unref(G_OBJECT(layout));
+	g_object_unref(G_OBJECT(layout));
 
 
 	/*
@@ -1047,7 +1046,7 @@ io_stat_draw(io_stat_t *io)
 			if (val==0) {
 				prev_y_pos=(guint32)(draw_height-1+top_y_border);
 			} else {
-                            prev_y_pos=(guint32)((draw_height-ystart)-1-((log10((double)((gint64)val)))*(draw_height-ystart))/(log10((double)max_y))+top_y_border);
+				prev_y_pos=(guint32)((draw_height-ystart)-1-((log10((double)((gint64)val)))*(draw_height-ystart))/(log10((double)max_y))+top_y_border);
 			}
 		} else {
 			prev_y_pos=(guint32)(draw_height-1-(val*draw_height)/max_y+top_y_border);
@@ -1063,7 +1062,7 @@ io_stat_draw(io_stat_t *io)
 				if (val==0) {
 					y_pos=(guint32)(draw_height-1+top_y_border);
 				} else {
-                                    y_pos=(guint32)((draw_height-ystart)-1-((log10((double)((gint64)val)))*(draw_height-ystart))/(log10((double)max_y))+top_y_border);
+					y_pos=(guint32)((draw_height-ystart)-1-((log10((double)((gint64)val)))*(draw_height-ystart))/(log10((double)max_y))+top_y_border);
 				}
 			} else {
 				y_pos=(guint32)(draw_height-1-(val*draw_height)/max_y+top_y_border);
@@ -1090,7 +1089,7 @@ io_stat_draw(io_stat_t *io)
 			case PLOT_STYLE_FILLED_BAR:
 				if(val){
 				        gdk_draw_rectangle(io->pixmap,
-                        			io->graphs[i].gc, TRUE,
+						io->graphs[i].gc, TRUE,
 						x_pos-io->pixels_per_tick/2,
 						y_pos,
 						io->pixels_per_tick,
@@ -1100,7 +1099,7 @@ io_stat_draw(io_stat_t *io)
 			case PLOT_STYLE_DOT:
 				if(val){
 				        gdk_draw_rectangle(io->pixmap,
-                        			io->graphs[i].gc, TRUE,
+						io->graphs[i].gc, TRUE,
 						x_pos-io->pixels_per_tick/2,
 						y_pos-io->pixels_per_tick/2,
 						io->pixels_per_tick,
@@ -1149,13 +1148,12 @@ io_stat_redraw(io_stat_t *io)
 }
 
 static void
-gtk_iostat_draw(void *g)
+tap_iostat_draw(void *g)
 {
 	io_stat_graph_t *git=g;
 
 	io_stat_draw(git->io);
 }
-
 
 /* ok we get called with both the filter and the field.
    make sure the field is part of the filter.
@@ -1211,8 +1209,8 @@ enable_graph(io_stat_graph_t *gio, const char *filter, const char *field)
 		}
 	}
 	return register_tap_listener("frame", gio, real_filter[0]?real_filter:NULL,
-	    TL_REQUIRES_PROTO_TREE,
-	    gtk_iostat_reset, gtk_iostat_packet, gtk_iostat_draw);
+				     TL_REQUIRES_PROTO_TREE,
+				     tap_iostat_reset, tap_iostat_packet, tap_iostat_draw);
 }
 
 static void
@@ -1229,7 +1227,7 @@ disable_graph(io_stat_graph_t *gio)
 }
 
 static void
-gtk_iostat_init(const char *optarg _U_, void* userdata _U_)
+iostat_init(const char *optarg _U_, void* userdata _U_)
 {
 	io_stat_t *io;
 	int i=0;
@@ -1244,7 +1242,7 @@ gtk_iostat_init(const char *optarg _U_, void* userdata _U_)
 
 	io=g_malloc(sizeof(io_stat_t));
 	io->needs_redraw=TRUE;
-	io->interval=tick_interval_values[DEFAULT_TICK_VALUE];
+	io->interval=tick_interval_values[DEFAULT_TICK_VALUE_INDEX];
 	io->window=NULL;
 	io->draw_area=NULL;
 	io->pixmap=NULL;
@@ -1252,7 +1250,7 @@ gtk_iostat_init(const char *optarg _U_, void* userdata _U_)
 	io->scrollbar_adjustment=NULL;
 	io->pixmap_width=500;
 	io->pixmap_height=200;
-	io->pixels_per_tick=pixels_per_tick[DEFAULT_PIXELS_PER_TICK];
+	io->pixels_per_tick=pixels_per_tick[DEFAULT_PIXELS_PER_TICK_INDEX];
 	io->max_y_units=AUTO_MAX_YSCALE;
 	io->count_type=0;
 	io->last_interval=0xffffffff;
@@ -1287,7 +1285,10 @@ gtk_iostat_init(const char *optarg _U_, void* userdata _U_)
 	io_stat_reset(io);
 
 	error_string=enable_graph(&io->graphs[0], NULL, NULL);
+        g_assert((error_string == NULL) && "Can't attach io_stat tap !");
+#if 0
 	if(error_string){
+
 		fprintf(stderr, "wireshark: Can't attach io_stat tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
@@ -1297,7 +1298,7 @@ gtk_iostat_init(const char *optarg _U_, void* userdata _U_)
 		io->graphs[0].advanced_buttons=NULL;
 		exit(10);
 	}
-
+#endif
 	/* build the GUI */
 	init_io_stat_window(io);
 
@@ -1306,13 +1307,11 @@ gtk_iostat_init(const char *optarg _U_, void* userdata _U_)
 	io_stat_redraw(io);
 }
 
-static gint
-quit(GtkWidget *widget, GdkEventExpose *event _U_)
+static void
+draw_area_destroy_cb(GtkWidget *widget _U_, gpointer user_data)
 {
+	io_stat_t *io = user_data;
 	int i;
-	io_stat_t *io;
-
-	io=(io_stat_t *)g_object_get_data(G_OBJECT(widget), "io_stat_t");
 
 	for(i=0;i<MAX_GRAPHS;i++){
 		if(io->graphs[i].display){
@@ -1329,19 +1328,15 @@ quit(GtkWidget *widget, GdkEventExpose *event _U_)
 	}
 	g_free(io);
 
-	return TRUE;
+	return;
 }
 
-static gint
-pixmap_clicked_event(GtkWidget *widget, GdkEventButton *event)
+static gboolean
+pixmap_clicked_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer user_data)
 {
-    io_stat_t *io=(io_stat_t *)g_object_get_data(G_OBJECT(widget), "io_stat_t");
+	io_stat_t *io = user_data;
 	guint32 draw_width, interval, last_interval;
 	guint frame_num;
-
-	if (!io) {
-		return FALSE;
-	}
 
 	draw_width=io->pixmap_width-io->right_x_border-io->left_x_border;
 
@@ -1373,19 +1368,14 @@ pixmap_clicked_event(GtkWidget *widget, GdkEventButton *event)
 }
 
 /* create a new backing pixmap of the appropriate size */
-static gint
-configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
+static gboolean
+draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer user_data)
 {
+	io_stat_t *io = user_data;
 	int i;
-	io_stat_t *io;
 #if GTK_CHECK_VERSION(2,6,0)
 	GtkWidget *save_bt;
 #endif
-
-	io=(io_stat_t *)g_object_get_data(G_OBJECT(widget), "io_stat_t");
-	if(!io){
-		exit(10);
-	}
 
 	if(io->pixmap){
 		gdk_pixmap_unref(io->pixmap);
@@ -1422,38 +1412,32 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	return TRUE;
 }
 
-static gint
-scrollbar_changed(GtkWidget *widget _U_, gpointer data)
+static void
+scrollbar_changed(GtkWidget *widget _U_, gpointer user_data)
 {
-	io_stat_t *io=(io_stat_t *)data;
+	io_stat_t *io = user_data;
 	guint32 mi;
 
 	mi=(guint32) (io->scrollbar_adjustment->value+io->scrollbar_adjustment->page_size);
 	if(io->last_interval==mi){
-		return TRUE;
+		return;
 	}
 	if( (io->last_interval==0xffffffff)
 	&&  (mi==io->max_interval) ){
-		return TRUE;
+		return;
 	}
 
 	io->last_interval=(mi/io->interval)*io->interval;
 	io_stat_redraw(io);
 
-	return TRUE;
+	return;
 }
 
 /* redraw the screen from the backing pixmap */
-static gint
-expose_event(GtkWidget *widget, GdkEventExpose *event)
+static gboolean
+draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
-	io_stat_t *io;
-
-	io=(io_stat_t *)g_object_get_data(G_OBJECT(widget), "io_stat_t");
-	if(!io){
-		exit(10);
-	}
-
+	io_stat_t *io = user_data;
 
 	gdk_draw_pixmap(widget->window,
 			widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
@@ -1465,21 +1449,19 @@ expose_event(GtkWidget *widget, GdkEventExpose *event)
 	return FALSE;
 }
 
-
 static void
 create_draw_area(io_stat_t *io, GtkWidget *box)
 {
 	io->draw_area=gtk_drawing_area_new();
-	g_signal_connect(io->draw_area, "destroy", G_CALLBACK(quit), io);
-	g_object_set_data(G_OBJECT(io->draw_area), "io_stat_t", io);
+	g_signal_connect(io->draw_area, "destroy", G_CALLBACK(draw_area_destroy_cb), io);
 
 	gtk_widget_set_size_request(io->draw_area, io->pixmap_width, io->pixmap_height);
 
 	/* signals needed to handle backing pixmap */
-	g_signal_connect(io->draw_area, "expose_event", G_CALLBACK(expose_event), NULL);
-	g_signal_connect(io->draw_area, "configure_event", G_CALLBACK(configure_event), io);
+	g_signal_connect(io->draw_area, "expose-event", G_CALLBACK(draw_area_expose_event), io);
+	g_signal_connect(io->draw_area, "configure-event", G_CALLBACK(draw_area_configure_event), io);
 	gtk_widget_add_events (io->draw_area, GDK_BUTTON_PRESS_MASK);
-	g_signal_connect(io->draw_area, "button-press-event", G_CALLBACK(pixmap_clicked_event), NULL);
+	g_signal_connect(io->draw_area, "button-press-event", G_CALLBACK(pixmap_clicked_event), io);
 
 	gtk_widget_show(io->draw_area);
 	gtk_box_pack_start(GTK_BOX(box), io->draw_area, TRUE, TRUE, 0);
@@ -1489,16 +1471,15 @@ create_draw_area(io_stat_t *io, GtkWidget *box)
 	io->scrollbar=gtk_hscrollbar_new(io->scrollbar_adjustment);
 	gtk_widget_show(io->scrollbar);
 	gtk_box_pack_start(GTK_BOX(box), io->scrollbar, FALSE, FALSE, 0);
-	g_signal_connect(io->scrollbar_adjustment, "value_changed", G_CALLBACK(scrollbar_changed), io);
+	g_signal_connect(io->scrollbar_adjustment, "value-changed", G_CALLBACK(scrollbar_changed), io);
 }
 
-
-static void tick_interval_select(GtkWidget *item, gpointer key)
+static void
+tick_interval_select(GtkWidget *item, gpointer user_data)
 {
+	io_stat_t *io = user_data;
 	int i;
-	io_stat_t *io;
 
-	io=(io_stat_t *)key;
 	i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
 	io->interval=tick_interval_values[i];
@@ -1508,24 +1489,22 @@ static void tick_interval_select(GtkWidget *item, gpointer key)
 }
 
 static void
-pixels_per_tick_select(GtkWidget *item, gpointer key)
+pixels_per_tick_select(GtkWidget *item, gpointer user_data)
 {
+	io_stat_t *io = user_data;
 	int i;
-	io_stat_t *io;
 
-	io=(io_stat_t *)key;
 	i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 	io->pixels_per_tick=pixels_per_tick[i];
 	io_stat_redraw(io);
 }
 
 static void
-plot_style_select(GtkWidget *item, gpointer key)
+plot_style_select(GtkWidget *item, gpointer user_data)
 {
+	io_stat_graph_t *ppt = user_data;
 	int val;
-	io_stat_graph_t *ppt;
 
-	ppt=(io_stat_graph_t *)key;
 	val=gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
 	ppt->plot_style=val;
@@ -1546,23 +1525,22 @@ create_pixels_per_tick_menu_items(io_stat_t *io)
 		g_snprintf(str, 5, "%u", pixels_per_tick[i]);
 		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
 	}
-	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_PIXELS_PER_TICK);
-	g_signal_connect(combo_box, "changed", G_CALLBACK(pixels_per_tick_select), (gpointer)io);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_PIXELS_PER_TICK_INDEX);
+	g_signal_connect(combo_box, "changed", G_CALLBACK(pixels_per_tick_select), io);
 
 	return combo_box;
 }
 
-static void 
-yscale_select(GtkWidget *item, gpointer key)
+static void
+yscale_select(GtkWidget *item, gpointer user_data)
 {
-        int i;
-		io_stat_t *io;
+	io_stat_t *io = user_data;
+	int i;
 
-        io=(io_stat_t *)key;
-		i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
+	i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
-        io->max_y_units = yscale_max[i];
-        io_stat_redraw(io);
+	io->max_y_units = yscale_max[i];
+	io_stat_redraw(io);
 }
 
 static GtkWidget *
@@ -1575,21 +1553,21 @@ create_tick_interval_menu_items(io_stat_t *io)
 	combo_box = gtk_combo_box_new_text ();
 
 	for(i=0;i<MAX_TICK_VALUES;i++){
-           if(tick_interval_values[i]>=60000){
-                    g_snprintf(str, sizeof(str), "%u min", tick_interval_values[i]/60000);
-            } else if(tick_interval_values[i]>=1000){
-                    g_snprintf(str, sizeof(str), "%u sec", tick_interval_values[i]/1000);
-            } else if(tick_interval_values[i]>=100){
-                    g_snprintf(str, sizeof(str), "0.%1u sec", (tick_interval_values[i]/100)%10);
-            } else if(tick_interval_values[i]>=10){
-                    g_snprintf(str, sizeof(str), "0.%02u sec", (tick_interval_values[i]/10)%10);
-            } else {
-                    g_snprintf(str, sizeof(str), "0.%03u sec", (tick_interval_values[i])%10);
-            }
-	    gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
+		if(tick_interval_values[i]>=60000){
+			g_snprintf(str, sizeof(str), "%u min", tick_interval_values[i]/60000);
+		} else if(tick_interval_values[i]>=1000){
+			g_snprintf(str, sizeof(str), "%u sec", tick_interval_values[i]/1000);
+		} else if(tick_interval_values[i]>=100){
+			g_snprintf(str, sizeof(str), "0.%1u sec", (tick_interval_values[i]/100)%10);
+		} else if(tick_interval_values[i]>=10){
+			g_snprintf(str, sizeof(str), "0.%02u sec", (tick_interval_values[i]/10)%10);
+		} else {
+			g_snprintf(str, sizeof(str), "0.%03u sec", (tick_interval_values[i])%10);
+		}
+		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
 	}
-	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_TICK_VALUE);
-	g_signal_connect(combo_box, "changed", G_CALLBACK(tick_interval_select), (gpointer)io);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_TICK_VALUE_INDEX);
+	g_signal_connect(combo_box, "changed", G_CALLBACK(tick_interval_select), io);
 
 	return combo_box;
 }
@@ -1613,27 +1591,26 @@ create_yscale_max_menu_items(io_stat_t *io)
 		}
 		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
 	}
-	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_YSCALE);
-	g_signal_connect(combo_box, "changed", G_CALLBACK(yscale_select), (gpointer)io);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_YSCALE_INDEX);
+	g_signal_connect(combo_box, "changed", G_CALLBACK(yscale_select), io);
 	return combo_box;
 }
 
 static void
-count_type_select(GtkWidget *item, gpointer key)
+count_type_select(GtkWidget *item, gpointer user_data)
 {
+	io_stat_t *io = user_data;
 	static gboolean advanced_visible=FALSE;
 	int i;
-	io_stat_t *io;
 
-	io=(io_stat_t *)key;
 	io->count_type = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
 	if(io->count_type==COUNT_TYPE_ADVANCED){
 		for(i=0;i<MAX_GRAPHS;i++){
 			disable_graph(&io->graphs[i]);
 			gtk_widget_show(io->graphs[i].advanced_buttons);
-/* redraw the entire window so the unhidden widgets show up, hopefully */
-	gtk_widget_queue_draw_area(io->window,
+			/* redraw the entire window so the unhidden widgets show up, hopefully */
+			gtk_widget_queue_draw_area(io->window,
 						   0,
 						   0,
 						   io->window->allocation.width,
@@ -1663,8 +1640,8 @@ create_frames_or_bytes_menu_items(io_stat_t *io)
 	for(i=0;i<MAX_COUNT_TYPES;i++){
 		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), count_type_names[i]);
 	}
-	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), 0);
-	g_signal_connect(combo_box, "changed", G_CALLBACK(count_type_select), (gpointer)io);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_COUNT_TYPE);
+	g_signal_connect(combo_box, "changed", G_CALLBACK(count_type_select), io);
 	return combo_box;
 }
 
@@ -1690,11 +1667,10 @@ create_ctrl_menu(io_stat_t *io, GtkWidget *box, const char *name, GtkWidget * (*
 }
 
 static void
-view_as_time_toggle_dest(GtkWidget *widget _U_, gpointer key)
+view_as_time_toggle_dest(GtkWidget *widget _U_, gpointer user_data)
 {
-	io_stat_t *io;
+	io_stat_t *io = user_data;
 
-	io=(io_stat_t *)key;
 	io->view_as_time = io->view_as_time ? FALSE : TRUE;
 
 	io_stat_redraw(io);
@@ -1747,10 +1723,10 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 	return;
 }
 
-
-static gint
-filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
+static void
+filter_callback(GtkWidget *widget _U_, gpointer user_data)
 {
+	io_stat_graph_t *gio = user_data;
 	const char *filter;
 	const char *field=NULL;
 	header_field_info *hfi;
@@ -1760,7 +1736,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 	if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gio->display_button))){
 		disable_graph(gio);
 		io_stat_redraw(gio->io);
-		return 0;
+		return;
 	}
 
 	/* first check if the field string is valid */
@@ -1772,7 +1748,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "You didn't specify a field name.");
 			disable_graph(gio);
 			io_stat_redraw(gio->io);
-			return 0;
+			return;
 		}
 		/* warn and bail out if the field could not be found */
 		hfi=proto_registrar_get_byname(field);
@@ -1780,7 +1756,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "There is no field named '%s'.", field);
 			disable_graph(gio);
 			io_stat_redraw(gio->io);
-			return 0;
+			return;
 		}
 		gio->hf_index=hfi->id;
 		/* check that the type is compatible */
@@ -1802,7 +1778,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 				    "LOAD(*) is only supported for relative-time fields.");
 				disable_graph(gio);
 				io_stat_redraw(gio->io);
-				return 0;
+				return;
 			}
 			/* these types support all calculations */
 			break;
@@ -1823,7 +1799,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 				    calc_type_names[gio->calc_type]);
 				disable_graph(gio);
 				io_stat_redraw(gio->io);
-				return 0;
+				return;
 			}
 			break;
 		case FT_UINT64:
@@ -1839,7 +1815,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 				    calc_type_names[gio->calc_type]);
 				disable_graph(gio);
 				io_stat_redraw(gio->io);
-				return 0;
+				return;
 			}
 			break;
 		default:
@@ -1850,7 +1826,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 				    calc_type_names[gio->calc_type]);
 				disable_graph(gio);
 				io_stat_redraw(gio->io);
-				return 0;
+				return;
 			}
 			break;
 		}
@@ -1862,7 +1838,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 		bad_dfilter_alert_box(filter);
 		disable_graph(gio);
 		io_stat_redraw(gio->io);
-		return 0;
+		return;
 	}
 	if (dfilter != NULL)
 		dfilter_free(dfilter);
@@ -1881,14 +1857,13 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 	gdk_window_raise(gio->io->window->window);
 	io_stat_redraw(gio->io);
 
-	return 0;
+	return;
 }
 
-
 static void
-calc_type_select(GtkWidget *item, gpointer key)
+calc_type_select(GtkWidget *item, gpointer user_data)
 {
-	io_stat_graph_t *gio = (io_stat_graph_t *)key;
+	io_stat_graph_t *gio = user_data;
 
 	gio->calc_type=gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
@@ -1896,7 +1871,6 @@ calc_type_select(GtkWidget *item, gpointer key)
 	disable_graph(gio);
 	io_stat_redraw(gio->io);
 }
-
 
 static GtkWidget *
 create_calc_types_menu_items(io_stat_graph_t *gio)
@@ -1909,11 +1883,10 @@ create_calc_types_menu_items(io_stat_graph_t *gio)
 	for(i=0;i<MAX_CALC_TYPES;i++){
 		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), calc_type_names[i]);
 	}
-	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), 0);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_CALC_TYPE);
 	g_signal_connect(combo_box, "changed", G_CALLBACK(calc_type_select), gio);
 	return combo_box;
 }
-
 
 static void
 create_advanced_menu(io_stat_graph_t *gio, GtkWidget *box, const char *name,  GtkWidget *(*func)(io_stat_graph_t *io))
@@ -1953,7 +1926,6 @@ create_advanced_field(io_stat_graph_t *gio, GtkWidget *box)
 	colorize_filter_te_as_empty(gio->calc_field);
 }
 
-
 static void
 create_advanced_box(io_stat_graph_t *gio, GtkWidget *box)
 {
@@ -1970,11 +1942,10 @@ create_advanced_box(io_stat_graph_t *gio, GtkWidget *box)
 	create_advanced_field(gio, hbox);
 }
 
-
 static void
-filter_button_clicked(GtkWidget *w, gpointer uio)
+filter_button_clicked(GtkWidget *w, gpointer user_data)
 {
-	io_stat_graph_t *gio=(io_stat_graph_t *)uio;
+	io_stat_graph_t *gio = user_data;
 
 	display_filter_construct_cb(w, gio->args);
 	return;
@@ -1986,7 +1957,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	GtkWidget *combo_box;
 	GtkWidget *hbox;
 	GtkWidget *label;
-        char str[256];
+	char str[256];
 	int i;
 
 	hbox=gtk_hbox_new(FALSE, 3);
@@ -2027,7 +1998,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_widget_show(gio->filter_bt);
 
 	gio->filter_field=gtk_entry_new();
-        gtk_entry_set_max_length(GTK_ENTRY(gio->filter_field),256);
+	gtk_entry_set_max_length(GTK_ENTRY(gio->filter_field),256);
 	/* filter prefs dialog */
 	g_object_set_data(G_OBJECT(gio->filter_bt), E_FILT_TE_PTR_KEY, gio->filter_field);
 	/* filter prefs dialog */
@@ -2042,7 +2013,6 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	colorize_filter_te_as_empty(gio->filter_field);
 
 	create_advanced_box(gio, hbox);
-
 
 	/*
 	 * create PlotStyle menu
@@ -2061,7 +2031,6 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 
 	gtk_box_pack_end(GTK_BOX(hbox), combo_box, FALSE, FALSE, 0);
 	gtk_widget_show(combo_box);
-
 
 	return;
 }
@@ -2090,15 +2059,14 @@ create_filter_area(io_stat_t *io, GtkWidget *box)
 	return;
 }
 
-
 static void
-copy_as_csv_cb(GtkWindow *copy_bt _U_, gpointer data)
+copy_as_csv_cb(GtkWindow *copy_bt _U_, gpointer user_data)
 {
 	guint32         i, interval, val;
 	char            string[15];
 	GtkClipboard    *cb;
 	GString         *CSV_str=g_string_new("");
-	io_stat_t       *io=(io_stat_t *)data;
+	io_stat_t       *io = user_data;
 
 	g_string_append(CSV_str, "Interval start");
 	for(i=0;i<MAX_GRAPHS;i++) {
@@ -2126,7 +2094,6 @@ copy_as_csv_cb(GtkWindow *copy_bt _U_, gpointer data)
 	g_string_free(CSV_str, TRUE);                       /* Free the memory */
 }
 
-
 static void
 init_io_stat_window(io_stat_t *io)
 {
@@ -2141,7 +2108,7 @@ init_io_stat_window(io_stat_t *io)
 #endif
 
 	/* create the main window, transient_for top_level */
-	io->window = dlg_window_new("I/O Graphs");  
+	io->window = dlg_window_new("I/O Graphs");
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(io->window), TRUE);
 
 	vbox=gtk_vbox_new(FALSE, 0);
@@ -2192,28 +2159,24 @@ init_io_stat_window(io_stat_t *io)
 	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_IO_GRAPH_DIALOG);
 	gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
 
-	g_signal_connect(io->window, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(io->window, "delete-event", G_CALLBACK(window_delete_event_cb), NULL);
 
 	gtk_widget_show(io->window);
 	window_present(io->window);
 }
 
-
 static void
-gtk_iostat_cb(GtkWidget *w _U_, gpointer d _U_)
+gui_iostat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_iostat_init(NULL,NULL);
+	iostat_init(NULL,NULL);
 }
-
-
-
 
 void
 register_tap_listener_gtk_iostat(void)
 {
-	register_stat_cmd_arg("io,stat", gtk_iostat_init,NULL);
+	register_stat_cmd_arg("io,stat", iostat_init,NULL);
 
 	register_stat_menu_item_stock("_IO Graphs",
-        REGISTER_STAT_GROUP_GENERIC, WIRESHARK_STOCK_GRAPHS,
-        gtk_iostat_cb, NULL, NULL, NULL);
+				      REGISTER_STAT_GROUP_GENERIC, WIRESHARK_STOCK_GRAPHS,
+				      gui_iostat_cb, NULL, NULL, NULL);
 }
