@@ -1378,19 +1378,24 @@ static void dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             col_append_fstr(pinfo->cinfo, COL_INFO, ", EPID: %s", print_eui64(epid));
         }
 
-        /* In ZigBee 2007 and layer, the Tx-Offset is a required value. */
-        tx_offset = tvb_get_letoh24(tvb, offset);
-        if (tree) {
+        /*
+         * In ZigBee 2006 the Tx-Offset is optional, while in the 2007 and
+         * later versions, the Tx-Offset is a required value. Since both 2006 and
+         * and 2007 versions have the same protocol version (2), we should treat
+         * the Tx-Offset as well as the update ID as optional elements
+         */
+        if (tvb_bytes_exist(tvb, offset, 3)) {
+            tx_offset = tvb_get_letoh24(tvb, offset);
             proto_tree_add_uint(beacon_tree, hf_zbee_beacon_tx_offset, tvb, offset, 3, tx_offset);
-        }
-        offset += 3;
+            offset += 3;
 
-        /* Get and display the update ID. */
-        temp = tvb_get_guint8(tvb, offset);
-        if (tree) {
-            proto_tree_add_uint(beacon_tree, hf_zbee_beacon_update_id, tvb, offset, sizeof(guint8), temp);
+            /* Get and display the update ID. */
+            if(tvb_length_remaining(tvb, offset)) {
+                temp = tvb_get_guint8(tvb, offset);
+                proto_tree_add_uint(beacon_tree, hf_zbee_beacon_update_id, tvb, offset, sizeof(guint8), temp);
+                offset += sizeof(guint8);
+            }
         }
-        offset += sizeof(guint8);
     }
     else if (tvb_bytes_exist(tvb, offset, 3)) {
         /* In ZigBee 2004, the Tx-Offset is an optional value. */
