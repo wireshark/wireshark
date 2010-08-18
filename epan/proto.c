@@ -6317,11 +6317,11 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 				char **filter)
 {
 	header_field_info	*hfinfo;
-	int			abbrev_len;
+	int				abbrev_len;
 	char			*ptr;
-	int			buf_len;
+	int				buf_len;
 	const char		*format;
-	int			dfilter_len, i;
+	int				dfilter_len, i;
 	gint			start, length, length_remaining;
 	guint8			c;
 	gchar			is_signed_num = FALSE;
