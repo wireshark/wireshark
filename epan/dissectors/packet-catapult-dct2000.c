@@ -1995,6 +1995,16 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                     proto_tree *ipprim_tree;
                     proto_item *ipprim_ti;
+                    struct     e_in6_addr sourcev6, destv6;
+
+                    /* Fetch IPv6 addresses */
+                    if (source_addr_length != 4) {
+                        tvb_get_ipv6(tvb, source_addr_offset, &sourcev6);
+                    }
+                    if (dest_addr_length != 4) {
+                        tvb_get_ipv6(tvb, dest_addr_offset, &destv6);
+                    }
+
 
                     /* Will use this dissector then. */
                     protocol_handle = heur_protocol_handle;
@@ -2010,7 +2020,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                        (source_addr_offset) ?
                                                            ((source_addr_length == 4) ?
                                                               get_hostname(tvb_get_ipv4(tvb, source_addr_offset)) :
-                                                              "<ipv6-address>"
+                                                              get_hostname6(&sourcev6)
                                                             ) :
                                                            "0.0.0.0",
                                                        (source_port_offset) ?
@@ -2019,7 +2029,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                        (dest_addr_offset) ?
                                                          ((source_addr_length == 4) ?
                                                               get_hostname(tvb_get_ipv4(tvb, dest_addr_offset)) :
-                                                              "<ipv6-address>"
+                                                              get_hostname6(&destv6)
                                                             ) :
                                                            "0.0.0.0",
                                                        (dest_port_offset) ?
