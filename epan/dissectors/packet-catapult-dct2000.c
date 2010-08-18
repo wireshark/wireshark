@@ -291,10 +291,10 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 
                 /* Remote port follows (if present) */
                 if ((length % 4) == 2) {
                     if (direction == 0) {
-                        *dest_port_offset = offset + 4;
+                        *dest_port_offset = offset + *dest_addr_length;
                     }
                     else {
-                        *source_port_offset = offset + 4;
+                        *source_port_offset = offset + *source_addr_length;
                     }
                 }
             }
