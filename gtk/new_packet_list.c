@@ -1298,14 +1298,12 @@ mark_all_displayed_frames(gboolean set)
 void
 new_packet_list_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-	if(cfile.displayed_count < cfile.count){
-		if (cf_find_packet_marked(&cfile, SD_FORWARD)) {
-			mark_all_displayed_frames(FALSE);
-		}else {
-			mark_all_displayed_frames(TRUE);
-		}
-		mark_frames_ready();
+	if (cf_find_packet_marked(&cfile, SD_FORWARD)) {
+		mark_all_displayed_frames(FALSE);
+	}else {
+		mark_all_displayed_frames(TRUE);
 	}
+	mark_frames_ready();
 }
 
 static void

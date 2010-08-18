@@ -2889,12 +2889,7 @@ set_menus_for_selected_packet(capture_file *cf)
     /* Making the menu context-sensitive allows for easier selection of the
        desired item and has the added benefit, with large captures, of
        avoiding needless looping through huge lists for marked, ignored,
-       or time-referenced packets. 
-	
-       When all the packets are currently displayed, there is no benefit
-       to marking or ignoring all the frames even if the File>Merge function
-       is used, because the marked and ignored packet attributes are scrubbed
-       in the merged display list. */
+       or time-referenced packets. */
     gboolean is_ssl = packet_is_ssl(cf->edt);
     gboolean frame_selected = cf->current_frame != NULL;
         /* A frame is selected */
@@ -2918,8 +2913,8 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(packet_list_menu_factory, "/Mark Packet (toggle)",
                          frame_selected);
     set_menu_sensitivity(main_menu_factory, "/Edit/Mark All Displayed Packets (toggle)",
-	                 cf->displayed_count > 0 && cf->displayed_count != cf->count);
-    /* Unlike un-gnore, do not allow unmark of all frames when no frames are displayed  */
+	                     cf->displayed_count > 0);
+    /* Unlike un-ignore, do not allow unmark of all frames when no frames are displayed  */
     set_menu_sensitivity(main_menu_factory, "/Edit/Unmark All Packets",
                          have_marked);
     set_menu_sensitivity(main_menu_factory, "/Edit/Find Next Mark",
