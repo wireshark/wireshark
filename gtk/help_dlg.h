@@ -113,11 +113,11 @@ void topic_cb(GtkWidget *widget, topic_action_e topic);
 /** Open a specific topic called from a menu item.
  *
  * @param widget parent widget (unused)
- * @param data user_data (unused)
- * @param topic the topic to display
+ * @param dummy (unused)
+ * @param user_data the topic to display
  * @return TRUE
  */
-gboolean topic_menu_cb(GtkWidget *widget _U_, gpointer data _U_, topic_action_e topic);
+gboolean topic_menu_cb(GtkWidget *widget _U_, gpointer dummy _U_, gpointer user_data);
 
 /** Redraw all the help dialog text widgets, to use a new font. */
 void help_redraw(void);

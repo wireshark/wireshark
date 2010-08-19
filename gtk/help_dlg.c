@@ -51,7 +51,7 @@
 #endif
 
 
-#define HELP_DIR	"help"
+#define HELP_DIR        "help"
 
 
 #define NOTEBOOK_KEY    "notebook_key"
@@ -69,9 +69,9 @@ static GtkWidget *help_w = NULL;
  * (for text format changes).
  */
 typedef struct {
-  char *topic;
-  char *pathname;
-  GtkWidget *page;
+    char *topic;
+    char *pathname;
+    GtkWidget *page;
 } help_page_t;
 
 static GSList *help_text_pages = NULL;
@@ -82,7 +82,6 @@ static GSList *help_text_pages = NULL;
  */
 void help_topic_html(const gchar *topic) {
     GString *url;
-
 
     /* try to open local .chm file */
 #ifdef HHC_DIR
@@ -112,12 +111,12 @@ void help_topic_html(const gchar *topic) {
         /* try to open the HTML page from wireshark.org instead */
         g_string_append_printf(url, "file://" DOC_DIR "/wsug_html_chunked/%s", topic);
     } else {
-#endif /* ifdef DOC_DIR */ 
+#endif /* ifdef DOC_DIR */
        /* try to open the HTML page from wireshark.org instead */
         g_string_append_printf(url, "http://www.wireshark.org/docs/wsug_html_chunked/%s", topic);
 #ifdef DOC_DIR
     }
-#endif /* ifdef DOC_DIR */ 
+#endif /* ifdef DOC_DIR */
 
     browser_open_url(url->str);
 
@@ -125,23 +124,22 @@ void help_topic_html(const gchar *topic) {
 }
 
 
-
 /**
  * Redraw all help pages, to use a new font.
  */
 void help_redraw(void)
 {
-  GSList *help_page_ent;
-  help_page_t *help_page;
+    GSList *help_page_ent;
+    help_page_t *help_page;
 
-  if (help_w != NULL) {
-    for (help_page_ent = help_text_pages; help_page_ent != NULL;
-        help_page_ent = g_slist_next(help_page_ent))
-    {
-      help_page = (help_page_t *)help_page_ent->data;
-      text_page_redraw(help_page->page, help_page->pathname);
+    if (help_w != NULL) {
+        for (help_page_ent = help_text_pages; help_page_ent != NULL;
+             help_page_ent = g_slist_next(help_page_ent))
+        {
+            help_page = (help_page_t *)help_page_ent->data;
+            text_page_redraw(help_page->page, help_page->pathname);
+        }
     }
-  }
 }
 
 
@@ -249,7 +247,7 @@ topic_action(topic_action_e action)
         break;
     case (HELP_MANUAL_ADDR_RESOLVE_DIALOG):
         help_topic_html("ChManualAddressResolveSection.html");
-	break;
+        break;
     case(HELP_PRINT_DIALOG):
         help_topic_html("ChIOPrintSection.html");
         break;
@@ -331,8 +329,8 @@ topic_action(topic_action_e action)
         help_topic_html("ChIOExportSection.html#ChIOExportSelectedDialog");
         break;
     case(HELP_EXPORT_OBJECT_LIST):
-	help_topic_html("ChIOExportSection.html#ChIOExportObjectsDialog");
-	break;
+        help_topic_html("ChIOExportSection.html#ChIOExportObjectsDialog");
+        break;
     case(HELP_OPEN_DIALOG):
     case(HELP_OPEN_WIN32_DIALOG):
         help_topic_html("ChIOOpenSection.html");
@@ -358,10 +356,11 @@ topic_cb(GtkWidget *w _U_, topic_action_e action)
     topic_action(action);
 }
 
+
 gboolean
-topic_menu_cb(GtkWidget *w _U_, gpointer data _U_, topic_action_e action)
+topic_menu_cb(GtkWidget *w _U_, gpointer dummy _U_, gpointer user_data)
 {
-    topic_action(action);
+    topic_action((topic_action_e)GPOINTER_TO_INT(user_data));
     return TRUE;
 }
 

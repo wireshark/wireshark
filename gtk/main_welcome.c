@@ -122,6 +122,7 @@ scroll_box_dynamic_new(GtkBox *child_box, guint max_childs, guint scrollw_y_size
     return parent_box;
 }
 
+
 static GtkWidget *
 scroll_box_dynamic_add(GtkWidget *parent_box)
 {
@@ -131,7 +132,6 @@ scroll_box_dynamic_add(GtkWidget *parent_box)
     guint curr_cnt;
     guint scrollw_y_size;
     GList *childs;
-
 
     child_box = g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_CHILD_BOX);
     max_cnt = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_MAX_CHILDS));
@@ -147,7 +147,7 @@ scroll_box_dynamic_add(GtkWidget *parent_box)
         /* XXX - there's no way to get rid of the shadow frame - except for creating an own widget :-( */
         scrollw = scrolled_window_new(NULL, NULL);
         scrollw_y_size = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_SCROLLW_Y_SIZE));
-	    gtk_widget_set_size_request(scrollw, -1, scrollw_y_size);
+        gtk_widget_set_size_request(scrollw, -1, scrollw_y_size);
 
         g_object_set_data(G_OBJECT(parent_box), SCROLL_BOX_SCROLLW, scrollw);
         gtk_box_pack_start(GTK_BOX(parent_box), scrollw, TRUE, TRUE, 0);
@@ -162,6 +162,7 @@ scroll_box_dynamic_add(GtkWidget *parent_box)
 
     return child_box;
 }
+
 
 static GtkWidget *
 scroll_box_dynamic_reset(GtkWidget *parent_box)
@@ -184,8 +185,6 @@ scroll_box_dynamic_reset(GtkWidget *parent_box)
 }
 
 
-
-
 /* mouse entered this widget - change background color */
 static gboolean
 welcome_item_enter_cb(GtkWidget *eb, GdkEventCrossing *event _U_, gpointer user_data _U_)
@@ -195,9 +194,10 @@ welcome_item_enter_cb(GtkWidget *eb, GdkEventCrossing *event _U_, gpointer user_
     return FALSE;
 }
 
+
 /* mouse has left this widget - change background color  */
 static gboolean
-welcome_item_leave_cb(GtkWidget *eb, GdkEvent *event _U_, gpointer user_data _U_)
+welcome_item_leave_cb(GtkWidget *eb, GdkEventCrossing *event _U_, gpointer user_data _U_)
 {
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_idle_bg);
 
@@ -205,11 +205,15 @@ welcome_item_leave_cb(GtkWidget *eb, GdkEvent *event _U_, gpointer user_data _U_
 }
 
 
+typedef gboolean (*welcome_button_callback_t)  (GtkWidget      *widget,
+                                                GdkEventButton *event,
+                                                gpointer        user_data);
+
 /* create a "button widget" */
 static GtkWidget *
 welcome_button(const gchar *stock_item,
-               const gchar * title, const gchar * subtitle, const gchar *tooltip,
-			   GtkSignalFunc callback, void *callback_data)
+               const gchar *title, const gchar *subtitle, const gchar *tooltip,
+               welcome_button_callback_t welcome_button_callback, gpointer welcome_button_callback_data)
 {
     GtkWidget *eb, *w, *item_hb, *text_vb;
     gchar *formatted_text;
@@ -230,7 +234,7 @@ welcome_button(const gchar *stock_item,
 
     g_signal_connect(eb, "enter-notify-event", G_CALLBACK(welcome_item_enter_cb), NULL);
     g_signal_connect(eb, "leave-notify-event", G_CALLBACK(welcome_item_leave_cb), NULL);
-    g_signal_connect(eb, "button-release-event", G_CALLBACK(callback), callback_data);
+    g_signal_connect(eb, "button-release-event", G_CALLBACK(welcome_button_callback), welcome_button_callback_data);
 
     /* icon */
     w = gtk_image_new_from_stock(stock_item, GTK_ICON_SIZE_LARGE_TOOLBAR);
@@ -259,6 +263,20 @@ welcome_button(const gchar *stock_item,
     return eb;
 }
 
+
+/* Hack to handle welcome-button "button-release-event" callback   */
+/*  1. Dispatch to desired actual callback                         */
+/*  2. Return TRUE for the event callback.                         */
+/* user_data: actual (no arg) callback fcn to be invoked.          */
+static gboolean
+welcome_button_callback_helper(GtkWidget *w, GdkEventButton *event _U_, gpointer user_data)
+{
+    void (*funct)(GtkWidget *, gpointer) = user_data;
+    (*funct)(w, NULL);
+    return TRUE;
+}
+
+
 static void
 welcome_header_set_message(gchar *msg) {
     GString *message;
@@ -268,18 +286,18 @@ welcome_header_set_message(gchar *msg) {
     message = g_string_new("<span weight=\"bold\" size=\"x-large\" foreground=\"white\">");
 
     if (msg) {
-	g_string_append(message, msg);
+        g_string_append(message, msg);
     } else { /* Use our default header */
-	if ((now->tm_mon == 3 && now->tm_mday == 1) || (now->tm_mon == 6 && now->tm_mday == 14)) {
-	    g_string_append(message, "Sniffing the glue that holds the Internet together");
-	} else {
-	    g_string_append(message, prefs.gui_start_title);
-	}
+        if ((now->tm_mon == 3 && now->tm_mday == 1) || (now->tm_mon == 6 && now->tm_mday == 14)) {
+            g_string_append(message, "Sniffing the glue that holds the Internet together");
+        } else {
+            g_string_append(message, prefs.gui_start_title);
+        }
 
-	if (prefs.gui_version_in_start_page) {
-	    g_string_append_printf(message, "</span>\n<span size=\"large\" foreground=\"white\">Version " VERSION "%s",
-				   wireshark_svnversion);
-	}
+        if (prefs.gui_version_in_start_page) {
+            g_string_append_printf(message, "</span>\n<span size=\"large\" foreground=\"white\">Version " VERSION "%s",
+                                   wireshark_svnversion);
+        }
     }
 
     g_string_append(message, "</span>");
@@ -287,6 +305,7 @@ welcome_header_set_message(gchar *msg) {
     gtk_label_set_markup(GTK_LABEL(header_lb), message->str);
     g_string_free(message, TRUE);
 }
+
 
 /* create the banner "above our heads" */
 static GtkWidget *
@@ -320,6 +339,7 @@ welcome_header_new(void)
     return eb;
 }
 
+
 void
 welcome_header_push_msg(gchar *msg) {
     gchar *msg_copy = g_strdup(msg);
@@ -331,17 +351,18 @@ welcome_header_push_msg(gchar *msg) {
     gtk_widget_hide(welcome_hb);
 }
 
+
 void
 welcome_header_pop_msg(void) {
     gchar *msg = NULL;
 
     if (status_messages) {
-	g_free(status_messages->data);
+        g_free(status_messages->data);
         status_messages = g_slist_delete_link(status_messages, status_messages);
     }
 
     if (status_messages) {
-	msg = status_messages->data;
+        msg = status_messages->data;
     }
 
     welcome_header_set_message(msg);
@@ -350,6 +371,7 @@ welcome_header_pop_msg(void) {
         gtk_widget_show(welcome_hb);
     }
 }
+
 
 /* create a "topic header widget" */
 static GtkWidget *
@@ -405,7 +427,7 @@ welcome_topic_new(const char *header, GtkWidget **to_fill)
 
 /* a file link was pressed */
 static gboolean
-welcome_filename_link_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data)
+welcome_filename_link_press_cb(GtkWidget *widget _U_, GdkEventButton *event _U_, gpointer data)
 {
     menu_open_filename(data);
 
@@ -417,14 +439,14 @@ welcome_filename_link_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpoin
 static GtkWidget *
 welcome_filename_link_new(const gchar *filename, GtkWidget **label)
 {
-    GtkWidget	*w;
-    GtkWidget	*eb;
-    GString	*str;
-    gchar	*str_escaped;
+    GtkWidget   *w;
+    GtkWidget   *eb;
+    GString     *str;
+    gchar       *str_escaped;
     glong        uni_len;
     gsize        uni_start, uni_end;
     const glong  max = 60;
-    int		 err;
+    int          err;
     struct stat  stat_buf;
     GtkTooltips *tooltips;
 
@@ -437,8 +459,8 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
 
     /* cut max filename length */
     if (uni_len > max) {
-	uni_start = g_utf8_offset_to_pointer(str->str, 20) - str->str;
-	uni_end = g_utf8_offset_to_pointer(str->str, uni_len - max) - str->str;
+        uni_start = g_utf8_offset_to_pointer(str->str, 20) - str->str;
+        uni_end = g_utf8_offset_to_pointer(str->str, uni_len - max) - str->str;
         g_string_erase(str, uni_start, uni_end);
         g_string_insert(str, uni_start, " " UTF8_HORIZONTAL_ELLIPSIS " ");
     }
@@ -457,7 +479,7 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
     if(err == 0) {
         if (stat_buf.st_size/1024/1024/1024 > 10) {
             g_string_append_printf(str, " (%" G_GINT64_MODIFIER "d GB)", (gint64) (stat_buf.st_size/1024/1024/1024));
-	} else if (stat_buf.st_size/1024/1024 > 10) {
+        } else if (stat_buf.st_size/1024/1024 > 10) {
             g_string_append_printf(str, " (%" G_GINT64_MODIFIER "d MB)", (gint64) (stat_buf.st_size/1024/1024));
         } else if (stat_buf.st_size/1024 > 10) {
             g_string_append_printf(str, " (%" G_GINT64_MODIFIER "d KB)", (gint64) (stat_buf.st_size/1024));
@@ -544,7 +566,7 @@ main_welcome_add_recent_capture_files(const char *widget_cf_name)
 #ifdef HAVE_LIBPCAP
 /* user clicked on an interface button */
 static gboolean
-welcome_if_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data)
+welcome_if_press_cb(GtkWidget *widget _U_, GdkEventButton *event _U_, gpointer data)
 {
     cap_settings_t cap_settings;
 
@@ -632,57 +654,58 @@ welcome_if_new(const if_info_t *if_info, const gchar *user_descr, GdkColor *topi
 static void
 welcome_if_panel_load(void)
 {
-  GtkWidget *child_box;
-  GtkWidget *interface_hb;
+    GtkWidget *child_box;
+    GtkWidget *interface_hb;
 
-  if_info_t     *if_info;
-  GList         *if_list;
-  int err;
-  gchar         *err_str;
-  int           ifs;
-  GList         *curr;
-  gchar         *user_descr;
+    if_info_t     *if_info;
+    GList         *if_list;
+    int err;
+    gchar         *err_str;
+    int           ifs;
+    GList         *curr;
+    gchar         *user_descr;
 
 
-  /* LOAD THE INTERFACES */
-  if_list = capture_interface_list(&err, &err_str);
-  if_list = g_list_sort (if_list, if_list_comparator_alph);
-  if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
-    g_free(err_str);
-    return;
-  }
+    /* LOAD THE INTERFACES */
+    if_list = capture_interface_list(&err, &err_str);
+    if_list = g_list_sort (if_list, if_list_comparator_alph);
+    if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
+        g_free(err_str);
+        return;
+    }
 
-  /* List the interfaces */
-  for(ifs = 0; (curr = g_list_nth(if_list, ifs)); ifs++) {
-      /*g_string_assign(if_tool_str, "");*/
-      if_info = curr->data;
+    /* List the interfaces */
+    for(ifs = 0; (curr = g_list_nth(if_list, ifs)); ifs++) {
+        /*g_string_assign(if_tool_str, "");*/
+        if_info = curr->data;
 
-      /* Continue if capture device is hidden */
-      if (prefs_is_capture_device_hidden(if_info->name)) {
-          continue;
-      }
+        /* Continue if capture device is hidden */
+        if (prefs_is_capture_device_hidden(if_info->name)) {
+            continue;
+        }
 
-      user_descr = capture_dev_user_descr_find(if_info->name);
-      if (user_descr) {
+        user_descr = capture_dev_user_descr_find(if_info->name);
+        if (user_descr) {
 #ifndef _WIN32
-        gchar *comment = user_descr;
-        user_descr = g_strdup_printf("%s (%s)", comment, if_info->name);
-        g_free (comment);
+            gchar *comment = user_descr;
+            user_descr = g_strdup_printf("%s (%s)", comment, if_info->name);
+            g_free (comment);
 #endif
-        interface_hb = welcome_if_new(if_info, user_descr, &topic_content_bg, g_strdup(if_info->name));
-        g_free (user_descr);
-      } else {
-        interface_hb = welcome_if_new(if_info, NULL, &topic_content_bg, g_strdup(if_info->name));
-      }
+            interface_hb = welcome_if_new(if_info, user_descr, &topic_content_bg, g_strdup(if_info->name));
+            g_free (user_descr);
+        } else {
+            interface_hb = welcome_if_new(if_info, NULL, &topic_content_bg, g_strdup(if_info->name));
+        }
 
-      child_box = scroll_box_dynamic_add(welcome_if_panel_vb);
-      gtk_box_pack_start(GTK_BOX(child_box), interface_hb, FALSE, FALSE, 1);
-  }
+        child_box = scroll_box_dynamic_add(welcome_if_panel_vb);
+        gtk_box_pack_start(GTK_BOX(child_box), interface_hb, FALSE, FALSE, 1);
+    }
 
-  free_interface_list(if_list);
+    free_interface_list(if_list);
 }
 #endif  /* HAVE_LIBPCAP */
+
 
 /* reload the list of interfaces */
 void
@@ -706,8 +729,8 @@ welcome_if_panel_reload(void)
 
         g_list_free(child_list);
 
-	welcome_if_panel_load();
-	gtk_widget_show_all(welcome_if_panel_vb);
+        welcome_if_panel_load();
+        gtk_widget_show_all(welcome_if_panel_vb);
     }
 #endif  /* HAVE_LIBPCAP */
 }
@@ -786,9 +809,9 @@ welcome_new(void)
 #ifdef HAVE_LIBPCAP
     item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_INTERFACES,
         "Interface List",
-		"Live list of the capture interfaces (counts incoming packets)",
+        "Live list of the capture interfaces (counts incoming packets)",
         "Same as Capture/Interfaces menu or toolbar item",
-        G_CALLBACK(capture_if_cb), NULL);
+        welcome_button_callback_helper, capture_if_cb);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     label_text =  g_strdup("<span foreground=\"black\">Start capture on interface:</span>");
@@ -807,23 +830,23 @@ welcome_new(void)
 
     item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_OPTIONS,
         "Capture Options",
-		"Start a capture with detailed options",
+        "Start a capture with detailed options",
         "Same as Capture/Options menu or toolbar item",
-        G_CALLBACK(capture_prep_cb), NULL);
+        welcome_button_callback_helper, capture_prep_cb);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
 #ifdef _WIN32
     /* Check for chimney offloading */
     reg_ret = RegQueryValueEx(HKEY_LOCAL_MACHINE,
-			      _T("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\EnableTCPChimney"),
-			      NULL, NULL, (LPBYTE) &chimney_enabled, &ce_size);
+                              _T("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\EnableTCPChimney"),
+                              NULL, NULL, (LPBYTE) &chimney_enabled, &ce_size);
     if (reg_ret == ERROR_SUCCESS && chimney_enabled) {
-	item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
-		    "Offloading Detected",
-	    "TCP Chimney offloading is enabled. You \nmight not capture much data.",
-	    topic_online_url(ONLINEPAGE_CHIMNEY),
-	    G_CALLBACK(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_CHIMNEY));
-	gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
+        item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
+            "Offloading Detected",
+            "TCP Chimney offloading is enabled. You \nmight not capture much data.",
+            topic_online_url(ONLINEPAGE_CHIMNEY),
+            topic_menu_cb, GINT_TO_POINTER(ONLINEPAGE_CHIMNEY));
+        gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
     }
 #endif /* _WIN32 */
 
@@ -832,17 +855,17 @@ welcome_new(void)
     gtk_box_pack_start(GTK_BOX(column_vb), topic_vb, TRUE, TRUE, 0);
 
     item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
-		"How to Capture",
-		"Step by step to a successful capture setup",
+        "How to Capture",
+        "Step by step to a successful capture setup",
         topic_online_url(ONLINEPAGE_CAPTURE_SETUP),
-        G_CALLBACK(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_CAPTURE_SETUP));
+        topic_menu_cb, GINT_TO_POINTER(ONLINEPAGE_CAPTURE_SETUP));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
-		"Network Media",
+        "Network Media",
         "Specific information for capturing on: Ethernet, WLAN, ...",
         topic_online_url(ONLINEPAGE_NETWORK_MEDIA),
-        G_CALLBACK(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_NETWORK_MEDIA));
+        topic_menu_cb, GINT_TO_POINTER(ONLINEPAGE_NETWORK_MEDIA));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 #else
     label_text =  g_strdup("<span foreground=\"black\">Capturing is not compiled into this version of Wireshark!</span>");
@@ -864,9 +887,9 @@ welcome_new(void)
 
     item_hb = welcome_button(GTK_STOCK_OPEN,
         "Open",
-		"Open a previously captured file",
+        "Open a previously captured file",
         "Same as File/Open menu or toolbar item",
-        G_CALLBACK(file_open_cmd_cb), NULL);
+        welcome_button_callback_helper, file_open_cmd_cb);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     /* prepare list of recent files (will be filled in later) */
@@ -885,9 +908,9 @@ welcome_new(void)
 
     item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
         "Sample Captures",
-		"A rich assortment of example capture files on the wiki",
+        "A rich assortment of example capture files on the wiki",
         topic_online_url(ONLINEPAGE_SAMPLE_CAPTURES),
-        G_CALLBACK(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_SAMPLE_CAPTURES));
+        topic_menu_cb, GINT_TO_POINTER(ONLINEPAGE_SAMPLE_CAPTURES));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     /* fill bottom space */
@@ -905,30 +928,33 @@ welcome_new(void)
 
     item_hb = welcome_button(GTK_STOCK_HOME,
         "Website",
-		"Visit the project's website",
+        "Visit the project's website",
         topic_online_url(ONLINEPAGE_HOME),
-        G_CALLBACK(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_HOME));
+        topic_menu_cb, GINT_TO_POINTER(ONLINEPAGE_HOME));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
+#ifdef HHC_DIR
     item_hb = welcome_button(GTK_STOCK_HELP,
         "User's Guide",
-		"The User's Guide "
-#ifdef HHC_DIR
+        "The User's Guide "
         "(local version, if installed)",
         "Locally installed (if installed) otherwise online version",
-        G_CALLBACK(topic_menu_cb), GINT_TO_POINTER(HELP_CONTENT));
+        topic_menu_cb, GINT_TO_POINTER(HELP_CONTENT));
 #else
+    item_hb = welcome_button(GTK_STOCK_HELP,
+        "User's Guide",
+        "The User's Guide "
         "(online version)",
         topic_online_url(ONLINEPAGE_USERGUIDE),
-        G_CALLBACK(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_USERGUIDE));
+        topic_menu_cb, GINT_TO_POINTER(ONLINEPAGE_USERGUIDE));
 #endif
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
         "Security",
-		"Work with Wireshark as securely as possible",
+        "Work with Wireshark as securely as possible",
         topic_online_url(ONLINEPAGE_SECURITY),
-        G_CALLBACK(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_SECURITY));
+        topic_menu_cb, GINT_TO_POINTER(ONLINEPAGE_SECURITY));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
 #if 0
