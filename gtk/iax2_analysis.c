@@ -111,7 +111,7 @@ typedef struct column_arrows {
 
 #define NUM_COLS 7
 #define NUM_GRAPH_ITEMS 100000
-#define MAX_YSCALE 17
+#define MAX_YSCALE 16
 #define AUTO_MAX_YSCALE_INDEX 0
 #define AUTO_MAX_YSCALE 0
 #define MAX_GRAPHS 4
@@ -119,7 +119,7 @@ typedef struct column_arrows {
 #define GRAPH_FWD_DIFF 1
 #define GRAPH_REV_JITTER 2
 #define GRAPH_REV_DIFF 3
-static guint32 yscale_max[MAX_YSCALE] = {AUTO_MAX_YSCALE, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000, 20000000, 50000000, 100000000};
+static guint32 yscale_max[MAX_YSCALE] = {AUTO_MAX_YSCALE, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000, 20000000, 50000000};
 
 #define MAX_PIXELS_PER_TICK 4
 #define DEFAULT_PIXELS_PER_TICK_INDEX 1
@@ -578,7 +578,7 @@ int iax2_packet_analyse(tap_iax2_stat_t *statinfo,
 
 	/* TODO: lost packets / duplicated:  we should infer this from timestamp... */
 	statinfo->time = current_time;
-	statinfo->timestamp = iax2info->timestamp;
+	statinfo->timestamp = iax2info->timestamp; /* millisecs */
 	statinfo->stop_seq_nr = 0;
 	statinfo->total_nr++;
 
@@ -1489,7 +1489,7 @@ static void yscale_select(GtkWidget *item, gpointer data)
 	i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
 	user_data->dlg.dialog_graph.max_y_units_index=i;
-        user_data->dlg.dialog_graph.max_y_units=yscale_max[i]/1000;
+        user_data->dlg.dialog_graph.max_y_units=yscale_max[i];
         dialog_graph_redraw(user_data);
 }
 
@@ -1534,9 +1534,9 @@ create_yscale_max_menu_items(user_data_t* user_data)
                 if(yscale_max[i]==AUTO_MAX_YSCALE){
 			g_strlcpy(str,"Auto",sizeof(str));
                 } else if (yscale_max[i] < 1000000) {
-			g_snprintf(str, sizeof(str), "%u us", yscale_max[i]/1000);
+			g_snprintf(str, sizeof(str), "%u ms", yscale_max[i]/1000);
                 } else {
-			g_snprintf(str, sizeof(str), "%u ms", yscale_max[i]/1000000);
+			g_snprintf(str, sizeof(str), "%u s", yscale_max[i]/1000000);
                 }
                 gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
         }
