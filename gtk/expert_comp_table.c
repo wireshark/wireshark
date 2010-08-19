@@ -360,8 +360,8 @@ error_show_popup_menu_cb(void *widg _U_, GdkEvent *event, error_equiv_table *err
 
 	return FALSE;
 }
-#define USE_GUIMANAGER 1
-#ifndef USE_GUIMANAGER
+#define EXPERT_USE_GUIMANAGER 1
+#ifndef EXPERT_USE_GUIMANAGER
 static GtkItemFactoryEntry error_list_menu_items[] =
 {
 	/* Match */
@@ -568,51 +568,51 @@ copy_cb(GtkWidget *widget, gpointer user_data)
 	error_select_filter_cb( widget , user_data, CALLBACK_COPY);
 }
 
-static const char *ui_desc_error_list_menu =
-"<ui>"
-"  <popup name='MainMenu'>"
-"    <menu action='/Apply as Filter'>"
-"      <menuitem action='/Apply as Filter/Selected'/>"
-"      <menuitem action='/Apply as Filter/... not Selected'/>"
-"      <menuitem action='/Apply as Filter/... and Selected'/>"
-"      <menuitem action='/Apply as Filter/... or Selected'/>"
-"      <menuitem action='/Apply as Filter/... and not Selected'/>"
-"      <menuitem action='/Apply as Filter/... or not Selected'/>"
-"    </menu>"
-"    <menu action='/Prepare a Filter'>"
-"      <menuitem action='/Prepare a Filter/Selected'/>"
-"      <menuitem action='/Prepare a Filter/... not Selected'/>"
-"      <menuitem action='/Prepare a Filter/... and Selected'/>"
-"      <menuitem action='/Prepare a Filter/... or Selected'/>"
-"      <menuitem action='/Prepare a Filter/... and not Selected'/>"
-"      <menuitem action='/Prepare a Filter/... or not Selected'/>"
-"    </menu>"
-"    <menu action='/Find Frame'>"
-"      <menu action='/Find Frame/Find Frame'>"
-"        <menuitem action='/Find Frame/Selected'/>"
-"        <menuitem action='/Find Frame/Not Selected'/>"
-"      </menu>"
-"      <menu action='/Find Frame/Find Next'>"
-"        <menuitem action='/Find Next/Selected'/>"
-"        <menuitem action='/Find Next/Not Selected'/>"
-"      </menu>"
-"      <menu action='/Find Frame/Find Previous'>"
-"        <menuitem action='/Find Previous/Selected'/>"
-"        <menuitem action='/Find Previous/Not Selected'/>"
-"      </menu>"
-"    </menu>"
-"    <menu action='/Colorize Procedure'>"
-"     <menuitem action='/Colorize Procedure/Selected'/>"
-"     <menuitem action='/Colorize Procedure/Not Selected'/>"
-"    </menu>"
-"    <menu action='/Internet Search for Info Text'>"
-"     <menuitem action='/StartWebSearch'/>"
-"    </menu>"
-"    <menu action='/Copy'>"
-"     <menuitem action='/Copy/Selected'/>"
-"    </menu>"
-"  </popup>"
-"</ui>";
+static const char *ui_desc_expert_filter_popup =
+"<ui>\n"
+"  <popup name='ExpertFilterPopup'>\n"
+"    <menu action='/Apply as Filter'>\n"
+"      <menuitem action='/Apply as Filter/Selected'/>\n"
+"      <menuitem action='/Apply as Filter/... not Selected'/>\n"
+"      <menuitem action='/Apply as Filter/... and Selected'/>\n"
+"      <menuitem action='/Apply as Filter/... or Selected'/>\n"
+"      <menuitem action='/Apply as Filter/... and not Selected'/>\n"
+"      <menuitem action='/Apply as Filter/... or not Selected'/>\n"
+"    </menu>\n"
+"    <menu action='/Prepare a Filter'>\n"
+"      <menuitem action='/Prepare a Filter/Selected'/>\n"
+"      <menuitem action='/Prepare a Filter/... not Selected'/>\n"
+"      <menuitem action='/Prepare a Filter/... and Selected'/>\n"
+"      <menuitem action='/Prepare a Filter/... or Selected'/>\n"
+"      <menuitem action='/Prepare a Filter/... and not Selected'/>\n"
+"      <menuitem action='/Prepare a Filter/... or not Selected'/>\n"
+"    </menu>\n"
+"    <menu action='/Find Frame'>\n"
+"      <menu action='/Find Frame/Find Frame'>\n"
+"        <menuitem action='/Find Frame/Selected'/>\n"
+"        <menuitem action='/Find Frame/Not Selected'/>\n"
+"      </menu>\n"
+"      <menu action='/Find Frame/Find Next'>\n"
+"        <menuitem action='/Find Next/Selected'/>\n"
+"        <menuitem action='/Find Next/Not Selected'/>\n"
+"      </menu>\n"
+"      <menu action='/Find Frame/Find Previous'>\n"
+"        <menuitem action='/Find Previous/Selected'/>\n"
+"        <menuitem action='/Find Previous/Not Selected'/>\n"
+"      </menu>\n"
+"    </menu>\n"
+"    <menu action='/Colorize Procedure'>\n"
+"     <menuitem action='/Colorize Procedure/Selected'/>\n"
+"     <menuitem action='/Colorize Procedure/Not Selected'/>\n"
+"    </menu>\n"
+"    <menu action='/Internet Search for Info Text'>\n"
+"     <menuitem action='/StartWebSearch'/>\n"
+"    </menu>\n"
+"    <menu action='/Copy'>\n"
+"     <menuitem action='/Copy/Selected'/>\n"
+"    </menu>\n"
+"  </popup>\n"
+"</ui>\n";
 
 
 /* 
@@ -636,7 +636,7 @@ static const char *ui_desc_error_list_menu =
  * GCallback callback;			The function to call when the action is activated.  
  *
  */
-static const GtkActionEntry error_list_menu_entries[] = {
+static const GtkActionEntry expert_popup_entries[] = {
   { "/Apply as Filter",							NULL, "Apply as Filter",				NULL, NULL,								NULL },
   { "/Prepare a Filter",						NULL, "Prepare a Filter",				NULL, NULL,								NULL },
   { "/Find Frame",								NULL, "Find Frame",						NULL, NULL,								NULL },
@@ -695,7 +695,7 @@ expert_goto_pkt_cb (GtkTreeSelection *selection, gpointer data _U_)
 static void
 error_create_popup_menu(error_equiv_table *err)
 {
-#ifndef USE_GUIMANAGER
+#ifndef EXPERT_USE_GUIMANAGER
     GtkItemFactory *item_factory;
 
     err->select = gtk_tree_view_get_selection (GTK_TREE_VIEW (err->tree_view));
@@ -721,23 +721,23 @@ error_create_popup_menu(error_equiv_table *err)
                   G_CALLBACK (expert_goto_pkt_cb),
                   err);
 
-	action_group = gtk_action_group_new ("ActionGroup"); 
+	action_group = gtk_action_group_new ("ExpertFilterPopupActionGroup"); 
 	gtk_action_group_add_actions (action_group,							/* the action group */
-								error_list_menu_entries,				/* an array of action descriptions */
-								G_N_ELEMENTS(error_list_menu_entries),	/* the number of entries */
+								expert_popup_entries,					/* an array of action descriptions */
+								G_N_ELEMENTS(expert_popup_entries),		/* the number of entries */
 								err);									/* data to pass to the action callbacks */
 
 	ui_manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
-	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_error_list_menu, -1, &error); 
+	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_expert_filter_popup, -1, &error); 
 	if (error != NULL) 
     { 
-        fprintf (stderr, "Warning: building menu failed: %s\n", 
+        fprintf (stderr, "Warning: building expert filter popup failed: %s\n", 
                 error->message); 
         g_error_free (error); 
         error = NULL; 
     } 
-	err->menu = gtk_ui_manager_get_widget(ui_manager, "/MainMenu");
+	err->menu = gtk_ui_manager_get_widget(ui_manager, "/ExpertFilterPopup");
 	g_signal_connect(err->tree_view, "button_press_event", G_CALLBACK(error_show_popup_menu_cb), err);
 #endif
 
