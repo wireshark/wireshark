@@ -3065,7 +3065,8 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 
 			/* Length */
 			tvb_memcpy(tvb, asc_val, off + 2, 2);
-			if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
+			if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1
+			    || tlv_len < 1 || tlv_len > G_MAXUINT16) {
 				proto_tree_add_text(v_tree, tvb, off, len - off,
 							"[Bogus length: %s]", asc_val);
 				return;
