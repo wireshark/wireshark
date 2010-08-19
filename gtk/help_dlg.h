@@ -117,7 +117,7 @@ void topic_cb(GtkWidget *widget, topic_action_e topic);
  * @param user_data the topic to display
  * @return TRUE
  */
-gboolean topic_menu_cb(GtkWidget *widget _U_, gpointer dummy _U_, gpointer user_data);
+gboolean topic_menu_cb(GtkWidget *widget _U_, GdkEventButton *event _U_, gpointer user_data);
 
 /** Redraw all the help dialog text widgets, to use a new font. */
 void help_redraw(void);

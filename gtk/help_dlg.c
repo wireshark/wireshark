@@ -358,7 +358,7 @@ topic_cb(GtkWidget *w _U_, topic_action_e action)
 
 
 gboolean
-topic_menu_cb(GtkWidget *w _U_, gpointer dummy _U_, gpointer user_data)
+topic_menu_cb(GtkWidget *w _U_, GdkEventButton *event _U_, gpointer user_data)
 {
     topic_action((topic_action_e)GPOINTER_TO_INT(user_data));
     return TRUE;
