@@ -2031,18 +2031,18 @@ static const char *ui_desc_conv_filter_popup =
  */
 static const GtkActionEntry conv_filter_menu_entries[] = {
   /* Top level */ 
-  { "/Apply as Filter",							NULL, "Apply as Filter" },
-  { "/Prepare a Filter",						NULL, "Prepare a Filter"},
-  { "/Find Packet",								NULL, "find Packet"},
-  { "/Colorize Conversation",					NULL, "Colorize Conversation"},
+  { "/Apply as Filter",							NULL, "Apply as Filter", NULL, NULL, NULL },
+  { "/Prepare a Filter",						NULL, "Prepare a Filter", NULL, NULL, NULL },
+  { "/Find Packet",								NULL, "Find Packet", NULL, NULL, NULL },
+  { "/Colorize Conversation",					NULL, "Colorize Conversation", NULL, NULL, NULL },
 
   /* Apply as */ 
-  { "/Apply as Filter/Selected",				NULL, "Selected" },
-  { "/Apply as Filter/Not Selected",			NULL, "Not Selected" },
-  { "/Apply as Filter/... and Selected",		NULL, "... and Selected" },
-  { "/Apply as Filter/... or Selected",			NULL, "... or Selected" },
-  { "/Apply as Filter/... and not Selecte",		NULL, "... and not Selected" },
-  { "/Apply as Filter/... or not Selected",		NULL, "... or not Selected" },
+  { "/Apply as Filter/Selected",				NULL, "Selected" , NULL, NULL, NULL },
+  { "/Apply as Filter/Not Selected",			NULL, "Not Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/... and Selected",		NULL, "... and Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/... or Selected",			NULL, "... or Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/... and not Selected",		NULL, "... and not Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/... or not Selected",		NULL, "... or not Selected", NULL, NULL, NULL },
 
   /* Apply as Selected */ 
   { "/Apply as Filter/Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_as_selected_AtofromB_cb)},
@@ -2111,12 +2111,12 @@ static const GtkActionEntry conv_filter_menu_entries[] = {
   { "/Apply as Filter/... or not Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_or_not_selected_AnyfromB_cb)},
 
   /* Prepare a */ 
-  { "/Prepare a Filter/Selected",				NULL, "Selected" },
-  { "/Prepare a Filter/Not Selected",			NULL, "Not Selected" },
-  { "/Prepare a Filter/... and Selected",		NULL, "... and Selected" },
-  { "/Prepare a Filter/... or Selected",		NULL, "... or Selected" },
-  { "/Prepare a Filter/... and not Selecte",	NULL, "... and not Selected" },
-  { "/Prepare a Filter/... or not Selected",	NULL, "... or not Selected" },
+  { "/Prepare a Filter/Selected",				NULL, "Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/Not Selected",			NULL, "Not Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/... and Selected",		NULL, "... and Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/... or Selected",		NULL, "... or Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/... and not Selected",	NULL, "... and not Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/... or not Selected",	NULL, "... or not Selected", NULL, NULL, NULL },
 
   /* Prepare as Selected */ 
   { "/Prepare a Filter/Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_prepare_as_selected_AtofromB_cb)},
@@ -2185,9 +2185,9 @@ static const GtkActionEntry conv_filter_menu_entries[] = {
   { "/Prepare a Filter/... or not Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_or_not_selected_AnyfromB_cb)},
 
   /* Find packet*/ 
-  { "/Find Packet/Find Packet",					NULL, "Find Packet" },
-  { "/Find Packet/Find Next",					NULL, "Find Next" },
-  { "/Find Packet/Find Previous",				NULL, "Find Previous" },
+  { "/Find Packet/Find Packet",					NULL, "Find Packet", NULL, NULL, NULL },
+  { "/Find Packet/Find Next",					NULL, "Find Next", NULL, NULL, NULL },
+  { "/Find Packet/Find Previous",				NULL, "Find Previous", NULL, NULL, NULL },
 
   /* Find packet*/ 
   { "/Find Packet/Find Packet/A_to_from_B",		NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_find_AtofromB_cb)},
