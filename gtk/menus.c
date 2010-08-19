@@ -534,7 +534,27 @@ static GtkItemFactoryEntry menu_items[] =
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY, NULL, NULL,},
 #if 0
     /*
-     * Un-#if this when we actually implement Cut/Copy/Paste.
+     * Un-#if this when we actually implement Cut/Copy/Paste for the
+     * packet list and packet detail windows.
+     *
+     * Note: when we implement Cut/Copy/Paste in those windows, we
+     * will almost certainly want to allow multiple packets to be
+     * selected in the packet list pane and multiple packet detail
+     * items to be selected in the packet detail pane, so that
+     * the user can, for example, copy the summaries of multiple
+     * packets to the clipboard from the packet list pane and multiple
+     * packet detail items - perhaps *all* packet detail items - from
+     * the packet detail pane.  Given that, we'll also want to 
+     * implement Select All.
+     *
+     * If multiple packets are selected, we would probably display nothing
+     * in the packet detail pane, just as we do if no packet is selected,
+     * and any menu items etc. that would pertain only to a single packet
+     * would be disabled.
+     *
+     * If multiple packet detail items are selected, we would probably
+     * disable all items that pertain only to a single packet detail
+     * item, such as some items in the status bar.
      *
      * XXX - the actions for these will be different depending on what
      * widget we're in; ^C should copy from the filter text widget if
@@ -545,14 +565,33 @@ static GtkItemFactoryEntry menu_items[] =
      * the contents of selected protocol tree items to the clipboard,
      * e.g. the text copy would be the text displayed for those items),
      * etc..
+     *
+     * Given that those menu items should also affect text widgets
+     * such as the filter box, we would again want Select All, and,
+     * at least for the filter box, we would also want Undo and Redo.
+     * We would only want Cut, Paste, Undo, and Redo for the packet
+     * list and packet detail panes if we support modifying them.
      */
-    {"/Edit/Cut", "<control>X", NULL,
+    {"/Edit/_Undo", "<control>Z", NULL,
+                             0, "<StockItem>", GTK_STOCK_UNDO,},
+    {"/Edit/_Redo", "<shift><control>Z", NULL,
+                             0, "<StockItem>", GTK_STOCK_REDO,},
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/Cu_t", "<control>X", NULL,
                              0, "<StockItem>", GTK_STOCK_CUT,},
-    {"/Edit/Copy", "<control>C", NULL,
+    {"/Edit/_Copy", "<control>C", NULL,
                              0, "<StockItem>", GTK_STOCK_COPY,},
-    {"/Edit/Paste", "<control>V", NULL,
+    {"/Edit/_Paste", "<control>V", NULL,
                              0, "<StockItem>", GTK_STOCK_PASTE,},
-#endif
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/Select _All", "<control>A", NULL, 0,
+#ifdef GTK_STOCK_SELECT_ALL	/* first appeared in 2.10 */
+                             "<StockItem>", GTK_STOCK_SELECT_ALL,
+#else
+                             NULL, NULL,
+#endif /* GTK_STOCK_SELECT_ALL */
+    },
+#endif /* 0 */
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Edit/_Find Packet...",                             "<control>F", GTK_MENU_FUNC(find_frame_cb), 0, "<StockItem>", GTK_STOCK_FIND,},
     {"/Edit/Find Ne_xt",                                  "<control>N", GTK_MENU_FUNC(find_next_cb), 0, NULL, NULL,},
@@ -576,7 +615,7 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/Un-Time Reference All Packets",          "<alt><control>T", GTK_MENU_FUNC(new_packet_list_untime_reference_all_frames_cb), 0, NULL, NULL,},
     {"/Edit/Find Next Time Reference",               "<alt><control>N", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_NEXT, NULL, NULL,},
     {"/Edit/Find Previous Time Reference",           "<alt><control>B", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_PREV, NULL, NULL,},
-#else
+#else /* NEW_PACKET_LIST */
     /*
      * XXX - this should be changed to match the list used with the new
      * packet list, assuming we don't just drop the old packet list
