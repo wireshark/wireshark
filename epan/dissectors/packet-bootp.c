@@ -190,8 +190,8 @@ struct rfc3825_location_fixpoint_t {
 							   1: altitude in meters
 							   2: altitude in floors */
 	guint8 datum_type;		/* the map datum used for the coordinates. 8 bits.
-							   All values are allowed although currently only the 
-							   following ones are defined: 
+							   All values are allowed although currently only the
+							   following ones are defined:
 							   1: WGS84
 							   2: NAD83/NAVD88
 							   3: NAD83/MLLW */
@@ -214,12 +214,12 @@ struct rfc3825_location_decimal_t {
 	double altitude_res;	/* the uncertainty of the altitude in either:
 							   - altitude-type=meters: "10" means 10 meters which means +-10 meters from the altitude
 							   - altitude-type=floors: either 0 (unknown) or 30 (exact) */
-	int altitude_type;		/* the type of the altitude, allowed values are 
+	int altitude_type;		/* the type of the altitude, allowed values are
 							   0: unknown
 							   1: altitude in meters
 							   2: altitude in floors */
 	int datum_type;          /* the map datum used for the coordinates.
-							    All values are allowed although currently only the 
+							    All values are allowed although currently only the
 								following ones are defined:
 								1: WGS84
 								2: NAD83/NAVD88
@@ -1166,7 +1166,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				      (int)strlen(PACKETCABLE_MTA_CAP20)) == 0))
 		{
 			dissect_packetcable_mta_cap(v_tree, tvb, optoff, optlen);
-		} else 
+		} else
 			if ((tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP11,
 				(int)strlen(PACKETCABLE_CM_CAP11)) == 0)
 			||
@@ -1216,7 +1216,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			/* Identifier is a UUID */
 			proto_tree_add_item(v_tree, hf_bootp_client_identifier_uuid,
 					    tvb, optoff + 1, 16, TRUE);
-		/* From RFC 4631 paragraph 6.1 DHCPv4 Client Behavior: 
+		/* From RFC 4631 paragraph 6.1 DHCPv4 Client Behavior:
 			To send an RFC 3315-style binding identifier in a DHCPv4 'client
 			identifier' option, the type of the 'client identifier' option is set
 			to 255.	*/
@@ -1224,7 +1224,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			guint16	duidtype;
 			guint16	hwtype;
 			guint8	*buf;
-			int	enterprise; 
+			int	enterprise;
 
 			/*	The type field is immediately followed by the IAID, which is
 				an opaque 32-bit quantity	*/
@@ -1404,7 +1404,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		if (optlen > 3) {
 			if (fqdn_flags & F_FQDN_E) {
 				get_dns_name(tvb, optoff+3, optlen-3, optoff+3, &dns_name);
-				proto_tree_add_string(v_tree, hf_bootp_fqdn_name, 
+				proto_tree_add_string(v_tree, hf_bootp_fqdn_name,
 				    tvb, optoff+3, optlen-3, dns_name);
 			} else {
 				proto_tree_add_item(v_tree, hf_bootp_fqdn_asciiname,
@@ -1701,7 +1701,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Suboption 1: Primary DSS_ID = \"%s\"",
 					tvb_format_stringzpad(tvb, optoff+2, s_len));
 			} else if (s_option == 2) {
-				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Suboption 2: Secondary DSS_ID = \"%s\"", 
+				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Suboption 2: Secondary DSS_ID = \"%s\"",
 					tvb_format_stringzpad(tvb, optoff+2, s_len));
 			} else {
 				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Unknown");
@@ -1718,7 +1718,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		if (optlen == 1) {
 			/* CableLab specific */
 			s_option = tvb_get_guint8(tvb, optoff);
-			proto_tree_add_text(v_tree, tvb, optoff, optlen, 
+			proto_tree_add_text(v_tree, tvb, optoff, optlen,
 					    "CableLabs IP addressing mode preference: %s",
 					    val_to_str (s_option, cablelab_ipaddr_mode_vals, "Unknown"));
 			break;
@@ -2136,7 +2136,7 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 							suboptoff+=2;
 						} else {
 							proto_tree_add_text(subtree, tvb, suboptoff, tag_len,
-							    "Unknown tag=%u %s (%d byte%s)", tag, 
+							    "Unknown tag=%u %s (%d byte%s)", tag,
 							    tvb_bytes_to_str(tvb, suboptoff, tag_len),
 							    tag_len, plurality(tag_len, "", "s"));
 							suboptoff += tag_len;
@@ -2348,40 +2348,40 @@ rfc3825_lci_to_fixpoint(const unsigned char lci[16], struct rfc3825_location_fix
 	fixpoint->latitude_res = (lci[0]>>2) & 0x3F; /* make sure that right-shift does not copy sign bit */
 	if (lci[0] & 2) { /* LSB<<1 contains the sign of the latitude */
 		/* Latitude is negative, expand two's complement */
-		fixpoint->latitude = (((gint64)lci[0] & 3)<<32) | ((gint64)lci[1]<<24) | 
-		                           ((gint64)lci[2]<<16) | ((gint64)lci[3]<<8)  | 
+		fixpoint->latitude = (((gint64)lci[0] & 3)<<32) | ((gint64)lci[1]<<24) |
+		                           ((gint64)lci[2]<<16) | ((gint64)lci[3]<<8)  |
 		                            (gint64)lci[4]      | ((gint64)0x3FFFFFFF<<34);
 
 	} else {
 		/* Latitude is positive */
-		fixpoint->latitude = (((gint64)lci[0] & 3)<<32) | ((gint64)lci[1]<<24) | 
-		                           ((gint64)lci[2]<<16) | ((gint64)lci[3]<<8)  | 
+		fixpoint->latitude = (((gint64)lci[0] & 3)<<32) | ((gint64)lci[1]<<24) |
+		                           ((gint64)lci[2]<<16) | ((gint64)lci[3]<<8)  |
 		                            (gint64)lci[4];
 	}
 	fixpoint->longitude_res = (lci[5]>>2) & 0x3F;  /* make sure that right-shift does not copy sign bit */
 	if (lci[5] & 2) { /* LSB<<1 contains the sign of the latitude */
 		/* Longitude is negative, expand two's complement */
-		fixpoint->longitude = (((gint64)lci[5] & 3)<<32) | ((gint64)lci[6]<<24) | 
-		                            ((gint64)lci[7]<<16) | ((gint64)lci[8]<<8)  | 
+		fixpoint->longitude = (((gint64)lci[5] & 3)<<32) | ((gint64)lci[6]<<24) |
+		                            ((gint64)lci[7]<<16) | ((gint64)lci[8]<<8)  |
 		                             (gint64)lci[9]      | ((gint64)0x3FFFFFFF<<34);
 
 	} else {
 		/* Longitude is positive */
-		fixpoint->longitude = (((gint64)lci[5] & 3)<<32) | ((gint64)lci[6]<<24) | 
-		                            ((gint64)lci[7]<<16) | ((gint64)lci[8]<<8)  | 
+		fixpoint->longitude = (((gint64)lci[5] & 3)<<32) | ((gint64)lci[6]<<24) |
+		                            ((gint64)lci[7]<<16) | ((gint64)lci[8]<<8)  |
 		                             (gint64)lci[9];
 	}
 	fixpoint->altitude_type = (lci[10]>>4) & 0x0F;  /* make sure that right-shift does not copy sign bit */
 	fixpoint->altitude_res  = ((lci[10] & 0x0F) << 2) | ((lci[11]>>6) & 0x03);
 	if (lci[11] & 0x20) { /* LSB<<1 contains the sign of the latitude */
 		/* Altitude is negative, expand two's complement */
-		fixpoint->altitude = (((gint32)lci[11] & 0x3F)<<24) | ((gint32)lci[12]<<16) | 
-		                     ((gint32)lci[13]<<8) | ((gint32)lci[14]) | 
+		fixpoint->altitude = (((gint32)lci[11] & 0x3F)<<24) | ((gint32)lci[12]<<16) |
+		                     ((gint32)lci[13]<<8) | ((gint32)lci[14]) |
 		                      ((gint32)0x03<<30);
 
 	} else {
 		/* Altitudee is positive */
-		fixpoint->altitude = (((gint32)lci[11] & 0x3F)<<24) | ((gint32)lci[12]<<16) | 
+		fixpoint->altitude = (((gint32)lci[11] & 0x3F)<<24) | ((gint32)lci[12]<<16) |
 		                     ((gint32)lci[13]<<8) | ((gint32)lci[14]);
 	}
 
@@ -2434,7 +2434,7 @@ rfc3825_fixpoint_to_decimal(struct rfc3825_location_fixpoint_t *fixpoint, struct
 	} else if (decimal->altitude_type == 1) { /* Meters */
 		/* Altitude */
 		decimal->altitude = (double) fixpoint->altitude / (1 << 8);
-		if ((decimal->altitude > ((gint32) 1<<21)-1) || (decimal->altitude < ((gint32) -(1<<21)))) 
+		if ((decimal->altitude > ((gint32) 1<<21)-1) || (decimal->altitude < ((gint32) -(1<<21))))
 			return RFC3825_ALTITUDE_OUTOFRANGE;
 
 		/* Altitude Uncertainty */
@@ -2448,7 +2448,7 @@ rfc3825_fixpoint_to_decimal(struct rfc3825_location_fixpoint_t *fixpoint, struct
 		}
 	} else if (decimal->altitude_type == 2) { /* Floors */
 		/* Altitude */
-		if ((fixpoint->altitude_res != 30) && (fixpoint->altitude_res != 0)) { 
+		if ((fixpoint->altitude_res != 30) && (fixpoint->altitude_res != 0)) {
 			return RFC3825_ALTITUDE_UNCERTAINTY_OUTOFRANGE;
 		}
 		decimal->altitude = (double) fixpoint->altitude / (1 << 8);
@@ -3020,7 +3020,7 @@ dissect_vendor_cl_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 		{ 0x01, "CableLabs" },
 		{ 0x02, "IETF" },
 		{ 0x03, "EuroCableLabs" },
-		{ 0, NULL } 
+		{ 0, NULL }
 	};
 
 	subopt = tvb_get_guint8(tvb, suboptoff);
@@ -3057,12 +3057,12 @@ dissect_vendor_cl_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				subopt_len, plurality(subopt_len, "", "s"));
 			break;
 
-		case ipv4_list: 
+		case ipv4_list:
 			ti = proto_tree_add_text(v_tree, tvb, optoff, 2,
 					"Suboption %d %s", subopt, o125_cl_opt[subopt].text);
 
 			if ((subopt_len % 4) != 0) {
-				proto_item_append_text(ti, 
+				proto_item_append_text(ti,
 					"Invalid length for suboption %d (%d byte%s)", subopt, subopt_len,
 					plurality(subopt_len, "", "s"));
 			} else {
@@ -3086,7 +3086,7 @@ dissect_vendor_cl_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 					"Suboption %d: %s%s (%d byte%s)",
 		 			subopt, o125_cl_opt[subopt].text,
-					tvb_bytes_to_str(tvb, suboptoff, subopt_len), 
+					tvb_bytes_to_str(tvb, suboptoff, subopt_len),
 					subopt_len, plurality(subopt_len, "", "s"));
 			}
 			break;
@@ -3390,9 +3390,10 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 
 			/* Length */
 			tvb_memcpy(tvb, asc_val, off + 2, 2);
-			if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
+			if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1
+			    || tlv_len < 1 || tlv_len > G_MAXUINT16) {
 				proto_tree_add_text(v_tree, tvb, off, len - off,
-							"[Bogus length: %s]", asc_val);
+						    "[Bogus length: %s]", asc_val);
 				return;
 			} else {
 				/* Value(s) */
@@ -4142,7 +4143,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case BOOTREQUEST:
 		if ((htype == ARPHRD_ETHER || htype == ARPHRD_IEEE802)
 		    && hlen == 6) {
-			if (check_col(pinfo->cinfo, COL_INFO)) { 
+			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s (%s)",
 					     arphrdaddr_to_str(tvb_get_ptr(tvb, 28, hlen),
 							       hlen, htype),
@@ -4163,7 +4164,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	default:
-		if (check_col(pinfo->cinfo, COL_INFO))  
+		if (check_col(pinfo->cinfo, COL_INFO))
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown BOOTP message type (%u)", op);
 		break;
 	}
@@ -4204,7 +4205,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * packet type.
 		 */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCP");
-		if (check_col(pinfo->cinfo, COL_INFO))  
+		if (check_col(pinfo->cinfo, COL_INFO))
 			col_add_fstr(pinfo->cinfo, COL_INFO, "DHCP %-8s - Transaction ID 0x%x",
 				     dhcp_type, tvb_get_ntohl(tvb, 4));
 		tap_queue_packet( bootp_dhcp_tap, pinfo, dhcp_type);
@@ -4359,7 +4360,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-static void 
+static void
 bootp_init_protocol(void)
 {
 	gchar **optionstrings = NULL;
