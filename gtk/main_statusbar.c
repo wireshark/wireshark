@@ -81,8 +81,8 @@ static GtkWidget    *info_bar, *info_bar_event, *packets_bar, *profile_bar, *pro
 static GtkWidget    *expert_info_error, *expert_info_warn, *expert_info_note;
 static GtkWidget    *expert_info_chat, *expert_info_none;
 
-static guint        main_ctx, file_ctx, help_ctx, filter_ctx, packets_ctx, profile_ctx;
-static guint        status_levels[NUM_STATUS_LEVELS];
+static guint         main_ctx, file_ctx, help_ctx, filter_ctx, packets_ctx, profile_ctx;
+static guint         status_levels[NUM_STATUS_LEVELS];
 static gchar        *packets_str = NULL;
 static gchar        *profile_str = NULL;
 
@@ -195,7 +195,7 @@ static gboolean
 statusbar_remove_temporary_msg(gpointer data)
 {
     guint msg_id = GPOINTER_TO_UINT(data);
-    
+
     gtk_statusbar_remove(GTK_STATUSBAR(info_bar), main_ctx, msg_id);
 
     return FALSE;
@@ -223,7 +223,7 @@ statusbar_flash_temporary_msg(gpointer data _U_)
         gtk_drag_unhighlight(info_bar);
     }
 
-    flash_time -= TEMPORARY_FLASH_INTERVAL;    
+    flash_time -= TEMPORARY_FLASH_INTERVAL;
 
     return retval;
 }
@@ -235,9 +235,9 @@ void
 statusbar_push_temporary_msg(const gchar *msg)
 {
     guint msg_id;
-    
+
     msg_id = gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, msg);
-    
+
     flash_time = TEMPORARY_FLASH_TIMEOUT - 1;
     g_timeout_add(TEMPORARY_FLASH_INTERVAL, statusbar_flash_temporary_msg, NULL);
 
@@ -250,7 +250,7 @@ statusbar_new(void)
 {
     GtkWidget *status_hbox;
 
-    /* Sstatus hbox */
+    /* Status hbox */
     status_hbox = gtk_hbox_new(FALSE, 1);
     gtk_container_set_border_width(GTK_CONTAINER(status_hbox), 0);
 
@@ -413,7 +413,7 @@ profile_bar_new(void)
     g_signal_connect(profile_bar_event, "button_press_event", G_CALLBACK(profile_show_popup_cb), NULL);
     profile_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(profile_bar), "profile");
     gtk_tooltips_set_tip (tooltips, profile_bar_event,
-			  "Click to change configuration profile", NULL);
+                          "Click to change configuration profile", NULL);
     profile_bar_update();
 
     gtk_widget_show(profile_bar);
@@ -439,24 +439,23 @@ packets_bar_update(void)
             if(cfile.drops_known) {
                 packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u Dropped: %u",
                     cfile.count, cfile.displayed_count, cfile.marked_count, cfile.drops);
-			} else if (cfile.ignored_count > 0) {
+            } else if (cfile.ignored_count > 0) {
                 packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u Ignored: %u",
                     cfile.count, cfile.displayed_count, cfile.marked_count, cfile.ignored_count);
             } else {
-				if(cfile.is_tempfile){
-					/* Live capture */
-					packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u",
-						cfile.count, cfile.displayed_count, cfile.marked_count);
-				}else{
-					/* Loading an existing file */
-					gulong computed_elapsed = cf_get_computed_elapsed();
-
-					packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u Load time: %lu:%02lu.%03lu",
-						cfile.count, cfile.displayed_count, cfile.marked_count,
-						computed_elapsed/60000,
-						computed_elapsed%60000/1000,
-						computed_elapsed%1000);
-				}
+                if(cfile.is_tempfile){
+                    /* Live capture */
+                    packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u",
+                                                  cfile.count, cfile.displayed_count, cfile.marked_count);
+                }else{
+                    /* Loading an existing file */
+                    gulong computed_elapsed = cf_get_computed_elapsed();
+                    packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u Load time: %lu:%02lu.%03lu",
+                                                  cfile.count, cfile.displayed_count, cfile.marked_count,
+                                                  computed_elapsed/60000,
+                                                  computed_elapsed%60000/1000,
+                                                  computed_elapsed%1000);
+                }
             }
         } else {
             packets_str = g_strdup(" No Packets");
@@ -478,12 +477,18 @@ profile_bar_update(void)
             gtk_statusbar_pop(GTK_STATUSBAR(profile_bar), profile_ctx);
         }
 
-	profile_str = g_strdup_printf (" Profile: %s", get_profile_name ());
+        profile_str = g_strdup_printf (" Profile: %s", get_profile_name ());
 
         gtk_statusbar_push(GTK_STATUSBAR(profile_bar), profile_ctx, profile_str);
     }
 }
 
+static gboolean
+expert_comp_dlg_event_cb(GtkWidget *w _U_, GdkEventButton *event _U_, gpointer user_data _U_)
+{
+    expert_comp_dlg_launch();
+    return TRUE;
+}
 
 static void
 status_expert_new(void)
@@ -498,35 +503,35 @@ status_expert_new(void)
     gtk_widget_show(expert_image);
     expert_info_error = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_error), expert_image);
-    g_signal_connect(expert_info_error, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
+    g_signal_connect(expert_info_error, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
 
     expert_image = pixbuf_to_widget(expert_warn_pb_data);
     gtk_tooltips_set_tip(tooltips, expert_image, "WARNING is the highest expert info level", NULL);
     gtk_widget_show(expert_image);
     expert_info_warn = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_warn), expert_image);
-    g_signal_connect(expert_info_warn, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
+    g_signal_connect(expert_info_warn, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
 
     expert_image = pixbuf_to_widget(expert_note_pb_data);
     gtk_tooltips_set_tip(tooltips, expert_image, "NOTE is the highest expert info level", NULL);
     gtk_widget_show(expert_image);
     expert_info_note = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_note), expert_image);
-    g_signal_connect(expert_info_note, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
+    g_signal_connect(expert_info_note, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
 
     expert_image = pixbuf_to_widget(expert_chat_pb_data);
     gtk_tooltips_set_tip(tooltips, expert_image, "CHAT is the highest expert info level", NULL);
     gtk_widget_show(expert_image);
     expert_info_chat = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_chat), expert_image);
-    g_signal_connect(expert_info_chat, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
+    g_signal_connect(expert_info_chat, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
 
     expert_image = pixbuf_to_widget(expert_none_pb_data);
     gtk_tooltips_set_tip(tooltips, expert_image, "No expert info", NULL);
     gtk_widget_show(expert_image);
     expert_info_none = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_none), expert_image);
-    g_signal_connect(expert_info_none, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
+    g_signal_connect(expert_info_none, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
     gtk_widget_show(expert_info_none);
 }
 
@@ -547,19 +552,19 @@ status_expert_update(void)
     status_expert_hide();
 
     switch(expert_get_highest_severity()) {
-        case(PI_ERROR):
+    case(PI_ERROR):
         gtk_widget_show(expert_info_error);
         break;
-        case(PI_WARN):
+    case(PI_WARN):
         gtk_widget_show(expert_info_warn);
         break;
-        case(PI_NOTE):
+    case(PI_NOTE):
         gtk_widget_show(expert_info_note);
         break;
-        case(PI_CHAT):
+    case(PI_CHAT):
         gtk_widget_show(expert_info_chat);
         break;
-        default:
+    default:
         gtk_widget_show(expert_info_none);
         break;
     }
@@ -568,30 +573,30 @@ status_expert_update(void)
 static void
 statusbar_set_filename(const char *file_name, gint64 file_length, nstime_t *file_elapsed_time)
 {
-  gchar       *size_str;
-  gchar       *status_msg;
+    gchar       *size_str;
+    gchar       *status_msg;
 
-  /* expert info indicator */
-  status_expert_update();
+    /* expert info indicator */
+    status_expert_update();
 
-  /* statusbar */
-  /* convert file size */
-  if (file_length/1024/1024 > 10) {
-    size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d MB", file_length/1024/1024);
-  } else if (file_length/1024 > 10) {
-    size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d KB", file_length/1024);
-  } else {
-    size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d Bytes", file_length);
-  }
+    /* statusbar */
+    /* convert file size */
+    if (file_length/1024/1024 > 10) {
+        size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d MB", file_length/1024/1024);
+    } else if (file_length/1024 > 10) {
+        size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d KB", file_length/1024);
+    } else {
+        size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d Bytes", file_length);
+    }
 
-  status_msg = g_strdup_printf(" File: \"%s\" %s %02lu:%02lu:%02lu",
-    (file_name) ? file_name : "", size_str,
-    (long)file_elapsed_time->secs/3600,
-    (long)file_elapsed_time->secs%3600/60,
-    (long)file_elapsed_time->secs%60);
-  g_free(size_str);
-  statusbar_push_file_msg(status_msg);
-  g_free(status_msg);
+    status_msg = g_strdup_printf(" File: \"%s\" %s %02lu:%02lu:%02lu",
+                                 (file_name) ? file_name : "", size_str,
+                                 (long)file_elapsed_time->secs/3600,
+                                 (long)file_elapsed_time->secs%3600/60,
+                                 (long)file_elapsed_time->secs%60);
+    g_free(size_str);
+    statusbar_push_file_msg(status_msg);
+    g_free(status_msg);
 }
 
 
@@ -612,25 +617,25 @@ statusbar_cf_file_closing_cb(capture_file *cf _U_)
 static void
 statusbar_cf_file_closed_cb(capture_file *cf _U_)
 {
-  /* go back to "No packets" */
-  packets_bar_update();
+    /* go back to "No packets" */
+    packets_bar_update();
 }
 
 
 static void
 statusbar_cf_file_read_started_cb(capture_file *cf)
 {
-  const gchar *name_ptr;
-  gchar       *load_msg;
+    const gchar *name_ptr;
+    gchar       *load_msg;
 
-  /* Ensure we pop any previous loaded filename */
-  statusbar_pop_file_msg();
+    /* Ensure we pop any previous loaded filename */
+    statusbar_pop_file_msg();
 
-  name_ptr = get_basename(cf->filename);
+    name_ptr = get_basename(cf->filename);
 
-  load_msg = g_strdup_printf(" Loading: %s", name_ptr);
-  statusbar_push_file_msg(load_msg);
-  g_free(load_msg);
+    load_msg = g_strdup_printf(" Loading: %s", name_ptr);
+    statusbar_push_file_msg(load_msg);
+    g_free(load_msg);
 }
 
 
@@ -662,8 +667,8 @@ statusbar_capture_update_started_cb(capture_options *capture_opts)
 
     if(capture_opts->iface) {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s",
-				      get_iface_description(capture_opts),
-				      (capture_opts->save_file) ? capture_opts->save_file : "");
+                                      get_iface_description(capture_opts),
+                                      (capture_opts->save_file) ? capture_opts->save_file : "");
     } else {
         capture_msg = g_strdup_printf(" <live capture in progress> to file: %s",
             (capture_opts->save_file) ? capture_opts->save_file : "");
@@ -687,19 +692,19 @@ statusbar_capture_update_continue_cb(capture_options *capture_opts)
 
     if (cf->f_datalen/1024/1024 > 10) {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d MB",
-				      get_iface_description(capture_opts),
-				      capture_opts->save_file,
-				      cf->f_datalen/1024/1024);
+                                      get_iface_description(capture_opts),
+                                      capture_opts->save_file,
+                                      cf->f_datalen/1024/1024);
     } else if (cf->f_datalen/1024 > 10) {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d KB",
-				      get_iface_description(capture_opts),
-				      capture_opts->save_file,
-				      cf->f_datalen/1024);
+                                      get_iface_description(capture_opts),
+                                      capture_opts->save_file,
+                                      cf->f_datalen/1024);
     } else {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d Bytes",
-				      get_iface_description(capture_opts),
-				      capture_opts->save_file,
-				      cf->f_datalen);
+                                      get_iface_description(capture_opts),
+                                      capture_opts->save_file,
+                                      cf->f_datalen);
     }
 
     statusbar_push_file_msg(capture_msg);
@@ -725,8 +730,8 @@ statusbar_capture_fixed_started_cb(capture_options *capture_opts)
     statusbar_pop_file_msg();
 
     capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s",
-				  get_iface_description(capture_opts),
-				  (capture_opts->save_file) ? capture_opts->save_file : "");
+                                  get_iface_description(capture_opts),
+                                  (capture_opts->save_file) ? capture_opts->save_file : "");
 
     statusbar_push_file_msg(capture_msg);
     gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, " Packets: 0");

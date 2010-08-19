@@ -25,6 +25,6 @@
 #ifndef __EXPERT_COMP_DLG_H__
 #define __EXPERT_COMP_DLG_H__
 
-void expert_comp_dlg_cb(GtkWidget *w, gpointer d);
+void expert_comp_dlg_launch(void);
 
 #endif /* __EXPERT_COMP_DLG_H__ */

@@ -120,7 +120,7 @@ error_reset(void *pss)
     error_set_title(ss);
 }
 
-static int
+static gboolean
 error_packet(void *pss, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *prv)
 {
     expert_comp_dlg_t *ss=(expert_comp_dlg_t *)pss;
@@ -128,7 +128,7 @@ error_packet(void *pss, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const v
 
     /* if return value is 0 then no error */
     if(error_pkt==NULL){
-        return 0;
+        return FALSE;
     }
 
     switch (error_pkt->severity) {
@@ -153,9 +153,9 @@ error_packet(void *pss, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const v
         init_error_table_row(&ss->chat_table, error_pkt);
         break;
     default:
-        return 0; /* Don't draw */
+        return FALSE; /* Don't draw */
     }
-    return 1; /* Draw */
+    return TRUE; /* Draw */
 }
 
 static void
@@ -184,7 +184,7 @@ expert_comp_draw(void *data)
     buf = g_strdup_printf("Details: %u", ss->disp_events);
     gtk_label_set_text( GTK_LABEL(ss->all_label), buf);
     g_free(buf);
-    
+
 }
 
 static void
@@ -233,8 +233,8 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     ss->warn_events = 0;
     ss->error_events = 0;
 
-	expert_comp_dlg_w = ss->win=dlg_window_new("err");  /* transient_for top_level */
-	gtk_window_set_destroy_with_parent (GTK_WINDOW(ss->win), TRUE);
+    expert_comp_dlg_w = ss->win=dlg_window_new("err");  /* transient_for top_level */
+    gtk_window_set_destroy_with_parent (GTK_WINDOW(ss->win), TRUE);
     gtk_window_set_default_size(GTK_WINDOW(ss->win), 700, 300);
 
     error_set_title(ss);
@@ -358,17 +358,18 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
      * Put our window back in front
      */
     gdk_window_raise(ss->win->window);
-	/* Set the lable text */
-	expert_comp_draw(ss);
+    /* Set the lable text */
+    expert_comp_draw(ss);
 }
 
+
 void
-expert_comp_dlg_cb(GtkWidget *w _U_, gpointer d _U_)
+expert_comp_dlg_launch(void)
 {
     if (expert_comp_dlg_w) {
-          reactivate_window(expert_comp_dlg_w);
+        reactivate_window(expert_comp_dlg_w);
     } else {
-          expert_comp_init("", NULL);
+        expert_comp_init("", NULL);
     }
 }
 
@@ -378,5 +379,5 @@ register_tap_listener_expert_comp(void)
     register_stat_cmd_arg("expert_comp", expert_comp_init,NULL);
     register_stat_menu_item_stock("Expert Info _Composite",
         REGISTER_ANALYZE_GROUP_UNSORTED, WIRESHARK_STOCK_EXPERT_INFO,
-        expert_comp_dlg_cb, NULL, NULL, NULL);
+        expert_comp_dlg_launch, NULL, NULL, NULL);
 }
