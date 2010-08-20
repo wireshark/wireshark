@@ -544,7 +544,7 @@ GtkWidget *pixbuf_to_widget(const char * pb_data) {
  */
 #define MAIN_WINDOW_NAME_KEY  "main_window_name"
 
-/* Set the name of the top level main_window_name with the specified string and call 
+/* Set the name of the top level main_window_name with the specified string and call
    update_main_window_title() to construct the full title and display it in the main window
    and its icon title. */
 void
@@ -562,7 +562,7 @@ set_main_window_name(const gchar *window_name)
 
 /* Construct the main window's title with the current main_window_name, optionally appended
    with the user-specified title and/or wireshark version. Display the result in the main
-   window title bar and in its icon title. 
+   window title bar and in its icon title.
    NOTE: The name was changed from '_name' to '_title' because main_window_name is actually
          set in set_main_window_name() and is only one of the components of the title. */
 void
@@ -579,8 +579,10 @@ update_main_window_title(void)
 
         /* Optionally append the version */
         if (prefs.gui_version_in_start_page) {
+            gchar *old_title = title;
             title = g_strdup_printf("%s   [Wireshark %s %s]", title, VERSION, wireshark_svnversion);
-        } 
+            g_free(old_title);
+        }
         gtk_window_set_title(GTK_WINDOW(top_level), title);
         g_free(title);
     }
