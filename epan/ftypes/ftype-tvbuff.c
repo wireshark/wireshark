@@ -134,10 +134,19 @@ val_repr_len(fvalue_t *fv, ftrepr_t rtype)
 	guint length;
 
 	if (rtype != FTREPR_DFILTER) return -1;
+
+	TRY {
 	length = tvb_length(fv->value.tvb);
 	/* 3 bytes for each byte of the byte "NN:" minus 1 byte
 	 * as there's no trailing ":". */
 	return length * 3 - 1;
+}
+	CATCH_ALL {
+		/* nothing */
+	}
+	ENDTRY;
+
+	return 0;
 }
 
 static void
@@ -149,6 +158,8 @@ val_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 	unsigned int i;
 
 	g_assert(rtype == FTREPR_DFILTER);
+
+	TRY {
 	length = tvb_length(fv->value.tvb);
 	c = tvb_get_ptr(fv->value.tvb, 0, length);
 	write_cursor = buf;
@@ -164,6 +175,11 @@ val_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 		}
 	}
 }
+	CATCH_ALL {
+		/* nothing */
+	}
+	ENDTRY;
+}
 
 static gpointer
 value_get(fvalue_t *fv)
@@ -174,10 +190,18 @@ value_get(fvalue_t *fv)
 static guint
 len(fvalue_t *fv)
 {
+	TRY {
 	if (fv->value.tvb)
 		return tvb_length(fv->value.tvb);
 	else
 		return 0;
+}
+	CATCH_ALL {
+		/* nothing */
+	}
+	ENDTRY;
+
+	return 0;
 }
 
 static void
@@ -203,6 +227,8 @@ cmp_eq(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
+
+	TRY {
 	guint		a_len = tvb_length(a);
 
 	if (a_len != tvb_length(b)) {
@@ -211,12 +237,21 @@ cmp_eq(fvalue_t *fv_a, fvalue_t *fv_b)
 
 	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) == 0);
 }
+	CATCH_ALL {
+		/* nothing */
+	}
+	ENDTRY;
+
+	return FALSE;
+}
 
 static gboolean
 cmp_ne(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
+
+	TRY {
 	guint		a_len = tvb_length(a);
 
 	if (a_len != tvb_length(b)) {
@@ -225,12 +260,21 @@ cmp_ne(fvalue_t *fv_a, fvalue_t *fv_b)
 
 	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) != 0);
 }
+	CATCH_ALL {
+		/* nothing */
+	}
+	ENDTRY;
+
+	return FALSE;
+}
 
 static gboolean
 cmp_gt(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
+
+	TRY {
 	guint		a_len = tvb_length(a);
 	guint		b_len = tvb_length(b);
 
@@ -244,12 +288,21 @@ cmp_gt(fvalue_t *fv_a, fvalue_t *fv_b)
 
 	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) > 0);
 }
+	CATCH_ALL {
+		/* nothing */
+	}
+	ENDTRY;
+
+	return FALSE;
+}
 
 static gboolean
 cmp_ge(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
+	
+	TRY {
 	guint		a_len = tvb_length(a);
 	guint		b_len = tvb_length(b);
 
@@ -263,12 +316,21 @@ cmp_ge(fvalue_t *fv_a, fvalue_t *fv_b)
 
 	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) >= 0);
 }
+	CATCH_ALL {
+		/* nothing */
+	}
+	ENDTRY;
+
+	return FALSE;
+}
 
 static gboolean
 cmp_lt(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
+
+	TRY {
 	guint		a_len = tvb_length(a);
 	guint		b_len = tvb_length(b);
 
@@ -282,12 +344,21 @@ cmp_lt(fvalue_t *fv_a, fvalue_t *fv_b)
 
 	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) < 0);
 }
+	CATCH_ALL {
+		/* nothing */
+	}
+	ENDTRY;
+
+	return FALSE;
+}
 
 static gboolean
 cmp_le(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
+
+	TRY {
 	guint		a_len = tvb_length(a);
 	guint		b_len = tvb_length(b);
 
@@ -301,16 +372,31 @@ cmp_le(fvalue_t *fv_a, fvalue_t *fv_b)
 
 	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) <= 0);
 }
+	CATCH_ALL {
+		/* nothing */
+	}
+	ENDTRY;
+
+	return FALSE;
+}
 
 static gboolean
 cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
 {
+	TRY {
 	if (tvb_find_tvb(fv_a->value.tvb, fv_b->value.tvb, 0) > -1) {
 		return TRUE;
 	}
 	else {
 		return FALSE;
 	}
+}
+	CATCH_ALL {
+		/* nothing */
+	}
+	ENDTRY;
+
+	return FALSE;
 }
 
 #ifdef HAVE_LIBPCRE

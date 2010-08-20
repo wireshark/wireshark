@@ -182,8 +182,7 @@ NASM=$(WIRESHARK_LIBS)\nasm-2.02\nasm.exe
 #
 GLIB_VERSION=2.0
 
-##### To Use new packet list uncomment this line ####
-### Warning Experimental - work in progress
+##### To use the old packet list comment out this line ####
 NEW_PACKET_LIST_CONFIG=^#define NEW_PACKET_LIST 1
 
 #
@@ -388,8 +387,7 @@ GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.6-win32ws\libGeoIP
 #
 GLIB_VERSION=2.0
 
-##### To Use new packet list uncomment this line ####
-### Warning Experimental - work in progress
+##### To use the old packet list comment out this line ####
 NEW_PACKET_LIST_CONFIG=^#define NEW_PACKET_LIST 1
 
 #

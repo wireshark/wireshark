@@ -729,7 +729,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fragment_data *fd_head = NULL, *ft_fdh = NULL;
     gint len_remain, pad_len = 0, ampdu_len = 0;
     gint mpdu_count = 0;
-    gchar mpdu_str[12]; /* "MPDU #xxxxx" */
+    gchar *mpdu_str;
     gboolean first_mpdu = TRUE;
     guint last_frame = 0;
     gboolean is_ht = FALSE;
@@ -906,7 +906,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             while (fd_head) {
                 if (fd_head->data && fd_head->len) {
                     mpdu_count++;
-                    g_snprintf(mpdu_str, 12, "MPDU #%d", mpdu_count);
+                    mpdu_str = ep_strdup_printf("MPDU #%d", mpdu_count);
 
                     next_tvb = tvb_new_child_real_data(tvb, fd_head->data,
                         fd_head->len, fd_head->len);

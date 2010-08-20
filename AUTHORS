@@ -3084,6 +3084,11 @@ Holger Freyther		<zecke [AT] selfish.org> {
 	NexusWare C7 MTP over UDP dissector
 }
 
+Herbert Lischka		<herbert [AT] lischka-berlin.de> {
+	BACNET dissector fixes and enhancements
+}
+
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
