@@ -1703,6 +1703,7 @@ wlan_details_show_popup_menu_cb(void *widg _U_, GdkEvent *event, wlanstat_t *et)
 	return FALSE;
 }
 
+#ifndef WLAN_STAT_USE_GUI_MANAGER
 static GtkItemFactoryEntry wlan_details_list_menu_items[] =
 {
 	/* Match */
@@ -1751,10 +1752,181 @@ static GtkItemFactoryEntry wlan_details_list_menu_items[] =
 		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, 0), NULL, NULL,}
 
 };
+#else /* WLAN_STAT_USE_GUI_MANAGER */
 
+
+
+/* Apply as Filter/ */
+
+static void
+wlan_details_apply_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_details_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, 0));
+}
+
+static void
+wlan_details_apply_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_details_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0));
+}
+
+static void
+wlan_details_apply_and_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_details_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0));
+}
+
+static void
+wlan_details_apply_or_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_details_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0));
+}
+
+static void
+wlan_details_apply_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_details_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0));
+}
+
+static void
+wlan_details_apply_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_details_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0));
+}
+/* Prepare a filter */
+static void
+wlan_details_prepare_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_details_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, 0));
+}
+
+static void
+wlan_details_prepare_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_details_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0));
+}
+
+static void
+wlan_details_prepare_and_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_details_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0));
+}
+
+static void
+wlan_details_prepare_or_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_details_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0));
+}
+
+static void
+wlan_details_prepare_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_details_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0));
+}
+
+static void
+wlan_details_prepare_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_details_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0));
+}
+
+static void
+wlan_details_find_frame_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_details_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0));
+}
+static void
+wlan_details_find_next_frame_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_details_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_OR_NOT_SELECTED, 0));
+}
+static void
+wlan_details_find_previous_frame_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_details_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_OR_NOT_SELECTED, 0));
+}
+
+
+static const char *ui_desc_wlan_details_filter_popup =
+"<ui>\n"
+"  <popup name='WlanStatFilterPopup' action='PopupAction'>\n"
+"    <menu name= 'ApplyAsFilter' action='/Apply as Filter'>\n"
+"        <menuitem action='/Apply as Filter/Selected'/>\n"
+"        <menuitem action='/Apply as Filter/Not Selected'/>\n"
+"        <menuitem action='/Apply as Filter/... and Selected'/>\n"
+"        <menuitem action='/Apply as Filter/... or Selected'/>\n"
+"        <menuitem action='/Apply as Filter/... and not Selected'/>\n"
+"        <menuitem action='/Apply as Filter/... or not Selected'/>\n"
+"    </menu>\n"
+"    <menu name= 'PrepareAFilter' action='/Prepare a Filter'>\n"
+"        <menuitem action='/Prepare a Filter/Selected'/>\n"
+"        <menuitem action='/Prepare a Filter/Not Selected'/>\n"
+"        <menuitem action='/Prepare a Filter/... and Selected'/>\n"
+"        <menuitem action='/Prepare a Filter/... or Selected'/>\n"
+"        <menuitem action='/Prepare a Filter/... and not Selected'/>\n"
+"        <menuitem action='/Prepare a Filter/... or not Selected'/>\n"
+"    </menu>\n"
+"    <menu name= 'FindFrame' action='/Find Frame'>\n"
+"        <menuitem action='/Find Frame/Find Frame'/>\n"
+"        <menuitem action='/Find Frame/Find Next'/>\n"
+"        <menuitem action='/Find Frame/Find Previous'/>\n"
+"    </menu>\n"
+"  </popup>\n"
+"</ui>\n";
+
+/* 
+ * GtkActionEntry
+ * typedef struct {
+ *   const gchar     *name;
+ *   const gchar     *stock_id;
+ *   const gchar     *label;
+ *   const gchar     *accelerator;
+ *   const gchar     *tooltip;
+ *   GCallback  callback;
+ * } GtkActionEntry;
+ * const gchar *name;			The name of the action.  
+ * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.  
+ * const gchar *label;			The label for the action. This field should typically be marked for translation, 
+ *								see gtk_action_group_set_translation_domain(). 
+ *								If label is NULL, the label of the stock item with id stock_id is used.  
+ * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().  
+ * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation, 
+ *                              see gtk_action_group_set_translation_domain().  
+ * GCallback callback;			The function to call when the action is activated.  
+ *
+ */
+static const GtkActionEntry wlan_details_list_popup_entries[] = {
+  /* Top level */ 
+  { "/Apply as Filter",							NULL, "Apply as Filter", NULL, NULL, NULL },
+  { "/Prepare a Filter",						NULL, "Prepare a Filter", NULL, NULL, NULL },
+  { "/Find Frame",								NULL, "Find Frame", NULL, NULL, NULL },
+
+    /* Apply as */ 
+  { "/Apply as Filter/Selected",				NULL, "Selected" ,				NULL, NULL, G_CALLBACK(wlan_details_apply_selected_cb) },
+  { "/Apply as Filter/Not Selected",			NULL, "Not Selected",			NULL, NULL, G_CALLBACK(wlan_details_apply_not_selected_cb) },
+  { "/Apply as Filter/... and Selected",		NULL, "... and Selected",		NULL, NULL, G_CALLBACK(wlan_details_apply_and_selected_cb) },
+  { "/Apply as Filter/... or Selected",			NULL, "... or Selected",		NULL, NULL, G_CALLBACK(wlan_details_apply_or_selected_cb) },
+  { "/Apply as Filter/... and not Selected",	NULL, "... and not Selected",	NULL, NULL, G_CALLBACK(wlan_details_apply_and_not_selected_cb) },
+  { "/Apply as Filter/... or not Selected",		NULL, "... or not Selected",	NULL, NULL, G_CALLBACK(wlan_details_apply_or_not_selected_cb) },
+
+  { "/Prepare a Filter/Selected",				NULL, "Selected" ,				NULL, NULL, G_CALLBACK(wlan_details_prepare_selected_cb) },
+  { "/Prepare a Filter/Not Selected",			NULL, "Not Selected",			NULL, NULL, G_CALLBACK(wlan_details_prepare_not_selected_cb) },
+  { "/Prepare a Filter/... and Selected",		NULL, "... and Selected",		NULL, NULL, G_CALLBACK(wlan_details_prepare_and_selected_cb) },
+  { "/Prepare a Filter/... or Selected",		NULL, "... or Selected",		NULL, NULL, G_CALLBACK(wlan_details_prepare_or_selected_cb) },
+  { "/Prepare a Filter/... and not Selected",	NULL, "... and not Selected",	NULL, NULL, G_CALLBACK(wlan_details_prepare_and_not_selected_cb) },
+  { "/Prepare a Filter/... or not Selected",	NULL, "... or not Selected",	NULL, NULL, G_CALLBACK(wlan_details_prepare_or_not_selected_cb) },
+
+  /* Find Frame*/ 
+  { "/Find Frame/Find Frame",					NULL, "Find Frame",				NULL, NULL, G_CALLBACK(wlan_details_find_frame_cb) },
+  { "/Find Frame/Find Next",					NULL, "Find Next",				NULL, NULL, G_CALLBACK(wlan_details_find_next_frame_cb) },
+  { "/Find Frame/Find Previous",				NULL, "Find Previous",			NULL, NULL, G_CALLBACK(wlan_details_find_previous_frame_cb) },
+
+};
+#endif /* WLAN_STAT_USE_GUI_MANAGER */
 static void
 wlan_details_create_popup_menu(wlanstat_t *hs)
 {
+#ifndef WLAN_STAT_USE_GUI_MANAGER
 	GtkItemFactory *item_factory;
 
 	item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
@@ -1763,6 +1935,33 @@ wlan_details_create_popup_menu(wlanstat_t *hs)
 
 	hs->details_menu = gtk_item_factory_get_widget(item_factory, "<main>");
 	g_signal_connect(hs->details, "button_press_event", G_CALLBACK(wlan_details_show_popup_menu_cb), hs);
+#else
+
+	GtkUIManager *ui_manager;
+	GtkActionGroup *action_group;
+	GError *error = NULL;
+
+	action_group = gtk_action_group_new ("WlanDetailsPopupActionGroup"); 
+	gtk_action_group_add_actions (action_group,									/* the action group */
+								wlan_details_list_popup_entries,				/* an array of action descriptions */
+								G_N_ELEMENTS(wlan_details_list_popup_entries),	/* the number of entries */
+								hs);											/* data to pass to the action callbacks */
+
+	ui_manager = gtk_ui_manager_new ();
+	gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
+	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_wlan_details_filter_popup, -1, &error); 
+	if (error != NULL) 
+    { 
+        fprintf (stderr, "Warning: building Wlan details list popup failed: %s\n", 
+                error->message); 
+        g_error_free (error); 
+        error = NULL; 
+    } 
+	hs->details_menu = gtk_ui_manager_get_widget(ui_manager, "/WlanStatFilterPopup");
+	g_signal_connect(hs->details, "button_press_event", G_CALLBACK(wlan_details_show_popup_menu_cb), hs);
+
+
+#endif
 }
 
 static void
