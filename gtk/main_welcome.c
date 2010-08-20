@@ -673,6 +673,8 @@ welcome_if_panel_load(void)
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
         g_free(err_str);
         return;
+    } else if (err_str) {
+	g_free(err_str);
     }
 
     /* List the interfaces */
