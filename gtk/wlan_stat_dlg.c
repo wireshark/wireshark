@@ -834,7 +834,8 @@ wlan_show_popup_menu_cb(void *widg _U_, GdkEvent *event, wlanstat_t *et)
 
 	return FALSE;
 }
-
+#define WLAN_STAT_USE_GUI_MANAGER 1
+#ifndef WLAN_STAT_USE_GUI_MANAGER
 static GtkItemFactoryEntry wlan_list_menu_items[] =
 {
 	/* Match */
@@ -995,10 +996,656 @@ static GtkItemFactoryEntry wlan_list_menu_items[] =
 		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
 
 };
+#else /* WLAN_STAT_USE_GUI_MANAGER */
+
+/* Apply as Filter/Selected */
+static void
+wlan_select_filter_as_selected_BSSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, VALUE_BSSID_ONLY));
+}
+
+static void
+wlan_select_filter_as_selected_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, VALUE_SSID_ONLY));
+}
+
+static void
+wlan_select_filter_as_selected_BSSID_and_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID));
+}
+
+static void
+wlan_select_filter_as_selected_BSSID_or_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID));
+}
+
+/* Apply as Filter/Not Selected */
+static void
+wlan_select_filter_as_not_selected_BSSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, VALUE_BSSID_ONLY));
+}
+
+static void
+wlan_select_filter_as_not_selected_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, VALUE_SSID_ONLY));
+}
+
+static void
+wlan_select_filter_as_not_selected_BSSID_and_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, VALUE_BSSID_AND_SSID));
+}
+
+static void
+wlan_select_filter_as_not_selected_BSSID_or_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, VALUE_BSSID_OR_SSID));
+}
+
+/* /Apply as Filter/... and Selected */
+static void
+wlan_select_filter_and_selected_BSSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, VALUE_BSSID_ONLY));
+}
+
+static void
+wlan_select_filter_and_selected_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, VALUE_SSID_ONLY));
+}
+
+static void
+wlan_select_filter_and_selected_BSSID_and_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, VALUE_BSSID_AND_SSID));
+}
+
+static void
+wlan_select_filter_and_selected_BSSID_or_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, VALUE_BSSID_OR_SSID));
+}
+
+/* /Apply as Filter/... or Selected */
+static void
+wlan_select_filter_or_selected_BSSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, VALUE_BSSID_ONLY));
+}
+
+static void
+wlan_select_filter_or_selected_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, VALUE_SSID_ONLY));
+}
+
+static void
+wlan_select_filter_or_selected_BSSID_and_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, VALUE_BSSID_AND_SSID));
+}
+
+static void
+wlan_select_filter_or_selected_BSSID_or_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, VALUE_BSSID_OR_SSID));
+}
+
+/* /Apply as Filter/... and not Selected */
+static void
+wlan_select_filter_and_not_selected_BSSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_ONLY));
+}
+
+static void
+wlan_select_filter_and_not_selected_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, VALUE_SSID_ONLY));
+}
+
+static void
+wlan_select_filter_and_not_selected_BSSID_and_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_AND_SSID));
+}
+
+static void
+wlan_select_filter_and_not_selected_BSSID_or_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_OR_SSID));
+}
+
+/* /Apply as Filter/... or not Selected */
+static void
+wlan_select_filter_or_not_selected_BSSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_ONLY));
+}
+
+static void
+wlan_select_filter_or_not_selected_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, VALUE_SSID_ONLY));
+}
+
+static void
+wlan_select_filter_or_not_selected_BSSID_and_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_AND_SSID));
+}
+
+static void
+wlan_select_filter_or_not_selected_BSSID_or_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_OR_SSID));
+}
+
+/* Prepare */
+/* Prepare a Filter/Selected */
+static void
+wlan_prepare_filter_as_selected_BSSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, VALUE_BSSID_ONLY));
+}
+
+static void
+wlan_prepare_filter_as_selected_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, VALUE_SSID_ONLY));
+}
+
+static void
+wlan_prepare_filter_as_selected_BSSID_and_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID));
+}
+
+static void
+wlan_prepare_filter_as_selected_BSSID_or_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID));
+}
+
+/* Prepare a Filter/Not Selected */
+static void
+wlan_prepare_filter_as_not_selected_BSSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, VALUE_BSSID_ONLY));
+}
+
+static void
+wlan_prepare_filter_as_not_selected_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, VALUE_SSID_ONLY));
+}
+
+static void
+wlan_prepare_filter_as_not_selected_BSSID_and_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, VALUE_BSSID_AND_SSID));
+}
+
+static void
+wlan_prepare_filter_as_not_selected_BSSID_or_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, VALUE_BSSID_OR_SSID));
+}
+
+/* /Prepare a Filter/... and Selected */
+static void
+wlan_prepare_filter_and_selected_BSSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, VALUE_BSSID_ONLY));
+}
+
+static void
+wlan_prepare_filter_and_selected_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, VALUE_SSID_ONLY));
+}
+
+static void
+wlan_prepare_filter_and_selected_BSSID_and_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, VALUE_BSSID_AND_SSID));
+}
+
+static void
+wlan_prepare_filter_and_selected_BSSID_or_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, VALUE_BSSID_OR_SSID));
+}
+
+/* /Prepare a Filter/... or Selected */
+static void
+wlan_prepare_filter_or_selected_BSSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, VALUE_BSSID_ONLY));
+}
+
+static void
+wlan_prepare_filter_or_selected_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, VALUE_SSID_ONLY));
+}
+
+static void
+wlan_prepare_filter_or_selected_BSSID_and_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, VALUE_BSSID_AND_SSID));
+}
+
+static void
+wlan_prepare_filter_or_selected_BSSID_or_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, VALUE_BSSID_OR_SSID));
+}
+
+/* /Prepare a Filter/... and not Selected */
+static void
+wlan_prepare_filter_and_not_selected_BSSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_ONLY));
+}
+
+static void
+wlan_prepare_filter_and_not_selected_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, VALUE_SSID_ONLY));
+}
+
+static void
+wlan_prepare_filter_and_not_selected_BSSID_and_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_AND_SSID));
+}
+
+static void
+wlan_prepare_filter_and_not_selected_BSSID_or_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_OR_SSID));
+}
+
+/* /Prepare a Filter/... or not Selected */
+static void
+wlan_prepare_filter_or_not_selected_BSSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_ONLY));
+}
+
+static void
+wlan_prepare_filter_or_not_selected_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, VALUE_SSID_ONLY));
+}
+
+static void
+wlan_prepare_filter_or_not_selected_BSSID_and_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_AND_SSID));
+}
+static void
+wlan_prepare_filter_or_not_selected_BSSID_or_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_OR_SSID));
+}
+
+/* /Find frame/Find Frame/ */
+static void
+wlan_find_frame_BSSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, VALUE_BSSID_ONLY));
+}
+static void
+wlan_find_frame_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, VALUE_SSID_ONLY));
+}
+static void
+wlan_find_frame_BSSID_and_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID));
+}
+static void
+wlan_find_frame_BSSID_or_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID));
+}
+
+/* /Find frame/Find Next/ */
+static void
+wlan_find_frame_next_BSSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, VALUE_BSSID_ONLY));
+}
+static void
+wlan_find_frame_next_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, VALUE_SSID_ONLY));
+}
+static void
+wlan_find_frame_next_BSSID_and_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID));
+}
+static void
+wlan_find_frame_next_BSSID_or_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID));
+}
+/* /Find frame/Find Previous/ */
+static void
+wlan_find_frame_previous_BSSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, VALUE_BSSID_ONLY));
+}
+static void
+wlan_find_frame_previous_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, VALUE_SSID_ONLY));
+}
+static void
+wlan_find_frame_previous_BSSID_and_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID));
+}
+static void
+wlan_find_frame_previous_BSSID_or_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID));
+}
+
+/* /Colorize/ */
+static void
+wlan_colorize_BSSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, VALUE_BSSID_ONLY));
+}
+static void
+wlan_colorize_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, VALUE_SSID_ONLY));
+}
+static void
+wlan_colorize_BSSID_and_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID));
+}
+static void
+wlan_colorize_BSSID_or_SSID_cb(GtkWidget *widget, gpointer user_data)
+{
+	wlan_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID));
+}
+
+
+static const char *ui_desc_wlan_stat_filter_popup =
+"<ui>\n"
+"  <popup name='WlanStatFilterPopup' action='PopupAction'>\n"
+"    <menu name= 'ApplyAsFilter' action='/Apply as Filter'>\n"
+"        <menu name= 'ApplyAsFilterSelected' action='/Apply as Filter/Selected'>\n"
+"            <menuitem action='/Apply as Filter/Selected/BSSID'/>\n"
+"            <menuitem action='/Apply as Filter/Selected/SSID'/>\n"
+"            <menuitem action='/Apply as Filter/Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Apply as Filter/Selected/BSSID or SSID'/>\n"
+"        </menu>\n"
+"        <menu name= 'ApplyAsFilterNotSelected' action='/Apply as Filter/Not Selected'>\n"
+"            <menuitem action='/Apply as Filter/Not Selected/BSSID'/>\n"
+"            <menuitem action='/Apply as Filter/Not Selected/SSID'/>\n"
+"            <menuitem action='/Apply as Filter/Not Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Apply as Filter/Not Selected/BSSID or SSID'/>\n"
+"        </menu>\n"
+"        <menu name= 'ApplyAsFilterAndSelected' action='/Apply as Filter/... and Selected'>\n"
+"            <menuitem action='/Apply as Filter/... and Selected/BSSID'/>\n"
+"            <menuitem action='/Apply as Filter/... and Selected/SSID'/>\n"
+"            <menuitem action='/Apply as Filter/... and Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Apply as Filter/... and Selected/BSSID or SSID'/>\n"
+"        </menu>\n"
+"        <menu name= 'ApplyAsFilterOrSelected' action='/Apply as Filter/... or Selected'>\n"
+"            <menuitem action='/Apply as Filter/... or Selected/BSSID'/>\n"
+"            <menuitem action='/Apply as Filter/... or Selected/SSID'/>\n"
+"            <menuitem action='/Apply as Filter/... or Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Apply as Filter/... or Selected/BSSID or SSID'/>\n"
+"        </menu>\n"
+"        <menu name= 'ApplyAsFilterAndNotSelected' action='/Apply as Filter/... and not Selected'>\n"
+"            <menuitem action='/Apply as Filter/... and not Selected/BSSID'/>\n"
+"            <menuitem action='/Apply as Filter/... and not Selected/SSID'/>\n"
+"            <menuitem action='/Apply as Filter/... and not Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Apply as Filter/... and not Selected/BSSID or SSID'/>\n"
+"        </menu>\n"
+"        <menu name= 'ApplyAsFilterOrNotSelected' action='/Apply as Filter/... or not Selected'>\n"
+"            <menuitem action='/Apply as Filter/... or not Selected/BSSID'/>\n"
+"            <menuitem action='/Apply as Filter/... or not Selected/SSID'/>\n"
+"            <menuitem action='/Apply as Filter/... or not Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Apply as Filter/... or not Selected/BSSID or SSID'/>\n"
+"        </menu>\n"
+"    </menu>\n"
+"    <menu name= 'PrepareAFilter' action='/Prepare a Filter'>\n"
+"        <menu name= 'PrepareAFilterSelected' action='/Prepare a Filter/Selected'>\n"
+"            <menuitem action='/Prepare a Filter/Selected/BSSID'/>\n"
+"            <menuitem action='/Prepare a Filter/Selected/SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/Selected/BSSID or SSID'/>\n"
+"        </menu>\n"
+"        <menu name= 'PrepareAFilterNotSelected' action='/Prepare a Filter/Not Selected'>\n"
+"            <menuitem action='/Prepare a Filter/Not Selected/BSSID'/>\n"
+"            <menuitem action='/Prepare a Filter/Not Selected/SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/Not Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/Not Selected/BSSID or SSID'/>\n"
+"        </menu>\n"
+"        <menu name= 'PrepareAFilterAndSelected' action='/Prepare a Filter/... and Selected'>\n"
+"            <menuitem action='/Prepare a Filter/... and Selected/BSSID'/>\n"
+"            <menuitem action='/Prepare a Filter/... and Selected/SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/... and Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/... and Selected/BSSID or SSID'/>\n"
+"        </menu>\n"
+"        <menu name= 'PrepareAFilterOrSelected' action='/Prepare a Filter/... or Selected'>\n"
+"            <menuitem action='/Prepare a Filter/... or Selected/BSSID'/>\n"
+"            <menuitem action='/Prepare a Filter/... or Selected/SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/... or Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/... or Selected/BSSID or SSID'/>\n"
+"        </menu>\n"
+"        <menu name= 'PrepareAFilterAndNotSelected' action='/Prepare a Filter/... and not Selected'>\n"
+"            <menuitem action='/Prepare a Filter/... and not Selected/BSSID'/>\n"
+"            <menuitem action='/Prepare a Filter/... and not Selected/SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/... and not Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/... and not Selected/BSSID or SSID'/>\n"
+"        </menu>\n"
+"        <menu name= 'PrepareAFilterOrNotSelected' action='/Prepare a Filter/... or not Selected'>\n"
+"            <menuitem action='/Prepare a Filter/... or not Selected/BSSID'/>\n"
+"            <menuitem action='/Prepare a Filter/... or not Selected/SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/... or not Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/... or not Selected/BSSID or SSID'/>\n"
+"        </menu>\n"
+"    </menu>\n"
+"    <menu name= 'FindFrame' action='/Find Frame'>\n"
+"        <menu name= 'FindFrameFindFrame' action='/Find Frame/Find Frame'>\n"
+"            <menuitem action='/Find Frame/Find Frame/BSSID'/>\n"
+"            <menuitem action='/Find Frame/Find Frame/SSID'/>\n"
+"            <menuitem action='/Find Frame/Find Frame/BSSID and SSID'/>\n"
+"            <menuitem action='/Find Frame/Find Frame/BSSID or SSID'/>\n"
+"        </menu>\n"
+"        <menu name= 'FindFrameNext' action='/Find Frame/Find Next'>\n"
+"            <menuitem action='/Find Frame/Find Next/BSSID'/>\n"
+"            <menuitem action='/Find Frame/Find Next/SSID'/>\n"
+"            <menuitem action='/Find Frame/Find Next/BSSID and SSID'/>\n"
+"            <menuitem action='/Find Frame/Find Next/BSSID or SSID'/>\n"
+"        </menu>\n"
+"        <menu name= 'FindFramePrevious' action='/Find Frame/Find Previous'>\n"
+"            <menuitem action='/Find Frame/Find Previous/BSSID'/>\n"
+"            <menuitem action='/Find Frame/Find Previous/SSID'/>\n"
+"            <menuitem action='/Find Frame/Find Previous/BSSID and SSID'/>\n"
+"            <menuitem action='/Find Frame/Find Previous/BSSID or SSID'/>\n"
+"        </menu>\n"
+"    </menu>\n"
+"    <menu name= 'Colorize' action='/Colorize'>\n"
+"        <menuitem action='/Colorize/BSSID'/>\n"
+"        <menuitem action='/Colorize/SSID'/>\n"
+"        <menuitem action='/Colorize/BSSID and SSID'/>\n"
+"        <menuitem action='/Colorize/BSSID or SSID'/>\n"
+"    </menu>\n"
+"  </popup>\n"
+"</ui>\n";
+
+/* 
+ * GtkActionEntry
+ * typedef struct {
+ *   const gchar     *name;
+ *   const gchar     *stock_id;
+ *   const gchar     *label;
+ *   const gchar     *accelerator;
+ *   const gchar     *tooltip;
+ *   GCallback  callback;
+ * } GtkActionEntry;
+ * const gchar *name;			The name of the action.  
+ * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.  
+ * const gchar *label;			The label for the action. This field should typically be marked for translation, 
+ *								see gtk_action_group_set_translation_domain(). 
+ *								If label is NULL, the label of the stock item with id stock_id is used.  
+ * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().  
+ * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation, 
+ *                              see gtk_action_group_set_translation_domain().  
+ * GCallback callback;			The function to call when the action is activated.  
+ *
+ */
+static const GtkActionEntry wlans_stat_popup_entries[] = {
+  /* Top level */ 
+  { "/Apply as Filter",				NULL, "Apply as Filter", NULL, NULL, NULL },
+  { "/Prepare a Filter",			NULL, "Prepare a Filter", NULL, NULL, NULL },
+  { "/Find Frame",					NULL, "Find Frame", NULL, NULL, NULL },
+  { "/Colorize",					NULL, "Colorize", NULL, NULL, NULL },
+
+  /* Apply as */ 
+  { "/Apply as Filter/Selected",				NULL, "Selected" , NULL, NULL, NULL },
+  { "/Apply as Filter/Not Selected",			NULL, "Not Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/... and Selected",		NULL, "... and Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/... or Selected",			NULL, "... or Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/... and not Selected",	NULL, "... and not Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/... or not Selected",		NULL, "... or not Selected", NULL, NULL, NULL },
+
+  /* Apply as Selected */ 
+  { "/Apply as Filter/Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_as_selected_BSSID_cb)},
+  { "/Apply as Filter/Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_as_selected_SSID_cb)},
+  { "/Apply as Filter/Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_as_selected_BSSID_and_SSID_cb)},
+  { "/Apply as Filter/Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_as_selected_BSSID_or_SSID_cb)},
+
+  /* Apply as Not Selected */ 
+  { "/Apply as Filter/Not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_as_not_selected_BSSID_cb)},
+  { "/Apply as Filter/Not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_as_not_selected_SSID_cb)},
+  { "/Apply as Filter/Not Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_as_not_selected_BSSID_and_SSID_cb)},
+  { "/Apply as Filter/Not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_as_not_selected_BSSID_or_SSID_cb)},
+
+  /* Apply as and Selected */ 
+  { "/Apply as Filter/... and Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_and_selected_BSSID_cb)},
+  { "/Apply as Filter/... and Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_and_selected_SSID_cb)},
+  { "/Apply as Filter/... and Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_and_selected_BSSID_and_SSID_cb)},
+  { "/Apply as Filter/... and Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_and_selected_BSSID_or_SSID_cb)},
+
+  /* Apply as or Selected */ 
+  { "/Apply as Filter/... or Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_or_selected_BSSID_cb)},
+  { "/Apply as Filter/... or Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_or_selected_SSID_cb)},
+  { "/Apply as Filter/... or Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_or_selected_BSSID_and_SSID_cb)},
+  { "/Apply as Filter/... or Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_or_selected_BSSID_or_SSID_cb)},
+
+  /* /Apply as Filter/... and not Selected */
+  { "/Apply as Filter/... and not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_and_not_selected_BSSID_cb)},
+  { "/Apply as Filter/... and not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_and_not_selected_SSID_cb)},
+  { "/Apply as Filter/... and not Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_and_not_selected_BSSID_and_SSID_cb)},
+  { "/Apply as Filter/... and not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_and_not_selected_BSSID_or_SSID_cb)},
+
+  /* /Apply as Filter/... or not Selected */
+  { "/Apply as Filter/... or not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_or_not_selected_BSSID_cb)},
+  { "/Apply as Filter/... or not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_or_not_selected_SSID_cb)},
+  { "/Apply as Filter/... or not Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_or_not_selected_BSSID_and_SSID_cb)},
+  { "/Apply as Filter/... or not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_or_not_selected_BSSID_or_SSID_cb)},
+
+  /* Prepare a */ 
+  { "/Prepare a Filter/Selected",				NULL, "Selected" , NULL, NULL, NULL },
+  { "/Prepare a Filter/Not Selected",			NULL, "Not Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/... and Selected",		NULL, "... and Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/... or Selected",		NULL, "... or Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/... and not Selected",	NULL, "... and not Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/... or not Selected",	NULL, "... or not Selected", NULL, NULL, NULL },
+
+  /* Prepare a Selected */ 
+  { "/Prepare a Filter/Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_as_selected_BSSID_cb)},
+  { "/Prepare a Filter/Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_as_selected_SSID_cb)},
+  { "/Prepare a Filter/Selected/BSSID and SSID",NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_as_selected_BSSID_and_SSID_cb)},
+  { "/Prepare a Filter/Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_as_selected_BSSID_or_SSID_cb)},
+
+  /* Prepare a Not Selected */ 
+  { "/Prepare a Filter/Not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_as_not_selected_BSSID_cb)},
+  { "/Prepare a Filter/Not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_as_not_selected_SSID_cb)},
+  { "/Prepare a Filter/Not Selected/BSSID and SSID",NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_as_not_selected_BSSID_and_SSID_cb)},
+  { "/Prepare a Filter/Not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_as_not_selected_BSSID_or_SSID_cb)},
+
+  /* Prepare a and Selected */ 
+  { "/Prepare a Filter/... and Selected/BSSID",				NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_and_selected_BSSID_cb)},
+  { "/Prepare a Filter/... and Selected/SSID",				NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_and_selected_SSID_cb)},
+  { "/Prepare a Filter/... and Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_and_selected_BSSID_and_SSID_cb)},
+  { "/Prepare a Filter/... and Selected/BSSID or SSID",		NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_and_selected_BSSID_or_SSID_cb)},
+
+  /* Prepare a or Selected */ 
+  { "/Prepare a Filter/... or Selected/BSSID",					NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_or_selected_BSSID_cb)},
+  { "/Prepare a Filter/... or Selected/SSID",					NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_or_selected_SSID_cb)},
+  { "/Prepare a Filter/... or Selected/BSSID and SSID",			NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_or_selected_BSSID_and_SSID_cb)},
+  { "/Prepare a Filter/... or Selected/BSSID or SSID",			NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_or_selected_BSSID_or_SSID_cb)},
+
+  /* /Prepare a Filter/... and not Selected */
+  { "/Prepare a Filter/... and not Selected/BSSID",				NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_and_not_selected_BSSID_cb)},
+  { "/Prepare a Filter/... and not Selected/SSID",				NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_and_not_selected_SSID_cb)},
+  { "/Prepare a Filter/... and not Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_and_not_selected_BSSID_and_SSID_cb)},
+  { "/Prepare a Filter/... and not Selected/BSSID or SSID",		NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_and_not_selected_BSSID_or_SSID_cb)},
+
+  /* /Prepare a Filter/... or not Selected */
+  { "/Prepare a Filter/... or not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_or_not_selected_BSSID_cb)},
+  { "/Prepare a Filter/... or not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_or_not_selected_SSID_cb)},
+  { "/Prepare a Filter/... or not Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_or_not_selected_BSSID_and_SSID_cb)},
+  { "/Prepare a Filter/... or not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_or_not_selected_BSSID_or_SSID_cb)},
+
+  /* Find Frame*/ 
+  { "/Find Frame/Find Frame",					NULL, "Find Frame", NULL, NULL, NULL },
+  { "/Find Frame/Find Next",					NULL, "Find Next", NULL, NULL, NULL },
+  { "/Find Frame/Find Previous",				NULL, "Find Previous", NULL, NULL, NULL },
+
+  /* Find Frame/Find Frame*/ 
+  { "/Find Frame/Find Frame/BSSID",				NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_find_frame_BSSID_cb)},
+  { "/Find Frame/Find Frame/SSID",				NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_find_frame_SSID_cb)},
+  { "/Find Frame/Find Frame/BSSID and SSID",	NULL, "SSID and SSID",	NULL, "SSID and SSID",		G_CALLBACK(wlan_find_frame_BSSID_and_SSID_cb)},
+  { "/Find Frame/Find Frame/BSSID or SSID",		NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_find_frame_BSSID_or_SSID_cb)},
+
+  /* Find Frame/Find Next*/ 
+  { "/Find Frame/Find Next/BSSID",				NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_find_frame_next_BSSID_cb)},
+  { "/Find Frame/Find Next/SSID",				NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_find_frame_next_SSID_cb)},
+  { "/Find Frame/Find Next/BSSID and SSID",		NULL, "SSID and SSID",	NULL, "SSID and SSID",		G_CALLBACK(wlan_find_frame_next_BSSID_and_SSID_cb)},
+  { "/Find Frame/Find Next/BSSID or SSID",		NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_find_frame_next_BSSID_or_SSID_cb)},
+
+  /* Find Frame/Find Previous*/ 
+  { "/Find Frame/Find Previous/BSSID",				NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_find_frame_previous_BSSID_cb)},
+  { "/Find Frame/Find Previous/SSID",				NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_find_frame_previous_SSID_cb)},
+  { "/Find Frame/Find Previous/BSSID and SSID",		NULL, "SSID and SSID",	NULL, "SSID and SSID",		G_CALLBACK(wlan_find_frame_previous_BSSID_and_SSID_cb)},
+  { "/Find Frame/Find Previous/BSSID or SSID",		NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_find_frame_previous_BSSID_or_SSID_cb)},
+
+  /* Colorize */
+  { "/Colorize/BSSID",				NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_colorize_BSSID_cb)},
+  { "/Colorize/SSID",				NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_colorize_SSID_cb)},
+  { "/Colorize/BSSID and SSID",		NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_colorize_BSSID_and_SSID_cb)},
+  { "/Colorize/BSSID or SSID",		NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_colorize_BSSID_or_SSID_cb)},
+
+};
+#endif
 
 static void
 wlan_create_popup_menu(wlanstat_t *hs)
 {
+#ifndef WLAN_STAT_USE_GUI_MANAGER
 	GtkItemFactory *item_factory;
 
 	item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
@@ -1007,6 +1654,31 @@ wlan_create_popup_menu(wlanstat_t *hs)
 
 	hs->menu = gtk_item_factory_get_widget(item_factory, "<main>");
 	g_signal_connect(hs->table, "button_press_event", G_CALLBACK(wlan_show_popup_menu_cb), hs);
+#else /* WLAN_STAT_USE_GUI_MANAGER */
+	GtkUIManager *ui_manager;
+	GtkActionGroup *action_group;
+	GError *error = NULL;
+
+	action_group = gtk_action_group_new ("WlanFilterPopupActionGroup"); 
+	gtk_action_group_add_actions (action_group,							/* the action group */
+								wlans_stat_popup_entries,				/* an array of action descriptions */
+								G_N_ELEMENTS(wlans_stat_popup_entries),	/* the number of entries */
+								hs);									/* data to pass to the action callbacks */
+
+	ui_manager = gtk_ui_manager_new ();
+	gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
+	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_wlan_stat_filter_popup, -1, &error); 
+	if (error != NULL) 
+    { 
+        fprintf (stderr, "Warning: building Wlan Stat Filter popup failed: %s\n", 
+                error->message); 
+        g_error_free (error); 
+        error = NULL; 
+    } 
+	hs->menu = gtk_ui_manager_get_widget(ui_manager, "/WlanStatFilterPopup");
+	g_signal_connect(hs->table, "button_press_event", G_CALLBACK(wlan_show_popup_menu_cb), hs);
+
+#endif /* WLAN_STAT_USE_GUI_MANAGER */
 }
 
 static gboolean
