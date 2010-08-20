@@ -1581,8 +1581,8 @@ static const GtkActionEntry wlans_stat_popup_entries[] = {
   { "/Prepare a Filter/Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_as_selected_BSSID_or_SSID_cb)},
 
   /* Prepare a Not Selected */ 
-  { "/Prepare a Filter/Not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_as_not_selected_BSSID_cb)},
-  { "/Prepare a Filter/Not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_as_not_selected_SSID_cb)},
+  { "/Prepare a Filter/Not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_as_not_selected_BSSID_cb)},
+  { "/Prepare a Filter/Not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_as_not_selected_SSID_cb)},
   { "/Prepare a Filter/Not Selected/BSSID and SSID",NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_as_not_selected_BSSID_and_SSID_cb)},
   { "/Prepare a Filter/Not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_as_not_selected_BSSID_or_SSID_cb)},
 
