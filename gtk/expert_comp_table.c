@@ -710,7 +710,6 @@ error_create_popup_menu(error_equiv_table *err)
     err->menu = gtk_item_factory_get_widget(item_factory, "<main>");
     g_signal_connect(err->tree_view, "button_press_event", G_CALLBACK(error_show_popup_menu_cb), err);
 #else
-	/* Experimental, TODO: Review variable names etc */
 	GtkUIManager *ui_manager;
 	GtkActionGroup *action_group;
 	GError *error = NULL;
