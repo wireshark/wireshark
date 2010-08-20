@@ -2272,7 +2272,7 @@ main(int argc, char *argv[])
 
   /* Init the "Open file" dialog directory */
   /* (do this after the path settings are processed) */
-  
+
   /* Read the profile dependent (static part) of the recent file. */
   /* Only the static part of it will be read, as we don't have the gui now to fill the */
   /* recent lists which is done in the dynamic part. */
@@ -2284,7 +2284,7 @@ main(int argc, char *argv[])
 		  rf_path, strerror(rf_open_errno));
   }
 
-  if (recent.gui_fileopen_remembered_dir && 
+  if (recent.gui_fileopen_remembered_dir &&
       test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {
     set_last_open_dir(recent.gui_fileopen_remembered_dir);
   } else {
@@ -2959,6 +2959,17 @@ main(int argc, char *argv[])
           exit(0);
           break;
         }
+
+	/* If the filename is not the absolute path, prepend the current dir. This happens
+	   when wireshark is invoked from a cmd shell (e.g.,'wireshark -r file.pcap'). */
+	if (!g_path_is_absolute(cf_name)) {
+	  char *old_cf_name = cf_name;
+	  char *pwd = g_get_current_dir();
+	  cf_name = g_strdup_printf("%s%s%s", pwd, G_DIR_SEPARATOR_S, cf_name);
+	  g_free(old_cf_name);
+	  g_free(pwd);
+	}
+
         /* Save the name of the containing directory specified in the
            path name, if any; we can write over cf_name, which is a
            good thing, given that "get_dirname()" does write over its
@@ -3737,7 +3748,7 @@ void change_configuration_profile (const gchar *profile_name)
 		  "Could not open common recent file\n\"%s\": %s.",
 		  rf_path, strerror(rf_open_errno));
    }
-   if (recent.gui_fileopen_remembered_dir && 
+   if (recent.gui_fileopen_remembered_dir &&
        test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {
      set_last_open_dir(recent.gui_fileopen_remembered_dir);
    }
