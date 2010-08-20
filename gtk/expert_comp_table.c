@@ -304,7 +304,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
         else
         { 
             /* We have an expert item so just continue search without find dialog. */
-            find_previous_next_frame_with_filter(str, FALSE);
+            cf_find_packet_dfilter_string(&cfile, str, SD_FORWARD);
         }
         break;
     case ACTION_FIND_PREVIOUS:
@@ -322,7 +322,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
         else
         { 
             /* We have an expert item so just continue search without find dialog. */
-            find_previous_next_frame_with_filter(str, TRUE);
+            cf_find_packet_dfilter_string(&cfile, str, SD_BACKWARD);
         }
         break;
     case ACTION_COLORIZE:

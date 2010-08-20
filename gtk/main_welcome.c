@@ -54,6 +54,7 @@
 #include "gtk/help_dlg.h"
 #include "gtk/capture_file_dlg.h"
 #include "gtk/stock_icons.h"
+#include "gtk/utf8_entities.h"
 #ifdef HAVE_LIBPCAP
 #include "gtk/capture_dlg.h"
 #include "gtk/capture_if_dlg.h"
@@ -420,6 +421,8 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
     GtkWidget	*eb;
     GString	*str;
     gchar	*str_escaped;
+    glong        uni_len;
+    gsize        uni_start, uni_end;
     const unsigned int max = 60;
     int		err;
     struct stat stat_buf;
@@ -430,11 +433,14 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
 
     /* filename */
     str = g_string_new(filename);
+    uni_len = g_utf8_strlen(str->str, str->len);
 
     /* cut max filename length */
-    if( (str->len > max) && (str->len-(max) > 5) ) {
-        g_string_erase(str, 20, str->len-(max+5));
-        g_string_insert(str, 20, " ... ");
+    if (uni_len > max) {
+	uni_start = g_utf8_offset_to_pointer(str->str, 20) - str->str;
+	uni_end = g_utf8_offset_to_pointer(str->str, uni_len - max) - str->str;
+        g_string_erase(str, uni_start, uni_end);
+        g_string_insert(str, uni_start, " " UTF8_HORIZONTAL_ELLIPSIS " ");
     }
 
     /* escape the possibly shortened filename before adding pango language */

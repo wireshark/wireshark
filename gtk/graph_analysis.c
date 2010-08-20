@@ -91,7 +91,7 @@ static GtkWidget *save_to_file_w = NULL;
 #define TIME_HEADER_LENGTH 10
 
 /****************************************************************************/
-/* Reset the user_data structure */
+/* Init the user_data structure */
 static void graph_analysis_reset(graph_analysis_data_t* user_data)
 {
 	int i;
@@ -254,18 +254,11 @@ static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 
 	g_string_insert(gstr, pos, text_to_insert);
 }
 
-
-/*
- * XXX - We might want to refactor this to write the graph data directly to
- * the file instead of loading everything into strings first.
- */
-
 /****************************************************************************/
 static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 {
 	guint32 i, first_node, display_items, display_nodes;
 	guint32 start_position, end_position, item_width, header_length;
-	guint32 current_item;
 	graph_analysis_item_t *gai;
 	guint16 first_conv_num = 0;
 	gboolean several_convs = FALSE;
@@ -291,37 +284,25 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 	tmp_str        = g_string_new("");
 	tmp_str2       = g_string_new("");
 
-	/* get the items to display and fill the matrix array */
+	display_items = 0;
 	list = g_list_first(user_data->graph_info->list);
-	current_item = 0;
-	i = 0;
-	while (list && current_item < NUM_DISPLAY_ITEMS)
+	while (list)
 	{
 		gai = list->data;
-		if (gai->display){
-			user_data->dlg.items[current_item].frame_num = gai->frame_num;
-			user_data->dlg.items[current_item].time = gai->time;
-			user_data->dlg.items[current_item].port_src = gai->port_src;
-			user_data->dlg.items[current_item].port_dst = gai->port_dst;
-			user_data->dlg.items[current_item].frame_label = gai->frame_label;
-			user_data->dlg.items[current_item].comment = gai->comment;
-			user_data->dlg.items[current_item].conv_num = gai->conv_num;
-			user_data->dlg.items[current_item].src_node = gai->src_node;
-			user_data->dlg.items[current_item].dst_node = gai->dst_node;
+		list = g_list_next(list);
+
+		if (!gai->display)
+			continue;
+
+		display_items += 1;
 			if (first_packet){
 				first_conv_num = gai->conv_num;
 				first_packet=FALSE;
 			}
-			if (user_data->dlg.items[current_item].conv_num != first_conv_num){
+		else if (gai->conv_num != first_conv_num){
 				several_convs = TRUE;
 			}
-			current_item++;
-			i++;
-		}
-
-		list = g_list_next(list);
 	}
-	display_items = current_item;
 
 	/* if not items to display */
 	if (display_items == 0)
@@ -387,11 +368,18 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 	 * Draw the items
 	 */
 
-	for (current_item=0; current_item<display_items; current_item++){
+	list = g_list_first(user_data->graph_info->list);
+	while (list)
+	{
+		gai = list->data;
+		list = g_list_next(list);
 
-		start_position = (user_data->dlg.items[current_item].src_node-first_node)*NODE_CHARS_WIDTH+NODE_CHARS_WIDTH/2;
+		if (!gai->display)
+			continue;
 
-		end_position = (user_data->dlg.items[current_item].dst_node-first_node)*NODE_CHARS_WIDTH+NODE_CHARS_WIDTH/2;
+		start_position = (gai->src_node-first_node)*NODE_CHARS_WIDTH+NODE_CHARS_WIDTH/2;
+
+		end_position = (gai->dst_node-first_node)*NODE_CHARS_WIDTH+NODE_CHARS_WIDTH/2;
 
 		if (start_position > end_position){
 			item_width=start_position-end_position;
@@ -405,34 +393,34 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 		}
 
 		/* separator between conversations */
-		if (user_data->dlg.items[current_item].conv_num != first_conv_num){
+		if (gai->conv_num != first_conv_num){
 			fprintf(of, "%s\n", separator_line->str);
-			first_conv_num=user_data->dlg.items[current_item].conv_num;
+			first_conv_num=gai->conv_num;
 		}
 
 		/* write the conversation number */
 		if (several_convs){
-			g_string_printf(label_string, "%i", user_data->dlg.items[current_item].conv_num);
+			g_string_printf(label_string, "%i", gai->conv_num);
 			enlarge_string(label_string, 5, ' ');
 			fprintf(of, "%s", label_string->str);
 		}
 
 		/* write the time */
-		g_string_printf(label_string, "|%.3f", user_data->dlg.items[current_item].time);
+		g_string_printf(label_string, "|%.3f", gai->time);
 		enlarge_string(label_string, 10, ' ');
 		fprintf(of, "%s", label_string->str);
 
 		/* write the frame label */
 
 		g_string_printf(tmp_str, "%s", empty_line->str);
-		overwrite(tmp_str,user_data->dlg.items[current_item].frame_label,
+		overwrite(tmp_str,gai->frame_label,
 			start_position,
 			end_position
 			);
 		fprintf(of, "%s", tmp_str->str);
 
 		/* write the comments */
-		fprintf(of, "%s\n", user_data->dlg.items[current_item].comment);
+		fprintf(of, "%s\n", gai->comment);
 
 		/* write the arrow and frame label*/
 		fprintf(of, "%s", empty_header);
@@ -455,8 +443,8 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 			end_position
 			);
 
-		g_snprintf(src_port,sizeof(src_port),"(%i)", user_data->dlg.items[current_item].port_src);
-		g_snprintf(dst_port,sizeof(dst_port),"(%i)", user_data->dlg.items[current_item].port_dst);
+		g_snprintf(src_port,sizeof(src_port),"(%i)", gai->port_src);
+		g_snprintf(dst_port,sizeof(dst_port),"(%i)", gai->port_dst);
 
 		if (start_position<end_position){
 			overwrite(tmp_str,src_port,start_position-9,start_position-1);

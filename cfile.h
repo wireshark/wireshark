@@ -41,6 +41,11 @@ typedef enum {
   /* add EBCDIC when it's implemented */
 } search_charset_t;
 
+typedef enum {
+  SD_FORWARD,
+  SD_BACKWARD
+} search_direction;
+
 typedef struct _capture_file {
   file_state   state;           /* Current state of capture file */
   gchar       *filename;        /* Name of capture file */
@@ -65,7 +70,7 @@ typedef struct _capture_file {
   gboolean     redissecting;    /* TRUE if currently redissecting (cf_redissect_packets) */
   /* search */
   gchar       *sfilter;         /* Search filter string */
-  gboolean     sbackward;       /* TRUE if search is backward, FALSE if forward */
+  search_direction dir;         /* Direction in which to do searches */
   gboolean     hex;             /* TRUE is raw data search is being performed */
   gboolean     string;          /* TRUE is text search is being performed */
   guint32      search_pos;      /* Position of last character found in search */

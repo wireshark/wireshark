@@ -876,8 +876,6 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 	dfilter_t *sfcode;
 	capture_file *cf;
 	epan_dissect_t edt;
-	gint err;
-	gchar *err_info;
 	gboolean frame_matched, frame_found = FALSE;
 	frame_data *fdata;
 	gchar filter_text[256];
@@ -899,11 +897,8 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 		return; /* if we exit here it's an error */
 
 	/* dissect the current frame */
-	if (!cf_read_frame(cf, fdata, &err, &err_info)) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			cf_read_error_message(err, err_info), cf->filename);
-		return;
-	}
+	if (!cf_read_frame(cf, fdata))
+		return;	/* error reading the frame */
 
 	epan_dissect_init(&edt, TRUE, FALSE);
 	epan_dissect_prime_dfilter(&edt, sfcode);
