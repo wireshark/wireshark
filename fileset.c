@@ -368,6 +368,7 @@ static void fileset_entry_delete(gpointer data, gpointer user_data _U_)
     entry->fullname = NULL;
     g_free( (gpointer) entry->name);
     entry->name = NULL;
+    g_free(entry);
 }
 
 
