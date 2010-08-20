@@ -2041,7 +2041,7 @@ static const GtkActionEntry conv_filter_menu_entries[] = {
   { "/Apply as Filter/Not Selected",			NULL, "Not Selected", NULL, NULL, NULL },
   { "/Apply as Filter/... and Selected",		NULL, "... and Selected", NULL, NULL, NULL },
   { "/Apply as Filter/... or Selected",			NULL, "... or Selected", NULL, NULL, NULL },
-  { "/Apply as Filter/... and not Selected",		NULL, "... and not Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/... and not Selected",	NULL, "... and not Selected", NULL, NULL, NULL },
   { "/Apply as Filter/... or not Selected",		NULL, "... or not Selected", NULL, NULL, NULL },
 
   /* Apply as Selected */ 
