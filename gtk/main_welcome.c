@@ -423,7 +423,7 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
     gchar	*str_escaped;
     glong        uni_len;
     gsize        uni_start, uni_end;
-    const unsigned int max = 60;
+    const glong  max = 60;
     int		err;
     struct stat stat_buf;
     GtkTooltips *tooltips;

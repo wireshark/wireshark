@@ -574,8 +574,6 @@ get_filter_from_packet_list_row_and_column(gpointer data)
     gint    column = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY));
     frame_data *fdata;
     gchar      *buf=NULL;
-    int         err;
-    gchar       *err_info;
 
 #ifdef NEW_PACKET_LIST
     fdata = (frame_data *) new_packet_list_get_row_data(row);
