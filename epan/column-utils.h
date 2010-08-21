@@ -35,17 +35,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/** Maximum length of columns (except COL_INFO).
- * Internal, don't use this in dissectors!
- */
-
-#define COL_MAX_LEN 256
-/** Maximum length of info columns (COL_INFO only).
- * Internal, don't use this in dissectors!
- */
-#define COL_MAX_INFO_LEN 4096
-
-
 /** Allocate all the data structures for constructing column data, given
  * the number of columns.
  *
