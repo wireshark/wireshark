@@ -2242,7 +2242,7 @@ define_namednumber(GNode *p, GNode *q)
 	/* g_message("define_namednumber %p, %p", p, q); */
 
 	p = g_node_first_child(p);
-	
+
 	if (!p) {
 		return;
 	}
@@ -4940,6 +4940,7 @@ proto_register_asn1(void) {
 
   module_t *asn1_module;
   int i, j;
+  const char *orig_ptr;
 
   asn1_logfile = get_tempfile_path(ASN1LOGFILE);
 
@@ -5014,14 +5015,23 @@ proto_register_asn1(void) {
   bad_separator_old_default_asn1_filename = get_datafile_path(BAD_SEPARATOR_OLD_DEFAULT_ASN1FILE);
 #endif
 
+  orig_ptr = asn1_filename;
   prefs_register_string_preference(asn1_module, "file",
 				   "ASN.1 type table file",
 				   "Compiled ASN.1 description of ASN.1 types",
 				   &asn1_filename);
+  /* prefs_register_string_preference just overwrite our pointer with a pointer
+   *  to a _copy_ of our string.  Free the original string.
+   */
+  g_free((char *)orig_ptr);
+
+  orig_ptr = asn1_pduname;
   prefs_register_string_preference(asn1_module, "pdu_name",
 				   "ASN.1 PDU name",
 				   "Name of top level PDU",
 				   &asn1_pduname);
+  g_free((char *)orig_ptr);
+
   prefs_register_uint_preference(asn1_module, "first_pdu_offset",
 				 "Offset to first PDU in first tcp packet",
 				 "Offset for non-reassembled packets, "
