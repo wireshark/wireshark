@@ -68,7 +68,7 @@
 @HAVE_AIRPCAP@
 @HAVE_AIRPDCAP@
 
-/* Use new packet list or not Warning Experimental */
+/* Use new packet list or not */
 @HAVE_NEW_PACKET_LIST@
 
 /* availability of pcap_freecode() is handled at runtime */
