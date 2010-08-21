@@ -208,7 +208,7 @@ argument.  You must do
 	call_routine2(xxx, format, ap);
 	va_end(ap);
 
-rather 
+rather
 	va_start(ap, format);
 	call_routine1(xxx, format, ap);
 	call_routine2(xxx, format, ap);
@@ -3554,7 +3554,12 @@ Where: module - Returned by the prefs_register_protocol routine
 	 description - Comments added to the preference file above the
 		       preference value
 	 var	  - pointer to the storage location that is updated when the
-		    field is changed in the preference dialog box
+		    field is changed in the preference dialog box.  Note that
+		    with string preferences the given pointer is overwritten
+		    with a pointer to a new copy of the string during the
+		    preference registration.  The passed-in string may be
+		    freed, but you must keep another pointer to the string
+		    in order to free it.
 	 base	  - Base that the unsigned integer is expected to be in,
 		    see strtoul(3).
 	 enumvals - an array of enum_val_t structures.  This must be
