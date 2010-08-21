@@ -48,7 +48,7 @@ static void gtk_vumeter_setup_scale_items(GtkVUMeter *vumeter, GList *scale_item
 
 static GtkWidgetClass *parent_class = NULL;
 
-GtkType gtk_vumeter_get_type (void)
+GType gtk_vumeter_get_type (void)
 {
     static GType vumeter_type = 0;
     

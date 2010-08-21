@@ -108,7 +108,7 @@ typedef struct _GtkVUMeterScaleItem {
     const gchar *label; /* the label or NULL */
 } GtkVUMeterScaleItem;
 
-GtkType    gtk_vumeter_get_type (void) G_GNUC_CONST;
+GType    gtk_vumeter_get_type (void) G_GNUC_CONST;
 
 GtkWidget *gtk_vumeter_new (void);
 void gtk_vumeter_set_orientation(GtkVUMeter *vumeter, GtkVUMeterOrientation orientation);
