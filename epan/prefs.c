@@ -116,15 +116,64 @@ static emem_tree_t *prefs_modules = NULL;
 static emem_tree_t *prefs_top_level_modules = NULL;
 
 /** Sets up memory used by proto routines. Called at program startup */
-void prefs_init(void)
+void
+prefs_init(void)
 {
-  prefs_modules = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK, "prefs_modules");
-  prefs_top_level_modules = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK, "prefs_top_level_modules");
+	prefs_modules = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK, "prefs_modules");
+	prefs_top_level_modules = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK, "prefs_top_level_modules");
+}
+
+static void
+free_pref(gpointer data, gpointer user_data _U_)
+{
+	pref_t *pref = data;
+
+	switch (pref->type) {
+	case PREF_OBSOLETE:
+	case PREF_BOOL:
+	case PREF_ENUM:
+	case PREF_UINT:
+	case PREF_STATIC_TEXT:
+	case PREF_UAT:
+		break;
+	case PREF_STRING:
+		g_free((char *)*pref->varp.string);
+		*pref->varp.string = NULL;
+		g_free(pref->default_val.string);
+		break;
+	case PREF_RANGE:
+		g_free(*pref->varp.range);
+		*pref->varp.range = NULL;
+		g_free(pref->default_val.range);
+		break;
+	}
+
+	g_free(pref);
+}
+
+static guint
+free_module_prefs(module_t *module, gpointer data _U_)
+{
+	g_list_foreach(module->prefs, free_pref, NULL);
+	g_list_free(module->prefs);
+	module->prefs = NULL;
+	module->numprefs = 0;
+	/*  We don't free the actual module: its submodules pointer points to
+	    a pe_tree and the module itself is stored in a pe_tree
+	 */
+
+	return 0;
 }
 
 /** Frees memory used by proto routines. Called at program shutdown */
-void prefs_cleanup(void)
+void
+prefs_cleanup(void)
 {
+	/*  This isn't strictly necessary since we're exiting anyway, but let's
+	 *  do what clean up we can.
+	 */
+	prefs_modules_foreach(free_module_prefs, NULL);
+	free_prefs(&prefs);
 }
 
 /*
@@ -151,8 +200,8 @@ prefs_register_module(module_t *parent, const char *name, const char *title,
 module_t *
 prefs_register_subtree(module_t *parent, const char *title, const char *description)
 {
-	return prefs_register_module_or_subtree(parent, NULL, title, description, TRUE,
-	    NULL);
+	return prefs_register_module_or_subtree(parent, NULL, title,
+						description, TRUE, NULL);
 }
 
 static module_t *
@@ -166,16 +215,17 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 
 	/* this module may have been created as a subtree item previously */
 	if((module = find_subtree(parent, title))) {
-	  /* the module is currently a subtree */
-	  module->name = name;
-	  module->apply_cb = apply_cb;
-	  module->description = description;
+		/* the module is currently a subtree */
+		module->name = name;
+		module->apply_cb = apply_cb;
+		module->description = description;
 
-	  if (prefs_find_module(name) == NULL) {
-		pe_tree_insert_string(prefs_modules, name, module, EMEM_TREE_STRING_NOCASE);
-	  }
+		if (prefs_find_module(name) == NULL) {
+			pe_tree_insert_string(prefs_modules, name, module,
+					      EMEM_TREE_STRING_NOCASE);
+		}
 
-	  return module;
+		return module;
 	}
 
 	module = g_malloc(sizeof (module_t));
@@ -275,9 +325,9 @@ prefs_register_protocol(int id, void (*apply_cb)(void))
 	}
 	protocol = find_protocol_by_id(id);
 	return prefs_register_module(protocols_module,
-	    proto_get_protocol_filter_name(id),
-	    proto_get_protocol_short_name(protocol),
-	    proto_get_protocol_name(id), apply_cb);
+				     proto_get_protocol_filter_name(id),
+				     proto_get_protocol_short_name(protocol),
+				     proto_get_protocol_name(id), apply_cb);
 }
 
 
@@ -303,33 +353,33 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
 	subtree_module = protocols_module;
 
 	if(subtree) {
-	  /* take a copy of the buffer */
-	  ptr = csubtree = g_strdup(subtree);
+		/* take a copy of the buffer */
+		ptr = csubtree = g_strdup(subtree);
 
-	  while(ptr && *ptr) {
+		while(ptr && *ptr) {
 
-	    if((sep = strchr(ptr, '/')))
-	      *sep++ = '\0';
+			if((sep = strchr(ptr, '/')))
+				*sep++ = '\0';
 
-	    if(!(new_module = find_subtree(subtree_module, ptr))) {
-	      /* create it */
-	      new_module = prefs_register_subtree(subtree_module, ptr, NULL);
-	    }
+			if(!(new_module = find_subtree(subtree_module, ptr))) {
+				/* create it */
+				new_module = prefs_register_subtree(subtree_module, ptr, NULL);
+			}
 
-	    subtree_module = new_module;
-	    ptr = sep;
+			subtree_module = new_module;
+			ptr = sep;
 
-	  }
+		}
 
-	  /* g_free(csubtree); */
+		/* g_free(csubtree); */
 
 	}
 
 	protocol = find_protocol_by_id(id);
 	return prefs_register_module(subtree_module,
-	    proto_get_protocol_filter_name(id),
-	    proto_get_protocol_short_name(protocol),
-	    proto_get_protocol_name(id), apply_cb);
+				     proto_get_protocol_filter_name(id),
+				     proto_get_protocol_short_name(protocol),
+				     proto_get_protocol_name(id), apply_cb);
 }
 
 
@@ -354,9 +404,9 @@ prefs_register_protocol_obsolete(int id)
 	}
 	protocol = find_protocol_by_id(id);
 	module = prefs_register_module(protocols_module,
-	    proto_get_protocol_filter_name(id),
-	    proto_get_protocol_short_name(protocol),
-	    proto_get_protocol_name(id), NULL);
+				       proto_get_protocol_filter_name(id),
+				       proto_get_protocol_short_name(protocol),
+				       proto_get_protocol_name(id), NULL);
 	module->obsolete = TRUE;
 	return module;
 }
@@ -423,7 +473,8 @@ prefs_module_list_foreach(emem_tree_t *module_list, module_cb callback,
 /*
  * Returns TRUE if module has any submodules
  */
-gboolean prefs_module_has_submodules(module_t *module)
+gboolean
+prefs_module_has_submodules(module_t *module)
 {
 	if (module->submodules == NULL) {
 		return FALSE;
@@ -744,9 +795,10 @@ prefs_register_range_preference(module_t *module, const char *name,
  * text inline with other preferences in the GUI.
  * Note: Static preferences are not saved to the preferences file.
  */
-void prefs_register_static_text_preference(module_t *module, const char *name,
-					   const char *title,
-					   const char *description)
+void
+prefs_register_static_text_preference(module_t *module, const char *name,
+				      const char *title,
+				      const char *description)
 {
 	register_preference(module, name, title, description, PREF_STATIC_TEXT);
 }
@@ -755,9 +807,10 @@ void prefs_register_static_text_preference(module_t *module, const char *name,
  * Register a uat 'preference'. It adds a button that opens the uat's window in the
  * preferences tab of the module.
  */
-extern void prefs_register_uat_preference(module_t *module, const char *name,
-					  const char *title,
-					  const char *description, void* uat)
+extern void
+prefs_register_uat_preference(module_t *module, const char *name,
+			      const char *title, const char *description,
+			      void* uat)
 {
 
 	pref_t* preference = register_preference(module, name, title, description, PREF_UAT);
@@ -790,8 +843,7 @@ prefs_pref_foreach(module_t *module, pref_cb callback, gpointer user_data)
 	pref_t *pref;
 	guint ret;
 
-	for (elem = g_list_first(module->prefs); elem != NULL;
-	    elem = g_list_next(elem)) {
+	for (elem = g_list_first(module->prefs); elem != NULL; elem = g_list_next(elem)) {
 		pref = elem->data;
 		if (pref->type == PREF_OBSOLETE) {
 			/*
