@@ -660,7 +660,7 @@ welcome_if_panel_load(void)
     if_info_t     *if_info;
     GList         *if_list;
     int err;
-    gchar         *err_str;
+    gchar         *err_str = NULL;
     int           ifs;
     GList         *curr;
     gchar         *user_descr;
