@@ -213,6 +213,9 @@ static dissector_table_t ip_dissector_table;
 /* Reassemble fragmented datagrams */
 static gboolean ipv6_reassemble = TRUE;
 
+/* Place IPv6 summary in proto tree */
+static gboolean ipv6_summary_in_tree = TRUE;
+
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
 #endif
@@ -1358,6 +1361,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item* pi;
     proto_tree *ipv6_tc_tree;
     proto_item *ipv6_tc;
+    const char *name;
 
     ipv6_item = proto_tree_add_item(tree, proto_ipv6, tvb, offset, -1, FALSE);
     ipv6_tree = proto_item_add_subtree(ipv6_item, ett_ipv6);
@@ -1406,14 +1410,18 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      offset + offsetof(struct ip6_hdr, ip6_src),
 			      16, (guint8 *)&ipv6.ip6_src);
     PROTO_ITEM_SET_HIDDEN(ti);
+    name = get_addr_name(&pinfo->src);
+    if (ipv6_summary_in_tree) {
+      proto_item_append_text(ipv6_item, ", Src: %s (%s)", name, ip6_to_str(&ipv6.ip6_src));
+    }
     ti = proto_tree_add_string(ipv6_tree, hf_ipv6_src_host, tvb,
 			      offset + offsetof(struct ip6_hdr, ip6_src),
-			      16, get_addr_name(&pinfo->src));
+			      16, name);
     PROTO_ITEM_SET_GENERATED(ti);
     PROTO_ITEM_SET_HIDDEN(ti);
     ti = proto_tree_add_string(ipv6_tree, hf_ipv6_host, tvb,
 			      offset + offsetof(struct ip6_hdr, ip6_src),
-			      16, get_addr_name(&pinfo->src));
+			      16, name);
     PROTO_ITEM_SET_GENERATED(ti);
     PROTO_ITEM_SET_HIDDEN(ti);
     if (tvb_get_guint8(tvb, offset + IP6H_SRC + 8) & 0x02 && tvb_get_ntohs(tvb, offset + IP6H_SRC + 11) == 0xfffe) {
@@ -1437,14 +1445,18 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      offset + offsetof(struct ip6_hdr, ip6_dst),
 			      16, (guint8 *)&ipv6.ip6_dst);
     PROTO_ITEM_SET_HIDDEN(ti);
+    name = get_addr_name(&pinfo->dst);
+    if (ipv6_summary_in_tree) {
+      proto_item_append_text(ipv6_item, ", Dst: %s (%s)", name, ip6_to_str(&ipv6.ip6_dst));
+    }
     ti = proto_tree_add_string(ipv6_tree, hf_ipv6_dst_host, tvb,
 			      offset + offsetof(struct ip6_hdr, ip6_dst),
-			      16, get_addr_name(&pinfo->dst));
+			      16, name);
     PROTO_ITEM_SET_GENERATED(ti);
     PROTO_ITEM_SET_HIDDEN(ti);
     ti = proto_tree_add_string(ipv6_tree, hf_ipv6_host, tvb,
 			      offset + offsetof(struct ip6_hdr, ip6_dst),
-			      16, get_addr_name(&pinfo->dst));
+			      16, name);
     PROTO_ITEM_SET_GENERATED(ti);
     PROTO_ITEM_SET_HIDDEN(ti);
     if (tvb_get_guint8(tvb, offset + IP6H_DST + 8) & 0x02 && tvb_get_ntohs(tvb, offset + IP6H_DST + 11) == 0xfffe) {
@@ -2050,6 +2062,10 @@ proto_register_ipv6(void)
 	"Reassemble fragmented IPv6 datagrams",
 	"Whether fragmented IPv6 datagrams should be reassembled",
 	&ipv6_reassemble);
+  prefs_register_bool_preference(ipv6_module, "summary_in_tree",
+	"Show IPv6 summary in protocol tree",
+	"Whether the IPv6 summary line should be shown in the protocol tree",
+	&ipv6_summary_in_tree);
 
   register_dissector("ipv6", dissect_ipv6, proto_ipv6);
   register_init_routine(ipv6_reassemble_init);
