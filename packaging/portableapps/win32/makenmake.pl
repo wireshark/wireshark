@@ -25,6 +25,11 @@ while($line = <>) {
     if($line =~ /^\#/) { # comment
 	next;
     } elsif($line =~ /^\[(\S+)/) { # new directory
+	if(defined $define) { # Clear out any leftover defines.
+	    print "!ENDIF\n";
+	    undef($define);
+	}
+
 	$dir = $1;
 
 	$dir =~ s/\$INSTDIR?//; # remove $INSTDIR
