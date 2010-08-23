@@ -226,11 +226,11 @@ decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
 
 static gint
 sort_iter_compare_func (GtkTreeModel *model,
-GtkTreeIter *a,
-GtkTreeIter *b,
-gpointer userdata)
+			GtkTreeIter *a,
+			GtkTreeIter *b,
+			gpointer user_data)
 {
-    gint sortcol = GPOINTER_TO_INT(userdata);
+    gint sortcol = GPOINTER_TO_INT(user_data);
     gint ret = 0;
     switch (sortcol)
     {
@@ -262,11 +262,11 @@ gpointer userdata)
 
 void
 decode_add_to_show_list (
-gpointer list_data, 
-const gchar *table_name, 
-gchar *selector_name, 
-const gchar *initial_proto_name, 
-const gchar *current_proto_name)
+	gpointer list_data, 
+	const gchar *table_name, 
+	gchar *selector_name, 
+	const gchar *initial_proto_name, 
+	const gchar *current_proto_name)
 {
     const gchar     *text[E_LIST_D_COLUMNS];
     GtkListStore *store;
@@ -472,12 +472,14 @@ decode_show_clear_cb (GtkWidget *clear_bt _U_, gpointer parent_w)
  * the "Decode As:Show..." dialog window.  This routine simply calls the
  * ok routine as if the user had clicked the ok button.
  *
- * @param GtkWidget * A pointer to the dialog box.
+ * @param win       A pointer to the dialog box.
  *
- * @param gpointer Unknown
+ * @param event     A pointer to the event struct
+ *
+ * @param user_data Unused
  */
 static gboolean
-decode_show_delete_cb (GtkWidget *win _U_, gpointer dummy _U_)
+decode_show_delete_cb (GtkWidget *win _U_, GdkEvent *event _U_, gpointer user_data _U_)
 {
     decode_show_ok_cb(NULL, decode_show_w);
     return FALSE;
@@ -506,11 +508,12 @@ decode_show_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
  * This routine creates the "Decode As:Show" dialog box. This dialog box
  * shows the user which protocols have had their dissectors changed.
  *
- * @param w Unknown
- * @param data Unknown
+ * @param w Unused
+ * 
+ * @param user_data Unused
  */
 void
-decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
+decode_show_cb (GtkWidget *w _U_, gpointer user_data _U_)
 {
     GtkWidget         *main_vb, *bbox, *ok_bt, *clear_bt, *help_bt, *scrolled_window;
     const gchar       *titles[E_LIST_D_COLUMNS] = {
@@ -914,12 +917,14 @@ decode_close_cb (GtkWidget *close_bt _U_, gpointer parent_w)
  * close routine as if the user had clicked the close button instead
  * of the close button.
  *
- * @param decode_w A pointer to the dialog box.
+ * @param decode_w_lcl A pointer to the dialog box.
  *
- * @param dummy Unknown
+ * @param event    A pointer to the GdkEvent struct
+ *
+ * @param user_data Unused
  */
 static gboolean
-decode_delete_cb (GtkWidget *decode_w_lcl, gpointer dummy _U_)
+decode_delete_cb (GtkWidget *decode_w_lcl, GdkEvent *event _U_, gpointer user_data _U_)
 {
     decode_close_cb(NULL, decode_w_lcl);
     return FALSE;
@@ -951,11 +956,12 @@ decode_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
  * the "Decode As..." dialog window.  This routine resets all the
  * dissector values and performs other housekeeping functions.
  *
- * @param GtkWidget * A pointer to the "Clear" button.
- * @param gpointer A pointer to the dialog window.
+ * @param clear_bt A pointer to the "Clear" button.
+ *
+ * @param user_data Unused
  */
 static void
-decode_clear_cb(GtkWidget *clear_bt _U_, gpointer parent_w _U_)
+decode_clear_cb(GtkWidget *clear_bt _U_, gpointer user_data _U_)
 {
     decode_clear_all();
 }
@@ -973,16 +979,16 @@ decode_clear_cb(GtkWidget *clear_bt _U_, gpointer parent_w _U_)
  *
  * @param w The radio button that was clicked.
  *
- * @param data The enum value assigned to this radio button.  This
+ * @param user_data The enum value assigned to this radio button.  This
  * will be either E_DECODE_YES or E_DECODE_NO
  */
 static void
-decode_update_action (GtkWidget *w _U_, gpointer data)
+decode_update_action (GtkWidget *w _U_, gpointer user_data)
 {
     GSList *tmp;
     gboolean enable;
 
-    requested_action = GPOINTER_TO_INT(data);
+    requested_action = GPOINTER_TO_INT(user_data);
     enable = (requested_action == E_DECODE_YES);
     for (tmp = decode_dimmable; tmp; tmp = g_slist_next(tmp)) {
 	gtk_widget_set_sensitive(tmp->data, enable);
@@ -1118,10 +1124,10 @@ struct handle_lookup_info {
 
 static gboolean
 lookup_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
-              gpointer data)
+              gpointer user_data)
 {
     dissector_handle_t handle;
-    struct handle_lookup_info *hli = (struct handle_lookup_info *)data;
+    struct handle_lookup_info *hli = user_data;
 
     gtk_tree_model_get(model, iter, E_LIST_S_TABLE+1, &handle, -1);
     if (hli->handle == handle) {
@@ -1202,7 +1208,7 @@ decode_proto_add_to_list (const gchar *table_name, gpointer value, gpointer user
 
 
 static gboolean
-decode_list_button_press_cb(GtkWidget *list, GdkEventButton *event, gpointer data _U_)
+decode_list_button_press_cb(GtkWidget *list, GdkEventButton *event, gpointer user_data _U_)
 {
   if (event->type == GDK_2BUTTON_PRESS) {
     GtkWidget *main_w = gtk_widget_get_toplevel(list);
@@ -1214,7 +1220,7 @@ decode_list_button_press_cb(GtkWidget *list, GdkEventButton *event, gpointer dat
 }
 
 static gboolean
-decode_list_key_release_cb(GtkWidget *list, GdkEventKey *event, gpointer data _U_)
+decode_list_key_release_cb(GtkWidget *list, GdkEventKey *event, gpointer user_data _U_)
 {
   if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {
     GtkWidget    *main_w = gtk_widget_get_toplevel(list);
@@ -1719,11 +1725,12 @@ decode_add_notebook (GtkWidget *format_hb)
  * dialog box, and then hand crafts the button box at the bottom of
  * the dialog.
  *
- * @param w Unknown
- * @param data Unknown
+ * @param w Unused
+ *
+ * @param user_data Unused
  */
 void
-decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
+decode_as_cb (GtkWidget * w _U_, gpointer user_data _U_)
 {
     GtkWidget	*main_vb, *format_hb, *bbox, *ok_bt, *close_bt, *help_bt, *button;
     GtkWidget   *button_vb, *apply_bt;
@@ -1753,14 +1760,14 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_box_pack_start(GTK_BOX(format_hb), button_vb, TRUE, TRUE, 10);
 
     button = gtk_button_new_with_label("Show Current");
-    g_signal_connect(button, "clicked", G_CALLBACK(decode_show_cb), decode_w);
+    g_signal_connect(button, "clicked", G_CALLBACK(decode_show_cb), NULL);
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
     gtk_tooltips_set_tip(tooltips, button, 
         "Open a dialog showing the current settings.", NULL);
 
     button = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
-    g_signal_connect(button, "clicked", G_CALLBACK(decode_clear_cb), decode_w);
+    g_signal_connect(button, "clicked", G_CALLBACK(decode_clear_cb), NULL);
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
     gtk_tooltips_set_tip(tooltips, button, 

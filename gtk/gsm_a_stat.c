@@ -393,7 +393,7 @@ gsm_a_stat_draw(
 static void
 gsm_a_stat_gtk_win_destroy_cb(
     GtkWindow       *win _U_,
-    gpointer        user_data _U_)
+    gpointer        user_data)
 {
     memset((void *) user_data, 0, sizeof(gsm_a_stat_dlg_t));
 }

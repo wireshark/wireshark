@@ -401,7 +401,7 @@ gtk_rpcprogs_init(const char *optarg _U_, void* userdata _U_)
 	window_set_cancel_button(win, bt_close, window_cancel_button_cb);
 
 	g_signal_connect(win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-	g_signal_connect(win, "destroy", G_CALLBACK(win_destroy_cb), win);
+	g_signal_connect(win, "destroy", G_CALLBACK(win_destroy_cb), NULL);
 
 	gtk_widget_show_all(win);
 	window_present(win);

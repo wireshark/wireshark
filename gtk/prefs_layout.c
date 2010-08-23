@@ -233,7 +233,7 @@ static void layout_validate_cb(GtkWidget *w _U_, gpointer data) {
 }
 
 static void
-layout_defaults_cb (GtkWidget * w _U_, gpointer data _U_)
+layout_defaults_cb (GtkWidget * w _U_, gpointer data)
 {
     layout_t default_layout = { 
         layout_type_5,

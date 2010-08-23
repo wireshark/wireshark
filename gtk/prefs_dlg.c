@@ -412,7 +412,7 @@ prefs_nb_page_add(GtkWidget *notebook, const gchar *title, GtkWidget *page, cons
 
 /* show the dialog */
 void
-prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
+prefs_cb(GtkWidget *w, gpointer dummy)
 {
   prefs_page_cb (w, dummy, PREFS_PAGE_USER_INTERFACE);
 }
@@ -620,7 +620,7 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
   help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_PREFERENCES_DIALOG);
 
-  g_signal_connect(prefs_w, "delete_event", G_CALLBACK(prefs_main_delete_event_cb), prefs_w);
+  g_signal_connect(prefs_w, "delete_event", G_CALLBACK(prefs_main_delete_event_cb), NULL);
   g_signal_connect(prefs_w, "destroy", G_CALLBACK(prefs_main_destroy_cb), prefs_w);
 
   gtk_widget_show(prefs_w);
@@ -1653,7 +1653,7 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
 /* Treat this as a cancel, by calling "prefs_main_cancel_cb()" */
 static gboolean
 prefs_main_delete_event_cb(GtkWidget *prefs_w_lcl, GdkEvent *event _U_,
-                           gpointer parent_w _U_)
+                           gpointer user_data _U_)
 {
   prefs_main_cancel_cb(NULL, prefs_w_lcl);
   return FALSE;

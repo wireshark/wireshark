@@ -359,7 +359,7 @@ GtkWidget *airpcap_toolbar_new()
 
     /* Set current decryption mode!!!! */
     update_decryption_mode(decryption_mode_cb);
-    g_signal_connect(decryption_mode_cb, "changed", G_CALLBACK(on_decryption_mode_cb_changed), airpcap_tb);
+    g_signal_connect(decryption_mode_cb, "changed", G_CALLBACK(on_decryption_mode_cb_changed), NULL);
     g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY,decryption_mode_cb);
 
     /* Advanced button */

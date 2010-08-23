@@ -676,8 +676,8 @@ guint32 value)
 /*
  * Sets the toolbar before calling the advanced dialog with for the right interface
  */
-void
-options_airpcap_advanced_cb(GtkWidget *w _U_, gpointer d _U_)
+static void
+options_airpcap_advanced_cb(GtkWidget *w, gpointer d)
 {
   int *from_widget;
 
@@ -2326,7 +2326,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
 
   ok_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_START);
-  g_signal_connect(ok_bt, "clicked", G_CALLBACK(capture_start_cb), cap_open_w);
+  g_signal_connect(ok_bt, "clicked", G_CALLBACK(capture_start_cb), NULL);
   gtk_tooltips_set_tip(tooltips, ok_bt,
     "Start the capture process.", NULL);
 

@@ -549,7 +549,7 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
     }
 
     g_object_set_data(G_OBJECT(severity_combo_box), "tapdata", etd);
-    g_signal_connect(severity_combo_box, "changed", G_CALLBACK(expert_dlg_severity_cb), etd->win);
+    g_signal_connect(severity_combo_box, "changed", G_CALLBACK(expert_dlg_severity_cb), NULL);
     gtk_box_pack_start(GTK_BOX(severity_box), severity_combo_box, FALSE, FALSE, 0);
 
 

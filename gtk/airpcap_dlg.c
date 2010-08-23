@@ -333,7 +333,7 @@ on_fcs_filter_cb_changed(GtkWidget *fcs_filter_cb, gpointer data _U_)
  * Changed callback for the capture type combobox
  */
 static void
-on_capture_type_cb_changed(GtkWidget *cb, gpointer data _U_)
+on_capture_type_cb_changed(GtkWidget *cb, gpointer user_data _U_)
 {
     gchar *s;
 
@@ -384,7 +384,7 @@ gboolean update_blink(gpointer data)
  * Blink button callback
  */
 void
-on_blink_bt_clicked( GtkWidget *blink_bt, gpointer if_data _U_)
+on_blink_bt_clicked( GtkWidget *blink_bt, gpointer data _U_)
 {
     PAirpcapHandle ad = NULL;
     gchar ebuf[AIRPCAP_ERRBUF_SIZE];
@@ -419,7 +419,7 @@ on_blink_bt_clicked( GtkWidget *blink_bt, gpointer if_data _U_)
  * Callback for the 'Any' adapter What's This button.
  */
 void
-on_what_s_this_bt_clicked( GtkWidget *blink_bt _U_, gpointer if_data _U_)
+on_what_s_this_bt_clicked( GtkWidget *blink_bt _U_, gpointer data _U_)
 {
     simple_dialog(ESD_TYPE_INFO,ESD_BTN_OK,
                   "The Multi-Channel Aggregator is a virtual device "
@@ -434,7 +434,7 @@ on_what_s_this_bt_clicked( GtkWidget *blink_bt _U_, gpointer if_data _U_)
 
 /* the window was closed, cleanup things */
 void
-on_key_management_destroy(GtkWidget *w _U_, gpointer data _U_)
+on_key_management_destroy(GtkWidget *w _U_, gpointer data)
 {
     GtkWidget	*airpcap_advanced_w,
     *toolbar;
@@ -575,7 +575,7 @@ on_reset_configuration_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
  * Callback used to add a WEP key in the add new key box;
  */
 static void
-on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
+on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
 {
     GtkWidget	*type_cb,
     *key_en,
@@ -762,7 +762,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
  * Callback used to edit a WEP key in the edit key box;
  */
 static void
-on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
+on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
 {
     GtkWidget	*type_cb,
     *key_en,
@@ -949,7 +949,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
  * Callback for the 'Add Key' button.
  */
 void
-on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
+on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
     GtkWidget *add_key_window;
     GtkWidget *add_frame;
@@ -1949,19 +1949,19 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
 
     if (!airpcap_if_is_any(airpcap_if_selected))
     {
-        g_signal_connect (blink_bt, "clicked", G_CALLBACK(on_blink_bt_clicked), airpcap_advanced_w);
+        g_signal_connect (blink_bt, "clicked", G_CALLBACK(on_blink_bt_clicked), NULL);
     }
     else
     {
-        g_signal_connect (blink_bt, "clicked", G_CALLBACK(on_what_s_this_bt_clicked), airpcap_advanced_w);
+        g_signal_connect (blink_bt, "clicked", G_CALLBACK(on_what_s_this_bt_clicked), NULL);
     }
 
     g_signal_connect (channel_cb, "changed", G_CALLBACK(airpcap_channel_changed_noset_cb), channel_offset_cb);
     /* We don't attach the channel offset combo because we don't want it changing anything yet. */
-    g_signal_connect (capture_type_cb, "changed", G_CALLBACK(on_capture_type_cb_changed), airpcap_advanced_w);
-    g_signal_connect (fcs_ck, "toggled", G_CALLBACK(on_fcs_ck_toggled), airpcap_advanced_w);
+    g_signal_connect (capture_type_cb, "changed", G_CALLBACK(on_capture_type_cb_changed), NULL);
+    g_signal_connect (fcs_ck, "toggled", G_CALLBACK(on_fcs_ck_toggled), NULL);
     g_signal_connect (fcs_filter_cb, "changed", G_CALLBACK(on_fcs_filter_cb_changed), NULL);
-    g_signal_connect (reset_configuration_bt, "clicked", G_CALLBACK(on_reset_configuration_bt_clicked), airpcap_advanced_w);
+    g_signal_connect (reset_configuration_bt, "clicked", G_CALLBACK(on_reset_configuration_bt_clicked), NULL);
     g_signal_connect (apply_bt, "clicked", G_CALLBACK(on_advanced_apply_bt_clicked), airpcap_advanced_w);
     g_signal_connect (ok_bt,"clicked", G_CALLBACK(on_advanced_ok_bt_clicked), airpcap_advanced_w);
     g_signal_connect (cancel_bt,"clicked", G_CALLBACK(on_advanced_cancel_bt_clicked), airpcap_advanced_w);
@@ -2404,13 +2404,13 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     g_signal_connect (edit_key_bt, "clicked", G_CALLBACK(on_edit_key_bt_clicked), key_management_w);
     g_signal_connect (move_key_up_bt, "clicked", G_CALLBACK(on_move_key_up_bt_clicked), key_management_w);
     g_signal_connect (move_key_down_bt, "clicked", G_CALLBACK(on_move_key_down_bt_clicked), key_management_w);
-    g_signal_connect (reset_configuration_bt, "clicked", G_CALLBACK(on_reset_configuration_bt_clicked), key_management_w);
+    g_signal_connect (reset_configuration_bt, "clicked", G_CALLBACK(on_reset_configuration_bt_clicked), NULL);
     g_signal_connect (apply_bt, "clicked", G_CALLBACK(on_key_management_apply_bt_clicked), key_management_w);
     g_signal_connect (ok_bt, "clicked", G_CALLBACK(on_key_management_ok_bt_clicked), key_management_w);
     g_signal_connect (cancel_bt, "clicked", G_CALLBACK(on_key_management_cancel_bt_clicked), key_management_w);
     g_signal_connect (key_ls, "select_row", G_CALLBACK(on_key_ls_select_row), key_management_w);
     g_signal_connect (key_ls, "unselect_row", G_CALLBACK(on_key_ls_unselect_row), key_management_w);
-    g_signal_connect (key_ls, "click_column", G_CALLBACK(on_key_ls_click_column), key_management_w);
+    g_signal_connect (key_ls, "click_column", G_CALLBACK(on_key_ls_click_column), NULL);
 
     /* Different because the window will be closed ... */
     /*window_set_cancel_button(key_management_w, ok_bt, window_cancel_button_cb);

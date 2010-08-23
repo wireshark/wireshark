@@ -354,7 +354,7 @@ mtp3_stat_draw(
 static void
 mtp3_stat_gtk_win_destroy_cb(
     GtkWindow       *win _U_,
-    gpointer        user_data _U_)
+    gpointer        user_data)
 {
     memset((void *) user_data, 0, sizeof(mtp3_stat_dlg_t));
 }

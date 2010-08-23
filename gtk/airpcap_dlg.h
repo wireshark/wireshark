@@ -60,7 +60,7 @@ update_decryption_mode_list(GtkWidget *w);
  * Callback for the 'Add Key' button.
  */
 void
-on_add_new_key_bt_clicked(GtkWidget *button, gpointer data _U_);
+on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data);
 
 /*
  * Callback for the 'Remove Key' button.
@@ -124,7 +124,7 @@ on_key_management_cancel_bt_clicked(GtkWidget *button, gpointer data _U_);
 
 /* the window was closed, cleanup things */
 void
-on_key_management_destroy(GtkWidget *w _U_, gpointer data _U_);
+on_key_management_destroy(GtkWidget *w _U_, gpointer data);
 
 /*
  * Callback for the 'Reset Configuration' button.
@@ -136,7 +136,7 @@ on_reset_configuration_bt_clicked(GtkWidget *button, gpointer data _U_);
  * Turns the decryption on or off
  */
 void
-on_decryption_mode_cb_changed(GtkWidget *w, gpointer data);
+on_decryption_mode_cb_changed(GtkWidget *w, gpointer data _U_);
 
 /*
  * Selects the current decryption mode in the given combo box
@@ -168,9 +168,9 @@ on_key_ls_unselect_row(GtkWidget *widget,
  * Callback for the click column event in the key list widget
  */
 void
-on_key_ls_click_column(GtkWidget *widget,
-                       gint column,
-                       gpointer data);
+on_key_ls_click_column(GtkWidget *widget _U_,
+                       gint column _U_,
+                       gpointer data _U_);
 
 /*
  * Thread function used to blink the led
@@ -181,13 +181,13 @@ gboolean update_blink(gpointer data _U_);
  * Blink button callback
  */
 void
-on_blink_bt_clicked(GtkWidget *blink_bt _U_, gpointer if_data);
+on_blink_bt_clicked(GtkWidget *blink_bt, gpointer data _U_);
 
 /*
  * Callback for the 'Any' adapter What's This button.
  */
 void
-on_what_s_this_bt_clicked( GtkWidget *blink_bt _U_, gpointer if_data );
+on_what_s_this_bt_clicked( GtkWidget *blink_bt _U_, gpointer data _U_);
 
 /** Create a "Airpcap" dialog box caused by a button click.
  *

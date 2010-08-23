@@ -515,7 +515,7 @@ dcerpcstat_find_next_program(gpointer *key, gpointer *value, gpointer *user_data
 
 
 static void
-dlg_destroy_cb(void)
+dlg_destroy_cb(GtkWidget *w _U_, gpointer user_data _U_)
 {
 	dlg = NULL;
 }
@@ -682,7 +682,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);
 
 	g_signal_connect(dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-	g_signal_connect(dlg, "destroy", dlg_destroy_cb, NULL);
+	g_signal_connect(dlg, "destroy", G_CALLBACK(dlg_destroy_cb), NULL);
 
 	/* Catch the "activate" signal on the filter text entry, so that
 	   if the user types Return there, we act as if the "Create Stat"

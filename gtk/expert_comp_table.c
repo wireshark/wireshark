@@ -349,8 +349,9 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
 }
 
 static gboolean
-error_show_popup_menu_cb(void *widg _U_, GdkEvent *event, error_equiv_table *err)
+error_show_popup_menu_cb(void *widg _U_, GdkEvent *event, gpointer user_data)
 {
+	error_equiv_table *err = user_data;
 	GdkEventButton *bevent = (GdkEventButton *)event;
 
 	if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
@@ -700,9 +701,7 @@ error_create_popup_menu(error_equiv_table *err)
 
     err->select = gtk_tree_view_get_selection (GTK_TREE_VIEW (err->tree_view));
     gtk_tree_selection_set_mode (err->select, GTK_SELECTION_SINGLE);
-    g_signal_connect (G_OBJECT (err->select), "changed",
-                  G_CALLBACK (expert_goto_pkt_cb),
-                  err);
+    g_signal_connect (G_OBJECT (err->select), "changed", G_CALLBACK(expert_goto_pkt_cb), NULL);
     item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
 
     gtk_item_factory_create_items_ac(item_factory, sizeof(error_list_menu_items)/sizeof(error_list_menu_items[0]), error_list_menu_items, err, 2);
@@ -716,9 +715,7 @@ error_create_popup_menu(error_equiv_table *err)
 
     err->select = gtk_tree_view_get_selection (GTK_TREE_VIEW (err->tree_view));
     gtk_tree_selection_set_mode (err->select, GTK_SELECTION_SINGLE);
-    g_signal_connect (G_OBJECT (err->select), "changed",
-                  G_CALLBACK (expert_goto_pkt_cb),
-                  err);
+    g_signal_connect (G_OBJECT (err->select), "changed", G_CALLBACK(expert_goto_pkt_cb), NULL);
 
 	action_group = gtk_action_group_new ("ExpertFilterPopupActionGroup"); 
 	gtk_action_group_add_actions (action_group,							/* the action group */
