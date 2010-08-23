@@ -79,7 +79,7 @@ static GtkWidget *create_view_and_model(void);
 static void scroll_to_and_select_iter(GtkTreeModel *model, GtkTreeSelection *selection, GtkTreeIter *iter);
 static void new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_);
 static void new_packet_list_double_click_cb(GtkTreeView *treeview,
-					    GtkTreePath *path,
+					    GtkTreePath *path _U_,
 					    GtkTreeViewColumn *col _U_,
 					    gpointer userdata _U_);
 static void show_cell_data_func(GtkTreeViewColumn *col,
@@ -502,7 +502,7 @@ new_packet_list_column_menu_cb (GtkWidget *w, gpointer user_data _U_, COLUMN_SEL
 	}
 }
 
-static void
+static gboolean
 new_packet_list_column_button_pressed_cb (GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	GtkWidget *col = (GtkWidget *) data;
@@ -513,7 +513,7 @@ new_packet_list_column_button_pressed_cb (GtkWidget *widget, GdkEvent *event, gp
 	menus_set_column_align_default (right_justify);
 	menus_set_column_resolved (get_column_resolved (col_id), resolve_column (col_id));
 	g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_COLUMN_KEY, col);
-	popup_menu_handler (widget, event, menu);
+	return popup_menu_handler (widget, event, menu);
 }
 
 static void
@@ -578,9 +578,7 @@ create_view_and_model(void)
 	g_signal_connect(packetlist->view, "cursor-changed",
 			 G_CALLBACK(new_packet_list_select_cb), NULL);
 	g_signal_connect(packetlist->view, "row-activated",
-			 G_CALLBACK(new_packet_list_double_click_cb),
-			 g_object_get_data(G_OBJECT(popup_menu_object),
-					   PM_PACKET_LIST_KEY));
+			 G_CALLBACK(new_packet_list_double_click_cb), NULL);
 	g_signal_connect(packetlist->view, "button_press_event", G_CALLBACK(popup_menu_handler),
 				   g_object_get_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
 	column_changed_handler_id = g_signal_connect(packetlist->view, "columns-changed", G_CALLBACK(column_dnd_changed_cb), NULL);
