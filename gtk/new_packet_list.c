@@ -136,7 +136,7 @@ new_packet_list_append(column_info *cinfo _U_, frame_data *fdata, packet_info *p
 	 * strings are built at display time.
 	 */
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
-	guint visible_pos = packet_list_append_record(packetlist, fdata); 
+	guint visible_pos = packet_list_append_record(packetlist, fdata);
 	if(model)
 		/* If the model is connected there is no packetsbar_update from "thaw */
 		packets_bar_update();
@@ -195,8 +195,8 @@ resolve_column (gint col)
 		if (hfi != NULL) {
 			/* Check if we have an OID or a strings table with integer values */
 		  	if ((hfi->type == FT_OID) ||
-			    ((hfi->strings != NULL) && 
-			     ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) || 
+			    ((hfi->strings != NULL) &&
+			     ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
 			      IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)))) {
 				resolve = TRUE;
 			}
@@ -242,7 +242,7 @@ col_title_change_cancel (GtkWidget *w _U_, gpointer parent_w)
 	window_destroy(GTK_WIDGET(parent_w));
 }
 
-static void 
+static void
 col_title_edit_dlg (GtkTreeViewColumn *col)
 {
 	const gchar *title = gtk_tree_view_column_get_title(col);
@@ -294,7 +294,7 @@ col_title_edit_dlg (GtkTreeViewColumn *col)
 static void
 new_packet_list_sort_column (gint col_id, GtkTreeViewColumn *col, GtkSortType order)
 {
-	GtkTreeViewColumn *prev_col = (GtkTreeViewColumn *) 
+	GtkTreeViewColumn *prev_col = (GtkTreeViewColumn *)
 	  g_object_get_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_PREV_COLUMN_KEY);
 
 	if (prev_col) {
@@ -306,7 +306,7 @@ new_packet_list_sort_column (gint col_id, GtkTreeViewColumn *col, GtkSortType or
 	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), col_id, order);
 }
 
-/* 
+/*
  * We have our own functionality to toggle sort order on a column to avoid
  * having empty sorting arrow widgets in the column header.
  */
@@ -595,8 +595,8 @@ create_view_and_model(void)
 		col = gtk_tree_view_column_new();
 		gtk_tree_view_column_pack_start(col, renderer, TRUE);
 		value = get_xalign_value(recent_get_column_xalign(i), right_justify_column(i));
-		g_object_set(G_OBJECT(renderer), 
-			     "xalign", value, 
+		g_object_set(G_OBJECT(renderer),
+			     "xalign", value,
 			     NULL);
 		g_object_set(renderer,
 			     "ypad", 0,
@@ -615,9 +615,9 @@ create_view_and_model(void)
 				} else {
 					tooltip_text = g_strdup_printf("%s (%s)", hfi->name, hfi->abbrev);
 				}
-                	} else {
+			} else {
 				tooltip_text = g_strdup_printf("Unknown Field: %s", get_column_custom_field(i));
-			}	
+			}
 		} else {
 			tooltip_text = g_strdup(col_format_desc(cfile.cinfo.col_fmt[i]));
 		}
@@ -633,7 +633,7 @@ create_view_and_model(void)
 		g_object_set_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY, GINT_TO_POINTER(i));
 		g_signal_connect(col, "clicked", G_CALLBACK(new_packet_list_column_clicked_cb), NULL);
 
-		/* 
+		/*
 		 * The column can't be adjusted to a size smaller than this
 		 * XXX The minimum size will be the size of the title
 		 * should that be limited for long titles?
@@ -669,7 +669,7 @@ create_view_and_model(void)
 		 */
 		gtk_tooltips_set_tip(tooltips, col->button, tooltip_text, NULL);
 		g_free(tooltip_text);
-		g_signal_connect(col->button, "button_press_event", 
+		g_signal_connect(col->button, "button_press_event",
 				 G_CALLBACK(new_packet_list_column_button_pressed_cb), col);
 
 		if (i == 0) {  /* Default sort on first column */
@@ -1029,7 +1029,7 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 
 	row = row_number_from_iter(&iter);
 
-	/* Check if already selected 
+	/* Check if already selected
 	 */
 	if (cfile.current_frame && cfile.current_row == row)
 		return;
@@ -1047,23 +1047,23 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 
 static void
 new_packet_list_double_click_cb(GtkTreeView *treeview, GtkTreePath *path _U_,
-    GtkTreeViewColumn *col _U_, gpointer userdata _U_)
+				GtkTreeViewColumn *col _U_, gpointer userdata _U_)
 {
-        new_window_cb(GTK_WIDGET(treeview));
+	new_window_cb(GTK_WIDGET(treeview));
 }
 
 gboolean
 new_packet_list_get_event_row_column(GdkEventButton *event_button,
-								 gint *physical_row, gint *row, gint *column)
+				     gint *physical_row, gint *row, gint *column)
 {
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	GtkTreePath *path;
 	GtkTreeViewColumn *view_column;
 
 	if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(packetlist->view),
-									  (gint) event_button->x,
-									  (gint) event_button->y,
-									  &path, &view_column, NULL, NULL)) {
+					  (gint) event_button->x,
+					  (gint) event_button->y,
+					  &path, &view_column, NULL, NULL)) {
 		GtkTreeIter iter;
 		GList *cols;
 		gint *indices;
@@ -1204,40 +1204,40 @@ new_packet_list_queue_draw(void)
 void
 new_packet_list_set_sel_browse(gboolean val, gboolean force_set)
 {
-    GtkSelectionMode new_mode;
-    /* initialize with a mode we don't use, so that the mode == new_mode
-     * test will fail the first time */
-    static GtkSelectionMode mode = GTK_SELECTION_MULTIPLE;
+	GtkSelectionMode new_mode;
+	/* initialize with a mode we don't use, so that the mode == new_mode
+	 * test will fail the first time */
+	static GtkSelectionMode mode = GTK_SELECTION_MULTIPLE;
 
-    /* Yeah, GTK uses "browse" in the case where we do not, but oh well. I
-     * think "browse" in Wireshark makes more sense than "SINGLE" in GTK+ */
-    new_mode = val ? GTK_SELECTION_SINGLE : GTK_SELECTION_BROWSE;
+	/* Yeah, GTK uses "browse" in the case where we do not, but oh well. I
+	 * think "browse" in Wireshark makes more sense than "SINGLE" in GTK+ */
+	new_mode = val ? GTK_SELECTION_SINGLE : GTK_SELECTION_BROWSE;
 
-    if ((mode == new_mode) && !force_set) {
-        /*
-         * The mode isn't changing, so don't do anything.
-         * In particular, don't gratuitiously unselect the
-         * current packet.
-         *
-		 * XXX - Copied code from "old" packet list 
+	if ((mode == new_mode) && !force_set) {
+		/*
+		 * The mode isn't changing, so don't do anything.
+		 * In particular, don't gratuitiously unselect the
+		 * current packet.
+		 *
+		 * XXX - Copied code from "old" packet list
 		 *  - I don't know if the comment below is still true...
-         * XXX - why do we have to unselect the current packet
-         * ourselves?  The documentation for the GtkCList at
-         *
-         *      http://developer.gnome.org/doc/API/gtk/gtkclist.html
-         *
-         * says "Note that setting the widget's selection mode to
-         * one of GTK_SELECTION_BROWSE or GTK_SELECTION_SINGLE will
-         * cause all the items in the GtkCList to become deselected."
-         */
-      return;
-    }
+		 * XXX - why do we have to unselect the current packet
+		 * ourselves?  The documentation for the GtkCList at
+		 *
+		 *      http://developer.gnome.org/doc/API/gtk/gtkclist.html
+		 *
+		 * says "Note that setting the widget's selection mode to
+		 * one of GTK_SELECTION_BROWSE or GTK_SELECTION_SINGLE will
+		 * cause all the items in the GtkCList to become deselected."
+		 */
+		return;
+	}
 
-    if (cfile.finfo_selected)
-        cf_unselect_field(&cfile);
+	if (cfile.finfo_selected)
+		cf_unselect_field(&cfile);
 
-    mode = new_mode;
-    gtk_tree_selection_set_mode (gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view)), mode);
+	mode = new_mode;
+	gtk_tree_selection_set_mode (gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view)), mode);
 }
 
 void
@@ -1366,12 +1366,12 @@ new_packet_list_ignore_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _
 	if(cfile.displayed_count < cfile.count){
 		frame_data *fdata;
 		/* Due to performance impact with large captures, don't check the filtered list for
-		an ignored frame; just check the first. If a ignored frame exists but isn't first and 
+		an ignored frame; just check the first. If a ignored frame exists but isn't first and
 		the user wants to unignore all the displayed frames, they will just re-exec the shortcut. */
 		fdata = cfile.first_displayed;
-		if (fdata->flags.ignored==TRUE) { 
+		if (fdata->flags.ignored==TRUE) {
 			ignore_all_displayed_frames(FALSE);
-		} else {		
+		} else {
 			ignore_all_displayed_frames(TRUE);
 		}
 	}
@@ -1418,10 +1418,10 @@ new_packet_list_untime_reference_all_frames_cb(GtkWidget *w _U_, gpointer data _
 guint
 new_packet_list_get_column_id (gint col_num)
 {
-  GtkTreeViewColumn *column = gtk_tree_view_get_column (GTK_TREE_VIEW(packetlist->view), col_num);
-  gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(column), E_MPACKET_LIST_COL_KEY));
+	GtkTreeViewColumn *column = gtk_tree_view_get_column (GTK_TREE_VIEW(packetlist->view), col_num);
+	gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(column), E_MPACKET_LIST_COL_KEY));
 
-  return col_id;
+	return col_id;
 }
 
 static gboolean
