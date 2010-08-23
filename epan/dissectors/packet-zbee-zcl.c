@@ -1375,8 +1375,7 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
                 proto_item_append_text(tree, ", %s: 0x%02x",
                     val_to_str(data_type, zbee_zcl_short_data_type_names, "Reserved"), attr_uint);
 
-                proto_tree_add_uint(tree, hf_zbee_zcl_attr_boolean, tvb, *offset, sizeof(guint8),
-                            attr_uint);
+                proto_tree_add_item(tree, hf_zbee_zcl_attr_boolean, tvb, *offset, 1, FALSE);
             }
             *offset += sizeof(guint8);
             break;
