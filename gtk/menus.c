@@ -1348,15 +1348,15 @@ main_menu_new(GtkAccelGroup ** table) {
     dock_menu = gtk_menu_new();
 
     item = gtk_menu_item_new_with_label("Start");
-    g_signal_connect_data (item, "activate", G_CALLBACK (capture_start_cb),0,0, 0);
+    g_signal_connect(item, "activate", G_CALLBACK (capture_start_cb), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(dock_menu), item);
 
     item = gtk_menu_item_new_with_label("Stop");
-    g_signal_connect_data (item, "activate", G_CALLBACK (capture_stop_cb),0,0, 0);
+    g_signal_connect(item, "activate", G_CALLBACK (capture_stop_cb), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(dock_menu), item);
 
     item = gtk_menu_item_new_with_label("Restart");
-    g_signal_connect_data (item, "activate", G_CALLBACK (capture_restart_cb),0,0, 0);
+    g_signal_connect(item, "activate", G_CALLBACK (capture_restart_cb), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(dock_menu), item);
 
     gtk_osxapplication_set_dock_menu(theApp, GTK_MENU_SHELL(dock_menu));
