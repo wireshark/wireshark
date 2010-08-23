@@ -115,7 +115,7 @@ scsistat_reset(void *arg)
 
 
 static void
-dlg_destroy_cb(void)
+dlg_destroy_cb(GtkWidget *w _U_, gpointer user_data _U_)
 {
 	dlg=NULL;
 }

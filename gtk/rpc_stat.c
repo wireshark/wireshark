@@ -404,7 +404,7 @@ rpcstat_list_programs(gpointer *key, gpointer *value, gpointer user_data)
 }
 
 static void
-dlg_destroy_cb(void)
+dlg_destroy_cb(GtkWidget *w _U_, gpointer user_data _U_)
 {
 	dlg=NULL;
 }

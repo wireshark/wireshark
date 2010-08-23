@@ -554,7 +554,7 @@ recent_df_entries_changed_cb(GtkWidget *recent_df_entry _U_,
 	return FALSE;
 }
 
-static gint
+static gboolean
 recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_, 
 			      GdkEvent *event _U_, gpointer parent_w)
 {

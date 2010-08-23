@@ -85,7 +85,7 @@ srt_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	g_free(str);
 }
 
-static gint
+static gboolean
 srt_show_popup_menu_cb(void *widg _U_, GdkEvent *event, srt_stat_table *rst)
 {
 	GdkEventButton *bevent = (GdkEventButton *)event;

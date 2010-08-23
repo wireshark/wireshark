@@ -1981,7 +1981,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &gio->color);
 	gtk_widget_modify_fg(label, GTK_STATE_SELECTED, &gio->color);
 	gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, &gio->color);
-/*	g_signal_connect(gio->display_button, "toggled", filter_callback, gio);*/
+/*	g_signal_connect(gio->display_button, "toggled", G_CALLBACK(filter_callback), gio);*/
 
 
 	/* filter prefs dialog */

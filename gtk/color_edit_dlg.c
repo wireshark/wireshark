@@ -256,7 +256,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     g_object_set_data(G_OBJECT(colorize_filter_bg), COLOR_FILTER, colorf);
     g_signal_connect(colorize_filter_bg, "clicked", G_CALLBACK(edit_color_filter_bg_cb), NULL);
     g_object_set_data(G_OBJECT(disabled_cb), COLOR_FILTER, colorf);
-/*    g_signal_connect(disabled_cb, "clicked", edit_disabled_cb_cb, NULL);*/
+/*    g_signal_connect(disabled_cb, "clicked", G_CALLBACK(edit_disabled_cb_cb), NULL);*/
     g_object_set_data(G_OBJECT(edit_color_filter_ok), COLOR_FILTERS_CL, color_filters);
     g_object_set_data(G_OBJECT(edit_color_filter_ok), COLOR_FILTER, colorf);
     g_signal_connect(edit_color_filter_ok, "clicked", G_CALLBACK(edit_color_filter_ok_cb), edit_dialog);

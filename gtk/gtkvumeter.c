@@ -39,7 +39,7 @@ static void gtk_vumeter_realize (GtkWidget *widget);
 static void gtk_vumeter_size_calculate (GtkWidget *widget, GtkRequisition *requisition);
 static void gtk_vumeter_size_request (GtkWidget *widget, GtkRequisition *requisition);
 static void gtk_vumeter_size_allocate (GtkWidget *widget, GtkAllocation *allocation);
-static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event);
+static gboolean gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event);
 static void gtk_vumeter_free_colors (GtkVUMeter *vumeter);
 static void gtk_vumeter_setup_colors (GtkVUMeter *vumeter);
 static gint gtk_vumeter_sound_level_to_draw_level (GtkVUMeter *vumeter, gint sound_level);
@@ -279,7 +279,7 @@ static void gtk_vumeter_size_allocate (GtkWidget *widget, GtkAllocation *allocat
     }
 }
 
-static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
+static gboolean gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
 {
     GtkVUMeter *vumeter;
     gint index, level, peak_level = 0;

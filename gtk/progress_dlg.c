@@ -39,7 +39,7 @@
 
 #define	PROG_BAR_KEY	"progress_bar"
 
-static gint delete_event_cb(GtkWidget *w, GdkEvent *event, gpointer data);
+static gboolean delete_event_cb(GtkWidget *w, GdkEvent *event, gpointer data);
 static void stop_cb(GtkWidget *w, gpointer data);
 
 /*
@@ -310,7 +310,7 @@ delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
  * box deleted now, our caller will do so when they see that the
  * "stop" flag is TRUE and abort the operation.
  */
-static gint
+static gboolean
 delete_event_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data)
 {
 	gboolean *stop_flag = (gboolean *) data;

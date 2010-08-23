@@ -272,7 +272,7 @@ GtkWidget *create_list(void)
 }
 
 static void
-dlg_destroy(void)
+dlg_destroy(GtkWidget *w _U_, gpointer user_data _U_)
 {
 	guint32 i, j;
 	GList *list;

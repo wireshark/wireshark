@@ -49,7 +49,7 @@ static GtkWidget *filter_autocomplete_new(GtkWidget *filter_te, const gchar *pro
 static void autocomplete_protocol_string(GtkWidget  *filter_te, gchar* selected_str);
 static void autoc_filter_row_activated_cb(GtkTreeView *treeview, GtkTreePath *path,
                                           GtkTreeViewColumn *column, gpointer data);
-static gint filter_te_focus_out_cb(GtkWidget *filter_te, GdkEvent *event, gpointer data);
+static gboolean filter_te_focus_out_cb(GtkWidget *filter_te, GdkEvent *event, gpointer data);
 static void init_autocompletion_list(GtkWidget *list);
 static void add_to_autocompletion_list(GtkWidget *list, const gchar *str);
 static gboolean autocompletion_list_lookup(GtkWidget *filter_te, GtkWidget *popup_win, GtkWidget *list,

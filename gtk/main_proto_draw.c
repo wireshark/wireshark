@@ -754,7 +754,7 @@ add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
 static GtkWidget *savehex_dlg=NULL;
 
 static void
-savehex_dlg_destroy_cb(void)
+savehex_dlg_destroy_cb(GtkWidget *w _U_, gpointer user_data _U_)
 {
         savehex_dlg = NULL;
 }

@@ -876,7 +876,7 @@ comparestat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 }
 
 static void
-dlg_destroy_cb(void)
+dlg_destroy_cb(GtkWidget *w _U_, gpointer user_data _U_)
 {
 	dlg=NULL;
 }
