@@ -2,6 +2,7 @@
 <!-- $Id$ -->
 
 	<application id="7" name="Diameter Mobile IPv6 IKE   (MIP6I)" uri="http://www.ietf.org/rfc/rfc5778.txt">
+	</application>
 	<application id="8" name="Diameter Mobile IPv6 Auth  (MIP6A)" uri="http://www.ietf.org/rfc/rfc5778.txt">
 
 		<!-- Mobile-IPv6 Application -->
