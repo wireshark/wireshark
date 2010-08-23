@@ -317,15 +317,6 @@ dfilter_recent_combo_write_all(FILE *rf) {
     }while (gtk_tree_model_iter_next (model, &iter)&& (max_count++ < prefs.gui_recent_df_entries_max));
 
 }
-#if 0
-
-/* empty the combobox entry field */
-void
-dfilter_combo_add_empty(void) {
-
-    /* This doesn't seem to be necessary with a Combo Box */
-}
-#endif
 
 /* add a display filter coming from the user's recent file to the dfilter combo box */
 gboolean
