@@ -2117,7 +2117,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         break;
     case BSSAP_MOBILE_STATUS:                   /*  17.1.13 */
         /* IMSI IMSI 18.4.10 O TLV 6-10 */
-        if ( check_optional_ie(tvb, offset, BSSAP_MM_INFORMATION))
+        if ( check_optional_ie(tvb, offset, BSSAP_IMSI))
                 offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
         /* Gs Cause Gs Cause 18.4.7 M TLV 3 */
         if ( check_ie(tvb, tree, &offset, BSSAP_GS_CAUSE))
