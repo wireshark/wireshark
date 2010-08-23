@@ -1129,7 +1129,7 @@ proto_register_arp(void)
   static hf_register_info hf[] = {
     { &hf_arp_hard_type,
       { "Hardware type",		"arp.hw.type",
-	FT_UINT16,	BASE_HEX,	VALS(hrd_vals),	0x0,
+	FT_UINT16,	BASE_DEC,	VALS(hrd_vals),	0x0,
       	NULL, HFILL }},
 
     { &hf_arp_proto_type,
@@ -1169,7 +1169,7 @@ proto_register_arp(void)
 
     { &hf_arp_opcode,
       { "Opcode",			"arp.opcode",
-	FT_UINT16,	BASE_HEX,	VALS(op_vals),	0x0,
+	FT_UINT16,	BASE_DEC,	VALS(op_vals),	0x0,
       	NULL, HFILL }},
 
     { &hf_arp_isgratuitous,
