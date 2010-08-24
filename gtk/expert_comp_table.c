@@ -53,6 +53,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/webbrowser.h"
+#include "gtk/stock_icons.h"
 
 const char  *packet = "Packet:";
 
@@ -606,11 +607,11 @@ static const char *ui_desc_expert_filter_popup =
 "     <menuitem action='/Colorize Procedure/Selected'/>\n"
 "     <menuitem action='/Colorize Procedure/Not Selected'/>\n"
 "    </menu>\n"
-"    <menu action='/Internet Search for Info Text'>\n"
-"     <menuitem action='/StartWebSearch'/>\n"
+"    <menu action='/Internet Search'>\n"
+"     <menuitem action='/For Info Text'/>\n"
 "    </menu>\n"
 "    <menu action='/Copy'>\n"
-"     <menuitem action='/Copy/Selected'/>\n"
+"     <menuitem action='/Copy/Protocol Plus Summary'/>\n"
 "    </menu>\n"
 "  </popup>\n"
 "</ui>\n";
@@ -665,10 +666,10 @@ static const GtkActionEntry expert_popup_entries[] = {
   { "/Find Next/Not Selected",					NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_next_not_selected_cb) },
   { "/Colorize Procedure/Selected",				NULL, "Selected",						NULL, "Selected",						G_CALLBACK(color_selected_cb) },
   { "/Colorize Procedure/Not Selected",			NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(color_not_selected_cb) },
-  { "/Internet Search for Info Text",			NULL, "Internet Search for Info Text",	NULL, "Internet Search for Info Text",	NULL },
-  { "/StartWebSearch",							NULL, "Go",								NULL, "Go",								G_CALLBACK(internet_search_cb) },
+  { "/Internet Search",	    WIRESHARK_STOCK_INTERNET, "Internet Search",				NULL, "Internet Search",				NULL },
+  { "/For Info Text",							NULL, "For Info Text",					NULL, "For Info Text",					G_CALLBACK(internet_search_cb) },
   { "/Copy",									NULL, "Copy",							NULL, "Copy",							NULL },
-  { "/Copy/Selected",							NULL, "Selected",						NULL, "Selected",						G_CALLBACK(copy_cb) },
+  { "/Copy/Protocol Plus Summary",				NULL, "Protocol Plus Summary",			NULL, "Protocol Plus Summary",			G_CALLBACK(copy_cb) },
 };
 #endif
 static void
