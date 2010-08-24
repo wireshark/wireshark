@@ -101,12 +101,15 @@ static int hf_ipv6_hlim		  = -1;
 static int hf_ipv6_src		  = -1;
 static int hf_ipv6_src_host	  = -1;
 static int hf_ipv6_src_sa_mac     = -1;
+static int hf_ipv6_src_isatap_ipv4	  = -1;
 static int hf_ipv6_dst		  = -1;
 static int hf_ipv6_dst_host	  = -1;
 static int hf_ipv6_dst_sa_mac     = -1;
+static int hf_ipv6_dst_isatap_ipv4	  = -1;
 static int hf_ipv6_addr		  = -1;
 static int hf_ipv6_host		  = -1;
 static int hf_ipv6_sa_mac         = -1;
+static int hf_ipv6_isatap_ipv4    = -1;
 static int hf_ipv6_opt_pad1	  = -1;
 static int hf_ipv6_opt_padn	  = -1;
 static int hf_ipv6_dst_opt	  = -1;
@@ -1424,7 +1427,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      16, name);
     PROTO_ITEM_SET_GENERATED(ti);
     PROTO_ITEM_SET_HIDDEN(ti);
-    if (tvb_get_guint8(tvb, offset + IP6H_SRC + 8) & 0x02 && tvb_get_ntohs(tvb, offset + IP6H_SRC + 11) == 0xfffe) {
+    if (tvb_get_guint8(tvb, offset + IP6H_SRC + 8) & 0x02 && tvb_get_ntohs(tvb, offset + IP6H_SRC + 11) == 0xfffe) {  /* RFC 4291 appendix A */
 	mac_addr = ep_alloc(6);
 	tvb_memcpy(tvb, mac_addr, offset + IP6H_SRC + 8, 3);
 	tvb_memcpy(tvb, mac_addr+3, offset+ IP6H_SRC + 13, 3);
@@ -1434,6 +1437,14 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_GENERATED(ti);
         ti = proto_tree_add_ether(ipv6_tree, hf_ipv6_sa_mac, tvb,
 				  offset + IP6H_SRC + 8, 6, mac_addr);
+        PROTO_ITEM_SET_GENERATED(ti);
+        PROTO_ITEM_SET_HIDDEN(ti);
+    } else if ((tvb_get_ntohl(tvb, offset + IP6H_SRC + 8) & 0xfcffffff) == 0x00005efe) { /* RFC 5214 section 6.1 */
+        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_src_isatap_ipv4, tvb,
+				  offset + IP6H_SRC + 12, 4, FALSE);
+        PROTO_ITEM_SET_GENERATED(ti);
+        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_isatap_ipv4, tvb,
+				  offset + IP6H_SRC + 12, 4, FALSE);
         PROTO_ITEM_SET_GENERATED(ti);
         PROTO_ITEM_SET_HIDDEN(ti);
     }
@@ -1459,7 +1470,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      16, name);
     PROTO_ITEM_SET_GENERATED(ti);
     PROTO_ITEM_SET_HIDDEN(ti);
-    if (tvb_get_guint8(tvb, offset + IP6H_DST + 8) & 0x02 && tvb_get_ntohs(tvb, offset + IP6H_DST + 11) == 0xfffe) {
+    if (tvb_get_guint8(tvb, offset + IP6H_DST + 8) & 0x02 && tvb_get_ntohs(tvb, offset + IP6H_DST + 11) == 0xfffe) { /* RFC 4291 appendix A */
 	mac_addr = ep_alloc(6);
 	tvb_memcpy(tvb, mac_addr, offset + IP6H_DST + 8, 3);
 	tvb_memcpy(tvb, mac_addr+3, offset+ IP6H_DST + 13, 3);
@@ -1469,6 +1480,14 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_GENERATED(ti);
         ti = proto_tree_add_ether(ipv6_tree, hf_ipv6_sa_mac, tvb,
 				  offset + IP6H_DST + 8, 6, mac_addr);
+        PROTO_ITEM_SET_GENERATED(ti);
+        PROTO_ITEM_SET_HIDDEN(ti);
+    } else if ((tvb_get_ntohl(tvb, offset + IP6H_DST + 8) & 0xfcffffff) == 0x00005efe) { /* RFC 5214 section 6.1 */
+        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_dst_isatap_ipv4, tvb,
+				  offset + IP6H_DST + 12, 4, FALSE);
+        PROTO_ITEM_SET_GENERATED(ti);
+        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_isatap_ipv4, tvb,
+				  offset + IP6H_DST + 12, 4, FALSE);
         PROTO_ITEM_SET_GENERATED(ti);
         PROTO_ITEM_SET_HIDDEN(ti);
     }
@@ -1707,6 +1726,10 @@ proto_register_ipv6(void)
       { "Source SA MAC",		"ipv6.src_sa_mac",
 				FT_ETHER, BASE_NONE, NULL, 0x0,
 				"Source IPv6 Stateless Autoconfiguration MAC Address", HFILL }},
+    { &hf_ipv6_src_isatap_ipv4,
+      { "Source ISATAP IPv4",		"ipv6.src_isatap_ipv4",
+				FT_IPv4, BASE_NONE, NULL, 0x0,
+				"Source IPv6 ISATAP Encapsulated IPv4 Address", HFILL }},
     { &hf_ipv6_dst,
       { "Destination",		"ipv6.dst",
 				FT_IPv6, BASE_NONE, NULL, 0x0,
@@ -1719,6 +1742,10 @@ proto_register_ipv6(void)
       { "Destination SA MAC",		"ipv6.dst_sa_mac",
 				FT_ETHER, BASE_NONE, NULL, 0x0,
 				"Destination IPv6 Stateless Autoconfiguration MAC Address", HFILL }},
+    { &hf_ipv6_dst_isatap_ipv4,
+      { "Destination ISATAP IPv4",		"ipv6.dst_isatap_ipv4",
+				FT_IPv4, BASE_NONE, NULL, 0x0,
+				"Destination IPv6 ISATAP Encapsulated IPv4 Address", HFILL }},
     { &hf_ipv6_addr,
       { "Address",		"ipv6.addr",
 				FT_IPv6, BASE_NONE, NULL, 0x0,
@@ -1732,6 +1759,10 @@ proto_register_ipv6(void)
       { "SA MAC",		"ipv6.sa_mac",
 				FT_ETHER, BASE_NONE, NULL, 0x0,
 				"IPv6 Stateless Autoconfiguration MAC Address", HFILL }},
+    { &hf_ipv6_isatap_ipv4,
+      { "ISATAP IPv4",		"ipv6.isatap_ipv4",
+				FT_IPv4, BASE_NONE, NULL, 0x0,
+				"IPv6 ISATAP Encapsulated IPv4 Address", HFILL }},
     { &hf_ipv6_opt_pad1,
       { "Pad1",			"ipv6.opt.pad1",
 				FT_NONE, BASE_NONE, NULL, 0x0,
