@@ -1,3 +1,4 @@
+--  $Id$
 -- RTSE definition from 
 --   http://www.itu.int/ITU-T/asn1/database/itu-t/x/x228/1988/Reliable-Transfer-APDU.html
 -- and modified to pass through asn2wrs
