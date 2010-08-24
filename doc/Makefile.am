@@ -274,24 +274,24 @@ CLEANFILES =		\
 	wireshark.html	\
 	capinfos.1	\
 	capinfos.html	\
-	editcap.1	\
-	editcap.html	\
-	mergecap.1	\
-	mergecap.html	\
-	tshark.1	\
-	tshark.html	\
-	text2pcap.1	\
-	text2pcap.html	\
+	dftest.1	\
+	dftest.html	\
 	dumpcap.1	\
 	dumpcap.html	\
+	editcap.1	\
+	editcap.html	\
 	idl2wrs.1	\
 	idl2wrs.html	\
+	mergecap.1	\
+	mergecap.html	\
+	randpkt.1	\
+	randpkt.html	\
 	rawshark.1	\
 	rawshark.html	\
-	dftests.1	\
-	dftests.html	\
-	randpkt.1	\
-	randpkt.html
+	text2pcap.1	\
+	text2pcap.html	\
+	tshark.1	\
+	tshark.html
 
 DISTCLEANFILES =		\
 	pod2htmi.tmp		\
