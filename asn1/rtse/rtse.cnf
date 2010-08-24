@@ -151,4 +151,21 @@ RTABapdu
 
   if(reason != -1)
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(reason, rtse_RefuseReason_vals, "reason(%%d)"));
+
+#.FN_BODY RTABapdu
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Abort");
+
+  %(DEFAULT_BODY)s
+
+#.FN_PARS AbortReason
+  VAL_PTR=&reason
+
+#.FN_BODY AbortReason
+  int reason = -1;
+ 
+  %(DEFAULT_BODY)s
+
+  if(reason != -1)
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(reason, rtse_AbortReason_vals, "reason(%%d)"));
+
 #.END
