@@ -276,7 +276,9 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
 
     switch(action){
     case ACTION_MATCH:
+		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
         main_filter_packets(&cfile, str, FALSE);
+		gdk_window_raise(top_level->window);
         break;
     case ACTION_PREPARE:
         gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
@@ -299,15 +301,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
          * A better aproach would be to attempt in capturing the last find string and utilize this 
          * with a find next/previous. Also a better approach might be to just send a <Ctl-N> keystroke.
          */
-        if (procedure->fvalue_value==NULL) {
-            find_frame_with_filter(str);
-        }
-        else
-        { 
-            /* We have an expert item so just continue search without find dialog. */
-            cf_find_packet_dfilter_string(&cfile, str, SD_FORWARD);
-        }
-        break;
+		/* Fall trough */
     case ACTION_FIND_PREVIOUS:
         /* In the case of find previous, if there was no expert item, then most likely the expert
          * string was modified to locate the text inside the message. So we can't just perform
@@ -323,7 +317,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
         else
         { 
             /* We have an expert item so just continue search without find dialog. */
-            cf_find_packet_dfilter_string(&cfile, str, SD_BACKWARD);
+            cf_find_packet_dfilter_string(&cfile, str, SD_FORWARD);
         }
         break;
     case ACTION_COLORIZE:
