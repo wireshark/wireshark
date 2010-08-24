@@ -71,7 +71,8 @@ static gint ett_rtse_unknown = -1;
 
 static GHashTable *rtse_segment_table = NULL;
 static GHashTable *rtse_reassembled_table = NULL;
- 
+
+static int hf_rtse_segment_data = -1;
 static int hf_rtse_fragments = -1;
 static int hf_rtse_fragment = -1;
 static int hf_rtse_fragment_overlap = -1;
@@ -243,12 +244,11 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 	if (rtse_reassemble && session->spdu_type == SES_DATA_TRANSFER) {
 		/* strip off the OCTET STRING encoding - including any CONSTRUCTED OCTET STRING */
-		dissect_ber_octet_string(FALSE, &asn1_ctx, NULL, tvb, offset, 0, &data_tvb);
+		dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, offset, hf_rtse_segment_data, &data_tvb);
 
 		if (data_tvb) {
 			fragment_length = tvb_length_remaining (data_tvb, 0);
-			proto_tree_add_text(tree, data_tvb, 0, (fragment_length) ? -1 : 0,
-					    "RTSE segment data (%u byte%s)", fragment_length,
+			proto_item_append_text(asn1_ctx.created_item, " (%u byte%s)", fragment_length,
       	                              plurality(fragment_length, "", "s"));
 			frag_msg = fragment_add_seq_next (data_tvb, 0, pinfo, 
 							  rtse_id, rtse_segment_table,
@@ -314,6 +314,9 @@ void proto_register_rtse(void) {
   static hf_register_info hf[] =
   {
     /* Fragment entries */
+    { &hf_rtse_segment_data,
+      { "RTSE segment data", "rtse.segment", FT_NONE, BASE_NONE,
+	NULL, 0x00, NULL, HFILL } },
     { &hf_rtse_fragments,
       { "RTSE fragments", "rtse.fragments", FT_NONE, BASE_NONE,
 	NULL, 0x00, "Message fragments", HFILL } },
