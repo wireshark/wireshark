@@ -653,7 +653,8 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
   tvbuff_t *next_tvb;
 
   /* we can do this now constructed octet strings are supported */
-  offset = dissect_ber_octet_string(FALSE, actx, NULL, tvb, offset, hf_index, &next_tvb);
+  offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &next_tvb);
+  proto_item_set_text(actx->created_item, "content (%%u bytes)", tvb_length (next_tvb));
 
   if (next_tvb) {
     if (content_type_id) {
