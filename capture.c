@@ -135,11 +135,12 @@ capture_start(capture_options *capture_opts)
   gboolean ret;
   GString *source = g_string_new("");
 
+  if (capture_opts->state != CAPTURE_STOPPED)
+	  return FALSE;
+  capture_opts->state = CAPTURE_PREPARING;
+
   /* close the currently loaded capture file */
   cf_close(capture_opts->cf);
-
-  g_assert(capture_opts->state == CAPTURE_STOPPED);
-  capture_opts->state = CAPTURE_PREPARING;
 
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Start ...");
 
