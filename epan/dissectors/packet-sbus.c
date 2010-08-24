@@ -624,7 +624,7 @@ is_sbus_pdu(tvbuff_t *tvb)
                 return (FALSE);	
         }
         /* Sixth byte indicates protocol type and must be 0*/
-        if ( tvb_get_guint8(tvb, 5) != 0x00 ) {
+        if ( tvb_get_guint8(tvb, 5) > 0x01 ) {
                 return (FALSE);	
         }
         /* Seventh and eigth byte indicates the packet sequence number and can
@@ -1851,6 +1851,13 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             offset = offset + sbus_helper;
                             break;
                      }
+              } else if (sbus_attribut == SBUS_RESPONSE && (!request_val)) {
+                     /*calculate the offset in case the request telegram was not found or was broadcasted*/
+                     sbus_eth_len = tvb_get_ntohl(tvb,0);
+                     sbus_helper = sbus_eth_len - 11;
+                     proto_tree_add_text(sbus_tree, tvb, offset, sbus_helper,
+                            "Not dissected, could not find request telegram");
+                     offset = sbus_eth_len - 2;
               }
 
               if (sbus_attribut == SBUS_ACKNAK) {
