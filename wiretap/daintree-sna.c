@@ -175,6 +175,8 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset
 	/* convert packet data from ASCII string to hex, sanity-check its length against what we assume is the
 	 * packet length field, write data to frame buffer */
 	if ((wth->phdr.caplen = daintree_sna_hex_char(readData, err)) > FCS_LENGTH) {
+		/* Daintree doesn't store the FCS, but pads end of packet with 0xffff, which we toss */
+		wth->phdr.caplen -= FCS_LENGTH;
 		if (wth->phdr.caplen <= wth->phdr.len) {
 			buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
 			memcpy(buffer_start_ptr(wth->frame_buffer), readData, wth->phdr.caplen);
