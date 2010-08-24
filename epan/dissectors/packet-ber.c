@@ -112,7 +112,6 @@ static gint hf_ber_unknown_GeneralizedTime = -1;
 static gint hf_ber_unknown_INTEGER = -1;
 static gint hf_ber_unknown_BITSTRING = -1;
 static gint hf_ber_unknown_ENUMERATED = -1;
-static gint hf_ber_constructed_OCTETSTRING = -1;
 static gint hf_ber_no_oid = -1;
 static gint hf_ber_no_syntax = -1;
 static gint hf_ber_oid_not_implemented = -1;
@@ -125,12 +124,25 @@ static gint hf_ber_single_ASN1_type = -1;         /* T_single_ASN1_type */
 static gint hf_ber_octet_aligned = -1;            /* OCTET_STRING */
 static gint hf_ber_arbitrary = -1;                /* BIT_STRING */
 
+static int hf_ber_fragments = -1;
+static int hf_ber_fragment = -1;
+static int hf_ber_fragment_overlap = -1;
+static int hf_ber_fragment_overlap_conflicts = -1;
+static int hf_ber_fragment_multiple_tails = -1;
+static int hf_ber_fragment_too_long_fragment = -1;
+static int hf_ber_fragment_error = -1;
+static int hf_ber_reassembled_in = -1;
+static int hf_ber_reassembled_length = -1;
+
 static gint ett_ber_octet_string = -1;
+static gint ett_ber_reassembled_octet_string = -1;
 static gint ett_ber_primitive = -1;
 static gint ett_ber_unknown = -1;
 static gint ett_ber_SEQUENCE = -1;
 static gint ett_ber_EXTERNAL = -1;
 static gint ett_ber_T_encoding = -1;
+static gint ett_ber_fragment = -1;
+static gint ett_ber_fragments = -1;
 
 static gboolean show_internal_ber_fields = FALSE;
 static gboolean decode_octetstring_as_ber = FALSE;
@@ -240,6 +252,26 @@ static guint num_oid_users;
 static non_const_value_string syntax_names[MAX_SYNTAX_NAMES+1] = {
   {0, ""},
   {0, NULL}
+};
+
+static const fragment_items octet_string_frag_items = {
+	/* Fragment subtrees */
+	&ett_ber_fragment,
+	&ett_ber_fragments,
+	/* Fragment fields */
+	&hf_ber_fragments,
+	&hf_ber_fragment,
+	&hf_ber_fragment_overlap,
+	&hf_ber_fragment_overlap_conflicts,
+	&hf_ber_fragment_multiple_tails,
+	&hf_ber_fragment_too_long_fragment,
+	&hf_ber_fragment_error,
+	/* Reassembled in field */
+	&hf_ber_reassembled_in,
+	/* Reassembled length field */
+	&hf_ber_reassembled_length,
+	/* Tag */
+	"OCTET STRING fragments"
 };
 
 static void *
@@ -1081,8 +1113,8 @@ static void ber_defragment_init(void) {
   reassembled_table_init(&octet_reassembled_table);
 }
 
-int
-reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 con_len, gboolean ind, tvbuff_t **out_tvb)
+static int
+reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t *tvb, int offset, guint32 con_len, gboolean ind, tvbuff_t **out_tvb)
 {
   fragment_data *fd_head = NULL;
   tvbuff_t *next_tvb = NULL;
@@ -1102,7 +1134,7 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int o
 
   while(!fd_head) {
 
-    offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_ber_constructed_OCTETSTRING, &next_tvb);
+    offset = dissect_ber_octet_string(FALSE, actx, NULL, tvb, offset, hf_id, &next_tvb);
 
     if (next_tvb == NULL) {
       /* Assume that we have a malformed packet. */
@@ -1126,6 +1158,7 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int o
     if(!fragment && firstFragment) {
       /* there is only one fragment (I'm sure there's a reason it was constructed) */
       /* anyway, we can get out of here */
+      dissect_ber_octet_string(FALSE, actx, tree, tvb, start_offset, hf_id, NULL);
       reassembled_tvb = next_tvb;
       break;
     }
@@ -1146,13 +1179,17 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int o
 
   if(fd_head) {
     if(fd_head->next) {
-      reassembled_tvb = tvb_new_child_real_data(next_tvb, fd_head->data,
-					  fd_head->len,
-					  fd_head->len);
-
       /* not sure I really want to do this here - should be nearer the application where we can give it a better name*/
-      add_new_data_source(actx->pinfo, reassembled_tvb, "Reassembled OCTET STRING");
+      proto_tree *next_tree;
+      proto_item *frag_tree_item;
 
+      reassembled_tvb = tvb_new_child_real_data(next_tvb, fd_head->data, fd_head->len, fd_head->len);
+
+      actx->created_item = proto_tree_add_item(tree, hf_id, reassembled_tvb, 0, -1, FALSE);
+      next_tree = proto_item_add_subtree (actx->created_item, ett_ber_reassembled_octet_string);
+
+      packet_add_new_data_source(actx->pinfo, next_tree, reassembled_tvb, "Reassembled OCTET STRING");
+      show_fragment_seq_tree(fd_head, &octet_string_frag_items, next_tree, actx->pinfo, reassembled_tvb, &frag_tree_item);
     }
   }
 
@@ -1251,7 +1288,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 
 	if (pc) {
 		/* constructed */
-		end_offset = reassemble_octet_string(actx, tree, tvb, offset, len, ind, out_tvb);
+		end_offset = reassemble_octet_string(actx, tree, hf_id, tvb, offset, len, ind, out_tvb);
 	} else {
 		/* primitive */
 		gint length_remaining;
@@ -4665,9 +4702,6 @@ proto_register_ber(void)
 	{ &hf_ber_unknown_ENUMERATED, {
 	    "ENUMERATED", "ber.unknown.ENUMERATED", FT_UINT32, BASE_DEC,
 	    NULL, 0, "This is an unknown ENUMERATED", HFILL }},
-	{ &hf_ber_constructed_OCTETSTRING, {
-	    "OCTETSTRING", "ber.constructed.OCTETSTRING", FT_BYTES, BASE_NONE,
-	    NULL, 0, "This is a component of an constructed OCTETSTRING", HFILL }},
 	{ &hf_ber_no_oid, {
 	    "No OID", "ber.no_oid", FT_NONE, BASE_NONE,
 	    NULL, 0, "No OID supplied to call_ber_oid_callback", HFILL }},
@@ -4708,16 +4742,51 @@ proto_register_ber(void)
       { "single-ASN1-type", "ber.single_ASN1_type",
         FT_NONE, BASE_NONE, NULL, 0,
         "ber.T_single_ASN1_type", HFILL }},
+
+    /* Fragment entries */
+    { &hf_ber_fragments,
+      { "OCTET STRING fragments", "ber.octet_string.fragments", FT_NONE, BASE_NONE,
+        NULL, 0x00, NULL, HFILL } },
+    { &hf_ber_fragment,
+      { "OCTET STRING fragment", "ber.octet_string.fragment", FT_FRAMENUM, BASE_NONE,
+        NULL, 0x00, NULL, HFILL } },
+    { &hf_ber_fragment_overlap,
+      { "OCTET STRING fragment overlap", "ber.octet_string.fragment.overlap", FT_BOOLEAN,
+        BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_ber_fragment_overlap_conflicts,
+      { "OCTET STRING fragment overlapping with conflicting data",
+        "ber.octet_string.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE, NULL,
+        0x0, NULL, HFILL } },
+    { &hf_ber_fragment_multiple_tails,
+      { "OCTET STRING has multiple tail fragments",
+        "ber.octet_string.fragment.multiple_tails", FT_BOOLEAN, BASE_NONE,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_ber_fragment_too_long_fragment,
+      { "OCTET STRING fragment too long", "ber.octet_string.fragment.too_long_fragment",
+        FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL,
+        HFILL } },
+    { &hf_ber_fragment_error,
+      { "OCTET STRING defragmentation error", "ber.octet_string.fragment.error", FT_FRAMENUM,
+        BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    { &hf_ber_reassembled_in,
+      { "Reassembled in", "ber.octet_string.reassembled.in", FT_FRAMENUM, BASE_NONE,
+        NULL, 0x00, NULL, HFILL } },
+    { &hf_ber_reassembled_length,
+      { "Reassembled OCTET STRING length", "ber.octet_string.reassembled.length", FT_UINT32, BASE_DEC,
+        NULL, 0x00, NULL, HFILL } }
     };
 
 
     static gint *ett[] = {
 	&ett_ber_octet_string,
+	&ett_ber_reassembled_octet_string,
 	&ett_ber_primitive,
 	&ett_ber_unknown,
 	&ett_ber_SEQUENCE,
 	&ett_ber_EXTERNAL,
 	&ett_ber_T_encoding,
+	&ett_ber_fragment,
+	&ett_ber_fragments
     };
     module_t *ber_module;
     uat_t* users_uat = uat_new("OID Tables",
