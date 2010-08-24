@@ -1125,13 +1125,23 @@ class EthCtx:
         self.type[tt]['val'].sel_req(t, self.sel_req[t]['sel'], self)
 
     #--- types -------------------
-    for t in self.type_imp:
+    for t in self.type_imp: # imported types
       nm = asn2c(t)
       self.eth_type[nm] = { 'import' : self.type[t]['import'],
                             'proto' : asn2c(self.type[t]['proto']),
                             'attr' : {}, 'ref' : []}
       self.eth_type[nm]['attr'].update(self.conform.use_item('ETYPE_ATTR', nm))
       self.type[t]['ethname'] = nm
+    for t in self.type_ord: # dummy import for missing type reference
+      tp = self.type[t]['val']
+      #print "X : %s %s " % (t, tp.type)
+      if isinstance(tp, TaggedType):
+        #print "%s : %s " % (tp.type, t)
+        tp = tp.val
+      if isinstance(tp, Type_Ref):
+        #print "%s : %s ::= %s " % (tp.type, t, tp.val)
+        if tp.val not in self.type:
+          self.dummy_import_type(tp.val)
     for t in self.type_ord:
       nm = self.type[t]['tname']
       if ((nm.find('#') >= 0) or
@@ -3490,7 +3500,7 @@ class Constraint (Node):
         if (int(val) < 0):
           return 'M' + str(-int(val))
         else:
-          return str(val)
+          return str(int(val))
       except (ValueError, TypeError):
         return asn2c(str(val))
 
@@ -5398,6 +5408,8 @@ class HStringValue (Value):
     vv = '0x'
     vv += self.val[1:-2]
     return vv
+  def __int__(self):
+    return int(self.val[1:-2], 16)
 
 #--- FieldSpec ----------------------------------------------------------------
 class FieldSpec (Node):
