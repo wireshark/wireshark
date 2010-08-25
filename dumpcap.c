@@ -661,7 +661,7 @@ set_pcap_linktype(pcap_t *pcap_h, capture_options *capture_opts,
   char *set_linktype_err_str;
 
   if (capture_opts->linktype == -1)
-    return TRUE; /* just use the default */ 
+    return TRUE; /* just use the default */
 #ifdef HAVE_PCAP_SET_DATALINK
   if (pcap_set_datalink(pcap_h, capture_opts->linktype) == 0)
     return TRUE; /* no error */
@@ -3296,10 +3296,12 @@ main(int argc, char *argv[])
   struct utsname       osinfo;
 #endif
 
+#ifdef _WIN32
   if (PSetDllDirectory = (SetDllDirectoryHandler) GetProcAddress(GetModuleHandle(_T("kernel32.dll")), "SetDllDirectoryW")) {
     PSetDllDirectory(_T(""));
     /* XXX - Exit on failure? */
   }
+#endif
 
 #ifdef HAVE_PCAP_REMOTE
 #define OPTSTRING_A "A:"
