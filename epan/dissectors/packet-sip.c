@@ -2297,7 +2297,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							}
 						}
 
-						if (sub_value_offset == linelen)
+						if (sub_value_offset == value_len)
 						{
 							/* Didn't find method name */
 							THROW(ReportedBoundsError);
@@ -2305,7 +2305,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						}
 
 						/* Extract method name from value */
-						strlen_to_copy = (int)linelen-sub_value_offset;
+						strlen_to_copy = (int)value_len-sub_value_offset;
 						if (strlen_to_copy > MAX_CSEQ_METHOD_SIZE) {
 							/* Note the error in the protocol tree */
 							if (hdr_tree) {
