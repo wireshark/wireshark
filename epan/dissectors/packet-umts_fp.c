@@ -166,6 +166,7 @@ static int ett_fp_data = -1;
 static int ett_fp_crcis = -1;
 static int ett_fp_edch_subframe_header = -1;
 static int ett_fp_edch_subframe = -1;
+static int ett_fp_edch_maces = -1;
 static int ett_fp_hsdsch_new_ie_flags = -1;
 static int ett_fp_rach_new_ie_flags = -1;
 static int ett_fp_hsdsch_pdu_block_header = -1;
@@ -2404,6 +2405,7 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
                 guint       send_size;
                 proto_item  *ti;
                 int         macd_idx;
+                proto_tree  *maces_tree = NULL;
 
                 /* Look up mac-d pdu size for this ddi */
                 for (m=0; m < p_fp_info->no_ddi_entries; m++)
@@ -2447,16 +2449,26 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
                     proto_item_append_text(ti, " (%u * %u = %u bits, subframe %d)",
                                            size, subframes[n].number_of_mac_d_pdus[i],
                                            send_size, n);
+                    maces_tree = proto_item_add_subtree(ti, ett_fp_edch_maces);
                 }
                 for (macd_idx = 0; macd_idx < subframes[n].number_of_mac_d_pdus[i]; macd_idx++) {
-                    tvbuff_t *next_tvb;
-                    pinfo->fd->subnum = macd_idx; /* set subframe number to current TB */
+ 
                     if (preferences_call_mac_dissectors) {
+                        tvbuff_t *next_tvb;
+                        pinfo->fd->subnum = macd_idx; /* set subframe number to current TB */
                         /* create new TVB and pass further on */
                         next_tvb = tvb_new_subset(tvb, offset + bit_offset/8,
                                 ((bit_offset % 8) + size + 7) / 8, -1);
+                        /* TODO: use maces_tree? */
                         call_dissector(mac_fdd_edch_handle, next_tvb, pinfo, top_level_tree);
                         dissected = TRUE;
+                    }
+                    else {
+                        /* Just add as a MAC-d PDU */
+                        proto_tree_add_item(maces_tree, hf_fp_mac_d_pdu, tvb,
+                                            offset + (bit_offset/8),
+                                            ((bit_offset % 8) + size + 7) / 8,
+                                            FALSE);
                     }
                     bit_offset += size;
                 }
@@ -3819,6 +3831,7 @@ void proto_register_fp(void)
         &ett_fp_crcis,
         &ett_fp_edch_subframe_header,
         &ett_fp_edch_subframe,
+        &ett_fp_edch_maces,
         &ett_fp_hsdsch_new_ie_flags,
         &ett_fp_rach_new_ie_flags,
         &ett_fp_hsdsch_pdu_block_header
