@@ -1770,9 +1770,6 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     encap = tvb_get_guint8(tvb, offset);
     offset++;
 
-    /* Set selection length of dct2000 tree */
-    proto_item_set_len(dct2000_tree, offset);
-
     /* Add useful details to protocol tree label */
     proto_item_append_text(ti, "   context=%s.%u   t=%s   %c   prot=%s (v=%s)",
                            tvb_get_ptr(tvb, 0, context_length),
@@ -2263,6 +2260,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             return;
     }
 
+    /* Set selection length of dct2000 tree */
+    proto_item_set_len(dct2000_tree, offset);
 
     /* Try appropriate dissector, if one has been selected */
     if (protocol_handle != 0) {
