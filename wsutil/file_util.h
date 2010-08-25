@@ -97,23 +97,6 @@ extern FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode, FILE *
 #define ws_close _close
 #define ws_dup   _dup
 #define ws_lseek _lseek
-#else
-#define ws_read  read
-#define ws_write write
-#define ws_close close
-#define ws_dup   dup
-#define ws_lseek lseek
-#define O_BINARY	0		/* Win32 needs the O_BINARY flag for open() */
-#endif /* _WIN32 */
-
-/* directory handling */
-#define WS_DIR				GDir
-#define WS_DIRENT			const char
-#define ws_dir_open			g_dir_open
-#define ws_dir_read_name		g_dir_read_name
-#define ws_dir_get_name(dirent)	dirent
-#define ws_dir_rewind			g_dir_rewind
-#define ws_dir_close			g_dir_close
 
 /* DLL loading */
 
@@ -133,6 +116,23 @@ void *ws_load_library(gchar *library_name);
  * @return A handle to the DLL if found, NULL on failure.
  */
 GModule *ws_module_open(gchar *module_name, GModuleFlags flags);
+#else /* _WIN32 */
+#define ws_read  read
+#define ws_write write
+#define ws_close close
+#define ws_dup   dup
+#define ws_lseek lseek
+#define O_BINARY	0		/* Win32 needs the O_BINARY flag for open() */
+#endif /* _WIN32 */
+
+/* directory handling */
+#define WS_DIR				GDir
+#define WS_DIRENT			const char
+#define ws_dir_open			g_dir_open
+#define ws_dir_read_name		g_dir_read_name
+#define ws_dir_get_name(dirent)	dirent
+#define ws_dir_rewind			g_dir_rewind
+#define ws_dir_close			g_dir_close
 
 /* XXX - remove include "dirent.h" */
 /* XXX - remove include "direct.h" */
