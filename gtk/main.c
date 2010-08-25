@@ -3116,7 +3116,7 @@ WinMain (struct HINSTANCE__ *hInstance,
   InitCommonControlsEx(&comm_ctrl);
 
   /* RichEd20.DLL is needed for filter entries. */
-  LoadLibrary(_T("riched20.dll"));
+  ws_load_library("riched20.dll");
 
   has_console = FALSE;
   return main (__argc, __argv);

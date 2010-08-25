@@ -282,7 +282,7 @@ init_progfile_dir(const char *arg0
 	 * Attempt to get the full pathname of the currently running
 	 * program.
 	 */
-	if (GetModuleFileName(NULL, prog_pathname_w, G_N_ELEMENTS(prog_pathname_w)) != 0) {
+	if (GetModuleFileName(NULL, prog_pathname_w, G_N_ELEMENTS(prog_pathname_w)) != 0 && GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
 		/*
 		 * XXX - Should we use g_utf16_to_utf8(), as in
 		 * getenv_utf8()?

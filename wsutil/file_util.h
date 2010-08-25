@@ -33,6 +33,7 @@ extern "C" {
 
 #ifdef _WIN32
 #include <io.h>
+#include <gmodule.h>
 #endif
 
 #ifdef HAVE_SYS_STAT_H
@@ -113,6 +114,25 @@ extern FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode, FILE *
 #define ws_dir_get_name(dirent)	dirent
 #define ws_dir_rewind			g_dir_rewind
 #define ws_dir_close			g_dir_close
+
+/* DLL loading */
+
+/** Load a DLL using LoadLibrary.
+ * Only the system and program directories are searched.
+ *
+ * @param library_name The name of the DLL.
+ * @return A handle to the DLL if found, NULL on failure.
+ */
+
+void *ws_load_library(gchar *library_name);
+/** Load a DLL using g_module_open.
+ * Only the system and program directories are searched.
+ *
+ * @param module_name The name of the DLL.
+ * @param flags Flags to be passed to g_module_open.
+ * @return A handle to the DLL if found, NULL on failure.
+ */
+GModule *ws_module_open(gchar *module_name, GModuleFlags flags);
 
 /* XXX - remove include "dirent.h" */
 /* XXX - remove include "direct.h" */

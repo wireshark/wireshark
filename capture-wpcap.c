@@ -36,6 +36,8 @@
 #include "capture-pcap-util.h"
 #include "capture-pcap-util-int.h"
 
+#include <wsutil/file_util.h>
+
 /* XXX - yes, I know, I should move cppmagic.h to a generic location. */
 #include "tools/lemon/cppmagic.h"
 
@@ -183,7 +185,7 @@ load_wpcap(void)
 	GModule		*wh; /* wpcap handle */
 	const symbol_table_t	*sym;
 
-	wh = g_module_open("wpcap", 0);
+	wh = ws_module_open("wpcap.dll", 0);
 
 	if (!wh) {
 		return;
@@ -849,7 +851,7 @@ get_runtime_pcap_version(GString *str)
 			 */
 			if (packetVer == NULL) {
 				packetVer = "version unknown";
-				handle = g_module_open("Packet.dll", 0);
+				handle = ws_module_open("packet.dll", 0);
 				if (handle != NULL) {
 					if (g_module_symbol(handle,
 					    "PacketLibraryVersion",

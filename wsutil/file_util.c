@@ -48,8 +48,8 @@
 
 #include "file_util.h"
 
-
-
+static gchar *program_path = NULL;
+static gchar *system_path = NULL;
 
 /**
  * g_open:
@@ -440,4 +440,114 @@ ws_stdio_freopen (const gchar *filename,
 
       errno = save_errno;
       return retval;
+}
+
+
+/* DLL loading */
+static gboolean
+init_dll_load_paths() {
+      TCHAR path_pfx[MAX_PATH];
+      
+      if (program_path && system_path)
+	    return TRUE;
+
+      /* XXX - Duplicate code in filesystem.c:init_progfile_dir */
+      if (GetModuleFileName(NULL, path_pfx, MAX_PATH) == 0 || GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+	    return FALSE;
+      }
+
+      if (!program_path) {
+	    program_path = g_utf16_to_utf8(path_pfx, -1, NULL, NULL, NULL);
+      }
+
+      if (GetSystemDirectory(path_pfx, MAX_PATH) == 0) {
+	    return FALSE;
+      }
+
+      if (!system_path) {
+	    system_path = g_utf16_to_utf8(path_pfx, -1, NULL, NULL, NULL);
+      }
+
+      if (program_path && system_path)
+	    return TRUE;
+
+      return FALSE;      
+}
+
+/*
+ * Internally g_module_open uses LoadLibrary on Windows and returns an
+ * HMODULE cast to a GModule *. However there's no guarantee that this
+ * will always be the case, so we call LoadLibrary and g_module_open
+ * separately.
+ */
+
+void *
+ws_load_library(gchar *library_name) {
+      gchar   *full_path;
+      wchar_t *full_path_w;
+      HMODULE  dll_h;
+
+      if (!init_dll_load_paths() || !library_name)
+	    return NULL;
+
+      /* First try the program directory */
+      full_path = g_module_build_path(program_path, library_name);
+      full_path_w = g_utf8_to_utf16(full_path, -1, NULL, NULL, NULL);
+      
+      if (full_path && full_path_w) {
+	    dll_h = LoadLibraryW(full_path_w);
+	    if (dll_h) {
+		  g_free(full_path);
+		  g_free(full_path_w);
+		  return dll_h;
+	    }
+      }
+
+      /* Next try the system directory */
+      full_path = g_module_build_path(system_path, library_name);
+      full_path_w = g_utf8_to_utf16(full_path, -1, NULL, NULL, NULL);
+
+      if (full_path && full_path_w) {
+	    dll_h = LoadLibraryW(full_path_w);
+	    if (dll_h) {
+		  g_free(full_path);
+		  g_free(full_path_w);
+		  return dll_h;
+	    }
+      }
+
+      return NULL;
+}
+
+GModule *
+ws_module_open(gchar *module_name, GModuleFlags flags) {
+      gchar   *full_path;
+      GModule *mod;
+
+      if (!init_dll_load_paths() || !module_name)
+	    return NULL;
+
+      /* First try the program directory */
+      full_path = g_module_build_path(program_path, module_name);
+      
+      if (full_path) {
+	    mod = g_module_open(full_path, flags);
+	    if (mod) {
+		  g_free(full_path);
+		  return mod;
+	    }
+      }
+
+      /* Next try the system directory */
+      full_path = g_module_build_path(system_path, module_name);
+      
+      if (full_path) {
+	    mod = g_module_open(full_path, flags);
+	    if (mod) {
+		  g_free(full_path);
+		  return mod;
+	    }
+      }
+
+      return NULL;
 }

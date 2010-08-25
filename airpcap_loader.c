@@ -47,6 +47,7 @@
 #include <epan/strutil.h>
 #include <epan/frequency-utils.h>
 #include "capture_ui_utils.h"
+#include <wsutil/file_util.h>
 
 #include "simple_dialog.h"
 
@@ -2450,7 +2451,7 @@ int load_airpcap(void)
     gboolean base_functions = TRUE;
     gboolean eleven_n_functions = TRUE;
 
-    if((AirpcapLib =  LoadLibrary(TEXT("airpcap.dll"))) == NULL)
+    if((AirpcapLib = ws_load_library("airpcap.dll")) == NULL)
     {
   		/* Report the error but go on */
   		AirpcapVersion = AIRPCAP_DLL_NOT_FOUND;
