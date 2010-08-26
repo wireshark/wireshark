@@ -1607,7 +1607,7 @@ extern gboolean proto_tracking_interesting_fields(const proto_tree *tree);
     tree. Works with any tree, primed or unprimed, and is slower than
     proto_get_finfo_ptr_array because it has to search through the tree.
  @param tree tree of interest
- @param hfidex index of field info of interest
+ @param hfindex index of field info of interest
  @return GPtrArry pointer */
 extern GPtrArray* proto_find_finfo(proto_tree *tree, const int hfindex);
 
@@ -1704,11 +1704,14 @@ proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, const guint offset,
  @param tree the tree to append this item to
  @param tvb the tv buffer of the current data
  @param offset start of data in tvb
+ @param len length of the field name
  @param name field name (NULL if bitfield contents should be used)
  @param fallback field name if none of bitfields were usable
  @param ett subtree index
  @param fields NULL-terminated array of bitfield indexes
  @param little_endian big or little endian byte representation
+ @param little_endian big or little endian byte representation
+ @param flags
  @return the newly created item */
 extern proto_item *
 proto_tree_add_bitmask_text(proto_tree *tree, tvbuff_t *tvb, const guint offset, const guint len,
@@ -1723,7 +1726,7 @@ proto_tree_add_bitmask_text(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 /** Add bits to a proto_tree, using the text label registered to that item.
    The item is extracted from the tvbuff handed to it.
  @param tree the tree to append this item to
- @param hfindex field index. Fields for use with this function should have bitmask==0.
+ @param hf_index field index. Fields for use with this function should have bitmask==0.
  @param tvb the tv buffer of the current data
  @param bit_offset start of data in tvb expressed in bits
  @param no_of_bits length of data in tvb expressed in bits
@@ -1735,7 +1738,7 @@ proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb, co
 /** Add bits to a proto_tree, using the text label registered to that item.
    The item is extracted from the tvbuff handed to it.
  @param tree the tree to append this item to
- @param hfindex field index. Fields for use with this function should have bitmask==0.
+ @param hf_index field index. Fields for use with this function should have bitmask==0.
  @param tvb the tv buffer of the current data
  @param bit_offset start of data in tvb expressed in bits
  @param no_of_bits length of data in tvb expressed in bits
@@ -1749,13 +1752,12 @@ proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
     header field to a proto_tree, with the format generating the
     string for the value and with the field name being included automatically.
  @param tree the tree to append this item to
- @param hfindex field index
+ @param hf_index field index
  @param tvb the tv buffer of the current data
  @param bit_offset start of data in tvb expressed in bits
  @param no_of_bits length of data in tvb expressed in bit
  @param value data to display
  @param format printf like format string
- @param ... printf like parameters
  @return the newly created item */
 extern proto_item *
 proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits,
@@ -1765,7 +1767,7 @@ proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hf_index, tvbu
     the format generating the string for the value and with the field
     name being included automatically.
  @param tree the tree to append this item to
- @param hfindex field index
+ @param hf_index field index
  @param tvb the tv buffer of the current data
  @param bit_offset start of data in tvb expressed in bits
  @param no_of_bits length of data in tvb expressed in bit
@@ -1781,7 +1783,7 @@ proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hf_index, t
     header field to a proto_tree, with the format generating the
     string for the value and with the field name being included automatically.
  @param tree the tree to append this item to
- @param hfindex field index
+ @param hf_index field index
  @param tvb the tv buffer of the current data
  @param bit_offset start of data in tvb expressed in bits
  @param no_of_bits length of data in tvb expressed in bit
@@ -1797,7 +1799,7 @@ proto_tree_add_int_bits_format_value(proto_tree *tree, const int hf_index, tvbuf
     the format generating the string for the value and with the field
     name being included automatically.
  @param tree the tree to append this item to
- @param hfindex field index
+ @param hf_index field index
  @param tvb the tv buffer of the current data
  @param bit_offset start of data in tvb expressed in bits
  @param no_of_bits length of data in tvb expressed in bit
@@ -1817,10 +1819,11 @@ proto_check_field_name(const gchar *field_name);
 
 
 /** Check if given string is a valid field name
+ @param tree the tree to append this item to
  @param field_id the field id used for custom column
  @param result the buffer to fill with the field string
  @param expr the filter expression
- @param aize the size of the string buffer */
+ @param size the size of the string buffer */
 const gchar *
 proto_custom_set(proto_tree* tree, const int field_id,
                              gchar *result,
