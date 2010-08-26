@@ -1470,7 +1470,7 @@ capture_loop_init_output(capture_options *capture_opts, int save_file_fd, loop_d
   }
   if (ld->pdh) {
     gboolean successful;
-    
+
     ld->bytes_written = 0;
     if (capture_opts->use_pcapng) {
       char appname[100];
@@ -1970,7 +1970,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           if (ringbuf_switch_file(&global_ld.pdh, &capture_opts->save_file,
                                   &save_file_fd, &global_ld.err)) {
             gboolean successful;
-            
+
             /* File switch succeeded: reset the conditions */
             global_ld.bytes_written = 0;
             if (capture_opts->use_pcapng) {
@@ -2363,6 +2363,8 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
   WSADATA              wsaData;
+  typedef BOOL (*SetDllDirectoryHandler)(LPCTSTR);
+  SetDllDirectoryHandler PSetDllDirectory;
 #else
   struct sigaction action, oldaction;
 #endif
@@ -2392,6 +2394,13 @@ main(int argc, char *argv[])
 
   char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_WIN32) - 1] =
     OPTSTRING_INIT OPTSTRING_WIN32;
+
+#ifdef _WIN32
+  if (PSetDllDirectory = (SetDllDirectoryHandler) GetProcAddress(GetModuleHandle(_T("kernel32.dll")), "SetDllDirectoryW")) {
+    PSetDllDirectory(_T(""));
+    /* XXX - Exit on failure? */
+  }
+#endif
 
 #ifdef DEBUG_CHILD_DUMPCAP
   if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {

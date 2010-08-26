@@ -33,6 +33,7 @@ extern "C" {
 
 #ifdef _WIN32
 #include <io.h>
+#include <gmodule.h>
 #endif
 
 #ifdef HAVE_SYS_STAT_H
@@ -96,7 +97,26 @@ extern FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode, FILE *
 #define ws_close _close
 #define ws_dup   _dup
 #define ws_lseek _lseek
-#else
+
+/* DLL loading */
+
+/** Load a DLL using LoadLibrary.
+ * Only the system and program directories are searched.
+ *
+ * @param library_name The name of the DLL.
+ * @return A handle to the DLL if found, NULL on failure.
+ */
+
+void *ws_load_library(gchar *library_name);
+/** Load a DLL using g_module_open.
+ * Only the system and program directories are searched.
+ *
+ * @param module_name The name of the DLL.
+ * @param flags Flags to be passed to g_module_open.
+ * @return A handle to the DLL if found, NULL on failure.
+ */
+GModule *ws_module_open(gchar *module_name, GModuleFlags flags);
+#else /* _WIN32 */
 #define ws_read  read
 #define ws_write write
 #define ws_close close

@@ -41,7 +41,7 @@ Capture driver
 Wireshark doesn't have direct access to the capture hardware. Instead of this, 
 it uses the Libpcap/Winpcap library to capture data from network cards.
 
-On Win32, in capture-wpcap.c the function g_module_open("wpcap") is called 
+On Win32, in capture-wpcap.c the function ws_module_open("wpcap.dll") is called 
 to load the wpcap.dll. This dll includes all functions needed for 
 packet capturing.
 
