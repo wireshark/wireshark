@@ -26,7 +26,6 @@
 #define __UNICODEUTIL_H__
 
 #ifdef _WIN32
-#include <windows.h>
 #include <tchar.h>
 #include <wchar.h>
 
