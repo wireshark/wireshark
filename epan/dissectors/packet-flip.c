@@ -35,6 +35,10 @@
  * Version 0.0.1, November 23rd, 2009.
  *
  * Support for the basic and checksum headers.
+ *
+ * Version 0.0.2, August 26th, 2010.
+ *
+ * Support for payload dissecting.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -44,6 +48,14 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/in_cksum.h>
+
+#include <epan/prefs.h>
+#include <epan/emem.h>
+#include <epan/strutil.h>
+
+#include "packet-rtp.h"
+#include "packet-rtcp.h"
+#include <epan/rtp_pt.h>
 
 static int proto_flip = -1;
 
@@ -90,10 +102,43 @@ static const value_string flip_etype[] = {
     { 0,           NULL }
 };
 
+#define FLIP_PAYLOAD_DECODING_MODE_NONE      (0)
+#define FLIP_PAYLOAD_DECODING_MODE_HEURISTIC (1)
+#define FLIP_PAYLOAD_DECODING_MODE_FORCED    (2)
+
+static enum_val_t flip_payload_decoding_modes[] = {
+    {"none",      "no decoding", FLIP_PAYLOAD_DECODING_MODE_NONE},
+    {"heuristic", "heuristic",   FLIP_PAYLOAD_DECODING_MODE_HEURISTIC},
+    {"forced",    "forced",      FLIP_PAYLOAD_DECODING_MODE_FORCED},
+    {NULL, NULL, 0}
+};
+
+static gint global_flip_payload_decoding_mode =
+    FLIP_PAYLOAD_DECODING_MODE_HEURISTIC;
+
+static gboolean is_heur_enabled_rtp  = TRUE;
+static gboolean is_heur_enabled_rtcp = TRUE;
+
+static const char *global_forced_protocol = "data";
+static gboolean is_forced_handle_ok = FALSE;
+
 static gint ett_flip         = -1;
 static gint ett_flip_basic   = -1;
 static gint ett_flip_chksum  = -1;
 static gint ett_flip_payload = -1;
+
+static dissector_handle_t rtp_handle;
+static dissector_handle_t rtcp_handle;
+static dissector_handle_t data_handle;
+static dissector_handle_t forced_handle;
+
+/* Forward declaration. */
+void
+proto_reg_handoff_flip(void);
+static gboolean
+is_payload_rtp(tvbuff_t *tvb);
+static gboolean
+is_payload_rtcp(tvbuff_t *tvb);
 
 /* Dissect the checksum extension header. */
 static int
@@ -184,6 +229,94 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
     return bytes_dissected;
 
 } /* dissect_flip_chksum_hdr() */
+
+
+/* Detection logic grabbed from packet-rtp.c and modified. */
+
+#define RTP_VERSION(octet)	    ((octet) >> 6)
+#define RTP_MARKER(octet)       ((octet) & 0x80)
+#define RTP_PAYLOAD_TYPE(octet) ((octet) & 0x7F)
+
+static gboolean
+is_payload_rtp(tvbuff_t *tvb)
+{
+    guint8 octet1, octet2;
+    unsigned int version;
+    unsigned int payload_type;
+    unsigned int offset;
+
+    offset = 0;
+
+    octet1 = tvb_get_guint8(tvb, offset);
+    version = RTP_VERSION(octet1);
+
+    /* Accept only version 2. */
+    if (version != 2) {
+        return FALSE;
+    }
+
+    octet2 = tvb_get_guint8(tvb, offset + 1);
+    payload_type = RTP_PAYLOAD_TYPE(octet2);
+
+    if ((payload_type <= PT_H263)
+        ||
+        ((payload_type >= PT_UNDF_96) && (payload_type <= PT_UNDF_127))) {
+        /* OK */
+        ;
+    }
+    else {
+        return FALSE;
+    }
+
+    return TRUE;
+    
+} /* is_payload_rtp() */
+
+
+/* Detection logic grabbed from packet-rtcp.c and modified. */
+
+#define RTCP_SR    200
+#define RTCP_RR    201
+#define RTCP_BYE   203
+#define RTCP_APP   204
+
+static gboolean
+is_payload_rtcp(tvbuff_t *tvb)
+{
+	unsigned int first_byte;
+	unsigned int packet_type;
+	unsigned int offset;
+
+    offset = 0;
+    
+    /* Look at first byte */
+	first_byte = tvb_get_guint8(tvb, offset);
+
+	/* Are version bits set to 2? */
+	if (((first_byte & 0xC0) >> 6) != 2) {
+		return FALSE;
+	}
+
+	/* Look at packet type */
+	packet_type = tvb_get_guint8(tvb, offset + 1);
+
+	/* First packet within compound packet is supposed to be a sender
+	   or receiver report.
+       - allow BYE because this happens anyway
+       - allow APP because TBCP ("PoC1") packets aren't compound... */
+	if (!((packet_type == RTCP_SR)  || (packet_type == RTCP_RR) ||
+	      (packet_type == RTCP_BYE) || (packet_type == RTCP_APP))) {
+		return FALSE;
+	}
+
+	/* Overall length must be a multiple of 4 bytes */
+	if (tvb_reported_length(tvb) % 4) {
+		return FALSE;
+	}
+
+    return TRUE;
+
+} /* is_payload_rtcp() */
 
 /* Protocol dissection */
 static int
@@ -293,7 +426,16 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         
     /* We are asked for details. */
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_flip, flip_tvb, 0, flip_len, FALSE);
+        if (PTREE_DATA(tree)->visible) {
+            ti = proto_tree_add_protocol_format(
+                tree, proto_flip, flip_tvb, 0, flip_len,
+                "NSN FLIP, FlowId %s",
+                val_to_str(basic_hdr_flow_id, NULL, "0x%08x"));
+        }
+        else {
+            ti = proto_tree_add_item(tree, proto_flip, flip_tvb, 0,
+                                     flip_len, FALSE);
+        }
         flip_tree = proto_item_add_subtree(ti, ett_flip);
     
         /* basic header */
@@ -417,24 +559,81 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * Show payload (if any) as bytes.
      */
     if (payload_len > 0) {
+        gint data_len = 0;
+            
         if (tree) {
             tvbuff_t *payload_tvb;
             
             payload_tvb = tvb_new_subset(flip_tvb, offset,
                                          payload_len, payload_len);
-            item = proto_tree_add_text(flip_tree, payload_tvb,
-                                       0, payload_len,
-                                       "Payload (%d bytes)", payload_len);
-            payload_hdr_tree = proto_item_add_subtree(item, ett_flip_payload);
-        }
 
-        bytes_dissected += payload_len;
-    }
-    
+            /*
+             * 1) no decoding -> data
+             * 2) heuristic decoding
+             * 3) forced decoding
+             */
+            switch (global_flip_payload_decoding_mode) {
+            case FLIP_PAYLOAD_DECODING_MODE_NONE:
+                /* Dissect as data. */
+                data_len =
+                    call_dissector(data_handle, payload_tvb, pinfo, tree);
+                break;
+                
+            case FLIP_PAYLOAD_DECODING_MODE_HEURISTIC:
+                if ((is_heur_enabled_rtp == TRUE)
+                    &&
+                    (is_payload_rtp(payload_tvb) == TRUE)) {
+                    /* Dissect as RTP. */
+                    data_len = 
+                        call_dissector(rtp_handle, payload_tvb, pinfo, tree);
+                }
+                else if ((is_heur_enabled_rtcp == TRUE)
+                         &&
+                         (is_payload_rtcp(payload_tvb))) {
+                    /* Dissect as RTCP. */
+                    data_len =
+                        call_dissector(rtcp_handle, payload_tvb, pinfo, tree);
+                }
+                else {
+                    /* Dissect as data. */
+                    data_len =
+                        call_dissector(data_handle, payload_tvb, pinfo, tree);
+                }
+                break;
+                
+            case FLIP_PAYLOAD_DECODING_MODE_FORCED:
+                if (is_forced_handle_ok == TRUE) {
+                    data_len =
+                        call_dissector(forced_handle, payload_tvb, pinfo,
+                                       tree);
+                }
+                else {
+                    /* Use data as backup. */
+                    data_len =
+                        call_dissector(data_handle, payload_tvb, pinfo, tree);
+
+                    /* Tell the user he messed up. */
+                    col_add_fstr(pinfo->cinfo, COL_INFO,
+                                 "Invalid user dissector \"%s\"",
+                                 global_forced_protocol);
+                }
+                break;
+                
+            default:
+                data_len = 0;
+            }
+
+        } /* if (tree) */
+
+        bytes_dissected += data_len;
+        
+    } /* if (payload_len > 0) */
+
 DISSECT_FLIP_EXIT:
     return bytes_dissected;
     
 } /* dissect_flip() */
+
 
 /* Protocol initialization */
 void
@@ -491,7 +690,9 @@ proto_register_flip(void)
         &ett_flip_chksum,
         &ett_flip_payload
     };
-    
+
+    module_t *flip_module;
+
     proto_flip = proto_register_protocol(
         "NSN FLIP", /* name */
         "FLIP",     /* short name */
@@ -501,6 +702,53 @@ proto_register_flip(void)
     proto_register_field_array(proto_flip, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+
+    flip_module = prefs_register_protocol(proto_flip,
+                                          proto_reg_handoff_flip);
+
+    /* Register preferences */
+	prefs_register_enum_preference(
+        flip_module,
+        "decoding_mode",
+        "FLIP payload decoding mode",
+        "Decode FLIP payload according to mode",
+        &global_flip_payload_decoding_mode,
+        flip_payload_decoding_modes,
+        TRUE);
+
+    prefs_register_static_text_preference(
+        flip_module,
+        "heur_enabled_protocols",
+        "Heuristic mode: enabled protocols",
+        "Enabled protocols for heuristic mode");
+    
+    prefs_register_bool_preference(
+        flip_module,
+        "heur_decode_rtp",
+        "RTP",
+        "Decode payload as RTP if detected",
+        &is_heur_enabled_rtp);
+
+    prefs_register_bool_preference(
+        flip_module,
+        "heur_decode_rtcp",
+        "RTCP",
+        "Decode payload as RTCP if detected",
+        &is_heur_enabled_rtcp);
+    
+    prefs_register_static_text_preference(
+        flip_module,
+        "forced_protocol",
+        "Forced mode: decode to user-specified protocol",
+        "Mapping of flow IDs to their decodings");
+    
+    prefs_register_string_preference(
+        flip_module,
+        "forced_decode",
+        "Protocol name",
+        "Decoding to user-defined protocol",
+        &global_forced_protocol);
+    
 } /* proto_register_flip() */
 
 /* Protocol handoff */
@@ -509,9 +757,26 @@ proto_reg_handoff_flip(void)
 {
     dissector_handle_t flip_handle;
 
-    flip_handle = new_create_dissector_handle(dissect_flip, proto_flip);
-    dissector_add("ethertype", ETHERTYPE_FLIP, flip_handle);
+    static gboolean flip_prefs_initialized = FALSE;
 
+    if (flip_prefs_initialized == FALSE) {
+        flip_handle = new_create_dissector_handle(dissect_flip, proto_flip);
+        dissector_add("ethertype", ETHERTYPE_FLIP, flip_handle);
+
+        rtp_handle  = find_dissector("rtp");
+        rtcp_handle = find_dissector("rtcp");
+        data_handle = find_dissector("data");
+
+        flip_prefs_initialized = TRUE;
+    }
+
+    /* Preferences update: check user-specified dissector. */
+    is_forced_handle_ok = FALSE;
+    forced_handle = find_dissector(global_forced_protocol);
+    if (forced_handle != NULL) {
+        is_forced_handle_ok = TRUE;
+    }
+    
 } /* proto_reg_handoff_flip() */
 
 /* end of file packet-flip.c */
