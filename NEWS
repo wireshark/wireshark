@@ -1,4 +1,4 @@
-Wireshark 1.4.0rc2 Release Notes
+Wireshark 1.4.0 Release Notes
 
    ------------------------------------------------------------------
 
@@ -18,6 +18,9 @@ What's New
 
      o Wireshark is unresponsive when capturing from named pipes on
        Windows. (Bug 1759)
+
+     o Tshark returns 0 even with an invalid interface or capture
+       filter. (Bug 4735)
 
   New and Updated Features
 
@@ -79,31 +82,31 @@ What's New
    Message, Dropbox LAN sync Discovery Protocol, Dropbox LAN sync
    Protocol, DTN TCP Convergence Layer Protocol, EtherCAT Switch
    Link, Fibre Channel Delimiters, File Replication Service DFS-R,
-   Gateway Load Balancing Protocol, GigE Vision Control Protocol, Git
-   Smart Protocol, GSM over IP ip.access CCM sub-protocol, GSM over
-   IP protocol as used by ip.access, GSM Radiotap, HI2Operations,
-   Host Identity Protocol, HP encapsulated remote mirroring, HP NIC
-   Teaming Heartbeat, IEC61850 Sampled Values, IEEE 1722 Protocol,
-   InfiniBand Link, Interlink Protocol, IPv6 over IEEE 802.15.4, ISO
-   10035-1 OSI Connectionless Association Control Service, ISO 9548-1
-   OSI Connectionless Session Protocol, ISO 9576-1 OSI Connectionless
-   Presentation Protocol, ITU-T Q.708 ISPC Analysis, Juniper Packet
-   Mirror, Licklider Transmission Protocol, MPLS PW ATM AAL5 CPCS-SDU
-   mode encapsulation, MPLS PW ATM Cell Header, MPLS PW ATM Control
-   Word, MPLS PW ATM N-to-One encapsulation, no CW, MPLS PW ATM
-   N-to-One encapsulation, with CW, MPLS PW ATM One-to-One or AAL5
-   PDU encapsulation, Multiple Stream Reservation Protocol,
-   NetPerfMeter Protocol, NetScaler Trace, NexusWare C7 MTP, NSN
-   FLIP, OMRON FINS Protocol, packetbb Protocol, Peer Network
-   Resolution Protocol, PKIX Attribute Certificate, Pseudowire
-   Padding, Server/Application State Protocol, Solaris IPNET, TN3270
-   Protocol, TN5250 Protocol, TRILL, Twisted Banana, UMTS FP Hint,
-   UMTS MAC, UMTS Metadata, UMTS RLC, USB HID, USB HUB, UTRAN Iuh
-   interface HNBAP signalling, UTRAN Iuh interface RUA signalling,
-   V5.2, Vendor Specific Control Protocol, Vendor Specific Network
-   Protocol, VMware Lab Manager, VXI-11 Asynchronous Abort, VXI-11
-   Core Protocol, VXI-11 Interrupt, X.411 Message Access Service,
-   ZigBee Cluster Library
+   Gateway Load Balancing Protocol, Gigamon Header, GigE Vision
+   Control Protocol, Git Smart Protocol, GSM over IP ip.access CCM
+   sub-protocol, GSM over IP protocol as used by ip.access, GSM
+   Radiotap, HI2Operations, Host Identity Protocol, HP encapsulated
+   remote mirroring, HP NIC Teaming Heartbeat, IEC61850 Sampled
+   Values, IEEE 1722 Protocol, InfiniBand Link, Interlink Protocol,
+   IPv6 over IEEE 802.15.4, ISO 10035-1 OSI Connectionless
+   Association Control Service, ISO 9548-1 OSI Connectionless Session
+   Protocol, ISO 9576-1 OSI Connectionless Presentation Protocol,
+   ITU-T Q.708 ISPC Analysis, Juniper Packet Mirror, Licklider
+   Transmission Protocol, MPLS PW ATM AAL5 CPCS-SDU mode
+   encapsulation, MPLS PW ATM Cell Header, MPLS PW ATM Control Word,
+   MPLS PW ATM N-to-One encapsulation, no CW, MPLS PW ATM N-to-One
+   encapsulation, with CW, MPLS PW ATM One-to-One or AAL5 PDU
+   encapsulation, Multiple Stream Reservation Protocol, NetPerfMeter
+   Protocol, NetScaler Trace, NexusWare C7 MTP, NSN FLIP, OMRON FINS
+   Protocol, packetbb Protocol, Peer Network Resolution Protocol,
+   PKIX Attribute Certificate, Pseudowire Padding, Server/Application
+   State Protocol, Solaris IPNET, TN3270 Protocol, TN5250 Protocol,
+   TRILL, Twisted Banana, UMTS FP Hint, UMTS MAC, UMTS Metadata, UMTS
+   RLC, USB HID, USB HUB, UTRAN Iuh interface HNBAP signalling, UTRAN
+   Iuh interface RUA signalling, V5.2, Vendor Specific Control
+   Protocol, Vendor Specific Network Protocol, VMware Lab Manager,
+   VXI-11 Asynchronous Abort, VXI-11 Core Protocol, VXI-11 Interrupt,
+   X.411 Message Access Service, ZigBee Cluster Library
 
   Updated Protocol Support
 
