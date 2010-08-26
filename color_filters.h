@@ -172,6 +172,7 @@ gboolean color_filters_export(gchar *path, GSList *cfl, gboolean only_selected);
  * @param filter_string the filter string
  * @param bg_color background color
  * @param fg_color foreground color
+ * @param disabled gboolean
  * @return the new color filter
  */
 color_filter_t *color_filter_new(

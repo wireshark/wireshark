@@ -207,6 +207,7 @@ create_tempfile(char **namebuf, const char *pfx)
  * Create a directory with the given prefix (e.g. "wireshark"). The path
  * is created using g_get_tmp_dir and mkdtemp.
  * 
+ * @param namebuf 
  * @param pfx A prefix for the temporary directory.
  * @return The temporary directory path on success, or NULL on failure.
  *         Must NOT be freed.

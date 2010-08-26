@@ -107,7 +107,7 @@ typedef struct if_stat_cache_s if_stat_cache_t;
 
 /**
  * Start gathering capture statistics for the interfaces specified.
- * @param A GList of if_info_t items
+ * @param if_list A GList of if_info_t items
  * @return A pointer to the statistics state data.
  */
 extern if_stat_cache_t * capture_stat_start(GList *if_list);

@@ -83,6 +83,7 @@ cf_callback_remove(cf_callback_t func);
  * @param cf the capture file to be opened
  * @param fname the filename to be opened
  * @param is_tempfile is this a temporary file?
+ * @param err error code
  * @return one of cf_status_t
  */
 cf_status_t cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err);
@@ -216,7 +217,6 @@ void cf_set_tempfile_source(capture_file *cf, gchar *source);
  * return a non-null value. The returned value should not be freed.
  *
  * @param cf the capture file
- * @param source the source description. this will be copied internally.
  */
 const gchar *cf_get_tempfile_source(capture_file *cf);
 
@@ -232,7 +232,7 @@ int cf_get_packet_count(capture_file *cf);
  * Set the number of packets in the capture file.
  *
  * @param cf the capture file
- * @param the number of packets in the capture file
+ * @param packet_count the number of packets in the capture file
  */
 void cf_set_packet_count(capture_file *cf, int packet_count);
 
@@ -515,7 +515,6 @@ void cf_select_packet(capture_file *cf, int row);
  * Unselect all packets, if any.
  *
  * @param cf the capture file
- * @param row the row to select
  */
 void cf_unselect_packet(capture_file *cf);
 
@@ -523,7 +522,6 @@ void cf_unselect_packet(capture_file *cf);
  * Unselect all protocol tree fields, if any.
  *
  * @param cf the capture file
- * @param row the row to select
  */
 void cf_unselect_field(capture_file *cf);
 
@@ -567,7 +565,7 @@ void cf_unignore_frame(capture_file *cf, frame_data *frame);
  * NULL, a temporary file name is generated and *out_filename is set
  * to point to the generated file name
  * @param in_file_count the number of input files to merge
- * @param in_filnames array of input filenames
+ * @param in_filenames array of input filenames
  * @param file_type the output filetype
  * @param do_append FALSE to merge chronologically, TRUE simply append
  * @return one of cf_status_t
