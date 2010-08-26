@@ -123,6 +123,7 @@ GModule *ws_module_open(gchar *module_name, GModuleFlags flags);
 #define eth_dup   dup
 #define eth_lseek lseek
 #define O_BINARY	0		/* Win32 needs the O_BINARY flag for open() */
+#define ws_module_open			g_module_open
 #endif /* _WIN32 */
 
 /* directory handling */
