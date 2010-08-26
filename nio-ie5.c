@@ -28,7 +28,7 @@ static HINTERNET internet = 0;
 
 
 
-netio_ie5_t * 
+netio_ie5_t *
 netio_ie5_connect (char const *url)
 {
   int resend = 0;
@@ -159,7 +159,7 @@ try_again:
 	    }
 	}
     }
-	
+
 	return netio_ie5_conn;
 }
 
