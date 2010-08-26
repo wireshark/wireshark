@@ -939,6 +939,11 @@ void ps_clean_string(unsigned char *out, const unsigned char *in,
 	int rd, wr;
 	char c;
 
+	if (in == NULL) {
+		out[0] = '\0';
+		return;
+	}
+
 	for (rd = 0, wr = 0 ; wr < outbuf_size; rd++, wr++ ) {
 		c = in[rd];
 		switch (c) {
