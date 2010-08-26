@@ -156,6 +156,8 @@ NASM=$(WIRESHARK_LIBS)\nasm-2.02\nasm.exe
 # If you versions of Python and Visual C++ use different CRTs
 # comment this out.
 #
+# XXX The DLL path in epan/wspython/wspy_libws.py likely needs to
+# be fixed before this is enabled by default.
 #PYTHON_EMBED=1
 
 #

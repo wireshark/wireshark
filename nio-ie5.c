@@ -47,7 +47,7 @@ netio_ie5_connect (char const *url)
 
   if (internet == 0)
     {
-      HINSTANCE h = LoadLibrary ("wininet.dll");
+      HINSTANCE h = ws_load_library("wininet.dll");
       if (!h)
 	{
           /* XXX - how to return an error code? */

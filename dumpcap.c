@@ -3167,6 +3167,8 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
   WSADATA              wsaData;
+  typedef BOOL (*SetDllDirectoryHandler)(LPCTSTR);
+  SetDllDirectoryHandler PSetDllDirectory;
 #else
   struct sigaction action, oldaction;
 #endif
@@ -3183,6 +3185,13 @@ main(int argc, char *argv[])
   gint                 i;
 #if defined(__APPLE__) && defined(__LP64__)
   struct utsname       osinfo;
+#endif
+
+#ifdef _WIN32
+  if (PSetDllDirectory = (SetDllDirectoryHandler) GetProcAddress(GetModuleHandle(_T("kernel32.dll")), "SetDllDirectoryW")) {
+    PSetDllDirectory(_T(""));
+    /* XXX - Exit on failure? */
+  }
 #endif
 
 #ifdef HAVE_PCAP_REMOTE

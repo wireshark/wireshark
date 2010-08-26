@@ -49,6 +49,7 @@
 #include <Ntddndis.h>
 
 #include "capture_wpcap_packet.h"
+#include <wsutil/file_util.h>
 
 /* packet32.h requires sockaddr_storage
  * whether sockaddr_storage is defined or not depends on the Platform SDK
@@ -157,7 +158,7 @@ wpcap_packet_load(void)
     GModule     *wh; /* wpcap handle */
     const symbol_table_t    *sym;
 
-    wh = g_module_open("packet", 0);
+    wh = ws_module_open("packet.dll", 0);
 
     if (!wh) {
         return;
