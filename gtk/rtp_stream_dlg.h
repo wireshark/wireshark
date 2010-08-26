@@ -32,6 +32,7 @@
 
 /** @file
  *  "RTP Stream Analysis" dialog box.
+ *  @ingroup dialog_group
  */
 
 /**

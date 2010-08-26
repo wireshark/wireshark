@@ -33,11 +33,6 @@
 #include <stdio.h>
 #include <epan/address.h>
 
-/** @file
- *  ??? 
- *  @ingroup dialog_group
- *  @todo what's this?
- */
 
 /****************************************************************************/
 /* type for storing rtp frame information */
