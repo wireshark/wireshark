@@ -164,6 +164,25 @@ static const value_string server_types[] = {
 	{0,	NULL}
 };
 
+#define SET_WINDOWS_VERSION_STRING(os_major_ver, os_minor_ver, windows_version)	\
+  if(os_major_ver == 6 && os_minor_ver == 1)				\
+    windows_version = "Windows 7 or Windows Server 2008 R2";		\
+									\
+  else if(os_major_ver == 6 && os_minor_ver == 0)			\
+    windows_version = "Windows Vista or Windows Server 2008";		\
+									\
+  else if(os_major_ver == 5 && os_minor_ver == 2)			\
+    windows_version = "Windows Server 2003 R2 or Windows Server 2003";	\
+									\
+  else if(os_major_ver == 5 && os_minor_ver == 1)			\
+    windows_version = "Windows XP";					\
+									\
+  else if(os_major_ver == 5 && os_minor_ver == 0)			\
+    windows_version = "Windows 2000";					\
+									\
+  else									\
+    windows_version = NULL;
+
 static const value_string resetbrowserstate_command_names[] = {
   { 0x01, "Stop being a master browser and become a backup browser"},
   { 0x02, "Discard browse lists, stop being a master browser, and try again"},
@@ -565,6 +584,8 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	guint8 host_name[17];
 	gint namelen;
 	guint8 server_count, reset_cmd;
+	guint8 os_major_ver, os_minor_ver;
+	gchar *windows_version = NULL;
 	int i;
 	guint32 uptime;
 
@@ -618,6 +639,15 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 				"Host Name: %s",
 			host_name);
 		offset += 16;
+
+		/* Windows version (See "OSVERSIONINFO Structure" on MSDN) */
+		os_major_ver = tvb_get_guint8(tvb, offset);
+		os_minor_ver = tvb_get_guint8(tvb, offset+1);
+		
+		SET_WINDOWS_VERSION_STRING(os_major_ver, os_minor_ver, windows_version);
+		
+		if(windows_version)
+		  proto_tree_add_text(tree, tvb, offset, 2, "Windows version: %s", windows_version);
 
 		/* OS major version */
 		proto_tree_add_item(tree, hf_os_major, tvb, offset, 1, TRUE);
@@ -807,6 +837,8 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	proto_item *item = NULL;
 	guint32 periodicity;
 	const guint8 *host_name;
+	guint8 os_major_ver, os_minor_ver;
+	gchar *windows_version = NULL;
 	guint namelen;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BROWSER");
@@ -842,6 +874,15 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		/* server type flags */
 		offset = dissect_smb_server_type_flags(
 			tvb, offset, pinfo, tree, NULL, TRUE);
+
+		/* OS version string (See "OSVERSIONINFO Structure" on MSDN) */
+		os_major_ver = tvb_get_guint8(tvb, offset);
+		os_minor_ver = tvb_get_guint8(tvb, offset+1);
+
+		SET_WINDOWS_VERSION_STRING(os_major_ver, os_minor_ver, windows_version);
+
+		if(windows_version)
+		  proto_tree_add_text(tree, tvb, offset, 2, "Windows version: %s", windows_version);
 
 		/* OS major version */
 		proto_tree_add_item(tree, hf_os_major, tvb, offset, 1, TRUE);
