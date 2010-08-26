@@ -29,6 +29,7 @@
 #include <glib.h>
 #include <gmodule.h>
 #include <epan/report_err.h>
+#include <wiretap/file_util.h>
 
 /* XML Stub routines */
 #define IN_XMLSTUB
@@ -68,7 +69,7 @@ loadLibXML(void)
 	/* open the dll.  Is this named something different
 	 * under windows?  Perhaps we should check . . .
 	 */
-	if ((handle = g_module_open(XML_LIBRARY, G_MODULE_BIND_LAZY)) == NULL) {
+	if ((handle = ws_module_open(XML_LIBRARY, G_MODULE_BIND_LAZY)) == NULL) {
 		report_failure("XMLStub: Unable to open module " XML_LIBRARY );
 		return (-1);
 	}

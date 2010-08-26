@@ -42,6 +42,7 @@
 
 #include <epan/value_string.h>
 
+#include <wiretap/file_util.h>
 
 
 /* packet32.h requires sockaddr_storage 
@@ -154,7 +155,7 @@ wpcap_packet_load(void)
 	GModule		*wh; /* wpcap handle */
 	const symbol_table_t	*sym;
 
-	wh = g_module_open("packet", 0);
+	wh = ws_module_open("packet.dll", 0);
 
 	if (!wh) {
 		return;

@@ -23,6 +23,8 @@ eth_stdio_unlink
 eth_stdio_remove
 eth_stdio_fopen
 eth_stdio_freopen
+ws_load_library
+ws_module_open
 
 file_seek
 file_tell

@@ -249,6 +249,7 @@ gboolean have_capture_file = FALSE; /* XXX - is there an equivalent in cfile? */
 static gboolean has_console;	/* TRUE if app has console */
 static void destroy_console(void);
 static gboolean stdin_capture = FALSE; /* Don't grab stdin & stdout if TRUE */
+static gboolean dll_set = FALSE; /* Did we sucessfully trim our DLL path? */
 #endif
 static void console_log_handler(const char *log_domain,
     GLogLevelFlags log_level, const char *message, gpointer user_data);
@@ -2368,6 +2369,13 @@ main(int argc, char *argv[])
   char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_WIN32) - 1] =
     OPTSTRING_INIT OPTSTRING_WIN32;
 
+#ifdef _WIN32
+  if (!dll_set) {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "SetDllDirectory failed (%d)!\n", GetLastError());
+    /* XXX - Exit? */
+  }
+#endif /* _WIN32 */
+
   /*
    * Get credential information for later use, and drop privileges
    * before doing anything else.
@@ -2905,8 +2913,6 @@ main(int argc, char *argv[])
     argv++;
   }
 
-
-
   if (argc != 0) {
     /*
      * Extra command line arguments were specified; complain.
@@ -3261,6 +3267,12 @@ WinMain (struct HINSTANCE__ *hInstance,
 {
 #if GTK_MAJOR_VERSION >= 2
   INITCOMMONCONTROLSEX comm_ctrl;
+  typedef BOOL (*SetDllDirectoryHandler)(LPCTSTR);
+  SetDllDirectoryHandler PSetDllDirectory;
+
+  if (PSetDllDirectory = (SetDllDirectoryHandler) GetProcAddress(GetModuleHandle(_T("kernel32.dll")), "SetDllDirectoryW")) {
+    dll_set = PSetDllDirectory(_T(""));
+  }
 
   /* Initialize our controls. Required for native Windows file dialogs. */
   memset (&comm_ctrl, 0, sizeof(comm_ctrl));
@@ -3273,7 +3285,7 @@ WinMain (struct HINSTANCE__ *hInstance,
   InitCommonControlsEx(&comm_ctrl);
 
   /* RichEd20.DLL is needed for filter entries. */
-  LoadLibrary(_T("riched20.dll"));
+  ws_load_library("riched20.dll");
 #endif /* GTK_MAJOR_VERSION >= 2 */
 
   has_console = FALSE;

@@ -26,7 +26,7 @@
  *
  * DO NOT USE THESE FUNCTIONS DIRECTLY, USE eth_open() AND ALIKE FUNCTIONS FROM file_util.h INSTEAD!!!
  *
- * the following code is stripped down code copied from the GLib file glib/gstdio.h 
+ * the following code is stripped down code copied from the GLib file glib/gstdio.h
  * stipped down, because this is used on _WIN32 only and we use only wide char functions */
 
 #ifdef HAVE_CONFIG_H
@@ -45,8 +45,8 @@
 
 #include "file_util.h"
 
-
-
+static gchar *program_path = NULL;
+static gchar *system_path = NULL;
 
 /**
  * g_open:
@@ -65,7 +65,7 @@
  *
  * Returns: a new file descriptor, or -1 if an error occurred. The
  * return value can be used exactly like the return value from open().
- * 
+ *
  * Since: 2.6
  */
 int
@@ -78,7 +78,7 @@ eth_stdio_open (const gchar *filename,
       wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
       int retval;
       int save_errno;
-      
+
       if (wfilename == NULL)
 	{
 	  errno = EINVAL;
@@ -104,16 +104,16 @@ eth_stdio_open (const gchar *filename,
  * @oldfilename: a pathname in the GLib file name encoding (UTF-8 on Windows)
  * @newfilename: a pathname in the GLib file name encoding
  *
- * A wrapper for the POSIX rename() function. The rename() function 
+ * A wrapper for the POSIX rename() function. The rename() function
  * renames a file, moving it between directories if required.
- * 
+ *
  * See your C library manual for more details about how rename() works
  * on your system. Note in particular that on Win9x it is not possible
  * to rename a file if a file with the new name already exists. Also
  * it is not possible in general on Windows to rename an open file.
  *
  * Returns: 0 if the renaming succeeded, -1 if an error occurred
- * 
+ *
  * Since: 2.6
  */
 int
@@ -164,7 +164,7 @@ eth_stdio_rename (const gchar *oldfilename,
 
       g_free (woldfilename);
       g_free (wnewfilename);
-      
+
       errno = save_errno;
       return retval;
 #else
@@ -173,18 +173,18 @@ eth_stdio_rename (const gchar *oldfilename,
 }
 
 /**
- * g_mkdir: 
+ * g_mkdir:
  * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
  * @mode: permissions to use for the newly created directory
  *
- * A wrapper for the POSIX mkdir() function. The mkdir() function 
+ * A wrapper for the POSIX mkdir() function. The mkdir() function
  * attempts to create a directory with the given name and permissions.
- * 
+ *
  * See the C library manual for more details about mkdir().
  *
- * Returns: 0 if the directory was successfully created, -1 if an error 
+ * Returns: 0 if the directory was successfully created, -1 if an error
  *    occurred
- * 
+ *
  * Since: 2.6
  */
 int
@@ -206,7 +206,7 @@ eth_stdio_mkdir (const gchar *filename,
       save_errno = errno;
 
       g_free (wfilename);
-      
+
       errno = save_errno;
       return retval;
 #else
@@ -215,19 +215,19 @@ eth_stdio_mkdir (const gchar *filename,
 }
 
 /**
- * g_stat: 
+ * g_stat:
  * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
  * @buf: a pointer to a <structname>stat</structname> struct, which
  *    will be filled with the file information
  *
- * A wrapper for the POSIX stat() function. The stat() function 
+ * A wrapper for the POSIX stat() function. The stat() function
  * returns information about a file.
- * 
+ *
  * See the C library manual for more details about stat().
  *
- * Returns: 0 if the information was successfully retrieved, -1 if an error 
+ * Returns: 0 if the information was successfully retrieved, -1 if an error
  *    occurred
- * 
+ *
  * Since: 2.6
  */
 int
@@ -269,18 +269,18 @@ eth_stdio_stat (const gchar *filename,
  * g_unlink:
  * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
  *
- * A wrapper for the POSIX unlink() function. The unlink() function 
- * deletes a name from the filesystem. If this was the last link to the 
+ * A wrapper for the POSIX unlink() function. The unlink() function
+ * deletes a name from the filesystem. If this was the last link to the
  * file and no processes have it opened, the diskspace occupied by the
  * file is freed.
- * 
+ *
  * See your C library manual for more details about unlink(). Note
  * that on Windows, it is in general not possible to delete files that
  * are open to some process, or mapped into memory.
  *
- * Returns: 0 if the name was successfully deleted, -1 if an error 
+ * Returns: 0 if the name was successfully deleted, -1 if an error
  *    occurred
- * 
+ *
  * Since: 2.6
  */
 int
@@ -315,7 +315,7 @@ eth_stdio_unlink (const gchar *filename)
  *
  * A wrapper for the POSIX remove() function. The remove() function
  * deletes a name from the filesystem.
- * 
+ *
  * See your C library manual for more details about how remove() works
  * on your system. On Unix, remove() removes also directories, as it
  * calls unlink() for files and rmdir() for directories. On Windows,
@@ -330,9 +330,9 @@ eth_stdio_unlink (const gchar *filename)
  * fail. Any errno value set by remove() will be overwritten by that
  * set by rmdir().
  *
- * Returns: 0 if the file was successfully removed, -1 if an error 
+ * Returns: 0 if the file was successfully removed, -1 if an error
  *    occurred
- * 
+ *
  * Since: 2.6
  */
 int
@@ -366,17 +366,17 @@ eth_stdio_remove (const gchar *filename)
 /**
  * g_fopen:
  * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
- * @mode: a string describing the mode in which the file should be 
+ * @mode: a string describing the mode in which the file should be
  *   opened
  *
  * A wrapper for the POSIX fopen() function. The fopen() function opens
- * a file and associates a new stream with it. 
- * 
+ * a file and associates a new stream with it.
+ *
  * See the C library manual for more details about fopen().
  *
  * Returns: A <type>FILE</type> pointer if the file was successfully
  *    opened, or %NULL if an error occurred
- * 
+ *
  * Since: 2.6
  */
 FILE *
@@ -403,7 +403,7 @@ eth_stdio_fopen (const gchar *filename,
 	  errno = EINVAL;
 	  return NULL;
 	}
-	
+
       retval = _wfopen (wfilename, wmode);
       save_errno = errno;
 
@@ -420,18 +420,18 @@ eth_stdio_fopen (const gchar *filename,
 /**
  * g_freopen:
  * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
- * @mode: a string describing the mode in which the file should be 
+ * @mode: a string describing the mode in which the file should be
  *   opened
  * @stream: an existing stream which will be reused, or %NULL
  *
  * A wrapper for the POSIX freopen() function. The freopen() function
  * opens a file and associates it with an existing stream.
- * 
+ *
  * See the C library manual for more details about freopen().
  *
  * Returns: A <type>FILE</type> pointer if the file was successfully
  *    opened, or %NULL if an error occurred.
- * 
+ *
  * Since: 2.6
  */
 FILE *
@@ -450,7 +450,7 @@ eth_stdio_freopen (const gchar *filename,
 	  errno = EINVAL;
 	  return NULL;
 	}
-      
+
       wmode = g_utf8_to_utf16 (mode, -1, NULL, NULL, NULL);
 
       if (wmode == NULL)
@@ -459,7 +459,7 @@ eth_stdio_freopen (const gchar *filename,
 	  errno = EINVAL;
 	  return NULL;
 	}
-      
+
       retval = _wfreopen (wfilename, wmode, stream);
       save_errno = errno;
 
@@ -472,4 +472,117 @@ eth_stdio_freopen (const gchar *filename,
   return freopen (filename, mode, stream);
 #endif
 }
+
+
+#ifdef _WIN32
+/* DLL loading */
+static gboolean
+init_dll_load_paths() {
+      TCHAR path_pfx[MAX_PATH];
+
+      if (program_path && system_path)
+	    return TRUE;
+
+      /* XXX - Duplicate code in filesystem.c:init_progfile_dir */
+      if (GetModuleFileName(NULL, path_pfx, MAX_PATH) == 0 || GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+	    return FALSE;
+      }
+
+      if (!program_path) {
+	    program_path = g_utf16_to_utf8(path_pfx, -1, NULL, NULL, NULL);
+      }
+
+      if (GetSystemDirectory(path_pfx, MAX_PATH) == 0) {
+	    return FALSE;
+      }
+
+      if (!system_path) {
+	    system_path = g_utf16_to_utf8(path_pfx, -1, NULL, NULL, NULL);
+      }
+
+      if (program_path && system_path)
+	    return TRUE;
+
+      return FALSE;
+}
+
+/*
+ * Internally g_module_open uses LoadLibrary on Windows and returns an
+ * HMODULE cast to a GModule *. However there's no guarantee that this
+ * will always be the case, so we call LoadLibrary and g_module_open
+ * separately.
+ */
+
+void *
+ws_load_library(gchar *library_name) {
+      gchar   *full_path;
+      wchar_t *full_path_w;
+      HMODULE  dll_h;
+
+      if (!init_dll_load_paths() || !library_name)
+	    return NULL;
+
+      /* First try the program directory */
+      full_path = g_module_build_path(program_path, library_name);
+      full_path_w = g_utf8_to_utf16(full_path, -1, NULL, NULL, NULL);
+
+      if (full_path && full_path_w) {
+	    dll_h = LoadLibraryW(full_path_w);
+	    if (dll_h) {
+		  g_free(full_path);
+		  g_free(full_path_w);
+		  return dll_h;
+	    }
+      }
+
+      /* Next try the system directory */
+      full_path = g_module_build_path(system_path, library_name);
+      full_path_w = g_utf8_to_utf16(full_path, -1, NULL, NULL, NULL);
+
+      if (full_path && full_path_w) {
+	    dll_h = LoadLibraryW(full_path_w);
+	    if (dll_h) {
+		  g_free(full_path);
+		  g_free(full_path_w);
+		  return dll_h;
+	    }
+      }
+
+      return NULL;
+}
+
+GModule *
+ws_module_open(gchar *module_name, GModuleFlags flags) {
+      gchar   *full_path;
+      GModule *mod;
+
+      if (!init_dll_load_paths() || !module_name)
+	    return NULL;
+
+      /* First try the program directory */
+      full_path = g_module_build_path(program_path, module_name);
+
+      if (full_path) {
+	    mod = g_module_open(full_path, flags);
+	    if (mod) {
+		  g_free(full_path);
+		  return mod;
+	    }
+      }
+
+      /* Next try the system directory */
+      full_path = g_module_build_path(system_path, module_name);
+
+      if (full_path) {
+	    mod = g_module_open(full_path, flags);
+	    if (mod) {
+		  g_free(full_path);
+		  return mod;
+	    }
+      }
+
+      return NULL;
+}
+
+#endif /* _WIN32 */
 
