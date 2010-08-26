@@ -245,6 +245,7 @@ extern gboolean decode_tcp_ports(tvbuff_t *, int, packet_info *, proto_tree *, i
 
 /** Associate process information with a given flow
  *
+ * @param frame_num The frame number
  * @param local_addr The local IPv4 or IPv6 address of the process
  * @param remote_addr The remote IPv4 or IPv6 address of the process
  * @param local_port The local TCP port of the process

@@ -374,7 +374,7 @@ extern Ssl_private_key_t *
 ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd);
 
 /** Deallocate the memory used for specified key
- @param pointer to the key to be freed */
+ @param key pointer to the key to be freed */
 extern void
 ssl_free_key(Ssl_private_key_t* key);
 
@@ -409,16 +409,17 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
     StringInfo* encrypted_pre_master, SSL_PRIVATE_KEY *pk);
 
 /** Try to decrypt an ssl record
- @param ssl_session the store all the session data
+ @param ssl ssl_session the store all the session data
  @param decoder the stream decoder to be used
  @param ct the content type of this ssl record
  @param in a pinter to the ssl record to be decrypted
  @param inl the record length
- @param out a pointer to the store for the decrypted data
+ @param comp_str
+ @param out_str a pointer to the store for the decrypted data
  @param outl the decrypted data len
  @return 0 on success */
 extern gint
-ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
+ssl_decrypt_record(SslDecryptSession* ssl,SslDecoder* decoder, gint ct,
         const guchar* in, guint inl, StringInfo* comp_str, StringInfo* out_str, guint* outl);
 
 

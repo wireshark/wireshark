@@ -408,15 +408,15 @@ emem_strbuf_t *ep_strbuf_new(const gchar *init) G_GNUC_MALLOC;
 emem_strbuf_t *ep_strbuf_new_label(const gchar *init) G_GNUC_MALLOC;
 
 /**
- * Allocate an ephemeral string buffer with enough initial space for @alloc_len bytes
- * and a maximum of @max_alloc_len bytes.
+ * Allocate an ephemeral string buffer with enough initial space for alloc_len bytes
+ * and a maximum of max_alloc_len bytes.
  *
  * @param alloc_len The initial size of the buffer. This value can be 0, but a nonzero
  * value is recommended.
  * @param max_alloc_len The maximum size of the buffer. 0 means "unlimited" (within
  * reason).
  *
- * @return A newly-allocated string buffer. @str will be empty.
+ * @return A newly-allocated string buffer. str will be empty.
  */
 emem_strbuf_t *ep_strbuf_sized_new(gsize alloc_len, gsize max_alloc_len) G_GNUC_MALLOC;
 
@@ -425,7 +425,7 @@ emem_strbuf_t *ep_strbuf_sized_new(gsize alloc_len, gsize max_alloc_len) G_GNUC_
  *
  * @param strbuf The ep_strbuf-allocated string buffer to append to.
  * @param format A printf-style string format.
- * @param args The list of arguments to append.
+ * @param ap The list of arguments to append.
  */
 void ep_strbuf_append_vprintf(emem_strbuf_t *strbuf, const gchar *format, va_list ap);
 

@@ -268,7 +268,7 @@ extern INT AirPDcapSetKeys(
 /**
  * It gets the keys collection fom the specified context.
  * @param ctx [IN] pointer to the current context
- * @param key [IN] a preallocated array of keys to be returned
+ * @param keys [IN] a preallocated array of keys to be returned
  * @param keys_nr [IN] the number of keys to return (the key array must
  * be able to contain at least keys_nr keys)
  * @return The number of keys returned
