@@ -7,7 +7,7 @@
 # Only "win32" and "win64" are valid (for now).
 # This can be defined in the system environment.
 !IFNDEF WIRESHARK_TARGET_PLATFORM
-WIRESHARK_TARGET_PLATFORM=win64
+WIRESHARK_TARGET_PLATFORM=win32
 !ENDIF
 
 ##### Versions #####
@@ -655,7 +655,7 @@ MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
 # If you don't want the developers documentation (or don't have the tools),
 # comment this line out, so that DOXYGEN isn't defined.
 #
-DOXYGEN="$(PROGRAM_FILES)/doxygen/bin/doxygen.exe"
+#DOXYGEN="$(PROGRAM_FILES)/doxygen/bin/doxygen.exe"
 
 #
 # Recommended: Use the compressed html help format .chm as the Wireshark integrated help.
