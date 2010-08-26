@@ -267,7 +267,7 @@ ws_stdio_stat (const gchar *filename,
  *
  * Since: 2.6
  */
- 
+
 int
 ws_stdio_unlink (const gchar *filename)
 {
@@ -447,7 +447,7 @@ ws_stdio_freopen (const gchar *filename,
 static gboolean
 init_dll_load_paths() {
       TCHAR path_pfx[MAX_PATH];
-      
+
       if (program_path && system_path)
 	    return TRUE;
 
@@ -471,7 +471,7 @@ init_dll_load_paths() {
       if (program_path && system_path)
 	    return TRUE;
 
-      return FALSE;      
+      return FALSE;
 }
 
 /*
@@ -493,7 +493,7 @@ ws_load_library(gchar *library_name) {
       /* First try the program directory */
       full_path = g_module_build_path(program_path, library_name);
       full_path_w = g_utf8_to_utf16(full_path, -1, NULL, NULL, NULL);
-      
+
       if (full_path && full_path_w) {
 	    dll_h = LoadLibraryW(full_path_w);
 	    if (dll_h) {
@@ -529,7 +529,7 @@ ws_module_open(gchar *module_name, GModuleFlags flags) {
 
       /* First try the program directory */
       full_path = g_module_build_path(program_path, module_name);
-      
+
       if (full_path) {
 	    mod = g_module_open(full_path, flags);
 	    if (mod) {
@@ -540,7 +540,7 @@ ws_module_open(gchar *module_name, GModuleFlags flags) {
 
       /* Next try the system directory */
       full_path = g_module_build_path(system_path, module_name);
-      
+
       if (full_path) {
 	    mod = g_module_open(full_path, flags);
 	    if (mod) {
