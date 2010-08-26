@@ -38,14 +38,14 @@ extern void proto_help_init(void);
  * @param widget Context menu root
  * @return void
  */
-extern void proto_help_menu_init(GtkWidget *);
+extern void proto_help_menu_init(GtkWidget *widget);
 
 /** Fill in the protocol help menu
  *
  * @param selection Currently-selected packet
- * @param cf Capture file
+ * @param cfile Capture file
  * @return void
  */
-extern void proto_help_menu_modify(GtkTreeSelection*, capture_file *cfile);
+extern void proto_help_menu_modify(GtkTreeSelection* selection, capture_file *cfile);
 
 #endif /* __PROTO_HELP_H__ */

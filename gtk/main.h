@@ -138,7 +138,7 @@ typedef enum {
 
 /** User highlighted item in details window and then right clicked and selected the copy option
  *
- * @param widget parent widget
+ * @param w parent widget
  * @param data parent widget
  * @param action the function to use
  */
@@ -146,16 +146,16 @@ extern void copy_selected_plist_cb(GtkWidget *w _U_, gpointer data, COPY_SELECTE
 
 /** Set or remove a time reference on this frame 
  *
- * @param TRUE = set time ref, FALSE=unset time ref
- * @param pointer to frame
- * @param row number
+ * @param set TRUE = set time ref, FALSE=unset time ref
+ * @param frame pointer to frame
+ * @param row row number
  */
 extern void set_frame_reftime(gboolean set, frame_data *frame, gint row);
 
 /** User requested the colorize function
  *  by menu or context menu of protocol tree.
  *
- * @param widget parent widget
+ * @param w parent widget
  * @param data parent widget
  * @param filt_nr  1-10: use filter for color 1-10
  *                    0: open new colorization rule dialog

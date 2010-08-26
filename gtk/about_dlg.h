@@ -41,7 +41,7 @@ extern GtkWidget *splash_new(const char *message);
  *
  * @param action the initialisation action being performed
  * @param message additional information
- * @param client_data the window handle from splash_new()
+ * @param call_data the window handle from splash_new()
  */
 extern void splash_update(register_action_e action, const char *message, void *call_data);
 

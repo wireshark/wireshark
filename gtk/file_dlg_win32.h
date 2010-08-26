@@ -57,6 +57,7 @@ void win32_merge_file (HWND h_wnd);
 /** Open the "Export" dialog box.
  *
  * @param h_wnd HWND of the parent window.
+ * @param export_type The export type.
  */
 void win32_export_file (HWND h_wnd, export_type_e export_type);
 
@@ -84,7 +85,7 @@ void win32_import_color_file(HWND h_wnd, gpointer color_filters);
  *  accordingly.
  *
  * @param dlg_hwnd HWND of the dialog in question.
- * @args Pointer to a print args struct.
+ * @param args Pointer to a print args struct.
  */
 /* XXX - This should be moved to win32-print.c, maybe? */
 void print_update_dynamic(HWND dlg_hwnd, print_args_t *args);

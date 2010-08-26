@@ -98,21 +98,21 @@ extern void packet_list_update_marked_frames(void);
 
 /** Ignore the currently selected packet.
  *
- * @param widget parent widget (unused)
+ * @param w parent widget (unused)
  * @param data unused
  */
 extern void packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /** Ignore all packets in the list.
  *
- * @param widget parent widget (unused)
+ * @param w parent widget (unused)
  * @param data unused
  */
 extern void packet_list_ignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /** Un-ignore all packets in the list.
  *
- * @param widget parent widget (unused)
+ * @param w parent widget (unused)
  * @param data unused
  */
 extern void packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);

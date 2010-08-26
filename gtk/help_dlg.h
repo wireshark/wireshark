@@ -113,7 +113,7 @@ void topic_cb(GtkWidget *widget, topic_action_e topic);
 /** Open a specific topic called from a menu item.
  *
  * @param widget parent widget (unused)
- * @param dummy (unused)
+ * @param event A GdkEventButton *event
  * @param user_data the topic to display
  * @return TRUE
  */

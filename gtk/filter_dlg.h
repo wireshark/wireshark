@@ -107,7 +107,7 @@ void colorize_filter_te_as_valid(GtkWidget *widget);
 /** Colorize a filter text entry depending on "validity".
  *
  * @param widget the text entry to colorize
- * @param Callback User Data pointer (unused)
+ * @param user_data Callback User Data pointer (unused)
  */
 void filter_te_syntax_check_cb(GtkWidget *widget, gpointer user_data _U_);
 

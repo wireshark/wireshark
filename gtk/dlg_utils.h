@@ -30,7 +30,7 @@
  * Normal dialogs are created using dlg_window_new().
  *
  * - "About" about_wireshark_cb()
- * - "Capture Options" capture_prep()
+ * - "Capture Options" capture_prep_cb()
  * - "Capture" capture_info_ui_create()
  * - "Interface Options" ifopts_edit_cb()
  * - "Coloring Rules" colorize_dialog_new()

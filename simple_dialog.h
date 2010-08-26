@@ -161,7 +161,7 @@ extern void display_queued_messages(void);
 
 /** Show a message in the status bar.
  *
- * @param msg Status message
+ * @param msg_format Status message
  */
 extern void simple_status(const gchar *msg_format, ...)
     G_GNUC_PRINTF(1, 2);

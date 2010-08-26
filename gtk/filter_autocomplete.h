@@ -39,7 +39,7 @@
  *
  * @param filter_te text-editing filter widget
  * @param event
- * @aram  user_data pointer to user_data (unused)
+ * @param  user_data pointer to user_data (unused)
  */
 extern gboolean filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpointer user_data _U_);
 

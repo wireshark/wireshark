@@ -67,7 +67,7 @@ void init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox);
 /** Init an err table row data structure.
  *
  * @param err the err table
- * @param expert data
+ * @param expert_data data
  */
 void init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data);
 

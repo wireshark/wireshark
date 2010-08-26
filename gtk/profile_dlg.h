@@ -33,7 +33,7 @@
 
 /** User requested the "Configuration Profiles" popup menu.
  *
- * @param widget parent widget
+ * @param w parent widget
  * @param event button event
  * @param user_data pointer to user_data (unused)
  */

@@ -142,6 +142,8 @@ typedef enum {
  *
  * @param w unused
  * @param data unused
+ * @param data_type copy_data_type 
+ *
  */
 extern void copy_hex_cb(GtkWidget * w, gpointer data, copy_data_type data_type);
 

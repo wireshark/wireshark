@@ -164,7 +164,7 @@ extern GtkWidget *create_preference_entry(GtkWidget *main_tb, int table_row,
 /** Create a static text for a preferences page.
  *
  * @param main_tb the table to put this entry into
- * @param table_row row in the table
+ * @param table_position row in the table
  * @param label_text the label text
  * @param tooltip_text the tooltip for this text (not needed at all...)
  * @return the new static text label
@@ -176,10 +176,11 @@ create_preference_static_text(GtkWidget *main_tb, int table_position,
 /** Create a UAT button for a preferences page.
  *
  * @param main_tb the table to put this entry into
- * @param table_row row in the table
+ * @param table_position row in the table
  * @param label_text the label text
  * @param tooltip_text the tooltip for this text
- * @return the new UAT botton
+ * @param uat pointer to the UAT
+ * @return the new UAT button
  */
 GtkWidget *
 create_preference_uat(GtkWidget *main_tb, int table_position,
