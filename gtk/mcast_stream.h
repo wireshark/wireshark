@@ -36,13 +36,10 @@
 #include <stdio.h>
 #include <epan/address.h>
 
-/** @file
- *  ??? 
- *  @ingroup dialog_group
- *  @todo what's this?
- */
 
-/* XXX - don't define stuff that potential name conflicts */
+/**
+ * @todo - don't define stuff that potential name conflicts
+ */
 #define MCAST_INTERFACE        2
 #define FILTER           3
 #define TRIGGER          4
@@ -64,11 +61,11 @@ typedef struct buffer{
     gint32 count;              /* packet counter */
     gint32 burststatus;        /* burst status */
     gint32 numbursts;          /* number of bursts */
-    gint32 buffusage;         /* buffer usage */
-    gint32 buffstatus;        /* buffer status */
+    gint32 buffusage;          /* buffer usage */
+    gint32 buffstatus;         /* buffer status */
     gint32 numbuffalarms;      /* number of alarms triggered by buffer underruns */
-    gint32 topbuffusage;      /* top buffer usage in refresh interval */
-    float  maxbw;            /* maximum bandwidth usage */
+    gint32 topbuffusage;       /* top buffer usage in refresh interval */
+    float  maxbw;              /* maximum bandwidth usage */
 } t_buffer;
 
 
@@ -87,10 +84,10 @@ typedef struct _mcast_stream_info {
 	/* start of recording (GMT) of this stream */
 	guint32 start_sec;         /* seconds */
 	guint32 start_usec;        /* microseconds */
-	guint32 start_rel_sec;         /* start stream rel seconds */
-	guint32 start_rel_usec;        /* start stream rel microseconds */
-	guint32 stop_rel_sec;         /* stop stream rel seconds */
-	guint32 stop_rel_usec;        /* stop stream rel microseconds */
+	guint32 start_rel_sec;     /* start stream rel seconds */
+	guint32 start_rel_usec;    /* start stream rel microseconds */
+	guint32 stop_rel_sec;      /* stop stream rel seconds */
+	guint32 stop_rel_usec;     /* stop stream rel microseconds */
 	guint16 vlan_id;
 	
 	/*for the sliding window */

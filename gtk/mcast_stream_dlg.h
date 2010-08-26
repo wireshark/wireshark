@@ -34,7 +34,9 @@
 
 #include <gtk/gtk.h>
 
+
 /** @file
+ *  @ingroup dialog_group
  *  "Mcast Stream Analysis" dialog box.
  */
 
