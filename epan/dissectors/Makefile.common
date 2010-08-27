@@ -818,6 +818,7 @@ DISSECTOR_SRC = \
 	packet-sbus.c 		\
 	packet-sccp.c		\
 	packet-sccpmg.c		\
+	packet-scop.c		\
 	packet-scsi.c		\
 	packet-scsi-mmc.c	\
 	packet-scsi-osd.c	\

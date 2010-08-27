@@ -908,6 +908,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-sbus.c
 	dissectors/packet-sccp.c
 	dissectors/packet-sccpmg.c
+	dissectors/packet-scop.c
 	dissectors/packet-scsi.c
 	dissectors/packet-scsi-mmc.c
 	dissectors/packet-scsi-osd.c
