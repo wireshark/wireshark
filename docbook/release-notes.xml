@@ -32,38 +32,28 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed. See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2010-07.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2010-09.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
         <listitem>
           <para>
-            The SigComp Universal Decompressor Virtual Machine could overrun a buffer.
-            <!-- Fixed in trunk: r33321 -->
-            <!-- Fixed in trunk-1.2: r33547 -->
-            <!-- Fixed in trunk-1.0: r33363 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4867">Bug
-            4867</ulink>)
+            Wireshark is vulnerable to DLL hijacking as described in
+            <ulink url="http://www.microsoft.com/technet/security/advisory/2269637.mspx">Microsoft
+            Security Advisory 2269637</ulink>.
+            <!-- Fixed in trunk: r33916, r33917, r33924, r33925, r33958 -->
+            <!-- Fixed in trunk-1.4:  -->
+            <!-- Fixed in trunk-1.2:  -->
+            <!-- Fixed in trunk-1.0:  -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5133">Bug
+            5133</ulink>)
           </para>
           <para>Versions affected: 0.10.8 to 1.0.14, 1.2.0 to 1.2.9</para>
+          <!--
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-2287">CVE-2010-2287</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
           </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Due to a regression the ASN.1 BER dissector could overrun the stack.
-            <!-- Fixed in trunk: r33505 -->
-            <!-- Fixed in trunk-1.2: r33508 -->
-            <!-- Fixed in trunk-1.0: r33662 -->
-            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4984">Bug
-            4984</ulink>) -->
-          </para>
-          <para>Versions affected: 0.10.13 to 1.0.14, 1.2.0 to 1.2.9</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-2284">CVE-2010-2284</ulink>
-          </para>
+          -->
         </listitem>
 
       </itemizedlist>
