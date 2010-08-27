@@ -658,4 +658,11 @@ proto_reg_handoff_eth(void)
 	dissector_add("ethertype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
 	dissector_add("chdlctype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
 	dissector_add("gre.proto", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
+
+	/*
+	 * This is to handle the output for the Cisco CMTS "cable intercept"
+	 * command - it encapsulates Ethernet frames in UDP packets, but
+	 * the UDP port is user-defined.
+	 */
+	dissector_add_handle("udp.port", eth_withoutfcs_handle);
 }
