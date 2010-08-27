@@ -189,7 +189,7 @@ static int hf_afp_user_len		    = -1;
 static int hf_afp_user_name		    = -1;
 
 static int hf_afp_vol_flag_passwd	    = -1;
-static int hf_afp_vol_flag_unix_priv	    = -1;
+static int hf_afp_vol_flag_has_config	    = -1;
 static int hf_afp_server_time		    = -1;
 
 static int hf_afp_vol_bitmap		    = -1;
@@ -1919,7 +1919,7 @@ dissect_reply_afp_get_server_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 		ti = proto_tree_add_text(tree, tvb, offset , 1,"Flags : 0x%02x", flag);
 		flag_tree = proto_item_add_subtree(ti, ett_afp_vol_flag);
 		proto_tree_add_item(flag_tree, hf_afp_vol_flag_passwd, tvb, offset, 1,FALSE);
-		proto_tree_add_item(flag_tree, hf_afp_vol_flag_unix_priv ,tvb, offset, 1,FALSE);
+		proto_tree_add_item(flag_tree, hf_afp_vol_flag_has_config, tvb, offset, 1,FALSE);
 		offset++;
 
 		len  = tvb_get_guint8(tvb, offset) +1;
@@ -4895,13 +4895,13 @@ proto_register_afp(void)
 
 		{ &hf_afp_vol_flag_passwd,
 		  { "Password",         "afp.vol_flag_passwd",
-		    FT_BOOLEAN, 8, NULL,  1,
+		    FT_BOOLEAN, 8, NULL,  128,
 		    "Volume is password-protected", HFILL }},
 
-		{ &hf_afp_vol_flag_unix_priv,
-		  { "Unix privs",         "afp.vol_flag_unix_priv",
-		    FT_BOOLEAN, 8, NULL,  2,
-		    "Volume has unix privileges", HFILL }},
+		{ &hf_afp_vol_flag_has_config,
+		  { "Has config",         "afp.vol_flag_has_config",
+		    FT_BOOLEAN, 8, NULL,  1,
+		    "Volume has Apple II config info", HFILL }},
 
 		{ &hf_afp_vol_id,
 		  { "Volume id",         "afp.vol_id",
