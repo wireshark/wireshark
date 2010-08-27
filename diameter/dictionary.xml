@@ -574,7 +574,7 @@
          64 bit unsigned value, in network byte order. The AVP Length
          field MUST be set to 16 (20 if the 'V' bit is enabled).
 		-->
-		<typedefn type-name="Enumerated" type-parent="Unsigned32"/>
+		<typedefn type-name="Enumerated" type-parent="Integer32"/>
 		<typedefn type-name="DiameterURI" type-parent="UTF8String"/>
 
 		<!-- ************************* End Typedefns ************************ -->
