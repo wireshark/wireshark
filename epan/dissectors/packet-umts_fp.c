@@ -46,6 +46,10 @@
 /* Initialize the protocol and registered fields. */
 int proto_fp = -1;
 
+static int hf_fp_release = -1;
+static int hf_fp_release_version = -1;
+static int hf_fp_release_year = -1;
+static int hf_fp_release_month = -1;
 static int hf_fp_channel_type = -1;
 static int hf_fp_division = -1;
 static int hf_fp_direction = -1;
@@ -162,6 +166,7 @@ static int hf_fp_spare_extension = -1;
 
 /* Subtrees. */
 static int ett_fp = -1;
+static int ett_fp_release = -1;
 static int ett_fp_data = -1;
 static int ett_fp_crcis = -1;
 static int ett_fp_edch_subframe_header = -1;
@@ -182,6 +187,7 @@ static proto_tree *top_level_tree = NULL;
 
 /* Variables used for preferences */
 static gboolean preferences_call_mac_dissectors = TRUE;
+static gboolean preferences_show_release_info = TRUE;
 
 
 /* E-DCH channel header information */
@@ -2902,6 +2908,28 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
+    /* Show release information */
+    if (preferences_show_release_info) {
+        proto_item *release_ti;
+        proto_tree *release_tree;
+        proto_item *temp_ti;
+
+        release_ti = proto_tree_add_item(fp_tree, hf_fp_release, tvb, 0, 0, FALSE);
+        PROTO_ITEM_SET_GENERATED(release_ti);
+        proto_item_append_text(release_ti, " R%u (%d/%d)",
+                               p_fp_info->release, p_fp_info->release_year, p_fp_info->release_month);
+        release_tree = proto_item_add_subtree(release_ti, ett_fp_release);
+
+        temp_ti = proto_tree_add_uint(release_tree, hf_fp_release_version, tvb, 0, 0, p_fp_info->release);
+        PROTO_ITEM_SET_GENERATED(temp_ti);
+
+        temp_ti = proto_tree_add_uint(release_tree, hf_fp_release_year, tvb, 0, 0, p_fp_info->release_year);
+        PROTO_ITEM_SET_GENERATED(temp_ti);
+
+        temp_ti = proto_tree_add_uint(release_tree, hf_fp_release_month, tvb, 0, 0, p_fp_info->release_month);
+        PROTO_ITEM_SET_GENERATED(temp_ti);
+    }
+
     /* Show channel type in info column, tree */
     col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str(p_fp_info->channel,
@@ -3014,6 +3042,30 @@ void proto_register_fp(void)
 {
     static hf_register_info hf[] =
     {
+        { &hf_fp_release,
+            { "Release",
+              "fp.release", FT_NONE, BASE_NONE, NULL, 0x0,
+              "Release information", HFILL
+            }
+        },
+        { &hf_fp_release_version,
+            { "Release Version",
+              "fp.release.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "3GPP Release number", HFILL
+            }
+        },
+        { &hf_fp_release_year,
+            { "Release year",
+              "fp.release.year", FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_fp_release_month,
+            { "Release month",
+              "fp.release.month", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
         { &hf_fp_channel_type,
             { "Channel Type",
               "fp.channel-type", FT_UINT8, BASE_HEX, VALS(channel_type_vals), 0x0,
@@ -3834,7 +3886,8 @@ void proto_register_fp(void)
         &ett_fp_edch_maces,
         &ett_fp_hsdsch_new_ie_flags,
         &ett_fp_rach_new_ie_flags,
-        &ett_fp_hsdsch_pdu_block_header
+        &ett_fp_hsdsch_pdu_block_header,
+        &ett_fp_release
     };
 
     module_t *fp_module;
@@ -3849,6 +3902,12 @@ void proto_register_fp(void)
 
     /* Preferences */
     fp_module = prefs_register_protocol(proto_fp, NULL);
+
+    /* Determines whether release information should be displayed */
+    prefs_register_bool_preference(fp_module, "show_release_info",
+                                   "Show reported release info",
+                                   "Show reported release info",
+                                   &preferences_show_release_info);
 
     /* Determines whether MAC dissector should be called for payloads */
     prefs_register_bool_preference(fp_module, "call_mac",
