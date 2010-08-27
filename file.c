@@ -1829,7 +1829,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
      start? */
   selected_frame = cf->current_frame;
 
-  /* Mark frane num as not found */
+  /* Mark frame num as not found */
   selected_frame_num = -1;
 
   /* Freeze the packet list while we redo it, so we don't get any
