@@ -40,16 +40,21 @@ Wireshark Info
           <para>
             Wireshark is vulnerable to DLL hijacking as described in
             <ulink url="http://www.microsoft.com/technet/security/advisory/2269637.mspx">Microsoft
-            Security Advisory 2269637</ulink>.
+            Security Advisory 2269637</ulink>. This problem is fully fixed on
+            Windows XP SP1 and later. It is partially fixed on Windows 2000 and
+            XP without services packs. We expect to address those platforms in
+            future releases. If you are running Wireshark on Windows 2000 or XP
+            we recommend that you only open capture files within Wireshark. 
             <!-- Fixed in trunk: r33916, r33917, r33924, r33925, r33958 -->
-            <!-- Fixed in trunk-1.4:  -->
-            <!-- Fixed in trunk-1.2:  -->
-            <!-- Fixed in trunk-1.0:  -->
+            <!-- Fixed in trunk-1.4: r33932, r33934, r33957 -->
+            <!-- Fixed in trunk-1.2: r33935, r33956 -->
+            <!-- Fixed in trunk-1.0: r33940, r33943, r33953 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5133">Bug
             5133</ulink>)
           </para>
-          <para>Versions affected: 0.10.8 to 1.0.14, 1.2.0 to 1.2.9</para>
-          <!--
+          <para>Versions affected: All previous Windows versions up to and including
+          1.0.15 and 1.2.10.</para>
+          <!-- Will every DLL hijack vuln get its own CVE ID? Will 4 digits be enough?
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
           </para>
