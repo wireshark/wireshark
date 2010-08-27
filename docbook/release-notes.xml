@@ -84,6 +84,12 @@ Wireshark Info
           5081</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          TShark could crash when generating PostScript&#174;.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5148">Bug
+          5148</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
