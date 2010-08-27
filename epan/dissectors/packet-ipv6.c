@@ -101,15 +101,21 @@ static int hf_ipv6_hlim		  = -1;
 static int hf_ipv6_src		  = -1;
 static int hf_ipv6_src_host	  = -1;
 static int hf_ipv6_src_sa_mac     = -1;
-static int hf_ipv6_src_isatap_ipv4	  = -1;
+static int hf_ipv6_src_isatap_ipv4		= -1;
+static int hf_ipv6_src_teredo_server_ipv4	= -1;
+static int hf_ipv6_src_teredo_client_ipv4	= -1;
 static int hf_ipv6_dst		  = -1;
 static int hf_ipv6_dst_host	  = -1;
 static int hf_ipv6_dst_sa_mac     = -1;
 static int hf_ipv6_dst_isatap_ipv4	  = -1;
+static int hf_ipv6_dst_teredo_server_ipv4	= -1;
+static int hf_ipv6_dst_teredo_client_ipv4	= -1;
 static int hf_ipv6_addr		  = -1;
 static int hf_ipv6_host		  = -1;
 static int hf_ipv6_sa_mac         = -1;
 static int hf_ipv6_isatap_ipv4    = -1;
+static int hf_ipv6_teredo_server_ipv4		= -1;
+static int hf_ipv6_teredo_client_ipv4		= -1;
 static int hf_ipv6_opt_pad1	  = -1;
 static int hf_ipv6_opt_padn	  = -1;
 static int hf_ipv6_dst_opt	  = -1;
@@ -1447,6 +1453,21 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				  offset + IP6H_SRC + 12, 4, FALSE);
         PROTO_ITEM_SET_GENERATED(ti);
         PROTO_ITEM_SET_HIDDEN(ti);
+    } else if (tvb_get_ntohl(tvb, offset + IP6H_SRC) == 0x20010000) { /* RFC 4380 section 4 */
+        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_src_teredo_server_ipv4, tvb,
+				  offset + IP6H_SRC + 4, 4, FALSE);
+        PROTO_ITEM_SET_GENERATED(ti);
+        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_src_teredo_client_ipv4, tvb,
+				  offset + IP6H_SRC + 12, 4, FALSE);
+        PROTO_ITEM_SET_GENERATED(ti);
+        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_teredo_server_ipv4, tvb,
+				  offset + IP6H_SRC + 4, 4, FALSE);
+        PROTO_ITEM_SET_GENERATED(ti);
+        PROTO_ITEM_SET_HIDDEN(ti);
+        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_teredo_client_ipv4, tvb,
+				  offset + IP6H_SRC + 12, 4, FALSE);
+        PROTO_ITEM_SET_GENERATED(ti);
+        PROTO_ITEM_SET_HIDDEN(ti);
     }
 
     /* Adds different items for the destination address */
@@ -1487,6 +1508,21 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				  offset + IP6H_DST + 12, 4, FALSE);
         PROTO_ITEM_SET_GENERATED(ti);
         ti = proto_tree_add_item(ipv6_tree, hf_ipv6_isatap_ipv4, tvb,
+				  offset + IP6H_DST + 12, 4, FALSE);
+        PROTO_ITEM_SET_GENERATED(ti);
+        PROTO_ITEM_SET_HIDDEN(ti);
+    } else if (tvb_get_ntohl(tvb, offset + IP6H_DST) == 0x20010000) { /* RFC 4380 section 4 */
+        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_dst_teredo_server_ipv4, tvb,
+				  offset + IP6H_DST + 4, 4, FALSE);
+        PROTO_ITEM_SET_GENERATED(ti);
+        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_dst_teredo_client_ipv4, tvb,
+				  offset + IP6H_DST + 12, 4, FALSE);
+        PROTO_ITEM_SET_GENERATED(ti);
+        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_teredo_server_ipv4, tvb,
+				  offset + IP6H_DST + 4, 4, FALSE);
+        PROTO_ITEM_SET_GENERATED(ti);
+        PROTO_ITEM_SET_HIDDEN(ti);
+        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_teredo_client_ipv4, tvb,
 				  offset + IP6H_DST + 12, 4, FALSE);
         PROTO_ITEM_SET_GENERATED(ti);
         PROTO_ITEM_SET_HIDDEN(ti);
@@ -1730,6 +1766,14 @@ proto_register_ipv6(void)
       { "Source ISATAP IPv4",		"ipv6.src_isatap_ipv4",
 				FT_IPv4, BASE_NONE, NULL, 0x0,
 				"Source IPv6 ISATAP Encapsulated IPv4 Address", HFILL }},
+    { &hf_ipv6_src_teredo_server_ipv4,
+      { "Source Teredo Server IPv4",		"ipv6.src_ts_ipv4",
+				FT_IPv4, BASE_NONE, NULL, 0x0,
+				"Source IPv6 Teredo Server Encapsulated IPv4 Address", HFILL }},
+    { &hf_ipv6_src_teredo_client_ipv4,
+      { "Source Teredo Client IPv4",		"ipv6.src_tc_ipv4",
+				FT_IPv4, BASE_NONE, NULL, 0x0,
+				"Source IPv6 Teredo Client Encapsulated IPv4 Address", HFILL }},
     { &hf_ipv6_dst,
       { "Destination",		"ipv6.dst",
 				FT_IPv6, BASE_NONE, NULL, 0x0,
@@ -1746,6 +1790,14 @@ proto_register_ipv6(void)
       { "Destination ISATAP IPv4",		"ipv6.dst_isatap_ipv4",
 				FT_IPv4, BASE_NONE, NULL, 0x0,
 				"Destination IPv6 ISATAP Encapsulated IPv4 Address", HFILL }},
+    { &hf_ipv6_dst_teredo_server_ipv4,
+      { "Destination Teredo Server IPv4",		"ipv6.dst_ts_ipv4",
+				FT_IPv4, BASE_NONE, NULL, 0x0,
+				"Destination IPv6 Teredo Server Encapsulated IPv4 Address", HFILL }},
+    { &hf_ipv6_dst_teredo_client_ipv4,
+      { "Destination Teredo Client IPv4",		"ipv6.dst_tc_ipv4",
+				FT_IPv4, BASE_NONE, NULL, 0x0,
+				"Destination IPv6 Teredo Client Encapsulated IPv4 Address", HFILL }},
     { &hf_ipv6_addr,
       { "Address",		"ipv6.addr",
 				FT_IPv6, BASE_NONE, NULL, 0x0,
@@ -1763,6 +1815,14 @@ proto_register_ipv6(void)
       { "ISATAP IPv4",		"ipv6.isatap_ipv4",
 				FT_IPv4, BASE_NONE, NULL, 0x0,
 				"IPv6 ISATAP Encapsulated IPv4 Address", HFILL }},
+    { &hf_ipv6_teredo_server_ipv4,
+      { "Teredo Server IPv4",		"ipv6.ts_ipv4",
+				FT_IPv4, BASE_NONE, NULL, 0x0,
+				"IPv6 Teredo Server Encapsulated IPv4 Address", HFILL }},
+    { &hf_ipv6_teredo_client_ipv4,
+      { "Teredo Client IPv4",		"ipv6.tc_ipv4",
+				FT_IPv4, BASE_NONE, NULL, 0x0,
+				"IPv6 Teredo Client Encapsulated IPv4 Address", HFILL }},
     { &hf_ipv6_opt_pad1,
       { "Pad1",			"ipv6.opt.pad1",
 				FT_NONE, BASE_NONE, NULL, 0x0,
