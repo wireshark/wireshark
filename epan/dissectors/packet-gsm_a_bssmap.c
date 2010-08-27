@@ -486,6 +486,7 @@ static int hf_gsm_a_bssmap_location_type_location_information = -1;
 static int hf_gsm_a_bssmap_location_type_positioning_method = -1;
 static int hf_gsm_a_bssmap_chan_type_extension = -1;
 static int hf_gsm_a_bssmap_cause_extension = -1;
+static int hf_gsm_a_bssmap_emlpp_prio = -1;
 static int hf_fe_extra_info_prec = -1;
 static int hf_fe_extra_info_lcs = -1;
 static int hf_fe_extra_info_ue_prob = -1;
@@ -2730,6 +2731,27 @@ be_ass_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
  * (bit 3 to 1 of octet 5) in the Descriptive group or broadcast call reference information element as
  * defined in 3GPP TS 24.008.
  */
+static const value_string gsm_a_bssmap_call_priority_vals[] = { 
+    { 0x00, "No priority applied" },
+    { 0x01, "Call priority level 4" },
+    { 0x02, "Call priority level 3" },
+    { 0x03, "Call priority level 2" },
+    { 0x04, "Call priority level 1" },
+    { 0x05, "Call priority level 0" },
+    { 0x06, "Call priority level B" },
+    { 0x07, "Call priority level A" },
+    { 0, NULL }
+};
+
+static guint16
+be_emlpp_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, offset << 3, 5, FALSE);
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_emlpp_prio, tvb, offset, 1, FALSE);
+
+    return 1;
+}
+
 /*
  * 3.2.2.57 Configuration Evolution Indication
  */
@@ -3788,7 +3810,7 @@ guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
     NULL                /* no associated data */,   /* Talker Flag */
     NULL                /* no associated data */,   /* Connection Release Requested */
     de_d_gb_call_ref,   /* Group Call Reference */
-    NULL,               /* eMLPP Priority */
+    be_emlpp_prio,      /* eMLPP Priority */
     be_conf_evo_ind,    /* Configuration Evolution Indication */
     be_field_element_dissect,   /* Old BSS to New BSS Information */
     be_lsa_id,          /* LSA Identifier */
@@ -6680,6 +6702,12 @@ proto_register_gsm_a_bssmap(void)
         FT_BOOLEAN, 8, TFS(&bssmap_cause_extension_value), 0x80,
         NULL, HFILL }
     },
+    { &hf_gsm_a_bssmap_emlpp_prio,
+    { "eMLPP Priority", "gsm_a_bssmap.emlpp_priority",
+        FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_call_priority_vals), 0x07,
+        NULL, HFILL }
+    },
+
     { &hf_fe_extra_info_prec,
     { "Pre-emption Recommendation", "fe_extra_info.prec",
         FT_UINT8, BASE_DEC, VALS(fe_extra_info_prec_vals), 0x01,
