@@ -100,6 +100,13 @@ extern FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode, FILE *
 
 /* DLL loading */
 
+/** Try to remove the current directory from the DLL search path.
+ * SetDllDirectory is tried, then SetCurrentDirectory(program_dir)
+ *
+ * @return TRUE if we were able to call SetDllDirectory, FALSE otherwise.
+ */
+gboolean ws_init_dll_search_path();
+
 /** Load a DLL using LoadLibrary.
  * Only the system and program directories are searched.
  *

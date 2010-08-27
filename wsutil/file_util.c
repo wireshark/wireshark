@@ -43,6 +43,7 @@
 #include <windows.h>
 #include <errno.h>
 #include <wchar.h>
+#include <tchar.h>
 /*#include <direct.h>*/
 #include <io.h>
 
@@ -472,6 +473,27 @@ init_dll_load_paths() {
 	    return TRUE;
 
       return FALSE;
+}
+
+gboolean
+ws_init_dll_search_path() {
+      gboolean dll_dir_set = FALSE;
+      wchar_t *program_path_w;
+
+      typedef BOOL (*SetDllDirectoryHandler)(LPCTSTR);
+      SetDllDirectoryHandler PSetDllDirectory;
+
+      if (PSetDllDirectory = (SetDllDirectoryHandler) GetProcAddress(GetModuleHandle(_T("kernel32.dll")), "SetDllDirectoryW")) {
+	    dll_dir_set = PSetDllDirectory(_T(""));
+      }
+
+      if (!dll_dir_set && init_dll_load_paths()) {
+	    program_path_w = g_utf8_to_utf16(program_path, -1, NULL, NULL, NULL);
+	    SetCurrentDirectory(program_path_w);
+	    g_free(program_path_w);
+      }
+
+      return dll_dir_set;
 }
 
 /*

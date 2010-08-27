@@ -222,7 +222,6 @@ guint  tap_update_timer_id;
 static gboolean has_console;	/* TRUE if app has console */
 static void destroy_console(void);
 static gboolean stdin_capture = FALSE; /* Don't grab stdin & stdout if TRUE */
-static gboolean dll_set = FALSE; /* Did we sucessfully trim our DLL path? */
 #endif
 static void console_log_handler(const char *log_domain,
     GLogLevelFlags log_level, const char *message, gpointer user_data);
@@ -2109,11 +2108,6 @@ main(int argc, char *argv[])
       argv[i] = g_strdup(utf_16to8(wc_argv[i]));
     }
   } /* XXX else bail because something is horribly, horribly wrong? */
-
-  if (!dll_set) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "SetDllDirectory failed (%d)!\n", GetLastError());
-    /* XXX - Exit? */
-  }
 #endif /* _WIN32 */
 
   /*
@@ -3098,12 +3092,12 @@ WinMain (struct HINSTANCE__ *hInstance,
 	 int                 nCmdShow)
 {
   INITCOMMONCONTROLSEX comm_ctrl;
-  typedef BOOL (*SetDllDirectoryHandler)(LPCTSTR);
-  SetDllDirectoryHandler PSetDllDirectory;
 
-  if (PSetDllDirectory = (SetDllDirectoryHandler) GetProcAddress(GetModuleHandle(_T("kernel32.dll")), "SetDllDirectoryW")) {
-    dll_set = PSetDllDirectory(_T(""));
-  }
+  /*
+   * Initialize our DLL search path. MUST be called before LoadLibrary
+   * or g_module_open.
+   */
+  ws_init_dll_search_path();
 
   /* Initialize our controls. Required for native Windows file dialogs. */
   memset (&comm_ctrl, 0, sizeof(comm_ctrl));
