@@ -174,7 +174,7 @@ GTK_INST_VERSION=2.16
 # If you don't have the WPdpack, comment this line out, so that
 # PCAP_DIR isn't defined.
 #
-PCAP_VERSION=4_1_1
+PCAP_VERSION=4_1_2
 PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
 
 #
