@@ -52,14 +52,15 @@ http://developer.apple.com/DOCUMENTATION/macos8/pdf/ASAppleTalkFiling2.1_2.2.pdf
 
    http://developer.apple.com/documentation/Networking/Conceptual/AFP/AFP3_1.pdf
 
-  and in HTML form, at
+  and, in HTML form, at
 
 http://developer.apple.com/documentation/Networking/Conceptual/AFP/index.html
 
+  Current AFP 3.x specfication, in HTML form, at
+http://developer.apple.com/mac/library/documentation/Networking/Reference/AFP_Reference/Reference/reference.html
 
-  AFP 3.3 specfication in HTML form, at
+  Current AFP 3.x programming guide, in HTML form, at
 http://developer.apple.com/mac/library/documentation/Networking/Conceptual/AFP/Introduction/Introduction.html
-
 
   The netatalk source code by Wesley Craig & Adrian Sun
 	http://netatalk.sf.net
