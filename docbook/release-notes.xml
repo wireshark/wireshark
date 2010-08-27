@@ -61,23 +61,6 @@ Wireshark Info
           -->
         </listitem>
 
-        <listitem>
-          <para>
-            Uninitialised pointer in packet-rtsp.c causes crash.
-            <!-- Fixed in trunk: r33725 -->
-            <!-- Fixed in trunk-1.4: r????? -->
-            <!-- Fixed in trunk-1.2: r????? -->
-            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5081">Bug
-            5081</ulink>) -->
-          </para>
-          <para>Versions affected: ? to 1.2.10</para>
-          <!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
-          </para>
-          -->
-        </listitem>
-
       </itemizedlist>
 
     </para>
@@ -96,63 +79,9 @@ Wireshark Info
 -->
 
         <listitem><para>
-          Wireshark crashes after configuring new Information column.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4854">Bug
-          4854</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Crash triggered when changing display filter from right-mouse pop-up menu via packet-list.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4860">Bug
-          4860</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crash selecting Inter-Asterisk exchange v2 packet data.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4868">Bug
-          4868</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          zlib-1.2.5 cause tshark to stop live capture.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4916">Bug
-          4916</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Crash when adding SNMP users.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4926">Bug
-          4926</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark via ssh -X on ipv6 link-local address fails to allow capture.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4945">Bug
-          4945</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          OMAPI dissector fails to parse combined initialization messages.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4982">Bug
-          4982</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          QUERY_FS_INFO for Macintosh level 0x301 - MacSupportFlags decodes wrong.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4993">Bug
-          4993</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          SCSI dissector misidentifies ATA PASSTHROUGH command as ACCESS CONTROL IN.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5037">Bug
-          5037</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wrong decoding of GTP Prime (GTP') packets.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5055">Bug
-          5055</ulink>)
+          The RTSP dissector could crash.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5081">Bug
+          5081</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -180,16 +109,10 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
-ASN.1 BER,
-GSM A RR,
-GTP,
-IAX2,
-IPMI,
-OMAPI,
-PRES,
-SCSI,
-SMB,
-UNISTIM
+H.264,
+IPv4,
+RTSP,
+SDP
 
     </para>
     </section>

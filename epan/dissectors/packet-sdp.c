@@ -1356,12 +1356,16 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
    */
   if (mime_type != NULL && g_ascii_strcasecmp(mime_type, "H264") == 0) {
     if (strcmp(field_name, "profile-level-id") == 0) {
-		int length;
+      int length = 0;
  	
 	  /* Length includes "=" as it's required by ascii_bytes_to_tvb()*/
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 	  data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
+	  if(!data_tvb){
+		  item = proto_tree_add_text(tree, tvb, offset, tokenlen, "Could not convert '%s' to 3 bytes",format_specific_parameter);
+		  return;
+      }
 	  length = tvb_length(data_tvb);
 	  if (length == 3){
 		  if(h264_handle && data_tvb){
@@ -1651,6 +1655,22 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 	  break;
   case SDP_PATH:
 	  /* msrp attributes that contain address needed for conversation */
+    /*    RFC 4975
+     *    path = path-label ":" path-list
+     *    path-label = "path"
+     *    path-list= MSRP-URI *(SP MSRP-URI)
+     *    MSRP-URI = msrp-scheme "://" authority
+     *       ["/" session-id] ";" transport *( ";" URI-parameter)
+     *                        ; authority as defined in RFC3986
+	 *
+	 *    msrp-scheme = "msrp" / "msrps"
+	 * RFC 3986
+	 * The authority component is preceded by a double slash ("//") and is terminated by 
+	 * the next slash ("/"), question mark ("?"), or number sign ("#") character, or by 
+	 * the end of the URI. 
+	 */
+
+    /* Check for "msrp://" */
 	  if (strncmp((char*)attribute_value, msrp_res, strlen(msrp_res)) == 0){
 		  int address_offset, port_offset, port_end_offset;
 
