@@ -2205,8 +2205,6 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
   WSADATA              wsaData;
-  typedef BOOL (*SetDllDirectoryHandler)(LPCTSTR);
-  SetDllDirectoryHandler PSetDllDirectory;
 #endif  /* _WIN32 */
 #ifndef _WIN32
   struct sigaction action, oldaction;
@@ -2239,10 +2237,11 @@ main(int argc, char *argv[])
     OPTSTRING_INIT OPTSTRING_WIN32;
 
 #ifdef _WIN32
-  if (PSetDllDirectory = (SetDllDirectoryHandler) GetProcAddress(GetModuleHandle(_T("kernel32.dll")), "SetDllDirectoryW")) {
-    PSetDllDirectory(_T(""));
-    /* XXX - Exit on failure? */
-  }
+  /*
+   * Initialize our DLL search path. MUST be called before LoadLibrary
+   * or g_module_open.
+   */
+  ws_init_dll_search_path();
 #endif
 
 #ifdef DEBUG_CHILD_DUMPCAP
