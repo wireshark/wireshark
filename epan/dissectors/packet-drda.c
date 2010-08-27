@@ -666,6 +666,7 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	guint16 iCommand;
 	guint16 iLength;
+	guint16 iCommandEnd = 0;
 
 	guint8 iFormatFlags;
 	guint8 iDSSType;
@@ -685,13 +686,18 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_append_str(pinfo->cinfo, COL_INFO, " | ");
 	}
 	iPreviousFrameNumber = pinfo->fd->num;
-	if (tvb_length(tvb) >= 10)
+	/* There may be multiple DRDA commands in one frame */
+	while ((guint) (offset + 10) <= tvb_length(tvb))
 	{
 		iCommand = tvb_get_ntohs(tvb, offset + 8);
 		iLength = tvb_get_ntohs(tvb, offset + 0);
+		/* iCommandEnd is the length of the packet up to the end of the current command */
+		iCommandEnd += iLength;
 
 		if (check_col(pinfo->cinfo, COL_INFO))
 		{
+			if (offset > 0)
+				col_append_str(pinfo->cinfo, COL_INFO, " | ");
 			col_append_str(pinfo->cinfo, COL_INFO, val_to_str(iCommand, drda_opcode_abbr, "Unknown (0x%02x)"));
 		}
 
@@ -729,7 +735,7 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(drda_tree, hf_drda_ddm_codepoint, tvb, offset + 8, 2, FALSE);
 
 			/* The number of attributes is variable */
-			for (offset = 10; offset <= iLength; )
+			for (offset += 10; offset < iCommandEnd; )
 			{
 				if (tvb_length_remaining(tvb, offset) >= 2)
 				{
@@ -763,6 +769,11 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					break;
 				}
 			}
+		}
+		else
+		{
+			/* No tree, advance directly to next command */
+			offset += iLength;
 		}
 	}
 }
