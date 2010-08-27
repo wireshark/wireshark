@@ -54,3 +54,5 @@ CLEANFILES = \
 	*-exp.cnf \
 	packet-*-{dis-tab,ettarr,ett,exp,fn,hfarr,hf,table*,val}.[hc]
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
