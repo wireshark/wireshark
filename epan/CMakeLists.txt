@@ -524,6 +524,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-epl_v1.c
 	dissectors/packet-epmd.c
 	dissectors/packet-erf.c
+	dissectors/packet-esio.c
 	dissectors/packet-esis.c
 	dissectors/packet-eth.c
 	dissectors/packet-etherip.c
