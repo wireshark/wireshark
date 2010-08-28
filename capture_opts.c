@@ -85,6 +85,7 @@ capture_opts_init(capture_options *capture_opts, void *cf)
   capture_opts->linktype                = -1;               /* the default linktype */
   capture_opts->saving_to_file          = FALSE;
   capture_opts->save_file               = NULL;
+  capture_opts->group_read_access       = FALSE;
   capture_opts->use_pcapng              = FALSE;            /* the default is pcap */
   capture_opts->real_time_mode          = TRUE;
   capture_opts->show_info               = TRUE;
@@ -159,6 +160,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "LinkType           : %d", capture_opts->linktype);
     g_log(log_domain, log_level, "SavingToFile       : %u", capture_opts->saving_to_file);
     g_log(log_domain, log_level, "SaveFile           : %s", (capture_opts->save_file) ? capture_opts->save_file : "");
+    g_log(log_domain, log_level, "GroupReadAccess    : %u", capture_opts->group_read_access);
     g_log(log_domain, log_level, "Fileformat         : %s", (capture_opts->use_pcapng) ? "PCAPNG" : "PCAP");
     g_log(log_domain, log_level, "RealTimeMode       : %u", capture_opts->real_time_mode);
     g_log(log_domain, log_level, "ShowInfo           : %u", capture_opts->show_info);
@@ -530,6 +532,9 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 #endif
         status = capture_opts_output_to_pipe(capture_opts->save_file, &capture_opts->output_to_pipe);
         return status;
+    case 'g':        /* enable group read access on the capture file(s) */
+        capture_opts->group_read_access = TRUE;
+        break;
     case 'y':        /* Set the pcap data link type */
         capture_opts->linktype = linktype_name_to_val(optarg_str_p);
         if (capture_opts->linktype == -1) {

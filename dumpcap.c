@@ -378,6 +378,7 @@ print_usage(gboolean print_ver) {
   /*fprintf(output, "\n");*/
   fprintf(output, "Output (files):\n");
   fprintf(output, "  -w <filename>            name of file to save (def: tempfile)\n");
+  fprintf(output, "  -g                       enable group read access on the output file(s)\n");
   fprintf(output, "  -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs\n");
   fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
   fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
@@ -2668,7 +2669,8 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
       if (capture_opts->multi_files_on) {
         /* ringbuffer is enabled */
         *save_file_fd = ringbuf_init(capfile_name,
-            (capture_opts->has_ring_num_files) ? capture_opts->ring_num_files : 0);
+            (capture_opts->has_ring_num_files) ? capture_opts->ring_num_files : 0,
+            capture_opts->group_read_access);
 
         /* we need the ringbuf name */
         if(*save_file_fd != -1) {
@@ -2678,7 +2680,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
       } else {
         /* Try to open/create the specified file for use as a capture buffer. */
         *save_file_fd = ws_open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
-                             0600);
+                             (capture_opts->group_read_access) ? 0640 : 0600);
       }
     }
     is_tempfile = FALSE;
@@ -3343,7 +3345,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_d ""
 #endif
 
-#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:" OPTSTRING_d "Df:hi:" OPTSTRING_I "L" OPTSTRING_m "Mnpq" OPTSTRING_r "Ss:" OPTSTRING_u "vw:y:Z:"
+#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:" OPTSTRING_d "Df:ghi:" OPTSTRING_I "L" OPTSTRING_m "Mnpq" OPTSTRING_r "Ss:" OPTSTRING_u "vw:y:Z:"
 
 #ifdef DEBUG_CHILD_DUMPCAP
   if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
@@ -3622,6 +3624,7 @@ main(int argc, char *argv[])
       case 'p':        /* Don't capture in promiscuous mode */
       case 's':        /* Set the snapshot (capture) length */
       case 'w':        /* Write to capture file x */
+      case 'g':        /* enable group read accesson file(s) */
       case 'y':        /* Set the pcap data link type */
 #ifdef HAVE_PCAP_REMOTE
       case 'u':        /* Use UDP for data transfer */

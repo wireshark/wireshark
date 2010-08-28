@@ -118,6 +118,7 @@ typedef struct capture_options_tag {
     gboolean monitor_mode;          /**< Capture in monitor mode, if available */
     gboolean saving_to_file;        /**< TRUE if capture is writing to a file */
     gchar    *save_file;            /**< the capture file name */
+    gboolean group_read_access;     /**< TRUE is group read permission needs to be set */
     gboolean use_pcapng;            /**< TRUE if file format is pcapng */
 
     /* GUI related */

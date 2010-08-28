@@ -86,6 +86,7 @@ typedef struct _ringbuf_data {
 
   int           fd;		     /* Current ringbuffer file descriptor */
   FILE         *pdh;
+  gboolean      group_read_access;   /* TRUE if files need to be opened with group read access */
 } ringbuf_data;
 
 static ringbuf_data rb_data;
@@ -123,7 +124,8 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
     return -1;
   }
 
-  rb_data.fd = ws_open(rfile->name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT, 0600);
+  rb_data.fd = ws_open(rfile->name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT, 
+                            rb_data.group_read_access ? 0640 : 0600);
 
   if (rb_data.fd == -1 && err != NULL) {
     *err = errno;
@@ -136,7 +138,7 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
  * Initialize the ringbuffer data structures
  */
 int
-ringbuf_init(const char *capfile_name, guint num_files)
+ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_access)
 {
   unsigned int i;
   char        *pfx, *last_pathsep;
@@ -149,6 +151,7 @@ ringbuf_init(const char *capfile_name, guint num_files)
   rb_data.unlimited = FALSE;
   rb_data.fd = -1;
   rb_data.pdh = NULL;
+  rb_data.group_read_access = group_read_access;
 
   /* just to be sure ... */
   if (num_files <= RINGBUFFER_MAX_NUM_FILES) {
