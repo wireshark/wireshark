@@ -16,7 +16,7 @@ EXE=../../tshark.exe ../../editcap.exe \
 !IFDEF GTK_DIR
 	../../wireshark.exe \
 !ENDIF
-	../../text2pcap.exe ../../mergecap.exe ../../capinfos.exe WinPcap_4_1_2.exe
+	../../text2pcap.exe ../../mergecap.exe ../../capinfos.exe WinPcap_$(PCAP_VERSION).exe
 DLL=../../wiretap/wiretap-$(WTAP_VERSION).dll ../../wsutil/libwsutil.dll
 DOC=../../doc/ws.css				\
 	../../doc/capinfos.html 		\
