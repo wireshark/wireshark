@@ -28,7 +28,9 @@
 #define __OIDS_H__
 
 #include <epan/ftypes/ftypes.h>
-
+/**
+ *@file
+ */
 #define BER_TAG_ANY -1
 
 struct _oid_bit_t {
@@ -102,10 +104,10 @@ typedef struct _oid_info_t {
 	struct _oid_info_t* parent;
 } oid_info_t;
 
-/* init funcion called from epan.h */
+/** init funcion called from epan.h */
 extern void oids_init(void);
 
-/* init funcion called from epan.h */
+/** init funcion called from epan.h */
 extern void oids_cleanup(void);
 
 /*

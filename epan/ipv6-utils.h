@@ -29,10 +29,10 @@
 #define __IPV6_UTILS_H__
 
 struct e_in6_addr {
-	guint8   bytes[16];		/* 128 bit IP6 address */
+	guint8   bytes[16];		/** 128 bit IP6 address */
 };
 
-/*
+/**
  * Unicast Scope
  * Note that we must check topmost 10 bits only, not 16 bits (see RFC2373).
  */
@@ -41,7 +41,7 @@ struct e_in6_addr {
 #define E_IN6_IS_ADDR_SITELOCAL(a)	\
 	(((a)->bytes[0] == 0xfe) && (((a)->bytes[1] & 0xc0) == 0xc0))
 
-/*
+/**
  * Multicast
  */
 #define E_IN6_IS_ADDR_MULTICAST(a)	((a)->bytes[0] == 0xff)

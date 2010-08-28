@@ -26,7 +26,12 @@
 #define __INIT_WSLUA_H__
 
 #include <glib.h>
-
+/** @defgroup wslua_group Wireshark LUA
+ *
+ */
+/** @file
+ * @ingroup wslua_group
+ */
 typedef struct _wslua_plugin {
     gchar       *name;            /* plugin name */
     gchar       *version;         /* plugin version */

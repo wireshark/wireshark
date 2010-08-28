@@ -58,6 +58,10 @@
 
 #include "declare_wslua.h"
 
+/** @file
+ * @ingroup wslua_group
+ */
+
 #define WSLUA_INIT_ROUTINES "init_routines"
 #define LOG_DOMAIN_LUA "wslua"
 
@@ -94,7 +98,7 @@ typedef struct _wslua_field_t {
     guint32 mask;
 } wslua_field_t;
 
-/*
+/**
  * PREF_OBSOLETE is used for preferences that a module used to support
  * but no longer supports; we give different error messages for them.
  */
@@ -122,15 +126,15 @@ typedef struct _wslua_pref_t {
         void* p;
     } value;
     union {
-      guint32 max_value;		/* maximum value of a range */
+      guint32 max_value;		/**< maximum value of a range */
       struct {
-          const enum_val_t *enumvals;    /* list of name & values */
-          gboolean radio_buttons;    /* TRUE if it should be shown as
+          const enum_val_t *enumvals;    /**< list of name & values */
+          gboolean radio_buttons;    /**< TRUE if it should be shown as
                          radio buttons rather than as an
                          option menu or combo box in
                          the preferences tab */
-      } enum_info;            /* for PREF_ENUM */
-    } info;                    /* display/text file information */
+      } enum_info;            /**< for PREF_ENUM */
+    } info;                    /**< display/text file information */
 
     struct _wslua_pref_t* next;
     struct _wslua_proto_t* proto;

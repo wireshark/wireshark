@@ -18,7 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
  */
-#ifndef __MD5_H__ /* Should this be _CRYPT_MD5_H__ ?*/
+#ifndef __MD5_H__ /**@todo Should this be _CRYPT_MD5_H__ ?*/
 #define __MD5_H__
 
 /**

@@ -30,15 +30,17 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/** @file 
+ */
 
-/* callback function definition: is a filter available for this packet? */
+/** callback function definition: is a filter available for this packet? */
 typedef gboolean (*is_filter_valid_func)(packet_info *pinfo);
 
-/* callback function definition: return the available filter for this packet or NULL if no filter is available */
+/** callback function definition: return the available filter for this packet or NULL if no filter is available */
 typedef const gchar* (*build_filter_string_func)(packet_info *pinfo);
 
 
-/* register a dissector filter */
+/** register a dissector filter */
 extern void register_dissector_filter(const char *name, is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string);
 
 

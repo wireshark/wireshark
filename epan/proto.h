@@ -204,7 +204,7 @@ typedef struct _protocol protocol_t;
 /* For integral types, the display format is a base_display_e value
  * possibly ORed with BASE_RANGE_STRING. */
 
-/* BASE_DISPLAY_E_MASK selects the base_display_e value.  Its current
+/** BASE_DISPLAY_E_MASK selects the base_display_e value.  Its current
  * value means that we may have at most 16 base_display_e values. */
 #define BASE_DISPLAY_E_MASK 0x0F
 
@@ -224,7 +224,7 @@ typedef enum {
 #define BASE_RANGE_STRING 0x10
 #define BASE_EXT_STRING 0x20
 
-/* BASE_ values that cause the field value to be displayed twice */
+/** BASE_ values that cause the field value to be displayed twice */
 #define IS_BASE_DUAL(b) ((b)==BASE_DEC_HEX||(b)==BASE_HEX_DEC)
 
 /* For FT_ABSOLUTE_TIME, the display format is an absolute_time_display_e
@@ -245,7 +245,7 @@ struct _header_field_info {
 	const char		*name;           /**< full name of this field */
 	const char		*abbrev;         /**< abbreviated name of this field */
 	enum ftenum		 type;           /**< field type, one of FT_ (from ftypes.h) */
-	int			 display;        /**< one of BASE_, or field bit-width if FT_BOOLEAN and non-zero bitmask */
+	int				 display;        /**< one of BASE_, or field bit-width if FT_BOOLEAN and non-zero bitmask */
 	const void		*strings;        /**< value_string, range_string or true_false_string,
 				                      typically converted by VALS(), RVALS() or TFS().
 				                      If this is an FT_PROTOCOL then it points to the
@@ -254,10 +254,10 @@ struct _header_field_info {
 	const char		*blurb;          /**< Brief description of field */
 
 	/* ------- set by proto routines (prefilled by HFILL macro, see below) ------ */
-	int			 id;             /**< Field ID */
-	int			 parent;         /**< parent protocol tree */
-	hf_ref_type		 ref_type;       /**< is this field referenced by a filter */
-	int			 bitshift;       /**< bits to shift */
+	int					 id;             /**< Field ID */
+	int					 parent;         /**< parent protocol tree */
+	hf_ref_type			 ref_type;       /**< is this field referenced by a filter */
+	int					 bitshift;       /**< bits to shift */
 	header_field_info	*same_name_next; /**< Link to next hfinfo with same abbrev */
 	header_field_info	*same_name_prev; /**< Link to previous hfinfo with same abbrev */
 };
@@ -271,8 +271,8 @@ struct _header_field_info {
 
 /** Used when registering many fields at once, using proto_register_field_array() */
 typedef struct hf_register_info {
-	int			*p_id;		 /**< written to by register() function */
-	header_field_info	 hfinfo;         /**< the field info to be registered */
+	int						*p_id;		 /**< written to by register() function */
+	header_field_info		hfinfo;      /**< the field info to be registered */
 } hf_register_info;
 
 
@@ -287,15 +287,15 @@ typedef struct _item_label_t {
 /** Contains the field information for the proto_item. */
 typedef struct field_info {
 	header_field_info	*hfinfo;          /**< pointer to registered field information */
-	gint			 start;           /**< current start of data in field_info.ds_tvb */
-	gint			 length;          /**< current data length of item in field_info.ds_tvb */
-	gint			 appendix_start;  /**< start of appendix data */
-	gint			 appendix_length; /**< length of appendix data */
-	gint			 tree_type;       /**< one of ETT_ or -1 */
+	gint				 start;           /**< current start of data in field_info.ds_tvb */
+	gint				 length;          /**< current data length of item in field_info.ds_tvb */
+	gint				 appendix_start;  /**< start of appendix data */
+	gint				 appendix_length; /**< length of appendix data */
+	gint				 tree_type;       /**< one of ETT_ or -1 */
 	item_label_t		*rep;             /**< string for GUI tree */
-	guint32			 flags;           /**< bitfield like FI_GENERATED, ... */
-	tvbuff_t		*ds_tvb;          /**< data source tvbuff */
-	fvalue_t		 value;
+	guint32				 flags;           /**< bitfield like FI_GENERATED, ... */
+	tvbuff_t			*ds_tvb;          /**< data source tvbuff */
+	fvalue_t			 value;
 } field_info;
 
 
@@ -306,7 +306,7 @@ typedef struct field_info {
 
 /** The protocol field should not be shown in the tree (it's used for filtering only),
  * used in field_info.flags. */
-/* HIDING PROTOCOL FIELDS IS DEPRECATED, IT'S CONSIDERED TO BE BAD GUI DESIGN!
+/** HIDING PROTOCOL FIELDS IS DEPRECATED, IT'S CONSIDERED TO BE BAD GUI DESIGN!
    A user cannot tell by looking at the packet detail that the field exists
    and that they can filter on its value. */
 #define FI_HIDDEN		0x00000001
@@ -442,6 +442,7 @@ typedef gboolean (*proto_tree_traverse_func)(proto_node *, gpointer);
 
 extern gboolean proto_tree_traverse_post_order(proto_tree *tree,
     proto_tree_traverse_func func, gpointer data);
+
 extern void proto_tree_children_foreach(proto_tree *tree,
     proto_tree_foreach_func func, gpointer data);
 

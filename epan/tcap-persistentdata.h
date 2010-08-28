@@ -31,6 +31,10 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/dissectors/packet-tcap.h>
+/** @file
+ * lists and hash tables used in wireshark's tcap dissector
+ * for calculation of delays in tcap-calls
+ */
 
 #define LENGTH_OID 23
 struct tcaphash_context_t {
@@ -38,9 +42,9 @@ struct tcaphash_context_t {
   guint32 session_id;
   guint32 first_frame;
   guint32 last_frame;
-  nstime_t begin_time;	/* time of arrival of TC_BEGIN */
-  nstime_t end_time;	/* time of closing message */
-  gboolean responded;	/* true, if request has been responded */
+  nstime_t begin_time;	/**< time of arrival of TC_BEGIN */
+  nstime_t end_time;	/**< time of closing message */
+  gboolean responded;	/**< true, if request has been responded */
   gboolean closed;
   gboolean upper_dissector;
   gboolean oid_present;
@@ -86,7 +90,7 @@ struct tcaphash_ansicall_t {
   struct tcaphash_ansicall_t * previous_ansicall;
 };
 
-/* The Key for the hash table is the TCAP origine transaction identifier
+/** The Key for the hash table is the TCAP origine transaction identifier
    of the TC_BEGIN containing the InitialDP */
 
 struct tcaphash_context_key_t {
@@ -123,7 +127,7 @@ struct tcaphash_ansi_info_key_t {
 };
 
 
-/* List of infos to store for the analyse */
+/** List of infos to store for the analyse */
 struct tcapsrt_info_t {
   guint32 tcap_session_id;
   guint32 src_tid;
@@ -131,13 +135,36 @@ struct tcapsrt_info_t {
   guint8 ope;
 };
 
+/**
+ * Routine called when the TAP is initialized.
+ * so hash table are (re)created
+ */
 void tcapsrt_init_routine(void);
 
+/**
+ * Initialize the Message Info used by the main dissector
+ * Data are linked to a TCAP transaction
+ */
 struct tcapsrt_info_t * tcapsrt_razinfo(void);
 
 void tcapsrt_close(struct tcaphash_context_t * p_tcaphash_context,
 		   packet_info * pinfo _U_);
 
+/**
+ * Service Response Time analyze
+ * Called just after dissector call
+ * Associate a TCAP context to a tcap session and display session related infomations
+ * like the first frame, the last, the session duration,
+ * and a uniq session identifier for the filtering
+ *
+ * For ETSI tcap, the TCAP context can be reached through three keys
+ * - a key (BEGIN) identifying the session according to the tcap source identifier
+ * - a key (CONT) identifying the established session (src_id and dst_id)
+ * - a key (END) identifying the session according to the tcap destination identifier
+ *
+ * For ANSI tcap, the TCAP context is reached through a uniq key
+ * - a key (ANSI) identifying the session according to the tcap identifier
+*/
 struct tcaphash_context_t * tcapsrt_call_matching(tvbuff_t *tvb,
 						  packet_info * pinfo _U_,
 						  proto_tree *tree,
