@@ -54,11 +54,10 @@ Wireshark Info
           </para>
           <para>Versions affected: All previous Windows versions up to and including
           1.0.15 and 1.2.10.</para>
-          <!-- Will every DLL hijack vuln get its own CVE ID? Will 4 digits be enough?
+          <!-- Will every DLL hijack vuln get its own CVE ID? Will 4 digits be enough? -->
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-3133">CVE-2010-3133</ulink>
           </para>
-          -->
         </listitem>
 
       </itemizedlist>
