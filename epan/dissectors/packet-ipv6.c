@@ -102,6 +102,8 @@ static int hf_ipv6_src		  = -1;
 static int hf_ipv6_src_host	  = -1;
 static int hf_ipv6_src_sa_mac     = -1;
 static int hf_ipv6_src_isatap_ipv4		= -1;
+static int hf_ipv6_src_6to4_gateway_ipv4	= -1;
+static int hf_ipv6_src_6to4_sla_id		= -1;
 static int hf_ipv6_src_teredo_server_ipv4	= -1;
 static int hf_ipv6_src_teredo_port		= -1;
 static int hf_ipv6_src_teredo_client_ipv4	= -1;
@@ -109,6 +111,8 @@ static int hf_ipv6_dst		  = -1;
 static int hf_ipv6_dst_host	  = -1;
 static int hf_ipv6_dst_sa_mac     = -1;
 static int hf_ipv6_dst_isatap_ipv4	  = -1;
+static int hf_ipv6_dst_6to4_gateway_ipv4	= -1;
+static int hf_ipv6_dst_6to4_sla_id		= -1;
 static int hf_ipv6_dst_teredo_server_ipv4	= -1;
 static int hf_ipv6_dst_teredo_port		= -1;
 static int hf_ipv6_dst_teredo_client_ipv4	= -1;
@@ -116,6 +120,8 @@ static int hf_ipv6_addr		  = -1;
 static int hf_ipv6_host		  = -1;
 static int hf_ipv6_sa_mac         = -1;
 static int hf_ipv6_isatap_ipv4    = -1;
+static int hf_ipv6_6to4_gateway_ipv4		= -1;
+static int hf_ipv6_6to4_sla_id			= -1;
 static int hf_ipv6_teredo_server_ipv4		= -1;
 static int hf_ipv6_teredo_port			= -1;
 static int hf_ipv6_teredo_client_ipv4		= -1;
@@ -1436,51 +1442,69 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      16, name);
     PROTO_ITEM_SET_GENERATED(ti);
     PROTO_ITEM_SET_HIDDEN(ti);
-    if (tvb_get_guint8(tvb, offset + IP6H_SRC + 8) & 0x02 && tvb_get_ntohs(tvb, offset + IP6H_SRC + 11) == 0xfffe) {  /* RFC 4291 appendix A */
-	mac_addr = ep_alloc(6);
-	tvb_memcpy(tvb, mac_addr, offset + IP6H_SRC + 8, 3);
-	tvb_memcpy(tvb, mac_addr+3, offset+ IP6H_SRC + 13, 3);
-	mac_addr[0] &= ~0x02;
-        ti = proto_tree_add_ether(ipv6_tree, hf_ipv6_src_sa_mac, tvb,
-				  offset + IP6H_SRC + 8, 6, mac_addr);
-        PROTO_ITEM_SET_GENERATED(ti);
-        ti = proto_tree_add_ether(ipv6_tree, hf_ipv6_sa_mac, tvb,
-				  offset + IP6H_SRC + 8, 6, mac_addr);
-        PROTO_ITEM_SET_GENERATED(ti);
-        PROTO_ITEM_SET_HIDDEN(ti);
-    } else if ((tvb_get_ntohl(tvb, offset + IP6H_SRC + 8) & 0xfcffffff) == 0x00005efe) { /* RFC 5214 section 6.1 */
-        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_src_isatap_ipv4, tvb,
-				  offset + IP6H_SRC + 12, 4, FALSE);
-        PROTO_ITEM_SET_GENERATED(ti);
-        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_isatap_ipv4, tvb,
-				  offset + IP6H_SRC + 12, 4, FALSE);
-        PROTO_ITEM_SET_GENERATED(ti);
-        PROTO_ITEM_SET_HIDDEN(ti);
-    } else if (tvb_get_ntohl(tvb, offset + IP6H_SRC) == 0x20010000) { /* RFC 4380 section 4 */
-	guint16 mapped_port = tvb_get_ntohs(tvb, offset + IP6H_SRC + 10) ^ 0xffff;
-	guint32 client_v4 = tvb_get_ipv4(tvb, offset + IP6H_SRC + 12) ^ 0xffffffff;
 
-        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_src_teredo_server_ipv4, tvb,
-				  offset + IP6H_SRC + 4, 4, FALSE);
-        PROTO_ITEM_SET_GENERATED(ti);
-        ti = proto_tree_add_uint(ipv6_tree, hf_ipv6_src_teredo_port, tvb,
-				  offset + IP6H_SRC + 10, 2, mapped_port);
-        PROTO_ITEM_SET_GENERATED(ti);
-        ti = proto_tree_add_ipv4(ipv6_tree, hf_ipv6_src_teredo_client_ipv4, tvb,
-				  offset + IP6H_SRC + 12, 4, client_v4);
-        PROTO_ITEM_SET_GENERATED(ti);
-        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_teredo_server_ipv4, tvb,
-				  offset + IP6H_SRC + 4, 4, FALSE);
-        PROTO_ITEM_SET_GENERATED(ti);
-        PROTO_ITEM_SET_HIDDEN(ti);
-        ti = proto_tree_add_uint(ipv6_tree, hf_ipv6_teredo_port, tvb,
-				  offset + IP6H_SRC + 10, 2, mapped_port);
-        PROTO_ITEM_SET_GENERATED(ti);
-        PROTO_ITEM_SET_HIDDEN(ti);
-        ti = proto_tree_add_ipv4(ipv6_tree, hf_ipv6_teredo_client_ipv4, tvb,
-				  offset + IP6H_SRC + 12, 4, client_v4);
-        PROTO_ITEM_SET_GENERATED(ti);
-        PROTO_ITEM_SET_HIDDEN(ti);
+    if (tvb_get_ntohs(tvb, offset + IP6H_SRC) == 0x2002) { /* RFC 3056 section 2 */
+      ti = proto_tree_add_item(ipv6_tree, hf_ipv6_src_6to4_gateway_ipv4, tvb,
+                                offset + IP6H_SRC + 2, 4, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      ti = proto_tree_add_item(ipv6_tree, hf_ipv6_src_6to4_sla_id, tvb,
+                                offset + IP6H_SRC + 6, 2, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      ti = proto_tree_add_item(ipv6_tree, hf_ipv6_6to4_gateway_ipv4, tvb,
+                                offset + IP6H_SRC + 2, 4, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      PROTO_ITEM_SET_HIDDEN(ti);
+      ti = proto_tree_add_item(ipv6_tree, hf_ipv6_6to4_sla_id, tvb,
+                                offset + IP6H_SRC + 6, 2, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      PROTO_ITEM_SET_HIDDEN(ti);
+    } else if (tvb_get_ntohl(tvb, offset + IP6H_SRC) == 0x20010000) { /* RFC 4380 section 4 */
+      guint16 mapped_port = tvb_get_ntohs(tvb, offset + IP6H_SRC + 10) ^ 0xffff;
+      guint32 client_v4 = tvb_get_ipv4(tvb, offset + IP6H_SRC + 12) ^ 0xffffffff;
+
+      ti = proto_tree_add_item(ipv6_tree, hf_ipv6_src_teredo_server_ipv4, tvb,
+                                offset + IP6H_SRC + 4, 4, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      ti = proto_tree_add_uint(ipv6_tree, hf_ipv6_src_teredo_port, tvb,
+                                offset + IP6H_SRC + 10, 2, mapped_port);
+      PROTO_ITEM_SET_GENERATED(ti);
+      ti = proto_tree_add_ipv4(ipv6_tree, hf_ipv6_src_teredo_client_ipv4, tvb,
+                                offset + IP6H_SRC + 12, 4, client_v4);
+      PROTO_ITEM_SET_GENERATED(ti);
+      ti = proto_tree_add_item(ipv6_tree, hf_ipv6_teredo_server_ipv4, tvb,
+                                offset + IP6H_SRC + 4, 4, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      PROTO_ITEM_SET_HIDDEN(ti);
+      ti = proto_tree_add_uint(ipv6_tree, hf_ipv6_teredo_port, tvb,
+                                offset + IP6H_SRC + 10, 2, mapped_port);
+      PROTO_ITEM_SET_GENERATED(ti);
+      PROTO_ITEM_SET_HIDDEN(ti);
+      ti = proto_tree_add_ipv4(ipv6_tree, hf_ipv6_teredo_client_ipv4, tvb,
+                                offset + IP6H_SRC + 12, 4, client_v4);
+      PROTO_ITEM_SET_GENERATED(ti);
+      PROTO_ITEM_SET_HIDDEN(ti);
+    }
+
+    if (tvb_get_guint8(tvb, offset + IP6H_SRC + 8) & 0x02 && tvb_get_ntohs(tvb, offset + IP6H_SRC + 11) == 0xfffe) {  /* RFC 4291 appendix A */
+      mac_addr = ep_alloc(6);
+      tvb_memcpy(tvb, mac_addr, offset + IP6H_SRC + 8, 3);
+      tvb_memcpy(tvb, mac_addr+3, offset+ IP6H_SRC + 13, 3);
+      mac_addr[0] &= ~0x02;
+      ti = proto_tree_add_ether(ipv6_tree, hf_ipv6_src_sa_mac, tvb,
+                                offset + IP6H_SRC + 8, 6, mac_addr);
+      PROTO_ITEM_SET_GENERATED(ti);
+      ti = proto_tree_add_ether(ipv6_tree, hf_ipv6_sa_mac, tvb,
+                                offset + IP6H_SRC + 8, 6, mac_addr);
+      PROTO_ITEM_SET_GENERATED(ti);
+      PROTO_ITEM_SET_HIDDEN(ti);
+    } else if ((tvb_get_ntohl(tvb, offset + IP6H_SRC + 8) & 0xfcffffff) == 0x00005efe) { /* RFC 5214 section 6.1 */
+      ti = proto_tree_add_item(ipv6_tree, hf_ipv6_src_isatap_ipv4, tvb,
+                                offset + IP6H_SRC + 12, 4, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      ti = proto_tree_add_item(ipv6_tree, hf_ipv6_isatap_ipv4, tvb,
+                                offset + IP6H_SRC + 12, 4, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      PROTO_ITEM_SET_HIDDEN(ti);
     }
 
     /* Adds different items for the destination address */
@@ -1504,51 +1528,69 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      16, name);
     PROTO_ITEM_SET_GENERATED(ti);
     PROTO_ITEM_SET_HIDDEN(ti);
-    if (tvb_get_guint8(tvb, offset + IP6H_DST + 8) & 0x02 && tvb_get_ntohs(tvb, offset + IP6H_DST + 11) == 0xfffe) { /* RFC 4291 appendix A */
-	mac_addr = ep_alloc(6);
-	tvb_memcpy(tvb, mac_addr, offset + IP6H_DST + 8, 3);
-	tvb_memcpy(tvb, mac_addr+3, offset+ IP6H_DST + 13, 3);
-	mac_addr[0] &= ~0x02;
-        ti = proto_tree_add_ether(ipv6_tree, hf_ipv6_dst_sa_mac, tvb,
-				  offset + IP6H_DST + 8, 6, mac_addr);
-        PROTO_ITEM_SET_GENERATED(ti);
-        ti = proto_tree_add_ether(ipv6_tree, hf_ipv6_sa_mac, tvb,
-				  offset + IP6H_DST + 8, 6, mac_addr);
-        PROTO_ITEM_SET_GENERATED(ti);
-        PROTO_ITEM_SET_HIDDEN(ti);
-    } else if ((tvb_get_ntohl(tvb, offset + IP6H_DST + 8) & 0xfcffffff) == 0x00005efe) { /* RFC 5214 section 6.1 */
-        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_dst_isatap_ipv4, tvb,
-				  offset + IP6H_DST + 12, 4, FALSE);
-        PROTO_ITEM_SET_GENERATED(ti);
-        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_isatap_ipv4, tvb,
-				  offset + IP6H_DST + 12, 4, FALSE);
-        PROTO_ITEM_SET_GENERATED(ti);
-        PROTO_ITEM_SET_HIDDEN(ti);
-    } else if (tvb_get_ntohl(tvb, offset + IP6H_DST) == 0x20010000) { /* RFC 4380 section 4 */
-	guint16 mapped_port = tvb_get_ntohs(tvb, offset + IP6H_DST + 10) ^ 0xffff;
-	guint32 client_v4 = tvb_get_ipv4(tvb, offset + IP6H_DST + 12) ^ 0xffffffff;
 
-        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_dst_teredo_server_ipv4, tvb,
-				  offset + IP6H_DST + 4, 4, FALSE);
-        PROTO_ITEM_SET_GENERATED(ti);
-        ti = proto_tree_add_uint(ipv6_tree, hf_ipv6_dst_teredo_port, tvb,
-				  offset + IP6H_DST + 10, 2, mapped_port);
-        PROTO_ITEM_SET_GENERATED(ti);
-        ti = proto_tree_add_ipv4(ipv6_tree, hf_ipv6_dst_teredo_client_ipv4, tvb,
-				  offset + IP6H_DST + 12, 4, client_v4);
-        PROTO_ITEM_SET_GENERATED(ti);
-        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_teredo_server_ipv4, tvb,
-				  offset + IP6H_DST + 4, 4, FALSE);
-        PROTO_ITEM_SET_GENERATED(ti);
-        PROTO_ITEM_SET_HIDDEN(ti);
-        ti = proto_tree_add_uint(ipv6_tree, hf_ipv6_teredo_port, tvb,
-				  offset + IP6H_DST + 10, 2, mapped_port);
-        PROTO_ITEM_SET_GENERATED(ti);
-        PROTO_ITEM_SET_HIDDEN(ti);
-        ti = proto_tree_add_ipv4(ipv6_tree, hf_ipv6_teredo_client_ipv4, tvb,
-				  offset + IP6H_DST + 12, 4, client_v4);
-        PROTO_ITEM_SET_GENERATED(ti);
-        PROTO_ITEM_SET_HIDDEN(ti);
+    if (tvb_get_ntohs(tvb, offset + IP6H_DST) == 0x2002) { /* RFC 3056 section 2 */
+      ti = proto_tree_add_item(ipv6_tree, hf_ipv6_dst_6to4_gateway_ipv4, tvb,
+                                offset + IP6H_DST + 2, 4, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      ti = proto_tree_add_item(ipv6_tree, hf_ipv6_dst_6to4_sla_id, tvb,
+                                offset + IP6H_DST + 6, 2, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      ti = proto_tree_add_item(ipv6_tree, hf_ipv6_6to4_gateway_ipv4, tvb,
+                                offset + IP6H_DST + 2, 4, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      PROTO_ITEM_SET_HIDDEN(ti);
+      ti = proto_tree_add_item(ipv6_tree, hf_ipv6_6to4_sla_id, tvb,
+                                offset + IP6H_DST + 6, 2, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      PROTO_ITEM_SET_HIDDEN(ti);
+    } else if (tvb_get_ntohl(tvb, offset + IP6H_DST) == 0x20010000) { /* RFC 4380 section 4 */
+      guint16 mapped_port = tvb_get_ntohs(tvb, offset + IP6H_DST + 10) ^ 0xffff;
+      guint32 client_v4 = tvb_get_ipv4(tvb, offset + IP6H_DST + 12) ^ 0xffffffff;
+
+      ti = proto_tree_add_item(ipv6_tree, hf_ipv6_dst_teredo_server_ipv4, tvb,
+                                offset + IP6H_DST + 4, 4, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      ti = proto_tree_add_uint(ipv6_tree, hf_ipv6_dst_teredo_port, tvb,
+                                offset + IP6H_DST + 10, 2, mapped_port);
+      PROTO_ITEM_SET_GENERATED(ti);
+      ti = proto_tree_add_ipv4(ipv6_tree, hf_ipv6_dst_teredo_client_ipv4, tvb,
+                                offset + IP6H_DST + 12, 4, client_v4);
+      PROTO_ITEM_SET_GENERATED(ti);
+      ti = proto_tree_add_item(ipv6_tree, hf_ipv6_teredo_server_ipv4, tvb,
+                                offset + IP6H_DST + 4, 4, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      PROTO_ITEM_SET_HIDDEN(ti);
+      ti = proto_tree_add_uint(ipv6_tree, hf_ipv6_teredo_port, tvb,
+                                offset + IP6H_DST + 10, 2, mapped_port);
+      PROTO_ITEM_SET_GENERATED(ti);
+      PROTO_ITEM_SET_HIDDEN(ti);
+      ti = proto_tree_add_ipv4(ipv6_tree, hf_ipv6_teredo_client_ipv4, tvb,
+                                offset + IP6H_DST + 12, 4, client_v4);
+      PROTO_ITEM_SET_GENERATED(ti);
+      PROTO_ITEM_SET_HIDDEN(ti);
+    }
+
+    if (tvb_get_guint8(tvb, offset + IP6H_DST + 8) & 0x02 && tvb_get_ntohs(tvb, offset + IP6H_DST + 11) == 0xfffe) { /* RFC 4291 appendix A */
+      mac_addr = ep_alloc(6);
+      tvb_memcpy(tvb, mac_addr, offset + IP6H_DST + 8, 3);
+      tvb_memcpy(tvb, mac_addr+3, offset+ IP6H_DST + 13, 3);
+      mac_addr[0] &= ~0x02;
+      ti = proto_tree_add_ether(ipv6_tree, hf_ipv6_dst_sa_mac, tvb,
+                                offset + IP6H_DST + 8, 6, mac_addr);
+      PROTO_ITEM_SET_GENERATED(ti);
+      ti = proto_tree_add_ether(ipv6_tree, hf_ipv6_sa_mac, tvb,
+                                offset + IP6H_DST + 8, 6, mac_addr);
+      PROTO_ITEM_SET_GENERATED(ti);
+      PROTO_ITEM_SET_HIDDEN(ti);
+    } else if ((tvb_get_ntohl(tvb, offset + IP6H_DST + 8) & 0xfcffffff) == 0x00005efe) { /* RFC 5214 section 6.1 */
+      ti = proto_tree_add_item(ipv6_tree, hf_ipv6_dst_isatap_ipv4, tvb,
+                                offset + IP6H_DST + 12, 4, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      ti = proto_tree_add_item(ipv6_tree, hf_ipv6_isatap_ipv4, tvb,
+                                offset + IP6H_DST + 12, 4, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      PROTO_ITEM_SET_HIDDEN(ti);
     }
   }
 
@@ -1789,6 +1831,14 @@ proto_register_ipv6(void)
       { "Source ISATAP IPv4",		"ipv6.src_isatap_ipv4",
 				FT_IPv4, BASE_NONE, NULL, 0x0,
 				"Source IPv6 ISATAP Encapsulated IPv4 Address", HFILL }},
+    { &hf_ipv6_src_6to4_gateway_ipv4,
+      { "Source 6to4 Gateway IPv4",		"ipv6.src_6to4_gw_ipv4",
+				FT_IPv4, BASE_NONE, NULL, 0x0,
+				"Source IPv6 6to4 Gateway IPv4 Address", HFILL }},
+    { &hf_ipv6_src_6to4_sla_id,
+      { "Source 6to4 SLA ID",		"ipv6.src_6to4_sla_id",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				"Source IPv6 6to4 SLA ID", HFILL }},
     { &hf_ipv6_src_teredo_server_ipv4,
       { "Source Teredo Server IPv4",		"ipv6.src_ts_ipv4",
 				FT_IPv4, BASE_NONE, NULL, 0x0,
@@ -1817,6 +1867,14 @@ proto_register_ipv6(void)
       { "Destination ISATAP IPv4",		"ipv6.dst_isatap_ipv4",
 				FT_IPv4, BASE_NONE, NULL, 0x0,
 				"Destination IPv6 ISATAP Encapsulated IPv4 Address", HFILL }},
+    { &hf_ipv6_dst_6to4_gateway_ipv4,
+      { "Destination 6to4 Gateway IPv4",		"ipv6.dst_6to4_gw_ipv4",
+				FT_IPv4, BASE_NONE, NULL, 0x0,
+				"Destination IPv6 6to4 Gateway IPv4 Address", HFILL }},
+    { &hf_ipv6_dst_6to4_sla_id,
+      { "Destination 6to4 SLA ID",		"ipv6.dst_6to4_sla_id",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				"Destination IPv6 6to4 SLA ID", HFILL }},
     { &hf_ipv6_dst_teredo_server_ipv4,
       { "Destination Teredo Server IPv4",		"ipv6.dst_ts_ipv4",
 				FT_IPv4, BASE_NONE, NULL, 0x0,
@@ -1846,6 +1904,14 @@ proto_register_ipv6(void)
       { "ISATAP IPv4",		"ipv6.isatap_ipv4",
 				FT_IPv4, BASE_NONE, NULL, 0x0,
 				"IPv6 ISATAP Encapsulated IPv4 Address", HFILL }},
+    { &hf_ipv6_6to4_gateway_ipv4,
+      { "6to4 Gateway IPv4",		"ipv6.6to4_gw_ipv4",
+				FT_IPv4, BASE_NONE, NULL, 0x0,
+				"IPv6 6to4 Gateway IPv4 Address", HFILL }},
+    { &hf_ipv6_6to4_sla_id,
+      { "6to4 SLA ID",		"ipv6.6to4_sla_id",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				"IPv6 6to4 SLA ID", HFILL }},
     { &hf_ipv6_teredo_server_ipv4,
       { "Teredo Server IPv4",		"ipv6.ts_ipv4",
 				FT_IPv4, BASE_NONE, NULL, 0x0,
