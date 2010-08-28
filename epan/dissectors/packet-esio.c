@@ -29,7 +29,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include <epan/expert.h>
 
 /* Telegram types*/
@@ -84,34 +83,34 @@ static const value_string esio_sts_types[] = {
 static gboolean
 is_esio_pdu(tvbuff_t *tvb)
 {
-	/* we need at least 8 bytes to determine whether this is 
-	   Ether-S-I/O or not*/
-        /* minimal length is 20 bytes*/
-	if(tvb_length(tvb)<20){
-		return FALSE;
-	}
-        /* First four byte must be "ESIO"*/
-        if (tvb_get_ntohl(tvb, 0) != 0x4553494F) {
-                return (FALSE);	
-        }
-        /* fifth byte must be 0*/
-        if (tvb_get_guint8(tvb, 4) > 0x00) {
-                return (FALSE);	
-        }
-        /* sixth byte indicates telegram type and must be 0, 1 or 2*/
-        if (tvb_get_guint8(tvb, 5) > 0x02) {
-                return (FALSE);	
-        }
-        /* seventh byte must be 0*/
-        if (tvb_get_guint8(tvb, 6) > 0x00) {
-                return (FALSE);	
-        }
-        /* eight byte indicates telegram version and must be 0 (up to now)*/
-        if (tvb_get_guint8(tvb, 7) > 0x00) {
-                return (FALSE);	
-        }
-        /*header seems to be Ether-S-I/O*/
-        return TRUE;
+       /* we need at least 8 bytes to determine whether this is 
+          Ether-S-I/O or not*/
+       /* minimal length is 20 bytes*/
+       if (tvb_length(tvb) < 20) {
+              return FALSE;
+       }
+       /* First four bytes must be "ESIO"*/
+       if (tvb_strneql(tvb, 0, "ESIO", 4) != 0) {
+              return FALSE;
+       }
+       /* fifth byte must be 0*/
+       if (tvb_get_guint8(tvb, 4) > 0x00) {
+              return FALSE;
+       }
+       /* sixth byte indicates telegram type and must be 0, 1 or 2*/
+       if (tvb_get_guint8(tvb, 5) > 0x02) {
+              return FALSE;
+       }
+       /* seventh byte must be 0*/
+       if (tvb_get_guint8(tvb, 6) > 0x00) {
+              return FALSE;
+       }
+       /* eight byte indicates telegram version and must be 0 (up to now)*/
+       if (tvb_get_guint8(tvb, 7) > 0x00) {
+              return FALSE;
+       }
+       /*header seems to be Ether-S-I/O*/
+       return TRUE;
 }
 
 /*Dissect the telegram*/
@@ -121,12 +120,12 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Set up structures needed to add the protocol subtree and manage it */
        proto_item *ti, *et, *hi;
-       proto_tree *esio_tree, *esio_header_tree, *esio_transfer_header_tree, 
-            *esio_data_tansfer_tree, *esio_data_tree; 
+       proto_tree *esio_tree, *esio_header_tree, *esio_transfer_header_tree,
+            *esio_data_tansfer_tree, *esio_data_tree;
 
-       gint i;
-       gint offset;
-       guint8 esio_nbr_data_transfers;
+       gint    i;
+       gint    offset;
+       guint8  esio_nbr_data_transfers;
        guint16 esio_telegram_type;
        guint16 esio_tlg_type;
        guint16 esio_transfer_length;
@@ -135,8 +134,8 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        guint32 esio_dst_id;
 
 /* does this look like an sbus pdu? */
-       if(!is_esio_pdu(tvb)){
-           return 0;
+       if (!is_esio_pdu(tvb)) {
+              return 0;
        }
 
 /* Make entries in Protocol column and Info column on summary display */
@@ -144,134 +143,134 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        col_clear(pinfo->cinfo, COL_INFO);
        esio_telegram_type = tvb_get_guint8(tvb,5);
        if (check_col(pinfo->cinfo, COL_INFO)) {
-              switch (esio_telegram_type){
+              switch (esio_telegram_type) {
                      case ESIO_TRANSFER:
-                             esio_src_id = tvb_get_ntohl(tvb,16);
-                             esio_nbr_data_transfers = tvb_get_guint8(tvb, 20);
-                             esio_dst_id = tvb_get_ntohl(tvb,26);
-                             col_add_fstr( pinfo->cinfo, COL_INFO,
-                                 "Data transfer: Src ID: %d, Dst ID(s): %d",
-                                 esio_src_id, esio_dst_id);
-                             if (esio_nbr_data_transfers>1) {
-                                      col_append_fstr( pinfo->cinfo, COL_INFO,
-                                          " ...");
-                             }
-                             break;
+                            esio_src_id = tvb_get_ntohl(tvb,16);
+                            esio_nbr_data_transfers = tvb_get_guint8(tvb, 20);
+                            esio_dst_id = tvb_get_ntohl(tvb,26);
+                            col_add_fstr( pinfo->cinfo, COL_INFO,
+                                          "Data transfer: Src ID: %d, Dst ID(s): %d",
+                                          esio_src_id, esio_dst_id);
+                            if (esio_nbr_data_transfers > 1) {
+                                   col_append_fstr( pinfo->cinfo, COL_INFO,
+                                                    " ...");
+                            }
+                            break;
                      case ESIO_STATUS:
-                             esio_src_id = tvb_get_ntohl(tvb,16);
-                             col_add_fstr( pinfo->cinfo, COL_INFO,
-                                 "Status/diag telegram: Src ID: %d",
-                                 esio_src_id);
-                             break;
+                            esio_src_id = tvb_get_ntohl(tvb,16);
+                            col_add_fstr( pinfo->cinfo, COL_INFO,
+                                          "Status/diag telegram: Src ID: %d",
+                                          esio_src_id);
+                            break;
                      default:
-                             /* All other telegrams */
-                             col_add_str( pinfo->cinfo, COL_INFO,
-                                 "Unknown telegram");
-                             break;
+                            /* All other telegrams */
+                            col_set_str( pinfo->cinfo, COL_INFO,
+                                         "Unknown telegram");
+                            break;
               }
 
        }
 /* create display subtree for the protocol */
-        if (tree) {
-                offset =0; 
-                ti = proto_tree_add_item(tree, proto_esio, tvb, offset, -1, FALSE);
-                esio_tree = proto_item_add_subtree(ti, ett_esio);
+       if (tree) {
+              offset =0;
+              ti = proto_tree_add_item(tree, proto_esio, tvb, offset, -1, FALSE);
+              esio_tree = proto_item_add_subtree(ti, ett_esio);
 /*Add subtree for Ether-S-I/O header*/
-                et = proto_tree_add_text(esio_tree, tvb, offset, 12, "Ether-S-I/O header");
-                esio_header_tree = proto_item_add_subtree(et, ett_esio_header);
-                offset +=4; /*first four bytes are "ESIO"*/
+              et = proto_tree_add_text(esio_tree, tvb, offset, 12, "Ether-S-I/O header");
+              esio_header_tree = proto_item_add_subtree(et, ett_esio_header);
+              offset +=4; /*first four bytes are "ESIO"*/
 /* add items to the Ether-S-I/O header subtree*/
-                esio_tlg_type = tvb_get_ntohs(tvb,offset);
-                proto_tree_add_item(esio_header_tree,
-                    hf_esio_type, tvb, offset, 2, FALSE);
-                offset += 2;
-                proto_tree_add_item(esio_header_tree,
-                    hf_esio_version, tvb, offset, 2, FALSE);
-                offset += 2;
-                proto_tree_add_item(esio_header_tree,
-                    hf_esio_length, tvb, offset, 2, FALSE);
-                offset += 2;
-                proto_tree_add_item(esio_header_tree,
-                    hf_esio_transaction_id, tvb, offset, 2, FALSE);
-                offset += 2;
-                switch (esio_tlg_type){
-                        case ESIO_TRANSFER:
-                        /*Add subtree for Ether-S-I/O header*/
-                                et = proto_tree_add_text(esio_tree, tvb, offset, 12, "Transfer header");
-                                esio_transfer_header_tree = proto_item_add_subtree(et, ett_esio_transfer_header);
-                                proto_tree_add_item(esio_transfer_header_tree,
-                                    hf_esio_tlg_id, tvb, offset, 4, FALSE);
-                                offset += 4;
-                                proto_tree_add_item(esio_transfer_header_tree,
-                                    hf_esio_src_stn_id, tvb, offset, 4, FALSE);
-                                offset += 4;
-                                esio_nbr_data_transfers = tvb_get_guint8(tvb,offset);
-                                proto_tree_add_item(esio_transfer_header_tree,
-                                    hf_esio_data_nbr, tvb, offset, 1, FALSE);
-                                offset += 1;
-                                proto_tree_add_item(esio_transfer_header_tree,
-                                    hf_esio_data_flags, tvb, offset, 1, FALSE);
-                                offset += 1;
-                                for (i=((esio_nbr_data_transfers)); i>0; i--) {
-                                        /*Add subtree(s) for Ether-S-I/O data transfers*/
-                                        esio_transfer_dest_id = tvb_get_ntohl(tvb,(offset+4));
-                                        esio_transfer_length = tvb_get_ntohs(tvb,(offset+8));
-                                        et = proto_tree_add_text(esio_tree, tvb, offset, 
-                                            (esio_transfer_length + 10), "Data transfer to ID: %d ",
-                                            esio_transfer_dest_id);
-                                        esio_data_tansfer_tree = proto_item_add_subtree(et, ett_esio_transfer_data);
-                                        proto_tree_add_item(esio_data_tansfer_tree,
-                                            hf_esio_data_transfer_id, tvb, offset, 4, FALSE);
-                                        offset += 4;
-                                        proto_tree_add_item(esio_data_tansfer_tree,
-                                            hf_esio_data_dest_id, tvb, offset, 4, FALSE);
-                                        offset += 4;
-                                        proto_tree_add_item(esio_data_tansfer_tree,
-                                            hf_esio_data_length, tvb, offset, 2, FALSE);
-                                        offset += 2;
-                                        /*here comes the data*/
-                                        et = proto_tree_add_text(esio_data_tansfer_tree, tvb, offset,
-                                            esio_transfer_length, "Data bytes ");
-                                        esio_data_tree = proto_item_add_subtree(et, ett_esio_data);
-                                        for (i=((esio_transfer_length)); i>0; i--) {
-                                                proto_tree_add_item(esio_data_tree,
-                                                    hf_esio_data, tvb, offset,
-                                                    1, FALSE);
-                                                offset += 1;
-                                        }
-                                }
-                                break;
-                        case ESIO_STATUS:
-                                proto_tree_add_item(esio_tree,
-                                    hf_esio_sts_type, tvb, offset, 2, FALSE);
-                                offset += 2;
-                                proto_tree_add_item(esio_tree,
-                                    hf_esio_sts_size, tvb, offset, 2, FALSE);
-                                offset += 2;
-                                proto_tree_add_item(esio_tree,
-                                    hf_esio_src_stn_id, tvb, offset, 4, FALSE);
-                                offset += 4;
-                                proto_tree_add_item(esio_tree,
-                                    hf_esio_rio_sts, tvb, offset,
-                                    1, FALSE);
-                                offset += 1;
-                                hi = proto_tree_add_item(esio_tree,
-                                    hf_esio_rio_tlgs_lost, tvb, offset,
-                                    1, FALSE);
-                                expert_add_info_format(pinfo, hi, PI_SEQUENCE, PI_NOTE,
-                                    "Telegram(s) lost");
-                                offset += 1;
-                                proto_tree_add_item(esio_tree,
-                                    hf_esio_rio_diag, tvb, offset,
-                                    1, FALSE);
-                                offset += 1;
-                                proto_tree_add_item(esio_tree,
-                                    hf_esio_rio_flags, tvb, offset, 1, FALSE);
-                                offset += 1;
-                                break;
-                        default:
-                                break;
-                }
+              esio_tlg_type = tvb_get_ntohs(tvb,offset);
+              proto_tree_add_item(esio_header_tree,
+                                  hf_esio_type, tvb, offset, 2, FALSE);
+              offset += 2;
+              proto_tree_add_item(esio_header_tree,
+                                  hf_esio_version, tvb, offset, 2, FALSE);
+              offset += 2;
+              proto_tree_add_item(esio_header_tree,
+                                  hf_esio_length, tvb, offset, 2, FALSE);
+              offset += 2;
+              proto_tree_add_item(esio_header_tree,
+                                  hf_esio_transaction_id, tvb, offset, 2, FALSE);
+              offset += 2;
+              switch (esio_tlg_type) {
+                     case ESIO_TRANSFER:
+                            /*Add subtree for Ether-S-I/O header*/
+                            et = proto_tree_add_text(esio_tree, tvb, offset, 12, "Transfer header");
+                            esio_transfer_header_tree = proto_item_add_subtree(et, ett_esio_transfer_header);
+                            proto_tree_add_item(esio_transfer_header_tree,
+                                                hf_esio_tlg_id, tvb, offset, 4, FALSE);
+                            offset += 4;
+                            proto_tree_add_item(esio_transfer_header_tree,
+                                                hf_esio_src_stn_id, tvb, offset, 4, FALSE);
+                            offset += 4;
+                            esio_nbr_data_transfers = tvb_get_guint8(tvb,offset);
+                            proto_tree_add_item(esio_transfer_header_tree,
+                                                hf_esio_data_nbr, tvb, offset, 1, FALSE);
+                            offset += 1;
+                            proto_tree_add_item(esio_transfer_header_tree,
+                                                hf_esio_data_flags, tvb, offset, 1, FALSE);
+                            offset += 1;
+                            for (i=((esio_nbr_data_transfers)); i>0; i--) {
+                                   /*Add subtree(s) for Ether-S-I/O data transfers*/
+                                   esio_transfer_dest_id = tvb_get_ntohl(tvb,(offset+4));
+                                   esio_transfer_length = tvb_get_ntohs(tvb,(offset+8));
+                                   et = proto_tree_add_text(esio_tree, tvb, offset,
+                                                            (esio_transfer_length + 10), "Data transfer to ID: %d ",
+                                                            esio_transfer_dest_id);
+                                   esio_data_tansfer_tree = proto_item_add_subtree(et, ett_esio_transfer_data);
+                                   proto_tree_add_item(esio_data_tansfer_tree,
+                                                       hf_esio_data_transfer_id, tvb, offset, 4, FALSE);
+                                   offset += 4;
+                                   proto_tree_add_item(esio_data_tansfer_tree,
+                                                       hf_esio_data_dest_id, tvb, offset, 4, FALSE);
+                                   offset += 4;
+                                   proto_tree_add_item(esio_data_tansfer_tree,
+                                                       hf_esio_data_length, tvb, offset, 2, FALSE);
+                                   offset += 2;
+                                   /*here comes the data*/
+                                   et = proto_tree_add_text(esio_data_tansfer_tree, tvb, offset,
+                                                            esio_transfer_length, "Data bytes ");
+                                   esio_data_tree = proto_item_add_subtree(et, ett_esio_data);
+                                   for (i=((esio_transfer_length)); i>0; i--) {
+                                          proto_tree_add_item(esio_data_tree,
+                                                              hf_esio_data, tvb, offset,
+                                                              1, FALSE);
+                                          offset += 1;
+                                   }
+                            }
+                            break;
+                     case ESIO_STATUS:
+                            proto_tree_add_item(esio_tree,
+                                                hf_esio_sts_type, tvb, offset, 2, FALSE);
+                            offset += 2;
+                            proto_tree_add_item(esio_tree,
+                                                hf_esio_sts_size, tvb, offset, 2, FALSE);
+                            offset += 2;
+                            proto_tree_add_item(esio_tree,
+                                                hf_esio_src_stn_id, tvb, offset, 4, FALSE);
+                            offset += 4;
+                            proto_tree_add_item(esio_tree,
+                                                hf_esio_rio_sts, tvb, offset,
+                                                1, FALSE);
+                            offset += 1;
+                            hi = proto_tree_add_item(esio_tree,
+                                                     hf_esio_rio_tlgs_lost, tvb, offset,
+                                                     1, FALSE);
+                            expert_add_info_format(pinfo, hi, PI_SEQUENCE, PI_NOTE,
+                                                   "Telegram(s) lost");
+                            offset += 1;
+                            proto_tree_add_item(esio_tree,
+                                                hf_esio_rio_diag, tvb, offset,
+                                                1, FALSE);
+                            offset += 1;
+                            proto_tree_add_item(esio_tree,
+                                                hf_esio_rio_flags, tvb, offset, 1, FALSE);
+                            offset += 1;
+                            break;
+                     default:
+                            break;
+              }
        } /*end of tree*/
        return tvb_length(tvb);
 /*End of dissect_sbus*/
