@@ -283,6 +283,9 @@ init_tcp_conversation_data(packet_info *pinfo)
     tcpd->ts_first.nsecs=pinfo->fd->abs_ts.nsecs;
     tcpd->ts_prev.secs=pinfo->fd->abs_ts.secs;
     tcpd->ts_prev.nsecs=pinfo->fd->abs_ts.nsecs;
+    tcpd->flow1.valid_bif = 1;
+    tcpd->flow2.valid_bif = 1;
+
 
     return tcpd;
 }
@@ -633,6 +636,9 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
         tcpd->rev->base_seq = (flags & TH_SYN) ? ack : ack-1;
     }
 
+ 	if( flags & TH_ACK ){
+		tcpd->rev->valid_bif = 1;
+	}
 
     /* ZERO WINDOW PROBE
      * it is a zero window probe if
@@ -680,6 +686,9 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
             tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
         }
         tcpd->ta->flags|=TCP_A_LOST_PACKET;
+
+        /* Disable BiF until an ACK is seen in the other direction */ 	
+        tcpd->fwd->valid_bif = 0; 
     }
 
 
@@ -986,7 +995,7 @@ finished_checking_retransmission_type:
      * was sent
      */
     ual=tcpd->fwd->segments;
-    if (tcp_track_bytes_in_flight && seglen!=0 && ual) {
+    if (tcp_track_bytes_in_flight && seglen!=0 && ual && tcpd->fwd->valid_bif) {
         guint32 first_seq, last_seq, in_flight;
 
         first_seq = ual->seq - tcpd->fwd->base_seq;
