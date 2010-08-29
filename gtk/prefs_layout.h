@@ -1,4 +1,4 @@
-/* layout_prefs.h
+/* prefs_layout.h
  * Definitions for layout preferences window
  *
  * $Id$

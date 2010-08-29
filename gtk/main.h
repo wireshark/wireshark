@@ -34,7 +34,7 @@
       node [shape=record, fontname=Helvetica, fontsize=10];
       main [ label="main window" URL="\ref main.h"];
       menu [ label="menubar" URL="\ref menus.h"];
-      toolbar [ label="toolbar" URL="\ref toolbar.h"];
+      toolbar [ label="toolbar" URL="\ref main_toolbar.h"];
       packet_list [ label="packet list pane" URL="\ref main_packet_list.h"];
       proto_draw [ label="packet details & bytes panes" URL="\ref main_proto_draw.h"];
       recent [ label="recent user settings" URL="\ref recent.h"];

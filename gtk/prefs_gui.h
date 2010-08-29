@@ -1,4 +1,4 @@
-/* gui_prefs.h
+/* prefs_gui.h
  * Definitions for GUI preferences window
  *
  * $Id$

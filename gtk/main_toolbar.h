@@ -1,4 +1,4 @@
-/* toolbar.h
+/* main_toolbar.h
  * Definitions for toolbar utility routines
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *

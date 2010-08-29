@@ -131,13 +131,12 @@ gdkcolor_to_color_t(color_t *target, const GdkColor *source)
 #else
 /** Copied from GTK sources
  * gdk_color_to_string:
- * @param color a #GdkColor
- *
  * Returns a textual specification of parameter color in the hexadecimal form
- *  \c#rrrrggggbbbb\c, where  \c r \c,
- *  \c g  \c and  \c b  \c are hex digits
+ *  \c #rrrrggggbbbb \c , where  \c r \c ,
+ *  \c g  \c and  \c b \c are hex digits
  * representing the red, green and blue components respectively.
  *
+ * @param color a #GdkColor
  * @return a newly-allocated text string
  *
  * Since: 2.12

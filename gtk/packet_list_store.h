@@ -35,6 +35,10 @@
 #include "epan/column_info.h"
 #include "epan/frame_data.h"
 
+/** @file
+ *  The packet list store
+ *  @ingroup main_window_group
+ */
 #define PACKETLIST_TYPE_LIST (packet_list_get_type())
 #define PACKET_LIST(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), PACKETLIST_TYPE_LIST, PacketList))
 #define PACKETLIST_LIST_CLASS(klass) (G_TYPE_CHECK_CLASS_CART((klass), PACKETLIST_TYPE_LIST))
@@ -52,54 +56,55 @@ typedef struct _PacketListClass PacketListClass;
 #define PACKET_LIST_RECORD_COUNT(rows) ((rows) ? (rows)->len : 0)
 #define PACKET_LIST_RECORD_INDEX_VALID(rows, idx) ((rows) ? (((guint) (idx)) < (rows)->len) : FALSE)
 
-/* PacketListRecord: represents a row */
+/** PacketListRecord: represents a row */
 struct _PacketListRecord
 {
-	/* Has this record been columnized? */
+	/** Has this record been columnized? */
 	gboolean columnized;
-	/* Has this record been colorized? */
+	/** Has this record been colorized? */
 	gboolean colorized;
 	frame_data *fdata;
 
 	/* admin stuff used by the custom list model */
-	/* position within the physical array */
+	/** position within the physical array */
 	guint physical_pos;
-	/* position within the visible array */
+	/** position within the visible array */
 	gint visible_pos;
 };
 
-/* PacketListRecord: Everything for our model implementation. */
+/** PacketListRecord: Everything for our model implementation. */
 struct _PacketList
 {
-	GObject parent; /* MUST be first */
+	GObject parent; /** MUST be first */
 
+	/** Array of pointers to the PacketListRecord structure for each visible row. */
 	GPtrArray *visible_rows;
-	/* Array of pointers to the PacketListRecord structure for each row. */
+	/** Array of pointers to the PacketListRecord structure for each row. */
 	GPtrArray *physical_rows;
 
-	/* Has the entire file been columnized? */
+	/** Has the entire file been columnized? */
 	gboolean columnized;
 
 	gint n_columns;
-	/* Note: We need one extra column to store the entire PacketListRecord */
+	/**< Note: We need one extra column to store the entire PacketListRecord */
 	GType column_types[NUM_COL_FMTS+1];
-	GtkWidget *view; /* XXX - Does this really belong here?? */
+	GtkWidget *view; /**< @todo XXX - Does this really belong here?? */
 
 	gint sort_id;
 	GtkSortType sort_order;
 
 	GStringChunk *string_pool;
 
-	/* Random integer to check whether an iter belongs to our model. */
+	/** Random integer to check whether an iter belongs to our model. */
 	gint stamp;
 
 #ifdef NEW_PACKET_LIST_STATISTICS
-	/* Statistics */
+	/** Statistics */
 	guint const_strings;
 #endif
 };
 
-/* PacketListClass: more boilerplate GObject stuff */
+/** PacketListClass: more boilerplate GObject stuff */
 struct _PacketListClass
 {
 	GObjectClass parent_class;

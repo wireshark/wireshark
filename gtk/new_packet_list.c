@@ -109,7 +109,7 @@ new_packet_list_create(void)
 	return scrollwin;
 }
 
-/* XXX - implement a smarter solution for recreating the packet list */
+/** @todo XXX - implement a smarter solution for recreating the packet list */
 void
 new_packet_list_recreate(void)
 {

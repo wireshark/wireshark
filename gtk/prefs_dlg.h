@@ -35,14 +35,14 @@
   digraph prefs_pages {
       node [shape=record, fontname=Helvetica, fontsize=10];
       dialog [ label="Preferences dialog" URL="\ref prefs_dlg.h"];
-      ui [ label="User Interface" URL="\ref gui_prefs.h"];
-      layout [ label="UI: Layout" URL="\ref layout_prefs.h"];
-      columns [ label="UI: Columns" URL="\ref column_prefs.h"];
-      font [ label="UI: Font" URL="\ref gui_prefs.h"];
-      colors [ label="UI: Colors" URL="\ref stream_prefs.h"];
-      capture [ label="Capture" URL="\ref capture_prefs.h"];
-      print [ label="Printing" URL="\ref print_prefs.h"];
-      nameres [ label="Name resolution" URL="\ref nameres_prefs.h"];
+      ui [ label="User Interface" URL="\ref prefs_gui.h"];
+      layout [ label="UI: Layout" URL="\ref prefs_layout.h"];
+      columns [ label="UI: Columns" URL="\ref prefs_column.h"];
+      font [ label="UI: Font" URL="\ref prefs_gui.h"];
+      colors [ label="UI: Colors" URL="\ref prefs_stream.h"];
+      capture [ label="Capture" URL="\ref prefs_capture.h"];
+      print [ label="Printing" URL="\ref prefs_print.h"];
+      nameres [ label="Name resolution" URL="\ref prefs_nameres.h"];
       protocols [ label="Protocols" URL="\ref prefs_dlg.h"];
       dialog -> ui [ arrowhead="open", style="solid" ];
       dialog -> layout [ arrowhead="open", style="solid" ];

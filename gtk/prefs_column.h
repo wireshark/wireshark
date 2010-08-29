@@ -1,4 +1,4 @@
-/* column_prefs.h
+/* prefs_column.h
  * Definitions for column preferences window
  *
  * $Id$

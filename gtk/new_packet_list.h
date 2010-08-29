@@ -28,6 +28,10 @@
 #ifdef NEW_PACKET_LIST
 #include <gtk/gtk.h>
 
+/** @file
+ *  @ingroup main_window_group
+ */
+
 #define RECENT_KEY_COL_WIDTH                "column.width"
 
 typedef enum {
@@ -45,7 +49,9 @@ typedef enum {
   COLUMN_SELECTED_REMOVE
 } COLUMN_SELECTED_E;
 
+/** Create the packet list */
 GtkWidget *new_packet_list_create(void);
+/** Recreate the packetr list */
 void new_packet_list_recreate(void);
 void new_packet_list_toggle_visible_column (gint col_id);
 void new_packet_list_set_all_columns_visible (void);
@@ -109,10 +115,10 @@ extern void new_packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer da
  */
 extern void new_packet_list_untime_reference_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
-/* Different modes of copying summary data */
+/** Different modes of copying summary data */
 typedef enum {
-    CS_TEXT, /* Packet summary data (tab separated) */
-    CS_CSV   /* Packet summary data (comma separated) */
+    CS_TEXT, /**< Packet summary data (tab separated) */
+    CS_CSV   /**< Packet summary data (comma separated) */
 } copy_summary_type;
 
 /** Called when user clicks on menu item to copy summary data.
