@@ -1639,7 +1639,7 @@ ws_combo_box_get_active(GtkComboBox *combo_box)
 /**
  * ws_combo_box_set_active:
  * @param combo_box A #GtkComboBox constructed using ws_combo_box_new_text_and_pointer()
- * @param Index of the entry which is to be set as active (ie: selected).
+ * @param idx of the entry which is to be set as active (ie: selected).
  *        Index refers to the immediate children of the tree.
  */
 void

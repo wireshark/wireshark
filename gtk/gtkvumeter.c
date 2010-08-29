@@ -704,8 +704,8 @@ void gtk_vumeter_free_scale_items(GList *scale_items)
 
 /**
  * gtk_vumeter_set_orientation:
- * @vumeter: the vumeter widget
- * @orientation: the direction in which the graph is going for increasing values
+ * @param vumeter the vumeter widget
+ * @param orientation the direction in which the graph is going for increasing values
  */
 void gtk_vumeter_set_orientation (GtkVUMeter *vumeter, GtkVUMeterOrientation orientation)
 {
@@ -730,8 +730,8 @@ void gtk_vumeter_set_orientation (GtkVUMeter *vumeter, GtkVUMeterOrientation ori
 
 /**
  * gtk_vumeter_get_orientation:
- * @vumeter: the vumeter widget
- * @return: the direction in which the graph is going for increasing values
+ * @param vumeter the vumeter widget
+ * @return the direction in which the graph is going for increasing values
  */
 GtkVUMeterOrientation gtk_vumeter_get_orientation (GtkVUMeter *vumeter)
 {
@@ -762,8 +762,8 @@ GtkVUMeterOrientation gtk_vumeter_get_orientation (GtkVUMeter *vumeter)
 
 /**
  * gtk_vumeter_set_thickness:
- * @vumeter: the vumeter widget
- * @thickness: gtkvumeter's minimum graph thickness in pixels (default:30)
+ * @param vumeter the vumeter widget
+ * @param thickness gtkvumeter's minimum graph thickness in pixels (default:30)
  *
  * Allows the user program to change the dimension of the vumeter.
  * For a vertical meter, this is the width.
@@ -782,8 +782,8 @@ void gtk_vumeter_set_thickness (GtkVUMeter *vumeter, gint thickness)
 
 /**
  * gtk_vumeter_get_thickness:
- * @vumeter: the vumeter widget
- * @return: gtkvumeter's minimum graph thickness in pixels (default:30)
+ * @param vumeter the vumeter widget
+ * @return gtkvumeter's minimum graph thickness in pixels (default:30)
  *
  * For a vertical meter, this is the width.
  * Likewise for a horizontal meter, this is the height.
@@ -799,8 +799,8 @@ gint gtk_vumeter_get_thickness (GtkVUMeter *vumeter)
 
 /**
  * gtk_vumeter_set_thickness_reduction:
- * @vumeter: the vumeter widget
- * @reduced_thickness: pixels to reduce the "none active" part of the graph (default:0)
+ * @param vumeter the vumeter widget
+ * @param reduced_thickness pixels to reduce the "none active" part of the graph (default:0)
  *
  * Allows the user program to reduce the thickness of the "background" part of the vumeter graph.
  * This can be useful to distinguish the border between the foreground and background graph.
@@ -818,8 +818,8 @@ void gtk_vumeter_set_thickness_reduction (GtkVUMeter *vumeter, gint reduced_thic
 
 /**
  * gtk_vumeter_get_thickness_reduction:
- * @vumeter: the vumeter widget
- * @return: pixels to reduce the "none active" part of the graph (default:0)
+ * @param vumeter the vumeter widget
+ * @return pixels to reduce the "none active" part of the graph (default:0)
  *
  * The reduced thickness of the "background" part of the vumeter graph.
  */
@@ -834,9 +834,9 @@ gint gtk_vumeter_get_thickness_reduction (GtkVUMeter *vumeter)
 
 /**
  * gtk_vumeter_set_min_max:
- * @vumeter: the vumeter widget
- * @min: the new minimum level shown (default: 0)
- * @max: the new maximum level shown (default: 32768)
+ * @param vumeter the vumeter widget
+ * @param min the new minimum level shown (default: 0)
+ * @param max the new maximum level shown (default: 32768)
  *
  * Sets the minimum and maximum of the VU Meters scale.
  * It will increment max by one if min == max.
@@ -874,9 +874,9 @@ void gtk_vumeter_set_min_max (GtkVUMeter *vumeter, gint *min, gint *max)
 
 /**
  * gtk_vumeter_get_min_max:
- * @vumeter: the vumeter widget
- * @min: the new minimum level shown (default: 0)
- * @max: the new maximum level shown (default: 32768)
+ * @param vumeter the vumeter widget
+ * @param min the new minimum level shown (default: 0)
+ * @param max the new maximum level shown (default: 32768)
  *
  * The minimum and maximum of the VU Meters scale.
  */
@@ -893,8 +893,8 @@ void gtk_vumeter_get_min_max (GtkVUMeter *vumeter, gint *min, gint *max)
 
 /**
  * gtk_vumeter_set_level:
- * @vumeter: the vumeter widget
- * @level: the new level shown (default: 0)
+ * @param vumeter the vumeter widget
+ * @param level the new level shown (default: 0)
  *
  * Sets new level value for the vumeter.
  * The level is clamped to the min max range.
@@ -916,8 +916,8 @@ void gtk_vumeter_set_level (GtkVUMeter *vumeter, gint level)
 
 /**
  * gtk_vumeter_get_level:
- * @vumeter: the vumeter widget
- * @return: the level shown (default: 0)
+ * @param vumeter the vumeter widget
+ * @return the level shown (default: 0)
  *
  * Gets the level value of the vumeter.
  */
@@ -932,8 +932,8 @@ gint gtk_vumeter_get_level (GtkVUMeter *vumeter)
 
 /**
  * gtk_vumeter_set_scaling:
- * @vumeter: the vumeter widget
- * @scale: the scaling mode either GTK_VUMETER_SCALING_LINEAR or GTK_VUMETER_SCALING_LOG
+ * @param vumeter the vumeter widget
+ * @param scaling the scaling mode either GTK_VUMETER_SCALING_LINEAR or GTK_VUMETER_SCALING_LOG
  *
  * Sets the scaling mode of the VU Meter.
  * It is either log or linear and defaults to linear.
@@ -955,8 +955,8 @@ void gtk_vumeter_set_scaling (GtkVUMeter *vumeter, GtkVUMeterScaling scaling)
 
 /**
  * gtk_vumeter_get_scaling:
- * @vumeter: the vumeter widget
- * @return: the scaling mode either GTK_VUMETER_SCALING_LINEAR or GTK_VUMETER_SCALING_LOG
+ * @param vumeter the vumeter widget
+ * @return the scaling mode either GTK_VUMETER_SCALING_LINEAR or GTK_VUMETER_SCALING_LOG
  *
  * Gets the scaling mode of the VU Meter.
  * It is either log or linear and defaults to linear.
@@ -972,8 +972,8 @@ GtkVUMeterScaling gtk_vumeter_get_scaling (GtkVUMeter *vumeter)
 
 /**
  * gtk_vumeter_set_scale_items:
- * @vumeter: the vumeter widget
- * @scale_items: a GList of the pitch lines and labels (default:NULL)
+ * @param vumeter the vumeter widget
+ * @param scale_items a GList of the pitch lines and labels (default:NULL)
  *
  * Set the scale pitch lines and labels.
  * Must be NULL or a GList containing filled %GtkVUMeterScaleItem items.
@@ -994,8 +994,8 @@ void gtk_vumeter_set_scale_items(GtkVUMeter *vumeter, GList *scale_items)
 
 /**
  * gtk_vumeter_get_scale_items:
- * @vumeter: the vumeter widget
- * @return: a GList of the pitch lines and labels (default:NULL)
+ * @param vumeter the vumeter widget
+ * @return a GList of the pitch lines and labels (default:NULL)
  *
  * Get the scale pitch lines and labels, a GList containing %GtkVUMeterScaleItem items.
  * The returned GList must be freed with gtk_vumeter_free_scale_items() by the user!!!
@@ -1011,8 +1011,8 @@ GList *gtk_vumeter_get_scale_items(GtkVUMeter *vumeter)
 
 /**
  * gtk_vumeter_set_scale_hole_size:
- * @vumeter: the vumeter widget
- * @hole_size:  (default:0)
+ * @param vumeter the vumeter widget
+ * @param hole_size  (default:0)
  *
  * Set the size of the "holes" between the pitch lines.
  * A side effect: This also sets the minimum size of the widget.
@@ -1029,8 +1029,8 @@ void gtk_vumeter_set_scale_hole_size (GtkVUMeter *vumeter, gint hole_size)
 
 /**
  * gtk_vumeter_get_scale_hole_size:
- * @vumeter: the vumeter widget
- * @return:  (default:0)
+ * @param vumeter the vumeter widget
+ * @return  (default:0)
  *
  * Get the size of the "holes" between the pitch lines.
  */
@@ -1045,9 +1045,9 @@ gint gtk_vumeter_get_scale_hole_size (GtkVUMeter *vumeter)
 
 /**
  * gtk_vumeter_set_peak:
- * @vumeter: the vumeter widget
- * @peak: whether or not the peak indicator is drawn
- * @redraw_rate: the rate (in milliseconds) at which the peak indicator is redrawn
+ * @param vumeter the vumeter widget
+ * @param peak whether or not the peak indicator is drawn
+ * @param redraw_rate the rate (in milliseconds) at which the peak indicator is redrawn
  *
  * Enables/Disables the peak meachanism and sets the redraw timeout to redraw_rate milliseconds.
  * The redraw operation is intelligent in that the widget is only redrawn
@@ -1077,9 +1077,9 @@ void gtk_vumeter_set_peak (GtkVUMeter *vumeter, gboolean peak, guint redraw_rate
 
 /**
  * gtk_vumeter_get_peak:
- * @vumeter: the vumeter widget
- * @peak: whether or not the peak indicator is drawn
- * @redraw_rate: the rate (in milliseconds) at which the peak indicator is redrawn
+ * @param vumeter the vumeter widget
+ * @param peak whether or not the peak indicator is drawn
+ * @param redraw_rate the rate (in milliseconds) at which the peak indicator is redrawn
  *
  */
 void gtk_vumeter_get_peak (GtkVUMeter *vumeter, gboolean *peak, guint *redraw_rate)
@@ -1095,8 +1095,8 @@ void gtk_vumeter_get_peak (GtkVUMeter *vumeter, gboolean *peak, guint *redraw_ra
 
 /**
  * gtk_vumeter_set_peak_hold_factor:
- * @vumeter: the vumeter widget
- * @hold_factor: number of redraw_rates to wait until peak indicator is decayed (default:0 -> off)
+ * @param vumeter the vumeter widget
+ * @param hold_factor number of redraw_rates to wait until peak indicator is decayed (default:0 -> off)
  *
  * Holds the peak indicator for a limited time at it's highest position.
  * The actual rate is dependent on the redraw_rate given to %gtk_vumeter_set_peak().
@@ -1114,8 +1114,8 @@ void gtk_vumeter_set_peak_hold_factor (GtkVUMeter *vumeter, gint hold_factor)
 
 /**
  * gtk_vumeter_get_peak_hold_factor:
- * @vumeter: the vumeter widget
- * @return: number of redraw_rates to wait until peak indicator is decayed (default:0 -> off)
+ * @param vumeter the vumeter widget
+ * @return number of redraw_rates to wait until peak indicator is decayed (default:0 -> off)
  */
 gint gtk_vumeter_get_peak_hold_factor (GtkVUMeter *vumeter)
 {
@@ -1128,9 +1128,9 @@ gint gtk_vumeter_get_peak_hold_factor (GtkVUMeter *vumeter)
 
 /**
  * gtk_vumeter_set_peak_falloff:
- * @vumeter: the vumeter widget
- * @peak_falloff: controls the speed to the peak decay
- * @user_rate: pixels to reduce the peak level at each redraw_rate in GTK_VUMETER_PEAK_FALLOFF_USER mode, otherwise ignored
+ * @param vumeter the vumeter widget
+ * @param peak_falloff controls the speed to the peak decay
+ * @param user_rate pixels to reduce the peak level at each redraw_rate in GTK_VUMETER_PEAK_FALLOFF_USER mode, otherwise ignored
  *
  * Set the numbers of pixel reduced from the peak indicator each redraw_rate (after the hold period is over).
  * The peak_falloff will be around: SLOW:5%, MEDIUM:10%, FAST:20%, USER:user_rate 
@@ -1165,9 +1165,9 @@ void gtk_vumeter_set_peak_falloff (GtkVUMeter *vumeter, GtkVUMeterPeakFalloff pe
 
 /**
  * gtk_vumeter_get_peak_falloff:
- * @vumeter: the vumeter widget
- * @peak_falloff: controls the speed to the peak decay
- * @user_rate: pixels to lower the peak level each redraw_rate (value valid in every peak_falloff mode)
+ * @param vumeter the vumeter widget
+ * @param peak_falloff controls the speed to the peak decay
+ * @param user_rate pixels to lower the peak level each redraw_rate (value valid in every peak_falloff mode)
  */
 void gtk_vumeter_get_peak_falloff (GtkVUMeter *vumeter, GtkVUMeterPeakFalloff *peak_falloff, guint *user_rate)
 {
@@ -1182,8 +1182,8 @@ void gtk_vumeter_get_peak_falloff (GtkVUMeter *vumeter, GtkVUMeterPeakFalloff *p
 
 /**
  * gtk_vumeter_set_colors_inverted:
- * @vumeter: the vumeter widget
- * @inverted: whether or not the colors are inverted (default:%FALSE)
+ * @param vumeter the vumeter widget
+ * @param inverted whether or not the colors are inverted (default:%FALSE)
  *
  * Usually the graph will be colored with: 0:green, half:yellow, full:red.
  * This is used to display signals that won't "work correct" above a maximum level
@@ -1206,8 +1206,8 @@ void gtk_vumeter_set_colors_inverted (GtkVUMeter *vumeter, gboolean inverted)
 
 /**
  * gtk_vumeter_get_colors_inverted:
- * @vumeter: the vumeter widget
- * @return: whether or not the colors are inverted (default:%FALSE)
+ * @param vumeter the vumeter widget
+ * @return whether or not the colors are inverted (default:%FALSE)
  */
 gboolean gtk_vumeter_get_colors_inverted (GtkVUMeter *vumeter)
 {
@@ -1220,8 +1220,8 @@ gboolean gtk_vumeter_get_colors_inverted (GtkVUMeter *vumeter)
 
 /**
  * gtk_vumeter_set_yellow_level:
- * @vumeter: the vumeter widget
- * @yellow_level: set the position of the yellow area (default:16383)
+ * @param vumeter the vumeter widget
+ * @param yellow_level set the position of the yellow area (default:16383)
  *
  * Will be clamped between min and max.
  */
@@ -1238,8 +1238,8 @@ void gtk_vumeter_set_yellow_level (GtkVUMeter *vumeter, gint yellow_level)
 
 /**
  * gtk_vumeter_get_yellow_level:
- * @vumeter: the vumeter widget
- * @return: get the position of the yellow area (default:16383)
+ * @param vumeter the vumeter widget
+ * @return get the position of the yellow area (default:16383)
  */
 gint gtk_vumeter_get_yellow_level (GtkVUMeter *vumeter)
 {
@@ -1252,9 +1252,9 @@ gint gtk_vumeter_get_yellow_level (GtkVUMeter *vumeter)
 
 /**
  * gtk_vumeter_set_brightness:
- * @vumeter: the vumeter widget
- * @foreground: set the brightness of the graphs foreground (default:65535)
- * @background: set the brightness of the graphs background (default:49151)
+ * @param vumeter the vumeter widget
+ * @param foreground set the brightness of the graphs foreground (default:65535)
+ * @param background set the brightness of the graphs background (default:49151)
  *
  * Hint: don't turn the brightness too low, otherwise you'll only see a black bar :-)
  */
@@ -1270,9 +1270,9 @@ void gtk_vumeter_set_brightness (GtkVUMeter *vumeter, gint foreground, gint back
 
 /**
  * gtk_vumeter_get_brightness:
- * @vumeter: the vumeter widget
- * @foreground: get the brightness of the graphs foreground (default:65535)
- * @background: get the brightness of the graphs background (default:49151)
+ * @param vumeter the vumeter widget
+ * @param foreground get the brightness of the graphs foreground (default:65535)
+ * @param background get the brightness of the graphs background (default:49151)
  */
 void gtk_vumeter_get_brightness (GtkVUMeter *vumeter, gint *foreground, gint *background)
 {
