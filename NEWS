@@ -1,4 +1,4 @@
-Wireshark 1.2.10 Release Notes
+Wireshark 1.2.11 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,56 +15,24 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o The SigComp Universal Decompressor Virtual Machine could
-       overrun a buffer. (Bug 4867)
+     o Wireshark is vulnerable to DLL hijacking as described in
+       Microsoft Security Advisory 2269637. This problem is fully
+       fixed on Windows XP SP1 and later. It is partially fixed on
+       Windows 2000 and XP without services packs. We expect to
+       address those platforms in future releases. If you are running
+       Wireshark on Windows 2000 or XP we recommend that you only
+       open capture files within Wireshark. (Bug 5133)
 
-       Versions affected: 0.10.8 to 1.0.14, 1.2.0 to 1.2.9
+       Versions affected: All previous Windows versions up to and
+       including 1.0.15 and 1.2.10.
 
-       CVE-2010-2287
-
-     o The GSM A RR dissector could crash. (Bug 4897)
-
-       Versions affected: 1.2.2 to 1.2.9
-
-     o Due to a regression the ASN.1 BER dissector could overrun the
-       stack.
-
-       Versions affected: 0.10.13 to 1.0.14, 1.2.0 to 1.2.9
-
-       CVE-2010-2284
-
-     o The IPMI dissector could go into an infinite loop.
-
-       Versions affected: 1.2.0 to 1.2.9
+       CVE-2010-3133
 
    The following bugs have been fixed:
 
-     o Wireshark crashes after configuring new Information column.
-       (Bug 4854)
+     o The RTSP dissector could crash. (Bug 5081)
 
-     o Crash triggered when changing display filter from right-mouse
-       pop-up menu via packet-list. (Bug 4860)
-
-     o Wireshark crash selecting Inter-Asterisk exchange v2 packet
-       data. (Bug 4868)
-
-     o zlib-1.2.5 cause tshark to stop live capture. (Bug 4916)
-
-     o Crash when adding SNMP users. (Bug 4926)
-
-     o Wireshark via ssh -X on ipv6 link-local address fails to allow
-       capture. (Bug 4945)
-
-     o OMAPI dissector fails to parse combined initialization
-       messages. (Bug 4982)
-
-     o QUERY_FS_INFO for Macintosh level 0x301 - MacSupportFlags
-       decodes wrong. (Bug 4993)
-
-     o SCSI dissector misidentifies ATA PASSTHROUGH command as ACCESS
-       CONTROL IN. (Bug 5037)
-
-     o Wrong decoding of GTP Prime (GTP') packets. (Bug 5055)
+     o TShark could crash when generating PostScript®. (Bug 5148)
 
   New and Updated Features
 
@@ -76,8 +44,7 @@ What's New
 
   Updated Protocol Support
 
-   ASN.1 BER, GSM A RR, GTP, IAX2, IPMI, OMAPI, PRES, SCSI, SMB,
-   UNISTIM
+   BOOTP/DHCP, H.264, IP, RTSP, SCTP, SDP, SMB, SMB2
 
   Updated Capture File Support
 
