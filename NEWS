@@ -1,4 +1,4 @@
-Wireshark 1.0.15 Release Notes
+Wireshark 1.0.16 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,19 +15,18 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o The SigComp Universal Decompressor Virtual Machine could
-       overrun a buffer. (Bug 4867)
+     o Wireshark is vulnerable to DLL hijacking as described in
+       Microsoft Security Advisory 2269637. This problem is fully
+       fixed on Windows XP SP1 and later. It is partially fixed on
+       Windows 2000 and XP without services packs. We expect to
+       address those platforms in future releases. If you are running
+       Wireshark on Windows 2000 or XP we recommend that you only
+       open capture files within Wireshark. (Bug 5133)
 
-       Versions affected: 0.10.8 to 1.0.14, 1.2.0 to 1.2.9
+       Versions affected: All previous Windows versions up to and
+       including 1.0.15 and 1.2.10.
 
-       CVE-2010-2287
-
-     o Due to a regression the ASN.1 BER dissector could overrun the
-       stack.
-
-       Versions affected: 0.10.13 to 1.0.14, 1.2.0 to 1.2.9
-
-       CVE-2010-2284
+       CVE-2010-3133
 
   New and Updated Features
 
@@ -39,7 +38,7 @@ What's New
 
   Updated Protocol Support
 
-   ASN.1 BER
+   There are no updated protocols in this release.
 
   New and Updated Capture File Support
 

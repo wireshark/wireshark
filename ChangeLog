@@ -1,293 +1,4 @@
 ------------------------------------------------------------------------
-r33110 | gerald | 2010-06-06 08:04:12 -0700 (Sun, 06 Jun 2010) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-06-06]
-------------------------------------------------------------------------
-r33139 | gerald | 2010-06-07 10:59:37 -0700 (Mon, 07 Jun 2010) | 14 lines
-Changed paths:
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/gtk/capture_file_dlg.c
-
-Copy over r32774 by hand:
-
-------------------------------------------------------------------------
-r32774 | guy | 2010-05-12 12:44:23 -0700 (Wed, 12 May 2010) | 4 lines
-Changed paths:
-   M /trunk/gtk/capture_file_dlg.c
-
-Don't set the sensitivity of the Open button based on whether we can
-open the currently-selected file; that button is also used to select the
-file or directory typed in the location bar.  This should fix bug 1791.
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r33143 | gerald | 2010-06-07 11:45:41 -0700 (Mon, 07 Jun 2010) | 12 lines
-Changed paths:
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/dissectors/packet-smb-pipe.c
-
-Copy over r32848:
-
-------------------------------------------------------------------------
-r32848 | morriss | 2010-05-17 14:49:09 -0700 (Mon, 17 May 2010) | 1 line
-Changed paths:
-   M /trunk/epan/dissectors/packet-smb-pipe.c
-
-Don't pass a NULL pointer to what is supposed to be (according to the format) a string: some implementations of vsnprintf() will core on that.  (Unfortunately it seems that g_vsnprintf() doesn't protect us from this...)
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r33145 | gerald | 2010-06-07 11:54:30 -0700 (Mon, 07 Jun 2010) | 16 lines
-Changed paths:
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/dissectors/packet-smb.c
-
-Copy over r32650:
-
-------------------------------------------------------------------------
-r32650 | morriss | 2010-05-03 12:33:23 -0700 (Mon, 03 May 2010) | 6 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-smb.c
-
-Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4734 :
-
-Don't crash on a malformed SMB packet.  According to svn blame, this code
-has been here since rev 21713 though maybe something else changed to make the
-crash apparent.
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r33146 | gerald | 2010-06-07 12:01:27 -0700 (Mon, 07 Jun 2010) | 19 lines
-Changed paths:
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/dissectors/packet-ber.c
-
-Copy over r32922 from the trunk:
-
-------------------------------------------------------------------------
-r32922 | gerald | 2010-05-23 16:42:58 -0700 (Sun, 23 May 2010) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-ber.c
-
-Make get_ber_length() iterative instead of recursive so we don't overrun the
-stack. Discovered by J. Oquendo.
-------------------------------------------------------------------------
-r33046 | gal | 2010-06-02 06:33:37 -0700 (Wed, 02 Jun 2010) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-ber.c
-
-Updated get_ber_length to handle multiple nested indefinite length encodings.
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r33147 | gerald | 2010-06-07 12:13:45 -0700 (Mon, 07 Jun 2010) | 43 lines
-Changed paths:
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/sigcomp-udvm.c
-
-Copy over r33065 from the trunk:
-
-------------------------------------------------------------------------
-r33065 | guy | 2010-06-02 18:22:18 -0700 (Wed, 02 Jun 2010) | 20 lines
-Changed paths:
-   M /trunk/epan/sigcomp-udvm.c
-
-Sorry, I forgot that 8.6. UDVM Cycles says
-
-	Note that the number of UDVM cycles MUST NOT be increased if a
-	request for additional compressed data fails.
-
-so we *shouldn't* increase the cycle count further when
-SIGCOMP_INSTR_INPUT_BYTES fails.  That does *NOT* of course, mean that
-we shouldn't increase the cycle count by 1 for a failed INPUT-BYTES
-instruction - that would leave UDVM vulnerable to infinite loops (as per
-bug 4826), and I *really* doubt that was their intent; presumably, it
-means it should not be increased *by the number of cycles for the
-additional data*:
-
-	Additionally, if the UDVM successfully requests n bits of
-	compressed data using one of the INPUT instructions then the
-	number of available UDVM cycles is increased by n *
-	cycles_per_bit once the instruction has been executed.
-
-if the attempt to get that additional data fails.
-------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-
-------------------------------------------------------------------------
-r33061 | gerald | 2010-06-02 15:16:49 -0700 (Wed, 02 Jun 2010) | 4 lines
-Changed paths:
-   M /trunk/epan/sigcomp-udvm.c
-
-Increment the cycle count no matter what. Increase the cycle count
-further when SIGCOMP_INSTR_INPUT_BYTES fails. Fixes the infinite loop
-found in bug 4826.
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r33149 | gerald | 2010-06-07 12:20:48 -0700 (Mon, 07 Jun 2010) | 25 lines
-Changed paths:
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/sigcomp-udvm.c
-
-Copy over revisions from the trunk:
-
-------------------------------------------------------------------------
-r33087 | gerald | 2010-06-04 11:28:02 -0700 (Fri, 04 Jun 2010) | 3 lines
-Changed paths:
-   M /trunk/epan/sigcomp-udvm.c
-
-According to RFC 3220 section 7 the max UDVM message size is 65536,
-not 65535. Hopefully fixes bug 4837.
-------------------------------------------------------------------------
-
-
-Copy over by hand:
-
-------------------------------------------------------------------------
-r33090 | guy | 2010-06-04 12:29:26 -0700 (Fri, 04 Jun 2010) | 2 lines
-Changed paths:
-   M /trunk/epan/sigcomp-udvm.c
-
-Fix comments.
-------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r33151 | gerald | 2010-06-07 13:06:11 -0700 (Mon, 07 Jun 2010) | 40 lines
-Changed paths:
-   M /trunk-1.0/doc/README.developer
-   M /trunk-1.0/epan/column-utils.c
-   M /trunk-1.0/epan/proto.c
-   M /trunk-1.0/tools/lemon/lemon.c
-
-Copy over revisions from the trunk:
-
-------------------------------------------------------------------------
-r32962 | guy | 2010-05-25 19:21:23 -0700 (Tue, 25 May 2010) | 3 lines
-Changed paths:
-   M /trunk/doc/README.developer
-
-Put in a warning about the <stdarg.h> problem that I just found and
-fixed in one place (and am now fixing in some other places).
-------------------------------------------------------------------------
-
-
-Copy over by hand:
-
-------------------------------------------------------------------------
-r32961 | guy | 2010-05-25 19:01:49 -0700 (Tue, 25 May 2010) | 4 lines
-Changed paths:
-   M /trunk/epan/column-utils.c
-
-Once you've used a va_list, you can't use it again until you
-reinitialize it with va_start().  (Yes, there are platforms where
-reusing the va_arg fails, e.g. Mac OS X on x86-64.)
-------------------------------------------------------------------------
-r32963 | guy | 2010-05-25 19:25:13 -0700 (Tue, 25 May 2010) | 6 lines
-Changed paths:
-   M /trunk/epan/dissectors/dcerpc/idl2wrs.c
-   M /trunk/epan/proto.c
-   M /trunk/tools/lemon/lemon.c
-   M /trunk/trigcap.c
-
-More <stdarg.h> cleanup; some are real bugs, some are just "don't do
-va_start and va_end unless you're actually going to use the va_list"
-(those bring the va_start and va_end closer to the use point, which
-makes it a little more obvious that we're using <stdarg.h> correctly and
-makes it a little harder to use it incorrectly).
-------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r33152 | gerald | 2010-06-07 13:10:34 -0700 (Mon, 07 Jun 2010) | 23 lines
-Changed paths:
-   M /trunk-1.0/Makefile.am
-   M /trunk-1.0/docbook/release-notes.xml
-
-Copy over r33028:
-------------------------------------------------------------------------
-r33028 | guy | 2010-05-31 12:37:26 -0700 (Mon, 31 May 2010) | 13 lines
-Changed paths:
-   M /trunk/Makefile.am
-
-Wireshark requires routines from libm, such as ceil(), so link with it;
-we shouldn't rely on getting it pulled in by other shared libraries, as
-
-	1) there's no guarantee that the other shared libraries we use
-	   are linked with it or will continue to be linked with it;
-
-	2) there's no guarantee that we're even linking dynamically;
-
-	3) it fails on Fedora 13 as part of a change to catch programs
-	   that implicitly (or explicitly) assume, in their build
-	   procedures, that they'll get libraries linked in as a result
-	   of linking with other libraries.
-
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r33156 | gerald | 2010-06-07 21:52:51 -0700 (Mon, 07 Jun 2010) | 2 lines
-Changed paths:
-   M /trunk-1.0/ChangeLog
-   M /trunk-1.0/NEWS
-
-Update ChangeLog and NEWS.
-
-------------------------------------------------------------------------
-r33162 | gerald | 2010-06-08 11:39:23 -0700 (Tue, 08 Jun 2010) | 2 lines
-Changed paths:
-   M /trunk-1.0/version.conf
-
-Build 1.0.14.
-
-------------------------------------------------------------------------
-r33173 | gerald | 2010-06-08 17:06:37 -0700 (Tue, 08 Jun 2010) | 2 lines
-Changed paths:
-   M /trunk-1.0/config.nmake
-   M /trunk-1.0/configure.in
-   M /trunk-1.0/debian/changelog
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/version.conf
-
-1.0.14 -> 1.0.15
-
-------------------------------------------------------------------------
-r33216 | gerald | 2010-06-13 08:04:08 -0700 (Sun, 13 Jun 2010) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-06-13]
-------------------------------------------------------------------------
-r33261 | gerald | 2010-06-20 08:04:17 -0700 (Sun, 20 Jun 2010) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2010-06-20]
-------------------------------------------------------------------------
 r33337 | gerald | 2010-06-27 08:24:16 -0700 (Sun, 27 Jun 2010) | 1 line
 Changed paths:
    M /trunk-1.0/epan/enterprise-numbers
@@ -354,4 +65,202 @@ which squelches a valgrind complaint.
 ------------------------------------------------------------------------
 
 
+------------------------------------------------------------------------
+r33664 | gerald | 2010-07-28 16:55:00 -0700 (Wed, 28 Jul 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/ChangeLog
+   M /trunk-1.0/NEWS
+   M /trunk-1.0/version.conf
+
+Build 1.0.15.
+
+------------------------------------------------------------------------
+r33670 | gerald | 2010-07-29 09:43:38 -0700 (Thu, 29 Jul 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/version.conf
+
+Fix the advisory link.
+
+------------------------------------------------------------------------
+r33672 | gerald | 2010-07-29 10:39:29 -0700 (Thu, 29 Jul 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/config.nmake
+   M /trunk-1.0/configure.in
+   M /trunk-1.0/debian/changelog
+   M /trunk-1.0/docbook/release-notes.xml
+
+1.0.15 -> 1.0.16.
+
+------------------------------------------------------------------------
+r33686 | gerald | 2010-08-01 08:34:11 -0700 (Sun, 01 Aug 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-08-01]
+------------------------------------------------------------------------
+r33731 | gerald | 2010-08-08 08:34:13 -0700 (Sun, 08 Aug 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-08-08]
+------------------------------------------------------------------------
+r33803 | gerald | 2010-08-15 08:34:10 -0700 (Sun, 15 Aug 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-08-15]
+------------------------------------------------------------------------
+r33882 | gerald | 2010-08-22 08:34:06 -0700 (Sun, 22 Aug 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-08-22]
+------------------------------------------------------------------------
+r33937 | gerald | 2010-08-26 11:14:37 -0700 (Thu, 26 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/nio-ie5.c
+
+Fix line endings.
+
+------------------------------------------------------------------------
+r33940 | gerald | 2010-08-26 13:10:28 -0700 (Thu, 26 Aug 2010) | 48 lines
+Changed paths:
+   M /trunk-1.0/airpcap_loader.c
+   M /trunk-1.0/capture-wpcap.c
+   M /trunk-1.0/capture_wpcap_packet.c
+   M /trunk-1.0/doc/README.capture
+   M /trunk-1.0/dumpcap.c
+   M /trunk-1.0/epan/filesystem.c
+   M /trunk-1.0/epan/unicode-utils.h
+   M /trunk-1.0/epan/xmlstub.c
+   M /trunk-1.0/gtk/main.c
+   M /trunk-1.0/nio-ie5.c
+   M /trunk-1.0/wiretap/file_util.c
+   M /trunk-1.0/wiretap/file_util.h
+   M /trunk-1.0/wiretap/wtap.def
+
+Copy over revisions by hand:
+
+------------------------------------------------------------------------
+r33916 | gerald | 2010-08-24 16:39:29 -0700 (Tue, 24 Aug 2010) | 5 lines
+Changed paths:
+   M /trunk/dumpcap.c
+   M /trunk/gtk/main.c
+
+Partial fix for bug 5133. On Windows, call SetDllDirectory at startup if
+it's present in Wireshark and dumpcap. This takes care of the airpcap.dll
+PoC but we need to load wpcap.dll from a full path. We might want to
+call SetDllDirectory from our other executables as well.
+------------------------------------------------------------------------
+r33917 | gerald | 2010-08-24 17:20:50 -0700 (Tue, 24 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk/dumpcap.c
+
+Fix !Windows compilation.
+------------------------------------------------------------------------
+r33924 | gerald | 2010-08-25 13:30:59 -0700 (Wed, 25 Aug 2010) | 6 lines
+Changed paths:
+   M /trunk/airpcap_loader.c
+   M /trunk/capture-wpcap.c
+   M /trunk/capture_wpcap_packet.c
+   M /trunk/config.nmake
+   M /trunk/doc/README.capture
+   M /trunk/epan/filesystem.c
+   M /trunk/epan/wspython/wspy_libws.py
+   M /trunk/gtk/main.c
+   M /trunk/nio-ie5.c
+   M /trunk/wsutil/file_util.c
+   M /trunk/wsutil/file_util.h
+   M /trunk/wsutil/libwsutil.def
+
+Add ws_load_library and ws_module_open, which respectively call
+LoadLibrary and g_module_open only for the program directory and system
+directory on Windows. Use them to replace a bunch of LoadLibrary and
+g_module_open calls. Use the extension ".dll" for all the DLLs that we
+load. Add comments about DLL loading in Python.
+------------------------------------------------------------------------
+r33925 | gerald | 2010-08-25 15:41:26 -0700 (Wed, 25 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk/wsutil/file_util.h
+
+Move Windows-specific material inside an appropriate #ifdef.
+------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+r33943 | gerald | 2010-08-26 15:01:32 -0700 (Thu, 26 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/wiretap/file_util.h
+
+Fix xmlstub compilation.
+
+------------------------------------------------------------------------
+r33944 | gerald | 2010-08-26 16:06:55 -0700 (Thu, 26 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/epan/unicode-utils.h
+
+Try to fix Windows compilation.
+
+------------------------------------------------------------------------
+r33953 | gerald | 2010-08-27 09:45:47 -0700 (Fri, 27 Aug 2010) | 6 lines
+Changed paths:
+   M /trunk-1.0/dumpcap.c
+   M /trunk-1.0/gtk/main.c
+   M /trunk-1.0/wiretap/file_util.c
+   M /trunk-1.0/wiretap/file_util.h
+   M /trunk-1.0/wiretap/wtap.def
+
+Move the SetDllDirectory calls to ws_init_dll_search_path. If
+SetDllDirectory fails, pass the Wireshark program path to
+SetCurrentDirectory.
+
+This appears to fix the problem on Windows 2000.
+
+------------------------------------------------------------------------
+r33960 | gerald | 2010-08-27 13:06:26 -0700 (Fri, 27 Aug 2010) | 14 lines
+Changed paths:
+   M /trunk-1.0/config.guess
+   M /trunk-1.0/config.sub
+   M /trunk-1.0/docbook/release-notes.xml
+
+Copy over r33894 from the trunk:
+
+------------------------------------------------------------------------
+r33894 | jake | 2010-08-23 11:16:22 -0700 (Mon, 23 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk/config.guess
+   M /trunk/config.sub
+
+On request from Albert Chin:
+Update libtoolize files
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r33968 | gerald | 2010-08-27 14:26:37 -0700 (Fri, 27 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r33980 | gerald | 2010-08-28 10:22:41 -0700 (Sat, 28 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+
+Add a CVE ID.
+
+------------------------------------------------------------------------
+r33998 | gerald | 2010-08-29 09:35:19 -0700 (Sun, 29 Aug 2010) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-08-29]
 ------------------------------------------------------------------------
