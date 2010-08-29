@@ -47034,3 +47034,445 @@ Changed paths:
 Add a missing manually-applied change from r33541.
 
 ------------------------------------------------------------------------
+r33899 | gerald | 2010-08-23 17:05:07 -0700 (Mon, 23 Aug 2010) | 11 lines
+Changed paths:
+   M /trunk-1.4/doc/Makefile.am
+
+Copy over r33520 from the trunk:
+
+------------------------------------------------------------------------
+r33520 | gerald | 2010-07-14 08:18:08 -0700 (Wed, 14 Jul 2010) | 2 lines
+Changed paths:
+   M /trunk/doc/Makefile.am
+
+Fix a typo.
+------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+r33931 | gerald | 2010-08-26 09:01:19 -0700 (Thu, 26 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk-1.4/ChangeLog
+   M /trunk-1.4/NEWS
+   M /trunk-1.4/debian/changelog
+   M /trunk-1.4/docbook/release-notes.xml
+
+Prep for 1.4.0.
+
+------------------------------------------------------------------------
+r33932 | gerald | 2010-08-26 09:04:07 -0700 (Thu, 26 Aug 2010) | 48 lines
+Changed paths:
+   M /trunk-1.4/airpcap_loader.c
+   M /trunk-1.4/capture-wpcap.c
+   M /trunk-1.4/capture_wpcap_packet.c
+   M /trunk-1.4/config.nmake
+   M /trunk-1.4/doc/README.capture
+   M /trunk-1.4/dumpcap.c
+   M /trunk-1.4/epan/filesystem.c
+   M /trunk-1.4/epan/wspython/wspy_libws.py
+   M /trunk-1.4/gtk/main.c
+   M /trunk-1.4/nio-ie5.c
+   M /trunk-1.4/wsutil/file_util.c
+   M /trunk-1.4/wsutil/file_util.h
+   M /trunk-1.4/wsutil/libwsutil.def
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r33916 | gerald | 2010-08-24 16:39:29 -0700 (Tue, 24 Aug 2010) | 5 lines
+Changed paths:
+   M /trunk/dumpcap.c
+   M /trunk/gtk/main.c
+
+Partial fix for bug 5133. On Windows, call SetDllDirectory at startup if
+it's present in Wireshark and dumpcap. This takes care of the airpcap.dll
+PoC but we need to load wpcap.dll from a full path. We might want to
+call SetDllDirectory from our other executables as well.
+------------------------------------------------------------------------
+r33917 | gerald | 2010-08-24 17:20:50 -0700 (Tue, 24 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk/dumpcap.c
+
+Fix !Windows compilation.
+------------------------------------------------------------------------
+r33924 | gerald | 2010-08-25 13:30:59 -0700 (Wed, 25 Aug 2010) | 6 lines
+Changed paths:
+   M /trunk/airpcap_loader.c
+   M /trunk/capture-wpcap.c
+   M /trunk/capture_wpcap_packet.c
+   M /trunk/config.nmake
+   M /trunk/doc/README.capture
+   M /trunk/epan/filesystem.c
+   M /trunk/epan/wspython/wspy_libws.py
+   M /trunk/gtk/main.c
+   M /trunk/nio-ie5.c
+   M /trunk/wsutil/file_util.c
+   M /trunk/wsutil/file_util.h
+   M /trunk/wsutil/libwsutil.def
+
+Add ws_load_library and ws_module_open, which respectively call
+LoadLibrary and g_module_open only for the program directory and system
+directory on Windows. Use them to replace a bunch of LoadLibrary and
+g_module_open calls. Use the extension ".dll" for all the DLLs that we
+load. Add comments about DLL loading in Python.
+------------------------------------------------------------------------
+r33925 | gerald | 2010-08-25 15:41:26 -0700 (Wed, 25 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk/wsutil/file_util.h
+
+Move Windows-specific material inside an appropriate #ifdef.
+------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+r33934 | gerald | 2010-08-26 10:19:35 -0700 (Thu, 26 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk-1.4/wsutil/file_util.c
+
+Add a newline. Fixup whitespace.
+
+------------------------------------------------------------------------
+r33957 | gerald | 2010-08-27 12:09:43 -0700 (Fri, 27 Aug 2010) | 6 lines
+Changed paths:
+   M /trunk-1.4/dumpcap.c
+   M /trunk-1.4/gtk/main.c
+   M /trunk-1.4/wsutil/file_util.c
+   M /trunk-1.4/wsutil/file_util.h
+   M /trunk-1.4/wsutil/libwsutil.def
+
+Forward-port r33953.
+ 
+Move the SetDllDirectory calls to ws_init_dll_search_path. If
+SetDllDirectory fails, pass the Wireshark program path to
+SetCurrentDirectory.
+
+------------------------------------------------------------------------
+r33966 | guy | 2010-08-27 14:16:33 -0700 (Fri, 27 Aug 2010) | 9 lines
+Changed paths:
+   M /trunk-1.4/epan/dissectors/packet-eth.c
+
+Pick up change from trunk:
+
+r33964 | guy | 2010-08-27 14:13:26 -0700 (Fri, 27 Aug 2010) | 5 lines
+
+Allow Dissect As... to select the Ethernet-without-FCS dissector for a
+given UDP port; this is to handle the output for the Cisco CMTS "cable
+intercept" command - it encapsulates Ethernet frames in UDP packets, but
+the UDP port is user-defined.
+
+------------------------------------------------------------------------
+r33967 | guy | 2010-08-27 14:23:47 -0700 (Fri, 27 Aug 2010) | 7 lines
+Changed paths:
+   M /trunk-1.4/epan/dissectors/packet-afp.c
+
+Pick up change from trunk:
+
+r33961 | stig | 2010-08-27 13:54:21 -0700 (Fri, 27 Aug 2010) | 3 lines
+
+From Frank Lahm via bug 5136:
+Correct volume flags for FPGetSrvrParms.
+
+------------------------------------------------------------------------
+r33970 | guy | 2010-08-27 14:29:07 -0700 (Fri, 27 Aug 2010) | 6 lines
+Changed paths:
+   M /trunk-1.4/epan/dissectors/packet-afp.c
+
+Pick up change from trunk:
+
+r33969 | guy | 2010-08-27 14:28:24 -0700 (Fri, 27 Aug 2010) | 2 lines
+
+Update some links.
+
+------------------------------------------------------------------------
+r33985 | gerald | 2010-08-28 16:02:30 -0700 (Sat, 28 Aug 2010) | 18 lines
+Changed paths:
+   M /trunk-1.4/config.nmake
+   M /trunk-1.4/packaging/nsis/Makefile.nmake
+   M /trunk-1.4/tools/win32-setup.sh
+   M /trunk-1.4/tools/win64-setup.sh
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r33921 | morriss | 2010-08-25 08:27:14 -0700 (Wed, 25 Aug 2010) | 1 line
+Changed paths:
+   M /trunk/config.nmake
+
+Change PCAP_VERSION to 4.1.2.  Hopefully this will cause the U3/PortableApps builds to pick up WinPcap again.
+------------------------------------------------------------------------
+r33922 | morriss | 2010-08-25 08:28:26 -0700 (Wed, 25 Aug 2010) | 1 line
+Changed paths:
+   M /trunk/packaging/nsis/Makefile.nmake
+
+Use PCAP_VERSION (from config.nmake) instead of hard coding the WinPcap version.
+------------------------------------------------------------------------
+
+Update win{32|64}-setup.sh
+
+------------------------------------------------------------------------
+r33986 | gerald | 2010-08-28 16:20:56 -0700 (Sat, 28 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk-1.4/config.nmake
+
+Add a version to the Windows library directory.
+
+------------------------------------------------------------------------
+r33987 | gerald | 2010-08-28 16:30:03 -0700 (Sat, 28 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk-1.4/config.nmake
+
+Fix PCAP_VERSION.
+
+------------------------------------------------------------------------
+r33988 | gerald | 2010-08-28 21:11:06 -0700 (Sat, 28 Aug 2010) | 126 lines
+Changed paths:
+   M /trunk-1.4/Makefile.nmake
+   M /trunk-1.4/capture.c
+   M /trunk-1.4/debian/control
+   M /trunk-1.4/epan/Makefile.nmake
+   M /trunk-1.4/epan/dissectors/packet-dcm.c
+   M /trunk-1.4/epan/dissectors/packet-diameter.c
+   M /trunk-1.4/epan/dissectors/packet-dtn.c
+   M /trunk-1.4/epan/dissectors/packet-frame.c
+   M /trunk-1.4/epan/dissectors/packet-gprs-llc.c
+   M /trunk-1.4/epan/dissectors/packet-gsm_a_gm.c
+   M /trunk-1.4/epan/dissectors/packet-gsm_a_rr.c
+   M /trunk-1.4/epan/dissectors/packet-iec104.c
+   M /trunk-1.4/epan/dissectors/packet-ieee80211.c
+   M /trunk-1.4/epan/dissectors/packet-ipv6.c
+   M /trunk-1.4/epan/dissectors/packet-mikey.c
+   M /trunk-1.4/epan/dissectors/packet-nasdaq-itch.c
+   M /trunk-1.4/epan/dissectors/packet-ncp-sss.c
+   M /trunk-1.4/epan/dissectors/packet-ntlmssp.c
+   M /trunk-1.4/epan/dissectors/packet-ntp.c
+   M /trunk-1.4/epan/dissectors/packet-ntp.h
+   M /trunk-1.4/epan/dissectors/packet-ospf.c
+   M /trunk-1.4/epan/dissectors/packet-ppp.c
+   M /trunk-1.4/epan/dissectors/packet-ptp.c
+   M /trunk-1.4/epan/dissectors/packet-pvfs2.c
+   M /trunk-1.4/epan/dissectors/packet-rmi.c
+   M /trunk-1.4/epan/dissectors/packet-sctp.c
+   M /trunk-1.4/epan/dissectors/packet-sip.c
+   M /trunk-1.4/epan/dissectors/packet-udp.c
+   M /trunk-1.4/epan/expert.c
+   M /trunk-1.4/print.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r33198 | wmeier | 2010-06-09 11:12:17 -0700 (Wed, 09 Jun 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-dcm.c
+   M /trunk/epan/dissectors/packet-diameter.c
+   M /trunk/epan/dissectors/packet-dtn.c
+   M /trunk/epan/dissectors/packet-frame.c
+   M /trunk/epan/dissectors/packet-gsm_a_gm.c
+   M /trunk/epan/dissectors/packet-mikey.c
+   M /trunk/epan/dissectors/packet-nasdaq-itch.c
+   M /trunk/epan/dissectors/packet-ncp-sss.c
+   M /trunk/epan/dissectors/packet-ntlmssp.c
+   M /trunk/epan/dissectors/packet-ntp.c
+   M /trunk/epan/dissectors/packet-ntp.h
+   M /trunk/epan/dissectors/packet-ppp.c
+   M /trunk/epan/dissectors/packet-ptp.c
+   M /trunk/epan/dissectors/packet-pvfs2.c
+   M /trunk/epan/dissectors/packet-rmi.c
+
+Do some constifying [or other] based upon gcc -Wwrite-strings warnings.
+------------------------------------------------------------------------
+r33534 | guy | 2010-07-14 20:31:51 -0700 (Wed, 14 Jul 2010) | 6 lines
+Changed paths:
+   M /trunk/Makefile.nmake
+   M /trunk/epan/Makefile.nmake
+
+There shouldn't be any need to build stuff in the top-level directory
+with the Lua or libgnutls flags, as nothing in the top-level directory
+should use them directly.
+
+However, libwireshark *does* require the Lua flags, so use them.
+------------------------------------------------------------------------
+r33551 | martinm | 2010-07-16 04:17:32 -0700 (Fri, 16 Jul 2010) | 3 lines
+Changed paths:
+   M /trunk/epan/expert.c
+
+Make frames containing Malformed expert items match with "malformed" display filter.
+------------------------------------------------------------------------
+r33692 | wmeier | 2010-08-02 06:09:01 -0700 (Mon, 02 Aug 2010) | 4 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-gprs-llc.c
+   M /trunk/epan/dissectors/packet-gsm_a_gm.c
+   M /trunk/epan/dissectors/packet-gsm_a_rr.c
+   M /trunk/epan/dissectors/packet-iec104.c
+   M /trunk/epan/dissectors/packet-ieee80211.c
+   M /trunk/epan/dissectors/packet-ospf.c
+   M /trunk/epan/dissectors/packet-sctp.c
+
+Fix cases where the type of a for loop variable is smaller than the type of the "end" variable.
+In some cases the usage may have been benign since it can be seen by code inspection that the maximum value of the end variable can't exceed the maximum value of the loop variable.
+However, on general principles, all the usages have been fixed.
+------------------------------------------------------------------------
+r33707 | stig | 2010-08-04 06:32:09 -0700 (Wed, 04 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-udp.c
+
+Avoid a possible dereference of null pointer.
+------------------------------------------------------------------------
+r33906 | etxrab | 2010-08-23 23:15:40 -0700 (Mon, 23 Aug 2010) | 3 lines
+Changed paths:
+   M /trunk/capture.c
+
+From Gregor Beck:
+ERROR:capture.c:141:capture_start: assertion failed: (capture_opts->state == CAPTURE_STOPPED)
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5126
+------------------------------------------------------------------------
+r33920 | kukosa | 2010-08-25 07:10:58 -0700 (Wed, 25 Aug 2010) | 1 line
+Changed paths:
+   M /trunk/epan/dissectors/packet-sip.c
+
+Fix wrong length of CSeq Method parameter 
+------------------------------------------------------------------------
+r33941 | stig | 2010-08-26 13:22:28 -0700 (Thu, 26 Aug 2010) | 4 lines
+Changed paths:
+   M /trunk/print.c
+
+Check input string in ps_clean_string().
+
+This fixes bug 5148.
+------------------------------------------------------------------------
+r33947 | jake | 2010-08-26 23:07:32 -0700 (Thu, 26 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk/debian/control
+
+Make wireshark-dev depend on the right automake.
+------------------------------------------------------------------------
+r33565 | stig | 2010-07-18 08:06:13 -0700 (Sun, 18 Jul 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ipv6.c
+
+Use correct length for the IPv6 item.
+------------------------------------------------------------------------
+r33870 | gerald | 2010-08-20 17:19:32 -0700 (Fri, 20 Aug 2010) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ipv6.c
+
+If we have something that looks like a stateless autoconfiguration
+address, add the corresponding MAC address to the tree.
+------------------------------------------------------------------------
+r33900 | gerald | 2010-08-23 17:24:44 -0700 (Mon, 23 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ipv6.c
+
+Display ISATAP encapsulated IPv4 addresses.
+------------------------------------------------------------------------
+r33959 | gerald | 2010-08-27 12:52:17 -0700 (Fri, 27 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ipv6.c
+
+Display Teredo encapsulated IPv4 server and client addresses.
+------------------------------------------------------------------------
+r33982 | gerald | 2010-08-28 12:46:20 -0700 (Sat, 28 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ipv6.c
+
+De-obfuscate the Teredo client address and add a de-obfuscated port.
+------------------------------------------------------------------------
+r33984 | gerald | 2010-08-28 13:55:32 -0700 (Sat, 28 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ipv6.c
+
+Display 6to4 gateway IPv4 addresses and SLA IDs.
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r33989 | gerald | 2010-08-28 21:37:59 -0700 (Sat, 28 Aug 2010) | 10 lines
+Changed paths:
+   M /trunk-1.4/epan/dissectors/packet-rtcp.c
+
+Copy over r33199 from the trunk:
+
+------------------------------------------------------------------------
+r33199 | wmeier | 2010-06-09 11:32:35 -0700 (Wed, 09 Jun 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-rtcp.c
+
+Do some constifying (based upon gcc -Wwrite-strings warnings)
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r33995 | gerald | 2010-08-29 08:34:06 -0700 (Sun, 29 Aug 2010) | 1 line
+Changed paths:
+   M /trunk-1.4/epan/enterprise-numbers
+   M /trunk-1.4/manuf
+
+[Automatic manuf and enterprise-numbers update for 2010-08-29]
+------------------------------------------------------------------------
+r33996 | gerald | 2010-08-29 09:04:26 -0700 (Sun, 29 Aug 2010) | 12 lines
+Changed paths:
+   M /trunk-1.4/version_info.c
+
+Copy over r33535 from the trunk:
+
+------------------------------------------------------------------------
+r33535 | guy | 2010-07-15 02:04:10 -0700 (Thu, 15 Jul 2010) | 4 lines
+Changed paths:
+   M /trunk/version_info.c
+
+Don't include headers we don't need (they might be generating external
+references to functions in libraries with which we're not necessarily
+being linked).
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r33999 | gerald | 2010-08-29 10:19:24 -0700 (Sun, 29 Aug 2010) | 25 lines
+Changed paths:
+   M /trunk-1.4/Makefile.am
+   M /trunk-1.4/epan/epan.c
+   M /trunk-1.4/epan/epan.h
+   M /trunk-1.4/epan/libwireshark.def
+   M /trunk-1.4/gtk/main.c
+   M /trunk-1.4/rawshark.c
+   M /trunk-1.4/tshark.c
+   M /trunk-1.4/version_info.c
+   M /trunk-1.4/version_info.h
+
+Copy over r33531.
+
+------------------------------------------------------------------------
+r33531 | guy | 2010-07-14 19:07:16 -0700 (Wed, 14 Jul 2010) | 9 lines
+Changed paths:
+   M /trunk/Makefile.am
+   M /trunk/epan/epan.c
+   M /trunk/epan/epan.h
+   M /trunk/epan/libwireshark.def
+   M /trunk/gtk/main.c
+   M /trunk/rawshark.c
+   M /trunk/tshark.c
+   M /trunk/version_info.c
+   M /trunk/version_info.h
+
+Move the code to get version information for libraries used by
+libwireshark into libwireshark, and call it only in programs linked with
+libwireshark.  That way, programs that don't link with libwireshark
+don't have to link with libgcrypt or libgnutls solely so that they can
+say that they're linked with a particular version of libgcrypt or
+libgnutls.
+
+Don't link dumpcap with libgcrypt or libgnutls any more.
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r34000 | gerald | 2010-08-29 10:33:13 -0700 (Sun, 29 Aug 2010) | 10 lines
+Changed paths:
+   M /trunk-1.4/Makefile.nmake
+
+Copy over r33536 from the trunk:
+
+------------------------------------------------------------------------
+r33536 | guy | 2010-07-15 02:41:34 -0700 (Thu, 15 Jul 2010) | 2 lines
+Changed paths:
+   M /trunk/Makefile.nmake
+
+capinfos.c includes gcrypt.h, so it needs the GNU TLS flags.
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
