@@ -52,7 +52,16 @@
 #include "expert.h"
 
 #ifdef HAVE_LUA_5_1
-	int wslua_init(void*);
+#include <lua.h>
+#include <wslua/wslua.h>
+#endif
+
+#ifdef HAVE_LIBSMI
+#include <smi.h>
+#endif
+
+#ifdef HAVE_C_ARES
+#include <ares_version.h>
 #endif
 
 #ifdef HAVE_GEOIP
@@ -239,3 +248,125 @@ epan_dissect_fill_in_columns(epan_dissect_t *edt, const gboolean fill_col_exprs,
     col_fill_in(&edt->pi, fill_col_exprs, fill_fd_colums);
 }
 
+/*
+ * Get compile-time information for libraries used by libwireshark.
+ */
+void
+epan_get_compiled_version_info(GString *str)
+{
+        /* PCRE */
+	g_string_append(str, ", ");
+#ifdef HAVE_LIBPCRE
+	g_string_append(str, "with libpcre ");
+#ifdef PCRE_MAJOR
+#ifdef PCRE_MINOR
+	g_string_append_printf(str, "%u.%u", PCRE_MAJOR, PCRE_MINOR);
+#else			/* PCRE_MINOR */
+	g_string_append_printf(str, "%u", PCRE_MAJOR);
+#endif			/* PCRE_MINOR */
+#else		/* PCRE_MAJOR */
+	g_string_append(str, "(version unknown)");
+#endif		/* PCRE_MAJOR */
+#else	/* HAVE_LIBPCRE */
+	g_string_append(str, "without libpcre");
+#endif	/* HAVE_LIBPCRE */
+
+        /* SNMP */
+	g_string_append(str, ", ");
+#ifdef HAVE_LIBSMI
+	g_string_append(str, "with SMI " SMI_VERSION_STRING);
+#else /* no SNMP library */
+	g_string_append(str, "without SMI");
+#endif /* _SMI_H */
+
+	/* c-ares */
+	g_string_append(str, ", ");
+#ifdef HAVE_C_ARES
+	g_string_append(str, "with c-ares " ARES_VERSION_STR);
+#else
+	g_string_append(str, "without c-ares");
+
+	/* ADNS - only add if no c-ares */
+	g_string_append(str, ", ");
+#ifdef HAVE_GNU_ADNS
+	g_string_append(str, "with ADNS");
+#else
+	g_string_append(str, "without ADNS");
+#endif /* HAVE_GNU_ADNS */
+#endif /* HAVE_C_ARES */
+
+        /* LUA */
+	g_string_append(str, ", ");
+#ifdef HAVE_LUA_5_1
+	g_string_append(str, "with ");
+	g_string_append(str, LUA_VERSION);
+#else
+	g_string_append(str, "without Lua");
+#endif /* HAVE_LUA_5_1 */
+
+	g_string_append(str, ", ");
+#ifdef HAVE_PYTHON
+	g_string_append(str, "with Python");
+#ifdef PY_VERSION
+	g_string_append(str, " " PY_VERSION);
+#endif /* PY_VERSION */
+#else
+	g_string_append(str, "without Python");
+#endif /* HAVE_PYTHON */
+
+        /* GnuTLS */
+	g_string_append(str, ", ");
+#ifdef HAVE_LIBGNUTLS
+	g_string_append(str, "with GnuTLS " LIBGNUTLS_VERSION);
+#else
+	g_string_append(str, "without GnuTLS");
+#endif /* HAVE_LIBGNUTLS */
+
+        /* Gcrypt */
+	g_string_append(str, ", ");
+#ifdef HAVE_LIBGCRYPT
+	g_string_append(str, "with Gcrypt " GCRYPT_VERSION);
+#else
+	g_string_append(str, "without Gcrypt");
+#endif /* HAVE_LIBGCRYPT */
+
+        /* Kerberos */
+        /* XXX - I don't see how to get the version number, at least for KfW */
+	g_string_append(str, ", ");
+#ifdef HAVE_KERBEROS
+#ifdef HAVE_MIT_KERBEROS
+	g_string_append(str, "with MIT Kerberos");
+#else
+        /* HAVE_HEIMDAL_KERBEROS */
+	g_string_append(str, "with Heimdal Kerberos");
+#endif
+#else
+	g_string_append(str, "without Kerberos");
+#endif /* HAVE_KERBEROS */
+
+	/* GeoIP */
+	g_string_append(str, ", ");
+#ifdef HAVE_GEOIP
+	g_string_append(str, "with GeoIP");
+#else
+	g_string_append(str, "without GeoIP");
+#endif /* HAVE_GEOIP */
+
+}
+
+/*
+ * Get runtime information for libraries used by libwireshark.
+ */
+void
+epan_get_runtime_version_info(GString *str)
+{
+        /* GnuTLS */
+#ifdef HAVE_LIBGNUTLS
+	g_string_append_printf(str, ", GnuTLS %s", gnutls_check_version(NULL));
+#endif /* HAVE_LIBGNUTLS */
+
+        /* Gcrypt */
+#ifdef HAVE_LIBGCRYPT
+	g_string_append_printf(str, ", Gcrypt %s", gcry_check_version(NULL));
+#endif /* HAVE_LIBGCRYPT */
+}
