@@ -1058,7 +1058,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				/* Request timestamp (optional) */
 				if (code == 103)
 				{
-					gchar *buff;
+					const gchar *buff;
 					item_len = tvb_get_guint8(tvb, offset);
 					offset += 1;
 					packet_len -= 1;
@@ -1067,7 +1067,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
 					buff = ntp_fmt_ts(tvb_get_ptr(tvb, offset, 8));
 					proto_tree_add_string_format(PoC1_tree, hf_rtcp_app_poc1_request_ts,
-					                             tvb, offset, 8, ( const char* ) buff,
+					                             tvb, offset, 8, buff,
 					                             "Request timestamp: %s", buff );
 					offset += 8;
 					packet_len -=8;
@@ -2256,7 +2256,7 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 {
 	proto_item* item;
 	guint32 ts_msw, ts_lsw;
-	gchar *buff;
+	const gchar *buff;
 	int sr_offset = offset;
 
 	/* NTP timestamp */
@@ -2267,7 +2267,7 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 	proto_tree_add_item(tree, hf_rtcp_ntp_lsw, tvb, offset+4, 4, FALSE);
 
 	buff=ntp_fmt_ts(tvb_get_ptr( tvb, offset, 8 ));
-	item = proto_tree_add_string_format( tree, hf_rtcp_ntp, tvb, offset, 8, ( const char* ) buff, "MSW and LSW as NTP timestamp: %s", buff );
+	item = proto_tree_add_string_format( tree, hf_rtcp_ntp, tvb, offset, 8, buff, "MSW and LSW as NTP timestamp: %s", buff );
 	PROTO_ITEM_SET_GENERATED(item);
 	offset += 8;
 
