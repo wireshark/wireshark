@@ -96,7 +96,7 @@ typedef struct _oid_info_t {
 	guint32 subid;
 	char* name;
 	oid_kind_t kind;
-	void* children; /* an emem_tree_t* */
+	void* children; /**< an emem_tree_t* */
 	const oid_value_type_t* value_type;
 	int value_hfid;
 	oid_key_t* key;

@@ -27,8 +27,9 @@
 #define __EMEM_H__
 
 #include "g_gnuc_malloc.h"
-
-/*  Initialize all the memory allocation pools described below.
+/** @file
+ */
+/**  Initialize all the memory allocation pools described below.
  *  This function must be called once when *shark initialize to set up the
  *  required structures.
  */
@@ -46,37 +47,37 @@ void emem_init(void);
  * the previous packet is freed.
  */
 
-/* Allocate memory with a packet lifetime scope */
+/** Allocate memory with a packet lifetime scope */
 void *ep_alloc(size_t size) G_GNUC_MALLOC;
 #define ep_new(type) ((type*)ep_alloc(sizeof(type)))
 
-/* Allocate memory with a packet lifetime scope and fill it with zeros*/
+/** Allocate memory with a packet lifetime scope and fill it with zeros*/
 void* ep_alloc0(size_t size) G_GNUC_MALLOC;
 #define ep_new0(type) ((type*)ep_alloc0(sizeof(type)))
 
-/* Duplicate a string with a packet lifetime scope */
+/** Duplicate a string with a packet lifetime scope */
 gchar* ep_strdup(const gchar* src) G_GNUC_MALLOC;
 
-/* Duplicate at most n characters of a string with a packet lifetime scope */
+/** Duplicate at most n characters of a string with a packet lifetime scope */
 gchar* ep_strndup(const gchar* src, size_t len) G_GNUC_MALLOC;
 
-/* Duplicate a buffer with a packet lifetime scope */
+/** Duplicate a buffer with a packet lifetime scope */
 void* ep_memdup(const void* src, size_t len) G_GNUC_MALLOC;
 
-/* Create a formatted string with a packet lifetime scope */
+/** Create a formatted string with a packet lifetime scope */
 gchar* ep_strdup_vprintf(const gchar* fmt, va_list ap) G_GNUC_MALLOC;
 gchar* ep_strdup_printf(const gchar* fmt, ...)
      G_GNUC_MALLOC G_GNUC_PRINTF(1, 2);
 
-/* allocates with a packet lifetime scope an array of type made of num elements */
+/** allocates with a packet lifetime scope an array of type made of num elements */
 #define ep_alloc_array(type,num) (type*)ep_alloc(sizeof(type)*(num))
 
-/* allocates with a packet lifetime scope an array of type made of num elements,
+/** allocates with a packet lifetime scope an array of type made of num elements,
  * initialised to zero.
  */
 #define ep_alloc_array0(type,num) (type*)ep_alloc0(sizeof(type)*(num))
 
-/*
+/**
  * Splits a string into a maximum of max_tokens pieces, using the given
  * delimiter. If max_tokens is reached, the remainder of string is appended
  * to the last token. Consecutive delimiters are treated as a single delimiter.
@@ -85,11 +86,11 @@ gchar* ep_strdup_printf(const gchar* fmt, ...)
  */
 gchar** ep_strsplit(const gchar* string, const gchar* delimiter, int max_tokens);
 
-/* release all memory allocated in the previous packet dissection */
+/** release all memory allocated in the previous packet dissection */
 void ep_free_all(void);
 
 
-/* a stack implemented using ephemeral allocators */
+/** a stack implemented using ephemeral allocators */
 
 typedef struct _ep_stack_frame_t** ep_stack_t;
 
@@ -99,22 +100,22 @@ struct _ep_stack_frame_t {
     struct _ep_stack_frame_t* above;
 };
 
-/*
+/**
  * creates an empty stack with a packet lifetime scope
  */
 ep_stack_t ep_stack_new(void) G_GNUC_MALLOC;
 
-/*
+/**
  * pushes item into stack, returns item
  */
 void* ep_stack_push(ep_stack_t stack, void* item);
 
-/*
+/**
  * pops an item from the stack
  */
 void* ep_stack_pop(ep_stack_t stack);
 
-/*
+/**
  * returns the item on top of the stack without popping it
  */
 #define ep_stack_peek(stack) ((*(stack))->payload)
@@ -131,19 +132,19 @@ void* ep_stack_pop(ep_stack_t stack);
  * These functions are very fast and offer automatic garbage collection.
  */
 
-/* Allocate memory with a capture lifetime scope */
+/** Allocate memory with a capture lifetime scope */
 void *se_alloc(size_t size) G_GNUC_MALLOC;
 
-/* Allocate memory with a capture lifetime scope and fill it with zeros*/
+/** Allocate memory with a capture lifetime scope and fill it with zeros*/
 void* se_alloc0(size_t size) G_GNUC_MALLOC;
 
-/* Duplicate a string with a capture lifetime scope */
+/** Duplicate a string with a capture lifetime scope */
 gchar* se_strdup(const gchar* src) G_GNUC_MALLOC;
 
-/* Duplicate at most n characters of a string with a capture lifetime scope */
+/** Duplicate at most n characters of a string with a capture lifetime scope */
 gchar* se_strndup(const gchar* src, size_t len) G_GNUC_MALLOC;
 
-/* Duplicate a buffer with a capture lifetime scope */
+/** Duplicate a buffer with a capture lifetime scope */
 void* se_memdup(const void* src, size_t len) G_GNUC_MALLOC;
 
 /* Create a formatted string with a capture lifetime scope */
@@ -151,10 +152,10 @@ gchar* se_strdup_vprintf(const gchar* fmt, va_list ap) G_GNUC_MALLOC;
 gchar* se_strdup_printf(const gchar* fmt, ...)
      G_GNUC_MALLOC G_GNUC_PRINTF(1, 2);
 
-/* allocates with a capture lifetime scope an array of type made of num elements */
+/** allocates with a capture lifetime scope an array of type made of num elements */
 #define se_alloc_array(type,num) (type*)se_alloc(sizeof(type)*(num))
 
-/* release all memory allocated */
+/** release all memory allocated */
 void se_free_all(void);
 
 
@@ -179,7 +180,7 @@ typedef struct _emem_tree_node_t {
 	void *data;
 } emem_tree_node_t;
 
-/* Right now we only do basic red/black trees   but in the future we might want
+/** Right now we only do basic red/black trees   but in the future we might want
  * to try something different, such as a tree where each node keeps track
  * of how many times it has been looked up, and letting often looked up
  * nodes bubble upwards in the tree using rotate_right/left.
@@ -189,7 +190,7 @@ typedef struct _emem_tree_node_t {
 typedef struct _emem_tree_t {
 	struct _emem_tree_t *next;
 	int type;
-	const char *name;    /* just a string to make debugging easier */
+	const char *name;    /**< just a string to make debugging easier */
 	emem_tree_node_t *tree;
 	void *(*malloc)(size_t);
 } emem_tree_t;
@@ -197,7 +198,7 @@ typedef struct _emem_tree_t {
 /* *******************************************************************
  * Tree functions for SE memory allocation scope
  * ******************************************************************* */
-/* This function is used to create a se based tree with monitoring.
+/** This function is used to create a se based tree with monitoring.
  * When the SE heap is released back to the system the pointer to the
  * tree is automatically reset to NULL.
  *
@@ -205,7 +206,7 @@ typedef struct _emem_tree_t {
  */
 emem_tree_t *se_tree_create(int type, const char *name) G_GNUC_MALLOC;
 
-/* This function is similar to the se_tree_create() call but with the
+/** This function is similar to the se_tree_create() call but with the
  * difference that when the se memory is released everything including the
  * pointer to the tree itself will be released.
  * This tree will not be just reset to zero, it will be completely forgotten
@@ -216,48 +217,48 @@ emem_tree_t *se_tree_create(int type, const char *name) G_GNUC_MALLOC;
  */
 emem_tree_t *se_tree_create_non_persistent(int type, const char *name) G_GNUC_MALLOC;
 
-/* se_tree_insert32
+/** se_tree_insert32
  * Insert data into the tree and key it by a 32bit integer value
  */
 #define se_tree_insert32 emem_tree_insert32
 
-/* se_tree_lookup32
+/** se_tree_lookup32
  * Retrieve the data at the search key. The search key is a 32bit integer value
  */
 #define se_tree_lookup32 emem_tree_lookup32
 
-/* se_tree_lookup32_le
+/** se_tree_lookup32_le
  * Retrieve the data for the largest key that is less than or equal
  * to the search key.
  */
 #define se_tree_lookup32_le emem_tree_lookup32_le
 
-/* se_tree_insert32_array
+/** se_tree_insert32_array
  * Insert data into the tree and key it by a 32bit integer value
  */
 #define se_tree_insert32_array emem_tree_insert32_array
 
-/* se_tree_lookup32_array
+/** se_tree_lookup32_array
  * Lookup data from the tree that is index by an array
  */
 #define se_tree_lookup32_array emem_tree_lookup32_array
 
-/* se_tree_lookup32_array_le
+/** se_tree_lookup32_array_le
  * Retrieve the data for the largest key that is less than or equal
  * to the search key.
  */
 #define se_tree_lookup32_array_le emem_tree_lookup32_array_le
 
-/* Create a new string based hash table */
+/** Create a new string based hash table */
 #define se_tree_create_string() se_tree_create(SE_TREE_TYPE_RED_BLACK)
 
-/* Insert a new value under a string key */
+/** Insert a new value under a string key */
 #define se_tree_insert_string emem_tree_insert_string
 
-/* Lookup the value under a string key */
+/** Lookup the value under a string key */
 #define se_tree_lookup_string emem_tree_lookup_string
 
-/* Traverse a tree */
+/** Traverse a tree */
 #define se_tree_foreach emem_tree_foreach
 
 
@@ -282,19 +283,19 @@ emem_tree_t *pe_tree_create(int type, const char *name) G_GNUC_MALLOC;
  * Real tree functions
  * ****************************************************************** */
 
-/* This function is used to insert a node indexed by a guint32 key value.
+/** This function is used to insert a node indexed by a guint32 key value.
  * The data pointer should be allocated by the appropriate storage scope
  * so that it will be released at the same time as the tree itself is
  * destroyed.
  */
 void emem_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data);
 
-/* This function will look up a node in the tree indexed by a guint32 integer
+/** This function will look up a node in the tree indexed by a guint32 integer
  * value.
  */
 void *emem_tree_lookup32(emem_tree_t *se_tree, guint32 key);
 
-/* This function will look up a node in the tree indexed by a guint32 integer
+/** This function will look up a node in the tree indexed by a guint32 integer
  * value.
  * The function will return the node that has the largest key that is
  * equal to or smaller than the search key, or NULL if no such key was
@@ -303,11 +304,11 @@ void *emem_tree_lookup32(emem_tree_t *se_tree, guint32 key);
 void *emem_tree_lookup32_le(emem_tree_t *se_tree, guint32 key);
 
 typedef struct _emem_tree_key_t {
-	guint32 length;			/*length in guint32 words */
+	guint32 length;			/**< length in guint32 words */
 	guint32 *key;
 } emem_tree_key_t;
 
-/* This function is used to insert a node indexed by a sequence of guint32
+/** This function is used to insert a node indexed by a sequence of guint32
  * key values.
  * The data pointer should be allocated by SE allocators so that the
  * data will be released at the same time as the tree itself is destroyed.
@@ -340,12 +341,12 @@ typedef struct _emem_tree_key_t {
  */
 void emem_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data);
 
-/* This function will look up a node in the tree indexed by a sequence of
+/** This function will look up a node in the tree indexed by a sequence of
  * guint32 integer values.
  */
 void *emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key);
 
-/* This function will look up a node in the tree indexed by a
+/** This function will look up a node in the tree indexed by a
  * multi-part tree value.
  * The function will return the node that has the largest key that is
  * equal to or smaller than the search key, or NULL if no such key was
@@ -355,16 +356,16 @@ void *emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key);
  */
 void *emem_tree_lookup32_array_le(emem_tree_t *se_tree, emem_tree_key_t *key);
 
-/* case insensitive strings as keys */
+/** case insensitive strings as keys */
 #define EMEM_TREE_STRING_NOCASE			0x00000001
-/* Insert a new value under a string key */
+/** Insert a new value under a string key */
 void emem_tree_insert_string(emem_tree_t* h, const gchar* k, void* v, guint32 flags);
 
-/* Lookup the value under a string key */
+/** Lookup the value under a string key */
 void* emem_tree_lookup_string(emem_tree_t* h, const gchar* k, guint32 flags);
 
 
-/* traverse a tree. if the callback returns TRUE the traversal will end */
+/** traverse a tree. if the callback returns TRUE the traversal will end */
 typedef gboolean (*tree_foreach_func)(void *value, void *userdata);
 
 gboolean emem_tree_foreach(emem_tree_t* emem_tree, tree_foreach_func callback, void *user_data);
@@ -375,12 +376,12 @@ gboolean emem_tree_foreach(emem_tree_t* emem_tree, tree_foreach_func callback, v
  * ****************************************************************** */
 
 typedef struct _emem_strbuf_t {
-    gchar *str;             /* Points to the character data. It may move as text is       */
+    gchar *str;             /**< Points to the character data. It may move as text is       */
                             /*  added. The str field is null-terminated and so can        */
                             /*  be used as an ordinary C string.                          */
-    gsize len;              /* strlen: ie: length of str not including trailing '\0'      */
-    gsize alloc_len;        /* num bytes curently allocated for str: 1 .. MAX_STRBUF_LEN  */
-    gsize max_alloc_len;    /* max num bytes to allocate for str: 1 .. MAX_STRBUF_LEN     */
+    gsize len;              /**< strlen: ie: length of str not including trailing '\0'      */
+    gsize alloc_len;        /**< num bytes curently allocated for str: 1 .. MAX_STRBUF_LEN  */
+    gsize max_alloc_len;    /**< max num bytes to allocate for str: 1 .. MAX_STRBUF_LEN     */
 } emem_strbuf_t;
 
 /*
@@ -481,7 +482,7 @@ void emem_print_tree(emem_tree_t* emem_tree);
 
 /* #define DEBUG_INTENSE_CANARY_CHECKS */
 
-/* Helper to troubleshoot ep memory corruption.
+/** Helper to troubleshoot ep memory corruption.
  * If compiled and the environment variable WIRESHARK_DEBUG_EP_INTENSE_CANARY exists
  * it will check the canaries and when found corrupt stop there in the hope
  * the corruptor is still there in the stack.
@@ -498,13 +499,20 @@ void ep_check_canary_integrity(const char* fmt, ...)
 #endif
 
 /**
- * Verify that the given pointer is of ephemeral/seasonal type.
+ * Verify that the given pointer is of ephemeral type.
  *
  * @param ptr The pointer to verify
  *
- * @return TRUE if the pointer belongs to the ephemeral/seasonal pool.
+ * @return TRUE if the pointer belongs to the ephemeral pool.
  */
 gboolean ep_verify_pointer(const void *ptr);
+/**
+ * Verify that the given pointer is of seasonal type.
+ *
+ * @param ptr The pointer to verify
+ *
+ * @return TRUE if the pointer belongs to the seasonal pool.
+ */
 gboolean se_verify_pointer(const void *ptr);
 
 #endif /* emem.h */

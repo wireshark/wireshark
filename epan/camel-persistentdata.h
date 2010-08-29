@@ -37,7 +37,9 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define NB_CAMELSRT_CATEGORY 9+1 /* Number of type of message */
+/** @file
+*/
+#define NB_CAMELSRT_CATEGORY 9+1 /**< Number of type of message */
 /* for example TC_BEGIN with InitalDP, and TC_CONT with RequestReportBCSMEvent
    is a category, we want to measure the delay between the two messages */ 
 
@@ -56,37 +58,37 @@ extern "C" {
 
 WS_VAR_IMPORT const value_string  camelSRTtype_naming[];
 
-/* If we have a request message and its response,
+/** If we have a request message and its response,
    (eg: ApplyCharging, ApplyChargingReport)
    the frames numbers are stored in this structure */ 
 
 struct camelsrt_category_t {
-  guint32 req_num;	/* frame number request seen */
-  guint32 rsp_num;	/* frame number response seen */
-  nstime_t req_time;	/* arrival time of request */
-  gboolean responded;	/* true, if request has been responded */
+  guint32 req_num;		/**< frame number request seen */
+  guint32 rsp_num;		/**< frame number response seen */
+  nstime_t req_time;	/**< arrival time of request */
+  gboolean responded;	/**< true, if request has been responded */
 };
 
-/* List of stored parameters for a Camel dialogue
+/** List of stored parameters for a Camel dialogue
    All this parameters are linked to the hash table key below (use of Tid)
    In case of same Tid reused, the Camel parameters are chained.
    The right dialogue will be identified with the arrival time of the InitialDP */
 
 struct camelsrt_call_t {
-  guint32 session_id;    /* Identify the session, with an internal number */
+  guint32 session_id;    /**< Identify the session, with an internal number */
   struct tcaphash_context_t * tcap_context;
   struct camelsrt_category_t category[NB_CAMELSRT_CATEGORY];
 };
 
 
-/* The Key for the hash table is the TCAP origine transaction identifier 
+/** The Key for the hash table is the TCAP origine transaction identifier 
    of the TC_BEGIN containing the InitialDP */
 
 struct camelsrt_call_info_key_t {
   guint32 SessionIdKey;
 };
 
-/* Info for a couple of messages (or category)
+/** Info for a couple of messages (or category)
    The request must be available, not duplicated, 
    and once the corresponding response received, 
    we can deduce the Delta Time between Request/response */
@@ -99,20 +101,34 @@ struct camelsrt_msginfo_t {
   nstime_t delta_time;
 };
 
-/* List of infos to store for the analyse */
+/** List of infos to store for the analyse */
 
 struct camelsrt_info_t { 
   guint32 tcap_session_id;
   void * tcap_context;
-  guint8 opcode; /* operation code of message received */
-  guint8 bool_msginfo[NB_CAMELSRT_CATEGORY]; /* category for the received message */
+  guint8 opcode; /**< operation code of message received */
+  guint8 bool_msginfo[NB_CAMELSRT_CATEGORY]; /**< category for the received message */
   struct camelsrt_msginfo_t msginfo[NB_CAMELSRT_CATEGORY];
 };
 
+/**
+ * Routine called when the TAP is initialized.
+ * so hash table are (re)created
+ */
 void camelsrt_init_routine(void);
 
+/**
+ * Initialize the Message Info used by the main dissector
+ * Data are linked to a TCAP transaction
+ */
 struct camelsrt_info_t * camelsrt_razinfo(void);
 
+/**
+ * Service Response Time analyze, called just after the camel dissector
+ * According to the camel operation, we
+ * - open/close a context for the camel session
+ * - look for a request, or look for the corresponding response
+ */
 void camelsrt_call_matching(tvbuff_t *tvb,
 			    packet_info * pinfo _U_,
 			    proto_tree *tree,

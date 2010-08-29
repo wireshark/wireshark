@@ -29,7 +29,7 @@
 #define __IPV6_UTILS_H__
 
 struct e_in6_addr {
-	guint8   bytes[16];		/** 128 bit IP6 address */
+	guint8   bytes[16];		/**< 128 bit IP6 address */
 };
 
 /**

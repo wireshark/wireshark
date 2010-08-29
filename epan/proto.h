@@ -370,7 +370,7 @@ typedef proto_node proto_item;
  */
 
 /* expert severities */
-#define PI_SEVERITY_MASK	0x00F00000	/* mask usually for internal use only! */
+#define PI_SEVERITY_MASK	0x00F00000	/**< mask usually for internal use only! */
 /** Usual workflow, e.g. TCP connection establishing */
 #define PI_CHAT			0x00200000
 /** Notable messages, e.g. an application returned an "usual" error code like HTTP 404 */
@@ -381,7 +381,7 @@ typedef proto_node proto_item;
 #define PI_ERROR		0x00800000
 
 /* expert "event groups" */
-#define PI_GROUP_MASK		0xFF000000	/* mask usually for internal use only! */
+#define PI_GROUP_MASK		0xFF000000	/**< mask usually for internal use only! */
 /** The protocol field has a bad checksum, usually PI_WARN */
 
 #define PI_CHECKSUM		0x01000000

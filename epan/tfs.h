@@ -26,10 +26,14 @@
 #ifndef __TFS_H__
 #define __TFS_H__
 
-/* Struct for boolean enumerations */
+/** @file
+ * true_false strings
+ */
+
+/** Struct for boolean enumerations */
 typedef struct true_false_string {
-        const char      *true_string;
-        const char      *false_string;
+        const char      *true_string;	/**< The string presented when true  */
+        const char      *false_string;	/**< The string presented when false */
 } true_false_string;
 
 /*

@@ -26,6 +26,9 @@
 #include <glib.h>
 #include "cppmagic.h"
 
+/** @file
+ */
+
 typedef enum {
 	STTYPE_UNINITIALIZED,
 	STTYPE_TEST,
@@ -51,7 +54,7 @@ typedef struct {
 	STTypeFreeFunc		func_free;
 } sttype_t;
 
-/* Node (type instance) information */
+/** Node (type instance) information */
 typedef struct {
 	guint32		magic;
 	sttype_t	*type;

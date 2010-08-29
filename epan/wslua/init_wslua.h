@@ -33,8 +33,8 @@
  * @ingroup wslua_group
  */
 typedef struct _wslua_plugin {
-    gchar       *name;            /* plugin name */
-    gchar       *version;         /* plugin version */
+    gchar       *name;            /**< plugin name */
+    gchar       *version;         /**< plugin version */
     struct _wslua_plugin *next;
 } wslua_plugin;
 

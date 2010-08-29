@@ -29,6 +29,11 @@
 
 #include <wiretap/wtap.h>
 
+/** @file
+ * Definition of data structure to hold time values with nanosecond resolution
+ */
+
+/** data structure to hold time values with nanosecond resolution*/
 typedef struct {
 	time_t	secs;
 	int	nsecs;
@@ -36,13 +41,13 @@ typedef struct {
 
 /* functions */
 
-/* set the given nstime_t to zero */
+/** set the given nstime_t to zero */
 extern void nstime_set_zero(nstime_t *nstime);
 
-/* is the given nstime_t currently zero? */
+/** is the given nstime_t currently zero? */
 extern gboolean nstime_is_zero(nstime_t *nstime);
 
-/* set the given nstime_t to (0,maxint) to mark it as "unset"
+/** set the given nstime_t to (0,maxint) to mark it as "unset"
  * That way we can find the first frame even when a timestamp
  * is zero (fix for bug 1056)
  */
@@ -51,7 +56,7 @@ extern void nstime_set_unset(nstime_t *nstime);
 /* is the given nstime_t currently (0,maxint)? */
 extern gboolean nstime_is_unset(nstime_t *nstime);
 
-/* calculate the delta between two times (can be negative!)
+/** calculate the delta between two times (can be negative!)
  *
  * delta = b-a
  *
@@ -60,7 +65,7 @@ extern gboolean nstime_is_unset(nstime_t *nstime);
  */
 extern void nstime_delta(nstime_t *delta, const nstime_t *b, const nstime_t *a );
 
-/* calculate the sum of two times
+/** calculate the sum of two times
  *
  * sum = a+b
  *
@@ -69,10 +74,10 @@ extern void nstime_delta(nstime_t *delta, const nstime_t *b, const nstime_t *a )
  */
 extern void nstime_sum(nstime_t *sum, const nstime_t *b, const nstime_t *a );
 
-/* sum += a */
+/** sum += a */
 #define nstime_add(sum, a) nstime_sum(sum, sum, a)
 
-/* compare two times are return a value similar to memcmp() or strcmp().
+/** compare two times are return a value similar to memcmp() or strcmp().
  *
  * a > b : > 0
  * a = b : 0
@@ -80,13 +85,13 @@ extern void nstime_sum(nstime_t *sum, const nstime_t *b, const nstime_t *a );
  */
 extern int nstime_cmp (const nstime_t *a, const nstime_t *b );
 
-/* converts nstime to double, time base is milli seconds */
+/** converts nstime to double, time base is milli seconds */
 extern double nstime_to_msec(const nstime_t *nstime);
 
-/* converts nstime to double, time base is seconds */
+/** converts nstime to double, time base is seconds */
 extern double nstime_to_sec(const nstime_t *nstime);
 
-/* converts wtap_nstime to double, time base is seconds */
+/** converts wtap_nstime to double, time base is seconds */
 extern double wtap_nstime_to_sec(const struct wtap_nstime *nstime);
 
 #endif /* __NSTIME_H__  */

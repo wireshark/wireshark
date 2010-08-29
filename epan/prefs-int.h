@@ -33,15 +33,15 @@
  */
 
 struct pref_module {
-	const char *name;			/** name of module */
-	const char *title;			/** title of module (displayed in preferences list) */
-	const char *description;	/** Description of module (displayed in preferences notebook) */
-	void (*apply_cb)(void);		/** routine to call when preferences applied */
-	GList	*prefs;				/** list of its preferences */
-	emem_tree_t *submodules;	/** list of its submodules */
-	int	numprefs;				/** number of non-obsolete preferences */
-	gboolean prefs_changed;		/** if TRUE, a preference has changed since we last checked */
-	gboolean obsolete;			/** if TRUE, this is a module that used to
+	const char *name;			/**< name of module */
+	const char *title;			/**< title of module (displayed in preferences list) */
+	const char *description;	/**< Description of module (displayed in preferences notebook) */
+	void (*apply_cb)(void);		/**< routine to call when preferences applied */
+	GList	*prefs;				/**< list of its preferences */
+	emem_tree_t *submodules;	/**< list of its submodules */
+	int	numprefs;				/**< number of non-obsolete preferences */
+	gboolean prefs_changed;		/**< if TRUE, a preference has changed since we last checked */
+	gboolean obsolete;			/**< if TRUE, this is a module that used to
 								 * exist but no longer does
 								 */
 };
@@ -69,11 +69,11 @@ typedef enum {
 
 /** Struct to hold preference data */
 struct preference {
-	const char *name;			/** name of preference */
-	const char *title;			/** title to use in GUI */
-	const char *description;	/** human-readable description of preference */
-	int	ordinal;				/** ordinal number of this preference */
-	pref_type_t type;			/** type of that preference */
+	const char *name;			/**< name of preference */
+	const char *title;			/**< title to use in GUI */
+	const char *description;	/**< human-readable description of preference */
+	int	ordinal;				/**< ordinal number of this preference */
+	pref_type_t type;			/**< type of that preference */
 	union {
 		guint *uint;
 		gboolean *boolp;
@@ -81,33 +81,33 @@ struct preference {
 		const char **string;
 		range_t **range;
 		void* uat;
-	} varp;						/** pointer to variable storing the value */
+	} varp;						/**< pointer to variable storing the value */
 	union {
 		guint uint;
 		gboolean boolval;
 		gint enumval;
 		char *string;
 		range_t *range;
-	} saved_val;				/** original value, when editing from the GUI */
+	} saved_val;				/**< original value, when editing from the GUI */
 	union {
 		guint uint;
 		gboolean boolval;
 		gint enumval;
 		char *string;
 		range_t *range;
-	} default_val;				/** the default value of the preference */
+	} default_val;				/**< the default value of the preference */
 	union {
-	  guint base;				/** input/output base, for PREF_UINT */
-	  guint32 max_value;		/** maximum value of a range */
+	  guint base;				/**< input/output base, for PREF_UINT */
+	  guint32 max_value;		/**< maximum value of a range */
 	  struct {
-	    const enum_val_t *enumvals;	/** list of name & values */
-	    gboolean radio_buttons;	/** TRUE if it should be shown as
+	    const enum_val_t *enumvals;	/**< list of name & values */
+	    gboolean radio_buttons;	/**< TRUE if it should be shown as
 								radio buttons rather than as an
 								option menu or combo box in
 								the preferences tab */
-	  } enum_info;				/** for PREF_ENUM */
-	} info;						/** display/text file information */
-	void	*control;			/** handle for GUI control for this preference */
+	  } enum_info;				/**< for PREF_ENUM */
+	} info;						/**< display/text file information */
+	void	*control;			/**< handle for GUI control for this preference */
 };
 
 /* read_prefs_file: read in a generic config file and do a callback to */

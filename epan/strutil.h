@@ -64,6 +64,17 @@ int        get_token_len(const guchar *linep, const guchar *lineend,
  */
 gchar*     format_text(const guchar *line, size_t len);
 
+/**
+ * Given a string, generate a string from it that shows non-printable
+ * characters as C-style escapes except a whitespace character
+ * (space, tab, carriage return, new line, vertical tab, or formfeed)
+ * which will be replaced by a space, and return a pointer to it.
+ *
+ * @param line A pointer to the input string
+ * @param len The length of the input string
+ * @return A pointer to the formatted string
+ *
+ */
 gchar*     format_text_wsp(const guchar *line, size_t len);
 
 /** Turn an array of bytes into a string showing the bytes in hex.
@@ -141,7 +152,7 @@ gboolean   oid_str_to_bytes(const char *oid_str, GByteArray *bytes);
  * @param ba The byte array to be copied.
  * @return If ba exists, a freshly allocated copy.  NULL otherwise.
  *
- * XXX - Should this be in strutil.c?
+ * @todo - Should this be in strutil.c?
  */
 GByteArray *byte_array_dup(GByteArray *ba);
 
@@ -154,7 +165,7 @@ GByteArray *byte_array_dup(GByteArray *ba);
  *         their contents are equal, returns TRUE.  Otherwise, returns
  *         FALSE.
  *
- * XXX - Should this be in strutil.c?
+ * @todo - Should this be in strutil.c?
  */
 gboolean byte_array_equal(GByteArray *ba1, GByteArray *ba2);
 
@@ -182,7 +193,7 @@ gchar*     xml_escape(const gchar *unescaped);
 const guint8 * epan_memmem(const guint8 *haystack, guint haystack_len,
 		const guint8 *needle, guint needle_len);
 
-/* Surround a string or a macro, resolved to a string, with double quotes */
+/** Surround a string or a macro, resolved to a string, with double quotes */
 #define _STRINGIFY(a)           # a
 #define STRINGIFY(a)            _STRINGIFY(a)
 

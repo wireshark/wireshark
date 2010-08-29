@@ -31,15 +31,15 @@
 #define INDENT_MAX 32
 #define NUM_BUF_SIZE 32
 
-/* implementations should define this to contain its own node related data
+/** implementations should define this to contain its own node related data
  * as well as some operations on it */
 typedef struct _st_node_pres st_node_pres;
 
-/* implementations should define this to contain its own dynamic tree related data
+/** implementations should define this to contain its own dynamic tree related data
 * as well as some operations on it */
 typedef struct _tree_pres tree_pres;
 
-/* implementations should define this to contain its own static tree related data
+/** implementations should define this to contain its own static tree related data
 * as well as some operations on it */
 typedef struct _tree_cfg_pres tree_cfg_pres;
 
@@ -56,29 +56,29 @@ struct _stat_node {
 	gchar*			name;
 	int			id;
 	
-	/* the counter it keeps */
+	/** the counter it keeps */
 	gint			counter;
 
-	/* children nodes by name */
+	/** children nodes by name */
 	GHashTable		*hash;
 	
-	/* the owner of this node */
+	/** the owner of this node */
 	stats_tree		*st;
 	
-	/* relatives */
+	/** relatives */
 	stat_node		*parent;
 	stat_node		*children;
 	stat_node		*next;
 
-	/* used to check if value is within range */
+	/** used to check if value is within range */
 	range_pair_t		*rng;
 	
-	/* node presentation data */
+	/** node presentation data */
 	st_node_pres		*pr;
 };
 
 struct _stats_tree {
-	/* the "class" from which it's derived */
+	/** the "class" from which it's derived */
 	stats_tree_cfg		*cfg;
 	
 	char			*filter;
@@ -87,22 +87,22 @@ struct _stats_tree {
 	double			start;
 	double			elapsed;
 
-   /* used to lookup named parents:
+   /** used to lookup named parents:
 	*    key: parent node name
 	*  value: parent node
 	*/
 	GHashTable		*names;
 	
-   /* used for quicker lookups of parent nodes */
+   /** used for quicker lookups of parent nodes */
 	GPtrArray		*parents;
 		
-	/*
+	/**
 	 *  tree representation
 	 * 	to be defined (if needed) by the implementations
 	 */
 	tree_pres		*pr;
 	
-	/* every tree in nature has one */
+	/** every tree in nature has one */
 	stat_node		root;
 };
 
@@ -114,29 +114,29 @@ struct _stats_tree_cfg {
 	
 	gboolean in_use;
 
-	/* dissector defined callbacks */
+	/** dissector defined callbacks */
 	stat_tree_packet_cb packet;
 	stat_tree_init_cb init;
 	stat_tree_cleanup_cb cleanup;
 
-	/* tap listener flags for the per-packet callback */
+	/** tap listener flags for the per-packet callback */
 	guint flags;
 	
 	/*
 	 * node presentation callbacks
 	 */
 
-	/* last to be called at node creation */
+	/** last to be called at node creation */
 	void (*setup_node_pr)(stat_node*);
 	
-	/* last to be called at node destruction */
+	/** last to be called at node destruction */
 	void (*free_node_pr)(stat_node*);
 	
-	/* to be called for every node in the tree */
+	/** to be called for every node in the tree */
 	void (*draw_node)(stat_node*);
 	void (*reset_node)(stat_node*);
 	
-	/*
+	/**
 	 * tree presentation callbacks
 	 */
 	tree_cfg_pres *pr;
@@ -162,26 +162,26 @@ extern void stats_tree_presentation(void (*registry_iterator)(gpointer,gpointer,
 
 extern stats_tree *stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter);
 
-/* callback for taps */
+/** callback for taps */
 extern int  stats_tree_packet(void*, packet_info*, epan_dissect_t*, const void *);
 
-/* callback for reset */
+/** callback for reset */
 extern void stats_tree_reset(void *p_st);
 
-/* callback for clear */
+/** callback for clear */
 extern void stats_tree_reinit(void *p_st);
 
 /* callback for destoy */
 extern void stats_tree_free(stats_tree *st);
 
-/* given an optarg splits the abbr part
+/** given an optarg splits the abbr part
    and returns a newly allocated buffer containing it */
 extern gchar *stats_tree_get_abbr(const gchar *optarg);
 
-/* obtains a stats tree from the registry given its abbr */
+/** obtains a stats tree from the registry given its abbr */
 extern stats_tree_cfg *stats_tree_get_cfg_by_abbr(gchar *abbr);
 
-/* extracts node data as strings from a stat_node into
+/** extracts node data as strings from a stat_node into
    the buffers given by value, rate and precent
    if NULL they are ignored */
 extern void stats_tree_get_strs_from_node(const stat_node *node,
@@ -189,16 +189,16 @@ extern void stats_tree_get_strs_from_node(const stat_node *node,
 					  gchar *rate,
 					  gchar *percent);
 
-/* populates the given GString with a tree representation of a branch given by node,
+/** populates the given GString with a tree representation of a branch given by node,
    using indent spaces as indentation */
 extern void stats_tree_branch_to_str(const stat_node *node,
 				     GString *s,
 				     guint indent);
 
-/* used to calcuate the size of the indentation and the longest string */
+/** used to calcuate the size of the indentation and the longest string */
 extern guint stats_tree_branch_max_namelen(const stat_node *node, guint indent);
 
-/* a text representation of a node,
+/** a text representation of a node,
    if buffer is NULL returns a newly allocated string */
 extern gchar *stats_tree_node_to_str(const stat_node *node,
 				     gchar *buffer, guint len);

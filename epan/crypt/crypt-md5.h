@@ -26,7 +26,7 @@
  * @brief MD5 Functions
  */
 
-/**
+/* Don't define this group for Wireshark
  * @defgroup PJLIB_UTIL_MD5 MD5 Functions
  * @ingroup PJLIB_UTIL
  * @{
@@ -64,7 +64,7 @@ void md5_finish(md5_state_t *pms, guint8 digest[16]);
 
 void md5_hmac(const guint8* text, size_t text_len, const guint8* key, size_t key_len, guint8 digest[16]);
 
-/**
+/*
  * @}
  */
 
