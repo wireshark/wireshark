@@ -14,7 +14,7 @@ LINK= link
 # We use GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
 GENERATED_CFLAGS=-DHAVE_CONFIG_H /I. /I.. /I../wiretap $(GLIB_CFLAGS) \
 	$(ZLIB_CFLAGS) $(C_ARES_CFLAGS) $(ADNS_CFLAGS) $(PCRE_CFLAGS) \
-	$(GNUTLS_CFLAGS) /I$(PCAP_DIR)\include \
+	$(LUA_CFLAGS) $(GNUTLS_CFLAGS) /I$(PCAP_DIR)\include \
 	$(SMI_CFLAGS) $(GEOIP_CFLAGS) -D_U_="" $(LOCAL_CFLAGS)
 CFLAGS=-WX $(GENERATED_CFLAGS)
 

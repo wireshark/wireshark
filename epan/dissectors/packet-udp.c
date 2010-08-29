@@ -538,7 +538,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     ti = proto_tree_add_text(udp_tree, tvb, offset, 0, "Process Information");
 	PROTO_ITEM_SET_GENERATED(ti);
     process_tree = proto_item_add_subtree(ti, ett_udp_process_info);
-	if (udpd->fwd->command) {
+	if (udpd->fwd && udpd->fwd->command) {
       proto_tree_add_uint_format_value(process_tree, hf_udp_proc_dst_uid, tvb, 0, 0,
               udpd->fwd->process_uid, "%u", udpd->fwd->process_uid);
       proto_tree_add_uint_format_value(process_tree, hf_udp_proc_dst_pid, tvb, 0, 0,

@@ -5982,7 +5982,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     else if (vl == 0) {
 	/* No value */
-	tag_value = "<Empty>";
+	g_strlcpy(tag_value, "<Empty>", MAX_BUF_LEN);
     }
     else if (vl > vl_max) {
 	/* Tag is longer than the PDV/PDU. Don't perform any decoding */

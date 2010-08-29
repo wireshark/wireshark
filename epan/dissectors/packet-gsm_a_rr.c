@@ -922,8 +922,8 @@ static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, guint3
 static guint16
 dissect_arfcn_list_core(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_, guint8 format)
 {
-    guint32 curr_offset;
-    guint8  oct,bit,byte;
+    guint32 curr_offset,byte;
+    guint8  oct,bit;
     guint16 arfcn;
     proto_item	*item;
 

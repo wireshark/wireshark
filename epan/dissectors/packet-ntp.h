@@ -32,6 +32,6 @@
 #define NTP_BASETIME 2208988800ul
 #define NTP_TS_SIZE 100
 
-extern char * ntp_fmt_ts(const guint8 *reftime);
+extern const char * ntp_fmt_ts(const guint8 *reftime);
 
 #endif

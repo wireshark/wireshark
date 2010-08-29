@@ -750,7 +750,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
     packet_info *pinfo _U_,
     int hfindex,
     gboolean fixed_length, guint32 length,
-    gboolean string_data, char **string_buffer_ret)
+    gboolean string_data, char const **string_buffer_ret)
 {
 	int data_offset;
 	proto_item *string_item = NULL;
@@ -771,7 +771,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 	int exception = 0;
 
 	char *string_buffer = NULL;
-	char *string_buffer_print = NULL;
+	const char *string_buffer_print = NULL;
 
 	if (fixed_length) {
 		string_length = length;
@@ -873,7 +873,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 				/* alloc maximum data area */
 				string_buffer_print = (char*) ep_alloc(string_buffer_size);
 				/* copy over the data */
-				g_snprintf(string_buffer_print, string_buffer_size,
+				g_snprintf((char *)string_buffer_print, string_buffer_size,
 						"%s<TRUNCATED>", formatted);
 				/* append <TRUNCATED> */
 				/* This way, we get the TRUNCATED even
@@ -888,7 +888,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 			}
 		} else {
 			if (string_data) {
-				string_buffer_print = (char *)
+				string_buffer_print = 
 				    ep_strdup(format_text((guint8 *) string_buffer,
 								 (int)strlen(string_buffer)));
 			} else {
@@ -965,7 +965,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 
 static int
 dissect_pvfs_string(tvbuff_t *tvb, proto_tree *tree, int hfindex,
-		int offset, char **string_buffer_ret)
+		int offset, const char **string_buffer_ret)
 {
 	return dissect_pvfs_opaque_data(tvb, offset, tree, NULL, hfindex,
 			FALSE, 0, TRUE, string_buffer_ret);
@@ -1174,7 +1174,6 @@ dissect_pvfs_distribution(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	proto_item *dist_item = NULL;
 	proto_tree *dist_tree = NULL;
-	char *distname = NULL;
 	guint32 distlen = 0;
 	char *tmpstr = NULL;
 	guint8 issimplestripe = 0;
@@ -1211,7 +1210,7 @@ dissect_pvfs_distribution(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 	/* io_dist */
 	offset = dissect_pvfs_string(tvb, dist_tree, hf_pvfs_io_dist, offset,
-			&distname);
+			NULL);
 
 	/* TODO: only one distribution type is currently supported */
 	if (issimplestripe)

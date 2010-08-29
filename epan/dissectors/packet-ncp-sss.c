@@ -170,7 +170,7 @@ static void
 process_flags(proto_tree *sss_tree, tvbuff_t *tvb, guint32 foffset)
 {
     gchar                   flags_str[1024];
-    gchar                   *sep;
+    const gchar            *sep;
     proto_item		        *tinew;
     proto_tree		        *flags_tree;
     guint32                 i;
