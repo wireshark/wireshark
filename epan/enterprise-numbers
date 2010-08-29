@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2010-08-21)
+(last updated 2010-08-28)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -391,8 +391,8 @@ Decimal
       ---none---
 94
   Nokia
-    Heinz-Guenter Boettger
-      heinz-guenter.boettger&nokia.com
+    Teemu Savolainen
+      teemu.savolainen&nokia.com
 95
   Allen-Bradely Company
     Bill King
@@ -31116,7 +31116,7 @@ Decimal
 7790
   LISIT - Lombardia Integrata Servizi Infotelematici per ilTerritorio
     Luigi Bongiorni
-      luigi.bongiorni&lisit.it
+      luigi.bongiorni&lispa.it
 7791
   Conseil General de la Loire
     Jean-Marc Faure
@@ -32706,9 +32706,9 @@ Decimal
     Pete Yandell
       pete&sharinga.com
 8188
-  Winterthur Versicherungen
-    Joachim Schaller
-      joachim.schaller&winterthur.ch
+  AXA Technology Services Switzerland AG (previous was 'Winterthur Versicherungen')
+    Thomas Burri
+      wana.admin&axa.ch
 8189
   Gerichhausen, Adomeit & Terstappen GmbH
     Christoph Adomeit
@@ -35266,9 +35266,9 @@ Decimal
     Bill White
       whiteb&nukote.com
 8828
-  General Dynamics Information Systems
-    Brent Rickenbach
-      brent.l.rickenbach&gd-is.com
+  General Dynamics Advanced Information Systems
+    Donald Purvis
+      donald.purvis&gd-ais.com
 8829
   Axell Wireless Limited (previous was 'Aerial Facilities Limited')
     Martin Hancock
@@ -72669,7 +72669,7 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
 18279
   Rainer Fischer, EDV-Service
     Rainer Fischer
-      support&rfischer-nifi.net
+      support&rf-edv-service.net
 18280
   NetTempo, Inc.
     Tim Irvin
@@ -75695,9 +75695,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Romano Rapallini
       rrapallini&omnirei.net
 19036
-  Etherboot
-    Eric W. Biederman
-      ebiederm&xmission.com
+  Etherboot Project
+    Marty Connor
+      iana-pen&etherboot.org
 19037
   Bolsa Nacional de Valores
     Rigoberto Torres
@@ -127911,9 +127911,9 @@ Decentralization / Helenic Public Administra
     Tariq Rahman
       tariq.rahman&cytec.com
 32082
-  Wireless Internet Service Providers Association
-    David Smith
-      dave&wispa.org
+  Unassigned
+     Removed 2010-08-26
+      ---none---
 32083
   HealthBlocks, Inc.
     Darin Greaham
@@ -129811,7 +129811,7 @@ Decentralization / Helenic Public Administra
     Bruno Medici
       iana&bmconseil.com
 32557
-  Chamber of Hungarian Notaries (MOKK)
+  Hungarian Chamber of Civil Law Notaries (MOKK)
     Zoltan Naszali
       naszali&mokk.hu
 32558
@@ -135265,8 +135265,8 @@ Decentralization / Helenic Public Administra
       ciro&magentavideo.com
 33920
   Remote Management Systems Limited
-    Darren Lucinsky
-      Darren.L&RMSnewzealand.com
+    Chris Johnston
+      chris&rmsnewzealand.com
 33921
   Molowa
     Olivier Pallière
@@ -145061,7 +145061,7 @@ Decentralization / Helenic Public Administra
     sangdaojun
       sangdaojun&hexicomtech.com
 36369
-  Cirruscale Corporation
+  Cirrascale Corporation
     David Leimbach
       dave.leimbach&cirrascale.com
 36370
@@ -145152,6 +145152,194 @@ Decentralization / Helenic Public Administra
   Beijing JinYuanXin Technology Co.,Ltd.
     Xiaoping Guo
       Xiaoping.Guo&xpower.com.cn
+36392
+  Taxcom Ltd.
+    Alexander Tupitsyn
+      TupitsynAV&taxcom.ru
+36393
+  Bohemia Interactive
+    Jan Hlavaty
+      hlavac&bistudio.com
+36394
+  Benco Dental
+    John Owens
+      jowens&benco.com
+36395
+  Hochschule Wilhelmshaven/Oldenburg/Elsfleth
+    Guido Manemann
+      manemann&jade-hs.de
+36396
+  OAO "FSK EES" MES Siberian
+    Temerov Alexandr Miroslavovich
+      temerov-am&sibmes.ru
+36397
+  Plurk Inc.
+    Ryan Lim
+      ryan&plurk.com
+36398
+  Ingenieria GBR, C.A.
+    Raul Gomez
+      rgomez&ingenieriagbr.com
+36399
+  39th Studios, LLC
+    Curtis M Turner II
+      curtis&39thstudios.com
+36400
+  Neo Silurian Technologies (NS-Technologies)
+    Christopher Boulton
+      chris&ns-technologies.com
+36401
+  Dax Networks Ltd
+    Sudha Jagadish
+      peg&dax.in
+36402
+  Chunichi Denshi Co.,LTD.
+    Tatsuo Suzuki
+      tatsu&kcd.co.jp
+36403
+  sentiam, inc.
+    Jürgen Reinold
+      iana-pen&sentiam.com
+36404
+  Mako Networkds Ltd
+    Murray Knox
+      murrayk&makonetworks.com
+36405
+  Department of Information System, Hanoi National university of Education, Vietnam
+    Dang Dinh Duong
+      myheeu&gmail.com
+36406
+  PopTarantula
+    Joel Blackthorne
+      joel&poptarantula.com
+36407
+  Peer Review Mediation and Arbitration
+    Jonathan Smith
+      jonathan&peerreviewboard.com
+36408
+  Norges Bank Investment Management
+    Thomas Aure
+      tau&nbim.no
+36409
+  Foyer Assurances S.A.
+    Mar Durbach
+      dum&foyer.lu
+36410
+  gokuraku.it
+    Renato Massone
+      iana-pen&gokuraku.it
+36411
+  Zhejiang Chuangyi Technology Co., Ltd
+    Zhang Pengyu
+      zhpy2000&sina.com
+36412
+  Scientific manufacturing firm Stalenergo Limited
+    Gennadiy Mogulyan
+      mgv&stalenergo.ru
+36413
+  LUMIPLAN SAS 
+    Didier FAUCHER
+      didier.faucher&lumiplan.com
+36414
+  Espial Group Inc.
+    Kumanan Yogaratnam
+      kumanan&espial.com
+36415
+  INRS Custom Data Inc
+    Victor Plenter
+      vplenter&inrs.com
+36416
+  Harritronics LLC
+    Paul Harrison
+      paul&harritronics.com
+36417
+  KDE e.V
+    Ben Cooksley
+      ripe&kde.nl
+36418
+  Qwilt Inc.
+    Gaash Hazan
+      gaash&qwilt.com
+36419
+  Path Intelligence
+    Toby Oliver
+      toby&pathintelligence.com
+36420
+  Trinet Co., Ltd.
+    Mitsuhiro Nakamura
+      nakamura&trinet.co.jp
+36421
+  geniegate.com
+    Jamie Hoglund
+      pen&geniegate.com
+36422
+  Gaikai, Inc.
+    Timothy C. Arland
+      tca&gaikai.com
+36423
+  Warped Reality Studios
+    Guy A. De Marco
+      guy&guydemarco.com
+36424
+  Roberto De Duro
+    Roberto De Duro
+      r.deduro&hotmail.it
+36425
+  Fladi.at
+    Michael Fladischer
+      michael&fladi.at
+36426
+  AT Software und Rechnertechnik GmbH
+    Andreas Thalmayer
+      info&at-online.com
+36427
+  Soneco d.o.o.
+    Slavko Gajin
+      info&soneco.rs
+36428
+  Inreal Technologies Ltd
+    Jussi Heinonen
+      jussi&inreal.co.uk
+36429
+  TOOLS.LV SIA
+    Mareks Malnacs
+      mareks&tools.lv
+36430
+  Piarista Gimnázium, Vác
+    Sandor OROSZI
+      itadmin&vpg.sulinet.hu
+36431
+  Cobham
+    Mike Kee
+      mike.kee&cobham.com
+36432
+  Proteco Industria Eletrotecnica Ltda.
+    Marcos Gaeta
+      marcos&proteco.com.br
+36433
+  Station to Station BV
+    Gerben van Ek
+      g.vanek&stationtostation.nl
+36434
+  Inovit GmbH
+    Jochen Nickel
+      jochen.nickel&inovit.ch
+36435
+  Rathravane LLC
+    Peter Cardona
+      iana_pen&rathravane.com
+36436
+  Beijing GuoTie HuaChen Communication & Information Technology Co.,Ltd.
+    Yaoyang Wang
+      wyy&huachencn.com
+36437
+  ASAHI ELECTRONICS CO.,LTD.
+    Yoshihiro Inoue
+      inoue&aec.co.jp
+36438
+  Shanghai XZ-COM. Co.,Ltd.
+    zhu xiao hu
+      zhuxh&shxz-com.com
 
 
 End of Document
