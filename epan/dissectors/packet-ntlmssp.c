@@ -852,8 +852,12 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
   string_text = get_unicode_or_ascii_string(tvb, &string_offset,
 					    unicode_strings, &result_length,
 					    FALSE, TRUE, &bc);
-  if (stringp != NULL)
+
+  if (stringp != NULL) {
+    if (!string_text) string_text = ""; /* Make sure we don't blow up later */
+
     *stringp = string_text;
+  }
 
   if (ntlmssp_tree) {
     tf = proto_tree_add_string(ntlmssp_tree, string_hf, tvb,
