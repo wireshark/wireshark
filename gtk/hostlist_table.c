@@ -542,11 +542,6 @@ color_selected_cb(GtkWidget *widget, gpointer user_data)
 {
 	hostlist_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, 0));
 }
-static void
-color_not_selected_cb(GtkWidget *widget, gpointer user_data)
-{
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, 0));
-}
 
 static const char *ui_desc_hostlist_table_popup =
 "<ui>\n"
