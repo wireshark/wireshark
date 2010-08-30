@@ -50,8 +50,8 @@ typedef struct {
 #define SCOP_LENGTH_OFFSET      2
 
 /* SCoP Transport Types */
-#define SCOP_TRANSPORT_UDP      1
-#define SCOP_TRANSPORT_TCP      2
+#define SCOP_TRANSPORT_UDP        1
+#define SCOP_TRANSPORT_TCP        2
 #define SCOP_TRANSPORT_UDP_CCM  129
 #define SCOP_TRANSPORT_TCP_CCM  130
 #define SCOP_TRANSPORT_TCP_SSL  131
@@ -76,14 +76,11 @@ typedef struct {
 
 /*  Function declarations */
 void proto_reg_handoff_scop(void);
-void proto_register_scop(void);
-void proto_init_scop(void);
-void proto_cleanup_scop(void);
 
-void dissect_scop           (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-void dissect_scop_tcp       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-void dissect_scop_zip       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-void dissect_scop_bridge    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_scop           (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_scop_tcp       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_scop_zip       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_scop_bridge    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static guint get_scop_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset);
 
@@ -134,7 +131,7 @@ static dissector_handle_t ieee802154_handle;
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
- *      gert_scop_length
+ *      get_scop_length
  *  DESCRIPTION
  *      Returns the length of a SCoP packet. For use with the TCP
  *      transport type.
@@ -143,14 +140,14 @@ static dissector_handle_t ieee802154_handle;
  *      tvbuff_t    *tvb    - pointer to buffer containing the packet.
  *      int         offset  - beginning of packet.
  *  RETURNS
- *      void
+ *      guint               - Length of SCoP packet
  *---------------------------------------------------------------
  */
 static guint get_scop_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-    /* Byte 0: Protocol Type.
-     * Byte 1: Protocol Version.
-     * Byte 3-4: Packet Length (network order).
+    /* Byte  0:   Protocol Type.
+     * Byte  1:   Protocol Version.
+     * Bytes 2-3: Packet Length (network order).
      */
     return tvb_get_ntohs(tvb, offset + SCOP_LENGTH_OFFSET);
 } /* get_scop_length */
@@ -159,18 +156,17 @@ static guint get_scop_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
  *  NAME
  *      dissect_scop_tcp
  *  DESCRIPTION
- *      ZigBee SCoP packet dissection routine for ethereal.
+ *      ZigBee SCoP packet dissection routine for Wireshark.
  *      for use with TCP ports.
  *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      tvbuff_t    *tvb    - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree  *tree   - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
  */
-void
-dissect_scop_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_scop_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, SCOP_HEADER_LENGTH, get_scop_length, dissect_scop);
 } /* dissect_scop_tcp */
@@ -179,26 +175,25 @@ dissect_scop_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *  NAME
  *      dissect_scop
  *  DESCRIPTION
- *      ZigBee SCoP packet dissection routine for ethereal.
+ *      ZigBee SCoP packet dissection routine for Wireshark.
  *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      tvbuff_t    *tvb    - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree  *tree   - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
  */
-void
-dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t    *next_tvb;
     proto_item  *proto_root;
-    proto_tree  *scop_tree = NULL;
+    proto_tree  *scop_tree;
 
     guint       offset = 0;
     scop_packet packet;
-    memset(&packet, 0, sizeof(packet));
 
+    memset(&packet, 0, sizeof(packet));
 
     /* Set the protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCoP");
@@ -208,7 +203,7 @@ dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Create the protocol display tree. */
     proto_root = proto_tree_add_protocol_format(tree, proto_scop, tvb, 0, tvb_length(tvb),
-						"ZigBee SCoP");
+                                                "ZigBee SCoP");
     scop_tree = proto_item_add_subtree(proto_root, ett_scop);
 
     /* Extract the SCoP Transport type. */
@@ -267,14 +262,14 @@ dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *  DESCRIPTION
  *      Intermediate dissector for the SCoP service type.
  *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      tvbuff_t    *tvb    - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree  *tree   - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
- *      tvbuff_t* - tvbuff_t containing the payload to be dissected further.
+ *      void
  *---------------------------------------------------------------
  */
-void dissect_scop_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_scop_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint       offset = 0;
     guint8      type = tvb_get_guint8(tvb, offset);
@@ -288,7 +283,7 @@ void dissect_scop_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (type == SCOP_CMD_HELLO_RESP) {
         status = tvb_get_ntohs(tvb, 1);
-	proto_tree_add_uint_format(tree, hf_scop_status, tvb, offset, 2, status, "Status: %s", (status==0x0000)?"Success":"Failure");
+        proto_tree_add_uint_format(tree, hf_scop_status, tvb, offset, 2, status, "Status: %s", (status==0x0000)?"Success":"Failure");
         offset += 2;
     }
 
@@ -306,14 +301,14 @@ void dissect_scop_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *  DESCRIPTION
  *      Intermediate dissector for the Bridge service type.
  *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      tvbuff_t    *tvb    - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree  *tree   - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
- *      tvbuff_t* - tvbuff_t containing the payload to be dissected further.
+ *      void
  *---------------------------------------------------------------
  */
-void dissect_scop_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_scop_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     call_dissector(ieee802154_handle, tvb, pinfo, proto_tree_get_root(tree));
 } /* dissect_scop_bridge() */
@@ -381,7 +376,7 @@ void proto_register_scop(void)
                  "Set the port for secured SCoP\n",
                  10, &gPREF_scop_port_secured);
 
-    /*  Register dissector with Ethereal. */
+    /*  Register dissector with Wireshark. */
     register_dissector("scop.udp", dissect_scop, proto_scop);
     register_dissector("scop.tcp", dissect_scop_tcp, proto_scop);
 } /* proto_register_scop() */
@@ -390,7 +385,7 @@ void proto_register_scop(void)
  *  NAME
  *      proto_reg_handoff_scop
  *  DESCRIPTION
- *      Registers the zigbee dissector with Ethereal.
+ *      Registers the zigbee dissector with Wireshark.
  *      Will be called every time 'apply' is pressed in the preferences menu.
  *  PARAMETERS
  *      none
@@ -401,24 +396,24 @@ void proto_register_scop(void)
 void proto_reg_handoff_scop(void)
 {
     static gboolean inited = FALSE;
-    static int  lastPort;
-    static int  lastPort_secured;
+    static guint32  lastPort;
+    static guint32  lastPort_secured;
 
     static dissector_handle_t  scop_udp_handle;
     static dissector_handle_t  scop_tcp_handle;
 
-    if (inited){
+    if (!inited){
+        scop_udp_handle     = find_dissector("scop.udp");
+        scop_tcp_handle     = find_dissector("scop.tcp");
+        ieee802154_handle   = find_dissector("wpan_nofcs");
+        data_handle         = find_dissector("data");
+        inited = TRUE;
+    } else {
         dissector_delete("udp.port", lastPort, scop_udp_handle);
         dissector_delete("tcp.port", lastPort, scop_tcp_handle);
         dissector_delete("udp.port", lastPort_secured, scop_udp_handle);
         dissector_delete("tcp.port", lastPort_secured, scop_tcp_handle);
     }
-
-    scop_udp_handle     = find_dissector("scop.udp");
-    scop_tcp_handle     = find_dissector("scop.tcp");
-    ieee802154_handle   = find_dissector("wpan_nofcs");
-    data_handle         = find_dissector("data");
-
     dissector_add("udp.port", gPREF_scop_port, scop_udp_handle);
     dissector_add("tcp.port", gPREF_scop_port, scop_tcp_handle);
     dissector_add("udp.port", gPREF_scop_port_secured, scop_udp_handle);
@@ -426,6 +421,5 @@ void proto_reg_handoff_scop(void)
 
     lastPort         = gPREF_scop_port;
     lastPort_secured = gPREF_scop_port_secured;
-    inited = TRUE;
 } /* proto_reg_handoff_scop */
 
