@@ -355,101 +355,7 @@ error_show_popup_menu_cb(void *widg _U_, GdkEvent *event, gpointer user_data)
 
 	return FALSE;
 }
-#define EXPERT_USE_GUIMANAGER 1
-#ifndef EXPERT_USE_GUIMANAGER
-static GtkItemFactoryEntry error_list_menu_items[] =
-{
-	/* Match */
-	{"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, 0),
-		NULL, NULL,},
-	{"/Apply as Filter/... not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0),
-		NULL, NULL,},
-	{"/Apply as Filter/.. and Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0),
-		NULL, NULL,},
-	{"/Apply as Filter/... or Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0),
-		NULL, NULL,},
-	{"/Apply as Filter/... and not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0),
-		NULL, NULL,},
-	{"/Apply as Filter/... or not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0),
-		NULL, NULL,},
 
-	/* Prepare */
-	{"/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, 0),
-		NULL, NULL,},
-	{"/Prepare a Filter/Not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0),
-		NULL, NULL,},
-	{"/Prepare a Filter/... and Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0),
-		NULL, NULL,},
-	{"/Prepare a Filter/... or Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0),
-		NULL, NULL,},
-	{"/Prepare a Filter/... and not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0),
-		NULL, NULL,},
-	{"/Prepare a Filter/... or not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0),
-		NULL, NULL,},
-
-	/* Find Frame */
-	{"/Find Frame", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Find Frame/Find Frame", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Find Frame/Find Frame/Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0),
-		NULL, NULL,},
-	{"/Find Frame/Find Frame/Not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_NOT_SELECTED, 0),
-		NULL, NULL,},
-	/* Find Next */
-	{"/Find Frame/Find Next", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Find Frame/Find Next/Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, 0),
-		NULL, NULL,},
-	{"/Find Frame/Find Next/Not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, 0),
-		NULL, NULL,},
-
-	/* Find Previous */
-	{"/Find Frame/Find Previous", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Find Frame/Find Previous/Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, 0),
-		NULL, NULL,},
-	{"/Find Frame/Find Previous/Not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_NOT_SELECTED, 0),
-		NULL, NULL,},
-
-	/* Colorize Procedure */
-	{"/Colorize Procedure", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Colorize Procedure/Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, 0),
-		NULL, NULL,},
-	{"/Colorize Procedure/Not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_NOT_SELECTED, 0),
-		NULL, NULL,},
-
-	/* Search Internet */
-	{"/Internet Search for Info Text", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_WEB_LOOKUP, NULL, NULL,},
-
-	/* Copy item text (protocol plus summary)*/
-	{"/Copy", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_COPY, NULL, NULL,},
-
-};
-
-
-#else
-/* Prepare to change GtkItemFactory to GtkUIManager */
 static void
 apply_as_selected_cb(GtkWidget *widget, gpointer user_data)
 {
@@ -664,7 +570,7 @@ static const GtkActionEntry expert_popup_entries[] = {
   { "/Copy",									NULL, "Copy",							NULL, "Copy",							NULL },
   { "/Copy/Protocol Plus Summary",				NULL, "Protocol Plus Summary",			NULL, "Protocol Plus Summary",			G_CALLBACK(copy_cb) },
 };
-#endif
+
 static void
 expert_goto_pkt_cb (GtkTreeSelection *selection, gpointer data _U_)
 {
@@ -690,19 +596,6 @@ expert_goto_pkt_cb (GtkTreeSelection *selection, gpointer data _U_)
 static void
 error_create_popup_menu(error_equiv_table *err)
 {
-#ifndef EXPERT_USE_GUIMANAGER
-    GtkItemFactory *item_factory;
-
-    err->select = gtk_tree_view_get_selection (GTK_TREE_VIEW (err->tree_view));
-    gtk_tree_selection_set_mode (err->select, GTK_SELECTION_SINGLE);
-    g_signal_connect (G_OBJECT (err->select), "changed", G_CALLBACK(expert_goto_pkt_cb), NULL);
-    item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
-
-    gtk_item_factory_create_items_ac(item_factory, sizeof(error_list_menu_items)/sizeof(error_list_menu_items[0]), error_list_menu_items, err, 2);
-
-    err->menu = gtk_item_factory_get_widget(item_factory, "<main>");
-    g_signal_connect(err->tree_view, "button_press_event", G_CALLBACK(error_show_popup_menu_cb), err);
-#else
 	GtkUIManager *ui_manager;
 	GtkActionGroup *action_group;
 	GError *error = NULL;
@@ -729,8 +622,6 @@ error_create_popup_menu(error_equiv_table *err)
     }
 	err->menu = gtk_ui_manager_get_widget(ui_manager, "/ExpertFilterPopup");
 	g_signal_connect(err->tree_view, "button_press_event", G_CALLBACK(error_show_popup_menu_cb), err);
-#endif
-
 }
 
 void
