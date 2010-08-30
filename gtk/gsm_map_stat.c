@@ -48,8 +48,6 @@
 
 #include "../stat_menu.h"
 #include "../simple_dialog.h"
-#include "../register.h"
-#include "../globals.h"
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/dlg_utils.h"
@@ -117,14 +115,14 @@ GtkWidget* create_list(void)
     /* The view now holds a reference.  We can get rid of our own reference */
     g_object_unref (G_OBJECT (list_store));
 
-    /* 
+    /*
      * Create the first column packet, associating the "text" attribute of the
-     * cell_renderer to the first column of the model 
+     * cell_renderer to the first column of the model
      */
     /* 1:st column */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("ID", renderer, 
-        "text", ID_COLUMN, 
+    column = gtk_tree_view_column_new_with_attributes ("ID", renderer,
+        "text", ID_COLUMN,
         NULL);
 
     gtk_tree_view_column_set_sort_column_id(column, ID_COLUMN);
@@ -137,7 +135,7 @@ GtkWidget* create_list(void)
 
     /* 2:nd column..Operation Code. */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Operation Code", renderer, 
+    column = gtk_tree_view_column_new_with_attributes ("Operation Code", renderer,
         "text", OP_CODE_COLUMN,
         NULL);
     gtk_tree_view_column_set_sort_column_id(column, OP_CODE_COLUMN);
@@ -148,7 +146,7 @@ GtkWidget* create_list(void)
 
     /* 3:d column..Invokes. */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Invokes", renderer, 
+    column = gtk_tree_view_column_new_with_attributes ("Invokes", renderer,
         "text", INVOKES_COLUMN,
         NULL);
     gtk_tree_view_column_set_sort_column_id(column, INVOKES_COLUMN);
@@ -159,10 +157,10 @@ GtkWidget* create_list(void)
 
     /* 4:th column.. Num Bytes. */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Num Bytes", renderer, 
-        "text", NUM_BYTES_FWD_COLUMN, 
+    column = gtk_tree_view_column_new_with_attributes ("Num Bytes", renderer,
+        "text", NUM_BYTES_FWD_COLUMN,
         NULL);
-    
+
 
     gtk_tree_view_column_set_sort_column_id(column, NUM_BYTES_FWD_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
@@ -172,10 +170,10 @@ GtkWidget* create_list(void)
 
     /* 5:th column.. Avg Bytes. */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Avg Bytes", renderer, 
-        "text", AVG_BYTES_FWD_COLUMN, 
+    column = gtk_tree_view_column_new_with_attributes ("Avg Bytes", renderer,
+        "text", AVG_BYTES_FWD_COLUMN,
         NULL);
-    gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func, 
+    gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func,
         GINT_TO_POINTER(AVG_BYTES_FWD_COLUMN), NULL);
 
     gtk_tree_view_column_set_sort_column_id(column, AVG_BYTES_FWD_COLUMN);
@@ -186,7 +184,7 @@ GtkWidget* create_list(void)
 
     /* 6:d column..Invokes. */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("ReturnResult", renderer, 
+    column = gtk_tree_view_column_new_with_attributes ("ReturnResult", renderer,
         "text", RET_RES_COLUMN,
         NULL);
     gtk_tree_view_column_set_sort_column_id(column, RET_RES_COLUMN);
@@ -197,10 +195,10 @@ GtkWidget* create_list(void)
 
     /* 7:th column.. Num Bytes. */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Num Bytes", renderer, 
-        "text", NUM_BYTES_REV_COLUMN, 
+    column = gtk_tree_view_column_new_with_attributes ("Num Bytes", renderer,
+        "text", NUM_BYTES_REV_COLUMN,
         NULL);
-    
+
 
     gtk_tree_view_column_set_sort_column_id(column, NUM_BYTES_FWD_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
@@ -210,10 +208,10 @@ GtkWidget* create_list(void)
 
     /* 8:th column.. Avg Bytes. */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Avg Bytes", renderer, 
-        "text", AVG_BYTES_REV_COLUMN, 
+    column = gtk_tree_view_column_new_with_attributes ("Avg Bytes", renderer,
+        "text", AVG_BYTES_REV_COLUMN,
         NULL);
-    gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func, 
+    gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func,
         GINT_TO_POINTER(AVG_BYTES_REV_COLUMN), NULL);
 
 
@@ -225,10 +223,10 @@ GtkWidget* create_list(void)
 
     /* 9:th column.. Total Bytes. */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Total Bytes", renderer, 
-        "text", TOT_BYTES_COLUMN, 
+    column = gtk_tree_view_column_new_with_attributes ("Total Bytes", renderer,
+        "text", TOT_BYTES_COLUMN,
         NULL);
-    
+
 
     gtk_tree_view_column_set_sort_column_id(column, NUM_BYTES_FWD_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
@@ -238,10 +236,10 @@ GtkWidget* create_list(void)
 
     /* 10:th column.. Avg Bytes. */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Avg Bytes", renderer, 
-        "text", AVG_BYTES_COLUMN, 
+    column = gtk_tree_view_column_new_with_attributes ("Avg Bytes", renderer,
+        "text", AVG_BYTES_COLUMN,
         NULL);
-    gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func, 
+    gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func,
         GINT_TO_POINTER(AVG_BYTES_COLUMN), NULL);
 
     gtk_tree_view_column_set_sort_column_id(column, AVG_BYTES_COLUMN);
@@ -355,7 +353,7 @@ gsm_map_stat_draw(
             }else{
                 avrage_bytes_tot = 0;
             }
-            /* Creates a new row at position. iter will be changed to point to this new row. 
+            /* Creates a new row at position. iter will be changed to point to this new row.
              * If position is larger than the number of rows on the list, then the new row will be appended to the list.
              * The row will be filled with the values given to this function.
              * :

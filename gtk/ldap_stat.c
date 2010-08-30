@@ -40,11 +40,9 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-ldap.h>
 
-#include "../register.h"
 #include "../timestats.h"
 #include "../simple_dialog.h"
 #include "../file.h"
-#include "../globals.h"
 #include "../stat_menu.h"
 
 #include "gtk/gui_utils.h"
@@ -162,7 +160,7 @@ gtk_ldapstat_init(const char *optarg, void *userdata _U_)
 
 	ldap=g_malloc(sizeof(ldapstat_t));
 
-	ldap->win = dlg_window_new("ldap-stat");  
+	ldap->win = dlg_window_new("ldap-stat");
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(ldap->win), TRUE);
 	gtk_window_set_default_size(GTK_WINDOW(ldap->win), 550, 400);
 	ldapstat_set_title(ldap);

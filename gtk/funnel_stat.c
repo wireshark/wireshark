@@ -47,11 +47,9 @@
 #include <epan/prefs.h>
 #include <epan/funnel.h>
 
-#include "../register.h"
 #include "../timestats.h"
 #include "../simple_dialog.h"
 #include "../file.h"
-#include "../globals.h"
 #include "../stat_menu.h"
 #include "../file.h"
 #include "../progress_dlg.h"
@@ -88,10 +86,10 @@ struct _funnel_node_t {
 
 static void text_window_cancel_button_cb(GtkWidget *bt _U_, gpointer data) {
     funnel_text_window_t* tw = data;
-    
+
     window_destroy(GTK_WIDGET(tw->win));
     tw->win = NULL;
-    
+
     if (tw->close_cb)
         tw->close_cb(tw->close_data);
 }
@@ -99,16 +97,16 @@ static void text_window_cancel_button_cb(GtkWidget *bt _U_, gpointer data) {
 static void unref_text_win_cancel_bt_cb(GtkWidget *bt _U_, gpointer data) {
     funnel_text_window_t* tw = data;
     unsigned i;
-	
+
     window_destroy(GTK_WIDGET(tw->win));
     tw->win = NULL;
 
     if (tw->close_cb)
         tw->close_cb(tw->close_data);
-    
+
 	for (i = 0; i < tw->buttons->len; i++) {
 		funnel_bt_t* cbd = g_ptr_array_index(tw->buttons,i);
-		/* XXX a free cb should be passed somehow */ 
+		/* XXX a free cb should be passed somehow */
 		if (cbd->data && cbd->free_data_fcn) cbd->free_data_fcn(cbd->data);
 		if (cbd->free_fcn) cbd->free_fcn(cbd);
 	}
@@ -120,35 +118,35 @@ static void unref_text_win_cancel_bt_cb(GtkWidget *bt _U_, gpointer data) {
 static gboolean text_window_unref_del_event_cb(GtkWidget *win _U_, GdkEvent *event _U_, gpointer user_data) {
     funnel_text_window_t* tw = user_data;
     unsigned i;
-    
+
     window_destroy(GTK_WIDGET(tw->win));
     tw->win = NULL;
-    
+
     if (tw->close_cb)
         tw->close_cb(tw->close_data);
-    
+
 	for (i = 0; i < tw->buttons->len; i++) {
 		funnel_bt_t* cbd = g_ptr_array_index(tw->buttons,i);
-		/* XXX a free cb should be passed somehow */ 
+		/* XXX a free cb should be passed somehow */
 		if (cbd->data && cbd->free_data_fcn) cbd->free_data_fcn(cbd->data);
 		if (cbd->free_fcn) cbd->free_fcn(cbd);
 	}
-	g_ptr_array_free(tw->buttons,TRUE);	
+	g_ptr_array_free(tw->buttons,TRUE);
     g_free(tw);
-    
+
     return TRUE;
 }
 
 static gboolean text_window_delete_event_cb(GtkWidget *win _U_, GdkEvent *event _U_, gpointer user_data)
 {
     funnel_text_window_t* tw = user_data;
-    
+
     window_destroy(GTK_WIDGET(tw->win));
     tw->win = NULL;
 
     if (tw->close_cb)
         tw->close_cb(tw->close_data);
-    
+
     return TRUE;
 }
 
@@ -159,7 +157,7 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
     tw->close_cb = NULL;
     tw->close_data = NULL;
     tw->buttons = g_ptr_array_new();
-	
+
 	tw->win = dlg_window_new(title);  /* transient_for top_level */
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(tw->win), TRUE);
 
@@ -169,10 +167,10 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
     main_vb = gtk_vbox_new(FALSE, 3);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
 	gtk_container_add(GTK_CONTAINER(tw->win), main_vb);
-    
+
     gtk_container_add(GTK_CONTAINER(main_vb), txt_scrollw);
 
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw),
                                         GTK_SHADOW_IN);
 
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
@@ -181,19 +179,19 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
     gtk_text_view_set_editable(GTK_TEXT_VIEW(tw->txt), FALSE);
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(tw->txt), GTK_WRAP_WORD);
     gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(tw->txt), FALSE);
-    
+
     gtk_text_view_set_left_margin(GTK_TEXT_VIEW(tw->txt), 4);
     gtk_text_view_set_right_margin(GTK_TEXT_VIEW(tw->txt), 4);
 
 	hbox = gtk_hbox_new(FALSE, 0);
     gtk_widget_show(hbox);
-	
+
     tw->button_hbox = gtk_hbutton_box_new();
 	gtk_button_box_set_layout(GTK_BUTTON_BOX(tw->button_hbox), GTK_BUTTONBOX_START);
-	
+
     gtk_box_pack_start(GTK_BOX(hbox), tw->button_hbox, TRUE, TRUE, 0);
     gtk_widget_show(tw->button_hbox);
-	
+
 	gtk_box_pack_start(GTK_BOX(main_vb), hbox, FALSE, FALSE, 0);
 
 	tw->bt_close = gtk_button_new_with_label("Close");
@@ -209,7 +207,7 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
 	gtk_container_add(GTK_CONTAINER(txt_scrollw), tw->txt);
     gtk_window_resize(GTK_WINDOW(tw->win),400,300);
     gtk_widget_show_all(tw->win);
-    
+
     return tw;
 }
 
@@ -218,10 +216,10 @@ static void text_window_clear(funnel_text_window_t*  tw)
 {
     GtkTextBuffer *buf;
 
-    if (! tw->win) return; 
+    if (! tw->win) return;
 
     buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tw->txt));
-    
+
     gtk_text_buffer_set_text(buf, "", 0);
 }
 
@@ -233,17 +231,17 @@ static void text_window_append(funnel_text_window_t*  tw, const char *str)
     GtkTextBuffer *buf;
     GtkTextIter    iter;
 
-    if (! tw->win) return; 
+    if (! tw->win) return;
 
     txt = tw->txt;
     nchars = (int) strlen(str);
-    
-    
+
+
     buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(txt));
-    
+
     gtk_text_buffer_get_end_iter(buf, &iter);
     gtk_widget_modify_font(GTK_WIDGET(txt), user_font_get_regular());
-    
+
     if (!g_utf8_validate(str, -1, NULL))
         printf("Invalid utf8 encoding: %s\n", str);
 
@@ -253,8 +251,8 @@ static void text_window_append(funnel_text_window_t*  tw, const char *str)
 
 static void text_window_set_text(funnel_text_window_t*  tw, const gchar* text)
 {
-    if (! tw->win) return; 
-    
+    if (! tw->win) return;
+
     text_window_clear(tw);
     text_window_append(tw, text);
 }
@@ -265,21 +263,21 @@ static void text_window_prepend(funnel_text_window_t*  tw, const char *str _U_) 
     int nchars;
     GtkTextBuffer *buf;
     GtkTextIter    iter;
-	
-    if (! tw->win) return; 
-	
+
+    if (! tw->win) return;
+
     txt = tw->txt;
     nchars = (int) strlen(str);
-    
-    
+
+
     buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(txt));
-    
+
     gtk_text_buffer_get_start_iter(buf, &iter);
     gtk_widget_modify_font(GTK_WIDGET(txt), user_font_get_regular());
-    
+
     if (!g_utf8_validate(str, -1, NULL))
         printf("Invalid utf8 encoding: %s\n", str);
-    
+
     gtk_text_buffer_insert(buf, &iter, str, nchars);
 }
 
@@ -288,20 +286,20 @@ static const gchar* text_window_get_text(funnel_text_window_t*  tw) {
     GtkTextBuffer *buf;
     GtkTextIter    start;
     GtkTextIter    end;
-	
-    if (! tw->win) return ""; 
+
+    if (! tw->win) return "";
 
 	txt = tw->txt;
 
     buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(txt));
 	gtk_text_buffer_get_start_iter(buf, &start);
 	gtk_text_buffer_get_end_iter(buf, &end);
-    
+
 	return gtk_text_buffer_get_text(buf, &start, &end, FALSE);
 }
 
 
-	
+
 static void text_window_set_close_cb(funnel_text_window_t*  tw, text_win_close_cb_t cb, void* data) {
     tw->close_cb = cb;
     tw->close_data = data;
@@ -323,7 +321,7 @@ static void text_window_destroy(funnel_text_window_t*  tw) {
          */
 		for (i = 0; i < tw->buttons->len; i++) {
 			funnel_bt_t* cbd = g_ptr_array_index(tw->buttons,i);
-			/* XXX a free cb should be passed somehow */ 
+			/* XXX a free cb should be passed somehow */
 			if (cbd->data && cbd->free_data_fcn) cbd->free_data_fcn(cbd->data);
 			if (cbd->free_fcn) cbd->free_fcn(cbd);
 		}
@@ -340,7 +338,7 @@ static void text_window_set_editable(funnel_text_window_t*  tw, gboolean editabl
 static gboolean text_window_button_cb(GtkWidget *bt _U_, gpointer user_data)
 {
 	funnel_bt_t* cbd = user_data;
-	
+
 	if (cbd->func) {
 		return cbd->func(cbd->tw,cbd->data);
 	} else {
@@ -350,15 +348,15 @@ static gboolean text_window_button_cb(GtkWidget *bt _U_, gpointer user_data)
 
 static void text_window_add_button(funnel_text_window_t*  tw, funnel_bt_t* cbd, const gchar* label) {
 	GtkWidget *button;
-	
+
 	cbd->tw = tw;
 	g_ptr_array_add(tw->buttons,cbd);
-	
+
 	button = gtk_button_new_with_label(label);
 	GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
-	
+
 	gtk_box_pack_start(GTK_BOX(tw->button_hbox), button, FALSE, FALSE, 0);
-	
+
 	gtk_widget_show(button);
 	g_signal_connect(button, "clicked", G_CALLBACK(text_window_button_cb), cbd);
 
@@ -378,14 +376,14 @@ static gboolean funnel_dlg_cb(GtkWidget *win _U_, gpointer user_data)
     guint i;
     guint len = dd->entries->len;
     GPtrArray* returns = g_ptr_array_new();
-    
+
     for(i=0; i<len; i++) {
         GtkEntry* entry = g_ptr_array_index(dd->entries,i);
         g_ptr_array_add(returns,g_strdup(gtk_entry_get_text(entry)));
     }
-    
+
     g_ptr_array_add(returns,NULL);
-    
+
     if (dd->dlg_cb)
         dd->dlg_cb((gchar**)returns->pdata,dd->data);
 
@@ -398,7 +396,7 @@ static gboolean funnel_dlg_cb(GtkWidget *win _U_, gpointer user_data)
 
 static void funnel_cancel_btn_cb(GtkWidget *bt _U_, gpointer data) {
     GtkWidget* win = data;
-    
+
     window_destroy(GTK_WIDGET(win));
 }
 
@@ -414,15 +412,15 @@ static void funnel_new_dialog(const gchar* title,
     dd->entries = g_ptr_array_new();
     dd->dlg_cb = dlg_cb;
     dd->data = data;
-    
+
     for (i=0;fieldnames[i];i++);
 
     win = dlg_window_new(title);
 
     dd->win = win;
-    
+
     gtk_window_resize(GTK_WINDOW(win),400,10*(i+2));
-    
+
     main_vb = gtk_vbox_new(TRUE,5);
     gtk_container_add(GTK_CONTAINER(win), main_vb);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
@@ -431,10 +429,10 @@ static void funnel_new_dialog(const gchar* title,
     gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
     gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
     gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
-    
+
     for (i = 0; (fieldname = fieldnames[i]) ; i++) {
         GtkWidget *entry, *label;
-        
+
         label = gtk_label_new(fieldname);
         gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
         gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, i+1, i + 2);
@@ -448,27 +446,27 @@ static void funnel_new_dialog(const gchar* title,
 
     bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
-    
+
     bt_ok = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
     g_signal_connect(bt_ok, "clicked", G_CALLBACK(funnel_dlg_cb), dd);
     gtk_widget_grab_default(bt_ok);
-    
+
     bt_cancel = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
     g_signal_connect(bt_cancel, "clicked", G_CALLBACK(funnel_cancel_btn_cb), win);
     gtk_widget_grab_default(bt_cancel);
-    
+
     gtk_widget_show(main_tb);
     gtk_widget_show(main_vb);
     gtk_widget_show(win);
 }
 
-static void funnel_set_filter(const char* filter_string) {	
+static void funnel_set_filter(const char* filter_string) {
 	gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
 }
 
 static void funnel_apply_filter(void) {
 	const char* filter_string = gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
-	main_filter_packets(&cfile, filter_string, FALSE);	
+	main_filter_packets(&cfile, filter_string, FALSE);
 }
 
 /* XXX: finish this */
@@ -486,7 +484,7 @@ static void funnel_retap_packets(void) {
 static gboolean funnel_open_file(const char* fname, const char* filter, const char** err_str) {
 	int err = 0;
 	dfilter_t   *rfcode = NULL;
-	
+
 	*err_str = "no error";
 
 	switch (cfile.state) {
@@ -498,15 +496,15 @@ static gboolean funnel_open_file(const char* fname, const char* filter, const ch
 			*err_str = "file read in progress";
 			return FALSE;
 	}
-	
+
 	if (filter) {
 		if (!dfilter_compile(filter, &rfcode)) {
 			*err_str = dfilter_error_msg ? dfilter_error_msg : "cannot compile filter";
 			return FALSE;
 		}
 	}
-	
-	
+
+
 	if (cf_open(&cfile, fname, FALSE, &err) != CF_OK) {
 		*err_str = strerror(err);
 		if (rfcode != NULL) dfilter_free(rfcode);
@@ -514,7 +512,7 @@ static gboolean funnel_open_file(const char* fname, const char* filter, const ch
 	}
 
 	cfile.rfcode = rfcode;
-	
+
 	switch (cf_read(&cfile, FALSE)) {
 		case CF_READ_OK:
 		case CF_READ_ERROR:
@@ -523,7 +521,7 @@ static gboolean funnel_open_file(const char* fname, const char* filter, const ch
 			*err_str = "problem while reading file";
 			return FALSE;
 	}
-	
+
 	return TRUE;
 }
 
@@ -595,7 +593,7 @@ static void register_menu_cb(const char *name,
     mcb->callback = callback;
     mcb->callback_data = callback_data;
     mcb->retap = retap;
-    
+
     register_stat_menu_item(name, group, our_menu_callback, NULL, NULL, mcb);
 
 }

@@ -51,8 +51,6 @@
 #include <epan/tap.h>
 #include <epan/strutil.h>
 
-#include "../globals.h"
-#include "../register.h"
 #include "../alert_box.h"
 #include "../simple_dialog.h"
 

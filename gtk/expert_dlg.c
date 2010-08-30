@@ -43,7 +43,6 @@
 #include <epan/prefs.h>
 
 #include "../simple_dialog.h"
-#include "../globals.h"
 #include "../color.h"
 #include "../stat_menu.h"
 
@@ -220,8 +219,8 @@ expert_dlg_draw(void *data)
         }
 
         list_store = GTK_LIST_STORE(gtk_tree_view_get_model(etd->tree_view)); /* Get store */
- 
-        /* Creates a new row at position. iter will be changed to point to this new row. 
+
+        /* Creates a new row at position. iter will be changed to point to this new row.
          * If position is larger than the number of rows on the list, then the new row will be appended to the list.
          * The row will be filled with the values given to this function.
          * :
@@ -242,7 +241,7 @@ expert_dlg_draw(void *data)
                     BACKGROUND_COLOR_COL, color_str,
                     -1);
     }
-    
+
     if(etd->label) {
         title = g_strdup_printf("Errors: %u Warnings: %u Notes: %u Chats: %u",
                                 etd->error_events, etd->warn_events,
@@ -271,7 +270,7 @@ select_row_cb(GtkTreeSelection *selection, gpointer *user_data _U_)
 
     if (selection==NULL)
         return;
-    
+
     if (gtk_tree_selection_get_selected (selection, &model, &iter)){
         gtk_tree_model_get (model, &iter, NO_COLUMN, &fnumber, -1);
         cf_goto_frame(&cfile, fnumber);
@@ -348,7 +347,7 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
         "background", BACKGROUND_COLOR_COL,
         NULL);
 
-	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func, 
+	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
 		GINT_TO_POINTER(SEVERITY_COLUMN), NULL);
 
 	gtk_tree_sortable_set_sort_func(sortable, SEVERITY_COLUMN, str_ptr_sort_func,
@@ -369,9 +368,9 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
         "background", BACKGROUND_COLOR_COL,
         NULL);
 
-	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func, 
+	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
 		GINT_TO_POINTER(GROUP_COLUMN), NULL);
-	
+
 	gtk_tree_sortable_set_sort_func(sortable, GROUP_COLUMN, str_ptr_sort_func,
 		GINT_TO_POINTER(GROUP_COLUMN), NULL);
 
@@ -389,7 +388,7 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
         "foreground", FOREGROUND_COLOR_COL,
         "background", BACKGROUND_COLOR_COL,
         NULL);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func, 
+	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
 		GINT_TO_POINTER(PROTOCOL_COLUMN), NULL);
 
 	gtk_tree_sortable_set_sort_func(sortable, PROTOCOL_COLUMN, str_ptr_sort_func,
@@ -400,7 +399,7 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_min_width(column, 80);
     gtk_tree_view_append_column (etd->tree_view, column);
- 
+
     /* Summary. */
     renderer = gtk_cell_renderer_text_new ();
     g_object_set(renderer, "ypad", 0, NULL);
@@ -408,7 +407,7 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
         "foreground", FOREGROUND_COLOR_COL,
         "background", BACKGROUND_COLOR_COL,
         NULL);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func, 
+	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
 		GINT_TO_POINTER(SUMMARY_COLUMN), NULL);
 
 	gtk_tree_sortable_set_sort_func(sortable, SUMMARY_COLUMN, str_ptr_sort_func,
@@ -419,11 +418,11 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
     gtk_tree_view_column_set_sort_column_id(column, SUMMARY_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_append_column (etd->tree_view, column);
- 
+
 
     gtk_tree_view_set_search_column (etd->tree_view, SUMMARY_COLUMN); /* Allow searching the summary */
     gtk_tree_view_set_reorderable (etd->tree_view, TRUE);   /* Allow user to reorder data with drag n drop */
-    
+
     /* Now enable the sorting of each column */
     gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(etd->tree_view), TRUE);
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(etd->tree_view), TRUE);
@@ -484,7 +483,7 @@ expert_tapdata_t * expert_dlg_new_table(void)
 {
     expert_tapdata_t * etd;
     etd=g_malloc0(sizeof(expert_tapdata_t));
-    
+
     etd->ei_array = g_array_sized_new(FALSE, FALSE, sizeof(expert_info_t), 1000);
     etd->text = g_string_chunk_new(100);
     etd->severity_report_level = PI_CHAT;

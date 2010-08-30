@@ -65,7 +65,6 @@
 #include <epan/strutil.h>
 
 #include "../util.h"
-#include "../register.h"
 #include "../g711.h"
 #include "../alert_box.h"
 #include "../simple_dialog.h"
@@ -149,7 +148,7 @@ typedef struct _dialog_graph_graph_t {
 
 typedef struct _dialog_graph_t {
 	gboolean needs_redraw;
-	gint32 interval_index; /* index into tick_interval_values array */ 
+	gint32 interval_index; /* index into tick_interval_values array */
 	gint32 interval;       /* measurement interval in ms */
 	guint32 last_interval;
 	guint32 max_interval;  /* XXX max_interval and num_items are redundant */
@@ -422,7 +421,7 @@ static void iax2_draw(void *prs _U_)
 
 /* forward declarations */
 static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number,
-			double delta, double jitter, double bandwidth, gchar *status, 
+			double delta, double jitter, double bandwidth, gchar *status,
 			gchar *timeStr, guint32 pkt_len,gchar *color_str, guint32 flags);
 
 static int iax2_packet_add_info(GtkWidget *list,user_data_t * user_data,
@@ -445,11 +444,11 @@ static gboolean iax2_packet(void *user_data_arg, packet_info *pinfo, epan_dissec
 	/* we ignore packets that are not displayed */
 	if (pinfo->fd->flags.passed_dfilter == 0)
 		return FALSE;
-		
+
 	/* we ignore packets that carry no data */
 	if (iax2info->payload_len == 0)
 		return FALSE;
-		
+
 	/* is it the forward direction?  */
 	else if (CMP_ADDRESS(&(user_data->ip_src_fwd), &(pinfo->net_src)) == 0
 		 && user_data->port_src_fwd == pinfo->srcport
@@ -616,7 +615,7 @@ static int iax2_packet_add_info(GtkWidget *list, user_data_t * user_data,
 		tm_tmp->tm_min,
 		tm_tmp->tm_sec,
 		msecs);
-		
+
 	/* Default to using black on white text if nothing below overrides it */
 	g_snprintf(color_str,sizeof(color_str),"#ffffffffffff");
 
@@ -654,7 +653,7 @@ static int iax2_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	/*  is this the first packet we got in this direction? */
 	if (statinfo->flags & STAT_FLAG_FIRST) {
 		add_to_list(list, user_data,
-			pinfo->fd->num, 
+			pinfo->fd->num,
 			0,
 			0,
 			statinfo->bandwidth,
@@ -665,7 +664,7 @@ static int iax2_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	}
 	else {
 		add_to_list(list, user_data,
-			pinfo->fd->num, 
+			pinfo->fd->num,
 			statinfo->delta*1000,
 			statinfo->jitter*1000,
 			statinfo->bandwidth,
@@ -782,12 +781,12 @@ static void on_notebook_switch_page(GtkNotebook *notebook _U_,
 
 	user_data->dlg.selected_list =
 		(page_num==0) ? user_data->dlg.list_fwd : user_data->dlg.list_rev ;
-		
+
 	user_data->dlg.selected_list_row = 0;
 }
 
 /****************************************************************************/
-static void on_list_select_row(GtkTreeSelection *selection, 
+static void on_list_select_row(GtkTreeSelection *selection,
 				gpointer data)
 {
 	user_data_t *user_data = data;
@@ -842,7 +841,7 @@ static void dialog_graph_reset(user_data_t* user_data)
 	for(i=0;i<MAX_GRAPHS;i++){
 		/* it is forward */
 		if (i<2){
-			g_snprintf(user_data->dlg.dialog_graph.graph[i].title, 
+			g_snprintf(user_data->dlg.dialog_graph.graph[i].title,
 				   sizeof (user_data->dlg.dialog_graph.graph[0].title),
 				   "%s: %s:%u to %s:%u",
 			graph_descr[i],
@@ -985,7 +984,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 	/*
 	 * Calculate size of borders surrounding the plot
 	 * The border on the right side needs to be adjusted depending
-	 * on the width of the text labels. 
+	 * on the width of the text labels.
 	 */
 	print_time_scale_string(label_string, sizeof(label_string), max_y);
 	layout = gtk_widget_create_pango_layout(user_data->dlg.dialog_graph.draw_area, label_string);
@@ -1725,7 +1724,7 @@ static void on_goto_bt_clicked(GtkWidget *bt _U_, gpointer data)
 
 	if (selection==NULL)
 		return;
-	
+
 	if (gtk_tree_selection_get_selected (selection, &model, &iter)){
 		gtk_tree_model_get (model, &iter, PACKET_COLUMN, &fnumber, -1);
 		cf_goto_frame(&cfile, fnumber);
@@ -1883,9 +1882,9 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(user_data->dlg.list_fwd));
 		store = GTK_LIST_STORE(model);
 		if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
-			 
+
 			while (more_items) {
-				gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 
+				gtk_tree_model_get(GTK_TREE_MODEL(store), &iter,
 						   0, &packet,
 						   1, &delta,
 						   2, &jitter,
@@ -1914,7 +1913,7 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 				more_items = gtk_tree_model_iter_next (model,&iter);
 			}
 		}
-		
+
 		if (fclose(fp) == EOF) {
 			write_failure_alert_box(g_dest, errno);
 			g_free(g_dest);
@@ -1967,7 +1966,7 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 			more_items = TRUE;
 
 			while (more_items) {
-				gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 
+				gtk_tree_model_get(GTK_TREE_MODEL(store), &iter,
 						   0, &packet,
 						   1, &delta,
 						   2, &jitter,
@@ -2033,9 +2032,9 @@ static void save_csv_as_cb(GtkWidget *bt _U_, gpointer data)
 		return;
 	}
 #endif
-	user_data->dlg.save_csv_as_w = 
-		gtk_file_chooser_dialog_new("Wireshark: Save Data As CSV", 
-					    GTK_WINDOW(user_data->dlg.notebook), 
+	user_data->dlg.save_csv_as_w =
+		gtk_file_chooser_dialog_new("Wireshark: Save Data As CSV",
+					    GTK_WINDOW(user_data->dlg.notebook),
 					    GTK_FILE_CHOOSER_ACTION_SAVE,
 					    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
 					    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -2100,7 +2099,7 @@ static void save_csv_as_cb(GtkWidget *bt _U_, gpointer data)
 	g_object_set_data(G_OBJECT(user_data->dlg.save_csv_as_w), "both_rb",     both_rb);
 	g_object_set_data(G_OBJECT(user_data->dlg.save_csv_as_w), "user_data",   user_data);
 
-	g_signal_connect(user_data->dlg.save_csv_as_w, "delete_event", 
+	g_signal_connect(user_data->dlg.save_csv_as_w, "delete_event",
 			 G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(user_data->dlg.save_csv_as_w, "destroy",
 			 G_CALLBACK(save_csv_as_destroy_cb), user_data);
@@ -2535,7 +2534,7 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 #if 0
 	if (GTK_TOGGLE_BUTTON (wav)->active)
 		format = SAVE_WAV_FORMAT;
-	else 
+	else
 #endif
 	if (GTK_TOGGLE_BUTTON (au)->active)
 		format = SAVE_AU_FORMAT;
@@ -2639,7 +2638,7 @@ static void save_voice_as_cb(GtkWidget *bt _U_, gpointer data)
 	}
 #endif
 	/* XXX - use file_selection from dlg_utils instead! */
-	user_data->dlg.save_voice_as_w = 
+	user_data->dlg.save_voice_as_w =
 		gtk_file_chooser_dialog_new("Wireshark: Save Payload As ...",
 					    GTK_WINDOW(user_data->dlg.notebook),
 					    GTK_FILE_CHOOSER_ACTION_SAVE,
@@ -2827,7 +2826,7 @@ static void draw_stat(user_data_t *user_data)
 
 /****************************************************************************/
 /* append a line to list */
-static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number, 
+static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number,
 			double delta, double jitter, double bandwidth, gchar *status,
 			gchar *timeStr, guint32 pkt_len, gchar *color_str, guint32 flags)
 {
@@ -2839,7 +2838,7 @@ static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number
 
 	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (list))); /* Get store */
 
-	/* Creates a new row at position. iter will be changed to point to this new row. 
+	/* Creates a new row at position. iter will be changed to point to this new row.
 	 * If position is larger than the number of rows on the list, then the new row will be appended to the list.
 	 * The row will be filled with the values given to this function.
 	 * :
@@ -2957,13 +2956,13 @@ GtkWidget* create_list(user_data_t* user_data)
 	/* The view now holds a reference.  We can get rid of our own reference */
 	g_object_unref (G_OBJECT (list_store));
 
-	/* 
+	/*
 	 * Create the first column packet, associating the "text" attribute of the
-	 * cell_renderer to the first column of the model 
+	 * cell_renderer to the first column of the model
 	 */
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("Packet", renderer, 
-							   "text",	PACKET_COLUMN, 
+	column = gtk_tree_view_column_new_with_attributes ("Packet", renderer,
+							   "text",	PACKET_COLUMN,
 							   "foreground", FOREGROUND_COLOR_COL,
 							   "background", BACKGROUND_COLOR_COL,
 							   NULL);
@@ -2977,13 +2976,13 @@ GtkWidget* create_list(user_data_t* user_data)
 
 	/* Second column.. Delta(ms). */
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("Delta(ms)", renderer, 
-							   "text", DELTA_COLUMN, 
+	column = gtk_tree_view_column_new_with_attributes ("Delta(ms)", renderer,
+							   "text", DELTA_COLUMN,
 							   "foreground", FOREGROUND_COLOR_COL,
 							   "background", BACKGROUND_COLOR_COL,
 							   NULL);
-	
-	gtk_tree_view_column_set_cell_data_func(column, renderer, iax2_float_data_func, 
+
+	gtk_tree_view_column_set_cell_data_func(column, renderer, iax2_float_data_func,
 						GINT_TO_POINTER(DELTA_COLUMN), NULL);
 
 	gtk_tree_view_column_set_sort_column_id(column, DELTA_COLUMN);
@@ -2994,13 +2993,13 @@ GtkWidget* create_list(user_data_t* user_data)
 
 	/* Third column.. Jitter(ms). */
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("Jitter(ms)", renderer, 
-							   "text", JITTER_COLUMN, 
+	column = gtk_tree_view_column_new_with_attributes ("Jitter(ms)", renderer,
+							   "text", JITTER_COLUMN,
 							   "foreground", FOREGROUND_COLOR_COL,
 							   "background", BACKGROUND_COLOR_COL,
 							   NULL);
 
-	gtk_tree_view_column_set_cell_data_func(column, renderer, iax2_float_data_func, 
+	gtk_tree_view_column_set_cell_data_func(column, renderer, iax2_float_data_func,
 						GINT_TO_POINTER(JITTER_COLUMN), NULL);
 
 	gtk_tree_view_column_set_sort_column_id(column, JITTER_COLUMN);
@@ -3011,13 +3010,13 @@ GtkWidget* create_list(user_data_t* user_data)
 
 	/* Fourth column.. IP BW(kbps). */
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("IP BW(kbps)", renderer, 
-							   "text", IPBW_COLUMN, 
+	column = gtk_tree_view_column_new_with_attributes ("IP BW(kbps)", renderer,
+							   "text", IPBW_COLUMN,
 							   "foreground", FOREGROUND_COLOR_COL,
 							   "background", BACKGROUND_COLOR_COL,
 							   NULL);
 
-	gtk_tree_view_column_set_cell_data_func(column, renderer, iax2_float_data_func, 
+	gtk_tree_view_column_set_cell_data_func(column, renderer, iax2_float_data_func,
 						GINT_TO_POINTER(IPBW_COLUMN), NULL);
 
 	gtk_tree_view_column_set_sort_column_id(column, IPBW_COLUMN);
@@ -3028,7 +3027,7 @@ GtkWidget* create_list(user_data_t* user_data)
 
 	/* Fifth column..  Status. */
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ( "Status", renderer, 
+	column = gtk_tree_view_column_new_with_attributes ( "Status", renderer,
 							    "text", STATUS_COLUMN,
 							    "foreground", FOREGROUND_COLOR_COL,
 							    "background", BACKGROUND_COLOR_COL,
@@ -3041,8 +3040,8 @@ GtkWidget* create_list(user_data_t* user_data)
 
 	/* Sixth column.. Length. */
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("Length", renderer, 
-							   "text", LENGTH_COLUMN, 
+	column = gtk_tree_view_column_new_with_attributes ("Length", renderer,
+							   "text", LENGTH_COLUMN,
 							   "foreground", FOREGROUND_COLOR_COL,
 							   "background", BACKGROUND_COLOR_COL,
 							   NULL);
@@ -3466,13 +3465,13 @@ static void iax2_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 		    "You didn't choose a IAX2 packet!");
 		return;
 	}
-	/* check if it is Voice or MiniPacket 
+	/* check if it is Voice or MiniPacket
 	if (!get_int_value_from_proto_tree(edt->tree, "iax2", "iax2.call", &ptype)) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Please select a Voice packet!");
 		return;
 	} */
-	
+
 	/* check if it is part of a Call */
 	if (edt.pi.circuit_id == 0) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,

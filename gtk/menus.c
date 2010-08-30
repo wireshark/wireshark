@@ -47,7 +47,6 @@
 #include "gtk/dissector_tables_dlg.h"
 
 #include "../print.h"
-#include "../register.h"
 #include "../ui_util.h"
 #include "../simple_dialog.h"
 #include "../color_filters.h"
@@ -544,7 +543,7 @@ static GtkItemFactoryEntry menu_items[] =
      * the user can, for example, copy the summaries of multiple
      * packets to the clipboard from the packet list pane and multiple
      * packet detail items - perhaps *all* packet detail items - from
-     * the packet detail pane.  Given that, we'll also want to 
+     * the packet detail pane.  Given that, we'll also want to
      * implement Select All.
      *
      * If multiple packets are selected, we would probably display nothing
@@ -2970,7 +2969,7 @@ set_menus_for_selected_packet(capture_file *cf)
     /* Allow un-ignore of all frames even with no frames currently displayed */
     set_menu_sensitivity(main_menu_factory, "/Edit/Un-Ignore All Packets",
                          cf->ignored_count > 0);
-	
+
     set_menu_sensitivity(main_menu_factory, "/Edit/Set Time Reference (toggle)",
                          frame_selected);
     set_menu_sensitivity(main_menu_factory, "/Edit/Un-Time Reference All Packets",
@@ -2982,7 +2981,7 @@ set_menus_for_selected_packet(capture_file *cf)
                          another_is_time_ref);
     set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous Time Reference",
                          another_is_time_ref);
-                             
+
     set_menu_sensitivity(main_menu_factory, "/View/Resize All Columns",
                          frame_selected);
     set_menu_sensitivity(main_menu_factory, "/View/Collapse All",

@@ -36,7 +36,6 @@
 #include <epan/dissectors/packet-sip.h>
 
 #include "../simple_dialog.h"
-#include "../register.h"
 #include "../globals.h"
 #include "../stat_menu.h"
 
@@ -398,7 +397,7 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 				sp->min_setup_time = value->setup_time;
 			}
 			/* Calculate average */
-			sp->average_setup_time = (guint32)(sp->total_setup_time / sp->no_of_completed_calls); 
+			sp->average_setup_time = (guint32)(sp->total_setup_time / sp->no_of_completed_calls);
 		}
 	}
 

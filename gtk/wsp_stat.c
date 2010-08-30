@@ -37,7 +37,6 @@
 #include <epan/dissectors/packet-wsp.h>
 
 #include "../simple_dialog.h"
-#include "../register.h"
 #include "../globals.h"
 #include "../stat_menu.h"
 

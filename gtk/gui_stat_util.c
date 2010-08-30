@@ -38,7 +38,6 @@
 
 #include "../simple_dialog.h"
 #include "../file.h"
-#include "../globals.h"
 
 #include "gtk/gui_stat_util.h"
 

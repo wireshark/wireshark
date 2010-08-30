@@ -9,17 +9,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -42,7 +42,6 @@
 #include <epan/expert.h>
 
 #include "../simple_dialog.h"
-#include "../globals.h"
 #include "../color.h"
 
 #include "gtk/expert_comp_table.h"
@@ -72,7 +71,7 @@ proto_data_func (GtkTreeViewColumn *column _U_,
                            GtkTreeModel      *model,
                            GtkTreeIter       *iter,
                            gpointer           user_data)
-{	
+{
 	 gchar *str = NULL;
 	 gchar *grp = NULL; /* type pointer, don't free */
 
@@ -114,10 +113,10 @@ proto_sort_func(GtkTreeModel *model,
 
 	if (str_a == str_b) {
 		ret = 0;
-	} 
+	}
 	else if (str_a == NULL || str_b == NULL) {
 		ret = (str_a == NULL) ? -1 : 1;
-	} 
+	}
 	else {
         if (grp == packet) {
           gint int_a = atoi(str_a);
@@ -126,7 +125,7 @@ proto_sort_func(GtkTreeModel *model,
               ret = 0;
           else if (int_a < int_b)
               ret = -1;
-          else 
+          else
               ret = 1;
         }
         else
@@ -141,7 +140,7 @@ static gint find_summary_data(error_equiv_table *err, const expert_info_t *exper
 {
     guint i;
     error_procedure_t *procedure;
-    
+
     /* First time thru values will be 0 */
     if (err->num_procs==0) {
         return -1;
@@ -179,12 +178,12 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
 		return;
 	}
 
-    gtk_tree_model_get (model, &iter, 
+    gtk_tree_model_get (model, &iter,
                         GROUP_COLUMN,    &grp,
                         PROTOCOL_COLUMN, &expert_data.protocol,
                         SUMMARY_COLUMN,  &expert_data.summary,
                         -1);
-    
+
     if (strcmp(grp, packet)==0) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "You cannot filter or search for packet number. Click on a valid item header.");
         g_free(expert_data.summary);
@@ -213,7 +212,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
         char *msg;
         if (0 /*procedure->fvalue_value==NULL*/) {
             if (action != ACTION_FIND_FRAME && action != ACTION_FIND_NEXT && action != ACTION_FIND_PREVIOUS) {
-                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Wireshark cannot create a filter on this item - %s, try using find instead.", 
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Wireshark cannot create a filter on this item - %s, try using find instead.",
                               procedure->entries[1]);
                 return;
             }
@@ -298,7 +297,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
          * a find with the expert string or we will not really be performing a find next.
          * In an effort to allow the user to modify the string and/or continue searching, we
          * will just present the user with the find window again with the default expert string.
-         * A better aproach would be to attempt in capturing the last find string and utilize this 
+         * A better aproach would be to attempt in capturing the last find string and utilize this
          * with a find next/previous. Also a better approach might be to just send a <Ctl-N> keystroke.
          */
 		/* Fall trough */
@@ -308,14 +307,14 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
          * a find with the expert string or we will not really be performing a find previous.
          * In an effort to allow the user to modify the string and/or continue searching, we
          * will just present the user with the find window again with the default expert string.
-         * A better aproach would be to attempt in capturing the last find string and utilize this 
+         * A better aproach would be to attempt in capturing the last find string and utilize this
          * with a find next/previous. Also a better approach might be to just send a <Ctl-B> keystroke.
          */
         if (procedure->fvalue_value==NULL) {
             find_frame_with_filter(str);
         }
         else
-        { 
+        {
             /* We have an expert item so just continue search without find dialog. */
             cf_find_packet_dfilter_string(&cfile, str, SD_FORWARD);
         }
@@ -350,7 +349,7 @@ error_show_popup_menu_cb(void *widg _U_, GdkEvent *event, gpointer user_data)
 	GdkEventButton *bevent = (GdkEventButton *)event;
 
 	if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
-		gtk_menu_popup(GTK_MENU(err->menu), NULL, NULL, NULL, NULL, 
+		gtk_menu_popup(GTK_MENU(err->menu), NULL, NULL, NULL, NULL,
 			bevent->button, bevent->time);
 	}
 
@@ -611,7 +610,7 @@ static const char *ui_desc_expert_filter_popup =
 "</ui>\n";
 
 
-/* 
+/*
  * GtkActionEntry
  * typedef struct {
  *   const gchar     *name;
@@ -621,15 +620,15 @@ static const char *ui_desc_expert_filter_popup =
  *   const gchar     *tooltip;
  *   GCallback  callback;
  * } GtkActionEntry;
- * const gchar *name;			The name of the action.  
- * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.  
- * const gchar *label;			The label for the action. This field should typically be marked for translation, 
- *								see gtk_action_group_set_translation_domain(). 
- *								If label is NULL, the label of the stock item with id stock_id is used.  
- * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().  
- * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation, 
- *                              see gtk_action_group_set_translation_domain().  
- * GCallback callback;			The function to call when the action is activated.  
+ * const gchar *name;			The name of the action.
+ * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.
+ * const gchar *label;			The label for the action. This field should typically be marked for translation,
+ *								see gtk_action_group_set_translation_domain().
+ *								If label is NULL, the label of the stock item with id stock_id is used.
+ * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().
+ * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation,
+ *                              see gtk_action_group_set_translation_domain().
+ * GCallback callback;			The function to call when the action is activated.
  *
  */
 static const GtkActionEntry expert_popup_entries[] = {
@@ -676,7 +675,7 @@ expert_goto_pkt_cb (GtkTreeSelection *selection, gpointer data _U_)
 
         if (gtk_tree_selection_get_selected (selection, &model, &iter))
         {
-                gtk_tree_model_get (model, &iter, 
+                gtk_tree_model_get (model, &iter,
                                     PROTOCOL_COLUMN, &pkt,
                                     GROUP_COLUMN,    &grp,
                                     -1);
@@ -712,7 +711,7 @@ error_create_popup_menu(error_equiv_table *err)
     gtk_tree_selection_set_mode (err->select, GTK_SELECTION_SINGLE);
     g_signal_connect (G_OBJECT (err->select), "changed", G_CALLBACK(expert_goto_pkt_cb), NULL);
 
-	action_group = gtk_action_group_new ("ExpertFilterPopupActionGroup"); 
+	action_group = gtk_action_group_new ("ExpertFilterPopupActionGroup");
 	gtk_action_group_add_actions (action_group,							/* the action group */
 								expert_popup_entries,					/* an array of action descriptions */
 								G_N_ELEMENTS(expert_popup_entries),		/* the number of entries */
@@ -720,14 +719,14 @@ error_create_popup_menu(error_equiv_table *err)
 
 	ui_manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
-	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_expert_filter_popup, -1, &error); 
-	if (error != NULL) 
-    { 
-        fprintf (stderr, "Warning: building expert filter popup failed: %s\n", 
-                error->message); 
-        g_error_free (error); 
-        error = NULL; 
-    } 
+	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_expert_filter_popup, -1, &error);
+	if (error != NULL)
+    {
+        fprintf (stderr, "Warning: building expert filter popup failed: %s\n",
+                error->message);
+        g_error_free (error);
+        error = NULL;
+    }
 	err->menu = gtk_ui_manager_get_widget(ui_manager, "/ExpertFilterPopup");
 	g_signal_connect(err->tree_view, "button_press_event", G_CALLBACK(error_show_popup_menu_cb), err);
 #endif
@@ -773,7 +772,7 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     column = gtk_tree_view_column_new_with_attributes ("Group", renderer, NULL);
     gtk_tree_view_column_set_sort_column_id(column, GROUP_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func, 
+	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
 		GINT_TO_POINTER(GROUP_COLUMN), NULL);
 
 	gtk_tree_sortable_set_sort_func(sortable, GROUP_COLUMN, str_ptr_sort_func,
@@ -783,13 +782,13 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     gtk_tree_view_column_set_min_width(column, 80);
     /* Add the column to the view. */
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
- 
+
     /* Second column.. Protocol. */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("Protocol", renderer, "text", PROTOCOL_COLUMN, NULL);
     gtk_tree_view_column_set_sort_column_id(column, PROTOCOL_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, proto_data_func, 
+	gtk_tree_view_column_set_cell_data_func(column, renderer, proto_data_func,
 		GINT_TO_POINTER(PROTOCOL_COLUMN), NULL);
 
 	gtk_tree_sortable_set_sort_func(sortable, PROTOCOL_COLUMN, proto_sort_func,
@@ -799,7 +798,7 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     gtk_tree_view_column_set_min_width(column, 40);
 	gtk_tree_view_column_set_fixed_width(column, 100);
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
- 
+
     /* Third column.. Summary. */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("Summary", renderer, "text", SUMMARY_COLUMN, NULL);
@@ -809,7 +808,7 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     gtk_tree_view_column_set_min_width(column, 80);
 	gtk_tree_view_column_set_fixed_width(column, 230);
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
- 
+
     /* Last column.. Count. */
     renderer = gtk_cell_renderer_text_new ();
     /* right align */
@@ -820,7 +819,7 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_min_width(column, 80);
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
- 
+
     err->scrolled_window=scrolled_window_new(NULL, NULL);
 
     gtk_container_add(GTK_CONTAINER(err->scrolled_window), GTK_WIDGET (err->tree_view));
@@ -829,7 +828,7 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
 
     gtk_tree_view_set_search_column (err->tree_view, SUMMARY_COLUMN); /* Allow searching the summary */
     gtk_tree_view_set_reorderable (err->tree_view, TRUE);   /* Allow user to reorder data with drag n drop */
-    
+
     /* Now enable the sorting of each column */
     gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(err->tree_view), TRUE);
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(err->tree_view), TRUE);
@@ -867,7 +866,7 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
 
         g_array_append_val(err->procs_array, new_procedure);
         procedure = &g_array_index(err->procs_array, error_procedure_t, row);
-        
+
         /* Create the item in our memory table */
         procedure->entries[0]=(char *)g_string_chunk_insert_const(err->text, expert_data->protocol);    /* Protocol */
         procedure->entries[1]=(char *)g_string_chunk_insert_const(err->text, expert_data->summary);     /* Summary */
@@ -875,17 +874,17 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
         /* Create a new item in our tree view */
         store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view)); /* Get store */
         gtk_tree_store_append (store, &procedure->iter, NULL);  /* Acquire an iterator */
-        
-        /* match_strval return a static constant  or null */        
+
+        /* match_strval return a static constant  or null */
         gtk_tree_store_set (store, &procedure->iter,
-                    GROUP_COLUMN, match_strval(expert_data->group, expert_group_vals), 
+                    GROUP_COLUMN, match_strval(expert_data->group, expert_group_vals),
                     PROTOCOL_COLUMN, procedure->entries[0],
                     SUMMARY_COLUMN,  procedure->entries[1], -1);
-        
+
         /* If an expert item was passed then build the filter string */
         if (expert_data->pitem) {
             char *filter;
-            
+
             g_assert(PITEM_FINFO(expert_data->pitem));
             filter = proto_construct_match_selected_string(PITEM_FINFO(expert_data->pitem), NULL);
             if (filter != NULL)
@@ -901,8 +900,8 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
 
     /* Update the tree with new count for this event */
     store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view));
-    gtk_tree_store_set(store, &procedure->iter, 
-                       COUNT_COLUMN, procedure->count, 
+    gtk_tree_store_set(store, &procedure->iter,
+                       COUNT_COLUMN, procedure->count,
 					   -1);
 
     g_snprintf(num, sizeof(num), "%d", expert_data->packet_num);
@@ -916,13 +915,13 @@ if GTK_CHECK_VERSION(2,10,0)
 
 #else
 
-    /* FIXME gtk is plagued with slow algorithms 
+    /* FIXME gtk is plagued with slow algorithms
        gtk_tree_store_append call new_path and its nice recursive linear search....
     */
     if (procedure->count > 1000) {
-        /* If there's more than 1000 sub rows give up and prepend new rows, at least 
+        /* If there's more than 1000 sub rows give up and prepend new rows, at least
            it will end in a reasonable time. Anyway with so many rows it's not
-           very useful and if sorted the right order is restored. 
+           very useful and if sorted the right order is restored.
         */
         gtk_tree_store_prepend(store, &new_iter, &procedure->iter);
     }

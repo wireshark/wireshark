@@ -41,7 +41,6 @@
 #include <epan/dissectors/packet-rsvp.h>
 
 #include "../stat_menu.h"
-#include "../register.h"
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/hostlist_table.h"
@@ -54,13 +53,13 @@ rsvp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	const rsvp_conversation_info *rsvph = vip;
 
 	/* Take two "add" passes per packet, adding for each direction, ensures
-	 * that all packets are counted properly (even if address is sending to 
-	 * itself). XXX - this could probably be done more efficiently inside 
-	 * hostlist_table 
+	 * that all packets are counted properly (even if address is sending to
+	 * itself). XXX - this could probably be done more efficiently inside
+	 * hostlist_table
 	 */
-	add_hostlist_table_data(hosts, &rsvph->source, 0, TRUE, 1, 
+	add_hostlist_table_data(hosts, &rsvph->source, 0, TRUE, 1,
 				pinfo->fd->pkt_len, SAT_NONE, PT_NONE);
-	add_hostlist_table_data(hosts, &rsvph->destination, 0, FALSE, 1, 
+	add_hostlist_table_data(hosts, &rsvph->destination, 0, FALSE, 1,
 				pinfo->fd->pkt_len, SAT_NONE, PT_NONE);
 	return 1;
 }
@@ -76,7 +75,7 @@ gtk_rsvp_hostlist_init(const char *optarg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	init_hostlist_table(TRUE, "RSVP", "rsvp", filter, 
+	init_hostlist_table(TRUE, "RSVP", "rsvp", filter,
 			    rsvp_hostlist_packet);
 
 }
@@ -97,6 +96,6 @@ register_tap_listener_rsvp_hostlist(void)
 	register_stat_menu_item("RSVP", REGISTER_STAT_GROUP_ENDPOINT_LIST,
 			       gtk_rsvp_hostlist_cb, NULL, NULL, NULL);
 
-	register_hostlist_table(TRUE, "RSVP", "rsvp", NULL /*filter*/, 
+	register_hostlist_table(TRUE, "RSVP", "rsvp", NULL /*filter*/,
 				rsvp_hostlist_packet);
 }

@@ -31,7 +31,6 @@
 
 #include <epan/prefs.h>
 
-#include "../globals.h"
 #include "../print.h"
 #include "../util.h"
 

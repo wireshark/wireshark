@@ -35,8 +35,6 @@
 #include <epan/tap.h>
 
 #include "../simple_dialog.h"
-#include "../register.h"
-#include "../globals.h"
 #include "../stat_menu.h"
 
 #include "gtk/gui_utils.h"
@@ -218,7 +216,7 @@ dhcpstat_init(const char *optarg, void *userdata _U_)
 	}
 
 	/* transient_for top_level */
-	sp->win= dlg_window_new(title);  
+	sp->win= dlg_window_new(title);
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(sp->win), TRUE);
 	g_free(title);
 

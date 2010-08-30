@@ -48,7 +48,6 @@
 #include "wsutil/file_util.h"
 #include "wsutil/unicode-utils.h"
 
-#include "../globals.h"
 #include "../alert_box.h"
 #include "../color.h"
 #include "../print.h"

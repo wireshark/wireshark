@@ -44,11 +44,9 @@
 #include "epan/gcp.h"
 #include <epan/prefs-int.h>
 
-#include "../register.h"
 #include "../timestats.h"
 #include "../simple_dialog.h"
 #include "../file.h"
-#include "../globals.h"
 #include "../stat_menu.h"
 
 #include "gtk/gui_stat_util.h"
@@ -143,7 +141,7 @@ static const stat_column titles[]={
 	{G_TYPE_STRING, RIGHT, "Max SRT" },
 	{G_TYPE_STRING, RIGHT, "Avg SRT" },
 	{G_TYPE_UINT, RIGHT,  "Min in Frame" },
-	{G_TYPE_UINT, RIGHT,  "Max in Frame" } 
+	{G_TYPE_UINT, RIGHT,  "Max in Frame" }
 };
 
 static void
@@ -157,12 +155,12 @@ gtk_megacostat_init(const char *optarg, void *userdata _U_)
 
 	megaco_ctx_track = prefs_find_preference(prefs_find_module("megaco"),"ctx_info");
 	h248_ctx_track = prefs_find_preference(prefs_find_module("h248"),"ctx_info");
-	
+
 	if (!*megaco_ctx_track->varp.boolp || !*h248_ctx_track->varp.boolp) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", "Track Context option at Protocols -> MEGACO and Protocols -> H248 preferences has to be set to true to enable measurement of service reponse times.");
 		return;
 	}
-	
+
 	ms=g_malloc(sizeof(megacostat_t));
 
 	if(strncmp(optarg,"megaco,srt,",11) == 0){

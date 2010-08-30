@@ -32,7 +32,6 @@
 #include <epan/epan_dissect.h>
 #include <epan/dissectors/packet-ber.h>
 
-#include "../globals.h"
 #include "../simple_dialog.h"
 
 #include "gtk/decode_as_dlg.h"
@@ -50,7 +49,7 @@
 /*
  * This routine is called when the user clicks the "OK" button in the
  * "Decode As..." dialog window and the ASN.1 page is foremost.
- * This routine takes care of making any changes requested to the ASN.1  
+ * This routine takes care of making any changes requested to the ASN.1
  * decoding.
  *
  * @param notebook_pg A pointer to the "ASN.1" notebook page.
@@ -93,7 +92,7 @@ decode_ber(GtkWidget *notebook_pg)
 
 
 /* add an interface to the list */
-static void 
+static void
 decode_ber_add_to_list(gpointer key, gpointer value, gpointer user_data)
 {
     decode_add_to_list("ASN.1", key, value, user_data);
@@ -126,7 +125,7 @@ decode_ber_add_page (packet_info *pinfo _U_)
     g_object_set_data(G_OBJECT(page_hb), E_PAGE_ACTION, decode_ber);
     g_object_set_data(G_OBJECT(page_hb), E_PAGE_TABLE, "ASN.1");
     g_object_set_data(G_OBJECT(page_hb), E_PAGE_TITLE, "ASN.1");
-    
+
     info_vb = gtk_vbox_new(FALSE, 5);
     gtk_box_pack_start(GTK_BOX(page_hb), info_vb, TRUE, TRUE, 0);
 

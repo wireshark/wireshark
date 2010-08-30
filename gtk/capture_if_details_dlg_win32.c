@@ -37,7 +37,6 @@
 #include <epan/value_string.h>
 #include <epan/addr_resolv.h>
 
-#include "../globals.h"
 #include "../file.h"
 #include "../capture.h"
 #include "../simple_dialog.h"
@@ -66,8 +65,8 @@
 
 #include "../capture_wpcap_packet.h"
 
-/* packet32.h requires sockaddr_storage 
- * whether sockaddr_storage is defined or not depends on the Platform SDK 
+/* packet32.h requires sockaddr_storage
+ * whether sockaddr_storage is defined or not depends on the Platform SDK
  * version installed. The only one not defining it is the SDK that comes
  * with MSVC 6.0 (WINVER 0x0400).
  *
@@ -2344,7 +2343,7 @@ capture_if_details_open_win(char *iface)
          */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             "%sCould not open adapter %s!%s"
-            "\n\nHas it been unplugged?", 
+            "\n\nHas it been unplugged?",
             simple_dialog_primary_start(), iface, simple_dialog_primary_end());
         return;
     }
@@ -2516,13 +2515,13 @@ capture_if_has_details(char *iface) {
     if (!iface) {
 	return FALSE;
     }
-    
+
     adapter = wpcap_packet_open(iface);
     if (adapter) {
 	wpcap_packet_close(adapter);
 	return TRUE;
     }
-    
+
     return FALSE;
 }
 

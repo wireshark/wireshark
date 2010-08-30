@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2004, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
  *
  * $Id$
@@ -21,7 +21,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
+
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -36,7 +36,6 @@
 #include "../globals.h"
 #include "../simple_dialog.h"
 #include "../stat_menu.h"
-#include "../register.h"
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/dlg_utils.h"
@@ -101,7 +100,7 @@ on_destroy(GtkObject *object _U_, gpointer user_data)
 		g_list_free(u_data->children);
 		u_data->children = NULL;
 	}
-	
+
 	g_free(u_data->analyse_nb->page2);
 	g_free(u_data->analyse_nb->page3);
 	g_free(u_data->analyse_nb);
@@ -149,7 +148,7 @@ static void on_close_dlg(GtkWidget *widget _U_, struct sctp_analyse* u_data)
 static void on_chunk1_dlg(GtkWidget *widget _U_, struct sctp_analyse* u_data)
 {
 sctp_assoc_info_t* assinfo = NULL;
-	
+
 	assinfo = g_malloc(sizeof(sctp_assoc_info_t));
 	assinfo = &static_assoc;
 	assinfo->addr_chunk_count = (static_assoc.addr_chunk_count);
@@ -163,7 +162,7 @@ sctp_assoc_info_t* assinfo=NULL;
 
 	assinfo = g_malloc(sizeof(sctp_assoc_info_t));
 	assinfo = &static_assoc;
-	assinfo->addr_chunk_count = (static_assoc.addr_chunk_count);	
+	assinfo->addr_chunk_count = (static_assoc.addr_chunk_count);
 	u_data->assoc = assinfo;
 	sctp_chunk_stat_dlg_show(2, u_data);
 }
@@ -198,13 +197,13 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 	address *store = NULL;
 	GtkListStore *list_store = NULL;
 	GtkTreeIter  iter;
-	
+
 	if (u_data->assoc == NULL)
 		return;
 
 	if (u_data->window != NULL)
 	{
-		gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW 
+		gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW
 				(u_data->analyse_nb->page2->clist))));
 		gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW
 			(u_data->analyse_nb->page3->clist))));
@@ -253,7 +252,7 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 				g_snprintf(field[0], 30, "%s", ip_to_str((const guint8 *)(store->data)));
 			}
 			else if (store->type == AT_IPv6)
-			{		
+			{
 				g_snprintf(field[0], 40, "%s", ip6_to_str((const struct e_in6_addr *)(store->data)));
 			}
 			list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (u_data->analyse_nb->page2->clist))); /* Get store */
@@ -376,7 +375,7 @@ sctp_set_filter (GtkButton *button _U_, struct sctp_analyse* u_data)
 	sctp_assoc_info_t *selected_stream;
 	gchar *filter_string = NULL;
 	selected_stream=u_data->assoc;
-	
+
 	if (selected_stream->check_address==FALSE)
 	{
 		f_string = g_strdup_printf("((sctp.srcport==%u && sctp.dstport==%u && ((sctp.verification_tag==0x%x && sctp.verification_tag!=0x0) || "
@@ -458,7 +457,7 @@ sctp_set_filter (GtkButton *button _U_, struct sctp_analyse* u_data)
 		filter_string = gstring->str;
 		g_string_free(gstring,FALSE);
 	}
-	
+
 	if (filter_string != NULL) {
 		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
 	} else {
@@ -469,7 +468,7 @@ sctp_set_filter (GtkButton *button _U_, struct sctp_analyse* u_data)
 static void analyse_window_set_title(struct sctp_analyse *u_data)
 {
 	char *title;
-	
+
 	if(!u_data->window){
 		return;
 	}
@@ -488,8 +487,8 @@ GtkWidget *create_list(void)
 	GtkTreeView *list_view;
 	list_store = gtk_list_store_new(1,
 		G_TYPE_STRING /* IP address */
-			); 
-		
+			);
+
     /* Create a view */
     list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
 
@@ -503,13 +502,13 @@ GtkWidget *create_list(void)
     /* The view now holds a reference.  We can get rid of our own reference */
     g_object_unref (G_OBJECT (list_store));
 
-    /* 
+    /*
      * Create the first column packet, associating the "text" attribute of the
-     * cell_renderer to the first column of the model 
+     * cell_renderer to the first column of the model
      */
    	renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Address", renderer, 
-		"text",	0, 
+    column = gtk_tree_view_column_new_with_attributes ("Address", renderer,
+		"text",	0,
 		NULL);
 
     gtk_tree_view_column_set_resizable(column, TRUE);
@@ -518,7 +517,7 @@ GtkWidget *create_list(void)
 
 	/* Add the column to the view. */
     gtk_tree_view_append_column (list_view, column);
-    
+
 	gtk_tree_view_set_headers_visible(list_view, FALSE);
 	return list;
 }
@@ -696,7 +695,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_button_box_set_layout(GTK_BUTTON_BOX (h_button_box), GTK_BUTTONBOX_SPREAD);
 	gtk_box_set_spacing(GTK_BOX (h_button_box), 0);
 	gtk_widget_show(h_button_box);
-	
+
 	chunk_bt1 = gtk_button_new_with_label("Chunk Statistics");
 	gtk_box_pack_start(GTK_BOX(h_button_box), chunk_bt1, FALSE, FALSE, 0);
 	gtk_widget_show(chunk_bt1);
@@ -741,7 +740,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_widget_set_size_request(u_data->analyse_nb->page3->scrolled_window, 560, 100);
 
 	u_data->analyse_nb->page3->clist = create_list();
-	gtk_widget_show(u_data->analyse_nb->page3->clist);		
+	gtk_widget_show(u_data->analyse_nb->page3->clist);
 
 	gtk_container_add(GTK_CONTAINER(u_data->analyse_nb->page3->scrolled_window),
 	u_data->analyse_nb->page3->clist);
@@ -758,7 +757,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 
 	vbox_l = gtk_vbox_new(FALSE, 3);
 	gtk_box_pack_start(GTK_BOX(hbox), vbox_l, TRUE, TRUE, 0);
-		
+
 	hbox_l1 = gtk_hbox_new(FALSE,3);
 	gtk_box_pack_start(GTK_BOX(vbox_l), hbox_l1, TRUE, TRUE, 0);
 
@@ -783,7 +782,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_misc_set_alignment (GTK_MISC(u_data->analyse_nb->page3->max_in),0,0);
 	u_data->analyse_nb->page3->min_in = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(vbox_r), u_data->analyse_nb->page3->min_in, TRUE, TRUE, 0);
-	gtk_misc_set_alignment (GTK_MISC(u_data->analyse_nb->page3->min_in),0,0);		
+	gtk_misc_set_alignment (GTK_MISC(u_data->analyse_nb->page3->min_in),0,0);
 
 	u_data->analyse_nb->page3->max_out = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(vbox_r), u_data->analyse_nb->page3->max_out, TRUE, TRUE, 0);
@@ -800,12 +799,12 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_button_box_set_layout(GTK_BUTTON_BOX (h_button_box), GTK_BUTTONBOX_SPREAD);
 	gtk_box_set_spacing(GTK_BOX (h_button_box), 0);
 	gtk_widget_show(h_button_box);
-	
+
 	chunk_bt1 = gtk_button_new_with_label("Chunk Statistics");
 	gtk_box_pack_start(GTK_BOX(h_button_box), chunk_bt1, FALSE, FALSE, 0);
 	gtk_widget_show(chunk_bt1);
 	g_signal_connect(chunk_bt1, "clicked", G_CALLBACK(on_chunk2_dlg), u_data);
-	
+
 	graph_bt1 = gtk_button_new_with_label("Graph TSN");
 	gtk_box_pack_start(GTK_BOX(h_button_box), graph_bt1, FALSE, FALSE, 0);
 	gtk_widget_show(graph_bt1);
@@ -986,7 +985,7 @@ void sctp_analyse_start(GtkWidget *w _U_, gpointer data _U_)
 	if (sctp_stat_get_info()->is_registered == FALSE)
 		register_tap_listener_sctp_stat();
 	/* (redissect all packets) */
-	
+
 	sctp_stat_scan();
 
 	u_data = g_malloc(sizeof(struct sctp_analyse));

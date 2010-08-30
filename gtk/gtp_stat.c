@@ -41,11 +41,9 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-gtp.h>
 
-#include "../register.h"
 #include "../timestats.h"
 #include "../simple_dialog.h"
 #include "../file.h"
-#include "../globals.h"
 #include "../stat_menu.h"
 
 #include "gtk/gui_utils.h"
@@ -106,7 +104,7 @@ gtpstat_packet(void *pgtp, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 
 	switch(gtp->msgtype){
  	case GTP_MSG_ECHO_REQ: idx=0;
-		break;	
+		break;
  	case GTP_MSG_CREATE_PDP_REQ: idx=1;
 		break;
 	case GTP_MSG_UPDATE_PDP_REQ: idx=2;

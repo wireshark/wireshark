@@ -41,7 +41,6 @@
 
 #include "../capture.h"
 #include "../capture_info.h"
-#include "../globals.h"
 #include "../capture_ui_utils.h"
 #include "../capture-pcap-util.h"
 

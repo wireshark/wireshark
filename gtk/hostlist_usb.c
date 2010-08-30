@@ -39,7 +39,6 @@
 #include <epan/dissectors/packet-usb.h>
 
 #include "../stat_menu.h"
-#include "../register.h"
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/hostlist_table.h"

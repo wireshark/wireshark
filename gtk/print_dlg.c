@@ -34,7 +34,6 @@
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
 
-#include "../globals.h"
 #include "../print.h"
 #include "../alert_box.h"
 #include "../simple_dialog.h"

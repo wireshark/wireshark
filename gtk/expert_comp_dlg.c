@@ -37,9 +37,7 @@
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 
-#include "../register.h"
 #include "../simple_dialog.h"
-#include "../globals.h"
 #include "../stat_menu.h"
 
 #include "gtk/gui_utils.h"

@@ -47,7 +47,6 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-mac-lte.h>
 
-#include "../register.h"
 #include "../simple_dialog.h"
 #include "../stat_menu.h"
 
@@ -612,7 +611,7 @@ mac_lte_stat_draw(void *phs)
         /* Set each column for this row */
         gtk_list_store_set(ues_store, &tmp->iter,
                            RNTI_COLUMN, tmp->stats.rnti,
-                           RNTI_TYPE_COLUMN, 
+                           RNTI_TYPE_COLUMN,
                                (tmp->stats.rnti_type == C_RNTI) ? "C-RNTI" : "SPS-RNTI",
                            UEID_COLUMN, tmp->stats.ueid,
                            UL_FRAMES_COLUMN, tmp->stats.UL_frames,

@@ -53,7 +53,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/dissectors/packet-h248.h>
 
-#include "../register.h"
 #include "../globals.h"
 #include "../stat_menu.h"
 
@@ -418,7 +417,7 @@ add_to_list_store(voip_calls_info_t* strinfo)
 	g_snprintf(field[CALL_COL_INITIAL_SPEAKER], 30, "%s", get_addr_name(&(strinfo->initial_speaker)));
 	g_snprintf(field[CALL_COL_FROM],            50, "%s", strinfo->from_identity);
 	g_snprintf(field[CALL_COL_TO],              50, "%s", strinfo->to_identity);
-	g_snprintf(field[CALL_COL_PROTOCOL],        15, "%s", 
+	g_snprintf(field[CALL_COL_PROTOCOL],        15, "%s",
 		   ((strinfo->protocol==VOIP_COMMON)&&strinfo->protocol_name)?
 		       strinfo->protocol_name:voip_protocol_name[strinfo->protocol]);
 	g_snprintf(field[CALL_COL_STATE],           15, "%s", voip_call_state_name[strinfo->call_state]);

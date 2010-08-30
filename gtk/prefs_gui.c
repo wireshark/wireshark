@@ -31,7 +31,6 @@
 
 #include <epan/prefs.h>
 
-#include "../globals.h"
 #include "../simple_dialog.h"
 
 #include "gtk/prefs_gui.h"
@@ -58,7 +57,7 @@ static gint fetch_enum_value(gpointer control, const enum_val_t *enumvals);
 static gboolean fileopen_dir_changed_cb(GtkWidget *myentry _U_, GdkEvent *event, gpointer parent_w);
 static gboolean fileopen_preview_changed_cb(GtkWidget *myentry _U_, GdkEvent *event, gpointer parent_w);
 static void fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w);
-static gboolean recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_, 
+static gboolean recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 					      GdkEvent *event _U_, gpointer parent_w);
 static gboolean recent_df_entries_changed_cb(GtkWidget *recent_df_entry _U_,
 					     GdkEvent *event _U_, gpointer parent_w);
@@ -201,40 +200,40 @@ gui_prefs_show(void)
 
 	/* Packet list selection browseable */
 	plist_browse_om = create_preference_option_menu(main_tb, pos++,
-	    "Packet list selection mode:", 
+	    "Packet list selection mode:",
 	    "Choose to browse or select a packet for detailed dissection.",
 	    selection_mode_vals, prefs.gui_plist_sel_browse);
 	g_object_set_data(G_OBJECT(main_vb), PLIST_SEL_BROWSE_KEY, plist_browse_om);
 
 	/* Proto tree selection browseable */
 	ptree_browse_om = create_preference_option_menu(main_tb, pos++,
-	    "Protocol tree selection mode:", 
+	    "Protocol tree selection mode:",
 	    "Choose to browse or select.",
 	    selection_mode_vals, prefs.gui_ptree_sel_browse);
 	g_object_set_data(G_OBJECT(main_vb), PTREE_SEL_BROWSE_KEY, ptree_browse_om);
 
 	/* Geometry prefs */
 	save_position_cb = create_preference_check_button(main_tb, pos++,
-	    "Save window position:", 
+	    "Save window position:",
 	    "Whether to save the position of the main window.",
 	    prefs.gui_geometry_save_position);
 	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_POSITION_KEY, save_position_cb);
 
 	save_size_cb = create_preference_check_button(main_tb, pos++,
-	    "Save window size:", 
+	    "Save window size:",
 	    "Whether to save the size of the main window.",
 	    prefs.gui_geometry_save_size);
 	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_SIZE_KEY, save_size_cb);
 
 	save_maximized_cb = create_preference_check_button(main_tb, pos++,
-	    "Save maximized state:", 
+	    "Save maximized state:",
 	    "Whether to save the maximized state of the main window.",
 	    prefs.gui_geometry_save_maximized);
 	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_MAXIMIZED_KEY, save_maximized_cb);
 
 #if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
 	macosx_style_cb = create_preference_check_button(main_tb, pos++,
-	    "Mac OS X style", 
+	    "Mac OS X style",
 	    "Whether to create a Mac OS X look and feel. Checking this box will move the "
 	    "menu bar to the top of the screen instead of the top of the Wireshark window. "
 	    "Requires a restart of Wireshark to take effect.",
@@ -245,7 +244,7 @@ gui_prefs_show(void)
 #ifdef _WIN32
 	/* How the console window should be opened */
 	console_open_om = create_preference_option_menu(main_tb, pos++,
-	    "Open a console window", 
+	    "Open a console window",
 	    "Whether to open a console window "
 	    "(Automatic will open a console if messages appear).",
 	    gui_console_open_vals, prefs.gui_console_open);
@@ -255,13 +254,13 @@ gui_prefs_show(void)
 	/* Allow user to select where they want the File Open dialog to open to
 	 * by default */
 	fileopen_rb = create_preference_radio_buttons(main_tb, pos++,
-	    "\"File Open\" dialog behavior:", 
-	    "Which directory the \"File Open\" dialog should start with.", 
+	    "\"File Open\" dialog behavior:",
+	    "Which directory the \"File Open\" dialog should start with.",
 	    gui_fileopen_vals, prefs.gui_fileopen_style);
 
 	/* Directory to default File Open dialog to */
-	fileopen_dir_te = create_preference_entry(main_tb, pos++, 
-	    "Directory:", 
+	fileopen_dir_te = create_preference_entry(main_tb, pos++,
+	    "Directory:",
 	    "The \"File Open\" dialog defaults always to this directory.",
 	    prefs.gui_fileopen_dir);
 	g_object_set_data(G_OBJECT(main_vb), GUI_FILEOPEN_KEY, fileopen_rb);
@@ -272,7 +271,7 @@ gui_prefs_show(void)
 
 	/* File Open dialog preview timeout */
 	fileopen_preview_te = create_preference_entry(main_tb, pos++,
-	    "\"File Open\" preview timeout:", 
+	    "\"File Open\" preview timeout:",
 	    "Reading preview data in the \"File Open\" dialog will be stopped after given seconds.",
 	    open_file_preview_str);
 	g_snprintf(current_val_str, sizeof(current_val_str), "%d", prefs.gui_fileopen_preview);
@@ -282,7 +281,7 @@ gui_prefs_show(void)
 
 	/* Number of recent entries in the display filter list ... */
 	recent_df_entries_max_te = create_preference_entry(main_tb, pos++,
-	    "Filter display max. list entries:", 
+	    "Filter display max. list entries:",
 	    "Maximum number of recent entries in filter display list.",
 	    recent_df_entries_max_str);
 	g_snprintf(current_val_str, sizeof(current_val_str), "%d", prefs.gui_recent_df_entries_max);
@@ -292,7 +291,7 @@ gui_prefs_show(void)
 
 	/* Number of entries in the recent_files list ... */
 	recent_files_count_max_te = create_preference_entry(main_tb, pos++,
-	    "\"Open Recent\" max. list entries:", 
+	    "\"Open Recent\" max. list entries:",
 	    "Maximum number of entries in the \"File/Open Recent\" list.",
 	    recent_files_count_max_str);
 	g_snprintf(current_val_str, sizeof(current_val_str), "%d", prefs.gui_recent_files_count_max);
@@ -311,7 +310,7 @@ gui_prefs_show(void)
 
 	/* do we want to wrap when searching for data? */
 	find_wrap_cb = create_preference_check_button(main_tb, pos++,
-	    "Wrap to end/beginning of file during a find:", 
+	    "Wrap to end/beginning of file during a find:",
 	    "Whether a search should wrap in a capture file.",
 	    prefs.gui_find_wrap);
 	g_object_set_data(G_OBJECT(main_vb), GUI_FIND_WRAP_KEY, find_wrap_cb);
@@ -333,7 +332,7 @@ gui_prefs_show(void)
 
 	/* Webbrowser */
 	if (browser_needs_pref()) {
-	    webbrowser_te = create_preference_entry(main_tb, pos++, 
+	    webbrowser_te = create_preference_entry(main_tb, pos++,
                 "Web browser command:",
                 "Command line to desired browser.",
                 prefs.gui_webbrowser);
@@ -419,21 +418,21 @@ gui_prefs_fetch(GtkWidget *w)
 #endif
 	prefs.gui_fileopen_style = fetch_preference_radio_buttons_val(
 	    g_object_get_data(G_OBJECT(w), GUI_FILEOPEN_KEY), gui_fileopen_vals);
-	
+
 	g_free(prefs.gui_fileopen_dir);
 	prefs.gui_fileopen_dir = g_strdup(gtk_entry_get_text(
                                               GTK_ENTRY(g_object_get_data(G_OBJECT(w), GUI_FILEOPEN_DIR_KEY))));
 
-	prefs.gui_ask_unsaved = 
+	prefs.gui_ask_unsaved =
 		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_ASK_UNSAVED_KEY));
 
-	prefs.gui_find_wrap = 
+	prefs.gui_find_wrap =
 		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_FIND_WRAP_KEY));
 
-	prefs.gui_use_pref_save = 
+	prefs.gui_use_pref_save =
 		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_USE_PREF_SAVE_KEY));
 
-	prefs.gui_version_in_start_page  = 
+	prefs.gui_version_in_start_page  =
 		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_SHOW_VERSION_KEY));
 
 	if (browser_needs_pref()) {
@@ -555,12 +554,12 @@ recent_df_entries_changed_cb(GtkWidget *recent_df_entry _U_,
 }
 
 static gboolean
-recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_, 
+recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 			      GdkEvent *event _U_, gpointer parent_w)
 {
 	GtkWidget	*recent_files_count_te;
 	guint newval;
-    
+
 	recent_files_count_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_RECENT_FILES_COUNT_KEY);
 
 	/*
@@ -580,12 +579,12 @@ recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 }
 
 static gboolean
-fileopen_preview_changed_cb(GtkWidget *recent_files_entry _U_, 
+fileopen_preview_changed_cb(GtkWidget *recent_files_entry _U_,
 			      GdkEvent *event _U_, gpointer parent_w)
 {
 	GtkWidget	*fileopen_preview_te;
 	guint newval;
-    
+
 	fileopen_preview_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_PREVIEW_KEY);
 
 	/*
@@ -610,7 +609,7 @@ fileopen_dir_changed_cb(GtkWidget *fileopen_entry _U_, GdkEvent *event _U_, gpoi
 	GtkWidget	*fileopen_dir_te;
 	char *lastchar;
 	gint fileopen_dir_te_length;
-    
+
 	fileopen_dir_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_DIR_KEY);
 	fileopen_dir_te_length = (gint) strlen(gtk_entry_get_text (GTK_ENTRY(fileopen_entry)));
 	if (fileopen_dir_te_length == 0)
@@ -628,10 +627,10 @@ static void
 fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w)
 {
 	GtkWidget	*fileopen_rb, *fileopen_dir_te;
-    
+
 	fileopen_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_KEY);
 	fileopen_dir_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_DIR_KEY);
-    
+
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fileopen_rb)))
 	{
 		gtk_widget_set_sensitive(GTK_WIDGET(fileopen_dir_te), TRUE);

@@ -33,7 +33,6 @@
 #include "epan/packet_info.h"
 
 #include "../simple_dialog.h"
-#include "../globals.h"
 
 #include "gtk/service_response_time_table.h"
 #include "gtk/filter_utils.h"
@@ -306,7 +305,7 @@ static const char *ui_desc_service_resp_t_filter_popup =
 "  </popup>\n"
 "</ui>\n";
 
-/* 
+/*
  * GtkActionEntry
  * typedef struct {
  *   const gchar     *name;
@@ -316,15 +315,15 @@ static const char *ui_desc_service_resp_t_filter_popup =
  *   const gchar     *tooltip;
  *   GCallback  callback;
  * } GtkActionEntry;
- * const gchar *name;			The name of the action.  
- * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.  
- * const gchar *label;			The label for the action. This field should typically be marked for translation, 
- *								see gtk_action_group_set_translation_domain(). 
- *								If label is NULL, the label of the stock item with id stock_id is used.  
- * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().  
- * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation, 
- *                              see gtk_action_group_set_translation_domain().  
- * GCallback callback;			The function to call when the action is activated.  
+ * const gchar *name;			The name of the action.
+ * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.
+ * const gchar *label;			The label for the action. This field should typically be marked for translation,
+ *								see gtk_action_group_set_translation_domain().
+ *								If label is NULL, the label of the stock item with id stock_id is used.
+ * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().
+ * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation,
+ *                              see gtk_action_group_set_translation_domain().
+ * GCallback callback;			The function to call when the action is activated.
  *
  */
 static const GtkActionEntry service_resp_t__popup_entries[] = {
@@ -374,24 +373,24 @@ srt_create_popup_menu(srt_stat_table *rst)
 	GtkActionGroup *action_group;
 	GError *error = NULL;
 
-	action_group = gtk_action_group_new ("ServiceRespTFilterPopupActionGroup"); 
+	action_group = gtk_action_group_new ("ServiceRespTFilterPopupActionGroup");
 	gtk_action_group_add_actions (action_group,								/* the action group */
 								service_resp_t__popup_entries,				/* an array of action descriptions */
 								G_N_ELEMENTS(service_resp_t__popup_entries),/* the number of entries */
 								rst);										/* data to pass to the action callbacks */
 
 	ui_manager = gtk_ui_manager_new ();
-	gtk_ui_manager_insert_action_group (ui_manager, 
-		action_group, 
+	gtk_ui_manager_insert_action_group (ui_manager,
+		action_group,
 		0); /* the position at which the group will be inserted */
-	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_service_resp_t_filter_popup, -1, &error); 
-	if (error != NULL) 
-    { 
-        fprintf (stderr, "Warning: building service responce time filter popup failed: %s\n", 
-                error->message); 
-        g_error_free (error); 
-        error = NULL; 
-    } 
+	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_service_resp_t_filter_popup, -1, &error);
+	if (error != NULL)
+    {
+        fprintf (stderr, "Warning: building service responce time filter popup failed: %s\n",
+                error->message);
+        g_error_free (error);
+        error = NULL;
+    }
 	rst->menu = gtk_ui_manager_get_widget(ui_manager, "/ServiceRespTFilterPopup");
 	g_signal_connect(rst->table, "button_press_event", G_CALLBACK(srt_show_popup_menu_cb), rst);
 #endif /* SERVICE_RESP_USE_GUIMANAGER */

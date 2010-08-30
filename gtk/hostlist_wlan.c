@@ -1,4 +1,4 @@
-/* hostlist_wlan.c   2004 Giles Scott 
+/* hostlist_wlan.c   2004 Giles Scott
  * modified from endpoint_talkers_eth.c   2003 Ronnie Sahlberg
  *
  * $Id$
@@ -39,7 +39,6 @@
 #include <epan/dissectors/packet-ieee80211.h>
 
 #include "../stat_menu.h"
-#include "../register.h"
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/hostlist_table.h"

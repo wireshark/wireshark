@@ -40,7 +40,6 @@
 #include <epan/geoip_db.h>
 #endif
 
-#include "../globals.h"
 #include "../log.h"
 #include "../version_info.h"
 

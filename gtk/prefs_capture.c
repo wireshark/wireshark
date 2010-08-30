@@ -33,7 +33,6 @@
 
 #include <epan/prefs.h>
 
-#include "../globals.h"
 #include "../simple_dialog.h"
 #include "../capture_ifinfo.h"
 #include "../capture_ui_utils.h"
@@ -363,13 +362,13 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	/* The view now holds a reference.  We can get rid of our own reference */
 	g_object_unref (G_OBJECT (list_store));
 
-	/* 
+	/*
 	 * Create the first column packet, associating the "text" attribute of the
-	 * cell_renderer to the first column of the model 
+	 * cell_renderer to the first column of the model
 	 */
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("Device", renderer, 
-							   "text", DEVICE_COLUMN, 
+	column = gtk_tree_view_column_new_with_attributes ("Device", renderer,
+							   "text", DEVICE_COLUMN,
 							   NULL);
 
 	gtk_tree_view_column_set_resizable(column, TRUE);
@@ -383,8 +382,8 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_tree_view_append_column (list_view, column);
 
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("Description", renderer, 
-							   "text", DESC_COLUMN, 
+	column = gtk_tree_view_column_new_with_attributes ("Description", renderer,
+							   "text", DESC_COLUMN,
 							   NULL);
 
 	gtk_tree_view_column_set_resizable(column, TRUE);
@@ -398,7 +397,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	 * XXX - for some reason, this doesn't show up.
 	 */
 	renderer = gtk_cell_renderer_toggle_new ();
-	column = gtk_tree_view_column_new_with_attributes ("Default to monitor mode", renderer, 
+	column = gtk_tree_view_column_new_with_attributes ("Default to monitor mode", renderer,
 							   "active", DEF_MONITOR_MODE_COLUMN,
 							   NULL);
 
@@ -409,8 +408,8 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 #endif
 
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("Default link-layer", renderer, 
-							   "text", DEF_LINK_LAYER_COLUMN, 
+	column = gtk_tree_view_column_new_with_attributes ("Default link-layer", renderer,
+							   "text", DEF_LINK_LAYER_COLUMN,
 							   NULL);
 
 	gtk_tree_view_column_set_resizable(column, TRUE);
@@ -420,8 +419,8 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_tree_view_append_column (list_view, column);
 
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("Comment", renderer, 
-							   "text", COMMENT_COLUMN, 
+	column = gtk_tree_view_column_new_with_attributes ("Comment", renderer,
+							   "text", COMMENT_COLUMN,
 							   NULL);
 
 	gtk_tree_view_column_set_resizable(column, TRUE);
@@ -431,8 +430,8 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_tree_view_append_column (list_view, column);
 
 	renderer = gtk_cell_renderer_toggle_new ();
-	column = gtk_tree_view_column_new_with_attributes ("Hide?", renderer, 
-							   "active", HIDE_COLUMN, 
+	column = gtk_tree_view_column_new_with_attributes ("Hide?", renderer,
+							   "active", HIDE_COLUMN,
 							   NULL);
 
 	gtk_tree_view_column_set_resizable(column, FALSE);
@@ -443,8 +442,8 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 #if 0
 	/* Don't show the DLT column */
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("DLT", renderer, 
-							   "text", DLT_COLUMN, 
+	column = gtk_tree_view_column_new_with_attributes ("DLT", renderer,
+							   "text", DLT_COLUMN,
 							   NULL);
 
 	gtk_tree_view_column_set_resizable(column, TRUE);
@@ -582,7 +581,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
         window_set_cancel_button(ifopts_edit_dlg, cancel_bt, window_cancel_button_cb);
 
 	help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), 
+	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb),
 			 (gpointer)HELP_CAPTURE_INTERFACE_OPTIONS_DIALOG);
 	gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
 
@@ -652,7 +651,7 @@ ifopts_edit_destroy_cb(GtkWidget *win, gpointer data _U_)
 
 static gint
 ifopts_description_to_val (const char *if_name, gboolean monitor_mode,
-    const char *descr) 
+    const char *descr)
 {
 	if_capabilities_t *caps;
 	int dlt = -1;
@@ -706,7 +705,7 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 	if (!gtk_tree_selection_get_selected (if_selection, &model, &iter)){
 		return;
 	}
-	gtk_tree_model_get(model, &iter, 
+	gtk_tree_model_get(model, &iter,
 			   DEVICE_COLUMN,             &if_name,
 			   DESC_COLUMN,               &desc,
 #ifdef HAVE_PCAP_CREATE
@@ -814,7 +813,7 @@ ifopts_edit_monitor_changed_cb(GtkToggleButton *tbt, gpointer udata)
 	if (!gtk_tree_selection_get_selected (if_selection, &list_model, &list_iter)){
 		return;
 	}
-	gtk_tree_model_get(list_model, &list_iter, 
+	gtk_tree_model_get(list_model, &list_iter,
 			   DEVICE_COLUMN,  &if_name,
 			   -1);
 
@@ -909,8 +908,8 @@ ifopts_edit_linktype_changed_cb(GtkComboBox *cb, gpointer udata)
 	if (!gtk_tree_selection_get_selected (if_selection, &list_model, &list_iter)){
 		return;
 	}
-	
-	gtk_tree_model_get(list_model, &list_iter, 
+
+	gtk_tree_model_get(list_model, &list_iter,
 		DEVICE_COLUMN,           &ifnm,
 #ifdef HAVE_PCAP_CREATE
 		DEF_MONITOR_MODE_COLUMN, &monitor_mode,
@@ -1297,7 +1296,7 @@ ifopts_write_new_linklayer(void)
 			/*
 			 * create/cat interface link-layer to new string
 			 * (leave space for parens, comma and terminator)
-			 */			
+			 */
 			tmp_linklayer = g_strdup_printf("%s(%d)", ifnm, linktype);
 			g_strlcat(new_linklayer, tmp_linklayer, MAX_VAL_LEN);
 			g_free(tmp_linklayer);

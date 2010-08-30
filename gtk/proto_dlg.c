@@ -34,7 +34,6 @@
 #include <epan/prefs.h>
 #include <epan/filesystem.h>
 
-#include "../globals.h"
 #include "../util.h"
 #include "../simple_dialog.h"
 #include "../disabled_protos.h"
@@ -122,7 +121,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(proto_vb);
 
   proto_sw = scrolled_window_new(NULL, NULL);
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(proto_sw), 
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(proto_sw),
                                    GTK_SHADOW_IN);
   gtk_box_pack_start(GTK_BOX(proto_vb), proto_sw, TRUE, TRUE, 0);
   gtk_widget_show(proto_sw);

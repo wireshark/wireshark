@@ -40,7 +40,6 @@
 #include <epan/dissectors/packet-jxta.h>
 
 #include "../stat_menu.h"
-#include "../register.h"
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/conversations_table.h"

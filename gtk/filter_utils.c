@@ -28,8 +28,6 @@
 #include <gtk/gtk.h>
 #include <string.h>
 
-#include "../globals.h"
-
 #include "gtk/main.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/find_dlg.h"

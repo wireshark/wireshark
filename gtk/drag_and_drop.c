@@ -36,7 +36,6 @@
 
 #include <epan/prefs.h>
 
-#include "../globals.h"
 #include "../util.h"
 #include "../file.h"
 #include "../simple_dialog.h"
@@ -261,7 +260,7 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
     default:
         /* build and show the info dialog */
         dialog_text = g_string_sized_new(200);
-        g_string_printf(dialog_text, 
+        g_string_printf(dialog_text,
             "%sMerging the following files:%s\n\n",
             simple_dialog_primary_start(), simple_dialog_primary_end());
         for(files_work = 0; files_work < in_files; files_work++) {
@@ -270,7 +269,7 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
         }
         g_string_append(dialog_text, "\nThe packets in these files will be merged chronologically into a new temporary file.");
         simple_dialog(ESD_TYPE_CONFIRMATION,
-                    ESD_BTN_OK, "%s", 
+                    ESD_BTN_OK, "%s",
                     dialog_text->str);
         g_string_free(dialog_text, TRUE);
 

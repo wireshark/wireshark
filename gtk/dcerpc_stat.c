@@ -46,8 +46,6 @@
 
 #include "../stat_menu.h"
 #include "../simple_dialog.h"
-#include "../register.h"
-#include "../globals.h"
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/dlg_utils.h"
@@ -578,7 +576,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
             XXX: A simpler alternative might be to just do away with all the two-level
                  complexity and just use a standard ws_combo_box... even though the
                  list of "program names" is quite large.
-            XXX: The gtkrc file distributed with Windows Wireshark has the 
+            XXX: The gtkrc file distributed with Windows Wireshark has the
                  "appears-as-list" GtkComboBox style property set to 1 and thus
                  on Windows the entries for this combo box will appear as a tree-view.
                  The default is 0(FALSE). In this case the the combo box entries will
@@ -595,8 +593,8 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 		*/
 		GtkStyle *s;
 		s = gtk_widget_get_style(prog_combo_box);
-		g_object_set(cell_renderer, 
-			     "foreground-gdk", &(s->fg[GTK_STATE_NORMAL]), 
+		g_object_set(cell_renderer,
+			     "foreground-gdk", &(s->fg[GTK_STATE_NORMAL]),
 			     "foreground-set", TRUE,
 			     NULL);
 	}

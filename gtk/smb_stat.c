@@ -39,7 +39,6 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-smb.h>
 
-#include "../register.h"
 #include "../timestats.h"
 #include "../simple_dialog.h"
 #include "../file.h"

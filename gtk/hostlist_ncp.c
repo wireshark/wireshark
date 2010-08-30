@@ -1,4 +1,4 @@
-/* hostlist_ncp.c   2006 Greg Morris 
+/* hostlist_ncp.c   2006 Greg Morris
  * modified from endpoint_talkers_eth.c   2003 Ronnie Sahlberg
  *
  * $Id$
@@ -39,7 +39,6 @@
 /*#include <epan/dissectors/packet-ncp-int.h>*/
 
 #include "../stat_menu.h"
-#include "../register.h"
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/hostlist_table.h"

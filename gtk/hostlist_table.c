@@ -49,7 +49,6 @@
 #include <wsutil/file_util.h>
 
 #include "../simple_dialog.h"
-#include "../globals.h"
 #include "../alert_box.h"
 #include "../tempfile.h"
 
@@ -94,7 +93,7 @@ hostlist_port_to_str(int port_type_val, guint32 port)
         i = (i+1)%4;
         strp=str[i];
         bp = &strp[11];
-  
+
         *bp = 0;
         do {
             *--bp = (port % 10) +'0';
@@ -230,7 +229,7 @@ reset_hostlist_table_data(hostlist_table *hosts)
     if (hosts->hosts)
         g_array_free(hosts->hosts, TRUE);
 
-    if (hosts->hashtable != NULL) 
+    if (hosts->hashtable != NULL)
         g_hash_table_destroy(hosts->hashtable);
 
     hosts->hosts=NULL;
@@ -257,7 +256,7 @@ hostlist_win_destroy_cb(GtkWindow *win _U_, gpointer data)
     g_free(hosts);
 }
 
-enum 
+enum
 {
     ADR_COLUMN,
     PORT_COLUMN,
@@ -318,10 +317,10 @@ hostlist_sort_column(GtkTreeModel *model,
         {
             gchar *text1, *text2;
             double loc1 = 0, loc2 = 0;
-            
+
             gtk_tree_model_get(model, a, data_column, &text1, -1);
             gtk_tree_model_get(model, b, data_column, &text2, -1);
-            
+
             if (text1) {
                 loc1 = atof(text1);
                 g_free(text1);
@@ -356,7 +355,7 @@ hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint c
     if (!gtk_tree_selection_get_selected(sel, &model, &iter))
         return;
 
-    gtk_tree_model_get (model, &iter, 
+    gtk_tree_model_get (model, &iter,
                             INDEX_COLUMN, &idx,
                             -1);
 
@@ -712,7 +711,7 @@ draw_hostlist_table_addresses(hostlist_table *hl)
     char *entries[2];
     GtkListStore *store;
 
-    store = GTK_LIST_STORE(gtk_tree_view_get_model(hl->table)); 
+    store = GTK_LIST_STORE(gtk_tree_view_get_model(hl->table));
     g_object_ref(store);
     gtk_tree_view_set_model(GTK_TREE_VIEW(hl->table), NULL);
 
@@ -754,10 +753,10 @@ draw_hostlist_table_data(hostlist_table *hl)
         gtk_label_set_text(GTK_LABEL(hl->name_lb), title);
     }
 
-    store = GTK_LIST_STORE(gtk_tree_view_get_model(hl->table)); 
+    store = GTK_LIST_STORE(gtk_tree_view_get_model(hl->table));
     for(i=0;i<hl->num_hosts;i++){
         hostlist_talker_t *host = &g_array_index(hl->hosts, hostlist_talker_t, i);
-        
+
         if (!host->modified)
             continue;
 
@@ -813,7 +812,7 @@ draw_hostlist_table_data(hostlist_table *hl)
 #else
             gtk_list_store_append(store, &host->iter);
             gtk_list_store_set (store, &host->iter,
-#endif        
+#endif
                   ADR_COLUMN,      entries[0],
                   PORT_COLUMN,     entries[1],
                   PACKETS_COLUMN,  host->tx_frames+host->rx_frames,
@@ -1194,7 +1193,7 @@ init_default_col_size(GtkWidget *view)
     default_col_size[PORT_COLUMN] = get_default_col_size(view, "000000");
     default_col_size[PACKETS_COLUMN] = get_default_col_size(view, "00 000 000");
     default_col_size[BYTES_COLUMN] = get_default_col_size(view, "0 000 000 000");
-    default_col_size[PKT_AB_COLUMN] = default_col_size[PACKETS_COLUMN]; 
+    default_col_size[PKT_AB_COLUMN] = default_col_size[PACKETS_COLUMN];
     default_col_size[PKT_BA_COLUMN] = default_col_size[PACKETS_COLUMN];
     default_col_size[BYTES_AB_COLUMN] = default_col_size[BYTES_COLUMN];
     default_col_size[BYTES_BA_COLUMN] = default_col_size[BYTES_COLUMN];
@@ -1217,7 +1216,7 @@ init_default_col_size(GtkWidget *view)
 }
 
 static gboolean
-init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hide_ports, const char *table_name, const char *tap_name, 
+init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hide_ports, const char *table_name, const char *tap_name,
   const char *filter, tap_packet_cb packet_func)
 {
     guint i;
@@ -1303,7 +1302,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
         col_size = TRUE;
         init_default_col_size(GTK_WIDGET(hosttable->table));
     }
-    
+
     g_object_set_data(G_OBJECT(store), HOST_PTR_KEY, hosttable);
     g_object_set_data(G_OBJECT(hosttable->table), HOST_PTR_KEY, hosttable);
 
@@ -1313,7 +1312,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
         switch(i) {
         case 0: /* address and port */
         case 1:
-            column = gtk_tree_view_column_new_with_attributes (hosttable->default_titles[i], renderer, "text", 
+            column = gtk_tree_view_column_new_with_attributes (hosttable->default_titles[i], renderer, "text",
                                                                i, NULL);
             if(hide_ports && i == 1){
                 /* hide srcport and dstport if we don't use ports */
@@ -1322,8 +1321,8 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
             gtk_tree_sortable_set_sort_func(sortable, i, hostlist_sort_column, GINT_TO_POINTER(i), NULL);
             break;
         case 2: /* counts */
-        case 3: 
-        case 4: 
+        case 3:
+        case 4:
         case 5:
         case 6:
         case 7: /* right align numbers */
@@ -1332,7 +1331,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
             gtk_tree_view_column_set_cell_data_func(column, renderer, u64_data_func,  GINT_TO_POINTER(i), NULL);
             break;
         default: /* GEOIP */
-            column = gtk_tree_view_column_new_with_attributes (hosttable->default_titles[i], renderer, "text", 
+            column = gtk_tree_view_column_new_with_attributes (hosttable->default_titles[i], renderer, "text",
                                                                i, NULL);
             gtk_tree_view_column_set_visible(column, FALSE);
 #ifdef HAVE_GEOIP
@@ -1358,7 +1357,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
         if (i == PACKETS_COLUMN) {
               gtk_tree_view_column_clicked(column);
         }
-#endif        
+#endif
     }
 
     gtk_container_add(GTK_CONTAINER(hosttable->scrolled_window), (GtkWidget *)hosttable->table);
@@ -1525,7 +1524,7 @@ hostlist_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
 
 
 static hostlist_table *
-init_hostlist_notebook_page_cb(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, 
+init_hostlist_notebook_page_cb(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter,
   tap_packet_cb packet_func)
 {
     gboolean ret;
@@ -1813,7 +1812,7 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
             talker=&g_array_index(hl->hosts, hostlist_talker_t, talker_idx);
         }
     }
-    
+
     /* if we still dont know what talker this is it has to be a new one
        and we have to allocate it and append it to the end of the list */
     if(talker==NULL){

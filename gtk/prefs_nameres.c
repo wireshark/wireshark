@@ -33,8 +33,6 @@
 #include <epan/uat.h>
 #include <epan/oids.h>
 
-#include "../globals.h"
-
 #include "gtk/prefs_nameres.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/prefs_dlg.h"

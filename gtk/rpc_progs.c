@@ -43,7 +43,6 @@
 #include <epan/dissectors/packet-rpc.h>
 
 #include "../stat_menu.h"
-#include "../register.h"
 #include "../globals.h"
 
 #include "gtk/gui_stat_menu.h"

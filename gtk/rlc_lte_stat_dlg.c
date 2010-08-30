@@ -46,7 +46,6 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-rlc-lte.h>
 
-#include "../register.h"
 #include "../simple_dialog.h"
 #include "../stat_menu.h"
 
@@ -160,7 +159,7 @@ typedef struct rlc_lte_common_stats {
 typedef struct rlc_lte_ep {
     struct rlc_lte_ep* next;
     struct rlc_lte_row_data stats;
-    GtkTreeIter iter;                                         
+    GtkTreeIter iter;
     gboolean iter_valid;
 } rlc_lte_ep_t;
 

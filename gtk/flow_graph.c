@@ -40,8 +40,6 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/strutil.h>
 
-#include "../register.h"
-#include "../globals.h"
 #include "../stat_menu.h"
 #include "../simple_dialog.h"
 

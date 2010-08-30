@@ -31,7 +31,6 @@
 #include <epan/prefs.h>
 
 #include "../color.h"
-#include "../globals.h"
 #include "../print.h"
 
 #include "gtk/color_utils.h"
@@ -72,7 +71,7 @@ stream_prefs_show()
   GtkWidget *main_vb, *main_tb, *label, *combo_box;
   GtkWidget *sample, *colorsel;
   int        width, height, i;
-  const gchar     *mt[] = { 
+  const gchar     *mt[] = {
 	  "Marked packet foreground",		/* MFG_IDX 0*/
 	  "Marked packet background",		/* MBG_IDX 1*/
 	  "Ignored packet foreground",		/* IFG_IDX 2*/

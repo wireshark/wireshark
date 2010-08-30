@@ -42,11 +42,9 @@
 #include <epan/dissectors/packet-scsi.h>
 #include <epan/dissectors/packet-fc.h>
 
-#include "../register.h"
 #include "../timestats.h"
 #include "../simple_dialog.h"
 #include "../file.h"
-#include "../globals.h"
 #include "../stat_menu.h"
 
 #include "gtk/gui_utils.h"

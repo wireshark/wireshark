@@ -42,9 +42,7 @@
 #include <epan/asn1.h>
 #include <epan/camel-persistentdata.h>
 
-#include "../globals.h"
 #include "../stat_menu.h"
-#include "../register.h"
 #include "../timestats.h"
 #include "../simple_dialog.h"
 
@@ -111,7 +109,7 @@ static void gtk_camelcounter_draw(void *phs)
   char str[256];
   GtkListStore *store;
   GtkTreeIter iter;
-  
+
   /* Now print Message and Reason Counter Table */
   /* clear list before printing */
   store = GTK_LIST_STORE(gtk_tree_view_get_model(p_counter->table));
@@ -171,7 +169,7 @@ static void gtk_camelcounter_init(const char *optarg, void *userdata _U_)
   gtk_camelcounter_reset(p_camelcounter);
 
   /* transient_for top_level */
-  p_camelcounter->win=dlg_window_new("Wireshark: CAMEL counters");  
+  p_camelcounter->win=dlg_window_new("Wireshark: CAMEL counters");
   gtk_window_set_destroy_with_parent (GTK_WINDOW(p_camelcounter->win), TRUE);
 
 	gtk_window_set_default_size(GTK_WINDOW(p_camelcounter->win), 500, 300);

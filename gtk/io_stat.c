@@ -45,10 +45,8 @@
 #include <epan/strutil.h>
 
 #include "../stat_menu.h"
-#include "../register.h"
 #include "../alert_box.h"
 #include "../simple_dialog.h"
-#include "../globals.h"
 #include "../color.h"
 
 #include "gtk/gtkglobals.h"

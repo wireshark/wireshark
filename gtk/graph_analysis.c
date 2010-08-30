@@ -49,7 +49,6 @@
 #include "epan/filesystem.h"
 
 #include "../util.h"
-#include "../register.h"
 #include "../color.h"
 #include "../simple_dialog.h"
 #include "../alert_box.h"

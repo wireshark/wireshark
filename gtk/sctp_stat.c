@@ -37,8 +37,6 @@
 #include <epan/strutil.h>
 
 #include "../simple_dialog.h"
-#include "../globals.h"
-#include "../register.h"
 
 #include "gtk/dlg_utils.h"
 #include "gtk/sctp_stat.h"
@@ -280,9 +278,9 @@ static sctp_assoc_info_t *calc_checksum(struct _sctp_info *check_data, sctp_asso
 }
 
 
-/* XXX: Some versions of gcc warn about "breaking strict aliasing rules" 
+/* XXX: Some versions of gcc warn about "breaking strict aliasing rules"
         for 'a' in the following (given the way this function is called).
-        As a workaround we'll define the function parameters to match 
+        As a workaround we'll define the function parameters to match
         how this function is actually called.  */
 /*******
 static gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
@@ -460,7 +458,7 @@ static sctp_assoc_info_t * add_chunk_count(address * vadd, sctp_assoc_info_t * i
 		{
 			v = (address *) (ch->addr);
 			if (ADDRESSES_EQUAL(vadd, v))
-			{	
+			{
 				if (IS_SCTP_CHUNK_TYPE(type))
 					ch->addr_count[type]++;
 				else
@@ -490,7 +488,7 @@ static sctp_assoc_info_t * add_chunk_count(address * vadd, sctp_assoc_info_t * i
 		ch->addr_count[type]++;
 	else
 		ch->addr_count[OTHER_CHUNKS_INDEX]++;
-	
+
 	info->addr_chunk_count = g_list_append(info->addr_chunk_count, ch);
 	return info;
 }
@@ -592,7 +590,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 		tmp_info.dst.type = AT_NONE;
 		tmp_info.dst.len  = 0;
 	}
-	
+
 	addr = g_malloc(tmp_info.dst.len);
 	memcpy(addr, sctp_info->ip_dst.data, tmp_info.dst.len);
 	tmp_info.dst.data = addr;
@@ -780,7 +778,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					info->initack     = TRUE;
 				}
 
-				idx = tvb_get_guint8(sctp_info->tvb[0],0); 
+				idx = tvb_get_guint8(sctp_info->tvb[0],0);
 				if (!IS_SCTP_CHUNK_TYPE(idx))
 					idx = OTHER_CHUNKS_INDEX;
 
@@ -805,7 +803,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				}
 				for (chunk_number = 0; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
 				{
-					idx = tvb_get_guint8(sctp_info->tvb[0],0); 
+					idx = tvb_get_guint8(sctp_info->tvb[0],0);
 					if (!IS_SCTP_CHUNK_TYPE(idx))
 						idx = OTHER_CHUNKS_INDEX;
 
@@ -1052,7 +1050,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				/*info->initack_dir=1;*/
 				info->tsn1 = g_list_prepend(info->tsn1, tsn);
 			}
-			
+
 			idx = tvb_get_guint8(sctp_info->tvb[0],0);
 			if (!IS_SCTP_CHUNK_TYPE(idx))
 				idx = OTHER_CHUNKS_INDEX;
@@ -1141,7 +1139,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					tsn_s->offset = 0;
 					tsn_s->framenumber = framenumber;
 					tsn_s->length = length;
-					
+
 					if (tsn->secs < info->min_secs)
 					{
 						info->min_secs  = tsn->secs;

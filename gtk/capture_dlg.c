@@ -44,7 +44,6 @@
 #include <epan/filesystem.h>
 
 #include "../capture.h"
-#include "../globals.h"
 #include "../capture_errs.h"
 #include "../capture_ifinfo.h"
 #include "../simple_dialog.h"

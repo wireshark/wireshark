@@ -33,8 +33,6 @@
 #include "epan/wslua/init_wslua.h"
 #endif
 
-#include "../globals.h"
-
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_utils.h"
 #include "gtk/plugins_dlg.h"
@@ -110,9 +108,9 @@ about_plugins_page_new(void)
     GtkWidget *plugins_list;
     const gchar     *titles[] = {"Name", "Version", "Type"};
 
-    
+
     scrolledwindow = scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow), 
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
                                    GTK_SHADOW_IN);
 
     plugins_list = simple_list_new(3 , titles);

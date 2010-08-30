@@ -42,7 +42,6 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-sctp.h>
 
-#include "../register.h"
 #include "../simple_dialog.h"
 #include "../file.h"
 #include "../globals.h"

@@ -42,10 +42,8 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-h225.h>
 
-#include "../register.h"
 #include "../simple_dialog.h"
 #include "../file.h"
-#include "../globals.h"
 #include "../stat_menu.h"
 
 #include "gtk/gui_stat_util.h"
@@ -322,7 +320,7 @@ h225counter_draw(void *phs)
 			case 2: /* GRJ */
 				for(j=0;j<=GRJ_REASONS;j++) {
 					if(hs->grj_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s", 
+						g_snprintf(str, 256,"    %s",
 								val_to_str(j,GatekeeperRejectReason_vals,"unknown reason"));
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
@@ -334,7 +332,7 @@ h225counter_draw(void *phs)
 			case 5: /* RRJ */
 				for(j=0;j<=RRJ_REASONS;j++) {
 					if(hs->rrj_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s", 
+						g_snprintf(str, 256,"    %s",
 								val_to_str(j,RegistrationRejectReason_vals,"unknown reason"));
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
@@ -346,7 +344,7 @@ h225counter_draw(void *phs)
 			case 6: /* URQ */
 				for(j=0;j<=URQ_REASONS;j++) {
 					if(hs->urq_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s", 
+						g_snprintf(str, 256,"    %s",
 								val_to_str(j,UnregRequestReason_vals,"unknown reason"));
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
@@ -358,7 +356,7 @@ h225counter_draw(void *phs)
 			case 8: /* URJ */
 				for(j=0;j<=URJ_REASONS;j++) {
 					if(hs->urj_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s", 
+						g_snprintf(str, 256,"    %s",
 								val_to_str(j,UnregRejectReason_vals,"unknown reason"));
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
@@ -370,7 +368,7 @@ h225counter_draw(void *phs)
 			case 11: /* ARJ */
 				for(j=0;j<=ARJ_REASONS;j++) {
 					if(hs->arj_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s", 
+						g_snprintf(str, 256,"    %s",
 								val_to_str(j,AdmissionRejectReason_vals,"unknown reason"));
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
@@ -382,7 +380,7 @@ h225counter_draw(void *phs)
 			case 14: /* BRJ */
 				for(j=0;j<=BRJ_REASONS;j++) {
 					if(hs->brj_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s", 
+						g_snprintf(str, 256,"    %s",
 								val_to_str(j,BandRejectReason_vals,"unknown reason"));
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
@@ -394,7 +392,7 @@ h225counter_draw(void *phs)
 			case 15: /* DRQ */
 				for(j=0;j<=DRQ_REASONS;j++) {
 					if(hs->drq_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s", 
+						g_snprintf(str, 256,"    %s",
 								val_to_str(j,DisengageReason_vals,"unknown reason"));
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
@@ -406,7 +404,7 @@ h225counter_draw(void *phs)
 			case 17: /* DRJ */
 				for(j=0;j<=DRJ_REASONS;j++) {
 					if(hs->drj_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s", 
+						g_snprintf(str, 256,"    %s",
 								val_to_str(j,DisengageRejectReason_vals,"unknown reason"));
 						gtk_list_store_set(store, &iter,
 							0, str,
@@ -417,7 +415,7 @@ h225counter_draw(void *phs)
 			case 20: /* LRJ */
 				for(j=0;j<=LRJ_REASONS;j++) {
 					if(hs->lrj_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s", 
+						g_snprintf(str, 256,"    %s",
 								val_to_str(j,LocationRejectReason_vals,"unknown reason"));
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
@@ -429,7 +427,7 @@ h225counter_draw(void *phs)
 			case 29: /* IRQNak */
 				for(j=0;j<=IRQNAK_REASONS;j++) {
 					if(hs->irqnak_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s", 
+						g_snprintf(str, 256,"    %s",
 								val_to_str(j,InfoRequestNakReason_vals,"unknown reason"));
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
@@ -457,7 +455,7 @@ h225counter_draw(void *phs)
 			case 5: /* ReleaseComplete */
 				for(j=0;j<=REL_CMP_REASONS;j++) {
 					if(hs->rel_cmp_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s", 
+						g_snprintf(str, 256,"    %s",
 								val_to_str(j,h225_ReleaseCompleteReason_vals,"unknown reason"));
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
@@ -469,7 +467,7 @@ h225counter_draw(void *phs)
 			case 6: /* Facility */
 				for(j=0;j<=FACILITY_REASONS;j++) {
 					if(hs->facility_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s", 
+						g_snprintf(str, 256,"    %s",
 								val_to_str(j,FacilityReason_vals,"unknown reason"));
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,

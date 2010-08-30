@@ -47,8 +47,6 @@
 
 #include "../stat_menu.h"
 #include "../simple_dialog.h"
-#include "../register.h"
-#include "../globals.h"
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/dlg_utils.h"
@@ -123,14 +121,14 @@ GtkWidget* create_list(void)
     /* The view now holds a reference.  We can get rid of our own reference */
     g_object_unref (G_OBJECT (list_store));
 
-    /* 
+    /*
      * Create the first column packet, associating the "text" attribute of the
-     * cell_renderer to the first column of the model 
+     * cell_renderer to the first column of the model
      */
     /* 1:st column */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("OPC", renderer, 
-        "text", OPC_COLUMN, 
+    column = gtk_tree_view_column_new_with_attributes ("OPC", renderer,
+        "text", OPC_COLUMN,
         NULL);
 
     gtk_tree_view_column_set_sort_column_id(column, OPC_COLUMN);
@@ -143,7 +141,7 @@ GtkWidget* create_list(void)
 
     /* 2:nd column... */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("DPC", renderer, 
+    column = gtk_tree_view_column_new_with_attributes ("DPC", renderer,
         "text", DPC_COLUMN,
         NULL);
     gtk_tree_view_column_set_sort_column_id(column, DPC_COLUMN);
@@ -154,7 +152,7 @@ GtkWidget* create_list(void)
 
     /* 3:d column... */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("SI", renderer, 
+    column = gtk_tree_view_column_new_with_attributes ("SI", renderer,
         "text", SI_COLUMN,
         NULL);
     gtk_tree_view_column_set_sort_column_id(column, SI_COLUMN);
@@ -165,10 +163,10 @@ GtkWidget* create_list(void)
 
     /* 4:th column... */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Num MSUs", renderer, 
-        "text", NUM_MSUS_COLUMN, 
+    column = gtk_tree_view_column_new_with_attributes ("Num MSUs", renderer,
+        "text", NUM_MSUS_COLUMN,
         NULL);
-    
+
 
     gtk_tree_view_column_set_sort_column_id(column, NUM_MSUS_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
@@ -178,8 +176,8 @@ GtkWidget* create_list(void)
 
     /* 5:th column... */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Num Bytes", renderer, 
-        "text", NUM_BYTES_COLUMN, 
+    column = gtk_tree_view_column_new_with_attributes ("Num Bytes", renderer,
+        "text", NUM_BYTES_COLUMN,
         NULL);
 
     gtk_tree_view_column_set_sort_column_id(column, NUM_BYTES_COLUMN);
@@ -190,10 +188,10 @@ GtkWidget* create_list(void)
 
     /* 6:th column... */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Avg Bytes", renderer, 
-        "text", AVG_BYTES_COLUMN, 
+    column = gtk_tree_view_column_new_with_attributes ("Avg Bytes", renderer,
+        "text", AVG_BYTES_COLUMN,
         NULL);
-    gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func, 
+    gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func,
         GINT_TO_POINTER(AVG_BYTES_COLUMN), NULL);
 
     gtk_tree_view_column_set_sort_column_id(column, AVG_BYTES_COLUMN);
@@ -318,7 +316,7 @@ mtp3_stat_draw(
         dlg.entries[1] = g_strdup(str);
 
         for (j=0; j < MTP3_NUM_SI_CODE; j++){
-            /* Creates a new row at position. iter will be changed to point to this new row. 
+            /* Creates a new row at position. iter will be changed to point to this new row.
              * If position is larger than the number of rows on the list, then the new row will be appended to the list.
              * The row will be filled with the values given to this function.
              * :

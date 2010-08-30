@@ -32,7 +32,6 @@
 #include <epan/epan_dissect.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
-#include "../globals.h"
 #include "../simple_dialog.h"
 
 #include "gtk/decode_as_dlg.h"
@@ -53,7 +52,7 @@ GSList *decode_dcerpc_bindings = NULL;
 /**************************************************/
 
 /* inject one of our bindings into the dcerpc binding table */
-static void 
+static void
 decode_dcerpc_inject_binding(gpointer data, gpointer user_data _U_)
 {
     dcerpc_add_conv_to_bind_table((decode_dcerpc_bind_values_t *) data);
@@ -61,14 +60,14 @@ decode_dcerpc_inject_binding(gpointer data, gpointer user_data _U_)
 
 
 /* inject all of our bindings into the dcerpc binding table */
-static void 
+static void
 decode_dcerpc_inject_bindings(gpointer data _U_) {
     g_slist_foreach(decode_dcerpc_bindings, decode_dcerpc_inject_binding, NULL /* user_data */);
 }
 
 
 /* init this file */
-void 
+void
 decode_dcerpc_init(void) {
     GHook*      hook_init_proto;
 
@@ -97,7 +96,7 @@ decode_dcerpc_binding_clone(decode_dcerpc_bind_values_t *binding_in)
 
 
 /* free a binding */
-void 
+void
 decode_dcerpc_binding_free(void *binding_in)
 {
     decode_dcerpc_bind_values_t *binding = binding_in;
@@ -119,7 +118,7 @@ decode_dcerpc_binding_cmp(gconstpointer a, gconstpointer b)
 
 
     /* don't compare uuid and ver! */
-    if( 
+    if(
         ADDRESSES_EQUAL(&binding_a->addr_a, &binding_b->addr_a) &&
         ADDRESSES_EQUAL(&binding_a->addr_b, &binding_b->addr_b) &&
         binding_a->ptype == binding_b->ptype &&
@@ -148,16 +147,16 @@ decode_dcerpc_add_show_list_single(gpointer data, gpointer user_data)
 {
     gchar      string1[20];
 
-    
+
     decode_dcerpc_bind_values_t *binding = data;
 
     g_snprintf(string1, sizeof(string1), "ctx_id: %u", binding->ctx_id);
 
     decode_add_to_show_list (
-        user_data, 
-        "DCE-RPC", 
-        string1, 
-        "-", 
+        user_data,
+        "DCE-RPC",
+        string1,
+        "-",
         binding->ifname->str);
 }
 
@@ -186,7 +185,7 @@ decode_dcerpc_reset_all(void)
 
         decode_dcerpc_binding_free(binding);
         decode_dcerpc_bindings = g_slist_remove(
-            decode_dcerpc_bindings, 
+            decode_dcerpc_bindings,
             decode_dcerpc_bindings->data);
     }
 }
@@ -195,7 +194,7 @@ decode_dcerpc_reset_all(void)
 /* remove a binding (looking the same way as the given one) */
 static void
 decode_dcerpc_binding_reset(
-const gchar *table_name _U_, 
+const gchar *table_name _U_,
 decode_dcerpc_bind_values_t *binding)
 {
     GSList *le;
@@ -223,7 +222,7 @@ decode_dcerpc_bind_values_t *binding)
 /* a binding has changed (remove a previously existing one) */
 static void
 decode_dcerpc_binding_change(
-const gchar *table_name, 
+const gchar *table_name,
 decode_dcerpc_bind_values_t *binding)
 {
 
@@ -279,7 +278,7 @@ decode_change_one_dcerpc_binding(const gchar *table_name, decode_dcerpc_bind_val
 /*
  * This routine is called when the user clicks the "OK" button in the
  * "Decode As..." dialog window and the DCE-RPC page is foremost.
- * This routine takes care of making any changes requested to the DCE-RPC 
+ * This routine takes care of making any changes requested to the DCE-RPC
  * binding tables.
  *
  * @param notebook_pg A pointer to the "DCE-RPC" notebook page.
@@ -310,7 +309,7 @@ decode_dcerpc(GtkWidget *notebook_pg)
 
 
 /* add an interface to the list */
-static void 
+static void
 decode_dcerpc_add_to_list(gpointer key, gpointer value, gpointer user_data)
 {
     /*dcerpc_uuid_key *k = key;*/
@@ -364,7 +363,7 @@ decode_dcerpc_add_page (packet_info *pinfo)
     g_object_set_data(G_OBJECT(page_hb), E_PAGE_TABLE, "DCE-RPC");
     g_object_set_data(G_OBJECT(page_hb), E_PAGE_TITLE, "DCE-RPC");
     g_object_set_data(G_OBJECT(page_hb), E_PAGE_BINDING, binding);
-    
+
     info_vb = gtk_vbox_new(FALSE, 5);
     gtk_box_pack_start(GTK_BOX(page_hb), info_vb, TRUE, TRUE, 0);
 

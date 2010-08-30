@@ -62,7 +62,6 @@
 #include <epan/dissectors/packet-iax2.h>
 #include <epan/rtp_pt.h>
 
-#include "../globals.h"
 #include "../alert_box.h"
 #include "../simple_dialog.h"
 
@@ -3638,10 +3637,10 @@ skinny_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, 
 		}
 		list = g_list_next (list);
 	}
-	
+
 	if (si->messId >= 256)
 		phone = &(pinfo->dst);
-	else 
+	else
 		phone = &(pinfo->src);
 
 	if (callsinfo==NULL){
@@ -3689,17 +3688,17 @@ skinny_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, 
 	}
 
 	if (si->callId) {
-		if (si->passThruId) 
+		if (si->passThruId)
 			comment = g_strdup_printf("CallId = %u, PTId = %u", si->callId, si->passThruId);
 		else
 			comment = g_strdup_printf("CallId = %u, LineId = %u", si->callId, si->lineId);
 	} else {
-		if (si->passThruId) 
+		if (si->passThruId)
 			comment = g_strdup_printf("PTId = %u", si->passThruId);
 		else
 			comment = NULL;
 	}
-	
+
 	add_to_graph(tapinfo, pinfo, si->messageName, comment,
 				 callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
 	g_free(comment);
@@ -3717,7 +3716,7 @@ void
 skinny_calls_init_tap(void)
 {
 	GString *error_string;
-	
+
 	if(have_skinny_tap_listener==FALSE)
 	{
 		/* don't register tap listener, if we have it already */
@@ -3833,30 +3832,30 @@ iax2_calls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 		list = g_list_next (list);
 	}
 	phone = &(pinfo->src);
-	
+
 
 	if (callsinfo==NULL){
 		/* We only care about real calls, i.e., no registration stuff */
 		if (ii->ftype != AST_FRAME_IAX ||  ii->csub != IAX_COMMAND_NEW)
-			return 0; 
+			return 0;
 		callsinfo = g_malloc0(sizeof(voip_calls_info_t));
 		callsinfo->call_state = VOIP_NO_STATE;
 		callsinfo->call_active_state = VOIP_ACTIVE;
 		callsinfo->prot_info=g_malloc(sizeof(iax2_info_t));
 		callsinfo->free_prot_info = free_iax2_info;
 		tmp_iax2info = callsinfo->prot_info;
-		
+
 		tmp_iax2info->scallno = ii->scallno;
 		if (tmp_iax2info->scallno == 0) tmp_iax2info->scallno = ii->dcallno;
 		tmp_iax2info->callState = tap_iax_voip_state[ii->callState];
-		
+
 		callsinfo->npackets = 1;
 		callsinfo->first_frame_num=pinfo->fd->num;
 		callsinfo->last_frame_num=pinfo->fd->num;
 
 		COPY_ADDRESS(&(callsinfo->initial_speaker), phone);
-		callsinfo->from_identity = g_strdup(ii->callingParty);	
-		callsinfo->to_identity =  g_strdup(ii->calledParty);		
+		callsinfo->from_identity = g_strdup(ii->callingParty);
+		callsinfo->to_identity =  g_strdup(ii->calledParty);
 
 		callsinfo->protocol = VOIP_IAX2;
 		callsinfo->call_num = tapinfo->ncalls++;
@@ -3871,7 +3870,7 @@ iax2_calls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 	} else {
 		if ((ii->callState > 0) && (ii->callState < (sizeof(tap_iax_voip_state)/sizeof(tap_iax_voip_state[0]))))
 			callsinfo->call_state = tap_iax_voip_state[ii->callState];
-			
+
 		callsinfo->stop_abs = pinfo->fd->abs_ts;
 		callsinfo->stop_rel = pinfo->fd->rel_ts;
 		callsinfo->last_frame_num=pinfo->fd->num;
@@ -3879,7 +3878,7 @@ iax2_calls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 	}
 
 	comment = "";
-	
+
 	add_to_graph(tapinfo, pinfo, ii->messageName, comment,
 				 callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
 
@@ -3897,7 +3896,7 @@ void
 iax2_calls_init_tap(void)
 {
 	GString *error_string;
-	
+
 	if(have_iax2_tap_listener==FALSE)
 	{
 		/* don't register tap listener, if we have it already */

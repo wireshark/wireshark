@@ -30,7 +30,6 @@
 
 #include <epan/prefs.h>
 
-#include "../globals.h"
 #include "../ui_util.h"
 
 #include "gtk/prefs_layout.h"
@@ -235,7 +234,7 @@ static void layout_validate_cb(GtkWidget *w _U_, gpointer data) {
 static void
 layout_defaults_cb (GtkWidget * w _U_, gpointer data)
 {
-    layout_t default_layout = { 
+    layout_t default_layout = {
         layout_type_5,
         {
             layout_pane_content_plist,
@@ -370,7 +369,7 @@ layout_prefs_show(void)
 
     default_vb = gtk_vbox_new(FALSE, 0);
     default_bt = gtk_button_new_with_label("Default panes");
-    gtk_tooltips_set_tip (tooltips, default_bt, 
+    gtk_tooltips_set_tip (tooltips, default_bt,
         "Reset the pane layout settings to default values.", NULL);
     g_signal_connect(default_bt, "clicked", G_CALLBACK(layout_defaults_cb), main_vb);
     gtk_box_pack_end(GTK_BOX(default_vb), default_bt, FALSE, FALSE, 0);
@@ -390,7 +389,7 @@ layout_prefs_show(void)
 
     /* Scrollbar placement */
     scrollbar_om = create_preference_option_menu(main_tb, pos++,
-        "Vertical scrollbar placement:", 
+        "Vertical scrollbar placement:",
         "Select where the vertical scrollbar will be displayed in the panes.",
         scrollbar_placement_vals, prefs.gui_scrollbar_on_right);
     g_object_set_data(G_OBJECT(main_vb), SCROLLBAR_PLACEMENT_KEY, scrollbar_om);
@@ -404,21 +403,21 @@ layout_prefs_show(void)
 
     /* Packet Bytes Dump highlight style */
     highlight_style_om = create_preference_option_menu(main_tb, pos++,
-        "Packet bytes highlight style:", 
+        "Packet bytes highlight style:",
         "Select the style in which the packet bytes dump will be displayed.",
         highlight_style_vals, prefs.gui_hex_dump_highlight_style);
     g_object_set_data(G_OBJECT(main_vb), HEX_DUMP_HIGHLIGHT_STYLE_KEY, highlight_style_om);
 
     /* Toolbar prefs */
     toolbar_style_om = create_preference_option_menu(main_tb, pos++,
-        "Toolbar style:", 
+        "Toolbar style:",
         "Select the style in which the toolbar will be displayed.",
         toolbar_style_vals, prefs.gui_toolbar_main_style);
     g_object_set_data(G_OBJECT(main_vb), GUI_TOOLBAR_STYLE_KEY, toolbar_style_om);
 
     /* Filter toolbar prefs */
     filter_toolbar_style_om = create_preference_option_menu(main_tb, pos++,
-        "Filter toolbar style:", 
+        "Filter toolbar style:",
         "Select the style in which the filter toolbar will be displayed.",
         toolbar_style_vals, prefs.gui_toolbar_filter_style);
     g_object_set_data(G_OBJECT(main_vb), GUI_FILTER_TOOLBAR_STYLE_KEY, filter_toolbar_style_om);
@@ -432,7 +431,7 @@ layout_prefs_show(void)
 
     /* Window title */
     window_title_te = create_preference_entry(main_tb, pos++,
-        "Custom window title (appended to existing titles):", 
+        "Custom window title (appended to existing titles):",
         "Enter the text to be appended to the window title.",
         prefs.gui_window_title);
     gtk_entry_set_text(GTK_ENTRY(window_title_te), prefs.gui_window_title);

@@ -39,7 +39,6 @@
 #include <epan/dissectors/packet-tcp.h>
 
 #include "../stat_menu.h"
-#include "../register.h"
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/hostlist_table.h"
@@ -52,7 +51,7 @@ tcpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	const struct tcpheader *tcphdr=vip;
 
 	/* Take two "add" passes per packet, adding for each direction, ensures that all
-	packets are counted properly (even if address is sending to itself) 
+	packets are counted properly (even if address is sending to itself)
 	XXX - this could probably be done more efficiently inside hostlist_table */
 	add_hostlist_table_data(hosts, &tcphdr->ip_src, tcphdr->th_sport, TRUE, 1, pinfo->fd->pkt_len, SAT_NONE, PT_TCP);
 	add_hostlist_table_data(hosts, &tcphdr->ip_dst, tcphdr->th_dport, FALSE, 1, pinfo->fd->pkt_len, SAT_NONE, PT_TCP);

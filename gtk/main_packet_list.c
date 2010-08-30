@@ -40,7 +40,6 @@
 #include <epan/strutil.h>
 #include <epan/timestamp.h>
 
-#include "../globals.h"
 #include "../color.h"
 #include "../color_filters.h"
 #include "../ui_util.h"
@@ -424,7 +423,7 @@ packet_list_click_column_cb (GtkCList *clist,  gint column, gpointer data)
 {
       GtkWidget *menu;
       gboolean   right_justify = right_justify_column (column);
- 
+
       menus_set_column_align_default (right_justify);
 
       menu = g_object_get_data (G_OBJECT(popup_menu_object), PM_PACKET_LIST_COL_KEY);

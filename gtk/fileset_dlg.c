@@ -36,7 +36,6 @@
 
 #include <epan/filesystem.h>
 
-#include "../globals.h"
 #include "../simple_dialog.h"
 #include "../fileset.h"
 
@@ -168,13 +167,13 @@ fileset_dlg_add_file(fileset_entry *entry) {
 		/* if this file doesn't follow the file set pattern, */
 		/* use the creation time of that file */
 		local = localtime(&entry->ctime);
-		created = g_strdup_printf("%04u.%02u.%02u %02u:%02u:%02u", 
+		created = g_strdup_printf("%04u.%02u.%02u %02u:%02u:%02u",
 			local->tm_year+1900, local->tm_mon+1, local->tm_mday,
 			local->tm_hour, local->tm_min, local->tm_sec);
 	}
 
     local = localtime(&entry->mtime);
-    modified = g_strdup_printf("%04u.%02u.%02u %02u:%02u:%02u", 
+    modified = g_strdup_printf("%04u.%02u.%02u %02u:%02u:%02u",
         local->tm_year+1900, local->tm_mon+1, local->tm_mday,
         local->tm_hour, local->tm_min, local->tm_sec);
     size = g_strdup_printf("%" G_GINT64_MODIFIER "d Bytes", entry->size);
@@ -226,11 +225,11 @@ fileset_dlg_add_file(fileset_entry *entry) {
       gtk_widget_set_size_request(fs_sw, -1, requisition.height);
       gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(fs_sw), GTK_POLICY_NEVER, GTK_POLICY_NEVER);
     }
-    
+
     if(row == 18) {
       gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(fs_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
     }
-    
+
     row++;
 
     g_free(created);
@@ -245,7 +244,7 @@ fileset_init_table(GtkWidget *parent)
 {
   GtkWidget     *fs_lb;
 
-  
+
   fs_tb = gtk_table_new(6,1, FALSE);
   gtk_table_set_row_spacings(GTK_TABLE(fs_tb), 1);
   gtk_table_set_col_spacings(GTK_TABLE(fs_tb), 12);
@@ -372,7 +371,7 @@ fileset_file_opened(const char *fname) {
   }
 
   /* update the menu */
-  set_menus_for_file_set(TRUE /* file_set */, 
+  set_menus_for_file_set(TRUE /* file_set */,
       fileset_get_previous() != NULL, fileset_get_next() != NULL );
 }
 
@@ -393,7 +392,7 @@ fileset_file_closed(void)
   }
 
   /* update the menu */
-  set_menus_for_file_set(FALSE /* file_set */, 
+  set_menus_for_file_set(FALSE /* file_set */,
                          fileset_get_previous() != NULL,
                          fileset_get_next() != NULL );
 }

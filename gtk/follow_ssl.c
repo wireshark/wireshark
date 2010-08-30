@@ -47,7 +47,6 @@
 #include <epan/tap.h>
 
 #include <../color.h>
-#include <../globals.h>
 #include <../alert_box.h>
 #include <../simple_dialog.h>
 #include <../util.h>

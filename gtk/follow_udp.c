@@ -37,7 +37,6 @@
 #include <epan/strutil.h>
 #include <epan/tap.h>
 
-#include <../globals.h>
 #include <../simple_dialog.h>
 
 #include "gtk/follow_stream.h"
@@ -53,7 +52,7 @@ udp_queue_packet_data(void *tapdata, packet_info *pinfo,
 	follow_record_t *follow_record;
 	follow_info_t *follow_info = tapdata;
 	const tvbuff_t *next_tvb = data;
-	
+
 	follow_record = g_malloc(sizeof(follow_record_t));
 
 	follow_record->data = g_byte_array_sized_new(next_tvb->length);
@@ -69,7 +68,7 @@ udp_queue_packet_data(void *tapdata, packet_info *pinfo,
 	if (ADDRESSES_EQUAL(&follow_info->client_ip, &pinfo->src) &&
 	    follow_info->client_port == pinfo->srcport)
 		follow_record->is_server = FALSE;
-	else 
+	else
 		follow_record->is_server = TRUE;
 
 	/* update stream counter */
@@ -108,7 +107,7 @@ follow_udp_stream_cb(GtkWidget *w, gpointer data _U_)
 			      "sure you have a UDP packet selected.");
 		return;
 	}
-	
+
 	follow_info = g_new0(follow_info_t, 1);
 	follow_info->follow_type = FOLLOW_UDP;
 
@@ -189,22 +188,22 @@ follow_udp_stream_cb(GtkWidget *w, gpointer data _U_)
 		memcpy(&ipaddr, stats.ip_address[1], 4);
 		hostname1 = get_hostname(ipaddr);
 	}
-    
+
 	port0 = get_udp_port(stats.port[0]);
 	port1 = get_udp_port(stats.port[1]);
-    
+
 	follow_info->is_ipv6 = stats.is_ipv6;
 
 	/* Both Stream Directions */
 	both_directions_string = g_strdup_printf("Entire conversation (%u bytes)", follow_info->bytes_written[0] + follow_info->bytes_written[1]);
-    
+
 	if(follow_info->client_port == stats.port[0]) {
 		server_to_client_string =
 			g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
 					hostname0, port0,
 					hostname1, port1,
 					follow_info->bytes_written[0]);
-		
+
 		client_to_server_string =
 			g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
 					hostname1, port1,
@@ -216,7 +215,7 @@ follow_udp_stream_cb(GtkWidget *w, gpointer data _U_)
 					hostname1, port1,
 					hostname0, port0,
 					follow_info->bytes_written[0]);
-		
+
 		client_to_server_string =
 			g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
 					hostname0, port0,
@@ -285,12 +284,12 @@ follow_read_udp_stream(follow_info_t *follow_info,
 		if (!skip) {
 			buffer = g_memdup(follow_record->data->data,
 					  follow_record->data->len);
-            
+
 			frs_return = follow_show(follow_info, print_line_fcn_p,
 						 buffer,
 						 follow_record->data->len,
 						 follow_record->is_server, arg,
-						 global_pos, 
+						 global_pos,
 						 &server_packet_count,
 						 &client_packet_count);
 			g_free(buffer);

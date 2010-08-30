@@ -33,7 +33,6 @@
 #include <epan/packet.h>
 #include <epan/epan_dissect.h>
 
-#include "../globals.h"
 #include "../simple_dialog.h"
 
 #include "gtk/main.h"

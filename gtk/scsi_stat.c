@@ -6,23 +6,23 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* This module provides rpc call/reply SRT (Server Response Time) statistics 
+/* This module provides rpc call/reply SRT (Server Response Time) statistics
  * to Wireshark.
  */
 
@@ -49,7 +49,6 @@
 #include "../simple_dialog.h"
 #include "../globals.h"
 #include "../stat_menu.h"
-#include "../register.h"
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/gui_utils.h"
@@ -139,7 +138,7 @@ scsistat_program_select(GtkWidget *w, gpointer key _U_)
 		default:
 			scsi_program = SCSI_DEV_SBC;
 			break;
-	}	
+	}
 }
 
 static int
@@ -266,7 +265,7 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
 	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(rs->win), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
-	
+
 	title_string = scsistat_gen_title(rs);
 	stat_label=gtk_label_new(title_string);
 	g_free(title_string);

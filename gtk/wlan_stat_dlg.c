@@ -35,17 +35,13 @@
 #include <gtk/gtk.h>
 
 #include <epan/packet.h>
-#include <epan/packet_info.h>
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
 #include <epan/dissectors/packet-ieee80211.h>
 #include <epan/strutil.h>
 
-#include "../register.h"
 #include "../simple_dialog.h"
-#include "../globals.h"
 #include "../stat_menu.h"
-#include "../isprint.h"
 
 #include "gtk/gtkglobals.h"
 #include "gtk/dlg_utils.h"
@@ -393,9 +389,9 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 	} else {
 		for (tmp = hs->ep_list; tmp; tmp = tmp->next) {
 			if (((si->type == 0x04 && (
-			      (tmp->stats.ssid_len == 0 && si->stats.ssid_len == 0 && tmp->is_broadcast)  
+			      (tmp->stats.ssid_len == 0 && si->stats.ssid_len == 0 && tmp->is_broadcast)
 			      || (si->stats.ssid_len != 0 && ssid_equal(&tmp->stats, &si->stats))
-			     ))) 
+			     )))
 			    ||
 			    (si->type != 0x04 && !CMP_ADDRESS (&tmp->bssid, &si->bssid))) {
 				te = tmp;
@@ -1494,7 +1490,7 @@ static const char *ui_desc_wlan_stat_filter_popup =
 "  </popup>\n"
 "</ui>\n";
 
-/* 
+/*
  * GtkActionEntry
  * typedef struct {
  *   const gchar     *name;
@@ -1504,25 +1500,25 @@ static const char *ui_desc_wlan_stat_filter_popup =
  *   const gchar     *tooltip;
  *   GCallback  callback;
  * } GtkActionEntry;
- * const gchar *name;			The name of the action.  
- * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.  
- * const gchar *label;			The label for the action. This field should typically be marked for translation, 
- *								see gtk_action_group_set_translation_domain(). 
- *								If label is NULL, the label of the stock item with id stock_id is used.  
- * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().  
- * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation, 
- *                              see gtk_action_group_set_translation_domain().  
- * GCallback callback;			The function to call when the action is activated.  
+ * const gchar *name;			The name of the action.
+ * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.
+ * const gchar *label;			The label for the action. This field should typically be marked for translation,
+ *								see gtk_action_group_set_translation_domain().
+ *								If label is NULL, the label of the stock item with id stock_id is used.
+ * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().
+ * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation,
+ *                              see gtk_action_group_set_translation_domain().
+ * GCallback callback;			The function to call when the action is activated.
  *
  */
 static const GtkActionEntry wlans_stat_popup_entries[] = {
-  /* Top level */ 
+  /* Top level */
   { "/Apply as Filter",				NULL, "Apply as Filter", NULL, NULL, NULL },
   { "/Prepare a Filter",			NULL, "Prepare a Filter", NULL, NULL, NULL },
   { "/Find Frame",					NULL, "Find Frame", NULL, NULL, NULL },
   { "/Colorize",					NULL, "Colorize", NULL, NULL, NULL },
 
-  /* Apply as */ 
+  /* Apply as */
   { "/Apply as Filter/Selected",				NULL, "Selected" , NULL, NULL, NULL },
   { "/Apply as Filter/Not Selected",			NULL, "Not Selected", NULL, NULL, NULL },
   { "/Apply as Filter/... and Selected",		NULL, "... and Selected", NULL, NULL, NULL },
@@ -1530,25 +1526,25 @@ static const GtkActionEntry wlans_stat_popup_entries[] = {
   { "/Apply as Filter/... and not Selected",	NULL, "... and not Selected", NULL, NULL, NULL },
   { "/Apply as Filter/... or not Selected",		NULL, "... or not Selected", NULL, NULL, NULL },
 
-  /* Apply as Selected */ 
+  /* Apply as Selected */
   { "/Apply as Filter/Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_as_selected_BSSID_cb)},
   { "/Apply as Filter/Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_as_selected_SSID_cb)},
   { "/Apply as Filter/Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_as_selected_BSSID_and_SSID_cb)},
   { "/Apply as Filter/Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_as_selected_BSSID_or_SSID_cb)},
 
-  /* Apply as Not Selected */ 
+  /* Apply as Not Selected */
   { "/Apply as Filter/Not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_as_not_selected_BSSID_cb)},
   { "/Apply as Filter/Not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_as_not_selected_SSID_cb)},
   { "/Apply as Filter/Not Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_as_not_selected_BSSID_and_SSID_cb)},
   { "/Apply as Filter/Not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_as_not_selected_BSSID_or_SSID_cb)},
 
-  /* Apply as and Selected */ 
+  /* Apply as and Selected */
   { "/Apply as Filter/... and Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_and_selected_BSSID_cb)},
   { "/Apply as Filter/... and Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_and_selected_SSID_cb)},
   { "/Apply as Filter/... and Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_and_selected_BSSID_and_SSID_cb)},
   { "/Apply as Filter/... and Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_and_selected_BSSID_or_SSID_cb)},
 
-  /* Apply as or Selected */ 
+  /* Apply as or Selected */
   { "/Apply as Filter/... or Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_or_selected_BSSID_cb)},
   { "/Apply as Filter/... or Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_or_selected_SSID_cb)},
   { "/Apply as Filter/... or Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_or_selected_BSSID_and_SSID_cb)},
@@ -1566,7 +1562,7 @@ static const GtkActionEntry wlans_stat_popup_entries[] = {
   { "/Apply as Filter/... or not Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_or_not_selected_BSSID_and_SSID_cb)},
   { "/Apply as Filter/... or not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_or_not_selected_BSSID_or_SSID_cb)},
 
-  /* Prepare a */ 
+  /* Prepare a */
   { "/Prepare a Filter/Selected",				NULL, "Selected" , NULL, NULL, NULL },
   { "/Prepare a Filter/Not Selected",			NULL, "Not Selected", NULL, NULL, NULL },
   { "/Prepare a Filter/... and Selected",		NULL, "... and Selected", NULL, NULL, NULL },
@@ -1574,25 +1570,25 @@ static const GtkActionEntry wlans_stat_popup_entries[] = {
   { "/Prepare a Filter/... and not Selected",	NULL, "... and not Selected", NULL, NULL, NULL },
   { "/Prepare a Filter/... or not Selected",	NULL, "... or not Selected", NULL, NULL, NULL },
 
-  /* Prepare a Selected */ 
+  /* Prepare a Selected */
   { "/Prepare a Filter/Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_as_selected_BSSID_cb)},
   { "/Prepare a Filter/Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_as_selected_SSID_cb)},
   { "/Prepare a Filter/Selected/BSSID and SSID",NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_as_selected_BSSID_and_SSID_cb)},
   { "/Prepare a Filter/Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_as_selected_BSSID_or_SSID_cb)},
 
-  /* Prepare a Not Selected */ 
+  /* Prepare a Not Selected */
   { "/Prepare a Filter/Not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_as_not_selected_BSSID_cb)},
   { "/Prepare a Filter/Not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_as_not_selected_SSID_cb)},
   { "/Prepare a Filter/Not Selected/BSSID and SSID",NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_as_not_selected_BSSID_and_SSID_cb)},
   { "/Prepare a Filter/Not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_as_not_selected_BSSID_or_SSID_cb)},
 
-  /* Prepare a and Selected */ 
+  /* Prepare a and Selected */
   { "/Prepare a Filter/... and Selected/BSSID",				NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_and_selected_BSSID_cb)},
   { "/Prepare a Filter/... and Selected/SSID",				NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_and_selected_SSID_cb)},
   { "/Prepare a Filter/... and Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_and_selected_BSSID_and_SSID_cb)},
   { "/Prepare a Filter/... and Selected/BSSID or SSID",		NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_and_selected_BSSID_or_SSID_cb)},
 
-  /* Prepare a or Selected */ 
+  /* Prepare a or Selected */
   { "/Prepare a Filter/... or Selected/BSSID",					NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_or_selected_BSSID_cb)},
   { "/Prepare a Filter/... or Selected/SSID",					NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_or_selected_SSID_cb)},
   { "/Prepare a Filter/... or Selected/BSSID and SSID",			NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_or_selected_BSSID_and_SSID_cb)},
@@ -1610,24 +1606,24 @@ static const GtkActionEntry wlans_stat_popup_entries[] = {
   { "/Prepare a Filter/... or not Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_or_not_selected_BSSID_and_SSID_cb)},
   { "/Prepare a Filter/... or not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_or_not_selected_BSSID_or_SSID_cb)},
 
-  /* Find Frame*/ 
+  /* Find Frame*/
   { "/Find Frame/Find Frame",					NULL, "Find Frame", NULL, NULL, NULL },
   { "/Find Frame/Find Next",					NULL, "Find Next", NULL, NULL, NULL },
   { "/Find Frame/Find Previous",				NULL, "Find Previous", NULL, NULL, NULL },
 
-  /* Find Frame/Find Frame*/ 
+  /* Find Frame/Find Frame*/
   { "/Find Frame/Find Frame/BSSID",				NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_find_frame_BSSID_cb)},
   { "/Find Frame/Find Frame/SSID",				NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_find_frame_SSID_cb)},
   { "/Find Frame/Find Frame/BSSID and SSID",	NULL, "SSID and SSID",	NULL, "SSID and SSID",		G_CALLBACK(wlan_find_frame_BSSID_and_SSID_cb)},
   { "/Find Frame/Find Frame/BSSID or SSID",		NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_find_frame_BSSID_or_SSID_cb)},
 
-  /* Find Frame/Find Next*/ 
+  /* Find Frame/Find Next*/
   { "/Find Frame/Find Next/BSSID",				NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_find_frame_next_BSSID_cb)},
   { "/Find Frame/Find Next/SSID",				NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_find_frame_next_SSID_cb)},
   { "/Find Frame/Find Next/BSSID and SSID",		NULL, "SSID and SSID",	NULL, "SSID and SSID",		G_CALLBACK(wlan_find_frame_next_BSSID_and_SSID_cb)},
   { "/Find Frame/Find Next/BSSID or SSID",		NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_find_frame_next_BSSID_or_SSID_cb)},
 
-  /* Find Frame/Find Previous*/ 
+  /* Find Frame/Find Previous*/
   { "/Find Frame/Find Previous/BSSID",				NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_find_frame_previous_BSSID_cb)},
   { "/Find Frame/Find Previous/SSID",				NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_find_frame_previous_SSID_cb)},
   { "/Find Frame/Find Previous/BSSID and SSID",		NULL, "SSID and SSID",	NULL, "SSID and SSID",		G_CALLBACK(wlan_find_frame_previous_BSSID_and_SSID_cb)},
@@ -1659,7 +1655,7 @@ wlan_create_popup_menu(wlanstat_t *hs)
 	GtkActionGroup *action_group;
 	GError *error = NULL;
 
-	action_group = gtk_action_group_new ("WlanFilterPopupActionGroup"); 
+	action_group = gtk_action_group_new ("WlanFilterPopupActionGroup");
 	gtk_action_group_add_actions (action_group,							/* the action group */
 								wlans_stat_popup_entries,				/* an array of action descriptions */
 								G_N_ELEMENTS(wlans_stat_popup_entries),	/* the number of entries */
@@ -1667,14 +1663,14 @@ wlan_create_popup_menu(wlanstat_t *hs)
 
 	ui_manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
-	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_wlan_stat_filter_popup, -1, &error); 
-	if (error != NULL) 
-    { 
-        fprintf (stderr, "Warning: building Wlan Stat Filter popup failed: %s\n", 
-                error->message); 
-        g_error_free (error); 
-        error = NULL; 
-    } 
+	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_wlan_stat_filter_popup, -1, &error);
+	if (error != NULL)
+    {
+        fprintf (stderr, "Warning: building Wlan Stat Filter popup failed: %s\n",
+                error->message);
+        g_error_free (error);
+        error = NULL;
+    }
 	hs->menu = gtk_ui_manager_get_widget(ui_manager, "/WlanStatFilterPopup");
 	g_signal_connect(hs->table, "button_press_event", G_CALLBACK(wlan_show_popup_menu_cb), hs);
 
@@ -1874,7 +1870,7 @@ static const char *ui_desc_wlan_details_filter_popup =
 "  </popup>\n"
 "</ui>\n";
 
-/* 
+/*
  * GtkActionEntry
  * typedef struct {
  *   const gchar     *name;
@@ -1884,24 +1880,24 @@ static const char *ui_desc_wlan_details_filter_popup =
  *   const gchar     *tooltip;
  *   GCallback  callback;
  * } GtkActionEntry;
- * const gchar *name;			The name of the action.  
- * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.  
- * const gchar *label;			The label for the action. This field should typically be marked for translation, 
- *								see gtk_action_group_set_translation_domain(). 
- *								If label is NULL, the label of the stock item with id stock_id is used.  
- * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().  
- * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation, 
- *                              see gtk_action_group_set_translation_domain().  
- * GCallback callback;			The function to call when the action is activated.  
+ * const gchar *name;			The name of the action.
+ * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.
+ * const gchar *label;			The label for the action. This field should typically be marked for translation,
+ *								see gtk_action_group_set_translation_domain().
+ *								If label is NULL, the label of the stock item with id stock_id is used.
+ * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().
+ * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation,
+ *                              see gtk_action_group_set_translation_domain().
+ * GCallback callback;			The function to call when the action is activated.
  *
  */
 static const GtkActionEntry wlan_details_list_popup_entries[] = {
-  /* Top level */ 
+  /* Top level */
   { "/Apply as Filter",							NULL, "Apply as Filter", NULL, NULL, NULL },
   { "/Prepare a Filter",						NULL, "Prepare a Filter", NULL, NULL, NULL },
   { "/Find Frame",								NULL, "Find Frame", NULL, NULL, NULL },
 
-    /* Apply as */ 
+    /* Apply as */
   { "/Apply as Filter/Selected",				NULL, "Selected" ,				NULL, NULL, G_CALLBACK(wlan_details_apply_selected_cb) },
   { "/Apply as Filter/Not Selected",			NULL, "Not Selected",			NULL, NULL, G_CALLBACK(wlan_details_apply_not_selected_cb) },
   { "/Apply as Filter/... and Selected",		NULL, "... and Selected",		NULL, NULL, G_CALLBACK(wlan_details_apply_and_selected_cb) },
@@ -1916,7 +1912,7 @@ static const GtkActionEntry wlan_details_list_popup_entries[] = {
   { "/Prepare a Filter/... and not Selected",	NULL, "... and not Selected",	NULL, NULL, G_CALLBACK(wlan_details_prepare_and_not_selected_cb) },
   { "/Prepare a Filter/... or not Selected",	NULL, "... or not Selected",	NULL, NULL, G_CALLBACK(wlan_details_prepare_or_not_selected_cb) },
 
-  /* Find Frame*/ 
+  /* Find Frame*/
   { "/Find Frame/Find Frame",					NULL, "Find Frame",				NULL, NULL, G_CALLBACK(wlan_details_find_frame_cb) },
   { "/Find Frame/Find Next",					NULL, "Find Next",				NULL, NULL, G_CALLBACK(wlan_details_find_next_frame_cb) },
   { "/Find Frame/Find Previous",				NULL, "Find Previous",			NULL, NULL, G_CALLBACK(wlan_details_find_previous_frame_cb) },
@@ -1941,7 +1937,7 @@ wlan_details_create_popup_menu(wlanstat_t *hs)
 	GtkActionGroup *action_group;
 	GError *error = NULL;
 
-	action_group = gtk_action_group_new ("WlanDetailsPopupActionGroup"); 
+	action_group = gtk_action_group_new ("WlanDetailsPopupActionGroup");
 	gtk_action_group_add_actions (action_group,									/* the action group */
 								wlan_details_list_popup_entries,				/* an array of action descriptions */
 								G_N_ELEMENTS(wlan_details_list_popup_entries),	/* the number of entries */
@@ -1949,14 +1945,14 @@ wlan_details_create_popup_menu(wlanstat_t *hs)
 
 	ui_manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
-	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_wlan_details_filter_popup, -1, &error); 
-	if (error != NULL) 
-    { 
-        fprintf (stderr, "Warning: building Wlan details list popup failed: %s\n", 
-                error->message); 
-        g_error_free (error); 
-        error = NULL; 
-    } 
+	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_wlan_details_filter_popup, -1, &error);
+	if (error != NULL)
+    {
+        fprintf (stderr, "Warning: building Wlan details list popup failed: %s\n",
+                error->message);
+        g_error_free (error);
+        error = NULL;
+    }
 	hs->details_menu = gtk_ui_manager_get_widget(ui_manager, "/WlanStatFilterPopup");
 	g_signal_connect(hs->details, "button_press_event", G_CALLBACK(wlan_details_show_popup_menu_cb), hs);
 
@@ -2216,7 +2212,7 @@ void
 register_tap_listener_wlanstat (void)
 {
       	static const char src[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-      
+
       	SET_ADDRESS(&broadcast, AT_ETHER, 6, src);
 
 	register_stat_menu_item ("WLAN Traffic", REGISTER_STAT_GROUP_UNSORTED,

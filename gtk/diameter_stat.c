@@ -42,11 +42,9 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-diameter.h>
 
-#include "../register.h"
 #include "../timestats.h"
 #include "../simple_dialog.h"
 #include "../file.h"
-#include "../globals.h"
 #include "../stat_menu.h"
 
 #include "gtk/gui_utils.h"
@@ -94,7 +92,7 @@ diameterstat_packet(void *pdiameter, packet_info *pinfo, epan_dissect_t *edt _U_
 	int* idx = NULL;
 
 	/* Process only answers where corresponding request is found.
-	 * Unpaired daimeter messages are currently not supported by statistics. 
+	 * Unpaired daimeter messages are currently not supported by statistics.
 	 * Return 0, since redraw is not needed. */
 	if(!diameter || diameter->processing_request || !diameter->req_frame)
 		return 0;

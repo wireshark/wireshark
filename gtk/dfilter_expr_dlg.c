@@ -47,7 +47,6 @@
 
 #include <gtk/gtk.h>
 
-#include "../globals.h"
 #include "../simple_dialog.h"
 
 #include "gtk/main.h"
@@ -489,7 +488,7 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 		/*
 		 * There is no list of names for values; only show the value_label if needed.
 		 */
-		if (is_comparison) 
+		if (is_comparison)
 			show_value_label = TRUE;
 		break;
 	}

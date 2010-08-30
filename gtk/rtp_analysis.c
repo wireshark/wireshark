@@ -63,7 +63,6 @@
 #include <epan/strutil.h>
 
 #include "../util.h"
-#include "../register.h"
 #include "../g711.h"
 #include "../alert_box.h"
 #include "../simple_dialog.h"
@@ -993,7 +992,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 	/*
 	 * Calculate size of borders surrounding the plot
 	 * The border on the right side needs to be adjusted depending
-	 * on the width of the text labels. 
+	 * on the width of the text labels.
 	 */
 	print_time_scale_string(label_string, sizeof(label_string), max_y);
 	layout = gtk_widget_create_pango_layout(user_data->dlg.dialog_graph.draw_area, label_string);

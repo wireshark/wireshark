@@ -46,8 +46,6 @@
 
 #include "../stat_menu.h"
 #include "../simple_dialog.h"
-#include "../register.h"
-#include "../globals.h"
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/dlg_utils.h"
