@@ -106,7 +106,7 @@ extern gboolean ranges_are_equal(range_t *a, range_t *b);
 /** This function calls the provided callback function for each value in
  * in the range.
  * @param range the range
- * @param val value
+ * @param callback the callback function
  */
 extern void range_foreach(range_t *range, void (*callback)(guint32 val));
 
