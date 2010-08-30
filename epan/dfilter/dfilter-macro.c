@@ -31,12 +31,11 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "globals.h"
 #include "dfilter-int.h"
 #include "dfilter.h"
 #include "dfilter-macro.h"
 #include <epan/emem.h>
-#include <epan/uat.h>
+#include <epan/uat-int.h>
 #include <epan/report_err.h>
 #include <epan/proto.h>
 #include <wsutil/file_util.h>
@@ -412,8 +411,8 @@ static void macro_update(void* mp, const gchar** error) {
 	}
 
 	/* Invalidate the display filter in case it's in use */
-	g_free (cfile.dfilter);
-	cfile.dfilter = NULL;
+	if (dfilter_macro_uat && dfilter_macro_uat->post_update_cb)
+	  dfilter_macro_uat->post_update_cb();
 
 	parts = g_ptr_array_new();
 	args_pos = g_array_new(FALSE,FALSE,sizeof(int));
