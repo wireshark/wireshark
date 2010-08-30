@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.2.11">
+  <!ENTITY WiresharkCurrentVersion "1.2.12">
 
 ]>
 
@@ -44,7 +44,7 @@ Wireshark Info
             Windows XP SP1 and later. It is partially fixed on Windows 2000 and
             XP without services packs. We expect to address those platforms in
             future releases. If you are running Wireshark on Windows 2000 or XP
-            we recommend that you only open capture files within Wireshark. 
+            we recommend that you only open capture files within Wireshark.
             <!-- Fixed in trunk: r33916, r33917, r33924, r33925, r33958 -->
             <!-- Fixed in trunk-1.4: r33932, r33934, r33957 -->
             <!-- Fixed in trunk-1.2: r33935, r33956 -->
