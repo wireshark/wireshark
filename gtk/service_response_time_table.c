@@ -29,6 +29,7 @@
 #endif
 
 #include <gtk/gtk.h>
+#include <stdio.h>
 
 #include "epan/packet_info.h"
 
@@ -327,33 +328,33 @@ static const char *ui_desc_service_resp_t_filter_popup =
  *
  */
 static const GtkActionEntry service_resp_t__popup_entries[] = {
-  { "/Apply as Filter",							NULL, "Apply as Filter",				NULL, NULL,								NULL },
-  { "/Prepare a Filter",						NULL, "Prepare a Filter",				NULL, NULL,								NULL },
-  { "/Find Frame",								NULL, "Find Frame",						NULL, NULL,								NULL },
-  { "/Find Frame/Find Frame",					NULL, "Find Frame",						NULL, NULL,								NULL },
-  { "/Find Frame/Find Next",					NULL, "Find Next" ,						NULL, NULL,								NULL },
-  { "/Find Frame/Find Previous",				NULL, "Find Previous",					NULL, NULL,								NULL },
-  { "/Colorize Procedure",						NULL, "Colorize Procedure",				NULL, NULL,								NULL },
-  { "/Apply as Filter/Selected",				NULL, "Selected",						NULL, "Selected",						G_CALLBACK(apply_as_selected_cb) },
-  { "/Apply as Filter/... not Selected",		NULL, "... not Selected",				NULL, "... not Selected",				G_CALLBACK(apply_as_not_selected_cb) },
-  { "/Apply as Filter/... and Selected",		NULL, "... and Selected",				NULL, "... and Selected",				G_CALLBACK(apply_as_and_selected_cb) },
-  { "/Apply as Filter/... or Selected",			NULL, "... or Selected",				NULL, "... or Selected",				G_CALLBACK(apply_as_or_selected_cb) },
-  { "/Apply as Filter/... and not Selected",	NULL, "... and not Selected",			NULL, "... and not Selected",			G_CALLBACK(apply_as_and_not_selected_cb) },
-  { "/Apply as Filter/... or not Selected",		NULL, "... or not Selected",			NULL, "... or not Selected",			G_CALLBACK(apply_as_or_not_selected_cb) },
-  { "/Prepare a Filter/Selected",				NULL, "Selected",						NULL, "selcted",						G_CALLBACK(prep_as_selected_cb) },
-  { "/Prepare a Filter/... not Selected",		NULL, "... not Selected",				NULL, "... not Selected",				G_CALLBACK(prep_as_not_selected_cb) },
-  { "/Prepare a Filter/... and Selected",		NULL, "... and Selected",				NULL, "... and Selected",				G_CALLBACK(prep_as_and_selected_cb) },
-  { "/Prepare a Filter/... or Selected",		NULL, "... or Selected",				NULL, "... or Selected",				G_CALLBACK(prep_as_or_selected_cb) },
-  { "/Prepare a Filter/... and not Selected",	NULL, "... and not Selected",			NULL, "... and not Selected",			G_CALLBACK(prep_as_and_not_selected_cb) },
-  { "/Prepare a Filter/... or not Selected",	NULL, "... or not Selected",			NULL, "... or not Selected",			G_CALLBACK(prep_as_or_not_selected_cb) },
-  { "/Find Frame/Selected",						NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_selected_cb) },
-  { "/Find Frame/Not Selected",					NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_not_selected_cb) },
-  { "/Find Previous/Selected",					NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_prev_selected_cb) },
-  { "/Find Previous/Not Selected",				NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_prev_not_selected_cb) },
-  { "/Find Next/Selected",						NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_next_selected_cb) },
-  { "/Find Next/Not Selected",					NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_next_not_selected_cb) },
-  { "/Colorize Procedure/Selected",				NULL, "Selected",						NULL, "Selected",						G_CALLBACK(color_selected_cb) },
-  { "/Colorize Procedure/Not Selected",			NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(color_not_selected_cb) },
+  { "/Apply as Filter",				NULL, "Apply as Filter",	NULL, NULL,			NULL },
+  { "/Prepare a Filter",			NULL, "Prepare a Filter",	NULL, NULL,			NULL },
+  { "/Find Frame",				NULL, "Find Frame",		NULL, NULL,			NULL },
+  { "/Find Frame/Find Frame",			NULL, "Find Frame",		NULL, NULL,			NULL },
+  { "/Find Frame/Find Next",			NULL, "Find Next" ,		NULL, NULL,			NULL },
+  { "/Find Frame/Find Previous",		NULL, "Find Previous",		NULL, NULL,			NULL },
+  { "/Colorize Procedure",			NULL, "Colorize Procedure",	NULL, NULL,			NULL },
+  { "/Apply as Filter/Selected",		NULL, "Selected",		NULL, "Selected",		G_CALLBACK(apply_as_selected_cb) },
+  { "/Apply as Filter/... not Selected",	NULL, "... not Selected",	NULL, "... not Selected",	G_CALLBACK(apply_as_not_selected_cb) },
+  { "/Apply as Filter/... and Selected",	NULL, "... and Selected",	NULL, "... and Selected",	G_CALLBACK(apply_as_and_selected_cb) },
+  { "/Apply as Filter/... or Selected",		NULL, "... or Selected",	NULL, "... or Selected",	G_CALLBACK(apply_as_or_selected_cb) },
+  { "/Apply as Filter/... and not Selected",	NULL, "... and not Selected",	NULL, "... and not Selected",	G_CALLBACK(apply_as_and_not_selected_cb) },
+  { "/Apply as Filter/... or not Selected",	NULL, "... or not Selected",	NULL, "... or not Selected",	G_CALLBACK(apply_as_or_not_selected_cb) },
+  { "/Prepare a Filter/Selected",		NULL, "Selected",		NULL, "selcted",		G_CALLBACK(prep_as_selected_cb) },
+  { "/Prepare a Filter/... not Selected",	NULL, "... not Selected",	NULL, "... not Selected",	G_CALLBACK(prep_as_not_selected_cb) },
+  { "/Prepare a Filter/... and Selected",	NULL, "... and Selected",	NULL, "... and Selected",	G_CALLBACK(prep_as_and_selected_cb) },
+  { "/Prepare a Filter/... or Selected",	NULL, "... or Selected",	NULL, "... or Selected",	G_CALLBACK(prep_as_or_selected_cb) },
+  { "/Prepare a Filter/... and not Selected",	NULL, "... and not Selected",	NULL, "... and not Selected",	G_CALLBACK(prep_as_and_not_selected_cb) },
+  { "/Prepare a Filter/... or not Selected",	NULL, "... or not Selected",	NULL, "... or not Selected",	G_CALLBACK(prep_as_or_not_selected_cb) },
+  { "/Find Frame/Selected",			NULL, "Selected",		NULL, "Selected",		G_CALLBACK(find_selected_cb) },
+  { "/Find Frame/Not Selected",			NULL, "Not Selected",		NULL, "Not Selected",		G_CALLBACK(find_not_selected_cb) },
+  { "/Find Previous/Selected",			NULL, "Selected",		NULL, "Selected",		G_CALLBACK(find_prev_selected_cb) },
+  { "/Find Previous/Not Selected",		NULL, "Not Selected",		NULL, "Not Selected",		G_CALLBACK(find_prev_not_selected_cb) },
+  { "/Find Next/Selected",			NULL, "Selected",		NULL, "Selected",		G_CALLBACK(find_next_selected_cb) },
+  { "/Find Next/Not Selected",			NULL, "Not Selected",		NULL, "Not Selected",		G_CALLBACK(find_next_not_selected_cb) },
+  { "/Colorize Procedure/Selected",		NULL, "Selected",		NULL, "Selected",		G_CALLBACK(color_selected_cb) },
+  { "/Colorize Procedure/Not Selected",		NULL, "Not Selected",		NULL, "Not Selected",		G_CALLBACK(color_not_selected_cb) },
 };
 #endif /* SERVICE_RESP_USE_GUIMANAGER */
 static void
@@ -374,10 +375,10 @@ srt_create_popup_menu(srt_stat_table *rst)
 	GError *error = NULL;
 
 	action_group = gtk_action_group_new ("ServiceRespTFilterPopupActionGroup");
-	gtk_action_group_add_actions (action_group,								/* the action group */
-								service_resp_t__popup_entries,				/* an array of action descriptions */
-								G_N_ELEMENTS(service_resp_t__popup_entries),/* the number of entries */
-								rst);										/* data to pass to the action callbacks */
+	gtk_action_group_add_actions (action_group,					/* the action group */
+				      service_resp_t__popup_entries,			/* an array of action descriptions */
+				      G_N_ELEMENTS(service_resp_t__popup_entries),	/* the number of entries */
+				      rst);						/* data to pass to the action callbacks */
 
 	ui_manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (ui_manager,
@@ -440,9 +441,9 @@ srt_avg_func (GtkTreeViewColumn *column _U_,
 
 static gint
 srt_time_sort_func(GtkTreeModel *model,
-							GtkTreeIter *a,
-							GtkTreeIter *b,
-							gpointer user_data)
+		   GtkTreeIter *a,
+		   GtkTreeIter *b,
+		   gpointer user_data)
 {
 	 nstime_t *ns_a;
 	 nstime_t *ns_b;
