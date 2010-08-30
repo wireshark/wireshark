@@ -1193,6 +1193,17 @@ col_set_fmt_time(const frame_data *fd, column_info *cinfo, const gint fmt, const
 }
 
 /* --------------------------- */
+/* Set the given (relative) time to a column element.
+ *
+ * Used by multiple dissectors to set the time in the column
+ * COL_DELTA_CONV_TIME
+ *
+ * @param cinfo		the current packet row
+ * @param col		the column to use, e.g. COL_INFO
+ * @param ts		the time to set in the column
+ * @param fieldname	the fieldname to use for creating a filter (when
+ *			  applying/preparing/copying as filter)
+ */
 void
 col_set_time(column_info *cinfo, const gint el, const nstime_t *ts, char *fieldname)
 {
@@ -1201,7 +1212,7 @@ col_set_time(column_info *cinfo, const gint el, const nstime_t *ts, char *fieldn
   if (!CHECK_COL(cinfo, el))
     return;
 
-  /* TODO: We don't respect fd->flags.ref_time (no way to access 'fd')
+  /** @todo TODO: We don't respect fd->flags.ref_time (no way to access 'fd')
   COL_CHECK_REF_TIME(fd, buf);
   */
 

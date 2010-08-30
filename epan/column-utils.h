@@ -35,6 +35,10 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/** @file
+ *  Helper routines for column utility structures and routines.
+ */
+
 /** Allocate all the data structures for constructing column data, given
  * the number of columns.
  *
@@ -82,10 +86,14 @@ extern gboolean	col_get_writable(column_info *cinfo);
  */
 extern void	col_set_writable(column_info *cinfo, const gboolean writable);
 
-/** Check if the given column be filled with data.
+/** 
+ * Checks if the given column can be filled with data.
  *
  * @param cinfo the current packet row
  * @param col the column to use, e.g. COL_INFO
+ *
+ * @deprecated Not needed in new code the check is done in 
+ * in the column function calls.
  */
 extern gint	check_col(column_info *cinfo, const gint col);
 
@@ -137,15 +145,17 @@ extern void	col_add_str(column_info *cinfo, const gint col, const gchar *str);
 extern void	col_add_fstr(column_info *cinfo, const gint col, const gchar *format, ...)
     G_GNUC_PRINTF(3, 4);
 
-/* For internal Wireshark use only.  Not to be called from dissectors. */
+/** For internal Wireshark use only.  Not to be called from dissectors. */
 void col_custom_set_edt(epan_dissect_t *edt, column_info *cinfo);
 
-/* For internal Wireshark use only.  Not to be called from dissectors. */
+/** For internal Wireshark use only.  Not to be called from dissectors. */
 void col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo);
 
-/* For internal Wireshark use only.  Not to be called from dissectors. */
+/** For internal Wireshark use only.  Not to be called from dissectors. */
 gboolean have_custom_cols(column_info *cinfo);
+/** For internal Wireshark use only.  Not to be called from dissectors. */
 gboolean col_has_time_fmt(column_info *cinfo, const gint col);
+/** For internal Wireshark use only.  Not to be called from dissectors. */
 gboolean col_based_on_frame_data(column_info *cinfo, const gint col);
 
 /** Append the given text to a column element, the text will be copied.
