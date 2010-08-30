@@ -135,6 +135,7 @@
 #include "gtk/main_airpcap_toolbar.h"
 #include "gtk/main_filter_toolbar.h"
 #include "gtk/menus.h"
+#include "gtk/macros_dlg.h"
 #include "gtk/main_packet_list.h"
 #include "gtk/main_statusbar.h"
 #include "gtk/main_statusbar_private.h"
@@ -2827,6 +2828,8 @@ main(int argc, char *argv[])
   g_free(rc_file);
 
   font_init();
+
+  macros_init();
 
   stock_icons_init();
 

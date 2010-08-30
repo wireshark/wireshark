@@ -24,6 +24,7 @@
 #ifndef __MACROS_DLG_H__
 #define __MACROS_DLG_H__
 
+void macros_init (void);
 void macros_dialog_cb(GtkWidget*, gpointer);
 
 #endif /* __MACROS_DLG_H__ */

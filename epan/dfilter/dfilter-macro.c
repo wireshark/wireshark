@@ -31,6 +31,7 @@
 #include <ctype.h>
 #include <string.h>
 
+#include "globals.h"
 #include "dfilter-int.h"
 #include "dfilter.h"
 #include "dfilter-macro.h"
@@ -410,6 +411,10 @@ static void macro_update(void* mp, const gchar** error) {
 		}
 	}
 
+	/* Invalidate the display filter in case it's in use */
+	g_free (cfile.dfilter);
+	cfile.dfilter = NULL;
+
 	parts = g_ptr_array_new();
 	args_pos = g_array_new(FALSE,FALSE,sizeof(int));
 
@@ -609,7 +614,7 @@ void dfilter_macro_init(void) {
 				    macro_copy,
 				    macro_update,
 				    macro_free,
-                                    NULL,
+				    NULL, /* Note: This is set in macros_init () */
 				    uat_fields);
 
 	fvt_cache = g_hash_table_new(g_str_hash,g_str_equal);
