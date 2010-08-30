@@ -92,6 +92,8 @@ proto_hier_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data _U_, g
     g_free (str);
 }
 
+#define PROTO_HIER_STATS_USE_GUIMANAGER 1
+#ifndef PROTO_HIER_STATS_USE_GUIMANAGER
 static GtkItemFactoryEntry proto_hier_list_menu_items[] =
 {
     /* Match */
@@ -139,6 +141,196 @@ static GtkItemFactoryEntry proto_hier_list_menu_items[] =
      GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, 0), NULL, NULL,}
 
 };
+#else /* PROTO_HIER_STATS_USE_GUIMANAGER */
+/* Prepare to change GtkItemFactory to GtkUIManager */
+static void
+apply_as_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, 0));
+}
+static void
+apply_as_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0));
+}
+static void
+apply_as_and_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0));
+}
+static void
+apply_as_or_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0));
+}
+static void
+apply_as_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0));
+}
+static void
+apply_as_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0));
+}
+
+static void
+prep_as_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, 0));
+}
+static void
+prep_as_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0));
+}
+static void
+prep_as_and_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0));
+}
+static void
+prep_as_or_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0));
+}
+static void
+prep_as_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0));
+}
+static void
+prep_as_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0));
+}
+
+static void
+find_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0));
+}
+static void
+find_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_NOT_SELECTED, 0));
+}
+static void
+find_prev_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, 0));
+}
+static void
+find_prev_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_NOT_SELECTED, 0));
+}
+static void
+find_next_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, 0));
+}
+static void
+find_next_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, 0));
+}
+static void
+color_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	proto_hier_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, 0));
+}
+
+
+static const char *ui_desc_proto_hier_stats_filter_popup =
+"<ui>\n"
+"  <popup name='ProtoHierStatsFilterPopup'>\n"
+"    <menu action='/Apply as Filter'>\n"
+"      <menuitem action='/Apply as Filter/Selected'/>\n"
+"      <menuitem action='/Apply as Filter/... not Selected'/>\n"
+"      <menuitem action='/Apply as Filter/... and Selected'/>\n"
+"      <menuitem action='/Apply as Filter/... or Selected'/>\n"
+"      <menuitem action='/Apply as Filter/... and not Selected'/>\n"
+"      <menuitem action='/Apply as Filter/... or not Selected'/>\n"
+"    </menu>\n"
+"    <menu action='/Prepare a Filter'>\n"
+"      <menuitem action='/Prepare a Filter/Selected'/>\n"
+"      <menuitem action='/Prepare a Filter/... not Selected'/>\n"
+"      <menuitem action='/Prepare a Filter/... and Selected'/>\n"
+"      <menuitem action='/Prepare a Filter/... or Selected'/>\n"
+"      <menuitem action='/Prepare a Filter/... and not Selected'/>\n"
+"      <menuitem action='/Prepare a Filter/... or not Selected'/>\n"
+"    </menu>\n"
+"    <menu action='/Find Frame'>\n"
+"      <menu action='/Find Frame/Find Frame'>\n"
+"        <menuitem action='/Find Frame/Selected'/>\n"
+"        <menuitem action='/Find Frame/Not Selected'/>\n"
+"      </menu>\n"
+"      <menu action='/Find Frame/Find Next'>\n"
+"        <menuitem action='/Find Next/Selected'/>\n"
+"        <menuitem action='/Find Next/Not Selected'/>\n"
+"      </menu>\n"
+"      <menu action='/Find Frame/Find Previous'>\n"
+"        <menuitem action='/Find Previous/Selected'/>\n"
+"        <menuitem action='/Find Previous/Not Selected'/>\n"
+"      </menu>\n"
+"    </menu>\n"
+"    <menu action='/Colorize Procedure'>\n"
+"     <menuitem action='/Colorize Procedure/Colorize Protocol'/>\n"
+"    </menu>\n"
+"  </popup>\n"
+"</ui>\n";
+
+/*
+ * GtkActionEntry
+ * typedef struct {
+ *   const gchar     *name;
+ *   const gchar     *stock_id;
+ *   const gchar     *label;
+ *   const gchar     *accelerator;
+ *   const gchar     *tooltip;
+ *   GCallback  callback;
+ * } GtkActionEntry;
+ * const gchar *name;			The name of the action.
+ * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.
+ * const gchar *label;			The label for the action. This field should typically be marked for translation,
+ *								see gtk_action_group_set_translation_domain().
+ *								If label is NULL, the label of the stock item with id stock_id is used.
+ * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().
+ * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation,
+ *                              see gtk_action_group_set_translation_domain().
+ * GCallback callback;			The function to call when the action is activated.
+ *
+ */
+static const GtkActionEntry proto_hier_stats_popup_entries[] = {
+  { "/Apply as Filter",							NULL, "Apply as Filter",				NULL, NULL,								NULL },
+  { "/Prepare a Filter",						NULL, "Prepare a Filter",				NULL, NULL,								NULL },
+  { "/Find Frame",								NULL, "Find Frame",						NULL, NULL,								NULL },
+  { "/Find Frame/Find Frame",					NULL, "Find Frame",						NULL, NULL,								NULL },
+  { "/Find Frame/Find Next",					NULL, "Find Next" ,						NULL, NULL,								NULL },
+  { "/Find Frame/Find Previous",				NULL, "Find Previous",					NULL, NULL,								NULL },
+  { "/Colorize Procedure",						NULL, "Colorize Procedure",				NULL, NULL,								NULL },
+  { "/Apply as Filter/Selected",				NULL, "Selected",						NULL, "Selected",						G_CALLBACK(apply_as_selected_cb) },
+  { "/Apply as Filter/... not Selected",		NULL, "... not Selected",				NULL, "... not Selected",				G_CALLBACK(apply_as_not_selected_cb) },
+  { "/Apply as Filter/... and Selected",		NULL, "... and Selected",				NULL, "... and Selected",				G_CALLBACK(apply_as_and_selected_cb) },
+  { "/Apply as Filter/... or Selected",			NULL, "... or Selected",				NULL, "... or Selected",				G_CALLBACK(apply_as_or_selected_cb) },
+  { "/Apply as Filter/... and not Selected",	NULL, "... and not Selected",			NULL, "... and not Selected",			G_CALLBACK(apply_as_and_not_selected_cb) },
+  { "/Apply as Filter/... or not Selected",		NULL, "... or not Selected",			NULL, "... or not Selected",			G_CALLBACK(apply_as_or_not_selected_cb) },
+  { "/Prepare a Filter/Selected",				NULL, "Selected",						NULL, "selcted",						G_CALLBACK(prep_as_selected_cb) },
+  { "/Prepare a Filter/... not Selected",		NULL, "... not Selected",				NULL, "... not Selected",				G_CALLBACK(prep_as_not_selected_cb) },
+  { "/Prepare a Filter/... and Selected",		NULL, "... and Selected",				NULL, "... and Selected",				G_CALLBACK(prep_as_and_selected_cb) },
+  { "/Prepare a Filter/... or Selected",		NULL, "... or Selected",				NULL, "... or Selected",				G_CALLBACK(prep_as_or_selected_cb) },
+  { "/Prepare a Filter/... and not Selected",	NULL, "... and not Selected",			NULL, "... and not Selected",			G_CALLBACK(prep_as_and_not_selected_cb) },
+  { "/Prepare a Filter/... or not Selected",	NULL, "... or not Selected",			NULL, "... or not Selected",			G_CALLBACK(prep_as_or_not_selected_cb) },
+  { "/Find Frame/Selected",						NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_selected_cb) },
+  { "/Find Frame/Not Selected",					NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_not_selected_cb) },
+  { "/Find Previous/Selected",					NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_prev_selected_cb) },
+  { "/Find Previous/Not Selected",				NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_prev_not_selected_cb) },
+  { "/Find Next/Selected",						NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_next_selected_cb) },
+  { "/Find Next/Not Selected",					NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_next_not_selected_cb) },
+  { "/Colorize Procedure/Colorize Protocol",	NULL, "Colorize Protocol",				NULL, "Colorize Protocol",				G_CALLBACK(color_selected_cb) },
+};
+#endif /* PROTO_HIER_STATS_USE_GUIMANAGER */
 
 static void
 fill_in_tree_node(GNode *node, gpointer data)
@@ -226,10 +418,9 @@ fill_in_tree(GtkWidget *tree_lcl, ph_stats_t *ps)
                             fill_in_tree_node, &di);
 }
 
-static GtkWidget *popup_menu_object;
 
 static gboolean
-proto_hier_show_popup_menu_cb(GtkWidget *widget _U_, GdkEvent *event, gpointer data _U_)
+proto_hier_show_popup_menu_cb(GtkWidget *widget _U_, GdkEvent *event, GtkWidget *popup_menu_object)
 {
     GdkEventButton *bevent = (GdkEventButton *)event;
 
@@ -244,12 +435,41 @@ proto_hier_show_popup_menu_cb(GtkWidget *widget _U_, GdkEvent *event, gpointer d
 static void
 proto_hier_create_popup_menu(void)
 {
+#ifndef PROTO_HIER_STATS_USE_GUIMANAGER
     GtkItemFactory *item_factory;
+	GtkWidget *popup_menu_object;
 
     item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
     gtk_item_factory_create_items_ac(item_factory, sizeof(proto_hier_list_menu_items)/sizeof(proto_hier_list_menu_items[0]), proto_hier_list_menu_items, NULL, 2);
     popup_menu_object = gtk_item_factory_get_widget (item_factory, "<main>");
-    g_signal_connect(tree, "button_press_event", G_CALLBACK(proto_hier_show_popup_menu_cb), NULL);
+    g_signal_connect(tree, "button_press_event", G_CALLBACK(proto_hier_show_popup_menu_cb), popup_menu_object);
+#else
+	GtkUIManager *ui_manager;
+	GtkActionGroup *action_group;
+	GError *error = NULL;
+	GtkWidget *popup_menu_object;
+
+	action_group = gtk_action_group_new ("ProtoHierStatsTFilterPopupActionGroup");
+	gtk_action_group_add_actions (action_group,								/* the action group */
+								proto_hier_stats_popup_entries,				/* an array of action descriptions */
+								G_N_ELEMENTS(proto_hier_stats_popup_entries),/* the number of entries */
+								NULL);										/* data to pass to the action callbacks */
+
+	ui_manager = gtk_ui_manager_new ();
+	gtk_ui_manager_insert_action_group (ui_manager,
+		action_group,
+		0); /* the position at which the group will be inserted */
+	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_proto_hier_stats_filter_popup, -1, &error);
+	if (error != NULL)
+    {
+        fprintf (stderr, "Warning: building proto hier ststs filter popup failed: %s\n",
+                error->message);
+        g_error_free (error);
+        error = NULL;
+    }
+	popup_menu_object = gtk_ui_manager_get_widget(ui_manager, "/ProtoHierStatsFilterPopup");
+	g_signal_connect(tree, "button_press_event", G_CALLBACK(proto_hier_show_popup_menu_cb), popup_menu_object);
+#endif /* PROTO_HIER_STATS_USE_GUIMANAGER */
 }
 
 #define MAX_DLG_HEIGHT 450
