@@ -187,6 +187,11 @@ gtk_diameterstat_init(const char *optarg, void *userdata _U_)
 	/* We must display TOP LEVEL Widget before calling init_srt_table() */
 	gtk_widget_show_all(diameter->win);
 
+	/** @todo the filter to use in stead of NULL is "diameter.cmd.code"
+	 * to enable the filter popup in the service response time dalouge
+	 * Note to make it work the command code must be stored rather than the
+	 * index.
+	 */
 	init_srt_table(&diameter->diameter_srt_table, 1, vbox, NULL);
 	init_srt_table_row(&diameter->diameter_srt_table, 0, "Unknown");
 
