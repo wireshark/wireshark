@@ -32,6 +32,8 @@
 #include <glib.h>
 #include "strutil.h"
 #include "emem.h"
+#include <../isprint.h>
+
 
 #ifdef _WIN32
 #include <windows.h>
@@ -141,21 +143,6 @@ get_token_len(const guchar *linep, const guchar *lineend,
 
 
 #define	INITIAL_FMTBUF_SIZE	128
-
-/*
- * XXX - "isprint()" can return "true" for non-ASCII characters, but
- * those don't work with GTK+ 1.3 or later, as they take UTF-8 strings
- * as input.  Until we fix up Wireshark to properly handle non-ASCII
- * characters in all output (both GUI displays and text printouts)
- * in those versions of GTK+, we work around the problem by escaping
- * all characters that aren't printable ASCII.
- *
- * We don't know what version of GTK+ we're using, as epan doesn't
- * use any GTK+ stuff; we use GLib as a proxy for that, with GLib 2.x
- * implying GTK+ 1.3 or later (we don't support GLib 1.3[.x]).
- */
-#undef isprint
-#define isprint(c) (c >= 0x20 && c < 0x7f)
 
 /*
  * Given a string, generate a string from it that shows non-printable
@@ -916,7 +903,7 @@ string_or_null(const char *string)
   return "[NULL]";
 }
 
-int 
+int
 escape_string_len(const char *string)
 {
 	const char *p;
@@ -944,7 +931,7 @@ escape_string_len(const char *string)
 	return repr_len + 2;	/* string plus leading and trailing quotes */
 }
 
-char * 
+char *
 escape_string(char *buf, const char *string)
 {
   const gchar *p;
@@ -1005,7 +992,7 @@ static gunichar IA5_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
     'x',  'y',  'z',  '{',  '|',  '}',  '~',  '?'
 };
 
-static gunichar 
+static gunichar
 char_def_ia5_alphabet_decode(unsigned char value)
 {
     if (value < GN_CHAR_ALPHABET_SIZE)
@@ -1099,10 +1086,10 @@ gchar *string_replace(const gchar* str, const gchar *old_val, const gchar *new_v
 	if (!str || !old_val) {
 		return NULL;
 	}
-	
+
 	str_parts = g_strsplit(str, old_val, 0);
 	new_str = g_strjoinv(new_val, str_parts);
 	g_strfreev(str_parts);
-	
+
 	return new_str;
 }
