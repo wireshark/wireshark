@@ -1707,6 +1707,7 @@ prefs_is_column_hidden(const gchar *cols_hidden, const char *fmt)
 		cols = g_strdup (cols_hidden);
 		len = strlen (fmt);
 		for (tok = strtok (cols, ","); tok; tok = strtok(NULL, ",")) {
+			tok = g_strstrip (tok);
 			if (strlen (tok) == len && strcmp (fmt, tok) == 0) {
 				g_free (cols);
 				return TRUE;
