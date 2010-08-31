@@ -3765,6 +3765,7 @@ void change_configuration_profile (const gchar *profile_name)
 
    prefs_to_capture_opts();
    prefs_apply_all();
+   macros_post_update();
 
    /* Update window view and redraw the toolbar */
    update_main_window_title();

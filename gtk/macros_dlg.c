@@ -36,7 +36,7 @@
 #include "gtk/macros_dlg.h"
 #include "gtk/gtkglobals.h"
 
-static void macros_post_update(void) {
+void macros_post_update(void) {
 	g_free (cfile.dfilter);
 	cfile.dfilter = NULL;
 	g_signal_emit_by_name(main_display_filter_widget, "changed");
