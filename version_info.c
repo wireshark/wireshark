@@ -87,7 +87,7 @@ end_string(GString *str)
 	size_t point;
 	char *p, *q;
 
-	point = strlen(str->str);
+	point = str->len;
 	if (point == 0 || str->str[point - 1] != '\n')
 		g_string_append(str, "\n");
 	p = str->str;

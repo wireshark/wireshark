@@ -3074,7 +3074,7 @@ write_prefs(char **pf_path_return)
       col_l = g_list_append(col_l, g_strdup(cfmt->fmt));
     }
     if (!cfmt->visible) {
-      if (strlen (cols_hidden->str)) {
+      if (cols_hidden->len) {
 	g_string_append (cols_hidden, ",");
       }
       g_string_append (cols_hidden, prefs_fmt);
