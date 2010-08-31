@@ -830,169 +830,6 @@ wlan_show_popup_menu_cb(void *widg _U_, GdkEvent *event, wlanstat_t *et)
 
 	return FALSE;
 }
-#define WLAN_STAT_USE_GUI_MANAGER 1
-#ifndef WLAN_STAT_USE_GUI_MANAGER
-static GtkItemFactoryEntry wlan_list_menu_items[] =
-{
-	/* Match */
-	{"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/Selected/BSSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
-	{"/Apply as Filter/Selected/SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
-	{"/Apply as Filter/Selected/BSSID and SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
-	{"/Apply as Filter/Selected/BSSID or SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
-	{"/Apply as Filter/Not Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/Not Selected/BSSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
-	{"/Apply as Filter/Not Selected/SID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
-	{"/Apply as Filter/Not Selected/BSSID and SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
-	{"/Apply as Filter/Not Selected/BSSID or SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
-	{"/Apply as Filter/... and Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/... and Selected/BSSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
-	{"/Apply as Filter/... and Selected/SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
-	{"/Apply as Filter/... and Selected/BSSID and SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
-	{"/Apply as Filter/... and Selected/BSSID or SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
-	{"/Apply as Filter/... or Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/... or Selected/BSSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
-	{"/Apply as Filter/... or Selected/SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
-	{"/Apply as Filter/... or Selected/BSSID and SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
-	{"/Apply as Filter/... or Selected/BSSID or SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
-	{"/Apply as Filter/... and not Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/... and not Selected/BSSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
-	{"/Apply as Filter/... and not Selected/SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
-	{"/Apply as Filter/... and not Selected/BSSID and SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
-	{"/Apply as Filter/... and not Selected/BSSID or SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
-	{"/Apply as Filter/... or not Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/... or not Selected/BSSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
-	{"/Apply as Filter/... or not Selected/SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
-	{"/Apply as Filter/... or not Selected/BSSID and SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
-	{"/Apply as Filter/... or not Selected/BSSID or SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
-
-	/* Prepare */
-	{"/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/Selected/BSSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
-	{"/Prepare a Filter/Selected/SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
-	{"/Prepare a Filter/Selected/BSSID and SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
-	{"/Prepare a Filter/Selected/BSSID or SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
-	{"/Prepare a Filter/Not Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/Not Selected/BSSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
-	{"/Prepare a Filter/Not Selected/SID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
-	{"/Prepare a Filter/Not Selected/BSSID and SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
-	{"/Prepare a Filter/Not Selected/BSSID or SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
-	{"/Prepare a Filter/... and Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/... and Selected/BSSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
-	{"/Prepare a Filter/... and Selected/SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
-	{"/Prepare a Filter/... and Selected/BSSID and SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
-	{"/Prepare a Filter/... and Selected/BSSID or SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
-	{"/Prepare a Filter/... or Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/... or Selected/BSSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
-	{"/Prepare a Filter/... or Selected/SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
-	{"/Prepare a Filter/... or Selected/BSSID and SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
-	{"/Prepare a Filter/... or Selected/BSSID or SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
-	{"/Prepare a Filter/... and not Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/... and not Selected/BSSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
-	{"/Prepare a Filter/... and not Selected/SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
-	{"/Prepare a Filter/... and not Selected/BSSID and SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
-	{"/Prepare a Filter/... and not Selected/BSSID or SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
-	{"/Prepare a Filter/... or not Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/... or not Selected/BSSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
-	{"/Prepare a Filter/... or not Selected/SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
-	{"/Prepare a Filter/... or not Selected/BSSID and SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
-	{"/Prepare a Filter/... or not Selected/BSSID or SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
-
-	/* Find Frame */
-	{"/Find Frame", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Find Frame/Find Frame", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Find Frame/Find Frame/BSSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
-	{"/Find Frame/Find Frame/SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
-	{"/Find Frame/Find Frame/BSSID and SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
-	{"/Find Frame/Find Frame/BSSID or SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
-	/* Find Next */
-	{"/Find Frame/Find Next", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Find Frame/Find Next/BSSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
-	{"/Find Frame/Find Next/SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
-	{"/Find Frame/Find Next/BSSID and SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
-	{"/Find Frame/Find Next/BSSID or SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
-	/* Find Previous */
-	{"/Find Frame/Find Previous", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Find Frame/Find Previous/BSSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
-	{"/Find Frame/Find Previous/SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
-	{"/Find Frame/Find Previous/BSSID and SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
-	{"/Find Frame/Find Previous/BSSID or SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
-
-	/* Colorize */
-	{"/Colorize", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Colorize/BSSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
-	{"/Colorize/SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
-	{"/Colorize/BSSID and SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
-	{"/Colorize/BSSID or SSID", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
-
-};
-#else /* WLAN_STAT_USE_GUI_MANAGER */
 
 /* Apply as Filter/Selected */
 static void
@@ -1589,16 +1426,16 @@ static const GtkActionEntry wlans_stat_popup_entries[] = {
   { "/Prepare a Filter/... and Selected/BSSID or SSID",		NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_and_selected_BSSID_or_SSID_cb)},
 
   /* Prepare a or Selected */
-  { "/Prepare a Filter/... or Selected/BSSID",					NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_or_selected_BSSID_cb)},
-  { "/Prepare a Filter/... or Selected/SSID",					NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_or_selected_SSID_cb)},
-  { "/Prepare a Filter/... or Selected/BSSID and SSID",			NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_or_selected_BSSID_and_SSID_cb)},
-  { "/Prepare a Filter/... or Selected/BSSID or SSID",			NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_or_selected_BSSID_or_SSID_cb)},
+  { "/Prepare a Filter/... or Selected/BSSID",				NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_or_selected_BSSID_cb)},
+  { "/Prepare a Filter/... or Selected/SSID",				NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_or_selected_SSID_cb)},
+  { "/Prepare a Filter/... or Selected/BSSID and SSID",		NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_or_selected_BSSID_and_SSID_cb)},
+  { "/Prepare a Filter/... or Selected/BSSID or SSID",		NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_or_selected_BSSID_or_SSID_cb)},
 
   /* /Prepare a Filter/... and not Selected */
-  { "/Prepare a Filter/... and not Selected/BSSID",				NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_and_not_selected_BSSID_cb)},
-  { "/Prepare a Filter/... and not Selected/SSID",				NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_and_not_selected_SSID_cb)},
-  { "/Prepare a Filter/... and not Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_and_not_selected_BSSID_and_SSID_cb)},
-  { "/Prepare a Filter/... and not Selected/BSSID or SSID",		NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_and_not_selected_BSSID_or_SSID_cb)},
+  { "/Prepare a Filter/... and not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_and_not_selected_BSSID_cb)},
+  { "/Prepare a Filter/... and not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_and_not_selected_SSID_cb)},
+  { "/Prepare a Filter/... and not Selected/BSSID and SSID",NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_and_not_selected_BSSID_and_SSID_cb)},
+  { "/Prepare a Filter/... and not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_and_not_selected_BSSID_or_SSID_cb)},
 
   /* /Prepare a Filter/... or not Selected */
   { "/Prepare a Filter/... or not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_or_not_selected_BSSID_cb)},
@@ -1607,9 +1444,9 @@ static const GtkActionEntry wlans_stat_popup_entries[] = {
   { "/Prepare a Filter/... or not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_or_not_selected_BSSID_or_SSID_cb)},
 
   /* Find Frame*/
-  { "/Find Frame/Find Frame",					NULL, "Find Frame", NULL, NULL, NULL },
-  { "/Find Frame/Find Next",					NULL, "Find Next", NULL, NULL, NULL },
-  { "/Find Frame/Find Previous",				NULL, "Find Previous", NULL, NULL, NULL },
+  { "/Find Frame/Find Frame",					NULL, "Find Frame",		NULL, NULL, NULL },
+  { "/Find Frame/Find Next",					NULL, "Find Next",		NULL, NULL, NULL },
+  { "/Find Frame/Find Previous",				NULL, "Find Previous",	NULL, NULL, NULL },
 
   /* Find Frame/Find Frame*/
   { "/Find Frame/Find Frame/BSSID",				NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_find_frame_BSSID_cb)},
@@ -1636,21 +1473,10 @@ static const GtkActionEntry wlans_stat_popup_entries[] = {
   { "/Colorize/BSSID or SSID",		NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_colorize_BSSID_or_SSID_cb)},
 
 };
-#endif
 
 static void
 wlan_create_popup_menu(wlanstat_t *hs)
 {
-#ifndef WLAN_STAT_USE_GUI_MANAGER
-	GtkItemFactory *item_factory;
-
-	item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
-
-	gtk_item_factory_create_items_ac(item_factory, sizeof(wlan_list_menu_items)/sizeof(wlan_list_menu_items[0]), wlan_list_menu_items, hs, 2);
-
-	hs->menu = gtk_item_factory_get_widget(item_factory, "<main>");
-	g_signal_connect(hs->table, "button_press_event", G_CALLBACK(wlan_show_popup_menu_cb), hs);
-#else /* WLAN_STAT_USE_GUI_MANAGER */
 	GtkUIManager *ui_manager;
 	GtkActionGroup *action_group;
 	GError *error = NULL;
@@ -1674,7 +1500,6 @@ wlan_create_popup_menu(wlanstat_t *hs)
 	hs->menu = gtk_ui_manager_get_widget(ui_manager, "/WlanStatFilterPopup");
 	g_signal_connect(hs->table, "button_press_event", G_CALLBACK(wlan_show_popup_menu_cb), hs);
 
-#endif /* WLAN_STAT_USE_GUI_MANAGER */
 }
 
 static gboolean
