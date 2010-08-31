@@ -1174,7 +1174,7 @@ static int hf_lte_rrc_pdcp_Parameters = -1;       /* PDCP_Parameters */
 static int hf_lte_rrc_phyLayerParameters = -1;    /* PhyLayerParameters */
 static int hf_lte_rrc_rf_Parameters = -1;         /* RF_Parameters */
 static int hf_lte_rrc_measParameters = -1;        /* MeasParameters */
-static int hf_lte_rrc_featureGroupIndicators = -1;  /* BIT_STRING_SIZE_32 */
+static int hf_lte_rrc_featureGroupIndicators = -1;  /* T_featureGroupIndicators */
 static int hf_lte_rrc_interRAT_Parameters = -1;   /* T_interRAT_Parameters */
 static int hf_lte_rrc_utraFDD = -1;               /* IRAT_ParametersUTRA_FDD */
 static int hf_lte_rrc_utraTDD128 = -1;            /* IRAT_ParametersUTRA_TDD128 */
@@ -15557,7 +15557,6 @@ if(ue_eutra_cap_tvb){
 
 }
 
-
   return offset;
 }
 
@@ -16840,6 +16839,22 @@ dissect_lte_rrc_MeasParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
+
+static int
+dissect_lte_rrc_T_featureGroupIndicators(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *featureGroupIndicators_tvb=NULL;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     32, 32, FALSE, &featureGroupIndicators_tvb);
+
+ if(featureGroupIndicators_tvb){
+    /* Add dissection of featureGroupIndicators here */
+ }
+
+
+  return offset;
+}
+
+
 static const value_string lte_rrc_SupportedBandUTRA_FDD_vals[] = {
   {   0, "bandI" },
   {   1, "bandII" },
@@ -17513,7 +17528,7 @@ static const per_sequence_t UE_EUTRA_Capability_sequence[] = {
   { &hf_lte_rrc_phyLayerParameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_PhyLayerParameters },
   { &hf_lte_rrc_rf_Parameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_RF_Parameters },
   { &hf_lte_rrc_measParameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MeasParameters },
-  { &hf_lte_rrc_featureGroupIndicators, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_BIT_STRING_SIZE_32 },
+  { &hf_lte_rrc_featureGroupIndicators, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_featureGroupIndicators },
   { &hf_lte_rrc_interRAT_Parameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_interRAT_Parameters },
   { &hf_lte_rrc_nonCriticalExtension_43, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v920_IEs },
   { NULL, 0, 0, NULL }
@@ -22687,7 +22702,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_featureGroupIndicators,
       { "featureGroupIndicators", "lte-rrc.featureGroupIndicators",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_32", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_interRAT_Parameters,
       { "interRAT-Parameters", "lte-rrc.interRAT_Parameters",
         FT_NONE, BASE_NONE, NULL, 0,

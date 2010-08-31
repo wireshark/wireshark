@@ -121,6 +121,12 @@ if(ue_eutra_cap_tvb){
 	}
 
 }
+#.FN_BODY UE-EUTRA-Capability/featureGroupIndicators VAL_PTR = &featureGroupIndicators_tvb
+  tvbuff_t *featureGroupIndicators_tvb=NULL;
+%(DEFAULT_BODY)s
+ if(featureGroupIndicators_tvb){
+    /* Add dissection of featureGroupIndicators here */
+ }
 
 #.FN_HDR MasterInformationBlock
 
