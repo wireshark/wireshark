@@ -6522,6 +6522,7 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                 }
             }
         }
+        proto_item_set_len (ti, offset);
     }
 
     if ((gtp_hdr.message == GTP_MSG_TPDU) && g_gtp_tpdu) {
