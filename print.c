@@ -83,6 +83,8 @@ struct _output_fields {
     gchar quote;
 };
 
+static gboolean write_headers = FALSE;
+
 static const gchar* get_field_hex_value(GSList* src_list, field_info *fi);
 static void proto_tree_print_node(proto_node *node, gpointer data);
 static void proto_tree_write_node_pdml(proto_node *node, gpointer data);
@@ -571,16 +573,16 @@ write_psml_preamble(FILE *fh)
 	fputs("<?xml version=\"1.0\"?>\n", fh);
 	fputs("<psml version=\"" PSML_VERSION "\" ", fh);
 	fprintf(fh, "creator=\"%s/%s\">\n", PACKAGE, VERSION);
+	write_headers = TRUE;
 }
 
 void
 proto_tree_write_psml(epan_dissect_t *edt, FILE *fh)
 {
 	gint	i;
-	static gboolean structure_written = FALSE;
 
 	/* if this is the first packet, we have to create the PSML structure output */
-	if(!structure_written) {
+	if(write_headers) {
 	    fprintf(fh, "<structure>\n");
 
 	    for(i=0; i < edt->pi.cinfo->num_cols; i++) {
@@ -591,7 +593,7 @@ proto_tree_write_psml(epan_dissect_t *edt, FILE *fh)
 
 	    fprintf(fh, "</structure>\n\n");
 
-	    structure_written = TRUE;
+	    write_headers = FALSE;
 	}
 
 	fprintf(fh, "<packet>\n");
@@ -614,7 +616,7 @@ write_psml_finale(FILE *fh)
 void
 write_csv_preamble(FILE *fh _U_)
 {
-
+	write_headers = TRUE;
 }
 
 void
@@ -623,11 +625,13 @@ proto_tree_write_csv(epan_dissect_t *edt, FILE *fh)
         gint    i;
 
         /* if this is the first packet, we have to write the CSV header */
-        if(edt->pi.fd->num == 1) {
+        if(write_headers) {
             for(i=0; i < edt->pi.cinfo->num_cols - 1; i++)
 	        fprintf(fh, "\"%s\",", edt->pi.cinfo->col_title[i]);
 
             fprintf(fh, "\"%s\"\n", edt->pi.cinfo->col_title[i]);
+
+	    write_headers = FALSE;
         }
 
         for(i=0; i < edt->pi.cinfo->num_cols - 1; i++)
