@@ -2564,8 +2564,10 @@ mgcp_calls_init_tap(void)
 	{
 		/* don't register tap listener, if we have it already */
 		/* we send an empty filter, to force a non null "tree" in the mgcp dissector */
-		error_string = register_tap_listener("mgcp", &(the_tapinfo_struct.mgcp_dummy), g_strdup(""),
-			0,
+		error_string = register_tap_listener("mgcp",
+			&(the_tapinfo_struct.mgcp_dummy),
+			NULL,
+			TL_REQUIRES_PROTO_TREE,
 			voip_calls_dlg_reset,
 			MGCPcalls_packet,
 			voip_calls_dlg_draw
@@ -3721,8 +3723,10 @@ skinny_calls_init_tap(void)
 	{
 		/* don't register tap listener, if we have it already */
 		/* we send an empty filter, to force a non null "tree" in the SKINNY dissector */
-		error_string = register_tap_listener("skinny", &(the_tapinfo_struct.skinny_dummy), g_strdup(""),
-			0,
+		error_string = register_tap_listener("skinny", 
+			&(the_tapinfo_struct.skinny_dummy), 
+			NULL,
+			TL_REQUIRES_PROTO_TREE,
 			voip_calls_dlg_reset,
 			skinny_calls_packet,
 			voip_calls_dlg_draw
@@ -3901,8 +3905,10 @@ iax2_calls_init_tap(void)
 	{
 		/* don't register tap listener, if we have it already */
 		/* we send an empty filter, to force a non null "tree" in the IAX2 dissector */
-		error_string = register_tap_listener("IAX2", &(the_tapinfo_struct.iax2_dummy), g_strdup(""),
-			0,
+		error_string = register_tap_listener("IAX2", 
+			&(the_tapinfo_struct.iax2_dummy), 
+			NULL,
+			TL_REQUIRES_PROTO_TREE,
 			voip_calls_dlg_reset,
 			iax2_calls_packet,
 			voip_calls_dlg_draw
