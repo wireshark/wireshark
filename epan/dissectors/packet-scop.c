@@ -143,7 +143,8 @@ static dissector_handle_t ieee802154_handle;
  *      guint               - Length of SCoP packet
  *---------------------------------------------------------------
  */
-static guint get_scop_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint
+get_scop_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
     /* Byte  0:   Protocol Type.
      * Byte  1:   Protocol Version.
@@ -166,7 +167,8 @@ static guint get_scop_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
  *      void
  *---------------------------------------------------------------
  */
-static void dissect_scop_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_scop_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, SCOP_HEADER_LENGTH, get_scop_length, dissect_scop);
 } /* dissect_scop_tcp */
@@ -184,7 +186,8 @@ static void dissect_scop_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  *      void
  *---------------------------------------------------------------
  */
-static void dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t    *next_tvb;
     proto_item  *proto_root;
@@ -269,7 +272,8 @@ static void dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *      void
  *---------------------------------------------------------------
  */
-static void dissect_scop_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_scop_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint       offset = 0;
     guint8      type = tvb_get_guint8(tvb, offset);
@@ -278,7 +282,7 @@ static void dissect_scop_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* Display the Packet type*/
     proto_tree_add_uint(tree, hf_scop_type, tvb, offset, 1, type);
     proto_item_append_text(tree, ", %s", val_to_str(type, scop_types, "Reserved Type"));
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(type, scop_types, "Reserved Type"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(type, scop_types, "Reserved Type"));
     offset += 2;
 
     if (type == SCOP_CMD_HELLO_RESP) {
@@ -308,7 +312,8 @@ static void dissect_scop_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  *      void
  *---------------------------------------------------------------
  */
-static void dissect_scop_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_scop_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     call_dissector(ieee802154_handle, tvb, pinfo, proto_tree_get_root(tree));
 } /* dissect_scop_bridge() */
