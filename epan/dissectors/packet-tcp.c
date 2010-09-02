@@ -264,7 +264,7 @@ init_tcp_conversation_data(packet_info *pinfo)
 {
     struct tcp_analysis *tcpd;
 
-    /* Initialize the tcp protocol datat structure to add to the tcp conversation */
+    /* Initialize the tcp protocol data structure to add to the tcp conversation */
     tcpd=se_alloc0(sizeof(struct tcp_analysis));
     tcpd->flow1.win_scale=-1;
     tcpd->flow1.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
