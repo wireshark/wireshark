@@ -1524,59 +1524,6 @@ wlan_details_show_popup_menu_cb(void *widg _U_, GdkEvent *event, wlanstat_t *et)
 	return FALSE;
 }
 
-#ifndef WLAN_STAT_USE_GUI_MANAGER
-static GtkItemFactoryEntry wlan_details_list_menu_items[] =
-{
-	/* Match */
-	{"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, 0), NULL, NULL,},
-	{"/Apply as Filter/Not Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0), NULL, NULL,},
-	{"/Apply as Filter/... and Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0), NULL, NULL,},
-	{"/Apply as Filter/... or Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0), NULL, NULL,},
-	{"/Apply as Filter/... and not Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0), NULL, NULL,},
-	{"/Apply as Filter/... or not Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0), NULL, NULL,},
-
-	/* Prepare */
-	{"/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, 0), NULL, NULL,},
-	{"/Prepare a Filter/Not Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0), NULL, NULL,},
-	{"/Prepare a Filter/... and Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0), NULL, NULL,},
-	{"/Prepare a Filter/... or Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0), NULL, NULL,},
-	{"/Prepare a Filter/... and not Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0), NULL, NULL,},
-	{"/Prepare a Filter/... or not Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0), NULL, NULL,},
-
-	/* Find Frame */
-	{"/Find Frame", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Find Frame/Find Frame", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0), NULL, NULL,},
-	/* Find Next */
-	{"/Find Frame/Find Next", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, 0), NULL, NULL,},
-	/* Find Previous */
-	{"/Find Frame/Find Previous", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, 0), NULL, NULL,},
-
-	/* Colorize WLAN Address */
-	{"/Colorize WLAN Address", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, 0), NULL, NULL,}
-
-};
-#else /* WLAN_STAT_USE_GUI_MANAGER */
-
-
-
 /* Apply as Filter/ */
 
 static void
@@ -1743,21 +1690,10 @@ static const GtkActionEntry wlan_details_list_popup_entries[] = {
   { "/Find Frame/Find Previous",				NULL, "Find Previous",			NULL, NULL, G_CALLBACK(wlan_details_find_previous_frame_cb) },
 
 };
-#endif /* WLAN_STAT_USE_GUI_MANAGER */
+
 static void
 wlan_details_create_popup_menu(wlanstat_t *hs)
 {
-#ifndef WLAN_STAT_USE_GUI_MANAGER
-	GtkItemFactory *item_factory;
-
-	item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
-
-	gtk_item_factory_create_items_ac(item_factory, sizeof(wlan_details_list_menu_items)/sizeof(wlan_details_list_menu_items[0]), wlan_details_list_menu_items, hs, 2);
-
-	hs->details_menu = gtk_item_factory_get_widget(item_factory, "<main>");
-	g_signal_connect(hs->details, "button_press_event", G_CALLBACK(wlan_details_show_popup_menu_cb), hs);
-#else
-
 	GtkUIManager *ui_manager;
 	GtkActionGroup *action_group;
 	GError *error = NULL;
@@ -1781,8 +1717,6 @@ wlan_details_create_popup_menu(wlanstat_t *hs)
 	hs->details_menu = gtk_ui_manager_get_widget(ui_manager, "/WlanStatFilterPopup");
 	g_signal_connect(hs->details, "button_press_event", G_CALLBACK(wlan_details_show_popup_menu_cb), hs);
 
-
-#endif
 }
 
 static void
