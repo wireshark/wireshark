@@ -250,6 +250,7 @@ static int hf_smb2_lock_flags_fail_immediately = -1;
 static int hf_smb2_error_byte_count = -1;
 static int hf_smb2_error_data = -1;
 static int hf_smb2_error_reserved = -1;
+static int hf_smb2_reserved = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -3648,7 +3649,7 @@ dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, TRUE);
 	offset += 2;
 
 	/* length */
@@ -3656,8 +3657,8 @@ dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	offset += 4;
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 9, TRUE);
-	offset += 9;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
+	offset += 8;
 
 	return offset;
 }
@@ -6258,6 +6259,10 @@ proto_register_smb2(void)
 	{ &hf_smb2_error_data,
 		{ "Error Data", "smb2.error.data", FT_BYTES, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb2_reserved,
+		{ "Reserved", "smb2.reserved", FT_BYTES, BASE_NONE,
+		NULL, 0, "Reserved bytes", HFILL }},
 
 	};
 
