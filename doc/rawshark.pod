@@ -436,9 +436,23 @@ when a dissector bug is encountered.  abort(3) will cause the program to
 exit abnormally; if you are running B<Rawshark> in a debugger, it
 should halt in the debugger and allow inspection of the process, and, if
 you are not running it in a debugger, it will, on some OSes, assuming
-your environment is configured correctly, generate a core dump file. 
+your environment is configured correctly, generate a core dump file.
 This can be useful to developers attempting to troubleshoot a problem
 with a protocol dissector.
+
+=item WIRESHARK_EP_VERIFY_POINTERS
+
+This environment variable, if exported, causes certain uses of pointers to be
+audited to ensure they do not point to memory that is deallocated after each
+packet has been fully dissected.  This can be useful to developers writing or
+auditing code.
+
+=item WIRESHARK_SE_VERIFY_POINTERS
+
+This environment variable, if exported, causes certain uses of pointers to be
+audited to ensure they do not point to memory that is deallocated after when
+a capture file is closed.  This can be useful to developers writing or
+auditing code.
 
 =back
 

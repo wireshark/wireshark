@@ -129,6 +129,14 @@ typedef struct _emem_header_t {
 	 */
 	gboolean debug_use_canary;
 
+	/*  Do we want to verify no one is using a pointer to an ep_ or se_
+	 *  allocated thing where they shouldn't be?
+	 *
+	 * Export WIRESHARK_EP_VERIFY_POINTERS or WIRESHARK_SE_VERIFY_POINTERS
+	 * to turn this on.
+	 */
+	gboolean debug_verify_pointers;
+
 } emem_header_t;
 
 static emem_header_t ep_packet_mem;
@@ -279,6 +287,7 @@ ep_init_chunk(void)
 
 	ep_packet_mem.debug_use_chunks = (getenv("WIRESHARK_DEBUG_EP_NO_CHUNKS") == NULL);
 	ep_packet_mem.debug_use_canary = ep_packet_mem.debug_use_chunks && (getenv("WIRESHARK_DEBUG_EP_NO_CANARY") == NULL);
+	ep_packet_mem.debug_verify_pointers = (getenv("WIRESHARK_EP_VERIFY_POINTERS") != NULL);
 
 #ifdef DEBUG_INTENSE_CANARY_CHECKS
 	intense_canary_checking = (getenv("WIRESHARK_DEBUG_EP_INTENSE_CANARY") != NULL);
@@ -300,6 +309,7 @@ se_init_chunk(void)
 
 	se_packet_mem.debug_use_chunks = (getenv("WIRESHARK_DEBUG_SE_NO_CHUNKS") == NULL);
 	se_packet_mem.debug_use_canary = se_packet_mem.debug_use_chunks && (getenv("WIRESHARK_DEBUG_SE_USE_CANARY") != NULL);
+	se_packet_mem.debug_verify_pointers = (getenv("WIRESHARK_SE_VERIFY_POINTERS") != NULL);
 
 	emem_init_chunk(&se_packet_mem);
 }
@@ -539,13 +549,19 @@ emem_verify_pointer(emem_header_t *hdr, const void *ptr)
 gboolean
 ep_verify_pointer(const void *ptr)
 {
-	return emem_verify_pointer(&ep_packet_mem, ptr);
+	if (ep_packet_mem.debug_verify_pointers)
+		return emem_verify_pointer(&ep_packet_mem, ptr);
+	else
+		return FALSE;
 }
 
 gboolean
 se_verify_pointer(const void *ptr)
 {
-	return emem_verify_pointer(&se_packet_mem, ptr);
+	if (se_packet_mem.debug_verify_pointers)
+		return emem_verify_pointer(&se_packet_mem, ptr);
+	else
+		return FALSE;
 }
 
 static void
@@ -669,7 +685,7 @@ emem_create_chunk(void) {
 
 	npc->amount_free_init = prot2 - prot1 - pagesize;
 	npc->free_offset_init = (prot1 - npc->buf) + pagesize;
-#else 
+#else
 	npc->amount_free_init = EMEM_PACKET_CHUNK_SIZE;
 	npc->free_offset_init = 0;
 #endif /* USE_GUARD_PAGES */
