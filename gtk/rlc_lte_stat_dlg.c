@@ -552,8 +552,8 @@ static void invalidate_channel_iters(rlc_lte_stat_t *hs)
 static float calculate_bw(nstime_t *start_time, nstime_t *stop_time, guint32 bytes)
 {
     if (memcmp(start_time, stop_time, sizeof(nstime_t)) != 0) {
-        float elapsed_ms = ((stop_time->secs - start_time->secs) * 1000) +
-                           ((stop_time->nsecs - start_time->nsecs) / 1000000);
+        float elapsed_ms = (((float)stop_time->secs - (float)start_time->secs) * 1000) +
+                           (((float)stop_time->nsecs - (float)start_time->nsecs) / 1000000);
         return ((bytes * 8) / elapsed_ms) / 1000;
     }
     else {
