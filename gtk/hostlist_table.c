@@ -392,58 +392,7 @@ hostlist_show_popup_menu_cb(void *widg _U_, GdkEvent *event, hostlist_table *et)
     return FALSE;
 }
 
-#define HOSTLIST_TABLE_USE_GUIMANAGER 1
-#ifndef HOSTLIST_TABLE_USE_GUIMANAGER
-static GtkItemFactoryEntry hostlist_list_menu_items[] =
-{
-    /* Match */
-    {"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Apply as Filter/Selected", NULL,
-     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, 0), NULL, NULL,},
-    {"/Apply as Filter/Not Selected", NULL,
-     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0), NULL, NULL,},
-    {"/Apply as Filter/... and Selected", NULL,
-     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0), NULL, NULL,},
-    {"/Apply as Filter/... or Selected", NULL,
-     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0), NULL, NULL,},
-    {"/Apply as Filter/... and not Selected", NULL,
-     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0), NULL, NULL,},
-    {"/Apply as Filter/... or not Selected", NULL,
-     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0), NULL, NULL,},
-
-    /* Prepare */
-    {"/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Prepare a Filter/Selected", NULL,
-     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, 0), NULL, NULL,},
-    {"/Prepare a Filter/Not Selected", NULL,
-     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0), NULL, NULL,},
-    {"/Prepare a Filter/... and Selected", NULL,
-     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0), NULL, NULL,},
-    {"/Prepare a Filter/... or Selected", NULL,
-     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0), NULL, NULL,},
-    {"/Prepare a Filter/... and not Selected", NULL,
-     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0), NULL, NULL,},
-    {"/Prepare a Filter/... or not Selected", NULL,
-     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0), NULL, NULL,},
-
-    /* Find Frame */
-    {"/Find Frame", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Find Frame/Find Frame", NULL,
-     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0), NULL, NULL,},
-    /* Find Next */
-    {"/Find Frame/Find Next", NULL,
-     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, 0), NULL, NULL,},
-    /* Find Previous */
-    {"/Find Frame/Find Previous", NULL,
-     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, 0), NULL, NULL,},
-
-    /* Colorize Host Traffic */
-    {"/Colorize Host Traffic", NULL,
-     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, 0), NULL, NULL,}
-
-};
-#else /* HOSTLIST_TABLE_USE_GUIMANAGER */
-/* Prepare to change GtkItemFactory to GtkUIManager */
+/* Action callbacks */
 static void
 apply_as_selected_cb(GtkWidget *widget, gpointer user_data)
 {
@@ -630,21 +579,10 @@ static const GtkActionEntry service_resp_t__popup_entries[] = {
   { "/Find Next/Not Selected",					NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_next_not_selected_cb) },
   { "/Colorize Procedure/Colorize Host Traffic",NULL, "Colorize Host Traffic",			NULL, "Colorize Host Traffic",			G_CALLBACK(color_selected_cb) },
 };
-#endif /* HOSTLIST_TABLE_USE_GUIMANAGER */
 
 static void
 hostlist_create_popup_menu(hostlist_table *hl)
 {
-#ifndef HOSTLIST_TABLE_USE_GUIMANAGER
-    GtkItemFactory *item_factory;
-
-    item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
-
-    gtk_item_factory_create_items_ac(item_factory, sizeof(hostlist_list_menu_items)/sizeof(hostlist_list_menu_items[0]), hostlist_list_menu_items, hl, 2);
-
-    hl->menu = gtk_item_factory_get_widget(item_factory, "<main>");
-    g_signal_connect(hl->table, "button_press_event", G_CALLBACK(hostlist_show_popup_menu_cb), hl);
-#else
 	GtkUIManager *ui_manager;
 	GtkActionGroup *action_group;
 	GError *error = NULL;
@@ -669,7 +607,6 @@ hostlist_create_popup_menu(hostlist_table *hl)
     } 
 	hl->menu = gtk_ui_manager_get_widget(ui_manager, "/HostlistTableFilterPopup");
 	g_signal_connect(hl->table, "button_press_event", G_CALLBACK(hostlist_show_popup_menu_cb), hl);
-#endif /* HOSTLIST_TABLE_USE_GUIMANAGER */
 }
 
 
