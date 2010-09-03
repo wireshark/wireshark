@@ -1151,73 +1151,46 @@ static int ff_mesh_mgt_dsn = -1;        /* Mesh Management dst sequence number *
 static int ff_mesh_mgt_lifetime = -1;   /* Mesh Management lifetime */
 
 
-/*** Begin: Block Ack Action Fixed Field - Dustin Johnson ***/
 static int ff_ba_action = -1;
-/*** End: Block Ack Action Fixed Field - Dustin Johnson ***/
 
-/*** Begin: Block Ack Params Fixed Field - Dustin Johnson ***/
 static int hf_ieee80211_ff_block_ack_params = -1;
 static int hf_ieee80211_ff_block_ack_params_amsdu_permitted = -1;
 static int hf_ieee80211_ff_block_ack_params_policy = -1;
 static int hf_ieee80211_ff_block_ack_params_tid = -1;
 static int hf_ieee80211_ff_block_ack_params_buffer_size = -1;
-/*** End: Block Ack Params Fixed Field - Dustin Johnson ***/
 
-/*** Begin: Block Ack Timeout Fixed Field - Dustin Johnson ***/
 static int hf_ieee80211_ff_block_ack_timeout = -1;
-/*** End: Block Ack Timeout Fixed Field - Dustin Johnson ***/
 
-/*** Begin: Block Ack Starting Sequence Control Fixed Field - Dustin Johnson ***/
 static int hf_ieee80211_ff_block_ack_ssc = -1;
 static int hf_ieee80211_ff_block_ack_ssc_fragment = -1;
 static int hf_ieee80211_ff_block_ack_ssc_sequence = -1;
-/*** End: Block Ack Starting Sequence Control Fixed Field - Dustin Johnson ***/
 
-/*** Begin: DELBA Parameter Set Fixed Field - Dustin Johnson ***/
 static int hf_ieee80211_ff_delba_param = -1;
 static int hf_ieee80211_ff_delba_param_reserved = -1;
 static int hf_ieee80211_ff_delba_param_init = -1;
 static int hf_ieee80211_ff_delba_param_tid = -1;
-/*** End: DELBA Parameter Set Fixed Field - Dustin Johnson ***/
 
-/*** Begin: Max Regulation Power Fixed Field - Dustin Johnson ***/
 static int ff_max_reg_pwr = -1;
-/*** End: Max Regulation Power Fixed Field - Dustin Johnson ***/
 
-/*** Begin: Measurement Pilot Interval Fixed Field - Dustin Johnson ***/
 static int ff_measurement_pilot_int = -1;
-/*** End: Measurement Pilot Interval Fixed Field - Dustin Johnson ***/
 
-/*** Begin: Country String Fixed Field - Dustin Johnson ***/
 static int ff_country_str = -1;
-/*** End: Country String Fixed Field - Dustin Johnson ***/
 
-/*** Begin: Maximum Transmit Power Fixed Field - Dustin Johnson ***/
 static int ff_max_tx_pwr = -1;
-/*** End: Maximum Transmit Power Fixed Field - Dustin Johnson ***/
 
-/*** Begin: Transmit Power Used Fixed Field - Dustin Johnson ***/
 static int ff_tx_pwr_used = -1;
-/*** End: Transmit Power Used Fixed Field - Dustin Johnson ***/
 
-/*** Begin: Transmit Power Used Fixed Field - Dustin Johnson ***/
 static int ff_transceiver_noise_floor = -1;
-/*** End: Transmit Power Used Fixed Field - Dustin Johnson ***/
 
-/*** Begin: Channel Width Fixed Field - Dustin Johnson ***/
 static int ff_channel_width = -1;
-/*** End: Channel Width Fixed Field - Dustin Johnson ***/
 
-/*** Begin: QoS Information AP Fixed Field - Dustin Johnson ***/
 static int hf_ieee80211_ff_qos_info_ap = -1;
 static int hf_ieee80211_ff_qos_info_ap_edca_param_set_counter = -1;
 static int hf_ieee80211_ff_qos_info_ap_q_ack = -1;
 static int hf_ieee80211_ff_qos_info_ap_queue_req = -1;
 static int hf_ieee80211_ff_qos_info_ap_txop_request = -1;
 static int hf_ieee80211_ff_qos_info_ap_reserved = -1;
-/*** End: QoS Information AP Fixed Field - Dustin Johnson ***/
 
-/*** Begin: QoS Information STA Fixed Field - Dustin Johnson ***/
 static int hf_ieee80211_ff_qos_info_sta = -1;
 static int hf_ieee80211_ff_qos_info_sta_ac_vo = -1;
 static int hf_ieee80211_ff_qos_info_sta_ac_vi = -1;
@@ -1226,27 +1199,19 @@ static int hf_ieee80211_ff_qos_info_sta_ac_be = -1;
 static int hf_ieee80211_ff_qos_info_sta_q_ack = -1;
 static int hf_ieee80211_ff_qos_info_sta_max_sp_len = -1;
 static int hf_ieee80211_ff_qos_info_sta_more_data_ack = -1;
-/*** End: QoS Information STA Fixed Field - Dustin Johnson ***/
 
-/*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
 static int ff_sm_pwr_save = -1;
 static int ff_sm_pwr_save_enabled = -1;
 static int ff_sm_pwr_save_sm_mode = -1;
 static int ff_sm_pwr_save_reserved = -1;
-/*** End: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
 
-/*** End: PCO Phase Control Fixed Field - Dustin Johnson ***/
 static int ff_pco_phase_cntrl = -1;
-/*** End: PCO Phase Control Fixed Field - Dustin Johnson ***/
 
-/*** Begin: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
 static int ff_psmp_param_set = -1;
 static int ff_psmp_param_set_n_sta = -1;
 static int ff_psmp_param_set_more_psmp = -1;
 static int ff_psmp_param_set_psmp_sequence_duration = -1;
-/*** End: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
 
-/*** Begin: MIMO Control Fixed Field - Dustin Johnson ***/
 static int ff_mimo_cntrl_nc_index = -1;
 static int ff_mimo_cntrl_nr_index = -1;
 static int ff_mimo_cntrl_channel_width = -1;
@@ -1256,9 +1221,7 @@ static int ff_mimo_cntrl_codebook_info = -1;
 static int ff_mimo_cntrl_remaining_matrix_segment = -1;
 static int ff_mimo_cntrl_reserved = -1;
 static int ff_mimo_cntrl_sounding_timestamp = -1;
-/*** End: MIMO Control Fixed Field - Dustin Johnson ***/
 
-/*** Begin: Antenna Selection Fixed Field - Dustin Johnson ***/
 static int ff_ant_selection = -1;
 static int ff_ant_selection_0 = -1;
 static int ff_ant_selection_1 = -1;
@@ -1268,25 +1231,17 @@ static int ff_ant_selection_4 = -1;
 static int ff_ant_selection_5 = -1;
 static int ff_ant_selection_6 = -1;
 static int ff_ant_selection_7 = -1;
-/*** End: Antenna Selection Fixed Field - Dustin Johnson ***/
 
-/*** Begin: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
 static int ff_ext_channel_switch_announcement = -1;
-/*** End: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
 
-/*** Begin: HT Information Fixed Field - Dustin Johnson ***/
 static int ff_ht_info = -1;
 static int ff_ht_info_information_request = -1;
 static int ff_ht_info_40_mhz_intolerant = -1;
 static int ff_ht_info_sta_chan_width = -1;
 static int ff_ht_info_reserved = -1;
-/*** End: HT Information Fixed Field - Dustin Johnson ***/
 
-/*** Begin: HT Action Fixed Field - Dustin Johnson ***/
 static int ff_ht_action = -1;
-/*** End: HT Action Fixed Field - Dustin Johnson ***/
 
-/*** Begin: PSMP Station Information Fixed Field - Dustin Johnson ***/
 static int ff_psmp_sta_info = -1;
 static int ff_psmp_sta_info_dtt_start_offset = -1;
 static int ff_psmp_sta_info_dtt_duration = -1;
@@ -1296,11 +1251,8 @@ static int ff_psmp_sta_info_utt_duration = -1;
 static int ff_psmp_sta_info_reserved_small= -1;
 static int ff_psmp_sta_info_reserved_large = -1;
 static int ff_psmp_sta_info_psmp_multicast_id = -1;
-/*** End: PSMP Station Information Fixed Field - Dustin Johnson ***/
 
-/*** Begin: MIMO CSI Matrices Report - Dustin Johnson ***/
 static int ff_mimo_csi_snr = -1;
-/*** End: MIMO CSI Matrices Report - Dustin Johnson ***/
 
 #ifdef MESH_OVERRIDES
 
@@ -1383,7 +1335,6 @@ static int hf_ccmp_extiv = -1;
 static int hf_wep_key = -1;
 static int hf_wep_icv = -1;
 
-/*** Begin: Block Ack Request/Block Ack  - Dustin Johnson***/
 static int hf_block_ack_request_control = -1;
 static int hf_block_ack_control = -1;
 static int hf_block_ack_control_ack_policy = -1;
@@ -1411,7 +1362,6 @@ static int hf_block_ack_multi_tid_reserved = -1;
 static int hf_block_ack_multi_tid_value = -1;
 static int hf_block_ack_type = -1;
 static int hf_block_ack_bitmap = -1;
-/*** End: Block Ack Request/Block Ack  - Dustin Johnson***/
 
 static int ht_cap = -1;
 static int ht_vs_cap = -1;
@@ -1511,25 +1461,18 @@ static int ht_info_pco_phase = -1;
 static int ht_info_reserved_3 = -1;
 /*** End: 802.11n D1.10 - HT Information IE  ***/
 
-/*** Begin: 802.11n D1.10 - Secondary Channel Offset Tag  - Dustin Johnson***/
 static int hf_tag_secondary_channel_offset = -1;
-/*** End: 802.11n D1.10 - Secondary Channel Offset Tag  - Dustin Johnson***/
 
-/*** Begin: Power Capability Tag - Dustin Johnson ***/
 static int hf_tag_power_capability_min = -1;
 static int hf_tag_power_capability_max = -1;
-/*** End: Power Capability Tag - Dustin Johnson ***/
 
 static int hf_tag_tpc_report_trsmt_pow = -1;
 static int hf_tag_tpc_report_link_mrg = -1;
 
-/*** Begin: Power Capability Tag - Dustin Johnson ***/
 static int hf_tag_supported_channels = -1;
 static int hf_tag_supported_channels_first = -1;
 static int hf_tag_supported_channels_range = -1;
-/*** End: Power Capability Tag - Dustin Johnson ***/
 
-/*** Begin: Measurement Request Tag  - Dustin Johnson***/
 static int hf_tag_measure_request_measurement_token = -1;
 static int hf_tag_measure_request_mode = -1;
 static int hf_tag_measure_request_mode_reserved1 = -1;
@@ -1545,9 +1488,7 @@ static int hf_tag_measure_request_duration = -1;
 
 static int hf_tag_measure_request_regulatory_class = -1;
 static int hf_tag_measure_request_randomization_interval = -1;
-/*** End: Measurement Request Tag  - Dustin Johnson***/
 
-/*** Begin: Measurement Report Tag  - Dustin Johnson***/
 static int hf_tag_measure_report_measurement_token = -1;
 static int hf_tag_measure_report_mode = -1;
 static int hf_tag_measure_report_mode_late = -1;
@@ -1589,17 +1530,13 @@ static int hf_tag_measure_report_rsni = -1;
 static int hf_tag_measure_report_bssid = -1;
 static int hf_tag_measure_report_ant_id = -1;
 static int hf_tag_measure_report_parent_tsf = -1;
-/*** End: Measurement Report Tag  - Dustin Johnson***/
 
-/*** Begin: Extended Capabilities Tag - Dustin Johnson ***/
 static int hf_tag_extended_capabilities = -1;
 static int hf_tag_extended_capabilities_b0 = -1;
 static int hf_tag_extended_capabilities_b1 = -1;
 static int hf_tag_extended_capabilities_b2 = -1;
 static int hf_tag_extended_capabilities_b3 = -1;
-/*** End: Extended Capabilities Tag - Dustin Johnson ***/
 
-/*** Begin: Neighbor Report Tag - Dustin Johnson ***/
 static int hf_tag_neighbor_report_bssid = -1;
 static int hf_tag_neighbor_report_bssid_info = -1;
 static int hf_tag_neighbor_report_bssid_info_reachability = -1;
@@ -1618,19 +1555,14 @@ static int hf_tag_neighbor_report_bssid_info_reserved = -1;
 static int hf_tag_neighbor_report_reg_class = -1;
 static int hf_tag_neighbor_report_channel_number = -1;
 static int hf_tag_neighbor_report_phy_type = -1;
-/*** End: Neighbor Report Tag - Dustin Johnson ***/
 
-/*** Begin: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
 static int hf_tag_ext_channel_switch_announcement_switch_mode = -1;
 static int hf_tag_ext_channel_switch_announcement_new_reg_class = -1;
 static int hf_tag_ext_channel_switch_announcement_new_chan_number = -1;
 static int hf_tag_ext_channel_switch_announcement_switch_count = -1;
-/*** End: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
 
-/*** Begin: Supported Regulatory Classes Tag - Dustin Johnson ***/
 static int hf_tag_supported_reg_classes_current = -1;
 static int hf_tag_supported_reg_classes_alternate = -1;
-/*** End: Supported Regulatory Classes Tag - Dustin Johnson ***/
 
 /* IEEE Std 802.11r-2008 7.3.2.47 */
 static int hf_ieee80211_tag_mobility_domain_mdid = -1;
@@ -1821,77 +1753,45 @@ static gint ett_hta_cap1_tree = -1;
 static gint ett_hta_cap2_tree = -1;
 static gint ett_htc_tree = -1;
 
-/*** Start: 802.11n D1.10 - HT Information IE - Dustin Johnson ***/
 static gint ett_ht_info_delimiter1_tree = -1;
 static gint ett_ht_info_delimiter2_tree = -1;
 static gint ett_ht_info_delimiter3_tree = -1;
-/*** End: 802.11n D1.10 - HT Information IE  - Dustin Johnson ***/
 
-/*** Start: 802.11n D1.10 - Tag Measure Request IE - Dustin Johnson ***/
 static gint ett_tag_measure_request_tree = -1;
-/*** End: 802.11n D1.10 - Tag Measure Request IE  - Dustin Johnson ***/
 
 static gint ett_tag_ex_cap = -1;
 
-/*** Begin: Supported Channels Tag - Dustin Johnson ***/
 static gint ett_tag_supported_channels = -1;
-/*** End: Supported Channels Tag - Dustin Johnson ***/
 
-/*** Begin: Neighbor Report Tag - Dustin Johnson ***/
 static gint ett_tag_neighbor_report_bssid_info_tree = -1;
 static gint ett_tag_neighbor_report_bssid_info_capability_tree = -1;
 static gint ett_tag_neighbor_report_sub_tag_tree = -1;
-/*** End: Neighbor Report Tag - Dustin Johnson ***/
 
-/*** Begin: Block Ack Timeout Fixed Field - Dustin Johnson ***/
 static gint ett_ff_ba_param_tree = -1;
 static gint ett_ff_ba_ssc_tree = -1;
-/*** End: Block Ack Timeout Fixed Field - Dustin Johnson ***/
 
-/*** Begin: DELBA Parameter Set Fixed Field - Dustin Johnson ***/
 static gint ett_ff_delba_param_tree = -1;
-/*** End: DELBA Parameter Set Fixed Field - Dustin Johnson ***/
 
-/*** Begin: QoS Information AP/STA Fixed Field - Dustin Johnson ***/
 static gint ett_ff_qos_info = -1;
-/*** End: QoS Information AP/STA Fixed Field - Dustin Johnson ***/
 
-/*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
 static gint ett_ff_sm_pwr_save = -1;
-/*** End: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
 
-/*** Begin: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
 static gint ett_ff_psmp_param_set = -1;
-/*** End: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
 
-/*** Begin: MIMO Control Fixed Field - Dustin Johnson ***/
 static gint ett_ff_mimo_cntrl = -1;
-/*** End: MIMO Control Fixed Field - Dustin Johnson ***/
 
-/*** Begin: Antenna Selection Fixed Field - Dustin Johnson ***/
 static gint ett_ff_ant_sel = -1;
-/*** End: Antenna Selection Fixed Field - Dustin Johnson ***/
 
-/*** Begin: MIMO Reports - Dustin Johnson ***/
 static gint ett_mimo_report = -1;
-/*** End: MIMO Reports - Dustin Johnson ***/
 
-/*** Begin: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
 static gint ett_ff_chan_switch_announce = -1;
-/*** End: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
 
-/*** Begin: HT Information Fixed Field - Dustin Johnson ***/
 static gint ett_ff_ht_info = -1;
-/*** End: HT Information Fixed Field - Dustin Johnson ***/
 
-/*** Begin: PSMP Station Information Fixed Field - Dustin Johnson ***/
 static gint ett_ff_psmp_sta_info = -1;
-/*** End: PSMP Station Information Fixed Field - Dustin Johnson ***/
 
-/*** Begin: A-MSDU Dissection - Dustin Johnson ***/
 static gint ett_msdu_aggregation_parent_tree = -1;
 static gint ett_msdu_aggregation_subframe_tree = -1;
-/*** End: A-MSDU Dissection - Dustin Johnson ***/
 
 /***  Begin: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
 static gint ett_pst_tree = -1;
@@ -3037,14 +2937,11 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       length += 1;
       break;
 
-    /*** Begin: Block Ack Action Fixed Field - Dustin Johnson ***/
     case FIELD_BLOCK_ACK_ACTION_CODE:
       proto_tree_add_item (tree, ff_ba_action, tvb, offset, 1, TRUE);
       length += 1;
       break;
-    /*** End: Block Ack Action Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Block Ack Params Fixed Field - Dustin Johnson ***/
     case FIELD_BLOCK_ACK_PARAM:
       {
         guint16 params;
@@ -3063,9 +2960,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         length += 2;
         break;
       }
-    /*** End: Block Ack Params Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Block Ack Timeout Fixed Field - Dustin Johnson ***/
     case FIELD_BLOCK_ACK_TIMEOUT:
       {
         guint16 timeout;
@@ -3075,9 +2970,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         length += 2;
         break;
       }
-    /*** End: Block Ack Timeout Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Block Ack Starting Sequence Control Fixed Field - Dustin Johnson ***/
     case FIELD_BLOCK_ACK_SSC:
       {
         guint16 ssc;
@@ -3092,7 +2985,6 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         length += 2;
         break;
       }
-    /*** End: Block Ack Starting Sequence Control Fixed Field - Dustin Johnson ***/
 
     case FIELD_QOS_TS_INFO:
       {
@@ -3167,7 +3059,6 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       length += 2;
       break;
 
-    /*** Begin: DELBA Parameter Set Fixed Field - Dustin Johnson ***/
     case FIELD_DELBA_PARAM_SET:
       {
         guint16 params;
@@ -3185,23 +3076,17 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         length +=2;
         break;
       }
-    /*** End: DELBA Parameter Set Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Max Regulation Power Fixed Field - Dustin Johnson ***/
     case FIELD_MAX_REG_PWR:
       proto_tree_add_uint(tree, ff_max_reg_pwr, tvb, offset, 2, tvb_get_letohs (tvb, offset));
       length +=2;
       break;
-    /*** End: Max Regulation Power Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Measurement Pilot Interval Fixed Field - Dustin Johnson ***/
     case FIELD_MEASUREMENT_PILOT_INT:
       proto_tree_add_uint(tree, ff_measurement_pilot_int, tvb, offset, 2, tvb_get_letohs (tvb, offset));
       length +=2;
       break;
-    /*** End: Measurement Pilot Interval Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Country String Fixed Field - Dustin Johnson ***/
     case FIELD_COUNTRY_STR:
       {
         guint8 *country_string;
@@ -3210,37 +3095,27 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         proto_tree_add_string (tree, ff_country_str, tvb, offset, 3, (char *) country_string);
         break;
       }
-    /*** End: Country String Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Maximum Transmit Power Fixed Field - Dustin Johnson ***/
     case FIELD_MAX_TX_PWR:
       proto_tree_add_uint(tree, ff_max_tx_pwr, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
       length +=1;
       break;
-    /*** End: Maximum Transmit Power Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Transmit Power Used Fixed Field - Dustin Johnson ***/
     case FIELD_TX_PWR_USED:
       proto_tree_add_uint(tree, ff_tx_pwr_used, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
       length +=1;
       break;
-    /*** End: Transmit Power Used Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Transceiver Noise Floor Fixed Field - Dustin Johnson ***/
     case FIELD_TRANSCEIVER_NOISE_FLOOR:
       proto_tree_add_uint(tree, ff_transceiver_noise_floor, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
       length +=1;
       break;
-    /*** End: Transceiver Noise Floor Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Channel Width Fixed Field - Dustin Johnson ***/
     case FIELD_CHANNEL_WIDTH:
       proto_tree_add_item(tree, ff_channel_width, tvb, offset, 1, TRUE);
       length +=1;
       break;
-    /*** End: Channel Width Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: QoS Information AP Fixed Field - Dustin Johnson ***/
     case FIELD_QOS_INFO_AP:
       {
         guint8 info;
@@ -3260,9 +3135,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         length +=1;
         break;
       }
-    /*** End: QoS Information AP Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: QoS Information STA Fixed Field - Dustin Johnson ***/
     case FIELD_QOS_INFO_STA:
       {
         guint8 info;
@@ -3285,9 +3158,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         length +=1;
         break;
       }
-    /*** End: QoS Information STA Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
     case FIELD_SM_PWR_CNTRL:
       {
         guint8 info;
@@ -3305,16 +3176,12 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         length +=1;
         break;
       }
-    /*** End: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
 
-    /*** Begin: PCO Phase Control Fixed Field - Dustin Johnson ***/
     case FIELD_PCO_PHASE_CNTRL:
         proto_tree_add_item(tree, ff_pco_phase_cntrl, tvb, offset, 1, TRUE);
         length +=1;
         break;
-    /*** End: PCO Phase Control Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
     case FIELD_PSMP_PARAM_SET:
       {
         guint16 params;
@@ -3333,9 +3200,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         length +=2;
         break;
       }
-    /*** End: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: MIMO Control Fixed Field - Dustin Johnson ***/
     case FIELD_MIMO_CNTRL:
       {
         guint16 mimo;
@@ -3363,9 +3228,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         length +=6;
         break;
       }
-    /*** End: MIMO Control Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Antenna Selection Fixed Field - Dustin Johnson ***/
     case FIELD_ANT_SELECTION:
       {
         guint8 ant;
@@ -3389,9 +3252,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         length +=1;
         break;
       }
-    /*** End: Antenna Selection Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
     case FIELD_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT:
       {
         guint32 ext_chan;
@@ -3410,9 +3271,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         length += 4;
         break;
       }
-    /*** End: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: HT Information Fixed Field - Dustin Johnson ***/
     case FIELD_HT_INFORMATION:
       {
         guint8 info;
@@ -3431,16 +3290,12 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         length += 1;
         break;
       }
-      /*** End: HT Information Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: HT Action Fixed Field - Dustin Johnson ***/
     case FIELD_HT_ACTION_CODE:
         proto_tree_add_uint(tree, ff_ht_action, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
         length +=1;
         break;
-    /*** End: HT Action Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: PSMP Station Information Fixed Field - Dustin Johnson ***/
     case FIELD_PSMP_STA_INFO:
       {
         #define BROADCAST 0
@@ -3498,7 +3353,6 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         length +=8;
         break;
       }
-    /*** End: PSMP Station Information Fixed Field - Dustin Johnson ***/
 
     case FIELD_SCHEDULE_INFO:
       {
@@ -4952,7 +4806,6 @@ dissect_wsie_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len _
 }
 #endif /* MESH_OVERRIDES */
 
-/*** Begin: Secondary Channel Offset Tag - Dustin Johnson ***/
 static void secondary_channel_offset_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
 {
   int tag_offset;
@@ -4973,7 +4826,6 @@ static void secondary_channel_offset_ie(proto_tree * tree, tvbuff_t * tvb, int o
     return;
   }
 }
-/*** End: Secondary Channel Offset Tag - Dustin Johnson ***/
 
 static void
 dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
@@ -6038,11 +5890,9 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     case TAG_HT_INFO:
       dissect_ht_info_ie_1_1(tree, tvb, offset + 2, tag_len);
       break;
-    /*** Begin: Secondary Channel Offset Tag - Dustin Johnson ***/
     case TAG_SECONDARY_CHANNEL_OFFSET:
       secondary_channel_offset_ie(tree, tvb, offset + 2, tag_len);
       break;
-    /*** End: Secondary Channel Offset Tag - Dustin Johnson ***/
 
 #ifndef MESH_OVERRIDES
     /***  Begin: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
@@ -6052,7 +5902,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     /***  End: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
 #endif /* MESH_OVERRIDES */
 
-    /*** Begin: Power Capability Tag - Dustin Johnson ***/
     case TAG_POWER_CAPABILITY:
     {
       offset += 2;
@@ -6066,7 +5915,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       proto_tree_add_item(tree, hf_tag_power_capability_max, tvb, offset+1, 1, TRUE);
       break;
     }
-    /*** End: Power Capability Tag - Dustin Johnson ***/
     /*
      * 7.3.2.18 TPC Report element
      *
@@ -6199,7 +6047,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       }
 #endif /* MESH_OVERRIDES */
 
-    /*** Begin: Supported Channels Tag - Dustin Johnson ***/
     case TAG_SUPPORTED_CHANNELS:
       {
         proto_item *chan_item;
@@ -6226,9 +6073,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         }
         break;
       }
-    /*** End: Supported Channels Tag - Dustin Johnson ***/
 
-    /*** Begin: Measure Request Tag - Dustin Johnson ***/
     case TAG_MEASURE_REQ:
       if (tag_len < 3)
       {
@@ -6414,8 +6259,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       }
 
       break;
-    /* End: Measure Request Tag - Dustin Johnson */
-    /* Begin: Measure Report Tag - Dustin Johnson */
         /* 7.3.2.22 Measurement Report element
          * The Length field is variable and depends on the length of the
          * Measurement Report field. The minimum value of the Length field is 3.
@@ -6635,8 +6478,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       }
 
       break;
-    /*** End: Measure Report Tag - Dustin Johnson ***/
-    /*** Begin: Extended Capabilities Tag - Dustin Johnson ***/
     /* The Capabilities field is a bit field indicating the capabilities being advertised
      * by the STA transmitting the information element
      */
@@ -6671,7 +6512,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       }
       break;
     }
-    /*** End: Extended Capabilities Tag - Dustin Johnson ***/
     case TAG_ADVERTISEMENT_PROTOCOL:
     {
       dissect_advertisement_protocol(pinfo, tree, tvb, offset, NULL);
@@ -6679,7 +6519,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     }
 
 #ifndef MESH_OVERRIDES
-    /*** Begin: Neighbor Report Tag - Dustin Johnson ***/
     case TAG_NEIGHBOR_REPORT:
     {
       #define SUB_TAG_TSF_INFO                 0x01
@@ -6786,10 +6625,8 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       }
       break;
     }
-    /*** End: Neighbor Report Tag - Dustin Johnson ***/
 #endif /* MESH_OVERRIDES */
 
-    /*** Begin: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
     case TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT:
     {
       guint tag_offset;
@@ -6813,8 +6650,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       }
       break;
     }
-    /*** End: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
-    /*** Begin: Supported Regulatory Classes Tag - Dustin Johnson ***/
     case TAG_SUPPORTED_REGULATORY_CLASSES:
     {
       guint tag_offset;
@@ -6852,7 +6687,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
       break;
     }
-    /*** End: Supported Regulatory Classes Tag - Dustin Johnson ***/
     default:
       tvb_ensure_bytes_exist (tvb, offset + 2, tag_len);
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 1 + tag_len_len,
@@ -7458,7 +7292,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           break;
         }
 
-        /*** Begin: Block Ack Request - Dustin Johnson ***/
         case CTRL_BLOCK_ACK_REQ:
         {
           src = tvb_get_ptr (tvb, offset, 6);
@@ -7546,9 +7379,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           }
           break;
         }
-        /*** End: Block Ack Request - Dustin Johnson ***/
 
-        /*** Begin: Block Ack - Dustin Johnson ***/
         case CTRL_BLOCK_ACK:
         {
           src = tvb_get_ptr (tvb, offset, 6);
@@ -7638,7 +7469,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           }
           break;
         }
-        /*** End: Block Ack - Dustin Johnson ***/
       }
       break;
     }
@@ -9645,7 +9475,6 @@ proto_register_ieee80211 (void)
     {0, NULL}
   };
 
-  /*** Begin: Block Ack Params Fixed Field - Dustin Johnson ***/
   static const true_false_string ff_block_ack_params_amsdu_permitted_flag = {
     "Permitted in QoS Data MPDUs",
     "Not Permitted"
@@ -9655,17 +9484,13 @@ proto_register_ieee80211 (void)
     "Immediate Block Ack",
     "Delayed Block Ack"
   };
-  /*** End: Block Ack Params Fixed Field - Dustin Johnson ***/
 
-  /*** Begin: Channel Width Fixed Field - Dustin Johnson ***/
   static const value_string  ff_channel_width_vals[] = {
     {0x00, "20 MHz channel width only"},
     {0x01, "Any channel width in the STA's Supported Channel Width Set"},
     {0, NULL}
   };
-  /*** End: Channel Width Fixed Field - Dustin Johnson ***/
 
-  /*** Begin: QoS Information AP Fixed Field - Dustin Johnson ***/
   static const true_false_string ff_qos_info_ap_q_ack_flag = {
       "Implemented",
       "Not Implemented"
@@ -9680,9 +9505,7 @@ proto_register_ieee80211 (void)
       "Can process a nonzero TXOP Duration Requested subfield in the QoS Control field in QoS data frames",
       "Can NOT process a nonzero TXOP Duration Requested subfield in the QoS Control field in QoS data frames"
   };
-  /*** End: QoS Information AP Fixed Field - Dustin Johnson ***/
 
-  /*** Begin: QoS Information STA Fixed Field - Dustin Johnson ***/
   static const true_false_string ff_qos_info_sta_ac_flag = {
       "Trigger-enabled and Delivery-enabled",
       "Neither Trigger-enabled nor Delivery-enabled"
@@ -9705,30 +9528,22 @@ proto_register_ieee80211 (void)
       "Can process ACK frames with the More Data bit in the Frame Control field set to 1",
       "Can NOT process ACK frames with the More Data bit in the Frame Control field set to 1"
   };
-  /*** End: QoS Information STA Fixed Field - Dustin Johnson ***/
 
-  /*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
   static const true_false_string ff_sm_pwr_save_sm_mode_flag = {
       "Dynamic SM Power Save mode",
       "Static SM Power Save mode"
   };
-  /*** End: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
 
-  /*** Begin: PCO Phase Control Fixed Field - Dustin Johnson ***/
   static const true_false_string ff_pco_phase_cntrl_flag = {
       "40 MHz Phase",
       "20 MHz Phase"
   };
-  /*** End: PCO Phase Control Fixed Field - Dustin Johnson ***/
 
-  /*** Begin: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
   static const true_false_string ff_psmp_param_set_more_psmp_flag = {
       "More PSMP Sequences Follow",
       "No PSMP Sequences Follow"
   };
-  /*** End: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
 
-  /*** Begin: MIMO Control Fixed Field - Dustin Johnson ***/
   static const value_string ff_mimo_cntrl_nc_index_flags[] = {
     {0x00, "1 Column"},
     {0x01, "2 Columns"},
@@ -9750,7 +9565,6 @@ proto_register_ieee80211 (void)
       "20 MHz"
   };
 
-  /*** Begin: HT Information Fixed Field - Dustin Johnson ***/
   static const true_false_string ff_ht_info_information_request_flag = {
       "Requesting HT Information Exchange management action frame",
       "Should not send an HT Information Exchange management action frame"
@@ -9765,9 +9579,7 @@ proto_register_ieee80211 (void)
       "40 MHz",
       "20 MHz"
   };
-  /*** End: HT Information Fixed Field - Dustin Johnson ***/
 
-  /*** Begin: HT Category Fixed Field - Dustin Johnson ***/
   static const value_string ff_ht_action_flags[] = {
     {HT_ACTION_NOTIFY_CHAN_WIDTH, "Notify Channel Width"},
     {HT_ACTION_SM_PWR_SAVE, "Spatial Multiplexing (SM) Power Save"},
@@ -9780,7 +9592,6 @@ proto_register_ieee80211 (void)
     {HT_ACTION_HT_INFO_EXCHANGE, "HT Information Exchange"},
     {0x00, NULL}
   };
-  /*** Begin: HT Category Fixed Field - Dustin Johnson ***/
 
   static const value_string ff_mimo_cntrl_grouping_flags[] = {
     {0x00, "No Grouping"},
@@ -9805,9 +9616,7 @@ proto_register_ieee80211 (void)
     {0x03, "4 bit for 'Capital Psi', 6 bits for 'Small Psi'"},
     {0, NULL}
   };
-  /*** End: MIMO Control Fixed Field - Dustin Johnson ***/
 
-  /*** Begin: PSMP Station Information Fixed Field - Dustin Johnson ***/
   static const value_string ff_psmp_sta_info_flags[] = {
     {0x00, "Broadcast"},
     {0x01, "Multicast"},
@@ -9815,7 +9624,6 @@ proto_register_ieee80211 (void)
     {0x03, "Unknown"},
     {0, NULL}
   };
-  /*** End: PSMP Station Information Fixed Field - Dustin Johnson ***/
 
   static const value_string ff_pa_action_codes[] = {
     {PA_DSE_ENABLEMENT, "DSE enablement"},
@@ -10121,14 +9929,12 @@ proto_register_ieee80211 (void)
     {0, NULL}
   };
 
-  /*** Begin: Block Ack Action Fixed Field - Dustin Johnson ***/
   static const value_string ba_action_codes[] = {
     {BA_ADD_BLOCK_ACK_REQUEST, "Add Block Ack Request"},
     {BA_ADD_BLOCK_ACK_RESPONSE, "Add Block Ack Response"},
     {BA_DELETE_BLOCK_ACK, "Delete Block Ack"},
     {0x00, NULL}
   };
-  /*** End: Block Ack Action Fixed Field - Dustin Johnson ***/
 
   static const value_string dls_action_codes[] = {
     {SM_ACTION_DLS_REQUEST, "DLS Request"},
@@ -10185,7 +9991,6 @@ proto_register_ieee80211 (void)
     {0, NULL}
   };
 
-  /*** Begin: Block Ack/Block Ack Request  - Dustin Johnson***/
   static const true_false_string hf_block_ack_control_ack_policy_flag = {
       "Immediate Acknowledgement Required",
       "Sender Does Not Require Immediate Acknowledgement"
@@ -10206,7 +10011,6 @@ proto_register_ieee80211 (void)
     {0x03, "Multi-TID Block"},
     {0x00, NULL}
   };
-  /*** End: Block Ack/Block Ack Request  - Dustin Johnson***/
 
   static const value_string phy_type[] = {
     { 0, "Unknown" },
@@ -10633,7 +10437,6 @@ proto_register_ieee80211 (void)
      {"Tx Power", "chan.chan_tx_pow", FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    /*** Begin: Block Ack Request/Block Ack  - Dustin Johnson***/
     {&hf_block_ack_request_control,
      {"Block Ack Request (BAR) Control", "wlan.bar.control",
       FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -10693,7 +10496,6 @@ proto_register_ieee80211 (void)
     {&hf_block_ack_bitmap,
      {"Block Ack Bitmap", "wlan.ba.bm",
       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }}
-    /*** End: Block Ack Request/Block Ack  - Dustin Johnson***/
 
 #ifdef MESH_OVERRIDES
     ,
@@ -11269,13 +11071,11 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
-  /*** Begin: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
   static const value_string hf_tag_ext_channel_switch_announcement_switch_mode_flags[] = {
     {0x00, "Frames may be transmitted before the channel switch has been completed"},
     {0x01, "No more frames are to be transmitted until the channel switch has been completed"},
     {0x00, NULL}
   };
-  /*** End: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
 
   static hf_register_info ff[] = {
 
@@ -11303,7 +11103,6 @@ proto_register_ieee80211 (void)
      {"SSID", "wlan_mgt.ssid", FT_STRING, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
-    /*** Begin: Block Ack Params Fixed Field - Dustin Johnson ***/
     {&hf_ieee80211_ff_block_ack_params,
       {"Block Ack Parameters", "wlan_mgt.fixed.baparams",
       FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -11323,15 +11122,11 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_ff_block_ack_params_buffer_size,
       {"Number of Buffers (1 Buffer = 2304 Bytes)", "wlan_mgt.fixed.baparams.buffersize",
       FT_UINT16, BASE_DEC, NULL, 0xFFC0, "Number of Buffers", HFILL }},
-    /*** End: Block Ack Params Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Block Ack Timeout Fixed Field - Dustin Johnson ***/
     {&hf_ieee80211_ff_block_ack_timeout,
       {"Block Ack Timeout", "wlan_mgt.fixed.batimeout",
       FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
-    /*** End: Block Ack Timeout Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Block Ack Starting Sequence Control Fixed Field - Dustin Johnson ***/
     {&hf_ieee80211_ff_block_ack_ssc,
      {"Block Ack Starting Sequence Control (SSC)", "wlan_mgt.fixed.ssc",
       FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
@@ -11343,9 +11138,7 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_ff_block_ack_ssc_sequence,
      {"Starting Sequence Number", "wlan_mgt.fixed.sequence",
       FT_UINT16, BASE_DEC, 0, 0xfff0, NULL, HFILL }},
-    /*** End: Block Ack Starting Sequence Control Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: DELBA Parameter Set Fixed Field - Dustin Johnson ***/
     {&hf_ieee80211_ff_delba_param,
      {"Delete Block Ack (DELBA) Parameter Set", "wlan_mgt.fixed.delba.param",
       FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
@@ -11361,51 +11154,35 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_ff_delba_param_tid,
      {"TID", "wlan_mgt.fixed.delba.param.tid",
       FT_UINT16, BASE_HEX, 0, 0xf000, "Traffic Identifier (TID)", HFILL }},
-    /*** End: DELBA Parameter Set Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Max Regulation Power Fixed Field - Dustin Johnson ***/
     {&ff_max_reg_pwr,
      {"Maximum Regulation Power", "wlan_mgt.fixed.maxregpwr",
       FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
-    /*** End: Max Regulation Power Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Measurement Pilot Interval Fixed Field - Dustin Johnson ***/
     {&ff_measurement_pilot_int,
      {"Measurement Pilot Interval", "wlan_mgt.fixed.msmtpilotint",
       FT_UINT16, BASE_HEX, 0, 0, "Measurement Pilot Interval Fixed Field", HFILL }},
-    /*** End: Measurement Pilot Interval Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Country String Fixed Field - Dustin Johnson ***/
     {&ff_country_str,
      {"Country String", "wlan_mgt.fixed.country",
       FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
-    /*** End: Country String Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Maximum Transmit Power Fixed Field - Dustin Johnson ***/
     {&ff_max_tx_pwr,
      {"Maximum Transmit Power", "wlan_mgt.fixed.maxtxpwr",
       FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
-    /*** End: Maximum Transmit Power Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Transmit Power Used Fixed Field - Dustin Johnson ***/
     {&ff_tx_pwr_used,
      {"Transmit Power Used", "wlan_mgt.fixed.txpwr",
       FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
-    /*** End: Transmit Power Used Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Transmit Power Used Fixed Field - Dustin Johnson ***/
     {&ff_transceiver_noise_floor,
      {"Transceiver Noise Floor", "wlan_mgt.fixed.tnoisefloor",
       FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
-    /*** End: Transceiver Noise Floor Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Channel Width Fixed Field - Dustin Johnson ***/
     {&ff_channel_width,
      {"Supported Channel Width", "wlan_mgt.fixed.chanwidth",
       FT_UINT8, BASE_HEX, VALS (ff_channel_width_vals), 0, NULL, HFILL }},
-    /*** End: Channel Width Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: QoS Information AP Fixed Field - Dustin Johnson ***/
     {&hf_ieee80211_ff_qos_info_ap,
      {"QoS Information (AP)", "wlan_mgt.fixed.qosinfo.ap",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -11429,9 +11206,7 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_ff_qos_info_ap_reserved,
      {"Reserved", "wlan_mgt.fixed.qosinfo.ap.reserved",
       FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
-    /*** End: QoS Information AP Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: QoS Information STA Fixed Field - Dustin Johnson ***/
     {&hf_ieee80211_ff_qos_info_sta,
      {"QoS Information (STA)", "wlan_mgt.fixed.qosinfo.sta",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -11463,9 +11238,7 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_ff_qos_info_sta_more_data_ack,
      {"More Data Ack", "wlan_mgt.fixed.qosinfo.sta.moredataack",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_more_data_ack_flag), 0x80, NULL, HFILL }},
-    /*** End: QoS Information STA Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
     {&ff_sm_pwr_save,
      {"Spatial Multiplexing (SM) Power Control", "wlan_mgt.fixed.sm.powercontrol",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -11481,15 +11254,11 @@ proto_register_ieee80211 (void)
     {&ff_sm_pwr_save_reserved,
      {"Reserved", "wlan_mgt.fixed.sm.powercontrol.reserved",
       FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL }},
-    /*** End: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
 
-    /*** Begin: PCO Phase Control Fixed Field - Dustin Johnson ***/
     {&ff_pco_phase_cntrl,
      {"Phased Coexistence Operation (PCO) Phase Control", "wlan_mgt.fixed.pco.phasecntrl",
       FT_BOOLEAN, BASE_NONE, TFS (&ff_pco_phase_cntrl_flag), 0x0, NULL, HFILL }},
-    /*** End: PCO Phase Control Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
     {&ff_psmp_param_set,
      {"Power Save Multi-Poll (PSMP) Parameter Set", "wlan_mgt.fixed.psmp.paramset",
       FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
@@ -11505,9 +11274,7 @@ proto_register_ieee80211 (void)
     {&ff_psmp_param_set_psmp_sequence_duration,
      {"PSMP Sequence Duration", "wlan_mgt.fixed.psmp.paramset.seqduration",
       FT_UINT16, BASE_DEC, 0, 0, "Power Save Multi-Poll (PSMP) Sequence Duration", HFILL }},
-    /*** End: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: MIMO Control Fixed Field - Dustin Johnson ***/
     {&ff_mimo_cntrl_nc_index,
      {"Nc Index", "wlan_mgt.fixed.mimo.control.ncindex",
       FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_nc_index_flags), 0x0003, "Number of Columns Less One", HFILL }},
@@ -11543,9 +11310,7 @@ proto_register_ieee80211 (void)
     {&ff_mimo_cntrl_sounding_timestamp,
      {"Sounding Timestamp", "wlan_mgt.fixed.mimo.control.soundingtime",
       FT_UINT32, BASE_HEX, 0, 0, NULL, HFILL }},
-    /*** End: MIMO Control Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: PSMP Station Information Fixed Field - Dustin Johnson ***/
     {&ff_psmp_sta_info,
      {"Power Save Multi-Poll (PSMP) Station Information", "wlan_mgt.fixed.psmp.stainfo",
       FT_UINT8, BASE_HEX, VALS (&ff_psmp_sta_info_flags), 0, NULL, HFILL }},
@@ -11581,9 +11346,7 @@ proto_register_ieee80211 (void)
     {&ff_psmp_sta_info_psmp_multicast_id,
      {"Power Save Multi-Poll (PSMP) Multicast ID", "wlan_mgt.fixed.psmp.stainfo.multicastid",
       FT_UINT64, BASE_HEX, 0, 0, NULL, HFILL }},
-    /*** End: PSMP Station Information Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Antenna Selection Fixed Field - Dustin Johnson ***/
     {&ff_ant_selection,
      {"Antenna Selection", "wlan_mgt.fixed.antsel",
       FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
@@ -11619,15 +11382,11 @@ proto_register_ieee80211 (void)
     {&ff_ant_selection_7,
      {"Antenna 7", "wlan_mgt.fixed.antsel.ant7",
       FT_UINT8, BASE_HEX, 0, 0x80, NULL, HFILL }},
-    /*** End: Antenna Selection Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
     {&ff_ext_channel_switch_announcement,
      {"Extended Channel Switch Announcement", "wlan_mgt.fixed.extchansw",
       FT_UINT32, BASE_HEX, 0, 0, NULL, HFILL }},
-    /*** End: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: HT Information Fixed Field - Dustin Johnson ***/
     {&ff_ht_info,
      {"HT Information", "wlan_mgt.fixed.extchansw",
       FT_UINT8, BASE_HEX, 0, 0, "HT Information Fixed Field", HFILL }},
@@ -11647,19 +11406,14 @@ proto_register_ieee80211 (void)
     {&ff_ht_info_reserved,
      {"Reserved", "wlan_mgt.fixed.extchansw",
       FT_UINT8, BASE_HEX, 0, 0xF8, "Reserved Field", HFILL }},
-    /*** End: HT Information Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: HT Action Fixed Field - Dustin Johnson ***/
     {&ff_ht_action,
      {"HT Action", "wlan_mgt.fixed.htact",
       FT_UINT8, BASE_HEX, VALS (&ff_ht_action_flags), 0, "HT Action Code", HFILL }},
-    /*** End: HT Action Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: MIMO CSI Matrices Report - Dustin Johnson ***/
     {&ff_mimo_csi_snr,
      {"Signal to Noise Ratio (SNR)", "wlan_mgt.mimo.csimatrices.snr",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-    /*** End: MIMO CSI Matrices Report - Dustin Johnson ***/
 
     {&ff_public_action,
      {"Public Action", "wlan_mgt.fixed.publicact",
@@ -11931,12 +11685,10 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_HEX, VALS (&qos_action_codes), 0,
       "QoS management action code", HFILL }},
 
-    /*** Begin: Block Ack Action Fixed Field - Dustin Johnson ***/
     {&ff_ba_action,
      {"Action code", "wlan_mgt.fixed.action_code",
       FT_UINT8, BASE_HEX, VALS (&ba_action_codes), 0,
       "Block Ack action code", HFILL }},
-    /*** End: Block Ack Action Fixed Field - Dustin Johnson ***/
 
     {&hf_ieee80211_ff_dls_action_code,
      {"Action code", "wlan_mgt.fixed.action_code",
@@ -12603,7 +12355,6 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, VALS (&hf_tag_secondary_channel_offset_flags), 0,
       NULL, HFILL }},
 
-    /*** Begin: Power Capability Tag - Dustin Johnson ***/
     {&hf_tag_power_capability_min,
      {"Minimum Transmit Power", "wlan_mgt.powercap.min",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -12611,14 +12362,12 @@ proto_register_ieee80211 (void)
     {&hf_tag_power_capability_max,
      {"Maximum Transmit Power", "wlan_mgt.powercap.max",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-    /*** End: Power Capability Tag - Dustin Johnson ***/
     {&hf_tag_tpc_report_trsmt_pow,
      {"Transmit Power", "wlan_mgt.tcprep.trsmt_pow",
       FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},
     {&hf_tag_tpc_report_link_mrg,
      {"Link Margin", "wlan_mgt.tcprep.link_mrg",
       FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-    /*** Begin: Supported Channels Tag - Dustin Johnson ***/
     {&hf_tag_supported_channels,
      {"Supported Channels Set", "wlan_mgt.supchan",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -12630,9 +12379,7 @@ proto_register_ieee80211 (void)
     {&hf_tag_supported_channels_range,
      {"Supported Channel Range", "wlan_mgt.supchan.range",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-    /*** End: Supported Channels Tag - Dustin Johnson ***/
 
-    /*** Start: Measurement Request Tag  - Dustin Johnson***/
     {&hf_tag_measure_request_measurement_token,
      {"Measurement Token", "wlan_mgt.measure.req.measuretoken",
       FT_UINT8, BASE_HEX, NULL, 0xff, NULL, HFILL }},
@@ -12712,9 +12459,7 @@ proto_register_ieee80211 (void)
     {&hf_tag_measure_request_group_id,
      {"Group ID", "wlan_mgt.measure.req.groupid",
       FT_UINT8, BASE_HEX, VALS(hf_tag_measure_request_group_id_flags), 0, NULL, HFILL }},
-    /*** End: Measurement Request Tag  - Dustin Johnson***/
 
-    /*** Start: Measurement Report Tag  - Dustin Johnson***/
     {&hf_tag_measure_report_measurement_token,
      {"Measurement Token", "wlan_mgt.measure.req.clr",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -12862,9 +12607,7 @@ proto_register_ieee80211 (void)
     {&hf_tag_measure_report_parent_tsf,
      {"Parent Timing Synchronization Function (TSF)", "wlan_mgt.measure.rep.parenttsf",
       FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-    /*** End: Measurement Report Tag  - Dustin Johnson***/
 
-    /*** Begin: Extended Capabilities Tag - Dustin Johnson ***/
     /* Table 7-35a-Capabilities field */
     {&hf_tag_extended_capabilities,
      {"Extended Capabilities", "wlan_mgt.extcap",
@@ -12889,9 +12632,7 @@ proto_register_ieee80211 (void)
       FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0008, NULL, HFILL }},
     /*End: P802.11p/D4.0 */
 
-    /*** End: Extended Capabilities Tag - Dustin Johnson ***/
 
-    /*** Begin: Neighbor Report Tag - Dustin Johnson ***/
     {&hf_tag_neighbor_report_bssid,
      {"BSSID", "wlan_mgt.nreport.bssid",
       FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -12959,9 +12700,7 @@ proto_register_ieee80211 (void)
     {&hf_tag_neighbor_report_phy_type,
      {"PHY Type", "wlan_mgt.nreport.phytype",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-    /*** End: Neighbor Report Tag - Dustin Johnson ***/
 
-    /*** Begin: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
     {&hf_tag_ext_channel_switch_announcement_switch_mode,
      {"Channel Switch Mode", "wlan_mgt.extchanswitch.switchmode",
       FT_UINT8, BASE_HEX, VALS (&hf_tag_ext_channel_switch_announcement_switch_mode_flags), 0, NULL, HFILL }},
@@ -12977,9 +12716,7 @@ proto_register_ieee80211 (void)
     {&hf_tag_ext_channel_switch_announcement_switch_count,
      {"Channel Switch Count", "wlan_mgt.extchanswitch.switchcount",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-    /*** End: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
 
-    /*** Begin: Supported Regulatory Classes Tag - Dustin Johnson ***/
     {&hf_tag_supported_reg_classes_current,
      {"Current Regulatory Class", "wlan_mgt.supregclass.current",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -12987,7 +12724,6 @@ proto_register_ieee80211 (void)
     {&hf_tag_supported_reg_classes_alternate,
      {"Alternate Regulatory Classes", "wlan_mgt.supregclass.alt",
       FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-    /*** End: Supported Regulatory Classes Tag - Dustin Johnson ***/
 
     {&hf_marvell_ie_type,
      {"Type", "wlan_mgt.marvell.ie.type",
