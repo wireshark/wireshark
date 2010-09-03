@@ -24,7 +24,7 @@
 
 
 /* TODO:
-   - per-channel graph tap
+   - per-channel graph tap?
 */
 
 #ifdef HAVE_CONFIG_H
@@ -63,10 +63,12 @@ enum {
     UEID_COLUMN,
     UL_FRAMES_COLUMN,
     UL_BYTES_COLUMN,
+    UL_BW_COLUMN,
     UL_NACKS_COLUMN,
     UL_MISSING_COLUMN,
     DL_FRAMES_COLUMN,
     DL_BYTES_COLUMN,
+    DL_BW_COLUMN,
     DL_NACKS_COLUMN,
     DL_MISSING_COLUMN,
     UE_TABLE_COLUMN,
@@ -78,11 +80,13 @@ enum {
     CHANNEL_MODE,
     CHANNEL_UL_FRAMES,
     CHANNEL_UL_BYTES,
+    CHANNEL_UL_BW,
     CHANNEL_UL_ACKS,
     CHANNEL_UL_NACKS,
     CHANNEL_UL_MISSING,
     CHANNEL_DL_FRAMES,
     CHANNEL_DL_BYTES,
+    CHANNEL_DL_BW,
     CHANNEL_DL_ACKS,
     CHANNEL_DL_NACKS,
     CHANNEL_DL_MISSING,
@@ -91,12 +95,12 @@ enum {
 };
 
 static const gchar *ue_titles[] = { "UEId",
-                                    "UL Frames", "UL Bytes", "UL NACKs", "UL Missing",
-                                    "DL Frames", "DL Bytes", "DL NACKs", "DL Missing"};
+                                    "UL Frames", "UL Bytes", "UL Mbs", "UL NACKs", "UL Missing",
+                                    "DL Frames", "DL Bytes", "DL Mbs", "DL NACKs", "DL Missing"};
 
 static const gchar *channel_titles[] = { "", "Mode",
-                                         "UL Frames", "UL Bytes", "UL ACKs", "UL NACKs", "UL Missing",
-                                         "DL Frames", "DL Bytes", "DL ACKs", "DL NACKs", "DL Missing"};
+                                         "UL Frames", "UL Bytes", "UL Mbs", "UL ACKs", "UL NACKs", "UL Missing",
+                                         "DL Frames", "DL Bytes", "DL Mbs", "DL ACKs", "DL NACKs", "DL Missing"};
 
 /* Stats kept for one channel */
 typedef struct rlc_channel_stats {
@@ -105,40 +109,50 @@ typedef struct rlc_channel_stats {
     guint16  channelType;
     guint16  channelId;
 
-    guint32 UL_frames;
-    guint32 UL_bytes;
-    guint32 DL_frames;
-    guint32 DL_bytes;
+    guint32  UL_frames;
+    guint32  UL_bytes;
+    nstime_t UL_time_start;
+    nstime_t UL_time_stop;
 
-    guint32 UL_acks;
-    guint32 UL_nacks;
+    guint32  DL_frames;
+    guint32  DL_bytes;
+    nstime_t DL_time_start;
+    nstime_t DL_time_stop;
 
-    guint32 DL_acks;
-    guint32 DL_nacks;
+    guint32  UL_acks;
+    guint32  UL_nacks;
 
-    guint32 UL_missing;
-    guint32 DL_missing;
+    guint32  DL_acks;
+    guint32  DL_nacks;
+
+    guint32  UL_missing;
+    guint32  DL_missing;
 
     GtkTreeIter iter;
     gboolean iter_valid;
 } rlc_channel_stats;
 
+
 /* Stats for one UE */
 typedef struct rlc_lte_row_data {
     /* Key for matching this row */
-    guint16 ueid;
+    guint16  ueid;
 
     gboolean is_predefined_data;
 
-    guint32 UL_frames;
-    guint32 UL_total_bytes;
-    guint32 UL_total_nacks;
-    guint32 UL_total_missing;
+    guint32  UL_frames;
+    guint32  UL_total_bytes;
+    nstime_t UL_time_start;
+    nstime_t UL_time_stop;
+    guint32  UL_total_nacks;
+    guint32  UL_total_missing;
 
-    guint32 DL_frames;
-    guint32 DL_total_bytes;
-    guint32 DL_total_nacks;
-    guint32 DL_total_missing;
+    guint32  DL_frames;
+    guint32  DL_total_bytes;
+    nstime_t DL_time_start;
+    nstime_t DL_time_stop;
+    guint32  DL_total_nacks;
+    guint32  DL_total_missing;
 
     rlc_channel_stats CCCH_stats;
     rlc_channel_stats srb_stats[2];
@@ -299,6 +313,8 @@ static rlc_lte_ep_t* alloc_rlc_lte_ep(struct rlc_lte_tap_info *si, packet_info *
     ep->stats.DL_frames = 0;
     ep->stats.UL_total_bytes = 0;
     ep->stats.DL_total_bytes = 0;
+    memset(&ep->stats.DL_time_start, 0, sizeof(nstime_t));
+    memset(&ep->stats.DL_time_stop, 0, sizeof(nstime_t));
     ep->stats.UL_total_nacks = 0;
     ep->stats.DL_total_nacks = 0;
     ep->stats.UL_total_missing = 0;
@@ -389,7 +405,7 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         te = hs->ep_list;
     } else {
         /* Look among existing rows for this UEId */
-        for (tmp = hs->ep_list;(tmp != NULL); tmp = tmp->next) {
+        for (tmp = hs->ep_list; (tmp != NULL); tmp = tmp->next) {
             if (tmp->stats.ueid == si->ueid) {
                 te = tmp;
                 break;
@@ -420,10 +436,24 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     /* Top-level traffic stats */
     if (si->direction == DIRECTION_UPLINK) {
+        /* Update start/stop time as appropriate */
+        if (te->stats.UL_frames == 0) {
+            te->stats.UL_time_start = si->time;
+        }
+        else {
+            te->stats.UL_time_stop = si->time;
+        }
         te->stats.UL_frames++;
         te->stats.UL_total_bytes += si->pduLength;
     }
     else {
+        /* Update start/stop time as appropriate */
+        if (te->stats.DL_frames == 0) {
+            te->stats.DL_time_start = si->time;
+        }
+        else {
+            te->stats.DL_time_stop = si->time;
+        }
         te->stats.DL_frames++;
         te->stats.DL_total_bytes += si->pduLength;
     }
@@ -455,10 +485,17 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         channel_stats->channelId = si->channelId;
     }
     else {
+        /* Giving up if no channel found... */
         return 0;
     }
 
     if (si->direction == DIRECTION_UPLINK) {
+        if (channel_stats->UL_frames == 0) {
+            channel_stats->UL_time_start = si->time;
+        }
+        else {
+            channel_stats->UL_time_stop = si->time;
+        }
         channel_stats->UL_frames++;
         channel_stats->UL_bytes += si->pduLength;
         channel_stats->UL_nacks += si->noOfNACKs;
@@ -470,6 +507,12 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         te->stats.UL_total_missing += si->missingSNs;
     }
     else {
+        if (channel_stats->DL_frames == 0) {
+            channel_stats->DL_time_start = si->time;
+        }
+        else {
+            channel_stats->DL_time_stop = si->time;
+        }
         channel_stats->DL_frames++;
         channel_stats->DL_bytes += si->pduLength;
         channel_stats->DL_nacks += si->noOfNACKs;
@@ -503,6 +546,21 @@ static void invalidate_channel_iters(rlc_lte_stat_t *hs)
         ep = ep->next;
     }
 }
+
+
+/* Calculate and return a bandwidth figure, in Mbs */
+static float calculate_bw(nstime_t *start_time, nstime_t *stop_time, guint32 bytes)
+{
+    if (memcmp(start_time, stop_time, sizeof(nstime_t)) != 0) {
+        float elapsed_ms = ((stop_time->secs - start_time->secs) * 1000) +
+                           ((stop_time->nsecs - start_time->nsecs) / 1000000);
+        return ((bytes * 8) / elapsed_ms) / 1000;
+    }
+    else {
+        return 0.0;
+    }
+}
+
 
 
 /* Draw the channels table according to the current UE selection */
@@ -552,6 +610,14 @@ rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
         channel_stats = &rlc_stat_ep->stats.srb_stats[n];
         if (channel_stats->inUse) {
 
+            /* Calculate bandwidth */
+            float UL_bw = calculate_bw(&channel_stats->UL_time_start,
+                                       &channel_stats->UL_time_stop,
+                                       channel_stats->UL_bytes);
+            float DL_bw = calculate_bw(&channel_stats->DL_time_start,
+                                       &channel_stats->DL_time_stop,
+                                       channel_stats->DL_bytes);
+
             if (!channel_stats->iter_valid) {
                 /* Add to list control if not drawn this UE before */
                 gtk_list_store_append(channels_store, &channel_stats->iter);
@@ -566,11 +632,13 @@ rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
                                CHANNEL_MODE, print_rlc_channel_mode(channel_stats->rlcMode),
                                CHANNEL_UL_FRAMES, channel_stats->UL_frames,
                                CHANNEL_UL_BYTES, channel_stats->UL_bytes,
+                               CHANNEL_UL_BW, UL_bw,
                                CHANNEL_UL_ACKS, channel_stats->UL_acks,
                                CHANNEL_UL_NACKS, channel_stats->UL_nacks,
                                CHANNEL_UL_MISSING, channel_stats->UL_missing,
                                CHANNEL_DL_FRAMES, channel_stats->DL_frames,
                                CHANNEL_DL_BYTES, channel_stats->DL_bytes,
+                               CHANNEL_DL_BW, DL_bw,
                                CHANNEL_DL_ACKS, channel_stats->DL_acks,
                                CHANNEL_DL_NACKS, channel_stats->DL_nacks,
                                CHANNEL_DL_MISSING, channel_stats->DL_missing,
@@ -584,6 +652,14 @@ rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
     for (n=0; n < 32; n++) {
         channel_stats = &rlc_stat_ep->stats.drb_stats[n];
         if (channel_stats->inUse) {
+
+            /* Calculate bandwidth */
+            float UL_bw = calculate_bw(&channel_stats->UL_time_start,
+                                       &channel_stats->UL_time_stop,
+                                       channel_stats->UL_bytes);
+            float DL_bw = calculate_bw(&channel_stats->DL_time_start,
+                                       &channel_stats->DL_time_stop,
+                                       channel_stats->DL_bytes);
 
             if (!channel_stats->iter_valid) {
                 /* Add to list control if not drawn this UE before */
@@ -599,11 +675,13 @@ rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
                                CHANNEL_MODE, print_rlc_channel_mode(channel_stats->rlcMode),
                                CHANNEL_UL_FRAMES, channel_stats->UL_frames,
                                CHANNEL_UL_BYTES, channel_stats->UL_bytes,
+                               CHANNEL_UL_BW, UL_bw,
                                CHANNEL_UL_ACKS, channel_stats->UL_acks,
                                CHANNEL_UL_NACKS, channel_stats->UL_nacks,
                                CHANNEL_UL_MISSING, channel_stats->UL_missing,
                                CHANNEL_DL_FRAMES, channel_stats->DL_frames,
                                CHANNEL_DL_BYTES, channel_stats->DL_bytes,
+                               CHANNEL_DL_BW, DL_bw,
                                CHANNEL_DL_ACKS, channel_stats->DL_acks,
                                CHANNEL_DL_NACKS, channel_stats->DL_nacks,
                                CHANNEL_DL_MISSING, channel_stats->DL_missing,
@@ -662,6 +740,14 @@ rlc_lte_stat_draw(void *phs)
 
     /* For each row/UE in the model */
     for (tmp = list; tmp; tmp=tmp->next) {
+        /* Calculate bandwidth */
+        float UL_bw = calculate_bw(&tmp->stats.UL_time_start,
+                                   &tmp->stats.UL_time_stop,
+                                   tmp->stats.UL_total_bytes);
+        float DL_bw = calculate_bw(&tmp->stats.DL_time_start,
+                                   &tmp->stats.DL_time_stop,
+                                   tmp->stats.DL_total_bytes);
+
         if (tmp->iter_valid != TRUE) {
             /* Add to list control if not drawn this UE before */
             gtk_list_store_append(ues_store, &tmp->iter);
@@ -673,10 +759,12 @@ rlc_lte_stat_draw(void *phs)
                            UEID_COLUMN, tmp->stats.ueid,
                            UL_FRAMES_COLUMN, tmp->stats.UL_frames,
                            UL_BYTES_COLUMN, tmp->stats.UL_total_bytes,
+                           UL_BW_COLUMN, UL_bw,
                            UL_NACKS_COLUMN, tmp->stats.UL_total_nacks,
                            UL_MISSING_COLUMN, tmp->stats.UL_total_missing,
                            DL_FRAMES_COLUMN, tmp->stats.DL_frames,
                            DL_BYTES_COLUMN, tmp->stats.DL_total_bytes,
+                           DL_BW_COLUMN, DL_bw,
                            DL_NACKS_COLUMN, tmp->stats.DL_total_nacks,
                            DL_MISSING_COLUMN, tmp->stats.DL_total_missing,
                            UE_TABLE_COLUMN, tmp,
@@ -1190,8 +1278,8 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
 
     /* Create the table of UE data */
     store = gtk_list_store_new(NUM_UE_COLUMNS, G_TYPE_INT,
-                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* UL */
-                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* DL */
+                               G_TYPE_INT, G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_INT, G_TYPE_INT, /* UL */
+                               G_TYPE_INT, G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_INT, G_TYPE_INT, /* DL */
                                G_TYPE_POINTER);
     hs->ue_table = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
     gtk_container_add(GTK_CONTAINER (ues_scrolled_window), GTK_WIDGET(hs->ue_table));
@@ -1245,8 +1333,8 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     /* Create the table of UE data */
     store = gtk_list_store_new(NUM_CHANNEL_COLUMNS,
                                G_TYPE_STRING, G_TYPE_STRING, /* name & type */
-                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* UL */
-                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* DL */
+                               G_TYPE_INT, G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* UL */
+                               G_TYPE_INT, G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* DL */
                                G_TYPE_POINTER);
     hs->channel_table = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
     gtk_container_add(GTK_CONTAINER (channels_scrolled_window), GTK_WIDGET(hs->channel_table));

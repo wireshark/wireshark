@@ -2026,6 +2026,8 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tap_info->UMSequenceNumberLength = p_rlc_lte_info->UMSequenceNumberLength;
     tap_info->loggedInMACFrame = (p_get_proto_data(pinfo->fd, proto_mac_lte) != NULL);
 
+    tap_info->time = pinfo->fd->abs_ts;
+
     /* Reset this count */
     s_number_of_extensions = 0;
 
