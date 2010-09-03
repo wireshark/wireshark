@@ -106,7 +106,7 @@ typedef struct _rtpstream_tapinfo {
 /****************************************************************************/
 /* INTERFACE */
 
-/*
+/**
 * Registers the rtp_streams tap listener (if not already done).
 * From that point on, the RTP streams list will be updated with every redissection.
 * This function is also the entry point for the initialization routine of the tap system.
@@ -115,36 +115,36 @@ typedef struct _rtpstream_tapinfo {
 */
 void register_tap_listener_rtp_stream(void);
 
-/*
+/**
 * Removes the rtp_streams tap listener (if not already done)
 * From that point on, the RTP streams list won't be updated any more.
 */
 void remove_tap_listener_rtp_stream(void);
 
-/*
+/**
 * Retrieves a constant reference to the unique info structure of the rtp_streams tap listener.
 * The user should not modify the data pointed to.
 */
 const rtpstream_tapinfo_t* rtpstream_get_info(void);
 
-/*
+/**
 * Cleans up memory of rtp streams tap.
 */
 void rtpstream_reset(rtpstream_tapinfo_t *tapinfo);
 
-/*
+/**
 * Scans all packets for RTP streams and updates the RTP streams list.
 * (redissects all packets)
 */
 void rtpstream_scan(void);
 
-/*
+/**
 * Saves an RTP stream as raw data stream with timestamp information for later RTP playback.
 * (redissects all packets)
 */
 gboolean rtpstream_save(rtp_stream_info_t* stream, const gchar *filename);
 
-/*
+/**
 * Marks all packets belonging to either of stream_fwd or stream_rev.
 * (both can be NULL)
 * (redissects all packets)
