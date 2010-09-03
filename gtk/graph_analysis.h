@@ -35,7 +35,7 @@
 #include <gtk/gtk.h>
 #include <epan/address.h>
 
-#define MAX_NUM_NODES 10
+#define MAX_NUM_NODES 40
 
 /* defines an entry in for the graph analysis */
 typedef struct _graph_analysis_item {
