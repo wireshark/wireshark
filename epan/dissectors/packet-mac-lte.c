@@ -3044,6 +3044,8 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tap_info->crcStatus = p_mac_lte_info->detailed_phy_info.dl_info.crc_status;
     tap_info->direction = p_mac_lte_info->direction;
 
+    tap_info->time = pinfo->fd->abs_ts;
+
     /* Also set total number of bytes (won't be used for UL/DL-SCH) */
     tap_info->single_number_of_bytes = tvb_length_remaining(tvb, offset);
 

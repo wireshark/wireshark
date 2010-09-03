@@ -140,6 +140,8 @@ typedef struct mac_lte_tap_info {
 
     guint8   isPHYRetx;
 
+    nstime_t time;
+
     /* Number of bytes (which part is used depends upon context settings) */
     guint32  single_number_of_bytes;
     guint32  bytes_for_lcid[11];
