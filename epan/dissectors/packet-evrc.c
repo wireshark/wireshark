@@ -1,15 +1,16 @@
 /* packet-evrc.c
- * Routines for EVRC/EVRC-B/EVRC-WB RTP payload header dissection
+ * Routines for EVRC/EVRC-B/EVRC-WB/EVRC-NW RTP RTP payload header dissection
  * (I.e. RFC 3558)
+ * (I.e. RFC 3558 and as of draft-zfang-avt-rtp-evrc-nw-02)
  *
  * Copyright 2008, Michael Lum <michael.lum [AT] shaw.ca>
  * In association with Star Solutions
  *
  * Title                3GPP2                   Other
  *
- *   Enhanced Variable Rate Codec, Speech Service Options 3, 68, and 70
+ *   Enhanced Variable Rate Codec, Speech Service Options 3, 68, 70, and 73
  *   for Wideband Spread Spectrum Digital Systems
- *                      3GPP2 C.S0014-C         TIA-127-C
+ *                      3GPP2 C.S0014-D v2.0      TIA-127-?
  *
  * RFC 3558  http://www.ietf.org/rfc/rfc3558.txt?number=3558
  * RFC 4788  http://www.ietf.org/rfc/rfc4788.txt?number=4788
@@ -113,6 +114,18 @@ static const value_string evrc_wb_mode_request_vals[] = {
     { 0,        NULL }
 };
 
+static const value_string evrc_nw_mode_request_vals[] = {
+    { 0,        "Encoder Operating Point 0 (EVRC-WB COP0)" },
+    { 1,        "Encoder Operating Point 1 (EVRC-B COP0/EVRC-WB COP4)" },
+    { 2,        "Encoder Operating Point 2 (EVRC-B COP2)" },
+    { 3,        "Encoder Operating Point 3 (EVRC-B COP3)" },
+    { 4,        "Encoder Operating Point 4 (EVRC-B COP4)" },
+    { 5,        "Encoder Operating Point 5 (EVRC-B COP5)" },
+    { 6,        "Encoder Operating Point 6 (EVRC-B COP6)" },
+    { 7,        "Encoder Operating Point 7 (EVRC-B COP7/EVRC-WB COP7)" },
+    { 0,        NULL }
+};
+
 static const true_false_string toc_further_entries_bit_vals = {
   "More ToC entries follow",
   "End of ToC entries"
@@ -123,6 +136,7 @@ typedef enum
     EVRC_VARIANT_EVRC,
     EVRC_VARIANT_EVRC_B,
     EVRC_VARIANT_EVRC_WB,
+    EVRC_VARIANT_EVRC_NW,
     EVRC_VARIANT_EVRC_LEGACY
 }
 evrc_variant_t;
@@ -137,6 +151,7 @@ static int hf_evrc_interleave_index = -1;
 static int hf_evrc_mode_request = -1;
 static int hf_evrc_b_mode_request = -1;
 static int hf_evrc_wb_mode_request = -1;
+static int hf_evrc_nw_mode_request = -1;
 static int hf_evrc_frame_count = -1;
 static int hf_evrc_toc_frame_type_high = -1;
 static int hf_evrc_toc_frame_type_low = -1;
@@ -285,6 +300,12 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
             hf_toc_frame_type_low = hf_evrc_b_toc_frame_type_low;
             break;
 
+        case EVRC_VARIANT_EVRC_NW:
+            hf_mode_request = hf_evrc_nw_mode_request;
+            hf_toc_frame_type_high = hf_evrc_b_toc_frame_type_high;
+            hf_toc_frame_type_low = hf_evrc_b_toc_frame_type_low;
+            break;
+
         default:
             return;
         }
@@ -370,6 +391,12 @@ dissect_evrcwb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
+dissect_evrcnw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    dissect_evrc_aux(tvb, pinfo, tree, EVRC_VARIANT_EVRC_NW);
+}
+
+static void
 dissect_evrc_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     dissect_evrc_aux(tvb, pinfo, tree, EVRC_VARIANT_EVRC_LEGACY);
@@ -414,6 +441,11 @@ proto_register_evrc(void)
         { &hf_evrc_wb_mode_request,
             { "Mode Request",           "evrc.wb.mode_request",
             FT_UINT8, BASE_DEC, VALS(evrc_wb_mode_request_vals), 0xe0,
+            "Mode Request bits", HFILL }
+        },
+        { &hf_evrc_nw_mode_request,
+            { "Mode Request",           "evrc.nw.mode_request",
+            FT_UINT8, BASE_DEC, VALS(evrc_nw_mode_request_vals), 0xe0,
             "Mode Request bits", HFILL }
         },
         { &hf_evrc_frame_count,
@@ -504,16 +536,19 @@ proto_reg_handoff_evrc(void)
         dissector_handle_t evrc_handle;
         dissector_handle_t evrcb_handle;
         dissector_handle_t evrcwb_handle;
+        dissector_handle_t evrcnw_handle;
 
         evrc_handle        = create_dissector_handle(dissect_evrc, proto_evrc);
         evrcb_handle       = create_dissector_handle(dissect_evrcb, proto_evrc);
         evrcwb_handle      = create_dissector_handle(dissect_evrcwb, proto_evrc);
+        evrcnw_handle      = create_dissector_handle(dissect_evrcnw, proto_evrc);
         evrc_legacy_handle = create_dissector_handle(dissect_evrc_legacy, proto_evrc);
 
         /* header-full mime types */
         dissector_add_string("rtp_dyn_payload_type",  "EVRC", evrc_handle);
         dissector_add_string("rtp_dyn_payload_type",  "EVRCB", evrcb_handle);
         dissector_add_string("rtp_dyn_payload_type",  "EVRCWB", evrcwb_handle);
+        dissector_add_string("rtp_dyn_payload_type",  "EVRCNW", evrcnw_handle);
 
         evrc_prefs_initialized = TRUE;
     }
@@ -526,5 +561,4 @@ proto_reg_handoff_evrc(void)
     {
         dissector_add("rtp.pt", 60, evrc_legacy_handle);
     }
-
 }
