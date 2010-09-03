@@ -1160,7 +1160,7 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t
       /* anyway, we can get out of here */
       gboolean pc;
       get_ber_identifier(tvb, start_offset, NULL, &pc, NULL);
-      if (!pc) {
+      if (!pc && tree) {
 	/* Only display here if not constructed */
 	dissect_ber_octet_string(FALSE, actx, tree, tvb, start_offset, hf_id, NULL);
       }
