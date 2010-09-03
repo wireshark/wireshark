@@ -438,34 +438,15 @@ dissect_gtpv2_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
  * That is, the overall length of the IE is 11 octets.
  */
 
-
-static gchar *imsi_to_str(const guint8 * ad)
-{
-    static gchar str[17] = "                ";
-    int i, j = 0;
-
-    for (i = 0; i < 8; i++)
-    {
-        if (((ad[i] >> 4) & 0x0F) <= 9)
-            str[j++] = ((ad[i] >> 4) & 0x0F) + 0x30;
-        if ((ad[i] & 0x0F) <= 9)
-            str[j++] = (ad[i] & 0x0F) + 0x30; /* Adding 0x30(48 decimal) makes it a printable digit (Eg. Ascii value 0f 9 is 57 (9+48))*/
-
-    }
-    str[j] = '\0';
-
-    return str;
-}
-
 static void
 dissect_gtpv2_imsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
 {
     int offset= 0;
-    guint8 imsi_val[8];
-    gchar *imsi_str;
+	tvbuff_t *tvb_new;
+    const gchar *imsi_str;
 
-    tvb_memcpy(tvb, imsi_val, offset , 8);
-    imsi_str = imsi_to_str(imsi_val);
+	tvb_new = tvb_new_subset(tvb, offset, length, length);
+    imsi_str = unpack_digits(tvb, offset);
 
     proto_tree_add_string(tree, hf_gtpv2_imsi, tvb, offset, length, imsi_str);
 }
