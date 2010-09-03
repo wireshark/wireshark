@@ -1666,7 +1666,34 @@ register_stat_menu_item_stock(
         callback_data, curnode);
 }
 
-
+/*
+ * Add a new menu item for a stat.
+ * This must be called after we've created the main menu, so it can't
+ * be called from the routine that registers stats - we have to introduce
+ * another per-stat registration routine.
+ *
+ * @param name the menu label
+ *
+ * @param group the menu group this stat should be registered to
+ *
+ * @param callback gets called when the menu item is selected; it should do
+ * the work of creating the stat window.
+ *
+ * @param selected_packet_enabled gets called by set_menus_for_selected_packet();
+ * it's passed a pointer to the "frame_data" structure for the current frame,
+ * if any, and to the "epan_dissect_t" structure for that frame, if any, and
+ * should return TRUE if the stat will work now (which might depend on whether
+ * a frame is selected and, if one is, on the frame) and FALSE if not.
+ *
+ * @param selected_tree_row_enabled gets called by
+ * set_menus_for_selected_tree_row(); it's passed a pointer to the
+ * "field_info" structure for the currently selected field, if any,
+ * and should return TRUE if the stat will work now (which might depend on
+ * whether a tree row is selected and, if one is, on the tree row) and
+ * FALSE if not.
+ *
+ * @param callback_data data for callback function
+ */    
 void
 register_stat_menu_item(
     const char *name,
