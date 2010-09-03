@@ -873,6 +873,7 @@ ansi_a_so_int_to_str(
     case 62: str = "- 4099 None Reserved for standard service options"; break;
     case 68: str = "(EVRC-B NB) Enhanced Variable Rate Voice Service"; break;
     case 70: str = "(EVRC-B WB) Enhanced Variable Rate Voice Service"; break;
+    case 73: str = "(EVRC-NW) Enhanced Variable Rate Voice Service"; break;
     case 4100: str = "Asynchronous Data Service, Revision 1 (9.6 or 14.4 kbps)"; break;
     case 4101: str = "Group 3 Facsimile, Revision 1 (9.6 or 14.4 kbps)"; break;
     case 4102: str = "Reserved for standard service option"; break;
@@ -2557,7 +2558,7 @@ elem_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
         case 0x29: str = "PACA Call Queued"; break;
 
         /* IOS 5 */
-        case 0x2A: str = "PCF resources are not available"; break;
+        case 0x2A: str = "Handoff Blocked"; break;
 
         case 0x2B: str = "Alternate signaling type reject"; break;
 
@@ -6564,6 +6565,7 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
     gint        ett_elem_idx, idx, i;
     proto_tree  *subtree, *subtree2;
     proto_item  *item;
+    guint8      *poctets;
 
     curr_offset = offset;
 
@@ -6612,6 +6614,18 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
             switch (rec_type)
             {
+            case ANSI_REV_MS_INFO_REC_KEYPAD_FAC:
+                poctets = tvb_get_ephemeral_string(tvb, curr_offset, oct_len);
+
+                proto_tree_add_string_format(subtree, hf_ansi_a_cld_party_ascii_num,
+                    tvb, curr_offset, oct_len,
+                    (gchar *) poctets,
+                    "Digits: %s",
+                    (gchar *) format_text(poctets, oct_len));
+
+                curr_offset += oct_len;
+                break;
+
             case ANSI_REV_MS_INFO_REC_CLD_PN:
                 oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -8059,18 +8073,20 @@ elem_a2p_bearer_session(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
     return(curr_offset - offset);
 }
 
+static void
+free_encoding_name_str(void *ptr)
+{
+    encoding_name_and_rate_t    *encoding_name_and_rate = (encoding_name_and_rate_t *) ptr;
+
+    if (encoding_name_and_rate->encoding_name)
+    {
+        g_free(encoding_name_and_rate->encoding_name);
+    }
+}
+
 /*
  * IOS 5 4.2.90
  */
-static void free_encoding_name_str (void *ptr)
-{
-  encoding_name_and_rate_t *encoding_name_and_rate = (encoding_name_and_rate_t *)ptr;
-
-  if (encoding_name_and_rate->encoding_name) {
-    g_free(encoding_name_and_rate->encoding_name);
-  }
-}
-
 static guint8
 elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -8084,13 +8100,18 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
     guint8                              ext_len;
     const gchar                         *str;
     const gchar                         *mime_type;
+    int					sample_rate;
     gboolean                            format_assigned;
+    gboolean                            in_band_format_assigned;
     gboolean                            first_assigned_found;
+    gboolean                            rtp_dyn_payload_used;
     guint8                              rtp_payload_type;
     GHashTable                          *rtp_dyn_payload;
     gint                                *key;
+    encoding_name_and_rate_t	        *encoding_name_and_rate;
 
     rtp_dyn_payload = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, free_encoding_name_str);
+    rtp_dyn_payload_used = FALSE;
 
     first_assigned_found = FALSE;
 
@@ -8150,11 +8171,15 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
         ext = (oct & 0x80) ? TRUE : FALSE;
 
         format_assigned = FALSE;
+        in_band_format_assigned = FALSE;
 
         switch ((oct & 0x70) >> 4)
         {
         case 0: str = "Unknown"; break;
-        case 1: str = "In-band signaling"; break;
+        case 1:
+            str = "In-band signaling";
+            in_band_format_assigned = TRUE;
+            break;
         case 2:
             str = "Assigned";
             format_assigned = TRUE;
@@ -8172,6 +8197,11 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
             a_bigbuf,
             str);
 
+	/*
+	 * assuming default sampling rate of 8000Hz
+	 */
+	sample_rate = 8000;
+
         switch (oct & 0x0f)
         {
         case 0: mime_type = str = "PCMU"; break;
@@ -8187,8 +8217,10 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
         case 7: mime_type = str = "telephone-event"; break;
         case 8: mime_type = str = "EVRCB"; break;
         case 9: mime_type = str = "EVRCB0"; break;
-        case 10: mime_type = str = "EVRCWB"; break;
-        case 11: mime_type = str = "EVRCWB0"; break;
+        case 10: mime_type = str = "EVRCWB"; sample_rate = 16000; break;
+        case 11: mime_type = str = "EVRCWB0"; sample_rate = 16000; break;
+        case 12: mime_type = str = "EVRCNW"; sample_rate = 16000; break;
+        case 13: mime_type = str = "EVRCNW0"; sample_rate = 16000; break;
         default:
             mime_type = str = "Reserved";
             break;
@@ -8314,24 +8346,38 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
             format_assigned &&
             (first_assigned_found == FALSE))
         {
-			encoding_name_and_rate_t *encoding_name_and_rate = g_malloc( sizeof(encoding_name_and_rate_t));
-            key = (gint *)g_malloc(sizeof(gint));
+            key = (gint *) g_malloc(sizeof(gint));
             *key = rtp_payload_type;
-			encoding_name_and_rate->encoding_name =  g_strdup(mime_type);
-			/* Assumtion; all pt:s above have a sample rate of 8000 */
-			encoding_name_and_rate->sample_rate = 8000;
+
+            encoding_name_and_rate = g_malloc(sizeof(encoding_name_and_rate_t));
+            encoding_name_and_rate->encoding_name = g_strdup(mime_type);
+            encoding_name_and_rate->sample_rate = sample_rate;
+
             g_hash_table_insert(rtp_dyn_payload, key, encoding_name_and_rate);
+	    rtp_dyn_payload_used = TRUE;
 
             first_assigned_found = TRUE;
-
             rtp_add_address(g_pinfo, &rtp_src_addr, rtp_port, 0, "IOS5",
                 g_pinfo->fd->num, FALSE, rtp_dyn_payload);
+        }
+
+        if (in_band_format_assigned)
+        {
+            key = (gint *) g_malloc(sizeof(gint));
+            *key = rtp_payload_type;
+
+            encoding_name_and_rate = g_malloc(sizeof(encoding_name_and_rate_t));
+            encoding_name_and_rate->encoding_name = g_strdup("telephone-event");
+            encoding_name_and_rate->sample_rate = sample_rate;
+
+            g_hash_table_insert(rtp_dyn_payload, key, encoding_name_and_rate);
+	    rtp_dyn_payload_used = TRUE;
         }
 
         num_bearers++;
     }
 
-    if (first_assigned_found == FALSE)
+    if (rtp_dyn_payload_used == FALSE)
     {
         rtp_free_hash_dyn_payload(rtp_dyn_payload);
     }
@@ -8421,7 +8467,6 @@ elem_plcm_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
     case 0x01: str = "PLCM specified by the base station"; break;
     case 0x02: str = "PLCM derived from IMSI_O_S when IMSI_O is derived from IMSI_M"; break;
     case 0x03: str = "PLCM derived from IMSI_O_S when IMSI_O is derived from IMSI_T"; break;
-        break;
     default:
         str = "Reserved";
         break;
@@ -8684,7 +8729,7 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
     curr_offset = offset;
     consumed = 0;
 
-    if ((unsigned)idx >= ansi_a_elem_1_max-1)
+    if ((unsigned) idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -8698,35 +8743,41 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
 
         parm_len = tvb_get_guint8(tvb, curr_offset + 1);
 
-        item = proto_tree_add_text(tree, tvb, curr_offset, parm_len + 2, "%s%s",
-				   ansi_a_elem_1_strings[idx].strptr,
-				   (name_add == NULL) || (name_add[0] == '\0') ?
-				   "" : name_add);
+        item =
+            proto_tree_add_text(tree,
+                tvb, curr_offset, parm_len + 2,
+                "%s%s",
+                ansi_a_elem_1_strings[idx].strptr,
+                (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
         subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
 
         proto_tree_add_uint_format(subtree, hf_ansi_a_elem_id, tvb,
-				   curr_offset, 1, oct, "Element ID");
+            curr_offset, 1, oct,
+            "Element ID");
 
         proto_tree_add_uint(subtree, hf_ansi_a_length, tvb,
-			    curr_offset + 1, 1, parm_len);
+            curr_offset + 1, 1, parm_len);
 
         if (parm_len > 0)
         {
             if (elem_1_fcn[dec_idx] == NULL)
             {
-                proto_tree_add_text(subtree, tvb, curr_offset + 2, parm_len,
-				    "Element Value");
+                proto_tree_add_text(subtree,
+                    tvb, curr_offset + 2, parm_len,
+                    "Element Value");
+
                 consumed = parm_len;
             }
             else
             {
                 gchar *a_add_string;
 
-                a_add_string=(gchar *)ep_alloc(1024);
+                a_add_string = (gchar *) ep_alloc(1024);
                 a_add_string[0] = '\0';
-                consumed = (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 2,
-			    parm_len, a_add_string, 1024);
+                consumed =
+                    (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 2,
+                        parm_len, a_add_string, 1024);
 
                 if (a_add_string[0] != '\0')
                 {
@@ -8761,7 +8812,7 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const g
     curr_offset = offset;
     consumed = 0;
 
-    if ((unsigned)idx >= ansi_a_elem_1_max-1)
+    if ((unsigned) idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -8773,29 +8824,34 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const g
     {
         dec_idx = ansi_a_elem_1_strings[idx].dec_index;
 
-        item = proto_tree_add_text(tree, tvb, curr_offset, -1, "%s%s",
-				   ansi_a_elem_1_strings[idx].strptr,
-				   (name_add == NULL) || (name_add[0] == '\0') ?
-				   "" : name_add);
+        item =
+            proto_tree_add_text(tree,
+                tvb, curr_offset, -1,
+                "%s%s",
+                ansi_a_elem_1_strings[idx].strptr,
+                (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
         subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
 
         proto_tree_add_uint_format(subtree, hf_ansi_a_elem_id, tvb,
-			           curr_offset, 1, oct, "Element ID");
+            curr_offset, 1, oct,
+            "Element ID");
 
         if (elem_1_fcn[dec_idx] == NULL)
         {
             /* BAD THING, CANNOT DETERMINE LENGTH */
 
-            proto_tree_add_text(subtree, tvb, curr_offset + 1, 1,
-				"No element dissector, rest of dissection may be incorrect");
+            proto_tree_add_text(subtree,
+                tvb, curr_offset + 1, 1,
+                "No element dissector, rest of dissection may be incorrect");
+
             consumed = 1;
         }
         else
         {
             gchar *a_add_string;
 
-            a_add_string=(gchar *)ep_alloc(1024);
+            a_add_string = (gchar *) ep_alloc(1024);
             a_add_string[0] = '\0';
             consumed = (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 1, -1, a_add_string, 1024);
 
@@ -8806,6 +8862,7 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const g
         }
 
         consumed++;
+
         proto_item_set_len(item, consumed);
     }
 
@@ -8839,10 +8896,10 @@ elem_t(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const gc
 
     if (oct == (guint8) ansi_a_elem_1_strings[idx].value)
     {
-        proto_tree_add_uint_format(tree, hf_ansi_a_elem_id, tvb, curr_offset,
-				   1, oct, "%s%s",
-			           ansi_a_elem_1_strings[idx].strptr,
-			           (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
+        proto_tree_add_uint_format(tree, hf_ansi_a_elem_id, tvb, curr_offset, 1, oct,
+            "%s%s",
+            ansi_a_elem_1_strings[idx].strptr,
+            (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
         consumed = 1;
     }
@@ -8867,7 +8924,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
     curr_offset = offset;
     consumed = 0;
 
-    if ((unsigned)idx >= ansi_a_elem_1_max-1)
+    if ((unsigned) idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -8877,32 +8934,37 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
 
     parm_len = tvb_get_guint8(tvb, curr_offset);
 
-    item = proto_tree_add_text(tree, tvb, curr_offset, parm_len + 1, "%s%s",
-			       ansi_a_elem_1_strings[idx].strptr,
-			       (name_add == NULL) || (name_add[0] == '\0') ?
-			       "" : name_add);
+    item =
+        proto_tree_add_text(tree,
+            tvb, curr_offset, parm_len + 1,
+            "%s%s",
+            ansi_a_elem_1_strings[idx].strptr,
+            (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
     subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
 
-    proto_tree_add_uint(subtree, hf_ansi_a_length, tvb, curr_offset, 1,
-			parm_len);
+    proto_tree_add_uint(subtree, hf_ansi_a_length, tvb,
+        curr_offset, 1, parm_len);
 
     if (parm_len > 0)
     {
         if (elem_1_fcn[dec_idx] == NULL)
         {
-            proto_tree_add_text(subtree, tvb, curr_offset + 1, parm_len,
-				"Element Value");
+            proto_tree_add_text(subtree,
+                tvb, curr_offset + 1, parm_len,
+                "Element Value");
+
             consumed = parm_len;
         }
         else
         {
             gchar *a_add_string;
 
-            a_add_string=(gchar *)ep_alloc(1024);
+            a_add_string = (gchar *) ep_alloc(1024);
             a_add_string[0] = '\0';
-            consumed = (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 1,
-		        parm_len, a_add_string, 1024);
+            consumed =
+                (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 1,
+                    parm_len, a_add_string, 1024);
 
             if (a_add_string[0] != '\0')
             {
@@ -8930,7 +8992,7 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
     curr_offset = offset;
     consumed = 0;
 
-    if ((unsigned)idx >= ansi_a_elem_1_max-1)
+    if ((unsigned) idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -8942,15 +9004,17 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
     {
         /* BAD THING, CANNOT DETERMINE LENGTH */
 
-        proto_tree_add_text(tree, tvb, curr_offset, 1,
-			    "No element dissector, rest of dissection may be incorrect");
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "No element dissector, rest of dissection may be incorrect");
+
         consumed = 1;
     }
     else
     {
         gchar *a_add_string;
 
-        a_add_string=(gchar *)ep_alloc(1024);
+        a_add_string = (gchar *) ep_alloc(1024);
         a_add_string[0] = '\0';
         consumed = (*elem_1_fcn[dec_idx])(tvb, tree, curr_offset, -1, a_add_string, 1024);
     }
@@ -9108,19 +9172,27 @@ dtap_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
         break;
     }
 
-    item = proto_tree_add_text(tree, tvb, curr_offset, 1,
-			       "CM Service Type: %s", str);
+    item =
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "CM Service Type: %s",
+            str);
 
     subtree = proto_item_add_subtree(item, ett_cm_srvc_type);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-    proto_tree_add_text(subtree, tvb, curr_offset, 1, "%s :  Element ID",
-			a_bigbuf);
+    proto_tree_add_text(subtree,
+        tvb, curr_offset, 1,
+        "%s :  Element ID",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
-    proto_tree_add_text(subtree, tvb, curr_offset, 1,
-			"%s :  Service Type: (%u) %s", a_bigbuf, oct & 0x0f,
-			str);
+    proto_tree_add_text(subtree,
+        tvb, curr_offset, 1,
+        "%s :  Service Type: (%u) %s",
+        a_bigbuf,
+        oct & 0x0f,
+        str);
 
     curr_offset++;
     curr_len--;
@@ -9748,7 +9820,14 @@ dtap_flash_with_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
-    ELEM_OPT_TLV(ANSI_A_E_FWD_MS_INFO_RECS, "");
+    if (g_pinfo->p2p_dir == P2P_DIR_RECV)
+    {
+        ELEM_OPT_TLV(ANSI_A_E_REV_MS_INFO_RECS, "");
+    }
+    else
+    {
+        ELEM_OPT_TLV(ANSI_A_E_FWD_MS_INFO_RECS, "");
+    }
 
     ELEM_OPT_TLV(ANSI_A_E_SSCI, "");
 
@@ -11625,18 +11704,19 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (msg_str == NULL)
     {
-        bsmap_item = proto_tree_add_protocol_format(tree, proto_a_bsmap, tvb, 0,
-						    len,
-						    "ANSI A-I/F BSMAP - Unknown BSMAP Message Type (%u)",
-						    oct);
+        bsmap_item =
+            proto_tree_add_protocol_format(tree, proto_a_bsmap, tvb, 0, len,
+                "ANSI A-I/F BSMAP - Unknown BSMAP Message Type (%u)",
+                oct);
 
         bsmap_tree = proto_item_add_subtree(bsmap_item, ett_bsmap);
     }
     else
     {
-        bsmap_item = proto_tree_add_protocol_format(tree, proto_a_bsmap, tvb, 0,
-						    -1, "ANSI A-I/F BSMAP - %s",
-						    msg_str);
+        bsmap_item =
+            proto_tree_add_protocol_format(tree, proto_a_bsmap, tvb, 0, -1,
+                "ANSI A-I/F BSMAP - %s",
+                msg_str);
 
         bsmap_tree = proto_item_add_subtree(bsmap_item, ett_bsmap_msg[dec_idx]);
 
@@ -11647,7 +11727,7 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * add BSMAP message name
      */
     proto_tree_add_uint_format(bsmap_tree, hf_ansi_a_bsmap_msgtype,
-			       tvb, saved_offset, 1, oct, "Message Type");
+        tvb, saved_offset, 1, oct, "Message Type");
 
     tap_p->pdu_type = BSSAP_PDU_TYPE_BSMAP;
     tap_p->message_type = oct;
@@ -11665,8 +11745,9 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (bsmap_msg_fcn[dec_idx] == NULL)
     {
-        proto_tree_add_text(bsmap_tree, tvb, offset, len - offset,
-			    "Message Elements");
+        proto_tree_add_text(bsmap_tree,
+            tvb, offset, len - offset,
+            "Message Elements");
     }
     else
     {
@@ -11742,18 +11823,19 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (msg_str == NULL)
     {
-        dtap_item = proto_tree_add_protocol_format(tree, proto_a_dtap, tvb, 0,
-						   len,
-						   "ANSI A-I/F DTAP - Unknown DTAP Message Type (%u)",
-						   oct);
+        dtap_item =
+            proto_tree_add_protocol_format(tree, proto_a_dtap, tvb, 0, len,
+                "ANSI A-I/F DTAP - Unknown DTAP Message Type (%u)",
+                oct);
 
         dtap_tree = proto_item_add_subtree(dtap_item, ett_dtap);
     }
     else
     {
-        dtap_item = proto_tree_add_protocol_format(tree, proto_a_dtap, tvb, 0,
-						   -1, "ANSI A-I/F DTAP - %s",
-						   msg_str);
+        dtap_item =
+            proto_tree_add_protocol_format(tree, proto_a_dtap, tvb, 0, -1,
+                "ANSI A-I/F DTAP - %s",
+                msg_str);
 
         dtap_tree = proto_item_add_subtree(dtap_item, ett_dtap_msg[dec_idx]);
 
@@ -11776,18 +11858,26 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     }
 
-    oct_1_item = proto_tree_add_text(dtap_tree, tvb, 0, 1,
-				     "Protocol Discriminator: %s", str);
+    oct_1_item =
+        proto_tree_add_text(dtap_tree,
+            tvb, 0, 1,
+            "Protocol Discriminator: %s",
+            str);
 
     oct_1_tree = proto_item_add_subtree(oct_1_item, ett_dtap_oct_1);
 
     other_decode_bitfield_value(a_bigbuf, oct_1, 0xf0, 8);
-    proto_tree_add_text(oct_1_tree, tvb, 0, 1, "%s :  Reserved", a_bigbuf);
+    proto_tree_add_text(oct_1_tree,
+        tvb, 0, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct_1, 0x0f, 8);
-    proto_tree_add_text(oct_1_tree, tvb, 0, 1,
-			"%s :  Protocol Discriminator: %u", a_bigbuf,
-			oct_1 & 0x0f);
+    proto_tree_add_text(oct_1_tree,
+        tvb, 0, 1,
+        "%s :  Protocol Discriminator: %u",
+        a_bigbuf,
+        oct_1 & 0x0f);
 
     /*
      * octet 2
@@ -11796,31 +11886,39 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
     case A_VARIANT_IS634:
         other_decode_bitfield_value(a_bigbuf, oct_2, 0x80, 8);
-        proto_tree_add_text(dtap_tree, tvb, 1, 1,
-			    "%s :  Transaction Identifier (TI) Flag: %s",
-			    a_bigbuf,
-			    ((oct_2 & 0x80) ?  "allocated by receiver" :
-			    "allocated by sender"));
+        proto_tree_add_text(dtap_tree,
+            tvb, 1, 1,
+            "%s :  Transaction Identifier (TI) Flag: %s",
+            a_bigbuf,
+            ((oct_2 & 0x80) ?  "allocated by receiver" : "allocated by sender"));
 
         other_decode_bitfield_value(a_bigbuf, oct_2, 0x70, 8);
-        proto_tree_add_text(dtap_tree, tvb, 1, 1,
-			    "%s :  Transaction Identifier (TI): %u",
-			    a_bigbuf, (oct_2 & 0x70) >> 4);
+        proto_tree_add_text(dtap_tree,
+            tvb, 1, 1,
+            "%s :  Transaction Identifier (TI): %u",
+            a_bigbuf,
+            (oct_2 & 0x70) >> 4);
 
         other_decode_bitfield_value(a_bigbuf, oct_2, 0x0f, 8);
-        proto_tree_add_text(dtap_tree, tvb, 1, 1, "%s :  Reserved", a_bigbuf);
+        proto_tree_add_text(dtap_tree,
+            tvb, 1, 1,
+            "%s :  Reserved",
+            a_bigbuf);
         break;
 
     default:
-        proto_tree_add_text(dtap_tree, tvb, 1, 1, "Reserved Octet");
+        proto_tree_add_text(dtap_tree,
+            tvb, 1, 1,
+            "Reserved Octet");
         break;
     }
 
     /*
      * add DTAP message name
      */
-    proto_tree_add_uint_format(dtap_tree, hf_ansi_a_dtap_msgtype, tvb,
-			       saved_offset, 1, oct, "Message Type");
+    proto_tree_add_uint_format(dtap_tree, hf_ansi_a_dtap_msgtype,
+        tvb, saved_offset, 1, oct,
+        "Message Type");
 
     tap_p->pdu_type = BSSAP_PDU_TYPE_DTAP;
     tap_p->message_type = oct;
@@ -11838,8 +11936,9 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (dtap_msg_fcn[dec_idx] == NULL)
     {
-        proto_tree_add_text(dtap_tree, tvb, offset, len - offset,
-			    "Message Elements");
+        proto_tree_add_text(dtap_tree,
+            tvb, offset, len - offset,
+            "Message Elements");
     }
     else
     {
@@ -12024,7 +12123,7 @@ proto_register_ansi_a(void)
      * initializes "ett_let" as an array size.  Therefore, we dynamically
      * allocate the array instead.
      */
-    ett = (gint **)g_malloc(ett_len);
+    ett = (gint **) g_malloc(ett_len);
 
     memset((void *) ett_dtap_msg, -1, sizeof(ett_dtap_msg));
     memset((void *) ett_bsmap_msg, -1, sizeof(ett_bsmap_msg));
@@ -12109,10 +12208,13 @@ proto_register_ansi_a(void)
      */
     ansi_a_module = prefs_register_protocol(proto_a_bsmap, proto_reg_handoff_ansi_a);
 
-    prefs_register_enum_preference(ansi_a_module, "global_variant",
-				   "Dissect PDU as",
-				   "(if other than the default of IOS 4.0.1)",
-				   &global_a_variant, a_variant_options, FALSE);
+    prefs_register_enum_preference(ansi_a_module,
+        "global_variant",
+        "Dissect PDU as",
+        "(if other than the default of IOS 4.0.1)",
+        &global_a_variant,
+        a_variant_options,
+        FALSE);
 
     g_free(ett);
 }
