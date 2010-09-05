@@ -1262,13 +1262,15 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 		return;
 	proto_tree_add_item(tree, hf_http_request_method, tvb, offset, tokenlen,
 			    FALSE);
+	if ((next_token - line) > 2 && next_token[-1] == ' ' && next_token[-2] == ' ') {
+	  /* Two spaces in a now indicates empty URI, so roll back one here */
+	  next_token--;
+	}
 	offset += (int) (next_token - line);
 	line = next_token;
 
 	/* The next token is the URI. */
 	tokenlen = get_token_len(line, lineend, &next_token);
-	if (tokenlen == 0)
-		return;
 
 	/* Save the request URI for various later uses */
 	request_uri = (gchar *)tvb_get_ephemeral_string(tvb, offset, tokenlen);
@@ -1282,8 +1284,6 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	/* Everything to the end of the line is the version. */
 	tokenlen = (int) (lineend - line);
-	if (tokenlen == 0)
-		return;
 	proto_tree_add_item(tree, hf_http_version, tvb, offset, tokenlen,
 	    FALSE);
 }
