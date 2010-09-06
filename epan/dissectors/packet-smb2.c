@@ -73,7 +73,10 @@ static int hf_smb2_security_blob = -1;
 static int hf_smb2_ioctl_in_data = -1;
 static int hf_smb2_ioctl_out_data = -1;
 static int hf_smb2_unknown = -1;
-static int hf_smb2_unknown_timestamp = -1;
+static int hf_smb2_twrp_timestamp = -1;
+static int hf_smb2_mxac_timestamp = -1;
+static int hf_smb2_mxac_status = -1;
+static int hf_smb2_qfid_fid = -1;
 static int hf_smb2_create_timestamp = -1;
 static int hf_smb2_oplock = -1;
 static int hf_smb2_close_flags = -1;
@@ -247,6 +250,7 @@ static int hf_smb2_lock_flags_shared = -1;
 static int hf_smb2_lock_flags_exclusive = -1;
 static int hf_smb2_lock_flags_unlock = -1;
 static int hf_smb2_lock_flags_fail_immediately = -1;
+static int hf_smb2_dhnq_buffer_reserved = -1;
 static int hf_smb2_error_byte_count = -1;
 static int hf_smb2_error_data = -1;
 static int hf_smb2_error_reserved = -1;
@@ -290,6 +294,7 @@ static gint ett_smb2_tid_tree = -1;
 static gint ett_smb2_sesid_tree = -1;
 static gint ett_smb2_create_chain_element = -1;
 static gint ett_smb2_MxAc_buffer = -1;
+static gint ett_smb2_QFid_buffer = -1;
 static gint ett_smb2_ioctl_function = -1;
 static gint ett_smb2_FILE_OBJECTID_BUFFER = -1;
 static gint ett_smb2_flags = -1;
@@ -4112,7 +4117,13 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 }
 
 static void
-dissect_smb2_ExtA_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
+report_create_context_malformed_buffer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, const char *buffer_desc)
+{
+	proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, 0),
+			    "%s SHOULD NOT be generated. Malformed packeet", buffer_desc);
+}
+static void
+dissect_smb2_ExtA_buffer_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
 {
 	proto_item *item=NULL;
 	if (tree) {
@@ -4124,39 +4135,134 @@ dissect_smb2_ExtA_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, sm
 }
 
 static void
-dissect_smb2_TWrp_buffer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+dissect_smb2_ExtA_buffer_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si _U_)
+{
+	report_create_context_malformed_buffer(tvb, pinfo, tree, "ExtA Response");
+}
+
+static void
+dissect_smb2_TWrp_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
 {
 	proto_item *item=NULL;
 	if (tree) {
 		item = proto_tree_get_parent(tree);
 		proto_item_append_text(item, ": Timestamp");
 	}
-	dissect_nt_64bit_time(tvb, tree, 0, hf_smb2_unknown_timestamp);
+	dissect_nt_64bit_time(tvb, tree, 0, hf_smb2_twrp_timestamp);
 
 	return;
 }
 
+static void
+dissect_smb2_TWrp_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+{
+	report_create_context_malformed_buffer(tvb, pinfo, tree, "TWrp Response");
+}
 
 static void
-dissect_smb2_AlSi_buffer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+dissect_smb2_QFid_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+{
+        proto_item *item=NULL;
+
+        if (tree) {
+                item = proto_tree_get_parent(tree);
+        }
+	
+	if (item) {
+		if (tvb_length(tvb) == 0) {
+			proto_item_append_text(item, ": NO DATA");
+		} else {
+			proto_item_append_text(item, ": QFid request should have no data, malformed packet");
+		}
+	}
+}
+
+static void
+dissect_smb2_QFid_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+{
+	int offset = 0;
+	proto_item *item = NULL;
+	proto_item *sub_item = NULL;
+	proto_item *sub_tree = NULL;
+
+	if (tree) {
+		item = proto_tree_get_parent(tree);
+	}
+
+	if (item) {
+		proto_item_append_text(item, ": QFid INFO");
+		sub_item = proto_tree_add_text(tree, tvb, offset, -1, "QFid INFO");
+		sub_tree = proto_item_add_subtree(sub_item, ett_smb2_QFid_buffer);
+	}
+
+	proto_tree_add_item(sub_tree, hf_smb2_qfid_fid, tvb, offset, 32, FALSE);
+	offset += 32;
+}
+
+static void
+dissect_smb2_AlSi_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
 {
 	proto_tree_add_item(tree, hf_smb2_allocation_size, tvb, 0, 8, TRUE);
 }
 
 static void
-dissect_smb2_DHnQ_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
+dissect_smb2_AlSi_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+{
+	report_create_context_malformed_buffer(tvb, pinfo, tree, "AlSi Response");
+}
+
+static void
+dissect_smb2_DHnQ_buffer_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
 {
 	dissect_smb2_fid(tvb, pinfo, tree, 0, si, FID_MODE_DHNQ);
 }
 
 static void
-dissect_smb2_DHnC_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
+dissect_smb2_DHnQ_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+{
+	proto_tree_add_item(tree, hf_smb2_dhnq_buffer_reserved, tvb, 0, 8, TRUE);	
+}
+
+static void
+dissect_smb2_DHnC_buffer_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
 {
 	dissect_smb2_fid(tvb, pinfo, tree, 0, si, FID_MODE_DHNC);
 }
 
 static void
-dissect_smb2_MxAc_buffer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+dissect_smb2_DHnC_buffer_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si _U_)
+{
+	report_create_context_malformed_buffer(tvb, pinfo, tree, "DHnC Response");
+}
+
+static void
+dissect_smb2_MxAc_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+{
+        int offset=0;
+        proto_item *item=NULL;
+
+        if (tree) {
+                item = proto_tree_get_parent(tree);
+        }
+
+        if (tvb_length(tvb) == 0) {
+                if (item) {
+                        proto_item_append_text(item, ": NO DATA");
+                }
+                return;
+        }
+
+        if (item) {
+                proto_item_append_text(item, ": Timestamp");
+        }
+
+	dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_mxac_timestamp);
+
+	return;	
+}
+
+static void
+dissect_smb2_MxAc_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
 {
 	int offset=0;
 	proto_item *item=NULL;
@@ -4180,12 +4286,46 @@ dissect_smb2_MxAc_buffer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		sub_tree = proto_item_add_subtree(sub_item, ett_smb2_MxAc_buffer);
 	}
 
-	proto_tree_add_item(sub_tree, hf_smb2_unknown, tvb, offset, 4, FALSE);
+	proto_tree_add_item(sub_tree, hf_smb2_mxac_status, tvb, offset, 4, FALSE);
 	offset += 4;
 
 	offset = dissect_smb_access_mask(tvb, sub_tree, offset);
 
 	return;
+}
+
+
+typedef void (*create_context_data_dissector_t)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si);
+
+typedef struct create_context_data_dissectors {
+	create_context_data_dissector_t request;
+	create_context_data_dissector_t response;
+} create_context_data_dissectors_t;
+
+struct create_context_data_tag_dissectors {
+	const char *tag;
+	create_context_data_dissectors_t dissectors;
+};
+
+struct create_context_data_tag_dissectors create_context_dissectors_array[] = {
+	{ "ExtA", { dissect_smb2_ExtA_buffer_request, dissect_smb2_ExtA_buffer_response } },
+	{ "AlSi", { dissect_smb2_AlSi_buffer_request, dissect_smb2_AlSi_buffer_response } },
+	{ "MxAc", { dissect_smb2_MxAc_buffer_request, dissect_smb2_MxAc_buffer_response } },
+	{ "DHnQ", { dissect_smb2_DHnQ_buffer_request, dissect_smb2_DHnQ_buffer_response } },
+	{ "DHnC", { dissect_smb2_DHnC_buffer_request, dissect_smb2_DHnC_buffer_response } },
+	{ "TWrp", { dissect_smb2_TWrp_buffer_request, dissect_smb2_TWrp_buffer_response } },
+	{ "QFid", { dissect_smb2_QFid_buffer_request, dissect_smb2_QFid_buffer_response } }
+};
+
+static struct create_context_data_dissectors* 
+get_create_context_data_dissectors(const char *tag)
+{
+	size_t i;
+	for (i=0; i<sizeof(create_context_dissectors_array)/sizeof(create_context_dissectors_array[0]); i++) {
+		if (!strcmp(tag, create_context_dissectors_array[i].tag))
+			return &create_context_dissectors_array[i].dissectors;
+	}
+	return NULL;
 }
 
 static void
@@ -4197,7 +4337,8 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	guint16 chain_offset;
 	int offset=0;
 	int len=-1;
-	void (*dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si);
+	create_context_data_dissectors_t *dissectors = NULL;
+	create_context_data_dissector_t dissector = NULL;
 	proto_item *sub_item=NULL;
 	proto_tree *sub_tree=NULL;
 	proto_item *parent_item=NULL;
@@ -4230,21 +4371,10 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	proto_item_append_text(sub_item, ": %s", tag);
 
 	/* data */
-	dissector = NULL;
-	if(!strcmp(tag, "ExtA")){
-		dissector = dissect_smb2_ExtA_buffer;
-	} else if(!strcmp(tag, "AlSi")){
-		dissector = dissect_smb2_AlSi_buffer;
-	} else if(!strcmp(tag, "MxAc")){
-		dissector = dissect_smb2_MxAc_buffer;
-	} else if(!strcmp(tag, "DHnQ")){
-		dissector = dissect_smb2_DHnQ_buffer;
-	} else if(!strcmp(tag, "DHnC")){
-		dissector = dissect_smb2_DHnC_buffer;
-	} else if(!strcmp(tag, "TWrp")){
-		dissector = dissect_smb2_TWrp_buffer;
-	}
-
+	dissectors = get_create_context_data_dissectors(tag);
+	if (dissectors)
+		dissector = (si->flags & SMB2_FLAGS_RESPONSE) ? dissectors->response : dissectors->request;
+	
 	dissect_smb2_olb_buffer(pinfo, sub_tree, tvb, &data_olb, si, dissector);
 
 	if(chain_offset){
@@ -6050,9 +6180,21 @@ proto_register_smb2(void)
 		{ "unknown", "smb2.unknown", FT_BYTES, BASE_NONE,
 		NULL, 0, "Unknown bytes", HFILL }},
 
-	{ &hf_smb2_unknown_timestamp,
-		{ "Timestamp", "smb2.unknown.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
-		NULL, 0, "Unknown timestamp", HFILL }},
+	{ &hf_smb2_twrp_timestamp,
+		{ "Timestamp", "smb2.twrp_timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+		NULL, 0, "TWrp timestamp", HFILL }},
+
+	{ &hf_smb2_mxac_timestamp,
+		{ "Timestamp", "smb2.mxac_timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+		NULL, 0, "MxAc timestamp", HFILL }},
+
+	{ &hf_smb2_mxac_status,
+		{ "Query Status", "smb2.mxac_status", FT_UINT32, BASE_HEX,
+		VALS(NT_errors), 0, "NT Status code", HFILL }},
+
+	{ &hf_smb2_qfid_fid,
+		{ "Opaque File ID", "smb2.qfid_fid", FT_BYTES, BASE_NONE,
+		NULL, 0, "Opaque File ID", HFILL }},
 
 	{ &hf_smb2_ses_flags_guest,
 		{ "Guest", "smb2.ses_flags.guest", FT_BOOLEAN, 16,
@@ -6264,6 +6406,9 @@ proto_register_smb2(void)
 		{ "Reserved", "smb2.reserved", FT_BYTES, BASE_NONE,
 		NULL, 0, "Reserved bytes", HFILL }},
 
+	{ &hf_smb2_dhnq_buffer_reserved,
+		{ "Reserved", "smb2.hf_smb2_dhnq_buffer_reserved", FT_UINT64, BASE_HEX,
+		NULL, 0, "", HFILL}}, 
 	};
 
 	static gint *ett[] = {
@@ -6305,6 +6450,7 @@ proto_register_smb2(void)
 		&ett_smb2_sesid_tree,
 		&ett_smb2_create_chain_element,
 		&ett_smb2_MxAc_buffer,
+		&ett_smb2_QFid_buffer,
 		&ett_smb2_ioctl_function,
 		&ett_smb2_FILE_OBJECTID_BUFFER,
 		&ett_smb2_flags,
