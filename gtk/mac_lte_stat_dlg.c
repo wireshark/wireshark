@@ -96,8 +96,8 @@ enum {
 };
 
 static const gchar *ue_titles[] = { "RNTI", "Type", "UEId",
-                                    "UL Frames", "UL Bytes", "UL Mbs", "UL Padding %", "UL CRC Errors", "UL ReTX Frames",
-                                    "DL Frames", "DL Bytes", "DL Mbs", "DL CRC Errors", "DL ReTX Frames"};
+                                    "UL Frames", "UL Bytes", "UL MBit/sec", "UL Padding %", "UL CRC Errors", "UL ReTX Frames",
+                                    "DL Frames", "DL Bytes", "DL MBit/sec", "DL CRC Errors", "DL ReTX Frames"};
 
 static const gchar *channel_titles[] = { "CCCH",
                                          "LCID 1", "LCID 2", "LCID 3", "LCID 4", "LCID 5",
@@ -420,13 +420,12 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             return 1;
         }
 
-        /* Update start/stop time as appropriate */
+        /* Update time range */
         if (te->stats.UL_frames == 0) {
             te->stats.UL_time_start = si->time;
         }
-        else {
-            te->stats.UL_time_stop = si->time;
-        }
+        te->stats.UL_time_stop = si->time;
+
         te->stats.UL_frames++;
 
         te->stats.UL_raw_bytes += si->raw_length;
@@ -453,13 +452,12 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             return 1;
         }
 
-        /* Update start/stop time as appropriate */
+        /* Update time range */
         if (te->stats.DL_frames == 0) {
             te->stats.DL_time_start = si->time;
         }
-        else {
-            te->stats.DL_time_stop = si->time;
-        }
+        te->stats.DL_time_stop = si->time;
+
         te->stats.DL_frames++;
 
         if (si->isPredefinedData) {

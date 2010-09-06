@@ -95,12 +95,12 @@ enum {
 };
 
 static const gchar *ue_titles[] = { "UEId",
-                                    "UL Frames", "UL Bytes", "UL Mbs", "UL NACKs", "UL Missing",
-                                    "DL Frames", "DL Bytes", "DL Mbs", "DL NACKs", "DL Missing"};
+                                    "UL Frames", "UL Bytes", "UL MBit/sec", "UL NACKs", "UL Missing",
+                                    "DL Frames", "DL Bytes", "DL MBit/sec", "DL NACKs", "DL Missing"};
 
 static const gchar *channel_titles[] = { "", "Mode",
-                                         "UL Frames", "UL Bytes", "UL Mbs", "UL ACKs", "UL NACKs", "UL Missing",
-                                         "DL Frames", "DL Bytes", "DL Mbs", "DL ACKs", "DL NACKs", "DL Missing"};
+                                         "UL Frames", "UL Bytes", "UL MBit/sec", "UL ACKs", "UL NACKs", "UL Missing",
+                                         "DL Frames", "DL Bytes", "DL MBit/sec", "DL ACKs", "DL NACKs", "DL Missing"};
 
 /* Stats kept for one channel */
 typedef struct rlc_channel_stats {
@@ -436,24 +436,22 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     /* Top-level traffic stats */
     if (si->direction == DIRECTION_UPLINK) {
-        /* Update start/stop time as appropriate */
+        /* Update time range */
         if (te->stats.UL_frames == 0) {
             te->stats.UL_time_start = si->time;
         }
-        else {
-            te->stats.UL_time_stop = si->time;
-        }
+        te->stats.UL_time_stop = si->time;
+
         te->stats.UL_frames++;
         te->stats.UL_total_bytes += si->pduLength;
     }
     else {
-        /* Update start/stop time as appropriate */
+        /* Update time range */
         if (te->stats.DL_frames == 0) {
             te->stats.DL_time_start = si->time;
         }
-        else {
-            te->stats.DL_time_stop = si->time;
-        }
+        te->stats.DL_time_stop = si->time;
+
         te->stats.DL_frames++;
         te->stats.DL_total_bytes += si->pduLength;
     }
@@ -490,12 +488,12 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     }
 
     if (si->direction == DIRECTION_UPLINK) {
+        /* Update time range */
         if (channel_stats->UL_frames == 0) {
             channel_stats->UL_time_start = si->time;
         }
-        else {
-            channel_stats->UL_time_stop = si->time;
-        }
+        channel_stats->UL_time_stop = si->time;
+
         channel_stats->UL_frames++;
         channel_stats->UL_bytes += si->pduLength;
         channel_stats->UL_nacks += si->noOfNACKs;
@@ -507,12 +505,12 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         te->stats.UL_total_missing += si->missingSNs;
     }
     else {
+        /* Update time range */
         if (channel_stats->DL_frames == 0) {
             channel_stats->DL_time_start = si->time;
         }
-        else {
-            channel_stats->DL_time_stop = si->time;
-        }
+        channel_stats->DL_time_stop = si->time;
+
         channel_stats->DL_frames++;
         channel_stats->DL_bytes += si->pduLength;
         channel_stats->DL_nacks += si->noOfNACKs;
