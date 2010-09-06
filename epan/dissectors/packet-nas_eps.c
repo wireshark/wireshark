@@ -299,37 +299,36 @@ const value_string nas_eps_common_elem_strings[] = {
     { 0, NULL }
 };
 /* Utility functions */
-static guint8
+static guint16
 calc_bitrate(guint8 value){
-
+    guint16 return_value = value;
 
     if (value > 63 && value <= 127) {
-        value = 64 + (value - 64) * 8;
+        return_value = 64 + (value - 64) * 8;
     }
-    if (value > 127 && value <= 254) {
-        value = 576 + (value - 128) * 64;
+    else if (value > 127 && value <= 254) {
+        return_value = 576 + (value - 128) * 64;
     }
-    if (value==0xff){
-        value = 0;
+    else if (value==0xff) {
+        return_value = 0;
     }
-
-    return value;
+    return return_value;
 }
-static guint8
+static guint32
 calc_bitrate_ext(guint8 value){
-
+    guint32 return_value = 0;
 
     if (value > 0 && value <= 0x4a) {
-        value = 8600 + value * 100;
+        return_value = 8600 + value * 100;
     }
-    if (value > 0x4a && value <= 0xba) {
-        value = 16 + (value-0x4a);
+    else if (value > 0x4a && value <= 0xba) {
+        return_value = 16 + (value-0x4a);
     }
-    if (value > 0xba && value <= 0xfa) {
-        value = 128 + (value-0xba)*2;
+    else if (value > 0xba && value <= 0xfa) {
+        return_value = 128 + (value-0xba)*2;
     }
-
-    return value;
+        
+    return return_value;
 }
 
 #define NUM_NAS_EPS_COMMON_ELEM (sizeof(nas_eps_common_elem_strings)/sizeof(value_string))
