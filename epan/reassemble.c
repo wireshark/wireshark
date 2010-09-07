@@ -1968,11 +1968,13 @@ show_fragment(fragment_data *fd, const int offset, const fragment_items *fit,
 	proto_item *fei=NULL;
 	int hf;
 
-	if (first_frag)
-		proto_item_append_text(fi, " (%u segment%s, %u byte%s): ", count, plurality(count, "", "s"), tvb_length(tvb),
+	if (first_frag) {
+		proto_item_prepend_text(fi, "%u ", count);
+		proto_item_append_text(fi, " (%u byte%s): ", tvb_length(tvb),
 			plurality(tvb_length(tvb), "", "s"));
-	else
+	} else {
 		proto_item_append_text(fi, ", ");
+	}
 	proto_item_append_text(fi, "#%u(%u)", fd->frame, fd->len);
 
 	if (fd->flags & (FD_OVERLAPCONFLICT
