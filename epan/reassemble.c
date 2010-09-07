@@ -1963,13 +1963,13 @@ process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
  */
 static void
 show_fragment(fragment_data *fd, const int offset, const fragment_items *fit,
-	proto_tree *ft, proto_item *fi, const gboolean first_frag, tvbuff_t *tvb)
+	proto_tree *ft, proto_item *fi, const gboolean first_frag, const guint32 count, tvbuff_t *tvb)
 {
 	proto_item *fei=NULL;
 	int hf;
 
 	if (first_frag)
-		proto_item_append_text(fi, " (%u byte%s): ", tvb_length(tvb),
+		proto_item_append_text(fi, " (%u segment%s, %u byte%s): ", count, plurality(count, "", "s"), tvb_length(tvb),
 			plurality(tvb_length(tvb), "", "s"));
 	else
 		proto_item_append_text(fi, ", ");
@@ -2067,7 +2067,7 @@ show_fragment_tree(fragment_data *fd_head, const fragment_items *fit,
 	fragment_data *fd;
 	proto_tree *ft;
 	gboolean first_frag;
-
+	guint32 count = 0;
 	/* It's not fragmented. */
 	pinfo->fragmented = FALSE;
 
@@ -2078,7 +2078,10 @@ show_fragment_tree(fragment_data *fd_head, const fragment_items *fit,
 	ft = proto_item_add_subtree(*fi, *(fit->ett_fragments));
 	first_frag = TRUE;
 	for (fd = fd_head->next; fd != NULL; fd = fd->next) {
-		show_fragment(fd, fd->offset, fit, ft, *fi, first_frag, tvb);
+		count++;
+	}
+	for (fd = fd_head->next; fd != NULL; fd = fd->next) {
+		show_fragment(fd, fd->offset, fit, ft, *fi, first_frag, count, tvb);
 		first_frag = FALSE;
 	}
 
@@ -2101,7 +2104,7 @@ gboolean
 show_fragment_seq_tree(fragment_data *fd_head, const fragment_items *fit,
 	proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, proto_item **fi)
 {
-	guint32 offset, next_offset;
+	guint32 offset, next_offset, count = 0;
 	fragment_data *fd, *last_fd;
 	proto_tree *ft;
 	gboolean first_frag;
@@ -2119,12 +2122,15 @@ show_fragment_seq_tree(fragment_data *fd_head, const fragment_items *fit,
 	last_fd = NULL;
 	first_frag = TRUE;
 	for (fd = fd_head->next; fd != NULL; fd = fd->next){
+		count++;
+	}
+	for (fd = fd_head->next; fd != NULL; fd = fd->next){
 		if (last_fd == NULL || last_fd->offset != fd->offset) {
 			offset = next_offset;
 			next_offset += fd->len;
 		}
 		last_fd = fd;
-		show_fragment(fd, offset, fit, ft, *fi, first_frag, tvb);
+		show_fragment(fd, offset, fit, ft, *fi, first_frag, count, tvb);
 		first_frag = FALSE;
 	}
 
