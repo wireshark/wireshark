@@ -874,6 +874,244 @@ static GtkItemFactoryEntry menu_items[] =
                        0, "<StockItem>", WIRESHARK_STOCK_ABOUT}
 };
 
+#if 0
+/* Prepare for use of GTKUImanager */
+GtkUIManager *ui_manager_main_menubar = NULL;
+
+static void
+copy_description_cb(GtkWidget *widget, gpointer user_data)
+{
+	copy_selected_plist_cb( widget , user_data, COPY_SELECTED_DESCRIPTION);
+}
+
+static void
+copy_fieldname_cb(GtkWidget *widget, gpointer user_data)
+{
+	copy_selected_plist_cb( widget , user_data, COPY_SELECTED_FIELDNAME);
+}
+
+static void
+copy_value_cb(GtkWidget *widget, gpointer user_data)
+{
+	copy_selected_plist_cb( widget , user_data, COPY_SELECTED_VALUE);
+}
+
+static void
+copy_as_filter_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
+}
+
+static const char *ui_desc_menubar =
+"<ui>\n"
+"  <menubar name ='Menubar'>\n"
+"    <menu name= 'FileMenu' action='/File'>\n"
+"      <menuitem name='FileOpen' action='/File/Open'/>\n"
+"      <menuitem name='FileOpenRecent' action='/File/OpenRecent'/>\n"
+"      <menuitem name='FileMerge' action='/File/Merge'/>\n"
+"      <menuitem name='FileClose' action='/File/Close'/>\n"
+"      <separator/>\n"
+"      <menuitem name='FileSave' action='/File/Save'/>\n"
+"      <menuitem name='FileSaveAs' action='/File/SaveAs'/>\n"
+"      <separator/>\n"
+"      <menu name= 'FileSet' action='/File/FileSet'>\n"
+"        <menuitem name='ListFiles' action='/File/FileSet/ListFiles'/>\n"
+"        <menuitem name='NextFile' action='/File/FileSet/NextFile'/>\n"
+"        <menuitem name='PreviousFile' action='/File/FileSet/PreviousFile'/>\n"
+"      </menu>\n"
+"      <separator/>\n"
+"      <menu name= 'FileExport' action='/File/Export'>\n"
+#if _WIN32
+"        <menuitem name='FileExportFile' action='/File/Export/File'/>\n"
+#else
+"        <menu name= 'FileExportFile' action='/File/Export/File'>\n"
+"          <menuitem name='FileExportFileAsTxt' action='/File/Export/File/Text'/>\n"
+"          <menuitem name='ExportFileAsPostScript' action='/File/Export/File/PostScript'/>\n"
+"          <menuitem name='ExportFileAsCSV' action='/File/Export/File/CSV'/>\n"
+"          <menuitem name='ExportFileAsCArrays' action='/File/Export/File/CArrays'/>\n"
+"          <separator/>\n"
+"          <menuitem name='ExportFileAsPSML' action='/File/Export/File/PSML'/>\n"
+"          <menuitem name='ExportFileAsPDML' action='/File/Export/File/PDML'/>\n"
+"          <separator/>\n"
+"        </menu>\n"
+#endif
+"      <menuitem name='ExportFileSelectedPacketBytes' action='/File/Export/SelectedPacketBytes'/>\n"
+"        <menu name= 'FileExportObjects' action='/File/Export/Objects'>\n"
+"          <menuitem name='FileExportObjectsHTTP' action='/File/Export/Objects/HTTP'/>\n"
+"          <menuitem name='FileExportObjectsDICOM' action='/File/Export/Objects/DICOM'/>\n"
+"          <menuitem name='FileExportObjectsSMB' action='/File/Export/Objects/SMB'/>\n"
+"        </menu>\n"
+"      </menu>\n"
+"      <separator/>\n"
+"      <menuitem name='FilePrint' action='/File/Print'/>\n"
+"      <separator/>\n"
+"        <menuitem name='FileQuit' action='/File/Quit'/>\n"
+"    </menu>\n"
+"    <menu name= 'EditMenu' action='/Edit'>\n"
+"        <menu name= 'EditMenuCopy' action='/Edit/Copy'>\n"
+"          <menuitem name='EditMenuCopyDescription' action='/Edit/Copy/Description'/>\n"
+"          <menuitem name='EditMenuCopyFieldname' action='/Edit/Copy/Fieldname'/>\n"
+"          <menuitem name='EditMenuCopyValue' action='/Edit/Copy/Value'/>\n"
+"          <separator/>\n"
+"          <menuitem name='EditMenuCopyAsFilter' action='/Edit/Copy/AsFilter'/>\n"
+"        </menu>\n"
+"        <menuitem name='EditMenuFindPacket' action='/Edit/FindPacket'/>\n"
+"        <menuitem name='EditMenuFindNext' action='/Edit/FindNext'/>\n"
+"        <menuitem name='EditMenuFindPrevious' action='/Edit/FindPrevious'/>\n"
+"      <separator/>\n"
+#ifdef NEW_PACKET_LIST
+"        <menuitem name='EditMenuMarkPacket' action='/Edit/MarkPacket'/>\n"
+"        <menuitem name='EditMenuMarkAllDisplayedPackets' action='/Edit/MarkAllDisplayedPackets'/>\n"
+#else /* NEW_PACKET_LIST */
+Not implemented!
+#endif
+"    </menu>\n"
+"  </menubar>\n"
+"</ui>\n";
+
+/* 
+ * GtkActionEntry
+ * typedef struct {
+ *   const gchar     *name;
+ *   const gchar     *stock_id;
+ *   const gchar     *label;
+ *   const gchar     *accelerator;
+ *   const gchar     *tooltip;
+ *   GCallback  callback;
+ * } GtkActionEntry;
+ * const gchar *name;			The name of the action.  
+ * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.  
+ * const gchar *label;			The label for the action. This field should typically be marked for translation, 
+ *								see gtk_action_group_set_translation_domain(). 
+ *								If label is NULL, the label of the stock item with id stock_id is used.  
+ * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().  
+ * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation, 
+ *                              see gtk_action_group_set_translation_domain().  
+ * GCallback callback;			The function to call when the action is activated.  
+ *
+ */
+static const GtkActionEntry main_menu_bar_entries[] = {
+  /* Top level */ 
+  { "/File",					NULL,							"_File",			NULL,					NULL,			NULL },
+  { "/Edit",					NULL,							"_Edit",			NULL,					NULL,			NULL },
+
+  { "/File/Open",				GTK_STOCK_OPEN,					"_Open...",			"<control>O",			"Open a file",	G_CALLBACK(file_open_cmd_cb) },
+  { "/File/OpenRecent",			NULL,							"Open _Recent",		NULL,					NULL,			NULL },
+  { "/File/Merge",				NULL,							"_Merge...",		NULL,					NULL,			G_CALLBACK(file_merge_cmd_cb) },
+  { "/File/Close",				GTK_STOCK_CLOSE,				"_Close",			"<control>W",			NULL,			G_CALLBACK(file_close_cmd_cb) },
+
+  { "/File/Save",				GTK_STOCK_SAVE,					"_Save",			"<control>S",			NULL,			G_CALLBACK(file_save_cmd_cb) },
+  { "/File/SaveAs",				GTK_STOCK_SAVE_AS,				"Save _As...",		"<shift><control>S",	NULL,			G_CALLBACK(file_save_as_cmd_cb) },
+
+  { "/File/FileSet",			NULL,							"File Set",			NULL,					NULL,			NULL },
+  { "/File/Export",				NULL,							"Export",			NULL,					NULL,			NULL },
+  { "/File/Print",				GTK_STOCK_PRINT,				"_Print...",		"<control>P",			NULL,			G_CALLBACK(file_print_cmd_cb) },
+  { "/File/Quit",				GTK_STOCK_QUIT,					"_Quit",			"<control>Q",			NULL,			G_CALLBACK(file_quit_cmd_cb) },
+
+  { "/File/FileSet/ListFiles",	WIRESHARK_STOCK_FILE_SET_LIST,	"List Files",		NULL,					NULL,			G_CALLBACK(fileset_cb) },
+  { "/File/FileSet/NextFile",	WIRESHARK_STOCK_FILE_SET_NEXT,	"Next File",		NULL,					NULL,			G_CALLBACK(fileset_next_cb) },
+  { "/File/FileSet/PreviousFile",WIRESHARK_STOCK_FILE_SET_PREVIOUS,	"Previous File",	NULL,				NULL,			G_CALLBACK(fileset_previous_cb) },
+
+#if _WIN32
+  { "/File/Export/File",				NULL,		"File...",						NULL,					NULL,			G_CALLBACK(export_text_cmd_cb) },
+#else
+  { "/File/Export/File",				NULL,		"File...",						NULL,					NULL,			NULL },
+  { "/File/Export/File/Text",			NULL,		"as \"Plain _Text\" file...",	NULL,					NULL,			G_CALLBACK(export_text_cmd_cb) },
+  { "/File/Export/File/PostScript",		NULL,		"as \"_PostScript\" file...",	NULL,					NULL,			G_CALLBACK(export_ps_cmd_cb) },
+  { "/File/Export/File/CSV",			NULL,		"as \"_CSV\" (Comma Separated Values packet summary) file...",
+																					NULL,					NULL,			G_CALLBACK(export_csv_cmd_cb) },
+  { "/File/Export/File/CArrays",		NULL,		"as \"C _Arrays\" (packet bytes) file...",
+																					NULL,					NULL,			G_CALLBACK(export_carrays_cmd_cb) },
+  { "/File/Export/File/PSML",			NULL,		"as XML - \"P_SML\" (packet summary) file...",
+																					NULL,					NULL,			G_CALLBACK(export_psml_cmd_cb) },
+  { "/File/Export/File/PDML",			NULL,		"as XML - \"P_DML\" (packet details) file...",	
+																					NULL,					NULL,			G_CALLBACK(export_pdml_cmd_cb) },
+#endif
+  { "/File/Export/SelectedPacketBytes",	NULL,		"Selected Packet _Bytes...",	"<control>H",			NULL,			G_CALLBACK(savehex_cb) },
+  { "/File/Export/Objects",				NULL,		"Objects",						NULL,					NULL,			NULL },
+  { "/File/Export/Objects/HTTP",		NULL,		"_HTTP",						NULL,					NULL,			G_CALLBACK(eo_http_cb) },
+  { "/File/Export/Objects/DICOM",		NULL,		"_DICOM",						NULL,					NULL,			G_CALLBACK(eo_dicom_cb) },
+  { "/File/Export/Objects/SMB",			NULL,		"_SMB",							NULL,					NULL,			G_CALLBACK(eo_smb_cb) },
+
+
+  { "/Edit/Copy",						NULL,		"Copy",							NULL,					NULL,			NULL },
+
+  { "/Edit/Copy/Description",			NULL,		"Description",					"<shift><control>D",	NULL,			G_CALLBACK(copy_description_cb) },
+  { "/Edit/Copy/Fieldname",				NULL,		"Fieldname",					"<shift><control>F",	NULL,			G_CALLBACK(copy_fieldname_cb) },
+  { "/Edit/Copy/Value",					NULL,		"Value",						"<shift><control>V",	NULL,			G_CALLBACK(copy_value_cb) },
+  { "/Edit/Copy/AsFilter",				NULL,		"As Filter",					"<shift><control>C",	NULL,			G_CALLBACK(copy_as_filter_cb) },
+
+#if 0
+    /*
+     * Un-#if this when we actually implement Cut/Copy/Paste for the
+     * packet list and packet detail windows.
+     *
+     * Note: when we implement Cut/Copy/Paste in those windows, we
+     * will almost certainly want to allow multiple packets to be
+     * selected in the packet list pane and multiple packet detail
+     * items to be selected in the packet detail pane, so that
+     * the user can, for example, copy the summaries of multiple
+     * packets to the clipboard from the packet list pane and multiple
+     * packet detail items - perhaps *all* packet detail items - from
+     * the packet detail pane.  Given that, we'll also want to
+     * implement Select All.
+     *
+     * If multiple packets are selected, we would probably display nothing
+     * in the packet detail pane, just as we do if no packet is selected,
+     * and any menu items etc. that would pertain only to a single packet
+     * would be disabled.
+     *
+     * If multiple packet detail items are selected, we would probably
+     * disable all items that pertain only to a single packet detail
+     * item, such as some items in the status bar.
+     *
+     * XXX - the actions for these will be different depending on what
+     * widget we're in; ^C should copy from the filter text widget if
+     * we're in that widget, the packet list if we're in that widget
+     * (presumably copying the summaries of selected packets to the
+     * clipboard, e.g. the text copy would be the text of the columns),
+     * the packet detail if we're in that widget (presumably copying
+     * the contents of selected protocol tree items to the clipboard,
+     * e.g. the text copy would be the text displayed for those items),
+     * etc..
+     *
+     * Given that those menu items should also affect text widgets
+     * such as the filter box, we would again want Select All, and,
+     * at least for the filter box, we would also want Undo and Redo.
+     * We would only want Cut, Paste, Undo, and Redo for the packet
+     * list and packet detail panes if we support modifying them.
+     */
+    {"/Edit/_Undo", "<control>Z", NULL,
+                             0, "<StockItem>", GTK_STOCK_UNDO,},
+    {"/Edit/_Redo", "<shift><control>Z", NULL,
+                             0, "<StockItem>", GTK_STOCK_REDO,},
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/Cu_t", "<control>X", NULL,
+                             0, "<StockItem>", GTK_STOCK_CUT,},
+    {"/Edit/_Copy", "<control>C", NULL,
+                             0, "<StockItem>", GTK_STOCK_COPY,},
+    {"/Edit/_Paste", "<control>V", NULL,
+                             0, "<StockItem>", GTK_STOCK_PASTE,},
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/Select _All", "<control>A", NULL, 0,
+#ifdef GTK_STOCK_SELECT_ALL	/* first appeared in 2.10 */
+                             "<StockItem>", GTK_STOCK_SELECT_ALL,
+#else
+                             NULL, NULL,
+#endif /* GTK_STOCK_SELECT_ALL */
+#endif /* 0 */
+   { "/Edit/FindPacket",				GTK_STOCK_FIND,		"_Find Packet...",						"<control>F",			NULL,			G_CALLBACK(find_frame_cb) },
+   { "/Edit/FindNext",					NULL,				"Find Ne_xt",							"<control>N",			NULL,			G_CALLBACK(find_next_cb) },
+   { "/Edit/FindPrevious",				NULL,				"Find Pre_vious",						"<control>B",			NULL,			G_CALLBACK(find_previous_cb) },
+
+#ifdef NEW_PACKET_LIST
+   { "/Edit/MarkPacket",				NULL,				"_Mark Packet (toggle)",				"<control>M",			NULL,			G_CALLBACK(new_packet_list_mark_frame_cb) },
+   { "/Edit/MarkAllDisplayedPackets",	NULL,				"Mark All Displayed Packets (toggle)",	"<shift><control>M",	NULL,			G_CALLBACK(new_packet_list_mark_all_displayed_frames_cb) },
+};
+#else /* NEW_PACKET_LIST */
+Not implemeted.
+#endif /* NEW_PACKET_LIST */
+#endif /* 0 Prepare for use of GTKUImanager*/
 
 /* calculate the number of menu_items */
 static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
