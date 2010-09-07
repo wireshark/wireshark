@@ -2382,9 +2382,6 @@ main(int argc, char *argv[])
   /* Set the initial values in the capture options. This might be overwritten
      by preference settings and then again by the command line parameters. */
   capture_opts_init(&global_capture_opts, &cfile);
-
-  global_capture_opts.snaplen             = MIN_PACKET_SIZE;
-  global_capture_opts.has_ring_num_files  = TRUE;
 #endif
 
   /* Initialize whatever we need to allocate colors for GTK+ */
