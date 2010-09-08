@@ -162,6 +162,7 @@ typedef struct _rose_ctx_t {
       */
     gint code;  
       /* 
+        -1 : none (optional in ReturnResult)
          0 : local, 
          1 : global 
       */

@@ -364,12 +364,13 @@ dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   dissector_handle_t res_handle = NULL;
   const gchar *descr = "";
 
+  actx->rose_ctx->d.code = -1;
   res_next_tvb = NULL;
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ReturnResult_sequence, hf_index, ett_q932_ros_ReturnResult);
 
-#line 12 "ros-res.cnf"
+#line 13 "ros-res.cnf"
   actx->rose_ctx->d.pdu = 2;
 
   if ((actx->rose_ctx->d.code == 0) && actx->rose_ctx->res_local_dissector_table) {
@@ -397,13 +398,15 @@ dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   if (actx->rose_ctx->fillin_ptr)
     g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
 
-  if (!res_next_tvb) {  /* empty result */
-    res_next_tvb = tvb_new_subset(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0, 0);
-  }
-  actx->pinfo->private_data = actx->rose_ctx;
-  call_dissector((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree); 
-  if (!res_handle) {
-    expert_add_info_format(actx->pinfo, tree, PI_UNDECODED, PI_WARN, "Undecoded %s", descr);
+  if (actx->rose_ctx->d.code != -1) {
+    if (!res_next_tvb) {  /* empty result */
+      res_next_tvb = tvb_new_subset(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0, 0);
+    }
+    actx->pinfo->private_data = actx->rose_ctx;
+    call_dissector((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree); 
+    if (!res_handle) {
+      expert_add_info_format(actx->pinfo, tree, PI_UNDECODED, PI_WARN, "Undecoded %s", descr);
+    }
   }
 
   return offset;
