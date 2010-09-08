@@ -37,6 +37,8 @@
 #define TH_URG  0x20
 #define TH_ECN  0x40
 #define TH_CWR  0x80
+#define TH_NS   0x100
+#define TH_RES  0xE00 /* 3 reserved bits */
 
 /* Idea for gt: either x > y, or y is much bigger (assume wrap) */
 #define GT_SEQ(x, y) ((gint32)((y) - (x)) < 0)
@@ -55,7 +57,7 @@ typedef struct tcpheader {
 	guint16 th_sport;
 	guint16 th_dport;
 	guint8  th_hlen;
-	guint8  th_flags;
+	guint16 th_flags;
 	address ip_src;
 	address ip_dst;
 } tcp_info_t;

@@ -76,6 +76,8 @@ static int hf_tcp_nxtseq = -1;
 static int hf_tcp_ack = -1;
 static int hf_tcp_hdr_len = -1;
 static int hf_tcp_flags = -1;
+static int hf_tcp_flags_res = -1;
+static int hf_tcp_flags_ns = -1;
 static int hf_tcp_flags_cwr = -1;
 static int hf_tcp_flags_ecn = -1;
 static int hf_tcp_flags_urg = -1;
@@ -3055,7 +3057,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti = NULL, *tf, *hidden_item;
     int        offset = 0;
     emem_strbuf_t *flags_strbuf = ep_strbuf_new_label("<None>");
-    const gchar *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR"};
+    const gchar *flags[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR", "NS"};
     gint       i;
     guint      bpos;
     guint      optlen;
@@ -3138,7 +3140,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tcph->th_seq = tvb_get_ntohl(tvb, offset + 4);
     tcph->th_ack = tvb_get_ntohl(tvb, offset + 8);
     th_off_x2 = tvb_get_guint8(tvb, offset + 12);
-    tcph->th_flags = tvb_get_guint8(tvb, offset + 13);
+    tcph->th_flags = tvb_get_ntohs(tvb, offset + 12);
     tcph->th_win = tvb_get_ntohs(tvb, offset + 14);
     real_window = tcph->th_win;
     tcph->th_hlen = hi_nibble(th_off_x2) * 4;  /* TCP header length, in bytes */
@@ -3242,13 +3244,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (check_col(pinfo->cinfo, COL_INFO) || tree) {
         gboolean first_flag = TRUE;
-        for (i = 0; i < 8; i++) {
+        for (i = 0; i < 12; i++) {
             bpos = 1 << i;
             if (tcph->th_flags & bpos) {
                 if (first_flag) {
                     ep_strbuf_truncate(flags_strbuf, 0);
                 }
-                ep_strbuf_append_printf(flags_strbuf, "%s%s", first_flag ? "" : ", ", fstr[i]);
+                ep_strbuf_append_printf(flags_strbuf, "%s%s", first_flag ? "" : ", ", flags[i]);
                 first_flag = FALSE;
             }
         }
@@ -3319,9 +3321,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen,
                                    "Header length: %u bytes", tcph->th_hlen);
-        tf = proto_tree_add_uint_format(tcp_tree, hf_tcp_flags, tvb, offset + 13, 1,
+        tf = proto_tree_add_uint_format(tcp_tree, hf_tcp_flags, tvb, offset + 12, 2,
                                         tcph->th_flags, "Flags: 0x%02x (%s)", tcph->th_flags, flags_strbuf->str);
         field_tree = proto_item_add_subtree(tf, ett_tcp_flags);
+        proto_tree_add_boolean(field_tree, hf_tcp_flags_res, tvb, offset + 12, 1, tcph->th_flags);
+        proto_tree_add_boolean(field_tree, hf_tcp_flags_ns, tvb, offset + 12, 1, tcph->th_flags);
         proto_tree_add_boolean(field_tree, hf_tcp_flags_cwr, tvb, offset + 13, 1, tcph->th_flags);
         proto_tree_add_boolean(field_tree, hf_tcp_flags_ecn, tvb, offset + 13, 1, tcph->th_flags);
         proto_tree_add_boolean(field_tree, hf_tcp_flags_urg, tvb, offset + 13, 1, tcph->th_flags);
@@ -3752,36 +3756,44 @@ proto_register_tcp(void)
         { "Flags",          "tcp.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_tcp_flags_res,
+        { "Reserved",            "tcp.flags.res", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_RES,
+            "Three reserved bits (must be zero)", HFILL }},
+
+        { &hf_tcp_flags_ns,
+        { "Nonce", "tcp.flags.ns", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_NS,
+            "ECN concealment protection (RFC 3540)", HFILL }},
+
         { &hf_tcp_flags_cwr,
-        { "Congestion Window Reduced (CWR)",            "tcp.flags.cwr", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TH_CWR,
+        { "Congestion Window Reduced (CWR)",            "tcp.flags.cwr", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_CWR,
             NULL, HFILL }},
 
         { &hf_tcp_flags_ecn,
-        { "ECN-Echo",           "tcp.flags.ecn", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TH_ECN,
+        { "ECN-Echo",           "tcp.flags.ecn", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_ECN,
             NULL, HFILL }},
 
         { &hf_tcp_flags_urg,
-        { "Urgent",         "tcp.flags.urg", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TH_URG,
+        { "Urgent",         "tcp.flags.urg", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_URG,
             NULL, HFILL }},
 
         { &hf_tcp_flags_ack,
-        { "Acknowledgement",        "tcp.flags.ack", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TH_ACK,
+        { "Acknowledgement",        "tcp.flags.ack", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_ACK,
             NULL, HFILL }},
 
         { &hf_tcp_flags_push,
-        { "Push",           "tcp.flags.push", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TH_PUSH,
+        { "Push",           "tcp.flags.push", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_PUSH,
             NULL, HFILL }},
 
         { &hf_tcp_flags_reset,
-        { "Reset",          "tcp.flags.reset", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TH_RST,
+        { "Reset",          "tcp.flags.reset", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_RST,
             NULL, HFILL }},
 
         { &hf_tcp_flags_syn,
-        { "Syn",            "tcp.flags.syn", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TH_SYN,
+        { "Syn",            "tcp.flags.syn", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_SYN,
             NULL, HFILL }},
 
         { &hf_tcp_flags_fin,
-        { "Fin",            "tcp.flags.fin", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TH_FIN,
+        { "Fin",            "tcp.flags.fin", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_FIN,
             NULL, HFILL }},
 
         /* 32 bits so we can present some values adjusted to window scaling */
