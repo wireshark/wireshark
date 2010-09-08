@@ -1083,6 +1083,9 @@ proto_tree_add_uint(proto_tree *tree _U_, int hfindex _U_, tvbuff_t *tvb _U_,
                     gint start _U_, gint length _U_, guint32 value _U_)
 { return NULL; }
 
+void proto_item_prepend_text(proto_item *ti _U_, const char *format _U_, ...)
+{}
+
 void proto_item_append_text(proto_item *ti _U_, const char *format _U_, ...)
 {}
 
