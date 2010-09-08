@@ -128,6 +128,8 @@ static int hf_tcp_segment_multiple_tails = -1;
 static int hf_tcp_segment_too_long_fragment = -1;
 static int hf_tcp_segment_error = -1;
 static int hf_tcp_options = -1;
+static int hf_tcp_option_kind = -1;
+static int hf_tcp_option_len = -1;
 static int hf_tcp_option_mss = -1;
 static int hf_tcp_option_mss_val = -1;
 static int hf_tcp_option_wscale = -1;
@@ -138,7 +140,8 @@ static int hf_tcp_option_sack_sle = -1;
 static int hf_tcp_option_sack_sre = -1;
 static int hf_tcp_option_echo = -1;
 static int hf_tcp_option_echo_reply = -1;
-static int hf_tcp_option_time_stamp = -1;
+static int hf_tcp_option_timestamp_tsval = -1;
+static int hf_tcp_option_timestamp_tsecr = -1;
 static int hf_tcp_option_cc = -1;
 static int hf_tcp_option_ccnew = -1;
 static int hf_tcp_option_ccecho = -1;
@@ -179,6 +182,7 @@ static int hf_tcp_proc_dst_cmd = -1;
 static gint ett_tcp = -1;
 static gint ett_tcp_flags = -1;
 static gint ett_tcp_options = -1;
+static gint ett_tcp_option_timestamp = -1;
 static gint ett_tcp_option_sack = -1;
 static gint ett_tcp_option_scps = -1;
 static gint ett_tcp_option_scps_extended = -1;
@@ -191,8 +195,61 @@ static gint ett_tcp_segment  = -1;
 static gint ett_tcp_checksum = -1;
 static gint ett_tcp_process_info = -1;
 
+/*
+ *  TCP option
+ */
+
+#define TCPOPT_NOP              1       /* Padding */
+#define TCPOPT_EOL              0       /* End of options */
+#define TCPOPT_MSS              2       /* Segment size negotiating */
+#define TCPOPT_WINDOW           3       /* Window scaling */
+#define TCPOPT_SACK_PERM        4       /* SACK Permitted */
+#define TCPOPT_SACK             5       /* SACK Block */
+#define TCPOPT_ECHO             6
+#define TCPOPT_ECHOREPLY        7
+#define TCPOPT_TIMESTAMP        8       /* Better RTT estimations/PAWS */
+#define TCPOPT_CC               11
+#define TCPOPT_CCNEW            12
+#define TCPOPT_CCECHO           13
+#define TCPOPT_MD5              19      /* RFC2385 */
+#define TCPOPT_SCPS             20      /* SCPS Capabilities */
+#define TCPOPT_SNACK            21      /* SCPS SNACK */
+#define TCPOPT_RECBOUND         22      /* SCPS Record Boundary */
+#define TCPOPT_CORREXP          23      /* SCPS Corruption Experienced */
+#define TCPOPT_MOOD             25      /* RFC5841 TCP Packet Mood */
+#define TCPOPT_QS               27      /* RFC4782 */
+#define TCPOPT_USER_TO          28      /* RFC5482 */
+
+/*
+ *     TCP option lengths
+ */
+
+#define TCPOLEN_MSS            4
+#define TCPOLEN_WINDOW         3
+#define TCPOLEN_SACK_PERM      2
+#define TCPOLEN_SACK_MIN       2
+#define TCPOLEN_ECHO           6
+#define TCPOLEN_ECHOREPLY      6
+#define TCPOLEN_TIMESTAMP     10
+#define TCPOLEN_CC             6
+#define TCPOLEN_CCNEW          6
+#define TCPOLEN_CCECHO         6
+#define TCPOLEN_MD5           18
+#define TCPOLEN_SCPS           4
+#define TCPOLEN_SNACK          6
+#define TCPOLEN_RECBOUND       2
+#define TCPOLEN_CORREXP        2
+#define TCPOLEN_MOOD_MIN       2
+#define TCPOLEN_QS             8
+#define TCPOLEN_USER_TO        4
+
 static const true_false_string tcp_option_user_to_granularity = {
   "Minutes", "Seconds"
+};
+
+static const value_string tcp_option_kind_vs[] = {
+    { TCPOPT_TIMESTAMP, "Timestamp" },
+    { 0,       NULL }
 };
 
 /* not all of the hf_fields below make sense for TCP but we have to provide
@@ -1449,55 +1506,6 @@ print_tcp_fragment_tree(fragment_data *ipfd_head, proto_tree *tree, proto_tree *
 /* Minimum TCP header length. */
 #define TCPH_MIN_LEN            20
 
-/*
- *  TCP option
- */
-
-#define TCPOPT_NOP              1       /* Padding */
-#define TCPOPT_EOL              0       /* End of options */
-#define TCPOPT_MSS              2       /* Segment size negotiating */
-#define TCPOPT_WINDOW           3       /* Window scaling */
-#define TCPOPT_SACK_PERM        4       /* SACK Permitted */
-#define TCPOPT_SACK             5       /* SACK Block */
-#define TCPOPT_ECHO             6
-#define TCPOPT_ECHOREPLY        7
-#define TCPOPT_TIMESTAMP        8       /* Better RTT estimations/PAWS */
-#define TCPOPT_CC               11
-#define TCPOPT_CCNEW            12
-#define TCPOPT_CCECHO           13
-#define TCPOPT_MD5              19      /* RFC2385 */
-#define TCPOPT_SCPS             20      /* SCPS Capabilities */
-#define TCPOPT_SNACK            21      /* SCPS SNACK */
-#define TCPOPT_RECBOUND         22      /* SCPS Record Boundary */
-#define TCPOPT_CORREXP          23      /* SCPS Corruption Experienced */
-#define TCPOPT_MOOD             25      /* RFC5841 TCP Packet Mood */
-#define TCPOPT_QS               27      /* RFC4782 */
-#define TCPOPT_USER_TO          28      /* RFC5482 */
-
-/*
- *     TCP option lengths
- */
-
-#define TCPOLEN_MSS            4
-#define TCPOLEN_WINDOW         3
-#define TCPOLEN_SACK_PERM      2
-#define TCPOLEN_SACK_MIN       2
-#define TCPOLEN_ECHO           6
-#define TCPOLEN_ECHOREPLY      6
-#define TCPOLEN_TIMESTAMP     10
-#define TCPOLEN_CC             6
-#define TCPOLEN_CCNEW          6
-#define TCPOLEN_CCECHO         6
-#define TCPOLEN_MD5           18
-#define TCPOLEN_SCPS           4
-#define TCPOLEN_SNACK          6
-#define TCPOLEN_RECBOUND       2
-#define TCPOLEN_CORREXP        2
-#define TCPOLEN_MOOD_MIN       2
-#define TCPOLEN_QS             8
-#define TCPOLEN_USER_TO        4
-
-
 /* Desegmentation of TCP streams */
 /* table to hold defragmented TCP streams */
 static GHashTable *tcp_fragment_table = NULL;
@@ -2247,21 +2255,35 @@ dissect_tcpopt_echo(const ip_tcp_opt *optp, tvbuff_t *tvb,
 }
 
 static void
-dissect_tcpopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+dissect_tcpopt_timestamp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
+    int offset, guint optlen _U_, packet_info *pinfo, proto_tree *opt_tree)
 {
-    proto_item *hidden_item;
-    guint32 tsv, tser;
+    proto_item *ti;
+    proto_tree *ts_tree;
+    guint32 ts_val, ts_ecr;
 
-    tsv = tvb_get_ntohl(tvb, offset + 2);
-    tser = tvb_get_ntohl(tvb, offset + 6);
-    hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_time_stamp, tvb,
-                                         offset, optlen, TRUE);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-    proto_tree_add_text(opt_tree, tvb, offset,      optlen,
-                        "%s: TSval %u, TSecr %u", optp->name, tsv, tser);
-    tcp_info_append_uint(pinfo, "TSV", tsv);
-    tcp_info_append_uint(pinfo, "TSER", tser);
+    ti = proto_tree_add_text(opt_tree, tvb, offset, 10, "Timestamps: ");
+    ts_tree = proto_item_add_subtree(ti, ett_tcp_option_timestamp);
+
+    proto_tree_add_item(ts_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(ts_tree, hf_tcp_option_len, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(ts_tree,  hf_tcp_option_timestamp_tsval, tvb, offset,
+                        4, ENC_BIG_ENDIAN);
+    ts_val = tvb_get_ntohl(tvb, offset);
+    offset += 4;
+
+    proto_tree_add_item(ts_tree,  hf_tcp_option_timestamp_tsecr, tvb, offset,
+                        4, ENC_BIG_ENDIAN);
+    ts_ecr = tvb_get_ntohl(tvb, offset);
+    offset += 4;
+
+    proto_item_append_text(ti, "TSval %u, TSecr %u", ts_val, ts_ecr);
+    tcp_info_append_uint(pinfo, "TSval", ts_val);
+    tcp_info_append_uint(pinfo, "TSecr", ts_ecr);
 }
 
 static void
@@ -3949,6 +3971,14 @@ proto_register_tcp(void)
         { "Reassembled TCP length", "tcp.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
             "The total length of the reassembled payload", HFILL }},
 
+        { &hf_tcp_option_kind,
+          { "Kind", "tcp.option_kind", FT_UINT8,
+            BASE_DEC, VALS(tcp_option_kind_vs), 0x0, "This TCP option's kind", HFILL }},
+
+        { &hf_tcp_option_len,
+          { "Length", "tcp.option_len", FT_UINT8,
+            BASE_DEC, NULL, 0x0, "Length of this TCP option in bytes (including kind and length fields)", HFILL }},
+
         { &hf_tcp_options,
           { "TCP Options", "tcp.options", FT_BYTES,
             BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -3997,10 +4027,13 @@ proto_register_tcp(void)
             FT_BOOLEAN,
             BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
-        { &hf_tcp_option_time_stamp,
-          { "TCP Time Stamp Option", "tcp.options.time_stamp",
-            FT_BOOLEAN,
-            BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        { &hf_tcp_option_timestamp_tsval,
+          { "Timestamp value", "tcp.options.timestamp.tsval", FT_UINT32,
+            BASE_DEC, NULL, 0x0, "Value of sending machine's timestamp clock", HFILL}},
+
+        { &hf_tcp_option_timestamp_tsecr,
+          { "Timestamp echo reply", "tcp.options.timestamp.tsecr", FT_UINT32,
+            BASE_DEC, NULL, 0x0, "Echoed timestamp from remote machine", HFILL}},
 
         { &hf_tcp_option_cc,
           { "TCP CC Option", "tcp.options.cc", FT_BOOLEAN, BASE_NONE,
@@ -4181,6 +4214,7 @@ proto_register_tcp(void)
         &ett_tcp,
         &ett_tcp_flags,
         &ett_tcp_options,
+        &ett_tcp_option_timestamp,
         &ett_tcp_option_sack,
         &ett_tcp_option_scps,
         &ett_tcp_option_scps_extended,
