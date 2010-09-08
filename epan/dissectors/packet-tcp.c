@@ -3140,7 +3140,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tcph->th_seq = tvb_get_ntohl(tvb, offset + 4);
     tcph->th_ack = tvb_get_ntohl(tvb, offset + 8);
     th_off_x2 = tvb_get_guint8(tvb, offset + 12);
-    tcph->th_flags = tvb_get_ntohs(tvb, offset + 12);
+    tcph->th_flags = tvb_get_ntohs(tvb, offset + 12) & 0x0FFF;
     tcph->th_win = tvb_get_ntohs(tvb, offset + 14);
     real_window = tcph->th_win;
     tcph->th_hlen = hi_nibble(th_off_x2) * 4;  /* TCP header length, in bytes */
