@@ -3244,7 +3244,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (check_col(pinfo->cinfo, COL_INFO) || tree) {
         gboolean first_flag = TRUE;
-        for (i = 0; i < 12; i++) {
+        for (i = 0; i < 9; i++) {
             bpos = 1 << i;
             if (tcph->th_flags & bpos) {
                 if (first_flag) {
