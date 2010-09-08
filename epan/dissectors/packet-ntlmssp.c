@@ -212,6 +212,7 @@ static int hf_ntlmssp_address_list_server_nb = -1;
 static int hf_ntlmssp_address_list_domain_nb = -1;
 static int hf_ntlmssp_address_list_server_dns = -1;
 static int hf_ntlmssp_address_list_domain_dns = -1;
+static int hf_ntlmssp_address_list_forest_dns = -1;
 static int hf_ntlmssp_address_list_terminator = -1;
 static int hf_ntlmssp_address_list_item_type = -1;
 static int hf_ntlmssp_address_list_item_len = -1;
@@ -1080,6 +1081,7 @@ dissect_ntlmssp_negotiate_flags (tvbuff_t *tvb, int offset,
 #define NTLM_NAME_NB_DOMAIN  0x0002
 #define NTLM_NAME_DNS_HOST   0x0003
 #define NTLM_NAME_DNS_DOMAIN 0x0004
+#define NTLM_NAME_DNS_FOREST 0x0005
 #define NTLM_NAME_CLIENT_TIME 0x0007
 #define NTLM_NAME_RESTRICTION 0x0008
 
@@ -1091,6 +1093,7 @@ static const value_string ntlm_name_types[] = {
 	{ NTLM_NAME_NB_DOMAIN, "NetBIOS domain name" },
 	{ NTLM_NAME_DNS_HOST, "DNS host name" },
 	{ NTLM_NAME_DNS_DOMAIN, "DNS domain name" },
+	{ NTLM_NAME_DNS_FOREST, "DNS forest name" },
 
 	{ NTLM_NAME_CLIENT_TIME, "Client Time" },
 	{ NTLM_NAME_RESTRICTION, "Encoding restriction" },
@@ -1206,6 +1209,7 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 		case NTLM_NAME_NB_DOMAIN:
 		case NTLM_NAME_DNS_HOST:
 		case NTLM_NAME_DNS_DOMAIN:
+		case NTLM_NAME_DNS_FOREST:
 		default:
 			name = tvb_get_ephemeral_faked_unicode(
 				tvb, offset, name_len / 2, TRUE);
@@ -1366,6 +1370,10 @@ dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset,
       break;
     case NTLM_NAME_DNS_DOMAIN:
       addr_tf = proto_tree_add_string(tree, hf_ntlmssp_address_list_domain_dns,
+				      tvb, item_offset, item_length, text);
+      break;
+    case NTLM_NAME_DNS_FOREST:
+      addr_tf = proto_tree_add_string(tree, hf_ntlmssp_address_list_forest_dns,
 				      tvb, item_offset, item_length, text);
       break;
     case NTLM_NAME_END:
@@ -2630,6 +2638,8 @@ proto_register_ntlmssp(void)
       { "Server DNS Name", "ntlmssp.challenge.addresslist.serverdns", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_address_list_domain_dns,
       { "Domain DNS Name", "ntlmssp.challenge.addresslist.domaindns", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ntlmssp_address_list_forest_dns,
+      { "Forest DNS Name", "ntlmssp.challenge.addresslist.forestdns", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_address_list_terminator,
       { "List Terminator", "ntlmssp.challenge.addresslist.terminator", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_verf,
