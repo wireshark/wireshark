@@ -599,7 +599,7 @@ tcp_analyze_get_acked_struct(guint32 frame, gboolean createflag, struct tcp_anal
  *
  */
 static void
-tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint32 seglen, guint8 flags, guint32 window, struct tcp_analysis *tcpd)
+tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint32 seglen, guint16 flags, guint32 window, struct tcp_analysis *tcpd)
 {
     tcp_unacked_t *ual=NULL;
     tcp_unacked_t *prevual=NULL;
