@@ -269,7 +269,7 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
 
   if (strcmp(arg,"files") == 0) {
     capture_opts->has_ring_num_files = TRUE;
-    capture_opts->ring_num_files = get_natural_int(p, "number of ring buffer files");
+    capture_opts->ring_num_files = get_positive_int(p, "number of ring buffer files");
   } else if (strcmp(arg,"filesize") == 0) {
     capture_opts->has_autostop_filesize = TRUE;
     capture_opts->autostop_filesize = get_positive_int(p, "ring buffer filesize");
