@@ -1464,7 +1464,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 
 		case FT_ABSOLUTE_TIME:
 		case FT_RELATIVE_TIME:
-			DISSECTOR_ASSERT(length == 8);
+			DISSECTOR_ASSERT(length == 8 || length == 4);
 			/*
 			 * NOTE: to support code written when
 			 * proto_tree_add_item() took a gboolean as its
@@ -1480,10 +1480,16 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (encoding) {
 				time_stamp.secs  = tvb_get_letohl(tvb, start);
-				time_stamp.nsecs = tvb_get_letohl(tvb, start+4);
+				if (length == 8)
+					time_stamp.nsecs = tvb_get_letohl(tvb, start+4);
+				else
+					time_stamp.nsecs = 0;
 			} else {
 				time_stamp.secs  = tvb_get_ntohl(tvb, start);
-				time_stamp.nsecs = tvb_get_ntohl(tvb, start+4);
+				if (length == 8)
+					time_stamp.nsecs = tvb_get_ntohl(tvb, start+4);
+				else
+					time_stamp.nsecs = 0;
 			}
 			proto_tree_set_time(new_fi, &time_stamp);
 			break;
