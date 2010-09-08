@@ -135,6 +135,7 @@ typedef struct {
 	guint8	command;
 	guint32 frame_req, frame_res;
 	nstime_t req_time;
+	guint32 spotlight_req_command; /* Need this in the reply */
 } afp_request_val;
 
 #endif

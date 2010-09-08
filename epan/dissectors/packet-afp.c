@@ -30,6 +30,8 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+
 #include <glib.h>
 #include <epan/packet.h>
 /* #include <epan/strutil.h> */
@@ -165,6 +167,11 @@ http://developer.apple.com/mac/library/documentation/Networking/Conceptual/AFP/I
 #define AFP_SPOTLIGHTRPC 76
 #define AFP_SYNCDIR		78
 #define AFP_SYNCFORK		79
+
+/* FPSpotlightRPC subcommand codes */
+#define SPOTLIGHT_CMD_GET_VOLPATH 1
+#define SPOTLIGHT_CMD_GET_VOLID 2
+#define SPOTLIGHT_CMD_GET_THREE 3
 
 /* ----------------------------- */
 static int proto_afp			    = -1;
@@ -664,6 +671,23 @@ static int hf_afp_request_bitmap_UTF8Name       = -1;
 static int hf_afp_request_bitmap_ExtRsrcForkLen = -1;
 static int hf_afp_request_bitmap_PartialNames   = -1;
 
+static int ett_afp_spotlight_queries = -1;
+static int ett_afp_spotlight_query_line  = -1;
+static int ett_afp_spotlight_query = -1;
+static int ett_afp_spotlight_data = -1;
+static int ett_afp_spotlight_toc = -1;
+
+static int hf_afp_spotlight_request_flags = -1;
+static int hf_afp_spotlight_request_command = -1;
+static int hf_afp_spotlight_request_reserved = -1;
+static int hf_afp_spotlight_volpath_server = -1;
+static int hf_afp_spotlight_volpath_client = -1;
+static int hf_afp_spotlight_returncode = -1;
+static int hf_afp_spotlight_volflags = -1;
+static int hf_afp_spotlight_reqlen = -1;
+static int hf_afp_spotlight_toc_query_end = -1;
+static int hf_afp_spotlight_mdstring = -1;
+
 static const value_string flag_vals[] = {
 	{0,	"Start" },
 	{1,	"End" },
@@ -993,6 +1017,20 @@ static GHashTable *afp_request_hash = NULL;
 
 static guint Vol;      /* volume */
 static guint Did;      /* parent directory ID */
+
+#define SPOTLIGHT_BIG_ENDIAN 0
+#define SPOTLIGHT_LITTLE_ENDIAN 1
+
+static gint spotlight_endianess;
+
+static guint64
+spotlight_ntoh64(tvbuff_t *tvb, gint offset)
+{
+    if (spotlight_endianess == SPOTLIGHT_LITTLE_ENDIAN)
+        return tvb_get_letoh64(tvb, offset);
+    else
+        return tvb_get_ntoh64(tvb, offset);
+}
 
 /* Hash Functions */
 static gint  afp_equal (gconstpointer v, gconstpointer v2)
@@ -1699,6 +1737,15 @@ name_in_fbitmap(tvbuff_t *tvb, gint offset, guint16 bitmap)
 	*/
 
 	return name;
+}
+
+/* -------------------------- */
+static gint
+decode_vol(proto_tree *tree, tvbuff_t *tvb, gint offset)
+{
+	Vol = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(tree, hf_afp_vol_id, tvb, offset, 2,FALSE);
+	return offset + 2;
 }
 
 /* -------------------------- */
@@ -3906,6 +3953,239 @@ dissect_query_afp_with_did(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 }
 
 /* ************************** */
+static gint
+dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    gint i;
+    gint mdlen;
+    gint query_offset;
+    gint query_offset_next;
+    gint querylen;
+    gint toc_offset;
+    gint num_queries;
+    gint query_data_len;
+    guint64 query_data64;
+    guint64 toc_entry;
+    guint8 *mds;
+
+    proto_item *item_queries_data;
+    proto_tree *sub_tree_queries;
+    proto_item *item_toc;
+    proto_tree *sub_tree_toc;
+    proto_item *item_query;
+    proto_tree *sub_tree_query;
+    proto_item *item_data;
+    proto_tree *sub_tree_data;
+
+    if (strncmp(tvb_get_ephemeral_string(tvb, offset, 8), "md031234", 8) == 0)
+        spotlight_endianess = SPOTLIGHT_BIG_ENDIAN;
+    else
+        spotlight_endianess = SPOTLIGHT_LITTLE_ENDIAN;
+    proto_tree_add_text(tree,
+                        tvb,
+                        offset,
+                        8,
+                        "Endianess: %s", 
+                        spotlight_endianess == SPOTLIGHT_BIG_ENDIAN ?
+                        "Big Endian" : "Litte Endian");
+    offset += 8;
+
+    toc_offset = (spotlight_ntoh64(tvb, offset) >> 32) * 8 - 8;
+    querylen = (spotlight_ntoh64(tvb, offset) & 0xffffffff) * 8 - 8;
+    proto_tree_add_text(tree,
+                        tvb,
+                        offset,
+                        8,
+                        "ToC Offset: %u Bytes, Query length: %u Bytes",
+                        toc_offset,
+                        querylen);
+    offset += 8;
+
+    num_queries = (gint)(spotlight_ntoh64(tvb, offset + toc_offset) & 0xffff) - 1;
+
+    item_queries_data = proto_tree_add_text(tree,
+                                            tvb,
+                                            offset,
+                                            toc_offset,
+                                            "Query data (%u queries)",
+                                            num_queries);
+
+    sub_tree_queries = proto_item_add_subtree(item_queries_data, ett_afp_spotlight_queries);
+    /* Queries */
+    query_offset_next = (spotlight_ntoh64(tvb, offset + toc_offset + 8) & 0xff) * 8 - 16;
+    for (i = 0; i < num_queries; i++) {
+        query_offset = query_offset_next;
+        if (i == num_queries - 1)
+            /* last */
+            query_offset_next = toc_offset;
+        else
+            /* peek at next offset */
+            query_offset_next = (spotlight_ntoh64(tvb, offset + toc_offset + 8 + (i+1)*8) & 0xff) * 8 - 16;
+
+        /* this is obviously the length of one query */
+        query_data_len = query_offset_next - query_offset;
+
+        if (query_data_len > 8)
+            item_query = proto_tree_add_text(sub_tree_queries,
+                                             tvb,
+                                             offset + query_offset,
+                                             query_data_len,
+                                             "Query %u",
+                                             i + 1);
+        else
+            item_query = proto_tree_add_text(sub_tree_queries,
+                                             tvb,
+                                             offset + query_offset,
+                                             query_data_len,
+                                             "Query %u (empty?)",
+                                             i + 1);
+
+        /* tree per query */
+        sub_tree_query = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
+        query_data64 = spotlight_ntoh64(tvb, offset + query_offset);
+        
+        /* print the query line */
+        proto_tree_add_text(sub_tree_query,
+                            tvb,
+                            offset + query_offset,
+                            8,
+                            "Index: %" G_GINT64_MODIFIER "u, ?: 0x%08" G_GINT64_MODIFIER "x", 
+                            query_data64 >> 32,
+                            query_data64 & 0xffffffff);
+
+        /* really any data in the query */
+        if (query_data_len > 8) {
+            /* populate the query tree */
+            query_data64 = spotlight_ntoh64(tvb, offset + query_offset + 8);
+            mdlen = ((query_data64 & 0xffff) - 1) * 8;
+            proto_tree_add_text(sub_tree_query,
+                                tvb,
+                                offset + query_offset + 8,
+                                8,
+                                "?(reappears in ToC): 0x%08" G_GINT64_MODIFIER "x, ?: 0x%04" G_GINT64_MODIFIER "x, strlen: ((%u-1)*8 = ) %u",
+                                query_data64 >> 32,
+                                (query_data64 & 0xffff0000) >> 16,
+                                mdlen/8+1,
+                                mdlen);
+
+            mds = tvb_get_ephemeral_string(tvb, offset + query_offset + 16, mdlen);
+            proto_item_append_text(item_query, ": \"%s\"", mds);
+
+            proto_tree_add_text(sub_tree_query,
+                                tvb,
+                                offset + query_offset + 16,
+                                mdlen,
+                                "mdstring: \"%s\" (%u bytes)",
+                                mds,
+                                mdlen);
+
+            item_data = proto_tree_add_text(sub_tree_query,
+                                            tvb,
+                                            offset + query_offset + 16 + mdlen,
+                                            query_data_len - 16 - mdlen,
+                                            "data: %u bytes",
+                                            query_data_len - 16 - mdlen);
+
+            /* If there are more then 8 bytes theres at least x*8+8 bytes */
+            if ((query_data_len - 16 - mdlen) >= 16) {
+                sub_tree_data = proto_item_add_subtree(item_data, ett_afp_spotlight_data);
+                query_data64 = spotlight_ntoh64(tvb, offset + query_offset + 16 + mdlen);
+
+                proto_tree_add_text(sub_tree_data,
+                                    tvb,
+                                    offset + query_offset + 16 + mdlen,
+                                    8,
+                                    "data: %" G_GINT64_MODIFIER "u * 8 (= %" G_GINT64_MODIFIER "u) bytes, ?: 0x%04" G_GINT64_MODIFIER "x",
+                                    (query_data64 & G_GINT64_CONSTANT(0xffffffff00000000)) >> 32,
+                                    ((query_data64 & G_GINT64_CONSTANT(0xffffffff00000000)) >> 32) * 8,
+                                    query_data64 & 0xffffffff);
+                proto_tree_add_text(sub_tree_data,
+                                    tvb,
+                                    offset + query_offset + 16 + mdlen + 8,
+                                    query_data_len - 16 - mdlen - 8,
+                                    "data: %u  bytes",
+                                    query_data_len - 16 - mdlen - 8);
+            }
+
+        }
+    }
+    offset += toc_offset;
+
+    /* ToC */
+    item_toc = proto_tree_add_text(tree,
+                                   tvb,
+                                   offset,
+                                   querylen - toc_offset,
+                                   "ToC (%u entries)",
+                                   num_queries);
+    sub_tree_toc = proto_item_add_subtree(item_toc, ett_afp_spotlight_toc);
+    proto_tree_add_text(sub_tree_toc,
+                        tvb,
+                        offset,
+                        8,
+                        "Number of entries (%u)",
+                        num_queries);
+    for (i = 0; i < num_queries; i++) {
+        toc_entry = spotlight_ntoh64(tvb, offset + 8 + i*8);
+        proto_tree_add_text(sub_tree_toc,
+                            tvb,
+                            offset + 8 + i*8,
+                            8,
+                            "Index: %u, ?(reappears in queries): 0x%08" G_GINT64_MODIFIER "x, ?: 0x%04" G_GINT64_MODIFIER "x, Offset: %" G_GINT64_MODIFIER "u",
+                            i+1,
+                            toc_entry >> 32,
+                            (toc_entry & 0xffff0000) >> 16,
+                            (toc_entry & 0xffff) * 8);
+    }
+
+    offset += querylen - toc_offset;
+    return offset;
+}
+
+static gint
+dissect_query_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, afp_request_val *request_val)
+{
+    gint len;
+
+    PAD(1);
+    offset = decode_vol(tree, tvb, offset);
+
+	proto_tree_add_item(tree, hf_afp_spotlight_request_flags, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_afp_spotlight_request_command, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_afp_spotlight_request_reserved, tvb, offset, 4, FALSE);
+	offset += 4;
+
+    switch (request_val->spotlight_req_command) {
+
+    case SPOTLIGHT_CMD_GET_VOLPATH:
+        tvb_get_ephemeral_stringz(tvb, offset, &len);
+        proto_tree_add_item(tree, hf_afp_spotlight_volpath_client, tvb, offset, len, FALSE);
+        offset += len;
+        break;
+
+    case SPOTLIGHT_CMD_GET_VOLID:
+        /* empty */
+        break;
+
+    case SPOTLIGHT_CMD_GET_THREE:
+        proto_tree_add_item(tree, hf_afp_spotlight_volflags, tvb, offset, 4,FALSE);        
+    	offset += 4;
+
+        proto_tree_add_item(tree, hf_afp_spotlight_reqlen, tvb, offset, 4,FALSE);        
+    	offset += 4;
+
+        offset = dissect_spotlight(tvb, tree, offset);
+
+        break;
+    }
+    return offset;
+}
+
+/* ************************** */
 static guint16
 decode_acl_list_bitmap(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
@@ -4078,6 +4358,39 @@ dissect_reply_afp_get_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 }
 
 /* ************************** */
+static gint
+dissect_reply_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, afp_request_val *request_val)
+{
+    gint len;
+
+    switch (request_val->spotlight_req_command) {
+
+    case SPOTLIGHT_CMD_GET_VOLPATH:
+        proto_tree_add_item(tree, hf_afp_spotlight_returncode, tvb, offset, 4,FALSE);
+    	offset += 4;
+
+        tvb_get_ephemeral_stringz(tvb, offset, &len);;
+		proto_tree_add_item(tree, hf_afp_spotlight_volpath_server, tvb, offset, len, FALSE);
+        offset += len;
+        break;
+
+    case SPOTLIGHT_CMD_GET_VOLID:
+        proto_tree_add_item(tree, hf_afp_spotlight_volflags, tvb, offset, 4,FALSE);        
+    	offset += 4;
+        break;
+
+    case SPOTLIGHT_CMD_GET_THREE:
+        proto_tree_add_item(tree, hf_afp_spotlight_returncode, tvb, offset, 4,FALSE);        
+    	offset += 4;
+
+        offset = dissect_spotlight(tvb, tree, offset);
+        break;
+    }
+    return offset;
+}
+
+
+/* ************************** */
 static void
 dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -4111,6 +4424,12 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		request_val = se_alloc(sizeof(afp_request_val));
 		request_val->command = afp_command;
+        
+        if (afp_command == AFP_SPOTLIGHTRPC)
+            request_val->spotlight_req_command = tvb_get_ntohl(tvb, offset + 2 + 2 + 4);
+        else
+            request_val->spotlight_req_command = -1;
+
 		request_val->frame_req = pinfo->fd->num;
 		request_val->frame_res = 0;
 		request_val->req_time=pinfo->fd->abs_ts;
@@ -4303,6 +4622,9 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_query_afp_access(tvb, pinfo, afp_tree, offset);break;
 		case AFP_SYNCDIR:
 			offset = dissect_query_afp_with_did(tvb, pinfo, afp_tree, offset);break;
+		case AFP_SPOTLIGHTRPC:
+			offset = dissect_query_afp_spotlight(tvb, pinfo, afp_tree, offset, request_val);
+            break;
 		}
 	}
 	else {
@@ -4401,6 +4723,8 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_reply_afp_list_ext_attrs(tvb, pinfo, afp_tree, offset);break;
 		case AFP_GETACL:
 			offset = dissect_reply_afp_get_acl(tvb, pinfo, afp_tree, offset);break;
+		case AFP_SPOTLIGHTRPC:
+			offset = dissect_reply_afp_spotlight(tvb, pinfo, afp_tree, offset, request_val);break;
 		}
 	}
 	if (offset < len) {
@@ -5872,6 +6196,56 @@ proto_register_afp(void)
 		    FT_BOOLEAN, 32, NULL, ACE_ONLY_INHERIT,
 		    NULL, HFILL }},
 
+        { &hf_afp_spotlight_request_flags,
+          { "Flags",               "afp.spotlight.flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            "Spotlight RPC Flags", HFILL }},
+
+        { &hf_afp_spotlight_request_command,
+          { "Command",               "afp.spotlight.command",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            "Spotlight RPC Command", HFILL }},
+
+        { &hf_afp_spotlight_request_reserved,
+          { "Padding",               "afp.spotlight.reserved",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            "Spotlight RPC Padding", HFILL }},
+
+        { &hf_afp_spotlight_volpath_client,
+          { "Client's volume path",               "afp.spotlight.volpath_client",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            "Client's volume path", HFILL }},
+
+        { &hf_afp_spotlight_volpath_server,
+          { "Server's volume path",               "afp.spotlight.volpath_server",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            "Servers's volume path", HFILL }},
+
+        { &hf_afp_spotlight_returncode,
+          { "Return code",               "afp.spotlight.return",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            "Return code", HFILL }},
+
+        { &hf_afp_spotlight_volflags,
+          { "Volume flags",               "afp.spotlight.volflags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            "Volume flags", HFILL }},
+
+        { &hf_afp_spotlight_reqlen,
+          { "Length",               "afp.spotlight.reqlen",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Length", HFILL }},
+
+        { &hf_afp_spotlight_toc_query_end,
+          { "End marker",               "afp.spotlight.query_end",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            "End marker", HFILL }},
+
+        { &hf_afp_spotlight_mdstring,
+          { "mdquery string",               "afp.spotlight.mds",
+            FT_STRINGZ, BASE_NONE, NULL, 0x0,
+            "mdquery string", HFILL }},
+
 		{ &hf_afp_unknown,
 		  { "Unknown parameter",         "afp.unknown",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -5909,6 +6283,11 @@ proto_register_afp(void)
 		&ett_afp_ace_entries,
 		&ett_afp_ace_entry,
 		&ett_afp_ace_flags,
+        &ett_afp_spotlight_queries,
+        &ett_afp_spotlight_query_line,
+        &ett_afp_spotlight_query,
+        &ett_afp_spotlight_data,
+        &ett_afp_spotlight_toc
 	};
 
 	proto_afp = proto_register_protocol("Apple Filing Protocol", "AFP", "afp");
