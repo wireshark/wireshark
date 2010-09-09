@@ -846,13 +846,13 @@ scroll_to_and_select_iter(GtkTreeModel *model, GtkTreeSelection *selection, GtkT
 			TRUE,	/* use_align */
 			0.5,	/* row_align determines where the row is placed, 0.5 means center */
 			0); 	/* The horizontal alignment of the column */
+
+        /* "cursor-changed" signal triggers new_packet_list_select_cb() */
+        /*  which will update the middle and bottom panes.              */
 	gtk_tree_view_set_cursor(GTK_TREE_VIEW(packetlist->view),
 			path,
 			NULL,
 			FALSE); /* start_editing */
-
-	/* Needed to get the middle and bottom panes updated */
-	new_packet_list_select_cb(GTK_TREE_VIEW(packetlist->view), NULL);
 
 	gtk_tree_path_free(path);
 }
@@ -985,13 +985,13 @@ new_packet_list_set_selected_row(gint row)
 	/* Select the row */
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 	gtk_tree_selection_select_iter (selection, &iter);
+
+        /* "cursor-changed" signal triggers new_packet_list_select_cb() */
+        /*  which will update the middle and bottom panes.              */
 	gtk_tree_view_set_cursor(GTK_TREE_VIEW(packetlist->view),
 			path,
 			NULL,
 			FALSE); /* start_editing */
-
-	/* Needed to get the middle and bottom panes updated */
-	new_packet_list_select_cb(GTK_TREE_VIEW(packetlist->view), NULL);
 
 	gtk_tree_path_free(path);
 }
