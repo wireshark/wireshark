@@ -2698,7 +2698,7 @@ dissect_tcpopt_mood(const ip_tcp_opt _U_*optp, tvbuff_t *tvb,
 static const ip_tcp_opt tcpopts[] = {
     {
         TCPOPT_EOL,
-        "EOL",
+        "End of Option List (EOL)",
         NULL,
         NO_LENGTH,
         0,
@@ -2706,7 +2706,7 @@ static const ip_tcp_opt tcpopts[] = {
     },
     {
         TCPOPT_NOP,
-        "NOP",
+        "No-Operation (NOP)",
         NULL,
         NO_LENGTH,
         0,
