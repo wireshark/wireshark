@@ -45,12 +45,16 @@ SubsequentMessage
 UTF8Pairs
 
 #.REGISTER
-CertId               B "1.3.6.1.5.5.7.5.1.5"        "id-regCtrl-oldCertID"
-CertRequest          B "1.3.6.1.5.5.7.5.2.2"        "id-regInfo-certReq"
 EncKeyWithID         B "1.2.840.113549.1.9.16.1.21" "id-ct-encKeyWithID"
 PBMParameter         B "1.2.840.113533.7.66.13"     "PasswordBasedMac"
+RegToken             B "1.3.6.1.5.5.7.5.1.1"        "id-regCtrl-regToken"
+Authenticator        B "1.3.6.1.5.5.7.5.1.2"        "id-regCtrl-authenticator"
+PKIPublicationInfo   B "1.3.6.1.5.5.7.5.1.3"        "id-regCtrl-pkiPublicationInfo"
+PKIArchiveOptions    B "1.3.6.1.5.5.7.5.1.4"        "id-regCtrl-pkiArchiveOptions"
+OldCertId            B "1.3.6.1.5.5.7.5.1.5"        "id-regCtrl-oldCertID"
 ProtocolEncrKey      B "1.3.6.1.5.5.7.5.1.6"        "id-regCtrl-protocolEncrKey"
 UTF8Pairs            B "1.3.6.1.5.5.7.5.2.1"        "id-regInfo-utf8Pairs"
+CertRequest          B "1.3.6.1.5.5.7.5.2.2"        "id-regInfo-certReq"
 
 #.NO_EMIT
 

@@ -37,6 +37,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/oids.h>
 #include <epan/asn1.h>
 
 #include "packet-ber.h"
@@ -57,7 +58,11 @@ static int hf_crmf_type_oid = -1;
 #line 1 "packet-crmf-hf.c"
 static int hf_crmf_CertRequest_PDU = -1;          /* CertRequest */
 static int hf_crmf_PBMParameter_PDU = -1;         /* PBMParameter */
-static int hf_crmf_CertId_PDU = -1;               /* CertId */
+static int hf_crmf_RegToken_PDU = -1;             /* RegToken */
+static int hf_crmf_Authenticator_PDU = -1;        /* Authenticator */
+static int hf_crmf_PKIPublicationInfo_PDU = -1;   /* PKIPublicationInfo */
+static int hf_crmf_PKIArchiveOptions_PDU = -1;    /* PKIArchiveOptions */
+static int hf_crmf_OldCertId_PDU = -1;            /* OldCertId */
 static int hf_crmf_ProtocolEncrKey_PDU = -1;      /* ProtocolEncrKey */
 static int hf_crmf_UTF8Pairs_PDU = -1;            /* UTF8Pairs */
 static int hf_crmf_EncKeyWithID_PDU = -1;         /* EncKeyWithID */
@@ -133,7 +138,7 @@ static int hf_crmf_attributes = -1;               /* Attributes */
 static int hf_crmf_Attributes_item = -1;          /* Attribute */
 
 /*--- End of included file: packet-crmf-hf.c ---*/
-#line 48 "packet-crmf-template.c"
+#line 49 "packet-crmf-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -167,7 +172,7 @@ static gint ett_crmf_PrivateKeyInfo = -1;
 static gint ett_crmf_Attributes = -1;
 
 /*--- End of included file: packet-crmf-ett.c ---*/
-#line 51 "packet-crmf-template.c"
+#line 52 "packet-crmf-template.c"
 
 static const char *object_identifier_id;
 
@@ -235,7 +240,7 @@ dissect_crmf_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_crmf_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 70 "crmf.cnf"
+#line 74 "crmf.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -840,10 +845,30 @@ static void dissect_PBMParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_crmf_PBMParameter(FALSE, tvb, 0, &asn1_ctx, tree, hf_crmf_PBMParameter_PDU);
 }
-static void dissect_CertId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static void dissect_RegToken_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_crmf_CertId(FALSE, tvb, 0, &asn1_ctx, tree, hf_crmf_CertId_PDU);
+  dissect_crmf_RegToken(FALSE, tvb, 0, &asn1_ctx, tree, hf_crmf_RegToken_PDU);
+}
+static void dissect_Authenticator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_crmf_Authenticator(FALSE, tvb, 0, &asn1_ctx, tree, hf_crmf_Authenticator_PDU);
+}
+static void dissect_PKIPublicationInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_crmf_PKIPublicationInfo(FALSE, tvb, 0, &asn1_ctx, tree, hf_crmf_PKIPublicationInfo_PDU);
+}
+static void dissect_PKIArchiveOptions_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_crmf_PKIArchiveOptions(FALSE, tvb, 0, &asn1_ctx, tree, hf_crmf_PKIArchiveOptions_PDU);
+}
+static void dissect_OldCertId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_crmf_OldCertId(FALSE, tvb, 0, &asn1_ctx, tree, hf_crmf_OldCertId_PDU);
 }
 static void dissect_ProtocolEncrKey_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
@@ -863,7 +888,7 @@ static void dissect_EncKeyWithID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-crmf-fn.c ---*/
-#line 55 "packet-crmf-template.c"
+#line 56 "packet-crmf-template.c"
 
 
 /*--- proto_register_crmf ----------------------------------------------*/
@@ -886,8 +911,24 @@ void proto_register_crmf(void) {
       { "PBMParameter", "crmf.PBMParameter",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_crmf_CertId_PDU,
-      { "CertId", "crmf.CertId",
+    { &hf_crmf_RegToken_PDU,
+      { "RegToken", "crmf.RegToken",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_crmf_Authenticator_PDU,
+      { "Authenticator", "crmf.Authenticator",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_crmf_PKIPublicationInfo_PDU,
+      { "PKIPublicationInfo", "crmf.PKIPublicationInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_crmf_PKIArchiveOptions_PDU,
+      { "PKIArchiveOptions", "crmf.PKIArchiveOptions",
+        FT_UINT32, BASE_DEC, VALS(crmf_PKIArchiveOptions_vals), 0,
+        NULL, HFILL }},
+    { &hf_crmf_OldCertId_PDU,
+      { "OldCertId", "crmf.OldCertId",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_crmf_ProtocolEncrKey_PDU,
@@ -1184,7 +1225,7 @@ void proto_register_crmf(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-crmf-hfarr.c ---*/
-#line 67 "packet-crmf-template.c"
+#line 68 "packet-crmf-template.c"
   };
 
   /* List of subtrees */
@@ -1220,7 +1261,7 @@ void proto_register_crmf(void) {
     &ett_crmf_Attributes,
 
 /*--- End of included file: packet-crmf-ettarr.c ---*/
-#line 72 "packet-crmf-template.c"
+#line 73 "packet-crmf-template.c"
   };
 
   /* Register protocol */
@@ -1235,18 +1276,25 @@ void proto_register_crmf(void) {
 
 /*--- proto_reg_handoff_crmf -------------------------------------------*/
 void proto_reg_handoff_crmf(void) {
+	oid_add_from_string("id-pkip","1.3.6.1.5.5.7.5");
+	oid_add_from_string("id-regCtrl","1.3.6.1.5.5.7.5.1");
+	oid_add_from_string("id-regInfo","1.3.6.1.5.5.7.5.2");
 
 /*--- Included file: packet-crmf-dis-tab.c ---*/
 #line 1 "packet-crmf-dis-tab.c"
-  register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.5", dissect_CertId_PDU, proto_crmf, "id-regCtrl-oldCertID");
-  register_ber_oid_dissector("1.3.6.1.5.5.7.5.2.2", dissect_CertRequest_PDU, proto_crmf, "id-regInfo-certReq");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.1.21", dissect_EncKeyWithID_PDU, proto_crmf, "id-ct-encKeyWithID");
   register_ber_oid_dissector("1.2.840.113533.7.66.13", dissect_PBMParameter_PDU, proto_crmf, "PasswordBasedMac");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.1", dissect_RegToken_PDU, proto_crmf, "id-regCtrl-regToken");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.2", dissect_Authenticator_PDU, proto_crmf, "id-regCtrl-authenticator");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.3", dissect_PKIPublicationInfo_PDU, proto_crmf, "id-regCtrl-pkiPublicationInfo");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.4", dissect_PKIArchiveOptions_PDU, proto_crmf, "id-regCtrl-pkiArchiveOptions");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.5", dissect_OldCertId_PDU, proto_crmf, "id-regCtrl-oldCertID");
   register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.6", dissect_ProtocolEncrKey_PDU, proto_crmf, "id-regCtrl-protocolEncrKey");
   register_ber_oid_dissector("1.3.6.1.5.5.7.5.2.1", dissect_UTF8Pairs_PDU, proto_crmf, "id-regInfo-utf8Pairs");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.2.2", dissect_CertRequest_PDU, proto_crmf, "id-regInfo-certReq");
 
 
 /*--- End of included file: packet-crmf-dis-tab.c ---*/
-#line 87 "packet-crmf-template.c"
+#line 91 "packet-crmf-template.c"
 }
 

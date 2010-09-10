@@ -29,6 +29,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/oids.h>
 #include <epan/asn1.h>
 
 #include "packet-ber.h"
@@ -83,6 +84,9 @@ void proto_register_crmf(void) {
 
 /*--- proto_reg_handoff_crmf -------------------------------------------*/
 void proto_reg_handoff_crmf(void) {
+	oid_add_from_string("id-pkip","1.3.6.1.5.5.7.5");
+	oid_add_from_string("id-regCtrl","1.3.6.1.5.5.7.5.1");
+	oid_add_from_string("id-regInfo","1.3.6.1.5.5.7.5.2");
 #include "packet-crmf-dis-tab.c"
 }
 
