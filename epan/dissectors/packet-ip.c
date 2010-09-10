@@ -1149,8 +1149,10 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       optlen = optp->optlen;
       name = optp->name;
       dissect = optp->dissect;
-      if (opt_item && len_type == NO_LENGTH && optlen == 0 && opt == 1) { /* 1 = NOP in both IP and TCP */
-	/* Count number of NOP in a row */
+      if (opt_item && len_type == NO_LENGTH && optlen == 0 && opt == 1 &&
+	  (nop_count == 0 || offset % 4))  /* opt 1 = NOP in both IP and TCP */
+      {
+	/* Count number of NOP in a row within a uint32 */
 	nop_count++;
       } else {
 	nop_count = 0;
