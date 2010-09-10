@@ -429,11 +429,11 @@ PRINT_ENABLED_FEATURES()
 PRINT_DISABLED_FEATURES()
 
 link_directories(
-	gtk
-	codecs
-	epan
-	wiretap
-	wsutil
+	${CMAKE_BINARY_DIR}/gtk
+	${CMAKE_BINARY_DIR}/codecs
+	${CMAKE_BINARY_DIR}/epan
+	${CMAKE_BINARY_DIR}/wiretap
+	${CMAKE_BINARY_DIR}/wsutil
 )
 
 ADD_CUSTOM_TARGET(
