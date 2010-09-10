@@ -2160,14 +2160,14 @@ static void
 dissect_tcpopt_wscale(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     int offset, guint optlen _U_, packet_info *pinfo, proto_tree *opt_tree)
 {
-    guint8 shift;
+    guint8 val, shift;
     proto_item *wscale_pi, *gen_pi;
     proto_tree *wscale_tree;
     struct tcp_analysis *tcpd=NULL;
 
     tcpd=get_tcp_conversation_data(NULL,pinfo);
 
-    wscale_pi = proto_tree_add_text(opt_tree, tvb, offset, 3, "Window scale");
+    wscale_pi = proto_tree_add_text(opt_tree, tvb, offset, 3, "Window scale: ");
     wscale_tree = proto_item_add_subtree(wscale_pi, ett_tcp_option_wscale);
 
     proto_tree_add_item(wscale_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_NA);
@@ -2178,11 +2178,14 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
     proto_tree_add_item(wscale_tree, hf_tcp_option_wscale_shift, tvb, offset, 1,
                         ENC_NA);
-
     shift = tvb_get_guint8(tvb, offset);
+
     gen_pi = proto_tree_add_uint(wscale_tree, hf_tcp_option_wscale_multiplier, tvb,
                                  offset, 1, 1 << shift);
     PROTO_ITEM_SET_GENERATED(gen_pi);
+    val = tvb_get_guint8(tvb, offset);
+
+    proto_item_append_text(wscale_pi, "%u (multiply by %u)", val, 1 << shift);
 
     tcp_info_append_uint(pinfo, "WS", 1 << shift);
 
