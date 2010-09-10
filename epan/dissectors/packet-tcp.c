@@ -132,8 +132,8 @@ static int hf_tcp_option_kind = -1;
 static int hf_tcp_option_len = -1;
 static int hf_tcp_option_mss = -1;
 static int hf_tcp_option_mss_val = -1;
-static int hf_tcp_option_wscale = -1;
-static int hf_tcp_option_wscale_val = -1;
+static int hf_tcp_option_wscale_shift = -1;
+static int hf_tcp_option_wscale_multiplier = -1;
 static int hf_tcp_option_sack_perm = -1;
 static int hf_tcp_option_sack = -1;
 static int hf_tcp_option_sack_sle = -1;
@@ -183,6 +183,7 @@ static gint ett_tcp = -1;
 static gint ett_tcp_flags = -1;
 static gint ett_tcp_options = -1;
 static gint ett_tcp_option_timestamp = -1;
+static gint ett_tcp_option_wscale = -1;
 static gint ett_tcp_option_sack = -1;
 static gint ett_tcp_option_scps = -1;
 static gint ett_tcp_option_scps_extended = -1;
@@ -248,8 +249,9 @@ static const true_false_string tcp_option_user_to_granularity = {
 };
 
 static const value_string tcp_option_kind_vs[] = {
+    { TCPOPT_WINDOW, "Window Scale" },
     { TCPOPT_TIMESTAMP, "Timestamp" },
-    { 0,       NULL }
+    { 0, NULL }
 };
 
 /* not all of the hf_fields below make sense for TCP but we have to provide
@@ -2153,26 +2155,39 @@ dissect_tcpopt_maxseg(const ip_tcp_opt *optp, tvbuff_t *tvb,
     tcp_info_append_uint(pinfo, "MSS", mss);
 }
 
+/* The window scale extension is defined in RFC 1323 */
 static void
-dissect_tcpopt_wscale(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+dissect_tcpopt_wscale(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
+    int offset, guint optlen _U_, packet_info *pinfo, proto_tree *opt_tree)
 {
-    proto_item *hidden_item;
-    guint8 ws;
+    guint8 shift;
+    proto_item *wscale_pi, *gen_pi;
+    proto_tree *wscale_tree;
     struct tcp_analysis *tcpd=NULL;
 
     tcpd=get_tcp_conversation_data(NULL,pinfo);
 
-    ws = tvb_get_guint8(tvb, offset + 2);
-    hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_wscale, tvb,
-                                         offset, optlen, TRUE);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-    proto_tree_add_uint_format(opt_tree, hf_tcp_option_wscale_val, tvb,
-                               offset, optlen, ws, "%s: %u (multiply by %u)",
-                               optp->name, ws, 1 << ws);
-    tcp_info_append_uint(pinfo, "WS", ws);
+    wscale_pi = proto_tree_add_text(opt_tree, tvb, offset, 3, "Window scale");
+    wscale_tree = proto_item_add_subtree(wscale_pi, ett_tcp_option_wscale);
+
+    proto_tree_add_item(wscale_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(wscale_tree, hf_tcp_option_len, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(wscale_tree, hf_tcp_option_wscale_shift, tvb, offset, 1,
+                        ENC_NA);
+
+    shift = tvb_get_guint8(tvb, offset);
+    gen_pi = proto_tree_add_uint(wscale_tree, hf_tcp_option_wscale_multiplier, tvb,
+                                 offset, 1, 1 << shift);
+    PROTO_ITEM_SET_GENERATED(gen_pi);
+
+    tcp_info_append_uint(pinfo, "WS", 1 << shift);
+
     if(!pinfo->fd->flags.visited && tcp_analyze_seq && tcp_window_scaling){
-        pdu_store_window_scale_option(ws, tcpd);
+        pdu_store_window_scale_option(shift, tcpd);
     }
 }
 
@@ -3093,7 +3108,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean   desegment_ok;
     struct tcpinfo tcpinfo;
     struct tcpheader *tcph;
-    proto_item *tf_syn = NULL, *tf_fin = NULL, *tf_rst = NULL;
+    proto_item *tf_syn = NULL, *tf_fin = NULL, *tf_rst = NULL, *scaled_pi;
     conversation_t *conv=NULL;
     struct tcp_analysis *tcpd=NULL;
     struct tcp_per_packet_data_t *tcppd=NULL;
@@ -3356,10 +3371,19 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tf_rst = proto_tree_add_boolean(field_tree, hf_tcp_flags_reset, tvb, offset + 13, 1, tcph->th_flags);
         tf_syn = proto_tree_add_boolean(field_tree, hf_tcp_flags_syn, tvb, offset + 13, 1, tcph->th_flags);
         tf_fin = proto_tree_add_boolean(field_tree, hf_tcp_flags_fin, tvb, offset + 13, 1, tcph->th_flags);
+        proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, real_window);
+
+        /* Using hf_tcp_window_size for both the segment's window size and
+         * the scaled window size (if applicable) is probably more useful
+         * than separating them.  But if the scaled window size isn't below
+         * the normal window size in the source code as it is here, then
+         * things like columns won't get the [preferred when available]
+         * scaled window size. */
+
         if(tcp_window_scaling && tcph->th_win!=real_window) {
-            proto_tree_add_uint_format(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win, "Window size: %u (scaled)", tcph->th_win);
-        } else {
-            proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, real_window);
+            scaled_pi = proto_tree_add_uint_format(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win, "Window size: %u (scaled)", tcph->th_win);
+
+            PROTO_ITEM_SET_GENERATED(scaled_pi);
         }
     }
 
@@ -3991,15 +4015,13 @@ proto_register_tcp(void)
           { "TCP MSS Option Value", "tcp.options.mss_val", FT_UINT16,
             BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
-        { &hf_tcp_option_wscale,
-          { "TCP Window Scale Option", "tcp.options.wscale",
-            FT_BOOLEAN,
-            BASE_NONE, NULL, 0x0, "TCP Window Option", HFILL}},
+        { &hf_tcp_option_wscale_shift,
+          { "Shift count", "tcp.options.wscale.shift", FT_UINT8,
+            BASE_DEC, NULL, 0x0, "Logarithmically encoded power of 2 scale factor", HFILL}},
 
-        { &hf_tcp_option_wscale_val,
-          { "TCP Windows Scale Option Value", "tcp.options.wscale_val",
-            FT_UINT8, BASE_DEC, NULL, 0x0, "TCP Window Scale Value",
-            HFILL}},
+        { &hf_tcp_option_wscale_multiplier,
+          { "Multiplier", "tcp.options.wscale.multipiler",  FT_UINT8,
+            BASE_DEC, NULL, 0x0, "Multiply segment window size by this for scaled window size", HFILL}},
 
         { &hf_tcp_option_sack_perm,
           { "TCP SACK Permitted Option", "tcp.options.sack_perm",
@@ -4215,6 +4237,7 @@ proto_register_tcp(void)
         &ett_tcp_flags,
         &ett_tcp_options,
         &ett_tcp_option_timestamp,
+        &ett_tcp_option_wscale,
         &ett_tcp_option_sack,
         &ett_tcp_option_scps,
         &ett_tcp_option_scps_extended,
