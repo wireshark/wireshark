@@ -91,8 +91,7 @@ static int hf_ip_version = -1;
 static int hf_ip_hdr_len = -1;
 static int hf_ip_dsfield = -1;
 static int hf_ip_dsfield_dscp = -1;
-static int hf_ip_dsfield_ect = -1;
-static int hf_ip_dsfield_ce = -1;
+static int hf_ip_dsfield_ecn = -1;
 static int hf_ip_tos = -1;
 static int hf_ip_tos_precedence = -1;
 static int hf_ip_tos_delay = -1;
@@ -247,8 +246,10 @@ static dissector_handle_t tapa_handle;
 #define IPDSFIELD_DSCP_AF42     0x24
 #define IPDSFIELD_DSCP_AF43     0x26
 #define IPDSFIELD_DSCP_EF       0x2E
-#define IPDSFIELD_ECT_MASK	0x02
-#define IPDSFIELD_CE_MASK	0x01
+#define IPDSFIELD_ECT_NOT       0x00
+#define IPDSFIELD_ECT_1         0x01
+#define IPDSFIELD_ECT_0         0x02
+#define IPDSFIELD_CE            0x03
 
 /* IP TOS, superseded by the DS Field, RFC 2474. */
 #define IPTOS_TOS_MASK    0x1E
@@ -1271,6 +1272,13 @@ const value_string dscp_vals[] = {
 		  { IPDSFIELD_DSCP_EF,      "Expedited Forwarding"  },
 		  { 0,                      NULL                    } };
 
+const value_string ecn_vals[] = {
+		  { IPDSFIELD_ECT_NOT, "Not-ECT (Not ECN-Capable Transport)" },
+		  { IPDSFIELD_ECT_1,   "ECT(1) (ECN-Capable Transport)"      },
+		  { IPDSFIELD_ECT_0,   "ECT(0) (ECN-Capable Transport)"      },
+		  { IPDSFIELD_CE,      "CE (Congestion Experienced)"         },
+		  { 0,                 NULL                                  } };
+
 static const value_string precedence_vals[] = {
 		  { IPTOS_PREC_ROUTINE,         "routine"              },
 		  { IPTOS_PREC_PRIORITY,        "priority"             },
@@ -1397,14 +1405,13 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (tree) {
     if (g_ip_dscp_actif) {
       tf = proto_tree_add_uint_format(ip_tree, hf_ip_dsfield, tvb, offset + 1, 1, iph->ip_tos,
-	   "Differentiated Services Field: 0x%02x (DSCP 0x%02x: %s; ECN: 0x%02x)", iph->ip_tos,
-	   IPDSFIELD_DSCP(iph->ip_tos), val_to_str(IPDSFIELD_DSCP(iph->ip_tos), dscp_vals,
-	   "Unknown DSCP"),IPDSFIELD_ECN(iph->ip_tos));
+	   "Differentiated Services Field: 0x%02x (DSCP 0x%02x: %s; ECN: 0x%02x: %s)", iph->ip_tos,
+	   IPDSFIELD_DSCP(iph->ip_tos), val_to_str(IPDSFIELD_DSCP(iph->ip_tos), dscp_vals, "Unknown DSCP"),
+	   IPDSFIELD_ECN(iph->ip_tos), val_to_str(IPDSFIELD_ECN(iph->ip_tos), ecn_vals, "Unknown ECN"));
 
       field_tree = proto_item_add_subtree(tf, ett_ip_dsfield);
       proto_tree_add_item(field_tree, hf_ip_dsfield_dscp, tvb, offset + 1, 1, ENC_NA);
-      proto_tree_add_item(field_tree, hf_ip_dsfield_ect, tvb, offset + 1, 1, ENC_NA);
-      proto_tree_add_item(field_tree, hf_ip_dsfield_ce, tvb, offset + 1, 1, ENC_NA);
+      proto_tree_add_item(field_tree, hf_ip_dsfield_ecn, tvb, offset + 1, 1, ENC_NA);
     } else {
       tf = proto_tree_add_uint_format(ip_tree, hf_ip_tos, tvb, offset + 1, 1, iph->ip_tos,
 	  "Type of service: 0x%02x (%s)", iph->ip_tos,
@@ -1756,15 +1763,10 @@ proto_register_ip(void)
 			VALS(dscp_vals), IPDSFIELD_DSCP_MASK,
 			NULL, HFILL }},
 
-		{ &hf_ip_dsfield_ect,
-		{ "ECN-Capable Transport (ECT)",	"ip.dsfield.ect", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
-			IPDSFIELD_ECT_MASK,
-			"Explicit Congestion Notification Capable Transport", HFILL }},
-
-		{ &hf_ip_dsfield_ce,
-		{ "ECN-CE",	"ip.dsfield.ce", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
-			IPDSFIELD_CE_MASK,
-			"Explicit Congestion Notification - Congestion Experienced", HFILL }},
+		{ &hf_ip_dsfield_ecn,
+		{ "Explicit Congestion Notification",	"ip.dsfield.ecn", FT_UINT8, BASE_HEX,
+			VALS(ecn_vals),	IPDSFIELD_ECN_MASK,
+			NULL, HFILL }},
 
 		{ &hf_ip_tos,
 		{ "Type of Service",	"ip.tos", FT_UINT8, BASE_DEC, NULL, 0x0,
