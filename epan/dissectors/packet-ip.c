@@ -1022,7 +1022,7 @@ dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 static const ip_tcp_opt ipopts[] = {
   {
     IPOPT_END,
-    "EOL",
+    "End of Option List (EOL)",
     NULL,
     NO_LENGTH,
     0,
@@ -1030,7 +1030,7 @@ static const ip_tcp_opt ipopts[] = {
   },
   {
     IPOPT_NOOP,
-    "NOP",
+    "No-Operation (NOP)",
     NULL,
     NO_LENGTH,
     0,
