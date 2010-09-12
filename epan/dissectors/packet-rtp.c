@@ -1067,10 +1067,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		 */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTP");
 
-		if ( check_col( pinfo->cinfo, COL_INFO) ) {
-			col_add_fstr( pinfo->cinfo, COL_INFO,
-			    "Unknown RTP version %u", version);
-		}
+		col_add_fstr( pinfo->cinfo, COL_INFO,
+		    "Unknown RTP version %u", version);
 
 		if ( tree ) {
 			ti = proto_tree_add_item( tree, proto_rtp, tvb, offset, -1, FALSE );
@@ -1153,9 +1151,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	if (p_conv_data && p_conv_data->srtp_info) is_srtp = TRUE;
 	rtp_info->info_is_srtp = is_srtp;
 
-	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
-		col_set_str( pinfo->cinfo, COL_PROTOCOL, (is_srtp) ? "SRTP" : "RTP" );
-	}
+	col_set_str( pinfo->cinfo, COL_PROTOCOL, (is_srtp) ? "SRTP" : "RTP" );
 
 	/* check if this is added as an SRTP stream - if so, don't try to dissector the payload data for now */
 	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
@@ -1180,15 +1176,13 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		}
 	}
 
-	if ( check_col( pinfo->cinfo, COL_INFO) ) {
-		col_add_fstr( pinfo->cinfo, COL_INFO,
-		    "PT=%s, SSRC=0x%X, Seq=%u, Time=%u%s",
-			payload_type_str ? payload_type_str : val_to_str( payload_type, rtp_payload_type_vals,"Unknown (%u)" ),
-		    sync_src,
-		    seq_num,
-		    timestamp,
-		    marker_set ? ", Mark " : " ");
-	}
+	col_add_fstr( pinfo->cinfo, COL_INFO,
+	    "PT=%s, SSRC=0x%X, Seq=%u, Time=%u%s",
+		payload_type_str ? payload_type_str : val_to_str( payload_type, rtp_payload_type_vals,"Unknown (%u)" ),
+	    sync_src,
+	    seq_num,
+	    timestamp,
+	    marker_set ? ", Mark " : " ");
 
 
 	if ( tree ) {
