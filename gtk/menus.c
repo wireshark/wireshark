@@ -137,7 +137,9 @@ static void merge_all_tap_menus(GList *node);
 static void clear_menu_recent_capture_file_cmd_cb(GtkWidget *w, gpointer unused _U_);
 
 static void menus_init(void);
+#ifdef MENUS_USE_UIMANAGER
 static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint);
+#endif
 static void set_menu_sensitivity_old (GtkItemFactory *, const gchar *, gint);
 static void show_hide_cb(GtkWidget *w, gpointer data, gint action);
 static void timestamp_format_cb(GtkWidget *w, gpointer d, gint action);
@@ -2327,7 +2329,7 @@ void merge_all_tap_menus(GList *node) {
     g_free (sep_entry);
 }
 
-
+#ifdef MENUS_USE_UIMANAGER
 /*
  * Enable/disable menu sensitivity.
  */
@@ -2336,20 +2338,21 @@ set_menu_sensitivity(GtkUIManager *ui_manager, const gchar *path, gint val)
 {
     GtkAction *action;
 
-	action = gtk_ui_manager_get_action(ui_manager, path);
-	if(!action){
+    action = gtk_ui_manager_get_action(ui_manager, path);
+    if(!action){
         fprintf (stderr, "Warning: couldn't find action path= %s\n", 
                 path); 
 		return;
-	}
+    }
 #if GLIB_CHECK_VERSION(2,6,0)
-	gtk_action_set_sensitive (action,
+    gtk_action_set_sensitive (action,
 		val); /* TRUE to make the action sensitive */
 #else
-	Help, what now! :-)
+    Help, what now! :-)
 #endif
-
 }
+#endif /* MENUS_USE_UIMANAGER */
+
 /*
  * Enable/disable menu sensitivity.
  */
