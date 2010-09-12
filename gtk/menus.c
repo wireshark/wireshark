@@ -1583,9 +1583,9 @@ static const char *ui_desc_bytes_menu_popup =
 "</ui>\n";
 static const GtkRadioActionEntry bytes_menu_radio_action_entries [] =
 {
-	/* /* name,		stock id,	label,			accel,	tooltip,  value */
-	{ "/HexView",	NULL,		"Hex View",		NULL,	NULL,		BYTES_HEX },
-	{ "/BitsView",	NULL,		"Bits View",	NULL,	NULL,		BYTES_BITS },
+	/* name,	stock id,	label,		accel,	tooltip,  value */
+	{ "/HexView",	NULL,		"Hex View",	NULL,	NULL,	  BYTES_HEX },
+	{ "/BitsView",	NULL,		"Bits View",	NULL,	NULL,	  BYTES_BITS },
 };
 static const char *ui_desc_conv_filter_popup =
 "<ui>\n"
