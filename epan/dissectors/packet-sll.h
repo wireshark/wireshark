@@ -24,6 +24,13 @@
 #ifndef __PACKET_SLL_H__
 #define __PACKET_SLL_H__
 
+/*
+ * The LINUX_SLL_ values for "sll_protocol".
+ */
+#define LINUX_SLL_P_802_3	0x0001	/* Novell 802.3 frames without 802.2 LLC header */
+#define LINUX_SLL_P_802_2	0x0004	/* 802.2 frames (not D/I/X Ethernet) */
+#define LINUX_SLL_P_PPPHDLC	0x0007	/* PPP HDLC frames */
+
 void capture_sll(const guchar *, int, packet_counts *);
 
 #endif

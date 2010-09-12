@@ -76,13 +76,6 @@ static const value_string packet_type_vals[] = {
 	{ 0,			NULL }
 };
 
-/*
- * The LINUX_SLL_ values for "sll_protocol".
- */
-#define LINUX_SLL_P_802_3	0x0001	/* Novell 802.3 frames without 802.2 LLC header */
-#define LINUX_SLL_P_802_2	0x0004	/* 802.2 frames (not D/I/X Ethernet) */
-#define LINUX_SLL_P_PPPHDLC	0x0007	/* PPP HDLC frames */
-
 static const value_string ltype_vals[] = {
 	{ LINUX_SLL_P_802_3,	"Raw 802.3" },
 	{ LINUX_SLL_P_802_2,	"802.2 LLC" },
@@ -90,10 +83,8 @@ static const value_string ltype_vals[] = {
 	{ 0,			NULL }
 };
 
+static dissector_table_t sll_linux_dissector_table;
 static dissector_table_t gre_dissector_table;
-static dissector_handle_t ipx_handle;
-static dissector_handle_t llc_handle;
-static dissector_handle_t ppphdlc_handle;
 static dissector_handle_t data_handle;
 
 void
@@ -237,33 +228,9 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(fh_tree, hf_sll_ltype, tvb, 14, 2,
 		    protocol);
 
-		switch (protocol) {
-
-		case LINUX_SLL_P_802_2:
-			/*
-			 * 802.2 LLC.
-			 */
-			call_dissector(llc_handle, next_tvb, pinfo, tree);
-			break;
-
-		case LINUX_SLL_P_802_3:
-			/*
-			 * Novell IPX inside 802.3 with no 802.2 LLC
-			 * header.
-			 */
-			call_dissector(ipx_handle, next_tvb, pinfo, tree);
-			break;
-
-		case LINUX_SLL_P_PPPHDLC:
-			/*
-			 * PPP HDLC
-			 */
-			call_dissector(ppphdlc_handle, next_tvb, pinfo, tree);
-			break;
-
-		default:
+		if(!dissector_try_port(sll_linux_dissector_table, protocol,
+			next_tvb, pinfo, tree)) {
 			call_dissector(data_handle, next_tvb, pinfo, tree);
-			break;
 		}
 	} else {
 		switch (hatype) {
@@ -340,6 +307,13 @@ proto_register_sll(void)
 	    "SLL", "sll" );
 	proto_register_field_array(proto_sll, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	sll_linux_dissector_table = register_dissector_table (
+		"sll.ltype",
+		"Linux protocol type",
+		FT_UINT16,
+		BASE_HEX
+	);
 }
 
 void
@@ -351,9 +325,6 @@ proto_reg_handoff_sll(void)
 	 * Get handles for the IPX and LLC dissectors.
 	 */
 	gre_dissector_table = find_dissector_table("gre.proto");
-	llc_handle = find_dissector("llc");
-	ipx_handle = find_dissector("ipx");
-	ppphdlc_handle = find_dissector("ppp_hdlc");
 	data_handle = find_dissector("data");
 
 	sll_handle = create_dissector_handle(dissect_sll, proto_sll);
