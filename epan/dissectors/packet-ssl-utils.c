@@ -66,7 +66,7 @@ const value_string ssl_20_msg_types[] = {
     { SSL2_HND_CLIENT_CERTIFICATE,  "Client Certificate" },
     { 0x00, NULL }
 };
-
+/* http://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml */
 const value_string ssl_20_cipher_suites[] = {
     { 0x010080, "SSL2_RC4_128_WITH_MD5" },
     { 0x020080, "SSL2_RC4_128_EXPORT40_WITH_MD5" },
@@ -173,6 +173,7 @@ const value_string ssl_20_cipher_suites[] = {
     { 0x00006B, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256" },
     { 0x00006C, "TLS_DH_anon_WITH_AES_128_CBC_SHA256" },
     { 0x00006D, "TLS_DH_anon_WITH_AES_256_CBC_SHA256" },
+	/* 0x00,0x6E-83 Unassigned  */
     { 0x000084, "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x000085, "TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x000086, "TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA" },
@@ -244,6 +245,9 @@ const value_string ssl_20_cipher_suites[] = {
     { 0x0000C3, "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256" },
     { 0x0000C4, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256" },
     { 0x0000C5, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256" },
+	/* 0x00,0xC6-FE Unassigned  */
+	{ 0x0000FF, "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" },
+	/* 0x01-BF,* Unassigned  */
     /* From RFC 4492 */
     { 0x00c001, "TLS_ECDH_ECDSA_WITH_NULL_SHA" },
     { 0x00c002, "TLS_ECDH_ECDSA_WITH_RC4_128_SHA" },
@@ -307,6 +311,13 @@ const value_string ssl_20_cipher_suites[] = {
     { 0x00C039, "TLS_ECDHE_PSK_WITH_NULL_SHA" },
     { 0x00C03A, "TLS_ECDHE_PSK_WITH_NULL_SHA256" },
     { 0x00C03B, "TLS_ECDHE_PSK_WITH_NULL_SHA384" },
+	/*	0xC0,0x3C-FF Unassigned  
+		0xC1-FD,* Unassigned  
+		0xFE,0x00-FD Unassigned  
+		0xFE,0xFE-FF Reserved to avoid conflicts with widely deployed implementations [Pasi_Eronen] 
+		0xFF,0x00-FF Reserved for Private Use [RFC5246]
+		*/
+
     /* these from http://www.mozilla.org/projects/
          security/pki/nss/ssl/fips-ssl-ciphersuites.html */
     { 0x00fefe, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
@@ -502,6 +513,7 @@ const value_string ssl_31_public_value_encoding[] = {
     { 0x00, NULL }
 };
 #endif
+/* http://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml */
 
 const value_string ssl_31_ciphersuite[] = {
     /* RFC 2246, RFC 4346, RFC 5246 */
@@ -590,6 +602,7 @@ const value_string ssl_31_ciphersuite[] = {
     { 0x006C, "TLS_DH_anon_WITH_AES_128_CBC_SHA256" },
     { 0x006D, "TLS_DH_anon_WITH_AES_256_CBC_SHA256" },
 
+	/* 0x00,0x60-66 Reserved to avoid conflicts with widely deployed implementations  */
     /* ??? */
     { 0x0060, "TLS_RSA_EXPORT1024_WITH_RC4_56_MD5" },
     { 0x0061, "TLS_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5" },
@@ -684,7 +697,10 @@ const value_string ssl_31_ciphersuite[] = {
     { 0x00C3, "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256" },
     { 0x00C4, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256" },
     { 0x00C5, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256" },
-
+	/* 0x00,0xC6-FE Unassigned  */
+    /* From RFC 5746 */
+    { 0x0000FF, "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" },  
+	/* 0x01-BF,* Unassigned */
     /* From RFC 4492 */
     { 0xc001, "TLS_ECDH_ECDSA_WITH_NULL_SHA" },
     { 0xc002, "TLS_ECDH_ECDSA_WITH_RC4_128_SHA" },
@@ -751,7 +767,13 @@ const value_string ssl_31_ciphersuite[] = {
     { 0xC039, "TLS_ECDHE_PSK_WITH_NULL_SHA" },
     { 0xC03A, "TLS_ECDHE_PSK_WITH_NULL_SHA256" },
     { 0xC03B, "TLS_ECDHE_PSK_WITH_NULL_SHA384" },
-
+/*
+0xC0,0x3C-FF Unassigned  
+0xC1-FD,* Unassigned  
+0xFE,0x00-FD Unassigned  
+0xFE,0xFE-FF Reserved to avoid conflicts with widely deployed implementations [Pasi_Eronen] 
+0xFF,0x00-FF Reserved for Private Use [RFC5246] 
+*/
     /* these from http://www.mozilla.org/projects/
          security/pki/nss/ssl/fips-ssl-ciphersuites.html */
     { 0xfefe, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
