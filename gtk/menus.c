@@ -97,7 +97,7 @@
 #include "gtk/manual_addr_resolv.h"
 #include "gtk/proto_help.h"
 
-/*#define MENUS_USE_UIMANAGER 1*/
+/* #define MENUS_USE_UIMANAGER 1 */
 
 
 #ifdef NEW_PACKET_LIST
@@ -1532,19 +1532,179 @@ no_sorting_cb(GtkWidget *widget, gpointer user_data)
 	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_SORT_NONE);
 }
 
+static void
+packet_list_heading_show_resolved_cb(GtkWidget *widget, gpointer user_data)
+{
+	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_TOGGLE_RESOLVED);
+}
+
+static void
+packet_list_heading_align_left_cb(GtkWidget *widget, gpointer user_data)
+{
+	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_ALIGN_LEFT);
+}
+
+static void
+packet_list_heading_align_center_cb(GtkWidget *widget, gpointer user_data)
+{
+	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_ALIGN_CENTER);
+}
+
+static void
+packet_list_heading_align_right_cb(GtkWidget *widget, gpointer user_data)
+{
+	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_ALIGN_RIGHT);
+}
+
+static void
+packet_list_heading_col_pref_cb(GtkWidget *widget, gpointer user_data)
+{
+	prefs_page_cb( widget , user_data, PREFS_PAGE_COLUMNS);
+}
+
+static void
+packet_list_heading_resize_col_cb(GtkWidget *widget, gpointer user_data)
+{
+	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_RESIZE);
+}
+
+static void
+packet_list_heading_rename_col_cb(GtkWidget *widget, gpointer user_data)
+{
+	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_RENAME);
+}
+
+static void
+packet_list_heading_hide_col_cb(GtkWidget *widget, gpointer user_data)
+{
+	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_HIDE);
+}
+
+static void
+packet_list_heading_remove_col_cb(GtkWidget *widget, gpointer user_data)
+{
+	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_REMOVE);
+}
+
+static void
+packet_list_menu_set_ref_time_cb(GtkWidget *widget, gpointer user_data)
+{
+	reftime_frame_cb( widget , user_data, REFTIME_TOGGLE);
+}
+
+static void
+packet_list_menu_apply_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
+}
+
+static void
+packet_list_menu_apply_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
+}
+
+static void
+packet_list_menu_apply_and_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
+}
+
+static void
+packet_list_menu_apply_or_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
+}
+
+static void
+packet_list_menu_apply_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
+}
+
+static void
+packet_list_menu_apply_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_plist_cb( widget , user_data,MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
+}
+/* Prepare a filter */
+static void
+packet_list_menu_prepare_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_REPLACE);
+}
+
+static void
+packet_list_menu_prepare_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_NOT);
+}
+
+static void
+packet_list_menu_prepare_and_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_AND);
+}
+
+static void
+packet_list_menu_prepare_or_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_OR);
+}
+
+static void
+packet_list_menu_prepare_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_AND_NOT);
+}
+
+static void
+packet_list_menu_prepare_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_OR_NOT);
+}
+
 static const char *ui_desc_packet_list_heading_menu_popup =
 "<ui>\n"
 "  <popup name='PacketListHeadingPopup' action='PopupAction'>\n"
 "     <menuitem name='SortAscending' action='/Sort Ascending'/>\n"
 "     <menuitem name='SortDescending' action='/Sort Descending'/>\n"
 "     <menuitem name='NoSorting' action='/No Sorting'/>\n"
+"     <separator/>\n"
+"     <menuitem name='ShowResolved' action='/Show Resolved'/>\n"
+"     <separator/>\n"
+"     <menuitem name='AlignLeft' action='/Align Left'/>\n"
+"     <menuitem name='AlignCenter' action='/Align Center'/>\n"
+"     <menuitem name='AlignRight' action='/Align Right'/>\n"
+"     <separator/>\n"
+"     <menuitem name='ColumnPreferences' action='/Column Preferences'/>\n"
+"     <separator/>\n"
+"     <menu name= 'DisplayedColumns' action='/Displayed Columns'>\n"
+"       <menuitem name='HideColumn' action='/Hide Column'/>\n"
+"       <menuitem name='RemoveColumn' action='/Remove Column'/>\n"
+"     </menu>\n"
 "  </popup>\n"
 "</ui>\n";
 
 static const GtkActionEntry packet_list_heading_menu_popup_action_entries[] = {
-  { "/Sort Ascending",					GTK_STOCK_SORT_ASCENDING,			"Sort Ascending",		NULL,					NULL,			G_CALLBACK(sort_ascending_cb) },
-  { "/Sort Descending",					GTK_STOCK_SORT_DESCENDING,			"Sort Descending",		NULL,					NULL,			G_CALLBACK(sort_descending_cb) },
-  { "/No Sorting",						NULL,								"No Sorting",			NULL,					NULL,			G_CALLBACK(no_sorting_cb) },
+  { "/Sort Ascending",					GTK_STOCK_SORT_ASCENDING,			"Sort Ascending",			NULL,	NULL,	G_CALLBACK(sort_ascending_cb) },
+  { "/Sort Descending",					GTK_STOCK_SORT_DESCENDING,			"Sort Descending",			NULL,	NULL,	G_CALLBACK(sort_descending_cb) },
+  { "/No Sorting",						NULL,								"No Sorting",				NULL,	NULL,	G_CALLBACK(no_sorting_cb) },
+  { "/Align Left",						GTK_STOCK_JUSTIFY_LEFT,				"Align Left",				NULL,	NULL,	G_CALLBACK(packet_list_heading_align_left_cb) },
+  { "/Align Center",					GTK_STOCK_JUSTIFY_CENTER,			"Align Center",				NULL,	NULL,	G_CALLBACK(packet_list_heading_align_center_cb) },
+  { "/Align Right",						GTK_STOCK_JUSTIFY_RIGHT,			"Align Right",				NULL,	NULL,	G_CALLBACK(packet_list_heading_align_right_cb) },
+  { "/Column Preferences",				GTK_STOCK_PREFERENCES,				"Column Preferences...",	NULL,	NULL,	G_CALLBACK(packet_list_heading_col_pref_cb) },
+  { "/Resize Column",					WIRESHARK_STOCK_RESIZE_COLUMNS,		"Resize Column",			NULL,	NULL,	G_CALLBACK(packet_list_heading_resize_col_cb) },
+  { "/Rename Column Title",				GTK_STOCK_BOLD,						"Rename Column Title...",	NULL,	NULL,	G_CALLBACK(packet_list_heading_rename_col_cb) },
+  { "/Displayed Columns",				NULL,								"Displayed Columns",		NULL,	NULL,	NULL },
+  { "/Hide Column",						NULL,								"Hide Column",				NULL,	NULL,	G_CALLBACK(packet_list_heading_hide_col_cb) },
+  { "/Remove Column",					GTK_STOCK_DELETE,					"Remove Column",			NULL,	NULL,	G_CALLBACK(packet_list_heading_remove_col_cb) },
+};
+
+static const GtkToggleActionEntry packet_list_heading_menu_toggle_action_entries[] = 
+{
+	/* name, stock id, label, accel, tooltip, callback, is_active */
+	{"/Show Resolved",	NULL, "Show Resolved",	NULL, NULL,	G_CALLBACK(packet_list_heading_show_resolved_cb), TRUE}, 
 };
 
 static const char *ui_desc_packet_list_menu_popup =
@@ -1552,12 +1712,52 @@ static const char *ui_desc_packet_list_menu_popup =
 "  <popup name='PacketListMenuPopup' action='PopupAction'>\n"
 "     <menuitem name='MarkPacket' action='/MarkPacket'/>\n"
 "     <menuitem name='IgnorePacket' action='/IgnorePacket'/>\n"
+"     <menuitem name='SetTimeReference' action='/Set Time Reference'/>\n"
+"     <separator/>\n"
+"     <menu name= 'ApplyasFilter' action='/Apply as Filter'>\n"
+"       <menuitem name='HideColumn' action='/Hide Column'/>\n"
+"       <menuitem name='RemoveColumn' action='/Remove Column'/>\n"
+"     </menu>\n"
+"     <menu name= 'ApplyAsFilter' action='/Apply as Filter'>\n"
+"       <menuitem name='Selected' action='/Apply as Filter/Selected'/>\n"
+"       <menuitem name='NotSelected' action='/Apply as Filter/Not Selected'/>\n"
+"       <menuitem name='AndSelected' action='/Apply as Filter/AndSelected'/>\n"
+"       <menuitem name='OrSelected' action='/Apply as Filter/OrSelected'/>\n"
+"       <menuitem name='AndNotSelected' action='/Apply as Filter/AndNotSelected'/>\n"
+"       <menuitem name='OrNotSelected' action='/Apply as Filter/OrNotSelected'/>\n"
+"     </menu>\n"
+"     <menu name= 'PrepareAFilter' action='/Prepare a Filter'>\n"
+"       <menuitem name='Selected' action='/Prepare a Filter/Selected'/>\n"
+"       <menuitem name='NotSelected' action='/Prepare a Filter/Not Selected'/>\n"
+"       <menuitem name='AndSelected' action='/Prepare a Filter/AndSelected'/>\n"
+"       <menuitem name='OrSelected' action='/Prepare a Filter/OrSelected'/>\n"
+"       <menuitem name='AndNotSelected' action='/Prepare a Filter/AndNotSelected'/>\n"
+"       <menuitem name='OrNotSelected' action='/Prepare a Filter/OrNotSelected'/>\n"
+"     </menu>\n"
 "  </popup>\n"
 "</ui>\n";
 
 static const GtkActionEntry packet_list_menu_popup_action_entries[] = {
-  { "/MarkPacket",						NULL,					"Mark Packet (toggle)",		NULL,					NULL,			G_CALLBACK(new_packet_list_mark_frame_cb) },
-  { "/IgnorePacket",					NULL,					"Ignore Packet (toggle)",	NULL,					NULL,			G_CALLBACK(new_packet_list_ignore_frame_cb) },
+  { "/MarkPacket",						NULL,					"Mark Packet (toggle)",			NULL,					NULL,			G_CALLBACK(new_packet_list_mark_frame_cb) },
+  { "/IgnorePacket",					NULL,					"Ignore Packet (toggle)",		NULL,					NULL,			G_CALLBACK(new_packet_list_ignore_frame_cb) },
+  { "/Set Time Reference",				WIRESHARK_STOCK_TIME,	"Set Time Reference (toggle)",	NULL,					NULL,			G_CALLBACK(packet_list_menu_set_ref_time_cb) },
+  { "/Apply as Filter",					NULL,					"Apply as Filter",				NULL,					NULL,			NULL },
+
+  { "/Apply as Filter/Selected",		NULL, "_Selected" ,				NULL, NULL, G_CALLBACK(packet_list_menu_apply_selected_cb) },
+  { "/Apply as Filter/Not Selected",	NULL, "_Not Selected",			NULL, NULL, G_CALLBACK(packet_list_menu_apply_not_selected_cb) },
+  { "/Apply as Filter/AndSelected",		NULL, "... _and Selected",		NULL, NULL, G_CALLBACK(packet_list_menu_apply_and_selected_cb) },
+  { "/Apply as Filter/OrSelected",		NULL, "... _or Selected",		NULL, NULL, G_CALLBACK(packet_list_menu_apply_or_selected_cb) },
+  { "/Apply as Filter/AndNotSelected",	NULL, "... a_nd not Selected",	NULL, NULL, G_CALLBACK(packet_list_menu_apply_and_not_selected_cb) },
+  { "/Apply as Filter/OrNotSelected",	NULL, "... o_r not Selected",	NULL, NULL, G_CALLBACK(packet_list_menu_apply_or_not_selected_cb) },
+
+  { "/Prepare a Filter",				NULL, "Prepare a Filter",		NULL, NULL, NULL },
+  { "/Prepare a Filter/Selected",		NULL, "_Selected" ,				NULL, NULL, G_CALLBACK(packet_list_menu_prepare_selected_cb) },
+  { "/Prepare a Filter/Not Selected",	NULL, "_Not Selected",			NULL, NULL, G_CALLBACK(packet_list_menu_prepare_not_selected_cb) },
+  { "/Prepare a Filter/AndSelected",	NULL, "... _and Selected",		NULL, NULL, G_CALLBACK(packet_list_menu_prepare_and_selected_cb) },
+  { "/Prepare a Filter/OrSelected",		NULL, "... _or Selected",		NULL, NULL, G_CALLBACK(packet_list_menu_prepare_or_selected_cb) },
+  { "/Prepare a Filter/AndNotSelected",	NULL, "... a_nd not Selected",	NULL, NULL, G_CALLBACK(packet_list_menu_prepare_and_not_selected_cb) },
+  { "/Prepare a Filter/OrNotSelected",	NULL, "... o_r not Selected",	NULL, NULL, G_CALLBACK(packet_list_menu_prepare_or_not_selected_cb) },
+
 };
 
 
@@ -1567,6 +1767,8 @@ static const char *ui_desc_tree_view_menu_popup =
 "     <menuitem name='ExpandSubtrees' action='/ExpandSubtrees'/>\n"
 "     <menuitem name='ExpandAll' action='/ExpandAll'/>\n"
 "     <menuitem name='CollapseAll' action='/CollapseAll'/>\n"
+"     <separator/>\n"
+"     <menuitem name='ApplyasColumn' action='/Apply as Column'/>\n"
 "  </popup>\n"
 "</ui>\n";
 
@@ -1574,6 +1776,7 @@ static const GtkActionEntry tree_view_menu_popup_action_entries[] = {
   { "/ExpandSubtrees",					NULL,							"Expand Subtrees",		NULL,					NULL,			G_CALLBACK(expand_tree_cb) },
   { "/ExpandAll",						NULL,							"Expand All",			NULL,					NULL,			G_CALLBACK(expand_all_cb) },
   { "/CollapseAll",						NULL,							"Collapse All",			NULL,					NULL,			G_CALLBACK(collapse_all_cb) },
+  { "/Apply as Column",					NULL,							"Apply as Column",		NULL,					NULL,			G_CALLBACK(apply_as_custom_column_cb) },
 };
 
 static const char *ui_desc_bytes_menu_popup =
@@ -1786,6 +1989,11 @@ menus_init(void) {
 		packet_list_heading_menu_popup_action_entries,						/* an array of action descriptions */
 		G_N_ELEMENTS(packet_list_heading_menu_popup_action_entries),		/* the number of entries */
 		popup_menu_object);													/* data to pass to the action callbacks */
+
+	gtk_action_group_add_toggle_actions(packet_list_heading_action_group,          /* the action group */
+								packet_list_heading_menu_toggle_action_entries,    /* an array of action descriptions */
+								G_N_ELEMENTS(packet_list_heading_menu_toggle_action_entries), /* the number of entries */
+								NULL);                                             /* data to pass to the action callbacks */
 
 	ui_manager_packet_list_heading = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (ui_manager_packet_list_heading, 
@@ -2414,8 +2622,20 @@ set_menu_sensitivity_old(GtkItemFactory *ifactory, const gchar *path, gint val)
     g_free(dup);
 }
 
+
+#ifdef MENUS_USE_UIMANAGER
 static void
-set_menu_object_data_meat(GtkItemFactory *ifactory, const gchar *path, const gchar *key, gpointer data)
+set_menu_object_data_meat(GtkUIManager *ui_manager, const gchar *path, const gchar *key, gpointer data)
+{
+    GtkWidget *menu = NULL;
+
+    if ((menu =  gtk_ui_manager_get_widget(ui_manager, path)) != NULL)
+        g_object_set_data(G_OBJECT(menu), key, data);
+}
+#endif
+
+static void
+set_menu_object_data_meat_old(GtkItemFactory *ifactory, const gchar *path, const gchar *key, gpointer data)
 {
     GtkWidget *menu = NULL;
 
@@ -2428,10 +2648,15 @@ set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
     GSList *menu_list = popup_menu_list;
     gchar *shortpath = strrchr(path, '/');
 
-    set_menu_object_data_meat(main_menu_factory, path, key, data);
+    set_menu_object_data_meat_old(main_menu_factory, path, key, data);
     while (menu_list != NULL) {
+#ifdef MENUS_USE_UIMANAGER
         set_menu_object_data_meat(menu_list->data, shortpath, key, data);
         set_menu_object_data_meat(menu_list->data, path, key, data);
+#else
+        set_menu_object_data_meat_old(menu_list->data, shortpath, key, data);
+        set_menu_object_data_meat_old(menu_list->data, path, key, data);
+#endif
         menu_list = g_slist_next(menu_list);
     }
 }
@@ -3488,7 +3713,7 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Mark Packet (toggle)",
                          frame_selected);
 #ifdef MENUS_USE_UIMANAGER
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Mark Packet (toggle)",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/MarkPacket",
                          frame_selected);
 #else
     set_menu_sensitivity_old(packet_list_menu_factory, "/Mark Packet (toggle)",
@@ -3507,7 +3732,7 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Ignore Packet (toggle)",
                          frame_selected);
 #ifdef MENUS_USE_UIMANAGER
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Ignore Packet (toggle)",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/IgnorePacket",
                          frame_selected);
 #else
     set_menu_sensitivity_old(packet_list_menu_factory, "/Ignore Packet (toggle)",
@@ -3524,7 +3749,7 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Un-Time Reference All Packets",
                          have_time_ref);
 #ifdef MENUS_USE_UIMANAGER
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Set Time Reference (toggle)",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/SetTimeReference",
                          frame_selected);
 #else
     set_menu_sensitivity_old(packet_list_menu_factory, "/Set Time Reference (toggle)",
@@ -3540,7 +3765,7 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity_old(main_menu_factory, "/View/Collapse All",
                          frame_selected);
 #ifdef MENUS_USE_UIMANAGER
-    set_menu_sensitivity(ui_manager_tree_view_menu, "/Collapse All",
+    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Collapse All",
                          frame_selected);
 #else
     set_menu_sensitivity_old(tree_view_menu_factory, "/Collapse All",
@@ -3571,13 +3796,13 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_SCTP) : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/Follow TCP Stream",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
-    set_menu_sensitivity(ui_manager_tree_view_menu, "/Follow TCP Stream",
+    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Follow TCP Stream",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/Follow UDP Stream",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/Follow SSL Stream",
                          frame_selected ? is_ssl : FALSE);
-    set_menu_sensitivity(ui_manager_tree_view_menu, "/Follow SSL Stream",
+    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Follow SSL Stream",
                          frame_selected ? is_ssl : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/Conversation Filter",
                          frame_selected);
@@ -3589,7 +3814,7 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/Conversation Filter/UDP",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
-    set_menu_sensitivity(ui_manager_tree_view_menu, "/Follow UDP Stream",
+    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Follow UDP Stream",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/Conversation Filter/PN-CBA Server",
                          frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
@@ -3607,7 +3832,7 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/Decode As...",
                          frame_selected && decode_as_ok());
-    set_menu_sensitivity(ui_manager_tree_view_menu, "/Decode As...",
+    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Decode As...",
                          frame_selected && decode_as_ok());
     set_menu_sensitivity(ui_manager_packet_list_menu, "/Copy",
                          frame_selected);
@@ -3615,7 +3840,7 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/Prepare a Filter",
                          frame_selected);
-    set_menu_sensitivity(ui_manager_tree_view_menu, "/Resolve Name",
+    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Resolve Name",
                          frame_selected && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
 #else
     set_menu_sensitivity_old(packet_list_menu_factory, "/Show Packet in New Window",
@@ -4038,7 +4263,7 @@ add_protocol_prefs_menu (pref_t *pref, gpointer data)
     }
 
 #ifdef MENUS_USE_UIMANAGER
-    menu_preferences = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/Protocol Preferences");
+    menu_preferences = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/Protocol Preferences");
 #else
     menu_preferences = gtk_item_factory_get_widget(tree_view_menu_factory, "/Protocol Preferences");
 #endif
@@ -4057,7 +4282,7 @@ rebuild_protocol_prefs_menu (module_t *prefs_module_p, gboolean preferences)
     gchar *label;
 
 #ifdef MENUS_USE_UIMANAGER
-    menu_preferences = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/Protocol Preferences");
+    menu_preferences = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/Protocol Preferences");
 #else
     menu_preferences = gtk_item_factory_get_widget(tree_view_menu_factory, "/Protocol Preferences");
 #endif
@@ -4111,14 +4336,14 @@ rebuild_visible_columns_menu (void)
     gint       i, col_id, cur_fmt;
 #ifdef MENUS_USE_UIMANAGER
     menu_columns[0] = gtk_item_factory_get_widget(main_menu_factory, "/View/Displayed Columns");
-    menu_columns[1] = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/Displayed Columns");
+    menu_columns[1] = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/DisplayedColumns");
 #else
     menu_columns[0] = gtk_item_factory_get_widget(main_menu_factory, "/View/Displayed Columns");
     menu_columns[1] = gtk_item_factory_get_widget(packet_list_heading_factory, "/Displayed Columns");
 #endif
 	/* Debug */
 	if(! menu_columns[1]){
-        fprintf (stderr, "Warning: couldn't find menu_columns[1] path=/PacketListHeadingPopup/Displayed Columns");
+        fprintf (stderr, "Warning: couldn't find menu_columns[1] path=/PacketListHeadingPopup/DisplayedColumns");
 	}
 
     for (i = 0; i < 2; i++) {
@@ -4164,8 +4389,6 @@ menus_set_column_resolved (gboolean resolved, gboolean can_resolve)
 
 #ifdef MENUS_USE_UIMANAGER
 	menu = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/ShowResolved");
-	/* Debug */
-	g_warning("menus_set_column_resolved");
 	if(!menu){
         fprintf (stderr, "Warning: couldn't find menu path=/PacketListHeadingPopup/ShowResolved");
 	}
@@ -4194,8 +4417,6 @@ menus_set_column_align_default (gboolean right_justify)
     /* get the submenu container item */
 #ifdef MENUS_USE_UIMANAGER
     submenu = gtk_ui_manager_get_widget (ui_manager_packet_list_heading, "/PacketListHeadingPopup");
-	/* Debug */
-	g_warning("menus_set_column_align_default");
 	if(!submenu){
         fprintf (stderr, "Warning: couldn't find submenu path=/PacketListHeadingPopup");
 	}
@@ -4251,27 +4472,27 @@ set_menus_for_selected_tree_row(capture_file *cf)
         properties = prefs_is_registered_protocol(abbrev);
 #ifdef MENUS_USE_UIMANAGER
         set_menu_sensitivity(ui_manager_tree_view_menu,
-                             "/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Copy",
+                             "/TreeViewPopup/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Copy",
                              TRUE);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Copy/As Filter",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Copy/As Filter",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Apply as Column",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyasColumn",
                              hfinfo->type != FT_NONE);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Apply as Filter",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Apply as Filter",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Prepare a Filter",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Prepare a Filter",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Colorize with Filter",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Colorize with Filter",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Protocol Preferences",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Protocol Preferences",
                              properties);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Disable Protocol...",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Disable Protocol...",
                              (id == -1) ? FALSE : proto_can_toggle_protocol(id));
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Expand Subtrees", cf->finfo_selected->tree_type != -1);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Wiki Protocol Page",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Expand Subtrees", cf->finfo_selected->tree_type != -1);
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Wiki Protocol Page",
                              (id == -1) ? FALSE : TRUE);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Filter Field Reference",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Filter Field Reference",
                              (id == -1) ? FALSE : TRUE);
 #else
         set_menu_sensitivity_old(tree_view_menu_factory,
@@ -4338,19 +4559,19 @@ set_menus_for_selected_tree_row(capture_file *cf)
     } else {
 #ifdef MENUS_USE_UIMANAGER
         set_menu_sensitivity(ui_manager_tree_view_menu,
-                             "/Go to Corresponding Packet", FALSE);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Copy", FALSE);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Apply as Column", FALSE);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Apply as Filter", FALSE);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Prepare a Filter", FALSE);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Colorize with Filter", FALSE);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Protocol Preferences",
+                             "/TreeViewPopup/Go to Corresponding Packet", FALSE);
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Copy", FALSE);
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Apply as Column", FALSE);
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Apply as Filter", FALSE);
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Prepare a Filter", FALSE);
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Colorize with Filter", FALSE);
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Protocol Preferences",
                              FALSE);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Disable Protocol...", FALSE);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Expand Subtrees", FALSE);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Wiki Protocol Page",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Disable Protocol...", FALSE);
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Expand Subtrees", FALSE);
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Wiki Protocol Page",
                              FALSE);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Filter Field Reference",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Filter Field Reference",
                              FALSE);
 #else
         set_menu_sensitivity_old(tree_view_menu_factory,
