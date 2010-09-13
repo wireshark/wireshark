@@ -254,6 +254,14 @@ static non_const_value_string syntax_names[MAX_SYNTAX_NAMES+1] = {
   {0, NULL}
 };
 
+/*
+ * Set a limit on recursion so we don't blow away the stack. Another approach
+ * would be to remove recursion completely but then we'd exhaust CPU+memory
+ * trying to read a hellabyte of nested indefinite lengths.
+ * XXX - Max nesting in the ASN.1 plugin is 32. Should they match?
+ */
+#define BER_MAX_NESTING 500
+
 static const fragment_items octet_string_frag_items = {
 	/* Fragment subtrees */
 	&ett_ber_fragment,
@@ -542,7 +550,8 @@ printf("dissect_ber_tagged_type(%s) entered\n",name);
  return offset;
 }
 
-int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree)
+static int
+try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree, gint nest_level)
 {
 	int start_offset;
 	gint8 class;
@@ -557,6 +566,11 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 	gboolean is_printable, is_decoded_as;
 	proto_item *pi, *cause;
 	asn1_ctx_t asn1_ctx;
+
+	if (nest_level > BER_MAX_NESTING) {
+		/* Assume that we have a malformed packet. */
+		THROW(ReportedBoundsError);
+	}
 
 	start_offset=offset;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -620,7 +634,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 					}
 					item = proto_tree_add_item(tree, hf_ber_unknown_BER_OCTETSTRING, tvb, offset, len, FALSE);
 					next_tree = proto_item_add_subtree(item, ett_ber_octet_string);
-					offset = dissect_unknown_ber(pinfo, tvb, offset, next_tree);
+					offset = try_dissect_unknown_ber(pinfo, tvb, offset, next_tree, nest_level+1);
 				}
 			}
 			if (!is_decoded_as) {
@@ -705,7 +719,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 		is_decoded_as = TRUE;
 		proto_item_append_text (pi, "[BER encoded]");
 		next_tree = proto_item_add_subtree(pi, ett_ber_primitive);
-		offset = dissect_unknown_ber(pinfo, tvb, offset, next_tree);
+		offset = try_dissect_unknown_ber(pinfo, tvb, offset, next_tree, nest_level+1);
 	      }
 	    }
 
@@ -752,7 +766,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 			next_tree=proto_item_add_subtree(item, ett_ber_SEQUENCE);
 		}
 		while(offset < (int)(start_offset + len + hdr_len))
-		  offset=dissect_unknown_ber(pinfo, tvb, offset, next_tree);
+		  offset=try_dissect_unknown_ber(pinfo, tvb, offset, next_tree, nest_level+1);
 		break;
 	  case BER_CLASS_APP:
 	  case BER_CLASS_CON:
@@ -763,7 +777,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 			next_tree=proto_item_add_subtree(item, ett_ber_SEQUENCE);
 		}
 		while(offset < (int)(start_offset + len + hdr_len))
-		  offset=dissect_unknown_ber(pinfo, tvb, offset, next_tree);
+		  offset=try_dissect_unknown_ber(pinfo, tvb, offset, next_tree, nest_level+1);
 		break;
 
 	  }
@@ -774,6 +788,11 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 	return offset;
 }
 
+int
+dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	return try_dissect_unknown_ber(pinfo, tvb, offset, tree, 1);
+}
 
 int
 call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -981,13 +1000,6 @@ int dissect_ber_identifier(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *t
  */
 /* 8.1.3 Length octets */
 
-/*
- * Set a limit on recursion so we don't blow away the stack. Another approach
- * would be to remove recursion completely but then we'd exhaust CPU+memory
- * trying to read a hellabyte of nested indefinite lengths.
- * XXX - Max nesting in the ASN.1 plugin is 32. Should they match?
- */
-#define BER_MAX_INDEFINITE_NESTING 500
 static int
 try_get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind, gint nest_level) {
 	guint8 oct, len;
@@ -1001,7 +1013,7 @@ try_get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind, gi
 	tmp_length = 0;
 	tmp_ind = FALSE;
 
-	if (nest_level > BER_MAX_INDEFINITE_NESTING) {
+	if (nest_level > BER_MAX_NESTING) {
 		/* Assume that we have a malformed packet. */
 		THROW(ReportedBoundsError);
 	}
