@@ -13,6 +13,7 @@ abs_time_secs_to_str
 abs_time_to_str
 add_new_data_source
 add_ip_name_from_string
+add_itu_tcap_subdissector
 address_to_str_buf
 AdmissionRejectReason_vals      DATA
 airpdcap_ctx                    DATA
@@ -140,6 +141,7 @@ decode_boolean_bitfield
 decode_enumerated_bitfield_shifted
 decode_enumerated_bitfield
 decode_numeric_bitfield
+delete_itu_tcap_subdissector
 delete_persconffile_profile
 deletefile
 de_cell_id
@@ -182,6 +184,7 @@ display_signed_time
 dissect_ber_bitstring
 dissect_ber_boolean
 dissect_ber_choice
+dissect_ber_EmbeddedPDV_Type
 dissect_ber_GeneralizedTime
 dissect_ber_identifier
 dissect_ber_integer
@@ -201,6 +204,7 @@ dissect_ber_set
 dissect_ber_set_of
 dissect_ber_tagged_type
 dissect_ber_UTCTime
+dissect_dap_SecurityParameters
 dissect_dcerpc_uint16
 dissect_dcerpc_uint32
 dissect_dcerpc_uint64
@@ -224,6 +228,7 @@ dissect_dcom_that
 dissect_dcom_this
 dissect_dcom_VARIANT
 dissect_dcom_VARTYPE
+dissect_dsp_AccessPointInformation
 dissect_e164_cc
 dissect_e212_mcc_mnc
 dissect_e212_mcc_mnc_in_address
@@ -239,6 +244,11 @@ dissect_IDispatch_GetTypeInfoCount_resp
 dissect_IDispatch_GetIDsOfNames_rqst
 dissect_IDispatch_Invoke_rqst
 dissect_IDispatch_Invoke_resp
+dissect_isup_called_party_number_parameter
+dissect_isup_calling_party_number_parameter
+dissect_isup_original_called_number_parameter
+dissect_isup_redirecting_number_parameter
+dissect_isup_redirection_information_parameter
 dissect_mscldap_string
 dissect_ndr_double
 dissect_ndr_duint32
@@ -281,6 +291,8 @@ dissect_per_sequence_of
 dissect_per_sequence
 dissect_per_set_of
 dissect_per_VisibleString
+dissect_q931_bearer_capability_ie
+dissect_q931_high_layer_compat_ie
 dissect_q932_PartyNumber
 dissect_q932_PartySubaddress
 dissect_q932_PresentedNumberUnscreened
