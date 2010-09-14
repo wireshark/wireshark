@@ -41,12 +41,14 @@
 #define GMHDR_FTYPE_SRCPORT             2
 #define GMHDR_FTYPE_TIMESTAMP_LOCAL     3
 #define GMHDR_FTYPE_TIMESTAMP_NTP       4
-#define GMHDR_FTYPE_TIMESTAMP_EXT       5
+#define GMHDR_FTYPE_TIMESTAMP_GPS       5
+#define GMHDR_FTYPE_TIMESTAMP_1588      6
 
 static const value_string gmhdr_ftype_timestamp[] = {
   { GMHDR_FTYPE_TIMESTAMP_LOCAL, "Local" },
   { GMHDR_FTYPE_TIMESTAMP_NTP,   "NTP" },
-  { GMHDR_FTYPE_TIMESTAMP_EXT,   "External" },
+  { GMHDR_FTYPE_TIMESTAMP_GPS,   "GPS" },
+  { GMHDR_FTYPE_TIMESTAMP_1588,  "1588" },
   { 0,                           NULL }
 };
 
@@ -129,7 +131,8 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
         break;
       case GMHDR_FTYPE_TIMESTAMP_LOCAL: 
       case GMHDR_FTYPE_TIMESTAMP_NTP:
-      case GMHDR_FTYPE_TIMESTAMP_EXT:
+      case GMHDR_FTYPE_TIMESTAMP_GPS:
+      case GMHDR_FTYPE_TIMESTAMP_1588:
         if (fl != 8) {
           expert_add_info_format(pinfo, gmhdr_tree, PI_MALFORMED, PI_ERROR, "Field length %u invalid", fl);
           break;
