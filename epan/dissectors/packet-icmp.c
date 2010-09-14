@@ -52,6 +52,7 @@ static int hf_icmp_code = -1;
 static int hf_icmp_checksum = -1;
 static int hf_icmp_checksum_bad = -1;
 static int hf_icmp_ident = -1;
+static int hf_icmp_ident_le = -1;
 static int hf_icmp_seq_num = -1;
 static int hf_icmp_seq_num_le = -1;
 static int hf_icmp_mtu = -1;
@@ -782,11 +783,16 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case ICMP_IREQREPLY:
       case ICMP_MASKREQ:
       case ICMP_MASKREPLY:
-        proto_tree_add_item(icmp_tree, hf_icmp_ident, tvb, 4, 2, FALSE);
-        proto_tree_add_item(icmp_tree, hf_icmp_seq_num, tvb, 6, 2, FALSE);
-        proto_tree_add_item(icmp_tree, hf_icmp_seq_num_le, tvb, 6, 2, TRUE);
+        proto_tree_add_item(icmp_tree, hf_icmp_ident, tvb, 4, 2,
+			    ENC_BIG_ENDIAN);
+        proto_tree_add_item(icmp_tree, hf_icmp_ident_le, tvb, 4, 2,
+			    ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(icmp_tree, hf_icmp_seq_num, tvb, 6, 2,
+			    ENC_BIG_ENDIAN);
+        proto_tree_add_item(icmp_tree, hf_icmp_seq_num_le, tvb, 6, 2,
+			    ENC_LITTLE_ENDIAN);
         col_append_fstr(pinfo->cinfo, COL_INFO,
-            " (id=0x%04x, seq(be/le)=%u/%u, ttl=%u)", tvb_get_ntohs(tvb, 4),
+            " id=0x%04x, seq=%u/%u, ttl=%u", tvb_get_ntohs(tvb, 4),
             tvb_get_ntohs(tvb, 6), tvb_get_letohs(tvb, 6), pinfo->ip_ttl);
 	break;
 
@@ -927,8 +933,12 @@ proto_register_icmp(void)
         NULL, HFILL }},
 
     { &hf_icmp_ident,
-      { "Identifier", "icmp.ident",              FT_UINT16, BASE_HEX,    NULL, 0x0,
-        NULL, HFILL }},
+      { "Identifier", "icmp.ident",              FT_UINT16, BASE_DEC_HEX,    NULL, 0x0,
+        "Identifier (big endian representation)", HFILL }},
+
+    { &hf_icmp_ident_le,
+      { "Identifier (LE)", "icmp.ident",              FT_UINT16, BASE_DEC_HEX,    NULL, 0x0,
+        "Identifier (little endian representation)", HFILL }},
 
     { &hf_icmp_seq_num,
       { "Sequence number", "icmp.seq",           FT_UINT16, BASE_DEC_HEX,    NULL, 0x0, "Sequence number (big endian representation)", HFILL }},
