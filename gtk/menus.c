@@ -97,7 +97,7 @@
 #include "gtk/manual_addr_resolv.h"
 #include "gtk/proto_help.h"
 
-/* #define MENUS_USE_UIMANAGER 1 */
+/*#define MENUS_USE_UIMANAGER 1 */
 
 
 #ifdef NEW_PACKET_LIST
@@ -1664,6 +1664,444 @@ packet_list_menu_prepare_or_not_selected_cb(GtkWidget *widget, gpointer user_dat
 	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_OR_NOT);
 }
 
+static void
+packet_list_menu_conversation_ethernet_cb(GtkWidget *widget, gpointer user_data)
+{
+	conversation_cb( widget , user_data, CONV_ETHER);
+}
+
+static void
+packet_list_menu_conversation_ip_cb(GtkWidget *widget, gpointer user_data)
+{
+	conversation_cb( widget , user_data, CONV_IP);
+}
+
+static void
+packet_list_menu_conversation_tcp_cb(GtkWidget *widget, gpointer user_data)
+{
+	conversation_cb( widget , user_data, CONV_TCP);
+}
+
+static void
+packet_list_menu_conversation_udp_cb(GtkWidget *widget, gpointer user_data)
+{
+	conversation_cb( widget , user_data, CONV_UDP);
+}
+
+static void
+packet_list_menu_conversation_pn_cba_cb(GtkWidget *widget, gpointer user_data)
+{
+	conversation_cb( widget , user_data, CONV_CBA);
+}
+
+static void
+packet_list_menu_color_conv_ethernet_color1_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_ETHER+1*256);
+
+}
+
+static void
+packet_list_menu_color_conv_ethernet_color2_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_ETHER+1*256);
+
+}
+static void
+packet_list_menu_color_conv_ethernet_color3_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_ETHER+3*256);
+
+}
+static void
+packet_list_menu_color_conv_ethernet_color4_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_ETHER+4*256);
+
+}
+static void
+packet_list_menu_color_conv_ethernet_color5_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_ETHER+5*256);
+
+}
+static void
+packet_list_menu_color_conv_ethernet_color6_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_ETHER+6*256);
+
+}
+static void
+packet_list_menu_color_conv_ethernet_color7_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_ETHER+7*256);
+
+}
+static void
+packet_list_menu_color_conv_ethernet_color8_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_ETHER+8*256);
+
+}
+static void
+packet_list_menu_color_conv_ethernet_color9_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_ETHER+9*256);
+
+}
+static void
+packet_list_menu_color_conv_ethernet_color10_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_ETHER+10*256);
+
+}
+
+static void
+packet_list_menu_color_conv_ethernet_new_rule_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_ETHER);
+
+}
+
+/* IP */
+
+static void
+packet_list_menu_color_conv_ip_color1_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_IP+1*256);
+
+}
+
+static void
+packet_list_menu_color_conv_ip_color2_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_IP+1*256);
+
+}
+static void
+packet_list_menu_color_conv_ip_color3_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_IP+3*256);
+
+}
+static void
+packet_list_menu_color_conv_ip_color4_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_IP+4*256);
+
+}
+static void
+packet_list_menu_color_conv_ip_color5_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_IP+5*256);
+
+}
+static void
+packet_list_menu_color_conv_ip_color6_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_IP+6*256);
+
+}
+static void
+packet_list_menu_color_conv_ip_color7_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_IP+7*256);
+
+}
+static void
+packet_list_menu_color_conv_ip_color8_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_IP+8*256);
+
+}
+static void
+packet_list_menu_color_conv_ip_color9_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_IP+9*256);
+
+}
+static void
+packet_list_menu_color_conv_ip_color10_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_IP+10*256);
+
+}
+
+static void
+packet_list_menu_color_conv_ip_new_rule_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_TCP);
+
+}
+
+/* TCP */
+static void
+packet_list_menu_color_conv_tcp_color1_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_TCP+1*256);
+
+}
+
+static void
+packet_list_menu_color_conv_tcp_color2_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_TCP+1*256);
+
+}
+static void
+packet_list_menu_color_conv_tcp_color3_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_TCP+3*256);
+
+}
+static void
+packet_list_menu_color_conv_tcp_color4_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_TCP+4*256);
+
+}
+static void
+packet_list_menu_color_conv_tcp_color5_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_TCP+5*256);
+
+}
+static void
+packet_list_menu_color_conv_tcp_color6_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_TCP+6*256);
+
+}
+static void
+packet_list_menu_color_conv_tcp_color7_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_TCP+7*256);
+
+}
+static void
+packet_list_menu_color_conv_tcp_color8_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_TCP+8*256);
+
+}
+static void
+packet_list_menu_color_conv_tcp_color9_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_TCP+9*256);
+
+}
+static void
+packet_list_menu_color_conv_tcp_color10_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_TCP+10*256);
+
+}
+
+static void
+packet_list_menu_color_conv_tcp_new_rule_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_TCP);
+
+}
+
+/* UDP */
+static void
+packet_list_menu_color_conv_udp_color1_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_UDP+1*256);
+
+}
+
+static void
+packet_list_menu_color_conv_udp_color2_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_UDP+1*256);
+
+}
+static void
+packet_list_menu_color_conv_udp_color3_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_UDP+3*256);
+
+}
+static void
+packet_list_menu_color_conv_udp_color4_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_UDP+4*256);
+
+}
+static void
+packet_list_menu_color_conv_udp_color5_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_UDP+5*256);
+
+}
+static void
+packet_list_menu_color_conv_udp_color6_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_UDP+6*256);
+
+}
+static void
+packet_list_menu_color_conv_udp_color7_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_UDP+7*256);
+
+}
+static void
+packet_list_menu_color_conv_udp_color8_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_UDP+8*256);
+
+}
+static void
+packet_list_menu_color_conv_udp_color9_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_UDP+9*256);
+
+}
+static void
+packet_list_menu_color_conv_udp_color10_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_UDP+10*256);
+
+}
+
+static void
+packet_list_menu_color_conv_udp_new_rule_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_UDP);
+
+}
+
+/* CONV_CBA */
+
+static void
+packet_list_menu_color_conv_cba_color1_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_CBA+1*256);
+
+}
+
+static void
+packet_list_menu_color_conv_cba_color2_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_CBA+1*256);
+
+}
+static void
+packet_list_menu_color_conv_cba_color3_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_CBA+3*256);
+
+}
+static void
+packet_list_menu_color_conv_cba_color4_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_CBA+4*256);
+
+}
+static void
+packet_list_menu_color_conv_cba_color5_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_CBA+5*256);
+
+}
+static void
+packet_list_menu_color_conv_cba_color6_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_CBA+6*256);
+
+}
+static void
+packet_list_menu_color_conv_cba_color7_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_CBA+7*256);
+
+}
+static void
+packet_list_menu_color_conv_cba_color8_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_CBA+8*256);
+
+}
+static void
+packet_list_menu_color_conv_cba_color9_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_CBA+9*256);
+
+}
+static void
+packet_list_menu_color_conv_cba_color10_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_CBA+10*256);
+
+}
+
+static void
+packet_list_menu_color_conv_cba_new_rule_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, CONV_CBA);
+
+}
+
+static void
+packet_list_menu_copy_sum_txt(GtkWidget *widget, gpointer user_data)
+{
+	copy_hex_cb( widget , user_data, CS_TEXT);
+
+}
+
+static void
+packet_list_menu_copy_sum_csv(GtkWidget *widget, gpointer user_data)
+{
+	copy_hex_cb( widget , user_data, CS_CSV);
+
+}
+
+static void
+packet_list_menu_copy_as_flt(GtkWidget *widget, gpointer user_data)
+{
+	copy_hex_cb( widget , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
+
+}
+
+static void
+packet_list_menu_copy_bytes_oht_cb(GtkWidget *widget, gpointer user_data)
+{
+	copy_hex_cb( widget , user_data,  CD_ALLINFO | CD_FLAGS_SELECTEDONLY);
+
+}
+
+static void
+packet_list_menu_copy_bytes_oh_cb(GtkWidget *widget, gpointer user_data)
+{
+	copy_hex_cb( widget , user_data, CD_HEXCOLUMNS | CD_FLAGS_SELECTEDONLY);
+
+}
+
+static void
+packet_list_menu_copy_bytes_text_cb(GtkWidget *widget, gpointer user_data)
+{
+	copy_hex_cb( widget , user_data, CD_TEXTONLY | CD_FLAGS_SELECTEDONLY);
+
+}
+
+static void
+packet_list_menu_copy_bytes_hex_strm_cb(GtkWidget *widget, gpointer user_data)
+{
+	copy_hex_cb( widget , user_data,  CD_HEX | CD_FLAGS_SELECTEDONLY);
+
+}
+
+static void
+packet_list_menu_copy_bytes_bin_strm_cb(GtkWidget *widget, gpointer user_data)
+{
+	copy_hex_cb( widget , user_data, CD_BINARY | CD_FLAGS_SELECTEDONLY);
+
+}
+
+
 static const char *ui_desc_packet_list_heading_menu_popup =
 "<ui>\n"
 "  <popup name='PacketListHeadingPopup' action='PopupAction'>\n"
@@ -1726,7 +2164,7 @@ static const char *ui_desc_packet_list_menu_popup =
 "       <menuitem name='AndNotSelected' action='/Apply as Filter/AndNotSelected'/>\n"
 "       <menuitem name='OrNotSelected' action='/Apply as Filter/OrNotSelected'/>\n"
 "     </menu>\n"
-"     <menu name= 'PrepareAFilter' action='/Prepare a Filter'>\n"
+"     <menu name= 'PrepareaFilter' action='/Prepare a Filter'>\n"
 "       <menuitem name='Selected' action='/Prepare a Filter/Selected'/>\n"
 "       <menuitem name='NotSelected' action='/Prepare a Filter/Not Selected'/>\n"
 "       <menuitem name='AndSelected' action='/Prepare a Filter/AndSelected'/>\n"
@@ -1734,6 +2172,106 @@ static const char *ui_desc_packet_list_menu_popup =
 "       <menuitem name='AndNotSelected' action='/Prepare a Filter/AndNotSelected'/>\n"
 "       <menuitem name='OrNotSelected' action='/Prepare a Filter/OrNotSelected'/>\n"
 "     </menu>\n"
+"     <menu name= 'ConversationFilter' action='/Conversation Filter'>\n"
+"       <menuitem name='Ethernet' action='/Conversation Filter/Ethernet'/>\n"
+"       <menuitem name='IP' action='/Conversation Filter/IP'/>\n"
+"       <menuitem name='TCP' action='/Conversation Filter/TCP'/>\n"
+"       <menuitem name='UDP' action='/Conversation Filter/UDP'/>\n"
+"       <menuitem name='PN-CBA' action='/Conversation Filter/PN-CBA'/>\n"
+"     </menu>\n"
+"     <menu name= 'ColorizeConversation' action='/Colorize Conversation'>\n"
+"        <menu name= 'Ethernet' action='/Colorize Conversation/Ethernet'>\n"
+"          <menuitem name='Color1' action='/Colorize Conversation/Ethernet/Color 1'/>\n"
+"          <menuitem name='Color2' action='/Colorize Conversation/Ethernet/Color 2'/>\n"
+"          <menuitem name='Color3' action='/Colorize Conversation/Ethernet/Color 3'/>\n"
+"          <menuitem name='Color4' action='/Colorize Conversation/Ethernet/Color 4'/>\n"
+"          <menuitem name='Color5' action='/Colorize Conversation/Ethernet/Color 5'/>\n"
+"          <menuitem name='Color6' action='/Colorize Conversation/Ethernet/Color 6'/>\n"
+"          <menuitem name='Color7' action='/Colorize Conversation/Ethernet/Color 7'/>\n"
+"          <menuitem name='Color8' action='/Colorize Conversation/Ethernet/Color 8'/>\n"
+"          <menuitem name='Color9' action='/Colorize Conversation/Ethernet/Color 9'/>\n"
+"          <menuitem name='Color10' action='/Colorize Conversation/Ethernet/Color 10'/>\n"
+"          <menuitem name='NewColoringRule' action='/Colorize Conversation/Ethernet/New Coloring Rule'/>\n"
+"        </menu>\n"
+"        <menu name= 'IP' action='/Colorize Conversation/IP'>\n"
+"          <menuitem name='Color1' action='/Colorize Conversation/IP/Color 1'/>\n"
+"          <menuitem name='Color2' action='/Colorize Conversation/IP/Color 2'/>\n"
+"          <menuitem name='Color3' action='/Colorize Conversation/IP/Color 3'/>\n"
+"          <menuitem name='Color4' action='/Colorize Conversation/IP/Color 4'/>\n"
+"          <menuitem name='Color5' action='/Colorize Conversation/IP/Color 5'/>\n"
+"          <menuitem name='Color6' action='/Colorize Conversation/IP/Color 6'/>\n"
+"          <menuitem name='Color7' action='/Colorize Conversation/IP/Color 7'/>\n"
+"          <menuitem name='Color8' action='/Colorize Conversation/IP/Color 8'/>\n"
+"          <menuitem name='Color9' action='/Colorize Conversation/IP/Color 9'/>\n"
+"          <menuitem name='Color10' action='/Colorize Conversation/IP/Color 10'/>\n"
+"          <menuitem name='NewColoringRule' action='/Colorize Conversation/IP/New Coloring Rule'/>\n"
+"        </menu>\n"
+"        <menu name= 'TCP' action='/Colorize Conversation/TCP'>\n"
+"          <menuitem name='Color1' action='/Colorize Conversation/TCP/Color 1'/>\n"
+"          <menuitem name='Color2' action='/Colorize Conversation/TCP/Color 2'/>\n"
+"          <menuitem name='Color3' action='/Colorize Conversation/TCP/Color 3'/>\n"
+"          <menuitem name='Color4' action='/Colorize Conversation/TCP/Color 4'/>\n"
+"          <menuitem name='Color5' action='/Colorize Conversation/TCP/Color 5'/>\n"
+"          <menuitem name='Color6' action='/Colorize Conversation/TCP/Color 6'/>\n"
+"          <menuitem name='Color7' action='/Colorize Conversation/TCP/Color 7'/>\n"
+"          <menuitem name='Color8' action='/Colorize Conversation/TCP/Color 8'/>\n"
+"          <menuitem name='Color9' action='/Colorize Conversation/TCP/Color 9'/>\n"
+"          <menuitem name='Color10' action='/Colorize Conversation/TCP/Color 10'/>\n"
+"          <menuitem name='NewColoringRule' action='/Colorize Conversation/TCP/New Coloring Rule'/>\n"
+"        </menu>\n"
+"        <menu name= 'UDP' action='/Colorize Conversation/UDP'>\n"
+"          <menuitem name='Color1' action='/Colorize Conversation/UDP/Color 1'/>\n"
+"          <menuitem name='Color2' action='/Colorize Conversation/UDP/Color 2'/>\n"
+"          <menuitem name='Color3' action='/Colorize Conversation/UDP/Color 3'/>\n"
+"          <menuitem name='Color4' action='/Colorize Conversation/UDP/Color 4'/>\n"
+"          <menuitem name='Color5' action='/Colorize Conversation/UDP/Color 5'/>\n"
+"          <menuitem name='Color6' action='/Colorize Conversation/UDP/Color 6'/>\n"
+"          <menuitem name='Color7' action='/Colorize Conversation/UDP/Color 7'/>\n"
+"          <menuitem name='Color8' action='/Colorize Conversation/UDP/Color 8'/>\n"
+"          <menuitem name='Color9' action='/Colorize Conversation/UDP/Color 9'/>\n"
+"          <menuitem name='Color10' action='/Colorize Conversation/UDP/Color 10'/>\n"
+"          <menuitem name='NewColoringRule' action='/Colorize Conversation/UDP/New Coloring Rule'/>\n"
+"        </menu>\n"
+"        <menu name= 'PN-CBA' action='/Colorize Conversation/PN-CBA'>\n"
+"          <menuitem name='Color1' action='/Colorize Conversation/PN-CBA/Color 1'/>\n"
+"          <menuitem name='Color2' action='/Colorize Conversation/PN-CBA/Color 2'/>\n"
+"          <menuitem name='Color3' action='/Colorize Conversation/PN-CBA/Color 3'/>\n"
+"          <menuitem name='Color4' action='/Colorize Conversation/PN-CBA/Color 4'/>\n"
+"          <menuitem name='Color5' action='/Colorize Conversation/PN-CBA/Color 5'/>\n"
+"          <menuitem name='Color6' action='/Colorize Conversation/PN-CBA/Color 6'/>\n"
+"          <menuitem name='Color7' action='/Colorize Conversation/PN-CBA/Color 7'/>\n"
+"          <menuitem name='Color8' action='/Colorize Conversation/PN-CBA/Color 8'/>\n"
+"          <menuitem name='Color9' action='/Colorize Conversation/PN-CBA/Color 9'/>\n"
+"          <menuitem name='Color10' action='/Colorize Conversation/PN-CBA/Color 10'/>\n"
+"          <menuitem name='NewColoringRule' action='/Colorize Conversation/PN-CBA/New Coloring Rule'/>\n"
+"        </menu>\n"
+"     </menu>\n"
+"     <menu name= 'SCTP' action='/SCTP'>\n"
+"        <menuitem name='AnalysethisAssociation' action='/SCTP/Analyse this Association'/>\n"
+"        <menuitem name='PrepareFilterforthisAssociation' action='/SCTP/Prepare Filter for this Association'/>\n"
+"     </menu>\n"
+"     <menuitem name='FollowTCPStream' action='/Follow TCP Stream'/>\n"
+"     <menuitem name='FollowUDPStream' action='/Follow UDP Stream'/>\n"
+"     <menuitem name='FollowSSLStream' action='/Follow SSL Stream'/>\n"
+"     <separator/>\n"
+"     <menu name= 'Copy' action='/Copy'>\n"
+"        <menuitem name='SummaryTxt' action='/Copy/SummaryTxt'/>\n"
+"        <menuitem name='SummaryCSV' action='/Copy/SummaryCSV'/>\n"
+"        <menuitem name='AsFilter' action='/Copy/AsFilter'/>\n"
+"        <separator/>\n"
+"        <menu name= 'Bytes' action='/Copy/Bytes'>\n"
+"           <menuitem name='OffsetHexText' action='/Copy/Bytes/OffsetHexText'/>\n"
+"           <menuitem name='OffsetHex' action='/Copy/Bytes/OffsetHex'/>\n"
+"           <menuitem name='PrintableTextOnly' action='/Copy/Bytes/PrintableTextOnly'/>\n"
+"           <separator/>\n"
+"           <menuitem name='HexStream' action='/Copy/Bytes/HexStream'/>\n"
+"           <menuitem name='BinaryStream' action='/Copy/Bytes/BinaryStream'/>\n"
+"        </menu>\n"
+"     </menu>\n"
+"     <separator/>\n"
+"     <menuitem name='DecodeAs' action='/DecodeAs'/>\n"
+"     <menuitem name='Print' action='/Print'/>\n"
+"     <menuitem name='ShowPacketinNewWindow' action='/ShowPacketinNewWindow'/>\n"
 "  </popup>\n"
 "</ui>\n";
 
@@ -1758,8 +2296,113 @@ static const GtkActionEntry packet_list_menu_popup_action_entries[] = {
   { "/Prepare a Filter/AndNotSelected",	NULL, "... a_nd not Selected",	NULL, NULL, G_CALLBACK(packet_list_menu_prepare_and_not_selected_cb) },
   { "/Prepare a Filter/OrNotSelected",	NULL, "... o_r not Selected",	NULL, NULL, G_CALLBACK(packet_list_menu_prepare_or_not_selected_cb) },
 
-};
+  { "/Conversation Filter",				NULL, "Conversation Filter",	NULL, NULL, NULL },
+  { "/Conversation Filter/Ethernet",	NULL, "Ethernet",				NULL, NULL, G_CALLBACK(packet_list_menu_conversation_ethernet_cb) },
+  { "/Conversation Filter/IP",			NULL, "IP",						NULL, NULL, G_CALLBACK(packet_list_menu_conversation_ip_cb) },
+  { "/Conversation Filter/TCP",			NULL, "TCP",					NULL, NULL, G_CALLBACK(packet_list_menu_conversation_tcp_cb) },
+  { "/Conversation Filter/UDP",			NULL, "UDP",					NULL, NULL, G_CALLBACK(packet_list_menu_conversation_udp_cb) },
+  { "/Conversation Filter/PN-CBA",		NULL, "PN-CBA",					NULL, NULL, G_CALLBACK(packet_list_menu_conversation_pn_cba_cb) },
 
+  { "/Colorize Conversation",			NULL, "Colorize Conversation",	NULL, NULL, NULL },
+  
+  { "/Colorize Conversation/Ethernet",	NULL, "Ethernet",				NULL, NULL, NULL },
+
+  { "/Colorize Conversation/Ethernet/Color 1",	WIRESHARK_STOCK_COLOR1, "Color 1",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ethernet_color1_cb) },
+  { "/Colorize Conversation/Ethernet/Color 2",	WIRESHARK_STOCK_COLOR2, "Color 2",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ethernet_color2_cb) },
+  { "/Colorize Conversation/Ethernet/Color 3",	WIRESHARK_STOCK_COLOR3, "Color 3",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ethernet_color3_cb) },
+  { "/Colorize Conversation/Ethernet/Color 4",	WIRESHARK_STOCK_COLOR4, "Color 4",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ethernet_color4_cb) },
+  { "/Colorize Conversation/Ethernet/Color 5",	WIRESHARK_STOCK_COLOR5, "Color 5",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ethernet_color5_cb) },
+  { "/Colorize Conversation/Ethernet/Color 6",	WIRESHARK_STOCK_COLOR6, "Color 6",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ethernet_color6_cb) },
+  { "/Colorize Conversation/Ethernet/Color 7",	WIRESHARK_STOCK_COLOR7, "Color 7",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ethernet_color7_cb) },
+  { "/Colorize Conversation/Ethernet/Color 8",	WIRESHARK_STOCK_COLOR8, "Color 8",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ethernet_color8_cb) },
+  { "/Colorize Conversation/Ethernet/Color 9",	WIRESHARK_STOCK_COLOR9, "Color 9",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ethernet_color9_cb) },
+  { "/Colorize Conversation/Ethernet/Color 10",	WIRESHARK_STOCK_COLOR0, "Color 10",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ethernet_color10_cb) },
+  { "/Colorize Conversation/Ethernet/New Coloring Rule",	NULL,		"New Coloring Rule...",		NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ethernet_new_rule_cb) },
+
+  { "/Colorize Conversation/IP",		NULL, "IP",				NULL, NULL, NULL },
+
+  { "/Colorize Conversation/IP/Color 1",		WIRESHARK_STOCK_COLOR1, "Color 1",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ip_color1_cb) },
+  { "/Colorize Conversation/IP/Color 2",		WIRESHARK_STOCK_COLOR2, "Color 2",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ip_color2_cb) },
+  { "/Colorize Conversation/IP/Color 3",		WIRESHARK_STOCK_COLOR3, "Color 3",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ip_color3_cb) },
+  { "/Colorize Conversation/IP/Color 4",		WIRESHARK_STOCK_COLOR4, "Color 4",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ip_color4_cb) },
+  { "/Colorize Conversation/IP/Color 5",		WIRESHARK_STOCK_COLOR5, "Color 5",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ip_color5_cb) },
+  { "/Colorize Conversation/IP/Color 6",		WIRESHARK_STOCK_COLOR6, "Color 6",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ip_color6_cb) },
+  { "/Colorize Conversation/IP/Color 7",		WIRESHARK_STOCK_COLOR7, "Color 7",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ip_color7_cb) },
+  { "/Colorize Conversation/IP/Color 8",		WIRESHARK_STOCK_COLOR8, "Color 8",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ip_color8_cb) },
+  { "/Colorize Conversation/IP/Color 9",		WIRESHARK_STOCK_COLOR9, "Color 9",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ip_color9_cb) },
+  { "/Colorize Conversation/IP/Color 10",		WIRESHARK_STOCK_COLOR0, "Color 10",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ip_color10_cb) },
+  { "/Colorize Conversation/IP/New Coloring Rule",	NULL,		"New Coloring Rule...",				NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ip_new_rule_cb) },
+
+  { "/Colorize Conversation/TCP",		NULL, "TCP",				NULL, NULL, NULL },
+
+  { "/Colorize Conversation/TCP/Color 1",		WIRESHARK_STOCK_COLOR1, "Color 1",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_tcp_color1_cb) },
+  { "/Colorize Conversation/TCP/Color 2",		WIRESHARK_STOCK_COLOR2, "Color 2",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_tcp_color2_cb) },
+  { "/Colorize Conversation/TCP/Color 3",		WIRESHARK_STOCK_COLOR3, "Color 3",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_tcp_color3_cb) },
+  { "/Colorize Conversation/TCP/Color 4",		WIRESHARK_STOCK_COLOR4, "Color 4",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_tcp_color4_cb) },
+  { "/Colorize Conversation/TCP/Color 5",		WIRESHARK_STOCK_COLOR5, "Color 5",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_tcp_color5_cb) },
+  { "/Colorize Conversation/TCP/Color 6",		WIRESHARK_STOCK_COLOR6, "Color 6",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_tcp_color6_cb) },
+  { "/Colorize Conversation/TCP/Color 7",		WIRESHARK_STOCK_COLOR7, "Color 7",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_tcp_color7_cb) },
+  { "/Colorize Conversation/TCP/Color 8",		WIRESHARK_STOCK_COLOR8, "Color 8",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_tcp_color8_cb) },
+  { "/Colorize Conversation/TCP/Color 9",		WIRESHARK_STOCK_COLOR9, "Color 9",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_tcp_color9_cb) },
+  { "/Colorize Conversation/TCP/Color 10",		WIRESHARK_STOCK_COLOR0, "Color 10",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_tcp_color10_cb) },
+  { "/Colorize Conversation/TCP/New Coloring Rule",	NULL,		"New Coloring Rule...",				NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_tcp_new_rule_cb) },
+
+  { "/Colorize Conversation/UDP",		NULL, "UDP",				NULL, NULL, NULL },
+
+  { "/Colorize Conversation/UDP/Color 1",		WIRESHARK_STOCK_COLOR1, "Color 1",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_udp_color1_cb) },
+  { "/Colorize Conversation/UDP/Color 2",		WIRESHARK_STOCK_COLOR2, "Color 2",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_udp_color2_cb) },
+  { "/Colorize Conversation/UDP/Color 3",		WIRESHARK_STOCK_COLOR3, "Color 3",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_udp_color3_cb) },
+  { "/Colorize Conversation/UDP/Color 4",		WIRESHARK_STOCK_COLOR4, "Color 4",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_udp_color4_cb) },
+  { "/Colorize Conversation/UDP/Color 5",		WIRESHARK_STOCK_COLOR5, "Color 5",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_udp_color5_cb) },
+  { "/Colorize Conversation/UDP/Color 6",		WIRESHARK_STOCK_COLOR6, "Color 6",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_udp_color6_cb) },
+  { "/Colorize Conversation/UDP/Color 7",		WIRESHARK_STOCK_COLOR7, "Color 7",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_udp_color7_cb) },
+  { "/Colorize Conversation/UDP/Color 8",		WIRESHARK_STOCK_COLOR8, "Color 8",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_udp_color8_cb) },
+  { "/Colorize Conversation/UDP/Color 9",		WIRESHARK_STOCK_COLOR9, "Color 9",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_udp_color9_cb) },
+  { "/Colorize Conversation/UDP/Color 10",		WIRESHARK_STOCK_COLOR0, "Color 10",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_udp_color10_cb) },
+  { "/Colorize Conversation/UDP/New Coloring Rule",	NULL,		"New Coloring Rule...",				NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_udp_new_rule_cb) },
+
+  { "/Colorize Conversation/PN-CBA",		NULL, "PN-CBA Server",				NULL, NULL, NULL },
+
+  { "/Colorize Conversation/PN-CBA/Color 1",		WIRESHARK_STOCK_COLOR1, "Color 1",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_cba_color1_cb) },
+  { "/Colorize Conversation/PN-CBA/Color 2",		WIRESHARK_STOCK_COLOR2, "Color 2",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_cba_color2_cb) },
+  { "/Colorize Conversation/PN-CBA/Color 3",		WIRESHARK_STOCK_COLOR3, "Color 3",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_cba_color3_cb) },
+  { "/Colorize Conversation/PN-CBA/Color 4",		WIRESHARK_STOCK_COLOR4, "Color 4",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_cba_color4_cb) },
+  { "/Colorize Conversation/PN-CBA/Color 5",		WIRESHARK_STOCK_COLOR5, "Color 5",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_cba_color5_cb) },
+  { "/Colorize Conversation/PN-CBA/Color 6",		WIRESHARK_STOCK_COLOR6, "Color 6",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_cba_color6_cb) },
+  { "/Colorize Conversation/PN-CBA/Color 7",		WIRESHARK_STOCK_COLOR7, "Color 7",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_cba_color7_cb) },
+  { "/Colorize Conversation/PN-CBA/Color 8",		WIRESHARK_STOCK_COLOR8, "Color 8",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_cba_color8_cb) },
+  { "/Colorize Conversation/PN-CBA/Color 9",		WIRESHARK_STOCK_COLOR9, "Color 9",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_cba_color9_cb) },
+  { "/Colorize Conversation/PN-CBA/Color 10",		WIRESHARK_STOCK_COLOR0, "Color 10",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_cba_color10_cb) },
+  { "/Colorize Conversation/PN-CBA/New Coloring Rule",	NULL,		"New Coloring Rule...",				NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_cba_new_rule_cb) },
+
+  { "/SCTP",		NULL, "SCTP",				NULL, NULL, NULL },
+  { "/SCTP/Analyse this Association",				NULL,		"Analyse this Association",				NULL, NULL, G_CALLBACK(sctp_analyse_start) },
+  { "/SCTP/Prepare Filter for this Association",	NULL,		"Prepare Filter for this Association",	NULL, NULL, G_CALLBACK(sctp_set_assoc_filter) },
+
+
+  { "/Follow TCP Stream",							NULL,		"Follow TCP Stream",					NULL, NULL, G_CALLBACK(follow_tcp_stream_cb) },
+  { "/Follow UDP Stream",							NULL,		"Follow UDP Stream",					NULL, NULL, G_CALLBACK(follow_udp_stream_cb) },
+  { "/Follow SSL Stream",							NULL,		"Follow SSL Stream",					NULL, NULL, G_CALLBACK(follow_ssl_stream_cb) },
+
+  { "/Copy",		NULL, "Copy",					NULL, NULL, NULL },
+  { "/Copy/SummaryTxt",								NULL,		"Summary (Text)",						NULL, NULL, G_CALLBACK(packet_list_menu_copy_sum_txt) },
+  { "/Copy/SummaryCSV",								NULL,		"Summary (CSV)",						NULL, NULL, G_CALLBACK(packet_list_menu_copy_sum_csv) },
+  { "/Copy/AsFilter",								NULL,		"As Filter",							NULL, NULL, G_CALLBACK(packet_list_menu_copy_as_flt) },
+
+
+  { "/Copy/Bytes",									NULL,		"Bytes",					NULL, NULL, NULL },
+  { "/Copy/Bytes/OffsetHexText",					NULL,		"Offset Hex Text",						NULL, NULL, G_CALLBACK(packet_list_menu_copy_bytes_oht_cb) },
+  { "/Copy/Bytes/OffsetHex",						NULL,		"Offset Hex",							NULL, NULL, G_CALLBACK(packet_list_menu_copy_bytes_oh_cb) },
+  { "/Copy/Bytes/PrintableTextOnly",				NULL,		"Printable Text Only",					NULL, NULL, G_CALLBACK(packet_list_menu_copy_bytes_text_cb) },
+
+  { "/Copy/Bytes/HexStream",						NULL,		"Hex Stream",							NULL, NULL, G_CALLBACK(packet_list_menu_copy_bytes_hex_strm_cb) },
+  { "/Copy/Bytes/BinaryStream",						NULL,		"Binary Stream",						NULL, NULL, G_CALLBACK(packet_list_menu_copy_bytes_bin_strm_cb) },
+
+  { "/DecodeAs",									WIRESHARK_STOCK_DECODE_AS,	"Decode As...",			NULL, NULL, G_CALLBACK(decode_as_cb) },
+  { "/Print",										GTK_STOCK_PRINT,			"Print...",				NULL, NULL, G_CALLBACK(file_print_selected_cmd_cb) },
+  { "/ShowPacketinNewWindow",						NULL,			"Show Packet in New Window",		NULL, NULL, G_CALLBACK(new_window_cb) },
+
+};
 
 static const char *ui_desc_tree_view_menu_popup =
 "<ui>\n"
@@ -3788,62 +4431,62 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected);
 
 #ifdef MENUS_USE_UIMANAGER
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Show Packet in New Window",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ShowPacketinNewWindow",
                          frame_selected);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Manually Resolve Address",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ManuallyResolveAddress",
                          frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/SCTP",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/SCTP",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_SCTP) : FALSE);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Follow TCP Stream",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowTCPStream",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Follow TCP Stream",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Follow UDP Stream",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowUDPStream",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Follow SSL Stream",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowSSLStream",
                          frame_selected ? is_ssl : FALSE);
-    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Follow SSL Stream",
+    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FollowSSLStream",
                          frame_selected ? is_ssl : FALSE);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Conversation Filter",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter",
                          frame_selected);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Conversation Filter/Ethernet",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/Ethernet",
                          frame_selected ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Conversation Filter/IP",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/IP",
                          frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Conversation Filter/TCP",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/TCP",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Conversation Filter/UDP",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/UDP",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Follow UDP Stream",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Conversation Filter/PN-CBA Server",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/PN-CBA",
                          frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Colorize Conversation",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation",
                          frame_selected);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Colorize Conversation/Ethernet",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/Ethernet",
                          frame_selected ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Colorize Conversation/IP",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/IP",
                          frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Colorize Conversation/TCP",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/TCP",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Colorize Conversation/UDP",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/UDP",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Colorize Conversation/PN-CBA Server",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/CBA",
                          frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Decode As...",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/DecodeAs",
                          frame_selected && decode_as_ok());
-    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Decode As...",
+    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/DecodeAs",
                          frame_selected && decode_as_ok());
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Copy",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/Copy",
                          frame_selected);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Apply as Filter",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ApplyasFilter",
                          frame_selected);
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/Prepare a Filter",
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/PrepareaFilter",
                          frame_selected);
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Resolve Name",
                          frame_selected && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
 #else
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Show Packet in New Window",
+    set_menu_sensitivity_old(packet_list_menu_factory, "/PacketListMenuPopup/ShowPacketinNewWindow",
                          frame_selected);
     set_menu_sensitivity_old(packet_list_menu_factory, "/Manually Resolve Address",
                          frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
