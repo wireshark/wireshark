@@ -28,6 +28,16 @@
  * Versions of "inet_pton()" and "inet_ntop()", for the benefit of OSes that
  * don't have it.
  */
+
+/*  Windows does not have inet_pton() until Vista.  In order to allow binaries
+ *  compiled on Vista or later to work on pre-Vista Windows (without resorting
+ *  to fragile link ordering tricks), we rename our inet_pton() to
+ *  ws_inet_pton().
+ */
+#ifdef WIN32
+#define inet_pton ws_inet_pton
+#endif
+
 extern int inet_pton(int af, const char *src, void *dst);
 #ifndef HAVE_INET_NTOP_PROTO
 extern const char *inet_ntop(int af, const void *src, char *dst,

@@ -29,7 +29,8 @@ inet_aton
 inet_ntop
 
 ; inet_pton.c
-inet_pton
+; Note: inet_v6defs.h renames this function for Windows (only)
+ws_inet_pton
 
 ; mpeg-audio.c
 mpa_bitrate
