@@ -84,7 +84,7 @@ static void dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         lines++;
 
         /* Show first line in info column */
-        if (lines == 1 && check_col(pinfo->cinfo, COL_INFO)) {
+        if (lines == 1) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "(%s", string);
         }
 
@@ -93,9 +93,7 @@ static void dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Close off summary of sipfrag in info column */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_str(pinfo->cinfo, COL_INFO, (lines > 1) ? "...)" : ")");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, (lines > 1) ? "...)" : ")");
 }
 
 void proto_register_sipfrag(void)

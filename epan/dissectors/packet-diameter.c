@@ -770,18 +770,17 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 	}
 	cmd_str = val_to_str(cmd, cmd_vs, "Unknown");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO,
-			     "cmd=%s%s(%d) flags=%s %s=%s(%d) h2h=%x e2e=%x",
-			     cmd_str,
-			     ((flags_bits>>4)&0x08) ? "Request" : "Answer",
-			     cmd,
-			     msgflags_str[((flags_bits>>4)&0x0f)],
-			     c->version_rfc ? "appl" : "vend",
-			     val_to_str(fourth, c->version_rfc ? dictionary.applications : vnd_short_vs, "Unknown"),
-			     fourth,
-			     tvb_get_ntohl(tvb,12),
-			     tvb_get_ntohl(tvb,16));
+	col_add_fstr(pinfo->cinfo, COL_INFO,
+			 "cmd=%s%s(%d) flags=%s %s=%s(%d) h2h=%x e2e=%x",
+			 cmd_str,
+			 ((flags_bits>>4)&0x08) ? "Request" : "Answer",
+			 cmd,
+			 msgflags_str[((flags_bits>>4)&0x0f)],
+			 c->version_rfc ? "appl" : "vend",
+			 val_to_str(fourth, c->version_rfc ? dictionary.applications : vnd_short_vs, "Unknown"),
+			 fourth,
+			 tvb_get_ntohl(tvb,12),
+			 tvb_get_ntohl(tvb,16));
 
 	/* Append name to command item, warn if unknown */
 	proto_item_append_text(cmd_item," %s", cmd_str);

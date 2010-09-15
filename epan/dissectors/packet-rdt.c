@@ -522,12 +522,9 @@ guint dissect_rdt_data_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         offset += 2;
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_fstr(pinfo->cinfo, COL_INFO,
-                        "DATA: stream-id=%02u asm-rule=%02u seq=%05u ts=%05u  ",
-                        stream_id, asm_rule_number, sequence_number, timestamp);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO,
+                    "DATA: stream-id=%02u asm-rule=%02u seq=%05u ts=%05u  ",
+                    stream_id, asm_rule_number, sequence_number, timestamp);
 
     /* The remaining data is unparsed. */
     proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, FALSE);
@@ -607,12 +604,9 @@ guint dissect_rdt_asm_action_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         offset += 2;
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_fstr(pinfo->cinfo, COL_INFO,
-                        "ASM-ACTION: stream-id=%02u rel-seqno=%05u  ",
-                        stream_id, rel_seqno);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO,
+                    "ASM-ACTION: stream-id=%02u rel-seqno=%05u  ",
+                    stream_id, rel_seqno);
 
     /* The remaining data is unparsed. */
     proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, FALSE);
@@ -745,10 +739,7 @@ guint dissect_rdt_ack_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* XXX: The remaining data is unparsed. */
     proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, FALSE);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "ACK: lh=%u  ", lost_high_flag);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, "ACK: lh=%u  ", lost_high_flag);
 
     if (packet_length < (offset - start_offset) ||
         packet_length > tvb_length_remaining(tvb, start_offset))
@@ -897,10 +888,7 @@ guint dissect_rdt_stream_end_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         offset += tvb_length_remaining(tvb, offset);
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "STREAM-END: stream-id=%02u  ", stream_id);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, "STREAM-END: stream-id=%02u  ", stream_id);
 
     return offset;
 }
@@ -1017,10 +1005,7 @@ guint dissect_rdt_latency_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto
     proto_tree_add_item(tree, hf_rdt_lrpt_server_out_time, tvb, offset, 4, FALSE);
     offset += 4;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "LATENCY-REPORT: t=%u  ", server_out_time);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, "LATENCY-REPORT: t=%u  ", server_out_time);
 
     if (packet_length < (offset - start_offset) ||
         packet_length > tvb_length_remaining(tvb, start_offset))

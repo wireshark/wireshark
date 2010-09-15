@@ -347,15 +347,13 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 	line = tvb_get_ptr(tvb, offset, linelen);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		/*
-		 * Put the first line from the buffer into the summary
-		 * (but leave out the line terminator).
-		 */
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
-		    is_request ? "Request" : "Response",
-		    format_text(line, linelen));
-	}
+	/*
+	 * Put the first line from the buffer into the summary
+	 * (but leave out the line terminator).
+	 */
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
+		is_request ? "Request" : "Response",
+		format_text(line, linelen));
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ftp, tvb, offset, -1,
@@ -645,10 +643,8 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FTP-DATA");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "FTP Data: %u bytes",
-		    tvb_reported_length(tvb));
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "FTP Data: %u bytes",
+		tvb_reported_length(tvb));
 
 	if (tree) {
 		data_length = tvb_length(tvb);
