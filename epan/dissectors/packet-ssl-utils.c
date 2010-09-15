@@ -311,10 +311,10 @@ const value_string ssl_20_cipher_suites[] = {
     { 0x00C039, "TLS_ECDHE_PSK_WITH_NULL_SHA" },
     { 0x00C03A, "TLS_ECDHE_PSK_WITH_NULL_SHA256" },
     { 0x00C03B, "TLS_ECDHE_PSK_WITH_NULL_SHA384" },
-	/*	0xC0,0x3C-FF Unassigned  
-		0xC1-FD,* Unassigned  
-		0xFE,0x00-FD Unassigned  
-		0xFE,0xFE-FF Reserved to avoid conflicts with widely deployed implementations [Pasi_Eronen] 
+	/*	0xC0,0x3C-FF Unassigned
+		0xC1-FD,* Unassigned
+		0xFE,0x00-FD Unassigned
+		0xFE,0xFE-FF Reserved to avoid conflicts with widely deployed implementations [Pasi_Eronen]
 		0xFF,0x00-FF Reserved for Private Use [RFC5246]
 		*/
 
@@ -699,7 +699,7 @@ const value_string ssl_31_ciphersuite[] = {
     { 0x00C5, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256" },
 	/* 0x00,0xC6-FE Unassigned  */
     /* From RFC 5746 */
-    { 0x0000FF, "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" },  
+    { 0x0000FF, "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" },
 	/* 0x01-BF,* Unassigned */
     /* From RFC 4492 */
     { 0xc001, "TLS_ECDH_ECDSA_WITH_NULL_SHA" },
@@ -768,11 +768,11 @@ const value_string ssl_31_ciphersuite[] = {
     { 0xC03A, "TLS_ECDHE_PSK_WITH_NULL_SHA256" },
     { 0xC03B, "TLS_ECDHE_PSK_WITH_NULL_SHA384" },
 /*
-0xC0,0x3C-FF Unassigned  
-0xC1-FD,* Unassigned  
-0xFE,0x00-FD Unassigned  
-0xFE,0xFE-FF Reserved to avoid conflicts with widely deployed implementations [Pasi_Eronen] 
-0xFF,0x00-FF Reserved for Private Use [RFC5246] 
+0xC0,0x3C-FF Unassigned
+0xC1-FD,* Unassigned
+0xFE,0x00-FD Unassigned
+0xFE,0xFE-FF Reserved to avoid conflicts with widely deployed implementations [Pasi_Eronen]
+0xFF,0x00-FF Reserved for Private Use [RFC5246]
 */
     /* these from http://www.mozilla.org/projects/
          security/pki/nss/ssl/fips-ssl-ciphersuites.html */
@@ -3182,7 +3182,13 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
             ip[2] = 0;
             ip[3] = 0;
         } else {
-            sscanf(addr, "%hhu.%hhu.%hhu.%hhu", &ip[0], &ip[1], &ip[2], &ip[3]);
+	    guint tmp0, tmp1, tmp2, tmp3;
+
+            sscanf(addr, "%u.%u.%u.%u", &tmp0, &tmp1, &tmp2, &tmp3);
+	    ip[0] = (guchar)tmp0;
+	    ip[1] = (guchar)tmp1;
+	    ip[2] = (guchar)tmp2;
+	    ip[3] = (guchar)tmp3;
         }
 
         if(!strcmp("start_tls", port)) {
@@ -3190,7 +3196,7 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
         } else {
             service->port = atoi(port);
         }
-        ssl_debug_printf("ssl_init addr '%hhu.%hhu.%hhu.%hhu' port '%d' filename '%s' password(only for p12 file) '%s'\n",
+        ssl_debug_printf("ssl_init addr '%u.%u.%u.%u' port '%d' filename '%s' password(only for p12 file) '%s'\n",
                          ip[0], ip[1], ip[2], ip[3], service->port, filename, cert_passwd);
 
         /* try to load pen or p12 file*/

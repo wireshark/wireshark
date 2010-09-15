@@ -1055,6 +1055,14 @@ while ($_ = $ARGV[0])
                 print STDERR "Error: Found %ll in " .$filename."\n";
                 $errorCount++;
         }
+        if ($fileContents =~ m{ %hh }xo)
+        {
+                # %hh is C99 and Windows doesn't like it:
+		# http://connect.microsoft.com/VisualStudio/feedback/details/416843/sscanf-cannot-not-handle-hhd-format
+		# Need to use temporary variables instead.
+                print STDERR "Error: Found %hh in " .$filename."\n";
+                $errorCount++;
+	}
 
         if (! ($fileContents =~ m{ \$Id .* \$ }xo))
         {
