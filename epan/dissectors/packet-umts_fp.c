@@ -1859,6 +1859,7 @@ static int dissect_dch_timing_adjustment(proto_tree *tree, packet_info *pinfo, t
 {
     guint8 control_cfn;
     gint16 toa;
+    proto_item *toa_ti;
 
     /* CFN control */
     control_cfn = tvb_get_guint8(tvb, offset);
@@ -1867,8 +1868,13 @@ static int dissect_dch_timing_adjustment(proto_tree *tree, packet_info *pinfo, t
 
     /* ToA */
     toa = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_toa, tvb, offset, 2, FALSE);
+    toa_ti = proto_tree_add_item(tree, hf_fp_toa, tvb, offset, 2, FALSE);
     offset += 2;
+
+    expert_add_info_format(pinfo, toa_ti,
+                           PI_SEQUENCE, PI_WARN,
+                           "Timing adjustmentment reported (%f ms)",
+                           (float)(toa / 8));
 
     col_append_fstr(pinfo->cinfo, COL_INFO,
                     " CFN = %u, ToA = %d", control_cfn, toa);
@@ -1932,7 +1938,6 @@ static int dissect_dch_rx_timing_deviation(packet_info *pinfo, proto_tree *tree,
                                                "Error: expecting TDD-384 or TDD-768");
                         bit_offset = 6;
                     }
-                    
             }
 
             proto_tree_add_item(tree, hf_fp_dch_e_rucch_flag, tvb, offset, 1, FALSE);
@@ -2452,7 +2457,7 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
                                              offset + (bit_offset/8),
                                              ((bit_offset % 8) + send_size + 7) / 8,
                                              FALSE);
-                    proto_item_append_text(ti, " (%u * %u = %u bits, subframe %d)",
+                    proto_item_append_text(ti, " (%u * %u = %u bits, PDU %d)",
                                            size, subframes[n].number_of_mac_d_pdus[i],
                                            send_size, n);
                     maces_tree = proto_item_add_subtree(ti, ett_fp_edch_maces);
