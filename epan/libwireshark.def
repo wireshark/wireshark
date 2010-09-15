@@ -618,6 +618,7 @@ ipprotostr
 ipv4_get_net_order_addr
 is_big_endian
 is_tpkt
+isup_calling_partys_category_value      DATA
 isup_message_type_value_acro    DATA
 isup_message_type_value         DATA
 list_stat_cmd_args
