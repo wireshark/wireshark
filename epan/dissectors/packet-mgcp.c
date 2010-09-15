@@ -401,28 +401,22 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * (when showing message count)
 		 */
 		tvb_sectionbegin = 0;
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		if (global_mgcp_message_count == TRUE )
 		{
-			if (global_mgcp_message_count == TRUE )
+			if (num_messages > 1)
 			{
-				if (num_messages > 1)
-				{
-					col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MGCP (%i messages)",num_messages);
-				}
-				else
-				{
-					col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MGCP (%i message)",num_messages);
-				}
+				col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MGCP (%i messages)",num_messages);
+			}
+			else
+			{
+				col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MGCP (%i message)",num_messages);
 			}
 		}
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			sectionlen = tvb_find_line_end(tvb, tvb_sectionbegin,-1,
-			                               &tvb_sectionend,FALSE);
-			col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s",
-			                 tvb_format_text(tvb, tvb_sectionbegin, sectionlen));
-		}
+		sectionlen = tvb_find_line_end(tvb, tvb_sectionbegin,-1,
+		                               &tvb_sectionend,FALSE);
+		col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s",
+		                 tvb_format_text(tvb, tvb_sectionbegin, sectionlen));
 
 		return tvb_len;
 	}
@@ -1611,12 +1605,9 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 							{
 								/* No, so it's a duplicate response. Mark it as such. */
 								mi->is_duplicate = TRUE;
-								if (check_col(pinfo->cinfo, COL_INFO))
-								{
-									col_append_fstr(pinfo->cinfo, COL_INFO,
-									                ", Duplicate Response %u",
-									                mi->transid);
-								}
+								col_append_fstr(pinfo->cinfo, COL_INFO,
+								                ", Duplicate Response %u",
+								                mi->transid);
 								if (tree)
 								{
 									proto_item* item;
@@ -1707,12 +1698,9 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 						/* No, so it's a duplicate request. Mark it as such. */
 						mi->is_duplicate = TRUE;
 						mi->req_num = mgcp_call->req_num;
-						if (check_col(pinfo->cinfo, COL_INFO))
-						{
-							col_append_fstr(pinfo->cinfo, COL_INFO,
-							                ", Duplicate Request %u",
-							                mi->transid);
-						}
+						col_append_fstr(pinfo->cinfo, COL_INFO,
+						                ", Duplicate Request %u",
+						                mi->transid);
 						if (tree)
 						{
 							proto_item* item;
