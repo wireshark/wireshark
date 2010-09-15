@@ -26,7 +26,8 @@ ws_module_open
 inet_aton
 
 ; inet_ntop.c
-inet_ntop
+; Note: inet_v6defs.h renames this function for Windows (only)
+ws_inet_ntop
 
 ; inet_pton.c
 ; Note: inet_v6defs.h renames this function for Windows (only)

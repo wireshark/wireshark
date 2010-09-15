@@ -29,13 +29,14 @@
  * don't have it.
  */
 
-/*  Windows does not have inet_pton() until Vista.  In order to allow binaries
- *  compiled on Vista or later to work on pre-Vista Windows (without resorting
- *  to fragile link ordering tricks), we rename our inet_pton() to
- *  ws_inet_pton().
+/*  Windows does not have inet_pton() and inet_pton() until Vista.  In order
+ *  to allow binaries compiled on Vista or later to work on pre-Vista Windows
+ *  (without resorting to fragile link ordering tricks), we give our versions
+ *  of those functions Wireshark-specific names.
  */
 #ifdef WIN32
 #define inet_pton ws_inet_pton
+#define inet_ntop ws_inet_ntop
 #endif
 
 extern int inet_pton(int af, const char *src, void *dst);
