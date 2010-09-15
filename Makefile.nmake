@@ -72,9 +72,9 @@ dumpcap_OBJECTS = $(dumpcap_SOURCES:.c=.obj)
 randpkt_OBJECTS = $(randpkt_SOURCES:.c=.obj)
 
 wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsutil\libwsutil.lib \
 	wsock32.lib user32.lib shell32.lib comctl32.lib \
 	$(HHC_LIBS) \
+	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
 	$(PYTHON_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
@@ -92,9 +92,9 @@ wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 !ENDIF
 
 tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsutil\libwsutil.lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
+	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
 	$(PYTHON_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
@@ -112,9 +112,9 @@ tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 !ENDIF
 
 rawshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsutil\libwsutil.lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
+	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
 	$(PYTHON_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
@@ -132,37 +132,37 @@ rawshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 !ENDIF
 
 capinfos_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsutil\libwsutil.lib \
 	wsock32.lib user32.lib shell32.lib \
+	wsutil\libwsutil.lib \
 	$(GLIB_LIBS) \
 	$(GCRYPT_LIBS)
 
 editcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsutil\libwsutil.lib \
 	wsock32.lib user32.lib shell32.lib \
+	wsutil\libwsutil.lib \
 	$(GLIB_LIBS)
 
 mergecap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsutil\libwsutil.lib \
 	wsock32.lib user32.lib \
+	wsutil\libwsutil.lib \
 	$(GLIB_LIBS)
 
 text2pcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsutil\libwsutil.lib \
 	wsock32.lib user32.lib \
+	wsutil\libwsutil.lib \
 	$(GLIB_LIBS)
 
 dumpcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsutil\libwsutil.lib \
 	wsock32.lib user32.lib \
+	wsutil\libwsutil.lib \
 	$(GLIB_LIBS) \
         $(GTHREAD_LIBS) \
 	$(PYTHON_LIBS)
 
 dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsutil\libwsutil.lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
+	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
@@ -178,8 +178,8 @@ dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 !ENDIF
 
 randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsutil\libwsutil.lib \
 	user32.lib \
+	wsutil\libwsutil.lib \
 	$(GLIB_LIBS)
 
 EXECUTABLES=wireshark.exe tshark.exe rawshark.exe \
@@ -257,7 +257,7 @@ wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan gtk image\wireshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark.exe $(wireshark_LIBS) $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(GTK_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
+		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:wireshark.exe;1
@@ -266,7 +266,7 @@ wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan gtk imag
 tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) epan image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:tshark.exe $(tshark_LIBS) $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_OBJECTS) image\tshark.res
+		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) image\tshark.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "tshark.exe.manifest" -outputresource:tshark.exe;1
@@ -275,7 +275,7 @@ tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) epan image\tshark.res wsut
 rawshark.exe	: $(LIBS_CHECK) config.h $(rawshark_OBJECTS) epan image\rawshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:rawshark.exe $(rawshark_LIBS) $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(rawshark_OBJECTS) image\rawshark.res
+		/OUT:rawshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(rawshark_LIBS) $(rawshark_OBJECTS) image\rawshark.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "rawshark.exe.manifest" -outputresource:rawshark.exe;1
@@ -287,7 +287,7 @@ rawshark.exe	: $(LIBS_CHECK) config.h $(rawshark_OBJECTS) epan image\rawshark.re
 capinfos.exe	: $(LIBS_CHECK) config.h $(capinfos_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:capinfos.exe $(capinfos_LIBS) $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(capinfos_OBJECTS) setargv.obj image\capinfos.res
+		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(capinfos_OBJECTS) $(capinfos_LIBS) setargv.obj image\capinfos.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "capinfos.exe.manifest" -outputresource:capinfos.exe;1
@@ -298,7 +298,7 @@ capinfos.exe	: $(LIBS_CHECK) config.h $(capinfos_OBJECTS) wsutil\libwsutil.lib w
 editcap.exe	: $(LIBS_CHECK) config.h $(editcap_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:editcap.exe $(editcap_LIBS) $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(editcap_OBJECTS) image\editcap.res
+		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(editcap_OBJECTS) $(editcap_LIBS) image\editcap.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "editcap.exe.manifest" -outputresource:editcap.exe;1
@@ -308,7 +308,7 @@ editcap.exe	: $(LIBS_CHECK) config.h $(editcap_OBJECTS) wsutil\libwsutil.lib wir
 mergecap.exe	: $(LIBS_CHECK)  config.h mergecap.obj merge.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:mergecap.exe $(mergecap_LIBS) $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj merge.obj setargv.obj image\mergecap.res
+		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj merge.obj $(mergecap_LIBS) setargv.obj image\mergecap.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "mergecap.exe.manifest" -outputresource:mergecap.exe;1
@@ -317,7 +317,7 @@ mergecap.exe	: $(LIBS_CHECK)  config.h mergecap.obj merge.obj wsutil\libwsutil.l
 text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\text2pcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:text2pcap.exe $(text2pcap_LIBS) $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj image\text2pcap.res
+		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj $(text2pcap_LIBS) image\text2pcap.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "text2pcap.exe.manifest" -outputresource:text2pcap.exe;1
@@ -326,7 +326,7 @@ text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj wsuti
 dftest.exe	: $(dftest_OBJECTS) epan
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:dftest.exe $(dftest_LIBS) $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dftest_OBJECTS)
+		/OUT:dftest.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dftest_LIBS) $(dftest_OBJECTS)
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "dftest.exe.manifest" -outputresource:dftest.exe;1
@@ -335,7 +335,7 @@ dftest.exe	: $(dftest_OBJECTS) epan
 randpkt.exe	: $(randpkt_OBJECTS)
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:randpkt.exe $(randpkt_LIBS) $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(randpkt_OBJECTS)
+		/OUT:randpkt.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(randpkt_LIBS) $(randpkt_OBJECTS)
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "randpkt.exe.manifest" -outputresource:randpkt.exe;1
@@ -344,7 +344,7 @@ randpkt.exe	: $(randpkt_OBJECTS)
 dumpcap.exe	: $(LIBS_CHECK) config.h $(dumpcap_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:dumpcap.exe $(dumpcap_LIBS) $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_OBJECTS) image\dumpcap.res
+		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) image\dumpcap.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "dumpcap.exe.manifest" -outputresource:dumpcap.exe;1

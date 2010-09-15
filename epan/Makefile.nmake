@@ -38,7 +38,6 @@ WSPYTHON_DIR=
 
 # For use when making libwireshark.dll
 libwireshark_LIBS = \
-	..\wsutil\libwsutil.lib \
 	$(GLIB_LIBS)	\
 	$(C_ARES_LIBS) \
 	$(ADNS_LIBS) \
@@ -51,6 +50,7 @@ libwireshark_LIBS = \
 	$(PYTHON_LIBS) \
 	$(SMI_LIBS) \
 	$(GEOIP_LIBS) \
+	..\wsutil\libwsutil.lib \
 	..\wiretap\wiretap-$(WTAP_VERSION).lib \
 	crc\crc.lib \
 	crypt\airpdcap.lib \
@@ -89,11 +89,11 @@ libwireshark.exp: libwireshark.dll
 libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) libwireshark.def crc crypt ftypes dfilter $(WSLUA_DIR) $(WSPYTHON_DIR) dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
                  crc\crc.lib crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib dissectors\dissectors.lib $(WSLUA_LIB) $(WSPYTHON_LIB) ..\image\libwireshark.res
 	@echo Linking libwireshark.dll
-	$(link) $(dlllflags) $(libwireshark_LIBS) $(conlibsdll) shell32.lib \
+	$(link) $(dlllflags) $(conlibsdll) shell32.lib \
 		$(LOCAL_LDFLAGS) $(DLL_LDFLAGS) \
 		/DEF:libwireshark.def /OUT:libwireshark.dll \
 		/IMPLIB:libwireshark.lib $(LIBWIRESHARK_OBJECTS) \
-		..\image\libwireshark.res \
+		$(libwireshark_LIBS) ..\image\libwireshark.res \
 		dissectors\register.obj \
 		$(EXTRA_OBJECTS)
 
