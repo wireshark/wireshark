@@ -39,6 +39,10 @@
  * Version 0.0.2, August 26th, 2010.
  *
  * Support for payload dissecting.
+ *
+ * Version 0.0.3, September 14th, 2010.
+ *
+ * Bugfix: sorting by protocol didn't always fill in the protocol column.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -237,6 +241,8 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
 #define RTP_MARKER(octet)       ((octet) & 0x80)
 #define RTP_PAYLOAD_TYPE(octet) ((octet) & 0x7F)
 
+#define RTP_V2_HEADER_MIN_LEN 12
+
 static gboolean
 is_payload_rtp(tvbuff_t *tvb)
 {
@@ -244,8 +250,14 @@ is_payload_rtp(tvbuff_t *tvb)
     unsigned int version;
     unsigned int payload_type;
     unsigned int offset;
-
+    gint         len_remaining;
+    
     offset = 0;
+
+    len_remaining = tvb_length_remaining(tvb, offset);
+    if (len_remaining < RTP_V2_HEADER_MIN_LEN) {
+        return FALSE;
+    }
 
     octet1 = tvb_get_guint8(tvb, offset);
     version = RTP_VERSION(octet1);
@@ -280,14 +292,22 @@ is_payload_rtp(tvbuff_t *tvb)
 #define RTCP_BYE   203
 #define RTCP_APP   204
 
+#define RTCP_V2_HEADER_MIN_LEN 4
+
 static gboolean
 is_payload_rtcp(tvbuff_t *tvb)
 {
 	unsigned int first_byte;
 	unsigned int packet_type;
 	unsigned int offset;
+    gint         len_remaining;
 
     offset = 0;
+
+    len_remaining = tvb_length_remaining(tvb, offset);
+    if (len_remaining < RTCP_V2_HEADER_MIN_LEN) {
+        return FALSE;
+    }
     
     /* Look at first byte */
 	first_byte = tvb_get_guint8(tvb, offset);
@@ -429,7 +449,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (PTREE_DATA(tree)->visible) {
             ti = proto_tree_add_protocol_format(
                 tree, proto_flip, flip_tvb, 0, flip_len,
-                "NSN FLIP, FlowId %s",
+                "NSN FLIP, FlowID %s",
                 val_to_str(basic_hdr_flow_id, NULL, "0x%08x"));
         }
         else {
@@ -559,71 +579,79 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * Show payload (if any) as bytes.
      */
     if (payload_len > 0) {
-        gint data_len = 0;
-            
-        if (tree) {
-            tvbuff_t *payload_tvb;
-            
-            payload_tvb = tvb_new_subset(flip_tvb, offset,
-                                         payload_len, payload_len);
 
-            /*
-             * 1) no decoding -> data
-             * 2) heuristic decoding
-             * 3) forced decoding
-             */
-            switch (global_flip_payload_decoding_mode) {
-            case FLIP_PAYLOAD_DECODING_MODE_NONE:
-                /* Dissect as data. */
-                data_len =
-                    call_dissector(data_handle, payload_tvb, pinfo, tree);
-                break;
-                
-            case FLIP_PAYLOAD_DECODING_MODE_HEURISTIC:
-                if ((is_heur_enabled_rtp == TRUE)
-                    &&
-                    (is_payload_rtp(payload_tvb) == TRUE)) {
-                    /* Dissect as RTP. */
-                    data_len = 
-                        call_dissector(rtp_handle, payload_tvb, pinfo, tree);
-                }
-                else if ((is_heur_enabled_rtcp == TRUE)
-                         &&
-                         (is_payload_rtcp(payload_tvb))) {
-                    /* Dissect as RTCP. */
-                    data_len =
-                        call_dissector(rtcp_handle, payload_tvb, pinfo, tree);
-                }
-                else {
-                    /* Dissect as data. */
-                    data_len =
-                        call_dissector(data_handle, payload_tvb, pinfo, tree);
-                }
-                break;
-                
-            case FLIP_PAYLOAD_DECODING_MODE_FORCED:
-                if (is_forced_handle_ok == TRUE) {
-                    data_len =
-                        call_dissector(forced_handle, payload_tvb, pinfo,
-                                       tree);
-                }
-                else {
-                    /* Use data as backup. */
-                    data_len =
-                        call_dissector(data_handle, payload_tvb, pinfo, tree);
+        dissector_handle_t handle;
+        tvbuff_t           *payload_tvb;
+        gint               data_len;
+        gboolean           has_user_messed_up;
 
-                    /* Tell the user he messed up. */
-                    col_add_fstr(pinfo->cinfo, COL_INFO,
-                                 "Invalid user dissector \"%s\"",
-                                 global_forced_protocol);
-                }
-                break;
-                
-            default:
-                data_len = 0;
+        data_len = 0;
+        has_user_messed_up = FALSE;
+
+        payload_tvb = tvb_new_subset(flip_tvb, offset,
+                                     payload_len, payload_len);
+                    
+        /*
+         * 1) no decoding -> data
+         * 2) heuristic decoding
+         * 3) forced decoding
+         */
+        switch (global_flip_payload_decoding_mode) {
+        case FLIP_PAYLOAD_DECODING_MODE_NONE:
+            /* Dissect as data. */
+            handle = data_handle;
+            break;
+
+        case FLIP_PAYLOAD_DECODING_MODE_HEURISTIC:
+            if ((is_heur_enabled_rtp == TRUE)
+                &&
+                (is_payload_rtp(payload_tvb) == TRUE)) {
+                /* Dissect as RTP. */
+                handle = rtp_handle;
             }
+            else if ((is_heur_enabled_rtcp == TRUE)
+                     &&
+                     (is_payload_rtcp(payload_tvb))) {
+                /* Dissect as RTCP. */
+                handle = rtcp_handle;
+            }
+            else {
+                /* Dissect as data. */
+                handle = data_handle;
+            }
+            break;
+            
+        case FLIP_PAYLOAD_DECODING_MODE_FORCED:
+            if (is_forced_handle_ok == TRUE) {
+                handle = forced_handle;
+            }
+            else {
+                /* Use data as backup. */
+                handle = data_handle;
+                
+                /* Tell the user he messed up. */
+                has_user_messed_up = TRUE;
+            }
+            break;
+            
+        default:
+            /* Fault in dissector's internal logic. */
+            DISSECTOR_ASSERT(0);
+            break;
+        }
+        
+        /*
+         * If tree is NULL, we still cannot quit, we must give
+         * the RTP/RTCP/data dissectors a chance to fill in
+         * the protocol column.
+         */
+        data_len = call_dissector(handle, payload_tvb, pinfo, tree);
 
-        } /* if (tree) */
+        if (has_user_messed_up == TRUE) {
+            col_add_fstr(pinfo->cinfo, COL_INFO,
+                         "Invalid user dissector \"%s\"",
+                         global_forced_protocol);
+        }
 
         bytes_dissected += data_len;
         

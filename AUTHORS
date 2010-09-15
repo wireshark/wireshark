@@ -3118,6 +3118,10 @@ Owen Kirby		<osk [AT] exegin.com> {
 	SCoP dissector
 }
 
+Juha Siltanen <juha.siltanen [AT] nsn.com> {
+    FLIP dissector
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
