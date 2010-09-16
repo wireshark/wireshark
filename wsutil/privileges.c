@@ -160,7 +160,7 @@ npf_sys_is_running() {
 
 static uid_t ruid, euid;
 static gid_t rgid, egid;
-static gboolean init_process_polices_called = FALSE;
+static gboolean init_process_policies_called = FALSE;
 
 /*
  * Called when the program starts, to save whatever credential information
@@ -175,7 +175,7 @@ init_process_policies(void)
 	rgid = getgid();
 	egid = getegid();
 
-	init_process_polices_called = TRUE;
+	init_process_policies_called = TRUE;
 }
 
 /*
@@ -185,7 +185,7 @@ init_process_policies(void)
 gboolean
 started_with_special_privs(void)
 {
-	g_assert(init_process_polices_called);
+	g_assert(init_process_policies_called);
 #ifdef HAVE_ISSETUGID
 	return issetugid();
 #else
