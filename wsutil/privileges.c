@@ -168,7 +168,7 @@ static gboolean init_process_polices_called = FALSE;
  * That'd be the real and effective UID and GID on UNIX.
  */
 void
-init_process_polices(void)
+init_process_policies(void)
 {
 	ruid = getuid();
 	euid = geteuid();
