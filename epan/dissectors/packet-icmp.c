@@ -933,7 +933,7 @@ proto_register_icmp(void)
         NULL, HFILL }},
 
     { &hf_icmp_ident,
-      { "Identifier", "icmp.ident",              FT_UINT16, BASE_DEC_HEX,    NULL, 0x0,
+      { "Identifier (BE)", "icmp.ident",              FT_UINT16, BASE_DEC_HEX,    NULL, 0x0,
         "Identifier (big endian representation)", HFILL }},
 
     { &hf_icmp_ident_le,
@@ -941,7 +941,7 @@ proto_register_icmp(void)
         "Identifier (little endian representation)", HFILL }},
 
     { &hf_icmp_seq_num,
-      { "Sequence number", "icmp.seq",           FT_UINT16, BASE_DEC_HEX,    NULL, 0x0, "Sequence number (big endian representation)", HFILL }},
+      { "Sequence number (BE)", "icmp.seq",           FT_UINT16, BASE_DEC_HEX,    NULL, 0x0, "Sequence number (big endian representation)", HFILL }},
 
     { &hf_icmp_seq_num_le,
       {"Sequence number (LE)", "icmp.seq_le",   FT_UINT16, BASE_DEC_HEX,    NULL, 0x0,  "Sequence number (little endian representation)", HFILL }},
