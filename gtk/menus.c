@@ -97,7 +97,7 @@
 #include "gtk/manual_addr_resolv.h"
 #include "gtk/proto_help.h"
 
-#define MENUS_USE_UIMANAGER 1 
+#define MENUS_USE_UIMANAGER 1
 
 
 #ifdef NEW_PACKET_LIST
@@ -975,7 +975,7 @@ Not implemented!
 "  </menubar>\n"
 "</ui>\n";
 
-/* 
+/*
  * GtkActionEntry
  * typedef struct {
  *   const gchar     *name;
@@ -985,19 +985,19 @@ Not implemented!
  *   const gchar     *tooltip;
  *   GCallback  callback;
  * } GtkActionEntry;
- * const gchar *name;			The name of the action.  
- * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.  
- * const gchar *label;			The label for the action. This field should typically be marked for translation, 
- *								see gtk_action_group_set_translation_domain(). 
- *								If label is NULL, the label of the stock item with id stock_id is used.  
- * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().  
- * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation, 
- *                              see gtk_action_group_set_translation_domain().  
- * GCallback callback;			The function to call when the action is activated.  
+ * const gchar *name;			The name of the action.
+ * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.
+ * const gchar *label;			The label for the action. This field should typically be marked for translation,
+ *								see gtk_action_group_set_translation_domain().
+ *								If label is NULL, the label of the stock item with id stock_id is used.
+ * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().
+ * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation,
+ *                              see gtk_action_group_set_translation_domain().
+ * GCallback callback;			The function to call when the action is activated.
  *
  */
 static const GtkActionEntry main_menu_bar_entries[] = {
-  /* Top level */ 
+  /* Top level */
   { "/File",					NULL,							"_File",			NULL,					NULL,			NULL },
   { "/Edit",					NULL,							"_Edit",			NULL,					NULL,			NULL },
 
@@ -1030,7 +1030,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 																					NULL,					NULL,			G_CALLBACK(export_carrays_cmd_cb) },
   { "/File/Export/File/PSML",			NULL,		"as XML - \"P_SML\" (packet summary) file...",
 																					NULL,					NULL,			G_CALLBACK(export_psml_cmd_cb) },
-  { "/File/Export/File/PDML",			NULL,		"as XML - \"P_DML\" (packet details) file...",	
+  { "/File/Export/File/PDML",			NULL,		"as XML - \"P_DML\" (packet details) file...",
 																					NULL,					NULL,			G_CALLBACK(export_pdml_cmd_cb) },
 #endif
   { "/File/Export/SelectedPacketBytes",	NULL,		"Selected Packet _Bytes...",	"<control>H",			NULL,			G_CALLBACK(savehex_cb) },
@@ -2312,10 +2312,10 @@ static const GtkActionEntry packet_list_heading_menu_popup_action_entries[] = {
   { "/Remove Column",					GTK_STOCK_DELETE,					"Remove Column",			NULL,	NULL,	G_CALLBACK(packet_list_heading_remove_col_cb) },
 };
 
-static const GtkToggleActionEntry packet_list_heading_menu_toggle_action_entries[] = 
+static const GtkToggleActionEntry packet_list_heading_menu_toggle_action_entries[] =
 {
 	/* name, stock id, label, accel, tooltip, callback, is_active */
-	{"/Show Resolved",	NULL, "Show Resolved",	NULL, NULL,	G_CALLBACK(packet_list_heading_show_resolved_cb), TRUE}, 
+	{"/Show Resolved",	NULL, "Show Resolved",	NULL, NULL,	G_CALLBACK(packet_list_heading_show_resolved_cb), TRUE},
 };
 
 static const char *ui_desc_packet_list_menu_popup =
@@ -2475,7 +2475,7 @@ static const GtkActionEntry packet_list_menu_popup_action_entries[] = {
   { "/Conversation Filter/PN-CBA",		NULL, "PN-CBA",					NULL, NULL, G_CALLBACK(packet_list_menu_conversation_pn_cba_cb) },
 
   { "/Colorize Conversation",			NULL, "Colorize Conversation",	NULL, NULL, NULL },
-  
+
   { "/Colorize Conversation/Ethernet",	NULL, "Ethernet",				NULL, NULL, NULL },
 
   { "/Colorize Conversation/Ethernet/Color 1",	WIRESHARK_STOCK_COLOR1, "Color 1",					NULL, NULL, G_CALLBACK(packet_list_menu_color_conv_ethernet_color1_cb) },
@@ -2730,6 +2730,7 @@ static const GtkRadioActionEntry bytes_menu_radio_action_entries [] =
 	{ "/HexView",	NULL,		"Hex View",	NULL,	NULL,	  BYTES_HEX },
 	{ "/BitsView",	NULL,		"Bits View",	NULL,	NULL,	  BYTES_BITS },
 };
+#if 0
 static const char *ui_desc_conv_filter_popup =
 "<ui>\n"
 "  <popup name='ConversationFilterPopup' action='PopupAction'>\n"
@@ -2737,6 +2738,7 @@ static const char *ui_desc_conv_filter_popup =
 "    </menu>\n"
 "  </popup>\n"
 "</ui>\n";
+#endif
 #endif
 
 static int initialize = TRUE;
@@ -2921,8 +2923,8 @@ menus_init(void) {
 
     /* packet list heading pop-up menu */
 #ifdef MENUS_USE_UIMANAGER
-	packet_list_heading_action_group = gtk_action_group_new ("PacketListHeadingPopUpMenuActionGroup"); 
-	
+	packet_list_heading_action_group = gtk_action_group_new ("PacketListHeadingPopUpMenuActionGroup");
+
 	gtk_action_group_add_actions (packet_list_heading_action_group,			/* the action group */
 		packet_list_heading_menu_popup_action_entries,						/* an array of action descriptions */
 		G_N_ELEMENTS(packet_list_heading_menu_popup_action_entries),		/* the number of entries */
@@ -2934,18 +2936,18 @@ menus_init(void) {
 								NULL);                                             /* data to pass to the action callbacks */
 
 	ui_manager_packet_list_heading = gtk_ui_manager_new ();
-	gtk_ui_manager_insert_action_group (ui_manager_packet_list_heading, 
-		packet_list_heading_action_group, 
+	gtk_ui_manager_insert_action_group (ui_manager_packet_list_heading,
+		packet_list_heading_action_group,
 		0); /* the position at which the group will be inserted.  */
 
-	gtk_ui_manager_add_ui_from_string (ui_manager_packet_list_heading,ui_desc_packet_list_heading_menu_popup, -1, &error); 
-	if (error != NULL) 
-    { 
-        fprintf (stderr, "Warning: building Packet List Heading Pop-Up failed: %s\n", 
-                error->message); 
-        g_error_free (error); 
-        error = NULL; 
-    } 
+	gtk_ui_manager_add_ui_from_string (ui_manager_packet_list_heading,ui_desc_packet_list_heading_menu_popup, -1, &error);
+	if (error != NULL)
+    {
+        fprintf (stderr, "Warning: building Packet List Heading Pop-Up failed: %s\n",
+                error->message);
+        g_error_free (error);
+        error = NULL;
+    }
 
     g_object_set_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_COL_KEY,
                    gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup"));
@@ -2972,18 +2974,18 @@ menus_init(void) {
 
 	ui_manager_packet_list_menu = gtk_ui_manager_new ();
 
-	gtk_ui_manager_insert_action_group (ui_manager_packet_list_menu, 
-		packet_list_action_group, 
+	gtk_ui_manager_insert_action_group (ui_manager_packet_list_menu,
+		packet_list_action_group,
 		0); /* the position at which the group will be inserted.  */
 
-	gtk_ui_manager_add_ui_from_string (ui_manager_packet_list_menu, ui_desc_packet_list_menu_popup, -1, &error); 
-	if (error != NULL) 
-    { 
-        fprintf (stderr, "Warning: building Packet List Pop-Up menu failed: %s\n", 
-                error->message); 
-        g_error_free (error); 
-        error = NULL; 
-    } 
+	gtk_ui_manager_add_ui_from_string (ui_manager_packet_list_menu, ui_desc_packet_list_menu_popup, -1, &error);
+	if (error != NULL)
+    {
+        fprintf (stderr, "Warning: building Packet List Pop-Up menu failed: %s\n",
+                error->message);
+        g_error_free (error);
+        error = NULL;
+    }
 
 	g_object_set_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY,
                     gtk_ui_manager_get_widget(ui_manager_packet_list_menu, "/PacketListMenuPopup"));
@@ -3009,18 +3011,18 @@ menus_init(void) {
 
 	ui_manager_tree_view_menu = gtk_ui_manager_new ();
 
-	gtk_ui_manager_insert_action_group (ui_manager_tree_view_menu, 
-		packet_list_details_action_group, 
+	gtk_ui_manager_insert_action_group (ui_manager_tree_view_menu,
+		packet_list_details_action_group,
 		0); /* the position at which the group will be inserted.  */
 
-	gtk_ui_manager_add_ui_from_string (ui_manager_tree_view_menu, ui_desc_tree_view_menu_popup, -1, &error); 
-	if (error != NULL) 
-    { 
-        fprintf (stderr, "Warning: building TreeWiew Pop-Up menu failed: %s\n", 
-                error->message); 
-        g_error_free (error); 
-        error = NULL; 
-    } 
+	gtk_ui_manager_add_ui_from_string (ui_manager_tree_view_menu, ui_desc_tree_view_menu_popup, -1, &error);
+	if (error != NULL)
+    {
+        fprintf (stderr, "Warning: building TreeWiew Pop-Up menu failed: %s\n",
+                error->message);
+        g_error_free (error);
+        error = NULL;
+    }
 
 	g_object_set_data(G_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY,
                      gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup"));
@@ -3054,18 +3056,18 @@ menus_init(void) {
 	/*Debug */
 	ui_manager_bytes_menu = gtk_ui_manager_new ();
 
-	gtk_ui_manager_insert_action_group (ui_manager_bytes_menu, 
-		packet_list_byte_menu_action_group, 
+	gtk_ui_manager_insert_action_group (ui_manager_bytes_menu,
+		packet_list_byte_menu_action_group,
 		0); /* the position at which the group will be inserted.  */
 
-	gtk_ui_manager_add_ui_from_string (ui_manager_bytes_menu, ui_desc_bytes_menu_popup, -1, &error); 
-	if (error != NULL) 
-    { 
-        fprintf (stderr, "Warning: building Bytes Pop-Up menu failed: %s\n", 
-                error->message); 
-        g_error_free (error); 
-        error = NULL; 
-    } 
+	gtk_ui_manager_add_ui_from_string (ui_manager_bytes_menu, ui_desc_bytes_menu_popup, -1, &error);
+	if (error != NULL)
+    {
+        fprintf (stderr, "Warning: building Bytes Pop-Up menu failed: %s\n",
+                error->message);
+        g_error_free (error);
+        error = NULL;
+    }
 
 	g_object_set_data(G_OBJECT(popup_menu_object), PM_BYTES_VIEW_KEY,
                     gtk_ui_manager_get_widget(ui_manager_bytes_menu, "/BytesMenuPopup"));
@@ -3320,7 +3322,7 @@ register_stat_menu_item_stock(
  * FALSE if not.
  *
  * @param callback_data data for callback function
- */    
+ */
 void
 register_stat_menu_item(
     const char *name,
@@ -3486,8 +3488,8 @@ set_menu_sensitivity(GtkUIManager *ui_manager, const gchar *path, gint val)
 
     action = gtk_ui_manager_get_action(ui_manager, path);
     if(!action){
-        fprintf (stderr, "Warning: couldn't find action path= %s\n", 
-                path); 
+        fprintf (stderr, "Warning: couldn't find action path= %s\n",
+                path);
 		return;
     }
 #if 0
@@ -4514,7 +4516,7 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
 #ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/Print",
                          have_captured_packets);
-	
+
 #else
     set_menu_sensitivity_old(packet_list_menu_factory, "/Print...",
                          have_captured_packets);
