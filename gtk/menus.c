@@ -1505,7 +1505,7 @@ static GtkItemFactoryEntry bytes_menu_items[] =
 #ifdef MENUS_USE_UIMANAGER
 
 static void
-select_bytes_view_cb (GtkRadioAction *action, GtkRadioAction *current_U_, gpointer user_data _U_)
+select_bytes_view_cb (GtkRadioAction *action, GtkRadioAction *current _U_, gpointer user_data _U_)
 {
 	gint value;
 
