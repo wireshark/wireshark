@@ -3490,12 +3490,16 @@ set_menu_sensitivity(GtkUIManager *ui_manager, const gchar *path, gint val)
                 path); 
 		return;
     }
-//#if GLIB_CHECK_VERSION(2,6,0)
-//    gtk_action_set_sensitive (action,
-//		val); /* TRUE to make the action sensitive */
-//#else
+#if 0
+#if GLIB_CHECK_VERSION(2,6,0)
+    gtk_action_set_sensitive (action,
+		val); /* TRUE to make the action sensitive */
+#else
     g_object_set (G_OBJECT (action), "sensitive", val, NULL);
-//#endif
+#endif
+#else
+    g_object_set (G_OBJECT (action), "sensitive", val, NULL);
+#endif
 }
 #endif /* MENUS_USE_UIMANAGER */
 
