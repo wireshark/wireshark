@@ -42,7 +42,7 @@ mpa_samples
 mpa_version
 
 ; privileges.c
-get_credential_info
+init_process_policies
 get_cur_groupname
 get_cur_username
 npf_sys_is_running

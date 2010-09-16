@@ -23,10 +23,10 @@
  */
 
 /**
- * Called when the program starts, to save whatever credential information
- * we'll need later.
+ * Called when the program starts, to enable security features and save
+ * whatever credential information we'll need later.
  */
-extern void get_credential_info(void);
+extern void init_process_policies(void);
 
 /**
  * Was this program started with special privileges?  get_credential_info()

@@ -816,7 +816,7 @@ main(int argc, char *argv[])
   /*
    * Get credential information for later use.
    */
-  get_credential_info();
+  init_process_policies();
 
 #ifdef HAVE_PLUGINS
   /* Register wiretap plugins */

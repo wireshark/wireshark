@@ -383,9 +383,9 @@ set_strict_time_adj(char *optarg_str_p)
       optarg_str_p++;
   }
 
-  /* 
-   * check for a negative adjustment 
-   * A negative strict adjustment value is a flag 
+  /*
+   * check for a negative adjustment
+   * A negative strict adjustment value is a flag
    * to adjust all frames by the specifed delta time.
    */
   if (*optarg_str_p == '-') {
@@ -807,7 +807,7 @@ main(int argc, char *argv[])
   /*
    * Get credential information for later use.
    */
-  get_credential_info();
+  init_process_policies();
 
 #ifdef HAVE_PLUGINS
   /* Register wiretap plugins */
@@ -1226,9 +1226,9 @@ main(int argc, char *argv[])
                 phdr = &snap_phdr;
               }
             } else {
-              /* 
-               * A negative strict time adjustment is requested. 
-               * Unconditionally set each timestamp to previous 
+              /*
+               * A negative strict time adjustment is requested.
+               * Unconditionally set each timestamp to previous
                * packet's timestamp plus delta.
                */
               snap_phdr = *phdr;

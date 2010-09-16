@@ -824,7 +824,7 @@ main(int argc, char *argv[])
   /*
    * Get credential information for later use.
    */
-  get_credential_info();
+  init_process_policies();
 
   /*
    * Attempt to get the pathname of the executable file.

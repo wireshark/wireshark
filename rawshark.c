@@ -453,7 +453,7 @@ main(int argc, char *argv[])
     /*
      * Get credential information for later use.
      */
-    get_credential_info();
+    init_process_policies();
 
     /*
      * Clear the filters arrays
@@ -480,7 +480,7 @@ main(int argc, char *argv[])
     /*
      * Get credential information for later use.
      */
-    get_credential_info();
+    init_process_policies();
 
     /* nothing more than the standard GLib handler, but without a warning */
     log_flags =

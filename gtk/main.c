@@ -2116,7 +2116,7 @@ main(int argc, char *argv[])
    * before doing anything else.
    * Let the user know if anything happened.
    */
-  get_credential_info();
+  init_process_policies();
   relinquish_special_privs_perm();
 
   /*

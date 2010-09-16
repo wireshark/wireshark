@@ -3569,7 +3569,7 @@ main(int argc, char *argv[])
   /*                                                                   */
   /* ----------------------------------------------------------------- */
 
-  get_credential_info();
+  init_process_policies();
 
 #ifdef HAVE_LIBCAP
   /* If 'started with special privileges' (and using libcap)  */

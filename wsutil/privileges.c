@@ -44,8 +44,19 @@
  * we'll need later.
  */
 void
-get_credential_info(void)
+init_process_policies(void)
 {
+	typedef BOOL (*SetProcessDEPPolicyHandler)(DWORD);
+	SetProcessDEPPolicyHandler PSetProcessDEPPolicy;
+
+#ifndef PROCESS_DEP_ENABLE
+#define PROCESS_DEP_ENABLE 1
+#endif
+
+	if (PSetProcessDEPPolicy = (SetProcessDEPPolicyHandler) GetProcAddress(GetModuleHandle(_T("kernel32.dll")), "SetProcessDEPPolicy")) {
+		PSetProcessDEPPolicy(PROCESS_DEP_ENABLE);
+	}
+
 	npf_sys_is_running();
 }
 
@@ -149,7 +160,7 @@ npf_sys_is_running() {
 
 static uid_t ruid, euid;
 static gid_t rgid, egid;
-static gboolean get_credential_info_called = FALSE;
+static gboolean init_process_polices_called = FALSE;
 
 /*
  * Called when the program starts, to save whatever credential information
@@ -157,14 +168,14 @@ static gboolean get_credential_info_called = FALSE;
  * That'd be the real and effective UID and GID on UNIX.
  */
 void
-get_credential_info(void)
+init_process_polices(void)
 {
 	ruid = getuid();
 	euid = geteuid();
 	rgid = getgid();
 	egid = getegid();
 
-	get_credential_info_called = TRUE;
+	init_process_polices_called = TRUE;
 }
 
 /*
@@ -174,7 +185,7 @@ get_credential_info(void)
 gboolean
 started_with_special_privs(void)
 {
-	g_assert(get_credential_info_called);
+	g_assert(init_process_polices_called);
 #ifdef HAVE_ISSETUGID
 	return issetugid();
 #else

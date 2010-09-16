@@ -780,6 +780,7 @@ LOCAL_CFLAGS=$(LOCAL_CFLAGS) /D_BIND_TO_CURRENT_CRT_VERSION=1
 !IF "$(MSVC_VARIANT)" == "MSVC2008" || "$(MSVC_VARIANT)" == "MSVC2008EE" || "$(MSVC_VARIANT)" == "MSVC2010" || "$(MSVC_VARIANT)" == "MSVC2010EE"
 LOCAL_CFLAGS= $(LOCAL_CFLAGS) /MP
 !ENDIF
+
 # Linker flags:
 # /DEBUG  generate debug info
 # /PROFILE generate map file(s) for profiling
@@ -790,6 +791,15 @@ LOCAL_LDFLAGS=/DEBUG /MACHINE:$(TARGET_MACHINE)
 DLL_LDFLAGS =
 !IFDEF MANIFEST_INFO_REQUIRED
 DLL_LDFLAGS = /MANIFEST:no
+!ENDIF
+
+# Enable ASLR. Requires VS2008 or later.
+# http://blogs.msdn.com/b/vcblog/archive/2009/05/21/dynamicbase-and-nxcompat.aspx
+# DEP is handled in init_process_policies()
+
+# ASLR http://msdn.microsoft.com/en-us/library/bb384887.aspx
+!IF $(MSC_VER_REQUIRED) >= 1500
+LOCAL_LDFLAGS= $(LOCAL_LDFLAGS) /DYNAMICBASE
 !ENDIF
 
 PLUGIN_LDFLAGS = /NOLOGO /INCREMENTAL:no $(LOCAL_LDFLAGS) $(DLL_LDFLAGS)
