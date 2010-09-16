@@ -97,7 +97,7 @@
 #include "gtk/manual_addr_resolv.h"
 #include "gtk/proto_help.h"
 
-/* #define MENUS_USE_UIMANAGER 1 */
+#define MENUS_USE_UIMANAGER 1 
 
 
 #ifdef NEW_PACKET_LIST
@@ -3490,12 +3490,12 @@ set_menu_sensitivity(GtkUIManager *ui_manager, const gchar *path, gint val)
                 path); 
 		return;
     }
-#if GLIB_CHECK_VERSION(2,6,0)
-    gtk_action_set_sensitive (action,
-		val); /* TRUE to make the action sensitive */
-#else
-    Help, what now! :-)
-#endif
+//#if GLIB_CHECK_VERSION(2,6,0)
+//    gtk_action_set_sensitive (action,
+//		val); /* TRUE to make the action sensitive */
+//#else
+    g_object_set (G_OBJECT (action), "sensitive", val, NULL);
+//#endif
 }
 #endif /* MENUS_USE_UIMANAGER */
 
