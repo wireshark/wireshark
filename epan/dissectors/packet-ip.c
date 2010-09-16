@@ -1218,8 +1218,9 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       proto_tree_add_text(opt_tree, tvb, offset,      1, "%s", name);
       offset += 1;
 
-      if (nop_count == 4 && strcmp (name, "NOP") == 0) {
-	expert_add_info_format(pinfo, opt_item, PI_PROTOCOL, PI_WARN, "4 NOP in a row");
+      if (nop_count == 4 && strcmp (name, "No-Operation (NOP)") == 0) {
+	expert_add_info_format(pinfo, opt_item, PI_PROTOCOL, PI_WARN,
+			       "4 NOP in a row - a router may have removed some options");
       }
     }
     if (opt == eol)
