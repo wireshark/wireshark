@@ -72,24 +72,24 @@
 #define NFS4_OP_COMMIT						5
 #define NFS4_OP_CREATE						6
 #define NFS4_OP_DELEGPURGE					7
-#define NFS4_OP_DELEGRETURN				8
+#define NFS4_OP_DELEGRETURN					8
 #define NFS4_OP_GETATTR						9
 #define NFS4_OP_GETFH						10
-#define NFS4_OP_LINK							11
-#define NFS4_OP_LOCK							12
+#define NFS4_OP_LINK						11
+#define NFS4_OP_LOCK						12
 #define NFS4_OP_LOCKT						13
 #define NFS4_OP_LOCKU						14
 #define NFS4_OP_LOOKUP						15
 #define NFS4_OP_LOOKUPP						16
 #define NFS4_OP_NVERIFY						17
-#define NFS4_OP_OPEN							18
+#define NFS4_OP_OPEN						18
 #define NFS4_OP_OPENATTR					19
-#define NFS4_OP_OPEN_CONFIRM				20
-#define NFS4_OP_OPEN_DOWNGRADE			21
+#define NFS4_OP_OPEN_CONFIRM					20
+#define NFS4_OP_OPEN_DOWNGRADE					21
 #define NFS4_OP_PUTFH						22
 #define NFS4_OP_PUTPUBFH					23
 #define NFS4_OP_PUTROOTFH					24
-#define NFS4_OP_READ							25
+#define NFS4_OP_READ						25
 #define NFS4_OP_READDIR						26
 #define NFS4_OP_READLINK					27
 #define NFS4_OP_REMOVE						28
@@ -99,31 +99,31 @@
 #define NFS4_OP_SAVEFH						32
 #define NFS4_OP_SECINFO						33
 #define NFS4_OP_SETATTR						34
-#define NFS4_OP_SETCLIENTID				35
-#define NFS4_OP_SETCLIENTID_CONFIRM		36
+#define NFS4_OP_SETCLIENTID					35
+#define NFS4_OP_SETCLIENTID_CONFIRM				36
 #define NFS4_OP_VERIFY						37
 #define NFS4_OP_WRITE						38
-#define NFS4_OP_RELEASE_LOCKOWNER		39
+#define NFS4_OP_RELEASE_LOCKOWNER				39
 /* Minor version 1 */
-#define NFS4_OP_BACKCHANNEL_CTL       40
-#define NFS4_OP_BIND_CONN_TO_SESSION  41
-#define NFS4_OP_EXCHANGE_ID       42
-#define NFS4_OP_CREATE_SESSION    43
-#define NFS4_OP_DESTROY_SESSION   44
-#define NFS4_OP_FREE_STATEID          45
-#define NFS4_OP_GET_DIR_DELEGATION    46
-#define NFS4_OP_GETDEVINFO        47
-#define NFS4_OP_GETDEVLIST		  48
-#define NFS4_OP_LAYOUTCOMMIT         49
-#define NFS4_OP_LAYOUTGET	    	 50
-#define NFS4_OP_LAYOUTRETURN		 51
-#define NFS4_OP_SECINFO_NO_NAME       52
-#define NFS4_OP_SEQUENCE             53
-#define NFS4_OP_SET_SSV               54
-#define NFS4_OP_TEST_STATEID          55
-#define NFS4_OP_WANT_DELEGATION       56
-#define NFS4_OP_DESTROY_CLIENTID      57
-#define NFS4_OP_RECLAIM_COMPLETE      58
+#define NFS4_OP_BACKCHANNEL_CTL					40
+#define NFS4_OP_BIND_CONN_TO_SESSION				41
+#define NFS4_OP_EXCHANGE_ID					42
+#define NFS4_OP_CREATE_SESSION					43
+#define NFS4_OP_DESTROY_SESSION					44
+#define NFS4_OP_FREE_STATEID					45
+#define NFS4_OP_GET_DIR_DELEGATION				46
+#define NFS4_OP_GETDEVINFO					47
+#define NFS4_OP_GETDEVLIST					48
+#define NFS4_OP_LAYOUTCOMMIT					49
+#define NFS4_OP_LAYOUTGET					50
+#define NFS4_OP_LAYOUTRETURN					51
+#define NFS4_OP_SECINFO_NO_NAME					52
+#define NFS4_OP_SEQUENCE					53
+#define NFS4_OP_SET_SSV						54
+#define NFS4_OP_TEST_STATEID					55
+#define NFS4_OP_WANT_DELEGATION					56
+#define NFS4_OP_DESTROY_CLIENTID				57
+#define NFS4_OP_RECLAIM_COMPLETE				58
 
 #define NFS4_OP_ILLEGAL						10044
 
@@ -180,7 +180,7 @@ extern int dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 extern int dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     const char *name, guint32 *hash);
 
-int dissect_nfs_post_op_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
+int dissect_nfs_post_op_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		const char* name);
 
 void nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, int parent_offset, int parent_len, char *name);
@@ -197,13 +197,13 @@ void dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, int frame);
 typedef int (diss_p)(tvbuff_t *tvb, int offset, proto_tree *tree, int hf);
 
 /* Used in packet-nfsacl.c for NFS_ACL dissection */
-extern int dissect_fattr(tvbuff_t *tvb, int offset, proto_tree *tree, 
+extern int dissect_fattr(tvbuff_t *tvb, int offset, proto_tree *tree,
 	const char* name);
 
 extern proto_tree* display_access_items(tvbuff_t* tvb, int offset, packet_info* pinfo, proto_tree* tree,
 	guint32 amask, char mtype, int version, GString* optext, char* label);
 
-extern int dissect_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree, 
+extern int dissect_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree,
 	int version, GString *optext);
 
 extern gint default_nfs_fhandle_type;
