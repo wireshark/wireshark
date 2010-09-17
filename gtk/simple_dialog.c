@@ -69,29 +69,24 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
 {
   GtkWidget   *win, *main_vb, *top_hb, *msg_vb, *type_pm, *msg_label, *ask_cb,
               *bbox, *ok_bt, *yes_bt, *bt, *save_bt, *dont_save_bt;
-  GdkPixmap   *pixmap;
-  GdkBitmap   *mask;
-  GtkStyle    *style;
-  GdkColormap *cmap;
-  const gchar **icon;
 
   /* Main window */
   switch (type) {
   case ESD_TYPE_WARN :
-    icon = stock_dialog_warning_48_xpm;
+    type_pm = gtk_image_new_from_stock( GTK_STOCK_DIALOG_INFO, GTK_ICON_SIZE_DIALOG);
     break;
   case ESD_TYPE_CONFIRMATION:
-    icon = stock_dialog_warning_48_xpm;
+    type_pm = gtk_image_new_from_stock( GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_DIALOG);
     break;
   case ESD_TYPE_ERROR:
-    icon = stock_dialog_error_48_xpm;
+    type_pm = gtk_image_new_from_stock( GTK_STOCK_DIALOG_ERROR, GTK_ICON_SIZE_DIALOG);
     break;
   case ESD_TYPE_STOP :
-    icon = stock_dialog_stop_48_xpm;
+    type_pm = gtk_image_new_from_stock( GTK_STOCK_STOP, GTK_ICON_SIZE_DIALOG);
     break;
   case ESD_TYPE_INFO :
   default :
-    icon = stock_dialog_info_48_xpm;
+    type_pm = gtk_image_new_from_stock( GTK_STOCK_DIALOG_INFO, GTK_ICON_SIZE_DIALOG);
     break;
   }
 
@@ -153,12 +148,6 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   gtk_container_add(GTK_CONTAINER(main_vb), top_hb);
   gtk_widget_show(top_hb);
 
-  /* icon */
-  style = gtk_widget_get_style(win);
-  cmap  = gdk_colormap_get_system();
-  pixmap = gdk_pixmap_colormap_create_from_xpm_d(NULL, cmap,  &mask,
-    &style->bg[GTK_STATE_NORMAL], (gchar **) icon);
-  type_pm = gtk_image_new_from_pixmap(pixmap, mask);
   gtk_misc_set_alignment (GTK_MISC (type_pm), 0.5f, 0.0f);
   gtk_container_add(GTK_CONTAINER(top_hb), type_pm);
   gtk_widget_show(type_pm);
