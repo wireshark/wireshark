@@ -1747,7 +1747,8 @@ AC_ARG_ENABLE(new-packet-list,
 AC_MSG_CHECKING(if new packet list is used);
 if test "x$new_packet_list" = "xyes" ; then
 	AC_MSG_RESULT(yes)
-	CFLAGS=" -DNEW_PACKET_LIST $CFLAGS"
+	AC_DEFINE(NEW_PACKET_LIST, 1,
+	    [Use the new packet list code])
 else
 	AC_MSG_RESULT(no)
 fi
