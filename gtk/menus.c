@@ -632,14 +632,14 @@ static GtkItemFactoryEntry menu_items[] =
                        0, NULL, NULL,},
     {"/Edit/Find Previous Mark", "<shift><control>B", GTK_MENU_FUNC(find_prev_mark_cb),
                        0, NULL, NULL,},
-    {"/Edit/Mark _All Displayed Packets", "<shift><control>M", GTK_MENU_FUNC(packet_list_mark_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/Mark _All Displayed Packets (toggle)", "<shift><control>M", GTK_MENU_FUNC(packet_list_mark_all_frames_cb), 0, NULL, NULL,},
     {"/Edit/_Unmark All Packets", "<alt><control>M", GTK_MENU_FUNC(packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Edit/_Ignore Packet (toggle)", "<control>D", GTK_MENU_FUNC(packet_list_ignore_frame_cb),
                        0, NULL, NULL,},
-    {"/Edit/Ignore All Displayed Packets", "<shift><control>D", GTK_MENU_FUNC(packet_list_ignore_all_frames_cb),
+    {"/Edit/Ignore All Displayed Packets (toggle)", "<shift><control>D", GTK_MENU_FUNC(packet_list_ignore_all_frames_cb),
                        0, NULL, NULL,},
-    {"/Edit/U_n-Ignore All Packets", "<alt><control>D, GTK_MENU_FUNC(packet_list_unignore_all_frames_cb),
+    {"/Edit/U_n-Ignore All Packets", "<alt><control>D", GTK_MENU_FUNC(packet_list_unignore_all_frames_cb),
                        0, NULL, NULL,},
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Edit/Set Time Reference (toggle)", "<control>T", GTK_MENU_FUNC(reftime_frame_cb),
@@ -4690,8 +4690,10 @@ set_menus_for_selected_packet(capture_file *cf)
 
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Set Time Reference (toggle)",
                          frame_selected);
+#ifdef NEW_PACKET_LIST
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Un-Time Reference All Packets",
                          have_time_ref);
+#endif
 #ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/SetTimeReference",
                          frame_selected);
@@ -4787,9 +4789,9 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ResolveName",
                          frame_selected && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
 #else
-    set_menu_sensitivity_old(packet_list_menu_factory, "/PacketListMenuPopup/ShowPacketinNewWindow",
+    set_menu_sensitivity_old(packet_list_menu_factory, "/Show Packet in New Window",
                          frame_selected);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/ManuallyResolveAddress",
+    set_menu_sensitivity_old(packet_list_menu_factory, "/Manually Resolve Address",
                          frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
     set_menu_sensitivity_old(packet_list_menu_factory, "/SCTP",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_SCTP) : FALSE);
