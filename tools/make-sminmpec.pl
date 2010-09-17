@@ -116,9 +116,13 @@ print OUT <<"_SMINMPEC";
 #include <epan/value_string.h>
 #include <epan/sminmpec.h>
 
-const value_string sminmpec_values[] = {
+static const value_string sminmpec_values[] = {
 $body    {    0, NULL}
 };
+
+#define array_length(x)	(sizeof x / sizeof x[0])
+
+value_string_ext sminmpec_values_ext = VALUE_STRING_EXT_INIT(sminmpec_values);
 
 _SMINMPEC
 

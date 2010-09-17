@@ -1268,7 +1268,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				enterprise = tvb_get_ntohl(tvb, optoff+2);
 				proto_tree_add_text(v_tree, tvb, optoff + 2, 4,
 					    "Enterprise-number: %s (%u)",
-					    val_to_str( enterprise, sminmpec_values, "Unknown"),
+					    val_to_str_ext_const( enterprise, &sminmpec_values_ext, "Unknown"),
 					    enterprise);
 				if (optlen > 6) {
 						buf = tvb_bytes_to_str(tvb, optoff + 6, optlen - 11);
@@ -1739,7 +1739,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 		  vti = proto_tree_add_text(v_tree, tvb, optoff, 4,
 					    "Enterprise-number: %s (%u)",
-					    val_to_str(enterprise, sminmpec_values, "Unknown"),
+					    val_to_str_ext_const(enterprise, &sminmpec_values_ext, "Unknown"),
 					    enterprise);
 
 		  data_len = tvb_get_guint8(tvb, optoff + 4);
@@ -1782,7 +1782,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 		  vti = proto_tree_add_text(v_tree, tvb, optoff, 4,
 					    "Enterprise-number: %s (%u)",
-					    val_to_str( enterprise, sminmpec_values, "Unknown"),
+					    val_to_str_ext_const( enterprise, &sminmpec_values_ext, "Unknown"),
 					    enterprise);
 
 		  s_option_len = tvb_get_guint8(tvb, optoff + 4);
@@ -2105,7 +2105,7 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			datalen = tvb_get_guint8(tvb, suboptoff+4);
 			vti = proto_tree_add_text(v_tree, tvb, suboptoff, 4 + datalen + 1,
 					    "Enterprise-number: %s (%u)",
-					    val_to_str( enterprise, sminmpec_values, "Unknown"),
+					    val_to_str_ext_const( enterprise, &sminmpec_values_ext, "Unknown"),
 					    enterprise);
 			suboptoff += 4;
 

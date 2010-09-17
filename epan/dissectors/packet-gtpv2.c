@@ -2181,7 +2181,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_enterprise_id,
         {"Enterprise ID", "gtpv2.enterprise_id",
-        FT_UINT16, BASE_DEC, VALS(sminmpec_values), 0x0,
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0,
         NULL, HFILL}
         },
         { &hf_gtpv2_address_digits,

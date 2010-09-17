@@ -934,7 +934,7 @@ sid_name_table                  DATA
 smb2_cmd_vals                   DATA
 smb_cmd_vals                    DATA
 smb_fid_types                   DATA
-sminmpec_values                 DATA
+sminmpec_values_ext             DATA
 srtcp_add_address
 srtp_add_address
 ssl_dissector_add
@@ -1130,7 +1130,9 @@ UnregRejectReason_vals          DATA
 UnregRequestReason_vals         DATA
 uri_str_to_bytes
 val_to_str
+val_to_str_const
 val_to_str_ext
+val_to_str_ext_const
 vals_pdu_type                   DATA
 vals_status                     DATA
 value_is_in_range

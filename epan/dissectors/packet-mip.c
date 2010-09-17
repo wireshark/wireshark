@@ -1231,7 +1231,7 @@ void proto_register_mip(void)
 	  },	  
          { &hf_mip_cvse_vendor_org_id,
 		 { "CVSE Vendor/org ID",                "mip.ext.cvse.vendor_id",
-			FT_UINT32, BASE_DEC, VALS(sminmpec_values), 0,
+                        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0,
 			NULL, HFILL }
          },	  
          { &hf_mip_cvse_verizon_cvse_type ,

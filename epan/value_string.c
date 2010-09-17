@@ -158,12 +158,11 @@ match_strval_ext_init(const guint32 val, value_string_ext *vse)
   const value_string *vals = vse->vals;
 
 /* The way matching of value is done in a value_string:
- * 0 default, value will be set in proto_register_field_init()
- * 1 Sequential search (as in a normal value string)
+ * 0 Sequential search (as in a normal value string)
+ * 1 Binary search, the values MUST be in numerical order.
  * 2 The value used as an index(the value string MUST have all values 0-max defined)
- * 3 Binary search, the valuse MUST be in numerical order.
  */
-  enum { VS_SEARCH = 0, VS_INDEX, VS_BIN_TREE } type = VS_INDEX;
+  enum { VS_SEARCH = 0, VS_BIN_TREE, VS_INDEX } type = VS_INDEX;
 
   guint32 prev = 0;
   guint i;

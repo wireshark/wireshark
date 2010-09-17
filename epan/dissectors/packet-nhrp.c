@@ -44,7 +44,6 @@
 #include <epan/greproto.h>
 #include <epan/nlpid.h>
 #include <epan/oui.h>
-#include <epan/sminmpec.h>
 #include <epan/afn.h>
 #include <epan/in_cksum.h>
 #include <epan/iana_snap_pid.h>

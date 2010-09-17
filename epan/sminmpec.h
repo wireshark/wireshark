@@ -80,6 +80,6 @@
 #define VENDOR_CACE           	32622
 
 
-WS_VAR_IMPORT const value_string sminmpec_values[];
+WS_VAR_IMPORT value_string_ext sminmpec_values_ext;
 
 #endif /* __SMINMPEC_H__ */

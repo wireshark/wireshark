@@ -955,7 +955,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 			if (vendor) {
 				vendor_str = vendor->name;
 			} else {
-				vendor_str = val_to_str(vendor_id, sminmpec_values, "Unknown");
+				vendor_str = val_to_str_ext_const(vendor_id, &sminmpec_values_ext, "Unknown");
 				vendor = &no_vendor;
 			}
 			proto_item_append_text(avp_item, " v=%s(%u)", vendor_str,
@@ -1776,7 +1776,9 @@ extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_i
 		if ( ! vendor ) {
 			vendor = g_malloc(sizeof(radius_vendor_info_t));
 
-			vendor->name = g_strdup_printf("%s-%u",val_to_str(vendor_id, sminmpec_values, "Unknown"),vendor_id);
+			vendor->name = g_strdup_printf("%s-%u",
+                                                       val_to_str_ext_const(vendor_id, &sminmpec_values_ext, "Unknown"),
+                                                       vendor_id);
 			vendor->code = vendor_id;
 			vendor->attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
 			vendor->ett = no_vendor.ett;

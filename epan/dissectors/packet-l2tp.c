@@ -629,12 +629,12 @@ static void process_control_avps(tvbuff_t *tvb,
 			} else if (avp_vendor_id == VENDOR_CISCO) {	 /* Vendor-Specific AVP */
 				tf =  proto_tree_add_text(l2tp_tree, tvb, idx,
 							  avp_len, "Vendor %s: %s AVP",
-							  val_to_str(avp_vendor_id, sminmpec_values, "Unknown (%u)"),
+							  val_to_str_ext(avp_vendor_id, &sminmpec_values_ext, "Unknown (%u)"),
 							  val_to_str(avp_type, cisco_avp_type_vals, "Unknown (%u)"));
 			} else {	/* Vendor-Specific AVP */
 				tf =  proto_tree_add_text(l2tp_tree, tvb, idx,
 							  avp_len, "Vendor %s AVP Type %u",
-							  val_to_str(avp_vendor_id, sminmpec_values, "Unknown (%u)"),
+							  val_to_str_ext(avp_vendor_id, &sminmpec_values_ext, "Unknown (%u)"),
 							  avp_type);
 			}
 										
@@ -2020,7 +2020,7 @@ proto_register_l2tp(void)
 			"AVP Length", HFILL }},
 
 		{ &hf_l2tp_avp_vendor_id,
-		{ "Vendor ID", "l2tp.avp.vendor_id", FT_UINT16, BASE_DEC, VALS(sminmpec_values), 0,
+		{ "Vendor ID", "l2tp.avp.vendor_id", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0,
 			"AVP Vendor ID", HFILL }},
 
 		{ &hf_l2tp_avp_type,

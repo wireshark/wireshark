@@ -1373,7 +1373,7 @@ proto_register_mpls_echo(void)
                 },
                 { &hf_mpls_echo_tlv_vendor,
                         { "Vendor Id", "mpls_echo.tlv.vendor_id",
-                        FT_UINT32, BASE_DEC, VALS(sminmpec_values), 0x0, "MPLS ECHO Vendor Id", HFILL}
+                        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0, "MPLS ECHO Vendor Id", HFILL}
                 },
                 { &hf_mpls_echo_tlv_ilso_addr_type,
                         { "Address Type", "mpls_echo.tlv.ilso.addr_type",

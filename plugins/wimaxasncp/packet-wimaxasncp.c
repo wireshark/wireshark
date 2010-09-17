@@ -1628,7 +1628,7 @@ static void wimaxasncp_dissect_tlv_value(
 
             vendorId = tvb_get_ntoh24(tvb, offset);
 
-            vendorName = val_to_str(vendorId, sminmpec_values, "Unknown");
+            vendorName = val_to_str_ext_const(vendorId, &sminmpec_values_ext, "Unknown");
             proto_tree_add_uint_format(
                 vsif_tree, tlv_info->hf_vendor_id,
                 tvb, offset, 3, vendorId,

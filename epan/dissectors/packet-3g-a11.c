@@ -1882,7 +1882,7 @@ proto_register_a11(void)
         },
         { &hf_a11_vse_vid,
           { "Vendor ID",                      "a11.ext.vid",
-            FT_UINT32, BASE_HEX, VALS(sminmpec_values), 0,
+            FT_UINT32, BASE_HEX|BASE_EXT_STRING, &sminmpec_values_ext, 0,
             "Vendor ID.", HFILL }
         },
         { &hf_a11_vse_apptype,

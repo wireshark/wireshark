@@ -2107,7 +2107,7 @@ proto_register_mip6(void)
 				      NULL, HFILL }},
 
 	{ &hf_mip6_vsm_vid,         { "VendorId", "mip6.vsm.vendorId",
-				      FT_UINT32, BASE_DEC, VALS(sminmpec_values), 0x0,
+				      FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0,
 				      NULL, HFILL }},
 
 	{ &hf_mip6_vsm_subtype,     { "Subtype", "mip6.vsm.subtype",
