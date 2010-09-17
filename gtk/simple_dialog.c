@@ -40,12 +40,6 @@
 
 #include "main_statusbar.h"
 
-#include "image/stock_dialog_error_48.xpm"
-#include "image/stock_dialog_info_48.xpm"
-#include "image/stock_dialog_warning_48.xpm"
-#include "image/stock_dialog_stop_48.xpm"
-
-
 static void simple_dialog_cancel_cb(GtkWidget *, gpointer);
 
 #define CALLBACK_FCT_KEY    "ESD_Callback_Fct"
@@ -232,7 +226,7 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
       g_object_set_data(G_OBJECT(dont_save_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_DONT_SAVE));
       g_signal_connect(dont_save_bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
   }
-  
+
   dont_save_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_QUIT_DONT_SAVE);
   if (dont_save_bt) {
       g_object_set_data(G_OBJECT(dont_save_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_QUIT_DONT_SAVE));
@@ -431,11 +425,11 @@ simple_status(const gchar *msg_format, ...)
 {
     va_list ap;
     gchar *msg;
-    
+
     va_start(ap, msg_format);
     msg = g_strdup_vprintf(msg_format, ap);
     va_end(ap);
-    
+
     statusbar_push_temporary_msg(msg);
     g_free(msg);
 }
